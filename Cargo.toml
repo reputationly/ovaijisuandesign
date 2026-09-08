@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/maas-media",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# 个人学习研究用，不发布、不授权。`publish = false` 是为了让 `cargo publish`
+# 直接失败，而不是等到上传前才发现没写 license。
+publish = false
+
+[workspace.dependencies]
+anyhow = "1"
+base64 = "0.22"
+axum = { version = "0.8", features = ["http1", "json", "tokio"] }
+reqwest = { version = "0.12", features = [
+  "json",
+  "stream",
+  "rustls-tls",
+  "system-proxy",
+], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", features = [
+  "macros",
+  "net",
+  "process",
+  "rt-multi-thread",
+  "signal",
+  "time",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
