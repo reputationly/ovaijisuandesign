@@ -166,6 +166,124 @@ export function assetUrl(assetId: string, width?: number): string {
   return width ? `/files/id/${assetId}?w=${width}` : `/files/id/${assetId}`
 }
 
+// ---------------------------------------------------------------------------
+// 生成
+//
+// `/api/generate/*` 由**我们自己的 gateway** 提供（Vite 代理按前缀分流），
+// 其余仍走官方 gateway。见 vite.config.ts。
+// ---------------------------------------------------------------------------
+
+export interface GenerateParams {
+  prompt: string
+  aspectRatio: string
+  resolution: string
+  /** 底图。非空走图生图。 */
+  imagePaths?: string[]
+}
+
+/** 提交出图，返回 task_id。 */
+export async function submitImage(p: GenerateParams): Promise<string> {
+  const res = await fetch("/api/generate/image/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt: p.prompt,
+      image_paths: p.imagePaths ?? [],
+      params: { aspect_ratio: p.aspectRatio, resolution: p.resolution },
+    }),
+  })
+  const body = await json<{ task_id?: string }>(res, "POST /api/generate/image/submit")
+  if (!body.task_id) throw new Error("gateway 没有返回 task_id")
+  return body.task_id
+}
+
+interface TaskQuery {
+  status: "processing" | "succeeded" | "failed"
+  result?: { url?: string }
+  user_message?: string
+  error?: string
+}
+
+/**
+ * 轮询到终态，返回结果的公网 URL。
+ *
+ * `signal` 用来在用户取消时停下 —— 没有它的话组件卸载后这个循环还会跑到
+ * 超时，而且失败会报到一个已经不存在的界面上。
+ */
+export async function pollTask(
+  taskId: string,
+  signal: AbortSignal,
+  onTick?: (seconds: number) => void,
+): Promise<string> {
+  const startedAt = Date.now()
+  // 兜底上限。真正的超时在平台侧，这里只是不要无限转。
+  const MAX_MS = 10 * 60 * 1000
+  for (;;) {
+    if (signal.aborted) throw new Error("已取消")
+    if (Date.now() - startedAt > MAX_MS) throw new Error("生成超时")
+    await new Promise((r) => setTimeout(r, 2000))
+    onTick?.(Math.round((Date.now() - startedAt) / 1000))
+
+    const res = await fetch(`/api/generate/tasks/${encodeURIComponent(taskId)}/query`, { signal })
+    const body = await json<TaskQuery>(res, "GET /api/generate/tasks/…/query")
+    if (body.status === "succeeded") {
+      const url = body.result?.url
+      // 报了成功却没有 URL 是协议层的错，不是"还没好"。继续轮询会一直转。
+      if (!url) throw new Error("gateway 报告成功但没有结果 URL")
+      return url
+    }
+    if (body.status === "failed") {
+      throw new Error(body.user_message || body.error || "生成失败")
+    }
+  }
+}
+
+export interface Imported {
+  id: string
+  path: string
+  type: string
+  width?: number
+  height?: number
+}
+
+/**
+ * 把公网 URL 收进工作区并登记成资产。这一步仍借官方 gateway。
+ *
+ * **它每个 URL 失败也回 200**，失败落在 `errors[]` 里（源码注释原文：
+ * "returns 200 even if every URL failed"）。只看 HTTP 状态会把失败当成功，
+ * 然后拿着一个 undefined 的 path 去建节点。
+ *
+ * 另外它带 SSRF 拦截，回环和私有地址会被拒 —— 只能递平台返回的公网直链。
+ */
+export async function importUrl(url: string): Promise<Imported> {
+  const res = await fetch("/api/files/import-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ urls: [url] }),
+  })
+  const body = await json<{
+    imported?: Imported[]
+    errors?: { url: string; error: string }[]
+  }>(res, "POST /api/files/import-url")
+
+  const first = body.imported?.[0]
+  if (!first?.path) {
+    const why = body.errors?.[0]?.error ?? "没有返回任何资产"
+    throw new Error(`收进工作区失败：${why}`)
+  }
+  return first
+}
+
+/** 在画布上建一个媒体节点。仍借官方 gateway。 */
+export async function createMediaNode(assetPath: string): Promise<void> {
+  const res = await fetch("/api/canvas/media-node", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ assetPath }),
+  })
+  await json<unknown>(res, "POST /api/canvas/media-node")
+}
+
 /**
  * 订阅 gateway 的实时推送。
  *

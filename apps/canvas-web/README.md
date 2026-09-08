@@ -8,23 +8,24 @@ Design 的画布前端，后端**直接用官方 gateway**。
 
 ## 跑起来
 
-两个进程。先起 gateway：
+三个进程。
 
 ```bash
-# 参数是 MiniMax Design 的项目目录（里面有 .hilo/）
+# 1. 官方 gateway —— 暂时提供资产库、画布持久化、文件服务
 ../../scripts/standalone-gateway.sh ~/Movies/Hub/Projects/<某个项目> 8099
+
+# 2. 我们的 gateway —— 生成
+cargo run -p gateway            # :8100，首次会写配置模板
+
+# 3. 前端
+bun install && bun dev          # http://localhost:5273
 ```
 
-再起前端：
+端口不一样时：`GATEWAY_URL=… OVGW_URL=… bun dev`。
 
-```bash
-bun install
-bun dev          # http://localhost:5273
-```
-
-gateway 不在 8099 的话：`GATEWAY_URL=http://127.0.0.1:8001 bun dev`。
-
-> `/api`、`/files`、`/ws` 全部由 Vite 代理到 gateway，前端只认识同源地址。
+> 全部经 Vite 代理，前端只认识同源地址。**分流顺序有意义** ——
+> `/api/generate` 必须排在 `/api` 前面，否则生成请求会打到官方那边，
+> 而它也有同名路由，于是会"成功"地花掉官方额度且不报错。
 
 ## 现在能做什么
 
@@ -36,12 +37,28 @@ gateway 不在 8099 的话：`GATEWAY_URL=http://127.0.0.1:8001 bun dev`。
 | **音频波形 + 播放** | 同上，`wavesurfer.js` |
 | **文本节点双击编辑** | `POST /api/canvas/text-node`，带 `expectedContentHash` |
 | 拖动落盘 | `POST /api/canvas` 整份快照回写 |
+| **文生图** | 我们的 gateway `/api/generate/*` → `maas-media` → 平台 |
 | 框选、多选 | xyflow 内置（`selectionOnDrag`） |
 | 四种模式切换 | `freeform` / `grid` / `storyboard` / `workflow` |
 | 实时事件 | `/ws`，事件名原样显示在底栏 |
 
 节点类型实现了 `image` / `video` / `audio` / `text`，其余画成显式的
 「未支持」卡片。
+
+## 生成链路
+
+```text
+canvas-web ──► 我们的 gateway :8100 ──► maas-media ──► 平台（返回公网 URL）
+           ├─► 官方 gateway /api/files/import-url    落盘 + 入库
+           └─► 官方 gateway /api/canvas/media-node   建节点
+```
+
+编排放在前端而不是我们的 gateway 里，是为了让**借用官方的那两跳显式可见**。
+等自己的 gateway 有了资产库，后两跳会挪进去，前端只留一次调用。
+
+`import-url` 有个坑值得记住：**它每个 URL 失败也回 200**，失败落在
+`errors[]`（源码注释原文 "returns 200 even if every URL failed"）。
+只看 HTTP 状态会把失败当成功，然后拿着一个 undefined 的 path 去建节点。
 
 ## 三个不能省的约定
 

@@ -25,6 +25,7 @@ import {
   type NodeDetail,
 } from "./api"
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
+import { Generate } from "./Generate"
 import { cn } from "./lib"
 import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
 
@@ -175,6 +176,8 @@ export default function App() {
             {{ idle: "", saving: "保存中…", saved: "已保存", failed: "保存失败" }[saving]}
           </span>
         </header>
+
+        <Generate onDone={() => void load()} />
 
         {error && (
           <div className="flex items-start gap-2 border-b border-bad bg-[#3a1f22] px-3 py-2 font-mono text-xs text-[#ffd7d7]">

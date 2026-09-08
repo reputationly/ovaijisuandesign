@@ -136,8 +136,8 @@ selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一
 
 ```
 crates/maas-media/     平台适配层。已完成，55 个测试
-crates/gateway/        资产库 + 画布持久化 + 生成队列。待写，对齐 423 条路由
-apps/canvas-web/       React Flow 画布前端。已跑通读写闭环
+crates/gateway/        本地 gateway。已实现生成那几条路由，20 个测试
+apps/canvas-web/       React Flow 画布前端。已跑通读写与生成闭环
 mcp/                   MCP server。待写，对齐 103 个工具
 agent/                 opencode 配置。用官方那套，只覆盖对齐不了的部分
 docs/                  接口规格与逆向记录
@@ -184,14 +184,41 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
 1. ~~平台适配层~~ —— 已完成
 2. ~~画布前端读写闭环~~ —— 已完成
 3. ~~提取两个接口面的规格~~ —— 已完成（103 工具 / 423 路由）
-4. **canvas-web 接上 `maas-media` 的生成** ← 下一步。画布上点生成直接出图，
-   中间仍借官方 gateway 落盘。跑通"我的前端 → 我的后端"
-5. `mcp/` 的画布 4 个 + 生成 4 个工具，挂上 opencode 和官方 agent 配置。
-   这一步能验证工具面对齐得对不对 —— 用的是他们的提示词，跑的是我们的工具
-6. `crates/gateway` —— 最后一个替换的模块。写的时候可以拿官方 mcp-tools
-   当测试客户端
+4. ~~canvas-web 接上 `maas-media` 的生成~~ —— 已完成。画布上点生成直接出图，
+   中间仍借官方 gateway 落盘
+5. **`mcp/` 的画布 4 个 + 生成 4 个工具**，挂上 opencode 和官方 agent 配置
+   ← 下一步。这一步能验证工具面对齐得对不对 —— 用的是**他们的提示词，
+   跑的是我们的工具**
+6. `crates/gateway` 补齐资产库、画布持久化、文件服务。写的时候可以拿官方
+   mcp-tools 当测试客户端
 
-第 4 步之后官方应用只剩"存文件"一个用途，第 6 步之后完全不需要它。
+现在官方应用只剩"存文件"一个用途（`import-url` 落盘 + `media-node` 建节点 +
+`/files` 取图），第 6 步之后完全不需要它。
+
+### 第 4 步实测
+
+真实浏览器 + 真实平台调用，不是 mock：
+
+```
+提示词          一只戴着圆框眼镜的柴犬，水彩插画风格，米色背景
+节点数（前）    4
+  3s  平台出图中… 2s
+ 15s  平台出图中… 14s
+节点数（后）    5
+新增节点        ✓ image assetId=720657e7…
+资产            ✓ images/f648fa64ec3a…png 1024x1024 1.67MB
+```
+
+链路：
+
+```text
+canvas-web ──► 我们的 gateway :8100 ──► maas-media ──► 平台（公网 URL）
+           ├─► 官方 gateway /api/files/import-url    落盘 + 入库
+           └─► 官方 gateway /api/canvas/media-node   建节点
+```
+
+Vite 按前缀分流：`/api/generate` 走我们的，其余走官方。**顺序有意义** ——
+官方 gateway 也有同名路由，排错了生成会"成功"地花掉官方额度而不报错。
 
 ## 起环境
 
