@@ -22,29 +22,66 @@ MiniMax Design 是这条路上最完整的参考实现，而它**大部分不闭
 也就是说：难的部分（资产依赖图、生成任务恢复对账、agent 编排契约）设计全都
 可读，而闭源的那部分恰好是整套东西里最标准、最好写的一层。
 
-## 边界：读规格，不抄原文
+## 原则：能一样就一样
 
-**仓库里没有复制任何 MiniMax 的文件。**
+**只有 `app.asar` 是闭源的，只有它需要自己写。其余全部保持接口一致。**
 
-- **协议事实**（路径、字段名、枚举值、`canvasFileSchema` 的结构、失败长什么样）
-  记在 `docs/` 里，照着实现是互操作
-- **他们的提示词**（`agents/` `contracts/` `knowledge/` `workflows/` 那批 markdown）
-  是受版权保护的创作性表达，一个字都不进来。而且它们引用的是他们的 `hub_*`
-  工具名和模型目录 —— 我们的工具契约不同，抄来本来就是错的，还是**安静地错**
-- 要对照原文时放 `reference/`（已 gitignore）
+这不只是省事。接口对齐之后能得到一个很好的性质 ——
+**每一块都能单独和官方那块对跑**：
+
+```
+我们的前端  +  官方 gateway      ← 已验证（apps/canvas-web）
+官方 mcp-tools + 我们的 gateway  ← 拿来验证 gateway 写对没有
+官方 agent 配置 + 我们的 MCP     ← 拿来验证工具面对齐没有
+```
+
+哪一层出问题，换掉一块就能定位，而不是整条链一起怀疑。
+
+要对齐的两个接口面已经提取成规格：
+
+| | |
+|---|---|
+| [`docs/mcp-tools.md`](docs/mcp-tools.md) | 103 个 MCP 工具的名字与入参 |
+| [`docs/gateway-api.md`](docs/gateway-api.md) | gateway 的 423 条 HTTP 路由 |
+
+两份都由脚本从官方产物提取，应用升级后重跑就能看出接口面变了没有。
+
+### 仓库里不放他们的文件
+
+只记**接口事实**（路径、字段名、枚举值、`canvasFileSchema` 的结构、
+失败长什么样），照着实现是互操作。他们的 markdown 原文、gateway 的实现代码
+一个字都不进版本库。
+
+要对照原文时快照到 `reference/`（已 gitignore）：
+
+```bash
+./scripts/snapshot-agent-profiles.sh
+```
 
 opencode 是 MIT，直接依赖，不 fork —— MiniMax 自己都没改一行。
+
+### 对齐不了的只有一类
+
+依赖他们私有运行时、而我们不打算做的东西：飞书集成（`LARK_CLI_PATH`）、
+ComfyUI 子 agent、他们的账号与积分体系。这些在 agent 配置里要显式删掉，
+否则 agent 会一本正经地引用不存在的功能。详见
+[`agent/README.md`](agent/README.md)。
+
+模型差异**不算**这一类：我们可以在模型目录里做别名，保持
+`nano_banana_2_flash` / `MiniMax-H3` 这些 id 不变而指向自己的实现，
+这样连模型路由的 contract 都不用动。
 
 ## 结构
 
 ```
 crates/maas-media/     平台适配层。已完成，55 个测试
-crates/gateway/        资产库 + 画布持久化 + 生成队列。待写
+crates/gateway/        资产库 + 画布持久化 + 生成队列。待写，对齐 423 条路由
 apps/canvas-web/       React Flow 画布前端。已跑通读写闭环
-agent/                 自己写的 opencode agents / contracts / skills
-mcp/                   自己的 canvas_* 与生成工具
-docs/                  逆向出来的协议事实
-scripts/               开发辅助
+mcp/                   MCP server。待写，对齐 103 个工具
+agent/                 opencode 配置。用官方那套，只覆盖对齐不了的部分
+docs/                  接口规格与逆向记录
+scripts/               规格提取、快照、开发辅助
+reference/             官方配置快照（gitignore，脚本生成）
 ```
 
 ### `crates/maas-media`
@@ -85,12 +122,15 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
 
 1. ~~平台适配层~~ —— 已完成
 2. ~~画布前端读写闭环~~ —— 已完成
-3. **canvas-web 接上 `maas-media` 的生成** ← 下一步。画布上点生成直接出图，
+3. ~~提取两个接口面的规格~~ —— 已完成（103 工具 / 423 路由）
+4. **canvas-web 接上 `maas-media` 的生成** ← 下一步。画布上点生成直接出图，
    中间仍借官方 gateway 落盘。跑通"我的前端 → 我的后端"
-4. 自己的 MCP 工具 + agent 契约，接 opencode
-5. `crates/gateway` —— 资产库、画布持久化、生成队列。最后一个替换的模块
+5. `mcp/` 的画布 4 个 + 生成 4 个工具，挂上 opencode 和官方 agent 配置。
+   这一步能验证工具面对齐得对不对 —— 用的是他们的提示词，跑的是我们的工具
+6. `crates/gateway` —— 最后一个替换的模块。写的时候可以拿官方 mcp-tools
+   当测试客户端
 
-第 3 步之后，官方应用就只剩"存文件"这一个用途了。
+第 4 步之后官方应用只剩"存文件"一个用途，第 6 步之后完全不需要它。
 
 ## 起环境
 
