@@ -60,16 +60,29 @@ MiniMax Design 是这条路上最完整的参考实现，而它**大部分不闭
 
 opencode 是 MIT，直接依赖，不 fork —— MiniMax 自己都没改一行。
 
-### 对齐不了的只有一类
+### 闭源面到底有多大
 
-依赖他们私有运行时、而我们不打算做的东西：飞书集成（`LARK_CLI_PATH`）、
-ComfyUI 子 agent、他们的账号与积分体系。这些在 agent 配置里要显式删掉，
-否则 agent 会一本正经地引用不存在的功能。详见
-[`agent/README.md`](agent/README.md)。
+查下来**只有 `app.asar` 是闭源的**（Electron 主进程 + 渲染进程 UI）。
+飞书和 ComfyUI 一度被我归进"做不了"，其实都不是：
 
-模型差异**不算**这一类：我们可以在模型目录里做别名，保持
+| | 性质 | 成本 |
+|---|---|---|
+| 画布渲染层 | **真的要从零写** | 已在做 |
+| 飞书 | `lark-cli` 是飞书**官方** CLI，应用没打包、扫码登录时才下；`hub_feishu` 就是 spawn 它 | 中，和主线无关 |
+| ComfyUI | 本体 GPL-3.0；后端按需下载，安装脚本 1655 行明文中文注释 | 中，看要不要托管 runtime |
+
+而且**闭源的只是业务代码，技术栈是公开的** —— asar 里就带着 `package.json`：
+React 19 + TanStack + Base UI + tailwind + tiptap + `@xyflow/react` v12 +
+selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一致，
+连踩过的渲染性能坑都写在 CSS 注释里。
+
+详见 [`docs/closed-source-surface.md`](docs/closed-source-surface.md) 和
+[`docs/canvas-stack.md`](docs/canvas-stack.md)。
+
+真正需要在 agent 配置里删掉的，只有依赖他们私有运行时**而我们暂时不做**的
+路由段。模型差异不算 —— 在模型目录里做别名，保持
 `nano_banana_2_flash` / `MiniMax-H3` 这些 id 不变而指向自己的实现，
-这样连模型路由的 contract 都不用动。
+连模型路由的 contract 都不用动。
 
 ## 结构
 

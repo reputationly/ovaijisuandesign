@@ -36,24 +36,24 @@ diff -rq agent reference/agent-profiles/v2/config
 
 就知道改了哪些、还剩哪些是他们的。
 
-## 哪些一定要改
+## 哪些要改
 
-对齐工具名解决不了的，只有**依赖他们私有运行时**的部分 —— 那些东西我们不打算
-做，留着 agent 会一本正经地引用不存在的功能：
+没有一处是**做不了**的（见
+[`docs/closed-source-surface.md`](../docs/closed-source-surface.md)），
+只有"还没做"。规则很简单：**没实现对应能力之前，把那段路由删掉**，
+否则 agent 会一本正经地引用不存在的功能。实现了就加回来。
 
-| 出现在 | 依赖什么 | 怎么办 |
+| 出现在 | 依赖什么 | 现在怎么办 |
 |---|---|---|
-| 飞书集成（`media-agent.md` 一整节） | `LARK_CLI_PATH` / `LARKSUITE_CLI_CONFIG_DIR`，主进程注入；报错文案指向「设置 → 接入飞书 / 微信」 | 删掉整节 |
-| ComfyUI 子 agent 路由 | `comfyui-agent` + `<canvas_plugin_nodes>` 注入 + 10 个 comfyui 工具 | 要么实现那 10 个工具，要么删 |
-| `working_language` | 他们运行时注入的字段（10 处引用） | 我们自己注入同名字段，成本很低 |
-| 模型路由 | 他们十几个 vendor；我们只有 `minimax-h3-fl2va` / `ace-step` / `indextts-2.5` 等 | 两条路：改路由表，或在模型目录里做别名把他们的 id 映射到我们的模型 |
+| 飞书集成（`media-agent.md` 一整节） | `LARK_CLI_PATH` / `LARKSUITE_CLI_CONFIG_DIR`；报错文案指向「设置 → 接入飞书 / 微信」 | 先删。要做的话：下同一个官方 `lark-cli` + 自己走一遍 OAuth |
+| ComfyUI 子 agent 路由 | `comfyui-agent` + `<canvas_plugin_nodes>` 注入 + 10 个 comfyui 工具 | 先删。要做的话：ComfyUI 是 GPL-3.0，安装脚本 1655 行明文 |
+| `working_language` | 他们运行时注入的字段（10 处引用） | **不用改** —— 我们注入同名字段就行，成本很低 |
+| 模型路由 | 他们十几个 vendor；我们只有 `minimax-h3-fl2va` / `ace-step` / `indextts-2.5` 等 | **不用改** —— 在模型目录里做别名，保持他们的 id 指向我们的模型 |
 
-**模型别名那条更符合"能一样就一样"** —— 保持 `nano_banana_2_flash` /
-`MiniMax-H3` 这些 id 不变，在 gateway 的模型目录里指向我们的实现。
-这样连模型路由的 contract 都不用动。
+后两行是"能一样就一样"的典型：**改我们这边去适配契约，而不是改契约**。
 
-除此之外的部分（`anti-loop`、`baseline`、`semantic-judgment`、
-`canvas-discipline`、`canvas-grouping`）和运行时耦合很松，原样用。
+其余部分（`anti-loop`、`baseline`、`semantic-judgment`、`canvas-discipline`、
+`canvas-grouping`）和运行时耦合很松，原样用。
 
 ## 布局
 
