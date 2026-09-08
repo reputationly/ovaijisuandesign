@@ -63,6 +63,8 @@ export interface NodeDetail {
   type: string
   name?: string
   textContent?: string
+  /** 内容哈希。写回时带上做乐观并发，见 [`writeTextNode`]。 */
+  textContentHash?: string
   metadata?: Record<string, unknown>
 }
 
@@ -115,6 +117,37 @@ export async function getNodeDetails(nodeIds: string[]): Promise<NodeDetail[]> {
   })
   const body = await json<{ nodes: NodeDetail[] }>(res, "POST /api/canvas/nodes/detail")
   return body.nodes ?? []
+}
+
+/**
+ * 写回文本节点。
+ *
+ * `expectedContentHash` 是**乐观并发**：gateway 拿它和当前内容比对，对不上
+ * 就拒绝。不传的话，agent 或另一个窗口在我们编辑期间改过同一个节点，保存会
+ * **静默覆盖掉对方** —— 而文本节点恰恰是最可能被 agent 同时写的东西。
+ *
+ * 返回新的哈希，供下一次编辑接着用。
+ */
+export async function writeTextNode(
+  nodeId: string,
+  content: string,
+  expectedContentHash: string | undefined,
+): Promise<string | undefined> {
+  const res = await fetch("/api/canvas/text-node", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nodeId,
+      content,
+      mode: "replace",
+      ...(expectedContentHash ? { expectedContentHash } : {}),
+    }),
+  })
+  if (res.status === 409) {
+    throw new Error("这个节点在你编辑期间被改过了。重新加载后再编辑，避免覆盖对方的修改。")
+  }
+  const body = await json<{ contentHash?: string }>(res, "POST /api/canvas/text-node")
+  return body.contentHash
 }
 
 export async function getAssets(): Promise<AssetInfo[]> {

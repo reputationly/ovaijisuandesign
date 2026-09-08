@@ -10,6 +10,7 @@ import {
   type Node as FlowNode,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
+import { RefreshCw } from "lucide-react"
 
 import {
   CANVAS_MODES,
@@ -18,12 +19,14 @@ import {
   getNodeDetails,
   getWorkspace,
   putCanvas,
+  writeTextNode,
   type CanvasFile,
   type CanvasMode,
   type NodeDetail,
 } from "./api"
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
-import { nodeTypes } from "./nodes"
+import { cn } from "./lib"
+import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
 
 interface EventLine {
   at: string
@@ -110,6 +113,23 @@ export default function App() {
     }
   }, [mode, setNodes])
 
+  const actions = useMemo<CanvasActions>(
+    () => ({
+      async saveText(nodeId, content, expectedHash) {
+        const hash = await writeTextNode(nodeId, content, expectedHash)
+        // 就地更新这一个节点的 detail，不整图重载 —— 重载会把别人正在编辑的
+        // 另一个节点也刷掉。
+        setDetails((prev) => {
+          const next = new Map(prev)
+          const old = next.get(nodeId)
+          if (old) next.set(nodeId, { ...old, textContent: content, textContentHash: hash })
+          return next
+        })
+      },
+    }),
+    [],
+  )
+
   const counts = useMemo(() => {
     const byType = new Map<string, number>()
     for (const n of file?.nodes ?? []) byType.set(n.type, (byType.get(n.type) ?? 0) + 1)
@@ -117,60 +137,94 @@ export default function App() {
   }, [file])
 
   return (
-    <div className="app">
-      <header>
-        <strong>canvas-web</strong>
-        <span className="dim">{dir || "连接中…"}</span>
-        <span className="spacer" />
-        <div className="modes">
-          {CANVAS_MODES.map((m) => (
-            <button key={m} className={m === mode ? "on" : ""} onClick={() => setMode(m)}>
-              {m}
+    <CanvasActionsContext value={actions}>
+      <div className="flex h-full flex-col">
+        <header className="flex items-center gap-2.5 border-b border-line bg-panel px-3 py-2">
+          <strong>canvas-web</strong>
+          <span className="text-dim">{dir || "连接中…"}</span>
+          <span className="flex-1" />
+          <div className="flex gap-1">
+            {CANVAS_MODES.map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={cn(
+                  "rounded border px-2.5 py-0.5",
+                  m === mode
+                    ? "border-accent bg-accent text-[#10121a]"
+                    : "border-line bg-raised hover:border-accent",
+                )}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => void load()}
+            className="flex items-center gap-1.5 rounded border border-line bg-raised px-2.5 py-0.5 hover:border-accent"
+          >
+            <RefreshCw size={12} />
+            重新加载
+          </button>
+          <span
+            className={cn(
+              "min-w-14 text-xs",
+              saving === "saved" ? "text-ok" : saving === "failed" ? "text-bad" : "text-dim",
+            )}
+          >
+            {{ idle: "", saving: "保存中…", saved: "已保存", failed: "保存失败" }[saving]}
+          </span>
+        </header>
+
+        {error && (
+          <div className="flex items-start gap-2 border-b border-bad bg-[#3a1f22] px-3 py-2 font-mono text-xs text-[#ffd7d7]">
+            {error}
+            <button onClick={() => setError(null)} className="ml-auto">
+              ×
             </button>
-          ))}
-        </div>
-        <button onClick={() => void load()}>重新加载</button>
-        <span className={`save save-${saving}`}>
-          {{ idle: "", saving: "保存中…", saved: "已保存", failed: "保存失败" }[saving]}
-        </span>
-      </header>
+          </div>
+        )}
 
-      {error && (
-        <div className="error">
-          {error}
-          <button onClick={() => setError(null)}>×</button>
+        <div className="min-h-0 flex-1">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeDragStop={() => void onNodeDragStop()}
+            fitView
+            minZoom={0.05}
+            // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
+            // 几百个节点全渲染会让首屏卡住。
+            onlyRenderVisibleElements
+            // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
+            // 这是画布类工具的惯例，也和官方一致。
+            selectionOnDrag
+            panOnDrag={[1, 2]}
+            panOnScroll
+            selectNodesOnDrag={false}
+          >
+            <Background gap={24} />
+            <Controls />
+            <MiniMap pannable zoomable />
+          </ReactFlow>
         </div>
-      )}
 
-      <div className="flow">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeDragStop={() => void onNodeDragStop()}
-          fitView
-          minZoom={0.05}
-          proOptions={{ hideAttribution: false }}
-        >
-          <Background gap={24} />
-          <Controls />
-          <MiniMap pannable zoomable />
-        </ReactFlow>
+        <footer className="flex items-center gap-2.5 overflow-hidden border-t border-line bg-panel px-3 py-2 text-xs whitespace-nowrap">
+          <span>
+            {file ? `${file.nodes.length} 节点 / ${file.edges.length} 边` : "—"}
+            {counts && <span className="text-dim">　{counts}</span>}
+          </span>
+          <span className="flex-1" />
+          <span className="truncate text-dim">
+            /ws：
+            {events.length === 0
+              ? "（尚无事件）"
+              : events.map((e) => `${e.at} ${e.event}`).join("　")}
+          </span>
+        </footer>
       </div>
-
-      <footer>
-        <span>
-          {file ? `${file.nodes.length} 节点 / ${file.edges.length} 边` : "—"}
-          {counts && <span className="dim">　{counts}</span>}
-        </span>
-        <span className="spacer" />
-        <span className="dim">
-          /ws：
-          {events.length === 0 ? "（尚无事件）" : events.map((e) => `${e.at} ${e.event}`).join("　")}
-        </span>
-      </footer>
-    </div>
+    </CanvasActionsContext>
   )
 }

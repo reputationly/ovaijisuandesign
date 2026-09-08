@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
@@ -11,7 +12,7 @@ const GATEWAY = process.env.GATEWAY_URL ?? "http://127.0.0.1:8099"
 // 图片、`/ws` 的握手各有各的跨域细节，代理掉之后前端只认识同源地址，
 // 少一整类只在浏览器里才复现的问题。
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
     port: 5273,
     proxy: {

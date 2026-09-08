@@ -110,11 +110,13 @@ React Flow 默认 `connectionline` 的 z-index 是 1001（盖住一切）。他�
 选型可以基本照搬，**我们已经选对了主干**（React 19 + `@xyflow/react` v12）。
 差的是外围：
 
-| 现在 | 要补 |
+| | 状态 |
 |---|---|
-| 手写 CSS | tailwind + cva + Base UI（或 Radix），和他们对齐 |
-| 无文本编辑 | tiptap 3 —— 文本节点要能编辑 |
-| 无框选 | `selecto` |
-| 无音频波形 | `wavesurfer.js` |
-| 无虚拟化 | `virtua` + xyflow 的 `onlyRenderVisibleElements` |
-| SVG 边 | 撞到性能墙再换 `<canvas>` 方案 |
+| tailwind + cva（`clsx` / `tailwind-merge` / `cva`） | ✅ 已换 |
+| tiptap 3 —— 文本节点编辑 | ✅ 已接，纯文本 schema，带 `expectedContentHash` |
+| `wavesurfer.js` —— 音频波形 | ✅ 已接 |
+| xyflow 的 `onlyRenderVisibleElements` | ✅ 已开 |
+| 框选 | ✅ 用 xyflow 内置的 `selectionOnDrag`，暂不引 `selecto` |
+| `virtua` | ⏭ 那是**列表**虚拟化，等有资产侧栏再说 |
+| Base UI | ⏭ 还没有 dialog / select 要做，等生成面板 |
+| `<canvas>` 画边 | ⏭ 边还很少，撞墙再换（方案见上） |

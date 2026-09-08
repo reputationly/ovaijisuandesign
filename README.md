@@ -84,6 +84,32 @@ selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一
 `nano_banana_2_flash` / `MiniMax-H3` 这些 id 不变而指向自己的实现，
 连模型路由的 contract 都不用动。
 
+## 登录：不做
+
+官方那套（扫码授权、账号体系、积分计费、skill 市场下发）我们**整个不实现**。
+用户只填两样东西：
+
+```jsonc
+{
+  "platform": {
+    "base_url": "https://maas.ovaijisuan.com/v1",
+    "api_key":  "sk-…",
+    "chat_model": "…"      // 写 caption / 歌词用
+  }
+}
+```
+
+`crates/maas-media` 本来就是这个形状，不用改。
+
+代价与收益都要说清楚：
+
+- **省掉**官方接口面里「账号与计费」那 13 条路由，以及 gateway 的
+  `TokenService`（它现在会从 tmpfile 恢复登录态、带着你的身份去打云端）
+- **同时省掉**积分预估、余额提示、skill 市场自动同步 —— 后两个我们本来
+  也不需要
+- 但 agent 配置里凡是提到"额度不足""请登录"的话术都要删，否则它会引用一个
+  不存在的流程。归到 [`agent/README.md`](agent/README.md) 那张表里
+
 ## 结构
 
 ```
