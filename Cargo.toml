@@ -6,7 +6,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 repository = "https://github.com/reputationly/ovaijisuandesign"
 # 个人学习研究用。仓库公开可读，但没有 license —— 默认版权保留，别人不能直接拿去用。

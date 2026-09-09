@@ -20,7 +20,11 @@ use crate::AppState;
 
 /// 清单地址。可以用环境变量覆盖 —— 私有化部署各自指向自己的桶，
 /// 不用改代码重新打包。
-const DEFAULT_MANIFEST: &str = "https://example.invalid/release/manifest.json";
+///
+/// 默认指向 GitHub Release 的固定 tag `manifest`。CDN 的桶开了之后不用换这个
+/// 地址：往清单的 `latestUrls` 里加源就行，下面本来就是按顺序试所有源。
+const DEFAULT_MANIFEST: &str =
+    "https://github.com/reputationly/ovaijisuandesign/releases/download/manifest/manifest.json";
 
 fn manifest_url() -> String {
     std::env::var("OVAIJISUAN_MANIFEST_URL").unwrap_or_else(|_| DEFAULT_MANIFEST.to_string())
