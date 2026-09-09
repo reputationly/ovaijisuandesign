@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   ReactFlow,
@@ -191,7 +192,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="min-h-0 flex-1">
+        <div className="min-h-0 flex-1" data-hilo-canvas-root="true">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -211,9 +212,22 @@ export default function App() {
             panOnScroll
             selectNodesOnDrag={false}
           >
-            <Background gap={24} />
-            <Controls />
-            <MiniMap pannable zoomable />
+            {/* 点阵，颜色走官方的 --canvas-bg-dot
+                （= color-mix(in srgb, var(--foreground) 12%, transparent)）。
+                间距是我们定的：他们的实际值在压缩代码里是变量传的，抠不出来。 */}
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={20}
+              size={1}
+              color="var(--canvas-bg-dot)"
+            />
+            <Controls showInteractive={false} />
+            <MiniMap
+              pannable
+              zoomable
+              maskColor="var(--canvas-minimap-mask)"
+              nodeColor="var(--canvas-minimap-node)"
+            />
           </ReactFlow>
         </div>
 

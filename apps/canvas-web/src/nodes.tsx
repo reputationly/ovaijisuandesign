@@ -6,7 +6,6 @@ import { createContext, useContext, useState, type ReactNode } from "react"
 
 import { assetUrl } from "./api"
 import type { NodeData } from "./canvas"
-import { cn } from "./lib"
 import { TextEditor } from "./TextEditor"
 import { Waveform } from "./Waveform"
 
@@ -24,6 +23,18 @@ export const CanvasActionsContext = createContext<CanvasActions | null>(null)
 
 type Props = NodeProps<Node<NodeData>>
 
+/** 节点类型 → 官方 `--canvas-node-tag-*` 里的哪一档颜色。
+ *
+ * 他们有 7 种（blue/green/purple/deep-purple/orange/red/yellow），每种三个
+ * 变量（基色 / surface / foreground）。用哪个配哪个是产品决定，我们按媒体
+ * 类型分，颜色值本身照抄。 */
+const TAG_COLOR: Record<string, string> = {
+  image: "blue",
+  video: "purple",
+  audio: "green",
+  text: "yellow",
+}
+
 function Frame({
   data,
   selected,
@@ -32,20 +43,37 @@ function Frame({
 }: Props & { kind: string; children: ReactNode }) {
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
+  // 类名跟官方对齐（canvas-node-shell / data-selected），状态样式全在
+  // styles.css 里，参数是从他们的样式表量的。这里不写颜色。
   return (
     <div
-      className={cn(
-        "flex h-full w-full flex-col overflow-hidden rounded-lg border bg-panel",
-        selected ? "border-accent" : "border-line",
-      )}
+      className="canvas-node-shell relative flex h-full w-full flex-col overflow-hidden border border-[var(--canvas-node-border)]"
+      data-selected={selected ? "true" : "false"}
     >
       <Handle type="target" position={Position.Left} />
-      <div className="flex min-h-0 flex-1 items-center justify-center bg-[#0f1015]">{children}</div>
+      {/* 内层圆角比外层小 2px（16 → 14），和官方一致 —— 同心圆角看起来才不
+          会像"厚边框贴了一张方图"。 */}
       <div
-        className="flex items-center gap-1.5 overflow-hidden border-t border-line px-2 py-1 text-[11px] whitespace-nowrap text-dim"
+        className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--canvas-bg)]"
+        style={{ borderRadius: "var(--canvas-media-node-inner-radius)" }}
+      >
+        {children}
+      </div>
+      <div
+        className="flex items-center gap-1.5 overflow-hidden border-t border-[var(--canvas-node-border)] px-2 py-1 text-[11px] whitespace-nowrap text-[var(--canvas-controls-text-muted)]"
         title={name}
       >
-        <span className="rounded-sm bg-[#2b2f3c] px-1.5 text-[10px] text-[#a9b2c9]">{kind}</span>
+        <span
+          className="rounded-sm px-1.5 text-[10px]"
+          style={{
+            // 标签用官方那套 node-tag 配色：底色是 surface 混出来的，
+            // 前景色单独给，保证在明暗两套下都够对比度。
+            background: `color-mix(in srgb, var(--canvas-node-tag-${TAG_COLOR[kind] ?? "blue"}-surface) var(--canvas-node-tag-surface-strength), var(--canvas-node-tag-surface-base))`,
+            color: `var(--canvas-node-tag-${TAG_COLOR[kind] ?? "blue"}-foreground)`,
+          }}
+        >
+          {kind}
+        </span>
         <span className="truncate">{name}</span>
       </div>
       <Handle type="source" position={Position.Right} />

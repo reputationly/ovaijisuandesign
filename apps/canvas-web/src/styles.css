@@ -1,19 +1,28 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-/* 设计令牌。和 @hilo/desktop 一样走 tailwind + cva 那套，
- * 颜色先自己定，等有品牌色再换这一段就行。 */
+/* 设计变量在 tokens.css 里，值是从官方 3.0.12 的样式表量出来的。
+ * 这里只做两件事：把它们接到 tailwind 的颜色体系上，以及覆盖 React Flow。 */
+
 @theme {
-  --color-bg: #14151a;
-  --color-panel: #1c1e25;
-  --color-raised: #262933;
-  --color-line: #2c2f3a;
-  --color-fg: #e6e7ea;
-  --color-dim: #878b98;
-  --color-accent: #6f9dff;
-  --color-bad: #ff6b6b;
-  --color-ok: #4ec98a;
+  /* 语义名 → 官方变量。用语义名而不是直接写 var(--canvas-*)，
+   * 是为了让 `bg-panel` 这类 utility 保持可用，同时换皮只改这一处。 */
+  --color-bg: var(--canvas-bg);
+  --color-panel: var(--canvas-node-bg);
+  --color-raised: var(--canvas-controls-hover);
+  --color-line: var(--canvas-node-border);
+  --color-fg: var(--canvas-controls-text);
+  --color-dim: var(--canvas-controls-text-muted);
+  --color-accent: var(--brand-accent);
+  --color-bad: #ff5f57;
+  --color-ok: #30d158;
+
+  --radius-node: var(--canvas-media-node-radius);
+  --radius-node-inner: var(--canvas-media-node-inner-radius);
 }
 
+/* 深色是默认。官方两套都有，浅色留着但先不做切换入口 —— 只有一个开关的
+ * 主题系统还不如没有，等设置面板落地时一起。 */
 :root {
   color-scheme: dark;
 }
@@ -26,8 +35,8 @@ body,
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-fg);
+  background: var(--canvas-bg);
+  color: var(--canvas-controls-text);
   font: 13px/1.5 -apple-system, "PingFang SC", system-ui, sans-serif;
 }
 
@@ -35,41 +44,89 @@ body {
  * React Flow 的覆盖。
  *
  * 这一段必须是原生 CSS 而不是 utility：选择器打的是库自己的类名，
- * 我们碰不到它的 JSX。
+ * 我们碰不到它的 JSX。**值全部来自官方样式表**，见每条的注释。
  * ------------------------------------------------------------------------- */
 
-/* 自带控件默认是亮色，跟着主题压暗。 */
+/* 光标：官方全程用同一个自定义罗盘光标，**拖拽时也不换成 grab/grabbing**。
+ * 这是他们刻意的 —— 画布上光标形状不变，视觉更稳。图形是内联 SVG
+ * （见 tokens.css 的 --canvas-cursor-default-url），热点在 (4,4)。 */
+.react-flow__pane,
+.react-flow__pane.dragging,
+.react-flow__node,
+.react-flow__node.selectable:hover,
+.react-flow__nodesselection-rect {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+/* 拖拽中的连线：和 EdgesCanvas 画的默认边同色同宽（1.5），
+ * **不加 vector-effect: non-scaling-stroke** —— 官方要它跟着节点一起缩放，
+ * 这样预览线读起来就是"你即将创建的那条线"。 */
+.react-flow__connection-path {
+  stroke: var(--canvas-edge);
+  stroke-width: 1.5;
+}
+
+.react-flow__edge-path {
+  stroke: var(--canvas-edge);
+  stroke-width: 1.5;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--canvas-edge-hover);
+}
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--canvas-edge-selected);
+}
+
+/* 框选矩形 */
+.react-flow__selection,
+.react-flow__nodesselection-rect {
+  background: var(--canvas-selection-bg) !important;
+  border: 1px solid var(--canvas-node-border-selected) !important;
+}
+
+/* 控件条 */
+.react-flow__controls {
+  box-shadow: var(--canvas-shadow-panel);
+  border-radius: var(--brutalist-radius-sm, 6px);
+  overflow: hidden;
+}
 .react-flow__controls-button {
-  background: var(--color-panel);
-  border-bottom: 1px solid var(--color-line);
-  fill: var(--color-fg);
+  background: var(--canvas-controls-bg);
+  border-bottom: 1px solid var(--canvas-controls-border);
+  fill: var(--canvas-controls-icon);
 }
 .react-flow__controls-button:hover {
-  background: var(--color-raised);
+  background: var(--canvas-controls-hover);
 }
+
+/* 小地图。官方给视口指示器做了 240ms/260ms 的双通道过渡。 */
 .react-flow__minimap {
-  background: var(--color-panel);
-  border: 1px solid var(--color-line);
-  border-radius: 6px;
+  background: var(--canvas-minimap-bg);
+  border: 1px solid var(--canvas-controls-border);
+  border-radius: var(--brutalist-radius-md, 12px);
+  box-shadow: var(--canvas-shadow-panel);
 }
 .react-flow__minimap-mask {
-  fill: rgb(10 11 15 / 0.65);
+  fill: var(--canvas-minimap-mask);
+  stroke: var(--canvas-minimap-mask-stroke);
 }
 .react-flow__minimap-node {
-  fill: #3a3f4d;
+  fill: var(--canvas-minimap-node);
 }
+
 .react-flow__edge-text {
-  fill: var(--color-dim);
+  fill: var(--canvas-controls-text-muted);
   font-size: 10px;
 }
 .react-flow__edge-textbg {
-  fill: var(--color-bg);
+  fill: var(--canvas-bg);
 }
 .react-flow__attribution {
   background: transparent;
 }
 .react-flow__attribution a {
-  color: #4a4f5c;
+  color: var(--canvas-controls-text-muted);
+  opacity: 0.4;
 }
 
 /* 边和连线画在卡片下面。
@@ -96,8 +153,106 @@ body {
   will-change: auto;
 }
 
-/* 框选框 */
-.react-flow__selection {
-  background: rgb(111 157 255 / 0.08);
-  border: 1px solid var(--color-accent);
+/* ---------------------------------------------------------------------------
+ * 节点状态。类名和官方一致（`canvas-node-shell` / `is-generating` /
+ * `is-newly-added`），动效参数也照抄，这样两边对着看能直接比。
+ * ------------------------------------------------------------------------- */
+
+.canvas-node-shell {
+  border-radius: var(--canvas-media-node-radius);
+  background: var(--canvas-node-bg);
+  /* 选中态是 1.5px 的 outline 而不是 border —— border 会挤动内部布局，
+   * 选中/取消选中时整张卡片的内容会跳一下。 */
+  outline: 1.5px solid transparent;
+  outline-offset: 0;
+  transition: outline-color 120ms ease-out;
+}
+.canvas-node-shell[data-selected="true"] {
+  outline-color: var(--canvas-node-border-selected);
+}
+
+/* 生成中：轮廓呼吸。 */
+.canvas-node-shell.is-generating {
+  outline: 1.5px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  animation: generating-breathe 3s ease-in-out infinite;
+}
+@keyframes generating-breathe {
+  0%,
+  100% {
+    outline-color: color-mix(in oklch, var(--foreground) 12%, transparent);
+  }
+  50% {
+    outline-color: color-mix(in oklch, var(--foreground) 35%, transparent);
+  }
+}
+
+/* 刚生成出来的节点：弹一下 + 持续辉光，让人在大画布上找得到它。 */
+.canvas-node-shell.is-newly-added {
+  outline: 2px solid var(--canvas-node-highlight);
+  outline-offset: 2px;
+  animation:
+    newly-added-pop 800ms ease-out 1 both,
+    newly-added-glow 2s ease-in-out infinite;
+}
+@keyframes newly-added-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes newly-added-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 3px color-mix(in oklch, var(--canvas-node-highlight) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 18px 6px color-mix(in oklch, var(--canvas-node-highlight) 60%, transparent);
+  }
+}
+
+/* 排队中：内缩的虚线框在呼吸。inset 而不是 border，避免挤动布局。 */
+.canvas-node-shell.is-queued::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1.5px dashed color-mix(in oklch, var(--foreground) 18%, transparent);
+  border-radius: calc(var(--canvas-media-node-inner-radius) - 2px);
+  animation: queued-outline-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes queued-outline-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 连接点。官方的把柄默认几乎不可见，靠 hover 出现。 */
+.react-flow__handle {
+  background: var(--canvas-handle-bg);
+  border: 1.5px solid var(--canvas-handle);
+  width: 9px;
+  height: 9px;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.react-flow__node:hover .react-flow__handle,
+.react-flow__handle.connectionindicator:hover,
+.react-flow__handle.connectingfrom {
+  opacity: 1;
 }
