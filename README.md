@@ -188,11 +188,17 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    中间仍借官方 gateway 落盘
 5. ~~`mcp/` 的画布 4 个 + 生成 4 个工具，挂上 opencode 和官方 agent 配置~~
    —— 已完成，**用他们的提示词跑通了我们的工具**
-6. **`crates/gateway` 补齐资产库、画布持久化、文件服务** ← 下一步。
+6. **`crates/gateway` 补齐资产库、画布持久化、文件服务、事件推送** ← 下一步。
    写的时候可以拿官方 mcp-tools 当测试客户端
+7. 自己的分发与升级通道，包放 R2 / OBS。见
+   [`docs/distribution.md`](docs/distribution.md)
 
 现在官方应用只剩"存文件"一个用途（`import-url` 落盘 + `media-node` 建节点 +
 `/files` 取图 + `/ws` 事件），第 6 步之后完全不需要它。
+
+> `/ws` 是唯一还**直连**官方的一跳 —— 我们的反代用 reqwest，转不了
+> WebSocket 的 Upgrade 握手。接过来只会让实时事件安静地不工作，
+> 所以留到第 6 步自己实现推送时一起解决。
 
 ### 第 5 步实测
 

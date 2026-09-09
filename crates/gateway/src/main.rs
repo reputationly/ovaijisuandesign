@@ -28,6 +28,7 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use axum::Router;
 use axum::routing::{any, get, post};
+use serde_json::{Value, json};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::config::Config;
@@ -49,7 +50,7 @@ pub struct AppState {
 
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
-        .route("/api/health/live", get(|| async { "ok" }))
+        .route("/api/health/live", get(health))
         .route("/api/generate/image/submit", post(generate::submit_image))
         // `/query` 后缀不能省：漏了会 404，而调用方对非 2xx 的查询不写日志。
         .route(
@@ -63,6 +64,18 @@ pub fn router(state: Arc<AppState>) -> Router {
         // 这是个只监听回环的本地服务，放开即可。
         .layer(CorsLayer::new().allow_origin(Any).allow_headers(Any).allow_methods(Any))
         .with_state(state)
+}
+
+/// 探活。**带上版本** —— 升级流程要靠它确认新版真的起来了，排查时也要靠它
+/// 确认连的是哪一个（本地起两个 gateway 是常态）。
+///
+/// 保持是纯 JSON、不碰任何 IO：它会被高频轮询。
+async fn health() -> axum::Json<Value> {
+    axum::Json(json!({
+        "ok": true,
+        "service": "ovaijisuandesign-gateway",
+        "version": env!("CARGO_PKG_VERSION"),
+    }))
 }
 
 #[tokio::main]
@@ -201,8 +214,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn health_is_plain_and_cheap() {
-        let (st, _) = call(router(state()), "GET", "/api/health/live", "").await;
+    async fn health_reports_a_version() {
+        // 升级流程靠它确认新版真的起来了；本地同时跑两个 gateway 时也靠它
+        // 分辨连的是哪一个。
+        let (st, body) = call(router(state()), "GET", "/api/health/live", "").await;
         assert_eq!(st, StatusCode::OK);
+        assert_eq!(body["ok"], true);
+        assert!(body["version"].as_str().is_some_and(|v| !v.is_empty()), "{body}");
     }
 }

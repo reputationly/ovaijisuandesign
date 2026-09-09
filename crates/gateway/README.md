@@ -72,6 +72,24 @@ key 就是唯一凭据**。
 于是连 `message` 都传不回去，画布上就成了一个没有原因的失败节点。所以统一
 报 `backend_error`，真正的码放在不参与解析的 `detail_code` 里。
 
+## 已知缺口：WebSocket 转不了
+
+反代用的是 reqwest，**转发不了 WebSocket 的 Upgrade 握手**。所以 `/ws`
+（画布的实时事件）目前由 `canvas-web` 直连官方 gateway，见
+`apps/canvas-web/vite.config.ts`。
+
+接过来只会让实时事件**安静地不工作** —— 不报错，界面上就是"永远没有事件"。
+第 6 步自己实现事件推送时一起解决；在那之前不要把 `/ws` 指到这里。
+
+## health 必须回 JSON 对象
+
+官方 mcp-tools 的探活用 `z.object({}).passthrough()` 校验，而且**探不通会
+FATAL 退出**。回纯文本 `ok` 的话，将来把官方 mcp-tools 接过来会直接起不来。
+所以 `/api/health/live` 回的是 `{ok, service, version}`。
+
+`version` 不只是好看：升级流程靠它确认新版真的起来了，本地同时跑两个
+gateway 时也靠它分辨连的是哪一个。
+
 ## 落盘
 
 平台返回的是公网 URL，而调用方要的是**工作区相对路径**（官方契约就是
