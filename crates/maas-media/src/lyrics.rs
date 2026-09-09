@@ -78,7 +78,8 @@ mod tests {
     #[test]
     fn strips_code_fences_and_preamble() {
         // 这两种污染都不会报错，只会被当成歌词唱出来。
-        let raw = "好的，这是为你写的歌词：\n\n```lyrics\n[Verse]\n夏天的风\n[Chorus]\n我们还在\n```";
+        let raw =
+            "好的，这是为你写的歌词：\n\n```lyrics\n[Verse]\n夏天的风\n[Chorus]\n我们还在\n```";
         assert_eq!(sanitize(raw), "[Verse]\n夏天的风\n[Chorus]\n我们还在");
     }
 
@@ -90,7 +91,10 @@ mod tests {
 
     #[test]
     fn drops_a_preamble_that_precedes_the_first_marker() {
-        assert_eq!(sanitize("这是歌词：\n[Verse]\n夏天的风"), "[Verse]\n夏天的风");
+        assert_eq!(
+            sanitize("这是歌词：\n[Verse]\n夏天的风"),
+            "[Verse]\n夏天的风"
+        );
     }
 
     #[test]

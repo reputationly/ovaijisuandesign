@@ -136,7 +136,7 @@ selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一
 
 ```
 crates/maas-media/     平台适配层。已完成，55 个测试
-crates/gateway/        本地 gateway。画布 / 资产 / 文件 / 生成 / 事件，58 个测试
+crates/gateway/        本地 gateway（bin: ovgw）+ agent 启动器（bin: ovagent）
 apps/canvas-web/       React Flow 画布前端。已跑通读写与生成闭环
 mcp/                   MCP server。8 个工具（画布 4 + 生成 4），对齐官方同名同参
 agent/                 opencode 配置。直接用官方那套，只覆盖对齐不了的部分
@@ -263,13 +263,23 @@ Vite 按前缀分流：`/api/generate` 走我们的，其余走官方。**顺序
 ## 起环境
 
 ```bash
-# 平台适配层
-cargo test -p maas-media
+cargo run --bin ovgw                           # gateway，首次会写配置模板
+cd apps/canvas-web && bun install && bun dev   # 画布 → http://localhost:5273
 
-# 画布前端（需要先起一个 gateway）
-./scripts/standalone-gateway.sh ~/Movies/Hub/Projects/<项目> 8099
-cd apps/canvas-web && bun install && bun dev   # http://localhost:5273
+# agent（需要先 ./scripts/snapshot-agent-profiles.sh 快照一次官方配置）
+cargo run --bin ovagent -- <工作区> -- run "生成一张…"
 ```
+
+## 平台支持
+
+| | 状态 |
+|---|---|
+| macOS | 日常开发在这上面，跑通过 |
+| Windows | 代码里没有平台分支，`cargo check --target x86_64-pc-windows-msvc` 全过；**CI 上真跑** |
+| Linux | 同上，CI 覆盖 |
+
+之前那批 bash 脚本只有 `snapshot-agent-profiles.sh` 还是 macOS 专属 ——
+它读的是本机安装的 MiniMax Design，本来就只在有那个应用的机器上有意义。
 
 ## 许可
 

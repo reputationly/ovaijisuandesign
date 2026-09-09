@@ -193,7 +193,10 @@ mod tests {
     #[test]
     fn refuses_to_guess_an_unknown_music_engine() {
         let m = Models::default();
-        assert_eq!(m.resolve_music_engine("minimax-music3"), Ok(MusicEngine::Music3));
+        assert_eq!(
+            m.resolve_music_engine("minimax-music3"),
+            Ok(MusicEngine::Music3)
+        );
         assert_eq!(m.resolve_music_engine("ace-step"), Ok(MusicEngine::AceStep));
         assert!(m.resolve_music_engine("suno-v4").is_err());
     }
@@ -204,7 +207,10 @@ mod tests {
             music_engine: Some(MusicEngine::AceStep),
             ..Default::default()
         };
-        assert_eq!(m.resolve_music_engine("minimax-music3"), Ok(MusicEngine::AceStep));
+        assert_eq!(
+            m.resolve_music_engine("minimax-music3"),
+            Ok(MusicEngine::AceStep)
+        );
     }
 
     #[test]

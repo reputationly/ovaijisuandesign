@@ -148,7 +148,8 @@ pub async fn generate_music(
     // 增强失败时退回原描述而不是让整次生成失败：那样至少还有歌听。
     // 但一定要 WARN —— 这类降级不出声的话，下次问「为什么不好听」查不到原因。
     let caption = if should_enhance(cfg, engine) {
-        match caption::enhance_music_caption(client, cfg, instructions, lyrics, instrumental).await {
+        match caption::enhance_music_caption(client, cfg, instructions, lyrics, instrumental).await
+        {
             Ok(c) => c,
             Err(err) => {
                 tracing::warn!(code = %err.code, "caption 增强失败，退回原描述: {}", err.message);
@@ -326,7 +327,10 @@ mod tests {
     #[test]
     fn explicit_vocal_with_no_lyrics_is_a_contradiction_not_instrumental() {
         // 合成一个 bool 会把"我要有词"翻成反面，而且不报错。
-        assert_eq!(MusicIntent::infer(Some(false), ""), MusicIntent::LyricsMissing);
+        assert_eq!(
+            MusicIntent::infer(Some(false), ""),
+            MusicIntent::LyricsMissing
+        );
     }
 
     #[test]
@@ -336,7 +340,10 @@ mod tests {
 
     #[test]
     fn an_explicit_instrumental_flag_wins_over_present_lyrics() {
-        assert_eq!(MusicIntent::infer(Some(true), LYRICS), MusicIntent::Instrumental);
+        assert_eq!(
+            MusicIntent::infer(Some(true), LYRICS),
+            MusicIntent::Instrumental
+        );
     }
 
     #[test]
@@ -351,7 +358,13 @@ mod tests {
     fn music3_puts_lyrics_in_prompt_and_caption_in_metadata() {
         // 两个键颠倒了不会报错：模型会一遍遍唱那句风格描述，出曲成功、
         // 时长正常、文件正常，只有听了才知道错了。
-        let b = music_body(MusicEngine::Music3, "minimax-music3", CAPTION, LYRICS, false);
+        let b = music_body(
+            MusicEngine::Music3,
+            "minimax-music3",
+            CAPTION,
+            LYRICS,
+            false,
+        );
         assert_eq!(b["prompt"], LYRICS, "Music3 的顶层 prompt 必须是歌词");
         assert_eq!(b["metadata"]["instructions"], CAPTION);
         // metadata.lyrics 会被透传但引擎不认，发了只会让人误以为歌词生效了。
@@ -470,9 +483,15 @@ mod tests {
         // 猜错引擎不报错，只会产出完全不对的音乐 —— 所以宁可拒绝。
         let mut c = cfg();
         c.models.music = Some("suno-v4".into());
-        let err = generate_music(&reqwest::Client::new(), &c, CAPTION, LYRICS, MusicIntent::Vocal)
-            .await
-            .unwrap_err();
+        let err = generate_music(
+            &reqwest::Client::new(),
+            &c,
+            CAPTION,
+            LYRICS,
+            MusicIntent::Vocal,
+        )
+        .await
+        .unwrap_err();
         assert!(err.message.contains("music_engine"), "{}", err.message);
     }
 }

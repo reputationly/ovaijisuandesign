@@ -491,6 +491,10 @@ mod tests {
         let err = upscale(&reqwest::Client::new(), &c, "https://x/a.mp4", "2K")
             .await
             .unwrap_err();
-        assert!(err.message.contains("models.video_upscale"), "{}", err.message);
+        assert!(
+            err.message.contains("models.video_upscale"),
+            "{}",
+            err.message
+        );
     }
 }

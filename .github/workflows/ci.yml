@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # CI 上没人看增量编译的收益，关掉省磁盘和缓存体积。
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  rust:
+    # 三个平台都跑。**Windows 是重点** —— 代码里没有平台分支，但在这条
+    # 流水线跑起来之前，"支持 Windows" 只是个没验证过的说法。
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}
+
+      - name: fmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: test
+        run: cargo test --all
+
+  # 前端和 MCP。这两块没有平台代码，但 bun 在 Windows 上的行为值得盯着 ——
+  # `ovagent` 拉起 MCP server 用的就是它。
+  bun:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - name: mcp
+        working-directory: mcp
+        run: |
+          bun install --frozen-lockfile
+          bun run typecheck
+          bun test
+
+      - name: canvas-web
+        working-directory: apps/canvas-web
+        run: |
+          bun install --frozen-lockfile
+          bun run typecheck
+          bun test
+          bun run build
+
+  # 接口规格是从官方产物里提取的，本地跑过就该和仓库里那份一致。
+  # 这一步只验脚本本身没写坏 —— CI 上没有 MiniMax Design，提不了真数据。
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -c "import ast, pathlib; ast.parse(pathlib.Path('scripts/extract-mcp-tools.py').read_text())"
+      - name: 规格文档没被手改坏
+        run: |
+          test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 103

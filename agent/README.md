@@ -19,13 +19,20 @@
 
 ```bash
 ./scripts/snapshot-agent-profiles.sh          # 一次性：快照官方配置到 reference/
-cargo run -p gateway                          # :8100
-./scripts/run-agent.sh <工作区> -- run "生成一张…"
+cargo run --bin ovgw                          # gateway，:8100
+cargo run --bin ovagent -- <工作区> -- run "生成一张…"
 ```
 
-脚本在临时目录里现拼 opencode 配置（**不落进版本库，里面有 api_key**）：
+`ovagent` 是 Rust 写的，跨平台。原来那个 `run-agent.sh` 是 bash + `jq` +
+写死的 `/Applications/…`，在 Windows 上完全不能用 —— 而它是唯一的 agent 入口。
 
-- `provider` 指向自建平台，形状取自 DesignPlusPlus 里那份实测跑通的
+**opencode 优先从 `PATH` 找**，其次 `OPENCODE_BIN`，最后才回落到 MiniMax
+Design 的应用包。顺序是刻意的：opencode 是 MIT 的独立软件，为了一个二进制去
+依赖一个商业客户端，跟这个项目的目标正好相反。
+
+它在临时目录里现拼 opencode 配置（**不落进版本库，里面有 api_key**）：
+
+- `provider` 指向自建平台
 - `mcp.hub` 指向我们的 MCP server
 - `agent` / `default_agent` / `tools` **原样取自官方 `base.json`**
 - `OPENCODE_CONFIG_DIR` 指向 staging，opencode 从那里扫

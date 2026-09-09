@@ -183,7 +183,10 @@ pub async fn import_url(
     Json(out)
 }
 
-pub(crate) async fn import_one(state: &AppState, url: &str) -> anyhow::Result<crate::assets::Asset> {
+pub(crate) async fn import_one(
+    state: &AppState,
+    url: &str,
+) -> anyhow::Result<crate::assets::Asset> {
     let parsed = reqwest::Url::parse(url)?;
     anyhow::ensure!(
         matches!(parsed.scheme(), "http" | "https"),
@@ -206,9 +209,10 @@ pub(crate) async fn import_one(state: &AppState, url: &str) -> anyhow::Result<cr
 
     // 已经有同名的就直接返回那一条，别重复下载。
     if let Some(existing) = state.assets.by_path(&rel)
-        && state.ws.resolve(&rel).is_some_and(|p| p.is_file()) {
-            return Ok(existing);
-        }
+        && state.ws.resolve(&rel).is_some_and(|p| p.is_file())
+    {
+        return Ok(existing);
+    }
 
     let abs = state
         .ws
@@ -229,6 +233,46 @@ pub(crate) async fn import_one(state: &AppState, url: &str) -> anyhow::Result<cr
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `import-url` 的契约：**部分失败仍然回 200**，失败落在 `errors[]`。
+    ///
+    /// 一批里有成功有失败时，成功的那些不该被整体退回。而调用方只看 HTTP
+    /// 状态的话会把整批失败当成功 —— 所以这条契约要有测试钉住。
+    #[tokio::test]
+    async fn a_failed_url_lands_in_errors_and_still_returns_200() {
+        let dir = tempfile::tempdir().unwrap();
+        let state = std::sync::Arc::new(crate::AppState {
+            ws: crate::workspace::Workspace::new(dir.path()),
+            assets: std::sync::Arc::new(crate::assets::Assets::load(
+                crate::workspace::Workspace::new(dir.path()),
+            )),
+            events: std::sync::Arc::new(crate::events::Events::new()),
+            canvas_lock: Default::default(),
+            media: std::sync::Arc::new(maas_media::MediaConfig::default()),
+            client: reqwest::Client::builder().no_proxy().build().unwrap(),
+            local: reqwest::Client::builder().no_proxy().build().unwrap(),
+            tasks: std::sync::Arc::new(crate::tasks::TaskStore::new()),
+            upstream: None,
+        });
+
+        // 非 http(s)：连不上网也能走到判断分支。
+        let Json(out) = import_url(
+            State(state),
+            Json(ImportUrls {
+                urls: vec!["ftp://example.com/a.png".into()],
+            }),
+        )
+        .await;
+
+        assert_eq!(out["ok"], true, "整体仍然是 200/ok");
+        assert!(out["imported"].as_array().unwrap().is_empty());
+        assert!(
+            out["errors"][0]["error"]
+                .as_str()
+                .is_some_and(|e| e.contains("ftp")),
+            "{out}"
+        );
+    }
 
     #[test]
     fn mime_covers_what_the_canvas_renders() {

@@ -249,7 +249,10 @@ mod tests {
         drop(assets);
 
         let again = Assets::load(Workspace::new(dir.path()));
-        assert_eq!(again.by_id(&a.id).map(|x| x.path), Some("images/a.png".into()));
+        assert_eq!(
+            again.by_id(&a.id).map(|x| x.path),
+            Some("images/a.png".into())
+        );
         assert_eq!(again.by_path("images/a.png").map(|x| x.id), Some(a.id));
     }
 

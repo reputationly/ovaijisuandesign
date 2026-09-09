@@ -40,7 +40,9 @@ pub async fn put_canvas(
     let _guard = state.canvas_lock.lock();
     match canvas::write(&state.ws.canvas_path(), &next) {
         Ok(()) => {
-            state.events.publish("canvas:changed", json!({ "nodes": next.nodes.len() }));
+            state
+                .events
+                .publish("canvas:changed", json!({ "nodes": next.nodes.len() }));
             Json(json!({ "ok": true })).into_response()
         }
         Err(err @ SaveError::Destructive { .. }) | Err(err @ SaveError::Invalid(_)) => {
@@ -175,11 +177,14 @@ pub async fn media_node(
     // 同一份资产已经在画布上了就直接返回那个节点 —— 否则重复生成会在画布上
     // 堆出一排指向同一份字节的节点。
     if !body.allow_duplicate
-        && let Some(existing) = file.nodes.iter().find(|n| n.asset_id.as_deref() == Some(&asset.id))
-        {
-            return Json(json!({ "nodeId": existing.id, "assetId": asset.id, "reused": true }))
-                .into_response();
-        }
+        && let Some(existing) = file
+            .nodes
+            .iter()
+            .find(|n| n.asset_id.as_deref() == Some(&asset.id))
+    {
+        return Json(json!({ "nodeId": existing.id, "assetId": asset.id, "reused": true }))
+            .into_response();
+    }
 
     let mode = file.mode.clone();
     let pos = canvas::next_position(&file, &mode);
@@ -205,9 +210,10 @@ pub async fn media_node(
 
     match canvas::write(&state.ws.canvas_path(), &file) {
         Ok(()) => {
-            state.events.publish("canvas:changed", json!({ "added": node_id }));
-            Json(json!({ "nodeId": node_id, "assetId": asset.id, "created": true }))
-                .into_response()
+            state
+                .events
+                .publish("canvas:changed", json!({ "added": node_id }));
+            Json(json!({ "nodeId": node_id, "assetId": asset.id, "created": true })).into_response()
         }
         Err(err) => (StatusCode::CONFLICT, err.to_string()).into_response(),
     }
@@ -281,10 +287,15 @@ pub async fn text_node(
             (path, Some(idx))
         }
         None => {
-            let name = body.name.clone().unwrap_or_else(|| {
-                format!("note-{}.md", &uuid::Uuid::new_v4().to_string()[..8])
-            });
-            let name = if name.contains('.') { name } else { format!("{name}.md") };
+            let name = body
+                .name
+                .clone()
+                .unwrap_or_else(|| format!("note-{}.md", &uuid::Uuid::new_v4().to_string()[..8]));
+            let name = if name.contains('.') {
+                name
+            } else {
+                format!("{name}.md")
+            };
             (format!("texts/{name}"), None)
         }
     };
@@ -314,9 +325,10 @@ pub async fn text_node(
     };
 
     if let Some(parent) = abs.parent()
-        && let Err(err) = std::fs::create_dir_all(parent) {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("{err}")).into_response();
-        }
+        && let Err(err) = std::fs::create_dir_all(parent)
+    {
+        return (StatusCode::INTERNAL_SERVER_ERROR, format!("{err}")).into_response();
+    }
     if let Err(err) = std::fs::write(&abs, &next_content) {
         return (StatusCode::INTERNAL_SERVER_ERROR, format!("{err}")).into_response();
     }
@@ -355,7 +367,9 @@ pub async fn text_node(
     if let Err(err) = canvas::write(&state.ws.canvas_path(), &file) {
         return (StatusCode::CONFLICT, err.to_string()).into_response();
     }
-    state.events.publish("canvas:changed", json!({ "text": node_id }));
+    state
+        .events
+        .publish("canvas:changed", json!({ "text": node_id }));
 
     Json(json!({
         "nodeId": node_id,

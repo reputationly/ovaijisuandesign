@@ -154,7 +154,11 @@ mod tests {
             "/api/canvas",
             "/api/canvas/nodes",
         ] {
-            assert_eq!(get(st.clone(), path).await, StatusCode::OK, "{path} 被反代了");
+            assert_eq!(
+                get(st.clone(), path).await,
+                StatusCode::OK,
+                "{path} 被反代了"
+            );
         }
     }
 

@@ -114,7 +114,10 @@ pub enum SaveError {
     /// 结构不合法。
     Invalid(String),
     /// 疑似破坏性写入，已拒绝并把快照丢进隔离区。
-    Destructive { before: usize, after: usize },
+    Destructive {
+        before: usize,
+        after: usize,
+    },
     Io(anyhow::Error),
 }
 
@@ -306,7 +309,10 @@ mod tests {
         let file: CanvasFile = serde_json::from_str(REAL).unwrap();
         assert_eq!(file.positions_len(), 2);
         let back = serde_json::to_value(&file).unwrap();
-        assert_eq!(back["nodes"][0]["positions"]["grid"], json!({"x":10.0,"y":20.0}));
+        assert_eq!(
+            back["nodes"][0]["positions"]["grid"],
+            json!({"x":10.0,"y":20.0})
+        );
     }
 
     #[test]
@@ -464,6 +470,9 @@ mod tests {
         let file: CanvasFile = serde_json::from_str(REAL).unwrap();
         let p = next_position(&file, "workflow");
         assert_eq!(p.x, 450.0); // 0 + 350 宽 + 100 间隔
-        assert_eq!(next_position(&CanvasFile::default(), "workflow"), Xy { x: 0.0, y: 0.0 });
+        assert_eq!(
+            next_position(&CanvasFile::default(), "workflow"),
+            Xy { x: 0.0, y: 0.0 }
+        );
     }
 }

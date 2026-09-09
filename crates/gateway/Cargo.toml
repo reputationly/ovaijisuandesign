@@ -5,9 +5,17 @@ edition.workspace = true
 publish.workspace = true
 description = "本地 gateway。当前只实现生成那几条路由，按官方接口面对齐"
 
+[lib]
+name = "gateway"
+path = "src/lib.rs"
+
 [[bin]]
 name = "ovgw"
-path = "src/main.rs"
+path = "src/bin/ovgw.rs"
+
+[[bin]]
+name = "ovagent"
+path = "src/bin/ovagent.rs"
 
 [dependencies]
 maas-media = { path = "../maas-media" }

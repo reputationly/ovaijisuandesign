@@ -15,29 +15,28 @@
 //! 还没实现的（资产库、画布持久化、文件服务）当前仍由官方 gateway 提供，
 //! 前端同时连两个。见仓库 README 的路线。
 
-mod api_canvas;
-mod api_files;
-mod assets;
-mod canvas;
-mod config;
-mod events;
-mod generate;
-mod land;
-mod proxy;
-mod tasks;
-mod workspace;
+//! 库入口。两个二进制共用这里：`ovgw`（gateway 服务）和
+//! `ovagent`（跑 opencode 的启动器，要复用 [`config`]）。
 
-use std::net::SocketAddr;
+pub mod api_canvas;
+pub mod api_files;
+pub mod assets;
+pub mod canvas;
+pub mod config;
+pub mod events;
+pub mod generate;
+pub mod land;
+pub mod proxy;
+pub mod tasks;
+pub mod workspace;
+
 use std::sync::Arc;
-use std::time::Duration;
 
-use anyhow::{Context, Result};
 use axum::Router;
 use axum::routing::{any, get, post};
 use serde_json::{Value, json};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::config::Config;
 use crate::tasks::TaskStore;
 
 pub struct AppState {
@@ -69,7 +68,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/files/{*path}", get(api_files::serve_by_path))
         .route("/api/files/import-url", post(api_files::import_url))
         // -- 画布 --
-        .route("/api/canvas", get(api_canvas::get_canvas).post(api_canvas::put_canvas))
+        .route(
+            "/api/canvas",
+            get(api_canvas::get_canvas).post(api_canvas::put_canvas),
+        )
         .route("/api/canvas/nodes", get(api_canvas::list_nodes))
         .route("/api/canvas/nodes/detail", post(api_canvas::node_detail))
         .route("/api/canvas/media-node", post(api_canvas::media_node))
@@ -88,7 +90,12 @@ pub fn router(state: Arc<AppState>) -> Router {
         .fallback(any(proxy::handle))
         // 前端通常经 Vite 代理过来（同源），但直连调试时没有 CORS 会一头雾水。
         // 这是个只监听回环的本地服务，放开即可。
-        .layer(CorsLayer::new().allow_origin(Any).allow_headers(Any).allow_methods(Any))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_headers(Any)
+                .allow_methods(Any),
+        )
         .with_state(state)
 }
 
@@ -102,70 +109,6 @@ async fn health() -> axum::Json<Value> {
         "service": "ovaijisuandesign-gateway",
         "version": env!("CARGO_PKG_VERSION"),
     }))
-}
-
-#[tokio::main]
-async fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
-        )
-        .init();
-
-    let path = match std::env::var_os("OVGW_CONFIG") {
-        Some(p) => std::path::PathBuf::from(p),
-        None => Config::default_path()?,
-    };
-
-    if !path.exists() {
-        // 先把模板写出来再报错：让用户知道要改哪个文件，而不是只知道"缺配置"。
-        Config::default().save(&path)?;
-        anyhow::bail!(
-            "已生成配置模板: {}\n请填写 platform.api_key 后重新启动（没有登录流程，key 就是唯一凭据）",
-            path.display()
-        );
-    }
-
-    let cfg = Config::load(&path).context("加载配置失败")?;
-    let client = reqwest::Client::builder()
-        .connect_timeout(Duration::from_secs(10))
-        .build()
-        .context("构建 HTTP 客户端失败")?;
-    let local = reqwest::Client::builder()
-        .connect_timeout(Duration::from_secs(10))
-        .no_proxy()
-        .build()
-        .context("构建本地 HTTP 客户端失败")?;
-
-    let ws_dir = cfg.workspace_dir()?;
-    std::fs::create_dir_all(&ws_dir)
-        .with_context(|| format!("创建工作区失败: {}", ws_dir.display()))?;
-    let ws = crate::workspace::Workspace::new(&ws_dir);
-
-    let addr = SocketAddr::from(([127, 0, 0, 1], cfg.port));
-    let state = Arc::new(AppState {
-        assets: Arc::new(crate::assets::Assets::load(ws.clone())),
-        events: Arc::new(crate::events::Events::new()),
-        canvas_lock: Default::default(),
-        ws,
-        media: Arc::new(cfg.media),
-        client,
-        local,
-        tasks: Arc::new(TaskStore::new()),
-        upstream: cfg.upstream.clone(),
-    });
-
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .with_context(|| format!("绑定 {addr} 失败，端口可能已被占用"))?;
-    match state.upstream.as_deref() {
-        Some(u) => tracing::info!("gateway 已监听 http://{addr}，未实现的路由反代到 {u}"),
-        None => tracing::info!("gateway 已监听 http://{addr}，未配置 upstream（未实现的路由回 404）"),
-    }
-    tracing::info!("工作区: {}", ws_dir.display());
-    tracing::info!("配置: {}", path.display());
-    axum::serve(listener, router(state)).await?;
-    Ok(())
 }
 
 #[cfg(test)]
@@ -192,7 +135,12 @@ mod tests {
         })
     }
 
-    async fn call(r: Router, method: &str, uri: &str, body: &str) -> (StatusCode, serde_json::Value) {
+    async fn call(
+        r: Router,
+        method: &str,
+        uri: &str,
+        body: &str,
+    ) -> (StatusCode, serde_json::Value) {
         let req = Request::builder()
             .method(method)
             .uri(uri)
@@ -201,8 +149,13 @@ mod tests {
             .unwrap();
         let resp = r.oneshot(req).await.unwrap();
         let status = resp.status();
-        let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20).await.unwrap();
-        (status, serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null))
+        let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
+            .await
+            .unwrap();
+        (
+            status,
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null),
+        )
     }
 
     #[tokio::test]
@@ -220,7 +173,13 @@ mod tests {
         assert_eq!(body["media_type"], "image");
         let task_id = body["task_id"].as_str().unwrap();
 
-        let (st, q) = call(r, "GET", &format!("/api/generate/tasks/{task_id}/query"), "").await;
+        let (st, q) = call(
+            r,
+            "GET",
+            &format!("/api/generate/tasks/{task_id}/query"),
+            "",
+        )
+        .await;
         assert_eq!(st, StatusCode::OK);
         assert_eq!(q["task_id"], task_id);
         // 没配 key，后台那次调用会很快失败；两种状态都合法。
@@ -253,7 +212,10 @@ mod tests {
         )
         .await;
         assert_eq!(st, StatusCode::OK);
-        assert!(body["task_id"].as_str().is_some_and(|s| !s.is_empty()), "{body}");
+        assert!(
+            body["task_id"].as_str().is_some_and(|s| !s.is_empty()),
+            "{body}"
+        );
     }
 
     #[tokio::test]
@@ -263,6 +225,9 @@ mod tests {
         let (st, body) = call(router(state()), "GET", "/api/health/live", "").await;
         assert_eq!(st, StatusCode::OK);
         assert_eq!(body["ok"], true);
-        assert!(body["version"].as_str().is_some_and(|v| !v.is_empty()), "{body}");
+        assert!(
+            body["version"].as_str().is_some_and(|v| !v.is_empty()),
+            "{body}"
+        );
     }
 }

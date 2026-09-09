@@ -74,7 +74,9 @@ impl TaskStore {
     }
 
     pub fn set(&self, id: &str, state: TaskState) {
-        let Ok(mut map) = self.inner.lock() else { return };
+        let Ok(mut map) = self.inner.lock() else {
+            return;
+        };
         let settled_at = state.is_terminal().then(Instant::now);
         map.insert(id.to_string(), Entry { state, settled_at });
         // 顺手扫一遍。任务量本来就不大，单独起一个清理线程不值当。
