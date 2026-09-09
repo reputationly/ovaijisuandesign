@@ -31,16 +31,19 @@ const SPEC: Map<string, Set<string>> = (() => {
 void officialSpec // 只是为了让上面那段文档注释有个落点
 
 describe("和官方工具面对齐", () => {
-  it("规格文档能解析出全部 103 个工具", () => {
+  it("规格文档能解析出全部 58 个工具", () => {
     // 解析挂了的话下面每一条都会假通过。
-    expect(SPEC.size).toBe(103)
+    //
+    // 58 是 3.0.12 的数字。3.0.11 是 103——官方把四个 canvas_write_* 之类
+    // 合并掉了。改这个数字之前先确认是重跑了提取脚本，而不是解析坏了。
+    expect(SPEC.size).toBe(58)
   })
 
   it("我们注册的每个工具名都在官方清单里", () => {
     // 名字错一个字母，官方 agent 配置里对它的调用就全部落空 ——
     // 而 LLM 不会报错，它会自己编一个看起来合理的做法。
     for (const t of TOOLS) {
-      expect(SPEC.has(t.name), `${t.name} 不在官方 103 个工具里`).toBe(true)
+      expect(SPEC.has(t.name), `${t.name} 不在官方工具清单里`).toBe(true)
     }
   })
 
@@ -55,14 +58,13 @@ describe("和官方工具面对齐", () => {
     }
   })
 
-  it("画布 4 个 + 生成 4 个都在", () => {
+  it("画布 3 个 + 生成 4 个都在", () => {
     const names = TOOLS.map((t) => t.name).sort()
     expect(names).toEqual(
       [
         "canvas_get_node",
         "canvas_list_nodes",
-        "canvas_write_media_node",
-        "canvas_write_text_node",
+        "canvas_write_node",
         "generate_audio_music",
         "generate_audio_speech",
         "generate_image",
@@ -81,9 +83,23 @@ describe("工具契约里那些不能丢的字段", () => {
 
   it("写文本节点带 expectedContentHash", () => {
     // 不带的话，用户在界面上的编辑或另一个 agent 的写入会被静默覆盖。
-    expect(byName.get("canvas_write_text_node")!.inputSchema).toHaveProperty(
-      "expectedContentHash",
-    )
+    expect(byName.get("canvas_write_node")!.inputSchema).toHaveProperty("expectedContentHash")
+  })
+
+  it("统一的写节点工具，不是拆开的那几个", () => {
+    // 3.0.12 把 canvas_write_{media,text,table,file}_node 合并掉了，而两个
+    // 版本的 agent 提示词引用的一直都是 canvas_write_node——拆开的那几个
+    // agent 从来没调过。实现错了的话，写节点这条路永远走不通。
+    const names = new Set(TOOLS.map((t) => t.name))
+    expect(names.has("canvas_write_node")).toBe(true)
+    for (const gone of [
+      "canvas_write_media_node",
+      "canvas_write_text_node",
+      "canvas_write_table_node",
+      "canvas_write_file_node",
+    ]) {
+      expect(names.has(gone), `${gone} 在 3.0.12 里已经不存在`).toBe(false)
+    }
   })
 
   it("出图能接底图", () => {

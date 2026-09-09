@@ -1,6 +1,6 @@
 # mcp
 
-自己的 MCP server。**按官方那 103 个工具同名同参实现** ——
+自己的 MCP server。**按官方那 58 个工具同名同参实现** ——
 清单见 [`docs/mcp-tools.md`](../docs/mcp-tools.md)。
 
 用 TypeScript + `@modelcontextprotocol/sdk`，版本**钉死成和官方一样的
@@ -19,14 +19,13 @@
 看到的才是 `hub_generate_image` 这种。改了名字，官方提示词里那 120 处工具
 调用会全部落空，**而且 LLM 不会报错，它会自己编一个看起来合理的做法**。
 
-## 已实现（8 个）
+## 已实现（7 个）
 
 | | |
 |---|---|
 | `canvas_list_nodes` | `type`, `limit`, `offset` |
 | `canvas_get_node` | `nodeId`, `nodeIds` |
-| `canvas_write_media_node` | `assetPath`, `sourceNodeIds`, `allowDuplicate`, `position` |
-| `canvas_write_text_node` | `content`, `name`, `nodeId`, `mode`, `expectedContentHash`, `sourceNodeIds`, `position` |
+| `canvas_write_node` | `kind`, `content`, `name`, `nodeId`, `mode`, `expectedContentHash`, `assetPath`, `allowDuplicate`, `sourceNodeId`, `sourceNodeIds` |
 | `generate_image` | `vendor`, `model_id`, `prompt`, `image_paths`, `filename`, `vendor_params` |
 | `generate_video` | + `mode`, `duration`, `first_frame_image`, `last_frame_image`, `reference_image_paths` |
 | `generate_audio_speech` | `vendor`, `model_name`, `texts`, `voice_id`, `filename` |
@@ -74,7 +73,7 @@ agent 一定会填；收下比让它撞上"未知字段"要好。
 **没实现的工具不注册空壳。** 注册了但返回"未实现"的话，agent 会把它当成
 一次失败的调用去重试；不注册，agent 至少能看到工具不存在而换条路。
 
-## 还没做的 95 个
+## 还没做的 51 个
 
 按"链路能不能跑"排在后面。ComfyUI 那 10 个和插件那 6 个可以最后，
 甚至不做 —— 但那样要同步删掉 agent 配置里对应的路由段，

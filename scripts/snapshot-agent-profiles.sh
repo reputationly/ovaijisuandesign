@@ -16,13 +16,15 @@ DEST="$ROOT/reference"
 
 FACTORY="$APP/Contents/Resources/agent-profiles/v2/config"   # 出厂模板
 LIVE="$HOME/.hub/.config-v2"                                 # 运行时实际读的那份
-OPENCODE_CFG="$APP/Contents/Resources/opencode/config"       # 另一套（contracts 更全）
+# 3.0.11 里还有第二套配置（contracts 更全），3.0.12 已删除。
+# 留着这一条是为了在老版本上仍能快照到；不存在时 snapshot 会跳过。
+OPENCODE_CFG="$APP/Contents/Resources/opencode/config"
 
 [[ -d "$FACTORY" ]] || { echo "找不到 agent-profiles: $FACTORY" >&2; exit 1; }
 
 snapshot() {
   local src="$1" name="$2"
-  [[ -d "$src" ]] || { echo "  跳过 $name（不存在）"; return; }
+  [[ -d "$src" ]] || { echo "  跳过 ${name}（不存在）"; return; }
   rm -rf "${DEST:?}/$name"
   mkdir -p "$DEST/$name"
   cp -R "$src/." "$DEST/$name/"

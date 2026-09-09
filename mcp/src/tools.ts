@@ -68,40 +68,80 @@ const canvasGetNode: ToolDef = {
   },
 }
 
-const canvasWriteMediaNode: ToolDef = {
-  name: "canvas_write_media_node",
+/**
+ * 统一的写节点工具。
+ *
+ * **3.0.11 → 3.0.12 的一处真实变化**：官方把 `canvas_write_media_node` /
+ * `canvas_write_text_node` / `canvas_write_table_node` / `canvas_write_file_node`
+ * 合并成了这一个，用 `kind` 区分（工具面从 103 个缩到 58 个）。
+ *
+ * 值得注意的是**两个版本的 agent 提示词引用的都是 `hub_canvas_write_node`** ——
+ * 那四个分开的从来没被 agent 用过。我们一开始实现了其中两个，等于实现了
+ * agent 永远不会调的东西。这是「提取规格 + 升级后重跑」抓出来的。
+ */
+const canvasWriteNode: ToolDef = {
+  name: "canvas_write_node",
   description:
-    "Place an existing workspace media file on the canvas as a node. " +
-    "`assetPath` is workspace-relative, exactly as returned by a generation tool.",
+    "Write a node onto the canvas. `kind=text` writes Markdown content; " +
+    "`kind=media` places an existing workspace file. " +
+    "Omit `nodeId` to create, pass it to patch an existing text node.",
   inputSchema: {
-    assetPath: z.string().describe("Workspace-relative path, e.g. images/foo.png."),
-    sourceNodeIds: z.array(z.string()).optional().describe("Nodes this one derives from."),
-    allowDuplicate: z.boolean().optional(),
-    position: z.object({ x: z.number(), y: z.number() }).optional(),
+    kind: z.enum(["text", "media"]).optional().describe("Single-write node kind."),
+    // -- text --
+    content: z.string().optional().describe("[text] Markdown content."),
+    name: z.string().optional().describe("[text create] File name without extension."),
+    nodeId: z.string().optional().describe("[text] Existing node to patch. Omit to create."),
+    mode: z.enum(["replace", "append", "prepend"]).optional().describe("[text patch only]"),
+    expectedContentHash: z
+      .string()
+      .optional()
+      .describe(
+        "[text patch only] CAS token from a prior read. Rejected (409) when the " +
+          "document changed since then.",
+      ),
+    // -- media --
+    assetPath: z.string().optional().describe("[media] Workspace-relative path."),
+    allowDuplicate: z.boolean().optional().describe("[media] Force a second card."),
+    // -- 通用 --
+    sourceNodeId: z.string().optional().describe("[create/media] One derivation edge."),
+    sourceNodeIds: z.array(z.string()).optional().describe("[create] Source node ids."),
   },
-  async handler(args) {
-    return reply(await gw.post("/api/canvas/media-node", args))
-  },
-}
+  async handler(a) {
+    // `kind` 是可选的：不给就按字段推断。给了 assetPath 就是媒体，
+    // 给了 content 就是文本 —— 猜错的后果是调错 gateway 路由、报一个
+    // 和真实原因无关的错。
+    const kind = a.kind ?? (a.assetPath ? "media" : a.content !== undefined ? "text" : undefined)
+    const sources = a.sourceNodeIds ?? (a.sourceNodeId ? [a.sourceNodeId] : undefined)
 
-const canvasWriteTextNode: ToolDef = {
-  name: "canvas_write_text_node",
-  description:
-    "Create or update a text node. Content is Markdown source. " +
-    "When updating, pass `expectedContentHash` from a prior read.",
-  inputSchema: {
-    content: z.string(),
-    name: z.string().optional().describe("File name for a new node, e.g. outline.md."),
-    nodeId: z.string().optional().describe("Omit to create a new node."),
-    mode: z.enum(["replace", "append", "prepend"]).optional(),
-    // 不传的话，另一个写入方（用户在界面上编辑、或另一个 agent）的修改会被
-    // 静默覆盖。文本节点恰恰是最可能被同时写的东西。
-    expectedContentHash: z.string().optional(),
-    sourceNodeIds: z.array(z.string()).optional(),
-    position: z.object({ x: z.number(), y: z.number() }).optional(),
-  },
-  async handler(args) {
-    return reply(await gw.post("/api/canvas/text-node", args))
+    if (kind === "media") {
+      if (!a.assetPath) throw new Error("kind=media 需要 assetPath")
+      return reply(
+        await gw.post("/api/canvas/media-node", {
+          assetPath: a.assetPath,
+          ...(sources ? { sourceNodeIds: sources } : {}),
+          ...(a.allowDuplicate !== undefined ? { allowDuplicate: a.allowDuplicate } : {}),
+        }),
+      )
+    }
+    if (kind === "text") {
+      if (a.content === undefined) throw new Error("kind=text 需要 content")
+      return reply(
+        await gw.post("/api/canvas/text-node", {
+          content: a.content,
+          ...(a.name ? { name: a.name } : {}),
+          ...(a.nodeId ? { nodeId: a.nodeId } : {}),
+          ...(a.mode ? { mode: a.mode } : {}),
+          ...(a.expectedContentHash ? { expectedContentHash: a.expectedContentHash } : {}),
+          ...(sources ? { sourceNodeIds: sources } : {}),
+        }),
+      )
+    }
+    // table / file 还没实现。**明确报出来**，而不是当成 text 或静默成功 ——
+    // 后者会让 agent 以为表格写上去了。
+    throw new Error(
+      `kind=${a.kind ?? "(推断不出)"} 还没实现。当前支持 text 和 media；` +
+        `table / file 要先在 gateway 侧补对应路由`,
+    )
   },
 }
 
@@ -240,8 +280,7 @@ const generateAudioMusic: ToolDef = {
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
-  canvasWriteMediaNode,
-  canvasWriteTextNode,
+  canvasWriteNode,
   generateImage,
   generateVideo,
   generateAudioSpeech,

@@ -74,4 +74,4 @@ jobs:
       - run: python3 -c "import ast, pathlib; ast.parse(pathlib.Path('scripts/extract-mcp-tools.py').read_text())"
       - name: 规格文档没被手改坏
         run: |
-          test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 103
+          test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 58

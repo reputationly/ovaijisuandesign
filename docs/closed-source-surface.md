@@ -1,9 +1,28 @@
 # 闭源面到底有多大
 
-调研 MiniMax Design **3.0.11**（macOS arm64）的结论：**只有 `app.asar` 是闭源的**。
+调研 MiniMax Design 的结论：**只有 `app.asar` 是闭源的**。
+初版基于 **3.0.11**（macOS arm64），后来在 **3.0.12**（macOS + Windows）上复核过。
 
 这份文档存在的意义是**防止把"工作量大"说成"做不了"** —— 两者的排期含义完全
 不同。下面每一条都标明了判据，改结论之前先复核判据。
+
+## 〇、版本会漂，规格要重跑
+
+3.0.11 → 3.0.12 之间，**MCP 工具面从 103 个缩到 58 个**：官方把
+`canvas_write_{media,text,table,file}_node` 合并成了一个 `canvas_write_node`
+（用 `kind` 区分），`memory_*` 五个合并成 `memory`，音乐那一串合并进
+`generate_audio_music`，等等。gateway 的 HTTP 路由面**一条没变**。
+
+值得记住的是：**两个版本的 agent 提示词引用的都是合并后的那个名字** ——
+被删掉的 45 个 agent 从来没调过。我们一开始照 103 那份实现了其中两个，
+等于实现了 agent 永远不会调的东西。
+
+这是 `scripts/extract-mcp-tools.py` + `mcp/src/tools.test.ts` 抓出来的，
+也正是当初把规格做成"可重跑的提取"而不是手写清单的理由。
+**应用升级后先重跑提取，再看测试。**
+
+另外 3.0.12 删掉了 `Contents/Resources/opencode/config` 整套（3.0.11 里
+那第二份 contracts 更全的配置）。
 
 ## 一、真正闭源的
 
@@ -49,7 +68,7 @@ Base UI + tailwind + tiptap + `@xyflow/react` v12 + selecto + yjs，
 | | 大小 | 内容 |
 |---|---|---|
 | `gateway/dist/main.js` | 16M | NestJS，423 条路由。资产库、画布持久化、生成队列、ffmpeg 链路、水印 |
-| `mcp-tools/dist/main.js` | 2.9M | 103 个 MCP 工具 |
+| `mcp-tools/dist/main.js` | 2.8M | 58 个 MCP 工具（3.0.11 是 103，3.0.12 合并掉了一批） |
 | `opencode-plugin-hilo` / `-trace` | 660K | 用公开的 `@opencode-ai/plugin` API，dist 是未压缩 ESM |
 | `bundled-plugins/comfyui/hub/*.py` | 1655 行 | ComfyUI 后端的安装与启动脚本，中文注释 |
 | `agent-profiles/v2/config/` | 1.5M | agents / contracts / knowledge / workflows，全是 markdown |
