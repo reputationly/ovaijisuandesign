@@ -34,6 +34,7 @@ pub mod api_canvas;
 pub mod api_files;
 pub mod assets;
 pub mod canvas;
+pub mod canvases;
 pub mod config;
 pub mod events;
 pub mod generate;
@@ -94,6 +95,13 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route(
             "/api/canvas",
             get(api_canvas::get_canvas).post(api_canvas::put_canvas),
+        )
+        // -- 多画布 --
+        .route("/api/canvases", get(canvases::list).post(canvases::create))
+        .route("/api/canvases/{id}/open", post(canvases::open))
+        .route(
+            "/api/canvases/{id}",
+            axum::routing::delete(canvases::remove),
         )
         .route("/api/canvas/nodes", get(api_canvas::list_nodes))
         .route("/api/canvas/nodes/detail", post(api_canvas::node_detail))

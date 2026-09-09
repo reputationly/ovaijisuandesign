@@ -177,6 +177,18 @@ pub fn read(path: &Path) -> CanvasFile {
     }
 }
 
+/// 整份快照写回，**绕过破坏性写入防护**。
+///
+/// 只给"意图本身就是替换整份内容"的场景用：新建空画布、切换画布。
+/// 那些操作下节点数骤降是正常的，走 [`write`] 会被闸拦住 ——
+/// 表现是"点了新建但画布没变"，而且不报错。
+///
+/// **不要在保存路径上用它。** 那条路上的骤降就是要拦的东西。
+pub fn replace(path: &Path, next: &CanvasFile) -> Result<(), SaveError> {
+    validate(next).map_err(SaveError::Invalid)?;
+    atomic_write(path, next).map_err(SaveError::Io)
+}
+
 /// 整份快照写回。
 pub fn write(path: &Path, next: &CanvasFile) -> Result<(), SaveError> {
     validate(next).map_err(SaveError::Invalid)?;

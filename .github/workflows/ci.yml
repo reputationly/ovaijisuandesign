@@ -29,14 +29,20 @@ jobs:
         with:
           key: ${{ matrix.os }}
 
+      # **不能用 --all / --workspace。** `apps/desktop` 是 Tauri，编它要整套
+      # WebKitGTK（Linux）和一堆系统库；这个 job 只负责验业务逻辑，为它装
+      # 一套 GUI 依赖既慢又和目的无关。桌面端由 release.yml 的 desktop job
+      # 在各自平台上真打包时验证。
+      #
+      # fmt 例外：格式检查不编译，扫全仓是对的。
       - name: fmt
         run: cargo fmt --all -- --check
 
       - name: clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy -p gateway -p maas-media --all-targets -- -D warnings
 
       - name: test
-        run: cargo test --all
+        run: cargo test -p gateway -p maas-media
 
   # 前端和 MCP。这两块没有平台代码，但 bun 在 Windows 上的行为值得盯着 ——
   # `ovagent` 拉起 MCP server 用的就是它。

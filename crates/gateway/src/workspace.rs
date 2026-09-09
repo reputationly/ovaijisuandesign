@@ -52,8 +52,38 @@ impl Workspace {
         self.root.join(".hilo")
     }
 
+    /// **当前**画布的文件。
+    ///
+    /// 一直是 `.hilo/canvas.json` —— 这个路径不能变：MCP 工具、`ovagent`、
+    /// 以及官方应用读的都是它。多画布的做法是**换内容而不是换路径**：
+    /// 切换时把当前这份存进 `.hilo/canvases/<id>.json`，再把目标那份拷回来。
+    ///
+    /// 换路径的话，agent 那边还按老路径读，会一直看着一张空画布干活。
     pub fn canvas_path(&self) -> PathBuf {
         self.hilo().join("canvas.json")
+    }
+
+    /// 存放非当前画布的目录。
+    pub fn canvases_dir(&self) -> PathBuf {
+        self.hilo().join("canvases")
+    }
+
+    /// 某个画布的存档文件。
+    ///
+    /// `id` 由我们自己生成（uuid），但仍然要挡一道：拼进路径的东西一旦能带
+    /// `../`，就能写到工作区外面去。
+    pub fn canvas_file(&self, id: &str) -> Option<PathBuf> {
+        let ok = !id.is_empty()
+            && id.len() <= 64
+            && id
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
+        ok.then(|| self.canvases_dir().join(format!("{id}.json")))
+    }
+
+    /// 画布清单。`{ current, list: [{id, name, updatedAt, nodeCount}] }`
+    pub fn index_path(&self) -> PathBuf {
+        self.hilo().join("canvases.json")
     }
 
     pub fn assets_path(&self) -> PathBuf {
@@ -194,5 +224,22 @@ mod tests {
         assert_eq!(kind_for("wav"), "audio");
         assert_eq!(kind_for("md"), "text");
         assert_eq!(kind_for("bin"), "file");
+    }
+}
+
+#[cfg(test)]
+mod canvas_id_tests {
+    use super::Workspace;
+
+    #[test]
+    fn a_canvas_id_cannot_escape_the_workspace() {
+        // id 是我们自己生成的，但拼路径的东西一旦能带 `../`，
+        // 就能写到工作区外面 —— 这种地方不该靠"调用方不会传坏值"。
+        let ws = Workspace::new("/tmp/ws");
+        assert!(ws.canvas_file("../../etc/passwd").is_none());
+        assert!(ws.canvas_file("a/b").is_none());
+        assert!(ws.canvas_file("").is_none());
+        assert!(ws.canvas_file(&"x".repeat(65)).is_none());
+        assert!(ws.canvas_file("9f2c-4a1b_ok").is_some());
     }
 }
