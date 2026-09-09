@@ -190,7 +190,9 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    —— 已完成，**用他们的提示词跑通了我们的工具**
 6. ~~`crates/gateway` 补齐资产库、画布持久化、文件服务、事件推送~~
    —— 已完成。**官方应用不再需要**
-7. **自己的分发与升级通道**，包放 R2 / OBS ← 下一步。见
+7. ~~自己的分发通道，包放 R2 / OBS~~ —— 发布端已完成
+   （`scripts/release.py`，3.9 MB 的包，解压即用）。
+   **客户端侧的升级检查还没写。** 见
    [`docs/distribution.md`](docs/distribution.md)
 
 ### 第 6 步实测
@@ -263,12 +265,17 @@ Vite 按前缀分流：`/api/generate` 走我们的，其余走官方。**顺序
 ## 起环境
 
 ```bash
-cargo run --bin ovgw                           # gateway，首次会写配置模板
-cd apps/canvas-web && bun install && bun dev   # 画布 → http://localhost:5273
+cd apps/canvas-web && bun install && bun run build   # 画布产物，一次即可
+cargo run --bin ovgw                                # 画布 + 后端 → http://127.0.0.1:8100
 
 # agent（需要先 ./scripts/snapshot-agent-profiles.sh 快照一次官方配置）
 cargo run --bin ovagent -- <工作区> -- run "生成一张…"
+
+# 打发布包
+python3 scripts/release.py
 ```
+
+改前端时仍然可以用 `bun dev`（:5273，热更），它会把请求代理到 :8100。
 
 ## 平台支持
 

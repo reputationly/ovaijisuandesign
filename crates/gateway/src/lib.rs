@@ -28,6 +28,7 @@ pub mod generate;
 pub mod land;
 pub mod proxy;
 pub mod tasks;
+pub mod web;
 pub mod workspace;
 
 use std::sync::Arc;
@@ -56,6 +57,8 @@ pub struct AppState {
     pub tasks: Arc<TaskStore>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
+    /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
+    pub web_dir: Option<std::path::PathBuf>,
 }
 
 pub fn router(state: Arc<AppState>) -> Router {
@@ -85,9 +88,8 @@ pub fn router(state: Arc<AppState>) -> Router {
             "/api/generate/tasks/{task_id}/query",
             get(generate::query_task),
         )
-        // 其余全部反代给上游。等自己实现了对应路由，把它加到上面即可 ——
-        // 替换是逐条进行的，调用方始终只认这一个地址。
-        .fallback(any(proxy::handle))
+        // 剩下的先当静态资源找，找不到再反代。
+        .fallback(any(fallback))
         // 前端通常经 Vite 代理过来（同源），但直连调试时没有 CORS 会一头雾水。
         // 这是个只监听回环的本地服务，放开即可。
         .layer(
@@ -97,6 +99,24 @@ pub fn router(state: Arc<AppState>) -> Router {
                 .allow_methods(Any),
         )
         .with_state(state)
+}
+
+/// 兜底：先当前端资源找，再交给反代。
+///
+/// 顺序不能反 —— 反代在前的话，配了 upstream 时前端的每一个请求都会被
+/// 转发到官方 gateway，而它对 `/assets/app.js` 只会回 404。表现是
+/// "画布打不开"，但原因完全不在前端。
+async fn fallback(
+    axum::extract::State(state): axum::extract::State<Arc<AppState>>,
+    req: axum::extract::Request,
+) -> axum::response::Response {
+    let path = req.uri().path().to_string();
+    // `/api` 和 `/files` 是后端的地盘，永远不当静态资源找。
+    let is_api = path.starts_with("/api") || path.starts_with("/files");
+    if !is_api && let Some(dir) = state.web_dir.as_deref() {
+        return web::serve(dir, &path).await;
+    }
+    proxy::handle(axum::extract::State(state), req).await
 }
 
 /// 探活。**带上版本** —— 升级流程要靠它确认新版真的起来了，排查时也要靠它
@@ -132,6 +152,7 @@ mod tests {
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
             upstream: None,
+            web_dir: None,
         })
     }
 

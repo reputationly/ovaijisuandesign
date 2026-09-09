@@ -56,12 +56,13 @@ fn main() -> Result<()> {
         Some(w) => w,
         None => cfg.workspace_dir()?,
     };
-    let reference = repo_root()?.join("reference/agent-profiles");
-    anyhow::ensure!(
-        reference.is_dir(),
-        "还没快照官方配置：{}\n先跑 scripts/snapshot-agent-profiles.sh",
-        reference.display()
-    );
+    let reference = find_beside("reference/agent-profiles").context(
+        "还没快照官方配置。先跑一次 scripts/snapshot-agent-profiles.sh，\
+         或者用 OVAIJISUANDESIGN_ROOT 指到仓库根",
+    )?;
+    let mcp_entry = find_mcp_entry().context(
+        "找不到 MCP server 的入口（<可执行文件目录>/mcp/main.js 或 <仓库>/mcp/src/main.ts）",
+    )?;
 
     let opencode = find_opencode().context(
         "找不到 opencode。装一份（https://opencode.ai）并放进 PATH，\
@@ -73,19 +74,20 @@ fn main() -> Result<()> {
         std::env::temp_dir().join(format!("ovaijisuandesign-agent-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&staging);
     copy_dir(&reference, &staging).context("复制官方 agent 配置失败")?;
-    // 我们自己写的覆盖同名文件。
-    let ours = repo_root()?.join("agent");
-    for sub in ["agents", "contracts", "skills"] {
-        let from = ours.join(sub);
-        if from.is_dir() {
-            copy_dir(&from, &staging.join(sub))?;
+    // 我们自己写的覆盖同名文件。没有就跳过 —— 目前 agent/ 下只有 README。
+    if let Some(ours) = find_beside("agent") {
+        for sub in ["agents", "contracts", "skills"] {
+            let from = ours.join(sub);
+            if from.is_dir() {
+                copy_dir(&from, &staging.join(sub))?;
+            }
         }
     }
 
     let official: Value = serde_json::from_str(
         &std::fs::read_to_string(reference.join("base.json")).context("读官方 base.json 失败")?,
     )?;
-    let cfg_json = build_opencode_config(&cfg, &official, &repo_root()?);
+    let cfg_json = build_opencode_config(&cfg, &official, &mcp_entry);
     let cfg_file = staging.join("opencode.json");
     std::fs::write(&cfg_file, serde_json::to_vec_pretty(&cfg_json)?)?;
 
@@ -122,7 +124,7 @@ fn main() -> Result<()> {
 /// 这是整件事的重点：用他们的提示词，跑我们的工具。
 ///
 /// 唯独不带 `plugin`：那是他们的 `session-header.ts`，依赖他们的运行时注入。
-fn build_opencode_config(cfg: &Config, official: &Value, repo: &Path) -> Value {
+fn build_opencode_config(cfg: &Config, official: &Value, mcp_entry: &Path) -> Value {
     let model = &cfg.media.platform.chat_model;
     let mut root = serde_json::Map::new();
     for key in ["agent", "default_agent", "tools"] {
@@ -165,7 +167,7 @@ fn build_opencode_config(cfg: &Config, official: &Value, repo: &Path) -> Value {
             // 那 120 处调用写的都是 `hub_*`。
             "hub": {
                 "type": "local",
-                "command": ["bun", repo.join("mcp/src/main.ts").to_string_lossy()],
+                "command": ["bun", mcp_entry.to_string_lossy()],
                 "environment": { "GATEWAY_URL": format!("http://127.0.0.1:{}", cfg.port) },
             }
         }),
@@ -206,26 +208,56 @@ fn find_opencode() -> Option<PathBuf> {
     bundled.is_file().then_some(bundled)
 }
 
-/// 仓库根目录。可执行文件在 `target/<profile>/`，往上找到有 `Cargo.toml`
-/// 且带 `[workspace]` 的那一层。
-fn repo_root() -> Result<PathBuf> {
-    if let Some(p) = std::env::var_os("OVAIJISUANDESIGN_ROOT") {
-        return Ok(PathBuf::from(p));
+/// MCP server 的入口。**两种形态都要认**：
+///
+/// - 发布包：`<可执行文件目录>/mcp/main.js`（`bun build` 出来的单文件，
+///   不需要 node_modules）
+/// - 仓库：`<仓库>/mcp/src/main.ts`
+///
+/// 写死其中一种的话，另一种下 agent 会启动失败，而错误信息只会说
+/// "spawn bun 失败"，看不出是路径的问题。
+fn find_mcp_entry() -> Option<PathBuf> {
+    if let Some(p) = std::env::var_os("OVMCP_ENTRY").map(PathBuf::from) {
+        return p.is_file().then_some(p);
     }
-    let mut dir = std::env::current_exe()?;
+    if let Some(p) = find_beside("mcp/main.js") {
+        return Some(p);
+    }
+    find_beside("mcp/src/main.ts")
+}
+
+/// 在「可执行文件旁边」和「仓库根」两处找一个相对路径。
+///
+/// 顺序：`OVAIJISUANDESIGN_ROOT` → 可执行文件目录 → 往上找 workspace 根。
+fn find_beside(rel: &str) -> Option<PathBuf> {
+    if let Some(root) = std::env::var_os("OVAIJISUANDESIGN_ROOT").map(PathBuf::from) {
+        let p = root.join(rel);
+        if p.exists() {
+            return Some(p);
+        }
+    }
+    let exe = std::env::current_exe().ok()?;
+    let base = exe.parent()?;
+    let beside = base.join(rel);
+    if beside.exists() {
+        return Some(beside);
+    }
+    // `cargo run` 时可执行文件在 target/<profile>/，往上找 workspace 根。
+    let mut dir = base.to_path_buf();
     while dir.pop() {
-        let manifest = dir.join("Cargo.toml");
-        if manifest.is_file()
-            && std::fs::read_to_string(&manifest)
+        let candidate = dir.join(rel);
+        if candidate.exists() {
+            return Some(candidate);
+        }
+        if dir.join("Cargo.toml").is_file()
+            && std::fs::read_to_string(dir.join("Cargo.toml"))
                 .map(|s| s.contains("[workspace]"))
                 .unwrap_or(false)
         {
-            return Ok(dir);
+            break;
         }
     }
-    // 从 `cargo run` 起的时候 current_exe 在 target/ 里，上面那条能找到。
-    // 装到别处时用环境变量指 —— 说清楚比猜一个默认值好。
-    anyhow::bail!("定位不到仓库根目录，用 OVAIJISUANDESIGN_ROOT 指定")
+    None
 }
 
 fn copy_dir(from: &Path, to: &Path) -> Result<()> {

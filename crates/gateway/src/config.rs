@@ -21,6 +21,9 @@ pub struct Config {
     /// 这样两边的启动脚本能共用。
     #[serde(default)]
     pub workspace: Option<PathBuf>,
+    /// 前端产物目录。留空则自动找，顺序见 [`crate::web::locate`]。
+    #[serde(default)]
+    pub web_dir: Option<PathBuf>,
     /// 没实现的路由反代到哪里，例如官方 gateway `http://127.0.0.1:8099`。
     ///
     /// 留空表示不反代 —— 那是"已经能独立跑"的状态。见 [`crate::proxy`]。
@@ -42,6 +45,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             port: default_port(),
+            web_dir: None,
             workspace: None,
             upstream: None,
             media: MediaConfig {

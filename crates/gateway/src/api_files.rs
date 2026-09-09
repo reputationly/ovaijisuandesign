@@ -253,6 +253,7 @@ mod tests {
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: std::sync::Arc::new(crate::tasks::TaskStore::new()),
             upstream: None,
+            web_dir: None,
         });
 
         // 非 http(s)：连不上网也能走到判断分支。

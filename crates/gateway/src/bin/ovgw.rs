@@ -60,6 +60,7 @@ async fn main() -> Result<()> {
         local,
         tasks: Arc::new(TaskStore::new()),
         upstream: cfg.upstream.clone(),
+        web_dir: gateway::web::locate(cfg.web_dir.as_deref()),
     });
 
     let listener = tokio::net::TcpListener::bind(addr)
@@ -70,6 +71,12 @@ async fn main() -> Result<()> {
         None => {
             tracing::info!("gateway 已监听 http://{addr}，未配置 upstream（未实现的路由回 404）")
         }
+    }
+    match state.web_dir.as_deref() {
+        Some(d) => tracing::info!("画布: http://{addr}/  （前端产物 {}）", d.display()),
+        None => tracing::warn!(
+            "没找到前端产物，画布打不开。在 apps/canvas-web 里跑一次 `bun run build`"
+        ),
     }
     tracing::info!("工作区: {}", ws_dir.display());
     tracing::info!("配置: {}", path.display());

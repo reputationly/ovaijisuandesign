@@ -130,23 +130,83 @@ ComfyUI 后端那种形状：一个清单 + 每个目标一个 `latest.json` + �
 **下载和安装分开。** 官方那个入口/worker 双模式是对的 —— 装的过程不能占住
 调用方。我们的 gateway 是个服务，升级得能在后台下、下完再切。
 
-## 三、这件事现在就影响的决定
+## 三、已经实现的
 
-还没到实现的时候，但下面几条现在做错、以后要返工：
+`scripts/release.py`。**不依赖 velopack** —— 那是给桌面安装器的。
 
-1. **配置和程序必须分开存。** 配置在
+```bash
+python3 scripts/release.py                # 打包，产物在 dist/
+python3 scripts/release.py --publish      # 打包并上传
+```
+
+### 发布包的形态
+
+```text
+ovgw          gateway 服务，自己把画布也服务起来
+ovagent       agent 启动器
+web/          canvas-web 的静态产物
+mcp/main.js   bun build 出来的单文件，不需要 node_modules
+```
+
+3.9 MB。实测：解到一个干净目录（没有仓库）就能跑 ——
+`ovgw` 从旁边的 `web/` 服务画布，`ovagent` 从旁边的 `mcp/main.js` 拉起
+MCP server。
+
+**`reference/` 不在包里**：那是 MiniMax 的专有配置，不能分发。缺了它
+`ovagent` 会明确说"还没快照官方配置"，而不是启动到一半失败。
+
+### 落在磁盘上的布局
+
+```text
+<base>/manifest.json                         唯一入口，客户端只知道这个
+<base>/<target>/latest.json                  小、可变
+<base>/<version>/<target>/<sha256>.tar.gz    大、不可变
+```
+
+### 发布顺序
+
+先把不可变的包发到两个源、**都回读校验通过**，最后才翻 `latest` 指针。
+
+顺序反了会出现"latest 指向一个某个区下不到的包"—— 用户看到的是升级失败，
+而两边的对象存储各自都"正常"。
+
+回读校验不是可选步骤：传完就翻指针的话，一次半截的上传会让所有客户端
+升级到一个下不完的包。
+
+R2 和 OBS 都用 S3 API，所以上传是同一段代码，靠两组环境变量区分：
+
+```bash
+OVAIJISUAN_R2_ENDPOINT   OVAIJISUAN_R2_BUCKET
+OVAIJISUAN_OBS_ENDPOINT  OVAIJISUAN_OBS_BUCKET
+OVAIJISUAN_RELEASE_BASE  # 写进 latest.json 的公开基地址
+```
+
+> **`--publish` 这条路还没真跑过** —— 手上没有两边的凭据。打包、算哈希、
+> 写清单这三步是实测过的；上传和回读校验只做到"代码写完"。第一次真发布时
+> 要盯着这一段。
+
+## 四、这件事现在就影响的决定
+
+原来列的四条，现在的状态：
+
+1. ~~**配置和程序必须分开存**~~ —— 配置在
    `~/Library/Application Support/ovaijisuandesign/config.json`，
-   程序在别处 —— 升级换程序不能碰配置。**现在已经是这样的。**
-2. **gateway 要能报自己的版本。** 加一条 `GET /api/health/live` 之外的
-   版本端点，或者让 health 带上版本。升级流程和排查都要它。**还没做。**
-3. **`canvas-web` 的产物不能硬编码后端地址。** 现在是 Vite 代理，打包后
-   得从运行时拿。**还没做，等真打包时一起。**
-4. **不要把 `mcp/` 的绝对路径写死进配置。** `run-agent.sh` 现在拼的是
-   `$ROOT/mcp/src/main.ts`，装到用户机器上得按安装目录解析。
+   升级换程序不碰配置。
+2. ~~**gateway 要能报自己的版本**~~ —— `GET /api/health/live` 回
+   `{ok, service, version}`。
+3. ~~**`canvas-web` 的产物不能硬编码后端地址**~~ —— 打包后由 `ovgw` 同源
+   服务，前端只用相对路径，本来就没有后端地址可硬编码。
+4. ~~**不要把 `mcp/` 的绝对路径写死**~~ —— `ovagent` 按
+   `<可执行文件目录>/mcp/main.js` → `<仓库>/mcp/src/main.ts` 的顺序找，
+   两种形态都认。
 
-## 四、还没定的
+## 五、还没定的
 
-- R2 和 OBS 谁是主、谁是镜像
-- 增量更新做不做（Rust 二进制十几 MB，直接全量换可能更省事）
-- 签名密钥怎么管
-- 用不用现成的（`cargo-dist`、`velopack` 也支持非 Electron）还是自己写发布脚本
+- R2 和 OBS 谁是主、谁是镜像（现在是并列，客户端拿到两个地址自己选）
+- **客户端侧的升级检查还没写** —— 现在只有发布端。`ovgw` 要能读
+  `manifest.json` → `latest.json`，比版本，后台下载，下完再切
+- 增量更新做不做。整包才 3.9 MB，全量换大概率更省事 —— 但 Rust 二进制
+  占大头，将来内嵌前端会变大
+- 签名密钥怎么管（见上面「校验只能防损坏」那一段）
+- Windows 上要不要做安装器。官方那套是 NSIS 外壳 + velopack；我们是三个
+  文件加一个目录，解压即用可能就够
