@@ -22,6 +22,7 @@ export function ChatPanel({
   onDone,
   onReload,
   onCollapse,
+  initialPrompt,
 }: {
   file: CanvasFile | null
   events: { at: string; event: string }[]
@@ -30,13 +31,15 @@ export function ChatPanel({
   onDone: () => void
   onReload: () => void
   onCollapse: () => void
+  initialPrompt?: string
 }) {
   return (
     <aside
       className="flex h-full w-[380px] shrink-0 flex-col border-l"
       style={{ background: "var(--background)", borderColor: "var(--border)" }}
     >
-      <div className="flex h-11 shrink-0 items-center gap-2 px-3">
+      {/* 右栏顶部也当拖拽区：侧栏收起时那一条就没了，不留第二处会拖不动。 */}
+      <div data-tauri-drag-region className="flex h-11 shrink-0 items-center gap-2 px-3">
         <GripVertical size={14} style={{ color: "var(--muted-foreground)" }} />
         <strong className="truncate text-[13px]">画布</strong>
         <span className="flex-1" />
@@ -93,7 +96,7 @@ export function ChatPanel({
       </div>
 
       <div className="shrink-0 px-3 pb-3">
-        <Generate onDone={onDone} autoFocus={composerOpen} />
+        <Generate onDone={onDone} autoFocus={composerOpen} initial={initialPrompt} />
       </div>
     </aside>
   )

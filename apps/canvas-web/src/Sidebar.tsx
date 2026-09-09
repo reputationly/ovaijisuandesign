@@ -95,8 +95,15 @@ export function Sidebar({
         color: "var(--sidebar-foreground)",
       }}
     >
-      {/* 红绿灯占位 + 右侧两个图标。高度对齐官方的 trafficLightPosition。 */}
-      <div className="flex h-11 shrink-0 items-center justify-end gap-1 pr-2 pl-20">
+      {/* 红绿灯占位 + 右侧两个图标。高度对齐官方的 trafficLightPosition。
+          **`data-tauri-drag-region` 是必须的**：窗口用 hiddenInset 之后就
+          没有系统标题栏了，不自己声明一块可拖区域，整个窗口拖不动 ——
+          只能靠边缘缩放，用起来像卡住了。按钮不受影响，Tauri 按事件目标
+          判断，点在按钮上不会触发拖拽。 */}
+      <div
+        data-tauri-drag-region
+        className="flex h-11 shrink-0 items-center justify-end gap-1 pr-2 pl-20"
+      >
         <IconBtn title="搜索" onClick={() => setSearching((v) => !v)}>
           <Search size={16} />
         </IconBtn>

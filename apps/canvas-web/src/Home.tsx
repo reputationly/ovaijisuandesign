@@ -1,5 +1,5 @@
 import { ArrowUp, ExternalLink, Music, Video, Image as ImageIcon, Wand2 } from "lucide-react"
-import { useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 
 import { cn } from "./lib"
 
@@ -108,13 +108,43 @@ const INSPIRATIONS: Inspiration[] = [
   },
 ]
 
-/** 我们实际装着的 agent。名字和职责取自 `reference/agent-profiles/agents/`。 */
+/**
+ * 我们实际装着的 agent。名字和职责取自 `reference/agent-profiles/agents/`。
+ *
+ * `hint` 是点这张卡时填进输入框的话 —— 卡片不能只是介绍文字，
+ * 点了得有事发生，否则就是个摆设。
+ */
 const SKILLS = [
-  { id: "planner", name: "planner", desc: "把一句话拆成可执行的步骤，决定调哪些工具。" },
-  { id: "router", name: "router", desc: "判断这一轮该交给哪个专项 agent。" },
-  { id: "executor", name: "executor", desc: "执行具体步骤，负责落盘和错误恢复。" },
-  { id: "media-agent", name: "media-agent", desc: "出图 / 出视频 / 出音乐，管参数和轮询。" },
-  { id: "comfyui-agent", name: "comfyui-agent", desc: "ComfyUI 工作流：解析图、收参数、跑、回报产物。" },
+  {
+    id: "planner",
+    name: "planner",
+    desc: "把一句话拆成可执行的步骤，决定调哪些工具。",
+    hint: "帮我规划一下：做一支 15 秒的产品短片，先出分镜再出图",
+  },
+  {
+    id: "router",
+    name: "router",
+    desc: "判断这一轮该交给哪个专项 agent。",
+    hint: "我想给这张图换个背景，该用什么方式做",
+  },
+  {
+    id: "executor",
+    name: "executor",
+    desc: "执行具体步骤，负责落盘和错误恢复。",
+    hint: "把画布上所有图片按 16:9 重新出一遍并放到新的一行",
+  },
+  {
+    id: "media-agent",
+    name: "media-agent",
+    desc: "出图 / 出视频 / 出音乐，管参数和轮询。",
+    hint: "生成三张不同角度的产品静物图，1:1，2K",
+  },
+  {
+    id: "comfyui-agent",
+    name: "comfyui-agent",
+    desc: "ComfyUI 工作流：解析图、收参数、跑、回报产物。",
+    hint: "用画布上的 ComfyUI 工作流跑一遍，参数保持默认",
+  },
 ]
 
 const KIND_ICON: Record<string, ReactNode> = {
@@ -133,11 +163,14 @@ export function Home({
   const [tab, setTab] = useState<"inspiration" | "skill">("inspiration")
   const [cat, setCat] = useState<string>("全部")
   const [prompt, setPrompt] = useState("")
+  const inputRef = useRef<HTMLTextAreaElement | null>(null)
 
   const list = INSPIRATIONS.filter((i) => cat === "全部" || i.category === cat)
 
   return (
-    <div className="h-full overflow-auto" style={{ background: "var(--background)" }}>
+    <div className="relative h-full overflow-auto" style={{ background: "var(--background)" }}>
+      {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
+      <div data-tauri-drag-region className="absolute inset-x-0 top-0 h-11" />
       <div
         className="mx-auto flex flex-col px-10 pt-16 pb-20"
         style={{ maxWidth: "var(--home-primary-stack-width)" }}
@@ -179,6 +212,7 @@ export function Home({
           }}
         >
           <textarea
+            ref={inputRef}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => {
@@ -276,7 +310,13 @@ export function Home({
               {list.map((i) => (
                 <button
                   key={i.id}
-                  onClick={() => onSubmit(i.prompt)}
+                  // 官方的行为是**填进上面的输入框**，不是直接跳走 ——
+                  // 用户通常要在预设基础上改两句再发。
+                  onClick={() => {
+                    setPrompt(i.prompt)
+                    inputRef.current?.focus()
+                    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+                  }}
                   className="flex flex-col overflow-hidden text-left transition-colors"
                   style={{
                     borderRadius: "var(--home-query-card-radius)",
@@ -318,9 +358,14 @@ export function Home({
             style={{ gap: "var(--home-query-card-gap)" }}
           >
             {SKILLS.map((s) => (
-              <div
+              <button
                 key={s.id}
-                className="flex flex-col gap-1 p-4"
+                onClick={() => {
+                  setPrompt(s.hint)
+                  inputRef.current?.focus()
+                  inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+                }}
+                className="flex flex-col gap-1 p-4 text-left transition-colors"
                 style={{
                   borderRadius: "var(--home-query-card-radius)",
                   border: "1px solid var(--home-query-card-border)",
@@ -331,7 +376,7 @@ export function Home({
                 <span className="text-[12px] leading-snug" style={{ color: "var(--muted-foreground)" }}>
                   {s.desc}
                 </span>
-              </div>
+              </button>
             ))}
             <p
               className="col-span-full mt-2 text-[12px]"

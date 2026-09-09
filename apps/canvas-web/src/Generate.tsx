@@ -24,7 +24,22 @@ type Phase =
  * 前端只知道"提交 → 轮询 → 拿到一个工作区路径 → 建节点" —— 这正是官方
  * 契约的形状。落盘藏在 gateway 里，等自己的资产库写完，前端一行都不用改。
  */
-export function Generate({ onDone, autoFocus }: { onDone: () => void; autoFocus?: boolean }) {
+export function Generate({
+  onDone,
+  autoFocus,
+  initial,
+}: {
+  onDone: () => void
+  autoFocus?: boolean
+  /**
+   * 从首页带过来的提示词。
+   *
+   * **必须是 prop，不能靠事件。** 之前用的是 `window.dispatchEvent`，
+   * 而首页那一下是「切到画布 + 发事件」同一个 tick 完成的 —— 右栏还没渲染
+   * 出来，监听器根本没挂上，事件被直接丢掉。表现就是"点了没反应"。
+   */
+  initial?: string
+}) {
   const [prompt, setPrompt] = useState("")
   const [ratio, setRatio] = useState("1:1")
   const [resolution, setResolution] = useState("1K")
@@ -34,19 +49,13 @@ export function Generate({ onDone, autoFocus }: { onDone: () => void; autoFocus?
     if (autoFocus) inputRef.current?.focus()
   }, [autoFocus])
 
-  // 首页点了灵感卡片 / 提交了输入 → 把内容带到这里。用事件而不是把 state
-  // 提到 App：提上去的话每次打字都会让整棵画布重渲染。
+  // 首页带过来的内容。只在它变化时覆盖，不会把用户正在打的字冲掉。
   useEffect(() => {
-    const fill = (e: Event) => {
-      const v = (e as CustomEvent<string>).detail
-      if (typeof v === "string") {
-        setPrompt(v)
-        inputRef.current?.focus()
-      }
+    if (initial) {
+      setPrompt(initial)
+      inputRef.current?.focus()
     }
-    window.addEventListener("composer:fill", fill)
-    return () => window.removeEventListener("composer:fill", fill)
-  }, [])
+  }, [initial])
   const abort = useRef<AbortController | null>(null)
 
   const busy = phase.kind === "generating" || phase.kind === "placing"

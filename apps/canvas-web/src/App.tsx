@@ -61,6 +61,14 @@ export default function App() {
   const [tool, setTool] = useState<"select" | "hand">("select")
   const [sticker, setSticker] = useState(false)
   const [help, setHelp] = useState(false)
+  /**
+   * 首页填好、要带到画布输入框里的内容。
+   *
+   * **必须是 state 不能是事件。** 之前用 dispatchEvent：切视图和发事件在
+   * 同一个 tick，右栏还没渲染出来、监听器没挂上，事件被丢掉 ——
+   * 表现就是"点了没反应"。
+   */
+  const [pendingPrompt, setPendingPrompt] = useState<string | undefined>()
   // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
   const [leftOpen, setLeftOpen] = useState(() => localStorage.getItem("left-open") !== "0")
   const [rightOpen, setRightOpen] = useState(() => localStorage.getItem("right-open") !== "0")
@@ -271,9 +279,10 @@ export default function App() {
         {view === "home" ? (
           <Home
             onSubmit={(p) => {
-              setView("canvas")
+              setPendingPrompt(p)
               setComposerOpen(true)
-              window.dispatchEvent(new CustomEvent("composer:fill", { detail: p }))
+              setRightOpen(true)
+              setView("canvas")
             }}
             onOpenCanvas={() => setView("canvas")}
           />
@@ -466,7 +475,9 @@ export default function App() {
           <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />
         )}
 
-        {rightOpen ? (
+        {/* 首页占满，不出右栏 —— 官方点「开始创作」也是整屏的首页。
+            右栏是画布的伴生面板，首页上没有画布，它就没有意义。 */}
+        {view === "canvas" && rightOpen ? (
           <ChatPanel
             file={file}
             events={events}
@@ -475,8 +486,9 @@ export default function App() {
             onDone={() => void load()}
             onReload={() => void load()}
             onCollapse={() => setRightOpen(false)}
+            initialPrompt={pendingPrompt}
           />
-        ) : (
+        ) : view === "canvas" ? (
           <button
             onClick={() => setRightOpen(true)}
             title="展开面板"
@@ -485,7 +497,7 @@ export default function App() {
           >
             <PanelRight size={16} style={{ color: "var(--topbar-icon-fg)" }} />
           </button>
-        )}
+        ) : null}
       </div>
     </CanvasActionsContext>
   )
