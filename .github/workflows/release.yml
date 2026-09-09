@@ -53,37 +53,59 @@ jobs:
           echo "base=$BASE"     >> "$GITHUB_OUTPUT"
 
   # ==================== 各平台打包 ====================
-  # 每个目标在对应的原生 runner 上打，不交叉编译 —— rustls 依赖 ring，
-  # 那是 C 代码，交叉编译要目标平台的 SDK 头文件。
+  # **一台 macOS runner 出两个架构**：arm64 ⇄ x86_64 能交叉（Xcode 自带两个
+  # SDK，连 ring 的 C 代码都能过，本地实测 15 秒）。私仓的 Actions 配额里
+  # macOS 是 10 倍计费，省下一台是实打实的。
+  #
+  # 别的方向交叉不了：rustls 依赖 ring，要目标平台的 SDK 头文件 ——
+  # 在 Mac 上试过给 Windows 交叉，卡在 assert.h 找不到。所以 Windows 和
+  # Linux 各用自己的 runner。
   build:
     needs: prepare
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { os: macos-latest, target: darwin-arm64 }
-          - { os: macos-13, target: darwin-x64 }
-          - { os: windows-latest, target: win32-x64 }
-          - { os: ubuntu-latest, target: linux-x64 }
-    # 空跑只打一个目标，够验证分发链路了。
+          - { os: macos-latest, targets: "darwin-arm64 darwin-x64" }
+          - { os: windows-latest, targets: "win32-x64" }
+          - { os: ubuntu-latest, targets: "linux-x64" }
     runs-on: ${{ matrix.os }}
-    name: 打包 ${{ matrix.target }}
-    if: ${{ !inputs.dry_run || matrix.target == 'linux-x64' }}
+    name: 打包 ${{ matrix.targets }}
+    # 空跑只打 linux-x64，够验证分发链路了（也是最便宜的 runner）。
+    if: ${{ !inputs.dry_run || matrix.os == 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          key: release-${{ matrix.target }}
+          key: release-${{ matrix.os }}
       - uses: oven-sh/setup-bun@v2
 
+      - name: 装交叉编译目标
+        if: matrix.os == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
       - name: 打包
-        run: python3 scripts/release.py --target ${{ matrix.target }} --base "${{ needs.prepare.outputs.base }}"
+        shell: bash
+        env:
+          BASE: ${{ needs.prepare.outputs.base }}
+        run: |
+          for t in ${{ matrix.targets }}; do
+            echo "::group::$t"
+            # macOS 上一律走 --cross 显式指定 triple：不指定的话两个架构会
+            # 写进同一个 target/release/，第二次构建把第一次的覆盖掉，
+            # 而两个包的内容会变成一样的——名字不同、架构相同，装错的人
+            # 只会看到"打不开"。
+            EXTRA=""
+            [ "${{ matrix.os }}" = "macos-latest" ] && EXTRA="--cross"
+            python3 scripts/release.py --target "$t" --base "$BASE" $EXTRA
+            echo "::endgroup::"
+          done
 
       # 只传 dist/，里面已经是发布布局（版本目录 + latest.json + manifest.json）。
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.target }}
+          name: dist-${{ matrix.os }}
           path: dist/
           retention-days: 7
 

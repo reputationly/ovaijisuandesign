@@ -67,7 +67,22 @@ def run(cmd: list[str], cwd: Path = ROOT) -> None:
     subprocess.run(cmd, cwd=cwd, check=True)
 
 
-def build(target: str) -> Path:
+# 目标 → Rust 的 target triple。只在需要交叉编译时用得上。
+#
+# macOS 上 arm64 ⇄ x86_64 是能交叉的（Xcode 自带两个 SDK，连 ring 的 C 代码
+# 都能过），所以**两个 mac 架构一台 runner 就能出** —— 私仓的 Actions 配额里
+# macOS 是 10 倍计费，省下一台是实打实的。
+#
+# 别的方向交叉不了：rustls 依赖 ring，那是 C 代码，要目标平台的 SDK 头文件。
+RUST_TRIPLES = {
+    "darwin-arm64": "aarch64-apple-darwin",
+    "darwin-x64": "x86_64-apple-darwin",
+    "win32-x64": "x86_64-pc-windows-msvc",
+    "linux-x64": "x86_64-unknown-linux-gnu",
+}
+
+
+def build(target: str, cross: bool = False) -> Path:
     """构建三块产物，摆成发布包的形态。
 
     ```text
@@ -75,16 +90,27 @@ def build(target: str) -> Path:
     web/                canvas-web 的静态产物
     mcp/main.js         bun build 出来的单文件（不需要 node_modules）
     ```
+
+    `cross=True` 时显式指定 `--target`，产物落在
+    `target/<triple>/release/` 而不是 `target/release/`。
     """
     stage = DIST / "stage" / target
     shutil.rmtree(stage, ignore_errors=True)
     stage.mkdir(parents=True)
 
     print("构建 Rust")
-    run(["cargo", "build", "--release", "-p", "gateway"])
+    cmd = ["cargo", "build", "--release", "-p", "gateway"]
+    bin_dir = ROOT / "target/release"
+    if cross:
+        triple = RUST_TRIPLES.get(target)
+        if not triple:
+            raise SystemExit(f"不认识的目标 {target}，没法交叉编译")
+        cmd += ["--target", triple]
+        bin_dir = ROOT / "target" / triple / "release"
+    run(cmd)
     exe = ".exe" if target.startswith("win32") else ""
     for name in ("ovgw", "ovagent"):
-        src = ROOT / "target/release" / f"{name}{exe}"
+        src = bin_dir / f"{name}{exe}"
         if not src.is_file():
             raise SystemExit(f"缺产物: {src}")
         shutil.copy2(src, stage / f"{name}{exe}")
@@ -240,6 +266,11 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--target", default=host_target())
     ap.add_argument(
+        "--cross",
+        action="store_true",
+        help="显式指定 --target 交叉编译。macOS 上出另一个架构时用",
+    )
+    ap.add_argument(
         "--base",
         default=os.environ.get("OVAIJISUAN_RELEASE_BASE", "https://example.invalid/release"),
         help="包的公开基地址，写进 latest.json",
@@ -275,7 +306,7 @@ def main() -> int:
     target = args.target
     print(f"版本 {ver}  目标 {target}\n")
 
-    stage = build(target)
+    stage = build(target, cross=args.cross)
     bundle, digest = pack(stage, ver, target)
     write_manifests(ver, target, bundle, digest, args.base)
 
