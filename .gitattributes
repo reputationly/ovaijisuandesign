@@ -1,0 +1,9 @@
+# 工作区一律 LF。Windows 的 checkout 默认 autocrlf=true，会把文本文件换成
+# CRLF，然后各种按 "\n" 切行的解析、以及 sha256 校验的产物都会和别的平台不一样。
+* text=auto eol=lf
+
+# 二进制别碰
+*.png binary
+*.jpg binary
+*.ico binary
+*.tar.gz binary

@@ -18,7 +18,9 @@ const SPEC: Map<string, Set<string>> = (() => {
   const md = readFileSync(fileURLToPath(new URL("../../docs/mcp-tools.md", import.meta.url)), "utf8")
   const spec = new Map<string, Set<string>>()
   // 表格行形如： | `canvas_get_node` | `nodeId`, `nodeIds` |
-  for (const line of md.split("\n")) {
+  // 按 /\r?\n/ 切：Windows 的 checkout 可能带 CRLF，留着 \r 会让 `\|$` 匹配不上，
+  // 于是 SPEC 空掉——测试不会报"解析失败"，而是每条断言各挂各的。
+  for (const line of md.split(/\r?\n/)) {
     const m = /^\|\s*`([a-z0-9_]+)`\s*\|\s*(.*?)\s*\|$/.exec(line)
     if (!m) continue
     const params = [...m[2]!.matchAll(/`([a-zA-Z0-9_]+)`/g)].map((x) => x[1]!)
