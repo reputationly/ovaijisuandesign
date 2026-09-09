@@ -190,9 +190,10 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    —— 已完成，**用他们的提示词跑通了我们的工具**
 6. ~~`crates/gateway` 补齐资产库、画布持久化、文件服务、事件推送~~
    —— 已完成。**官方应用不再需要**
-7. ~~自己的分发通道，包放 R2 / OBS~~ —— 发布端 + CI 流水线 + 客户端检查
-   都已完成（3.9 MB 的包，解压即用）。**下载和安装还没写** ——
-   现在只到"知道有新版本"。见 [`docs/distribution.md`](docs/distribution.md)
+7. ~~自己的分发通道~~ —— 发布端 + CI 流水线 + 客户端检查都已完成，
+   **两个源实测跑通**（GitHub Release + Cloudflare R2，四个平台的包，
+   3.9 MB 解压即用）。**下载和安装还没写** —— 现在只到"知道有新版本"。
+   见 [`docs/distribution.md`](docs/distribution.md)
 
 ### 第 6 步实测
 
