@@ -11,7 +11,7 @@ import {
   Video,
   Workflow,
 } from "lucide-react"
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 
 import type { CanvasFile, NodeDetail } from "./api"
 import { cn } from "./lib"
@@ -44,13 +44,21 @@ const KIND_ICON: Record<string, ReactNode> = {
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
+  const [open, setOpen] = useState(true)
   return (
     <div className="mt-4">
-      <button className="flex w-full items-center gap-1 px-3 py-1 text-[12px] text-[var(--home-sidebar-section-text)]">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-1 px-3 py-1 text-[12px] text-[var(--home-sidebar-section-text)]"
+      >
         {title}
-        <ChevronDown size={12} />
+        <ChevronDown
+          size={12}
+          className="transition-transform"
+          style={{ transform: open ? undefined : "rotate(-90deg)" }}
+        />
       </button>
-      {children}
+      {open && children}
     </div>
   )
 }
@@ -62,6 +70,8 @@ export function Sidebar({
   right,
   view,
   onView,
+  onCollapse,
+  onPick,
 }: {
   file: CanvasFile | null
   details: Map<string, NodeDetail>
@@ -69,7 +79,12 @@ export function Sidebar({
   right?: ReactNode
   view: "home" | "canvas"
   onView: (v: "home" | "canvas") => void
+  onCollapse: () => void
+  /** 点列表里的某一项 → 在画布上选中并居中。 */
+  onPick: (nodeId: string) => void
 }) {
+  const [searching, setSearching] = useState(false)
+  const [q, setQ] = useState("")
   return (
     <aside
       className="flex h-full shrink-0 flex-col border-r"
@@ -82,13 +97,31 @@ export function Sidebar({
     >
       {/* 红绿灯占位 + 右侧两个图标。高度对齐官方的 trafficLightPosition。 */}
       <div className="flex h-11 shrink-0 items-center justify-end gap-1 pr-2 pl-20">
-        <IconBtn>
+        <IconBtn title="搜索" onClick={() => setSearching((v) => !v)}>
           <Search size={16} />
         </IconBtn>
-        <IconBtn>
+        <IconBtn title="收起侧栏" onClick={onCollapse}>
           <PanelLeft size={16} />
         </IconBtn>
       </div>
+
+      {searching && (
+        <div className="px-3 pb-2">
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && (setQ(""), setSearching(false))}
+            placeholder="按名字过滤"
+            className="w-full rounded-md px-2 py-1.5 text-[13px] outline-none"
+            style={{
+              background: "var(--bg-subtle)",
+              color: "var(--foreground)",
+              border: "1px solid var(--sidebar-border)",
+            }}
+          />
+        </div>
+      )}
 
       <div className="flex items-center gap-2 px-3 pt-1 pb-3">
         <img src="/logo.png" alt="" width={24} height={24} className="shrink-0 rounded" />
@@ -123,12 +156,21 @@ export function Sidebar({
       <div className="min-h-0 flex-1 overflow-auto">
         <Section title="未分组">
           <div className="px-2">
-            {(file?.nodes ?? []).map((n) => {
+            {(file?.nodes ?? [])
+              .filter((n) => {
+                if (!q.trim()) return true
+                const name = details.get(n.id)?.name ?? n.id
+                return name.toLowerCase().includes(q.trim().toLowerCase())
+              })
+              .map((n) => {
               const d = details.get(n.id)
               return (
                 <button
                   key={n.id}
-                  onClick={() => onView("canvas")}
+                  onClick={() => {
+                    onView("canvas")
+                    onPick(n.id)
+                  }}
                   className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] text-[var(--home-sidebar-secondary-text)] hover:bg-[var(--home-sidebar-nav-hover)]"
                   title={d?.name ?? n.id}
                 >
@@ -164,10 +206,19 @@ export function Sidebar({
   )
 }
 
-function IconBtn({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
+function IconBtn({
+  children,
+  onClick,
+  title,
+}: {
+  children: ReactNode
+  onClick?: () => void
+  title?: string
+}) {
   return (
     <button
       onClick={onClick}
+      title={title}
       className={cn(
         "flex h-7 w-7 items-center justify-center rounded-md",
         "text-[var(--home-sidebar-primary-text)] hover:bg-[var(--home-sidebar-nav-hover)]",

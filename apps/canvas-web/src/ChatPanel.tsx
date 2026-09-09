@@ -21,6 +21,7 @@ export function ChatPanel({
   composerOpen,
   onDone,
   onReload,
+  onCollapse,
 }: {
   file: CanvasFile | null
   events: { at: string; event: string }[]
@@ -28,6 +29,7 @@ export function ChatPanel({
   composerOpen: boolean
   onDone: () => void
   onReload: () => void
+  onCollapse: () => void
 }) {
   return (
     <aside
@@ -47,6 +49,8 @@ export function ChatPanel({
           <Plus size={16} />
         </button>
         <button
+          onClick={onCollapse}
+          title="收起面板"
           className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-[var(--canvas-controls-hover)]"
           style={{ color: "var(--topbar-icon-fg)" }}
         >

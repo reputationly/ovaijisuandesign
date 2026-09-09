@@ -12,7 +12,7 @@ import {
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
-import { Copy, Maximize2, RefreshCw, Trash2, Wand2 } from "lucide-react"
+import { Copy, Maximize2, PanelLeft, PanelRight, RefreshCw, Trash2, Wand2 } from "lucide-react"
 
 import {
   CANVAS_MODES,
@@ -27,8 +27,8 @@ import {
   type CanvasMode,
   type NodeDetail,
 } from "./api"
-import { toCanvasFile, toFlow, type NodeData } from "./canvas"
-import { BackgroundPicker, BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
+import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
+import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { Home } from "./Home"
 import { ChatPanel } from "./ChatPanel"
@@ -56,6 +56,16 @@ export default function App() {
   // （那份文件是和 agent 共享的数据，写进外观设置会让每次改底色都变成
   // 一次画布内容变更，agent 那边会看到一串无意义的 canvas:changed）。
   const [view, setView] = useState<"home" | "canvas">("home")
+  // 指针模式。select = 空白处拖拽框选；hand = 拖拽平移。官方的分体按钮
+  // 切的就是这个 —— 画布类工具里这是最基本的一对模式。
+  const [tool, setTool] = useState<"select" | "hand">("select")
+  const [sticker, setSticker] = useState(false)
+  const [help, setHelp] = useState(false)
+  // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
+  const [leftOpen, setLeftOpen] = useState(() => localStorage.getItem("left-open") !== "0")
+  const [rightOpen, setRightOpen] = useState(() => localStorage.getItem("right-open") !== "0")
+  useEffect(() => localStorage.setItem("left-open", leftOpen ? "1" : "0"), [leftOpen])
+  useEffect(() => localStorage.setItem("right-open", rightOpen ? "1" : "0"), [rightOpen])
   const [bg, setBg] = useState(() => localStorage.getItem("canvas-bg") ?? "default")
   useEffect(() => localStorage.setItem("canvas-bg", bg), [bg])
 
@@ -130,6 +140,65 @@ export default function App() {
     }
   }, [mode, setNodes])
 
+  /**
+   * 整理：把节点重排并**写回服务端**。
+   *
+   * 只改当前 mode 的坐标（`positions[mode]`），别的模式那份不动 ——
+   * 用户在 workflow 里手工摆好的布局，不该因为在 grid 里点了一下整理
+   * 就没了。
+   *
+   * 以 `fileRef` 里那份服务端原文为底改，不是拿界面重建：界面上的节点只带
+   * 我们认识的字段，重建会把官方写进去、我们还不认识的字段抹掉。
+   */
+  const tidy = useCallback(
+    async (kind: "grid" | "type") => {
+      const base = fileRef.current
+      if (!base || base.nodes.length === 0) return
+      const GAP = 40
+      const COL_W = 350 + GAP
+
+      // 按类型分组时先排序，网格时保持原顺序 —— 原顺序通常是创建顺序，
+      // 打乱它会让人找不到刚生成的那个。
+      const list = [...base.nodes]
+      if (kind === "type") {
+        const order = ["image", "video", "audio", "text"]
+        list.sort((a, b) => {
+          const d = (order.indexOf(a.type) + 99) % 99 - ((order.indexOf(b.type) + 99) % 99)
+          return d !== 0 ? d : 0
+        })
+      }
+
+      const cols = Math.max(1, Math.ceil(Math.sqrt(list.length)))
+      // 每一列的当前底边。**按列累加而不是按行固定行高** —— 节点是按素材
+      // 比例算的，高度各不相同，固定行高会让矮的下面留一大片空。
+      const colBottom = new Array<number>(cols).fill(0)
+      const nodes = list.map((n) => {
+        const size = sizeOf(n, mode, details.get(n.id))
+        // 放进当前最短的那一列，出来的排布最紧凑（瀑布流那套）。
+        let c = 0
+        for (let i = 1; i < cols; i++) if (colBottom[i]! < colBottom[c]!) c = i
+        const pos = { x: c * COL_W, y: colBottom[c]! }
+        colBottom[c] = colBottom[c]! + size.height + GAP
+        return { ...n, positions: { ...n.positions, [mode]: pos } }
+      })
+
+      const next = { ...base, nodes }
+      setSaving("saving")
+      try {
+        await putCanvas(next)
+        setFile(next)
+        setSaving("saved")
+        setTimeout(() => setSaving((s) => (s === "saved" ? "idle" : s)), 1500)
+        // 排完把视野对上，否则节点被挪到视口外，看起来像"整理把画布清空了"。
+        window.dispatchEvent(new CustomEvent("canvas:fit"))
+      } catch (err) {
+        setSaving("failed")
+        setError(err instanceof Error ? err.message : String(err))
+      }
+    },
+    [mode, details],
+  )
+
   const actions = useMemo<CanvasActions>(
     () => ({
       async saveText(nodeId, content, expectedHash) {
@@ -171,14 +240,33 @@ export default function App() {
           右边对话面板。画布上的控件是浮层，不占布局 —— 这也是为什么
           官方的画布能一直铺满，控件不挤压可视区域。 */}
       <div className="flex h-full" style={{ background: "var(--background)" }}>
-        <Sidebar
-          file={file}
-          details={details}
-          dir={dir}
-          right={<Update />}
-          view={view}
-          onView={setView}
-        />
+        {leftOpen ? (
+          <Sidebar
+            file={file}
+            details={details}
+            dir={dir}
+            right={<Update />}
+            view={view}
+            onView={setView}
+            onCollapse={() => setLeftOpen(false)}
+            onPick={(id) => {
+              // 选中并居中。只改选中态、不动坐标 —— 点一下列表就把节点挪走
+              // 是最糟的交互。
+              setNodes((ns) => ns.map((n) => ({ ...n, selected: n.id === id })))
+              window.dispatchEvent(new CustomEvent("canvas:focus", { detail: id }))
+            }}
+          />
+        ) : (
+          // 收起后留一个把手，否则再也打不开了。
+          <button
+            onClick={() => setLeftOpen(true)}
+            title="展开侧栏"
+            className="flex w-8 shrink-0 items-center justify-center border-r"
+            style={{ background: "var(--sidebar)", borderColor: "var(--sidebar-border)" }}
+          >
+            <PanelLeft size={16} style={{ color: "var(--home-sidebar-primary-text)" }} />
+          </button>
+        )}
 
         {view === "home" ? (
           <Home
@@ -219,8 +307,11 @@ export default function App() {
               // 几百个节点全渲染会让首屏卡住。
               onlyRenderVisibleElements
               // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
-              selectionOnDrag
-              panOnDrag={[1, 2]}
+              // select：空白处拖拽 = 框选，平移交给中键/右键和滚轮。
+              // hand：拖拽 = 平移，这时不能同时开 selectionOnDrag，
+              // 否则两种行为会在同一个手势上打架（表现是"拖不动画布"）。
+              selectionOnDrag={tool === "select"}
+              panOnDrag={tool === "hand" ? true : [1, 2]}
               panOnScroll
               selectNodesOnDrag={false}
               proOptions={{ hideAttribution: true }}
@@ -325,12 +416,20 @@ export default function App() {
                 onMode={setMode}
                 minimap={minimap}
                 onMinimap={setMinimap}
+                bg={bg}
+                onBg={setBg}
+                onTidy={tidy}
               />
-              <BottomToolbar onCreate={() => setComposerOpen(true)} />
-              <div className="pointer-events-none absolute right-3 bottom-4 z-10 flex justify-end">
-                <BackgroundPicker value={bg} onChange={setBg} />
-              </div>
-
+              <BottomToolbar
+                onCreate={() => setComposerOpen(true)}
+                mode={tool}
+                onMode={setTool}
+                sticker={sticker}
+                onSticker={setSticker}
+                onAssets={() => window.open("/api/assets", "_blank")}
+                help={help}
+                onHelp={setHelp}
+              />
               {/* 空状态。画布空着时给一句话和一个入口，而不是一片白 ——
                   一片白会让人以为是没加载出来。 */}
               {file && file.nodes.length === 0 && (
@@ -367,14 +466,26 @@ export default function App() {
           <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />
         )}
 
-        <ChatPanel
-          file={file}
-          events={events}
-          saving={saving}
-          composerOpen={composerOpen}
-          onDone={() => void load()}
-          onReload={() => void load()}
-        />
+        {rightOpen ? (
+          <ChatPanel
+            file={file}
+            events={events}
+            saving={saving}
+            composerOpen={composerOpen}
+            onDone={() => void load()}
+            onReload={() => void load()}
+            onCollapse={() => setRightOpen(false)}
+          />
+        ) : (
+          <button
+            onClick={() => setRightOpen(true)}
+            title="展开面板"
+            className="flex w-8 shrink-0 items-center justify-center border-l"
+            style={{ background: "var(--background)", borderColor: "var(--border)" }}
+          >
+            <PanelRight size={16} style={{ color: "var(--topbar-icon-fg)" }} />
+          </button>
+        )}
       </div>
     </CanvasActionsContext>
   )

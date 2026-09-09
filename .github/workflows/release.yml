@@ -153,6 +153,9 @@ jobs:
   # 而应用包的布局完全不同（Contents/MacOS + Contents/Resources），就地换会
   # 把包弄坏、签名也会失效。所以应用包只挂到 Release 页面，不进升级清单 ——
   # 客户端那边有 `in_app_bundle()` 会拒掉就地升级并说明原因。
+  # **只出 macOS 和 Windows 的应用包。** Linux 那份不做了：AppImage 要把整套
+  # WebKitGTK 打进去，77 MB（deb 只有 6 MB），而这个项目没有 Linux 桌面用户。
+  # Linux 仍然有 tar.gz —— 服务器上跑 gateway 用得着，那条路不受影响。
   desktop:
     needs: prepare
     if: ${{ !inputs.dry_run }}
@@ -163,7 +166,6 @@ jobs:
           - { os: macos-latest, rust: aarch64-apple-darwin, name: darwin-arm64 }
           - { os: macos-latest, rust: x86_64-apple-darwin, name: darwin-x64 }
           - { os: windows-latest, rust: x86_64-pc-windows-msvc, name: win32-x64 }
-          - { os: ubuntu-latest, rust: x86_64-unknown-linux-gnu, name: linux-x64 }
     runs-on: ${{ matrix.os }}
     name: 应用包 ${{ matrix.name }}
     steps:
@@ -175,15 +177,6 @@ jobs:
         with:
           key: desktop-${{ matrix.rust }}
       - uses: oven-sh/setup-bun@v2
-
-      # Tauri 在 Linux 上用的是系统的 WebKitGTK，不像 Electron 自带浏览器。
-      # 少一个包就会在链接阶段挂，而报错是一串 `-lwebkit2gtk-4.1 not found`。
-      - name: Linux 依赖
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
-            librsvg2-dev patchelf libxdo-dev
 
       - name: 前端与 MCP 产物
         shell: bash
@@ -447,7 +440,7 @@ jobs:
             | macOS (M 系列) | `*-darwin-arm64.dmg` |
             | macOS (Intel) | `*-darwin-x64.dmg` |
             | Windows | `*-win32-x64.msi` |
-            | Linux | `*-linux-x64.deb` / `.AppImage` |
+
 
             ### 命令行形态（解压即用，能自升级）
 
