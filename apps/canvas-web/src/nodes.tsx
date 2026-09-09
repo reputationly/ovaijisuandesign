@@ -12,6 +12,7 @@ import {
 import { createContext, useContext, useState, type ReactNode } from "react"
 
 import { assetUrl } from "./api"
+import { AudioPlayer, VideoPlayer } from "./MediaPlayer"
 import { NodeToolbar } from "./NodeToolbar"
 import type { NodeData } from "./canvas"
 import { TextEditor } from "./TextEditor"
@@ -143,7 +144,7 @@ export function ImageNode(props: Props) {
         // 走缩略图：原图动辄 1.8MB，而卡片才 350px 宽。宽度取 512 而不是 2x
         // 卡片宽（700）—— gateway 回的是 PNG，无损压缩对照片几乎不起作用，
         // 实测 700 要 1.38MB，512 只要 357KB，肉眼分不出。
-        <img src={assetUrl(id, 512)} alt="" loading="lazy" className="h-full w-full object-contain" />
+        <img src={assetUrl(id, 512)} alt="" loading="lazy" className="h-full w-full object-cover" />
       ) : (
         <Placeholder text="占位节点（无 assetId）" />
       )}
@@ -155,17 +156,9 @@ export function VideoNode(props: Props) {
   const id = props.data.raw.assetId
   return (
     <Frame {...props} kind="video">
-      {id ? (
-        <video
-          src={assetUrl(id)}
-          controls
-          preload="metadata"
-          className="h-full w-full object-contain"
-          onPointerDown={(e) => e.stopPropagation()}
-        />
-      ) : (
-        <Placeholder text="占位节点" />
-      )}
+      {/* 自绘播放层，不用浏览器原生 controls —— 原生控件在每个平台长得不一样，
+          而且高度固定，在 350x197 的节点里占掉六分之一。 */}
+      {id ? <VideoPlayer src={assetUrl(id)} /> : <Placeholder text="占位节点" />}
     </Frame>
   )
 }
@@ -174,7 +167,13 @@ export function AudioNode(props: Props) {
   const id = props.data.raw.assetId
   return (
     <Frame {...props} kind="audio">
-      {id ? <Waveform src={assetUrl(id)} /> : <Placeholder text="占位节点" />}
+      {id ? (
+        <AudioPlayer src={assetUrl(id)}>
+          <Waveform src={assetUrl(id)} />
+        </AudioPlayer>
+      ) : (
+        <Placeholder text="占位节点" />
+      )}
     </Frame>
   )
 }

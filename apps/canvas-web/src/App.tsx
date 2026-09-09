@@ -12,8 +12,11 @@ import {
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
+import { Copy, Maximize2, RefreshCw, Trash2, Wand2 } from "lucide-react"
+
 import {
   CANVAS_MODES,
+  assetUrl,
   connectEvents,
   getCanvas,
   getNodeDetails,
@@ -25,7 +28,8 @@ import {
   type NodeDetail,
 } from "./api"
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
-import { BottomToolbar, TopRightChrome } from "./CanvasChrome"
+import { BackgroundPicker, BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
+import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
@@ -46,6 +50,12 @@ export default function App() {
   const [events, setEvents] = useState<EventLine[]>([])
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
+  const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
+  // 画布底色。存 localStorage —— 这是纯粹的个人偏好，不该进 canvas.json
+  // （那份文件是和 agent 共享的数据，写进外观设置会让每次改底色都变成
+  // 一次画布内容变更，agent 那边会看到一串无意义的 canvas:changed）。
+  const [bg, setBg] = useState(() => localStorage.getItem("canvas-bg") ?? "default")
+  useEffect(() => localStorage.setItem("canvas-bg", bg), [bg])
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode<NodeData>>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([])
@@ -161,7 +171,13 @@ export default function App() {
       <div className="flex h-full" style={{ background: "var(--background)" }}>
         <Sidebar file={file} details={details} dir={dir} right={<Update />} />
 
-        <main className="relative min-w-0 flex-1" data-hilo-canvas-root="true">
+        <main
+          className="relative min-w-0 flex-1"
+          data-hilo-canvas-root="true"
+          style={{
+            background: `var(${CANVAS_BACKGROUNDS.find((b) => b.id === bg)?.varName ?? "--canvas-bg"})`,
+          }}
+        >
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}
@@ -188,6 +204,60 @@ export default function App() {
               panOnScroll
               selectNodesOnDrag={false}
               proOptions={{ hideAttribution: true }}
+              onPaneContextMenu={(e) => {
+                e.preventDefault()
+                setMenu({
+                  x: e.clientX,
+                  y: e.clientY,
+                  items: [
+                    { id: "new", label: "新建生成", icon: <Wand2 size={15} />, onClick: () => setComposerOpen(true) },
+                    {
+                      id: "fit",
+                      label: "适应画布",
+                      icon: <Maximize2 size={15} />,
+                      // 通过自定义事件让画布内部的组件去 fitView：那个 API 只在
+                      // ReactFlowProvider 里面拿得到，为一个菜单项把整棵树重排
+                      // 不值得。
+                      onClick: () => window.dispatchEvent(new CustomEvent("canvas:fit")),
+                    },
+                    { id: "reload", label: "重新加载", icon: <RefreshCw size={15} />, separator: true, onClick: () => void load() },
+                  ],
+                })
+              }}
+              onNodeContextMenu={(e, node) => {
+                e.preventDefault()
+                const assetId = node.data.raw.assetId
+                setMenu({
+                  x: e.clientX,
+                  y: e.clientY,
+                  items: [
+                    ...(assetId
+                      ? [
+                          {
+                            id: "open",
+                            label: "在新标签页打开",
+                            icon: <Maximize2 size={15} />,
+                            onClick: () => window.open(assetUrl(assetId), "_blank"),
+                          },
+                        ]
+                      : []),
+                    {
+                      id: "copy-id",
+                      label: "复制节点 ID",
+                      icon: <Copy size={15} />,
+                      onClick: () => void navigator.clipboard.writeText(node.id),
+                    },
+                    {
+                      id: "del",
+                      label: "删除",
+                      icon: <Trash2 size={15} />,
+                      danger: true,
+                      separator: true,
+                      onClick: () => void actions.deleteNode(node.id),
+                    },
+                  ],
+                })
+              }}
             >
               {/* 点阵，颜色走官方的 --canvas-bg-dot。 */}
               <Background
@@ -215,6 +285,20 @@ export default function App() {
                 onMinimap={setMinimap}
               />
               <BottomToolbar onCreate={() => setComposerOpen(true)} />
+              <div className="pointer-events-none absolute right-3 bottom-4 z-10 flex justify-end">
+                <BackgroundPicker value={bg} onChange={setBg} />
+              </div>
+
+              {/* 空状态。画布空着时给一句话和一个入口，而不是一片白 ——
+                  一片白会让人以为是没加载出来。 */}
+              {file && file.nodes.length === 0 && (
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3">
+                  <img src="/logo.png" alt="" width={44} height={44} className="opacity-25" />
+                  <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                    画布是空的。右侧描述你要生成的内容，或者右键新建。
+                  </p>
+                </div>
+              )}
             </ReactFlow>
           </ReactFlowProvider>
 
@@ -234,6 +318,10 @@ export default function App() {
             </div>
           )}
         </main>
+
+        {menu && (
+          <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />
+        )}
 
         <ChatPanel
           file={file}

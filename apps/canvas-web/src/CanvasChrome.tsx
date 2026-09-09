@@ -11,7 +11,7 @@ import {
   Sticker,
   Workflow,
 } from "lucide-react"
-import type { ReactNode } from "react"
+import { useEffect, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
 
 import { CANVAS_MODES, type CanvasMode } from "./api"
@@ -101,6 +101,14 @@ export function TopRightChrome({
   // 后者在程序化缩放（zoomIn/fitView）时不会更新，显示的百分比会和实际脱节。
   const zoom = useStore((s) => s.transform[2])
 
+  // 右键菜单里的"适应画布"。fitView 只在 ReactFlowProvider 内部拿得到，
+  // 用一个自定义事件跨过去，比把整棵树重排简单得多。
+  useEffect(() => {
+    const fit = () => fitView({ duration: 200 })
+    window.addEventListener("canvas:fit", fit)
+    return () => window.removeEventListener("canvas:fit", fit)
+  }, [fitView])
+
   return (
     <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
       <div className={CHROME} style={chromeStyle()}>
@@ -138,6 +146,49 @@ export function TopRightChrome({
           <span>小地图</span>
         </Btn>
       </div>
+    </div>
+  )
+}
+
+/**
+ * 画布底色。官方给了 9 档（`--canvas-bg-*`），是画布层面的外观设置，
+ * 不是主题切换 —— 明暗两套里每一档都有对应的值。
+ */
+export const CANVAS_BACKGROUNDS = [
+  { id: "default", label: "默认", varName: "--canvas-bg" },
+  { id: "warm", label: "暖", varName: "--canvas-bg-warm" },
+  { id: "cool", label: "冷", varName: "--canvas-bg-cool" },
+  { id: "paper", label: "纸", varName: "--canvas-bg-paper" },
+  { id: "sage", label: "鼠尾草", varName: "--canvas-bg-sage" },
+  { id: "sand", label: "沙", varName: "--canvas-bg-sand" },
+  { id: "mist-blue", label: "雾蓝", varName: "--canvas-bg-mist-blue" },
+  { id: "lavender", label: "薰衣草", varName: "--canvas-bg-lavender" },
+  { id: "blush", label: "藕", varName: "--canvas-bg-blush" },
+] as const
+
+export function BackgroundPicker({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (id: string) => void
+}) {
+  return (
+    <div className={CHROME} style={chromeStyle()}>
+      {CANVAS_BACKGROUNDS.map((b) => (
+        <button
+          key={b.id}
+          title={b.label}
+          onClick={() => onChange(b.id)}
+          className="h-5 w-5 shrink-0 rounded-full border transition-transform hover:scale-110"
+          style={{
+            background: `var(${b.varName})`,
+            borderColor:
+              value === b.id ? "var(--canvas-node-border-selected)" : "var(--canvas-controls-border)",
+            borderWidth: value === b.id ? 2 : 1,
+          }}
+        />
+      ))}
     </div>
   )
 }
