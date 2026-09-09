@@ -163,3 +163,26 @@ describe("toFlow", () => {
     expect(edges[0]!.label).toBe("derivation")
   })
 })
+
+describe("sizeOf：还等于默认值的尺寸要按素材重算", () => {
+  const asset = { id: "x", type: "image", width: 1360, height: 1024 }
+
+  it("历史默认值 350x195 会被素材比例覆盖", () => {
+    // 早期版本给图片节点写死 350x195（16:9），素材却是 4:3 ——
+    // 画布上每张图周围都有一圈白边。那些节点已经存在 canvas.json 里，
+    // 不认这个历史默认值就永远修不好。
+    const n = { id: "x", type: "image", positions: {}, size: { width: 350, height: 195 } }
+    expect(sizeOf(n, "workflow", asset)).toEqual({ width: 350, height: 264 })
+  })
+
+  it("用户手动拖过的尺寸不被覆盖", () => {
+    const n = { id: "x", type: "image", positions: {}, size: { width: 512, height: 200 } }
+    expect(sizeOf(n, "workflow", asset)).toEqual({ width: 512, height: 200 })
+  })
+
+  it("拿不到素材尺寸时保留原来存的值，不要退回类型默认", () => {
+    // 退回默认会让节点在"素材信息还没加载出来"的一瞬间跳一下。
+    const n = { id: "x", type: "image", positions: {}, size: { width: 350, height: 195 } }
+    expect(sizeOf(n, "workflow")).toEqual({ width: 350, height: 195 })
+  })
+})

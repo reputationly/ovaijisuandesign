@@ -256,3 +256,29 @@ body {
 .react-flow__handle.connectingfrom {
   opacity: 1;
 }
+
+/* 节点工具栏的进出场。官方用 `toolbar-fade-in ${TOOLBAR_ANIM_MS}ms ease-out`
+ * / `toolbar-fade-out … ease-in forwards`，配一个延迟卸载，
+ * 这样移开鼠标时是淡出而不是"啪"地消失。 */
+@keyframes toolbar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toolbar-fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* 小地图。官方那个是紧凑的一块，不是 React Flow 默认的大方框。 */
+.react-flow__minimap {
+  width: 216px !important;
+  height: 132px !important;
+}

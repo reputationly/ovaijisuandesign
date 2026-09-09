@@ -131,6 +131,23 @@ export default function App() {
           return next
         })
       },
+
+      /**
+       * 删除节点。**改的是服务端那份 canvas.json，不是界面状态** ——
+       * 只删界面的话刷新就回来了，而用户以为删掉了。
+       *
+       * 以 `fileRef` 里那份服务端原文为底改，不是拿界面重建：界面上的节点
+       * 只带我们认识的字段，重建会把官方写进去、我们还不认识的字段抹掉。
+       */
+      async deleteNode(nodeId) {
+        const base = fileRef.current
+        if (!base) return
+        const next = { ...base, nodes: base.nodes.filter((n) => n.id !== nodeId) }
+        // 连带删掉挂在它上面的边，否则会留下指向不存在节点的悬空边。
+        next.edges = base.edges.filter((e) => e.source !== nodeId && e.target !== nodeId)
+        await putCanvas(next)
+        setFile(next)
+      },
     }),
     [],
   )

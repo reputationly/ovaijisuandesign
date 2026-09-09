@@ -46,17 +46,41 @@ export function fitNodeSize(w: number, h: number): Size | undefined {
   }
 }
 
+/**
+ * 哪些尺寸算"没被用户调过"。
+ *
+ * 官方的 `reconcileNodeSize` 就是这个判断：**当前尺寸还等于该类型的默认值
+ * 时，说明用户没手动拖过，可以按素材的真实比例重算**；一旦不等于默认值，
+ * 就是用户自己拖的，任何情况下都不能覆盖。
+ *
+ * 除了现在的默认值，还要认我们**历史上写过的**默认值 —— 早期版本给图片
+ * 节点写死 350x195（16:9），而素材可能是 4:3，于是画布上每张图周围都有
+ * 一圈白边。那些节点已经存在 canvas.json 里了，不认的话永远修不好。
+ */
+const UNSET_SIZES: Size[] = [
+  { width: 350, height: 350 }, // 现在的 image/video 默认
+  { width: 350, height: 150 }, // audio
+  { width: 350, height: 500 }, // text
+  { width: 350, height: 195 }, // 历史：image/video
+  { width: 320, height: 180 }, // 历史：text
+  { width: 300, height: 160 }, // 历史：兜底
+]
+
+const isUnset = (s: Size) =>
+  UNSET_SIZES.some((d) => Math.round(s.width) === d.width && Math.round(s.height) === d.height)
+
 export function sizeOf(node: CanvasNode, mode: CanvasMode, detail?: NodeDetail): Size {
   const explicit = node.sizes?.[mode] ?? node.size
-  if (explicit) return explicit
-  // 没有显式尺寸就按素材的真实长宽比算，而不是套一个固定卡片 ——
-  // 套固定尺寸的话一张 9:16 的竖图会显示成 350x350 里的一条窄图，
-  // 周围一圈空白，和官方差别最明显的就是这里。
+  // 用户手动调过的尺寸永远优先。
+  if (explicit && !isUnset(explicit)) return explicit
+
+  // 否则按素材的真实长宽比算。套固定卡片的话，一张 4:3 的图放进 16:9 的框里
+  // 四周就是白边 —— 这是和官方观感差别最直接的一处。
   if (detail?.width && detail?.height) {
     const fitted = fitNodeSize(detail.width, detail.height)
     if (fitted) return fitted
   }
-  return DEFAULT_SIZE[node.type] ?? FALLBACK_SIZE
+  return explicit ?? DEFAULT_SIZE[node.type] ?? FALLBACK_SIZE
 }
 
 /**

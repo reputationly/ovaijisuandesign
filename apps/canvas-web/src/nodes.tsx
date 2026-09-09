@@ -12,6 +12,7 @@ import {
 import { createContext, useContext, useState, type ReactNode } from "react"
 
 import { assetUrl } from "./api"
+import { NodeToolbar } from "./NodeToolbar"
 import type { NodeData } from "./canvas"
 import { TextEditor } from "./TextEditor"
 import { Waveform } from "./Waveform"
@@ -24,6 +25,7 @@ import { Waveform } from "./Waveform"
  */
 export interface CanvasActions {
   saveText(nodeId: string, content: string, expectedHash: string | undefined): Promise<void>
+  deleteNode(nodeId: string): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -64,13 +66,12 @@ const KIND_ICON: Record<string, ReactNode> = {
  * **反向抵消缩放**，这样缩小画布时描边仍是屏幕上的 1.5 物理像素，
  * 不会细到看不见。这个表达式要靠 `--canvas-zoom` 喂，见 App.tsx。
  */
-function Frame({
-  data,
-  selected,
-  kind,
-  children,
-  variant = "media",
-}: Props & { kind: string; children: ReactNode; variant?: "media" | "panel" }) {
+function Frame(
+  props: Props & { kind: string; children: ReactNode; variant?: "media" | "panel" },
+) {
+  const { data, selected, kind, children, variant = "media" } = props
+  const actions = useContext(CanvasActionsContext)
+  const assetId = data.raw.assetId
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
   const isPanel = variant === "panel"
@@ -80,6 +81,13 @@ function Frame({
       data-selected={selected ? "true" : "false"}
       data-kind={kind}
     >
+      <NodeToolbar
+        nodeId={props.id}
+        visible={!!selected}
+        onDelete={() => void actions?.deleteNode(props.id)}
+        onDownload={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
+        onOpen={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
+      />
       <Handle type="target" position={Position.Left} />
       <div
         className="relative h-full w-full overflow-hidden"

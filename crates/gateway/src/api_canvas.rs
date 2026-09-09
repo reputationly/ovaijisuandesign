@@ -211,7 +211,7 @@ pub async fn media_node(
         id: node_id.clone(),
         kind: asset.kind.clone(),
         positions,
-        size: default_size(&asset.kind),
+        size: default_size(&asset.kind, asset.width.zip(asset.height)),
         asset_id: Some(asset.id.clone()),
         extra,
     });
@@ -228,12 +228,34 @@ pub async fn media_node(
     }
 }
 
-fn default_size(kind: &str) -> Option<canvas::Size> {
+/// 新节点的初始尺寸。**和官方的 `defaultNodeSizeForType` 一致**：
+///
+/// ```text
+/// image/video  350x350     audio  350x150     text  350x500
+/// ```
+///
+/// 有素材像素尺寸的话按真实比例算（等比缩到长边 350，短边保底 100，
+/// 官方的 `computeNodeSize`）—— 套固定卡片的话，一张 4:3 的图放进 16:9 的
+/// 框里四周就是白边，那是画面上最刺眼的一处。
+fn default_size(kind: &str, asset: Option<(u32, u32)>) -> Option<canvas::Size> {
+    const MAX: f64 = 350.0;
+    const MIN: f64 = 100.0;
+    if let Some((w, h)) = asset
+        && w > 0
+        && h > 0
+    {
+        let (w, h) = (w as f64, h as f64);
+        let scale = (MAX / w).min(MAX / h);
+        return Some(canvas::Size {
+            width: (w * scale).round().max(MIN),
+            height: (h * scale).round().max(MIN),
+        });
+    }
     let (width, height) = match kind {
-        "image" | "video" => (350.0, 195.0),
+        "image" | "video" => (350.0, 350.0),
         "audio" => (350.0, 150.0),
-        "text" => (320.0, 180.0),
-        _ => (300.0, 160.0),
+        "text" => (350.0, 500.0),
+        _ => (350.0, 350.0),
     };
     Some(canvas::Size { width, height })
 }
@@ -364,7 +386,7 @@ pub async fn text_node(
                 id: id.clone(),
                 kind: "text".into(),
                 positions,
-                size: default_size("text"),
+                size: default_size("text", None),
                 asset_id: Some(asset.id.clone()),
                 extra,
             });
@@ -403,5 +425,40 @@ mod tests {
         let h = sha256("hello from probe");
         assert_eq!(h.len(), 64);
         assert!(h.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+}
+
+#[cfg(test)]
+mod size_tests {
+    use super::default_size;
+
+    #[test]
+    fn an_asset_with_dimensions_drives_the_node_size() {
+        // 4:3 的图不能塞进 16:9 的框——四周会是白边，画面上最刺眼的一处。
+        let s = default_size("image", Some((1360, 1024))).unwrap();
+        assert_eq!((s.width, s.height), (350.0, 264.0));
+        let s = default_size("image", Some((1080, 1920))).unwrap();
+        assert_eq!((s.width, s.height), (197.0, 350.0));
+    }
+
+    #[test]
+    fn an_extreme_ratio_still_keeps_a_usable_short_edge() {
+        let s = default_size("image", Some((4000, 200))).unwrap();
+        assert_eq!((s.width, s.height), (350.0, 100.0));
+    }
+
+    #[test]
+    fn without_dimensions_it_falls_back_per_type() {
+        // 和官方的 defaultNodeSizeForType 对齐。
+        assert_eq!(default_size("audio", None).unwrap().height, 150.0);
+        assert_eq!(default_size("text", None).unwrap().height, 500.0);
+        assert_eq!(default_size("image", None).unwrap().height, 350.0);
+    }
+
+    #[test]
+    fn a_zero_dimension_asset_does_not_produce_a_zero_sized_node() {
+        // 损坏的图片元数据不该让节点在画布上完全消失。
+        let s = default_size("image", Some((0, 0))).unwrap();
+        assert_eq!((s.width, s.height), (350.0, 350.0));
     }
 }
