@@ -75,17 +75,17 @@ SOURCES = {
 
 # 桶里的产品命名空间。**所有 key 都在它下面。**
 #
-# 这不是为了好看：桶是和 Toonflow 共用的，而两边的"清理旧版本"都是
-# 「列出桶顶层的目录 → 挑出版本号形状的 → 只保留最新 N 个 → 其余整个删掉」。
-# 不分命名空间的话：
+# 用独立的桶时它只是让桶根干净一点，可以设 `RELEASE_PRODUCT=` 关掉。
+# 但**和别的项目共用一个桶时它是必需的**，因为这类发布流水线的"清理旧版本"
+# 普遍是「列出桶顶层的目录 → 挑出版本号形状的 → 只保留最新 N 个 → 其余整个
+# 删掉」（Toonflow-app 就是这么写的，我们这份也是）。共用桶而不分命名空间：
 #
-#   我们的 3.0.12.x 按 sort -V 永远排在 Toonflow 的 1.1.x 之上，
-#   于是我们发够三版之后，**Toonflow 的清理会把它自己所有版本都删光**——
-#   包括正在服役的那一版。它的 update.json 随即指向一个不存在的包，
-#   全部用户的升级 404，而我们这边一切正常。
+#   我们的 3.0.12.x 按 sort -V 永远排在它的 1.1.x 之上，于是我们发够三版
+#   之后，**对方的清理会把它自己所有版本删光**——包括正在服役的那一版。
+#   它的清单随即指向不存在的包，全部用户升级 404，而我们这边一切正常。
 #
-# 加上前缀之后两边互不可见：Toonflow 的正则 `^[0-9]+\.[0-9]+...` 匹配不上
-# `ovaijisuandesign`，我们的清理也只列自己这一层。
+# 分了命名空间就互不可见：对方的 `^[0-9]+\.[0-9]+…` 匹配不上产品名，
+# 我们的清理也只列自己这一层。
 PRODUCT = os.environ.get("RELEASE_PRODUCT", "ovaijisuandesign")
 
 
@@ -305,8 +305,14 @@ PREFIX = ""
 
 
 def key_prefix(dry: str) -> str:
-    """`ovaijisuandesign/` 或 `ovaijisuandesign/dry-run/`。见 PRODUCT 的注释。"""
-    return f"{PRODUCT.strip('/')}/{dry.lstrip('/')}"
+    """`ovaijisuandesign/` 或 `ovaijisuandesign/dry-run/`。见 PRODUCT 的注释。
+
+    `RELEASE_PRODUCT=` 时退化成裸的 `dry-run/` —— 不能拼成 `/dry-run/`，
+    S3 的 key 以斜杠开头会多出一层空目录，而 URL 里 `//` 又会被某些 CDN
+    规范化掉，于是"传上去了但公网 404"。
+    """
+    ns = PRODUCT.strip("/")
+    return f"{ns}/{dry.lstrip('/')}" if ns else dry.lstrip("/")
 
 
 def s3_upload(source: str, local: Path, key: str) -> None:
