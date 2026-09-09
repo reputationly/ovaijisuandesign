@@ -117,7 +117,7 @@ fn run() -> Result<()> {
                 "main",
                 WebviewUrl::External(url.parse().expect("URL 拼错了")),
             )
-            .title("ovaijisuandesign")
+            .title("光谷爱计算")
             .inner_size(WINDOW_W, WINDOW_H)
             .min_inner_size(WINDOW_MIN_W, WINDOW_MIN_H)
             .resizable(true)

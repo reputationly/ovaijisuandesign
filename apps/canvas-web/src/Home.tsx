@@ -279,7 +279,7 @@ export function Home({
                 lineHeight: "var(--home-hero-title-line-height)",
               }}
             >
-              ovaijisuandesign
+              光谷爱计算
             </h1>
           </div>
           <p

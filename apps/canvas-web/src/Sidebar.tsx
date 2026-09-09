@@ -132,7 +132,7 @@ export function Sidebar({
 
       <div className="flex items-center gap-2 px-3 pt-1 pb-3">
         <img src="/logo.png" alt="" width={24} height={24} className="shrink-0 rounded" />
-        <strong className="text-[15px]">ovaijisuandesign</strong>
+        <strong className="text-[15px]">光谷爱计算</strong>
       </div>
 
       <nav className="px-2">
