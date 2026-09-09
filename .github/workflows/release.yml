@@ -138,7 +138,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.os }}
-          path: dist/
+          # 排掉 stage/：那是打包前的中间目录，内容和 tar 包重复一份，
+          # 传上去只是让 artifact 翻倍，下游也用不到。
+          path: |
+            dist/
+            !dist/stage/
           retention-days: 7
 
   # ==================== 发布 ====================
@@ -193,6 +197,11 @@ jobs:
       # R2 不支持会直接 501，而错误信息完全看不出是校验的问题）。
       - name: 上传并回读校验
         env:
+          # **publish 也必须拿到四段版本号。** release.py 的 version() 没有它就
+          # 回落到 Cargo.toml 的三段基线，而包在 dist/<四段>/ 下 —— 报错是
+          # "dist/3.0.12/ 下没有任何包"，看着像打包那步没产出。
+          # 空跑不会暴露：空跑的版本号正好就是基线。
+          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           R2_PUBLIC_BASE: ${{ vars.R2_PUBLIC_BASE }}
