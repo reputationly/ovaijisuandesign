@@ -355,7 +355,9 @@ jobs:
           for f in sorted(pathlib.Path("artifacts").rglob("*.tar.gz")):
               target = f.parent.name
               digest = hashlib.sha256(f.read_bytes()).hexdigest()
-              assert digest == f.stem, f"{f}: 文件名 {f.stem} 和实际 {digest} 对不上"
+              # .stem 对 `x.tar.gz` 给的是 `x.tar`，会永远对不上。
+              named = f.name.removesuffix(".tar.gz")
+              assert digest == named, f"{f}: 文件名 {named} 和实际 {digest} 对不上"
               (ptr / f"latest-{target}.json").write_text(json.dumps({
                   "version": ver,
                   "url": f"{dl}/{tag}/ovaijisuandesign-{ver}-{target}.tar.gz",
