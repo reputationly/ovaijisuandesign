@@ -204,6 +204,28 @@ export default function App() {
               panOnScroll
               selectNodesOnDrag={false}
               proOptions={{ hideAttribution: true }}
+              // 官方用的就是 xyflow 的默认 20。真正让"容易连上"的是节点两侧
+              // 那个 84x84 的感应区（见 MagneticHandle），不是这个半径。
+              connectionRadius={20}
+              // 从把柄拉出线、松手在空白处 → 弹出"新建什么"的菜单。
+              // 官方叫 openAddNodeMenu，是他们连线交互的一半 —— 没有它，
+              // 拖出去松手什么也不会发生，用户会以为连线坏了。
+              onConnectEnd={(event, state) => {
+                if (state.isValid) return
+                const e = event as MouseEvent
+                setMenu({
+                  x: e.clientX,
+                  y: e.clientY,
+                  items: [
+                    {
+                      id: "gen",
+                      label: "以此为输入生成",
+                      icon: <Wand2 size={15} />,
+                      onClick: () => setComposerOpen(true),
+                    },
+                  ],
+                })
+              }}
               onPaneContextMenu={(e) => {
                 e.preventDefault()
                 setMenu({

@@ -1,6 +1,6 @@
 /** 四种节点的渲染。这是官方画布里唯一闭源、必须自己写的那一层。 */
 
-import { Handle, Position, type Node, type NodeProps } from "@xyflow/react"
+import { Position, type Node, type NodeProps } from "@xyflow/react"
 import {
   AlertTriangle,
   FileQuestion,
@@ -13,6 +13,7 @@ import { createContext, useContext, useState, type ReactNode } from "react"
 
 import { assetUrl } from "./api"
 import { AudioPlayer, VideoPlayer } from "./MediaPlayer"
+import { MagneticHandle } from "./MagneticHandle"
 import { NodeToolbar } from "./NodeToolbar"
 import type { NodeData } from "./canvas"
 import { TextEditor } from "./TextEditor"
@@ -89,7 +90,7 @@ function Frame(
         onDownload={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
         onOpen={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
       />
-      <Handle type="target" position={Position.Left} />
+      <MagneticHandle position={Position.Left} selected={!!selected} />
       <div
         className="relative h-full w-full overflow-hidden"
         style={{
@@ -121,7 +122,7 @@ function Frame(
         </span>
       </div>
 
-      <Handle type="source" position={Position.Right} />
+      <MagneticHandle position={Position.Right} selected={!!selected} />
     </div>
   )
 }

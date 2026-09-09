@@ -242,19 +242,51 @@ body {
   }
 }
 
-/* 连接点。官方的把柄默认几乎不可见，靠 hover 出现。 */
-.react-flow__handle {
-  background: var(--canvas-handle-bg);
-  border: 1.5px solid var(--canvas-handle);
-  width: 9px;
-  height: 9px;
+/* ---------------------------------------------------------------------------
+ * 磁吸连接点。规则逐字照官方，见 MagneticHandle.tsx 的文件头注释。
+ *
+ * 静止时图标往节点**里**缩 15px 并且完全透明；`.group:hover` 时归位显形。
+ * 这样平时画布上看不到任何多余的点，鼠标一靠近就浮出来。
+ * ------------------------------------------------------------------------- */
+.node-handle-plus {
   opacity: 0;
-  transition: opacity 120ms ease-out;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.react-flow__node:hover .react-flow__handle,
-.react-flow__handle.connectionindicator:hover,
-.react-flow__handle.connectingfrom {
+.node-handle-plus-right {
+  transform: translate(-15px);
+}
+.node-handle-plus-left {
+  transform: translate(15px);
+}
+.node-handle-plus-visible,
+.group:hover .node-handle-plus:not(.node-handle-plus-force-hidden) {
   opacity: 1;
+  transform: translate(0);
+  pointer-events: auto;
+}
+.node-handle-plus-force-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.node-handle-plus-right.node-handle-plus-force-hidden {
+  transform: translate(-15px) !important;
+}
+.node-handle-plus-left.node-handle-plus-force-hidden {
+  transform: translate(15px) !important;
+}
+.node-handle-plus:hover .node-handle-icon circle,
+.node-handle-plus:hover .node-handle-icon path {
+  stroke: var(--canvas-handle-icon, #000000b3);
+}
+
+/* xyflow 的把柄本体铺满整个 84x84 感应区且完全透明 —— "点哪都能拉出线"，
+ * 而不是要瞄准一个 9px 的小圆点。视觉全部交给上面那个 ⊕ 图标。 */
+.react-flow__handle.magnetic-handle-hit {
+  min-width: 0;
+  min-height: 0;
 }
 
 /* 节点工具栏的进出场。官方用 `toolbar-fade-in ${TOOLBAR_ANIM_MS}ms ease-out`
