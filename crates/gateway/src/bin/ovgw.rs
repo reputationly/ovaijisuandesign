@@ -63,8 +63,13 @@ async fn main() -> Result<()> {
     }
 
     let cfg = Config::load(&path).context("加载配置失败")?;
+    // **必须显式设 User-Agent。** reqwest 默认不发 UA，而升级检查读的是
+    // Cloudflare 后面的 R2 —— 它的托管机器人规则会把没有 UA / 一看就是脚本
+    // 的请求 403 掉。这类拦截和对象存不存在无关，表现是"升级永远查不到"，
+    // 而同一个地址用浏览器打开完全正常。
     let client = reqwest::Client::builder()
         .connect_timeout(Duration::from_secs(10))
+        .user_agent(concat!("ovaijisuandesign/", env!("CARGO_PKG_VERSION")))
         .build()
         .context("构建 HTTP 客户端失败")?;
     let local = reqwest::Client::builder()

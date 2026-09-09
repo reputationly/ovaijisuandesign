@@ -222,18 +222,27 @@ jobs:
           python3 - <<'PY'
           import json, os, urllib.request
           want = os.environ["VERSION"]
+          # **必须带 UA。** Python 默认发 Python-urllib/3.x，Cloudflare 的托管
+          # 机器人规则直接 403，而且和对象存不存在无关 —— 症状是"S3 API 一切
+          # 正常，只有走 CDN 的校验挂"，很容易误判成域名绑错了桶。
+          UA = {"User-Agent": "ovaijisuandesign-release/1.0"}
+
+          def fetch(url, method="GET"):
+              return urllib.request.urlopen(
+                  urllib.request.Request(url, headers=UA, method=method), timeout=20
+              )
+
           m = json.load(open("m.json"))
           assert m["targets"], "清单里一个目标都没有"
           for target, entry in m["targets"].items():
               # **每个源都读一遍**，不是只读第一个。双源的意义就在于任一个
               # 都能独立服务，只验一个的话另一个传坏了要等用户来报。
               for name, url in entry["latestUrls"].items():
-                  latest = json.load(urllib.request.urlopen(url, timeout=20))
+                  latest = json.load(fetch(url))
                   assert latest["version"] == want, \
                       f"{target}@{name}: 清单 {latest['version']} != 期望 {want}"
                   # HEAD 一下包本体：清单对了但包传丢了的话，用户点更新才会发现。
-                  req = urllib.request.Request(latest["url"], method="HEAD")
-                  size = int(urllib.request.urlopen(req, timeout=20).headers["content-length"])
+                  size = int(fetch(latest["url"], "HEAD").headers["content-length"])
                   assert size == latest["size"], \
                       f"{target}@{name}: 包大小 {size} != 清单 {latest['size']}"
                   print(f"  ✓ {target:16} {name:6} {latest['version']}  {size / 1048576:.1f} MB")

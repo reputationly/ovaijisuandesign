@@ -88,6 +88,21 @@ SOURCES = {
 # 我们的清理也只列自己这一层。
 PRODUCT = os.environ.get("RELEASE_PRODUCT", "ovaijisuandesign")
 
+# **公网回读一律带上这个 UA。**
+# Python 默认发 `Python-urllib/3.x`，Cloudflare 的托管机器人规则直接 403 ——
+# 而且和对象存不存在无关。症状极具误导性：S3 API 那边上传、列举全部正常，
+# 只有走 CDN 的校验回 403，看着像"域名绑错了桶"。
+UA = f"{PRODUCT}-release/1.0 (+https://github.com/reputationly/ovaijisuandesign)"
+
+
+def http_get(url: str, timeout: int = 20):
+    """带 UA 的 GET。别用裸的 urlopen，理由见 UA。"""
+    import urllib.request
+
+    return urllib.request.urlopen(
+        urllib.request.Request(url, headers={"User-Agent": UA}), timeout=timeout
+    )
+
 
 def endpoint(source: str) -> str | None:
     """这个源的 S3 endpoint。R2 允许只给 account id。"""
@@ -405,7 +420,6 @@ def preflight(source: str) -> None:
     探针放在最前面，这种配错在动任何东西之前就会被拦下。
     """
     import urllib.error
-    import urllib.request
 
     base = os.environ[SOURCES[source]["base"]].rstrip("/")
     token = f"{PRODUCT}-{time.time_ns()}"
@@ -419,13 +433,14 @@ def preflight(source: str) -> None:
     last = ""
     for attempt in range(5):
         try:
-            got = urllib.request.urlopen(url, timeout=20).read().decode("utf8").strip()
+            got = http_get(url).read().decode("utf8").strip()
             if got == token:
                 print(f"  ✓ {source} 的公开域名确认指向 {os.environ[SOURCES[source]['bucket']]}")
                 return
             last = f"读到的内容不是刚写的（可能是别的桶，或者被缓存了）：{got[:60]!r}"
         except urllib.error.HTTPError as e:
-            last = f"HTTP {e.code}"
+            hint = "（对象刚传上去，八成是被 CDN 的机器人规则挡了——检查 UA）" if e.code == 403 else ""
+            last = f"HTTP {e.code}{hint}"
         except Exception as e:  # noqa: BLE001 —— 网络层什么都可能抛
             last = str(e)
         time.sleep(2 * (attempt + 1))
@@ -435,8 +450,9 @@ def preflight(source: str) -> None:
         f"  探针 {url}\n"
         f"  结果 {last}\n"
         f"  {SOURCES[source]['base']} 当前是 {base}，"
-        f"而 {SOURCES[source]['bucket']} 是 {os.environ[SOURCES[source]['bucket']]}。\n"
-        f"  最常见的原因：这个域名绑在**另一个桶**上。"
+        f"而 {{SOURCES[source]['bucket']}} 是 {os.environ[SOURCES[source]['bucket']]}。\n"
+        f"  404 → 这个域名多半绑在另一个桶上。\n"
+        f"  403 → 对象是传上去了，被 CDN 拦了（Cloudflare 会挡 Python-urllib 这类 UA）。"
     )
 
 
