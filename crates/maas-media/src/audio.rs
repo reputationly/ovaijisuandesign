@@ -32,8 +32,11 @@ pub async fn synthesize_speech(
     cfg: &MediaConfig,
     text: &str,
     voice_id: &str,
+    model_id: Option<&str>,
 ) -> Result<String, PlatformError> {
-    let model = cfg.model(|m| m.speech.as_ref(), "models.speech")?;
+    let model = crate::route::route(&cfg.models, model_id, crate::route::Modality::Speech)
+        .map(|r| r.model)
+        .ok_or_else(|| PlatformError::config("models.speech 未配置，这个能力不可用"))?;
 
     let reference = cfg.models.voice_map.get(voice_id).ok_or_else(|| {
         PlatformError::config(format!(
@@ -119,8 +122,11 @@ pub async fn generate_music(
     instructions: &str,
     lyrics: &str,
     intent: MusicIntent,
+    model_id: Option<&str>,
 ) -> Result<String, PlatformError> {
-    let model = cfg.model(|m| m.music.as_ref(), "models.music")?;
+    let model = crate::route::route(&cfg.models, model_id, crate::route::Modality::Music)
+        .map(|r| r.model)
+        .ok_or_else(|| PlatformError::config("models.music 未配置，这个能力不可用"))?;
 
     if instructions.trim().is_empty() {
         // Music3 强制要求它存在（报错原文：「it is what decides the
@@ -139,7 +145,7 @@ pub async fn generate_music(
 
     let engine = cfg
         .models
-        .resolve_music_engine(model)
+        .resolve_music_engine(&model)
         .map_err(PlatformError::config)?;
 
     // 把一句话展开成官方三段式。Music3 是照结构化 caption 训练的，
@@ -174,7 +180,7 @@ pub async fn generate_music(
     submit_and_poll(
         client,
         cfg,
-        &music_body(engine, model, &caption, lyrics, instrumental),
+        &music_body(engine, &model, &caption, lyrics, instrumental),
     )
     .await
 }
@@ -284,12 +290,24 @@ pub async fn edit_music(
     kind: MusicEdit,
     prompt: &str,
     source_audio: &str,
+    lyrics: &str,
+    model_id: Option<&str>,
 ) -> Result<String, PlatformError> {
-    let model = cfg.model(|m| m.music_edit.as_ref(), "models.music_edit")?;
+    let model = crate::route::route(&cfg.models, model_id, crate::route::Modality::MusicEdit)
+        .map(|r| r.model)
+        .ok_or_else(|| PlatformError::config("models.music_edit 未配置，这个能力不可用"))?;
 
     let mut metadata = Map::new();
     metadata.insert("task_type".into(), json!(kind.task_type()));
     metadata.insert(kind.audio_key().into(), json!(source_audio));
+    // 翻唱只有 ACE-Step 一条路，所以歌词固定走 `metadata.lyrics` ——
+    // 和文生音乐里 ACE-Step 那一支同一个映射，见 [`music_body`]。
+    //
+    // 空歌词**不发这个键**，而不是发空串：不发表示"照着参考音频里的词唱"，
+    // 发空串是"没有词"，两者在引擎侧不等价，而且都不报错。
+    if !lyrics.trim().is_empty() {
+        metadata.insert("lyrics".into(), json!(lyrics));
+    }
 
     let body = json!({
         "model": model,
@@ -431,9 +449,15 @@ mod tests {
 
     #[tokio::test]
     async fn an_unmapped_voice_fails_loudly_instead_of_substituting_one() {
-        let err = synthesize_speech(&reqwest::Client::new(), &cfg(), "你好", "female-tianmei")
-            .await
-            .unwrap_err();
+        let err = synthesize_speech(
+            &reqwest::Client::new(),
+            &cfg(),
+            "你好",
+            "female-tianmei",
+            None,
+        )
+        .await
+        .unwrap_err();
         assert!(err.message.contains("voice_map"), "{}", err.message);
         assert!(err.message.contains("female-tianmei"), "{}", err.message);
     }
@@ -442,7 +466,7 @@ mod tests {
     async fn a_missing_speech_model_is_reported_before_any_network_call() {
         let mut c = cfg();
         c.models.speech = None;
-        let err = synthesize_speech(&reqwest::Client::new(), &c, "hi", "v")
+        let err = synthesize_speech(&reqwest::Client::new(), &c, "hi", "v", None)
             .await
             .unwrap_err();
         assert!(err.message.contains("models.speech"), "{}", err.message);
@@ -456,6 +480,7 @@ mod tests {
             CAPTION,
             "",
             MusicIntent::LyricsMissing,
+            None,
         )
         .await
         .unwrap_err();
@@ -472,6 +497,8 @@ mod tests {
             MusicEdit::Cover,
             "jazz",
             "https://example.com/a.mp3",
+            "",
+            None,
         )
         .await
         .unwrap_err();
@@ -489,6 +516,7 @@ mod tests {
             CAPTION,
             LYRICS,
             MusicIntent::Vocal,
+            None,
         )
         .await
         .unwrap_err();

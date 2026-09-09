@@ -28,6 +28,13 @@ pub struct Product {
     pub path: String,
     pub width: Option<u64>,
     pub height: Option<u64>,
+    /// 同一次提交产出的**其余**文件，也是工作区相对路径。
+    ///
+    /// 只有语音会用到：`generate_audio_speech` 的 `texts` 是个数组，一次
+    /// 提交对应 N 段音频。官方契约里 `result.path` 是单数，所以第一段留在
+    /// `path`、其余放这里 —— 只回第一条的话后面几段就**生成了但没人知道**，
+    /// 既占了额度又不会出现在画布上。
+    pub extra: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -123,6 +130,7 @@ mod tests {
             path: "images/a.png".into(),
             width: Some(1024),
             height: Some(1024),
+            extra: vec![],
         }
     }
 

@@ -153,6 +153,9 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/ws", get(events::ws_handler))
         // -- 生成 --
         .route("/api/generate/image/submit", post(generate::submit_image))
+        .route("/api/generate/video/submit", post(generate::submit_video))
+        .route("/api/generate/music/submit", post(generate::submit_music))
+        .route("/api/generate/speech/submit", post(generate::submit_speech))
         // `/query` 后缀不能省：漏了会 404，而调用方对非 2xx 的查询不写日志。
         .route(
             "/api/generate/tasks/{task_id}/query",

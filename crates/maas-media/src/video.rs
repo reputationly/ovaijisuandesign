@@ -84,6 +84,8 @@ pub struct VideoJob<'a> {
     pub resolution: &'a str,
     /// 要不要连音轨一起生成。`None` 表示不指定，交给平台默认。
     pub generate_audio: Option<bool>,
+    /// 调用方点名的模型，**官方那套名字**。路由到本机配置，见 [`crate::route`]。
+    pub model_id: Option<&'a str>,
 }
 
 impl<'a> VideoJob<'a> {
@@ -100,6 +102,7 @@ impl<'a> VideoJob<'a> {
             aspect_ratio: "",
             resolution: "",
             generate_audio: None,
+            model_id: None,
         }
     }
 }
@@ -152,11 +155,17 @@ fn round_to_8(v: u32) -> u32 {
 /// 单独抽出来是为了能直接断言键的落位 —— 平台对参数校验比较松，
 /// **越界或放错的字段不报错，只会安静生成一个不是你要的结果**。
 pub fn build_body(cfg: &MediaConfig, job: &VideoJob<'_>) -> Result<Value, PlatformError> {
-    let model = if job.plan.uses_ref_model() {
-        cfg.model(|m| m.video_ref.as_ref(), "models.video_ref")?
+    // 调用方点名的是**官方那套名字**（`MiniMax-Hailuo-2.3` …），路由到我们
+    // 配的模型。不走路由的话 `model_id` 就是收下即丢，agent 以为自己选了模型
+    // 而实际一直在用默认 —— 而且不报错。
+    let (modality, field) = if job.plan.uses_ref_model() {
+        (crate::route::Modality::VideoRef, "models.video_ref")
     } else {
-        cfg.model(|m| m.video.as_ref(), "models.video")?
+        (crate::route::Modality::Video, "models.video")
     };
+    let model = crate::route::route(&cfg.models, job.model_id, modality)
+        .map(|r| r.model)
+        .ok_or_else(|| PlatformError::config(format!("{field} 未配置，这个能力不可用")))?;
 
     let mut metadata = Map::new();
     metadata.insert("task_type".into(), json!(job.plan.task_type()));
@@ -382,6 +391,7 @@ mod tests {
             aspect_ratio: "16:9",
             resolution: "768P",
             generate_audio: None,
+            model_id: None,
         }
     }
 

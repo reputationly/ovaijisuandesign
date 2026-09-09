@@ -56,6 +56,8 @@ export interface Product {
   path: string
   width?: number
   height?: number
+  /** 一次提交产出多份时的全部路径（多段语音）。单份时 gateway 不发这个键。 */
+  paths?: string[]
 }
 
 interface TaskQuery {

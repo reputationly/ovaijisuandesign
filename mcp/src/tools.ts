@@ -153,17 +153,27 @@ const canvasWriteNode: ToolDef = {
 // 官方也是这么做的，少一次往返，也少一个"生成了但没出现在画布上"的失败面。
 // ---------------------------------------------------------------------------
 
-/** 生成完直接落到画布上，返回给 agent 的结构里带上节点 id。 */
+/**
+ * 生成完直接落到画布上，返回给 agent 的结构里带上节点 id。
+ *
+ * `paths` 非空时**每一份都建节点**。只建第一个的话，多段语音里后面几段
+ * 就是生成了、落了盘、但画布上看不见 —— 而 agent 拿到的是一次成功。
+ */
 async function placeOnCanvas(product: Product) {
-  const node = await gw.post<{ nodeId?: string }>("/api/canvas/media-node", {
-    assetPath: product.path,
-  })
+  const all = product.paths?.length ? product.paths : [product.path]
+  const nodeIds: string[] = []
+  for (const assetPath of all) {
+    const node = await gw.post<{ nodeId?: string }>("/api/canvas/media-node", { assetPath })
+    if (node.nodeId) nodeIds.push(node.nodeId)
+  }
   return {
     ok: true,
     path: product.path,
+    ...(all.length > 1 ? { paths: all } : {}),
     ...(product.width ? { width: product.width } : {}),
     ...(product.height ? { height: product.height } : {}),
-    ...(node.nodeId ? { nodeId: node.nodeId } : {}),
+    ...(nodeIds[0] ? { nodeId: nodeIds[0] } : {}),
+    ...(nodeIds.length > 1 ? { nodeIds } : {}),
   }
 }
 
@@ -240,6 +250,8 @@ const generateVideo: ToolDef = {
     first_frame_image: z.string().optional(),
     last_frame_image: z.string().optional(),
     reference_image_paths: z.array(z.string()).optional(),
+    reference_video_urls: z.array(z.string()).optional(),
+    reference_audio_urls: z.array(z.string()).optional(),
     vendor_params: vendorParams,
   },
   async handler(a) {

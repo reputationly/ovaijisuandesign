@@ -45,7 +45,10 @@ fn parse(name: &str) -> Vec<(&'static str, Modality)> {
             ("video", Modality::Video),
             ("video_ref", Modality::VideoRef),
         ],
-        "audio" | "music" => vec![("music", Modality::Music)],
+        "audio" | "music" => vec![
+            ("music", Modality::Music),
+            ("music_edit", Modality::MusicEdit),
+        ],
         "speech" => vec![("speech", Modality::Speech)],
         _ => vec![],
     }
@@ -58,6 +61,7 @@ fn all() -> Vec<(&'static str, Modality)> {
         ("video", Modality::Video),
         ("video_ref", Modality::VideoRef),
         ("music", Modality::Music),
+        ("music_edit", Modality::MusicEdit),
         ("speech", Modality::Speech),
     ]
 }
@@ -70,7 +74,8 @@ fn samples(m: Modality) -> &'static [&'static str] {
         Modality::ImageEdit => &["qwen-image-edit", "seedream-5-layer-decompose"],
         Modality::Video => &["MiniMax-Hailuo-2.3", "MiniMax-H3", "kling"],
         Modality::VideoRef => &["minimax-h3-ref2va"],
-        Modality::Music => &["music-3.0"],
+        Modality::Music => &["music-3.0", "elevenlabs-music-v2"],
+        Modality::MusicEdit => &["music-cover"],
         Modality::Speech => &["speech-2.8-hd"],
     }
 }
@@ -168,7 +173,7 @@ mod tests {
         let (s, _d) = crate::tests::state_with_dir();
         let r = list(State(s), None).await;
         let caps = r.0["capabilities"].as_array().unwrap();
-        assert_eq!(caps.len(), 6, "六个模态都要出现，包括没配的");
+        assert_eq!(caps.len(), 7, "七个模态都要出现，包括没配的");
         // 测试配置里什么都没配 —— 必须如实说不可用，而不是编一个模型名。
         let speech = caps.iter().find(|c| c["modality"] == "speech").unwrap();
         assert_eq!(speech["available"], false);

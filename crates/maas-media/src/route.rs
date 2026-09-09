@@ -53,6 +53,8 @@ pub enum Modality {
     Video,
     VideoRef,
     Music,
+    /// 翻唱 / 重绘。**和 `Music` 是两个 checkpoint**，见 [`default_for`]。
+    MusicEdit,
     Speech,
 }
 
@@ -82,7 +84,13 @@ fn modality_of(name: &str) -> Option<Modality> {
     {
         return Some(Modality::Image);
     }
-    if n.starts_with("music") || n.contains("music") {
+    // 和 image-edit 那条一个道理：`music-cover` 里含 `music`，
+    // 顺序写反的话翻唱会静默走成文生音乐 —— 出来一首和原曲**完全无关**
+    // 的歌，有声音、不报错。
+    if n.contains("cover") || n.contains("repaint") {
+        return Some(Modality::MusicEdit);
+    }
+    if n.contains("music") {
         return Some(Modality::Music);
     }
     if n.starts_with("speech") || n.starts_with("t2a") || n.starts_with("abab") {
@@ -111,6 +119,10 @@ fn default_for(models: &Models, m: Modality) -> Option<String> {
         Modality::Video => models.video.clone(),
         Modality::VideoRef => models.video_ref.clone().or_else(|| models.video.clone()),
         Modality::Music => models.music.clone(),
+        // **不退回 `music`。** 只有 ACE-Step 吃 cover / repaint 这两个
+        // task_type；拿文生音乐顶上会返回一段和原曲完全无关的音乐 ——
+        // 有声音、不报错，但不是用户要的东西。
+        Modality::MusicEdit => models.music_edit.clone(),
         Modality::Speech => models.speech.clone(),
     }
 }
@@ -164,6 +176,7 @@ mod tests {
             video: Some("minimax-h3-fl2va".into()),
             video_ref: Some("minimax-h3-ref2va".into()),
             music: Some("minimax-music3".into()),
+            music_edit: Some("ace-step-v1".into()),
             speech: None,
             ..Default::default()
         }
@@ -247,6 +260,28 @@ mod tests {
         // speech 没配。**这时必须是 None 而不是硬塞一个别的模态的模型** ——
         // 拿出图的模型去合成语音，上游会返回一个看不懂的错误。
         assert!(route(&models(), Some("speech-2.8-hd"), Modality::Speech).is_none());
+    }
+
+    #[test]
+    fn cover_does_not_fall_into_the_text_to_music_bucket() {
+        // `music-cover` 里含 `music`。顺序写反的话翻唱会静默走成文生音乐，
+        // 出来一首和原曲完全无关的歌 —— 有声音、不报错。
+        assert_eq!(modality_of("music-cover"), Some(Modality::MusicEdit));
+        assert_eq!(modality_of("music-3.0"), Some(Modality::Music));
+        assert_eq!(
+            route(&models(), Some("music-cover"), Modality::Music)
+                .unwrap()
+                .model,
+            "ace-step-v1"
+        );
+    }
+
+    #[test]
+    fn music_edit_never_falls_back_to_plain_music() {
+        // 只有 ACE-Step 吃 cover / repaint。退回文生音乐等于换了首歌。
+        let mut m = models();
+        m.music_edit = None;
+        assert!(route(&m, Some("music-cover"), Modality::MusicEdit).is_none());
     }
 
     #[test]

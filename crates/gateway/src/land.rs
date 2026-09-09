@@ -23,5 +23,6 @@ pub async fn land(state: &AppState, url: &str) -> Result<Product, PlatformError>
         path: asset.path,
         width: asset.width.map(u64::from),
         height: asset.height.map(u64::from),
+        extra: vec![],
     })
 }
