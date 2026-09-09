@@ -296,14 +296,14 @@ mod tests {
             .unwrap()
             .to_string();
 
-        create(State(s.clone()), None).await;
+        let _ = create(State(s.clone()), None).await;
         assert_eq!(
             canvas::read(&s.ws.canvas_path()).nodes.len(),
             0,
             "新画布应该是空的"
         );
 
-        open(State(s.clone()), UrlPath(first)).await;
+        let _ = open(State(s.clone()), UrlPath(first)).await;
         assert_eq!(
             canvas::read(&s.ws.canvas_path()).nodes.len(),
             2,
@@ -325,9 +325,9 @@ mod tests {
             .to_string();
         put_nodes(&s, 5).await;
 
-        open(State(s.clone()), UrlPath(a.clone())).await;
+        let _ = open(State(s.clone()), UrlPath(a.clone())).await;
         assert_eq!(canvas::read(&s.ws.canvas_path()).nodes.len(), 1);
-        open(State(s.clone()), UrlPath(b)).await;
+        let _ = open(State(s.clone()), UrlPath(b)).await;
         assert_eq!(canvas::read(&s.ws.canvas_path()).nodes.len(), 5);
     }
 
@@ -354,7 +354,7 @@ mod tests {
             .as_str()
             .unwrap()
             .to_string();
-        create(State(s.clone()), None).await;
+        let _ = create(State(s.clone()), None).await;
         let cur = list(State(s.clone())).await.0["current"]
             .as_str()
             .unwrap()
@@ -380,7 +380,7 @@ mod tests {
             .as_str()
             .unwrap()
             .to_string();
-        create(State(s.clone()), None).await; // 切走，让 b 落到存档
+        let _ = create(State(s.clone()), None).await; // 切走，让 b 落到存档
         std::fs::remove_file(s.ws.canvas_file(&b).unwrap()).unwrap();
         let r = open(State(s.clone()), UrlPath(b)).await;
         assert_eq!(r.0, StatusCode::OK);
