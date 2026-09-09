@@ -39,6 +39,11 @@ for _s in (sys.stdout, sys.stderr):
         _s.reconfigure(encoding="utf-8", errors="replace")
 
 # 发布源。配了几个就发几个，都验完才翻 latest。
+#
+# 变量名跟 Toonflow-app 对齐（`R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` /
+# `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` + variable `R2_PUBLIC_BASE`），
+# 这样同一个 Cloudflare 账号下两个项目的配置长得一样，值也能直接复用。
+#
 # R2 和 OBS 都支持 S3 API，所以上传是同一段代码 —— 但**凭据和公开域名各是各的**：
 #
 #   - 两个源共用一组 AWS_ACCESS_KEY_ID 的话，OBS 会拿 R2 的 key 去认证，403。
@@ -48,33 +53,68 @@ for _s in (sys.stdout, sys.stderr):
 # 这两条都是真踩过：早先的版本正是这么写的，因为一次都没真发过所以没暴露。
 SOURCES = {
     "r2": {
-        "endpoint": "OVAIJISUAN_R2_ENDPOINT",
-        "bucket": "OVAIJISUAN_R2_BUCKET",
-        "base": "OVAIJISUAN_R2_PUBLIC_BASE",
-        "key_id": "OVAIJISUAN_R2_ACCESS_KEY_ID",
-        "secret": "OVAIJISUAN_R2_SECRET_ACCESS_KEY",
+        # endpoint 优先直接给；没给就从 account id 拼 —— Toonflow 那边存的是
+        # account id，值可以照搬。
+        "endpoint": "R2_ENDPOINT",
+        "account": "R2_ACCOUNT_ID",
+        "bucket": "R2_BUCKET",
+        "base": "R2_PUBLIC_BASE",
+        "key_id": "R2_ACCESS_KEY_ID",
+        "secret": "R2_SECRET_ACCESS_KEY",
     },
     "obs": {
-        "endpoint": "OVAIJISUAN_OBS_ENDPOINT",
-        "bucket": "OVAIJISUAN_OBS_BUCKET",
-        "base": "OVAIJISUAN_OBS_PUBLIC_BASE",
-        "key_id": "OVAIJISUAN_OBS_ACCESS_KEY_ID",
-        "secret": "OVAIJISUAN_OBS_SECRET_ACCESS_KEY",
+        # 华为云没有"account id 拼域名"那套，endpoint 只能直接给
+        # （形如 https://obs.cn-north-4.myhuaweicloud.com）。
+        "endpoint": "OBS_ENDPOINT",
+        "bucket": "OBS_BUCKET",
+        "base": "OBS_PUBLIC_BASE",
+        "key_id": "OBS_ACCESS_KEY_ID",
+        "secret": "OBS_SECRET_ACCESS_KEY",
     },
 }
 
+# 桶里的产品命名空间。**所有 key 都在它下面。**
+#
+# 这不是为了好看：桶是和 Toonflow 共用的，而两边的"清理旧版本"都是
+# 「列出桶顶层的目录 → 挑出版本号形状的 → 只保留最新 N 个 → 其余整个删掉」。
+# 不分命名空间的话：
+#
+#   我们的 3.0.12.x 按 sort -V 永远排在 Toonflow 的 1.1.x 之上，
+#   于是我们发够三版之后，**Toonflow 的清理会把它自己所有版本都删光**——
+#   包括正在服役的那一版。它的 update.json 随即指向一个不存在的包，
+#   全部用户的升级 404，而我们这边一切正常。
+#
+# 加上前缀之后两边互不可见：Toonflow 的正则 `^[0-9]+\.[0-9]+...` 匹配不上
+# `ovaijisuandesign`，我们的清理也只列自己这一层。
+PRODUCT = os.environ.get("RELEASE_PRODUCT", "ovaijisuandesign")
+
+
+def endpoint(source: str) -> str | None:
+    """这个源的 S3 endpoint。R2 允许只给 account id。"""
+    e = SOURCES[source]
+    if direct := os.environ.get(e["endpoint"]):
+        return direct
+    if account := os.environ.get(e.get("account", "")):
+        return f"https://{account}.r2.cloudflarestorage.com"
+    return None
+
 
 def configured() -> list[str]:
-    """哪些源的五个环境变量都齐了。
+    """哪些源配齐了。
 
     只配了 R2 就只发 R2 —— 缺一个源不该让整次发布失败。但**一个都没配**
-    必须硬失败：静默地什么都不发，日志还写着"已发布"，是最糟的一种。
+    必须硬失败：静默地什么都不发、日志还写着"已发布"，是最糟的一种。
     """
-    ready = [n for n, e in SOURCES.items() if all(os.environ.get(v) for v in e.values())]
+    ready = [
+        n
+        for n, e in SOURCES.items()
+        if endpoint(n) and all(os.environ.get(e[k]) for k in ("bucket", "base", "key_id", "secret"))
+    ]
     if not ready:
         raise SystemExit(
-            "一个发布源都没配齐。每个源需要五个值，例如 R2：\n  "
-            + "\n  ".join(SOURCES["r2"].values())
+            "一个发布源都没配齐。R2 需要：\n  "
+            "R2_ACCOUNT_ID（或 R2_ENDPOINT）\n  R2_BUCKET\n  R2_PUBLIC_BASE\n  "
+            "R2_ACCESS_KEY_ID\n  R2_SECRET_ACCESS_KEY"
         )
     return ready
 
@@ -258,21 +298,25 @@ def write_manifests(ver: str, target: str, bundle: Path, digest: str, base: str)
     )
 
 
-# 所有 S3 key 的前缀。空跑时是 `dry-run/`，生产是空串。
-# **必须和写进 latest.json 的 base 地址一致** —— 对象传到了 dry-run/ 而 URL
-# 写成生产路径的话，回读校验必然 404，而"上传成功"的日志会让人往别处查。
+# 所有 S3 key 的前缀 = `<产品>/` + 空跑时的 `dry-run/`。
+# **必须和写进 latest.json 的 URL 一致** —— 对象传到了 dry-run/ 而 URL 写成
+# 生产路径的话，回读校验必然 404，而"上传成功"的日志会让人往别处查。
 PREFIX = ""
 
 
+def key_prefix(dry: str) -> str:
+    """`ovaijisuandesign/` 或 `ovaijisuandesign/dry-run/`。见 PRODUCT 的注释。"""
+    return f"{PRODUCT.strip('/')}/{dry.lstrip('/')}"
+
+
 def s3_upload(source: str, local: Path, key: str) -> None:
-    env = SOURCES[source]
-    endpoint, bucket = os.environ.get(env["endpoint"]), os.environ.get(env["bucket"])
-    if not endpoint or not bucket:
-        raise SystemExit(f"{source} 缺配置：需要 {env['endpoint']} 和 {env['bucket']}")
+    ep, bucket = endpoint(source), os.environ.get(SOURCES[source]["bucket"])
+    if not ep or not bucket:
+        raise SystemExit(f"{source} 缺 endpoint 或 bucket")
     run(
         [
             "aws", "s3", "cp", str(local), f"s3://{bucket}/{PREFIX}{key}",
-            "--endpoint-url", endpoint,
+            "--endpoint-url", ep,
         ],
         env=creds(source),
     )
@@ -379,11 +423,10 @@ def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
 def verify(source: str, key: str, digest: str) -> None:
     """回读校验。**不是可选步骤** —— 传完就翻指针的话，一次半截的上传
     会让所有客户端升级到一个下不完的包。"""
-    env = SOURCES[source]
-    endpoint, bucket = os.environ[env["endpoint"]], os.environ[env["bucket"]]
+    ep, bucket = endpoint(source), os.environ[SOURCES[source]["bucket"]]
     tmp = DIST / "verify.tmp"
     run(
-        ["aws", "s3", "cp", f"s3://{bucket}/{PREFIX}{key}", str(tmp), "--endpoint-url", endpoint],
+        ["aws", "s3", "cp", f"s3://{bucket}/{PREFIX}{key}", str(tmp), "--endpoint-url", ep],
         env=creds(source),
     )
     actual = hashlib.sha256(tmp.read_bytes()).hexdigest()
@@ -408,8 +451,8 @@ def main() -> int:
     ap.add_argument("--publish", action="store_true", help="上传（需要 aws cli 和凭据）")
     ap.add_argument(
         "--prefix",
-        default=os.environ.get("OVAIJISUAN_RELEASE_PREFIX", ""),
-        help="所有 S3 key 的前缀。空跑用 dry-run/，不碰生产清单",
+        default=os.environ.get("RELEASE_PREFIX", ""),
+        help="产品命名空间之后再加一层前缀。空跑用 dry-run/，不碰生产清单",
     )
     ap.add_argument(
         "--publish-only",
@@ -419,7 +462,7 @@ def main() -> int:
     args = ap.parse_args()
 
     global PREFIX
-    PREFIX = args.prefix
+    PREFIX = key_prefix(args.prefix)
     ver = version()
 
     if args.publish_only:

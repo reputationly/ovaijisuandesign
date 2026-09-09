@@ -39,7 +39,7 @@ jobs:
           #
           # 判据是 R2 那一组齐没齐。OBS 单独判在 release.py 的 configured()
           # 里：只配了一个源就只发一个，缺一个源不该让整次发布失败。
-          HAS_CDN: ${{ secrets.OVAIJISUAN_R2_ENDPOINT != '' && secrets.OVAIJISUAN_R2_PUBLIC_BASE != '' && secrets.OVAIJISUAN_R2_ACCESS_KEY_ID != '' }}
+          HAS_CDN: ${{ secrets.R2_ACCOUNT_ID != '' && vars.R2_PUBLIC_BASE != '' && secrets.R2_ACCESS_KEY_ID != '' }}
         run: |
           echo "cdn=$HAS_CDN" >> "$GITHUB_OUTPUT"
           [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2，本次跳过 CDN 分发，只出 GitHub Release"
@@ -193,17 +193,17 @@ jobs:
       # R2 不支持会直接 501，而错误信息完全看不出是校验的问题）。
       - name: 上传并回读校验
         env:
-          OVAIJISUAN_R2_ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
-          OVAIJISUAN_R2_BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
-          OVAIJISUAN_R2_PUBLIC_BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
-          OVAIJISUAN_R2_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
-          OVAIJISUAN_R2_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
-          OVAIJISUAN_OBS_ENDPOINT: ${{ secrets.OVAIJISUAN_OBS_ENDPOINT }}
-          OVAIJISUAN_OBS_BUCKET: ${{ secrets.OVAIJISUAN_OBS_BUCKET }}
-          OVAIJISUAN_OBS_PUBLIC_BASE: ${{ secrets.OVAIJISUAN_OBS_PUBLIC_BASE }}
-          OVAIJISUAN_OBS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_OBS_ACCESS_KEY_ID }}
-          OVAIJISUAN_OBS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_OBS_SECRET_ACCESS_KEY }}
-          OVAIJISUAN_RELEASE_PREFIX: ${{ needs.prepare.outputs.prefix }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC_BASE: ${{ vars.R2_PUBLIC_BASE }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
+          OBS_BUCKET: ${{ secrets.OBS_BUCKET }}
+          OBS_PUBLIC_BASE: ${{ vars.OBS_PUBLIC_BASE }}
+          OBS_ACCESS_KEY_ID: ${{ secrets.OBS_ACCESS_KEY_ID }}
+          OBS_SECRET_ACCESS_KEY: ${{ secrets.OBS_SECRET_ACCESS_KEY }}
+          RELEASE_PREFIX: ${{ needs.prepare.outputs.prefix }}
         run: python3 scripts/release.py --publish-only
 
       # 从**公开域名**再读一次。上一步的校验走的是 S3 API，这一步走 CDN ——
@@ -211,8 +211,8 @@ jobs:
       # （自定义域没映射、缓存策略把清单缓住了）。
       - name: 公网回读
         env:
-          BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
-          PREFIX: ${{ needs.prepare.outputs.prefix }}
+          BASE: ${{ vars.R2_PUBLIC_BASE }}
+          PREFIX: ovaijisuandesign/${{ needs.prepare.outputs.prefix }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           URL="${BASE%/}/${PREFIX}manifest.json"
@@ -244,30 +244,38 @@ jobs:
       #
       # 放在回读之后：确认新版本确实可公开下载，才动旧版本。
       # 不加 always()：前面失败时保持现状，宁可多占空间也不误删。
+      #
+      # ⚠️ **只列 ovaijisuandesign/ 这一层，绝不列桶根。**
+      # 桶是和 Toonflow 共用的，两边的清理逻辑一样：列出顶层目录 → 挑版本号
+      # 形状的 → 只留最新 N 个 → 其余整个删掉。列桶根的话，我们的 3.0.12.x
+      # 会和它的 1.1.x 混在一张表里 sort -V —— 我们的永远排在上面，发够三版
+      # 就把 Toonflow 的所有版本连同正在服役的那一版一起删光。
       - name: 清理旧版本（保留最近 3 个）
         if: ${{ !inputs.dry_run }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
           AWS_REQUEST_CHECKSUM_CALCULATION: when_required
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
-          ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
-          BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
+          ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET: ${{ secrets.R2_BUCKET }}
           # 注意：这一步只清 R2。OBS 的清理还没写 —— 见 docs/distribution.md
+          NS: ovaijisuandesign
           CURRENT: ${{ needs.prepare.outputs.version }}
           KEEP: "3"
         run: |
-          aws s3 ls "s3://$BUCKET/" --endpoint-url "$ENDPOINT" \
+          aws s3 ls "s3://$BUCKET/$NS/" --endpoint-url "$ENDPOINT" \
             | awk '$1=="PRE"{print $2}' | tr -d '/' \
             | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V > versions.txt || true
+          echo "$NS/ 下的版本：$(tr '\n' ' ' < versions.txt)"
           TOTAL=$(wc -l < versions.txt | tr -d ' ')
           [ "$TOTAL" -le "$KEEP" ] && { echo "共 $TOTAL 版，无需清理"; exit 0; }
           head -n "$((TOTAL - KEEP))" versions.txt | while read -r v; do
             # 双保险：绝不删刚发布的这一版
             [ "$v" = "$CURRENT" ] && { echo "跳过当前版本 $v"; continue; }
             echo "删除旧版本 $v"
-            aws s3 rm "s3://$BUCKET/$v/" --recursive --endpoint-url "$ENDPOINT"
+            aws s3 rm "s3://$BUCKET/$NS/$v/" --recursive --endpoint-url "$ENDPOINT"
           done
           echo "保留：$(tail -n "$KEEP" versions.txt | tr '\n' ' ')"
 
@@ -277,21 +285,22 @@ jobs:
       - name: 清理空跑产物
         if: ${{ always() && inputs.dry_run }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
           AWS_REQUEST_CHECKSUM_CALCULATION: when_required
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
         run: |
+          # 删的是 <桶>/ovaijisuandesign/dry-run/ —— 带上命名空间，
+          # 别去动桶根的 dry-run/，那是 Toonflow 的。
           clean() {  # endpoint bucket key secret
-            [ -n "$1" ] || return 0
+            [ -n "$1" ] && [ -n "$2" ] || return 0
             AWS_ACCESS_KEY_ID="$3" AWS_SECRET_ACCESS_KEY="$4" \
-              aws s3 rm "s3://$2/dry-run/" --recursive --endpoint-url "$1" || true
+              aws s3 rm "s3://$2/ovaijisuandesign/dry-run/" --recursive --endpoint-url "$1" || true
           }
-          clean "${{ secrets.OVAIJISUAN_R2_ENDPOINT }}" "${{ secrets.OVAIJISUAN_R2_BUCKET }}" \
-                "${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}" "${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}"
-          clean "${{ secrets.OVAIJISUAN_OBS_ENDPOINT }}" "${{ secrets.OVAIJISUAN_OBS_BUCKET }}" \
-                "${{ secrets.OVAIJISUAN_OBS_ACCESS_KEY_ID }}" "${{ secrets.OVAIJISUAN_OBS_SECRET_ACCESS_KEY }}"
+          clean "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
+                "${{ secrets.R2_BUCKET }}" \
+                "${{ secrets.R2_ACCESS_KEY_ID }}" "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          clean "${{ secrets.OBS_ENDPOINT }}" "${{ secrets.OBS_BUCKET }}" \
+                "${{ secrets.OBS_ACCESS_KEY_ID }}" "${{ secrets.OBS_SECRET_ACCESS_KEY }}"
           echo "空跑产物已清理，生产清单未被触碰"
 
   # ==================== GitHub Release ====================
@@ -357,8 +366,8 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
-          R2_BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
-          OBS_BASE: ${{ secrets.OVAIJISUAN_OBS_PUBLIC_BASE }}
+          R2_BASE: ${{ vars.R2_PUBLIC_BASE }}
+          OBS_BASE: ${{ vars.OBS_PUBLIC_BASE }}
         run: |
           mkdir -p ptr
           python3 - <<'PY'

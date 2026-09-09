@@ -177,21 +177,48 @@ MCP server。
 升级到一个下不完的包。
 
 R2 和 OBS 都用 S3 API，所以上传是同一段代码 —— 但**凭据和公开域名必须各是
-各的**，每个源五个值：
+各的**。变量名跟 Toonflow-app 对齐，同一个 Cloudflare 账号下两个项目长得一样，
+值可以直接复用：
 
-```bash
-OVAIJISUAN_R2_ENDPOINT           https://<account>.r2.cloudflarestorage.com
-OVAIJISUAN_R2_BUCKET             桶名
-OVAIJISUAN_R2_PUBLIC_BASE        公开下载的基地址（r2.dev 子域或自定义域）
-OVAIJISUAN_R2_ACCESS_KEY_ID
-OVAIJISUAN_R2_SECRET_ACCESS_KEY
-# OBS 同样五个，前缀换成 OVAIJISUAN_OBS_
-```
+| | 放哪 | 说明 |
+|---|---|---|
+| `R2_ACCOUNT_ID` | Secret | endpoint 由它拼出 `https://<id>.r2.cloudflarestorage.com` |
+| `R2_BUCKET` | Secret | 桶名。**可以和 Toonflow 共用同一个桶**，见下 |
+| `R2_ACCESS_KEY_ID` | Secret | |
+| `R2_SECRET_ACCESS_KEY` | Secret | |
+| `R2_PUBLIC_BASE` | **Variable** | 公开下载地址，不带结尾斜杠。它不是秘密 |
+
+OBS 同样五个，前缀换成 `OBS_`；但**华为云没有"account id 拼域名"那套**，
+所以是 `OBS_ENDPOINT` 直接给（形如 `https://obs.cn-north-4.myhuaweicloud.com`）。
 
 配齐几个就发几个（`configured()`），只配 R2 就只发 R2。**一个都没配是硬失败**
 —— 静默地什么都不传、日志还写着"已发布"，是最糟的一种。
 
-两个曾经写错的地方，都是"从没真跑过"才留到现在的：
+### 和 Toonflow 共用一个桶：必须分命名空间
+
+所有 key 都在 `ovaijisuandesign/` 下面（`PRODUCT`，可用 `RELEASE_PRODUCT`
+覆盖）。**这不是为了整齐，是为了不互删。**
+
+两边的"清理旧版本"逻辑是同一套：列出顶层目录 → 挑出版本号形状的 →
+只保留最新 N 个 → 其余整个 `rm --recursive`。共用桶而不分命名空间的话：
+
+```
+桶根           1.1.8.1/  1.1.8.2/  1.1.8.3/  3.0.12.1/  ← 混在一张表里
+sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
+```
+
+我们的 `3.0.12.x` 按版本序**永远排在 Toonflow 的 `1.1.x` 之上**。于是我们
+发够三版之后，Toonflow 那边下一次发版的清理会把**它自己所有版本删光**，
+包括正在服役的那一版 —— 它的 `update.json` 随即指向不存在的包，全部用户
+升级 404，而我们这边一切正常，非常难查。
+
+加上前缀之后两边互不可见：Toonflow 的正则 `^[0-9]+\.[0-9]+…` 匹配不上
+`ovaijisuandesign`，我们的清理也只列 `s3://<桶>/ovaijisuandesign/` 这一层。
+空跑清理同理，删的是 `ovaijisuandesign/dry-run/` 而不是桶根的 `dry-run/`。
+
+### 两个曾经写错的地方
+
+都是"从没真跑过"才留到现在的：
 
 | 错法 | 后果 |
 |---|---|
@@ -340,11 +367,12 @@ R2/OBS 的桶还没开，但公开仓的 Release 资产本来就是公网可下�
 
 ## 六、还没定的
 
-- **R2 / OBS 还没接**。要七个值：`OVAIJISUAN_R2_ENDPOINT` / `_BUCKET` /
-  `_ACCESS_KEY_ID` / `_SECRET_ACCESS_KEY`、`OVAIJISUAN_OBS_ENDPOINT` /
-  `_BUCKET`（都是 secrets），以及 repo variable `OVAIJISUAN_PUBLIC_BASE`。
+- **R2 / OBS 还没接**。R2 要四个 secrets（`R2_ACCOUNT_ID` / `R2_BUCKET` /
+  `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY`）加一个 variable
+  （`R2_PUBLIC_BASE`）—— 和 Toonflow-app 那边同名，值可以照搬，桶也能共用。
   齐了之后先用 `workflow_dispatch` + `dry_run=true` 跑一次再打真 tag ——
   上传和回读那两步至今没真跑过。
+- **OBS 的旧版本清理还没写**。现在只清 R2。
 - R2 和 OBS 谁是主、谁是镜像（现在是并列，客户端拿到两个地址自己选）
 - **下载和安装还没写** —— 现在只到"知道有新版本"。要能后台下、下完再切
 - 增量更新做不做。整包才 3.9 MB，全量换大概率更省事 —— 但 Rust 二进制
