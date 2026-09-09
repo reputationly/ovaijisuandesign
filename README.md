@@ -195,10 +195,22 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    3.9 MB 解压即用），**下载和安装也已完成** —— 界面上点一下就下、校验、
    换入，重启生效。见 [`docs/distribution.md`](docs/distribution.md)
 
-> **macOS 上从浏览器下载要先 `xattr -dr com.apple.quarantine ovgw ovagent`。**
-> 包没签名，浏览器打的隔离属性会被 `tar` 传给二进制，运行时被 Gatekeeper
-> 直接 SIGKILL —— 退出码 137、没有任何输出，看着像程序自己崩了。
-> `curl -L` 下载不受影响，自动升级也不受影响（那些文件是程序自己写的）。
+### 安装
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/reputationly/ovaijisuandesign/main/install.sh | sh
+```
+
+读清单 → 挑本机目标 → 下载 → **校验 sha256** → 解压 → 跑一次 `--version`
+自检。默认装到 `~/.local/share/ovaijisuandesign`，可以给个路径当参数。
+
+**在 macOS 上请用这个脚本，别从浏览器下载。** 包没有签名和公证，浏览器会给
+下载的文件打上 `com.apple.quarantine`，而 `tar` 会把它传给解出来的二进制 ——
+运行时被 Gatekeeper 直接 SIGKILL，**退出码 137、没有任何输出**，看着像程序
+自己崩了。curl 不打这个属性，所以走脚本装的不会遇到。
+
+已经从浏览器下过了的话：`xattr -dr com.apple.quarantine ovgw ovagent`。
+装好之后的自动升级不受影响 —— 那些文件是程序自己写的。
 
 ### 第 6 步实测
 
