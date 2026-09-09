@@ -5,7 +5,7 @@
  * agent 侧看到的才是 `hub_canvas_write_media_node` 这种 —— 官方的 agent
  * 配置就是照那些名字写的。
  *
- * 当前实现 24 个：画布 3 + 生成 4 + 计划 7 + 文本 3 + 分组 3 + 周边 4。**没实现的工具不注册空壳** ——
+ * 当前实现 26 个：画布 3 + 生成 4 + 音乐 2 + 计划 7 + 文本 3 + 分组 3 + 周边 4。**没实现的工具不注册空壳** ——
  * 注册了但返回"未实现"的话，agent 会把它当成一次失败的调用去重试；
  * 不注册，agent 至少能看到工具不存在而换条路。
  */
@@ -296,6 +296,79 @@ const generateAudioMusic: ToolDef = {
   },
 }
 
+/**
+ * 歌词起草。**不落画布，也不建节点** —— 它产出的是一段待用户确认的文本。
+ *
+ * 官方的工作流是「起草 → 原样念给用户 → 确认后再生成」，所以这一步的产物
+ * 是给 agent 看的，不是给画布看的。直接建成文本节点的话，用户每次改词都会
+ * 在画布上留下一堆废稿。
+ */
+const lyricsGeneration: ToolDef = {
+  name: "lyrics_generation",
+  description:
+    "Draft or polish song lyrics. Returns song_title, style_tags and lyrics as text — " +
+    "nothing is written to the canvas. Present the result to the user for confirmation " +
+    "before calling generate_audio_music. Use mode=write_full_song when there are no " +
+    "lyrics yet, mode=edit to expand / polish lyrics the user already gave you.",
+  inputSchema: {
+    mode: z.enum(["write_full_song", "edit"]).optional().describe("Defaults to write_full_song."),
+    prompt: z.string().optional().describe("Theme and style. Required for write_full_song."),
+    lyrics: z.string().optional().describe("The draft to polish. Required for mode=edit."),
+    title: z.string().optional().describe("Pins the song title instead of letting the model pick."),
+  },
+  async handler(a) {
+    return reply(
+      await gw.post("/api/music/lyrics/generate", {
+        mode: a.mode,
+        prompt: a.prompt ?? "",
+        lyrics: a.lyrics ?? "",
+        title: a.title,
+      }),
+    )
+  },
+}
+
+/**
+ * 翻唱。`action` 分派，官方就是一个工具带动作而不是三个工具。
+ *
+ * `generate` 走 `/api/generate/music/submit` 并带上 `audio` —— 官方的路由表里
+ * 翻唱的生成也没有独立路径，就是靠请求体里有没有参考音频分叉的。
+ *
+ * `prepare_lyrics` 本机做不了（要语音识别），gateway 会明说缺什么、
+ * 以及改走哪条路。**不回一份空歌词** —— 那份空歌词会被原样带进下一步，
+ * 翻唱出来是一首没有词的曲子，全程不报错。
+ */
+const musicCover: ToolDef = {
+  name: "music_cover",
+  description:
+    "Re-perform an existing track in a new style. action=generate does it in one shot; " +
+    "pass `lyrics` to sing new words, omit it to keep the words of the reference audio. " +
+    "action=prepare_lyrics (transcribe-then-edit) needs a speech-recognition model that " +
+    "this machine does not have — it will tell you so rather than returning empty lyrics.",
+  inputSchema: {
+    action: z.enum(["generate", "prepare_lyrics"]).describe("generate | prepare_lyrics"),
+    audio: z.string().optional().describe("Reference track: workspace path or URL."),
+    prompt: z.string().optional().describe("Target style. Not the lyrics."),
+    lyrics: z.string().optional().describe("New words. Omit to keep the original ones."),
+    cover_feature_id: z.string().optional().describe("Handle from prepare_lyrics."),
+    source_node_id: z.string().optional(),
+    filename: z.string().optional(),
+  },
+  async handler(a) {
+    if (a.action === "prepare_lyrics") {
+      return reply(await gw.post("/api/music/cover/preprocess", { audio: a.audio ?? "" }))
+    }
+    if (!a.audio) throw new Error("action=generate 需要 audio：翻唱总得有个参考音频")
+    const product = await submitAndPoll("music", {
+      audio: a.audio,
+      prompt: a.prompt ?? "",
+      lyrics: a.lyrics ?? "",
+      cover_feature_id: a.cover_feature_id,
+      filename: a.filename,
+    })
+    return reply(await placeOnCanvas(product))
+  },
+}
 
 // ---------------------------------------------------------------------------
 // 制作计划
@@ -652,6 +725,8 @@ export const TOOLS: ToolDef[] = [
   generateVideo,
   generateAudioSpeech,
   generateAudioMusic,
+  lyricsGeneration,
+  musicCover,
   planWrite,
   planReplan,
   planPatchStage,

@@ -57,7 +57,7 @@ describe("和官方工具面对齐", () => {
     }
   })
 
-  it("已实现的工具就是这 24 个", () => {
+  it("已实现的工具就是这 26 个", () => {
     // 钉住清单本身。加工具是好事，但**必须同时更新这里** ——
     // 否则漏注册一个（比如 TOOLS 数组忘了加）不会有任何提示。
     const names = TOOLS.map((t) => t.name).sort()
@@ -70,6 +70,8 @@ describe("和官方工具面对齐", () => {
         "generate_audio_speech",
         "generate_image",
         "generate_video",
+        "lyrics_generation",
+        "music_cover",
         "plan_get_stage_detail",
         "plan_get_stage_status",
         "plan_get_work_items",

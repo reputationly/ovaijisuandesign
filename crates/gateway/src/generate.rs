@@ -335,6 +335,16 @@ pub struct MusicSubmit {
     pub model_id: Option<String>,
     #[serde(default)]
     pub vendor: Option<String>,
+    /// 参考音频。**给了就是翻唱**，走 cover 而不是文生音乐。
+    ///
+    /// 官方的路由表里翻唱没有独立的生成路径，就是这一条按 `audio` 分叉。
+    #[serde(default)]
+    pub audio: Option<String>,
+    /// 官方两步走里 `prepare_lyrics` 交出来的句柄。本机做不了那一步
+    /// （见 [`crate::music::cover_preprocess`]），**接受但不使用** ——
+    /// 声明它是为了 agent 照官方流程传过来时不被静默丢弃。
+    #[serde(default)]
+    pub cover_feature_id: Option<String>,
 }
 
 /// `mode` → 「明确要器乐吗」。
@@ -356,15 +366,51 @@ pub async fn submit_music(State(state): State<Arc<AppState>>, body: Bytes) -> Js
         MusicSubmit::default()
     });
     let task_id = state.tasks.create();
-    tracing::info!(task = %task_id, lyrics = !req.lyrics.trim().is_empty(), "接到音乐生成");
+    let cover = req.audio.as_deref().is_some_and(|a| !a.trim().is_empty());
+    tracing::info!(
+        task = %task_id,
+        cover,
+        lyrics = !req.lyrics.trim().is_empty(),
+        "接到音乐生成"
+    );
 
     let (st, id) = (state.clone(), task_id.clone());
     tokio::spawn(async move {
+        let result = run_music(&st, &req, cover).await;
+        st.tasks.finish(&id, result);
+    });
+
+    accepted(&task_id, "audio")
+}
+
+async fn run_music(
+    st: &AppState,
+    req: &MusicSubmit,
+    cover: bool,
+) -> Result<crate::tasks::Product, PlatformError> {
+    let url = if cover {
+        // 参考音频也要转成平台吃的形态 —— 画布上的音频节点交出来的是
+        // 工作区相对路径。原样发过去平台只会说"缺少音频"。
+        let audio = as_media(st, std::slice::from_ref(req.audio.as_ref().unwrap()))?;
+        let Some(audio) = audio.first() else {
+            return Err(PlatformError::config("翻唱缺少参考音频"));
+        };
+        maas_media::audio::edit_music(
+            &st.client,
+            &st.media,
+            maas_media::audio::MusicEdit::Cover,
+            &req.prompt,
+            audio,
+            &req.lyrics,
+            req.model_id.as_deref(),
+        )
+        .await?
+    } else {
         let intent = maas_media::audio::MusicIntent::infer(
             instrumental_of(req.mode.as_deref()),
             &req.lyrics,
         );
-        let result = match maas_media::audio::generate_music(
+        maas_media::audio::generate_music(
             &st.client,
             &st.media,
             &req.prompt,
@@ -372,15 +418,9 @@ pub async fn submit_music(State(state): State<Arc<AppState>>, body: Bytes) -> Js
             intent,
             req.model_id.as_deref(),
         )
-        .await
-        {
-            Ok(url) => land::land(&st, &url).await,
-            Err(err) => Err(err),
-        };
-        st.tasks.finish(&id, result);
-    });
-
-    accepted(&task_id, "audio")
+        .await?
+    };
+    land::land(st, &url).await
 }
 
 // ---------------------------------------------------------------------------
