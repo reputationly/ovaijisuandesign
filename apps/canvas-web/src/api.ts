@@ -341,3 +341,30 @@ export async function startDownload(c: UpdateCheck): Promise<void> {
 export async function applyUpdate(): Promise<{ version: string }> {
   return json(await fetch("/api/update/apply", { method: "POST" }), "POST /api/update/apply")
 }
+
+// ==================== agent 的决策点 ====================
+
+/**
+ * 协议是 opencode 自带的 `question` 工具，见 `Question.tsx` 的注释。
+ * gateway 只是中转：agent 阻塞在 `/api/question/ask`，界面轮询 `pending`、
+ * 提交 `reply`。
+ */
+export async function pendingQuestion(): Promise<{
+  pending: { id: string; questions: import("./Question").QuestionInfo[] } | null
+}> {
+  return json(await fetch("/api/question/pending"), "GET /api/question/pending")
+}
+
+/** `answers` 为 null 表示跳过。 */
+export async function answerQuestion(id: string, answers: string[][] | null): Promise<void> {
+  const res = await fetch("/api/question/reply", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ id, answers }),
+  })
+  // 409 = 这道题已经不在等待了（被顶掉或超时）。不是错误，静默忽略 ——
+  // 用户看到的题本来就已经作废，弹个错只会让人困惑。
+  if (!res.ok && res.status !== 409) {
+    throw new Error(`提交回答失败 HTTP ${res.status}`)
+  }
+}

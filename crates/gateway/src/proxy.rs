@@ -109,6 +109,7 @@ mod tests {
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
             updater: Arc::new(crate::update::Updater::new()),
+            questions: Arc::new(crate::question::Questions::new()),
             upstream,
             web_dir: None,
         })

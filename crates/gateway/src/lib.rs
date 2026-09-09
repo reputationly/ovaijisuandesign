@@ -41,6 +41,7 @@ pub mod generate;
 pub mod install;
 pub mod land;
 pub mod proxy;
+pub mod question;
 pub mod tasks;
 pub mod update;
 pub mod web;
@@ -72,6 +73,8 @@ pub struct AppState {
     pub tasks: Arc<TaskStore>,
     /// 升级的状态机。见 [`update`]。
     pub updater: Arc<crate::update::Updater>,
+    /// agent 的决策点。见 [`question`]。
+    pub questions: Arc<crate::question::Questions>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -99,6 +102,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         // -- 多画布 --
         .route("/api/canvases", get(canvases::list).post(canvases::create))
         .route("/api/canvases/{id}/open", post(canvases::open))
+        // -- agent 的决策点 --
+        .route("/api/question/ask", post(question::ask))
+        .route("/api/question/pending", get(question::pending))
+        .route("/api/question/reply", post(question::reply))
         .route(
             "/api/canvases/{id}",
             axum::routing::delete(canvases::remove),
@@ -191,6 +198,7 @@ mod tests {
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
             updater: Arc::new(crate::update::Updater::new()),
+            questions: Arc::new(crate::question::Questions::new()),
             upstream: None,
             web_dir: None,
         })

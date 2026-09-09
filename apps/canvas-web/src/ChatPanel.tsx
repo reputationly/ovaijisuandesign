@@ -2,6 +2,7 @@ import { GripVertical, PanelRight, Plus } from "lucide-react"
 
 import type { CanvasFile } from "./api"
 import { Generate } from "./Generate"
+import { QuestionCard, type QuestionRequest } from "./Question"
 
 /**
  * 右侧对话面板。官方那栏是和 agent 的会话：上面是渲染好的回复，
@@ -23,6 +24,8 @@ export function ChatPanel({
   onReload,
   onCollapse,
   initialPrompt,
+  question,
+  onAnswer,
 }: {
   file: CanvasFile | null
   events: { at: string; event: string }[]
@@ -32,6 +35,10 @@ export function ChatPanel({
   onReload: () => void
   onCollapse: () => void
   initialPrompt?: string
+  /** 待回答的决策点。`null` = 没有。 */
+  question: QuestionRequest | null
+  /** `answers` 为 null 表示跳过（对应 question.rejected）。 */
+  onAnswer: (id: string, answers: string[][] | null) => void
 }) {
   return (
     <aside
@@ -62,6 +69,18 @@ export function ChatPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto px-4 py-2 text-[13px] leading-6">
+        {/* agent 的决策点。协议是 opencode 自带的 question 工具，
+            见 Question.tsx 的注释。 */}
+        {question && (
+          <div className="mb-3">
+            <QuestionCard
+              request={question}
+              onReply={(answers) => onAnswer(question.id, answers)}
+              onReject={() => onAnswer(question.id, null)}
+            />
+          </div>
+        )}
+
         <p style={{ color: "var(--muted-foreground)" }}>
           {file ? `${file.nodes.length} 个节点 / ${file.edges.length} 条边` : "连接中…"}
           {saving !== "idle" && (

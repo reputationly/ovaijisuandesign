@@ -17,8 +17,10 @@ import { Copy, Maximize2, PanelLeft, PanelRight, RefreshCw, Trash2, Wand2 } from
 import {
   CANVAS_MODES,
   assetUrl,
+  answerQuestion,
   connectEvents,
   getCanvas,
+  pendingQuestion,
   getNodeDetails,
   getWorkspace,
   putCanvas,
@@ -31,6 +33,7 @@ import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { Home } from "./Home"
+import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
@@ -61,6 +64,9 @@ export default function App() {
   const [tool, setTool] = useState<"select" | "hand">("select")
   const [sticker, setSticker] = useState(false)
   const [help, setHelp] = useState(false)
+  // agent 抛出来的决策点。同一时刻只可能有一个 —— question 工具是阻塞的，
+  // agent 在等回答，不会同时问第二次。
+  const [question, setQuestion] = useState<QuestionRequest | null>(null)
   /**
    * 首页填好、要带到画布输入框里的内容。
    *
@@ -117,6 +123,26 @@ export default function App() {
     setNodes(flow.nodes)
     setEdges(flow.edges)
   }, [file, details, mode, setNodes, setEdges])
+
+  // 轮询待答的决策点。**只在画布视图里轮询** —— agent 是画布上的东西，
+  // 首页没有它。两秒一次，这是个纯内存读的接口。
+  //
+  // 用轮询而不是等 /ws 推送：ws 断线重连的那几秒里推送会丢，而丢一道题
+  // 意味着 agent 永远卡在那儿等一个不会来的回答。轮询没有这个问题。
+  useEffect(() => {
+    if (view !== "canvas") return
+    let alive = true
+    const tick = () =>
+      void pendingQuestion()
+        .then((r) => alive && setQuestion(r.pending))
+        .catch(() => {})
+    tick()
+    const t = setInterval(tick, 2000)
+    return () => {
+      alive = false
+      clearInterval(t)
+    }
+  }, [view])
 
   useEffect(
     () =>
@@ -488,6 +514,13 @@ export default function App() {
             onReload={() => void load()}
             onCollapse={() => setRightOpen(false)}
             initialPrompt={pendingPrompt}
+            question={question}
+            onAnswer={(id, answers) => {
+              void answerQuestion(id, answers).catch((e: unknown) =>
+                setError(e instanceof Error ? e.message : String(e)),
+              )
+              setQuestion(null)
+            }}
           />
         ) : view === "canvas" ? (
           <button
