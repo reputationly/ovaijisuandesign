@@ -40,6 +40,7 @@ pub mod events;
 pub mod generate;
 pub mod install;
 pub mod land;
+pub mod plan;
 pub mod proxy;
 pub mod question;
 pub mod tasks;
@@ -106,6 +107,17 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/question/ask", post(question::ask))
         .route("/api/question/pending", get(question::pending))
         .route("/api/question/reply", post(question::reply))
+        // -- 制作计划（对应官方那 7 个 plan_* 工具）--
+        .route("/api/plan/write", post(plan::write))
+        .route("/api/plan/replan", post(plan::replan))
+        .route("/api/plan/patch-stage", post(plan::patch_stage))
+        .route(
+            "/api/plan/update-stage-state",
+            post(plan::update_stage_state),
+        )
+        .route("/api/plan/stage-status", post(plan::get_stage_status))
+        .route("/api/plan/stage-detail", post(plan::get_stage_detail))
+        .route("/api/plan/work-items", post(plan::get_work_items))
         .route(
             "/api/canvases/{id}",
             axum::routing::delete(canvases::remove),

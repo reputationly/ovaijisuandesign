@@ -5,7 +5,7 @@
  * agent 侧看到的才是 `hub_canvas_write_media_node` 这种 —— 官方的 agent
  * 配置就是照那些名字写的。
  *
- * 当前实现 8 个：画布 4 + 生成 4。**没实现的工具不注册空壳** ——
+ * 当前实现 14 个：画布 3 + 生成 4 + 计划 7。**没实现的工具不注册空壳** ——
  * 注册了但返回"未实现"的话，agent 会把它当成一次失败的调用去重试；
  * 不注册，agent 至少能看到工具不存在而换条路。
  */
@@ -277,6 +277,189 @@ const generateAudioMusic: ToolDef = {
   },
 }
 
+
+// ---------------------------------------------------------------------------
+// 制作计划
+//
+// **入参名逐字照官方**（见 docs/mcp-tools.md）：`plan_id` / `stage_id` /
+// `expected_revision` / `work_item_ids` / `after_order` / `preserve_through_stage_id`。
+// agent 的提示词里写死了这些名字，改一个字它就传不进来 —— 而 MCP 对多余的
+// 参数是静默丢弃，不会报错。
+//
+// `projectRoot` 官方每个 plan 工具都有，我们**接受但忽略**：他们支持多项目、
+// 计划按项目分开存；我们的计划跟着工作区走，只有一份。声明它是为了让
+// agent 照着提示词传过来时不报错。
+// ---------------------------------------------------------------------------
+
+/** 所有 plan 工具都有的两个。 */
+const planBase = {
+  plan_id: z.string().describe("Plan identifier"),
+  projectRoot: z.string().optional().describe("Accepted for compatibility; ignored"),
+}
+
+const stageSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().optional(),
+    order: z.number().optional(),
+    state: z
+      .enum(["pending", "in_progress", "completed", "blocked", "skipped", "failed"])
+      .optional(),
+    work_items: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .passthrough()
+
+const planWrite: ToolDef = {
+  name: "plan_write",
+  description:
+    "Write the whole production plan. Pass expected_revision=0 to create it. " +
+    "Use plan_replan for later changes so finished Stages are preserved.",
+  inputSchema: {
+    ...planBase,
+    plan: z.record(z.string(), z.unknown()).describe("The plan document"),
+    expected_revision: z
+      .number()
+      .describe("Revision you last read. 0 when creating. Mismatch is rejected."),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/write", {
+        plan_id: a.plan_id,
+        plan: a.plan,
+        expected_revision: a.expected_revision,
+      }),
+    ),
+}
+
+const planReplan: ToolDef = {
+  name: "plan_replan",
+  description:
+    "Replace the tail of the plan while keeping everything already finished. " +
+    "Prefer this over plan_write when work has started.",
+  inputSchema: {
+    ...planBase,
+    expected_revision: z.number(),
+    reason: z.string().optional(),
+    preserve_through_stage_id: z
+      .string()
+      .optional()
+      .describe("Keep up to and including this Stage. Defaults to the last finished one."),
+    operations: z.array(stageSchema).describe("Stages that replace the tail"),
+    request_id: z.string().optional(),
+    resume_stage_id: z.string().optional(),
+    workflow_path: z.string().optional(),
+    workflow_variant: z.string().optional(),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/replan", {
+        plan_id: a.plan_id,
+        expected_revision: a.expected_revision,
+        reason: a.reason ?? "",
+        preserve_through_stage_id: a.preserve_through_stage_id,
+        operations: a.operations ?? [],
+      }),
+    ),
+}
+
+const planPatchStage: ToolDef = {
+  name: "plan_patch_stage",
+  description: "Add, replace or remove a single Stage.",
+  inputSchema: {
+    ...planBase,
+    expected_revision: z.number(),
+    stage_id: z.string().optional(),
+    stage: stageSchema.optional(),
+    after_order: z.number().optional().describe("Insert after this order; rest shifts down"),
+    remove: z.boolean().optional(),
+    omit: z.array(z.string()).optional(),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/patch-stage", {
+        plan_id: a.plan_id,
+        expected_revision: a.expected_revision,
+        stage_id: a.stage_id,
+        stage: a.stage,
+        after_order: a.after_order,
+        remove: a.remove,
+      }),
+    ),
+}
+
+const planUpdateStageState: ToolDef = {
+  name: "plan_update_stage_state",
+  description: "Advance one or more Stages. All-or-nothing: an unknown stage_id rejects the batch.",
+  inputSchema: {
+    ...planBase,
+    expected_revision: z.number(),
+    updates: z
+      .array(
+        z.object({
+          stage_id: z.string(),
+          state: z.enum(["pending", "in_progress", "completed", "blocked", "skipped", "failed"]),
+        }),
+      )
+      .describe("Stage state transitions"),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/update-stage-state", {
+        plan_id: a.plan_id,
+        expected_revision: a.expected_revision,
+        updates: a.updates,
+      }),
+    ),
+}
+
+/** `stage_id` 和 `order` 都不给时返回**下一个该做的** Stage。 */
+const planGetStageStatus: ToolDef = {
+  name: "plan_get_stage_status",
+  description:
+    "Stage state and progress. Omit stage_id and order to get the next Stage to work on.",
+  inputSchema: { ...planBase, stage_id: z.string().optional(), order: z.number().optional() },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/stage-status", {
+        plan_id: a.plan_id,
+        stage_id: a.stage_id,
+        order: a.order,
+      }),
+    ),
+}
+
+const planGetStageDetail: ToolDef = {
+  name: "plan_get_stage_detail",
+  description: "Full Stage content including its work items.",
+  inputSchema: { ...planBase, stage_id: z.string().optional(), order: z.number().optional() },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/stage-detail", {
+        plan_id: a.plan_id,
+        stage_id: a.stage_id,
+        order: a.order,
+      }),
+    ),
+}
+
+const planGetWorkItems: ToolDef = {
+  name: "plan_get_work_items",
+  description: "Work items of a Stage, or of the whole plan when stage_id is omitted.",
+  inputSchema: {
+    ...planBase,
+    stage_id: z.string().optional(),
+    work_item_ids: z.array(z.string()).optional(),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/plan/work-items", {
+        plan_id: a.plan_id,
+        stage_id: a.stage_id,
+        work_item_ids: a.work_item_ids,
+      }),
+    ),
+}
+
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
@@ -285,4 +468,11 @@ export const TOOLS: ToolDef[] = [
   generateVideo,
   generateAudioSpeech,
   generateAudioMusic,
+  planWrite,
+  planReplan,
+  planPatchStage,
+  planUpdateStageState,
+  planGetStageStatus,
+  planGetStageDetail,
+  planGetWorkItems,
 ]

@@ -57,7 +57,9 @@ describe("和官方工具面对齐", () => {
     }
   })
 
-  it("画布 3 个 + 生成 4 个都在", () => {
+  it("已实现的工具就是这 14 个", () => {
+    // 钉住清单本身。加工具是好事，但**必须同时更新这里** ——
+    // 否则漏注册一个（比如 TOOLS 数组忘了加）不会有任何提示。
     const names = TOOLS.map((t) => t.name).sort()
     expect(names).toEqual(
       [
@@ -68,8 +70,33 @@ describe("和官方工具面对齐", () => {
         "generate_audio_speech",
         "generate_image",
         "generate_video",
+        "plan_get_stage_detail",
+        "plan_get_stage_status",
+        "plan_get_work_items",
+        "plan_patch_stage",
+        "plan_replan",
+        "plan_update_stage_state",
+        "plan_write",
       ].sort(),
     )
+  })
+
+  it("plan 工具的入参名和官方逐字一致", () => {
+    // agent 提示词里写死了这些名字，改一个字它就传不进来 ——
+    // 而 MCP 对多余的参数是**静默丢弃**，不报错。
+    const byName = new Map(TOOLS.map((t) => [t.name, t]))
+    for (const [tool, must] of [
+      ["plan_write", ["plan_id", "plan", "expected_revision"]],
+      ["plan_replan", ["plan_id", "expected_revision", "operations", "preserve_through_stage_id"]],
+      ["plan_patch_stage", ["plan_id", "expected_revision", "stage", "after_order", "remove"]],
+      ["plan_update_stage_state", ["plan_id", "expected_revision", "updates"]],
+      ["plan_get_work_items", ["plan_id", "stage_id", "work_item_ids"]],
+      ["plan_get_stage_status", ["plan_id", "stage_id", "order"]],
+      ["plan_get_stage_detail", ["plan_id", "stage_id", "order"]],
+    ] as [string, string[]][]) {
+      const keys = Object.keys(byName.get(tool)!.inputSchema)
+      for (const k of must) expect(keys, `${tool} 缺 ${k}`).toContain(k)
+    }
   })
 
   it("没有重名", () => {
