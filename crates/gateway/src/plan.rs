@@ -682,7 +682,7 @@ mod tests {
             ],
         )
         .await;
-        patch_stage(
+        let _ = patch_stage(
             State(s.clone()),
             Json(PatchBody {
                 plan_id: "p1".into(),
@@ -721,7 +721,7 @@ mod tests {
         .await;
         let mut na = stage("a", 999, StageState::Pending);
         na.name = "改过的 a".into();
-        patch_stage(
+        let _ = patch_stage(
             State(s.clone()),
             Json(PatchBody {
                 plan_id: "p1".into(),
