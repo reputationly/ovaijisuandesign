@@ -102,6 +102,7 @@ export default function App() {
     void load()
   }, [load])
 
+
   // 首次进来跟随文件自己声明的 mode，而不是硬认 workflow。
   const appliedFileMode = useRef(false)
   useEffect(() => {
