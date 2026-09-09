@@ -33,6 +33,20 @@ export function Generate({ onDone, autoFocus }: { onDone: () => void; autoFocus?
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus()
   }, [autoFocus])
+
+  // 首页点了灵感卡片 / 提交了输入 → 把内容带到这里。用事件而不是把 state
+  // 提到 App：提上去的话每次打字都会让整棵画布重渲染。
+  useEffect(() => {
+    const fill = (e: Event) => {
+      const v = (e as CustomEvent<string>).detail
+      if (typeof v === "string") {
+        setPrompt(v)
+        inputRef.current?.focus()
+      }
+    }
+    window.addEventListener("composer:fill", fill)
+    return () => window.removeEventListener("composer:fill", fill)
+  }, [])
   const abort = useRef<AbortController | null>(null)
 
   const busy = phase.kind === "generating" || phase.kind === "placing"

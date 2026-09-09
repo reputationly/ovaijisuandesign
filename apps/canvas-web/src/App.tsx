@@ -30,6 +30,7 @@ import {
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { BackgroundPicker, BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
+import { Home } from "./Home"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
@@ -54,6 +55,7 @@ export default function App() {
   // 画布底色。存 localStorage —— 这是纯粹的个人偏好，不该进 canvas.json
   // （那份文件是和 agent 共享的数据，写进外观设置会让每次改底色都变成
   // 一次画布内容变更，agent 那边会看到一串无意义的 canvas:changed）。
+  const [view, setView] = useState<"home" | "canvas">("home")
   const [bg, setBg] = useState(() => localStorage.getItem("canvas-bg") ?? "default")
   useEffect(() => localStorage.setItem("canvas-bg", bg), [bg])
 
@@ -169,7 +171,25 @@ export default function App() {
           右边对话面板。画布上的控件是浮层，不占布局 —— 这也是为什么
           官方的画布能一直铺满，控件不挤压可视区域。 */}
       <div className="flex h-full" style={{ background: "var(--background)" }}>
-        <Sidebar file={file} details={details} dir={dir} right={<Update />} />
+        <Sidebar
+          file={file}
+          details={details}
+          dir={dir}
+          right={<Update />}
+          view={view}
+          onView={setView}
+        />
+
+        {view === "home" ? (
+          <Home
+            onSubmit={(p) => {
+              setView("canvas")
+              setComposerOpen(true)
+              window.dispatchEvent(new CustomEvent("composer:fill", { detail: p }))
+            }}
+            onOpenCanvas={() => setView("canvas")}
+          />
+        ) : (
 
         <main
           className="relative min-w-0 flex-1"
@@ -340,6 +360,8 @@ export default function App() {
             </div>
           )}
         </main>
+
+        )}
 
         {menu && (
           <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />

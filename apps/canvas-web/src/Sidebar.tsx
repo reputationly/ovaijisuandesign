@@ -29,10 +29,10 @@ import { cn } from "./lib"
  */
 
 const NAV = [
-  { icon: <Plus size={16} />, label: "开始创作" },
-  { icon: <FolderOpen size={16} />, label: "项目库" },
-  { icon: <Sparkles size={16} />, label: "Skill" },
-  { icon: <Workflow size={16} />, label: "ComfyUI 工作流", badge: "Beta" },
+  { id: "home", icon: <Plus size={16} />, label: "开始创作" },
+  { id: "library", icon: <FolderOpen size={16} />, label: "项目库" },
+  { id: "skill", icon: <Sparkles size={16} />, label: "Skill" },
+  { id: "comfyui", icon: <Workflow size={16} />, label: "ComfyUI 工作流", badge: "Beta" },
 ]
 
 /** 节点类型 → 列表里的小图标。和画布上节点标签用的是同一套分类。 */
@@ -60,11 +60,15 @@ export function Sidebar({
   details,
   dir,
   right,
+  view,
+  onView,
 }: {
   file: CanvasFile | null
   details: Map<string, NodeDetail>
   dir: string
   right?: ReactNode
+  view: "home" | "canvas"
+  onView: (v: "home" | "canvas") => void
 }) {
   return (
     <aside
@@ -95,7 +99,13 @@ export function Sidebar({
         {NAV.map((n) => (
           <button
             key={n.label}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] text-[var(--home-sidebar-primary-text)] hover:bg-[var(--home-sidebar-nav-hover)]"
+            onClick={() => (n.id === "home" || n.id === "skill" ? onView("home") : undefined)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] hover:bg-[var(--home-sidebar-nav-hover)]"
+            style={{
+              color: "var(--home-sidebar-primary-text)",
+              background:
+                view === "home" && n.id === "home" ? "var(--home-sidebar-nav-active)" : undefined,
+            }}
           >
             {n.icon}
             <span className="truncate">{n.label}</span>
@@ -118,6 +128,7 @@ export function Sidebar({
               return (
                 <button
                   key={n.id}
+                  onClick={() => onView("canvas")}
                   className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] text-[var(--home-sidebar-secondary-text)] hover:bg-[var(--home-sidebar-nav-hover)]"
                   title={d?.name ?? n.id}
                 >
