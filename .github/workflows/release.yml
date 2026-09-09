@@ -26,12 +26,19 @@ jobs:
       prefix: ${{ steps.v.outputs.prefix }}
       base: ${{ steps.v.outputs.base }}
       matrix: ${{ steps.v.outputs.matrix }}
+      cdn: ${{ steps.v.outputs.cdn }}
     steps:
       - uses: actions/checkout@v4
       - id: v
         env:
           PUBLIC_BASE: ${{ vars.OVAIJISUAN_PUBLIC_BASE }}
+          # secrets 不能在 job 级 if 里判，只能在 step 里转成 output。
+          # 桶还没开的时候要能正常发一版：CDN 分发跳过，GitHub Release 照出，
+          # 而不是让整个 run 红着——红了就没人再看它到底哪里红。
+          HAS_CDN: ${{ secrets.OVAIJISUAN_R2_ENDPOINT != '' && vars.OVAIJISUAN_PUBLIC_BASE != '' }}
         run: |
+          echo "cdn=$HAS_CDN" >> "$GITHUB_OUTPUT"
+          [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2/公开域名，本次跳过 CDN 分发，只出 GitHub Release"
           CARGO=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
           BASE="${PUBLIC_BASE%/}"
 
@@ -110,7 +117,10 @@ jobs:
             # 只会看到"打不开"。
             EXTRA=""
             [ "${{ matrix.os }}" = "macos-latest" ] && EXTRA="--cross"
-            python3 scripts/release.py --target "$t" --base "$BASE" $EXTRA
+            # BASE 为空时不传 --base，让脚本用 example.invalid 那个明显是占位的
+            # 默认值。传空串会写出 `/0.1.0/…` 这种看着像能用的相对 URL。
+            [ -n "$BASE" ] && EXTRA="$EXTRA --base $BASE"
+            python3 scripts/release.py --target "$t" $EXTRA
             echo "::endgroup::"
           done
 
@@ -129,7 +139,7 @@ jobs:
   # failure 而不是 cancelled。
   publish:
     needs: [prepare, build]
-    if: ${{ startsWith(github.ref, 'refs/tags/') || inputs.dry_run }}
+    if: ${{ needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
     runs-on: ubuntu-latest
     name: 发布
     steps:
