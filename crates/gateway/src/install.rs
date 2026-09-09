@@ -62,6 +62,22 @@ pub fn dir_of(exe: &Path) -> Result<PathBuf> {
     Ok(real.parent().context("可执行文件没有父目录")?.to_path_buf())
 }
 
+/// 是不是跑在一个应用包里（macOS 的 `.app`）。
+///
+/// **应用包里不能就地换文件。** 我们的换法是把 `ovgw` / `ovagent` / `web` /
+/// `mcp` 四项换掉，而 `.app` 的布局是 `Contents/MacOS/ovdesktop` +
+/// `Contents/Resources/{web,mcp}` —— 对不上。硬换的结果是包结构被破坏，
+/// 而且一旦签了名，任何改动都会让签名失效、下次打开直接被系统拒绝。
+///
+/// 应用包的升级要整包替换（重新下 dmg，或者以后接 Tauri 的 updater），
+/// 那是另一条路。这里只负责如实说"这儿不能换"。
+pub fn in_app_bundle() -> bool {
+    std::env::current_exe()
+        .ok()
+        .and_then(|p| Some(p.parent()?.to_path_buf()))
+        .is_some_and(|d| d.ends_with("Contents/MacOS"))
+}
+
 /// 解压出来的东西对不对。**换之前必须过这一关。**
 ///
 /// 只查存在性和类型，不查内容 —— 内容由 sha256 保证（在 [`crate::update`]
@@ -393,5 +409,20 @@ mod tests {
         // 拿不到真实路径不该让程序起不来。大不了升级那步失败，那时报错具体。
         let p = Path::new("/definitely/does/not/exist/ovgw");
         assert_eq!(dir_of(p).unwrap(), Path::new("/definitely/does/not/exist"));
+    }
+}
+
+#[cfg(test)]
+mod bundle_tests {
+    #[test]
+    fn the_bundle_check_only_matches_a_real_app_layout() {
+        // 只认 `…/Contents/MacOS`。认宽了会让正常安装的用户升不了级，
+        // 而报错说的是"应用包里不能升级"——完全对不上他看到的东西。
+        use std::path::Path;
+        let is_bundle = |p: &str| Path::new(p).ends_with("Contents/MacOS");
+        assert!(is_bundle("/Applications/x.app/Contents/MacOS"));
+        assert!(!is_bundle("/Users/me/.local/share/ovaijisuandesign"));
+        assert!(!is_bundle("/opt/MacOS"));
+        assert!(!is_bundle("/x/Contents"));
     }
 }

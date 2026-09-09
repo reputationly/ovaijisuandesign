@@ -145,6 +145,87 @@ jobs:
             !dist/stage/
           retention-days: 7
 
+  # ==================== 桌面端应用包 ====================
+  # tar.gz 那条路是"解压即用"的命令行形态；这一条出的是双击就能开的应用：
+  # macOS 的 .dmg / Windows 的 .msi / Linux 的 .deb 和 AppImage。
+  #
+  # **和 tar.gz 的升级链路是分开的。** 自升级换的是 ovgw/ovagent/web/mcp 四项，
+  # 而应用包的布局完全不同（Contents/MacOS + Contents/Resources），就地换会
+  # 把包弄坏、签名也会失效。所以应用包只挂到 Release 页面，不进升级清单 ——
+  # 客户端那边有 `in_app_bundle()` 会拒掉就地升级并说明原因。
+  desktop:
+    needs: prepare
+    if: ${{ !inputs.dry_run }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, rust: aarch64-apple-darwin, name: darwin-arm64 }
+          - { os: macos-latest, rust: x86_64-apple-darwin, name: darwin-x64 }
+          - { os: windows-latest, rust: x86_64-pc-windows-msvc, name: win32-x64 }
+          - { os: ubuntu-latest, rust: x86_64-unknown-linux-gnu, name: linux-x64 }
+    runs-on: ${{ matrix.os }}
+    name: 应用包 ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: desktop-${{ matrix.rust }}
+      - uses: oven-sh/setup-bun@v2
+
+      # Tauri 在 Linux 上用的是系统的 WebKitGTK，不像 Electron 自带浏览器。
+      # 少一个包就会在链接阶段挂，而报错是一串 `-lwebkit2gtk-4.1 not found`。
+      - name: Linux 依赖
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
+            librsvg2-dev patchelf libxdo-dev
+
+      - name: 前端与 MCP 产物
+        shell: bash
+        run: |
+          # tauri.conf.json 的 resources 指着这两个路径，缺了构建脚本直接失败。
+          (cd apps/canvas-web && bun install --frozen-lockfile && bun run build)
+          (cd mcp && bun install --frozen-lockfile && bun build src/main.ts --target=bun --outfile dist/main.js)
+
+      - name: 打包
+        shell: bash
+        working-directory: apps/desktop
+        env:
+          # 四段版本号编译期注入，和 tar.gz 那条一致。
+          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          bun install --frozen-lockfile
+          # **不能用 `bunx tauri`** —— npm 上那个同名包是别的东西，
+          # 会去编译 sharp 然后失败。
+          bunx @tauri-apps/cli build --target ${{ matrix.rust }}
+
+      # 只收最终产物，不收整个 bundle 目录（里面还有一份未压缩的 .app，
+      # 和 dmg 内容重复，artifact 会翻倍）。
+      - name: 收产物
+        shell: bash
+        run: |
+          mkdir -p out
+          V="${{ needs.prepare.outputs.version }}"
+          B=target/${{ matrix.rust }}/release/bundle
+          for f in $(find "$B" -maxdepth 2 -type f \
+                     \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' \
+                        -o -name '*.deb' -o -name '*.AppImage' \) 2>/dev/null); do
+            ext="${f##*.}"
+            cp "$f" "out/ovaijisuandesign-$V-${{ matrix.name }}.$ext"
+          done
+          ls -lh out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.name }}
+          path: out/
+          retention-days: 7
+
   # ==================== 发布 ====================
   # 矩阵由 prepare 动态给出，空跑时不再有被 skip 的 build，所以这里用默认的
   # `success()` 语义就够了——千万别退回 `always()`：它会连「某个平台打包失败」
@@ -323,7 +404,7 @@ jobs:
 
   # ==================== GitHub Release ====================
   github-release:
-    needs: [prepare, build]
+    needs: [prepare, build, desktop]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
@@ -333,6 +414,10 @@ jobs:
         with:
           path: artifacts
           pattern: dist-*
+      - uses: actions/download-artifact@v4
+        with:
+          path: desktop
+          pattern: desktop-*
       - name: 整理并改成能看懂的文件名
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
@@ -344,6 +429,8 @@ jobs:
             target=$(basename "$(dirname "$f")")
             cp "$f" "out/ovaijisuandesign-$VERSION-$target.tar.gz"
           done
+          # 应用包已经是最终文件名，直接搬过去。
+          find desktop -type f -print0 | xargs -0 -I{} cp {} out/ || true
           ls -lh out/
       - uses: softprops/action-gh-release@v2
         with:
@@ -353,12 +440,28 @@ jobs:
           body: |
             解压即用，不需要装别的东西。
 
+            ### 桌面应用（双击就能开）
+
+            | 系统 | 文件 |
+            |---|---|
+            | macOS (M 系列) | `*-darwin-arm64.dmg` |
+            | macOS (Intel) | `*-darwin-x64.dmg` |
+            | Windows | `*-win32-x64.msi` |
+            | Linux | `*-linux-x64.deb` / `.AppImage` |
+
+            ### 命令行形态（解压即用，能自升级）
+
             | 系统 | 文件 |
             |---|---|
             | macOS (M 系列) | `*-darwin-arm64.tar.gz` |
             | macOS (Intel) | `*-darwin-x64.tar.gz` |
             | Windows | `*-win32-x64.tar.gz` |
             | Linux | `*-linux-x64.tar.gz` |
+
+            两种形态装的是同一套东西。**应用包不能就地自升级** ——
+            它的目录结构和 tar.gz 不同（`Contents/MacOS` + `Contents/Resources`），
+            就地换文件会把包弄坏；升级请重新下载安装包。tar.gz 那份
+            在界面上点一下就能自己升。
 
             ```bash
             tar -xzf ovaijisuandesign-*.tar.gz && ./ovgw

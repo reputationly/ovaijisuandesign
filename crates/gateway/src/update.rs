@@ -288,6 +288,17 @@ pub async fn download(
     State(state): State<Arc<AppState>>,
     Json(req): Json<DownloadReq>,
 ) -> (StatusCode, Json<Value>) {
+    // 应用包里就地换文件会把包结构弄坏（签名后更是直接失效）。
+    // 在开始下载**之前**就拒掉——下完再说不行等于白下 4 MB。
+    if crate::install::in_app_bundle() {
+        return (
+            StatusCode::CONFLICT,
+            Json(json!({
+                "ok": false,
+                "error": "应用包里不能就地升级，请重新下载安装包替换整个 app"
+            })),
+        );
+    }
     if let Err(why) = state.updater.can_start() {
         return (
             StatusCode::CONFLICT,
