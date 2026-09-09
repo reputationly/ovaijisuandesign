@@ -21,10 +21,10 @@
   --radius-node-inner: var(--canvas-media-node-inner-radius);
 }
 
-/* 深色是默认。官方两套都有，浅色留着但先不做切换入口 —— 只有一个开关的
- * 主题系统还不如没有，等设置面板落地时一起。 */
+/* 浅色是默认，和官方一致。深色那套在 tokens.css 的 .dark 里，
+ * 加主题开关时给 <html> 挂 class 即可。 */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,

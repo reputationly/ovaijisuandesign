@@ -2,16 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Background,
   BackgroundVariant,
-  Controls,
   MiniMap,
   ReactFlow,
+  ReactFlowProvider,
   useEdgesState,
   useNodesState,
   type Edge as FlowEdge,
   type Node as FlowNode,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
-import { RefreshCw } from "lucide-react"
 
 import {
   CANVAS_MODES,
@@ -26,8 +25,9 @@ import {
   type NodeDetail,
 } from "./api"
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
-import { Generate } from "./Generate"
-import { cn } from "./lib"
+import { BottomToolbar, TopRightChrome } from "./CanvasChrome"
+import { ChatPanel } from "./ChatPanel"
+import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
 import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
 
@@ -44,6 +44,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "failed">("idle")
   const [events, setEvents] = useState<EventLine[]>([])
+  const [minimap, setMinimap] = useState(true)
+  const [composerOpen, setComposerOpen] = useState(false)
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode<NodeData>>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([])
@@ -133,124 +135,97 @@ export default function App() {
     [],
   )
 
-  const counts = useMemo(() => {
-    const byType = new Map<string, number>()
-    for (const n of file?.nodes ?? []) byType.set(n.type, (byType.get(n.type) ?? 0) + 1)
-    return [...byType.entries()].map(([t, c]) => `${t}×${c}`).join("  ")
-  }, [file])
 
   return (
     <CanvasActionsContext value={actions}>
-      <div className="flex h-full flex-col">
-        <header className="flex items-center gap-2.5 border-b border-line bg-panel px-3 py-2">
-          <img src="/logo.png" alt="" width={18} height={18} className="shrink-0" />
-          <strong>ovaijisuandesign</strong>
-          <span className="text-dim">{dir || "连接中…"}</span>
-          <span className="flex-1" />
-          <div className="flex gap-1">
-            {CANVAS_MODES.map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={cn(
-                  "rounded border px-2.5 py-0.5",
-                  m === mode
-                    ? "border-accent bg-accent text-[#10121a]"
-                    : "border-line bg-raised hover:border-accent",
-                )}
-              >
-                {m}
+      {/* 三栏。按官方 3.0.12 的界面：左边项目/会话，中间画布铺满，
+          右边对话面板。画布上的控件是浮层，不占布局 —— 这也是为什么
+          官方的画布能一直铺满，控件不挤压可视区域。 */}
+      <div className="flex h-full" style={{ background: "var(--background)" }}>
+        <Sidebar file={file} details={details} dir={dir} right={<Update />} />
+
+        <main className="relative min-w-0 flex-1" data-hilo-canvas-root="true">
+          <ReactFlowProvider>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onNodeDragStop={() => void onNodeDragStop()}
+              // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
+              // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
+              // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
+              // 不喂这个变量描边会跟着缩到看不见。
+              onMove={(_, vp) => {
+                document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
+              }}
+              fitView
+              minZoom={0.05}
+              // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
+              // 几百个节点全渲染会让首屏卡住。
+              onlyRenderVisibleElements
+              // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
+              selectionOnDrag
+              panOnDrag={[1, 2]}
+              panOnScroll
+              selectNodesOnDrag={false}
+              proOptions={{ hideAttribution: true }}
+            >
+              {/* 点阵，颜色走官方的 --canvas-bg-dot。 */}
+              <Background
+                variant={BackgroundVariant.Dots}
+                gap={20}
+                size={1}
+                color="var(--canvas-bg-dot)"
+              />
+              {minimap && (
+                // 小地图在**右上**，官方就摆在缩放条底下。React Flow 默认
+                // 在右下，要显式指定 position。
+                <MiniMap
+                  position="top-right"
+                  pannable
+                  zoomable
+                  style={{ marginTop: 60, marginRight: 12 }}
+                  maskColor="var(--canvas-minimap-mask)"
+                  nodeColor="var(--canvas-minimap-node)"
+                />
+              )}
+              <TopRightChrome
+                mode={mode}
+                onMode={setMode}
+                minimap={minimap}
+                onMinimap={setMinimap}
+              />
+              <BottomToolbar onCreate={() => setComposerOpen(true)} />
+            </ReactFlow>
+          </ReactFlowProvider>
+
+          {error && (
+            <div
+              className="absolute inset-x-3 bottom-20 z-20 flex items-start gap-2 rounded-lg px-3 py-2 font-mono text-xs"
+              style={{
+                background: "color-mix(in srgb, var(--canvas-node-tag-red) 14%, var(--canvas-controls-bg))",
+                color: "var(--canvas-node-tag-red)",
+                boxShadow: "var(--canvas-shadow-panel)",
+              }}
+            >
+              {error}
+              <button onClick={() => setError(null)} className="ml-auto">
+                ×
               </button>
-            ))}
-          </div>
-          <button
-            onClick={() => void load()}
-            className="flex items-center gap-1.5 rounded border border-line bg-raised px-2.5 py-0.5 hover:border-accent"
-          >
-            <RefreshCw size={12} />
-            重新加载
-          </button>
-          <Update />
-          <span
-            className={cn(
-              "min-w-14 text-xs",
-              saving === "saved" ? "text-ok" : saving === "failed" ? "text-bad" : "text-dim",
-            )}
-          >
-            {{ idle: "", saving: "保存中…", saved: "已保存", failed: "保存失败" }[saving]}
-          </span>
-        </header>
+            </div>
+          )}
+        </main>
 
-        <Generate onDone={() => void load()} />
-
-        {error && (
-          <div className="flex items-start gap-2 border-b border-bad bg-[#3a1f22] px-3 py-2 font-mono text-xs text-[#ffd7d7]">
-            {error}
-            <button onClick={() => setError(null)} className="ml-auto">
-              ×
-            </button>
-          </div>
-        )}
-
-        <div className="min-h-0 flex-1" data-hilo-canvas-root="true">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodeDragStop={() => void onNodeDragStop()}
-            // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
-            // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
-            // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
-            // 不喂这个变量描边会跟着缩到看不见。
-            onMove={(_, vp) => {
-              document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
-            }}
-            fitView
-            minZoom={0.05}
-            // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
-            // 几百个节点全渲染会让首屏卡住。
-            onlyRenderVisibleElements
-            // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
-            // 这是画布类工具的惯例，也和官方一致。
-            selectionOnDrag
-            panOnDrag={[1, 2]}
-            panOnScroll
-            selectNodesOnDrag={false}
-          >
-            {/* 点阵，颜色走官方的 --canvas-bg-dot
-                （= color-mix(in srgb, var(--foreground) 12%, transparent)）。
-                间距是我们定的：他们的实际值在压缩代码里是变量传的，抠不出来。 */}
-            <Background
-              variant={BackgroundVariant.Dots}
-              gap={20}
-              size={1}
-              color="var(--canvas-bg-dot)"
-            />
-            <Controls showInteractive={false} />
-            <MiniMap
-              pannable
-              zoomable
-              maskColor="var(--canvas-minimap-mask)"
-              nodeColor="var(--canvas-minimap-node)"
-            />
-          </ReactFlow>
-        </div>
-
-        <footer className="flex items-center gap-2.5 overflow-hidden border-t border-line bg-panel px-3 py-2 text-xs whitespace-nowrap">
-          <span>
-            {file ? `${file.nodes.length} 节点 / ${file.edges.length} 边` : "—"}
-            {counts && <span className="text-dim">　{counts}</span>}
-          </span>
-          <span className="flex-1" />
-          <span className="truncate text-dim">
-            /ws：
-            {events.length === 0
-              ? "（尚无事件）"
-              : events.map((e) => `${e.at} ${e.event}`).join("　")}
-          </span>
-        </footer>
+        <ChatPanel
+          file={file}
+          events={events}
+          saving={saving}
+          composerOpen={composerOpen}
+          onDone={() => void load()}
+          onReload={() => void load()}
+        />
       </div>
     </CanvasActionsContext>
   )

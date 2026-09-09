@@ -1,7 +1,14 @@
 /** 四种节点的渲染。这是官方画布里唯一闭源、必须自己写的那一层。 */
 
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react"
-import { AlertTriangle, FileQuestion } from "lucide-react"
+import {
+  AlertTriangle,
+  FileQuestion,
+  FileText,
+  Image as ImageIcon,
+  Music,
+  Video,
+} from "lucide-react"
 import { createContext, useContext, useState, type ReactNode } from "react"
 
 import { assetUrl } from "./api"
@@ -28,11 +35,21 @@ type Props = NodeProps<Node<NodeData>>
  * 他们有 7 种（blue/green/purple/deep-purple/orange/red/yellow），每种三个
  * 变量（基色 / surface / foreground）。用哪个配哪个是产品决定，我们按媒体
  * 类型分，颜色值本身照抄。 */
-const TAG_COLOR: Record<string, string> = {
+// 标签配色留着：官方的 tag 是用户可设的，我们还没有那套 UI。
+// 变量已经在 tokens.css 里，接上 tag 系统时直接用。
+export const TAG_COLOR: Record<string, string> = {
   image: "blue",
   video: "purple",
   audio: "green",
   text: "yellow",
+}
+
+/** 名字条前面的类型图标。官方图片节点前面就是一个小图片图标。 */
+const KIND_ICON: Record<string, ReactNode> = {
+  image: <ImageIcon size={14} />,
+  video: <Video size={14} />,
+  audio: <Music size={14} />,
+  text: <FileText size={14} />,
 }
 
 /**
@@ -56,7 +73,6 @@ function Frame({
 }: Props & { kind: string; children: ReactNode; variant?: "media" | "panel" }) {
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
-  const tag = TAG_COLOR[kind] ?? "blue"
   const isPanel = variant === "panel"
   return (
     <div
@@ -82,27 +98,18 @@ function Frame({
         {children}
       </div>
 
-      {/* 名字条：**浮在节点下方外侧**，不占节点内部空间。
-          官方的媒体节点是"整块就是媒体"，名字不在卡片里 —— 塞进去会让
-          每个节点都矮一截，一屏能看到的图变少，那是最直观的差异之一。
-          只在 hover 或选中时出现，平时画布上是干净的。 */}
+      {/* 名字条在节点**上方外侧、常驻**（截图确认）。带类型图标 + 文件名。
+          放在节点里会让每张图都矮一截；放下面则和下一行节点的名字打架。 */}
       <div
-        className="pointer-events-none absolute top-full left-0 mt-1.5 flex w-full items-center gap-1.5 overflow-hidden text-[11px] whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-        style={{ opacity: selected ? 1 : undefined }}
+        className="pointer-events-none absolute bottom-full left-0 mb-1.5 flex w-full items-center gap-1.5 overflow-hidden text-[13px] whitespace-nowrap"
         title={name}
       >
-        <span
-          className="shrink-0 rounded-sm px-1.5 text-[10px]"
-          style={{
-            // 官方那套 node-tag 配色：底色由 surface 按 strength 混出来，
-            // 前景色单独给 —— 明暗两套下都保证对比度。
-            background: `color-mix(in srgb, var(--canvas-node-tag-${tag}-surface) var(--canvas-node-tag-surface-strength), var(--canvas-node-tag-surface-base))`,
-            color: `var(--canvas-node-tag-${tag}-foreground)`,
-          }}
-        >
-          {kind}
+        <span className="shrink-0" style={{ color: "var(--muted-foreground)" }}>
+          {KIND_ICON[kind] ?? <FileText size={14} />}
         </span>
-        <span className="truncate text-[var(--canvas-controls-text-muted)]">{name}</span>
+        <span className="truncate" style={{ color: "var(--foreground)" }}>
+          {name}
+        </span>
       </div>
 
       <Handle type="source" position={Position.Right} />

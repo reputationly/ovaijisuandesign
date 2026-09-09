@@ -1,8 +1,7 @@
-import { Loader2, Sparkles, X } from "lucide-react"
-import { useRef, useState } from "react"
+import { ArrowUp, Loader2, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { createMediaNode, pollTask, submitImage } from "./api"
-import { cn } from "./lib"
 
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
 const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
@@ -25,11 +24,15 @@ type Phase =
  * 前端只知道"提交 → 轮询 → 拿到一个工作区路径 → 建节点" —— 这正是官方
  * 契约的形状。落盘藏在 gateway 里，等自己的资产库写完，前端一行都不用改。
  */
-export function Generate({ onDone }: { onDone: () => void }) {
+export function Generate({ onDone, autoFocus }: { onDone: () => void; autoFocus?: boolean }) {
   const [prompt, setPrompt] = useState("")
   const [ratio, setRatio] = useState("1:1")
   const [resolution, setResolution] = useState("1K")
   const [phase, setPhase] = useState<Phase>({ kind: "idle" })
+  const inputRef = useRef<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus()
+  }, [autoFocus])
   const abort = useRef<AbortController | null>(null)
 
   const busy = phase.kind === "generating" || phase.kind === "placing"
@@ -56,56 +59,73 @@ export function Generate({ onDone }: { onDone: () => void }) {
     }
   }
 
+  // 造型按官方的 --home-input-* 那套：圆角 24、极淡边框、柔和阴影，
+  // 输入区在上、工具行在下、发送键在右下角的圆形按钮里。
   return (
-    <div className="flex flex-col gap-2 border-b border-line bg-panel px-3 py-2">
-      <div className="flex items-center gap-2">
-        <input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) void run()
-          }}
-          placeholder="描述要生成的画面，回车开始"
-          disabled={busy}
-          className="min-w-0 flex-1 rounded border border-line bg-[#0f1015] px-2.5 py-1.5 outline-none placeholder:text-dim focus:border-accent disabled:opacity-50"
-        />
+    <div
+      className="flex flex-col"
+      style={{
+        borderRadius: "var(--home-input-radius)",
+        background: "var(--home-input-surface)",
+        border: "var(--home-input-border-width) solid var(--home-input-border)",
+        boxShadow: "var(--home-input-shadow)",
+      }}
+    >
+      <textarea
+        ref={inputRef}
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        onKeyDown={(e) => {
+          // 回车发送、Shift+回车换行。`isComposing` 必须判 —— 中文输入法
+          // 选词时按回车会被当成发送，把半截拼音提交上去。
+          if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+            e.preventDefault()
+            void run()
+          }
+        }}
+        placeholder="描述你要生成的内容"
+        disabled={busy}
+        rows={2}
+        className="resize-none bg-transparent px-4 pt-3.5 outline-none disabled:opacity-50"
+        style={{
+          fontSize: "var(--home-input-editor-font-size)",
+          color: "var(--foreground)",
+        }}
+      />
 
+      <div className="flex items-center gap-1 px-2.5 pt-1 pb-2.5">
         <Select value={ratio} onChange={setRatio} options={RATIOS} disabled={busy} />
         <Select value={resolution} onChange={setResolution} options={RESOLUTIONS} disabled={busy} />
-
-        {busy ? (
-          <button
-            onClick={() => abort.current?.abort()}
-            className="flex items-center gap-1.5 rounded border border-line bg-raised px-3 py-1.5 hover:border-bad"
+        <span className="flex-1" />
+        {phase.kind !== "idle" && (
+          <span
+            className="mr-1 flex items-center gap-1 font-mono text-[11px]"
+            style={{
+              color:
+                phase.kind === "failed"
+                  ? "var(--canvas-node-tag-red)"
+                  : "var(--muted-foreground)",
+            }}
           >
-            <X size={14} />
-            取消
-          </button>
-        ) : (
-          <button
-            onClick={() => void run()}
-            disabled={!prompt.trim()}
-            className="flex items-center gap-1.5 rounded border border-accent bg-accent px-3 py-1.5 text-[#10121a] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Sparkles size={14} />
-            生成
-          </button>
+            {busy && <Loader2 size={11} className="animate-spin" />}
+            {phase.kind === "generating" && `${phase.seconds}s`}
+            {phase.kind === "placing" && "放到画布上…"}
+            {phase.kind === "failed" && phase.message.slice(0, 40)}
+          </span>
         )}
-      </div>
-
-      {phase.kind !== "idle" && (
-        <div
-          className={cn(
-            "flex items-center gap-1.5 font-mono text-xs",
-            phase.kind === "failed" ? "text-bad" : "text-dim",
-          )}
+        <button
+          onClick={() => (busy ? abort.current?.abort() : void run())}
+          disabled={!busy && !prompt.trim()}
+          title={busy ? "取消" : "生成"}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-85 disabled:opacity-30"
+          style={{
+            background: "var(--canvas-primary-btn-bg)",
+            color: "var(--canvas-primary-btn-icon)",
+          }}
         >
-          {busy && <Loader2 size={12} className="animate-spin" />}
-          {phase.kind === "generating" && `平台出图中… ${phase.seconds}s`}
-          {phase.kind === "placing" && "放到画布上…"}
-          {phase.kind === "failed" && phase.message}
-        </div>
-      )}
+          {busy ? <X size={15} /> : <ArrowUp size={16} />}
+        </button>
+      </div>
     </div>
   )
 }
@@ -127,7 +147,12 @@ function Select({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="rounded border border-line bg-raised px-2 py-1.5 outline-none focus:border-accent disabled:opacity-50"
+      className="rounded-md px-2 py-1 text-[12px] outline-none disabled:opacity-50"
+      style={{
+        background: "var(--canvas-controls-hover)",
+        color: "var(--canvas-controls-text)",
+        border: "none",
+      }}
     >
       {options.map((o) => (
         <option key={o} value={o}>
