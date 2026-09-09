@@ -29,6 +29,7 @@ pub mod config;
 pub mod error;
 pub mod image;
 pub mod lyrics;
+pub mod route;
 pub mod video;
 
 pub use config::{MediaConfig, Models, MusicEngine, Platform};

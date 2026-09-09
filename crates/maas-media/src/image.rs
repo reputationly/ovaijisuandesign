@@ -154,9 +154,16 @@ pub async fn generate(
     images: &[String],
     aspect_ratio: &str,
     resolution: &str,
+    // `model_id`：调用方点名的模型，**用官方那套名字**
+    // （`nano-banana` / `seedream_5_pro` …）。路由到我们平台上配的模型，
+    // 见 `crate::route`。传 None 就走默认。
+    model_id: Option<&str>,
 ) -> Result<String, PlatformError> {
     let (path, body) = if images.is_empty() {
-        let model = cfg.model(|m| m.image.as_ref(), "models.image")?;
+        let modality = crate::route::Modality::Image;
+        let model = crate::route::route(&cfg.models, model_id, modality)
+            .map(|r| r.model)
+            .ok_or_else(|| PlatformError::config("models.image 未配置，这个能力不可用"))?;
         (
             "/images/generations",
             json!({
@@ -167,7 +174,10 @@ pub async fn generate(
             }),
         )
     } else {
-        let model = cfg.model(|m| m.image_edit.as_ref(), "models.image_edit")?;
+        let modality = crate::route::Modality::ImageEdit;
+        let model = crate::route::route(&cfg.models, model_id, modality)
+            .map(|r| r.model)
+            .ok_or_else(|| PlatformError::config("models.image_edit 未配置，这个能力不可用"))?;
         (
             "/images/edits",
             // 底图字段是 `image`（单张）或 `images`（多张），JSON 或
@@ -279,7 +289,7 @@ mod tests {
     #[tokio::test]
     async fn a_missing_model_is_reported_before_any_network_call() {
         let cfg = MediaConfig::default();
-        let err = generate(&reqwest::Client::new(), &cfg, "cat", &[], "1:1", "1K")
+        let err = generate(&reqwest::Client::new(), &cfg, "cat", &[], "1:1", "1K", None)
             .await
             .unwrap_err();
         assert_eq!(err.code, "dpp.config");

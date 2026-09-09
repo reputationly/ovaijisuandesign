@@ -43,6 +43,18 @@ pub struct ImageSubmit {
     pub image_paths: Vec<String>,
     #[serde(default)]
     pub params: ImageParams,
+    /// 调用方点名的模型，**官方那套名字**。路由到我们配的模型，
+    /// 见 `maas_media::route`。
+    ///
+    /// 声明它是为了让 agent 照官方提示词传过来时**不被静默丢弃** ——
+    /// MCP 对多余的参数不报错，agent 会以为自己指定了模型，实际一直在用默认。
+    #[serde(default)]
+    pub model_id: Option<String>,
+    /// 官方的 vendor（`banana` / `seedream` / `kling` …）。
+    /// **接受但不参与路由** —— 同一个 vendor 下有多个模态，而模型名本身
+    /// 是唯一的，按名字判更准。留着是为了不丢字段。
+    #[serde(default)]
+    pub vendor: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -84,6 +96,7 @@ pub async fn submit_image(State(state): State<Arc<AppState>>, body: Bytes) -> Js
             &req.image_paths,
             &req.params.aspect_ratio,
             &req.params.resolution,
+            req.model_id.as_deref(),
         )
         .await
         {

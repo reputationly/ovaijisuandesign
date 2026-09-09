@@ -168,13 +168,20 @@ async function placeOnCanvas(product: Product) {
 }
 
 /**
- * 选型字段收下但**不参与决策** —— 用哪个模型由我们的配置决定。
+ * 选型字段。**名字用官方那套，真正发请求前路由到本机配置的模型**
+ * （见 `maas_media::route`）。
  *
- * 保留它们是因为官方的 agent 配置一定会填（`vendor` 在官方 schema 里是必填
- * 枚举）。收下比让 agent 撞上"未知字段"要好。
+ * 这样两边的接口面不分叉：官方升级后重跑提取脚本，差异一眼能看出来；
+ * 而我们换后端模型只动 `config.json`，不碰工具定义。
+ *
+ * 之前这两个字段是"收下但丢掉"的 —— agent 以为自己指定了 `nano-banana`，
+ * 实际一直在用默认模型，而且**不报错**。现在真的透传下去。
+ *
+ * `vendor` 仍然不参与路由：同一个 vendor 下有多个模态（`seedream` 既出图
+ * 也做图层分解），而模型名本身是唯一的，按名字判更准。
  *
  * 注意**语音那个叫 `model_name` 不是 `model_id`**，官方就是这么不一致的。
- * 跟着它 —— 我们统一成一个名字的话，agent 按契约填的那个就再也传不进来了。
+ * 跟着它 —— 统一成一个名字的话，agent 按契约填的那个就再也传不进来了。
  */
 const vendorField = {
   vendor: z.string().optional().describe("Accepted for compatibility; the server decides the model."),
