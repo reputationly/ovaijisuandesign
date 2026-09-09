@@ -109,11 +109,11 @@ pub async fn node_detail(
         // 素材的像素尺寸。前端按它算节点大小（等比缩到长边 350，和官方
         // 的 computeNodeSize 一致）—— 没有它就只能套一个固定卡片，
         // 竖图会变成方框里的一条，那是和官方观感差别最明显的地方。
-        if let Some(a) = n.asset_id.as_deref().and_then(|id| state.assets.by_id(id)) {
-            if let (Some(w), Some(h)) = (a.width, a.height) {
-                entry["width"] = json!(w);
-                entry["height"] = json!(h);
-            }
+        if let Some(a) = n.asset_id.as_deref().and_then(|id| state.assets.by_id(id))
+            && let (Some(w), Some(h)) = (a.width, a.height)
+        {
+            entry["width"] = json!(w);
+            entry["height"] = json!(h);
         }
         if let Some((content, hash)) = read_text(&state, n) {
             entry["textContent"] = json!(content);
