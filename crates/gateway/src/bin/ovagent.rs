@@ -29,7 +29,7 @@ fn main() -> Result<()> {
     if let Some(a) = std::env::args().nth(1) {
         match a.as_str() {
             "--version" | "-V" => {
-                println!("ovagent {}", env!("CARGO_PKG_VERSION"));
+                println!("ovagent {}", gateway::VERSION);
                 return Ok(());
             }
             // opencode 自己的 --help 走 `ovagent -- --help`。

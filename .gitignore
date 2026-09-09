@@ -14,3 +14,7 @@ reference/
 
 # 探测脚本、截图之类的临时产物
 .probe/
+
+# python 字节码
+__pycache__/
+*.pyc

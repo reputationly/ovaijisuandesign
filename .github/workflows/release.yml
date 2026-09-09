@@ -55,6 +55,7 @@ jobs:
           DRY='[{"os":"ubuntu-latest","targets":"linux-x64"}]'
 
           if [ "${{ inputs.dry_run }}" = "true" ]; then
+            # 空跑没有 tag，直接用三段基线。产物发到 dry-run/ 前缀，跑完清掉。
             {
               echo "version=$CARGO"
               echo "prefix=dry-run/"
@@ -64,15 +65,22 @@ jobs:
             exit 0
           fi
 
-          # tag 必须和 Cargo.toml 一致：包名用的是 Cargo.toml 的版本，
-          # 而清单里的 URL 按 tag 拼的话两边会对不上，发出去的 latest.json 直接 404。
+          # 版本号四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
+          # 三段基线在 Cargo.toml（四段不是合法 semver，cargo 不收），完整版本号
+          # 在 tag 里。校验前三段一致 —— 对不上的话包名、清单 URL、二进制自报的
+          # 版本会各说各的，发出去的 latest.json 直接 404。
           TAG="${GITHUB_REF_NAME#v}"
-          if [ "$TAG" != "$CARGO" ]; then
-            echo "::error::tag v$TAG 和 Cargo.toml 的 $CARGO 不一致，先同步再发"
-            exit 1
+          case "$TAG" in
+            "$CARGO"|"$CARGO".*) ;;
+            *) echo "::error::tag v$TAG 的前三段和 Cargo.toml 的 $CARGO 对不上，先同步再发"; exit 1 ;;
+          esac
+          if ! echo "$TAG" | grep -qE '^[0-9]+(\.[0-9]+){2,3}$'; then
+            # is_newer() 把非数字段按 0 处理，带后缀的版本号会让客户端
+            # **静默地永远收不到更新** —— 不报错、不提示。
+            echo "::error::版本号必须是纯数字分段：$TAG"; exit 1
           fi
           {
-            echo "version=$CARGO"
+            echo "version=$TAG"
             echo "prefix="
             echo "base=$BASE"
             echo "matrix=$(echo "$ALL" | jq -c .)"
@@ -111,6 +119,9 @@ jobs:
         shell: bash
         env:
           BASE: ${{ needs.prepare.outputs.base }}
+          # 四段版本号编译期注入。不传的话二进制自报三段基线，而清单里是四段,
+          # 于是所有人装完都被提示"有新版本"，装了还提示。
+          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           for t in ${{ matrix.targets }}; do
             echo "::group::$t"

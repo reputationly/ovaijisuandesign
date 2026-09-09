@@ -1,9 +1,11 @@
 # 分发与升级
 
-自己做发布通道，包放 **R2 或 OBS**。这份文档记两件事：官方那套是怎么做的
-（可以照抄的部分不少），以及我们要怎么做。
+自己做发布通道。这份文档记两件事：官方那套是怎么做的（可以照抄的部分不少），
+以及我们怎么做。
 
-目前还没到实现的时候 —— 但它影响现在的一些结构决定，见最后一节。
+**当前状态**：GitHub Release 已经是一条真跑通的分发链路（打包 → 发包 →
+翻指针 → 客户端查到新版本，全都实测过）。R2 / OBS 的代码写完了但**从未真跑**
+—— 缺凭据。见第六节。
 
 ## 一、官方那套
 
@@ -203,28 +205,87 @@ OVAIJISUAN_RELEASE_BASE  # 写进 latest.json 的公开基地址
 
 ## 五、CI 与客户端
 
+### 版本号
+
+四段 `MAJOR.MINOR.PATCH.BUILD`，**前三段跟着官方 MiniMax Design 走，
+第四段是本仓的迭代号**（和 Toonflow-app 同一套）：
+
+```
+   3.0.12  .1
+   └──┬─┘   └┬┘
+  官方版本   本仓迭代号
+```
+
+意思是"对齐到官方 3.0.12 的功能面，这是我们在这条基线上的第 1 版"。
+
+| 放在哪 | 形态 | 谁维护 |
+|---|---|---|
+| `Cargo.toml` 的 `version` | `3.0.12` 三段 | **手改**，只在跟进官方新版时 |
+| Git tag | `v3.0.12.1` 四段 | `scripts/tag.py --push` 自动算 |
+| `gateway::VERSION` | 四段 | CI 编译期经 `OVAIJISUAN_VERSION` 注入 |
+| `latest-<target>.json` 的 `version` | 四段 | CI 生成 |
+
+**基线为什么不能直接写四段**：`3.0.12.1` 不是合法 semver，cargo 会拒绝解析
+整个 workspace。所以基线在 Cargo.toml，完整版本号在 tag 里。
+`crates/gateway/build.rs` 只干一件事 —— 声明 `rerun-if-env-changed`，
+否则 CI 上有构建缓存时改了版本号也不重编，二进制自报的还是上一版。
+
+**版本号必须是纯数字分段。** `is_newer()` 逐段解析，非数字段一律按 0 ——
+用 new-api 那种 `v0.13.2-ovaijisuan-20260903-6e9f99b1` 风格喂进清单的话，
+客户端会**静默地永远收不到更新**：不报错、不提示，只是永远认为自己最新。
+
+跟进官方新版本时：改 `Cargo.toml` 的基线 → `scripts/tag.py` 会从 `.1`
+重新起（不跟着旧基线跳号，否则 `3.0.11.7 → 3.0.12.8` 看着像丢了七个版本）。
+
 ### `.github/workflows/release.yml`
 
 打 `v*` tag 触发，也可以手动跑空跑。
 
 ```
-prepare          解析版本 + 前缀（空跑用 dry-run/）
-build（矩阵）     macos-latest→darwin-arm64  macos-13→darwin-x64
+prepare          解析四段版本 + 前缀 + 打包矩阵（空跑用 dry-run/）
+build（矩阵）     macos-latest→darwin-arm64 + darwin-x64（交叉）
                  windows-latest→win32-x64   ubuntu-latest→linux-x64
 publish          汇总各平台产物 → 上传 → 回读校验 → 清理旧版本
-github-release   挂到 Release 页面
+                 （没配 R2 凭据时整个跳过）
+github-release   挂到 Release 页面 → 再翻升级指针
 ```
 
-**每个目标在对应的原生 runner 上打，不交叉编译** —— rustls 依赖 ring，
-那是 C 代码，交叉编译要目标平台的 SDK 头文件（在 Mac 上试过，卡在
-`assert.h` 找不到）。
+**一台 macOS runner 出两个架构**：arm64 ⇄ x86_64 能交叉（Xcode 自带两个
+SDK，连 ring 的 C 代码都能过，实测 15 秒）。别的方向交叉不了 —— 在 Mac 上
+试过给 Windows 交叉，卡在 `assert.h` 找不到。所以 Windows 和 Linux 各用
+自己的 runner。
+
+`prepare` 里算打包矩阵，而不是在 `build` 的 `if:` 里筛：**job 级 `if:` 拿不到
+`matrix` 上下文**，写了会让整个 workflow 文件校验失败，症状是每次 push 都
+冒出一个 0 秒的失败 run，点进去只说"workflow file issue"。
+
+### GitHub Release 就是第一个分发源
+
+R2/OBS 的桶还没开，但公开仓的 Release 资产本来就是公网可下的不可变对象 ——
+版本 tag 一发出，资产就不再变，正好满足"包不可变"这一条。所以升级链路
+**今天就是通的**，不用等桶：
+
+```
+固定 tag `manifest` 的 release        ← 可变的那一层，每次发版覆盖
+  manifest.json                       有哪些平台
+  latest-<target>.json                当前版本、包地址、sha256、大小
+各版本 tag 的 release                 ← 不可变，包本体
+  ovaijisuandesign-<版本>-<平台>.tar.gz
+```
+
+指针那一步**必须排在包上传之后**。反过来的话，中间那几十秒里客户端查到
+新版本、去下载、404。
+
+桶开了之后不用改结构：往 `latestUrls` 里加一个源就行，客户端本来就按顺序
+试所有源。GitHub 在国内下载慢，R2/OBS 补的是这一块。
 
 从 Toonflow-app 那套流水线抄来的几条，都是踩过才知道的：
 
 | | |
 |---|---|
 | **版本号集中解析** | 包名、`latest.json`、二进制自报的版本三处必须同源。不一致的话用户装完立刻被提示更新到自己刚装的那个版本 |
-| **`always()` 要配 `!contains(needs.*.result, 'failure')`** | 只写 `always()` 会放行"某平台打包失败"，仍然翻 latest 指针 —— 那个平台的用户升级时撞 404，其余平台一切正常，很难发现 |
+| **版本号纯数字** | 带后缀的版本号会让 `is_newer()` 把整段读成 0，客户端静默地永远收不到更新 |
+| **`publish` 不要用 `always()`** | 它会放行"某平台打包失败"，仍然翻 latest 指针 —— 那个平台的用户升级时撞 404，其余平台一切正常，很难发现。矩阵改成 prepare 动态给出之后不再有被 skip 的 build，默认的 `success()` 语义就够了 |
 | **aws cli 的两个 checksum 开关** | v2 默认发 CRC32 尾部校验，**R2 不支持会直接 501**，而错误信息完全看不出是校验的问题 |
 | **公网回读** | 上传后的校验走的是 S3 API，再从公开域名读一次才能抓到"传上去了但公网读不到"（自定义域没映射、缓存策略把清单缓住了） |
 | **按数量清理，不按天数** | 生命周期规则按天数有个陷阱：长期不发版时会把当前正在服役的那一版一并删掉 |
@@ -242,6 +303,9 @@ github-release   挂到 Release 页面
   "source": "r2", "url": "…", "sha256": "…", "size": 4096 }
 ```
 
+**已实测通过**：从 Release 下载的真实 0.1.1 二进制，查到 0.1.2 并给出可下载
+的地址和正确的 sha256。走的就是上面 GitHub Release 那条链路。
+
 三条实测过的行为：
 
 - **多个源按顺序试**。第一个 404 会自动换第二个 —— 两个源本来就是互为
@@ -258,6 +322,11 @@ github-release   挂到 Release 页面
 
 ## 六、还没定的
 
+- **R2 / OBS 还没接**。要七个值：`OVAIJISUAN_R2_ENDPOINT` / `_BUCKET` /
+  `_ACCESS_KEY_ID` / `_SECRET_ACCESS_KEY`、`OVAIJISUAN_OBS_ENDPOINT` /
+  `_BUCKET`（都是 secrets），以及 repo variable `OVAIJISUAN_PUBLIC_BASE`。
+  齐了之后先用 `workflow_dispatch` + `dry_run=true` 跑一次再打真 tag ——
+  上传和回读那两步至今没真跑过。
 - R2 和 OBS 谁是主、谁是镜像（现在是并列，客户端拿到两个地址自己选）
 - **下载和安装还没写** —— 现在只到"知道有新版本"。要能后台下、下完再切
 - 增量更新做不做。整包才 3.9 MB，全量换大概率更省事 —— 但 Rust 二进制

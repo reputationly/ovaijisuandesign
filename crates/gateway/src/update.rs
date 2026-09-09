@@ -104,7 +104,7 @@ pub fn is_newer(remote: &str, local: &str) -> bool {
 const TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
 
 pub async fn check(State(state): State<Arc<AppState>>) -> Json<Value> {
-    let current = env!("CARGO_PKG_VERSION");
+    let current = crate::VERSION;
     let target = host_target();
 
     // **网络不可达一律降级成"已是最新"，不回 5xx。**

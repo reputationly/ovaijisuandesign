@@ -61,17 +61,38 @@ def host_target() -> str:
     return f"{system}-{machine}"
 
 
-def version() -> str:
-    """版本号取自 workspace 的 Cargo.toml，单一来源。"""
+def baseline() -> str:
+    """三段基线，取自 workspace 的 Cargo.toml。**跟着官方 MiniMax Design 走。**
+
+    Cargo.toml 里只能放三段 —— 四段不是合法 semver，cargo 会拒绝解析整个
+    workspace。所以基线在这里，迭代号在 tag 里。
+    """
     for line in (ROOT / "Cargo.toml").read_text(encoding="utf8").splitlines():
         if line.startswith("version = "):
             return line.split('"')[1]
     raise SystemExit("Cargo.toml 里找不到 version")
 
 
-def run(cmd: list[str], cwd: Path = ROOT) -> None:
+def version() -> str:
+    """完整版本号：`<官方三段>.<我们的迭代号>`。
+
+    发布时由 CI 通过 `OVAIJISUAN_VERSION` 给出，本地开发回落到三段基线。
+    这个值有三个去处，必须是同一个：包名、latest.json 的 version、
+    以及编译进二进制的 `gateway::VERSION`。任何一处不一致，用户装完都会
+    立刻被提示更新到自己刚装的那一版。
+    """
+    v = os.environ.get("OVAIJISUAN_VERSION", "").strip()
+    if not v:
+        return baseline()
+    base = baseline()
+    if not (v == base or v.startswith(base + ".")):
+        raise SystemExit(f"OVAIJISUAN_VERSION={v} 和 Cargo.toml 的基线 {base} 对不上")
+    return v
+
+
+def run(cmd: list[str], cwd: Path = ROOT, env: dict[str, str] | None = None) -> None:
     print(f"  $ {' '.join(cmd)}")
-    subprocess.run(cmd, cwd=cwd, check=True)
+    subprocess.run(cmd, cwd=cwd, check=True, env={**os.environ, **(env or {})} if env else None)
 
 
 # 目标 → Rust 的 target triple。只在需要交叉编译时用得上。
@@ -114,7 +135,9 @@ def build(target: str, cross: bool = False) -> Path:
             raise SystemExit(f"不认识的目标 {target}，没法交叉编译")
         cmd += ["--target", triple]
         bin_dir = ROOT / "target" / triple / "release"
-    run(cmd)
+    # 版本号显式传进去，不靠外面的环境恰好设对。build.rs 里有
+    # rerun-if-env-changed，所以改了版本号一定会重编（CI 上有构建缓存）。
+    run(cmd, env={"OVAIJISUAN_VERSION": version()})
     exe = ".exe" if target.startswith("win32") else ""
     for name in ("ovgw", "ovagent"):
         src = bin_dir / f"{name}{exe}"

@@ -18,6 +18,18 @@
 //! 库入口。两个二进制共用这里：`ovgw`（gateway 服务）和
 //! `ovagent`（跑 opencode 的启动器，要复用 [`config`]）。
 
+/// 本机版本号。四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
+///
+/// Cargo.toml 里只能放三段（四段不是合法 semver，cargo 会直接拒绝解析），
+/// 所以四段号由 CI 在编译期通过 `OVAIJISUAN_VERSION` 注入，本地开发时回落到
+/// Cargo.toml 的三段。**判断"是不是新版"的所有地方都必须用这个常量**，
+/// 用 `CARGO_PKG_VERSION` 的话发布出去的二进制会自报三段号，
+/// 而清单里是四段 —— 于是每次检查都提示有更新，装完还是提示有更新。
+pub const VERSION: &str = match option_env!("OVAIJISUAN_VERSION") {
+    Some(v) => v,
+    None => env!("CARGO_PKG_VERSION"),
+};
+
 pub mod api_canvas;
 pub mod api_files;
 pub mod assets;
@@ -129,7 +141,7 @@ async fn health() -> axum::Json<Value> {
     axum::Json(json!({
         "ok": true,
         "service": "ovaijisuandesign-gateway",
-        "version": env!("CARGO_PKG_VERSION"),
+        "version": VERSION,
     }))
 }
 

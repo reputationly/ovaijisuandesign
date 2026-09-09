@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
     if let Some(a) = std::env::args().nth(1) {
         match a.as_str() {
             "--version" | "-V" => {
-                println!("ovgw {}", env!("CARGO_PKG_VERSION"));
+                println!("ovgw {}", gateway::VERSION);
                 return Ok(());
             }
             "--help" | "-h" => {
