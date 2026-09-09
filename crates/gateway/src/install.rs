@@ -44,7 +44,22 @@ pub fn item_name(item: &str) -> String {
 /// 当前程序所在目录。发布包解压即用，四项都在同一层。
 pub fn program_dir() -> Result<PathBuf> {
     let exe = std::env::current_exe().context("拿不到当前可执行文件路径")?;
-    Ok(exe.parent().context("可执行文件没有父目录")?.to_path_buf())
+    dir_of(&exe)
+}
+
+/// `exe` 所在的**真实**目录。
+///
+/// **必须先解符号链接。** `current_exe()` 在 macOS 上原样返回调用时用的路径，
+/// 不跟随链接 —— 而"把二进制链接进 `~/bin` 或 `/usr/local/bin`"是极常见的
+/// 做法（Homebrew 就是这么干的）。不解的话升级会往**链接所在的那个目录**
+/// 写：真正的安装原封不动，而用户的 bin 目录里会凭空多出 `web/`、`mcp/`
+/// 和一个 `ovagent`，符号链接本身被换成真文件。整件事还会"成功"。
+///
+/// 解不开就退回原路径 —— 拿不到真实路径也不该让程序起不来，
+/// 大不了升级那一步失败，那时报错是具体的。
+pub fn dir_of(exe: &Path) -> Result<PathBuf> {
+    let real = std::fs::canonicalize(exe).unwrap_or_else(|_| exe.to_path_buf());
+    Ok(real.parent().context("可执行文件没有父目录")?.to_path_buf())
 }
 
 /// 解压出来的东西对不对。**换之前必须过这一关。**
@@ -342,5 +357,41 @@ mod tests {
                 .mode();
             assert_eq!(m & 0o111, 0o111, "{b} 没有执行位，换过去也起不来");
         }
+    }
+
+    #[test]
+    fn a_symlinked_binary_still_points_at_the_real_install_dir() {
+        // 实测过的真 bug：current_exe() 在 macOS 上不跟随符号链接。
+        // 通过 ~/bin/ovgw 这种链接运行时，升级会往 ~/bin 写 —— 真正的安装
+        // 一动不动，而 bin 目录里凭空多出 web/、mcp/ 和一个 ovagent，
+        // 链接本身被换成真文件。而且整件事会"成功"。
+        let t = tempfile::tempdir().unwrap();
+        let real = t.path().join("install");
+        let bin = t.path().join("bin");
+        std::fs::create_dir_all(&real).unwrap();
+        std::fs::create_dir_all(&bin).unwrap();
+        std::fs::write(real.join("ovgw"), vec![b'x'; 2048]).unwrap();
+
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(real.join("ovgw"), bin.join("ovgw")).unwrap();
+        #[cfg(windows)]
+        std::fs::copy(real.join("ovgw"), bin.join("ovgw")).unwrap();
+
+        let got = dir_of(&bin.join("ovgw")).unwrap();
+        #[cfg(unix)]
+        assert_eq!(
+            got.canonicalize().unwrap(),
+            real.canonicalize().unwrap(),
+            "解析到了链接所在目录，不是真实安装目录"
+        );
+        #[cfg(windows)]
+        assert_eq!(got.canonicalize().unwrap(), bin.canonicalize().unwrap());
+    }
+
+    #[test]
+    fn an_unresolvable_path_falls_back_instead_of_failing() {
+        // 拿不到真实路径不该让程序起不来。大不了升级那步失败，那时报错具体。
+        let p = Path::new("/definitely/does/not/exist/ovgw");
+        assert_eq!(dir_of(p).unwrap(), Path::new("/definitely/does/not/exist"));
     }
 }
