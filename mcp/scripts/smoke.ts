@@ -6,6 +6,8 @@
  * 需要 gateway（默认 :8100）已经在跑。这是唯一能证明"opencode 拉起来之后
  * 工具真的能用"的检查 —— 单测只覆盖 schema，覆盖不了协议握手。
  */
+import { fileURLToPath } from "node:url"
+
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
@@ -14,7 +16,8 @@ const GATEWAY = process.env.GATEWAY_URL ?? "http://127.0.0.1:8100"
 const transport = new StdioClientTransport({
   command: "bun",
   args: ["src/main.ts"],
-  cwd: new URL("..", import.meta.url).pathname,
+  // fileURLToPath 而不是 .pathname —— Windows 上后者会多一个前导斜杠。
+  cwd: fileURLToPath(new URL("..", import.meta.url)),
   env: { ...process.env, GATEWAY_URL: GATEWAY } as Record<string, string>,
 })
 

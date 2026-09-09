@@ -25,6 +25,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       prefix: ${{ steps.v.outputs.prefix }}
       base: ${{ steps.v.outputs.base }}
+      matrix: ${{ steps.v.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
       - id: v
@@ -34,10 +35,22 @@ jobs:
           CARGO=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
           BASE="${PUBLIC_BASE%/}"
 
+          # 打包矩阵在这里算，不在 build 的 `if:` 里筛。job 级 `if:` 拿不到
+          # `matrix` 上下文（GitHub 要先算完 if 才展开矩阵），写了会让整个
+          # workflow 文件校验失败——症状是每次 push 都冒出一个 0 秒的失败 run。
+          ALL='[{"os":"macos-latest","targets":"darwin-arm64 darwin-x64"},
+                {"os":"windows-latest","targets":"win32-x64"},
+                {"os":"ubuntu-latest","targets":"linux-x64"}]'
+          # 空跑只打 linux-x64，够验证分发链路了（也是最便宜的 runner）。
+          DRY='[{"os":"ubuntu-latest","targets":"linux-x64"}]'
+
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            echo "version=$CARGO"          >> "$GITHUB_OUTPUT"
-            echo "prefix=dry-run/"          >> "$GITHUB_OUTPUT"
-            echo "base=$BASE/dry-run"       >> "$GITHUB_OUTPUT"
+            {
+              echo "version=$CARGO"
+              echo "prefix=dry-run/"
+              echo "base=$BASE/dry-run"
+              echo "matrix=$(echo "$DRY" | jq -c .)"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -48,9 +61,12 @@ jobs:
             echo "::error::tag v$TAG 和 Cargo.toml 的 $CARGO 不一致，先同步再发"
             exit 1
           fi
-          echo "version=$CARGO" >> "$GITHUB_OUTPUT"
-          echo "prefix="        >> "$GITHUB_OUTPUT"
-          echo "base=$BASE"     >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$CARGO"
+            echo "prefix="
+            echo "base=$BASE"
+            echo "matrix=$(echo "$ALL" | jq -c .)"
+          } >> "$GITHUB_OUTPUT"
 
   # ==================== 各平台打包 ====================
   # **一台 macOS runner 出两个架构**：arm64 ⇄ x86_64 能交叉（Xcode 自带两个
@@ -64,15 +80,11 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
+      # 矩阵由 prepare 算好（空跑时只剩 linux-x64）。见那边的注释。
       matrix:
-        include:
-          - { os: macos-latest, targets: "darwin-arm64 darwin-x64" }
-          - { os: windows-latest, targets: "win32-x64" }
-          - { os: ubuntu-latest, targets: "linux-x64" }
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     name: 打包 ${{ matrix.targets }}
-    # 空跑只打 linux-x64，够验证分发链路了（也是最便宜的 runner）。
-    if: ${{ !inputs.dry_run || matrix.os == 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -110,13 +122,14 @@ jobs:
           retention-days: 7
 
   # ==================== 发布 ====================
-  # `always()` 是必需的：空跑时部分 build 被 skip，没有它本 job 会跟着 skip。
-  # 但 always() 同时会放行「needs 失败」，所以必须显式排除 failure ——
-  # 否则某个平台打包挂了仍会翻 latest 指针，那个平台的用户升级时会撞上 404，
-  # 而其余平台一切正常，问题很难被发现。
+  # 矩阵由 prepare 动态给出，空跑时不再有被 skip 的 build，所以这里用默认的
+  # `success()` 语义就够了——千万别退回 `always()`：它会连「某个平台打包失败」
+  # 一起放行，于是 latest 指针照翻，那个平台的用户升级时撞 404，而其余平台
+  # 一切正常，问题很难被发现。fail-fast: false 也保证了失败平台一定会被记成
+  # failure 而不是 cancelled。
   publish:
     needs: [prepare, build]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
+    if: ${{ startsWith(github.ref, 'refs/tags/') || inputs.dry_run }}
     runs-on: ubuntu-latest
     name: 发布
     steps:

@@ -1,22 +1,21 @@
+import { readFileSync } from "node:fs"
+import { fileURLToPath } from "node:url"
+
 import { describe, expect, it } from "bun:test"
 
 import { TOOLS } from "./tools"
 
 /**
- * 从 `docs/mcp-tools.md` 读官方那 103 个工具的名字与入参。
+ * 从 `docs/mcp-tools.md` 读官方工具的名字与入参。
  *
  * 那份文档由 `scripts/extract-mcp-tools.py` 从官方产物提取，可随时重跑。
  * 拿它当基准而不是硬编码一份清单：应用升级后重跑脚本，这些测试就会告诉我们
  * 接口面变了没有。
  */
-function officialSpec(): Map<string, Set<string>> {
-  const md = Bun.file(new URL("../../docs/mcp-tools.md", import.meta.url)).text()
-  return md.then as never // 占位，见下面同步版本
-}
-
 const SPEC: Map<string, Set<string>> = (() => {
-  const path = new URL("../../docs/mcp-tools.md", import.meta.url).pathname
-  const md = require("node:fs").readFileSync(path, "utf8") as string
+  // 必须走 fileURLToPath，不能用 `new URL(...).pathname`：Windows 上后者给出
+  // 的是 `/D:/a/...`（多一个前导斜杠），readFileSync 直接 ENOENT。
+  const md = readFileSync(fileURLToPath(new URL("../../docs/mcp-tools.md", import.meta.url)), "utf8")
   const spec = new Map<string, Set<string>>()
   // 表格行形如： | `canvas_get_node` | `nodeId`, `nodeIds` |
   for (const line of md.split("\n")) {
@@ -27,8 +26,6 @@ const SPEC: Map<string, Set<string>> = (() => {
   }
   return spec
 })()
-
-void officialSpec // 只是为了让上面那段文档注释有个落点
 
 describe("和官方工具面对齐", () => {
   it("规格文档能解析出全部 58 个工具", () => {
