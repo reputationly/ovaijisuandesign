@@ -110,6 +110,7 @@ mod tests {
             tasks: Arc::new(TaskStore::new()),
             updater: Arc::new(crate::update::Updater::new()),
             questions: Arc::new(crate::question::Questions::new()),
+            activity: Arc::new(crate::activity::Activity::new()),
             upstream,
             web_dir: None,
         })

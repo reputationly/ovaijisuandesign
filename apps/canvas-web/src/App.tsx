@@ -19,6 +19,7 @@ import {
   assetUrl,
   answerQuestion,
   connectEvents,
+  getActivity,
   getCanvas,
   pendingQuestion,
   getNodeDetails,
@@ -28,6 +29,7 @@ import {
   type CanvasFile,
   type CanvasMode,
   type NodeDetail,
+  type ToolActivity,
 } from "./api"
 import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
@@ -52,6 +54,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "failed">("idle")
   const [events, setEvents] = useState<EventLine[]>([])
+  // agent 的工具活动流。右栏按官方的标签表渲染，见 toolLabels.ts。
+  const [activity, setActivity] = useState<ToolActivity[]>([])
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
@@ -146,11 +150,19 @@ export default function App() {
 
   useEffect(
     () =>
-      connectEvents((event) => {
+      connectEvents((event, data) => {
         setEvents((prev) => [{ at: new Date().toLocaleTimeString(), event }, ...prev].slice(0, 12))
+        if (event === "tool:activity" && data) {
+          setActivity((prev) => [...prev, data as ToolActivity].slice(-200))
+        }
       }),
     [],
   )
+
+  // 先拉一次历史再接实时流。只接实时流的话刷新后右栏是空的。
+  useEffect(() => {
+    getActivity().then(setActivity).catch(() => {})
+  }, [])
 
   const onNodeDragStop = useCallback(async () => {
     const base = fileRef.current
@@ -508,6 +520,7 @@ export default function App() {
           <ChatPanel
             file={file}
             events={events}
+            activity={activity}
             saving={saving}
             composerOpen={composerOpen}
             onDone={() => void load()}

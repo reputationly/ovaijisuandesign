@@ -163,6 +163,7 @@ mod tests {
             tasks: s.tasks.clone(),
             updater: s.updater.clone(),
             questions: s.questions.clone(),
+            activity: s.activity.clone(),
             upstream: s.upstream.clone(),
             web_dir: s.web_dir.clone(),
         })

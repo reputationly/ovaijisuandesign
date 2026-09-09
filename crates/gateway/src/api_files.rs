@@ -254,6 +254,7 @@ mod tests {
             tasks: std::sync::Arc::new(crate::tasks::TaskStore::new()),
             updater: std::sync::Arc::new(crate::update::Updater::new()),
             questions: std::sync::Arc::new(crate::question::Questions::new()),
+            activity: std::sync::Arc::new(crate::activity::Activity::new()),
             upstream: None,
             web_dir: None,
         });

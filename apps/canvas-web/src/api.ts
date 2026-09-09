@@ -256,6 +256,29 @@ export async function createMediaNode(assetPath: string): Promise<void> {
   await json<unknown>(res, "POST /api/canvas/media-node")
 }
 
+/** agent 的一次工具调用。`id` 把 start 和 ok/error 配成一条。 */
+export interface ToolActivity {
+  tool: string
+  phase: "start" | "ok" | "error"
+  id: string
+  summary?: string
+  error?: string
+  at: number
+}
+
+/**
+ * 拉一次工具活动历史。
+ *
+ * **必须有这一次拉取。** `/ws` 是广播，晚连的客户端一条都收不到 ——
+ * 刷新一次页面右栏就空了，而 agent 还在后台干活，看起来像是断了。
+ */
+export async function getActivity(): Promise<ToolActivity[]> {
+  const r = await fetch("/api/activity")
+  if (!r.ok) return []
+  const j = (await r.json()) as { entries?: ToolActivity[] }
+  return j.entries ?? []
+}
+
 /**
  * 订阅 gateway 的实时推送。
  *

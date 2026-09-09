@@ -48,6 +48,30 @@ export const gw = {
   base: BASE,
 }
 
+/**
+ * 上报一条工具活动，给右栏的活动流用。
+ *
+ * **fire-and-forget，而且吞掉一切错误。** 上报是给界面看的附属信息；
+ * 让它有能力弄失败一次工具调用，等于给每个工具加了一个新的失败面
+ * —— 而那个失败和用户要做的事毫无关系。
+ *
+ * 不 await：await 的话每次工具调用都要多等一个往返，而这条流的意义
+ * 恰恰是"让用户早点看到 agent 在动"。
+ */
+export function activity(entry: {
+  tool: string
+  phase: "start" | "ok" | "error"
+  id: string
+  summary?: string
+  error?: string
+}) {
+  fetch(`${BASE}/api/activity`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(entry),
+  }).catch(() => {})
+}
+
 // ---------------------------------------------------------------------------
 // 生成
 // ---------------------------------------------------------------------------

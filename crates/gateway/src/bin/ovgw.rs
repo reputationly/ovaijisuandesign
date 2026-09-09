@@ -98,6 +98,7 @@ async fn main() -> Result<()> {
         tasks: Arc::new(TaskStore::new()),
         updater: Arc::new(gateway::update::Updater::new()),
         questions: Arc::new(gateway::question::Questions::new()),
+        activity: Arc::new(gateway::activity::Activity::new()),
         upstream: cfg.upstream.clone(),
         web_dir: gateway::web::locate(cfg.web_dir.as_deref()),
     });

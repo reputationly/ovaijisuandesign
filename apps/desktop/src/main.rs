@@ -249,6 +249,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         tasks: Arc::new(TaskStore::new()),
         updater: Arc::new(gateway::update::Updater::new()),
         questions: Arc::new(gateway::question::Questions::new()),
+        activity: Arc::new(gateway::activity::Activity::new()),
         upstream,
         web_dir,
     }))

@@ -30,6 +30,7 @@ pub const VERSION: &str = match option_env!("OVAIJISUAN_VERSION") {
     None => env!("CARGO_PKG_VERSION"),
 };
 
+pub mod activity;
 pub mod api_canvas;
 pub mod api_files;
 pub mod api_group;
@@ -81,6 +82,8 @@ pub struct AppState {
     pub updater: Arc<crate::update::Updater>,
     /// agent 的决策点。见 [`question`]。
     pub questions: Arc<crate::question::Questions>,
+    /// agent 的工具活动流。见 [`crate::activity`]。
+    pub activity: Arc<crate::activity::Activity>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -127,6 +130,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/capabilities", post(capabilities::list))
         .route("/api/memory", post(memory::memory))
         .route("/api/report-outcome", post(memory::report_outcome))
+        .route("/api/activity", get(activity::list).post(activity::report))
         .route("/api/read-file", post(api_text::read_file))
         .route(
             "/api/canvases/{id}",
@@ -240,6 +244,7 @@ mod tests {
             tasks: Arc::new(TaskStore::new()),
             updater: Arc::new(crate::update::Updater::new()),
             questions: Arc::new(crate::question::Questions::new()),
+            activity: Arc::new(crate::activity::Activity::new()),
             upstream: None,
             web_dir: None,
         })
