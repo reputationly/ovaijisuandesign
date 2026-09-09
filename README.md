@@ -30,9 +30,9 @@ MiniMax Design 是这条路上最完整的参考实现，而它**大部分不闭
 **每一块都能单独和官方那块对跑**：
 
 ```
-我们的前端  +  官方 gateway      ← 已验证（apps/canvas-web）
-官方 mcp-tools + 我们的 gateway  ← 拿来验证 gateway 写对没有
-官方 agent 配置 + 我们的 MCP     ← 拿来验证工具面对齐没有
+我们的前端  +  官方 gateway      ← 已验证
+官方 agent 配置 + 我们的 MCP     ← 已验证（用他们的提示词跑我们的工具）
+官方 mcp-tools + 我们的 gateway  ← 还没试，gateway 补齐后可以拿它对着验
 ```
 
 哪一层出问题，换掉一块就能定位，而不是整条链一起怀疑。
@@ -136,7 +136,7 @@ selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一
 
 ```
 crates/maas-media/     平台适配层。已完成，55 个测试
-crates/gateway/        本地 gateway。生成 + 落盘 + 反代未实现的路由，27 个测试
+crates/gateway/        本地 gateway。画布 / 资产 / 文件 / 生成 / 事件，58 个测试
 apps/canvas-web/       React Flow 画布前端。已跑通读写与生成闭环
 mcp/                   MCP server。8 个工具（画布 4 + 生成 4），对齐官方同名同参
 agent/                 opencode 配置。直接用官方那套，只覆盖对齐不了的部分
@@ -188,17 +188,32 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    中间仍借官方 gateway 落盘
 5. ~~`mcp/` 的画布 4 个 + 生成 4 个工具，挂上 opencode 和官方 agent 配置~~
    —— 已完成，**用他们的提示词跑通了我们的工具**
-6. **`crates/gateway` 补齐资产库、画布持久化、文件服务、事件推送** ← 下一步。
-   写的时候可以拿官方 mcp-tools 当测试客户端
-7. 自己的分发与升级通道，包放 R2 / OBS。见
+6. ~~`crates/gateway` 补齐资产库、画布持久化、文件服务、事件推送~~
+   —— 已完成。**官方应用不再需要**
+7. **自己的分发与升级通道**，包放 R2 / OBS ← 下一步。见
    [`docs/distribution.md`](docs/distribution.md)
 
-现在官方应用只剩"存文件"一个用途（`import-url` 落盘 + `media-node` 建节点 +
-`/files` 取图 + `/ws` 事件），第 6 步之后完全不需要它。
+### 第 6 步实测
 
-> `/ws` 是唯一还**直连**官方的一跳 —— 我们的反代用 reqwest，转不了
-> WebSocket 的 Upgrade 握手。接过来只会让实时事件安静地不工作，
-> 所以留到第 6 步自己实现推送时一起解决。
+空工作区、`upstream = null`（完全不连官方），从生成开始：
+
+```
+gateway 已监听 http://127.0.0.1:8100，未配置 upstream（未实现的路由回 404）
+工作区: /tmp/ovws
+
+出图 + 落盘   images/db40f5….png  1360x1024      ← 尺寸是我们自己读的
+建媒体节点     created: true
+再来一次       reused: true                       ← 按资产去重
+文本节点       contentHash: e2497ebf…（sha256）
+错的 hash      409                                ← 乐观并发
+对的 hash      200
+/files/../../etc/passwd   404                     ← 路径逃逸
+原图           200 image/png  1625693
+缩略 w=512     200 image/jpeg   24942             ← 官方同参数是 357KB PNG
+/ws            ✓ 外部进程写节点 → 浏览器收到 canvas:changed
+```
+
+前端和 MCP server 现在都只连 `:8100` 一个地址。
 
 ### 第 5 步实测
 

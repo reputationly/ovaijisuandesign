@@ -15,6 +15,12 @@ pub struct Config {
     /// 监听端口。
     #[serde(default = "default_port")]
     pub port: u16,
+    /// 工作区目录。留空则用启动时的当前目录。
+    ///
+    /// 也可以用 `WORKSPACE_DIR` 环境变量覆盖 —— 和官方那边同名，
+    /// 这样两边的启动脚本能共用。
+    #[serde(default)]
+    pub workspace: Option<PathBuf>,
     /// 没实现的路由反代到哪里，例如官方 gateway `http://127.0.0.1:8099`。
     ///
     /// 留空表示不反代 —— 那是"已经能独立跑"的状态。见 [`crate::proxy`]。
@@ -36,7 +42,8 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             port: default_port(),
-            upstream: Some("http://127.0.0.1:8099".into()),
+            workspace: None,
+            upstream: None,
             media: MediaConfig {
                 platform: Platform {
                     base_url: "https://maas.ovaijisuan.com/v1".into(),
@@ -73,6 +80,17 @@ impl Config {
                 .unwrap_or_else(|| home.join(".config"))
         };
         Ok(base.join("ovaijisuandesign").join("config.json"))
+    }
+
+    /// 最终采用的工作区目录。优先级：环境变量 > 配置 > 当前目录。
+    pub fn workspace_dir(&self) -> Result<PathBuf> {
+        if let Some(v) = std::env::var_os("WORKSPACE_DIR") {
+            return Ok(PathBuf::from(v));
+        }
+        if let Some(p) = &self.workspace {
+            return Ok(p.clone());
+        }
+        std::env::current_dir().context("取当前目录失败")
     }
 
     pub fn load(path: &Path) -> Result<Self> {

@@ -16,7 +16,7 @@ publish = false
 anyhow = "1"
 directories = "6"
 base64 = "0.22"
-axum = { version = "0.8", features = ["http1", "json", "tokio"] }
+axum = { version = "0.8", features = ["http1", "json", "tokio", "ws"] }
 reqwest = { version = "0.12", features = [
   "json",
   "stream",
@@ -24,6 +24,7 @@ reqwest = { version = "0.12", features = [
   "system-proxy",
 ], default-features = false }
 serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
 serde_json = { version = "1", features = ["preserve_order"] }
 tokio = { version = "1", features = [
   "macros",
@@ -33,6 +34,9 @@ tokio = { version = "1", features = [
   "signal",
   "time",
 ] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif"] }
+tokio-util = { version = "0.7", features = ["io"] }
 tower-http = { version = "0.6", features = ["cors"] }
+uuid = { version = "1", features = ["v4"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

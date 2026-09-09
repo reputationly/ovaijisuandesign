@@ -95,7 +95,14 @@ mod tests {
     use tower::ServiceExt;
 
     fn state(upstream: Option<String>) -> Arc<AppState> {
+        let dir = Box::leak(Box::new(tempfile::tempdir().unwrap()));
         Arc::new(AppState {
+            ws: crate::workspace::Workspace::new(dir.path()),
+            assets: Arc::new(crate::assets::Assets::load(
+                crate::workspace::Workspace::new(dir.path()),
+            )),
+            events: Arc::new(crate::events::Events::new()),
+            canvas_lock: Default::default(),
             media: Arc::new(maas_media::MediaConfig::default()),
             client: reqwest::Client::new(),
             // 显式关代理：开发机的系统代理会把发往假上游的请求一并截走。
@@ -124,26 +131,35 @@ mod tests {
             .status()
     }
 
+    /// 一条我们**确实还没实现**的路由。实现它的那天这个常量要跟着换 ——
+    /// 换的时候正好会想起：反代面又小了一块。
+    const UNIMPLEMENTED: &str = "/api/canvas/search";
+
     #[tokio::test]
     async fn unimplemented_routes_go_upstream() {
         let st = state(Some(fake_upstream().await));
-        assert_eq!(get(st, "/api/canvas").await, StatusCode::IM_A_TEAPOT);
+        assert_eq!(get(st, UNIMPLEMENTED).await, StatusCode::IM_A_TEAPOT);
     }
 
     #[tokio::test]
     async fn implemented_routes_are_never_proxied() {
-        // 反代一旦盖住已实现的路由，生成就会悄悄走回官方——花的是官方额度，
-        // 而且完全不报错。
+        // 反代一旦盖住已实现的路由，请求会悄悄走回官方 —— 生成花的是官方
+        // 额度、画布写的是官方那份，而且完全不报错。
         let st = state(Some(fake_upstream().await));
-        assert_eq!(get(st.clone(), "/api/health/live").await, StatusCode::OK);
-        assert_eq!(
-            get(st, "/api/generate/tasks/t-1/query").await,
-            StatusCode::OK
-        );
+        for path in [
+            "/api/health/live",
+            "/api/generate/tasks/t-1/query",
+            "/api/workspace",
+            "/api/assets",
+            "/api/canvas",
+            "/api/canvas/nodes",
+        ] {
+            assert_eq!(get(st.clone(), path).await, StatusCode::OK, "{path} 被反代了");
+        }
     }
 
     #[tokio::test]
     async fn without_an_upstream_it_is_an_honest_404() {
-        assert_eq!(get(state(None), "/api/canvas").await, StatusCode::NOT_FOUND);
+        assert_eq!(get(state(None), UNIMPLEMENTED).await, StatusCode::NOT_FOUND);
     }
 }

@@ -15,11 +15,17 @@
 //! 还没实现的（资产库、画布持久化、文件服务）当前仍由官方 gateway 提供，
 //! 前端同时连两个。见仓库 README 的路线。
 
+mod api_canvas;
+mod api_files;
+mod assets;
+mod canvas;
 mod config;
+mod events;
 mod generate;
 mod land;
 mod proxy;
 mod tasks;
+mod workspace;
 
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -35,6 +41,11 @@ use crate::config::Config;
 use crate::tasks::TaskStore;
 
 pub struct AppState {
+    pub ws: crate::workspace::Workspace,
+    pub assets: Arc<crate::assets::Assets>,
+    pub events: Arc<crate::events::Events>,
+    /// 画布的读-改-写锁。见 [`api_canvas::CanvasLock`]。
+    pub canvas_lock: api_canvas::CanvasLock,
     pub media: Arc<maas_media::MediaConfig>,
     /// 打自建平台用。走公网，**尊重系统代理**。
     pub client: reqwest::Client,
@@ -51,6 +62,21 @@ pub struct AppState {
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/health/live", get(health))
+        // -- 工作区 / 资产 / 文件 --
+        .route("/api/workspace", get(api_files::workspace_dir))
+        .route("/api/assets", get(api_files::list_assets))
+        .route("/files/id/{asset_id}", get(api_files::serve_by_id))
+        .route("/files/{*path}", get(api_files::serve_by_path))
+        .route("/api/files/import-url", post(api_files::import_url))
+        // -- 画布 --
+        .route("/api/canvas", get(api_canvas::get_canvas).post(api_canvas::put_canvas))
+        .route("/api/canvas/nodes", get(api_canvas::list_nodes))
+        .route("/api/canvas/nodes/detail", post(api_canvas::node_detail))
+        .route("/api/canvas/media-node", post(api_canvas::media_node))
+        .route("/api/canvas/text-node", post(api_canvas::text_node))
+        // -- 事件推送 --
+        .route("/ws", get(events::ws_handler))
+        // -- 生成 --
         .route("/api/generate/image/submit", post(generate::submit_image))
         // `/query` 后缀不能省：漏了会 404，而调用方对非 2xx 的查询不写日志。
         .route(
@@ -111,8 +137,17 @@ async fn main() -> Result<()> {
         .build()
         .context("构建本地 HTTP 客户端失败")?;
 
+    let ws_dir = cfg.workspace_dir()?;
+    std::fs::create_dir_all(&ws_dir)
+        .with_context(|| format!("创建工作区失败: {}", ws_dir.display()))?;
+    let ws = crate::workspace::Workspace::new(&ws_dir);
+
     let addr = SocketAddr::from(([127, 0, 0, 1], cfg.port));
     let state = Arc::new(AppState {
+        assets: Arc::new(crate::assets::Assets::load(ws.clone())),
+        events: Arc::new(crate::events::Events::new()),
+        canvas_lock: Default::default(),
+        ws,
         media: Arc::new(cfg.media),
         client,
         local,
@@ -127,6 +162,7 @@ async fn main() -> Result<()> {
         Some(u) => tracing::info!("gateway 已监听 http://{addr}，未实现的路由反代到 {u}"),
         None => tracing::info!("gateway 已监听 http://{addr}，未配置 upstream（未实现的路由回 404）"),
     }
+    tracing::info!("工作区: {}", ws_dir.display());
     tracing::info!("配置: {}", path.display());
     axum::serve(listener, router(state)).await?;
     Ok(())
@@ -140,7 +176,14 @@ mod tests {
     use tower::ServiceExt;
 
     fn state() -> Arc<AppState> {
+        let dir = Box::leak(Box::new(tempfile::tempdir().unwrap()));
         Arc::new(AppState {
+            ws: crate::workspace::Workspace::new(dir.path()),
+            assets: Arc::new(crate::assets::Assets::load(
+                crate::workspace::Workspace::new(dir.path()),
+            )),
+            events: Arc::new(crate::events::Events::new()),
+            canvas_lock: Default::default(),
             media: Arc::new(maas_media::MediaConfig::default()),
             client: reqwest::Client::new(),
             local: reqwest::Client::builder().no_proxy().build().unwrap(),

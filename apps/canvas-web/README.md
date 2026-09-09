@@ -8,24 +8,18 @@ Design 的画布前端，后端**直接用官方 gateway**。
 
 ## 跑起来
 
-三个进程。
+两个进程。**不需要官方应用。**
 
 ```bash
-# 1. 官方 gateway —— 暂时提供资产库、画布持久化、文件服务
-../../scripts/standalone-gateway.sh ~/Movies/Hub/Projects/<某个项目> 8099
-
-# 2. 我们的 gateway —— 生成
 cargo run -p gateway            # :8100，首次会写配置模板
-
-# 3. 前端
-bun install && bun dev          # http://localhost:5273
+cd apps/canvas-web && bun install && bun dev   # http://localhost:5273
 ```
 
-端口不一样时：`GATEWAY_URL=… OVGW_URL=… bun dev`。
+工作区在 gateway 的配置里（`workspace`），或用 `WORKSPACE_DIR` 覆盖。
+gateway 不在 8100 时：`OVGW_URL=… bun dev`。
 
-> 全部经 Vite 代理，前端只认识同源地址。**分流顺序有意义** ——
-> `/api/generate` 必须排在 `/api` 前面，否则生成请求会打到官方那边，
-> 而它也有同名路由，于是会"成功"地花掉官方额度且不报错。
+> `/api`、`/files`、`/ws` 全部经 Vite 代理到**同一个** gateway，
+> 前端只认识同源地址。
 
 ## 现在能做什么
 
@@ -48,17 +42,13 @@ bun install && bun dev          # http://localhost:5273
 ## 生成链路
 
 ```text
-canvas-web ──► 我们的 gateway :8100 ──► maas-media ──► 平台（返回公网 URL）
-           ├─► 官方 gateway /api/files/import-url    落盘 + 入库
-           └─► 官方 gateway /api/canvas/media-node   建节点
+canvas-web ──► gateway ──► maas-media ──► 平台
+                       └─► 落盘 + 入库（gateway 内部）
+           └─► /api/canvas/media-node 建节点
 ```
 
-编排放在前端而不是我们的 gateway 里，是为了让**借用官方的那两跳显式可见**。
-等自己的 gateway 有了资产库，后两跳会挪进去，前端只留一次调用。
-
-`import-url` 有个坑值得记住：**它每个 URL 失败也回 200**，失败落在
-`errors[]`（源码注释原文 "returns 200 even if every URL failed"）。
-只看 HTTP 状态会把失败当成功，然后拿着一个 undefined 的 path 去建节点。
+前端只知道"提交 → 轮询 → 拿到一个工作区路径 → 建节点"，落盘藏在 gateway
+里 —— 这正是官方契约的形状。
 
 ## 三个不能省的约定
 
