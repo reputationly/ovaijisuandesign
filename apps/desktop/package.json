@@ -1,0 +1,12 @@
+{
+  "name": "ovdesktop-build",
+  "private": true,
+  "//": "只为了装 Tauri 的打包 CLI。注意不能用 `bunx tauri` —— npm 上那个同名包是别的东西，会去编译 sharp 然后失败。",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "scripts": {
+    "build": "tauri build",
+    "dev": "tauri dev"
+  }
+}

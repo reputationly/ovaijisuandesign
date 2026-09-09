@@ -253,6 +253,15 @@ fn find_beside(rel: &str) -> Option<PathBuf> {
             return Some(p);
         }
     }
+    // macOS 的 .app：可执行文件在 Contents/MacOS/，资源在 Contents/Resources/。
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(base) = exe.parent()
+    {
+        let p = base.join("../Resources").join(rel);
+        if p.exists() {
+            return Some(p);
+        }
+    }
     let exe = std::env::current_exe().ok()?;
     let base = exe.parent()?;
     let beside = base.join(rel);

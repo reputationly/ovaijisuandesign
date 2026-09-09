@@ -33,6 +33,13 @@ pub fn locate(configured: Option<&Path>) -> Option<PathBuf> {
         if beside.is_dir() {
             return Some(beside);
         }
+        // macOS 的 .app 里可执行文件在 `Contents/MacOS/`，资源在
+        // `Contents/Resources/`。不认这一条的话，打出来的 app 一打开就是
+        // "前端没构建"——而包里的 web/ 明明在。
+        let bundled = base.join("../Resources/web");
+        if bundled.is_dir() {
+            return Some(bundled);
+        }
         // `cargo run` 时可执行文件在 target/<profile>/，往上找仓库根。
         let mut dir = base.to_path_buf();
         while dir.pop() {
