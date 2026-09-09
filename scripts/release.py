@@ -155,6 +155,12 @@ def write_manifests(ver: str, target: str, bundle: Path, digest: str, base: str)
     )
 
 
+# 所有 S3 key 的前缀。空跑时是 `dry-run/`，生产是空串。
+# **必须和写进 latest.json 的 base 地址一致** —— 对象传到了 dry-run/ 而 URL
+# 写成生产路径的话，回读校验必然 404，而"上传成功"的日志会让人往别处查。
+PREFIX = ""
+
+
 def s3_upload(source: str, local: Path, key: str) -> None:
     env = SOURCES[source]
     endpoint, bucket = os.environ.get(env["endpoint"]), os.environ.get(env["bucket"])
@@ -162,30 +168,58 @@ def s3_upload(source: str, local: Path, key: str) -> None:
         raise SystemExit(f"{source} 缺配置：需要 {env['endpoint']} 和 {env['bucket']}")
     run(
         [
-            "aws", "s3", "cp", str(local), f"s3://{bucket}/{key}",
+            "aws", "s3", "cp", str(local), f"s3://{bucket}/{PREFIX}{key}",
             "--endpoint-url", endpoint,
         ]
     )
 
 
-def publish(ver: str, target: str, bundle: Path, digest: str) -> None:
+def discover(ver: str) -> list[tuple[str, Path, str]]:
+    """从 `dist/` 里找出所有已打好的目标。
+
+    CI 上各平台各自打包、上传成 artifact，最后由一个 job 汇总下载到 `dist/`
+    再统一发布 —— 所以这里要能认出"别人打的包"。
+    """
+    found = []
+    version_dir = DIST / ver
+    if not version_dir.is_dir():
+        return found
+    for target_dir in sorted(version_dir.iterdir()):
+        if not target_dir.is_dir():
+            continue
+        bundles = list(target_dir.glob("*.tar.gz"))
+        if len(bundles) != 1:
+            raise SystemExit(f"{target_dir} 里有 {len(bundles)} 个包，期望正好 1 个")
+        found.append((target_dir.name, bundles[0], bundles[0].stem.replace(".tar", "")))
+    return found
+
+
+def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
     """先把不可变的包发到两个源、都校验通过，最后才翻 latest 指针。
 
     顺序反了的话会出现"latest 指向一个某个区下不到的包"——用户看到的是
     升级失败，而两边的对象存储各自都"正常"。
+
+    **所有目标一起翻指针**，不是打一个发一个：中途失败的话，已翻的那些
+    目标会指向新版、没翻的还是旧版，用户装到的版本取决于他用什么系统。
     """
-    key = f"{ver}/{target}/{digest}.tar.gz"
-    for source in SOURCES:
-        print(f"上传到 {source}")
-        s3_upload(source, bundle, key)
+    for target, bundle, digest in targets:
+        key = f"{ver}/{target}/{digest}.tar.gz"
+        for source in SOURCES:
+            print(f"上传 {target} → {source}")
+            s3_upload(source, bundle, key)
 
-    for source in SOURCES:
-        print(f"校验 {source}")
-        verify(source, key, digest)
+    for target, _, digest in targets:
+        key = f"{ver}/{target}/{digest}.tar.gz"
+        for source in SOURCES:
+            print(f"校验 {target} @ {source}")
+            verify(source, key, digest)
 
+    for target, _, _ in targets:
+        for source in SOURCES:
+            print(f"翻 {target} @ {source} 的 latest 指针")
+            s3_upload(source, DIST / target / "latest.json", f"{target}/latest.json")
     for source in SOURCES:
-        print(f"翻 {source} 的 latest 指针")
-        s3_upload(source, DIST / target / "latest.json", f"{target}/latest.json")
         s3_upload(source, DIST / "manifest.json", "manifest.json")
 
 
@@ -195,7 +229,7 @@ def verify(source: str, key: str, digest: str) -> None:
     env = SOURCES[source]
     endpoint, bucket = os.environ[env["endpoint"]], os.environ[env["bucket"]]
     tmp = DIST / "verify.tmp"
-    run(["aws", "s3", "cp", f"s3://{bucket}/{key}", str(tmp), "--endpoint-url", endpoint])
+    run(["aws", "s3", "cp", f"s3://{bucket}/{PREFIX}{key}", str(tmp), "--endpoint-url", endpoint])
     actual = hashlib.sha256(tmp.read_bytes()).hexdigest()
     tmp.unlink(missing_ok=True)
     if actual != digest:
@@ -211,9 +245,34 @@ def main() -> int:
         help="包的公开基地址，写进 latest.json",
     )
     ap.add_argument("--publish", action="store_true", help="上传（需要 aws cli 和凭据）")
+    ap.add_argument(
+        "--prefix",
+        default=os.environ.get("OVAIJISUAN_RELEASE_PREFIX", ""),
+        help="所有 S3 key 的前缀。空跑用 dry-run/，不碰生产清单",
+    )
+    ap.add_argument(
+        "--publish-only",
+        action="store_true",
+        help="不构建，只发布 dist/ 里已有的包（CI 上各平台分别打包后汇总用）",
+    )
     args = ap.parse_args()
 
-    ver, target = version(), args.target
+    global PREFIX
+    PREFIX = args.prefix
+    ver = version()
+
+    if args.publish_only:
+        targets = discover(ver)
+        if not targets:
+            raise SystemExit(f"dist/{ver}/ 下没有任何包")
+        print(f"版本 {ver}，待发布 {len(targets)} 个目标：")
+        for t, b, d in targets:
+            print(f"  {t:16} {b.stat().st_size / 1_048_576:5.1f} MB  {d[:16]}…")
+        publish(ver, targets)
+        print("\n已发布")
+        return 0
+
+    target = args.target
     print(f"版本 {ver}  目标 {target}\n")
 
     stage = build(target)
@@ -226,7 +285,7 @@ def main() -> int:
     print(f"清单  {(DIST / 'manifest.json').relative_to(ROOT)}")
 
     if args.publish:
-        publish(ver, target, bundle, digest)
+        publish(ver, [(target, bundle, digest)])
         print("\n已发布")
     else:
         print("\n（没有 --publish，只打了包）")

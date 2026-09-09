@@ -1,0 +1,277 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "空跑：只构建 linux-x64，发到 dry-run/ 前缀，跑完清掉"
+        type: boolean
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # ==================== 版本号与前缀 ====================
+  # 独立成 job 让所有下游共用同一份。版本号必须集中解析：包名、latest.json、
+  # 二进制自报的版本（env!("CARGO_PKG_VERSION")）三处取值不一致的话，
+  # 用户装完立刻会被提示更新到自己刚装的那个版本。
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      prefix: ${{ steps.v.outputs.prefix }}
+      base: ${{ steps.v.outputs.base }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env:
+          PUBLIC_BASE: ${{ vars.OVAIJISUAN_PUBLIC_BASE }}
+        run: |
+          CARGO=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          BASE="${PUBLIC_BASE%/}"
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "version=$CARGO"          >> "$GITHUB_OUTPUT"
+            echo "prefix=dry-run/"          >> "$GITHUB_OUTPUT"
+            echo "base=$BASE/dry-run"       >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # tag 必须和 Cargo.toml 一致：包名用的是 Cargo.toml 的版本，
+          # 而清单里的 URL 按 tag 拼的话两边会对不上，发出去的 latest.json 直接 404。
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$TAG" != "$CARGO" ]; then
+            echo "::error::tag v$TAG 和 Cargo.toml 的 $CARGO 不一致，先同步再发"
+            exit 1
+          fi
+          echo "version=$CARGO" >> "$GITHUB_OUTPUT"
+          echo "prefix="        >> "$GITHUB_OUTPUT"
+          echo "base=$BASE"     >> "$GITHUB_OUTPUT"
+
+  # ==================== 各平台打包 ====================
+  # 每个目标在对应的原生 runner 上打，不交叉编译 —— rustls 依赖 ring，
+  # 那是 C 代码，交叉编译要目标平台的 SDK 头文件。
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, target: darwin-arm64 }
+          - { os: macos-13, target: darwin-x64 }
+          - { os: windows-latest, target: win32-x64 }
+          - { os: ubuntu-latest, target: linux-x64 }
+    # 空跑只打一个目标，够验证分发链路了。
+    runs-on: ${{ matrix.os }}
+    name: 打包 ${{ matrix.target }}
+    if: ${{ !inputs.dry_run || matrix.target == 'linux-x64' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.target }}
+      - uses: oven-sh/setup-bun@v2
+
+      - name: 打包
+        run: python3 scripts/release.py --target ${{ matrix.target }} --base "${{ needs.prepare.outputs.base }}"
+
+      # 只传 dist/，里面已经是发布布局（版本目录 + latest.json + manifest.json）。
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: dist/
+          retention-days: 7
+
+  # ==================== 发布 ====================
+  # `always()` 是必需的：空跑时部分 build 被 skip，没有它本 job 会跟着 skip。
+  # 但 always() 同时会放行「needs 失败」，所以必须显式排除 failure ——
+  # 否则某个平台打包挂了仍会翻 latest 指针，那个平台的用户升级时会撞上 404，
+  # 而其余平台一切正常，问题很难被发现。
+  publish:
+    needs: [prepare, build]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
+    runs-on: ubuntu-latest
+    name: 发布
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: dist-*
+
+      # 各平台的 dist/ 合并成一份。manifest.json 每个平台都写了自己那一档，
+      # 合并时要把 targets 并起来 —— 直接覆盖的话最后一个平台会把别人的抹掉，
+      # 表现是"只有一个系统能收到更新"。
+      - name: 合并各平台产物
+        run: |
+          mkdir -p dist
+          python3 - <<'PY'
+          import json, pathlib, shutil
+          root = pathlib.Path("artifacts")
+          out = pathlib.Path("dist")
+          merged = {"schemaVersion": 1, "targets": {}}
+          for d in sorted(root.iterdir()):
+              m = d / "manifest.json"
+              if m.is_file():
+                  merged["targets"].update(json.loads(m.read_text())["targets"])
+              for item in d.iterdir():
+                  if item.name == "manifest.json":
+                      continue
+                  dst = out / item.name
+                  if item.is_dir():
+                      shutil.copytree(item, dst, dirs_exist_ok=True)
+                  else:
+                      shutil.copy2(item, dst)
+          out.mkdir(exist_ok=True)
+          (out / "manifest.json").write_text(json.dumps(merged, indent=2, ensure_ascii=False) + "\n")
+          print(json.dumps(merged, indent=2, ensure_ascii=False))
+          PY
+          find dist -type f | sort
+
+      - name: 上传并回读校验
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # aws cli v2 默认发 CRC32 尾部校验，R2 不支持会直接 501。
+          # 这两行不加的话上传第一步就挂，而错误信息完全看不出是校验的问题。
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          OVAIJISUAN_R2_ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
+          OVAIJISUAN_R2_BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
+          OVAIJISUAN_OBS_ENDPOINT: ${{ secrets.OVAIJISUAN_OBS_ENDPOINT }}
+          OVAIJISUAN_OBS_BUCKET: ${{ secrets.OVAIJISUAN_OBS_BUCKET }}
+          OVAIJISUAN_RELEASE_PREFIX: ${{ needs.prepare.outputs.prefix }}
+        run: python3 scripts/release.py --publish-only
+
+      # 从**公开域名**再读一次。上一步的校验走的是 S3 API，这一步走 CDN ——
+      # 能抓到"传上去了但公网读不到"这类只在真发版时才暴露的问题
+      # （自定义域没映射、缓存策略把清单缓住了）。
+      - name: 公网回读
+        env:
+          BASE: ${{ needs.prepare.outputs.base }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          curl -fsS --retry 3 --retry-delay 2 "$BASE/manifest.json" -o m.json
+          echo "--- 缓存响应头 ---"
+          curl -fsSI "$BASE/manifest.json" | grep -iE "cache-control|cf-cache-status|content-type" || true
+          python3 - <<'PY'
+          import json, os, urllib.request
+          base, want = os.environ["BASE"], os.environ["VERSION"]
+          m = json.load(open("m.json"))
+          assert m["targets"], "清单里一个目标都没有"
+          for target, entry in m["targets"].items():
+              url = next(iter(entry["latestUrls"].values()))
+              latest = json.load(urllib.request.urlopen(url, timeout=20))
+              assert latest["version"] == want, f"{target}: 清单 {latest['version']} != 期望 {want}"
+              # HEAD 一下包本体：清单对了但包传丢了的话，用户点更新才会发现。
+              req = urllib.request.Request(latest["url"], method="HEAD")
+              size = int(urllib.request.urlopen(req, timeout=20).headers["content-length"])
+              assert size == latest["size"], f"{target}: 包大小 {size} != 清单 {latest['size']}"
+              print(f"  ✓ {target}  {latest['version']}  {size / 1048576:.1f} MB")
+          PY
+
+      # 按「数量」保留而不是用生命周期规则按「天数」：后者有个陷阱 ——
+      # 长期不发版时，规则会把当前正在服役的那一版一并删掉。
+      #
+      # 放在回读之后：确认新版本确实可公开下载，才动旧版本。
+      # 不加 always()：前面失败时保持现状，宁可多占空间也不误删。
+      - name: 清理旧版本（保留最近 3 个）
+        if: ${{ !inputs.dry_run }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
+          BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
+          CURRENT: ${{ needs.prepare.outputs.version }}
+          KEEP: "3"
+        run: |
+          aws s3 ls "s3://$BUCKET/" --endpoint-url "$ENDPOINT" \
+            | awk '$1=="PRE"{print $2}' | tr -d '/' \
+            | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V > versions.txt || true
+          TOTAL=$(wc -l < versions.txt | tr -d ' ')
+          [ "$TOTAL" -le "$KEEP" ] && { echo "共 $TOTAL 版，无需清理"; exit 0; }
+          head -n "$((TOTAL - KEEP))" versions.txt | while read -r v; do
+            # 双保险：绝不删刚发布的这一版
+            [ "$v" = "$CURRENT" ] && { echo "跳过当前版本 $v"; continue; }
+            echo "删除旧版本 $v"
+            aws s3 rm "s3://$BUCKET/$v/" --recursive --endpoint-url "$ENDPOINT"
+          done
+          echo "保留：$(tail -n "$KEEP" versions.txt | tr '\n' ' ')"
+
+      # 空跑产物不留存。**必须带 always()** —— 否则前面任何一步失败
+      # （这恰恰是空跑最可能的结果）本步就被跳过，dry-run/ 残留在桶里，
+      # 和「不污染桶」的目标自相矛盾。
+      - name: 清理空跑产物
+        if: ${{ always() && inputs.dry_run }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+        run: |
+          for pair in \
+            "${{ secrets.OVAIJISUAN_R2_ENDPOINT }} ${{ secrets.OVAIJISUAN_R2_BUCKET }}" \
+            "${{ secrets.OVAIJISUAN_OBS_ENDPOINT }} ${{ secrets.OVAIJISUAN_OBS_BUCKET }}"; do
+            set -- $pair
+            [ -n "$1" ] && aws s3 rm "s3://$2/dry-run/" --recursive --endpoint-url "$1" || true
+          done
+          echo "空跑产物已清理，生产清单未被触碰"
+
+  # ==================== GitHub Release ====================
+  github-release:
+    needs: [prepare, build]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: dist-*
+      - name: 整理并改成能看懂的文件名
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p out
+          # 包名是内容哈希（不可变、便于回滚），但挂到 Release 页面上得让人
+          # 一眼看出是哪个平台的。
+          for f in $(find artifacts -name "*.tar.gz"); do
+            target=$(basename "$(dirname "$f")")
+            cp "$f" "out/ovaijisuandesign-$VERSION-$target.tar.gz"
+          done
+          ls -lh out/
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: ovaijisuandesign ${{ github.ref_name }}
+          generate_release_notes: true
+          files: out/*
+          body: |
+            解压即用，不需要装别的东西。
+
+            | 系统 | 文件 |
+            |---|---|
+            | macOS (M 系列) | `*-darwin-arm64.tar.gz` |
+            | macOS (Intel) | `*-darwin-x64.tar.gz` |
+            | Windows | `*-win32-x64.tar.gz` |
+            | Linux | `*-linux-x64.tar.gz` |
+
+            ```bash
+            tar -xzf ovaijisuandesign-*.tar.gz && ./ovgw
+            ```
+
+            首次启动会写一份配置模板，填好 `platform.api_key` 再启动。
+            **没有登录流程，key 就是唯一凭据。**
+
+            跑 agent 还需要 [opencode](https://opencode.ai) 在 `PATH` 里。

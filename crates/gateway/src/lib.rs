@@ -28,6 +28,7 @@ pub mod generate;
 pub mod land;
 pub mod proxy;
 pub mod tasks;
+pub mod update;
 pub mod web;
 pub mod workspace;
 
@@ -64,6 +65,7 @@ pub struct AppState {
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/health/live", get(health))
+        .route("/api/update/check", get(update::check))
         // -- 工作区 / 资产 / 文件 --
         .route("/api/workspace", get(api_files::workspace_dir))
         .route("/api/assets", get(api_files::list_assets))
