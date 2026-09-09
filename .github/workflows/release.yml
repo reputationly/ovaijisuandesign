@@ -13,6 +13,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
+  # Windows runner 的 Python 默认 cp1252，脚本里的中文输出会 UnicodeEncodeError。
+  # release.py 里也做了兜底，这里是给内联的 python3 heredoc 用的。
+  PYTHONUTF8: "1"
 
 jobs:
   # ==================== 版本号与前缀 ====================

@@ -31,6 +31,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 
+# Windows 上 Python 的 stdout 默认按 cp1252 编码，脚本里的中文一 print 就
+# UnicodeEncodeError —— 而且是在打包**成功之后**才炸，看着像打包失败。
+# 放在这里而不是只在 CI 里设 PYTHONUTF8：本地在 Windows 上跑也得能用。
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 # 发布源。两个都发，都验完才翻 latest。
 # 值是 S3 兼容的 endpoint —— R2 和 OBS 都支持 S3 API，所以上传是同一段代码。
 SOURCES = {
