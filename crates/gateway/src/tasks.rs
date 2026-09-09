@@ -1,6 +1,6 @@
 //! 生成任务表。
 //!
-//! 平台侧图片是同步的、视频音频是另一套 id，而调用方（mcp-tools / 画布）
+//! 平台侧图片是同步的、视频音频是另一套 id，而调用方（MCP 工具 / 画布）
 //! 统一按"提交拿 id → 轮询"用。所以这里自己铸 id 立刻返回，真正的调用丢到
 //! 后台，轮询时按这张表回答。
 
@@ -17,11 +17,23 @@ use maas_media::PlatformError;
 /// 只增不减。半小时足够任何一个正常的轮询周期。
 const KEEP_TERMINAL: Duration = Duration::from_secs(30 * 60);
 
+/// 生成成功后的产物。
+///
+/// **是工作区相对路径，不是 URL** —— 这是官方契约的形状
+/// （`result: { ok, path, width?, height? }`）。调用方拿到 `path` 就能直接
+/// 建节点；换成 URL 的话每个调用方都得自己再落一次盘，而"落盘"这件事有
+/// 去重、入库、按类型归档三段逻辑，不该散在调用方手里。
+#[derive(Debug, Clone)]
+pub struct Product {
+    pub path: String,
+    pub width: Option<u64>,
+    pub height: Option<u64>,
+}
+
 #[derive(Debug, Clone)]
 pub enum TaskState {
     Running,
-    /// 结果的**公网可下载 URL**。落盘、归档、建节点是调用方的事。
-    Succeeded { url: String },
+    Succeeded(Product),
     Failed { code: String, message: String },
 }
 
@@ -76,12 +88,12 @@ impl TaskStore {
         Some(self.inner.lock().ok()?.get(id)?.state.clone())
     }
 
-    /// 把一次平台调用的结果登记成终态。
-    pub fn finish(&self, id: &str, result: Result<String, PlatformError>) {
+    /// 把一次生成的结果登记成终态。
+    pub fn finish(&self, id: &str, result: Result<Product, PlatformError>) {
         let state = match result {
-            Ok(url) => {
-                tracing::info!(task = id, "生成完成");
-                TaskState::Succeeded { url }
+            Ok(p) => {
+                tracing::info!(task = id, path = %p.path, "生成完成");
+                TaskState::Succeeded(p)
             }
             Err(err) => {
                 tracing::warn!(task = id, code = %err.code, "生成失败: {}", err.message);
@@ -104,6 +116,14 @@ impl TaskStore {
 mod tests {
     use super::*;
 
+    fn product() -> Product {
+        Product {
+            path: "images/a.png".into(),
+            width: Some(1024),
+            height: Some(1024),
+        }
+    }
+
     #[test]
     fn a_new_task_starts_running() {
         let s = TaskStore::new();
@@ -121,8 +141,11 @@ mod tests {
     fn finish_records_both_outcomes() {
         let s = TaskStore::new();
         let ok = s.create();
-        s.finish(&ok, Ok("https://x/a.png".into()));
-        assert!(matches!(s.get(&ok), Some(TaskState::Succeeded { .. })));
+        s.finish(&ok, Ok(product()));
+        match s.get(&ok) {
+            Some(TaskState::Succeeded(p)) => assert_eq!(p.path, "images/a.png"),
+            other => panic!("{other:?}"),
+        }
 
         let bad = s.create();
         s.finish(&bad, Err(PlatformError::config("缺模型")));
@@ -147,7 +170,7 @@ mod tests {
         let running = s.create();
         for _ in 0..50 {
             let id = s.create();
-            s.finish(&id, Ok("https://x/a.png".into()));
+            s.finish(&id, Ok(product()));
         }
         assert!(matches!(s.get(&running), Some(TaskState::Running)));
     }
@@ -157,12 +180,12 @@ mod tests {
         // 没有淘汰这张表在长会话里只增不减。
         let s = TaskStore::new();
         let old = s.create();
-        s.finish(&old, Ok("https://x/a.png".into()));
+        s.finish(&old, Ok(product()));
         // 直接把 settled_at 拨回去，避免测试真的等半小时。
         {
             let mut map = s.inner.lock().unwrap();
-            let e = map.get_mut(&old).unwrap();
-            e.settled_at = Some(Instant::now() - KEEP_TERMINAL - Duration::from_secs(1));
+            map.get_mut(&old).unwrap().settled_at =
+                Some(Instant::now() - KEEP_TERMINAL - Duration::from_secs(1));
         }
         let fresh = s.create();
         assert!(s.get(&old).is_none(), "过期的终态任务应被淘汰");

@@ -15,6 +15,24 @@
 前提是 [`mcp/`](../mcp/) 把那 103 个工具按同名同参实现出来。
 清单见 [`docs/mcp-tools.md`](../docs/mcp-tools.md)。
 
+## 怎么跑
+
+```bash
+./scripts/snapshot-agent-profiles.sh          # 一次性：快照官方配置到 reference/
+cargo run -p gateway                          # :8100
+./scripts/run-agent.sh <工作区> -- run "生成一张…"
+```
+
+脚本在临时目录里现拼 opencode 配置（**不落进版本库，里面有 api_key**）：
+
+- `provider` 指向自建平台，形状取自 DesignPlusPlus 里那份实测跑通的
+- `mcp.hub` 指向我们的 MCP server
+- `agent` / `default_agent` / `tools` **原样取自官方 `base.json`**
+- `OPENCODE_CONFIG_DIR` 指向 staging，opencode 从那里扫
+  `{agent,agents}/**/*.md`（判据：`packages/opencode/src/config/agent.ts`）
+
+唯独不带官方的 `plugin` —— 那是 `session-header.ts`，依赖他们的运行时注入。
+
 ## 怎么接
 
 配置本体在应用里，不复制进仓库。快照一份到 `reference/`（已 gitignore）

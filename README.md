@@ -136,10 +136,10 @@ selecto + yjs，主进程 electron-vite + velopack。和我们的选型基本一
 
 ```
 crates/maas-media/     平台适配层。已完成，55 个测试
-crates/gateway/        本地 gateway。已实现生成那几条路由，20 个测试
+crates/gateway/        本地 gateway。生成 + 落盘 + 反代未实现的路由，27 个测试
 apps/canvas-web/       React Flow 画布前端。已跑通读写与生成闭环
-mcp/                   MCP server。待写，对齐 103 个工具
-agent/                 opencode 配置。用官方那套，只覆盖对齐不了的部分
+mcp/                   MCP server。8 个工具（画布 4 + 生成 4），对齐官方同名同参
+agent/                 opencode 配置。直接用官方那套，只覆盖对齐不了的部分
 docs/                  接口规格与逆向记录
 scripts/               规格提取、快照、开发辅助
 reference/             官方配置快照（gitignore，脚本生成）
@@ -186,14 +186,33 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
 3. ~~提取两个接口面的规格~~ —— 已完成（103 工具 / 423 路由）
 4. ~~canvas-web 接上 `maas-media` 的生成~~ —— 已完成。画布上点生成直接出图，
    中间仍借官方 gateway 落盘
-5. **`mcp/` 的画布 4 个 + 生成 4 个工具**，挂上 opencode 和官方 agent 配置
-   ← 下一步。这一步能验证工具面对齐得对不对 —— 用的是**他们的提示词，
-   跑的是我们的工具**
-6. `crates/gateway` 补齐资产库、画布持久化、文件服务。写的时候可以拿官方
-   mcp-tools 当测试客户端
+5. ~~`mcp/` 的画布 4 个 + 生成 4 个工具，挂上 opencode 和官方 agent 配置~~
+   —— 已完成，**用他们的提示词跑通了我们的工具**
+6. **`crates/gateway` 补齐资产库、画布持久化、文件服务** ← 下一步。
+   写的时候可以拿官方 mcp-tools 当测试客户端
 
 现在官方应用只剩"存文件"一个用途（`import-url` 落盘 + `media-node` 建节点 +
-`/files` 取图），第 6 步之后完全不需要它。
+`/files` 取图 + `/ws` 事件），第 6 步之后完全不需要它。
+
+### 第 5 步实测
+
+官方的 `media-agent` 提示词 + 我们的 MCP 工具 + 我们的 gateway + 自建平台：
+
+```
+> media-agent · qwen3.8-27b
+我来生成这张油画质感的白猫图。
+⚙ hub_generate_image {"filename":"白猫书架油画",
+    "prompt":"一只白色的猫端坐在书架前，油画质感，厚重笔触…",
+    "vendor_params":{"aspect_ratio":"3:4"}}
+已生成完成…已放到画布上。
+```
+
+画布 5 → 6 个节点，图片 2.0MB 落进工作区。agent **自己选了 3:4 的比例**
+并填进 `vendor_params` —— 那是官方契约的形状，不是我们教它的。
+
+中途上游 gateway 掉过一次，agent 收到 502 后重试两次、`sleep 3`、然后
+如实报告"画布后端持续返回 502"。错误一路从平台传到 agent 没有丢，
+这正是那几处"不要把失败包装成成功"的设计在起作用。
 
 ### 第 4 步实测
 

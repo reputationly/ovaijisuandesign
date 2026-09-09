@@ -17,6 +17,8 @@
 
 mod config;
 mod generate;
+mod land;
+mod proxy;
 mod tasks;
 
 use std::net::SocketAddr;
@@ -25,7 +27,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 use axum::Router;
-use axum::routing::{get, post};
+use axum::routing::{any, get, post};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::config::Config;
@@ -33,8 +35,16 @@ use crate::tasks::TaskStore;
 
 pub struct AppState {
     pub media: Arc<maas_media::MediaConfig>,
+    /// 打自建平台用。走公网，**尊重系统代理**。
     pub client: reqwest::Client,
+    /// 打上游 gateway 用。上游是回环地址，**必须绕开系统代理** ——
+    /// macOS 上打开 HTTP 代理后，reqwest 会把发往 127.0.0.1 的请求也交给
+    /// 代理，被吞成一个空的 503（响应头里带 `proxy-connection: close`）。
+    /// 症状是"官方明明在跑，反代却全挂"，很难往代理上想。
+    pub local: reqwest::Client,
     pub tasks: Arc<TaskStore>,
+    /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
+    pub upstream: Option<String>,
 }
 
 pub fn router(state: Arc<AppState>) -> Router {
@@ -46,6 +56,9 @@ pub fn router(state: Arc<AppState>) -> Router {
             "/api/generate/tasks/{task_id}/query",
             get(generate::query_task),
         )
+        // 其余全部反代给上游。等自己实现了对应路由，把它加到上面即可 ——
+        // 替换是逐条进行的，调用方始终只认这一个地址。
+        .fallback(any(proxy::handle))
         // 前端通常经 Vite 代理过来（同源），但直连调试时没有 CORS 会一头雾水。
         // 这是个只监听回环的本地服务，放开即可。
         .layer(CorsLayer::new().allow_origin(Any).allow_headers(Any).allow_methods(Any))
@@ -79,18 +92,29 @@ async fn main() -> Result<()> {
         .connect_timeout(Duration::from_secs(10))
         .build()
         .context("构建 HTTP 客户端失败")?;
+    let local = reqwest::Client::builder()
+        .connect_timeout(Duration::from_secs(10))
+        .no_proxy()
+        .build()
+        .context("构建本地 HTTP 客户端失败")?;
 
     let addr = SocketAddr::from(([127, 0, 0, 1], cfg.port));
     let state = Arc::new(AppState {
         media: Arc::new(cfg.media),
         client,
+        local,
         tasks: Arc::new(TaskStore::new()),
+        upstream: cfg.upstream.clone(),
     });
 
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .with_context(|| format!("绑定 {addr} 失败，端口可能已被占用"))?;
-    tracing::info!("gateway 已监听 http://{addr}（配置 {}）", path.display());
+    match state.upstream.as_deref() {
+        Some(u) => tracing::info!("gateway 已监听 http://{addr}，未实现的路由反代到 {u}"),
+        None => tracing::info!("gateway 已监听 http://{addr}，未配置 upstream（未实现的路由回 404）"),
+    }
+    tracing::info!("配置: {}", path.display());
     axum::serve(listener, router(state)).await?;
     Ok(())
 }
@@ -106,7 +130,9 @@ mod tests {
         Arc::new(AppState {
             media: Arc::new(maas_media::MediaConfig::default()),
             client: reqwest::Client::new(),
+            local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
+            upstream: None,
         })
     }
 

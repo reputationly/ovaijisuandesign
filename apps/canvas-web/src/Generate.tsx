@@ -1,7 +1,7 @@
 import { Loader2, Sparkles, X } from "lucide-react"
 import { useRef, useState } from "react"
 
-import { createMediaNode, importUrl, pollTask, submitImage } from "./api"
+import { createMediaNode, pollTask, submitImage } from "./api"
 import { cn } from "./lib"
 
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
@@ -11,23 +11,19 @@ const RESOLUTIONS = ["1K", "2K"]
 type Phase =
   | { kind: "idle" }
   | { kind: "generating"; seconds: number }
-  | { kind: "importing" }
+  | { kind: "placing" }
   | { kind: "failed"; message: string }
 
 /**
  * 生成面板。
  *
- * 整条链跨两个后端：
- *
  * ```text
- * 出图    我们的 gateway → maas-media → 平台（返回公网 URL）
- * 落盘    官方 gateway /api/files/import-url
- * 建节点  官方 gateway /api/canvas/media-node
+ * 出图 + 落盘   我们的 gateway（内部借上游的 import-url 收进工作区）
+ * 建节点        /api/canvas/media-node
  * ```
  *
- * 编排放在前端而不是我们的 gateway 里：这一步的目的是验证"我的前端 → 我的
- * 后端"这条线，让借用官方的那两跳**显式可见**。等自己的 gateway 有了资产库，
- * 后两跳会挪进去，前端只留一次调用。
+ * 前端只知道"提交 → 轮询 → 拿到一个工作区路径 → 建节点" —— 这正是官方
+ * 契约的形状。落盘藏在 gateway 里，等自己的资产库写完，前端一行都不用改。
  */
 export function Generate({ onDone }: { onDone: () => void }) {
   const [prompt, setPrompt] = useState("")
@@ -36,7 +32,7 @@ export function Generate({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>({ kind: "idle" })
   const abort = useRef<AbortController | null>(null)
 
-  const busy = phase.kind === "generating" || phase.kind === "importing"
+  const busy = phase.kind === "generating" || phase.kind === "placing"
 
   const run = async () => {
     if (!prompt.trim() || busy) return
@@ -45,12 +41,11 @@ export function Generate({ onDone }: { onDone: () => void }) {
     setPhase({ kind: "generating", seconds: 0 })
     try {
       const taskId = await submitImage({ prompt, aspectRatio: ratio, resolution })
-      const url = await pollTask(taskId, ctrl.signal, (seconds) =>
+      const product = await pollTask(taskId, ctrl.signal, (seconds) =>
         setPhase((p) => (p.kind === "generating" ? { kind: "generating", seconds } : p)),
       )
-      setPhase({ kind: "importing" })
-      const asset = await importUrl(url)
-      await createMediaNode(asset.path)
+      setPhase({ kind: "placing" })
+      await createMediaNode(product.path)
       setPhase({ kind: "idle" })
       setPrompt("")
       onDone()
@@ -107,7 +102,7 @@ export function Generate({ onDone }: { onDone: () => void }) {
         >
           {busy && <Loader2 size={12} className="animate-spin" />}
           {phase.kind === "generating" && `平台出图中… ${phase.seconds}s`}
-          {phase.kind === "importing" && "收进工作区并建节点…"}
+          {phase.kind === "placing" && "放到画布上…"}
           {phase.kind === "failed" && phase.message}
         </div>
       )}

@@ -8,7 +8,13 @@
 GET  /api/health/live
 POST /api/generate/image/submit
 GET  /api/generate/tasks/{task_id}/query
+*    其余全部反代给 upstream
 ```
+
+**反代是关键**：调用方（画布前端、MCP server、将来的官方 mcp-tools）
+只认这一个地址，我们实现一条路由就接管一条，剩下的照旧走官方。
+没配 `upstream` 时如实回 404 —— 反代到一个猜出来的地址会让"路由没实现"
+表现成别的错误。
 
 路由形状按官方对齐（见 [`docs/gateway-api.md`](../../docs/gateway-api.md)），
 这样两边可以互换着验：我们的前端能接官方 gateway，官方的 mcp-tools 也能接
@@ -65,6 +71,26 @@ key 就是唯一凭据**。
 官方的 `GenerateErrorCode` 是个枚举，自定义字符串会让调用方的 zod 解析失败 ——
 于是连 `message` 都传不回去，画布上就成了一个没有原因的失败节点。所以统一
 报 `backend_error`，真正的码放在不参与解析的 `detail_code` 里。
+
+## 落盘
+
+平台返回的是公网 URL，而调用方要的是**工作区相对路径**（官方契约就是
+`result: { ok, path, width?, height? }`）。中间那一步（下载、按类型归档、
+去重、登记成资产）目前借上游的 `POST /api/files/import-url`，实现在
+`land.rs`，等自己的资产库写完换掉那个文件即可，对外契约不变。
+
+`import-url` 有个坑：**每个 URL 失败时它也回 200**（源码注释原文
+"returns 200 even if every URL failed"），失败落在 `errors[]`。
+只看 HTTP 状态会把失败当成功，然后交给调用方一个空路径。
+
+## 两个 HTTP 客户端
+
+- `client` 打自建平台，走公网，**尊重系统代理**
+- `local` 打上游 gateway，**必须 `.no_proxy()`**
+
+macOS 打开系统 HTTP 代理后，reqwest 会把发往 `127.0.0.1` 的请求也交给代理，
+被吞成一个空的 503（响应头带 `proxy-connection: close`）。症状是"官方明明
+在跑，反代却全挂"，很难往代理上想 —— 踩过一次。
 
 ## 任务表
 

@@ -197,15 +197,21 @@ export async function submitImage(p: GenerateParams): Promise<string> {
   return body.task_id
 }
 
+export interface Product {
+  path: string
+  width?: number
+  height?: number
+}
+
 interface TaskQuery {
   status: "processing" | "succeeded" | "failed"
-  result?: { url?: string }
+  result?: Product
   user_message?: string
   error?: string
 }
 
 /**
- * 轮询到终态，返回结果的公网 URL。
+ * 轮询到终态，返回**工作区相对路径**。
  *
  * `signal` 用来在用户取消时停下 —— 没有它的话组件卸载后这个循环还会跑到
  * 超时，而且失败会报到一个已经不存在的界面上。
@@ -214,7 +220,7 @@ export async function pollTask(
   taskId: string,
   signal: AbortSignal,
   onTick?: (seconds: number) => void,
-): Promise<string> {
+): Promise<Product> {
   const startedAt = Date.now()
   // 兜底上限。真正的超时在平台侧，这里只是不要无限转。
   const MAX_MS = 10 * 60 * 1000
@@ -227,51 +233,14 @@ export async function pollTask(
     const res = await fetch(`/api/generate/tasks/${encodeURIComponent(taskId)}/query`, { signal })
     const body = await json<TaskQuery>(res, "GET /api/generate/tasks/…/query")
     if (body.status === "succeeded") {
-      const url = body.result?.url
-      // 报了成功却没有 URL 是协议层的错，不是"还没好"。继续轮询会一直转。
-      if (!url) throw new Error("gateway 报告成功但没有结果 URL")
-      return url
+      // 报了成功却没有路径是协议层的错，不是"还没好"。继续轮询会一直转。
+      if (!body.result?.path) throw new Error("gateway 报告成功但没有结果路径")
+      return body.result
     }
     if (body.status === "failed") {
       throw new Error(body.user_message || body.error || "生成失败")
     }
   }
-}
-
-export interface Imported {
-  id: string
-  path: string
-  type: string
-  width?: number
-  height?: number
-}
-
-/**
- * 把公网 URL 收进工作区并登记成资产。这一步仍借官方 gateway。
- *
- * **它每个 URL 失败也回 200**，失败落在 `errors[]` 里（源码注释原文：
- * "returns 200 even if every URL failed"）。只看 HTTP 状态会把失败当成功，
- * 然后拿着一个 undefined 的 path 去建节点。
- *
- * 另外它带 SSRF 拦截，回环和私有地址会被拒 —— 只能递平台返回的公网直链。
- */
-export async function importUrl(url: string): Promise<Imported> {
-  const res = await fetch("/api/files/import-url", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ urls: [url] }),
-  })
-  const body = await json<{
-    imported?: Imported[]
-    errors?: { url: string; error: string }[]
-  }>(res, "POST /api/files/import-url")
-
-  const first = body.imported?.[0]
-  if (!first?.path) {
-    const why = body.errors?.[0]?.error ?? "没有返回任何资产"
-    throw new Error(`收进工作区失败：${why}`)
-  }
-  return first
 }
 
 /** 在画布上建一个媒体节点。仍借官方 gateway。 */

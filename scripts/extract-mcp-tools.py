@@ -59,6 +59,51 @@ def balanced(src: str, start: int) -> str:
     return src[start : start + 4000]
 
 
+def top_level_keys(obj: str) -> list[str]:
+    """取一个对象字面量的顶层键名。
+
+    只认深度 1 的 `key:`，所以嵌套对象里的键不会混进来。
+
+    不能只匹配 `key: external_exports.…`（zod 打包后的形态）—— 有相当一批
+    字段是从命名的 schema 变量拼的（`vendor_params: ImageVendorParamsSchema`），
+    那样会**静默漏掉**。`generate_image` 的 `vendor_params` /
+    `aspect_ratio_source` / `aspect_ratio_evidence` 三个就是这么漏的，
+    而 `vendor_params` 恰恰是 aspect_ratio、resolution 的落点。
+    """
+    keys: list[str] = []
+    depth = 0
+    i = 0
+    quote: str | None = None
+    token = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
+    while i < len(obj):
+        c = obj[i]
+        if quote:
+            if c == "\\":
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in "\"'`":
+            quote = c
+        elif c in "{[(":
+            depth += 1
+        elif c in "}])":
+            depth -= 1
+        elif depth == 1:
+            m = token.match(obj, i)
+            # 深度 1 且后面直接跟冒号（排除 `?:` 三元和 `::`）
+            if m:
+                j = m.end()
+                while j < len(obj) and obj[j] in " \t\n\r":
+                    j += 1
+                if j < len(obj) and obj[j] == ":" and obj[j : j + 2] != "::":
+                    keys.append(m.group(0))
+                i = m.end()
+                continue
+        i += 1
+    return keys
+
+
 def extract(bundle: Path) -> list[dict]:
     src = bundle.read_text(encoding="utf8", errors="replace")
     tools = []
@@ -67,11 +112,7 @@ def extract(bundle: Path) -> list[dict]:
         keys: list[str] = []
         schema = re.search(r"inputSchema:\s*\{", block)
         if schema:
-            inner = balanced(block, schema.end() - 1)
-            # zod 被打包成 external_exports.<type>()，键名就在它前面
-            keys = re.findall(
-                r"(?:^|[{,\s])([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*external_exports\.", inner
-            )
+            keys = top_level_keys(balanced(block, schema.end() - 1))
         tools.append({"name": m.group(1), "input": sorted(set(keys))})
     return tools
 

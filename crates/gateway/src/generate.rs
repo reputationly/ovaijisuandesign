@@ -8,7 +8,7 @@
 //!   resp ← { ok: true, task_id, status: "processing", media_type: "image" }
 //!
 //! GET  /api/generate/tasks/<task_id>/query      ← 注意 /query 后缀
-//!   resp ← { ok:true, task_id, status:"succeeded", result: { ok:true, url } }
+//!   resp ← { ok:true, task_id, status:"succeeded", result: { ok:true, path, width?, height? } }
 //!        | { ok:true, task_id, status:"processing" }
 //!        | { ok:false, task_id, status:"failed", error, error_code, user_message }
 //! ```
@@ -24,8 +24,8 @@ use axum::extract::{Path, State};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
-use crate::AppState;
 use crate::tasks::TaskState;
+use crate::{AppState, land};
 
 /// `POST /api/generate/image/submit` 的请求体。
 ///
@@ -73,23 +73,24 @@ pub async fn submit_image(State(state): State<Arc<AppState>>, body: Bytes) -> Js
         "接到图片生成"
     );
 
-    let (tasks, client, cfg, id) = (
-        state.tasks.clone(),
-        state.client.clone(),
-        state.media.clone(),
-        task_id.clone(),
-    );
+    let (st, id) = (state.clone(), task_id.clone());
     tokio::spawn(async move {
-        let result = maas_media::image::generate(
-            &client,
-            &cfg,
+        // 平台出图 → 收进工作区。两步都在这里做完，调用方只拿到一个
+        // 工作区相对路径 —— 官方契约就是这个形状。
+        let result = match maas_media::image::generate(
+            &st.client,
+            &st.media,
             &req.prompt,
             &req.image_paths,
             &req.params.aspect_ratio,
             &req.params.resolution,
         )
-        .await;
-        tasks.finish(&id, result);
+        .await
+        {
+            Ok(url) => land::land(&st, &url).await,
+            Err(err) => Err(err),
+        };
+        st.tasks.finish(&id, result);
     });
 
     Json(json!({
@@ -114,12 +115,22 @@ pub async fn query_task(
 /// 不会说清少了什么。
 pub fn task_response(task_id: &str, state: Option<TaskState>) -> Value {
     match state {
-        Some(TaskState::Succeeded { url }) => json!({
-            "ok": true,
-            "task_id": task_id,
-            "status": "succeeded",
-            "result": { "ok": true, "url": url },
-        }),
+        Some(TaskState::Succeeded(p)) => {
+            let mut result = json!({ "ok": true, "path": p.path });
+            // 尺寸给不出也没关系，调用方会自己从文件里读。
+            if let Some(w) = p.width {
+                result["width"] = json!(w);
+            }
+            if let Some(h) = p.height {
+                result["height"] = json!(h);
+            }
+            json!({
+                "ok": true,
+                "task_id": task_id,
+                "status": "succeeded",
+                "result": result,
+            })
+        }
         Some(TaskState::Running) => json!({
             "ok": true,
             "task_id": task_id,
@@ -155,16 +166,38 @@ mod tests {
     use super::*;
 
     #[test]
-    fn a_succeeded_task_carries_a_url() {
+    fn a_succeeded_task_carries_a_workspace_path_not_a_url() {
+        // 官方契约是 path。换成 URL 的话每个调用方都得自己再落一次盘，
+        // 而落盘有去重、入库、按类型归档三段逻辑，不该散在调用方手里。
         let v = task_response(
             "t-1",
-            Some(TaskState::Succeeded {
-                url: "https://obs/a.png".into(),
-            }),
+            Some(TaskState::Succeeded(crate::tasks::Product {
+                path: "images/a.png".into(),
+                width: Some(1024),
+                height: Some(768),
+            })),
         );
         assert_eq!(v["status"], "succeeded");
         assert_eq!(v["result"]["ok"], true);
-        assert_eq!(v["result"]["url"], "https://obs/a.png");
+        assert_eq!(v["result"]["path"], "images/a.png");
+        assert_eq!(v["result"]["width"], 1024);
+        assert_eq!(v["result"]["height"], 768);
+        assert!(v["result"].get("url").is_none(), "不该回 URL");
+    }
+
+    #[test]
+    fn missing_dimensions_are_simply_omitted() {
+        // 音频没有宽高。发一个 null 会让调用方的 schema 校验失败。
+        let v = task_response(
+            "t-1",
+            Some(TaskState::Succeeded(crate::tasks::Product {
+                path: "audios/a.wav".into(),
+                width: None,
+                height: None,
+            })),
+        );
+        assert_eq!(v["result"]["path"], "audios/a.wav");
+        assert!(v["result"].get("width").is_none());
     }
 
     #[test]

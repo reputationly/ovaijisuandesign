@@ -19,14 +19,14 @@
 | `canvas_grep_text` | `contextAfter`, `contextBefore`, `maxMatches`, `nodeId`, `query`, `regex` |
 | `canvas_read_text` | `limitLines`, `nodeId`, `offsetLine` |
 | `canvas_search_nodes` | `fields`, `limit`, `offset`, `query`, `type` |
-| `canvas_write_text_node` | `content`, `expectedContentHash`, `mode`, `name`, `nodeId`, `sourceNodeIds` |
-| `canvas_apply_text_edits` | `annotationId`, `editSessionId`, `edits`, `exact`, `expectedContentHash`, `nodeId`, `occurrence`, `prefix`, `replacement`, `requestId`, `suffix`, `targetIndex` |
-| `canvas_write_table_node` | `columns`, `nodeId`, `rowHeight`, `rows`, `sourceNodeIds`, `title` |
-| `canvas_write_file_node` | `allowDuplicate`, `assetPath`, `height`, `sourceNodeIds`, `viewMode`, `width` |
-| `canvas_write_media_node` | `allowDuplicate`, `assetPath`, `sourceNodeIds` |
+| `canvas_write_text_node` | `content`, `expectedContentHash`, `mode`, `name`, `nodeId`, `position`, `sourceNodeIds` |
+| `canvas_apply_text_edits` | `editSessionId`, `edits`, `expectedContentHash`, `nodeId`, `requestId` |
+| `canvas_write_table_node` | `columns`, `filter`, `nodeId`, `position`, `rowHeight`, `rows`, `sourceNodeIds`, `title` |
+| `canvas_write_file_node` | `allowDuplicate`, `assetPath`, `height`, `position`, `sourceNodeIds`, `viewMode`, `width` |
+| `canvas_write_media_node` | `allowDuplicate`, `assetPath`, `position`, `sourceNodeIds` |
 | `canvas_group_nodes` | `label`, `nodeIds` |
 | `canvas_group_recent_outputs` | `label` |
-| `canvas_write_node` | `allowDuplicate`, `assetPath`, `columns`, `content`, `expectedContentHash`, `items`, `kind`, `mode`, `name`, `nodeId`, `rowHeight`, `rows`, `sourceNodeId`, `sourceNodeIds`, `title` |
+| `canvas_write_node` | `allowDuplicate`, `assetPath`, `columns`, `content`, `expectedContentHash`, `filter`, `items`, `kind`, `mode`, `name`, `nodeId`, `rowHeight`, `rows`, `sourceNodeId`, `sourceNodeIds`, `title` |
 | `canvas_ungroup_node` | `groupId` |
 
 ## 计划编排（7）
@@ -38,41 +38,41 @@
 | `plan_get_stage_detail` | `order`, `plan_id`, `projectRoot`, `stage_id` |
 | `plan_update_stage_state` | `expected_revision`, `plan_id`, `projectRoot`, `updates` |
 | `plan_replan` | `expected_revision`, `operations`, `plan_id`, `preserve_through_stage_id`, `projectRoot`, `reason`, `request_id`, `resume_stage_id`, `workflow_path`, `workflow_variant` |
-| `plan_write` | `expected_revision`, `plan_id`, `projectRoot` |
-| `plan_patch_stage` | `after_order`, `expected_revision`, `omit`, `plan_id`, `projectRoot`, `remove`, `stage_id` |
+| `plan_write` | `expected_revision`, `plan`, `plan_id`, `projectRoot` |
+| `plan_patch_stage` | `after_order`, `expected_revision`, `omit`, `plan_id`, `projectRoot`, `remove`, `stage`, `stage_id` |
 
 ## 生成 · 图片（5）
 
 | 工具 | 入参 |
 |---|---|
-| `generate_image` | `count`, `filename`, `filenames`, `image_paths`, `model_id`, `order`, `orders`, `prompt`, `prompts`, `vendor` |
-| `image_remove_background` | `filename`, `image_path` |
-| `select_image_recipe` | `user_request` |
+| `generate_image` | `aspect_ratio_evidence`, `aspect_ratio_source`, `count`, `filename`, `filenames`, `image_paths`, `model_id`, `order`, `orders`, `prompt`, `prompts`, `vendor`, `vendor_params` |
+| `image_remove_background` | `filename`, `image_path`, `source_node_id` |
+| `select_image_recipe` | `modality`, `user_request` |
 | `prompt_write` | `base_requirement`, `image_paths` |
-| `image_search` | `max_images_per_query`, `min_dimension`, `num`, `queries`, `query` |
+| `image_search` | `max_images_per_query`, `min_dimension`, `queries` |
 
 ## 生成 · 视频（5）
 
 | 工具 | 入参 |
 |---|---|
-| `generate_video` | `audio_path`, `duration`, `filename`, `first_frame_image`, `last_frame_image`, `mode`, `model_id`, `order`, `prompt`, `reference_audio_urls`, `reference_image_paths`, `reference_video_urls`, `video_url` |
+| `generate_video` | `audio_path`, `duration`, `filename`, `first_frame_image`, `last_frame_image`, `mode`, `model_id`, `order`, `prompt`, `reference_audio_urls`, `reference_image_paths`, `reference_video_urls`, `vendor`, `vendor_params`, `video_url` |
 | `batch_lip_sync` | `audio_paths`, `filenames`, `video_paths` |
-| `merge_videos` | `filename`, `scale_mode`, `target_height`, `target_width`, `video_paths` |
-| `validate_mv_storyboard` | `character_id`, `characters`, `characters_in_scene`, `end`, `lyrics`, `scene_id`, `scenes`, `segment_type`, `segments`, `singer_gender`, `start`, `total_duration` |
-| `mv_final_assembly` | `audio_path`, `filename`, `video_paths` |
+| `merge_videos` | `filename`, `scale_mode`, `source_node_id`, `target_height`, `target_width`, `video_paths` |
+| `validate_mv_storyboard` | `characters`, `scenes`, `segments`, `total_duration` |
+| `mv_final_assembly` | `audio_path`, `filename`, `source_node_id`, `video_paths` |
 
 ## 生成 · 语音（9）
 
 | 工具 | 入参 |
 |---|---|
 | `get_voice_id` | `gender`, `language` |
-| `audio_generation` | `filename`, `pitch`, `source_node_id`, `speed`, `text`, `voice_id`, `vol` |
-| `audios_batch_generation` | — |
+| `audio_generation` | `emotion`, `filename`, `model_name`, `pitch`, `pronunciation_dict`, `source_node_id`, `speed`, `text`, `voice_id`, `voice_modify`, `vol` |
+| `audios_batch_generation` | `emotions`, `filenames`, `model_name`, `pitches`, `pronunciation_dict`, `source_node_ids`, `speeds`, `texts`, `voice_ids`, `voice_modifies`, `vols` |
 | `voice_clone` | `audio_path`, `demo_model`, `demo_text`, `need_noise_reduction`, `need_volume_normalization`, `prompt_audio_path`, `prompt_text` |
 | `design_voice` | `preview_text`, `prompt` |
 | `voice_isolation` | `audio_path`, `filename`, `language`, `source_node_id` |
 | `seedaudio_generation` | `filename`, `format`, `model_name`, `pitch`, `reference_audio_paths`, `reference_image_path`, `sample_rate`, `source_node_id`, `speed`, `text_prompt`, `volume` |
-| `generate_audio_speech` | `emotions`, `filename`, `filenames`, `format`, `pitches`, `reference_audio_paths`, `reference_image_path`, `sample_rate`, `speeds`, `texts`, `vendor`, `voice_id`, `voice_id_source`, `voice_ids`, `vols`, `volumes` |
+| `generate_audio_speech` | `emotions`, `filename`, `filenames`, `format`, `language_boost`, `model_name`, `pitches`, `pronunciation_dict`, `reference_audio_paths`, `reference_image_path`, `sample_rate`, `speeds`, `texts`, `vendor`, `voice_id`, `voice_id_source`, `voice_ids`, `voice_modify`, `vols`, `volumes` |
 | `voice_prepare` | `items` |
 
 ## 生成 · 音乐（9）
@@ -80,13 +80,13 @@
 | 工具 | 入参 |
 |---|---|
 | `generate_audio_music` | `filename`, `lyrics`, `mode`, `model_id`, `prompt`, `vendor` |
-| `music_cover` | `action`, `audio`, `cover_feature_id`, `filename`, `lyrics`, `prompt` |
-| `music_generation_song` | `filename`, `lyrics`, `prompt` |
-| `music_generation_instrumental` | `filename`, `prompt` |
-| `music_generation_elevenlabs` | `filename`, `is_instrumental`, `music_length`, `prompt` |
-| `music_cover_preprocess` | `audio` |
-| `music_cover_generate_with_lyrics` | `cover_feature_id`, `filename`, `lyrics`, `prompt` |
-| `music_cover_generate_oneshot` | `audio`, `filename`, `prompt` |
+| `music_cover` | `action`, `audio`, `cover_feature_id`, `filename`, `lyrics`, `prompt`, `source_node_id` |
+| `music_generation_song` | `filename`, `lyrics`, `prompt`, `source_node_id` |
+| `music_generation_instrumental` | `filename`, `prompt`, `source_node_id` |
+| `music_generation_elevenlabs` | `filename`, `is_instrumental`, `music_length`, `prompt`, `source_node_id` |
+| `music_cover_preprocess` | `audio`, `source_node_id` |
+| `music_cover_generate_with_lyrics` | `cover_feature_id`, `filename`, `lyrics`, `prompt`, `source_node_id` |
+| `music_cover_generate_oneshot` | `audio`, `filename`, `prompt`, `source_node_id` |
 | `lyrics_generation` | `lyrics`, `mode`, `prompt`, `title` |
 
 ## 后期处理（12）
@@ -94,15 +94,15 @@
 | 工具 | 入参 |
 |---|---|
 | `audio_meta` | `audio_path` |
-| `ffmpeg` | `args`, `description`, `filename`, `metadata`, `model`, `output_type`, `preserve_source_canvas_node`, `prompt`, `replace_node_id` |
+| `ffmpeg` | `args`, `filename`, `metadata`, `output_type`, `preserve_source_canvas_node`, `replace_node_id` |
 | `super_resolution` | `filename`, `image_path`, `resolution`, `video_path` |
 | `embed_audio` | `audio_path`, `audio_paths`, `concurrency`, `filename`, `filenames`, `preserve_source_canvas_node`, `replace_existing`, `replace_node_id`, `replace_node_ids`, `video_path`, `video_paths` |
 | `media_transcribe` | `audio_path`, `file_path`, `filename`, `language`, `mode`, `total_duration` |
-| `subtitle_format` | `cjk_chars_per_line`, `english_words_per_line`, `filename`, `font_name`, `font_scale`, `font_size`, `margin_l`, `margin_r`, `margin_v`, `max_lines`, `output_size`, `position`, `source_srt_path`, `unsafe_override` |
+| `subtitle_format` | `cjk_chars_per_line`, `english_words_per_line`, `filename`, `font_name`, `font_scale`, `font_size`, `format`, `margin_l`, `margin_r`, `margin_v`, `max_lines`, `output_size`, `position`, `safe_area`, `source_srt_path`, `style_preset`, `unsafe_override` |
 | `probe_media` | `file_path`, `file_paths` |
 | `audio_transcribe_lyrics` | `audio_path`, `language`, `total_duration` |
 | `media_generate_subtitle` | `file_path`, `filename`, `font_name`, `language`, `output_size`, `position` |
-| `audio_subclip_batch` | `audio_path`, `end`, `segments`, `start` |
+| `audio_subclip_batch` | `audio_path`, `segments` |
 | `audio_analyze_music` | `audio_path`, `num_segments` |
 | `audio_separate` | `audio_path`, `filename`, `source_node_id`, `video_path` |
 
@@ -126,13 +126,13 @@
 
 | 工具 | 入参 |
 |---|---|
-| `memory_list` | `projectRoot` |
-| `memory_read` | `projectRoot` |
-| `memory_write` | `asset_uri`, `body`, `description`, `projectRoot` |
-| `memory_delete` | `projectRoot` |
-| `memory_search` | `projectRoot`, `query` |
-| `memory` | `action`, `asset_uri`, `body`, `description`, `projectRoot`, `query` |
-| `search_knowledge` | `limit`, `query`, `topic` |
+| `memory_list` | `projectRoot`, `scope` |
+| `memory_read` | `name`, `projectRoot`, `scope` |
+| `memory_write` | `asset_modality`, `asset_uri`, `body`, `description`, `name`, `projectRoot`, `scope`, `type` |
+| `memory_delete` | `name`, `projectRoot`, `scope` |
+| `memory_search` | `projectRoot`, `query`, `scope`, `type` |
+| `memory` | `action`, `asset_modality`, `asset_uri`, `body`, `description`, `name`, `projectRoot`, `query`, `scope`, `type` |
+| `search_knowledge` | `category`, `limit`, `query`, `topic` |
 | `report_outcome` | `outcomes` |
 | `reload_skills` | — |
 
@@ -143,8 +143,8 @@
 | `list_comfyui_template` | `locale` |
 | `list_comfyui_workflow` | — |
 | `get_comfyui_workflow` | `include_graph`, `include_parameters`, `source_node_id`, `workflow_id` |
-| `run_comfyui_workflow` | `cfg`, `count`, `denoise`, `expected_source_sha256`, `input_bindings`, `input_values`, `negative_prompt`, `node_id`, `overrides`, `parameter`, `positive_prompt`, `repair_operations`, `review_mode`, `sampler_name`, `sampler_node_id`, `scheduler`, `seed`, `source_node_id`, `steps`, `type`, `value`, `workflow_id`, `workspace_path` |
-| `edit_comfyui_workflow` | `expected_source_sha256`, `input_bindings`, `node_id`, `operations`, `parameter`, `source_node_id`, `workflow_id`, `workspace_path` |
+| `run_comfyui_workflow` | `count`, `expected_source_sha256`, `input_bindings`, `input_values`, `overrides`, `repair_operations`, `review_mode`, `source_node_id`, `workflow_id` |
+| `edit_comfyui_workflow` | `expected_source_sha256`, `input_bindings`, `operations`, `source_node_id`, `workflow_id` |
 | `save_comfyui_workflow` | `expected_source_sha256`, `mode`, `name`, `overwrite_existing`, `source_node_id` |
 | `save_comfyui_run_as_workflow` | `mode`, `name`, `output_node_id`, `overwrite_existing`, `run_id` |
 | `get_comfyui_run_status` | `batch_id`, `max_wait_seconds` |
@@ -166,7 +166,7 @@
 
 | 工具 | 入参 |
 |---|---|
-| `list_capabilities` | — |
+| `list_capabilities` | `modality` |
 | `get_model_concurrency` | `models` |
 | `run_dag` | `asset_keys`, `dag_id`, `inputs` |
 | `submit_dag` | `asset_keys`, `concurrency`, `dag_id`, `inputs` |
