@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "crates/maas-media",
   "crates/gateway",
+  "apps/desktop",
 ]
 
 [workspace.package]

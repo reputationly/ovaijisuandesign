@@ -1,0 +1,23 @@
+[package]
+name = "ovdesktop"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+publish = false
+
+# Tauri 的 CLI 约定是 `src-tauri/`，我们不用它 —— 这个 crate 就在 workspace
+# 里，和 gateway 一起编译。打包时用 `cargo tauri build --config …` 指过来。
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+gateway = { path = "../../crates/gateway" }
+
+anyhow.workspace = true
+axum.workspace = true
+serde_json.workspace = true
+reqwest.workspace = true
+tauri = { version = "2", features = ["macos-private-api"] }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

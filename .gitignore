@@ -18,3 +18,6 @@ reference/
 # python 字节码
 __pycache__/
 *.pyc
+
+# mcp 的打包产物（由 release.py / tauri 打包时生成）
+mcp/dist/
