@@ -32,6 +32,8 @@ pub const VERSION: &str = match option_env!("OVAIJISUAN_VERSION") {
 
 pub mod api_canvas;
 pub mod api_files;
+pub mod api_group;
+pub mod api_text;
 pub mod assets;
 pub mod canvas;
 pub mod canvases;
@@ -126,6 +128,20 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/canvas/nodes/detail", post(api_canvas::node_detail))
         .route("/api/canvas/media-node", post(api_canvas::media_node))
         .route("/api/canvas/text-node", post(api_canvas::text_node))
+        // -- 文本节点的读 / 搜 / 按片段改 --
+        .route("/api/canvas/read-text", post(api_text::read_text))
+        .route("/api/canvas/grep-text", post(api_text::grep_text))
+        .route(
+            "/api/canvas/apply-text-edits",
+            post(api_text::apply_text_edits),
+        )
+        // -- 分组 --
+        .route("/api/canvas/group", post(api_group::group_nodes))
+        .route(
+            "/api/canvas/group-recent",
+            post(api_group::group_recent_outputs),
+        )
+        .route("/api/canvas/ungroup", post(api_group::ungroup_node))
         // -- 事件推送 --
         .route("/ws", get(events::ws_handler))
         // -- 生成 --

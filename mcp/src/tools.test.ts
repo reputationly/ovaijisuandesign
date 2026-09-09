@@ -57,7 +57,7 @@ describe("和官方工具面对齐", () => {
     }
   })
 
-  it("已实现的工具就是这 14 个", () => {
+  it("已实现的工具就是这 20 个", () => {
     // 钉住清单本身。加工具是好事，但**必须同时更新这里** ——
     // 否则漏注册一个（比如 TOOLS 数组忘了加）不会有任何提示。
     const names = TOOLS.map((t) => t.name).sort()
@@ -77,6 +77,12 @@ describe("和官方工具面对齐", () => {
         "plan_replan",
         "plan_update_stage_state",
         "plan_write",
+        "canvas_read_text",
+        "canvas_grep_text",
+        "canvas_apply_text_edits",
+        "canvas_group_nodes",
+        "canvas_group_recent_outputs",
+        "canvas_ungroup_node",
       ].sort(),
     )
   })

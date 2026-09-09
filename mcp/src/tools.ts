@@ -5,7 +5,7 @@
  * agent 侧看到的才是 `hub_canvas_write_media_node` 这种 —— 官方的 agent
  * 配置就是照那些名字写的。
  *
- * 当前实现 14 个：画布 3 + 生成 4 + 计划 7。**没实现的工具不注册空壳** ——
+ * 当前实现 20 个：画布 3 + 生成 4 + 计划 7 + 文本 3 + 分组 3。**没实现的工具不注册空壳** ——
  * 注册了但返回"未实现"的话，agent 会把它当成一次失败的调用去重试；
  * 不注册，agent 至少能看到工具不存在而换条路。
  */
@@ -460,6 +460,94 @@ const planGetWorkItems: ToolDef = {
     ),
 }
 
+
+// ---------------------------------------------------------------------------
+// 文本节点：读 / 搜 / 按片段改
+//
+// `canvas_write_node` 是整份覆盖；这三个是给"改一篇长文里的一句话"用的。
+// 整份覆盖意味着 agent 要把全文重新吐一遍 —— 慢，而且 LLM 复述长文本
+// 不是无损的，改一个错别字常常连带动了别处。
+// ---------------------------------------------------------------------------
+
+const canvasReadText: ToolDef = {
+  name: "canvas_read_text",
+  description:
+    "Read a text node's content. Use offsetLine/limitLines for long documents. " +
+    "Returns expectedContentHash — pass it back when editing.",
+  inputSchema: {
+    nodeId: z.string(),
+    offsetLine: z.number().optional().describe("0-based first line"),
+    limitLines: z.number().optional(),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/canvas/read-text", {
+        nodeId: a.nodeId,
+        offsetLine: a.offsetLine,
+        limitLines: a.limitLines,
+      }),
+    ),
+}
+
+const canvasGrepText: ToolDef = {
+  name: "canvas_grep_text",
+  description:
+    "Search text nodes. Omit nodeId to search all of them. " +
+    "Check `truncated` in the result before concluding you have every match.",
+  inputSchema: {
+    query: z.string(),
+    nodeId: z.string().optional(),
+    regex: z.boolean().optional(),
+    maxMatches: z.number().optional(),
+    contextBefore: z.number().optional(),
+    contextAfter: z.number().optional(),
+  },
+  handler: async (a) => reply(await gw.post("/api/canvas/grep-text", a)),
+}
+
+const canvasApplyTextEdits: ToolDef = {
+  name: "canvas_apply_text_edits",
+  description:
+    "Replace exact snippets in a text node. Each oldText must appear exactly once — " +
+    "include surrounding context to disambiguate. All edits apply or none do.",
+  inputSchema: {
+    nodeId: z.string(),
+    edits: z
+      .array(z.object({ oldText: z.string(), newText: z.string() }))
+      .describe("Each oldText must be unique in the document"),
+    expectedContentHash: z.string().optional().describe("From canvas_read_text"),
+    editSessionId: z.string().optional(),
+    requestId: z.string().optional(),
+  },
+  handler: async (a) => reply(await gw.post("/api/canvas/apply-text-edits", a)),
+}
+
+// ---------------------------------------------------------------------------
+// 分组
+// ---------------------------------------------------------------------------
+
+const canvasGroupNodes: ToolDef = {
+  name: "canvas_group_nodes",
+  description: "Wrap nodes in a labelled group. At least two nodes, none already grouped.",
+  inputSchema: { nodeIds: z.array(z.string()), label: z.string().optional() },
+  handler: async (a) => reply(await gw.post("/api/canvas/group", a)),
+}
+
+const canvasGroupRecentOutputs: ToolDef = {
+  name: "canvas_group_recent_outputs",
+  description:
+    "Group the most recent run of generated nodes. Use it right after producing a batch.",
+  inputSchema: { label: z.string().optional() },
+  handler: async (a) => reply(await gw.post("/api/canvas/group-recent", a ?? {})),
+}
+
+const canvasUngroupNode: ToolDef = {
+  name: "canvas_ungroup_node",
+  description: "Dissolve a group; its members stay on the canvas where they visually are.",
+  inputSchema: { groupId: z.string() },
+  handler: async (a) => reply(await gw.post("/api/canvas/ungroup", a)),
+}
+
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
@@ -475,4 +563,10 @@ export const TOOLS: ToolDef[] = [
   planGetStageStatus,
   planGetStageDetail,
   planGetWorkItems,
+  canvasReadText,
+  canvasGrepText,
+  canvasApplyTextEdits,
+  canvasGroupNodes,
+  canvasGroupRecentOutputs,
+  canvasUngroupNode,
 ]

@@ -53,6 +53,14 @@ pub struct Node {
     /// `None`，于是所有按资产查节点的逻辑静默失效。
     #[serde(rename = "assetId", default, skip_serializing_if = "Option::is_none")]
     pub asset_id: Option<String>,
+    /// 所属分组。**分组就是一个 `type: "group"` 的普通节点**，成员靠子节点
+    /// 的 `parentId` 指回它 —— 官方就是这么做的（React Flow 的父子机制），
+    /// 不是在文件里另存一个成员列表。
+    ///
+    /// 这样选中/拖动分组时，成员会跟着走，是库自带的行为；另存列表的话
+    /// 两处会不同步，表现是"拖走了组但图还留在原地"。
+    #[serde(rename = "parentId", default, skip_serializing_if = "Option::is_none")]
+    pub parent_id: Option<String>,
     /// 我们不解释的字段。原样带进带出。
     #[serde(flatten)]
     pub extra: Map<String, Value>,
@@ -346,6 +354,7 @@ mod tests {
                 positions: BTreeMap::new(),
                 size: None,
                 asset_id: None,
+                parent_id: None,
                 extra: Map::new(),
             });
         }
@@ -362,6 +371,7 @@ mod tests {
             positions: BTreeMap::new(),
             size: None,
             asset_id: None,
+            parent_id: None,
             extra: Map::new(),
         });
         f.edges.push(Edge {
@@ -410,6 +420,7 @@ mod tests {
                 positions: BTreeMap::new(),
                 size: None,
                 asset_id: None,
+                parent_id: None,
                 extra: Map::new(),
             });
         }
@@ -440,6 +451,7 @@ mod tests {
                 positions: BTreeMap::new(),
                 size: None,
                 asset_id: None,
+                parent_id: None,
                 extra: Map::new(),
             });
         }
@@ -460,6 +472,7 @@ mod tests {
             positions: BTreeMap::new(),
             size: None,
             asset_id: None,
+            parent_id: None,
             extra: Map::new(),
         });
         write(&p, &one).unwrap();

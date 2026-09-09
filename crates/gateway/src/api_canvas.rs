@@ -151,7 +151,10 @@ fn read_text(state: &AppState, n: &Node) -> Option<(String, String)> {
     Some((content, hash))
 }
 
-fn sha256(s: &str) -> String {
+/// 文本内容的哈希。**两处必须用同一份实现** —— `canvas_write_node` 和
+/// `canvas_apply_text_edits` 走的是同一套并发保护，算法不一致的话
+/// 前者拿到的 hash 在后者那里永远对不上。
+pub(crate) fn sha256(s: &str) -> String {
     let mut h = Sha256::new();
     h.update(s.as_bytes());
     format!("{:x}", h.finalize())
@@ -213,6 +216,7 @@ pub async fn media_node(
         positions,
         size: default_size(&asset.kind, asset.width.zip(asset.height)),
         asset_id: Some(asset.id.clone()),
+        parent_id: None,
         extra,
     });
     link_sources(&mut file, &node_id, &body.source_node_ids);
@@ -388,6 +392,7 @@ pub async fn text_node(
                 positions,
                 size: default_size("text", None),
                 asset_id: Some(asset.id.clone()),
+                parent_id: None,
                 extra,
             });
             link_sources(&mut file, &id, &body.source_node_ids);
