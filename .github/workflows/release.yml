@@ -392,6 +392,7 @@ jobs:
           import hashlib, json, os, pathlib
 
           ver, tag, repo = os.environ["VERSION"], os.environ["TAG"], os.environ["REPO"]
+          NS = "ovaijisuandesign"  # 桶里的命名空间，和 release.py 的 PRODUCT 一致
           dl = f"https://github.com/{repo}/releases/download"
           ptr = pathlib.Path("ptr")
           targets = {}
@@ -418,7 +419,11 @@ jobs:
               for name in ("r2", "obs"):
                   cdn = os.environ.get(f"{name.upper()}_BASE", "").rstrip("/")
                   if cdn:
-                      urls[name] = f"{cdn}/{target}/latest.json"
+                      # **别漏 NS。** 桶里所有 key 都在命名空间下，漏了这一段
+                      # 拼出来的是 404 —— 而且不会有人发现：github 排在前面
+                      # 且能用，客户端读到第一个就返回了。只有 GitHub 挂掉、
+                      # 真的要靠备份源的那一刻才暴露，那时最没空查。
+                      urls[name] = f"{cdn}/{NS}/{target}/latest.json"
               targets[target] = {"status": "published", "latestUrls": urls}
 
           assert targets, "一个 target 都没有，不要拿空清单去覆盖旧的"
