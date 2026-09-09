@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>canvas-web — DesignPlusPlus</title>
+    <!-- 放 public/ 而不是 src/ 里 import：Vite 会给 src/ 下的资源加内容哈希，
+         而 ovgw 是照着 dist/ 原样服务的，favicon 换个名字没影响，但浏览器
+         对 /favicon.ico 的兜底请求会 404 —— 顺手多一条无意义的日志。 -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <title>ovaijisuandesign</title>
   </head>
   <body>
     <div id="root"></div>

@@ -141,7 +141,8 @@ export default function App() {
     <CanvasActionsContext value={actions}>
       <div className="flex h-full flex-col">
         <header className="flex items-center gap-2.5 border-b border-line bg-panel px-3 py-2">
-          <strong>canvas-web</strong>
+          <img src="/logo.png" alt="" width={18} height={18} className="shrink-0" />
+          <strong>ovaijisuandesign</strong>
           <span className="text-dim">{dir || "连接中…"}</span>
           <span className="flex-1" />
           <div className="flex gap-1">
