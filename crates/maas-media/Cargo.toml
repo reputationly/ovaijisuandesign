@@ -2,6 +2,7 @@
 name = "maas-media"
 version.workspace = true
 edition.workspace = true
+repository.workspace = true
 publish.workspace = true
 description = "把图片 / 视频 / 语音 / 音乐生成落到 OpenAI 兼容的自建 MaaS 平台"
 

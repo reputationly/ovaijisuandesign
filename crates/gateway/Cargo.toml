@@ -2,6 +2,7 @@
 name = "gateway"
 version.workspace = true
 edition.workspace = true
+repository.workspace = true
 publish.workspace = true
 description = "本地 gateway。当前只实现生成那几条路由，按官方接口面对齐"
 

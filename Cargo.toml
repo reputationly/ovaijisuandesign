@@ -8,8 +8,9 @@ members = [
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-# 个人学习研究用，不发布、不授权。`publish = false` 是为了让 `cargo publish`
-# 直接失败，而不是等到上传前才发现没写 license。
+repository = "https://github.com/reputationly/ovaijisuandesign"
+# 个人学习研究用。仓库公开可读，但没有 license —— 默认版权保留，别人不能直接拿去用。
+# `publish = false` 是为了让 `cargo publish` 直接失败，而不是等到上传前才发现没写 license。
 publish = false
 
 [workspace.dependencies]
