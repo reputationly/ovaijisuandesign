@@ -69,24 +69,21 @@ react-day-picker           日期
 
 ## 他们踩过的性能坑（这部分最值钱）
 
-CSS 注释里写得很清楚，照抄结论能省我们一轮返工。
+CSS 注释里把原因写清楚了，照着结论走能省一轮返工。下面是转述。
 
 ### 边不是用 xyflow 画的
 
-他们自己实现了 `<EdgesCanvas>`，用 `<canvas>` 画可见的贝塞尔曲线，
-xyflow 的 SVG 层**只留每条边一个透明的命中区 `<path>`**。原注释：
+他们自己实现了一个 canvas 图层画可见的贝塞尔曲线，xyflow 的 SVG 层
+**只留每条边一个透明的命中区 `<path>`**。
 
-> `@xyflow/react` ships `.react-flow__edges { will-change: transform }` so its
-> SVG edge layer pans as a stable compositor layer. But once `<EdgesCanvas>`
-> took over the visible bezier strokes, this SVG layer carries only the
-> transparent hit-area `<path>` per edge… Meanwhile the hint forces the
-> compositor to rasterize the whole layer, whose bounds span the union of every
-> edge's bbox (**the entire graph, not the visible window**). On a dense canvas
-> (**measured: 760 edges**) that texture's footprint **scales with zoom²** and
-> balloons VRAM when zoomed.
+原因是 xyflow 默认给 `.react-flow__edges` 挂了 `will-change: transform`，
+让 SVG 边层作为一个稳定的合成层跟着平移。代价是合成器要按**整张图的
+bbox**（不是可视窗口）光栅化这一层，纹理开销随 zoom² 增长 ——
+他们注释里记的实测数字是 **760 条边时会撑爆 VRAM**。
 
-所以他们把 `.react-flow__edges` 和 `.react-flow__edge-interaction` 的
-`will-change` 改回 `auto`。
+边一旦改由 canvas 画，SVG 层就只剩透明的命中几何，没有任何东西需要 GPU
+纹理了，所以他们把 `.react-flow__edges` 和 `.react-flow__edge-interaction`
+的 `will-change` 改回 `auto`。
 
 **对我们的含义**：`apps/canvas-web` 现在直接用 xyflow 的默认 SVG 边。节点上到
 几百个之前不会有问题，但**这是一个已知会撞墙的地方**，撞了就照这个方案改：

@@ -35,11 +35,12 @@
 
 **这套更值得抄。** 应用里只有一个清单 `bundled-plugins/comfyui/hub/backend-bundle.json`：
 
+清单里带一段说明，大意是：客户端先识别自己的设备目标，再读该目标对应 CDN 的
+`latest.json`；而 `latest` **只在不可变 bundle 在两个 CDN 上都校验通过之后**
+才会更新；URL 不要手改，用发布脚本。结构长这样：
+
 ```jsonc
 {
-  "comment": "托管后端 bootstrap 清单。客户端先识别设备目标，再读取该目标 CDN
-              的 latest.json；latest 只在不可变 bundle 双 CDN 校验完成后更新。
-              不要手工修改 URL，使用 scripts/release-comfyui-backend.py 发布。",
   "schemaVersion": 2,
   "version": "0.1.10",
   "targets": {
