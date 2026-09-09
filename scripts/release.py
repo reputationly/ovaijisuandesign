@@ -394,6 +394,52 @@ def pointers(ver: str, source: str, targets: list[tuple[str, Path, str]]) -> Pat
     return out
 
 
+def preflight(source: str) -> None:
+    """确认这个源的 `*_PUBLIC_BASE` 服务的**确实是我们要传的那个桶**。
+
+    传一个小探针对象，再从公开域名读回来比一下。**必须在翻指针之前做。**
+
+    起因是一次真配错：`R2_PUBLIC_BASE` 指向的自定义域绑在**另一个项目的桶**
+    上。上传全部成功（走的是 S3 API，跟域名无关），指针也照翻，然后才在公网
+    回读那步 404 —— 而那时线上的 manifest 已经指向一批公网取不到的包了。
+    探针放在最前面，这种配错在动任何东西之前就会被拦下。
+    """
+    import urllib.error
+    import urllib.request
+
+    base = os.environ[SOURCES[source]["base"]].rstrip("/")
+    token = f"{PRODUCT}-{time.time_ns()}"
+    probe = DIST / ".preflight"
+    probe.parent.mkdir(parents=True, exist_ok=True)
+    probe.write_text(token, encoding="utf8")
+    s3_upload(source, probe, ".preflight")
+    probe.unlink(missing_ok=True)
+
+    url = f"{base}/{PREFIX}.preflight"
+    last = ""
+    for attempt in range(5):
+        try:
+            got = urllib.request.urlopen(url, timeout=20).read().decode("utf8").strip()
+            if got == token:
+                print(f"  ✓ {source} 的公开域名确认指向 {os.environ[SOURCES[source]['bucket']]}")
+                return
+            last = f"读到的内容不是刚写的（可能是别的桶，或者被缓存了）：{got[:60]!r}"
+        except urllib.error.HTTPError as e:
+            last = f"HTTP {e.code}"
+        except Exception as e:  # noqa: BLE001 —— 网络层什么都可能抛
+            last = str(e)
+        time.sleep(2 * (attempt + 1))
+
+    raise SystemExit(
+        f"{source} 的公开域名对不上桶。\n"
+        f"  探针 {url}\n"
+        f"  结果 {last}\n"
+        f"  {SOURCES[source]['base']} 当前是 {base}，"
+        f"而 {SOURCES[source]['bucket']} 是 {os.environ[SOURCES[source]['bucket']]}。\n"
+        f"  最常见的原因：这个域名绑在**另一个桶**上。"
+    )
+
+
 def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
     """先把不可变的包发到所有源、都校验通过，最后才翻 latest 指针。
 
@@ -405,6 +451,11 @@ def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
     """
     sources = configured()
     print(f"发布源：{', '.join(sources)}\n")
+
+    # 先确认每个源的公开域名和桶是对上的，再动任何东西。
+    for source in sources:
+        preflight(source)
+    print()
 
     for target, bundle, digest in targets:
         key = f"{ver}/{target}/{digest}.tar.gz"
