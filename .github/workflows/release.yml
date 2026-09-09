@@ -364,10 +364,28 @@ jobs:
             tar -xzf ovaijisuandesign-*.tar.gz && ./ovgw
             ```
 
+            ### ⚠️ macOS：从浏览器下载的话要先去隔离属性
+
+            这些包**没有签名和公证**。浏览器会给下载的文件打上
+            `com.apple.quarantine`，而 `tar` 会把它传给解出来的二进制 ——
+            于是运行时被 Gatekeeper 直接 SIGKILL，**退出码 137、没有任何输出**，
+            看着像程序自己崩了。
+
+            ```bash
+            xattr -dr com.apple.quarantine ovgw ovagent
+            ```
+
+            用 `curl -L` 下载则不受影响（curl 不打这个属性）。
+            装好之后的自动升级也不受影响 —— 那些文件是程序自己写的。
+
+            ---
+
             首次启动会写一份配置模板，填好 `platform.api_key` 再启动。
             **没有登录流程，key 就是唯一凭据。**
 
             跑 agent 还需要 [opencode](https://opencode.ai) 在 `PATH` 里。
+
+            界面顶栏会显示有没有新版，点一下就能下载安装（装完需重启）。
 
       # ---------- 把 GitHub Release 本身当成一个分发源 ----------
       # R2/OBS 的桶还没开，但公开仓的 Release 资产本来就是公网可下的不可变对象

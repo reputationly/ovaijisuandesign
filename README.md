@@ -195,6 +195,11 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    3.9 MB 解压即用），**下载和安装也已完成** —— 界面上点一下就下、校验、
    换入，重启生效。见 [`docs/distribution.md`](docs/distribution.md)
 
+> **macOS 上从浏览器下载要先 `xattr -dr com.apple.quarantine ovgw ovagent`。**
+> 包没签名，浏览器打的隔离属性会被 `tar` 传给二进制，运行时被 Gatekeeper
+> 直接 SIGKILL —— 退出码 137、没有任何输出，看着像程序自己崩了。
+> `curl -L` 下载不受影响，自动升级也不受影响（那些文件是程序自己写的）。
+
 ### 第 6 步实测
 
 空工作区、`upstream = null`（完全不连官方），从生成开始：
