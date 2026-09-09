@@ -11,8 +11,37 @@ use gateway::config::Config;
 use gateway::tasks::TaskStore;
 use gateway::{AppState, router};
 
+const HELP: &str = "\
+ovgw —— gateway 服务
+
+    ovgw              读配置并启动（配置不存在时先写一份模板）
+    ovgw --version    打印版本
+    ovgw --help       本帮助
+
+环境变量：
+    OVGW_CONFIG       配置文件路径，默认走系统配置目录
+    RUST_LOG          日志级别，默认 info
+";
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    // 只认这两个标志，不引 clap。`--version` 是必须有的：升级流程第一步就是
+    // 问"现在装的是哪版"，而这个二进制原本会把任何参数都忽略掉直接开始监听 ——
+    // 用户敲 `ovgw --version` 会看到它闷头起了个服务。
+    if let Some(a) = std::env::args().nth(1) {
+        match a.as_str() {
+            "--version" | "-V" => {
+                println!("ovgw {}", env!("CARGO_PKG_VERSION"));
+                return Ok(());
+            }
+            "--help" | "-h" => {
+                print!("{HELP}");
+                return Ok(());
+            }
+            _ => anyhow::bail!("未知参数 {a}\n\n{HELP}"),
+        }
+    }
+
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),

@@ -24,6 +24,23 @@ use gateway::config::Config;
 use serde_json::{Value, json};
 
 fn main() -> Result<()> {
+    // 和 ovgw 保持一致。放在解析工作区之前 —— 否则 `--version` 会被当成
+    // 工作区路径，opencode 在一个叫 "--version" 的目录里起来。
+    if let Some(a) = std::env::args().nth(1) {
+        match a.as_str() {
+            "--version" | "-V" => {
+                println!("ovagent {}", env!("CARGO_PKG_VERSION"));
+                return Ok(());
+            }
+            // opencode 自己的 --help 走 `ovagent -- --help`。
+            "--help" | "-h" => {
+                println!("ovagent [工作区] [-- opencode 的参数…]");
+                return Ok(());
+            }
+            _ => {}
+        }
+    }
+
     let mut args = std::env::args().skip(1);
     let mut workspace: Option<PathBuf> = None;
     let mut passthrough: Vec<String> = Vec::new();
