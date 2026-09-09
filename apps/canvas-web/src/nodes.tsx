@@ -35,47 +35,76 @@ const TAG_COLOR: Record<string, string> = {
   text: "yellow",
 }
 
+/**
+ * 节点外壳。**结构照官方的 NodeShell / NodeBody 两层**：
+ *
+ * - 外层 `canvas-node-shell`：只管定位和状态类（生成中 / 新节点），
+ *   `overflow-visible`，因为选中的 outline 和工具栏要溢出去。
+ * - 内层：`overflow-hidden` + 圆角 16px，**媒体变体没有边框也没有背景** ——
+ *   就是媒体本身。有边框的是 `panel` 变体（文本那种），padding 12px 16px。
+ *
+ * 选中态是 outline 而不是 border，宽度 `max(1.5px, calc(1.5px / zoom))`：
+ * **反向抵消缩放**，这样缩小画布时描边仍是屏幕上的 1.5 物理像素，
+ * 不会细到看不见。这个表达式要靠 `--canvas-zoom` 喂，见 App.tsx。
+ */
 function Frame({
   data,
   selected,
   kind,
   children,
-}: Props & { kind: string; children: ReactNode }) {
+  variant = "media",
+}: Props & { kind: string; children: ReactNode; variant?: "media" | "panel" }) {
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
-  // 类名跟官方对齐（canvas-node-shell / data-selected），状态样式全在
-  // styles.css 里，参数是从他们的样式表量的。这里不写颜色。
+  const tag = TAG_COLOR[kind] ?? "blue"
+  const isPanel = variant === "panel"
   return (
     <div
-      className="canvas-node-shell relative flex h-full w-full flex-col overflow-hidden border border-[var(--canvas-node-border)]"
+      className="canvas-node-shell group relative h-full w-full overflow-visible"
       data-selected={selected ? "true" : "false"}
+      data-kind={kind}
     >
       <Handle type="target" position={Position.Left} />
-      {/* 内层圆角比外层小 2px（16 → 14），和官方一致 —— 同心圆角看起来才不
-          会像"厚边框贴了一张方图"。 */}
       <div
-        className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--canvas-bg)]"
-        style={{ borderRadius: "var(--canvas-media-node-inner-radius)" }}
+        className="relative h-full w-full overflow-hidden"
+        style={{
+          borderRadius: "var(--canvas-media-node-radius)",
+          background: isPanel ? "var(--canvas-node-bg)" : undefined,
+          border: isPanel ? "1px solid var(--canvas-node-border)" : "none",
+          outlineStyle: "solid",
+          outlineWidth: selected ? "max(1.5px, calc(1.5px / var(--canvas-zoom, 1)))" : 0,
+          outlineColor: selected ? "var(--canvas-node-border-selected)" : "transparent",
+          outlineOffset: 0,
+          transition: "outline-color 0.2s, border-color 0.15s",
+          ...(isPanel ? { padding: "12px 16px" } : {}),
+        }}
       >
         {children}
       </div>
+
+      {/* 名字条：**浮在节点下方外侧**，不占节点内部空间。
+          官方的媒体节点是"整块就是媒体"，名字不在卡片里 —— 塞进去会让
+          每个节点都矮一截，一屏能看到的图变少，那是最直观的差异之一。
+          只在 hover 或选中时出现，平时画布上是干净的。 */}
       <div
-        className="flex items-center gap-1.5 overflow-hidden border-t border-[var(--canvas-node-border)] px-2 py-1 text-[11px] whitespace-nowrap text-[var(--canvas-controls-text-muted)]"
+        className="pointer-events-none absolute top-full left-0 mt-1.5 flex w-full items-center gap-1.5 overflow-hidden text-[11px] whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+        style={{ opacity: selected ? 1 : undefined }}
         title={name}
       >
         <span
-          className="rounded-sm px-1.5 text-[10px]"
+          className="shrink-0 rounded-sm px-1.5 text-[10px]"
           style={{
-            // 标签用官方那套 node-tag 配色：底色是 surface 混出来的，
-            // 前景色单独给，保证在明暗两套下都够对比度。
-            background: `color-mix(in srgb, var(--canvas-node-tag-${TAG_COLOR[kind] ?? "blue"}-surface) var(--canvas-node-tag-surface-strength), var(--canvas-node-tag-surface-base))`,
-            color: `var(--canvas-node-tag-${TAG_COLOR[kind] ?? "blue"}-foreground)`,
+            // 官方那套 node-tag 配色：底色由 surface 按 strength 混出来，
+            // 前景色单独给 —— 明暗两套下都保证对比度。
+            background: `color-mix(in srgb, var(--canvas-node-tag-${tag}-surface) var(--canvas-node-tag-surface-strength), var(--canvas-node-tag-surface-base))`,
+            color: `var(--canvas-node-tag-${tag}-foreground)`,
           }}
         >
           {kind}
         </span>
-        <span className="truncate">{name}</span>
+        <span className="truncate text-[var(--canvas-controls-text-muted)]">{name}</span>
       </div>
+
       <Handle type="source" position={Position.Right} />
     </div>
   )
@@ -170,11 +199,14 @@ export function TextNode(props: Props) {
     }
   }
 
+  // 文本走 panel 变体：有背景、有边框、内边距 —— 官方就是这么分的，
+  // 媒体是"整块媒体"，文本是"一张纸"。
   return (
-    <Frame {...props} kind="text">
-      <div className="relative h-full w-full" onDoubleClick={start}>
+    <Frame {...props} kind="text" variant="panel">
+      <div className="relative -m-3 h-[calc(100%+24px)] w-[calc(100%+32px)]" onDoubleClick={start}>
         {error && (
-          <div className="absolute inset-x-0 top-0 z-10 flex items-start gap-1.5 bg-[#3a1f22] px-2 py-1 text-[10px] leading-4 text-[#ffd7d7]">
+          <div className="absolute inset-x-0 top-0 z-10 flex items-start gap-1.5 px-2 py-1 text-[10px] leading-4"
+            style={{ background: "color-mix(in srgb, var(--canvas-node-tag-red) 22%, var(--canvas-node-bg))", color: "var(--canvas-node-tag-red)" }}>
             <AlertTriangle size={12} className="mt-0.5 shrink-0" />
             {error}
           </div>
@@ -184,7 +216,7 @@ export function TextNode(props: Props) {
         ) : text === undefined ? (
           <Placeholder text="读取中…" />
         ) : (
-          <pre className="m-0 h-full w-full overflow-auto p-2.5 font-mono text-[11px] leading-6 break-words whitespace-pre-wrap text-[#cfd3dd]">
+          <pre className="m-0 h-full w-full overflow-auto px-4 py-3 font-mono text-[11px] leading-6 break-words whitespace-pre-wrap text-[var(--canvas-controls-text)]">
             {text}
           </pre>
         )}

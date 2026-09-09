@@ -200,6 +200,13 @@ export default function App() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onNodeDragStop={() => void onNodeDragStop()}
+            // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
+            // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
+            // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
+            // 不喂这个变量描边会跟着缩到看不见。
+            onMove={(_, vp) => {
+              document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
+            }}
             fitView
             minZoom={0.05}
             // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，

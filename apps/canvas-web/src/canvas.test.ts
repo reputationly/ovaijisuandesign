@@ -112,10 +112,40 @@ describe("sizeOf", () => {
     expect(sizeOf(n, "grid")).toEqual({ width: 350, height: 150 })
   })
 
-  it("都没有就按类型给个兜底", () => {
+  it("都没有就按类型给个兜底（值取自官方的 IMAGE_CARD_DEFAULT_SIZE）", () => {
     expect(sizeOf({ id: "x", type: "image", positions: {} }, "workflow")).toEqual({
       width: 350,
-      height: 195,
+      height: 350,
+    })
+  })
+
+  it("有素材像素尺寸时按长宽比等比缩，不套固定卡片", () => {
+    // 这一条是观感的关键：套固定 350x350 的话，9:16 的竖图会变成方框里
+    // 的一条，周围一圈空白 —— 和官方画布差别最明显的就是这里。
+    const n = { id: "x", type: "image", positions: {} }
+    expect(sizeOf(n, "workflow", { id: "x", type: "image", width: 1080, height: 1920 })).toEqual({
+      width: 197,
+      height: 350,
+    })
+    expect(sizeOf(n, "workflow", { id: "x", type: "image", width: 1920, height: 1080 })).toEqual({
+      width: 350,
+      height: 197,
+    })
+  })
+
+  it("短边不低于 100 —— 极端长宽比不能压成一条线", () => {
+    const n = { id: "x", type: "image", positions: {} }
+    expect(sizeOf(n, "workflow", { id: "x", type: "image", width: 4000, height: 200 })).toEqual({
+      width: 350,
+      height: 100,
+    })
+  })
+
+  it("显式尺寸优先于按素材算", () => {
+    const n = { id: "x", type: "image", positions: {}, size: { width: 42, height: 42 } }
+    expect(sizeOf(n, "workflow", { id: "x", type: "image", width: 1080, height: 1920 })).toEqual({
+      width: 42,
+      height: 42,
     })
   })
 })

@@ -10,17 +10,53 @@ export interface NodeData extends Record<string, unknown> {
   detail?: NodeDetail
 }
 
-/** 这一档没有显式尺寸时的兜底。数值取自官方画布里实际观察到的卡片大小。 */
-const DEFAULT_SIZE: Record<string, Size> = {
-  image: { width: 350, height: 195 },
-  video: { width: 350, height: 195 },
-  audio: { width: 350, height: 150 },
-  text: { width: 320, height: 180 },
-}
-const FALLBACK_SIZE: Size = { width: 300, height: 160 }
+/**
+ * 节点尺寸。**规则和常量都取自官方 3.0.12 的实现**，不是估的：
+ *
+ * ```
+ * NODE_SIZE_MAX = 350   NODE_SIZE_MIN = 100
+ * AUDIO_CARD_SIZE       350 x 150
+ * IMAGE_CARD_DEFAULT    350 x 350
+ * TEXT_CARD_DEFAULT     350 x 500   （min 200 x 100）
+ * sticker               56 x 56
+ * ```
+ *
+ * 有长宽比的话按 `computeNodeSize` 算：**等比缩到长边 350**，短边不低于 100。
+ * 这一条是画面观感的关键 —— 按固定高度裁的话，竖图会被压成一条，
+ * 而官方画布上竖图就是竖的。
+ */
+const NODE_SIZE_MAX = 350
+const NODE_SIZE_MIN = 100
 
-export function sizeOf(node: CanvasNode, mode: CanvasMode): Size {
-  return node.sizes?.[mode] ?? node.size ?? DEFAULT_SIZE[node.type] ?? FALLBACK_SIZE
+const DEFAULT_SIZE: Record<string, Size> = {
+  image: { width: 350, height: 350 },
+  video: { width: 350, height: 350 },
+  audio: { width: 350, height: 150 },
+  text: { width: 350, height: 500 },
+}
+const FALLBACK_SIZE: Size = { width: 350, height: 350 }
+
+/** 官方的 `computeNodeSize`：等比缩到长边 NODE_SIZE_MAX，短边保底 MIN。 */
+export function fitNodeSize(w: number, h: number): Size | undefined {
+  if (!w || !h || w <= 0 || h <= 0) return undefined
+  const scale = Math.min(NODE_SIZE_MAX / w, NODE_SIZE_MAX / h)
+  return {
+    width: Math.max(NODE_SIZE_MIN, Math.round(w * scale)),
+    height: Math.max(NODE_SIZE_MIN, Math.round(h * scale)),
+  }
+}
+
+export function sizeOf(node: CanvasNode, mode: CanvasMode, detail?: NodeDetail): Size {
+  const explicit = node.sizes?.[mode] ?? node.size
+  if (explicit) return explicit
+  // 没有显式尺寸就按素材的真实长宽比算，而不是套一个固定卡片 ——
+  // 套固定尺寸的话一张 9:16 的竖图会显示成 350x350 里的一条窄图，
+  // 周围一圈空白，和官方差别最明显的就是这里。
+  if (detail?.width && detail?.height) {
+    const fitted = fitNodeSize(detail.width, detail.height)
+    if (fitted) return fitted
+  }
+  return DEFAULT_SIZE[node.type] ?? FALLBACK_SIZE
 }
 
 /**
@@ -41,7 +77,8 @@ export function toFlow(
   details: Map<string, NodeDetail>,
 ): { nodes: FlowNode<NodeData>[]; edges: FlowEdge[] } {
   const nodes = file.nodes.map((n): FlowNode<NodeData> => {
-    const { width, height } = sizeOf(n, mode)
+    const detail = details.get(n.id)
+    const { width, height } = sizeOf(n, mode, detail)
     return {
       id: n.id,
       // 认不出的类型交给 `unknown` 组件显示原始信息，而不是让 React Flow

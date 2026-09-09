@@ -65,6 +65,9 @@ export interface NodeDetail {
   textContent?: string
   /** 内容哈希。写回时带上做乐观并发，见 [`writeTextNode`]。 */
   textContentHash?: string
+  /** 素材的像素尺寸。节点大小按它等比算，见 `canvas.ts` 的 `fitNodeSize`。 */
+  width?: number
+  height?: number
   metadata?: Record<string, unknown>
 }
 
