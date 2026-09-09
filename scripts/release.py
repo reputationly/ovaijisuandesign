@@ -450,7 +450,7 @@ def preflight(source: str) -> None:
         f"  探针 {url}\n"
         f"  结果 {last}\n"
         f"  {SOURCES[source]['base']} 当前是 {base}，"
-        f"而 {{SOURCES[source]['bucket']}} 是 {os.environ[SOURCES[source]['bucket']]}。\n"
+        f"而 {SOURCES[source]['bucket']} 是 {os.environ[SOURCES[source]['bucket']]}。\n"
         f"  404 → 这个域名多半绑在另一个桶上。\n"
         f"  403 → 对象是传上去了，被 CDN 拦了（Cloudflare 会挡 Python-urllib 这类 UA）。"
     )
