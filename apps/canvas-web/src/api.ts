@@ -291,3 +291,50 @@ export function connectEvents(onEvent: (event: string, data: unknown) => void): 
     ws?.close()
   }
 }
+
+// ==================== 升级 ====================
+
+export type UpdateCheck = {
+  current: string
+  latest?: string
+  needUpdate: boolean
+  /** `false` = 没查到（断网、清单没这一档），**不是**"已是最新"。 */
+  reachable: boolean
+  url?: string
+  sha256?: string
+  size?: number
+}
+
+/** 和 Rust 那边 `update::Phase` 的 `#[serde(tag = "state")]` 一一对应。 */
+export type UpdatePhase =
+  | { state: "idle" }
+  | { state: "downloading"; version: string; done: number; total: number }
+  | { state: "verifying"; version: string }
+  | { state: "staged"; version: string }
+  | { state: "applied"; version: string }
+  | { state: "failed"; at: string; error: string }
+
+export async function checkUpdate(): Promise<UpdateCheck> {
+  return json(await fetch("/api/update/check"), "GET /api/update/check")
+}
+
+export async function updateStatus(): Promise<{ current: string; phase: UpdatePhase }> {
+  return json(await fetch("/api/update/status"), "GET /api/update/status")
+}
+
+/**
+ * 开始下载。**参数原样来自 `check` 的结果**，不让后端自己再查一次清单 ——
+ * 两次查之间清单可能翻了版本，于是用户点的是 A、装上的是 B。
+ */
+export async function startDownload(c: UpdateCheck): Promise<void> {
+  const res = await fetch("/api/update/download", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ url: c.url, sha256: c.sha256, version: c.latest, size: c.size }),
+  })
+  if (!res.ok) throw new Error(`开始下载失败 HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`)
+}
+
+export async function applyUpdate(): Promise<{ version: string }> {
+  return json(await fetch("/api/update/apply", { method: "POST" }), "POST /api/update/apply")
+}

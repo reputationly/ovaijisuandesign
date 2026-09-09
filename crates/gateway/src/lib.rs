@@ -37,6 +37,7 @@ pub mod canvas;
 pub mod config;
 pub mod events;
 pub mod generate;
+pub mod install;
 pub mod land;
 pub mod proxy;
 pub mod tasks;
@@ -68,6 +69,8 @@ pub struct AppState {
     /// 症状是"官方明明在跑，反代却全挂"，很难往代理上想。
     pub local: reqwest::Client,
     pub tasks: Arc<TaskStore>,
+    /// 升级的状态机。见 [`update`]。
+    pub updater: Arc<crate::update::Updater>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -78,6 +81,9 @@ pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/health/live", get(health))
         .route("/api/update/check", get(update::check))
+        .route("/api/update/status", get(update::status))
+        .route("/api/update/download", post(update::download))
+        .route("/api/update/apply", post(update::apply))
         // -- 工作区 / 资产 / 文件 --
         .route("/api/workspace", get(api_files::workspace_dir))
         .route("/api/assets", get(api_files::list_assets))
@@ -152,12 +158,23 @@ mod tests {
     use axum::http::{Request, StatusCode};
     use tower::ServiceExt;
 
+    /// 给别的模块的测试用：拿着 TempDir 才能保证目录活到断言之后。
+    pub(crate) fn state_with_dir() -> (Arc<AppState>, tempfile::TempDir) {
+        let dir = tempfile::tempdir().unwrap();
+        let s = state_in(dir.path());
+        (s, dir)
+    }
+
     fn state() -> Arc<AppState> {
         let dir = Box::leak(Box::new(tempfile::tempdir().unwrap()));
+        state_in(dir.path())
+    }
+
+    fn state_in(path: &std::path::Path) -> Arc<AppState> {
         Arc::new(AppState {
-            ws: crate::workspace::Workspace::new(dir.path()),
+            ws: crate::workspace::Workspace::new(path),
             assets: Arc::new(crate::assets::Assets::load(
-                crate::workspace::Workspace::new(dir.path()),
+                crate::workspace::Workspace::new(path),
             )),
             events: Arc::new(crate::events::Events::new()),
             canvas_lock: Default::default(),
@@ -165,6 +182,7 @@ mod tests {
             client: reqwest::Client::new(),
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
+            updater: Arc::new(crate::update::Updater::new()),
             upstream: None,
             web_dir: None,
         })

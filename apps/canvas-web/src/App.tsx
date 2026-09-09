@@ -27,6 +27,7 @@ import {
 import { toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { Generate } from "./Generate"
 import { cn } from "./lib"
+import { Update } from "./Update"
 import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
 
 interface EventLine {
@@ -168,6 +169,7 @@ export default function App() {
             <RefreshCw size={12} />
             重新加载
           </button>
+          <Update />
           <span
             className={cn(
               "min-w-14 text-xs",

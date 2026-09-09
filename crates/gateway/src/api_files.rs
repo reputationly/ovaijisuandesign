@@ -252,6 +252,7 @@ mod tests {
             client: reqwest::Client::builder().no_proxy().build().unwrap(),
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: std::sync::Arc::new(crate::tasks::TaskStore::new()),
+            updater: std::sync::Arc::new(crate::update::Updater::new()),
             upstream: None,
             web_dir: None,
         });

@@ -108,6 +108,7 @@ mod tests {
             // 显式关代理：开发机的系统代理会把发往假上游的请求一并截走。
             local: reqwest::Client::builder().no_proxy().build().unwrap(),
             tasks: Arc::new(TaskStore::new()),
+            updater: Arc::new(crate::update::Updater::new()),
             upstream,
             web_dir: None,
         })

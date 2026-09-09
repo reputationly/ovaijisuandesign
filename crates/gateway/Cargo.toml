@@ -24,6 +24,8 @@ maas-media = { path = "../maas-media" }
 anyhow.workspace = true
 axum.workspace = true
 directories.workspace = true
+flate2.workspace = true
+tar.workspace = true
 image.workspace = true
 reqwest.workspace = true
 serde.workspace = true

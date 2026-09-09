@@ -78,6 +78,9 @@ async fn main() -> Result<()> {
         .build()
         .context("构建本地 HTTP 客户端失败")?;
 
+    // 上一次升级留下的旧文件在这时候删 —— 它们已经不在运行了。
+    gateway::update::cleanup_on_start();
+
     let ws_dir = cfg.workspace_dir()?;
     std::fs::create_dir_all(&ws_dir)
         .with_context(|| format!("创建工作区失败: {}", ws_dir.display()))?;
@@ -93,6 +96,7 @@ async fn main() -> Result<()> {
         client,
         local,
         tasks: Arc::new(TaskStore::new()),
+        updater: Arc::new(gateway::update::Updater::new()),
         upstream: cfg.upstream.clone(),
         web_dir: gateway::web::locate(cfg.web_dir.as_deref()),
     });
