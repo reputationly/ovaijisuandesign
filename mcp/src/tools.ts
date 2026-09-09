@@ -5,7 +5,7 @@
  * agent 侧看到的才是 `hub_canvas_write_media_node` 这种 —— 官方的 agent
  * 配置就是照那些名字写的。
  *
- * 当前实现 20 个：画布 3 + 生成 4 + 计划 7 + 文本 3 + 分组 3。**没实现的工具不注册空壳** ——
+ * 当前实现 24 个：画布 3 + 生成 4 + 计划 7 + 文本 3 + 分组 3 + 周边 4。**没实现的工具不注册空壳** ——
  * 注册了但返回"未实现"的话，agent 会把它当成一次失败的调用去重试；
  * 不注册，agent 至少能看到工具不存在而换条路。
  */
@@ -555,6 +555,83 @@ const canvasUngroupNode: ToolDef = {
   handler: async (a) => reply(await gw.post("/api/canvas/ungroup", a)),
 }
 
+
+// ---------------------------------------------------------------------------
+// agent 的周边
+// ---------------------------------------------------------------------------
+
+const listCapabilities: ToolDef = {
+  name: "list_capabilities",
+  description:
+    "What this machine can actually do. Call it before planning: model names from the " +
+    "official catalogue are accepted but routed to whatever is configured here, and some " +
+    "modalities may not be configured at all.",
+  inputSchema: {
+    modality: z.string().optional().describe("image | video | audio | speech; omit for all"),
+  },
+  handler: async (a) => reply(await gw.post("/api/capabilities", a ?? {})),
+}
+
+/**
+ * 一个工具带 `action` 分派，**不是拆成五个** —— 官方就是这么设计的，
+ * agent 提示词里写的是 `hub_memory` 加 action。拆开它一个都调不到。
+ */
+const memoryTool: ToolDef = {
+  name: "memory",
+  description:
+    "Durable notes across turns. action: write | read | list | search | delete. " +
+    "scope: project (default, follows the workspace) or global.",
+  inputSchema: {
+    action: z.enum(["write", "read", "list", "search", "delete"]),
+    name: z.string().optional(),
+    body: z.string().optional(),
+    description: z.string().optional(),
+    type: z.string().optional().describe("note | preference | asset ..."),
+    scope: z.enum(["project", "global"]).optional(),
+    query: z.string().optional().describe("For action=search"),
+    asset_uri: z.string().optional(),
+    asset_modality: z.string().optional(),
+    projectRoot: z.string().optional().describe("Accepted for compatibility; ignored"),
+  },
+  handler: async (a) =>
+    reply(
+      await gw.post("/api/memory", {
+        action: a.action,
+        name: a.name,
+        body: a.body,
+        description: a.description,
+        type: a.type,
+        scope: a.scope,
+        query: a.query,
+        assetUri: a.asset_uri,
+        assetModality: a.asset_modality,
+      }),
+    ),
+}
+
+const reportOutcome: ToolDef = {
+  name: "report_outcome",
+  description:
+    "Record what a Stage produced. Appends — call it as often as needed; the planner reads " +
+    "the whole trail when deciding whether to replan.",
+  inputSchema: {
+    outcomes: z.array(z.record(z.string(), z.unknown())).describe("One entry per result"),
+  },
+  handler: async (a) => reply(await gw.post("/api/report-outcome", { outcomes: a.outcomes })),
+}
+
+const readTool: ToolDef = {
+  name: "read",
+  description:
+    "Read a text file from the workspace. Binary files are refused — use canvas nodes for media.",
+  inputSchema: {
+    file_path: z.string().describe("Workspace-relative path"),
+    offset: z.number().optional().describe("0-based first line"),
+    limit: z.number().optional(),
+  },
+  handler: async (a) => reply(await gw.post("/api/read-file", a)),
+}
+
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
@@ -576,4 +653,8 @@ export const TOOLS: ToolDef[] = [
   canvasGroupNodes,
   canvasGroupRecentOutputs,
   canvasUngroupNode,
+  listCapabilities,
+  memoryTool,
+  reportOutcome,
+  readTool,
 ]

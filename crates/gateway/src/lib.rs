@@ -37,11 +37,13 @@ pub mod api_text;
 pub mod assets;
 pub mod canvas;
 pub mod canvases;
+pub mod capabilities;
 pub mod config;
 pub mod events;
 pub mod generate;
 pub mod install;
 pub mod land;
+pub mod memory;
 pub mod plan;
 pub mod proxy;
 pub mod question;
@@ -120,6 +122,11 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/plan/stage-status", post(plan::get_stage_status))
         .route("/api/plan/stage-detail", post(plan::get_stage_detail))
         .route("/api/plan/work-items", post(plan::get_work_items))
+        // -- agent 的周边：能力清单 / 记忆 / 结果回报 --
+        .route("/api/capabilities", post(capabilities::list))
+        .route("/api/memory", post(memory::memory))
+        .route("/api/report-outcome", post(memory::report_outcome))
+        .route("/api/read-file", post(api_text::read_file))
         .route(
             "/api/canvases/{id}",
             axum::routing::delete(canvases::remove),

@@ -298,3 +298,66 @@ pub async fn apply_text_edits(
         })),
     )
 }
+
+// ==================== read ====================
+
+#[derive(Debug, Deserialize)]
+pub struct ReadFileBody {
+    /// 工作区**相对**路径。
+    #[serde(rename = "file_path")]
+    pub file_path: String,
+    #[serde(default)]
+    pub offset: Option<usize>,
+    #[serde(default)]
+    pub limit: Option<usize>,
+}
+
+/// 读工作区里的一个文本文件。对应官方的 `read`。
+///
+/// 和 `/files/{path}` 的区别：那条是给浏览器取二进制用的（缩略图、视频流），
+/// 这条是给 agent 读文本用的 —— 带行号分页，且**明确拒绝二进制**。
+///
+/// 不拒二进制的话，agent 会拿到一坨乱码塞进自己的上下文，然后基于它做判断。
+pub async fn read_file(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<ReadFileBody>,
+) -> (StatusCode, Json<Value>) {
+    // `resolve` 已经挡住了逃出工作区的路径。
+    let Some(abs) = state.ws.resolve(&body.file_path) else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({ "ok": false, "error": "路径不存在或不在工作区内" })),
+        );
+    };
+    let Ok(bytes) = std::fs::read(&abs) else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({ "ok": false, "error": "读不到这个文件" })),
+        );
+    };
+    // 先按 UTF-8 解。解不出就是二进制 —— 如实说，不要回一串替换字符。
+    let Ok(content) = String::from_utf8(bytes) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({
+                "ok": false,
+                "error": "这是二进制文件，不能当文本读。图片/音视频请用画布节点或 /files/ 取。",
+            })),
+        );
+    };
+    let lines: Vec<&str> = content.lines().collect();
+    let total = lines.len();
+    let start = body.offset.unwrap_or(0).min(total);
+    let end = body.limit.map(|l| (start + l).min(total)).unwrap_or(total);
+    (
+        StatusCode::OK,
+        Json(json!({
+            "ok": true,
+            "file_path": body.file_path,
+            "content": lines[start..end].join("\n"),
+            "offset": start,
+            "lineCount": end - start,
+            "totalLines": total,
+        })),
+    )
+}
