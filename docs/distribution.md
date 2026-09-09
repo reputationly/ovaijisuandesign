@@ -176,13 +176,31 @@ MCP server。
 回读校验不是可选步骤：传完就翻指针的话，一次半截的上传会让所有客户端
 升级到一个下不完的包。
 
-R2 和 OBS 都用 S3 API，所以上传是同一段代码，靠两组环境变量区分：
+R2 和 OBS 都用 S3 API，所以上传是同一段代码 —— 但**凭据和公开域名必须各是
+各的**，每个源五个值：
 
 ```bash
-OVAIJISUAN_R2_ENDPOINT   OVAIJISUAN_R2_BUCKET
-OVAIJISUAN_OBS_ENDPOINT  OVAIJISUAN_OBS_BUCKET
-OVAIJISUAN_RELEASE_BASE  # 写进 latest.json 的公开基地址
+OVAIJISUAN_R2_ENDPOINT           https://<account>.r2.cloudflarestorage.com
+OVAIJISUAN_R2_BUCKET             桶名
+OVAIJISUAN_R2_PUBLIC_BASE        公开下载的基地址（r2.dev 子域或自定义域）
+OVAIJISUAN_R2_ACCESS_KEY_ID
+OVAIJISUAN_R2_SECRET_ACCESS_KEY
+# OBS 同样五个，前缀换成 OVAIJISUAN_OBS_
 ```
+
+配齐几个就发几个（`configured()`），只配 R2 就只发 R2。**一个都没配是硬失败**
+—— 静默地什么都不传、日志还写着"已发布"，是最糟的一种。
+
+两个曾经写错的地方，都是"从没真跑过"才留到现在的：
+
+| 错法 | 后果 |
+|---|---|
+| 两个源共用一组 `AWS_ACCESS_KEY_ID` | OBS 拿 R2 的 key 去认证，403 |
+| 两个源共用一个 `PUBLIC_BASE` | 清单里两条 `latestUrls` 指向同一台主机 —— "双源互为备份"成了摆设，那台挂了两条一起挂 |
+
+所以指针（`latest.json` + `manifest.json`）**只能在发布时按源生成**，
+不能在打包时生成一份到处传：打包发生在各平台的 runner 上，那时候还不知道
+最终会发到几个源、各自的域名是什么。
 
 > **`--publish` 这条路还没真跑过** —— 手上没有两边的凭据。打包、算哈希、
 > 写清单这三步是实测过的；上传和回读校验只做到"代码写完"。第一次真发布时

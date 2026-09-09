@@ -27,23 +27,23 @@ jobs:
     outputs:
       version: ${{ steps.v.outputs.version }}
       prefix: ${{ steps.v.outputs.prefix }}
-      base: ${{ steps.v.outputs.base }}
       matrix: ${{ steps.v.outputs.matrix }}
       cdn: ${{ steps.v.outputs.cdn }}
     steps:
       - uses: actions/checkout@v4
       - id: v
         env:
-          PUBLIC_BASE: ${{ vars.OVAIJISUAN_PUBLIC_BASE }}
           # secrets 不能在 job 级 if 里判，只能在 step 里转成 output。
           # 桶还没开的时候要能正常发一版：CDN 分发跳过，GitHub Release 照出，
           # 而不是让整个 run 红着——红了就没人再看它到底哪里红。
-          HAS_CDN: ${{ secrets.OVAIJISUAN_R2_ENDPOINT != '' && vars.OVAIJISUAN_PUBLIC_BASE != '' }}
+          #
+          # 判据是 R2 那一组齐没齐。OBS 单独判在 release.py 的 configured()
+          # 里：只配了一个源就只发一个，缺一个源不该让整次发布失败。
+          HAS_CDN: ${{ secrets.OVAIJISUAN_R2_ENDPOINT != '' && secrets.OVAIJISUAN_R2_PUBLIC_BASE != '' && secrets.OVAIJISUAN_R2_ACCESS_KEY_ID != '' }}
         run: |
           echo "cdn=$HAS_CDN" >> "$GITHUB_OUTPUT"
-          [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2/公开域名，本次跳过 CDN 分发，只出 GitHub Release"
+          [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2，本次跳过 CDN 分发，只出 GitHub Release"
           CARGO=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
-          BASE="${PUBLIC_BASE%/}"
 
           # 打包矩阵在这里算，不在 build 的 `if:` 里筛。job 级 `if:` 拿不到
           # `matrix` 上下文（GitHub 要先算完 if 才展开矩阵），写了会让整个
@@ -59,7 +59,6 @@ jobs:
             {
               echo "version=$CARGO"
               echo "prefix=dry-run/"
-              echo "base=$BASE/dry-run"
               echo "matrix=$(echo "$DRY" | jq -c .)"
             } >> "$GITHUB_OUTPUT"
             exit 0
@@ -82,7 +81,6 @@ jobs:
           {
             echo "version=$TAG"
             echo "prefix="
-            echo "base=$BASE"
             echo "matrix=$(echo "$ALL" | jq -c .)"
           } >> "$GITHUB_OUTPUT"
 
@@ -118,8 +116,7 @@ jobs:
       - name: 打包
         shell: bash
         env:
-          BASE: ${{ needs.prepare.outputs.base }}
-          # 四段版本号编译期注入。不传的话二进制自报三段基线，而清单里是四段,
+          # 四段版本号编译期注入。不传的话二进制自报三段基线，而清单里是四段，
           # 于是所有人装完都被提示"有新版本"，装了还提示。
           OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
@@ -131,9 +128,8 @@ jobs:
             # 只会看到"打不开"。
             EXTRA=""
             [ "${{ matrix.os }}" = "macos-latest" ] && EXTRA="--cross"
-            # BASE 为空时不传 --base，让脚本用 example.invalid 那个明显是占位的
-            # 默认值。传空串会写出 `/0.1.0/…` 这种看着像能用的相对 URL。
-            [ -n "$BASE" ] && EXTRA="$EXTRA --base $BASE"
+            # 这里不传 --base：真正的指针由 publish 按每个源自己的公开域名
+            # 生成（见 release.py 的 pointers()）。打包阶段还不知道有几个源。
             python3 scripts/release.py --target "$t" $EXTRA
             echo "::endgroup::"
           done
@@ -164,21 +160,19 @@ jobs:
           path: artifacts
           pattern: dist-*
 
-      # 各平台的 dist/ 合并成一份。manifest.json 每个平台都写了自己那一档，
-      # 合并时要把 targets 并起来 —— 直接覆盖的话最后一个平台会把别人的抹掉，
-      # 表现是"只有一个系统能收到更新"。
-      - name: 合并各平台产物
+      # 各平台的 dist/ 摆成一份，供 release.py 的 discover() 找到所有目标。
+      #
+      # **各平台打包时写的 manifest.json / latest.json 一律丢掉**：那是打包
+      # 阶段的本地预览，用的是占位域名。真正的指针由 publish 按每个源自己的
+      # 公开域名重新生成（release.py 的 pointers()）。留着它们的话，很容易
+      # 误以为传上去的是那一份。
+      - name: 摆放各平台产物
         run: |
           mkdir -p dist
           python3 - <<'PY'
-          import json, pathlib, shutil
-          root = pathlib.Path("artifacts")
+          import pathlib, shutil
           out = pathlib.Path("dist")
-          merged = {"schemaVersion": 1, "targets": {}}
-          for d in sorted(root.iterdir()):
-              m = d / "manifest.json"
-              if m.is_file():
-                  merged["targets"].update(json.loads(m.read_text())["targets"])
+          for d in sorted(pathlib.Path("artifacts").iterdir()):
               for item in d.iterdir():
                   if item.name == "manifest.json":
                       continue
@@ -187,25 +181,28 @@ jobs:
                       shutil.copytree(item, dst, dirs_exist_ok=True)
                   else:
                       shutil.copy2(item, dst)
-          out.mkdir(exist_ok=True)
-          (out / "manifest.json").write_text(json.dumps(merged, indent=2, ensure_ascii=False) + "\n")
-          print(json.dumps(merged, indent=2, ensure_ascii=False))
+          # 打包阶段写的 <target>/latest.json 同样是预览，删掉。
+          for stale in out.glob("*/latest.json"):
+              stale.unlink()
           PY
           find dist -type f | sort
 
+      # **每个源的凭据分开传。** 两个源共用一组 AWS_ACCESS_KEY_ID 的话，
+      # OBS 会拿 R2 的 key 去认证，403 —— release.py 的 creds() 现在按源取，
+      # aws cli 的那几个 checksum 开关也在那里设（v2 默认发 CRC32 尾部校验，
+      # R2 不支持会直接 501，而错误信息完全看不出是校验的问题）。
       - name: 上传并回读校验
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          # aws cli v2 默认发 CRC32 尾部校验，R2 不支持会直接 501。
-          # 这两行不加的话上传第一步就挂，而错误信息完全看不出是校验的问题。
-          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
-          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
           OVAIJISUAN_R2_ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
           OVAIJISUAN_R2_BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
+          OVAIJISUAN_R2_PUBLIC_BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
+          OVAIJISUAN_R2_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}
+          OVAIJISUAN_R2_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}
           OVAIJISUAN_OBS_ENDPOINT: ${{ secrets.OVAIJISUAN_OBS_ENDPOINT }}
           OVAIJISUAN_OBS_BUCKET: ${{ secrets.OVAIJISUAN_OBS_BUCKET }}
+          OVAIJISUAN_OBS_PUBLIC_BASE: ${{ secrets.OVAIJISUAN_OBS_PUBLIC_BASE }}
+          OVAIJISUAN_OBS_ACCESS_KEY_ID: ${{ secrets.OVAIJISUAN_OBS_ACCESS_KEY_ID }}
+          OVAIJISUAN_OBS_SECRET_ACCESS_KEY: ${{ secrets.OVAIJISUAN_OBS_SECRET_ACCESS_KEY }}
           OVAIJISUAN_RELEASE_PREFIX: ${{ needs.prepare.outputs.prefix }}
         run: python3 scripts/release.py --publish-only
 
@@ -214,26 +211,32 @@ jobs:
       # （自定义域没映射、缓存策略把清单缓住了）。
       - name: 公网回读
         env:
-          BASE: ${{ needs.prepare.outputs.base }}
+          BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
+          PREFIX: ${{ needs.prepare.outputs.prefix }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          curl -fsS --retry 3 --retry-delay 2 "$BASE/manifest.json" -o m.json
+          URL="${BASE%/}/${PREFIX}manifest.json"
+          curl -fsS --retry 3 --retry-delay 2 "$URL" -o m.json
           echo "--- 缓存响应头 ---"
-          curl -fsSI "$BASE/manifest.json" | grep -iE "cache-control|cf-cache-status|content-type" || true
+          curl -fsSI "$URL" | grep -iE "cache-control|cf-cache-status|content-type" || true
           python3 - <<'PY'
           import json, os, urllib.request
-          base, want = os.environ["BASE"], os.environ["VERSION"]
+          want = os.environ["VERSION"]
           m = json.load(open("m.json"))
           assert m["targets"], "清单里一个目标都没有"
           for target, entry in m["targets"].items():
-              url = next(iter(entry["latestUrls"].values()))
-              latest = json.load(urllib.request.urlopen(url, timeout=20))
-              assert latest["version"] == want, f"{target}: 清单 {latest['version']} != 期望 {want}"
-              # HEAD 一下包本体：清单对了但包传丢了的话，用户点更新才会发现。
-              req = urllib.request.Request(latest["url"], method="HEAD")
-              size = int(urllib.request.urlopen(req, timeout=20).headers["content-length"])
-              assert size == latest["size"], f"{target}: 包大小 {size} != 清单 {latest['size']}"
-              print(f"  ✓ {target}  {latest['version']}  {size / 1048576:.1f} MB")
+              # **每个源都读一遍**，不是只读第一个。双源的意义就在于任一个
+              # 都能独立服务，只验一个的话另一个传坏了要等用户来报。
+              for name, url in entry["latestUrls"].items():
+                  latest = json.load(urllib.request.urlopen(url, timeout=20))
+                  assert latest["version"] == want, \
+                      f"{target}@{name}: 清单 {latest['version']} != 期望 {want}"
+                  # HEAD 一下包本体：清单对了但包传丢了的话，用户点更新才会发现。
+                  req = urllib.request.Request(latest["url"], method="HEAD")
+                  size = int(urllib.request.urlopen(req, timeout=20).headers["content-length"])
+                  assert size == latest["size"], \
+                      f"{target}@{name}: 包大小 {size} != 清单 {latest['size']}"
+                  print(f"  ✓ {target:16} {name:6} {latest['version']}  {size / 1048576:.1f} MB")
           PY
 
       # 按「数量」保留而不是用生命周期规则按「天数」：后者有个陷阱 ——
@@ -251,6 +254,7 @@ jobs:
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
           ENDPOINT: ${{ secrets.OVAIJISUAN_R2_ENDPOINT }}
           BUCKET: ${{ secrets.OVAIJISUAN_R2_BUCKET }}
+          # 注意：这一步只清 R2。OBS 的清理还没写 —— 见 docs/distribution.md
           CURRENT: ${{ needs.prepare.outputs.version }}
           KEEP: "3"
         run: |
@@ -279,12 +283,15 @@ jobs:
           AWS_REQUEST_CHECKSUM_CALCULATION: when_required
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
         run: |
-          for pair in \
-            "${{ secrets.OVAIJISUAN_R2_ENDPOINT }} ${{ secrets.OVAIJISUAN_R2_BUCKET }}" \
-            "${{ secrets.OVAIJISUAN_OBS_ENDPOINT }} ${{ secrets.OVAIJISUAN_OBS_BUCKET }}"; do
-            set -- $pair
-            [ -n "$1" ] && aws s3 rm "s3://$2/dry-run/" --recursive --endpoint-url "$1" || true
-          done
+          clean() {  # endpoint bucket key secret
+            [ -n "$1" ] || return 0
+            AWS_ACCESS_KEY_ID="$3" AWS_SECRET_ACCESS_KEY="$4" \
+              aws s3 rm "s3://$2/dry-run/" --recursive --endpoint-url "$1" || true
+          }
+          clean "${{ secrets.OVAIJISUAN_R2_ENDPOINT }}" "${{ secrets.OVAIJISUAN_R2_BUCKET }}" \
+                "${{ secrets.OVAIJISUAN_R2_ACCESS_KEY_ID }}" "${{ secrets.OVAIJISUAN_R2_SECRET_ACCESS_KEY }}"
+          clean "${{ secrets.OVAIJISUAN_OBS_ENDPOINT }}" "${{ secrets.OVAIJISUAN_OBS_BUCKET }}" \
+                "${{ secrets.OVAIJISUAN_OBS_ACCESS_KEY_ID }}" "${{ secrets.OVAIJISUAN_OBS_SECRET_ACCESS_KEY }}"
           echo "空跑产物已清理，生产清单未被触碰"
 
   # ==================== GitHub Release ====================
@@ -350,6 +357,8 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
+          R2_BASE: ${{ secrets.OVAIJISUAN_R2_PUBLIC_BASE }}
+          OBS_BASE: ${{ secrets.OVAIJISUAN_OBS_PUBLIC_BASE }}
         run: |
           mkdir -p ptr
           python3 - <<'PY'
@@ -375,10 +384,15 @@ jobs:
                   "sha256": digest,
                   "size": f.stat().st_size,
               }, indent=2) + "\n")
-              targets[target] = {
-                  "status": "published",
-                  "latestUrls": {"github": f"{dl}/manifest/latest-{target}.json"},
-              }
+              # 把已配置的 CDN 源也列上。客户端读的是**这一份**清单
+              # （DEFAULT_MANIFEST 指向这里），只列 github 的话，桶开了之后
+              # 客户端依然只会走 GitHub —— 国内那条慢链路。
+              urls = {"github": f"{dl}/manifest/latest-{target}.json"}
+              for name in ("r2", "obs"):
+                  cdn = os.environ.get(f"{name.upper()}_BASE", "").rstrip("/")
+                  if cdn:
+                      urls[name] = f"{cdn}/{target}/latest.json"
+              targets[target] = {"status": "published", "latestUrls": urls}
 
           assert targets, "一个 target 都没有，不要拿空清单去覆盖旧的"
           (ptr / "manifest.json").write_text(json.dumps(

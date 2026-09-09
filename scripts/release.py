@@ -38,12 +38,59 @@ for _s in (sys.stdout, sys.stderr):
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
 
-# 发布源。两个都发，都验完才翻 latest。
-# 值是 S3 兼容的 endpoint —— R2 和 OBS 都支持 S3 API，所以上传是同一段代码。
+# 发布源。配了几个就发几个，都验完才翻 latest。
+# R2 和 OBS 都支持 S3 API，所以上传是同一段代码 —— 但**凭据和公开域名各是各的**：
+#
+#   - 两个源共用一组 AWS_ACCESS_KEY_ID 的话，OBS 会拿 R2 的 key 去认证，403。
+#   - 两个源共用一个公开基地址的话，manifest 里两条 latestUrls 会指向同一个
+#     主机 —— "双源互为备份"就成了摆设，那台挂了两条一起挂。
+#
+# 这两条都是真踩过：早先的版本正是这么写的，因为一次都没真发过所以没暴露。
 SOURCES = {
-    "r2": {"endpoint": "OVAIJISUAN_R2_ENDPOINT", "bucket": "OVAIJISUAN_R2_BUCKET"},
-    "obs": {"endpoint": "OVAIJISUAN_OBS_ENDPOINT", "bucket": "OVAIJISUAN_OBS_BUCKET"},
+    "r2": {
+        "endpoint": "OVAIJISUAN_R2_ENDPOINT",
+        "bucket": "OVAIJISUAN_R2_BUCKET",
+        "base": "OVAIJISUAN_R2_PUBLIC_BASE",
+        "key_id": "OVAIJISUAN_R2_ACCESS_KEY_ID",
+        "secret": "OVAIJISUAN_R2_SECRET_ACCESS_KEY",
+    },
+    "obs": {
+        "endpoint": "OVAIJISUAN_OBS_ENDPOINT",
+        "bucket": "OVAIJISUAN_OBS_BUCKET",
+        "base": "OVAIJISUAN_OBS_PUBLIC_BASE",
+        "key_id": "OVAIJISUAN_OBS_ACCESS_KEY_ID",
+        "secret": "OVAIJISUAN_OBS_SECRET_ACCESS_KEY",
+    },
 }
+
+
+def configured() -> list[str]:
+    """哪些源的五个环境变量都齐了。
+
+    只配了 R2 就只发 R2 —— 缺一个源不该让整次发布失败。但**一个都没配**
+    必须硬失败：静默地什么都不发，日志还写着"已发布"，是最糟的一种。
+    """
+    ready = [n for n, e in SOURCES.items() if all(os.environ.get(v) for v in e.values())]
+    if not ready:
+        raise SystemExit(
+            "一个发布源都没配齐。每个源需要五个值，例如 R2：\n  "
+            + "\n  ".join(SOURCES["r2"].values())
+        )
+    return ready
+
+
+def creds(source: str) -> dict[str, str]:
+    """这个源的 aws cli 凭据。**每次调用都显式传**，不靠进程环境里恰好是对的。"""
+    e = SOURCES[source]
+    return {
+        "AWS_ACCESS_KEY_ID": os.environ[e["key_id"]],
+        "AWS_SECRET_ACCESS_KEY": os.environ[e["secret"]],
+        "AWS_DEFAULT_REGION": os.environ.get("AWS_DEFAULT_REGION", "auto"),
+        # aws cli v2 默认发 CRC32 尾部校验，R2 不支持会直接 501，
+        # 而错误信息完全看不出是校验的问题。
+        "AWS_REQUEST_CHECKSUM_CALCULATION": "when_required",
+        "AWS_RESPONSE_CHECKSUM_VALIDATION": "when_required",
+    }
 
 
 def host_target() -> str:
@@ -226,7 +273,8 @@ def s3_upload(source: str, local: Path, key: str) -> None:
         [
             "aws", "s3", "cp", str(local), f"s3://{bucket}/{PREFIX}{key}",
             "--endpoint-url", endpoint,
-        ]
+        ],
+        env=creds(source),
     )
 
 
@@ -250,8 +298,54 @@ def discover(ver: str) -> list[tuple[str, Path, str]]:
     return found
 
 
+def pointers(ver: str, source: str, targets: list[tuple[str, Path, str]]) -> Path:
+    """按**这个源自己的**公开域名生成指针，落到 `dist/pointers/<source>/`。
+
+    每个源必须指向自己：R2 上的 `latest.json` 里写着 OBS 的包地址的话，
+    OBS 挂了 R2 也跟着不能用 —— 双源就白做了。
+
+    也因此指针只能在发布时按源生成，不能在打包时生成一份到处传：打包发生在
+    各个平台的 runner 上，那时候还不知道最终会发到几个源。
+    """
+    base = os.environ[SOURCES[source]["base"]].rstrip("/")
+    out = DIST / "pointers" / source
+    out.mkdir(parents=True, exist_ok=True)
+
+    # 清单里把**所有已配置的源**都列上，客户端按顺序试。只列自己的话，
+    # 客户端读到哪个源的清单就只会用哪个源，等于没有备份。
+    latest_urls = {
+        s: f"{os.environ[SOURCES[s]['base']].rstrip('/')}/{PREFIX}{{target}}/latest.json"
+        for s in configured()
+    }
+
+    manifest = {"schemaVersion": 1, "targets": {}}
+    for target, bundle, digest in targets:
+        (out / f"{target}.json").write_text(
+            json.dumps(
+                {
+                    "version": ver,
+                    "url": f"{base}/{PREFIX}{ver}/{target}/{digest}.tar.gz",
+                    "sha256": digest,
+                    "size": bundle.stat().st_size,
+                    "releasedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf8",
+        )
+        manifest["targets"][target] = {
+            "status": "published",
+            "latestUrls": {s: u.format(target=target) for s, u in latest_urls.items()},
+        }
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf8"
+    )
+    return out
+
+
 def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
-    """先把不可变的包发到两个源、都校验通过，最后才翻 latest 指针。
+    """先把不可变的包发到所有源、都校验通过，最后才翻 latest 指针。
 
     顺序反了的话会出现"latest 指向一个某个区下不到的包"——用户看到的是
     升级失败，而两边的对象存储各自都"正常"。
@@ -259,24 +353,27 @@ def publish(ver: str, targets: list[tuple[str, Path, str]]) -> None:
     **所有目标一起翻指针**，不是打一个发一个：中途失败的话，已翻的那些
     目标会指向新版、没翻的还是旧版，用户装到的版本取决于他用什么系统。
     """
+    sources = configured()
+    print(f"发布源：{', '.join(sources)}\n")
+
     for target, bundle, digest in targets:
         key = f"{ver}/{target}/{digest}.tar.gz"
-        for source in SOURCES:
+        for source in sources:
             print(f"上传 {target} → {source}")
             s3_upload(source, bundle, key)
 
     for target, _, digest in targets:
         key = f"{ver}/{target}/{digest}.tar.gz"
-        for source in SOURCES:
+        for source in sources:
             print(f"校验 {target} @ {source}")
             verify(source, key, digest)
 
-    for target, _, _ in targets:
-        for source in SOURCES:
+    for source in sources:
+        out = pointers(ver, source, targets)
+        for target, _, _ in targets:
             print(f"翻 {target} @ {source} 的 latest 指针")
-            s3_upload(source, DIST / target / "latest.json", f"{target}/latest.json")
-    for source in SOURCES:
-        s3_upload(source, DIST / "manifest.json", "manifest.json")
+            s3_upload(source, out / f"{target}.json", f"{target}/latest.json")
+        s3_upload(source, out / "manifest.json", "manifest.json")
 
 
 def verify(source: str, key: str, digest: str) -> None:
@@ -285,7 +382,10 @@ def verify(source: str, key: str, digest: str) -> None:
     env = SOURCES[source]
     endpoint, bucket = os.environ[env["endpoint"]], os.environ[env["bucket"]]
     tmp = DIST / "verify.tmp"
-    run(["aws", "s3", "cp", f"s3://{bucket}/{PREFIX}{key}", str(tmp), "--endpoint-url", endpoint])
+    run(
+        ["aws", "s3", "cp", f"s3://{bucket}/{PREFIX}{key}", str(tmp), "--endpoint-url", endpoint],
+        env=creds(source),
+    )
     actual = hashlib.sha256(tmp.read_bytes()).hexdigest()
     tmp.unlink(missing_ok=True)
     if actual != digest:
