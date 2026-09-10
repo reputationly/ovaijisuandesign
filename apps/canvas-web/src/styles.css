@@ -299,7 +299,16 @@ body {
 .group:hover .node-handle-plus:not(.node-handle-plus-force-hidden) {
   opacity: 1;
   transform: translate(0);
-  pointer-events: auto;
+  /* **不设 pointer-events。** 指针由外面那个 84x84 感应区接，而感应区是
+   * `<Handle>` 的孩子 —— 按下去 xyflow 才收得到，才能拉出连线。
+   *
+   * 这里写 `auto` 的话，图标自己把 pointerdown 吃掉（它不是 Handle），
+   * 这次拖拽就掉给画布变成平移：圆圈能点，但拉不出线。
+   *
+   * 官方在这条规则里确实有 `pointer-events: auto`，但他们的图标是感应区
+   * 的孩子、感应区又是 Handle 的孩子 —— 事件照样冒泡到 Handle。
+   * 我们的层级和他们一致之后，这一行就成了多余；留着反而容易让人以为
+   * 图标需要自己接事件。 */
 }
 .node-handle-plus-force-hidden {
   opacity: 0 !important;
@@ -311,8 +320,9 @@ body {
 .node-handle-plus-left.node-handle-plus-force-hidden {
   transform: translate(15px) !important;
 }
-.node-handle-plus:hover .node-handle-icon circle,
-.node-handle-plus:hover .node-handle-icon path {
+/* 图标本身不接指针（见上），所以 hover 反馈挂在感应区上。 */
+[data-action-ui-id="canvas.node-handle-plus"]:hover .node-handle-icon circle,
+[data-action-ui-id="canvas.node-handle-plus"]:hover .node-handle-icon path {
   stroke: var(--canvas-handle-icon, #000000b3);
 }
 

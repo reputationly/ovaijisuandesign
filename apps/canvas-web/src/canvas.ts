@@ -146,10 +146,37 @@ export function toCanvasFile(
   original: CanvasFile,
   flowNodes: FlowNode<NodeData>[],
   mode: CanvasMode,
+  flowEdges?: FlowEdge[],
 ): CanvasFile {
   const moved = new Map(flowNodes.map((n) => [n.id, n.position]))
   return {
     ...original,
+    // **连线要从界面状态回写。** 节点那边是"以服务端那份为底只改坐标"，
+    // 因为节点上有一堆我们没解释的字段；连线不一样，它只有
+    // `{id, source, target}` 这几样，而用户新拉的线**只存在于界面状态里** ——
+    // 沿用 `original.edges` 的话，拉完一松手边就没了，而且不报错。
+    //
+    // 不传 flowEdges 时保持原样（有些调用点只是挪了挪位置）。
+    ...(flowEdges
+      ? {
+          edges: flowEdges.map((e) => {
+            const before = original.edges.find((x) => x.id === e.id)
+            // 已有的边**保留服务端那份的全部字段**，只有新增的才现造。
+            if (before) return before
+            return {
+              id: e.id,
+              source: e.source,
+              target: e.target,
+              // `type` 在 CanvasEdge 里是必填。新拉的线沿用画布上现有边的
+              // 类型，一条都没有时退回 xyflow 的 `default` —— 写一个
+              // gateway 不认识的字符串会让整次保存被拒。
+              type: e.type ?? original.edges[0]?.type ?? "default",
+              ...(e.sourceHandle ? { sourceHandle: e.sourceHandle } : {}),
+              ...(e.targetHandle ? { targetHandle: e.targetHandle } : {}),
+            }
+          }),
+        }
+      : {}),
     nodes: original.nodes.map((n) => {
       const p = moved.get(n.id)
       if (!p) return n

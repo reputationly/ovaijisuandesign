@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
+  addEdge,
   Background,
   BackgroundVariant,
   MiniMap,
@@ -430,7 +431,13 @@ export default function App() {
     [sessions, projects, reloadSessions, load],
   )
 
-  const onNodeDragStop = useCallback(async () => {
+  /**
+ * 把画布写回服务端。
+ *
+ * 拖完节点、连完线都走这里 —— 名字曾经叫 `onNodeDragStop`,加了连线之后
+ * 就名不副实了。
+ */
+  const persistCanvas = useCallback(async () => {
     const base = fileRef.current
     if (!base) return
     setSaving("saving")
@@ -442,7 +449,15 @@ export default function App() {
           return ns
         })
       })
-      const next = toCanvasFile(base, current, mode)
+      // **把界面上的连线一起带上。** 用户新拉的边只存在于界面状态里，
+      // 不传的话保存会沿用服务端那份，边一松手就没了（而且不报错）。
+      const currentEdges = await new Promise<typeof edges>((resolve) => {
+        setEdges((es) => {
+          resolve(es)
+          return es
+        })
+      })
+      const next = toCanvasFile(base, current, mode, currentEdges)
       await putCanvas(next)
       setFile(next)
       setSaving("saved")
@@ -682,7 +697,7 @@ export default function App() {
               nodeTypes={nodeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onNodeDragStop={() => void onNodeDragStop()}
+              onNodeDragStop={() => void persistCanvas()}
               // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
               // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
               // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
@@ -730,6 +745,13 @@ export default function App() {
               // 从把柄拉出线、松手在空白处 → 弹出"新建什么"的菜单。
               // 官方叫 openAddNodeMenu，是他们连线交互的一半 —— 没有它，
               // 拖出去松手什么也不会发生，用户会以为连线坏了。
+              // **必须有 onConnect。** xyflow 不会自己把连线变成边 ——
+              // 没有这个回调，用户拉出线、松手，什么都不会发生，
+              // 而且没有任何提示。
+              onConnect={(c) => {
+                setEdges((es) => addEdge({ ...c, type: "default" }, es))
+                void persistCanvas()
+              }}
               onConnectEnd={(event, state) => {
                 if (state.isValid) return
                 const e = event as MouseEvent
@@ -741,7 +763,16 @@ export default function App() {
                       id: "gen",
                       label: "以此为输入生成",
                       icon: <Wand2 size={15} />,
-                      onClick: () => setComposerOpen(true),
+                      onClick: () => {
+                        // **把源节点的素材带过去。** 之前这里只是打开
+                        // 输入框 —— 菜单写着"以此为输入"，而"此"根本没传，
+                        // 用户以为接上了，出来的却是一张纯文生图。
+                        const from = state.fromNode?.id
+                        const path = from ? details.get(from)?.path : undefined
+                        setPendingAttachments(path ? [path] : [])
+                        setComposerOpen(true)
+                        setRightOpen(true)
+                      },
                     },
                   ],
                 })
@@ -808,11 +839,17 @@ export default function App() {
                 })
               }}
             >
-              {/* 点阵，颜色走官方的 --canvas-bg-dot。 */}
+              {/* 点阵。颜色走官方的 `--canvas-bg-dot`，间距 20（官方的
+                  `VISIBLE_GRID_GAP`）。
+
+                  **`size` 是直径，不是半径。** 官方自绘时用的是
+                  `ctx.arc(x, y, DOT_RADIUS, …)` 且 `DOT_RADIUS = 1`,
+                  也就是直径 2px；我们之前写 `size={1}`,点只有一半大 ——
+                  在浅色底上基本看不见。 */}
               <Background
                 variant={BackgroundVariant.Dots}
                 gap={20}
-                size={1}
+                size={2}
                 color="var(--canvas-bg-dot)"
               />
               {minimap && (

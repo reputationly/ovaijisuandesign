@@ -158,39 +158,43 @@ export function MagneticHandle({
   )
 
   return (
-    <>
-      {/* 真正的连接点：xyflow 需要它来发起连线。铺满整个感应区，
-          这样"点哪都能拉出线"，而不是要瞄准那个小圆点。 */}
-      <Handle
-        type={side === "left" ? "target" : "source"}
-        position={position}
-        className="magnetic-handle-hit"
-        style={{
-          // **跨在节点边缘上：一半在外、一半在内。**
-          //
-          // 之前是 `0`,整个 84x84 都在节点里，而 ⊕ 图标画在节点外面
-          // （`right-full` / `left-full`）。于是鼠标往圆圈那边移动的瞬间
-          // 就离开了节点，`.group:hover` 变假，圆圈当场消失 ——
-          // 想点它就得先"看见它、再快速移过去"，实际上点不到。
-          //
-          // 42 不是随手取的：和 `MAGNETIC_OUTWARD` 是同一个数，也就是
-          // 磁吸能吸到的最远处正好是感应区的边界。
-          [side]: -MAGNETIC_OUTWARD,
-          top: "50%",
-          width: 84,
-          height: 84,
-          transform: "translateY(-50%)",
-          background: "transparent",
-          border: "none",
-          borderRadius: "9999px",
-          opacity: 0,
-        }}
-      />
-      {/* 视觉层。注意**不加 will-change**，理由见文件头的注释。 */}
+    <Handle
+      type={side === "left" ? "target" : "source"}
+      position={position}
+      // 官方的 `HANDLE_BASE` / `HANDLE_TARGET`：**0x0 的点**，
+      // `overflow: visible` 让 84x84 的感应区作为子元素溢出来照样可见可点。
+      //
+      // 目标端 `pointerEvents: none` —— 它不接受拖拽，让位给源端那个 ⊕。
+      style={{
+        width: 0,
+        height: 0,
+        minWidth: 0,
+        minHeight: 0,
+        padding: 0,
+        background: "transparent",
+        border: "none",
+        borderRadius: 0,
+        overflow: "visible",
+        zIndex: 20,
+        ...(side === "left" ? { pointerEvents: "none" as const } : {}),
+      }}
+    >
+      {/*
+        感应区**是 Handle 的孩子，不是兄弟**。这是整件事的关键。
+
+        做成兄弟的话：⊕ 可见时拿到 `pointer-events: auto`（见 styles.css），
+        它把指针吃掉，而它不是 Handle —— xyflow 收不到 pointerdown，
+        于是这次拖拽掉给画布变成了平移。表现是"圆圈能点，但拉不出线"。
+
+        当成孩子之后：按在 ⊕ 上就是按在 Handle 上，xyflow 正常起连线；
+        `onClick` 仍然落在这个 div 上，用来开「添加节点」菜单。
+
+        注意**不加 will-change**，理由见文件头的注释。
+      */}
       <div
         data-action-ui-id="canvas.node-handle-plus"
-        className={`pointer-events-none absolute top-1/2 ${
-          side === "left" ? "right-full" : "left-full"
+        className={`absolute top-1/2 ${
+          side === "left" ? "right-0" : "left-0"
         } flex h-[84px] w-[84px] -translate-y-1/2 items-center justify-center rounded-full`}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
@@ -214,6 +218,6 @@ export function MagneticHandle({
           <HandleIcon />
         </div>
       </div>
-    </>
+    </Handle>
   )
 }

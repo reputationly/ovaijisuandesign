@@ -109,6 +109,15 @@ pub async fn node_detail(
         // 素材的像素尺寸。前端按它算节点大小（等比缩到长边 350，和官方
         // 的 computeNodeSize 一致）—— 没有它就只能套一个固定卡片，
         // 竖图会变成方框里的一条，那是和官方观感差别最明显的地方。
+        if let Some(a) = n.asset_id.as_deref().and_then(|id| state.assets.by_id(id)) {
+            // **工作区相对路径。** 界面要拿一个节点当下一次生成的输入
+            // （"以此为输入生成"）时，只有 assetId 和文件名是不够的 ——
+            // 生成接口收的是 `images/xxx.png` 这种路径。
+            //
+            // 少了它，那条菜单只能打开输入框而带不上素材：用户以为接上了，
+            // 出来的却是一张纯文生图，**全程不报错**。
+            entry["path"] = json!(a.path);
+        }
         if let Some(a) = n.asset_id.as_deref().and_then(|id| state.assets.by_id(id))
             && let (Some(w), Some(h)) = (a.width, a.height)
         {

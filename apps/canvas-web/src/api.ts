@@ -62,6 +62,8 @@ export interface NodeDetail {
   id: string
   type: string
   name?: string
+  /** 工作区相对路径（`images/xxx.png`）。拿这个节点当生成输入时要用。 */
+  path?: string
   textContent?: string
   /** 内容哈希。写回时带上做乐观并发，见 [`writeTextNode`]。 */
   textContentHash?: string
