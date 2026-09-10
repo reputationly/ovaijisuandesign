@@ -45,7 +45,13 @@ import {
   type ToolActivity,
 } from "./api"
 import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
-import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
+import {
+  BottomToolbar,
+  CANVAS_BACKGROUNDS,
+  EmptyHint,
+  ShortcutPanel,
+  TopRightChrome,
+} from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
@@ -114,7 +120,6 @@ export default function App() {
   // 指针模式。select = 空白处拖拽框选；hand = 拖拽平移。官方的分体按钮
   // 切的就是这个 —— 画布类工具里这是最基本的一对模式。
   const [tool, setTool] = useState<"select" | "hand">("select")
-  const [sticker, setSticker] = useState(false)
   const [help, setHelp] = useState(false)
   // agent 抛出来的决策点。同一时刻只可能有一个 —— question 工具是阻塞的，
   // agent 在等回答，不会同时问第二次。
@@ -696,7 +701,20 @@ export default function App() {
               // 否则两种行为会在同一个手势上打架（表现是"拖不动画布"）。
               selectionOnDrag={tool === "select"}
               panOnDrag={tool === "hand" ? true : [1, 2]}
-              panOnScroll
+              // **滚轮缩放，不是平移。** 官方空画布提示上写的就是
+              // 「滚动 🖱 缩放画布」；开着 panOnScroll 的话滚轮变成上下平移，
+              // 那句提示就是假的。
+              //
+              // 代价是触控板两指滑动也变成缩放。平移那条路提示里也写了：
+              // 按住 Space 拖，或者切到抓手工具。
+              panOnScroll={false}
+              // xyflow 的默认值就是 "Space"，**显式写出来**：这是上面那句
+              // 提示承诺的操作，不该因为哪天有人改了默认值就悄悄失效。
+              panActivationKeyCode="Space"
+              // **关掉内建的退格删除。** xyflow 默认吃 Backspace，但它只改
+              // 本地状态 —— 删掉的节点下次加载又会回来，中间还可能被一次
+              // 保存写成真的删除。删节点走右键菜单那条路，它是持久化的。
+              deleteKeyCode={null}
               selectNodesOnDrag={false}
               proOptions={{ hideAttribution: true }}
               // 官方用的就是 xyflow 的默认 20。真正让"容易连上"的是节点两侧
@@ -720,6 +738,13 @@ export default function App() {
                     },
                   ],
                 })
+              }}
+              // 官方空画布提示上写着「双击画布 自由生成节点」。
+              // **提示里承诺的动作必须真的能用** —— 写着能双击却没反应，
+              // 比不写更糟。
+              onDoubleClick={() => {
+                setComposerOpen(true)
+                setRightOpen(true)
               }}
               onPaneContextMenu={(e) => {
                 e.preventDefault()
@@ -808,22 +833,22 @@ export default function App() {
                 onCreate={() => setComposerOpen(true)}
                 mode={tool}
                 onMode={setTool}
-                sticker={sticker}
-                onSticker={setSticker}
-                onAssets={() => window.open("/api/assets", "_blank")}
+                // **开素材库，不是那份原始 JSON。** 之前这里
+                // `window.open("/api/assets")`，弹出来一屏未格式化的
+                // JSON —— 那是给排查用的，不是给人看的。
+                onAssets={() => setView("library")}
                 help={help}
                 onHelp={setHelp}
               />
-              {/* 空状态。画布空着时给一句话和一个入口，而不是一片白 ——
-                  一片白会让人以为是没加载出来。 */}
-              {file && file.nodes.length === 0 && (
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3">
-                  <img src="/logo.png" alt="" width={44} height={44} className="opacity-25" />
-                  <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
-                    画布是空的。右侧描述你要生成的内容，或者右键新建。
-                  </p>
-                </div>
-              )}
+              {/* 空状态。文案逐字取自官方 i18n 的 `canvas.emptyHint.*`：
+                  「双击画布 自由生成节点」+「按住 Space 可以拖拽画布，
+                  滚动 ⇧ 缩放画布」。
+
+                  **说的是操作，不是状态。** 之前那句"画布是空的"只是把
+                  用户已经看得见的事实又说了一遍，而真正该告诉他的是
+                  下一步怎么做。 */}
+              {file && file.nodes.length === 0 && <EmptyHint />}
+              {help && <ShortcutPanel onClose={() => setHelp(false)} />}
             </ReactFlow>
           </ReactFlowProvider>
 

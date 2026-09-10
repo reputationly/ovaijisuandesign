@@ -591,6 +591,17 @@ export function Home({
         </div>
         </div>
 
+      </div>
+
+      {/* 「创作灵感 / Skill」**是 hero 的兄弟，不是它的孩子**。
+          放在 hero-zone（min-height:100% + justify-content:center）里面的话，
+          两块加起来超过一屏，居中就退化成顶对齐 —— 表现是 logo 和输入框
+          贴着窗口上沿，而窗口越高越明显。官方的结构里这一块在 hero-zone
+          外面，滚下去才看到。 */}
+      <div className="flex w-full shrink-0 flex-col" style={{
+        paddingInline: "var(--home-hero-padding-x)",
+        paddingBlockEnd: "var(--home-hero-safe-inset)",
+      }}>
         {/* tabs */}
         <div
           className="flex items-center gap-6 border-b"

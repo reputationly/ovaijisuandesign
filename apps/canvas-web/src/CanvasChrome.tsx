@@ -9,11 +9,12 @@ import {
   LayoutPanelLeft,
   Map as MapIcon,
   Maximize2,
+  Mouse as MouseIcon,
   MousePointer2,
   Palette,
   Plus,
-  Sticker,
   Workflow,
+  X,
 } from "lucide-react"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
@@ -420,8 +421,6 @@ export function BottomToolbar({
   onCreate,
   mode,
   onMode,
-  sticker,
-  onSticker,
   onAssets,
   help,
   onHelp,
@@ -429,8 +428,6 @@ export function BottomToolbar({
   onCreate?: () => void
   mode: ToolMode
   onMode: (m: ToolMode) => void
-  sticker: boolean
-  onSticker: (v: boolean) => void
   onAssets: () => void
   help: boolean
   onHelp: (v: boolean) => void
@@ -527,10 +524,10 @@ export function BottomToolbar({
             </div>
           )}
         </div>
-
-        <DockBtn title="便签" active={sticker} onClick={() => onSticker(!sticker)}>
-          <Sticker size={ICON} />
-        </DockBtn>
+        {/* 官方这里还有一个「便签」（Sticker 模式：在画布世界坐标上放标记）。
+            **我们没做，所以不放这个按钮** —— 之前它只是翻转一个没人读的
+            布尔值，点上去除了自己变蓝什么都不会发生。一个假按钮比少一个
+            按钮更糟：用户会反复点，以为是自己用错了。 */}
         <DockBtn title="资产列表" onClick={onAssets}>
           <Folder size={ICON} />
         </DockBtn>
@@ -570,6 +567,150 @@ export function BottomToolbar({
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+/**
+ * 空画布上的操作引导。
+ *
+ * 文案逐字取自官方 i18n 的 `canvas.emptyHint.*`：
+ *
+ * ```
+ * primaryAction = 双击画布      primaryResult = 自由生成节点
+ * spacePrefix   = 按住          kbd.space     = Space
+ * spaceSuffix   = 可以拖拽画布
+ * scrollPrefix  = 滚动          zoomSuffix    = 缩放画布
+ * ariaLabel     = 画布操作引导
+ * ```
+ *
+ * **说的是操作，不是状态。** "画布是空的"只是把用户已经看得见的事实又
+ * 说了一遍；真正该告诉他的是下一步怎么做，以及这块区域怎么操作 ——
+ * 拖拽和缩放这两件事在一块空白上是猜不出来的。
+ *
+ * `pointer-events-none`：它盖在画布上，能点穿才不会挡住双击。
+ */
+export function EmptyHint() {
+  return (
+    <div
+      aria-label="画布操作引导"
+      className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-6"
+    >
+      <div className="flex items-center gap-3">
+        <MousePointer2
+          size={20}
+          className="-scale-x-100"
+          style={{ color: "var(--brand-accent)", fill: "var(--brand-accent)" }}
+        />
+        <strong className="text-[15px]" style={{ color: "var(--foreground)" }}>
+          双击画布
+        </strong>
+        <span className="text-[15px]" style={{ color: "var(--muted-foreground)" }}>
+          自由生成节点
+        </span>
+      </div>
+      <p
+        className="flex flex-wrap items-center justify-center gap-1.5 text-[13px]"
+        style={{ color: "var(--muted-foreground)" }}
+      >
+        <span>按住</span>
+        <Kbd>Space</Kbd>
+        <span>可以拖拽画布，滚动</span>
+        <Kbd>
+          <MouseIcon size={11} />
+        </Kbd>
+        <span>缩放画布</span>
+      </p>
+    </div>
+  )
+}
+
+/** 键帽。官方那两处提示里的 `Space` 和鼠标图标都是这个样子。 */
+function Kbd({ children }: { children: ReactNode }) {
+  return (
+    <kbd
+      className="inline-flex h-[22px] items-center rounded-md px-1.5 font-sans text-[12px]"
+      style={{
+        background: "var(--bg-subtle)",
+        border: "var(--divider-width) solid var(--elevated-border-color)",
+        color: "var(--foreground)",
+      }}
+    >
+      {children}
+    </kbd>
+  )
+}
+
+/**
+ * 快捷键面板。
+ *
+ * **只列真的能用的。** 这个面板最容易变成一张愿望清单 —— 抄一份官方的
+ * 快捷键表放上去，用户按了没反应，比没有这个面板更糟：他会以为是自己
+ * 按错了，反复试。
+ *
+ * 下面每一条都对应 `App.tsx` 里一处真实配置，改动那边时这里要跟着改。
+ */
+const SHORTCUTS: { keys: string[]; desc: string }[] = [
+  { keys: ["双击画布"], desc: "生成节点" },
+  { keys: ["Space", "拖拽"], desc: "平移画布" },
+  { keys: ["滚轮"], desc: "缩放画布" },
+  { keys: ["中键 / 右键", "拖拽"], desc: "平移画布" },
+  { keys: ["空白处拖拽"], desc: "框选节点" },
+  { keys: ["右键"], desc: "打开菜单" },
+  { keys: ["双击文本节点"], desc: "编辑内容" },
+]
+
+export function ShortcutPanel({ onClose }: { onClose: () => void }) {
+  // Esc 关掉。面板是覆盖层，没有 Esc 的话只能去点那个小按钮。
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    document.addEventListener("keydown", k)
+    return () => document.removeEventListener("keydown", k)
+  }, [onClose])
+
+  return (
+    <div
+      className="nopan nodrag nowheel absolute bottom-20 left-1/2 z-30 w-[300px] -translate-x-1/2 rounded-xl border p-3"
+      style={{
+        background: "var(--canvas-controls-bg)",
+        borderColor: "var(--canvas-controls-border)",
+        boxShadow: "var(--canvas-shadow-menu)",
+      }}
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <strong className="text-[13px]">快捷键</strong>
+        <button
+          onClick={onClose}
+          aria-label="关闭"
+          className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[var(--canvas-controls-hover)]"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          <X size={14} />
+        </button>
+      </div>
+      <ul className="space-y-1.5">
+        {SHORTCUTS.map((s) => (
+          <li key={s.desc + s.keys.join()} className="flex items-center justify-between gap-3">
+            <span className="flex flex-wrap items-center gap-1">
+              {s.keys.map((k, i) => (
+                <span key={k} className="flex items-center gap-1">
+                  {i > 0 && (
+                    <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                      +
+                    </span>
+                  )}
+                  <Kbd>{k}</Kbd>
+                </span>
+              ))}
+            </span>
+            <span className="text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+              {s.desc}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
