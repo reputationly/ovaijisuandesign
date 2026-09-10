@@ -391,3 +391,149 @@ export async function answerQuestion(id: string, answers: string[][] | null): Pr
     throw new Error(`提交回答失败 HTTP ${res.status}`)
   }
 }
+
+// ---------------------------------------------------------------------------
+// 会话与项目
+//
+// 一条「会话」就是一张画布。侧栏那一栏列的是会话，不是节点 ——
+// 之前列节点是个假的近似：同一张画布里的几个节点看起来像几条独立创作，
+// 点进去却哪儿也没去。
+// ---------------------------------------------------------------------------
+
+export interface Session {
+  id: string
+  name: string
+  updatedAt: number
+  nodeCount: number
+  /** 归属项目。缺省 = 未分组。 */
+  project?: string
+  /** 里面有哪几类内容，列表按它选图标。 */
+  kinds: string[]
+}
+
+export interface Project {
+  id: string
+  name: string
+  createdAt: number
+}
+
+export async function listSessions(): Promise<{
+  current: string
+  list: Session[]
+  projects: Project[]
+}> {
+  return json(await fetch("/api/canvases"), "GET /api/canvases")
+}
+
+export async function createSession(name?: string): Promise<{ id: string }> {
+  return json(
+    await fetch("/api/canvases", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    }),
+    "POST /api/canvases",
+  )
+}
+
+export async function openSession(id: string): Promise<void> {
+  await json(
+    await fetch(`/api/canvases/${encodeURIComponent(id)}/open`, { method: "POST" }),
+    "open canvas",
+  )
+}
+
+export async function deleteSession(id: string): Promise<void> {
+  await json(
+    await fetch(`/api/canvases/${encodeURIComponent(id)}`, { method: "DELETE" }),
+    "delete canvas",
+  )
+}
+
+export async function renameSession(id: string, name: string): Promise<void> {
+  await json(
+    await fetch(`/api/canvases/${encodeURIComponent(id)}/rename`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    }),
+    "rename canvas",
+  )
+}
+
+/** `projectId` 传 null 表示移出到未分组。 */
+export async function moveSession(id: string, projectId: string | null): Promise<void> {
+  await json(
+    await fetch(`/api/canvases/${encodeURIComponent(id)}/move`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ projectId }),
+    }),
+    "move canvas",
+  )
+}
+
+export async function createProject(name: string): Promise<{ project: Project }> {
+  return json(
+    await fetch("/api/projects", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    }),
+    "POST /api/projects",
+  )
+}
+
+/** 解散项目。里面的会话退回未分组，**不会被删**。 */
+export async function deleteProject(id: string): Promise<void> {
+  await json(
+    await fetch(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" }),
+    "delete project",
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Skill
+// ---------------------------------------------------------------------------
+
+export interface Skill {
+  slug: string
+  name: string
+  description: string
+  category: string
+  builtin: boolean
+  /** 列表里不带，取单条时才有。 */
+  body?: string
+}
+
+export async function listSkills(): Promise<{ skills: Skill[]; categories: string[] }> {
+  return json(await fetch("/api/skills"), "GET /api/skills")
+}
+
+export async function getSkill(slug: string): Promise<{ skill: Skill }> {
+  return json(await fetch(`/api/skills/${encodeURIComponent(slug)}`), "GET /api/skills/:slug")
+}
+
+export async function saveSkill(s: {
+  slug: string
+  name?: string
+  description?: string
+  category?: string
+  body?: string
+}): Promise<void> {
+  await json(
+    await fetch("/api/skills", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(s),
+    }),
+    "POST /api/skills",
+  )
+}
+
+export async function deleteSkill(slug: string): Promise<void> {
+  await json(
+    await fetch(`/api/skills/${encodeURIComponent(slug)}`, { method: "DELETE" }),
+    "delete skill",
+  )
+}

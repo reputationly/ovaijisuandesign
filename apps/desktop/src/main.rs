@@ -238,7 +238,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
     let web_dir = gateway::web::locate(cfg.web_dir.as_deref());
     let upstream = cfg.upstream.clone();
 
-    Ok(Arc::new(AppState {
+    let state = Arc::new(AppState {
         assets: Arc::new(gateway::assets::Assets::load(ws.clone())),
         events: Arc::new(gateway::events::Events::new()),
         canvas_lock: Default::default(),
@@ -252,5 +252,8 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         activity: Arc::new(gateway::activity::Activity::new()),
         upstream,
         web_dir,
-    }))
+    });
+    // 自带 skill 铺到工作区。只在缺的时候写，见 skills::seed。
+    gateway::skills::seed(&state);
+    Ok(state)
 }

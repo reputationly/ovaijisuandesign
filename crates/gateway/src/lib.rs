@@ -49,6 +49,7 @@ pub mod music;
 pub mod plan;
 pub mod proxy;
 pub mod question;
+pub mod skills;
 pub mod tasks;
 pub mod update;
 pub mod web;
@@ -57,7 +58,7 @@ pub mod workspace;
 use std::sync::Arc;
 
 use axum::Router;
-use axum::routing::{any, get, post};
+use axum::routing::{any, delete, get, post};
 use serde_json::{Value, json};
 use tower_http::cors::{Any, CorsLayer};
 
@@ -111,6 +112,15 @@ pub fn router(state: Arc<AppState>) -> Router {
         // -- 多画布 --
         .route("/api/canvases", get(canvases::list).post(canvases::create))
         .route("/api/canvases/{id}/open", post(canvases::open))
+        .route("/api/canvases/{id}/move", post(canvases::move_canvas))
+        .route("/api/canvases/{id}/rename", post(canvases::rename))
+        .route("/api/projects", post(canvases::create_project))
+        .route("/api/skills", get(skills::list).post(skills::save))
+        .route(
+            "/api/skills/{slug}",
+            get(skills::get).delete(skills::remove),
+        )
+        .route("/api/projects/{id}", delete(canvases::delete_project))
         // -- agent 的决策点 --
         .route("/api/question/ask", post(question::ask))
         .route("/api/question/pending", get(question::pending))

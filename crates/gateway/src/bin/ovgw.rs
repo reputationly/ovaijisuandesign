@@ -102,6 +102,8 @@ async fn main() -> Result<()> {
         upstream: cfg.upstream.clone(),
         web_dir: gateway::web::locate(cfg.web_dir.as_deref()),
     });
+    // 自带 skill 铺到工作区。只在缺的时候写，见 skills::seed。
+    gateway::skills::seed(&state);
 
     let listener = tokio::net::TcpListener::bind(addr)
         .await

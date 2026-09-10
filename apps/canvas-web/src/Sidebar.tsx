@@ -3,6 +3,7 @@ import {
   FileText,
   FolderOpen,
   Image as ImageIcon,
+  MoreHorizontal,
   Music,
   PanelLeft,
   Plus,
@@ -13,7 +14,8 @@ import {
 } from "lucide-react"
 import { useState, type ReactNode } from "react"
 
-import type { CanvasFile, NodeDetail } from "./api"
+import type { View } from "./App"
+import type { Project, Session } from "./api"
 import { cn } from "./lib"
 
 /**
@@ -64,27 +66,35 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export function Sidebar({
-  file,
-  details,
   dir,
   right,
   view,
   onView,
   onCollapse,
-  onPick,
+  sessions,
+  projects,
+  current,
+  onOpenSession,
+  onSessionMenu,
 }: {
-  file: CanvasFile | null
-  details: Map<string, NodeDetail>
   dir: string
   right?: ReactNode
-  view: "home" | "canvas"
-  onView: (v: "home" | "canvas") => void
+  view: View
+  onView: (v: View) => void
   onCollapse: () => void
-  /** 点列表里的某一项 → 在画布上选中并居中。 */
-  onPick: (nodeId: string) => void
+  sessions: Session[]
+  projects: Project[]
+  /** 当前打开的那条。列表里高亮它。 */
+  current: string
+  onOpenSession: (id: string) => void
+  /** 右键 / 「…」，弹出重命名、移动、删除。 */
+  onSessionMenu: (id: string, at: { x: number; y: number }) => void
 }) {
   const [searching, setSearching] = useState(false)
   const [q, setQ] = useState("")
+  const shown = sessions.filter(
+    (s) => !q.trim() || s.name.toLowerCase().includes(q.trim().toLowerCase()),
+  )
   return (
     <aside
       className="flex h-full shrink-0 flex-col border-r"
@@ -139,12 +149,15 @@ export function Sidebar({
         {NAV.map((n) => (
           <button
             key={n.label}
-            onClick={() => (n.id === "home" || n.id === "skill" ? onView("home") : undefined)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] hover:bg-[var(--home-sidebar-nav-hover)]"
+            // ComfyUI 那条要一个本地 ComfyUI 服务，我们没有。
+            // **禁用而不是点了没反应** —— 后者看起来是坏了，前者能看出是没有。
+            disabled={n.id === "comfyui"}
+            title={n.id === "comfyui" ? "需要本地 ComfyUI 服务，尚未接入" : undefined}
+            onClick={() => onView(n.id as View)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] enabled:hover:bg-[var(--home-sidebar-nav-hover)] disabled:cursor-not-allowed disabled:opacity-40"
             style={{
               color: "var(--home-sidebar-primary-text)",
-              background:
-                view === "home" && n.id === "home" ? "var(--home-sidebar-nav-active)" : undefined,
+              background: view === n.id ? "var(--home-sidebar-nav-active)" : undefined,
             }}
           >
             {n.icon}
@@ -158,42 +171,31 @@ export function Sidebar({
         ))}
       </nav>
 
-      {/* 画布上的节点当"未分组"列表。官方那栏是会话列表，我们还没有会话
-          概念 —— 用节点填是诚实的近似，而不是画一个假的空壳。 */}
-      <div className="min-h-0 flex-1 overflow-auto">
+      {/* 会话列表。**每条是一张独立画布**，点进去是切换工作内容。
+
+          之前这里列的是当前画布上的节点 —— 看起来像几条独立创作，点进去
+          却哪儿也没去，只是在同一张画布上选中一个节点。官方那栏从来就是
+          会话，我们其实早就有多画布了，只是没接上来。 */}
+      <div className="min-h-0 flex-1 overflow-auto pb-2">
+        {projects.map((p) => (
+          <Section key={p.id} title={p.name}>
+            <SessionList
+              items={shown.filter((s) => s.project === p.id)}
+              current={current}
+              onOpen={onOpenSession}
+              onMenu={onSessionMenu}
+              empty="这个项目还没有创作"
+            />
+          </Section>
+        ))}
         <Section title="未分组">
-          <div className="px-2">
-            {(file?.nodes ?? [])
-              .filter((n) => {
-                if (!q.trim()) return true
-                const name = details.get(n.id)?.name ?? n.id
-                return name.toLowerCase().includes(q.trim().toLowerCase())
-              })
-              .map((n) => {
-              const d = details.get(n.id)
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => {
-                    onView("canvas")
-                    onPick(n.id)
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] text-[var(--home-sidebar-secondary-text)] hover:bg-[var(--home-sidebar-nav-hover)]"
-                  title={d?.name ?? n.id}
-                >
-                  <span className="shrink-0 text-[var(--home-sidebar-section-text)]">
-                    {KIND_ICON[n.type] ?? <FileText size={14} />}
-                  </span>
-                  <span className="truncate">{d?.name ?? n.id.slice(0, 8)}</span>
-                </button>
-              )
-            })}
-            {!file?.nodes.length && (
-              <p className="px-2 py-1.5 text-[12px] text-[var(--home-sidebar-section-text)]">
-                画布是空的
-              </p>
-            )}
-          </div>
+          <SessionList
+            items={shown.filter((s) => !s.project)}
+            current={current}
+            onOpen={onOpenSession}
+            onMenu={onSessionMenu}
+            empty={q.trim() ? "没有匹配的创作" : "还没有创作"}
+          />
         </Section>
       </div>
 
@@ -233,5 +235,73 @@ function IconBtn({
     >
       {children}
     </button>
+  )
+}
+
+/**
+ * 一组会话。
+ *
+ * 图标按会话里**实际有什么内容**选，不按创建时猜 —— 官方那栏一眼能看出
+ * 这条出的是音频、视频还是图，靠的就是这个。空会话退回文档图标。
+ */
+function SessionList({
+  items,
+  current,
+  onOpen,
+  onMenu,
+  empty,
+}: {
+  items: Session[]
+  current: string
+  onOpen: (id: string) => void
+  onMenu: (id: string, at: { x: number; y: number }) => void
+  empty: string
+}) {
+  if (items.length === 0) {
+    return (
+      <p className="px-4 py-1.5 text-[12px] text-[var(--home-sidebar-section-text)]">{empty}</p>
+    )
+  }
+  return (
+    <div className="px-2">
+      {items.map((s) => {
+        // 多种内容时取第一种。顺序在 gateway 里固定成 image/video/audio/text，
+        // 不是 read_dir 的顺序 —— 否则同一条会话的图标会自己变。
+        const icon = KIND_ICON[s.kinds[0] ?? ""] ?? <FileText size={14} />
+        const active = s.id === current
+        return (
+          <button
+            key={s.id}
+            onClick={() => onOpen(s.id)}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              onMenu(s.id, { x: e.clientX, y: e.clientY })
+            }}
+            title={`${s.name}  ·  ${s.nodeCount} 个节点`}
+            className={cn(
+              "group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px]",
+              active
+                ? "bg-[var(--home-sidebar-nav-active)] text-[var(--home-sidebar-primary-text)]"
+                : "text-[var(--home-sidebar-secondary-text)] hover:bg-[var(--home-sidebar-nav-hover)]",
+            )}
+          >
+            <span className="shrink-0 text-[var(--home-sidebar-section-text)]">{icon}</span>
+            <span className="truncate">{s.name}</span>
+            <span
+              role="button"
+              tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation()
+                const r = (e.target as HTMLElement).getBoundingClientRect()
+                onMenu(s.id, { x: r.left, y: r.bottom })
+              }}
+              className="ml-auto hidden shrink-0 rounded px-1 text-[var(--home-sidebar-section-text)] group-hover:block hover:bg-[var(--home-sidebar-nav-hover)]"
+            >
+              <MoreHorizontal size={14} />
+            </span>
+          </button>
+        )
+      })}
+    </div>
   )
 }

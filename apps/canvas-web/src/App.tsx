@@ -19,8 +19,16 @@ import {
   assetUrl,
   answerQuestion,
   connectEvents,
+  createProject,
+  createSession,
+  deleteProject,
+  deleteSession,
   getActivity,
   getCanvas,
+  listSessions,
+  moveSession,
+  openSession,
+  renameSession,
   pendingQuestion,
   getNodeDetails,
   getWorkspace,
@@ -29,12 +37,19 @@ import {
   type CanvasFile,
   type CanvasMode,
   type NodeDetail,
+  type Project,
+  type Session,
   type ToolActivity,
 } from "./api"
 import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { Home } from "./Home"
+import { Library } from "./Library"
+import { Skills } from "./Skills"
+
+/** 主区域显示什么。侧栏那四个入口切的就是它。 */
+export type View = "home" | "canvas" | "library" | "skill"
 import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
@@ -64,13 +79,17 @@ export default function App() {
    * 下标会指到另一张上去 —— 用户看到的是"图自己跳了一下"。
    */
   const [lightbox, setLightbox] = useState<string | null>(null)
+  // 会话（= 画布）与项目。侧栏那一栏列的是这些。
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [currentSession, setCurrentSession] = useState("")
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   // 画布底色。存 localStorage —— 这是纯粹的个人偏好，不该进 canvas.json
   // （那份文件是和 agent 共享的数据，写进外观设置会让每次改底色都变成
   // 一次画布内容变更，agent 那边会看到一串无意义的 canvas:changed）。
-  const [view, setView] = useState<"home" | "canvas">("home")
+  const [view, setView] = useState<View>("home")
   // 指针模式。select = 空白处拖拽框选；hand = 拖拽平移。官方的分体按钮
   // 切的就是这个 —— 画布类工具里这是最基本的一对模式。
   const [tool, setTool] = useState<"select" | "hand">("select")
@@ -171,6 +190,117 @@ export default function App() {
   useEffect(() => {
     getActivity().then(setActivity).catch(() => {})
   }, [])
+
+  const reloadSessions = useCallback(async () => {
+    try {
+      const r = await listSessions()
+      setSessions(r.list)
+      setProjects(r.projects)
+      setCurrentSession(r.current)
+    } catch {
+      /* 侧栏拉不动不该让画布也打不开 */
+    }
+  }, [])
+  useEffect(() => {
+    void reloadSessions()
+  }, [reloadSessions])
+
+  /**
+   * 切换会话。**切完必须重新加载画布** —— gateway 那边是「换内容不换路径」，
+   * 文件已经变了但界面还拿着上一张的节点，不重载的话下一次拖动保存会把
+   * 上一张的内容写进这一张。
+   */
+  const openSessionAndReload = useCallback(
+    async (id: string) => {
+      if (id === currentSession) {
+        setView("canvas")
+        return
+      }
+      try {
+        await openSession(id)
+        setCurrentSession(id)
+        setView("canvas")
+        await load()
+        await reloadSessions()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [currentSession, load, reloadSessions],
+  )
+
+  /** 新建一条创作并切过去。 */
+  const newSession = useCallback(async () => {
+    try {
+      const r = await createSession()
+      setCurrentSession(r.id)
+      setView("canvas")
+      await load()
+      await reloadSessions()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }, [load, reloadSessions])
+
+  const openSessionMenu = useCallback(
+    (id: string, at: { x: number; y: number }) => {
+      const s = sessions.find((x) => x.id === id)
+      if (!s) return
+      const items: MenuItem[] = [
+        {
+          id: "rename",
+          label: "重命名",
+          onClick: () => {
+            const name = window.prompt("新名字", s.name)?.trim()
+            if (name) void renameSession(id, name).then(reloadSessions)
+          },
+        },
+        ...projects
+          .filter((p) => p.id !== s.project)
+          .map((p) => ({
+            id: `move-${p.id}`,
+            label: `移到「${p.name}」`,
+            onClick: () => void moveSession(id, p.id).then(reloadSessions),
+          })),
+        ...(s.project
+          ? [
+              {
+                id: "unmove",
+                label: "移出项目",
+                onClick: () => void moveSession(id, null).then(reloadSessions),
+              },
+            ]
+          : []),
+        {
+          id: "new-project",
+          label: "新建项目并移入",
+          onClick: () => {
+            const name = window.prompt("项目名字")?.trim()
+            if (!name) return
+            void createProject(name)
+              .then((r) => moveSession(id, r.project.id))
+              .then(reloadSessions)
+          },
+        },
+        {
+          id: "delete",
+          label: "删除",
+          danger: true,
+          onClick: () => {
+            // 会话删掉就没了，问一句。节点删除没问是因为那个能撤销
+            // （重新加载就回来了），这个不能。
+            if (!window.confirm(`删除「${s.name}」？里面的内容会一起消失。`)) return
+            void deleteSession(id)
+              .then(reloadSessions)
+              .then(load)
+              .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
+          },
+        },
+      ]
+      setMenu({ x: at.x, y: at.y, items })
+    },
+    [sessions, projects, reloadSessions, load],
+  )
 
   const onNodeDragStop = useCallback(async () => {
     const base = fileRef.current
@@ -325,19 +455,16 @@ export default function App() {
       <div className="flex h-full" style={{ background: "var(--background)" }}>
         {leftOpen ? (
           <Sidebar
-            file={file}
-            details={details}
             dir={dir}
             right={<Update />}
             view={view}
             onView={setView}
             onCollapse={() => setLeftOpen(false)}
-            onPick={(id) => {
-              // 选中并居中。只改选中态、不动坐标 —— 点一下列表就把节点挪走
-              // 是最糟的交互。
-              setNodes((ns) => ns.map((n) => ({ ...n, selected: n.id === id })))
-              window.dispatchEvent(new CustomEvent("canvas:focus", { detail: id }))
-            }}
+            sessions={sessions}
+            projects={projects}
+            current={currentSession}
+            onOpenSession={openSessionAndReload}
+            onSessionMenu={openSessionMenu}
           />
         ) : (
           // 收起后留一个把手，否则再也打不开了。
@@ -351,7 +478,28 @@ export default function App() {
           </button>
         )}
 
-        {view === "home" ? (
+        {view === "library" ? (
+          <Library
+            sessions={sessions}
+            projects={projects}
+            onOpenSession={openSessionAndReload}
+            onCreateProject={(name) => void createProject(name).then(reloadSessions)}
+            onDeleteProject={(id) => void deleteProject(id).then(reloadSessions)}
+            onNewSession={() => void newSession()}
+          />
+        ) : view === "skill" ? (
+          <Skills
+            onUse={(slug, body) => {
+              // 用一个 skill = 把它的提示词填进输入框，用户再补自己的话。
+              // **不直接发出去** —— 提示词是模板，用户总要加一句
+              // "对这张图"或"做 15 秒的"。
+              setPendingPrompt(`/${slug}\n\n${body}\n\n---\n`)
+              setComposerOpen(true)
+              setRightOpen(true)
+              setView("canvas")
+            }}
+          />
+        ) : view === "home" ? (
           <Home
             onSubmit={(p) => {
               setPendingPrompt(p)

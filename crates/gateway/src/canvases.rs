@@ -37,6 +37,25 @@ pub struct Entry {
     pub updated_at: u64,
     #[serde(default)]
     pub node_count: usize,
+    /// 归到哪个项目。`None` = 未分组。
+    ///
+    /// 存在会话上而不是让项目持有一个 id 列表：那样一个会话可能同时出现在
+    /// 两个项目里（或者一个都不在），而这两种状态在界面上都没法表达。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project: Option<String>,
+    /// 里面有哪几类内容（`image` / `video` / `audio` / `text`），
+    /// 侧栏拿它选图标。**派生的**，每次 list 时按当前画布重算。
+    #[serde(default)]
+    pub kinds: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Project {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub created_at: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -45,6 +64,8 @@ pub struct Index {
     pub current: String,
     #[serde(default)]
     pub list: Vec<Entry>,
+    #[serde(default)]
+    pub projects: Vec<Project>,
 }
 
 fn now() -> u64 {
@@ -87,6 +108,8 @@ fn ensure(state: &AppState) -> Index {
                 name: "画布".into(),
                 updated_at: now(),
                 node_count: file.nodes.len(),
+                project: None,
+                kinds: kinds_of(&file),
             },
         );
         let _ = write_index(&ipath, &idx);
@@ -111,14 +134,180 @@ fn stash_current(state: &AppState, idx: &mut Index) {
     }
 }
 
+/// 一张画布里有哪几类内容。侧栏按它选图标 —— 官方那栏一眼能看出这条会话
+/// 出的是音频、视频还是图。
+fn kinds_of(file: &canvas::CanvasFile) -> Vec<String> {
+    let mut out = Vec::new();
+    for want in ["image", "video", "audio", "text"] {
+        if file.nodes.iter().any(|n| n.kind == want) {
+            out.push(want.to_string());
+        }
+    }
+    out
+}
+
 pub async fn list(State(state): State<Arc<AppState>>) -> Json<Value> {
     let mut idx = ensure(&state);
-    // 顺手把当前这张的节点数刷新一下，否则列表上永远是创建时那个数。
+    // 顺手把当前这张的节点数和内容类型刷新一下，否则列表上永远是创建时那个数。
     let file = canvas::read(&state.ws.canvas_path());
     if let Some(e) = idx.list.iter_mut().find(|e| e.id == idx.current) {
         e.node_count = file.nodes.len();
+        e.kinds = kinds_of(&file);
     }
-    Json(json!({ "ok": true, "current": idx.current, "list": idx.list }))
+    // 其余几张从各自的存档里读。**只读节点不读别的** —— 侧栏要的就是
+    // "这条会话里有什么"，而每次开侧栏重新解析一遍全部画布是可以接受的：
+    // 会话数是几十的量级，不是几千。
+    let others: Vec<(String, usize, Vec<String>)> = idx
+        .list
+        .iter()
+        .filter(|e| e.id != idx.current)
+        .filter_map(|e| {
+            let p = state.ws.canvas_file(&e.id)?;
+            let f = canvas::read(&p);
+            Some((e.id.clone(), f.nodes.len(), kinds_of(&f)))
+        })
+        .collect();
+    for (id, n, k) in others {
+        if let Some(e) = idx.list.iter_mut().find(|e| e.id == id) {
+            e.node_count = n;
+            e.kinds = k;
+        }
+    }
+    let _ = write_index(&state.ws.index_path(), &idx);
+    Json(json!({
+        "ok": true,
+        "current": idx.current,
+        "list": idx.list,
+        "projects": idx.projects,
+    }))
+}
+
+// ---------------------------------------------------------------------------
+// 项目
+//
+// 项目就是会话上的一个分组标签，没有自己的目录也没有自己的文件。
+//
+// **不给项目建目录。** 建了的话「把会话移出项目」就变成一次文件移动，
+// 而移动会改掉 `.hilo/canvases/<id>.json` 的路径 —— 那个路径散在存档、
+// 索引和切换逻辑三处，任何一处没跟上就是一张打不开的画布。
+// 一个字符串字段做不到这种坏法。
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub struct ProjectBody {
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+pub async fn create_project(
+    State(state): State<Arc<AppState>>,
+    Json(b): Json<ProjectBody>,
+) -> (StatusCode, Json<Value>) {
+    let name = b.name.unwrap_or_default().trim().to_string();
+    if name.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "ok": false, "error": "项目要有名字" })),
+        );
+    }
+    let mut idx = ensure(&state);
+    let p = Project {
+        id: uuid::Uuid::new_v4().to_string(),
+        name,
+        created_at: now(),
+    };
+    idx.projects.push(p.clone());
+    let _ = write_index(&state.ws.index_path(), &idx);
+    (StatusCode::OK, Json(json!({ "ok": true, "project": p })))
+}
+
+/// 解散一个项目。**里面的会话不删，退回未分组。**
+///
+/// 连着会话一起删是这类操作里最容易造成不可逆损失的一种 —— 用户想清掉的
+/// 是那个分组，不是几个小时的创作。
+pub async fn delete_project(
+    State(state): State<Arc<AppState>>,
+    UrlPath(id): UrlPath<String>,
+) -> (StatusCode, Json<Value>) {
+    let mut idx = ensure(&state);
+    idx.projects.retain(|p| p.id != id);
+    let mut freed = 0;
+    for e in idx.list.iter_mut() {
+        if e.project.as_deref() == Some(id.as_str()) {
+            e.project = None;
+            freed += 1;
+        }
+    }
+    let _ = write_index(&state.ws.index_path(), &idx);
+    (
+        StatusCode::OK,
+        Json(json!({ "ok": true, "ungrouped": freed })),
+    )
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MoveBody {
+    /// 目标项目。`null` 或缺省 = 移出到未分组。
+    #[serde(rename = "projectId", default)]
+    pub project_id: Option<String>,
+}
+
+/// 把一条会话move 到某个项目下，或移出。
+pub async fn move_canvas(
+    State(state): State<Arc<AppState>>,
+    UrlPath(id): UrlPath<String>,
+    Json(b): Json<MoveBody>,
+) -> (StatusCode, Json<Value>) {
+    let mut idx = ensure(&state);
+    // 目标项目不存在时**报错而不是当成"移出"** —— 那会让一次拼错 id 的
+    // 移动看起来成功了，而会话悄悄跑到了未分组。
+    if let Some(pid) = b.project_id.as_deref()
+        && !idx.projects.iter().any(|p| p.id == pid)
+    {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({ "ok": false, "error": "没有这个项目" })),
+        );
+    }
+    let Some(e) = idx.list.iter_mut().find(|e| e.id == id) else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({ "ok": false, "error": "没有这条会话" })),
+        );
+    };
+    e.project = b.project_id.clone();
+    let _ = write_index(&state.ws.index_path(), &idx);
+    (StatusCode::OK, Json(json!({ "ok": true })))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RenameBody {
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+pub async fn rename(
+    State(state): State<Arc<AppState>>,
+    UrlPath(id): UrlPath<String>,
+    Json(b): Json<RenameBody>,
+) -> (StatusCode, Json<Value>) {
+    let name = b.name.unwrap_or_default().trim().to_string();
+    if name.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "ok": false, "error": "名字不能是空的" })),
+        );
+    }
+    let mut idx = ensure(&state);
+    let Some(e) = idx.list.iter_mut().find(|e| e.id == id) else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({ "ok": false, "error": "没有这条会话" })),
+        );
+    };
+    e.name = name;
+    let _ = write_index(&state.ws.index_path(), &idx);
+    (StatusCode::OK, Json(json!({ "ok": true })))
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -161,6 +350,8 @@ pub async fn create(
             name: name.clone(),
             updated_at: now(),
             node_count: 0,
+            project: None,
+            kinds: vec![],
         },
     );
     idx.current = id.clone();
