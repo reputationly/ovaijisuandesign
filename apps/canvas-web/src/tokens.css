@@ -169,6 +169,14 @@
   --home-showcase-bottom-safe-inset: 64px;
   /* 灵感卡片之间的间距。官方值。 */
   --home-media-showcase-gap: 8px;
+  /* 首页背景的点阵。官方 `.home-content-grid`：
+   * `radial-gradient(circle, <line> 1px, transparent 1px)` + `20px 20px`。
+   * 它不只是装饰 —— 拖东西、判断对齐时那层点是唯一的参照。 */
+  --home-grid-line: color-mix(in srgb, var(--foreground) 12%, transparent);
+  --home-grid-line-hover: color-mix(in srgb, var(--foreground) 18%, transparent);
+  /* 灵感区最宽多少。官方 `--home-media-showcase-max-width`。
+   * 它**比输入框那一栈宽**（793），所以四张卡能铺开。 */
+  --home-media-showcase-max-width: 1200px;
   --home-hero-content-gap: 24px;
   --home-hero-title-block-gap: 12px;
   --home-hero-title-row-gap: 16px;
@@ -440,6 +448,8 @@
   --home-sidebar-secondary-text: #fffc;
   --home-sidebar-section-text: #fff9;
   --muted: #1a1a1a;
+  --home-grid-line: color-mix(in srgb, var(--foreground) 10.206%, transparent);
+  --home-grid-line-hover: color-mix(in srgb, var(--foreground) 22%, transparent);
   --muted-foreground: #fff9;
   --popover: var(--elevated-surface);
   --popover-foreground: #fafafa;

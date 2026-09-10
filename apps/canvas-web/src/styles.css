@@ -403,3 +403,31 @@ body {
 @media (max-width: 640px) {
   .home-media-showcase-grid { --home-media-showcase-column-count: 1; }
 }
+
+/* 首页背景的点阵。官方 `.home-content-grid`。
+ * 20px 一格，1px 的点 —— 和画布上那层是同一套视觉语言。 */
+.home-content-grid {
+  background-image: radial-gradient(circle, var(--home-grid-line) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0;
+  /* `100cqi` 的参照物。灵感区要比输入框那一栈宽，靠这个跳出 793 的限制。 */
+  container-type: inline-size;
+}
+
+/* 灵感区。官方 `.home-media-showcase-block`：
+ *
+ *   width: max(min(100cqi - 2*padding, 793), min(100cqi - 2*padding, max-width))
+ *
+ * 意思是「至少和输入框一样宽，最多 max-width，但不超出容器」。
+ * 我们的 `.home-below-anchor` 是绝对定位 + `left:50%; translate:-50%`，
+ * 所以给它宽度就够了，不用再算左边距。 */
+.home-below-anchor {
+  width: min(
+    calc(100cqi - var(--home-hero-padding-x) - var(--home-hero-padding-x)),
+    var(--home-media-showcase-max-width)
+  );
+  min-width: min(
+    calc(100cqi - var(--home-hero-padding-x) - var(--home-hero-padding-x)),
+    var(--home-primary-stack-width)
+  );
+}

@@ -178,59 +178,49 @@ const SKILLS = [
 ]
 
 function Cover({ preset }: { preset: Inspiration }) {
-  const [failed, setFailed] = useState(false)
-  // 预览视频拉不到（还没上传 / 断网 / 域名换了）就退回静态封面。
+  // 预览视频拉不到（还没上传 / 断网 / 域名没配）就退回占位图标。
   const [videoFailed, setVideoFailed] = useState(false)
-
-  if (failed) {
-    return (
-      <div
-        data-video-orientation={preset.orientation ?? "landscape"}
-        className="home-media-showcase-media-frame flex items-center justify-center"
-        style={{ background: KIND_TINT[preset.kind] ?? "var(--bg-subtle)" }}
-      >
-        <span style={{ color: "var(--muted-foreground)" }}>{KIND_ICON[preset.kind]}</span>
-      </div>
-    )
-  }
+  const src = preset.previewUrl ?? PREVIEW(preset.id)
 
   return (
     <div
       data-video-orientation={preset.orientation ?? "landscape"}
-      className="home-media-showcase-media-frame relative overflow-hidden"
+      className="home-media-showcase-media-frame relative overflow-hidden rounded-md"
       style={{ background: "var(--bg-subtle)" }}
     >
-      {!videoFailed ? (
+      {src && !videoFailed ? (
         // `preload="metadata"` 只拉文件头，**hover 才真正播** ——
         // 首屏不会同时下十几个视频。官方也是这个行为。
         <video
-          src={preset.previewUrl ?? PREVIEW(preset.id)}
-          poster={COVER(preset.id)}
+          src={src}
           muted
           loop
           playsInline
           preload="metadata"
-          className="h-full w-full object-cover"
+          className="home-media-showcase-media h-full w-full object-cover"
           onMouseEnter={(e) => void e.currentTarget.play().catch(() => {})}
           onMouseLeave={(e) => {
             e.currentTarget.pause()
             e.currentTarget.currentTime = 0
           }}
-          // **取不到就回落静态封面**，而不是留一个黑框。视频放在 landing
-          // page 上，那边还没上传、或者用户断网时都会走到这里。
           onError={() => setVideoFailed(true)}
         />
       ) : (
-        <img
-          src={COVER(preset.id)}
-          alt=""
-          loading="lazy"
-          onError={() => setFailed(true)}
-          className="h-full w-full object-cover"
-        />
+        // **没有媒体时放一个图标，不放假图。** 官方这一格就是
+        // `<span class="flex h-full items-center justify-center
+        // text-muted-foreground"><Image/></span>`。
+        //
+        // 之前这里是我们自己生成的一批静态封面 —— 题材对得上但不是真产物，
+        // 而"看起来像成品的占位图"会让人以为点了就出这个。
+        <span
+          className="flex h-full items-center justify-center"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {KIND_ICON[preset.kind]}
+        </span>
       )}
       {preset.kind !== "image" && (
-        // 非图片的预设，封面只是示意画面 —— 不标的话用户会以为点了出的是图。
+        // 非图片的预设要标出来 —— 不标的话用户会以为点了出的是图。
         <span
           className="absolute top-1.5 left-1.5 flex items-center gap-1 rounded px-1.5 py-px text-[10px]"
           style={{ background: "var(--canvas-media-control-bg)", color: "#fff" }}
@@ -250,50 +240,30 @@ const KIND_ICON: Record<string, ReactNode> = {
 }
 
 /**
- * 预设的封面。
- *
- * `public/covers/<id>.webp`，**由 `scripts/gen-covers.py` 用这台机器上的
- * MaaS 平台、按下面那些提示词生成一次**，产物提交进仓库。八张一共 155 KB。
- *
- * 试过两条不行的路，记下来免得再走：
- *
- * - **抄官方的封面**：那些图不在应用包里（包里只有托盘图标），是运行时从
- *   他们的推荐服务拉的；而且题材对不上 —— 卡片写"暖光台灯"配一个说唱 MV
- *   比占位图更糟。
- * - **用用户自己生成的结果**：不稳定。换台机器、清了工作区就没了，
- *   而首页应该是确定的。
- *
- * 视频预览走 `previewUrl`（见 [`Inspiration`]）。
- */
-const COVER = (id: string) => `/covers/${id}.webp`
-
-/**
  * 灵感卡片的预览视频放在哪。
  *
- * **不进应用包。** 视频几 MB 一个，八张就是几十 MB —— 安装包会翻一倍，
- * 而这些东西只在首页露个面。放在 landing page 仓库（`maas-landingpage`，
- * 部署在**腾讯云 EdgeOne**；Vite 的 `public/` 原样出到 `dist/`）的
- * `showcase/` 下面，打开首页时按需下载。
+ * **不进应用包。** 视频几 MB 一个，安装包会翻一倍，而这些东西只在首页
+ * 露个面。放在 landing page 仓库（`maas-landingpage`，部署在腾讯云
+ * EdgeOne；Vite 的 `public/` 原样出到 `dist/`）的 `showcase/` 下面。
  *
  * 注意那个仓库里还留着 `wrangler.toml` —— 那是早期用 Cloudflare Pages
  * 时的残留，现在不生效，别照着它推断部署方式。
  *
- * 走环境变量是为了**换域名不用改代码**：本地调试可以指到
- * `http://localhost:5173`,自建部署可以指到自己的地址。
+ * ## 现在是空的
+ *
+ * 域名还没定，**默认不配** —— 配一个猜的地址只会让首页每次打开都发一批
+ * 必然 404 的请求。空着时卡片走官方那套占位（一个图标 + 提示词文字），
+ * 见 [`Cover`]。
+ *
+ * 视频就位后把域名填进 `VITE_SHOWCASE_BASE`（构建时注入），
+ * 或者直接在这里写死。
  */
-const SHOWCASE_BASE = (
-  import.meta.env.VITE_SHOWCASE_BASE ?? "https://www.ovaijisuan.com/showcase"
-).replace(/\/$/, "")
+const SHOWCASE_BASE = (import.meta.env.VITE_SHOWCASE_BASE ?? "").replace(/\/$/, "")
 
-/** 预览视频地址。返回 `undefined` 时卡片回落到本地那张静态封面。 */
-export const PREVIEW = (id: string) => `${SHOWCASE_BASE}/${id}.mp4`
+/** 预览视频地址。没配 base 就返回 `undefined`，卡片走占位。 */
+export const PREVIEW = (id: string): string | undefined =>
+  SHOWCASE_BASE ? `${SHOWCASE_BASE}/${id}.mp4` : undefined
 
-/** 按类型给的兜底底色（封面缺失时）。用画布那 9 档底色，色调统一。 */
-const KIND_TINT: Record<string, string> = {
-  image: "var(--canvas-bg-mist-blue)",
-  video: "var(--canvas-bg-lavender)",
-  audio: "var(--canvas-bg-sage)",
-}
 
 export function Home({
   onSubmit,
@@ -385,7 +355,7 @@ export function Home({
     // 2. 把 px-10 放在了 max-width 容器**里面**，于是输入框只有 793-80=713 宽。
     //    官方那 40px 内边距在 max-width 外面，输入框是实打实的 793。
     <main
-      className="relative isolate flex min-w-0 flex-1 flex-col items-stretch overflow-y-auto"
+      className="home-content-grid relative isolate flex min-w-0 flex-1 flex-col items-stretch overflow-y-auto"
       style={{ background: "var(--home-content-surface, var(--background))" }}
     >
       {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
@@ -671,11 +641,10 @@ export function Home({
           `top: 100%` 量的是滚动容器自身的高度（不是 scrollHeight），
           所以它正好落在首屏下沿，往下滚才看到。 */}
       <div
-        className="home-below-anchor absolute left-1/2 flex w-full flex-col"
+        className="home-below-anchor absolute left-1/2 flex flex-col"
         style={{
           top: "calc(100% + var(--home-input-to-media-showcase-gap))",
           translate: "-50%",
-          paddingInline: "var(--home-hero-padding-x)",
           paddingBlockEnd: "var(--home-showcase-bottom-safe-inset)",
         }}
       >
@@ -721,12 +690,25 @@ export function Home({
                 <button
                   key={c}
                   onClick={() => setCat(c)}
-                  className="rounded-full px-4 py-2 text-[13px] transition-colors"
+                  // 配色照官方的 `--home-scene-tag-*`：
+                  //   surface        = var(--card)
+                  //   surface-active = color-mix(in srgb, var(--foreground) 6%, var(--card))
+                  //   border-hover   = color-mix(in srgb, var(--foreground) 16%, transparent)
+                  //
+                  // **选中态不是纯黑填充。** 之前用 `--foreground` 铺底、
+                  // 文字反白，那个对比度在一排胶囊里像一个主按钮，
+                  // 抢掉了下面卡片的注意力；官方只是把底色压深 6%。
+                  className="rounded-[var(--home-scene-tag-radius)] px-4 py-2 text-[13px] transition-colors"
                   style={{
-                    background: cat === c ? "var(--foreground)" : "var(--home-scene-tag-surface)",
-                    color: cat === c ? "var(--background)" : "var(--foreground)",
-                    border:
-                      cat === c ? "1px solid transparent" : "1px solid var(--border)",
+                    background:
+                      cat === c
+                        ? "var(--home-scene-tag-surface-active)"
+                        : "var(--home-scene-tag-surface)",
+                    color: "var(--foreground)",
+                    border: `1px solid ${
+                      cat === c ? "var(--home-scene-tag-border-hover)" : "var(--border)"
+                    }`,
+                    fontWeight: cat === c ? 500 : 400,
                   }}
                 >
                   {c}
