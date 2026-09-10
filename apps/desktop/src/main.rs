@@ -130,8 +130,17 @@ fn run() -> Result<()> {
 
             #[cfg(target_os = "macos")]
             {
+                // `Overlay` = AppKit 的 `NSFullSizeContentView` + 透明标题栏，
+                // 也就是官方那个 `hiddenInset`：内容一直铺到窗口顶，红绿灯浮在
+                // 侧栏上。**不能换成 `Transparent`** —— 那个不延伸内容区，
+                // 整个界面会往下掉一条标题栏的高度。
+                //
+                // `hidden_title` 单独关标题文字。不关的话 macOS 会把
+                // "光谷爱计算" 画在红绿灯右边，而侧栏顶上本来就有一次品牌名，
+                // 看起来是同一个名字重复了两遍。
                 b = b
                     .title_bar_style(tauri::TitleBarStyle::Overlay)
+                    .hidden_title(true)
                     .traffic_light_position(tauri::LogicalPosition::new(12.0, 12.0));
             }
             #[cfg(target_os = "windows")]

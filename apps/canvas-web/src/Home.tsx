@@ -270,10 +270,19 @@ export function Home({
       >
         {/* hero */}
         <div className="flex flex-col items-center" style={{ gap: "var(--home-hero-title-block-gap)" }}>
-          <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="" width={56} height={56} className="rounded-xl" />
+          <div className="flex items-center gap-3">
+            {/* 蒜狸。**不加圆角也不裁切** —— 它是个带黑描边的手绘形象，
+                套一个 rounded-xl 会把耳朵尖切掉。 */}
+            <img
+              src="/mascot.png"
+              alt="蒜狸"
+              width={72}
+              height={72}
+              className="shrink-0 select-none"
+              draggable={false}
+            />
             <h1
-              className="font-semibold"
+              className="font-brand"
               style={{
                 fontSize: "var(--home-hero-title-size)",
                 lineHeight: "var(--home-hero-title-line-height)",
@@ -283,6 +292,7 @@ export function Home({
             </h1>
           </div>
           <p
+            className="font-brand"
             style={{
               fontSize: "var(--home-hero-subtitle-size)",
               lineHeight: "var(--home-hero-subtitle-line-height)",
@@ -290,7 +300,7 @@ export function Home({
               color: "var(--muted-foreground)",
             }}
           >
-            接你自己的 MaaS 平台，画布 + agent 都在本地
+            说一句话，剩下的交给蒜狸
           </p>
         </div>
 
