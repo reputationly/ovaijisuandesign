@@ -222,6 +222,35 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
     out.to_string()
 }
 
+/// 把工作区里的一个文件放到画布上，返回节点 id。
+///
+/// 走的是 `media_node`,和界面上传、IM 附件同一条路 —— 于是它会被登记进
+/// 资产索引、按类型归档、发出 `canvas:changed`。
+async fn place(state: &Arc<AppState>, path: &str) -> Result<String, String> {
+    if path.trim().is_empty() {
+        return Err("生成结果里没有 path".into());
+    }
+    let body = serde_json::from_value(json!({ "assetPath": path }))
+        .map_err(|e| format!("assetPath 形状不对：{e}"))?;
+    let v = body_json(
+        crate::api_canvas::media_node(axum::extract::State(state.clone()), axum::Json(body)).await,
+    )
+    .await;
+    if v.get("ok").and_then(Value::as_bool) == Some(false) {
+        return Err(v
+            .get("error")
+            .map(|e| e.to_string())
+            .unwrap_or_else(|| v.to_string()));
+    }
+    // 字段是 `nodeId`（`media_node` 新建和复用两条路都回它）。取错名字的话
+    // 这里会静默拿到空串，模型下一步想引用这个节点就引用了个空 id。
+    v.get("nodeId")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .ok_or_else(|| format!("media_node 没有回 nodeId：{v}"))
+}
+
 /// 把一个 `Response` 读成 JSON。
 ///
 /// `media_node` / `text_node` 回的是 `Response` 而不是 `Json<Value>` ——
@@ -282,11 +311,33 @@ async fn submit_and_wait(state: &Arc<AppState>, kind: &str, body: Value) -> Stri
                 let path = v
                     .pointer("/result/path")
                     .and_then(Value::as_str)
-                    .unwrap_or("");
+                    .unwrap_or("")
+                    .to_string();
+                // **建节点这一步必须真的做。** 生成只是把文件写进工作区，
+                // 画布上什么都不会出现 —— MCP 那条路由 TS 侧的
+                // `placeOnCanvas` 负责，这里得我们自己来。
+                //
+                // 不做而直接回"已放到画布上"的话，模型会照着这句话告诉用户
+                // 图已经出好了，用户看到的却是一张空画布。而且 catalog 里
+                // 写着"生成类工具会自己建节点，不用再调 canvas_write_node"，
+                // 模型连补一刀的机会都没有。
+                let placed = place(state, &path).await;
                 // 结果里**带上 path**：模型下一步可能要拿它当底图或参考帧。
-                return json!({ "ok": true, "path": path,
-                    "note": "已放到画布上" })
-                .to_string();
+                return match placed {
+                    Ok(node_id) => json!({
+                        "ok": true, "path": path, "nodeId": node_id,
+                        "note": "已放到画布上"
+                    })
+                    .to_string(),
+                    // 生成成功但没落上 —— **如实说**。含糊过去的话模型会说
+                    // "已放到画布上"，而用户看着空画布无从判断哪一步出了错。
+                    Err(e) => json!({
+                        "ok": false, "path": path,
+                        "error": format!("已生成 {path}，但建画布节点失败：{e}"),
+                        "note": "文件在工作区里，可以用 canvas_write_node 重试"
+                    })
+                    .to_string(),
+                };
             }
             Some("failed") => {
                 return err(v
@@ -296,5 +347,88 @@ async fn submit_and_wait(state: &Arc<AppState>, kind: &str, body: Value) -> Stri
             }
             _ => {}
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn state(dir: &std::path::Path) -> Arc<AppState> {
+        let ws = crate::workspace::Workspace::new(dir);
+        Arc::new(AppState {
+            ws: ws.clone(),
+            assets: Arc::new(crate::assets::Assets::load(ws)),
+            events: Arc::new(crate::events::Events::new()),
+            canvas_lock: Default::default(),
+            media: Arc::new(maas_media::MediaConfig::default()),
+            client: reqwest::Client::builder().no_proxy().build().unwrap(),
+            local: reqwest::Client::builder().no_proxy().build().unwrap(),
+            tasks: Arc::new(crate::tasks::TaskStore::new()),
+            updater: Arc::new(crate::update::Updater::new()),
+            questions: Arc::new(crate::question::Questions::new()),
+            activity: Arc::new(crate::activity::Activity::new()),
+            agent: Arc::new(crate::agent::Agent::new()),
+            feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
+            awake: Arc::new(crate::awake::Keeper::default()),
+            wechat: Arc::new(crate::wechat::Wechat::new()),
+            upstream: None,
+            web_dir: None,
+        })
+    }
+
+    /// 一张真的 1x1 PNG。`media_node` 会去读尺寸，随便几个字节不行。
+    const PNG: &[u8] = &[
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44,
+        0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F,
+        0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00,
+        0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49,
+        0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+    ];
+
+    #[tokio::test]
+    async fn a_generated_file_really_ends_up_as_a_canvas_node() {
+        // 生成只是把文件写进工作区，画布上什么都不会出现。这一步不做而
+        // 直接回"已放到画布上"的话，模型会照着这句话告诉用户图已经出好了，
+        // 用户看到的却是一张空画布 —— 而且中间没有任何报错。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        std::fs::create_dir_all(dir.path().join("images")).unwrap();
+        std::fs::write(dir.path().join("images/a.png"), PNG).unwrap();
+
+        let node_id = place(&st, "images/a.png").await.expect("应当建出节点");
+        assert!(!node_id.is_empty(), "nodeId 不能是空串");
+
+        let file = crate::canvas::read(&st.ws.canvas_path());
+        assert_eq!(file.nodes.len(), 1, "画布上应当有一个节点");
+        assert_eq!(file.nodes[0].id, node_id);
+    }
+
+    #[tokio::test]
+    async fn a_missing_file_is_reported_not_swallowed() {
+        // 报成功的话模型会说"已放到画布上"，用户看着空画布无从判断
+        // 是哪一步出的错。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        let e = place(&st, "images/nope.png").await.unwrap_err();
+        assert!(!e.is_empty(), "错误信息不能是空的");
+
+        assert!(place(&st, "").await.is_err(), "空 path 也要报错");
+        assert!(place(&st, "   ").await.is_err());
+    }
+
+    #[tokio::test]
+    async fn placing_the_same_file_twice_does_not_add_a_second_card() {
+        // media_node 对同一个资产是复用的。两条路（新建 / 复用）都要回
+        // nodeId —— 只认新建那条的话，重试一次就拿到空 id 了。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        std::fs::create_dir_all(dir.path().join("images")).unwrap();
+        std::fs::write(dir.path().join("images/a.png"), PNG).unwrap();
+
+        let first = place(&st, "images/a.png").await.unwrap();
+        let second = place(&st, "images/a.png").await.unwrap();
+        assert_eq!(first, second);
+        assert_eq!(crate::canvas::read(&st.ws.canvas_path()).nodes.len(), 1);
     }
 }

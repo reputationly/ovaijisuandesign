@@ -122,7 +122,8 @@ pub fn all() -> Vec<Tool> {
             name: "canvas_write_node",
             description: "在画布上写一个节点。kind=text 写 Markdown 文本\
                 （分镜表、脚本、说明都用它）；kind=media 把工作区里已有的文件\
-                放上画布。生成类工具会自己建节点，不用再调这个。",
+                放上画布。生成类工具成功时会自己建节点，正常情况下不用再调这个 —— \
+                但如果它回了「建画布节点失败」，就用 kind=media 带上它给的 path 重试。",
             params: || {
                 json!({
                     "kind": s("text 或 media"),
