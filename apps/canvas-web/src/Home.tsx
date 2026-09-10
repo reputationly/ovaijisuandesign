@@ -1,6 +1,18 @@
-import { ArrowUp, ExternalLink, Music, Video, Image as ImageIcon } from "lucide-react"
-import { useRef, useState, type ReactNode } from "react"
+import {
+  ArrowUp,
+  Box,
+  ChevronDown,
+  ExternalLink,
+  Folder as FolderIcon,
+  Image as ImageIcon,
+  Music,
+  Plus,
+  Sparkles,
+  Video,
+} from "lucide-react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
+import { getCapabilities, uploadFiles } from "./api"
 import { cn } from "./lib"
 
 /**
@@ -247,9 +259,19 @@ const KIND_TINT: Record<string, string> = {
 export function Home({
   onSubmit,
   onOpenCanvas,
+  projectName,
+  onPickProject,
+  onUploaded,
+  onOpenSkills,
 }: {
   onSubmit: (prompt: string, presetId?: string) => void
   onOpenCanvas: () => void
+  /** 当前选中的项目名。`null` = 还没选。 */
+  projectName: string | null
+  onPickProject: (at: { x: number; y: number }) => void
+  /** 上传完成，交给外面去建节点 / 刷新素材。 */
+  onUploaded: (paths: string[]) => void
+  onOpenSkills: () => void
 }) {
   const [tab, setTab] = useState<"inspiration" | "skill">("inspiration")
   const [cat, setCat] = useState<string>("全部")
@@ -257,6 +279,23 @@ export function Home({
   // 记住内容来自哪个预设，生成完把结果登记成它的封面。
   const [preset, setPreset] = useState<string | undefined>()
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  // 哪个下拉开着。模型选择器还没做，点了先跳到 Skill 页 —— 见下面。
+  const [picker, setPicker] = useState<"model" | "skill" | null>(null)
+
+  const upload = async (files: File[]) => {
+    setUploading(true)
+    setUploadError(null)
+    try {
+      onUploaded(await uploadFiles(files))
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const list = INSPIRATIONS.filter((i) => cat === "全部" || i.category === cat)
 
@@ -328,28 +367,113 @@ export function Home({
               fontSize: "var(--home-input-editor-font-size)",
             }}
           />
-          <div className="flex items-center gap-2 px-4 pb-4">
-            <button
-              onClick={onOpenCanvas}
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors"
-              style={{ background: "var(--home-composer-tray-bg)", color: "var(--foreground)" }}
-            >
-              打开画布
-              <ExternalLink size={13} />
-            </button>
-            <span className="flex-1" />
-            <button
-              onClick={() => prompt.trim() && onSubmit(prompt, preset)}
-              disabled={!prompt.trim()}
-              className="flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-85 disabled:opacity-30"
-              style={{
-                background: "var(--canvas-primary-btn-bg)",
-                color: "var(--canvas-primary-btn-icon)",
-              }}
-            >
-              <ArrowUp size={17} />
-            </button>
+          {/* 底部工具行。**结构和类名照官方的 `HomeToolbar`**：
+              左边 `+` / 模型 / 分隔线 / Skill，右边发送。
+              分隔线是 `mx-1 h-3 w-[1.5px] bg-foreground/15`，不是 border。 */}
+          <div
+            data-composer-action-row="true"
+            className="flex min-w-0 items-end justify-between gap-2 px-4 pb-4"
+          >
+            <div data-composer-actions-left="true" className="flex min-w-0 flex-1 items-center">
+              <button
+                type="button"
+                data-action-ui-id="home-attachment-add"
+                title="添加文件"
+                disabled={uploading}
+                onClick={() => fileRef.current?.click()}
+                className="mr-1 flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-[var(--message-input-attachment-bg)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-attachment-bg-hover)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <Plus size={16} strokeWidth={1.5} />
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                multiple
+                className="hidden"
+                data-action-ui-id="home-attachment-local"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? [])
+                  // **必须清空 value。** 不清的话，选同一个文件第二次
+                  // 不会触发 change —— 表现是"第二次点没反应"。官方同款。
+                  e.target.value = ""
+                  if (files.length) void upload(files)
+                }}
+              />
+
+              <div className="relative">
+                <ToolBtn
+                  data-action-ui-id="home-model-btn"
+                  onClick={() => setPicker(picker === "model" ? null : "model")}
+                >
+                  <Box size={16} strokeWidth={1.5} />
+                  模型
+                </ToolBtn>
+                {picker === "model" && <ModelPopover onClose={() => setPicker(null)} />}
+              </div>
+
+              <ToolbarDivider />
+
+              {/* Skill 在官方是个弹层（带分类标签和搜索）。我们已经有一整页
+                  Skill 了，点这里直接过去 —— 再做一个功能重叠的弹层，
+                  两处的"创建/编辑"就要维护两份。 */}
+              <ToolBtn data-action-ui-id="home-skill-btn" onClick={onOpenSkills}>
+                <Sparkles size={16} strokeWidth={1.5} />
+                Skill
+              </ToolBtn>
+
+              <button
+                onClick={onOpenCanvas}
+                className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-foreground/70 transition-colors hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
+              >
+                打开画布
+                <ExternalLink size={13} />
+              </button>
+            </div>
+
+            <div data-composer-actions-right="true" className="flex shrink-0 items-end gap-2">
+              <button
+                type="button"
+                data-action-ui-id="message-send-btn"
+                aria-label="发送"
+                onClick={() => prompt.trim() && onSubmit(prompt, preset)}
+                disabled={!prompt.trim()}
+                className="flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-foreground text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ArrowUp size={17} />
+              </button>
+            </div>
           </div>
+        </div>
+
+        {/* 「选择项目」托盘。官方是**压在输入框底下**的一层浅色面板，
+            只露出下半截 —— 靠负 margin 塞回去，视觉上像输入框的底托。
+            单独放一行的话会多出一条明显的横向分隔，整块散掉。 */}
+        <div
+          className="-mt-4 flex items-center rounded-b-[var(--home-input-radius)] px-5 pt-6 pb-2.5"
+          style={{ background: "var(--home-composer-tray-bg)" }}
+        >
+          <button
+            data-action-ui-id="home-project-btn"
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect()
+              onPickProject({ x: r.left, y: r.bottom + 6 })
+            }}
+            className="flex max-w-[220px] items-center gap-1.5 rounded-full px-2 py-1 text-[13px] text-foreground/70 transition-colors hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
+          >
+            <FolderIcon size={14} />
+            <span className="truncate">{projectName ?? "选择项目"}</span>
+            <ChevronDown size={13} />
+          </button>
+          {uploading && (
+            <span className="ml-3 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+              上传中…
+            </span>
+          )}
+          {uploadError && (
+            <span className="ml-3 text-[12px]" style={{ color: "var(--canvas-node-tag-red)" }}>
+              {uploadError}
+            </span>
+          )}
         </div>
 
         {/* tabs */}
@@ -485,4 +609,92 @@ export function Home({
       </div>
     </div>
   )
+}
+
+/** 工具行上的一个按钮。类名逐字照官方 `HomeToolbar`。 */
+function ToolBtn({
+  children,
+  onClick,
+  ...rest
+}: {
+  children: ReactNode
+  onClick: () => void
+} & Record<string, unknown>) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex cursor-pointer items-center gap-[var(--home-input-control-content-gap)] rounded-full px-[var(--home-input-toolbar-padding-x)] h-[var(--btn-height-sm)] text-[length:var(--home-input-toolbar-font-size)] font-normal leading-5 tracking-[var(--home-input-toolbar-letter-spacing)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
+      {...rest}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** 官方是 `mx-1 h-3 w-[1.5px] bg-foreground/15` —— 一个 div，不是 border。 */
+function ToolbarDivider() {
+  return <div className="mx-1 h-3 w-[var(--home-input-toolbar-divider-width)] shrink-0 bg-foreground/15" />
+}
+
+/**
+ * 模型清单。
+ *
+ * 官方这里是可勾选的模型选择器（选中的会算进按钮上的 `· N`）。我们**只读**：
+ * 用哪个模型是 `config.json` 决定的，让用户在这里勾一个选不中的模型，
+ * 比不给这个界面更糟。
+ *
+ * 数据来自 `/api/capabilities` —— 就是 agent 调 `list_capabilities` 看到的
+ * 同一份，包括"这个模态本机没配"。
+ */
+function ModelPopover({ onClose }: { onClose: () => void }) {
+  const [caps, setCaps] = useState<
+    { modality: string; available: boolean; model: string | null }[] | null
+  >(null)
+  useEffect(() => {
+    void getCapabilities()
+      .then(setCaps)
+      .catch(() => setCaps([]))
+  }, [])
+  return (
+    <>
+      {/* 点外面关掉。不加这层的话弹层只能靠再点一次按钮关，
+          而用户的直觉是点别处就该收起来。 */}
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        className="absolute bottom-full left-0 z-50 mb-2 w-72 rounded-xl p-2 shadow-lg"
+        style={{ background: "var(--canvas-node-bg)", border: "1px solid var(--border)" }}
+      >
+        <p className="px-2 pt-1 pb-2 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+          本机配置的模型（改 config.json 生效）
+        </p>
+        {caps === null ? (
+          <p className="px-2 pb-1 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+            读取中…
+          </p>
+        ) : (
+          caps.map((c) => (
+            <div key={c.modality} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px]">
+              <span className="w-20 shrink-0" style={{ color: "var(--muted-foreground)" }}>
+                {MODALITY_ZH[c.modality] ?? c.modality}
+              </span>
+              <span className="truncate" style={{ color: c.available ? undefined : "var(--muted-foreground)" }}>
+                {c.model ?? "未配置"}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  )
+}
+
+const MODALITY_ZH: Record<string, string> = {
+  image: "文生图",
+  image_edit: "图生图",
+  video: "文生视频",
+  video_ref: "参考生视频",
+  music: "音乐",
+  music_edit: "翻唱",
+  speech: "语音",
 }

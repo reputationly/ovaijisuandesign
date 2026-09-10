@@ -177,17 +177,23 @@ export function Sidebar({
           却哪儿也没去，只是在同一张画布上选中一个节点。官方那栏从来就是
           会话，我们其实早就有多画布了，只是没接上来。 */}
       <div className="min-h-0 flex-1 overflow-auto pb-2">
-        {projects.map((p) => (
-          <Section key={p.id} title={p.name}>
-            <SessionList
-              items={shown.filter((s) => s.project === p.id)}
-              current={current}
-              onOpen={onOpenSession}
-              onMenu={onSessionMenu}
-              empty="这个项目还没有创作"
-            />
+        {/* 官方的结构是「项目」一个大标题，下面挂各个项目文件夹，
+            每个文件夹再挂它的会话。**不是每个项目一个平级分组** ——
+            那样项目多了以后，「未分组」会被挤到很下面，而它才是最常用的。 */}
+        {projects.length > 0 && (
+          <Section title="项目">
+            {projects.map((p) => (
+              <ProjectFolder
+                key={p.id}
+                name={p.name}
+                items={shown.filter((s) => s.project === p.id)}
+                current={current}
+                onOpen={onOpenSession}
+                onMenu={onSessionMenu}
+              />
+            ))}
           </Section>
-        ))}
+        )}
         <Section title="未分组">
           <SessionList
             items={shown.filter((s) => !s.project)}
@@ -302,6 +308,60 @@ function SessionList({
           </button>
         )
       })}
+    </div>
+  )
+}
+
+/**
+ * 项目文件夹。点标题展开 / 收起。
+ *
+ * 默认展开：官方那样。收起的话，用户建完项目、把会话拖进去，侧栏上看起来
+ * 那条会话就"消失"了 —— 得先发现有个能点开的三角。
+ */
+function ProjectFolder({
+  name,
+  items,
+  current,
+  onOpen,
+  onMenu,
+}: {
+  name: string
+  items: Session[]
+  current: string
+  onOpen: (id: string) => void
+  onMenu: (id: string, at: { x: number; y: number }) => void
+}) {
+  // 里面有当前打开的那条时**强制展开** —— 否则用户从别处切进来，
+  // 侧栏上完全看不出自己在哪。
+  const hasCurrent = items.some((s) => s.id === current)
+  const [open, setOpen] = useState(true)
+  const expanded = open || hasCurrent
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-1.5 rounded-lg px-3 py-1.5 text-left text-[13px] text-[var(--home-sidebar-secondary-text)] hover:bg-[var(--home-sidebar-nav-hover)]"
+      >
+        <FolderOpen size={14} className="shrink-0 text-[var(--home-sidebar-section-text)]" />
+        <span className="truncate">{name}</span>
+        <ChevronDown
+          size={12}
+          className="ml-auto shrink-0 transition-transform"
+          style={{ transform: expanded ? undefined : "rotate(-90deg)" }}
+        />
+      </button>
+      {/* 缩进一档，看得出层级 */}
+      {expanded && (
+        <div className="pl-3">
+          <SessionList
+            items={items}
+            current={current}
+            onOpen={onOpen}
+            onMenu={onMenu}
+            empty="这个项目还没有创作"
+          />
+        </div>
+      )}
     </div>
   )
 }

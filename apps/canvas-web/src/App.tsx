@@ -19,6 +19,7 @@ import {
   assetUrl,
   answerQuestion,
   connectEvents,
+  createMediaNode,
   createProject,
   createSession,
   deleteProject,
@@ -83,6 +84,14 @@ export default function App() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [currentSession, setCurrentSession] = useState("")
+  /**
+   * 首页「选择项目」选中的那个。
+   *
+   * **只在新建会话时用一次**，不是一个全局的"当前项目"——把它做成全局状态
+   * 的话，用户从侧栏点开一条属于别的项目的会话，这里还显示着旧的那个，
+   * 而两者根本不是一回事。
+   */
+  const [homeProject, setHomeProject] = useState<string | null>(null)
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
@@ -508,6 +517,49 @@ export default function App() {
               setView("canvas")
             }}
             onOpenCanvas={() => setView("canvas")}
+            projectName={projects.find((p) => p.id === homeProject)?.name ?? null}
+            onOpenSkills={() => setView("skill")}
+            onPickProject={(at) =>
+              setMenu({
+                x: at.x,
+                y: at.y,
+                items: [
+                  {
+                    id: "none",
+                    label: "不归入项目",
+                    onClick: () => setHomeProject(null),
+                  },
+                  ...projects.map((p) => ({
+                    id: p.id,
+                    label: p.name,
+                    onClick: () => setHomeProject(p.id),
+                  })),
+                  {
+                    id: "new",
+                    label: "新建项目…",
+                    onClick: () => {
+                      const name = window.prompt("项目名字")?.trim()
+                      if (!name) return
+                      void createProject(name).then((r) => {
+                        setHomeProject(r.project.id)
+                        void reloadSessions()
+                      })
+                    },
+                  },
+                ],
+              })
+            }
+            onUploaded={(paths) => {
+              // 上传完直接落到画布上并切过去 —— 传了文件却什么都没发生，
+              // 用户会以为传失败了。
+              if (!paths.length) return
+              void Promise.all(paths.map((p) => createMediaNode(p)))
+                .then(() => {
+                  setView("canvas")
+                  return load()
+                })
+                .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
+            }}
           />
         ) : (
 

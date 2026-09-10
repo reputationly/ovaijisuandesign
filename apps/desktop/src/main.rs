@@ -138,10 +138,15 @@ fn run() -> Result<()> {
                 // `hidden_title` 单独关标题文字。不关的话 macOS 会把
                 // "光谷爱计算" 画在红绿灯右边，而侧栏顶上本来就有一次品牌名，
                 // 看起来是同一个名字重复了两遍。
+                //
+                // y 从 12 调到 20：**红绿灯要和侧栏顶那行图标共用一条中线。**
+                // 12 的时候灯的中心落在 13.5，而 h-11 的图标行中心在 22，
+                // 差 8px —— 视觉上灯明显浮在上面，像贴歪了。
+                // 官方量出来是中心 20.5，两者是对齐的。
                 b = b
                     .title_bar_style(tauri::TitleBarStyle::Overlay)
                     .hidden_title(true)
-                    .traffic_light_position(tauri::LogicalPosition::new(12.0, 12.0));
+                    .traffic_light_position(tauri::LogicalPosition::new(12.0, 20.0));
             }
             #[cfg(target_os = "windows")]
             {

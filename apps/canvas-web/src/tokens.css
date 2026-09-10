@@ -147,6 +147,21 @@
   --elevated-surface: #fff;
   --foreground: #000;
   --home-composer-tray-bg: #f0f0f0;
+
+  /* 输入框底部那行工具（+ / 模型 / Skill）。值逐个取自官方 3.0.12。
+   *
+   * 三个用 color-mix 的**不能换成固定色**：它们是按 --foreground 混出来的，
+   * 深浅色两套主题各自成立。写死一个灰值的话，深色主题下那几个按钮的
+   * hover 会看不见。 */
+  --btn-height-sm: 32px;
+  --message-input-attachment-bg: color-mix(in srgb, var(--foreground) 4%, transparent);
+  --message-input-attachment-bg-hover: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --message-input-control-hover: color-mix(in srgb, var(--foreground) 5%, transparent);
+  --home-input-control-content-gap: 4px;
+  --home-input-toolbar-padding-x: 12px;
+  --home-input-toolbar-font-size: 14px;
+  --home-input-toolbar-letter-spacing: 0px;
+  --home-input-toolbar-divider-width: 1.5px;
   --home-grid-line: color-mix(in srgb, var(--foreground) 12%, transparent);
   --home-input-border: var(--border);
   --home-input-radius: 24px;

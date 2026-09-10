@@ -230,6 +230,127 @@ pub(crate) async fn import_one(
     state.assets.enroll(&rel)
 }
 
+// ---------------------------------------------------------------------------
+// 上传本地文件
+//
+// `import-url` 只收 http(s)，本地文件传不上去 —— 而输入框那个 `+` 按钮
+// 要的正好是本地文件。
+//
+// **收原始字节，不用 multipart。** multipart 要引一个解析库，而我们这里
+// 只有单个文件、没有别的表单字段。文件名走 header：放在 query 里的话，
+// 中文名要 URL 编码，而各家客户端编码得不一致。
+// ---------------------------------------------------------------------------
+
+/// 单个文件的上限。
+///
+/// 必须有：body 是全量读进内存的，不封顶的话一个几 GB 的视频会把 gateway
+/// 直接撑爆 —— 而它和画布跑在同一个进程里，撑爆等于整个应用没了。
+const MAX_UPLOAD: usize = 512 * 1024 * 1024;
+
+pub async fn upload(
+    State(state): State<std::sync::Arc<AppState>>,
+    headers: axum::http::HeaderMap,
+    body: axum::body::Bytes,
+) -> (StatusCode, Json<Value>) {
+    let bad = |m: &str| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "ok": false, "error": m })),
+        )
+    };
+    if body.is_empty() {
+        return bad("上传的内容是空的");
+    }
+    if body.len() > MAX_UPLOAD {
+        return bad("文件太大（上限 512 MB）");
+    }
+    let raw = headers
+        .get("x-filename")
+        .and_then(|v| v.to_str().ok())
+        .map(percent_decode)
+        .unwrap_or_default();
+    // 只取最后一段并挡住路径分隔符 —— 文件名直接拼进工作区路径，
+    // `../` 或绝对路径会写到工作区外面去。
+    let name = std::path::Path::new(&raw)
+        .file_name()
+        .map(|s| s.to_string_lossy().into_owned())
+        .filter(|s| !s.is_empty() && s != "." && s != "..")
+        .unwrap_or_else(|| "upload".to_string());
+    let ext = std::path::Path::new(&name)
+        .extension()
+        .map(|e| e.to_string_lossy().to_ascii_lowercase())
+        .unwrap_or_default();
+    let mut rel = format!("{}/{}", crate::workspace::subdir_for(&ext), name);
+
+    // 同名不覆盖。覆盖的话，用户传一张和已有素材同名的图会**悄悄换掉**
+    // 画布上已经在用的那张 —— 画布本身没有任何变化，只是内容变了。
+    if state.ws.resolve(&rel).is_some_and(|p| p.exists()) {
+        let stem = std::path::Path::new(&name)
+            .file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "upload".into());
+        let dot = if ext.is_empty() { "" } else { "." };
+        for n in 2..1000 {
+            let cand = format!(
+                "{}/{stem}-{n}{dot}{ext}",
+                crate::workspace::subdir_for(&ext)
+            );
+            if !state.ws.resolve(&cand).is_some_and(|p| p.exists()) {
+                rel = cand;
+                break;
+            }
+        }
+    }
+
+    let Some(abs) = state.ws.resolve(&rel) else {
+        return bad("路径超出工作区");
+    };
+    if let Some(parent) = abs.parent()
+        && tokio::fs::create_dir_all(parent).await.is_err()
+    {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "ok": false, "error": "建目录失败" })),
+        );
+    }
+    if let Err(e) = tokio::fs::write(&abs, &body).await {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "ok": false, "error": e.to_string() })),
+        );
+    }
+    match state.assets.enroll(&rel) {
+        Ok(a) => (
+            StatusCode::OK,
+            Json(json!({ "ok": true, "asset": a, "path": rel })),
+        ),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "ok": false, "error": format!("{e:#}") })),
+        ),
+    }
+}
+
+/// header 里的文件名按 percent-encoding 传（HTTP header 只认 ASCII）。
+fn percent_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%'
+            && i + 2 < b.len()
+            && let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16)
+        {
+            out.push(v);
+            i += 3;
+            continue;
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

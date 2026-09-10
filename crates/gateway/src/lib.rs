@@ -104,6 +104,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/files/id/{asset_id}", get(api_files::serve_by_id))
         .route("/files/{*path}", get(api_files::serve_by_path))
         .route("/api/files/import-url", post(api_files::import_url))
+        .route("/api/files/upload", post(api_files::upload))
         // -- 画布 --
         .route(
             "/api/canvas",

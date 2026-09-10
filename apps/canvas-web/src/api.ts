@@ -537,3 +537,47 @@ export async function deleteSkill(slug: string): Promise<void> {
     "delete skill",
   )
 }
+
+// ---------------------------------------------------------------------------
+// 上传与能力
+// ---------------------------------------------------------------------------
+
+/**
+ * 上传本地文件到工作区，返回各自的相对路径。
+ *
+ * **一个一个传，不并发。** 并发听起来更快，但一次选十几个大文件会同时开
+ * 十几条连接，gateway 那边是全量读进内存的 —— 而且失败时说不清是哪一个。
+ *
+ * 文件名走 header 且要 encodeURIComponent：HTTP header 只认 ASCII，
+ * 中文名直接塞进去会被 fetch 拒掉（`Invalid value`）。
+ */
+export async function uploadFiles(files: File[]): Promise<string[]> {
+  const out: string[] = []
+  for (const f of files) {
+    const res = await fetch("/api/files/upload", {
+      method: "POST",
+      headers: {
+        "content-type": "application/octet-stream",
+        "x-filename": encodeURIComponent(f.name),
+      },
+      body: f,
+    })
+    const body = await json<{ path?: string }>(res, `上传 ${f.name}`)
+    if (body.path) out.push(body.path)
+  }
+  return out
+}
+
+export async function getCapabilities(): Promise<
+  { modality: string; available: boolean; model: string | null }[]
+> {
+  const res = await fetch("/api/capabilities", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: "{}",
+  })
+  const body = await json<{
+    capabilities?: { modality: string; available: boolean; model: string | null }[]
+  }>(res, "POST /api/capabilities")
+  return body.capabilities ?? []
+}
