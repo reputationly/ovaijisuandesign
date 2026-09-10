@@ -101,6 +101,55 @@ impl Assets {
         fs::rename(&tmp, &path).with_context(|| format!("替换资产索引失败: {}", path.display()))
     }
 
+    /// 把外部来的字节存进工作区并登记，返回**工作区相对路径**。
+    ///
+    /// 飞书/微信收到的附件都走这里 —— 和生成结果、界面上传是同一条路，
+    /// 于是它会被登记进资产索引、按类型归档，agent 拿到路径就能当底图用。
+    ///
+    /// `filename` 是外部给的，**不可信**：只取最后一段并挡住 `..`,
+    /// 否则一个 `../../.ssh/config` 就写到工作区外面去了。
+    ///
+    /// 同名不覆盖。用户可能两次发同一个文件名的图，覆盖会把上一张换掉，
+    /// 而画布上引用它的节点看起来毫无变化。
+    pub fn store(&self, filename: &str, bytes: &[u8]) -> Result<String> {
+        let name = Path::new(filename)
+            .file_name()
+            .map(|s| s.to_string_lossy().into_owned())
+            .filter(|s| !s.is_empty() && s != "." && s != "..")
+            .unwrap_or_else(|| "attachment".into());
+        let ext = Path::new(&name)
+            .extension()
+            .map(|e| e.to_string_lossy().to_ascii_lowercase())
+            .unwrap_or_default();
+        let dir = crate::workspace::subdir_for(&ext);
+
+        let mut rel = format!("{dir}/{name}");
+        if self.ws.resolve(&rel).is_some_and(|p| p.exists()) {
+            let stem = Path::new(&name)
+                .file_stem()
+                .map(|s| s.to_string_lossy().into_owned())
+                .unwrap_or_else(|| "attachment".into());
+            let dot = if ext.is_empty() { "" } else { "." };
+            // 上限是为了不在一个撞名撞疯了的目录里空转。到头就报错，
+            // 而不是静默覆盖第 1000 个。
+            let free = (2..1000)
+                .map(|n| format!("{dir}/{stem}-{n}{dot}{ext}"))
+                .find(|cand| !self.ws.resolve(cand).is_some_and(|p| p.exists()));
+            rel = free.with_context(|| format!("{dir}/ 下同名文件太多: {name}"))?;
+        }
+
+        let abs = self
+            .ws
+            .resolve(&rel)
+            .with_context(|| format!("路径超出工作区: {rel}"))?;
+        if let Some(d) = abs.parent() {
+            fs::create_dir_all(d).with_context(|| format!("建目录失败: {}", d.display()))?;
+        }
+        fs::write(&abs, bytes).with_context(|| format!("写入失败: {}", abs.display()))?;
+        self.enroll(&rel)?;
+        Ok(rel)
+    }
+
     /// 登记一个已经落在工作区里的文件，返回资产记录。
     ///
     /// **按路径幂等**：同一个路径重复登记返回同一条记录（尺寸会刷新）。
@@ -205,6 +254,60 @@ mod tests {
         let ws = Workspace::new(dir.path());
         let assets = Assets::load(ws);
         (dir, assets)
+    }
+
+    #[test]
+    fn a_stored_attachment_lands_in_the_folder_for_its_type() {
+        let (d, assets) = setup();
+        let rel = assets.store("photo.jpg", b"xx").unwrap();
+        assert_eq!(rel, "images/photo.jpg");
+        assert!(d.path().join(&rel).exists());
+        // 登记进索引才算数 —— 没登记的话 agent 用路径能找到文件，
+        // 但资产面板和画布节点都不认识它。
+        assert!(assets.list().iter().any(|a| a.path == rel));
+        assert_eq!(assets.store("clip.mp4", b"xx").unwrap(), "videos/clip.mp4");
+        assert_eq!(assets.store("说明.pdf", b"xx").unwrap(), "files/说明.pdf");
+    }
+
+    #[test]
+    fn a_hostile_filename_cannot_escape_the_workspace() {
+        // 文件名是外部给的。不清洗的话一个 `../../.ssh/config` 就写到
+        // 工作区外面去了 —— 而这条路径上的字节来自任何能给机器人发消息的人。
+        let (d, assets) = setup();
+        let rel = assets.store("../../.ssh/config", b"pwned").unwrap();
+        assert!(!rel.contains(".."), "{rel}");
+        assert_eq!(rel, "files/config");
+        assert!(!d.path().parent().unwrap().join(".ssh/config").exists());
+    }
+
+    #[test]
+    fn two_attachments_with_the_same_name_do_not_overwrite_each_other() {
+        // 覆盖的话会把上一张换掉，而画布上引用它的节点看起来毫无变化。
+        let (_d, assets) = setup();
+        assert_eq!(
+            assets.store("shot.png", b"first").unwrap(),
+            "images/shot.png"
+        );
+        let second = assets.store("shot.png", b"second").unwrap();
+        assert_eq!(second, "images/shot-2.png");
+        assert_eq!(
+            assets.store("shot.png", b"third").unwrap(),
+            "images/shot-3.png"
+        );
+        // 第一份还在，内容没被动过。
+        assert_eq!(
+            fs::read(assets.ws.resolve("images/shot.png").unwrap()).unwrap(),
+            b"first"
+        );
+    }
+
+    #[test]
+    fn a_filename_that_is_only_dots_still_gets_stored() {
+        // `..` / `.` / 空串取 file_name 之后什么都不剩。直接用的话会
+        // 写成一个目录名或者报一个看不懂的 IO 错误。
+        let (_d, assets) = setup();
+        assert_eq!(assets.store("..", b"x").unwrap(), "files/attachment");
+        assert_eq!(assets.store("", b"x").unwrap(), "files/attachment-2");
     }
 
     #[test]

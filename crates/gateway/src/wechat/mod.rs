@@ -534,47 +534,14 @@ async fn serve(state: &Arc<AppState>) {
 
 /// 下载一个附件到工作区，返回**工作区相对路径**。
 ///
-/// 落盘走的是 `assets::enroll`，和生成结果、界面上传是同一条路 ——
-/// 于是它会被登记进资产索引、按类型归档，agent 拿到路径就能直接当底图用。
+/// 落盘和登记都在 [`crate::assets::Assets::store`] 里 —— 和飞书那条共用，
+/// 免得两边的"文件名清洗 + 同名避让"各写一份、各错一处。
 async fn download(state: &Arc<AppState>, c: &Client, a: &Attachment) -> Result<String, String> {
     let bytes = media::fetch(&state.client, &a.key, c.token.as_deref()).await?;
-    // 文件名会拼进工作区路径，只取最后一段并挡住 `..`。
-    let name = std::path::Path::new(&a.filename)
-        .file_name()
-        .map(|s| s.to_string_lossy().into_owned())
-        .filter(|s| !s.is_empty() && s != "." && s != "..")
-        .unwrap_or_else(|| "wechat-attachment".into());
-    let ext = std::path::Path::new(&name)
-        .extension()
-        .map(|e| e.to_string_lossy().to_ascii_lowercase())
-        .unwrap_or_default();
-    let mut rel = format!("{}/{}", crate::workspace::subdir_for(&ext), name);
-    // 同名不覆盖。用户可能两次发同一个文件名的图，覆盖会把上一张换掉，
-    // 而画布上引用它的节点看起来毫无变化。
-    if state.ws.resolve(&rel).is_some_and(|p| p.exists()) {
-        let stem = std::path::Path::new(&name)
-            .file_stem()
-            .map(|s| s.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "wechat".into());
-        let dot = if ext.is_empty() { "" } else { "." };
-        for n in 2..1000 {
-            let cand = format!(
-                "{}/{stem}-{n}{dot}{ext}",
-                crate::workspace::subdir_for(&ext)
-            );
-            if !state.ws.resolve(&cand).is_some_and(|p| p.exists()) {
-                rel = cand;
-                break;
-            }
-        }
-    }
-    let abs = state.ws.resolve(&rel).ok_or("路径超出工作区")?;
-    if let Some(d) = abs.parent() {
-        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
-    }
-    std::fs::write(&abs, &bytes).map_err(|e| e.to_string())?;
-    state.assets.enroll(&rel).map_err(|e| format!("{e:#}"))?;
-    Ok(rel)
+    state
+        .assets
+        .store(&a.filename, &bytes)
+        .map_err(|e| format!("{e:#}"))
 }
 
 async fn handle(state: &Arc<AppState>, c: &Client, msg: &Value) {

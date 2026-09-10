@@ -30,6 +30,7 @@ use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
+use super::media::Attachment;
 use crate::AppState;
 
 /// 凭据。存在 `.hilo/feishu.json`。
@@ -129,7 +130,13 @@ impl Bridge {
 /// 从 `im.message.receive_v1` 里取出我们要的东西。
 ///
 /// 返回 `None` 表示这条不该处理（不是消息事件、是机器人自己发的、
-/// 或者没有文本内容）。
+/// 或者既没有文本也没有附件）。
+///
+/// ## 要按 `message_type` 分发
+///
+/// 只读 `content.text` 的话，图片、文件、富文本三类消息**整条都是空的**
+/// —— 而且没有任何报错，表现是"发了图，agent 不理"。官方的
+/// `parseFeishuMessageEvent` 是一个 switch，我们照着分。
 pub fn parse_message(body: &Value) -> Option<Incoming> {
     let ev = body.get("event")?;
     let t = body.pointer("/header/event_type").and_then(Value::as_str)?;
@@ -145,14 +152,34 @@ pub fn parse_message(body: &Value) -> Option<Incoming> {
     }
     let chat_id = msg.get("chat_id")?.as_str()?.to_string();
     let message_id = msg.get("message_id")?.as_str()?.to_string();
+    let message_type = msg.get("message_type").and_then(Value::as_str)?;
     // content 是一个 JSON **字符串**，里面才是 `{"text":"…"}`。
     let raw = msg.get("content")?.as_str()?;
     let content: Value = serde_json::from_str(raw).ok()?;
-    let mut text = content
-        .get("text")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_string();
+
+    let mut attachments: Vec<Attachment> = Vec::new();
+    let mut text = match message_type {
+        "text" => content
+            .get("text")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string(),
+        "image" | "file" | "audio" | "media" => {
+            // 取不到 key 的附件消息没有任何可用内容 —— 官方也是整条跳过。
+            let a = super::media::from_content(message_type, &content)?;
+            let t = super::media::placeholder(&a);
+            attachments.push(a);
+            t
+        }
+        "post" => {
+            let p = super::media::extract_post(&content)?;
+            attachments = p.attachments;
+            p.text
+        }
+        // 表情包、名片、日程……都不是我们能处理的东西。
+        _ => return None,
+    };
+
     // 群里 @ 机器人时，正文里是 `@_user_1` 这样的占位。去掉它，
     // 否则那几个字符会被当成提示词的一部分。
     for m in ev
@@ -166,13 +193,15 @@ pub fn parse_message(body: &Value) -> Option<Incoming> {
         }
     }
     let text = text.trim().to_string();
-    if text.is_empty() {
+    // 只有附件没有文字也要处理 —— 只贴一张图指望"照这个做"是常见用法。
+    if text.is_empty() && attachments.is_empty() {
         return None;
     }
     Some(Incoming {
         chat_id,
         message_id,
         text,
+        attachments,
     })
 }
 
@@ -181,6 +210,7 @@ pub struct Incoming {
     pub chat_id: String,
     pub message_id: String,
     pub text: String,
+    pub attachments: Vec<Attachment>,
 }
 
 // ---------------------------------------------------------------------------
@@ -428,8 +458,68 @@ async fn handle(state: &Arc<AppState>, c: &Creds, domain: &str, ev: super::conn:
         return;
     }
 
+    // 附件先落盘，再把路径拼进提示词 —— 这样"照这张图的风格出三张"里的
+    // "这张图"才有所指。
+    //
+    // 一个附件挂了**不中断其余的**，但要说出来：否则 agent 照着少一张的
+    // 素材干活，用户以为都进去了。
+    let mut paths = Vec::new();
+    let mut failed = Vec::new();
+    if !inc.attachments.is_empty() {
+        // token 取一次给整批用。每个附件现取一次的话，发 9 张图就要多打
+        // 9 次鉴权。
+        match tenant_token(&state.client, domain, c).await {
+            Ok(token) => {
+                for a in &inc.attachments {
+                    match super::media::fetch(&state.client, domain, &token, &inc.message_id, a)
+                        .await
+                        .and_then(|b| {
+                            state
+                                .assets
+                                .store(&a.filename, &b)
+                                .map_err(|e| format!("{e:#}"))
+                        }) {
+                        Ok(rel) => paths.push(rel),
+                        Err(e) => {
+                            tracing::warn!("飞书附件 {} 取失败: {e}", a.filename);
+                            failed.push(format!("{}（{e}）", a.filename));
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                tracing::warn!("取 token 失败，附件全部跳过: {e}");
+                failed.push(format!("全部（{e}）"));
+            }
+        }
+    }
+    if !failed.is_empty() {
+        let _ = reply(
+            &state.client,
+            domain,
+            c,
+            &inc.chat_id,
+            &format!("这些附件没取下来：{}", failed.join("、")),
+        )
+        .await;
+    }
+    // 只发了附件而且全挂了 —— 没有素材也没有文字，这一轮无事可做。
+    // 不拦的话 agent 会拿一句 `[图片]` 去猜用户想要什么。
+    if paths.is_empty() && inc.attachments.len() == failed.len() && !inc.attachments.is_empty() {
+        return;
+    }
+    let prompt = if paths.is_empty() {
+        inc.text.clone()
+    } else {
+        format!(
+            "{}\n\n（用户发来的参考素材：{}）",
+            inc.text,
+            paths.join("、")
+        )
+    };
+
     let before = crate::agent::read_history(&state.ws).len();
-    crate::agent::run_once(state, &inc.text).await;
+    crate::agent::run_once(state, &prompt).await;
     let after = crate::agent::read_history(&state.ws);
 
     // 把这一轮新产生的 assistant 文本发回去。**只发文本，不发工具结果** ——
@@ -456,13 +546,22 @@ mod tests {
     use super::*;
 
     fn event(sender: &str, text: &str) -> Value {
+        typed(sender, "text", json!({ "text": text }))
+    }
+
+    /// 造一条指定 `message_type` 的事件。
+    ///
+    /// `content` 在飞书那边是**一个 JSON 字符串**，不是嵌套对象 ——
+    /// 这里跟着序列化一次，免得测试和实际收到的形状不一样。
+    fn typed(sender: &str, message_type: &str, content: Value) -> Value {
         json!({
             "header": { "event_type": "im.message.receive_v1" },
             "event": {
                 "sender": { "sender_type": sender },
                 "message": {
                     "chat_id": "oc_1", "message_id": "om_1",
-                    "content": json!({ "text": text }).to_string(),
+                    "message_type": message_type,
+                    "content": content.to_string(),
                 },
             },
         })
@@ -517,5 +616,78 @@ mod tests {
         assert_eq!(b.seen.lock().unwrap().len(), SEEN_CAP);
         // 最早那批被挤出去了 —— 它们早就过了飞书的重推窗口。
         assert!(b.first_time("m0"));
+    }
+
+    #[test]
+    fn an_image_message_carries_its_key_instead_of_being_dropped() {
+        // 之前只读 content.text，图片消息整条是空的 —— 而且没有任何报错，
+        // 表现是"发了图，agent 不理"。
+        let inc = parse_message(&typed("user", "image", json!({ "image_key": "img_v2_x" })))
+            .expect("图片消息不该被丢掉");
+        assert_eq!(inc.attachments.len(), 1);
+        assert_eq!(inc.attachments[0].key, "img_v2_x");
+        assert_eq!(inc.attachments[0].kind, super::super::media::Kind::Image);
+        // 正文给个占位，否则 agent 不知道用户发了东西过来。
+        assert_eq!(inc.text, "[图片]");
+    }
+
+    #[test]
+    fn a_file_message_keeps_the_original_name() {
+        let inc = parse_message(&typed(
+            "user",
+            "file",
+            json!({ "file_key": "file_v2_y", "file_name": "参考稿.pdf" }),
+        ))
+        .unwrap();
+        assert_eq!(inc.attachments[0].filename, "参考稿.pdf");
+        assert_eq!(inc.attachments[0].kind, super::super::media::Kind::File);
+        assert_eq!(inc.text, "[文件] 参考稿.pdf");
+    }
+
+    #[test]
+    fn a_rich_text_post_keeps_its_words_and_its_pictures_in_order() {
+        let inc = parse_message(&typed(
+            "user",
+            "post",
+            json!({ "zh_cn": { "title": "需求", "content": [[
+                { "tag": "text", "text": "照 " },
+                { "tag": "img", "image_key": "img_a" },
+                { "tag": "text", "text": " 出三张" },
+            ]] } }),
+        ))
+        .unwrap();
+        assert_eq!(inc.text, "需求\n照 [图片1] 出三张");
+        assert_eq!(inc.attachments.len(), 1);
+        assert_eq!(inc.attachments[0].key, "img_a");
+    }
+
+    #[test]
+    fn a_mention_in_a_post_is_still_stripped() {
+        // 群里 @ 机器人时 mentions 照样在。富文本这条路也要过一遍，
+        // 不然 `@_user_1` 会被当成提示词的一部分。
+        let mut ev = typed(
+            "user",
+            "post",
+            json!({ "zh_cn": { "content": [[
+                { "tag": "text", "text": "@_user_1 出三张图" },
+            ]] } }),
+        );
+        ev["event"]["message"]["mentions"] = json!([{ "key": "@_user_1" }]);
+        assert_eq!(parse_message(&ev).unwrap().text, "出三张图");
+    }
+
+    #[test]
+    fn a_message_type_we_do_not_handle_is_skipped_quietly() {
+        // 表情包、名片、日程 —— 硬当成文本解的话会得到一条空提示词。
+        assert!(parse_message(&typed("user", "sticker", json!({ "file_key": "s" }))).is_none());
+        // 图片消息缺 image_key：没有任何可用内容，整条跳过（官方同样处理）。
+        assert!(parse_message(&typed("user", "image", json!({}))).is_none());
+    }
+
+    #[test]
+    fn a_text_message_still_works_exactly_as_before() {
+        let inc = parse_message(&event("user", "出三张图")).unwrap();
+        assert_eq!(inc.text, "出三张图");
+        assert!(inc.attachments.is_empty(), "文本消息不该凭空多出附件");
     }
 }
