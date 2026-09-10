@@ -49,6 +49,7 @@ pub mod music;
 pub mod plan;
 pub mod proxy;
 pub mod question;
+pub mod settings;
 pub mod skills;
 pub mod tasks;
 pub mod update;
@@ -116,6 +117,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/canvases/{id}/move", post(canvases::move_canvas))
         .route("/api/canvases/{id}/rename", post(canvases::rename))
         .route("/api/projects", post(canvases::create_project))
+        .route("/api/settings", get(settings::get).post(settings::put))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route(
             "/api/skills/{slug}",

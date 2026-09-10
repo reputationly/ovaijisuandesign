@@ -5,6 +5,7 @@ import {
   Image as ImageIcon,
   MoreHorizontal,
   Music,
+  Settings as SettingsIcon,
   PanelLeft,
   Plus,
   Search,
@@ -215,7 +216,15 @@ export function Sidebar({
         <span className="truncate text-[var(--home-sidebar-secondary-text)]" title={dir}>
           {dir ? dir.split("/").pop() : "连接中…"}
         </span>
-        <span className="ml-auto">{right}</span>
+        {/* 官方这一排是**小图标**：更新一个、IM 接入一个。我们之前把更新做成
+            了一个写着「有新版 3.0.12.5」的大方块，占掉半行、比品牌名还显眼。
+            现在收成图标，详情放 title。 */}
+        <span className="ml-auto flex shrink-0 items-center gap-0.5">
+          {right}
+          <IconBtn title="设置" onClick={() => onView("settings")}>
+            <SettingsIcon size={15} />
+          </IconBtn>
+        </span>
       </div>
     </aside>
   )

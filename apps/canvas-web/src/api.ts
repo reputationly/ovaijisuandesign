@@ -581,3 +581,33 @@ export async function getCapabilities(): Promise<
   }>(res, "POST /api/capabilities")
   return body.capabilities ?? []
 }
+
+// ---------------------------------------------------------------------------
+// 设置
+// ---------------------------------------------------------------------------
+
+export interface SettingsInfo {
+  path: string
+  /** 实际生效的工作区（WORKSPACE_DIR 会覆盖配置里那个）。 */
+  workspace: string
+  workspaceConfigured?: string
+  port: number
+  platform: { baseUrl: string; apiKeyMasked: string; hasApiKey: boolean; chatModel: string }
+  models: Record<string, unknown>
+}
+
+export async function getSettings(): Promise<SettingsInfo> {
+  return json(await fetch("/api/settings"), "GET /api/settings")
+}
+
+/** `apiKey` 传空串表示不改。 */
+export async function saveSettings(body: Record<string, unknown>): Promise<void> {
+  await json(
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+    "POST /api/settings",
+  )
+}

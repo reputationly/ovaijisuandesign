@@ -8,6 +8,8 @@ import {
   type UpdateCheck,
   type UpdatePhase,
 } from "./api"
+import { Download } from "lucide-react"
+
 import { cn } from "./lib"
 
 /**
@@ -102,13 +104,17 @@ export function Update() {
           .finally(() => setBusy(false))
       }}
       disabled={busy}
+      // 收成一个图标。之前是写着「有新版 3.0.12.5」的方块，在侧栏底部占掉
+      // 半行、比品牌名还显眼 —— 而"有更新"只是个提示，不是这一栏的主角。
+      // 官方那里也是一个小圆图标。版本号进 title。
       className={cn(
-        "rounded border border-line bg-raised px-2.5 py-0.5 hover:border-accent",
+        "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
+        "bg-[var(--brand-accent)] text-[var(--brand-accent-foreground)] hover:opacity-85",
         "disabled:opacity-50",
       )}
-      title={`当前 ${info.current}`}
+      title={`有新版 ${info.latest}（当前 ${info.current}），点击下载`}
     >
-      有新版 {info.latest}
+      <Download size={14} />
     </button>
   )
 }

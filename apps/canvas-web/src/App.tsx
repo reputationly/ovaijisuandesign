@@ -46,10 +46,11 @@ import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrom
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { Home } from "./Home"
 import { Library } from "./Library"
+import { Settings } from "./Settings"
 import { Skills } from "./Skills"
 
 /** 主区域显示什么。侧栏那四个入口切的就是它。 */
-export type View = "home" | "canvas" | "library" | "skill"
+export type View = "home" | "canvas" | "library" | "skill" | "settings"
 import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
@@ -488,7 +489,9 @@ export default function App() {
           </button>
         )}
 
-        {view === "library" ? (
+        {view === "settings" ? (
+          <Settings />
+        ) : view === "library" ? (
           <Library
             sessions={sessions}
             projects={projects}
