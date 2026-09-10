@@ -249,6 +249,21 @@ export async function pollTask(
 }
 
 /**
+ * 把几个节点编成一组。官方 `canvas.splitGrid.cropSplit` =「编组」。
+ *
+ * 后端要求至少两个（`api_group.rs`：「至少要两个节点」）—— 一个节点编组
+ * 没有意义，而它会回 400，调用方要么先判要么处理错误。
+ */
+export async function groupNodes(nodeIds: string[], label?: string): Promise<void> {
+  const res = await fetch("/api/canvas/group", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nodeIds, ...(label ? { label } : {}) }),
+  })
+  await json<unknown>(res, "POST /api/canvas/group")
+}
+
+/**
  * 在画布上建一个媒体节点。
  *
  * `sourceNodeIds` 给了就顺带连一条从源节点过来的边 —— 后端一直支持
@@ -258,7 +273,7 @@ export async function pollTask(
 export async function createMediaNode(
   assetPath: string,
   sourceNodeIds?: string[],
-): Promise<void> {
+): Promise<string | undefined> {
   const res = await fetch("/api/canvas/media-node", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -267,7 +282,10 @@ export async function createMediaNode(
       ...(sourceNodeIds?.length ? { sourceNodeIds } : {}),
     }),
   })
-  await json<unknown>(res, "POST /api/canvas/media-node")
+  // **回 nodeId。** 宫格切分要拿这几个 id 去编组，拿不到的话只能建完
+  // 再去画布里按路径反查 —— 而那时同名文件已经被避让改过名了。
+  const body = await json<{ nodeId?: string }>(res, "POST /api/canvas/media-node")
+  return body.nodeId
 }
 
 /** agent 的一次工具调用。`id` 把 start 和 ok/error 配成一条。 */

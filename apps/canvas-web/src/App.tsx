@@ -19,6 +19,7 @@ import {
   Camera,
   Copy,
   Filter,
+  Grid2x2,
   Image as ImageIcon,
   Maximize2,
   MessageSquarePlus,
@@ -62,9 +63,11 @@ import {
   type ToolActivity,
   createMediaNode,
   uploadFiles,
+  groupNodes,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { captureFrame, frameFileName } from "./captureFrame"
+import { GRID_PRESETS, cellFileName, gridCells, loadImage } from "./splitGrid"
 import { TAG_PRESETS, tagById, tagColor, tagsOf, toggleTag, withTags } from "./tags"
 import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
@@ -462,6 +465,54 @@ export default function App() {
         setError(e instanceof Error ? e.message : String(e))
       }
       void assetId
+    },
+    [details, load],
+  )
+
+  /**
+   * 宫格切分。官方的 `canvas.splitGrid.label` =「宫格切分」。
+   *
+   * 出图模型常常一次给一张 2x2 拼图，用户要的是里面某一格。切开成独立
+   * 节点、编成一组（官方 `cropSplitGroupLabel` =「宫格编组」），并各自
+   * 连回原图。
+   *
+   * 官方还有「生成高清」（2x/4x 超分），那要图片超分 —— 平台上没有，
+   * **不做也不放按钮**。
+   */
+  const splitGridOf = useCallback(
+    async (nodeId: string, assetId: string, rows: number, cols: number) => {
+      try {
+        const img = await loadImage(assetUrl(assetId))
+        const cells = gridCells(img.naturalWidth, img.naturalHeight, rows, cols)
+        if (cells.length === 0) throw new Error("读不到这张图的尺寸")
+
+        const name = details.get(nodeId)?.name
+        const files: File[] = []
+        for (const c of cells) {
+          const cv = document.createElement("canvas")
+          cv.width = c.width
+          cv.height = c.height
+          const ctx = cv.getContext("2d")
+          if (!ctx) throw new Error("拿不到 2D 上下文")
+          ctx.drawImage(img, c.x, c.y, c.width, c.height, 0, 0, c.width, c.height)
+          const blob = await new Promise<Blob | null>((r) => cv.toBlob(r, "image/png"))
+          if (!blob) throw new Error("这张图不允许切分（可能来自外部地址）")
+          files.push(new File([blob], cellFileName(name, c), { type: "image/png" }))
+        }
+
+        const paths = await uploadFiles(files)
+        const ids: string[] = []
+        for (const p of paths) {
+          const id = await createMediaNode(p, [nodeId])
+          if (id) ids.push(id)
+        }
+        // 后端要求至少两个才能编组。切出来只有一个说明参数不对，
+        // 但节点已经建好了 —— 不编组也比报错好。
+        if (ids.length >= 2) await groupNodes(ids, "宫格编组")
+        await load()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
     },
     [details, load],
   )
@@ -969,6 +1020,17 @@ export default function App() {
                             },
                           },
                         ]
+                      : []),
+                    // 官方的 `canvas.splitGrid.label` =「宫格切分」。
+                    // 只有图片节点有。预设按官方的 `{{n}}宫格` 命名。
+                    ...(node.data.raw.type === "image" && assetId
+                      ? GRID_PRESETS.map((g, gi) => ({
+                          id: `split-${g.n}`,
+                          label: `${g.n}宫格切分`,
+                          icon: <Grid2x2 size={15} />,
+                          separator: gi === 0,
+                          onClick: () => void splitGridOf(node.id, assetId, g.rows, g.cols),
+                        }))
                       : []),
                     // 官方的 `canvas.captureFrame` =「截帧」。只有视频节点有。
                     ...(node.data.raw.type === "video" && assetId
