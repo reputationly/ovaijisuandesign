@@ -20,6 +20,7 @@ import {
   Copy,
   Filter,
   Grid2x2,
+  Hash,
   Image as ImageIcon,
   Maximize2,
   MessageSquarePlus,
@@ -68,7 +69,16 @@ import {
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { captureFrame, frameFileName } from "./captureFrame"
 import { GRID_PRESETS, cellFileName, gridCells, loadImage } from "./splitGrid"
-import { TAG_PRESETS, tagById, tagColor, tagsOf, toggleTag, withTags } from "./tags"
+import {
+  TAG_PRESETS,
+  addKeyword,
+  nameTooLong,
+  readRegistry,
+  tagColor,
+  tagsOf,
+  toggleTag,
+  withTags,
+} from "./tags"
 import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
@@ -702,6 +712,31 @@ export default function App() {
        *
        * 只改界面状态的话刷新就没了，而标签的用途正是"下次回来还能分清"。
        */
+      /**
+       * 新建一个关键词并打在节点上。
+       *
+       * 注册表存在 canvas.json 的顶层（gateway 对未知字段是 flatten extra，
+       * 原样带进带出）。和标签一样**直接改服务端那份** —— 只改界面的话
+       * 刷新就没了。
+       */
+      async addKeywordTo(nodeId, name) {
+        const base = fileRef.current
+        if (!base) return
+        const added = addKeyword(readRegistry(base.canvasTags), name)
+        if (!added) return
+        const now = tagsOf(base.nodes.find((n) => n.id === nodeId))
+        const next = {
+          ...base,
+          canvasTags: added.reg,
+          nodes: base.nodes.map((n) =>
+            n.id === nodeId
+              ? { ...n, meta: withTags(n.meta, now.includes(added.id) ? now : [...now, added.id]) }
+              : n,
+          ),
+        }
+        await putCanvas(next)
+        setFile(next)
+      },
       async setNodeTags(nodeId, tags) {
         const base = fileRef.current
         if (!base) return
@@ -1066,24 +1101,36 @@ export default function App() {
                         onClick: () => void actions.setNodeTags(node.id, toggleTag(now, t.id)),
                       }
                     }),
+                    // 官方的 `canvasTags.newKeyword` =「新建关键词」。
+                    // 关键词不显示在画布上（`canvasTags.keywordInfo`），
+                    // 只用于关联/搜索/筛选 —— 打几十个也不会弄脏画布。
+                    {
+                      id: "add-keyword",
+                      label: "新建关键词…",
+                      icon: <Hash size={15} />,
+                      onClick: () => {
+                        const name = window.prompt("关键词（最多 6 个中文或 12 个英文）")
+                        if (!name?.trim()) return
+                        if (nameTooLong(name.trim())) {
+                          setError("标签名称最多支持 6 个中文或 12 个英文字符")
+                          return
+                        }
+                        void actions.addKeywordTo(node.id, name)
+                      },
+                    },
                     // `canvasTags.filterByTag` =「筛选并定位"{{name}}"」。
                     // 只在这个节点确实有标签时才给 —— 没有标签时点它
                     // 会筛出一个空集，看起来像画布被清空了。
-                    ...(tagsOf(file?.nodes.find((n) => n.id === node.id))[0]
-                      ? [
-                          {
-                            id: "tag-filter",
-                            label: `筛选并定位「${
-                              tagById(tagsOf(file!.nodes.find((n) => n.id === node.id)!)[0]!)?.name
-                            }」`,
-                            icon: <Filter size={15} />,
-                            onClick: () =>
-                              setTagFilter(
-                                tagsOf(file!.nodes.find((n) => n.id === node.id)!)[0]!,
-                              ),
-                          },
-                        ]
-                      : []),
+                    // 这个节点身上的每个标签（含关键词）各给一条。
+                    // 只给第一个的话，打了关键词的节点没法按关键词筛。
+                    ...tagsOf(file?.nodes.find((n) => n.id === node.id)).map((tid) => ({
+                      id: `tag-filter-${tid}`,
+                      label: `筛选并定位「${
+                        readRegistry(file?.canvasTags).tags.find((t) => t.id === tid)?.name ?? tid
+                      }」`,
+                      icon: <Filter size={15} />,
+                      onClick: () => setTagFilter(tid),
+                    })),
                     {
                       id: "copy-id",
                       label: "复制节点 ID",
@@ -1158,7 +1205,16 @@ export default function App() {
               {help && <ShortcutPanel onClose={() => setHelp(false)} />}
               <TagFilter
                 active={
-                  tagFilter ? { id: tagFilter, name: tagById(tagFilter)?.name ?? "" } : null
+                  tagFilter
+                    ? {
+                        id: tagFilter,
+                        // **名字要从注册表取，不是只从预设取。** 只查预设的话
+                        // 按关键词筛选时工具条上是一片空白，用户不知道在筛什么。
+                        name:
+                          readRegistry(file?.canvasTags).tags.find((t) => t.id === tagFilter)
+                            ?.name ?? tagFilter,
+                      }
+                    : null
                 }
                 matches={(file?.nodes ?? [])
                   .filter((n) => tagsOf(n).includes(tagFilter ?? ""))

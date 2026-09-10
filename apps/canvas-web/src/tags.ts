@@ -182,3 +182,117 @@ export function withTags(meta: unknown, tags: readonly string[]): Record<string,
   base.tagIds = [...tags]
   return base
 }
+
+// ---------------------------------------------------------------------------
+// 关键词（官方的 transparent tag）
+// ---------------------------------------------------------------------------
+
+/**
+ * 标签注册表。官方的形状（从产物里读出来的）：
+ *
+ * ```js
+ * { version: CANVAS_TAG_REGISTRY_VERSION,   // = 2
+ *   revision: 0,
+ *   orderMode: "default",
+ *   tags: [{ id, kind: "color" | "keyword", name }] }
+ * ```
+ *
+ * 两种 kind 的区别是官方自己写在文案里的：
+ *
+ * - `canvasTags.canvasLabelInfo` =「画布标签会直接显示在画布上。」
+ * - `canvasTags.keywordInfo`     =「与画布标签不同，关键词不会显示在画布上，
+ *    可用于关联、搜索和筛选素材。」
+ *
+ * 所以**关键词不参与节点上的渲染**，只进筛选。
+ */
+export const TAG_REGISTRY_VERSION = 2
+
+export interface Tag {
+  id: string
+  kind: "color" | "keyword"
+  name: string
+}
+
+export interface TagRegistry {
+  version: number
+  revision: number
+  orderMode: string
+  tags: Tag[]
+}
+
+/** 七个预设 + 空的关键词表。 */
+export function seedRegistry(): TagRegistry {
+  return {
+    version: TAG_REGISTRY_VERSION,
+    revision: 0,
+    orderMode: "default",
+    tags: TAG_PRESETS.map((t) => ({ id: t.id, kind: "color", name: t.name })),
+  }
+}
+
+/**
+ * 读一份可能来自旧版本 / 被改坏的注册表。
+ *
+ * **永远返回一个能用的表**，不抛也不返回 null。这份数据存在 canvas.json 的
+ * `extra` 里，用户手改过、或者我们哪一版写坏过，都不该让整个画布打不开。
+ *
+ * 预设那七个**始终存在**：它们的 id 是写死的（`color:red` 这种），节点上
+ * 存的就是这个字符串 —— 表里没有的话，已经打过的标签会变成认不出的 id。
+ */
+export function readRegistry(input: unknown): TagRegistry {
+  const seed = seedRegistry()
+  if (!input || typeof input !== "object") return seed
+  const raw = (input as { tags?: unknown }).tags
+  if (!Array.isArray(raw)) return seed
+
+  const byId = new Map(seed.tags.map((t) => [t.id, t]))
+  for (const c of raw) {
+    if (!c || typeof c !== "object") continue
+    const { id, name, kind } = c as { id?: unknown; name?: unknown; kind?: unknown }
+    if (typeof id !== "string" || !id.trim()) continue
+    const n = typeof name === "string" ? name.trim() : ""
+    const existing = byId.get(id)
+    if (existing) {
+      // 预设可以被改名（官方允许），但**类型不许改** —— 把一个预设改成
+      // keyword 之后它就不在画布上显示了，而节点上还挂着它。
+      if (n) existing.name = n
+      continue
+    }
+    if (!n) continue
+    byId.set(id, { id, kind: kind === "keyword" ? "keyword" : "color", name: n })
+  }
+  return { ...seed, tags: [...byId.values()] }
+}
+
+/** 新建关键词。id 用名字派生，**同名即同一个** —— 重复建不会产生两条。 */
+export function keywordId(name: string): string {
+  return `kw:${name.trim().toLowerCase()}`
+}
+
+/**
+ * 往注册表里加一个关键词，返回新表和它的 id。
+ *
+ * 名字为空或超长时返回 `null` —— 调用方据此提示
+ * （`canvasTags.nameRequired` / `canvasTags.nameTooLong`）。
+ */
+export function addKeyword(reg: TagRegistry, name: string): { reg: TagRegistry; id: string } | null {
+  const n = name.trim()
+  if (!n || nameTooLong(n)) return null
+  const id = keywordId(n)
+  if (reg.tags.some((t) => t.id === id)) return { reg, id }
+  return {
+    reg: { ...reg, revision: reg.revision + 1, tags: [...reg.tags, { id, kind: "keyword", name: n }] },
+    id,
+  }
+}
+
+/**
+ * 节点上要显示的标签 —— **只有画布标签**。
+ *
+ * 关键词混进来的话，官方那句「关键词不会显示在画布上」就不成立了，
+ * 而用户是照着那句话去用关键词做批量归类的（几十个也不会弄脏画布）。
+ */
+export function visibleTags(ids: readonly string[], reg: TagRegistry): Tag[] {
+  const byId = new Map(reg.tags.map((t) => [t.id, t]))
+  return ids.map((i) => byId.get(i)).filter((t): t is Tag => !!t && t.kind === "color")
+}

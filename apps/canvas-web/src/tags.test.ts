@@ -9,6 +9,12 @@ import {
   tagById,
   tagColor,
   toggleTag,
+  TAG_REGISTRY_VERSION,
+  addKeyword,
+  keywordId,
+  readRegistry,
+  seedRegistry,
+  visibleTags,
 } from "./tags"
 
 describe("画布标签", () => {
@@ -75,5 +81,63 @@ describe("画布标签", () => {
     expect(filterByTag(nodes, "color:red").map((n) => n.id)).toEqual(["a"])
     // null = 不筛，要拿到全部（包括没有标签的）。
     expect(filterByTag(nodes, null)).toHaveLength(3)
+  })
+})
+
+describe("标签注册表", () => {
+  it("种子表就是那七个预设", () => {
+    const r = seedRegistry()
+    expect(r.version).toBe(TAG_REGISTRY_VERSION)
+    expect(r.tags).toHaveLength(7)
+    expect(r.tags.every((t) => t.kind === "color")).toBe(true)
+  })
+
+  it("读坏数据永远给一个能用的表", () => {
+    // 这份数据存在 canvas.json 的 extra 里，用户手改过、或者我们哪一版写坏过，
+    // 都不该让整个画布打不开。
+    for (const bad of [null, undefined, 42, "x", {}, { tags: "no" }, { tags: [null, 1] }]) {
+      expect(readRegistry(bad).tags.length).toBeGreaterThanOrEqual(7)
+    }
+  })
+
+  it("预设始终存在，哪怕表里没有", () => {
+    // 预设的 id 是写死的，节点上存的就是这个字符串 —— 表里没有的话，
+    // 已经打过的标签会变成认不出的 id。
+    const r = readRegistry({ tags: [{ id: "kw:x", kind: "keyword", name: "x" }] })
+    expect(r.tags.find((t) => t.id === "color:red")).toBeDefined()
+    expect(r.tags.find((t) => t.id === "kw:x")).toBeDefined()
+  })
+
+  it("预设能改名但不能改类型", () => {
+    // 把预设改成 keyword 之后它就不在画布上显示了，而节点上还挂着它。
+    const r = readRegistry({ tags: [{ id: "color:red", kind: "keyword", name: "主角" }] })
+    const red = r.tags.find((t) => t.id === "color:red")!
+    expect(red.name).toBe("主角")
+    expect(red.kind).toBe("color")
+  })
+
+  it("关键词同名即同一个", () => {
+    // 重复建不该产生两条 —— 两条同名标签在筛选里是两个入口，选哪个都只
+    // 命中一半节点。
+    expect(keywordId(" Hero ")).toBe(keywordId("hero"))
+    let r = seedRegistry()
+    const a = addKeyword(r, "主角")!
+    const b = addKeyword(a.reg, "主角")!
+    expect(a.id).toBe(b.id)
+    expect(b.reg.tags.filter((t) => t.kind === "keyword")).toHaveLength(1)
+  })
+
+  it("关键词名字为空或超长时拒绝", () => {
+    const r = seedRegistry()
+    expect(addKeyword(r, "  ")).toBeNull()
+    expect(addKeyword(r, "一二三四五六七")).toBeNull()
+  })
+
+  it("节点上只显示画布标签，关键词不显示", () => {
+    // 官方 canvasTags.keywordInfo 写着「关键词不会显示在画布上」——
+    // 用户正是照这句话去用关键词做批量归类的（几十个也不会弄脏画布）。
+    const { reg, id } = addKeyword(seedRegistry(), "主角")!
+    const shown = visibleTags(["color:red", id], reg)
+    expect(shown.map((t) => t.id)).toEqual(["color:red"])
   })
 })

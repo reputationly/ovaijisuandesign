@@ -34,6 +34,8 @@ export interface CanvasActions {
   openLightbox(nodeId: string): void
   /** 打/取消画布标签。见 tags.ts。 */
   setNodeTags(nodeId: string, tags: string[]): Promise<void>
+  /** 新建一个关键词并打在节点上。关键词不显示在画布上，只进筛选。 */
+  addKeywordTo(nodeId: string, name: string): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -125,6 +127,9 @@ function Frame(
             className="pointer-events-none absolute top-1.5 left-1.5 flex gap-1"
           >
             {tags.map((id) => {
+              // **只画预设那七个。** 关键词（`kind: "keyword"`）不显示在
+              // 画布上 —— 官方的 `canvasTags.keywordInfo` 就是这么说的，
+              // 而用户正是照这句话去用关键词做批量归类的。
               const t = tagById(id)
               if (!t) return null
               return (

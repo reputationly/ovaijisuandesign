@@ -50,6 +50,13 @@ export interface CanvasEdge {
 }
 
 export interface CanvasFile {
+  /**
+   * 标签注册表。官方的 `{ version, revision, orderMode, tags[] }`,见 tags.ts。
+   *
+   * 放在画布文件顶层：gateway 对未知字段是 `#[serde(flatten)] extra`,
+   * 原样带进带出，**不用改后端**。
+   */
+  canvasTags?: unknown
   version: number
   mode: string
   nodes: CanvasNode[]
