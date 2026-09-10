@@ -367,6 +367,13 @@ export function Home({
         </div>
 
         {/* 大输入框 */}
+        {/* Composer = 输入框 + 托盘，**必须包成一个单元**。
+
+            上层那个 hero 容器有 `gap: var(--home-hero-content-gap)` = 24px。
+            输入框和托盘要是它的两个兄弟节点，flex 的 gap 会把它们推开 24px，
+            而托盘的 `-mt-4` 只有 16px —— 净剩 8px 缝隙，托盘就"掉"在下面、
+            吸不上去。官方也是把这两个放在同一个 composer 里的。 */}
+        <div className="flex w-full flex-col">
         {/* 输入框。类名照官方的 `home-input-surface`：
             `relative z-10 flex w-full min-h-[var(--input-card-height)]
              flex-col justify-between rounded-[…] p-[var(--message-input-card-padding)]`
@@ -497,11 +504,14 @@ export function Home({
               const r = e.currentTarget.getBoundingClientRect()
               onPickProject({ x: r.left, y: r.bottom + 6 })
             }}
-            className="flex max-w-[220px] items-center gap-1.5 rounded-full px-2 py-1 text-[13px] text-foreground/70 transition-colors hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
+            // 类名逐字照官方的 `triggerClass` + `max-w-[180px]`。
+            // 高度用 --btn-height-sm(32px) 而不是 py-1：托盘 min-h 是 46，
+            // 按钮撑高会把托盘顶出去，看起来就不是"压在下面"了。
+            className="flex h-[var(--btn-height-sm)] max-w-[180px] cursor-pointer items-center gap-[var(--home-input-control-content-gap)] rounded-full px-[var(--home-input-toolbar-padding-x)] py-0 text-[13px] leading-5 font-normal tracking-[var(--home-input-toolbar-letter-spacing)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
           >
-            <FolderIcon size={14} />
+            <FolderIcon size={16} strokeWidth={1.5} className="shrink-0" />
             <span className="truncate">{projectName ?? "选择项目"}</span>
-            <ChevronDown size={13} />
+            <ChevronDown size={13} strokeWidth={1.5} className="shrink-0 opacity-60" />
           </button>
           {uploading && (
             <span className="ml-3 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
@@ -513,6 +523,7 @@ export function Home({
               {uploadError}
             </span>
           )}
+        </div>
         </div>
 
         {/* tabs */}
