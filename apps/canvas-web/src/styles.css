@@ -36,6 +36,21 @@
   --color-bad: #ff5f57;
   --color-ok: #30d158;
 
+  /* 官方 token 的同名版本。
+   *
+   * **不写在这里的名字，`bg-foo` 这类 utility 就一个字节的 CSS 都不生成** ——
+   * class 照样出现在 HTML 里，元素上什么都没有。这是这套东西最难发现的
+   * 失效方式：没有报错、没有警告，只是那个按钮没有背景色。
+   * （首页发送按钮就这么白了一阵子：写着 `enabled:bg-foreground`，
+   * 渲染出来是一个裸箭头。）
+   *
+   * 用 tokens.css 里已有的变量，深浅色跟着 `.dark` 一起切。 */
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-popover: var(--popover);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
   --radius-node: var(--canvas-media-node-radius);
   --radius-node-inner: var(--canvas-media-node-inner-radius);
 }
