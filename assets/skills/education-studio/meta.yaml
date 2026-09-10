@@ -1,0 +1,17 @@
+display-name-zh: 教育内容工作室
+version: 0.1.47
+tag-en: "Education / Full Production"
+tag-cn: "教育 / 成片制作"
+complete-tags-en:
+  - "Education / Full Production"
+  - "Education / Planning"
+complete-tags-cn:
+  - "教育 / 成片制作"
+  - "教育 / 计划制定"
+summary-en: "Turn topics, questions, or course material into lesson designs, exercises, and complete teaching videos"
+summary-cn: "把主题、题目或课程素材转化为教学设计、练习题组与完整教学视频的一体化工作室"
+desc-en: "For teachers, course creators, and knowledge publishers who need to turn a topic, exam question, or raw course material into teachable content. Supports learning-objective design, explanations with worked examples, classroom activities, exercise sets with answer keys, courseware and handout structures, plus full video production from brief, word-for-word narration, per-shot teaching contracts, and storyboards to video generation, sound, subtitles, and final render. Also processes recordings and transcripts into clean lesson notes and knowledge slices."
+desc-cn: "面向教师、课程创作者与知识内容团队，把主题、试题、课堂录音或教材素材加工成可教学、可学习、可评量的内容。支持学习目标与路径设计、讲解与例题、课堂活动、题组与答案解析、课件与讲义结构，并覆盖教学视频从需求简报、逐字旁白、逐镜教学合同、分镜规划到视频生成、声音、字幕与最终渲染的完整生产流程。同时支持把课堂录音整理为逐字稿、讲义与知识点切片，适用于课程视频、动态讲题、科普讲解与培训内容制作。"
+author-en: "MiniMax Design"
+author-cn: "MiniMax Design"
+source: official

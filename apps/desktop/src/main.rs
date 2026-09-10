@@ -264,6 +264,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         updater: Arc::new(gateway::update::Updater::new()),
         questions: Arc::new(gateway::question::Questions::new()),
         activity: Arc::new(gateway::activity::Activity::new()),
+        agent: Arc::new(gateway::agent::Agent::new()),
         upstream,
         web_dir,
     });

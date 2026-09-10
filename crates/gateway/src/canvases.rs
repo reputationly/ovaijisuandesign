@@ -120,6 +120,9 @@ fn ensure(state: &AppState) -> Index {
 /// 把当前画布的内容和统计同步进存档与清单。**切换/新建之前必须调**，
 /// 否则刚才那张画布的改动会被下一次切换覆盖掉。
 fn stash_current(state: &AppState, idx: &mut Index) {
+    // 聊天记录跟着画布走。不存档的话，切到另一张画布上、对话还在讲上一张
+    // 的事，而 agent 看到的画布已经换了 —— 它会以为自己刚做的东西不见了。
+    stash_chat(state, &idx.current);
     let Some(dst) = state.ws.canvas_file(&idx.current) else {
         return;
     };
@@ -131,6 +134,47 @@ fn stash_current(state: &AppState, idx: &mut Index) {
     if let Some(e) = idx.list.iter_mut().find(|e| e.id == idx.current) {
         e.updated_at = now();
         e.node_count = file.nodes.len();
+    }
+}
+
+/// 一张画布的聊天记录存在哪。和画布存档同一个目录，同名不同后缀。
+fn chat_file(state: &AppState, id: &str) -> Option<std::path::PathBuf> {
+    state
+        .ws
+        .canvas_file(id)
+        .map(|p| p.with_extension("chat.json"))
+}
+
+fn stash_chat(state: &AppState, id: &str) {
+    let Some(dst) = chat_file(state, id) else {
+        return;
+    };
+    let src = crate::agent::chat_path(&state.ws);
+    if let Some(d) = dst.parent() {
+        let _ = std::fs::create_dir_all(d);
+    }
+    // 当前没有聊天记录时**把存档也清掉**，而不是留着上一次的：
+    // 否则新建一张画布、切走再切回来，会看到一段不属于它的对话。
+    match std::fs::read(&src) {
+        Ok(bytes) => {
+            let _ = std::fs::write(&dst, bytes);
+        }
+        Err(_) => {
+            let _ = std::fs::remove_file(&dst);
+        }
+    }
+}
+
+fn restore_chat(state: &AppState, id: &str) {
+    let dst = crate::agent::chat_path(&state.ws);
+    match chat_file(state, id).and_then(|p| std::fs::read(p).ok()) {
+        Some(bytes) => {
+            let _ = std::fs::write(&dst, bytes);
+        }
+        // 那张画布还没聊过 —— 清空，而不是留着上一张的对话。
+        None => {
+            let _ = std::fs::remove_file(&dst);
+        }
     }
 }
 
@@ -355,6 +399,9 @@ pub async fn create(
         },
     );
     idx.current = id.clone();
+    // 新画布从空对话开始。不清的话，新建之后右栏还留着上一张的聊天记录，
+    // 而 agent 看到的是一张空画布 —— 它会以为自己刚做的东西被删了。
+    restore_chat(&state, &id);
     let _ = write_index(&state.ws.index_path(), &idx);
     state.events.publish("canvas:changed", json!({}));
     (
@@ -400,6 +447,7 @@ pub async fn open(
         );
     }
     idx.current = id.clone();
+    restore_chat(&state, &id);
     let _ = write_index(&state.ws.index_path(), &idx);
     state.events.publish("canvas:changed", json!({}));
     (StatusCode::OK, Json(json!({ "ok": true, "id": id })))

@@ -611,3 +611,37 @@ export async function saveSettings(body: Record<string, unknown>): Promise<void>
     "POST /api/settings",
   )
 }
+
+// ---------------------------------------------------------------------------
+// 应用内 agent
+// ---------------------------------------------------------------------------
+
+export interface AgentMsg {
+  role: "user" | "assistant" | "tool"
+  content?: string
+  tool_calls?: unknown
+  tool_call_id?: string
+  at?: number
+}
+
+export async function agentMessages(): Promise<{ running: boolean; messages: AgentMsg[] }> {
+  return json(await fetch("/api/agent/messages"), "GET /api/agent/messages")
+}
+
+export async function agentSend(message: string, attachments: string[] = []): Promise<void> {
+  const res = await fetch("/api/agent/send", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message, attachments }),
+  })
+  // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。
+  if (res.status === 409) {
+    const b = (await res.json().catch(() => ({}))) as { error?: string }
+    throw new Error(b.error ?? "上一轮还在跑")
+  }
+  await json<unknown>(res, "POST /api/agent/send")
+}
+
+export async function agentStop(): Promise<void> {
+  await fetch("/api/agent/stop", { method: "POST" }).catch(() => {})
+}

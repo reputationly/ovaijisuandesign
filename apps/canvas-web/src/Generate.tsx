@@ -1,7 +1,7 @@
 import { ArrowUp, Loader2, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
-import { createMediaNode, pollTask, submitImage } from "./api"
+import { agentSend } from "./api"
 
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
 const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
@@ -68,25 +68,26 @@ export function Generate({
 
   const busy = phase.kind === "generating" || phase.kind === "placing"
 
+  /**
+   * 发给 agent。
+   *
+   * **不再直接调 submitImage。** 那条路只能出图 —— 用户说「做一支 15 秒的
+   * 短片」会被当成一句出图的提示词，出来一张静态图，而且不报错。
+   * 现在这里只负责把话交出去，做什么、调哪些工具由 agent 决定。
+   *
+   * 进度不在这里显示：右栏的对话和活动流会实时长出来，那里比一个
+   * "生成中 12s" 的计数器信息量大得多。
+   */
   const run = async () => {
     if (!prompt.trim() || busy) return
-    const ctrl = new AbortController()
-    abort.current = ctrl
+    const text = prompt
     setPhase({ kind: "generating", seconds: 0 })
     try {
-      const taskId = await submitImage({
-        prompt,
-        aspectRatio: ratio,
-        resolution,
-        imagePaths: initialAttachments,
-      })
-      const product = await pollTask(taskId, ctrl.signal, (seconds) =>
-        setPhase((p) => (p.kind === "generating" ? { kind: "generating", seconds } : p)),
-      )
-      setPhase({ kind: "placing" })
-      await createMediaNode(product.path)
-      setPhase({ kind: "idle" })
+      await agentSend(text, initialAttachments ?? [])
+      // 发出去就清空。**不等 agent 跑完** —— 一轮可能几分钟，
+      // 输入框锁着的话用户连下一句都没法先写好。
       setPrompt("")
+      setPhase({ kind: "idle" })
       onDone()
     } catch (err) {
       setPhase({ kind: "failed", message: err instanceof Error ? err.message : String(err) })

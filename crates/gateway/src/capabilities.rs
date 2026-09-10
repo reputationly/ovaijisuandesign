@@ -164,6 +164,7 @@ mod tests {
             updater: s.updater.clone(),
             questions: s.questions.clone(),
             activity: s.activity.clone(),
+            agent: s.agent.clone(),
             upstream: s.upstream.clone(),
             web_dir: s.web_dir.clone(),
         })

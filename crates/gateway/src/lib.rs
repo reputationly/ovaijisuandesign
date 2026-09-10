@@ -31,6 +31,7 @@ pub const VERSION: &str = match option_env!("OVAIJISUAN_VERSION") {
 };
 
 pub mod activity;
+pub mod agent;
 pub mod api_canvas;
 pub mod api_files;
 pub mod api_group;
@@ -86,6 +87,8 @@ pub struct AppState {
     pub questions: Arc<crate::question::Questions>,
     /// agent 的工具活动流。见 [`crate::activity`]。
     pub activity: Arc<crate::activity::Activity>,
+    /// 应用内 agent 的运行状态。见 [`crate::agent`]。
+    pub agent: Arc<crate::agent::Agent>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -117,8 +120,12 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/canvases/{id}/move", post(canvases::move_canvas))
         .route("/api/canvases/{id}/rename", post(canvases::rename))
         .route("/api/projects", post(canvases::create_project))
+        .route("/api/agent/send", post(agent::send))
+        .route("/api/agent/messages", get(agent::messages))
+        .route("/api/agent/stop", post(agent::stop))
         .route("/api/settings", get(settings::get).post(settings::put))
         .route("/api/skills", get(skills::list).post(skills::save))
+        .route("/api/skills/import", post(skills::import))
         .route(
             "/api/skills/{slug}",
             get(skills::get).delete(skills::remove),
@@ -258,6 +265,7 @@ mod tests {
             updater: Arc::new(crate::update::Updater::new()),
             questions: Arc::new(crate::question::Questions::new()),
             activity: Arc::new(crate::activity::Activity::new()),
+            agent: Arc::new(crate::agent::Agent::new()),
             upstream: None,
             web_dir: None,
         })

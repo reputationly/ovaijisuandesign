@@ -376,6 +376,7 @@ mod tests {
             updater: std::sync::Arc::new(crate::update::Updater::new()),
             questions: std::sync::Arc::new(crate::question::Questions::new()),
             activity: std::sync::Arc::new(crate::activity::Activity::new()),
+            agent: std::sync::Arc::new(crate::agent::Agent::new()),
             upstream: None,
             web_dir: None,
         });

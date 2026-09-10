@@ -111,6 +111,7 @@ mod tests {
             updater: Arc::new(crate::update::Updater::new()),
             questions: Arc::new(crate::question::Questions::new()),
             activity: Arc::new(crate::activity::Activity::new()),
+            agent: Arc::new(crate::agent::Agent::new()),
             upstream,
             web_dir: None,
         })

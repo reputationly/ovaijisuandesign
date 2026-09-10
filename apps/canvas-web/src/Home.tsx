@@ -2,12 +2,12 @@ import {
   ArrowUp,
   Box,
   ChevronDown,
-  ExternalLink,
   FileText,
   Folder as FolderIcon,
   Image as ImageIcon,
   Music,
   Plus,
+  RotateCcw,
   Sparkles,
   Video,
   X,
@@ -260,13 +260,11 @@ const KIND_TINT: Record<string, string> = {
 
 export function Home({
   onSubmit,
-  onOpenCanvas,
   projectName,
   onPickProject,
   onOpenSkills,
 }: {
   onSubmit: (prompt: string, presetId?: string, attachments?: string[]) => void
-  onOpenCanvas: () => void
   /** 当前选中的项目名。`null` = 还没选。 */
   projectName: string | null
   onPickProject: (at: { x: number; y: number }) => void
@@ -516,25 +514,34 @@ export function Home({
                 Skill
               </ToolBtn>
 
-              <ToolbarDivider />
-
-              {/* 官方这行没有「打开画布」——他们从侧栏进画布。我们保留它，
-                  但**放在左边这一组里**而不是用 ml-auto 顶到最右：顶到最右
-                  会和发送按钮挤在一起、中间空出一大片，整行的节奏就断了。 */}
-              <ToolBtn data-action-ui-id="home-open-canvas" onClick={onOpenCanvas}>
-                <ExternalLink size={15} strokeWidth={1.5} />
-                打开画布
-              </ToolBtn>
             </div>
 
-            <div data-composer-actions-right="true" className="flex shrink-0 items-end gap-2">
+            <div data-composer-actions-right="true" className="flex shrink-0 items-end gap-0.5">
+              {/* 重置。官方只在有内容时出现（showResetInput = hasInputContent）。 */}
+              {prompt.trim() && (
+                <button
+                  type="button"
+                  data-action-ui-id="home-reset-btn"
+                  title="重置输入"
+                  onClick={() => {
+                    setPrompt("")
+                    setPreset(undefined)
+                    setAttachments([])
+                  }}
+                  className="flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full text-foreground/50 transition-colors duration-75 hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
+                >
+                  <RotateCcw size={16} strokeWidth={1.5} />
+                </button>
+              )}
+              {/* **空输入时也要是一个圆按钮**，只是灰的。之前整体 opacity-30，
+                  看起来像一个飘在那儿的箭头，不像可以点的东西。 */}
               <button
                 type="button"
                 data-action-ui-id="message-send-btn"
                 aria-label="发送"
                 onClick={() => prompt.trim() && onSubmit(prompt, preset, attachments.map((a) => a.path))}
                 disabled={!prompt.trim()}
-                className="flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-foreground text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-30"
+                className="flex size-[var(--btn-height-sm)] items-center justify-center rounded-full transition-colors enabled:cursor-pointer enabled:bg-foreground enabled:text-background enabled:hover:bg-foreground/90 disabled:cursor-not-allowed disabled:bg-[var(--message-input-attachment-bg)] disabled:text-foreground/30"
               >
                 <ArrowUp size={17} />
               </button>

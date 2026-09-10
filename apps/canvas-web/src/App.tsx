@@ -19,6 +19,8 @@ import {
   assetUrl,
   answerQuestion,
   connectEvents,
+  agentMessages,
+  agentStop,
   createProject,
   createSession,
   deleteProject,
@@ -37,6 +39,7 @@ import {
   type CanvasFile,
   type CanvasMode,
   type NodeDetail,
+  type AgentMsg,
   type Project,
   type Session,
   type ToolActivity,
@@ -73,6 +76,10 @@ export default function App() {
   const [events, setEvents] = useState<EventLine[]>([])
   // agent 的工具活动流。右栏按官方的标签表渲染，见 toolLabels.ts。
   const [activity, setActivity] = useState<ToolActivity[]>([])
+  // agent 的对话。**服务端是唯一真相** —— 历史存在 .hilo/chat.json 里，
+  // 前端只负责显示；这样刷新、切画布、甚至从终端跑 ovagent 都能对上。
+  const [messages, setMessages] = useState<AgentMsg[]>([])
+  const [agentRunning, setAgentRunning] = useState(false)
   /**
    * 灯箱当前看的是哪个节点。`null` = 没打开。
    *
@@ -193,6 +200,18 @@ export default function App() {
         if (event === "tool:activity" && data) {
           setActivity((prev) => [...prev, data as ToolActivity].slice(-200))
         }
+        // agent 每追加一条消息就重拉一次。**不在前端自己拼** ——
+        // 服务端那份才是模型真正看到的历史，两边各拼一份必然会分叉。
+        if (event === "agent:message") void reloadChat()
+        // **agent 改了画布必须重载。** 不重载有两个后果：界面上看不到
+        // agent 刚做的东西；更糟的是 fileRef 里还是旧副本，用户随手拖一下
+        // 节点就会以那份为底整份写回，把 agent 加的节点悄悄抹掉。
+        if (event === "canvas:changed") void load()
+        if (event === "agent:done") {
+          setAgentRunning(false)
+          void reloadChat()
+          void load()
+        }
       }),
     [],
   )
@@ -201,6 +220,19 @@ export default function App() {
   useEffect(() => {
     getActivity().then(setActivity).catch(() => {})
   }, [])
+
+  const reloadChat = useCallback(async () => {
+    try {
+      const r = await agentMessages()
+      setMessages(r.messages)
+      setAgentRunning(r.running)
+    } catch {
+      /* 拉不动对话不该让画布也打不开 */
+    }
+  }, [])
+  useEffect(() => {
+    void reloadChat()
+  }, [reloadChat])
 
   const reloadSessions = useCallback(async () => {
     try {
@@ -523,7 +555,6 @@ export default function App() {
               setRightOpen(true)
               setView("canvas")
             }}
-            onOpenCanvas={() => setView("canvas")}
             projectName={projects.find((p) => p.id === homeProject)?.name ?? null}
             onOpenSkills={() => setView("skill")}
             onPickProject={(at) =>
@@ -753,6 +784,9 @@ export default function App() {
             file={file}
             events={events}
             activity={activity}
+            messages={messages}
+            agentRunning={agentRunning}
+            onStop={() => void agentStop()}
             saving={saving}
             composerOpen={composerOpen}
             onDone={() => void load()}

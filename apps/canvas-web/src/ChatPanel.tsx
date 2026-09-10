@@ -1,6 +1,6 @@
 import { Check, GripVertical, Loader2, PanelRight, Plus, X } from "lucide-react"
 
-import type { CanvasFile, ToolActivity } from "./api"
+import type { AgentMsg, CanvasFile, ToolActivity } from "./api"
 import { Generate } from "./Generate"
 import { QuestionCard, type QuestionRequest } from "./Question"
 import { THINKING_TOOLS, labelFor, mergeCalls, type Call } from "./toolLabels"
@@ -23,6 +23,9 @@ export function ChatPanel({
   file,
   events,
   activity,
+  messages,
+  agentRunning,
+  onStop,
   saving,
   composerOpen,
   onDone,
@@ -36,6 +39,10 @@ export function ChatPanel({
   file: CanvasFile | null
   events: { at: string; event: string }[]
   activity: ToolActivity[]
+  /** agent 的对话记录。 */
+  messages: AgentMsg[]
+  agentRunning: boolean
+  onStop: () => void
   saving: "idle" | "saving" | "saved" | "failed"
   composerOpen: boolean
   onDone: () => void
@@ -58,6 +65,13 @@ export function ChatPanel({
       <div data-tauri-drag-region className="flex h-11 shrink-0 items-center gap-2 px-3">
         <GripVertical size={14} style={{ color: "var(--muted-foreground)" }} />
         <strong className="truncate text-[13px]">画布</strong>
+        {/* 节点数和保存状态收进顶栏。原来它们占了正文第一行，
+            而那个位置现在是对话 —— 状态是背景信息，不该排在对话前面。 */}
+        <span className="truncate text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+          {file ? `${file.nodes.length} 节点` : "连接中…"}
+          {saving !== "idle" &&
+            ` · ${{ saving: "保存中", saved: "已保存", failed: "保存失败", idle: "" }[saving]}`}
+        </span>
         <span className="flex-1" />
         <button
           onClick={onReload}
@@ -90,32 +104,55 @@ export function ChatPanel({
           </div>
         )}
 
-        <p style={{ color: "var(--muted-foreground)" }}>
-          {file ? `${file.nodes.length} 个节点 / ${file.edges.length} 条边` : "连接中…"}
-          {saving !== "idle" && (
-            <>
+        {/* 对话。**空的时候不放假消息** —— 放一句"你好，我能帮你做什么"
+            的话，用户会以为已经连上了模型，而那句话只是写死的。 */}
+        {messages.length === 0 ? (
+          <p className="text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+            说一句话，蒜狸会调用工具把东西做出来，产物直接出现在画布上。
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {messages
+              // `tool` 那些不显示：它们是工具的原始 JSON 返回，几 KB 一条，
+              // 而用户要看的是"做了什么"——那在下面的活动流里。
+              .filter((m) => m.role !== "tool" && (m.content ?? "").trim())
+              .map((m, i) => (
+                <div key={i} className={m.role === "user" ? "flex justify-end" : ""}>
+                  <div
+                    className={
+                      m.role === "user"
+                        ? "max-w-[85%] rounded-2xl rounded-br-md px-3 py-2 text-[13px] whitespace-pre-wrap"
+                        : "text-[13px] leading-6 whitespace-pre-wrap"
+                    }
+                    style={
+                      m.role === "user"
+                        ? { background: "var(--bg-subtle)", color: "var(--foreground)" }
+                        : { color: "var(--foreground)" }
+                    }
+                  >
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
 
-              <span
-                style={{
-                  color: saving === "failed" ? "var(--canvas-node-tag-red)" : undefined,
-                }}
-              >
-                {{ saving: "保存中…", saved: "已保存", failed: "保存失败", idle: "" }[saving]}
-              </span>
-            </>
-          )}
-        </p>
+        {agentRunning && (
+          <div className="mt-3 flex items-center gap-2 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+            <Loader2 size={13} className="animate-spin" />
+            思考中…
+            <button onClick={onStop} className="ml-1 underline">
+              停止
+            </button>
+          </div>
+        )}
 
-        {/* 工具活动流。每个 MCP 工具调用都经过我们的 hub server，
-            所以这条流是 agent 真在做什么的直接记录。 */}
-        <div className="mt-3 space-y-1.5">
-          {activity.length === 0 ? (
-            <p className="text-[12px]" style={{ color: "var(--muted-foreground)" }}>
-              尚无活动。agent 开始干活时会在这里实时出现。
-            </p>
-          ) : (
-            mergeCalls(activity).map((c) => <CallRow key={c.id} call={c} />)
-          )}
+        {/* 工具活动流。每个工具调用都经过我们自己的进程，所以这条流是
+            agent 真在做什么的直接记录。 */}
+        <div className="mt-4 space-y-1.5">
+          {mergeCalls(activity).map((c) => (
+            <CallRow key={c.id} call={c} />
+          ))}
         </div>
 
         {/* 原始 /ws 事件。**留着，但收起来。** 活动流是给用户看的，
