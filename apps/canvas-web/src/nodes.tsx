@@ -17,6 +17,7 @@ import { AudioPlayer, VideoPlayer } from "./MediaPlayer"
 import { MagneticHandle } from "./MagneticHandle"
 import { NodeToolbar } from "./NodeToolbar"
 import type { NodeData } from "./canvas"
+import { FindBar } from "./FindBar"
 import { TextEditor } from "./TextEditor"
 import { Waveform } from "./Waveform"
 
@@ -236,6 +237,8 @@ export function TextNode(props: Props) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState("")
   const [error, setError] = useState<string | null>(null)
+  /** 查找条开着没有。官方的 `canvas-text-find-bar`,⌘F / Ctrl+F 打开。 */
+  const [finding, setFinding] = useState(false)
 
   const text = detail?.textContent
 
@@ -263,7 +266,19 @@ export function TextNode(props: Props) {
   // 媒体是"整块媒体"，文本是"一张纸"。
   return (
     <Frame {...props} kind="text" variant="panel">
-      <div className="relative -m-3 h-[calc(100%+24px)] w-[calc(100%+32px)]" onDoubleClick={start}>
+      <div
+        className="relative -m-3 h-[calc(100%+24px)] w-[calc(100%+32px)]"
+        onDoubleClick={start}
+        onKeyDown={(e) => {
+          // ⌘F / Ctrl+F 打开查找。**要 preventDefault** —— 不拦的话
+          // 浏览器/WebView 自带的页内查找会弹出来，那个找的是整页 DOM，
+          // 改不了节点内容。
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f" && editing) {
+            e.preventDefault()
+            setFinding(true)
+          }
+        }}
+      >
         {error && (
           <div className="absolute inset-x-0 top-0 z-10 flex items-start gap-1.5 px-2 py-1 text-[10px] leading-4"
             style={{ background: "color-mix(in srgb, var(--canvas-node-tag-red) 22%, var(--canvas-node-bg))", color: "var(--canvas-node-tag-red)" }}>
@@ -272,7 +287,20 @@ export function TextNode(props: Props) {
           </div>
         )}
         {editing ? (
-          <TextEditor value={draft} onChange={setDraft} onDone={() => void finish()} />
+          <>
+            {/* 查找条压在编辑区上方。**只在编辑态给** —— 只读时改不了内容，
+                给一个「替换」按钮点了没反应比没有更糟。 */}
+            {finding && (
+              <div className="absolute top-1 right-1 z-20">
+                <FindBar
+                  text={draft}
+                  onReplace={setDraft}
+                  onClose={() => setFinding(false)}
+                />
+              </div>
+            )}
+            <TextEditor value={draft} onChange={setDraft} onDone={() => void finish()} />
+          </>
         ) : text === undefined ? (
           <Placeholder text="读取中…" />
         ) : (

@@ -668,6 +668,8 @@ const SHORTCUTS: { keys: string[]; desc: string }[] = [
   { keys: ["空白处拖拽"], desc: "框选节点" },
   { keys: ["右键"], desc: "打开菜单" },
   { keys: ["双击文本节点"], desc: "编辑内容" },
+  { keys: ["⌘/Ctrl", "F"], desc: "在文本节点里查找替换（编辑态）" },
+  { keys: ["Delete"], desc: "删除选中的节点" },
 ]
 
 export function ShortcutPanel({ onClose }: { onClose: () => void }) {
