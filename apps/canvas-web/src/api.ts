@@ -736,6 +736,34 @@ export async function wechatConnect(): Promise<void> {
 export async function wechatDisconnect(): Promise<void> {
   await fetch("/api/wechat/disconnect", { method: "POST" }).catch(() => {})
 }
+/** 保持电脑唤醒。对应官方的 `preventSleep`。 */
+export type AwakeInfo = { enabled: boolean; error: string | null }
+
+export async function awakeStatus(): Promise<AwakeInfo> {
+  return json(await fetch("/api/system/awake"), "GET /api/system/awake")
+}
+
+/**
+ * 开或关。
+ *
+ * 后端**用 200 + ok:false 报"系统拒了"**（不是 5xx）—— 那不是请求错了，
+ * 原因要原样显示给用户看。所以这里不能只看 res.ok。
+ */
+export async function awakeSet(enabled: boolean): Promise<AwakeInfo> {
+  const res = await fetch("/api/system/awake", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ enabled }),
+  })
+  const b = (await res.json().catch(() => ({}))) as {
+    ok?: boolean
+    enabled?: boolean
+    error?: string
+  }
+  if (!res.ok) throw new Error(b.error ?? `HTTP ${res.status}`)
+  return { enabled: b.enabled ?? false, error: b.ok === false ? (b.error ?? "开启失败") : null }
+}
+
 export async function wechatLogout(): Promise<void> {
   await fetch("/api/wechat/logout", { method: "POST" }).catch(() => {})
 }

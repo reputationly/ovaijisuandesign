@@ -266,6 +266,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         activity: Arc::new(gateway::activity::Activity::new()),
         agent: Arc::new(gateway::agent::Agent::new()),
         feishu: Arc::new(gateway::feishu::bridge::Bridge::new()),
+        awake: Arc::new(gateway::awake::Keeper::new(cfg.prevent_sleep)),
         wechat: Arc::new(gateway::wechat::Wechat::new()),
         upstream,
         web_dir,

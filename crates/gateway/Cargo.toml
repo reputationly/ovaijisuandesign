@@ -42,6 +42,14 @@ aes.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 uuid.workspace = true
+# 阻止系统休眠。**不自己调平台 API** —— 三个平台三套（IOKit 的
+# IOPMAssertionCreateWithName / Windows 的 SetThreadExecutionState /
+# Linux 的 login1.Inhibit），而 Windows 那个是线程局部的，在临时线程上
+# 调完就失效，失效的表现和没调一模一样。
+#
+# 依赖是按平台分的（zbus 只在 Linux 上进来），default-features 关掉是
+# 为了不把它的 CLI（clap / sysinfo / shadow-rs）拖进来。
+keepawake = { version = "0.6", default-features = false }
 
 [dev-dependencies]
 tempfile = "3"

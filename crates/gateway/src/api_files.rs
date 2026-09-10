@@ -378,6 +378,7 @@ mod tests {
             activity: std::sync::Arc::new(crate::activity::Activity::new()),
             agent: std::sync::Arc::new(crate::agent::Agent::new()),
             feishu: std::sync::Arc::new(crate::feishu::bridge::Bridge::new()),
+            awake: std::sync::Arc::new(crate::awake::Keeper::default()),
             wechat: std::sync::Arc::new(crate::wechat::Wechat::new()),
             upstream: None,
             web_dir: None,

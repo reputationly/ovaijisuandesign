@@ -29,6 +29,13 @@ pub struct Config {
     /// 留空表示不反代 —— 那是"已经能独立跑"的状态。见 [`crate::proxy`]。
     #[serde(default)]
     pub upstream: Option<String>,
+    /// 接了飞书/微信之后阻止系统闲置休眠。见 [`crate::awake`]。
+    ///
+    /// 语义和官方的 `preventSleep` 一样：启动时读回来自动恢复。
+    /// 键名跟着本文件的其余字段走蛇形（`web_dir` / `base_url` 那一套），
+    /// 不跟官方的驼峰 —— 这个文件是我们自己的，一致比对齐重要。
+    #[serde(default)]
+    pub prevent_sleep: bool,
     /// 平台接入信息 + 各模态用哪个模型。
     ///
     /// 直接内嵌 [`MediaConfig`]：这一层没有任何需要额外包装的东西，
@@ -48,6 +55,7 @@ impl Default for Config {
             web_dir: None,
             workspace: None,
             upstream: None,
+            prevent_sleep: false,
             media: MediaConfig {
                 platform: Platform {
                     base_url: "https://maas.ovaijisuan.com/v1".into(),

@@ -37,6 +37,7 @@ pub mod api_files;
 pub mod api_group;
 pub mod api_text;
 pub mod assets;
+pub mod awake;
 pub mod canvas;
 pub mod canvases;
 pub mod capabilities;
@@ -93,6 +94,8 @@ pub struct AppState {
     pub agent: Arc<crate::agent::Agent>,
     /// 飞书长连接的状态。见 [`crate::feishu`]。
     pub feishu: Arc<crate::feishu::bridge::Bridge>,
+    /// 阻止系统休眠的开关。见 [`crate::awake`]。
+    pub awake: Arc<crate::awake::Keeper>,
     /// 微信 iLink 的状态。见 [`crate::wechat`]。
     pub wechat: Arc<crate::wechat::Wechat>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
@@ -139,6 +142,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/wechat/disconnect", post(wechat::disconnect))
         .route("/api/wechat/logout", post(wechat::logout))
         .route("/api/settings", get(settings::get).post(settings::put))
+        .route("/api/system/awake", get(awake::get).post(awake::put))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))
         .route(
@@ -282,6 +286,7 @@ mod tests {
             activity: Arc::new(crate::activity::Activity::new()),
             agent: Arc::new(crate::agent::Agent::new()),
             feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
+            awake: Arc::new(crate::awake::Keeper::default()),
             wechat: Arc::new(crate::wechat::Wechat::new()),
             upstream: None,
             web_dir: None,
