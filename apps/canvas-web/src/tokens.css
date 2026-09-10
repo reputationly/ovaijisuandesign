@@ -182,6 +182,11 @@
   /* 输入框的最小高度。官方按窗口宽度给三档（150 / 140 / 132），
      我们先用最小那档 —— 窄窗口下才是真正会挤到的场景。 */
   --input-card-height: 132px;
+  /* 输入框编辑区的上限。官方是
+   * `.home-input-surface .message-input-editor .ProseMirror { max-height: 200px }` ——
+   * 从 min-height 90 长到 200 就不再长，再多的内容内部滚动。
+   * 没有上限的话，贴一段长提示词会把下面的「创作灵感」整个顶出视口。 */
+  --home-input-editor-max-height: 200px;
   --home-content-surface: var(--background);
   /* 输入框到下面各块的距离。官方把这三段分开定，因为它们不一样宽松。 */
   --home-input-to-tags-gap: 56px;

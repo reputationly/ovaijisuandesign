@@ -691,6 +691,13 @@ export default function App() {
                 document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
               }}
               fitView
+              // **不放大，最多 100%。** 官方的 fitView 传的就是
+              // `{ padding: 0.2, maxZoom: 1 }`。
+              //
+              // 不设上限的话，画布上只有一张图时 fitView 会一路放大到它
+              // 铺满整个视口 —— 一张 350px 的卡片被撑到 1400px，糊得看不
+              // 清，而且用户以为节点本身就是那么大。
+              fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
               minZoom={0.05}
               // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
               // 几百个节点全渲染会让首屏卡住。

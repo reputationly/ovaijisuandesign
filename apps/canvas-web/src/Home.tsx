@@ -279,6 +279,29 @@ export function Home({
   // 记住内容来自哪个预设，生成完把结果登记成它的封面。
   const [preset, setPreset] = useState<string | undefined>()
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
+
+  /**
+   * 输入框随内容长高。
+   *
+   * 官方的规则是
+   * `.message-input-editor .ProseMirror { min-height: 90px; max-height: 200px }` ——
+   * 从 90 长到 200 就不再长，再多的内容内部滚动。
+   *
+   * `<textarea>` 不会自己做这件事：只给 min/max-height 的话它永远是那个
+   * 固定高度，长提示词被塞在一个小窗口里滚动。**必须先把 height 清成
+   * auto 再读 scrollHeight** —— 不清的话 scrollHeight 会被上一次设的
+   * height 撑住，只增不减，删字之后框子不会缩回去。
+   */
+  useEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = "auto"
+    const max = parseInt(
+      getComputedStyle(el).getPropertyValue("max-height").replace("px", ""),
+      10,
+    )
+    el.style.height = `${Number.isFinite(max) ? Math.min(el.scrollHeight, max) : el.scrollHeight}px`
+  }, [prompt])
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
   /** 挂在输入框上的参考素材。提交时作为底图一起发出去。 */
@@ -459,9 +482,10 @@ export function Home({
               }
             }}
             placeholder="描述你要生成的内容"
-            className="resize-none bg-transparent px-4 pt-3 outline-none"
+            className="resize-none overflow-y-auto bg-transparent px-4 pt-3 outline-none"
             style={{
               minHeight: "var(--home-input-editor-min-height)",
+              maxHeight: "var(--home-input-editor-max-height)",
               fontSize: "var(--home-input-editor-font-size)",
             }}
           />

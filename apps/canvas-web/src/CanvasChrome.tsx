@@ -20,6 +20,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
 
 import { CANVAS_MODES, type CanvasMode } from "./api"
+
+/**
+ * fitView 的统一参数。官方传的就是 `{ padding: 0.2, maxZoom: 1 }`。
+ *
+ * **`maxZoom: 1` 是重点**：不设的话，画布上只有一张图时会一路放大到它
+ * 铺满视口 —— 一张 350px 的卡片被撑到 1400px，糊得看不清，而且用户会
+ * 以为节点本身就是那么大。
+ */
+const FIT = { padding: 0.2, maxZoom: 1, duration: 200 } as const
 import { cn } from "./lib"
 
 /**
@@ -196,12 +205,12 @@ export function TopRightChrome({
   // 右键菜单里的"适应画布"。fitView 只在 ReactFlowProvider 内部拿得到，
   // 用一个自定义事件跨过去，比把整棵树重排简单得多。
   useEffect(() => {
-    const fit = () => fitView({ duration: 200 })
+    const fit = () => fitView(FIT)
     // 侧栏点某个节点 → 把它居中。只调视野，**不动节点坐标** ——
     // 点一下列表就把节点挪走是最糟的交互。
     const focus = (e: Event) => {
       const id = (e as CustomEvent<string>).detail
-      if (typeof id === "string") void fitView({ nodes: [{ id }], duration: 260, maxZoom: 1 })
+      if (typeof id === "string") void fitView({ ...FIT, nodes: [{ id }], duration: 260 })
     }
     window.addEventListener("canvas:fit", fit)
     window.addEventListener("canvas:focus", focus)
@@ -239,7 +248,7 @@ export function TopRightChrome({
               <div className="my-1 h-px" style={{ background: "var(--canvas-controls-border)" }} />
               <MenuRow
                 onClick={() => {
-                  fitView({ duration: 200 })
+                  fitView(FIT)
                   close()
                 }}
               >
@@ -272,7 +281,7 @@ export function TopRightChrome({
               <div className="my-1 h-px" style={{ background: "var(--canvas-controls-border)" }} />
               <MenuRow
                 onClick={() => {
-                  fitView({ duration: 200 })
+                  fitView(FIT)
                   close()
                 }}
               >

@@ -166,7 +166,16 @@ export function MagneticHandle({
         position={position}
         className="magnetic-handle-hit"
         style={{
-          [side]: 0,
+          // **跨在节点边缘上：一半在外、一半在内。**
+          //
+          // 之前是 `0`,整个 84x84 都在节点里，而 ⊕ 图标画在节点外面
+          // （`right-full` / `left-full`）。于是鼠标往圆圈那边移动的瞬间
+          // 就离开了节点，`.group:hover` 变假，圆圈当场消失 ——
+          // 想点它就得先"看见它、再快速移过去"，实际上点不到。
+          //
+          // 42 不是随手取的：和 `MAGNETIC_OUTWARD` 是同一个数，也就是
+          // 磁吸能吸到的最远处正好是感应区的边界。
+          [side]: -MAGNETIC_OUTWARD,
           top: "50%",
           width: 84,
           height: 84,
