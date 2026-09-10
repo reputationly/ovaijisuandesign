@@ -248,12 +248,24 @@ export async function pollTask(
   }
 }
 
-/** 在画布上建一个媒体节点。仍借官方 gateway。 */
-export async function createMediaNode(assetPath: string): Promise<void> {
+/**
+ * 在画布上建一个媒体节点。
+ *
+ * `sourceNodeIds` 给了就顺带连一条从源节点过来的边 —— 后端一直支持
+ * （`api_canvas.rs` 的 `sourceNodeIds`），只是前端之前没传。截帧、
+ * 以某个节点为输入生成，产物都该连回它的来源，否则画布上看不出因果。
+ */
+export async function createMediaNode(
+  assetPath: string,
+  sourceNodeIds?: string[],
+): Promise<void> {
   const res = await fetch("/api/canvas/media-node", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ assetPath }),
+    body: JSON.stringify({
+      assetPath,
+      ...(sourceNodeIds?.length ? { sourceNodeIds } : {}),
+    }),
   })
   await json<unknown>(res, "POST /api/canvas/media-node")
 }

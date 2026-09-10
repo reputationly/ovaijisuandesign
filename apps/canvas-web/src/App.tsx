@@ -16,9 +16,11 @@ import "@xyflow/react/dist/style.css"
 
 import {
   AudioLines,
+  Camera,
   Copy,
   Image as ImageIcon,
   Maximize2,
+  MessageSquarePlus,
   PanelLeft,
   PanelRight,
   RefreshCw,
@@ -57,8 +59,11 @@ import {
   type Project,
   type Session,
   type ToolActivity,
+  createMediaNode,
+  uploadFiles,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
+import { captureFrame, frameFileName } from "./captureFrame"
 import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
@@ -423,6 +428,37 @@ export default function App() {
       )
     },
     [details, file],
+  )
+
+  /**
+   * 视频节点截帧 →  存成图片 → 作为新节点放上画布，并连一条边。
+   *
+   * **从画布上那个 `<video>` 元素截**，不是新建一个离屏的 —— 用户看到的
+   * 是哪一帧，截出来就该是哪一帧。新建一个从头加载的话，截到的永远是第 0 秒。
+   */
+  const captureFrameOf = useCallback(
+    async (nodeId: string, assetId: string) => {
+      const el = document.querySelector<HTMLVideoElement>(
+        `[data-id="${CSS.escape(nodeId)}"] video`,
+      )
+      if (!el) {
+        setError("找不到这个视频节点的播放器")
+        return
+      }
+      try {
+        const { blob } = await captureFrame(el)
+        const name = frameFileName(details.get(nodeId)?.name, el.currentTime)
+        const [path] = await uploadFiles([new File([blob], name, { type: "image/png" })])
+        if (!path) throw new Error("截帧没有落盘")
+        // 走 media-node：和生成结果、IM 附件同一条路，会登记进资产索引。
+        await createMediaNode(path, [nodeId])
+        await load()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+      void assetId
+    },
+    [details, load],
   )
 
   const openSessionMenu = useCallback(
@@ -892,6 +928,34 @@ export default function App() {
                             label: "在新标签页打开",
                             icon: <Maximize2 size={15} />,
                             onClick: () => window.open(assetUrl(assetId), "_blank"),
+                          },
+                        ]
+                      : []),
+                    // 官方的 `canvas.addToChat` =「添加到对话」。
+                    // 把这个节点的素材丢进右侧输入框当输入 —— 和从 ⊕
+                    // 拉线出来是同一件事的另一个入口，用户更常用这个。
+                    ...(details.get(node.id)?.path
+                      ? [
+                          {
+                            id: "add-to-chat",
+                            label: "添加到对话",
+                            icon: <MessageSquarePlus size={15} />,
+                            onClick: () => {
+                              setPendingAttachments([details.get(node.id)!.path!])
+                              setComposerOpen(true)
+                              setRightOpen(true)
+                            },
+                          },
+                        ]
+                      : []),
+                    // 官方的 `canvas.captureFrame` =「截帧」。只有视频节点有。
+                    ...(node.data.raw.type === "video" && assetId
+                      ? [
+                          {
+                            id: "capture",
+                            label: "截帧",
+                            icon: <Camera size={15} />,
+                            onClick: () => void captureFrameOf(node.id, assetId),
                           },
                         ]
                       : []),

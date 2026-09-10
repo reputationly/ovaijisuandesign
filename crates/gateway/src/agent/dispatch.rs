@@ -222,16 +222,58 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
     out.to_string()
 }
 
+/// 这次生成的输入素材对应画布上的哪些节点。
+///
+/// 模型传下来的是工作区相对路径（`image_paths`），而画布节点带的是
+/// `assetId`。中间靠资产索引换算。
+///
+/// **找不到就跳过，不报错。** 输入可能来自工作区里一个还没放上画布的文件
+/// （比如 IM 发来的附件），那时候连不上是正常的。
+fn source_nodes(state: &Arc<AppState>, body: &Value) -> Vec<String> {
+    let paths: Vec<&str> = body
+        .get("image_paths")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .collect();
+    if paths.is_empty() {
+        return Vec::new();
+    }
+    let ids: Vec<String> = paths
+        .iter()
+        .filter_map(|p| state.assets.by_path(p).map(|a| a.id))
+        .collect();
+    if ids.is_empty() {
+        return Vec::new();
+    }
+    let file = crate::canvas::read(&state.ws.canvas_path());
+    file.nodes
+        .iter()
+        .filter(|n| {
+            n.asset_id
+                .as_deref()
+                .is_some_and(|a| ids.iter().any(|i| i == a))
+        })
+        .map(|n| n.id.clone())
+        .collect()
+}
+
 /// 把工作区里的一个文件放到画布上，返回节点 id。
 ///
 /// 走的是 `media_node`,和界面上传、IM 附件同一条路 —— 于是它会被登记进
 /// 资产索引、按类型归档、发出 `canvas:changed`。
-async fn place(state: &Arc<AppState>, path: &str) -> Result<String, String> {
+async fn place(state: &Arc<AppState>, path: &str, sources: &[String]) -> Result<String, String> {
     if path.trim().is_empty() {
         return Err("生成结果里没有 path".into());
     }
-    let body = serde_json::from_value(json!({ "assetPath": path }))
-        .map_err(|e| format!("assetPath 形状不对：{e}"))?;
+    // `sourceNodeIds` 让产物连回它的输入。不带的话画布上是一堆孤立的卡片，
+    // **看不出哪张图是从哪张图来的** —— 而这正是画布相对聊天的意义。
+    let body = serde_json::from_value(json!({
+        "assetPath": path,
+        "sourceNodeIds": sources,
+    }))
+    .map_err(|e| format!("assetPath 形状不对：{e}"))?;
     let v = body_json(
         crate::api_canvas::media_node(axum::extract::State(state.clone()), axum::Json(body)).await,
     )
@@ -283,6 +325,9 @@ fn err(msg: &str) -> String {
 
 /// 提交一次生成并轮询到底。
 async fn submit_and_wait(state: &Arc<AppState>, kind: &str, body: Value) -> String {
+    // 这次生成用了画布上的哪些节点当输入。**按素材路径反查节点** ——
+    // 模型给的是 `images/xxx.png` 这种路径，画布上的节点带的是 assetId。
+    let sources = source_nodes(state, &body);
     let bytes = axum::body::Bytes::from(body.to_string());
     let st = axum::extract::State(state.clone());
     let resp = match kind {
@@ -321,7 +366,7 @@ async fn submit_and_wait(state: &Arc<AppState>, kind: &str, body: Value) -> Stri
                 // 图已经出好了，用户看到的却是一张空画布。而且 catalog 里
                 // 写着"生成类工具会自己建节点，不用再调 canvas_write_node"，
                 // 模型连补一刀的机会都没有。
-                let placed = place(state, &path).await;
+                let placed = place(state, &path, &sources).await;
                 // 结果里**带上 path**：模型下一步可能要拿它当底图或参考帧。
                 return match placed {
                     Ok(node_id) => json!({
@@ -396,7 +441,7 @@ mod tests {
         std::fs::create_dir_all(dir.path().join("images")).unwrap();
         std::fs::write(dir.path().join("images/a.png"), PNG).unwrap();
 
-        let node_id = place(&st, "images/a.png").await.expect("应当建出节点");
+        let node_id = place(&st, "images/a.png", &[]).await.expect("应当建出节点");
         assert!(!node_id.is_empty(), "nodeId 不能是空串");
 
         let file = crate::canvas::read(&st.ws.canvas_path());
@@ -410,11 +455,11 @@ mod tests {
         // 是哪一步出的错。
         let dir = tempfile::tempdir().unwrap();
         let st = state(dir.path());
-        let e = place(&st, "images/nope.png").await.unwrap_err();
+        let e = place(&st, "images/nope.png", &[]).await.unwrap_err();
         assert!(!e.is_empty(), "错误信息不能是空的");
 
-        assert!(place(&st, "").await.is_err(), "空 path 也要报错");
-        assert!(place(&st, "   ").await.is_err());
+        assert!(place(&st, "", &[]).await.is_err(), "空 path 也要报错");
+        assert!(place(&st, "   ", &[]).await.is_err());
     }
 
     #[tokio::test]
@@ -426,9 +471,49 @@ mod tests {
         std::fs::create_dir_all(dir.path().join("images")).unwrap();
         std::fs::write(dir.path().join("images/a.png"), PNG).unwrap();
 
-        let first = place(&st, "images/a.png").await.unwrap();
-        let second = place(&st, "images/a.png").await.unwrap();
+        let first = place(&st, "images/a.png", &[]).await.unwrap();
+        let second = place(&st, "images/a.png", &[]).await.unwrap();
         assert_eq!(first, second);
         assert_eq!(crate::canvas::read(&st.ws.canvas_path()).nodes.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn a_generated_node_links_back_to_the_inputs_it_used() {
+        // 不连的话画布上是一堆孤立的卡片，看不出哪张图是从哪张图来的 ——
+        // 而这正是画布相对聊天的意义。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        std::fs::create_dir_all(dir.path().join("images")).unwrap();
+        std::fs::write(dir.path().join("images/a.png"), PNG).unwrap();
+        let src = place(&st, "images/a.png", &[]).await.unwrap();
+
+        let found = source_nodes(&st, &json!({ "image_paths": ["images/a.png"] }));
+        assert_eq!(found, vec![src.clone()]);
+
+        std::fs::write(dir.path().join("images/b.png"), PNG).unwrap();
+        let out = place(&st, "images/b.png", &found).await.unwrap();
+        let file = crate::canvas::read(&st.ws.canvas_path());
+        assert!(
+            file.edges
+                .iter()
+                .any(|e| e.source == src && e.target == out),
+            "产物没有连回它的输入：{:?}",
+            file.edges
+        );
+    }
+
+    #[tokio::test]
+    async fn an_input_that_is_not_on_the_canvas_is_skipped_quietly() {
+        // 输入可能来自工作区里一个还没放上画布的文件（比如 IM 发来的附件）。
+        // 那时候连不上是正常的，**不该报错也不该连错**。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        std::fs::create_dir_all(dir.path().join("images")).unwrap();
+        std::fs::write(dir.path().join("images/loose.png"), PNG).unwrap();
+        st.assets.enroll("images/loose.png").unwrap();
+
+        assert!(source_nodes(&st, &json!({ "image_paths": ["images/loose.png"] })).is_empty());
+        assert!(source_nodes(&st, &json!({})).is_empty());
+        assert!(source_nodes(&st, &json!({ "image_paths": [] })).is_empty());
     }
 }
