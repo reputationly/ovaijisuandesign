@@ -28,6 +28,8 @@ import { Waveform } from "./Waveform"
 export interface CanvasActions {
   saveText(nodeId: string, content: string, expectedHash: string | undefined): Promise<void>
   deleteNode(nodeId: string): Promise<void>
+  /** 打开灯箱看大图。见 Lightbox.tsx。 */
+  openLightbox(nodeId: string): void
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -139,13 +141,25 @@ function Placeholder({ text, icon }: { text: string; icon?: ReactNode }) {
 
 export function ImageNode(props: Props) {
   const id = props.data.raw.assetId
+  const actions = useContext(CanvasActionsContext)
   return (
     <Frame {...props} kind="image">
       {id ? (
         // 走缩略图：原图动辄 1.8MB，而卡片才 350px 宽。宽度取 512 而不是 2x
         // 卡片宽（700）—— gateway 回的是 PNG，无损压缩对照片几乎不起作用，
         // 实测 700 要 1.38MB，512 只要 357KB，肉眼分不出。
-        <img src={assetUrl(id, 512)} alt="" loading="lazy" className="h-full w-full object-cover" />
+        // 双击开灯箱而不是单击：单击在画布上是"选中"，抢掉它会让框选、
+        // 连线这些操作全部失灵。官方也是双击。
+        <img
+          src={assetUrl(id, 512)}
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover"
+          onDoubleClick={(e) => {
+            e.stopPropagation()
+            actions?.openLightbox(props.id)
+          }}
+        />
       ) : (
         <Placeholder text="占位节点（无 assetId）" />
       )}

@@ -39,6 +39,7 @@ import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
+import { Lightbox, type LightboxItem } from "./Lightbox"
 import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
 
 interface EventLine {
@@ -56,6 +57,13 @@ export default function App() {
   const [events, setEvents] = useState<EventLine[]>([])
   // agent 的工具活动流。右栏按官方的标签表渲染，见 toolLabels.ts。
   const [activity, setActivity] = useState<ToolActivity[]>([])
+  /**
+   * 灯箱当前看的是哪个节点。`null` = 没打开。
+   *
+   * 存**节点 id 而不是下标**：翻页期间 agent 可能往画布上加了图，
+   * 下标会指到另一张上去 —— 用户看到的是"图自己跳了一下"。
+   */
+  const [lightbox, setLightbox] = useState<string | null>(null)
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
@@ -267,6 +275,9 @@ export default function App() {
        * 以 `fileRef` 里那份服务端原文为底改，不是拿界面重建：界面上的节点
        * 只带我们认识的字段，重建会把官方写进去、我们还不认识的字段抹掉。
        */
+      openLightbox(nodeId) {
+        setLightbox(nodeId)
+      },
       async deleteNode(nodeId) {
         const base = fileRef.current
         if (!base) return
@@ -280,6 +291,31 @@ export default function App() {
     [],
   )
 
+
+  /**
+   * 灯箱要显示的那一组图。
+   *
+   * 只在灯箱开着时才算 —— 关着的时候画布上有几十张图，每次渲染都遍历一遍
+   * 纯属白算。
+   */
+  const lightboxNodeIds = useMemo(
+    () =>
+      lightbox === null
+        ? []
+        : (file?.nodes ?? []).filter((n) => n.type === "image" && n.assetId).map((n) => n.id),
+    [lightbox, file],
+  )
+  const lightboxItems = useMemo<LightboxItem[]>(
+    () =>
+      lightboxNodeIds.map((id) => {
+        const node = file?.nodes.find((n) => n.id === id)
+        // 灯箱走**原图**不走缩略图 —— 它就是用来看细节的，
+        // 放大到 400% 看一张 512px 的缩略图等于什么都没看到。
+        return { url: assetUrl(node!.assetId!), name: details.get(id)?.name }
+      }),
+    [lightboxNodeIds, file, details],
+  )
+  const lightboxIndex = Math.max(0, lightboxNodeIds.indexOf(lightbox ?? ""))
 
   return (
     <CanvasActionsContext value={actions}>
@@ -546,6 +582,20 @@ export default function App() {
           </button>
         ) : null}
       </div>
+
+      {/* 图片灯箱。
+          **翻页范围是画布上的全部图片**，而官方翻的是一个多图节点里的那几张。
+          差别的原因是我们还没有多图节点（一次生成出多张、叠在一张卡片上），
+          所以照官方做的话箭头永远不出现、那段代码是死的。等多图节点做出来，
+          把这里传的 items 换成那一组即可，组件本身不用动。 */}
+      {lightboxItems.length > 0 && (
+        <Lightbox
+          items={lightboxItems}
+          index={lightboxIndex}
+          onIndexChange={(i) => setLightbox(lightboxNodeIds[i] ?? null)}
+          onClose={() => setLightbox(null)}
+        />
+      )}
     </CanvasActionsContext>
   )
 }
