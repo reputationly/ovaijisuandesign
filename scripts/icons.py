@@ -102,11 +102,15 @@ def render(shapes, box, size):
 CANVAS = 1024
 PLATE = 824          # 苹果网格里图标底板的边长
 MARK = 560           # 标在底板里再内缩一圈，留出光学边距
-# 底板配色：深灰渐变。**不是白也不是品牌蓝** ——
-# 白底会让标中间那道白色镂空和底板连成一片，小尺寸下那道缝直接消失；
-# 纯蓝底就得把标改成单色白，而绿色是这个标一半的辨识度。
-PLATE_TOP = (44, 52, 62)
-PLATE_BOTTOM = (24, 29, 36)
+# 底板配色：纯白。
+#
+# 这个标本来就是画在白底网页上的（源自 maas-landingpage 的 ggac.png），
+# 白底是它的原生形态 —— 标中间那几道镂空原本就该是白的，换成深色底
+# 等于给它加了一圈本不存在的描边。
+#
+# 代价是白底板在浅色 Dock 背景上没有边界感。这是有意的取舍：Dock 里那一排
+# 本来就有好几个白底图标，混在一起并不违和，而深色那版是整排最暗的一个。
+PLATE_COLOR = (255, 255, 255, 255)
 # 超椭圆指数。苹果用的是连续圆角（squircle）不是普通圆角矩形，
 # n=5 和它几乎重合；用 rounded_rectangle 的话四角会明显更"方"。
 SQUIRCLE_N = 5.0
@@ -157,18 +161,7 @@ def app_icon(shapes, box, size):
     plate_px = round(size * pr)
     mark_px = round(size * mr)
 
-    grad = Image.new("RGBA", (1, plate_px))
-    for i in range(plate_px):
-        t = i / max(plate_px - 1, 1)
-        grad.putpixel(
-            (0, i),
-            tuple(
-                round(PLATE_TOP[j] + (PLATE_BOTTOM[j] - PLATE_TOP[j]) * t)
-                for j in range(3)
-            )
-            + (255,),
-        )
-    plate = grad.resize((plate_px, plate_px), Image.BILINEAR)
+    plate = Image.new("RGBA", (plate_px, plate_px), PLATE_COLOR)
     plate.putalpha(squircle_alpha(plate_px))
 
     out = Image.new("RGBA", (size, size), (0, 0, 0, 0))
