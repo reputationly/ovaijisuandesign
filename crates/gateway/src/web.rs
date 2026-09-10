@@ -22,6 +22,24 @@ use tokio_util::io::ReaderStream;
 ///
 /// 都找不到就返回 `None` —— 那时访问 `/` 会如实说"前端没构建"，
 /// 而不是回一个空白页让人以为是前端崩了。
+///
+/// ## 开发时会咬人的一处
+///
+/// 桌面端跑 `cargo build` 时，**tauri-build 会把 `tauri.conf.json` 里的
+/// resources 拷进 `target/<profile>/web/`** —— 于是第 2 条先命中那份拷贝，
+/// 第 3 条永远轮不到。
+///
+/// 后果：改完前端只跑 `bun run build`，界面**不会更新**，而且没有任何报错
+/// （旧那份是完整可用的，只是旧）。表现是"我明明改了，怎么没变"。
+///
+/// 跑 `./target/debug/ovdesktop` 之前先同步一次：
+///
+/// ```sh
+/// rm -rf target/debug/web && cp -R apps/canvas-web/dist target/debug/web
+/// ```
+///
+/// 顺序不能调（把仓库 dist 放到 exe 旁边之前）：发布包里 exe 旁边那份才是
+/// 唯一的真相，而那时仓库路径根本不存在。
 pub fn locate(configured: Option<&Path>) -> Option<PathBuf> {
     if let Some(dir) = configured {
         return dir.is_dir().then(|| dir.to_path_buf());

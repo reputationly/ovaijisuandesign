@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/* 品牌字体：站酷快乐体（OFL 开源许可，可随包分发）。
+/* 品牌字体：马善政毛笔楷书（OFL 开源许可，可随包分发）。
  *
- * **只装子集，27 个字，3.6 KB。** 完整的中文字体是 5~10 MB —— 打进一个
+ * **只装子集，43 个字，14 KB。** 完整的中文字体是 5~10 MB —— 打进一个
  * 6 MB 的安装包里显然不行。子集是 Google Fonts 的 `text=` 参数生成的。
  *
  * 代价：**没在子集里的字会掉回黑体**，而且掉得很安静。所以子集里预留了
@@ -13,8 +13,8 @@
  * `font-display: block` 而不是 swap：这是个本地文件，加载是毫秒级，
  * 而 swap 会让标题先用黑体画一帧再跳成快乐体，那一下闪动很明显。 */
 @font-face {
-  font-family: "ZCOOL KuaiLe Subset";
-  src: url("/fonts/zcool-kuaile-subset.woff2") format("woff2");
+  font-family: "Ma Shan Zheng Subset";
+  src: url("/fonts/mashanzheng-subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;
@@ -337,7 +337,10 @@ body {
 /* 品牌标题。只用在 hero 和侧栏那两处 —— 全站铺开会让正文也变成
  * 圆头圆脑的，读长文本很累。 */
 .font-brand {
-  font-family: "ZCOOL KuaiLe Subset", var(--font-sans, system-ui), sans-serif;
-  /* 快乐体字面本来就宽，再加字距会散。这里反而收一点点。 */
-  letter-spacing: 0.01em;
+  font-family: "Ma Shan Zheng Subset", var(--font-sans, system-ui), sans-serif;
+  /* 毛笔楷书的字面比黑体窄、笔画有粗细变化，字距要放开一点，
+   * 否则连成一片、认不出字。 */
+  letter-spacing: 0.06em;
+  /* 楷书笔锋细，默认渲染在浅色底上会显得发虚。 */
+  -webkit-font-smoothing: antialiased;
 }

@@ -3,13 +3,13 @@
 
     python3 scripts/brand-font.py
 
-站酷快乐体（ZCOOL KuaiLe），OFL 开源许可，可随包分发。
+马善政毛笔楷书（Ma Shan Zheng），OFL 开源许可，可随包分发。
 
 ## 为什么是子集
 
 完整的中文字体 5~10 MB。我们整个安装包才 6 MB —— 打进去就翻倍了。
 子集由 Google Fonts 的 `text=` 参数在服务端生成，只含下面 `CHARS` 里的字，
-现在是 3.6 KB。
+现在是 8 KB 上下。
 
 ## 改文案之后要重跑
 
@@ -25,10 +25,10 @@ import sys
 import urllib.parse
 import urllib.request
 
-FAMILY = "ZCOOL KuaiLe"
+FAMILY = "Ma Shan Zheng"
 OUT = (
     pathlib.Path(__file__).resolve().parent.parent
-    / "apps/canvas-web/public/fonts/zcool-kuaile-subset.woff2"
+    / "apps/canvas-web/public/fonts/mashanzheng-subset.woff2"
 )
 
 # 当前用到的 + 预留的。宁可多几百字节，不要缺一个字。

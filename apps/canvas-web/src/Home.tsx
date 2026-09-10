@@ -270,34 +270,29 @@ export function Home({
       >
         {/* hero */}
         <div className="flex flex-col items-center" style={{ gap: "var(--home-hero-title-block-gap)" }}>
-          <div className="flex items-center gap-3">
-            {/* 蒜狸。**不加圆角也不裁切** —— 它是个带黑描边的手绘形象，
-                套一个 rounded-xl 会把耳朵尖切掉。 */}
-            <img
-              src="/mascot.png"
-              alt="蒜狸"
-              width={72}
-              height={72}
-              className="shrink-0 select-none"
-              draggable={false}
-            />
-            <h1
-              className="font-brand"
-              style={{
-                fontSize: "var(--home-hero-title-size)",
-                lineHeight: "var(--home-hero-title-line-height)",
-              }}
-            >
-              光谷爱计算
-            </h1>
-          </div>
+          {/* 蒜狸。**不加圆角也不裁切** —— 它是个带黑描边的手绘形象，
+              套一个 rounded-xl 会把耳朵尖切掉。
+
+              旁边原本有一行「光谷爱计算」，去掉了：侧栏顶上已经有一次，
+              同一屏里出现两遍是重复，而这里真正该占位的是形象本身。 */}
+          <img
+            src="/mascot.png"
+            alt="蒜狸"
+            width={96}
+            height={96}
+            className="shrink-0 select-none"
+            draggable={false}
+          />
+          {/* 标题没了之后这行是 hero 里唯一的文字，字号往上提一档 ——
+              还按副标题的尺寸的话，整块会显得头重脚轻。
+              `--home-hero-subtitle-tracking-zh` 也不用了：楷书自己的字距
+              在 .font-brand 里调过，再叠一层会散开。 */}
           <p
             className="font-brand"
             style={{
-              fontSize: "var(--home-hero-subtitle-size)",
-              lineHeight: "var(--home-hero-subtitle-line-height)",
-              letterSpacing: "var(--home-hero-subtitle-tracking-zh)",
-              color: "var(--muted-foreground)",
+              fontSize: "calc(var(--home-hero-subtitle-size) * 1.35)",
+              lineHeight: "var(--home-hero-title-line-height)",
+              color: "var(--foreground)",
             }}
           >
             说一句话，剩下的交给蒜狸
