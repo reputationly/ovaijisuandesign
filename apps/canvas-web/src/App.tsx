@@ -321,11 +321,13 @@ export default function App() {
         setView("canvas")
         await load()
         await reloadSessions()
+        // 见 submitFromHome 里的同一句：换画布要重拉对话记录。
+        await reloadChat()
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
       }
     },
-    [currentSession, load, reloadSessions],
+    [currentSession, load, reloadSessions, reloadChat],
   )
 
   /**
@@ -343,13 +345,15 @@ export default function App() {
         setView("canvas")
         await load()
         await reloadSessions()
+        // 见 submitFromHome：换画布要重拉对话记录。
+        await reloadChat()
         return true
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
         return false
       }
     },
-    [load, reloadSessions],
+    [load, reloadSessions, reloadChat],
   )
 
   /**
@@ -394,6 +398,11 @@ export default function App() {
           // 会抛的东西"。真正每天都在生效的是上面那个连点保护。
           await load()
           await reloadSessions()
+          // **对话记录也要重拉。** 换画布时 chat.json 跟着换了一份
+          // （gateway 的 `restore_chat`），不拉的话界面上还挂着上一张
+          // 画布的对话 —— 用户以为新建的画布里已经聊过，而 agent 那边
+          // 看到的是空的。
+          await reloadChat()
           // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
           // 却在画布上发不出去，那次上传就白做了。
           setPendingPrompt(p)
@@ -413,7 +422,7 @@ export default function App() {
       submitInFlightRef.current = false
       setHomeSubmitting(false)
     },
-    [load, reloadSessions],
+    [load, reloadSessions, reloadChat],
   )
 
   /**
