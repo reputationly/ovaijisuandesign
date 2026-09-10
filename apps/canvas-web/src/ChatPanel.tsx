@@ -29,6 +29,7 @@ export function ChatPanel({
   onReload,
   onCollapse,
   initialPrompt,
+  initialAttachments,
   question,
   onAnswer,
 }: {
@@ -41,6 +42,8 @@ export function ChatPanel({
   onReload: () => void
   onCollapse: () => void
   initialPrompt?: string
+  /** 首页带过来的参考素材，作为底图。 */
+  initialAttachments?: string[]
   /** 待回答的决策点。`null` = 没有。 */
   question: QuestionRequest | null
   /** `answers` 为 null 表示跳过（对应 question.rejected）。 */
@@ -142,7 +145,12 @@ export function ChatPanel({
       </div>
 
       <div className="shrink-0 px-3 pb-3">
-        <Generate onDone={onDone} autoFocus={composerOpen} initial={initialPrompt} />
+        <Generate
+          onDone={onDone}
+          autoFocus={composerOpen}
+          initial={initialPrompt}
+          initialAttachments={initialAttachments}
+        />
       </div>
     </aside>
   )

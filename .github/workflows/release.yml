@@ -205,7 +205,7 @@ jobs:
           mkdir -p out
           V="${{ needs.prepare.outputs.version }}"
           B=target/${{ matrix.rust }}/release/bundle
-          # tauri 按 productName 命名产物，现在是中文（光谷爱计算_3.0.12_…dmg）。
+          # tauri 按 productName 命名产物，现在是中文（蒜狸小助手_3.0.12_…dmg）。
           # **下载地址不能带非 ASCII** —— 会被各种客户端转义成 %E5%85%89…，
           # 贴到聊天窗口里断行、curl 也要额外引号。所以一律改成 ASCII 文件名。
           # 用 while read 而不是 for：中文文件名里可能有空格。

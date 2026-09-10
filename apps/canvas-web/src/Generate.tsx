@@ -28,9 +28,17 @@ export function Generate({
   onDone,
   autoFocus,
   initial,
+  initialAttachments,
 }: {
   onDone: () => void
   autoFocus?: boolean
+  /**
+   * 首页带过来的参考素材（工作区相对路径）。
+   *
+   * **非空就是图生图。** gateway 那边按 `image_paths` 非空分叉，
+   * 见 `generate.rs::submit_image`。
+   */
+  initialAttachments?: string[]
   /**
    * 从首页带过来的提示词。
    *
@@ -66,7 +74,12 @@ export function Generate({
     abort.current = ctrl
     setPhase({ kind: "generating", seconds: 0 })
     try {
-      const taskId = await submitImage({ prompt, aspectRatio: ratio, resolution })
+      const taskId = await submitImage({
+        prompt,
+        aspectRatio: ratio,
+        resolution,
+        imagePaths: initialAttachments,
+      })
       const product = await pollTask(taskId, ctrl.signal, (seconds) =>
         setPhase((p) => (p.kind === "generating" ? { kind: "generating", seconds } : p)),
       )

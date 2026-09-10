@@ -3,12 +3,14 @@ import {
   Box,
   ChevronDown,
   ExternalLink,
+  FileText,
   Folder as FolderIcon,
   Image as ImageIcon,
   Music,
   Plus,
   Sparkles,
   Video,
+  X,
 } from "lucide-react"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 
@@ -261,16 +263,13 @@ export function Home({
   onOpenCanvas,
   projectName,
   onPickProject,
-  onUploaded,
   onOpenSkills,
 }: {
-  onSubmit: (prompt: string, presetId?: string) => void
+  onSubmit: (prompt: string, presetId?: string, attachments?: string[]) => void
   onOpenCanvas: () => void
   /** 当前选中的项目名。`null` = 还没选。 */
   projectName: string | null
   onPickProject: (at: { x: number; y: number }) => void
-  /** 上传完成，交给外面去建节点 / 刷新素材。 */
-  onUploaded: (paths: string[]) => void
   onOpenSkills: () => void
 }) {
   const [tab, setTab] = useState<"inspiration" | "skill">("inspiration")
@@ -281,15 +280,27 @@ export function Home({
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
+  /** 挂在输入框上的参考素材。提交时作为底图一起发出去。 */
+  const [attachments, setAttachments] = useState<{ path: string; name: string }[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
   // 哪个下拉开着。模型选择器还没做，点了先跳到 Skill 页 —— 见下面。
   const [picker, setPicker] = useState<"model" | "skill" | null>(null)
 
+  /**
+   * 上传后**先挂在输入框上，不直接落画布**。
+   *
+   * 之前是传完就建节点 + 跳画布 —— 用户传参考图本来是想"照着这张生成"，
+   * 结果画布上多了一张原图、提示词还没写就被弹走了。
+   */
   const upload = async (files: File[]) => {
     setUploading(true)
     setUploadError(null)
     try {
-      onUploaded(await uploadFiles(files))
+      const paths = await uploadFiles(files)
+      setAttachments((prev) => [
+        ...prev,
+        ...paths.map((path, i) => ({ path, name: files[i]?.name ?? path.split("/").pop()! })),
+      ])
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -340,7 +351,7 @@ export function Home({
           {/* 蒜狸。**不加圆角也不裁切** —— 它是个带黑描边的手绘形象，
               套一个 rounded-xl 会把耳朵尖切掉。
 
-              旁边原本有一行「光谷爱计算」，去掉了：侧栏顶上已经有一次，
+              旁边原本有一行品牌名，去掉了：侧栏顶上已经有一次，
               同一屏里出现两遍是重复，而这里真正该占位的是形象本身。 */}
           <img
             src="/mascot.png"
@@ -392,6 +403,46 @@ export function Home({
             boxShadow: "var(--home-input-shadow)",
           }}
         >
+          {/* 附件条。官方是缩略图 + 右上角 `×`，悬停出大图和「替换素材」。
+              我们做前两样；「替换素材」要一个素材选择器，那是另一块。
+
+              **图片直接显示缩略图，其余显示文件名。** 一律显示文件名的话，
+              用户传了三张参考图会看到三行看不出区别的 png，而参考图恰恰是
+              靠"长什么样"来区分的。 */}
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 px-2 pt-2">
+              {attachments.map((a) => (
+                <div key={a.path} className="group relative">
+                  {/^images?\//.test(a.path) ? (
+                    <img
+                      src={`/files/${a.path}?w=160`}
+                      alt={a.name}
+                      title={a.name}
+                      className="h-16 w-16 rounded-lg object-cover"
+                      style={{ border: "1px solid var(--border)" }}
+                    />
+                  ) : (
+                    <div
+                      className="flex h-16 max-w-[160px] items-center gap-1.5 rounded-lg px-2.5 text-[12px]"
+                      style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
+                      title={a.name}
+                    >
+                      <FileText size={14} className="shrink-0" />
+                      <span className="truncate">{a.name}</span>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setAttachments((p) => p.filter((x) => x.path !== a.path))}
+                    title="移除"
+                    className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                    style={{ background: "var(--foreground)", color: "var(--background)" }}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <textarea
             ref={inputRef}
             value={prompt}
@@ -401,7 +452,7 @@ export function Home({
               // 按回车会把半截拼音提交上去。
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault()
-                if (prompt.trim()) onSubmit(prompt, preset)
+                if (prompt.trim()) onSubmit(prompt, preset, attachments.map((a) => a.path))
               }
             }}
             placeholder="描述你要生成的内容"
@@ -481,7 +532,7 @@ export function Home({
                 type="button"
                 data-action-ui-id="message-send-btn"
                 aria-label="发送"
-                onClick={() => prompt.trim() && onSubmit(prompt, preset)}
+                onClick={() => prompt.trim() && onSubmit(prompt, preset, attachments.map((a) => a.path))}
                 disabled={!prompt.trim()}
                 className="flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-foreground text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-30"
               >

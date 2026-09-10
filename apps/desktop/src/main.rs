@@ -117,7 +117,7 @@ fn run() -> Result<()> {
                 "main",
                 WebviewUrl::External(url.parse().expect("URL 拼错了")),
             )
-            .title("光谷爱计算")
+            .title("蒜狸小助手")
             .inner_size(WINDOW_W, WINDOW_H)
             .min_inner_size(WINDOW_MIN_W, WINDOW_MIN_H)
             .resizable(true)
@@ -136,7 +136,7 @@ fn run() -> Result<()> {
                 // 整个界面会往下掉一条标题栏的高度。
                 //
                 // `hidden_title` 单独关标题文字。不关的话 macOS 会把
-                // "光谷爱计算" 画在红绿灯右边，而侧栏顶上本来就有一次品牌名，
+                // "蒜狸小助手" 画在红绿灯右边，而侧栏顶上本来就有一次品牌名，
                 // 看起来是同一个名字重复了两遍。
                 //
                 // y 从 12 调到 20：**红绿灯要和侧栏顶那行图标共用一条中线。**

@@ -19,7 +19,6 @@ import {
   assetUrl,
   answerQuestion,
   connectEvents,
-  createMediaNode,
   createProject,
   createSession,
   deleteProject,
@@ -115,6 +114,8 @@ export default function App() {
    * 表现就是"点了没反应"。
    */
   const [pendingPrompt, setPendingPrompt] = useState<string | undefined>()
+  /** 首页带过来的参考素材（工作区相对路径）。作为底图发给图生图。 */
+  const [pendingAttachments, setPendingAttachments] = useState<string[]>([])
   // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
   const [leftOpen, setLeftOpen] = useState(() => localStorage.getItem("left-open") !== "0")
   const [rightOpen, setRightOpen] = useState(() => localStorage.getItem("right-open") !== "0")
@@ -510,8 +511,11 @@ export default function App() {
           />
         ) : view === "home" ? (
           <Home
-            onSubmit={(p) => {
+            onSubmit={(p, _preset, attachments) => {
               setPendingPrompt(p)
+              // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
+              // 却在画布上发不出去，那次上传就白做了。
+              setPendingAttachments(attachments ?? [])
               setComposerOpen(true)
               setRightOpen(true)
               setView("canvas")
@@ -549,17 +553,6 @@ export default function App() {
                 ],
               })
             }
-            onUploaded={(paths) => {
-              // 上传完直接落到画布上并切过去 —— 传了文件却什么都没发生，
-              // 用户会以为传失败了。
-              if (!paths.length) return
-              void Promise.all(paths.map((p) => createMediaNode(p)))
-                .then(() => {
-                  setView("canvas")
-                  return load()
-                })
-                .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
-            }}
           />
         ) : (
 
@@ -763,6 +756,7 @@ export default function App() {
             onReload={() => void load()}
             onCollapse={() => setRightOpen(false)}
             initialPrompt={pendingPrompt}
+            initialAttachments={pendingAttachments}
             question={question}
             onAnswer={(id, answers) => {
               void answerQuestion(id, answers).catch((e: unknown) =>

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "光谷爱计算",
+  "productName": "蒜狸小助手",
   "mainBinaryName": "ovdesktop",
   "version": "3.0.12",
   "identifier": "com.ovaijisuan.design",
