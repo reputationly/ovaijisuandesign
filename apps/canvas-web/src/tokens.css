@@ -162,6 +162,11 @@
   --home-hero-padding-x: 40px;
   --home-hero-safe-inset: 24px;
   --home-hero-bottom-balance: 80px;
+  /* hero 底边到「创作灵感」的距离。官方的 `.home-below-anchor` 用
+   * `top: calc(100% + var(--home-input-to-media-showcase-gap))` 把整块
+   * 压到首屏之下。 */
+  --home-input-to-media-showcase-gap: 64px;
+  --home-showcase-bottom-safe-inset: 64px;
   --home-hero-content-gap: 24px;
   --home-hero-title-block-gap: 12px;
   --home-hero-title-row-gap: 16px;

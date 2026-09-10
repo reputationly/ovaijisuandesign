@@ -617,15 +617,34 @@ export function Home({
 
       </div>
 
-      {/* 「创作灵感 / Skill」**是 hero 的兄弟，不是它的孩子**。
-          放在 hero-zone（min-height:100% + justify-content:center）里面的话，
-          两块加起来超过一屏，居中就退化成顶对齐 —— 表现是 logo 和输入框
-          贴着窗口上沿，而窗口越高越明显。官方的结构里这一块在 hero-zone
-          外面，滚下去才看到。 */}
-      <div className="flex w-full shrink-0 flex-col" style={{
-        paddingInline: "var(--home-hero-padding-x)",
-        paddingBlockEnd: "var(--home-hero-safe-inset)",
-      }}>
+      </div>
+      {/* 「创作灵感 / Skill」。照官方的 `.home-below-anchor`：
+          **绝对定位，压在首屏之下。**
+
+          ```css
+          .home-below-anchor {
+            position: absolute;
+            top: calc(100% + var(--home-input-to-media-showcase-gap));
+            left: 50%; translate: -50%;
+          }
+          ```
+
+          必须脱离文档流。留在流里的话（哪怕只是 hero 的兄弟），滚动容器
+          的内容就比一屏高，hero 那个 `min-height:100% + justify-content:
+          safe center` 里的 `safe` 会退化成顶对齐 —— 表现是 logo 和输入框
+          贴着窗口上沿，窗口越高越明显。
+
+          `top: 100%` 量的是滚动容器自身的高度（不是 scrollHeight），
+          所以它正好落在首屏下沿，往下滚才看到。 */}
+      <div
+        className="absolute left-1/2 flex w-full flex-col"
+        style={{
+          top: "calc(100% + var(--home-input-to-media-showcase-gap))",
+          translate: "-50%",
+          paddingInline: "var(--home-hero-padding-x)",
+          paddingBlockEnd: "var(--home-showcase-bottom-safe-inset)",
+        }}
+      >
         {/* tabs */}
         <div
           className="flex items-center gap-6 border-b"
@@ -762,7 +781,6 @@ export function Home({
             </p>
           </div>
         )}
-      </div>
       </div>
     </main>
   )
