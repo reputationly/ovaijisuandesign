@@ -260,11 +260,14 @@ const KIND_TINT: Record<string, string> = {
 
 export function Home({
   onSubmit,
+  submitting,
   projectName,
   onPickProject,
   onOpenSkills,
 }: {
   onSubmit: (prompt: string, presetId?: string, attachments?: string[]) => void
+  /** 正在建画布。按钮转成禁用，避免连点建出好几张。 */
+  submitting?: boolean
   /** 当前选中的项目名。`null` = 还没选。 */
   projectName: string | null
   onPickProject: (at: { x: number; y: number }) => void
@@ -450,7 +453,9 @@ export function Home({
               // 按回车会把半截拼音提交上去。
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault()
-                if (prompt.trim()) onSubmit(prompt, preset, attachments.map((a) => a.path))
+                if (prompt.trim() && !submitting) {
+                  onSubmit(prompt, preset, attachments.map((a) => a.path))
+                }
               }
             }}
             placeholder="描述你要生成的内容"
@@ -539,8 +544,10 @@ export function Home({
                 type="button"
                 data-action-ui-id="message-send-btn"
                 aria-label="发送"
-                onClick={() => prompt.trim() && onSubmit(prompt, preset, attachments.map((a) => a.path))}
-                disabled={!prompt.trim()}
+                onClick={() =>
+                  prompt.trim() && !submitting && onSubmit(prompt, preset, attachments.map((a) => a.path))
+                }
+                disabled={!prompt.trim() || submitting === true}
                 className="flex size-[var(--btn-height-sm)] items-center justify-center rounded-full transition-colors enabled:cursor-pointer enabled:bg-foreground enabled:text-background enabled:hover:bg-foreground/90 disabled:cursor-not-allowed disabled:bg-[var(--message-input-attachment-bg)] disabled:text-foreground/30"
               >
                 <ArrowUp size={17} />

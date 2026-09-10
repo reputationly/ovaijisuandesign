@@ -47,6 +47,7 @@ import {
 import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
+import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
@@ -296,6 +297,70 @@ export default function App() {
         setError(e instanceof Error ? e.message : String(e))
         return false
       }
+    },
+    [load, reloadSessions],
+  )
+
+  /**
+   * 上一次「建好了画布、但后面的步骤没走完」留下的交接。
+   *
+   * **在新建成功之后、切过去之前就记下来** —— 后面任何一步失败，用户重试
+   * 同一句提示词时会复用这张，而不是再建一张。不做这件事的话，每次失败
+   * 重试都会在侧边栏留一张空画布，而用户完全不知道那些是哪来的。
+   *
+   * 对应官方的 `pendingWorkspaceHandoffRef`。
+   */
+  const handoffRef = useRef<Handoff | null>(null)
+  /** 正在提交。防连点 —— 官方的 `homeSubmitInFlightRef`。 */
+  const submitInFlightRef = useRef(false)
+  const [homeSubmitting, setHomeSubmitting] = useState(false)
+
+  /**
+   * 首页发送：进一张**新**画布，用提示词命名。
+   *
+   * 官方是 `createWorkspaceWithResult({ name: text })` —— 一句话一个工作区。
+   * 复用当前那张的话，第二次从首页发起的活会落在上一次的成果旁边，
+   * 两件不相干的事挤在一张画布上，而"未分组"里始终只有一条。
+   */
+  const submitFromHome = useCallback(
+    async (p: string, attachments: string[]) => {
+      // 连点会建出好几张空画布。挡在最前面，比在按钮上做 disabled 可靠 ——
+      // 回车那条路绕过按钮状态。
+      if (submitInFlightRef.current) return
+      submitInFlightRef.current = true
+      setHomeSubmitting(true)
+      const out = await submitHandoff({
+        pending: handoffRef.current,
+        key: handoffKey(p, attachments),
+        create: async () => (await createSession(p)).id,
+        activate: async (id) => {
+          // **先把数据取回来，再切视图。** 反过来的话会先闪一下上一张画布，
+          // 而且中途失败时用户会停在一张空画布上 —— 重试的入口却在首页。
+          //
+          // 注意 `load` / `reloadSessions` 自己吞异常（各有各的理由，见它们
+          // 的定义），所以今天这里几乎不会抛。交接机制挡的是**新建成功之后
+          // 任何一步失败**这条路，眼下主要靠它挡住"以后往 activate 里加了
+          // 会抛的东西"。真正每天都在生效的是上面那个连点保护。
+          await load()
+          await reloadSessions()
+          // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
+          // 却在画布上发不出去，那次上传就白做了。
+          setPendingPrompt(p)
+          setPendingAttachments(attachments)
+          setCurrentSession(id)
+          setView("canvas")
+          setComposerOpen(true)
+          setRightOpen(true)
+        },
+      })
+      handoffRef.current = out.ok ? null : out.pending
+      if (!out.ok) {
+        // 留在首页：输入框里的提示词和附件都还在，再点一次就是重试 ——
+        // 而且会复用已经建好的那张，不会在侧边栏留下一串空画布。
+        setError(out.error instanceof Error ? out.error.message : String(out.error))
+      }
+      submitInFlightRef.current = false
+      setHomeSubmitting(false)
     },
     [load, reloadSessions],
   )
@@ -561,23 +626,8 @@ export default function App() {
           />
         ) : view === "home" ? (
           <Home
-            onSubmit={(p, _preset, attachments) => {
-              // **每次都进一张新画布。** 官方首页发送走的是
-              // `createWorkspaceWithResult({ name: text })`，一句话一个工作区。
-              //
-              // 复用当前那张的话，第二次从首页发起的活会落在上一次的成果
-              // 旁边 —— 两件不相干的事挤在一张画布上，而"未分组"里始终
-              // 只有一条。用户以为自己开了个新话题，实际是在续上一个。
-              setPendingPrompt(p)
-              // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
-              // 却在画布上发不出去，那次上传就白做了。
-              setPendingAttachments(attachments ?? [])
-              setComposerOpen(true)
-              setRightOpen(true)
-              // 新建失败时**不切视图**：切过去用户会看到上一张画布配着这次的
-              // 提示词，比停在首页更难看懂。newSession 已经把错误显示出来了。
-              void newSession(p)
-            }}
+            onSubmit={(p, _preset, attachments) => void submitFromHome(p, attachments ?? [])}
+            submitting={homeSubmitting}
             projectName={projects.find((p) => p.id === homeProject)?.name ?? null}
             onOpenSkills={() => setView("skill")}
             onPickProject={(at) =>
