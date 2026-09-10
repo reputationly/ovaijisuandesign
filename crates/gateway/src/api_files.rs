@@ -12,10 +12,11 @@ use std::sync::Arc;
 use axum::Json;
 use axum::body::Body;
 use axum::extract::{Path as AxPath, Query, State};
-use axum::http::{StatusCode, header};
+use axum::http::{HeaderMap, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
 use serde_json::{Value, json};
+use tokio::io::AsyncReadExt;
 use tokio_util::io::ReaderStream;
 
 use crate::AppState;
@@ -40,6 +41,7 @@ pub async fn serve_by_id(
     State(state): State<Arc<AppState>>,
     AxPath(asset_id): AxPath<String>,
     Query(q): Query<FileQuery>,
+    headers: HeaderMap,
 ) -> Response {
     let Some(asset) = state.assets.by_id(&asset_id) else {
         return (StatusCode::NOT_FOUND, "资产不存在").into_response();
@@ -47,23 +49,86 @@ pub async fn serve_by_id(
     let Some(abs) = state.ws.resolve(&asset.path) else {
         return (StatusCode::NOT_FOUND, "路径超出工作区").into_response();
     };
-    serve_path(&abs, q.w).await
+    serve_path(&abs, q.w, range_of(&headers)).await
 }
 
 pub async fn serve_by_path(
     State(state): State<Arc<AppState>>,
     AxPath(rel): AxPath<String>,
     Query(q): Query<FileQuery>,
+    headers: HeaderMap,
 ) -> Response {
     let Some(abs) = state.ws.resolve(&rel) else {
         // 路径逃逸和不存在回同一个码：不要靠错误码区分"没有"和"不许"，
         // 那会把工作区外面有没有某个文件泄露出去。
         return (StatusCode::NOT_FOUND, "找不到").into_response();
     };
-    serve_path(&abs, q.w).await
+    serve_path(&abs, q.w, range_of(&headers)).await
 }
 
-async fn serve_path(abs: &std::path::Path, width: Option<u32>) -> Response {
+/// 一个 Range 请求。
+///
+/// **用枚举而不是把两种语义塞进一对数字。** 第一版我拿"start 大得离谱"
+/// 当哨兵表示 `bytes=-N`,结果 `bytes=2000-3000`（起点本来就越界）也命中了
+/// 那条分支，被换算成"从 0 开始" —— 该回 416 的请求回了整个文件头。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Range {
+    /// `bytes=<start>-[end]`
+    From { start: u64, end: Option<u64> },
+    /// `bytes=-<n>`：**最后 n 个字节**。语义和前缀完全不同 ——
+    /// 播放器要文件尾的 moov 时用的就是它。
+    Suffix(u64),
+}
+
+/// 解析 `Range: bytes=…`。
+///
+/// **只认单段。** 多段（`bytes=0-99,200-299`）要回 multipart，浏览器播视频
+/// 时不会用；认不出就当成没有 Range 走整段，比回 416 稳妥 —— 至少还能播。
+fn range_of(headers: &HeaderMap) -> Option<Range> {
+    let v = headers.get(header::RANGE)?.to_str().ok()?;
+    let spec = v.strip_prefix("bytes=")?.trim();
+    if spec.contains(',') {
+        return None;
+    }
+    let (a, b) = spec.split_once('-')?;
+    if a.is_empty() {
+        let n: u64 = b.trim().parse().ok()?;
+        return (n > 0).then_some(Range::Suffix(n));
+    }
+    let start: u64 = a.trim().parse().ok()?;
+    let end = b.trim();
+    Some(Range::From {
+        start,
+        end: if end.is_empty() {
+            None
+        } else {
+            Some(end.parse().ok()?)
+        },
+    })
+}
+
+/// 按 Range 切出实际要发的闭区间。`None` 表示不合法，应回 416。
+fn clamp_range(req: Option<Range>, len: u64) -> Option<(u64, u64)> {
+    let Some(req) = req else {
+        return Some((0, len.saturating_sub(1)));
+    };
+    if len == 0 {
+        return None;
+    }
+    let (start, end) = match req {
+        // 要的比文件还多就给整段 —— 规范允许，播放器也这么指望。
+        Range::Suffix(n) => (len.saturating_sub(n), len - 1),
+        Range::From { start, end } => (start, end.unwrap_or(len - 1).min(len - 1)),
+    };
+    // 起点越界要回 416（带真实长度），**不能夹到最后一字节** ——
+    // 客户端据此重新协商，夹了的话它拿到一段自己没要的数据。
+    if start >= len || end < start {
+        return None;
+    }
+    Some((start, end))
+}
+
+async fn serve_path(abs: &std::path::Path, width: Option<u32>, range: Option<Range>) -> Response {
     if !abs.is_file() {
         return (StatusCode::NOT_FOUND, "找不到").into_response();
     }
@@ -85,17 +150,59 @@ async fn serve_path(abs: &std::path::Path, width: Option<u32>) -> Response {
         }
     }
 
-    match tokio::fs::File::open(abs).await {
-        Ok(file) => (
-            [(header::CONTENT_TYPE, mime)],
-            Body::from_stream(ReaderStream::new(file)),
+    // **必须支持 Range。** `<video>` 靠范围请求起播和拖进度条 ——
+    // 只把整个文件流出去的话，进度条拖不动，而 moov 在文件尾的 MP4
+    // 干脆放不了，表现是"节点里一片黑，没有任何报错"。
+    let len = match tokio::fs::metadata(abs).await {
+        Ok(m) => m.len(),
+        Err(err) => {
+            tracing::warn!(path = %abs.display(), "读不到大小: {err}");
+            return (StatusCode::NOT_FOUND, "找不到").into_response();
+        }
+    };
+    let Some((start, end)) = clamp_range(range, len) else {
+        // 越界的 Range 要回 416 并带上真实长度，客户端据此重试。
+        return (
+            StatusCode::RANGE_NOT_SATISFIABLE,
+            [(header::CONTENT_RANGE, format!("bytes */{len}"))],
         )
-            .into_response(),
+            .into_response();
+    };
+    let partial = range.is_some();
+
+    let mut file = match tokio::fs::File::open(abs).await {
+        Ok(f) => f,
         Err(err) => {
             tracing::warn!(path = %abs.display(), "打开失败: {err}");
-            (StatusCode::NOT_FOUND, "找不到").into_response()
+            return (StatusCode::NOT_FOUND, "找不到").into_response();
+        }
+    };
+    if start > 0 {
+        use tokio::io::AsyncSeekExt;
+        if let Err(err) = file.seek(std::io::SeekFrom::Start(start)).await {
+            tracing::warn!(path = %abs.display(), "定位失败: {err}");
+            return (StatusCode::INTERNAL_SERVER_ERROR, "读取失败").into_response();
         }
     }
+    let n = end - start + 1;
+    let body = Body::from_stream(ReaderStream::new(file.take(n)));
+
+    let mut resp = body.into_response();
+    if partial {
+        *resp.status_mut() = StatusCode::PARTIAL_CONTENT;
+    }
+    let h = resp.headers_mut();
+    h.insert(header::CONTENT_TYPE, mime.parse().unwrap());
+    // `Accept-Ranges` 要**始终带上** —— 浏览器先看它决定要不要发 Range。
+    h.insert(header::ACCEPT_RANGES, "bytes".parse().unwrap());
+    h.insert(header::CONTENT_LENGTH, n.to_string().parse().unwrap());
+    if partial {
+        h.insert(
+            header::CONTENT_RANGE,
+            format!("bytes {start}-{end}/{len}").parse().unwrap(),
+        );
+    }
+    resp
 }
 
 /// 按宽度缩略，编码成 JPEG。
@@ -412,5 +519,82 @@ mod tests {
         // 认不出的给 octet-stream，让浏览器下载而不是猜。
         assert_eq!(mime_of(Path::new("a.bin")), "application/octet-stream");
         assert_eq!(mime_of(Path::new("noext")), "application/octet-stream");
+    }
+
+    fn hdr(v: &str) -> HeaderMap {
+        let mut h = HeaderMap::new();
+        h.insert(header::RANGE, v.parse().unwrap());
+        h
+    }
+
+    #[test]
+    fn a_normal_range_is_parsed_and_clamped() {
+        // `<video>` 起播时发的就是 `bytes=0-`：要整段，但要 206 + Content-Range。
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=0-")), 1000),
+            Some((0, 999))
+        );
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=100-199")), 1000),
+            Some((100, 199))
+        );
+        // 超出文件尾要夹到最后一个字节，不是回 416 —— 浏览器常常多要一点。
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=900-5000")), 1000),
+            Some((900, 999))
+        );
+    }
+
+    #[test]
+    fn a_suffix_range_means_the_last_n_bytes() {
+        // **`bytes=-500` 是"最后 500 字节"，不是"从 0 到 500"。**
+        // 当成前缀的话，播放器要文件尾的 moov 却拿到了文件头 ——
+        // 视频放不了，而 HTTP 状态码是 206，看起来一切正常。
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=-500")), 1000),
+            Some((500, 999))
+        );
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=-1")), 1000),
+            Some((999, 999))
+        );
+        // 要的比文件还多 —— 给整段。
+        assert_eq!(
+            clamp_range(range_of(&hdr("bytes=-5000")), 1000),
+            Some((0, 999))
+        );
+    }
+
+    #[test]
+    fn no_range_header_means_the_whole_file() {
+        assert_eq!(
+            clamp_range(range_of(&HeaderMap::new()), 1000),
+            Some((0, 999))
+        );
+        assert!(range_of(&HeaderMap::new()).is_none());
+    }
+
+    #[test]
+    fn an_unsupported_or_broken_range_falls_back_to_the_whole_file() {
+        // 多段要回 multipart，浏览器播视频时不会用。认不出就走整段，
+        // 比回 416 稳妥 —— 至少还能播。
+        assert!(range_of(&hdr("bytes=0-99,200-299")).is_none());
+        assert!(range_of(&hdr("items=0-10")).is_none());
+        assert!(range_of(&hdr("bytes=abc")).is_none());
+        assert!(range_of(&hdr("bytes=-")).is_none());
+    }
+
+    #[test]
+    fn a_start_past_the_end_is_rejected() {
+        // 这个要回 416，不能夹成最后一字节 —— 客户端据此重新协商。
+        assert_eq!(clamp_range(range_of(&hdr("bytes=1000-")), 1000), None);
+        assert_eq!(clamp_range(range_of(&hdr("bytes=2000-3000")), 1000), None);
+    }
+
+    #[test]
+    fn an_empty_file_never_yields_a_range() {
+        // len=0 时 `len-1` 会下溢。
+        assert_eq!(clamp_range(None, 0), Some((0, 0)));
+        assert_eq!(clamp_range(range_of(&hdr("bytes=0-")), 0), None);
     }
 }
