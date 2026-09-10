@@ -113,6 +113,7 @@ mod tests {
             activity: Arc::new(crate::activity::Activity::new()),
             agent: Arc::new(crate::agent::Agent::new()),
             feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
+            wechat: Arc::new(crate::wechat::Wechat::new()),
             upstream,
             web_dir: None,
         })

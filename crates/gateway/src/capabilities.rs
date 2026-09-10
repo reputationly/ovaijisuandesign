@@ -166,6 +166,7 @@ mod tests {
             activity: s.activity.clone(),
             agent: s.agent.clone(),
             feishu: s.feishu.clone(),
+            wechat: s.wechat.clone(),
             upstream: s.upstream.clone(),
             web_dir: s.web_dir.clone(),
         })

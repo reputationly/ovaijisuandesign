@@ -1060,6 +1060,7 @@ version = "3.0.12"
 dependencies = [
  "anyhow",
  "axum",
+ "base64 0.22.1",
  "directories",
  "flate2",
  "futures-util",

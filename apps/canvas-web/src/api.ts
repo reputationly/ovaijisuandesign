@@ -702,3 +702,40 @@ export async function feishuConnect(): Promise<void> {
 export async function feishuDisconnect(): Promise<void> {
   await fetch("/api/feishu/disconnect", { method: "POST" }).catch(() => {})
 }
+
+// ---------------------------------------------------------------------------
+// 微信（iLink AI Bot）
+// ---------------------------------------------------------------------------
+
+export interface WechatInfo {
+  configured: boolean
+  status: {
+    state: string
+    error?: string
+    handled: number
+    qrState?: string
+    qrUrl?: string
+    qrIsImage?: boolean
+  }
+}
+
+export async function wechatStatus(): Promise<WechatInfo> {
+  return json(await fetch("/api/wechat/status"), "GET /api/wechat/status")
+}
+
+export async function wechatLogin(): Promise<void> {
+  await fetch("/api/wechat/login", { method: "POST" })
+}
+export async function wechatConnect(): Promise<void> {
+  const res = await fetch("/api/wechat/connect", { method: "POST" })
+  if (!res.ok) {
+    const b = (await res.json().catch(() => ({}))) as { error?: string }
+    throw new Error(b.error ?? `HTTP ${res.status}`)
+  }
+}
+export async function wechatDisconnect(): Promise<void> {
+  await fetch("/api/wechat/disconnect", { method: "POST" }).catch(() => {})
+}
+export async function wechatLogout(): Promise<void> {
+  await fetch("/api/wechat/logout", { method: "POST" }).catch(() => {})
+}

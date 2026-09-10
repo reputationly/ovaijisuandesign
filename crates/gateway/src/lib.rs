@@ -56,6 +56,7 @@ pub mod skills;
 pub mod tasks;
 pub mod update;
 pub mod web;
+pub mod wechat;
 pub mod workspace;
 
 use std::sync::Arc;
@@ -92,6 +93,8 @@ pub struct AppState {
     pub agent: Arc<crate::agent::Agent>,
     /// 飞书长连接的状态。见 [`crate::feishu`]。
     pub feishu: Arc<crate::feishu::bridge::Bridge>,
+    /// 微信 iLink 的状态。见 [`crate::wechat`]。
+    pub wechat: Arc<crate::wechat::Wechat>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -130,6 +133,11 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/feishu/creds", post(feishu::bridge::save))
         .route("/api/feishu/connect", post(feishu::bridge::connect))
         .route("/api/feishu/disconnect", post(feishu::bridge::disconnect))
+        .route("/api/wechat/status", get(wechat::status))
+        .route("/api/wechat/login", post(wechat::login))
+        .route("/api/wechat/connect", post(wechat::connect))
+        .route("/api/wechat/disconnect", post(wechat::disconnect))
+        .route("/api/wechat/logout", post(wechat::logout))
         .route("/api/settings", get(settings::get).post(settings::put))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))
@@ -274,6 +282,7 @@ mod tests {
             activity: Arc::new(crate::activity::Activity::new()),
             agent: Arc::new(crate::agent::Agent::new()),
             feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
+            wechat: Arc::new(crate::wechat::Wechat::new()),
             upstream: None,
             web_dir: None,
         })
