@@ -717,6 +717,104 @@ const readTool: ToolDef = {
   handler: async (a) => reply(await gw.post("/api/read-file", a)),
 }
 
+
+// ---------------------------------------------------------------------------
+// 别名
+// ---------------------------------------------------------------------------
+
+/**
+ * 官方那套更细的工具名，转发到我们已有的 handler。
+ *
+ * ## 为什么需要
+ *
+ * 官方 `base.json` 里**每个专家子 agent 都是 `"hub_*": false` 通配拒绝
+ * 加一份显式白名单**，而 `ovagent` 把那段 `agent` / `tools` 原样塞进
+ * opencode 配置。名字不在白名单里的工具会被过滤掉 —— agent 根本看不见它，
+ * 不是"调用失败"，是"没有这个工具"。
+ *
+ * 主 agent（`build` / `plan`）没有 `tools` 段，所以不受影响；出问题的是
+ * 主 agent 用 `task` 派活给子 agent 的时候。实测我们 26 个工具在
+ * `speech` 子 agent 下只剩 1 个（`read`），在 `music` 下只剩 2 个。
+ *
+ * ## 只加名字，不加能力
+ *
+ * 每个别名都落到一个已经在跑的 handler 上。**能力对不上的一律不注册** ——
+ * 比如 `hub_music_generation_elevenlabs`：名字点了 ElevenLabs，我们后面是
+ * 平台自己的音乐模型，注册它等于让 agent 以为自己在用别的东西。
+ * 同理 `hub_canvas_write_file_node` / `_table_node`：我们的画布没有这两种
+ * 节点，给个名字只会让 agent 白调一次。
+ */
+function alias(
+  name: string,
+  base: ToolDef,
+  opts: { description?: string; fixed?: Record<string, unknown> } = {},
+): ToolDef {
+  return {
+    name,
+    description: opts.description ?? base.description,
+    inputSchema: base.inputSchema,
+    // **固定参数覆盖调用方给的**：`hub_canvas_write_media_node` 这个名字
+    // 本身就是"写媒体节点"的意思，agent 再传一个 kind=text 是自相矛盾的，
+    // 以名字为准。
+    handler: (a) => base.handler({ ...a, ...(opts.fixed ?? {}) }),
+  }
+}
+
+const ALIASES: ToolDef[] = [
+  // -- 画布写节点。官方拆成四个，我们只认领真做得到的两个。--
+  alias("canvas_write_media_node", canvasWriteNode, {
+    fixed: { kind: "media" },
+    description:
+      "Place an existing workspace file on the canvas. Requires `assetPath` " +
+      "(workspace-relative).",
+  }),
+  alias("canvas_write_text_node", canvasWriteNode, {
+    fixed: { kind: "text" },
+    description:
+      "Write a Markdown text node. Omit `nodeId` to create, pass it to patch an existing one.",
+  }),
+
+  // -- memory。官方一个动作一个工具，我们是一个带 action 的。--
+  alias("memory_write", memoryTool, { fixed: { action: "write" } }),
+  alias("memory_read", memoryTool, { fixed: { action: "read" } }),
+  alias("memory_list", memoryTool, { fixed: { action: "list" } }),
+  alias("memory_search", memoryTool, { fixed: { action: "search" } }),
+  alias("memory_delete", memoryTool, { fixed: { action: "delete" } }),
+
+  // -- 音乐。--
+  alias("music_generation_song", generateAudioMusic, {
+    description:
+      "Generate a song with sung lyrics. `prompt` is the style brief, `lyrics` is the sung text.",
+  }),
+  alias("music_generation_instrumental", generateAudioMusic, {
+    // 名字就是"纯音乐"。带着歌词转发过去的话会唱出来 —— 有声音、不报错，
+    // 但不是这个工具名承诺的东西。
+    fixed: { lyrics: undefined, mode: "instrumental" },
+    description: "Generate instrumental music (no vocals). `prompt` is the style brief.",
+  }),
+
+  // -- 翻唱。官方按"要不要给新词"拆成两个。--
+  alias("music_cover_generate_oneshot", musicCover, {
+    fixed: { action: "generate", lyrics: undefined },
+    description:
+      "Re-perform a reference track in a new style, keeping its original words. " +
+      "Needs `audio` (workspace path or URL) and `prompt` (target style).",
+  }),
+  alias("music_cover_generate_with_lyrics", musicCover, {
+    fixed: { action: "generate" },
+    description:
+      "Re-perform a reference track in a new style, singing new `lyrics`. " +
+      "Needs `audio` and `prompt`.",
+  }),
+  alias("music_cover_preprocess", musicCover, {
+    fixed: { action: "prepare_lyrics" },
+    description:
+      "Transcribe a reference track's lyrics so they can be edited before a cover. " +
+      "Needs a speech-recognition model this machine may not have \u2014 it says so " +
+      "rather than returning empty lyrics.",
+  }),
+]
+
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
@@ -744,4 +842,5 @@ export const TOOLS: ToolDef[] = [
   memoryTool,
   reportOutcome,
   readTool,
+  ...ALIASES,
 ]
