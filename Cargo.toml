@@ -49,6 +49,10 @@ tower-http = { version = "0.6", features = ["cors"] }
 # 和两份根证书。
 # WebSocket 的 Sink/Stream 扩展（split / send / next）。只要这两个 trait，
 # 不要 futures 全家桶。
+# 微信 CDN 上的附件是 AES-128-ECB 加密的。**用 RustCrypto 不自己写** ——
+# 分组密码自己实现出来的东西"能解开"和"解对了"是两回事，而错误的实现
+# 在测试里往往也能自洽。
+aes = "0.8"
 futures-util = { version = "0.3", default-features = false, features = ["sink"] }
 tokio-tungstenite = { version = "0.29", default-features = false, features = [
   "connect",

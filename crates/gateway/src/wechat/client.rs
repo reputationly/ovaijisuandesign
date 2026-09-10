@@ -29,7 +29,7 @@ pub const MAX_QR_REFRESH: u32 = 3;
 ///
 /// 官方 SDK 每个请求都新生成一个。照做 —— 固定值可能被当成同一个客户端
 /// 的重复请求。
-fn wechat_uin() -> String {
+pub(crate) fn wechat_uin() -> String {
     use base64::Engine;
     let n: u32 = rand_u32();
     base64::engine::general_purpose::STANDARD.encode(n.to_string())
@@ -317,7 +317,7 @@ fn wait() -> String {
 /// 只转 query 里会出问题的那几个字符。**不引 urlencoding crate** ——
 /// 这里的输入是服务端给的 token（十六进制），本来就不需要转义，
 /// 转义只是防御。
-fn urlencode(s: &str) -> String {
+pub(crate) fn urlencode(s: &str) -> String {
     s.chars()
         .map(|c| match c {
             'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),

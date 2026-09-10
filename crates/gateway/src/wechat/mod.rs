@@ -13,6 +13,7 @@
 //! ```
 
 pub mod client;
+pub mod media;
 
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -146,25 +147,81 @@ impl Wechat {
 
 /// iLink 的消息类型。官方 SDK 的 `MessageItemType`。
 const ITEM_TEXT: i64 = 1;
+/// 图片。
+const ITEM_IMAGE: i64 = 2;
 /// 语音消息，`voice_item.text` 是转写好的文字 —— **当文本用**，
 /// 用户对着微信说一句话就能派任务。
 const ITEM_VOICE: i64 = 3;
+/// 视频。
+const ITEM_VIDEO: i64 = 4;
+/// 文件。
+const ITEM_FILE: i64 = 5;
+
+/// 一个待下载的附件。`key` 是 `encrypt_query_param|aes_key`，
+/// 见 [`media::encode_key`]。
+#[derive(Debug, Clone)]
+pub struct Attachment {
+    pub key: String,
+    /// 建议的文件名。图片没有名字，按 message_id 造一个。
+    pub filename: String,
+}
 
 #[derive(Debug, Clone)]
 pub struct Incoming {
     pub message_id: String,
     pub text: String,
+    pub attachments: Vec<Attachment>,
     pub ctx: SendCtx,
+}
+
+/// 图片的 aes_key 有两个来源。
+///
+/// `image_item.aeskey` 是 **hex 文本**，而 `media.aes_key` 已经是 base64。
+/// 统一成 base64 —— [`media::parse_key`] 收的是 base64。
+///
+/// 只看 `media.aes_key` 的话，带 `aeskey` 那种图会被当成"没有密钥"跳过，
+/// 用户发的图安静地消失。
+fn image_aes_key(item: &Value) -> Option<String> {
+    if let Some(hex) = item
+        .get("aeskey")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty())
+    {
+        let bytes: Vec<u8> = (0..hex.len() / 2)
+            .filter_map(|i| u8::from_str_radix(hex.get(i * 2..i * 2 + 2)?, 16).ok())
+            .collect();
+        if !bytes.is_empty() {
+            use base64::Engine;
+            return Some(base64::engine::general_purpose::STANDARD.encode(bytes));
+        }
+    }
+    item.pointer("/media/aes_key")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
+fn cdn_params(media: Option<&Value>) -> Option<(String, String)> {
+    let m = media?;
+    let q = m.get("encrypt_query_param").and_then(Value::as_str)?;
+    let k = m.get("aes_key").and_then(Value::as_str)?;
+    (!q.is_empty() && !k.is_empty()).then(|| (q.to_string(), k.to_string()))
 }
 
 /// 从一条 `msgs[]` 里取出我们能处理的部分。
 ///
-/// 返回 `None` 表示跳过（没有文本、没有发送者、或者只有我们还不支持的
-/// 附件）。**图片/文件先不处理**：它们要走 CDN 下载 + AES 解密，
-/// 是另一块；而没有文本的消息交给 agent 也没有指令可执行。
+/// 返回 `None` 表示跳过（既没有文本也没有附件，或者没有发送者）。
 pub fn parse_message(msg: &Value) -> Option<Incoming> {
     let items = msg.get("item_list")?.as_array()?;
     let mut text = String::new();
+    let mut attachments: Vec<Attachment> = Vec::new();
+    let mid = msg
+        .get("message_id")
+        .map(|v| match v {
+            Value::String(s) => s.clone(),
+            other => other.to_string(),
+        })
+        .unwrap_or_default();
     for it in items {
         let t = it.get("type").and_then(Value::as_i64).unwrap_or(0);
         let s = match t {
@@ -178,9 +235,53 @@ pub fn parse_message(msg: &Value) -> Option<Incoming> {
             }
             text.push_str(s);
         }
+        match t {
+            ITEM_IMAGE => {
+                // **不能用 `?`** —— 那会让"图片项缺 image_item"把整条消息
+                // （包括同一条里的文字）一起丢掉。缺字段就跳过这一项。
+                let Some(img) = it.get("image_item") else {
+                    continue;
+                };
+                let q = img
+                    .pointer("/media/encrypt_query_param")
+                    .and_then(Value::as_str);
+                if let (Some(q), Some(k)) = (q.filter(|q| !q.is_empty()), image_aes_key(img)) {
+                    let n = attachments.len();
+                    attachments.push(Attachment {
+                        key: media::encode_key(q, &k),
+                        filename: format!("wechat-{mid}-{n}.jpg"),
+                    });
+                }
+            }
+            ITEM_FILE => {
+                if let Some((q, k)) = cdn_params(it.pointer("/file_item/media")) {
+                    let name = it
+                        .pointer("/file_item/file_name")
+                        .and_then(Value::as_str)
+                        .filter(|s| !s.is_empty())
+                        .map(str::to_string)
+                        .unwrap_or_else(|| format!("wechat-{mid}.bin"));
+                    attachments.push(Attachment {
+                        key: media::encode_key(&q, &k),
+                        filename: name,
+                    });
+                }
+            }
+            ITEM_VIDEO => {
+                if let Some((q, k)) = cdn_params(it.pointer("/video_item/media")) {
+                    attachments.push(Attachment {
+                        key: media::encode_key(&q, &k),
+                        filename: format!("wechat-video-{mid}.mp4"),
+                    });
+                }
+            }
+            _ => {}
+        }
     }
     let text = text.trim().to_string();
-    if text.is_empty() {
+    // 只有附件没有文字也要处理 —— 用户常常先发图再说话，
+    // 或者只发一张图指望"照这个做"。丢掉的话那张图就没了。
+    if text.is_empty() && attachments.is_empty() {
         return None;
     }
     let sender = msg.get("from_user_id").and_then(Value::as_str)?;
@@ -208,6 +309,7 @@ pub fn parse_message(msg: &Value) -> Option<Incoming> {
     Some(Incoming {
         message_id,
         text,
+        attachments,
         ctx: SendCtx {
             ilink_user_id: sender.to_string(),
             context_token: msg
@@ -430,6 +532,51 @@ async fn serve(state: &Arc<AppState>) {
     }
 }
 
+/// 下载一个附件到工作区，返回**工作区相对路径**。
+///
+/// 落盘走的是 `assets::enroll`，和生成结果、界面上传是同一条路 ——
+/// 于是它会被登记进资产索引、按类型归档，agent 拿到路径就能直接当底图用。
+async fn download(state: &Arc<AppState>, c: &Client, a: &Attachment) -> Result<String, String> {
+    let bytes = media::fetch(&state.client, &a.key, c.token.as_deref()).await?;
+    // 文件名会拼进工作区路径，只取最后一段并挡住 `..`。
+    let name = std::path::Path::new(&a.filename)
+        .file_name()
+        .map(|s| s.to_string_lossy().into_owned())
+        .filter(|s| !s.is_empty() && s != "." && s != "..")
+        .unwrap_or_else(|| "wechat-attachment".into());
+    let ext = std::path::Path::new(&name)
+        .extension()
+        .map(|e| e.to_string_lossy().to_ascii_lowercase())
+        .unwrap_or_default();
+    let mut rel = format!("{}/{}", crate::workspace::subdir_for(&ext), name);
+    // 同名不覆盖。用户可能两次发同一个文件名的图，覆盖会把上一张换掉，
+    // 而画布上引用它的节点看起来毫无变化。
+    if state.ws.resolve(&rel).is_some_and(|p| p.exists()) {
+        let stem = std::path::Path::new(&name)
+            .file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "wechat".into());
+        let dot = if ext.is_empty() { "" } else { "." };
+        for n in 2..1000 {
+            let cand = format!(
+                "{}/{stem}-{n}{dot}{ext}",
+                crate::workspace::subdir_for(&ext)
+            );
+            if !state.ws.resolve(&cand).is_some_and(|p| p.exists()) {
+                rel = cand;
+                break;
+            }
+        }
+    }
+    let abs = state.ws.resolve(&rel).ok_or("路径超出工作区")?;
+    if let Some(d) = abs.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&abs, &bytes).map_err(|e| e.to_string())?;
+    state.assets.enroll(&rel).map_err(|e| format!("{e:#}"))?;
+    Ok(rel)
+}
+
 async fn handle(state: &Arc<AppState>, c: &Client, msg: &Value) {
     let Some(inc) = parse_message(msg) else {
         return;
@@ -446,8 +593,53 @@ async fn handle(state: &Arc<AppState>, c: &Client, msg: &Value) {
     // 「正在输入」。一轮可能几分钟，不给反馈的话用户会以为消息没发出去。
     c.send_typing(&inc.ctx).await;
 
+    // 附件先落盘，再把路径拼进提示词 —— 这样"照这张图的风格出三张"里的
+    // "这张图"才有所指。
+    //
+    // 一个附件下不来**不中断其余的**：三张图挂了一张，剩下两张仍然可用，
+    // 而失败的那张要说出来，否则 agent 会照着少一张的素材干活，用户以为
+    // 三张都进去了。
+    let mut paths = Vec::new();
+    let mut failed = Vec::new();
+    for a in &inc.attachments {
+        match download(state, c, a).await {
+            Ok(rel) => paths.push(rel),
+            Err(e) => {
+                tracing::warn!("微信附件 {} 下载失败: {e}", a.filename);
+                failed.push(format!("{}（{e}）", a.filename));
+            }
+        }
+    }
+    if !failed.is_empty() {
+        let _ = c
+            .send_text(
+                &inc.ctx,
+                &format!("这些附件没取下来：{}", failed.join("、")),
+            )
+            .await;
+    }
+    // 只发了附件而且全挂了 —— 没有素材也没有文字，这一轮无事可做。
+    // 不拦的话 agent 会拿一句空提示词去猜用户想要什么。
+    if inc.text.trim().is_empty() && paths.is_empty() {
+        if failed.is_empty() {
+            let _ = c
+                .send_text(&inc.ctx, "这条消息里没有我能处理的内容。")
+                .await;
+        }
+        return;
+    }
+    let prompt = if paths.is_empty() {
+        inc.text.clone()
+    } else {
+        format!(
+            "{}\n\n（用户发来的参考素材：{}）",
+            inc.text,
+            paths.join("、")
+        )
+    };
+
     let before = crate::agent::read_history(&state.ws).len();
-    crate::agent::run_once(state, &inc.text).await;
+    crate::agent::run_once(state, &prompt).await;
     let said: Vec<String> = crate::agent::read_history(&state.ws)
         .into_iter()
         .skip(before)
@@ -547,6 +739,92 @@ mod tests {
                 .group_id
                 .is_none()
         );
+    }
+
+    #[test]
+    fn an_image_key_can_come_from_either_field() {
+        // image_item.aeskey 是 hex 文本，media.aes_key 已经是 base64。
+        // 只看后者的话，带 aeskey 那种图会被当成"没有密钥"跳过 ——
+        // 用户发的图安静地消失。
+        use base64::Engine;
+        let hex = json!({ "aeskey": "ab".repeat(16), "media": { "encrypt_query_param": "q1" } });
+        let k = image_aes_key(&hex).unwrap();
+        assert_eq!(
+            base64::engine::general_purpose::STANDARD
+                .decode(&k)
+                .unwrap(),
+            vec![0xABu8; 16]
+        );
+        let b64 = json!({ "media": { "aes_key": "QUJD" } });
+        assert_eq!(image_aes_key(&b64).as_deref(), Some("QUJD"));
+        assert!(image_aes_key(&json!({ "media": {} })).is_none());
+    }
+
+    #[test]
+    fn a_picture_with_no_caption_is_still_handled() {
+        // 用户常常只发一张图指望"照这个做"。丢掉的话那张图就没了。
+        let m = json!({
+            "message_id": 9, "from_user_id": "u1",
+            "item_list": [{
+                "type": 2,
+                "image_item": { "aeskey": "cd".repeat(16), "media": { "encrypt_query_param": "q9" } },
+            }],
+        });
+        let inc = parse_message(&m).expect("只有图也要处理");
+        assert!(inc.text.is_empty());
+        assert_eq!(inc.attachments.len(), 1);
+        assert!(inc.attachments[0].key.contains("q9|"));
+        assert!(inc.attachments[0].filename.ends_with(".jpg"));
+    }
+
+    #[test]
+    fn an_attachment_without_a_key_is_skipped_not_half_built() {
+        // 少了 encrypt_query_param 或 aes_key 的附件下不下来。
+        // 半个 key 传下去只会在 CDN 那边拿到 403。
+        let m = json!({
+            "message_id": 1, "from_user_id": "u1",
+            "item_list": [
+                { "type": 2, "image_item": { "media": {} } },
+                { "type": 5, "file_item": { "media": { "encrypt_query_param": "q" } } },
+                { "type": 1, "text_item": { "text": "看看这些" } },
+            ],
+        });
+        let inc = parse_message(&m).unwrap();
+        assert!(inc.attachments.is_empty());
+        assert_eq!(inc.text, "看看这些");
+    }
+
+    #[test]
+    fn a_malformed_image_item_does_not_swallow_the_text_beside_it() {
+        // 图片项缺 image_item 时用 `?` 会让整条消息返回 None ——
+        // 用户那句"照这个风格出三张"跟着一起没了，而且没有任何报错。
+        let m = json!({
+            "message_id": 7, "from_user_id": "u1",
+            "item_list": [
+                { "type": 2 },
+                { "type": 1, "text_item": { "text": "照这个风格出三张" } },
+            ],
+        });
+        let inc = parse_message(&m).expect("文字还在，不该整条丢掉");
+        assert_eq!(inc.text, "照这个风格出三张");
+        assert!(inc.attachments.is_empty());
+    }
+
+    #[test]
+    fn a_file_keeps_its_original_name_and_a_video_gets_one() {
+        let m = json!({
+            "message_id": 3, "from_user_id": "u1",
+            "item_list": [
+                { "type": 5, "file_item": {
+                    "file_name": "参考.pdf",
+                    "media": { "encrypt_query_param": "q1", "aes_key": "QUJD" } } },
+                { "type": 4, "video_item": {
+                    "media": { "encrypt_query_param": "q2", "aes_key": "QUJD" } } },
+            ],
+        });
+        let a = parse_message(&m).unwrap().attachments;
+        assert_eq!(a[0].filename, "参考.pdf");
+        assert_eq!(a[1].filename, "wechat-video-3.mp4");
     }
 
     #[test]
