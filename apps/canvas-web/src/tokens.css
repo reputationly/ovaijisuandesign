@@ -201,6 +201,11 @@
 
   /* 卡片网格 */
   --divider-width: 0.5px;
+  /* 弹窗。官方 .modal-mask 是背景色 + backdrop-blur 两件事，
+     .elevated-surface-border 是那一圈几乎看不见但撑住层次的描边。 */
+  --modal-mask-bg: #0000009e;
+  --modal-mask-blur: 16px;
+  --elevated-border-color: #00000014;
   --elevated-border-width: var(--divider-width);
   --home-media-showcase-card-hover: color-mix(in srgb, var(--foreground) 3%, var(--card));
   --home-query-card-gap: 12px;
@@ -408,6 +413,7 @@
 
   /* 首页布局的深色覆盖。**只覆盖官方真的分了两套的那几个**，
    * 其余（尺寸、圆角、间距）两套共用，写两遍只会多一处能改错的地方。 */
+  --elevated-border-color: #ffffff1a;
   --home-hero-content-gap: 16px;
   --home-hero-title-block-gap: 8px;
   --home-input-border-hover: var(--border-strong);

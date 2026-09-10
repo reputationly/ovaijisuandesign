@@ -6,6 +6,7 @@ import {
   MoreHorizontal,
   Music,
   Settings as SettingsIcon,
+  Smartphone,
   PanelLeft,
   Plus,
   Search,
@@ -72,6 +73,8 @@ export function Sidebar({
   view,
   onView,
   onCollapse,
+  onOpenSettings,
+  onOpenImBridge,
   sessions,
   projects,
   current,
@@ -83,6 +86,8 @@ export function Sidebar({
   view: View
   onView: (v: View) => void
   onCollapse: () => void
+  onOpenSettings: () => void
+  onOpenImBridge: () => void
   sessions: Session[]
   projects: Project[]
   /** 当前打开的那条。列表里高亮它。 */
@@ -207,22 +212,25 @@ export function Sidebar({
       </div>
 
       <div
-        className="flex items-center gap-2 border-t px-3 py-2.5 text-[13px]"
+        className="flex items-center gap-1 border-t px-2 py-2 text-[13px]"
         style={{ borderColor: "var(--sidebar-border)" }}
       >
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)] text-[11px] text-[var(--brand-accent-foreground)]">
-          ov
-        </span>
-        <span className="truncate text-[var(--home-sidebar-secondary-text)]" title={dir}>
-          {dir ? dir.split("/").pop() : "连接中…"}
-        </span>
-        {/* 官方这一排是**小图标**：更新一个、IM 接入一个。我们之前把更新做成
-            了一个写着「有新版 3.0.12.5」的大方块，占掉半行、比品牌名还显眼。
-            现在收成图标，详情放 title。 */}
-        <span className="ml-auto flex shrink-0 items-center gap-0.5">
+        {/* 左边是设置。官方那里放的是账号 —— 我们没有登录，那个位置空着
+            不如给最常用的入口。工作区名字进 title：它是背景信息，
+            平时不需要一直占着一行。 */}
+        <button
+          onClick={onOpenSettings}
+          title={dir || "连接中…"}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-[var(--home-sidebar-nav-hover)]"
+          style={{ color: "var(--home-sidebar-secondary-text)" }}
+        >
+          <SettingsIcon size={16} className="shrink-0" />
+          <span className="truncate">设置</span>
+        </button>
+        <span className="flex shrink-0 items-center gap-0.5">
           {right}
-          <IconBtn title="设置" onClick={() => onView("settings")}>
-            <SettingsIcon size={15} />
+          <IconBtn title="接入飞书 / 微信" onClick={onOpenImBridge}>
+            <Smartphone size={16} />
           </IconBtn>
         </span>
       </div>

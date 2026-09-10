@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react"
 
 import { getSettings, saveSettings, type SettingsInfo } from "./api"
+import { Dialog } from "./Dialog"
 
 /**
- * 设置页。
+ * 设置。**是弹窗不是页面** —— 改配置是一次性的插曲，把它做成一个占满
+ * 主区域的页面，用户改完还得自己想办法"回去"。
+ *
  *
  * 官方那边设置有 51 个可交互元素（账号、积分、团队、存储迁移、文件夹白名单
  * …）。我们**只做背后真有东西的那部分**：平台接入和模型选择。没有登录、
@@ -12,7 +15,7 @@ import { getSettings, saveSettings, type SettingsInfo } from "./api"
  * 这一页解决的是一个实际问题：在此之前，改模型名和音色映射只能手编
  * `~/Library/Application Support/ovaijisuandesign/config.json`。
  */
-export function Settings() {
+export function Settings({ onClose }: { onClose: () => void }) {
   const [info, setInfo] = useState<SettingsInfo | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [enhance, setEnhance] = useState(true)
@@ -89,24 +92,17 @@ export function Settings() {
     }
   }
 
-  if (!info) {
-    return (
-      <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
-        <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
-          {msg?.text ?? "读取中…"}
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
-      <h1 className="mb-1 text-[20px] font-semibold">设置</h1>
-      <p className="mb-6 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+  const body = !info ? (
+    <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+      {msg?.text ?? "读取中…"}
+    </p>
+  ) : (
+    <>
+      <p className="mb-5 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
         {info.path}
       </p>
 
-      <div className="flex max-w-2xl flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <Section title="平台">
           <Field label="接口地址" value={form.baseUrl} onChange={set("baseUrl")} />
           <Field
@@ -177,26 +173,48 @@ export function Settings() {
           </div>
         </Section>
 
-        {msg && (
-          <p
-            className="text-[13px]"
-            style={{ color: msg.kind === "ok" ? "var(--muted-foreground)" : "var(--canvas-node-tag-red)" }}
+      </div>
+    </>
+  )
+
+  return (
+    <Dialog
+      open
+      title="设置"
+      onClose={onClose}
+      footer={
+        <>
+          {msg && (
+            <span
+              className="truncate text-[12px]"
+              style={{
+                color: msg.kind === "ok" ? "var(--muted-foreground)" : "var(--canvas-node-tag-red)",
+              }}
+            >
+              {msg.text}
+            </span>
+          )}
+          <span className="flex-1" />
+          <button
+            onClick={onClose}
+            className="rounded-lg px-3 py-1.5 text-[13px]"
+            style={{ background: "var(--bg-subtle)" }}
           >
-            {msg.text}
-          </p>
-        )}
-        <div>
+            关闭
+          </button>
           <button
             onClick={() => void submit()}
-            disabled={saving}
+            disabled={saving || !info}
             className="rounded-lg px-4 py-1.5 text-[13px] disabled:opacity-50"
             style={{ background: "var(--brand-accent)", color: "var(--brand-accent-foreground)" }}
           >
             {saving ? "保存中…" : "保存"}
           </button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      {body}
+    </Dialog>
   )
 }
 

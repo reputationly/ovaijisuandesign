@@ -49,11 +49,12 @@ import { BottomToolbar, CANVAS_BACKGROUNDS, TopRightChrome } from "./CanvasChrom
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { Home } from "./Home"
 import { Library } from "./Library"
+import { ImBridge } from "./ImBridge"
 import { Settings } from "./Settings"
 import { Skills } from "./Skills"
 
 /** 主区域显示什么。侧栏那四个入口切的就是它。 */
-export type View = "home" | "canvas" | "library" | "skill" | "settings"
+export type View = "home" | "canvas" | "library" | "skill"
 import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
@@ -99,6 +100,9 @@ export default function App() {
    * 而两者根本不是一回事。
    */
   const [homeProject, setHomeProject] = useState<string | null>(null)
+  // 设置和 IM 是**弹窗不是视图**：它们是一次性的插曲，做成占满主区域的
+  // 页面的话，用户改完还得自己想办法"回去"。
+  const [dialog, setDialog] = useState<"settings" | "im" | null>(null)
   const [minimap, setMinimap] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
@@ -503,6 +507,8 @@ export default function App() {
             view={view}
             onView={setView}
             onCollapse={() => setLeftOpen(false)}
+            onOpenSettings={() => setDialog("settings")}
+            onOpenImBridge={() => setDialog("im")}
             sessions={sessions}
             projects={projects}
             current={currentSession}
@@ -521,9 +527,7 @@ export default function App() {
           </button>
         )}
 
-        {view === "settings" ? (
-          <Settings />
-        ) : view === "library" ? (
+        {view === "library" ? (
           <Library
             sessions={sessions}
             projects={projects}
@@ -813,6 +817,9 @@ export default function App() {
           </button>
         ) : null}
       </div>
+
+      {dialog === "settings" && <Settings onClose={() => setDialog(null)} />}
+      {dialog === "im" && <ImBridge onClose={() => setDialog(null)} />}
 
       {/* 图片灯箱。
           **翻页范围是画布上的全部图片**，而官方翻的是一个多图节点里的那几张。

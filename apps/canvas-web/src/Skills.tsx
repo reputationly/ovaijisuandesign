@@ -1,7 +1,7 @@
-import { Plus, Search, Trash2 } from "lucide-react"
+import { Download, Plus, Search, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { deleteSkill, getSkill, listSkills, saveSkill, type Skill } from "./api"
+import { deleteSkill, getSkill, importSkills, listSkills, saveSkill, type Skill } from "./api"
 
 /**
  * Skill 页。侧栏「Skill」进来的那一页。
@@ -79,6 +79,29 @@ export function Skills({ onUse }: { onUse: (slug: string, body: string) => void 
             className="w-44 bg-transparent text-[13px] outline-none"
           />
         </div>
+        {/* 从官方应用那边增量导入。官方装的 skill 在 ~/.hub/skills，
+            结构和我们一样（SKILL.md + frontmatter）。同名默认跳过 ——
+            用户可能改过自己那份。 */}
+        <button
+          onClick={() => {
+            setErr(null)
+            void importSkills()
+              .then((r) => {
+                void reload()
+                setErr(
+                  r.added.length
+                    ? `导入了 ${r.added.length} 个（跳过已有的 ${r.skipped.length} 个）`
+                    : `没有新的可导入（${r.from} 里的 ${r.skipped.length} 个都已存在）`,
+                )
+              })
+              .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+          }}
+          title="从 ~/.hub/skills 导入"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px]"
+          style={{ background: "var(--bg-subtle)" }}
+        >
+          <Download size={15} /> 导入
+        </button>
         <button
           onClick={() =>
             setEditing({ slug: "", name: "", description: "", category: "我的", builtin: false, body: "" })

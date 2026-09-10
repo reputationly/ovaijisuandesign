@@ -344,3 +344,14 @@ body {
   /* 楷书笔锋细，默认渲染在浅色底上会显得发虚。 */
   -webkit-font-smoothing: antialiased;
 }
+
+/* 弹窗遮罩和描边。类名和官方一致（modal-mask / elevated-surface-border），
+ * 这样以后再照抄别的弹窗时结构能直接对上。 */
+.modal-mask {
+  background: var(--modal-mask-bg);
+  -webkit-backdrop-filter: blur(var(--modal-mask-blur));
+  backdrop-filter: blur(var(--modal-mask-blur));
+}
+.elevated-surface-border {
+  border: var(--elevated-border-width) solid var(--elevated-border-color);
+}
