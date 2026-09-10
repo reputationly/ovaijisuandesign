@@ -18,6 +18,7 @@ import {
   AudioLines,
   Camera,
   Copy,
+  Filter,
   Image as ImageIcon,
   Maximize2,
   MessageSquarePlus,
@@ -64,12 +65,14 @@ import {
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { captureFrame, frameFileName } from "./captureFrame"
+import { TAG_PRESETS, tagById, tagColor, tagsOf, toggleTag, withTags } from "./tags"
 import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
   CANVAS_BACKGROUNDS,
   EmptyHint,
   ShortcutPanel,
+  TagFilter,
   TopRightChrome,
 } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
@@ -162,6 +165,8 @@ export default function App() {
   const [pendingPrompt, setPendingPrompt] = useState<string | undefined>()
   /** 首页带过来的参考素材（工作区相对路径）。作为底图发给图生图。 */
   const [pendingAttachments, setPendingAttachments] = useState<string[]>([])
+  /** 当前按哪个标签筛选并定位。`null` = 不筛。见 CanvasChrome 的 TagFilter。 */
+  const [tagFilter, setTagFilter] = useState<string | null>(null)
   // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
   const [leftOpen, setLeftOpen] = useState(() => localStorage.getItem("left-open") !== "0")
   const [rightOpen, setRightOpen] = useState(() => localStorage.getItem("right-open") !== "0")
@@ -641,6 +646,23 @@ export default function App() {
       openLightbox(nodeId) {
         setLightbox(nodeId)
       },
+      /**
+       * 给节点打/取消标签。和 `deleteNode` 一样**直接改服务端那份**。
+       *
+       * 只改界面状态的话刷新就没了，而标签的用途正是"下次回来还能分清"。
+       */
+      async setNodeTags(nodeId, tags) {
+        const base = fileRef.current
+        if (!base) return
+        const next = {
+          ...base,
+          nodes: base.nodes.map((n) =>
+            n.id === nodeId ? { ...n, meta: withTags(n.meta, tags) } : n,
+          ),
+        }
+        await putCanvas(next)
+        setFile(next)
+      },
       async deleteNode(nodeId) {
         const base = fileRef.current
         if (!base) return
@@ -959,6 +981,47 @@ export default function App() {
                           },
                         ]
                       : []),
+                    // 官方的 `canvas.node-tag-*`。七个预设颜色，一个节点
+                    // 只能有一个（官方 MAX_COLOR_TAGS_PER_ASSET = 1）——
+                    // 再点一个是换掉，点自己是取消。
+                    ...TAG_PRESETS.map((t) => {
+                      const now = tagsOf(file?.nodes.find((n) => n.id === node.id))
+                      const on = now.includes(t.id)
+                      return {
+                        id: `tag-${t.id}`,
+                        label: `${on ? "取消" : ""}${t.name}`,
+                        icon: (
+                          <span
+                            className="inline-block size-3 rounded-full"
+                            style={{
+                              background: tagColor(t.id),
+                              outline: on ? "2px solid var(--foreground)" : undefined,
+                              outlineOffset: 1,
+                            }}
+                          />
+                        ),
+                        separator: t.id === TAG_PRESETS[0]!.id,
+                        onClick: () => void actions.setNodeTags(node.id, toggleTag(now, t.id)),
+                      }
+                    }),
+                    // `canvasTags.filterByTag` =「筛选并定位"{{name}}"」。
+                    // 只在这个节点确实有标签时才给 —— 没有标签时点它
+                    // 会筛出一个空集，看起来像画布被清空了。
+                    ...(tagsOf(file?.nodes.find((n) => n.id === node.id))[0]
+                      ? [
+                          {
+                            id: "tag-filter",
+                            label: `筛选并定位「${
+                              tagById(tagsOf(file!.nodes.find((n) => n.id === node.id)!)[0]!)?.name
+                            }」`,
+                            icon: <Filter size={15} />,
+                            onClick: () =>
+                              setTagFilter(
+                                tagsOf(file!.nodes.find((n) => n.id === node.id)!)[0]!,
+                              ),
+                          },
+                        ]
+                      : []),
                     {
                       id: "copy-id",
                       label: "复制节点 ID",
@@ -1031,6 +1094,18 @@ export default function App() {
                   下一步怎么做。 */}
               {file && file.nodes.length === 0 && <EmptyHint />}
               {help && <ShortcutPanel onClose={() => setHelp(false)} />}
+              <TagFilter
+                active={
+                  tagFilter ? { id: tagFilter, name: tagById(tagFilter)?.name ?? "" } : null
+                }
+                matches={(file?.nodes ?? [])
+                  .filter((n) => tagsOf(n).includes(tagFilter ?? ""))
+                  .map((n) => n.id)}
+                onPick={(id) =>
+                  window.dispatchEvent(new CustomEvent("canvas:focus", { detail: id }))
+                }
+                onClear={() => setTagFilter(null)}
+              />
             </ReactFlow>
           </ReactFlowProvider>
 

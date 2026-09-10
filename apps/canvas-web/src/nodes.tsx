@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { createContext, useContext, useState, type ReactNode } from "react"
 
+import { tagById, tagsOf } from "./tags"
 import { assetUrl } from "./api"
 import { AudioPlayer, VideoPlayer } from "./MediaPlayer"
 import { MagneticHandle } from "./MagneticHandle"
@@ -30,6 +31,8 @@ export interface CanvasActions {
   deleteNode(nodeId: string): Promise<void>
   /** 打开灯箱看大图。见 Lightbox.tsx。 */
   openLightbox(nodeId: string): void
+  /** 打/取消画布标签。见 tags.ts。 */
+  setNodeTags(nodeId: string, tags: string[]): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -79,6 +82,7 @@ function Frame(
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
   const isPanel = variant === "panel"
+  const tags = tagsOf(data.raw)
   return (
     <div
       className="canvas-node-shell group relative h-full w-full overflow-visible"
@@ -108,6 +112,33 @@ function Frame(
         }}
       >
         {children}
+
+        {/* 画布标签。官方 `canvasTags.canvasLabelInfo` 写着「画布标签会直接
+            显示在画布上」—— **不显示的话打了标等于没打**。
+
+            画在节点内容之上、左上角，不占布局（absolute）：占布局的话
+            打个标签图就矮一截，同一排节点会错位。 */}
+        {tags.length > 0 && (
+          <span
+            data-action-ui-id="canvas.node-tag-labels"
+            className="pointer-events-none absolute top-1.5 left-1.5 flex gap-1"
+          >
+            {tags.map((id) => {
+              const t = tagById(id)
+              if (!t) return null
+              return (
+                <span
+                  key={id}
+                  data-action-ui-id="canvas.node-tag-label"
+                  className="rounded px-1.5 py-px text-[10px] leading-4 font-medium"
+                  style={{ background: t.color, color: t.foreground }}
+                >
+                  {t.name}
+                </span>
+              )
+            })}
+          </span>
+        )}
       </div>
 
       {/* 名字条在节点**上方外侧、常驻**（截图确认）。带类型图标 + 文件名。

@@ -20,6 +20,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
 
 import { CANVAS_MODES, type CanvasMode } from "./api"
+import { tagColor } from "./tags"
 
 /**
  * fitView 的统一参数。官方传的就是 `{ padding: 0.2, maxZoom: 1 }`。
@@ -720,6 +721,79 @@ export function ShortcutPanel({ onClose }: { onClose: () => void }) {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/**
+ * 按标签筛选 + 定位。官方的 `canvas.tag-filter-toolbar`：
+ *
+ * ```
+ * canvasTags.filterByTag    = 筛选并定位"{{name}}"
+ * canvasTags.filterPosition = 第 {{current}} / {{count}} 个
+ * canvasTags.previousMatch  = 上一个标签节点
+ * canvasTags.nextMatch      = 下一个标签节点
+ * canvasTags.clearFilter    = 清除筛选
+ * ```
+ *
+ * **筛选不是"藏起来别的"，是"跳着看这一类"。** 隐藏其余节点会让画布结构
+ * 断掉（连线指向看不见的东西）；官方是把视口挨个移到匹配的节点上。
+ */
+export function TagFilter({
+  matches,
+  active,
+  onPick,
+  onClear,
+}: {
+  /** 当前标签命中的节点 id，按画布顺序。 */
+  matches: string[]
+  active: { id: string; name: string } | null
+  onPick: (nodeId: string) => void
+  onClear: () => void
+}) {
+  const [i, setI] = useState(0)
+  // 标签换了、命中集变了，序号要归零 —— 不归的话「第 5/2 个」这种会出现。
+  useEffect(() => setI(0), [active?.id, matches.length])
+  if (!active || matches.length === 0) return null
+
+  const go = (d: number) => {
+    const n = (i + d + matches.length) % matches.length
+    setI(n)
+    onPick(matches[n]!)
+  }
+  return (
+    <div
+      data-action-ui-id="canvas.tag-filter-toolbar"
+      className="nopan nodrag absolute top-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border py-1 pr-1 pl-3"
+      style={{
+        background: "var(--canvas-controls-bg)",
+        borderColor: "var(--canvas-controls-border)",
+        boxShadow: "var(--canvas-shadow-panel)",
+      }}
+    >
+      <span className="flex items-center gap-1.5 text-[12px]">
+        <span
+          className="inline-block size-2.5 rounded-full"
+          style={{ background: tagColor(active.id) }}
+        />
+        {active.name}
+      </span>
+      <span
+        data-action-ui-id="canvas.tag-filter-status"
+        className="mx-1 text-[12px] tabular-nums"
+        style={{ color: "var(--muted-foreground)" }}
+      >
+        第 {i + 1} / {matches.length} 个
+      </span>
+      <Btn title="上一个标签节点" onClick={() => go(-1)}>
+        <ChevronUp size={14} />
+      </Btn>
+      <Btn title="下一个标签节点" onClick={() => go(1)}>
+        <ChevronUp size={14} className="rotate-180" />
+      </Btn>
+      <Btn title="清除筛选" onClick={onClear}>
+        <X size={14} />
+      </Btn>
     </div>
   )
 }
