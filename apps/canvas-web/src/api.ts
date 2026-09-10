@@ -263,6 +263,8 @@ export interface ToolActivity {
   id: string
   summary?: string
   error?: string
+  /** 这次调用产出的文件，工作区相对路径。用来渲染文件 chip。 */
+  artifact?: string
   at: number
 }
 

@@ -177,6 +177,8 @@ export interface Call {
   id: string
   tool: string
   phase: "start" | "ok" | "error"
+  /** 产出的文件，工作区相对路径。 */
+  artifact?: string
   summary?: string
   error?: string
 }
@@ -190,7 +192,14 @@ export function mergeCalls(entries: ToolActivity[]): Call[] {
     const prev = byId.get(id)
     if (!prev) {
       order.push(id)
-      byId.set(id, { id, tool: e.tool, phase: e.phase, summary: e.summary, error: e.error })
+      byId.set(id, {
+        id,
+        tool: e.tool,
+        phase: e.phase,
+        summary: e.summary,
+        error: e.error,
+        artifact: e.artifact,
+      })
       continue
     }
     // 终态压过 start；**start 不能压过已有的终态** —— 乱序到达时
@@ -198,7 +207,44 @@ export function mergeCalls(entries: ToolActivity[]): Call[] {
     if (e.phase !== "start") {
       prev.phase = e.phase
       prev.error = e.error ?? prev.error
+      // 产物只在终态那条上 —— `??` 保证它不会被后到的 start 抹掉。
+      prev.artifact = e.artifact ?? prev.artifact
     }
   }
   return order.map((id) => byId.get(id)!).filter((c) => !labelFor(c.tool).silent)
+}
+
+/**
+ * 生成类工具的活动文案。**带数量**，取自官方 i18n 的 `chat.activity.*`：
+ *
+ * ```
+ * chat.activity.imageGen         = 生成 {{count}} 张图片
+ * chat.activity.imageGen.running = 正在生成图片
+ * chat.activity.videoGen         = 生成 {{count}} 个视频
+ * chat.activity.audioGen         = 生成 {{count}} 段音频
+ * chat.activity.musicGen         = 生成 {{count}} 首音乐
+ * chat.activity.lyricsGen        = 生成了歌词
+ * ```
+ *
+ * 进行时和完成时**是两句不同的话**（"正在生成图片" / "生成 1 张图片"）——
+ * 一直显示同一句的话，用户分不出这一条是还在跑还是已经跑完了。
+ */
+const GEN_LABELS: Record<string, { running: string; done: (n: number) => string }> = {
+  hub_generate_image: { running: "正在生成图片", done: (n) => `生成 ${n} 张图片` },
+  hub_generate_video: { running: "正在生成视频", done: (n) => `生成 ${n} 个视频` },
+  hub_generate_audio_speech: { running: "正在生成音频", done: (n) => `生成 ${n} 段音频` },
+  hub_generate_audio_music: { running: "正在生成音乐", done: (n) => `生成 ${n} 首音乐` },
+  hub_music_cover: { running: "正在制作翻唱", done: () => "制作了翻唱" },
+  hub_lyrics_generation: { running: "歌词生成", done: () => "生成了歌词" },
+}
+
+/**
+ * 一条活动最终显示的那行字。
+ *
+ * 生成类走 [`GEN_LABELS`]（分进行时 / 完成时），其余走 [`labelFor`]。
+ */
+export function activityText(call: Call): string {
+  const gen = GEN_LABELS[call.tool]
+  if (gen) return call.phase === "start" ? gen.running : gen.done(1)
+  return labelFor(call.tool).text
 }

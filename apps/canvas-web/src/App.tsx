@@ -855,6 +855,7 @@ export default function App() {
         {view === "canvas" && rightOpen ? (
           <ChatPanel
             file={file}
+            title={sessions.find((x) => x.id === currentSession)?.name}
             events={events}
             activity={activity}
             messages={messages}
@@ -868,6 +869,19 @@ export default function App() {
             initialPrompt={pendingPrompt}
             initialAttachments={pendingAttachments}
             question={question}
+            onOpenAsset={(path) => {
+              // 产物 chip 打开的是画布上引用它的那个节点（走灯箱）。
+              //
+              // **按文件名匹配**：节点上只有 assetId，没有工作区路径。
+              // 文件名在我们的工作区里是内容哈希，撞名的概率可以忽略；
+              // 真撞了也只是打开了另一张同名的图，不会出错。
+              //
+              // 找不到就什么都不做 —— 灯箱认的是节点 id，把路径传进去
+              // 会开出一个空框。
+              const name = path.split("/").pop()
+              const n = file?.nodes.find((x) => details.get(x.id)?.name === name)
+              if (n) setLightbox(n.id)
+            }}
             onAnswer={(id, answers) => {
               void answerQuestion(id, answers).catch((e: unknown) =>
                 setError(e instanceof Error ? e.message : String(e)),

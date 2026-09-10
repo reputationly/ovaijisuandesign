@@ -1,9 +1,20 @@
-import { Check, GripVertical, Loader2, PanelRight, Plus, X } from "lucide-react"
+import {
+  Check,
+  ChevronRight,
+  Copy,
+  GripVertical,
+  Image as ImageIcon,
+  Loader2,
+  PanelRight,
+  Plus,
+  X,
+} from "lucide-react"
+import { useState } from "react"
 
 import type { AgentMsg, CanvasFile, ToolActivity } from "./api"
 import { Generate } from "./Generate"
 import { QuestionCard, type QuestionRequest } from "./Question"
-import { THINKING_TOOLS, labelFor, mergeCalls, type Call } from "./toolLabels"
+import { THINKING_TOOLS, activityText, mergeCalls, type Call } from "./toolLabels"
 
 /**
  * 右侧对话面板。官方那栏是和 agent 的会话：上面是渲染好的回复，
@@ -21,6 +32,7 @@ import { THINKING_TOOLS, labelFor, mergeCalls, type Call } from "./toolLabels"
  */
 export function ChatPanel({
   file,
+  title,
   events,
   activity,
   messages,
@@ -35,8 +47,11 @@ export function ChatPanel({
   initialAttachments,
   question,
   onAnswer,
+  onOpenAsset,
 }: {
   file: CanvasFile | null
+  /** 这次创作的名字。显示在面板顶上。 */
+  title?: string
   events: { at: string; event: string }[]
   activity: ToolActivity[]
   /** agent 的对话记录。 */
@@ -55,7 +70,15 @@ export function ChatPanel({
   question: QuestionRequest | null
   /** `answers` 为 null 表示跳过（对应 question.rejected）。 */
   onAnswer: (id: string, answers: string[][] | null) => void
+  /** 点产物 chip 时打开它。给了才显示成可点。 */
+  onOpenAsset?: (path: string) => void
 }) {
+  const calls = mergeCalls(activity)
+  // 见下面 `原始事件` 那段的注释：只在确实出问题时露出来。
+  const showEvents =
+    events.length > 0 &&
+    (calls.some((c) => c.phase === "error") || (calls.length === 0 && messages.length === 0))
+
   return (
     <aside
       className="flex h-full w-[380px] shrink-0 flex-col border-l"
@@ -64,14 +87,19 @@ export function ChatPanel({
       {/* 右栏顶部也当拖拽区：侧栏收起时那一条就没了，不留第二处会拖不动。 */}
       <div data-tauri-drag-region className="flex h-11 shrink-0 items-center gap-2 px-3">
         <GripVertical size={14} style={{ color: "var(--muted-foreground)" }} />
-        <strong className="truncate text-[13px]">画布</strong>
-        {/* 节点数和保存状态收进顶栏。原来它们占了正文第一行，
-            而那个位置现在是对话 —— 状态是背景信息，不该排在对话前面。 */}
-        <span className="truncate text-[12px]" style={{ color: "var(--muted-foreground)" }}>
-          {file ? `${file.nodes.length} 节点` : "连接中…"}
-          {saving !== "idle" &&
-            ` · ${{ saving: "保存中", saved: "已保存", failed: "保存失败", idle: "" }[saving]}`}
-        </span>
+        {/* **标题是这次创作的名字，不是"画布"。** 官方那栏顶上写的就是
+            会话名（也就是第一句提示词），侧边栏里选中的那条和这里是同一个
+            东西 —— 写死"画布"的话，开着好几个会话时根本分不清在哪一个里。 */}
+        <strong className="truncate text-[13px]">{title?.trim() || "对话"}</strong>
+        {/* 节点数和保存状态收进顶栏。状态是背景信息，不该排在对话前面。
+            **只在有话说的时候才占位置** —— 常态下那句"N 节点"会把标题挤窄。 */}
+        {(saving !== "idle" || !file) && (
+          <span className="shrink-0 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+            {!file
+              ? "连接中…"
+              : { saving: "保存中", saved: "已保存", failed: "保存失败", idle: "" }[saving]}
+          </span>
+        )}
         <span className="flex-1" />
         <button
           onClick={onReload}
@@ -117,22 +145,7 @@ export function ChatPanel({
               // 而用户要看的是"做了什么"——那在下面的活动流里。
               .filter((m) => m.role !== "tool" && (m.content ?? "").trim())
               .map((m, i) => (
-                <div key={i} className={m.role === "user" ? "flex justify-end" : ""}>
-                  <div
-                    className={
-                      m.role === "user"
-                        ? "max-w-[85%] rounded-2xl rounded-br-md px-3 py-2 text-[13px] whitespace-pre-wrap"
-                        : "text-[13px] leading-6 whitespace-pre-wrap"
-                    }
-                    style={
-                      m.role === "user"
-                        ? { background: "var(--bg-subtle)", color: "var(--foreground)" }
-                        : { color: "var(--foreground)" }
-                    }
-                  >
-                    {m.content}
-                  </div>
-                </div>
+                <Message key={i} role={m.role} content={m.content ?? ""} />
               ))}
           </div>
         )}
@@ -149,16 +162,18 @@ export function ChatPanel({
 
         {/* 工具活动流。每个工具调用都经过我们自己的进程，所以这条流是
             agent 真在做什么的直接记录。 */}
-        <div className="mt-4 space-y-1.5">
-          {mergeCalls(activity).map((c) => (
-            <CallRow key={c.id} call={c} />
+        <div className="mt-3 space-y-2">
+          {calls.map((c) => (
+            <CallRow key={c.id} call={c} onOpen={onOpenAsset} />
           ))}
         </div>
 
-        {/* 原始 /ws 事件。**留着，但收起来。** 活动流是给用户看的，
-            这条是排查用的 —— 工具活动没出现时，这里能区分"事件没发出来"
-            和"发出来了但没渲染"。 */}
-        {events.length > 0 && (
+        {/* 原始 /ws 事件。**默认不显示** —— 官方那栏没有这种东西，
+            平时挂在对话下面只是噪声。
+            但它有真实的排查价值：工具活动没出现时，这里能区分"事件没发
+            出来"和"发出来了但没渲染"。所以只在**确实出问题的时候**露出来：
+            有失败的调用，或者事件来了却一条活动都没渲染出来。 */}
+        {showEvents && (
           <details className="mt-4">
             <summary
               className="cursor-pointer text-[11px] select-none"
@@ -181,15 +196,79 @@ export function ChatPanel({
         )}
       </div>
 
-      <div className="shrink-0 px-3 pb-3">
+      <div className="shrink-0 px-3 pb-2">
         <Generate
           onDone={onDone}
           autoFocus={composerOpen}
           initial={initialPrompt}
           initialAttachments={initialAttachments}
         />
+        {/* 官方的 `chat.complianceNotice`。生成式产品里这句是要有的，
+            而且位置就在输入框正下方。 */}
+        <p
+          className="pt-1.5 text-center text-[11px]"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          请确保不侵权，合法使用
+        </p>
       </div>
     </aside>
+  )
+}
+
+/**
+ * 一条消息。
+ *
+ * 用户的是右对齐气泡，assistant 的是裸文本 —— 官方就是这么分的，
+ * 两边都套气泡的话，长回复会被挤成一根细柱子。
+ *
+ * ## 悬停出操作
+ *
+ * 官方在 assistant 消息下面挂「复制 / 更多操作」，**平时不占位置**。
+ * 常驻的话每条回复下面都有一排图标，把对话切得很碎。
+ */
+function Message({ role, content }: { role: string; content: string }) {
+  const [copied, setCopied] = useState(false)
+  if (role === "user") {
+    return (
+      <div className="flex justify-end">
+        <div
+          className="max-w-[85%] rounded-2xl rounded-br-md px-3 py-2 text-[13px] whitespace-pre-wrap"
+          style={{ background: "var(--bg-subtle)", color: "var(--foreground)" }}
+        >
+          {content}
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="group">
+      <div className="text-[13px] leading-6 whitespace-pre-wrap" style={{ color: "var(--foreground)" }}>
+        {content}
+      </div>
+      <div className="mt-1 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          title={copied ? "已复制" : "复制消息"}
+          aria-label="复制消息"
+          onClick={() => {
+            // `writeText` 在非安全上下文里会 reject。**要 catch** ——
+            // 不 catch 的话控制台里一条未处理的 rejection，而按钮看起来
+            // 像是成功了。
+            void navigator.clipboard
+              .writeText(content)
+              .then(() => {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1200)
+              })
+              .catch(() => {})
+          }}
+          className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[var(--canvas-controls-hover)]"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {copied ? <Check size={13} /> : <Copy size={13} />}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -200,37 +279,87 @@ export function ChatPanel({
  * 渲染成"思考"而不是工具卡片 —— 那几个是 agent 在决定怎么做之前查东西，
  * 不是它做了什么。混进工具卡片里会让活动流看起来做了一堆和产物无关的事。
  */
-function CallRow({ call }: { call: Call }) {
-  const { text } = labelFor(call.tool)
+function CallRow({ call, onOpen }: { call: Call; onOpen?: (path: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const text = activityText(call)
   const thinking = THINKING_TOOLS.has(call.tool)
   const failed = call.phase === "error"
+  // 有东西可展开才做成可点的。没有的话点了没反应，比不能点更糟。
+  const detail = call.summary?.trim()
 
   return (
-    <div className="flex items-start gap-1.5">
-      <span className="mt-[3px] shrink-0">
-        {call.phase === "start" ? (
-          <Loader2 size={12} className="animate-spin" style={{ color: "var(--muted-foreground)" }} />
-        ) : failed ? (
-          <X size={12} style={{ color: "var(--canvas-node-tag-red)" }} />
-        ) : (
-          <Check size={12} style={{ color: "var(--muted-foreground)" }} />
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <span
-          className={`text-[12px] ${thinking ? "italic" : ""}`}
-          style={{ color: failed ? "var(--canvas-node-tag-red)" : "var(--muted-foreground)" }}
-        >
-          {text}
+    <div>
+      <div className="flex items-start gap-1.5">
+        <span className="mt-[3px] shrink-0">
+          {call.phase === "start" ? (
+            <Loader2 size={12} className="animate-spin" style={{ color: "var(--muted-foreground)" }} />
+          ) : failed ? (
+            <X size={12} style={{ color: "var(--canvas-node-tag-red)" }} />
+          ) : (
+            <ImageIcon size={12} style={{ color: "var(--muted-foreground)" }} />
+          )}
         </span>
-        {/* 失败原因**始终显示，不折叠**。折起来的话，一次失败在界面上
-            和一次成功长得几乎一样，用户只会觉得"做了但没效果"。 */}
-        {failed && call.error && (
-          <p className="mt-0.5 text-[11px] break-words" style={{ color: "var(--canvas-node-tag-red)" }}>
-            {call.error}
-          </p>
-        )}
+        <div className="min-w-0 flex-1">
+          {/* 官方那行是「图标 + 文案 + ›」，点开看细节。 */}
+          <button
+            type="button"
+            disabled={!detail}
+            onClick={() => setOpen((v) => !v)}
+            className="flex max-w-full items-center gap-1 text-left enabled:cursor-pointer"
+            style={{ color: failed ? "var(--canvas-node-tag-red)" : "var(--muted-foreground)" }}
+          >
+            <span className={`truncate text-[12px] ${thinking ? "italic" : ""}`}>{text}</span>
+            {detail && (
+              <ChevronRight
+                size={12}
+                className="shrink-0 transition-transform"
+                style={{ transform: open ? "rotate(90deg)" : undefined }}
+              />
+            )}
+          </button>
+
+          {open && detail && (
+            <pre
+              className="mt-1 max-h-40 overflow-auto rounded-md px-2 py-1.5 text-[11px] whitespace-pre-wrap"
+              style={{ background: "var(--bg-subtle)", color: "var(--muted-foreground)" }}
+            >
+              {detail}
+            </pre>
+          )}
+
+          {/* 失败原因**始终显示，不折叠**。折起来的话，一次失败在界面上
+              和一次成功长得几乎一样，用户只会觉得"做了但没效果"。 */}
+          {failed && call.error && (
+            <p className="mt-0.5 text-[11px] break-words" style={{ color: "var(--canvas-node-tag-red)" }}>
+              {call.error}
+            </p>
+          )}
+
+          {/* 产物 chip。官方的 `chat.turnArtifacts` —— 只说"生成 1 张图片"
+              的话，画布上同时有好几张图时用户对不上是哪一张。 */}
+          {call.artifact && <FileChip path={call.artifact} onOpen={onOpen} />}
+        </div>
       </div>
     </div>
+  )
+}
+
+/** 一个产物文件。显示文件名，点了打开。 */
+function FileChip({ path, onOpen }: { path: string; onOpen?: (path: string) => void }) {
+  // 只显示文件名。整条工作区路径在这个宽度里会被截得只剩目录名，
+  // 而目录名对每个产物都一样。
+  const name = path.split("/").pop() || path
+  return (
+    <button
+      type="button"
+      title={path}
+      disabled={!onOpen}
+      onClick={() => onOpen?.(path)}
+      className="mt-1 flex max-w-full items-center gap-1.5 rounded-md px-2 py-1 text-[12px] enabled:cursor-pointer enabled:hover:bg-[var(--canvas-controls-hover)]"
+      style={{ background: "var(--bg-subtle)", color: "var(--foreground)" }}
+    >
+      <ImageIcon size={12} className="shrink-0" style={{ color: "var(--muted-foreground)" }} />
+      <span className="truncate font-mono">{name}</span>
+    </button>
   )
 }

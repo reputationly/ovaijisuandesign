@@ -41,6 +41,13 @@ pub struct Entry {
     /// 入参摘要。**只用于显示**，官方那栏也是折叠着的。
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
+    /// 这次调用产出的文件，**工作区相对路径**。
+    ///
+    /// 官方在活动下面挂文件 chip（`chat.turnArtifacts`）。没有这个字段的话
+    /// 前端只能显示"生成 1 张图片"，用户看不出出的是哪个文件 —— 而画布上
+    /// 同时有好几张图时，对不上就等于没说。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub artifact: Option<String>,
     /// 同一次调用的 start 和 ok/error 用它配对。
     #[serde(default)]
     pub id: String,
@@ -90,6 +97,9 @@ pub struct Body {
     pub error: Option<String>,
     #[serde(default)]
     pub summary: Option<String>,
+    /// 产出的文件，工作区相对路径。MCP 那条路也可以带上它。
+    #[serde(default)]
+    pub artifact: Option<String>,
     #[serde(default)]
     pub id: Option<String>,
 }
@@ -118,6 +128,7 @@ pub async fn report(State(state): State<Arc<AppState>>, Json(b): Json<Body>) -> 
         },
         error: b.error,
         summary: b.summary,
+        artifact: b.artifact.filter(|p| !p.trim().is_empty()),
         id: b.id.unwrap_or_default(),
         at: now(),
     };
@@ -144,6 +155,7 @@ mod tests {
             phase: Some(phase.into()),
             error: None,
             summary: None,
+            artifact: None,
             id: Some("c1".into()),
         }
     }
@@ -183,11 +195,35 @@ mod tests {
                 phase: "ok".into(),
                 error: None,
                 summary: None,
+                artifact: None,
                 id: String::new(),
                 at: 0,
             });
         }
         assert_eq!(a.len(), KEEP);
         assert_eq!(a.recent()[0].tool, "t10", "最旧的被丢掉");
+    }
+
+    #[tokio::test]
+    async fn an_artifact_path_survives_the_round_trip() {
+        // 界面靠这个字段渲染文件 chip。丢了的话活动流只会说"生成 1 张图片"，
+        // 而画布上同时有好几张图时，用户对不上是哪一张。
+        let (s, _d) = crate::tests::state_with_dir();
+        let mut b = body("hub_generate_image", "ok");
+        b.artifact = Some("images/a.png".into());
+        let _ = report(State(s.clone()), Json(b)).await;
+        let r = list(State(s)).await;
+        assert_eq!(r.0["entries"][0]["artifact"], "images/a.png");
+    }
+
+    #[tokio::test]
+    async fn a_blank_artifact_is_dropped_rather_than_shown_as_an_empty_chip() {
+        // 空串会渲染成一个没有名字的 chip，点了也没反应。
+        let (s, _d) = crate::tests::state_with_dir();
+        let mut b = body("hub_generate_image", "ok");
+        b.artifact = Some("   ".into());
+        let _ = report(State(s.clone()), Json(b)).await;
+        let r = list(State(s)).await;
+        assert!(r.0["entries"][0].get("artifact").is_none());
     }
 }

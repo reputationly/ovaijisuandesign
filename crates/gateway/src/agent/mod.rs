@@ -360,6 +360,7 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
                 phase: "start".into(),
                 error: None,
                 summary: Some(c.arguments.chars().take(400).collect()),
+                artifact: None,
                 id: id.clone(),
                 at: now() * 1000,
             });
@@ -374,17 +375,32 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
                 .and_then(|v| v.get("ok").and_then(Value::as_bool))
                 .unwrap_or(true);
             let phase = if ok { "ok" } else { "error" };
+            // 产物路径给界面用来渲染文件 chip。**只在成功时取** ——
+            // 失败的结果里也可能带 path（"已生成但建节点失败"那种），
+            // 但那条活动是红的，再挂一个成品 chip 会自相矛盾。
+            let artifact = ok
+                .then(|| {
+                    serde_json::from_str::<Value>(&result)
+                        .ok()?
+                        .get("path")?
+                        .as_str()
+                        .filter(|p| !p.is_empty())
+                        .map(str::to_string)
+                })
+                .flatten();
             state.activity.push(crate::activity::Entry {
                 tool: format!("hub_{}", c.name),
                 phase: phase.into(),
                 error: (!ok).then(|| result.chars().take(200).collect()),
                 summary: None,
+                artifact: artifact.clone(),
                 id: id.clone(),
                 at: now() * 1000,
             });
             state.events.publish(
                 "tool:activity",
-                json!({ "tool": format!("hub_{}", c.name), "phase": phase, "id": id }),
+                json!({ "tool": format!("hub_{}", c.name), "phase": phase, "id": id,
+                        "artifact": artifact }),
             );
 
             msgs.push(Msg::tool(&c.id, &result));
