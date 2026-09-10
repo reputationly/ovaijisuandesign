@@ -276,18 +276,29 @@ export default function App() {
     [currentSession, load, reloadSessions],
   )
 
-  /** 新建一条创作并切过去。 */
-  const newSession = useCallback(async () => {
-    try {
-      const r = await createSession()
-      setCurrentSession(r.id)
-      setView("canvas")
-      await load()
-      await reloadSessions()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    }
-  }, [load, reloadSessions])
+  /**
+   * 新建一条创作并切过去。
+   *
+   * `name` 给了就用它命名 —— 从首页发起时传的是那句提示词，侧边栏里
+   * 那一条就叫这句话。官方的 `createWorkspaceWithResult({ name: text })`
+   * 也是这么做的。
+   */
+  const newSession = useCallback(
+    async (name?: string) => {
+      try {
+        const r = await createSession(name)
+        setCurrentSession(r.id)
+        setView("canvas")
+        await load()
+        await reloadSessions()
+        return true
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+        return false
+      }
+    },
+    [load, reloadSessions],
+  )
 
   const openSessionMenu = useCallback(
     (id: string, at: { x: number; y: number }) => {
@@ -551,13 +562,21 @@ export default function App() {
         ) : view === "home" ? (
           <Home
             onSubmit={(p, _preset, attachments) => {
+              // **每次都进一张新画布。** 官方首页发送走的是
+              // `createWorkspaceWithResult({ name: text })`，一句话一个工作区。
+              //
+              // 复用当前那张的话，第二次从首页发起的活会落在上一次的成果
+              // 旁边 —— 两件不相干的事挤在一张画布上，而"未分组"里始终
+              // 只有一条。用户以为自己开了个新话题，实际是在续上一个。
               setPendingPrompt(p)
               // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
               // 却在画布上发不出去，那次上传就白做了。
               setPendingAttachments(attachments ?? [])
               setComposerOpen(true)
               setRightOpen(true)
-              setView("canvas")
+              // 新建失败时**不切视图**：切过去用户会看到上一张画布配着这次的
+              // 提示词，比停在首页更难看懂。newSession 已经把错误显示出来了。
+              void newSession(p)
             }}
             projectName={projects.find((p) => p.id === homeProject)?.name ?? null}
             onOpenSkills={() => setView("skill")}
