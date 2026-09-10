@@ -3,6 +3,7 @@ import {
   addEdge,
   Background,
   BackgroundVariant,
+  SelectionMode,
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
@@ -45,7 +46,7 @@ import {
   type Session,
   type ToolActivity,
 } from "./api"
-import { sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
+import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
   CANVAS_BACKGROUNDS,
@@ -713,7 +714,9 @@ export default function App() {
               // 铺满整个视口 —— 一张 350px 的卡片被撑到 1400px，糊得看不
               // 清，而且用户以为节点本身就是那么大。
               fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
-              minZoom={0.05}
+              // 官方 CANVAS_MIN_ZOOM / CANVAS_MAX_ZOOM。
+              minZoom={0.1}
+              maxZoom={4}
               // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
               // 几百个节点全渲染会让首屏卡住。
               onlyRenderVisibleElements
@@ -723,21 +726,52 @@ export default function App() {
               // 否则两种行为会在同一个手势上打架（表现是"拖不动画布"）。
               selectionOnDrag={tool === "select"}
               panOnDrag={tool === "hand" ? true : [1, 2]}
-              // **滚轮缩放，不是平移。** 官方空画布提示上写的就是
-              // 「滚动 🖱 缩放画布」；开着 panOnScroll 的话滚轮变成上下平移，
-              // 那句提示就是假的。
+              // 官方三个都开着（`panOnScroll` / `zoomOnScroll` / `zoomOnPinch`）。
               //
-              // 代价是触控板两指滑动也变成缩放。平移那条路提示里也写了：
-              // 按住 Space 拖，或者切到抓手工具。
-              panOnScroll={false}
+              // 我上一版把 panOnScroll 关了，理由是空画布提示写着"滚动缩放"。
+              // 但**官方的配置就是开着的** —— 那句提示旁边是个鼠标图标，
+              // 说的是滚轮，而 xyflow 在 panOnScroll 下把滚轮留给平移、
+              // 缩放交给 ⌘/Ctrl+滚轮和触控板捏合。以配置为准，别按提示反推。
+              panOnScroll
+              zoomOnScroll
+              zoomOnPinch
               // xyflow 的默认值就是 "Space"，**显式写出来**：这是上面那句
               // 提示承诺的操作，不该因为哪天有人改了默认值就悄悄失效。
               panActivationKeyCode="Space"
-              // **关掉内建的退格删除。** xyflow 默认吃 Backspace，但它只改
-              // 本地状态 —— 删掉的节点下次加载又会回来，中间还可能被一次
-              // 保存写成真的删除。删节点走右键菜单那条路，它是持久化的。
-              deleteKeyCode={null}
-              selectNodesOnDrag={false}
+              // 官方的 `DELETE_KEY_CODE = ["Backspace", "Delete"]`。
+              // **配合下面的 onNodesDelete / onEdgesDelete 才敢开** ——
+              // 光开这个的话 xyflow 只改本地状态，删掉的节点下次加载又回来。
+              deleteKeyCode={["Backspace", "Delete"]}
+              // 删除要落到服务端那份 canvas.json 上。走的是和右键菜单
+              // 同一条路（`deleteNode`），那条是持久化的。
+              onNodesDelete={(deleted) => {
+                void Promise.all(deleted.map((n) => actions.deleteNode(n.id)))
+              }}
+              onEdgesDelete={(deleted) => {
+                const base = fileRef.current
+                if (!base) return
+                const gone = new Set(deleted.map((e) => e.id))
+                const next = { ...base, edges: base.edges.filter((e) => !gone.has(e.id)) }
+                void putCanvas(next).then(() => setFile(next))
+              }}
+              // 官方的四条连线规则。**我们之前一条都没有** ——
+              // 什么都能连：自己连自己、同一对连两次、连到分组上。
+              isValidConnection={(c) =>
+                isValidConnection(c, {
+                  edges,
+                  typeOf: (id) => file?.nodes.find((n) => n.id === id)?.type,
+                })
+              }
+              // **双击不缩放。** 我们把双击接给了"生成节点"（空画布提示里
+              // 承诺的动作），默认的双击缩放会同时触发，画布跟着跳一下。
+              // 官方也是 false。
+              zoomOnDoubleClick={false}
+              // 框选按官方的 Partial：碰到就算选中，不要求整个框住。
+              selectionMode={SelectionMode.Partial}
+              multiSelectionKeyCode="Shift"
+              // 官方值。按下到抬起在 4px 内才算点击 —— 不设的话手抖一下
+              // 就被当成拖拽，点空白处取消选中会时灵时不灵。
+              paneClickDistance={4}
               proOptions={{ hideAttribution: true }}
               // 官方用的就是 xyflow 的默认 20。真正让"容易连上"的是节点两侧
               // 那个 84x84 的感应区（见 MagneticHandle），不是这个半径。

@@ -184,3 +184,33 @@ export function toCanvasFile(
     }),
   }
 }
+
+/**
+ * 一条连线合不合法。逐条照官方的 `isValidConnection`：
+ *
+ * ```js
+ * if (!conn.target || conn.source === conn.target) return false;
+ * if (existingEdgeKeys.has(`${conn.source}->${conn.target}`)) return false;
+ * if (lookup.get(conn.source)?.type === CanvasNodeType.Group) return false;
+ * if (lookup.get(conn.target)?.type === CanvasNodeType.Group) return false;
+ * return true;
+ * ```
+ *
+ * **我们之前一条都没有** —— 自己连自己、同一对连两次、连到分组上，全都
+ * 允许。这几种连出来的边在画布上看得见，但下游拿它做输入时要么拿到自己、
+ * 要么拿到一个分组容器，而分组没有素材。
+ */
+export function isValidConnection(
+  conn: { source?: string | null; target?: string | null },
+  ctx: { edges: readonly { source: string; target: string }[]; typeOf: (id: string) => string | undefined },
+): boolean {
+  const { source, target } = conn
+  if (!source || !target) return false
+  // 自环。画出来是一个绕回自己的圈，而"以自己为输入"没有意义。
+  if (source === target) return false
+  // 重复边。同一对之间连第二次不会有新语义，只会多一条压在原来那条上面。
+  if (ctx.edges.some((e) => e.source === source && e.target === target)) return false
+  // 分组是容器，本身没有素材。
+  if (ctx.typeOf(source) === "group" || ctx.typeOf(target) === "group") return false
+  return true
+}
