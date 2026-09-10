@@ -37,12 +37,17 @@ use anyhow::{Context, Result};
 use gateway::config::Config;
 use gateway::tasks::TaskStore;
 use gateway::{AppState, router};
-use tauri::{WebviewUrl, WebviewWindowBuilder};
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 const WINDOW_W: f64 = 1280.0;
 const WINDOW_H: f64 = 800.0;
 const WINDOW_MIN_W: f64 = 800.0;
 const WINDOW_MIN_H: f64 = 600.0;
+
+/// 主窗口的 label。建窗和 Dock 点击那边都要用，**别在两处各写一遍字符串**
+/// —— 改了一处漏了另一处，`get_webview_window` 会安静地返回 None，
+/// 表现是"点 Dock 没反应"。
+const MAIN_WINDOW: &str = "main";
 
 fn main() {
     tracing_subscriber::fmt()
@@ -114,7 +119,7 @@ fn run() -> Result<()> {
         .setup(move |app| {
             let mut b = WebviewWindowBuilder::new(
                 app,
-                "main",
+                MAIN_WINDOW,
                 WebviewUrl::External(url.parse().expect("URL 拼错了")),
             )
             .title("蒜狸小助手")
@@ -173,8 +178,40 @@ fn run() -> Result<()> {
             });
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .context("Tauri 运行失败")?;
+        .build(tauri::generate_context!())
+        .context("Tauri 启动失败")?
+        .run(|app, event| {
+            // 点 Dock 图标：**已经在前台且窗口开着就收起，否则唤出来。**
+            //
+            // macOS 原生行为是"点了什么都不做"（Finder、Safari 都这样），
+            // 这是我们主动做的开关式行为。
+            //
+            // `has_visible_windows` 只说明有没有可见窗口，**不说明我们是不是
+            // 最前台**。光看它的话，从别的应用切回来那一下也会被判成"该收起"
+            // —— 用户想唤出窗口，结果窗口缩下去了。所以还要 `is_focused`。
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows,
+                ..
+            } = event
+            {
+                let Some(w) = app.get_webview_window(MAIN_WINDOW) else {
+                    return;
+                };
+                let focused = w.is_focused().unwrap_or(false);
+                if has_visible_windows && focused {
+                    let _ = w.minimize();
+                } else {
+                    // 从最小化唤回来要先 unminimize —— 只 show 的话窗口
+                    // 还在 Dock 里躺着，用户看到的是"点了没反应"。
+                    let _ = w.unminimize();
+                    let _ = w.show();
+                    let _ = w.set_focus();
+                }
+            }
+            // 非 macOS 上这个事件不存在，参数会被判成没用到。
+            let _ = (app, &event);
+        });
     Ok(())
 }
 
