@@ -148,6 +148,63 @@
   --foreground: #000;
   --home-composer-tray-bg: #f0f0f0;
 
+  /* ------------------------------------------------------------------
+   * 首页布局。**值全部取自官方 3.0.12 的样式表**，不是估的。
+   *
+   * 这一批之前只写在 Home.tsx 的注释里、从没进过这个文件 —— 而 CSS 对
+   * 无效的 `var()` 是**静默回退**：`max-width: var(--home-primary-stack-width)`
+   * 解不出来就当没写，容器直接铺满整宽。布局散掉了，控制台一句话都没有。
+   * 卡片没圆角没间距、hero 字号不对，都是同一个原因。
+   * ------------------------------------------------------------------ */
+
+  /* 中间那一栏的宽度。整个首页的骨架就靠它。 */
+  --home-primary-stack-width: 793px;
+  --home-hero-padding-x: 40px;
+  --home-hero-safe-inset: 24px;
+  --home-hero-bottom-balance: 80px;
+  --home-hero-content-gap: 24px;
+  --home-hero-title-block-gap: 12px;
+  --home-hero-title-row-gap: 16px;
+  --home-hero-title-size: 40px;
+  --home-hero-title-line-height: 40px;
+  --home-hero-subtitle-size: 16px;
+  --home-hero-subtitle-line-height: 24px;
+  --home-hero-subtitle-tracking-zh: 0.08em;
+
+  /* 输入框 */
+  --home-input-border-width: 0.5px;
+  --home-input-border-hover: var(--border-strong);
+  --home-input-border-focus: var(--border-strong);
+  --home-input-editor-font-size: 15px;
+  --home-input-editor-min-height: 90px;
+  --home-input-editor-letter-spacing: 0px;
+  --message-input-card-padding: 8px;
+  /* 输入框到下面各块的距离。官方把这三段分开定，因为它们不一样宽松。 */
+  --home-input-to-tags-gap: 56px;
+  --home-input-to-quick-start-gap: 28px;
+  --home-quick-start-to-recommendations-gap: 16px;
+
+  /* 分类胶囊 */
+  --home-scene-tag-height: 52px;
+  --home-scene-tag-gap: 8px;
+  --home-scene-tag-content-gap: 8px;
+  --home-scene-tag-min-width: 148px;
+  --home-scene-tag-radius: 14px;
+  --home-scene-tag-letter-spacing: 0px;
+  --home-scene-tag-surface: var(--card);
+  --home-scene-tag-surface-active: color-mix(in srgb, var(--foreground) 6%, var(--card));
+  --home-scene-tag-border-hover: color-mix(in srgb, var(--foreground) 16%, transparent);
+
+  /* 卡片网格 */
+  --divider-width: 0.5px;
+  --elevated-border-width: var(--divider-width);
+  --home-media-showcase-card-hover: color-mix(in srgb, var(--foreground) 3%, var(--card));
+  --home-query-card-gap: 12px;
+  --home-query-card-radius: 16px;
+  --home-query-card-border: color-mix(in srgb, var(--border) 45%, transparent);
+  --home-primary-recommendation-card-min-width: 192.25px;
+
+
   /* 输入框底部那行工具（+ / 模型 / Skill）。值逐个取自官方 3.0.12。
    *
    * 三个用 color-mix 的**不能换成固定色**：它们是按 --foreground 混出来的，
@@ -344,6 +401,15 @@
   --elevated-surface: #1f1f1f;
   --foreground: #e0e0e0;
   --home-composer-tray-bg: #1f1f1f;
+
+  /* 首页布局的深色覆盖。**只覆盖官方真的分了两套的那几个**，
+   * 其余（尺寸、圆角、间距）两套共用，写两遍只会多一处能改错的地方。 */
+  --home-hero-content-gap: 16px;
+  --home-hero-title-block-gap: 8px;
+  --home-input-border-hover: var(--border-strong);
+  --home-scene-tag-border-hover: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --home-query-card-border: color-mix(in srgb, var(--border) 55%, transparent);
+
   --home-grid-line: color-mix(in srgb, var(--foreground) 10.206%, transparent);
   --home-input-shadow: 0 16px 34px -24px #000000b8, 0 2px 10px -8px #000000b8;
   --home-sidebar-nav-active: color-mix(in srgb, var(--foreground) 8%, var(--background));

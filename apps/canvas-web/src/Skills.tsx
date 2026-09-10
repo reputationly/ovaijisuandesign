@@ -63,7 +63,7 @@ export function Skills({ onUse }: { onUse: (slug: string, body: string) => void 
   }
 
   return (
-    <div className="h-full overflow-auto px-8 py-6">
+    <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
       <div className="mb-4 flex items-center gap-3">
         <h1 className="text-[20px] font-semibold">Skill</h1>
         <span className="flex-1" />
@@ -211,7 +211,7 @@ function Editor({
   }
 
   return (
-    <div className="h-full overflow-auto px-8 py-6">
+    <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
       <h1 className="mb-4 text-[20px] font-semibold">{creating ? "新建 Skill" : `编辑 ${name}`}</h1>
       <div className="flex max-w-2xl flex-col gap-3">
         <label className="text-[13px]">

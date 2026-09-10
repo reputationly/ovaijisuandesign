@@ -60,7 +60,7 @@ export function Library({
   if (open) {
     const p = projects.find((x) => x.id === open)
     return (
-      <div className="h-full overflow-auto px-8 py-6">
+      <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
         {/* 面包屑。官方是 project-detail.breadcrumb-root / -current。 */}
         <nav className="mb-5 flex items-center gap-1.5 text-[13px]">
           <button
@@ -82,7 +82,7 @@ export function Library({
   }
 
   return (
-    <div className="h-full overflow-auto px-8 py-6">
+    <div className="h-full min-w-0 flex-1 overflow-auto px-8 py-6">
       <div className="mb-5 flex items-center gap-3">
         <h1 className="text-[20px] font-semibold">项目库</h1>
         <span className="flex-1" />

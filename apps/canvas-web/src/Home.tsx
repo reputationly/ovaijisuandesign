@@ -300,7 +300,10 @@ export function Home({
   const list = INSPIRATIONS.filter((i) => cat === "全部" || i.category === cat)
 
   return (
-    <div className="relative h-full overflow-auto" style={{ background: "var(--background)" }}>
+    <div
+      className="relative h-full min-w-0 flex-1 overflow-auto"
+      style={{ background: "var(--background)" }}
+    >
       {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
       <div data-tauri-drag-region className="absolute inset-x-0 top-0 h-11" />
       <div
@@ -421,13 +424,15 @@ export function Home({
                 Skill
               </ToolBtn>
 
-              <button
-                onClick={onOpenCanvas}
-                className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-foreground/70 transition-colors hover:bg-[var(--message-input-control-hover)] hover:text-foreground"
-              >
+              <ToolbarDivider />
+
+              {/* 官方这行没有「打开画布」——他们从侧栏进画布。我们保留它，
+                  但**放在左边这一组里**而不是用 ml-auto 顶到最右：顶到最右
+                  会和发送按钮挤在一起、中间空出一大片，整行的节奏就断了。 */}
+              <ToolBtn data-action-ui-id="home-open-canvas" onClick={onOpenCanvas}>
+                <ExternalLink size={15} strokeWidth={1.5} />
                 打开画布
-                <ExternalLink size={13} />
-              </button>
+              </ToolBtn>
             </div>
 
             <div data-composer-actions-right="true" className="flex shrink-0 items-end gap-2">
@@ -449,7 +454,7 @@ export function Home({
             只露出下半截 —— 靠负 margin 塞回去，视觉上像输入框的底托。
             单独放一行的话会多出一条明显的横向分隔，整块散掉。 */}
         <div
-          className="-mt-4 flex items-center rounded-b-[var(--home-input-radius)] px-5 pt-6 pb-2.5"
+          className="mx-4 -mt-5 flex items-center rounded-b-[var(--home-input-radius)] px-5 pt-7 pb-2.5"
           style={{ background: "var(--home-composer-tray-bg)" }}
         >
           <button
@@ -477,7 +482,13 @@ export function Home({
         </div>
 
         {/* tabs */}
-        <div className="mt-14 flex items-center gap-6 border-b" style={{ borderColor: "var(--border)" }}>
+        <div
+          className="flex items-center gap-6 border-b"
+          style={{
+            marginTop: "var(--home-input-to-tags-gap)",
+            borderColor: "var(--border)",
+          }}
+        >
           {(
             [
               ["inspiration", "创作灵感"],
