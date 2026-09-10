@@ -59,6 +59,13 @@ type Inspiration = {
    * 有 `previewUrl` 就播视频，没有就用本地那张静态封面。
    */
   previewUrl?: string
+  /**
+   * 画面方向。官方是
+   * `.home-media-showcase-media-frame[data-video-orientation="landscape"] { aspect-ratio: 16/9 }`,
+   * portrait 是 9/16 —— **比例挂在每张卡片上，不是整个网格一个比例**。
+   * 竖版短片和横版成片混在一起时，统一比例必然裁掉一半人的画面。
+   */
+  orientation?: "landscape" | "portrait"
 }
 
 /** 分类。按我们真正接了的模态来分，不是照抄他们的栏目名。 */
@@ -172,11 +179,14 @@ const SKILLS = [
 
 function Cover({ preset }: { preset: Inspiration }) {
   const [failed, setFailed] = useState(false)
+  // 预览视频拉不到（还没上传 / 断网 / 域名换了）就退回静态封面。
+  const [videoFailed, setVideoFailed] = useState(false)
 
   if (failed) {
     return (
       <div
-        className="flex aspect-[3/4] items-center justify-center"
+        data-video-orientation={preset.orientation ?? "landscape"}
+        className="home-media-showcase-media-frame flex items-center justify-center"
         style={{ background: KIND_TINT[preset.kind] ?? "var(--bg-subtle)" }}
       >
         <span style={{ color: "var(--muted-foreground)" }}>{KIND_ICON[preset.kind]}</span>
@@ -185,12 +195,16 @@ function Cover({ preset }: { preset: Inspiration }) {
   }
 
   return (
-    <div className="relative aspect-[3/4] overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
-      {preset.previewUrl ? (
+    <div
+      data-video-orientation={preset.orientation ?? "landscape"}
+      className="home-media-showcase-media-frame relative overflow-hidden"
+      style={{ background: "var(--bg-subtle)" }}
+    >
+      {!videoFailed ? (
         // `preload="metadata"` 只拉文件头，**hover 才真正播** ——
         // 首屏不会同时下十几个视频。官方也是这个行为。
         <video
-          src={preset.previewUrl}
+          src={preset.previewUrl ?? PREVIEW(preset.id)}
           poster={COVER(preset.id)}
           muted
           loop
@@ -202,6 +216,9 @@ function Cover({ preset }: { preset: Inspiration }) {
             e.currentTarget.pause()
             e.currentTarget.currentTime = 0
           }}
+          // **取不到就回落静态封面**，而不是留一个黑框。视频放在 landing
+          // page 上，那边还没上传、或者用户断网时都会走到这里。
+          onError={() => setVideoFailed(true)}
         />
       ) : (
         <img
@@ -246,10 +263,30 @@ const KIND_ICON: Record<string, ReactNode> = {
  * - **用用户自己生成的结果**：不稳定。换台机器、清了工作区就没了，
  *   而首页应该是确定的。
  *
- * 视频预览走 `previewUrl`（见 [`Inspiration`]）：视频几 MB 一个，不能进
- * 仓库，将来放 CDN 按需下载。
+ * 视频预览走 `previewUrl`（见 [`Inspiration`]）。
  */
 const COVER = (id: string) => `/covers/${id}.webp`
+
+/**
+ * 灵感卡片的预览视频放在哪。
+ *
+ * **不进应用包。** 视频几 MB 一个，八张就是几十 MB —— 安装包会翻一倍，
+ * 而这些东西只在首页露个面。放在 landing page 仓库（`maas-landingpage`，
+ * 部署在**腾讯云 EdgeOne**；Vite 的 `public/` 原样出到 `dist/`）的
+ * `showcase/` 下面，打开首页时按需下载。
+ *
+ * 注意那个仓库里还留着 `wrangler.toml` —— 那是早期用 Cloudflare Pages
+ * 时的残留，现在不生效，别照着它推断部署方式。
+ *
+ * 走环境变量是为了**换域名不用改代码**：本地调试可以指到
+ * `http://localhost:5173`,自建部署可以指到自己的地址。
+ */
+const SHOWCASE_BASE = (
+  import.meta.env.VITE_SHOWCASE_BASE ?? "https://www.ovaijisuan.com/showcase"
+).replace(/\/$/, "")
+
+/** 预览视频地址。返回 `undefined` 时卡片回落到本地那张静态封面。 */
+export const PREVIEW = (id: string) => `${SHOWCASE_BASE}/${id}.mp4`
 
 /** 按类型给的兜底底色（封面缺失时）。用画布那 9 档底色，色调统一。 */
 const KIND_TINT: Record<string, string> = {
@@ -354,7 +391,7 @@ export function Home({
       {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
       <div data-tauri-drag-region className="absolute inset-x-0 top-0 z-0 h-11" />
       <div
-        className="relative flex shrink-0 flex-col items-center"
+        className="home-hero-zone relative flex shrink-0 flex-col items-center"
         style={{
           minHeight: "100%",
           paddingInline: "var(--home-hero-padding-x)",
@@ -367,7 +404,7 @@ export function Home({
         }}
       >
       <div
-        className="flex w-full flex-col"
+        className="home-hero-content relative flex w-full flex-col"
         style={{ maxWidth: "var(--home-primary-stack-width)", gap: "var(--home-hero-content-gap)" }}
       >
         {/* hero */}
@@ -615,9 +652,6 @@ export function Home({
         </div>
         </div>
 
-      </div>
-
-      </div>
       {/* 「创作灵感 / Skill」。照官方的 `.home-below-anchor`：
           **绝对定位，压在首屏之下。**
 
@@ -637,7 +671,7 @@ export function Home({
           `top: 100%` 量的是滚动容器自身的高度（不是 scrollHeight），
           所以它正好落在首屏下沿，往下滚才看到。 */}
       <div
-        className="absolute left-1/2 flex w-full flex-col"
+        className="home-below-anchor absolute left-1/2 flex w-full flex-col"
         style={{
           top: "calc(100% + var(--home-input-to-media-showcase-gap))",
           translate: "-50%",
@@ -700,10 +734,11 @@ export function Home({
               ))}
             </div>
 
-            <div
-              className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-              style={{ gap: "var(--home-query-card-gap)" }}
-            >
+            {/* 网格照官方的 `.home-media-showcase-grid`：列数走
+                `--home-media-showcase-column-count`（4 列起，窄了逐级降到 1），
+                间距是 `--home-media-showcase-gap` 8px。
+                之前用的是 Tailwind 的断点列数 + 24px 间距，卡片之间太散。 */}
+            <div className="home-media-showcase-grid mt-5">
               {list.map((i) => (
                 <button
                   key={i.id}
@@ -781,6 +816,9 @@ export function Home({
             </p>
           </div>
         )}
+      </div>
+
+      </div>
       </div>
     </main>
   )

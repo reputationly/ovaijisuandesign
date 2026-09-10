@@ -370,3 +370,36 @@ body {
 .elevated-surface-border {
   border: var(--elevated-border-width) solid var(--elevated-border-color);
 }
+
+/* 灵感卡片的画面框。比例逐字照官方：
+ *
+ *   .home-media-showcase-media-frame[data-video-orientation="landscape"] { aspect-ratio: 16/9 }
+ *   .home-media-showcase-media-frame[data-video-orientation="portrait"]  { aspect-ratio: 9/16 }
+ *
+ * **比例挂在每张卡片上，不是整个网格一个比例。** 竖版短片和横版成片混在
+ * 一起时，统一比例必然裁掉一半人的画面。 */
+.home-media-showcase-media-frame[data-video-orientation="landscape"] {
+  aspect-ratio: 16 / 9;
+}
+.home-media-showcase-media-frame[data-video-orientation="portrait"] {
+  aspect-ratio: 9 / 16;
+}
+
+/* 网格。官方 `--home-media-showcase-gap: 8px`，列数按宽度从 5 降到 1。 */
+.home-media-showcase-grid {
+  --home-media-showcase-column-count: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--home-media-showcase-column-count), minmax(0, 1fr));
+  align-content: start;
+  gap: var(--home-media-showcase-gap, 8px);
+  width: 100%;
+}
+@media (max-width: 1280px) {
+  .home-media-showcase-grid { --home-media-showcase-column-count: 3; }
+}
+@media (max-width: 900px) {
+  .home-media-showcase-grid { --home-media-showcase-column-count: 2; }
+}
+@media (max-width: 640px) {
+  .home-media-showcase-grid { --home-media-showcase-column-count: 1; }
+}
