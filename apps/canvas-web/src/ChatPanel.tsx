@@ -45,6 +45,7 @@ export function ChatPanel({
   onCollapse,
   initialPrompt,
   initialAttachments,
+  onConsumed,
   question,
   onAnswer,
   onOpenAsset,
@@ -66,6 +67,8 @@ export function ChatPanel({
   initialPrompt?: string
   /** 首页带过来的参考素材，作为底图。 */
   initialAttachments?: string[]
+  /** 输入框把上面两个消费掉了。父组件据此清空，见 App 的 `consumePending`。 */
+  onConsumed?: () => void
   /** 待回答的决策点。`null` = 没有。 */
   question: QuestionRequest | null
   /** `answers` 为 null 表示跳过（对应 question.rejected）。 */
@@ -202,6 +205,7 @@ export function ChatPanel({
           autoFocus={composerOpen}
           initial={initialPrompt}
           initialAttachments={initialAttachments}
+          onConsumed={onConsumed}
         />
         {/* 官方的 `chat.complianceNotice`。生成式产品里这句是要有的，
             而且位置就在输入框正下方。 */}

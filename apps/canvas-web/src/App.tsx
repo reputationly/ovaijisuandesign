@@ -178,6 +178,20 @@ export default function App() {
   const [pendingPrompt, setPendingPrompt] = useState<string | undefined>()
   /** 首页带过来的参考素材（工作区相对路径）。作为底图发给图生图。 */
   const [pendingAttachments, setPendingAttachments] = useState<string[]>([])
+
+  /**
+   * 输入框把 `pending*` 消费掉之后要清。
+   *
+   * **这两个是"交接一次"的量，不是常驻设置。** 不清的话：
+   *
+   * - 输入框每次重挂（切画布、收起再展开右栏）都会被重新播种，
+   *   于是上一次的提示词和参考图又回来了；
+   * - 而界面上看不出它们是"上次留下的"，用户会以为这是这一条的内容。
+   */
+  const consumePending = useCallback(() => {
+    setPendingPrompt(undefined)
+    setPendingAttachments([])
+  }, [])
   /** 当前按哪个标签筛选并定位。`null` = 不筛。见 CanvasChrome 的 TagFilter。 */
   const [tagFilter, setTagFilter] = useState<string | null>(null)
   // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
@@ -1277,6 +1291,7 @@ export default function App() {
             onCollapse={() => setRightOpen(false)}
             initialPrompt={pendingPrompt}
             initialAttachments={pendingAttachments}
+            onConsumed={consumePending}
             question={question}
             onOpenAsset={(path) => {
               // 产物 chip 打开的是画布上引用它的那个节点（走灯箱）。

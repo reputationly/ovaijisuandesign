@@ -1,7 +1,7 @@
-import { ArrowUp, Loader2, X } from "lucide-react"
+import { ArrowUp, FileText, Loader2, Plus, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
-import { agentSend } from "./api"
+import { agentSend, uploadFiles } from "./api"
 
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
 const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
@@ -29,6 +29,7 @@ export function Generate({
   autoFocus,
   initial,
   initialAttachments,
+  onConsumed,
 }: {
   onDone: () => void
   autoFocus?: boolean
@@ -39,6 +40,8 @@ export function Generate({
    * 见 `generate.rs::submit_image`。
    */
   initialAttachments?: string[]
+  /** 播种完就通知父组件清掉 —— 那两个是"交接一次"的量。 */
+  onConsumed?: () => void
   /**
    * 从首页带过来的提示词。
    *
@@ -64,6 +67,24 @@ export function Generate({
       inputRef.current?.focus()
     }
   }, [initial])
+
+  /**
+   * 这一条要带的参考素材。
+   *
+   * **必须是本地状态，不能直接用 `initialAttachments` 那个 prop。**
+   * 用 prop 的话发送后没人清它 —— 于是"以此为输入生成"用过一次之后，
+   * 这张画布里**之后的每一条消息都会悄悄再带上那张图**，而界面上
+   * 什么都看不见。
+   */
+  const [attachments, setAttachments] = useState<string[]>([])
+  useEffect(() => {
+    if (!initialAttachments?.length && !initial) return
+    if (initialAttachments?.length) setAttachments(initialAttachments)
+    // 播种完立刻通知父组件清掉。留着的话输入框每次重挂都会被重新播种，
+    // 上一次的提示词和参考图又回来了 —— 而界面上看不出它们是旧的。
+    onConsumed?.()
+  }, [initialAttachments, initial, onConsumed])
+  const [uploading, setUploading] = useState(false)
   const abort = useRef<AbortController | null>(null)
 
   const busy = phase.kind === "generating" || phase.kind === "placing"
@@ -83,10 +104,13 @@ export function Generate({
     const text = prompt
     setPhase({ kind: "generating", seconds: 0 })
     try {
-      await agentSend(text, initialAttachments ?? [])
+      await agentSend(text, attachments)
       // 发出去就清空。**不等 agent 跑完** —— 一轮可能几分钟，
       // 输入框锁着的话用户连下一句都没法先写好。
+      //
+      // 附件也要清：它是"这一条"的素材，不是这张画布的常驻设置。
       setPrompt("")
+      setAttachments([])
       setPhase({ kind: "idle" })
       onDone()
     } catch (err) {
@@ -108,6 +132,48 @@ export function Generate({
         boxShadow: "var(--home-input-shadow)",
       }}
     >
+      {/* 附件条。**在输入框上面、能看见、能删。**
+          之前 `initialAttachments` 只在发送时用、从不渲染 —— 用户不知道
+          这一条带了什么，也没法去掉。
+
+          图片直接给缩略图，其余给文件名：一律给文件名的话，传了三张参考图
+          会看到三行看不出区别的 png，而参考图恰恰是靠"长什么样"来区分的。 */}
+      {attachments.length > 0 && (
+        <div className="flex flex-wrap gap-2 px-3 pt-3">
+          {attachments.map((path) => (
+            <div key={path} className="group relative">
+              {/^images?\//.test(path) ? (
+                <img
+                  src={`/files/${path}?w=120`}
+                  alt=""
+                  title={path}
+                  className="h-14 w-14 rounded-lg object-cover"
+                  style={{ border: "1px solid var(--border)" }}
+                />
+              ) : (
+                <div
+                  className="flex h-14 max-w-[150px] items-center gap-1.5 rounded-lg px-2.5 text-[12px]"
+                  style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
+                  title={path}
+                >
+                  <FileText size={13} className="shrink-0" />
+                  <span className="truncate">{path.split("/").pop()}</span>
+                </div>
+              )}
+              <button
+                type="button"
+                title="移除"
+                onClick={() => setAttachments((a) => a.filter((x) => x !== path))}
+                className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                style={{ background: "var(--foreground)", color: "var(--background)" }}
+              >
+                <X size={11} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <textarea
         ref={inputRef}
         value={prompt}
@@ -131,6 +197,40 @@ export function Generate({
       />
 
       <div className="flex items-center gap-1 px-2.5 pt-1 pb-2.5">
+        {/* 上传。画布这个输入框之前**根本没有上传入口** —— 想拿一张本地图
+            当参考，只能先从首页发一次，或者拖到画布上再右键「添加到对话」。 */}
+        <label
+          title="添加文件"
+          className="flex size-7 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--canvas-controls-hover)]"
+          style={{ color: uploading ? "var(--muted-foreground)" : "var(--foreground)" }}
+        >
+          {uploading ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />}
+          <input
+            type="file"
+            multiple
+            hidden
+            disabled={busy || uploading}
+            onChange={async (e) => {
+              const files = [...(e.target.files ?? [])]
+              // **要清掉 value** —— 不清的话选同一个文件第二次不会触发
+              // change，用户以为传失败了。
+              e.target.value = ""
+              if (files.length === 0) return
+              setUploading(true)
+              try {
+                const paths = await uploadFiles(files)
+                setAttachments((a) => [...a, ...paths.filter((p) => !a.includes(p))])
+              } catch (err) {
+                setPhase({
+                  kind: "failed",
+                  message: err instanceof Error ? err.message : String(err),
+                })
+              } finally {
+                setUploading(false)
+              }
+            }}
+          />
+        </label>
         <Select value={ratio} onChange={setRatio} options={RATIOS} disabled={busy} />
         <Select value={resolution} onChange={setResolution} options={RESOLUTIONS} disabled={busy} />
         <span className="flex-1" />
