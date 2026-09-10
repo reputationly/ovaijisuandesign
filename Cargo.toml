@@ -42,6 +42,18 @@ tar = "0.4"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif"] }
 tokio-util = { version = "0.7", features = ["io"] }
 tower-http = { version = "0.6", features = ["cors"] }
+# 飞书长连接的客户端。版本跟着 axum 带进来的那份走，避免同一个 crate 编两遍。
+#
+# **必须用 rustls 不用 native-tls**：native-tls 在 Linux 上会去链系统的
+# OpenSSL，而我们整条链路（reqwest）已经是 rustls，混用意味着两套证书校验
+# 和两份根证书。
+# WebSocket 的 Sink/Stream 扩展（split / send / next）。只要这两个 trait，
+# 不要 futures 全家桶。
+futures-util = { version = "0.3", default-features = false, features = ["sink"] }
+tokio-tungstenite = { version = "0.29", default-features = false, features = [
+  "connect",
+  "rustls-tls-webpki-roots",
+] }
 uuid = { version = "1", features = ["v4"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

@@ -112,6 +112,7 @@ mod tests {
             questions: Arc::new(crate::question::Questions::new()),
             activity: Arc::new(crate::activity::Activity::new()),
             agent: Arc::new(crate::agent::Agent::new()),
+            feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
             upstream,
             web_dir: None,
         })

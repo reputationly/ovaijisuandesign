@@ -659,3 +659,46 @@ export async function importSkills(
     "POST /api/skills/import",
   )
 }
+
+// ---------------------------------------------------------------------------
+// 飞书
+// ---------------------------------------------------------------------------
+
+export interface FeishuInfo {
+  configured: boolean
+  appId: string
+  domain: string
+  status: { state: string; error?: string; handled: number }
+}
+
+export async function feishuStatus(): Promise<FeishuInfo> {
+  return json(await fetch("/api/feishu/status"), "GET /api/feishu/status")
+}
+
+/** `appSecret` 传空串表示不改。 */
+export async function feishuSave(b: {
+  appId: string
+  appSecret: string
+  domain?: string
+}): Promise<void> {
+  await json(
+    await fetch("/api/feishu/creds", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(b),
+    }),
+    "POST /api/feishu/creds",
+  )
+}
+
+export async function feishuConnect(): Promise<void> {
+  const res = await fetch("/api/feishu/connect", { method: "POST" })
+  if (!res.ok) {
+    const b = (await res.json().catch(() => ({}))) as { error?: string }
+    throw new Error(b.error ?? `HTTP ${res.status}`)
+  }
+}
+
+export async function feishuDisconnect(): Promise<void> {
+  await fetch("/api/feishu/disconnect", { method: "POST" }).catch(() => {})
+}

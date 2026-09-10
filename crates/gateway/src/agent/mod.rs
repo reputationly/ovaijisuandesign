@@ -253,6 +253,26 @@ pub async fn send(
     (StatusCode::OK, Json(json!({ "ok": true })))
 }
 
+/// 跑一轮并**等它跑完**。飞书那条路要用：消息进来 → 跑 → 把结果发回去，
+/// 中间必须能等到结果。
+///
+/// 和 `send` 的区别只是同步/异步：`send` 是给界面用的（发出去就返回，
+/// 界面靠 /ws 看进度），这个是给需要拿结果的调用方用的。
+pub async fn run_once(state: &Arc<AppState>, user_text: &str) {
+    if state
+        .agent
+        .running
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_err()
+    {
+        return;
+    }
+    state.agent.stop.store(false, Ordering::Relaxed);
+    run(state, user_text).await;
+    state.agent.running.store(false, Ordering::Relaxed);
+    state.events.publish("agent:done", json!({}));
+}
+
 async fn run(state: &Arc<AppState>, user_text: &str) {
     let mut msgs = read_history(&state.ws);
     msgs.push(Msg::user(user_text));

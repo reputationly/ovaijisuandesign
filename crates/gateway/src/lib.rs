@@ -42,6 +42,7 @@ pub mod canvases;
 pub mod capabilities;
 pub mod config;
 pub mod events;
+pub mod feishu;
 pub mod generate;
 pub mod install;
 pub mod land;
@@ -89,6 +90,8 @@ pub struct AppState {
     pub activity: Arc<crate::activity::Activity>,
     /// 应用内 agent 的运行状态。见 [`crate::agent`]。
     pub agent: Arc<crate::agent::Agent>,
+    /// 飞书长连接的状态。见 [`crate::feishu`]。
+    pub feishu: Arc<crate::feishu::bridge::Bridge>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -123,6 +126,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/agent/send", post(agent::send))
         .route("/api/agent/messages", get(agent::messages))
         .route("/api/agent/stop", post(agent::stop))
+        .route("/api/feishu/status", get(feishu::bridge::status))
+        .route("/api/feishu/creds", post(feishu::bridge::save))
+        .route("/api/feishu/connect", post(feishu::bridge::connect))
+        .route("/api/feishu/disconnect", post(feishu::bridge::disconnect))
         .route("/api/settings", get(settings::get).post(settings::put))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))
@@ -266,6 +273,7 @@ mod tests {
             questions: Arc::new(crate::question::Questions::new()),
             activity: Arc::new(crate::activity::Activity::new()),
             agent: Arc::new(crate::agent::Agent::new()),
+            feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
             upstream: None,
             web_dir: None,
         })

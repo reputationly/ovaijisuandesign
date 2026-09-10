@@ -377,6 +377,7 @@ mod tests {
             questions: std::sync::Arc::new(crate::question::Questions::new()),
             activity: std::sync::Arc::new(crate::activity::Activity::new()),
             agent: std::sync::Arc::new(crate::agent::Agent::new()),
+            feishu: std::sync::Arc::new(crate::feishu::bridge::Bridge::new()),
             upstream: None,
             web_dir: None,
         });

@@ -265,6 +265,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         questions: Arc::new(gateway::question::Questions::new()),
         activity: Arc::new(gateway::activity::Activity::new()),
         agent: Arc::new(gateway::agent::Agent::new()),
+        feishu: Arc::new(gateway::feishu::bridge::Bridge::new()),
         upstream,
         web_dir,
     });
