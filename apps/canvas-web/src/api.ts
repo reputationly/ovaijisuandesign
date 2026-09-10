@@ -736,6 +736,21 @@ export async function wechatConnect(): Promise<void> {
 export async function wechatDisconnect(): Promise<void> {
   await fetch("/api/wechat/disconnect", { method: "POST" }).catch(() => {})
 }
+/** 平台上有哪些模型。设置页用来给模型名做候选。 */
+export type PlatformModel = {
+  id: string
+  /** 认不出来时是 null —— 平台随时会加新模型，认不出不等于用不了。 */
+  modality: string | null
+  configuredAs: string[]
+}
+
+export async function platformModels(): Promise<PlatformModel[]> {
+  const res = await fetch("/api/models")
+  const b = (await res.json().catch(() => ({}))) as { models?: PlatformModel[] }
+  // 拉不到就返回空 —— 少一组候选而已，手打那条路一直是通的。
+  return b.models ?? []
+}
+
 /** 保持电脑唤醒。对应官方的 `preventSleep`。 */
 export type AwakeInfo = { enabled: boolean; error: string | null }
 

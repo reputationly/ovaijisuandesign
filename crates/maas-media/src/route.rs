@@ -65,6 +65,15 @@ pub enum Modality {
 ///
 /// 名字取自官方产物里出现过的那些，见 `docs/mcp-tools.md` 旁边的提取脚本。
 /// 认不出来的一律走默认 —— 官方随时会加新模型，认不出不该变成一次失败。
+/// [`modality_of`] 的公开版本。
+///
+/// 设置页要按模态给模型分组。**分类只有这一份** —— 界面上按一套规则分组、
+/// 请求时按另一套路由的话，用户会在"图片"下拉里选到一个实际走视频端点的
+/// 模型，而这种不一致只有生成失败时才看得见。
+pub fn modality_of_public(name: &str) -> Option<Modality> {
+    modality_of(name)
+}
+
 fn modality_of(name: &str) -> Option<Modality> {
     let n = name.to_ascii_lowercase().replace('_', "-");
     // 顺序有讲究：先判更具体的后缀，否则 `qwen-image-edit` 会被 `qwen-image`
@@ -81,19 +90,29 @@ fn modality_of(name: &str) -> Option<Modality> {
         || n.starts_with("flux")
         || n.starts_with("midjourney")
         || n.starts_with("jimeng")
+        // 我们平台上的出图模型。名字里没有 image / t2i 之类的线索，
+        // **只能列出来** —— 认不出的话 `route()` 会把它们悄悄换成默认那个，
+        // 用户点名要 z-image 却拿到 qwen-image 出的图。
+        || matches!(
+            n.as_str(),
+            "z-image" | "id4" | "kr2" | "hunyuan-image-3" | "sensenova-u1.5"
+        )
     {
         return Some(Modality::Image);
     }
     // 和 image-edit 那条一个道理：`music-cover` 里含 `music`，
     // 顺序写反的话翻唱会静默走成文生音乐 —— 出来一首和原曲**完全无关**
     // 的歌，有声音、不报错。
-    if n.contains("cover") || n.contains("repaint") {
+    // `ace-step` 是我们平台上吃 cover / repaint 的那个 checkpoint，
+    // 名字里没有任何线索，只能点名。
+    if n.contains("cover") || n.contains("repaint") || n == "ace-step" {
         return Some(Modality::MusicEdit);
     }
     if n.contains("music") {
         return Some(Modality::Music);
     }
-    if n.starts_with("speech") || n.starts_with("t2a") || n.starts_with("abab") {
+    if n.starts_with("speech") || n.starts_with("t2a") || n.starts_with("abab") || n.contains("tts")
+    {
         return Some(Modality::Speech);
     }
     if n.contains("ref2v") || n.contains("reference") {
@@ -106,6 +125,11 @@ fn modality_of(name: &str) -> Option<Modality> {
         || n.starts_with("seedance")
         || n.contains("video")
     {
+        return Some(Modality::Video);
+    }
+    // 视频修复/超分。`swiftvr` / `seedvr2` 名字里只有 "vr",
+    // 上面那串一个都命中不了。
+    if n.ends_with("vr") || n.ends_with("vr2") {
         return Some(Modality::Video);
     }
     None
@@ -139,12 +163,17 @@ pub fn route(models: &Models, want: Option<&str>, modality: Modality) -> Option<
     };
 
     // 调用方直接点名了我们配着的模型 —— 不要动它。
+    // **`music_edit` 必须在这里面。** 漏掉它的话，调用方点名我们自己配的
+    // 翻唱模型（ace-step）会走到下面的"认不出 → 退回本次模态的默认",
+    // 也就是被换成文生音乐那个 —— 正是 `default_for` 里警告的那种失败：
+    // 出来一段和原曲完全无关的音乐，有声音、不报错。
     let configured = [
         &models.image,
         &models.image_edit,
         &models.video,
         &models.video_ref,
         &models.music,
+        &models.music_edit,
         &models.speech,
     ];
     if configured
@@ -292,5 +321,50 @@ mod tests {
             route(&m, None, Modality::ImageEdit).unwrap().model,
             "qwen-image"
         );
+    }
+
+    #[test]
+    fn the_models_on_our_own_platform_are_recognised() {
+        // 这几个名字里没有 image / video 之类的线索。认不出的话 route()
+        // 会把它们悄悄换成该模态的默认模型 —— 用户点名要 z-image，
+        // 拿到的是 qwen-image 出的图，而且**不报错**。
+        for m in ["z-image", "id4", "kr2", "hunyuan-image-3", "sensenova-u1.5"] {
+            assert_eq!(modality_of(m), Some(Modality::Image), "{m}");
+        }
+        for m in ["swiftvr", "seedvr2"] {
+            assert_eq!(modality_of(m), Some(Modality::Video), "{m}");
+        }
+        for m in ["breeze-tts-2", "indextts-2.5"] {
+            assert_eq!(modality_of(m), Some(Modality::Speech), "{m}");
+        }
+        assert_eq!(modality_of("minimax-music3"), Some(Modality::Music));
+        assert_eq!(modality_of("ace-step"), Some(Modality::MusicEdit));
+        assert_eq!(modality_of("minimax-h3-fl2va"), Some(Modality::Video));
+        assert_eq!(modality_of("minimax-h3-ref2va"), Some(Modality::VideoRef));
+    }
+
+    #[test]
+    fn a_model_the_platform_really_has_is_used_as_asked() {
+        // 平台上真有 z-image 时，点名要它就该拿到它 —— 而不是被
+        // "认不出 → 退回默认"换成 qwen-image。
+        let mut m = models();
+        m.image = Some("z-image".into());
+        let r = route(&m, Some("z-image"), Modality::Image).unwrap();
+        assert_eq!(r.model, "z-image");
+        assert!(!r.substituted);
+    }
+
+    #[test]
+    fn naming_our_own_cover_model_does_not_silently_get_text_to_music() {
+        // music_edit 不在 `configured` 里的话，点名 ace-step 会退回
+        // 文生音乐那个模型 —— 出来一段和原曲完全无关的歌，有声音、不报错。
+        let m = models();
+        let cover = m.music_edit.clone().expect("测试夹具要配一个翻唱模型");
+        let r = route(&m, Some(&cover), Modality::MusicEdit).unwrap();
+        assert_eq!(r.model, cover);
+        assert!(!r.substituted, "点名我们自己配的模型不该被替换");
+        // 就算调用方把模态传成了 Music，也不该拿文生音乐顶上。
+        let r = route(&m, Some(&cover), Modality::Music).unwrap();
+        assert_eq!(r.model, cover, "被换成了文生音乐 —— 出来的歌和原曲无关");
     }
 }

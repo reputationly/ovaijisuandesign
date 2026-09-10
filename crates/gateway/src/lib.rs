@@ -48,6 +48,7 @@ pub mod generate;
 pub mod install;
 pub mod land;
 pub mod memory;
+pub mod models;
 pub mod music;
 pub mod plan;
 pub mod proxy;
@@ -142,6 +143,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/wechat/disconnect", post(wechat::disconnect))
         .route("/api/wechat/logout", post(wechat::logout))
         .route("/api/settings", get(settings::get).post(settings::put))
+        .route("/api/models", get(models::list))
         .route("/api/system/awake", get(awake::get).post(awake::put))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))

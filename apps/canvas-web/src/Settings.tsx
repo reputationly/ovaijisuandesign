@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react"
 
-import { getSettings, saveSettings, type SettingsInfo } from "./api"
+import {
+  getSettings,
+  platformModels,
+  saveSettings,
+  type PlatformModel,
+  type SettingsInfo,
+} from "./api"
 import { Dialog } from "./Dialog"
 
 /**
@@ -17,11 +23,17 @@ import { Dialog } from "./Dialog"
  */
 export function Settings({ onClose }: { onClose: () => void }) {
   const [info, setInfo] = useState<SettingsInfo | null>(null)
+  // 平台上真有哪些模型。拉不到就是空数组 —— 候选没了，手打还在。
+  const [avail, setAvail] = useState<PlatformModel[]>([])
   const [form, setForm] = useState<Record<string, string>>({})
   const [enhance, setEnhance] = useState(true)
   const [voice, setVoice] = useState("")
   const [msg, setMsg] = useState<{ kind: "ok" | "bad"; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    void platformModels().then(setAvail)
+  }, [])
 
   useEffect(() => {
     void getSettings()
@@ -123,19 +135,28 @@ export function Settings({ onClose }: { onClose: () => void }) {
 
         <Section title="模型">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="文生图" value={form.image} onChange={set("image")} />
-            <Field label="图生图" value={form.imageEdit} onChange={set("imageEdit")} />
-            <Field label="文生视频 / 首尾帧" value={form.video} onChange={set("video")} />
-            <Field label="参考生视频" value={form.videoRef} onChange={set("videoRef")} />
-            <Field label="视频超分" value={form.videoUpscale} onChange={set("videoUpscale")} />
-            <Field label="文生音乐" value={form.music} onChange={set("music")} />
-            <Field
+            <ModelField label="文生图" modality="image" avail={avail} value={form.image} onChange={set("image")} />
+            <ModelField label="图生图" modality="imageEdit" avail={avail} value={form.imageEdit} onChange={set("imageEdit")} />
+            <ModelField label="文生视频 / 首尾帧" modality="video" avail={avail} value={form.video} onChange={set("video")} />
+            <ModelField label="参考生视频" modality="videoRef" avail={avail} value={form.videoRef} onChange={set("videoRef")} />
+            <ModelField label="视频超分" modality="video" avail={avail} value={form.videoUpscale} onChange={set("videoUpscale")} />
+            <ModelField label="文生音乐" modality="music" avail={avail} value={form.music} onChange={set("music")} />
+            <ModelField
               label="音乐编辑 / 翻唱"
+              modality="musicEdit"
+              avail={avail}
               value={form.musicEdit}
               onChange={set("musicEdit")}
               hint="只有 ACE-Step 支持"
             />
-            <Field label="语音合成" value={form.speech} onChange={set("speech")} />
+            <ModelField
+              label="语音合成"
+              modality="speech"
+              avail={avail}
+              value={form.speech}
+              onChange={set("speech")}
+              hint="平台上的 TTS 都是声音克隆：音色要给一段参考音频，不是预设名。见下面的音色映射。"
+            />
           </div>
           <label className="mt-1 flex items-center gap-2 text-[13px]">
             <input type="checkbox" checked={enhance} onChange={(e) => setEnhance(e.target.checked)} />
@@ -230,6 +251,63 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="text-[15px] font-semibold">{title}</h2>
       {children}
     </section>
+  )
+}
+
+/**
+ * 模型名输入框，带平台上真实存在的候选。
+ *
+ * **是 `datalist` 不是 `select`** —— 平台随时会加新模型，而 `/api/models`
+ * 的分类靠的是一张我们实测过的名字表，认不出的模型会没有模态标记。
+ * 用 `select` 的话，这些模型就彻底选不到了。
+ */
+function ModelField({
+  label,
+  modality,
+  avail,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string
+  modality: string
+  avail: PlatformModel[]
+  value: string | undefined
+  onChange: (e: { target: { value: string } }) => void
+  hint?: string
+}) {
+  const id = `models-${modality}-${label}`
+  const match = avail.filter((m) => m.modality === modality)
+  // 认不出模态的排在后面 —— 它们多半不是这个用途，但也不该藏起来。
+  const rest = avail.filter((m) => m.modality === null)
+  const options = [...match, ...rest]
+  const note =
+    avail.length === 0
+      ? "拉不到平台模型表，手动填写"
+      : match.length === 0
+        ? "平台上没有识别出这个用途的模型"
+        : undefined
+  return (
+    <label className="flex flex-col gap-1 text-[13px]">
+      {label}
+      <input
+        list={id}
+        value={value ?? ""}
+        onChange={onChange}
+        className="w-full rounded-md px-2 py-1.5 text-[13px] outline-none"
+        style={FIELD}
+      />
+      <datalist id={id}>
+        {options.map((m) => (
+          <option key={m.id} value={m.id} />
+        ))}
+      </datalist>
+      {(hint ?? note) && (
+        <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+          {hint ?? note}
+        </span>
+      )}
+    </label>
   )
 }
 
