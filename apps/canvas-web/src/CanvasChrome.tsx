@@ -30,6 +30,14 @@ import { tagColor } from "./tags"
  * 以为节点本身就是那么大。
  */
 const FIT = { padding: 0.2, maxZoom: 1, duration: 200 } as const
+
+/** 四种排布模式的中文名。悬停提示用它，不用内部枚举值。 */
+const MODE_LABEL: Record<CanvasMode, string> = {
+  freeform: "自由排布",
+  grid: "宫格布局",
+  storyboard: "分镜故事板",
+  workflow: "工作流",
+}
 import { cn } from "./lib"
 
 /**
@@ -224,7 +232,13 @@ export function TopRightChrome({
   return (
     <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
       <div className={CHROME} style={chromeStyle()}>
-        {/* 整理（官方 canvas.toolbar-tidy）：按网格排 / 按媒体类型分组排 */}
+        {/* 整理。文案照官方：
+              canvas.tidy.grid           =「宫格布局」
+              canvas.tidy.sort.mediaType =「按素材类型」
+                （说明：按图片/视频/音频/文本等素材类型分成多条泳道，不考虑连线）
+
+            官方还有「水平布局」「垂直布局」「按连线关系」和「整理相连的
+            上下游」，我们只做了这两种 —— 没做的不放菜单项。 */}
         <MenuBtn icon={<LayoutPanelLeft size={16} />} title="整理">
           {(close) => (
             <>
@@ -235,7 +249,7 @@ export function TopRightChrome({
                 }}
               >
                 <Grid2x2 size={15} />
-                按网格排列
+                宫格布局
               </MenuRow>
               <MenuRow
                 onClick={() => {
@@ -244,7 +258,7 @@ export function TopRightChrome({
                 }}
               >
                 <Boxes size={15} />
-                按类型分组
+                按素材类型
               </MenuRow>
               <div className="my-1 h-px" style={{ background: "var(--canvas-controls-border)" }} />
               <MenuRow
@@ -296,9 +310,14 @@ export function TopRightChrome({
         </Btn>
         <Divider />
 
-        {/* 四种排布模式 */}
+        {/* 四种排布模式。
+            **`title` 要给中文，不能直接用枚举值** —— 之前悬停显示的是
+            `freeform` / `storyboard` 这种内部标识符，用户读不懂那是什么。
+
+            官方只有「画布 / 工作流」两种（`canvas.mode.*`），我们的四种是
+            画布文件里 `positions` 支持的那四套坐标，名字自己起。 */}
         {CANVAS_MODES.map((m) => (
-          <Btn key={m} title={m} active={m === mode} onClick={() => onMode(m)}>
+          <Btn key={m} title={MODE_LABEL[m]} active={m === mode} onClick={() => onMode(m)}>
             {m === "grid" ? (
               <Grid2x2 size={16} />
             ) : m === "workflow" ? (

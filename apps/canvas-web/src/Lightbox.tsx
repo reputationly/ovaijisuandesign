@@ -1,4 +1,4 @@
-import { Download, Minus, Plus, RotateCcw, X } from "lucide-react"
+import { Download, Minus, Plus, X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 /**
@@ -337,9 +337,10 @@ export function Lightbox({
           <IconBtn onClick={zoomIn} title="放大" id="canvas.image-lightbox.zoom-in">
             <Plus size={15} />
           </IconBtn>
-          <IconBtn onClick={resetZoom} title="重置" id="canvas.image-lightbox.zoom-reset">
-            <RotateCcw size={14} />
-          </IconBtn>
+          {/* 官方**只有百分比这一个重置入口**（`canvas.image-lightbox.zoom-reset`
+              就挂在那个数字上）。这里原本还有一个圆箭头按钮，和百分比做的是
+              同一件事、还共用同一个动作 id —— 两个不同图标的按钮做同一件事，
+              用户会以为其中一个是别的功能。 */}
         </div>
         <span className="truncate text-[13px] text-white/70">{current.name}</span>
         <IconBtn

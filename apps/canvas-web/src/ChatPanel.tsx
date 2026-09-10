@@ -41,7 +41,7 @@ export function ChatPanel({
   saving,
   composerOpen,
   onDone,
-  onReload,
+  onNewChat,
   onCollapse,
   initialPrompt,
   initialAttachments,
@@ -62,7 +62,8 @@ export function ChatPanel({
   saving: "idle" | "saving" | "saved" | "failed"
   composerOpen: boolean
   onDone: () => void
-  onReload: () => void
+  /** 开一段新对话（= 新建一张画布）。官方的 `chat.newChat`。 */
+  onNewChat: () => void
   onCollapse: () => void
   initialPrompt?: string
   /** 首页带过来的参考素材，作为底图。 */
@@ -104,9 +105,12 @@ export function ChatPanel({
           </span>
         )}
         <span className="flex-1" />
+        {/* 官方这个位置是 `chat.newChat` =「新建对话」—— 图标是 `+`。
+            我们之前把它接成了「重新加载」：**图标说的是"加一个"，
+            做的却是"刷新"**，用户点它是想开一段新对话。 */}
         <button
-          onClick={onReload}
-          title="重新加载"
+          onClick={onNewChat}
+          title="新建对话"
           className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-[var(--canvas-controls-hover)]"
           style={{ color: "var(--topbar-icon-fg)" }}
         >

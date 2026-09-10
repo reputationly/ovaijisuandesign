@@ -280,6 +280,7 @@ export async function groupNodes(nodeIds: string[], label?: string): Promise<voi
 export async function createMediaNode(
   assetPath: string,
   sourceNodeIds?: string[],
+  allowDuplicate?: boolean,
 ): Promise<string | undefined> {
   const res = await fetch("/api/canvas/media-node", {
     method: "POST",
@@ -287,6 +288,9 @@ export async function createMediaNode(
     body: JSON.stringify({
       assetPath,
       ...(sourceNodeIds?.length ? { sourceNodeIds } : {}),
+      // 后端默认对同一个资产是**复用已有节点**（见 api_canvas 的
+      // `allow_duplicate`）。「复制」这个动作要的正是第二张卡片。
+      ...(allowDuplicate ? { allowDuplicate: true } : {}),
     }),
   })
   // **回 nodeId。** 宫格切分要拿这几个 id 去编组，拿不到的话只能建完

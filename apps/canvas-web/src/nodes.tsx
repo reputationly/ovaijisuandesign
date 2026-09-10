@@ -36,6 +36,10 @@ export interface CanvasActions {
   setNodeTags(nodeId: string, tags: string[]): Promise<void>
   /** 新建一个关键词并打在节点上。关键词不显示在画布上，只进筛选。 */
   addKeywordTo(nodeId: string, name: string): Promise<void>
+  /** 把这个节点当作下一次生成的输入（工具条的「以此生成」）。 */
+  useAsInput(nodeId: string): void
+  /** 在画布上再放一张同一个素材的卡片（工具条的「复制」）。 */
+  duplicateNode(nodeId: string): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -96,8 +100,13 @@ function Frame(
         nodeId={props.id}
         visible={!!selected}
         onDelete={() => void actions?.deleteNode(props.id)}
-        onDownload={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
-        onOpen={assetId ? () => window.open(assetUrl(assetId), "_blank") : undefined}
+        // 「以此生成」和「复制」之前**根本没传进去，两个按钮等于不存在**。
+        onGenerate={() => actions?.useAsInput(props.id)}
+        onDuplicate={assetId ? () => void actions?.duplicateNode(props.id) : undefined}
+        // 「放大查看」开灯箱。之前它和「下载」都是 `window.open(assetUrl)` ——
+        // **两个不同标签的按钮做同一件事**，而且做的都不是标签说的那件。
+        onOpen={assetId ? () => actions?.openLightbox(props.id) : undefined}
+        onDownload={assetId ? () => downloadAsset(assetId, name) : undefined}
       />
       <MagneticHandle position={Position.Left} selected={!!selected} />
       <div
@@ -343,4 +352,21 @@ export const nodeTypes = {
   audio: AudioNode,
   text: TextNode,
   unknown: UnknownNode,
+}
+
+/**
+ * 真的下载，而不是在新标签页打开。
+ *
+ * `window.open` 对图片是"在浏览器里显示"，对视频是"开始播放" —— 只有
+ * 带 `download` 属性的 `<a>` 才会走保存流程。这两件事标签上写的是
+ * 「下载」，做的却是「打开」。
+ */
+function downloadAsset(assetId: string, name: string) {
+  const a = document.createElement("a")
+  a.href = assetUrl(assetId)
+  a.download = name
+  // 必须挂进文档才能在部分浏览器里触发点击。
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
 }

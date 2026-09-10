@@ -208,6 +208,10 @@ export default function App() {
   // 保存时要以「服务端那份原文」为底改，而不是以界面状态重建。
   const fileRef = useRef<CanvasFile | null>(null)
   fileRef.current = file
+  // `actions` 是 useMemo([], []) —— 里面读 state 会永远拿到首帧的值。
+  // 和 fileRef 同理，用 ref 取最新的节点详情。
+  const detailsRef = useRef(details)
+  detailsRef.current = details
 
   const load = useCallback(async () => {
     try {
@@ -772,6 +776,29 @@ export default function App() {
         await putCanvas(next)
         setFile(next)
       },
+      /**
+       * 把这个节点当输入。工具条的「以此生成」和右键的「添加到对话」
+       * 是同一件事的两个入口 —— 用同一条实现，免得两处行为慢慢分叉。
+       */
+      useAsInput(nodeId) {
+        const path = detailsRef.current.get(nodeId)?.path
+        setPendingAttachments(path ? [path] : [])
+        setComposerOpen(true)
+        setRightOpen(true)
+      },
+      /**
+       * 在画布上再放一张同一个素材的卡片。
+       *
+       * **要显式 `allowDuplicate`** —— 后端默认对同一个资产是复用已有节点
+       * （`api_canvas` 的 `allow_duplicate`），不给的话点「复制」什么都不会
+       * 发生，而且不报错。
+       */
+      async duplicateNode(nodeId) {
+        const path = detailsRef.current.get(nodeId)?.path
+        if (!path) return
+        await createMediaNode(path, undefined, true)
+        await load()
+      },
       async deleteNode(nodeId) {
         const base = fileRef.current
         if (!base) return
@@ -1287,7 +1314,7 @@ export default function App() {
             saving={saving}
             composerOpen={composerOpen}
             onDone={() => void load()}
-            onReload={() => void load()}
+            onNewChat={() => void newSession()}
             onCollapse={() => setRightOpen(false)}
             initialPrompt={pendingPrompt}
             initialAttachments={pendingAttachments}
