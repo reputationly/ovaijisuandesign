@@ -20,6 +20,12 @@ import { useEffect, useRef, type ReactNode } from "react"
 export interface MenuItem {
   id: string
   label: string
+  /**
+   * 第二行的说明。官方「添加节点」菜单里每条都有一句
+   * （`canvas.imageDesc` = 「海报、分镜、角色设计」）—— 光有"图片"两个字
+   * 的话，用户分不出这几条到底会做出什么。
+   */
+  hint?: string
   icon?: ReactNode
   onClick: () => void
   danger?: boolean
@@ -99,7 +105,19 @@ export function ContextMenu({
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             {it.icon && <span className="flex-shrink-0">{it.icon}</span>}
-            {it.label}
+            {it.hint ? (
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate">{it.label}</span>
+                <span
+                  className="truncate text-[11px]"
+                  style={{ color: "var(--canvas-controls-text-muted)" }}
+                >
+                  {it.hint}
+                </span>
+              </span>
+            ) : (
+              it.label
+            )}
           </button>
         </div>
       ))}

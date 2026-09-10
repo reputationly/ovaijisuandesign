@@ -14,7 +14,19 @@ import {
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
-import { Copy, Maximize2, PanelLeft, PanelRight, RefreshCw, Trash2, Wand2 } from "lucide-react"
+import {
+  AudioLines,
+  Copy,
+  Image as ImageIcon,
+  Maximize2,
+  PanelLeft,
+  PanelRight,
+  RefreshCw,
+  Trash2,
+  Type,
+  Video,
+  Wand2,
+} from "lucide-react"
 
 import {
   CANVAS_MODES,
@@ -46,6 +58,7 @@ import {
   type Session,
   type ToolActivity,
 } from "./api"
+import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
@@ -63,6 +76,14 @@ import { Settings } from "./Settings"
 import { Skills } from "./Skills"
 
 /** 主区域显示什么。侧栏那四个入口切的就是它。 */
+/** 「添加节点」菜单里每种类型的图标。官方用的也是 lucide 这几个。 */
+const ADD_NODE_ICON: Record<string, React.ReactNode> = {
+  text: <Type size={18} strokeWidth={1.5} />,
+  image: <ImageIcon size={18} strokeWidth={1.5} />,
+  video: <Video size={18} strokeWidth={1.5} />,
+  audio: <AudioLines size={18} strokeWidth={1.5} />,
+}
+
 export type View = "home" | "canvas" | "library" | "skill"
 import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
@@ -370,6 +391,38 @@ export default function App() {
       setHomeSubmitting(false)
     },
     [load, reloadSessions],
+  )
+
+  /**
+   * 「添加节点」菜单。拉线松手、双击画布、底部 `+` 三处共用。
+   *
+   * `from` 是源节点 id（从 ⊕ 拉出来时才有）。它决定两件事：
+   * **能建哪几种**（见 [`addNodeItemsFor`] 的类型过滤表），以及
+   * **建出来时带不带上游的素材**。
+   *
+   * 之前这里只有一条「以此为输入生成」，而且那条还没把源节点传出去。
+   */
+  const addNodeMenuItems = useCallback(
+    (from?: string): MenuItem[] => {
+      const path = from ? details.get(from)?.path : undefined
+      return addNodeItemsFor(from ? file?.nodes.find((n) => n.id === from)?.type : undefined).map(
+        (it) => ({
+          id: `add-${it.kind}`,
+          label: it.label,
+          hint: it.desc,
+          icon: ADD_NODE_ICON[it.kind],
+          onClick: () => {
+            // 上游的素材跟着带进输入框 —— 菜单是从那个节点拉出来的，
+            // 用户的意思就是"以它为输入"。
+            setPendingAttachments(path ? [path] : [])
+            setPendingPrompt(ADD_NODE_LEAD_IN[it.kind])
+            setComposerOpen(true)
+            setRightOpen(true)
+          },
+        }),
+      )
+    },
+    [details, file],
   )
 
   const openSessionMenu = useCallback(
@@ -789,34 +842,21 @@ export default function App() {
               onConnectEnd={(event, state) => {
                 if (state.isValid) return
                 const e = event as MouseEvent
-                setMenu({
-                  x: e.clientX,
-                  y: e.clientY,
-                  items: [
-                    {
-                      id: "gen",
-                      label: "以此为输入生成",
-                      icon: <Wand2 size={15} />,
-                      onClick: () => {
-                        // **把源节点的素材带过去。** 之前这里只是打开
-                        // 输入框 —— 菜单写着"以此为输入"，而"此"根本没传，
-                        // 用户以为接上了，出来的却是一张纯文生图。
-                        const from = state.fromNode?.id
-                        const path = from ? details.get(from)?.path : undefined
-                        setPendingAttachments(path ? [path] : [])
-                        setComposerOpen(true)
-                        setRightOpen(true)
-                      },
-                    },
-                  ],
-                })
+                const from = state.fromNode?.id
+                const items = addNodeMenuItems(from)
+                // **一条都不给时不弹菜单。** 比如从视频拉出来只有
+                // 「文本 / 视频」两条；从分组拉出来一条都没有 ——
+                // 弹一个空菜单比不弹更让人困惑。
+                if (items.length === 0) return
+                setMenu({ x: e.clientX, y: e.clientY, items })
               }}
               // 官方空画布提示上写着「双击画布 自由生成节点」。
               // **提示里承诺的动作必须真的能用** —— 写着能双击却没反应，
               // 比不写更糟。
-              onDoubleClick={() => {
-                setComposerOpen(true)
-                setRightOpen(true)
+              onDoubleClick={(e) => {
+                // 官方空画布提示上写着「双击画布 自由生成节点」——
+                // 弹的就是这个「添加节点」菜单，和拉线松手同一份。
+                setMenu({ x: e.clientX, y: e.clientY, items: addNodeMenuItems() })
               }}
               onPaneContextMenu={(e) => {
                 e.preventDefault()
