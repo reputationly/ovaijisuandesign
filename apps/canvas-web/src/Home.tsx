@@ -300,15 +300,40 @@ export function Home({
   const list = INSPIRATIONS.filter((i) => cat === "全部" || i.category === cat)
 
   return (
-    <div
-      className="relative h-full min-w-0 flex-1 overflow-auto"
-      style={{ background: "var(--background)" }}
+    // 结构照官方的 `home-hero-zone`：
+    //
+    //   main(flex-1, overflow-y-auto)
+    //     └ hero-zone(min-h-full, justify-center, padding-inline 40)   ← 垂直居中
+    //         └ div(w-full, max-w-793)                                 ← 这里没有内边距
+    //             └ hero-content(gap 24)
+    //
+    // **两处之前做错了：**
+    // 1. 用固定的 pt-16 而不是 `min-height:100% + justify-content:center`。
+    //    官方整块内容是在视口里垂直居中的，窗口一高，上面的留白跟着涨。
+    // 2. 把 px-10 放在了 max-width 容器**里面**，于是输入框只有 793-80=713 宽。
+    //    官方那 40px 内边距在 max-width 外面，输入框是实打实的 793。
+    <main
+      className="relative isolate flex min-w-0 flex-1 flex-col items-stretch overflow-y-auto"
+      style={{ background: "var(--home-content-surface, var(--background))" }}
     >
       {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
-      <div data-tauri-drag-region className="absolute inset-x-0 top-0 h-11" />
+      <div data-tauri-drag-region className="absolute inset-x-0 top-0 z-0 h-11" />
       <div
-        className="mx-auto flex flex-col px-10 pt-16 pb-20"
-        style={{ maxWidth: "var(--home-primary-stack-width)" }}
+        className="relative flex shrink-0 flex-col items-center"
+        style={{
+          minHeight: "100%",
+          paddingInline: "var(--home-hero-padding-x)",
+          paddingBlockStart: "var(--home-hero-safe-inset)",
+          // 底部多留一段：官方叫 --home-hero-bottom-balance，作用是让
+          // 居中的那一块视觉上略微偏上 —— 正正好居中会显得下沉。
+          paddingBlockEnd:
+            "calc(var(--home-hero-safe-inset) + var(--home-hero-bottom-balance))",
+          justifyContent: "safe center",
+        }}
+      >
+      <div
+        className="flex w-full flex-col"
+        style={{ maxWidth: "var(--home-primary-stack-width)", gap: "var(--home-hero-content-gap)" }}
       >
         {/* hero */}
         <div className="flex flex-col items-center" style={{ gap: "var(--home-hero-title-block-gap)" }}>
@@ -342,9 +367,18 @@ export function Home({
         </div>
 
         {/* 大输入框 */}
+        {/* 输入框。类名照官方的 `home-input-surface`：
+            `relative z-10 flex w-full min-h-[var(--input-card-height)]
+             flex-col justify-between rounded-[…] p-[var(--message-input-card-padding)]`
+
+            **`justify-between` + `min-h` 是一对**：工具行被推到卡片底部，
+            而不是紧贴在文本下面。没有它，空输入框里工具行会往上缩，
+            整个卡片看起来扁一截。 */}
         <div
-          className="mt-8 flex flex-col"
+          className="relative z-10 flex w-full flex-col justify-between"
           style={{
+            minHeight: "var(--input-card-height)",
+            padding: "var(--message-input-card-padding)",
             borderRadius: "var(--home-input-radius)",
             background: "var(--home-input-surface)",
             border: "var(--home-input-border-width) solid var(--home-input-border)",
@@ -364,7 +398,7 @@ export function Home({
               }
             }}
             placeholder="描述你要生成的内容"
-            className="resize-none bg-transparent px-6 pt-5 outline-none"
+            className="resize-none bg-transparent px-4 pt-3 outline-none"
             style={{
               minHeight: "var(--home-input-editor-min-height)",
               fontSize: "var(--home-input-editor-font-size)",
@@ -375,7 +409,7 @@ export function Home({
               分隔线是 `mx-1 h-3 w-[1.5px] bg-foreground/15`，不是 border。 */}
           <div
             data-composer-action-row="true"
-            className="flex min-w-0 items-end justify-between gap-2 px-4 pb-4"
+            className="flex min-w-0 items-end justify-between gap-2 px-1 pb-1"
           >
             <div data-composer-actions-left="true" className="flex min-w-0 flex-1 items-center">
               <button
@@ -454,7 +488,7 @@ export function Home({
             只露出下半截 —— 靠负 margin 塞回去，视觉上像输入框的底托。
             单独放一行的话会多出一条明显的横向分隔，整块散掉。 */}
         <div
-          className="mx-4 -mt-5 flex items-center rounded-b-[var(--home-input-radius)] px-5 pt-7 pb-2.5"
+          className="relative z-0 mx-5 -mt-4 flex min-h-[46px] items-end rounded-b-[var(--home-input-radius)] px-3 pt-[22px] pb-1.5"
           style={{ background: "var(--home-composer-tray-bg)" }}
         >
           <button
@@ -618,7 +652,8 @@ export function Home({
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </main>
   )
 }
 

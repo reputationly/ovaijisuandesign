@@ -179,6 +179,10 @@
   --home-input-editor-min-height: 90px;
   --home-input-editor-letter-spacing: 0px;
   --message-input-card-padding: 8px;
+  /* 输入框的最小高度。官方按窗口宽度给三档（150 / 140 / 132），
+     我们先用最小那档 —— 窄窗口下才是真正会挤到的场景。 */
+  --input-card-height: 132px;
+  --home-content-surface: var(--background);
   /* 输入框到下面各块的距离。官方把这三段分开定，因为它们不一样宽松。 */
   --home-input-to-tags-gap: 56px;
   --home-input-to-quick-start-gap: 28px;
