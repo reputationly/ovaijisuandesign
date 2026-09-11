@@ -43,23 +43,38 @@ export function ImBridge({ onClose }: { onClose: () => void }) {
   const [err, setErr] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
 
-  const reload = () =>
-    feishuStatus()
-      .then((i) => {
-        setInfo(i)
-        setAppId((v) => v || i.appId)
-        // 没配过就直接把表单展开 —— 否则用户要先发现有个可以点开的地方。
-        setExpanded((v) => v || !i.configured)
-      })
-      .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+  // **要 useCallback。** 下面的轮询 effect 把它列进了依赖；每次渲染新建
+  // 一个函数的话，effect 每渲染一次就重挂一次，定时器不停地建了又清。
+  const reload = useCallback(
+    (alive: () => boolean = () => true) =>
+      feishuStatus()
+        .then((i) => {
+          if (!alive()) return
+          setInfo(i)
+          setAppId((v) => v || i.appId)
+          // 没配过就直接把表单展开 —— 否则用户要先发现有个可以点开的地方。
+          setExpanded((v) => v || !i.configured)
+        })
+        .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e))),
+    [],
+  )
 
   useEffect(() => {
-    void reload()
+    // **卸载后不要再 setState。** 弹窗关掉时可能还有一次请求在途，
+    // 它回来时组件已经没了 —— React 18 不报错，但那次 setState 是无效的，
+    // 而更糟的是：用户点「连接」之后立刻关窗再打开，旧响应可能把
+    // 新状态盖回去，界面显示"未接入"而长连接已经开着。
+    let alive = true
+    const poll = () => void reload(() => alive)
+    poll()
     // 连接状态是后台任务在改，**要轮询**：连上、断开、重连都不是这个
     // 组件触发的，不轮的话界面会一直停在"连接中"。
-    const t = setInterval(() => void reload(), 2000)
-    return () => clearInterval(t)
-  }, [])
+    const t = setInterval(poll, 2000)
+    return () => {
+      alive = false
+      clearInterval(t)
+    }
+  }, [reload])
 
   const state = info?.status.state ?? "disconnected"
   const connected = state === "connected"
@@ -330,19 +345,25 @@ function Wechat() {
   const [busy, setBusy] = useState(false)
 
   const reload = useCallback(
-    () =>
+    (alive: () => boolean = () => true) =>
       wechatStatus()
-        .then(setInfo)
+        .then((r) => alive() && setInfo(r))
         .catch(() => {}),
     [],
   )
 
   useEffect(() => {
-    void reload()
+    // 同飞书那半：卸载后不要再 setState，见上面的注释。
+    let alive = true
+    const poll = () => void reload(() => alive)
+    poll()
     // 连接状态是后台任务在改，**要轮询**：连上、断开、扫码确认都不是这个
     // 组件触发的，不轮的话界面会一直停在上一个状态。
-    const t = setInterval(() => void reload(), 1500)
-    return () => clearInterval(t)
+    const t = setInterval(poll, 1500)
+    return () => {
+      alive = false
+      clearInterval(t)
+    }
   }, [reload])
 
   const st = info?.status

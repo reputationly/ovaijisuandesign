@@ -152,7 +152,19 @@ export function ChatPanel({
               // 而用户要看的是"做了什么"——那在下面的活动流里。
               .filter((m) => m.role !== "tool" && (m.content ?? "").trim())
               .map((m, i) => (
-                <Message key={i} role={m.role} content={m.content ?? ""} />
+                // **key 不能只用下标。** 后端在历史超长时会从头截断
+                // （`agent/mod.rs` 的 `truncate` 返回 `msgs[start..]`），
+                // 切画布时整份列表也会换掉 —— 两种情况下相同的下标会指向
+                // 完全不同的消息，而 `Message` 里的「已复制」状态会跟着
+                // 留在原位，串到别人身上。
+                //
+                // `at` 是发送时刻，同一条消息在截断前后不变。它是可选的
+                // （老数据没有），所以拿不到时退回下标。
+                <Message
+                  key={m.at ? `${m.at}-${m.role}` : `i${i}`}
+                  role={m.role}
+                  content={m.content ?? ""}
+                />
               ))}
           </div>
         )}
