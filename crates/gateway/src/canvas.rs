@@ -117,6 +117,11 @@ impl Node {
 /// 校验拦不住**。
 const DESTRUCTIVE_RATIO: f64 = 0.5;
 
+/// 参与破坏性写入判断的节点数：**不含贴纸**。
+fn count_content(file: &CanvasFile) -> usize {
+    file.nodes.iter().filter(|n| n.kind != "sticker").count()
+}
+
 #[derive(Debug)]
 pub enum SaveError {
     /// 结构不合法。
@@ -201,8 +206,13 @@ pub fn replace(path: &Path, next: &CanvasFile) -> Result<(), SaveError> {
 pub fn write(path: &Path, next: &CanvasFile) -> Result<(), SaveError> {
     validate(next).map_err(SaveError::Invalid)?;
 
-    let before = read(path).nodes.len();
-    let after = next.nodes.len();
+    // **贴纸不算数。**「清空全部贴纸」是用户主动点的，一张评审过的画布上
+    // 贴纸可能比产物还多（20 个章 + 3 张图），把它们算进去的话这次写入必然
+    // 触发闸 —— 表现是点了「确认清空」什么都没发生，而且不报错。
+    //
+    // 闸要防的是"产物凭空消失"，贴纸是标注，不在防护范围内。
+    let before = count_content(&read(path));
+    let after = count_content(next);
     if before > 1 && (after as f64) < before as f64 * DESTRUCTIVE_RATIO {
         let raw = serde_json::to_string_pretty(next).unwrap_or_default();
         let _ = quarantine(path, &raw, "destructive");
@@ -306,6 +316,60 @@ mod tests {
         let p = d.path().join(".hilo/canvas.json");
         fs::create_dir_all(p.parent().unwrap()).unwrap();
         (d, p)
+    }
+
+    fn node_of(id: &str, kind: &str) -> Node {
+        Node {
+            id: id.into(),
+            kind: kind.into(),
+            positions: BTreeMap::new(),
+            size: None,
+            asset_id: None,
+            parent_id: None,
+            extra: Default::default(),
+        }
+    }
+
+    /// 清空贴纸不该被破坏性写入闸拦住。
+    ///
+    /// 一张评审过的画布上贴纸可能比产物还多（20 个章 + 3 张图）。把贴纸算进
+    /// 节点总数的话，「清空全部贴纸」必然触发闸 —— 表现是点了「确认清空」
+    /// 什么都没发生，而且不报错。
+    #[test]
+    fn clearing_stickers_is_not_destructive() {
+        let (_d, p) = tmp();
+        let mut before = CanvasFile::default();
+        before.nodes.push(node_of("img-1", "image"));
+        before.nodes.push(node_of("img-2", "image"));
+        before.nodes.push(node_of("img-3", "image"));
+        for i in 0..20 {
+            before.nodes.push(node_of(&format!("sticker-{i}"), "sticker"));
+        }
+        replace(&p, &before).unwrap();
+
+        // 23 → 3。按总数算是掉到 13%，远低于 50% 的闸。
+        let mut after = before.clone();
+        after.nodes.retain(|n| n.kind != "sticker");
+        write(&p, &after).expect("清空贴纸被闸拦住了");
+    }
+
+    /// 但产物本身骤降还是要拦 —— 贴纸多不能成为绕过闸的办法。
+    #[test]
+    fn losing_real_nodes_is_still_destructive() {
+        let (_d, p) = tmp();
+        let mut before = CanvasFile::default();
+        for i in 0..4 {
+            before.nodes.push(node_of(&format!("img-{i}"), "image"));
+        }
+        for i in 0..20 {
+            before.nodes.push(node_of(&format!("sticker-{i}"), "sticker"));
+        }
+        replace(&p, &before).unwrap();
+
+        // 贴纸一个不动，只掉产物 4 → 1。
+        let mut after = before.clone();
+        after.nodes.retain(|n| n.kind != "image" || n.id == "img-0");
+        assert!(matches!(write(&p, &after), Err(SaveError::Destructive { .. })));
     }
 
     #[test]

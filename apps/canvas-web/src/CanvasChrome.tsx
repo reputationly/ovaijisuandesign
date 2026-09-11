@@ -16,6 +16,7 @@ import {
   Plus,
   Workflow,
   X,
+  StickyNote,
 } from "lucide-react"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
@@ -40,6 +41,7 @@ const MODE_LABEL: Record<CanvasMode, string> = {
   workflow: "工作流",
 }
 import { cn } from "./lib"
+import { StickerPicker } from "./StickerCard"
 
 /**
  * 画布上的浮层控件。官方把它们摆成两处，我们照做：
@@ -454,6 +456,7 @@ export function BottomToolbar({
   onAssets,
   help,
   onHelp,
+  sticker,
 }: {
   onCreate?: () => void
   mode: ToolMode
@@ -461,8 +464,11 @@ export function BottomToolbar({
   onAssets: () => void
   help: boolean
   onHelp: (v: boolean) => void
+  /** 贴纸面板的全套状态，见 [`StickerPicker`]。 */
+  sticker: React.ComponentProps<typeof StickerPicker>
 }) {
   const [open, setOpen] = useState(false)
+  const [stickerOpen, setStickerOpen] = useState(false)
   const boxRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -567,10 +573,31 @@ export function BottomToolbar({
             </div>
           )}
         </div>
-        {/* 官方这里还有一个「便签」（Sticker 模式：在画布世界坐标上放标记）。
-            **我们没做，所以不放这个按钮** —— 之前它只是翻转一个没人读的
-            布尔值，点上去除了自己变蓝什么都不会发生。一个假按钮比少一个
-            按钮更糟：用户会反复点，以为是自己用错了。 */}
+        {/* Sticker（盖章）。官方 `canvas.toolbar.sticker`。
+            按钮上高亮的是**盖章模式是否开着**,不是面板开没开 —— 模式开着
+            时用户可能已经把面板关了在连续盖章，这时按钮必须还亮着，
+            否则他不知道点画布为什么一直在出章。 */}
+        <div className="relative">
+          <DockBtn
+            title="Sticker"
+            active={sticker.stamping}
+            onClick={() => setStickerOpen((v) => !v)}
+          >
+            <StickyNote size={ICON} />
+          </DockBtn>
+          {stickerOpen && (
+            <div
+              className="absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 rounded-lg border"
+              style={{
+                background: "var(--canvas-controls-bg)",
+                borderColor: "var(--brutalist-border-subtle)",
+                boxShadow: "var(--canvas-shadow-menu)",
+              }}
+            >
+              <StickerPicker {...sticker} />
+            </div>
+          )}
+        </div>
         <DockBtn title="资产列表" onClick={onAssets}>
           <Folder size={ICON} />
         </DockBtn>

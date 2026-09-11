@@ -7,6 +7,7 @@ import {
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
   useEdgesState,
   useNodesState,
   type Edge as FlowEdge,
@@ -67,6 +68,14 @@ import {
   groupNodes,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
+import {
+  STICKERS,
+  findStickerTarget,
+  isSticker,
+  makeSticker,
+  syncStickerBindings,
+  type Placed,
+} from "./sticker"
 import { captureFrame, frameFileName } from "./captureFrame"
 import { GRID_PRESETS, cellFileName, gridCells, loadImage } from "./splitGrid"
 import {
@@ -79,7 +88,7 @@ import {
   toggleTag,
   withTags,
 } from "./tags"
-import { isValidConnection, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
+import { isValidConnection, positionOf, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import {
   BottomToolbar,
   CANVAS_BACKGROUNDS,
@@ -92,6 +101,7 @@ import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
 import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
+import { cn } from "./lib"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
 import { Settings } from "./Settings"
@@ -166,6 +176,20 @@ export default function App() {
   // 切的就是这个 —— 画布类工具里这是最基本的一对模式。
   const [tool, setTool] = useState<"select" | "hand">("select")
   const [help, setHelp] = useState(false)
+  /** 选中的贴纸。默认「通过」—— 评审时这个用得最多。 */
+  const [stickerId, setStickerId] = useState(STICKERS[0]!.id)
+  const [stamping, setStamping] = useState(false)
+  const [stickersHidden, setStickersHidden] = useState(false)
+  /** 刚盖下去的那个，用来触发落地动画。见 styles.css 的 `sticker-stamp`。 */
+  const [freshSticker, setFreshSticker] = useState<string | null>(null)
+  /**
+   * 屏幕坐标 → 画布坐标。
+   *
+   * `screenToFlowPosition` 只在 `ReactFlowProvider` 内部拿得到，而这些
+   * 事件处理函数写在 App 里（在 provider 外）。用一个挂在 provider 里的
+   * 空组件把函数递出来，见 [`FlowBridge`]。
+   */
+  const toFlowPos = useRef<((p: { x: number; y: number }) => { x: number; y: number }) | null>(null)
   // agent 抛出来的决策点。同一时刻只可能有一个 —— question 工具是阻塞的，
   // agent 在等回答，不会同时问第二次。
   const [question, setQuestion] = useState<QuestionRequest | null>(null)
@@ -280,15 +304,53 @@ export default function App() {
     return () => document.removeEventListener("keydown", onKey)
   }, [view])
 
+  /**
+   * 按住空格平移时把光标换成小手。官方的 `.canvas-space-pan`。
+   *
+   * `panActivationKeyCode="Space"` 让 xyflow 接管了平移，但**它不加任何类名**,
+   * 光标不会变 —— 空画布提示上写着「按住 Space 可以拖拽画布」，按下去却
+   * 没有任何反馈，用户会以为没生效。
+   *
+   * 失焦时必须清掉：切到别的窗口再回来，keyup 是收不到的，
+   * 不清的话画布会一直卡在小手光标上。
+   */
+  const [spacePan, setSpacePan] = useState(false)
+  useEffect(() => {
+    if (view !== "canvas") return
+    const down = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return
+      const t = e.target as HTMLElement | null
+      if (t && (t.isContentEditable || ["INPUT", "TEXTAREA"].includes(t.tagName))) return
+      setSpacePan(true)
+    }
+    const up = (e: KeyboardEvent) => e.code === "Space" && setSpacePan(false)
+    const blur = () => setSpacePan(false)
+    document.addEventListener("keydown", down)
+    document.addEventListener("keyup", up)
+    window.addEventListener("blur", blur)
+    return () => {
+      document.removeEventListener("keydown", down)
+      document.removeEventListener("keyup", up)
+      window.removeEventListener("blur", blur)
+    }
+  }, [view])
+
   useEffect(() => {
     if (!file) return
     // 拖动中收到的新文件先不落到界面上。拖完 `persistCanvas` 会以
     // `fileRef`（已经是新的那份）为底写回，agent 加的节点不会丢。
     if (draggingRef.current) return
     const flow = toFlow(file, mode, details)
-    setNodes(flow.nodes)
+    setNodes(
+      flow.nodes
+        // 「隐藏全部」只是**藏起来**,不是删掉 —— 数据还在，再点一下就回来。
+        .filter((n) => !(stickersHidden && n.type === "sticker"))
+        .map((n) =>
+          n.id === freshSticker ? { ...n, data: { ...n.data, fresh: true } } : n,
+        ),
+    )
     setEdges(flow.edges)
-  }, [file, details, mode, setNodes, setEdges])
+  }, [file, details, mode, setNodes, setEdges, stickersHidden, freshSticker])
 
   // 轮询待答的决策点。**只在画布视图里轮询** —— agent 是画布上的东西，
   // 首页没有它。两秒一次，这是个纯内存读的接口。
@@ -759,6 +821,126 @@ export default function App() {
     [mode, details],
   )
 
+  /**
+   * 画布上每个节点的位置和尺寸，给贴纸的命中测试和跟随同步用。
+   *
+   * **以服务端那份 `file` 为底算，不是拿界面上的 React Flow 节点。**
+   * 界面那份在拖拽过程中是中间态，而且 `onlyRenderVisibleElements` 开着 ——
+   * 视口外的节点根本不在里面，拿它做命中测试会漏掉一半画布。
+   */
+  const placed = useCallback((): (Placed & { parentId?: string; data?: Record<string, unknown> })[] => {
+    const base = fileRef.current
+    if (!base) return []
+    return base.nodes.map((n) => ({
+      id: n.id,
+      type: n.type,
+      position: positionOf(n, mode, base.mode),
+      size: sizeOf(n, mode, details.get(n.id)),
+      hidden: n.meta?.hidden === true,
+      ...(n.parentId ? { parentId: n.parentId } : {}),
+      ...(n.data ? { data: n.data } : {}),
+    }))
+  }, [mode, details])
+
+  /**
+   * 盖一个章。
+   *
+   * 落点命中某个节点时贴纸会**跟随**它（存 `targetId` + 归一化 anchor），
+   * 落在空白处就是自由贴纸。这个判断对用户是隐形的 —— 盖的时候一模一样，
+   * 差别要等目标被拖动时才显现，所以面板上写了那句
+   * 「跟随目标会随选中的产物移动和缩放」。
+   */
+  const placeSticker = useCallback(
+    async (clientX: number, clientY: number) => {
+      const base = fileRef.current
+      const convert = toFlowPos.current
+      if (!base || !convert) return
+      const at = convert({ x: clientX, y: clientY })
+      const preset = STICKERS.find((p) => p.id === stickerId)
+      const target = findStickerTarget(placed(), at)
+      const node = makeSticker({ at, preset, target, mode })
+
+      const next = { ...base, nodes: [...base.nodes, node] }
+      // **先更新界面再写服务端。** 连续盖章时每次都等一个来回的话，
+      // 章会一个个慢半拍地冒出来，手感像卡住了。
+      setFile(next)
+      // 落地动画靠这个属性触发，480ms 后摘掉 —— 不摘的话下次这个节点
+      // 因为别的原因重渲染时会再抖一次。
+      setFreshSticker(node.id)
+      window.setTimeout(() => setFreshSticker((cur) => (cur === node.id ? null : cur)), 520)
+      try {
+        await putCanvas(next)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err))
+      }
+    },
+    [mode, placed, stickerId],
+  )
+
+  /**
+   * 目标节点动过之后，把贴在它身上的章挪到新位置。
+   *
+   * 只在拖拽**结束**时做一次，不是拖的过程中每帧做 —— 每帧重算会整份重建
+   * 画布图，手里拖着的那个节点会被抽掉重来，表现是拖到一半跳回原位。
+   */
+  const syncStickers = useCallback(
+    async (movedIds: string[]) => {
+      const base = fileRef.current
+      if (!base || !base.nodes.some(isSticker)) return
+      const snapshot = placed()
+      const moves = new Map<string, { x: number; y: number }>()
+      for (const id of movedIds) {
+        for (const m of syncStickerBindings(snapshot, id)) moves.set(m.id, m.position)
+      }
+      if (moves.size === 0) return
+      const next = {
+        ...base,
+        nodes: base.nodes.map((n) => {
+          const p = moves.get(n.id)
+          return p ? { ...n, positions: { ...n.positions, [mode]: p } } : n
+        }),
+      }
+      setFile(next)
+      try {
+        await putCanvas(next)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err))
+      }
+    },
+    [mode, placed],
+  )
+
+  /** 清空全部贴纸。官方那句确认文案里承诺「可以整体撤销一次」。 */
+  const clearStickers = useCallback(async () => {
+    const base = fileRef.current
+    if (!base) return
+    const count = base.nodes.filter(isSticker).length
+    if (count === 0) return
+    if (
+      !(await uiConfirm(`确定清除当前画布的全部 Sticker 吗？共 ${count} 个。`, {
+        confirmLabel: "确认清空",
+        danger: true,
+      }))
+    ) {
+      return
+    }
+    const gone = new Set(base.nodes.filter(isSticker).map((n) => n.id))
+    const next = {
+      ...base,
+      nodes: base.nodes.filter((n) => !isSticker(n)),
+      // 贴纸挂在边上是不可能的（它们不可连线），但历史数据里万一有，
+      // 留下悬空的边会让 gateway 的引用完整性校验**拒掉整次保存** ——
+      // 表现是点了「确认清空」毫无反应。
+      edges: base.edges.filter((e) => !gone.has(e.source) && !gone.has(e.target)),
+    }
+    setFile(next)
+    try {
+      await putCanvas(next)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }, [])
+
   const actions = useMemo<CanvasActions>(
     () => ({
       async saveText(nodeId, content, expectedHash) {
@@ -999,13 +1181,18 @@ export default function App() {
         ) : (
 
         <main
-          className="relative min-w-0 flex-1"
+          className={cn(
+            "relative min-w-0 flex-1",
+            spacePan && "canvas-space-pan",
+            stamping && "canvas-stamping",
+          )}
           data-hilo-canvas-root="true"
           style={{
             background: `var(${CANVAS_BACKGROUNDS.find((b) => b.id === bg)?.varName ?? "--canvas-bg"})`,
           }}
         >
           <ReactFlowProvider>
+            <FlowBridge into={toFlowPos} />
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -1013,9 +1200,13 @@ export default function App() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onNodeDragStart={() => (draggingRef.current = true)}
-              onNodeDragStop={() => {
+              onNodeDragStop={(_, __, dragged) => {
                 draggingRef.current = false
-                void persistCanvas()
+                void persistCanvas().then(() => {
+                  // 拖完才同步跟随的贴纸，不是拖的过程中每帧同步 ——
+                  // 每帧重算会整份重建画布图，手里拖着的节点会被抽掉重来。
+                  void syncStickers(dragged.map((n) => n.id))
+                })
               }}
               // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
               // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
@@ -1122,6 +1313,20 @@ export default function App() {
                 // 官方空画布提示上写着「双击画布 自由生成节点」——
                 // 弹的就是这个「添加节点」菜单，和拉线松手同一份。
                 setMenu({ x: e.clientX, y: e.clientY, items: addNodeMenuItems() })
+              }}
+              // 盖章模式下，点画布和点节点都是"在这里盖一个"。
+              //
+              // **两个都要接。** 只接 onPaneClick 的话，点在图片上不会盖章 ——
+              // 而"贴在产物上"正是这个功能的主要用法，等于主路径是死的。
+              onPaneClick={(e) => {
+                if (stamping) void placeSticker(e.clientX, e.clientY)
+              }}
+              onNodeClick={(e) => {
+                if (!stamping) return
+                // 盖章时点节点不该同时选中它 —— 选中会弹出节点工具条，
+                // 正好挡住刚盖下去的章。
+                e.stopPropagation()
+                void placeSticker(e.clientX, e.clientY)
               }}
               onPaneContextMenu={(e) => {
                 e.preventDefault()
@@ -1317,6 +1522,22 @@ export default function App() {
                 onAssets={() => setView("library")}
                 help={help}
                 onHelp={setHelp}
+                sticker={{
+                  selected: stickerId,
+                  onSelect: (id) => {
+                    setStickerId(id)
+                    // 选了图案就直接进盖章模式 —— 官方那句
+                    // 「选择 Sticker 后点击画布即可开始盖章」承诺的就是这个。
+                    // 还要求用户再拨一次开关的话，那句话就是假的。
+                    setStamping(true)
+                  },
+                  stamping,
+                  onStamping: setStamping,
+                  count: file?.nodes.filter(isSticker).length ?? 0,
+                  onClear: () => void clearStickers(),
+                  hidden: stickersHidden,
+                  onHidden: setStickersHidden,
+                }}
               />
               {/* 空状态。文案逐字取自官方 i18n 的 `canvas.emptyHint.*`：
                   「双击画布 自由生成节点」+「按住 Space 可以拖拽画布，
@@ -1450,4 +1671,26 @@ export default function App() {
       )}
     </CanvasActionsContext>
   )
+}
+
+/**
+ * 把 `screenToFlowPosition` 从 provider 里递出来。
+ *
+ * 这个 API 只有 `ReactFlowProvider` 的子树里拿得到，而 `<ReactFlow>` 的事件
+ * 处理函数都写在 App 里（在 provider 外边）。为了一个坐标换算把整棵树重排
+ * 不值得，用一个不渲染任何东西的组件把函数放进 ref。
+ */
+function FlowBridge({
+  into,
+}: {
+  into: React.MutableRefObject<((p: { x: number; y: number }) => { x: number; y: number }) | null>
+}) {
+  const { screenToFlowPosition } = useReactFlow()
+  useEffect(() => {
+    into.current = screenToFlowPosition
+    return () => {
+      into.current = null
+    }
+  }, [screenToFlowPosition, into])
+  return null
 }

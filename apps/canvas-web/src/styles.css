@@ -81,15 +81,68 @@ body {
  * 我们碰不到它的 JSX。**值全部来自官方样式表**，见每条的注释。
  * ------------------------------------------------------------------------- */
 
-/* 光标：官方全程用同一个自定义罗盘光标，**拖拽时也不换成 grab/grabbing**。
- * 这是他们刻意的 —— 画布上光标形状不变，视觉更稳。图形是内联 SVG
- * （见 tokens.css 的 --canvas-cursor-default-url），热点在 (4,4)。 */
-.react-flow__pane,
-.react-flow__pane.dragging,
-.react-flow__node,
-.react-flow__node.selectable:hover,
-.react-flow__nodesselection-rect {
+/* 光标：罗盘光标**只替换"箭头类"光标**，语义光标一律保留自己的。
+ *
+ * 图形是内联 SVG（见 tokens.css 的 --canvas-cursor-default-url），热点 (4,4)。
+ *
+ * ## 之前这里是错的
+ *
+ * 我原来写的是给 `.react-flow__pane` / `.react-flow__node` 整个钉上
+ * `!important`,注释还说"官方拖拽时也不换 grab/grabbing"—— **官方不是这样**。
+ * 后果是选了小手工具光标毫无变化，用户不知道模式切过去没有。
+ *
+ * 官方那条规则自己带着说明：
+ *
+ * > Keep this rule intentionally narrow: only arrow-equivalent cursors are
+ * > mapped to the custom cursor. Semantic cursors such as pointer, text,
+ * > grab/grabbing, move, resize, zoom, and not-allowed keep their own
+ * > declarations.
+ *
+ * 也就是说，他们**只重映射那些已经解析成 `default` / `auto` 的元素**,
+ * 从不碰 pane 和 node 本身。React Flow 自带的
+ * `.react-flow__pane.draggable { cursor: grab }` 于是自然生效，
+ * 不用和 `!important` 打架。
+ *
+ * `:where()` 让整条规则的特异度为 0 —— 谁都能覆盖它，正是"narrow"的意思。 */
+[data-hilo-canvas-root="true"]
+  :where(
+    .cursor-default,
+    .cursor-auto,
+    .disabled\:cursor-default:disabled,
+    .disabled\:cursor-auto:disabled,
+    .aria-disabled\:cursor-default[aria-disabled="true"],
+    .aria-disabled\:cursor-auto[aria-disabled="true"],
+    [style*="cursor: default"],
+    [style*="cursor: auto"]
+  ) {
   cursor: var(--canvas-cursor-default) !important;
+}
+
+/* pane 和 node 的**静止**状态用罗盘光标。不带 !important —— 库自带的
+ * `.draggable { cursor: grab }` 特异度更高，小手模式下它该赢。 */
+.react-flow__pane,
+.react-flow__node {
+  cursor: var(--canvas-cursor-default);
+}
+
+/* 空格平移。官方的 `.canvas-space-pan`,逐条照搬语义：
+ * 平移时节点要 `pointer-events: none`,否则光标划过节点就跳回箭头，
+ * 而且会误触节点上的按钮。 */
+.canvas-space-pan .react-flow__pane {
+  cursor: grab !important;
+}
+
+.canvas-space-pan .react-flow__pane.dragging {
+  cursor: grabbing !important;
+}
+
+.canvas-space-pan .react-flow__node {
+  pointer-events: none !important;
+  cursor: grab !important;
+}
+
+.canvas-space-pan .react-flow__nodesselection-rect {
+  pointer-events: none !important;
 }
 
 /* 拖拽中的连线：和 EdgesCanvas 画的默认边同色同宽（1.5），
@@ -440,4 +493,61 @@ body {
     calc(100cqi - var(--home-hero-padding-x) - var(--home-hero-padding-x)),
     var(--home-primary-stack-width)
   );
+}
+
+/* ── Sticker ──────────────────────────────────────────────────────────────
+ *
+ * 贴纸**必须盖在别的节点上面**。官方给的是
+ * `.react-flow__node-sticker { z-index: 1002 !important }` —— 不拔高的话，
+ * xyflow 按节点在图里的顺序排层，后加的图片会把先盖的章压在下面，
+ * 用户看到的是"章消失了"。
+ *
+ * `!important` 是必需的：xyflow 把 z-index 写在元素的 style 上，
+ * 类选择器赢不了行内样式。 */
+.react-flow__node.react-flow__node-sticker {
+  z-index: 1002 !important;
+}
+
+.sticker-art {
+  display: inline-flex;
+  position: relative;
+  transform: rotate(var(--sticker-rotation, 0deg));
+  transform-origin: center;
+}
+
+/* 盖下去那一下的回弹。**每个关键帧都要带上 rotation** ——
+ * transform 是整条替换的，漏写一帧，贴纸会在动画中途突然转正再转回去。 */
+[data-sticker-fresh] .sticker-art {
+  animation: sticker-stamp 480ms cubic-bezier(0.2, 0.86, 0.28, 1) both;
+}
+
+@keyframes sticker-stamp {
+  0% {
+    opacity: 0.7;
+    transform: translateY(-6px) rotate(var(--sticker-rotation, 0deg)) scale(0.76);
+  }
+  /* 接触瞬间压扁 —— 橡皮章按在纸上就是这样，没有这一帧只是"淡入"。 */
+  18% {
+    opacity: 1;
+    transform: translateY(3px) rotate(var(--sticker-rotation, 0deg)) scale(1.08, 0.58);
+  }
+  46% {
+    transform: translateY(-2px) rotate(var(--sticker-rotation, 0deg)) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--sticker-rotation, 0deg)) scale(1);
+  }
+}
+
+/* 盖章模式下的光标。十字准星比箭头更像"要在这里落点"。 */
+.canvas-stamping .react-flow__pane,
+.canvas-stamping .react-flow__node {
+  cursor: crosshair !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sticker-fresh] .sticker-art {
+    animation: none;
+  }
 }

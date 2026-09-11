@@ -33,6 +33,9 @@ const DEFAULT_SIZE: Record<string, Size> = {
   video: { width: 350, height: 350 },
   audio: { width: 350, height: 150 },
   text: { width: 350, height: 500 },
+  // 官方 STICKER_NODE_SIZE。**不参与按素材比例重算** —— 贴纸没有素材，
+  // 而且它是固定大小的标记，跟着目标缩放会让一排章大小不一。
+  sticker: { width: 56, height: 56 },
 }
 const FALLBACK_SIZE: Size = { width: 350, height: 350 }
 
@@ -112,6 +115,10 @@ export function toFlow(
       width,
       height,
       ...(n.parentId ? { parentId: n.parentId } : {}),
+      // 贴纸不参与连线。**`connectable: false` 必须显式给** —— 默认是可连的，
+      // 而贴纸没有 Handle，用户从别处拉线过来能"连上"一个看不见的把手，
+      // 连出来的边在图里真实存在，下游拿它当输入时只会拿到一个 emoji。
+      ...(n.type === "sticker" ? { connectable: false } : {}),
       data: { raw: n, detail: details.get(n.id) },
     }
   })
@@ -131,7 +138,7 @@ export function toFlow(
   return { nodes, edges }
 }
 
-const RENDERABLE = new Set(["image", "video", "audio", "text"])
+const RENDERABLE = new Set(["image", "video", "audio", "text", "sticker"])
 
 /**
  * 把界面上的坐标写回一份完整的 canvas 文件。

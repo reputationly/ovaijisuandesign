@@ -15,6 +15,7 @@ import { tagById, tagsOf } from "./tags"
 import { assetUrl } from "./api"
 import { AudioPlayer, VideoPlayer } from "./MediaPlayer"
 import { MagneticHandle } from "./MagneticHandle"
+import { StickerNode } from "./StickerCard"
 import { NodeToolbar } from "./NodeToolbar"
 import type { NodeData } from "./canvas"
 import { FindBar } from "./FindBar"
@@ -369,6 +370,7 @@ export const nodeTypes = {
   video: VideoNode,
   audio: AudioNode,
   text: TextNode,
+  sticker: StickerNode,
   unknown: UnknownNode,
 }
 
