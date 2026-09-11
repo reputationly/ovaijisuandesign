@@ -255,6 +255,31 @@ export default function App() {
    */
   const draggingRef = useRef(false)
 
+  /**
+   * V / H 切换指针模式。官方那个菜单里就标着这两个字母。
+   *
+   * **在输入框里不能触发** —— 用户打字打到 v 就切成移动工具，而且没有
+   * 任何提示。判 `isContentEditable` 是因为文本节点用的是 tiptap，
+   * 它不是 `<input>` 也不是 `<textarea>`。
+   */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (view !== "canvas" || e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (
+        t &&
+        (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))
+      ) {
+        return
+      }
+      const k = e.key.toLowerCase()
+      if (k === "v") setTool("select")
+      else if (k === "h") setTool("hand")
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [view])
+
   useEffect(() => {
     if (!file) return
     // 拖动中收到的新文件先不落到界面上。拖完 `persistCanvas` 会以

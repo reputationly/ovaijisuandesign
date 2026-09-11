@@ -124,6 +124,9 @@ export function QuestionCard({
             style={{ color: "var(--muted-foreground)" }}
           >
             {q.header}
+            {/* 官方 `chat.question.multiSelect` =「可多选」。
+                **形状（圆/方）只有见过的人才认得**，写出来才是所有人都懂。 */}
+            {q.multiple && <span className="ml-1.5 normal-case">可多选</span>}
           </p>
           <p className="mb-2 text-[13px] leading-5">{q.question}</p>
 
@@ -175,7 +178,8 @@ export function QuestionCard({
                 onChange={(e) =>
                   setCustom((prev) => prev.map((v, i) => (i === qi ? e.target.value : v)))
                 }
-                placeholder="或者自己写一个"
+                // 官方 `chat.question.customPlaceholder` =「输入你的回答...」
+                placeholder="输入你的回答..."
                 className="mt-0.5 rounded-md px-2.5 py-2 text-[13px] outline-none"
                 style={{
                   border: "1px solid var(--border)",
@@ -200,8 +204,17 @@ export function QuestionCard({
           className="rounded-md px-2.5 py-1.5 text-[13px]"
           style={{ color: "var(--muted-foreground)" }}
         >
-          跳过
+          {/* 官方这条是 `chat.reject` =「拒绝」。「跳过」听起来像"这题不答，
+              下一题继续"，而它实际上是**终止这次提问**，agent 会换个做法。 */}
+          拒绝
         </button>
+        {/* 官方 `chat.question.answerRequired` =「请先回答此题再提交。」
+            之前只是把提交键置灰 —— 用户不知道是哪一题没答，尤其多题时。 */}
+        {!ready && (
+          <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+            请先回答此题再提交。
+          </span>
+        )}
         <span className="flex-1" />
         <button
           disabled={!ready}

@@ -186,8 +186,14 @@ export function Sidebar({
         {/* 官方的结构是「项目」一个大标题，下面挂各个项目文件夹，
             每个文件夹再挂它的会话。**不是每个项目一个平级分组** ——
             那样项目多了以后，「未分组」会被挤到很下面，而它才是最常用的。 */}
+        {/* 分组标题照官方：`home.myProjects` =「我的项目」、
+            `home.recentProjects` =「最近创作」。
+
+            「未分组」是从数据角度说的（没归到项目里的那些），而用户看的是
+            "我最近做了什么" —— 实际上绝大多数创作都不会归项目，那一栏才是
+            主栏，叫「未分组」显得像个杂物间。 */}
         {projects.length > 0 && (
-          <Section title="项目">
+          <Section title="我的项目">
             {projects.map((p) => (
               <ProjectFolder
                 key={p.id}
@@ -200,13 +206,13 @@ export function Sidebar({
             ))}
           </Section>
         )}
-        <Section title="未分组">
+        <Section title="最近创作">
           <SessionList
             items={shown.filter((s) => !s.project)}
             current={current}
             onOpen={onOpenSession}
             onMenu={onSessionMenu}
-            empty={q.trim() ? "没有匹配的创作" : "还没有创作"}
+            empty={q.trim() ? "没有匹配的创作" : "还没有创作，开始创建一个吧"}
           />
         </Section>
       </div>

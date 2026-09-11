@@ -55,22 +55,35 @@ export function Update() {
   if (phase.state === "applied") {
     return (
       <span className="text-ok" title="旧进程还占着端口，所以不自动重启">
-        已装好 {phase.version}，重启后生效
+        {/* 官方 `update.title.downloaded` =「下载完成」+
+             `update.btn.restartNow` =「现在重启」。我们这条是"已装好、
+             等重启"，用官方的说法就是「更新已准备就绪」。 */}
+        更新已准备就绪 {phase.version}，重启后生效
       </span>
     )
   }
   if (phase.state === "failed") {
     return (
-      <span className="text-bad" title={phase.error}>
-        升级失败（{phase.at}）
+      <span className="text-bad" title={`${phase.error}\n\n请重试，或到官网下载最新版覆盖安装。`}>
+        {/* 官方 `update.title.error` =「更新失败」，外加
+             `update.errorAdvice` 告诉用户下一步做什么 —— 只说失败的话，
+             用户除了再点一次没有别的选择。 */}
+        更新失败（{phase.at}）
       </span>
     )
   }
   if (phase.state === "downloading") {
     const pct = phase.total > 0 ? Math.round((phase.done / phase.total) * 100) : 0
-    return <span className="text-dim">下载 {phase.version} … {pct}%</span>
+    // 官方 `update.downloading` =「正在下载更新... {{percent}}%」
+    return (
+      <span className="text-dim">
+        正在下载更新 {phase.version}… {pct}%
+      </span>
+    )
   }
-  if (phase.state === "verifying") return <span className="text-dim">校验中…</span>
+  // 官方没有单独的"校验"态，它归在下载里。我们分开是因为校验能跑几秒，
+  // 不说的话用户以为卡住了。
+  if (phase.state === "verifying") return <span className="text-dim">正在校验…</span>
 
   if (phase.state === "staged") {
     return (
@@ -87,7 +100,9 @@ export function Update() {
         disabled={busy}
         className="rounded border border-accent bg-accent px-2.5 py-0.5 text-[#10121a] disabled:opacity-50"
       >
-        安装 {phase.version}
+        {/* 官方 `update.install` =「重启并安装」—— 说清楚会重启，
+             而不是让用户点完才发现应用关了。 */}
+        重启并安装 {phase.version}
       </button>
     )
   }

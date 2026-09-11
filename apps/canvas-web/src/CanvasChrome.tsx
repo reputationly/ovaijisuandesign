@@ -1,5 +1,6 @@
 import {
   Boxes,
+  Check,
   ChevronUp,
   CircleDashed,
   Folder,
@@ -503,7 +504,7 @@ export function BottomToolbar({
         {/* 选择 / 抓手的分体按钮：左边切换、右边展开菜单。 */}
         <div className="flex items-center">
           <DockBtn
-            title={mode === "hand" ? "抓手" : "选择"}
+            title={mode === "hand" ? "小手工具（H）" : "移动（V）"}
             active
             onClick={() => onMode(mode === "hand" ? "select" : "hand")}
           >
@@ -528,10 +529,13 @@ export function BottomToolbar({
             >
               {(
                 [
-                  ["select", "选择", <MousePointer2 key="s" size={15} />],
-                  ["hand", "抓手", <Hand key="h" size={15} />],
+                  // 文案照官方：`canvas.toolbar.move` =「移动」、
+                  // `canvas.toolbar.handTool` =「小手工具」。
+                  // 快捷键 V / H 也是官方那个菜单里标着的。
+                  ["select", "移动", "V", <MousePointer2 key="s" size={15} />],
+                  ["hand", "小手工具", "H", <Hand key="h" size={15} />],
                 ] as const
-              ).map(([id, label, icon]) => (
+              ).map(([id, label, key, icon]) => (
                 <button
                   key={id}
                   role="menuitemradio"
@@ -546,8 +550,18 @@ export function BottomToolbar({
                     background: mode === id ? "var(--canvas-controls-active)" : "transparent",
                   }}
                 >
+                  {/* 选中打勾 —— 官方那个菜单左边就是勾，不是靠底色。
+                      只靠底色的话，深色主题下两行几乎一样。 */}
+                  <Check
+                    size={13}
+                    style={{ opacity: mode === id ? 1 : 0 }}
+                    className="shrink-0"
+                  />
                   {icon}
-                  {label}
+                  <span className="flex-1">{label}</span>
+                  <span className="text-[12px]" style={{ color: "var(--canvas-controls-text-muted)" }}>
+                    {key}
+                  </span>
                 </button>
               ))}
             </div>
@@ -568,32 +582,10 @@ export function BottomToolbar({
           <DockBtn title="快捷键" active={help} onClick={() => onHelp(!help)}>
             <HelpCircle size={ICON} />
           </DockBtn>
-          {help && (
-            <div
-              className="absolute right-0 bottom-full z-50 mb-2 w-[248px] rounded-lg border p-3 text-[12px]"
-              style={{
-                background: "var(--canvas-controls-bg)",
-                borderColor: "var(--brutalist-border-subtle)",
-                boxShadow: "var(--canvas-shadow-menu)",
-                color: "var(--canvas-controls-text)",
-              }}
-            >
-              <p className="mb-2 font-medium">快捷键</p>
-              {[
-                ["空白处拖拽", "框选（选择模式）"],
-                ["中键 / 右键拖拽", "平移画布"],
-                ["滚轮", "平移；⌘/Ctrl + 滚轮缩放"],
-                ["双击文本节点", "编辑"],
-                ["右键", "菜单"],
-                ["节点两侧 ⊕", "拉出连线"],
-              ].map(([k, v]) => (
-                <p key={k} className="flex justify-between gap-3 py-0.5">
-                  <span style={{ color: "var(--canvas-controls-text-muted)" }}>{k}</span>
-                  <span className="text-right">{v}</span>
-                </p>
-              ))}
-            </div>
-          )}
+          {/* 面板在 `ShortcutPanel`（本文件下方），由 App 渲染在画布层上。
+              这里**只留按钮** —— 之前这儿还有一个旧的浮层，两个会同时显示
+              成重影，而且旧那份的内容已经过时（写着「滚轮：平移」,
+              我们后来改成了滚轮缩放）。 */}
         </div>
       </div>
     </div>
@@ -680,6 +672,8 @@ function Kbd({ children }: { children: ReactNode }) {
  * 下面每一条都对应 `App.tsx` 里一处真实配置，改动那边时这里要跟着改。
  */
 const SHORTCUTS: { keys: string[]; desc: string }[] = [
+  { keys: ["V"], desc: "移动工具" },
+  { keys: ["H"], desc: "小手工具" },
   { keys: ["双击画布"], desc: "生成节点" },
   { keys: ["Space", "拖拽"], desc: "平移画布" },
   { keys: ["滚轮"], desc: "缩放画布" },

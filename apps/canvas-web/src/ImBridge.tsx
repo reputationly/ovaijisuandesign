@@ -79,8 +79,19 @@ export function ImBridge({ onClose }: { onClose: () => void }) {
 
   const state = info?.status.state ?? "disconnected"
   const connected = state === "connected"
+  // 状态文案照官方的 `settings.imBridge.channel.status.*` / `status.*`：
+  //   connected    = 已连接 · 账号可用
+  //   connecting   = 正在连接，或正在重连…
+  //   disconnected = 未连接，请扫码重连
+  //   error        = 连接异常
+  // **官方的说法带下一步动作**（"请扫码重连"），我们原来只有一个状态名 ——
+  // 用户看到"未接入"不知道该做什么。
   const label =
-    { connected: "已接入", connecting: "连接中", failed: "连接失败" }[state] ?? "未接入"
+    {
+      connected: "已连接 · 账号可用",
+      connecting: "正在连接，或正在重连…",
+      failed: "连接异常",
+    }[state] ?? "未连接"
 
   return (
     <Dialog open title="接入飞书 / 微信" onClose={onClose}>
@@ -374,12 +385,25 @@ function Wechat() {
   // 扫码进行中：有 qrState 且还没确认。确认之后后台会自己连上。
   const scanning = !!qr && qr !== "confirmed"
 
+  // 状态文案照官方的 `settings.imBridge.channel.status.*` / `status.*`：
+  //   connected    = 已连接 · 账号可用
+  //   connecting   = 正在连接，或正在重连…
+  //   disconnected = 未连接，请扫码重连
+  //   error        = 连接异常
+  // **官方的说法带下一步动作**（"请扫码重连"），我们原来只有一个状态名 ——
+  // 用户看到"未接入"不知道该做什么。
   const label =
-    { connected: "已接入", connecting: "连接中", failed: "连接失败" }[state] ?? "未接入"
+    {
+      connected: "已连接 · 账号可用",
+      connecting: "正在连接，或正在重连…",
+      failed: "连接异常",
+    }[state] ?? (info?.configured ? "未连接，请点连接" : "未连接，请扫码")
+  // 逐条对官方的 `settings.imBridge.wechat.qr.status.*`。
+  // 只有 ready 一条我们原来写的是"请用微信扫描二维码"，官方是"请使用"。
   const qrHint =
     {
       loading: "正在获取二维码…",
-      ready: "请用微信扫描二维码",
+      ready: "请使用微信扫描二维码",
       scanned: "已扫码，请在手机上确认",
       expired: "二维码已过期",
       error: "登录失败",
