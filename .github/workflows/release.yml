@@ -64,6 +64,25 @@ jobs:
             exit 0
           fi
 
+          # 手动在**分支**上跑（不是从 tag）：出全部三个平台的包，但不发布。
+          #
+          # 用来看产物体积、验证三个平台都能打出来，而不用先发一版。
+          # `publish` 和 `github-release` 两个 job 本来就卡
+          # `startsWith(github.ref, 'refs/tags/')`,这条路上它们保持跳过 ——
+          # 也就是说这次 run 只产出 artifacts，不对外发任何东西。
+          #
+          # 版本号用 Cargo.toml 的三段基线：这种包不会进分发渠道，
+          # 第四段迭代号没有意义。
+          if [ "${{ github.ref_type }}" != "tag" ]; then
+            echo "::notice::非 tag 触发，出包但不发布（版本 $CARGO）"
+            {
+              echo "version=$CARGO"
+              echo "prefix="
+              echo "matrix=$(echo "$ALL" | jq -c .)"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           # 版本号四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
           # 三段基线在 Cargo.toml（四段不是合法 semver，cargo 不收），完整版本号
           # 在 tag 里。校验前三段一致 —— 对不上的话包名、清单 URL、二进制自报的
