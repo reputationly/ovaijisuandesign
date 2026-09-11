@@ -85,6 +85,31 @@ describe("交互层", () => {
     expect(missing).toEqual([])
   })
 
+  it("不用原生 confirm / prompt / alert", () => {
+    // **它们在 Tauri 的 webview 里永远不弹。** macOS 上是 WKWebView，
+    // 要宿主实现 `WKUIDelegate` 的 `runJavaScriptConfirmPanel` 等方法才会
+    // 弹对话框，而 wry 0.55 一个都没实现 —— 没有 delegate 时 WKWebView
+    // **直接返回 false / null，不弹任何东西也不报错**。
+    //
+    // 这一条上线前有 9 处功能是死的：重命名、新建项目、删除会话、删除
+    // skill、解散项目、新建关键词、微信退出 —— 点了毫无反应。
+    //
+    // 这类问题在浏览器里开发时看不出来（Chrome 实现了这些），只有装进
+    // 桌面壳才会暴露，所以必须有一条静态检查挡住。用 `./Prompt` 里的
+    // `confirm` / `prompt`（异步）。
+    const bad: string[] = []
+    for (const { name, text } of files()) {
+      if (name === "Prompt.tsx") continue
+      for (const m of text.matchAll(/window\.(confirm|prompt|alert)\s*\(/g)) {
+        // 注释里提到它们是可以的 —— 上面那段说明就是。
+        const line = text.slice(0, m.index!).split("\n").pop() ?? ""
+        if (/^\s*(\*|\/\/)/.test(line)) continue
+        bad.push(`${name} 用了 window.${m[1]} —— 在 Tauri 里它永远不弹`)
+      }
+    }
+    expect(bad).toEqual([])
+  })
+
   it("data-action-ui-id 不重复", () => {
     // 重复要么是复制粘贴漏改，要么是两个按钮在做同一件事 —— 后者更值得查：
     // 用户看到两个不同图标，会以为其中一个是别的功能。

@@ -2,6 +2,7 @@ import { FileText, FolderOpen, Image as ImageIcon, Music, Plus, Video } from "lu
 import { useMemo, useState, type ReactNode } from "react"
 
 import type { Project, Session } from "./api"
+import { confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 
 /**
  * 项目库。侧栏「项目库」进来的那一页。
@@ -87,8 +88,8 @@ export function Library({
         <h1 className="text-[20px] font-semibold">项目库</h1>
         <span className="flex-1" />
         <button
-          onClick={() => {
-            const name = window.prompt("项目名字")?.trim()
+          onClick={async () => {
+            const name = (await uiPrompt("项目名字", { placeholder: "例如：柯基短片" }))?.trim()
             if (name) onCreateProject(name)
           }}
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px]"
@@ -108,11 +109,16 @@ export function Library({
             <button
               key={p.id}
               onClick={() => setOpen(p.id)}
-              onContextMenu={(e) => {
+              onContextMenu={async (e) => {
                 e.preventDefault()
                 // 解散只去掉分组，里面的创作退回未分组 —— 说清楚，
                 // 否则用户会以为这是一次连内容一起的删除而不敢点。
-                if (window.confirm(`解散「${p.name}」？里面的创作会退回未分组，不会被删除。`))
+                if (
+                  await uiConfirm(`解散「${p.name}」？里面的创作会退回未分组，不会被删除。`, {
+                    confirmLabel: "解散",
+                    danger: true,
+                  })
+                )
                   onDeleteProject(p.id)
               }}
               className="rounded-xl border p-3 text-left transition-colors hover:bg-[var(--canvas-controls-hover)]"

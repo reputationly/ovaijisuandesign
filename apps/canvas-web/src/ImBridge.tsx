@@ -18,6 +18,7 @@ import {
   type WechatInfo,
 } from "./api"
 import { Dialog } from "./Dialog"
+import { confirm as uiConfirm } from "./Prompt"
 
 /**
  * 接入飞书 / 微信。对应官方的 `im-bridge-dialog`。
@@ -424,8 +425,9 @@ function Wechat() {
               //
               // 飞书那半的「凭据」是展开表单（可逆），这半是真的删，
               // 两者不该长得一样却行为差这么远。
-              onClick={() => {
-                if (!window.confirm("退出登录？下次要重新扫码。")) return
+              onClick={async () => {
+                if (!(await uiConfirm("退出登录？下次要重新扫码。", { confirmLabel: "退出" })))
+                  return
                 setErr(null)
                 setBusy(true)
                 void wechatLogout()

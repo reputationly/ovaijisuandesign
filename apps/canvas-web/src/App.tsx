@@ -91,6 +91,7 @@ import {
 import { ContextMenu, type MenuItem } from "./ContextMenu"
 import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
+import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
 import { Settings } from "./Settings"
@@ -579,10 +580,11 @@ export default function App() {
         {
           id: "rename",
           label: "重命名",
-          onClick: () => {
-            const name = window.prompt("新名字", s.name)?.trim()
-            if (name) void renameSession(id, name).then(reloadSessions)
-          },
+          onClick: () =>
+            void uiPrompt("新名字", { initial: s.name }).then((v) => {
+              const name = v?.trim()
+              if (name) void renameSession(id, name).then(reloadSessions)
+            }),
         },
         ...projects
           .filter((p) => p.id !== s.project)
@@ -603,27 +605,32 @@ export default function App() {
         {
           id: "new-project",
           label: "新建项目并移入",
-          onClick: () => {
-            const name = window.prompt("项目名字")?.trim()
-            if (!name) return
-            void createProject(name)
-              .then((r) => moveSession(id, r.project.id))
-              .then(reloadSessions)
-          },
+          onClick: () =>
+            void uiPrompt("项目名字", { placeholder: "例如：柯基短片" }).then((v) => {
+              const name = v?.trim()
+              if (!name) return
+              void createProject(name)
+                .then((r) => moveSession(id, r.project.id))
+                .then(reloadSessions)
+            }),
         },
         {
           id: "delete",
           label: "删除",
           danger: true,
-          onClick: () => {
+          onClick: () =>
             // 会话删掉就没了，问一句。节点删除没问是因为那个能撤销
             // （重新加载就回来了），这个不能。
-            if (!window.confirm(`删除「${s.name}」？里面的内容会一起消失。`)) return
-            void deleteSession(id)
-              .then(reloadSessions)
-              .then(load)
-              .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
-          },
+            void uiConfirm(`删除「${s.name}」？里面的内容会一起消失。`, {
+              confirmLabel: "删除",
+              danger: true,
+            }).then((ok) => {
+              if (!ok) return
+              void deleteSession(id)
+                .then(reloadSessions)
+                .then(load)
+                .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
+            }),
         },
       ]
       setMenu({ x: at.x, y: at.y, items })
@@ -869,6 +876,11 @@ export default function App() {
 
   return (
     <CanvasActionsContext value={actions}>
+      {/* 应用内的确认框/输入框。**必须有它** —— `window.confirm` 和
+          `window.prompt` 在 Tauri 的 WKWebView 里永远不弹（wry 没实现
+          WKUIDelegate），直接返回 false/null，于是删除、重命名这些
+          点了毫无反应。见 Prompt.tsx。 */}
+      <PromptHost />
       {/* 三栏。按官方 3.0.12 的界面：左边项目/会话，中间画布铺满，
           右边对话面板。画布上的控件是浮层，不占布局 —— 这也是为什么
           官方的画布能一直铺满，控件不挤压可视区域。 */}
@@ -945,14 +957,15 @@ export default function App() {
                   {
                     id: "new",
                     label: "新建项目…",
-                    onClick: () => {
-                      const name = window.prompt("项目名字")?.trim()
-                      if (!name) return
-                      void createProject(name).then((r) => {
-                        setHomeProject(r.project.id)
-                        void reloadSessions()
-                      })
-                    },
+                    onClick: () =>
+                      void uiPrompt("项目名字", { placeholder: "例如：柯基短片" }).then((v) => {
+                        const name = v?.trim()
+                        if (!name) return
+                        void createProject(name).then((r) => {
+                          setHomeProject(r.project.id)
+                          void reloadSessions()
+                        })
+                      }),
                   },
                 ],
               })
@@ -1191,15 +1204,18 @@ export default function App() {
                       id: "add-keyword",
                       label: "新建关键词…",
                       icon: <Hash size={15} />,
-                      onClick: () => {
-                        const name = window.prompt("关键词（最多 6 个中文或 12 个英文）")
-                        if (!name?.trim()) return
-                        if (nameTooLong(name.trim())) {
-                          setError("标签名称最多支持 6 个中文或 12 个英文字符")
-                          return
-                        }
-                        void actions.addKeywordTo(node.id, name)
-                      },
+                      onClick: () =>
+                        void uiPrompt("新建关键词", {
+                          placeholder: "最多 6 个中文或 12 个英文",
+                        }).then((v) => {
+                          const name = v?.trim()
+                          if (!name) return
+                          if (nameTooLong(name)) {
+                            setError("标签名称最多支持 6 个中文或 12 个英文字符")
+                            return
+                          }
+                          void actions.addKeywordTo(node.id, name)
+                        }),
                     },
                     // `canvasTags.filterByTag` =「筛选并定位"{{name}}"」。
                     // 只在这个节点确实有标签时才给 —— 没有标签时点它

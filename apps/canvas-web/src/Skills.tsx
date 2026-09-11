@@ -2,6 +2,7 @@ import { Download, Plus, Search, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 import { deleteSkill, getSkill, importSkills, listSkills, saveSkill, type Skill } from "./api"
+import { confirm as uiConfirm } from "./Prompt"
 
 /**
  * Skill 页。侧栏「Skill」进来的那一页。
@@ -190,8 +191,9 @@ export function Skills({ onUse }: { onUse: (slug: string, body: string) => void 
                     编辑
                   </button>
                   <button
-                    onClick={() => {
-                      if (!window.confirm(`删除「${s.name}」？`)) return
+                    onClick={async () => {
+                      if (!(await uiConfirm(`删除「${s.name}」？`, { confirmLabel: "删除", danger: true })))
+                        return
                       void deleteSkill(s.slug).then(reload)
                     }}
                     title="删除"
