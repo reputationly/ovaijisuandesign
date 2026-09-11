@@ -1,0 +1,125 @@
+import { readFileSync, readdirSync } from "node:fs"
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
+
+import { describe, expect, it } from "bun:test"
+
+/**
+ * 交互层的静态检查。
+ *
+ * ## 为什么要有
+ *
+ * 前一轮人工排查前端交互，查出 13 处「看起来能用、点了不是那回事」。
+ * **跑测试一个都查不出来** —— 它们不崩溃、类型也对，只是标签和行为对不上。
+ *
+ * 其中两类是机器能查的，固化在这里：
+ *
+ * 1. **组件声明了可选 prop，但没有任何调用方传** —— 那段 UI 等于不存在。
+ *    节点工具条的「以此生成」「复制」就是这么消失的：`NodeToolbar` 里
+ *    `{onGenerate && <Btn…>}` 写得好好的，而 `nodes.tsx` 只传了 3 个 prop，
+ *    条件永远为假。
+ *
+ * 2. **同一个 `data-action-ui-id` 出现在多处** —— 要么是复制粘贴漏改，
+ *    要么是两个按钮在做同一件事。灯箱的百分比和圆箭头就共用了
+ *    `zoom-reset`,而它们确实做的是同一件事。
+ *
+ * 查不到的那些（标签写「下载」实际是「打开」之类）只能靠人对着读，
+ * 见提交 `fix(ui): 交互排查`。
+ */
+
+const SRC = fileURLToPath(new URL(".", import.meta.url))
+
+function files(): { name: string; text: string }[] {
+  return readdirSync(SRC)
+    .filter((f) => f.endsWith(".tsx"))
+    .map((name) => ({ name, text: readFileSync(join(SRC, name), "utf8") }))
+}
+
+describe("交互层", () => {
+  it("组件声明的可选 prop 都有人传", () => {
+    const all = files()
+    const whole = all.map((f) => f.text).join("\n")
+    const missing: string[] = []
+
+    for (const { name, text } of all) {
+      // `export function Foo({ a, b }: { a?: X; b: Y })`
+      for (const m of text.matchAll(
+        /export function (\w+)\(\{([\s\S]{0,1200}?)\}:\s*\{([\s\S]{0,2000}?)\n\}\)/g,
+      )) {
+        const comp = m[1]!
+        const typeBlock = m[3]!
+        // 组件在别处被用到没有？没有的话跳过（可能是入口组件）。
+        const used = new RegExp(`<${comp}\\b`).test(whole)
+        if (!used) continue
+
+        // 这个组件的所有使用点，连同它们的属性。
+        //
+        // **按括号配平找结束位置，不要用 `{0,N}?` 截断。** 多行 JSX 的
+        // 属性块经常上百行，截短了会把后面的属性全漏掉 —— 于是每个 prop
+        // 都被报成"没人传"，一屏误报。
+        const usages = [...whole.matchAll(new RegExp(`<${comp}\\b`, "g"))]
+          .map((u) => {
+            const from = u.index! + u[0].length
+            // 找到这个开标签的 `>`：跳过字符串和 `{...}` 里的内容。
+            let depth = 0
+            for (let i = from; i < whole.length; i++) {
+              const c = whole[i]!
+              if (c === "{") depth++
+              else if (c === "}") depth--
+              else if (c === ">" && depth === 0) return whole.slice(from, i)
+            }
+            return whole.slice(from, from + 4000)
+          })
+          .join("\n")
+
+        for (const p of typeBlock.matchAll(/^\s{2}(\w+)\?:/gm)) {
+          const prop = p[1]!
+          // 组件内部真的用到了它才算数 —— 只在类型里写了没用到的不管。
+          if (!new RegExp(`\\b${prop}\\b`).test(text.slice(m.index! + m[0].length))) continue
+          if (!new RegExp(`\\b${prop}=`).test(usages)) {
+            missing.push(`${name} <${comp}> 的 ${prop} 没有任何调用方传 → 这段 UI 等于不存在`)
+          }
+        }
+      }
+    }
+    expect(missing).toEqual([])
+  })
+
+  it("data-action-ui-id 不重复", () => {
+    // 重复要么是复制粘贴漏改，要么是两个按钮在做同一件事 —— 后者更值得查：
+    // 用户看到两个不同图标，会以为其中一个是别的功能。
+    const seen = new Map<string, string[]>()
+    for (const { name, text } of files()) {
+      for (const m of text.matchAll(/data-action-ui-id="([^"]+)"/g)) {
+        seen.set(m[1]!, [...(seen.get(m[1]!) ?? []), name])
+      }
+    }
+    const dupes = [...seen]
+      .filter(([, where]) => where.length > 1)
+      .map(([id, where]) => `${id} 出现 ${where.length} 次（${[...new Set(where)].join(", ")}）`)
+    expect(dupes).toEqual([])
+  })
+
+  it("同一个元素上没有两个 prop 绑到同一个表达式", () => {
+    // 「放大查看」和「下载」曾经都是 `window.open(assetUrl(assetId))` ——
+    // 两个不同标签的按钮做同一件事，而且做的都不是标签说的那件。
+    const bad: string[] = []
+    for (const { name, text } of files()) {
+      for (const m of text.matchAll(/<[A-Z]\w+\b([\s\S]{0,1500}?)\/>/g)) {
+        const attrs = m[1]!
+        const handlers = [...attrs.matchAll(/\b(on[A-Z]\w+)=\{([^}]{8,120})\}/g)]
+        const byBody = new Map<string, string[]>()
+        for (const h of handlers) {
+          const body = h[2]!.replace(/\s+/g, "")
+          byBody.set(body, [...(byBody.get(body) ?? []), h[1]!])
+        }
+        for (const [body, names] of byBody) {
+          if (names.length > 1) {
+            bad.push(`${name}: ${names.join(" 和 ")} 绑到同一个表达式 ${body.slice(0, 60)}`)
+          }
+        }
+      }
+    }
+    expect(bad).toEqual([])
+  })
+})

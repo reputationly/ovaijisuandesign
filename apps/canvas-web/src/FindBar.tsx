@@ -19,19 +19,26 @@ import {
  *
  * **逻辑不在这里**，全在 `find.ts` —— 零宽匹配、非法正则、`$` 占位符
  * 那几个坑在界面里很难测，抽出去之后有 13 个测试盯着。
+ *
+ * ## 还没做：在正文里高亮当前匹配
+ *
+ * 编辑器实例在 `TextEditor` 内部，外面拿不到；要高亮得把 tiptap 的
+ * editor 往上提，或者加一个装饰扩展。**在那之前不放这个 prop** ——
+ * 之前这里有个 `onHighlight`,声明了、组件内也调了，但**没有任何调用方
+ * 传它**，等于一段永远不执行的代码。留着会让人以为高亮已经做了。
+ *
+ * 现在的定位手段是计数（`3 / 12`）和上一个/下一个，文本节点通常不长，
+ * 够用。
  */
 export function FindBar({
   text,
   onReplace,
   onClose,
-  onHighlight,
 }: {
   text: string
   /** 替换后的新全文。调用方负责写回。 */
   onReplace: (next: string) => void
   onClose: () => void
-  /** 当前选中的那处匹配，用来在编辑器里高亮/滚动过去。 */
-  onHighlight?: (m: { start: number; end: number } | null) => void
 }) {
   const [query, setQuery] = useState("")
   const [replacement, setReplacement] = useState("")
@@ -44,7 +51,6 @@ export function FindBar({
 
   // 换了查询或选项，序号要归零 —— 不归的话「第 7 / 2 个」这种会出现。
   useEffect(() => setI(0), [query, opts, text])
-  useEffect(() => onHighlight?.(matches[i] ?? null), [matches, i, onHighlight])
   useEffect(() => inputRef.current?.focus(), [])
 
   const go = (d: number) => {

@@ -181,33 +181,34 @@ fn run() -> Result<()> {
         .build(tauri::generate_context!())
         .context("Tauri 启动失败")?
         .run(|app, event| {
-            // 点 Dock 图标：**已经在前台且窗口开着就收起，否则唤出来。**
+            // 点 Dock 图标。**照官方：只唤起，从不最小化。**
             //
-            // macOS 原生行为是"点了什么都不做"（Finder、Safari 都这样），
-            // 这是我们主动做的开关式行为。
+            // 官方是 `app.on("activate", () => restoreFromDock())`,而
+            // `restoreFromDock` 的全部内容是：
             //
-            // `has_visible_windows` 只说明有没有可见窗口，**不说明我们是不是
-            // 最前台**。光看它的话，从别的应用切回来那一下也会被判成"该收起"
-            // —— 用户想唤出窗口，结果窗口缩下去了。所以还要 `is_focused`。
+            // ```js
+            // const hasVisibleWindow = this.getAllWindows().some((w) => w.isVisible());
+            // if (!hasVisibleWindow) this.showHomeWindow();
+            // ```
+            //
+            // 也就是**有可见窗口时什么都不做** —— 这也是 macOS 的原生行为
+            // （Finder、Safari 都这样）。
+            //
+            // 之前这里做成了开关式（在前台就收起），那是我按"正常应用会
+            // 自动缩小"的说法加的，实际上 macOS 和官方都没有这个行为。
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen {
                 has_visible_windows,
                 ..
             } = event
+                && !has_visible_windows
+                && let Some(w) = app.get_webview_window(MAIN_WINDOW)
             {
-                let Some(w) = app.get_webview_window(MAIN_WINDOW) else {
-                    return;
-                };
-                let focused = w.is_focused().unwrap_or(false);
-                if has_visible_windows && focused {
-                    let _ = w.minimize();
-                } else {
-                    // 从最小化唤回来要先 unminimize —— 只 show 的话窗口
-                    // 还在 Dock 里躺着，用户看到的是"点了没反应"。
-                    let _ = w.unminimize();
-                    let _ = w.show();
-                    let _ = w.set_focus();
-                }
+                // 从最小化唤回来要先 unminimize —— 只 show 的话窗口还在
+                // Dock 里躺着，用户看到的是"点了没反应"。
+                let _ = w.unminimize();
+                let _ = w.show();
+                let _ = w.set_focus();
             }
             // 非 macOS 上这个事件不存在，参数会被判成没用到。
             let _ = (app, &event);

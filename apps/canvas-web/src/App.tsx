@@ -212,6 +212,8 @@ export default function App() {
   // 和 fileRef 同理，用 ref 取最新的节点详情。
   const detailsRef = useRef(details)
   detailsRef.current = details
+  // `actions` 是空依赖的 memo，直接闭包 `addNodeMenuItems` 会永远拿首帧那个。
+  const addNodeMenuRef = useRef<(from?: string) => MenuItem[]>(() => [])
 
   const load = useCallback(async () => {
     try {
@@ -780,6 +782,18 @@ export default function App() {
        * 把这个节点当输入。工具条的「以此生成」和右键的「添加到对话」
        * 是同一件事的两个入口 —— 用同一条实现，免得两处行为慢慢分叉。
        */
+      /**
+       * 点节点侧边的 ⊕。官方点它开的就是「添加节点」菜单，而且**带着
+       * 源节点** —— 建出来的节点会连上它、并按类型过滤能建什么
+       * （见 addNode.ts 的 ALLOWED_TARGET_TYPES）。
+       *
+       * 之前这个回调没传，⊕ 只能拖不能点。
+       */
+      openAddNode(nodeId, screenX, screenY) {
+        const items = addNodeMenuRef.current(nodeId)
+        if (items.length === 0) return
+        setMenu({ x: screenX, y: screenY, items })
+      },
       useAsInput(nodeId) {
         const path = detailsRef.current.get(nodeId)?.path
         setPendingAttachments(path ? [path] : [])

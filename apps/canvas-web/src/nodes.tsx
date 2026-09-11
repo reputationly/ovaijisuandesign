@@ -40,6 +40,8 @@ export interface CanvasActions {
   useAsInput(nodeId: string): void
   /** 在画布上再放一张同一个素材的卡片（工具条的「复制」）。 */
   duplicateNode(nodeId: string): Promise<void>
+  /** 点节点侧边的 ⊕：在那个位置开「添加节点」菜单。 */
+  openAddNode(nodeId: string, screenX: number, screenY: number): void
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -90,6 +92,9 @@ function Frame(
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
   const isPanel = variant === "panel"
   const tags = tagsOf(data.raw)
+  // 拖动中隐藏 ⊕ —— 官方的 `forceHidden = isMultiSelect || isDragging`。
+  // 不隐藏的话，拖着节点走时那个圈会跟着抖，而且可能误触发连线。
+  const dragging = props.dragging
   return (
     <div
       className="canvas-node-shell group relative h-full w-full overflow-visible"
@@ -108,7 +113,15 @@ function Frame(
         onOpen={assetId ? () => actions?.openLightbox(props.id) : undefined}
         onDownload={assetId ? () => downloadAsset(assetId, name) : undefined}
       />
-      <MagneticHandle position={Position.Left} selected={!!selected} />
+      {/* **`onAdd` 和 `hidden` 之前没传，两个能力都是死的**：
+          点 ⊕ 不会开菜单（官方点它是开「添加节点」），多选和拖动时 ⊕
+          也不会隐藏（官方的 `forceHidden = isMultiSelect || isDragging`）。 */}
+      <MagneticHandle
+        position={Position.Left}
+        selected={!!selected}
+        hidden={!!dragging}
+        onAdd={(x, y) => actions?.openAddNode(props.id, x, y)}
+      />
       <div
         className="relative h-full w-full overflow-hidden"
         style={{
@@ -170,7 +183,12 @@ function Frame(
         </span>
       </div>
 
-      <MagneticHandle position={Position.Right} selected={!!selected} />
+      <MagneticHandle
+        position={Position.Right}
+        selected={!!selected}
+        hidden={!!dragging}
+        onAdd={(x, y) => actions?.openAddNode(props.id, x, y)}
+      />
     </div>
   )
 }
