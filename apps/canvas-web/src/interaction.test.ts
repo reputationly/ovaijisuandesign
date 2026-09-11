@@ -35,6 +35,43 @@ function files(): { name: string; text: string }[] {
     .map((name) => ({ name, text: readFileSync(join(SRC, name), "utf8") }))
 }
 
+describe("画布光标", () => {
+  const css = readFileSync(join(SRC, "styles.css"), "utf8")
+
+  /**
+   * 这三组规则**缺一不可**,我亲手删错过一次。
+   *
+   * 官方有两组罗盘光标规则：给 pane/node 整个钉上的那组（带 `!important`）,
+   * 加一条管节点内部 `cursor: default` 元素的窄规则。我只 grep 到窄的那条,
+   * 以为它是替代品，把宽的删了 —— 后果是 xyflow 自带的
+   * `.react-flow__node.selectable { cursor: pointer }` 赢了，移动模式下
+   * 鼠标移到节点上变成一只**手指**。
+   *
+   * 小手工具那组则是另一个方向的漏：不挂 `.canvas-space-pan` 的话，
+   * 选了小手光标毫无变化，用户不知道模式切过去没有。
+   */
+  it("移动模式：pane 和 node 都是罗盘光标，且要 !important", () => {
+    // 不带 !important 的话，库自带的 .selectable{cursor:pointer}
+    // （特异度更高）会赢。
+    const blanket = /\.react-flow__pane,[\s\S]{0,200}?\.react-flow__node[\s\S]{0,200}?\{[^}]*cursor:\s*var\(--canvas-cursor-default\)\s*!important/
+    expect(blanket.test(css)).toBe(true)
+  })
+
+  it("小手 / 空格：grab 和 grabbing 都有", () => {
+    expect(/\.canvas-space-pan \.react-flow__pane\s*\{[^}]*cursor:\s*grab\s*!important/.test(css)).toBe(true)
+    expect(/\.canvas-space-pan \.react-flow__pane\.dragging\s*\{[^}]*cursor:\s*grabbing/.test(css)).toBe(true)
+  })
+
+  it("canvas-space-pan 这个类真的有人挂", () => {
+    // 官方 `isHandPanning = handTool || isSpacePanning`,两种情况共用它。
+    // 只写 CSS 不挂类的话，这几条规则永远不生效。
+    const app = readFileSync(join(SRC, "App.tsx"), "utf8")
+    expect(app.includes('"canvas-space-pan"')).toBe(true)
+    // 小手工具那一路也要覆盖到，不能只有空格。
+    expect(/tool === "hand"[\s\S]{0,80}canvas-space-pan|canvas-space-pan[\s\S]{0,80}tool === "hand"/.test(app)).toBe(true)
+  })
+})
+
 describe("交互层", () => {
   it("组件声明的可选 prop 都有人传", () => {
     const all = files()

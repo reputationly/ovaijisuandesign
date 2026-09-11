@@ -1228,7 +1228,11 @@ export default function App() {
         <main
           className={cn(
             "relative min-w-0 flex-1",
-            spacePan && "canvas-space-pan",
+            // **小手工具也挂这个类。** 官方 `isHandPanning = handTool ||
+            // isSpacePanning`,两种情况共用同一个类（类名只写了 space-pan,
+            // 有误导性）。不挂的话选了小手光标毫无变化，用户不知道模式
+            // 切过去没有。
+            (spacePan || tool === "hand") && "canvas-space-pan",
             stamping && "canvas-stamping",
           )}
           data-hilo-canvas-root="true"

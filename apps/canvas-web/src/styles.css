@@ -81,29 +81,49 @@ body {
  * 我们碰不到它的 JSX。**值全部来自官方样式表**，见每条的注释。
  * ------------------------------------------------------------------------- */
 
-/* 光标：罗盘光标**只替换"箭头类"光标**，语义光标一律保留自己的。
+/* 光标。
  *
  * 图形是内联 SVG（见 tokens.css 的 --canvas-cursor-default-url），热点 (4,4)。
  *
- * ## 之前这里是错的
+ * ## 官方的完整模型（我前一版只对了一半，把对的规则删掉了）
  *
- * 我原来写的是给 `.react-flow__pane` / `.react-flow__node` 整个钉上
- * `!important`,注释还说"官方拖拽时也不换 grab/grabbing"—— **官方不是这样**。
- * 后果是选了小手工具光标毫无变化，用户不知道模式切过去没有。
+ * 官方有**两组**规则，不是一组：
  *
- * 官方那条规则自己带着说明：
+ * 1. 给 pane / node 整个钉上罗盘光标，带 `!important`。就是下面这几条 ——
+ *    **和我们原来那份一模一样**。
+ * 2. 另外一条 `:where(.cursor-default, .cursor-auto, [style*="cursor: default"])`
+ *    的窄规则，管的是**节点内部**那些自己声明了 `cursor: default` 的元素
+ *    （禁用的控件、只读子卡片、遮罩层），让它们别闪回系统箭头。
  *
- * > Keep this rule intentionally narrow: only arrow-equivalent cursors are
- * > mapped to the custom cursor. Semantic cursors such as pointer, text,
- * > grab/grabbing, move, resize, zoom, and not-allowed keep their own
- * > declarations.
+ * 我上一版只 grep 到第 2 条，以为它是第 1 条的替代品，于是把第 1 条删了。
+ * 后果是 xyflow 自带的 `.react-flow__node.selectable { cursor: pointer }`
+ * 赢了 —— 移动模式下鼠标移到节点上变成一只**手指**。
  *
- * 也就是说，他们**只重映射那些已经解析成 `default` / `auto` 的元素**,
- * 从不碰 pane 和 node 本身。React Flow 自带的
- * `.react-flow__pane.draggable { cursor: grab }` 于是自然生效，
- * 不用和 `!important` 打架。
+ * ## 小手工具
  *
- * `:where()` 让整条规则的特异度为 0 —— 谁都能覆盖它，正是"narrow"的意思。 */
+ * 官方靠 `.canvas-space-pan` 这个类切 grab/grabbing，而这个类
+ * **同时管小手工具和按住空格**（类名有误导性）：
+ *
+ *     const isHandPanning = handTool || isSpacePanning;
+ *     className: [..., isHandPanning ? "canvas-space-pan" : null]
+ *
+ * 所以：移动模式 = 罗盘，小手 / 空格 = grab。 */
+.react-flow__pane,
+.react-flow__pane.dragging,
+.react-flow__node,
+.react-flow__node.selectable:hover,
+.react-flow__nodesselection-rect {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+/* 节点内部那些自己声明了 default / auto 的元素。官方那条规则自带说明：
+ *
+ * > ReactFlow and several node internals still set `cursor: default` /
+ * > `cursor: auto` on wrappers, disabled controls, read-only sub cards, and
+ * > overlay surfaces. Those declarations override the pane/node cursor and
+ * > make the pointer flicker back to the OS arrow while moving across a node.
+ *
+ * `:where()` 让特异度为 0 —— 语义光标（pointer / text / resize）照样能盖过它。 */
 [data-hilo-canvas-root="true"]
   :where(
     .cursor-default,
@@ -118,15 +138,8 @@ body {
   cursor: var(--canvas-cursor-default) !important;
 }
 
-/* pane 和 node 的**静止**状态用罗盘光标。不带 !important —— 库自带的
- * `.draggable { cursor: grab }` 特异度更高，小手模式下它该赢。 */
-.react-flow__pane,
-.react-flow__node {
-  cursor: var(--canvas-cursor-default);
-}
-
-/* 空格平移。官方的 `.canvas-space-pan`,逐条照搬语义：
- * 平移时节点要 `pointer-events: none`,否则光标划过节点就跳回箭头，
+/* 小手工具 / 按住空格。官方的 `.canvas-space-pan`,逐条照搬语义：
+ * 平移时节点要 `pointer-events: none`,否则光标划过节点就跳回罗盘，
  * 而且会误触节点上的按钮。 */
 .canvas-space-pan .react-flow__pane {
   cursor: grab !important;
