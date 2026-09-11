@@ -9,7 +9,7 @@ import {
   Plus,
   X,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import type { AgentMsg, CanvasFile, ToolActivity } from "./api"
 import { Generate } from "./Generate"
@@ -131,7 +131,16 @@ export function ChatPanel({
             见 Question.tsx 的注释。 */}
         {question && (
           <div className="mb-3">
+            {/* **`key` 必须带上题目 id。** 没有它，agent 问第二道题时 React
+                会复用同一个实例，而 `QuestionCard` 里 `picked` / `custom`
+                的初值是 `useState(() => request.questions.map(…))` ——
+                初始化只在首次挂载跑一次。
+
+                第二道题题数更多时，`picked[qi]!` 就是 `undefined`,
+                点一下选项直接白屏。换题 = 换实例，这是最省事也最不容易
+                再错的做法。 */}
             <QuestionCard
+              key={question.id}
               request={question}
               onReply={(answers) => onAnswer(question.id, answers)}
               onReject={() => onAnswer(question.id, null)}
@@ -249,6 +258,13 @@ export function ChatPanel({
  */
 function Message({ role, content }: { role: string; content: string }) {
   const [copied, setCopied] = useState(false)
+  // 「已复制」那 1.2 秒的计时器要能取消。`Message` 会随历史截断和切画布
+  // 卸载 —— 计时器落在已卸载的组件上，React 18 不报错，但那是个真泄漏，
+  // 而且用户快速复制两条时第一条的计时器会把第二条的状态提前清掉。
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => {
+    if (copyTimer.current) clearTimeout(copyTimer.current)
+  }, [])
   if (role === "user") {
     return (
       <div className="flex justify-end">
@@ -278,7 +294,8 @@ function Message({ role, content }: { role: string; content: string }) {
               .writeText(content)
               .then(() => {
                 setCopied(true)
-                setTimeout(() => setCopied(false), 1200)
+                if (copyTimer.current) clearTimeout(copyTimer.current)
+                copyTimer.current = setTimeout(() => setCopied(false), 1200)
               })
               .catch(() => {})
           }}

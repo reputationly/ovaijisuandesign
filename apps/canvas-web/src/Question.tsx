@@ -1,5 +1,5 @@
 import { Check } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 /**
  * agent 的决策点，渲染成选择题。
@@ -67,6 +67,15 @@ export function QuestionCard({
   const [picked, setPicked] = useState<string[][]>(() => request.questions.map(() => []))
   const [custom, setCustom] = useState<string[]>(() => request.questions.map(() => ""))
   const [sent, setSent] = useState(false)
+
+  // **双保险。** 调用方应该给 `key={request.id}`（见 ChatPanel 的注释），
+  // 但那是调用方的事，而这里的 `picked[qi]!` 一旦越界就是白屏 ——
+  // 这种代价不该依赖别人记得加一个 key。
+  useEffect(() => {
+    setPicked(request.questions.map(() => []))
+    setCustom(request.questions.map(() => ""))
+    setSent(false)
+  }, [request])
 
   const toggle = (qi: number, label: string, multiple: boolean) => {
     setPicked((prev) => {

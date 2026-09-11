@@ -242,8 +242,23 @@ export default function App() {
     if ((CANVAS_MODES as string[]).includes(file.mode)) setMode(file.mode as CanvasMode)
   }, [file])
 
+  /**
+   * 正在拖节点。**拖动期间不要用服务端那份重建 flow。**
+   *
+   * agent 一完成生成就会推 `canvas:changed`,我们无条件 `load()` →
+   * `setFile` → 下面这个 effect 整份重建 —— 手里正拖着的那个节点会
+   * 弹回原位，而用户什么都没做错。
+   *
+   * 用 ref 不用 state：这只是"要不要跳过这次重建"的旗标，进 state 会
+   * 让每次拖动开始/结束都多一次渲染。
+   */
+  const draggingRef = useRef(false)
+
   useEffect(() => {
     if (!file) return
+    // 拖动中收到的新文件先不落到界面上。拖完 `persistCanvas` 会以
+    // `fileRef`（已经是新的那份）为底写回，agent 加的节点不会丢。
+    if (draggingRef.current) return
     const flow = toFlow(file, mode, details)
     setNodes(flow.nodes)
     setEdges(flow.edges)
@@ -959,7 +974,11 @@ export default function App() {
               nodeTypes={nodeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onNodeDragStop={() => void persistCanvas()}
+              onNodeDragStart={() => (draggingRef.current = true)}
+              onNodeDragStop={() => {
+                draggingRef.current = false
+                void persistCanvas()
+              }}
               // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
               // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
               // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
