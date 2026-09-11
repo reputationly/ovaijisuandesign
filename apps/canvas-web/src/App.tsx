@@ -1324,7 +1324,13 @@ export default function App() {
             activity={activity}
             messages={messages}
             agentRunning={agentRunning}
-            onStop={() => void agentStop()}
+            onStop={() =>
+              // `void f()` 会把 reject 变成一条没人看的 unhandled rejection ——
+              // 改成 throw 之后如果这里不接，等于白改。
+              void agentStop().catch((e: unknown) =>
+                setError(e instanceof Error ? e.message : String(e)),
+              )
+            }
             saving={saving}
             composerOpen={composerOpen}
             onDone={() => void load()}

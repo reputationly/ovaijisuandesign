@@ -710,7 +710,11 @@ export async function agentSend(
 }
 
 export async function agentStop(): Promise<void> {
-  await fetch("/api/agent/stop", { method: "POST" }).catch(() => {})
+  // **不能吞。** 之前是 `.catch(() => {})` —— 网络错误和 4xx/5xx 一起
+  // 被吃掉，界面上那一行"思考中…"照样消失，而 agent 还在后台跑：
+  // 用户以为停了，下一句话发出去会撞上「上一轮还在跑」。
+  const res = await fetch("/api/agent/stop", { method: "POST" })
+  await json<unknown>(res, "POST /api/agent/stop")
 }
 
 /** 从官方应用装 skill 的目录（默认 `~/.hub/skills`）增量导入。 */
@@ -767,7 +771,10 @@ export async function feishuConnect(): Promise<void> {
 }
 
 export async function feishuDisconnect(): Promise<void> {
-  await fetch("/api/feishu/disconnect", { method: "POST" }).catch(() => {})
+  // 同 `agentStop`：断开失败要让调用方知道。界面上显示"未接入"而长连接
+  // 还开着的话，飞书那边发来的消息会继续被处理。
+  const res = await fetch("/api/feishu/disconnect", { method: "POST" })
+  await json<unknown>(res, "POST /api/feishu/disconnect")
 }
 
 // ---------------------------------------------------------------------------
@@ -801,7 +808,9 @@ export async function wechatConnect(): Promise<void> {
   }
 }
 export async function wechatDisconnect(): Promise<void> {
-  await fetch("/api/wechat/disconnect", { method: "POST" }).catch(() => {})
+  // 同 feishuDisconnect：断开失败要让调用方知道。
+  const res = await fetch("/api/wechat/disconnect", { method: "POST" })
+  await json<unknown>(res, "POST /api/wechat/disconnect")
 }
 /** 平台上有哪些模型。设置页用来给模型名做候选。 */
 export type PlatformModel = {
@@ -847,5 +856,8 @@ export async function awakeSet(enabled: boolean): Promise<AwakeInfo> {
 }
 
 export async function wechatLogout(): Promise<void> {
-  await fetch("/api/wechat/logout", { method: "POST" }).catch(() => {})
+  // 退出失败必须报出来 —— 界面显示"已退出"而 token 还在的话，
+  // 用户会以为自己下线了，实际上机器人还在替他收消息。
+  const res = await fetch("/api/wechat/logout", { method: "POST" })
+  await json<unknown>(res, "POST /api/wechat/logout")
 }
