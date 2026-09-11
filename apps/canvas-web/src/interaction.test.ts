@@ -100,6 +100,47 @@ describe("交互层", () => {
     expect(dupes).toEqual([])
   })
 
+  it("用户能改的值都真的被送出去了", () => {
+    // 画布输入框的「1:1」「1K」两个下拉**选了从来不传** —— 用户选 16:9
+    // 出来还是方图，而且不报错。
+    //
+    // 这一类前一轮的人工排查没查到：它既不是"标签和行为对不上"（下拉本身
+    // 工作正常），也不是"prop 没人传"。它是**受控控件的值从没离开过组件**。
+    //
+    // 判据：`value={x}` + 有 onChange 的控件，`x` 必须出现在实参位、
+    // 对象值位、return 里，或被调用方法（`x.trim()`）。校准方式是把
+    // Generate 里那两行设置摘掉 —— 摘掉报 2 个，接上报 0 个。
+    const leaves = (text: string, v: string) => {
+      const e = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      const pats = [
+        new RegExp(`\\(\\s*[^()]{0,80}\\b${e}\\b[^()]{0,80}\\)`),
+        new RegExp(`[:,]\\s*${e}\\s*[,}\\n)]`),
+        new RegExp(`return[^\\n]{0,80}\\b${e}\\b`),
+        new RegExp(`\\b${e}\\s*\\.\\s*\\w+\\(`),
+      ]
+      for (const p of pats) {
+        const m = p.exec(text)
+        if (!m) continue
+        // 排除 JSX 属性本身：`value={x}` 不算"送出去"。
+        const before = text.slice(Math.max(0, m.index - 30), m.index)
+        if (/(value|checked|options|disabled)=\{$/.test(before)) continue
+        return true
+      }
+      return false
+    }
+
+    const dead: string[] = []
+    for (const { name, text } of files()) {
+      for (const m of text.matchAll(/value=\{(\w+)\}/g)) {
+        const v = m[1]!
+        const near = text.slice(Math.max(0, m.index! - 250), m.index! + 350)
+        if (!near.includes("onChange")) continue
+        if (!leaves(text, v)) dead.push(`${name} 的 ${v}：用户能改，但这个值从没被送出去`)
+      }
+    }
+    expect([...new Set(dead)]).toEqual([])
+  })
+
   it("同一个元素上没有两个 prop 绑到同一个表达式", () => {
     // 「放大查看」和「下载」曾经都是 `window.open(assetUrl(assetId))` ——
     // 两个不同标签的按钮做同一件事，而且做的都不是标签说的那件。

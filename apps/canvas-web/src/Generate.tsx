@@ -1,7 +1,13 @@
-import { ArrowUp, FileText, Loader2, Plus, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { ArrowUp, Box, Check, FileText, Loader2, Plus, Puzzle, X } from "lucide-react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
-import { agentSend, uploadFiles } from "./api"
+import {
+  agentSend,
+  listSkills,
+  platformModels,
+  uploadFiles,
+  type PlatformModel,
+} from "./api"
 
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
 const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
@@ -85,6 +91,25 @@ export function Generate({
     onConsumed?.()
   }, [initialAttachments, initial, onConsumed])
   const [uploading, setUploading] = useState(false)
+  /**
+   * Agent 模式。官方 `chat.mode.*`：
+   * `auto` =「自动完成生成等操作，减少中途打断。」
+   * `ask`  =「执行生成等关键操作前，先询问你。」
+   */
+  const [mode, setMode] = useState<"auto" | "ask">("auto")
+  /** 这一轮允许 agent 用的模型。空 = 不限（官方的「全选」等价于空）。 */
+  const [pickedModels, setPickedModels] = useState<string[]>([])
+  const [models, setModels] = useState<PlatformModel[]>([])
+  const [skills, setSkills] = useState<{ slug: string; name: string }[]>([])
+  const [panel, setPanel] = useState<"none" | "mode" | "models" | "skill">("none")
+
+  useEffect(() => {
+    // 拉不到就是空列表 —— 少一个下拉而已，输入框本身照常能用。
+    void platformModels().then(setModels).catch(() => {})
+    void listSkills()
+      .then((r) => setSkills(r.skills.map((k) => ({ slug: k.slug, name: k.name }))))
+      .catch(() => {})
+  }, [])
   const abort = useRef<AbortController | null>(null)
 
   const busy = phase.kind === "generating" || phase.kind === "placing"
@@ -104,7 +129,14 @@ export function Generate({
     const text = prompt
     setPhase({ kind: "generating", seconds: 0 })
     try {
-      await agentSend(text, attachments)
+      // **这一轮的设置要跟着发出去。** 比例和分辨率之前选了从来不传 ——
+      // 用户选 16:9 出来还是方图，而且不报错。
+      await agentSend(text, attachments, {
+        mode,
+        models: pickedModels,
+        aspectRatio: ratio,
+        resolution,
+      })
       // 发出去就清空。**不等 agent 跑完** —— 一轮可能几分钟，
       // 输入框锁着的话用户连下一句都没法先写好。
       //
@@ -124,7 +156,9 @@ export function Generate({
   // 输入区在上、工具行在下、发送键在右下角的圆形按钮里。
   return (
     <div
-      className="flex flex-col"
+      // `relative`：上面那几个弹层是 `absolute bottom-full`,靠它定位。
+      // 不加的话它们会往上找到画布容器，弹到屏幕别处去。
+      className="relative flex flex-col"
       style={{
         borderRadius: "var(--home-input-radius)",
         background: "var(--home-input-surface)",
@@ -196,6 +230,104 @@ export function Generate({
         }}
       />
 
+      {panel !== "none" && (
+        <Popover onClose={() => setPanel("none")}>
+          {panel === "mode" && (
+            <>
+              <PopTitle>AGENT 模式</PopTitle>
+              {(
+                [
+                  ["auto", "自动", "自动完成生成等操作，减少中途打断。"],
+                  ["ask", "询问", "执行生成等关键操作前，先询问你。"],
+                ] as const
+              ).map(([v, label, desc]) => (
+                <PopRow
+                  key={v}
+                  checked={mode === v}
+                  onClick={() => {
+                    setMode(v)
+                    setPanel("none")
+                  }}
+                  hint={desc}
+                >
+                  {label}
+                </PopRow>
+              ))}
+            </>
+          )}
+
+          {panel === "models" && (
+            <>
+              <PopTitle>模型</PopTitle>
+              <p className="px-3 pb-1.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                {pickedModels.length === 0
+                  ? "Agent 可调用该类别全部模型"
+                  : "Agent 只能调用您选中的模型"}
+              </p>
+              <div className="max-h-56 overflow-auto">
+                {models
+                  .filter((m) => m.modality)
+                  .map((m) => (
+                    <PopRow
+                      key={m.id}
+                      checked={pickedModels.includes(m.id)}
+                      onClick={() =>
+                        setPickedModels((p) =>
+                          p.includes(m.id) ? p.filter((x) => x !== m.id) : [...p, m.id],
+                        )
+                      }
+                      hint={MODALITY_ZH[m.modality!] ?? m.modality!}
+                    >
+                      {m.id}
+                    </PopRow>
+                  ))}
+                {models.length === 0 && (
+                  <p className="px-3 py-2 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+                    模型加载失败
+                  </p>
+                )}
+              </div>
+              {pickedModels.length > 0 && (
+                <button
+                  onClick={() => setPickedModels([])}
+                  className="w-full px-3 py-2 text-left text-[12px] hover:bg-[var(--canvas-controls-hover)]"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
+                  全不选（不限）
+                </button>
+              )}
+            </>
+          )}
+
+          {panel === "skill" && (
+            <>
+              <PopTitle>SKILL</PopTitle>
+              <div className="max-h-56 overflow-auto">
+                {skills.map((k) => (
+                  <PopRow
+                    key={k.slug}
+                    onClick={() => {
+                      // 填进输入框而不是设一个开关 —— 我们的 skill 是靠
+                      // 提示词里的触发词命中的，不是一个运行时旗标。
+                      setPrompt((v) => (v ? `${v} ${k.name}` : k.name))
+                      setPanel("none")
+                      inputRef.current?.focus()
+                    }}
+                  >
+                    {k.name}
+                  </PopRow>
+                ))}
+                {skills.length === 0 && (
+                  <p className="px-3 py-2 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+                    暂无 Skill
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+        </Popover>
+      )}
+
       <div className="flex items-center gap-1 px-2.5 pt-1 pb-2.5">
         {/* 上传。画布这个输入框之前**根本没有上传入口** —— 想拿一张本地图
             当参考，只能先从首页发一次，或者拖到画布上再右键「添加到对话」。 */}
@@ -231,9 +363,40 @@ export function Generate({
             }}
           />
         </label>
+        {/* 模型。官方 `chat.mediaModels.label` =「模型」，说明是
+            「勾选后，Agent 可在任务中调用这些模型；未勾选的模型不会被使用。」
+            **全不选 = 不限**（等价于官方的「全选」）。 */}
+        <ToolBtn
+          title="模型"
+          active={pickedModels.length > 0}
+          disabled={busy}
+          onClick={() => setPanel((v) => (v === "models" ? "none" : "models"))}
+        >
+          <Box size={15} />
+        </ToolBtn>
+        <span className="mx-0.5 h-3 w-px" style={{ background: "var(--border-strong)" }} />
+        {/* Skill。点一个就把它的触发词填进输入框 —— 我们的 skill 是靠
+            提示词里的触发词命中的（见 assets/skills），不是一个开关。 */}
+        <ToolBtn
+          title="Skill"
+          disabled={busy}
+          onClick={() => setPanel((v) => (v === "skill" ? "none" : "skill"))}
+        >
+          <Puzzle size={15} />
+        </ToolBtn>
         <Select value={ratio} onChange={setRatio} options={RATIOS} disabled={busy} />
         <Select value={resolution} onChange={setResolution} options={RESOLUTIONS} disabled={busy} />
         <span className="flex-1" />
+        {/* Agent 模式。官方把它放在发送键左边，显示当前模式的名字。 */}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => setPanel((v) => (v === "mode" ? "none" : "mode"))}
+          className="rounded-full px-2 py-1 text-[13px] transition-colors hover:bg-[var(--canvas-controls-hover)] disabled:opacity-40"
+          style={{ color: "var(--foreground)" }}
+        >
+          {mode === "auto" ? "自动" : "询问"}
+        </button>
         {phase.kind !== "idle" && (
           <span
             className="mr-1 flex items-center gap-1 font-mono text-[11px]"
@@ -298,4 +461,118 @@ function Select({
       ))}
     </select>
   )
+}
+
+/** 输入框上方的弹层。点外面或 Esc 关掉。 */
+function Popover({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const down = (e: PointerEvent) => {
+      // **要判在不在里面**。不判的话点弹层里的任何一项都会先把它关掉，
+      // 于是多选模型时每点一个就收起来一次。
+      if (!ref.current?.contains(e.target as Node)) onClose()
+    }
+    const key = (e: KeyboardEvent) => e.key === "Escape" && onClose()
+    // 下一帧再挂：打开它的那次点击还在冒泡，立刻挂会被它自己关掉。
+    const t = setTimeout(() => document.addEventListener("pointerdown", down), 0)
+    document.addEventListener("keydown", key)
+    return () => {
+      clearTimeout(t)
+      document.removeEventListener("pointerdown", down)
+      document.removeEventListener("keydown", key)
+    }
+  }, [onClose])
+  return (
+    <div
+      ref={ref}
+      className="absolute bottom-full left-2 z-30 mb-2 w-64 overflow-hidden rounded-xl border py-1"
+      style={{
+        background: "var(--canvas-controls-bg)",
+        borderColor: "var(--canvas-controls-border)",
+        boxShadow: "var(--canvas-shadow-menu)",
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function PopTitle({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="px-3 pt-1.5 pb-1 text-[11px] tracking-wide"
+      style={{ color: "var(--muted-foreground)" }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function PopRow({
+  children,
+  hint,
+  checked,
+  onClick,
+}: {
+  children: ReactNode
+  hint?: string
+  checked?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-[var(--canvas-controls-hover)]"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13px]">{children}</span>
+        {hint && (
+          <span className="block truncate text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+            {hint}
+          </span>
+        )}
+      </span>
+      {checked && <Check size={14} className="shrink-0" />}
+    </button>
+  )
+}
+
+/** 工具行上的图标按钮。 */
+function ToolBtn({
+  title,
+  active,
+  disabled,
+  onClick,
+  children,
+}: {
+  title: string
+  active?: boolean
+  disabled?: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      disabled={disabled}
+      onClick={onClick}
+      className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-[var(--canvas-controls-hover)] disabled:opacity-40"
+      style={{ color: active ? "var(--foreground)" : "var(--muted-foreground)" }}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** 模态的中文名。和设置页那份保持一致。 */
+const MODALITY_ZH: Record<string, string> = {
+  image: "文生图",
+  imageEdit: "图生图",
+  video: "文生视频",
+  videoRef: "参考生视频",
+  music: "音乐",
+  musicEdit: "翻唱",
+  speech: "语音",
 }

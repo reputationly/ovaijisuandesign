@@ -206,6 +206,67 @@ pub struct SendBody {
     /// 参考素材（工作区相对路径）。会附在用户消息后面告诉模型。
     #[serde(default)]
     pub attachments: Vec<String>,
+    /// Agent 模式。官方的 `chat.mode.*`：
+    ///
+    /// - `auto`（默认）：`自动完成生成等操作，减少中途打断。`
+    /// - `ask`：`执行生成等关键操作前，先询问你。`
+    ///
+    /// 走系统提示词那条路 —— 模型手上有 `question` 工具，这里只是告诉它
+    /// 什么时候该用。硬拦在 dispatch 里也能做，但那样模型不知道自己被拦了，
+    /// 只会看到一个莫名其妙的失败。
+    #[serde(default)]
+    pub mode: Option<String>,
+    /// 这一轮允许用哪些模型。官方的 `chat.mediaModels`：
+    /// `勾选后，Agent 可在任务中调用这些模型；未勾选的模型不会被使用。`
+    #[serde(default)]
+    pub models: Vec<String>,
+    /// 画幅比例和分辨率。**之前界面上选了但从来没传** —— 用户选 16:9
+    /// 出来还是方图，而且不报错。
+    #[serde(default)]
+    pub aspect_ratio: Option<String>,
+    #[serde(default)]
+    pub resolution: Option<String>,
+}
+
+/// 把这一轮的设置拼成一段追加给模型的话。
+///
+/// **不塞进 SYSTEM 常量**：那是每轮都一样的部分，而这些是这一条消息的
+/// 设置。混在一起的话，改设置要重建整段系统提示词，而历史里那些旧消息
+/// 会显得像是当初就用了新设置。
+fn turn_hint(b: &SendBody) -> String {
+    let mut out = Vec::new();
+    if b.mode.as_deref() == Some("ask") {
+        out.push(
+            "【这一轮用「询问」模式】执行生成等关键操作**之前**，先用 question 工具\
+             把方案告诉用户并等他确认。不要直接开始生成。"
+                .to_string(),
+        );
+    }
+    if !b.models.is_empty() {
+        out.push(format!(
+            "【只用这些模型】{}。没列出来的不要用；这一轮里没有合适的就如实说，\
+             不要换一个用户没勾的顶上。",
+            b.models.join("、")
+        ));
+    }
+    let ar = b.aspect_ratio.as_deref().unwrap_or("").trim();
+    let res = b.resolution.as_deref().unwrap_or("").trim();
+    if !ar.is_empty() || !res.is_empty() {
+        out.push(format!(
+            "【画幅】{}{}。调生成工具时按这个传，用户在界面上选的就是它。",
+            if ar.is_empty() {
+                String::new()
+            } else {
+                format!("比例 {ar}")
+            },
+            if res.is_empty() {
+                String::new()
+            } else {
+                format!(" 分辨率 {res}")
+            },
+        ));
+    }
+    out.join("\n")
 }
 
 pub async fn send(
@@ -241,6 +302,14 @@ pub async fn send(
         text.push_str("\n\n（用户附上的参考素材：");
         text.push_str(&b.attachments.join("、"));
         text.push('）');
+    }
+    // 这一轮的设置（Agent 模式 / 允许的模型 / 画幅）跟着这条消息走，
+    // 不进 system —— 理由同上：进了 system 就会在之后每一轮都生效，
+    // 而用户改设置之后历史里那些旧消息会显得像当初就用了新设置。
+    let hint = turn_hint(&b);
+    if !hint.is_empty() {
+        text.push_str("\n\n");
+        text.push_str(&hint);
     }
 
     let st = state.clone();
@@ -475,5 +544,81 @@ mod tests {
         let w = Msg::assistant("", Some(json!([{"id":"c1"}]))).wire();
         assert!(w.get("content").is_none());
         assert!(w.get("tool_calls").is_some());
+    }
+}
+
+#[cfg(test)]
+mod turn_hint_tests {
+    use super::*;
+
+    fn body() -> SendBody {
+        SendBody {
+            message: "出一张图".into(),
+            attachments: vec![],
+            mode: None,
+            models: vec![],
+            aspect_ratio: None,
+            resolution: None,
+        }
+    }
+
+    #[test]
+    fn the_default_turn_adds_nothing() {
+        // 默认（自动模式、不限模型、不指定画幅）不该往消息里塞任何东西 ——
+        // 每条消息都拖一段设置说明会稀释用户真正说的话。
+        assert_eq!(turn_hint(&body()), "");
+        let mut b = body();
+        b.mode = Some("auto".into());
+        assert_eq!(turn_hint(&b), "");
+    }
+
+    #[test]
+    fn ask_mode_tells_the_model_to_confirm_first() {
+        // 官方的 chat.mode.askDesc =「执行生成等关键操作前，先询问你。」
+        // 这段话是这个开关的**全部实现** —— 写漏了开关就是个摆设。
+        let mut b = body();
+        b.mode = Some("ask".into());
+        let h = turn_hint(&b);
+        assert!(h.contains("询问"), "{h}");
+        assert!(
+            h.contains("question"),
+            "要点名那个工具，否则模型不知道用什么问：{h}"
+        );
+    }
+
+    #[test]
+    fn a_model_whitelist_forbids_substituting() {
+        // 官方：「未勾选的模型不会被使用」。只说"用这些"不说"别换"的话，
+        // 模型找不到合适的会自己挑一个顶上 —— 而那正是用户勾选要排除的。
+        let mut b = body();
+        b.models = vec!["qwen-image".into(), "z-image".into()];
+        let h = turn_hint(&b);
+        assert!(h.contains("qwen-image") && h.contains("z-image"), "{h}");
+        assert!(h.contains("不要用") || h.contains("不要换"), "{h}");
+    }
+
+    #[test]
+    fn the_aspect_ratio_actually_reaches_the_model() {
+        // 界面上那两个下拉之前**选了从来不传** —— 用户选 16:9 出来还是方图，
+        // 而且不报错。
+        let mut b = body();
+        b.aspect_ratio = Some("16:9".into());
+        b.resolution = Some("2K".into());
+        let h = turn_hint(&b);
+        assert!(h.contains("16:9") && h.contains("2K"), "{h}");
+    }
+
+    #[test]
+    fn only_the_fields_that_were_set_show_up() {
+        // 只选了比例没选分辨率时，不该出现一个空的「分辨率 」。
+        let mut b = body();
+        b.aspect_ratio = Some("21:9".into());
+        let h = turn_hint(&b);
+        assert!(h.contains("21:9"));
+        assert!(!h.contains("分辨率"), "没设的字段不该出现：{h}");
+        // 空串和只有空格都当没设。
+        let mut b2 = body();
+        b2.aspect_ratio = Some("  ".into());
+        assert_eq!(turn_hint(&b2), "");
     }
 }

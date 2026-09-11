@@ -673,11 +673,33 @@ export async function agentMessages(): Promise<{ running: boolean; messages: Age
   return json(await fetch("/api/agent/messages"), "GET /api/agent/messages")
 }
 
-export async function agentSend(message: string, attachments: string[] = []): Promise<void> {
+export interface SendOptions {
+  /** `auto`（默认）或 `ask`。官方的 `chat.mode.*`。 */
+  mode?: string
+  /** 这一轮允许 agent 用的模型。空 = 不限。 */
+  models?: string[]
+  aspectRatio?: string
+  resolution?: string
+}
+
+export async function agentSend(
+  message: string,
+  attachments: string[] = [],
+  opts: SendOptions = {},
+): Promise<void> {
   const res = await fetch("/api/agent/send", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ message, attachments }),
+    body: JSON.stringify({
+      message,
+      attachments,
+      // **只传真的设了的。** 后端对空值当"没设"，但传一堆空串会让
+      // 请求体里全是噪声，排查时分不清哪些是用户选的。
+      ...(opts.mode && opts.mode !== "auto" ? { mode: opts.mode } : {}),
+      ...(opts.models?.length ? { models: opts.models } : {}),
+      ...(opts.aspectRatio ? { aspect_ratio: opts.aspectRatio } : {}),
+      ...(opts.resolution ? { resolution: opts.resolution } : {}),
+    }),
   })
   // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。
   if (res.status === 409) {
