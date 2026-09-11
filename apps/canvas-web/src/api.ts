@@ -858,6 +858,14 @@ export async function platformModels(): Promise<PlatformModel[]> {
 export type AwakeInfo = { enabled: boolean; error: string | null }
 
 /** 日志文件的位置。`exists` 为 false 说明一条都还没写出来。 */
+/** 在访达里打开这个 skill 的目录。官方 `skills.detail.showInFolder`。 */
+export async function revealSkill(slug: string): Promise<{ ok: boolean; error?: string }> {
+  return json(
+    await fetch(`/api/skills/${encodeURIComponent(slug)}/reveal`, { method: "POST" }),
+    "POST /api/skills/{slug}/reveal",
+  )
+}
+
 export async function logInfo(): Promise<{ dir?: string; file?: string; exists: boolean }> {
   return json(await fetch("/api/system/logs"), "GET /api/system/logs")
 }

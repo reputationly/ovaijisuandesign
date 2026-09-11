@@ -1,7 +1,15 @@
-import { Download, Plus, Search, Trash2 } from "lucide-react"
+import { Download, FolderOpen, Plus, Search, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { deleteSkill, getSkill, importSkills, listSkills, saveSkill, type Skill } from "./api"
+import {
+  deleteSkill,
+  getSkill,
+  importSkills,
+  listSkills,
+  revealSkill,
+  saveSkill,
+  type Skill,
+} from "./api"
 import { confirm as uiConfirm } from "./Prompt"
 
 /**
@@ -159,7 +167,7 @@ export function Skills({ onUse }: { onUse: (slug: string, body: string) => void 
                       className="rounded px-1 text-[10px]"
                       style={{ background: "var(--bg-subtle)", color: "var(--muted-foreground)" }}
                     >
-                      自带
+                      内置
                     </span>
                   )}
                 </p>
@@ -191,10 +199,35 @@ export function Skills({ onUse }: { onUse: (slug: string, body: string) => void 
                     编辑
                   </button>
                   <button
+                    onClick={() => {
+                      void revealSkill(s.slug).then((r) => {
+                        if (!r.ok) setErr(r.error ?? "打不开这个 skill 的目录")
+                      })
+                    }}
+                    title="在文件夹中显示"
+                    className="hidden shrink-0 rounded-lg px-2 py-1 group-hover:block"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
+                    <FolderOpen size={14} />
+                  </button>
+                  <button
                     onClick={async () => {
-                      if (!(await uiConfirm(`删除「${s.name}」？`, { confirmLabel: "删除", danger: true })))
+                      // 官方 `skills.delete.userDesc`。**"可以恢复"这句必须
+                      // 是真的** —— 后端走的是移到工作区的 .hilo/trash/，
+                      // 不是真删。
+                      if (
+                        !(await uiConfirm(`删除「${s.name}」？它会移入废纸篓，可以再找回来。`, {
+                          confirmLabel: "删除",
+                          danger: true,
+                        }))
+                      ) {
                         return
-                      void deleteSkill(s.slug).then(reload)
+                      }
+                      // **要看返回值。** 后端以前删失败也回 ok:true，
+                      // 现在会如实报错，前端不能再无脑 reload 了事。
+                      void deleteSkill(s.slug)
+                        .then(reload)
+                        .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
                     }}
                     title="删除"
                     className="hidden shrink-0 rounded-lg px-2 py-1 group-hover:block"

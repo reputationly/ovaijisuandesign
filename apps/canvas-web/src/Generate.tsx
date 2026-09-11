@@ -1,8 +1,9 @@
 import { ArrowUp, Box, Check, FileText, Loader2, Plus, Puzzle, X } from "lucide-react"
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode, useMemo } from "react"
 
 import {
   agentSend,
+  getSkill,
   listSkills,
   platformModels,
   uploadFiles,
@@ -100,14 +101,29 @@ export function Generate({
   /** 这一轮允许 agent 用的模型。空 = 不限（官方的「全选」等价于空）。 */
   const [pickedModels, setPickedModels] = useState<string[]>([])
   const [models, setModels] = useState<PlatformModel[]>([])
-  const [skills, setSkills] = useState<{ slug: string; name: string }[]>([])
+  const [skills, setSkills] = useState<{ slug: string; name: string; description: string }[]>([])
+  const [skillQ, setSkillQ] = useState("")
+  const shownSkills = useMemo(() => {
+    const t = skillQ.trim().toLowerCase()
+    if (!t) return skills
+    return skills.filter(
+      (k) =>
+        k.name.toLowerCase().includes(t) ||
+        k.slug.includes(t) ||
+        k.description.toLowerCase().includes(t),
+    )
+  }, [skills, skillQ])
   const [panel, setPanel] = useState<"none" | "mode" | "models" | "skill">("none")
 
   useEffect(() => {
     // 拉不到就是空列表 —— 少一个下拉而已，输入框本身照常能用。
     void platformModels().then(setModels).catch(() => {})
     void listSkills()
-      .then((r) => setSkills(r.skills.map((k) => ({ slug: k.slug, name: k.name }))))
+      .then((r) =>
+        setSkills(
+          r.skills.map((k) => ({ slug: k.slug, name: k.name, description: k.description })),
+        ),
+      )
       .catch(() => {})
   }, [])
   const abort = useRef<AbortController | null>(null)
@@ -301,28 +317,81 @@ export function Generate({
 
           {panel === "skill" && (
             <>
+              {/* 官方 `skills.popover.heading` = Skill。 */}
               <PopTitle>SKILL</PopTitle>
+              {/* 官方 `skills.popover.search` =「搜索 Skill」。
+                  skill 攒到十几个之后，一屏放不下就得翻。 */}
+              <div className="px-2 pb-1">
+                <input
+                  value={skillQ}
+                  onChange={(e) => setSkillQ(e.target.value)}
+                  placeholder="搜索 Skill"
+                  className="w-full rounded-md px-2 py-1 text-[12px] outline-none"
+                  style={{ background: "var(--bg-subtle)" }}
+                />
+              </div>
               <div className="max-h-56 overflow-auto">
-                {skills.map((k) => (
+                {shownSkills.map((k) => (
                   <PopRow
                     key={k.slug}
                     onClick={() => {
-                      // 填进输入框而不是设一个开关 —— 我们的 skill 是靠
-                      // 提示词里的触发词命中的，不是一个运行时旗标。
-                      setPrompt((v) => (v ? `${v} ${k.name}` : k.name))
-                      setPanel("none")
-                      inputRef.current?.focus()
+                      /*
+                       * **插入 skill 的完整正文，不是它的名字。**
+                       *
+                       * 这里原来是 `setPrompt(v => `${v} ${k.name}`)`,注释说
+                       * "我们的 skill 是靠提示词里的触发词命中的" —— 而后端
+                       * `agent/` 里**没有任何 skill 匹配逻辑**（grep 零命中）。
+                       * 也就是说这个按钮只往输入框塞了一个中文词，什么都不会
+                       * 发生，而用户以为技能已经生效了。
+                       *
+                       * Skill 页的「使用」插的是 `/slug + 正文`,同一个动作
+                       * 两个入口结果完全不同。统一成这一份。
+                       */
+                      void getSkill(k.slug)
+                        .then((r) => {
+                          const body = r.skill.body ?? ""
+                          setPrompt((v) =>
+                            // 已经打了字的话接在后面，别把用户写的覆盖掉。
+                            v ? `/${k.slug}\n\n${body}\n\n---\n${v}` : `/${k.slug}\n\n${body}\n\n---\n`,
+                          )
+                          setPanel("none")
+                          setSkillQ("")
+                          inputRef.current?.focus()
+                        })
+                        .catch(() => setPanel("none"))
                     }}
                   >
-                    {k.name}
+                    <span className="flex min-w-0 flex-col">
+                      <span>{k.name}</span>
+                      {k.description && (
+                        <span
+                          className="truncate text-[11px]"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
+                          {k.description}
+                        </span>
+                      )}
+                    </span>
                   </PopRow>
                 ))}
-                {skills.length === 0 && (
+                {shownSkills.length === 0 && (
                   <p className="px-3 py-2 text-[12px]" style={{ color: "var(--muted-foreground)" }}>
-                    暂无 Skill
+                    {/* 官方 `skills.popover.empty` / `skills.empty.title`。
+                        **"没搜到"和"一个都没有"是两件事** —— 前者该换个词，
+                        后者该去建一个。 */}
+                    {skills.length === 0 ? "暂无 Skill" : "未找到匹配的 Skill"}
                   </p>
                 )}
               </div>
+              {/* 官方 `skills.popover.selectionDescription`。
+                  说清楚点下去会发生什么 —— 不说的话用户不知道它会往输入框
+                  里塞一大段文字。 */}
+              <p
+                className="border-t px-3 py-2 text-[11px] leading-4"
+                style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+              >
+                选择 Skill 后会添加到当前输入，Agent 将按照 Skill 的说明完成任务。
+              </p>
             </>
           )}
         </Popover>

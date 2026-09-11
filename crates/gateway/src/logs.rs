@@ -83,13 +83,14 @@ pub async fn open(State(_state): State<Arc<AppState>>) -> Json<Value> {
     if let Err(err) = std::fs::create_dir_all(&d) {
         return Json(json!({ "ok": false, "error": format!("建目录失败: {err}") }));
     }
-    match reveal(&d) {
+    match reveal_in_file_manager(&d) {
         Ok(()) => Json(json!({ "ok": true, "dir": d.to_string_lossy() })),
         Err(err) => Json(json!({ "ok": false, "error": err.to_string() })),
     }
 }
 
-fn reveal(path: &std::path::Path) -> std::io::Result<()> {
+/// 在访达 / 资源管理器里打开一个目录。skill 那边也用这个。
+pub fn reveal_in_file_manager(path: &std::path::Path) -> std::io::Result<()> {
     #[cfg(target_os = "macos")]
     let mut cmd = std::process::Command::new("open");
     #[cfg(target_os = "windows")]

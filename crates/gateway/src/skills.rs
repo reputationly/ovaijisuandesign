@@ -305,8 +305,66 @@ pub async fn remove(
             Json(json!({ "ok": false, "error": "自带的 skill 删不掉" })),
         );
     }
-    let _ = std::fs::remove_dir_all(&d);
-    (StatusCode::OK, Json(json!({ "ok": true })))
+    // **移到废纸篓，不是真删。** 一个 skill 是用户自己写的一段提示词，
+    // 可能攒了很久；官方那句确认文案也写着「此Skill将移入废纸篓，你可以
+    // 随时恢复」。和资产删除走同一个地方（工作区的 `.hilo/trash/`）。
+    //
+    // **失败要如实报。** 这里原来是 `let _ = remove_dir_all(&d)` 然后无条件
+    // 返回 `ok: true` —— 删不掉（权限、文件被占用）时界面照样显示删除成功，
+    // 刷新一下 skill 又回来了，用户只会觉得这个应用有鬼。
+    let bin = state
+        .ws
+        .root()
+        .join(".hilo/trash")
+        .join(now_stamp())
+        .join("skills");
+    if let Err(err) = std::fs::create_dir_all(&bin) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "ok": false, "error": format!("建废纸篓目录失败: {err}") })),
+        );
+    }
+    match std::fs::rename(&d, bin.join(&slug)) {
+        Ok(()) => (StatusCode::OK, Json(json!({ "ok": true }))),
+        // 已经不在了也算成功：用户要的是"让它从列表里消失"。
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            (StatusCode::OK, Json(json!({ "ok": true })))
+        }
+        Err(err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "ok": false, "error": format!("删除失败: {err}") })),
+        ),
+    }
+}
+
+/// 在系统文件管理器里打开这个 skill 的目录。官方 `skills.detail.showInFolder`
+/// =「在文件夹中显示」。
+///
+/// skill 就是磁盘上的一个目录（`SKILL.md` + 附带文件）。想加个参考图、
+/// 想用自己的编辑器改正文，都得先能找到它 —— 在此之前用户只能自己猜路径。
+pub async fn reveal(
+    State(state): State<Arc<AppState>>,
+    UrlPath(slug): UrlPath<String>,
+) -> Json<Value> {
+    if !is_slug(&slug) {
+        return Json(json!({ "ok": false, "error": "slug 不合法" }));
+    }
+    let d = dir(&state).join(&slug);
+    if !d.exists() {
+        return Json(json!({ "ok": false, "error": "这个 skill 的目录不存在" }));
+    }
+    match crate::logs::reveal_in_file_manager(&d) {
+        Ok(()) => Json(json!({ "ok": true, "dir": d.to_string_lossy() })),
+        Err(err) => Json(json!({ "ok": false, "error": err.to_string() })),
+    }
+}
+
+fn now_stamp() -> String {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+        .to_string()
 }
 
 // ---------------------------------------------------------------------------

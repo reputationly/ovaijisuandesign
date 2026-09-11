@@ -151,6 +151,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/system/logs/open", post(logs::open))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))
+        .route("/api/skills/{slug}/reveal", post(skills::reveal))
         .route(
             "/api/skills/{slug}",
             get(skills::get).delete(skills::remove),
