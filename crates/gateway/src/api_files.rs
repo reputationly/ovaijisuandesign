@@ -25,6 +25,25 @@ pub async fn list_assets(State(state): State<Arc<AppState>>) -> Json<Value> {
     Json(json!({ "assets": state.assets.list() }))
 }
 
+#[derive(Debug, Deserialize)]
+pub struct TrashBody {
+    /// 工作区相对路径。
+    pub paths: Vec<String>,
+}
+
+/// 把资产移到废纸篓。官方 `projectAssets.batchDelete`。
+///
+/// 返回真正处理掉的路径。**不是全成功就整批失败** —— 批量删 20 个，其中
+/// 一个正被别的进程占用，不该让另外 19 个也删不掉。调用方对比
+/// `deleted` 和自己传的列表就知道哪些没成。
+pub async fn trash_assets(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<TrashBody>,
+) -> Json<Value> {
+    let deleted = state.assets.trash(&body.paths);
+    Json(json!({ "deleted": deleted }))
+}
+
 pub async fn workspace_dir(State(state): State<Arc<AppState>>) -> Json<Value> {
     Json(json!({ "dir": state.ws.root().to_string_lossy() }))
 }

@@ -115,6 +115,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         // -- 工作区 / 资产 / 文件 --
         .route("/api/workspace", get(api_files::workspace_dir))
         .route("/api/assets", get(api_files::list_assets))
+        .route("/api/assets/trash", post(api_files::trash_assets))
         .route("/files/id/{asset_id}", get(api_files::serve_by_id))
         .route("/files/{*path}", get(api_files::serve_by_path))
         .route("/api/files/import-url", post(api_files::import_url))

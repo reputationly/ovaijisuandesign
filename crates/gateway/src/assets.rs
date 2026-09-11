@@ -206,6 +206,61 @@ impl Assets {
         all
     }
 
+    /// 把资产**移到废纸篓**,并从索引里摘掉。返回真正处理掉的路径。
+    ///
+    /// **不是真删。** 官方那句确认文案写着「可在废纸篓中找到」—— 承诺了能
+    /// 找回来就必须真的能找回来。落在工作区的 `.hilo/trash/<时间戳>/` 下，
+    /// 保留原来的相对路径结构，这样一眼能看出它原来在哪。
+    ///
+    /// 单个失败不中断整批：批量删 20 个文件，其中一个正被别的进程占用，
+    /// 不该让另外 19 个也删不掉。失败的留在索引里，调用方对比返回值就知道
+    /// 哪些没成。
+    pub fn trash(&self, rel_paths: &[String]) -> Vec<String> {
+        let stamp = now_iso();
+        let bin = self.ws.root().join(".hilo/trash").join(&stamp);
+        let mut done = Vec::new();
+
+        for rel in rel_paths {
+            let Some(abs) = self.ws.resolve(rel) else {
+                // 路径逃出工作区。**跳过，不要报错后继续用它** ——
+                // 这种输入只可能来自构造过的请求。
+                tracing::warn!("删除请求的路径超出工作区，已忽略: {rel}");
+                continue;
+            };
+            let dest = bin.join(rel);
+            if let Some(parent) = dest.parent() {
+                if let Err(err) = fs::create_dir_all(parent) {
+                    tracing::warn!("建废纸篓目录失败 {}: {err:#}", parent.display());
+                    continue;
+                }
+            }
+            // 文件可能已经不在了（用户在访达里删过）。那也算删成功 ——
+            // 用户的意图是"让它从列表里消失"，报错只会让他困惑。
+            match fs::rename(&abs, &dest) {
+                Ok(()) => done.push(rel.clone()),
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => done.push(rel.clone()),
+                Err(err) => tracing::warn!("移到废纸篓失败 {rel}: {err:#}"),
+            }
+        }
+
+        if done.is_empty() {
+            return done;
+        }
+        let mut index = self.lock();
+        for rel in &done {
+            index.by_path.remove(rel);
+        }
+        let snapshot = Index {
+            version: 1,
+            by_path: index.by_path.clone(),
+        };
+        drop(index);
+        if let Err(err) = self.persist(&snapshot) {
+            tracing::warn!("资产索引写盘失败: {err:#}");
+        }
+        done
+    }
+
     pub fn by_id(&self, id: &str) -> Option<Asset> {
         self.lock().by_path.values().find(|a| a.id == id).cloned()
     }

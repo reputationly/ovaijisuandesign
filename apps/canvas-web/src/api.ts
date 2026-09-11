@@ -87,8 +87,17 @@ export interface AssetInfo {
   name: string
   width?: number
   height?: number
-  fileSize?: number
   status?: string
+  /**
+   * **服务端发的是 snake_case。**
+   *
+   * 这里原来只声明了一个 `fileSize`,而 `/api/assets` 返回的键是
+   * `file_size` —— 于是那个字段永远是 `undefined`,类型上却完全合法。
+   * 项目资产面板要按大小排序和显示，靠那个字段的话整列都是空的。
+   */
+  file_size: number
+  /** 秒级时间戳，字符串。资产索引里就是这么存的。 */
+  time: string
 }
 
 async function json<T>(res: Response, what: string): Promise<T> {
@@ -160,6 +169,24 @@ export async function writeTextNode(
   }
   const body = await json<{ contentHash?: string }>(res, "POST /api/canvas/text-node")
   return body.contentHash
+}
+
+/**
+ * 把资产移到废纸篓。返回真正处理掉的路径。
+ *
+ * **不保证全成** —— 批量删 20 个，其中一个被别的进程占用时另外 19 个照删。
+ * 调用方对比返回值和自己传的列表就知道哪些没成。
+ */
+export async function trashAssets(paths: string[]): Promise<string[]> {
+  const body = await json<{ deleted: string[] }>(
+    await fetch("/api/assets/trash", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paths }),
+    }),
+    "POST /api/assets/trash",
+  )
+  return body.deleted ?? []
 }
 
 export async function getAssets(): Promise<AssetInfo[]> {

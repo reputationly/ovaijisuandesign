@@ -66,6 +66,9 @@ import {
   createMediaNode,
   uploadFiles,
   groupNodes,
+  getAssets,
+  trashAssets,
+  type AssetInfo,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import {
@@ -102,6 +105,7 @@ import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
 import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 import { cn } from "./lib"
+import { ProjectAssets } from "./AssetsPanel"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
 import { Settings } from "./Settings"
@@ -182,6 +186,18 @@ export default function App() {
   const [stickersHidden, setStickersHidden] = useState(false)
   /** 刚盖下去的那个，用来触发落地动画。见 styles.css 的 `sticker-stamp`。 */
   const [freshSticker, setFreshSticker] = useState<string | null>(null)
+  /** 项目资产面板。官方底部工具条的 `canvas.toolbar-project-assets`。 */
+  const [assetsOpen, setAssetsOpen] = useState(false)
+  const [assetList, setAssetList] = useState<AssetInfo[]>([])
+  const reloadAssets = useCallback(
+    () => getAssets().then(setAssetList).catch(() => {}),
+    [],
+  )
+  // 面板打开时拉一次。**不常驻轮询** —— 列表只在打开着的时候有人看，
+  // 而 agent 生成完会推 `canvas:changed`,那条路上一起刷。
+  useEffect(() => {
+    if (assetsOpen) void reloadAssets()
+  }, [assetsOpen, reloadAssets])
   /**
    * 屏幕坐标 → 画布坐标。
    *
@@ -1516,10 +1532,15 @@ export default function App() {
                 onCreate={() => setComposerOpen(true)}
                 mode={tool}
                 onMode={setTool}
-                // **开素材库，不是那份原始 JSON。** 之前这里
-                // `window.open("/api/assets")`，弹出来一屏未格式化的
-                // JSON —— 那是给排查用的，不是给人看的。
-                onAssets={() => setView("library")}
+                // 开**项目资产**面板。
+                //
+                // 这个按钮之前打开的是「项目库」那一页（项目卡片网格）——
+                // 那是侧栏的东西，和文件夹图标对不上；官方这个位置是
+                // `canvas.toolbar-project-assets`,就是当前项目的文件浏览器。
+                //
+                // 再之前它是 `window.open("/api/assets")`,弹出来一屏未格式化
+                // 的 JSON。
+                onAssets={() => setAssetsOpen((v) => !v)}
                 help={help}
                 onHelp={setHelp}
                 sticker={{
@@ -1548,6 +1569,61 @@ export default function App() {
                   下一步怎么做。 */}
               {file && file.nodes.length === 0 && <EmptyHint />}
               {help && <ShortcutPanel onClose={() => setHelp(false)} />}
+              {assetsOpen && (
+                <div className="absolute inset-y-0 right-0 z-20">
+                  <ProjectAssets
+                    assets={assetList}
+                    onClose={() => setAssetsOpen(false)}
+                    onUpload={async (files) => {
+                      await uploadFiles(files)
+                      await reloadAssets()
+                    }}
+                    onDelete={async (paths) => {
+                      // 映射要**在删之前**取：删完资产就从索引里没了，
+                      // 那时再查 path → id 只会查到空。
+                      const doomed = new Set(
+                        assetList.filter((a) => paths.includes(a.path)).map((a) => a.id),
+                      )
+                      const gone = await trashAssets(paths)
+                      if (gone.length < paths.length) {
+                        setError(`有 ${paths.length - gone.length} 个文件没能删除，见日志。`)
+                      }
+
+                      // **画布上引用这些文件的节点要一起摘掉。**
+                      //
+                      // 不摘的话卡片还在，但素材已经不在索引里了 ——
+                      // `/files/id/X` 返回 404，用户看到一张破图，而且没有
+                      // 任何办法修好它（"重新加载"也救不回来）。
+                      // 删掉之后至少是干净的：文件在废纸篓里，捞回来重新
+                      // 加入画布即可。
+                      const base = fileRef.current
+                      if (base && doomed.size > 0) {
+                        const drop = new Set(
+                          base.nodes.filter((n) => n.assetId && doomed.has(n.assetId)).map((n) => n.id),
+                        )
+                        if (drop.size > 0) {
+                          const next = {
+                            ...base,
+                            nodes: base.nodes.filter((n) => !drop.has(n.id)),
+                            // 悬空的边会让 gateway 的引用完整性校验拒掉整次保存。
+                            edges: base.edges.filter(
+                              (e) => !drop.has(e.source) && !drop.has(e.target),
+                            ),
+                          }
+                          await putCanvas(next).catch((err) =>
+                            setError(err instanceof Error ? err.message : String(err)),
+                          )
+                        }
+                      }
+                      await reloadAssets()
+                      await load()
+                    }}
+                    onUse={(a) => {
+                      void createMediaNode(a.path).then(() => load())
+                    }}
+                  />
+                </div>
+              )}
               <TagFilter
                 active={
                   tagFilter
