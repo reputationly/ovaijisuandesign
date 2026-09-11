@@ -122,6 +122,10 @@ pub fn resolve_size(aspect_ratio: &str, resolution: &str) -> Option<String> {
     }
     let short_edge: u32 = match resolution.trim().to_ascii_uppercase().as_str() {
         "2K" => 1440,
+        // **"1K" 一定要在这儿。** 界面上给用户的选项就是 1K / 2K
+        // （见 Generate.tsx 的 RESOLUTIONS），而它以前落进下面的兜底 ——
+        // 用户选 1K，出来的是 768P，不报错，也没有任何地方说明为什么。
+        "1K" => 1024,
         "1080P" => 1080,
         "480P" => 480,
         // 768P 是基准档，认不出的也按它算。
@@ -506,5 +510,42 @@ mod tests {
             "{}",
             err.message
         );
+    }
+}
+
+#[cfg(test)]
+mod size_tests {
+    use super::resolve_size;
+
+    /// 界面给用户的分辨率选项就是 1K / 2K（Generate.tsx 的 RESOLUTIONS）。
+    ///
+    /// **"1K" 以前落进 `_ => 768` 的兜底** —— 用户选 1K，出来的是 768P,
+    /// 不报错，也没有任何地方说明为什么。图片那边 1K 一直是 1024，
+    /// 两条链路对同一个词的理解不一样。
+    #[test]
+    fn one_k_is_1024_not_768() {
+        assert_eq!(resolve_size("1:1", "1K").as_deref(), Some("1024x1024"));
+        assert_eq!(resolve_size("16:9", "1K").as_deref(), Some("1824x1024"));
+    }
+
+    #[test]
+    fn two_k_and_the_other_tiers() {
+        assert_eq!(resolve_size("1:1", "2K").as_deref(), Some("1440x1440"));
+        assert_eq!(resolve_size("1:1", "1080P").as_deref(), Some("1080x1080"));
+        assert_eq!(resolve_size("1:1", "480P").as_deref(), Some("480x480"));
+        // 认不出的按基准档。
+        assert_eq!(resolve_size("1:1", "??").as_deref(), Some("768x768"));
+    }
+
+    /// 比例为空 = 让平台自己定（比如按首帧图）。**不能当成 1:1。**
+    #[test]
+    fn an_empty_ratio_means_let_the_platform_decide() {
+        assert_eq!(resolve_size("", "1K"), None);
+        assert_eq!(resolve_size("adaptive", "1K"), None);
+    }
+
+    #[test]
+    fn portrait_aligns_on_the_short_edge() {
+        assert_eq!(resolve_size("9:16", "1K").as_deref(), Some("1024x1824"));
     }
 }

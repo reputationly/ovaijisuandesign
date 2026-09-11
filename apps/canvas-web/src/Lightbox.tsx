@@ -43,6 +43,13 @@ export interface LightboxItem {
   name?: string
   /** 下载用。没有就退回 url。 */
   downloadUrl?: string
+  /**
+   * 素材种类。**必填** —— 灯箱以前只画 `<img>`,视频和音频节点点「放大查看」
+   * 会走到一个 `<img src="…mp4">`,浏览器画不出来。而候选集又只收 image，
+   * 于是 `indexOf` 返回 -1、被 `Math.max(0, …)` 兜成 0,
+   * **显示的是画布上第一张图**,和用户点的那个毫无关系。
+   */
+  kind: "image" | "video" | "audio"
 }
 
 function clampScale(s: number) {
@@ -119,10 +126,20 @@ export function Lightbox({
   const translateRef = useRef(translate)
   scaleRef.current = scale
   translateRef.current = translate
+  const zoomableRef = useRef(true)
 
   const total = items.length
   const multi = total > 1
   const current = items[index]
+  /**
+   * 缩放、拖拽、复制这张图**只对图片有意义**。
+   *
+   * 视频上必须全部让开 —— 原生 `<video controls>` 的进度条就在容器里，
+   * 我们如果还接管 pointer 和 wheel，用户拖进度条会变成拖画面、
+   * 滚轮调音量会变成缩放。
+   */
+  const zoomable = current?.kind === "image"
+  zoomableRef.current = zoomable
 
   const goPrev = useCallback(() => {
     if (total <= 1) return
@@ -207,6 +224,7 @@ export function Lightbox({
     const el = containerRef.current
     if (!el) return
     const onWheel = (e: WheelEvent) => {
+      if (!zoomableRef.current) return
       e.preventDefault()
       e.stopPropagation()
       const rect = el.getBoundingClientRect()
@@ -226,6 +244,8 @@ export function Lightbox({
     }
     el.addEventListener("wheel", onWheel, { passive: false })
     return () => el.removeEventListener("wheel", onWheel)
+    // 依赖空数组，`zoomable` 通过 ref 读 —— 挂/摘原生监听器比重建闭包便宜，
+    // 而且 `{ passive: false }` 的监听器换来换去容易漏摘。
   }, [])
 
   useEffect(() => {
@@ -318,6 +338,9 @@ export function Lightbox({
         data-action-ui-id="canvas.image-lightbox.header"
         className="flex h-12 shrink-0 items-center justify-center px-3"
       >
+        {/* 缩放三件套**只对图片显示**。视频/音频用原生 controls,
+            放一组点了没反应的按钮比不放更糟。 */}
+        {zoomable && (
         <div
           data-action-ui-id="canvas.image-lightbox.zoom-controls"
           className="absolute left-3 flex items-center gap-1 rounded-lg px-1 py-1 backdrop-blur-sm"
@@ -342,6 +365,7 @@ export function Lightbox({
               同一件事、还共用同一个动作 id —— 两个不同图标的按钮做同一件事，
               用户会以为其中一个是别的功能。 */}
         </div>
+        )}
         <span className="truncate text-[13px] text-white/70">{current.name}</span>
         <IconBtn
           onClick={(e) => {
@@ -361,24 +385,49 @@ export function Lightbox({
         data-action-ui-id="canvas.image-lightbox.media-frame"
         className="relative z-0 min-h-0 flex-1 overflow-hidden"
         style={{ cursor: scale > 1 ? "grab" : "default" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onDoubleClick={onDoubleClick}
+        onPointerDown={zoomable ? onPointerDown : undefined}
+        onPointerMove={zoomable ? onPointerMove : undefined}
+        onPointerUp={zoomable ? onPointerUp : undefined}
+        onDoubleClick={zoomable ? onDoubleClick : undefined}
       >
         <div className="flex h-full w-full items-center justify-center">
-          <img
-            ref={imgRef}
-            src={current.url}
-            alt={current.name ?? ""}
-            draggable={false}
-            className="max-h-full max-w-full select-none object-contain"
-            style={{
-              transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
-              transition: transitioning ? "transform .2s ease-out" : "none",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
+          {current.kind === "image" ? (
+            <img
+              ref={imgRef}
+              src={current.url}
+              alt={current.name ?? ""}
+              draggable={false}
+              className="max-h-full max-w-full select-none object-contain"
+              style={{
+                transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                transition: transitioning ? "transform .2s ease-out" : "none",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : current.kind === "video" ? (
+            /* 视频用**浏览器原生 controls**。画布上的卡片是自绘的（原生控件
+               在 350px 宽的卡片里占掉六分之一），但灯箱是全屏看片的地方 ——
+               这里需要的是进度条、音量、倍速、全屏，自绘一套不如用系统的。
+               `autoPlay` 且**不静音**：用户是点了「放大查看」进来的，
+               意图就是看这段视频。 */
+            <video
+              key={current.url}
+              src={current.url}
+              controls
+              autoPlay
+              playsInline
+              className="max-h-full max-w-full"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <div
+              className="flex w-[min(560px,80%)] flex-col items-center gap-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-[13px] text-white/70">{current.name ?? "音频"}</p>
+              <audio key={current.url} src={current.url} controls autoPlay className="w-full" />
+            </div>
+          )}
         </div>
 
         {multi && (
@@ -395,7 +444,9 @@ export function Lightbox({
             data-action-ui-id="canvas.image-lightbox.counter"
             className="mb-3 text-center text-[12px] text-white/60 tabular-nums"
           >
-            {index + 1} / {total} 张
+            {/* 官方图片灯箱是 `nextImage`「下一张图片」,视频灯箱是
+                `nextVideo`「下一个视频」—— 量词不一样。音频同理。 */}
+            {index + 1} / {total} {current.kind === "image" ? "张" : "个"}
           </p>
         )}
         <div
@@ -489,7 +540,7 @@ function NavBtn({
       }}
       className={`absolute top-1/2 ${side === "left" ? "left-4" : "right-4"} flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-white/80 backdrop-blur-sm hover:bg-white/20`}
       style={{ background: "rgba(255,255,255,.1)" }}
-      title={side === "left" ? "上一张" : "下一张"}
+      title={side === "left" ? "上一个" : "下一个"}
     >
       {side === "left" ? "‹" : "›"}
     </button>

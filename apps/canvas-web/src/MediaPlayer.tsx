@@ -15,14 +15,21 @@ import { useEffect, useRef, useState } from "react"
  *
  * 两个刻意的行为：
  *
- * - **默认静音**。画布上可能同时有十几个视频，任何一个自己出声都是灾难。
  * - **控件只在 hover 时出现**，平时画布上是干净的一张画面 —— 和节点名字条
  *   的处理一致。
+ * - **不自动播放**。画布上可能同时有十几个视频，自动播是灾难。
+ *
+ * ## 默认不静音
+ *
+ * 以前默认静音，理由写的是"画布上可能有十几个视频，任何一个自己出声都是
+ * 灾难"—— **那个理由是针对自动播放的，而我们从不自动播放**。用户必须点
+ * 播放键才会开始，点了就是想看这段视频；静音的话他看到的是一段默片，
+ * 而那个音量按钮藏在 hover 才出现的控件条里。
  */
 export function VideoPlayer({ src }: { src: string }) {
   const ref = useRef<HTMLVideoElement | null>(null)
   const [playing, setPlaying] = useState(false)
-  const [muted, setMuted] = useState(true)
+  const [muted, setMuted] = useState(false)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
@@ -111,29 +118,35 @@ export function VideoPlayer({ src }: { src: string }) {
 }
 
 /**
- * 音频节点。官方的音频卡是 350x150 —— 一条波形加一个播放键，
- * 我们已经有 `<Waveform>`，这里补播放控制。
+ * 音频卡。官方的是 350x150 —— 一条波形加一个播放键。
+ *
+ * **播放器只有一个**：波形（wavesurfer）就是播放器，这里只出按钮、时间和
+ * 布局。以前这儿另有一个 `<audio>` 元素，和波形各播各的 —— 点圆按钮声音
+ * 在放而波形进度一动不动，两个都点还会叠着播两遍。
  */
-export function AudioPlayer({ src, children }: { src: string; children?: React.ReactNode }) {
-  const ref = useRef<HTMLAudioElement | null>(null)
-  const [playing, setPlaying] = useState(false)
-
+export function AudioPlayer({
+  children,
+  playing,
+  onToggle,
+  duration,
+}: {
+  /** 波形。由调用方传进来，因为它同时是播放器。 */
+  children?: React.ReactNode
+  playing: boolean
+  onToggle: () => void
+  /** 秒。解码完才有。 */
+  duration?: number
+}) {
   return (
     <div className="relative flex h-full w-full flex-col justify-center gap-2 px-3">
-      <audio ref={ref} src={src} preload="metadata" onEnded={() => setPlaying(false)} />
       {children}
       <button
-        onClick={() => {
-          const a = ref.current
-          if (!a) return
-          if (a.paused) {
-            void a.play()
-            setPlaying(true)
-          } else {
-            a.pause()
-            setPlaying(false)
-          }
+        onClick={(e) => {
+          e.stopPropagation()
+          onToggle()
         }}
+        // 卡片本身可拖拽，按钮上要挡住，否则点一下就变成拖了 1px。
+        onPointerDown={(e) => e.stopPropagation()}
         className="absolute top-1/2 left-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
         style={{
           background: "var(--canvas-media-control-bg)",
@@ -142,6 +155,24 @@ export function AudioPlayer({ src, children }: { src: string; children?: React.R
       >
         {playing ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
       </button>
+      {/* 时长。官方的素材信息里有这一项（`assetPreview.meta.duration`）——
+          一段音频光看波形判断不出长短，而"这是 8 秒还是 3 分钟"
+          往往是用户最先想知道的。 */}
+      {duration !== undefined && (
+        <span
+          className="absolute right-2 bottom-1.5 text-[11px] tabular-nums"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {clock(duration)}
+        </span>
+      )}
     </div>
   )
+}
+
+/** 秒 → `m:ss`。 */
+export function clock(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return "--:--"
+  const s = Math.round(seconds)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`
 }

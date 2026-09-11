@@ -1107,20 +1107,35 @@ export default function App() {
    * 只在灯箱开着时才算 —— 关着的时候画布上有几十张图，每次渲染都遍历一遍
    * 纯属白算。
    */
-  const lightboxNodeIds = useMemo(
-    () =>
-      lightbox === null
-        ? []
-        : (file?.nodes ?? []).filter((n) => n.type === "image" && n.assetId).map((n) => n.id),
-    [lightbox, file],
-  )
+  /**
+   * 灯箱里能翻到的那些节点。
+   *
+   * **按点开的那个节点的类型收，不是只收图片。**
+   *
+   * 以前这里写死 `n.type === "image"` —— 而「放大查看」按钮是 `Frame`
+   * 统一给所有带 assetId 的节点的。于是点视频或音频的放大，候选集里找不到
+   * 它，`indexOf` 返回 -1 被 `Math.max(0, …)` 兜成 0,**显示的是画布上
+   * 第一张图**,和用户点的那个毫无关系，而且没有任何报错。
+   *
+   * 只收同类：官方也是分开的两套（`canvas.imageLightbox.nextImage` /
+   * `canvas.videoLightbox.nextVideo`）—— 看图时按左右键翻出一段视频，
+   * 那是个意外。
+   */
+  const lightboxNodeIds = useMemo(() => {
+    if (lightbox === null) return []
+    const nodes = file?.nodes ?? []
+    const kind = nodes.find((n) => n.id === lightbox)?.type
+    if (!kind) return []
+    return nodes.filter((n) => n.type === kind && n.assetId).map((n) => n.id)
+  }, [lightbox, file])
   const lightboxItems = useMemo<LightboxItem[]>(
     () =>
       lightboxNodeIds.map((id) => {
         const node = file?.nodes.find((n) => n.id === id)
         // 灯箱走**原图**不走缩略图 —— 它就是用来看细节的，
         // 放大到 400% 看一张 512px 的缩略图等于什么都没看到。
-        return { url: assetUrl(node!.assetId!), name: details.get(id)?.name }
+        const kind = node?.type === "video" ? "video" : node?.type === "audio" ? "audio" : "image"
+        return { url: assetUrl(node!.assetId!), name: details.get(id)?.name, kind }
       }),
     [lightboxNodeIds, file, details],
   )

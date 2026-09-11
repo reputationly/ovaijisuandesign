@@ -13,6 +13,13 @@ import {
 /** 画布上常见的比例。和官方模型目录里那组一致。 */
 const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
 const RESOLUTIONS = ["1K", "2K"]
+/**
+ * 视频时长。官方 `canvas.params.duration` =「时长」,
+ * 选项文案 `canvas.params.durationOption` = `{{duration}}s`。
+ *
+ * `自动` = 不传，让模型/平台按内容定 —— 和比例那边"留空即自适应"一致。
+ */
+const DURATIONS = ["自动", "5s", "10s", "15s"]
 
 type Phase =
   | { kind: "idle" }
@@ -103,6 +110,7 @@ export function Generate({
   const [models, setModels] = useState<PlatformModel[]>([])
   const [skills, setSkills] = useState<{ slug: string; name: string; description: string }[]>([])
   const [skillQ, setSkillQ] = useState("")
+  const [duration, setDuration] = useState("自动")
   const shownSkills = useMemo(() => {
     const t = skillQ.trim().toLowerCase()
     if (!t) return skills
@@ -150,6 +158,9 @@ export function Generate({
       await agentSend(text, attachments, {
         mode,
         models: pickedModels,
+        // `自动` 不传 —— 传一个空串下去会被当成"用户明确要求"而覆盖掉
+        // 模型按内容选的时长。
+        ...(duration === "自动" ? {} : { duration: Number.parseInt(duration, 10) }),
         aspectRatio: ratio,
         resolution,
       })
@@ -455,6 +466,11 @@ export function Generate({
         </ToolBtn>
         <Select value={ratio} onChange={setRatio} options={RATIOS} disabled={busy} />
         <Select value={resolution} onChange={setResolution} options={RESOLUTIONS} disabled={busy} />
+        {/* 时长。官方输入框在视频态下有这一项，我们之前没有 ——
+            用户只能在提示词里写「生成5s」,而那要靠模型把它转述进工具参数。
+            **这里选的会在派发层兜底**,不经过模型转述（见 dispatch 的
+            `framing`,画幅就是这么丢过的）。 */}
+        <Select value={duration} onChange={setDuration} options={DURATIONS} disabled={busy} />
         <span className="flex-1" />
         {/* Agent 模式。官方把它放在发送键左边，显示当前模式的名字。 */}
         <button

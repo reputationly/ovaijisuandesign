@@ -186,6 +186,27 @@ fn truncate(msgs: &[Msg]) -> Vec<Msg> {
 pub struct Agent {
     running: AtomicBool,
     stop: AtomicBool,
+    /// 这一轮用户在界面上选的画幅。**派发工具时兜底用。**
+    ///
+    /// ## 为什么不能只靠 turn_hint
+    ///
+    /// 画幅是通过一句提示词告诉模型的（「【画幅】比例 1:1 分辨率 1K」），
+    /// 指望它原样转述进工具参数 —— **实测它会丢**。用户选了 1:1，模型调
+    /// `generate_video` 时只带了 prompt / duration / first_frame_image,
+    /// 于是我们不传 size，平台按首帧图自己定，出来一个 16:9 的视频。
+    ///
+    /// 用户在界面上选的东西是**已知事实**,不该经过模型这一道转述。
+    /// 模型显式给了就用模型的（它可能有更好的理由，比如按参考图的比例），
+    /// 没给就用这里的。
+    turn: std::sync::Mutex<TurnParams>,
+}
+
+/// 一轮里用户在界面上选定的生成参数。
+#[derive(Debug, Clone, Default)]
+pub struct TurnParams {
+    pub aspect_ratio: Option<String>,
+    pub resolution: Option<String>,
+    pub duration: Option<u32>,
 }
 
 impl Agent {
@@ -194,6 +215,15 @@ impl Agent {
     }
     pub fn is_running(&self) -> bool {
         self.running.load(Ordering::Relaxed)
+    }
+    /// 记下这一轮的界面选项。`send` 在开跑前调。
+    pub fn set_turn(&self, p: TurnParams) {
+        if let Ok(mut t) = self.turn.lock() {
+            *t = p;
+        }
+    }
+    pub fn turn_params(&self) -> TurnParams {
+        self.turn.lock().map(|t| t.clone()).unwrap_or_default()
     }
     pub fn request_stop(&self) {
         self.stop.store(true, Ordering::Relaxed);
@@ -226,6 +256,10 @@ pub struct SendBody {
     pub aspect_ratio: Option<String>,
     #[serde(default)]
     pub resolution: Option<String>,
+    /// 视频时长，秒。同样**两条路都走**：提示词让模型知道，
+    /// `TurnParams` 在派发时兜底。
+    #[serde(default)]
+    pub duration: Option<u32>,
 }
 
 /// 把这一轮的设置拼成一段追加给模型的话。
@@ -248,6 +282,9 @@ fn turn_hint(b: &SendBody) -> String {
              不要换一个用户没勾的顶上。",
             b.models.join("、")
         ));
+    }
+    if let Some(d) = b.duration {
+        out.push(format!("【时长】{d} 秒。生成视频时按这个传。"));
     }
     let ar = b.aspect_ratio.as_deref().unwrap_or("").trim();
     let res = b.resolution.as_deref().unwrap_or("").trim();
@@ -306,6 +343,14 @@ pub async fn send(
     // 这一轮的设置（Agent 模式 / 允许的模型 / 画幅）跟着这条消息走，
     // 不进 system —— 理由同上：进了 system 就会在之后每一轮都生效，
     // 而用户改设置之后历史里那些旧消息会显得像当初就用了新设置。
+    // 界面上选的画幅**同时**走两条路：一条是提示词（让模型知道），
+    // 一条是这里（派发时兜底）。只走提示词的话模型会丢，见 `TurnParams`。
+    state.agent.set_turn(TurnParams {
+        aspect_ratio: b.aspect_ratio.clone().filter(|s| !s.trim().is_empty()),
+        resolution: b.resolution.clone().filter(|s| !s.trim().is_empty()),
+        duration: b.duration,
+    });
+
     let hint = turn_hint(&b);
     if !hint.is_empty() {
         text.push_str("\n\n");
@@ -644,6 +689,7 @@ mod turn_hint_tests {
             models: vec![],
             aspect_ratio: None,
             resolution: None,
+            duration: None,
         }
     }
 

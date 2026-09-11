@@ -707,6 +707,8 @@ export interface SendOptions {
   models?: string[]
   aspectRatio?: string
   resolution?: string
+  /** 视频时长，秒。不给 = 由模型/平台按内容定。 */
+  duration?: number
 }
 
 export async function agentSend(
@@ -726,6 +728,7 @@ export async function agentSend(
       ...(opts.models?.length ? { models: opts.models } : {}),
       ...(opts.aspectRatio ? { aspect_ratio: opts.aspectRatio } : {}),
       ...(opts.resolution ? { resolution: opts.resolution } : {}),
+      ...(opts.duration ? { duration: opts.duration } : {}),
     }),
   })
   // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。

@@ -199,6 +199,46 @@ impl Assets {
         Ok(asset)
     }
 
+    /// 重新读一遍所有资产的画面尺寸。**不碰画布。**
+    ///
+    /// 加尺寸解析（比如视频那次）之后，已经登记过的资产还是老记录 ——
+    /// 画布上的节点会一直用错的尺寸。
+    ///
+    /// **不要用 `media-node` 来达到这个目的**：那条路是"把素材放上画布",
+    /// 对当前画布上没有的素材会**新建节点** —— 我就是这么往用户的画布里
+    /// 塞进去三个视频节点的。
+    ///
+    /// 返回尺寸发生变化的条数。
+    pub fn rescan_dimensions(&self) -> usize {
+        let paths: Vec<String> = self.lock().by_path.keys().cloned().collect();
+        let mut changed = 0;
+        for rel in paths {
+            let Some(abs) = self.ws.resolve(&rel) else { continue };
+            let (w, h) = image_dimensions(&abs);
+            if w.is_none() && h.is_none() {
+                continue;
+            }
+            let mut index = self.lock();
+            if let Some(a) = index.by_path.get_mut(&rel) {
+                if a.width != w || a.height != h {
+                    a.width = w;
+                    a.height = h;
+                    changed += 1;
+                }
+            }
+        }
+        if changed > 0 {
+            let snapshot = Index {
+                version: 1,
+                by_path: self.lock().by_path.clone(),
+            };
+            if let Err(err) = self.persist(&snapshot) {
+                tracing::warn!("资产索引写盘失败: {err:#}");
+            }
+        }
+        changed
+    }
+
     pub fn list(&self) -> Vec<Asset> {
         let mut all: Vec<Asset> = self.lock().by_path.values().cloned().collect();
         // 新的在前。画布的资产侧栏默认按时间倒序。
@@ -283,11 +323,19 @@ fn now_iso() -> String {
 ///
 /// 读不到就返回 `None` —— 非图片、或者格式不认识都是正常情况，
 /// 画布拿不到尺寸会自己从文件里量。
+/// 素材的画面尺寸。图片走 `image` crate，视频自己解 MP4 盒子。
+///
+/// **视频以前一律拿到 `(None, None)`** —— 于是画布上每个视频节点都退回
+/// 默认的 350x350 方块，而视频本身多半是 16:9。不报错、不崩，只是尺寸
+/// 一直是错的，刷新也不会变。
 fn image_dimensions(path: &Path) -> (Option<u32>, Option<u32>) {
-    match image::image_dimensions(path) {
-        Ok((w, h)) => (Some(w), Some(h)),
-        Err(_) => (None, None),
+    if let Ok((w, h)) = image::image_dimensions(path) {
+        return (Some(w), Some(h));
     }
+    if let Some(info) = crate::mp4::probe_file(path) {
+        return (Some(info.width), Some(info.height));
+    }
+    (None, None)
 }
 
 #[cfg(test)]

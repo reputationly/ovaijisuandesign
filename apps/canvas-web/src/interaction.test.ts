@@ -111,6 +111,10 @@ describe("交互层", () => {
 
         for (const p of typeBlock.matchAll(/^\s{2}(\w+)\?:/gm)) {
           const prop = p[1]!
+          // **`children` 是以嵌套 JSX 传的，不是 `children=` 属性。**
+          // 不特判的话，任何一个带可选 children 的组件都会被报成
+          // "没人传" —— `<AudioPlayer …><Waveform/></AudioPlayer>` 就是。
+          if (prop === "children") continue
           // 组件内部真的用到了它才算数 —— 只在类型里写了没用到的不管。
           if (!new RegExp(`\\b${prop}\\b`).test(text.slice(m.index! + m[0].length))) continue
           if (!new RegExp(`\\b${prop}=`).test(usages)) {

@@ -245,11 +245,23 @@ export function VideoNode(props: Props) {
 
 export function AudioNode(props: Props) {
   const id = props.data.raw.assetId
+  // **播放状态在这里持有**,波形和按钮共用它 —— 它们以前各有一个播放器。
+  const [playing, setPlaying] = useState(false)
+  const [duration, setDuration] = useState<number | undefined>(undefined)
   return (
     <Frame {...props} kind="audio">
       {id ? (
-        <AudioPlayer src={assetUrl(id)}>
-          <Waveform src={assetUrl(id)} />
+        <AudioPlayer
+          playing={playing}
+          onToggle={() => setPlaying((v) => !v)}
+          duration={duration}
+        >
+          <Waveform
+            src={assetUrl(id)}
+            playing={playing}
+            onPlayingChange={setPlaying}
+            onDuration={setDuration}
+          />
         </AudioPlayer>
       ) : (
         <Placeholder text="占位节点" />

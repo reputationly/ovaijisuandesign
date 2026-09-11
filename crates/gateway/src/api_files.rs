@@ -44,6 +44,13 @@ pub async fn trash_assets(
     Json(json!({ "deleted": deleted }))
 }
 
+/// 重扫所有资产的画面尺寸。**不碰画布。**
+pub async fn rescan_assets(State(state): State<Arc<AppState>>) -> Json<Value> {
+    let changed = state.assets.rescan_dimensions();
+    tracing::info!("资产尺寸重扫完成 changed={changed}");
+    Json(json!({ "ok": true, "changed": changed }))
+}
+
 pub async fn workspace_dir(State(state): State<Arc<AppState>>) -> Json<Value> {
     Json(json!({ "dir": state.ws.root().to_string_lossy() }))
 }

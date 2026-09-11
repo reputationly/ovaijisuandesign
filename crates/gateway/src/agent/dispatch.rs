@@ -106,10 +106,14 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 
         "generate_video" => {
             let mut body = v.clone();
-            body["params"] = json!({
-                "aspect_ratio": v.get("aspect_ratio").and_then(Value::as_str).unwrap_or(""),
-                "resolution": v.get("resolution").and_then(Value::as_str).unwrap_or(""),
-            });
+            let (ar, res) = framing(state, v);
+            body["params"] = json!({ "aspect_ratio": ar, "resolution": res });
+            // 时长同理：模型给了用模型的，没给用界面上选的。
+            if body.get("duration").and_then(Value::as_u64).is_none() {
+                if let Some(d) = state.agent.turn_params().duration {
+                    body["duration"] = json!(d);
+                }
+            }
             return submit_and_wait(state, "video", body).await;
         }
 
@@ -229,6 +233,34 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 ///
 /// **找不到就跳过，不报错。** 输入可能来自工作区里一个还没放上画布的文件
 /// （比如 IM 发来的附件），那时候连不上是正常的。
+/// 这一次生成用什么画幅。
+///
+/// **模型给了就用模型的，没给就用界面上选的。**
+///
+/// 画幅是通过提示词告诉模型的（「【画幅】比例 1:1 分辨率 1K」），指望它
+/// 原样转述进工具参数 —— 实测它会丢：用户选了 1:1，模型调 `generate_video`
+/// 时只带了 prompt / duration / first_frame_image，于是我们不传 size，
+/// 平台按首帧图自己定，出来一个 16:9 的视频。**而这中间没有任何报错。**
+///
+/// 不无条件覆盖模型给的值：它可能有更好的理由（比如按参考图的比例来），
+/// 那种情况下用户的默认选择本来就该让位。
+fn framing(state: &Arc<AppState>, v: &Value) -> (String, String) {
+    let ui = state.agent.turn_params();
+    let pick = |key: &str, fallback: Option<String>| {
+        v.get(key)
+            .and_then(Value::as_str)
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+            .or(fallback)
+            .unwrap_or_default()
+    };
+    (
+        pick("aspect_ratio", ui.aspect_ratio),
+        pick("resolution", ui.resolution),
+    )
+}
+
 fn source_nodes(state: &Arc<AppState>, body: &Value) -> Vec<String> {
     // **每种工具的"输入素材"字段名都不一样。** 只看 `image_paths` 的话，
     // 视频永远连不回它的首帧图 —— 而"先出关键帧再转视频"正是我们在系统
@@ -571,5 +603,51 @@ mod tests {
         assert!(source_nodes(&st, &json!({ "first_frame_image": "" })).is_empty());
         assert!(source_nodes(&st, &json!({ "image_paths": [] })).is_empty());
         assert!(source_nodes(&st, &json!({ "prompt": "一只狗" })).is_empty());
+    }
+}
+
+#[cfg(test)]
+mod framing_tests {
+    use serde_json::json;
+
+    /// `framing` 的判据抽出来测：模型给了用模型的，没给用界面的。
+    fn pick(model: Option<&str>, ui: Option<&str>) -> String {
+        model
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+            .or_else(|| ui.map(str::to_string))
+            .unwrap_or_default()
+    }
+
+    /// 用户实测撞到的那一条：turn hint 里写了「比例 1:1」,模型调
+    /// `generate_video` 时只带了 prompt / duration / first_frame_image ——
+    /// 画幅两个字段直接没带。于是我们不传 size，平台按首帧图自己定，
+    /// 出来一个 16:9 的视频，**全程没有任何报错**。
+    #[test]
+    fn the_ui_choice_wins_when_the_model_drops_it() {
+        let args = json!({ "prompt": "兔子", "duration": 5 });
+        assert!(args.get("aspect_ratio").is_none());
+        assert_eq!(pick(None, Some("1:1")), "1:1");
+    }
+
+    /// **不无条件覆盖模型给的值。** 它可能有更好的理由 —— 比如按参考图的
+    /// 比例来，那种情况下用户的默认选择本来就该让位。
+    #[test]
+    fn an_explicit_model_value_is_kept() {
+        assert_eq!(pick(Some("16:9"), Some("1:1")), "16:9");
+    }
+
+    /// 空串算"没给"。模型有时会把字段填成 `""`,那和没填是一个意思。
+    #[test]
+    fn an_empty_string_counts_as_missing() {
+        assert_eq!(pick(Some(""), Some("1:1")), "1:1");
+        assert_eq!(pick(Some("  "), Some("1:1")), "1:1");
+    }
+
+    /// 两边都没有就是空 —— 让平台自己定，不能瞎编一个默认值。
+    #[test]
+    fn nothing_anywhere_means_let_the_platform_decide() {
+        assert_eq!(pick(None, None), "");
     }
 }
