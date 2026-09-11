@@ -47,6 +47,7 @@ pub mod feishu;
 pub mod generate;
 pub mod install;
 pub mod land;
+pub mod logs;
 pub mod memory;
 pub mod models;
 pub mod music;
@@ -146,6 +147,8 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/settings", get(settings::get).post(settings::put))
         .route("/api/models", get(models::list))
         .route("/api/system/awake", get(awake::get).post(awake::put))
+        .route("/api/system/logs", get(logs::get))
+        .route("/api/system/logs/open", post(logs::open))
         .route("/api/skills", get(skills::list).post(skills::save))
         .route("/api/skills/import", post(skills::import))
         .route(

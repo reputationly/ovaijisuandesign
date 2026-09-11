@@ -857,6 +857,19 @@ export async function platformModels(): Promise<PlatformModel[]> {
 /** 保持电脑唤醒。对应官方的 `preventSleep`。 */
 export type AwakeInfo = { enabled: boolean; error: string | null }
 
+/** 日志文件的位置。`exists` 为 false 说明一条都还没写出来。 */
+export async function logInfo(): Promise<{ dir?: string; file?: string; exists: boolean }> {
+  return json(await fetch("/api/system/logs"), "GET /api/system/logs")
+}
+
+/** 在访达 / 资源管理器里打开日志目录。 */
+export async function openLogDir(): Promise<{ ok: boolean; error?: string }> {
+  return json(
+    await fetch("/api/system/logs/open", { method: "POST" }),
+    "POST /api/system/logs/open",
+  )
+}
+
 export async function awakeStatus(): Promise<AwakeInfo> {
   return json(await fetch("/api/system/awake"), "GET /api/system/awake")
 }

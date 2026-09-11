@@ -8,6 +8,9 @@ import {
   type SettingsInfo,
 } from "./api"
 import { Dialog } from "./Dialog"
+import { KeepAwake } from "./KeepAwake"
+import { THEMES, applyTheme, loadTheme, resolve, saveTheme, watchSystem, type Theme } from "./appearance"
+import { checkUpdate, logInfo, openLogDir } from "./api"
 
 /**
  * 设置。**是弹窗不是页面** —— 改配置是一次性的插曲，把它做成一个占满
@@ -28,6 +31,21 @@ export function Settings({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState<Record<string, string>>({})
   const [enhance, setEnhance] = useState(true)
   const [voice, setVoice] = useState("")
+  const [theme, setTheme] = useState<Theme>(() => loadTheme())
+  const [sysDark, setSysDark] = useState(false)
+  const [upd, setUpd] = useState<string | null>(null)
+  const [updBusy, setUpdBusy] = useState(false)
+  const [logDir, setLogDir] = useState<string | null>(null)
+  useEffect(() => {
+    void logInfo()
+      .then((r) => setLogDir(r.dir ?? null))
+      .catch(() => {})
+  }, [])
+
+  // **`system` 之外也订阅。** 用户从「深色」切回「跟随系统」时要立刻拿到
+  // 当前系统状态；只在 system 下订阅的话，那一刻需要额外一次手动同步。
+  useEffect(() => watchSystem(setSysDark), [])
+  useEffect(() => applyTheme(resolve(theme, sysDark)), [theme, sysDark])
   const [msg, setMsg] = useState<{ kind: "ok" | "bad"; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -115,6 +133,110 @@ export function Settings({ onClose }: { onClose: () => void }) {
       </p>
 
       <div className="flex flex-col gap-6">
+        <Section title="通用">
+          {/* 主题。官方 `settings.theme` / `themeDesc`。
+              **`.dark` 那 179 行变量之前从没被用上** —— 写好了，但没有任何
+              代码给 `<html>` 挂过这个 class。 */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[13px]">主题</div>
+              <div className="mt-0.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                选择浅色、深色或跟随系统主题
+              </div>
+            </div>
+            <div
+              className="flex shrink-0 rounded-lg p-0.5"
+              style={{ background: "var(--bg-subtle)" }}
+            >
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  aria-pressed={theme === t.id}
+                  onClick={() => {
+                    setTheme(t.id)
+                    saveTheme(t.id)
+                  }}
+                  className="rounded-md px-2.5 py-1 text-[12px] transition-colors"
+                  style={{
+                    background: theme === t.id ? "var(--background)" : "transparent",
+                    color: theme === t.id ? "var(--foreground)" : "var(--muted-foreground)",
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 从 IM 面板搬过来的。**系统级的开关不该藏在一个功能面板里** ——
+              不接微信/飞书的人永远不会打开那个面板。 */}
+          <KeepAwake />
+
+          {/* 检查更新。官方 `settings.checkForUpdates`。
+              我们之前只有"有新版本时自动弹面板"这一条路，用户想主动查
+              查不了。 */}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[13px]">检查更新</div>
+              <div className="mt-0.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                {upd ?? "检查是否有新版本可用"}
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={updBusy}
+              onClick={() => {
+                setUpdBusy(true)
+                setUpd("正在检查…")
+                void checkUpdate()
+                  .then((r) => {
+                    // **`reachable: false` 不是"已是最新"。** 断网或清单里
+                    // 没这一档时也会走到这儿，说成"已是最新"是在骗人。
+                    if (!r.reachable) setUpd("查不到更新源，请检查网络")
+                    else if (r.needUpdate) setUpd(`有新版本 ${r.latest}，面板会引导安装`)
+                    else setUpd(`已是最新（${r.current}）`)
+                  })
+                  .catch((e) => setUpd(e instanceof Error ? e.message : String(e)))
+                  .finally(() => setUpdBusy(false))
+              }}
+              className="shrink-0 rounded-md px-2.5 py-1.5 text-[12px] transition-opacity enabled:hover:opacity-85 disabled:opacity-40"
+              style={{ background: "var(--bg-subtle)", color: "var(--foreground)" }}
+            >
+              检查更新
+            </button>
+          </div>
+          {/* 日志目录。官方 `settings.logDirectory`。
+              **打包成 .app 之后 stdout 没有任何地方接** —— 在此之前
+              gateway 里所有 warn 都进了虚空，用户报问题时我们只有一句
+              "它不工作"。 */}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[13px]">日志目录</div>
+              <div
+                className="mt-0.5 truncate text-[11px]"
+                style={{ color: "var(--muted-foreground)" }}
+                title={logDir ?? undefined}
+              >
+                {/* 路径本身就是最有用的说明 —— 用户可以直接拷给我们。 */}
+                {logDir ?? "打开应用日志存储的文件夹"}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                void openLogDir().then((r) => {
+                  if (!r.ok) setMsg({ kind: "bad", text: r.error ?? "打不开日志目录" })
+                })
+              }}
+              className="shrink-0 rounded-md px-2.5 py-1.5 text-[12px] transition-opacity hover:opacity-85"
+              style={{ background: "var(--bg-subtle)", color: "var(--foreground)" }}
+            >
+              打开
+            </button>
+          </div>
+        </Section>
+
         <Section title="平台">
           <Field label="接口地址" value={form.baseUrl} onChange={set("baseUrl")} />
           <Field

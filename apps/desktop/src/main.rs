@@ -50,17 +50,56 @@ const WINDOW_MIN_H: f64 = 600.0;
 const MAIN_WINDOW: &str = "main";
 
 fn main() {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
-        )
-        .init();
+    // **要把 guard 留到 main 结束。** `tracing-appender` 的非阻塞写是靠一个
+    // 后台线程；guard 一 drop 那个线程就停，之后所有日志静默丢失 ——
+    // 写成 `let _ = ...` 会当场 drop，表现是日志文件永远是空的。
+    let _log_guard = init_logging();
 
     if let Err(e) = run() {
         // 起不来时给一个能看懂的原因，而不是一个白窗口。
         eprintln!("启动失败: {e:#}");
         std::process::exit(1);
     }
+}
+
+/// 日志同时写 stdout 和文件。
+///
+/// **打包成 .app 之后 stdout 没有任何地方接** —— 在此之前用户遇到问题时，
+/// gateway 里那些 `tracing::warn!` 全都进了虚空，我们能拿到的只有一句
+/// "它不工作"。目录见 `gateway::logs`,设置页里有「打开日志目录」。
+///
+/// 按天滚动：日志不设上限的话，长期开着的机器上它会一直长。
+fn init_logging() -> Option<tracing_appender::non_blocking::WorkerGuard> {
+    use tracing_subscriber::layer::SubscriberExt as _;
+    use tracing_subscriber::util::SubscriberInitExt as _;
+
+    let filter = || {
+        tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())
+    };
+
+    // 建不了目录（只读磁盘、权限问题）时**退回只写 stdout**,不要让应用
+    // 起不来 —— 日志是辅助功能，不该成为启动的前提。
+    let Some(dir) = gateway::logs::dir() else {
+        tracing_subscriber::fmt().with_env_filter(filter()).init();
+        return None;
+    };
+    if let Err(err) = std::fs::create_dir_all(&dir) {
+        tracing_subscriber::fmt().with_env_filter(filter()).init();
+        tracing::warn!("建日志目录失败，本次只写 stdout: {err}");
+        return None;
+    }
+
+    let appender = tracing_appender::rolling::daily(&dir, gateway::logs::LOG_PREFIX);
+    let (writer, guard) = tracing_appender::non_blocking(appender);
+    tracing_subscriber::registry()
+        .with(filter())
+        .with(tracing_subscriber::fmt::layer())
+        // 文件里**不要 ANSI 转义**。带颜色的话 `cat` 出来是一堆 `\x1b[32m`,
+        // 用户把日志贴给我们时那些噪声比内容还多。
+        .with(tracing_subscriber::fmt::layer().with_ansi(false).with_writer(writer))
+        .init();
+    tracing::info!("日志目录 {}", dir.display());
+    Some(guard)
 }
 
 fn run() -> Result<()> {
