@@ -1,5 +1,5 @@
 import QRCode from "qrcode"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
   awakeSet,
@@ -324,16 +324,26 @@ function Row({
 function Wechat() {
   const [info, setInfo] = useState<WechatInfo | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  // 和飞书那半对齐：**每个动作都要有 busy 和错误出口**。
+  // 之前这半只有 `wechatConnect` 挂了 catch，另外两条（断开、扫码登录）
+  // 失败了界面上毫无反应，用户只会反复点。
+  const [busy, setBusy] = useState(false)
 
-  useEffect(() => {
-    const tick = () =>
+  const reload = useCallback(
+    () =>
       wechatStatus()
         .then(setInfo)
-        .catch(() => {})
-    void tick()
-    const t = setInterval(tick, 1500)
+        .catch(() => {}),
+    [],
+  )
+
+  useEffect(() => {
+    void reload()
+    // 连接状态是后台任务在改，**要轮询**：连上、断开、扫码确认都不是这个
+    // 组件触发的，不轮的话界面会一直停在上一个状态。
+    const t = setInterval(() => void reload(), 1500)
     return () => clearInterval(t)
-  }, [])
+  }, [reload])
 
   const st = info?.status
   const state = st?.state ?? "disconnected"
@@ -388,27 +398,49 @@ function Wechat() {
         <div className="flex shrink-0 gap-1.5">
           {info?.configured && (
             <button
+              // **要确认。** 退出会清掉扫码拿到的 bot token，再用就得重新
+              // 掏手机扫一次 —— 而这个按钮就在「连接」旁边，很容易点错。
+              //
+              // 飞书那半的「凭据」是展开表单（可逆），这半是真的删，
+              // 两者不该长得一样却行为差这么远。
               onClick={() => {
+                if (!window.confirm("退出登录？下次要重新扫码。")) return
+                setErr(null)
+                setBusy(true)
                 void wechatLogout()
+                  .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+                  .finally(() => {
+                    setBusy(false)
+                    void reload()
+                  })
               }}
-              className="rounded-lg px-2.5 py-1 text-[12px]"
+              disabled={busy}
+              className="rounded-lg px-2.5 py-1 text-[12px] disabled:opacity-40"
               style={{ background: "var(--canvas-controls-hover)" }}
             >
               退出
             </button>
           )}
           <button
+            // 三条路都要走同一套 busy / 错误 / 刷新 —— 之前只有
+            // `wechatConnect` 挂了 catch，另外两条**失败了界面上毫无反应**，
+            // 用户只会反复点。飞书那半一直是这么做的，这半漏了。
+            disabled={busy}
             onClick={() => {
               setErr(null)
-              if (connected || state === "connecting") {
-                void wechatDisconnect()
-              } else if (info?.configured) {
-                void wechatConnect().catch((e: unknown) =>
-                  setErr(e instanceof Error ? e.message : String(e)),
-                )
-              } else {
-                void wechatLogin()
-              }
+              setBusy(true)
+              const p =
+                connected || state === "connecting"
+                  ? wechatDisconnect()
+                  : info?.configured
+                    ? wechatConnect()
+                    : wechatLogin()
+              void p
+                .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+                .finally(() => {
+                  setBusy(false)
+                  void reload()
+                })
             }}
             className="rounded-lg px-3 py-1 text-[12px]"
             style={{ background: "var(--foreground)", color: "var(--background)" }}
@@ -446,6 +478,28 @@ function Wechat() {
               扫码后在手机上确认，页面会自动完成连接。之后在微信里找到这个机器人，
               发消息就能派任务。
             </p>
+            {/* **过期/失败要给重来的入口。** 之前只显示一句「二维码已过期」,
+                而那张图已经不能扫了 —— 整个流程卡在这里，用户只能关掉弹窗
+                再打开碰运气。 */}
+            {(qr === "expired" || qr === "error") && (
+              <button
+                disabled={busy}
+                onClick={() => {
+                  setErr(null)
+                  setBusy(true)
+                  void wechatLogin()
+                    .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+                    .finally(() => {
+                      setBusy(false)
+                      void reload()
+                    })
+                }}
+                className="mt-2 rounded-lg px-3 py-1 text-[12px] disabled:opacity-40"
+                style={{ background: "var(--foreground)", color: "var(--background)" }}
+              >
+                重新获取二维码
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -181,7 +181,13 @@ export function QuestionCard({
 
       <div className="mt-3 flex items-center gap-2">
         <button
-          onClick={onReject}
+          // **「跳过」也要置 `sent`。** 只有「提交」置的话，连点两次会向
+          // agent 发两次拒绝 —— 而它那一轮只在等一个回答，第二次会被
+          // 当成下一个决策点的答复。
+          onClick={() => {
+            setSent(true)
+            onReject()
+          }}
           className="rounded-md px-2.5 py-1.5 text-[13px]"
           style={{ color: "var(--muted-foreground)" }}
         >
