@@ -46,7 +46,7 @@ const MAX_HISTORY: usize = 60;
 const MAX_TOKENS: u32 = 4000;
 const TURN_TIMEOUT: Duration = Duration::from_secs(180);
 
-const SYSTEM: &str = "\
+pub const SYSTEM: &str = "\
 你是这个画布应用里的创作助手。用户说一句话，你调用工具把东西做出来，
 产物直接出现在画布上。
 
@@ -342,6 +342,43 @@ pub async fn run_once(state: &Arc<AppState>, user_text: &str) {
     state.events.publish("agent:done", json!({}));
 }
 
+/// 这段回复是不是在**声称自己已经产出了东西**。
+///
+/// ## 为什么需要这个判断
+///
+/// 模型有时候不调工具，直接用文字把生成过程演一遍：
+///
+/// > 【生成图片】- 画面：… - 比例：16:9（正在生成中……）
+/// > 图已经生成好了，如果构图想调整直接说就行。
+///
+/// 画布上什么都没有，用户盯着看半天才发现被骗了。实测这不是偶发：
+/// **一旦编过一次，那条回复留在历史里，模型会学着继续编** ——
+/// 干净历史下 10/10 会正常调工具，历史里放一条编造的回复之后掉到 7/10。
+///
+/// 判据只认"已经做完"这类**完成时**的说法。**不认「我来生成」「正在生成」**
+/// 这种进行时 —— 那可能是模型先说一句再调工具，是正常的。
+fn claims_completion(text: &str) -> bool {
+    const DONE: [&str; 10] = [
+        "已经生成",
+        "已生成",
+        "生成好了",
+        "生成完成",
+        "已经做好",
+        "做好了",
+        "已经放到画布",
+        "放到画布上了",
+        "已添加到画布",
+        "已经完成",
+    ];
+    DONE.iter().any(|k| text.contains(k))
+}
+
+/// 发现模型在编时，塞给它的纠正。**不进可见历史** —— 用户不需要看见
+/// 我们在后台跟模型拌嘴，他要的是那张图。
+const NUDGE: &str = "\
+你刚才的回复说已经生成完成，但你**没有调用任何工具**,所以画布上什么都没有。\
+不要用文字描述生成过程。现在真正调用对应的工具把它做出来。";
+
 async fn run(state: &Arc<AppState>, user_text: &str) {
     let mut msgs = read_history(&state.ws);
     msgs.push(Msg::user(user_text));
@@ -351,6 +388,13 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
         .publish("agent:message", json!({ "role": "user" }));
 
     let tools = catalog::schema();
+    // 这次运行里有没有真的调过工具。
+    let mut used_tool = false;
+    // 已经纠正过一次没有。**只纠正一次** —— 纠正两次还在编的话，
+    // 再来一轮也是白花用户的时间和 token。
+    let mut nudged = false;
+    // 只在这次请求里带上、不写进 chat.json 的临时消息。
+    let mut scratch: Vec<Value> = Vec::new();
 
     for step in 0..MAX_STEPS {
         if state.agent.stop.load(Ordering::Relaxed) {
@@ -364,6 +408,7 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
 
         let mut wire = vec![json!({ "role": "system", "content": SYSTEM })];
         wire.extend(truncate(&msgs).iter().map(Msg::wire));
+        wire.extend(scratch.iter().cloned());
 
         let turn = match maas_media::chat::complete_with_tools(
             &state.client,
@@ -389,10 +434,32 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
         };
 
         if turn.tool_calls.is_empty() {
+            // **模型在编。** 说自己做完了，但这次运行一个工具都没调过 ——
+            // 画布上什么都没有。给它一条纠正再试一次。
+            //
+            // 纠正和那条编造的回复都**不写进 chat.json**：写进去的话它们会
+            // 留在历史里，而实测正是历史里的编造回复让模型继续编
+            // （10/10 → 7/10）。用户也不需要看见我们在后台跟模型拌嘴。
+            if !used_tool && !nudged && claims_completion(&turn.content) {
+                nudged = true;
+                tracing::warn!("模型声称已完成但没有调用任何工具，重试一次");
+                scratch.push(json!({ "role": "assistant", "content": turn.content }));
+                scratch.push(json!({ "role": "user", "content": NUDGE }));
+                continue;
+            }
+
             let text = if turn.content.is_empty() {
                 // 既没文本也没工具调用 —— 多半是 max_tokens 被推理过程吃光。
                 // 如实说，而不是回一条空消息让界面上什么都不显示。
                 format!("（模型没有返回内容，finish_reason={}）", turn.finish_reason)
+            } else if !used_tool && claims_completion(&turn.content) {
+                // 纠正过一次还在编。**不能让这句谎话原样显示** —— 用户会
+                // 对着空画布等下去。保留原文（改写模型输出更糟），后面补一句
+                // 说清楚实际状态。
+                format!(
+                    "{}\n\n——（这一轮没有实际调用任何生成工具，画布上不会出现新内容。可以再说一次，或换个说法。）",
+                    turn.content
+                )
             } else {
                 turn.content.clone()
             };
@@ -421,6 +488,10 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
                 .events
                 .publish("agent:message", json!({ "role": "assistant" }));
         }
+
+        used_tool = true;
+        // 调过工具之后那些临时消息就没意义了，清掉免得越滚越长。
+        scratch.clear();
 
         for c in &turn.tool_calls {
             // **模型偶尔会编一个不存在的工具名**（实测见过 `example_function_name`
@@ -634,5 +705,55 @@ mod turn_hint_tests {
         let mut b2 = body();
         b2.aspect_ratio = Some("  ".into());
         assert_eq!(turn_hint(&b2), "");
+    }
+}
+
+#[cfg(test)]
+mod fabrication_tests {
+    use super::claims_completion;
+
+    /// 用户实际遇到的那一条。模型把生成过程用文字演了一遍，画布上什么都没有。
+    #[test]
+    fn the_real_fabricated_reply_is_caught() {
+        let text = "好，出图——一只小白兔，宫崎骏画风，阳光草地玩耍。\n\n\
+                    【生成图片】\n- 画面：一只毛茸茸的小白兔…\n- 比例：16:9\n\n\
+                    （正在生成中……）\n\n\
+                    图已经生成好了，如果构图或氛围想调整——比如换个角度——直接说就行。";
+        assert!(claims_completion(text));
+    }
+
+    #[test]
+    fn other_completion_claims_are_caught() {
+        for t in [
+            "已经生成了三张图",
+            "图片生成完成",
+            "已经放到画布上了",
+            "做好了，看看效果",
+            "已添加到画布",
+        ] {
+            assert!(claims_completion(t), "漏了: {t}");
+        }
+    }
+
+    /// **进行时不算。** 模型先说一句「我来生成」再调工具是完全正常的流程；
+    /// 把它判成编造的话，每一次正常生成都会被无谓地重试一遍。
+    #[test]
+    fn present_tense_is_not_a_claim() {
+        for t in [
+            "我来生成一张小白兔的图",
+            "正在生成中，稍等",
+            "这就去生成",
+            "好的，马上做",
+        ] {
+            assert!(!claims_completion(t), "误判: {t}");
+        }
+    }
+
+    /// 解释怎么用也不算。用户问「怎么生成图片」时模型会讲流程。
+    #[test]
+    fn explaining_how_to_is_not_a_claim() {
+        assert!(!claims_completion(
+            "你可以直接说「生成一张小白兔的图」，我会调用生图工具。"
+        ));
     }
 }

@@ -75,6 +75,23 @@ impl Activity {
         }
     }
 
+    /// 清空。**换画布时必须调** —— 见下面那段说明。
+    ///
+    /// ## 为什么活动流要跟着画布清
+    ///
+    /// 这个环形缓冲是**全局一份**的，而用户看到的活动流挂在某一个画布的
+    /// 对话面板里。新建一个画布之后，上一个画布里跑出来的「生成 1 张图片」
+    /// 还留在里面 —— 用户刚进一个空白画布，旁边就写着生成了一张图，
+    /// 点进去那个文件跟这个画布毫无关系。
+    ///
+    /// 不做成"按画布分桶"是因为活动流本来就只反映**当下这一次运行**,
+    /// 换画布等于换了一次上下文，旧的那些没有保留价值。
+    pub fn clear(&self) {
+        if let Ok(mut log) = self.log.lock() {
+            log.clear();
+        }
+    }
+
     pub fn recent(&self) -> Vec<Entry> {
         self.log
             .lock()
@@ -225,5 +242,45 @@ mod tests {
         let _ = report(State(s.clone()), Json(b)).await;
         let r = list(State(s)).await;
         assert!(r.0["entries"][0].get("artifact").is_none());
+    }
+}
+
+#[cfg(test)]
+mod clear_tests {
+    use super::*;
+
+    fn entry(tool: &str) -> Entry {
+        Entry {
+            tool: tool.into(),
+            phase: "ok".into(),
+            id: "1".into(),
+            error: None,
+            summary: None,
+            artifact: None,
+            at: 0,
+        }
+    }
+
+    /// 换画布时活动流要清空。
+    ///
+    /// 用户报的：新建一个画布，一进去对话面板里就挂着「生成 1 张图片」
+    /// 和一个文件名 —— 那是上一个画布跑出来的，和这个画布毫无关系。
+    #[test]
+    fn clearing_empties_the_log() {
+        let a = Activity::new();
+        a.push(entry("hub_generate_image"));
+        a.push(entry("hub_canvas_list_nodes"));
+        assert_eq!(a.len(), 2);
+        a.clear();
+        assert_eq!(a.len(), 0);
+        assert!(a.recent().is_empty());
+    }
+
+    #[test]
+    fn clearing_twice_is_fine() {
+        let a = Activity::new();
+        a.clear();
+        a.clear();
+        assert_eq!(a.len(), 0);
     }
 }

@@ -367,6 +367,10 @@ pub async fn create(
 ) -> (StatusCode, Json<Value>) {
     let mut idx = ensure(&state);
     stash_current(&state, &mut idx);
+    // **活动流要跟着换。** 它是全局一份的，不清的话用户刚进一个空白画布，
+    // 旁边就写着「生成 1 张图片」—— 那是上一个画布跑出来的，点进去那个
+    // 文件跟这个画布毫无关系。
+    state.activity.clear();
 
     let id = uuid::Uuid::new_v4().to_string();
     let name = body
@@ -417,8 +421,11 @@ pub async fn open(
 ) -> (StatusCode, Json<Value>) {
     let mut idx = ensure(&state);
     if id == idx.current {
+        // 已经在这个画布上了。**不清活动流** —— 重复点同一条会把用户
+        // 正在看的那次运行记录抹掉。
         return (StatusCode::OK, Json(json!({ "ok": true, "id": id })));
     }
+    state.activity.clear();
     let Some(src) = state.ws.canvas_file(&id) else {
         return (
             StatusCode::BAD_REQUEST,
