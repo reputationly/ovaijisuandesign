@@ -208,6 +208,9 @@ RUST_TRIPLES = {
     "darwin-arm64": "aarch64-apple-darwin",
     "darwin-x64": "x86_64-apple-darwin",
     "win32-x64": "x86_64-pc-windows-msvc",
+    # Linux 不发布（见 release.yml 的 ALL 矩阵）。这一条**留着** ——
+    # 想在 Linux 上本地构建一份自己用时，`build linux-x64` 仍然可用；
+    # 删掉的话那条路会以一个看不懂的 KeyError 结束。
     "linux-x64": "x86_64-unknown-linux-gnu",
 }
 

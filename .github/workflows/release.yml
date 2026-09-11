@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "空跑：只构建 linux-x64，发到 dry-run/ 前缀，跑完清掉"
+        description: "空跑：只构建 win32-x64，发到 dry-run/ 前缀，跑完清掉"
         type: boolean
         default: false
 
@@ -48,11 +48,16 @@ jobs:
           # 打包矩阵在这里算，不在 build 的 `if:` 里筛。job 级 `if:` 拿不到
           # `matrix` 上下文（GitHub 要先算完 if 才展开矩阵），写了会让整个
           # workflow 文件校验失败——症状是每次 push 都冒出一个 0 秒的失败 run。
+          # **不出 Linux。** 没有实际用户，而留着它的代价是实打实的：
+          # 每次发布多一条要看的绿灯，坏了还得修一个没人装的目标。
+          # 启动器那边 `host_target()` 在 Linux 上会返回 linux-x64,
+          # 取不到就是明确的「这个平台没有发布」,不会装错东西。
           ALL='[{"os":"macos-latest","targets":"darwin-arm64 darwin-x64"},
-                {"os":"windows-latest","targets":"win32-x64"},
-                {"os":"ubuntu-latest","targets":"linux-x64"}]'
-          # 空跑只打 linux-x64，够验证分发链路了（也是最便宜的 runner）。
-          DRY='[{"os":"ubuntu-latest","targets":"linux-x64"}]'
+                {"os":"windows-latest","targets":"win32-x64"}]'
+          # 空跑只打一个目标，够验证分发链路了。用 Windows 而不是 Linux ——
+          # 空跑要验的是"真的会发出去的东西"，拿一个我们根本不发布的目标
+          # 去验，验过了也不说明什么。
+          DRY='[{"os":"windows-latest","targets":"win32-x64"}]'
 
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             # 空跑没有 tag，直接用三段基线。产物发到 dry-run/ 前缀，跑完清掉。
@@ -115,7 +120,7 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
-      # 矩阵由 prepare 算好（空跑时只剩 linux-x64）。见那边的注释。
+      # 矩阵由 prepare 算好（空跑时只剩 win32-x64）。见那边的注释。
       matrix:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
@@ -475,7 +480,6 @@ jobs:
             | macOS (M 系列) | `*-darwin-arm64.tar.gz` |
             | macOS (Intel) | `*-darwin-x64.tar.gz` |
             | Windows | `*-win32-x64.tar.gz` |
-            | Linux | `*-linux-x64.tar.gz` |
 
             两种形态装的是同一套东西。**应用包不能就地自升级** ——
             它的目录结构和 tar.gz 不同（`Contents/MacOS` + `Contents/Resources`），
