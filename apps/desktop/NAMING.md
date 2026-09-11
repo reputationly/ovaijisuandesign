@@ -1,27 +1,38 @@
-# 应用名与可执行文件名
+# 应用名与 Windows 安装包的语言
 
-| | 值 | 谁看得见 |
-|---|---|---|
-| `productName` | 蒜狸小助手 | Finder / Dock / 菜单栏 / dmg / 开始菜单 / 安装向导 |
-| `mainBinaryName`（macOS） | 蒜狸小助手 | `Contents/MacOS/`、活动监视器 |
-| `mainBinaryName`（Windows / Linux） | `ovdesktop` | `.exe` 文件名、任务管理器 |
+| | 值 |
+|---|---|
+| `productName` | 蒜狸小助手 |
+| `mainBinaryName` | 蒜狸小助手 |
 
-## 为什么 Windows 上不能用中文可执行文件名
+Finder / Dock / 菜单栏 / dmg / 开始菜单 / 安装向导 / 活动监视器 / 任务管理器,
+全都是「蒜狸小助手」。
 
-试过，**打不出 MSI**。CI 上的表现是 `candle` 通过、`light` 失败：
+## Windows：`wix.language` 必须是 zh-CN
+
+**不设的话 MSI 打不出来。** WiX 默认按 `en-US` 生成，对应的 MSI 字符串表用
+代码页 **1252（西欧）**,装不下中文 —— 而产品名和可执行文件名都是中文，
+会被写进 `main.wxs` 的十几处字符串里：
 
 ```
-Running candle for "...\wix\x64\main.wxs"
-Running light to produce ...\bundle\msi\蒜狸小助手_3.0.12_x64_en-US.msi
-failed to bundle project: `failed to run ...\WixTools314\light.exe`
+main.wxs(23) : error LGHT0311 : A string was provided with characters that are
+not available in the specified database code page '1252'.
 ```
 
-`light.exe` 是把文件塞进 MSI cab 的那一步，WiX 3 对非 ASCII 的**源文件名**
-处理不干净（MSI 输出文件名带中文是没问题的 —— 改名之前每次发布都这样，
-一直是好的）。Tauri 不转发 light 的 stderr，所以日志里只有这一句。
+`zh-CN` 对应代码页 936，中文放得下。
 
-macOS 那边没有这个限制，所以用 `tauri.macos.conf.json` 单独覆盖。
-Tauri v2 会把 `tauri.<platform>.conf.json` 合并到基础配置上。
+**这一条是"能不能用中文名"的唯一前提。** 谁要是哪天把 language 去掉或改回
+en-US，Windows 的包会当场打不出来，而报错信息和"语言"这件事看不出关系。
 
-**改这里之前先想清楚**：`mainBinaryName` 提到根配置里去，Windows 的包会
-当场打不出来，而错误信息和"名字"这件事看不出任何关系。
+## 排查这个问题花了三轮，记下来免得重走
+
+Tauri **不转发子进程的 stderr**,light.exe 失败时日志里只有一句
+`failed to run light.exe`。照着这一句猜了两次，两次都错：
+
+1. 以为是中文的**可执行文件名** —— 改回 ASCII，照样失败。
+2. 以为是 MSI **输出文件名**里的中文 —— 那个一直是中文，之前都是好的。
+
+真因要给打包命令加 `-v` 才看得到（已经加在 release.yml 里了）。
+
+还有一个方法论上的教训：判断"上次成功和这次只差这一个变量"时要当心 ——
+上次成功是两天前，中间整个 gateway 都动过，那个前提本身就不成立。
