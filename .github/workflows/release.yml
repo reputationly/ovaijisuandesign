@@ -214,7 +214,10 @@ jobs:
           bun install --frozen-lockfile
           # **不能用 `bunx tauri`** —— npm 上那个同名包是别的东西，
           # 会去编译 sharp 然后失败。
-          bunx @tauri-apps/cli build --target ${{ matrix.rust }}
+          # `-v`：**把子进程的输出转发出来**。没有它，WiX 的 light.exe 失败时
+          # 日志里只有一句「failed to run light.exe」—— 真正的原因
+          # （哪个文件、哪条 ICE 校验）全被 Tauri 吞掉，只能靠猜。
+          bunx @tauri-apps/cli build -v --target ${{ matrix.rust }}
 
       # 只收最终产物，不收整个 bundle 目录（里面还有一份未压缩的 .app，
       # 和 dmg 内容重复，artifact 会翻倍）。
