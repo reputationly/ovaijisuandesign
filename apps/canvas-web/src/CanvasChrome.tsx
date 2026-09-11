@@ -17,6 +17,8 @@ import {
   Workflow,
   X,
   StickyNote,
+  MoveHorizontal,
+  MoveVertical,
 } from "lucide-react"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useReactFlow, useStore } from "@xyflow/react"
@@ -41,6 +43,7 @@ const MODE_LABEL: Record<CanvasMode, string> = {
   workflow: "工作流",
 }
 import { cn } from "./lib"
+import type { TidyKind } from "./tidy"
 import { StickerPicker } from "./StickerCard"
 
 /**
@@ -160,6 +163,18 @@ function MenuBtn({
   )
 }
 
+/** 菜单里的分组标题。官方 `canvas.tidy.layouts` / `canvas.tidy.sort` 那两行。 */
+function MenuLabel({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="px-2.5 pt-1.5 pb-1 text-[11px]"
+      style={{ color: "var(--canvas-controls-text-muted)" }}
+    >
+      {children}
+    </div>
+  )
+}
+
 function MenuRow({
   children,
   onClick,
@@ -207,7 +222,7 @@ export function TopRightChrome({
   onMinimap: (v: boolean) => void
   bg: string
   onBg: (id: string) => void
-  onTidy: (kind: "grid" | "type") => void
+  onTidy: (kind: TidyKind) => void
 }) {
   const { zoomIn, zoomOut, zoomTo, fitView } = useReactFlow()
   // 直接订阅 store 里的 transform，而不是自己在 onMove 里存 state ——
@@ -235,16 +250,20 @@ export function TopRightChrome({
   return (
     <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
       <div className={CHROME} style={chromeStyle()}>
-        {/* 整理。文案照官方：
-              canvas.tidy.grid           =「宫格布局」
-              canvas.tidy.sort.mediaType =「按素材类型」
-                （说明：按图片/视频/音频/文本等素材类型分成多条泳道，不考虑连线）
+        {/* 整理。官方分两组，标题和文案都照它：
+              canvas.tidy.layouts          =「布局整理」
+                grid / horizontal / vertical = 宫格 / 水平 / 垂直布局
+              canvas.tidy.sort             =「分类整理」
+                connections = 按连线关系（有连线依赖的按上下游排在上方，
+                              离散节点收拢到下方）
+                mediaType   = 按素材类型（分成多条泳道，不考虑连线）
 
-            官方还有「水平布局」「垂直布局」「按连线关系」和「整理相连的
-            上下游」，我们只做了这两种 —— 没做的不放菜单项。 */}
+            官方还有「整理相连的上下游」（只整理选中节点的上下游子图）,
+            那个要先有多选态下的整理，我们还没有 —— 没做的不放菜单项。 */}
         <MenuBtn icon={<LayoutPanelLeft size={16} />} title="整理">
           {(close) => (
             <>
+              <MenuLabel>布局整理</MenuLabel>
               <MenuRow
                 onClick={() => {
                   onTidy("grid")
@@ -253,6 +272,35 @@ export function TopRightChrome({
               >
                 <Grid2x2 size={15} />
                 宫格布局
+              </MenuRow>
+              <MenuRow
+                onClick={() => {
+                  onTidy("horizontal")
+                  close()
+                }}
+              >
+                <MoveHorizontal size={15} />
+                水平布局
+              </MenuRow>
+              <MenuRow
+                onClick={() => {
+                  onTidy("vertical")
+                  close()
+                }}
+              >
+                <MoveVertical size={15} />
+                垂直布局
+              </MenuRow>
+              <div className="my-1 h-px" style={{ background: "var(--canvas-controls-border)" }} />
+              <MenuLabel>分类整理</MenuLabel>
+              <MenuRow
+                onClick={() => {
+                  onTidy("connections")
+                  close()
+                }}
+              >
+                <Workflow size={15} />
+                按连线关系
               </MenuRow>
               <MenuRow
                 onClick={() => {
@@ -836,6 +884,64 @@ export function TagFilter({
       <Btn title="清除筛选" onClick={onClear}>
         <X size={14} />
       </Btn>
+    </div>
+  )
+}
+
+/**
+ * 整理之后的「保留 / 撤回」。官方 `canvas.tidy.confirmKeep`。
+ *
+ * ## 为什么必须有
+ *
+ * 整理会**一次性毁掉用户手工摆的每一个位置**,而我们是直接写回服务端的 ——
+ * 没有撤回的话那份布局就真没了。这是画布上唯一一个"点一下就不可逆地改动
+ * 全部节点"的操作。
+ *
+ * 停留 8 秒后自动消失：一直挂着会挡住画布右下角，而用户如果要撤回，
+ * 是看到结果的第一眼就会撤。
+ */
+export function TidyUndoBar({ onKeep, onRevert }: { onKeep: () => void; onRevert: () => void }) {
+  // **回调放 ref，effect 空依赖。**
+  //
+  // 直接 `[onKeep]` 的话：调用方传的是内联箭头函数，每次渲染都是一个新的
+  // 引用 → effect 重跑 → 8 秒的计时**被无限重置**,自动消失永远不会发生。
+  // 而画布是频繁重渲染的（保存状态、视口变化都会触发）。
+  const keep = useRef(onKeep)
+  keep.current = onKeep
+  useEffect(() => {
+    const t = setTimeout(() => keep.current(), 8000)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <div
+      data-action-ui-id="canvas.tidy.confirmKeep"
+      className="nodrag nopan absolute bottom-[68px] left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border py-1.5 pr-1.5 pl-3.5"
+      style={{
+        background: "var(--canvas-controls-bg)",
+        borderColor: "var(--canvas-controls-border)",
+        boxShadow: "var(--canvas-shadow-panel)",
+      }}
+    >
+      <span className="text-[13px]" style={{ color: "var(--canvas-controls-text)" }}>
+        保留整理结果？
+      </span>
+      <button
+        data-action-ui-id="canvas.tidy.revert"
+        onClick={onRevert}
+        className="rounded-full px-2.5 py-1 text-[12px] transition-colors hover:bg-[var(--canvas-controls-hover)]"
+        style={{ color: "var(--canvas-controls-text)" }}
+      >
+        撤回
+      </button>
+      <button
+        data-action-ui-id="canvas.tidy.keep"
+        onClick={onKeep}
+        className="rounded-full px-2.5 py-1 text-[12px] transition-opacity hover:opacity-85"
+        style={{ background: "var(--brand-accent)", color: "var(--brand-accent-foreground)" }}
+      >
+        保留
+      </button>
     </div>
   )
 }

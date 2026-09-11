@@ -71,6 +71,7 @@ import {
   type AssetInfo,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
+import { tidy as runTidy, type TidyKind } from "./tidy"
 import {
   STICKERS,
   findStickerTarget,
@@ -97,6 +98,7 @@ import {
   CANVAS_BACKGROUNDS,
   EmptyHint,
   ShortcutPanel,
+  TidyUndoBar,
   TagFilter,
   TopRightChrome,
 } from "./CanvasChrome"
@@ -188,6 +190,14 @@ export default function App() {
   const [freshSticker, setFreshSticker] = useState<string | null>(null)
   /** 项目资产面板。官方底部工具条的 `canvas.toolbar-project-assets`。 */
   const [assetsOpen, setAssetsOpen] = useState(false)
+  /**
+   * 上一次整理之前的坐标。**存的是坐标不是整份文件** —— 整理期间 agent
+   * 可能又加了节点，整份回滚会把那些新节点一起抹掉。
+   */
+  const [tidyUndo, setTidyUndo] = useState<{
+    mode: CanvasMode
+    before: Map<string, { x: number; y: number }>
+  } | null>(null)
   const [assetList, setAssetList] = useState<AssetInfo[]>([])
   const reloadAssets = useCallback(
     () => getAssets().then(setAssetList).catch(() => {}),
@@ -787,39 +797,34 @@ export default function App() {
    *
    * 以 `fileRef` 里那份服务端原文为底改，不是拿界面重建：界面上的节点只带
    * 我们认识的字段，重建会把官方写进去、我们还不认识的字段抹掉。
+   *
+   * 排完**留一条退路**（`tidyUndo`）。整理会一次性毁掉用户手工摆的位置,
+   * 而我们是直接写回服务端的 —— 没有撤回的话那份布局就真没了。
+   * 官方也有：`canvas.tidy.confirmKeep` =「保留整理结果？」+ 保留 / 撤回。
    */
   const tidy = useCallback(
-    async (kind: "grid" | "type") => {
+    async (kind: TidyKind) => {
       const base = fileRef.current
       if (!base || base.nodes.length === 0) return
-      const GAP = 40
-      const COL_W = 350 + GAP
 
-      // 按类型分组时先排序，网格时保持原顺序 —— 原顺序通常是创建顺序，
-      // 打乱它会让人找不到刚生成的那个。
-      const list = [...base.nodes]
-      if (kind === "type") {
-        const order = ["image", "video", "audio", "text"]
-        list.sort((a, b) => {
-          const d = (order.indexOf(a.type) + 99) % 99 - ((order.indexOf(b.type) + 99) % 99)
-          return d !== 0 ? d : 0
-        })
-      }
+      const layout = runTidy(
+        base.nodes.map((n) => {
+          const size = sizeOf(n, mode, details.get(n.id))
+          return { id: n.id, type: n.type, width: size.width, height: size.height }
+        }),
+        base.edges,
+        kind,
+      )
 
-      const cols = Math.max(1, Math.ceil(Math.sqrt(list.length)))
-      // 每一列的当前底边。**按列累加而不是按行固定行高** —— 节点是按素材
-      // 比例算的，高度各不相同，固定行高会让矮的下面留一大片空。
-      const colBottom = new Array<number>(cols).fill(0)
-      const nodes = list.map((n) => {
-        const size = sizeOf(n, mode, details.get(n.id))
-        // 放进当前最短的那一列，出来的排布最紧凑（瀑布流那套）。
-        let c = 0
-        for (let i = 1; i < cols; i++) if (colBottom[i]! < colBottom[c]!) c = i
-        const pos = { x: c * COL_W, y: colBottom[c]! }
-        colBottom[c] = colBottom[c]! + size.height + GAP
-        return { ...n, positions: { ...n.positions, [mode]: pos } }
+      // 旧坐标要在写回**之前**存下来。写完再取就是新的了。
+      const before = new Map(
+        base.nodes.map((n) => [n.id, positionOf(n, mode, base.mode)] as const),
+      )
+
+      const nodes = base.nodes.map((n) => {
+        const p = layout.get(n.id)
+        return p ? { ...n, positions: { ...n.positions, [mode]: p } } : n
       })
-
       const next = { ...base, nodes }
       setSaving("saving")
       try {
@@ -829,6 +834,7 @@ export default function App() {
         setTimeout(() => setSaving((s) => (s === "saved" ? "idle" : s)), 1500)
         // 排完把视野对上，否则节点被挪到视口外，看起来像"整理把画布清空了"。
         window.dispatchEvent(new CustomEvent("canvas:fit"))
+        setTidyUndo({ mode, before })
       } catch (err) {
         setSaving("failed")
         setError(err instanceof Error ? err.message : String(err))
@@ -836,6 +842,29 @@ export default function App() {
     },
     [mode, details],
   )
+
+  /** 撤回上一次整理。官方 `canvas.tidy.revert`。 */
+  const revertTidy = useCallback(async () => {
+    const undo = tidyUndo
+    const base = fileRef.current
+    if (!undo || !base) return
+    setTidyUndo(null)
+    const nodes = base.nodes.map((n) => {
+      const p = undo.before.get(n.id)
+      // 整理之后新加的节点不在 `before` 里 —— **保持原样**,
+      // 别把它们挪到 (0,0)。
+      return p ? { ...n, positions: { ...n.positions, [undo.mode]: p } } : n
+    })
+    const next = { ...base, nodes }
+    try {
+      await putCanvas(next)
+      setFile(next)
+      window.dispatchEvent(new CustomEvent("canvas:fit"))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }, [tidyUndo])
+
 
   /**
    * 画布上每个节点的位置和尺寸，给贴纸的命中测试和跟随同步用。
@@ -1569,6 +1598,12 @@ export default function App() {
                   下一步怎么做。 */}
               {file && file.nodes.length === 0 && <EmptyHint />}
               {help && <ShortcutPanel onClose={() => setHelp(false)} />}
+              {tidyUndo && (
+                <TidyUndoBar
+                  onKeep={() => setTidyUndo(null)}
+                  onRevert={() => void revertTidy()}
+                />
+              )}
               {assetsOpen && (
                 <div className="absolute inset-y-0 right-0 z-20">
                   <ProjectAssets
