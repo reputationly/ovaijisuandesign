@@ -230,13 +230,31 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 /// **找不到就跳过，不报错。** 输入可能来自工作区里一个还没放上画布的文件
 /// （比如 IM 发来的附件），那时候连不上是正常的。
 fn source_nodes(state: &Arc<AppState>, body: &Value) -> Vec<String> {
-    let paths: Vec<&str> = body
-        .get("image_paths")
-        .and_then(Value::as_array)
-        .into_iter()
-        .flatten()
-        .filter_map(Value::as_str)
-        .collect();
+    // **每种工具的"输入素材"字段名都不一样。** 只看 `image_paths` 的话，
+    // 视频永远连不回它的首帧图 —— 而"先出关键帧再转视频"正是我们在系统
+    // 提示词里让 agent 走的流程，画布上却看不出这两个节点的关系。
+    //
+    // 字段名取自 `docs/mcp-tools.md`（从官方注册表提取）：
+    //   generate_image  image_paths
+    //   generate_video  first_frame_image / last_frame_image / reference_image_paths
+    //   music_cover     audio
+    const INPUT_KEYS: [&str; 5] = [
+        "image_paths",
+        "reference_image_paths",
+        "first_frame_image",
+        "last_frame_image",
+        "audio",
+    ];
+    let mut paths: Vec<&str> = Vec::new();
+    for k in INPUT_KEYS {
+        match body.get(k) {
+            // 数组形式（image_paths / reference_image_paths）
+            Some(Value::Array(a)) => paths.extend(a.iter().filter_map(Value::as_str)),
+            // 单值形式（first_frame_image / audio）
+            Some(Value::String(x)) if !x.is_empty() => paths.push(x),
+            _ => {}
+        }
+    }
     if paths.is_empty() {
         return Vec::new();
     }
@@ -515,5 +533,43 @@ mod tests {
         assert!(source_nodes(&st, &json!({ "image_paths": ["images/loose.png"] })).is_empty());
         assert!(source_nodes(&st, &json!({})).is_empty());
         assert!(source_nodes(&st, &json!({ "image_paths": [] })).is_empty());
+    }
+
+    #[tokio::test]
+    async fn a_video_links_back_to_the_frame_it_was_built_from() {
+        // 视频的输入字段叫 `first_frame_image`,不是 `image_paths` ——
+        // 只看后者的话，视频永远连不回它的首帧图。而「先出关键帧再转视频」
+        // 正是我们在系统提示词里让 agent 走的流程，画布上却看不出这两个
+        // 节点的关系。
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        std::fs::create_dir_all(dir.path().join("images")).unwrap();
+        std::fs::write(dir.path().join("images/key.png"), PNG).unwrap();
+        let frame = place(&st, "images/key.png", &[]).await.unwrap();
+
+        for body in [
+            json!({ "first_frame_image": "images/key.png" }),
+            json!({ "last_frame_image": "images/key.png" }),
+            json!({ "reference_image_paths": ["images/key.png"] }),
+            json!({ "image_paths": ["images/key.png"] }),
+            json!({ "audio": "images/key.png" }),
+        ] {
+            assert_eq!(
+                source_nodes(&st, &body),
+                vec![frame.clone()],
+                "这个入参形状没认出来：{body}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn an_empty_or_missing_input_field_yields_nothing() {
+        let dir = tempfile::tempdir().unwrap();
+        let st = state(dir.path());
+        // 空串不该被当成一个路径去查 —— 查不到虽然无害，但 `""` 万一
+        // 撞上索引里某条记录就连错了。
+        assert!(source_nodes(&st, &json!({ "first_frame_image": "" })).is_empty());
+        assert!(source_nodes(&st, &json!({ "image_paths": [] })).is_empty());
+        assert!(source_nodes(&st, &json!({ "prompt": "一只狗" })).is_empty());
     }
 }

@@ -423,20 +423,32 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
         }
 
         for c in &turn.tool_calls {
+            // **模型偶尔会编一个不存在的工具名**（实测见过 `example_function_name`
+            // 这种模板占位符）。这种调用要照常派发 —— dispatch 会回
+            // 「没有 X 这个工具，可用的是…」，模型据此当场改对。
+            //
+            // 但**不往活动流里记**：活动流是"agent 做了什么"，而一个不存在
+            // 的工具什么都没做。记进去的话用户看到一个红叉，以为出了故障，
+            // 实际上那一轮是成功的。真正跑过并失败的工具照常记。
+            let known = crate::agent::catalog::all()
+                .iter()
+                .any(|t| t.name == c.name);
             let id = format!("a{step}-{}", c.id);
-            state.activity.push(crate::activity::Entry {
-                tool: format!("hub_{}", c.name),
-                phase: "start".into(),
-                error: None,
-                summary: Some(c.arguments.chars().take(400).collect()),
-                artifact: None,
-                id: id.clone(),
-                at: now() * 1000,
-            });
-            state.events.publish(
-                "tool:activity",
-                json!({ "tool": format!("hub_{}", c.name), "phase": "start", "id": id }),
-            );
+            if known {
+                state.activity.push(crate::activity::Entry {
+                    tool: format!("hub_{}", c.name),
+                    phase: "start".into(),
+                    error: None,
+                    summary: Some(c.arguments.chars().take(400).collect()),
+                    artifact: None,
+                    id: id.clone(),
+                    at: now() * 1000,
+                });
+                state.events.publish(
+                    "tool:activity",
+                    json!({ "tool": format!("hub_{}", c.name), "phase": "start", "id": id }),
+                );
+            }
 
             let result = dispatch::call(state, &c.name, &c.arguments).await;
             let ok = serde_json::from_str::<Value>(&result)
@@ -457,20 +469,22 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
                         .map(str::to_string)
                 })
                 .flatten();
-            state.activity.push(crate::activity::Entry {
-                tool: format!("hub_{}", c.name),
-                phase: phase.into(),
-                error: (!ok).then(|| result.chars().take(200).collect()),
-                summary: None,
-                artifact: artifact.clone(),
-                id: id.clone(),
-                at: now() * 1000,
-            });
-            state.events.publish(
-                "tool:activity",
-                json!({ "tool": format!("hub_{}", c.name), "phase": phase, "id": id,
-                        "artifact": artifact }),
-            );
+            if known {
+                state.activity.push(crate::activity::Entry {
+                    tool: format!("hub_{}", c.name),
+                    phase: phase.into(),
+                    error: (!ok).then(|| result.chars().take(200).collect()),
+                    summary: None,
+                    artifact: artifact.clone(),
+                    id: id.clone(),
+                    at: now() * 1000,
+                });
+                state.events.publish(
+                    "tool:activity",
+                    json!({ "tool": format!("hub_{}", c.name), "phase": phase, "id": id,
+                            "artifact": artifact }),
+                );
+            }
 
             msgs.push(Msg::tool(&c.id, &result));
         }
