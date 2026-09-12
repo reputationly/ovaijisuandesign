@@ -224,6 +224,50 @@ jobs:
           # （哪个文件、哪条 ICE 校验）全被 Tauri 吞掉，只能靠猜。
           bunx @tauri-apps/cli build -v --target ${{ matrix.rust }}
 
+      # ==================== Windows：Velopack 自升级包 ====================
+      #
+      # **msi 保留、Velopack 额外出**,两者服务不同阶段：
+      #
+      #   msi        首次安装（也是我们能签名、能让用户双击的那个）
+      #   Velopack   装好之后的**就地自升级**
+      #
+      # 为什么 msi 自己做不到自升级：一个正在运行的进程不能替换自己的
+      # 可执行文件（Windows 上文件被锁）。Velopack 随包带一个独立的
+      # `Update.exe`,等主进程退出之后再动手 —— 官方 3.0.14 用的也是它。
+      #
+      # 打包对象是**装配好的目录**（exe + web/ + mcp/ + skills/），不是 msi ——
+      # Tauri 在 Windows 上就是把 resources 放在 exe 旁边，而 gateway 的
+      # `web::locate` 找的就是 `exe 同级的 web/`。
+      - name: Velopack 打包（Windows）
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        env:
+          V: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          dotnet tool install -g vpk
+          export PATH="$PATH:$HOME/.dotnet/tools"
+
+          # 装配：把 exe 和资源摆成运行时的样子。
+          STAGE=target/velopack-stage
+          rm -rf "$STAGE" && mkdir -p "$STAGE"
+          cp "target/${{ matrix.rust }}/release/蒜狸小助手.exe" "$STAGE/"
+          cp -R apps/canvas-web/dist "$STAGE/web"
+          mkdir -p "$STAGE/mcp" && cp mcp/dist/main.js "$STAGE/mcp/main.js"
+          cp -R assets/skills "$STAGE/skills"
+
+          # `--packId` 是这个应用的**永久标识**,升级时靠它认"是不是同一个
+          # 应用"。改了等于所有老用户收不到更新，所以写死、不跟版本走。
+          vpk pack \
+            --packId ovaijisuandesign \
+            --packVersion "$V" \
+            --packDir "$STAGE" \
+            --mainExe "蒜狸小助手.exe" \
+            --packTitle "蒜狸小助手" \
+            --outputDir target/velopack-out
+
+          ls -lh target/velopack-out/
+
       # 只收最终产物，不收整个 bundle 目录（里面还有一份未压缩的 .app，
       # 和 dmg 内容重复，artifact 会翻倍）。
       - name: 收产物
@@ -242,6 +286,12 @@ jobs:
             ext="${f##*.}"
             cp "$f" "out/ovaijisuandesign-$V-${{ matrix.name }}.$ext"
           done
+          # Velopack 那一组**整个目录照搬**,文件名不能改 ——
+          # `RELEASES` 清单里记的就是这些名字，客户端按名字取。
+          if [ -d target/velopack-out ]; then
+            mkdir -p out/velopack
+            cp target/velopack-out/* out/velopack/ || true
+          fi
           ls -lh out/
 
       - uses: actions/upload-artifact@v4

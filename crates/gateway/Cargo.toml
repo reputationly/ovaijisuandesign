@@ -61,3 +61,7 @@ tower = { version = "0.5", features = ["util"] }
 # 在 windows runner 上构建，别的平台根本不会拉这个依赖。
 [target.'cfg(windows)'.build-dependencies]
 winresource = "0.1"
+
+# Windows 的就地自升级，见 src/velo.rs。**只在 Windows 上编进去**。
+[target.'cfg(windows)'.dependencies]
+velopack = "1.2.0"

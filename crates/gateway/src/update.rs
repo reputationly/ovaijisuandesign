@@ -42,7 +42,7 @@ use crate::AppState;
 const DEFAULT_MANIFEST: &str =
     "https://github.com/reputationly/ovaijisuandesign/releases/download/manifest/manifest.json";
 
-fn manifest_url() -> String {
+pub(crate) fn manifest_url() -> String {
     std::env::var("OVAIJISUAN_MANIFEST_URL").unwrap_or_else(|_| DEFAULT_MANIFEST.to_string())
 }
 

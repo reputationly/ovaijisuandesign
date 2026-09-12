@@ -22,3 +22,7 @@ tokio.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-appender.workspace = true
+# Windows 的就地自升级。**只在 Windows 上编进去** —— macOS 走 dmg,
+# Linux 不发布，带进去只是白白多几 MB 和一堆用不到的依赖。
+[target.'cfg(windows)'.dependencies]
+velopack = "1.2.0"

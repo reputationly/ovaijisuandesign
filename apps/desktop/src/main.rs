@@ -50,6 +50,22 @@ const WINDOW_MIN_H: f64 = 600.0;
 const MAIN_WINDOW: &str = "main";
 
 fn main() {
+    // **这一句必须是 main 里的第一件事，连日志都在它后面。**
+    //
+    // Velopack 的安装/卸载/首次运行这些钩子，是靠**用同一个可执行文件加特殊
+    // 参数再跑一遍**实现的（`--veloapp-install` 之类）。`run()` 认出这些参数
+    // 时会执行对应动作然后**直接退出进程**。
+    //
+    // 放晚了的后果：那几次钩子调用会先把我们整个应用跑起来 —— 开窗口、绑
+    // 8100 端口、起 gateway —— 然后才退出。安装过程中闪一个窗口还是小事，
+    // 端口那下是真的会失败：用户正开着应用时装更新，钩子进程绑不上端口,
+    // **而它是安装流程的一环**,失败会让整次安装回滚。
+    //
+    // 非 Velopack 形态下（cargo run、tar.gz、macOS 的 .app）它认不出参数，
+    // 什么都不做就返回 —— 所以无条件调用是安全的。
+    #[cfg(target_os = "windows")]
+    velopack::VelopackApp::build().run();
+
     // **要把 guard 留到 main 结束。** `tracing-appender` 的非阻塞写是靠一个
     // 后台线程；guard 一 drop 那个线程就停，之后所有日志静默丢失 ——
     // 写成 `let _ = ...` 会当场 drop，表现是日志文件永远是空的。

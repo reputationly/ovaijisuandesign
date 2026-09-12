@@ -59,6 +59,7 @@ pub mod settings;
 pub mod skills;
 pub mod tasks;
 pub mod update;
+pub mod velo;
 pub mod web;
 pub mod wechat;
 pub mod workspace;
@@ -111,6 +112,9 @@ pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/health/live", get(health))
         .route("/api/update/check", get(update::check))
+        .route("/api/update/mode", get(velo::mode))
+        .route("/api/update/velopack/check", get(velo::check))
+        .route("/api/update/velopack/apply", post(velo::apply))
         .route("/api/update/status", get(update::status))
         .route("/api/update/download", post(update::download))
         .route("/api/update/apply", post(update::apply))

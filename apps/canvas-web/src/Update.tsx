@@ -7,6 +7,8 @@ import {
   updateStatus,
   type UpdateCheck,
   type UpdatePhase,
+  updateMode,
+  velopackApply,
 } from "./api"
 import { Download } from "lucide-react"
 
@@ -28,6 +30,15 @@ import { cn } from "./lib"
 export function Update() {
   const [info, setInfo] = useState<UpdateCheck | null>(null)
   const [phase, setPhase] = useState<UpdatePhase>({ state: "idle" })
+  /**
+   * 这台机器上更新走哪条路。**必须分流** —— 在 macOS 的 .app 上显示
+   * 「重启并安装」是骗人的：一个正在运行的进程替换不了自己的可执行文件,
+   * 点了只会失败。
+   */
+  const [mode, setMode] = useState<"velopack" | "swap" | "manual">("swap")
+  useEffect(() => {
+    void updateMode().then(setMode).catch(() => {})
+  }, [])
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -109,6 +120,60 @@ export function Update() {
 
   // reachable 为 false 时 needUpdate 一定是 false，这里一并被挡掉。
   if (!info?.needUpdate || !info.reachable) return null
+
+  // **装好的 Windows 应用走 Velopack**:下载和安装是一个动作，
+  // 装完退出进程，独立的更新器会把文件换掉再把应用拉起来。
+  if (mode === "velopack") {
+    return (
+      <button
+        onClick={() => {
+          setBusy(true)
+          void velopackApply()
+            .then((r) => {
+              if (!r.ok) {
+                setPhase({ state: "failed", at: "apply", error: r.error ?? "更新失败" })
+                return
+              }
+              // 更新器已经在等这个进程退出了。**不自己退** ——
+              // gateway 是内嵌的，粗暴退出会让正在跑的 agent 轮次丢掉。
+              // 如实告诉用户下一步。
+              setPhase({ state: "staged", version: r.version ?? info.latest! })
+            })
+            .catch((e: unknown) => setPhase({ state: "failed", at: "apply", error: String(e) }))
+            .finally(() => setBusy(false))
+        }}
+        disabled={busy}
+        className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
+          "bg-[var(--brand-accent)] text-[var(--brand-accent-foreground)] hover:opacity-85",
+          "disabled:opacity-50",
+        )}
+        title={`有新版 ${info.latest}（当前 ${info.current}），点击下载并安装`}
+      >
+        <Download size={14} />
+      </button>
+    )
+  }
+
+  // **macOS 的 .app 只能重新下载安装包。** 官方 3.0.14 的
+  // `update.btn.manualDownload` =「下载官方安装包」。
+  if (mode === "manual") {
+    return (
+      <a
+        href={info.url ?? "https://github.com/reputationly/ovaijisuandesign/releases/latest"}
+        target="_blank"
+        rel="noreferrer"
+        className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
+          "bg-[var(--brand-accent)] text-[var(--brand-accent-foreground)] hover:opacity-85",
+        )}
+        title={`有新版 ${info.latest}（当前 ${info.current}）。应用包不能就地升级，点击下载安装包`}
+      >
+        <Download size={14} />
+      </a>
+    )
+  }
+
   return (
     <button
       onClick={() => {

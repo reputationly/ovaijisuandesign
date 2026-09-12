@@ -667,6 +667,32 @@ export async function ungroupNodes(groupId: string): Promise<void> {
 }
 
 /** 当前这份制作计划。没有计划时 `plan` 是 `null`。 */
+/**
+ * 这台机器上的更新走哪条路。
+ *
+ * - `velopack` 装好的 Windows 应用，**能就地自升级**
+ * - `swap`     tar.gz 解压跑的，走我们自己换文件那套
+ * - `manual`   macOS 的 .app，只能重新下载安装包
+ *
+ * **界面必须按它分流** —— 在 macOS 的 .app 上显示「重启并安装」是骗人的:
+ * 一个正在运行的进程替换不了自己的可执行文件，点了只会失败。
+ */
+export async function updateMode(): Promise<"velopack" | "swap" | "manual"> {
+  const b = await json<{ mode?: string }>(
+    await fetch("/api/update/mode"),
+    "GET /api/update/mode",
+  )
+  return b.mode === "velopack" ? "velopack" : b.mode === "manual" ? "manual" : "swap"
+}
+
+/** Velopack：下载 + 安装，装完要**退出进程**更新器才动手。 */
+export async function velopackApply(): Promise<{ ok: boolean; version?: string; error?: string }> {
+  return json(
+    await fetch("/api/update/velopack/apply", { method: "POST" }),
+    "POST /api/update/velopack/apply",
+  )
+}
+
 export async function getPlan(): Promise<Plan | null> {
   const body = await json<{ plan: Plan | null }>(
     await fetch("/api/plan/current"),
