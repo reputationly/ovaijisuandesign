@@ -71,6 +71,7 @@ import {
   type AssetInfo,
   ungroupNodes,
   getPlan,
+  assetsDegraded,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { tidy as runTidy, type TidyKind } from "./tidy"
@@ -210,8 +211,16 @@ export default function App() {
     before: Map<string, { x: number; y: number }>
   } | null>(null)
   const [assetList, setAssetList] = useState<AssetInfo[]>([])
+  /** 资产索引降级开局。空列表 + 这个标志 = "关联坏了",而不是"还没素材"。 */
+  const [assetsBad, setAssetsBad] = useState(false)
   const reloadAssets = useCallback(
-    () => getAssets().then(setAssetList).catch(() => {}),
+    () =>
+      Promise.all([getAssets(), assetsDegraded()])
+        .then(([list, bad]) => {
+          setAssetList(list)
+          setAssetsBad(bad)
+        })
+        .catch(() => {}),
     [],
   )
   // 面板打开时拉一次。**不常驻轮询** —— 列表只在打开着的时候有人看，
@@ -1690,6 +1699,7 @@ export default function App() {
                 <div className="absolute inset-y-0 right-0 z-20">
                   <ProjectAssets
                     assets={assetList}
+                    degraded={assetsBad}
                     onClose={() => setAssetsOpen(false)}
                     onUpload={async (files) => {
                       await uploadFiles(files)

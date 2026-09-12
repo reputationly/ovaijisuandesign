@@ -198,6 +198,17 @@ export async function getAssets(): Promise<AssetInfo[]> {
 }
 
 /**
+ * 资产索引是不是降级开局（原文件损坏、已隔离）。
+ *
+ * **要单独暴露。** 降级时 `getAssets()` 回的是空数组 —— 和"这个工作区
+ * 还没有素材"长得一模一样，而两者该做的事完全相反。
+ */
+export async function assetsDegraded(): Promise<boolean> {
+  const body = await json<{ degraded?: boolean }>(await fetch("/api/assets"), "GET /api/assets")
+  return body.degraded === true
+}
+
+/**
  * 资产的字节流地址。
  *
  * 走 `/files/id/:assetId` 而不是 `/files/{path}`：assetId 是稳定的，
@@ -731,6 +742,8 @@ export interface SendOptions {
   resolution?: string
   /** 视频时长，秒。不给 = 由模型/平台按内容定。 */
   duration?: number
+  /** 这一轮的对话模型。不给 = 用配置里的。 */
+  chatModel?: string
   /**
    * 按模态分开的参数。`{ image: { aspect_ratio: "1:1" }, video: {...} }`
    *
@@ -760,6 +773,7 @@ export async function agentSend(
       ...(opts.resolution ? { resolution: opts.resolution } : {}),
       ...(opts.duration ? { duration: opts.duration } : {}),
       ...(opts.params && Object.keys(opts.params).length > 0 ? { params: opts.params } : {}),
+      ...(opts.chatModel ? { chat_model: opts.chatModel } : {}),
     }),
   })
   // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。

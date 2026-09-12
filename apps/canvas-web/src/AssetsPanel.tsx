@@ -72,6 +72,7 @@ export function ProjectAssets({
   onUpload,
   onDelete,
   onUse,
+  degraded,
 }: {
   assets: Asset[]
   onClose: () => void
@@ -81,6 +82,11 @@ export function ProjectAssets({
   onDelete: (paths: string[]) => Promise<void>
   /** 「加入画布」。 */
   onUse: (asset: Asset) => void
+  /**
+   * 索引降级开局。**必须和"这里还没有素材"区分开** —— 两者列表都是空的,
+   * 而该做的事完全相反：一个是去生成点东西，一个是**千万别动工作区**。
+   */
+  degraded?: boolean
 }) {
   const [opts, setOpts] = useState<ListOptions>(DEFAULT_LIST)
   const [view, setView] = useState<"list" | "grid">("list")
@@ -176,6 +182,30 @@ export function ProjectAssets({
           <X size={14} />
         </IconBtn>
       </header>
+
+      {/* 索引降级。照官方 3.0.14 的
+          `bundleError.diagnosis.workspaceIndexRecovery`:
+          「无法安全恢复项目的素材关联。为保护原有内容，已停止自动重建；
+          **这不代表素材文件已被删除**。」
+
+          最怕用户看到空列表之后去"清理一下重来" —— 那才是真的不可恢复。 */}
+      {degraded && (
+        <div
+          className="mx-3 mt-2 rounded-lg px-2.5 py-2 text-[11px] leading-4"
+          style={{
+            background: "color-mix(in srgb, var(--canvas-node-tag-orange) 12%, transparent)",
+            color: "var(--foreground)",
+          }}
+        >
+          <strong>项目素材信息需要恢复。</strong>
+          原索引已损坏并隔离到工作区的 <code>quarantine/</code> 下。
+          <br />
+          <span style={{ color: "var(--muted-foreground)" }}>
+            素材文件都还在盘上，没有被删除。请**保留完整的工作区文件夹**,
+            不要删除素材、覆盖项目或清理应用数据。
+          </span>
+        </div>
+      )}
 
       {/* 工具栏：搜索 / 筛选 / 排序 / 视图 / 上传 */}
       <div className="flex items-center gap-1 px-3 py-2">

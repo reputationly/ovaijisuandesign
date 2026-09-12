@@ -175,9 +175,16 @@ pub async fn complete_with_tools(
     tools: &[Value],
     max_tokens: u32,
     timeout: Duration,
+    // 这一轮临时换的模型。**空就用配置里的** —— 换配置要重启才生效
+    // （`MediaConfig` 是启动时建的），而"想换个模型试试"是个当场的念头。
+    model_override: Option<&str>,
 ) -> Result<Turn, PlatformError> {
+    let model = model_override
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(&cfg.platform.chat_model);
     let mut body = json!({
-        "model": cfg.platform.chat_model,
+        "model": model,
         "messages": messages,
         "max_tokens": max_tokens,
         "stream": false,

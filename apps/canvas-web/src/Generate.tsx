@@ -18,6 +18,7 @@ import {
   platformModels,
   uploadFiles,
   type PlatformModel,
+  getSettings,
 } from "./api"
 
 
@@ -130,6 +131,14 @@ export function Generate({
   const [models, setModels] = useState<PlatformModel[]>([])
   const [skills, setSkills] = useState<{ slug: string; name: string; description: string }[]>([])
   const [skillQ, setSkillQ] = useState("")
+  /** 这一轮的对话模型。空 = 跟着设置里那个走。 */
+  const [chatModel, setChatModel] = useState("")
+  const [defaultChatModel, setDefaultChatModel] = useState("")
+  useEffect(() => {
+    void getSettings()
+      .then((s) => setDefaultChatModel(s.platform.chatModel ?? ""))
+      .catch(() => {})
+  }, [])
   /**
    * 生成参数。**选项由后端按模态下发**,不在这里写死 —— 写死的后果是
    * 视频用上了图片的档位（1K 在视频那边认不出，落进 768 的兜底）。
@@ -213,6 +222,7 @@ export function Generate({
         mode,
         models: pickedModels,
         ...toPayload(paramValues),
+        ...(chatModel ? { chatModel } : {}),
         // 按模态分开的那份 —— 后端拿它给**对应的工具**兜底：
         // 调 generate_image 用 image 那套，调 generate_video 用 video 那套。
         params: perModality(paramValues),
@@ -338,7 +348,45 @@ export function Generate({
 
           {panel === "models" && (
             <>
-              <PopTitle>模型</PopTitle>
+              {/* 官方 3.0.14 把这个面板改成了两段式：
+                  `chat.mediaModels.title` =「模型配置」,
+                  `selectionDescription` =「选择 Agent 使用的模型，
+                  以及任务中可调用的生成模型。」
+
+                  在此之前对话模型只能去设置里改，**而且要重启应用才生效**
+                  （`MediaConfig` 是启动时建的）—— "想换个模型试试"是个
+                  当场的念头，为它重启整个应用不合理。这里选的走
+                  `SendBody.chat_model`,这一轮就生效。 */}
+              <PopTitle>模型配置</PopTitle>
+              <p className="px-3 pb-1.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                选择 Agent 使用的模型，以及任务中可调用的生成模型。
+              </p>
+
+              <PopTitle>Agent 模型</PopTitle>
+              <div className="max-h-40 overflow-auto">
+                <PopRow
+                  checked={!chatModel}
+                  onClick={() => setChatModel("")}
+                  hint="配置里的"
+                >
+                  {/* 不选 = 用设置里那个。**要显式列出来** —— 没有这一行的话
+                      用户没法从"选过某个"回到"跟着配置走"。 */}
+                  默认（{defaultChatModel || "未配置"}）
+                </PopRow>
+                {models
+                  .filter((m) => !m.modality)
+                  .map((m) => (
+                    <PopRow
+                      key={m.id}
+                      checked={chatModel === m.id}
+                      onClick={() => setChatModel(m.id)}
+                    >
+                      {m.id}
+                    </PopRow>
+                  ))}
+              </div>
+
+              <PopTitle>生成模型</PopTitle>
               <p className="px-3 pb-1.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
                 {pickedModels.length === 0
                   ? "Agent 可调用该类别全部模型"

@@ -209,6 +209,8 @@ pub struct TurnParams {
     pub duration: Option<u32>,
     /// 按模态分开的那份。查 `image` / `video` 各自的设置。
     pub by_modality: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
+    /// 这一轮的对话模型。不给就用配置里的。
+    pub chat_model: Option<String>,
 }
 
 impl TurnParams {
@@ -284,6 +286,14 @@ pub struct SendBody {
     /// 的兜底，界面显示 1K 而实际出 768P）。
     #[serde(default)]
     pub params: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
+    /// 这一轮用哪个对话模型。官方 3.0.14 把它放进了「模型配置」面板
+    /// （`chat.mediaModels.title` =「模型配置」+ agent 指标）。
+    ///
+    /// **不给就用配置里的。** 换配置那条路要重启才生效（`state.media` 是
+    /// 启动时建的）—— 而"想换个模型试试"是个当场的念头，让用户为它重启
+    /// 整个应用不合理。
+    #[serde(default)]
+    pub chat_model: Option<String>,
 }
 
 /// 把这一轮的设置拼成一段追加给模型的话。
@@ -374,6 +384,7 @@ pub async fn send(
         resolution: b.resolution.clone().filter(|s| !s.trim().is_empty()),
         duration: b.duration,
         by_modality: b.params.clone(),
+        chat_model: b.chat_model.clone().filter(|s| !s.trim().is_empty()),
     });
 
     let hint = turn_hint(&b);
@@ -487,6 +498,7 @@ async fn run(state: &Arc<AppState>, user_text: &str) {
             &tools,
             MAX_TOKENS,
             TURN_TIMEOUT,
+            state.agent.turn_params().chat_model.as_deref(),
         )
         .await
         {
@@ -716,6 +728,7 @@ mod turn_hint_tests {
             resolution: None,
             duration: None,
             params: Default::default(),
+            chat_model: None,
         }
     }
 

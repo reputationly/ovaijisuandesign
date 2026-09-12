@@ -55,6 +55,8 @@ struct Index {
 
 pub struct Assets {
     ws: Workspace,
+    /// 开局时索引是坏的。见 [`Assets::load`]。
+    degraded: bool,
     inner: Mutex<Index>,
 }
 
@@ -62,21 +64,53 @@ impl Assets {
     /// 从磁盘加载索引。文件不存在或读坏了都当空索引开局 ——
     /// 索引是可以重建的派生数据，不该因为它挡住整个服务启动。
     pub fn load(ws: Workspace) -> Self {
-        let index = fs::read_to_string(ws.assets_path())
-            .ok()
-            .and_then(|raw| match serde_json::from_str::<Index>(&raw) {
-                Ok(i) => Some(i),
+        let path = ws.assets_path();
+        let (index, degraded) = match fs::read_to_string(&path) {
+            // 文件不存在 = 首次运行。**这是正常的**,不是事故。
+            Err(_) => (Index::default(), false),
+            Ok(raw) => match serde_json::from_str::<Index>(&raw) {
+                Ok(i) => (i, false),
                 Err(err) => {
-                    tracing::warn!("资产索引解析失败，按空索引开局: {err}");
-                    None
+                    // **索引损坏。先把原文件隔离出来，再按空索引开局。**
+                    //
+                    // 以前这里直接 `unwrap_or_default()` —— 空索引开局之后，
+                    // 下一次生成或登记会 `persist` 一份空的写回磁盘,
+                    // **把那份坏但可能可修的原文件永久覆盖掉**。那才是真的
+                    // 不可恢复：资产文件都还在盘上，但 id → path 的映射没了,
+                    // 画布上每个节点都变成悬空引用。
+                    //
+                    // 官方 3.0.14 新加的 `bundleError.diagnosis.
+                    // workspaceIndexRecovery` 防的就是这件事：
+                    // 「无法安全恢复项目的素材关联。**为保护原有内容，已停止
+                    // 自动重建**；这不代表素材文件已被删除。」
+                    tracing::error!("资产索引解析失败: {err}");
+                    if let Err(e) = quarantine_index(&path, &raw) {
+                        tracing::error!("隔离损坏的资产索引也失败了: {e:#}");
+                    }
+                    (Index::default(), true)
                 }
-            })
-            .unwrap_or_default();
-        tracing::info!(count = index.by_path.len(), "资产索引已加载");
+            },
+        };
+        if degraded {
+            tracing::warn!(
+                "按空索引开局。**素材文件都还在盘上**,只是关联信息需要恢复 —— \
+                 原索引已隔离到 quarantine/，不要删除工作区或清理应用数据。"
+            );
+        }
+        tracing::info!(count = index.by_path.len(), degraded, "资产索引已加载");
         Self {
             ws,
             inner: Mutex::new(index),
+            degraded,
         }
+    }
+
+    /// 索引是不是降级开局（原文件损坏、已隔离）。
+    ///
+    /// 界面要能看见这个 —— 不然用户只会看到"所有素材都不见了",
+    /// 而真相是**文件都在，只是关联信息坏了**。
+    pub fn is_degraded(&self) -> bool {
+        self.degraded
     }
 
     fn lock(&self) -> MutexGuard<'_, Index> {
@@ -480,5 +514,84 @@ mod tests {
         let a = assets.enroll("audios/a.wav").unwrap();
         assert_eq!(a.kind, "audio");
         assert_eq!(a.width, None);
+    }
+}
+
+/// 把损坏的资产索引另存一份。和 `canvas.rs` 的 `quarantine` 同一个套路。
+///
+/// **必须在覆盖之前做。** 索引是"哪个 id 对应哪个文件"的唯一记录 ——
+/// 素材文件本身还在盘上，但没有这份映射，画布上每个节点都是悬空引用，
+/// 而重建需要的信息只在这份坏文件里。
+fn quarantine_index(path: &Path, raw: &str) -> Result<()> {
+    let dir = path
+        .parent()
+        .map(|p| p.join("quarantine"))
+        .unwrap_or_else(|| Path::new("quarantine").to_path_buf());
+    fs::create_dir_all(&dir)?;
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let out = dir.join(format!("assets-broken-{stamp}.json"));
+    fs::write(&out, raw)?;
+    tracing::warn!(path = %out.display(), "损坏的资产索引已隔离");
+    Ok(())
+}
+
+#[cfg(test)]
+mod degraded_tests {
+    use super::*;
+
+    fn ws() -> (tempfile::TempDir, Workspace) {
+        let d = tempfile::tempdir().unwrap();
+        let w = Workspace::new(d.path().to_path_buf());
+        fs::create_dir_all(w.assets_path().parent().unwrap()).unwrap();
+        (d, w)
+    }
+
+    /// **索引损坏时必须先隔离原文件。**
+    ///
+    /// 以前是直接按空索引开局 —— 而空索引一旦被 `persist` 写回，
+    /// 那份坏但可能可修的原文件就**永久没了**。素材文件都还在盘上，
+    /// 但 id → path 的映射没了，画布上每个节点都变成悬空引用。
+    ///
+    /// 官方 3.0.14 新加的 `bundleError.diagnosis.workspaceIndexRecovery`
+    /// 防的就是这件事。
+    #[test]
+    fn a_broken_index_is_quarantined_before_anything_overwrites_it() {
+        let (_d, w) = ws();
+        let path = w.assets_path();
+        fs::write(&path, "{ 这不是合法 JSON").unwrap();
+
+        let assets = Assets::load(w.clone());
+        assert!(assets.is_degraded(), "坏索引应该被认出来");
+
+        let dir = path.parent().unwrap().join("quarantine");
+        let saved: Vec<_> = fs::read_dir(&dir)
+            .expect("应该建了 quarantine 目录")
+            .flatten()
+            .collect();
+        assert_eq!(saved.len(), 1, "应该正好隔离出一份");
+        let body = fs::read_to_string(saved[0].path()).unwrap();
+        assert!(body.contains("这不是合法 JSON"), "隔离的必须是原文，不能是空的");
+    }
+
+    /// **文件不存在是正常的**（首次运行），不该当成事故。
+    ///
+    /// 两者以前都走 `unwrap_or_default()`,行为一样 —— 于是真出事故时
+    /// 也看不出来。
+    #[test]
+    fn a_missing_index_is_not_degraded() {
+        let (_d, w) = ws();
+        let assets = Assets::load(w.clone());
+        assert!(!assets.is_degraded());
+        assert!(!w.assets_path().parent().unwrap().join("quarantine").exists());
+    }
+
+    #[test]
+    fn a_good_index_loads_normally() {
+        let (_d, w) = ws();
+        fs::write(&w.assets_path(), r#"{"version":1,"by_path":{}}"#).unwrap();
+        assert!(!Assets::load(w).is_degraded());
     }
 }

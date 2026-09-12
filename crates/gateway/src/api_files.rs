@@ -22,7 +22,13 @@ use tokio_util::io::ReaderStream;
 use crate::AppState;
 
 pub async fn list_assets(State(state): State<Arc<AppState>>) -> Json<Value> {
-    Json(json!({ "assets": state.assets.list() }))
+    Json(json!({
+        "assets": state.assets.list(),
+        // 索引开局时是坏的。**界面必须说出来** —— 不然用户看到的是
+        // "所有素材都不见了",而真相是文件都在盘上、只是关联信息坏了。
+        // 这时候最怕他去"清理一下重来"。
+        "degraded": state.assets.is_degraded(),
+    }))
 }
 
 #[derive(Debug, Deserialize)]
