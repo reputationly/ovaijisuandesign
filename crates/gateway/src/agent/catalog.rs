@@ -28,6 +28,17 @@ pub struct Tool {
     pub description: &'static str,
     /// JSON Schema。`type: object` 那一层由 [`schema`] 补上。
     pub params: fn() -> Value,
+    /// 少了就没法干活的参数。
+    ///
+    /// **大部分工具留空是对的**：模型漏填一个可选字段时，让工具自己报错
+    /// 并把原因回给它，比让平台在请求层拒绝好 —— 后者的错误信息是 schema
+    /// 违规，模型看不出该补什么。
+    ///
+    /// **但 `prompt` 这种必须标上。** 实测模型会连发四次
+    /// `generate_image {}`,每次都拿到平台回的「prompt is required」,
+    /// 并没有因此纠正 —— 它只是又试了一遍。标成 required 之后，大多数
+    /// 服务端的受约束解码会在生成阶段就挡住空参数。
+    pub required: &'static [&'static str],
 }
 
 fn s(desc: &str) -> Value {
@@ -43,18 +54,21 @@ pub fn all() -> Vec<Tool> {
             description: "列出画布上现有的节点。**动手之前先调它** —— \
                 用户说「把那张图…」时，你需要先知道画布上有什么、id 是什么。",
             params: || json!({ "type": { "type": "string", "description": "只看某一类：image / video / audio / text" } }),
+            required: &[],
         },
         Tool {
             name: "canvas_get_node",
             description: "读一个或多个节点的详情，文本节点会带上正文。\
                 只要 id 和类型的话用 canvas_list_nodes 就够了，别用这个。",
             params: || json!({ "nodeIds": { "type": "array", "items": { "type": "string" } } }),
+            required: &[],
         },
         Tool {
             name: "list_capabilities",
             description: "这台机器上哪些模态可用、各自用的什么模型。\
                 **不确定能不能做某件事时先问它**，而不是调用失败之后才知道。",
             params: || json!({ "modality": s("image / video / audio / speech，不给就全部") }),
+            required: &[],
         },
         Tool {
             name: "generate_image",
@@ -71,6 +85,7 @@ pub fn all() -> Vec<Tool> {
                     "resolution": s("如 1K / 2K"),
                 })
             },
+            required: &["prompt"],
         },
         Tool {
             name: "generate_video",
@@ -89,6 +104,7 @@ pub fn all() -> Vec<Tool> {
                     "model_id": s("官方模型名"),
                 })
             },
+            required: &["prompt"],
         },
         Tool {
             name: "lyrics_generation",
@@ -103,6 +119,7 @@ pub fn all() -> Vec<Tool> {
                     "title": s("指定歌名"),
                 })
             },
+            required: &[],
         },
         Tool {
             name: "generate_audio_music",
@@ -117,6 +134,7 @@ pub fn all() -> Vec<Tool> {
                     "model_id": s("官方模型名"),
                 })
             },
+            required: &["prompt"],
         },
         Tool {
             name: "canvas_write_node",
@@ -132,6 +150,7 @@ pub fn all() -> Vec<Tool> {
                     "assetPath": s("[media] 工作区相对路径"),
                 })
             },
+            required: &[],
         },
         Tool {
             name: "canvas_group_nodes",
@@ -143,6 +162,7 @@ pub fn all() -> Vec<Tool> {
                     "label": s("组的名字"),
                 })
             },
+            required: &[],
         },
         Tool {
             name: "read",
@@ -155,6 +175,7 @@ pub fn all() -> Vec<Tool> {
                     "limit": { "type": "integer" },
                 })
             },
+            required: &[],
         },
         Tool {
             name: "memory",
@@ -170,6 +191,7 @@ pub fn all() -> Vec<Tool> {
                     "query": s("search 时的关键词"),
                 })
             },
+            required: &[],
         },
     ]
 }
@@ -180,15 +202,12 @@ pub fn schema() -> Vec<Value> {
         .into_iter()
         .map(|t| {
             let props = (t.params)();
-            // required 一律留空。**模型漏填一个字段时，让工具自己报错并把
-            // 原因回给它**，比让平台在请求层拒绝好 —— 后者的错误信息是
-            // schema 违规，模型看不出该补什么。
             json!({
                 "type": "function",
                 "function": {
                     "name": t.name,
                     "description": t.description,
-                    "parameters": { "type": "object", "properties": props, "required": [] },
+                    "parameters": { "type": "object", "properties": props, "required": t.required },
                 },
             })
         })
@@ -255,5 +274,46 @@ mod tests {
             list < gen_at,
             "canvas_list_nodes 应该排在 generate_image 前面"
         );
+    }
+}
+
+#[cfg(test)]
+mod required_tests {
+    use super::{all, schema};
+
+    /// 生成类工具的 `prompt` **必须标成 required**。
+    ///
+    /// 不标的话模型可以合法地发 `generate_image {}` —— 实测它连发四次，
+    /// 每次都真的打了一趟平台、拿回「prompt is required」,然后又试了一遍
+    /// 同样的空参数。用户看到的是活动流里四个红叉。
+    #[test]
+    fn the_generate_tools_require_a_prompt() {
+        for t in all() {
+            if t.name.starts_with("generate_") {
+                assert!(
+                    t.required.contains(&"prompt"),
+                    "{} 没把 prompt 标成 required",
+                    t.name
+                );
+            }
+        }
+    }
+
+    /// required 里写的名字必须真的在 properties 里。
+    /// 对不上的话是纯噪声 —— 服务端按一个不存在的字段做约束。
+    #[test]
+    fn required_names_exist_in_properties() {
+        for tool in schema() {
+            let f = &tool["function"];
+            let props = f["parameters"]["properties"].as_object().unwrap();
+            for r in f["parameters"]["required"].as_array().unwrap() {
+                let name = r.as_str().unwrap();
+                assert!(
+                    props.contains_key(name),
+                    "{} 的 required 里有 {name}，但 properties 里没有",
+                    f["name"]
+                );
+            }
+        }
     }
 }

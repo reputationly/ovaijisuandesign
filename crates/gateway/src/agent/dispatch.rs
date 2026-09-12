@@ -92,6 +92,12 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
         }
 
         "generate_image" => {
+            if missing_prompt(v) {
+                return err(
+                    "prompt 是空的。把要画的画面写进 prompt 再调一次 —— \
+                     比如「一只柯基在沙滩上奔跑，金色阳光，侧面，电影感」。",
+                );
+            }
             let body = json!({
                 "prompt": v.get("prompt").and_then(Value::as_str).unwrap_or(""),
                 "image_paths": v.get("image_paths").cloned().unwrap_or(json!([])),
@@ -105,6 +111,12 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
         }
 
         "generate_video" => {
+            if missing_prompt(v) {
+                return err(
+                    "prompt 是空的。把画面和运动写进 prompt 再调一次 —— \
+                     比如「镜头缓慢推近，柯基在沙滩上奔跑，浪花飞溅」。",
+                );
+            }
             let mut body = v.clone();
             let (ar, res) = framing(state, v);
             body["params"] = json!({ "aspect_ratio": ar, "resolution": res });
@@ -118,6 +130,9 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
         }
 
         "generate_audio_music" => {
+            if missing_prompt(v) {
+                return err("prompt 是空的。把曲风、情绪、乐器写进 prompt 再调一次。");
+            }
             return submit_and_wait(state, "music", v.clone()).await;
         }
 
@@ -244,6 +259,22 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 ///
 /// 不无条件覆盖模型给的值：它可能有更好的理由（比如按参考图的比例来），
 /// 那种情况下用户的默认选择本来就该让位。
+/// 提示词空不空。空的话**当场退回，不要发给平台**。
+///
+/// 实测模型会连发四次 `generate_image {}` —— 每次都真的打了一趟平台，
+/// 每次都拿到「prompt is required」,然后再试一遍同样的空参数。
+/// 用户看到的是活动流里四个红叉，而且每一次都等了网络往返。
+///
+/// 这里回的话要**说清楚下一步做什么**（"把画面描述写进 prompt"），
+/// 而不是复述一遍"缺 prompt" —— 后者模型已经从平台那儿听过四遍了。
+fn missing_prompt(v: &Value) -> bool {
+    v.get("prompt")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .unwrap_or("")
+        .is_empty()
+}
+
 fn framing(state: &Arc<AppState>, v: &Value) -> (String, String) {
     let ui = state.agent.turn_params();
     let pick = |key: &str, fallback: Option<String>| {
@@ -608,7 +639,24 @@ mod tests {
 
 #[cfg(test)]
 mod framing_tests {
+    use super::missing_prompt;
     use serde_json::json;
+
+    /// 用户实际撞到的：模型连发四次 `generate_image {}`。
+    #[test]
+    fn an_empty_call_is_caught_before_the_platform() {
+        assert!(missing_prompt(&json!({})));
+        assert!(missing_prompt(&json!({ "aspect_ratio": "9:16" })));
+        // 空白串也算空 —— 平台那边同样会拒。
+        assert!(missing_prompt(&json!({ "prompt": "" })));
+        assert!(missing_prompt(&json!({ "prompt": "   \n " })));
+    }
+
+    #[test]
+    fn a_real_prompt_passes() {
+        assert!(!missing_prompt(&json!({ "prompt": "一只柯基在沙滩上奔跑" })));
+    }
+
 
     /// `framing` 的判据抽出来测：模型给了用模型的，没给用界面的。
     fn pick(model: Option<&str>, ui: Option<&str>) -> String {
