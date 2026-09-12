@@ -66,7 +66,7 @@ fn read_box(buf: &[u8], at: usize) -> Option<(&[u8; 4], usize, usize)> {
 }
 
 /// 在一段范围里按类型找一个盒子，返回它的内容区间。
-fn find<'a>(buf: &'a [u8], mut at: usize, end: usize, want: &[u8; 4]) -> Option<(usize, usize)> {
+fn find(buf: &[u8], mut at: usize, end: usize, want: &[u8; 4]) -> Option<(usize, usize)> {
     while at < end {
         let (kind, body, box_end) = read_box(buf, at)?;
         if kind == want {
@@ -91,18 +91,17 @@ pub fn probe(bytes: &[u8]) -> Option<VideoInfo> {
     let mut at = moov_body;
     while at < moov_end {
         let (kind, body, box_end) = read_box(bytes, at)?;
-        if kind == b"trak" {
-            if let Some((tkhd, _)) = find(bytes, body, box_end, b"tkhd") {
-                if let Some((w, h)) = tkhd_size(bytes, tkhd) {
-                    if w > 0 && h > 0 {
-                        return Some(VideoInfo {
-                            width: w,
-                            height: h,
-                            duration,
-                        });
-                    }
-                }
-            }
+        if kind == b"trak"
+            && let Some((tkhd, _)) = find(bytes, body, box_end, b"tkhd")
+            && let Some((w, h)) = tkhd_size(bytes, tkhd)
+            && w > 0
+            && h > 0
+        {
+            return Some(VideoInfo {
+                width: w,
+                height: h,
+                duration,
+            });
         }
         at = box_end;
     }

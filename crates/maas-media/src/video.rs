@@ -581,10 +581,6 @@ mod size_tests {
         let (w, h) = s.split_once('x').unwrap();
         (w.parse().unwrap(), h.parse().unwrap())
     }
-    fn reduced(s: &str) -> (u32, u32) {
-        let (a, b) = parts(s);
-        super::reduce(a, b)
-    }
 
     /// **最重要的一条：算出来的尺寸必须严格约分回请求的比例。**
     ///

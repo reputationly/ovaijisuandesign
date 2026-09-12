@@ -255,12 +255,12 @@ impl Assets {
                 continue;
             }
             let mut index = self.lock();
-            if let Some(a) = index.by_path.get_mut(&rel) {
-                if a.width != w || a.height != h {
-                    a.width = w;
-                    a.height = h;
-                    changed += 1;
-                }
+            if let Some(a) = index.by_path.get_mut(&rel)
+                && (a.width != w || a.height != h)
+            {
+                a.width = w;
+                a.height = h;
+                changed += 1;
             }
         }
         if changed > 0 {
@@ -304,11 +304,11 @@ impl Assets {
                 continue;
             };
             let dest = bin.join(rel);
-            if let Some(parent) = dest.parent() {
-                if let Err(err) = fs::create_dir_all(parent) {
-                    tracing::warn!("建废纸篓目录失败 {}: {err:#}", parent.display());
-                    continue;
-                }
+            if let Some(parent) = dest.parent()
+                && let Err(err) = fs::create_dir_all(parent)
+            {
+                tracing::warn!("建废纸篓目录失败 {}: {err:#}", parent.display());
+                continue;
             }
             // 文件可能已经不在了（用户在访达里删过）。那也算删成功 ——
             // 用户的意图是"让它从列表里消失"，报错只会让他困惑。
@@ -602,7 +602,7 @@ mod degraded_tests {
     #[test]
     fn a_good_index_loads_normally() {
         let (_d, w) = ws();
-        fs::write(&w.assets_path(), r#"{"version":1,"by_path":{}}"#).unwrap();
+        fs::write(w.assets_path(), r#"{"version":1,"by_path":{}}"#).unwrap();
         assert!(!Assets::load(w).is_degraded());
     }
 }

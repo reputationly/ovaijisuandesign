@@ -122,15 +122,14 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
             let (ar, res) = framing(state, v, "video");
             body["params"] = json!({ "aspect_ratio": ar, "resolution": res });
             // 时长同理：模型给了用模型的，没给用界面上选的。
-            if body.get("duration").and_then(Value::as_u64).is_none() {
-                if let Some(d) = state
+            if body.get("duration").and_then(Value::as_u64).is_none()
+                && let Some(d) = state
                     .agent
                     .turn_params()
                     .get("video", "duration")
                     .and_then(|d| d.parse::<u32>().ok())
-                {
-                    body["duration"] = json!(d);
-                }
+            {
+                body["duration"] = json!(d);
             }
             return submit_and_wait(state, "video", body).await;
         }
