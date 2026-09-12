@@ -67,7 +67,13 @@ fn feed_url() -> String {
 /// 我们不去猜目录结构 —— 猜错的话表现是"更新按钮点了没反应"。
 #[cfg(target_os = "windows")]
 pub fn available() -> bool {
-    velopack::locator::auto_locate_app_manifest(velopack::locator::VelopackLocatorConfig::default())
+    // `FromCurrentExe` = "当前进程在应用的安装目录里"。文档明说
+    // **没装的话返回 Err** —— 正是我们要的判据。
+    //
+    // 不要传 `VelopackLocatorConfig::default()`:它是另一个类型
+    // （`LocationContext` 才对），而且 default 的语义是"全部路径留空",
+    // 那会让它去找一个不存在的地方。
+    velopack::locator::auto_locate_app_manifest(velopack::locator::LocationContext::FromCurrentExe)
         .is_ok()
 }
 
@@ -96,7 +102,7 @@ pub async fn check(State(_state): State<Arc<AppState>>) -> Json<Value> {
         Ok(Ok(velopack::UpdateCheck::UpdateAvailable(info))) => Json(json!({
             "ok": true,
             "needUpdate": true,
-            "latest": info.TargetFullRelease.Version.to_string(),
+            "latest": info.TargetFullRelease.Version,
         })),
         Ok(Ok(_)) => Json(json!({ "ok": true, "needUpdate": false })),
         Ok(Err(e)) => Json(json!({ "ok": false, "error": e.to_string() })),
@@ -121,7 +127,7 @@ pub async fn apply(State(_state): State<Arc<AppState>>) -> Json<Value> {
             velopack::UpdateCheck::UpdateAvailable(i) => i,
             _ => return Err("没有可用的更新".into()),
         };
-        let version = info.TargetFullRelease.Version.to_string();
+        let version = info.TargetFullRelease.Version.clone();
         mgr.download_updates(&info, None)
             .map_err(|e| e.to_string())?;
         // **不用 apply_updates_and_restart。** 那个会立刻杀掉当前进程 ——
