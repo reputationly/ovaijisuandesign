@@ -1,7 +1,8 @@
 # 闭源面到底有多大
 
 调研 MiniMax Design 的结论：**只有 `app.asar` 是闭源的**。
-初版基于 **3.0.11**（macOS arm64），后来在 **3.0.12**（macOS + Windows）上复核过。
+初版基于 **3.0.11**（macOS arm64），后来在 **3.0.12**（macOS + Windows）、
+**3.0.14**（macOS）上复核过。
 
 这份文档存在的意义是**防止把"工作量大"说成"做不了"** —— 两者的排期含义完全
 不同。下面每一条都标明了判据，改结论之前先复核判据。
@@ -68,7 +69,7 @@ Base UI + tailwind + tiptap + `@xyflow/react` v12 + selecto + yjs，
 | | 大小 | 内容 |
 |---|---|---|
 | `gateway/dist/main.js` | 16M | NestJS，423 条路由。资产库、画布持久化、生成队列、ffmpeg 链路、水印 |
-| `mcp-tools/dist/main.js` | 2.8M | 58 个 MCP 工具（3.0.11 是 103，3.0.12 合并掉了一批） |
+| `mcp-tools/dist/main.js` | 2.8M | 58 个 MCP 工具（3.0.11 是 103，3.0.12 合并掉了一批；**3.0.14 仍是这 58 个，一个没变**） |
 | `opencode-plugin-hilo` / `-trace` | 660K | 用公开的 `@opencode-ai/plugin` API，dist 是未压缩 ESM |
 | `bundled-plugins/comfyui/hub/*.py` | 1655 行 | ComfyUI 后端的安装与启动脚本，中文注释 |
 | `agent-profiles/v2/config/` | 1.5M | agents / contracts / knowledge / workflows，全是 markdown |

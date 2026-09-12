@@ -26,7 +26,7 @@ import { useEffect, useRef, useState } from "react"
  * 播放键才会开始，点了就是想看这段视频；静音的话他看到的是一段默片，
  * 而那个音量按钮藏在 hover 才出现的控件条里。
  */
-export function VideoPlayer({ src }: { src: string }) {
+export function VideoPlayer({ src, onBroken }: { src: string; onBroken?: () => void }) {
   const ref = useRef<HTMLVideoElement | null>(null)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
@@ -64,6 +64,9 @@ export function VideoPlayer({ src }: { src: string }) {
         src={src}
         muted={muted}
         playsInline
+        // 素材关联不上。**要自己接** —— 不接的话是一块黑色的空视频框,
+        // 点播放没反应，用户看不出发生了什么。
+        onError={() => onBroken?.()}
         preload="metadata"
         className="h-full w-full object-cover"
       />

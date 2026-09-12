@@ -9,7 +9,7 @@ import {
   Music,
   Video,
 } from "lucide-react"
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 
 import { tagById, tagsOf } from "./tags"
 import { assetUrl } from "./api"
@@ -197,6 +197,35 @@ function Frame(
 }
 
 /** 没有 assetId 的媒体节点是占位（生成中 / 生成失败）。 */
+/**
+ * 素材关联不上。官方 3.0.14 的 `canvas.missingAsset.*`：
+ *
+ * ```
+ * title       = 素材关联异常
+ * description = 暂时无法关联到素材，原文件不一定已删除。节点已保留，
+ *               删除后不可恢复。
+ * ```
+ *
+ * **3.0.12 那版写的是「素材已丢失」+「关联的素材文件已不存在」。**
+ * 官方在 3.0.14 把话改软了，而改动本身就是那条重要信息：**关联不上
+ * 不等于文件被删了** —— 磁盘没挂载、文件被挪走、索引还没重建，都会走到
+ * 这儿。说成"已丢失"会让用户直接把节点删掉，而那才是真的不可恢复。
+ *
+ * 在此之前我们**根本没处理这种情况**:`<img src="/files/id/X">` 404 之后
+ * 就是一个浏览器自带的破图标，看不出发生了什么，也不知道能不能修。
+ */
+function MissingAsset() {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-3 text-center">
+      <AlertTriangle size={16} style={{ color: "var(--canvas-node-tag-orange)" }} />
+      <span className="text-[12px]">素材关联异常</span>
+      <span className="text-[11px] leading-4" style={{ color: "var(--muted-foreground)" }}>
+        暂时无法关联到素材，原文件不一定已删除。节点已保留，删除后不可恢复。
+      </span>
+    </div>
+  )
+}
+
 function Placeholder({ text, icon }: { text: string; icon?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-1.5 p-3 text-center text-xs text-dim">
@@ -209,9 +238,15 @@ function Placeholder({ text, icon }: { text: string; icon?: ReactNode }) {
 export function ImageNode(props: Props) {
   const id = props.data.raw.assetId
   const actions = useContext(CanvasActionsContext)
+  // 图加载失败 = 素材关联不上。**必须自己接** —— 不接的话就是浏览器
+  // 自带的破图标，用户看不出发生了什么。
+  const [broken, setBroken] = useState(false)
+  useEffect(() => setBroken(false), [id])
   return (
     <Frame {...props} kind="image">
-      {id ? (
+      {id && broken ? (
+        <MissingAsset />
+      ) : id ? (
         // 走缩略图：原图动辄 1.8MB，而卡片才 350px 宽。宽度取 512 而不是 2x
         // 卡片宽（700）—— gateway 回的是 PNG，无损压缩对照片几乎不起作用，
         // 实测 700 要 1.38MB，512 只要 357KB，肉眼分不出。
@@ -222,13 +257,16 @@ export function ImageNode(props: Props) {
           alt=""
           loading="lazy"
           className="h-full w-full object-cover"
+          onError={() => setBroken(true)}
           onDoubleClick={(e) => {
             e.stopPropagation()
             actions?.openLightbox(props.id)
           }}
         />
       ) : (
-        <Placeholder text="占位节点（无 assetId）" />
+        // 没有 assetId = 这个节点从来就没关联过素材（占位/草稿），
+        // 和"关联不上"是两回事。
+        <Placeholder text="还没有素材" icon={<ImageIcon size={18} />} />
       )}
     </Frame>
   )
@@ -236,11 +274,19 @@ export function ImageNode(props: Props) {
 
 export function VideoNode(props: Props) {
   const id = props.data.raw.assetId
+  const [broken, setBroken] = useState(false)
+  useEffect(() => setBroken(false), [id])
   return (
     <Frame {...props} kind="video">
       {/* 自绘播放层，不用浏览器原生 controls —— 原生控件在每个平台长得不一样，
           而且高度固定，在 350x197 的节点里占掉六分之一。 */}
-      {id ? <VideoPlayer src={assetUrl(id)} /> : <Placeholder text="占位节点" />}
+      {id && broken ? (
+        <MissingAsset />
+      ) : id ? (
+        <VideoPlayer src={assetUrl(id)} onBroken={() => setBroken(true)} />
+      ) : (
+        <Placeholder text="还没有素材" icon={<Video size={18} />} />
+      )}
     </Frame>
   )
 }
@@ -266,7 +312,7 @@ export function AudioNode(props: Props) {
           />
         </AudioPlayer>
       ) : (
-        <Placeholder text="占位节点" />
+        <Placeholder text="还没有素材" icon={<Music size={18} />} />
       )}
     </Frame>
   )

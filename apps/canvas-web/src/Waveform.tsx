@@ -80,7 +80,13 @@ export function Waveform({
   }, [playing])
 
   if (failed) {
-    return <div className="p-3 text-center text-xs text-dim">波形解码失败</div>
+    // 解码失败可能是格式不支持，也可能是**文件根本取不到**（素材关联不上）。
+    // 两种都归到这一句：我们分不出来，而对用户来说下一步是一样的。
+    return (
+      <div className="p-3 text-center text-xs text-dim">
+        音频读不出来，可能是格式不支持或素材关联异常
+      </div>
+    )
   }
 
   return (

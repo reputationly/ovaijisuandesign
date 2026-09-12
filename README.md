@@ -41,7 +41,7 @@ MiniMax Design 是这条路上最完整的参考实现，而它**大部分不闭
 
 | | |
 |---|---|
-| [`docs/mcp-tools.md`](docs/mcp-tools.md) | 58 个 MCP 工具的名字与入参（3.0.12） |
+| [`docs/mcp-tools.md`](docs/mcp-tools.md) | 58 个 MCP 工具的名字与入参（3.0.12，3.0.14 复核无变化） |
 | [`docs/gateway-api.md`](docs/gateway-api.md) | gateway 的 423 条 HTTP 路由 |
 
 两份都由脚本从官方产物提取，应用升级后重跑就能看出接口面变了没有。
