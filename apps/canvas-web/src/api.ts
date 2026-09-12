@@ -101,6 +101,7 @@ export interface AssetInfo {
 }
 
 import type { Capability } from "./params"
+import type { Plan } from "./plan"
 
 async function json<T>(res: Response, what: string): Promise<T> {
   if (!res.ok) throw new Error(`${what} 失败 HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`)
@@ -652,6 +653,15 @@ export async function ungroupNodes(groupId: string): Promise<void> {
     }),
     "POST /api/canvas/ungroup",
   )
+}
+
+/** 当前这份制作计划。没有计划时 `plan` 是 `null`。 */
+export async function getPlan(): Promise<Plan | null> {
+  const body = await json<{ plan: Plan | null }>(
+    await fetch("/api/plan/current"),
+    "GET /api/plan/current",
+  )
+  return body.plan ?? null
 }
 
 export async function getCapabilities(): Promise<Capability[]> {

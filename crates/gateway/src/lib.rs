@@ -164,6 +164,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/question/pending", get(question::pending))
         .route("/api/question/reply", post(question::reply))
         // -- 制作计划（对应官方那 7 个 plan_* 工具）--
+        .route("/api/plan/current", get(plan::current))
         .route("/api/plan/write", post(plan::write))
         .route("/api/plan/replan", post(plan::replan))
         .route("/api/plan/patch-stage", post(plan::patch_stage))

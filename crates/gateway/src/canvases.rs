@@ -123,6 +123,10 @@ fn stash_current(state: &AppState, idx: &mut Index) {
     // 聊天记录跟着画布走。不存档的话，切到另一张画布上、对话还在讲上一张
     // 的事，而 agent 看到的画布已经换了 —— 它会以为自己刚做的东西不见了。
     stash_chat(state, &idx.current);
+    // 制作计划也跟着画布走。`plan.rs` 自己的注释就写着「计划和画布是同一件
+    // 事的两面」—— 不存档的话，切到另一张画布上，面板里挂着的还是上一张的
+    // 计划，而用户会照着它点「继续」,把确认发给一个跟当前画布无关的阶段。
+    stash_plans(state, &idx.current);
     let Some(dst) = state.ws.canvas_file(&idx.current) else {
         return;
     };
@@ -161,6 +165,48 @@ fn stash_chat(state: &AppState, id: &str) {
         }
         Err(_) => {
             let _ = std::fs::remove_file(&dst);
+        }
+    }
+}
+
+/// 计划目录存档到 `canvases/<id>.plans/`。
+fn plans_archive(state: &AppState, id: &str) -> Option<std::path::PathBuf> {
+    state
+        .ws
+        .canvas_file(id)
+        .map(|p| p.with_extension("plans"))
+}
+
+fn plans_live(state: &AppState) -> std::path::PathBuf {
+    state.ws.hilo().join("plans")
+}
+
+/// **整个目录搬过去。** 一张画布下可能有多份计划（agent 重新规划时会换
+/// plan_id），只挪"当前那份"的话，旧的会留在原地被下一张画布读到。
+fn move_dir(src: &std::path::Path, dst: &std::path::Path) {
+    let _ = std::fs::remove_dir_all(dst);
+    if src.exists() {
+        if let Some(parent) = dst.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        let _ = std::fs::rename(src, dst);
+    }
+}
+
+fn stash_plans(state: &AppState, id: &str) {
+    let Some(dst) = plans_archive(state, id) else {
+        return;
+    };
+    move_dir(&plans_live(state), &dst);
+}
+
+fn restore_plans(state: &AppState, id: &str) {
+    let live = plans_live(state);
+    match plans_archive(state, id) {
+        Some(src) => move_dir(&src, &live),
+        // 定位不到存档就**清空当前的**,而不是留着上一张画布的计划。
+        None => {
+            let _ = std::fs::remove_dir_all(&live);
         }
     }
 }
@@ -406,6 +452,7 @@ pub async fn create(
     // 新画布从空对话开始。不清的话，新建之后右栏还留着上一张的聊天记录，
     // 而 agent 看到的是一张空画布 —— 它会以为自己刚做的东西被删了。
     restore_chat(&state, &id);
+    restore_plans(&state, &id);
     let _ = write_index(&state.ws.index_path(), &idx);
     state.events.publish("canvas:changed", json!({}));
     (
@@ -455,6 +502,7 @@ pub async fn open(
     }
     idx.current = id.clone();
     restore_chat(&state, &id);
+    restore_plans(&state, &id);
     let _ = write_index(&state.ws.index_path(), &idx);
     state.events.publish("canvas:changed", json!({}));
     (StatusCode::OK, Json(json!({ "ok": true, "id": id })))

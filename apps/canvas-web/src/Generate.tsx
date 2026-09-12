@@ -44,6 +44,8 @@ export function Generate({
   initial,
   initialAttachments,
   onConsumed,
+  autoSend,
+  onAutoSent,
 }: {
   onDone: () => void
   autoFocus?: boolean
@@ -56,6 +58,10 @@ export function Generate({
   initialAttachments?: string[]
   /** 播种完就通知父组件清掉 —— 那两个是"交接一次"的量。 */
   onConsumed?: () => void
+  /** 播种并**立刻发出去**。制作计划的「继续」用它。 */
+  autoSend?: string
+  /** 发完通知父组件清掉 —— 不清的话重挂时会再发一遍。 */
+  onAutoSent?: () => void
   /**
    * 从首页带过来的提示词。
    *
@@ -96,6 +102,22 @@ export function Generate({
     // 上一次的提示词和参考图又回来了 —— 而界面上看不出它们是旧的。
     onConsumed?.()
   }, [initialAttachments, initial, onConsumed])
+
+  /**
+   * 「立刻发出去」的播种。制作计划面板的「继续」用它 ——
+   * 那是一次确认，用户点完不该还要再按一次发送键。
+   *
+   * **把文字直接传给 `run`,不经过 `prompt` 状态** —— setState 是异步的，
+   * 先 setPrompt 再 run 的话 `run` 读到的还是上一帧的空串，表现是
+   * "点了继续什么都没发生"。
+   */
+  useEffect(() => {
+    if (!autoSend) return
+    onAutoSent?.()
+    void run(autoSend)
+    // 只认 autoSend 的变化。带上 run 的话每次重渲染都会再发一遍。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSend])
   const [uploading, setUploading] = useState(false)
   /**
    * Agent 模式。官方 `chat.mode.*`：
@@ -180,9 +202,9 @@ export function Generate({
    * 进度不在这里显示：右栏的对话和活动流会实时长出来，那里比一个
    * "生成中 12s" 的计数器信息量大得多。
    */
-  const run = async () => {
-    if (!prompt.trim() || busy) return
-    const text = prompt
+  const run = async (override?: string) => {
+    const text = override ?? prompt
+    if (!text.trim() || busy) return
     setPhase({ kind: "generating", seconds: 0 })
     try {
       // **这一轮的设置要跟着发出去。** 比例和分辨率之前选了从来不传 ——

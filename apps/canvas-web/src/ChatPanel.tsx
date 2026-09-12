@@ -11,6 +11,9 @@ import {
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
+import { PlanPanel } from "./PlanPanel"
+import { allDone, type Plan } from "./plan"
+
 import type { AgentMsg, CanvasFile, ToolActivity } from "./api"
 import { Generate } from "./Generate"
 import { QuestionCard, type QuestionRequest } from "./Question"
@@ -49,6 +52,10 @@ export function ChatPanel({
   question,
   onAnswer,
   onOpenAsset,
+  plan,
+  onPlanSend,
+  planSend,
+  onPlanSent,
 }: {
   file: CanvasFile | null
   /** 这次创作的名字。显示在面板顶上。 */
@@ -76,6 +83,13 @@ export function ChatPanel({
   onAnswer: (id: string, answers: string[][] | null) => void
   /** 点产物 chip 时打开它。给了才显示成可点。 */
   onOpenAsset?: (path: string) => void
+  /** 当前制作计划。没有就是这一单不需要分阶段。 */
+  plan: Plan | null
+  /** 确认/反馈都是**发一条用户消息** —— 见 plan.ts 的说明。 */
+  onPlanSend: (text: string) => void
+  /** 要立刻发出去的那句话。 */
+  planSend?: string
+  onPlanSent: () => void
 }) {
   const calls = mergeCalls(activity)
   // 见下面 `原始事件` 那段的注释：只在确实出问题时露出来。
@@ -127,6 +141,16 @@ export function ChatPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto px-4 py-2 text-[13px] leading-6">
+        {/* 制作计划。官方 `productionPlan.title`。
+            **放在最上面**:它是"这一单活干到哪了"的总览，而下面的活动流
+            是流水账 —— 流水账滚上去之后，总览还留在视野里。
+            没有计划时整个不显示（agent 只有长任务才会写计划）。 */}
+        {/* **整份做完就不再挂着。** 计划是"这一单干到哪了"的总览 ——
+            全部完成之后它不再有可操作的东西，留着只是占掉对话面板顶部。
+            用户要回看的话，产物都在画布上。 */}
+        {plan && !allDone(plan) && (
+          <PlanPanel plan={plan} onSend={onPlanSend} busy={agentRunning} />
+        )}
         {/* agent 的决策点。协议是 opencode 自带的 question 工具，
             见 Question.tsx 的注释。 */}
         {question && (
@@ -231,6 +255,8 @@ export function ChatPanel({
           initial={initialPrompt}
           initialAttachments={initialAttachments}
           onConsumed={onConsumed}
+          autoSend={planSend}
+          onAutoSent={onPlanSent}
         />
         {/* 官方的 `chat.complianceNotice`。生成式产品里这句是要有的，
             而且位置就在输入框正下方。 */}

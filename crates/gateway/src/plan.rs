@@ -171,6 +171,37 @@ pub struct WriteBody {
 }
 
 /// 整份写入。**新建时 `expected_revision` 传 0。**
+/// 当前这份计划，**给界面看的**。
+///
+/// 现有那 7 个路由都是 agent 用的（按 id 取、按 stage 取、带乐观并发写），
+/// 界面没有一个入口能问"现在在做什么" —— 于是 `plan:changed` 事件发出来
+/// 也没人接，整块制作计划对用户是不存在的。
+///
+/// **取最近改过的那一份。** 一个工作区理论上可以有多份计划（agent 重新
+/// 规划时会换 id），但用户关心的永远是正在跑的那个。
+pub async fn current(State(state): State<Arc<AppState>>) -> Json<Value> {
+    let d = dir(&state.ws);
+    let mut best: Option<(std::time::SystemTime, Plan)> = None;
+    let Ok(entries) = std::fs::read_dir(&d) else {
+        // 目录还不存在 = 一次计划都没写过。**不是错误** ——
+        // 界面据此把面板整个收起来。
+        return Json(json!({ "ok": true, "plan": Value::Null }));
+    };
+    for e in entries.flatten() {
+        let path = e.path();
+        if path.extension().and_then(|x| x.to_str()) != Some("json") {
+            continue;
+        }
+        let Some(plan) = read(&path) else { continue };
+        let when = e.metadata().ok().and_then(|m| m.modified().ok());
+        let Some(when) = when else { continue };
+        if best.as_ref().is_none_or(|(b, _)| when > *b) {
+            best = Some((when, plan));
+        }
+    }
+    Json(json!({ "ok": true, "plan": best.map(|(_, p)| p) }))
+}
+
 pub async fn write(
     State(state): State<Arc<AppState>>,
     Json(body): Json<WriteBody>,

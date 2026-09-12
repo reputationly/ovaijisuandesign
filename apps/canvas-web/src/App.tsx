@@ -70,6 +70,7 @@ import {
   trashAssets,
   type AssetInfo,
   ungroupNodes,
+  getPlan,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { tidy as runTidy, type TidyKind } from "./tidy"
@@ -108,6 +109,7 @@ import { handoffKey, submitHandoff, type Handoff } from "./handoff"
 import { Home } from "./Home"
 import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 import { cn } from "./lib"
+import type { Plan } from "./plan"
 import { ProjectAssets } from "./AssetsPanel"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
@@ -227,6 +229,14 @@ export default function App() {
   const toFlowPos = useRef<((p: { x: number; y: number }) => { x: number; y: number }) | null>(null)
   // agent 抛出来的决策点。同一时刻只可能有一个 —— question 工具是阻塞的，
   // agent 在等回答，不会同时问第二次。
+  /**
+   * 当前制作计划。**只在画布视图里拉** —— 和决策点一样，它是画布上的东西。
+   *
+   * 走事件不走轮询：`plan:changed` 后端一直在发，以前没人接。
+   */
+  const [plan, setPlan] = useState<Plan | null>(null)
+  /** 制作计划里点「继续」要发的那句话。播种给输入框，由它立刻发出去。 */
+  const [planSend, setPlanSend] = useState<string | undefined>()
   const [question, setQuestion] = useState<QuestionRequest | null>(null)
   /**
    * 首页填好、要带到画布输入框里的内容。
@@ -392,6 +402,12 @@ export default function App() {
   //
   // 用轮询而不是等 /ws 推送：ws 断线重连的那几秒里推送会丢，而丢一道题
   // 意味着 agent 永远卡在那儿等一个不会来的回答。轮询没有这个问题。
+  // 进画布时先拉一次 —— 事件只在**变化时**发，刚打开这张画布时不会有。
+  useEffect(() => {
+    if (view !== "canvas") return
+    void getPlan().then(setPlan).catch(() => {})
+  }, [view])
+
   useEffect(() => {
     if (view !== "canvas") return
     let alive = true
@@ -400,10 +416,23 @@ export default function App() {
         .then((r) => alive && setQuestion(r.pending))
         .catch(() => {})
     tick()
-    const t = setInterval(tick, 2000)
+    // 轮询留着当兜底，但间隔放宽到 5 秒 —— 即时那一路由
+    // `question:asked` 事件负责（见下面的 connectEvents）。
+    //
+    // **两条路都要有**:只靠事件的话 ws 断线重连的那几秒里推送会丢，
+    // 而丢一道题意味着 agent 永远卡在那儿等一个不会来的回答；只靠轮询
+    // 的话用户最多要干等 2 秒才看到题目。
+    const t = setInterval(tick, 5000)
+    // 事件来了立刻拉一次。`question:replied` 也要接 —— 别的地方
+    // （比如 MCP 那边）回答了之后，这边的卡片要跟着消失。
+    const onQ = () => tick()
+    window.addEventListener("question:asked", onQ)
+    window.addEventListener("question:replied", onQ)
     return () => {
       alive = false
       clearInterval(t)
+      window.removeEventListener("question:asked", onQ)
+      window.removeEventListener("question:replied", onQ)
     }
   }, [view])
 
@@ -421,6 +450,16 @@ export default function App() {
         // agent 刚做的东西；更糟的是 fileRef 里还是旧副本，用户随手拖一下
         // 节点就会以那份为底整份写回，把 agent 加的节点悄悄抹掉。
         if (event === "canvas:changed") void load()
+        // 决策点。**转成 window 事件而不是直接 setQuestion** —— 服务端
+        // 只推"有变化"这个信号，内容要自己去拉（推送里没带题目）。
+        if (event === "question:asked" || event === "question:replied") {
+          window.dispatchEvent(new CustomEvent(event))
+        }
+        // 制作计划。后端一直在发这个事件，以前没有任何人接 ——
+        // 于是整块制作计划对用户是不存在的。
+        if (event === "plan:changed" || event === "outcome:reported") {
+          void getPlan().then(setPlan).catch(() => {})
+        }
         if (event === "agent:done") {
           setAgentRunning(false)
           void reloadChat()
@@ -1753,6 +1792,13 @@ export default function App() {
             右栏是画布的伴生面板，首页上没有画布，它就没有意义。 */}
         {view === "canvas" && rightOpen ? (
           <ChatPanel
+            plan={plan}
+            // 确认和反馈都是**发一条用户消息** —— 官方的
+            // `productionPlan.messages.*` 就是这么设计的，所以这块不需要
+            // 任何新的后端写接口。
+            onPlanSend={setPlanSend}
+            planSend={planSend}
+            onPlanSent={() => setPlanSend(undefined)}
             file={file}
             title={sessions.find((x) => x.id === currentSession)?.name}
             events={events}

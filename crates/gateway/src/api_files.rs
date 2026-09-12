@@ -285,6 +285,12 @@ pub struct ImportUrls {
 ///
 /// **契约照抄官方**：每个 URL 失败也回 200，失败落在 `errors[]`。
 /// 一批里有成功有失败时，成功的那些不该被整体退回。
+/// 公网 URL → 收进工作区 → 登记。
+///
+/// **前端不调它，但它不是死路由。** 这是我们接管官方 gateway 之后要保持的
+/// **API 兼容面**（见 README 的链路图）—— 外部调用方（启动器、OpenCode
+/// provider）按官方那套路径来。真正的下载归档逻辑在 [`import_one`],
+/// `land.rs` 走的是同一段代码。
 pub async fn import_url(
     State(state): State<Arc<AppState>>,
     Json(body): Json<ImportUrls>,
