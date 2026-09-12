@@ -70,7 +70,12 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
                 })
                 .unwrap_or_default();
             if ids.is_empty() {
-                return err("要给 nodeIds");
+                // **说清楚下一步做什么。** 复述"要给 nodeIds"的话，模型
+                // 只会原样再试一遍 —— 实测就是这样，活动流里连着两个红叉。
+                return err(
+                    "nodeIds 是空的。先用 canvas_list_nodes 拿到画布上的节点 id，\
+                     再把要看的那几个的 id 放进 nodeIds。",
+                );
             }
             let Ok(body) = serde_json::from_value(json!({ "nodeIds": ids })) else {
                 return err("nodeIds 形状不对");
@@ -204,7 +209,12 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 
         "canvas_group_nodes" => {
             let Ok(body) = serde_json::from_value(v.clone()) else {
-                return err("group_nodes 要给 nodeIds");
+                // **说清楚下一步做什么。** 复述"要给 nodeIds"的话，模型
+                // 只会原样再试一遍 —— 实测就是这样，活动流里连着几个红叉。
+                return err(
+                    "nodeIds 是空的。先用 canvas_list_nodes 拿到节点 id，\
+                     再把要归拢的那几个的 id 放进 nodeIds。",
+                );
             };
             let (_, b) = crate::api_group::group_nodes(
                 axum::extract::State(state.clone()),

@@ -34,10 +34,14 @@ pub struct Tool {
     /// 并把原因回给它，比让平台在请求层拒绝好 —— 后者的错误信息是 schema
     /// 违规，模型看不出该补什么。
     ///
-    /// **但 `prompt` 这种必须标上。** 实测模型会连发四次
+    /// **但"少了就没法干活"的必须标上。** 实测模型会连发四次
     /// `generate_image {}`,每次都拿到平台回的「prompt is required」,
-    /// 并没有因此纠正 —— 它只是又试了一遍。标成 required 之后，大多数
-    /// 服务端的受约束解码会在生成阶段就挡住空参数。
+    /// 并没有因此纠正 —— 它只是又试了一遍。`canvas_get_node` /
+    /// `canvas_group_nodes` 也一样：空参数调进来、回「要给 nodeIds」、
+    /// 再试一遍，用户看到的是活动流里一串红叉。
+    ///
+    /// 标成 required 之后，大多数服务端的受约束解码会在生成阶段就挡住
+    /// 空参数。
     pub required: &'static [&'static str],
 }
 
@@ -61,7 +65,7 @@ pub fn all() -> Vec<Tool> {
             description: "读一个或多个节点的详情，文本节点会带上正文。\
                 只要 id 和类型的话用 canvas_list_nodes 就够了，别用这个。",
             params: || json!({ "nodeIds": { "type": "array", "items": { "type": "string" } } }),
-            required: &[],
+            required: &["nodeIds"],
         },
         Tool {
             name: "list_capabilities",
@@ -150,7 +154,7 @@ pub fn all() -> Vec<Tool> {
                     "assetPath": s("[media] 工作区相对路径"),
                 })
             },
-            required: &[],
+            required: &["content"],
         },
         Tool {
             name: "canvas_group_nodes",
@@ -162,7 +166,7 @@ pub fn all() -> Vec<Tool> {
                     "label": s("组的名字"),
                 })
             },
-            required: &[],
+            required: &["nodeIds"],
         },
         Tool {
             name: "read",
@@ -175,7 +179,7 @@ pub fn all() -> Vec<Tool> {
                     "limit": { "type": "integer" },
                 })
             },
-            required: &[],
+            required: &["file_path"],
         },
         Tool {
             name: "memory",
@@ -191,7 +195,7 @@ pub fn all() -> Vec<Tool> {
                     "query": s("search 时的关键词"),
                 })
             },
-            required: &[],
+            required: &["action"],
         },
     ]
 }
@@ -293,6 +297,16 @@ mod required_tests {
                 assert!(
                     t.required.contains(&"prompt"),
                     "{} 没把 prompt 标成 required",
+                    t.name
+                );
+            }
+            // 拿 id 干活的工具必须要求 id。**实测漏标的后果是活动流里
+            // 一串红叉** —— 模型空参数调进来、回「要给 nodeIds」、再试
+            // 一遍同样的空参数。
+            if matches!(t.name, "canvas_get_node" | "canvas_group_nodes") {
+                assert!(
+                    t.required.contains(&"nodeIds"),
+                    "{} 没把 nodeIds 标成 required",
                     t.name
                 );
             }

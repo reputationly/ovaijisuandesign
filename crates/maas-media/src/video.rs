@@ -228,6 +228,22 @@ pub fn build_body(cfg: &MediaConfig, job: &VideoJob<'_>) -> Result<Value, Platfo
     if let Some(d) = job.duration {
         body.insert("duration".into(), json!(d));
     }
+    // **有输入图时不发比例。** 官方的
+    // `hiddenParamsByImageMode: { "first-last-frame": ["aspect_ratio"] }` ——
+    // 首尾帧/图生视频模式下那个参数在界面上是隐藏的，因为**比例由那张图
+    // 决定**。
+    //
+    // 不挡的话：用户要 2.39:1，模型挑了最接近的 21:9，而首帧图是 16:9
+    // （1664x928）—— 平台把 16:9 的画面塞进 21:9 的画框，出来的视频横向
+    // 被拉开。实测过，视频确实是 1792x768（21:9），"技术上没错"而画面
+    // 是变形的，全程不报错。
+    //
+    // 想换比例的正确做法是**先把首帧图按那个比例出一张**,再拿它生成视频。
+    let frame_driven = matches!(
+        job.plan,
+        VideoPlan::ImageToVideo | VideoPlan::LastFrame | VideoPlan::FirstLastFrame
+    ) && !job.frames.is_empty();
+
     // **比例直接发，不让平台从 size 反推。**
     //
     // 平台会拿 size 反推 aspect_ratio 再按模型白名单校验，而反推要约分 ——
@@ -239,11 +255,11 @@ pub fn build_body(cfg: &MediaConfig, job: &VideoJob<'_>) -> Result<Value, Platfo
     // 而且白名单里的 `21:9` 本身就不是最简分数（约分是 `7:3`）——
     // 也就是说**任何靠约分得到的结果都对不上它**。反推这条路走不通，
     // 把用户选的那个字符串原样给它。
-    let ratio = job.aspect_ratio.trim();
+    let ratio = if frame_driven { "" } else { job.aspect_ratio.trim() };
     if !ratio.is_empty() && !ratio.eq_ignore_ascii_case("adaptive") {
         body.insert("aspect_ratio".into(), json!(ratio));
     }
-    if let Some(size) = resolve_size(job.aspect_ratio, job.resolution) {
+    if let Some(size) = resolve_size(ratio, job.resolution) {
         body.insert("size".into(), json!(size));
     }
     body.insert("metadata".into(), Value::Object(metadata));
@@ -400,7 +416,7 @@ mod tests {
     use super::*;
     use crate::config::{Models, Platform};
 
-    fn cfg() -> MediaConfig {
+    pub(super) fn cfg() -> MediaConfig {
         MediaConfig {
             platform: Platform {
                 base_url: "https://maas.example.com/v1".into(),
@@ -416,7 +432,7 @@ mod tests {
         }
     }
 
-    fn job<'a>(plan: VideoPlan, frames: &'a [String], refs: &'a [String]) -> VideoJob<'a> {
+    pub(super) fn job<'a>(plan: VideoPlan, frames: &'a [String], refs: &'a [String]) -> VideoJob<'a> {
         VideoJob {
             plan,
             prompt: "一只猫",
@@ -636,5 +652,47 @@ mod size_tests {
         assert_eq!(resolve_size("abc", "1K"), None);
         assert_eq!(resolve_size("0:16", "1K"), None);
         assert_eq!(resolve_size("16:0", "1K"), None);
+    }
+}
+
+#[cfg(test)]
+mod frame_driven_tests {
+    use super::*;
+
+    /// **有首帧图时不发比例。** 官方的
+    /// `hiddenParamsByImageMode: { "first-last-frame": ["aspect_ratio"] }`。
+    ///
+    /// 用户实测撞到的：要 2.39:1，模型挑了最接近的 21:9，而首帧图是 16:9
+    /// （1664x928）—— 平台把 16:9 的画面塞进 21:9 的画框，出来的视频是
+    /// 1792x768，"技术上是 21:9 没错"而**画面被横向拉开**,全程不报错。
+    #[test]
+    fn a_frame_driven_job_never_sends_a_ratio() {
+        for plan in [
+            VideoPlan::ImageToVideo,
+            VideoPlan::LastFrame,
+            VideoPlan::FirstLastFrame,
+        ] {
+            let frames = vec!["https://x/a.png".to_string(), "https://x/b.png".to_string()];
+            let mut j = super::tests::job(plan, &frames, &[]);
+            j.aspect_ratio = "21:9";
+            j.resolution = "768P";
+            let body = build_body(&super::tests::cfg(), &j).unwrap();
+            assert!(
+                body.get("aspect_ratio").is_none(),
+                "{plan:?} 不该发 aspect_ratio"
+            );
+            assert!(body.get("size").is_none(), "{plan:?} 不该发 size");
+        }
+    }
+
+    /// 纯文生视频没有输入图，比例**必须发** —— 不发的话平台不知道出什么形状。
+    #[test]
+    fn text_to_video_still_sends_the_ratio() {
+        let mut j = super::tests::job(VideoPlan::TextToVideo, &[], &[]);
+        j.aspect_ratio = "21:9";
+        j.resolution = "768P";
+        let body = build_body(&super::tests::cfg(), &j).unwrap();
+        assert_eq!(body.get("aspect_ratio").and_then(|v| v.as_str()), Some("21:9"));
+        assert!(body.get("size").is_some());
     }
 }
