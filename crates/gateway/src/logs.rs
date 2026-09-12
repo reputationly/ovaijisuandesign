@@ -44,7 +44,9 @@ fn newest_in(d: &std::path::Path) -> Option<PathBuf> {
     let mut best: Option<(std::time::SystemTime, PathBuf)> = None;
     for entry in std::fs::read_dir(d).ok()?.flatten() {
         let path = entry.path();
-        let Some(name) = path.file_name() else { continue };
+        let Some(name) = path.file_name() else {
+            continue;
+        };
         if !name.to_string_lossy().starts_with(LOG_PREFIX) {
             continue;
         }

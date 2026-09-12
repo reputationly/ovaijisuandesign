@@ -98,10 +98,8 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 
         "generate_image" => {
             if missing_prompt(v) {
-                return err(
-                    "prompt 是空的。把要画的画面写进 prompt 再调一次 —— \
-                     比如「一只柯基在沙滩上奔跑，金色阳光，侧面，电影感」。",
-                );
+                return err("prompt 是空的。把要画的画面写进 prompt 再调一次 —— \
+                     比如「一只柯基在沙滩上奔跑，金色阳光，侧面，电影感」。");
             }
             let body = json!({
                 "prompt": v.get("prompt").and_then(Value::as_str).unwrap_or(""),
@@ -117,10 +115,8 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
 
         "generate_video" => {
             if missing_prompt(v) {
-                return err(
-                    "prompt 是空的。把画面和运动写进 prompt 再调一次 —— \
-                     比如「镜头缓慢推近，柯基在沙滩上奔跑，浪花飞溅」。",
-                );
+                return err("prompt 是空的。把画面和运动写进 prompt 再调一次 —— \
+                     比如「镜头缓慢推近，柯基在沙滩上奔跑，浪花飞溅」。");
             }
             let mut body = v.clone();
             let (ar, res) = framing(state, v, "video");
@@ -211,10 +207,8 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
             let Ok(body) = serde_json::from_value(v.clone()) else {
                 // **说清楚下一步做什么。** 复述"要给 nodeIds"的话，模型
                 // 只会原样再试一遍 —— 实测就是这样，活动流里连着几个红叉。
-                return err(
-                    "nodeIds 是空的。先用 canvas_list_nodes 拿到节点 id，\
-                     再把要归拢的那几个的 id 放进 nodeIds。",
-                );
+                return err("nodeIds 是空的。先用 canvas_list_nodes 拿到节点 id，\
+                     再把要归拢的那几个的 id 放进 nodeIds。");
             };
             let (_, b) = crate::api_group::group_nodes(
                 axum::extract::State(state.clone()),
@@ -669,9 +663,10 @@ mod framing_tests {
 
     #[test]
     fn a_real_prompt_passes() {
-        assert!(!missing_prompt(&json!({ "prompt": "一只柯基在沙滩上奔跑" })));
+        assert!(!missing_prompt(
+            &json!({ "prompt": "一只柯基在沙滩上奔跑" })
+        ));
     }
-
 
     /// `framing` 的判据抽出来测：模型给了用模型的，没给用界面的。
     fn pick(model: Option<&str>, ui: Option<&str>) -> String {

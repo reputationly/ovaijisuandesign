@@ -255,7 +255,11 @@ pub fn build_body(cfg: &MediaConfig, job: &VideoJob<'_>) -> Result<Value, Platfo
     // 而且白名单里的 `21:9` 本身就不是最简分数（约分是 `7:3`）——
     // 也就是说**任何靠约分得到的结果都对不上它**。反推这条路走不通，
     // 把用户选的那个字符串原样给它。
-    let ratio = if frame_driven { "" } else { job.aspect_ratio.trim() };
+    let ratio = if frame_driven {
+        ""
+    } else {
+        job.aspect_ratio.trim()
+    };
     if !ratio.is_empty() && !ratio.eq_ignore_ascii_case("adaptive") {
         body.insert("aspect_ratio".into(), json!(ratio));
     }
@@ -432,7 +436,11 @@ mod tests {
         }
     }
 
-    pub(super) fn job<'a>(plan: VideoPlan, frames: &'a [String], refs: &'a [String]) -> VideoJob<'a> {
+    pub(super) fn job<'a>(
+        plan: VideoPlan,
+        frames: &'a [String],
+        refs: &'a [String],
+    ) -> VideoJob<'a> {
         VideoJob {
             plan,
             prompt: "一只猫",
@@ -692,7 +700,10 @@ mod frame_driven_tests {
         j.aspect_ratio = "21:9";
         j.resolution = "768P";
         let body = build_body(&super::tests::cfg(), &j).unwrap();
-        assert_eq!(body.get("aspect_ratio").and_then(|v| v.as_str()), Some("21:9"));
+        assert_eq!(
+            body.get("aspect_ratio").and_then(|v| v.as_str()),
+            Some("21:9")
+        );
         assert!(body.get("size").is_some());
     }
 }

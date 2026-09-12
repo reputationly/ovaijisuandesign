@@ -247,7 +247,9 @@ impl Assets {
         let paths: Vec<String> = self.lock().by_path.keys().cloned().collect();
         let mut changed = 0;
         for rel in paths {
-            let Some(abs) = self.ws.resolve(&rel) else { continue };
+            let Some(abs) = self.ws.resolve(&rel) else {
+                continue;
+            };
             let (w, h) = image_dimensions(&abs);
             if w.is_none() && h.is_none() {
                 continue;
@@ -573,7 +575,10 @@ mod degraded_tests {
             .collect();
         assert_eq!(saved.len(), 1, "应该正好隔离出一份");
         let body = fs::read_to_string(saved[0].path()).unwrap();
-        assert!(body.contains("这不是合法 JSON"), "隔离的必须是原文，不能是空的");
+        assert!(
+            body.contains("这不是合法 JSON"),
+            "隔离的必须是原文，不能是空的"
+        );
     }
 
     /// **文件不存在是正常的**（首次运行），不该当成事故。
@@ -585,7 +590,13 @@ mod degraded_tests {
         let (_d, w) = ws();
         let assets = Assets::load(w.clone());
         assert!(!assets.is_degraded());
-        assert!(!w.assets_path().parent().unwrap().join("quarantine").exists());
+        assert!(
+            !w.assets_path()
+                .parent()
+                .unwrap()
+                .join("quarantine")
+                .exists()
+        );
     }
 
     #[test]

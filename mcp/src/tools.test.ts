@@ -40,20 +40,45 @@ const SPEC: Map<string, Set<string>> = (() => {
  * 所以我们的别名名字必须和这份列表逐字一致。差一个字母不会有任何报错：
  * 工具照样注册着，只是那个子 agent 永远看不到。
  */
-const WHITELIST: Set<string> = (() => {
-  const raw = readFileSync(
-    fileURLToPath(new URL("../../reference/opencode-config/base.json", import.meta.url)),
-    "utf8",
-  )
-  const cfg = JSON.parse(raw) as { agent?: Record<string, { tools?: Record<string, boolean> }> }
-  const out = new Set<string>()
-  for (const a of Object.values(cfg.agent ?? {})) {
-    for (const [k, v] of Object.entries(a.tools ?? {})) {
-      if (v === true && k.startsWith("hub_") && !k.includes("*")) out.add(k.slice(4))
+/**
+ * 名单**读仓里固化的那份**,不读 `reference/`。
+ *
+ * `reference/` 是 gitignore 的（那是从官方应用里解出来的材料）——
+ * 直接读它的话**本地绿、CI 红**,而且是在测试文件顶层读，模块一加载就
+ * ENOENT，整个文件 0 pass。实测 CI 从 9/11 起一直是这么红的。
+ *
+ * 工具名是规格事实（`docs/mcp-tools.md` 里本来就列着），固化进仓没问题。
+ */
+const WHITELIST: Set<string> = new Set(
+  (
+    JSON.parse(
+      readFileSync(
+        fileURLToPath(new URL("../../docs/opencode-agent-tools.json", import.meta.url)),
+        "utf8",
+      ),
+    ) as { tools: string[] }
+  ).tools,
+)
+
+/** 本地有官方那份时读出来，用于交叉校验。CI 上没有 —— 返回 null。 */
+function liveWhitelist(): Set<string> | null {
+  try {
+    const raw = readFileSync(
+      fileURLToPath(new URL("../../reference/opencode-config/base.json", import.meta.url)),
+      "utf8",
+    )
+    const cfg = JSON.parse(raw) as { agent?: Record<string, { tools?: Record<string, boolean> }> }
+    const out = new Set<string>()
+    for (const a of Object.values(cfg.agent ?? {})) {
+      for (const [k, v] of Object.entries(a.tools ?? {})) {
+        if (v === true && k.startsWith("hub_") && !k.includes("*")) out.add(k.slice(4))
+      }
     }
+    return out
+  } catch {
+    return null
   }
-  return out
-})()
+}
 
 describe("和官方工具面对齐", () => {
   it("规格文档能解析出全部 58 个工具", () => {
@@ -308,5 +333,24 @@ describe("别名", () => {
       base.handler = orig
     }
     expect(seen).toEqual(["write", "read", "list", "search", "delete"])
+  })
+})
+
+describe("固化的白名单没有漂移", () => {
+  /**
+   * **只在本地跑**（CI 上没有 `reference/`）。
+   *
+   * 固化一份的代价是它会和官方漂移 —— 官方升版改了子 agent 的工具表，
+   * 我们这份还是旧的，而漂移的表现是"某个子 agent 看不到某个工具",
+   * 不报错。谁手上有官方应用，跑一次测试就能发现。
+   */
+  it("和官方 base.json 逐字一致", () => {
+    const live = liveWhitelist()
+    if (!live) {
+      // 没有 reference/ 就跳过。**不能当成通过** —— 但也不该让 CI 红。
+      expect(WHITELIST.size).toBeGreaterThan(0)
+      return
+    }
+    expect([...live].sort()).toEqual([...WHITELIST].sort())
   })
 })

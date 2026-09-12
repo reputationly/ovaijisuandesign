@@ -3,6 +3,9 @@ fn main() {
     if which == "system" {
         println!("{}", gateway::agent::SYSTEM);
     } else {
-        println!("{}", serde_json::to_string(&gateway::agent::catalog::schema()).unwrap());
+        println!(
+            "{}",
+            serde_json::to_string(&gateway::agent::catalog::schema()).unwrap()
+        );
     }
 }

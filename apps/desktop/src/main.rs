@@ -73,9 +73,8 @@ fn init_logging() -> Option<tracing_appender::non_blocking::WorkerGuard> {
     use tracing_subscriber::layer::SubscriberExt as _;
     use tracing_subscriber::util::SubscriberInitExt as _;
 
-    let filter = || {
-        tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())
-    };
+    let filter =
+        || tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into());
 
     // 建不了目录（只读磁盘、权限问题）时**退回只写 stdout**,不要让应用
     // 起不来 —— 日志是辅助功能，不该成为启动的前提。
@@ -96,7 +95,11 @@ fn init_logging() -> Option<tracing_appender::non_blocking::WorkerGuard> {
         .with(tracing_subscriber::fmt::layer())
         // 文件里**不要 ANSI 转义**。带颜色的话 `cat` 出来是一堆 `\x1b[32m`,
         // 用户把日志贴给我们时那些噪声比内容还多。
-        .with(tracing_subscriber::fmt::layer().with_ansi(false).with_writer(writer))
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_ansi(false)
+                .with_writer(writer),
+        )
         .init();
     tracing::info!("日志目录 {}", dir.display());
     Some(guard)

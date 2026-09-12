@@ -343,7 +343,9 @@ mod tests {
         before.nodes.push(node_of("img-2", "image"));
         before.nodes.push(node_of("img-3", "image"));
         for i in 0..20 {
-            before.nodes.push(node_of(&format!("sticker-{i}"), "sticker"));
+            before
+                .nodes
+                .push(node_of(&format!("sticker-{i}"), "sticker"));
         }
         replace(&p, &before).unwrap();
 
@@ -362,14 +364,19 @@ mod tests {
             before.nodes.push(node_of(&format!("img-{i}"), "image"));
         }
         for i in 0..20 {
-            before.nodes.push(node_of(&format!("sticker-{i}"), "sticker"));
+            before
+                .nodes
+                .push(node_of(&format!("sticker-{i}"), "sticker"));
         }
         replace(&p, &before).unwrap();
 
         // 贴纸一个不动，只掉产物 4 → 1。
         let mut after = before.clone();
         after.nodes.retain(|n| n.kind != "image" || n.id == "img-0");
-        assert!(matches!(write(&p, &after), Err(SaveError::Destructive { .. })));
+        assert!(matches!(
+            write(&p, &after),
+            Err(SaveError::Destructive { .. })
+        ));
     }
 
     #[test]

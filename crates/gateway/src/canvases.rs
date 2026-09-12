@@ -171,10 +171,7 @@ fn stash_chat(state: &AppState, id: &str) {
 
 /// 计划目录存档到 `canvases/<id>.plans/`。
 fn plans_archive(state: &AppState, id: &str) -> Option<std::path::PathBuf> {
-    state
-        .ws
-        .canvas_file(id)
-        .map(|p| p.with_extension("plans"))
+    state.ws.canvas_file(id).map(|p| p.with_extension("plans"))
 }
 
 fn plans_live(state: &AppState) -> std::path::PathBuf {

@@ -82,7 +82,8 @@ pub fn probe(bytes: &[u8]) -> Option<VideoInfo> {
     let (moov_body, moov_end) = find(bytes, 0, bytes.len(), b"moov")?;
 
     // 时长在 mvhd 里。拿不到不影响尺寸 —— 所以是 Option，不是 `?`。
-    let duration = find(bytes, moov_body, moov_end, b"mvhd").and_then(|(b, _)| mvhd_duration(bytes, b));
+    let duration =
+        find(bytes, moov_body, moov_end, b"mvhd").and_then(|(b, _)| mvhd_duration(bytes, b));
 
     // 尺寸在 trak/tkhd 里。**一个文件可能有多条 trak**（视频 + 音频），
     // 音频轨的 tkhd 宽高是 0 —— 要跳过它，否则拿到 0x0，

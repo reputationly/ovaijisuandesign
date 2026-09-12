@@ -60,20 +60,13 @@ const IMAGE_RATIOS: [&str; 8] = [
 ];
 /// 视频比例照 MiniMax H3 的白名单（平台报错信息里原样列出来的那一串）：
 /// `21:9, 16:9, 4:3, 1:1, 3:4, 9:16`。
-const VIDEO_RATIOS: [&str; 7] = [
-    "adaptive", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9",
-];
+const VIDEO_RATIOS: [&str; 7] = ["adaptive", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"];
 
 /// 这个模态有哪些参数。没有就是空 —— 界面上那一区整个不显示。
 pub fn for_modality(modality: &str) -> Vec<ParamSpec> {
     match modality {
         // 图生图的比例由输入图决定，只留分辨率。
-        "image_edit" => vec![spec(
-            "resolution",
-            "分辨率",
-            &["1K", "2K"],
-            "1K",
-        )],
+        "image_edit" => vec![spec("resolution", "分辨率", &["1K", "2K"], "1K")],
         "image" => vec![
             spec("aspect_ratio", "比例", &IMAGE_RATIOS, "adaptive"),
             spec("resolution", "分辨率", &["1K", "2K"], "1K"),
@@ -147,7 +140,14 @@ mod tests {
     /// 默认值必须在选项里。不在的话界面打开就是个"选中了一个不存在的项"。
     #[test]
     fn every_default_is_one_of_its_options() {
-        for m in ["image", "image_edit", "video", "video_ref", "music", "speech"] {
+        for m in [
+            "image",
+            "image_edit",
+            "video",
+            "video_ref",
+            "music",
+            "speech",
+        ] {
             for p in for_modality(m) {
                 assert!(
                     p.options.contains(&p.default),
