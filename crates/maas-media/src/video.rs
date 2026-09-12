@@ -137,17 +137,35 @@ pub fn resolve_size(aspect_ratio: &str, resolution: &str) -> Option<String> {
     if w <= 0.0 || h <= 0.0 {
         return None;
     }
-    let r = w / h;
-    let (pw, ph) = if r >= 1.0 {
-        ((short_edge as f64 * r).round() as u32, short_edge)
-    } else {
-        (short_edge, (short_edge as f64 / r).round() as u32)
-    };
-    Some(format!("{}x{}", round_to_8(pw), round_to_8(ph)))
+    // **算出来的尺寸必须严格约分回请求的比例。**
+    //
+    // 以前是"短边钉在档位、长边按比例算、各自取整到 8"——
+    // 9:16 @1K 得到 1024x1824，而 1024:1824 约分是 **32:57**。平台会从
+    // size 反推 aspect_ratio 再按模型的白名单校验：
+    //
+    //     MiniMax H3 aspect_ratio must be one of 21:9, 16:9, 4:3, 1:1,
+    //     3:4, 9:16, got '32:57'
+    //
+    // 而且这个错**不在提交时报**,是平台内部转换时才报
+    // （`platform.convert_request_failed`）—— 任务已经排上队了才失败。
+    //
+    // 办法是整体缩放比例本身：找一个倍数 k，让 (w*k, h*k) 的短边最接近
+    // 档位。这样约分回去一定还是原比例。
+    let (rw, rh) = reduce(w.round() as u32, h.round() as u32);
+    let short_unit = rw.min(rh).max(1);
+    // k 取 8 的倍数，保证两条边都是 8 的倍数 —— 编码器普遍要求这个，
+    // 不是的话平台可能自己再调一次尺寸，又偏离比例。
+    let k = (((short_edge as f64 / short_unit as f64) / 8.0).round() as u32).max(1) * 8;
+    Some(format!("{}x{}", rw * k, rh * k))
 }
 
-fn round_to_8(v: u32) -> u32 {
-    (v.max(8) + 4) / 8 * 8
+/// 约分。`1024:1824` → `32:57`,`9:16` → `9:16`。
+fn reduce(a: u32, b: u32) -> (u32, u32) {
+    fn gcd(a: u32, b: u32) -> u32 {
+        if b == 0 { a.max(1) } else { gcd(b, a % b) }
+    }
+    let g = gcd(a.max(1), b.max(1));
+    (a / g, b / g)
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +227,21 @@ pub fn build_body(cfg: &MediaConfig, job: &VideoJob<'_>) -> Result<Value, Platfo
 
     if let Some(d) = job.duration {
         body.insert("duration".into(), json!(d));
+    }
+    // **比例直接发，不让平台从 size 反推。**
+    //
+    // 平台会拿 size 反推 aspect_ratio 再按模型白名单校验，而反推要约分 ——
+    // `1024x1824` 约分是 `32:57`,直接被 H3 拒掉：
+    //
+    //     MiniMax H3 aspect_ratio must be one of 21:9, 16:9, 4:3, 1:1,
+    //     3:4, 9:16, got '32:57'
+    //
+    // 而且白名单里的 `21:9` 本身就不是最简分数（约分是 `7:3`）——
+    // 也就是说**任何靠约分得到的结果都对不上它**。反推这条路走不通，
+    // 把用户选的那个字符串原样给它。
+    let ratio = job.aspect_ratio.trim();
+    if !ratio.is_empty() && !ratio.eq_ignore_ascii_case("adaptive") {
+        body.insert("aspect_ratio".into(), json!(ratio));
     }
     if let Some(size) = resolve_size(job.aspect_ratio, job.resolution) {
         body.insert("size".into(), json!(size));
@@ -472,7 +505,10 @@ mod tests {
         // 硬塞一个 size 会把画面裁掉，而且不报错。
         assert_eq!(resolve_size("adaptive", "1080P"), None);
         assert_eq!(resolve_size("", "1080P"), None);
-        assert_eq!(resolve_size("16:9", "768P"), Some("1368x768".to_string()));
+        // 这里原来期望 `1368x768` —— 那是旧算法的产物，而 `1368:768`
+        // 约分是 **57:32**,正是平台拒掉请求的那个 bug。现在是
+        // `1408x792` = 16×88 : 9×88，严格 16:9。
+        assert_eq!(resolve_size("16:9", "768P"), Some("1408x792".to_string()));
 
         let mut j = job(VideoPlan::TextToVideo, &[], &[]);
         j.aspect_ratio = "adaptive";
@@ -517,24 +553,75 @@ mod tests {
 mod size_tests {
     use super::resolve_size;
 
-    /// 界面给用户的分辨率选项就是 1K / 2K（Generate.tsx 的 RESOLUTIONS）。
-    ///
-    /// **"1K" 以前落进 `_ => 768` 的兜底** —— 用户选 1K，出来的是 768P,
-    /// 不报错，也没有任何地方说明为什么。图片那边 1K 一直是 1024，
-    /// 两条链路对同一个词的理解不一样。
-    #[test]
-    fn one_k_is_1024_not_768() {
-        assert_eq!(resolve_size("1:1", "1K").as_deref(), Some("1024x1024"));
-        assert_eq!(resolve_size("16:9", "1K").as_deref(), Some("1824x1024"));
+    fn parts(s: &str) -> (u32, u32) {
+        let (w, h) = s.split_once('x').unwrap();
+        (w.parse().unwrap(), h.parse().unwrap())
+    }
+    fn reduced(s: &str) -> (u32, u32) {
+        let (a, b) = parts(s);
+        super::reduce(a, b)
     }
 
+    /// **最重要的一条：算出来的尺寸必须严格约分回请求的比例。**
+    ///
+    /// 以前 9:16 @1K 得到 1024x1824 —— 约分是 32:57。平台从 size 反推
+    /// aspect_ratio 再按模型白名单校验，于是：
+    ///
+    ///     MiniMax H3 aspect_ratio must be one of 21:9, 16:9, 4:3, 1:1,
+    ///     3:4, 9:16, got '32:57'
+    ///
+    /// 而且这个错**不在提交时报**,是平台内部转换时才报 —— 任务排上队了
+    /// 才失败，用户看到的是活动流里一个红叉。
     #[test]
-    fn two_k_and_the_other_tiers() {
-        assert_eq!(resolve_size("1:1", "2K").as_deref(), Some("1440x1440"));
-        assert_eq!(resolve_size("1:1", "1080P").as_deref(), Some("1080x1080"));
-        assert_eq!(resolve_size("1:1", "480P").as_deref(), Some("480x480"));
-        // 认不出的按基准档。
-        assert_eq!(resolve_size("1:1", "??").as_deref(), Some("768x768"));
+    fn the_size_always_reduces_back_to_the_requested_ratio() {
+        for ratio in ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "21:9"] {
+            for tier in ["1K", "2K", "1080P", "480P"] {
+                let got = resolve_size(ratio, tier).unwrap();
+                // **按值比，不按字符串。** `21:9` 本身不是最简分数
+                // （约分是 `7:3`），字符串比会误报 —— 而它作为比例是对的。
+                let (w, h) = parts(&got);
+                let (aw, ah) = ratio.split_once(':').unwrap();
+                let (aw, ah): (u64, u64) = (aw.parse().unwrap(), ah.parse().unwrap());
+                assert_eq!(
+                    w as u64 * ah,
+                    h as u64 * aw,
+                    "{ratio} @ {tier} 算出 {got}，比例对不上"
+                );
+            }
+        }
+    }
+
+    /// 两条边都要是 8 的倍数。不是的话平台可能自己再调一次尺寸，
+    /// 调完又偏离比例。
+    #[test]
+    fn both_edges_are_multiples_of_eight() {
+        for ratio in ["1:1", "16:9", "9:16", "4:3", "21:9"] {
+            for tier in ["1K", "2K"] {
+                let (w, h) = parts(&resolve_size(ratio, tier).unwrap());
+                assert_eq!((w % 8, h % 8), (0, 0), "{ratio} @ {tier} → {w}x{h}");
+            }
+        }
+    }
+
+    /// 短边要落在档位附近。
+    ///
+    /// 界面给用户的选项就是 1K / 2K（Generate.tsx 的 RESOLUTIONS），
+    /// 而 `"1K"` 以前落进 `_ => 768` 的兜底 —— 用户选 1K，出来的是 768P,
+    /// 不报错，也没有任何地方说明为什么。图片那边 1K 一直是 1024。
+    #[test]
+    fn the_short_edge_lands_near_the_tier() {
+        let near = |got: &str, want: u32| {
+            let (w, h) = parts(got);
+            let short = w.min(h);
+            assert!(
+                short.abs_diff(want) <= want / 10,
+                "{got} 的短边 {short} 离档位 {want} 太远"
+            );
+        };
+        near(&resolve_size("9:16", "1K").unwrap(), 1024);
+        near(&resolve_size("16:9", "1K").unwrap(), 1024);
+        near(&resolve_size("1:1", "2K").unwrap(), 1440);
+        near(&resolve_size("1:1", "480P").unwrap(), 480);
     }
 
     /// 比例为空 = 让平台自己定（比如按首帧图）。**不能当成 1:1。**
@@ -545,7 +632,9 @@ mod size_tests {
     }
 
     #[test]
-    fn portrait_aligns_on_the_short_edge() {
-        assert_eq!(resolve_size("9:16", "1K").as_deref(), Some("1024x1824"));
+    fn a_nonsense_ratio_is_none_not_a_guess() {
+        assert_eq!(resolve_size("abc", "1K"), None);
+        assert_eq!(resolve_size("0:16", "1K"), None);
+        assert_eq!(resolve_size("16:0", "1K"), None);
     }
 }
