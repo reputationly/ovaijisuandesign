@@ -29,6 +29,7 @@ pub mod config;
 pub mod error;
 pub mod image;
 pub mod lyrics;
+pub mod params;
 pub mod route;
 pub mod video;
 

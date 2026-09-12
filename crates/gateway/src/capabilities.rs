@@ -129,6 +129,12 @@ pub async fn list(State(state): State<Arc<AppState>>, body: Option<Json<Body>>) 
                 "available": available,
                 "model": model,
                 "routes": routes,
+                // 这个模态**真正支持**的生成参数。界面照它渲染，不再写死。
+                //
+                // 写死的后果今天踩了一整轮：视频没有 1K 这个档位，用户选
+                // 1K 实际出 768P；首帧驱动的视频不该选比例，强塞一个导致
+                // 平台把 size 反推成 32:57 然后拒掉整个任务。
+                "params": maas_media::params::for_modality(name),
             })
         })
         .collect();

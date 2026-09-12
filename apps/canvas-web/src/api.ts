@@ -100,6 +100,8 @@ export interface AssetInfo {
   time: string
 }
 
+import type { Capability } from "./params"
+
 async function json<T>(res: Response, what: string): Promise<T> {
   if (!res.ok) throw new Error(`${what} 失败 HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`)
   return (await res.json()) as T
@@ -640,9 +642,7 @@ export async function uploadFiles(files: File[]): Promise<string[]> {
   return out
 }
 
-export async function getCapabilities(): Promise<
-  { modality: string; available: boolean; model: string | null }[]
-> {
+export async function getCapabilities(): Promise<Capability[]> {
   const res = await fetch("/api/capabilities", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -709,6 +709,14 @@ export interface SendOptions {
   resolution?: string
   /** 视频时长，秒。不给 = 由模型/平台按内容定。 */
   duration?: number
+  /**
+   * 按模态分开的参数。`{ image: { aspect_ratio: "1:1" }, video: {...} }`
+   *
+   * 后端拿它给**对应的工具**兜底 —— 调 generate_image 用 image 那套，
+   * 调 generate_video 用 video 那套。上面那三个扁平字段是旧路径，
+   * 两边都发是为了不改一半。
+   */
+  params?: Record<string, Record<string, string>>
 }
 
 export async function agentSend(
@@ -729,6 +737,7 @@ export async function agentSend(
       ...(opts.aspectRatio ? { aspect_ratio: opts.aspectRatio } : {}),
       ...(opts.resolution ? { resolution: opts.resolution } : {}),
       ...(opts.duration ? { duration: opts.duration } : {}),
+      ...(opts.params && Object.keys(opts.params).length > 0 ? { params: opts.params } : {}),
     }),
   })
   // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。

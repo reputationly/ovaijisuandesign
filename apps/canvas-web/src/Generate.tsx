@@ -1,8 +1,18 @@
-import { ArrowUp, Box, Check, FileText, Loader2, Plus, Puzzle, X } from "lucide-react"
+import { ArrowUp, Box, Check, FileText, Loader2, Plus, Puzzle, Settings2, X } from "lucide-react"
 import { useEffect, useRef, useState, type ReactNode, useMemo } from "react"
 
 import {
+  groupParams,
+  mergeValues,
+  optionLabel,
+  perModality,
+  toPayload,
+  type ParamGroup,
+  type ParamValues,
+} from "./params"
+import {
   agentSend,
+  getCapabilities,
   getSkill,
   listSkills,
   platformModels,
@@ -10,16 +20,6 @@ import {
   type PlatformModel,
 } from "./api"
 
-/** 画布上常见的比例。和官方模型目录里那组一致。 */
-const RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
-const RESOLUTIONS = ["1K", "2K"]
-/**
- * 视频时长。官方 `canvas.params.duration` =「时长」,
- * 选项文案 `canvas.params.durationOption` = `{{duration}}s`。
- *
- * `自动` = 不传，让模型/平台按内容定 —— 和比例那边"留空即自适应"一致。
- */
-const DURATIONS = ["自动", "5s", "10s", "15s"]
 
 type Phase =
   | { kind: "idle" }
@@ -66,8 +66,6 @@ export function Generate({
   initial?: string
 }) {
   const [prompt, setPrompt] = useState("")
-  const [ratio, setRatio] = useState("1:1")
-  const [resolution, setResolution] = useState("1K")
   const [phase, setPhase] = useState<Phase>({ kind: "idle" })
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
   useEffect(() => {
@@ -110,7 +108,41 @@ export function Generate({
   const [models, setModels] = useState<PlatformModel[]>([])
   const [skills, setSkills] = useState<{ slug: string; name: string; description: string }[]>([])
   const [skillQ, setSkillQ] = useState("")
-  const [duration, setDuration] = useState("自动")
+  /**
+   * 生成参数。**选项由后端按模态下发**,不在这里写死 —— 写死的后果是
+   * 视频用上了图片的档位（1K 在视频那边认不出，落进 768 的兜底）。
+   * 见 `params.ts`。
+   */
+  const [groups, setGroups] = useState<ParamGroup[]>([])
+  const [paramValues, setParamValues] = useState<ParamValues>({})
+  /**
+   * 芯片旁边的摘要。**只显示用户明确选过的** —— 把"自适应/自动"也列出来
+   * 的话，一排默认值会把真正改过的那一项淹掉。
+   */
+  const summary = useMemo(() => {
+    const picked = perModality(paramValues)
+    const parts: string[] = []
+    for (const g of groups) {
+      const kv = picked[g.modality]
+      if (!kv) continue
+      const vals = g.specs
+        .filter((sp) => kv[sp.name])
+        .map((sp) => optionLabel(sp.name, kv[sp.name]!))
+      if (vals.length > 0) parts.push(`${g.title} ${vals.join(" ")}`)
+    }
+    return parts.join(" · ")
+  }, [groups, paramValues])
+
+  useEffect(() => {
+    void getCapabilities()
+      .then((caps) => {
+        const g = groupParams(caps)
+        setGroups(g)
+        // **保留用户已经改过的**,只给新出现的键补默认值。
+        setParamValues((prev) => mergeValues(g, prev))
+      })
+      .catch(() => {})
+  }, [])
   const shownSkills = useMemo(() => {
     const t = skillQ.trim().toLowerCase()
     if (!t) return skills
@@ -121,7 +153,7 @@ export function Generate({
         k.description.toLowerCase().includes(t),
     )
   }, [skills, skillQ])
-  const [panel, setPanel] = useState<"none" | "mode" | "models" | "skill">("none")
+  const [panel, setPanel] = useState<"none" | "mode" | "models" | "skill" | "params">("none")
 
   useEffect(() => {
     // 拉不到就是空列表 —— 少一个下拉而已，输入框本身照常能用。
@@ -158,11 +190,10 @@ export function Generate({
       await agentSend(text, attachments, {
         mode,
         models: pickedModels,
-        // `自动` 不传 —— 传一个空串下去会被当成"用户明确要求"而覆盖掉
-        // 模型按内容选的时长。
-        ...(duration === "自动" ? {} : { duration: Number.parseInt(duration, 10) }),
-        aspectRatio: ratio,
-        resolution,
+        ...toPayload(paramValues),
+        // 按模态分开的那份 —— 后端拿它给**对应的工具**兜底：
+        // 调 generate_image 用 image 那套，调 generate_video 用 video 那套。
+        params: perModality(paramValues),
       })
       // 发出去就清空。**不等 agent 跑完** —— 一轮可能几分钟，
       // 输入框锁着的话用户连下一句都没法先写好。
@@ -326,6 +357,49 @@ export function Generate({
             </>
           )}
 
+          {panel === "params" && (
+            <div className="max-h-72 w-[268px] overflow-auto">
+              {groups.map((g) => (
+                <div key={g.modality}>
+                  <PopTitle>{g.title}</PopTitle>
+                  {g.specs.map((sp) => (
+                    <div
+                      key={sp.name}
+                      className="flex items-center justify-between gap-2 px-3 py-1.5"
+                    >
+                      <span className="text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+                        {sp.label}
+                      </span>
+                      <select
+                        value={paramValues[g.modality]?.[sp.name] ?? sp.default}
+                        onChange={(e) =>
+                          setParamValues((prev) => ({
+                            ...prev,
+                            [g.modality]: { ...prev[g.modality], [sp.name]: e.target.value },
+                          }))
+                        }
+                        className="rounded-md px-1.5 py-1 text-[12px] outline-none"
+                        style={{ background: "var(--bg-subtle)", color: "var(--foreground)" }}
+                      >
+                        {sp.options.map((o) => (
+                          <option key={o} value={o}>
+                            {optionLabel(sp.name, o)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <p
+                className="border-t px-3 py-2 text-[11px] leading-4"
+                style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+              >
+                {/* 说清楚这排东西归谁管 —— 这正是它以前"无主"的地方。 */}
+                Agent 生成什么就用哪一区的设置。「自适应」表示交给模型按素材定。
+              </p>
+            </div>
+          )}
           {panel === "skill" && (
             <>
               {/* 官方 `skills.popover.heading` = Skill。 */}
@@ -464,13 +538,30 @@ export function Generate({
         >
           <Puzzle size={15} />
         </ToolBtn>
-        <Select value={ratio} onChange={setRatio} options={RATIOS} disabled={busy} />
-        <Select value={resolution} onChange={setResolution} options={RESOLUTIONS} disabled={busy} />
-        {/* 时长。官方输入框在视频态下有这一项，我们之前没有 ——
-            用户只能在提示词里写「生成5s」,而那要靠模型把它转述进工具参数。
-            **这里选的会在派发层兜底**,不经过模型转述（见 dispatch 的
-            `framing`,画幅就是这么丢过的）。 */}
-        <Select value={duration} onChange={setDuration} options={DURATIONS} disabled={busy} />
+        {/* 参数。照官方的 `ParamsChip`（`popover.params-chip`）收成一个
+            齿轮，点开后**按模态分区**。
+            
+            以前这里是三个裸下拉（比例/分辨率/时长）—— 它们在对话框里是
+            **无主的**:用户看着那排，不知道说的是图片还是视频。而且选项
+            写死成一套，视频用上了图片的档位（1K 在视频那边认不出，
+            落进 768 的兜底）。 */}
+        {groups.length > 0 && (
+          <ToolBtn
+            title="参数"
+            disabled={busy}
+            onClick={() => setPanel((v) => (v === "params" ? "none" : "params"))}
+          >
+            <Settings2 size={15} />
+          </ToolBtn>
+        )}
+        {/* 当前取值的摘要。官方的芯片上也显示摘要而不是只有图标 ——
+            收进弹窗之后，不显示摘要的话用户每次都得点开才知道选的是什么。 */}
+        <span
+          className="truncate text-[11px]"
+          style={{ color: "var(--muted-foreground)", maxWidth: 140 }}
+        >
+          {summary}
+        </span>
         <span className="flex-1" />
         {/* Agent 模式。官方把它放在发送键左边，显示当前模式的名字。 */}
         <button
@@ -516,37 +607,6 @@ export function Generate({
 }
 
 /** 朴素的下拉。等要做真正的参数面板时换成 Base UI。 */
-function Select({
-  value,
-  onChange,
-  options,
-  disabled,
-}: {
-  value: string
-  onChange: (v: string) => void
-  options: string[]
-  disabled?: boolean
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      className="rounded-md px-2 py-1 text-[12px] outline-none disabled:opacity-50"
-      style={{
-        background: "var(--canvas-controls-hover)",
-        color: "var(--canvas-controls-text)",
-        border: "none",
-      }}
-    >
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-  )
-}
 
 /** 输入框上方的弹层。点外面或 Esc 关掉。 */
 function Popover({ children, onClose }: { children: ReactNode; onClose: () => void }) {

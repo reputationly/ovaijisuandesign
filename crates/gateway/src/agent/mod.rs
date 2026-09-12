@@ -207,6 +207,23 @@ pub struct TurnParams {
     pub aspect_ratio: Option<String>,
     pub resolution: Option<String>,
     pub duration: Option<u32>,
+    /// 按模态分开的那份。查 `image` / `video` 各自的设置。
+    pub by_modality: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
+}
+
+impl TurnParams {
+    /// 某个模态的某个参数。**先看按模态那份，再退回扁平字段。**
+    pub fn get(&self, modality: &str, key: &str) -> Option<String> {
+        if let Some(v) = self.by_modality.get(modality).and_then(|m| m.get(key)) {
+            return Some(v.clone());
+        }
+        match key {
+            "aspect_ratio" => self.aspect_ratio.clone(),
+            "resolution" => self.resolution.clone(),
+            "duration" => self.duration.map(|d| d.to_string()),
+            _ => None,
+        }
+    }
 }
 
 impl Agent {
@@ -260,6 +277,13 @@ pub struct SendBody {
     /// `TurnParams` 在派发时兜底。
     #[serde(default)]
     pub duration: Option<u32>,
+    /// 按模态分开的参数：`{ "image": {"aspect_ratio":"1:1"}, "video": {...} }`
+    ///
+    /// **这才是正解。** 上面那三个扁平字段是旧路径 —— 它们不分模态，
+    /// 于是图片的档位会被用到视频上（`1K` 在视频那边认不出，落进 768
+    /// 的兜底，界面显示 1K 而实际出 768P）。
+    #[serde(default)]
+    pub params: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
 }
 
 /// 把这一轮的设置拼成一段追加给模型的话。
@@ -349,6 +373,7 @@ pub async fn send(
         aspect_ratio: b.aspect_ratio.clone().filter(|s| !s.trim().is_empty()),
         resolution: b.resolution.clone().filter(|s| !s.trim().is_empty()),
         duration: b.duration,
+        by_modality: b.params.clone(),
     });
 
     let hint = turn_hint(&b);
@@ -690,6 +715,7 @@ mod turn_hint_tests {
             aspect_ratio: None,
             resolution: None,
             duration: None,
+            params: Default::default(),
         }
     }
 
@@ -801,5 +827,63 @@ mod fabrication_tests {
         assert!(!claims_completion(
             "你可以直接说「生成一张小白兔的图」，我会调用生图工具。"
         ));
+    }
+}
+
+#[cfg(test)]
+mod turn_params_tests {
+    use super::TurnParams;
+    use std::collections::BTreeMap;
+
+    fn params(modality: &str, key: &str, value: &str) -> TurnParams {
+        let mut inner = BTreeMap::new();
+        inner.insert(key.to_string(), value.to_string());
+        let mut by = BTreeMap::new();
+        by.insert(modality.to_string(), inner);
+        TurnParams {
+            by_modality: by,
+            ..Default::default()
+        }
+    }
+
+    /// 图片和视频**各用各的**。
+    ///
+    /// 以前是一套扁平的字段，于是图片的档位会被用到视频上 ——
+    /// `1K` 在视频那边认不出，落进 768 的兜底，界面显示 1K 而实际出 768P。
+    #[test]
+    fn each_modality_has_its_own_values() {
+        let mut p = params("image", "resolution", "2K");
+        p.by_modality
+            .entry("video".into())
+            .or_default()
+            .insert("resolution".into(), "1080P".into());
+
+        assert_eq!(p.get("image", "resolution").as_deref(), Some("2K"));
+        assert_eq!(p.get("video", "resolution").as_deref(), Some("1080P"));
+    }
+
+    /// 按模态那份没有时退回扁平字段 —— 旧前端还在发那几个。
+    #[test]
+    fn it_falls_back_to_the_flat_fields() {
+        let p = TurnParams {
+            aspect_ratio: Some("16:9".into()),
+            duration: Some(10),
+            ..Default::default()
+        };
+        assert_eq!(p.get("video", "aspect_ratio").as_deref(), Some("16:9"));
+        assert_eq!(p.get("video", "duration").as_deref(), Some("10"));
+    }
+
+    /// 按模态那份**优先**。两边都有时不能拿旧的那个。
+    #[test]
+    fn the_per_modality_value_wins() {
+        let mut p = params("video", "resolution", "1080P");
+        p.resolution = Some("1K".into());
+        assert_eq!(p.get("video", "resolution").as_deref(), Some("1080P"));
+    }
+
+    #[test]
+    fn an_unknown_key_is_none_not_a_guess() {
+        assert_eq!(TurnParams::default().get("video", "chaos"), None);
     }
 }

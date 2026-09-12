@@ -118,11 +118,16 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
                 );
             }
             let mut body = v.clone();
-            let (ar, res) = framing(state, v);
+            let (ar, res) = framing(state, v, "video");
             body["params"] = json!({ "aspect_ratio": ar, "resolution": res });
             // 时长同理：模型给了用模型的，没给用界面上选的。
             if body.get("duration").and_then(Value::as_u64).is_none() {
-                if let Some(d) = state.agent.turn_params().duration {
+                if let Some(d) = state
+                    .agent
+                    .turn_params()
+                    .get("video", "duration")
+                    .and_then(|d| d.parse::<u32>().ok())
+                {
                     body["duration"] = json!(d);
                 }
             }
@@ -275,7 +280,7 @@ fn missing_prompt(v: &Value) -> bool {
         .is_empty()
 }
 
-fn framing(state: &Arc<AppState>, v: &Value) -> (String, String) {
+fn framing(state: &Arc<AppState>, v: &Value, modality: &str) -> (String, String) {
     let ui = state.agent.turn_params();
     let pick = |key: &str, fallback: Option<String>| {
         v.get(key)
@@ -287,8 +292,8 @@ fn framing(state: &Arc<AppState>, v: &Value) -> (String, String) {
             .unwrap_or_default()
     };
     (
-        pick("aspect_ratio", ui.aspect_ratio),
-        pick("resolution", ui.resolution),
+        pick("aspect_ratio", ui.get(modality, "aspect_ratio")),
+        pick("resolution", ui.get(modality, "resolution")),
     )
 }
 
