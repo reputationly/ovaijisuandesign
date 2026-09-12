@@ -69,6 +69,7 @@ import {
   getAssets,
   trashAssets,
   type AssetInfo,
+  ungroupNodes,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { tidy as runTidy, type TidyKind } from "./tidy"
@@ -128,7 +129,7 @@ import { ChatPanel } from "./ChatPanel"
 import { Sidebar } from "./Sidebar"
 import { Update } from "./Update"
 import { Lightbox, type LightboxItem } from "./Lightbox"
-import { CanvasActionsContext, nodeTypes, type CanvasActions } from "./nodes"
+import { CanvasActionsContext, GroupCountContext, nodeTypes, type CanvasActions } from "./nodes"
 
 interface EventLine {
   at: string
@@ -194,6 +195,14 @@ export default function App() {
    * 上一次整理之前的坐标。**存的是坐标不是整份文件** —— 整理期间 agent
    * 可能又加了节点，整份回滚会把那些新节点一起抹掉。
    */
+  /** 每个分组里有几个成员。 */
+  const groupCounts = useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const n of file?.nodes ?? []) {
+      if (n.parentId) m[n.parentId] = (m[n.parentId] ?? 0) + 1
+    }
+    return m
+  }, [file])
   const [tidyUndo, setTidyUndo] = useState<{
     mode: CanvasMode
     before: Map<string, { x: number; y: number }>
@@ -1007,6 +1016,19 @@ export default function App() {
        * 以 `fileRef` 里那份服务端原文为底改，不是拿界面重建：界面上的节点
        * 只带我们认识的字段，重建会把官方写进去、我们还不认识的字段抹掉。
        */
+      /**
+       * 解组。**建得出来就得解得掉** —— 系统提示词让 agent 归拢分组，
+       * 归拢错了的话，没有这个入口用户只能把整组连同产物一起删掉。
+       */
+      async ungroup(groupId) {
+        try {
+          await ungroupNodes(groupId)
+          await load()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err))
+        }
+      },
+
       openLightbox(nodeId) {
         setLightbox(nodeId)
       },
@@ -1143,6 +1165,8 @@ export default function App() {
 
   return (
     <CanvasActionsContext value={actions}>
+      {/* 每个组里有几个成员。节点自己看不到别人，算好灌进去。 */}
+      <GroupCountContext value={groupCounts}>
       {/* 应用内的确认框/输入框。**必须有它** —— `window.confirm` 和
           `window.prompt` 在 Tauri 的 WKWebView 里永远不弹（wry 没实现
           WKUIDelegate），直接返回 false/null，于是删除、重命名这些
@@ -1799,6 +1823,7 @@ export default function App() {
           onClose={() => setLightbox(null)}
         />
       )}
+      </GroupCountContext>
     </CanvasActionsContext>
   )
 }

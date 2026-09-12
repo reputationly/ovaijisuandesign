@@ -43,6 +43,8 @@ export interface CanvasActions {
   duplicateNode(nodeId: string): Promise<void>
   /** 点节点侧边的 ⊕：在那个位置开「添加节点」菜单。 */
   openAddNode(nodeId: string, screenX: number, screenY: number): void
+  /** 解组。官方 `canvas.ungroup`。**建得出来就得解得掉。** */
+  ungroup(groupId: string): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -359,6 +361,80 @@ export function TextNode(props: Props) {
 }
 
 /**
+ * 分组。官方的 `canvas.group` =「编组」。
+ *
+ * ## 它一直是「未支持的节点类型：group」
+ *
+ * 后端的 `canvas_group_nodes` 造的就是这种节点（算包围盒、给成员挂
+ * `parentId`、组排在成员前面 —— 那一套都是对的），而**系统提示词里还写着
+ * 「一轮做出多个产物之后用 canvas_group_nodes 归拢」**。也就是说我们主动
+ * 让 agent 建它，然后画布告诉用户"不支持"。
+ *
+ * ## 它是容器，不是卡片
+ *
+ * 成员节点的坐标是**相对组原点**的，React Flow 靠 `parentId` 把它们画在
+ * 组里面。所以这里：
+ *
+ * - **不能有背景遮住成员**（只描边 + 顶部一条标题栏）
+ * - **`pointer-events` 要让开**：组占的是整个包围盒，实心的话组里的节点
+ *   全都点不到了 —— 边框和标题栏单独开回来。
+ * - **不挂 `NodeToolbar`**:那上面的「以此生成」「下载」对一个容器没有意义。
+ */
+export function GroupNode(props: Props) {
+  const raw = props.data.raw
+  const actions = useContext(CanvasActionsContext)
+  const label = (raw.data?.name as string | undefined) ?? "未命名分组"
+  // 组里有几个。官方 `canvas.groupCount` =「编组 {{count}} 个节点」。
+  const count = useContext(GroupCountContext)[props.id] ?? 0
+
+  return (
+    <div
+      className="pointer-events-none relative h-full w-full rounded-xl"
+      data-kind="group"
+      style={{
+        border: `1.5px dashed ${props.selected ? "var(--brand-accent)" : "var(--canvas-controls-border)"}`,
+        // **不要填充。** 有背景的话组里的图片会被盖住一层。
+        background: "transparent",
+      }}
+    >
+      <div
+        className="pointer-events-auto absolute inset-x-0 top-0 flex h-7 items-center gap-2 rounded-t-xl px-2.5"
+        style={{ background: "var(--canvas-controls-bg)" }}
+      >
+        <span className="truncate text-[12px]" style={{ color: "var(--canvas-controls-text)" }}>
+          {label}
+        </span>
+        {count > 0 && (
+          <span className="text-[11px] tabular-nums" style={{ color: "var(--canvas-controls-text-muted)" }}>
+            {count} 个节点
+          </span>
+        )}
+        <span className="flex-1" />
+        {/* 解组。官方 `canvas.ungroup` =「解组」+ `canvas.ungroup-toolbar-button`。
+            **建得出来就得解得掉** —— 没有这个按钮的话，agent 归拢错了
+            用户只能把整组连同里面的产物一起删掉。 */}
+        <button
+          data-action-ui-id="canvas.ungroup-toolbar-button"
+          title="解组"
+          onClick={(e) => {
+            e.stopPropagation()
+            void actions?.ungroup(props.id)
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="rounded px-1.5 py-0.5 text-[11px] transition-colors hover:bg-[var(--canvas-controls-hover)]"
+          style={{ color: "var(--canvas-controls-text-muted)" }}
+        >
+          解组
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/** 每个组里有几个成员。由 App 算好灌进来 —— 节点自己看不到别人。 */
+export const GroupCountContext = createContext<Record<string, number>>({})
+
+/**
  * 认不出的类型。
  *
  * 官方那边至少还有 group / table / file / plugin 几种，将来升级也会加新的。
@@ -382,6 +458,7 @@ export const nodeTypes = {
   video: VideoNode,
   audio: AudioNode,
   text: TextNode,
+  group: GroupNode,
   sticker: StickerNode,
   unknown: UnknownNode,
 }

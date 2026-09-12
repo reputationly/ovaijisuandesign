@@ -119,6 +119,10 @@ export function toFlow(
       // 而贴纸没有 Handle，用户从别处拉线过来能"连上"一个看不见的把手，
       // 连出来的边在图里真实存在，下游拿它当输入时只会拿到一个 emoji。
       ...(n.type === "sticker" ? { connectable: false } : {}),
+      // 分组是容器：**不可连线**（`isValidConnection` 也拦着），而且要排在
+      // 成员前面 —— React Flow 要求父节点先于子节点出现，否则子节点找不到
+      // 父节点会被整个丢掉。后端写文件时已经排好了，这里只是不打乱它。
+      ...(n.type === "group" ? { connectable: false, selectable: true } : {}),
       data: { raw: n, detail: details.get(n.id) },
     }
   })
@@ -138,7 +142,7 @@ export function toFlow(
   return { nodes, edges }
 }
 
-const RENDERABLE = new Set(["image", "video", "audio", "text", "sticker"])
+const RENDERABLE = new Set(["image", "video", "audio", "text", "sticker", "group"])
 
 /**
  * 把界面上的坐标写回一份完整的 canvas 文件。

@@ -642,6 +642,18 @@ export async function uploadFiles(files: File[]): Promise<string[]> {
   return out
 }
 
+/** 解组。官方 `canvas.ungroup`。 */
+export async function ungroupNodes(groupId: string): Promise<void> {
+  await json(
+    await fetch("/api/canvas/ungroup", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ groupId }),
+    }),
+    "POST /api/canvas/ungroup",
+  )
+}
+
 export async function getCapabilities(): Promise<Capability[]> {
   const res = await fetch("/api/capabilities", {
     method: "POST",
