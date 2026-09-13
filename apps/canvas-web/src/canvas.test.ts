@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test"
 
 import type { CanvasFile } from "./api"
-import { positionOf, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
+import { GROUP_Z_INDEX, positionOf, sizeOf, toCanvasFile, toFlow, type NodeData } from "./canvas"
 import type { Node as FlowNode } from "@xyflow/react"
 
 /**
@@ -157,10 +157,14 @@ describe("toFlow", () => {
     expect(toFlow(f, "workflow", new Map()).nodes[0]!.type).toBe("unknown")
   })
 
-  it("边保留下来并标出类型", () => {
+  it("边保留下来，但**不挂 label**", () => {
+    // 这里原来钉的是 `label === "derivation"`。官方的 `toFlowEdge` 根本
+    // 没有 label 这一项 —— 挂上去的结果是中文界面里每条连线都顶着一行
+    // 英文字段名。`animated` 才是标出 derivation 的方式。
     const { edges } = toFlow(FILE, "workflow", new Map())
     expect(edges).toHaveLength(1)
-    expect(edges[0]!.label).toBe("derivation")
+    expect(edges[0]!.label).toBeUndefined()
+    expect(edges[0]!.animated).toBe(true)
   })
 })
 
@@ -184,5 +188,155 @@ describe("sizeOf：还等于默认值的尺寸要按素材重算", () => {
     // 退回默认会让节点在"素材信息还没加载出来"的一瞬间跳一下。
     const n = { id: "x", type: "image", positions: {}, size: { width: 350, height: 195 } }
     expect(sizeOf(n, "workflow")).toEqual({ width: 350, height: 195 })
+  })
+})
+
+describe("分组的 z 轴", () => {
+  it("组要压在边下面，否则组内的连线全被盖住", () => {
+    // **这条是真出过的问题。** 编完组之后画布上一条连线都看不见，
+    // 而 canvas.json 里 4 条边一条不少 —— React Flow 把边画在默认
+    // `zIndex: 0` 的 SVG 层里，组作为节点画在它上面，背景整个盖住。
+    // 不报错、刷新也不会好。官方 `GROUP_Z_INDEX = -100`。
+    const file: CanvasFile = {
+      version: 1,
+      mode: "freeform",
+      nodes: [
+        { id: "g", type: "group", positions: { freeform: { x: 0, y: 0 } } },
+        { id: "a", type: "image", parentId: "g", positions: { freeform: { x: 0, y: 0 } } },
+      ],
+      edges: [],
+    }
+    const { nodes } = toFlow(file, "freeform", new Map())
+    const group = nodes.find((n) => n.id === "g")!
+    const child = nodes.find((n) => n.id === "a")!
+    expect(group.zIndex).toBe(GROUP_Z_INDEX)
+    expect(GROUP_Z_INDEX).toBeLessThan(0)
+    // 成员不该被压下去 —— 压下去的话组的背景又会盖住成员本身。
+    expect(child.zIndex).toBeUndefined()
+  })
+
+  it("已经存在的老画布（组上没有 meta.zIndex）也要被兜底修好", () => {
+    // 只读 `meta.zIndex` 的话，这次之前建的那些组永远是坏的,
+    // 除非再写一次数据迁移。
+    const file: CanvasFile = {
+      version: 1,
+      mode: "freeform",
+      nodes: [{ id: "g", type: "group", positions: { freeform: { x: 0, y: 0 } } }],
+      edges: [],
+    }
+    const { nodes } = toFlow(file, "freeform", new Map())
+    expect(nodes[0].zIndex).toBe(GROUP_Z_INDEX)
+  })
+
+  it("meta.zIndex 写了就以它为准", () => {
+    const file: CanvasFile = {
+      version: 1,
+      mode: "freeform",
+      nodes: [
+        { id: "g", type: "group", positions: { freeform: { x: 0, y: 0 } }, meta: { zIndex: -7 } },
+      ],
+      edges: [],
+    }
+    const { nodes } = toFlow(file, "freeform", new Map())
+    expect(nodes[0].zIndex).toBe(-7)
+  })
+})
+
+describe("折叠分组", () => {
+  /** 一个组 + 两个成员 + 一条组内边 + 一条伸到组外的边。 */
+  const withGroup = (collapsed: boolean): CanvasFile => ({
+    version: 1,
+    mode: "freeform",
+    nodes: [
+      {
+        id: "g",
+        type: "group",
+        positions: { freeform: { x: 0, y: 0 } },
+        size: { width: 800, height: 400 },
+        ...(collapsed ? { meta: { collapsed: true } } : {}),
+      },
+      { id: "a", type: "image", parentId: "g", positions: { freeform: { x: 0, y: 0 } } },
+      { id: "b", type: "image", parentId: "g", positions: { freeform: { x: 0, y: 0 } } },
+      { id: "out", type: "image", positions: { freeform: { x: 999, y: 0 } } },
+    ],
+    edges: [
+      { id: "e1", source: "a", target: "b", type: "derivation" },
+      { id: "e2", source: "b", target: "out", type: "derivation" },
+    ],
+  })
+
+  it("折叠时成员全部藏起来", () => {
+    // 只收组不藏成员的话，成员会留在原地悬空 —— 组框已经收成 1×1,
+    // 看起来就是一堆节点散在画布上，而且再也框不回去。
+    const { nodes } = toFlow(withGroup(true), "freeform", new Map())
+    expect(nodes.find((n) => n.id === "a")!.hidden).toBe(true)
+    expect(nodes.find((n) => n.id === "b")!.hidden).toBe(true)
+    // 组外的节点不受影响。
+    expect(nodes.find((n) => n.id === "out")!.hidden).toBeUndefined()
+    // 组本身要看得见 —— 藏了的话没有任何地方能再展开。
+    expect(nodes.find((n) => n.id === "g")!.hidden).toBeUndefined()
+  })
+
+  it("折叠时组收成 1×1，并且不可选、拖拽限定在 chip 上", () => {
+    const { nodes } = toFlow(withGroup(true), "freeform", new Map())
+    const g = nodes.find((n) => n.id === "g")!
+    expect(g.width).toBe(1)
+    expect(g.height).toBe(1)
+    // 强制取消选中：折叠前留下的选中态会让工具条浮在一片空地上。
+    expect(g.selectable).toBe(false)
+    expect(g.selected).toBe(false)
+    expect(g.dragHandle).toBe(".canvas-group-collapsed-drag-handle")
+  })
+
+  it("**跨组的边也要藏** —— 只在两端都藏时才藏会漏出半条线", () => {
+    const { edges } = toFlow(withGroup(true), "freeform", new Map())
+    // e1 两端都在组里
+    expect(edges.find((e) => e.id === "e1")!.hidden).toBe(true)
+    // e2 一端在组里、一端在组外 —— 不藏的话是一条从折叠的组里伸出来、
+    // 那一头什么都没有的线。
+    expect(edges.find((e) => e.id === "e2")!.hidden).toBe(true)
+  })
+
+  it("展开时一切照旧", () => {
+    const { nodes, edges } = toFlow(withGroup(false), "freeform", new Map())
+    expect(nodes.every((n) => n.hidden === undefined)).toBe(true)
+    expect(edges.every((e) => e.hidden === undefined)).toBe(true)
+    expect(nodes.find((n) => n.id === "g")!.width).toBe(800)
+  })
+
+  it("meta.collapsed 才算数，data.collapsed 不算", () => {
+    // 后端一度把这个标记写在 `data` 里。官方读的是 `meta` ——
+    // 认错地方的话开关看着能点，刷新又回到展开，而且不报错。
+    const f = withGroup(false)
+    f.nodes[0]!.data = { collapsed: true }
+    const { nodes } = toFlow(f, "freeform", new Map())
+    expect(nodes.find((n) => n.id === "a")!.hidden).toBeUndefined()
+  })
+})
+
+describe("边的端点高亮", () => {
+  it("source 或 target 被选中时边就高亮", () => {
+    const f: CanvasFile = {
+      version: 1,
+      mode: "freeform",
+      nodes: [
+        { id: "a", type: "image", positions: { freeform: { x: 0, y: 0 } } },
+        { id: "b", type: "image", positions: { freeform: { x: 0, y: 0 } } },
+        { id: "c", type: "image", positions: { freeform: { x: 0, y: 0 } } },
+      ],
+      edges: [
+        { id: "ab", source: "a", target: "b", type: "derivation" },
+        { id: "bc", source: "b", target: "c", type: "derivation" },
+      ],
+    }
+    const { edges } = toFlow(f, "freeform", new Map(), new Set(["a"]))
+    expect(edges.find((e) => e.id === "ab")!.selected).toBe(true)
+    expect(edges.find((e) => e.id === "bc")!.selected).toBe(false)
+  })
+
+  it("不传选中集时整个不设这个键", () => {
+    // 一律给 `selected: false` 会盖掉 React Flow 自己的选中状态。
+    const { edges } = toFlow(FILE, "workflow", new Map())
+    expect(edges[0]!.selected).toBeUndefined()
   })
 })

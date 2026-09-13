@@ -72,6 +72,8 @@ import {
   ungroupNodes,
   getPlan,
   assetsDegraded,
+  submitUpscale,
+  pollTask,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { tidy as runTidy, type TidyKind } from "./tidy"
@@ -161,6 +163,13 @@ export default function App() {
    * 下标会指到另一张上去 —— 用户看到的是"图自己跳了一下"。
    */
   const [lightbox, setLightbox] = useState<string | null>(null)
+  /**
+   * 当前选中的节点 id。**放 ref 不放 state** —— 选中态每点一下就变，
+   * 进 state 会让整份画布图跟着重建，而重建会把选中态本身冲掉。
+   * 边的高亮由 `onSelectionChange` 直接改 edges，这份 ref 只用来让
+   * 重新加载画布时高亮不丢。
+   */
+  const selectedIdsRef = useRef<Set<string>>(new Set())
   /** 正在裁剪/旋转的那个节点。 */
   const [cropping, setCropping] = useState<string | null>(null)
   // 会话（= 画布）与项目。侧栏那一栏列的是这些。
@@ -397,7 +406,7 @@ export default function App() {
     // 拖动中收到的新文件先不落到界面上。拖完 `persistCanvas` 会以
     // `fileRef`（已经是新的那份）为底写回，agent 加的节点不会丢。
     if (draggingRef.current) return
-    const flow = toFlow(file, mode, details)
+    const flow = toFlow(file, mode, details, selectedIdsRef.current)
     setNodes(
       flow.nodes
         // 「隐藏全部」只是**藏起来**,不是删掉 —— 数据还在，再点一下就回来。
@@ -1081,6 +1090,37 @@ export default function App() {
       },
 
       /**
+       * 折叠 / 展开一个组。
+       *
+       * **存进 `meta.collapsed`,和官方同一个键。** 存别处的话开关看着能点，
+       * 刷新之后又回到展开 —— 而且不报错。
+       *
+       * 和标签一样**立刻写回服务端**。官方的注释写的是「one user decision =
+       * one immediate save」—— 折叠是用户的一次明确决定,不该等到下次拖动
+       * 节点时才顺带存上。
+       */
+      async setGroupCollapsed(groupId, collapsed) {
+        const base = fileRef.current
+        if (!base) return
+        const target = base.nodes.find((n) => n.id === groupId)
+        // 已经是这个状态就什么都不做 —— 官方同样先判一次，避免同一个状态
+        // 反复写盘。
+        if (!target || target.type !== "group" || target.meta?.collapsed === collapsed) return
+        const next = {
+          ...base,
+          nodes: base.nodes.map((n) =>
+            n.id === groupId ? { ...n, meta: { ...(n.meta ?? {}), collapsed } } : n,
+          ),
+        }
+        try {
+          await putCanvas(next)
+          setFile(next)
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err))
+        }
+      },
+
+      /**
        * 裁剪 / 旋转。**存成新图，不覆盖原图** —— 原图可能还被别的节点
        * 引用着（复制出来的卡片、以它为输入生成的那些）。
        */
@@ -1167,6 +1207,27 @@ export default function App() {
         if (!path) return
         await createMediaNode(path, undefined, true)
         await load()
+      },
+      /**
+       * 高清增强。**出一张新图，不覆盖原图** —— 和裁剪 / 旋转同理，
+       * 原图可能还被别的节点引用着。
+       *
+       * 走 media-node 建节点并**连一条从原图过来的边**,画布上看得出
+       * 这张是从哪来的。
+       */
+      async upscaleNode(nodeId, resolution) {
+        const path = detailsRef.current.get(nodeId)?.path
+        if (!path) return
+        try {
+          const taskId = await submitUpscale(path, resolution.toUpperCase())
+          // 超分要跑几十秒，没有任何提示的话用户会以为点了没反应、
+          // 然后反复点。
+          const product = await pollTask(taskId, new AbortController().signal)
+          await createMediaNode(product.path, [nodeId])
+          await load()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err))
+        }
       },
       async deleteNode(nodeId) {
         const base = fileRef.current
@@ -1347,6 +1408,31 @@ export default function App() {
               nodeTypes={nodeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
+              /**
+               * 选中一个节点时，**它连出去的边跟着高亮**。官方
+               * `toFlowEdge` 里的 `selected: has(source) || has(target)`。
+               *
+               * 选中一张图本质上是在问「它和谁有关系」,答案就是那几条边。
+               * 不做的话边只有被直接点中才高亮 —— 而边很细，很难点中。
+               *
+               * **必须比较后再 setState。** 给边标上 selected 会让
+               * React Flow 再抛一次 selection 变化（选中集里多了这些边）,
+               * 不比较就会一直互相触发。
+               */
+              onSelectionChange={({ nodes: sel }) => {
+                const ids = new Set(sel.map((n) => n.id))
+                selectedIdsRef.current = ids
+                setEdges((es) => {
+                  let changed = false
+                  const next = es.map((e) => {
+                    const want = ids.has(e.source) || ids.has(e.target)
+                    if (!!e.selected === want) return e
+                    changed = true
+                    return { ...e, selected: want }
+                  })
+                  return changed ? next : es
+                })
+              }}
               onNodeDragStart={() => (draggingRef.current = true)}
               onNodeDragStop={(_, __, dragged) => {
                 draggingRef.current = false

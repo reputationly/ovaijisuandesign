@@ -1,8 +1,9 @@
 /** 四种节点的渲染。这是官方画布里唯一闭源、必须自己写的那一层。 */
 
-import { Position, type Node, type NodeProps } from "@xyflow/react"
+import { Position, useStore, type Node, type NodeProps } from "@xyflow/react"
 import {
   AlertTriangle,
+  ChevronDown,
   FileQuestion,
   FileText,
   Image as ImageIcon,
@@ -10,6 +11,9 @@ import {
   Video,
 } from "lucide-react"
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+
+import { EnhancePopover } from "./EnhancePopover"
+import type { EnhanceResolution } from "./enhance"
 
 import { tagById, tagsOf } from "./tags"
 import { assetUrl } from "./api"
@@ -45,8 +49,12 @@ export interface CanvasActions {
   openAddNode(nodeId: string, screenX: number, screenY: number): void
   /** 解组。官方 `canvas.ungroup`。**建得出来就得解得掉。** */
   ungroup(groupId: string): Promise<void>
+  /** 折叠 / 展开一个组。官方 `setGroupCollapsed`，存进 `meta.collapsed`。 */
+  setGroupCollapsed(groupId: string, collapsed: boolean): Promise<void>
   /** 打开裁剪 / 旋转面板。官方 `canvas.crop` / `canvas.rotate.title`。 */
   cropNode(nodeId: string): void
+  /** 高清增强。官方 `canvas.enhanceImage.*` —— 出一张新图，不覆盖原图。 */
+  upscaleNode(nodeId: string, resolution: EnhanceResolution): Promise<void>
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -92,6 +100,9 @@ function Frame(
 ) {
   const { data, selected, kind, children, variant = "media" } = props
   const actions = useContext(CanvasActionsContext)
+  // 面板开关是**节点自己的状态**,和官方一样 —— 提到 App 层的话，
+  // 每开一次面板整张画布都要重渲染。
+  const [enhancing, setEnhancing] = useState(false)
   const assetId = data.raw.assetId
   const name =
     data.detail?.name ?? (data.raw.data?.name as string | undefined) ?? data.raw.id.slice(0, 8)
@@ -119,7 +130,18 @@ function Frame(
         onDownload={assetId ? () => downloadAsset(assetId, name) : undefined}
         // **只有图片节点。** 视频要逐帧处理，那是另一件事；音频没有画面。
         onCrop={assetId && kind === "image" ? () => actions?.cropNode(props.id) : undefined}
+        // 同上，只有图片。视频超分是另一条链路（异步任务），还没做。
+        onUpscale={assetId && kind === "image" ? () => setEnhancing((v) => !v) : undefined}
       />
+      {enhancing && assetId && kind === "image" && (
+        <EnhancePopover
+          nodeId={props.id}
+          width={data.detail?.width}
+          height={data.detail?.height}
+          onClose={() => setEnhancing(false)}
+          onSubmit={(r) => actions?.upscaleNode(props.id, r) ?? Promise.resolve()}
+        />
+      )}
       {/* **`onAdd` 和 `hidden` 之前没传，两个能力都是死的**：
           点 ⊕ 不会开菜单（官方点它是开「添加节点」），多选和拖动时 ⊕
           也不会隐藏（官方的 `forceHidden = isMultiSelect || isDragging`）。 */}
@@ -436,46 +458,111 @@ export function GroupNode(props: Props) {
   const label = (raw.data?.name as string | undefined) ?? "未命名分组"
   // 组里有几个。官方 `canvas.groupCount` =「编组 {{count}} 个节点」。
   const count = useContext(GroupCountContext)[props.id] ?? 0
+  // **读 `meta.collapsed`,不是 `data.collapsed`。** 官方
+  // `const collapsed = !!node.meta?.collapsed`。位置错了的话开关看着能点，
+  // 但状态存在一个没人读的地方 —— 刷新就回到展开。
+  const collapsed = raw.meta?.collapsed === true
+  const zoom = useStore((s) => s.transform[2])
 
   return (
     <div
       className="pointer-events-none relative h-full w-full rounded-xl"
       data-kind="group"
-      style={{
-        border: `1.5px dashed ${props.selected ? "var(--brand-accent)" : "var(--canvas-controls-border)"}`,
-        // **不要填充。** 有背景的话组里的图片会被盖住一层。
-        background: "transparent",
-      }}
+      style={
+        collapsed
+          ? // 折叠态：框整个隐形，也**不吃指针事件** —— 那块地方视觉上
+            // 什么都没有，用户理所当然会去点它背后的东西。
+            { border: "none", background: "transparent" }
+          : {
+              border: `1.5px dashed ${props.selected ? "var(--brand-accent)" : "var(--canvas-controls-border)"}`,
+              // **不要填充。** 有背景的话组里的图片会被盖住一层。
+              background: "transparent",
+            }
+      }
     >
+      {/* 标签 chip **浮在框上方外侧**，不在框里面。
+          官方就是这么放的（`bottom: 100%`）,而且这是折叠能成立的前提:
+          折叠后框收成 1×1,放在框里的东西会跟着缩没。
+
+          **反向抵消缩放**（`scale(1/zoom)`）:折叠之后这个 chip 是这个组
+          唯一看得见的东西，跟着画布缩小的话，缩远一点就完全认不出来了。
+          官方同样这么做。媒体节点的名字条没有这一层 —— 那种情况下节点
+          本身还在，标签看不清不影响找到它。 */}
       <div
-        className="pointer-events-auto absolute inset-x-0 top-0 flex h-7 items-center gap-2 rounded-t-xl px-2.5"
-        style={{ background: "var(--canvas-controls-bg)" }}
+        className="pointer-events-none absolute bottom-full left-0 pb-1"
+        style={{ transform: `scale(${1 / zoom})`, transformOrigin: "bottom left" }}
       >
-        <span className="truncate text-[12px]" style={{ color: "var(--canvas-controls-text)" }}>
-          {label}
-        </span>
-        {count > 0 && (
-          <span className="text-[11px] tabular-nums" style={{ color: "var(--canvas-controls-text-muted)" }}>
-            {count} 个节点
-          </span>
-        )}
-        <span className="flex-1" />
-        {/* 解组。官方 `canvas.ungroup` =「解组」+ `canvas.ungroup-toolbar-button`。
-            **建得出来就得解得掉** —— 没有这个按钮的话，agent 归拢错了
-            用户只能把整组连同里面的产物一起删掉。 */}
-        <button
-          data-action-ui-id="canvas.ungroup-toolbar-button"
-          title="解组"
-          onClick={(e) => {
-            e.stopPropagation()
-            void actions?.ungroup(props.id)
+        <div
+          className="pointer-events-auto flex h-6 w-max max-w-[200px] items-center gap-1 rounded border pl-1 pr-2"
+          style={{
+            background: "var(--canvas-controls-bg)",
+            borderColor: props.selected
+              ? "var(--brand-accent)"
+              : "var(--canvas-controls-border)",
           }}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="rounded px-1.5 py-0.5 text-[11px] transition-colors hover:bg-[var(--canvas-controls-hover)]"
-          style={{ color: "var(--canvas-controls-text-muted)" }}
         >
-          解组
-        </button>
+          {/* 折叠 / 展开。官方 `canvas.group.collapse` =「折叠」/
+              `canvas.group.expand` =「展开」,图标是 ChevronDown,
+              **折叠时转 180°** 变成上拉。 */}
+          <button
+            type="button"
+            aria-label={collapsed ? "展开" : "折叠"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "展开" : "折叠"}
+            data-action-ui-id="canvas.group-collapse-toggle"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation()
+              void actions?.setGroupCollapsed(props.id, !collapsed)
+            }}
+            className="nodrag inline-flex size-4 shrink-0 cursor-pointer items-center justify-center transition-transform hover:opacity-70"
+            style={{
+              color: "var(--canvas-controls-text)",
+              transform: collapsed ? "rotate(180deg)" : "rotate(0deg)",
+              transitionDuration: "200ms",
+            }}
+          >
+            <ChevronDown size={14} />
+          </button>
+          {/* 这一条同时是**折叠态下唯一能拖的地方** ——
+              `dragHandle: ".canvas-group-collapsed-drag-handle"` 指的就是它。 */}
+          <span
+            className="canvas-group-collapsed-drag-handle truncate text-[12px]"
+            style={{ color: "var(--canvas-controls-text)" }}
+            title={label}
+          >
+            {label}
+          </span>
+          {count > 0 && (
+            <span
+              className="shrink-0 text-[11px] tabular-nums"
+              style={{ color: "var(--canvas-controls-text-muted)" }}
+            >
+              {count}
+            </span>
+          )}
+          {/* 解组。官方 `canvas.ungroup` =「解组」+ `canvas.ungroup-toolbar-button`。
+              **建得出来就得解得掉** —— 没有这个按钮的话，agent 归拢错了
+              用户只能把整组连同里面的产物一起删掉。
+
+              折叠时不显示：折叠是"我暂时不想看这一堆",解组是"这一堆不该在
+              一起",把不可逆的那个摆在收起来的东西上容易误点。 */}
+          {!collapsed && (
+            <button
+              data-action-ui-id="canvas.ungroup-toolbar-button"
+              title="解组"
+              onClick={(e) => {
+                e.stopPropagation()
+                void actions?.ungroup(props.id)
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="nodrag shrink-0 rounded px-1 text-[11px] transition-colors hover:bg-[var(--canvas-controls-hover)]"
+              style={{ color: "var(--canvas-controls-text-muted)" }}
+            >
+              解组
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

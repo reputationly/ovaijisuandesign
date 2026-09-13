@@ -72,6 +72,61 @@ const UNSET_SIZES: Size[] = [
 const isUnset = (s: Size) =>
   UNSET_SIZES.some((d) => Math.round(s.width) === d.width && Math.round(s.height) === d.height)
 
+/**
+ * 分组容器的 z。**照官方的 `GROUP_Z_INDEX = -100`。**
+ *
+ * 官方那份注释写得很直白：组拿这个值「so ReactFlow renders it beneath
+ * the children」。
+ *
+ * ## 为什么必须是负数
+ *
+ * React Flow 把边画在一层 SVG 里，默认 `zIndex: 0`；节点画在它上面。
+ * 组也是节点，于是**组的背景会把组内所有的边整条盖住** —— 表现是
+ * 「编了组之后连线全不见了」,而数据里边好好地在（我们这次就是这样：
+ * 4 条首尾帧→视频的边都在 canvas.json 里，画面上一条都看不到）。
+ *
+ * 不报错、刷新也不会好，只有把组压到边下面才行。
+ */
+export const GROUP_Z_INDEX = -100
+
+/**
+ * 节点上那些**只存在于 `meta` 里、直接影响渲染**的字段。
+ *
+ * 官方 `toFlowNode` 从 `meta` 里取三样：`zIndex` / `locked` / `hidden`。
+ * 这三个在 React Flow 里都是可选 prop —— **漏传不会报错，只会静默地
+ * 换一种行为**：
+ *
+ * | meta       | 漏了会怎样 |
+ * |------------|-----------|
+ * | `zIndex`   | 组的背景盖住组内所有的边（这次就是它） |
+ * | `locked`   | 用户锁住的节点照样能拖走 |
+ * | `hidden`   | 标了隐藏的节点照样画出来 |
+ *
+ * 所以这一层要**一次性对齐**，而不是遇到一个补一个。
+ */
+function metaProps(node: CanvasNode): {
+  zIndex?: number
+  draggable?: boolean
+  hidden?: boolean
+} {
+  const z = node.meta?.zIndex
+  const out: { zIndex?: number; draggable?: boolean; hidden?: boolean } = {}
+
+  if (typeof z === "number") out.zIndex = z
+  // 组没写这个值时兜底 —— 见 `GROUP_Z_INDEX` 的注释。**兜底而不是只读
+  // meta**：这次修之前建的那些组都没有这个字段，只读 meta 的话它们一直
+  // 是坏的，除非再写一次数据迁移。
+  else if (node.type === "group") out.zIndex = GROUP_Z_INDEX
+
+  // 官方 `draggable: !node.meta?.locked`。**只在锁住时显式给 false** ——
+  // 一律给 `draggable: true` 会盖掉 React Flow 自己的默认值。
+  if (node.meta?.locked === true) out.draggable = false
+  // 官方：不是 true 就整个不给这个键，让 React Flow 的 diff 在常见情况下
+  // 看到一个稳定的形状。
+  if (node.meta?.hidden === true) out.hidden = true
+  return out
+}
+
 export function sizeOf(node: CanvasNode, mode: CanvasMode, detail?: NodeDetail): Size {
   const explicit = node.sizes?.[mode] ?? node.size
   // 用户手动调过的尺寸永远优先。
@@ -98,14 +153,51 @@ export function positionOf(node: CanvasNode, mode: CanvasMode, fileMode: string)
   return node.positions?.[mode] ?? node.positions?.[fileMode] ?? { x: 0, y: 0 }
 }
 
+/**
+ * 折叠的组占多大。官方 `COLLAPSED_GROUP_FLOW_SIZE = { width: 1, height: 1 }`。
+ *
+ * **收成 1×1 而不是收成标签那么大。** 组框本身在折叠态是透明且
+ * `pointer-events: none` 的，真正看得见的只有浮在上方的那个 chip ——
+ * 留一个跟标签同宽的隐形框会挡住它背后的东西，而用户眼里那儿什么都没有。
+ */
+const COLLAPSED_GROUP_SIZE: Size = { width: 1, height: 1 }
+
+/**
+ * 哪些节点该藏起来。官方 `collectHiddenChildIds`。
+ *
+ * 两个来源：节点自己标了 `meta.hidden`，或者**它的父组折叠了**。
+ *
+ * 只折叠组、不藏成员的话，成员会留在原地悬空显示 —— 组框已经收成 1×1 了,
+ * 看起来就是一堆节点散在画布上，而且再也框不回去。
+ */
+export function collectHiddenIds(nodes: CanvasNode[]): Set<string> {
+  const collapsed = new Set<string>()
+  const hidden = new Set<string>()
+  for (const n of nodes) {
+    if (n.meta?.hidden === true) hidden.add(n.id)
+    if (n.type === "group" && n.meta?.collapsed === true) collapsed.add(n.id)
+  }
+  if (collapsed.size > 0) {
+    for (const n of nodes) {
+      if (n.parentId && collapsed.has(n.parentId)) hidden.add(n.id)
+    }
+  }
+  return hidden
+}
+
 export function toFlow(
   file: CanvasFile,
   mode: CanvasMode,
   details: Map<string, NodeDetail>,
+  /** 当前选中的节点。边靠它判断要不要高亮，见下面 `selected` 那一段。 */
+  selectedIds?: Set<string>,
 ): { nodes: FlowNode<NodeData>[]; edges: FlowEdge[] } {
+  const hiddenIds = collectHiddenIds(file.nodes)
+
   const nodes = file.nodes.map((n): FlowNode<NodeData> => {
     const detail = details.get(n.id)
-    const { width, height } = sizeOf(n, mode, detail)
+    const collapsedGroup = n.type === "group" && n.meta?.collapsed === true
+    const { width, height } = collapsedGroup ? COLLAPSED_GROUP_SIZE : sizeOf(n, mode, detail)
     return {
       id: n.id,
       // 认不出的类型交给 `unknown` 组件显示原始信息，而不是让 React Flow
@@ -123,6 +215,24 @@ export function toFlow(
       // 成员前面 —— React Flow 要求父节点先于子节点出现，否则子节点找不到
       // 父节点会被整个丢掉。后端写文件时已经排好了，这里只是不打乱它。
       ...(n.type === "group" ? { connectable: false, selectable: true } : {}),
+      // 只存在于 `meta` 里、直接影响渲染的那几样（z 轴 / 锁定 / 隐藏）。
+      ...metaProps(n),
+      // 折叠的组。官方这一段：
+      //
+      // - `selectable: false` + `selected: false` —— **强制取消选中**,
+      //   否则折叠前留下的选中态会让工具条和缩放把手浮在一片空地上。
+      // - `dragHandle` 把 React Flow 的拖拽监听**限定在 chip 上**。框本身
+      //   已经是 1×1 且 `pointer-events: none`,不限定的话拖拽落在一个
+      //   看不见的盒子上，用户找不到能拖的地方。
+      ...(collapsedGroup
+        ? {
+            selectable: false,
+            selected: false,
+            className: "canvas-group-collapsed",
+            dragHandle: ".canvas-group-collapsed-drag-handle",
+          }
+        : {}),
+      ...(hiddenIds.has(n.id) ? { hidden: true } : {}),
       data: { raw: n, detail: details.get(n.id) },
     }
   })
@@ -134,8 +244,25 @@ export function toFlow(
       target: e.target,
       ...(e.sourceHandle ? { sourceHandle: e.sourceHandle } : {}),
       ...(e.targetHandle ? { targetHandle: e.targetHandle } : {}),
-      label: e.type,
+      // **不挂 label。** 这里原来是 `label: e.type` —— 于是画布上每条连线
+      // 都顶着一行 `derivation`,中文界面里的英文字段名。官方的
+      // `toFlowEdge` 没有 label 这一项。
       animated: e.type === "derivation",
+      // `data` 原样带上。官方 `data: edge.data ?? {}` —— 丢掉的话
+      // 边上挂的东西在界面这一侧就没了。
+      ...(e.data ? { data: e.data } : {}),
+      // **端点选中时边跟着高亮。** 官方
+      // `selected: selectedNodeIds.has(source) || has(target)`。
+      //
+      // 选中一个节点是在问「这张图和谁有关系」,而答案正是它连出去的那几条边。
+      // 不给的话边只有被**直接点中**时才高亮，而边本身很细、很难点中。
+      ...(selectedIds
+        ? { selected: selectedIds.has(e.source) || selectedIds.has(e.target) }
+        : {}),
+      // 任一端被藏起来，这条边就得藏。官方注释说得很准：只在两端都藏时才藏
+      // 的话，**跨组的边会漏出来** —— 一条线从一个折叠的组里伸出来，
+      // 而那一头什么都没有。
+      ...(hiddenIds.has(e.source) || hiddenIds.has(e.target) ? { hidden: true } : {}),
     }),
   )
 

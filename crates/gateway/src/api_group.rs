@@ -31,6 +31,8 @@ use crate::{AppState, canvas};
 /// 组框比内容多留这么多边距，标题也画在这一圈里。
 const PADDING: f64 = 32.0;
 const HEADER: f64 = 28.0;
+/// 分组容器的 z。官方 `GROUP_Z_INDEX = -100`，前端 `canvas.ts` 有同名常量兜底。
+const GROUP_Z_INDEX: i32 = -100;
 
 #[derive(Debug, Deserialize)]
 pub struct GroupBody {
@@ -95,7 +97,20 @@ fn make_group(file: &mut CanvasFile, ids: &[String], label: &str) -> Result<Node
     positions.insert(mode.clone(), origin);
 
     let mut extra = serde_json::Map::new();
-    extra.insert("data".into(), json!({ "name": label, "collapsed": false }));
+    // **不写 `collapsed`。** 这里原来是 `data: { name, collapsed: false }` ——
+    // 两处都不对：官方的折叠标记在 **`meta.collapsed`**,不在 `data`;
+    // 而且建组时官方根本不设这个键（没有就是展开）。
+    //
+    // 写在 `data` 里的那个谁也不读，是个纯摆设；真要有人读了，反而会
+    // 盖掉 `meta` 里那份真的。
+    extra.insert("data".into(), json!({ "name": label }));
+    // **组要压在边下面。** 官方 `GROUP_Z_INDEX = -100`,注释原文是
+    // 「so ReactFlow renders it beneath the children」。
+    //
+    // React Flow 的边画在一层默认 `zIndex: 0` 的 SVG 里，节点画在它上面 ——
+    // 组也是节点，不给负 z 的话组的背景会把组内所有的边整条盖住。表现是
+    // 「编完组连线全没了」,而数据里边一条不少，刷新也不会好。
+    extra.insert("meta".into(), json!({ "zIndex": GROUP_Z_INDEX }));
 
     let group = Node {
         id: id.clone(),
