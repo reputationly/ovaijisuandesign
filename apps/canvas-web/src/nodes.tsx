@@ -45,6 +45,8 @@ export interface CanvasActions {
   openAddNode(nodeId: string, screenX: number, screenY: number): void
   /** 解组。官方 `canvas.ungroup`。**建得出来就得解得掉。** */
   ungroup(groupId: string): Promise<void>
+  /** 打开裁剪 / 旋转面板。官方 `canvas.crop` / `canvas.rotate.title`。 */
+  cropNode(nodeId: string): void
 }
 
 export const CanvasActionsContext = createContext<CanvasActions | null>(null)
@@ -115,6 +117,8 @@ function Frame(
         // **两个不同标签的按钮做同一件事**，而且做的都不是标签说的那件。
         onOpen={assetId ? () => actions?.openLightbox(props.id) : undefined}
         onDownload={assetId ? () => downloadAsset(assetId, name) : undefined}
+        // **只有图片节点。** 视频要逐帧处理，那是另一件事；音频没有画面。
+        onCrop={assetId && kind === "image" ? () => actions?.cropNode(props.id) : undefined}
       />
       {/* **`onAdd` 和 `hidden` 之前没传，两个能力都是死的**：
           点 ⊕ 不会开菜单（官方点它是开「添加节点」），多选和拖动时 ⊕

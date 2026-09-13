@@ -112,6 +112,7 @@ import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 import { cn } from "./lib"
 import type { Plan } from "./plan"
 import { ProjectAssets } from "./AssetsPanel"
+import { CropRotate } from "./CropRotate"
 import { Library } from "./Library"
 import { ImBridge } from "./ImBridge"
 import { Settings } from "./Settings"
@@ -160,6 +161,8 @@ export default function App() {
    * 下标会指到另一张上去 —— 用户看到的是"图自己跳了一下"。
    */
   const [lightbox, setLightbox] = useState<string | null>(null)
+  /** 正在裁剪/旋转的那个节点。 */
+  const [cropping, setCropping] = useState<string | null>(null)
   // 会话（= 画布）与项目。侧栏那一栏列的是这些。
   const [sessions, setSessions] = useState<Session[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -1077,6 +1080,14 @@ export default function App() {
         }
       },
 
+      /**
+       * 裁剪 / 旋转。**存成新图，不覆盖原图** —— 原图可能还被别的节点
+       * 引用着（复制出来的卡片、以它为输入生成的那些）。
+       */
+      cropNode(nodeId) {
+        setCropping(nodeId)
+      },
+
       openLightbox(nodeId) {
         setLightbox(nodeId)
       },
@@ -1210,6 +1221,7 @@ export default function App() {
     [lightboxNodeIds, file, details],
   )
   const lightboxIndex = Math.max(0, lightboxNodeIds.indexOf(lightbox ?? ""))
+  const croppingNode = file?.nodes.find((n) => n.id === cropping)
 
   return (
     <CanvasActionsContext value={actions}>
@@ -1871,6 +1883,22 @@ export default function App() {
           差别的原因是我们还没有多图节点（一次生成出多张、叠在一张卡片上），
           所以照官方做的话箭头永远不出现、那段代码是死的。等多图节点做出来，
           把这里传的 items 换成那一组即可，组件本身不用动。 */}
+      {cropping && croppingNode?.assetId && (
+        <CropRotate
+          assetId={croppingNode.assetId}
+          name={details.get(cropping)?.name}
+          onCancel={() => setCropping(null)}
+          onSave={async (file) => {
+            const [path] = await uploadFiles([file])
+            if (!path) throw new Error("保存后没落盘")
+            // 走 media-node：和生成结果、截帧同一条路，会登记进资产索引,
+            // 并**连一条从原图过来的边** —— 画布上看得出这张是从哪来的。
+            await createMediaNode(path, [cropping])
+            setCropping(null)
+            await load()
+          }}
+        />
+      )}
       {lightboxItems.length > 0 && (
         <Lightbox
           items={lightboxItems}
