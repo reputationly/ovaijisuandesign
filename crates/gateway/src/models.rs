@@ -93,12 +93,13 @@ pub async fn list(State(state): State<Arc<AppState>>) -> Json<Value> {
     };
 
     let m = &state.media.models;
-    let slots: [(&'static str, &Option<String>); 8] = [
+    let slots: [(&'static str, &Option<String>); 9] = [
         ("image", &m.image),
         ("imageEdit", &m.image_edit),
         ("video", &m.video),
         ("videoRef", &m.video_ref),
         ("videoUpscale", &m.video_upscale),
+        ("imageUpscale", &m.image_upscale),
         ("music", &m.music),
         ("musicEdit", &m.music_edit),
         ("speech", &m.speech),

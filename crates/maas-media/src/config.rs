@@ -50,9 +50,18 @@ pub struct Models {
     /// 参考生视频，例如 `minimax-h3-ref2va`。参考图 / 参考视频走这个。
     #[serde(default)]
     pub video_ref: Option<String>,
-    /// 超分，例如 `swiftvr` / `seedvr2`。
+    /// 视频超分，例如 `swiftvr` / `seedvr2`。
     #[serde(default)]
     pub video_upscale: Option<String>,
+    /// 图片超分，例如 `swiftvr`。
+    ///
+    /// **和 [`Self::video_upscale`] 分开配，哪怕填的是同一个 checkpoint** ——
+    /// 两条路走的接口根本不是一回事：视频超分走异步任务
+    /// （`metadata.task_type = "sr"` + `metadata.resolution` 档位词），
+    /// 图片超分走同步的 `/images/edits`（顶层 `image` + 精确 `size`）。
+    /// 合成一个键的话，换了视频超分的模型会静默改掉图片超分的行为。
+    #[serde(default)]
+    pub image_upscale: Option<String>,
     /// 文生音乐，例如 `minimax-music3` / `ace-step`。
     #[serde(default)]
     pub music: Option<String>,
@@ -103,6 +112,7 @@ impl Default for Models {
             video: None,
             video_ref: None,
             video_upscale: None,
+            image_upscale: None,
             music: None,
             music_edit: None,
             speech: None,

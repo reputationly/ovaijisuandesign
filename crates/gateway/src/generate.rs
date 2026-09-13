@@ -142,6 +142,87 @@ pub async fn submit_image(State(state): State<Arc<AppState>>, body: Bytes) -> Js
 }
 
 // ---------------------------------------------------------------------------
+// 图片超分
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Default, Deserialize)]
+pub struct UpscaleSubmit {
+    /// 要放大的那张图。工作区相对路径。
+    #[serde(default)]
+    pub image_path: String,
+    /// 档位：`2K` / `4K`。见 `maas_media::image::upscale_size`。
+    #[serde(default)]
+    pub resolution: String,
+}
+
+/// `POST /api/generate/image/upscale/submit`
+///
+/// ## 为什么不复用 `submit_image`
+///
+/// 超分和图生图虽然都打 `/images/edits`,但**尺寸的来源相反**：图生图按
+/// 「比例 + 档位」算一个新尺寸，超分必须按**源图的实际像素**算 —— 比例
+/// 是源图定的，换一个就是变形。走同一条路的话得在里面分叉判断，
+/// 而那个判断一旦错了表现是「放大之后图被拉扁」,不报错。
+pub async fn submit_image_upscale(State(state): State<Arc<AppState>>, body: Bytes) -> Json<Value> {
+    let req: UpscaleSubmit = serde_json::from_slice(&body).unwrap_or_else(|err| {
+        tracing::warn!("超分提交体解析失败，按空请求处理: {err}");
+        UpscaleSubmit::default()
+    });
+    let task_id = state.tasks.create();
+
+    tracing::info!(task = %task_id, path = %req.image_path, tier = %req.resolution, "接到图片超分");
+
+    let (st, id) = (state.clone(), task_id.clone());
+    tokio::spawn(async move {
+        let result = upscale_once(&st, &req).await;
+        st.tasks.finish(&id, result);
+    });
+
+    accepted(&task_id, "image")
+}
+
+async fn upscale_once(
+    st: &AppState,
+    req: &UpscaleSubmit,
+) -> Result<crate::tasks::Product, PlatformError> {
+    if req.image_path.trim().is_empty() {
+        return Err(PlatformError::config("没有指定要放大的图片"));
+    }
+    // 尺寸**从源文件量**,不信调用方传来的宽高 —— agent 那边的数字可能
+    // 来自节点上缓存的显示尺寸，和文件里的真实像素对不上，而超分算错尺寸
+    // 的表现是「放大之后图被拉扁」,不报错。
+    let abs = st.ws.root().join(req.image_path.trim());
+    let (w, h) = crate::assets::image_dimensions(&abs);
+    let (Some(w), Some(h)) = (w, h) else {
+        return Err(PlatformError::config(format!(
+            "读不出 {} 的尺寸，无法超分",
+            req.image_path
+        )));
+    };
+
+    let tier = if req.resolution.trim().is_empty() {
+        "2K"
+    } else {
+        req.resolution.trim()
+    };
+    let size = maas_media::image::upscale_size(w, h, tier).ok_or_else(|| {
+        // 这不是故障，是"这张图不需要放大"。说清楚现有尺寸，
+        // 否则用户只会看到一个没有原因的失败节点。
+        PlatformError::config(format!(
+            "这张图已经是 {w}×{h}，达到或超过 {tier} 了，不需要放大"
+        ))
+    })?;
+
+    let images = as_images(st, std::slice::from_ref(&req.image_path))?;
+    let source = images
+        .first()
+        .ok_or_else(|| PlatformError::config("底图读取失败"))?;
+
+    let url = maas_media::image::upscale(&st.client, &st.media, source, &size).await?;
+    land::land(st, &url).await
+}
+
+// ---------------------------------------------------------------------------
 // 视频
 // ---------------------------------------------------------------------------
 

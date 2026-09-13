@@ -250,6 +250,27 @@ export async function submitImage(p: GenerateParams): Promise<string> {
   return body.task_id
 }
 
+/**
+ * 提交高清增强，返回 task_id。轮询同样走 [`pollTask`]。
+ *
+ * **和 `submitImage` 是两条路。** 出图按「比例 + 档位」算尺寸，超分必须按
+ * 源图的真实像素算 —— 比例是源图定的，换一个就是变形。所以尺寸由后端
+ * 从源文件量，这里只传路径和档位。
+ */
+export async function submitUpscale(imagePath: string, resolution: string): Promise<string> {
+  const res = await fetch("/api/generate/image/upscale/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image_path: imagePath, resolution }),
+  })
+  const body = await json<{ task_id?: string }>(
+    res,
+    "POST /api/generate/image/upscale/submit",
+  )
+  if (!body.task_id) throw new Error("gateway 没有返回 task_id")
+  return body.task_id
+}
+
 export interface Product {
   path: string
   width?: number

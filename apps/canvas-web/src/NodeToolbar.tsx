@@ -1,5 +1,5 @@
 import { NodeToolbar as FlowNodeToolbar, Position, useStore } from "@xyflow/react"
-import { Copy, Crop, Download, Maximize2, Trash2, Wand2 } from "lucide-react"
+import { Copy, Crop, Download, Maximize2, Sparkles, Trash2, Wand2 } from "lucide-react"
 import type { ReactNode } from "react"
 
 /**
@@ -58,6 +58,7 @@ export function NodeToolbar({
   onOpen,
   onDownload,
   onCrop,
+  onUpscale,
   onGenerate,
 }: {
   nodeId: string
@@ -68,6 +69,8 @@ export function NodeToolbar({
   onDownload?: () => void
   /** 裁剪 / 旋转与镜像。**只有图片节点有** —— 视频要逐帧处理，那是另一件事。 */
   onCrop?: () => void
+  /** 打开「高清增强」面板。官方 `canvas.enhanceImage.*`。 */
+  onUpscale?: () => void
   onGenerate?: () => void
 }) {
   const zoom = useStore((s) => s.transform[2])
@@ -106,13 +109,21 @@ export function NodeToolbar({
             <Maximize2 size={16} />
           </Btn>
         )}
-        {/* 官方这个位置是一排编辑工具（裁剪/高清/重绘/…）。我们只做得了
-            **不依赖模型的那两个** —— 其余要 inpaint / 抠图 / relight 这类
-            专门模型，平台上一个都没有（查到底了，见 velo.rs 旁边那轮排查）。
+        {/* 官方这个位置是一排编辑工具（裁剪/高清/重绘/…）。重绘 / 擦除 /
+            扩图 / 去背景 / 重打光要 inpaint / 抠图 / relight 这类专门模型，
+            平台上一个都没有（查到底了，见 velo.rs 旁边那轮排查）——
             没做的不放按钮。 */}
         {onCrop && (
           <Btn title="裁剪 · 旋转" onClick={onCrop}>
             <Crop size={16} />
+          </Btn>
+        )}
+        {/* 高清增强。**只开面板，档位在面板里选** —— 官方
+            `canvas.enhanceImage.*`,交互标成 `opens_dialog`:
+            「选完点『生成』才执行，关掉算放弃」。 */}
+        {onUpscale && (
+          <Btn title="高清增强" onClick={onUpscale}>
+            <Sparkles size={16} />
           </Btn>
         )}
         {onDownload && (

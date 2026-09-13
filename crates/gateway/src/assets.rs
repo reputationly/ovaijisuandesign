@@ -364,7 +364,7 @@ fn now_iso() -> String {
 /// **视频以前一律拿到 `(None, None)`** —— 于是画布上每个视频节点都退回
 /// 默认的 350x350 方块，而视频本身多半是 16:9。不报错、不崩，只是尺寸
 /// 一直是错的，刷新也不会变。
-fn image_dimensions(path: &Path) -> (Option<u32>, Option<u32>) {
+pub fn image_dimensions(path: &Path) -> (Option<u32>, Option<u32>) {
     if let Ok((w, h)) = image::image_dimensions(path) {
         return (Some(w), Some(h));
     }

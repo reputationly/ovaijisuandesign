@@ -87,6 +87,7 @@ pub async fn get(State(state): State<Arc<AppState>>) -> (StatusCode, Json<Value>
             "models": {
                 "image": m.image, "imageEdit": m.image_edit,
                 "video": m.video, "videoRef": m.video_ref, "videoUpscale": m.video_upscale,
+                "imageUpscale": m.image_upscale,
                 "music": m.music, "musicEdit": m.music_edit, "speech": m.speech,
                 "enhanceMusicCaption": m.enhance_music_caption,
                 "voiceMap": m.voice_map,
@@ -109,6 +110,7 @@ pub struct Body {
     pub video: Option<String>,
     pub video_ref: Option<String>,
     pub video_upscale: Option<String>,
+    pub image_upscale: Option<String>,
     pub music: Option<String>,
     pub music_edit: Option<String>,
     pub speech: Option<String>,
@@ -178,6 +180,9 @@ pub async fn put(
     }
     if let Some(v) = opt(b.video_upscale) {
         m.video_upscale = v;
+    }
+    if let Some(v) = opt(b.image_upscale) {
+        m.image_upscale = v;
     }
     if let Some(v) = opt(b.music) {
         m.music = v;

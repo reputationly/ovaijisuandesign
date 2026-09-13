@@ -211,6 +211,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/ws", get(events::ws_handler))
         // -- 生成 --
         .route("/api/generate/image/submit", post(generate::submit_image))
+        .route(
+            "/api/generate/image/upscale/submit",
+            post(generate::submit_image_upscale),
+        )
         .route("/api/generate/video/submit", post(generate::submit_video))
         .route("/api/generate/music/submit", post(generate::submit_music))
         .route("/api/generate/speech/submit", post(generate::submit_speech))
