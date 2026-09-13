@@ -266,11 +266,13 @@ jobs:
           # （见 scripts/tag.py 的 next_version），只传它的话
           # 3.0.14.7 之后的 3.0.15.1 会变成"降级"，Velopack 就再也不推更新了。
           # 合成之后 15001 > 14007，单调性成立。
-          VPK_V=$(python3 -c "
-import sys
-major, minor, patch, build = sys.argv[1].split('.')
-print(f'{major}.{minor}.{int(patch) * 1000 + int(build)}')
-" "$V")
+          #
+          # **用 shell 算，不要嵌多行 python** —— 嵌进来的话它的行首没有
+          # YAML 需要的缩进，整个 `run:` 块标量就断了。表现是这条工作流
+          # 0 秒失败、名字显示成文件路径（GitHub 根本没解析出工作流），
+          # 而 push 的 tag 什么都不会构建。
+          IFS=. read -r VP_MAJOR VP_MINOR VP_PATCH VP_BUILD <<< "$V"
+          VPK_V="${VP_MAJOR}.${VP_MINOR}.$((VP_PATCH * 1000 + VP_BUILD))"
           echo "velopack 版本 $V → $VPK_V"
 
           # `--packId` 是这个应用的**永久标识**,升级时靠它认"是不是同一个
