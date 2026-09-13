@@ -107,6 +107,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
         video: form.video,
         videoRef: form.videoRef,
         videoUpscale: form.videoUpscale,
+        imageUpscale: form.imageUpscale,
         music: form.music,
         musicEdit: form.musicEdit,
         speech: form.speech,
@@ -262,6 +263,19 @@ export function Settings({ onClose }: { onClose: () => void }) {
             <ModelField label="文生视频 / 首尾帧" modality="video" avail={avail} value={form.video} onChange={set("video")} />
             <ModelField label="参考生视频" modality="videoRef" avail={avail} value={form.videoRef} onChange={set("videoRef")} />
             <ModelField label="视频超分" modality="video" avail={avail} value={form.videoUpscale} onChange={set("videoUpscale")} />
+            {/* **和视频超分分开配，哪怕填的是同一个 checkpoint** ——
+                两条路走的接口不是一回事：视频超分走异步任务
+                （metadata.task_type=sr + 档位词），图片超分走同步的
+                /images/edits（顶层 image + 精确 size）。合成一个键的话，
+                换了视频超分的模型会静默改掉图片超分的行为。 */}
+            <ModelField
+              label="图片超分"
+              modality="image"
+              avail={avail}
+              value={form.imageUpscale}
+              onChange={set("imageUpscale")}
+              hint="画布上「高清增强」用的模型，例如 swiftvr"
+            />
             <ModelField label="文生音乐" modality="music" avail={avail} value={form.music} onChange={set("music")} />
             <ModelField
               label="音乐编辑 / 翻唱"
