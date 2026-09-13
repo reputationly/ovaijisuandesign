@@ -61,6 +61,42 @@ fn feed_url() -> String {
     format!("{base}/velopack/win")
 }
 
+/// 把 Velopack 的 3 段版本号还原成我们的 4 段。
+///
+/// # 为什么要还原
+///
+/// Velopack **只认 3 段 SemVer2**，而我们的版本号是 4 段（官方基线 3 段 +
+/// 本仓迭代号）。发版时把后两段合成了一段：
+///
+/// ```text
+/// 3.0.14.2  →  3.0.14002        PATCH * 1000 + BUILD
+/// ```
+///
+/// 见 `.github/workflows/release.yml`。不还原的话，界面上的"发现新版本
+/// 3.0.14002"和用户在关于页看到的 3.0.14.1 对不上 —— 像是两个不同的应用。
+///
+/// # 认不出就原样返回
+///
+/// 第三段小于 1000 的说明不是我们编码过的（比如手动传过 `3.0.1`），
+/// 这时原样给回去。**猜错了显示一个不存在的版本号，比显示一个朴素的
+/// 真值更糟**。
+fn display_version(v: &str) -> String {
+    let mut it = v.splitn(3, '.');
+    let (Some(major), Some(minor), Some(rest)) = (it.next(), it.next(), it.next()) else {
+        return v.to_string();
+    };
+    // 第三段后面可能还挂着 `-beta` 之类，只取数字前缀。
+    let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+    let Ok(n) = digits.parse::<u64>() else {
+        return v.to_string();
+    };
+    if n < 1000 {
+        return v.to_string();
+    }
+    let suffix = &rest[digits.len()..];
+    format!("{major}.{minor}.{}.{}{suffix}", n / 1000, n % 1000)
+}
+
 /// 这个进程是不是跑在 Velopack 装出来的包里。
 ///
 /// 判据交给 velopack 自己（它找 `sq.version` / `Update.exe` 那一套），
@@ -102,7 +138,7 @@ pub async fn check(State(_state): State<Arc<AppState>>) -> Json<Value> {
         Ok(Ok(velopack::UpdateCheck::UpdateAvailable(info))) => Json(json!({
             "ok": true,
             "needUpdate": true,
-            "latest": info.TargetFullRelease.Version,
+            "latest": display_version(&info.TargetFullRelease.Version.to_string()),
         })),
         Ok(Ok(_)) => Json(json!({ "ok": true, "needUpdate": false })),
         Ok(Err(e)) => Json(json!({ "ok": false, "error": e.to_string() })),
@@ -127,7 +163,7 @@ pub async fn apply(State(_state): State<Arc<AppState>>) -> Json<Value> {
             velopack::UpdateCheck::UpdateAvailable(i) => i,
             _ => return Err("没有可用的更新".into()),
         };
-        let version = info.TargetFullRelease.Version.clone();
+        let version = display_version(&info.TargetFullRelease.Version.to_string());
         mgr.download_updates(&info, None)
             .map_err(|e| e.to_string())?;
         // **不用 apply_updates_and_restart。** 那个会立刻杀掉当前进程 ——
@@ -205,6 +241,29 @@ mod tests {
         if !cfg!(target_os = "windows") {
             assert!(!available());
         }
+    }
+
+    /// 4 段版本号要能从 Velopack 的 3 段还原回来。
+    ///
+    /// 不还原的话，"发现新版本 3.0.14002"和关于页的 3.0.14.1 对不上,
+    /// 用户会以为是另一个应用。
+    #[test]
+    fn the_three_part_version_is_decoded_back_to_four() {
+        assert_eq!(display_version("3.0.14002"), "3.0.14.2");
+        assert_eq!(display_version("3.0.14001"), "3.0.14.1");
+        assert_eq!(display_version("3.0.15001"), "3.0.15.1");
+        // 迭代号到两位数也要对。
+        assert_eq!(display_version("3.0.14012"), "3.0.14.12");
+    }
+
+    /// **认不出的原样返回。**
+    ///
+    /// 猜错了显示一个不存在的版本号，比显示一个朴素的真值更糟。
+    #[test]
+    fn an_unencoded_version_is_passed_through() {
+        assert_eq!(display_version("3.0.1"), "3.0.1");
+        assert_eq!(display_version("1.2"), "1.2");
+        assert_eq!(display_version("not-a-version"), "not-a-version");
     }
 
     /// **`.app` 的判据是路径，不是操作系统。**

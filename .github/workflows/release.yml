@@ -256,11 +256,28 @@ jobs:
           mkdir -p "$STAGE/mcp" && cp mcp/dist/main.js "$STAGE/mcp/main.js"
           cp -R assets/skills "$STAGE/skills"
 
+          # Velopack **只认 3 段 SemVer2**，而我们的版本号是 4 段
+          # （官方基线 3 段 + 本仓迭代号）。直接传会被拒：
+          #   --packVersion contains an invalid package version '3.0.14.2'
+          #
+          # 把后两段合成一段：3.0.14.2 → 3.0.14002（PATCH*1000 + BUILD）。
+          #
+          # **必须把基线也编进去**，不能只用迭代号 —— 迭代号跨基线会重置
+          # （见 scripts/tag.py 的 next_version），只传它的话
+          # 3.0.14.7 之后的 3.0.15.1 会变成"降级"，Velopack 就再也不推更新了。
+          # 合成之后 15001 > 14007，单调性成立。
+          VPK_V=$(python3 -c "
+import sys
+major, minor, patch, build = sys.argv[1].split('.')
+print(f'{major}.{minor}.{int(patch) * 1000 + int(build)}')
+" "$V")
+          echo "velopack 版本 $V → $VPK_V"
+
           # `--packId` 是这个应用的**永久标识**,升级时靠它认"是不是同一个
           # 应用"。改了等于所有老用户收不到更新，所以写死、不跟版本走。
           vpk pack \
             --packId ovaijisuandesign \
-            --packVersion "$V" \
+            --packVersion "$VPK_V" \
             --packDir "$STAGE" \
             --mainExe "蒜狸小助手.exe" \
             --packTitle "蒜狸小助手" \
