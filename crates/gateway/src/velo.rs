@@ -80,6 +80,14 @@ fn feed_url() -> String {
 /// 第三段小于 1000 的说明不是我们编码过的（比如手动传过 `3.0.1`），
 /// 这时原样给回去。**猜错了显示一个不存在的版本号，比显示一个朴素的
 /// 真值更糟**。
+///
+/// # 为什么是 allow 而不是 cfg
+///
+/// 调用方只在 Windows 上（这个文件里别处用的都是 `#[cfg(target_os = "windows")]`），
+/// 但**这是纯字符串逻辑，要在所有平台受测**。跟着 cfg 掉的话测试也得 cfg，
+/// 而 CI 的 Rust 测试跑在 macOS 上 —— 那等于这段从此没有测试覆盖，
+/// 而它恰恰是"版本号显示错"这类静默问题的唯一防线。
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn display_version(v: &str) -> String {
     let mut it = v.splitn(3, '.');
     let (Some(major), Some(minor), Some(rest)) = (it.next(), it.next(), it.next()) else {
