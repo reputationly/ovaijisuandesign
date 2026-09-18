@@ -210,13 +210,13 @@ async fn post_images(
         .json(body)
         .send()
         .await
-        .map_err(|e| PlatformError::transport(e.to_string()))?;
+        .map_err(|e| PlatformError::from_reqwest(&e))?;
 
     let status = resp.status();
     let raw = resp
         .text()
         .await
-        .map_err(|e| PlatformError::transport(e.to_string()))?;
+        .map_err(|e| PlatformError::from_reqwest(&e))?;
     if !status.is_success() {
         return Err(PlatformError::from_body(status.as_u16(), &raw));
     }
