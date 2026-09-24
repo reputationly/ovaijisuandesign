@@ -36,7 +36,7 @@ export class RuntimeConnection {
 
   set(ep: OpencodeEndpoint): void {
     this.ep = { url: ep.url.replace(/\/+$/, ""), username: ep.username, password: ep.password };
-    this.bus.emit("runtime:opencode-url", { url: this.ep.url });
+    this.bus.emit("internal:opencode-url", { url: this.ep.url });
   }
 
   /** 发给 opencode 的请求头。 */

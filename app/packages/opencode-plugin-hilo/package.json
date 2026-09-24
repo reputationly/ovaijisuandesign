@@ -13,8 +13,12 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json --emitDeclarationOnly && node scripts-bundle.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "1.18.18",
+    "esbuild": "^0.28.2"
   }
 }

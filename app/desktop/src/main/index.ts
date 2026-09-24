@@ -84,6 +84,14 @@ if (!app.requestSingleInstanceLock()) {
     quitting = true;
     void bundle.stop().finally(() => app.exit(0));
   });
-  // 兜底：被信号杀掉或 exit() 时 before-quit 不会触发。
+  // 兜底：exit() 时 before-quit 不会触发。
   process.on("exit", () => bundle?.stopSync());
+  // 被信号终止（kill、Ctrl-C、终端关掉）时 Node 默认直接退出，连 exit 事件都没有 ——
+  // gateway 和 opencode 在独立进程组里，会一直留着占端口。先同步停掉再退。
+  for (const sig of ["SIGTERM", "SIGINT", "SIGHUP"] as const) {
+    process.on(sig, () => {
+      bundle?.stopSync();
+      app.exit(0);
+    });
+  }
 }

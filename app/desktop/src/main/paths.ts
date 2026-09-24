@@ -31,6 +31,7 @@ export function dataDirs(): DataDirs {
     userData,
     hubRoot,
     runtimeDir: path.join(userData, "ai-runtime"),
-    configPath: path.join(userData, "config.json"),
+    // 开发时可以用 OV_CONFIG_PATH 指到别处（比如旧版的配置文件）。
+    configPath: process.env.OV_CONFIG_PATH ?? path.join(userData, "config.json"),
   };
 }

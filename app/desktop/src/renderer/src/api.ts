@@ -10,6 +10,8 @@
  *   file = { version, mode, nodes[], edges[], hiddenAssetIds? }
  */
 
+import { chat, onChatEvent, socket } from "./chat"
+
 /**
  * gateway 地址。Electron 里由 preload 经 `window.__HILO_CONFIG__` 给出（renderer 跑在
  * `app://` 下，相对路径打不到 gateway）；浏览器里同源开发时为空，走相对路径。
@@ -447,10 +449,7 @@ export interface ToolActivity {
  * 刷新一次页面右栏就空了，而 agent 还在后台干活，看起来像是断了。
  */
 export async function getActivity(): Promise<ToolActivity[]> {
-  const r = await fetch(gw("/api/activity"))
-  if (!r.ok) return []
-  const j = (await r.json()) as { entries?: ToolActivity[] }
-  return j.entries ?? []
+  return chat.activity
 }
 
 /**
@@ -467,36 +466,19 @@ const EVENT_NAMES: Record<string, string> = {
 
 /** 订阅 gateway 的实时推送，断线自动重连。 */
 export function connectEvents(onEvent: (event: string, data: unknown) => void): () => void {
-  const proto = location.protocol === "https:" ? "wss:" : "ws:"
-  let ws: WebSocket | null = null
-  let retry: ReturnType<typeof setTimeout> | null = null
-  let closed = false
-
-  const open = () => {
-    if (closed) return
-    ws = new WebSocket(HILO_CONFIG.wsUrl || `${proto}//${location.host}/ws`)
-    ws.onmessage = (ev) => {
-      try {
-        const frame = JSON.parse(ev.data as string) as { type?: string; event?: string; data?: unknown }
-        if (frame.event) onEvent(frame.event, frame.data)
-        else onEvent(EVENT_NAMES[frame.type ?? ""] ?? String(frame.type ?? "?"), frame)
-      } catch {
-        onEvent("<非 JSON 帧>", String(ev.data).slice(0, 200))
-      }
-    }
-    ws.onclose = () => {
-      if (closed) return
-      // gateway 重启是常态（改一次配置就要重起），自己重连。
-      retry = setTimeout(open, 2000)
-    }
-    ws.onerror = () => ws?.close()
-  }
-  open()
-
+  // 服务端事件（画布、资产…）按 type 翻译成界面认识的名字；聊天帧由 chat.ts 维护状态，
+  // 再以旧事件名（agent:message / agent:done / tool:activity / question:*）通知。
+  const offSocket = socket.subscribe((frame) => {
+    const t = String(frame.type ?? "")
+    if (t.startsWith("__") || frame.session_id !== undefined) return
+    const f = frame as { event?: string; data?: unknown }
+    if (f.event) onEvent(f.event, f.data)
+    else if (EVENT_NAMES[t]) onEvent(EVENT_NAMES[t]!, frame)
+  })
+  const offChat = onChatEvent((event, data) => onEvent(event, data))
   return () => {
-    closed = true
-    if (retry) clearTimeout(retry)
-    ws?.close()
+    offSocket()
+    offChat()
   }
 }
 
@@ -557,21 +539,12 @@ export async function applyUpdate(): Promise<{ version: string }> {
 export async function pendingQuestion(): Promise<{
   pending: { id: string; questions: import("./Question").QuestionInfo[] } | null
 }> {
-  return json(await fetch(gw("/api/question/pending")), "GET /api/question/pending")
+  return { pending: chat.question }
 }
 
 /** `answers` 为 null 表示跳过。 */
 export async function answerQuestion(id: string, answers: string[][] | null): Promise<void> {
-  const res = await fetch(gw("/api/question/reply"), {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ id, answers }),
-  })
-  // 409 = 这道题已经不在等待了（被顶掉或超时）。不是错误，静默忽略 ——
-  // 用户看到的题本来就已经作废，弹个错只会让人困惑。
-  if (!res.ok && res.status !== 409) {
-    throw new Error(`提交回答失败 HTTP ${res.status}`)
-  }
+  chat.answer(id, answers)
 }
 
 // ---------------------------------------------------------------------------
@@ -847,7 +820,7 @@ export interface AgentMsg {
 }
 
 export async function agentMessages(): Promise<{ running: boolean; messages: AgentMsg[] }> {
-  return json(await fetch(gw("/api/agent/messages")), "GET /api/agent/messages")
+  return { running: chat.running, messages: chat.agentMessages }
 }
 
 export interface SendOptions {
@@ -871,42 +844,21 @@ export interface SendOptions {
   params?: Record<string, Record<string, string>>
 }
 
-export async function agentSend(
-  message: string,
-  attachments: string[] = [],
-  opts: SendOptions = {},
-): Promise<void> {
-  const res = await fetch(gw("/api/agent/send"), {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      message,
-      attachments,
-      // **只传真的设了的。** 后端对空值当"没设"，但传一堆空串会让
-      // 请求体里全是噪声，排查时分不清哪些是用户选的。
-      ...(opts.mode && opts.mode !== "auto" ? { mode: opts.mode } : {}),
-      ...(opts.models?.length ? { models: opts.models } : {}),
-      ...(opts.aspectRatio ? { aspect_ratio: opts.aspectRatio } : {}),
-      ...(opts.resolution ? { resolution: opts.resolution } : {}),
-      ...(opts.duration ? { duration: opts.duration } : {}),
-      ...(opts.params && Object.keys(opts.params).length > 0 ? { params: opts.params } : {}),
-      ...(opts.chatModel ? { chat_model: opts.chatModel } : {}),
-    }),
-  })
-  // 409 = 上一轮还在跑。把服务端那句话原样抛出去 —— 它比"HTTP 409"有用。
-  if (res.status === 409) {
-    const b = (await res.json().catch(() => ({}))) as { error?: string }
-    throw new Error(b.error ?? "上一轮还在跑")
-  }
-  await json<unknown>(res, "POST /api/agent/send")
+export async function agentSend(message: string, attachments: string[] = [], opts: SendOptions = {}): Promise<void> {
+  // 画幅等界面上选定的参数写成消息开头的一行：agent 会照着填进工具的 vendor_params。
+  const hint = [
+    opts.aspectRatio ? `比例 ${opts.aspectRatio}` : "",
+    opts.resolution ? `分辨率 ${opts.resolution}` : "",
+    opts.duration ? `时长 ${opts.duration} 秒` : "",
+  ]
+    .filter(Boolean)
+    .join("，")
+  const text = hint ? `【画幅】${hint}\n${message}` : message
+  await chat.send(text, attachments, { mode: opts.mode, chatModel: opts.chatModel })
 }
 
 export async function agentStop(): Promise<void> {
-  // **不能吞。** 之前是 `.catch(() => {})` —— 网络错误和 4xx/5xx 一起
-  // 被吃掉，界面上那一行"思考中…"照样消失，而 agent 还在后台跑：
-  // 用户以为停了，下一句话发出去会撞上「上一轮还在跑」。
-  const res = await fetch(gw("/api/agent/stop"), { method: "POST" })
-  await json<unknown>(res, "POST /api/agent/stop")
+  chat.stop()
 }
 
 /** 从官方应用装 skill 的目录（默认 `~/.hub/skills`）增量导入。 */

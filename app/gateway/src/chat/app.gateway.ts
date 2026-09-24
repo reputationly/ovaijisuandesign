@@ -3,6 +3,7 @@ import { WebSocketGateway } from "@nestjs/websockets";
 import type { WebSocket } from "ws";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { type ChatFrame, ChatService } from "./chat.service.js";
 
 /**
  * `/ws`：服务端事件广播 + （M6 起）聊天帧。广播直接发事件 payload（自带 `type`），
@@ -15,15 +16,20 @@ import { GatewayEventBus } from "../common/gateway-event-bus.js";
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly subs = new WeakMap<WebSocket, () => void>();
 
-  constructor(private readonly bus: GatewayEventBus) {}
+  constructor(
+    private readonly bus: GatewayEventBus,
+    private readonly chat: ChatService,
+  ) {}
 
   handleConnection(client: WebSocket): void {
     const off = this.bus.subscribe((m) => {
+      // internal:* 是进程内的信号（比如 opencode 换了地址），不给客户端。
+      if (String(m.event).startsWith("internal:")) return;
       if (client.readyState === client.OPEN) client.send(JSON.stringify(m.payload));
     });
     this.subs.set(client, off);
     client.on("message", (raw) => {
-      let msg: { type?: string };
+      let msg: { type?: string; [k: string]: unknown };
       try {
         msg = JSON.parse(String(raw));
       } catch {
@@ -36,7 +42,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         );
         return;
       }
-      if (msg.type === "ping") client.send(JSON.stringify({ type: "pong" }));
+      if (msg.type === "ping") {
+        client.send(JSON.stringify({ type: "pong" }));
+        return;
+      }
+      const reply = (f: ChatFrame) => {
+        if (client.readyState === client.OPEN) client.send(JSON.stringify(f));
+      };
+      void this.chat.handle(msg as ChatFrame, reply).catch((err: unknown) =>
+        reply({ type: "error", content: String(err), error: { error_code: "GATEWAY_ERROR", user_message: String(err), retryable: true } }),
+      );
     });
   }
 
