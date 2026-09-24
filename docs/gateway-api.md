@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 73 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 85 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -54,12 +54,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/asset-center/workspace-refs
 ```
 
-## AssetPreviewController（0/3）
+## AssetPreviewController（1/3）
 
 ```
   GET    /api/asset/:id/metadata
   GET    /api/asset/text-preview
-  GET    /api/internal/document/read
+✓ GET    /api/internal/document/read
 ```
 
 ## FilesController（14/57）
@@ -169,7 +169,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/canvas/execute-group
 ```
 
-## CanvasController（18/26）
+## CanvasController（19/26）
 
 ```
   POST   /api/canvas/file-node
@@ -192,7 +192,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/canvas/selection
 ✓ POST   /api/canvas/selection
   POST   /api/canvas/split-sub-images
-  POST   /api/canvas/table-node
+✓ POST   /api/canvas/table-node
 ✓ POST   /api/canvas/text-edit-state
 ✓ POST   /api/canvas/text-node
 ✓ POST   /api/canvas/text-node/apply-edits
@@ -281,24 +281,24 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/diagnostics/network
 ```
 
-## EditController（0/23）
+## EditController（7/23）
 
 ```
-  POST   /api/edit/analyze-media
+✓ POST   /api/edit/analyze-media
   POST   /api/edit/asr
   POST   /api/edit/asr-mediakit
   POST   /api/edit/asr-whisper
   POST   /api/edit/audio-separate
-  POST   /api/edit/concatenate-videos
-  POST   /api/edit/embed-audio
+✓ POST   /api/edit/concatenate-videos
+✓ POST   /api/edit/embed-audio
   POST   /api/edit/enhance-image
   POST   /api/edit/enhance-video-mediakit
   POST   /api/edit/erase-banana
   POST   /api/edit/erase-subtitle-mediakit
-  POST   /api/edit/extract-audio
-  POST   /api/edit/ffmpeg
-  POST   /api/edit/generate-text
-  POST   /api/edit/generate-text-messages
+✓ POST   /api/edit/extract-audio
+✓ POST   /api/edit/ffmpeg
+✓ POST   /api/edit/generate-text
+✓ POST   /api/edit/generate-text-messages
   POST   /api/edit/hailuo03-video-super-resolution
   POST   /api/edit/layer-decompose
   POST   /api/edit/lip-sync
@@ -319,11 +319,11 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/feedback/upload-attachment
 ```
 
-## FeedbackExtractorController（0/2）
+## FeedbackExtractorController（2/2）
 
 ```
-  POST   /api/feedback-extractor/config
-  POST   /api/feedback-extractor/notify-manual-write
+✓ POST   /api/feedback-extractor/config
+✓ POST   /api/feedback-extractor/notify-manual-write
 ```
 
 ## TextVersionController（0/9）
@@ -525,10 +525,10 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/operations/undo
 ```
 
-## PlanController（0/3）
+## PlanController（1/3）
 
 ```
-  POST   /api/plan/notify-changed
+✓ POST   /api/plan/notify-changed
   GET    /api/plan/review
   PATCH  /api/plan/stage-work-items
 ```
