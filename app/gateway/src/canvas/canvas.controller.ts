@@ -18,6 +18,7 @@ import {
   SelectionDto,
   TextEditStateDto,
   UngroupDto,
+  WriteTableNodeDto,
   WriteTextNodeDto,
 } from "./canvas.dto.js";
 
@@ -139,6 +140,11 @@ export class CanvasController {
   @Post("text-node/apply-edits")
   applyEdits(@Body() b: ApplyTextEditsDto) {
     return this.canvas.applyTextEdits(b);
+  }
+
+  @Post("table-node")
+  tableNode(@Body() b: WriteTableNodeDto) {
+    return guarded(() => this.canvas.writeTableNode(b), "gateway");
   }
 
   @Post("media-node")

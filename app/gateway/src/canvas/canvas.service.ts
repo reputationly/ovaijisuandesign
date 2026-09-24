@@ -29,6 +29,7 @@ import {
 } from "./canvas-geometry.js";
 import { CanvasPersistence, type DeletionIntent, type SystemMutationIntent } from "./canvas-persistence.js";
 import { applyTextEdits, type TextEdit } from "./text-edits.js";
+import { buildTableDocument, newTablePath, serializeTableDocument, type TableInput } from "./table-document.js";
 
 const MODE = "workflow";
 const GROUP_LABEL_MAX = 40;
@@ -823,6 +824,113 @@ export class CanvasService {
         event: { removedNodeIds: [id], removedEdgeIds },
         intent: { reason: "placeholder-cleanup", removedNodeIds: [id], removedEdgeIds, allowHighBlast: true },
       };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 编辑产物（ffmpeg / 拼接 / 配音轨）
+  // -------------------------------------------------------------------------
+
+  /**
+   * 编辑产物上画布。`replaceNodeId` 指向的节点还在就原地替换（例如给临时视频配上音轨后，
+   * 画布上只留最终版）；否则新建节点，从来源节点和各输入素材的节点连派生边。
+   */
+  async placeDerivedMedia(dto: {
+    row: AssetRow;
+    replaceNodeId?: string;
+    sourceNodeId?: string;
+    referenceAssetIds?: string[];
+    data: Record<string, unknown>;
+  }): Promise<string> {
+    if (dto.replaceNodeId && (await this.getCanvas()).nodes.some((n) => n.id === dto.replaceNodeId)) {
+      return this.fillGeneratedNode({ placeholderId: dto.replaceNodeId, replace: true, row: dto.row, data: dto.data });
+    }
+    return this.mutate((c) => {
+      const sources: string[] = [];
+      if (dto.sourceNodeId && c.nodes.some((n) => n.id === dto.sourceNodeId)) sources.push(dto.sourceNodeId);
+      for (const assetId of dto.referenceAssetIds ?? []) {
+        const n = c.nodes.find((x) => x.assetId === assetId && !(x.meta as any)?.cloneOf);
+        if (n) sources.push(n.id);
+      }
+      const type = toAssetInfo(dto.row).type;
+      const size = computeNodeSize(dto.row.width, dto.row.height) ?? defaultNodeSize(type);
+      const { node, edges } = this.addAssetNode(c, dto.row, { sourceNodeIds: sources, extraData: dto.data, size });
+      return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges } };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 表格节点
+  // -------------------------------------------------------------------------
+
+  /** 有 nodeId 替换已有表格的内容，没有就新建。 */
+  async writeTableNode(dto: TableInput & { nodeId?: string; title?: string; position?: Point; sourceNodeIds?: string[] }) {
+    if (dto.nodeId) {
+      const r = await this.replaceTableContent(dto.nodeId, dto);
+      return { nodeId: dto.nodeId, ...r, created: false };
+    }
+    const r = await this.createTableNode(dto);
+    return { ...r, created: true };
+  }
+
+  /** 新建：`.htable` 写进 `.hilo/tables/`，节点没给位置就找一块空地。 */
+  private async createTableNode(dto: TableInput & { title?: string; position?: Point; sourceNodeIds?: string[] }) {
+    const tablePath = newTablePath();
+    const doc = buildTableDocument(dto);
+    await atomicWriteFile(path.join(this.paths.root, tablePath), serializeTableDocument(doc));
+    return this.mutate((c) => {
+      const size = defaultNodeSize("table");
+      const title = dto.title?.trim();
+      const node: CanvasNode = {
+        id: randomUUID(),
+        type: "table",
+        positions: { [MODE]: dto.position ?? resolveDerivedOrFreePosition(c, MODE, size) },
+        size,
+        data: { tablePath, ...(title ? { title } : {}) },
+      };
+      c.nodes.push(node);
+      this.pendingNodes.add(node.id);
+      const edges = this.addDerivationEdges(c, dto.sourceNodeIds ?? [], node.id);
+      return {
+        canvas: c,
+        result: { nodeId: node.id, tablePath, columnCount: doc.columns.length, rowCount: doc.rows.length },
+        event: { addedNodes: [node], addedEdges: edges },
+      };
+    });
+  }
+
+  /**
+   * 整表替换。广播带一个新的 `tableRevision`，渲染层看到它变了才会从盘上重读 ——
+   * 节点本身的其他字段没变，不带它渲染层会以为什么都没发生。
+   */
+  private async replaceTableContent(nodeId: string, dto: TableInput & { title?: string }) {
+    const c0 = await this.getCanvas();
+    const node = c0.nodes.find((n) => n.id === nodeId);
+    if (!node) throw new NotFoundException(`Canvas node not found: ${nodeId}`);
+    if (node.type !== "table") {
+      throw new BadRequestException(`Node is not a table node: ${nodeId} (type=${node.type}). Use canvas_write_node with kind=table only on table nodes.`);
+    }
+    const tablePath = (node.data as any)?.tablePath as string | undefined;
+    if (!tablePath) throw new NotFoundException(`Table node has no tablePath: ${nodeId}`);
+    if (!dto.columns?.length) throw new BadRequestException("Replacing a table requires at least one column in `columns`.");
+    const abs = this.paths.resolve(tablePath);
+    if (!abs) throw new BadRequestException(`Invalid tablePath on node: ${nodeId}`);
+    const doc = buildTableDocument(dto);
+    return this.nodeLock(nodeId).runExclusive(async () => {
+      await atomicWriteFile(abs, serializeTableDocument(doc));
+      const title = dto.title?.trim();
+      // 标题落盘（不然渲染层没开着时改名就丢了）；tableRevision 只随广播走，不进 canvas.json。
+      const updated = await this.mutate((c) => {
+        const n = c.nodes.find((x) => x.id === nodeId);
+        if (!n) return { result: node };
+        if (title && (n.data as any)?.title !== title) {
+          n.data = { ...(n.data ?? {}), title };
+          return { canvas: c, result: n };
+        }
+        return { result: n };
+      });
+      this.emitUpdate({ origin: "mcp-write", updatedNodes: [{ ...updated, data: { ...(updated.data ?? {}), tablePath, tableRevision: Date.now() } }] });
+      return { tablePath, columnCount: doc.columns.length, rowCount: doc.rows.length };
     });
   }
 

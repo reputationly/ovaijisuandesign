@@ -5,7 +5,9 @@
   "description": "MCP server（server 名 hub）。registrar + GatewayClient + runAsync，见 docs/mcp-tools-architecture.md。由 opencode 以 Electron-as-Node 拉起。",
   "type": "module",
   "main": "./dist/main.js",
-  "bin": { "ov-mcp-tools": "./dist/main.js" },
+  "bin": {
+    "ov-mcp-tools": "./dist/main.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -13,6 +15,14 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
+    "@ov/protocol": "workspace:^",
+    "js-yaml": "4.3.2",
+    "proper-lockfile": "4.1.2",
+    "undici": "7.29.1",
     "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "4.0.9",
+    "@types/proper-lockfile": "4.1.4"
   }
 }
