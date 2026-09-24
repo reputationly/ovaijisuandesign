@@ -47,6 +47,7 @@ export class GatewayManager extends EventEmitter {
   private child?: ChildProcess;
   private current?: RunningGateway;
   private stopping = false;
+  private allocated?: number;
 
   constructor(
     private readonly spec: GatewaySpec,
@@ -60,6 +61,27 @@ export class GatewayManager extends EventEmitter {
     return this.current;
   }
 
+  /**
+   * 先占定端口、拿到地址，进程稍后再起。窗口和 opencode 配置都要提前知道地址，
+   * 不必等 gateway 健康。端口在真正 spawn 前可能被别人抢走，那种情况 spawn 会失败，
+   * 由调用方重试。
+   */
+  async allocatePort(): Promise<string> {
+    if (this.allocated === undefined) this.allocated = this.spec.port ?? (await freePort());
+    return `http://127.0.0.1:${this.allocated}`;
+  }
+
+  /** 已分配的地址（还没分配时为 undefined）。 */
+  get url(): string | undefined {
+    const port = this.allocated ?? this.spec.port;
+    return port === undefined ? undefined : `http://127.0.0.1:${port}`;
+  }
+
+  /** 进程是否还在（包括正在健康检查中）。 */
+  get alive(): boolean {
+    return !!this.child && this.child.exitCode === null && this.child.signalCode === null;
+  }
+
   async start(): Promise<RunningGateway> {
     this.stopping = false;
     const gw = await this.spawnOnce();
@@ -69,7 +91,8 @@ export class GatewayManager extends EventEmitter {
 
   private async spawnOnce(): Promise<RunningGateway> {
     if (!existsSync(this.spec.entry)) throw new Error(`找不到 gateway 入口: ${this.spec.entry}`);
-    const port = this.spec.port ?? (await freePort());
+    const port = this.allocated ?? this.spec.port ?? (await freePort());
+    this.allocated = port;
     const nonce = randomUUID();
     const env: NodeJS.ProcessEnv = {
       ...process.env,
@@ -178,7 +201,7 @@ function killTree(pid: number | undefined, force: boolean) {
   }
 }
 
-function freePort(): Promise<number> {
+export function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const srv = createServer();
     srv.once("error", reject);

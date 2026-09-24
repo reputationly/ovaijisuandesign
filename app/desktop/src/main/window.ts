@@ -2,8 +2,26 @@ import { join } from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
+export interface WindowArgs {
+  /** 应用级 gateway 的地址（进程可能还没起来，就绪与否走 gateway-readiness）。 */
+  gatewayUrl: string;
+}
+
+/** preload 从 argv 读这些，拼成 window.__HILO_CONFIG__。 */
+function additionalArguments(a: WindowArgs): string[] {
+  const args = [
+    `--gateway-url=${a.gatewayUrl}`,
+    `--app-version=${app.getVersion()}`,
+    `--runtime-env=${app.isPackaged ? "production" : "development"}`,
+    "--release-channel=prod",
+    "--release-region=domestic",
+  ];
+  if (app.runningUnderARM64Translation) args.push("--running-under-arm64-translation=true");
+  return args;
+}
+
 /**
- * 主窗口。
+ * 主窗口（唯一的窗口；工作区是渲染层里的标签）。
  *
  * - 1280×800，最小 800×600，`show: false` 等页面画好再显示（否则先看到一块空白）
  * - macOS `hiddenInset` + 红绿灯位置；Windows 隐藏标题栏但保留 `titleBarOverlay`
@@ -11,7 +29,7 @@ import { app, BrowserWindow } from "electron";
  * - `contextIsolation: true`、`nodeIntegration: false`、`sandbox: false`
  *   （preload 是 ESM，sandbox 下不能用 ESM preload）
  */
-export function createMainWindow(gatewayUrl: string): BrowserWindow {
+export function createMainWindow(a: WindowArgs): BrowserWindow {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -31,8 +49,7 @@ export function createMainWindow(gatewayUrl: string): BrowserWindow {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      // preload 从 argv 读这些，拼成 window.__HILO_CONFIG__。
-      additionalArguments: [`--gateway-url=${gatewayUrl}`, `--app-version=${app.getVersion()}`],
+      additionalArguments: additionalArguments(a),
     },
   });
   win.once("ready-to-show", () => win.show());

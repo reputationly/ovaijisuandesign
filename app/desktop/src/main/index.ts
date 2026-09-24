@@ -1,73 +1,310 @@
-import { existsSync, mkdirSync } from "node:fs";
+/**
+ * 主进程入口。
+ *
+ * 启动顺序：存储 → 总线与各频道 → 项目（重放事务日志）→ 首次迁移 → 占好应用级 gateway
+ * 的端口 → **立即**开窗口（不等任何 gateway）→ 应用级 gateway 后台启动 → 恢复上次的标签。
+ * 工作区的 gateway + opencode 由 HiloApp 按需起，最多同时 5 套。
+ */
+import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Notification, shell } from "electron";
 
+import { AppGateway, GatewayReadinessService, readinessView } from "./app-gateway.js";
+import { GatewayManager } from "./gateway/gateway-manager.js";
+import { APP_LEVEL_GATEWAY_KEY, GatewayRegistry } from "./gateway/gateway-registry.js";
+import { IPC } from "./ipc/channels.js";
+import { createMainIpcServer } from "./ipc/electron-server.js";
+import { DisposableStore } from "./ipc/events.js";
+import { fromService } from "./ipc/proxy.js";
+import type { ProjectRecord, WorkspaceOpenResult } from "./ipc/types.js";
+import { installAppMenu, triggerMenuAction } from "./menu.js";
+import { migrateLegacyWorkspace } from "./migration/legacy.js";
+import { OpenCodeRuntime, prepareLaunch } from "./opencode/index.js";
 import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
 import { readPlatform } from "./platform-config.js";
+import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
+import { registerRawIpc, wireFullscreenEvents } from "./raw-ipc.js";
+import { RestoreHealth, runStartupRestore } from "./restore.js";
+import { GlobalStore, type RecentWorkspace } from "./storage/global-store.js";
+import { recordRecentOpen } from "./storage/recents.js";
+import { registerStorageIpc } from "./storage/storage-ipc.js";
+import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
+import { stubChannels } from "./stub-channels.js";
 import { createMainWindow } from "./window.js";
-import { WorkspaceBundle } from "./workspace-bundle.js";
+import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
+import { HiloApp } from "./workspace/hilo-app.js";
 
 app.setName("蒜狸小助手");
+// 开发 / 验证时把 userData 指到临时目录，免得碰到真实的全局存储和迁移标记
+if (process.env.OV_USER_DATA_DIR) app.setPath("userData", path.resolve(process.env.OV_USER_DATA_DIR));
 registerAppScheme();
 
-let bundle: WorkspaceBundle | undefined;
-
-/**
- * 当前打开的工作区。M5 换成项目模型（项目列表、每个项目一套进程）；在那之前
- * 用 `OV_WORKSPACE_DIR`，没给就用数据根下的一个固定目录。
- */
-function currentWorkspace(hubRoot: string): string {
-  const dir = process.env.OV_WORKSPACE_DIR ?? path.join(hubRoot, "workspaces", "default");
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  return dir;
+interface Running {
+  hilo: HiloApp;
+  appGateway: AppGateway;
+  store: GlobalStore;
+  health: RestoreHealth;
+  appUrl: string;
+  logStream?: WriteStream;
 }
 
-async function boot() {
+let running: Running | undefined;
+
+function makeLogger(logDir: string): { log: (line: string) => void; stream?: WriteStream } {
+  let stream: WriteStream | undefined;
+  try {
+    mkdirSync(logDir, { recursive: true });
+    stream = createWriteStream(path.join(logDir, "main.log"), { flags: "a" });
+  } catch {
+    // 写不了日志文件就只打控制台
+  }
+  return {
+    stream,
+    log: (line: string) => {
+      console.log(line);
+      stream?.write(`${new Date().toISOString()} ${line}\n`);
+    },
+  };
+}
+
+function mainWindow(): BrowserWindow | undefined {
+  return BrowserWindow.getAllWindows()[0];
+}
+
+function showMainWindow(appUrl: string): BrowserWindow {
+  let w = mainWindow();
+  if (!w) {
+    w = createMainWindow({ gatewayUrl: appUrl });
+    wireFullscreenEvents(w);
+  }
+  if (w.isMinimized()) w.restore();
+  w.show();
+  w.focus();
+  return w;
+}
+
+/** 旧式打开方法遇到"开不了"的结果时给一条系统通知。 */
+function notifyOpenResult(r: WorkspaceOpenResult): void {
+  if (!Notification.isSupported()) return;
+  let body: string | undefined;
+  if (r.kind === "limit_reached") body = `最多同时运行 ${r.maxOpenWorkspaces} 个项目，${r.busyProjectNames.join("、")} 都还在忙。先关掉一个再试。`;
+  else if (r.kind === "storage_unavailable" || r.kind === "storage_restart_required") body = "数据目录暂时不可用。";
+  if (body) new Notification({ title: "打不开项目", body }).show();
+}
+
+async function boot(): Promise<Running> {
   const dirs = dataDirs();
-  bundle = new WorkspaceBundle({
-    roots: resourceRoots(),
-    version: app.getVersion(),
-    workspaceDir: currentWorkspace(dirs.hubRoot),
-    platform: readPlatform(dirs.configPath),
-    hubRoot: dirs.hubRoot,
-    runtimeDir: dirs.runtimeDir,
-    configPath: dirs.configPath,
-    nodeExec: nodeExecutable(),
+  const { log, stream } = makeLogger(path.join(dirs.userData, "logs"));
+  const roots = resourceRoots();
+  const nodeExec = nodeExecutable();
+  const gatewayEntry = roots.resources
+    ? path.join(roots.resources, "gateway/dist/main.js")
+    : path.join(roots.repoRoot!, "app/gateway/dist/main.js");
+  log(`[main] userData=${dirs.userData} projects=${dirs.projectsRoot} hub=${dirs.hubRoot}`);
+
+  // 存储
+  const store = new GlobalStore(dirs.globalStorePath, { workingDirectory: path.join(dirs.hubRoot, "projects"), log });
+  const workspaceStores = new WorkspaceStorageRegistry();
+  registerStorageIpc(ipcMain, store, workspaceStores);
+  const health = new RestoreHealth(store);
+
+  // 总线
+  const ipcServer = createMainIpcServer(ipcMain);
+  const registerChannel = (name: string, service: object) => {
+    const owned = new DisposableStore();
+    ipcServer.registerChannel(name, fromService(service, owned));
+    return {
+      dispose: () => {
+        ipcServer.unregisterChannel(name);
+        owned.dispose();
+      },
+    };
+  };
+
+  // 应用级 gateway：先占端口，窗口拿到地址就能开
+  mkdirSync(dirs.outputDir, { recursive: true });
+  const gateways = new GatewayRegistry();
+  const appGatewayProc = new GatewayManager(
+    {
+      entry: gatewayEntry,
+      role: "app-level",
+      exec: nodeExec,
+      // 没有工作区：状态都落在输出目录，别让它把 gateway 的安装目录当工作区
+      env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, WORKSPACE_DIR: dirs.outputDir },
+    },
+    log,
+  );
+  const readiness = new GatewayReadinessService();
+  const appGateway = new AppGateway(appGatewayProc, readiness, log);
+  gateways.register(APP_LEVEL_GATEWAY_KEY, { url: () => appGatewayProc.running?.url });
+  const appUrl = await appGateway.allocate();
+
+  // 项目
+  const projects = new ProjectService({
+    getProjects: () => store.get("projects") as ProjectRecord[],
+    setProjects: (p) => store.replace("projects", p),
+    projectsRoot: () => dirs.projectsRoot,
+    journalDir: dirs.journalDir,
+    trashFolder: (p) => shell.trashItem(p),
+    log,
   });
-  const gw = await bundle.start();
-  createMainWindow(gw.url);
+  await projects.initialize().catch((err) => log(`[main] 项目存储初始化失败：${String(err)}`));
+
+  // 首次启动迁移旧版数据（只跑一次）
+  if (process.env.OV_SKIP_LEGACY_MIGRATION !== "1") {
+    await migrateLegacyWorkspace({
+      legacyConfigPath: process.env.OV_LEGACY_CONFIG_PATH ?? path.join(app.getPath("appData"), "ovaijisuandesign", "config.json"),
+      configPath: dirs.configPath,
+      projectsRoot: dirs.projectsRoot,
+      markerPath: path.join(dirs.userData, ".legacy-migrated"),
+      statePath: path.join(dirs.userData, "legacy-migration", "state.json"),
+      store,
+      projects,
+      log,
+    }).catch((err) => log(`[main] 旧版数据迁移失败（下次启动重试）：${err instanceof Error ? err.message : String(err)}`));
+  }
+
+  // 多工作区
+  const opencodeStartGate = createSerialGate();
+  const hilo: HiloApp = new HiloApp({
+    createRuntime: (id, folderPath, opts) => {
+      const handle = new BundleHandle(id, folderPath, opts.generation, {
+        createGateway: (dir, env) =>
+          new GatewayManager({ entry: gatewayEntry, role: "workspace", workspaceDir: dir, exec: nodeExec, env: { OV_CONFIG_PATH: dirs.configPath, ...env } }, log),
+        createOpencode: () => new OpenCodeRuntime(log),
+        prepareOpencode: (dir, gatewayUrl) =>
+          prepareLaunch({
+            roots,
+            version: app.getVersion(),
+            workspace: dir,
+            // 每次起都重读：设置页改了模型后新开的工作区就用上
+            platform: readPlatform(dirs.configPath),
+            gatewayUrl,
+            hubRoot: dirs.hubRoot,
+            runtimeDir: dirs.runtimeDir,
+            skillsDir: path.join(dirs.hubRoot, "skills"),
+            nodeExec,
+          }),
+        opencodeStartGate,
+        log,
+      });
+      const reg = gateways.register(id, { url: () => handle.binding()?.baseUrl, binding: () => handle.binding() });
+      handle.onStatusChange((s) => {
+        if (s.state === "stopped") reg.dispose();
+      });
+      return handle;
+    },
+    registerChannel,
+    projectsRoot: () => dirs.projectsRoot,
+    home: homedir(),
+    onWorkspaceOpened: (p) => store.update("recentWorkspaces", (list: RecentWorkspace[]) => recordRecentOpen(list, p, Date.now())),
+    onOpenWorkspacesChanged: (paths) => store.replace("openWorkspacePaths", paths),
+    onWorkspaceClosed: (p) => health.clear(p),
+    applyCreatePreferences: (dir, v) => workspaceStores.applyCreatePreferences(dir, v),
+    showHome: () => void showMainWindow(appUrl),
+    notify: notifyOpenResult,
+    toggleSkill: async (name, enabled) => {
+      const target = gateways.firstUrl();
+      if (!target) throw new Error("no gateway is running");
+      const r = await fetch(`${target.url}/api/skills/${encodeURIComponent(name)}/toggle`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ enabled }),
+      });
+      if (!r.ok) throw new Error(`toggle skill failed: ${r.status}`);
+      const body = (await r.json()) as { skill?: unknown };
+      for (const w of BrowserWindow.getAllWindows()) w.webContents.send(IPC.skillPermissionsChanged);
+      return body.skill ?? body;
+    },
+    retryAppGateway: () => appGateway.retry(),
+    log,
+  });
+  hilo.startIdleSweep();
+
+  registerChannel("hilo", hilo);
+  registerChannel("project", projects);
+  registerChannel("gateway-readiness", readinessView(readiness));
+  for (const [name, svc] of Object.entries(stubChannels({ store, projectsRoot: dirs.projectsRoot, dataRoot: dirs.dataRoot, outputDir: dirs.outputDir, log: (l, m) => log(`[renderer ${l}] ${m}`) }))) {
+    registerChannel(name, svc);
+  }
+
+  const menuDeps = {
+    createWorkspace: () => hilo.createWorkspace(),
+    openLogDir: () => void shell.openPath(path.join(dirs.userData, "logs")),
+  };
+  registerRawIpc({
+    logDir: path.join(dirs.userData, "logs"),
+    triggerMenu: (id, sender) => triggerMenuAction(id, menuDeps, sender),
+    restartOpencode: () => hilo.restartAllOpencode(),
+    log: (level, message) => log(`[renderer ${level}] ${message}`),
+  });
+  installAppMenu(menuDeps);
+
+  // 窗口不等 gateway
+  const win = showMainWindow(appUrl);
+  void appGateway.startInBackground();
+
+  // 恢复上次的标签；给渲染层的通知等页面加载完再发（preload 还会替它攒着）
+  const pageLoaded = new Promise<void>((resolve) => win.webContents.once("did-finish-load", () => resolve()));
+  void runStartupRestore({
+    store,
+    health,
+    restoreTabs: (paths, prewarm) => hilo.restoreWorkspaceTabs(paths, prewarm),
+    askRestoreUnhealthy: async (paths) => {
+      const { response } = await dialog.showMessageBox(win, {
+        type: "warning",
+        buttons: ["恢复", "跳过"],
+        defaultId: 1,
+        cancelId: 1,
+        message: "上次有项目没能正常关闭",
+        detail: `这些项目在最近几次启动后都没有正常退出，可能是它们导致了问题：\n${paths.join("\n")}\n\n跳过后它们仍在最近项目里，可以手动打开。`,
+        noLink: true,
+      });
+      return response === 0 ? "restore" : "skip";
+    },
+    send: (payload) => void pageLoaded.then(() => !win.isDestroyed() && win.webContents.send(IPC.menuNewWorkspace, payload)),
+    log,
+  });
+
+  // 开发用：启动后直接打开这些工作区（路径用系统分隔符隔开），便于不经界面验证多工作区
+  if (!app.isPackaged && process.env.OV_DEV_OPEN_WORKSPACES) {
+    for (const p of process.env.OV_DEV_OPEN_WORKSPACES.split(path.delimiter).filter(Boolean)) {
+      void hilo.openWorkspaceWithResult(p).then(
+        (r) => log(`[dev] open ${p} → ${r.kind}${r.kind === "opened" || r.kind === "reused" ? ` ${r.runtime.gatewayUrl}` : ""}`),
+        (err) => log(`[dev] open ${p} failed: ${String(err)}`),
+      );
+    }
+  }
+
+  // 开发用：到时间走一遍正常退出流程（验证退出时不留孤儿进程）
+  const quitAfter = Number(process.env.OV_DEV_QUIT_AFTER_MS);
+  if (!app.isPackaged && quitAfter > 0) setTimeout(() => app.quit(), quitAfter).unref();
+
+  return { hilo, appGateway, store, health, appUrl, logStream: stream };
 }
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on("second-instance", () => {
-    const w = BrowserWindow.getAllWindows()[0];
-    if (w) {
-      if (w.isMinimized()) w.restore();
-      w.show();
-      w.focus();
-    }
+    if (running) showMainWindow(running.appUrl);
   });
 
   void app.whenReady().then(async () => {
     handleAppScheme();
     try {
-      await boot();
+      running = await boot();
     } catch (err) {
       console.error("启动失败", err);
       app.exit(1);
       return;
     }
-    // 点 Dock 图标：只在没有可见窗口时才唤起，有可见窗口时什么都不做（macOS 原生行为）。
+    // 点 Dock 图标：只在没有可见窗口时才唤起
     app.on("activate", () => {
-      if (!BrowserWindow.getAllWindows().some((w) => w.isVisible())) {
-        const w = BrowserWindow.getAllWindows()[0];
-        if (w) w.show();
-        else if (bundle?.gateway.running) createMainWindow(bundle.gateway.running.url);
-      }
+      if (running && !BrowserWindow.getAllWindows().some((w) => w.isVisible())) showMainWindow(running.appUrl);
     });
   });
 
@@ -79,18 +316,31 @@ if (!app.requestSingleInstanceLock()) {
   // 否则每次关应用都留下一串孤儿进程占着端口。
   let quitting = false;
   app.on("before-quit", (e) => {
-    if (quitting || !bundle) return;
+    if (quitting || !running) return;
     e.preventDefault();
     quitting = true;
-    void bundle.stop().finally(() => app.exit(0));
+    const r = running;
+    void (async () => {
+      await r.hilo.shutdown();
+      await r.appGateway.stop();
+      // 正常退出：恢复熔断计数清零
+      r.health.reset();
+      r.logStream?.end();
+    })()
+      .catch((err) => console.error("退出清理失败", err))
+      .finally(() => app.exit(0));
   });
+  const stopAllSync = () => {
+    running?.hilo.shutdownSync();
+    running?.appGateway.stopSync();
+  };
   // 兜底：exit() 时 before-quit 不会触发。
-  process.on("exit", () => bundle?.stopSync());
+  process.on("exit", stopAllSync);
   // 被信号终止（kill、Ctrl-C、终端关掉）时 Node 默认直接退出，连 exit 事件都没有 ——
-  // gateway 和 opencode 在独立进程组里，会一直留着占端口。先同步停掉再退。
+  // 先同步停掉再退。
   for (const sig of ["SIGTERM", "SIGINT", "SIGHUP"] as const) {
     process.on(sig, () => {
-      bundle?.stopSync();
+      stopAllSync();
       app.exit(0);
     });
   }

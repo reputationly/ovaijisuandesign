@@ -118,6 +118,8 @@ export function skillDirs(root: string): string[] {
     .sort();
 }
 
+const stagedDirs = new Set<string>();
+
 export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   const binary = locateOpencode(i.roots);
   if (!binary) throw new Error("找不到 opencode。发布包里应当自带（resources/opencode/）；开发时用 OPENCODE_BIN 指定");
@@ -127,10 +129,15 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   if (!mcpEntry) throw new Error("找不到 MCP server（mcp-tools/dist/main.js）");
 
   const synced = path.join(i.hubRoot, ".config-v2");
-  syncProfile(src, synced, i.version);
-  assertProfileComplete(synced);
   const staging = path.join(tmpdir(), `ov-opencode-staging-${process.pid}`);
-  stageProfile(synced, staging);
+  // 同一进程里只同步 / 拼装一次：多个工作区共用这份目录，第二个工作区启动时再
+  // 删掉重建，会让已经在跑的 opencode 读到半截配置。
+  if (!stagedDirs.has(staging)) {
+    syncProfile(src, synced, i.version);
+    assertProfileComplete(synced);
+    stageProfile(synced, staging);
+    stagedDirs.add(staging);
+  }
 
   // opencode 的全部状态隔离到我们自己的目录，不碰用户的 ~/.config/opencode。
   const xdg = {
