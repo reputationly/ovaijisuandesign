@@ -44,6 +44,7 @@ pub mod memory;
 pub mod models;
 pub mod mp4;
 pub mod music;
+pub mod opencode;
 pub mod plan;
 pub mod proxy;
 pub mod question;
@@ -94,6 +95,8 @@ pub struct AppState {
     pub awake: Arc<crate::awake::Keeper>,
     /// 微信 iLink 的状态。见 [`crate::wechat`]。
     pub wechat: Arc<crate::wechat::Wechat>,
+    /// opencode 子进程。见 [`crate::opencode`]。
+    pub opencode: Arc<crate::opencode::Runtime>,
     /// 没实现的路由反代到哪里。`None` 表示不反代，如实回 404。
     pub upstream: Option<String>,
     /// 前端产物目录。`None` 表示没找到，访问 `/` 会如实说前端没构建。
@@ -298,6 +301,7 @@ mod tests {
             feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
             awake: Arc::new(crate::awake::Keeper::default()),
             wechat: Arc::new(crate::wechat::Wechat::new()),
+            opencode: crate::opencode::Runtime::new(),
             upstream: None,
             web_dir: None,
         })

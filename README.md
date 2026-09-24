@@ -194,6 +194,20 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    **两个源实测跑通**（GitHub Release + Cloudflare R2，四个平台的包，
    3.9 MB 解压即用），**下载和安装也已完成** —— 界面上点一下就下、校验、
    换入，重启生效。见 [`docs/distribution.md`](docs/distribution.md)
+8. **默认 agent 切回 opencode + MCP，按官方 3.0.16 复刻**（进行中）。
+   应用内那个 Rust agent 循环（`crates/gateway/src/agent/`）退役 —— 它让官方的
+   提示词、合同和插件行为都驱动不到主路径。规格：
+   [`opencode-runtime.md`](docs/opencode-runtime.md)、[`plugin-hilo.md`](docs/plugin-hilo.md)、
+   [`mcp-tools-architecture.md`](docs/mcp-tools-architecture.md)。
+   1. ~~运行时~~ —— gateway 拉起 / 看护 / 关停 `opencode serve`，合同拼接、依赖标记、
+      配置生成逐项照官方（`crates/gateway/src/opencode/`）。`ovagent` 共用同一份配置
+   2. 我们的 opencode 插件（plugin-hilo 的 MUST 项：工作语言、防打转、`_session_id` 注入）
+      + gateway 的 `/api/internal/sessions/*`
+   3. gateway ↔ opencode 的桥：订阅 `/global/event`，WebSocket `/ws` 上跑官方的聊天帧
+   4. 前端聊天面板换到官方协议（part 流、子 agent、question、工具确认）
+   5. MCP server 按官方 `mcp-tools` 重写（Node），gateway 补齐它调用的 65 条路由
+   6. agent 配置按官方结构自己写一套（`agent/`），尽量复刻一致
+   7. 打包：opencode + rg + node 进安装包；删掉应用内 agent
 
 ### 安装
 

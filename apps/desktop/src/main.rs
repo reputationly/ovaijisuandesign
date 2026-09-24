@@ -141,6 +141,9 @@ fn run() -> Result<()> {
 
     let rt = tokio::runtime::Runtime::new()?;
     let already = rt.block_on(probe(&url));
+    // 我们自己拉起的 opencode。退出时要停掉 —— 它在独立进程组里，
+    // 不会跟着我们退出。端口上是别的 gateway 时它归那个进程管，这里是 None。
+    let mut opencode: Option<Arc<gateway::opencode::Runtime>> = None;
     match already {
         Probe::Ours => tracing::info!("{url} 上已经有一个 gateway，直接用它"),
         Probe::Foreign => anyhow::bail!(
@@ -150,6 +153,8 @@ fn run() -> Result<()> {
         ),
         Probe::Free => {
             let state = build_state(cfg)?;
+            opencode = Some(state.opencode.clone());
+            let for_agent = state.clone();
             let handle = rt.handle().clone();
             handle.spawn(async move {
                 let addr = SocketAddr::from(([127, 0, 0, 1], port));
@@ -165,11 +170,16 @@ fn run() -> Result<()> {
                 }
             });
             rt.block_on(wait_ready(&url))?;
+            {
+                let _enter = rt.enter();
+                gateway::opencode::spawn_start(for_agent, url.clone());
+            }
         }
     }
 
     // 运行时要活到进程结束：drop 掉的话后台的 gateway 任务会被一起取消，
     // 窗口随即变成一片"无法连接"。
+    let rt_handle = rt.handle().clone();
     let _guard = rt.enter();
     std::mem::forget(rt);
 
@@ -238,7 +248,13 @@ fn run() -> Result<()> {
         })
         .build(tauri::generate_context!())
         .context("Tauri 启动失败")?
-        .run(|app, event| {
+        .run(move |app, event| {
+            if let tauri::RunEvent::Exit = event
+                && let Some(oc) = &opencode
+            {
+                // 在这里同步等它停完：Exit 之后进程就没了，异步任务不会再被调度。
+                rt_handle.block_on(oc.stop());
+            }
             // 点 Dock 图标。**照官方：只唤起，从不最小化。**
             //
             // 官方是 `app.on("activate", () => restoreFromDock())`,而
@@ -364,6 +380,7 @@ fn build_state(cfg: Config) -> Result<Arc<AppState>> {
         feishu: Arc::new(gateway::feishu::bridge::Bridge::new()),
         awake: Arc::new(gateway::awake::Keeper::new(cfg.prevent_sleep)),
         wechat: Arc::new(gateway::wechat::Wechat::new()),
+        opencode: gateway::opencode::Runtime::new(),
         upstream,
         web_dir,
     });

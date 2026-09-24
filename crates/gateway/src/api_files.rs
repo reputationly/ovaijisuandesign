@@ -525,6 +525,7 @@ mod tests {
             feishu: std::sync::Arc::new(crate::feishu::bridge::Bridge::new()),
             awake: std::sync::Arc::new(crate::awake::Keeper::default()),
             wechat: std::sync::Arc::new(crate::wechat::Wechat::new()),
+            opencode: crate::opencode::Runtime::new(),
             upstream: None,
             web_dir: None,
         });

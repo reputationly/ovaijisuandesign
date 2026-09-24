@@ -174,6 +174,7 @@ mod tests {
             feishu: s.feishu.clone(),
             awake: s.awake.clone(),
             wechat: s.wechat.clone(),
+            opencode: crate::opencode::Runtime::new(),
             upstream: s.upstream.clone(),
             web_dir: s.web_dir.clone(),
         })

@@ -115,6 +115,7 @@ mod tests {
             feishu: Arc::new(crate::feishu::bridge::Bridge::new()),
             awake: Arc::new(crate::awake::Keeper::default()),
             wechat: Arc::new(crate::wechat::Wechat::new()),
+            opencode: crate::opencode::Runtime::new(),
             upstream,
             web_dir: None,
         })

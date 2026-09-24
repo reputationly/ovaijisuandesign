@@ -103,6 +103,7 @@ async fn main() -> Result<()> {
         feishu: Arc::new(gateway::feishu::bridge::Bridge::new()),
         awake: Arc::new(gateway::awake::Keeper::new(cfg.prevent_sleep)),
         wechat: Arc::new(gateway::wechat::Wechat::new()),
+        opencode: gateway::opencode::Runtime::new(),
         upstream: cfg.upstream.clone(),
         web_dir: gateway::web::locate(cfg.web_dir.as_deref()),
     });
@@ -126,6 +127,15 @@ async fn main() -> Result<()> {
     }
     tracing::info!("工作区: {}", ws_dir.display());
     tracing::info!("配置: {}", path.display());
-    axum::serve(listener, router(state)).await?;
+    gateway::opencode::spawn_start(state.clone(), format!("http://{addr}"));
+    let oc = state.opencode.clone();
+    // opencode 在自己的进程组里（为了能连着 MCP server 一起杀），**不会**跟着
+    // 我们退出。Ctrl-C 时必须先停它，否则每次重启 ovgw 都留下一个孤儿。
+    axum::serve(listener, router(state))
+        .with_graceful_shutdown(async {
+            let _ = tokio::signal::ctrl_c().await;
+        })
+        .await?;
+    oc.stop().await;
     Ok(())
 }
