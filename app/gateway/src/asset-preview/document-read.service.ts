@@ -48,7 +48,9 @@ export class DocumentReadService {
       return { ok: false, reason: "parse-error" };
     }
     const lines = text.length === 0 ? [] : text.split(/\r?\n/);
-    if (offset > lines.length && !(lines.length === 0 && offset === 1)) {
+    // 空文档只接受从第 1 行读（回一页空结果），其余越界都报错。
+    const lastReadable = Math.max(lines.length, 1);
+    if (offset > lastReadable) {
       return { ok: false, reason: "invalid-offset", message: `Offset ${offset} is out of range for this document (${lines.length} lines)` };
     }
     const page: string[] = [];
