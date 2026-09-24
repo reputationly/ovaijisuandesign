@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { rm } from "node:fs/promises";
 
 import { BadRequestException, Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import { toAssetInfo } from "@ov/assets";
@@ -241,7 +242,14 @@ export class GenerationRunner implements OnApplicationBootstrap {
       ...(r.mediaType === "speech" && str(req.params?.voice_id) ? { voice_id: str(req.params?.voice_id) } : {}),
       ...(r.mediaType === "music" && (str(req.params?.lyrics) ?? str(req.lyrics)) ? { lyrics: str(req.params?.lyrics) ?? str(req.lyrics) } : {}),
     };
-    const row = await this.assets.enroll(rel, assetMeta);
+    let row;
+    try {
+      row = await this.assets.enroll(rel, assetMeta);
+    } catch (err) {
+      // 登记不进资产库的文件没人认领：画布上看不到、资产列表里没有，下次同名生成还会被挤成 `_1`。
+      await rm(abs, { force: true }).catch(() => undefined);
+      throw err;
+    }
     const info = toAssetInfo(row);
     const nodeId = await this.canvas.fillGeneratedNode({
       placeholderId: r.placeholderId ?? req.replace_node_id,

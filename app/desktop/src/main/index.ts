@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
-import { dataDirs, resourceRoots } from "./paths.js";
+import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
 import { readPlatform } from "./platform-config.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
 import { createMainWindow } from "./window.js";
@@ -34,7 +34,7 @@ async function boot() {
     hubRoot: dirs.hubRoot,
     runtimeDir: dirs.runtimeDir,
     configPath: dirs.configPath,
-    nodeExec: process.execPath,
+    nodeExec: nodeExecutable(),
   });
   const gw = await bundle.start();
   createMainWindow(gw.url);

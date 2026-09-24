@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -9,6 +9,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../bootstrap.js";
+import { AssetsService } from "../common/assets.service.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { MediaConfigService } from "./media-config.service.js";
 
@@ -166,6 +167,22 @@ describe("生成（假平台）", () => {
   it("同名文件不覆盖：第二张落成 白猫_1.png", async () => {
     const sub = await http.post("/api/generate/image/submit").send({ prompt: "又一只", filename: "白猫.png" });
     expect((await settle(sub.body.task_id)).result.path).toBe("白猫_1.png");
+  });
+
+  it("登记失败时删掉刚下载的文件，不留孤儿", async () => {
+    const assets = app.get(AssetsService);
+    const orig = assets.enroll.bind(assets);
+    assets.enroll = async () => {
+      throw new Error("sqlite 打不开");
+    };
+    try {
+      const sub = await http.post("/api/generate/image/submit").send({ prompt: "孤儿", filename: "孤儿" });
+      const done = await settle(sub.body.task_id);
+      expect(done).toMatchObject({ status: "failed", error: "sqlite 打不开" });
+      expect(existsSync(path.join(ws, "孤儿.png"))).toBe(false);
+    } finally {
+      assets.enroll = orig;
+    }
   });
 
   it("视频：首帧来自画布上的图，派生边连到结果", async () => {
