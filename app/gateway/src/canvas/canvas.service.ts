@@ -16,6 +16,7 @@ import {
   absolutePosition,
   boundsOf,
   computeNodeSize,
+  defaultNodeSize,
   effectiveSize,
   GROUP_PADDING,
   parseRatio,
@@ -34,6 +35,20 @@ const GROUP_LABEL_MAX = 40;
 const SOURCE_TOOL = "hub_canvas_write_node";
 
 type UpdatePayload = Omit<CanvasUpdated, "type" | "origin"> & { origin?: CanvasUpdated["origin"] };
+
+export interface PlaceholderInput {
+  sourceNodeId?: string;
+  prompt: string;
+  model: string;
+  mediaType?: string;
+  aspectRatio?: string;
+  backend?: string;
+  model_id?: string;
+  params?: Record<string, unknown>;
+  source_tool?: string;
+  generationAttemptId?: string;
+  referenceImageAssetIds?: string[];
+}
 
 export interface GroupResult {
   groupId: string | null;
@@ -674,53 +689,72 @@ export class CanvasService {
   // -------------------------------------------------------------------------
 
   async createPlaceholder(dto: { sourceNodeId: string; prompt: string; model: string; mediaType?: string; aspectRatio?: string }) {
+    return this.addPlaceholder(dto);
+  }
+
+  /**
+   * 建一张"生成中"的占位卡。来源可选：有来源时贴着来源往下排、连派生边，并清掉同来源同 prompt
+   * 之前失败的卡（这次重试就是替它的）；没有来源时找一块空地。
+   */
+  async addPlaceholder(dto: PlaceholderInput): Promise<{ placeholderId: string }> {
     return this.mutate((c) => {
-      const source =
-        c.nodes.find((n) => n.id === dto.sourceNodeId) ?? singleOrUndefined(c.nodes.filter((n) => n.assetId === dto.sourceNodeId));
-      if (!source) {
-        throw new BadRequestException({
-          code: "PLACEHOLDER_SOURCE_NOT_FOUND",
-          message: "Source node not found on canvas",
-          sourceNodeId: dto.sourceNodeId,
-          referenceAssetIds: [],
-          candidateNodeIds: [],
-        });
+      let source: CanvasNode | undefined;
+      if (dto.sourceNodeId) {
+        source =
+          c.nodes.find((n) => n.id === dto.sourceNodeId) ?? singleOrUndefined(c.nodes.filter((n) => n.assetId === dto.sourceNodeId));
+        if (!source) {
+          throw new BadRequestException({
+            code: "PLACEHOLDER_SOURCE_NOT_FOUND",
+            message: "Source node not found on canvas",
+            sourceNodeId: dto.sourceNodeId,
+            referenceAssetIds: dto.referenceImageAssetIds ?? [],
+            candidateNodeIds: [],
+          });
+        }
       }
-      // 同一个来源、同一句 prompt 之前失败的卡：这次重试就把它清掉，别在画布上越堆越多。
-      const stale = c.edges
-        .filter((e) => e.source === source.id)
-        .map((e) => c.nodes.find((n) => n.id === e.target))
-        .filter((n): n is CanvasNode => !!n && n.type === "placeholder" && (n.data as any)?.status === "error" && (n.data as any)?.prompt === dto.prompt)
-        .map((n) => n.id);
+      const stale = source
+        ? c.edges
+            .filter((e) => e.source === source.id)
+            .map((e) => c.nodes.find((n) => n.id === e.target))
+            .filter((n): n is CanvasNode => !!n && n.type === "placeholder" && (n.data as any)?.status === "error" && (n.data as any)?.prompt === dto.prompt)
+            .map((n) => n.id)
+        : [];
       const removedEdgeIds = c.edges.filter((e) => stale.includes(e.source) || stale.includes(e.target)).map((e) => e.id);
       c.nodes = c.nodes.filter((n) => !stale.includes(n.id));
       c.edges = c.edges.filter((e) => !removedEdgeIds.includes(e.id));
 
       let aspectRatio = parseRatio(dto.aspectRatio) ? dto.aspectRatio : undefined;
-      if (!aspectRatio) {
+      if (!aspectRatio && source && dto.mediaType !== "audio") {
         const row = this.assetOf(source);
         if (row?.width && row.height) aspectRatio = `${row.width}:${row.height}`;
       }
-      const now = Date.now();
+      const createdAt = new Date().toISOString();
       const size = placeholderNodeSize("generating", aspectRatio, dto.mediaType);
+      const refs = dto.referenceImageAssetIds ?? [];
       const node: CanvasNode = {
         id: randomUUID(),
         type: "placeholder",
-        positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, [source.id]) },
+        positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, source ? [source.id] : []) },
         size,
         data: {
           prompt: dto.prompt,
           model: dto.model,
           status: "generating",
-          createdAt: now,
-          generationStartedAt: now,
+          createdAt,
+          generationStartedAt: createdAt,
+          ...(dto.generationAttemptId ? { generationAttemptId: dto.generationAttemptId } : {}),
+          ...(refs.length ? { referenceImageIds: refs } : {}),
+          ...(dto.backend ? { backend: dto.backend } : {}),
+          ...(dto.model_id ? { model_id: dto.model_id } : {}),
+          ...(dto.params && Object.keys(dto.params).length ? { params: dto.params } : {}),
+          ...(dto.source_tool ? { source_tool: dto.source_tool } : {}),
           ...(dto.mediaType ? { mediaType: dto.mediaType } : {}),
           ...(aspectRatio ? { aspectRatio } : {}),
         },
       };
       c.nodes.push(node);
       this.pendingNodes.add(node.id);
-      const edges = this.addDerivationEdges(c, [source.id], node.id, { prompt: dto.prompt, model: dto.model });
+      const edges = source ? this.addDerivationEdges(c, [source.id], node.id, { prompt: dto.prompt, model: dto.model }) : [];
       return {
         canvas: c,
         result: { placeholderId: node.id },
@@ -730,20 +764,48 @@ export class CanvasService {
     });
   }
 
-  async failPlaceholder(dto: { placeholderId: string; errorMessage: string; errorReason?: string; retryPayload?: unknown }) {
+  /**
+   * 生成结果上画布。占位卡还在就**原地填**：id、位置、父组、边都不动，渲染层只收到一次
+   * `updatedNodes`，节点不会卸载重挂；占位卡没了（用户删了）就当新节点加，贴着来源放。
+   */
+  async fillGeneratedNode(dto: { placeholderId?: string; replace?: boolean; sourceNodeId?: string; row: AssetRow; data: Record<string, unknown> }): Promise<string> {
+    return this.mutate((c) => {
+      const type = toAssetInfo(dto.row).type;
+      const size = computeNodeSize(dto.row.width, dto.row.height) ?? defaultNodeSize(type);
+      // `replace`：调用方点名要替换的已有节点（任意类型，例如"重新生成这张图"），同样原地填。
+      const target = dto.placeholderId ? c.nodes.find((n) => n.id === dto.placeholderId && (n.type === "placeholder" || dto.replace)) : undefined;
+      if (target) {
+        const data: Record<string, unknown> = { ...(target.data ?? {}), ...dto.data, assetId: dto.row.id };
+        for (const k of ["status", "errorMessage", "errorReason", "generationAttemptId", "generationStartedAt", "retryPayload", "mediaType", "aspectRatio"]) delete data[k];
+        const node: CanvasNode = { ...target, type, assetId: dto.row.id, size, data };
+        c.nodes[c.nodes.indexOf(target)] = node;
+        this.pendingNodes.add(node.id);
+        return { canvas: c, result: node.id, event: { updatedNodes: [node] } };
+      }
+      const sources = dto.sourceNodeId && c.nodes.some((n) => n.id === dto.sourceNodeId) ? [dto.sourceNodeId] : [];
+      const { node, edges } = this.addAssetNode(c, dto.row, { sourceNodeIds: sources, extraData: dto.data, size });
+      return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges } };
+    });
+  }
+
+  /**
+   * 占位卡标成失败。`recoverable`：任务可能还在平台上跑（例如 gateway 重启时没来得及记下
+   * 任务号），卡片提示用户自己决定要不要重新生成，而不是给一个"重试"按钮让它再付一次钱。
+   */
+  async failPlaceholder(dto: { placeholderId: string; errorMessage: string; errorReason?: string; retryPayload?: unknown; recoverable?: boolean }) {
     await this.mutate((c) => {
       const node = c.nodes.find((n) => n.id === dto.placeholderId);
-      if (!node) return { result: undefined };
+      if (!node || node.type !== "placeholder") return { result: undefined };
       const msg = dto.errorMessage.trim().length >= 4 ? dto.errorMessage : "生成失败，请重试";
       const concurrency = /并发|concurren/i.test(msg);
       node.data = {
         ...(node.data ?? {}),
-        status: "error",
+        status: dto.recoverable ? "recoverable_error" : "error",
         errorMessage: msg,
         ...(dto.errorReason || concurrency ? { errorReason: dto.errorReason ?? "CONCURRENCY_LIMIT" } : {}),
         ...(dto.retryPayload !== undefined ? { retryPayload: dto.retryPayload } : {}),
       };
-      node.size = placeholderNodeSize("error", (node.data as any).aspectRatio, (node.data as any).mediaType);
+      node.size = placeholderNodeSize((node.data as any).status, (node.data as any).aspectRatio, (node.data as any).mediaType);
       return { canvas: c, result: undefined, event: { origin: "generation-status", updatedNodes: [node] } };
     });
   }

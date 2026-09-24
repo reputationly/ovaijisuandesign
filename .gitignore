@@ -25,3 +25,7 @@ mcp/dist/
 # 新栈（pnpm + turbo）
 .turbo/
 app/desktop/out/
+
+# Claude Code 的本地设置与 worktree
+.claude/settings.local.json
+.claude/worktrees/

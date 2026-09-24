@@ -13,6 +13,7 @@ import {
   buildBody,
   generate,
   resolveSize,
+  pollTask,
   submitAndPoll,
   upscale,
 } from "./video.js";
@@ -328,6 +329,18 @@ describe("video 提交/轮询（TS 移植新增）", () => {
     expect(s.calls[0]).toMatchObject({ url: "https://maas.example.com/v1/videos", method: "POST" });
     expect(s.calls[1]).toMatchObject({ url: "https://maas.example.com/v1/videos/t-1", method: "GET" });
     expect(s.sleeps()).toBe(3);
+  });
+
+  it("任务号在轮询前交给 onTaskSubmitted，重启后凭它续等、不再提交", async () => {
+    const s = scripted([{ body: { task_id: "t-9" } }, { body: { status: "succeeded", metadata: { url: "u" } } }]);
+    const seen: string[] = [];
+    const client = { ...s.client, onTaskSubmitted: (id: string) => seen.push(id) };
+    expect(await submitAndPoll(client, cfg(), {})).toBe("u");
+    expect(seen).toEqual(["t-9"]);
+
+    const resumed = scripted([{ body: { status: "completed", metadata: { url: "v" } } }]);
+    expect(await pollTask(resumed.client, cfg(), "t-9")).toBe("v");
+    expect(resumed.calls.map((c) => c.method)).toEqual(["GET"]);
   });
 
   it("只有 id 没有 task_id 也认", async () => {

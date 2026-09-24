@@ -344,12 +344,22 @@ function parseQuery(raw: string): { status: string; url: string } {
  * 视频、超分、语音、音乐**共用这一个**：平台把它们都放在 `/v1/videos`
  * 这个异步任务入口下，提交与轮询的形状完全一样，只有 `metadata.task_type`
  * 不同。
+ *
+ * 拿到任务号后先交给 `client.onTaskSubmitted`：调用方要把它记下来，
+ * 进程重启后才能用 {@link pollTask} 接着等，而不是重新提交再付一次钱。
  */
 export async function submitAndPoll(
   client: Client,
   cfg: MediaConfig,
   body: unknown,
 ): Promise<string> {
+  const taskId = await submitTask(client, cfg, body);
+  client.onTaskSubmitted?.(taskId);
+  return pollTask(client, cfg, taskId);
+}
+
+/** 只提交，返回平台任务号。 */
+export async function submitTask(client: Client, cfg: MediaConfig, body: unknown): Promise<string> {
   const base = platformBase(cfg.platform);
 
   const submittedResp = await request(client, {
@@ -375,7 +385,12 @@ export async function submitAndPoll(
   if (taskId === "") {
     throw PlatformError.protocol("平台提交响应里没有 task_id");
   }
+  return taskId;
+}
 
+/** 按任务号轮询到终态，返回结果 URL。进程重启后续等也走这里。 */
+export async function pollTask(client: Client, cfg: MediaConfig, taskId: string): Promise<string> {
+  const base = platformBase(cfg.platform);
   const started = client.now();
   for (;;) {
     await client.sleep(POLL_INTERVAL_MS);

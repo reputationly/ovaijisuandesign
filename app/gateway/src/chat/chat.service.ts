@@ -33,6 +33,24 @@ interface UiSession {
   /** `providerID/modelID`。只有用户明确选过才带给 opencode。 */
   modelId?: string;
   mode: AgentMode;
+  /** 用户在选择器里勾的媒体模型（按类别）。没有 = Auto，生成工具不做过滤。 */
+  selectedMediaModels?: SelectedMediaModels;
+}
+
+export type SelectedMediaModels = Partial<Record<"image" | "video" | "audio", string[]>>;
+
+/** 空类别去掉；一个都不剩就是 Auto。 */
+export function normalizeSelected(v: unknown): SelectedMediaModels | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const out: SelectedMediaModels = {};
+  for (const cat of ["image", "video", "audio"] as const) {
+    const list = (v as Record<string, unknown>)[cat];
+    if (Array.isArray(list)) {
+      const ids = list.filter((x): x is string => typeof x === "string" && x.trim() !== "");
+      if (ids.length) out[cat] = ids;
+    }
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 export interface ChatFrame {
@@ -98,6 +116,12 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     return this.runtimeToUi.get(root) ?? root;
   }
 
+  /** 按 opencode 会话 id（子会话归到根）找用户勾选的媒体模型。 */
+  selectedMediaModelsOf(runtimeId: string): SelectedMediaModels | null {
+    const ui = this.sessions.get(this.uiIdOf(runtimeId));
+    return ui?.selectedMediaModels ?? null;
+  }
+
   runtimeIdOf(uiId: string): string | undefined {
     return this.sessions.get(uiId)?.runtimeId ?? (uiId.startsWith("ses") ? uiId : undefined);
   }
@@ -121,7 +145,14 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     switch (msg.type) {
       case "create_session": {
         const id = randomBytes(4).toString("hex");
-        const s: UiSession = { id, mode: (msg.mode as AgentMode) ?? "auto", ...(msg.model_id ? { modelId: String(msg.model_id) } : {}), ...(msg.name ? { title: String(msg.name) } : {}) };
+        const selected = normalizeSelected(msg.selected_media_models);
+        const s: UiSession = {
+          id,
+          mode: (msg.mode as AgentMode) ?? "auto",
+          ...(msg.model_id ? { modelId: String(msg.model_id) } : {}),
+          ...(msg.name ? { title: String(msg.name) } : {}),
+          ...(selected ? { selectedMediaModels: selected } : {}),
+        };
         this.sessions.set(id, s);
         reply({ type: "session_created", session_id: id, request_id: msg.request_id, mode: s.mode });
         return true;
@@ -159,6 +190,12 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
       case "update_model": {
         const s = this.session(String(msg.session_id));
         s.modelId = msg.model_id ? String(msg.model_id) : undefined;
+        return true;
+      }
+      case "update_selected_media_models": {
+        const s = this.session(String(msg.session_id));
+        s.selectedMediaModels = normalizeSelected(msg.selected_media_models);
+        reply({ type: "selected_media_models_updated", session_id: s.id, selected_media_models: s.selectedMediaModels ?? {} });
         return true;
       }
       case "set_mode": {

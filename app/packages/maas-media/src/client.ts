@@ -28,6 +28,11 @@ export interface Client {
   /** 单调时钟，毫秒。轮询总时长的判定走它。 */
   now(): number;
   logger: Logger;
+  /**
+   * 异步任务提交成功、拿到平台任务号时回调一次。调用方用它把任务号落盘，
+   * 重启后才能续等而不是重新提交。
+   */
+  onTaskSubmitted?: (taskId: string) => void;
 }
 
 const consoleLogger: Logger = {
@@ -48,6 +53,7 @@ export function createClient(overrides: Partial<Client> = {}): Client {
     sleep: overrides.sleep ?? ((ms) => sleepMs(ms).then(() => undefined)),
     now: overrides.now ?? (() => performance.now()),
     logger: overrides.logger ?? consoleLogger,
+    ...(overrides.onTaskSubmitted ? { onTaskSubmitted: overrides.onTaskSubmitted } : {}),
   };
 }
 

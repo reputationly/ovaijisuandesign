@@ -52,6 +52,12 @@ export class InternalSessionsController {
     return { rootSessionId: cur };
   }
 
+  /** 用户在选择器里勾的媒体模型；`null` = Auto。生成工具据此拒绝未勾选的模型。 */
+  @Get(":id/selected-models")
+  selectedModels(@Param("id") id: string) {
+    return { selected: this.chat.selectedMediaModelsOf(id) };
+  }
+
   @Post(":id/tool-confirm/ask")
   @HttpCode(200)
   toolConfirm(@Param("id") id: string, @Body() body: { tool?: string; args?: unknown; timeout_ms?: number }) {

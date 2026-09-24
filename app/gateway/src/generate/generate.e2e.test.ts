@@ -1,0 +1,232 @@
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+import type { INestApplication } from "@nestjs/common";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+import { createApp } from "../bootstrap.js";
+import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { MediaConfigService } from "./media-config.service.js";
+
+const PNG = Buffer.from(
+  "89504e470d0a1a0a0000000d4948445200000001000000010806000000" +
+    "1f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082",
+  "hex",
+);
+// 只需要 ftyp 头让扩展名嗅成 .mp4；不是能播的视频。
+const MP4 = Buffer.concat([Buffer.from([0, 0, 0, 0x18]), Buffer.from("ftypisom"), Buffer.alloc(12)]);
+
+/** 假平台：出图同步回 URL；视频提交回任务号，查两次后完成。 */
+function fakePlatform() {
+  const calls: { method: string; url: string; body?: any }[] = [];
+  const polls = new Map<string, number>();
+  let base = "";
+  let nextVideoStatus: "completed" | "failed" = "completed";
+  const server = createServer((req, res) => {
+    let raw = "";
+    req.on("data", (c) => (raw += c));
+    req.on("end", () => {
+      calls.push({ method: req.method!, url: req.url!, body: raw ? JSON.parse(raw) : undefined });
+      const json = (v: unknown) => {
+        res.setHeader("content-type", "application/json");
+        res.end(JSON.stringify(v));
+      };
+      if (req.url === "/v1/images/generations") return json({ data: [{ url: `${base}/files/out.png` }] });
+      if (req.url === "/v1/videos" && req.method === "POST") return json({ task_id: `vt-${calls.length}` });
+      const m = /^\/v1\/videos\/(.+)$/.exec(req.url!);
+      if (m) {
+        const n = (polls.get(m[1]!) ?? 0) + 1;
+        polls.set(m[1]!, n);
+        if (n < 2) return json({ status: "in_progress" });
+        if (nextVideoStatus === "failed") return json({ status: "failed", error: { message: "内容不合规" } });
+        return json({ status: "completed", metadata: { url: `${base}/files/clip` } });
+      }
+      if (req.url === "/files/out.png") {
+        res.setHeader("content-type", "image/png");
+        return res.end(PNG);
+      }
+      if (req.url === "/files/clip") {
+        res.setHeader("content-type", "application/octet-stream");
+        return res.end(MP4);
+      }
+      res.statusCode = 404;
+      res.end();
+    });
+  });
+  return {
+    server,
+    calls,
+    setBase: (b: string) => (base = b),
+    failVideos: () => (nextVideoStatus = "failed"),
+    succeedVideos: () => (nextVideoStatus = "completed"),
+  };
+}
+
+async function until<T>(fn: () => Promise<T | undefined>, ms = 5000): Promise<T> {
+  const end = Date.now() + ms;
+  for (;;) {
+    const v = await fn();
+    if (v !== undefined) return v;
+    if (Date.now() > end) throw new Error("timed out");
+    await new Promise((r) => setTimeout(r, 20));
+  }
+}
+
+describe("生成（假平台）", () => {
+  let app: INestApplication;
+  let ws: string;
+  let http: ReturnType<typeof request>;
+  let platform: ReturnType<typeof fakePlatform>;
+  let server: Server;
+  const events: any[] = [];
+
+  async function boot() {
+    app = await createApp();
+    app.get(MediaConfigService).clientOverrides = { sleep: async () => undefined, logger: { info() {}, warn() {} } };
+    await app.init();
+    http = request(app.getHttpServer());
+    app.get(GatewayEventBus).subscribe((m) => events.push(m.payload));
+  }
+
+  async function settle(taskId: string) {
+    return until(async () => {
+      const r = await http.get(`/api/generate/tasks/${taskId}/query`);
+      return r.body.status === "processing" ? undefined : r.body;
+    });
+  }
+
+  beforeAll(async () => {
+    platform = fakePlatform();
+    server = platform.server;
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    platform.setBase(base);
+    ws = mkdtempSync(path.join(tmpdir(), "ov-generate-e2e-"));
+    const cfg = path.join(ws, "config.json");
+    writeFileSync(
+      cfg,
+      JSON.stringify({
+        platform: { base_url: `${base}/v1`, api_key: "k", chat_model: "chat" },
+        models: { image: "qwen-image", video: "minimax-h3-fl2va", speech: "indextts-2.5", voice_map: { narrator: "https://x/ref.wav" } },
+      }),
+    );
+    process.env.WORKSPACE_DIR = ws;
+    process.env.OV_CONFIG_PATH = cfg;
+    await boot();
+  });
+  afterAll(async () => {
+    await app.close();
+    await new Promise((r) => server.close(r));
+    delete process.env.WORKSPACE_DIR;
+    delete process.env.OV_CONFIG_PATH;
+  });
+
+  it("模型目录来自本机配置，音色来自 voice_map", async () => {
+    const c = (await http.get("/api/models?agent_version=2")).body;
+    expect(c.imageModels.map((m: any) => m.id)).toEqual(["qwen-image"]);
+    expect(c.videoModels[0]).toMatchObject({ id: "minimax-h3-fl2va", backend: "maas", type: "video", tool_names: ["hub_generate_video"] });
+    expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5"]);
+    expect(c.defaultTextModelId).toBe("chat");
+    expect((await http.get("/api/speech/voices?page_size=1000")).body).toEqual([
+      expect.objectContaining({ voice_id: "narrator", sample_audio: "https://x/ref.wav" }),
+    ]);
+    expect((await http.get("/api/v1/models/concurrency/limits")).body).toEqual({ items: [] });
+  });
+
+  let imageNode = "";
+  it("出图：先出占位卡，完成后原地换成图片节点，结果带 node_id", async () => {
+    const sub = await http
+      .post("/api/generate/image/submit")
+      .set("x-session-id", "ses_1")
+      .send({ backend: "nano_banana", model_id: "nano-banana-pro", prompt: "一只白猫", image_paths: [], filename: "白猫", params: { aspect_ratio: "1:1", order: "2" }, source_tool: "hub_generate_image:banana" });
+    expect(sub.body).toMatchObject({ ok: true, status: "processing", media_type: "image" });
+    const placeholder = events.find((e) => e.type === "canvas_updated" && e.addedNodes?.[0]?.type === "placeholder")?.addedNodes[0];
+    expect(placeholder.data).toMatchObject({ status: "generating", prompt: "一只白猫", model: "qwen-image", mediaType: "image", aspectRatio: "1:1" });
+
+    const done = await settle(sub.body.task_id);
+    expect(done).toMatchObject({ ok: true, status: "succeeded", result: { ok: true, path: "白猫.png", width: 1, height: 1, node_id: placeholder.id } });
+    imageNode = placeholder.id;
+
+    const canvas = (await http.get("/api/canvas")).body;
+    const node = canvas.nodes.find((n: any) => n.id === placeholder.id);
+    expect(node.type).toBe("image");
+    expect(node.data).toMatchObject({ prompt: "一只白猫", model: "qwen-image", params: { order: "2" } });
+    expect(node.data.status).toBeUndefined();
+    const asset = (await http.get("/api/assets?include=metadata")).body.assets.find((a: any) => a.path === "白猫.png");
+    expect(asset.metadata).toMatchObject({ session_id: "ses_1", source_tool: "hub_generate_image:banana", gateway_task_id: sub.body.task_id });
+    expect(JSON.parse(readFileSync(path.join(ws, ".hilo/active-generations.json"), "utf8")).records).toEqual([]);
+    // 平台收到的是我们配的模型，不是调用方点名的外部模型。
+    expect(platform.calls.find((c) => c.url === "/v1/images/generations")!.body.model).toBe("qwen-image");
+  });
+
+  it("同名文件不覆盖：第二张落成 白猫_1.png", async () => {
+    const sub = await http.post("/api/generate/image/submit").send({ prompt: "又一只", filename: "白猫.png" });
+    expect((await settle(sub.body.task_id)).result.path).toBe("白猫_1.png");
+  });
+
+  it("视频：首帧来自画布上的图，派生边连到结果", async () => {
+    const sub = await http
+      .post("/api/generate/video/submit")
+      .send({ backend: "minimax_v3", prompt: "猫跳起来", image_paths: ["白猫.png"], params: { duration: "5" }, source_node_id: imageNode, source_tool: "hub_generate_video:MiniMax:i2v" });
+    const done = await settle(sub.body.task_id);
+    expect(done.result.path).toMatch(/\.mp4$/);
+    const submitted = platform.calls.filter((c) => c.url === "/v1/videos" && c.method === "POST").at(-1)!.body;
+    expect(submitted.metadata.task_type).toBe("i2v");
+    const canvas = (await http.get("/api/canvas")).body;
+    expect(canvas.edges.some((e: any) => e.source === imageNode && e.target === done.result.node_id)).toBe(true);
+  });
+
+  it("平台终态失败：占位卡标错误，查询回 cloud_terminal", async () => {
+    platform.failVideos();
+    const sub = await http.post("/api/generate/video/submit").send({ prompt: "不合规的内容" });
+    const done = await settle(sub.body.task_id);
+    expect(done).toMatchObject({ ok: false, status: "failed", cloud_terminal: true, error_code: "backend_error" });
+    const canvas = (await http.get("/api/canvas")).body;
+    const card = canvas.nodes.find((n: any) => n.type === "placeholder" && n.data.prompt === "不合规的内容");
+    expect(card.data.status).toBe("error");
+    expect(card.data.retryPayload).toMatchObject({ mediaType: "video" });
+  });
+
+  it("没配的能力提交时就拒绝（4xx），不建占位卡", async () => {
+    const before = (await http.get("/api/canvas")).body.nodes.length;
+    const r = await http.post("/api/generate/music/submit").send({ prompt: "钢琴" });
+    expect(r.status).toBe(400);
+    expect(r.body).toMatchObject({ ok: false, error_code: "MODEL_NOT_CONFIGURED" });
+    expect((await http.get("/api/canvas")).body.nodes.length).toBe(before);
+  });
+
+  it("未知任务 404 TASK_NOT_FOUND", async () => {
+    const r = await http.get("/api/generate/tasks/gen_nope/query");
+    expect(r.status).toBe(404);
+    expect(r.body.error_code).toBe("TASK_NOT_FOUND");
+  });
+
+  it("重启恢复：账上有平台任务号的接着等完；没有任务号的标成需要用户处理", async () => {
+    await app.close();
+    const ledger = path.join(ws, ".hilo/active-generations.json");
+    const canvasFile = JSON.parse(readFileSync(path.join(ws, ".hilo/canvas.json"), "utf8"));
+    const mk = (id: string) => ({ id, type: "placeholder", positions: { workflow: { x: 0, y: 0 } }, size: { width: 350, height: 350 }, data: { status: "generating", prompt: id, mediaType: "video" } });
+    canvasFile.nodes.push(mk("ph-resume"), mk("ph-lost"));
+    writeFileSync(path.join(ws, ".hilo/canvas.json"), JSON.stringify(canvasFile));
+    const rec = (id: string, extra: object) => ({ id, taskId: `gen_${id}`, mediaType: "video", backend: "maas", request: { prompt: id }, placeholderId: `ph-${id}`, generationAttemptId: "a", createdAt: 0, ...extra });
+    writeFileSync(ledger, JSON.stringify({ version: 1, records: [rec("resume", { platformTaskId: "vt-old" }), rec("lost", {})] }));
+    platform.calls.length = 0;
+    platform.succeedVideos();
+    await boot();
+
+    const done = await settle("gen_resume");
+    expect(done.status).toBe("succeeded");
+    expect(platform.calls.some((c) => c.method === "POST" && c.url === "/v1/videos")).toBe(false);
+    expect(platform.calls.some((c) => c.url === "/v1/videos/vt-old")).toBe(true);
+    const lost = await settle("gen_lost");
+    expect(lost.status).toBe("failed");
+    const canvas = (await http.get("/api/canvas")).body;
+    expect(canvas.nodes.find((n: any) => n.id === "ph-resume").type).toBe("video");
+    expect(canvas.nodes.find((n: any) => n.id === "ph-lost").data.status).toBe("recoverable_error");
+    expect(JSON.parse(readFileSync(ledger, "utf8")).records).toEqual([]);
+  });
+});
