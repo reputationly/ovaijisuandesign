@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 40 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 73 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -340,53 +340,53 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/files/versions/summarize
 ```
 
-## GenerateController（0/13）
+## GenerateController（10/13）
 
 ```
   POST   /api/generate/image
   POST   /api/generate/text
   POST   /api/generate/video
-  POST   /api/generation-queue/cancel
-  GET    /api/generation-queue/summary
-  POST   /api/generation/cancel
-  GET    /api/mention-models
-  GET    /api/models
-  GET    /api/models/image
-  GET    /api/models/video
-  GET    /api/v1/models/concurrency/limits
-  POST   /api/v1/models/concurrency/usage
-  GET    /api/v1/models/config
+✓ POST   /api/generation-queue/cancel
+✓ GET    /api/generation-queue/summary
+✓ POST   /api/generation/cancel
+✓ GET    /api/mention-models
+✓ GET    /api/models
+✓ GET    /api/models/image
+✓ GET    /api/models/video
+✓ GET    /api/v1/models/concurrency/limits
+✓ POST   /api/v1/models/concurrency/usage
+✓ GET    /api/v1/models/config
 ```
 
-## GenerateAsyncController（0/6）
+## GenerateAsyncController（6/6）
 
 ```
-  POST   /api/generate/image/submit
-  GET    /api/generate/metrics
-  POST   /api/generate/music/submit
-  POST   /api/generate/speech/submit
-  GET    /api/generate/tasks/:task_id/query
-  POST   /api/generate/video/submit
+✓ POST   /api/generate/image/submit
+✓ GET    /api/generate/metrics
+✓ POST   /api/generate/music/submit
+✓ POST   /api/generate/speech/submit
+✓ GET    /api/generate/tasks/:task_id/query
+✓ POST   /api/generate/video/submit
 ```
 
-## MusicController（0/4）
+## MusicController（1/4）
 
 ```
   POST   /api/generate/music
-  GET    /api/models/music
+✓ GET    /api/models/music
   POST   /api/music/cover/preprocess
   POST   /api/music/lyrics/generate
 ```
 
-## SpeechController（0/6）
+## SpeechController（2/6）
 
 ```
   POST   /api/generate/speech
-  GET    /api/models/speech
+✓ GET    /api/models/speech
   POST   /api/speech/voice_clone
   POST   /api/speech/voice_design
   POST   /api/speech/voice_isolation
-  GET    /api/speech/voices
+✓ GET    /api/speech/voices
 ```
 
 ## HealthController（3/5）
@@ -417,31 +417,31 @@ gateway —— 每一块都能单独和官方那块对跑。
   ALL    /api/internal/comfyui/design/{*path}
 ```
 
-## ChatAttachmentCdnController（0/2）
+## ChatAttachmentCdnController（1/2）
 
 ```
-  POST   /api/internal/sessions/:opencodeSessionId/attachment-observations
+✓ POST   /api/internal/sessions/:opencodeSessionId/attachment-observations
   POST   /api/internal/sessions/:opencodeSessionId/attachment-outputs
 ```
 
-## InternalSessionController（0/15）
+## InternalSessionController（11/15）
 
 ```
-  POST   /api/internal/sessions/:opencodeSessionId/loop-guard/ask
-  GET    /api/internal/sessions/:opencodeSessionId/loop-guard/settlements/:requestId
-  POST   /api/internal/sessions/:opencodeSessionId/mcp-tool-call
+✓ POST   /api/internal/sessions/:opencodeSessionId/loop-guard/ask
+✓ GET    /api/internal/sessions/:opencodeSessionId/loop-guard/settlements/:requestId
+✓ POST   /api/internal/sessions/:opencodeSessionId/mcp-tool-call
   POST   /api/internal/sessions/:opencodeSessionId/open-comfyui
-  GET    /api/internal/sessions/:opencodeSessionId/request-group
-  GET    /api/internal/sessions/:opencodeSessionId/root
-  GET    /api/internal/sessions/:opencodeSessionId/selected-models
-  POST   /api/internal/sessions/:opencodeSessionId/tool-confirm/ask
-  POST   /api/internal/sessions/:uiSessionId/loop-guard-trip
+✓ GET    /api/internal/sessions/:opencodeSessionId/request-group
+✓ GET    /api/internal/sessions/:opencodeSessionId/root
+✓ GET    /api/internal/sessions/:opencodeSessionId/selected-models
+✓ POST   /api/internal/sessions/:opencodeSessionId/tool-confirm/ask
+✓ POST   /api/internal/sessions/:uiSessionId/loop-guard-trip
   GET    /api/internal/sessions/:uiSessionId/metrics
   GET    /api/internal/sessions/any-busy
-  GET    /api/internal/sessions/billing-current-scope
+✓ GET    /api/internal/sessions/billing-current-scope
   GET    /api/internal/sessions/metrics
-  GET    /api/internal/sessions/opencode-busy
-  POST   /api/internal/sessions/request-group-diagnostic
+✓ GET    /api/internal/sessions/opencode-busy
+✓ POST   /api/internal/sessions/request-group-diagnostic
 ```
 
 ## InternalComfyUiWorkflowController（0/5）
@@ -454,10 +454,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/internal/sessions/:runtimeSessionId/save-comfyui-workflow
 ```
 
-## InternalToolSchemaController（0/1）
+## InternalToolSchemaController（1/1）
 
 ```
-  POST   /api/internal/tool-metas
+✓ POST   /api/internal/tool-metas
 ```
 
 ## LogUploadController（0/1）
@@ -603,10 +603,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/remote-tools/scripts/:toolName/{*entry}
 ```
 
-## RuntimeController（1/2）
+## RuntimeController（2/2）
 
 ```
-  GET    /api/runtime/models
+✓ GET    /api/runtime/models
 ✓ POST   /api/runtime/opencode-url
 ```
 
