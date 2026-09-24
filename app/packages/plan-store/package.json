@@ -1,0 +1,20 @@
+{
+  "name": "@ov/plan-store",
+  "version": "0.0.0",
+  "private": true,
+  "description": "阶段计划的文件存储：<projectRoot>/.hilo/plan/<id>.json，proper-lockfile 加锁、写临时文件再 rename。",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

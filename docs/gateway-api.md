@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 25 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 40 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -62,7 +62,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/internal/document/read
 ```
 
-## FilesController（5/57）
+## FilesController（14/57）
 
 ```
   GET    /api/asset/peaks
@@ -71,14 +71,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/assets
   POST   /api/assets/:id/locate
   POST   /api/assets/:id/merge-candidate
-  PATCH  /api/assets/:id/metadata
+✓ PATCH  /api/assets/:id/metadata
   POST   /api/assets/:id/remove-missing
   PATCH  /api/assets/:id/tags
-  GET    /api/assets/changes
+✓ GET    /api/assets/changes
   POST   /api/assets/reconcile
   PATCH  /api/assets/tags/batch
   PATCH  /api/assets/tags/mutations/batch
-  GET    /api/assets/{*folder}
+✓ GET    /api/assets/{*folder}
 ✓ GET    /api/canvas
 ✓ POST   /api/canvas
   POST   /api/canvas/add-node
@@ -93,10 +93,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/files/adopt
   POST   /api/files/anchor-project-asset
   POST   /api/files/check-conflicts
-  GET    /api/files/content
-  PUT    /api/files/content
+✓ GET    /api/files/content
+✓ PUT    /api/files/content
   POST   /api/files/copy
-  POST   /api/files/delete
+✓ POST   /api/files/delete
   GET    /api/files/dirs
   POST   /api/files/duplicate
   POST   /api/files/fork-rename
@@ -109,19 +109,19 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/files/project-asset-propagate
   POST   /api/files/rename
   GET    /api/files/scan-media
-  POST   /api/files/text-asset
+✓ POST   /api/files/text-asset
   POST   /api/files/track
   POST   /api/files/upload-cdn
   GET    /api/files/workspace-summary
   GET    /api/local-file
   GET    /api/thumbnail/{*filepath}
-  POST   /api/upload
+✓ POST   /api/upload
   POST   /api/upload/commit
   POST   /api/upload/commit/abort
   POST   /api/upload/commit/finalize
   POST   /api/upload/staging/delete
 ✓ GET    /api/workspace
-  POST   /api/workspace
+✓ POST   /api/workspace
 ```
 
 ## AuthController（0/3）
@@ -169,33 +169,33 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/canvas/execute-group
 ```
 
-## CanvasController（6/26）
+## CanvasController（18/26）
 
 ```
   POST   /api/canvas/file-node
-  POST   /api/canvas/focus
-  POST   /api/canvas/generation/reconcile
+✓ POST   /api/canvas/focus
+✓ POST   /api/canvas/generation/reconcile
 ✓ POST   /api/canvas/group
-  POST   /api/canvas/group-recent-outputs
+✓ POST   /api/canvas/group-recent-outputs
 ✓ POST   /api/canvas/media-node
 ✓ GET    /api/canvas/nodes
   POST   /api/canvas/nodes-group
-  POST   /api/canvas/nodes/delete
+✓ POST   /api/canvas/nodes/delete
 ✓ POST   /api/canvas/nodes/detail
-  POST   /api/canvas/placeholder
+✓ POST   /api/canvas/placeholder
   POST   /api/canvas/placeholder-group
-  POST   /api/canvas/placeholder/cleanup
-  POST   /api/canvas/placeholder/fail
+✓ POST   /api/canvas/placeholder/cleanup
+✓ POST   /api/canvas/placeholder/fail
   POST   /api/canvas/plugin-data
   POST   /api/canvas/plugin-data/read
-  GET    /api/canvas/search
-  GET    /api/canvas/selection
-  POST   /api/canvas/selection
+✓ GET    /api/canvas/search
+✓ GET    /api/canvas/selection
+✓ POST   /api/canvas/selection
   POST   /api/canvas/split-sub-images
   POST   /api/canvas/table-node
-  POST   /api/canvas/text-edit-state
+✓ POST   /api/canvas/text-edit-state
 ✓ POST   /api/canvas/text-node
-  POST   /api/canvas/text-node/apply-edits
+✓ POST   /api/canvas/text-node/apply-edits
   POST   /api/canvas/text-node/revert-edits
 ✓ POST   /api/canvas/ungroup
 ```
@@ -340,7 +340,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/files/versions/summarize
 ```
 
-## GenerateController（1/13）
+## GenerateController（0/13）
 
 ```
   POST   /api/generate/image
@@ -350,7 +350,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/generation-queue/summary
   POST   /api/generation/cancel
   GET    /api/mention-models
-✓ GET    /api/models
+  GET    /api/models
   GET    /api/models/image
   GET    /api/models/video
   GET    /api/v1/models/concurrency/limits
@@ -358,24 +358,24 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/v1/models/config
 ```
 
-## GenerateAsyncController（5/6）
+## GenerateAsyncController（0/6）
 
 ```
-✓ POST   /api/generate/image/submit
+  POST   /api/generate/image/submit
   GET    /api/generate/metrics
-✓ POST   /api/generate/music/submit
-✓ POST   /api/generate/speech/submit
-✓ GET    /api/generate/tasks/:task_id/query
-✓ POST   /api/generate/video/submit
+  POST   /api/generate/music/submit
+  POST   /api/generate/speech/submit
+  GET    /api/generate/tasks/:task_id/query
+  POST   /api/generate/video/submit
 ```
 
-## MusicController（2/4）
+## MusicController（0/4）
 
 ```
   POST   /api/generate/music
   GET    /api/models/music
-✓ POST   /api/music/cover/preprocess
-✓ POST   /api/music/lyrics/generate
+  POST   /api/music/cover/preprocess
+  POST   /api/music/lyrics/generate
 ```
 
 ## SpeechController（0/6）
@@ -389,13 +389,13 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/speech/voices
 ```
 
-## HealthController（1/5）
+## HealthController（3/5）
 
 ```
-  GET    /api/health
+✓ GET    /api/health
   GET    /api/health/activity
 ✓ GET    /api/health/live
-  GET    /api/health/ready
+✓ GET    /api/health/ready
   DELETE /api/health/suspend-lease
 ```
 
@@ -481,11 +481,11 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/media/heic-preview
 ```
 
-## MemoryController（1/5）
+## MemoryController（0/5）
 
 ```
   GET    /api/memory
-✓ POST   /api/memory
+  POST   /api/memory
   DELETE /api/memory/:scope/:name
   GET    /api/memory/:scope/:name
   GET    /api/memory/search
@@ -519,10 +519,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/node-packages/ensure
 ```
 
-## UndoController（0/1）
+## UndoController（1/1）
 
 ```
-  POST   /api/operations/undo
+✓ POST   /api/operations/undo
 ```
 
 ## PlanController（0/3）
@@ -603,17 +603,17 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/remote-tools/scripts/:toolName/{*entry}
 ```
 
-## RuntimeController（0/2）
+## RuntimeController（1/2）
 
 ```
   GET    /api/runtime/models
-  POST   /api/runtime/opencode-url
+✓ POST   /api/runtime/opencode-url
 ```
 
-## SafetyController（0/1）
+## SafetyController（1/1）
 
 ```
-  POST   /api/safety/check-text
+✓ POST   /api/safety/check-text
 ```
 
 ## SearchController（0/1）
@@ -628,10 +628,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/sessions/:id/export
 ```
 
-## SkillsController（1/8）
+## SkillsController（0/8）
 
 ```
-✓ GET    /api/skills
+  GET    /api/skills
   GET    /api/skills/:name/file-content
   GET    /api/skills/:name/files
   POST   /api/skills/:name/toggle
@@ -641,7 +641,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/skills/upload-check
 ```
 
-## SkillMarketController（1/39）
+## SkillMarketController（0/39）
 
 ```
   POST   /api/skills/creator-plan/asset-presign
@@ -651,7 +651,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/skills/creator-plan/submissions
   POST   /api/skills/creator-plan/submit
   POST   /api/skills/fork
-✓ POST   /api/skills/import
+  POST   /api/skills/import
   POST   /api/skills/import/confirm-staging
   GET    /api/skills/market
   DELETE /api/skills/market/:name/preview

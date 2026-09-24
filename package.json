@@ -1,0 +1,19 @@
+{
+  "name": "ovaijisuandesign",
+  "private": true,
+  "//": "monorepo 根：app/desktop（Electron）、app/gateway（NestJS）、app/mcp-tools、app/packages/*。见 docs/opencode-runtime.md 和计划 M0。",
+  "packageManager": "pnpm@9.3.0",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "dev": "turbo run dev --filter=@ov/desktop"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0",
+    "@types/node": "^24.0.0"
+  }
+}

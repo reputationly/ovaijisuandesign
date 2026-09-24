@@ -194,20 +194,24 @@ React Flow 重写的画布前端。当前后端接的是官方 gateway（独立�
    **两个源实测跑通**（GitHub Release + Cloudflare R2，四个平台的包，
    3.9 MB 解压即用），**下载和安装也已完成** —— 界面上点一下就下、校验、
    换入，重启生效。见 [`docs/distribution.md`](docs/distribution.md)
-8. **默认 agent 切回 opencode + MCP，按官方 3.0.16 复刻**（进行中）。
-   应用内那个 Rust agent 循环（`crates/gateway/src/agent/`）退役 —— 它让官方的
-   提示词、合同和插件行为都驱动不到主路径。规格：
-   [`opencode-runtime.md`](docs/opencode-runtime.md)、[`plugin-hilo.md`](docs/plugin-hilo.md)、
-   [`mcp-tools-architecture.md`](docs/mcp-tools-architecture.md)。
-   1. ~~运行时~~ —— gateway 拉起 / 看护 / 关停 `opencode serve`，合同拼接、依赖标记、
-      配置生成逐项照官方（`crates/gateway/src/opencode/`）。`ovagent` 共用同一份配置
-   2. 我们的 opencode 插件（plugin-hilo 的 MUST 项：工作语言、防打转、`_session_id` 注入）
-      + gateway 的 `/api/internal/sessions/*`
-   3. gateway ↔ opencode 的桥：订阅 `/global/event`，WebSocket `/ws` 上跑官方的聊天帧
-   4. 前端聊天面板换到官方协议（part 流、子 agent、question、工具确认）
-   5. MCP server 按官方 `mcp-tools` 重写（Node），gateway 补齐它调用的 65 条路由
-   6. agent 配置按官方结构自己写一套（`agent/`），尽量复刻一致
-   7. 打包：opencode + rg + node 进安装包；删掉应用内 agent
+8. **整套换成和官方一样的栈**（进行中）：Electron + electron-vite 桌面壳、
+   主进程编排 gateway 和 opencode、NestJS gateway、按官方 `mcp-tools` 重写的
+   MCP、自己的 opencode 插件、按官方结构自写的 agent 配置、官方的项目模型。
+   新栈在 `app/` 下并排建（pnpm + turbo），旧的 Rust + Tauri 版本在切换前照常
+   可发布。规格：[`opencode-runtime.md`](docs/opencode-runtime.md)、
+   [`plugin-hilo.md`](docs/plugin-hilo.md)、[`mcp-tools-architecture.md`](docs/mcp-tools-architecture.md)、
+   [`contracts-files.md`](docs/contracts-files.md)、[`contracts-canvas.md`](docs/contracts-canvas.md)。
+   1. ~~M0 骨架~~：`app/desktop`、`app/gateway`、`app/mcp-tools`、`app/packages/*`
+   2. ~~M1 maas-media~~：Rust 版 94 个测试 1:1 移植成 TS
+   3. ~~M2 protocol + assets~~：API 路径表（从官方产物生成）、画布 schema、SQLite 资产库
+   4. M3 gateway 核心：文件、资产、静态文件、画布主链路已完成；表格 / 文件节点、插件数据、reconcile 待补
+   5. M4 主进程：opencode 编排（从 Rust 移植）、gateway 看护已完成；应用级 gateway、托盘菜单、日志、前端迁入待做
+   6. M5 项目模型 + 多工作区 + 旧数据迁移
+   7. M6 聊天链路：`/ws` 聊天帧、`/api/internal/sessions/*`、我们的 opencode 插件、前端聊天面板
+   8. M7 生成 + MCP：占位卡生命周期、按官方 `mcp-tools` 重写
+   9. M8 agent 配置（`config/opencode-v2/` + `.opencode-v2/`）
+   10. M9 其余功能按官方形状补齐（skills、飞书 / 微信、设置、更新…）
+   11. M10 打包（opencode + rg + ffmpeg 进安装包，Velopack）、切换、删除 Rust / Tauri
 
 ### 安装
 

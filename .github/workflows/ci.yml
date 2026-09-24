@@ -44,6 +44,26 @@ jobs:
       - name: test
         run: cargo test -p gateway -p maas-media
 
+  # 新栈（app/：Electron + NestJS gateway + mcp-tools + 共享包）。和旧栈并排跑，
+  # M10 切换后旧的 rust / bun job 删掉。原生模块（better-sqlite3、sharp）在
+  # Windows 上的构建是重点，所以两个平台都跑。
+  node:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Electron 43.7.0 内置的是 Node 24.21。
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build typecheck test
+
   # 前端和 MCP。这两块没有平台代码，但 bun 在 Windows 上的行为值得盯着 ——
   # `ovagent` 拉起 MCP server 用的就是它。
   bun:

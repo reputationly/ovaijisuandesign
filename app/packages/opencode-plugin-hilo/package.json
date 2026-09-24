@@ -1,0 +1,20 @@
+{
+  "name": "@ov/opencode-plugin-hilo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "opencode 插件：工作语言注入、loop-guard、给 hub 工具注入 _session_id 等。见 docs/plugin-hilo.md。",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

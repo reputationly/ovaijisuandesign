@@ -1,0 +1,29 @@
+{
+  "name": "@ov/assets",
+  "version": "0.0.0",
+  "private": true,
+  "description": "工作区资产库：.hilo/index.sqlite（better-sqlite3）、watcher、reconcile、fingerprint。",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0"
+  },
+  "dependencies": {
+    "@node-rs/xxhash": "1.7.6",
+    "@ov/protocol": "workspace:^",
+    "better-sqlite3": "12.11.1",
+    "image-size": "2.0.2"
+  }
+}

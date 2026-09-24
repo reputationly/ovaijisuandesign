@@ -1,0 +1,23 @@
+{
+  "name": "@ov/protocol",
+  "version": "0.0.0",
+  "private": true,
+  "description": "各端共用的类型和常量：API 路径、画布 schema、事件名、skill/plugin 路径、opencode 运行时契约。",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "zod": "3.25.76"
+  }
+}

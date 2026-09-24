@@ -1,0 +1,880 @@
+import { randomUUID } from "node:crypto";
+import { readFile, rename, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
+
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { type AssetRow, toAssetInfo } from "@ov/assets";
+import type { CanvasEdge, CanvasFile, CanvasNode, CanvasUpdated } from "@ov/protocol";
+
+import { atomicWriteFile } from "../common/atomic-write.js";
+import { AssetsService } from "../common/assets.service.js";
+import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { WorkspacePathService } from "../common/workspace-path.service.js";
+import { AsyncMutex } from "./async-mutex.js";
+import { textContentHash } from "./canvas-hash.js";
+import {
+  absolutePosition,
+  boundsOf,
+  computeNodeSize,
+  effectiveSize,
+  GROUP_PADDING,
+  parseRatio,
+  placeholderNodeSize,
+  positionOf,
+  type Point,
+  type Rect,
+  resolveDerivedOrFreePosition,
+  type Size,
+} from "./canvas-geometry.js";
+import { CanvasPersistence, type DeletionIntent, type SystemMutationIntent } from "./canvas-persistence.js";
+import { applyTextEdits, type TextEdit } from "./text-edits.js";
+
+const MODE = "workflow";
+const GROUP_LABEL_MAX = 40;
+const SOURCE_TOOL = "hub_canvas_write_node";
+
+type UpdatePayload = Omit<CanvasUpdated, "type" | "origin"> & { origin?: CanvasUpdated["origin"] };
+
+export interface GroupResult {
+  groupId: string | null;
+  addedNodes: CanvasNode[];
+  removedNodeIds: string[];
+  updatedNodes: CanvasNode[];
+  skippedNodes?: { nodeId: string; reason: string; parentId?: string }[];
+}
+
+interface Mutation<T> {
+  canvas?: CanvasFile;
+  result: T;
+  event?: UpdatePayload;
+  intent?: Omit<SystemMutationIntent, "operationId">;
+}
+
+/**
+ * 画布的读 / 改。所有写操作都在同一把锁里做"读 → 改 → 带证据写 → 广播"。
+ *
+ * **gateway 自己加的节点和边要等渲染层确认。** 渲染层是按整份快照保存的，它交上来的
+ * 快照可能是 MCP 刚加节点之前的旧版本：直接写的话新节点就被冲掉了，而缩水保护
+ * 会把这次保存当成没有证据的删除拒掉。所以 gateway 新增的 id 记在待确认集合里，
+ * 渲染层保存时漏了、又不在它的删除意图里的，补回去并以 `origin:"reconcile"` 广播；
+ * 保存里包含了才算确认。
+ */
+@Injectable()
+export class CanvasService {
+  private persistence?: CanvasPersistence;
+  private readonly lock = new AsyncMutex();
+  private readonly nodeLocks = new Map<string, AsyncMutex>();
+  private readonly pendingNodes = new Set<string>();
+  private readonly pendingEdges = new Set<string>();
+  private selection: string[] = [];
+  private editing?: { nodeId: string; editSessionId: string };
+
+  constructor(
+    private readonly paths: WorkspacePathService,
+    private readonly assets: AssetsService,
+    private readonly bus: GatewayEventBus,
+  ) {}
+
+  private get store(): CanvasPersistence {
+    this.persistence ??= new CanvasPersistence(this.paths.hiloDir);
+    return this.persistence;
+  }
+
+  getCanvas(): Promise<CanvasFile> {
+    return this.store.read();
+  }
+
+  private nodeLock(id: string): AsyncMutex {
+    let m = this.nodeLocks.get(id);
+    if (!m) this.nodeLocks.set(id, (m = new AsyncMutex()));
+    return m;
+  }
+
+  /** 发 `canvas:updated`，空数组的 key 省掉，全空就不发。 */
+  private emitUpdate(p: UpdatePayload): void {
+    const out: Record<string, unknown> = { type: "canvas_updated" };
+    for (const [k, v] of Object.entries(p)) {
+      if (v === undefined) continue;
+      if (Array.isArray(v) && v.length === 0) continue;
+      out[k] = v;
+    }
+    if (Object.keys(out).length <= (p.origin ? 2 : 1)) return;
+    this.bus.emit("canvas:updated", out);
+  }
+
+  private async mutate<T>(fn: (c: CanvasFile) => Mutation<T> | Promise<Mutation<T>>): Promise<T> {
+    return this.lock.runExclusive(async () => {
+      const current = await this.store.read();
+      const m = await fn(structuredClone(current));
+      if (m.canvas) {
+        const intent = m.intent
+          ? { systemMutationIntent: { operationId: randomUUID(), ...m.intent } }
+          : { systemMutationIntent: undefined };
+        await this.store.write(m.canvas, { source: "gateway", ...intent });
+      }
+      if (m.event) this.emitUpdate(m.event);
+      return m.result;
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 渲染层整份保存
+  // -------------------------------------------------------------------------
+
+  async replaceCanvas(incoming: CanvasFile, deletionIntent?: DeletionIntent): Promise<{ ok: true }> {
+    return this.lock.runExclusive(async () => {
+      const current = await this.store.read();
+      const currentNodes = new Map(current.nodes.map((n) => [n.id, n]));
+      const currentEdges = new Map(current.edges.map((e) => [e.id, e]));
+      const explicit = new Set(deletionIntent?.operationId?.trim() ? deletionIntent.removedNodeIds : []);
+      const explicitEdges = new Set(deletionIntent?.operationId?.trim() ? (deletionIntent.removedEdgeIds ?? []) : []);
+      const next: CanvasFile = { ...incoming, nodes: [...incoming.nodes], edges: [...incoming.edges] };
+      const inNodes = new Set(next.nodes.map((n) => n.id));
+      const inEdges = new Set(next.edges.map((e) => e.id));
+
+      const replayedNodes: CanvasNode[] = [];
+      for (const id of [...this.pendingNodes]) {
+        const node = currentNodes.get(id);
+        if (!node) this.pendingNodes.delete(id);
+        else if (inNodes.has(id)) this.pendingNodes.delete(id);
+        else if (!explicit.has(id)) {
+          next.nodes.push(node);
+          inNodes.add(id);
+          replayedNodes.push(node);
+        }
+      }
+      const replayedEdges: CanvasEdge[] = [];
+      for (const id of [...this.pendingEdges]) {
+        const edge = currentEdges.get(id);
+        if (!edge) this.pendingEdges.delete(id);
+        else if (inEdges.has(id)) this.pendingEdges.delete(id);
+        else if (!explicitEdges.has(id) && inNodes.has(edge.source) && inNodes.has(edge.target)) {
+          next.edges.push(edge);
+          replayedEdges.push(edge);
+        }
+      }
+      await this.store.write(next, { source: "renderer", deletionIntent });
+      if (replayedNodes.length || replayedEdges.length) {
+        this.emitUpdate({ addedNodes: replayedNodes, addedEdges: replayedEdges, origin: "reconcile" });
+      }
+      return { ok: true as const };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 查询
+  // -------------------------------------------------------------------------
+
+  private assetOf(node: CanvasNode): AssetRow | undefined {
+    const id = node.assetId ?? (node.data?.assetId as string | undefined);
+    return id ? this.assets.byId(id) : undefined;
+  }
+
+  private metadataOf(row?: AssetRow): Record<string, any> {
+    if (!row?.metadata) return {};
+    try {
+      return JSON.parse(row.metadata) as Record<string, any>;
+    } catch {
+      return {};
+    }
+  }
+
+  summary(node: CanvasNode): Record<string, unknown> {
+    const asset = this.assetOf(node);
+    const meta = this.metadataOf(asset);
+    const data = (node.data ?? {}) as Record<string, any>;
+    const out: Record<string, unknown> = {
+      id: node.id,
+      type: node.type,
+      name: asset?.name ?? (node.type === "file" ? data.name : undefined) ?? data.name,
+    };
+    if (data.pluginId) out.pluginId = data.pluginId;
+    if (node.type === "group" && typeof data.label === "string" && data.label.trim()) out.label = data.label;
+    const prompt = (meta.prompt ?? data.prompt ?? meta.description ?? data.description) as string | undefined;
+    if (typeof prompt === "string" && prompt.trim()) {
+      const t = prompt.trim();
+      out.promptSnippet = t.length > 100 ? t.slice(0, 100) + "…" : t;
+    }
+    return out;
+  }
+
+  async listNodes(q: { type?: string; limit?: number; offset?: number }) {
+    const c = await this.getCanvas();
+    const nodes = c.nodes.filter((n) => !q.type || n.type === q.type);
+    const offset = q.offset ?? 0;
+    const limit = q.limit ?? 50;
+    return { count: nodes.length, nodes: nodes.slice(offset, offset + limit).map((n) => this.summary(n)) };
+  }
+
+  async nodeDetails(ids: string[]) {
+    const c = await this.getCanvas();
+    const byId = new Map(c.nodes.map((n) => [n.id, n]));
+    const nodes: Record<string, unknown>[] = [];
+    const missing: string[] = [];
+    for (const id of [...new Set(ids)]) {
+      const node = byId.get(id);
+      if (!node) {
+        missing.push(id);
+        continue;
+      }
+      nodes.push(await this.detail(c, node));
+    }
+    return missing.length ? { nodes, missing } : { nodes };
+  }
+
+  private async detail(c: CanvasFile, node: CanvasNode): Promise<Record<string, unknown>> {
+    const asset = this.assetOf(node);
+    const meta = this.metadataOf(asset);
+    const data = (node.data ?? {}) as Record<string, any>;
+    const out: Record<string, unknown> = {
+      id: node.id,
+      type: node.type,
+      name: asset?.name ?? data.name ?? (typeof data.path === "string" ? path.basename(data.path) : undefined),
+    };
+    if (data.pluginId) out.pluginId = data.pluginId;
+    const prompt = meta.prompt ?? data.prompt;
+    if (prompt) out.prompt = prompt;
+    const keep = ["model", "model_id", "description", "voice_id", "width", "height", "duration_ms", "fps", "reference_images", "reference_audios", "reference_videos", "error_message"];
+    const metadata = Object.fromEntries(keep.filter((k) => meta[k] != null).map((k) => [k, meta[k]]));
+    if (asset?.width != null) metadata.width ??= asset.width;
+    if (asset?.height != null) metadata.height ??= asset.height;
+    if (asset?.duration_ms != null) metadata.duration_ms ??= asset.duration_ms;
+    if (Object.keys(metadata).length) out.metadata = metadata;
+    const incoming = c.edges.filter((e) => e.target === node.id).map((e) => ({ source: e.source, target: e.target, type: e.type }));
+    const outgoing = c.edges.filter((e) => e.source === node.id).map((e) => ({ source: e.source, target: e.target, type: e.type }));
+    if (incoming.length) out.incomingEdges = incoming;
+    if (outgoing.length) out.outgoingEdges = outgoing;
+    if ((node.type === "image" || node.type === "video" || node.type === "audio") && asset && !asset.path.includes("..")) out.filePath = asset.path;
+    if (node.type === "text" && asset) {
+      const abs = this.paths.resolve(asset.path);
+      const content = abs ? await readFile(abs, "utf8").catch(() => undefined) : undefined;
+      if (content !== undefined) {
+        out.textContent = content;
+        out.textContentHash = textContentHash(content);
+      }
+    }
+    if (node.type === "group") {
+      const kids = c.nodes.filter((n) => n.parentId === node.id).map((n) => n.id).sort();
+      out.childIds = kids.slice(0, 50);
+      if (kids.length > 50) out.childIdsTotal = kids.length;
+    }
+    return out;
+  }
+
+  async search(q: { query: string; type?: string; fields?: string; limit?: number; offset?: number }) {
+    const fields = new Set((q.fields ?? "name,prompt").split(",").map((s) => s.trim()).filter(Boolean));
+    const needle = q.query.toLowerCase();
+    const c = await this.getCanvas();
+    const hits: Record<string, unknown>[] = [];
+    const late: Record<string, unknown>[] = [];
+    for (const n of c.nodes) {
+      if (q.type && n.type !== q.type) continue;
+      const s = this.summary(n);
+      const asset = this.assetOf(n);
+      const meta = this.metadataOf(asset);
+      const data = (n.data ?? {}) as Record<string, any>;
+      const name = [asset?.name, data.name, data.pluginId].filter(Boolean).join(" ").toLowerCase();
+      const prompt = String(meta.prompt ?? data.prompt ?? meta.description ?? "").toLowerCase();
+      if (fields.has("name") && name.includes(needle)) hits.push({ ...s, matchedField: "name" });
+      else if (fields.has("prompt") && prompt.includes(needle)) hits.push({ ...s, matchedField: "prompt" });
+      else if (fields.has("textContent") && n.type === "text" && asset) {
+        const abs = this.paths.resolve(asset.path);
+        const content = abs ? await readFile(abs, "utf8").catch(() => "") : "";
+        if (content.toLowerCase().includes(needle)) late.push({ ...s, matchedField: "textContent" });
+      }
+    }
+    const all = [...hits, ...late];
+    const offset = q.offset ?? 0;
+    return { count: all.length, matches: all.slice(offset, offset + (q.limit ?? 50)) };
+  }
+
+  // -------------------------------------------------------------------------
+  // 节点增删
+  // -------------------------------------------------------------------------
+
+  /** 在 `c` 上加一个资产节点（原地改 c）。返回新节点和新边。 */
+  private addAssetNode(
+    c: CanvasFile,
+    row: AssetRow,
+    opts: { position?: Point; sourceNodeIds?: string[]; extraData?: Record<string, unknown>; size?: Size } = {},
+  ): { node: CanvasNode; edges: CanvasEdge[] } {
+    const type = toAssetInfo(row).type;
+    const size = opts.size ?? (type === "text" ? undefined : computeNodeSize(row.width, row.height));
+    const pos =
+      opts.position ?? resolveDerivedOrFreePosition(c, MODE, size ?? effectiveSize({ id: "", type, positions: {} } as CanvasNode, MODE), opts.sourceNodeIds);
+    const primary = c.nodes.find((n) => n.assetId === row.id && !(n.meta as any)?.cloneOf);
+    const node: CanvasNode = {
+      id: randomUUID(),
+      type,
+      positions: { [MODE]: pos },
+      assetId: row.id,
+      ...(size ? { size } : {}),
+      ...(opts.extraData ? { data: { ...opts.extraData } } : {}),
+      ...(primary ? { meta: { cloneOf: primary.id } } : {}),
+    };
+    c.nodes.push(node);
+    const edges = this.addDerivationEdges(c, opts.sourceNodeIds ?? [], node.id);
+    this.pendingNodes.add(node.id);
+    return { node, edges };
+  }
+
+  /** 来源 → 目标的派生边。自环、重复、不存在的来源、已有的边都跳过。 */
+  private addDerivationEdges(c: CanvasFile, sources: string[], target: string, extra: Record<string, unknown> = {}): CanvasEdge[] {
+    const have = new Set(c.nodes.map((n) => n.id));
+    const edgeIds = new Set(c.edges.map((e) => e.id));
+    const out: CanvasEdge[] = [];
+    for (const src of [...new Set(sources)]) {
+      const id = `${src}->${target}`;
+      if (src === target || !have.has(src) || edgeIds.has(id)) continue;
+      const edge: CanvasEdge = { id, source: src, target, type: "derivation", data: { time: new Date().toISOString(), ...extra } };
+      c.edges.push(edge);
+      edgeIds.add(id);
+      out.push(edge);
+      this.pendingEdges.add(id);
+    }
+    return out;
+  }
+
+  async deleteNodes(ids: string[]) {
+    return this.mutate((c) => {
+      const targets = new Set(ids.filter((id) => c.nodes.some((n) => n.id === id)));
+      if (targets.size === 0) return { result: { removedNodeIds: [] as string[], removedEdgeIds: [] as string[] } };
+      const updated: CanvasNode[] = [];
+      // 被删的组先解散：子节点转成绝对坐标、摘掉 parentId，否则它们会跟着组一起消失。
+      for (const g of c.nodes.filter((n) => targets.has(n.id) && n.type === "group")) {
+        for (const kid of c.nodes.filter((n) => n.parentId === g.id && !targets.has(n.id))) {
+          const abs = absolutePosition(c, kid, MODE);
+          if (abs) kid.positions = { ...kid.positions, [MODE]: abs };
+          delete kid.parentId;
+          updated.push(kid);
+        }
+      }
+      const removedEdgeIds = c.edges.filter((e) => targets.has(e.source) || targets.has(e.target)).map((e) => e.id);
+      c.nodes = c.nodes.filter((n) => !targets.has(n.id));
+      c.edges = c.edges.filter((e) => !removedEdgeIds.includes(e.id));
+      for (const id of targets) this.nodeLocks.delete(id);
+      const removedNodeIds = [...targets];
+      return {
+        canvas: c,
+        result: { removedNodeIds, removedEdgeIds },
+        event: { removedNodeIds, removedEdgeIds, updatedNodes: updated },
+        intent: { reason: "explicit-node-delete", removedNodeIds, removedEdgeIds, allowHighBlast: true },
+      };
+    });
+  }
+
+  async mediaNode(dto: { assetPath: string; position?: Point; sourceNodeIds?: string[]; allowDuplicate?: boolean }) {
+    const rel = dto.assetPath.replace(/\\/g, "/").replace(/^\.\//, "");
+    const row = this.assets.byPath(rel);
+    if (!row) throw new NotFoundException(`Asset not tracked at "${dto.assetPath}". Import or generate the media into the workspace asset vault first, then retry.`);
+    const type = toAssetInfo(row).type;
+    if (type !== "image" && type !== "video" && type !== "audio") {
+      throw new BadRequestException(`Cannot place asset of type "${type}" as canvas media. Use canvas_write_node with kind=text or kind=table for authored content.`);
+    }
+    return this.mutate((c) => {
+      const primary = c.nodes.find((n) => n.assetId === row.id && !(n.meta as any)?.cloneOf);
+      if (primary && !dto.allowDuplicate) {
+        const edges = this.addDerivationEdges(c, dto.sourceNodeIds ?? [], primary.id);
+        return {
+          canvas: edges.length ? c : undefined,
+          result: { nodeId: primary.id, assetId: row.id, assetType: type, reused: true },
+          event: edges.length ? { addedEdges: edges } : undefined,
+        };
+      }
+      const { node, edges } = this.addAssetNode(c, row, { position: dto.position, sourceNodeIds: dto.sourceNodeIds });
+      return {
+        canvas: c,
+        result: { nodeId: node.id, assetId: row.id, assetType: type, reused: false },
+        event: { addedNodes: [node], addedEdges: edges },
+      };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 文本节点
+  // -------------------------------------------------------------------------
+
+  async writeTextNode(dto: {
+    content: string;
+    nodeId?: string;
+    name?: string;
+    position?: Point;
+    sourceNodeIds?: string[];
+    mode?: "replace" | "append" | "prepend";
+    appendSeparator?: "auto-newline" | "none";
+    expectedContentHash?: string;
+  }) {
+    if (!dto.nodeId) {
+      if (dto.mode) throw new BadRequestException("`mode` is only valid when patching an existing node (provide `nodeId`).");
+      return this.createTextNode(dto);
+    }
+    return this.updateTextNode(dto as typeof dto & { nodeId: string });
+  }
+
+  /** 新建：`.md` 放在工作区根目录，文件名取 name，重名 `name(1).md`。 */
+  private async createTextNode(dto: { content: string; name?: string; position?: Point; sourceNodeIds?: string[] }) {
+    const base = (dto.name ?? "").replace(/\.[^./\\]+$/, "").replace(/[/\\:*?"<>|\x00-\x1f]/g, " ").trim() || "untitled";
+    let rel = `${base}.md`;
+    for (let n = 1; await exists(this.paths.resolve(rel)!); n++) rel = `${base}(${n}).md`;
+    const abs = this.paths.resolve(rel)!;
+    const tmp = path.join(path.dirname(abs), `.${path.basename(abs)}.tmp-${randomUUID()}`);
+    await writeFile(tmp, dto.content);
+    await rename(tmp, abs);
+    const snippet = dto.content.trim().split("\n")[0]!.slice(0, 100);
+    const row = await this.assets.enroll(rel, { description: snippet, source_tool: SOURCE_TOOL });
+    return this.mutate((c) => {
+      const { node, edges } = this.addAssetNode(c, row, {
+        position: dto.position,
+        sourceNodeIds: dto.sourceNodeIds,
+        extraData: { source_tool: SOURCE_TOOL, promptSeedSource: "agent" },
+      });
+      return {
+        canvas: c,
+        result: { nodeId: node.id, assetId: row.id, path: rel, contentLength: dto.content.length, created: true },
+        event: { addedNodes: [node], addedEdges: edges },
+      };
+    });
+  }
+
+  private async textTarget(nodeId: string, short = false) {
+    const c = await this.getCanvas();
+    const node = c.nodes.find((n) => n.id === nodeId);
+    if (!node) throw new NotFoundException(`Canvas node not found: ${nodeId}`);
+    if (node.type !== "text") {
+      throw new BadRequestException(
+        short ? `Node is not a text node: ${nodeId} (type=${node.type})` : `Node is not a text node: ${nodeId} (type=${node.type}). Use canvas_update_text_node only on text nodes.`,
+      );
+    }
+    if (!node.assetId) throw new NotFoundException(`Text node has no asset reference: ${nodeId}`);
+    const row = this.assets.byId(node.assetId);
+    const abs = row && this.paths.resolve(row.path);
+    if (!row || !abs) throw new NotFoundException(`Asset not found for node: ${nodeId}`);
+    return { node, row, abs };
+  }
+
+  private async updateTextNode(dto: {
+    nodeId: string;
+    content: string;
+    mode?: "replace" | "append" | "prepend";
+    appendSeparator?: "auto-newline" | "none";
+    expectedContentHash?: string;
+  }) {
+    const { node, row, abs } = await this.textTarget(dto.nodeId);
+    return this.nodeLock(node.id).runExclusive(async () => {
+      const existing = await readFile(abs, "utf8").catch(() => "");
+      const hash = textContentHash(existing);
+      if (dto.expectedContentHash && dto.expectedContentHash !== hash) {
+        throw new ConflictException(
+          `Text node content changed since your last read (current contentHash: ${hash}). Re-run canvas_grep_text or canvas_read_text and retry with fresh content.`,
+        );
+      }
+      const sep = (joinEnd: string) => (dto.appendSeparator === "none" ? "" : joinEnd && !joinEnd.endsWith("\n") ? "\n" : "");
+      const next =
+        dto.mode === "append" ? existing + sep(existing) + dto.content : dto.mode === "prepend" ? dto.content + sep(dto.content) + existing : dto.content;
+      await writeFile(abs, next);
+      if (existing && next !== existing) {
+        this.bus.emit("document-edit:result", {
+          type: "document_edit_result",
+          requestId: `agent-${randomUUID()}`,
+          nodeId: node.id,
+          status: "applied",
+          origin: "agent",
+          previousContentHash: hash,
+          contentHash: textContentHash(next),
+        });
+      }
+      this.emitUpdate({ origin: "mcp-write", updatedNodes: [{ ...node, data: { ...(node.data ?? {}), textRevision: Date.now() } }] });
+      return { nodeId: node.id, assetId: row.id, contentLength: next.length, created: false };
+    });
+  }
+
+  async applyTextEdits(dto: { requestId?: string; editSessionId?: string; nodeId: string; expectedContentHash: string; edits: TextEdit[] }) {
+    const { node, abs } = await this.textTarget(dto.nodeId, true);
+    const requestId = dto.requestId ?? `agent-${randomUUID()}`;
+    const origin = dto.requestId ? "annotation" : "agent";
+    return this.nodeLock(node.id).runExclusive(async () => {
+      const content = await readFile(abs, "utf8");
+      const previousContentHash = textContentHash(content);
+      const head = { requestId, ...(dto.editSessionId ? { editSessionId: dto.editSessionId } : {}), nodeId: node.id };
+      if (previousContentHash !== dto.expectedContentHash) {
+        const out = {
+          ...head,
+          status: "conflict" as const,
+          origin,
+          previousContentHash,
+          contentHash: previousContentHash,
+          results: dto.edits.map((e) => ({
+            annotationId: e.annotationId,
+            ...(e.targetIndex !== undefined ? { targetIndex: e.targetIndex } : {}),
+            status: "conflict",
+            reason: "version_changed",
+          })),
+        };
+        this.bus.emit("document-edit:result", { type: "document_edit_result", ...out });
+        return out;
+      }
+      const r = applyTextEdits(content, dto.edits);
+      if (!r.ok) {
+        const out = { ...head, status: "conflict" as const, origin, previousContentHash, contentHash: previousContentHash, results: r.results };
+        this.bus.emit("document-edit:result", { type: "document_edit_result", ...out });
+        return out;
+      }
+      await atomicWriteFile(abs, r.content);
+      const out = {
+        ...head,
+        status: "applied" as const,
+        origin,
+        previousContentHash,
+        contentHash: textContentHash(r.content),
+        results: r.results,
+        appliedEdits: r.applied,
+      };
+      this.bus.emit("document-edit:result", { type: "document_edit_result", ...out });
+      this.emitUpdate({ origin: "mcp-write", updatedNodes: [{ ...node, data: { ...(node.data ?? {}), textRevision: Date.now() } }] });
+      return out;
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 分组
+  // -------------------------------------------------------------------------
+
+  async group(dto: { nodeIds: string[]; label?: string; layout?: "grid" | "vertical" }): Promise<GroupResult> {
+    const label = normalizeLabel(dto.label);
+    return this.mutate<GroupResult>((c) => {
+      const byId = new Map(c.nodes.map((n) => [n.id, n]));
+      const skippedNodes: { nodeId: string; reason: string; parentId?: string }[] = [];
+      const members: CanvasNode[] = [];
+      for (const id of [...new Set(dto.nodeIds)]) {
+        const n = byId.get(id);
+        if (!n) skippedNodes.push({ nodeId: id, reason: "unknown" });
+        else if (n.parentId) skippedNodes.push({ nodeId: id, reason: "already-grouped", parentId: n.parentId });
+        else members.push(n);
+      }
+      const empty: GroupResult = { groupId: null, addedNodes: [], removedNodeIds: [], updatedNodes: [], ...(skippedNodes.length ? { skippedNodes } : {}) };
+      if (members.length < 2) return { result: empty };
+      const missing = members.filter((m) => !positionOf(m, MODE)).map((m) => m.id);
+      if (missing.length) {
+        throw new BadRequestException({
+          code: "incomplete-positions",
+          mode: MODE,
+          missingNodeIds: missing,
+          ...(skippedNodes.length ? { skippedNodes } : {}),
+          message: `Cannot group nodes: ${missing.length} participant(s) lack ${MODE} positions.`,
+        });
+      }
+
+      // 选择里已有组：并进第一个组，其余的组解散。
+      const groups = members.filter((m) => m.type === "group");
+      const removedNodeIds: string[] = [];
+      let group: CanvasNode;
+      let added: CanvasNode[] = [];
+      if (groups.length) {
+        group = groups[0]!;
+        for (const g of groups.slice(1)) {
+          for (const kid of c.nodes.filter((n) => n.parentId === g.id)) reparent(c, kid, group);
+          removedNodeIds.push(g.id);
+        }
+        c.nodes = c.nodes.filter((n) => !removedNodeIds.includes(n.id));
+        for (const m of members.filter((m) => m.type !== "group")) reparent(c, m, group);
+        group.data = { ...(group.data ?? {}), frameMode: "auto" };
+      } else {
+        const rects = members.map((m) => ({ ...positionOf(m, MODE)!, ...effectiveSize(m, MODE) }));
+        const b = boundsOf(rects);
+        group = {
+          id: `group-${randomUUID()}`,
+          type: "group",
+          positions: { [MODE]: { x: b.x - GROUP_PADDING.x, y: b.y - GROUP_PADDING.top } },
+          size: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom },
+          sizes: { [MODE]: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom } },
+          data: label ? { label } : {},
+          meta: { zIndex: -100 },
+        };
+        c.nodes.push(group);
+        for (const m of members) reparent(c, m, group);
+        added = [group];
+        this.pendingNodes.add(group.id);
+      }
+      if (dto.layout) relayoutGroup(c, group, dto.layout);
+      fitGroup(c, group);
+      const kids = c.nodes.filter((n) => n.parentId === group.id);
+      const updatedNodes = groups.length ? [group, ...kids] : kids;
+      return {
+        canvas: c,
+        result: { groupId: group.id, addedNodes: added, removedNodeIds, updatedNodes, ...(skippedNodes.length ? { skippedNodes } : {}) },
+        event: { addedNodes: added, removedNodeIds, updatedNodes },
+        intent: removedNodeIds.length
+          ? { reason: "group-reconciliation", removedNodeIds, removedEdgeIds: [], allowHighBlast: true }
+          : undefined,
+      };
+    });
+  }
+
+  async ungroup(groupId: string) {
+    return this.mutate((c) => {
+      const g = c.nodes.find((n) => n.id === groupId);
+      if (!g || g.type !== "group") return { result: { removed: false, removedNodeIds: [] as string[], updatedNodes: [] as CanvasNode[] } };
+      const gp = positionOf(g, MODE);
+      if (!gp) {
+        throw new BadRequestException({
+          code: "incomplete-positions",
+          mode: MODE,
+          missingNodeIds: [groupId],
+          availableModes: Object.keys(g.positions ?? {}),
+          message: `Cannot ungroup: group lacks ${MODE} position.`,
+        });
+      }
+      const updatedNodes: CanvasNode[] = [];
+      for (const kid of c.nodes.filter((n) => n.parentId === groupId)) {
+        for (const [mode, p] of Object.entries(kid.positions ?? {})) {
+          const pp = g.positions?.[mode];
+          if (pp) kid.positions[mode] = { x: p.x + pp.x, y: p.y + pp.y };
+        }
+        delete kid.parentId;
+        updatedNodes.push(kid);
+      }
+      c.nodes = c.nodes.filter((n) => n.id !== groupId);
+      return {
+        canvas: c,
+        result: { removed: true, removedNodeIds: [groupId], updatedNodes },
+        event: { removedNodeIds: [groupId], updatedNodes },
+        intent: { reason: "group-reconciliation", removedNodeIds: [groupId], removedEdgeIds: [], allowHighBlast: true },
+      };
+    });
+  }
+
+  /**
+   * 把"这一轮产出的"节点归成一组。有会话时只看这个会话生成的；没有会话时，以已分组
+   * 资产里最新的创建时间为界，只收比它新的 —— 否则会把用户早就整理好的东西再圈一遍。
+   */
+  async groupRecentOutputs(label: string | undefined, sessionId: string | undefined) {
+    const c = await this.getCanvas();
+    const grouped = c.nodes.filter((n) => n.parentId);
+    const threshold = sessionId ? 0 : Math.max(0, ...grouped.map((n) => this.assetOf(n)?.created_at ?? 0));
+    const candidates = c.nodes.filter((n) => {
+      if (n.type === "group" || n.type === "placeholder" || (n.meta as any)?.cloneOf || n.parentId) return false;
+      const row = this.assetOf(n);
+      if (!row) return false;
+      const meta = this.metadataOf(row);
+      if (meta.model === "user_uploaded" || meta.model === "imported") return false;
+      if (sessionId) return meta.session_id === sessionId;
+      return row.created_at > threshold;
+    });
+    if (!sessionId && threshold === 0 && grouped.length === 0 && candidates.length > 0 && c.nodes.some((n) => n.type === "group")) {
+      return { groupId: null, groupedCount: 0, reason: "no-session-scope" };
+    }
+    if (candidates.length < 2) return { groupId: null, groupedCount: 0, reason: "insufficient-candidates" };
+    const r = await this.group({ nodeIds: candidates.map((n) => n.id), label, layout: "grid" });
+    if (!r.groupId) return { groupId: null, groupedCount: 0, reason: "no-op" };
+    return { groupId: r.groupId, groupedCount: candidates.length, ...(normalizeLabel(label) ? { label: normalizeLabel(label) } : {}) };
+  }
+
+  // -------------------------------------------------------------------------
+  // 占位卡
+  // -------------------------------------------------------------------------
+
+  async createPlaceholder(dto: { sourceNodeId: string; prompt: string; model: string; mediaType?: string; aspectRatio?: string }) {
+    return this.mutate((c) => {
+      const source =
+        c.nodes.find((n) => n.id === dto.sourceNodeId) ?? singleOrUndefined(c.nodes.filter((n) => n.assetId === dto.sourceNodeId));
+      if (!source) {
+        throw new BadRequestException({
+          code: "PLACEHOLDER_SOURCE_NOT_FOUND",
+          message: "Source node not found on canvas",
+          sourceNodeId: dto.sourceNodeId,
+          referenceAssetIds: [],
+          candidateNodeIds: [],
+        });
+      }
+      // 同一个来源、同一句 prompt 之前失败的卡：这次重试就把它清掉，别在画布上越堆越多。
+      const stale = c.edges
+        .filter((e) => e.source === source.id)
+        .map((e) => c.nodes.find((n) => n.id === e.target))
+        .filter((n): n is CanvasNode => !!n && n.type === "placeholder" && (n.data as any)?.status === "error" && (n.data as any)?.prompt === dto.prompt)
+        .map((n) => n.id);
+      const removedEdgeIds = c.edges.filter((e) => stale.includes(e.source) || stale.includes(e.target)).map((e) => e.id);
+      c.nodes = c.nodes.filter((n) => !stale.includes(n.id));
+      c.edges = c.edges.filter((e) => !removedEdgeIds.includes(e.id));
+
+      let aspectRatio = parseRatio(dto.aspectRatio) ? dto.aspectRatio : undefined;
+      if (!aspectRatio) {
+        const row = this.assetOf(source);
+        if (row?.width && row.height) aspectRatio = `${row.width}:${row.height}`;
+      }
+      const now = Date.now();
+      const size = placeholderNodeSize("generating", aspectRatio, dto.mediaType);
+      const node: CanvasNode = {
+        id: randomUUID(),
+        type: "placeholder",
+        positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, [source.id]) },
+        size,
+        data: {
+          prompt: dto.prompt,
+          model: dto.model,
+          status: "generating",
+          createdAt: now,
+          generationStartedAt: now,
+          ...(dto.mediaType ? { mediaType: dto.mediaType } : {}),
+          ...(aspectRatio ? { aspectRatio } : {}),
+        },
+      };
+      c.nodes.push(node);
+      this.pendingNodes.add(node.id);
+      const edges = this.addDerivationEdges(c, [source.id], node.id, { prompt: dto.prompt, model: dto.model });
+      return {
+        canvas: c,
+        result: { placeholderId: node.id },
+        event: { addedNodes: [node], addedEdges: edges, removedNodeIds: stale, removedEdgeIds },
+        intent: stale.length ? { reason: "placeholder-cleanup", removedNodeIds: stale, removedEdgeIds, allowHighBlast: true } : undefined,
+      };
+    });
+  }
+
+  async failPlaceholder(dto: { placeholderId: string; errorMessage: string; errorReason?: string; retryPayload?: unknown }) {
+    await this.mutate((c) => {
+      const node = c.nodes.find((n) => n.id === dto.placeholderId);
+      if (!node) return { result: undefined };
+      const msg = dto.errorMessage.trim().length >= 4 ? dto.errorMessage : "生成失败，请重试";
+      const concurrency = /并发|concurren/i.test(msg);
+      node.data = {
+        ...(node.data ?? {}),
+        status: "error",
+        errorMessage: msg,
+        ...(dto.errorReason || concurrency ? { errorReason: dto.errorReason ?? "CONCURRENCY_LIMIT" } : {}),
+        ...(dto.retryPayload !== undefined ? { retryPayload: dto.retryPayload } : {}),
+      };
+      node.size = placeholderNodeSize("error", (node.data as any).aspectRatio, (node.data as any).mediaType);
+      return { canvas: c, result: undefined, event: { origin: "generation-status", updatedNodes: [node] } };
+    });
+  }
+
+  async cleanupPlaceholder(id: string) {
+    await this.mutate((c) => {
+      const node = c.nodes.find((n) => n.id === id);
+      if (!node || node.type !== "placeholder") return { result: undefined };
+      const removedEdgeIds = c.edges.filter((e) => e.source === id || e.target === id).map((e) => e.id);
+      c.nodes = c.nodes.filter((n) => n.id !== id);
+      c.edges = c.edges.filter((e) => !removedEdgeIds.includes(e.id));
+      return {
+        canvas: c,
+        result: undefined,
+        event: { removedNodeIds: [id], removedEdgeIds },
+        intent: { reason: "placeholder-cleanup", removedNodeIds: [id], removedEdgeIds, allowHighBlast: true },
+      };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 聚焦 / 选中
+  // -------------------------------------------------------------------------
+
+  async focus(ids: string[], padding?: number, duration?: number) {
+    const c = await this.getCanvas();
+    const have = new Set(c.nodes.map((n) => n.id));
+    const focused = ids.filter((id) => have.has(id));
+    const missing = ids.filter((id) => !have.has(id));
+    if (focused.length) this.bus.emit("canvas:focus", { type: "canvas_focus", nodeIds: focused, padding, duration });
+    return { focused, missing };
+  }
+
+  setSelection(ids: string[]): void {
+    this.selection = [...ids];
+  }
+
+  setTextEditState(s: { nodeId: string; editSessionId: string; active: boolean }): void {
+    if (s.active) this.editing = { nodeId: s.nodeId, editSessionId: s.editSessionId };
+    else if (this.editing?.nodeId === s.nodeId && this.editing.editSessionId === s.editSessionId) this.editing = undefined;
+  }
+
+  async getSelection() {
+    const c = await this.getCanvas();
+    const byId = new Map(c.nodes.map((n) => [n.id, n]));
+    const nodeIds = this.selection.filter((id) => byId.has(id));
+    const out: Record<string, unknown> = { nodeIds, nodes: nodeIds.map((id) => this.summary(byId.get(id)!)) };
+    if (this.editing) {
+      const n = byId.get(this.editing.nodeId);
+      out.editing = { ...this.editing, ...(n ? { node: this.summary(n) } : {}) };
+    }
+    return out;
+  }
+}
+
+function normalizeLabel(label?: string): string | undefined {
+  const t = label?.trim();
+  return t ? t.slice(0, GROUP_LABEL_MAX) : undefined;
+}
+
+function singleOrUndefined<T>(xs: T[]): T | undefined {
+  return xs.length === 1 ? xs[0] : undefined;
+}
+
+async function exists(p: string): Promise<boolean> {
+  return stat(p).then(
+    () => true,
+    () => false,
+  );
+}
+
+/** 把节点挂到组下：坐标换成相对组的。 */
+function reparent(c: CanvasFile, node: CanvasNode, group: CanvasNode): void {
+  const abs = absolutePosition(c, node, MODE);
+  const gp = absolutePosition(c, group, MODE);
+  if (abs && gp) node.positions = { ...node.positions, [MODE]: { x: abs.x - gp.x, y: abs.y - gp.y } };
+  node.parentId = group.id;
+}
+
+/**
+ * 组内重排。grid：按 `data.params.order` → 行（y）→ 列（x）排序，列数取 √n，格子取成员
+ * 最大宽高，间距 100；vertical：一列排下来。
+ */
+function relayoutGroup(c: CanvasFile, group: CanvasNode, layout: "grid" | "vertical"): void {
+  const kids = c.nodes.filter((n) => n.parentId === group.id);
+  if (kids.length === 0) return;
+  const cell = {
+    width: Math.max(...kids.map((k) => effectiveSize(k, MODE).width)),
+    height: Math.max(...kids.map((k) => effectiveSize(k, MODE).height)),
+  };
+  const order = (n: CanvasNode) => {
+    const o = Number((n.data as any)?.params?.order);
+    return Number.isFinite(o) ? o : Infinity;
+  };
+  kids.sort((a, b) => {
+    const d = order(a) - order(b);
+    if (d !== 0 && Number.isFinite(d)) return d;
+    const pa = positionOf(a, MODE) ?? { x: 0, y: 0 };
+    const pb = positionOf(b, MODE) ?? { x: 0, y: 0 };
+    return Math.abs(pa.y - pb.y) > cell.height / 2 ? pa.y - pb.y : pa.x - pb.x;
+  });
+  const cols = layout === "vertical" ? 1 : Math.max(1, Math.round(Math.sqrt(kids.length)));
+  kids.forEach((k, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const size = effectiveSize(k, MODE);
+    k.positions = {
+      ...k.positions,
+      [MODE]: {
+        x: GROUP_PADDING.x + col * (cell.width + 100) + Math.round((cell.width - size.width) / 2),
+        y: GROUP_PADDING.top + row * (cell.height + 100),
+      },
+    };
+  });
+}
+
+/** 组框贴合成员：成员外包框 + 内边距。子节点坐标跟着平移，保持绝对位置不变。 */
+function fitGroup(c: CanvasFile, group: CanvasNode): void {
+  const kids = c.nodes.filter((n) => n.parentId === group.id);
+  const gp = positionOf(group, MODE);
+  if (!gp || kids.length === 0) return;
+  const rects: Rect[] = kids.map((k) => ({ ...positionOf(k, MODE)!, ...effectiveSize(k, MODE) }));
+  const b = boundsOf(rects);
+  const dx = b.x - GROUP_PADDING.x;
+  const dy = b.y - GROUP_PADDING.top;
+  for (const k of kids) {
+    const p = positionOf(k, MODE)!;
+    k.positions = { ...k.positions, [MODE]: { x: p.x - dx, y: p.y - dy } };
+  }
+  group.positions = { ...group.positions, [MODE]: { x: gp.x + dx, y: gp.y + dy } };
+  const size = { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom };
+  group.size = size;
+  group.sizes = { ...(group.sizes ?? {}), [MODE]: size };
+}

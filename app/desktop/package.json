@@ -1,0 +1,23 @@
+{
+  "name": "@ov/desktop",
+  "version": "3.0.16",
+  "private": true,
+  "productName": "蒜狸小助手",
+  "description": "桌面壳（Electron + electron-vite）。主进程负责编排 gateway 和 opencode。",
+  "type": "module",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "electron": "43.7.0",
+    "electron-vite": "5.0.0",
+    "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "@ov/maas-media": "workspace:^"
+  }
+}
