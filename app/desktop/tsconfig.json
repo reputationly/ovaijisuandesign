@@ -1,5 +1,6 @@
 {
+  "//": "主进程和 preload（Node 环境）。renderer 另见 tsconfig.web.json。",
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "module": "ESNext", "moduleResolution": "Bundler", "lib": ["ES2023", "DOM"], "noEmit": true },
-  "include": ["src", "electron.vite.config.ts"]
+  "include": ["src/main", "src/preload", "electron.vite.config.ts"]
 }

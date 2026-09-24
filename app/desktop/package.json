@@ -9,15 +9,37 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
     "electron": "43.7.0",
     "electron-vite": "5.0.0",
+    "tailwindcss": "^4.3.3",
     "vite": "^7.0.0"
   },
   "dependencies": {
-    "@ov/maas-media": "workspace:^"
+    "@ov/maas-media": "workspace:^",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-document": "^3.31.3",
+    "@tiptap/extension-paragraph": "^3.31.3",
+    "@tiptap/extension-text": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "@xyflow/react": "^12.8.7",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.43.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.6.0",
+    "wavesurfer.js": "^7.12.11"
   }
 }
