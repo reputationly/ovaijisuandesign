@@ -190,7 +190,11 @@ mod tests {
             err.message
         );
         // 原始描述要保留 —— 里面有 URL，是定位用的。
-        assert!(err.message.contains("http://10.255.255.1:9"), "{}", err.message);
+        assert!(
+            err.message.contains("http://10.255.255.1:9"),
+            "{}",
+            err.message
+        );
     }
 
     // 不认识的失败也要给个类别，别留空 —— 留空就退回了原来那种
@@ -199,7 +203,10 @@ mod tests {
     async fn an_unclassified_failure_still_gets_a_label() {
         let err = PlatformError::from_reqwest(&timeout_error().await);
         assert!(
-            err.message.split(':').next().is_some_and(|k| !k.trim().is_empty()),
+            err.message
+                .split(':')
+                .next()
+                .is_some_and(|k| !k.trim().is_empty()),
             "类别是空的: {}",
             err.message
         );

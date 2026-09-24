@@ -1,6 +1,6 @@
 # MCP 工具面
 
-官方 `mcp-tools` 注册的**全部 58 个工具**。opencode 按 MCP server 名加前缀，
+官方 `mcp-tools` 注册的**全部 54 个工具**。opencode 按 MCP server 名加前缀，
 所以 agent 侧看到的是 `hub_<name>`。
 
 这是**要对齐的接口规格** —— 名字和入参保持一致，官方那套 agent 配置就能直接
@@ -43,14 +43,13 @@
 | `generate_image` | `aspect_ratio_evidence`, `aspect_ratio_source`, `count`, `filename`, `filenames`, `image_paths`, `model_id`, `order`, `orders`, `prompt`, `prompts`, `vendor`, `vendor_params` |
 | `image_remove_background` | `filename`, `image_path`, `source_node_id` |
 | `select_image_recipe` | `modality`, `user_request` |
-| `image_search` | `max_images_per_query`, `min_dimension`, `queries` |
+| `image_search` | `max_images_per_query`, `max_total_images`, `min_dimension`, `queries` |
 
-## 生成 · 视频（3）
+## 生成 · 视频（2）
 
 | 工具 | 入参 |
 |---|---|
 | `generate_video` | `audio_path`, `duration`, `filename`, `first_frame_image`, `last_frame_image`, `mode`, `model_id`, `order`, `prompt`, `reference_audio_urls`, `reference_image_paths`, `reference_video_urls`, `vendor`, `vendor_params`, `video_url` |
-| `batch_lip_sync` | `audio_paths`, `filenames`, `video_paths` |
 | `merge_videos` | `filename`, `scale_mode`, `source_node_id`, `target_height`, `target_width`, `video_paths` |
 
 ## 生成 · 语音（2）
@@ -60,15 +59,13 @@
 | `generate_audio_speech` | `emotions`, `filename`, `filenames`, `format`, `language_boost`, `model_name`, `pitches`, `pronunciation_dict`, `reference_audio_paths`, `reference_image_path`, `sample_rate`, `speeds`, `texts`, `vendor`, `voice_id`, `voice_id_source`, `voice_ids`, `voice_modify`, `vols`, `volumes` |
 | `voice_prepare` | `items` |
 
-## 生成 · 音乐（3）
+## 生成 · 音乐（1）
 
 | 工具 | 入参 |
 |---|---|
 | `generate_audio_music` | `filename`, `lyrics`, `mode`, `model_id`, `prompt`, `vendor` |
-| `music_cover` | `action`, `audio`, `cover_feature_id`, `filename`, `lyrics`, `prompt`, `source_node_id` |
-| `lyrics_generation` | `lyrics`, `mode`, `prompt`, `title` |
 
-## 后期处理（6）
+## 后期处理（4）
 
 | 工具 | 入参 |
 |---|---|
@@ -76,8 +73,6 @@
 | `ffmpeg` | `args`, `filename`, `metadata`, `output_type`, `preserve_source_canvas_node`, `replace_node_id` |
 | `media_transcribe` | `audio_path`, `file_path`, `filename`, `language`, `mode`, `total_duration` |
 | `subtitle_format` | `cjk_chars_per_line`, `english_words_per_line`, `filename`, `font_name`, `font_scale`, `font_size`, `format`, `margin_l`, `margin_r`, `margin_v`, `max_lines`, `output_size`, `position`, `safe_area`, `source_srt_path`, `style_preset`, `unsafe_override` |
-| `audio_analyze_music` | `audio_path`, `num_segments` |
-| `audio_separate` | `audio_path`, `filename`, `source_node_id`, `video_path` |
 
 ## 资产与文件（5）
 
@@ -112,14 +107,13 @@
 | `add_comfyui_workflow` | `workflow_id` |
 | `open_comfyui` | `workflow` |
 
-## 插件（4）
+## 插件（3）
 
 | 工具 | 入参 |
 |---|---|
 | `plugin_agent_open_editor` | `initialMessage`, `nodeId`, `sourceNodeIds` |
 | `plugin_agent_describe` | `nodeId` |
 | `plugin_agent_invoke` | `args`, `method`, `nodeId` |
-| `preview_and_collect_feedback` | `args`, `feedback_path`, `script` |
 
 ## DAG / 其他（2）
 
@@ -127,3 +121,10 @@
 |---|---|
 | `list_capabilities` | `modality` |
 | `get_model_concurrency` | `models` |
+
+## 未归类（2）
+
+| 工具 | 入参 |
+|---|---|
+| `browser` | `delta_x`, `delta_y`, `elements`, `expression`, `include_links`, `include_snapshot`, `key`, `limit`, `modifiers`, `op`, `selector`, `tab_id`, `text`, `timeout_ms`, `uid`, `url`, `value` |
+| `connector_authorize` | `connector_id` |

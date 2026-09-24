@@ -30,6 +30,7 @@ GROUPS = OrderedDict([
     ("记忆与知识", r"^(memory|search_knowledge|report_outcome|reload_skills)"),
     ("ComfyUI", r"comfyui"),
     ("插件", r"^(plugin_agent_|recommend_plugin|open_remote_tool_gui|preview_and_collect_feedback)"),
+    ("浏览器与连接器", r"^(browser|connector_authorize)$"),
     ("DAG / 其他", r"^(run_dag|submit_dag|query_dag_result|submit_test_async_task|list_capabilities|get_model_concurrency)$"),
 ])
 

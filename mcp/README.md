@@ -1,6 +1,6 @@
 # mcp
 
-自己的 MCP server。**按官方那 58 个工具同名同参实现** ——
+自己的 MCP server。**按官方那 54 个工具同名同参实现**（3.0.16） ——
 清单见 [`docs/mcp-tools.md`](../docs/mcp-tools.md)。
 
 用 TypeScript + `@modelcontextprotocol/sdk`，版本**钉死成和官方一样的
@@ -19,17 +19,16 @@
 看到的才是 `hub_generate_image` 这种。改了名字，官方提示词里那 120 处工具
 调用会全部落空，**而且 LLM 不会报错，它会自己编一个看起来合理的做法**。
 
-## 已实现（7 个）
+## 已实现（24 个）
 
-| | |
+| 类 | 工具 |
 |---|---|
-| `canvas_list_nodes` | `type`, `limit`, `offset` |
-| `canvas_get_node` | `nodeId`, `nodeIds` |
-| `canvas_write_node` | `kind`, `content`, `name`, `nodeId`, `mode`, `expectedContentHash`, `assetPath`, `allowDuplicate`, `sourceNodeId`, `sourceNodeIds` |
-| `generate_image` | `vendor`, `model_id`, `prompt`, `image_paths`, `filename`, `vendor_params` |
-| `generate_video` | + `mode`, `duration`, `first_frame_image`, `last_frame_image`, `reference_image_paths` |
-| `generate_audio_speech` | `vendor`, `model_name`, `texts`, `voice_id`, `filename` |
-| `generate_audio_music` | `vendor`, `model_id`, `prompt`, `lyrics`, `mode`, `filename` |
+| 画布 | `canvas_list_nodes` `canvas_get_node` `canvas_write_node` `canvas_read_text` `canvas_grep_text` `canvas_apply_text_edits` `canvas_group_nodes` `canvas_group_recent_outputs` `canvas_ungroup_node` |
+| 生成 | `generate_image` `generate_video` `generate_audio_speech` `generate_audio_music` |
+| 计划 | `plan_write` `plan_replan` `plan_patch_stage` `plan_update_stage_state` `plan_get_stage_status` `plan_get_stage_detail` `plan_get_work_items` |
+| 其他 | `list_capabilities` `memory` `report_outcome` `read` |
+
+入参见 [`docs/mcp-tools.md`](../docs/mcp-tools.md)，那是逐字对齐的基准。
 
 `src/tools.test.ts` 拿 `docs/mcp-tools.md` 当基准，逐条比对名字和入参 ——
 应用升级后重跑提取脚本，这些测试就会告诉我们接口面变了没有。
@@ -73,8 +72,8 @@ agent 一定会填；收下比让它撞上"未知字段"要好。
 **没实现的工具不注册空壳。** 注册了但返回"未实现"的话，agent 会把它当成
 一次失败的调用去重试；不注册，agent 至少能看到工具不存在而换条路。
 
-## 还没做的 51 个
+## 还没做的 30 个
 
-按"链路能不能跑"排在后面。ComfyUI 那 10 个和插件那 6 个可以最后，
+按"链路能不能跑"排在后面。ComfyUI 那 10 个和插件那 3 个可以最后，
 甚至不做 —— 但那样要同步删掉 agent 配置里对应的路由段，
 见 [`agent/README.md`](../agent/README.md)。

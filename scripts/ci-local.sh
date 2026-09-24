@@ -35,7 +35,7 @@ step "canvas-web"
 step "spec（规格文档没被手改坏）"
 python3 -c "import ast,pathlib; ast.parse(pathlib.Path('scripts/extract-mcp-tools.py').read_text())"
 n=$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)
-[ "$n" = 58 ] || { echo "docs/mcp-tools.md 解析出 $n 个工具，应该是 58"; exit 1; }
+[ "$n" = 54 ] || { echo "docs/mcp-tools.md 解析出 $n 个工具，应该是 54"; exit 1; }
 
 step "workflow（YAML 没被改坏）"
 # **改坏 workflow 的 YAML 不会以"构建失败"的形式出现** —— GitHub 根本

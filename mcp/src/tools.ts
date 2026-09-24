@@ -296,80 +296,6 @@ const generateAudioMusic: ToolDef = {
   },
 }
 
-/**
- * 歌词起草。**不落画布，也不建节点** —— 它产出的是一段待用户确认的文本。
- *
- * 官方的工作流是「起草 → 原样念给用户 → 确认后再生成」，所以这一步的产物
- * 是给 agent 看的，不是给画布看的。直接建成文本节点的话，用户每次改词都会
- * 在画布上留下一堆废稿。
- */
-const lyricsGeneration: ToolDef = {
-  name: "lyrics_generation",
-  description:
-    "Draft or polish song lyrics. Returns song_title, style_tags and lyrics as text — " +
-    "nothing is written to the canvas. Present the result to the user for confirmation " +
-    "before calling generate_audio_music. Use mode=write_full_song when there are no " +
-    "lyrics yet, mode=edit to expand / polish lyrics the user already gave you.",
-  inputSchema: {
-    mode: z.enum(["write_full_song", "edit"]).optional().describe("Defaults to write_full_song."),
-    prompt: z.string().optional().describe("Theme and style. Required for write_full_song."),
-    lyrics: z.string().optional().describe("The draft to polish. Required for mode=edit."),
-    title: z.string().optional().describe("Pins the song title instead of letting the model pick."),
-  },
-  async handler(a) {
-    return reply(
-      await gw.post("/api/music/lyrics/generate", {
-        mode: a.mode,
-        prompt: a.prompt ?? "",
-        lyrics: a.lyrics ?? "",
-        title: a.title,
-      }),
-    )
-  },
-}
-
-/**
- * 翻唱。`action` 分派，官方就是一个工具带动作而不是三个工具。
- *
- * `generate` 走 `/api/generate/music/submit` 并带上 `audio` —— 官方的路由表里
- * 翻唱的生成也没有独立路径，就是靠请求体里有没有参考音频分叉的。
- *
- * `prepare_lyrics` 本机做不了（要语音识别），gateway 会明说缺什么、
- * 以及改走哪条路。**不回一份空歌词** —— 那份空歌词会被原样带进下一步，
- * 翻唱出来是一首没有词的曲子，全程不报错。
- */
-const musicCover: ToolDef = {
-  name: "music_cover",
-  description:
-    "Re-perform an existing track in a new style. action=generate does it in one shot; " +
-    "pass `lyrics` to sing new words, omit it to keep the words of the reference audio. " +
-    "action=prepare_lyrics (transcribe-then-edit) needs a speech-recognition model that " +
-    "this machine does not have — it will tell you so rather than returning empty lyrics.",
-  inputSchema: {
-    action: z.enum(["generate", "prepare_lyrics"]).describe("generate | prepare_lyrics"),
-    audio: z.string().optional().describe("Reference track: workspace path or URL."),
-    prompt: z.string().optional().describe("Target style. Not the lyrics."),
-    lyrics: z.string().optional().describe("New words. Omit to keep the original ones."),
-    cover_feature_id: z.string().optional().describe("Handle from prepare_lyrics."),
-    source_node_id: z.string().optional(),
-    filename: z.string().optional(),
-  },
-  async handler(a) {
-    if (a.action === "prepare_lyrics") {
-      return reply(await gw.post("/api/music/cover/preprocess", { audio: a.audio ?? "" }))
-    }
-    if (!a.audio) throw new Error("action=generate 需要 audio：翻唱总得有个参考音频")
-    const product = await submitAndPoll("music", {
-      audio: a.audio,
-      prompt: a.prompt ?? "",
-      lyrics: a.lyrics ?? "",
-      cover_feature_id: a.cover_feature_id,
-      filename: a.filename,
-    })
-    return reply(await placeOnCanvas(product))
-  },
-}
-
 // ---------------------------------------------------------------------------
 // 制作计划
 //
@@ -717,104 +643,6 @@ const readTool: ToolDef = {
   handler: async (a) => reply(await gw.post("/api/read-file", a)),
 }
 
-
-// ---------------------------------------------------------------------------
-// 别名
-// ---------------------------------------------------------------------------
-
-/**
- * 官方那套更细的工具名，转发到我们已有的 handler。
- *
- * ## 为什么需要
- *
- * 官方 `base.json` 里**每个专家子 agent 都是 `"hub_*": false` 通配拒绝
- * 加一份显式白名单**，而 `ovagent` 把那段 `agent` / `tools` 原样塞进
- * opencode 配置。名字不在白名单里的工具会被过滤掉 —— agent 根本看不见它，
- * 不是"调用失败"，是"没有这个工具"。
- *
- * 主 agent（`build` / `plan`）没有 `tools` 段，所以不受影响；出问题的是
- * 主 agent 用 `task` 派活给子 agent 的时候。实测我们 26 个工具在
- * `speech` 子 agent 下只剩 1 个（`read`），在 `music` 下只剩 2 个。
- *
- * ## 只加名字，不加能力
- *
- * 每个别名都落到一个已经在跑的 handler 上。**能力对不上的一律不注册** ——
- * 比如 `hub_music_generation_elevenlabs`：名字点了 ElevenLabs，我们后面是
- * 平台自己的音乐模型，注册它等于让 agent 以为自己在用别的东西。
- * 同理 `hub_canvas_write_file_node` / `_table_node`：我们的画布没有这两种
- * 节点，给个名字只会让 agent 白调一次。
- */
-function alias(
-  name: string,
-  base: ToolDef,
-  opts: { description?: string; fixed?: Record<string, unknown> } = {},
-): ToolDef {
-  return {
-    name,
-    description: opts.description ?? base.description,
-    inputSchema: base.inputSchema,
-    // **固定参数覆盖调用方给的**：`hub_canvas_write_media_node` 这个名字
-    // 本身就是"写媒体节点"的意思，agent 再传一个 kind=text 是自相矛盾的，
-    // 以名字为准。
-    handler: (a) => base.handler({ ...a, ...(opts.fixed ?? {}) }),
-  }
-}
-
-const ALIASES: ToolDef[] = [
-  // -- 画布写节点。官方拆成四个，我们只认领真做得到的两个。--
-  alias("canvas_write_media_node", canvasWriteNode, {
-    fixed: { kind: "media" },
-    description:
-      "Place an existing workspace file on the canvas. Requires `assetPath` " +
-      "(workspace-relative).",
-  }),
-  alias("canvas_write_text_node", canvasWriteNode, {
-    fixed: { kind: "text" },
-    description:
-      "Write a Markdown text node. Omit `nodeId` to create, pass it to patch an existing one.",
-  }),
-
-  // -- memory。官方一个动作一个工具，我们是一个带 action 的。--
-  alias("memory_write", memoryTool, { fixed: { action: "write" } }),
-  alias("memory_read", memoryTool, { fixed: { action: "read" } }),
-  alias("memory_list", memoryTool, { fixed: { action: "list" } }),
-  alias("memory_search", memoryTool, { fixed: { action: "search" } }),
-  alias("memory_delete", memoryTool, { fixed: { action: "delete" } }),
-
-  // -- 音乐。--
-  alias("music_generation_song", generateAudioMusic, {
-    description:
-      "Generate a song with sung lyrics. `prompt` is the style brief, `lyrics` is the sung text.",
-  }),
-  alias("music_generation_instrumental", generateAudioMusic, {
-    // 名字就是"纯音乐"。带着歌词转发过去的话会唱出来 —— 有声音、不报错，
-    // 但不是这个工具名承诺的东西。
-    fixed: { lyrics: undefined, mode: "instrumental" },
-    description: "Generate instrumental music (no vocals). `prompt` is the style brief.",
-  }),
-
-  // -- 翻唱。官方按"要不要给新词"拆成两个。--
-  alias("music_cover_generate_oneshot", musicCover, {
-    fixed: { action: "generate", lyrics: undefined },
-    description:
-      "Re-perform a reference track in a new style, keeping its original words. " +
-      "Needs `audio` (workspace path or URL) and `prompt` (target style).",
-  }),
-  alias("music_cover_generate_with_lyrics", musicCover, {
-    fixed: { action: "generate" },
-    description:
-      "Re-perform a reference track in a new style, singing new `lyrics`. " +
-      "Needs `audio` and `prompt`.",
-  }),
-  alias("music_cover_preprocess", musicCover, {
-    fixed: { action: "prepare_lyrics" },
-    description:
-      "Transcribe a reference track's lyrics so they can be edited before a cover. " +
-      "Needs a speech-recognition model this machine may not have \u2014 it says so " +
-      "rather than returning empty lyrics.",
-  }),
-]
-
 export const TOOLS: ToolDef[] = [
   canvasListNodes,
   canvasGetNode,
@@ -823,8 +651,6 @@ export const TOOLS: ToolDef[] = [
   generateVideo,
   generateAudioSpeech,
   generateAudioMusic,
-  lyricsGeneration,
-  musicCover,
   planWrite,
   planReplan,
   planPatchStage,
@@ -842,5 +668,4 @@ export const TOOLS: ToolDef[] = [
   memoryTool,
   reportOutcome,
   readTool,
-  ...ALIASES,
 ]

@@ -10,7 +10,7 @@
 //! 而且 agent 要等 opencode 起来才能干活。
 //!
 //! 代价是同一批工具有两处定义。用一个测试钉住：这里的每个名字都必须在
-//! 官方那 58 个里（`docs/mcp-tools.md`），且和 MCP 那份的交集不为空。
+//! 官方那 54 个里（`docs/mcp-tools.md`），且和 MCP 那份的交集不为空。
 //! 不同步的地方是**描述文本**，那本来就该按调用场景各写各的 ——
 //! MCP 那份是写给 opencode 的官方 agent 看的，这份是写给我们自己的
 //! 提示词看的。
@@ -109,21 +109,6 @@ pub fn all() -> Vec<Tool> {
                 })
             },
             required: &["prompt"],
-        },
-        Tool {
-            name: "lyrics_generation",
-            description: "起草或润色歌词，返回 song_title / style_tags / lyrics。\
-                **要出带唱词的歌时必须先调它，并把结果原样念给用户确认**，\
-                不要自己编歌词直接去生成。mode=edit 用来润色用户已经给的稿子。",
-            params: || {
-                json!({
-                    "mode": s("write_full_song 或 edit"),
-                    "prompt": s("主题和风格。write_full_song 时必填。"),
-                    "lyrics": s("待润色的原稿。edit 时必填。"),
-                    "title": s("指定歌名"),
-                })
-            },
-            required: &[],
         },
         Tool {
             name: "generate_audio_music",

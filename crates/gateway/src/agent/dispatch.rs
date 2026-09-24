@@ -141,26 +141,6 @@ pub async fn call(state: &Arc<AppState>, name: &str, args: &str) -> String {
             return submit_and_wait(state, "music", v.clone()).await;
         }
 
-        "lyrics_generation" => {
-            let mode = maas_media::lyrics::Mode::parse(v.get("mode").and_then(Value::as_str));
-            match maas_media::lyrics::draft(
-                &state.client,
-                &state.media,
-                mode,
-                v.get("prompt").and_then(Value::as_str).unwrap_or(""),
-                v.get("lyrics").and_then(Value::as_str).unwrap_or(""),
-                v.get("title").and_then(Value::as_str),
-            )
-            .await
-            {
-                Ok(d) => json!({
-                    "ok": true, "song_title": d.song_title,
-                    "style_tags": d.style_tags, "lyrics": d.lyrics,
-                }),
-                Err(e) => return err(&e.message),
-            }
-        }
-
         "canvas_write_node" => {
             let kind = v.get("kind").and_then(Value::as_str).unwrap_or_else(|| {
                 if v.get("assetPath").is_some() {

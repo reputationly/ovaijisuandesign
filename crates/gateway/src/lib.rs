@@ -1,19 +1,11 @@
 //! 本地 gateway。
 //!
-//! 最终要替掉官方那个（423 条路由），现在只实现**生成**那几条 ——
-//! 路由形状按官方对齐，这样两边可以互换着验：我们的前端能接官方 gateway，
-//! 官方的 mcp-tools 也能接我们的。
+//! 替掉官方那个（3.0.16 是 466 条路由）。目标是路由形状按官方对齐，这样两边
+//! 可以互换着验：我们的前端能接官方 gateway，官方的 mcp-tools 也能接我们的。
 //!
-//! 已实现：
-//!
-//! ```text
-//! GET  /api/health/live
-//! POST /api/generate/image/submit
-//! GET  /api/generate/tasks/{task_id}/query
-//! ```
-//!
-//! 还没实现的（资产库、画布持久化、文件服务）当前仍由官方 gateway 提供，
-//! 前端同时连两个。见仓库 README 的路线。
+//! **现状没做到**：下面 `router()` 里约 85 条，和官方同名同方法的只有 25 条，
+//! 其余是自己起的路径。逐条对照见 `docs/gateway-api.md`（行首 ✓ 的是已对齐的，
+//! 由 `scripts/extract-gateway-routes.py` 生成）。
 
 //! 库入口。两个二进制共用这里：`ovgw`（gateway 服务）和
 //! `ovagent`（跑 opencode 的启动器，要复用 [`config`]）。
