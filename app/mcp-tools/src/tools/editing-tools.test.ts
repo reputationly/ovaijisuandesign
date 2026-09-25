@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { startFakeGateway, type FakeGateway } from "../testing/fake-gateway.js";
@@ -7,6 +9,7 @@ import {
   checkFfmpegAudioPreserve,
   checkFfmpegCommand,
   checkFfmpegDrawtext,
+  escapeFfmpegFilterValue,
   injectBundledCjkFont,
   isPureAudioReplacementMux,
 } from "./ffmpeg-guards.js";
@@ -99,7 +102,7 @@ describe("ffmpeg / merge_videos tools", () => {
   }
 
   it("posts rewritten args, input paths and metadata; returns the output path", async () => {
-    process.env.HILO_BUNDLED_CJK_FONT_PATH = new URL(import.meta.url).pathname; // 任意存在的文件
+    process.env.HILO_BUNDLED_CJK_FONT_PATH = fileURLToPath(import.meta.url); // 任意存在的文件
     gw.on("POST", "/api/edit/ffmpeg", { json: { ok: true, path: "/ws/out/title.mp4" } });
     const r = await tools().call("ffmpeg", {
       args: ["-i", "/abs/in.mp4", "-vf", "drawtext=text='标题'"],
@@ -111,7 +114,7 @@ describe("ffmpeg / merge_videos tools", () => {
     expect(r.isError).toBeFalsy();
     expect(resultJson(r)).toEqual({ path: "/ws/out/title.mp4" });
     const req = gw.requests.find((x) => x.path === "/api/edit/ffmpeg")!;
-    const font = new URL(import.meta.url).pathname.replaceAll(":", "\\:");
+    const font = escapeFfmpegFilterValue(fileURLToPath(import.meta.url));
     expect(req.body).toEqual({
       args: ["-i", "/abs/in.mp4", "-vf", `drawtext=fontfile='${font}':text='标题'`],
       output_type: "video",

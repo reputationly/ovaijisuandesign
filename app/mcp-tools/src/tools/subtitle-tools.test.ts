@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createHarness, resultJson, resultText } from "../testing/harness.js";
+import { escapeFfmpegFilterValue } from "./ffmpeg-guards.js";
 import { foldCjkSegment, formatSubtitleContent, hexToAssColor, parseSrt } from "./subtitle-format.js";
 import { registerSubtitleTools } from "./subtitle-tools.js";
 
@@ -123,7 +124,7 @@ describe("subtitle_format tool", () => {
     expect(out.cue_count).toBe(2);
     expect(out.play_res).toBe("1080x1920");
     expect(out.style_resolved).toMatchObject({ preset: "social_safe", font_name: "Noto Sans CJK SC", max_lines: 2, safe_area: "social" });
-    expect(out.burn_hint).toBe(`ass='${out.absolute_path.replaceAll(":", "\\:")}':fontsdir='${path.dirname(font).replaceAll(":", "\\:")}'`);
+    expect(out.burn_hint).toBe(`ass='${escapeFfmpegFilterValue(out.absolute_path)}':fontsdir='${escapeFfmpegFilterValue(path.dirname(font))}'`);
     expect(readFileSync(out.path, "utf8")).toContain("[Events]");
   });
 
