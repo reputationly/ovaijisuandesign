@@ -321,7 +321,7 @@ export async function runAsync(
       }
       process.stderr.write(`[hilo-tools] succeeded without a usable result or asset path: ${parsed.error.message}\n`);
       return fail({
-        error: `task succeeded but the gateway returned neither a valid result nor an asset path: ${parsed.error.message}`,
+        error: `gateway reported success but returned no usable asset path: ${parsed.error.message}`,
         error_code: "unknown",
         failure_presentation: "recoverable",
         recovery_handle: taskId,
@@ -342,7 +342,7 @@ export async function runAsync(
 
   diag(`gave up kind=${kind} taskId=${taskId} polls=${pollCount} totalMs=${Date.now() - startedAt}`);
   return fail({
-    error: `task still running after ${overallTimeoutMs}ms of polling`,
+    error: `async poll exceeded ${overallTimeoutMs}ms`,
     error_code: "timeout",
     failure_presentation: "recoverable",
     recovery_handle: taskId,

@@ -77,7 +77,7 @@ describe("generate_image", () => {
   it("batch requires aligned prompts/filenames", async () => {
     const r = await h.call("generate_image", { ...base, count: 2, prompt: "x", filename: "y" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toMatch(/count=2 needs prompts\[\]/);
+    expect(resultText(r)).toMatch(/Image batch contract violation: count=2 requires per-output prompts\[\]/);
     expect(submits()).toHaveLength(0);
   });
 
@@ -100,7 +100,7 @@ describe("generate_image", () => {
   it("aspect ratio is mandatory and cannot be auto", async () => {
     const r = await h.call("generate_image", { vendor: "banana", vendor_params: { aspect_ratio: "auto" }, prompt: "x", filename: "y" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toMatch(/auto is rejected/);
+    expect(resultText(r)).toMatch(/concrete vendor_params.aspect_ratio; auto is not allowed/);
   });
 
   it("refs need aspect_ratio_source; conflicting evidence → image_aspect_ratio_conflict", async () => {
@@ -122,7 +122,7 @@ describe("generate_image", () => {
 
   it("rejects video files in image_paths", async () => {
     const r = await h.call("generate_image", { ...base, prompt: "x", filename: "y", image_paths: ["clip.mp4"], aspect_ratio_source: "explicit_user" });
-    expect(resultText(r)).toMatch(/appears to be a video file/);
+    expect(resultText(r)).toMatch(/which looks like a video file. generate_image only accepts images as references/);
   });
 
   it("model_id aliases resolve to canonical ids (banana_pro → nano_banana_2)", async () => {
@@ -135,7 +135,7 @@ describe("generate_image", () => {
       gw.on("GET", `/api/internal/sessions/${SID}/selected-models`, { json: { selected: { image: ["g-image-2"] } } });
       const r = await h.call("generate_image", { ...base, model_id: "gpt-image-2.5-flare", prompt: "x", filename: "y", _session_id: SID });
       expect(r.isError).toBe(true);
-      expect(resultText(r)).toMatch(/model_id=gpt-image-2.5-flare .*is not ticked/);
+      expect(resultText(r)).toMatch(/Selected image models do not include model_id=gpt-image-2.5-flare \(vendor=gpt-image\)/);
       expect(submits()).toHaveLength(0);
     });
 

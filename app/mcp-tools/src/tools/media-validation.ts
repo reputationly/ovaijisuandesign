@@ -54,7 +54,40 @@ export function referenceMediaTypeError(args: {
   for (const [slot, values] of checks) {
     const m = detectSlotMismatch(values, slot);
     if (!m) continue;
-    return `${SLOT_PARAM_NAME[slot]} expects ${slot} files (${[...SLOT_EXTS[slot]].join(", ")}), but received "${m.offender}" which looks like a ${m.detected} file. Move it to ${SLOT_PARAM_NAME[m.detected]}.`;
+    return `[seedance_multimodal_video] ${SLOT_PARAM_NAME[slot]} expects ${slot} files (${[...SLOT_EXTS[slot]].join(", ")}), but received "${m.offender}" which looks like a ${m.detected} file. Move it to ${SLOT_PARAM_NAME[m.detected]}.`;
+  }
+  return undefined;
+}
+
+const SEEDANCE_AUDIO_EXTS = [".mp3", ".wav"];
+
+/** seedance 的参考音频只收 mp3 / wav；其他音频扩展名在提交前拦下。 */
+export function seedanceAudioFormatError(urls: readonly string[] | undefined): string | undefined {
+  for (const item of urls ?? []) {
+    if (typeof item !== "string" || classifyExt(item) !== "audio") continue;
+    const ext = extOf(item) ?? "";
+    if (SEEDANCE_AUDIO_EXTS.includes(ext)) continue;
+    return `[seedance_multimodal_video] reference_audio_urls only supports ${SEEDANCE_AUDIO_EXTS.join(", ")} files, but received "${item}" (${ext}). Convert it to mp3 or wav first.`;
+  }
+  return undefined;
+}
+
+/** 已知时长（探到的）逐个和总和都要在上下限内；探不到的不算。 */
+export function referenceDurationError(
+  kind: "video" | "audio",
+  entries: readonly { path: string; durationSec?: number }[],
+  limits: { minDurationSec: number; maxDurationSec: number; totalMaxDurationSec: number },
+): string | undefined {
+  let total = 0;
+  for (const { path, durationSec: d } of entries) {
+    if (d === undefined || !Number.isFinite(d) || d <= 0) continue;
+    if (d < limits.minDurationSec || d > limits.maxDurationSec) {
+      return `[seedance_multimodal_video] reference_${kind}_urls item "${path}" is ${d}s; expected ${limits.minDurationSec}-${limits.maxDurationSec}s.`;
+    }
+    total += d;
+  }
+  if (total > limits.totalMaxDurationSec) {
+    return `[seedance_multimodal_video] reference_${kind}_urls known total is ${total}s; expected <= ${limits.totalMaxDurationSec}s.`;
   }
   return undefined;
 }

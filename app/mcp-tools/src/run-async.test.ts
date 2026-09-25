@@ -51,6 +51,27 @@ describe("runAsync", () => {
     expect(r).toEqual({ ok: true, path: "/w/b.png" });
   });
 
+  it("success without a usable result or asset path is recoverable", async () => {
+    submitOk();
+    fg.on("GET", "/api/generate/tasks/t1/query", { json: { ok: true, task_id: "t1", status: "succeeded", result: { weird: 1 } } });
+    const r = await legacy(() => runAsync(gw, "image", {}, fast));
+    expect(r).toMatchObject({ ok: false, error_code: "unknown", failure_presentation: "recoverable", recovery_handle: "t1" });
+    expect(r.ok ? "" : r.error).toMatch(/^gateway reported success but returned no usable asset path: /);
+  });
+
+  it("submit 4xx carries status, gateway error and code", async () => {
+    fg.on("POST", "/api/generate/image/submit", { status: 400, json: { ok: false, error: "bad prompt", error_code: "invalid_request" } });
+    const r = await legacy(() => runAsync(gw, "image", {}, fast));
+    expect(r).toMatchObject({ ok: false, error: "submit 400: bad prompt [invalid_request]", error_code: "client_error", failure_presentation: "terminal" });
+  });
+
+  it("unreachable gateway on submit is a status_unknown network error", async () => {
+    const dead = new GatewayClient("http://127.0.0.1:1");
+    const r = await legacy(() => runAsync(dead, "image", {}, fast));
+    expect(r).toMatchObject({ ok: false, error_code: "network_error", failure_presentation: "status_unknown" });
+    expect(r.ok ? "" : r.error).toMatch(/^Gateway network error: /);
+  });
+
   it("terminal cloud failure maps to backend_error / terminal", async () => {
     submitOk();
     fg.on("GET", "/api/generate/tasks/t1/query", {
@@ -118,7 +139,13 @@ describe("runAsync", () => {
     submitOk("slow");
     fg.on("GET", "/api/generate/tasks/slow/query", { json: { ok: true, task_id: "slow", status: "processing" } });
     const r = await legacy(() => runAsync(gw, "image", {}, { ...fast, overallTimeoutMs: 40 }));
-    expect(r).toMatchObject({ ok: false, error_code: "timeout", failure_presentation: "recoverable", recovery_handle: "slow" });
+    expect(r).toMatchObject({
+      ok: false,
+      error: "async poll exceeded 40ms",
+      error_code: "timeout",
+      failure_presentation: "recoverable",
+      recovery_handle: "slow",
+    });
   });
 
   it("query 404 is status_unknown, other 4xx recoverable", async () => {
@@ -216,7 +243,9 @@ describe("runAsync", () => {
 
   it("refuses to submit when the billing scope cannot be resolved", async () => {
     fg.on("GET", "/api/internal/sessions/billing-current-scope", { status: 500, text: "down" });
-    await expect(runWithSession({}, () => runAsync(gw, "image", {}, fast))).rejects.toThrow(/REQUEST_GROUP_UNAVAILABLE/);
+    await expect(runWithSession({}, () => runAsync(gw, "image", {}, fast))).rejects.toThrow(
+      "REQUEST_GROUP_UNAVAILABLE: refusing to submit image generation without a request/billing Group (scope=absent). Retry the request; if it persists, the local gateway could not resolve the current turn Group.",
+    );
     expect(fg.requests.some((q) => q.path.endsWith("/submit"))).toBe(false);
   });
 });

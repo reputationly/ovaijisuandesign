@@ -30,13 +30,14 @@ export function collectVendorParams(
   for (const [name, value] of Object.entries(extra ?? {})) {
     if (value == null) continue;
     if (!allowed.includes(name)) {
-      const list = allowed.length > 0 ? allowed.join(", ") : "(none)";
-      return { error: `${scope}: vendor_params.${name} is not accepted here (allowed: ${list}).` };
+      return { error: `${scope} does not support vendor_params.${name}. Supported keys: ${allowed.join(", ") || "(none)"}.` };
     }
     const text = String(value);
     const existing = bag[name];
     if (pinned.includes(name) && existing !== undefined && existing !== text) {
-      return { error: `${scope}: ${name} given twice with different values (${existing} vs vendor_params.${name}=${text}); keep only the common field.` };
+      return {
+        error: `${scope} got conflicting ${name}: common/model value=${existing}, vendor_params.${name}=${text}. Use the common field or model_id, not both.`,
+      };
     }
     bag[name] = text;
   }
@@ -49,8 +50,18 @@ export function pickEnum(scope: string, bag: Params, name: string, choices: read
   const raw = present(bag, name);
   if (raw === undefined) return undefined;
   const canonical = choices.includes(raw) ? raw : choices.find((c) => c.toLowerCase() === raw.toLowerCase());
-  if (canonical === undefined) return `${scope}: ${name}=${raw} is not one of ${choices.join(", ")}.`;
+  if (canonical === undefined) return `${scope} unsupported ${name}=${raw}. Supported values: ${choices.join(", ")}.`;
   bag[name] = canonical;
+  return undefined;
+}
+
+/** 只接受列出的整数档位（kling 的时长这类离散值）。 */
+export function pickInt(scope: string, bag: Params, name: string, choices: readonly number[]): string | undefined {
+  const raw = present(bag, name);
+  if (raw === undefined) return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || !choices.includes(value)) return `${scope} unsupported ${name}=${raw}. Supported values: ${choices.join(", ")}.`;
+  bag[name] = String(value);
   return undefined;
 }
 
@@ -59,7 +70,7 @@ export function pickIntInRange(scope: string, bag: Params, name: string, lo: num
   if (raw === undefined) return undefined;
   const value = Number(raw);
   const fits = Number.isInteger(value) && value >= lo && value <= hi;
-  if (!fits) return `${scope}: ${name}=${raw} must be a whole number in ${lo}..${hi}.`;
+  if (!fits) return `${scope} unsupported ${name}=${raw}. Supported values: ${lo}..${hi}.`;
   bag[name] = String(value);
   return undefined;
 }
@@ -72,19 +83,19 @@ export function pickBool(scope: string, bag: Params, name: string): string | und
     bag[name] = lowered;
     return undefined;
   }
-  return `${scope}: ${name}=${raw} must be true or false.`;
+  return `${scope} unsupported ${name}=${raw}. Supported values: true, false.`;
 }
 
 export function requireJsonArray(scope: string, bag: Params, name: string): string | undefined {
-  const raw = present(bag, name);
-  if (raw === undefined) return undefined;
+  const raw = bag[name];
+  if (!raw) return undefined;
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
     parsed = undefined;
   }
-  return Array.isArray(parsed) ? undefined : `${scope}: vendor_params.${name} has to be a JSON-encoded array.`;
+  return Array.isArray(parsed) ? undefined : `${scope} vendor_params.${name} must be a JSON array string.`;
 }
 
 export const firstProblem = (...problems: (string | undefined)[]): string | undefined => problems.find((p) => p !== undefined && p !== "");

@@ -43,14 +43,14 @@ export function pickerSelectionError(
       process.stderr.write(`[hilo-tools] model picker guard: selection has no known ${category} ids, not enforcing (selected_ids=[${selectedIds.join(", ")}])\n`);
       return null;
     }
-    return `The user's ${category} picker selection has no vendor=${vendor} model. selected_ids=[${selectedIds.join(", ")}] available_vendors=[${available.join(", ")}]`;
+    return `Selected ${category} models do not include vendor=${vendor}. selected_ids=[${selectedIds.join(", ")}] available_vendors=[${available.join(", ")}]`;
   }
   const models = vendorModelIds[vendor] ?? [];
   const selectedModels = models.filter((m) => selected.has(m));
   if (selectedModels.length === 0) {
-    return `vendor=${vendor} is selected in the ${category} picker but none of its concrete models is. selected_ids=[${selectedIds.join(", ")}]. Have the user tick a specific model.`;
+    return `Selected ${category} models do not include a concrete model_id for vendor=${vendor}. selected_ids=[${selectedIds.join(", ")}]. Ask the user to enable a concrete model in the picker.`;
   }
-  if (!models.includes(modelId)) return `model_id=${modelId} does not belong to vendor=${vendor}.`;
+  if (!models.includes(modelId)) return `Unsupported model_id=${modelId} for vendor=${vendor}.`;
   if (selectedModels.includes(modelId)) return null;
-  return `model_id=${modelId} (vendor=${vendor}) is not ticked in the user's ${category} picker. selected_models=[${selectedModels.join(", ")}]. Pick one of those, or ask the user to turn this model on.`;
+  return `Selected ${category} models do not include model_id=${modelId} (vendor=${vendor}). selected_models=[${selectedModels.join(", ")}]. Use one of the selected models, or ask the user to enable this model in the picker.`;
 }

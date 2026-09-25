@@ -113,7 +113,7 @@ export const registerCapabilityTools: RegisterTools = (registrar, gw, region) =>
     },
     async (args) => {
       const models = normalizeModels(args.models ?? []);
-      if (models.length === 0) return plainError("Error: pass at least one non-empty model id in models.");
+      if (models.length === 0) return plainError("Error: models must contain at least one canonical model_id.");
       try {
         const [limitsResp, usageResp] = await Promise.all([
           gw.get(LIMITS_PATH, 10_000, ConcurrencyLimitsSchema),
@@ -129,7 +129,7 @@ export const registerCapabilityTools: RegisterTools = (registrar, gw, region) =>
           }),
         });
       } catch (err) {
-        return plainError(`Error: concurrency lookup failed: ${errorMessage(err)}`);
+        return plainError(`Error: failed to query model concurrency: ${errorMessage(err)}`);
       }
     },
   );
