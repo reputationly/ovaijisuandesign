@@ -7,11 +7,14 @@ import { deflateRawSync } from "node:zlib";
 import type { INestApplication } from "@nestjs/common";
 import yaml from "js-yaml";
 import request from "supertest";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../bootstrap.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { skillStagingRoot } from "./skill-import.service.js";
+
+// Windows 的 CI 机器上文件读写慢（杀毒扫临时目录），解压、暂存这类用例会超过默认的 5 / 10 秒
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 60_000 });
 
 /** 测试用的最小 zip：每个条目 deflate，Unix 权限写进外部属性。 */
 function makeZip(files: Record<string, string | { content: string; mode: number }>): Buffer {
@@ -107,8 +110,10 @@ describe("本地技能路由", () => {
   let user = "";
   const events: any[] = [];
   const oc = fakeOpencode();
-  const envKeys = ["WORKSPACE_DIR", "HILO_DATA_DIR", "HUB_SKILLS_DIR", "HUB_USER_SKILLS_DIR", "OPENCODE_CONFIG_DIR", "TMPDIR"] as const;
-  const savedTmp = process.env.TMPDIR;
+  const envKeys = ["WORKSPACE_DIR", "HILO_DATA_DIR", "HUB_SKILLS_DIR", "HUB_USER_SKILLS_DIR", "OPENCODE_CONFIG_DIR"] as const;
+  // os.tmpdir() 在 POSIX 上看 TMPDIR，在 Windows 上看 TEMP / TMP，三个都要指过去
+  const tmpKeys = ["TMPDIR", "TEMP", "TMP"] as const;
+  const savedTmp = Object.fromEntries(tmpKeys.map((k) => [k, process.env[k]]));
 
   beforeAll(async () => {
     await new Promise<void>((r) => oc.server.listen(0, "127.0.0.1", () => r()));
@@ -116,8 +121,9 @@ describe("本地技能路由", () => {
     installed = path.join(root, "hub", "skills");
     user = path.join(root, "user-skills");
     // 导入的暂存目录在系统 tmp 下；指到临时根里，测试清理时不碰机器上真在用的暂存。
-    process.env.TMPDIR = path.join(root, "tmp");
-    mkdirSync(process.env.TMPDIR);
+    const tmp = path.join(root, "tmp");
+    mkdirSync(tmp);
+    for (const k of tmpKeys) process.env[k] = tmp;
     process.env.WORKSPACE_DIR = path.join(root, "ws");
     mkdirSync(process.env.WORKSPACE_DIR);
     process.env.HILO_DATA_DIR = path.join(root, "hub");
@@ -161,7 +167,10 @@ describe("本地技能路由", () => {
     oc.server.close();
     rmSync(root, { recursive: true, force: true });
     for (const k of envKeys) delete process.env[k];
-    if (savedTmp !== undefined) process.env.TMPDIR = savedTmp;
+    for (const k of tmpKeys) {
+      if (savedTmp[k] === undefined) delete process.env[k];
+      else process.env[k] = savedTmp[k];
+    }
   });
 
   const byName = (list: any[], name: string) => list.find((s) => s.name === name);
