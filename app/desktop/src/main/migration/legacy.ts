@@ -19,7 +19,7 @@
  *   生成 `-2` 副本；文件已存在且大小一致就跳过；画布文件最后写。全部完成才写标记。
  * - api_key 不进日志。
  */
-import { constants, copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { constants, copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import type { ProjectRecord } from "../ipc/types.js";
@@ -152,27 +152,6 @@ function loadAssetIndex(root: string): Map<string, string> {
   return out;
 }
 
-function realOrSelf(p: string): string {
-  try {
-    return realpathSync.native(p);
-  } catch {
-    return p;
-  }
-}
-
-/**
- * 绝对路径在不在工作区里；在就回相对路径。旧画布里存的绝对路径和配置里的工作区根
- * 写法可能不同（Windows 8.3 短名、盘符大小写、macOS 大小写不敏感），字面比不上时
- * 两边都解析成真实路径再比一次。
- */
-function insideWorkspace(value: string, root: string): string | undefined {
-  if (isInside(value, root)) return path.relative(root, value);
-  const realValue = realOrSelf(value);
-  const realRoot = realOrSelf(root);
-  if (isInside(realValue, realRoot)) return path.relative(realRoot, realValue);
-  return undefined;
-}
-
 /** 字符串是不是指向旧工作区里的一个文件；是就返回规范的相对路径（`/` 分隔）。 */
 function asWorkspaceFile(value: string, root: string): string | undefined {
   if (!value || value.length > 1024) return undefined;
@@ -180,9 +159,8 @@ function asWorkspaceFile(value: string, root: string): string | undefined {
   if (!path.isAbsolute(value) && /^[a-z][a-z0-9+.-]+:/i.test(value)) return undefined;
   let rel: string;
   if (path.isAbsolute(value)) {
-    const inside = insideWorkspace(value, root);
-    if (inside === undefined) return undefined;
-    rel = inside;
+    if (!isInside(value, root)) return undefined;
+    rel = path.relative(root, value);
   } else {
     if (!/[\\/]/.test(value) && !/\.[A-Za-z0-9]{1,8}$/.test(value)) return undefined;
     rel = path.normalize(value);
