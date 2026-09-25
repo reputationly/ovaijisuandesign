@@ -111,7 +111,8 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   }));
   handle("app:get-proxy-status", () => ({ status: "direct" }));
   handle("app:add-breadcrumb", () => undefined);
-  handle("network:get-status", () => net.isOnline());
+  // 渲染层读 status.online；直接回布尔值会被当成离线，底部一直挂着"网络连接已断开"。
+  handle("network:get-status", () => ({ online: net.isOnline() }));
 
   // 菜单
   handle("menu:trigger", (e, actionId) => deps.triggerMenu(str(actionId, "actionId"), e.sender));

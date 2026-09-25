@@ -53,7 +53,8 @@ export function createMainWindow(a: WindowArgs): BrowserWindow {
     },
   });
   win.once("ready-to-show", () => win.show());
-  const dev = process.env.ELECTRON_RENDERER_URL;
+  // 开发服务器只供我们自己的界面（OV_UI=ours）用；官方界面是构建好的静态文件，走 app://。
+  const dev = process.env.OV_UI === "ours" ? process.env.ELECTRON_RENDERER_URL : undefined;
   if (dev) void win.loadURL(dev);
   else void win.loadURL("app://./");
   return win;

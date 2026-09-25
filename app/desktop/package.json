@@ -7,8 +7,8 @@
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
+    "dev": "node ../official-ui/build.mjs && electron-vite dev",
+    "build": "electron-vite build && node ../official-ui/build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run --passWithNoTests"
   },

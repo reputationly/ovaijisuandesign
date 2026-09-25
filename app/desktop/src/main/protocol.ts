@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 
@@ -22,11 +23,20 @@ export function registerAppScheme() {
 }
 
 /**
- * `app://./…` → `out/renderer/…`，找不到就回 index.html（SPA 回退）。
- * 路径逃逸（`..`）一律回 index.html，不读 renderer 目录之外的文件。
+ * 界面用哪一份：默认是 `out/official-ui`（由 app/official-ui/build.mjs 生成）；
+ * `OV_UI=ours` 时用我们自己构建的 `out/renderer`。
+ */
+export function rendererRoot(): string {
+  const official = join(app.getAppPath(), "out/official-ui");
+  return process.env.OV_UI !== "ours" && existsSync(join(official, "index.html")) ? official : join(app.getAppPath(), "out/renderer");
+}
+
+/**
+ * `app://./…` → 界面目录下的文件，找不到就回 index.html（SPA 回退）。
+ * 路径逃逸（`..`）一律回 index.html，不读界面目录之外的文件。
  */
 export function handleAppScheme() {
-  const root = join(app.getAppPath(), "out/renderer");
+  const root = rendererRoot();
   protocol.handle("app", async (req) => {
     const url = new URL(req.url);
     const rel = normalize(decodeURIComponent(url.pathname)).replace(/^[/\\]+/, "");

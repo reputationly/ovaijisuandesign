@@ -5,7 +5,7 @@
  *   `gatewayUrl` 是**应用级** gateway，工作区的 gateway 地址走 `hilo.getWorkspaceRuntime`。
  * - `__HILO_PLATFORM__`：文件、窗口、剪贴板、shell、存储等平台封装。
  * - `hilo`：白名单内的原始 IPC（总线就跑在上面）+ 若干便捷封装。
- * - `__HILO_AUTH__` / `__HILO_UPDATER_BOOTSTRAP__`：没有登录和自动更新，给占位实现，
+ * - `__HILO_AUTH__`：没有账号体系，始终是固定的本机用户；`__HILO_UPDATER_BOOTSTRAP__`：没有自动更新，给占位实现，
  *   免得渲染层等一个永远不来的结果。
  */
 import os from "node:os";
@@ -300,15 +300,20 @@ const hilo = {
 };
 
 const unsupported = () => Promise.reject(new Error("login is not available in this build"));
+// 没有账号体系：界面始终处于"已登录"，身份是固定的本机用户。
+// accessToken 要是 JWT 的形状：界面会解析 payload.exp 判断是否该续期，这里给到 2100 年。
+const LOCAL_ACCESS_TOKEN = `local.${btoa(JSON.stringify({ sub: "local", exp: 4102444800 }))}.local`;
+const LOCAL_USER = { userID: "local", avatar: "", username: "用户" };
+const LOCAL_TOKENS = { accessToken: LOCAL_ACCESS_TOKEN, idToken: LOCAL_ACCESS_TOKEN, adAttribution: null };
 const auth = {
-  login: unsupported,
+  login: () => Promise.resolve({ success: true }),
   logout: () => Promise.resolve({ success: true }),
   onAuthCallback: unsubscribeNoop,
-  fetchUserInfo: () => Promise.resolve({ user: null, error: null }),
-  getStoredAuth: () => Promise.resolve({ tokens: null, user: null }),
+  fetchUserInfo: () => Promise.resolve({ user: LOCAL_USER, error: null }),
+  getStoredAuth: () => Promise.resolve({ tokens: LOCAL_TOKENS, user: LOCAL_USER }),
   storeAuth: () => Promise.resolve(),
   clearAuth: () => Promise.resolve(),
-  renewToken: unsupported,
+  renewToken: () => Promise.resolve({ token: LOCAL_ACCESS_TOKEN, error: null }),
   notifyAuthChanged: noop,
   notifyAuthExpired: noop,
   onAuthChanged: unsubscribeNoop,
