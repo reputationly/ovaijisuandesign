@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import type { TFunction } from "i18next"
 
 import { mainProcess } from "../api/main-process"
-import type { WorkspaceOpenResult, WorkspaceRuntimeInfo } from "../ipc"
+import type { GatewayBinding, WorkspaceOpenResult, WorkspaceRuntimeInfo } from "../ipc"
 import { dropConnection } from "../chat"
-import { appLevelEndpoint, setActiveWorkspace } from "../workspace-binding"
+import { appLevelEndpoint, setActiveWorkspace, withIdentityQuery, type WorkspaceIdentity } from "../workspace-binding"
 import { rememberActiveWorkspace, showPreviewTab } from "../stores/tabs"
 
 export type RuntimeState =
@@ -49,6 +49,9 @@ async function waitForGateway(url: string, alive: () => boolean): Promise<boolea
 
 const toWs = (http: string) => http.replace(/^http/, "ws").replace(/\/+$/, "") + "/ws"
 
+const identityOf = (b: GatewayBinding | undefined): WorkspaceIdentity | undefined =>
+  b ? { claim: b.claim, instanceId: b.instanceId, generation: b.generation } : undefined
+
 /**
  * 让一个工作区跑起来并拿到它的 gateway 地址。
  *
@@ -61,10 +64,19 @@ export function useWorkspaceRuntime(workspaceId: string | undefined, t: TFunctio
   useEffect(() => {
     if (!workspaceId) return
     let alive = true
-    const ready = async (gatewayUrl: string, wsUrl: string) => {
+    const ready = async (gatewayUrl: string, wsUrl: string, identity: WorkspaceIdentity | undefined) => {
       if (!alive || !(await waitForGateway(gatewayUrl, () => alive))) return
-      setActiveWorkspace({ id: workspaceId, gatewayUrl, wsUrl })
-      setState((s) => (s.status === "ready" && s.gatewayUrl === gatewayUrl ? s : { status: "ready", gatewayUrl, wsUrl }))
+      // 同一地址上 gateway 重启过，身份也会换：绑定和状态都要跟着换，WS 地址变了聊天连接才会重建
+      setActiveWorkspace({ id: workspaceId, gatewayUrl, wsUrl, identity })
+      setState((s) => (s.status === "ready" && s.gatewayUrl === gatewayUrl && s.wsUrl === wsUrl ? s : { status: "ready", gatewayUrl, wsUrl }))
+    }
+    /** bundle 状态里只有地址，身份要去标签列表里取 */
+    const readyFromEntries = async (gatewayUrl: string) => {
+      const entry = (await main!.hilo.listWorkspaceEntries().catch(() => [])).find((e) => e.workspaceId === workspaceId)
+      const identity = identityOf(entry?.gatewayBinding)
+      // 标签列表还没跟上（地址不一致）时等下一次状态或打开结果，别拿旧身份去连新 gateway
+      if (entry?.gatewayUrl && entry.gatewayUrl.replace(/\/+$/, "") !== gatewayUrl.replace(/\/+$/, "")) return
+      await ready(gatewayUrl, withIdentityQuery(toWs(gatewayUrl), identity), identity)
     }
 
     const main = mainProcess()
@@ -84,7 +96,7 @@ export function useWorkspaceRuntime(workspaceId: string | undefined, t: TFunctio
     rememberActiveWorkspace(workspaceId)
     const bundle = main.getWorkspaceBundle(workspaceId)
     const sub = bundle.onStatusChange((s) => {
-      if (s.gatewayUrl && (s.state === "gateway-ready" || s.state === "opencode-starting" || s.state === "bound")) void ready(s.gatewayUrl, toWs(s.gatewayUrl))
+      if (s.gatewayUrl && (s.state === "gateway-ready" || s.state === "opencode-starting" || s.state === "bound")) void readyFromEntries(s.gatewayUrl)
       if (s.state === "failed" && alive) setState({ status: "failed", message: s.error ?? t("ov.workspace.missing") })
     })
     // 已有标签（含冷标签）走激活；从最近列表点进来的还没有标签，按路径打开
@@ -95,7 +107,8 @@ export function useWorkspaceRuntime(workspaceId: string | undefined, t: TFunctio
         if (!alive) return
         if (r && (r.kind === "opened" || r.kind === "reused")) {
           const rt: WorkspaceRuntimeInfo = r.runtime
-          void ready(rt.gatewayUrl, rt.wsUrl || toWs(rt.gatewayUrl))
+          const identity = identityOf(rt.gatewayBinding)
+          void ready(rt.gatewayUrl, rt.wsUrl || withIdentityQuery(toWs(rt.gatewayUrl), identity), identity)
         } else setState({ status: "failed", message: openFailureMessage(r, t) })
       })
       .catch((e: unknown) => alive && setState({ status: "failed", message: e instanceof Error ? e.message : String(e) }))

@@ -1,6 +1,6 @@
 import { API_PATHS } from "@ov/protocol"
 
-import { currentGatewayUrl } from "../workspace-binding"
+import { currentGatewayUrl, identityHeaders } from "../workspace-binding"
 
 export { API_PATHS }
 
@@ -54,6 +54,7 @@ export async function gatewayFetch(path: string, opts: GatewayFetchOptions = {})
   )
   const h = new Headers(headers)
   h.set("x-request-id", traceId)
+  for (const [k, v] of Object.entries(identityHeaders())) if (!h.has(k)) h.set(k, v)
   return fetch(gatewayUrl(path), {
     ...rest,
     headers: h,

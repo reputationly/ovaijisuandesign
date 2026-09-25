@@ -1,5 +1,5 @@
 /**
- * 官方 gateway 的客户端。
+ * gateway 的客户端。
  *
  * 类型对齐 gateway 里的 `canvasFileSchema`（zod，未混淆，在
  * `gateway/dist/main.js` 的 `../gateway/dist/canvas/canvas.schema.js` 段）：
@@ -11,7 +11,7 @@
  */
 
 import { chat, onChatEvent, socket } from "./chat"
-import { currentGatewayUrl } from "./workspace-binding"
+import { currentGatewayUrl, withIdentityHeaders, withIdentityQuery } from "./workspace-binding"
 
 /**
  * gateway 地址：工作区页绑定的那套工作区 gateway；没有绑定时是应用级 gateway。
@@ -19,6 +19,14 @@ import { currentGatewayUrl } from "./workspace-binding"
  */
 export function gw(path: string): string {
   return currentGatewayUrl() + path
+}
+
+/**
+ * 本文件里的请求都发往 `gw()`，统一带上工作区身份头：工作区 gateway 对不带身份的写请求回 428。
+ * 用同名函数盖住全局 fetch，免得哪条新加的请求忘了带。
+ */
+function fetch(input: string, init?: RequestInit): Promise<Response> {
+  return globalThis.fetch(input, withIdentityHeaders(init))
 }
 
 /** 画布模式。同一个节点在四种模式下各存一套坐标。 */
@@ -277,13 +285,13 @@ export async function assetsDegraded(): Promise<boolean> {
  * `w` 交给 gateway 用 sharp 实时缩放，前端不必下原图 —— 那三张枫叶各 1.8MB。
  */
 export function assetUrl(assetId: string, width?: number): string {
-  return gw(width ? `/files/id/${assetId}?w=${width}` : `/files/id/${assetId}`)
+  return withIdentityQuery(gw(width ? `/files/id/${assetId}?w=${width}` : `/files/id/${assetId}`))
 }
 
 /** 工作区相对路径 → 文件 URL（带缩略宽度时回缩略图）。 */
 export function fileUrl(relPath: string, width?: number): string {
   const p = relPath.split("/").map(encodeURIComponent).join("/")
-  return gw(width ? `/files/${p}?w=${width}` : `/files/${p}`)
+  return withIdentityQuery(gw(width ? `/files/${p}?w=${width}` : `/files/${p}`))
 }
 
 // ---------------------------------------------------------------------------
