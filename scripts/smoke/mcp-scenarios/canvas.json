@@ -1,0 +1,7 @@
+[
+  { "name": "get_node 两个都不给", "tool": "canvas_get_node", "args": {} },
+  { "name": "get_node 不存在的 id", "tool": "canvas_get_node", "args": { "nodeId": "nope" } },
+  { "name": "read_text 不存在的节点", "tool": "canvas_read_text", "args": { "nodeId": "nope" } },
+  { "name": "write text 然后读", "tool": "canvas_read_text", "before": [{ "tool": "canvas_write_node", "args": { "kind": "text", "content": "# 标题\n第一行\n第二行", "name": "笔记" }, "save": "node" }], "args": { "nodeId": "$node" } },
+  { "name": "grep 没命中", "tool": "canvas_grep_text", "before": [{ "tool": "canvas_write_node", "args": { "kind": "text", "content": "abc", "name": "x" }, "save": "node" }], "args": { "nodeId": "$node", "query": "zzz" } }
+]
