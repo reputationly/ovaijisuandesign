@@ -23,6 +23,9 @@ export interface GlobalConfig {
   recentProjectsGroupMode: "none" | "project"
   globalSidebarWidth: number
   globalSidebarPinned: boolean
+  /** 新建项目弹窗里「加载用户记忆」上次的选择 */
+  newProjectPrefs?: { loadUserMemory?: boolean }
+  projectsSortMode?: "updated" | "created" | "name"
 }
 
 export const STORAGE_KEY = "hilo:storage:global.config"

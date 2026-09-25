@@ -41,6 +41,9 @@ export interface HiloPlatform {
     onGlobalConfigChanged(cb: (patch: unknown) => void): Unsubscribe
   }
   shell?: { openPath(path: string): Promise<unknown>; showItemInFolder(path: string): Promise<unknown> }
+  fs?: { showOpenDialog?(opts: { directory?: boolean; multiple?: boolean; title?: string }): Promise<string[] | undefined> }
+  window?: { setTitle(title: string): void }
+  clipboard?: { writeText(text: string): void }
 }
 
 declare global {
