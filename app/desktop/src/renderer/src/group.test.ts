@@ -34,7 +34,7 @@ describe("分组", () => {
     // **建得出来就得解得掉。** 没有这个入口的话，agent 归拢错了用户只能
     // 把整组连同里面的产物一起删掉。
     expect(read("api.ts")).toContain("/api/canvas/ungroup")
-    expect(read("App.tsx")).toContain("ungroupNodes(")
+    expect(read("WorkspaceView.tsx")).toContain("ungroupNodes(")
     expect(read("nodes.tsx")).toContain("actions?.ungroup(")
   })
 

@@ -25,8 +25,6 @@ import {
   Image as ImageIcon,
   Maximize2,
   MessageSquarePlus,
-  PanelLeft,
-  PanelRight,
   RefreshCw,
   Trash2,
   Type,
@@ -41,16 +39,11 @@ import {
   connectEvents,
   agentMessages,
   agentStop,
-  createProject,
   createSession,
-  deleteProject,
-  deleteSession,
   getActivity,
   getCanvas,
   listSessions,
-  moveSession,
   openSession,
-  renameSession,
   pendingQuestion,
   getNodeDetails,
   getWorkspace,
@@ -107,17 +100,11 @@ import {
   TopRightChrome,
 } from "./CanvasChrome"
 import { ContextMenu, type MenuItem } from "./ContextMenu"
-import { handoffKey, submitHandoff, type Handoff } from "./handoff"
-import { Home } from "./Home"
 import { PromptHost, confirm as uiConfirm, prompt as uiPrompt } from "./Prompt"
 import { cn } from "./lib"
 import type { Plan } from "./plan"
 import { ProjectAssets } from "./AssetsPanel"
 import { CropRotate } from "./CropRotate"
-import { Library } from "./Library"
-import { ImBridge } from "./ImBridge"
-import { Settings } from "./Settings"
-import { Skills } from "./Skills"
 
 /** 主区域显示什么。侧栏那四个入口切的就是它。 */
 /** 「添加节点」菜单里每种类型的图标。官方用的也是 lucide 这几个。 */
@@ -131,8 +118,7 @@ const ADD_NODE_ICON: Record<string, React.ReactNode> = {
 export type View = "home" | "canvas" | "library" | "skill"
 import type { QuestionRequest } from "./Question"
 import { ChatPanel } from "./ChatPanel"
-import { Sidebar } from "./Sidebar"
-import { Update } from "./Update"
+import { WorkspaceStage } from "./shell/WorkspaceStage"
 import { Lightbox, type LightboxItem } from "./Lightbox"
 import { CanvasActionsContext, GroupCountContext, nodeTypes, type CanvasActions } from "./nodes"
 
@@ -141,11 +127,19 @@ interface EventLine {
   event: string
 }
 
-export default function App() {
+export interface WorkspaceViewProps {
+  /** 路由里的 workspaceId：旧后端是画布 id，新后端是工作区目录 */
+  workspaceId?: string
+  /** 从首页带过来、要预填进对话输入框的内容 */
+  initialMessage?: string
+  initialAttachments?: string[]
+}
+
+export function WorkspaceView({ workspaceId, initialMessage, initialAttachments }: WorkspaceViewProps) {
   const [file, setFile] = useState<CanvasFile | null>(null)
   const [details, setDetails] = useState<Map<string, NodeDetail>>(new Map())
   const [mode, setMode] = useState<CanvasMode>("workflow")
-  const [dir, setDir] = useState<string>("")
+  const [, setDir] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "failed">("idle")
   const [events, setEvents] = useState<EventLine[]>([])
@@ -173,26 +167,17 @@ export default function App() {
   const [cropping, setCropping] = useState<string | null>(null)
   // 会话（= 画布）与项目。侧栏那一栏列的是这些。
   const [sessions, setSessions] = useState<Session[]>([])
-  const [projects, setProjects] = useState<Project[]>([])
+  const [, setProjects] = useState<Project[]>([])
   const [currentSession, setCurrentSession] = useState("")
-  /**
-   * 首页「选择项目」选中的那个。
-   *
-   * **只在新建会话时用一次**，不是一个全局的"当前项目"——把它做成全局状态
-   * 的话，用户从侧栏点开一条属于别的项目的会话，这里还显示着旧的那个，
-   * 而两者根本不是一回事。
-   */
-  const [homeProject, setHomeProject] = useState<string | null>(null)
-  // 设置和 IM 是**弹窗不是视图**：它们是一次性的插曲，做成占满主区域的
-  // 页面的话，用户改完还得自己想办法"回去"。
-  const [dialog, setDialog] = useState<"settings" | "im" | null>(null)
   const [minimap, setMinimap] = useState(true)
-  const [composerOpen, setComposerOpen] = useState(false)
+  const [composerOpen, setComposerOpen] = useState(!!initialMessage)
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   // 画布底色。存 localStorage —— 这是纯粹的个人偏好，不该进 canvas.json
   // （那份文件是和 agent 共享的数据，写进外观设置会让每次改底色都变成
   // 一次画布内容变更，agent 那边会看到一串无意义的 canvas:changed）。
-  const [view, setView] = useState<View>("home")
+  // 页面切换交给路由，这里始终是画布视图；保留 view 以便旧逻辑按原样判断
+  const view: View = "canvas"
+  const setView = (_: View) => {}
   // 指针模式。select = 空白处拖拽框选；hand = 拖拽平移。官方的分体按钮
   // 切的就是这个 —— 画布类工具里这是最基本的一对模式。
   const [tool, setTool] = useState<"select" | "hand">("select")
@@ -265,9 +250,9 @@ export default function App() {
    * 同一个 tick，右栏还没渲染出来、监听器没挂上，事件被丢掉 ——
    * 表现就是"点了没反应"。
    */
-  const [pendingPrompt, setPendingPrompt] = useState<string | undefined>()
+  const [pendingPrompt, setPendingPrompt] = useState<string | undefined>(initialMessage)
   /** 首页带过来的参考素材（工作区相对路径）。作为底图发给图生图。 */
-  const [pendingAttachments, setPendingAttachments] = useState<string[]>([])
+  const [pendingAttachments, setPendingAttachments] = useState<string[]>(initialAttachments ?? [])
 
   /**
    * 输入框把 `pending*` 消费掉之后要清。
@@ -284,10 +269,8 @@ export default function App() {
   }, [])
   /** 当前按哪个标签筛选并定位。`null` = 不筛。见 CanvasChrome 的 TagFilter。 */
   const [tagFilter, setTagFilter] = useState<string | null>(null)
-  // 两侧栏的折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
-  const [leftOpen, setLeftOpen] = useState(() => localStorage.getItem("left-open") !== "0")
+  // 右栏折叠。存 localStorage —— 这是纯偏好，不进 canvas.json。
   const [rightOpen, setRightOpen] = useState(() => localStorage.getItem("right-open") !== "0")
-  useEffect(() => localStorage.setItem("left-open", leftOpen ? "1" : "0"), [leftOpen])
   useEffect(() => localStorage.setItem("right-open", rightOpen ? "1" : "0"), [rightOpen])
   const [bg, setBg] = useState(() => localStorage.getItem("canvas-bg") ?? "default")
   useEffect(() => localStorage.setItem("canvas-bg", bg), [bg])
@@ -547,6 +530,15 @@ export default function App() {
     [currentSession, load, reloadSessions, reloadChat],
   )
 
+  // 路由指到另一张画布时切过去。新后端的 workspaceId 是目录路径、只有一个工作区，不需要切换。
+  useEffect(() => {
+    if (!workspaceId || workspaceId.startsWith("/") || /^[A-Za-z]:[\\/]/.test(workspaceId)) return
+    if (!currentSession || workspaceId === currentSession) return
+    void openSessionAndReload(workspaceId)
+    // 只响应路由变化；currentSession 变化由 openSessionAndReload 自己带来
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId, currentSession === ""])
+
   /**
    * 新建一条创作并切过去。
    *
@@ -573,74 +565,6 @@ export default function App() {
     [load, reloadSessions, reloadChat],
   )
 
-  /**
-   * 上一次「建好了画布、但后面的步骤没走完」留下的交接。
-   *
-   * **在新建成功之后、切过去之前就记下来** —— 后面任何一步失败，用户重试
-   * 同一句提示词时会复用这张，而不是再建一张。不做这件事的话，每次失败
-   * 重试都会在侧边栏留一张空画布，而用户完全不知道那些是哪来的。
-   *
-   * 对应官方的 `pendingWorkspaceHandoffRef`。
-   */
-  const handoffRef = useRef<Handoff | null>(null)
-  /** 正在提交。防连点 —— 官方的 `homeSubmitInFlightRef`。 */
-  const submitInFlightRef = useRef(false)
-  const [homeSubmitting, setHomeSubmitting] = useState(false)
-
-  /**
-   * 首页发送：进一张**新**画布，用提示词命名。
-   *
-   * 官方是 `createWorkspaceWithResult({ name: text })` —— 一句话一个工作区。
-   * 复用当前那张的话，第二次从首页发起的活会落在上一次的成果旁边，
-   * 两件不相干的事挤在一张画布上，而"未分组"里始终只有一条。
-   */
-  const submitFromHome = useCallback(
-    async (p: string, attachments: string[]) => {
-      // 连点会建出好几张空画布。挡在最前面，比在按钮上做 disabled 可靠 ——
-      // 回车那条路绕过按钮状态。
-      if (submitInFlightRef.current) return
-      submitInFlightRef.current = true
-      setHomeSubmitting(true)
-      const out = await submitHandoff({
-        pending: handoffRef.current,
-        key: handoffKey(p, attachments),
-        create: async () => (await createSession(p)).id,
-        activate: async (id) => {
-          // **先把数据取回来，再切视图。** 反过来的话会先闪一下上一张画布，
-          // 而且中途失败时用户会停在一张空画布上 —— 重试的入口却在首页。
-          //
-          // 注意 `load` / `reloadSessions` 自己吞异常（各有各的理由，见它们
-          // 的定义），所以今天这里几乎不会抛。交接机制挡的是**新建成功之后
-          // 任何一步失败**这条路，眼下主要靠它挡住"以后往 activate 里加了
-          // 会抛的东西"。真正每天都在生效的是上面那个连点保护。
-          await load()
-          await reloadSessions()
-          // **对话记录也要重拉。** 换画布时 chat.json 跟着换了一份
-          // （gateway 的 `restore_chat`），不拉的话界面上还挂着上一张
-          // 画布的对话 —— 用户以为新建的画布里已经聊过，而 agent 那边
-          // 看到的是空的。
-          await reloadChat()
-          // 参考素材跟着提示词一起带进画布那个输入框 —— 在首页传了图
-          // 却在画布上发不出去，那次上传就白做了。
-          setPendingPrompt(p)
-          setPendingAttachments(attachments)
-          setCurrentSession(id)
-          setView("canvas")
-          setComposerOpen(true)
-          setRightOpen(true)
-        },
-      })
-      handoffRef.current = out.ok ? null : out.pending
-      if (!out.ok) {
-        // 留在首页：输入框里的提示词和附件都还在，再点一次就是重试 ——
-        // 而且会复用已经建好的那张，不会在侧边栏留下一串空画布。
-        setError(out.error instanceof Error ? out.error.message : String(out.error))
-      }
-      submitInFlightRef.current = false
-      setHomeSubmitting(false)
-    },
-    [load, reloadSessions, reloadChat],
-  )
 
   /**
    * 「添加节点」菜单。拉线松手、双击画布、底部 `+` 三处共用。
@@ -753,71 +677,6 @@ export default function App() {
     [details, load],
   )
 
-  const openSessionMenu = useCallback(
-    (id: string, at: { x: number; y: number }) => {
-      const s = sessions.find((x) => x.id === id)
-      if (!s) return
-      const items: MenuItem[] = [
-        {
-          id: "rename",
-          label: "重命名",
-          onClick: () =>
-            void uiPrompt("新名字", { initial: s.name }).then((v) => {
-              const name = v?.trim()
-              if (name) void renameSession(id, name).then(reloadSessions)
-            }),
-        },
-        ...projects
-          .filter((p) => p.id !== s.project)
-          .map((p) => ({
-            id: `move-${p.id}`,
-            label: `移到「${p.name}」`,
-            onClick: () => void moveSession(id, p.id).then(reloadSessions),
-          })),
-        ...(s.project
-          ? [
-              {
-                id: "unmove",
-                label: "移出项目",
-                onClick: () => void moveSession(id, null).then(reloadSessions),
-              },
-            ]
-          : []),
-        {
-          id: "new-project",
-          label: "新建项目并移入",
-          onClick: () =>
-            void uiPrompt("项目名字", { placeholder: "例如：柯基短片" }).then((v) => {
-              const name = v?.trim()
-              if (!name) return
-              void createProject(name)
-                .then((r) => moveSession(id, r.project.id))
-                .then(reloadSessions)
-            }),
-        },
-        {
-          id: "delete",
-          label: "删除",
-          danger: true,
-          onClick: () =>
-            // 会话删掉就没了，问一句。节点删除没问是因为那个能撤销
-            // （重新加载就回来了），这个不能。
-            void uiConfirm(`删除「${s.name}」？里面的内容会一起消失。`, {
-              confirmLabel: "删除",
-              danger: true,
-            }).then((ok) => {
-              if (!ok) return
-              void deleteSession(id)
-                .then(reloadSessions)
-                .then(load)
-                .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
-            }),
-        },
-      ]
-      setMenu({ x: at.x, y: at.y, items })
-    },
-    [sessions, projects, reloadSessions, load],
-  )
 
   /**
  * 把画布写回服务端。
@@ -1289,676 +1148,572 @@ export default function App() {
           WKUIDelegate），直接返回 false/null，于是删除、重命名这些
           点了毫无反应。见 Prompt.tsx。 */}
       <PromptHost />
-      {/* 三栏。按官方 3.0.12 的界面：左边项目/会话，中间画布铺满，
-          右边对话面板。画布上的控件是浮层，不占布局 —— 这也是为什么
-          官方的画布能一直铺满，控件不挤压可视区域。 */}
-      <div className="flex h-full" style={{ background: "var(--background)" }}>
-        {leftOpen ? (
-          <Sidebar
-            dir={dir}
-            right={<Update />}
-            view={view}
-            onView={setView}
-            onCollapse={() => setLeftOpen(false)}
-            onOpenSettings={() => setDialog("settings")}
-            onOpenImBridge={() => setDialog("im")}
-            sessions={sessions}
-            projects={projects}
-            current={currentSession}
-            onOpenSession={openSessionAndReload}
-            onSessionMenu={openSessionMenu}
-          />
-        ) : (
-          // 收起后留一个把手，否则再也打不开了。
-          <button
-            onClick={() => setLeftOpen(true)}
-            title="展开侧栏"
-            className="flex w-8 shrink-0 items-center justify-center border-r"
-            style={{ background: "var(--sidebar)", borderColor: "var(--sidebar-border)" }}
-          >
-            <PanelLeft size={16} style={{ color: "var(--home-sidebar-primary-text)" }} />
-          </button>
-        )}
-
-        {view === "library" ? (
-          <Library
-            sessions={sessions}
-            projects={projects}
-            onOpenSession={openSessionAndReload}
-            onCreateProject={(name) => void createProject(name).then(reloadSessions)}
-            onDeleteProject={(id) => void deleteProject(id).then(reloadSessions)}
-            onNewSession={() => void newSession()}
-          />
-        ) : view === "skill" ? (
-          <Skills
-            onUse={(slug, body) => {
-              // 用一个 skill = 把它的提示词填进输入框，用户再补自己的话。
-              // **不直接发出去** —— 提示词是模板，用户总要加一句
-              // "对这张图"或"做 15 秒的"。
-              setPendingPrompt(`/${slug}\n\n${body}\n\n---\n`)
-              setComposerOpen(true)
-              setRightOpen(true)
-              setView("canvas")
+      {/* 两栏由新外壳的 WorkspaceStage 排布：画布铺满，对话栏宽度可拖。 */}
+      <div className="legacy-surface flex h-full min-h-0 flex-1 flex-col">
+        <WorkspaceStage
+          canvas={
+          <main
+            className={cn(
+              "relative min-w-0 flex-1",
+              // **小手工具也挂这个类。** 官方 `isHandPanning = handTool ||
+              // isSpacePanning`,两种情况共用同一个类（类名只写了 space-pan,
+              // 有误导性）。不挂的话选了小手光标毫无变化，用户不知道模式
+              // 切过去没有。
+              (spacePan || tool === "hand") && "canvas-space-pan",
+              stamping && "canvas-stamping",
+            )}
+            data-hilo-canvas-root="true"
+            style={{
+              background: `var(${CANVAS_BACKGROUNDS.find((b) => b.id === bg)?.varName ?? "--canvas-bg"})`,
             }}
-          />
-        ) : view === "home" ? (
-          <Home
-            onSubmit={(p, _preset, attachments) => void submitFromHome(p, attachments ?? [])}
-            submitting={homeSubmitting}
-            projectName={projects.find((p) => p.id === homeProject)?.name ?? null}
-            onOpenSkills={() => setView("skill")}
-            onPickProject={(at) =>
-              setMenu({
-                x: at.x,
-                y: at.y,
-                items: [
-                  {
-                    id: "none",
-                    label: "不归入项目",
-                    onClick: () => setHomeProject(null),
-                  },
-                  ...projects.map((p) => ({
-                    id: p.id,
-                    label: p.name,
-                    onClick: () => setHomeProject(p.id),
-                  })),
-                  {
-                    id: "new",
-                    label: "新建项目…",
-                    onClick: () =>
-                      void uiPrompt("项目名字", { placeholder: "例如：柯基短片" }).then((v) => {
-                        const name = v?.trim()
-                        if (!name) return
-                        void createProject(name).then((r) => {
-                          setHomeProject(r.project.id)
-                          void reloadSessions()
-                        })
-                      }),
-                  },
-                ],
-              })
-            }
-          />
-        ) : (
-
-        <main
-          className={cn(
-            "relative min-w-0 flex-1",
-            // **小手工具也挂这个类。** 官方 `isHandPanning = handTool ||
-            // isSpacePanning`,两种情况共用同一个类（类名只写了 space-pan,
-            // 有误导性）。不挂的话选了小手光标毫无变化，用户不知道模式
-            // 切过去没有。
-            (spacePan || tool === "hand") && "canvas-space-pan",
-            stamping && "canvas-stamping",
-          )}
-          data-hilo-canvas-root="true"
-          style={{
-            background: `var(${CANVAS_BACKGROUNDS.find((b) => b.id === bg)?.varName ?? "--canvas-bg"})`,
-          }}
-        >
-          <ReactFlowProvider>
-            <FlowBridge into={toFlowPos} />
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              /**
-               * 选中一个节点时，**它连出去的边跟着高亮**。官方
-               * `toFlowEdge` 里的 `selected: has(source) || has(target)`。
-               *
-               * 选中一张图本质上是在问「它和谁有关系」,答案就是那几条边。
-               * 不做的话边只有被直接点中才高亮 —— 而边很细，很难点中。
-               *
-               * **必须比较后再 setState。** 给边标上 selected 会让
-               * React Flow 再抛一次 selection 变化（选中集里多了这些边）,
-               * 不比较就会一直互相触发。
-               */
-              onSelectionChange={({ nodes: sel }) => {
-                const ids = new Set(sel.map((n) => n.id))
-                selectedIdsRef.current = ids
-                setEdges((es) => {
-                  let changed = false
-                  const next = es.map((e) => {
-                    const want = ids.has(e.source) || ids.has(e.target)
-                    if (!!e.selected === want) return e
-                    changed = true
-                    return { ...e, selected: want }
+          >
+            <ReactFlowProvider>
+              <FlowBridge into={toFlowPos} />
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                nodeTypes={nodeTypes}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                /**
+                 * 选中一个节点时，**它连出去的边跟着高亮**。官方
+                 * `toFlowEdge` 里的 `selected: has(source) || has(target)`。
+                 *
+                 * 选中一张图本质上是在问「它和谁有关系」,答案就是那几条边。
+                 * 不做的话边只有被直接点中才高亮 —— 而边很细，很难点中。
+                 *
+                 * **必须比较后再 setState。** 给边标上 selected 会让
+                 * React Flow 再抛一次 selection 变化（选中集里多了这些边）,
+                 * 不比较就会一直互相触发。
+                 */
+                onSelectionChange={({ nodes: sel }) => {
+                  const ids = new Set(sel.map((n) => n.id))
+                  selectedIdsRef.current = ids
+                  setEdges((es) => {
+                    let changed = false
+                    const next = es.map((e) => {
+                      const want = ids.has(e.source) || ids.has(e.target)
+                      if (!!e.selected === want) return e
+                      changed = true
+                      return { ...e, selected: want }
+                    })
+                    return changed ? next : es
                   })
-                  return changed ? next : es
-                })
-              }}
-              onNodeDragStart={() => (draggingRef.current = true)}
-              onNodeDragStop={(_, __, dragged) => {
-                draggingRef.current = false
-                void persistCanvas().then(() => {
-                  // 拖完才同步跟随的贴纸，不是拖的过程中每帧同步 ——
-                  // 每帧重算会整份重建画布图，手里拖着的节点会被抽掉重来。
-                  void syncStickers(dragged.map((n) => n.id))
-                })
-              }}
-              // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
-              // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
-              // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
-              // 不喂这个变量描边会跟着缩到看不见。
-              onMove={(_, vp) => {
-                document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
-              }}
-              fitView
-              // **不放大，最多 100%。** 官方的 fitView 传的就是
-              // `{ padding: 0.2, maxZoom: 1 }`。
-              //
-              // 不设上限的话，画布上只有一张图时 fitView 会一路放大到它
-              // 铺满整个视口 —— 一张 350px 的卡片被撑到 1400px，糊得看不
-              // 清，而且用户以为节点本身就是那么大。
-              fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
-              // 官方 CANVAS_MIN_ZOOM / CANVAS_MAX_ZOOM。
-              minZoom={0.1}
-              maxZoom={4}
-              // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
-              // 几百个节点全渲染会让首屏卡住。
-              onlyRenderVisibleElements
-              // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
-              // select：空白处拖拽 = 框选，平移交给中键/右键和滚轮。
-              // hand：拖拽 = 平移，这时不能同时开 selectionOnDrag，
-              // 否则两种行为会在同一个手势上打架（表现是"拖不动画布"）。
-              selectionOnDrag={tool === "select"}
-              panOnDrag={tool === "hand" ? true : [1, 2]}
-              // 官方三个都开着（`panOnScroll` / `zoomOnScroll` / `zoomOnPinch`）。
-              //
-              // 我上一版把 panOnScroll 关了，理由是空画布提示写着"滚动缩放"。
-              // 但**官方的配置就是开着的** —— 那句提示旁边是个鼠标图标，
-              // 说的是滚轮，而 xyflow 在 panOnScroll 下把滚轮留给平移、
-              // 缩放交给 ⌘/Ctrl+滚轮和触控板捏合。以配置为准，别按提示反推。
-              panOnScroll
-              zoomOnScroll
-              zoomOnPinch
-              // xyflow 的默认值就是 "Space"，**显式写出来**：这是上面那句
-              // 提示承诺的操作，不该因为哪天有人改了默认值就悄悄失效。
-              panActivationKeyCode="Space"
-              // 官方的 `DELETE_KEY_CODE = ["Backspace", "Delete"]`。
-              // **配合下面的 onNodesDelete / onEdgesDelete 才敢开** ——
-              // 光开这个的话 xyflow 只改本地状态，删掉的节点下次加载又回来。
-              deleteKeyCode={["Backspace", "Delete"]}
-              // 删除要落到服务端那份 canvas.json 上。走的是和右键菜单
-              // 同一条路（`deleteNode`），那条是持久化的。
-              onNodesDelete={(deleted) => {
-                void Promise.all(deleted.map((n) => actions.deleteNode(n.id)))
-              }}
-              onEdgesDelete={(deleted) => {
-                const base = fileRef.current
-                if (!base) return
-                const gone = new Set(deleted.map((e) => e.id))
-                const next = { ...base, edges: base.edges.filter((e) => !gone.has(e.id)) }
-                void putCanvas(next).then(() => setFile(next))
-              }}
-              // 官方的四条连线规则。**我们之前一条都没有** ——
-              // 什么都能连：自己连自己、同一对连两次、连到分组上。
-              isValidConnection={(c) =>
-                isValidConnection(c, {
-                  edges,
-                  typeOf: (id) => file?.nodes.find((n) => n.id === id)?.type,
-                })
-              }
-              // **双击不缩放。** 我们把双击接给了"生成节点"（空画布提示里
-              // 承诺的动作），默认的双击缩放会同时触发，画布跟着跳一下。
-              // 官方也是 false。
-              zoomOnDoubleClick={false}
-              // 框选按官方的 Partial：碰到就算选中，不要求整个框住。
-              selectionMode={SelectionMode.Partial}
-              multiSelectionKeyCode="Shift"
-              // 官方值。按下到抬起在 4px 内才算点击 —— 不设的话手抖一下
-              // 就被当成拖拽，点空白处取消选中会时灵时不灵。
-              paneClickDistance={4}
-              proOptions={{ hideAttribution: true }}
-              // 官方用的就是 xyflow 的默认 20。真正让"容易连上"的是节点两侧
-              // 那个 84x84 的感应区（见 MagneticHandle），不是这个半径。
-              connectionRadius={20}
-              // 从把柄拉出线、松手在空白处 → 弹出"新建什么"的菜单。
-              // 官方叫 openAddNodeMenu，是他们连线交互的一半 —— 没有它，
-              // 拖出去松手什么也不会发生，用户会以为连线坏了。
-              // **必须有 onConnect。** xyflow 不会自己把连线变成边 ——
-              // 没有这个回调，用户拉出线、松手，什么都不会发生，
-              // 而且没有任何提示。
-              onConnect={(c) => {
-                setEdges((es) => addEdge({ ...c, type: "default" }, es))
-                void persistCanvas()
-              }}
-              onConnectEnd={(event, state) => {
-                if (state.isValid) return
-                const e = event as MouseEvent
-                const from = state.fromNode?.id
-                const items = addNodeMenuItems(from)
-                // **一条都不给时不弹菜单。** 比如从视频拉出来只有
-                // 「文本 / 视频」两条；从分组拉出来一条都没有 ——
-                // 弹一个空菜单比不弹更让人困惑。
-                if (items.length === 0) return
-                setMenu({ x: e.clientX, y: e.clientY, items })
-              }}
-              // 官方空画布提示上写着「双击画布 自由生成节点」。
-              // **提示里承诺的动作必须真的能用** —— 写着能双击却没反应，
-              // 比不写更糟。
-              onDoubleClick={(e) => {
-                // 官方空画布提示上写着「双击画布 自由生成节点」——
-                // 弹的就是这个「添加节点」菜单，和拉线松手同一份。
-                setMenu({ x: e.clientX, y: e.clientY, items: addNodeMenuItems() })
-              }}
-              // 盖章模式下，点画布和点节点都是"在这里盖一个"。
-              //
-              // **两个都要接。** 只接 onPaneClick 的话，点在图片上不会盖章 ——
-              // 而"贴在产物上"正是这个功能的主要用法，等于主路径是死的。
-              onPaneClick={(e) => {
-                if (stamping) void placeSticker(e.clientX, e.clientY)
-              }}
-              onNodeClick={(e) => {
-                if (!stamping) return
-                // 盖章时点节点不该同时选中它 —— 选中会弹出节点工具条，
-                // 正好挡住刚盖下去的章。
-                e.stopPropagation()
-                void placeSticker(e.clientX, e.clientY)
-              }}
-              onPaneContextMenu={(e) => {
-                e.preventDefault()
-                setMenu({
-                  x: e.clientX,
-                  y: e.clientY,
-                  items: [
-                    { id: "new", label: "新建生成", icon: <Wand2 size={15} />, onClick: () => setComposerOpen(true) },
-                    {
-                      id: "fit",
-                      label: "适应画布",
-                      icon: <Maximize2 size={15} />,
-                      // 通过自定义事件让画布内部的组件去 fitView：那个 API 只在
-                      // ReactFlowProvider 里面拿得到，为一个菜单项把整棵树重排
-                      // 不值得。
-                      onClick: () => window.dispatchEvent(new CustomEvent("canvas:fit")),
-                    },
-                    { id: "reload", label: "重新加载", icon: <RefreshCw size={15} />, separator: true, onClick: () => void load() },
-                  ],
-                })
-              }}
-              onNodeContextMenu={(e, node) => {
-                e.preventDefault()
-                const assetId = node.data.raw.assetId
-                setMenu({
-                  x: e.clientX,
-                  y: e.clientY,
-                  items: [
-                    ...(assetId
-                      ? [
-                          {
-                            id: "open",
-                            label: "在新标签页打开",
-                            icon: <Maximize2 size={15} />,
-                            onClick: () => window.open(assetUrl(assetId), "_blank"),
-                          },
-                        ]
-                      : []),
-                    // 官方的 `canvas.addToChat` =「添加到对话」。
-                    // 把这个节点的素材丢进右侧输入框当输入 —— 和从 ⊕
-                    // 拉线出来是同一件事的另一个入口，用户更常用这个。
-                    ...(details.get(node.id)?.path
-                      ? [
-                          {
-                            id: "add-to-chat",
-                            label: "添加到对话",
-                            icon: <MessageSquarePlus size={15} />,
-                            onClick: () => {
-                              setPendingAttachments([details.get(node.id)!.path!])
-                              setComposerOpen(true)
-                              setRightOpen(true)
-                            },
-                          },
-                        ]
-                      : []),
-                    // 官方的 `canvas.splitGrid.label` =「宫格切分」。
-                    // 只有图片节点有。预设按官方的 `{{n}}宫格` 命名。
-                    ...(node.data.raw.type === "image" && assetId
-                      ? GRID_PRESETS.map((g, gi) => ({
-                          id: `split-${g.n}`,
-                          label: `${g.n}宫格切分`,
-                          icon: <Grid2x2 size={15} />,
-                          separator: gi === 0,
-                          onClick: () => void splitGridOf(node.id, assetId, g.rows, g.cols),
-                        }))
-                      : []),
-                    // 官方的 `canvas.captureFrame` =「截帧」。只有视频节点有。
-                    ...(node.data.raw.type === "video" && assetId
-                      ? [
-                          {
-                            id: "capture",
-                            label: "截帧",
-                            icon: <Camera size={15} />,
-                            onClick: () => void captureFrameOf(node.id, assetId),
-                          },
-                        ]
-                      : []),
-                    // 官方的 `canvas.node-tag-*`。七个预设颜色，一个节点
-                    // 只能有一个（官方 MAX_COLOR_TAGS_PER_ASSET = 1）——
-                    // 再点一个是换掉，点自己是取消。
-                    ...TAG_PRESETS.map((t) => {
-                      const now = tagsOf(file?.nodes.find((n) => n.id === node.id))
-                      const on = now.includes(t.id)
-                      return {
-                        id: `tag-${t.id}`,
-                        label: `${on ? "取消" : ""}${t.name}`,
-                        icon: (
-                          <span
-                            className="inline-block size-3 rounded-full"
-                            style={{
-                              background: tagColor(t.id),
-                              outline: on ? "2px solid var(--foreground)" : undefined,
-                              outlineOffset: 1,
-                            }}
-                          />
-                        ),
-                        separator: t.id === TAG_PRESETS[0]!.id,
-                        onClick: () => void actions.setNodeTags(node.id, toggleTag(now, t.id)),
-                      }
-                    }),
-                    // 官方的 `canvasTags.newKeyword` =「新建关键词」。
-                    // 关键词不显示在画布上（`canvasTags.keywordInfo`），
-                    // 只用于关联/搜索/筛选 —— 打几十个也不会弄脏画布。
-                    {
-                      id: "add-keyword",
-                      label: "新建关键词…",
-                      icon: <Hash size={15} />,
-                      onClick: () =>
-                        void uiPrompt("新建关键词", {
-                          placeholder: "最多 6 个中文或 12 个英文",
-                        }).then((v) => {
-                          const name = v?.trim()
-                          if (!name) return
-                          if (nameTooLong(name)) {
-                            setError("标签名称最多支持 6 个中文或 12 个英文字符")
-                            return
-                          }
-                          void actions.addKeywordTo(node.id, name)
-                        }),
-                    },
-                    // `canvasTags.filterByTag` =「筛选并定位"{{name}}"」。
-                    // 只在这个节点确实有标签时才给 —— 没有标签时点它
-                    // 会筛出一个空集，看起来像画布被清空了。
-                    // 这个节点身上的每个标签（含关键词）各给一条。
-                    // 只给第一个的话，打了关键词的节点没法按关键词筛。
-                    ...tagsOf(file?.nodes.find((n) => n.id === node.id)).map((tid) => ({
-                      id: `tag-filter-${tid}`,
-                      label: `筛选并定位「${
-                        readRegistry(file?.canvasTags).tags.find((t) => t.id === tid)?.name ?? tid
-                      }」`,
-                      icon: <Filter size={15} />,
-                      onClick: () => setTagFilter(tid),
-                    })),
-                    {
-                      id: "copy-id",
-                      label: "复制节点 ID",
-                      icon: <Copy size={15} />,
-                      onClick: () => void navigator.clipboard.writeText(node.id),
-                    },
-                    {
-                      id: "del",
-                      label: "删除",
-                      icon: <Trash2 size={15} />,
-                      danger: true,
-                      separator: true,
-                      onClick: () => void actions.deleteNode(node.id),
-                    },
-                  ],
-                })
-              }}
-            >
-              {/* 点阵。颜色走官方的 `--canvas-bg-dot`，间距 20（官方的
-                  `VISIBLE_GRID_GAP`）。
-
-                  **`size` 是直径，不是半径。** 官方自绘时用的是
-                  `ctx.arc(x, y, DOT_RADIUS, …)` 且 `DOT_RADIUS = 1`,
-                  也就是直径 2px；我们之前写 `size={1}`,点只有一半大 ——
-                  在浅色底上基本看不见。 */}
-              <Background
-                variant={BackgroundVariant.Dots}
-                gap={20}
-                size={2}
-                color="var(--canvas-bg-dot)"
-              />
-              {minimap && (
-                // 小地图在**右上**，官方就摆在缩放条底下。React Flow 默认
-                // 在右下，要显式指定 position。
-                <MiniMap
-                  position="top-right"
-                  pannable
-                  zoomable
-                  style={{ marginTop: 60, marginRight: 12 }}
-                  maskColor="var(--canvas-minimap-mask)"
-                  nodeColor="var(--canvas-minimap-node)"
-                />
-              )}
-              <TopRightChrome
-                mode={mode}
-                onMode={setMode}
-                minimap={minimap}
-                onMinimap={setMinimap}
-                bg={bg}
-                onBg={setBg}
-                onTidy={tidy}
-              />
-              <BottomToolbar
-                onCreate={() => setComposerOpen(true)}
-                mode={tool}
-                onMode={setTool}
-                // 开**项目资产**面板。
-                //
-                // 这个按钮之前打开的是「项目库」那一页（项目卡片网格）——
-                // 那是侧栏的东西，和文件夹图标对不上；官方这个位置是
-                // `canvas.toolbar-project-assets`,就是当前项目的文件浏览器。
-                //
-                // 再之前它是 `window.open("/api/assets")`,弹出来一屏未格式化
-                // 的 JSON。
-                onAssets={() => setAssetsOpen((v) => !v)}
-                help={help}
-                onHelp={setHelp}
-                sticker={{
-                  selected: stickerId,
-                  onSelect: (id) => {
-                    setStickerId(id)
-                    // 选了图案就直接进盖章模式 —— 官方那句
-                    // 「选择 Sticker 后点击画布即可开始盖章」承诺的就是这个。
-                    // 还要求用户再拨一次开关的话，那句话就是假的。
-                    setStamping(true)
-                  },
-                  stamping,
-                  onStamping: setStamping,
-                  count: file?.nodes.filter(isSticker).length ?? 0,
-                  onClear: () => void clearStickers(),
-                  hidden: stickersHidden,
-                  onHidden: setStickersHidden,
                 }}
-              />
-              {/* 空状态。文案逐字取自官方 i18n 的 `canvas.emptyHint.*`：
-                  「双击画布 自由生成节点」+「按住 Space 可以拖拽画布，
-                  滚动 ⇧ 缩放画布」。
-
-                  **说的是操作，不是状态。** 之前那句"画布是空的"只是把
-                  用户已经看得见的事实又说了一遍，而真正该告诉他的是
-                  下一步怎么做。 */}
-              {file && file.nodes.length === 0 && <EmptyHint />}
-              {help && <ShortcutPanel onClose={() => setHelp(false)} />}
-              {tidyUndo && (
-                <TidyUndoBar
-                  onKeep={() => setTidyUndo(null)}
-                  onRevert={() => void revertTidy()}
-                />
-              )}
-              {assetsOpen && (
-                <div className="absolute inset-y-0 right-0 z-20">
-                  <ProjectAssets
-                    assets={assetList}
-                    degraded={assetsBad}
-                    onClose={() => setAssetsOpen(false)}
-                    onUpload={async (files) => {
-                      await uploadFiles(files)
-                      await reloadAssets()
-                    }}
-                    onDelete={async (paths) => {
-                      // 映射要**在删之前**取：删完资产就从索引里没了，
-                      // 那时再查 path → id 只会查到空。
-                      const doomed = new Set(
-                        assetList.filter((a) => paths.includes(a.path)).map((a) => a.id),
-                      )
-                      const gone = await trashAssets(paths)
-                      if (gone.length < paths.length) {
-                        setError(`有 ${paths.length - gone.length} 个文件没能删除，见日志。`)
-                      }
-
-                      // **画布上引用这些文件的节点要一起摘掉。**
-                      //
-                      // 不摘的话卡片还在，但素材已经不在索引里了 ——
-                      // `/files/id/X` 返回 404，用户看到一张破图，而且没有
-                      // 任何办法修好它（"重新加载"也救不回来）。
-                      // 删掉之后至少是干净的：文件在废纸篓里，捞回来重新
-                      // 加入画布即可。
-                      const base = fileRef.current
-                      if (base && doomed.size > 0) {
-                        const drop = new Set(
-                          base.nodes.filter((n) => n.assetId && doomed.has(n.assetId)).map((n) => n.id),
-                        )
-                        if (drop.size > 0) {
-                          const next = {
-                            ...base,
-                            nodes: base.nodes.filter((n) => !drop.has(n.id)),
-                            // 悬空的边会让 gateway 的引用完整性校验拒掉整次保存。
-                            edges: base.edges.filter(
-                              (e) => !drop.has(e.source) && !drop.has(e.target),
-                            ),
-                          }
-                          await putCanvas(next).catch((err) =>
-                            setError(err instanceof Error ? err.message : String(err)),
-                          )
+                onNodeDragStart={() => (draggingRef.current = true)}
+                onNodeDragStop={(_, __, dragged) => {
+                  draggingRef.current = false
+                  void persistCanvas().then(() => {
+                    // 拖完才同步跟随的贴纸，不是拖的过程中每帧同步 ——
+                    // 每帧重算会整份重建画布图，手里拖着的节点会被抽掉重来。
+                    void syncStickers(dragged.map((n) => n.id))
+                  })
+                }}
+                // 把当前缩放写成 CSS 变量。节点选中的描边宽度是
+                // `max(1.5px, calc(1.5px / var(--canvas-zoom)))` —— 反向抵消缩放，
+                // 缩小画布时描边仍是屏幕上的 1.5 物理像素。官方就是这么做的，
+                // 不喂这个变量描边会跟着缩到看不见。
+                onMove={(_, vp) => {
+                  document.documentElement.style.setProperty("--canvas-zoom", String(vp.zoom))
+                }}
+                fitView
+                // **不放大，最多 100%。** 官方的 fitView 传的就是
+                // `{ padding: 0.2, maxZoom: 1 }`。
+                //
+                // 不设上限的话，画布上只有一张图时 fitView 会一路放大到它
+                // 铺满整个视口 —— 一张 350px 的卡片被撑到 1400px，糊得看不
+                // 清，而且用户以为节点本身就是那么大。
+                fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+                // 官方 CANVAS_MIN_ZOOM / CANVAS_MAX_ZOOM。
+                minZoom={0.1}
+                maxZoom={4}
+                // 只渲染视口内的节点。画布上一个 image 节点就是一张几百 KB 的图，
+                // 几百个节点全渲染会让首屏卡住。
+                onlyRenderVisibleElements
+                // 空白处拖拽 = 框选，不是平移；平移交给空格/中键/滚轮。
+                // select：空白处拖拽 = 框选，平移交给中键/右键和滚轮。
+                // hand：拖拽 = 平移，这时不能同时开 selectionOnDrag，
+                // 否则两种行为会在同一个手势上打架（表现是"拖不动画布"）。
+                selectionOnDrag={tool === "select"}
+                panOnDrag={tool === "hand" ? true : [1, 2]}
+                // 官方三个都开着（`panOnScroll` / `zoomOnScroll` / `zoomOnPinch`）。
+                //
+                // 我上一版把 panOnScroll 关了，理由是空画布提示写着"滚动缩放"。
+                // 但**官方的配置就是开着的** —— 那句提示旁边是个鼠标图标，
+                // 说的是滚轮，而 xyflow 在 panOnScroll 下把滚轮留给平移、
+                // 缩放交给 ⌘/Ctrl+滚轮和触控板捏合。以配置为准，别按提示反推。
+                panOnScroll
+                zoomOnScroll
+                zoomOnPinch
+                // xyflow 的默认值就是 "Space"，**显式写出来**：这是上面那句
+                // 提示承诺的操作，不该因为哪天有人改了默认值就悄悄失效。
+                panActivationKeyCode="Space"
+                // 官方的 `DELETE_KEY_CODE = ["Backspace", "Delete"]`。
+                // **配合下面的 onNodesDelete / onEdgesDelete 才敢开** ——
+                // 光开这个的话 xyflow 只改本地状态，删掉的节点下次加载又回来。
+                deleteKeyCode={["Backspace", "Delete"]}
+                // 删除要落到服务端那份 canvas.json 上。走的是和右键菜单
+                // 同一条路（`deleteNode`），那条是持久化的。
+                onNodesDelete={(deleted) => {
+                  void Promise.all(deleted.map((n) => actions.deleteNode(n.id)))
+                }}
+                onEdgesDelete={(deleted) => {
+                  const base = fileRef.current
+                  if (!base) return
+                  const gone = new Set(deleted.map((e) => e.id))
+                  const next = { ...base, edges: base.edges.filter((e) => !gone.has(e.id)) }
+                  void putCanvas(next).then(() => setFile(next))
+                }}
+                // 官方的四条连线规则。**我们之前一条都没有** ——
+                // 什么都能连：自己连自己、同一对连两次、连到分组上。
+                isValidConnection={(c) =>
+                  isValidConnection(c, {
+                    edges,
+                    typeOf: (id) => file?.nodes.find((n) => n.id === id)?.type,
+                  })
+                }
+                // **双击不缩放。** 我们把双击接给了"生成节点"（空画布提示里
+                // 承诺的动作），默认的双击缩放会同时触发，画布跟着跳一下。
+                // 官方也是 false。
+                zoomOnDoubleClick={false}
+                // 框选按官方的 Partial：碰到就算选中，不要求整个框住。
+                selectionMode={SelectionMode.Partial}
+                multiSelectionKeyCode="Shift"
+                // 官方值。按下到抬起在 4px 内才算点击 —— 不设的话手抖一下
+                // 就被当成拖拽，点空白处取消选中会时灵时不灵。
+                paneClickDistance={4}
+                proOptions={{ hideAttribution: true }}
+                // 官方用的就是 xyflow 的默认 20。真正让"容易连上"的是节点两侧
+                // 那个 84x84 的感应区（见 MagneticHandle），不是这个半径。
+                connectionRadius={20}
+                // 从把柄拉出线、松手在空白处 → 弹出"新建什么"的菜单。
+                // 官方叫 openAddNodeMenu，是他们连线交互的一半 —— 没有它，
+                // 拖出去松手什么也不会发生，用户会以为连线坏了。
+                // **必须有 onConnect。** xyflow 不会自己把连线变成边 ——
+                // 没有这个回调，用户拉出线、松手，什么都不会发生，
+                // 而且没有任何提示。
+                onConnect={(c) => {
+                  setEdges((es) => addEdge({ ...c, type: "default" }, es))
+                  void persistCanvas()
+                }}
+                onConnectEnd={(event, state) => {
+                  if (state.isValid) return
+                  const e = event as MouseEvent
+                  const from = state.fromNode?.id
+                  const items = addNodeMenuItems(from)
+                  // **一条都不给时不弹菜单。** 比如从视频拉出来只有
+                  // 「文本 / 视频」两条；从分组拉出来一条都没有 ——
+                  // 弹一个空菜单比不弹更让人困惑。
+                  if (items.length === 0) return
+                  setMenu({ x: e.clientX, y: e.clientY, items })
+                }}
+                // 官方空画布提示上写着「双击画布 自由生成节点」。
+                // **提示里承诺的动作必须真的能用** —— 写着能双击却没反应，
+                // 比不写更糟。
+                onDoubleClick={(e) => {
+                  // 官方空画布提示上写着「双击画布 自由生成节点」——
+                  // 弹的就是这个「添加节点」菜单，和拉线松手同一份。
+                  setMenu({ x: e.clientX, y: e.clientY, items: addNodeMenuItems() })
+                }}
+                // 盖章模式下，点画布和点节点都是"在这里盖一个"。
+                //
+                // **两个都要接。** 只接 onPaneClick 的话，点在图片上不会盖章 ——
+                // 而"贴在产物上"正是这个功能的主要用法，等于主路径是死的。
+                onPaneClick={(e) => {
+                  if (stamping) void placeSticker(e.clientX, e.clientY)
+                }}
+                onNodeClick={(e) => {
+                  if (!stamping) return
+                  // 盖章时点节点不该同时选中它 —— 选中会弹出节点工具条，
+                  // 正好挡住刚盖下去的章。
+                  e.stopPropagation()
+                  void placeSticker(e.clientX, e.clientY)
+                }}
+                onPaneContextMenu={(e) => {
+                  e.preventDefault()
+                  setMenu({
+                    x: e.clientX,
+                    y: e.clientY,
+                    items: [
+                      { id: "new", label: "新建生成", icon: <Wand2 size={15} />, onClick: () => setComposerOpen(true) },
+                      {
+                        id: "fit",
+                        label: "适应画布",
+                        icon: <Maximize2 size={15} />,
+                        // 通过自定义事件让画布内部的组件去 fitView：那个 API 只在
+                        // ReactFlowProvider 里面拿得到，为一个菜单项把整棵树重排
+                        // 不值得。
+                        onClick: () => window.dispatchEvent(new CustomEvent("canvas:fit")),
+                      },
+                      { id: "reload", label: "重新加载", icon: <RefreshCw size={15} />, separator: true, onClick: () => void load() },
+                    ],
+                  })
+                }}
+                onNodeContextMenu={(e, node) => {
+                  e.preventDefault()
+                  const assetId = node.data.raw.assetId
+                  setMenu({
+                    x: e.clientX,
+                    y: e.clientY,
+                    items: [
+                      ...(assetId
+                        ? [
+                            {
+                              id: "open",
+                              label: "在新标签页打开",
+                              icon: <Maximize2 size={15} />,
+                              onClick: () => window.open(assetUrl(assetId), "_blank"),
+                            },
+                          ]
+                        : []),
+                      // 官方的 `canvas.addToChat` =「添加到对话」。
+                      // 把这个节点的素材丢进右侧输入框当输入 —— 和从 ⊕
+                      // 拉线出来是同一件事的另一个入口，用户更常用这个。
+                      ...(details.get(node.id)?.path
+                        ? [
+                            {
+                              id: "add-to-chat",
+                              label: "添加到对话",
+                              icon: <MessageSquarePlus size={15} />,
+                              onClick: () => {
+                                setPendingAttachments([details.get(node.id)!.path!])
+                                setComposerOpen(true)
+                                setRightOpen(true)
+                              },
+                            },
+                          ]
+                        : []),
+                      // 官方的 `canvas.splitGrid.label` =「宫格切分」。
+                      // 只有图片节点有。预设按官方的 `{{n}}宫格` 命名。
+                      ...(node.data.raw.type === "image" && assetId
+                        ? GRID_PRESETS.map((g, gi) => ({
+                            id: `split-${g.n}`,
+                            label: `${g.n}宫格切分`,
+                            icon: <Grid2x2 size={15} />,
+                            separator: gi === 0,
+                            onClick: () => void splitGridOf(node.id, assetId, g.rows, g.cols),
+                          }))
+                        : []),
+                      // 官方的 `canvas.captureFrame` =「截帧」。只有视频节点有。
+                      ...(node.data.raw.type === "video" && assetId
+                        ? [
+                            {
+                              id: "capture",
+                              label: "截帧",
+                              icon: <Camera size={15} />,
+                              onClick: () => void captureFrameOf(node.id, assetId),
+                            },
+                          ]
+                        : []),
+                      // 官方的 `canvas.node-tag-*`。七个预设颜色，一个节点
+                      // 只能有一个（官方 MAX_COLOR_TAGS_PER_ASSET = 1）——
+                      // 再点一个是换掉，点自己是取消。
+                      ...TAG_PRESETS.map((t) => {
+                        const now = tagsOf(file?.nodes.find((n) => n.id === node.id))
+                        const on = now.includes(t.id)
+                        return {
+                          id: `tag-${t.id}`,
+                          label: `${on ? "取消" : ""}${t.name}`,
+                          icon: (
+                            <span
+                              className="inline-block size-3 rounded-full"
+                              style={{
+                                background: tagColor(t.id),
+                                outline: on ? "2px solid var(--foreground)" : undefined,
+                                outlineOffset: 1,
+                              }}
+                            />
+                          ),
+                          separator: t.id === TAG_PRESETS[0]!.id,
+                          onClick: () => void actions.setNodeTags(node.id, toggleTag(now, t.id)),
                         }
-                      }
-                      await reloadAssets()
-                      await load()
-                    }}
-                    onUse={(a) => {
-                      void createMediaNode(a.path).then(() => load())
-                    }}
+                      }),
+                      // 官方的 `canvasTags.newKeyword` =「新建关键词」。
+                      // 关键词不显示在画布上（`canvasTags.keywordInfo`），
+                      // 只用于关联/搜索/筛选 —— 打几十个也不会弄脏画布。
+                      {
+                        id: "add-keyword",
+                        label: "新建关键词…",
+                        icon: <Hash size={15} />,
+                        onClick: () =>
+                          void uiPrompt("新建关键词", {
+                            placeholder: "最多 6 个中文或 12 个英文",
+                          }).then((v) => {
+                            const name = v?.trim()
+                            if (!name) return
+                            if (nameTooLong(name)) {
+                              setError("标签名称最多支持 6 个中文或 12 个英文字符")
+                              return
+                            }
+                            void actions.addKeywordTo(node.id, name)
+                          }),
+                      },
+                      // `canvasTags.filterByTag` =「筛选并定位"{{name}}"」。
+                      // 只在这个节点确实有标签时才给 —— 没有标签时点它
+                      // 会筛出一个空集，看起来像画布被清空了。
+                      // 这个节点身上的每个标签（含关键词）各给一条。
+                      // 只给第一个的话，打了关键词的节点没法按关键词筛。
+                      ...tagsOf(file?.nodes.find((n) => n.id === node.id)).map((tid) => ({
+                        id: `tag-filter-${tid}`,
+                        label: `筛选并定位「${
+                          readRegistry(file?.canvasTags).tags.find((t) => t.id === tid)?.name ?? tid
+                        }」`,
+                        icon: <Filter size={15} />,
+                        onClick: () => setTagFilter(tid),
+                      })),
+                      {
+                        id: "copy-id",
+                        label: "复制节点 ID",
+                        icon: <Copy size={15} />,
+                        onClick: () => void navigator.clipboard.writeText(node.id),
+                      },
+                      {
+                        id: "del",
+                        label: "删除",
+                        icon: <Trash2 size={15} />,
+                        danger: true,
+                        separator: true,
+                        onClick: () => void actions.deleteNode(node.id),
+                      },
+                    ],
+                  })
+                }}
+              >
+                {/* 点阵。颜色走官方的 `--canvas-bg-dot`，间距 20（官方的
+                    `VISIBLE_GRID_GAP`）。
+  
+                    **`size` 是直径，不是半径。** 官方自绘时用的是
+                    `ctx.arc(x, y, DOT_RADIUS, …)` 且 `DOT_RADIUS = 1`,
+                    也就是直径 2px；我们之前写 `size={1}`,点只有一半大 ——
+                    在浅色底上基本看不见。 */}
+                <Background
+                  variant={BackgroundVariant.Dots}
+                  gap={20}
+                  size={2}
+                  color="var(--canvas-bg-dot)"
+                />
+                {minimap && (
+                  // 小地图在**右上**，官方就摆在缩放条底下。React Flow 默认
+                  // 在右下，要显式指定 position。
+                  <MiniMap
+                    position="top-right"
+                    pannable
+                    zoomable
+                    style={{ marginTop: 60, marginRight: 12 }}
+                    maskColor="var(--canvas-minimap-mask)"
+                    nodeColor="var(--canvas-minimap-node)"
                   />
-                </div>
-              )}
-              <TagFilter
-                active={
-                  tagFilter
-                    ? {
-                        id: tagFilter,
-                        // **名字要从注册表取，不是只从预设取。** 只查预设的话
-                        // 按关键词筛选时工具条上是一片空白，用户不知道在筛什么。
-                        name:
-                          readRegistry(file?.canvasTags).tags.find((t) => t.id === tagFilter)
-                            ?.name ?? tagFilter,
-                      }
-                    : null
-                }
-                matches={(file?.nodes ?? [])
-                  .filter((n) => tagsOf(n).includes(tagFilter ?? ""))
-                  .map((n) => n.id)}
-                onPick={(id) =>
-                  window.dispatchEvent(new CustomEvent("canvas:focus", { detail: id }))
-                }
-                onClear={() => setTagFilter(null)}
-              />
-            </ReactFlow>
-          </ReactFlowProvider>
-
-          {error && (
-            <div
-              className="absolute inset-x-3 bottom-20 z-20 flex items-start gap-2 rounded-lg px-3 py-2 font-mono text-xs"
-              style={{
-                background: "color-mix(in srgb, var(--canvas-node-tag-red) 14%, var(--canvas-controls-bg))",
-                color: "var(--canvas-node-tag-red)",
-                boxShadow: "var(--canvas-shadow-panel)",
+                )}
+                <TopRightChrome
+                  mode={mode}
+                  onMode={setMode}
+                  minimap={minimap}
+                  onMinimap={setMinimap}
+                  bg={bg}
+                  onBg={setBg}
+                  onTidy={tidy}
+                />
+                <BottomToolbar
+                  onCreate={() => setComposerOpen(true)}
+                  mode={tool}
+                  onMode={setTool}
+                  // 开**项目资产**面板。
+                  //
+                  // 这个按钮之前打开的是「项目库」那一页（项目卡片网格）——
+                  // 那是侧栏的东西，和文件夹图标对不上；官方这个位置是
+                  // `canvas.toolbar-project-assets`,就是当前项目的文件浏览器。
+                  //
+                  // 再之前它是 `window.open("/api/assets")`,弹出来一屏未格式化
+                  // 的 JSON。
+                  onAssets={() => setAssetsOpen((v) => !v)}
+                  help={help}
+                  onHelp={setHelp}
+                  sticker={{
+                    selected: stickerId,
+                    onSelect: (id) => {
+                      setStickerId(id)
+                      // 选了图案就直接进盖章模式 —— 官方那句
+                      // 「选择 Sticker 后点击画布即可开始盖章」承诺的就是这个。
+                      // 还要求用户再拨一次开关的话，那句话就是假的。
+                      setStamping(true)
+                    },
+                    stamping,
+                    onStamping: setStamping,
+                    count: file?.nodes.filter(isSticker).length ?? 0,
+                    onClear: () => void clearStickers(),
+                    hidden: stickersHidden,
+                    onHidden: setStickersHidden,
+                  }}
+                />
+                {/* 空状态。文案逐字取自官方 i18n 的 `canvas.emptyHint.*`：
+                    「双击画布 自由生成节点」+「按住 Space 可以拖拽画布，
+                    滚动 ⇧ 缩放画布」。
+  
+                    **说的是操作，不是状态。** 之前那句"画布是空的"只是把
+                    用户已经看得见的事实又说了一遍，而真正该告诉他的是
+                    下一步怎么做。 */}
+                {file && file.nodes.length === 0 && <EmptyHint />}
+                {help && <ShortcutPanel onClose={() => setHelp(false)} />}
+                {tidyUndo && (
+                  <TidyUndoBar
+                    onKeep={() => setTidyUndo(null)}
+                    onRevert={() => void revertTidy()}
+                  />
+                )}
+                {assetsOpen && (
+                  <div className="absolute inset-y-0 right-0 z-20">
+                    <ProjectAssets
+                      assets={assetList}
+                      degraded={assetsBad}
+                      onClose={() => setAssetsOpen(false)}
+                      onUpload={async (files) => {
+                        await uploadFiles(files)
+                        await reloadAssets()
+                      }}
+                      onDelete={async (paths) => {
+                        // 映射要**在删之前**取：删完资产就从索引里没了，
+                        // 那时再查 path → id 只会查到空。
+                        const doomed = new Set(
+                          assetList.filter((a) => paths.includes(a.path)).map((a) => a.id),
+                        )
+                        const gone = await trashAssets(paths)
+                        if (gone.length < paths.length) {
+                          setError(`有 ${paths.length - gone.length} 个文件没能删除，见日志。`)
+                        }
+  
+                        // **画布上引用这些文件的节点要一起摘掉。**
+                        //
+                        // 不摘的话卡片还在，但素材已经不在索引里了 ——
+                        // `/files/id/X` 返回 404，用户看到一张破图，而且没有
+                        // 任何办法修好它（"重新加载"也救不回来）。
+                        // 删掉之后至少是干净的：文件在废纸篓里，捞回来重新
+                        // 加入画布即可。
+                        const base = fileRef.current
+                        if (base && doomed.size > 0) {
+                          const drop = new Set(
+                            base.nodes.filter((n) => n.assetId && doomed.has(n.assetId)).map((n) => n.id),
+                          )
+                          if (drop.size > 0) {
+                            const next = {
+                              ...base,
+                              nodes: base.nodes.filter((n) => !drop.has(n.id)),
+                              // 悬空的边会让 gateway 的引用完整性校验拒掉整次保存。
+                              edges: base.edges.filter(
+                                (e) => !drop.has(e.source) && !drop.has(e.target),
+                              ),
+                            }
+                            await putCanvas(next).catch((err) =>
+                              setError(err instanceof Error ? err.message : String(err)),
+                            )
+                          }
+                        }
+                        await reloadAssets()
+                        await load()
+                      }}
+                      onUse={(a) => {
+                        void createMediaNode(a.path).then(() => load())
+                      }}
+                    />
+                  </div>
+                )}
+                <TagFilter
+                  active={
+                    tagFilter
+                      ? {
+                          id: tagFilter,
+                          // **名字要从注册表取，不是只从预设取。** 只查预设的话
+                          // 按关键词筛选时工具条上是一片空白，用户不知道在筛什么。
+                          name:
+                            readRegistry(file?.canvasTags).tags.find((t) => t.id === tagFilter)
+                              ?.name ?? tagFilter,
+                        }
+                      : null
+                  }
+                  matches={(file?.nodes ?? [])
+                    .filter((n) => tagsOf(n).includes(tagFilter ?? ""))
+                    .map((n) => n.id)}
+                  onPick={(id) =>
+                    window.dispatchEvent(new CustomEvent("canvas:focus", { detail: id }))
+                  }
+                  onClear={() => setTagFilter(null)}
+                />
+              </ReactFlow>
+            </ReactFlowProvider>
+  
+            {error && (
+              <div
+                className="absolute inset-x-3 bottom-20 z-20 flex items-start gap-2 rounded-lg px-3 py-2 font-mono text-xs"
+                style={{
+                  background: "color-mix(in srgb, var(--canvas-node-tag-red) 14%, var(--canvas-controls-bg))",
+                  color: "var(--canvas-node-tag-red)",
+                  boxShadow: "var(--canvas-shadow-panel)",
+                }}
+              >
+                {error}
+                <button onClick={() => setError(null)} className="ml-auto">
+                  ×
+                </button>
+              </div>
+            )}
+          </main>
+          }
+          chat={
+            <ChatPanel
+              plan={plan}
+              // 确认和反馈都是**发一条用户消息** —— 官方的
+              // `productionPlan.messages.*` 就是这么设计的，所以这块不需要
+              // 任何新的后端写接口。
+              onPlanSend={setPlanSend}
+              planSend={planSend}
+              onPlanSent={() => setPlanSend(undefined)}
+              file={file}
+              title={sessions.find((x) => x.id === currentSession)?.name}
+              events={events}
+              activity={activity}
+              messages={messages}
+              agentRunning={agentRunning}
+              onStop={() =>
+                // `void f()` 会把 reject 变成一条没人看的 unhandled rejection ——
+                // 改成 throw 之后如果这里不接，等于白改。
+                void agentStop().catch((e: unknown) =>
+                  setError(e instanceof Error ? e.message : String(e)),
+                )
+              }
+              saving={saving}
+              composerOpen={composerOpen}
+              onDone={() => void load()}
+              onNewChat={() => void newSession()}
+              onCollapse={() => setRightOpen(false)}
+              initialPrompt={pendingPrompt}
+              initialAttachments={pendingAttachments}
+              onConsumed={consumePending}
+              question={question}
+              onOpenAsset={(path) => {
+                // 产物 chip 打开的是画布上引用它的那个节点（走灯箱）。
+                //
+                // **按文件名匹配**：节点上只有 assetId，没有工作区路径。
+                // 文件名在我们的工作区里是内容哈希，撞名的概率可以忽略；
+                // 真撞了也只是打开了另一张同名的图，不会出错。
+                //
+                // 找不到就什么都不做 —— 灯箱认的是节点 id，把路径传进去
+                // 会开出一个空框。
+                const name = path.split("/").pop()
+                const n = file?.nodes.find((x) => details.get(x.id)?.name === name)
+                if (n) setLightbox(n.id)
               }}
-            >
-              {error}
-              <button onClick={() => setError(null)} className="ml-auto">
-                ×
-              </button>
-            </div>
-          )}
-        </main>
-
-        )}
-
+              onAnswer={(id, answers) => {
+                void answerQuestion(id, answers).catch((e: unknown) =>
+                  setError(e instanceof Error ? e.message : String(e)),
+                )
+                setQuestion(null)
+              }}
+            />
+          }
+        />
         {menu && (
           <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />
         )}
-
-        {/* 首页占满，不出右栏 —— 官方点「开始创作」也是整屏的首页。
-            右栏是画布的伴生面板，首页上没有画布，它就没有意义。 */}
-        {view === "canvas" && rightOpen ? (
-          <ChatPanel
-            plan={plan}
-            // 确认和反馈都是**发一条用户消息** —— 官方的
-            // `productionPlan.messages.*` 就是这么设计的，所以这块不需要
-            // 任何新的后端写接口。
-            onPlanSend={setPlanSend}
-            planSend={planSend}
-            onPlanSent={() => setPlanSend(undefined)}
-            file={file}
-            title={sessions.find((x) => x.id === currentSession)?.name}
-            events={events}
-            activity={activity}
-            messages={messages}
-            agentRunning={agentRunning}
-            onStop={() =>
-              // `void f()` 会把 reject 变成一条没人看的 unhandled rejection ——
-              // 改成 throw 之后如果这里不接，等于白改。
-              void agentStop().catch((e: unknown) =>
-                setError(e instanceof Error ? e.message : String(e)),
-              )
-            }
-            saving={saving}
-            composerOpen={composerOpen}
-            onDone={() => void load()}
-            onNewChat={() => void newSession()}
-            onCollapse={() => setRightOpen(false)}
-            initialPrompt={pendingPrompt}
-            initialAttachments={pendingAttachments}
-            onConsumed={consumePending}
-            question={question}
-            onOpenAsset={(path) => {
-              // 产物 chip 打开的是画布上引用它的那个节点（走灯箱）。
-              //
-              // **按文件名匹配**：节点上只有 assetId，没有工作区路径。
-              // 文件名在我们的工作区里是内容哈希，撞名的概率可以忽略；
-              // 真撞了也只是打开了另一张同名的图，不会出错。
-              //
-              // 找不到就什么都不做 —— 灯箱认的是节点 id，把路径传进去
-              // 会开出一个空框。
-              const name = path.split("/").pop()
-              const n = file?.nodes.find((x) => details.get(x.id)?.name === name)
-              if (n) setLightbox(n.id)
-            }}
-            onAnswer={(id, answers) => {
-              void answerQuestion(id, answers).catch((e: unknown) =>
-                setError(e instanceof Error ? e.message : String(e)),
-              )
-              setQuestion(null)
-            }}
-          />
-        ) : view === "canvas" ? (
-          <button
-            onClick={() => setRightOpen(true)}
-            title="展开面板"
-            className="flex w-8 shrink-0 items-center justify-center border-l"
-            style={{ background: "var(--background)", borderColor: "var(--border)" }}
-          >
-            <PanelRight size={16} style={{ color: "var(--topbar-icon-fg)" }} />
-          </button>
-        ) : null}
       </div>
-
-      {dialog === "settings" && <Settings onClose={() => setDialog(null)} />}
-      {dialog === "im" && <ImBridge onClose={() => setDialog(null)} />}
 
       {/* 图片灯箱。
           **翻页范围是画布上的全部图片**，而官方翻的是一个多图节点里的那几张。
