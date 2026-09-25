@@ -20,6 +20,7 @@ export class ActivityService {
   private inFlightGenerate = 0;
   private leases = 0;
   private lastActivityAt: number | null = null;
+  private agentProbe: () => number = () => 0;
 
   get draining(): boolean {
     return this.leases > 0;
@@ -38,6 +39,11 @@ export class ActivityService {
       if (kind === "generate") this.inFlightGenerate--;
       this.lastActivityAt = Date.now();
     };
+  }
+
+  /** 聊天模块登记"还有几个 agent 会话在跑"。 */
+  setAgentProbe(probe: () => number): void {
+    this.agentProbe = probe;
   }
 
   acquireLease(): void {
@@ -63,7 +69,9 @@ export class ActivityService {
   async snapshot() {
     const durable = await this.durableGenerations();
     const userOps = this.inFlight - this.inFlightGenerate;
+    const agents = this.agentProbe();
     const reasons = [
+      ...(agents > 0 ? [`agent_running:${agents}`] : []),
       ...(this.inFlightGenerate > 0 ? [`active_generate_requests:${this.inFlightGenerate}`] : []),
       ...(userOps > 0 ? [`active_user_operations:${userOps}`] : []),
       ...(durable.count > 0 ? [`active_generation_records:${durable.count}`] : []),
@@ -72,8 +80,8 @@ export class ActivityService {
     const pending = this.inFlight + durable.count;
     const safe = reasons.length === 0;
     return {
-      idle: pending === 0,
-      agent_running: false,
+      idle: pending === 0 && agents === 0,
+      agent_running: agents > 0,
       pending_tasks: pending,
       active_cloud_tasks: 0,
       active_generate_requests: this.inFlightGenerate,

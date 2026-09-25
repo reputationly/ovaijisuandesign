@@ -154,6 +154,16 @@ describe("聊天链路（假 opencode）", () => {
     expect(frames.some((f) => f.type === "user_message_id" && f.message_id === "msg_u")).toBe(true);
   });
 
+  it("agent 在跑时活动探测说不能挂起；idle 之后恢复", async () => {
+    const activity = async () => (await http.get("/api/health/activity")).body;
+    oc.push({ type: "session.status", properties: { sessionID: rid, status: { type: "busy" } } });
+    await waitFor((f) => f.type === "status" && f.session_id === ui);
+    expect(await activity()).toMatchObject({ agent_running: true, idle: false, safe_to_suspend: false, blocking_reasons: ["agent_running:1"] });
+    oc.push({ type: "session.idle", properties: { sessionID: rid } });
+    await new Promise((r) => setTimeout(r, 100));
+    expect(await activity()).toMatchObject({ agent_running: false, safe_to_suspend: true });
+  });
+
   it("子会话的事件归到根会话，带 childSessionId", async () => {
     oc.push({ type: "session.created", properties: { info: { id: "ses_child", parentID: rid } } });
     oc.push({ type: "message.part.updated", properties: { sessionID: "ses_child", part: { id: "prt_c", messageID: "msg_c", sessionID: "ses_child", type: "tool", tool: "hub_generate_image", state: { status: "running" } } } });

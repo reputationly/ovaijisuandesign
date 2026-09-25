@@ -5,9 +5,16 @@ import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@ne
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
+import { ActivityService } from "../health/activity.service.js";
 import { EventPump, type OcEvent } from "../runtime/event-pump.js";
 import { RuntimeClient } from "../runtime/runtime-client.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
+
+/**
+ * 忙碌标记多久没有任何事件就当作过期。opencode 崩了或事件流断了收不到 idle，不设过期的话这个 gateway
+ * 永远不能挂起；长时间的工具调用（生成视频）有账本兜着，不靠这里。
+ */
+const BUSY_STALE_MS = 30 * 60_000;
 
 /** 新会话默认交给哪个 agent。 */
 const DEFAULT_AGENT = "media-agent";
@@ -78,6 +85,8 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
   private readonly runtimeToUi = new Map<string, string>();
   private readonly childToRoot = new Map<string, string>();
   private readonly messageRoles = new Map<string, "user" | "assistant">();
+  /** 正在跑的 opencode 会话（含子会话）→ 最近一次事件的时间。 */
+  private readonly busy = new Map<string, number>();
   private off?: () => void;
 
   constructor(
@@ -86,10 +95,20 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     private readonly bus: GatewayEventBus,
     private readonly confirm: ConfirmService,
     private readonly paths: WorkspacePathService,
+    private readonly activity: ActivityService,
   ) {}
 
   onModuleInit(): void {
     this.off = this.pump.subscribe((e) => this.onRuntimeEvent(e));
+    // agent 在想、在调工具时没有 HTTP 写请求在飞，只看请求的话主进程会把正在干活的工作区挂起，把 opencode 杀在半路。
+    this.activity.setAgentProbe(() => this.runningSessions());
+  }
+
+  /** 还在跑的会话数（过期的顺手清掉）。 */
+  runningSessions(): number {
+    const cutoff = Date.now() - BUSY_STALE_MS;
+    for (const [id, at] of this.busy) if (at < cutoff) this.busy.delete(id);
+    return this.busy.size;
   }
 
   onModuleDestroy(): void {
@@ -248,6 +267,8 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         this.broadcast({ type: "session_bound", ui_session_id: s.id, runtime_session_id: created.id });
       }
       const [providerID, ...rest] = (s.modelId ?? "").split("/");
+      // 提交到第一个 status 事件之间也算忙，否则这一小段里探测会说空闲。
+      this.busy.set(s.runtimeId, Date.now());
       await this.runtime.promptAsync(s.runtimeId, {
         agent: DEFAULT_AGENT,
         system: assetPrimer(this.paths.root),
@@ -262,6 +283,7 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
       });
       reply({ type: "message_accepted", session_id: s.id, runtime_session_id: s.runtimeId, client_message_id: clientMessageId });
     } catch (err) {
+      if (s.runtimeId) this.busy.delete(s.runtimeId);
       reply({ type: "message_failed", session_id: s.id, client_message_id: clientMessageId, error: err instanceof Error ? err.message : String(err) });
     }
   }
@@ -291,6 +313,7 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
 
   onRuntimeEvent(e: OcEvent): void {
     const p = e.properties ?? {};
+    this.trackBusy(e.type, p);
     switch (e.type) {
       case "session.created":
       case "session.updated": {
@@ -341,6 +364,13 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         return;
       default:
     }
+  }
+
+  private trackBusy(type: string, p: Record<string, any>): void {
+    const sid: string | undefined = p.sessionID ?? p.part?.sessionID ?? p.info?.sessionID;
+    if (!sid) return;
+    if (type === "session.idle" || (type === "session.status" && p.status?.type === "idle")) this.busy.delete(sid);
+    else if (type === "session.status" || this.busy.has(sid)) this.busy.set(sid, Date.now());
   }
 
   /** 给帧补上 session_id（UI 会话）和子会话标记。 */

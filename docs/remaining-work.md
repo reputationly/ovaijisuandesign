@@ -172,7 +172,7 @@
    - 没有「找不到文件夹，重新定位」对话框；
    - 全局存储没有加密 token；
    - 工作区预算固定为 5；
-   - `agent_running` 恒为 false。
+   - ~~`agent_running` 恒为 false~~ 已修：按 opencode 的 `session.status` / `session.idle` 记忙碌会话，忙时 `safe_to_*` 为 false、`blocking_reasons` 带 `agent_running:<n>`；30 分钟没事件的忙碌标记当作过期。
 
    详见 commit `60efdab` 的说明和 `reference/main-inventory/gap-vs-ours.md`。
 10. 每补一批路由就重跑 `scripts/extract-gateway-routes.py --out docs/gateway-api.md`（云上加 `--from-doc docs/gateway-api.md`），覆盖率只增不减。
