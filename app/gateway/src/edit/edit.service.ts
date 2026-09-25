@@ -419,8 +419,8 @@ export class EditService {
     return this.chatText(cfg.value, [{ role: "user", content: parts }], ANALYZE_BUDGET, ANALYZE_TIMEOUT_MS, "Analyze media failed", true);
   }
 
-  /** 单轮文本生成，可带参考图。 */
-  async generateText(dto: GenerateTextDto): Promise<TextResult> {
+  /** 单轮文本生成，可带参考图和系统提示。 */
+  async generateText(dto: GenerateTextDto, system?: string): Promise<TextResult> {
     const images = await Promise.all((dto.image_paths ?? []).map((p) => this.resolveOrThrow(p)));
     const cfg = this.chatConfig();
     if ("error" in cfg) return { ok: false, error: cfg.error };
@@ -432,7 +432,8 @@ export class EditService {
     } catch (err) {
       return { ok: false, error: `Text generation failed: ${(err as Error).message}` };
     }
-    return this.chatText(cfg.value, [{ role: "user", content }], MIN_CHAT_BUDGET * 2, TEXT_TIMEOUT_MS, "Text generation failed", false);
+    const messages = [...(system ? [{ role: "system", content: system }] : []), { role: "user", content }];
+    return this.chatText(cfg.value, messages, MIN_CHAT_BUDGET * 2, TEXT_TIMEOUT_MS, "Text generation failed", false);
   }
 
   /** messages 形式的单轮调用（配图方案分类器用）。空回答照样 ok —— 分类器自己把空当"不选"。 */

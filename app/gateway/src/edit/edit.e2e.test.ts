@@ -319,6 +319,19 @@ describe("edit（真实工作区 + 假平台）", () => {
     expect((await http.post("/api/edit/generate-text-messages").send({ model: "m", prompt: "x", max_tokens: 9999 })).status).toBe(400);
   });
 
+  it("/api/generate/text：系统提示在前；不认识的字段不 400；缺 prompt 400", async () => {
+    platform.setReply("标题：夜猫");
+    const r = await http.post("/api/generate/text").send({ prompt: "给这张图起个标题", system_prompt: "只回标题", model: "whatever", image_paths: ["cat.png"] });
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ ok: true, text: "标题：夜猫" });
+    const body = platform.calls.at(-1);
+    expect(body.model).toBe("vision-chat");
+    expect(body.messages[0]).toEqual({ role: "system", content: "只回标题" });
+    expect(body.messages[1].content[1].image_url.url).toMatch(/^data:image\/png;base64,/);
+    expect((await http.post("/api/generate/text").send({ system: "x" })).status).toBe(400);
+    expect((await http.post("/api/generate/text").send({ prompt: "x", image_paths: "cat.png" })).status).toBe(400);
+  });
+
   it("generate-text：带参考图时发多模态内容", async () => {
     platform.setReply("描述完毕");
     const r = await http.post("/api/edit/generate-text").send({ prompt: "描述这张图", image_paths: ["cat.png"] });

@@ -38,6 +38,34 @@ export class GenerateAsyncController {
     return this.submit("music", body, req);
   }
 
+  /**
+   * 同步版：提交后等到终态，回和 query 一样的形状（成功带 result / asset，失败 ok:false）。
+   * 画布弹层直接调；和异步版走同一套占位卡、记账和落地，只是这个请求挂到结果出来为止。
+   */
+  @Post("api/generate/image")
+  @HttpCode(200)
+  generateImage(@Body() body: GenerationRequest, @Req() req: Request) {
+    return this.submitAndWait("image", body, req);
+  }
+
+  @Post("api/generate/video")
+  @HttpCode(200)
+  generateVideo(@Body() body: GenerationRequest, @Req() req: Request) {
+    return this.submitAndWait("video", body, req);
+  }
+
+  @Post("api/generate/speech")
+  @HttpCode(200)
+  generateSpeech(@Body() body: GenerationRequest, @Req() req: Request) {
+    return this.submitAndWait("speech", body, req);
+  }
+
+  @Post("api/generate/music")
+  @HttpCode(200)
+  generateMusic(@Body() body: GenerationRequest, @Req() req: Request) {
+    return this.submitAndWait("music", body, req);
+  }
+
   @Get("api/generate/metrics")
   metrics() {
     const s = this.runner.summary();
@@ -57,10 +85,16 @@ export class GenerateAsyncController {
     });
   }
 
-  private submit(media: MediaType, body: GenerationRequest, req: Request) {
+  private submit(media: MediaType, body: GenerationRequest, req: Request, defaultSource: GenerationSource = "agent") {
     const session = header(req, "x-session-id");
     const enriched: GenerationRequest = { ...(body ?? {}), ...(session && !body?.session_id ? { session_id: session } : {}) };
-    return this.runner.submit(media, enriched, sourceOf(header(req, "x-hilo-source")));
+    return this.runner.submit(media, enriched, sourceOf(header(req, "x-hilo-source"), defaultSource));
+  }
+
+  private async submitAndWait(media: MediaType, body: GenerationRequest, req: Request) {
+    // 同步路由是给画布用的，没标来源时按画布算。
+    const sub = await this.submit(media, body, req, "canvas");
+    return (await this.runner.waitFor(String(sub.task_id))) ?? sub;
   }
 }
 
@@ -154,8 +188,8 @@ function header(req: Request, name: string): string | undefined {
   return s?.trim() || undefined;
 }
 
-function sourceOf(v: string | undefined): GenerationSource {
+function sourceOf(v: string | undefined, fallback: GenerationSource): GenerationSource {
   if (v === "canvas") return "canvas";
   if (v === "agent" || v === "mcp") return "agent";
-  return v ? "unknown" : "agent";
+  return v ? "unknown" : fallback;
 }

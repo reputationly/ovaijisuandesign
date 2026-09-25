@@ -208,6 +208,22 @@ describe("生成（假平台）", () => {
     expect(card.data.retryPayload).toMatchObject({ mediaType: "video" });
   });
 
+  it("同步出图：请求挂到结果出来，回和 query 一样的形状，账上不留", async () => {
+    const r = await http.post("/api/generate/image").send({ prompt: "同步的猫", filename: "同步" });
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({ ok: true, status: "succeeded", result: { path: "同步.png", node_id: expect.any(String) }, asset: { path: "同步.png", mediaType: "image" } });
+    expect((await http.get(`/api/generate/tasks/${r.body.task_id}/query`)).body.status).toBe("succeeded");
+    expect(JSON.parse(readFileSync(path.join(ws, ".hilo/active-generations.json"), "utf8")).records).toEqual([]);
+  });
+
+  it("同步视频：平台失败时回 ok:false，占位卡已经是错误态", async () => {
+    platform.failVideos();
+    const r = await http.post("/api/generate/video").send({ prompt: "同步失败" });
+    expect(r.body).toMatchObject({ ok: false, status: "failed", error: "内容不合规" });
+    const card = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.data?.prompt === "同步失败");
+    expect(card.data.status).toBe("error");
+  });
+
   it("没配的能力提交时就拒绝（4xx），不建占位卡", async () => {
     const before = (await http.get("/api/canvas")).body.nodes.length;
     const r = await http.post("/api/generate/music/submit").send({ prompt: "钢琴" });

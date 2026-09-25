@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Headers, HttpCode, Post } from "@nestjs/common";
 
 import {
   AnalyzeMediaDto,
@@ -59,5 +59,28 @@ export class EditController {
   @Post("generate-text-messages")
   generateTextMessages(@Body() b: GenerateTextMessagesDto) {
     return this.edit.generateTextMessages(b);
+  }
+}
+
+/**
+ * `/api/generate/text`：单轮文本生成，可带参考图 / 系统提示。请求体没和参照核对过，所以不走全局的
+ * 严格校验（多一个字段就 400），只挑认识的字段；模型固定用配置里的对话模型。
+ */
+@Controller("api/generate")
+export class GenerateTextController {
+  constructor(private readonly edit: EditService) {}
+
+  @Post("text")
+  @HttpCode(200)
+  generateText(@Body() raw: unknown) {
+    const b = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+    const prompt = typeof b.prompt === "string" ? b.prompt.trim() : "";
+    if (!prompt) throw new BadRequestException({ ok: false, error: "prompt is required", error_code: "INVALID_PARAMS" });
+    const images = b.image_paths ?? b.images;
+    if (images !== undefined && !(Array.isArray(images) && images.every((p) => typeof p === "string"))) {
+      throw new BadRequestException({ ok: false, error: "image_paths must be an array of strings", error_code: "INVALID_PARAMS" });
+    }
+    const system = [b.system_prompt, b.system].find((v): v is string => typeof v === "string" && v.trim() !== "");
+    return this.edit.generateText({ prompt, ...(images ? { image_paths: images as string[] } : {}) }, system);
   }
 }

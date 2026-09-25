@@ -87,7 +87,7 @@
 
 ## 三、gateway
 
-路由 88 / 466。共 75 个控制器：全部做完 8 个、部分 10 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 93 / 466。共 75 个控制器：全部做完 9 个、部分 9 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
@@ -96,9 +96,8 @@
 | FilesController | 14/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
 | EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
 | CanvasController | 19/26 | file-node、plugin-data、split-sub-images、placeholder-group、nodes-group、revert-edits |
-| GenerateController | 10/13 | 同步的 `/api/generate/image`、`/video`、`/text` |
-| SpeechController | 2/6 | voice_clone、voice_design、voice_isolation、同步 `/api/generate/speech` |
-| MusicController | 1/4 | 同步生成、翻唱预处理、歌词生成 |
+| SpeechController | 3/6 | voice_clone、voice_design、voice_isolation |
+| MusicController | 2/4 | 翻唱预处理、歌词生成 |
 | InternalSessionController | 11/15 | 其余内部会话接口 |
 | AssetPreviewController / PlanController / ChatAttachmentCdnController | 1/3、1/3、1/2 | 预览、计划读写、附件 CDN |
 
@@ -137,6 +136,7 @@
 |---|---|---|
 | 后端 | 各家云厂商后端（banana、seedream、kling、veo、seedance……），每家单独适配 | 统一走自建平台（`maas-media`）；调用方传的任何 vendor / model_id 都按模态**换成我们配的模型** |
 | 模型目录 | 从云端拉，字段全 | 由本机配置生成：`backend` 固定为 `maas`，`display_name` 就是模型 id，参数表只到模态粒度 |
+| 同步生成路由 | 形状未核对 | 提交 + 等终态，回 query 的形状 |
 | 执行方式 | 查询时单次查平台；聊天停止后移交 | gateway 后台自己跑到结束，查询只读状态（结果一样，MCP 进程没了也能落地） |
 | 排队 | 按模型并发上限排队 | 不排队，提交即运行；`/api/generation-queue/cancel` 是空操作 |
 | 并发上限 | 云端下发 | `/api/v1/models/concurrency/limits` 回空列表（平台没有公布） |

@@ -32,7 +32,7 @@ export type GenerationSource = "canvas" | "agent" | "unknown";
 @Injectable()
 export class GenerationRunner implements OnApplicationBootstrap {
   private readonly log = new Logger("Generate");
-  private readonly running = new Map<string, { record: ActiveGenerationRecord; source: GenerationSource; cancelled: boolean }>();
+  private readonly running = new Map<string, { record: ActiveGenerationRecord; source: GenerationSource; cancelled: boolean; done: Promise<void> }>();
   private readonly settled = new Map<string, Settled>();
 
   constructor(
@@ -195,9 +195,19 @@ export class GenerationRunner implements OnApplicationBootstrap {
   }
 
   private start(record: ActiveGenerationRecord, source: GenerationSource, resumePlatformTaskId?: string): void {
-    const job = { record, source, cancelled: false };
+    const job = { record, source, cancelled: false, done: Promise.resolve() };
     this.running.set(record.taskId, job);
-    void this.drive(job, resumePlatformTaskId);
+    job.done = this.drive(job, resumePlatformTaskId);
+  }
+
+  /**
+   * 等到终态再回查询结果（同步路由用）。调用方断开不影响任务：它照样在后台跑完、落到画布上。
+   * 取消的任务 drive 会提前返回，这里拿到的是取消的终态。
+   */
+  async waitFor(taskId: string): Promise<Record<string, unknown> | undefined> {
+    const job = this.running.get(taskId);
+    if (job) await job.done;
+    return this.query(taskId);
   }
 
   private async drive(job: { record: ActiveGenerationRecord; cancelled: boolean }, resumePlatformTaskId?: string): Promise<void> {

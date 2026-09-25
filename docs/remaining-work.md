@@ -44,7 +44,7 @@
 | M7 | gateway 生成（异步提交 / 查询、占位卡原地换成结果、重启续等）、编辑路由（ffmpeg、拼接、音频、媒体分析、文档读取、表格节点）、MCP server 重写（33 个工具） | gateway 126、mcp-tools 186、maas-media 129 |
 
 对齐程度：
-- gateway 路由 88 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
+- gateway 路由 93 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
 - MCP 工具 33 / 54，另外 21 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
 
 真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
@@ -163,7 +163,7 @@
    - `/api/speech/voices` 合并 `voice_map` 和本地音色表。
 3. **画布剩余路由**（M3 遗留）：file-node、plugin-data、split-sub-images、placeholder-group、nodes-group、revert-edits；视频和音频的缩略图要用 ffmpeg。
 4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节）：gateway 校验、主进程把身份给 opencode 和 MCP、插件和 MCP 的请求带头。错误码是我们定的，本机有参照时核对。
-5. **生成**：`/api/generate/text`，以及同步的 `/api/generate/image` 和 `/api/generate/video`（给画布弹层直接用）。
+5. ~~**生成**~~ 已完成：同步的 `/api/generate/{image,video,speech,music}` = 提交 + 等到终态，回和 `/api/generate/tasks/:id/query` 一样的形状，没标 `x-hilo-source` 时按画布算；`/api/generate/text` 走配置里的对话模型，认 `prompt`、`image_paths`、`system_prompt`，其余字段忽略。**两者的请求 / 响应形状都没和参照核对**，本机有参照时核对。
 6. **Skills 模块**：8 条路由，从 `crates/gateway/src/skills.rs` 移植并对齐官方形状。
 7. **飞书 / 微信**（官方放在主进程的 imBridge 通道）：从 `crates/gateway/src/{feishu,wechat}` 移植，35 个 Rust 测试一起移植。
 8. **主进程服务**，M5 里现在都是桩，按这个顺序补：desktopSettings、log、notification、trash / clipboard / skillExport、projectArchive、本地 projectAssets、dataDirectory、connectors、networkDiagnostics / assetCenter / 关窗确认。
