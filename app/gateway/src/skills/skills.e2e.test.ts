@@ -7,14 +7,11 @@ import { deflateRawSync } from "node:zlib";
 import type { INestApplication } from "@nestjs/common";
 import yaml from "js-yaml";
 import request from "supertest";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createApp } from "../bootstrap.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { skillStagingRoot } from "./skill-import.service.js";
-
-// Windows 的 CI 机器上文件读写慢（杀毒扫临时目录），解压、暂存这类用例会超过默认的 5 / 10 秒
-vi.setConfig({ testTimeout: 30_000, hookTimeout: 60_000 });
 
 /** 测试用的最小 zip：每个条目 deflate，Unix 权限写进外部属性。 */
 function makeZip(files: Record<string, string | { content: string; mode: number }>): Buffer {
@@ -412,7 +409,13 @@ describe("本地技能路由", () => {
       expect(readFileSync(path.join(user, "mine", "SKILL.md"), "utf8")).toContain("我自己的");
     });
 
-    it("导入的错误：没文件、类型不对、zip 里没有 SKILL.md、zip 坏了、名字非法", async () => {
+    // 纯 JS 解压失败后会退到系统工具：Windows 上是 PowerShell 的 Expand-Archive，启动就要十几秒
+    it("坏的 zip：两种解压都失败时回 extract_failed", { timeout: 90_000 }, async () => {
+      const r = await http.post("/api/skills/import").attach("file", Buffer.from("not a zip"), "bad.zip");
+      expect(r.body).toMatchObject({ ok: false, errorType: "extract_failed" });
+    });
+
+    it("导入的错误：没文件、类型不对、zip 里没有 SKILL.md、名字非法", async () => {
       let r = await http.post("/api/skills/import");
       expect(r.status).toBe(400);
       expect(r.body.message).toBe("file is required");
@@ -423,8 +426,6 @@ describe("本地技能路由", () => {
       expect(r.body).toEqual({ ok: false, errorType: "unsupported_type", error: "Only .zip and .md files are supported" });
       r = await http.post("/api/skills/import").attach("file", makeZip({ "readme.txt": "hi" }), "x.zip");
       expect(r.body).toEqual({ ok: false, errorType: "no_skill_md", error: "SKILL.md not found in zip file" });
-      r = await http.post("/api/skills/import").attach("file", Buffer.from("not a zip"), "bad.zip");
-      expect(r.body).toMatchObject({ ok: false, errorType: "extract_failed" });
       r = await http.post("/api/skills/import").attach("file", Buffer.from("---\nname: ../evil\n---\n"), "evil.md");
       expect(r.body).toEqual({ ok: false, errorType: "invalid_format", error: 'Invalid skill name: "../evil"', missingFields: ["name"] });
       r = await http.post("/api/skills/import").attach("file", Buffer.from("\n\n"), "skill.md");

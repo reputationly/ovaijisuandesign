@@ -129,7 +129,8 @@ export async function extractZipToDir(zip: Buffer, targetDir: string, label: str
   await writeFile(tmpZip, zip);
   try {
     if (platform() === "win32") {
-      await execFileAsync("powershell", ["-Command", `Expand-Archive -Path '${tmpZip}' -DestinationPath '${targetDir}' -Force`], { timeout: 30_000 });
+      // 不加载用户配置、不等交互：坏包时尽快失败，而不是挂到超时
+      await execFileAsync("powershell", ["-NoProfile", "-NonInteractive", "-Command", `Expand-Archive -Path '${tmpZip}' -DestinationPath '${targetDir}' -Force`], { timeout: 30_000 });
     } else {
       await execFileAsync("unzip", ["-o", tmpZip, "-d", targetDir], { timeout: 30_000 });
     }
