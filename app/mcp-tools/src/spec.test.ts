@@ -73,6 +73,30 @@ describe("tool surface", () => {
     }
   });
 
+  /**
+   * 真正加载的 agent 配置（assets/agent-profiles/v2/config/base.json）按 agent 列 `hub_*` 工具开关。
+   * 参照原文原样保留，里面有我们没注册的工具；那些必须在 UNSUPPORTED 里有说明，
+   * 否则就是 agent 以为能调、实际没有的工具。通配符至少要命中一个已知工具。
+   */
+  it("every hub_* tool named in the shipped agent profile is registered or listed as unsupported", () => {
+    const base = JSON.parse(readFileSync(path.join(repoRoot, "assets/agent-profiles/v2/config/base.json"), "utf8"));
+    const unsupported = new Set(UNSUPPORTED_TOOLS.map((t) => t.name));
+    const known = [...h.tools.keys(), ...unsupported];
+    const named = new Set<string>();
+    for (const agent of Object.values<{ tools?: Record<string, boolean> }>(base.agent ?? {})) {
+      for (const key of Object.keys(agent.tools ?? {})) if (key.startsWith("hub_") && key !== "hub_*") named.add(key.slice("hub_".length));
+    }
+    expect(named.size).toBeGreaterThan(20);
+    for (const name of named) {
+      if (name.endsWith("*")) {
+        const prefix = name.slice(0, -1);
+        expect(known.some((k) => k.startsWith(prefix)), `hub_${name}`).toBe(true);
+      } else {
+        expect(h.tools.has(name) || unsupported.has(name), `hub_${name}`).toBe(true);
+      }
+    }
+  });
+
   it("every tool has a non-trivial description", () => {
     for (const [name, collected] of h.registrar.collected()) {
       expect(collected.description.length, name).toBeGreaterThan(40);
