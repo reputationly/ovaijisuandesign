@@ -12,6 +12,7 @@ import {
   firstProblem,
   collectVendorParams,
   pickEnum,
+  pickInt,
   pickIntInRange,
   plainError,
   type Params,
@@ -27,6 +28,7 @@ import {
   IMAGE_RESOLUTION_OPTIONS,
   IMAGE_VENDOR_CONFIGS,
   IMAGE_VENDOR_ENUM,
+  MIDJOURNEY_MODEL_IDS,
   normalizePickerIds,
   pickerIdsByVendor,
   resolveModelId,
@@ -226,21 +228,29 @@ const DIMENSION_TOOLS = new Set(["hub_analyse_media", "analyse_media", "canvas_g
 const isRemote = (v: string) => /^https?:\/\//i.test(v);
 
 function batchStructureError(args: ImageArgs, count: number): string | undefined {
-  if (!args.prompt && !args.prompts) return "Missing prompt: give `prompt` for a single image, or `prompts[]` with one entry per output.";
-  if (!args.filename && !args.filenames) return "Missing filename: give `filename` for a single image, or `filenames[]` with one entry per output.";
+  if (!args.prompt && !args.prompts) {
+    return "Image prompt contract violation: provide `prompt` for one artifact or `prompts[]` aligned with count.";
+  }
+  if (!args.filename && !args.filenames) {
+    return "Image filename contract violation: provide `filename` for one artifact or `filenames[]` aligned with count.";
+  }
   if (count <= 1) return undefined;
-  if (!args.prompts) return `count=${count} needs prompts[] with one brief per image; a single prompt only ever describes one image.`;
-  if (!args.filenames) return `count=${count} needs filenames[] with one name per image, so each result can be referred to.`;
+  if (!args.prompts) {
+    return `Image batch contract violation: count=${count} requires per-output prompts[]. A prompt is a single-artifact brief; batch cardinality belongs to count plus aligned prompts/filenames.`;
+  }
+  if (!args.filenames) {
+    return `Image batch contract violation: count=${count} requires per-output filenames[]. A batch call must make each produced artifact addressable without relying on implicit filename suffixes.`;
+  }
   return undefined;
 }
 
 function aspectRatioRequiredError(args: ImageArgs): string | undefined {
   const ratio = args.vendor_params?.aspect_ratio;
-  if (ratio === undefined || String(ratio).trim() === "") {
-    return "vendor_params.aspect_ratio is missing. If you do not know the frame the user wants, ask them (question tool); never guess it from prompt wording, a vendor default or the size of a reference image.";
+  if (ratio === undefined || ratio === null || String(ratio).trim() === "") {
+    return "Image generation vendor_params.aspect_ratio is required. Ask the user with question when the output frame is unknown; do not infer it from prompt text, vendor defaults, or reference image dimensions.";
   }
   if (String(ratio).toLowerCase() === "auto") {
-    return "vendor_params.aspect_ratio=auto is rejected; image generation needs a real ratio like 16:9, 9:16, 1:1, 4:3 or 3:4.";
+    return "Image generation requires a concrete vendor_params.aspect_ratio; auto is not allowed. Use an explicit supported ratio such as 16:9, 9:16, 1:1, 4:3, or 3:4.";
   }
   return undefined;
 }
@@ -251,12 +261,12 @@ async function evidenceDimensions(args: ImageArgs): Promise<{ width?: number; he
     if (isRemote(ev.file_path)) {
       return {
         error:
-          "aspect_ratio_evidence.file_path has to point at a file on disk; a web/CDN link cannot be measured as proof. Use the local path of the original attachment, or supply the width/height reported by hub_analyse_media metadata.",
+          "aspect_ratio_evidence.file_path must be a local path. CDN/HTTP URLs are not dimension evidence; keep the original local attachment path or pass width/height from hub_analyse_media metadata.",
       };
     }
     const p = await probeOneMedia(ev.file_path);
     if (!p.ok || !p.width || !p.height) {
-      return { error: `Measuring aspect_ratio_evidence.file_path=${ev.file_path} failed: ${p.error ?? "no width/height found"}.` };
+      return { error: `Could not verify aspect_ratio_evidence.file_path=${ev.file_path}: ${p.error ?? "missing width/height"}.` };
     }
     return { width: p.width, height: p.height, detail: `${ev.file_path} (${p.width}x${p.height})` };
   }
@@ -264,7 +274,7 @@ async function evidenceDimensions(args: ImageArgs): Promise<{ width?: number; he
     if (!ev.tool || !DIMENSION_TOOLS.has(ev.tool)) {
       return {
         error:
-          "Width/height given as proof for source_ref or canvas_source must also name the measuring tool (hub_analyse_media or canvas_get_node in the tool field); numbers without a source do not count.",
+          "aspect_ratio_evidence.width/height for source_ref or canvas_source must name tool=hub_analyse_media or tool=canvas_get_node. Width/height without a tool source is not evidence.",
       };
     }
     return { width: ev.width, height: ev.height, detail: `aspect_ratio_evidence.tool=${ev.tool} width=${ev.width} height=${ev.height}` };
@@ -289,7 +299,7 @@ export async function aspectRatioEvidenceError(
   if (!args.aspect_ratio_source) {
     return {
       error:
-        "Calls with image_paths must also say why the ratio was chosen via top-level aspect_ratio_source: explicit_user if the user picked it; source_ref or canvas_source only together with measured width/height; project_lock, platform_target or domain_default when that context decides the frame.",
+        "Ref-bearing image requests require top-level aspect_ratio_source in addition to vendor_params.aspect_ratio. Use explicit_user when the user named a ratio, source_ref/canvas_source only with width/height evidence, project_lock/platform_target/domain_default when that context intentionally owns framing.",
     };
   }
   if (!DIMENSION_SOURCES.has(args.aspect_ratio_source)) return undefined;
@@ -297,7 +307,7 @@ export async function aspectRatioEvidenceError(
   if (dims.error) return { error: dims.error };
   if (!dims.width || !dims.height) {
     return {
-      error: `aspect_ratio_source=${args.aspect_ratio_source} only works with a measured source size. Put width and height, or a local file_path measured by hub_analyse_media, into aspect_ratio_evidence; names, descriptions and CDN links are not measurements.`,
+      error: `aspect_ratio_source=${args.aspect_ratio_source} requires verifiable source dimensions. Provide aspect_ratio_evidence with width+height or a local file_path from hub_analyse_media metadata. Filenames, visual descriptions, and CDN URLs are not valid dimension evidence.`,
     };
   }
   const supported = IMAGE_ASPECT_RATIO_OPTIONS[args.vendor].filter((r) => r !== "" && r !== "auto");
@@ -307,12 +317,50 @@ export async function aspectRatioEvidenceError(
     error: [
       `vendor_params.aspect_ratio=${requested} conflicts with ${args.aspect_ratio_source} dimensions ${dims.width}x${dims.height}; nearest supported ratio for ${args.vendor} is ${expected}.`,
       dims.detail ? `Evidence: ${dims.detail}.` : "",
-      "Switch aspect_ratio_source to explicit_user only if the user really asked for another crop; otherwise match the source.",
+      "If the user explicitly requested a different output crop, set aspect_ratio_source=explicit_user; otherwise use the source ratio.",
     ]
       .filter(Boolean)
       .join(" "),
     errorCode: "image_aspect_ratio_conflict",
   };
+}
+
+/** midjourney 允许在 prompt 里写 --v / --ar 这类旗标，写错的在提交前拦下。 */
+function readPromptFlag(prompt: string, names: readonly string[]): { present: boolean; value?: string } {
+  const re = new RegExp(`(?:^|\\s)--(?:${names.join("|")})(?=$|[=\\s])(?:[=\\s]+(\\S+))?`, "i");
+  const m = prompt.match(re);
+  if (!m) return { present: false };
+  return { present: true, value: m[1] };
+}
+
+export function midjourneyPromptFlagError(prompt: string): string | undefined {
+  const scope = "image vendor=midjourney";
+  const ver = readPromptFlag(prompt, ["version", "v"]);
+  if (ver.present && ver.value !== undefined && !["8.2", "8.1", "7"].includes(ver.value)) {
+    return `${scope} prompt flag --v ${ver.value} is invalid. Supported versions: 8.2, 8.1, 7, or --niji 7. Prefer model_id over writing the flag.`;
+  }
+  const niji = readPromptFlag(prompt, ["niji"]);
+  if (niji.present && niji.value !== undefined && niji.value !== "7") {
+    return `${scope} prompt flag --niji ${niji.value} is invalid. Only --niji 7 is supported; select model_id=midjourney-niji7.`;
+  }
+  const ar = readPromptFlag(prompt, ["ar"]);
+  if (ar.present && (ar.value === undefined || !/^\d+:\d+$/.test(ar.value))) {
+    return `${scope} prompt flag --ar ${ar.value ?? ""} is malformed. Use W:H integers, e.g. --ar 16:9.`;
+  }
+  const ranges = [
+    { names: ["stylize"], label: "stylize", min: 0, max: 1000 },
+    { names: ["chaos", "c"], label: "chaos", min: 0, max: 100 },
+    { names: ["weird", "w"], label: "weird", min: 0, max: 3000 },
+  ];
+  for (const { names, label, min, max } of ranges) {
+    const flag = readPromptFlag(prompt, names);
+    if (!flag.present) continue;
+    const n = Number(flag.value);
+    if (flag.value === undefined || !Number.isInteger(n) || n < min || n > max) {
+      return `${scope} prompt flag --${label} ${flag.value ?? ""} is invalid. Use an integer ${min}..${max}.`;
+    }
+  }
+  return undefined;
 }
 
 const ALLOWED_VENDOR_PARAMS: Record<ImageVendor, readonly string[]> = {
@@ -322,15 +370,25 @@ const ALLOWED_VENDOR_PARAMS: Record<ImageVendor, readonly string[]> = {
   midjourney: ["aspect_ratio", "stylize", "chaos", "weird"],
 };
 
+const GPT_IMAGE_25_MODEL_IDS = new Set(["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]);
+
 /**
- * vendor_params → 提交体 params。只做白名单、缺省值和枚举大小写归一；
- * 逐模型的档位限制交给 gateway（它按自己的平台模型能力裁决）。
+ * vendor_params → 提交体 params：白名单、model_id 解析、缺省值、枚举归一，
+ * 以及提交前就能判定的逐模型档位限制（seedream 分辨率、gpt-image 质量 / 背景）。
  */
-export function imageParams(vendor: ImageVendor, modelId: string, vendorParams: Record<string, unknown> | undefined): { params?: Params; error?: string } {
+export function imageParams(
+  vendor: ImageVendor,
+  rawModelId: string,
+  vendorParams: Record<string, unknown> | undefined,
+  region: ReleaseRegion,
+): { modelId?: string; params?: Params; error?: string } {
   const scope = `image vendor=${vendor}`;
   const merged = collectVendorParams(scope, {}, vendorParams, ALLOWED_VENDOR_PARAMS[vendor]);
   if (merged.error !== undefined) return { error: merged.error };
   const params = merged.params;
+  const resolved = resolveModelId("image", IMAGE_VENDOR_CONFIGS[vendor], region, rawModelId, scope);
+  if (resolved.error !== undefined) return { error: resolved.error };
+  const modelId = resolved.modelId;
   const ratios = IMAGE_ASPECT_RATIO_OPTIONS[vendor];
   const resolutions = IMAGE_RESOLUTION_OPTIONS[vendor] ?? [];
   let error: string | undefined;
@@ -345,19 +403,31 @@ export function imageParams(vendor: ImageVendor, modelId: string, vendorParams: 
       params.model_name = modelId;
       fillDefaults(params, { aspect_ratio: "1:1", resolution: "2k" });
       error = firstProblem(pickEnum(scope, params, "aspect_ratio", ratios), pickEnum(scope, params, "resolution", resolutions));
+      if (!error && modelId === "doubao-seedream-5-0-pro-260628" && params.resolution === "4k") {
+        error = `${scope} resolution=4k not supported by model_id=${modelId}; use 1k or 2k.`;
+      }
+      if (!error && modelId === "doubao-seedream-4-5-251128" && params.resolution === "1k") {
+        error = `${scope} resolution=1k not supported by model_id=${modelId}; use 2k or 4k.`;
+      }
       break;
-    case "gpt-image":
+    case "gpt-image": {
       params.model_name = modelId;
       // n 固定 1：批量走 count，每个 prompt 一张，计费和落位才能一一对应
       fillDefaults(params, { aspect_ratio: "1:1", resolution: "1k", quality: "medium", n: "1" });
+      const is25 = GPT_IMAGE_25_MODEL_IDS.has(modelId);
       error = firstProblem(
         pickEnum(scope, params, "aspect_ratio", ratios),
         pickEnum(scope, params, "resolution", resolutions),
-        pickEnum(scope, params, "quality", ["low", "medium", "high", "xhigh", "max"]),
-        pickEnum(scope, params, "background", ["auto", "transparent", "opaque"]),
+        pickEnum(scope, params, "quality", is25 ? ["low", "medium", "high", "xhigh", "max"] : ["low", "medium", "high"]),
+        pickEnum(scope, params, "background", is25 ? ["auto", "transparent", "opaque"] : ["auto"]),
+        pickInt(scope, params, "n", [1, 2, 3, 4]),
       );
       break;
+    }
     case "midjourney":
+      if (!(MIDJOURNEY_MODEL_IDS as readonly string[]).includes(modelId)) {
+        return { error: `${scope} unsupported model_id=${modelId}. Supported values: ${MIDJOURNEY_MODEL_IDS.join(", ")}.` };
+      }
       error = firstProblem(
         pickEnum(scope, params, "aspect_ratio", ratios),
         pickIntInRange(scope, params, "stylize", 0, 1000),
@@ -366,7 +436,7 @@ export function imageParams(vendor: ImageVendor, modelId: string, vendorParams: 
       );
       break;
   }
-  return error ? { error } : { params };
+  return error ? { error } : { modelId, params };
 }
 
 // ── 结果 ──
@@ -400,7 +470,6 @@ export function batchResult(results: PromiseSettledResult<GenerateResponse>[]) {
       ok: false,
       error: r.error,
       error_code: r.error_code,
-      ...(r.user_message ? { user_message: r.user_message } : {}),
       ...(r.failure_presentation ? { failure_presentation: r.failure_presentation } : {}),
       ...(r.recovery_handle ? { recovery_handle: r.recovery_handle } : {}),
       ...(r.billing ? { billing: r.billing } : {}),
@@ -468,10 +537,10 @@ export const registerGenerateImage: RegisterTools = (registrar, gw, region) => {
 
       const selected = await selectedModelsForSession(gw, `category=image vendor=${args.vendor}`);
       const selectedIds = selected?.image ? normalizePickerIds("image", config, region, selected.image) : undefined;
-      const resolved = resolveModelId("image", config, region, args.model_id ?? defaultModelForSelection(config, selectedIds), `image vendor=${args.vendor}`);
-      if (resolved.error !== undefined) return plainError(resolved.error);
-      const modelId = resolved.modelId;
-      const pickerError = pickerSelectionError("image", args.vendor, modelId, pickerIds, canonicalIds, selectedIds);
+      const rawModelId = args.model_id ?? defaultModelForSelection(config, selectedIds);
+      // 守卫比较 canonical id：别名（banana_pro 等）先归一；解析不了的留给下面的参数校验报错
+      const guardModelId = resolveModelId("image", config, region, rawModelId, `image vendor=${args.vendor}`).modelId ?? rawModelId;
+      const pickerError = pickerSelectionError("image", args.vendor, guardModelId, pickerIds, canonicalIds, selectedIds);
       if (pickerError) return plainError(pickerError);
 
       const count = args.count ?? 1;
@@ -484,22 +553,30 @@ export const registerGenerateImage: RegisterTools = (registrar, gw, region) => {
       const mismatch = detectSlotMismatch(args.image_paths, "image");
       if (mismatch) {
         return plainError(
-          `image_paths got "${mismatch.offender}", which appears to be a ${mismatch.detected} file. Only still images can serve as references here; take a frame from the clip and pass that.`,
+          `image_paths expects image files, but received "${mismatch.offender}" which looks like a ${mismatch.detected} file. generate_image only accepts images as references; extract a frame first (e.g. hub_edit_media) and pass that image instead.`,
         );
       }
 
-      if ((args.image_paths?.length ?? 0) > 0) {
+      const prompts = args.prompts ?? Array.from({ length: count }, () => args.prompt ?? "");
+      if (args.vendor === "midjourney") {
+        for (const p of prompts) {
+          const flagError = midjourneyPromptFlagError(p);
+          if (flagError) return plainError(flagError);
+        }
+      }
+
+      if ((args.image_paths?.length ?? 0) > 0 && args.vendor_params.aspect_ratio) {
         const failure = await aspectRatioEvidenceError(args, String(args.vendor_params.aspect_ratio));
         if (failure) {
           return failure.errorCode ? generationErrorReply({ error: failure.error, error_code: failure.errorCode }) : plainError(failure.error);
         }
       }
 
-      const built = imageParams(args.vendor, modelId, args.vendor_params);
-      if (built.error || !built.params) return plainError(built.error ?? "Internal: image params builder returned nothing");
-      const params = built.params;
+      const built = imageParams(args.vendor, rawModelId, args.vendor_params, region);
+      if (built.error !== undefined) return plainError(built.error);
+      if (!built.modelId || !built.params) return plainError("Internal: image param builder returned no model_id");
+      const { modelId, params } = built;
 
-      const prompts = args.prompts ?? Array.from({ length: count }, () => args.prompt ?? "");
       const filenames = args.filenames ?? Array.from({ length: count }, () => args.filename ?? "");
       const orders = args.orders ?? Array.from({ length: count }, () => args.order);
       try {

@@ -161,16 +161,38 @@ const DESCRIPTION = "Generate one video via the configured vendor + mode combo.\
 function misplacedParamsError(raw: Record<string, unknown>): string | undefined {
   const misplaced = MISPLACED_KEYS.filter((k) => k in raw);
   if (misplaced.length === 0) return undefined;
-  return `Nothing was submitted: ${misplaced.map((k) => `\`${k}\``).join(", ")} sit at the top level but are vendor settings. Put them inside vendor_params as ${misplaced
-    .map((k) => `\`vendor_params.${k}\``)
-    .join(", ")}.`;
+  // seedance 只从 vendor_params 读这些键，放错了会被静默丢掉、退回自适应比例，所以多给一句
+  const seedanceHint =
+    raw.vendor === "seedance" && ["ratio", "aspect_ratio", "resolution", "generate_audio", "output_format"].some((k) => misplaced.includes(k))
+      ? " Seedance reads these only from `vendor_params`; misplaced top-level values are not forwarded and older runtimes can fall back to an adaptive aspect ratio."
+      : "";
+  const targets = misplaced.map((k) => (k === "ratio" ? "vendor_params.aspect_ratio" : `vendor_params.${k}`));
+  return [
+    `Video vendor parameters must be nested under \`vendor_params\`; received top-level ${misplaced.map((k) => `\`${k}\``).join(", ")}.`,
+    `Move them to ${targets.map((t) => `\`${t}\``).join(", ")}.`,
+    `${seedanceHint} Generation was not submitted.`,
+  ]
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function frameReferenceConflict(args: VideoArgs): string | undefined {
   if (!args.first_frame_image && !args.last_frame_image) return undefined;
   const fields = (["reference_image_paths", "reference_video_urls", "reference_audio_urls"] as const).filter((f) => (args[f]?.length ?? 0) > 0);
   if (fields.length === 0) return undefined;
-  return `Keyframes (first_frame_image / last_frame_image) and ${fields.join(", ")} are mutually exclusive. Either keep the frames and drop the references, or drop the frames and use a mode that takes references.`;
+  return `\`first_frame_image\`/\`last_frame_image\` cannot be combined with reference media fields: ${fields.map((f) => `\`${f}\``).join(", ")}. Remove the reference media when using explicit keyframes, or remove the frame inputs and use a reference-media mode.`;
+}
+
+/** seedance 的真人拦截要让 agent 知道别自己去注册私有素材；其余错误统一带 `Error: ` 前缀。 */
+function rewriteSeedanceError(raw: string): string {
+  if (!raw.includes("may contain real person")) return `Error: ${raw}`;
+  return [
+    "Error: Seedance 2.0 rejected a real-person image after gateway handling.",
+    "Do not perform MCP-side avatar registration; private-asset retry is owned by the gateway Seedance backend.",
+    "Revise the source media or prompt, or report the upstream rejection with the original error.",
+    `Original error: ${raw}`,
+  ].join(" ");
 }
 
 /** 回给 agent 的实际生效参数（字符串值、不含 order），便于它复述或复用。 */
@@ -200,7 +222,10 @@ export const registerGenerateVideo: RegisterTools = (registrar, gw, region) => {
       if (conflict) return plainError(conflict);
       const slot = scalarSlotMismatch(args);
       if (slot) {
-        const hint = slot.expected === "image" ? "This slot needs a still image; grab a frame from the video first if that is all you have." : "This slot needs a video file or link; a still image cannot drive the motion.";
+        const hint =
+          slot.expected === "image"
+            ? "Pass an image frame here; extract one with hub_edit_media if you only have a video."
+            : "Pass a video path/URL here; an image cannot be used as the source video.";
         return plainError(`${slot.field} expects ${slot.expected} files, but received "${slot.offender}" which looks like a ${slot.detected} file. ${hint}`);
       }
 
@@ -221,7 +246,10 @@ export const registerGenerateVideo: RegisterTools = (registrar, gw, region) => {
 
       try {
         const r = await runAsync(gw, "video", body);
-        if (!r.ok) return generationErrorReply({ ...r, error: `Error (${args.vendor}:${args.mode}): ${r.error}` });
+        if (!r.ok) {
+          const msg = args.vendor === "seedance" ? rewriteSeedanceError(r.error) : r.error;
+          return generationErrorReply({ ...r, error: `Error (${args.vendor}:${args.mode}): ${msg}` });
+        }
         const eff = effectiveParams(body.params);
         return structuredReply({
           ok: true,
@@ -231,7 +259,9 @@ export const registerGenerateVideo: RegisterTools = (registrar, gw, region) => {
           ...(eff ? { effective_params: eff } : {}),
         });
       } catch (err) {
-        return generationUnknownReply(`Error (${args.vendor}:${args.mode}): ${err instanceof Error ? err.message : String(err)}`);
+        const raw = err instanceof Error ? err.message : String(err);
+        const msg = args.vendor === "seedance" ? rewriteSeedanceError(raw) : raw;
+        return generationUnknownReply(`Error (${args.vendor}:${args.mode}): ${msg}`);
       }
     },
   );

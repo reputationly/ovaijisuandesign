@@ -38,7 +38,7 @@ describe("video submit body", () => {
   });
 
   it("seedance t2v requires a fixed aspect ratio", async () => {
-    expect((await buildVideoBody(v({}), "domestic")).error).toMatch(/fixed vendor_params.aspect_ratio/);
+    expect((await buildVideoBody(v({}), "domestic")).error).toMatch(/requires vendor_params.aspect_ratio. The adaptive aspect ratio is disabled for Seedance generation/);
   });
 
   it("H3 i2v forces adaptive and uses frame image_mode", async () => {
@@ -63,7 +63,7 @@ describe("video submit body", () => {
   });
 
   it("rejects unsupported modes", async () => {
-    expect((await buildVideoBody(v({ vendor: "veo3", mode: "multimodal" }), "domestic")).error).toMatch(/has no mode=multimodal/);
+    expect((await buildVideoBody(v({ vendor: "veo3", mode: "multimodal" }), "domestic")).error).toBe("veo3 does not support mode=multimodal. Supported modes: t2v, i2v, first-last-frame.");
   });
 });
 
@@ -96,7 +96,7 @@ describe("generate_video tool", () => {
   it("rejects vendor knobs at the top level", async () => {
     const r = await h.call("generate_video", { vendor: "seedance", mode: "t2v", prompt: "p", filename: "f", aspect_ratio: "16:9" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toMatch(/are vendor settings/);
+    expect(resultText(r)).toMatch(/^Video vendor parameters must be nested under `vendor_params`/);
   });
 
   it("rejects keyframes combined with reference media", async () => {
@@ -108,6 +108,6 @@ describe("generate_video tool", () => {
       first_frame_image: "a.png",
       reference_image_paths: ["b.png"],
     });
-    expect(resultText(r)).toMatch(/mutually exclusive/);
+    expect(resultText(r)).toMatch(/cannot be combined with reference media fields/);
   });
 });

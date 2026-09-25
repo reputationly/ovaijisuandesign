@@ -93,6 +93,6 @@ describe("get_model_concurrency", () => {
   it("reports gateway failure as an error", async () => {
     const r = await h.call("get_model_concurrency", { models: ["x"] });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toMatch(/concurrency lookup failed/);
+    expect(resultText(r)).toMatch(/^Error: failed to query model concurrency: /);
   });
 });

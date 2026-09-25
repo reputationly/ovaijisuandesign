@@ -54,8 +54,7 @@ export function requireBillingScope(operation: string): void {
   const store = storage.getStore();
   if (store?.groupId || store?.groupScope === "legacy") return;
   throw new Error(
-    `REQUEST_GROUP_UNAVAILABLE: ${operation} was not submitted because no billing Group is known for this turn ` +
-      `(scope=${store?.groupScope ?? "absent"}). Try once more; a repeat means the local gateway cannot resolve ` +
-      `the Group for the current turn.`,
+    `REQUEST_GROUP_UNAVAILABLE: refusing to submit ${operation} without a request/billing Group (scope=${store?.groupScope ?? "absent"}). ` +
+      "Retry the request; if it persists, the local gateway could not resolve the current turn Group.",
   );
 }
