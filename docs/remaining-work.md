@@ -47,7 +47,7 @@
 | P2 第一批 | 图片超分、工作区身份校验（gateway + 插件 + MCP）、同步生成和 `/api/generate/text`、画布剩余 7 条路由、视频 / 音频缩略图、资产对账和找不到文件的三个入口、`agent_running`；顺带修了生成轮询的竞态、`/api/canvas` 和 `/api/files/content` 的 body 上限 | gateway 152、assets 38、mcp-tools 187、desktop 344、maas-media 130、插件 11 |
 
 对齐程度：
-- gateway 路由 105 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
+- gateway 路由 107 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
 - MCP 工具 33 / 54，另外 21 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
 
 真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
@@ -162,9 +162,7 @@
 ### P2 gateway 与后端补齐（适合云上）
 
 1. ~~**图片超分** `POST /api/edit/super-resolution`~~ 已完成：同步，按源图实际像素（含 EXIF 方向）算 `size`，产物登记后从源节点连边；旧界面的「高清增强」已改接它。请求体 `{image_path, resolution?: 1K|2K|4K, filename?, source_node_id?, replace_node_id?, preserve_source_canvas_node?}` 是按其他编辑路由的约定定的，**本机有参照时要去 `gateway/dist/main.js` 核对字段名**。
-2. **语音**：
-   - 按零样本克隆的方式实现 `POST /api/speech/voice_clone` / `voice_design`：把参考音频登记进本地音色表（工作区或应用级），语音合成时查这张表。
-   - `/api/speech/voices` 合并 `voice_map` 和本地音色表。
+2. ~~**语音**~~ 已完成：`voice_clone` 把参考音频登记进应用级音色表 `<HILO_DATA_DIR 或 ~/.ovhub>/voices/`，发 `hub_<uuid>`，合成时查表换回参考音频（零样本）；有 `demo_text` 时用配置的语音模型合成试听。平台没有音色设计模型，`voice_design` 校验参数后回 501。`/api/speech/voices` = `voice_map` + 本机音色表。和参照的差异见 `parity-gaps.md` 第三节「语音」。
 3. ~~**画布剩余路由**~~ 已完成，CanvasController 26/26（按 `docs/contracts-canvas.md`）。视频 / 音频缩略图 `/api/thumbnail/{*filepath}` 也已按 `docs/contracts-files.md` 做完。插件存储的限额超了回 400，文案是我们写的；comfyui 草稿的大限额没做（ComfyUI 不在范围内）。
 4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节）：gateway 校验、主进程把身份给 opencode 和 MCP、插件和 MCP 的请求带头。错误码是我们定的，本机有参照时核对。
 5. ~~**生成**~~ 已完成：同步的 `/api/generate/{image,video,speech,music}` = 提交 + 等到终态，回和 `/api/generate/tasks/:id/query` 一样的形状，没标 `x-hilo-source` 时按画布算；`/api/generate/text` 走配置里的对话模型，认 `prompt`、`image_paths`、`system_prompt`，其余字段忽略。**两者的请求 / 响应形状都没和参照核对**，本机有参照时核对。

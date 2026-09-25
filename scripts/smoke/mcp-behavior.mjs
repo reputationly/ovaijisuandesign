@@ -2,15 +2,17 @@
 // 两边各起一个 gateway（各自的临时工作区、同一个假平台），场景里的准备步骤两边都做一遍，互不串。
 //
 //   node scripts/smoke/mcp-behavior.mjs scripts/smoke/mcp-scenarios/*.json [--only 名字片段] [--show]
+//   （--show 把每个场景两边的结果都打出来，一致的也打）
 //
 // 场景文件是数组，每项：
 //   { "name": "…", "tool": "canvas_read_text", "args": {…},
 //     "files": { "a.md": "内容", "b.png": "@png" },   // 可选：先写进工作区（@png 是一张 1x1 PNG）
 //     "before": [{ "tool": "canvas_write_node", "args": {…}, "save": "node" }],  // 可选：先调的工具；save 把结果里的 nodeId 存成变量
 //     "env": { "HILO_KNOWLEDGE_DIR": "{ws}/kb" },       // 可选：给 MCP 进程加的环境变量，{ws} 换成该侧工作区
+//     "models": { "speech": "indextts-2.5" },           // 可选：并进 gateway 配置的 models（默认只配了出图和视频）
 //     "allow": "说明"                                    // 可选：已知且有意的差异，只报告不算失败
 //   }
-// args 里的 "$node" 这类字符串会换成 before 里存下的值。
+// args 里的 "$node" 这类字符串会换成 before 里存下的值（节点 id、计划 id，或 voice_prepare 回的第一个 voice_id）。
 // 先构建 gateway 和 mcp-tools。有未说明的差异时以 1 退出。
 import { spawn } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -27,7 +29,9 @@ const files = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1] !== "--on
 const scenarios = files.flatMap((f) => JSON.parse(readFileSync(f, "utf8")).map((s) => ({ ...s, file: path.basename(f) })));
 const PNG = Buffer.from("89504e470d0a1a0a0000000d4948445200000001000000010806000000" + "1f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082", "hex");
 
-// 假平台：对话回固定文字，出图 / 视频直接成功。
+const MP3 = Buffer.concat([Buffer.from("ID3"), Buffer.alloc(61)]);
+
+// 假平台：对话回固定文字，出图 / 视频 / 语音直接成功。
 const platform = createServer((req, res) => {
   let raw = "";
   req.on("data", (c) => (raw += c));
@@ -36,8 +40,22 @@ const platform = createServer((req, res) => {
     res.setHeader("content-type", "application/json");
     if (req.url === "/v1/chat/completions") return res.end(JSON.stringify({ choices: [{ message: { role: "assistant", content: "ok" }, finish_reason: "stop" }] }));
     if (req.url === "/v1/images/generations" || req.url === "/v1/images/edits") return res.end(JSON.stringify({ data: [{ url: `${host}/f/out.png` }] }));
-    if (req.url === "/v1/videos" && req.method === "POST") return res.end(JSON.stringify({ task_id: "vt-1" }));
+    if (req.url === "/v1/videos" && req.method === "POST") {
+      const tts = (() => {
+        try {
+          return JSON.parse(raw).metadata?.task_type === "tts";
+        } catch {
+          return false;
+        }
+      })();
+      return res.end(JSON.stringify({ task_id: tts ? "tts-1" : "vt-1" }));
+    }
+    if (req.url === "/v1/videos/tts-1") return res.end(JSON.stringify({ status: "completed", metadata: { url: `${host}/f/out.mp3` } }));
     if (req.url?.startsWith("/v1/videos/")) return res.end(JSON.stringify({ status: "completed", metadata: { url: `${host}/f/out.png` } }));
+    if (req.url === "/f/out.mp3") {
+      res.setHeader("content-type", "audio/mpeg");
+      return res.end(MP3);
+    }
     if (req.url === "/f/out.png") {
       res.setHeader("content-type", "image/png");
       return res.end(PNG);
@@ -49,13 +67,14 @@ const platform = createServer((req, res) => {
 await new Promise((r) => platform.listen(0, "127.0.0.1", r));
 const platformBase = `http://127.0.0.1:${platform.address().port}`;
 
-async function startSide(entry, extraEnv = {}) {
+async function startSide(entry, extraEnv = {}, models = {}) {
   const ws = mkdtempSync(path.join(tmpdir(), "ov-mcp-behavior-"));
   const cfg = path.join(mkdtempSync(path.join(tmpdir(), "ov-mcp-behavior-cfg-")), "config.json");
-  writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${platformBase}/v1`, api_key: "k", chat_model: "chat" }, models: { image: "qwen-image-pro", image_edit: "qwen-image-pro", video: "minimax-h3-fl2va" } }));
+  writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${platformBase}/v1`, api_key: "k", chat_model: "chat" }, models: { image: "qwen-image-pro", image_edit: "qwen-image-pro", video: "minimax-h3-fl2va", ...models } }));
   const port = 20000 + Math.floor(Math.random() * 5000);
   const gw = spawn(process.execPath, [path.join(repo, "app/gateway/dist/main.js")], {
-    env: { ...process.env, PORT: String(port), HILO_GATEWAY_ROLE: "workspace", WORKSPACE_DIR: ws, OV_CONFIG_PATH: cfg },
+    // HILO_DATA_DIR 必须给：克隆的音色表是应用级的，不给就写进本机真实的 ~/.ovhub。
+    env: { ...process.env, PORT: String(port), HILO_GATEWAY_ROLE: "workspace", WORKSPACE_DIR: ws, OV_CONFIG_PATH: cfg, HILO_DATA_DIR: path.join(ws, ".data") },
     stdio: "ignore",
   });
   const base = `http://127.0.0.1:${port}`;
@@ -136,7 +155,7 @@ async function runOn(side, sc) {
         sc2 = {};
       }
     }
-    if (b.save) vars[b.save] = sc2.nodeId ?? sc2.results?.[0]?.nodeId ?? sc2.node_id ?? sc2.plan_id;
+    if (b.save) vars[b.save] = sc2.nodeId ?? sc2.results?.[0]?.nodeId ?? sc2.node_id ?? sc2.plan_id ?? sc2.results?.[0]?.voice_id;
   }
   const r = await side.rpc("tools/call", { name: sc.tool, arguments: subst(sc.args ?? {}, vars) });
   const res = r.result ?? { rpcError: r.error };
@@ -148,8 +167,8 @@ let allowed = 0;
 let same = 0;
 for (const sc of scenarios) {
   if (only && !`${sc.file} ${sc.tool} ${sc.name}`.includes(only)) continue;
-  const ref = await startSide(path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js"), sc.env);
-  const ours = await startSide(path.join(repo, "app/mcp-tools/dist/main.js"), sc.env);
+  const ref = await startSide(path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js"), sc.env, sc.models);
+  const ours = await startSide(path.join(repo, "app/mcp-tools/dist/main.js"), sc.env, sc.models);
   let a;
   let b;
   try {
@@ -164,7 +183,7 @@ for (const sc of scenarios) {
   else bad++;
   const tag = eq ? "SAME " : sc.allow ? "ALLOW" : "DIFF ";
   console.log(`${tag} ${sc.tool} :: ${sc.name}${!eq && sc.allow ? `  (${sc.allow})` : ""}`);
-  if (!eq && (show || !sc.allow)) {
+  if (show || (!eq && !sc.allow)) {
     console.log("  ref :", JSON.stringify(a).slice(0, 1500));
     console.log("  ours:", JSON.stringify(b).slice(0, 1500));
   }

@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import os from "node:os";
 import path from "node:path";
 
 import { identityFromEnv } from "../common/workspace-identity.js";
@@ -28,6 +29,11 @@ export class GatewayConfig {
   /** 主进程的 HTTP bridge（移到废纸篓等只有主进程能做的事）。 */
   readonly mainBridgeUrl = process.env.HILO_MAIN_BRIDGE_URL;
   readonly mainBridgeToken = process.env.HILO_MAIN_BRIDGE_TOKEN;
+  /**
+   * 应用级数据根（克隆音色等跨工作区的东西放这里），和主进程的 `hubRoot` 同一套规则。
+   * 不能落在工作区里：同一个音色在别的工作区也要能用。
+   */
+  readonly hubDir = path.resolve(process.env.HILO_DATA_DIR?.trim() || path.join(os.homedir(), ".ovhub"));
   /** 主进程发的工作区身份；独立启动时没有，校验整个不生效。 */
   readonly workspaceIdentity = identityFromEnv(process.env);
 }

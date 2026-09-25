@@ -13,9 +13,10 @@ import { OperationsModule } from "./operations/operations.module.js";
 import { PlanModule } from "./plan/plan.module.js";
 import { RuntimeModule } from "./runtime/runtime.module.js";
 import { SafetyModule } from "./safety/safety.module.js";
+import { SpeechModule } from "./speech/speech.module.js";
 
 /**
  * 根模块。模块按里程碑逐个补。
  */
-@Module({ imports: [CommonModule, HealthModule, OperationsModule, FilesModule, CanvasModule, SafetyModule, RuntimeModule, ChatModule, GenerateModule, EditModule, PlanModule, FeedbackExtractorModule, AssetPreviewModule] })
+@Module({ imports: [CommonModule, HealthModule, OperationsModule, FilesModule, CanvasModule, SafetyModule, RuntimeModule, ChatModule, GenerateModule, SpeechModule, EditModule, PlanModule, FeedbackExtractorModule, AssetPreviewModule] })
 export class AppModule {}

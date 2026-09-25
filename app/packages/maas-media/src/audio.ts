@@ -12,6 +12,7 @@ import { enhanceMusicCaption } from "./caption.js";
 import type { Client } from "./client.js";
 import { type MediaConfig, MusicEngine, resolveMusicEngine } from "./config.js";
 import { PlatformError } from "./error.js";
+import { loadMediaInputs } from "./image.js";
 import { Modality, route } from "./route.js";
 import { charCount } from "./text.js";
 import { submitAndPoll } from "./video.js";
@@ -49,7 +50,12 @@ export async function synthesizeSpeech(
       `音色 ${voiceId} 没有配置映射：在 voice_map 里为它指定一段参考音频`,
     );
   }
-  const reference = cfg.models.voice_map[voiceId];
+  // 配置允许写本地绝对路径（克隆登记的音色也是本机文件），平台只认 URL / base64，
+  // 原样发出去会被当成"缺参考音色"拒掉。
+  const [reference] = await loadMediaInputs("", [cfg.models.voice_map[voiceId] ?? ""]);
+  if (reference === undefined) {
+    throw PlatformError.config(`音色 ${voiceId} 的参考音频是空的：在 voice_map 里为它指定一段参考音频`);
+  }
 
   const metadata: Record<string, unknown> = {};
   metadata.task_type = "tts";

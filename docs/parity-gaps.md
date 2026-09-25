@@ -87,7 +87,7 @@
 
 ## 三、gateway
 
-路由 105 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 107 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
@@ -95,7 +95,7 @@
 |---|---|---|
 | FilesController | 19/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
 | EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
-| SpeechController | 3/6 | voice_clone、voice_design、voice_isolation |
+| SpeechController | 5/6 | voice_isolation（人声提取，平台没有） |
 | MusicController | 2/4 | 翻唱预处理、歌词生成 |
 | InternalSessionController | 11/15 | 其余内部会话接口 |
 | AssetPreviewController / PlanController / ChatAttachmentCdnController | 1/3、1/3、1/2 | 预览、计划读写、附件 CDN |
@@ -145,7 +145,7 @@
 | 多图输出 | 一次 N 张合成一个多图节点 | 不支持（我们的平台一次一张） |
 | 原地替换已有节点 | 被替换的旧版本留一个隐藏节点 | 不留 |
 | 占位卡的重试信息 | `retryPayload` 按媒体类型构造，加上 `popoverDraft` | `retryPayload` 是 `{mediaType, request}`，没有 `popoverDraft` |
-| 音色 | 云端音色库，支持克隆和设计 | 只有配置里 `voice_map` 的几个参考音频 |
+| 音色 | 云端音色库，支持克隆和设计 | 配置里 `voice_map` 的参考音频 + 本机克隆的音色；没有预设音色和设计，见下面「语音」 |
 
 编辑路由：
 
@@ -162,6 +162,25 @@
 | file-node 复用 | 只改形状 | 改形状，另外和 media-node 一样补来源边 |
 | 资产对账（reconcile） | 细节未核对 | 认亲规则：同 inode，或唯一一个 (size, 快速指纹) 相同；多个相同只记候选。丢失比例检查只在记录 ≥10 条时生效。`evicted` 恒为 0（不自动清掉丢失的记录）。merge / locate / remove-missing 另发 `assets:changed` |
 | 插件存储超限 | 未核对 | 400，文案我们写的；没有 comfyui 草稿的大限额 |
+
+语音（`/api/speech/*`）：
+
+平台的语音模型（indextts-2.5）是零样本的：音色就是一段参考音频，没有预设音色、没有训练式克隆，也没有从文字描述生成声音的模型。所以克隆在本机做完，设计回不可用。
+
+| 项 | 参照 | 我们 |
+|---|---|---|
+| 克隆出的音色存哪 | 上游账号上，跨设备可用 | 应用级的本机音色表 `<HILO_DATA_DIR 或 ~/.ovhub>/voices/<voice_id>/`（`meta.json` + `reference.<ext>`），各工作区共用；换机器不跟着走 |
+| 克隆做了什么 | 参考音频转 base64 发上游，上游训练并回 voice_id | 同样的预检（缺文件 / 超 20MB / 不是 mp3/m4a/wav，文案一致）后，把参考音频拷进音色表、发一个 `hub_<uuid>`；合成时按 id 换回这段音频，以 data URI 走平台的 `metadata.voice` |
+| `prompt_audio_path` + `prompt_text` | 发上游提升相似度 | 只做同样的预检，不用（零样本合成只吃一段参考音频） |
+| `need_noise_reduction` / `need_volume_normalization` / `aigc_watermark` | 上游处理 | 只收不用，参考音频原样登记 |
+| 试听（`demo_text`） | 上游用 `demo_model` 合成 | 用配置里的语音模型合成（`demo_model` 只收不用），落到工作区根目录 `voice-clone-demo-<voice_id>.<ext>`，回绝对路径；试听合成失败整个克隆失败，音色表不留条目。两边都不登记资产、不上画布（参照的登记分支走不到） |
+| 风控 | 回 `input_sensitive_type` | 没有风控，不回这个字段 |
+| 没配语音模型 / 平台失败 | 上游错误：`{statusCode: 上游状态, message: 上游原文}` | 同样的形状：没配语音模型 503、配置读不了 503、平台失败 502 |
+| 音色设计 | 上游按描述生成音色，回 `voice_id` + 试听；有 `source_node_id` 时挂占位卡 | 参数照样校验（`preview_text` ≤ 500 等），之后一律 501 `Voice design is not available: …`；不挂占位卡 |
+| 积分预检、按会话取消 | 有 | 没有（不做计费；克隆几乎不耗时） |
+| 相对路径猜错时按文件名在工作区里找 | 有（`resolveMedia` 的回退） | 没有：相对路径按工作区解析，越界 400 `Path traversal detected`；绝对路径照用 |
+| `/api/speech/voices` | 上游音色目录（分页拉全） | `voice_map` 在前、本机克隆音色在后（同名时 `voice_map` 优先）；克隆音色的 `name` 是参考音频文件名，`description` 是 `Cloned from: <文件名>`，语言 / 性别等为空，所以 `voice_prepare` 的按语言搜索搜不到它们，直接拿克隆回的 voice_id 合成（MCP 对 `hub_` 开头的 id 不查目录） |
+| 删除音色 | 没有接口 | 没有接口；手动删 `voices/<voice_id>/` 即可 |
 
 聊天：
 - 内容安全检查（`/api/safety/check-text`）一律放行。

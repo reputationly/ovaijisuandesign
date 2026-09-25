@@ -4,7 +4,7 @@ import type { Request } from "express";
 import { MediaConfigService } from "./media-config.service.js";
 import type { GenerationRequest, MediaType } from "./generation-request.js";
 import { type GenerationSource, GenerationRunner } from "./generation-runner.service.js";
-import { buildCatalog, voicesFrom } from "./model-catalog.js";
+import { buildCatalog } from "./model-catalog.js";
 
 /**
  * 异步生成：submit 立刻回 task_id，调用方拿它轮询 query。
@@ -140,11 +140,6 @@ export class GenerateController {
   listMentionModels() {
     const c = buildCatalog(this.media.load());
     return [...c.imageModels, ...c.videoModels, ...c.audioModels].map((m) => ({ id: m.id, name: m.display_name, mention_name: m.mention_name, type: m.type }));
-  }
-
-  @Get("api/speech/voices")
-  listVoices() {
-    return voicesFrom(this.media.load());
   }
 
   /** 平台没有公布并发上限，不给数字：给一个猜的上限会让 agent 按它排队或拒绝提交。 */
