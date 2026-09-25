@@ -181,9 +181,10 @@ describe("最近项目", () => {
       { path: "/b", openedAt: 2, manualOrder: 1, displayName: "乙" },
       { path: "/b/", openedAt: 3, manualOrder: 2, coverImage: "c.png" },
     ];
+    // 已有条目保留原来存的写法，只有新加的才规范化
     expect(recordRecentOpen(list, "/b", 10)).toEqual([
-      { path: P("/a"), openedAt: 1, manualOrder: 0 },
-      { path: P("/b"), openedAt: 10, manualOrder: 1, displayName: "乙", coverImage: "c.png" },
+      { path: "/a", openedAt: 1, manualOrder: 0 },
+      { path: "/b", openedAt: 10, manualOrder: 1, displayName: "乙", coverImage: "c.png" },
     ]);
     expect(recordRecentOpen(list, "/new", 11)[0]).toEqual({ path: P("/new"), openedAt: 11, manualOrder: 0 });
   });

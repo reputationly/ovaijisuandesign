@@ -285,12 +285,6 @@ describe("aggregateSpeech", () => {
 });
 
 describe("audio_meta", () => {
-  it("missing file is an error", async () => {
-    const r = await h.call("audio_meta", { audio_path: "/definitely/not/here.mp3" });
-    expect(r.isError).toBe(true);
-    expect(resultText(r)).toMatch(/^Error getting audio metadata: Error: Command failed: /);
-  });
-
   const hasFfprobe = (() => {
     try {
       execFileSync("ffprobe", ["-version"], { stdio: "ignore" });
@@ -299,6 +293,13 @@ describe("audio_meta", () => {
       return false;
     }
   })();
+
+  it("missing file is an error", async () => {
+    const r = await h.call("audio_meta", { audio_path: "/definitely/not/here.mp3" });
+    expect(r.isError).toBe(true);
+    // 没装 ffprobe 的机器上是 spawn 失败（ENOENT），装了才是 ffprobe 自己报的 Command failed
+    expect(resultText(r)).toMatch(hasFfprobe ? /^Error getting audio metadata: Error: Command failed: / : /^Error getting audio metadata: Error: spawn ffprobe/);
+  });
 
   it.skipIf(!hasFfprobe)("reads duration of a generated wav", async () => {
     const dir = mkdtempSync(path.join(tmpdir(), "audio-meta-"));
