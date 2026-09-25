@@ -126,8 +126,16 @@ async function runOn(side, sc) {
   const vars = {};
   for (const b of sc.before ?? []) {
     const r = await side.rpc("tools/call", { name: b.tool, arguments: subst(b.args ?? {}, vars) });
-    const sc2 = r.result?.structuredContent ?? JSON.parse(r.result?.content?.[0]?.text ?? "{}");
-    if (b.save) vars[b.save] = sc2.nodeId ?? sc2.results?.[0]?.nodeId ?? sc2.node_id;
+    // 准备步骤失败时返回的是纯文字，解析不了就当没拿到 id，交给正式调用去暴露差异
+    let sc2 = r.result?.structuredContent;
+    if (!sc2) {
+      try {
+        sc2 = JSON.parse(r.result?.content?.[0]?.text ?? "{}");
+      } catch {
+        sc2 = {};
+      }
+    }
+    if (b.save) vars[b.save] = sc2.nodeId ?? sc2.results?.[0]?.nodeId ?? sc2.node_id ?? sc2.plan_id;
   }
   const r = await side.rpc("tools/call", { name: sc.tool, arguments: subst(sc.args ?? {}, vars) });
   const res = r.result ?? { rpcError: r.error };
