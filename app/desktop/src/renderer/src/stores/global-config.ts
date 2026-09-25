@@ -43,9 +43,10 @@ export const DEFAULT_CONFIG: GlobalConfig = {
 }
 
 /** 读盘；坏数据整份丢弃回默认，不让一个手改坏的 JSON 卡死启动。 */
-export function readConfig(store: Pick<Storage, "getItem"> = localStorage): GlobalConfig {
+// 默认值取 globalThis 上的：Node 24 没有全局 localStorage，直接引用会在模块加载时抛错。
+export function readConfig(store: Pick<Storage, "getItem"> | undefined = globalThis.localStorage): GlobalConfig {
   try {
-    const raw = store.getItem(STORAGE_KEY)
+    const raw = store?.getItem(STORAGE_KEY)
     if (!raw) return { ...DEFAULT_CONFIG }
     const parsed = JSON.parse(raw) as Partial<GlobalConfig>
     return { ...DEFAULT_CONFIG, ...parsed }
