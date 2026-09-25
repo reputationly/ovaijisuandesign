@@ -33,7 +33,7 @@
 |---|---|
 | `replicate-official-stack` | 主线，已完成的都在这里 |
 | `ui-wave-1` | 界面第一波，做到一半，已基于最新主线，**未验证，别直接合** |
-| `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入 |
+| `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入，可以删 |
 | `main` | 旧的 Rust + Tauri 版本，M10 切换前不动 |
 
 ### 已完成
@@ -118,18 +118,20 @@
 - `assets/skills/`：参照的 36 个技能原文；
 - `reference/3.0.16/`：参照的全部可读原文。
 
+进度：1、2、3、5、6 已完成；**4 卡住**：`reference/3.0.16/` 下各个 `dist/` 被 `.gitignore` 的 `dist/` 规则吞掉了，gateway、mcp-tools、两个插件的原文都没进库（只进了 `package.json`）。规则已经修好，需要在本机 `git add reference/3.0.16` 重新提交一次。
+
 要做的：
-1. **加载 agent 配置。**`app/desktop/src/main/opencode/index.ts` 的 `locateProfile`：开发时读仓库的 `assets/agent-profiles/v2/config`，和发布包的 `agent-profiles/v2/config` 同一种单目录布局。去掉 `config/opencode-v2` + `.opencode-v2` 的双目录回退，`ProfileSource` 能简化就简化，`profile.ts` 顶部注释跟着改。
+1. ~~**加载 agent 配置。**~~`app/desktop/src/main/opencode/index.ts` 的 `locateProfile`：开发时读仓库的 `assets/agent-profiles/v2/config`，和发布包的 `agent-profiles/v2/config` 同一种单目录布局。去掉 `config/opencode-v2` + `.opencode-v2` 的双目录回退，`ProfileSource` 能简化就简化，`profile.ts` 顶部注释跟着改。
    - `knowledge/README.md` 如有 vendor 索引，把 `platform-routing.md` 加进去。
    - 核对 `plugins/session-header.ts` 在我们的 staging 下能加载（看它 import 了什么）。
-2. **工具白名单。**`base.json` 原样保留，里面有 21 个我们没注册的工具（见 `app/mcp-tools/src/tools/unsupported.ts`）。确认 opencode 对不存在的工具名不报错；加一个始终运行的测试：白名单里的每个 `hub_*` 要么已注册，要么在 unsupported 列表里。
-3. **铺技能。**桌面主进程启动时把自带技能（开发时是 `assets/skills`，发布包是 `resources/skills`）铺到 `~/.ovhub/skills/<slug>/`：
+2. ~~**工具白名单。**~~`base.json` 原样保留，里面有 21 个我们没注册的工具（见 `app/mcp-tools/src/tools/unsupported.ts`）。确认 opencode 对不存在的工具名不报错；加一个始终运行的测试：白名单里的每个 `hub_*` 要么已注册，要么在 unsupported 列表里。
+3. ~~**铺技能。**~~桌面主进程启动时把自带技能（开发时是 `assets/skills`，发布包是 `resources/skills`）铺到 `~/.ovhub/skills/<slug>/`：
    - 目录不存在，或 `meta.yaml` 的 `version` 和自带的不同，就整目录覆盖；
    - 不碰用户自己建的、不在自带列表里的技能；
    - 参照的做法先去 `reference/3.0.16/app/out/main` 和 gateway 的 SkillsController 里看，行为尽量一致。
 4. **MCP 文案。**`app/mcp-tools` 的 33 个工具：工具描述、参数描述原样换成 `reference/3.0.16/mcp-tools/dist/main.js` 里的。同一情形下的错误 / 提示文案也换成原文，agent 配置会按原文判断；我们多出来的安全检查保留。顺带发现的参数或枚举差异一并对齐。
-5. **冒烟脚本。**`scripts/smoke/electron.sh` 不再从 `wip/m8-agent-profiles` 导出配置，默认用仓库里的。顺便让它在 macOS 上也能跑：没有 `xvfb-run` 就直接起；没有 `timeout` 用别的方式限时；结束时杀掉 Electron 主进程和它拉起的 gateway / opencode（现在超时后会残留）。
-6. 删掉 `scripts/check-verbatim.py`，更新 `docs/parity-gaps.md` 第四、五节。
+5. ~~**冒烟脚本。**~~`scripts/smoke/electron.sh` 不再从 `wip/m8-agent-profiles` 导出配置，默认用仓库里的。顺便让它在 macOS 上也能跑：没有 `xvfb-run` 就直接起；没有 `timeout` 用别的方式限时；结束时杀掉 Electron 主进程和它拉起的 gateway / opencode（现在超时后会残留）。
+6. ~~删掉 `scripts/check-verbatim.py`，更新 `docs/parity-gaps.md` 第四、五节。~~
 7. 验收：
    - `pnpm turbo run test typecheck build` 全过；
    - 三个冒烟脚本全过，`electron.sh` 不设 `OV_AGENT_PROFILE_DIR`；

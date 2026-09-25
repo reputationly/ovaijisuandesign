@@ -182,7 +182,8 @@
 - `image_remove_background`（平台没有抠图）。
 
 **C 做了但行为不同**：
-- **工具描述和错误文案都是我们自己写的。**错误码、字段名、枚举值一致；但如果哪份 agent 配置是按参照的错误原文做判断，在我们这里会对不上。
+- **工具描述和错误文案还是我们自己写的**（P0-2 第 4 项，要换成原文）。错误码、字段名、枚举值一致；agent 配置现在是参照原文，凡是按错误原文做判断的地方在我们这里会对不上。换文案卡在 `reference/3.0.16/mcp-tools/dist/` 没进库。
+- agent 配置里点名了这 21 个没注册的工具（`base.json` 原样保留）：opencode 的 `agent.tools` 是任意键的开关表，多出的名字不报错；`app/mcp-tools/src/spec.test.ts` 保证每个都在 unsupported 里有原因。
 - 各家厂商的参数校验做得很轻（档位、范围、参考图数量不校验），因为最终都路由到我们的模型。
 - 模型选择器校验先解析别名，参照直接比 model_id，会误判。
 - 音色列表拉取失败时放行，参照是整次调用失败。
@@ -194,15 +195,14 @@
 
 ---
 
-## 五、agent 配置（M8）
+## 五、agent 配置与技能
 
-**A**：在 `wip/m8-agent-profiles` 分支上做到一半。结构按参照（agents、contracts、knowledge、workflows、plugins），内容全部自己写。
+用的是参照原文：开发时直接加载 `assets/agent-profiles/v2/config`，发布包里是 `agent-profiles/v2/config`；自带技能是 `assets/skills` 的 36 个原文。`wip/m8-agent-profiles` 上自己写的那套作废。
 
-**B**：不要 `comfyui-agent`。
-
-**C**：
-- `knowledge/vendors` 描述的是我们平台的模型：qwen-image-pro、minimax-h3、minimax-music3、ace-step、indextts-2.5、swiftvr；
-- 所有提示词文字和参照不同（对照重写）。
+**C 做了但行为不同**：
+- 多一张 `knowledge/vendors/platform-routing.md`：工具入参里的 vendor / model 只是接口词汇，各模态实际落到平台上配好的那个模型（qwen-image-pro、minimax-h3、minimax-music3、ace-step、indextts-2.5、swiftvr）。其余 vendor 卡是参照原文，描述的是参照的云端后端。
+- `comfyui-agent` 原样保留（配置完整性检查要求它），但它的工具一个都没注册，派给它的活做不了。
+- 技能：参照是登录后从云端技能市场同步到 `~/.hub/skills`；我们随包自带，主进程启动时铺到 `~/.ovhub/skills`（按 `meta.yaml` 的 `version` 整目录更新，不碰用户自己的技能）。没有技能市场、自动更新和白名单。
 
 ---
 
