@@ -67,6 +67,29 @@ describe("list_capabilities", () => {
     expect(out.modalities[0]!.vendors.map((v) => v.vendor)).toEqual(["banana"]);
   });
 
+  // 和 gateway 的 buildCatalog（app/gateway/src/generate/model-catalog.ts 的 SLOT_ALIAS）同形：
+  // 平台模型挂在厂商 backend / model_name 下。挂错了交集为空，agent 会拒绝生成。
+  it("keeps every modality non-empty for the platform catalog", async () => {
+    const platform = (id: string, backend: string, model_name: string) => ({ id, backend, model_name, display_name: id });
+    gw.on("GET", "/api/models", {
+      json: {
+        imageModels: [platform("qwen-image-pro", "nano_banana", "nano_banana_2_flash")],
+        videoModels: [platform("minimax-h3-fl2va", "minimax_v3", "MiniMax-H3"), platform("minimax-h3-ref2va", "minimax_v3", "MiniMax-H3-Max")],
+        audioModels: [platform("indextts-2.5", "minimax_tts", "speech-2.8-hd"), platform("minimax-music3", "minimax_music", "music-3.0")],
+        textModels: [],
+        defaultTextModelId: "",
+      },
+    });
+    gw.on("GET", "/api/v1/models/concurrency/limits", { json: { items: [] } });
+    const out = resultJson<{ modalities: ManifestModality[] }>(await h.call("list_capabilities", {}));
+    const visible = Object.fromEntries(
+      out.modalities.map((m) => [m.modality, m.vendors.flatMap((v) => v.user_visible_models.map((u) => u.display_name))]),
+    );
+    expect(visible.image).toEqual(["qwen-image-pro"]);
+    expect(visible.video).toEqual(["minimax-h3-fl2va", "minimax-h3-ref2va"]);
+    expect(Object.values(visible).every((names) => names.length > 0)).toBe(true);
+  });
+
   it("returns no vendors when the catalog is unavailable", async () => {
     const r = await h.call("list_capabilities", {});
     const out = resultJson<{ modalities: ManifestModality[] }>(r);

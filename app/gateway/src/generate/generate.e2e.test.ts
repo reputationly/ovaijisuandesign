@@ -132,7 +132,7 @@ describe("生成（假平台）", () => {
   it("模型目录来自本机配置，音色来自 voice_map", async () => {
     const c = (await http.get("/api/models?agent_version=2")).body;
     expect(c.imageModels.map((m: any) => m.id)).toEqual(["qwen-image"]);
-    expect(c.videoModels[0]).toMatchObject({ id: "minimax-h3-fl2va", backend: "maas", type: "video", tool_names: ["hub_generate_video"] });
+    expect(c.videoModels[0]).toMatchObject({ id: "minimax-h3-fl2va", backend: "minimax_v3", model_name: "MiniMax-H3", display_name: "minimax-h3-fl2va", type: "video", tool_names: ["hub_generate_video"] });
     expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5"]);
     expect(c.defaultTextModelId).toBe("chat");
     expect((await http.get("/api/speech/voices?page_size=1000")).body).toEqual([

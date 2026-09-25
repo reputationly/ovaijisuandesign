@@ -35,8 +35,23 @@ export interface ModelCatalog {
   defaultTextModelId: string;
 }
 
-/** 目录里模型的 backend。所有模型都走同一个自建平台，按模型名路由。 */
-export const MAAS_BACKEND = "maas";
+/**
+ * 每个槽位在目录里挂在哪个厂商的 backend / model_name 下。
+ *
+ * 实际都走同一个自建平台、按模态路由，这两个字段不影响生成。但 `hub_list_capabilities`
+ * 拿内置的厂商表和目录按 (backend, model_name) 取交集：挂在一个自造的 backend 下，
+ * 交集为空，agent 会认定"当前没有可用模型"而拒绝生成。挂的位置和
+ * `knowledge/vendors/platform-routing.md` 的推荐入参一致；`id` / `display_name` 仍是平台模型名。
+ */
+const SLOT_ALIAS = {
+  image: { backend: "nano_banana", model_name: "nano_banana_2_flash" },
+  image_edit: { backend: "nano_banana", model_name: "nano_banana_2" },
+  video: { backend: "minimax_v3", model_name: "MiniMax-H3" },
+  video_ref: { backend: "minimax_v3", model_name: "MiniMax-H3-Max" },
+  speech: { backend: "minimax_tts", model_name: "speech-2.8-hd" },
+  music: { backend: "minimax_music", model_name: "music-3.0" },
+  music_edit: { backend: "minimax_music", model_name: "music-3.0" },
+} as const;
 
 /**
  * 从本机配置生成模型目录。每个配了的模型一条；同一个 checkpoint 配在两个槽位上
@@ -54,12 +69,15 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
     list.push(entry(model));
   };
 
-  add(image, m.image, (id) => media(id, "image", ["hub_generate_image"], { max_refs: m.image_edit ? 10 : 0, params: toParams(params.forModality("image")) }));
+  add(image, m.image, (id) =>
+    media(id, "image", ["hub_generate_image"], { ...SLOT_ALIAS.image, max_refs: m.image_edit ? 10 : 0, params: toParams(params.forModality("image")) }),
+  );
   add(image, m.image_edit, (id) =>
-    media(id, "image", ["hub_generate_image"], { max_refs: 10, params: toParams(params.forModality("image_edit")), hideInModelPicker: m.image !== null }),
+    media(id, "image", ["hub_generate_image"], { ...SLOT_ALIAS.image_edit, max_refs: 10, params: toParams(params.forModality("image_edit")), hideInModelPicker: m.image !== null }),
   );
   add(video, m.video, (id) =>
     media(id, "video", ["hub_generate_video"], {
+      ...SLOT_ALIAS.video,
       max_refs: 2,
       imageMode: "first-last-frame",
       params: toParams(params.forModality("video")),
@@ -67,11 +85,11 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
     }),
   );
   add(video, m.video_ref, (id) =>
-    media(id, "video", ["hub_generate_video"], { max_refs: 4, max_video_refs: 3, max_audio_refs: 3, imageMode: "reference", params: toParams(params.forModality("video_ref")) }),
+    media(id, "video", ["hub_generate_video"], { ...SLOT_ALIAS.video_ref, max_refs: 4, max_video_refs: 3, max_audio_refs: 3, imageMode: "reference", params: toParams(params.forModality("video_ref")) }),
   );
-  add(audio, m.speech, (id) => media(id, "audio", ["hub_generate_audio_speech"], { max_refs: 0, params: {}, promptLabel: "text" }));
-  add(audio, m.music, (id) => media(id, "audio", ["hub_generate_audio_music"], { max_refs: 0, params: {}, promptLabel: "musicStyle" }));
-  add(audio, m.music_edit, (id) => media(id, "audio", ["hub_generate_audio_music"], { max_refs: 0, max_audio_refs: 1, params: {}, promptLabel: "musicStyle" }));
+  add(audio, m.speech, (id) => media(id, "audio", ["hub_generate_audio_speech"], { ...SLOT_ALIAS.speech, max_refs: 0, params: {}, promptLabel: "text" }));
+  add(audio, m.music, (id) => media(id, "audio", ["hub_generate_audio_music"], { ...SLOT_ALIAS.music, max_refs: 0, params: {}, promptLabel: "musicStyle" }));
+  add(audio, m.music_edit, (id) => media(id, "audio", ["hub_generate_audio_music"], { ...SLOT_ALIAS.music_edit, max_refs: 0, max_audio_refs: 1, params: {}, promptLabel: "musicStyle" }));
 
   const chat = cfg.platform.chat_model.trim();
   const textModels = chat ? [{ id: chat, name: chat, provider: "user-custom-maas" }] : [];
@@ -82,13 +100,11 @@ function media(
   id: string,
   type: CatalogModel["type"],
   tools: string[],
-  extra: Partial<CatalogModel> & Pick<CatalogModel, "max_refs" | "params">,
+  extra: Partial<CatalogModel> & Pick<CatalogModel, "max_refs" | "params" | "backend" | "model_name">,
 ): CatalogModel {
   return {
     id,
     name: id,
-    backend: MAAS_BACKEND,
-    model_name: id,
     type,
     display_name: id,
     description: "",
