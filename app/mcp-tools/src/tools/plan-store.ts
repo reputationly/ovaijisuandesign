@@ -77,7 +77,7 @@ export function projectPlanDir(projectRoot: string): string {
 export function planFilePath(projectRoot: string, planId: string): string {
   // plan id 直接拼进文件名，带路径分隔符就能写出目录
   if (!planId || /[\\/]/.test(planId)) {
-    throw new Error(`Plan id cannot be used as a file name: ${JSON.stringify(planId)}`);
+    throw new Error(`Invalid stagePlanId for plan file path: ${JSON.stringify(planId)}`);
   }
   return path.join(projectPlanDir(projectRoot), `${planId}.json`);
 }
@@ -129,7 +129,7 @@ function migrateLegacyRuntimeFields(value: unknown): unknown {
       rt.blocked_reason =
         typeof rt.note === "string" && rt.note.trim()
           ? rt.note.trim()
-          : "Stage is blocked; review the failures and decide how to proceed.";
+          : "Stage execution is blocked; inspect failures and choose how to continue.";
     }
   }
   return value;
@@ -148,7 +148,7 @@ export async function withPlanLock<T>(projectRoot: string, planId: string, fn: (
       release = await lockfile.lock(target, { realpath: false, retries: 0, stale: LOCK_STALE_MS });
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== "ELOCKED") throw err;
-      if (Date.now() - startedAt >= LOCK_WAIT_MS) throw new PlanError(`Gave up waiting for the lock on plan ${planId}`);
+      if (Date.now() - startedAt >= LOCK_WAIT_MS) throw new PlanError(`Timed out waiting for plan lock: ${planId}`);
       await new Promise((r) => setTimeout(r, LOCK_RETRY_MS));
     }
   }
@@ -172,20 +172,20 @@ export async function loadPlan(projectRoot: string, planId: string): Promise<Pla
     const file = planFilePath(projectRoot, planId);
     raw = await fs.readFile(file, { encoding: "utf8" });
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") throw new PlanError(`No stage plan with id ${planId} exists in this project`, "not_found");
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") throw new PlanError(`Stage plan not found: ${planId}`, "not_found");
     throw err;
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new PlanError(`Plan ${planId} could not be parsed as JSON`);
+    throw new PlanError(`Stage plan file is not valid JSON: ${planId}`);
   }
   parsed = migrateLegacyRuntimeFields(parsed);
-  if (!isPlanFile(parsed)) throw new PlanError(`Plan ${planId} does not have a valid plan file structure`);
+  if (!isPlanFile(parsed)) throw new PlanError(`Stage plan file failed schema validation: ${planId}`);
   const check = PlanFileSchema.safeParse(parsed);
   if (!check.success) {
-    throw new PlanError(`Plan file does not match the plan schema: ${formatIssues(check.error.issues)}`, "invalid");
+    throw new PlanError(`Stage plan file failed schema validation: ${formatIssues(check.error.issues)}`, "invalid");
   }
   return check.data;
 }
@@ -193,15 +193,15 @@ export async function loadPlan(projectRoot: string, planId: string): Promise<Pla
 export function assertRevision(plan: PlanFile, expected: number | undefined): void {
   if (expected === undefined || plan.revision === expected) return;
   throw new PlanError(
-    `Plan revision is ${plan.revision}, but the request expected ${expected}. Read the plan again and retry.`,
+    `Stage plan revision conflict: expected ${expected}, found ${plan.revision}. Re-read the plan and retry.`,
     "revision_conflict",
     {
       code: "PLAN_REVISION_CONFLICT",
-      current_state: { actual_revision: plan.revision, expected_revision: expected },
+      current_state: { expected_revision: expected, actual_revision: plan.revision },
       allowed_actions: ["reread_plan"],
       recommended_action: {
         operation: "reread_plan",
-        description: "Fetch the current Plan revision, then rebuild the intended request one time.",
+        description: "Read the latest Plan revision and rebuild the intended request once.",
       },
       retryable: true,
       requires_reread: true,
@@ -210,7 +210,7 @@ export function assertRevision(plan: PlanFile, expected: number | undefined): vo
 }
 
 async function persist(projectRoot: string, planId: string, plan: PlanFile): Promise<PlanFile> {
-  if (!isPlanFile(plan)) throw new PlanError(`Plan ${planId} would be saved in an invalid state; nothing was written`);
+  if (!isPlanFile(plan)) throw new PlanError(`Refusing to persist an invalid stage plan: ${planId}`);
   const dir = projectPlanDir(projectRoot);
   await fs.mkdir(dir, { recursive: true });
   const file = planFilePath(projectRoot, planId);
@@ -321,7 +321,7 @@ function uniqueItems(items: PlanItem[]): PlanItem[] {
 export function reconcileStageRuntime(before: PlanFile, after: PlanFile, stageId: string): { runtime: StageRuntime; reset: boolean } {
   const beforeStage = before.stages.find((s) => s.id === stageId);
   const afterStage = after.stages.find((s) => s.id === stageId);
-  if (!afterStage) throw new Error(`Stage ${stageId} is absent from the updated plan`);
+  if (!afterStage) throw new Error(`Cannot reconcile missing Stage: ${stageId}`);
   if (!beforeStage) return { runtime: startingRuntime(afterStage.contract), reset: true };
 
   const contextMatches = canonKey(execContext(before, beforeStage)) === canonKey(execContext(after, afterStage));
@@ -395,7 +395,7 @@ export async function writeNewPlan(
       if (!(err instanceof PlanError) || err.code !== "not_found") throw err;
     }
     if (previous) assertRevision(previous, expectedRevision);
-    else if (expectedRevision !== undefined) throw new PlanError(`No stage plan with id ${planId} exists in this project`, "not_found");
+    else if (expectedRevision !== undefined) throw new PlanError(`Stage plan not found: ${planId}`, "not_found");
     const plan = {
       schema_version: 1 as const,
       revision: previous ? previous.revision + 1 : 1,
@@ -407,7 +407,7 @@ export async function writeNewPlan(
       stages: input.stages,
     };
     const check = PlanFileSchema.safeParse(plan);
-    if (!check.success) throw new PlanError(`The new plan does not match the plan schema: ${formatIssues(check.error.issues)}`, "invalid");
+    if (!check.success) throw new PlanError(`New plan failed validation: ${formatIssues(check.error.issues)}`, "invalid");
     return persist(projectRoot, planId, check.data);
   });
 }
@@ -448,7 +448,7 @@ export async function upsertStage(projectRoot: string, planId: string, input: Pa
     for (const stage of plan.stages) stage.runtime = reconcileStageRuntime(before, plan, stage.id).runtime;
     const outline = plan.stage_outline.find((s) => s.id === input.stage_id);
     if (!outline || outline.order !== input.order) {
-      throw new PlanError(`stage_outline has no entry for Stage ${input.stage_id} at order ${input.order}.`, "invalid");
+      throw new PlanError(`Stage ${input.stage_id} (order ${input.order}) is not declared in stage_outline.`, "invalid");
     }
     input.validate?.(plan);
     plan.revision += 1;
@@ -469,7 +469,7 @@ export async function removeStage(
     assertRevision(plan, expectedRevision);
     const before = plan.stages.length;
     plan.stages = plan.stages.filter((s) => s.id !== stageId);
-    if (plan.stages.length === before) throw new PlanError(`Unknown Stage: ${stageId}`, "stage_not_found");
+    if (plan.stages.length === before) throw new PlanError(`Stage not found: ${stageId}`, "stage_not_found");
     plan.stage_outline = plan.stage_outline.filter((s) => s.id !== stageId).map((s, i) => ({ ...s, order: i + 1 }));
     const orderById = new Map(plan.stage_outline.map((s) => [s.id, s.order]));
     plan.stages = plan.stages.map((s) => ({ ...s, order: orderById.get(s.id) ?? s.order })).sort((a, b) => a.order - b.order);
@@ -491,8 +491,8 @@ export async function omitStage(
     const plan = await loadPlan(projectRoot, planId);
     assertRevision(plan, expectedRevision);
     const outline = plan.stage_outline.find((s) => s.id === stageId);
-    if (!outline) throw new PlanError(`Unknown Stage: ${stageId}`, "stage_not_found");
-    if (plan.stages.some((s) => s.id === stageId)) throw new PlanError(`Stage ${stageId} is already authored, so it cannot be omitted`, "invalid");
+    if (!outline) throw new PlanError(`Stage not found: ${stageId}`, "stage_not_found");
+    if (plan.stages.some((s) => s.id === stageId)) throw new PlanError(`Authored Stage cannot be omitted: ${stageId}`, "invalid");
     if (outline.omitted) return plan;
     outline.omitted = true;
     validate?.(plan);
@@ -538,11 +538,11 @@ function assertOutputIdsDeclared(stage: PlanFileStage, outputs: RuntimeOutput[] 
   const declared = new Set((stage.contract.work_items ?? []).map(refIdOf).filter((v): v is string => Boolean(v)));
   const seen = new Set<string>();
   for (const o of outputs) {
-    if (seen.has(o.id)) throw new PlanError(`Output id "${o.id}" is listed twice in the same update for Stage ${stage.id}.`, "invalid");
+    if (seen.has(o.id)) throw new PlanError(`Stage ${stage.id} output id "${o.id}" appears more than once in one update.`, "invalid");
     seen.add(o.id);
     if (declared.has(o.id)) continue;
     throw new PlanError(
-      `Output id "${o.id}" is not a work item id of Stage ${stage.id}; valid ids: ${[...declared].sort().join(" | ") || "(none)"}.`,
+      `Stage ${stage.id} output id "${o.id}" is not declared in work_items. Declared output ids: [${[...declared].sort().join(", ")}].`,
       "invalid",
     );
   }
@@ -575,41 +575,41 @@ function assertRuntimeTransition(stage: PlanFileStage, input: StageRuntimeUpdate
   const prev = stage.runtime.status;
   const next = input.status;
   if (prev === next) return;
-  if (prev === "done") throw new PlanError(`Stage ${stage.id} has already finished; moving it back to ${next} is not allowed.`, "invalid");
+  if (prev === "done") throw new PlanError(`Stage ${stage.id} is done and cannot return to ${next}.`, "invalid");
   if (next === "done") {
     const acceptedResult = prev === "waiting_user" && stage.runtime.waiting_reason === "result_review";
     const completedWithoutReview = prev === "doing" && !hasPostReview(stage.contract);
     if (!acceptedResult && !completedWithoutReview) {
       const reason = stage.runtime.waiting_reason ? `(${stage.runtime.waiting_reason})` : "";
-      throw new PlanError(`Stage ${stage.id} is not allowed to go from ${prev}${reason} straight to done.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} cannot reach done from ${prev}${reason}.`, "invalid");
     }
     if (acceptedResult && !hasPostReview(stage.contract)) {
-      throw new PlanError(`Stage ${stage.id} defines no review.after_execution checks.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} has no after_execution review checks.`, "invalid");
     }
     return;
   }
   if (prev === "waiting_user" && stage.runtime.waiting_reason === "plan_review" && next === "doing") {
     if (!hasPreReview(stage.contract)) {
-      throw new PlanError(`Stage ${stage.id} defines no review.before_execution checks.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} has no before_execution review checks.`, "invalid");
     }
   }
   if (next === "waiting_user") {
     const reason = waitReasonFor(stage, input);
-    if (!reason) throw new PlanError(`Moving Stage ${stage.id} to waiting_user needs a waiting_reason.`, "invalid");
+    if (!reason) throw new PlanError(`Stage ${stage.id} must include waiting_reason when entering waiting_user.`, "invalid");
     if (prev === "doing" && reason !== "result_review") {
-      throw new PlanError(`Once executed, Stage ${stage.id} can only wait with waiting_reason result_review.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} must enter waiting_user(result_review) after execution.`, "invalid");
     }
     if (reason === "plan_review" && !hasPreReview(stage.contract)) {
-      throw new PlanError(`Stage ${stage.id} defines no review.before_execution checks.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} has no before_execution review checks.`, "invalid");
     }
     if (reason === "result_review" && !hasPostReview(stage.contract)) {
-      throw new PlanError(`Stage ${stage.id} defines no review.after_execution checks.`, "invalid");
+      throw new PlanError(`Stage ${stage.id} has no after_execution review checks.`, "invalid");
     }
     return;
   }
   const hasBlockReason = Boolean(input.blocked_reason?.trim()) || Boolean(stage.runtime.blocked_reason);
   if (next === "blocked" && !hasBlockReason) {
-    throw new PlanError(`Moving Stage ${stage.id} to blocked needs a blocked_reason.`, "invalid");
+    throw new PlanError(`Stage ${stage.id} must include blocked_reason when entering blocked.`, "invalid");
   }
 }
 
@@ -620,7 +620,7 @@ export async function updateStageRuntimes(
   inputs: StageRuntimeUpdate[],
   options: { expected_revision?: number; validate?: (plan: PlanFile) => void } = {},
 ): Promise<{ plan: PlanFile; updated: { stage: PlanFileStage; previous_status: StageStatus }[] }> {
-  if (inputs.length === 0) throw new PlanError("No stage updates were given.", "invalid");
+  if (inputs.length === 0) throw new PlanError("Provide at least one stage update.", "invalid");
   return withPlanLock(projectRoot, planId, async () => {
     const plan = await loadPlan(projectRoot, planId);
     assertRevision(plan, options.expected_revision);
@@ -628,18 +628,18 @@ export async function updateStageRuntimes(
     const selected: { index: number; input: StageRuntimeUpdate }[] = [];
     for (const input of inputs) {
       if (Boolean(input.stage_id) === (input.order !== undefined)) {
-        throw new PlanError("Every update names its stage by stage_id or by order, never both and never neither.", "invalid");
+        throw new PlanError("Each update must provide exactly one of stage_id or order.", "invalid");
       }
       const index = input.stage_id
         ? plan.stages.findIndex((s) => s.id === input.stage_id)
         : plan.stages.findIndex((s) => s.order === input.order);
       const stage = plan.stages[index];
-      if (!stage) throw new PlanError(`Unknown Stage: ${input.stage_id ?? `order ${input.order}`}`, "stage_not_found");
-      if (seen.has(stage.id)) throw new PlanError(`More than one update targets Stage ${stage.id}.`, "invalid");
+      if (!stage) throw new PlanError(`Stage not found: ${input.stage_id ?? `order ${input.order}`}`, "stage_not_found");
+      if (seen.has(stage.id)) throw new PlanError(`Stage ${stage.id} appears more than once in updates.`, "invalid");
       seen.add(stage.id);
       const actual = stage.runtime.status;
       if (input.expected_status !== undefined && actual !== input.expected_status) {
-        throw new PlanError(`Stage ${stage.id} is currently ${stage.runtime.status}, not ${input.expected_status}.`, "invalid");
+        throw new PlanError(`Stage ${stage.id} status is ${stage.runtime.status}, expected ${input.expected_status}.`, "invalid");
       }
       assertOutputIdsDeclared(stage, input.outputs);
       const routed = routeExecutionCompletion(stage, input);
@@ -745,7 +745,7 @@ export interface ReplanResult {
 
 function nonEmpty(value: string | undefined, field: string): string {
   const v = value?.trim() ?? "";
-  if (!v) throw new PlanError(`${field} cannot be empty.`, "invalid");
+  if (!v) throw new PlanError(`${field} must not be empty.`, "invalid");
   return v;
 }
 
@@ -792,7 +792,7 @@ function assertStableWorkItemIds(stage: PlanFileStage, revised: StageContract, o
   if (churn.length === 0) return;
   const replacements = churn.map((c) => `${c.revisedId} -> ${c.previousId}`);
   throw new PlanError(
-    `Stage ${stage.id} renames work items whose execution content is unchanged: ${replacements.join(", ")}.`,
+    `Stage ${stage.id} replaces stable work item ids without changing their execution content: ${replacements.join(", ")}.`,
     "invalid",
     {
       code: "WORK_ITEM_ID_CHURN",
@@ -801,7 +801,7 @@ function assertStableWorkItemIds(stage: PlanFileStage, revised: StageContract, o
       allowed_actions: ["reuse_existing_work_item_id"],
       recommended_action: {
         operation: "reuse_existing_work_item_id",
-        description: `Keep the previous ids in the revised contract: ${replacements.join(", ")}.`,
+        description: `Reuse the existing ids in the revised contract: ${replacements.join(", ")}.`,
       },
       retryable: true,
       requires_reread: false,
@@ -809,10 +809,10 @@ function assertStableWorkItemIds(stage: PlanFileStage, revised: StageContract, o
         stage_id: stage.id,
         work_item_id: revisedId,
         field: "work_items[].id",
-        message: `${revisedId} is the only match for the existing logical output ${previousId}.`,
+        message: `Work item ${revisedId} uniquely matches existing logical output ${previousId}.`,
         recommended_action: {
           operation: "reuse_existing_work_item_id",
-          description: `Use ${previousId} instead of ${revisedId} when revising the contract.`,
+          description: `Replace ${revisedId} with ${previousId} in the revised contract.`,
         },
       })),
     },
@@ -831,10 +831,10 @@ function existingStageIdGuidance(stageId: string, operationIndex: number, author
     entity: { type: "stage", id: stageId },
     allowed_actions: [operation, "choose_unique_stage_id"],
     recommended_action: authored
-      ? { operation, description: "For the same authored deliverable, keep the Stage id as it is and revise its contract." }
+      ? { operation, description: "If this is the same authored deliverable, keep its stable Stage id and revise its contract." }
       : {
           operation,
-          description: "Leave the pending outline id in place, complete the Replan without inserting it, and author it once it becomes the frontier.",
+          description: "Keep the existing pending outline id, finish Replan without inserting it, then author it when it reaches the frontier.",
         },
     retryable: true,
     requires_reread: false,
@@ -867,10 +867,10 @@ function requireDonePrefix(plan: PlanFile, preserveOrder: number): void {
     if (outline.order > preserveOrder) break;
     if (outline.omitted === true) continue;
     const stage = stageById(plan, outline.id);
-    if (!stage) throw new PlanError(`Stage ${outline.id} inside the preserved prefix has not been authored.`, "invalid");
+    if (!stage) throw new PlanError(`Preserved prefix contains an unauthored Stage: ${outline.id}.`, "invalid");
     if (stage.runtime.status !== "done") {
       throw new PlanError(
-        `Stage ${stage.id} inside the preserved prefix is not done; all active Stages up to the boundary need to be done first.`,
+        `Preserved prefix Stage ${stage.id} is not accepted; every active Stage through the boundary must be done.`,
         "invalid",
       );
     }
@@ -883,13 +883,13 @@ function bindWorkflow(plan: PlanFile, req: ReplanRequest): { path: string; varia
   const bound = { path: workflowPathOf(plan), variant: workflowVariantOf(plan) };
   const asked = { path: req.workflow_path?.trim(), variant: req.workflow_variant?.trim() };
   if (conflicts(bound.path, asked.path)) {
-    throw new PlanError(`Replan chose workflow ${asked.path}, but this plan is bound to ${bound.path}.`, "invalid");
+    throw new PlanError(`Replan workflow mismatch: plan is bound to ${bound.path}, request selected ${asked.path}.`, "invalid");
   }
   if (conflicts(bound.variant, asked.variant)) {
-    throw new PlanError(`Replan chose workflow variant ${asked.variant}, but this plan is bound to ${bound.variant}.`, "invalid");
+    throw new PlanError(`Replan workflow variant mismatch: plan is bound to ${bound.variant}, request selected ${asked.variant}.`, "invalid");
   }
   const p = bound.path ?? asked.path;
-  if (!p) throw new PlanError("Replan needs the workflow that was chosen when the plan was written.", "invalid");
+  if (!p) throw new PlanError("Replan requires the workflow selected when the plan was authored.", "invalid");
   const variant = bound.variant ?? asked.variant;
   plan.workflow = { path: p, ...(variant ? { variant } : {}) };
   return { path: p, ...(variant ? { variant } : {}) };
@@ -903,18 +903,18 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
   nonEmpty(req.request_id, "request_id");
   nonEmpty(req.reason, "reason");
   if (!Number.isInteger(req.expected_revision) || req.expected_revision < 0) {
-    throw new PlanError("expected_revision has to be an integer of 0 or more.", "invalid");
+    throw new PlanError("expected_revision must be a non-negative integer.", "invalid");
   }
-  if (req.operations.length === 0) throw new PlanError("Replan needs one or more operations.", "invalid");
+  if (req.operations.length === 0) throw new PlanError("Replan requires at least one operation.", "invalid");
 
   const preserveId = req.preserve_through_stage_id;
   const preservedStage = preserveId ? stageById(plan, preserveId) : undefined;
   const preservedOutline = preserveId ? activeOutlineItem(plan, preserveId) : undefined;
   if (preserveId && (!preservedStage || !preservedOutline)) {
-    throw new PlanError(`Preservation boundary ${preserveId} is not an authored, active Stage.`, "stage_not_found");
+    throw new PlanError(`Preserved Stage must be an authored, active Stage: ${preserveId}.`, "stage_not_found");
   }
   if (preservedStage?.runtime.status !== undefined && preservedStage.runtime.status !== "done") {
-    throw new PlanError(`Stage ${preservedStage.id} has to be done before it can serve as the Replan boundary.`, "invalid");
+    throw new PlanError(`Preserved Stage ${preservedStage.id} must be accepted before it can anchor a Replan.`, "invalid");
   }
   const preserveOrder = preservedOutline?.order ?? 0;
   if (preservedOutline) requireDonePrefix(plan, preserveOrder);
@@ -927,10 +927,10 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
   const seenTargets = new Set<string>();
 
   for (const [index, op] of req.operations.entries()) {
-    const targetId = nonEmpty(operationTargetId(op), "target stage id of the operation");
+    const targetId = nonEmpty(operationTargetId(op), "operation stage id");
     if (seenTargets.has(targetId)) {
       throw new PlanError(
-        `Several Replan operations target Stage ${targetId}; merge them into a single operation.`,
+        `Stage ${targetId} appears in more than one Replan operation. Combine its change into one operation.`,
         "invalid",
         {
           code: "DUPLICATE_REPLAN_TARGET",
@@ -939,7 +939,7 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
           allowed_actions: ["combine_stage_change"],
           recommended_action: {
             operation: "combine_stage_change",
-            description: "Describe the whole change to this Stage in a single Replan operation.",
+            description: "Express the complete change for this Stage in one Replan operation.",
           },
           retryable: true,
           requires_reread: false,
@@ -954,16 +954,16 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
       const name = nonEmpty(op.stage.name, `${label}.stage.name`);
       if (op.type === "insert_stage") nonEmpty(op.stage.goal, "insert_stage.stage.goal");
       if (outline.some((i) => i.id === stageId)) {
-        throw new PlanError(`Stage id ${stageId} is already in use`, "duplicate_stage", existingStageIdGuidance(stageId, index, authored.has(stageId)));
+        throw new PlanError(`Stage already exists: ${stageId}`, "duplicate_stage", existingStageIdGuidance(stageId, index, authored.has(stageId)));
       }
       const anchorId = insertionTails.get(op.after_stage_id) ?? op.after_stage_id;
       if (op.type === "insert_stage" && !authored.has(anchorId)) {
-        throw new PlanError(`insert_stage needs an authored anchor, and ${anchorId} is not authored.`, "invalid");
+        throw new PlanError(`Immediate Stage insertion anchor must already be authored: ${anchorId}.`, "invalid");
       }
       const anchorIndex = outline.findIndex((i) => i.id === anchorId && i.omitted !== true);
-      if (anchorIndex < 0) throw new PlanError(`Anchor Stage ${op.after_stage_id} is unknown or omitted.`, "stage_not_found");
+      if (anchorIndex < 0) throw new PlanError(`Insertion anchor Stage not found or omitted: ${op.after_stage_id}.`, "stage_not_found");
       if ((outline[anchorIndex]?.order ?? -1) < preserveOrder) {
-        throw new PlanError(`Inserted Stages have to come after the preserved Stage ${preserveId}.`, "invalid");
+        throw new PlanError(`Replan insertion must be after preserved Stage ${preserveId}.`, "invalid");
       }
       outline.splice(anchorIndex + 1, 0, { id: stageId, order: anchorIndex + 2, name });
       if (op.type === "insert_stage") authored.add(stageId);
@@ -973,21 +973,21 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
     }
 
     const outlineIndex = outline.findIndex((i) => i.id === op.stage_id && i.omitted !== true);
-    if (outlineIndex < 0) throw new PlanError(`Stage ${op.stage_id} is unknown or omitted`, "stage_not_found");
+    if (outlineIndex < 0) throw new PlanError(`Stage not found or omitted: ${op.stage_id}`, "stage_not_found");
     if ((outline[outlineIndex]?.order ?? -1) <= preserveOrder) {
-      throw new PlanError(`Replan may only touch Stages that come after ${preserveId ?? "the start of the plan"}.`, "invalid");
+      throw new PlanError(`Replan can only change stages after preserved Stage ${preserveId ?? "the beginning"}.`, "invalid");
     }
 
     if (op.type === "revise_stage") {
       if (!authored.has(op.stage_id)) {
-        throw new PlanError(`Stage ${op.stage_id} has not been authored yet; author it rather than revising it.`, "invalid", {
+        throw new PlanError(`Unauthored Stage ${op.stage_id} must be authored instead of revised.`, "invalid", {
           code: "UNAUTHORED_STAGE_REVISE",
           operation_index: index,
           entity: { type: "stage", id: op.stage_id },
           allowed_actions: ["author_pending_stage"],
           recommended_action: {
             operation: "author_pending_stage",
-            description: "Drop this revise operation, leave the pending outline entry as is, and author it once it becomes the frontier.",
+            description: "Remove this revise operation, keep the pending outline entry, then author it when it reaches the frontier.",
           },
           retryable: true,
           requires_reread: false,
@@ -999,14 +999,14 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
     }
     if (op.type === "omit_stage") {
       if (authored.has(op.stage_id)) {
-        throw new PlanError(`Stage ${op.stage_id} is already authored, so omit_stage does not apply; use remove_unexecuted_stage.`, "invalid", {
+        throw new PlanError(`Authored Stage ${op.stage_id} cannot be omitted; use remove_unexecuted_stage.`, "invalid", {
           code: "AUTHORED_STAGE_OMIT",
           operation_index: index,
           entity: { type: "stage", id: op.stage_id },
           allowed_actions: [...AUTHORED_OMIT_ALTERNATIVES],
           recommended_action: {
             operation: "remove_unexecuted_stage",
-            description: "Only remove the Stage if it has not started running; if it has, revise its contract under the same id.",
+            description: "Remove the Stage only if execution has not started; otherwise revise its stable contract.",
           },
           retryable: true,
           requires_reread: false,
@@ -1016,14 +1016,14 @@ function validateRequest(plan: PlanFile, req: ReplanRequest): void {
     }
     if (op.type === "remove_unexecuted_stage") {
       if (!authored.has(op.stage_id)) {
-        throw new PlanError(`Stage ${op.stage_id} has not been authored; omit it rather than removing it.`, "invalid", {
+        throw new PlanError(`Unauthored Stage ${op.stage_id} must be omitted instead of removed.`, "invalid", {
           code: "UNAUTHORED_STAGE_REMOVE",
           operation_index: index,
           entity: { type: "stage", id: op.stage_id },
           allowed_actions: ["omit_stage"],
           recommended_action: {
             operation: "omit_stage",
-            description: "Use omit_stage on the pending outline entry; remove_unexecuted_stage is only for authored Stages.",
+            description: "Omit the pending outline entry instead of removing an authored Stage.",
           },
           retryable: true,
           requires_reread: false,
@@ -1045,7 +1045,7 @@ function normalizeOrders(plan: PlanFile): void {
   plan.stages = plan.stages
     .map((s) => {
       const order = orderById.get(s.id);
-      if (!order) throw new PlanError(`stage_outline has no entry for Stage ${s.id}.`, "invalid");
+      if (!order) throw new PlanError(`Stage ${s.id} is missing from stage_outline.`, "invalid");
       return { ...s, order };
     })
     .sort((a, b) => a.order - b.order);
@@ -1057,8 +1057,8 @@ function assertDependencyGraph(plan: PlanFile): void {
   for (const stage of plan.stages) {
     for (const depId of stage.contract.depends_on ?? []) {
       const dep = outlineById.get(depId);
-      if (!dep || dep.omitted) throw new PlanError(`Stage ${stage.id} depends on ${depId}, which is unknown or omitted.`, "invalid");
-      if (dep.order >= stage.order) throw new PlanError(`Stage ${stage.id} depends on ${depId}, which has to come earlier in the outline.`, "invalid");
+      if (!dep || dep.omitted) throw new PlanError(`Stage ${stage.id} depends on missing or omitted Stage ${depId}.`, "invalid");
+      if (dep.order >= stage.order) throw new PlanError(`Stage ${stage.id} dependency ${depId} must appear earlier in the workflow.`, "invalid");
     }
   }
   const stageMap = new Map(plan.stages.map((s) => [s.id, s]));
@@ -1066,7 +1066,7 @@ function assertDependencyGraph(plan: PlanFile): void {
   const visited = new Set<string>();
   const visit = (id: string) => {
     if (visited.has(id)) return;
-    if (visiting.has(id)) throw new PlanError(`This Replan would put Stage ${id} in a dependency cycle.`, "invalid");
+    if (visiting.has(id)) throw new PlanError(`Replan creates a dependency cycle at Stage ${id}.`, "invalid");
     visiting.add(id);
     for (const depId of stageMap.get(id)?.contract.depends_on ?? []) if (stageMap.has(depId)) visit(depId);
     visiting.delete(id);
@@ -1095,7 +1095,7 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
     if (op.type === "revise_stage") {
       const stage = draft.stages.find((s) => s.id === op.stage_id);
       const outline = activeOutlineItem(draft, op.stage_id);
-      if (!stage || !outline) throw new PlanError(`Unknown Stage: ${op.stage_id}`, "stage_not_found");
+      if (!stage || !outline) throw new PlanError(`Stage not found: ${op.stage_id}`, "stage_not_found");
       draft.stages = draft.stages.map((s) =>
         s.id === op.stage_id
           ? { ...s, goal: nonEmpty(op.stage.goal, "revise_stage.stage.goal"), contract: structuredClone(op.stage.contract) }
@@ -1108,13 +1108,13 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
     if (op.type === "insert_stage_outline" || op.type === "insert_stage") {
       const anchorId = insertionTails.get(op.after_stage_id) ?? op.after_stage_id;
       if (op.type === "insert_stage" && !draft.stages.some((s) => s.id === anchorId)) {
-        throw new PlanError(`insert_stage needs an authored anchor, and ${anchorId} is not authored.`, "invalid");
+        throw new PlanError(`Immediate Stage insertion anchor must already be authored: ${anchorId}.`, "invalid");
       }
       const anchorIndex = draft.stage_outline.findIndex((i) => i.id === anchorId && i.omitted !== true);
-      if (anchorIndex < 0) throw new PlanError(`Anchor Stage ${op.after_stage_id} is unknown`, "stage_not_found");
+      if (anchorIndex < 0) throw new PlanError(`Insertion anchor Stage not found: ${op.after_stage_id}`, "stage_not_found");
       const stageId = nonEmpty(op.stage.stage_id, `${op.type}.stage.stage_id`);
       if (op.type === "insert_stage_outline" && draft.stage_outline.some((i) => i.id === stageId)) {
-        throw new PlanError(`Stage id ${stageId} is already in use`, "duplicate_stage");
+        throw new PlanError(`Stage already exists: ${stageId}`, "duplicate_stage");
       }
       draft.stage_outline.splice(anchorIndex + 1, 0, {
         id: stageId,
@@ -1136,9 +1136,9 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
       continue;
     }
     const outline = activeOutlineItem(draft, op.stage_id);
-    if (!outline) throw new PlanError(`Unknown Stage: ${op.stage_id}`, "stage_not_found");
+    if (!outline) throw new PlanError(`Stage not found: ${op.stage_id}`, "stage_not_found");
     if (op.type === "omit_stage") {
-      if (draft.stages.some((s) => s.id === op.stage_id)) throw new PlanError(`Stage ${op.stage_id} is already authored, so it cannot be omitted`, "invalid");
+      if (draft.stages.some((s) => s.id === op.stage_id)) throw new PlanError(`Authored Stage cannot be omitted: ${op.stage_id}`, "invalid");
       outline.omitted = true;
       changed.add(op.stage_id);
       omitted.add(op.stage_id);
@@ -1146,7 +1146,7 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
     }
     const stageIndex = draft.stages.findIndex((s) => s.id === op.stage_id);
     const target = draft.stages[stageIndex];
-    if (!target) throw new PlanError(`Unknown Stage: ${op.stage_id}`, "stage_not_found");
+    if (!target) throw new PlanError(`Stage not found: ${op.stage_id}`, "stage_not_found");
     const rt = target.runtime;
     // 有任何执行痕迹就不许删：输出、失败、重试、已完成/阻塞/等待结果评审
     const started =
@@ -1158,7 +1158,7 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
       rt.status === "blocked" ||
       (rt.status === "waiting_user" && rt.waiting_reason === "result_review");
     if (started) {
-      throw new PlanError(`Stage ${op.stage_id} has already started running, so Replan cannot remove it.`, "invalid", {
+      throw new PlanError(`Stage ${op.stage_id} has started execution and cannot be removed by Replan.`, "invalid", {
         code: "STAGE_ALREADY_STARTED",
         operation_index: index,
         entity: { type: "stage", id: op.stage_id },
@@ -1166,7 +1166,7 @@ function applyOperations(plan: PlanFile, req: ReplanRequest): DraftPlan {
         allowed_actions: ["revise_stage"],
         recommended_action: {
           operation: "revise_stage",
-          description: "Keep the Stage id and send its full revised contract through revise_stage.",
+          description: "Keep the stable Stage id and submit its complete revised contract.",
         },
         retryable: true,
         requires_reread: false,
@@ -1264,11 +1264,11 @@ export async function replanPlan(
     const previous = plan.replan_history?.find((e) => e.request_id === req.request_id);
     if (previous) {
       if (previous.operation_digest !== digest) {
-        throw new PlanError(`request_id ${req.request_id} was used before with different content.`, "invalid");
+        throw new PlanError(`Replan request ${req.request_id} was already applied with a different payload.`, "invalid");
       }
       if (plan.revision !== previous.revision) {
         throw new PlanError(
-          `request_id ${req.request_id} took effect at revision ${previous.revision}, and the plan is now at revision ${plan.revision}. Read the current plan again before judging whether another replan is still needed.`,
+          `Replan request ${req.request_id} was already applied at revision ${previous.revision}, but the plan has advanced to revision ${plan.revision}; reread the current plan before deciding whether a new replan is needed.`,
           "revision_conflict",
         );
       }
@@ -1283,7 +1283,7 @@ export async function replanPlan(
       const resumeOrder = posInOutline(draft.plan, req.resume_stage_id);
       const preserveOrder = req.preserve_through_stage_id ? posInOutline(draft.plan, req.preserve_through_stage_id) : 0;
       if (resumeOrder <= preserveOrder || !activeOutlineItem(draft.plan, req.resume_stage_id)) {
-        throw new PlanError(`resume_stage_id ${req.resume_stage_id} is not an active Stage after the preserved prefix.`, "invalid");
+        throw new PlanError(`Resume Stage ${req.resume_stage_id} is not active after the preserved prefix.`, "invalid");
       }
       impact.resume_stage_id = req.resume_stage_id;
     }

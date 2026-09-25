@@ -15,9 +15,9 @@ export type WaitingReason = (typeof PLAN_WAITING_REASONS)[number];
 export const PLAN_SCHEMA_VERSION = 1;
 
 const SINGLE_LINE_MESSAGE =
-  "has to fit on one line (no line breaks). For longer or multi-line content, use a string field on a work item instead, e.g. prompt or execution_excerpt.";
+  "must be a single line (no newline characters). Keep it short; put long multi-line text into a work item string field such as prompt or execution_excerpt.";
 const INLINE_LIST_MEMBER_MESSAGE =
-  'list members cannot include ",", "]" or line breaks. Break the value into separate members, or put long text in a dedicated work item string field.';
+  'inline list members must not contain ",", "]" or newline characters. Split the value into separate members, or move long text into its own work item string field.';
 
 // 单行约束：看板 / 摘要按行渲染，换行会把结构撑坏
 const singleLine = (s: z.ZodString) => s.refine((v) => !v.includes("\n"), { message: SINGLE_LINE_MESSAGE });
@@ -72,7 +72,7 @@ const PlannerStageFieldsSchema = z.record(z.string(), SingleLineScalarSchema).su
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [key],
-      message: `${key} belongs to the runtime state; stage_fields cannot set it.`,
+      message: `${key} is runtime-owned and must not be written inside stage_fields.`,
     });
   }
 });
@@ -136,17 +136,17 @@ export const StagePlanSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["stage_outline", index, "order"],
-          message: `stage_outline entry at position ${index + 1} needs order ${index + 1}.`,
+          message: `Stage outline order must be ${index + 1}.`,
         });
       }
       if (byId.has(item.id)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["stage_outline", index, "id"], message: `Stage id ${item.id} is used more than once.` });
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["stage_outline", index, "id"], message: `Duplicate Stage id: ${item.id}.` });
       }
       if (orders.has(item.order)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["stage_outline", index, "order"],
-          message: `Stage order ${item.order} is used more than once.`,
+          message: `Duplicate Stage order: ${item.order}.`,
         });
       }
       byId.set(item.id, item);
@@ -158,7 +158,7 @@ export const StagePlanSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["stages", index, "stage_id"],
-          message: `Stage ${stage.stage_id} (order ${stage.order}) has no active stage_outline entry with the same id and order.`,
+          message: `Stage ${stage.stage_id} (order ${stage.order}) must match a non-omitted stage_outline entry.`,
         });
       }
     });
@@ -194,10 +194,10 @@ const StageRuntimeSchema = z
   })
   .superRefine((rt, ctx) => {
     if (rt.status === "waiting_user" && !rt.waiting_reason) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["waiting_reason"], message: "status waiting_user needs a waiting_reason." });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["waiting_reason"], message: "waiting_user runtime requires waiting_reason." });
     }
     if (rt.status === "blocked" && !rt.blocked_reason) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["blocked_reason"], message: "status blocked needs a blocked_reason." });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["blocked_reason"], message: "blocked runtime requires blocked_reason." });
     }
   });
 export type StageRuntime = z.infer<typeof StageRuntimeSchema>;
@@ -314,11 +314,11 @@ export const PlanFileSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["stage_outline", index, "order"],
-          message: `stage_outline entry at position ${index + 1} needs order ${index + 1}.`,
+          message: `Stage outline order must be ${index + 1}.`,
         });
       }
       if (ids.has(item.id) || orders.has(item.order)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["stage_outline", index], message: "Every stage_outline id and order has to be unique." });
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["stage_outline", index], message: "Stage outline ids and orders must be unique." });
       }
       ids.add(item.id);
       orders.add(item.order);
@@ -329,7 +329,7 @@ export const PlanFileSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["stages", index, "id"],
-          message: `Stage ${stage.id} (order ${stage.order}) has no active stage_outline entry with the same id and order.`,
+          message: `Stage ${stage.id} (order ${stage.order}) must match a non-omitted stage_outline entry.`,
         });
       }
     });
