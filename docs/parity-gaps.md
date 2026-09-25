@@ -182,13 +182,12 @@
 - `image_remove_background`（平台没有抠图）。
 
 **C 做了但行为不同**：
-- **工具描述和错误文案还是我们自己写的**（P0-2 第 4 项，要换成原文）。错误码、字段名、枚举值一致；agent 配置现在是参照原文，凡是按错误原文做判断的地方在我们这里会对不上。换文案卡在 `reference/3.0.16/mcp-tools/dist/` 没进库。
+
+工具描述、参数描述、输出 schema、错误和提示文案都已换成参照原文：`scripts/smoke/mcp-surface.mjs` 比 `tools/list`，`scripts/smoke/mcp-behavior.mjs` 按 `scripts/smoke/mcp-scenarios/*.json` 把同一组调用分别打给参照和我们的 MCP 逐字比。剩下的差异：
 - agent 配置里点名了这 21 个没注册的工具（`base.json` 原样保留）：opencode 的 `agent.tools` 是任意键的开关表，多出的名字不报错；`app/mcp-tools/src/spec.test.ts` 保证每个都在 unsupported 里有原因。
-- 各家厂商的参数校验做得很轻（档位、范围、参考图数量不校验），因为最终都路由到我们的模型。
-- 模型选择器校验先解析别名，参照直接比 model_id，会误判。
-- 音色列表拉取失败时放行，参照是整次调用失败。
+- 模型选择器校验先解析别名（如 `banana_pro`）再比；参照直接比 model_id，而且出图那处传参顺序错了，实际从不拦截。我们的会拦。
+- 音色列表拉取失败时退回空列表放行，参照是整次调用失败。
 - `subtitle_format` 不覆盖非 `.srt` 的源文件。
-- `read`：逻辑路径多一个回退；`offset=0` 当成 1。
 - 记忆存在 `~/.ovhub/memory`。
 - 附件观察上报（发往云端）不做。
 - 工作区身份头从环境变量 `HILO_WORKSPACE_*` 读，有才带。
