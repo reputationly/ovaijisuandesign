@@ -31,6 +31,9 @@ set -m
   export OPENCODE_BIN="$tmp/opencode" FAKE_OC_DUMP_DIR="$tmp/dump" \
     OV_USER_DATA_DIR="$tmp/ud" HILO_DATA_DIR="$tmp/data" OV_SKIP_LEGACY_MIGRATION=1 \
     OV_DEV_OPEN_WORKSPACES="$tmp/ws" OV_CONFIG_PATH="$tmp/config.json"
+  # renderer-check.mjs 经开发服务器动态 import 我们自己界面的源码模块来验身份，只对 OV_UI=ours 成立；
+  # 默认界面（参照渲染层的编译产物）没有这些模块。
+  export OV_UI=ours
   [[ -n "${OV_AGENT_PROFILE_DIR:-}" ]] && export OV_AGENT_PROFILE_DIR
   exec ${launcher[@]+"${launcher[@]}"} npx electron-vite dev --noSandbox -- --no-sandbox --remote-debugging-port="$DEBUG_PORT"
 ) >"$tmp/electron.log" 2>&1 &

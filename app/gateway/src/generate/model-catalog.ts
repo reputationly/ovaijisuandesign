@@ -35,6 +35,9 @@ export interface ModelCatalog {
   defaultTextModelId: string;
 }
 
+/** 生成记录里的 backend 标记：实际都走同一个自建平台。目录里的 backend 另见 SLOT_ALIAS。 */
+export const MAAS_BACKEND = "maas";
+
 /**
  * 每个槽位在目录里挂在哪个厂商的 backend / model_name 下。
  *

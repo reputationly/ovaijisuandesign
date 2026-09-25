@@ -15,8 +15,9 @@ const PNG = Buffer.from(
   "hex",
 );
 
-const IDENTITY = { instance: "inst-1", generation: "3" };
-const HEADERS = { "x-hilo-workspace-instance": IDENTITY.instance, "x-hilo-workspace-generation": IDENTITY.generation };
+// 身份校验以 claim 为开关：不设 claim 的 gateway 不校验身份，测不出剥参数的效果。
+const IDENTITY = { claim: "c".repeat(64), instance: "inst-1", generation: "3" };
+const HEADERS = { "x-hilo-workspace": IDENTITY.claim, "x-hilo-workspace-instance": IDENTITY.instance, "x-hilo-workspace-generation": IDENTITY.generation };
 
 describe("画布标签 + query 里的公共参数 / 身份参数", () => {
   let app: INestApplication;
@@ -37,6 +38,7 @@ describe("画布标签 + query 里的公共参数 / 身份参数", () => {
       path.join(root, "hub", "canvas", "tag-registry.json"),
       JSON.stringify({ colors: [{ id: "color:red", name: "主角" }], transparents: [{ id: "kw-old", name: "旧关键词" }] }),
     );
+    process.env.HILO_WORKSPACE_CLAIM = IDENTITY.claim;
     process.env.HILO_WORKSPACE_INSTANCE_ID = IDENTITY.instance;
     process.env.HILO_WORKSPACE_GENERATION = IDENTITY.generation;
     app = await createApp();
@@ -45,30 +47,30 @@ describe("画布标签 + query 里的公共参数 / 身份参数", () => {
     app.get(GatewayEventBus).subscribe((m) => events.push(m.payload));
     await http.post("/api/upload").set(HEADERS).attach("file", PNG, "a.png");
     await http.post("/api/upload").set(HEADERS).attach("file", PNG, "b.png");
-    const assets = (await http.get("/api/assets")).body.assets as { id: string; path: string }[];
+    const assets = (await http.get("/api/assets").set(HEADERS)).body.assets as { id: string; path: string }[];
     a1 = assets.find((a) => a.path === "a.png")!.id;
     a2 = assets.find((a) => a.path === "b.png")!.id;
   });
   afterAll(async () => {
     await app.close();
-    for (const k of ["WORKSPACE_DIR", "HILO_DATA_DIR", "HILO_WORKSPACE_INSTANCE_ID", "HILO_WORKSPACE_GENERATION"]) delete process.env[k];
+    for (const k of ["WORKSPACE_DIR", "HILO_DATA_DIR", "HILO_WORKSPACE_CLAIM", "HILO_WORKSPACE_INSTANCE_ID", "HILO_WORKSPACE_GENERATION"]) delete process.env[k];
     rmSync(root, { recursive: true, force: true });
   });
 
   it("用 DTO 收 query 的路由：公共参数和身份参数都被剥掉，不再 400", async () => {
-    const q = `type=file&limit=100&hilo_workspace_instance=${IDENTITY.instance}&hilo_workspace_generation=${IDENTITY.generation}&device_platform=desktop&app_id=3001&unix=1`;
+    const q = `type=file&limit=100&hilo_workspace=${IDENTITY.claim}&hilo_workspace_instance=${IDENTITY.instance}&hilo_workspace_generation=${IDENTITY.generation}&device_platform=desktop&app_id=3001&unix=1`;
     const r = await http.get(`/api/canvas/nodes?${q}`);
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ count: 0, nodes: [] });
     // 身份对不上照样 409：剥参数发生在校验之后。
-    expect((await http.get("/api/canvas/nodes?hilo_workspace_instance=someone-else")).status).toBe(409);
+    expect((await http.get(`/api/canvas/nodes?hilo_workspace=${IDENTITY.claim}&hilo_workspace_instance=someone-else`)).status).toBe(409);
     // 没带 desktop 标记的请求里，同名参数不剥（可能是真参数），DTO 照常拒掉。
-    expect((await http.get("/api/canvas/nodes?app_id=3001")).status).toBe(400);
+    expect((await http.get("/api/canvas/nodes?app_id=3001").set(HEADERS)).status).toBe(400);
   });
 
   let revision = 0;
   it("第一次读：从旧文件迁移（改过名的颜色 + 关键词），7 个颜色标签补齐", async () => {
-    const r = await http.get("/api/canvas/tag-registry?device_platform=desktop&app_id=3001");
+    const r = await http.get("/api/canvas/tag-registry?device_platform=desktop&app_id=3001").set(HEADERS);
     expect(r.status).toBe(200);
     const reg = r.body.registry;
     expect(reg).toMatchObject({ version: 2, revision: 0, orderMode: "default" });
@@ -144,12 +146,12 @@ describe("画布标签 + query 里的公共参数 / 身份参数", () => {
     r = await http.patch("/api/assets/tags/mutations/batch").set(HEADERS).send({ assetIds: [a2], tagId: "color:blue", operation: "remove" });
     expect(r.body.updatedAssets).toEqual([{ id: a2, tagIds: [kw] }]);
     // 标签落在素材 metadata 里，资产列表带 metadata 时能看到。
-    const assets = (await http.get("/api/assets?include=metadata")).body.assets;
+    const assets = (await http.get("/api/assets?include=metadata").set(HEADERS)).body.assets;
     expect(assets.find((a: any) => a.id === a1).metadata.tagIds).toEqual(["color:blue", kw]);
   });
 
   it("重排：必须恰好是全部标签；之后是自定义顺序", async () => {
-    const reg = (await http.get("/api/canvas/tag-registry")).body.registry;
+    const reg = (await http.get("/api/canvas/tag-registry").set(HEADERS)).body.registry;
     const ids = reg.tags.map((t: any) => t.id).reverse();
     expect((await http.put("/api/canvas/tags/order").set(HEADERS).send({ tagIds: ids.slice(1), revision })).status).toBe(400);
     const r = await http.put("/api/canvas/tags/order").set(HEADERS).send({ tagIds: ids, revision });
@@ -160,13 +162,13 @@ describe("画布标签 + query 里的公共参数 / 身份参数", () => {
   });
 
   it("删除关键词：影响统计、从素材上摘掉；颜色标签不能删", async () => {
-    expect((await http.get(`/api/canvas/tags/${encodeURIComponent(kw)}/impact`)).body).toEqual({ tagId: kw, assetCount: 2, nodeCount: 0 });
+    expect((await http.get(`/api/canvas/tags/${encodeURIComponent(kw)}/impact`).set(HEADERS)).body).toEqual({ tagId: kw, assetCount: 2, nodeCount: 0 });
     expect((await http.delete("/api/canvas/tags/color:red").set(HEADERS).send({ revision })).status).toBe(400);
     const r = await http.delete(`/api/canvas/tags/${encodeURIComponent(kw)}`).set(HEADERS).send({ revision });
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ ok: true, tagId: kw, assetCount: 2, nodeCount: 0 });
     expect(r.body.registry.tags.some((t: any) => t.id === kw)).toBe(false);
     expect(r.body.updatedAssets).toEqual(expect.arrayContaining([{ id: a1, tagIds: ["color:blue"] }, { id: a2, tagIds: [] }]));
-    expect((await http.get(`/api/canvas/tags/${encodeURIComponent(kw)}/impact`)).status).toBe(404);
+    expect((await http.get(`/api/canvas/tags/${encodeURIComponent(kw)}/impact`).set(HEADERS)).status).toBe(404);
   });
 });
