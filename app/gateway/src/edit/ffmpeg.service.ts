@@ -65,10 +65,10 @@ export class FfmpegService implements OnModuleDestroy {
   }
 
   /** 跑一次 ffmpeg。非零退出抛错，错误信息带 stderr 尾部。 */
-  async exec(args: string[], opts: { cwd?: string } = {}): Promise<ExecResult> {
+  async exec(args: string[], opts: { cwd?: string; timeoutMs?: number } = {}): Promise<ExecResult> {
     await this.acquire();
     try {
-      return await this.run(this.ffmpegBin, args, FFMPEG_TIMEOUT_MS, opts.cwd);
+      return await this.run(this.ffmpegBin, args, opts.timeoutMs ?? FFMPEG_TIMEOUT_MS, opts.cwd);
     } finally {
       this.release();
     }

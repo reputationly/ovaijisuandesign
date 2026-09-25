@@ -87,13 +87,13 @@
 
 ## 三、gateway
 
-路由 100 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 101 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
 | 控制器 | 进度 | 缺的主要是 |
 |---|---|---|
-| FilesController | 14/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
+| FilesController | 15/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
 | EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
 | SpeechController | 3/6 | voice_clone、voice_design、voice_isolation |
 | MusicController | 2/4 | 翻唱预处理、歌词生成 |

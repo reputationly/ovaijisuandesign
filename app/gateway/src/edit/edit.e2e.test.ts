@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -230,6 +230,37 @@ describe("edit（真实工作区 + 假平台）", () => {
     const r = await http.post("/api/edit/embed-audio").send({ video_path: "b.mp4", audio_path: "a-audio.mp3", filename: "b-with-audio" });
     expect(r.body).toEqual({ ok: true, path: "b-with-audio.mp4" });
     expect(probe(abs("b-with-audio.mp4")).hasAudio).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 视频 / 音频缩略图
+  // ---------------------------------------------------------------------------
+
+  it.skipIf(!HAS_FFMPEG)("thumbnail：视频抽帧按 w 缩放并缓存；音频画波形；坏文件回占位图", async () => {
+    const jpeg = (r: request.Response) => sharp(r.body as Buffer).metadata();
+    const v = await http.get("/api/thumbnail/a.mp4?w=160").buffer(true);
+    expect(v.status).toBe(200);
+    expect(v.headers["content-type"]).toMatch(/image\/jpeg/);
+    expect(await jpeg(v)).toMatchObject({ format: "jpeg", width: 160, height: 120 });
+    const cached = readdirSync(abs(".hilo/.thumbnails")).filter((f) => f.endsWith(".jpg"));
+    expect(cached).toHaveLength(1);
+    await http.get("/api/thumbnail/a.mp4?w=160");
+    expect(readdirSync(abs(".hilo/.thumbnails")).filter((f) => f.endsWith(".jpg"))).toEqual(cached);
+
+    spawnSync(FFMPEG, ["-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", abs("tone.mp3")]);
+    expect(await jpeg(await http.get("/api/thumbnail/tone.mp3").buffer(true))).toMatchObject({ width: 320, height: 180 });
+
+    writeFileSync(abs("broken.mp4"), "not a video");
+    const broken = await http.get("/api/thumbnail/broken.mp4").buffer(true);
+    expect(broken.status).toBe(200);
+    expect(await jpeg(broken)).toMatchObject({ width: 320, height: 180 });
+  });
+
+  it("thumbnail：不是视频 / 音频 400，不存在 404，越界 400", async () => {
+    writeFileSync(abs("pic.png"), PNG);
+    expect((await http.get("/api/thumbnail/pic.png")).body.message).toBe("Unsupported file type for thumbnail: png");
+    expect((await http.get("/api/thumbnail/ghost.mp4")).status).toBe(404);
+    expect((await http.get("/api/thumbnail/%E0%A4%A")).status).toBe(400);
   });
 
   // ---------------------------------------------------------------------------
