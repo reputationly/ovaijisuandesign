@@ -32,6 +32,7 @@ import { GlobalStore, type RecentWorkspace } from "./storage/global-store.js";
 import { recordRecentOpen } from "./storage/recents.js";
 import { registerStorageIpc } from "./storage/storage-ipc.js";
 import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
+import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
 import { stubChannels } from "./stub-channels.js";
 import { createMainWindow } from "./window.js";
 import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
@@ -105,6 +106,17 @@ async function boot(): Promise<Running> {
     ? path.join(roots.resources, "gateway/dist/main.js")
     : path.join(roots.repoRoot!, "app/gateway/dist/main.js");
   log(`[main] userData=${dirs.userData} projects=${dirs.projectsRoot} hub=${dirs.hubRoot}`);
+
+  // 自带技能铺到 opencode 加载的目录。要在任何工作区起 opencode 之前做完，否则第一个会话看不到技能。
+  const bundledSkills = locateBundledSkills(roots);
+  if (bundledSkills) {
+    try {
+      const r = seedBundledSkills(bundledSkills, path.join(dirs.hubRoot, "skills"));
+      log(`[main] 自带技能：新装 ${r.installed.length}、更新 ${r.updated.length}、不变 ${r.unchanged.length}${r.failed.length ? `、失败 ${r.failed.map((f) => `${f.slug}(${f.error})`).join(" ")}` : ""}`);
+    } catch (err) {
+      log(`[main] 铺自带技能失败：${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   // 存储
   const store = new GlobalStore(dirs.globalStorePath, { workingDirectory: path.join(dirs.hubRoot, "projects"), log });

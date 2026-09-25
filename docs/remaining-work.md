@@ -177,7 +177,7 @@
 
 ### P3 打包、发布、切换（M10）
 
-1. 资源布局：`gateway/`、`mcp-tools/`、`opencode/{opencode,rg}`、`ffmpeg/{ffmpeg,ffprobe}`、`agent-profiles/v2/config`、`opencode-plugin-hilo/`、`project-templates/`。
+1. 资源布局：`gateway/`、`mcp-tools/`、`opencode/{opencode,rg}`、`ffmpeg/{ffmpeg,ffprobe}`、`agent-profiles/v2/config`（来自 `assets/agent-profiles/v2/config`）、`skills/`（来自 `assets/skills`，主进程启动时铺到 `~/.ovhub/skills`）、`opencode-plugin-hilo/`、`project-templates/`。
 2. **原生模块要按 Electron 的 ABI 重编**（better-sqlite3；sharp 用的是 N-API，不受影响）：
    - 开发时 gateway 用系统 Node 跑（见 `app/desktop/src/main/paths.ts` 的 `nodeExecutable`）；
    - 发布包里 gateway 由 Electron 以 Node 模式运行，打包时必须用 `@electron/rebuild` 重编，否则第一次访问资产库就会抛 `NODE_MODULE_VERSION` 不一致。
