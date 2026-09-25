@@ -35,6 +35,18 @@ describe("GatewayClient headers", () => {
     expect(h["x-session-id"]).toBeUndefined();
   });
 
+  it("attaches the workspace identity from the environment on every request", async () => {
+    const keys = ["HILO_WORKSPACE_CLAIM", "HILO_WORKSPACE_INSTANCE_ID", "HILO_WORKSPACE_GENERATION"] as const;
+    Object.assign(process.env, { HILO_WORKSPACE_CLAIM: "abc", HILO_WORKSPACE_INSTANCE_ID: "inst", HILO_WORKSPACE_GENERATION: "2" });
+    try {
+      fg.on("POST", "/x", { json: { ok: true, value: 1 } });
+      await gw.post("/x", {}, 1000, OkOnly);
+      expect(fg.requests[0]!.headers).toMatchObject({ "x-hilo-workspace": "abc", "x-hilo-workspace-instance": "inst", "x-hilo-workspace-generation": "2" });
+    } finally {
+      for (const k of keys) delete process.env[k];
+    }
+  });
+
   it("attaches session context headers", async () => {
     fg.on("POST", "/x", { json: { ok: true, value: 1 } });
     await runWithSession(

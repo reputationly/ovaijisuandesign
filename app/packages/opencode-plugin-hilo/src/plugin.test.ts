@@ -9,7 +9,7 @@ import plugin from "./index.js";
 
 /** 假 gateway：记下收到的请求，按预设回确认 / 防打转的决定。 */
 let server: Server;
-const calls: { path: string; body: any }[] = [];
+const calls: { path: string; body: any; headers: Record<string, unknown> }[] = [];
 let confirmReply: unknown = { decision: "confirm" };
 let loopReply: unknown = { decision: "reject" };
 
@@ -19,7 +19,7 @@ beforeAll(async () => {
     req.on("data", (c) => (s += c));
     req.on("end", () => {
       const body = s ? JSON.parse(s) : undefined;
-      calls.push({ path: req.url!, body });
+      calls.push({ path: req.url!, body, headers: req.headers });
       res.setHeader("content-type", "application/json");
       if (req.url!.includes("/tool-confirm/ask")) return res.end(JSON.stringify(confirmReply));
       if (req.url!.includes("/loop-guard/ask")) return res.end(JSON.stringify(loopReply));
@@ -78,6 +78,20 @@ describe("opencode 插件", () => {
     expect((await before(h, "hub_memory", { projectRoot: "/mine" })).projectRoot).toBe("/mine");
     // 非 hub 工具不碰。
     expect(await before(h, "read", { file_path: "a" })).toEqual({ file_path: "a" });
+  });
+
+  it("回连 gateway 带上工作区身份头", async () => {
+    Object.assign(process.env, { HILO_WORKSPACE_CLAIM: "abc", HILO_WORKSPACE_INSTANCE_ID: "inst", HILO_WORKSPACE_GENERATION: "4" });
+    try {
+      const h = await load();
+      await before(h, "hub_generate_image", { prompt: "猫" });
+      const ask = calls.find((c) => c.path.includes("/tool-confirm/ask"));
+      expect(ask?.headers).toMatchObject({ "x-hilo-workspace": "abc", "x-hilo-workspace-instance": "inst", "x-hilo-workspace-generation": "4" });
+    } finally {
+      delete process.env.HILO_WORKSPACE_CLAIM;
+      delete process.env.HILO_WORKSPACE_INSTANCE_ID;
+      delete process.env.HILO_WORKSPACE_GENERATION;
+    }
   });
 
   it("工具确认：拒绝就抛错；改了参数就合并并记一笔", async () => {

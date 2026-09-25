@@ -113,6 +113,20 @@ describe("BundleHandle", () => {
     expect((push![1] as RequestInit).headers).toMatchObject({ "x-hilo-workspace-generation": "3" });
   });
 
+  it("opencode 拿到和 gateway 同一份身份：插件和 MCP 回连时要带", async () => {
+    let identity: Record<string, string> = {};
+    const { h, gw } = make({
+      prepareOpencode: (_dir, _url, id) => {
+        identity = id;
+        return { binary: "x", cwd: "/w", env: {}, configFile: "/tmp/c.json" };
+      },
+    });
+    await h.start();
+    await tick(40);
+    expect(identity).toEqual(gw.env);
+    expect(identity.HILO_WORKSPACE_INSTANCE_ID).toBeTruthy();
+  });
+
   it("gateway 起不来：failed，并停掉两个进程", async () => {
     const { h, gw, states } = make();
     gw.startResult = "fail";

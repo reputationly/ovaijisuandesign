@@ -7,6 +7,7 @@ import {
   currentSessionId,
   currentToolUseId,
 } from "./context.js";
+import { workspaceIdentityHeaders } from "./env.js";
 import { HealthResponseSchema } from "./schemas.js";
 
 /**
@@ -93,7 +94,7 @@ export class GatewayClient {
 
   /** 按当前工具调用的上下文加头：gateway 用它们把中止限定到会话、把任务和工具调用对上。 */
   requestHeaders(): Record<string, string> {
-    const out = { ...this.baseHeaders };
+    const out = { ...this.baseHeaders, ...workspaceIdentityHeaders() };
     const sessionId = currentSessionId();
     const toolUseId = currentToolUseId();
     const agentRunId = currentAgentRunId();

@@ -43,7 +43,8 @@ export interface BundleHandleDeps {
   createGateway(folderPath: string, env: Record<string, string>): GatewayProcess;
   createOpencode(): OpencodeProcess;
   /** 备好 opencode 的启动参数（同步 profile、生成配置）。 */
-  prepareOpencode(folderPath: string, gatewayUrl: string): LaunchSpec;
+  /** `identity` 是 `HILO_WORKSPACE_*` 环境变量：插件和 MCP 带着它回连 gateway，写请求才过得了身份校验。 */
+  prepareOpencode(folderPath: string, gatewayUrl: string, identity: Record<string, string>): LaunchSpec;
   /**
    * opencode 启动闸门。所有工作区共用一个 opencode 数据库，全新数据库上两个进程同时
    * 启动会同时跑建表迁移，后起的那个直接崩溃；所以启动（到健康为止）排队进行。
@@ -168,7 +169,7 @@ export class BundleHandle implements WorkspaceRuntime {
       const gate = this.deps.opencodeStartGate ?? (<T>(fn: () => Promise<T>) => fn());
       return await gate(async () => {
         if (this.disposed) return undefined;
-        const spec = this.deps.prepareOpencode(this.folderPath, url);
+        const spec = this.deps.prepareOpencode(this.folderPath, url, identityEnv(this.identity));
         return this.opencode.start(spec);
       });
     } catch (err) {

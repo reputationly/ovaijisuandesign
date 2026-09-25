@@ -36,6 +36,7 @@ import { stubChannels } from "./stub-channels.js";
 import { createMainWindow } from "./window.js";
 import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
 import { HiloApp } from "./workspace/hilo-app.js";
+import { identityHeaders } from "./workspace/identity.js";
 
 app.setName("蒜狸小助手");
 // 开发 / 验证时把 userData 指到临时目录，免得碰到真实的全局存储和迁移标记
@@ -175,7 +176,7 @@ async function boot(): Promise<Running> {
         createGateway: (dir, env) =>
           new GatewayManager({ entry: gatewayEntry, role: "workspace", workspaceDir: dir, exec: nodeExec, env: { OV_CONFIG_PATH: dirs.configPath, ...env } }, log),
         createOpencode: () => new OpenCodeRuntime(log),
-        prepareOpencode: (dir, gatewayUrl) =>
+        prepareOpencode: (dir, gatewayUrl, identity) =>
           prepareLaunch({
             roots,
             version: app.getVersion(),
@@ -183,6 +184,7 @@ async function boot(): Promise<Running> {
             // 每次起都重读：设置页改了模型后新开的工作区就用上
             platform: readPlatform(dirs.configPath),
             gatewayUrl,
+            identity,
             hubRoot: dirs.hubRoot,
             runtimeDir: dirs.runtimeDir,
             skillsDir: path.join(dirs.hubRoot, "skills"),
@@ -211,7 +213,7 @@ async function boot(): Promise<Running> {
       if (!target) throw new Error("no gateway is running");
       const r = await fetch(`${target.url}/api/skills/${encodeURIComponent(name)}/toggle`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...identityHeaders(target.binding) },
         body: JSON.stringify({ enabled }),
       });
       if (!r.ok) throw new Error(`toggle skill failed: ${r.status}`);

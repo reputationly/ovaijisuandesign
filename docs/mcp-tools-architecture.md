@@ -32,7 +32,7 @@
 
 **GatewayClient**：
 - 头：`Content-Type: application/json` + 按上下文 `x-session-id`、`x-tool-use-id`、`x-agent-run-id`、
-  `x-chat-turn-id`、`x-group-id`（还有 `x-hilo-workspace*` 身份头，我们不做）。
+  `x-chat-turn-id`、`x-group-id`，再加环境变量 `HILO_WORKSPACE_*` 里的 `x-hilo-workspace*` 身份头（有才带）。
 - `get`：网络错 → `Gateway network error (GET …)`；非 2xx → `Gateway <status>: <body>`；成功 zod 校验。
 - `post`：stderr 记 `[hilo-tools] POST <url> body=<JSON>`；失败拼 `{ok: false, error, error_code, cloud_status,
   failure_presentation}`（408/5xx → `status_unknown`，其余 `terminal`；消息取 body 的

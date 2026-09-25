@@ -6,6 +6,8 @@ import { NestFactory } from "@nestjs/core";
 import { WsAdapter } from "@nestjs/platform-ws";
 
 import { AppModule } from "./app.module.js";
+import { workspaceIdentityMiddleware } from "./common/workspace-identity.js";
+import { GatewayConfig } from "./config/gateway-config.js";
 
 /**
  * 建应用但不监听。测试和 main.ts 共用。
@@ -31,6 +33,7 @@ export async function createApp(): Promise<INestApplication> {
     },
     credentials: true,
   });
+  app.use(workspaceIdentityMiddleware(app.get(GatewayConfig).workspaceIdentity));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
   return app;
 }

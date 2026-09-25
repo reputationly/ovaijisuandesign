@@ -96,7 +96,8 @@
 
 剩余：
 1. 工作区页面按工作区连接 gateway：
-   - 从 `main.hilo.getWorkspaceRuntime(id)`（或 `workspace-bundle-<id>` 的状态）拿到工作区自己的 gateway 地址。
+   - 从 `main.hilo.getWorkspaceRuntime(id)`（或 `workspace-bundle-<id>` 的状态）拿到工作区自己的 gateway 地址和身份（binding 里的 claim / instanceId / generation）。
+   - **每个请求带 `x-hilo-workspace*` 三个头，WS 和 `<img src>` 用 `hilo_workspace*` query**：gateway 已经校验，写请求不带回 428。
    - `api.ts` / `chat.ts` 从模块级单例改成每个工作区一份实例，画布、聊天、WS 都指向它。
 2. 标签栏：标签列表来自 `listWorkspaceEntries` 加变更事件，再按 `visiblePreviewTabs` 过滤。
    - `lastActiveWorkspacePath`、`visiblePreviewTabs` 通过 `storage:global-set` 写回。
@@ -161,7 +162,7 @@
    - 按零样本克隆的方式实现 `POST /api/speech/voice_clone` / `voice_design`：把参考音频登记进本地音色表（工作区或应用级），语音合成时查这张表。
    - `/api/speech/voices` 合并 `voice_map` 和本地音色表。
 3. **画布剩余路由**（M3 遗留）：file-node、plugin-data、split-sub-images、placeholder-group、nodes-group、revert-edits；视频和音频的缩略图要用 ffmpeg。
-4. **工作区身份校验**：`x-hilo-workspace` / `-instance` / `-generation` 三个头。主进程已经生成并通过环境变量传给 gateway，但 gateway 还没校验：不一致回 409，缺失回 428。
+4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节）：gateway 校验、主进程把身份给 opencode 和 MCP、插件和 MCP 的请求带头。错误码是我们定的，本机有参照时核对。
 5. **生成**：`/api/generate/text`，以及同步的 `/api/generate/image` 和 `/api/generate/video`（给画布弹层直接用）。
 6. **Skills 模块**：8 条路由，从 `crates/gateway/src/skills.rs` 移植并对齐官方形状。
 7. **飞书 / 微信**（官方放在主进程的 imBridge 通道）：从 `crates/gateway/src/{feishu,wechat}` 移植，35 个 Rust 测试一起移植。

@@ -13,6 +13,21 @@ export function gatewayUrl(env: NodeJS.ProcessEnv = process.env): string {
   return env.GATEWAY_URL || "http://localhost:8001";
 }
 
+/**
+ * 所在工作区 gateway 的身份头。主进程经 opencode 的 MCP 环境变量传进来；gateway 对缺身份的写请求回 428、
+ * 对不上的回 409 —— 防的是 gateway 重启后这个 MCP 进程还往旧地址写。没有这些变量（独立跑）就不带。
+ */
+export function workspaceIdentityHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  const out: Record<string, string> = {};
+  const set = (header: string, v: string | undefined) => {
+    if (v?.trim()) out[header] = v.trim();
+  };
+  set("x-hilo-workspace", env.HILO_WORKSPACE_CLAIM);
+  set("x-hilo-workspace-instance", env.HILO_WORKSPACE_INSTANCE_ID);
+  set("x-hilo-workspace-generation", env.HILO_WORKSPACE_GENERATION);
+  return out;
+}
+
 /** 影响部分枚举与描述；未知值按 domestic。 */
 export function releaseRegion(env: NodeJS.ProcessEnv = process.env): ReleaseRegion {
   return env.HILO_RELEASE_REGION === "overseas" ? "overseas" : "domestic";

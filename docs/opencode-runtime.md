@@ -162,9 +162,14 @@ question 是 opencode **原生** QuestionTool（`OPENCODE_ENABLE_QUESTION_TOOL=t
 `permission.question: "allow"`）：`question.asked` → `question_request` → 用户答 → `POST /question/:id/reply {answers}`。
 计划不是 todowrite（media-agent 里 `todowrite: false`），是 `hub_plan_*` 那组 MCP 工具。
 
-## 八、工作区身份（我们不做）
+## 八、工作区身份
 
 `claim` = 工作区绝对路径 sha256，`instanceId` = 每个 gateway 一个 UUID，`generation` = 递增整数；
 经 header `x-hilo-workspace*` / query `hilo_workspace*` / env `HILO_WORKSPACE_*` 携带，gateway 中间件校验
 （不一致 409、缺失 428）。作用是多工作区多端口时防止请求打到别的 / 旧的 gateway。
-我们单工作区单 gateway，不需要；插件和 MCP 那边不发这些头即可。
+M5 起我们也是多工作区多端口，所以照做：
+- gateway：`app/gateway/src/common/workspace-identity.ts`。进程没拿到 `HILO_WORKSPACE_INSTANCE_ID` / `_GENERATION`
+  （独立启动、应用级 gateway）时整个不生效；读请求（GET / HEAD / OPTIONS）不带放行；带了对不上 409，写请求缺 428；
+  `/ws` 握手带错的立刻以 4409 关闭。错误码 `WORKSPACE_IDENTITY_MISMATCH` / `WORKSPACE_IDENTITY_REQUIRED` 是我们定的，未和参照核对。
+- 主进程把同一份 `HILO_WORKSPACE_*` 给 gateway、opencode（插件读）和 MCP server 的环境；插件和 `GatewayClient` 每个请求都带。
+- **渲染层连工作区 gateway 时也要带**（`ui-wave-1` 的 P0-1），写请求不带会被 428。

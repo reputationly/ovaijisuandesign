@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import path from "node:path";
 
+import { identityFromEnv } from "../common/workspace-identity.js";
+
 export type GatewayRole = "workspace" | "app-level" | "dev";
 
 /**
@@ -26,6 +28,8 @@ export class GatewayConfig {
   /** 主进程的 HTTP bridge（移到废纸篓等只有主进程能做的事）。 */
   readonly mainBridgeUrl = process.env.HILO_MAIN_BRIDGE_URL;
   readonly mainBridgeToken = process.env.HILO_MAIN_BRIDGE_TOKEN;
+  /** 主进程发的工作区身份；独立启动时没有，校验整个不生效。 */
+  readonly workspaceIdentity = identityFromEnv(process.env);
 }
 
 function parseRole(v: string | undefined): GatewayRole {

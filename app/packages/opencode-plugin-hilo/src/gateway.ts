@@ -5,10 +5,25 @@ export function gatewayUrl(): string {
   return u.replace(/\/+$/, "");
 }
 
+/**
+ * 工作区身份头，和 gateway 同一份（主进程经环境变量给 opencode）。gateway 对缺身份的写请求回 428：
+ * 不带的话确认、防打转的请求全被拒，花钱的工具一律按「gateway 不可用」拦下。
+ */
+function identityHeaders(): Record<string, string> {
+  const out: Record<string, string> = {};
+  const pairs: [string, string | undefined][] = [
+    ["x-hilo-workspace", process.env.HILO_WORKSPACE_CLAIM],
+    ["x-hilo-workspace-instance", process.env.HILO_WORKSPACE_INSTANCE_ID],
+    ["x-hilo-workspace-generation", process.env.HILO_WORKSPACE_GENERATION],
+  ];
+  for (const [h, v] of pairs) if (v?.trim()) out[h] = v.trim();
+  return out;
+}
+
 export async function gatewayJson<T>(path: string, init: { method?: string; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
   const res = await fetch(gatewayUrl() + path, {
     method: init.method ?? (init.body !== undefined ? "POST" : "GET"),
-    headers: init.body !== undefined ? { "content-type": "application/json" } : undefined,
+    headers: { ...identityHeaders(), ...(init.body !== undefined ? { "content-type": "application/json" } : {}) },
     body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
     signal: AbortSignal.timeout(init.timeoutMs ?? 5000),
   });

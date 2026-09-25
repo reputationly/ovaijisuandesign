@@ -1,8 +1,12 @@
+import type { IncomingMessage } from "node:http";
+
 import type { OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
 import { WebSocketGateway } from "@nestjs/websockets";
 import type { WebSocket } from "ws";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { readPresented, verifyIdentity } from "../common/workspace-identity.js";
+import { GatewayConfig } from "../config/gateway-config.js";
 import { type ChatFrame, ChatService } from "./chat.service.js";
 
 /**
@@ -19,9 +23,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly bus: GatewayEventBus,
     private readonly chat: ChatService,
+    private readonly config: GatewayConfig,
   ) {}
 
-  handleConnection(client: WebSocket): void {
+  handleConnection(client: WebSocket, req?: IncomingMessage): void {
+    // 握手是 GET，没带身份照样连得上；带了却对不上的是连错了工作区的旧标签页，不给它事件流。
+    const rejected = req && verifyIdentity(this.config.workspaceIdentity, readPresented(req.headers, req.url), "GET");
+    if (rejected) {
+      client.close(4409, rejected.body.error_code);
+      return;
+    }
     const off = this.bus.subscribe((m) => {
       // internal:* 是进程内的信号（比如 opencode 换了地址），不给客户端。
       if (String(m.event).startsWith("internal:")) return;

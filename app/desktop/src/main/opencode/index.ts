@@ -50,6 +50,8 @@ export interface PrepareInputs {
   platform: Platform;
   /** 本工作区 gateway 的地址，给插件和 MCP server 回连。 */
   gatewayUrl: string;
+  /** 本工作区 gateway 的身份（`HILO_WORKSPACE_*`）。插件和 MCP server 回连时带上，否则写请求被 428。 */
+  identity?: Record<string, string>;
   /** 应用的数据根（profile 同步到这里的 `.config-v2`）。 */
   hubRoot: string;
   /** opencode 的状态隔离目录（XDG_* 指到这下面）。 */
@@ -165,6 +167,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
         SKILLS_DIR: i.skillsDir,
         HILO_KNOWLEDGE_DIR: path.join(synced, "knowledge"),
         HILO_WORKFLOWS_DIR: path.join(synced, "workflows"),
+        ...i.identity,
       },
     },
     extraPlugins: plugin ? [plugin] : [],
@@ -181,6 +184,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
     OPENCODE_CONFIG: configFile,
     // 插件要它回连 gateway，缺了直接 throw。
     GATEWAY_URL: i.gatewayUrl,
+    ...i.identity,
     HILO_MANAGED_RUNTIME: "1",
     // 插件按 NODE_ENV 选数据根：非 production 会去读 *-dev 目录。
     NODE_ENV: "production",
