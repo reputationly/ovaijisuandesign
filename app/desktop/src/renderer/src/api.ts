@@ -11,16 +11,14 @@
  */
 
 import { chat, onChatEvent, socket } from "./chat"
+import { currentGatewayUrl } from "./workspace-binding"
 
 /**
- * gateway 地址。Electron 里由 preload 经 `window.__HILO_CONFIG__` 给出（renderer 跑在
- * `app://` 下，相对路径打不到 gateway）；浏览器里同源开发时为空，走相对路径。
+ * gateway 地址：工作区页绑定的那套工作区 gateway；没有绑定时是应用级 gateway。
+ * 浏览器里同源开发时为空，走相对路径。
  */
-const HILO_CONFIG: { gatewayUrl?: string; wsUrl?: string } =
-  (typeof window !== "undefined" && (window as unknown as { __HILO_CONFIG__?: typeof HILO_CONFIG }).__HILO_CONFIG__) || {}
-
 export function gw(path: string): string {
-  return (HILO_CONFIG.gatewayUrl ?? "") + path
+  return currentGatewayUrl() + path
 }
 
 /** 画布模式。同一个节点在四种模式下各存一套坐标。 */
