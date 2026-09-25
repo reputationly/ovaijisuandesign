@@ -4,6 +4,7 @@
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "out/**"] },
     "typecheck": { "dependsOn": ["^build"] },
     "test": { "dependsOn": ["^build"] },
+    "@ov/desktop#test": { "dependsOn": ["^build", "@ov/gateway#build"] },
     "dev": { "cache": false, "persistent": true }
   }
 }
