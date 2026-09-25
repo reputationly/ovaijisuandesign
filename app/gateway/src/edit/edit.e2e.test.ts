@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -13,6 +13,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../bootstrap.js";
 import { AssetsService } from "../common/assets.service.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { MediaConfigService } from "../generate/media-config.service.js";
 
 const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
 const FFPROBE = process.env.FFPROBE_PATH || "ffprobe";
@@ -42,10 +43,11 @@ function probe(file: string): { width?: number; height?: number; hasAudio: boole
   return { width: v?.width, height: v?.height, hasAudio: j.streams.some((s) => s.codec_type === "audio"), duration: Number(j.format.duration) };
 }
 
-/** 假平台：对话（记下请求体）和超分（按请求的 size 回一张同尺寸的图）。 */
-function fakePlatform() {
+/** 假平台：对话（记下请求体）、图片超分（按请求的 size 回一张同尺寸的图）、视频超分（回工作区里的 b.mp4）。 */
+function fakePlatform(videoBytes: () => Buffer = () => Buffer.alloc(0)) {
   const calls: any[] = [];
   const edits: any[] = [];
+  const videoJobs: any[] = [];
   let reply = "一只橘猫坐在窗台上";
   const server = createServer((req, res) => {
     let raw = "";
@@ -55,6 +57,17 @@ function fakePlatform() {
       if (req.url === "/v1/chat/completions" && req.method === "POST") {
         calls.push(JSON.parse(raw));
         return res.end(JSON.stringify({ choices: [{ message: { role: "assistant", content: reply }, finish_reason: "stop" }] }));
+      }
+      if (req.url === "/v1/videos" && req.method === "POST") {
+        videoJobs.push(JSON.parse(raw));
+        return res.end(JSON.stringify({ task_id: `sr-${videoJobs.length}` }));
+      }
+      if (/^\/v1\/videos\/sr-\d+$/.test(req.url ?? "")) {
+        return res.end(JSON.stringify({ status: "completed", metadata: { url: `http://${req.headers.host}/files/sr.mp4` } }));
+      }
+      if (req.url === "/files/sr.mp4") {
+        res.setHeader("content-type", "video/mp4");
+        return res.end(videoBytes());
       }
       if (req.url === "/v1/images/edits" && req.method === "POST") {
         const body = JSON.parse(raw);
@@ -71,7 +84,7 @@ function fakePlatform() {
       res.end();
     });
   });
-  return { server, calls, edits, setReply: (s: string) => (reply = s) };
+  return { server, calls, edits, videoJobs, setReply: (s: string) => (reply = s) };
 }
 
 describe("edit（真实工作区 + 假平台）", () => {
@@ -84,16 +97,17 @@ describe("edit（真实工作区 + 假平台）", () => {
   const abs = (rel: string) => path.join(ws, rel);
 
   beforeAll(async () => {
-    platform = fakePlatform();
+    platform = fakePlatform(() => readFileSync(abs("b.mp4")));
     server = platform.server;
     await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
     const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     ws = mkdtempSync(path.join(tmpdir(), "ov-edit-e2e-"));
     const cfg = path.join(mkdtempSync(path.join(tmpdir(), "ov-edit-cfg-")), "config.json");
-    writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${base}/v1`, api_key: "k", chat_model: "vision-chat" }, models: { image_upscale: "swiftvr" } }));
+    writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${base}/v1`, api_key: "k", chat_model: "vision-chat" }, models: { image_upscale: "swiftvr", video_upscale: "swiftvr-video" } }));
     process.env.WORKSPACE_DIR = ws;
     process.env.OV_CONFIG_PATH = cfg;
     app = await createApp();
+    app.get(MediaConfigService).clientOverrides = { sleep: async () => undefined, logger: { info() {}, warn() {} } };
     await app.init();
     http = request(app.getHttpServer());
     app.get(GatewayEventBus).subscribe((m) => events.push(m.payload));
@@ -267,41 +281,67 @@ describe("edit（真实工作区 + 假平台）", () => {
   // 超分
   // ---------------------------------------------------------------------------
 
-  it("super-resolution：按源图实际像素算 size，出新图并从源节点连边", async () => {
+  it("super-resolution：按源图实际像素算 size，出新图并从源节点连边，只回 {ok, path}", async () => {
     await sharp({ create: { width: 416, height: 232, channels: 3, background: "#369" } }).png().toFile(abs("小图.png"));
     const src = await place("小图.png");
-    const r = await http.post("/api/edit/super-resolution").send({ image_path: "小图.png", resolution: "2k", source_node_id: src });
-    expect(r.body).toMatchObject({ ok: true, path: "小图-2k.png", width: 2048, height: 1144 });
+    const r = await http.post("/api/edit/super-resolution").send({ image_path: "小图.png", resolution: "2k", filename: "小图-高清", source_node_id: src });
+    expect(r.status).toBe(201);
+    expect(r.body).toEqual({ ok: true, path: "小图-高清.png" });
     const sent = platform.edits.at(-1);
     expect(sent).toMatchObject({ model: "swiftvr", size: "2048x1144" });
     expect(sent.image).toMatch(/^data:image\/png;base64,/);
     expect(existsSync(abs("小图.png"))).toBe(true);
+    const asset = (await http.get("/api/assets")).body.assets.find((a: any) => a.path === "小图-高清.png");
+    expect(asset).toMatchObject({ width: 2048, height: 1144 });
     const canvas = (await http.get("/api/canvas")).body;
-    expect(canvas.edges.some((e: any) => e.source === src && e.target === r.body.node_id)).toBe(true);
+    const out = canvas.nodes.find((n: any) => n.assetId === asset.id);
+    expect(canvas.edges.some((e: any) => e.source === src && e.target === out.id)).toBe(true);
   });
 
   it("super-resolution：EXIF 竖拍按显示方向量；4K 方图按总像素收", async () => {
     // 存成 300x200、orientation=6，显示出来是 200x300 的竖图。
     await sharp({ create: { width: 300, height: 200, channels: 3, background: "#963" } }).withMetadata({ orientation: 6 }).jpeg().toFile(abs("竖拍.jpg"));
-    const r = await http.post("/api/edit/super-resolution").send({ image_path: "竖拍.jpg", resolution: "1K" });
-    expect(r.body).toMatchObject({ ok: true, width: 680, height: 1024 });
+    const r = await http.post("/api/edit/super-resolution").send({ image_path: "竖拍.jpg", resolution: "1K", filename: "竖拍-1k" });
+    expect(r.body.ok).toBe(true);
+    expect(platform.edits.at(-1).size).toBe("680x1024");
     await sharp({ create: { width: 464, height: 464, channels: 3, background: "#396" } }).png().toFile(abs("方图.png"));
-    const sq = await http.post("/api/edit/super-resolution").send({ image_path: "方图.png", resolution: "4K" });
+    const sq = await http.post("/api/edit/super-resolution").send({ image_path: "方图.png", resolution: "4K", filename: "方图-4k" });
     expect(sq.body.ok).toBe(true);
-    expect(sq.body.width * sq.body.height).toBeLessThanOrEqual(3840 * 2160 * 1.01);
+    const [w, h] = String(platform.edits.at(-1).size).split("x").map(Number);
+    expect(w! * h!).toBeLessThanOrEqual(3840 * 2160 * 1.01);
   });
 
-  it("super-resolution：已经够大、不是图片、越界都不打平台", async () => {
+  it("super-resolution：已经够大、不是图片都不打平台，失败文案统一前缀；越界 400", async () => {
     await sharp({ create: { width: 2400, height: 1600, channels: 3, background: "#000" } }).png().toFile(abs("大图.png"));
     const before = platform.edits.length;
-    expect((await http.post("/api/edit/super-resolution").send({ image_path: "大图.png", resolution: "2K" })).body).toMatchObject({
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "大图.png", resolution: "2K", filename: "x" })).body).toEqual({
       ok: false,
-      error: expect.stringMatching(/already 2400x1600/),
+      error: "Super resolution failed: image is already 2400x1600, at or above 2K; nothing to upscale.",
     });
     writeFileSync(abs("notes.txt"), "x");
-    expect((await http.post("/api/edit/super-resolution").send({ image_path: "notes.txt" })).body).toMatchObject({ ok: false, error: expect.stringMatching(/only accepts images/) });
-    expect((await http.post("/api/edit/super-resolution").send({ image_path: "../x.png" })).status).toBe(400);
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "notes.txt", resolution: "2K", filename: "x" })).body).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/^Super resolution failed: not an image/),
+    });
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "../x.png", resolution: "2K", filename: "x" })).status).toBe(400);
     expect(platform.edits.length).toBe(before);
+  });
+
+  it("super-resolution：请求体按参照校验（resolution / filename 必填，image_path 与 video_path 至少一个，不认识的字段 400）", async () => {
+    const post = (b: object) => http.post("/api/edit/super-resolution").send(b);
+    expect((await post({ image_path: "小图.png", filename: "x" })).status).toBe(400);
+    expect((await post({ image_path: "小图.png", resolution: "2K" })).status).toBe(400);
+    expect((await post({ resolution: "2K", filename: "x" })).status).toBe(400);
+    expect((await post({ image_path: "小图.png", resolution: "2K", filename: "x", replace_node_id: "n" })).status).toBe(400);
+  });
+
+  it.skipIf(!HAS_FFMPEG)("super-resolution：视频把档位词交给平台的 sr 任务，结果登记为视频", async () => {
+    const src = await place("b.mp4");
+    const r = await http.post("/api/edit/super-resolution").send({ video_path: "b.mp4", resolution: "4K", filename: "b-4k", source_node_id: src });
+    expect(r.body).toEqual({ ok: true, path: "b-4k.mp4" });
+    expect(platform.videoJobs.at(-1)).toMatchObject({ model: "swiftvr-video", metadata: { task_type: "sr", resolution: "4K" } });
+    const canvas = (await http.get("/api/canvas")).body;
+    expect(canvas.edges.some((e: any) => e.source === src && canvas.nodes.some((n: any) => n.id === e.target && n.type === "video"))).toBe(true);
   });
 
   // ---------------------------------------------------------------------------
@@ -350,17 +390,70 @@ describe("edit（真实工作区 + 假平台）", () => {
     expect((await http.post("/api/edit/generate-text-messages").send({ model: "m", prompt: "x", max_tokens: 9999 })).status).toBe(400);
   });
 
-  it("/api/generate/text：系统提示在前；不认识的字段不 400；缺 prompt 400", async () => {
-    platform.setReply("标题：夜猫");
-    const r = await http.post("/api/generate/text").send({ prompt: "给这张图起个标题", system_prompt: "只回标题", model: "whatever", image_paths: ["cat.png"] });
-    expect(r.status).toBe(200);
-    expect(r.body).toEqual({ ok: true, text: "标题：夜猫" });
+  it("/api/generate/text：画布来源才受理，结果写进新建的文本节点，从来源连边", async () => {
+    platform.setReply("# 夜猫\n\n一只在窗台上看月亮的猫。");
+    const src = await place("cat.png");
+    const canvasHeaders = { "x-hilo-source": "canvas" };
+    const r = await http
+      .post("/api/generate/text")
+      .set(canvasHeaders)
+      .send({ model_id: "vision-chat", prompt: "给这张图写一段介绍\n要简短", image_paths: ["cat.png"], source_node_id: src });
+    expect(r.status).toBe(201);
+    expect(r.body).toEqual({ ok: true, path: "给这张图写一段介绍.md" });
+    expect(readFileSync(abs("给这张图写一段介绍.md"), "utf8")).toBe("# 夜猫\n\n一只在窗台上看月亮的猫。");
     const body = platform.calls.at(-1);
     expect(body.model).toBe("vision-chat");
-    expect(body.messages[0]).toEqual({ role: "system", content: "只回标题" });
+    expect(body.messages[0].role).toBe("system");
+    expect(body.messages[0].content).toContain('You are "vision-chat"');
     expect(body.messages[1].content[1].image_url.url).toMatch(/^data:image\/png;base64,/);
-    expect((await http.post("/api/generate/text").send({ system: "x" })).status).toBe(400);
-    expect((await http.post("/api/generate/text").send({ prompt: "x", image_paths: "cat.png" })).status).toBe(400);
+    const canvas = (await http.get("/api/canvas")).body;
+    const asset = (await http.get("/api/assets?include=metadata")).body.assets.find((a: any) => a.path === "给这张图写一段介绍.md");
+    expect(asset.metadata).toMatchObject({ prompt: "给这张图写一段介绍\n要简短", model_id: "vision-chat" });
+    const node = canvas.nodes.find((n: any) => n.assetId === asset.id);
+    expect(node.type).toBe("text");
+    expect(node.data).toMatchObject({ prompt: "给这张图写一段介绍\n要简短", model_id: "vision-chat", referenceImageIds: [expect.any(String)] });
+    expect(node.data.status).toBeUndefined();
+    expect(node.data.textRevision).toEqual(expect.any(Number));
+    expect(canvas.edges.some((e: any) => e.source === src && e.target === node.id)).toBe(true);
+
+    // 同名再生成一次：文件名加空格序号，不覆盖。
+    expect((await http.post("/api/generate/text").set(canvasHeaders).send({ model_id: "vision-chat", prompt: "给这张图写一段介绍" })).body.path).toBe("给这张图写一段介绍 2.md");
+  });
+
+  it("/api/generate/text：replace_node_id 写回已有文本节点；参考文本贴在前面；params.system_prompt 覆盖默认系统提示", async () => {
+    writeFileSync(abs("大纲.md"), "第一章：相遇");
+    platform.setReply("改写后的正文");
+    const first = await http.post("/api/generate/text").set({ "x-hilo-source": "canvas" }).send({ model_id: "vision-chat", prompt: "旧的" });
+    const asset = (await http.get("/api/assets")).body.assets.find((a: any) => a.path === first.body.path);
+    const nodeId = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.assetId === asset.id).id;
+    const r = await http
+      .post("/api/generate/text")
+      .set({ "x-hilo-source": "canvas" })
+      .send({ model_id: "vision-chat", prompt: "按大纲扩写", text_paths: ["大纲.md"], replace_node_id: nodeId, params: { system_prompt: "你是编辑" } });
+    expect(r.body).toEqual({ ok: true, path: first.body.path });
+    expect(readFileSync(abs(first.body.path), "utf8")).toBe("改写后的正文");
+    const body = platform.calls.at(-1);
+    expect(body.messages[0]).toEqual({ role: "system", content: "你是编辑" });
+    expect(body.messages[1].content).toBe("【文本1】\n第一章：相遇\n\n按大纲扩写");
+  });
+
+  it("/api/generate/text：模型不对、不是画布来源、空输出都回 ok:false；请求体按参照校验", async () => {
+    const post = (b: object, h: Record<string, string> = { "x-hilo-source": "canvas" }) => http.post("/api/generate/text").set(h).send(b);
+    expect((await post({ model_id: "gpt-x", prompt: "x" })).body).toEqual({ ok: false, error: "No text model for this model id", error_code: "client_error" });
+    expect((await post({ model_id: "vision-chat", prompt: "x" }, {})).body).toEqual({
+      ok: false,
+      error: "Text generation is only supported for canvas requests",
+      error_code: "client_error",
+    });
+    platform.setReply("   ");
+    const empty = await post({ model_id: "vision-chat", prompt: "空的" });
+    expect(empty.body).toEqual({ ok: false, error: "Model returned empty output", error_code: "backend_error", failure_presentation: "terminal" });
+    const asset = (await http.get("/api/assets")).body.assets.find((a: any) => a.path === "空的.md");
+    const node = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.assetId === asset.id);
+    expect(node.data).toMatchObject({ status: "error", errorMessage: "Model returned empty output" });
+    expect((await post({ model_id: "vision-chat", prompt: "x", system_prompt: "只回标题" })).status).toBe(400);
+    expect((await post({ prompt: "x" })).status).toBe(400);
+    expect((await post({ model_id: "vision-chat", prompt: "x", image_paths: "cat.png" })).status).toBe(400);
   });
 
   it("generate-text：带参考图时发多模态内容", async () => {

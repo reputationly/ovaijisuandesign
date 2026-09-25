@@ -1,12 +1,12 @@
 import type { IncomingMessage } from "node:http";
 
+import { Logger } from "@nestjs/common";
 import type { OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
 import { WebSocketGateway } from "@nestjs/websockets";
 import type { WebSocket } from "ws";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
-import { readPresented, verifyIdentity } from "../common/workspace-identity.js";
-import { GatewayConfig } from "../config/gateway-config.js";
+import { verifyWebSocketIdentity, WORKSPACE_IDENTITY_WS_CLOSE_CODE } from "../common/workspace-identity.js";
 import { type ChatFrame, ChatService } from "./chat.service.js";
 
 /**
@@ -19,18 +19,19 @@ import { type ChatFrame, ChatService } from "./chat.service.js";
 @WebSocketGateway({ path: "/ws" })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly subs = new WeakMap<WebSocket, () => void>();
+  private readonly log = new Logger("WorkspaceWebSocketGuard");
 
   constructor(
     private readonly bus: GatewayEventBus,
     private readonly chat: ChatService,
-    private readonly config: GatewayConfig,
   ) {}
 
   handleConnection(client: WebSocket, req?: IncomingMessage): void {
-    // 握手是 GET，没带身份照样连得上；带了却对不上的是连错了工作区的旧标签页，不给它事件流。
-    const rejected = req && verifyIdentity(this.config.workspaceIdentity, readPresented(req.headers, req.url), "GET");
+    // 事件流里有这个工作区的画布和聊天：没带身份或对不上（连错了工作区的旧标签页）都不给。
+    const rejected = verifyWebSocketIdentity(process.env, req?.url);
     if (rejected) {
-      client.close(1008, "Workspace identity mismatch");
+      this.log.warn(`[workspace-identity] code=${rejected} transport=ws route_class=session`);
+      client.close(WORKSPACE_IDENTITY_WS_CLOSE_CODE, "Workspace identity mismatch");
       return;
     }
     const off = this.bus.subscribe((m) => {

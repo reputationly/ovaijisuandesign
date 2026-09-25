@@ -2,7 +2,7 @@ import { access, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import { chat, image, type MediaConfig } from "@ov/maas-media";
+import { chat, image, type MediaConfig, video } from "@ov/maas-media";
 import sharp from "sharp";
 
 import { CanvasService } from "../canvas/canvas.service.js";
@@ -25,7 +25,6 @@ import { FfmpegService } from "./ffmpeg.service.js";
 import { type OutputKind, reserveOutputPath, resolveInsideWorkspace, toWorkspaceRel } from "./paths.js";
 
 export type EditResult = { ok: true; path: string; warnings?: string[]; _probe?: { stdout: string; stderr: string } } | { ok: false; error: string };
-export type SuperResolutionResult = { ok: true; path: string; width: number; height: number; node_id?: string } | { ok: false; error: string };
 export type TextResult = { ok: true; text: string } | { ok: false; error: string };
 
 const IMAGE_EXTS = new Set(["png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "heic", "heif", "avif"]);
@@ -255,67 +254,75 @@ export class EditService {
   }
 
   // -------------------------------------------------------------------------
-  // 图片超分
+  // 超分（图片 / 视频）
   // -------------------------------------------------------------------------
 
   /**
-   * 同步超分：出一张新图，不动原图（原图可能还被别的节点引用）。
+   * 同步超分：出一份新文件，不动原文件（原文件可能还被别的节点引用）。成功回 `{ok, path}`，
+   * 失败一律 `Super resolution failed: <原因>`。
    *
-   * 目标尺寸必须按源图的实际像素算：平台不认档位词，只认精确的 `size`，不传就按默认的
+   * 图片的目标尺寸必须按源图的实际像素算：平台不认档位词，只认精确的 `size`，不传就按默认的
    * 2 倍放大，选什么档都一样。EXIF 旋转过的照片要按显示方向量，否则竖图算成横图的尺寸。
+   * 视频直接把档位词交给平台。
    */
-  async superResolution(dto: SuperResolutionDto, sessionId?: string): Promise<SuperResolutionResult> {
-    const src = await this.resolveOrThrow(dto.image_path);
+  async superResolution(dto: SuperResolutionDto, sessionId?: string): Promise<EditResult> {
+    const isImage = !!dto.image_path;
+    const input = (isImage ? dto.image_path : dto.video_path)!;
+    const src = await this.resolveOrThrow(input);
+    const kind: OutputKind = isImage ? "image" : "video";
+    const tier = dto.resolution.trim();
+    const fail = (msg: string): EditResult => {
+      this.log.error(`super-resolution 失败 ${input}: ${msg}`);
+      return { ok: false, error: `Super resolution failed: ${msg}` };
+    };
+
     const ext = path.extname(src).toLowerCase().replace(/^\./, "");
-    if (!IMAGE_EXTS.has(ext)) return { ok: false, error: `Super resolution only accepts images: ${dto.image_path}` };
+    if (!(isImage ? IMAGE_EXTS : VIDEO_EXTS).has(ext)) return fail(`not ${isImage ? "an image" : "a video"}: ${input}`);
     let cfg: MediaConfig;
     try {
       cfg = this.media.load();
     } catch (err) {
-      return { ok: false, error: `Platform config is unreadable: ${(err as Error).message}` };
+      return fail(`platform config is unreadable: ${(err as Error).message}`);
     }
-    const model = cfg.models.image_upscale?.trim();
-    if (!cfg.platform.base_url.trim() || !model) {
-      return { ok: false, error: "No image upscale model configured: set it in Settings." };
-    }
+    const model = (isImage ? cfg.models.image_upscale : cfg.models.video_upscale)?.trim();
+    if (!cfg.platform.base_url.trim() || !model) return fail(`no ${kind} upscale model configured: set it in Settings.`);
 
-    let width: number;
-    let height: number;
+    let url: string;
     try {
-      const meta = await sharp(src, { failOn: "none" }).metadata();
-      const swap = (meta.orientation ?? 1) >= 5;
-      width = (swap ? meta.height : meta.width) ?? 0;
-      height = (swap ? meta.width : meta.height) ?? 0;
+      if (isImage) {
+        const meta = await sharp(src, { failOn: "none" }).metadata();
+        const swap = (meta.orientation ?? 1) >= 5;
+        const width = (swap ? meta.height : meta.width) ?? 0;
+        const height = (swap ? meta.width : meta.height) ?? 0;
+        const size = image.upscaleSize(width, height, tier);
+        // 不是故障，是这张图不用放大：说清楚现有尺寸，不然用户只看到一个没有原因的失败。
+        if (!size) return fail(`image is already ${width}x${height}, at or above ${tier.toUpperCase()}; nothing to upscale.`);
+        const [source] = await image.loadImageInputs(this.root, [src]);
+        url = await image.upscale(this.media.client(), cfg, source!, size);
+        this.log.log(`super-resolution: ${input} ${width}x${height} → ${size}`);
+      } else {
+        const [source] = await image.loadMediaInputs(this.root, [src]);
+        url = await video.upscale(this.media.client(), cfg, source!, tier);
+        this.log.log(`super-resolution: ${input} → ${tier}`);
+      }
     } catch (err) {
-      return { ok: false, error: `Failed to read image size: ${dto.image_path} (${(err as Error).message})` };
+      return fail((err as Error).message);
     }
-    const tier = dto.resolution?.trim() || "2K";
-    const size = image.upscaleSize(width, height, tier);
-    // 不是故障，是这张图不用放大：说清楚现有尺寸，不然用户只看到一个没有原因的失败。
-    if (!size) return { ok: false, error: `Image is already ${width}x${height}, at or above ${tier.toUpperCase()}; nothing to upscale.` };
 
     let abs: string;
     try {
-      const [source] = await image.loadImageInputs(this.root, [src]);
-      const url = await image.upscale(this.media.client(), cfg, source!, size);
-      const base = path.basename(dto.image_path).replace(/\.[^.]+$/, "") || "image";
-      abs = await downloadMediaToDir(url, this.root, dto.filename ?? `${base}-${tier.toLowerCase()}`);
+      abs = await downloadMediaToDir(url, this.root, dto.filename);
     } catch (err) {
-      return { ok: false, error: `Super resolution failed: ${(err as Error).message}` };
+      return fail((err as Error).message);
     }
     const rel = toWorkspaceRel(this.root, abs)!;
-    const preserve = dto.preserve_source_canvas_node === true;
-    const nodeId = await this.recordOutput(rel, "image", {
-      sourceNodeId: dto.source_node_id ?? (preserve ? dto.replace_node_id : undefined),
-      replaceNodeId: preserve ? undefined : dto.replace_node_id,
-      referencePaths: [dto.image_path],
+    await this.recordOutput(rel, kind, {
+      sourceNodeId: dto.source_node_id,
+      referencePaths: [input],
       metadata: { model, description: `super resolution ${tier.toUpperCase()}` },
       sessionId,
     });
-    const [w, h] = size.split("x").map(Number) as [number, number];
-    const row = this.assets.byPath(rel);
-    this.log.log(`super-resolution: ${dto.image_path} ${width}x${height} → ${size}`);
-    return { ok: true, path: rel, width: row?.width ?? w, height: row?.height ?? h, ...(nodeId ? { node_id: nodeId } : {}) };
+    return { ok: true, path: rel };
   }
 
   /**
@@ -473,7 +480,7 @@ export class EditService {
 }
 
 /** 图片 → data URI。尺寸、体积、格式都合适就原样发，否则缩到长边 2160 转 JPEG。 */
-async function imageDataUri(abs: string): Promise<string> {
+export async function imageDataUri(abs: string): Promise<string> {
   const buf = await readFile(abs);
   const meta = await sharp(buf, { failOn: "none" }).metadata();
   const fmt = meta.format ?? "";

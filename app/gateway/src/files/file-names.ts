@@ -1,6 +1,7 @@
 import { open } from "node:fs/promises";
 import path from "node:path";
 
+import { BadRequestException } from "@nestjs/common";
 import { detectFileType, MEDIA_SUBDIRS } from "@ov/protocol";
 
 /**
@@ -79,4 +80,26 @@ export async function writeFileExclusive(abs: string, data: Uint8Array | string)
     }
   }
   throw new Error(`同名文件太多: ${abs}`);
+}
+
+/** `unique` 写：重名时 `"<stem> 2<ext>"`、`"<stem> 3<ext>"`（中间是空格），最多到 100。 */
+export async function writeUniqueSpaced(abs: string, content: string): Promise<string> {
+  const ext = path.extname(abs);
+  const stem = path.basename(abs, ext);
+  const dir = path.dirname(abs);
+  for (let n = 1; n <= 100; n++) {
+    const cand = n === 1 ? abs : path.join(dir, `${stem} ${n}${ext}`);
+    try {
+      const fh = await open(cand, "wx");
+      try {
+        await fh.writeFile(content);
+      } finally {
+        await fh.close();
+      }
+      return cand;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
+    }
+  }
+  throw new BadRequestException(`Too many existing files for ${abs}`);
 }

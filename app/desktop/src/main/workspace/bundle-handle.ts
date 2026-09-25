@@ -43,7 +43,7 @@ export interface BundleHandleDeps {
   createGateway(folderPath: string, env: Record<string, string>): GatewayProcess;
   createOpencode(): OpencodeProcess;
   /** 备好 opencode 的启动参数（同步 profile、生成配置）。 */
-  /** `identity` 是 `HILO_WORKSPACE_*` 环境变量：插件和 MCP 带着它回连 gateway，写请求才过得了身份校验。 */
+  /** `identity` 是 `HILO_WORKSPACE_*` 环境变量：插件和 MCP 带着它回连 gateway，请求才过得了身份校验。 */
   prepareOpencode(folderPath: string, gatewayUrl: string, identity: Record<string, string>): LaunchSpec;
   /**
    * opencode 启动闸门。所有工作区共用一个 opencode 数据库，全新数据库上两个进程同时

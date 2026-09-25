@@ -455,6 +455,54 @@ export class CanvasService {
     });
   }
 
+  /**
+   * 改文本节点的 data。值为 undefined 的键表示删掉。节点不在或不是文本节点回 null，
+   * 调用方（文本生成）据此判断用户是否在生成途中删了卡。
+   */
+  async updateTextNodeData(nodeId: string, patch: Record<string, unknown>): Promise<CanvasNode | null> {
+    return this.mutate((c) => {
+      const node = c.nodes.find((n) => n.id === nodeId);
+      if (!node || node.type !== "text") return { result: null };
+      const data: Record<string, unknown> = { ...(node.data ?? {}) };
+      for (const [k, v] of Object.entries(patch)) {
+        if (v === undefined) delete data[k];
+        else data[k] = v;
+      }
+      node.data = data;
+      return { canvas: c, result: node, event: { updatedNodes: [node] } };
+    });
+  }
+
+  /**
+   * 给还没有文件的空文本节点原地挂上一个文本资产（id、位置、边都不动）。
+   * 节点已经有资产时不覆盖，回 `attached: false` 和现有节点，调用方改用那份资产。
+   */
+  async attachAssetToTextNode(nodeId: string, row: AssetRow): Promise<{ node: CanvasNode; attached: boolean } | null> {
+    return this.mutate<{ node: CanvasNode; attached: boolean } | null>((c) => {
+      const idx = c.nodes.findIndex((n) => n.id === nodeId);
+      const target = c.nodes[idx];
+      if (!target || target.type !== "text") return { result: null };
+      if (target.assetId) return { result: { node: target, attached: false } };
+      const { isEmpty: _dropped, ...rest } = target;
+      const node: CanvasNode = {
+        ...rest,
+        assetId: row.id,
+        data: { ...(target.data ?? {}), assetId: row.id, path: row.path, name: row.name ?? path.basename(row.path) },
+      };
+      c.nodes[idx] = node;
+      return { canvas: c, result: { node, attached: true }, event: { updatedNodes: [node] } };
+    });
+  }
+
+  /** 为一个已登记的文本资产新建节点，有来源时贴着来源放并连派生边。 */
+  async addTextAssetNode(row: AssetRow, sourceNodeId?: string): Promise<string> {
+    return this.mutate((c) => {
+      const sources = sourceNodeId && c.nodes.some((n) => n.id === sourceNodeId) ? [sourceNodeId] : [];
+      const { node, edges } = this.addAssetNode(c, row, { sourceNodeIds: sources });
+      return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges } };
+    });
+  }
+
   private async textTarget(nodeId: string, short = false) {
     const c = await this.getCanvas();
     const node = c.nodes.find((n) => n.id === nodeId);

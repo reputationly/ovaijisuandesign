@@ -10,7 +10,7 @@ import { AssetChangeLog } from "../common/asset-change-log.js";
 import { AssetsService } from "../common/assets.service.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { type UndoOp, TrashBufferService } from "../operations/trash-buffer.service.js";
-import { deriveImportTarget, sanitizeFileName, uploadFileName, writeFileExclusive } from "./file-names.js";
+import { deriveImportTarget, sanitizeFileName, uploadFileName, writeFileExclusive, writeUniqueSpaced } from "./file-names.js";
 import { assertPublicUrl, SsrfError } from "./ssrf.js";
 
 /** `.hilo/` 下只允许读写这两类：表格文档和文本节点的旧存放位置。其余是内部状态。 */
@@ -306,28 +306,6 @@ async function exists(p: string): Promise<boolean> {
     () => true,
     () => false,
   );
-}
-
-/** `unique` 写：重名时 `"<stem> 2<ext>"`、`"<stem> 3<ext>"`（中间是空格），最多到 100。 */
-async function writeUniqueSpaced(abs: string, content: string): Promise<string> {
-  const ext = path.extname(abs);
-  const stem = path.basename(abs, ext);
-  const dir = path.dirname(abs);
-  for (let n = 1; n <= 100; n++) {
-    const cand = n === 1 ? abs : path.join(dir, `${stem} ${n}${ext}`);
-    try {
-      const fh = await open(cand, "wx");
-      try {
-        await fh.writeFile(content);
-      } finally {
-        await fh.close();
-      }
-      return cand;
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
-    }
-  }
-  throw new BadRequestException(`Too many existing files for ${abs}`);
 }
 
 function stamp(d: Date): string {

@@ -50,7 +50,7 @@ export interface PrepareInputs {
   platform: Platform;
   /** 本工作区 gateway 的地址，给插件和 MCP server 回连。 */
   gatewayUrl: string;
-  /** 本工作区 gateway 的身份（`HILO_WORKSPACE_*`）。插件和 MCP server 回连时带上，否则写请求被 428。 */
+  /** 本工作区 gateway 的身份（`HILO_WORKSPACE_*`）。插件和 MCP server 回连时带上，否则请求被 428。 */
   identity?: Record<string, string>;
   /** 应用的数据根（profile 同步到这里的 `.config-v2`）。 */
   hubRoot: string;
