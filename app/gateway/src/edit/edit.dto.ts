@@ -75,3 +75,13 @@ export class FfmpegRunDto {
   @IsOptional() @IsArray() @IsString({ each: true }) input_paths?: string[];
   @IsOptional() @ValidateNested() @Type(() => FfmpegMetadataDto) metadata?: FfmpegMetadataDto;
 }
+
+export class SuperResolutionDto {
+  @IsString() @IsNotEmpty() image_path!: string;
+  /** 档位 1K / 2K / 4K，大小写不敏感；缺省 2K。目标尺寸由后端按源图实际像素算。 */
+  @IsOptional() @IsString() resolution?: string;
+  @IsOptional() @IsString() filename?: string;
+  @IsOptional() @IsString() source_node_id?: string;
+  @IsOptional() @IsString() replace_node_id?: string;
+  @IsOptional() @IsBoolean() preserve_source_canvas_node?: boolean;
+}

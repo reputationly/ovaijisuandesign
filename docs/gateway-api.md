@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 85 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 88 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -281,7 +281,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/diagnostics/network
 ```
 
-## EditController（7/23）
+## EditController（8/23）
 
 ```
 ✓ POST   /api/edit/analyze-media
@@ -306,7 +306,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/edit/outpaint-banana
   POST   /api/edit/redraw-banana
   POST   /api/edit/remove-background
-  POST   /api/edit/super-resolution
+✓ POST   /api/edit/super-resolution
 ```
 
 ## FeedbackController（0/5）
@@ -389,14 +389,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/speech/voices
 ```
 
-## HealthController（3/5）
+## HealthController（5/5）
 
 ```
 ✓ GET    /api/health
-  GET    /api/health/activity
+✓ GET    /api/health/activity
 ✓ GET    /api/health/live
 ✓ GET    /api/health/ready
-  DELETE /api/health/suspend-lease
+✓ DELETE /api/health/suspend-lease
 ```
 
 ## HeartbeatController（0/1）

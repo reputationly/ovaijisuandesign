@@ -66,6 +66,13 @@ describe("image", () => {
    * 不拦的话算出来的 `target_shape` 小于源图，而引擎会照办 ——
    * 用户点「高清」得到一张更糊的图，全程不报错。
    */
+  /** 高清增强面板有 1K 档；认不出时退回 2K 的话，选 1K 实际拿到 2K。 */
+  it("upscale size honours the 1K tier", () => {
+    const [w] = parts(upscaleSize(512, 288, "1k")!);
+    expect(w).toBe(1024);
+    expect(upscaleSize(1024, 768, "1K")).toBeNull();
+  });
+
   it("upscale size refuses to shrink", () => {
     expect(upscaleSize(4000, 3000, "2K")).toBeNull();
     expect(upscaleSize(2048, 2048, "2K")).toBeNull();

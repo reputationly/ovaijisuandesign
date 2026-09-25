@@ -23,7 +23,7 @@
 | 画布节点 | 9 种：image、video、audio、text、file（全景 / 插件 / 文件预览）、placeholder、table、group、sticker | 6 种，缺 file、table、sticker |
 | 画布交互 | 1732 个交互点、约 144 个菜单项：撤销重做、复制粘贴、对齐吸附、选中工具栏、右键菜单、快捷键；边、小地图、背景画在 `<canvas>` 上 | 少量菜单，没有撤销重做和复制粘贴，用 xyflow 自带的边和小地图 |
 | 画布模式 | 工具模式：select / hand / sticker；编辑模式：crop / outpaint / erase / redraw / move-object | 旧版的 4 种画布模式（其中 grid、storyboard 参照里没有） |
-| 节点弹层 | 生成弹层、裁剪、超分、扩图、擦除、重绘、移动物体、重打光、多角度、图层拆分、抠图 | 只有裁剪和超分，而且**超分当前没有后端**（见 P2-1） |
+| 节点弹层 | 生成弹层、裁剪、超分、扩图、擦除、重绘、移动物体、重打光、多角度、图层拆分、抠图 | 只有裁剪和超分（超分走 `/api/edit/super-resolution`，没有 8K 档：平台按 4K 总像素封顶） |
 | 聊天面板 | 约 4.6 万行：流式、markdown、思考块、工具卡、子 agent 块、提问栏、**工具确认卡**、**死循环防护卡**、上下文压缩提示、tiptap 输入框、会话标签、模型 / 模式 / Skill 选择器 | 约 1.6k 行；确认卡和防护卡**收到了却不显示**（用户看不到，agent 会一直等）；没有 markdown |
 | 组件体系 | Base UI、701 个设计 token、i18n（中英各 7578 条） | 主线：普通 React + 自写样式、244 个 token、没有 i18n；`ui-wave-1` 已补齐 token、i18n 和基础组件 |
 | 图标 | lucide 0.468.0 | 主线用 ^1.43，图标形状不一样；`ui-wave-1` 已钉到 0.468.0 |
@@ -87,20 +87,19 @@
 
 ## 三、gateway
 
-路由 85 / 466。共 75 个控制器：全部做完 7 个、部分 11 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 88 / 466。共 75 个控制器：全部做完 8 个、部分 10 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
 | 控制器 | 进度 | 缺的主要是 |
 |---|---|---|
 | FilesController | 14/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
-| EditController | 7/23 | 超分、增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
+| EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
 | CanvasController | 19/26 | file-node、plugin-data、split-sub-images、placeholder-group、nodes-group、revert-edits |
 | GenerateController | 10/13 | 同步的 `/api/generate/image`、`/video`、`/text` |
 | SpeechController | 2/6 | voice_clone、voice_design、voice_isolation、同步 `/api/generate/speech` |
 | MusicController | 1/4 | 同步生成、翻唱预处理、歌词生成 |
 | InternalSessionController | 11/15 | 其余内部会话接口 |
-| HealthController | 3/5 | —（M5 新加的 activity / suspend-lease 还没进统计） |
 | AssetPreviewController / PlanController / ChatAttachmentCdnController | 1/3、1/3、1/2 | 预览、计划读写、附件 CDN |
 
 **完全没做的控制器，按「计划做（A）」和「范围外（B）」分开**。归类是按控制器名和用途判断的，动手前先去参照源码里确认：
@@ -157,6 +156,7 @@
 | `preserve_source_canvas_node` | 只在 MCP 里处理 | gateway 也认 |
 | 编辑失败 | 500 | 2xx + `{ok:false, error}`（MCP 两种都能处理） |
 | 媒体分析 | 云端多模态模型，支持音频 | 用平台的对话模型；视频抽 6 帧；**音频拒绝** |
+| 图片超分 | 请求体未核对（云上没有参照） | `{image_path, resolution: 1K/2K/4K, …}`，同步；目标尺寸按源图像素 + 4K 总像素预算算，已经够大的图直接拒绝不打平台 |
 | generate-text-messages | 用请求里指定的模型；`max_tokens` 照传 | 固定用 `chat_model`；`max_tokens` 最低 1024（推理模型要留出思考的额度，否则回空） |
 | 表格重命名 | 只广播 | 同时写进 `canvas.json` |
 

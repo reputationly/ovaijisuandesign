@@ -285,6 +285,8 @@ function parseImageResponse(raw: string): string[] {
  */
 function tierLongEdge(tier: string): number {
   switch (asciiUpper(tier.trim())) {
+    case "1K":
+      return 1024;
     case "4K":
       return 3840;
     // 空值和认不出的档位都按 2K —— 这是保守的那一档。

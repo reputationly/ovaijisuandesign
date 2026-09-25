@@ -72,8 +72,7 @@ import {
   ungroupNodes,
   getPlan,
   assetsDegraded,
-  submitUpscale,
-  pollTask,
+  superResolution,
 } from "./api"
 import { addNodeItemsFor, ADD_NODE_LEAD_IN } from "./addNode"
 import { tidy as runTidy, type TidyKind } from "./tidy"
@@ -1212,18 +1211,15 @@ export default function App() {
        * 高清增强。**出一张新图，不覆盖原图** —— 和裁剪 / 旋转同理，
        * 原图可能还被别的节点引用着。
        *
-       * 走 media-node 建节点并**连一条从原图过来的边**,画布上看得出
+       * gateway 建节点并**连一条从原图过来的边**,画布上看得出
        * 这张是从哪来的。
        */
       async upscaleNode(nodeId, resolution) {
         const path = detailsRef.current.get(nodeId)?.path
         if (!path) return
         try {
-          const taskId = await submitUpscale(path, resolution.toUpperCase())
-          // 超分要跑几十秒，没有任何提示的话用户会以为点了没反应、
-          // 然后反复点。
-          const product = await pollTask(taskId, new AbortController().signal)
-          await createMediaNode(product.path, [nodeId])
+          // 新节点和连边由 gateway 建好，这里只要重新拉一次画布。
+          await superResolution(path, resolution.toUpperCase(), nodeId)
           await load()
         } catch (err) {
           setError(err instanceof Error ? err.message : String(err))

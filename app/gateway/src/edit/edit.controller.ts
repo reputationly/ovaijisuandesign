@@ -8,6 +8,7 @@ import {
   FfmpegRunDto,
   GenerateTextDto,
   GenerateTextMessagesDto,
+  SuperResolutionDto,
 } from "./edit.dto.js";
 import { EditService } from "./edit.service.js";
 
@@ -38,6 +39,11 @@ export class EditController {
   @Post("extract-audio")
   extractAudio(@Body() b: ExtractAudioDto, @Headers("x-session-id") session?: string) {
     return this.edit.extractAudio(b, session?.trim() || undefined);
+  }
+
+  @Post("super-resolution")
+  superResolution(@Body() b: SuperResolutionDto, @Headers("x-session-id") session?: string) {
+    return this.edit.superResolution(b, session?.trim() || undefined);
   }
 
   @Post("analyze-media")

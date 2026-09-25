@@ -158,15 +158,8 @@ def join(prefix: str, path: str) -> str:
     return "/" + p
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--app", type=Path, default=DEFAULT_APP)
-    ap.add_argument("--out", type=Path, help="写 markdown；不给就打到 stdout")
-    ap.add_argument("--ours", type=Path, default=Path(__file__).resolve().parent.parent / "app/gateway/src",
-                    help="我们的 gateway 源码（NestJS 的 app/gateway/src，或旧的 Rust crates/gateway/src），用来标出哪些路由已经同名实现")
-    args = ap.parse_args()
-
-    src = (args.app / "Contents/Resources/gateway/dist/main.js").read_text(encoding="utf-8")
+def routes_from_app(app: Path) -> tuple[set[tuple[str, str, str]], list[str]]:
+    src = (app / "Contents/Resources/gateway/dist/main.js").read_text(encoding="utf-8")
     consts = load_consts(src)
 
     prefixes: dict[str, list[str]] = {}
@@ -193,6 +186,44 @@ def main() -> int:
                 for p in paths:
                     routes.add((kind.upper(), join(pre, p), cls))
 
+    return routes, unresolved
+
+
+DOC_VERSION = re.compile(r"MiniMax Design \*\*([^*]+)\*\*")
+DOC_CLASS = re.compile(r"^## (\w+)（\d+/\d+）$")
+DOC_ROUTE = re.compile(r"^[✓ ] (GET|POST|PUT|PATCH|DELETE|ALL)\s+(\S+)$")
+
+
+def routes_from_doc(doc: Path) -> tuple[set[tuple[str, str, str]], str]:
+    text = doc.read_text(encoding="utf-8")
+    m = DOC_VERSION.search(text)
+    routes: set[tuple[str, str, str]] = set()
+    cls = None
+    for line in text.splitlines():
+        if (c := DOC_CLASS.match(line)):
+            cls = c.group(1)
+        elif cls and (r := DOC_ROUTE.match(line)):
+            routes.add((r.group(1), r.group(2), cls))
+    return routes, m.group(1) if m else "unknown"
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--app", type=Path, default=DEFAULT_APP)
+    ap.add_argument("--out", type=Path, help="写 markdown；不给就打到 stdout")
+    ap.add_argument("--ours", type=Path, default=Path(__file__).resolve().parent.parent / "app/gateway/src",
+                    help="我们的 gateway 源码（NestJS 的 app/gateway/src，或旧的 Rust crates/gateway/src），用来标出哪些路由已经同名实现")
+    ap.add_argument("--from-doc", type=Path,
+                    help="不读应用，改从已有的 gateway-api.md 取路由清单，只重标 ✓（没装应用的环境用）")
+    args = ap.parse_args()
+
+    if args.from_doc:
+        routes, version = routes_from_doc(args.from_doc)
+        unresolved: list[str] = []
+    else:
+        routes, unresolved = routes_from_app(args.app)
+        version = app_version(args.app)
+
     ours = load_ours(args.ours) if args.ours.exists() else set()
     done = {(m, p) for m, p, _ in routes if (m, norm(p)) in ours}
 
@@ -203,7 +234,7 @@ def main() -> int:
     lines = [
         "# gateway HTTP 接口面",
         "",
-        f"官方本地 gateway（MiniMax Design **{app_version(args.app)}**）注册的全部路由。",
+        f"官方本地 gateway（MiniMax Design **{version}**）注册的全部路由。",
         "",
         "这是**要对齐的接口规格**：只要我们的 gateway 提供同样的路由和形状，",
         "官方的 mcp-tools 和渲染进程都能直接接上，反过来我们的前端也能接官方",

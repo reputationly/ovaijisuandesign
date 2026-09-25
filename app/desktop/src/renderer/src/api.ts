@@ -320,24 +320,22 @@ export async function submitImage(p: GenerateParams): Promise<string> {
 }
 
 /**
- * 提交高清增强，返回 task_id。轮询同样走 [`pollTask`]。
+ * 高清增强。同步：几十秒后回来时新图已经登记好、放上画布并从原图连了边。
  *
  * **和 `submitImage` 是两条路。** 出图按「比例 + 档位」算尺寸，超分必须按
  * 源图的真实像素算 —— 比例是源图定的，换一个就是变形。所以尺寸由后端
  * 从源文件量，这里只传路径和档位。
  */
-export async function submitUpscale(imagePath: string, resolution: string): Promise<string> {
-  const res = await fetch(gw("/api/generate/image/upscale/submit"), {
+export async function superResolution(imagePath: string, resolution: string, sourceNodeId: string): Promise<string> {
+  const res = await fetch(gw("/api/edit/super-resolution"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image_path: imagePath, resolution }),
+    body: JSON.stringify({ image_path: imagePath, resolution, source_node_id: sourceNodeId }),
   })
-  const body = await json<{ task_id?: string }>(
-    res,
-    "POST /api/generate/image/upscale/submit",
-  )
-  if (!body.task_id) throw new Error("gateway 没有返回 task_id")
-  return body.task_id
+  const body = await json<{ ok: boolean; path?: string; error?: string }>(res, "POST /api/edit/super-resolution")
+  // 编辑路由的失败是 2xx + ok:false，不看这个字段会把失败当成功。
+  if (!body.ok || !body.path) throw new Error(body.error ?? "高清增强失败")
+  return body.path
 }
 
 export interface Product {

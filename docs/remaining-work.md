@@ -44,7 +44,7 @@
 | M7 | gateway 生成（异步提交 / 查询、占位卡原地换成结果、重启续等）、编辑路由（ffmpeg、拼接、音频、媒体分析、文档读取、表格节点）、MCP server 重写（33 个工具） | gateway 126、mcp-tools 186、maas-media 129 |
 
 对齐程度：
-- gateway 路由 85 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成。
+- gateway 路由 88 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
 - MCP 工具 33 / 54，另外 21 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
 
 真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
@@ -156,7 +156,7 @@
 
 ### P2 gateway 与后端补齐（适合云上）
 
-1. **图片超分** `POST /api/edit/super-resolution`：旧界面的超分入口现在没有后端。用 `maas-media` 的 `image.upscale`，尺寸按源图实际像素算。
+1. ~~**图片超分** `POST /api/edit/super-resolution`~~ 已完成：同步，按源图实际像素（含 EXIF 方向）算 `size`，产物登记后从源节点连边；旧界面的「高清增强」已改接它。请求体 `{image_path, resolution?: 1K|2K|4K, filename?, source_node_id?, replace_node_id?, preserve_source_canvas_node?}` 是按其他编辑路由的约定定的，**本机有参照时要去 `gateway/dist/main.js` 核对字段名**。
 2. **语音**：
    - 按零样本克隆的方式实现 `POST /api/speech/voice_clone` / `voice_design`：把参考音频登记进本地音色表（工作区或应用级），语音合成时查这张表。
    - `/api/speech/voices` 合并 `voice_map` 和本地音色表。
@@ -173,7 +173,7 @@
    - `agent_running` 恒为 false。
 
    详见 commit `60efdab` 的说明和 `reference/main-inventory/gap-vs-ours.md`。
-10. 每补一批路由就重跑 `scripts/extract-gateway-routes.py --out docs/gateway-api.md`，覆盖率只增不减。
+10. 每补一批路由就重跑 `scripts/extract-gateway-routes.py --out docs/gateway-api.md`（云上加 `--from-doc docs/gateway-api.md`），覆盖率只增不减。
 
 ### P3 打包、发布、切换（M10）
 

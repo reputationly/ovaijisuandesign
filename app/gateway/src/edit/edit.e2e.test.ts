@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import type { INestApplication } from "@nestjs/common";
+import sharp from "sharp";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -41,24 +42,36 @@ function probe(file: string): { width?: number; height?: number; hasAudio: boole
   return { width: v?.width, height: v?.height, hasAudio: j.streams.some((s) => s.codec_type === "audio"), duration: Number(j.format.duration) };
 }
 
-/** 假平台：只实现 /v1/chat/completions，记下请求体。 */
+/** 假平台：对话（记下请求体）和超分（按请求的 size 回一张同尺寸的图）。 */
 function fakePlatform() {
   const calls: any[] = [];
+  const edits: any[] = [];
   let reply = "一只橘猫坐在窗台上";
   const server = createServer((req, res) => {
     let raw = "";
     req.on("data", (c) => (raw += c));
-    req.on("end", () => {
+    req.on("end", async () => {
+      res.setHeader("content-type", "application/json");
       if (req.url === "/v1/chat/completions" && req.method === "POST") {
         calls.push(JSON.parse(raw));
-        res.setHeader("content-type", "application/json");
         return res.end(JSON.stringify({ choices: [{ message: { role: "assistant", content: reply }, finish_reason: "stop" }] }));
+      }
+      if (req.url === "/v1/images/edits" && req.method === "POST") {
+        const body = JSON.parse(raw);
+        edits.push(body);
+        return res.end(JSON.stringify({ data: [{ url: `http://${req.headers.host}/files/hd-${body.size}.png` }] }));
+      }
+      const m = /^\/files\/hd-(\d+)x(\d+)\.png$/.exec(req.url ?? "");
+      if (m) {
+        const png = await sharp({ create: { width: Number(m[1]), height: Number(m[2]), channels: 3, background: "#c96" } }).png().toBuffer();
+        res.setHeader("content-type", "image/png");
+        return res.end(png);
       }
       res.statusCode = 404;
       res.end();
     });
   });
-  return { server, calls, setReply: (s: string) => (reply = s) };
+  return { server, calls, edits, setReply: (s: string) => (reply = s) };
 }
 
 describe("edit（真实工作区 + 假平台）", () => {
@@ -77,7 +90,7 @@ describe("edit（真实工作区 + 假平台）", () => {
     const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     ws = mkdtempSync(path.join(tmpdir(), "ov-edit-e2e-"));
     const cfg = path.join(mkdtempSync(path.join(tmpdir(), "ov-edit-cfg-")), "config.json");
-    writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${base}/v1`, api_key: "k", chat_model: "vision-chat" } }));
+    writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${base}/v1`, api_key: "k", chat_model: "vision-chat" }, models: { image_upscale: "swiftvr" } }));
     process.env.WORKSPACE_DIR = ws;
     process.env.OV_CONFIG_PATH = cfg;
     app = await createApp();
@@ -217,6 +230,47 @@ describe("edit（真实工作区 + 假平台）", () => {
     const r = await http.post("/api/edit/embed-audio").send({ video_path: "b.mp4", audio_path: "a-audio.mp3", filename: "b-with-audio" });
     expect(r.body).toEqual({ ok: true, path: "b-with-audio.mp4" });
     expect(probe(abs("b-with-audio.mp4")).hasAudio).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 超分
+  // ---------------------------------------------------------------------------
+
+  it("super-resolution：按源图实际像素算 size，出新图并从源节点连边", async () => {
+    await sharp({ create: { width: 416, height: 232, channels: 3, background: "#369" } }).png().toFile(abs("小图.png"));
+    const src = await place("小图.png");
+    const r = await http.post("/api/edit/super-resolution").send({ image_path: "小图.png", resolution: "2k", source_node_id: src });
+    expect(r.body).toMatchObject({ ok: true, path: "小图-2k.png", width: 2048, height: 1144 });
+    const sent = platform.edits.at(-1);
+    expect(sent).toMatchObject({ model: "swiftvr", size: "2048x1144" });
+    expect(sent.image).toMatch(/^data:image\/png;base64,/);
+    expect(existsSync(abs("小图.png"))).toBe(true);
+    const canvas = (await http.get("/api/canvas")).body;
+    expect(canvas.edges.some((e: any) => e.source === src && e.target === r.body.node_id)).toBe(true);
+  });
+
+  it("super-resolution：EXIF 竖拍按显示方向量；4K 方图按总像素收", async () => {
+    // 存成 300x200、orientation=6，显示出来是 200x300 的竖图。
+    await sharp({ create: { width: 300, height: 200, channels: 3, background: "#963" } }).withMetadata({ orientation: 6 }).jpeg().toFile(abs("竖拍.jpg"));
+    const r = await http.post("/api/edit/super-resolution").send({ image_path: "竖拍.jpg", resolution: "1K" });
+    expect(r.body).toMatchObject({ ok: true, width: 680, height: 1024 });
+    await sharp({ create: { width: 464, height: 464, channels: 3, background: "#396" } }).png().toFile(abs("方图.png"));
+    const sq = await http.post("/api/edit/super-resolution").send({ image_path: "方图.png", resolution: "4K" });
+    expect(sq.body.ok).toBe(true);
+    expect(sq.body.width * sq.body.height).toBeLessThanOrEqual(3840 * 2160 * 1.01);
+  });
+
+  it("super-resolution：已经够大、不是图片、越界都不打平台", async () => {
+    await sharp({ create: { width: 2400, height: 1600, channels: 3, background: "#000" } }).png().toFile(abs("大图.png"));
+    const before = platform.edits.length;
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "大图.png", resolution: "2K" })).body).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/already 2400x1600/),
+    });
+    writeFileSync(abs("notes.txt"), "x");
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "notes.txt" })).body).toMatchObject({ ok: false, error: expect.stringMatching(/only accepts images/) });
+    expect((await http.post("/api/edit/super-resolution").send({ image_path: "../x.png" })).status).toBe(400);
+    expect(platform.edits.length).toBe(before);
   });
 
   // ---------------------------------------------------------------------------
