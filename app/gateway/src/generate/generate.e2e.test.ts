@@ -117,6 +117,8 @@ describe("生成（假平台）", () => {
     );
     process.env.WORKSPACE_DIR = ws;
     process.env.OV_CONFIG_PATH = cfg;
+    // 音色表是应用级的，不指过来就会读到本机真实的 ~/.ovhub。
+    process.env.HILO_DATA_DIR = mkdtempSync(path.join(tmpdir(), "ov-generate-e2e-hub-"));
     await boot();
   });
   afterAll(async () => {
@@ -124,6 +126,7 @@ describe("生成（假平台）", () => {
     await new Promise((r) => server.close(r));
     delete process.env.WORKSPACE_DIR;
     delete process.env.OV_CONFIG_PATH;
+    delete process.env.HILO_DATA_DIR;
   });
 
   it("模型目录来自本机配置，音色来自 voice_map", async () => {

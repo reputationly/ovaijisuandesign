@@ -9,6 +9,7 @@ import { CanvasService } from "../canvas/canvas.service.js";
 import { AssetsService } from "../common/assets.service.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { GatewayConfig } from "../config/gateway-config.js";
+import { VoiceLibraryService } from "../speech/voice-library.service.js";
 import { type ActiveGenerationRecord, ActiveGenerationsStore } from "./active-generations.store.js";
 import { type GenerationRequest, type MediaType, displayModel, runOnPlatform } from "./generation-request.js";
 import { downloadMediaToDir } from "./media-download.js";
@@ -42,6 +43,7 @@ export class GenerationRunner implements OnApplicationBootstrap {
     private readonly media: MediaConfigService,
     private readonly assets: AssetsService,
     private readonly canvas: CanvasService,
+    private readonly voices: VoiceLibraryService,
   ) {}
 
   /** 启动时把账上的任务接回来。app-level gateway 没有工作区，没有账。 */
@@ -213,7 +215,9 @@ export class GenerationRunner implements OnApplicationBootstrap {
   private async drive(job: { record: ActiveGenerationRecord; cancelled: boolean }, resumePlatformTaskId?: string): Promise<void> {
     const r = job.record;
     try {
-      const cfg = this.media.load();
+      const loaded = this.media.load();
+      // 克隆出的音色不在配置的 voice_map 里，合成前并进去；其他媒体不用读这张表。
+      const cfg = r.mediaType === "speech" ? await this.voices.withLocalVoices(loaded) : loaded;
       const client = this.media.client((platformTaskId) => {
         r.platformTaskId = platformTaskId;
         void this.store.patch(r.id, { platformTaskId }).catch((err) => this.log.warn(`[ledger] persist platform task id failed: ${(err as Error).message}`));

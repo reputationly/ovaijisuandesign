@@ -106,7 +106,7 @@ function toParams(specs: params.ParamSpec[]): Record<string, CatalogParam> {
   return Object.fromEntries(specs.map((s) => [s.name, { type: "select", label: s.label, default: s.default, options: s.options }]));
 }
 
-/** 本机音色表 → 音色列表。平台没有预设音色，每个音色是配置里映射到的一段参考音频。 */
+/** 配置里的 voice_map → 音色列表。平台没有预设音色，每个音色是映射到的一段参考音频。 */
 export function voicesFrom(cfg: MediaConfig) {
   return Object.entries(cfg.models.voice_map).map(([voice_id, ref]) => ({
     voice_id,

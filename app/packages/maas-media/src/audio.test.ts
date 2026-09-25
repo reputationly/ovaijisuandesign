@@ -1,3 +1,7 @@
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -201,6 +205,31 @@ describe("audio（TS 移植新增）", () => {
       prompt: "你好",
       metadata: { task_type: "tts", voice: "https://x/ref.wav" },
     });
+  });
+
+  it("本地路径的参考音色读成 data URI 再发", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "maas-voice-"));
+    const file = path.join(dir, "ref.wav");
+    writeFileSync(file, "RIFF");
+    const c = cfg();
+    c.models.voice_map = { v1: file };
+    const r = recorder(taskOk);
+    await synthesizeSpeech(r.client, c, "你好", "v1");
+    expect(r.posts[0]!.body).toMatchObject({ metadata: { task_type: "tts", voice: `data:audio/wav;base64,${Buffer.from("RIFF").toString("base64")}` } });
+  });
+
+  it("参考音频读不到就报错，不发请求", async () => {
+    const c = cfg();
+    c.models.voice_map = { v1: path.join(tmpdir(), "no-such-voice-ref.wav") };
+    const err = await failure(synthesizeSpeech(offline(), c, "hi", "v1"));
+    expect(err.message).toContain("no-such-voice-ref.wav");
+  });
+
+  it("空的参考音频不算映射", async () => {
+    const c = cfg();
+    c.models.voice_map = { v1: "  " };
+    const err = await failure(synthesizeSpeech(offline(), c, "hi", "v1"));
+    expect(err.message).toContain("voice_map");
   });
 
   it("原型链上的名字不算映射", async () => {
