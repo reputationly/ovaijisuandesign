@@ -187,7 +187,16 @@ async function boot(): Promise<Running> {
     createRuntime: (id, folderPath, opts) => {
       const handle = new BundleHandle(id, folderPath, opts.generation, {
         createGateway: (dir, env) =>
-          new GatewayManager({ entry: gatewayEntry, role: "workspace", workspaceDir: dir, exec: nodeExec, env: { OV_CONFIG_PATH: dirs.configPath, ...env } }, log),
+          new GatewayManager(
+            {
+              entry: gatewayEntry,
+              role: "workspace",
+              workspaceDir: dir,
+              exec: nodeExec,
+              env: { OV_CONFIG_PATH: dirs.configPath, HUB_SKILLS_DIR: path.join(dirs.hubRoot, "skills"), HUB_USER_SKILLS_DIR: dirs.userSkillsDir, ...env },
+            },
+            log,
+          ),
         createOpencode: () => new OpenCodeRuntime(log),
         prepareOpencode: (dir, gatewayUrl, identity) =>
           prepareLaunch({
@@ -201,6 +210,7 @@ async function boot(): Promise<Running> {
             hubRoot: dirs.hubRoot,
             runtimeDir: dirs.runtimeDir,
             skillsDir: path.join(dirs.hubRoot, "skills"),
+            userSkillsDir: dirs.userSkillsDir,
             nodeExec,
           }),
         opencodeStartGate,

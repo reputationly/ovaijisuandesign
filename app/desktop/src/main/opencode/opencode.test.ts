@@ -5,7 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildOpencodeConfig, fileUrl } from "./config.js";
-import { locateProfile } from "./index.js";
+import { locateProfile, mergeSkillDirs } from "./index.js";
 import { assertProfileComplete, deepMerge, parseFrontmatter, STAGING_MARKER, stageProfile, syncProfile } from "./profile.js";
 
 function write(p: string, s: string) {
@@ -93,6 +93,12 @@ describe("profile", () => {
       agent: { x: { tools: { a: true, b: true } } },
       plugin: ["p2"],
     });
+  });
+});
+
+describe("技能目录", () => {
+  it("用户技能和自带技能同名时用户的优先", () => {
+    expect(mergeSkillDirs(["/u/a", "/u/b"], ["/s/b", "/s/c"])).toEqual(["/u/a", "/u/b", "/s/c"]);
   });
 });
 

@@ -87,7 +87,7 @@
 
 ## 三、gateway
 
-路由 105 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 117 / 466。共 75 个控制器：全部做完 11 个、部分 9 个、完全没做 55 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
@@ -99,11 +99,11 @@
 | MusicController | 2/4 | 翻唱预处理、歌词生成 |
 | InternalSessionController | 11/15 | 其余内部会话接口 |
 | AssetPreviewController / PlanController / ChatAttachmentCdnController | 1/3、1/3、1/2 | 预览、计划读写、附件 CDN |
+| SkillMarketController | 4/39 | 只做了纯本地的 4 条（导入、确认暂存安装、fork、删除前取路径）；其余是云端技能市场和创作者计划，归 B，见下 |
 
 **完全没做的控制器，按「计划做（A）」和「范围外（B）」分开**。归类是按控制器名和用途判断的，动手前先去参照源码里确认：
 
 - **A 计划做**：
-  - SkillsController（8）
   - TextVersionController（9，文本版本历史）
   - MemoryController（5）、MemoryCompactionController（8）
   - ProjectArchiveController（5）、ProjectArchiveActivityController（3）
@@ -121,7 +121,7 @@
   - AssetCenterController（31，本地部分待确认）
 - **B 范围外**（账号、计费、团队、云端、插件、ComfyUI、浏览器、遥测）：
   - 团队、账号与计费：TeamController（31）、AccountController（7）、BillingController（6）、CreditController（3）、AuthController（3）、UserController（1）、AvatarController（3）、HubGroupController（4）
-  - 云端项目与云端下发：CloudProjectController（9）、CloudFolderController（10）、SkillMarketController（39，技能市场是云端的）、ApolloConfigController、ClientConfigController、HubClientConfigController、HomeQuickStartConfigController、PopupController
+  - 云端项目与云端下发：CloudProjectController（9）、CloudFolderController（10）、SkillMarketController 余下 35 条（技能市场、市场运营、创作者计划投稿，全要云端账号；`market/uninstall` 虽是删本地目录，也只对市场装的技能有意义，一并不做）、ApolloConfigController、ClientConfigController、HubClientConfigController、HomeQuickStartConfigController、PopupController
   - ComfyUI：ComfyUiWorkflowController（23）、InternalComfyUiWorkflowController（5）、ComfyUiDesignProxyController（1）
   - 插件：PluginsController（6）、PluginConfigController（4）、PluginAgentController（4）、PluginPythonController（2）、PluginSdkController（1）、NodePackagesController（4）、PythonPackagesController（4）、DependenciesController（5）
   - 浏览器与连接器：BrowserController（1）、ConnectorPreparationController（1）、RemoteToolsController（2）、WebMediaController（1，yt-dlp）
@@ -162,6 +162,20 @@
 | file-node 复用 | 只改形状 | 改形状，另外和 media-node 一样补来源边 |
 | 资产对账（reconcile） | 细节未核对 | 认亲规则：同 inode，或唯一一个 (size, 快速指纹) 相同；多个相同只记候选。丢失比例检查只在记录 ≥10 条时生效。`evicted` 恒为 0（不自动清掉丢失的记录）。merge / locate / remove-missing 另发 `assets:changed` |
 | 插件存储超限 | 未核对 | 400，文案我们写的；没有 comfyui 草稿的大限额 |
+
+技能（SkillsController 8/8 + SkillMarketController 里的 4 条本地路由）：
+
+| 项 | 参照 | 我们 |
+|---|---|---|
+| 目录 | 已装 `~/.hub/skills`，用户技能 `~/Movies/Hub/skills` | 已装 `~/.ovhub/skills`（`HUB_SKILLS_DIR`），用户技能 `~/Movies/蒜狸小助手/skills`（`HUB_USER_SKILLS_DIR`；`HILO_DATA_DIR` 覆盖时是 `<它>/user-skills`）。主进程把两个目录都传给 gateway，opencode 的 `skills.paths` 也两边都扫，同名用户的优先 |
+| 默认开关来源 | `OPENCODE_CONFIG_DIR/base.json`，否则仓库里的 `config/opencode-v2/base.json` | `OPENCODE_CONFIG_DIR/base.json`，否则主进程同步出来的 `<hubRoot>/.config-v2/base.json` |
+| `upload-check` | 技能有改动就打包传到云端 | 校验名字后直接回 `{ok:true}`，什么也不传 |
+| `user/trash` 传 `skillType: "plugin"` | 解析用户插件的路径 | `{ok:false, error:"Plugins are not available"}`（没有插件） |
+| 导入暂存目录 | 系统 tmp 下 `hilo-skill-staging/` | 系统 tmp 下 `ov-skill-staging/`，免得和同机另一个应用互相覆盖暂存的包 |
+| 暂存 / 解压跨卷 | 直接 rename | rename 遇到 EXDEV 时退成复制再删 |
+| `submission/stage`、`submission/save` | 创作者计划的投稿暂存和草稿保存（校验封面对象键、从云端拉分类表） | 不做（B），没有「新建 / 保存技能」的本地路由；用户技能靠导入、fork 或 agent 直接写目录 |
+| `market/:name/preview*` | 下载市场技能到 tmp 预览 | 不做（B） |
+| 多个工作区之间同步开关 | 主进程拿到 toggle 的 `userOverrides` 后广播 `POST /api/skills/permissions` | 路由有了，主进程还没广播（覆盖文件是共用的，其它工作区 gateway 重启后才看到） |
 
 聊天：
 - 内容安全检查（`/api/safety/check-text`）一律放行。

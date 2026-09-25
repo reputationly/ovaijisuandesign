@@ -158,10 +158,13 @@ describe("数据根", () => {
     expect(r.projectSpacesRoot).toBe(J("/Users/u/Movies/蒜狸小助手/Projects/.projects"));
     expect(r.hubRoot).toBe(J("/Users/u/.ovhub"));
     expect(r.outputDir).toBe(J("/ud/output_files"));
+    expect(r.userSkillsDir).toBe(J("/Users/u/Movies/蒜狸小助手/skills"));
     const c = resolveRoots({ env: { HILO_DATA_DIR: "/d" }, home: "/Users/u", userData: "/ud" });
     expect(c.projectsRoot).toBe(J("/d/Projects"));
     expect(c.outputDir).toBe(J("/d/output_files"));
     expect(c.hubRoot).toBe("/d");
+    // 数据根和 hubRoot 重合时用户技能换个目录名，不和自带技能混在 /d/skills
+    expect(c.userSkillsDir).toBe(J("/d/user-skills"));
   });
 
   it("另一个应用的目录被认出来", () => {

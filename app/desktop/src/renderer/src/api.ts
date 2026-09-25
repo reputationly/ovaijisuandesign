@@ -865,20 +865,6 @@ export async function agentStop(): Promise<void> {
   chat.stop()
 }
 
-/** 从官方应用装 skill 的目录（默认 `~/.hub/skills`）增量导入。 */
-export async function importSkills(
-  from?: string,
-): Promise<{ from: string; added: string[]; skipped: string[]; failed: unknown[] }> {
-  return json(
-    await fetch(gw("/api/skills/import"), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ from }),
-    }),
-    "POST /api/skills/import",
-  )
-}
-
 // ---------------------------------------------------------------------------
 // 飞书
 // ---------------------------------------------------------------------------

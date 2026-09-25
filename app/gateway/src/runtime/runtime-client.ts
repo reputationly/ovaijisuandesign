@@ -39,7 +39,7 @@ export class RuntimeClient {
     return !!this.conn.endpoint;
   }
 
-  async request<T>(method: string, path: string, body?: unknown, query: Record<string, string> = {}): Promise<T> {
+  async request<T>(method: string, path: string, body?: unknown, query: Record<string, string> = {}, timeoutMs = 30_000): Promise<T> {
     const ep = this.conn.endpoint;
     if (!ep) throw new RuntimeUnavailableError("还没有连上（主进程尚未推送地址）");
     const url = new URL(ep.url + path);
@@ -51,7 +51,7 @@ export class RuntimeClient {
         method,
         headers: { ...this.conn.headers(), ...(body !== undefined ? { "content-type": "application/json" } : {}) },
         body: body !== undefined ? JSON.stringify(body) : undefined,
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(timeoutMs),
       });
     } catch (err) {
       throw new RuntimeUnavailableError((err as Error).message);
@@ -112,6 +112,11 @@ export class RuntimeClient {
 
   pendingQuestions(): Promise<Record<string, unknown>[]> {
     return this.request("GET", "/question");
+  }
+
+  /** opencode 实际加载到的技能（`GET /skill`）。 */
+  listSkills(timeoutMs = 5_000): Promise<{ name: string; description: string }[]> {
+    return this.request("GET", "/skill", undefined, {}, timeoutMs);
   }
 
   /** 先递归停掉子会话再停根会话：子 agent 还在跑的话，停了根会话它照样在花 token。 */

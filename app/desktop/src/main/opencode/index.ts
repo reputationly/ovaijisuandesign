@@ -57,6 +57,8 @@ export interface PrepareInputs {
   /** opencode 的状态隔离目录（XDG_* 指到这下面）。 */
   runtimeDir: string;
   skillsDir: string;
+  /** 用户技能目录。和自带技能同名时用户的优先。 */
+  userSkillsDir?: string;
   /** 跑 MCP server 的可执行文件。Electron 里是 process.execPath（配 ELECTRON_RUN_AS_NODE）。 */
   nodeExec: string;
 }
@@ -114,6 +116,17 @@ export function skillDirs(root: string): string[] {
     .sort();
 }
 
+/** 按目录名去重，先到先得。 */
+export function mergeSkillDirs(...groups: string[][]): string[] {
+  const seen = new Set<string>();
+  return groups.flat().filter((p) => {
+    const name = path.basename(p);
+    if (seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+}
+
 const stagedDirs = new Set<string>();
 
 export function prepareLaunch(i: PrepareInputs): LaunchSpec {
@@ -165,7 +178,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
       },
     },
     extraPlugins: plugin ? [plugin] : [],
-    skillsPaths: skillDirs(i.skillsDir),
+    skillsPaths: mergeSkillDirs(i.userSkillsDir ? skillDirs(i.userSkillsDir) : [], skillDirs(i.skillsDir)),
   });
   const configFile = writeConfigFile(config);
 

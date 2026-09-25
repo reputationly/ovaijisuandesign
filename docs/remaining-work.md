@@ -47,7 +47,7 @@
 | P2 第一批 | 图片超分、工作区身份校验（gateway + 插件 + MCP）、同步生成和 `/api/generate/text`、画布剩余 7 条路由、视频 / 音频缩略图、资产对账和找不到文件的三个入口、`agent_running`；顺带修了生成轮询的竞态、`/api/canvas` 和 `/api/files/content` 的 body 上限 | gateway 152、assets 38、mcp-tools 187、desktop 344、maas-media 130、插件 11 |
 
 对齐程度：
-- gateway 路由 105 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
+- gateway 路由 117 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
 - MCP 工具 33 / 54，另外 21 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
 
 真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
@@ -168,7 +168,7 @@
 3. ~~**画布剩余路由**~~ 已完成，CanvasController 26/26（按 `docs/contracts-canvas.md`）。视频 / 音频缩略图 `/api/thumbnail/{*filepath}` 也已按 `docs/contracts-files.md` 做完。插件存储的限额超了回 400，文案是我们写的；comfyui 草稿的大限额没做（ComfyUI 不在范围内）。
 4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节）：gateway 校验、主进程把身份给 opencode 和 MCP、插件和 MCP 的请求带头。错误码是我们定的，本机有参照时核对。
 5. ~~**生成**~~ 已完成：同步的 `/api/generate/{image,video,speech,music}` = 提交 + 等到终态，回和 `/api/generate/tasks/:id/query` 一样的形状，没标 `x-hilo-source` 时按画布算；`/api/generate/text` 走配置里的对话模型，认 `prompt`、`image_paths`、`system_prompt`，其余字段忽略。**两者的请求 / 响应形状都没和参照核对**，本机有参照时核对。
-6. **Skills 模块**：8 条路由，从 `crates/gateway/src/skills.rs` 移植并对齐官方形状。
+6. ~~**Skills 模块**~~：SkillsController 8 条 + SkillMarketController 里纯本地的 4 条（import、import/confirm-staging、fork、user/trash），按参照 JS 移植（`app/gateway/src/skills/`）；主进程把用户技能目录传给 gateway 和 opencode。旧界面「从 ~/.hub/skills 导入」按钮已删。不做的和行为差异见 `parity-gaps.md` 第三节。
 7. **飞书 / 微信**（官方放在主进程的 imBridge 通道）：从 `crates/gateway/src/{feishu,wechat}` 移植，35 个 Rust 测试一起移植。
 8. **主进程服务**，M5 里现在都是桩，按这个顺序补：desktopSettings、log、notification、trash / clipboard / skillExport、projectArchive、本地 projectAssets、dataDirectory、connectors、networkDiagnostics / assetCenter / 关窗确认。
 9. **M5 的已知偏差**：

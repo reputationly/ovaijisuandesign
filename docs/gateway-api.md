@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 105 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 117 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -628,20 +628,20 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/sessions/:id/export
 ```
 
-## SkillsController（0/8）
+## SkillsController（8/8）
 
 ```
-  GET    /api/skills
-  GET    /api/skills/:name/file-content
-  GET    /api/skills/:name/files
-  POST   /api/skills/:name/toggle
-  POST   /api/skills/permissions
-  POST   /api/skills/reload
-  GET    /api/skills/runtime
-  POST   /api/skills/upload-check
+✓ GET    /api/skills
+✓ GET    /api/skills/:name/file-content
+✓ GET    /api/skills/:name/files
+✓ POST   /api/skills/:name/toggle
+✓ POST   /api/skills/permissions
+✓ POST   /api/skills/reload
+✓ GET    /api/skills/runtime
+✓ POST   /api/skills/upload-check
 ```
 
-## SkillMarketController（0/39）
+## SkillMarketController（4/39）
 
 ```
   POST   /api/skills/creator-plan/asset-presign
@@ -650,9 +650,9 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/skills/creator-plan/offline
   GET    /api/skills/creator-plan/submissions
   POST   /api/skills/creator-plan/submit
-  POST   /api/skills/fork
-  POST   /api/skills/import
-  POST   /api/skills/import/confirm-staging
+✓ POST   /api/skills/fork
+✓ POST   /api/skills/import
+✓ POST   /api/skills/import/confirm-staging
   GET    /api/skills/market
   DELETE /api/skills/market/:name/preview
   POST   /api/skills/market/:name/preview
@@ -682,7 +682,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/skills/market/whitelist
   POST   /api/skills/submission/save
   POST   /api/skills/submission/stage
-  POST   /api/skills/user/trash
+✓ POST   /api/skills/user/trash
 ```
 
 ## TestAsyncController（0/3）

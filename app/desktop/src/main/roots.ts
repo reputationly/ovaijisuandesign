@@ -20,6 +20,12 @@ export interface Roots {
   outputDir: string;
   /** agent 家目录：profile 同步、用户级 skills。HILO_DATA_DIR 可覆盖。 */
   hubRoot: string;
+  /**
+   * 用户自己导入 / fork 的技能（自带技能在 `<hubRoot>/skills`）。放在用户看得见的数据根下；
+   * HILO_DATA_DIR 覆盖时数据根和 hubRoot 是同一个，换个名字免得两类技能混在一个目录里。
+   * gateway 那边（app/gateway/src/skills/skill-paths.ts）的默认值和这里一致。
+   */
+  userSkillsDir: string;
 }
 
 export function resolveRoots(o: { env: NodeJS.ProcessEnv; home: string; userData: string }): Roots {
@@ -32,6 +38,7 @@ export function resolveRoots(o: { env: NodeJS.ProcessEnv; home: string; userData
     projectSpacesRoot: path.join(projectsRoot, ".projects"),
     outputDir: custom ? path.join(custom, "output_files") : path.join(o.userData, "output_files"),
     hubRoot: custom ?? path.join(o.home, ".ovhub"),
+    userSkillsDir: custom ? path.join(custom, "user-skills") : path.join(dataRoot, "skills"),
   };
 }
 
