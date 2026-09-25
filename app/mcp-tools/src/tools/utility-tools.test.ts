@@ -62,19 +62,19 @@ describe("read", () => {
 
   it("rejects escapes from the logical root, unconfigured roots and media files", async () => {
     expect(resultText(await h.call("read", { file_path: "<knowledgeDir>/../secret.txt" }))).toBe(
-      "Error: path escapes <knowledgeDir>; logical paths must point inside that folder.",
+      "Error: Logical resource path must stay within <knowledgeDir>.",
     );
     expect(resultText(await h.call("read", { file_path: "<workflowsDir>/x/workflow.md" }))).toContain(
-      "cannot resolve <workflowsDir>: HILO_WORKFLOWS_DIR is not set",
+      "<workflowsDir> is unavailable because HILO_WORKFLOWS_DIR is not configured.",
     );
     const media = await h.call("read", { file_path: "/tmp/photo.PNG" });
     expect(media.isError).toBe(true);
-    expect(resultText(media)).toContain("inspect it with hub_analyse_media");
+    expect(resultText(media)).toContain("is a media file. Use hub_analyse_media");
   });
 
   it("suggests similar names when missing and rejects binaries", async () => {
     const miss = resultText(await h.call("read", { file_path: path.join(kDir, "vendors", "seed") }));
-    expect(miss).toContain("Similar names nearby:");
+    expect(miss).toContain("Did you mean one of these?");
     writeFileSync(path.join(root, "blob.bin"), Buffer.from([0, 1, 2]));
     expect(resultText(await h.call("read", { file_path: path.join(root, "blob.bin") }))).toContain("binary");
   });
@@ -96,12 +96,12 @@ describe("read", () => {
 describe("analyse_media", () => {
   it("rejects non-media input and missing question", async () => {
     expect(resultText(await h.call("analyse_media", { type: "metadata", file_path: "/x/readme.md" }))).toContain(
-      "are not image/video/audio files",
+      "hub_analyse_media only accepts media files. Non-media: /x/readme.md.",
     );
     expect(resultText(await h.call("analyse_media", { type: "semantic", file_path: "/x/a.png" }))).toContain(
-      "semantic analysis needs a question",
+      'question is required when type is "semantic" or "both".',
     );
-    expect(resultText(await h.call("analyse_media", { type: "both" }))).toBe("Error: no media given: set file_path or file_paths.");
+    expect(resultText(await h.call("analyse_media", { type: "both" }))).toBe("Error: provide file_path or file_paths.");
   });
 
   it("metadata mode probes locally without the gateway", async () => {

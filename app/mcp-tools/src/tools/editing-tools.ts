@@ -111,9 +111,9 @@ export const registerEditingTools: RegisterTools = (registrar, gw) => {
       if (!audio.ok) return errorReply(audio.error);
       if (isPureAudioReplacementMux(font.args, output_type ?? "video") && !replace_node_id && !preserve_source_canvas_node) {
         return errorReply(
-          "this command only swaps the audio track of a video, so it has to overwrite the interim canvas video rather " +
-            "than add a second one. Call again passing replace_node_id = the node_id you got from hub_generate_video. " +
-            "Setting preserve_source_canvas_node=true is the alternative, reserved for a user who asked to keep the pair.",
+          "audio-replacement mux must finalize the temporary canvas video in-place. Retry with replace_node_id set to the " +
+            "node_id returned by hub_generate_video. Set preserve_source_canvas_node=true only when the user explicitly " +
+            "requested both versions.",
         );
       }
       const inputs = inputPaths(font.args);

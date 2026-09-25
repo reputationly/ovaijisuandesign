@@ -96,21 +96,22 @@ function itemQuestion(question: string, index: number, total: number): string {
   const batch =
     total > 1
       ? [
-          `Batch context: you are looking at file ${index + 1}; the user handed over ${total} files, each examined separately.`,
-          "Do not suggest the user sent a single file, and do not request the remaining ones.",
-          "Talk about the current file alone. When the user wants files compared, report the facts about this file that a comparison would need; merging happens later.",
+          `You are analyzing item ${index + 1} of ${total} in a multi-file hub_analyse_media semantic batch.`,
+          `The user supplied ${total} files.`,
+          "Do not state or imply that the user only provided one image/file. Do not ask for the other files.",
+          "Answer only for the current file. If the original request asks for comparison, extract comparable semantic facts for this item; the caller will synthesize the cross-file comparison.",
         ]
       : [];
   return [
     ...batch,
     "",
-    "You explain what a piece of media means, for a creative assistant.",
-    "Cover the subjects and objects, what they are doing, the setting, how the shot or scene is arranged, and the general medium or artistic style; leave out written text and colors.",
-    'Numbers that come from measuring the file (resolution, length, frame counts) or from the canvas/project are outside your remit: if asked, reply that they need analyse_media with type="metadata" or the canvas data, and never estimate them by eye.',
-    "Label what you can see separately from what you infer, and do not treat camera or scanning artifacts as deliberate choices.",
-    "Distinguish the picture itself from whatever surrounds it (app chrome, page or table borders, overlays, masks, scanned paper), and describe concrete visible details instead of vague category words.",
+    "You are hub_analyse_media in semantic mode, a semantic media observer.",
+    "Your job is to describe non-text, non-color meaning-bearing media content and portable design signals: what is depicted, what it is doing, how it is staged, and what broad style or medium it expresses.",
+    'Do not answer measured or instrument-derived facts. If the requested fact depends on measurement, metadata, or canvas/project state rather than semantic observation, state that this tool cannot determine it and name hub_analyse_media type="metadata" or canvas metadata instead. Do not guess from visual priors.',
+    "Separate direct observations from interpretation. Avoid turning capture/substrate observations into intent.",
+    "Separate content-plane signals from carrier-plane remnants. Content-plane signals belong to the depicted subject, scene, action, composition, medium, style, or portable design traits. Carrier-plane remnants are capture/container structure such as UI/document/table frames, overlays, masks, and scan substrate. Describe present evidence using concrete visible traits, not abstract labels.",
     "",
-    `What the user wants to know: ${question}`,
+    `User semantic focus: ${question}`,
     "",
   ].join("\n");
 }
@@ -129,7 +130,7 @@ export const registerUtilityTools: RegisterTools = (registrar, gateway) => {
       assets = await gateway.listAssets({ includeMetadata: true });
     } catch (err) {
       process.stderr.write(
-        `[hilo-tools] analyse_media: asset list unavailable, skipping cache: ${err instanceof Error ? err.message : String(err)}\n`,
+        `[hilo-tools] analyse_media: vault unreachable, caching disabled: ${err instanceof Error ? err.message : String(err)}\n`,
       );
       return null;
     }
@@ -261,10 +262,10 @@ export const registerUtilityTools: RegisterTools = (registrar, gateway) => {
     },
     async (args) => {
       const file = args.file_path?.trim();
-      if (!file) return errorReply("file_path is empty");
+      if (!file) return errorReply("file_path is required");
       if (isMediaFile(file)) {
         return errorReply(
-          `${file} looks like an image, video or audio file; inspect it with hub_analyse_media (type "semantic" or "both") instead.`,
+          `${file} is a media file. Use hub_analyse_media with type="semantic" or type="both" for image/video/audio analysis.`,
         );
       }
       return readTextOrDirectory(file, args.offset, args.limit, currentSessionId(), (p, offset, limit) =>
@@ -346,17 +347,17 @@ export const registerUtilityTools: RegisterTools = (registrar, gateway) => {
       const paths = [
         ...new Set([...(args.file_paths ?? []), ...(args.file_path ? [args.file_path] : [])].map((p) => p.trim()).filter(Boolean)),
       ];
-      if (paths.length === 0) return errorReply("no media given: set file_path or file_paths.");
+      if (paths.length === 0) return errorReply("provide file_path or file_paths.");
       const nonMedia = paths.filter((p) => !isMediaFile(p));
       if (nonMedia.length > 0) {
         return errorReply(
-          `these are not image/video/audio files: ${nonMedia.join(", ")}. Open text or code with hub_read instead.`,
+          `hub_analyse_media only accepts media files. Non-media: ${nonMedia.join(", ")}. Use hub_read for text/code files.`,
         );
       }
       const withMetadata = type === "metadata" || type === "both";
       const withSemantic = type === "semantic" || type === "both";
       const question = typeof args.question === "string" ? args.question.trim() : "";
-      if (withSemantic && !question) return errorReply('semantic analysis needs a question; add one or use type "metadata".');
+      if (withSemantic && !question) return errorReply('question is required when type is "semantic" or "both".');
 
       const [metadata, semantic] = await Promise.all([
         withMetadata ? Promise.all(paths.map((p) => probeOneMedia(p))) : Promise.resolve([]),

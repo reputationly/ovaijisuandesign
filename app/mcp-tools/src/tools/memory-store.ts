@@ -140,23 +140,25 @@ function parseFields(yaml: string): { scalars: Record<string, string>; compacted
 
 export function parseMemoryFile(content: string): { frontmatter: MemoryFrontmatter; body: string } {
   const match = content.match(FRONTMATTER_RE);
-  if (!match) throw new MemoryError("memory file has no leading --- frontmatter block");
+  if (!match) throw new MemoryError("memory file missing frontmatter delimited by ---");
   const { scalars, compacted } = parseFields(match[1] ?? "");
   const name = scalars.name;
-  if (!name) throw new MemoryError("frontmatter lacks the name field");
+  if (!name) throw new MemoryError("frontmatter missing required field: name");
   const description = scalars.description;
-  if (description == null) throw new MemoryError("frontmatter lacks the description field");
-  if (!isMemoryType(scalars.type)) throw new MemoryError(`frontmatter has an unknown type: ${scalars.type}`);
+  if (description == null) throw new MemoryError("frontmatter missing required field: description");
+  if (!isMemoryType(scalars.type)) throw new MemoryError(`frontmatter type invalid: ${scalars.type}`);
   const fm: MemoryFrontmatter = { name, description, type: scalars.type };
   if (scalars.asset_uri != null) fm.asset_uri = scalars.asset_uri;
   if (scalars.asset_modality != null) {
     if (!isAssetModality(scalars.asset_modality)) {
-      throw new MemoryError(`frontmatter has an unknown asset_modality: ${scalars.asset_modality}`);
+      throw new MemoryError(
+        `frontmatter asset_modality invalid: ${scalars.asset_modality} (allowed: ${ASSET_MODALITIES.join(", ")})`,
+      );
     }
     fm.asset_modality = scalars.asset_modality;
   }
   if (scalars.source != null) {
-    if (!isWriteSource(scalars.source)) throw new MemoryError(`frontmatter has an unknown source: ${scalars.source}`);
+    if (!isWriteSource(scalars.source)) throw new MemoryError(`frontmatter source invalid: ${scalars.source}`);
     fm.source = scalars.source;
   }
   if (scalars.extracted_at) fm.extracted_at = scalars.extracted_at;
@@ -165,7 +167,7 @@ export function parseMemoryFile(content: string): { frontmatter: MemoryFrontmatt
 }
 
 function assertSingleLine(field: string, value: string): void {
-  if (value.includes("\n") || value.includes("\r")) throw new MemoryError(`${field} has to fit on one line`);
+  if (value.includes("\n") || value.includes("\r")) throw new MemoryError(`${field} must not contain newlines`);
 }
 
 /** 会被 YAML 误读的值（冒号、引号、布尔字面量、数字开头等）加双引号。 */
@@ -221,7 +223,8 @@ async function withMemoryLock<T>(target: string, fn: () => Promise<T>): Promise<
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== "ELOCKED") throw err;
       if (Date.now() - startedAt >= LOCK_TIMEOUT_MS) {
-        throw new MemoryError(`memory lock still busy after ${LOCK_TIMEOUT_MS}ms: ${target}`);
+        // 锁超时不是业务错误，照常抛出、不包成 MemoryError
+        throw new Error(`failed to acquire memory file lock within ${LOCK_TIMEOUT_MS}ms: ${target}`);
       }
       await new Promise((r) => setTimeout(r, LOCK_RETRY_INTERVAL_MS));
     }
@@ -293,7 +296,7 @@ const TYPE_FILENAME_PREFIX: Record<MemoryType, string> = {
 
 function resolveDir(scope: MemoryScope, projectRoot: string | undefined): string {
   if (scope === "project") {
-    if (!projectRoot) throw new MemoryError("project scope needs projectRoot");
+    if (!projectRoot) throw new MemoryError("projectRoot is required when scope === 'project'");
     return projectMemoryDir(projectRoot);
   }
   return userMemoryDir();
@@ -308,7 +311,7 @@ function resolvedScopes(projectRoot: string | undefined): { scope: MemoryScope; 
 
 function validateName(name: string): void {
   if (!MEMORY_NAME_RE.test(name)) {
-    throw new MemoryError(`invalid name "${name}": use 1-64 chars of lowercase letters, digits and hyphens, starting with a letter or digit`);
+    throw new MemoryError(`name must match /^[a-z0-9][a-z0-9-]{0,63}$/ (kebab-case, 1-64 chars): ${name}`);
   }
 }
 
@@ -340,40 +343,40 @@ export interface MemoryWriteInput {
 }
 
 export async function memoryWrite(input: MemoryWriteInput): Promise<{ path: string; created: boolean }> {
-  if (!isMemoryType(input.type)) throw new MemoryError(`unknown memory type: ${String(input.type)}`);
+  if (!isMemoryType(input.type)) throw new MemoryError(`type invalid: ${String(input.type)}`);
   validateName(input.name);
-  if (input.description.length === 0) throw new MemoryError("description is empty");
+  if (input.description.length === 0) throw new MemoryError("description must not be empty");
   if (input.description.length > MAX_MEMORY_DESCRIPTION_LENGTH) {
-    throw new MemoryError(`description is ${input.description.length} chars; the limit is ${MAX_MEMORY_DESCRIPTION_LENGTH}`);
+    throw new MemoryError(`description exceeds ${MAX_MEMORY_DESCRIPTION_LENGTH} chars (got ${input.description.length})`);
   }
-  if (/[\r\n]/.test(input.description)) throw new MemoryError("description has to fit on one line");
+  if (/[\r\n]/.test(input.description)) throw new MemoryError("description must be a single line");
   const bytes = Buffer.byteLength(input.body, "utf8");
-  if (bytes > MAX_MEMORY_BODY_BYTES) throw new MemoryError(`body is ${bytes} bytes; the limit is ${MAX_MEMORY_BODY_BYTES}`);
+  if (bytes > MAX_MEMORY_BODY_BYTES) throw new MemoryError(`body exceeds ${MAX_MEMORY_BODY_BYTES} bytes (got ${bytes})`);
 
   if (input.type === "asset-pin") {
     // 资产 id 只在本项目内稳定，钉到用户级没有意义
     if (input.scope !== "project") {
-      throw new MemoryError("asset pins can only live in project scope, because asset ids mean nothing outside their project");
+      throw new MemoryError("type='asset-pin' requires scope='project' (asset URIs are not stable across projects)");
     }
-    if (!input.asset_uri) throw new MemoryError("asset pins need an asset_uri");
+    if (!input.asset_uri) throw new MemoryError("type='asset-pin' requires asset_uri");
     if (!ASSET_URI_RE.test(input.asset_uri)) {
-      throw new MemoryError(`asset_uri "${input.asset_uri}" is malformed; expected hilo://asset/<id> with an id of letters, digits, _ or -`);
+      throw new MemoryError(`asset_uri must match /^hilo:\\/\\/asset\\/[a-zA-Z0-9_-]+$/: ${input.asset_uri}`);
     }
-    if (!input.asset_modality) throw new MemoryError("asset pins need an asset_modality");
-    if (!isAssetModality(input.asset_modality)) throw new MemoryError(`unknown asset_modality: ${input.asset_modality}`);
+    if (!input.asset_modality) throw new MemoryError("type='asset-pin' requires asset_modality");
+    if (!isAssetModality(input.asset_modality)) throw new MemoryError(`asset_modality invalid: ${input.asset_modality}`);
   } else {
     if (input.asset_uri != null) {
-      throw new MemoryError(`asset_uri belongs to asset pins only; this entry has type ${input.type}`);
+      throw new MemoryError(`asset_uri is only allowed when type='asset-pin' (got type='${input.type}')`);
     }
     if (input.asset_modality != null) {
-      throw new MemoryError(`asset_modality belongs to asset pins only; this entry has type ${input.type}`);
+      throw new MemoryError(`asset_modality is only allowed when type='asset-pin' (got type='${input.type}')`);
     }
   }
   if (input.source === "auto") {
-    if (!input.extracted_at) throw new MemoryError("auto-sourced entries need an extracted_at timestamp in ISO 8601 form");
-    if (!ISO_8601_RE.test(input.extracted_at)) throw new MemoryError(`extracted_at is not an ISO 8601 timestamp: ${input.extracted_at}`);
+    if (!input.extracted_at) throw new MemoryError("source='auto' requires extracted_at (ISO 8601 timestamp)");
+    if (!ISO_8601_RE.test(input.extracted_at)) throw new MemoryError(`extracted_at must be ISO 8601: ${input.extracted_at}`);
   } else if (input.extracted_at != null) {
-    throw new MemoryError(`extracted_at only applies to auto-sourced entries; this one is ${input.source ?? "manual"}`);
+    throw new MemoryError(`extracted_at is only allowed when source='auto' (got source='${input.source ?? "manual"}')`);
   }
 
   const dir = resolveDir(input.scope, input.projectRoot);
@@ -381,7 +384,7 @@ export async function memoryWrite(input: MemoryWriteInput): Promise<{ path: stri
   if (input.type === "asset-pin" && input.projectRoot) {
     const db = path.join(input.projectRoot, ".hilo", "index.sqlite");
     if (!existsSync(db)) {
-      process.stderr.write(`[hilo-tools] memory: no asset index at ${db}; cannot confirm the pinned asset exists\n`);
+      process.stderr.write(`[hilo-tools] memory: asset DB not found at ${db} \u2014 asset_uri existence not verified\n`);
     }
   }
   const target = path.join(dir, `${TYPE_FILENAME_PREFIX[input.type]}_${input.name}.md`);
@@ -405,7 +408,7 @@ export async function memoryRead(input: { scope: MemoryScope; name: string; proj
   validateName(input.name);
   const dir = resolveDir(input.scope, input.projectRoot);
   const match = (await listMemoryFiles(dir)).find((e) => e.frontmatter.name === input.name);
-  if (!match) throw new MemoryError(`no memory entry ${input.scope}/${input.name}`);
+  if (!match) throw new MemoryError(`memory not found: ${input.scope}/${input.name}`);
   return { frontmatter: match.frontmatter, body: match.body, path: match.path };
 }
 
@@ -438,9 +441,7 @@ export interface MemoryListEntry {
 
 function requireProjectRootFor(requested: string, projectRoot: string | undefined): void {
   if (requested !== "user" && !projectRoot) {
-    throw new MemoryError(
-      `scope ${requested} needs projectRoot to find project entries`,
-    );
+    throw new MemoryError(`projectRoot is required for scope='${requested}' (project entries cannot be located without it)`);
   }
 }
 
@@ -473,10 +474,10 @@ export async function memorySearch(input: {
   projectRoot?: string;
 }) {
   const query = input.query.trim();
-  if (!query) throw new MemoryError("query is empty");
+  if (!query) throw new MemoryError("query must not be empty");
   const requested = input.scope ?? "all";
   requireProjectRootFor(requested, input.projectRoot);
-  if (input.type !== undefined && !isMemoryType(input.type)) throw new MemoryError(`unknown memory type: ${String(input.type)}`);
+  if (input.type !== undefined && !isMemoryType(input.type)) throw new MemoryError(`type invalid: ${String(input.type)}`);
   const needle = query.toLowerCase();
   const entries: MemoryListEntry[] = [];
   for (const s of resolvedScopes(input.projectRoot)) {

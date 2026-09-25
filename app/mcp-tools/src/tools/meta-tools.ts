@@ -87,10 +87,10 @@ function buildScopes(categories: KnowledgeCategory[], kDir: string | null, wDir:
   const scopes: SearchScope[] = [];
   for (const category of categories) {
     if (category === "workflows") {
-      if (!wDir) return "No workflows directory is configured for this profile, so the workflows category cannot be searched.";
+      if (!wDir) return "Requested workflows resource root is unavailable.";
       scopes.push({ category, rootDir: wDir, searchDir: wDir });
     } else {
-      if (!kDir) return "No knowledge directory is configured for this profile, so knowledge categories cannot be searched.";
+      if (!kDir) return "Requested knowledge resource root is unavailable.";
       scopes.push({ category, rootDir: kDir, searchDir: path.join(kDir, category) });
     }
   }
@@ -124,12 +124,12 @@ const ClassifierResultSchema = z.object({
 
 function extractJsonObject(text: string): unknown {
   const t = text.trim();
-  if (!t) throw new Error("classifier returned nothing");
+  if (!t) throw new Error("empty classifier output");
   try {
     return JSON.parse(t);
   } catch {
     const m = t.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error("classifier reply had no JSON object");
+    if (!m) throw new Error("classifier output did not contain JSON");
     return JSON.parse(m[0]);
   }
 }
@@ -144,19 +144,20 @@ export function parseClassifierResult(text: string): z.infer<typeof ClassifierRe
 
 function classifierPrompt(userRequest: string): string {
   return [
-    "Task: judge whether a prompt-writing recipe card would help with the image request at the end.",
+    "You classify whether an image generation request should load one optional direct-image recipe card.",
     "",
-    "Say yes only if the request produces or edits still images alone and one of the cards below would noticeably improve the prompt.",
-    "Say no for anything involving video, short drama, music videos, sound, or several production stages, and whenever none of the cards matches.",
-    "Cards only shape the prompt text; choosing one says nothing about workflows or which agent handles the job.",
+    "Decision boundary:",
+    "- Return selected=true only when the request is an image-only generation/editing task and a recipe materially improves prompt compilation.",
+    "- Return selected=false for video, drama, MV, audio, multi-stage asset planning, or when no listed recipe applies.",
+    "- A recipe is never a workflow and must not imply planner/executor routing.",
     "",
-    "Card list:",
-    "- poster — a single designed graphic such as a movie or series poster, key art, launch or event visual, or ad image, where typography and layout are part of what gets delivered.",
+    "Available recipe cards:",
+    "- poster: single standalone poster, key visual, campaign graphic, product launch graphic, event graphic, film/series poster, or marketing image where designed text/layout/typography hierarchy is part of the output.",
     "",
-    "Reply with a bare JSON object using these keys and value types:",
+    "Return strict JSON only, with this exact shape:",
     '{"selected":boolean,"recipe_id":"poster"|null,"confidence":number}',
     "",
-    "Image request:",
+    "User request:",
     userRequest,
   ].join("\n");
 }
@@ -195,10 +196,10 @@ const OutcomeItemSchema = z.object({
 type OutcomeItem = z.infer<typeof OutcomeItemSchema>;
 
 function validateOutcome(item: OutcomeItem, index: number): string | undefined {
-  if (item.outcome === "failed" && !item.error_class) return `outcomes[${index}]: failed records need an error_class.`;
-  if (item.phase === "execute" && !item.asset_id) return `outcomes[${index}]: execute records need an asset_id.`;
+  if (item.outcome === "failed" && !item.error_class) return `outcomes[${index}].error_class is required when outcome=failed.`;
+  if (item.phase === "execute" && !item.asset_id) return `outcomes[${index}].asset_id is required for phase=execute.`;
   if (item.phase === "execute" && item.outcome === "success" && !item.vendor) {
-    return `outcomes[${index}]: successful execute records need a vendor.`;
+    return `outcomes[${index}].vendor is required for successful execute outcomes.`;
   }
   return undefined;
 }
@@ -206,7 +207,7 @@ function validateOutcome(item: OutcomeItem, index: number): string | undefined {
 function outcomeError(errors: { index: number; message: string }[]): CallToolResult {
   return {
     isError: true,
-    structuredContent: { ok: false, count: 0, logged_at: null, errors },
+    structuredContent: { ok: false, logged_at: null, count: 0, errors },
     content: [{ type: "text", text: errors.map((e) => e.message).join(" ") }],
   };
 }
@@ -272,7 +273,7 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
         return structuredReply({ ok: true, knowledge_dir: KNOWLEDGE_DIR_TOKEN, results: hits.slice(0, limit) });
       }
 
-      if (!args.query || !args.query.trim()) return plainError("Provide keywords in `query` or a card name in `topic`.");
+      if (!args.query || !args.query.trim()) return plainError("Either `query` or `topic` is required.");
       const terms = args.query.toLowerCase().split(/\s+/).filter(Boolean);
       const hits: KnowledgeHit[] = [];
       for (const scope of scopes) {
@@ -323,7 +324,7 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
       if (modality !== "image" && modality !== "unknown") return none();
       const kDir = resolveKnowledgeDir();
       if (!kDir) {
-        return plainError("Cannot locate the knowledge folder: set HILO_KNOWLEDGE_DIR or make sure the active profile ships one.");
+        return plainError("Knowledge directory not found. Expected HILO_KNOWLEDGE_DIR or the active profile knowledge directory.");
       }
       // 分类只是锦上添花：模型调用失败、输出不合法都退回“不选”，不挡住出图
       let classified: z.infer<typeof ClassifierResultSchema>;
@@ -381,7 +382,7 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
       },
     },
     async (args) => {
-      if (!args.outcomes || args.outcomes.length === 0) return outcomeError([{ index: 0, message: "outcomes must contain at least one record." }]);
+      if (!args.outcomes || args.outcomes.length === 0) return outcomeError([{ index: 0, message: "outcomes[] is required." }]);
       const errors = args.outcomes.flatMap((item, index) => {
         const message = validateOutcome(item, index);
         return message ? [{ index, message }] : [];
