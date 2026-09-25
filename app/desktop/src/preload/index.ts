@@ -116,21 +116,68 @@ ipcRenderer.on("menu:new-workspace", (event, ...args) => {
 const noop = () => undefined;
 const unsubscribeNoop = () => noop;
 
-function stubMethods(names: string[]): Record<string, (...args: unknown[]) => unknown> {
-  const out: Record<string, (...args: unknown[]) => unknown> = {};
-  for (const n of names) out[n] = /^on[A-Z]/.test(n) ? unsubscribeNoop : noop;
-  return out;
+/**
+ * 系统通知。点击回调留在渲染层这边：主进程只回一个 id，之后用 click / close 事件对号。
+ * 点击事件可能比 invoke 的结果先到，先存起来，等拿到 id 再补发；一分钟没人认领就丢掉。
+ */
+function createNotificationBridge() {
+  const TTL_MS = 60_000;
+  const MAX_PENDING = 100;
+  const clickHandlers = new Map<string, () => void>();
+  const earlyEvents = new Map<string, "click" | "close">();
+  const timers = new Map<string, ReturnType<typeof setTimeout>>();
+  const cleanup = (id: string) => {
+    clickHandlers.delete(id);
+    earlyEvents.delete(id);
+    clearTimeout(timers.get(id));
+    timers.delete(id);
+  };
+  const evictOldest = (map: Map<string, unknown>) => {
+    if (map.size < MAX_PENDING) return;
+    const oldest = map.keys().next().value;
+    if (oldest !== undefined) cleanup(oldest);
+  };
+  const trackEarly = (id: string, kind: "click" | "close") => {
+    evictOldest(earlyEvents);
+    earlyEvents.set(id, kind);
+    clearTimeout(timers.get(id));
+    timers.set(id, setTimeout(() => cleanup(id), TTL_MS));
+  };
+  ipcRenderer.on("notification:click", (_e, id: string) => {
+    const handler = clickHandlers.get(id);
+    if (handler) {
+      handler();
+      cleanup(id);
+      return;
+    }
+    trackEarly(id, "click");
+  });
+  ipcRenderer.on("notification:close", (_e, id: string) => {
+    if (clickHandlers.has(id)) return cleanup(id);
+    // 先点后关：点击还没被认领，别让 close 把它覆盖掉
+    trackEarly(id, earlyEvents.get(id) === "click" ? "click" : "close");
+  });
+  return {
+    show(title: string, body?: string, opts?: { icon?: string; silent?: boolean; onClick?: () => void }) {
+      void (invoke("notification:show", { title, body: body ?? "", icon: opts?.icon, silent: opts?.silent }) as Promise<{ id?: string | null }>)
+        .then((result) => {
+          const id = result?.id;
+          const onClick = opts?.onClick;
+          if (!id || !onClick) return;
+          const early = earlyEvents.get(id);
+          if (early) {
+            if (early === "click") onClick();
+            cleanup(id);
+            return;
+          }
+          evictOldest(clickHandlers);
+          clickHandlers.set(id, onClick);
+          timers.set(id, setTimeout(() => cleanup(id), TTL_MS));
+        })
+        .catch((err: unknown) => console.warn("[notification] IPC invoke failed:", err));
+    },
+  };
 }
-
-const BROWSER_METHODS = [
-  "getState", "createTab", "showTab", "hideTab", "destroyTab", "navigate", "back", "forward", "reload", "setBounds",
-  "setZoom", "setDevicePreview", "setAnnotation", "screenshot", "captureFrame", "openExternal", "clearCookies",
-  "clearCache", "importCookies", "importBookmarks", "setSurfaceOpen", "setNativeViewOcclusion", "openMenu", "closeMenu",
-  "updateMenu", "showProjectPreview", "hideProjectPreview", "getDownloads", "downloadAction", "setDownloadSavePrompt",
-  "openDownloadsFolder", "openDownloadsPanel", "closeDownloadsPanel", "updateDownloadsPanel", "deleteBookmark",
-  "onStateChanged", "onMenuStateChanged", "onDownloadsPanelStateChanged", "onDownloadsChanged", "onDownloadTransfer",
-  "onSurfaceRequested", "onProjectPreviewEvent", "onPluginEvent", "onBookmarkDelete",
-];
 
 const capabilities = new Set(["fs", "fs.dialogs", "window", "clipboard", "notification", "shell", "storage"]);
 
@@ -164,19 +211,18 @@ const platform = {
       document.title = title;
     },
     setWindowButtonVisibility: (visible: boolean) => invoke("window:set-button-visibility", visible),
-    setNativeViewOcclusion: noop,
+    // 只有内置浏览器的原生视图需要遮挡，这里没有；渲染层会 .catch()，所以得回 Promise
+    setNativeViewOcclusion: async () => undefined,
   },
   clipboard: {
-    readText: () => clipboard.readText(),
-    writeText: (text: string) => clipboard.writeText(text),
+    // 渲染层按 Promise 用（await / .then），同步返回会让 .then 直接抛
+    readText: async () => clipboard.readText(),
+    writeText: async (text: string) => clipboard.writeText(text),
     writeImage: (filePath: string) => invoke("clipboard:write-image", filePath),
     writeImageData: (data: unknown) => invoke("clipboard:write-image-data", data),
     writeFile: (filePath: string) => invoke("clipboard:write-file", filePath),
   },
-  notification: {
-    show: (title: string, body?: string, opts?: { icon?: string; silent?: boolean }) =>
-      invoke("notification:show", { title, body, icon: opts?.icon, silent: opts?.silent }),
-  },
+  notification: createNotificationBridge(),
   shell: {
     openExternal: async (url: string) => {
       // 只放行浏览器该打开的协议；file:、javascript: 之类一律拒绝
@@ -244,7 +290,7 @@ const hilo = {
     clearUser: () => invoke("storage:clear-user"),
   },
   updater: {
-    check: () => invoke("updater:check"),
+    check: (options?: unknown) => invoke("updater:check", options),
     getVersion: () => invoke("updater:get-version"),
   },
   logger: {
@@ -268,18 +314,14 @@ const hilo = {
     onRuntimeMemoryReclaim: (cb: (p: unknown) => void) => subscribe("runtime:memory-reclaim", (_e, p) => cb(p)),
     addBreadcrumb: (category: string, message: string, data?: unknown) => invoke("app:add-breadcrumb", category, message, data),
   },
-  screenshot: { start: () => Promise.resolve({ success: false, error: "unsupported" }) },
-  // 内置浏览器不在范围内：方法都是空操作，订阅返回取消函数。contextBridge 只拷贝
-  // 自有属性，所以要逐个列出来，不能用 Proxy。
-  browser: {
-    ...stubMethods(BROWSER_METHODS),
-    browserProfileImport: stubMethods(["listProfiles", "listBookmarkProfiles", "importCookies", "importBookmarks", "cancel", "onRequested", "onBookmarksRequested", "onProgress"]),
-  },
+  screenshot: { start: (params?: unknown) => invoke("screenshot:start", params) },
+  // 不暴露 browser：内置浏览器不在范围内。渲染层对 `hilo.browser` 全程可选链，缺席时
+  // 网页链接走系统浏览器、项目预览走 DOM 版本；给一组空桩反而会让它以为能开内置浏览器。
   perf: {
-    captureCpuProfile: () => invoke("perf:capture-cpu"),
-    captureHeapSnapshot: () => invoke("perf:capture-heap"),
-    captureTrace: () => invoke("perf:capture-trace"),
-    captureNetLog: () => invoke("perf:capture-netlog"),
+    captureCpuProfile: (target = "main", durationMs?: number) => invoke("perf:capture-cpu", target, durationMs),
+    captureHeapSnapshot: (target = "main") => invoke("perf:capture-heap", target),
+    captureTrace: (durationMs?: number) => invoke("perf:capture-trace", durationMs),
+    captureNetLog: (durationMs?: number) => invoke("perf:capture-netlog", durationMs),
   },
   hotUpdate: {
     check: () => Promise.resolve({ available: false }),
