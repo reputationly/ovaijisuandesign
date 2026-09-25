@@ -339,3 +339,86 @@ body.workspace-stage-resizing iframe {
     transition: none;
   }
 }
+
+/* 新建项目弹窗：遮罩比全局弹窗浅（全局 62% 黑取 48% ≈ 30%），不模糊背景 */
+.new-workspace-modal-overlay {
+  background: color-mix(in srgb, var(--modal-mask-bg) 48%, transparent) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.new-workspace-dialog {
+  border: var(--elevated-border-width) solid var(--elevated-border-color);
+  background: var(--elevated-surface);
+  box-shadow: var(--shadow-soft-popover);
+}
+.new-workspace-dialog [data-slot='dialog-close'] {
+  top: var(--message-input-card-padding);
+  right: var(--message-input-card-padding);
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+}
+.new-workspace-dialog [data-slot='dialog-close'] svg {
+  width: 18px;
+  height: 18px;
+}
+.new-workspace-name-input {
+  border-radius: var(--radius);
+  border: var(--control-border-width) solid var(--border);
+  background: var(--elevated-surface) !important;
+  color: var(--foreground);
+  font-size: var(--text-body-15);
+  line-height: var(--text-body-15--line-height);
+  box-shadow: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+.new-workspace-name-input:hover {
+  background: var(--elevated-surface) !important;
+}
+.new-workspace-name-input:focus,
+.new-workspace-name-input:focus-visible {
+  border-color: var(--foreground);
+  background: var(--elevated-surface) !important;
+  box-shadow: none;
+  outline: none;
+}
+.new-workspace-name-input::selection {
+  color: var(--brand-accent-foreground);
+  background: color-mix(in srgb, var(--brand-accent) 72%, transparent);
+}
+/* 项目行接在名字输入框下面，和它拼成一组 */
+.new-workspace-project-picker {
+  border-top: var(--control-border-width) solid var(--border);
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, var(--elevated-surface));
+  font-size: var(--text-body-14);
+  line-height: var(--text-body-14--line-height);
+}
+.new-workspace-project-picker:hover {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+/* 保存位置那一行暂时下线：项目行直接塞到输入框底下，上沿藏进输入框的圆角里 */
+.new-workspace-project-picker--tucked {
+  margin-top: calc(var(--radius) * -1);
+  border-top: none;
+  padding-bottom: calc(0.5rem + var(--radius));
+}
+.new-workspace-project-picker--tucked > * {
+  transform: translateY(var(--radius));
+}
+.new-workspace-action-button {
+  border-radius: calc(var(--radius-sm) + 4px);
+  padding-inline: 12px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .new-workspace-name-input,
+  .new-workspace-action-button {
+    transition: none;
+  }
+}

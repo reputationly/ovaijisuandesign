@@ -1,4 +1,4 @@
-import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
 import { CircleAlert, FileText, Library, LoaderCircle, MessageSquare, ToyBrick, Workflow } from "lucide-react"
 import { useRef, useState } from "react"
@@ -124,18 +124,6 @@ export function CreationsPage() {
       ) : (
         <PageState />
       )}
-    </CatalogPage>
-  )
-}
-
-export function ProjectDetailPage() {
-  const { t } = useTranslation()
-  const { projectId } = useParams({ strict: false }) as { projectId?: string }
-  const { data } = useWorkspaceList()
-  const project = data?.projects.find((p) => p.id === projectId)
-  return (
-    <CatalogPage id="project-detail" title={project?.name ?? t("project.hubTitle")}>
-      <PageState text={t("ov.page.placeholder")} />
     </CatalogPage>
   )
 }

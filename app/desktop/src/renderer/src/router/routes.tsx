@@ -1,6 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Outlet, redirect } from "@tanstack/react-router"
 
-import { AssetCenterPage, ChangelogPage, CreationsPage, HomePage, ProjectDetailPage, SkillsPage, WorkflowsPage, WorkspacePage } from "../pages/pages"
+import { AssetCenterPage, ChangelogPage, CreationsPage, HomePage, SkillsPage, WorkflowsPage, WorkspacePage } from "../pages/pages"
+import { ProjectDetailPage } from "../pages/ProjectDetailPage"
 import { ProjectsPage } from "../pages/ProjectsPage"
 import { WorkbenchShell } from "../shell/WorkbenchShell"
 import { parseWorkspaceSearch, pickSkillsSearch } from "./search"

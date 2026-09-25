@@ -6,6 +6,8 @@ import { cn } from "../lib"
 import { SettingsDialog } from "../settings/SettingsDialog"
 import { AppEvents } from "./AppEvents"
 import { GlobalSidebar } from "./GlobalSidebar"
+import { NewWorkspaceDialogProvider } from "./new-workspace-dialog"
+import { TopbarProvider } from "./topbar"
 
 /**
  * 应用外框：顶部窗口栏覆盖层 + [全局侧栏 | 主内容卡片]。
@@ -20,39 +22,43 @@ export function WorkbenchShell({ children }: { children: ReactNode }) {
   const mac = isMac()
 
   return (
-    <div
-      className="transparent-window-root transparent-window-shell-material relative flex h-screen w-screen flex-col overflow-hidden bg-[var(--window-shell-fallback-bg)]"
-      data-action-ui-id="workbench-shell"
-      data-window-chrome-mode={mac ? "mac-integrated" : "custom"}
-      data-window-fullscreen={String(fullscreen)}
-      style={{
-        ["--window-titlebar-height" as string]: "0px",
-        ["--window-traffic-light-inset" as string]: "0px",
-        ["--window-app-controls-inset" as string]: "0px",
-      }}
-    >
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 h-10 select-none" data-layout-slot="window-chrome-overlay" data-titlebar-reserved="false" />
-      <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
-        <GlobalSidebar />
-        <div className="transparent-window-surface-gap transparent-window-workbench-inset relative flex min-w-0 flex-1 flex-col overflow-hidden py-1 pr-1 pl-2">
-          <DragZones thick={inWorkspace} />
-          <section
-            className={cn(
-              "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl",
-              !inWorkspace && "elevated-surface-border bg-[var(--home-content-surface)]",
-            )}
-            data-action-ui-id="workbench-sheet"
-            data-surface={inWorkspace ? "workspace" : "global"}
-          >
-            <div className="relative flex min-h-0 flex-1 overflow-hidden">
-              <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</main>
+    <TopbarProvider>
+      <NewWorkspaceDialogProvider>
+        <div
+          className="transparent-window-root transparent-window-shell-material relative flex h-screen w-screen flex-col overflow-hidden bg-[var(--window-shell-fallback-bg)]"
+          data-action-ui-id="workbench-shell"
+          data-window-chrome-mode={mac ? "mac-integrated" : "custom"}
+          data-window-fullscreen={String(fullscreen)}
+          style={{
+            ["--window-titlebar-height" as string]: "0px",
+            ["--window-traffic-light-inset" as string]: "0px",
+            ["--window-app-controls-inset" as string]: "0px",
+          }}
+        >
+          <header className="pointer-events-none fixed inset-x-0 top-0 z-40 h-10 select-none" data-layout-slot="window-chrome-overlay" data-titlebar-reserved="false" />
+          <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
+            <GlobalSidebar />
+            <div className="transparent-window-surface-gap transparent-window-workbench-inset relative flex min-w-0 flex-1 flex-col overflow-hidden py-1 pr-1 pl-2">
+              <DragZones thick={inWorkspace} />
+              <section
+                className={cn(
+                  "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl",
+                  !inWorkspace && "elevated-surface-border bg-[var(--home-content-surface)]",
+                )}
+                data-action-ui-id="workbench-sheet"
+                data-surface={inWorkspace ? "workspace" : "global"}
+              >
+                <div className="relative flex min-h-0 flex-1 overflow-hidden">
+                  <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</main>
+                </div>
+              </section>
             </div>
-          </section>
+          </div>
+          <SettingsDialog />
+          <AppEvents />
         </div>
-      </div>
-      <SettingsDialog />
-      <AppEvents />
-    </div>
+      </NewWorkspaceDialogProvider>
+    </TopbarProvider>
   )
 }
 

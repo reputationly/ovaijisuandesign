@@ -25,6 +25,7 @@ export const extraEn: Record<string, string> = {
   "ov.settings.update.manual": "Download new versions from the release page and install them over this one.",
   "ov.workspace.missing": "This workspace isn't open.",
   "ov.page.placeholder": "This page is being rebuilt.",
+  "ov.project.teamUnavailable": "Team projects need a cloud account, which this app does not support.",
 }
 
 export const extraZh: Record<string, string> = {
@@ -50,4 +51,5 @@ export const extraZh: Record<string, string> = {
   "ov.settings.update.manual": "新版本请从发布页下载安装包，覆盖安装即可。",
   "ov.workspace.missing": "这个工作区没有打开。",
   "ov.page.placeholder": "此页面正在重建中。",
+  "ov.project.teamUnavailable": "团队项目依赖云端账号，当前版本不支持。",
 }

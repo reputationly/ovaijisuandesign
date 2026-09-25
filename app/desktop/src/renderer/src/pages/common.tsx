@@ -41,7 +41,7 @@ export function CatalogPage({
 }
 
 /** 空 / 占位状态：图标 + 一句话，居中 */
-export function PageState({ text, icon, className }: { text?: ReactNode; icon?: ReactNode; className?: string }) {
+export function PageState({ text, description, icon, className }: { text?: ReactNode; description?: ReactNode; icon?: ReactNode; className?: string }) {
   const { t } = useTranslation()
   return (
     <div className={cn("flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center", className)} data-slot="page-state-visual">
@@ -51,6 +51,11 @@ export function PageState({ text, icon, className }: { text?: ReactNode; icon?: 
       <p className="text-sm text-muted-foreground" data-slot="page-state-copy">
         {text ?? t("pageState.emptyText")}
       </p>
+      {description ? (
+        <p className="-mt-1 max-w-80 text-xs text-muted-foreground/70" data-slot="page-state-description">
+          {description}
+        </p>
+      ) : null}
     </div>
   )
 }

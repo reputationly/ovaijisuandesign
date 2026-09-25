@@ -3,9 +3,7 @@ import type { TFunction } from "i18next"
 
 import { mainProcess } from "../api/main-process"
 import type { GatewayBinding, WorkspaceOpenResult, WorkspaceRuntimeInfo } from "../ipc"
-import { dropConnection } from "../chat"
 import { appLevelEndpoint, setActiveWorkspace, withIdentityQuery, type WorkspaceIdentity } from "../workspace-binding"
-import { rememberActiveWorkspace, showPreviewTab } from "../stores/tabs"
 
 export type RuntimeState =
   | { status: "starting" }
@@ -91,9 +89,8 @@ export function useWorkspaceRuntime(workspaceId: string | undefined, t: TFunctio
       }
     }
 
+    // 显示标签、记最后活跃由外壳的 TopbarProvider 按路由统一做
     setState({ status: "starting" })
-    showPreviewTab(workspaceId)
-    rememberActiveWorkspace(workspaceId)
     const bundle = main.getWorkspaceBundle(workspaceId)
     const sub = bundle.onStatusChange((s) => {
       if (s.gatewayUrl && (s.state === "gateway-ready" || s.state === "opencode-starting" || s.state === "bound")) void readyFromEntries(s.gatewayUrl)
@@ -121,12 +118,4 @@ export function useWorkspaceRuntime(workspaceId: string | undefined, t: TFunctio
   }, [workspaceId, t])
 
   return state
-}
-
-/** 关掉一个工作区：断开它的连接，请主进程停掉运行时（有未保存内容时主进程会拒绝） */
-export async function closeWorkspaceRuntime(workspaceId: string): Promise<void> {
-  dropConnection(workspaceId)
-  await mainProcess()
-    ?.hilo.closeWorkspace(workspaceId, { source: "menu-close-tab" })
-    .catch(() => undefined)
 }
