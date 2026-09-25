@@ -34,7 +34,7 @@
 | `replicate-official-stack` | 主线，已完成的都在这里 |
 | `ui-wave-1` | 界面第一波，做到一半，已基于最新主线，**未验证，别直接合** |
 | `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入，可以删 |
-| `main` | 旧的 Rust + Tauri 版本，M10 切换前不动 |
+| `main` | 2026-09-25 起和 `replicate-official-stack` 同步（用户定）：新栈在 `app/`，旧的 Rust + Tauri 代码（`crates/`、`apps/`、`mcp/`、`agent/`）还在，M10 再删；发布流水线只认 `v*` 标签，仍是旧栈的 |
 
 ### 已完成
 
