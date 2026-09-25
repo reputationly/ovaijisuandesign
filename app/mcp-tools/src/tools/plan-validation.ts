@@ -228,8 +228,8 @@ function isPromptOnlyRefForDrama(ref: string): boolean {
 }
 
 // 修复建议按这两段固定措辞识别问题种类，改措辞时两边一起改
-const SERIAL_POLICY_HINT = "needs a serial/sequential execution_policy";
-const DUPLICATE_ID_HINT = "is declared more than once";
+const SERIAL_POLICY_HINT = "requires a serial/sequential execution_policy";
+const DUPLICATE_ID_HINT = "is duplicated";
 
 const STABLE_REF_ID_PATTERN = /^[A-Za-z][A-Za-z0-9_.-]*$/;
 
@@ -284,8 +284,8 @@ function validateDependencyStates(d: StageDetailBase, ctx: ValidationContext, is
       field: "depends_on",
       message:
         status === "missing"
-          ? `depends_on names "${depId}", which does not exist.`
-          : `depends_on stage "${depId}" is ${status}; it has to be done before this stage can run or finish.`,
+          ? `direct dependency stage "${depId}" is missing.`
+          : `direct dependency stage "${depId}" is ${status}; it must be done before this stage can execute or be completed.`,
     });
   }
 }
@@ -312,23 +312,23 @@ function validateVideoRuntimeRefs(
     const producer = sameStage.get(ref);
     if (producer !== undefined) {
       if (currentId === ref) {
-        addIssue(issues, { ...base, message: `refs lists "${ref}", which is this work item's own output.` });
+        addIssue(issues, { ...base, message: `work item cannot reference its own output "${ref}".` });
       } else if (currentIndex < 0 || producer > currentIndex) {
         addIssue(issues, {
           ...base,
-          message: `refs lists "${ref}", an output of a later work item in this stage; only existing refs or outputs of earlier work items in a serial stage can be used.`,
+          message: `same-stage ref "${ref}" is produced by a later work item; refs may only use already-available refs or prior serial work item outputs.`,
         });
       } else if (!runsSerially(opts.executionPolicy) && !runtimeRefs.has(ref)) {
         addIssue(issues, {
           ...base,
-          message: `refs lists "${ref}" from another work item in this stage, which ${SERIAL_POLICY_HINT} or an existing runtime_ref; in a parallel stage one work item cannot feed another.`,
+          message: `same-stage ref "${ref}" ${SERIAL_POLICY_HINT} or an existing runtime_ref; parallel stages cannot consume another work item output.`,
         });
       }
       continue;
     }
     addIssue(issues, {
       ...base,
-      message: `ref "${ref}" cannot be resolved from this stage's sources and capsules or from its direct dependencies' runtime refs. Resolvable refs: ${[...available].sort().join(" | ") || "(none)"}.`,
+      message: `required ref "${ref}" is not available from this stage or direct dependency runtime refs. Available refs: [${[...available].sort().join(", ")}].`,
     });
   }
 }
@@ -343,7 +343,7 @@ function validationDefaults(d: StageDetailBase, ctx: ValidationContext): Validat
       stage_id: d.stage.id,
       field: "max_generated_clip_duration_s",
       value: "15",
-      reason: "no max_generated_clip_duration_s was set for this video stage, so the platform default applies.",
+      reason: "video stage omitted the generated-video cap; use the platform default.",
     },
   ];
 }
@@ -355,7 +355,7 @@ function validateOutputBinding(d: StageDetailBase, item: DetailItem, issues: Val
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "id",
-    message: "work_items[].id is empty; give every work item a stable logical output id.",
+    message: "work item must declare a stable logical output id in work_items[].id.",
   });
 }
 
@@ -367,7 +367,7 @@ function validateDocumentItem(d: StageDetailBase, item: DetailItem, opts: Valida
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "document_node_id",
-    message: "document work item lacks a materialized document_node_id; send this stage back to the planner before any executor runs.",
+    message: "document work item has no materialized document_node_id; route this stage to planner revision before executor work.",
   });
 }
 
@@ -385,7 +385,7 @@ function requireField(
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field,
-    message: message ?? `required field "${field}" is empty or absent.`,
+    message: message ?? `work item is missing required field "${field}".`,
   });
 }
 
@@ -404,7 +404,7 @@ function requireAnyField(
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field,
-    message: message ?? `at least one of these fields is required: ${aliases.join(" / ")}.`,
+    message: message ?? `work item must include one of: ${aliases.join(", ")}.`,
   });
 }
 
@@ -423,7 +423,7 @@ function requireStageOrItemGeometry(d: StageDetailBase, item: DetailItem, issues
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "aspect_ratio",
-    message: "no aspect ratio for this video work item; declare it once in the stage execution_locks, or else on the item.",
+    message: "video work item needs an aspect ratio: set it once in the stage execution_locks (preferred) or on the item.",
   });
 }
 
@@ -436,7 +436,7 @@ function validateVideoDurationCap(d: StageDetailBase, ctx: ValidationContext, it
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "duration_target_s",
-    message: `the longest duration ${upper}s is over the max_generated_clip_duration_s limit of ${cap}s.`,
+    message: `duration upper bound ${upper}s exceeds max_generated_clip_duration_s ${cap}s.`,
   });
 }
 
@@ -483,7 +483,7 @@ function validateDramaBlockingRefCoverage(d: StageDetailBase, item: DetailItem, 
     work_item_id: itemLabel(item),
     field: "refs",
     message:
-      "drama video refs need at least as many role reference ids as there are roles in blocking.roles_present plus blocking.persistent_background_roles.",
+      "drama video work item refs must include enough role reference ids to cover blocking.roles_present and blocking.persistent_background_roles.",
   });
 }
 
@@ -495,7 +495,7 @@ function validateDramaSourceRefIds(d: StageDetailBase, item: DetailItem, issues:
       stage_id: d.stage.id,
       work_item_id: itemLabel(item),
       field: "refs",
-      message: "refs may only hold stable ref ids; put role names in the prompt or blocking fields instead.",
+      message: "refs must contain stable ref ids only; write role labels in prompt/blocking fields.",
     });
   }
 }
@@ -521,9 +521,9 @@ function validateDramaSceneKeyframeItem(d: StageDetailBase, ctx: ValidationConte
     "scene_id",
     FIELD_ALIASES.keyframeScene,
     "media",
-    "drama scene keyframe grid has to name its source scene.",
+    "drama scene keyframe grid must identify the source scene.",
   );
-  requireField(d, item, issues, "refs", "refs", "drama scene keyframe grid needs bound refs.");
+  requireField(d, item, issues, "refs", "refs", "drama scene keyframe grid must bind refs.");
   const prompt = item.prompt;
   const style = ctx.stage_fields.storyboard_style?.trim().toLowerCase();
   const panelCount = style === "bw_blockout" ? 8 : 9;
@@ -533,14 +533,14 @@ function validateDramaSceneKeyframeItem(d: StageDetailBase, ctx: ValidationConte
     issues,
     "prompt",
     "media",
-    `drama scene keyframe grid needs a single self-contained prompt with all ${panelCount} panels written inline as cell_1..cell_${panelCount} blocks.`,
+    `drama scene keyframe grid must carry one self-contained prompt holding all ${panelCount} panels as inline cell_1..cell_${panelCount} blocks.`,
   );
   const base = { category: "media" as const, stage_id: d.stage.id, work_item_id: itemLabel(item) };
   if (hasDeclaredField(item, "cells")) {
     addIssue(issues, {
       ...base,
       field: "cells",
-      message: `drama scene keyframe grid keeps everything in one prompt; remove the cells field and describe the ${panelCount} panels within the prompt text.`,
+      message: `drama scene keyframe grid carries one self-contained prompt; drop the cells field and write the ${panelCount} panels inside the prompt.`,
     });
   }
   for (let i = 1; i <= panelCount; i += 1) {
@@ -549,21 +549,21 @@ function validateDramaSceneKeyframeItem(d: StageDetailBase, ctx: ValidationConte
       addIssue(issues, {
         ...base,
         field,
-        message: `drama scene keyframe grid keeps everything in one prompt; remove ${field} and describe that panel in the prompt as an inline "${field}" block.`,
+        message: `drama scene keyframe grid carries one self-contained prompt; drop the ${field} field and write that panel inside the prompt as an inline "${field}" block.`,
       });
     }
     if (isNullLike(prompt) || hasPanelMarker(prompt ?? "", i)) continue;
     addIssue(issues, {
       ...base,
       field: "prompt",
-      message: `the prompt is missing 第${i}格; it needs ${panelCount} ordered panel sections in Chinese, from 第1格 to 第${panelCount}格.`,
+      message: `prompt must inline 第${i}格 — write ${panelCount} ordered Chinese panel sections covering 第1格 through 第${panelCount}格.`,
     });
   }
   if (style === "bw_blockout" && mentionsPanel9(prompt ?? "")) {
     addIssue(issues, {
       ...base,
       field: "prompt",
-      message: "bw_blockout has exactly eight panels (第1格 to 第8格); drop the ninth one.",
+      message: "bw_blockout uses exactly eight panels (第1格 through 第8格); remove the ninth panel.",
     });
   }
   validateDramaSourceRefIds(d, item, issues);
@@ -578,13 +578,13 @@ function validateDramaBackgroundRoles(d: StageDetailBase, item: DetailItem, issu
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "persistent_background_roles",
-    message: "persistent_background_roles is only for non-focus background roles and cannot share any role with roles_present.",
+    message: "persistent_background_roles must list only non-focus background roles and stay disjoint from roles_present.",
   });
 }
 
 function validateDramaVideoItem(d: StageDetailBase, item: DetailItem, issues: ValidationIssue[]): void {
   for (const field of ["clip_group_id", "sequence_index", "duration_target_s"]) {
-    requireField(d, item, issues, field, "video", `drama video work item needs "${field}".`);
+    requireField(d, item, issues, field, "video", `drama video work item is missing "${field}".`);
   }
   requireAnyField(
     d,
@@ -593,9 +593,9 @@ function validateDramaVideoItem(d: StageDetailBase, item: DetailItem, issues: Va
     "scene_or_beat_range",
     FIELD_ALIASES.dramaScene,
     "video",
-    "drama video work item has to name its source scene or beat range.",
+    "drama video work item must identify the source scene or beat range.",
   );
-  requireField(d, item, issues, "refs", "video", "drama video work item needs bound refs.");
+  requireField(d, item, issues, "refs", "video", "drama video work item must bind refs.");
   requireAnyField(
     d,
     item,
@@ -603,9 +603,9 @@ function validateDramaVideoItem(d: StageDetailBase, item: DetailItem, issues: Va
     "audio_approach",
     ["audio_approach", "generated_speech_audio_approach"],
     "video",
-    "drama video work item has to state its audio approach.",
+    "drama video work item must declare the audio approach.",
   );
-  requireField(d, item, issues, "prompt", "video", "drama video work item needs a finished prompt that can be generated as is.");
+  requireField(d, item, issues, "prompt", "video", "drama video work item must carry an authored ready-to-generate prompt.");
   const prompt = fieldValue(item, ["prompt"]);
   if (prompt && VAGUE_GROUP_HANDOFF_RE.test(prompt)) {
     addIssue(issues, {
@@ -614,7 +614,7 @@ function validateDramaVideoItem(d: StageDetailBase, item: DetailItem, issues: Va
       work_item_id: itemLabel(item),
       field: "prompt",
       message:
-        "drama video prompt has to spell out the spatial snapshot in full; the video model cannot see upstream group ids or shorthand such as the previous group.",
+        "drama video prompt must expand the spatial snapshot; upstream group ids or previous-group shorthand are not visible to the video model.",
     });
   }
   requireStageOrItemGeometry(d, item, issues);
@@ -631,7 +631,7 @@ function validateMvVideoItem(d: StageDetailBase, item: DetailItem, issues: Valid
     "segment_id",
     FIELD_ALIASES.mvSegment,
     "video",
-    "MV video work item has to name the song section / visual segment it covers.",
+    "MV video work item must identify the coherent song section / visual segment.",
   );
   requireAnyField(
     d,
@@ -640,9 +640,9 @@ function validateMvVideoItem(d: StageDetailBase, item: DetailItem, issues: Valid
     "timing_target",
     FIELD_ALIASES.mvTiming,
     "video",
-    "MV video work item needs timing taken from the song section or from beat evidence.",
+    "MV video work item must carry song-section timing or beat evidence.",
   );
-  requireAnyField(d, item, issues, "refs", ["refs"], "video", "MV video work item needs bound refs.");
+  requireAnyField(d, item, issues, "refs", ["refs"], "video", "MV video work item must bind refs.");
   requireAnyField(d, item, issues, "audio_approach", [...FIELD_ALIASES.audio].reverse(), "video");
   requireAnyField(d, item, issues, "duration_or_timing", FIELD_ALIASES.mvDuration, "video");
   requireStageOrItemGeometry(d, item, issues);
@@ -661,10 +661,10 @@ function validatePostprocessItem(d: StageDetailBase, item: DetailItem, issues: V
   validateOutputBinding(d, item, issues);
   const base: Omit<ValidationIssue, "severity" | "message" | "field"> = { category: "postprocess", stage_id: d.stage.id, work_item_id: itemLabel(item) };
   if (!anyField(item, ["operation", "action"])) {
-    addIssue(issues, { ...base, field: "operation", message: "postprocess work item needs an operation or action." });
+    addIssue(issues, { ...base, field: "operation", message: "postprocess work item must declare operation/action." });
   }
   if (!anyField(item, FIELD_ALIASES.postInputs)) {
-    addIssue(issues, { ...base, field: "input_refs", message: "postprocess work item needs ordered input refs or a timeline order." });
+    addIssue(issues, { ...base, field: "input_refs", message: "postprocess work item must declare ordered input refs or timeline order." });
   }
 }
 
@@ -674,13 +674,13 @@ function missingPromptIssue(d: StageDetailBase, item: DetailItem): Omit<Validati
     stage_id: d.stage.id,
     work_item_id: itemLabel(item),
     field: "prompt",
-    message: "generated media work item needs a prompt written by the planner.",
+    message: "generated media work item must carry a planner-authored prompt.",
   };
 }
 
 function validateExecutionReadiness(d: StageDetailBase, ctx: ValidationContext, issues: ValidationIssue[]): void {
   if (d.work_items.length === 0) {
-    addIssue(issues, { category: "structure", stage_id: d.stage.id, field: "work_items", message: "there are no work_items to run in this stage." });
+    addIssue(issues, { category: "structure", stage_id: d.stage.id, field: "work_items", message: "stage has no work_items to execute." });
   }
   for (const item of d.work_items) {
     if (isGeneratedPromptItem(item) && isNullLike(item.prompt)) addIssue(issues, missingPromptIssue(d, item));
@@ -690,7 +690,7 @@ function validateExecutionReadiness(d: StageDetailBase, ctx: ValidationContext, 
         stage_id: d.stage.id,
         work_item_id: itemLabel(item),
         field: "document_node_id",
-        message: "document work item lacks a materialized document_node_id; the planner has to revise the plan before execution.",
+        message: "document work item has no materialized document_node_id; planner must revise the plan before execution.",
       });
       continue;
     }
@@ -722,7 +722,7 @@ function validateStageDetailReadiness(d: StageDetailBase, ctx: ValidationContext
     validateExecutionReadiness(d, ctx, issues);
   } else {
     if (d.work_items.length === 0) {
-      addIssue(issues, { category: "structure", stage_id: d.stage.id, field: "work_items", message: "a stage that will execute needs work_items." });
+      addIssue(issues, { category: "structure", stage_id: d.stage.id, field: "work_items", message: "executable stage must include work_items." });
     }
     for (const item of d.work_items) {
       if (isGeneratedPromptItem(item) && isNullLike(item.prompt)) addIssue(issues, missingPromptIssue(d, item));
@@ -781,19 +781,19 @@ function validateCanonicalRefTopology(plan: PlanFile, stage: PlanFileStage, issu
       if (sourceIds.has(ref) || capsuleIds.has(ref) || depIds.has(ref)) continue;
       const producer = producers.get(ref);
       if (producer !== undefined) {
-        if (producer === currentIndex) addIssue(issues, { ...base, message: `refs lists "${ref}", which is this work item's own output.` });
-        else if (producer > currentIndex) addIssue(issues, { ...base, message: `refs lists "${ref}", which a later work item in this stage produces.` });
+        if (producer === currentIndex) addIssue(issues, { ...base, message: `work item cannot reference its own output "${ref}".` });
+        else if (producer > currentIndex) addIssue(issues, { ...base, message: `same-stage ref "${ref}" is produced by a later work item.` });
         else if (!serial && !runtimeIds.has(ref)) {
           addIssue(issues, {
             ...base,
-            message: `refs lists "${ref}" from another work item in this stage, which ${SERIAL_POLICY_HINT} or an output already recorded in runtime_refs.`,
+            message: `same-stage ref "${ref}" ${SERIAL_POLICY_HINT} or an existing canonical runtime output.`,
           });
         }
         continue;
       }
       addIssue(issues, {
         ...base,
-        message: `ref "${ref}" cannot be resolved. Refs and capsules offered by direct dependencies: ${[...depIds].sort().join(" | ") || "(none)"}.`,
+        message: `ref "${ref}" is unavailable. Available direct dependency refs/capsules: [${[...depIds].sort().join(", ")}].`,
       });
     }
   });
@@ -857,8 +857,8 @@ function collectUpstream(plan: PlanFile, dependsOn: string[], pick: (s: PlanFile
 export function buildStageDetail(plan: PlanFile, sel: StageSelector, opts: ValidationOptions): StageDetail {
   const stage = selectFileStage(plan, sel);
   if (!stage) {
-    const available = plan.stages.map((s) => `${s.id}@${s.order}`).join(", ");
-    throw new Error(`No stage matches ${JSON.stringify(sel)}. Stages in the plan: ${available || "(none)"}.`);
+    const available = plan.stages.map((s) => `${s.id} (order ${s.order})`).join(", ");
+    throw new Error(`Stage not found for ${JSON.stringify(sel)}. Available stages: ${available || "(none)"}.`);
   }
   const info = publicStage(fileStageToPublic(stage, plan.stage_outline.find((i) => i.id === stage.id)?.name));
   const dependsOn = stage.contract.depends_on ?? [];
@@ -896,22 +896,22 @@ export function buildStageDetail(plan: PlanFile, sel: StageSelector, opts: Valid
   const earlier = frontier && frontier.outline.order < outlineOrder ? frontier : undefined;
   const frontierReason =
     earlier?.kind === "pending"
-      ? `Stage ${earlier.outline.id} comes first and has not been authored yet, so Stage ${stage.id} cannot run.`
+      ? `Earlier Stage ${earlier.outline.id} must be authored before Stage ${stage.id} can execute.`
       : earlier?.kind === "authored"
-        ? `Stage ${earlier.outline.id} comes first and is not resolved yet, so Stage ${stage.id} cannot run.`
+        ? `Earlier Stage ${earlier.outline.id} must be resolved before Stage ${stage.id} can execute.`
         : undefined;
   const status = stage.runtime.status;
   const blocked =
     frontierReason ??
     (status === "waiting_user"
-      ? "Waiting for the user to confirm this stage."
+      ? "Stage is waiting for user confirmation."
       : status === "blocked"
-        ? "This stage is blocked."
+        ? "Stage is blocked."
         : status === "done"
-          ? "This stage has already finished."
+          ? "Stage is already done."
           : validation.ok
             ? undefined
-            : `Stage is not ready: ${formatValidationFailure(validation.issues)}`);
+            : `Stage detail validation failed: ${formatValidationFailure(validation.issues)}`);
   return {
     ...base,
     can_execute: !blocked,
@@ -940,14 +940,14 @@ export function validatePlanFile(plan: PlanFile, sel: StageSelector | undefined,
   const addLogicalId = (id: string | undefined, location: string, stageId = "__plan__") => {
     if (!id?.trim()) return;
     const prev = logicalIds.get(id);
-    if (prev) structure(`Logical id "${id}" ${DUPLICATE_ID_HINT} (${prev} and ${location}).`, stageId);
+    if (prev) structure(`Logical id "${id}" ${DUPLICATE_ID_HINT} (${prev}; ${location}).`, stageId);
     else logicalIds.set(id, location);
   };
-  if (plan.stages.length === 0) structure("A Stage Execution Plan needs one or more stages.");
+  if (plan.stages.length === 0) structure("Stage Execution Plan must contain at least one stage.");
   for (const source of flattenItems(plan.sources)) addLogicalId(source.id, "sources");
   for (const stage of plan.stages) {
-    if (stageIds.has(stage.id)) structure(`Stage id ${stage.id} appears more than once in the plan.`, stage.id);
-    if (stageOrders.has(stage.order)) structure(`Stage order ${stage.order} appears more than once in the plan.`, stage.id);
+    if (stageIds.has(stage.id)) structure(`Stage plan has duplicate stage id: ${stage.id}.`, stage.id);
+    if (stageOrders.has(stage.order)) structure(`Stage plan has duplicate stage order: ${stage.order}.`, stage.id);
     stageIds.add(stage.id);
     stageOrders.add(stage.order);
     for (const item of flattenItems(stage.contract.work_items)) addLogicalId(outputId(item), `stage ${stage.id} work_items`, stage.id);
@@ -966,7 +966,7 @@ export function validatePlanFile(plan: PlanFile, sel: StageSelector | undefined,
 
 export function assertPlanFileValid(plan: PlanFile, opts: ValidationOptions): void {
   const v = validatePlanFile(plan, undefined, opts);
-  if (!v.ok) throw new Error(`The plan did not pass validation: ${formatValidationFailure(v.issues)}`);
+  if (!v.ok) throw new Error(`Stage Execution Plan validation failed: ${formatValidationFailure(v.issues)}`);
 }
 
 // ── 下一步 ──
@@ -1034,15 +1034,15 @@ export function replanFrontierError(
 ): PlanError {
   const v = opts.violation;
   const action = v ? "remove_accepted_prefix_operation" : "omit_preserve_through_stage_id";
-  const frontierLabel = frontierStageId ?? "(the plan is already complete)";
+  const frontierLabel = frontierStageId ?? "after the completed Plan";
   const message = v
-    ? `Operation ${v.operationIndex} touches Stage ${v.stageId}, which lies before the current frontier ${frontierLabel}. Leave the accepted prefix alone and put the change at the frontier or later.`
-    : `With the current frontier ${frontierLabel} the preservation boundary is ${expectedPreserve ?? "empty"}. Leave out preserve_through_stage_id so the tool derives it.`;
+    ? `Replan operation ${v.operationIndex} targets Stage ${v.stageId} before current frontier ${frontierLabel}; keep the accepted prefix unchanged and express the change in the current-or-later suffix.`
+    : `Replan preservation boundary must be ${expectedPreserve ?? "empty"} for current frontier ${frontierLabel}; omit preserve_through_stage_id and let the tool derive it.`;
   return new PlanError(message, "invalid", {
     code: "REPLAN_FRONTIER_MISMATCH",
     ...(v ? { operation_index: v.operationIndex, entity: { type: "stage" as const, id: v.stageId } } : { entity: { type: "plan" as const, id: planId } }),
     current_state: {
-      current_frontier_stage_id: frontierStageId || "after_completed_plan",
+      current_frontier_stage_id: frontierStageId ?? "after_completed_plan",
       expected_preserve_through_stage_id: expectedPreserve ?? "none",
       ...(opts.providedPreserveThroughStageId ? { provided_preserve_through_stage_id: opts.providedPreserveThroughStageId } : {}),
     },
@@ -1057,18 +1057,18 @@ function validationIssueAction(issue: ValidationIssue): { operation: string; des
   if (issue.message.includes(SERIAL_POLICY_HINT)) {
     return {
       operation: "set_serial_execution_policy",
-      description: "Make the Stage execution_policy serial/sequential, or drop the dependency between work items of the same stage.",
+      description: "Set the Stage execution_policy to serial/sequential, or remove the same-stage dependency.",
     };
   }
   if (issue.message.includes(DUPLICATE_ID_HINT)) {
     return {
       operation: "use_unique_logical_id",
-      description: "Give the logical id a single owner and point downstream refs at that id.",
+      description: "Keep one owner for the logical id and reference that canonical id downstream.",
     };
   }
   return {
     operation: "correct_stage_contract",
-    description: "Fix the reported Stage or work-item field and send the same intended Replan again.",
+    description: "Correct the reported Stage/work-item field and resubmit the same intended Replan.",
   };
 }
 
@@ -1084,7 +1084,7 @@ export function planValidationError(issues: ValidationIssue[]): PlanError {
       recommended_action: validationIssueAction(i),
     }));
   const first = guided[0];
-  return new PlanError(`The plan did not pass validation: ${formatValidationFailure(issues)}`, "invalid", {
+  return new PlanError(`Stage Execution Plan validation failed: ${formatValidationFailure(issues)}`, "invalid", {
     code: "PLAN_VALIDATION_FAILED",
     ...(first ? { entity: { type: "stage" as const, id: first.stage_id } } : {}),
     allowed_actions: [...new Set(guided.map((g) => g.recommended_action.operation))],

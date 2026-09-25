@@ -59,7 +59,7 @@ import type { RegisterTools } from "./types.js";
 /** 单次工具输出上限：再大 agent 上下文就吃不消了，超了让它分批取。 */
 const SAFE_OUTPUT_MAX_BYTES = 40 * 1024;
 const PROMPTS_OMITTED_NOTICE =
-  "Work item prompts were left out because the full Stage detail is larger than the safe output size. Fetch the complete items with hub_plan_get_work_items and the matching work_item_ids.";
+  "Work item prompts were omitted because the Stage detail exceeded the safe output size. Use hub_plan_get_work_items with the corresponding work_item_ids to retrieve the complete items.";
 
 const PLAN_ID_DESC = "Stage Execution Plan id (the `.hilo/plan/<id>.json` file stem). Returned by plan_write.";
 const PROJECT_ROOT_DESC =
@@ -95,7 +95,7 @@ function actionableError(err: unknown, planId: string | undefined): CallToolResu
     code: storeCode?.toUpperCase() ?? "PLAN_OPERATION_FAILED",
     recommended_action: {
       operation: "inspect_error_and_correct_request",
-      description: "Fix the request according to the error message, then retry.",
+      description: "Correct the rejected request from the reported message before retrying.",
     },
     // 找不到计划重试也没用；revision 冲突要先重读
     retryable: storeCode !== undefined && storeCode !== "not_found",
@@ -303,7 +303,7 @@ const RuntimeOutputSchema = z.object({
   url: z
     .string()
     .url()
-    .refine((v) => /^https?:\/\//i.test(v), "url has to use http:// or https://")
+    .refine((v) => /^https?:\/\//i.test(v), "url must be http(s)")
     .optional(),
   path: z.string().optional(),
 });
@@ -422,7 +422,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     },
     async (args) => {
       try {
-        if (!args.stage_id && args.order === undefined) return toolError("Pass stage_id or order to pick a stage.");
+        if (!args.stage_id && args.order === undefined) return toolError("Provide either stage_id or order.");
         const plan = await loadPlan(rootOf(args), args.plan_id);
         const detail = stageDetailForExecution(plan, args);
         const full = { plan_id: args.plan_id, ...detail, ref_analyses: await collectStageRefAnalyses(gw, detail) };
@@ -433,7 +433,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
           notice: PROMPTS_OMITTED_NOTICE,
         };
         if (outputBytes(light) > SAFE_OUTPUT_MAX_BYTES) {
-          return toolError("The stage detail is too large to return even without work item prompts.", {
+          return toolError("Stage detail still exceeds the safe output size after omitting work item prompts.", {
             plan_id: args.plan_id,
             stage_id: detail.stage.id,
             safe_output_max_bytes: SAFE_OUTPUT_MAX_BYTES,
@@ -467,12 +467,12 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
       try {
         const plan = await loadPlan(rootOf(args), args.plan_id);
         const stage = plan.stages.find((s) => s.id === args.stage_id);
-        if (!stage) return toolError(`Unknown Stage: ${args.stage_id}`, { plan_id: args.plan_id });
+        if (!stage) return toolError(`Stage not found: ${args.stage_id}`, { plan_id: args.plan_id });
         const ids = [...new Set(args.work_item_ids)];
         const byId = new Map(flattenItems(stage.contract.work_items).map((i) => [i.id, i]));
         const missing = ids.filter((id) => !byId.has(id));
         if (missing.length > 0) {
-          return toolError("Some requested work items are not in this stage.", {
+          return toolError("Work items not found in the selected stage.", {
             plan_id: args.plan_id,
             stage_id: args.stage_id,
             missing_work_item_ids: missing,
@@ -480,12 +480,12 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
         }
         const response = { work_items: ids.map((id) => byId.get(id)) };
         if (outputBytes(response) > SAFE_OUTPUT_MAX_BYTES) {
-          return toolError("The requested work items are too large to return in one response.", {
+          return toolError("Requested work items exceed the safe output size.", {
             plan_id: args.plan_id,
             stage_id: args.stage_id,
             work_item_ids: ids,
             safe_output_max_bytes: SAFE_OUTPUT_MAX_BYTES,
-            recommended_action: "Call hub_plan_get_work_items again with a shorter work_item_ids list.",
+            recommended_action: "Retry hub_plan_get_work_items with fewer work_item_ids.",
           });
         }
         return reply(response);
@@ -525,7 +525,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     },
     async (args) => {
       try {
-        if (!args.updates || args.updates.length === 0) return updateError("updates[] needs at least one entry.", args.plan_id);
+        if (!args.updates || args.updates.length === 0) return updateError("Provide updates[] with at least one stage update.", args.plan_id);
         const planId = args.plan_id;
         const result = await updateStageRuntimes(
           rootOf(args),
@@ -551,7 +551,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
                 const v = validatePlanFile(candidate, { stage_id: u.stage_id, order: u.order }, { requireRuntimeRefs: true, phase: "execution_readiness" });
                 issues.push(...v.issues.filter((i) => i.severity === "error"));
               }
-              if (issues.length > 0) throw new Error(`Stage is not ready for the requested state: ${formatValidationFailure(issues)}`);
+              if (issues.length > 0) throw new Error(`Stage readiness validation failed: ${formatValidationFailure(issues)}`);
             },
           },
         );
@@ -804,11 +804,11 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     async (args) => {
       const validate = (candidate: PlanFile) => assertPlanFileValid(candidate, { requireRuntimeRefs: false, phase: "plan_write" });
       try {
-        if (args.omit && (args.remove || args.stage)) return toolError("omit=true cannot be used together with remove or stage.");
+        if (args.omit && (args.remove || args.stage)) return toolError("omit=true cannot be combined with remove or stage.");
         const projectRoot = rootOf(args);
         const planId = args.plan_id;
         if (args.omit || args.remove) {
-          if (!args.stage_id) return toolError("remove and omit need a top-level stage_id.");
+          if (!args.stage_id) return toolError("Provide stage_id when remove or omit is true.");
           const action = args.omit ? "omit" : "remove";
           const plan = await (args.omit ? omitStage : removeStage)(projectRoot, planId, args.stage_id, args.expected_revision, validate);
           void gw.notifyPlanChanged({
@@ -826,10 +826,10 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
             patched: { stage_id: args.stage_id, action },
           });
         }
-        if (!args.stage) return toolError("Pass a structured `stage` to upsert, or set remove / omit with a stage_id.");
+        if (!args.stage) return toolError("Provide the structured `stage` unless remove or omit is true.");
         const target = args.stage.stage_id;
         if (args.stage_id && target !== args.stage_id) {
-          return toolError(`stage.stage_id "${args.stage.stage_id}" and stage_id "${args.stage_id}" disagree.`);
+          return toolError(`structured stage.stage_id "${args.stage.stage_id}" does not match stage_id "${args.stage_id}".`);
         }
         const validated = PlanStageSchema.parse(args.stage);
         const fileStage = toFileStage(validated);

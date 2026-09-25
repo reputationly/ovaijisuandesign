@@ -114,14 +114,14 @@ describe("plan tools", () => {
     plan.stages[0]!.work_items = [{ id: "img_a", modality: "image" } as never];
     const r = await call("plan_write", { plan });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("generated media work item needs a prompt written by the planner");
+    expect(resultText(r)).toContain("generated media work item must carry a planner-authored prompt");
   });
 
   it("rejects a stale expected_revision", async () => {
     const planId = await writePlan();
     const w = await call("plan_write", { plan: samplePlan(), plan_id: planId, expected_revision: 5 });
     expect(w.isError).toBe(true);
-    expect(resultText(w)).toContain("Plan revision is 1, but the request expected 5");
+    expect(resultText(w)).toContain("Stage plan revision conflict: expected 5, found 1");
 
     const u = await call("plan_update_stage_state", {
       plan_id: planId,
@@ -142,13 +142,13 @@ describe("plan tools", () => {
     // s2 依赖的 s1 未完成：执行就绪检查拒绝
     const early = await call("plan_update_stage_state", { plan_id: planId, updates: [{ stage_id: "s2", status: "done" }] });
     expect(early.isError).toBe(true);
-    expect(resultText(early)).toContain('depends_on stage "s1" is doing');
+    expect(resultText(early)).toContain('direct dependency stage "s1" is doing');
 
     const undeclared = await call("plan_update_stage_state", {
       plan_id: planId,
       updates: [{ stage_id: "s1", status: "done", outputs: [{ id: "other", path: "x.png" }] }],
     });
-    expect(resultText(undeclared)).toContain('Output id "other" is not a work item id of Stage s1');
+    expect(resultText(undeclared)).toContain('Stage s1 output id "other" is not declared in work_items');
 
     const s1 = resultJson(
       await call("plan_update_stage_state", {
@@ -177,10 +177,10 @@ describe("plan tools", () => {
 
     const back = await call("plan_update_stage_state", { plan_id: planId, updates: [{ stage_id: "s1", status: "doing" }] });
     expect(back.isError).toBe(true);
-    expect(resultText(back)).toContain("moving it back to doing is not allowed");
+    expect(resultText(back)).toContain("is done and cannot return to doing");
 
     const both = await call("plan_update_stage_state", { plan_id: planId, updates: [{ stage_id: "s1", order: 1, status: "done" }] });
-    expect(resultText(both)).toContain("by stage_id or by order");
+    expect(resultText(both)).toContain("exactly one of stage_id or order");
 
     const blocked = await call("plan_update_stage_state", { plan_id: planId, updates: [{ stage_id: "s2", status: "blocked" }] });
     expect(blocked.isError).toBe(true);
@@ -223,10 +223,10 @@ describe("plan tools", () => {
     expect(file.stages[0].runtime).toEqual({ status: "doing", superseded_runtime_refs: [{ id: "img_a", path: "out/a.png" }] });
 
     const mismatch = await call("plan_patch_stage", { plan_id: planId, stage_id: "s2", stage: s1 });
-    expect(resultText(mismatch)).toContain("disagree");
+    expect(resultText(mismatch)).toContain("does not match stage_id");
 
     const omitAuthored = await call("plan_patch_stage", { plan_id: planId, stage_id: "s3", omit: true });
-    expect(resultText(omitAuthored)).toContain("is already authored, so it cannot be omitted");
+    expect(resultText(omitAuthored)).toContain("Authored Stage cannot be omitted");
 
     const removed = resultJson(await call("plan_patch_stage", { plan_id: planId, stage_id: "s3", remove: true }));
     expect(removed.patched).toEqual({ stage_id: "s3", action: "remove" });
@@ -344,7 +344,7 @@ describe("plan tools", () => {
     const planId = await writePlan();
     const blocked = resultJson(await call("plan_get_stage_detail", { plan_id: planId, stage_id: "s2" }));
     expect(blocked.can_execute).toBe(false);
-    expect(blocked.blocked_reason).toBe("Stage s1 comes first and is not resolved yet, so Stage s2 cannot run.");
+    expect(blocked.blocked_reason).toBe("Earlier Stage s1 must be resolved before Stage s2 can execute.");
 
     await call("plan_update_stage_state", {
       plan_id: planId,
@@ -357,7 +357,7 @@ describe("plan tools", () => {
     expect(fake.requests.some((q) => q.path === "/api/assets" && q.query.get("include") === "metadata")).toBe(true);
 
     const none = await call("plan_get_stage_detail", { plan_id: planId });
-    expect(resultText(none)).toBe("Pass stage_id or order to pick a stage.");
+    expect(resultText(none)).toBe("Provide either stage_id or order.");
   });
 
   it("a dead gateway does not fail plan writes", async () => {
@@ -373,8 +373,8 @@ describe("plan tools", () => {
   it("missing plans and bad ids surface as tool errors", async () => {
     const r = await call("plan_get_stage_status", { plan_id: "plan_missing" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toBe("No stage plan with id plan_missing exists in this project");
+    expect(resultText(r)).toBe("Stage plan not found: plan_missing");
     const bad = await call("plan_get_stage_status", { plan_id: "../escape" });
-    expect(resultText(bad)).toContain("cannot be used as a file name");
+    expect(resultText(bad)).toContain("Invalid stagePlanId for plan file path");
   });
 });
