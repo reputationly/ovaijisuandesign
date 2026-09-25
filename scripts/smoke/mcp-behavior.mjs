@@ -7,6 +7,7 @@
 //   { "name": "…", "tool": "canvas_read_text", "args": {…},
 //     "files": { "a.md": "内容", "b.png": "@png" },   // 可选：先写进工作区（@png 是一张 1x1 PNG）
 //     "before": [{ "tool": "canvas_write_node", "args": {…}, "save": "node" }],  // 可选：先调的工具；save 把结果里的 nodeId 存成变量
+//     "env": { "HILO_KNOWLEDGE_DIR": "{ws}/kb" },       // 可选：给 MCP 进程加的环境变量，{ws} 换成该侧工作区
 //     "allow": "说明"                                    // 可选：已知且有意的差异，只报告不算失败
 //   }
 // args 里的 "$node" 这类字符串会换成 before 里存下的值。
@@ -48,7 +49,7 @@ const platform = createServer((req, res) => {
 await new Promise((r) => platform.listen(0, "127.0.0.1", r));
 const platformBase = `http://127.0.0.1:${platform.address().port}`;
 
-async function startSide(entry) {
+async function startSide(entry, extraEnv = {}) {
   const ws = mkdtempSync(path.join(tmpdir(), "ov-mcp-behavior-"));
   const cfg = path.join(mkdtempSync(path.join(tmpdir(), "ov-mcp-behavior-cfg-")), "config.json");
   writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${platformBase}/v1`, api_key: "k", chat_model: "chat" }, models: { image: "qwen-image-pro", image_edit: "qwen-image-pro", video: "minimax-h3-fl2va" } }));
@@ -64,7 +65,9 @@ async function startSide(entry) {
     } catch {}
     await new Promise((r) => setTimeout(r, 100));
   }
-  const p = spawn(process.execPath, [entry], { cwd: ws, env: { ...process.env, GATEWAY_URL: base, HILO_RELEASE_REGION: "domestic", HILO_DATA_DIR: path.join(ws, ".data") }, stdio: ["pipe", "pipe", "pipe"] });
+  const env = { ...process.env, GATEWAY_URL: base, HILO_RELEASE_REGION: "domestic", HILO_DATA_DIR: path.join(ws, ".data") };
+  for (const [k, v] of Object.entries(extraEnv)) env[k] = v.split("{ws}").join(ws);
+  const p = spawn(process.execPath, [entry], { cwd: ws, env, stdio: ["pipe", "pipe", "pipe"] });
   let buf = "";
   const pending = new Map();
   p.stdout.on("data", (d) => {
@@ -136,8 +139,8 @@ let allowed = 0;
 let same = 0;
 for (const sc of scenarios) {
   if (only && !`${sc.file} ${sc.tool} ${sc.name}`.includes(only)) continue;
-  const ref = await startSide(path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js"));
-  const ours = await startSide(path.join(repo, "app/mcp-tools/dist/main.js"));
+  const ref = await startSide(path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js"), sc.env);
+  const ours = await startSide(path.join(repo, "app/mcp-tools/dist/main.js"), sc.env);
   let a;
   let b;
   try {
