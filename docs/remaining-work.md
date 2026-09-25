@@ -205,6 +205,16 @@ pnpm --filter @ov/maas-media test
 pnpm turbo run build typecheck test   # 全量
 ```
 
+### 冒烟（真进程，云上也能跑）
+
+```
+node scripts/smoke/gateway.mjs     # 构建产物 gateway 带身份独立启动 + 假平台，过一遍 P2 的路由
+node scripts/smoke/mcp.mjs         # 真 MCP 进程接真 gateway：带身份能写，不带被 428
+bash scripts/smoke/electron.sh     # xvfb 里起整个应用 + 假 opencode：主进程 → opencode / MCP / 插件的身份链
+```
+
+先 `pnpm turbo run build`；`electron.sh` 要 xvfb-run 和已下载的 Electron（`node node_modules/.pnpm/electron@*/node_modules/electron/install.js`）。
+
 ### 本机真实联调（只在本机，需要用户的 key）
 
 ```
