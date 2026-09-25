@@ -102,6 +102,13 @@ describe("files（真实工作区）", () => {
     expect((await http.get("/api/files/content?path=nope.md")).status).toBe(404);
   });
 
+  it("文本内容：长文档（超过默认 100kb）写得进去", async () => {
+    const long = "第一场。".repeat(60_000);
+    const r = await http.put("/api/files/content").send({ path: "长剧本.md", content: long });
+    expect(r.status).toBe(200);
+    expect((await http.get("/api/files/content?path=长剧本.md")).body.content).toHaveLength(long.length);
+  });
+
   it("删除进缓冲区、资产隐藏；撤销原样放回；空栈明说", async () => {
     mkdirSync(path.join(ws, "images"), { recursive: true });
     writeFileSync(path.join(ws, "images/del.png"), PNG);

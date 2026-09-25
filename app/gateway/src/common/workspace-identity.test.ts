@@ -89,7 +89,7 @@ describe("工作区身份中间件（gateway 带身份启动）", () => {
     expect(r.headers["access-control-allow-origin"]).toBe("app://renderer");
   });
 
-  it("/ws：不带身份能连；带错了握手后立刻被关", async () => {
+  it("/ws：不带身份能连；带错了握手后立刻以 1008 关掉", async () => {
     const plain = new WebSocket(wsBase);
     await new Promise((resolve, reject) => {
       plain.once("open", resolve);
@@ -98,6 +98,6 @@ describe("工作区身份中间件（gateway 带身份启动）", () => {
     plain.close();
     const wrong = new WebSocket(`${wsBase}?hilo_workspace_instance=other`);
     const code = await new Promise<number>((resolve) => wrong.once("close", (c) => resolve(c)));
-    expect(code).toBe(4409);
+    expect(code).toBe(1008);
   });
 });

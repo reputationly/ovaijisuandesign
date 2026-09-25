@@ -170,6 +170,6 @@ question 是 opencode **原生** QuestionTool（`OPENCODE_ENABLE_QUESTION_TOOL=t
 M5 起我们也是多工作区多端口，所以照做：
 - gateway：`app/gateway/src/common/workspace-identity.ts`。进程没拿到 `HILO_WORKSPACE_INSTANCE_ID` / `_GENERATION`
   （独立启动、应用级 gateway）时整个不生效；读请求（GET / HEAD / OPTIONS）不带放行；带了对不上 409，写请求缺 428；
-  `/ws` 握手带错的立刻以 4409 关闭。错误码 `WORKSPACE_IDENTITY_MISMATCH` / `WORKSPACE_IDENTITY_REQUIRED` 是我们定的，未和参照核对。
+  `/ws` 握手带错的立刻 `close(1008, "Workspace identity mismatch")`（`contracts-files.md`）。HTTP 的错误码 `WORKSPACE_IDENTITY_MISMATCH` / `WORKSPACE_IDENTITY_REQUIRED` 是我们定的，未和参照核对。
 - 主进程把同一份 `HILO_WORKSPACE_*` 给 gateway、opencode（插件读）和 MCP server 的环境；插件和 `GatewayClient` 每个请求都带。
 - **渲染层连工作区 gateway 时也要带**（`ui-wave-1` 的 P0-1），写请求不带会被 428。

@@ -30,7 +30,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 握手是 GET，没带身份照样连得上；带了却对不上的是连错了工作区的旧标签页，不给它事件流。
     const rejected = req && verifyIdentity(this.config.workspaceIdentity, readPresented(req.headers, req.url), "GET");
     if (rejected) {
-      client.close(4409, rejected.body.error_code);
+      client.close(1008, "Workspace identity mismatch");
       return;
     }
     const off = this.bus.subscribe((m) => {
