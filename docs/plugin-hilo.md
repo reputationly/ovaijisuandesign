@@ -44,7 +44,7 @@
 | request-group | `chat.headers` | 计费 Group：`GET …/:sid/request-group` → 头 `X-Group-Id`、`X-Chat-Turn-Id`、`X-Hilo-Attachment-Refs`；解析失败 fail-closed | gateway | SKIP |
 | attachment-inputs | message / before / after | 收集附件路径，`POST …/attachment-observations` 上云 | 云端 | SKIP |
 | model-trace-capture | `chat.headers` + 替换 `fetch` | 反馈关联云端 trace，`POST /api/chat/model-traces` | 云端 | SKIP |
-| gateway-identity | — | 给插件发往 gateway 的请求加 `x-hilo-workspace*` 头（读 `HILO_WORKSPACE_CLAIM` / `_INSTANCE_ID` / `_GENERATION`） | gateway | DONE（`src/gateway.ts`；M5 起多工作区，gateway 对缺身份的写请求回 428） |
+| gateway-identity | — | 给插件发往 gateway 的请求加 `x-hilo-workspace*` 头（读 `HILO_WORKSPACE_CLAIM` / `_INSTANCE_ID` / `_GENERATION`） | gateway | DONE（`src/gateway.ts`；M5 起多工作区，gateway 对缺身份的请求回 428） |
 | mcp-tool-call 上报 | after | `POST …/mcp-tool-call` 诊断 | — | SKIP |
 
 ## session-header.ts（agent-profiles 自带，`base.json` 的 `plugin` 会加载）

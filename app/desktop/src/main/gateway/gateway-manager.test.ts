@@ -21,6 +21,19 @@ describe("GatewayManager", () => {
     await expect(fetch(`${gw.url}/api/health/live`)).rejects.toThrow();
   }, 30_000);
 
+  it("带工作区身份起的 gateway：健康检查照样就绪，其余请求不带身份 428", async () => {
+    const ws = mkdtempSync(path.join(tmpdir(), "ov-gw-"));
+    const env = { HILO_WORKSPACE_CLAIM: "d".repeat(64), HILO_WORKSPACE_INSTANCE_ID: "inst-gm", HILO_WORKSPACE_GENERATION: "1" };
+    const m = new GatewayManager({ entry, role: "workspace", workspaceDir: ws, exec: process.execPath, env }, () => {});
+    const gw = await m.start();
+    try {
+      expect((await fetch(`${gw.url}/api/canvas`)).status).toBe(428);
+      expect((await fetch(`${gw.url}/api/canvas`, { headers: { "x-hilo-workspace": env.HILO_WORKSPACE_CLAIM } })).status).toBe(200);
+    } finally {
+      await m.stop();
+    }
+  }, 30_000);
+
   it("端口上是别的服务（nonce 不符）时不认它", async () => {
     // 冒充一个回 200、nonce 不对的旧 gateway 占着端口：新 gateway 起不来（端口被占），
     // 健康检查只会看到旧的，必须判失败而不是把旧的当成功。

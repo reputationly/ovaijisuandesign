@@ -211,20 +211,57 @@ describe("生成（假平台）", () => {
     expect(card.data.retryPayload).toMatchObject({ mediaType: "video" });
   });
 
-  it("同步出图：请求挂到结果出来，回和 query 一样的形状，账上不留", async () => {
-    const r = await http.post("/api/generate/image").send({ prompt: "同步的猫", filename: "同步" });
-    expect(r.status).toBe(200);
-    expect(r.body).toMatchObject({ ok: true, status: "succeeded", result: { path: "同步.png", node_id: expect.any(String) }, asset: { path: "同步.png", mediaType: "image" } });
-    expect((await http.get(`/api/generate/tasks/${r.body.task_id}/query`)).body.status).toBe("succeeded");
+  it("同步出图：请求挂到结果出来，回结果本身（201），账上不留", async () => {
+    const r = await http.post("/api/generate/image").send({ backend: "nano_banana", prompt: "同步的猫", filename: "同步" });
+    expect(r.status).toBe(201);
+    expect(r.body).toEqual({ ok: true, path: "同步.png", width: 1, height: 1, node_id: expect.any(String) });
     expect(JSON.parse(readFileSync(path.join(ws, ".hilo/active-generations.json"), "utf8")).records).toEqual([]);
   });
 
-  it("同步视频：平台失败时回 ok:false，占位卡已经是错误态", async () => {
+  it("同步视频：平台失败时回 {ok:false, error, error_code}，占位卡已经是错误态", async () => {
     platform.failVideos();
-    const r = await http.post("/api/generate/video").send({ prompt: "同步失败" });
-    expect(r.body).toMatchObject({ ok: false, status: "failed", error: "内容不合规" });
+    const r = await http.post("/api/generate/video").send({ backend: "minimax_v3", prompt: "同步失败", filename: "失败" });
+    expect(r.body).toEqual({ ok: false, error: "内容不合规", error_code: "backend_error", user_message: "内容不合规" });
     const card = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.data?.prompt === "同步失败");
     expect(card.data.status).toBe("error");
+    platform.succeedVideos();
+  });
+
+  it("同步路由按参照的 DTO 校验：backend / filename 必填、图片和音频要 prompt、多余字段 400", async () => {
+    const post = (p: string, b: object) => http.post(p).send(b);
+    expect((await post("/api/generate/image", { prompt: "x", filename: "x" })).status).toBe(400);
+    expect((await post("/api/generate/image", { backend: "b", prompt: "x" })).status).toBe(400);
+    expect((await post("/api/generate/image", { backend: "b", filename: "x" })).status).toBe(400);
+    expect((await post("/api/generate/image", { backend: "b", prompt: "x", filename: "x", mode: "i2i" })).status).toBe(400);
+    expect((await post("/api/generate/image", { backend: "b", prompt: "x", filename: "x", count: 10 })).status).toBe(400);
+    expect((await post("/api/generate/speech", { backend: "b", filename: "x" })).status).toBe(400);
+    expect((await post("/api/generate/video", { backend: "b", filename: "x", first_frame_image: "a.png" })).status).toBe(400);
+  });
+
+  it("异步路由：201；多张 / new_round 回 409 让调用方改走同步；画布来源不记 session", async () => {
+    const batch = await http.post("/api/generate/image/submit").send({ prompt: "多张", count: 2 });
+    expect(batch.status).toBe(409);
+    expect(batch.body).toEqual({ ok: false, error: "batch (count>1) is not supported by async endpoint", error_code: "BATCH_NOT_SUPPORTED_USE_SYNC" });
+    const round = await http.post("/api/generate/video/submit").send({ prompt: "新一轮", new_round: true });
+    expect(round.status).toBe(409);
+    expect(round.body.error_code).toBe("VIDEO_NEW_ROUND_NOT_SUPPORTED_USE_SYNC");
+
+    const sub = await http.post("/api/generate/image/submit").set({ "x-hilo-source": "canvas", "x-session-id": "ses_canvas" }).send({ prompt: "画布出图", filename: "画布出图", session_id: "ses_body" });
+    expect(sub.status).toBe(201);
+    await settle(sub.body.task_id);
+    const asset = (await http.get("/api/assets?include=metadata")).body.assets.find((a: any) => a.path === "画布出图.png");
+    expect(asset.metadata.session_id).toBeUndefined();
+  });
+
+  it("metrics：只有汇总数字，形状和参照一致", async () => {
+    const m = (await http.get("/api/generate/metrics")).body;
+    expect(m).toMatchObject({
+      async_submit_succeeded: expect.any(Number),
+      completed_cache_hit: expect.any(Number),
+      legacy_sync_endpoint_hit: { image: expect.any(Number), video: expect.any(Number), speech: 0, music: 0, other: 0 },
+      active_generation_records: { total: 0, by_phase: { cloud_pending: 0 }, by_disposition: { none: 0 } },
+    });
+    expect(m.legacy_sync_endpoint_hit.image).toBeGreaterThan(0);
   });
 
   it("没配的能力提交时就拒绝（4xx），不建占位卡", async () => {
@@ -238,7 +275,13 @@ describe("生成（假平台）", () => {
   it("未知任务 404 TASK_NOT_FOUND", async () => {
     const r = await http.get("/api/generate/tasks/gen_nope/query");
     expect(r.status).toBe(404);
-    expect(r.body.error_code).toBe("TASK_NOT_FOUND");
+    expect(r.body).toEqual({
+      ok: false,
+      task_id: "gen_nope",
+      error: "task_id not found",
+      error_code: "TASK_NOT_FOUND",
+      user_message: "上游生成任务未找到，可能已过期或被清理，请重新生成。",
+    });
   });
 
   it("重启恢复：账上有平台任务号的接着等完；没有任务号的标成需要用户处理", async () => {

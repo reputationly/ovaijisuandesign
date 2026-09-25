@@ -160,11 +160,15 @@
 
 ### P2 gateway 与后端补齐（适合云上）
 
-1. ~~**图片超分** `POST /api/edit/super-resolution`~~ 已完成：同步，按源图实际像素（含 EXIF 方向）算 `size`，产物登记后从源节点连边；旧界面的「高清增强」已改接它。请求体 `{image_path, resolution?: 1K|2K|4K, filename?, source_node_id?, replace_node_id?, preserve_source_canvas_node?}` 是按其他编辑路由的约定定的，**本机有参照时要去 `gateway/dist/main.js` 核对字段名**。
+1. ~~**超分** `POST /api/edit/super-resolution`~~ 已完成，已和参照（`SuperResolutionDto` / `EditService.superResolution`）核对：请求体 `{image_path | video_path, resolution, filename, source_node_id?}`（图片、视频二选一，都给按图片；`resolution`、`filename` 必填；多余字段 400），同步，成功回 `{ok:true, path}`，失败 `{ok:false, error:"Super resolution failed: …"}`，状态码 201，路径越界 400。图片按源图实际像素（含 EXIF 方向）算 `size`，视频把档位词交给平台的 sr 任务；产物登记后从源节点连边。旧界面的「高清增强」（`api.ts` 的 `superResolution`）已跟着补上 `filename`。参照的画布「高清」按钮其实走 `/api/edit/enhance-image`，这条只有插件宿主在用。和参照不同的地方见 `parity-gaps.md`。
 2. ~~**语音**~~ 已完成：`voice_clone` 把参考音频登记进应用级音色表 `<HILO_DATA_DIR 或 ~/.ovhub>/voices/`，发 `hub_<uuid>`，合成时查表换回参考音频（零样本）；有 `demo_text` 时用配置的语音模型合成试听。平台没有音色设计模型，`voice_design` 校验参数后回 501。`/api/speech/voices` = `voice_map` + 本机音色表。和参照的差异见 `parity-gaps.md` 第三节「语音」。
 3. ~~**画布剩余路由**~~ 已完成，CanvasController 26/26（按 `docs/contracts-canvas.md`）。视频 / 音频缩略图 `/api/thumbnail/{*filepath}` 也已按 `docs/contracts-files.md` 做完。插件存储的限额超了回 400，文案是我们写的；comfyui 草稿的大限额没做（ComfyUI 不在范围内）。
-4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节）：gateway 校验、主进程把身份给 opencode 和 MCP、插件和 MCP 的请求带头。错误码是我们定的，本机有参照时核对。
-5. ~~**生成**~~ 已完成：同步的 `/api/generate/{image,video,speech,music}` = 提交 + 等到终态，回和 `/api/generate/tasks/:id/query` 一样的形状，没标 `x-hilo-source` 时按画布算；`/api/generate/text` 走配置里的对话模型，认 `prompt`、`image_paths`、`system_prompt`，其余字段忽略。**两者的请求 / 响应形状都没和参照核对**，本机有参照时核对。
+4. ~~**工作区身份校验**~~ 已完成（见 `docs/opencode-runtime.md` 第八节），已和参照的 `workspace-guard.middleware` / `workspace-websocket-guard` 核对：错误码名本来就一致；响应体改成参照的 `{statusCode, error, code, message}`；GET 也要 claim；instance / generation 只配一半拒绝启动；generation 按数值比；header 与 query 矛盾算 409；认浏览器专属主机名；通过后去掉 URL 里的身份 query；`/ws` 不带身份也 1008。主进程的健康检查补上了身份头。保留的两处差异（健康探测放行、被拒响应带 CORS 头）见 `parity-gaps.md`。
+5. ~~**生成**~~ 已完成，已和参照（`GenerateController` / `GenerateAsyncController` / `TextGenerationService`）核对：
+   - 同步 `/api/generate/{image,video,speech,music}`：按参照的 `GenerateImageDto` / `GenerateVideoDto` / `GenerateAudioDto` 严格校验（`backend`、`filename` 必填，图片和音频要 `prompt`，多余字段 400）；提交 + 等到终态，成功回结果本身 `{ok:true, path, width?, height?, duration?, provider_task_id?, node_id?}`，失败 `{ok:false, error, error_code, user_message?}`；画布来源不记 session。
+   - `/api/generate/text` 在参照里是**画布文本节点的生成**，不是"回一段文字"：请求体 `{model_id, prompt, display_prompt?, params?, source_node_id?, replace_node_id?, session_id?, image_paths?, text_paths?, video_paths?, audio_paths?}`，只受理 `x-hilo-source: canvas`，结果写进 `replace_node_id` 指的文本节点或按提示词首行新建的 `.md` 节点，回 `{ok:true, path}`。已按这个重写，`model_id` 必须是配置里的对话模型。
+   - 已有路由：POST 一律 201（参照没有 `@HttpCode`）；异步提交 `count>1` / 多条 `prompts` / 视频 `new_round` 回 409（`BATCH_NOT_SUPPORTED_USE_SYNC` / `VIDEO_NEW_ROUND_NOT_SUPPORTED_USE_SYNC`）；query 的 404 文案改成参照原文，进行中带 `provider_task_id`；`/api/generate/metrics` 补全形状；`/api/generation/cancel` 认 `preserve_original`；并发用量的模型列表去空白去重；`/api/generate` 的 body 上限 16MB。
+   - 和参照不同又不打算改的见 `parity-gaps.md` 第三节「生成」。
 6. ~~**Skills 模块**~~：SkillsController 8 条 + SkillMarketController 里纯本地的 4 条（import、import/confirm-staging、fork、user/trash），按参照 JS 移植（`app/gateway/src/skills/`）；主进程把用户技能目录传给 gateway 和 opencode。旧界面「从 ~/.hub/skills 导入」按钮已删。不做的和行为差异见 `parity-gaps.md` 第三节。
 7. **飞书 / 微信**（官方放在主进程的 imBridge 通道）：从 `crates/gateway/src/{feishu,wechat}` 移植，35 个 Rust 测试一起移植。
 8. **主进程服务**，M5 里现在都是桩，按这个顺序补：desktopSettings、log、notification、trash / clipboard / skillExport、projectArchive、本地 projectAssets、dataDirectory、connectors、networkDiagnostics / assetCenter / 关窗确认。

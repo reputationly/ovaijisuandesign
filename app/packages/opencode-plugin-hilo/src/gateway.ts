@@ -6,7 +6,7 @@ export function gatewayUrl(): string {
 }
 
 /**
- * 工作区身份头，和 gateway 同一份（主进程经环境变量给 opencode）。gateway 对缺身份的写请求回 428：
+ * 工作区身份头，和 gateway 同一份（主进程经环境变量给 opencode）。gateway 对缺身份的请求回 428：
  * 不带的话确认、防打转的请求全被拒，花钱的工具一律按「gateway 不可用」拦下。
  */
 function identityHeaders(): Record<string, string> {

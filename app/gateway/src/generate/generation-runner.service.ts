@@ -35,6 +35,14 @@ export class GenerationRunner implements OnApplicationBootstrap {
   private readonly log = new Logger("Generate");
   private readonly running = new Map<string, { record: ActiveGenerationRecord; source: GenerationSource; cancelled: boolean; done: Promise<void> }>();
   private readonly settled = new Map<string, Settled>();
+  /** `/api/generate/metrics` 的计数。进程内的，重启清零。 */
+  private readonly counters = {
+    asyncSubmitSucceeded: 0,
+    completedCacheHit: 0,
+    completedCacheMiss: 0,
+    legacySync: { image: 0, video: 0, speech: 0, music: 0, other: 0 },
+    needsUserAction: { image: 0, video: 0, audio: 0, other: 0 },
+  };
 
   constructor(
     private readonly gw: GatewayConfig,
@@ -59,6 +67,7 @@ export class GenerationRunner implements OnApplicationBootstrap {
       // 没有平台任务号：要么是同步出图（结果随进程一起没了），要么是提交到一半。平台上可能已经
       // 扣了费，不能自动重提交；让卡片提示用户自己决定。
       this.log.warn(`[recover] ${r.mediaType} task=${r.taskId} has no platform task id; needs user action`);
+      this.counters.needsUserAction[r.mediaType === "speech" || r.mediaType === "music" ? "audio" : r.mediaType] += 1;
       const message = "生成过程中应用重启了，这次结果没能取回。为避免重复扣费没有自动重试，请手动重新生成。";
       await this.settleFailure(r, message, "backend_error", { recoverable: true });
     }
@@ -94,12 +103,54 @@ export class GenerationRunner implements OnApplicationBootstrap {
   query(taskId: string): Record<string, unknown> | undefined {
     this.prune();
     const s = this.settled.get(taskId);
-    if (s?.status === "succeeded") return { ok: true, task_id: taskId, status: "succeeded", result: s.result, asset: s.asset };
+    if (s?.status === "succeeded") {
+      this.counters.completedCacheHit += 1;
+      return { ok: true, task_id: taskId, status: "succeeded", result: s.result, asset: s.asset };
+    }
+    this.counters.completedCacheMiss += 1;
     if (s?.status === "failed") {
       return { ok: false, task_id: taskId, status: "failed", cloud_terminal: true, error: s.error, error_code: s.error_code, user_message: s.user_message };
     }
-    if (this.running.has(taskId)) return { ok: true, task_id: taskId, status: "processing" };
+    const job = this.running.get(taskId);
+    if (job) return { ok: true, task_id: taskId, status: "processing", ...(job.record.platformTaskId ? { provider_task_id: job.record.platformTaskId } : {}) };
     return undefined;
+  }
+
+  countAsyncSubmit(): void {
+    this.counters.asyncSubmitSucceeded += 1;
+  }
+
+  countLegacySync(media: MediaType): void {
+    this.counters.legacySync[media] += 1;
+  }
+
+  /**
+   * 形状和参照一致。我们没有的环节（计费、落地重试、账本隔离）恒为 0；账上的任务都是
+   * "等平台出结果"这一个阶段。只有汇总数字，不含任务号、路径或提示词。
+   */
+  async metricsSnapshot(): Promise<Record<string, unknown>> {
+    const total = (await this.store.list().catch(() => [])).length;
+    const zero = () => ({ image: 0, video: 0, audio: 0, other: 0 });
+    const c = this.counters;
+    return {
+      record_asset_short_circuit: 0,
+      completed_cache_hit: c.completedCacheHit,
+      completed_cache_miss: c.completedCacheMiss,
+      async_submit_succeeded: c.asyncSubmitSucceeded,
+      cloud_submit_success_record_persist_fail: 0,
+      async_submit_rejected_by_cancel: 0,
+      boot_unclean_shutdown_detected: 0,
+      active_generation_ledger_quarantined: 0,
+      legacy_sync_endpoint_hit: { ...c.legacySync },
+      local_materialization_deferred: zero(),
+      local_materialization_recovered: zero(),
+      generation_recovery_needs_user_action: { ...c.needsUserAction },
+      active_generation_records: {
+        total,
+        by_phase: { cloud_pending: total, local_materialization_pending: 0, needs_user_action: 0 },
+        by_disposition: { cloud_transient: 0, local_transient: 0, unknown_after_submit: 0, shutdown: 0, none: total },
+      },
+    };
   }
 
   /** 取消画布上某个节点的生成。平台侧的任务停不下来，只是不再落地，占位卡直接撤掉。 */

@@ -168,8 +168,16 @@ question 是 opencode **原生** QuestionTool（`OPENCODE_ENABLE_QUESTION_TOOL=t
 经 header `x-hilo-workspace*` / query `hilo_workspace*` / env `HILO_WORKSPACE_*` 携带，gateway 中间件校验
 （不一致 409、缺失 428）。作用是多工作区多端口时防止请求打到别的 / 旧的 gateway。
 M5 起我们也是多工作区多端口，所以照做：
-- gateway：`app/gateway/src/common/workspace-identity.ts`。进程没拿到 `HILO_WORKSPACE_INSTANCE_ID` / `_GENERATION`
-  （独立启动、应用级 gateway）时整个不生效；读请求（GET / HEAD / OPTIONS）不带放行；带了对不上 409，写请求缺 428；
-  `/ws` 握手带错的立刻 `close(1008, "Workspace identity mismatch")`（`contracts-files.md`）。HTTP 的错误码 `WORKSPACE_IDENTITY_MISMATCH` / `WORKSPACE_IDENTITY_REQUIRED` 是我们定的，未和参照核对。
+- gateway：`app/gateway/src/common/workspace-identity.ts`，已和参照（`gateway/dist/main.js` 的 `workspace-guard.middleware` 和
+  `workspace-websocket-guard`）逐条核对：
+  - 进程没拿到 `HILO_WORKSPACE_CLAIM`（独立启动、应用级 gateway）时整个不生效；`_INSTANCE_ID` / `_GENERATION` 只给了一个（或 generation 不是正整数）直接拒绝启动。
+  - 除 OPTIONS 外**所有方法**都要 claim（header 或 query）；写请求（非 GET / HEAD）在配了 instance / generation 时还要带齐这两样。
+    浏览器专属主机名 `w-<base36>.hilo.localhost` / `wi-<uuid>[-g<n>].hilo.localhost` 本身算身份。
+  - 带了但对不上（header 和 query 互相矛盾也算；generation 按数值比）→ 409
+    `{statusCode:409, error:"Conflict", code:"WORKSPACE_IDENTITY_MISMATCH", message:"The gateway belongs to a different workspace. Refresh the runtime and retry."}`；
+    缺 → 428 `{statusCode:428, error:"Precondition Required", code:"WORKSPACE_IDENTITY_REQUIRED", message:"Workspace identity is required. Refresh the workspace runtime and retry."}`。
+  - 通过后把 `hilo_workspace*` 从 URL 里去掉，不让严格的 query DTO 当成多余字段。
+  - `/ws` 只看 query：claim 必须相等，instance / generation 配了就按字符串比；没带或不符都 `close(1008, "Workspace identity mismatch")`。
+  - 和参照不同的两处见 `parity-gaps.md`：`/api/health*` 的读请求什么都没带时放行；被拒的响应带 CORS 头。
 - 主进程把同一份 `HILO_WORKSPACE_*` 给 gateway、opencode（插件读）和 MCP server 的环境；插件和 `GatewayClient` 每个请求都带。
-- **渲染层连工作区 gateway 时也要带**（`ui-wave-1` 的 P0-1），写请求不带会被 428。
+- **渲染层连工作区 gateway 时也要带**（`ui-wave-1` 的 P0-1），不带会被 428（等 gateway 就绪的健康探测除外）。主进程的健康检查也带。

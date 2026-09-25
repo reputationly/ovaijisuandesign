@@ -85,11 +85,13 @@ const call = async (method, p, body, headers = H) => {
 
 try {
   // ---- 身份校验
-  ok((await call("GET", "/api/health", undefined, {})).status === 200, "身份：GET 不带头放行");
+  ok((await call("GET", "/api/health", undefined, {})).status === 200, "身份：健康探测不带头放行");
+  const noIdGet = await call("GET", "/api/canvas", undefined, {});
+  ok(noIdGet.status === 428 && noIdGet.body.code === "WORKSPACE_IDENTITY_REQUIRED", "身份：其余 GET 不带头 428", noIdGet);
   const noId = await call("POST", "/api/canvas/selection", { nodeIds: [] }, {});
-  ok(noId.status === 428 && noId.body.error_code === "WORKSPACE_IDENTITY_REQUIRED", "身份：POST 不带头 428", noId);
+  ok(noId.status === 428 && noId.body.code === "WORKSPACE_IDENTITY_REQUIRED" && noId.body.statusCode === 428, "身份：POST 不带头 428", noId);
   const stale = await call("POST", "/api/canvas/selection", { nodeIds: [] }, { ...H, "x-hilo-workspace-generation": "1" });
-  ok(stale.status === 409, "身份：旧 generation 409", stale);
+  ok(stale.status === 409 && stale.body.code === "WORKSPACE_IDENTITY_MISMATCH", "身份：旧 generation 409", stale);
   ok((await call("POST", "/api/canvas/selection", { nodeIds: [] })).status === 204, "身份：带对了照常（204）");
   const pre = await fetch(base + "/api/canvas/selection", { method: "OPTIONS", headers: { Origin: "app://x", "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "content-type,x-hilo-workspace,x-hilo-workspace-instance,x-hilo-workspace-generation" } });
   ok(pre.status < 300 && /x-hilo-workspace/i.test(pre.headers.get("access-control-allow-headers") ?? ""), "身份：CORS 预检放行并允许身份头", { status: pre.status, h: pre.headers.get("access-control-allow-headers") });
@@ -99,6 +101,12 @@ try {
     s.on("error", () => {});
   });
   ok(wsCode === 1008, "身份：/ws 带错身份被 1008 关掉", wsCode);
+  const wsNoId = await new Promise((res) => {
+    const s = new WebSocket(`ws://127.0.0.1:${port}/ws`);
+    s.on("close", (c) => res(c));
+    s.on("error", () => {});
+  });
+  ok(wsNoId === 1008, "身份：/ws 不带身份被 1008 关掉", wsNoId);
   const wsOk = await new Promise((res) => {
     const s = new WebSocket(`ws://127.0.0.1:${port}/ws?hilo_workspace=${ID.claim}&hilo_workspace_instance=${ID.instance}&hilo_workspace_generation=${ID.generation}`);
     s.on("open", () => { s.send(JSON.stringify({ type: "ping" })); });
@@ -117,17 +125,21 @@ try {
   const src = node.body.nodeId;
 
   // ---- 超分
-  const sr = await call("POST", "/api/edit/super-resolution", { image_path: "源图.png", resolution: "2K", source_node_id: src });
-  ok(sr.body.ok === true && sr.body.width === 2048 && sr.body.height === 1144, "超分：2K 按源图比例", sr.body);
+  const sr = await call("POST", "/api/edit/super-resolution", { image_path: "源图.png", resolution: "2K", filename: "源图-2k", source_node_id: src });
+  ok(sr.status === 201 && sr.body.ok === true && sr.body.path === "源图-2k.png" && Object.keys(sr.body).length === 2, "超分：只回 {ok, path}", sr.body);
   ok(platformCalls.find((c) => c.url === "/v1/images/edits")?.body?.size === "2048x1144", "超分：平台收到精确 size");
+  const srAsset = (await call("GET", `/api/assets?path=${encodeURIComponent("源图-2k.png")}`)).body.assets[0];
   const cv = (await call("GET", "/api/canvas")).body;
-  ok(cv.edges.some((e) => e.source === src && e.target === sr.body.node_id), "超分：从源节点连边");
+  const srNode = cv.nodes.find((n) => n.assetId === srAsset?.id);
+  ok(srNode && cv.edges.some((e) => e.source === src && e.target === srNode.id), "超分：从源节点连边");
 
   // ---- 同步生成 / 文本
-  const g = await call("POST", "/api/generate/image", { prompt: "一只猫", filename: "猫" });
-  ok(g.body.ok && g.body.status === "succeeded" && g.body.result.path === "猫.png", "同步出图：回终态", g.body);
-  const t = await call("POST", "/api/generate/text", { prompt: "起个标题", system_prompt: "只回标题", extra: 1 });
-  ok(t.status === 200 && t.body.text === "标题：猫", "generate/text", t);
+  const g = await call("POST", "/api/generate/image", { backend: "nano_banana", prompt: "一只猫", filename: "猫" });
+  ok(g.status === 201 && g.body.ok && g.body.path === "猫.png" && g.body.node_id, "同步出图：回结果本身", g.body);
+  const t = await call("POST", "/api/generate/text", { model_id: "chat", prompt: "起个标题" }, { ...H, "x-hilo-source": "canvas" });
+  ok(t.status === 201 && t.body.ok && t.body.path === "起个标题.md", "generate/text：写进文本节点", t);
+  const tAgent = await call("POST", "/api/generate/text", { model_id: "chat", prompt: "起个标题" });
+  ok(tAgent.body.error_code === "client_error", "generate/text：非画布来源拒绝", tAgent.body);
   const act = await call("GET", "/api/health/activity", undefined, H);
   ok(act.body.agent_running === false && act.body.safe_to_suspend === true, "活动：没有 agent 时可挂起", act.body);
 
@@ -157,10 +169,10 @@ try {
   const hasFfmpeg = spawnSync("ffmpeg", ["-version"]).status === 0;
   if (hasFfmpeg) {
     spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=320x240:rate=10:duration=2", "-pix_fmt", "yuv420p", path.join(ws, "片.mp4")]);
-    const th = await fetch(`${base}/api/thumbnail/${encodeURIComponent("片.mp4")}?w=160`);
+    const th = await fetch(`${base}/api/thumbnail/${encodeURIComponent("片.mp4")}?w=160`, { headers: H });
     const meta = await sharp(Buffer.from(await th.arrayBuffer())).metadata();
     ok(th.status === 200 && meta.width === 160, "缩略图：视频抽帧", { status: th.status, meta: meta.width });
-    const png = await call("GET", "/api/thumbnail/源图.png", undefined, {});
+    const png = await call("GET", "/api/thumbnail/源图.png");
     ok(png.status === 400, "缩略图：图片 400");
   } else ok(false, "缩略图：本机没有 ffmpeg，跳过");
 

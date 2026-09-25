@@ -134,7 +134,7 @@ export class GatewayManager extends EventEmitter {
         throw new Error(`gateway 启动过程中退出了（${child.exitCode ?? child.signalCode}）`);
       }
       try {
-        const r = await fetch(`${url}/api/health/live`, { signal: AbortSignal.timeout(2000) });
+        const r = await fetch(`${url}/api/health/live`, { headers: this.identityHeaders(), signal: AbortSignal.timeout(2000) });
         const got = r.headers.get("x-gateway-nonce");
         if (r.ok && got === nonce) return;
         last = r.ok ? `nonce 不符（${got ?? "无"}）：端口上是别的 gateway` : `health 回 ${r.status}`;
@@ -145,6 +145,16 @@ export class GatewayManager extends EventEmitter {
     }
     killTree(child.pid, true);
     throw new Error(`gateway ${HEALTH_TIMEOUT_MS / 1000}s 内没有就绪：${last}`);
+  }
+
+  /** 工作区 gateway 对所有请求都要 claim，健康检查也不例外。 */
+  private identityHeaders(): Record<string, string> {
+    const e = this.spec.env ?? {};
+    const out: Record<string, string> = {};
+    if (e.HILO_WORKSPACE_CLAIM) out["x-hilo-workspace"] = e.HILO_WORKSPACE_CLAIM;
+    if (e.HILO_WORKSPACE_INSTANCE_ID) out["x-hilo-workspace-instance"] = e.HILO_WORKSPACE_INSTANCE_ID;
+    if (e.HILO_WORKSPACE_GENERATION) out["x-hilo-workspace-generation"] = e.HILO_WORKSPACE_GENERATION;
+    return out;
   }
 
   private supervise() {

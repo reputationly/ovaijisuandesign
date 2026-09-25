@@ -333,10 +333,12 @@ export async function submitImage(p: GenerateParams): Promise<string> {
  * 从源文件量，这里只传路径和档位。
  */
 export async function superResolution(imagePath: string, resolution: string, sourceNodeId: string): Promise<string> {
+  // gateway 要求给输出文件名；重名时它自己加后缀，不会覆盖。
+  const base = imagePath.split("/").pop()!.replace(/\.[^.]+$/, "") || "image"
   const res = await fetch(gw("/api/edit/super-resolution"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image_path: imagePath, resolution, source_node_id: sourceNodeId }),
+    body: JSON.stringify({ image_path: imagePath, resolution, filename: `${base}-${resolution.toLowerCase()}`, source_node_id: sourceNodeId }),
   })
   const body = await json<{ ok: boolean; path?: string; error?: string }>(res, "POST /api/edit/super-resolution")
   // 编辑路由的失败是 2xx + ok:false，不看这个字段会把失败当成功。

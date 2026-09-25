@@ -6,11 +6,13 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsPositive,
   IsString,
   Max,
   Min,
+  ValidateIf,
   ValidateNested,
 } from "class-validator";
 
@@ -76,12 +78,27 @@ export class FfmpegRunDto {
   @IsOptional() @ValidateNested() @Type(() => FfmpegMetadataDto) metadata?: FfmpegMetadataDto;
 }
 
+/** 图片或视频二选一（都给时按图片处理）；档位和输出文件名必填。 */
 export class SuperResolutionDto {
-  @IsString() @IsNotEmpty() image_path!: string;
-  /** 档位 1K / 2K / 4K，大小写不敏感；缺省 2K。目标尺寸由后端按源图实际像素算。 */
-  @IsOptional() @IsString() resolution?: string;
-  @IsOptional() @IsString() filename?: string;
+  @ValidateIf((o: SuperResolutionDto) => !o.image_path) @IsString() @IsNotEmpty() video_path?: string;
+  @ValidateIf((o: SuperResolutionDto) => !o.video_path) @IsString() @IsNotEmpty() image_path?: string;
+  /** 档位 1K / 2K / 4K，大小写不敏感。图片的目标尺寸由后端按源图实际像素算。 */
+  @IsString() @IsNotEmpty() resolution!: string;
+  @IsString() @IsNotEmpty() filename!: string;
+  @IsOptional() @IsString() source_node_id?: string;
+}
+
+/** `/api/generate/text`：画布文本节点的生成。字段和参照一致，多一个字段就 400。 */
+export class GenerateCanvasTextDto {
+  @IsString() @IsNotEmpty() model_id!: string;
+  @IsString() @IsNotEmpty() prompt!: string;
+  @IsOptional() @IsString() display_prompt?: string;
+  @IsOptional() @IsObject() @Type(() => Object) params?: Record<string, unknown>;
   @IsOptional() @IsString() source_node_id?: string;
   @IsOptional() @IsString() replace_node_id?: string;
-  @IsOptional() @IsBoolean() preserve_source_canvas_node?: boolean;
+  @IsOptional() @IsString() session_id?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) image_paths?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) text_paths?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) video_paths?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) audio_paths?: string[];
 }

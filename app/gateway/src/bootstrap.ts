@@ -40,6 +40,8 @@ export async function createApp(): Promise<INestApplication> {
   app.use("/api/canvas", json({ limit: "16mb" }));
   // 文本节点的正文整段走这里，长文档（整本剧本、导出的表格）远超 100kb。
   app.use("/api/files/content", json({ limit: "256mb" }));
+  // 生成请求会带长提示词和一串参考路径 / 参数。
+  app.use("/api/generate", json({ limit: "16mb" }));
   app.use(json());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
   return app;
