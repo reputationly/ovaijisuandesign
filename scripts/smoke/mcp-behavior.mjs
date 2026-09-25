@@ -105,6 +105,7 @@ function normalize(v, side) {
   s = s.split(side.ws).join("<WS>");
   s = s.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, "<UUID>");
   s = s.replace(/gen_[0-9a-f]{32}/g, "<TASK>");
+  s = s.replace(/\.hilo\/tables\/[A-Za-z0-9_-]+\.htable/g, ".hilo/tables/<TABLE>.htable");
   s = s.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/g, "<TIME>");
   s = s.replace(/"(duration_ms|elapsed_ms|elapsedMs)":\d+/g, '"$1":<N>');
   return JSON.parse(s);
