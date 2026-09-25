@@ -11,7 +11,7 @@ import { errorMessage, type GatewayClient } from "../gateway-client.js";
 export class SafetyBlockedError extends Error {
   readonly decision: string;
   constructor(decision: string) {
-    super(`Rejected by the content safety check: ${decision}`);
+    super(`Content blocked by safety policy: ${decision}`);
     this.name = "SafetyBlockedError";
     this.decision = decision;
   }
@@ -29,11 +29,11 @@ export async function checkAgentText(gw: GatewayClient, segments: (string | unde
   try {
     result = await gw.post("/api/safety/check-text", { content: joined }, 5_000, SafetyCheckResponseSchema);
   } catch (err) {
-    process.stderr.write(`[hilo-tools] safety service error, letting content through: ${errorMessage(err)}\n`);
+    process.stderr.write(`[hilo-tools] safety check failed (fail-open): ${errorMessage(err)}\n`);
     return;
   }
   if (!result.pass) {
-    process.stderr.write(`[hilo-tools] safety rejected content: decision=${result.decision} content_len=${joined.length}\n`);
+    process.stderr.write(`[hilo-tools] safety blocked: decision=${result.decision} content_len=${joined.length}\n`);
     throw new SafetyBlockedError(result.decision);
   }
 }
