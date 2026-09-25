@@ -79,7 +79,7 @@ describe("memory", () => {
   it("read of a missing entry hints to list first", async () => {
     const r = await h.call("memory", { action: "read", scope: "project", name: "nope", projectRoot });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("no memory entry project/nope");
+    expect(resultText(r)).toContain("memory not found: project/nope");
     expect(resultText(r)).toContain("action=list");
   });
 
@@ -101,7 +101,7 @@ describe("memory", () => {
   it("list without projectRoot requires scope=user", async () => {
     const r = await h.call("memory", { action: "list" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("scope all needs projectRoot");
+    expect(resultText(r)).toContain("projectRoot is required for scope='all'");
     expect((await h.call("memory", { action: "list", scope: "user" })).isError).toBeFalsy();
   });
 
@@ -129,20 +129,20 @@ describe("memory", () => {
 
   it("validates asset-pin, scope and required write fields", async () => {
     const badScope = await write({ scope: "user", name: "pin", type: "asset-pin", asset_uri: "hilo://asset/x1", asset_modality: "image" });
-    expect(resultText(badScope)).toContain("only live in project scope");
+    expect(resultText(badScope)).toContain("type='asset-pin' requires scope='project'");
     const badUri = await write({ scope: "project", name: "pin", type: "asset-pin", asset_uri: "file:///x", asset_modality: "image" });
-    expect(resultText(badUri)).toContain("is malformed; expected hilo://asset/<id>");
+    expect(resultText(badUri)).toContain("asset_uri must match /^hilo:");
     const ok = await write({ scope: "project", name: "pin", type: "asset-pin", asset_uri: "hilo://asset/x1", asset_modality: "image" });
     expect(ok.isError).toBeFalsy();
     const fm = parseMemoryFile(readFileSync(path.join(projectRoot, ".hilo", "memory", "asset_pin_pin.md"), "utf8")).frontmatter;
     expect(fm).toMatchObject({ asset_uri: "hilo://asset/x1", asset_modality: "image" });
     expect(fm.source).toBeUndefined();
 
-    expect(resultText(await h.call("memory", { action: "write", name: "x", projectRoot }))).toContain("needs scope user or project");
+    expect(resultText(await h.call("memory", { action: "write", name: "x", projectRoot }))).toContain("scope must be 'user' or 'project' for memory write");
     expect(resultText(await h.call("memory", { action: "write", scope: "project", name: "x", projectRoot }))).toContain(
-      "needs type, description and body",
+      "type, description, and body are required for memory write",
     );
-    expect(resultText(await write({ scope: "project", name: "x", asset_uri: "hilo://asset/1" }))).toContain("belongs to asset pins only");
+    expect(resultText(await write({ scope: "project", name: "x", asset_uri: "hilo://asset/1" }))).toContain("asset_uri is only allowed when type='asset-pin'");
   });
 
   it("notifies the gateway on a manual write only when a session is present", async () => {

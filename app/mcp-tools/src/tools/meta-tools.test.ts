@@ -78,10 +78,10 @@ describe("search_knowledge", () => {
   it("requires query or topic, and reports a missing workflows root", async () => {
     const r = await h.call("search_knowledge", {});
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toBe("Provide keywords in `query` or a card name in `topic`.");
+    expect(resultText(r)).toBe("Either `query` or `topic` is required.");
     process.env.HILO_WORKFLOWS_DIR = path.join(root, "missing");
     const r2 = await h.call("search_knowledge", { query: "x" });
-    expect(resultText(r2)).toContain("No workflows directory is configured");
+    expect(resultText(r2)).toBe("Requested workflows resource root is unavailable.");
   });
 
   it("rejects out-of-range limit", async () => {
@@ -161,7 +161,7 @@ describe("report_outcome", () => {
     });
     expect(r.isError).toBe(true);
     expect(resultJson<{ errors: { index: number; message: string }[] }>(r).errors).toEqual([
-      { index: 0, message: "outcomes[0]: failed records need an error_class." },
+      { index: 0, message: "outcomes[0].error_class is required when outcome=failed." },
     ]);
   });
 });

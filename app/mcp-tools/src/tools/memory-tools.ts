@@ -59,10 +59,10 @@ function listSearchScope(
 }
 
 function withNotFoundHint(err: MemoryError): MemoryError {
-  if (!err.message.startsWith("no memory entry ")) return err;
+  if (!err.message.startsWith("memory not found:")) return err;
   return new MemoryError(
-    `${err.message}. Run memory action=list to see the exact names, then pass one of those ` +
-      `(for instance "main-character-anchor") rather than a file name.`,
+    `${err.message}. Call memory with action=list first to see canonical names \u2014 pass the frontmatter \`name\` ` +
+      `(e.g. "main-character-anchor"), not the filename stem.`,
   );
 }
 
@@ -84,7 +84,7 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
           .string()
           .min(1)
           .max(64)
-          .regex(/^[a-z0-9][a-z0-9-]{0,63}$/, "use the lowercase-hyphenated name from the entry frontmatter, not its file name")
+          .regex(/^[a-z0-9][a-z0-9-]{0,63}$/, "name must be lowercase kebab-case (use the frontmatter `name`, not the filename stem)")
           .optional()
           .describe(
             'Memory entry name from frontmatter, e.g. "image-style-preference". Use the bare frontmatter name shown in the injected memory index, not the on-disk filename stem.',
@@ -124,7 +124,7 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
       try {
         if (args.action === "list" || args.action === "search") {
           if (args.action === "search" && (!args.query || !args.query.trim())) {
-            return errorReply("memory search needs a query");
+            return errorReply("query is required for memory search");
           }
           const scoped = listSearchScope(args.scope, args.projectRoot);
           if (scoped.empty) return structuredReply({ action: args.action, entries: [] });
@@ -141,14 +141,14 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
         }
 
         if (!args.scope || args.scope === "all") {
-          return errorReply(`memory ${args.action} needs scope user or project`);
+          return errorReply(`scope must be 'user' or 'project' for memory ${args.action}`);
         }
-        if (!args.name) return errorReply(`memory ${args.action} needs a name`);
+        if (!args.name) return errorReply(`name is required for memory ${args.action}`);
         const scope = args.scope;
         const userDisabled = scope === "user" && !userMemoryEnabled(args.projectRoot);
 
         if (args.action === "read") {
-          if (userDisabled) return errorReply(`no memory entry user/${args.name}`);
+          if (userDisabled) return errorReply(`memory not found: user/${args.name}`);
           const r = await memoryRead({ scope, name: args.name, projectRoot: args.projectRoot });
           return structuredReply({ action: "read", frontmatter: { ...r.frontmatter }, body: r.body, path: r.path });
         }
@@ -159,7 +159,7 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
         }
 
         if (!args.type || !args.description || args.body === undefined) {
-          return errorReply("memory write needs type, description and body");
+          return errorReply("type, description, and body are required for memory write");
         }
         const isAssetPin = args.type === "asset-pin";
         const r = await memoryWrite({

@@ -17,9 +17,8 @@ const FILTER_OPTIONS = new Set(["filter_complex", "lavfi", "vf", "af", "filter"]
 const FILTER_SCRIPT_OPTIONS = new Set(["filter_complex_script", "filter_script"]);
 
 const MERGE_REQUIRED =
-  "hub_ffmpeg refuses to join videos. Pass the ordered clip list to hub_merge_videos, which also verifies that " +
-  "every clip has audio spanning its full picture length. Note that the concat: protocol is not a sound way to " +
-  "combine MP4s.";
+  "Generic video concat is not allowed in hub_ffmpeg. Use hub_merge_videos with the ordered video_paths instead; it validates " +
+  "that every audio stream covers its video timeline. The concat: protocol is not a valid MP4 concatenation strategy.";
 
 /** 按分隔符切 filtergraph，尊重单引号与反斜杠转义；decode=true 时去掉引号/转义符。 */
 function splitGraph(value: string, separators: string, decode = false): string[] {
@@ -92,19 +91,19 @@ export function checkFfmpegCommand(args: string[], outputType = "video"): GuardR
       return {
         ok: false,
         error:
-          "hub_ffmpeg does not accept filter graphs loaded from files, because their contents cannot be checked. " +
-          "Pass the filter expression inline as its own argv entry; use hub_merge_videos to merge videos.",
+          "File-based FFmpeg filter graphs are not supported in hub_ffmpeg because their contents cannot be validated. " +
+          "Pass non-merge filters inline as separate argv entries; use hub_merge_videos for video merging.",
       };
     }
     if (isFilter) {
       if (eq >= 0) {
         return {
           ok: false,
-          error: `Write "${option}" as its own array element followed by the filter graph as the next element; the combined form "${option}=..." is not accepted. (Merging videos is done with hub_merge_videos.)`,
+          error: `Invalid FFmpeg option syntax: pass "${option}" and its filter expression as two separate argv entries, not "${option}=...". For video merging use hub_merge_videos.`,
         };
       }
       const graph = args[++i];
-      if (!graph || graph.startsWith("-")) return { ok: false, error: `No filter expression follows "${option}".` };
+      if (!graph || graph.startsWith("-")) return { ok: false, error: `Missing filter expression after "${option}".` };
       graphs.push(graph);
     } else if (arg === "-i") {
       const source = args[i + 1] ?? "";
@@ -184,13 +183,12 @@ export function checkFfmpegAudioPreserve(args: string[], metadata?: FfmpegMetada
   return {
     ok: false,
     error:
-      "Conflict: the metadata promises the clips keep their own sound, yet the filter graph runs the inputs' audio " +
-      "through resampling inside a concat and outputs that processed stream. Re-encoding like this tends to introduce " +
-      "background hiss into otherwise clean generated audio. To simply join clips in sequence, use `hub_merge_videos`; " +
-      "it stream-copies where it can and leaves the audio untouched. Need black frames at the end? Let that tail play " +
-      "silent next to the copied audio, or first add a silent segment with the same sample rate and then mux by stream " +
-      "copy. Reach for audio filters in `hub_ffmpeg` only when the goal really is to replace, mix, normalize or denoise " +
-      "the sound, and say so in the metadata.",
+      "This ffmpeg command declares that it preserves clip audio, but its concat filter decodes/resamples input audio and " +
+      "maps the filtered audio output. That can add hiss/noise to otherwise clean generated clip audio. For simple ordered " +
+      "video concatenation, call `hub_merge_videos` instead so compatible streams are copied without audio re-encoding. If a " +
+      "black tail is needed, keep the copied source audio and let the video tail be silent, or append a matching sample-rate " +
+      "silence segment before stream-copy muxing. Use generic `hub_ffmpeg` audio filters only when intentionally replacing, " +
+      "mixing, normalizing, or denoising audio, and say so in the metadata.",
   };
 }
 
@@ -307,8 +305,8 @@ export function injectBundledCjkFont(
         return {
           ok: false,
           error:
-            "This `drawtext` contains Chinese/Japanese/Korean characters, and the font file the app ships for them " +
-            "(Noto Sans CJK SC) cannot be found. The installation's resources are damaged; fix them, then render.",
+            "CJK `drawtext` requires a renderable font. The bundled Noto Sans CJK SC font is unavailable; repair the app " +
+            "resources before rendering.",
         };
       }
       const injected = drawtext.replace("drawtext=", `drawtext=fontfile='${escapeFfmpegFilterValue(fontPath)}':`);
@@ -327,11 +325,10 @@ export function checkFfmpegDrawtext(args: string[], fileExists: (p: string) => b
       return {
         ok: false,
         error:
-          "Line breaks written as a backslash-n inside `drawtext` text do not survive: JSON, shell and filtergraph " +
-          'unescaping strip the backslash and ffmpeg prints a plain "n". To overlay several lines, point `textfile=` at a ' +
-          "file containing real newlines, or chain one `drawtext` per line. Captions that follow a timeline should be " +
-          "produced by `hub_subtitle_format`; burn the file it returns (its `absolute_path`) using a `subtitles=` or " +
-          "`ass=` video filter.",
+          'ffmpeg `drawtext` renders `\\n` as a literal "n" (the backslash is consumed by the JSON/shell/filtergraph escaping ' +
+          "layers), so multi-line drawtext text is broken. For a multi-line overlay, use `textfile=` with real newlines or " +
+          "stack separate `drawtext` filters. For timed, per-cue captions use `hub_subtitle_format` and burn its " +
+          '`absolute_path` with `-vf "subtitles=<absolute .ass>"` (or `ass=<absolute .ass>`).',
       };
     }
     for (const raw of extractOptionValues(arg, "fontfile")) {
@@ -341,10 +338,10 @@ export function checkFfmpegDrawtext(args: string[], fileExists: (p: string) => b
         return {
           ok: false,
           error:
-            `No file exists at the \`fontfile\` path '${fontPath}'. Fonts that are absent or only downloaded on ` +
-            "demand make ffmpeg draw empty boxes (□) instead of glyphs. If the text is Chinese, Japanese or Korean, " +
-            "remove `font` and `fontfile` and run again: the app's own CJK font gets inserted for you. Otherwise use a " +
-            "font file you have confirmed exists on this machine.",
+            `ffmpeg \`fontfile\` does not exist on disk: '${fontPath}'. A missing or on-demand font (e.g. macOS PingFang, ` +
+            "which ships as an on-demand asset and is absent until downloaded) makes every glyph render as tofu (\u25A1). For " +
+            "Chinese/Japanese/Korean `drawtext`, remove `font`/`fontfile` and retry so the Desktop runtime injects its bundled " +
+            "Noto Sans CJK SC font. Otherwise point `fontfile` at a file known to exist on the rendering host.",
         };
       }
     }

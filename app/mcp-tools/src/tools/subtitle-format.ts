@@ -463,9 +463,9 @@ function parseOutputSize(v: string): { W: number; H: number } | null {
 function outputPathFor(source: string, format: SubtitleFormat, filename?: string): string {
   const ext = `.${format}`;
   if (filename?.trim()) return join(dirname(source), `${filename.trim().replace(/\.[^.]+$/, "")}${ext}`);
-  const replaced = source.replace(/\.srt$/i, ext);
-  // 源文件不是 .srt 扩展名时替换不生效，追加扩展名，免得覆盖源文件
-  return replaced === source ? `${source}${ext}` : replaced;
+  // 源文件不是 .srt 扩展名时替换不生效，追加扩展名，免得覆盖源文件（.srt → srt 按参照原地重写）
+  if (!/\.srt$/i.test(source)) return `${source}${ext}`;
+  return source.replace(/\.srt$/i, ext);
 }
 
 /**
@@ -492,15 +492,15 @@ export function resolveStyle(W: number, H: number, o: SubtitleFormatOptions): { 
   const minSide = Math.round(W * SIDE_SAFE_MARGIN_RATIO);
   if (safeArea !== "none" && !unsafe) {
     if (marginL < minSide) {
-      warnings.push(`margin_l=${marginL} would put text within 7% of the left edge; raised to ${minSide}.`);
+      warnings.push(`Requested margin_l=${marginL} is inside the 7% side safe area; clamped to ${minSide}.`);
       marginL = minSide;
     }
     if (marginR < minSide) {
-      warnings.push(`margin_r=${marginR} would put text within 7% of the right edge; raised to ${minSide}.`);
+      warnings.push(`Requested margin_r=${marginR} is inside the 7% side safe area; clamped to ${minSide}.`);
       marginR = minSide;
     }
     if (o.marginV !== undefined && position !== "middle" && marginV < base.marginV) {
-      warnings.push(`margin_v=${marginV} is below the safe vertical offset; raised to ${base.marginV}.`);
+      warnings.push(`Requested margin_v=${marginV} may overlap the subtitle safe area; clamped to ${base.marginV}.`);
       marginV = base.marginV;
     }
   }
@@ -537,7 +537,7 @@ export interface FormattedSubtitle {
 
 export function formatSubtitleContent(srt: string, o: SubtitleFormatOptions): FormattedSubtitle {
   const size = parseOutputSize(o.outputSize);
-  if (!size) throw new Error(`invalid output_size "${o.outputSize}" — expected "WxH"`);
+  if (!size) throw new Error(`invalid output_size "${o.outputSize}" \u2014 must be "WxH"`);
   const { W, H } = size;
   const format = o.format ?? "ass";
   const { style, warnings } = resolveStyle(W, H, o);

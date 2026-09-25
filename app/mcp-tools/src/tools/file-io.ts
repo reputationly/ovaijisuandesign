@@ -5,7 +5,6 @@ import { createInterface } from "node:readline";
 
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
-import { knowledgeDir, workflowsDir } from "../env.js";
 import { errorReply } from "../replies.js";
 
 /**
@@ -124,21 +123,22 @@ export function markFileRead(sessionId: string | undefined, file: string): void 
 /**
  * `<knowledgeDir>/…`、`<workflowsDir>/…` 逻辑路径 → 真实路径。不以令牌开头返回 null；
  * 令牌对应的目录不可用或路径逃出根目录返回 error。
+ * 只认显式环境变量：两个都没配时整个逻辑路径解析关掉，令牌按普通相对路径处理（随后报文件不存在）。
  */
 export function resolveLogicalPath(raw: string): { path: string } | { error: string } | null {
-  const roots: [string, string, () => string | null][] = [
-    ["<knowledgeDir>", "HILO_KNOWLEDGE_DIR", knowledgeDir],
-    ["<workflowsDir>", "HILO_WORKFLOWS_DIR", workflowsDir],
+  const roots: [string, string, string | undefined][] = [
+    ["<knowledgeDir>", "HILO_KNOWLEDGE_DIR", process.env.HILO_KNOWLEDGE_DIR],
+    ["<workflowsDir>", "HILO_WORKFLOWS_DIR", process.env.HILO_WORKFLOWS_DIR],
   ];
-  for (const [token, envKey, resolveRoot] of roots) {
+  if (!roots.some(([, , root]) => root)) return null;
+  for (const [token, envKey, root] of roots) {
     if (raw !== token && !raw.startsWith(`${token}/`) && !raw.startsWith(`${token}\\`)) continue;
-    const root = resolveRoot();
-    if (!root) return { error: `cannot resolve ${token}: ${envKey} is not set and no profile folder was found.` };
+    if (!root) return { error: `${token} is unavailable because ${envKey} is not configured.` };
     const base = path.resolve(root);
     const target = path.resolve(base, raw === token ? "" : raw.slice(token.length + 1));
     const rel = path.relative(base, target);
     if (rel === ".." || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) {
-      return { error: `path escapes ${token}; logical paths must point inside that folder.` };
+      return { error: `Logical resource path must stay within ${token}.` };
     }
     return { path: target };
   }
@@ -168,14 +168,14 @@ export async function readTextOrDirectory(
     const suggestions = similarPaths(abs);
     return errorReply(
       suggestions.length > 0
-        ? `No such file: ${rawPath}\n\nSimilar names nearby:\n${suggestions.join("\n")}`
-        : `No such file: ${rawPath}`,
+        ? `File not found: ${rawPath}\n\nDid you mean one of these?\n${suggestions.join("\n")}`
+        : `File not found: ${rawPath}`,
     );
   }
 
   const limit = limitArg ?? DEFAULT_READ_LIMIT;
-  // offset 是 1 起的行号；0 当 1 处理
-  const offset = offsetArg || 1;
+  // offset 是 1 起的行号；显式给 0 时不改写，行号从 0 标起（与参照一致）
+  const offset = offsetArg ?? 1;
 
   if (statSync(abs).isDirectory()) {
     const items = readdirSync(abs, { withFileTypes: true })
@@ -205,9 +205,9 @@ export async function readTextOrDirectory(
     try {
       page = await documentReader(abs, offset, limit);
     } catch (err) {
-      return errorReply(`Text extraction failed for ${rawPath}: ${err instanceof Error ? err.message : String(err)}`);
+      return errorReply(`Failed to extract document text from ${rawPath}: ${err instanceof Error ? err.message : String(err)}`);
     }
-    if (!page.ok) return errorReply(page.message ?? `No text could be extracted from ${rawPath} (${page.reason})`);
+    if (!page.ok) return errorReply(page.message ?? `Cannot extract document text from ${rawPath}: ${page.reason}`);
     let out = `<path>${abs}</path>\n<type>file</type>\n<content>\n`;
     out += page.lines.map((line, i) => `${page.offset + i}: ${line}`).join("\n");
     const last = page.offset + page.lines.length - 1;
@@ -221,14 +221,14 @@ export async function readTextOrDirectory(
 
   if (BINARY_EXTENSIONS.has(path.extname(abs).toLowerCase())) {
     return errorReply(
-      `${rawPath} is a binary format this tool does not open (archives, office files other than .docx, executables and similar). For images, video or audio make sure the file has a proper media extension.`,
+      `Cannot read binary file: ${rawPath}. If this is media (image/video/audio), use a supported extension; PDF/archive/binary blobs are not supported.`,
     );
   }
-  if (isBinarySample(await readSample(abs))) return errorReply(`${rawPath} appears to be binary data, not text.`);
+  if (isBinarySample(await readSample(abs))) return errorReply(`Cannot read binary file: ${rawPath}`);
 
   const file = await readLines(abs, offset, limit);
   if (file.count < offset && !(file.count === 0 && offset === 1)) {
-    return errorReply(`offset ${offset} is past the end: the file has ${file.count} lines`);
+    return errorReply(`Offset ${offset} is out of range for this file (${file.count} lines)`);
   }
   let out = `<path>${abs}</path>\n<type>file</type>\n<content>\n`;
   out += file.raw.map((line, i) => `${i + offset}: ${line}`).join("\n");
