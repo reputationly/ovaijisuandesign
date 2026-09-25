@@ -210,7 +210,7 @@ node scripts/smoke/mcp.mjs         # 真 MCP 进程接真 gateway：带身份能
 bash scripts/smoke/electron.sh     # xvfb 里起整个应用 + 假 opencode：主进程 → opencode / MCP / 插件的身份链
 ```
 
-先 `pnpm turbo run build`；`electron.sh` 要 xvfb-run 和已下载的 Electron（`node node_modules/.pnpm/electron@*/node_modules/electron/install.js`）。
+先 `pnpm turbo run build`；`electron.sh` 要已下载的 Electron（`node node_modules/.pnpm/electron@*/node_modules/electron/install.js`），Linux 无显示时还要 xvfb-run，macOS 直接起窗口。默认用仓库自带的 agent 配置，等到结果就整组杀掉进程（`SMOKE_LIMIT_SECONDS` 改上限，默认 90）。
 
 ### 本机真实联调（只在本机，需要用户的 key）
 
