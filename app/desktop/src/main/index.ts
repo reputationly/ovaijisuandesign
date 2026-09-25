@@ -26,6 +26,7 @@ import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
 import { readPlatform } from "./platform-config.js";
 import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
+import { readSettings, writeSettings } from "./settings.js";
 import { registerRawIpc, wireFullscreenEvents } from "./raw-ipc.js";
 import { RestoreHealth, runStartupRestore } from "./restore.js";
 import { GlobalStore, type RecentWorkspace } from "./storage/global-store.js";
@@ -241,6 +242,14 @@ async function boot(): Promise<Running> {
   registerChannel("hilo", hilo);
   registerChannel("project", projects);
   registerChannel("gateway-readiness", readinessView(readiness));
+  // 设置页「模型接入」：读写平台配置。新配置在下次起 opencode 时生效（渲染层保存后会请求重启）
+  registerChannel("platform-settings", {
+    get: async () => readSettings(dirs.configPath, dirs.projectsRoot, 0),
+    save: async (patch: Record<string, unknown>) => {
+      writeSettings(dirs.configPath, patch);
+      return { ok: true };
+    },
+  });
   for (const [name, svc] of Object.entries(stubChannels({ store, projectsRoot: dirs.projectsRoot, dataRoot: dirs.dataRoot, outputDir: dirs.outputDir, log: (l, m) => log(`[renderer ${l}] ${m}`) }))) {
     registerChannel(name, svc);
   }

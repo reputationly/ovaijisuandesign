@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url"
 
 import { describe, expect, it } from "vitest"
 
+import { allCss } from "./testing-css"
+
 /**
  * Tailwind 的颜色 utility 必须有对应的 `@theme` 条目。
  *
@@ -21,10 +23,10 @@ const SRC = fileURLToPath(new URL(".", import.meta.url))
 
 /** `@theme { --color-x: … }` 里声明的颜色名。 */
 const THEME_COLORS: Set<string> = (() => {
-  const css = readFileSync(join(SRC, "styles.css"), "utf8")
-  const block = /@theme\s*\{([\s\S]*?)\n\}/.exec(css)
-  if (!block) throw new Error("styles.css 里找不到 @theme 块")
-  return new Set([...block[1]!.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1]!))
+  const css = allCss()
+  const blocks = [...css.matchAll(/@theme(?:\s+inline)?\s*\{([\s\S]*?)\n\}/g)]
+  if (!blocks.length) throw new Error("样式里找不到 @theme 块")
+  return new Set(blocks.flatMap((b) => [...b[1]!.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1]!)))
 })()
 
 /**

@@ -1,16 +1,30 @@
+import { QueryClientProvider } from "@tanstack/react-query"
+import { RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
-import App from "./App"
-import { initTheme } from "./appearance"
+import "./i18n"
+import { queryClient } from "./api/query-client"
+import { Toaster } from "./components/ui/sonner"
+import { TooltipProvider } from "./components/ui/tooltip"
+import { router } from "./router/routes"
+import { applyInitialTheme, ThemeProvider } from "./theme/ThemeProvider"
 import "./styles.css"
 
-// **在 React 渲染之前挂主题 class。** 放进 effect 的话，偏好深色的用户
-// 每次启动都会先看到一帧白屏 —— 那一帧很显眼，而且看起来像应用卡了一下。
-initTheme()
+// React 渲染前先挂主题 class：深色用户启动时不闪白
+applyInitialTheme()
+// 滚动条只在滚动时出现（配合 base.css 里的 data-auto-hide-scrollbars 规则）
+document.documentElement.setAttribute("data-auto-hide-scrollbars", "")
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TooltipProvider delay={150}>
+          <RouterProvider router={router} />
+          <Toaster />
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )

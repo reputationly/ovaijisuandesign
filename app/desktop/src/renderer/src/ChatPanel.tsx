@@ -99,7 +99,7 @@ export function ChatPanel({
 
   return (
     <aside
-      className="flex h-full w-[380px] shrink-0 flex-col border-l"
+      className="flex h-full w-full min-w-0 flex-col"
       style={{ background: "var(--background)", borderColor: "var(--border)" }}
     >
       {/* 右栏顶部也当拖拽区：侧栏收起时那一条就没了，不留第二处会拖不动。 */}

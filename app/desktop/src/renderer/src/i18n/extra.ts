@@ -1,0 +1,53 @@
+/**
+ * 我们自己的文案（参照资源里没有的 key）。统一放 `ov.` 前缀，和导入的资源不冲突；
+ * 生成的 locales/*.json 保持原样，便于重新导入。
+ */
+export const extraEn: Record<string, string> = {
+  "ov.settings.unavailable.title": "Not available in this build",
+  "ov.settings.unavailable.desc": "This feature needs a cloud account or a service this app doesn't run yet.",
+  "ov.settings.platform.title": "Platform",
+  "ov.settings.platform.desc": "All generation and chat requests go to this OpenAI-compatible endpoint.",
+  "ov.settings.platform.chatModel": "Chat model",
+  "ov.settings.platform.mediaModels": "Generation models",
+  "ov.settings.platform.image": "Text to image",
+  "ov.settings.platform.imageEdit": "Image to image",
+  "ov.settings.platform.video": "Text / first-last frame to video",
+  "ov.settings.platform.videoRef": "Reference to video",
+  "ov.settings.platform.videoUpscale": "Video upscale",
+  "ov.settings.platform.imageUpscale": "Image upscale",
+  "ov.settings.platform.music": "Text to music",
+  "ov.settings.platform.musicEdit": "Music edit / cover",
+  "ov.settings.platform.speech": "Text to speech",
+  "ov.settings.platform.saved": "Saved. The agent runtime restarts with the new settings.",
+  "ov.settings.platform.loadFailed": "Couldn't read settings: {{message}}",
+  "ov.settings.storage.workspace": "Current workspace",
+  "ov.settings.storage.config": "Settings file",
+  "ov.settings.update.manual": "Download new versions from the release page and install them over this one.",
+  "ov.workspace.missing": "This workspace isn't open.",
+  "ov.page.placeholder": "This page is being rebuilt.",
+}
+
+export const extraZh: Record<string, string> = {
+  "ov.settings.unavailable.title": "当前版本不支持",
+  "ov.settings.unavailable.desc": "该功能依赖云端账号或尚未接入的服务。",
+  "ov.settings.platform.title": "平台接入",
+  "ov.settings.platform.desc": "所有生成与对话请求都发往这个 OpenAI 兼容的接口。",
+  "ov.settings.platform.chatModel": "对话模型",
+  "ov.settings.platform.mediaModels": "生成模型",
+  "ov.settings.platform.image": "文生图",
+  "ov.settings.platform.imageEdit": "图生图",
+  "ov.settings.platform.video": "文生视频 / 首尾帧",
+  "ov.settings.platform.videoRef": "参考生视频",
+  "ov.settings.platform.videoUpscale": "视频超分",
+  "ov.settings.platform.imageUpscale": "图片超分",
+  "ov.settings.platform.music": "文生音乐",
+  "ov.settings.platform.musicEdit": "音乐编辑 / 翻唱",
+  "ov.settings.platform.speech": "语音合成",
+  "ov.settings.platform.saved": "已保存，Agent 运行时会用新配置重启。",
+  "ov.settings.platform.loadFailed": "读取设置失败：{{message}}",
+  "ov.settings.storage.workspace": "当前工作区",
+  "ov.settings.storage.config": "配置文件",
+  "ov.settings.update.manual": "新版本请从发布页下载安装包，覆盖安装即可。",
+  "ov.workspace.missing": "这个工作区没有打开。",
+  "ov.page.placeholder": "此页面正在重建中。",
+}

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+
+import { allCss } from "./testing-css"
 import { readFileSync, readdirSync, statSync } from "node:fs"
 import { join } from "node:path"
 
@@ -25,6 +27,16 @@ const SRC = join(import.meta.dirname)
 const RUNTIME_SET = new Set([
   // App.tsx 在 viewport 变化时写入，用来反向抵消画布缩放。
   "canvas-zoom",
+  // 行内 style 写入：侧栏分组头悬停底色的起点
+  "hover-left",
+  // Base UI 在弹层 / 标签指示器上写入的尺寸与位置
+  "available-height",
+  "active-tab-width",
+  "active-tab-height",
+  "active-tab-left",
+  "active-tab-top",
+  // 多角度编辑器的 --hl_* 调色板：名字带下划线，正则只截到 --hl
+  "hl",
 ])
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -50,7 +62,7 @@ function strip(text: string): string {
 
 const files = walk(SRC)
 const tokens = readFileSync(join(SRC, "tokens.css"), "utf8")
-const styles = readFileSync(join(SRC, "styles.css"), "utf8")
+const styles = allCss()
 
 /** tokens.css 和 styles.css 里定义了哪些。 */
 const defined = new Set(
@@ -97,7 +109,8 @@ describe("设计变量", () => {
     const darkAt = tokens.indexOf(".dark {")
     const root = tokens.slice(rootAt, darkAt)
     const dark = tokens.slice(darkAt)
-    const inRoot = new Set([...root.matchAll(/--([a-z][a-z0-9-]*)\s*:/g)].map((m) => m[1]))
+    // 浅色值也可能在 @theme 层（Tailwind 主题变量）或 tokens.css 末尾的补充块里
+    const inRoot = new Set([...(root + styles + tokens.slice(tokens.lastIndexOf(":root {"))).matchAll(/--([a-z][a-z0-9-]*)\s*:/g)].map((m) => m[1]))
     const onlyDark = [...dark.matchAll(/--([a-z][a-z0-9-]*)\s*:/g)]
       .map((m) => m[1])
       .filter((v) => !inRoot.has(v))

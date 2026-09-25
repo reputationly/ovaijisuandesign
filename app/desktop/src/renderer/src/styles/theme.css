@@ -1,0 +1,115 @@
+/* Tailwind 4 主题映射。
+ *
+ * 语义色走 `@theme inline`：utility 直接引用 tokens.css 里的变量，
+ * 深浅色只靠 `.dark` 覆盖变量完成，不需要 `dark:` 前缀。
+ * 这里没声明的名字，`bg-foo` 一类 class 不会产出任何 CSS——新增颜色 utility 时先在这里补。 */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Inter Variable", sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-pixel: "Pixelify Sans", "Outfit", sans-serif;
+
+  /* 自定义字号阶：数字即像素，和设计稿一一对应 */
+  --text-caption-11: 11px;
+  --text-caption-11--line-height: 16px;
+  --text-body-12: 12px;
+  --text-body-12--line-height: 18px;
+  --text-body-13: 13px;
+  --text-body-14: 14px;
+  --text-body-14--line-height: 22px;
+  --text-body-15: 15px;
+  --text-body-15--line-height: 23px;
+  --text-prose-h1: 1.43em;
+  --text-prose-h2: 1.21em;
+  --text-prose-h3: 1.07em;
+  --text-prose-code: .93em;
+
+  /* 这几项浅色值只在主题层，深色在 tokens.css 的 .dark 里覆盖 */
+  --shadow-soft-card: 0 0 0 1px #0000000f, 0 1px 2px #0000000a;
+  --shadow-soft-popover: 0 0 0 1px #00000014, 0 4px 8px #0000000a, 0 8px 16px #0000000a;
+  --workflow-selected-shadow: 0 8px 24px -14px color-mix(in srgb, var(--foreground) 24%, transparent),
+    0 2px 8px -4px color-mix(in srgb, var(--foreground) 14%, transparent);
+  --workflow-selected-border: transparent;
+  --border-soft: #0000000d;
+  --border-strong: #0000001f;
+}
+
+@theme inline {
+  /* 圆角全部由 --radius 推导 */
+  --radius-sm: calc(var(--radius) * .6);
+  --radius-md: calc(var(--radius) * .8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --shadow-tab-active: var(--tab-active-shadow);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-border-strong: var(--border-strong);
+  --color-border-solid: var(--border-solid);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-tertiary: var(--text-tertiary);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-brutalist-border: var(--brutalist-border);
+  --color-badge-hot-bg: var(--badge-hot-bg);
+  --color-badge-hot-fg: var(--badge-hot-fg);
+  --color-modal-shell: var(--modal-shell-surface);
+  --color-modal-content: var(--modal-content-surface);
+  --color-modal-mask-foreground: var(--modal-mask-foreground);
+  --color-popup-item-hover: var(--popup-item-hover);
+  --color-popup-item-active: var(--popup-item-active);
+  --color-tab-list-bg: var(--tab-list-bg);
+  --color-tab-active-bg: var(--tab-active-bg);
+  --color-project-assets-row-checkbox-bg: var(--project-assets-row-checkbox-bg);
+  --color-project-assets-row-checkbox-border: var(--project-assets-row-checkbox-border);
+  --color-workspace-display-mode-current-mask: var(--workspace-display-mode-current-mask);
+  --color-workspace-display-mode-current-tag-foreground: var(--workspace-display-mode-current-tag-foreground);
+  --color-workspace-display-mode-mask-foreground: var(--workspace-display-mode-mask-foreground);
+
+  /* 旧界面的别名，画布 / 对话重写后删 */
+  --color-bg: var(--canvas-bg);
+  --color-panel: var(--canvas-node-bg);
+  --color-raised: var(--canvas-controls-hover);
+  --color-line: var(--canvas-node-border);
+  --color-fg: var(--canvas-controls-text);
+  --color-dim: var(--canvas-controls-text-muted);
+  --color-bad: #ff5f57;
+  --color-ok: #30d158;
+  --radius-node: var(--canvas-media-node-radius);
+  --radius-node-inner: var(--canvas-media-node-inner-radius);
+}
