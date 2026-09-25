@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { buildOpencodeConfig, type Platform, writeConfigFile, writeDependencyMarkers } from "./config.js";
-import { assertProfileComplete, type ProfileSource, stageProfile, syncProfile } from "./profile.js";
+import { assertProfileComplete, stageProfile, syncProfile } from "./profile.js";
 import type { LaunchSpec } from "./runtime.js";
 
 export * from "./config.js";
@@ -81,19 +81,13 @@ export function locateOpencode(roots: ResourceRoots): string | undefined {
   return undefined;
 }
 
-export function locateProfile(roots: ResourceRoots): ProfileSource | undefined {
-  const override = process.env.OV_AGENT_PROFILE_DIR;
-  if (override && existsSync(path.join(override, "base.json"))) return { configDir: override, sourceDir: override };
-  if (roots.resources) {
-    const dir = path.join(roots.resources, "agent-profiles/v2/config");
-    if (existsSync(path.join(dir, "base.json"))) return { configDir: dir, sourceDir: dir };
-  }
-  if (roots.repoRoot) {
-    const configDir = path.join(roots.repoRoot, "config/opencode-v2");
-    const sourceDir = path.join(roots.repoRoot, ".opencode-v2");
-    if (existsSync(path.join(configDir, "base.json")) && existsSync(sourceDir)) return { configDir, sourceDir };
-  }
-  return undefined;
+/** agent 配置目录（里面直接是 base.json、agents/ …）。开发时是仓库的 assets/agent-profiles/v2/config。 */
+export function locateProfile(roots: ResourceRoots): string | undefined {
+  return [
+    process.env.OV_AGENT_PROFILE_DIR,
+    roots.resources && path.join(roots.resources, "agent-profiles/v2/config"),
+    roots.repoRoot && path.join(roots.repoRoot, "assets/agent-profiles/v2/config"),
+  ].find((d): d is string => !!d && existsSync(path.join(d, "base.json")));
 }
 
 export function locateMcpEntry(roots: ResourceRoots): string | undefined {
@@ -126,7 +120,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   const binary = locateOpencode(i.roots);
   if (!binary) throw new Error("找不到 opencode。发布包里应当自带（resources/opencode/）；开发时用 OPENCODE_BIN 指定");
   const src = locateProfile(i.roots);
-  if (!src) throw new Error("找不到 agent 配置（发布包的 agent-profiles/v2/config，或仓库的 config/opencode-v2 + .opencode-v2）");
+  if (!src) throw new Error("找不到 agent 配置（发布包的 agent-profiles/v2/config，或仓库的 assets/agent-profiles/v2/config）");
   const mcpEntry = locateMcpEntry(i.roots);
   if (!mcpEntry) throw new Error("找不到 MCP server（mcp-tools/dist/main.js）");
 

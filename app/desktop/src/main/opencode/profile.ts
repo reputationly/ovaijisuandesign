@@ -2,9 +2,8 @@
  * agent 配置（profile）：从哪读、同步到哪、怎么拼成 opencode 真正加载的那份。
  *
  * 目录结构：`base.json` / `base.<region>.json` / `agents/` / `contracts/` /
- * `knowledge/` / `workflows/` / `plugins/`。开发时分在两处（仓库的
- * `config/opencode-v2/` 放 base*.json，`.opencode-v2/` 放其余），发布包里合成
- * 一个目录 `agent-profiles/v2/config`。同步时合并成一份。
+ * `knowledge/` / `workflows/` / `plugins/`，都在一个目录里：开发时是仓库的
+ * `assets/agent-profiles/v2/config`，发布包里是 `agent-profiles/v2/config`。
  *
  * ## 为什么要 staging，而不是把目录直接交给 opencode
  *
@@ -36,28 +35,16 @@ const COPY_ONLY = new Set(["package.json", "package-lock.json", "bun.lock", "bun
 
 export const STAGING_MARKER = ".contracts-staging-marker.json";
 
-export interface ProfileSource {
-  /** base*.json 所在目录。 */
-  configDir: string;
-  /** agents/ contracts/ … 所在目录。发布包里和 configDir 是同一个。 */
-  sourceDir: string;
-}
-
 /**
  * 把源整份同步到 `dest`，`.version` 记版本。**整目录删了重拷，不做增量**：
  * 增量同步会留下新版本已经删掉的合同，而合同按文件名自动拼进去，留下一个就
  * 多一段过期的规则。每次都拷（1.5MB 不值得省；开发时改了提示词、版本号没变，
  * 按版本判断会让改动不生效）。
  */
-export function syncProfile(src: ProfileSource, dest: string, version: string): void {
+export function syncProfile(srcDir: string, dest: string, version: string): void {
   rmSync(dest, { recursive: true, force: true });
   mkdirSync(dest, { recursive: true });
-  cpSync(src.sourceDir, dest, { recursive: true, dereference: true });
-  if (path.resolve(src.configDir) !== path.resolve(src.sourceDir)) {
-    for (const f of readdirSync(src.configDir)) {
-      if (/^base(\..+)?\.json$/.test(f) || f.endsWith(".json")) copyFileSync(path.join(src.configDir, f), path.join(dest, f));
-    }
-  }
+  cpSync(srcDir, dest, { recursive: true, dereference: true });
   writeFileSync(path.join(dest, ".version"), version);
 }
 

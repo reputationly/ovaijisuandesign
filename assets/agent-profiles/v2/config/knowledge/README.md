@@ -4,7 +4,7 @@ Knowledge 不是启动上下文。`setupAgentStaging` 只注入 `<knowledgeDir>`
 
 | 子目录 | 内容 | 读取者 |
 |---|---|---|
-| `vendors/` | vendor 能力、参数白名单、已知 bug | vendor 工程事实来源；executor 直接派发 plan 写好的 prompt，不读该卡 |
+| `vendors/` | vendor 能力、参数白名单、已知 bug；`platform-routing.md` 说明各模态实际落到平台的哪个模型 | vendor 工程事实来源；executor 直接派发 plan 写好的 prompt，不读该卡 |
 | `failures/` | 跨 vendor 语义风险 decision test | executor 预防 / media-agent 重试决策 |
 | `image-recipes/` | image-only 垂直品类 prompt 编译配方 | media-agent 在 Simple Direct Path 通过 `hub_select_image_recipe` 命中后读一张卡 |
 

@@ -5,13 +5,37 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildOpencodeConfig, fileUrl } from "./config.js";
-import { assertProfileComplete, deepMerge, parseFrontmatter, STAGING_MARKER, stageProfile } from "./profile.js";
+import { locateProfile } from "./index.js";
+import { assertProfileComplete, deepMerge, parseFrontmatter, STAGING_MARKER, stageProfile, syncProfile } from "./profile.js";
 
 function write(p: string, s: string) {
   mkdirSync(path.dirname(p), { recursive: true });
   writeFileSync(p, s);
 }
 const tmp = () => mkdtempSync(path.join(tmpdir(), "ov-oc-"));
+const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+
+describe("仓库自带的 agent 配置", () => {
+  it("开发时从 assets/agent-profiles/v2/config 读，完整、能同步、能 staging，合同拼进了 agent", () => {
+    const saved = process.env.OV_AGENT_PROFILE_DIR;
+    delete process.env.OV_AGENT_PROFILE_DIR;
+    try {
+      const dir = locateProfile({ repoRoot });
+      expect(dir).toBe(path.join(repoRoot, "assets/agent-profiles/v2/config"));
+      assertProfileComplete(dir!);
+      const synced = path.join(tmp(), "synced");
+      syncProfile(dir!, synced, "0.0.0-test");
+      assertProfileComplete(synced);
+      const staging = path.join(tmp(), "staging");
+      stageProfile(synced, staging);
+      const media = readFileSync(path.join(staging, "agents/media-agent.md"), "utf8");
+      expect(media).toContain("<knowledge-base>");
+      expect(readFileSync(path.join(staging, "plugins/session-header.ts"), "utf8")).toContain("x-hilo-workspace");
+    } finally {
+      if (saved !== undefined) process.env.OV_AGENT_PROFILE_DIR = saved;
+    }
+  });
+});
 
 describe("profile", () => {
   it("frontmatter 的 agents 认三种写法", () => {
