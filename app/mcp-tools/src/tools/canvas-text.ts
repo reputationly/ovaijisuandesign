@@ -544,7 +544,7 @@ export function applyAnchoredEdits(doc: string, edits: AnchoredEdit[]): ApplyPre
 export const TEXT_NODE_CHUNK_SIZE = 2800;
 
 export function splitTextForChunkedWrites(content: string, chunkSize = TEXT_NODE_CHUNK_SIZE): string[] {
-  if (chunkSize < 1) throw new Error("chunk size has to be at least 1");
+  if (chunkSize < 1) throw new Error("chunkSize must be positive");
   const count = Math.max(1, Math.ceil(content.length / chunkSize));
   return Array.from({ length: count }, (_, k) => content.slice(k * chunkSize, (k + 1) * chunkSize));
 }

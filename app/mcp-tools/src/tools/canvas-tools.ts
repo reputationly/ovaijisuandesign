@@ -163,12 +163,12 @@ export const registerCanvasTools: RegisterTools = (registrar, gw) => {
     }
     const node = details.nodes[0];
     if (!node) {
-      return { error: details.missing?.includes(nodeId) ? `No canvas node with id ${nodeId}` : `Could not load canvas node ${nodeId}` };
+      return { error: details.missing?.includes(nodeId) ? `Canvas node not found: ${nodeId}` : `Canvas node unavailable: ${nodeId}` };
     }
     const body = node.textContent;
     const version = node.textContentHash;
     if (body === undefined || !version) {
-      return { error: `Node ${nodeId} has type=${node.type}; only text nodes can be searched or read` };
+      return { error: `Node is not a readable text node: ${nodeId} (type=${node.type})` };
     }
     return { content: body, hash: version };
   }
@@ -229,7 +229,7 @@ IMPORTANT: this tool returns METADATA ONLY \u2014 it never returns image/video/a
     async (args) => {
       try {
         const ids = [...(args.nodeId ? [args.nodeId] : []), ...(args.nodeIds ?? [])];
-        if (ids.length === 0) return errorReply("Nothing to fetch: pass `nodeId`, `nodeIds`, or both.");
+        if (ids.length === 0) return errorReply("Provide at least one of `nodeId` or `nodeIds`.");
         const key = detailCacheKey(ids);
         let details = getCachedDetails(key);
         if (!details) {
@@ -292,7 +292,7 @@ IMPORTANT: this tool returns METADATA ONLY \u2014 it never returns image/video/a
           contextAfter: args.contextAfter,
           maxMatches: args.maxMatches,
         });
-        if (r.invalidPattern) return errorReply(`Could not compile regex: ${args.query}`);
+        if (r.invalidPattern) return errorReply(`Invalid regex pattern: ${args.query}`);
         return structuredReply({
           contentHash: fetched.hash,
           totalLines: countLines(fetched.content),
@@ -418,7 +418,7 @@ IMPORTANT: this tool returns METADATA ONLY \u2014 it never returns image/video/a
         };
         const detail = await fetchNodeDetails(gw, [request.nodeId]);
         const node = detail.nodes[0];
-        if (!node?.textContent || !node.textContentHash) return errorReply(`No text body available for node ${request.nodeId}`);
+        if (!node?.textContent || !node.textContentHash) return errorReply(`Text node content not found: ${request.nodeId}`);
         // 版本已变：交给 gateway 回 version_changed 冲突（带 nearest 提示），本地不必预演
         if (node.textContentHash !== request.expectedContentHash) return await apply();
         // 本地预演出最终全文，只为先送安全检查；锚点冲突以 gateway 的判定为准（它会回 nearest 提示）
@@ -428,7 +428,7 @@ IMPORTANT: this tool returns METADATA ONLY \u2014 it never returns image/video/a
         }
         return await apply();
       } catch (err) {
-        if (err instanceof SafetyBlockedError) return errorReply(`Edit rejected by the content safety check (decision=${err.decision}).`);
+        if (err instanceof SafetyBlockedError) return errorReply(`Content blocked by safety policy (${err.decision}).`);
         return errorReply(err);
       }
     },
@@ -633,13 +633,17 @@ IMPORTANT: this tool returns METADATA ONLY \u2014 it never returns image/video/a
             ...(errors.length > 0 ? { errors } : {}),
           });
         }
-        if (!args.kind) return structuredReply({ ok: false, error: "Nothing to write: set `kind` for one node, or pass `items` for several." });
+        if (!args.kind) return structuredReply({ ok: false, error: "Provide `kind` for a single write or `items` for batch." });
         const result = await writeCanvasItem(gw, args as CanvasWriteItem);
         if (result.ok) invalidateCanvasDetailCache();
         return structuredReply({ ...result });
       } catch (err) {
+        // 这条拦截提示不带 "Error: " 前缀，和其它失败的文本形状不同
         if (err instanceof SafetyBlockedError) {
-          return errorReply(`Write rejected by the content safety check (decision=${err.decision}). Reword the text or pick another subject.`);
+          return {
+            isError: true,
+            content: [{ type: "text", text: `Content blocked by safety policy (${err.decision}). Please rephrase the content or choose a different topic.` }],
+          };
         }
         return structuredReply({ ok: false, ...(args.kind ? { kind: args.kind } : {}), error: errorMessage(err) });
       }
@@ -684,13 +688,13 @@ function regroupHint(skipped: z.infer<typeof SkippedNodeEntrySchema>[]): string 
   if (parents.length <= 1) {
     const target = parents[0];
     return (
-      `Dropped ${skipped.length} id(s): ${summary}. To add the loose nodes to that existing group, call again with the group first ` +
-      `so it merges: nodeIds=[${target ? `"${target}", ` : ""}<loose-ids...>]`
+      `${skipped.length} nodeId(s) skipped: ${summary}. To merge loose nodes into an existing group, retry with MERGE mode: ` +
+      `nodeIds=[${target ? `"${target}", ` : ""}<loose-ids...>]`
     );
   }
   return (
-    `Dropped ${skipped.length} id(s): ${summary}. They sit in ${parents.length} separate groups ` +
-    `(${parents.map((p) => `"${p}"`).join(", ")}), so the merge target is ambiguous. Choose one group and call again with it first: ` +
-    `nodeIds=["<chosen-group>", <loose-ids...>].`
+    `${skipped.length} nodeId(s) skipped: ${summary}. Inputs span ${parents.length} existing groups ` +
+    `(${parents.map((p) => `"${p}"`).join(", ")}); cannot infer a single MERGE target. Pick ONE group to merge into and retry with MERGE mode: ` +
+    `nodeIds=["<chosen-parent>", <loose-ids...>].`
   );
 }

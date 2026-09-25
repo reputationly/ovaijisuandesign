@@ -164,13 +164,18 @@ describe("canvas_write_node", () => {
 
   it("refuses Stage Plan content without writing", async () => {
     const r = await h.call("canvas_write_node", { kind: "text", name: "plan", content: "# Plan\n### stage_id: s1\n" });
-    expect(resultJson(r)).toMatchObject({ ok: false, kind: "text" });
+    expect(resultJson(r)).toEqual({
+      ok: false,
+      kind: "text",
+      error:
+        "Stage Execution Plan content must be written through plan_write (create / full restructure) or plan_patch_stage (incremental stage edits), not canvas_write_node. These tools validate the whole plan before writing.",
+    });
     expect(posts("/api/canvas/text-node")).toHaveLength(0);
   });
 
   it("create without name is a contract error", async () => {
     const r = await h.call("canvas_write_node", { kind: "text", content: "hi" });
-    expect(resultJson(r)).toMatchObject({ ok: false });
+    expect(resultJson(r)).toEqual({ kind: "text", ok: false, error: "Text node name contract violation: create mode requires a name." });
   });
 
   it("items[] runs each write and reports per-item results", async () => {
@@ -189,15 +194,28 @@ describe("canvas_write_node", () => {
     expect(out).toMatchObject({ batch: true, ok: false, count: 3, successCount: 2, errorCount: 1 });
     expect(out.results[0]).toMatchObject({ index: 0, kind: "media", nodeId: "m1", assetPath: "dl/x.png" });
     expect(posts("/api/canvas/media-node")[0]?.body).toEqual({ assetPath: "dl/x.png" });
-    expect(out.results[2]).toMatchObject({ index: 2, ok: false });
+    expect(out.results[2]).toEqual({ index: 2, kind: "media", ok: false, error: "assetPath is required for kind=media." });
   });
 
   it("safety block surfaces as an error without writing", async () => {
     gw.on("POST", "/api/safety/check-text", { json: { pass: false, decision: "block" } });
     const r = await h.call("canvas_write_node", { kind: "text", name: "n", content: "bad" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("block");
+    expect(resultText(r)).toBe("Content blocked by safety policy (block). Please rephrase the content or choose a different topic.");
     expect(posts("/api/canvas/text-node")).toHaveLength(0);
+  });
+
+  it("safety block inside items[] fails only that item", async () => {
+    gw.on("POST", "/api/safety/check-text", { json: { pass: false, decision: "block" } });
+    const r = await h.call("canvas_write_node", { items: [{ kind: "text", name: "n", content: "bad" }] });
+    expect(r.isError).toBeFalsy();
+    expect(resultJson<{ results: unknown[] }>(r).results[0]).toEqual({ index: 0, kind: "text", ok: false, error: "Content blocked by safety policy: block" });
+  });
+
+  it("URL import failure names the URL", async () => {
+    gw.on("POST", "/api/files/import-url", { json: { ok: true, imported: [] } });
+    const r = await h.call("canvas_write_node", { kind: "media", assetPath: "https://example.com/x.png" });
+    expect(resultJson(r)).toEqual({ ok: false, kind: "media", error: "Failed to import URL https://example.com/x.png: unknown import-url failure" });
   });
 });
 
@@ -257,6 +275,7 @@ describe("canvas_apply_text_edits", () => {
       edits: [{ exact: "world", replacement: "x" }],
     });
     expect(r.isError).toBe(true);
+    expect(resultText(r)).toBe("Error: Content blocked by safety policy (reject).");
     expect(posts("/api/canvas/text-node/apply-edits")).toHaveLength(0);
   });
 
@@ -300,7 +319,7 @@ describe("read tools", () => {
     gw.on("POST", "/api/canvas/nodes/detail", { json: { nodes: [{ id: "i1", type: "image" }] } });
     const r = await h.call("canvas_grep_text", { nodeId: "i1", query: "x" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("only text nodes");
+    expect(resultText(r)).toBe("Error: Node is not a readable text node: i1 (type=image)");
   });
 
   it("list_nodes forwards type/limit/offset as query", async () => {
@@ -332,6 +351,27 @@ describe("grouping", () => {
       },
     });
     const r = await h.call("canvas_group_nodes", { nodeIds: ["a", "b"] });
-    expect(resultJson<{ hint: string }>(r).hint).toContain('"g9"');
+    expect(resultJson<{ hint: string }>(r).hint).toBe(
+      '1 nodeId(s) skipped: a(already-grouped, parent=g9). To merge loose nodes into an existing group, retry with MERGE mode: nodeIds=["g9", <loose-ids...>]',
+    );
+  });
+
+  it("no-op spanning two groups asks the agent to pick one", async () => {
+    gw.on("POST", "/api/canvas/group", {
+      json: {
+        groupId: null,
+        addedNodes: [],
+        removedNodeIds: [],
+        updatedNodes: [],
+        skippedNodes: [
+          { nodeId: "a", reason: "already-grouped", parentId: "g1" },
+          { nodeId: "b", reason: "already-grouped", parentId: "g2" },
+        ],
+      },
+    });
+    const r = await h.call("canvas_group_nodes", { nodeIds: ["a", "b"] });
+    expect(resultJson<{ hint: string }>(r).hint).toBe(
+      '2 nodeId(s) skipped: a(already-grouped, parent=g1); b(already-grouped, parent=g2). Inputs span 2 existing groups ("g1", "g2"); cannot infer a single MERGE target. Pick ONE group to merge into and retry with MERGE mode: nodeIds=["<chosen-parent>", <loose-ids...>].',
+    );
   });
 });

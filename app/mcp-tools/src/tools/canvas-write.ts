@@ -166,7 +166,7 @@ export async function writeTextNodeChunked(gw: GatewayClient, args: TextWriteArg
         ...(i === chunks.length - 1 ? { expectedContentHash: args.expectedContentHash } : { appendSeparator: "none" }),
       });
     }
-    if (!latest) throw new Error("chunking produced nothing to write");
+    if (!latest) throw new Error("No content chunks produced");
     return latest;
   }
 
@@ -237,24 +237,23 @@ async function validateTextBeforeWrite(gw: GatewayClient, args: TextWriteArgs): 
   const content = args.nodeId ? await mergedContentForPatch(gw, args.nodeId, args.mode ?? "replace", args.content) : args.content;
   if (looksLikeStagePlan(content)) {
     throw new Error(
-      "This looks like a Stage Execution Plan (it has `### stage_id:` headings), and canvas_write_node does not store plans. " +
-        "Save it with plan_write (new plan or full rewrite) or change single stages with plan_patch_stage; both check the whole plan first.",
+      "Stage Execution Plan content must be written through plan_write (create / full restructure) or plan_patch_stage (incremental stage edits), not canvas_write_node. These tools validate the whole plan before writing.",
     );
   }
   await checkAgentText(gw, args.nodeId ? [content] : [args.name ?? "", content]);
 }
 
 async function writeTextItem(gw: GatewayClient, item: CanvasWriteItem): Promise<CanvasWriteResult> {
-  if (item.content === undefined) return { kind: "text", ok: false, error: "kind=text needs `content`." };
+  if (item.content === undefined) return { kind: "text", ok: false, error: "content is required for kind=text." };
   if (!item.nodeId && item.mode) {
     return {
       kind: "text",
       ok: false,
-      error: "`mode` is for patching: add the `nodeId` to patch, or remove `mode` to create a fresh text node.",
+      error: "`mode` is only valid when patching an existing text node. Provide `nodeId`, or omit `mode` to create a new text node.",
     };
   }
   if (!item.nodeId && !item.name?.trim()) {
-    return { kind: "text", ok: false, error: "A new text node needs a `name`; pass one (or pass `nodeId` to patch an existing node)." };
+    return { kind: "text", ok: false, error: "Text node name contract violation: create mode requires a name." };
   }
   const { args, wrapped } = unwrapNestedTextArgs({
     content: item.content,
@@ -277,7 +276,7 @@ async function writeTextItem(gw: GatewayClient, item: CanvasWriteItem): Promise<
     ...(wrapped
       ? {
           wrapped: true,
-          warnings: ['A nested {"content": ...} JSON wrapper was detected and removed. Pass plain markdown in `content` next time.'],
+          warnings: ['Detected and unwrapped a nested {"content": ...} JSON layer. Next time, pass plain markdown directly in `content`.'],
         }
       : {}),
   };
@@ -332,11 +331,11 @@ async function resolveAssetPath(gw: GatewayClient, assetPath: string): Promise<s
   const resp = await gw.post("/api/files/import-url", { urls: [assetPath] }, 180_000, ImportUrlResponseSchema);
   const ok = resp.imported[0];
   if (ok) return ok.path;
-  throw new Error(`Could not download ${assetPath} into the workspace: ${resp.errors?.[0]?.error ?? "import-url returned no file"}`);
+  throw new Error(`Failed to import URL ${assetPath}: ${resp.errors?.[0]?.error ?? "unknown import-url failure"}`);
 }
 
 async function writeMediaItem(gw: GatewayClient, item: CanvasWriteItem): Promise<CanvasWriteResult> {
-  if (!item.assetPath) return { kind: "media", ok: false, error: "kind=media needs `assetPath`." };
+  if (!item.assetPath) return { kind: "media", ok: false, error: "assetPath is required for kind=media." };
   const assetPath = await resolveAssetPath(gw, item.assetPath);
   const result = await gw.post(
     "/api/canvas/media-node",
