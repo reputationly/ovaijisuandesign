@@ -147,3 +147,44 @@ export function applyTextEdits(content: string, edits: TextEdit[]): ApplyOutcome
   }
   return { ok: true, content: next, results, applied };
 }
+
+/**
+ * 撤回之前的修改：每条的 `exact` 是改后的文字（插入被删掉的内容时为空），`replacement` 是要换回去的原文。
+ *
+ * 和应用不同，撤回**逐条独立**：用户撤回一批批注时，其中几条附近的文字后来又被改过，其余的照样该撤掉，
+ * 不能因为一条找不到就全部作废。定位逐级放宽 —— 上下文全对 → 只对前文 → 只对后文 → 只看 exact 本身；
+ * 每一级都要求唯一（或给了 occurrence），宁可报冲突也不猜着改错地方。
+ */
+export function revertTextEdits(content: string, edits: TextEdit[]): { content: string; results: EditResult[]; appliedCount: number } {
+  let next = content;
+  let appliedCount = 0;
+  const results: EditResult[] = [];
+  for (const e of edits) {
+    const base: EditResult = { annotationId: e.annotationId, ...(e.targetIndex !== undefined ? { targetIndex: e.targetIndex } : {}), status: "applied" };
+    const prefix = e.prefix ?? "";
+    const suffix = e.suffix ?? "";
+    const attempts: [string, string][] = [[prefix, suffix]];
+    if (suffix) attempts.push([prefix, ""]);
+    if (prefix) attempts.push(["", suffix]);
+    if (e.exact && (prefix || suffix)) attempts.push(["", ""]);
+    let start: number | undefined;
+    let reason: EditConflictReason = "not_found";
+    for (const [pre, suf] of attempts) {
+      if (!pre && !e.exact && !suf) continue;
+      const hits = allIndexes(next, pre + e.exact + suf).map((i) => i + pre.length);
+      if (hits.length === 0) continue;
+      if (e.occurrence !== undefined) start = hits[e.occurrence] ?? (hits.length === 1 ? hits[0] : undefined);
+      else if (hits.length === 1) start = hits[0];
+      if (start !== undefined) break;
+      reason = "ambiguous";
+    }
+    if (start === undefined) {
+      results.push({ ...base, status: "conflict", reason });
+      continue;
+    }
+    next = next.slice(0, start) + e.replacement + next.slice(start + e.exact.length);
+    appliedCount++;
+    results.push(base);
+  }
+  return { content: next, results, appliedCount };
+}

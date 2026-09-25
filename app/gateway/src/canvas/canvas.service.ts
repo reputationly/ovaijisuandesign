@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { type AssetRow, toAssetInfo } from "@ov/assets";
 import type { CanvasEdge, CanvasFile, CanvasNode, CanvasUpdated } from "@ov/protocol";
 
@@ -28,7 +28,8 @@ import {
   type Size,
 } from "./canvas-geometry.js";
 import { CanvasPersistence, type DeletionIntent, type SystemMutationIntent } from "./canvas-persistence.js";
-import { applyTextEdits, type TextEdit } from "./text-edits.js";
+import { PluginStorage } from "./plugin-storage.js";
+import { applyTextEdits, revertTextEdits, type TextEdit } from "./text-edits.js";
 import { buildTableDocument, newTablePath, serializeTableDocument, type TableInput } from "./table-document.js";
 
 const MODE = "workflow";
@@ -77,7 +78,9 @@ interface Mutation<T> {
  */
 @Injectable()
 export class CanvasService {
+  private readonly log = new Logger("Canvas");
   private persistence?: CanvasPersistence;
+  private pluginStore?: PluginStorage;
   private readonly lock = new AsyncMutex();
   private readonly nodeLocks = new Map<string, AsyncMutex>();
   private readonly pendingNodes = new Set<string>();
@@ -551,79 +554,95 @@ export class CanvasService {
     });
   }
 
+  async revertTextEdits(dto: { nodeId: string; edits: TextEdit[] }) {
+    const { node, abs } = await this.textTarget(dto.nodeId, true);
+    return this.nodeLock(node.id).runExclusive(async () => {
+      const content = await readFile(abs, "utf8");
+      const r = revertTextEdits(content, dto.edits);
+      if (r.appliedCount > 0) {
+        await atomicWriteFile(abs, r.content);
+        this.emitUpdate({ origin: "mcp-write", updatedNodes: [{ ...node, data: { ...(node.data ?? {}), textRevision: Date.now() } }] });
+      }
+      return { nodeId: node.id, status: r.appliedCount > 0 ? "applied" : "conflict", contentHash: textContentHash(r.content), content: r.content, results: r.results };
+    });
+  }
+
   // -------------------------------------------------------------------------
   // 分组
   // -------------------------------------------------------------------------
 
   async group(dto: { nodeIds: string[]; label?: string; layout?: "grid" | "vertical" }): Promise<GroupResult> {
-    const label = normalizeLabel(dto.label);
-    return this.mutate<GroupResult>((c) => {
-      const byId = new Map(c.nodes.map((n) => [n.id, n]));
-      const skippedNodes: { nodeId: string; reason: string; parentId?: string }[] = [];
-      const members: CanvasNode[] = [];
-      for (const id of [...new Set(dto.nodeIds)]) {
-        const n = byId.get(id);
-        if (!n) skippedNodes.push({ nodeId: id, reason: "unknown" });
-        else if (n.parentId) skippedNodes.push({ nodeId: id, reason: "already-grouped", parentId: n.parentId });
-        else members.push(n);
-      }
-      const empty: GroupResult = { groupId: null, addedNodes: [], removedNodeIds: [], updatedNodes: [], ...(skippedNodes.length ? { skippedNodes } : {}) };
-      if (members.length < 2) return { result: empty };
-      const missing = members.filter((m) => !positionOf(m, MODE)).map((m) => m.id);
-      if (missing.length) {
-        throw new BadRequestException({
-          code: "incomplete-positions",
-          mode: MODE,
-          missingNodeIds: missing,
-          ...(skippedNodes.length ? { skippedNodes } : {}),
-          message: `Cannot group nodes: ${missing.length} participant(s) lack ${MODE} positions.`,
-        });
-      }
+    return this.mutate<GroupResult>((c) => this.groupWithin(c, dto));
+  }
 
-      // 选择里已有组：并进第一个组，其余的组解散。
-      const groups = members.filter((m) => m.type === "group");
-      const removedNodeIds: string[] = [];
-      let group: CanvasNode;
-      let added: CanvasNode[] = [];
-      if (groups.length) {
-        group = groups[0]!;
-        for (const g of groups.slice(1)) {
-          for (const kid of c.nodes.filter((n) => n.parentId === g.id)) reparent(c, kid, group);
-          removedNodeIds.push(g.id);
-        }
-        c.nodes = c.nodes.filter((n) => !removedNodeIds.includes(n.id));
-        for (const m of members.filter((m) => m.type !== "group")) reparent(c, m, group);
-        group.data = { ...(group.data ?? {}), frameMode: "auto" };
-      } else {
-        const rects = members.map((m) => ({ ...positionOf(m, MODE)!, ...effectiveSize(m, MODE) }));
-        const b = boundsOf(rects);
-        group = {
-          id: `group-${randomUUID()}`,
-          type: "group",
-          positions: { [MODE]: { x: b.x - GROUP_PADDING.x, y: b.y - GROUP_PADDING.top } },
-          size: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom },
-          sizes: { [MODE]: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom } },
-          data: label ? { label } : {},
-          meta: { zIndex: -100 },
-        };
-        c.nodes.push(group);
-        for (const m of members) reparent(c, m, group);
-        added = [group];
-        this.pendingNodes.add(group.id);
+  /** 分组本体，在调用方已持有的锁和画布副本上做（新建节点后要在同一次写入里成组的路径也用它）。 */
+  private groupWithin(c: CanvasFile, dto: { nodeIds: string[]; label?: string; layout?: "grid" | "vertical" }): Mutation<GroupResult> {
+    const label = normalizeLabel(dto.label);
+    const byId = new Map(c.nodes.map((n) => [n.id, n]));
+    const skippedNodes: { nodeId: string; reason: string; parentId?: string }[] = [];
+    const members: CanvasNode[] = [];
+    for (const id of [...new Set(dto.nodeIds)]) {
+      const n = byId.get(id);
+      if (!n) skippedNodes.push({ nodeId: id, reason: "unknown" });
+      else if (n.parentId) skippedNodes.push({ nodeId: id, reason: "already-grouped", parentId: n.parentId });
+      else members.push(n);
+    }
+    const empty: GroupResult = { groupId: null, addedNodes: [], removedNodeIds: [], updatedNodes: [], ...(skippedNodes.length ? { skippedNodes } : {}) };
+    if (members.length < 2) return { result: empty };
+    const missing = members.filter((m) => !positionOf(m, MODE)).map((m) => m.id);
+    if (missing.length) {
+      throw new BadRequestException({
+        code: "incomplete-positions",
+        mode: MODE,
+        missingNodeIds: missing,
+        ...(skippedNodes.length ? { skippedNodes } : {}),
+        message: `Cannot group nodes: ${missing.length} participant(s) lack ${MODE} positions.`,
+      });
+    }
+
+    // 选择里已有组：并进第一个组，其余的组解散。
+    const groups = members.filter((m) => m.type === "group");
+    const removedNodeIds: string[] = [];
+    let group: CanvasNode;
+    let added: CanvasNode[] = [];
+    if (groups.length) {
+      group = groups[0]!;
+      for (const g of groups.slice(1)) {
+        for (const kid of c.nodes.filter((n) => n.parentId === g.id)) reparent(c, kid, group);
+        removedNodeIds.push(g.id);
       }
-      if (dto.layout) relayoutGroup(c, group, dto.layout);
-      fitGroup(c, group);
-      const kids = c.nodes.filter((n) => n.parentId === group.id);
-      const updatedNodes = groups.length ? [group, ...kids] : kids;
-      return {
-        canvas: c,
-        result: { groupId: group.id, addedNodes: added, removedNodeIds, updatedNodes, ...(skippedNodes.length ? { skippedNodes } : {}) },
-        event: { addedNodes: added, removedNodeIds, updatedNodes },
-        intent: removedNodeIds.length
-          ? { reason: "group-reconciliation", removedNodeIds, removedEdgeIds: [], allowHighBlast: true }
-          : undefined,
+      c.nodes = c.nodes.filter((n) => !removedNodeIds.includes(n.id));
+      for (const m of members.filter((m) => m.type !== "group")) reparent(c, m, group);
+      group.data = { ...(group.data ?? {}), frameMode: "auto" };
+    } else {
+      const rects = members.map((m) => ({ ...positionOf(m, MODE)!, ...effectiveSize(m, MODE) }));
+      const b = boundsOf(rects);
+      group = {
+        id: `group-${randomUUID()}`,
+        type: "group",
+        positions: { [MODE]: { x: b.x - GROUP_PADDING.x, y: b.y - GROUP_PADDING.top } },
+        size: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom },
+        sizes: { [MODE]: { width: b.width + GROUP_PADDING.x * 2, height: b.height + GROUP_PADDING.top + GROUP_PADDING.bottom } },
+        data: label ? { label } : {},
+        meta: { zIndex: -100 },
       };
-    });
+      c.nodes.push(group);
+      for (const m of members) reparent(c, m, group);
+      added = [group];
+      this.pendingNodes.add(group.id);
+    }
+    if (dto.layout) relayoutGroup(c, group, dto.layout);
+    fitGroup(c, group);
+    const kids = c.nodes.filter((n) => n.parentId === group.id);
+    const updatedNodes = groups.length ? [group, ...kids] : kids;
+    return {
+      canvas: c,
+      result: { groupId: group.id, addedNodes: added, removedNodeIds, updatedNodes, ...(skippedNodes.length ? { skippedNodes } : {}) },
+      event: { addedNodes: added, removedNodeIds, updatedNodes },
+      intent: removedNodeIds.length
+        ? { reason: "group-reconciliation", removedNodeIds, removedEdgeIds: [], allowHighBlast: true }
+        : undefined,
+    };
   }
 
   async ungroup(groupId: string) {
@@ -825,6 +844,240 @@ export class CanvasService {
         intent: { reason: "placeholder-cleanup", removedNodeIds: [id], removedEdgeIds, allowHighBlast: true },
       };
     });
+  }
+
+  /**
+   * 从一个来源派生出一批占位卡（分镜、多角度这类「一次出好几张」的玩法），两张以上时圈成一组。
+   * 建卡和成组在同一次写入里，只发一帧事件 —— 分两次的话渲染层会先看到一堆散卡再看到它们被收进组里。
+   */
+  async placeholderGroup(dto: {
+    sourceNodeId: string;
+    cells: { prompt: string; model: string; mediaType?: string; aspectRatio?: string }[];
+    label?: string;
+    layout?: "grid" | "vertical";
+  }) {
+    return this.mutate((c) => {
+      const source = this.findSource(c, dto.sourceNodeId);
+      const row = this.assetOf(source);
+      const created: CanvasNode[] = [];
+      const addedEdges: CanvasEdge[] = [];
+      dto.cells.forEach((cell, i) => {
+        let aspectRatio = parseRatio(cell.aspectRatio) ? cell.aspectRatio : undefined;
+        if (!aspectRatio && cell.mediaType !== "audio" && row?.width && row.height) aspectRatio = `${row.width}:${row.height}`;
+        const size = placeholderNodeSize("generating", aspectRatio, cell.mediaType);
+        const createdAt = new Date().toISOString();
+        const node: CanvasNode = {
+          id: randomUUID(),
+          type: "placeholder",
+          positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, [source.id]) },
+          size,
+          data: {
+            prompt: cell.prompt,
+            model: cell.model,
+            status: "generating",
+            createdAt,
+            generationStartedAt: createdAt,
+            params: { order: String(i) },
+            ...(cell.mediaType ? { mediaType: cell.mediaType } : {}),
+            ...(aspectRatio ? { aspectRatio } : {}),
+          },
+        };
+        c.nodes.push(node);
+        this.pendingNodes.add(node.id);
+        created.push(node);
+        addedEdges.push(...this.addDerivationEdges(c, [source.id], node.id, { prompt: cell.prompt, model: cell.model }));
+      });
+      const groupId = this.groupFresh(c, created, dto.label, dto.layout ?? "grid");
+      return {
+        canvas: c,
+        result: { placeholderIds: created.map((n) => n.id), groupId },
+        event: { addedNodes: this.freshNodes(c, created, groupId), addedEdges },
+      };
+    });
+  }
+
+  /** 把一批已有资产各放一个新节点（不复用已有节点），从来源连边，两个以上成组。找不到的资产丢掉。 */
+  async nodesGroup(dto: { sourceNodeId: string; assetIds: string[]; label?: string; layout?: "grid" | "vertical" }) {
+    return this.mutate((c) => {
+      const source = this.findSource(c, dto.sourceNodeId);
+      const rows = dto.assetIds.map((id) => this.assets.byId(id)).filter((r): r is AssetRow => !!r);
+      if (rows.length === 0) return { result: { nodeIds: [] as string[], groupId: null as string | null } };
+      const created: CanvasNode[] = [];
+      const addedEdges: CanvasEdge[] = [];
+      rows.forEach((row, i) => {
+        const meta = this.metadataOf(row);
+        const { node, edges } = this.addAssetNode(c, row, {
+          sourceNodeIds: [source.id],
+          extraData: {
+            name: row.name,
+            path: row.path,
+            params: { order: String(i) },
+            ...(typeof meta.prompt === "string" && meta.prompt ? { prompt: meta.prompt } : {}),
+            ...(typeof meta.model === "string" && meta.model ? { model: meta.model } : {}),
+            ...(row.width ? { width: row.width } : {}),
+            ...(row.height ? { height: row.height } : {}),
+          },
+        });
+        created.push(node);
+        addedEdges.push(...edges);
+      });
+      const groupId = this.groupFresh(c, created, dto.label, dto.layout ?? "grid");
+      return {
+        canvas: c,
+        result: { nodeIds: created.map((n) => n.id), groupId },
+        event: { addedNodes: this.freshNodes(c, created, groupId), addedEdges },
+      };
+    });
+  }
+
+  private findSource(c: CanvasFile, sourceNodeId: string): CanvasNode {
+    const source = c.nodes.find((n) => n.id === sourceNodeId) ?? singleOrUndefined(c.nodes.filter((n) => n.assetId === sourceNodeId));
+    if (!source) throw new BadRequestException({ code: "PLACEHOLDER_SOURCE_NOT_FOUND", message: "Source node not found on canvas", sourceNodeId });
+    return source;
+  }
+
+  /** 两个以上才成组。成组失败不连累已经建好的节点，只是不圈起来。返回组 id。 */
+  private groupFresh(c: CanvasFile, created: CanvasNode[], label: string | undefined, layout: "grid" | "vertical"): string | null {
+    if (created.length < 2) return null;
+    try {
+      const r = this.groupWithin(c, { nodeIds: created.map((n) => n.id), label, layout });
+      if (r.canvas) {
+        c.nodes = r.canvas.nodes;
+        c.edges = r.canvas.edges;
+      }
+      return r.result.groupId;
+    } catch (err) {
+      this.log.warn(`成组失败，节点保持散放：${(err as Error).message}`);
+      return null;
+    }
+  }
+
+  /** 新建节点的最终状态（成组后的相对坐标、parentId），组节点排最前。都放进 addedNodes，不再重复出现在 updatedNodes。 */
+  private freshNodes(c: CanvasFile, created: CanvasNode[], groupId: string | null): CanvasNode[] {
+    const ids = new Set([...(groupId ? [groupId] : []), ...created.map((n) => n.id)]);
+    const out = c.nodes.filter((n) => ids.has(n.id));
+    return out.sort((a, b) => Number(b.type === "group") - Number(a.type === "group"));
+  }
+
+  /**
+   * 把图片组里的几张拆出来单独放：排在主图右边一字排开，去掉组标记、显示出来、补上主图的提示词和模型，
+   * 并从主图连派生边。
+   */
+  async splitSubImages(body: unknown) {
+    const b = (body && typeof body === "object" ? body : {}) as { nodeId?: unknown; imageIds?: unknown };
+    const imageIds = Array.isArray(b.imageIds) ? b.imageIds.filter((x): x is string => typeof x === "string" && x !== "") : [];
+    if (typeof b.nodeId !== "string" || !b.nodeId || imageIds.length === 0) {
+      throw new BadRequestException("nodeId and non-empty imageIds[] are required");
+    }
+    const mainId = b.nodeId;
+    return this.mutate((c) => {
+      const main = c.nodes.find((n) => n.id === mainId);
+      const wanted = new Set(imageIds);
+      const members = main
+        ? c.nodes.filter((n) => n.id !== main.id && (wanted.has(n.id) || (!!n.assetId && wanted.has(n.assetId))) && (!main.groupId || n.groupId === main.groupId))
+        : [];
+      if (!main || members.length === 0) return { result: { splitNodeIds: [] as string[], removed: 0 } };
+      const origin = positionOf(main, MODE) ?? { x: 0, y: 0 };
+      const w = effectiveSize(main, MODE).width;
+      const md = (main.data ?? {}) as Record<string, unknown>;
+      const addedEdges: CanvasEdge[] = [];
+      members.forEach((m, i) => {
+        delete m.groupId;
+        delete m.round;
+        m.positions = { ...m.positions, [MODE]: { x: origin.x + (i + 1) * (w + 24), y: origin.y } };
+        m.meta = { ...(m.meta ?? {}), hidden: false };
+        const data = { ...(m.data ?? {}) } as Record<string, unknown>;
+        if (data.prompt === undefined && md.prompt !== undefined) data.prompt = md.prompt;
+        if (data.model === undefined && md.model !== undefined) data.model = md.model;
+        m.data = data;
+        addedEdges.push(...this.addDerivationEdges(c, [main.id], m.id));
+      });
+      return {
+        canvas: c,
+        result: { splitNodeIds: members.map((m) => m.id), removed: members.length },
+        event: { updatedNodes: members, addedEdges, origin: "user-add" },
+      };
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 文件节点
+  // -------------------------------------------------------------------------
+
+  /**
+   * 文件节点两种外观：卡片（固定 350×76）和预览（可调大小）。没点名时，给了宽高或是 html 就预览，其余卡片。
+   * 已有节点被复用时形状参数不同就原地改，免得同一个文件在画布上出现两份。
+   */
+  async fileNode(dto: { assetPath: string; position?: Point; sourceNodeIds?: string[]; allowDuplicate?: boolean; viewMode?: "card" | "preview"; width?: number; height?: number }) {
+    const rel = dto.assetPath.replace(/\\/g, "/").replace(/^\.\//, "");
+    const row = this.assets.byPath(rel);
+    if (!row) throw new NotFoundException(`Asset not tracked at "${dto.assetPath}". Import or upload the file into the workspace asset vault first, then retry.`);
+    const type = toAssetInfo(row).type;
+    if (type !== "file") {
+      throw new BadRequestException(`Cannot place asset of type "${type}" as a file node. Use media-node for image/video/audio and text-node for text.`);
+    }
+    const sized = dto.width !== undefined || dto.height !== undefined;
+    const viewMode = dto.viewMode ?? (sized || /\.html?$/i.test(row.path) ? "preview" : "card");
+    const warnings: string[] = [];
+    if (viewMode === "card" && sized) {
+      warnings.push('width/height ignored in card mode — card frame is fixed at 350x76. Pass viewMode: "preview" to use a custom size.');
+    }
+    const size =
+      viewMode === "card" ? { width: 350, height: 76 } : { width: Math.max(320, Math.round(dto.width ?? 820)), height: Math.max(200, Math.round(dto.height ?? 480)) };
+    const fileType = path.extname(row.path).replace(/^\./, "").toLowerCase();
+    const extra = warnings.length ? { warnings } : {};
+    return this.mutate((c) => {
+      const primary = c.nodes.find((n) => n.assetId === row.id && !(n.meta as any)?.cloneOf);
+      if (primary && !dto.allowDuplicate) {
+        const edges = this.addDerivationEdges(c, dto.sourceNodeIds ?? [], primary.id);
+        const cur = effectiveSize(primary, MODE);
+        const reshaped = (primary.data as any)?.viewMode !== viewMode || cur.width !== size.width || cur.height !== size.height;
+        if (reshaped) {
+          primary.size = size;
+          if (primary.sizes?.[MODE]) primary.sizes = { ...primary.sizes, [MODE]: size };
+          primary.data = { ...(primary.data ?? {}), viewMode };
+        }
+        const changed = reshaped || edges.length > 0;
+        return {
+          canvas: changed ? c : undefined,
+          result: { nodeId: primary.id, assetId: row.id, fileType, viewMode, size, reused: true, ...extra },
+          event: changed ? { updatedNodes: reshaped ? [primary] : [], addedEdges: edges } : undefined,
+        };
+      }
+      const { node, edges } = this.addAssetNode(c, row, { position: dto.position, sourceNodeIds: dto.sourceNodeIds, size, extraData: { viewMode } });
+      return {
+        canvas: c,
+        result: { nodeId: node.id, assetId: row.id, fileType, viewMode, size, reused: false, ...extra },
+        event: { addedNodes: [node], addedEdges: edges },
+      };
+    });
+  }
+
+  /** 插件节点：file 类型且挂着 pluginId。插件节点本身不在我们的范围里，这里只守住接口。 */
+  private async pluginIdOf(nodeId: string): Promise<string> {
+    const node = (await this.getCanvas()).nodes.find((n) => n.id === nodeId);
+    const pluginId = (node?.data as any)?.pluginId;
+    if (!node || node.type !== "file" || typeof pluginId !== "string" || !pluginId.trim()) {
+      throw new BadRequestException(`Node is not an installed HTML-plugin node: ${nodeId}`);
+    }
+    return pluginId;
+  }
+
+  private get pluginStorage(): PluginStorage {
+    this.pluginStore ??= new PluginStorage(this.assets.vault.db);
+    return this.pluginStore;
+  }
+
+  async writePluginData(dto: { nodeId: string; key: string; value?: unknown; deleteKey?: boolean }) {
+    const pluginId = await this.pluginIdOf(dto.nodeId);
+    const r = this.pluginStorage.write(dto.nodeId, pluginId, dto.key, dto.value, dto.deleteKey === true);
+    if (r.changed) this.bus.emit("plugin-storage:changed", { type: "plugin_storage_changed", nodeId: dto.nodeId });
+    return { nodeId: dto.nodeId, key: dto.key, keys: r.keys, totalBytes: r.totalBytes };
+  }
+
+  async readPluginData(dto: { nodeId: string; key?: string }) {
+    await this.pluginIdOf(dto.nodeId);
+    return { nodeId: dto.nodeId, ...this.pluginStorage.read(dto.nodeId, dto.key) };
   }
 
   // -------------------------------------------------------------------------

@@ -5,15 +5,21 @@ import { CanvasDestructiveSaveRejectedError, CanvasInvalidSaveRejectedError, typ
 import { CanvasService } from "./canvas.service.js";
 import {
   ApplyTextEditsDto,
+  FileNodeDto,
   FocusDto,
   GroupDto,
   GroupRecentDto,
   ListNodesQueryDto,
   MediaNodeDto,
   NodeIdsDto,
+  NodesGroupDto,
   PlaceholderCleanupDto,
   PlaceholderDto,
   PlaceholderFailDto,
+  PlaceholderGroupDto,
+  PluginDataReadDto,
+  PluginDataWriteDto,
+  RevertTextEditsDto,
   SearchQueryDto,
   SelectionDto,
   TextEditStateDto,
@@ -142,6 +148,11 @@ export class CanvasController {
     return this.canvas.applyTextEdits(b);
   }
 
+  @Post("text-node/revert-edits")
+  revertEdits(@Body() b: RevertTextEditsDto) {
+    return this.canvas.revertTextEdits(b);
+  }
+
   @Post("table-node")
   tableNode(@Body() b: WriteTableNodeDto) {
     return guarded(() => this.canvas.writeTableNode(b), "gateway");
@@ -150,6 +161,28 @@ export class CanvasController {
   @Post("media-node")
   mediaNode(@Body() b: MediaNodeDto) {
     return guarded(() => this.canvas.mediaNode(b), "gateway");
+  }
+
+  @Post("file-node")
+  fileNode(@Body() b: FileNodeDto) {
+    return guarded(() => this.canvas.fileNode(b), "gateway");
+  }
+
+  @Post("plugin-data")
+  pluginData(@Body() b: PluginDataWriteDto) {
+    return this.canvas.writePluginData(b);
+  }
+
+  @Post("plugin-data/read")
+  pluginDataRead(@Body() b: PluginDataReadDto) {
+    return this.canvas.readPluginData(b);
+  }
+
+  /** 不走 DTO：参数不对回一句固定的 400。 */
+  @Post("split-sub-images")
+  @HttpCode(200)
+  splitSubImages(@Body() body: unknown) {
+    return guarded(() => this.canvas.splitSubImages(body), "gateway");
   }
 
   @Post("group")
@@ -170,6 +203,16 @@ export class CanvasController {
   @Post("placeholder")
   placeholder(@Body() b: PlaceholderDto) {
     return guarded(() => this.canvas.createPlaceholder(b), "gateway");
+  }
+
+  @Post("placeholder-group")
+  placeholderGroup(@Body() b: PlaceholderGroupDto) {
+    return guarded(() => this.canvas.placeholderGroup(b), "gateway");
+  }
+
+  @Post("nodes-group")
+  nodesGroup(@Body() b: NodesGroupDto) {
+    return guarded(() => this.canvas.nodesGroup(b), "gateway");
   }
 
   @Post("placeholder/fail")

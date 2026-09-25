@@ -87,7 +87,7 @@
 
 ## 三、gateway
 
-路由 93 / 466。共 75 个控制器：全部做完 9 个、部分 9 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 100 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
@@ -95,7 +95,6 @@
 |---|---|---|
 | FilesController | 14/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
 | EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
-| CanvasController | 19/26 | file-node、plugin-data、split-sub-images、placeholder-group、nodes-group、revert-edits |
 | SpeechController | 3/6 | voice_clone、voice_design、voice_isolation |
 | MusicController | 2/4 | 翻唱预处理、歌词生成 |
 | InternalSessionController | 11/15 | 其余内部会话接口 |
@@ -159,6 +158,9 @@
 | 图片超分 | 请求体未核对（云上没有参照） | `{image_path, resolution: 1K/2K/4K, …}`，同步；目标尺寸按源图像素 + 4K 总像素预算算，已经够大的图直接拒绝不打平台 |
 | generate-text-messages | 用请求里指定的模型；`max_tokens` 照传 | 固定用 `chat_model`；`max_tokens` 最低 1024（推理模型要留出思考的额度，否则回空） |
 | 表格重命名 | 只广播 | 同时写进 `canvas.json` |
+| split-sub-images 的成员匹配 | 未核对 | `imageIds` 按节点 id 或资产 id 认，主图有 `groupId` 时只认同组的；`removed` = 拆出来的个数 |
+| file-node 复用 | 只改形状 | 改形状，另外和 media-node 一样补来源边 |
+| 插件存储超限 | 未核对 | 400，文案我们写的；没有 comfyui 草稿的大限额 |
 
 聊天：
 - 内容安全检查（`/api/safety/check-text`）一律放行。

@@ -4,6 +4,7 @@ import type { INestApplication } from "@nestjs/common";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { WsAdapter } from "@nestjs/platform-ws";
+import { json } from "express";
 
 import { AppModule } from "./app.module.js";
 import { workspaceIdentityMiddleware } from "./common/workspace-identity.js";
@@ -34,6 +35,10 @@ export async function createApp(): Promise<INestApplication> {
     credentials: true,
   });
   app.use(workspaceIdentityMiddleware(app.get(GatewayConfig).workspaceIdentity));
+  // 画布整份保存动辄几百 KB，默认 100kb 的上限会让大画布存不上（413）。只放开这一段，别的路由保持默认。
+  // 两个都要自己挂：Nest 看到路由上已经有 JSON 解析器就不再挂它的全局那个，只挂画布的话别的路由全收不到 body。
+  app.use("/api/canvas", json({ limit: "16mb" }));
+  app.use(json());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
   return app;
 }

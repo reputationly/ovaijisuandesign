@@ -171,3 +171,65 @@ export class WriteTableNodeDto {
   @IsOptional() @IsObject() @ValidateNested() @Type(() => TableFilterInputDto) filter?: TableFilterInputDto;
   @IsOptional() @IsIn(TABLE_ROW_HEIGHTS as unknown as string[]) rowHeight?: TableRowHeight;
 }
+
+// ---------------------------------------------------------------------------
+// 文件节点 / 插件存储 / 撤回修改 / 成组创建
+// ---------------------------------------------------------------------------
+
+export class FileNodeDto {
+  @IsString() @IsNotEmpty() assetPath!: string;
+  @IsOptional() @ValidateNested() @Type(() => PositionDto) position?: PositionDto;
+  @IsOptional() @IsArray() @IsString({ each: true }) sourceNodeIds?: string[];
+  @IsOptional() @IsBoolean() allowDuplicate?: boolean;
+  @IsOptional() @IsIn(["card", "preview"]) viewMode?: "card" | "preview";
+  @IsOptional() @IsNumber() @Min(1) @Max(8192) width?: number;
+  @IsOptional() @IsNumber() @Min(1) @Max(8192) height?: number;
+}
+
+export class PluginDataWriteDto {
+  @IsString() @IsNotEmpty() nodeId!: string;
+  @IsString() @IsNotEmpty() key!: string;
+  @IsOptional() value?: unknown;
+  @IsOptional() @IsBoolean() deleteKey?: boolean;
+}
+
+export class PluginDataReadDto {
+  @IsString() @IsNotEmpty() nodeId!: string;
+  @IsOptional() @IsString() key?: string;
+}
+
+export class RevertTextEditDto {
+  @IsString() @IsNotEmpty() annotationId!: string;
+  @IsOptional() @IsInt() @Min(0) targetIndex?: number;
+  @IsString() exact!: string;
+  @IsOptional() @IsString() prefix?: string;
+  @IsOptional() @IsString() suffix?: string;
+  @IsOptional() @IsInt() @Min(0) occurrence?: number;
+  @IsString() replacement!: string;
+}
+
+export class RevertTextEditsDto {
+  @IsString() @IsNotEmpty() nodeId!: string;
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(100) @ValidateNested({ each: true }) @Type(() => RevertTextEditDto) edits!: RevertTextEditDto[];
+}
+
+export class PlaceholderCellDto {
+  @IsString() @IsNotEmpty() prompt!: string;
+  @IsString() @IsNotEmpty() model!: string;
+  @IsOptional() @IsString() mediaType?: string;
+  @IsOptional() @IsString() aspectRatio?: string;
+}
+
+export class PlaceholderGroupDto {
+  @IsString() @IsNotEmpty() sourceNodeId!: string;
+  @IsArray() @ArrayMinSize(1) @ValidateNested({ each: true }) @Type(() => PlaceholderCellDto) cells!: PlaceholderCellDto[];
+  @IsOptional() @IsString() label?: string;
+  @IsOptional() @IsIn(["grid", "vertical"]) layout?: "grid" | "vertical";
+}
+
+export class NodesGroupDto {
+  @IsString() @IsNotEmpty() sourceNodeId!: string;
+  @IsArray() @ArrayMinSize(1) @IsString({ each: true }) assetIds!: string[];
+  @IsOptional() @IsString() label?: string;
+  @IsOptional() @IsIn(["grid", "vertical"]) layout?: "grid" | "vertical";
+}

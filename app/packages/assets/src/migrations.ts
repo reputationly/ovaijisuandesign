@@ -100,4 +100,27 @@ CREATE INDEX IF NOT EXISTS idx_deps_parent_attachment
   ON asset_dependencies(parent_attachment_id) WHERE parent_attachment_id IS NOT NULL;
 `,
   },
+  {
+    version: 2,
+    name: "plugin-node-storage",
+    sql: `
+-- HTML 插件节点的键值存储，按画布节点隔离。值是 JSON 文本；字节数和版本号冗余存一份，
+-- 限额检查和"有没有变"不用每次把整张表读出来算。
+CREATE TABLE IF NOT EXISTS plugin_node_storage_scopes (
+  node_id     TEXT PRIMARY KEY,
+  plugin_id   TEXT NOT NULL,
+  revision    INTEGER NOT NULL DEFAULT 0,
+  updated_at  INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plugin_node_storage_entries (
+  node_id     TEXT NOT NULL REFERENCES plugin_node_storage_scopes(node_id) ON DELETE CASCADE,
+  key         TEXT NOT NULL,
+  value       TEXT NOT NULL,
+  bytes       INTEGER NOT NULL,
+  updated_at  INTEGER NOT NULL,
+  PRIMARY KEY (node_id, key)
+);
+`,
+  },
 ];

@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 93 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 100 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -169,34 +169,34 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/canvas/execute-group
 ```
 
-## CanvasController（19/26）
+## CanvasController（26/26）
 
 ```
-  POST   /api/canvas/file-node
+✓ POST   /api/canvas/file-node
 ✓ POST   /api/canvas/focus
 ✓ POST   /api/canvas/generation/reconcile
 ✓ POST   /api/canvas/group
 ✓ POST   /api/canvas/group-recent-outputs
 ✓ POST   /api/canvas/media-node
 ✓ GET    /api/canvas/nodes
-  POST   /api/canvas/nodes-group
+✓ POST   /api/canvas/nodes-group
 ✓ POST   /api/canvas/nodes/delete
 ✓ POST   /api/canvas/nodes/detail
 ✓ POST   /api/canvas/placeholder
-  POST   /api/canvas/placeholder-group
+✓ POST   /api/canvas/placeholder-group
 ✓ POST   /api/canvas/placeholder/cleanup
 ✓ POST   /api/canvas/placeholder/fail
-  POST   /api/canvas/plugin-data
-  POST   /api/canvas/plugin-data/read
+✓ POST   /api/canvas/plugin-data
+✓ POST   /api/canvas/plugin-data/read
 ✓ GET    /api/canvas/search
 ✓ GET    /api/canvas/selection
 ✓ POST   /api/canvas/selection
-  POST   /api/canvas/split-sub-images
+✓ POST   /api/canvas/split-sub-images
 ✓ POST   /api/canvas/table-node
 ✓ POST   /api/canvas/text-edit-state
 ✓ POST   /api/canvas/text-node
 ✓ POST   /api/canvas/text-node/apply-edits
-  POST   /api/canvas/text-node/revert-edits
+✓ POST   /api/canvas/text-node/revert-edits
 ✓ POST   /api/canvas/ungroup
 ```
 
