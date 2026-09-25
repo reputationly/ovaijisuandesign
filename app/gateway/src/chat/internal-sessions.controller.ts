@@ -4,8 +4,11 @@ import { RuntimeClient } from "../runtime/runtime-client.js";
 import { ChatService } from "./chat.service.js";
 import { ConfirmService } from "./confirm.service.js";
 
-/** 没有计费体系：计费分组一律回 legacy，插件和 MCP 见到它就直接放行。 */
-const LEGACY_GROUP = { group_id: null, mode: "legacy", source: "local" };
+/**
+ * 没有计费体系：计费分组一律回 legacy，插件和 MCP 见到它就直接放行。
+ * source 必须是 MCP 认的 no_selection，别的值会被当成非法回复、拒绝提交。
+ */
+const LEGACY_GROUP = { group_id: null, mode: "legacy", source: "no_selection" };
 
 /**
  * 给 opencode 插件和 MCP server 用的内部接口（按 opencode 会话 id 寻址）。

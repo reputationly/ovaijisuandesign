@@ -209,8 +209,8 @@ describe("聊天链路（假 opencode）", () => {
   });
 
   it("计费分组固定回 legacy；会话列表和历史；停止会话", async () => {
-    expect((await http.get(`/api/internal/sessions/${rid}/request-group`)).body).toMatchObject({ mode: "legacy" });
-    expect((await http.get("/api/internal/sessions/billing-current-scope")).body).toMatchObject({ mode: "legacy" });
+    expect((await http.get(`/api/internal/sessions/${rid}/request-group`)).body).toEqual({ group_id: null, mode: "legacy", source: "no_selection" });
+    expect((await http.get("/api/internal/sessions/billing-current-scope")).body).toEqual({ group_id: null, mode: "legacy", source: "no_selection" });
     ws.send(JSON.stringify({ type: "list_sessions", request_id: "l1" }));
     const list = await waitFor((f) => f.type === "session_list");
     expect(list.sessions.map((s: any) => s.id)).toContain(ui);
