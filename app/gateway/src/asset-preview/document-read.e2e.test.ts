@@ -53,7 +53,8 @@ describe("GET /api/internal/document/read", () => {
     delete process.env.WORKSPACE_DIR;
   });
 
-  it("PDF 按行分页；绝对路径（工作区内）也认", async () => {
+  // 首次解析 PDF 要加载 pdfjs，Windows 的 CI 机器上会超过默认的 5 秒
+  it("PDF 按行分页；绝对路径（工作区内）也认", { timeout: 30_000 }, async () => {
     const r = await read(path.join(ws, "docs", "brief.pdf"));
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ ok: true, offset: 1, more: false });
