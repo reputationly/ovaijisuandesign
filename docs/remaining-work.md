@@ -42,6 +42,7 @@
 | M5 | 项目模型与多工作区：最多 5 个工作区同时运行、LRU 挂起、闲置挂起、应用级 gateway、重启恢复和熔断、旧版迁移；主进程 ↔ 渲染层 IPC（`app/desktop/src/main/ipc`、`app/desktop/src/renderer/src/ipc`） | desktop 343 |
 | M6 | 聊天链路：gateway ↔ opencode、我们的插件 `opencode-plugin-hilo` | 插件 10 |
 | M7 | gateway 生成（异步提交 / 查询、占位卡原地换成结果、重启续等）、编辑路由（ffmpeg、拼接、音频、媒体分析、文档读取、表格节点）、MCP server 重写（33 个工具） | gateway 126、mcp-tools 186、maas-media 129 |
+| P2 第一批（分支 `claude/beautiful-pascal-fa5c5l`，基于本分支） | 图片超分、工作区身份校验（gateway + 插件 + MCP）、同步生成和 `/api/generate/text`、画布剩余 7 条路由、视频 / 音频缩略图、资产对账和找不到文件的三个入口、`agent_running`；顺带修了生成轮询的竞态、`/api/canvas` 和 `/api/files/content` 的 body 上限 | gateway 152、assets 38、mcp-tools 187、desktop 344、maas-media 130、插件 11 |
 
 对齐程度：
 - gateway 路由 105 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
