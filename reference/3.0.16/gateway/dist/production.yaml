@@ -1,0 +1,15 @@
+# Gateway 生产环境配置
+app:
+  name: hilo-gateway
+  env: production
+  port: 8001
+
+runtime:
+  openCodeUrl: http://127.0.0.1:4096
+
+storage:
+  outputDir: ./output_files
+
+logger:
+  level: debug
+  pretty: false

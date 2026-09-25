@@ -118,7 +118,7 @@
 - `assets/skills/`：参照的 36 个技能原文；
 - `reference/3.0.16/`：参照的全部可读原文。
 
-进度：1、2、3、5、6 已完成；**4 卡住**：`reference/3.0.16/` 下各个 `dist/` 被 `.gitignore` 的 `dist/` 规则吞掉了，gateway、mcp-tools、两个插件的原文都没进库（只进了 `package.json`）。规则已经修好，需要在本机 `git add reference/3.0.16` 重新提交一次。
+进度：1、2、3、5、6 已完成；4 待做（`reference/3.0.16/` 下各个 `dist/` 已补进库）。
 
 要做的：
 1. ~~**加载 agent 配置。**~~`app/desktop/src/main/opencode/index.ts` 的 `locateProfile`：开发时读仓库的 `assets/agent-profiles/v2/config`，和发布包的 `agent-profiles/v2/config` 同一种单目录布局。去掉 `config/opencode-v2` + `.opencode-v2` 的双目录回退，`ProfileSource` 能简化就简化，`profile.ts` 顶部注释跟着改。

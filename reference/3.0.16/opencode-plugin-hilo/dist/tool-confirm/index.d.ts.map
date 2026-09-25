@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/tool-confirm/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAuC,KAAK,uBAAuB,EAAE,MAAM,gBAAgB,CAAC;AAEnG;;;;;;;;;;;GAWG;AACH,qBAAa,sBAAuB,SAAQ,KAAK;IAC/C,QAAQ,CAAC,IAAI,yBAAyB;IACtC,QAAQ,CAAC,IAAI,EAAE,MAAM,CAAC;IACtB,QAAQ,CAAC,MAAM,EAAE,uBAAuB,CAAC;IAEzC,YAAY,IAAI,EAAE,MAAM,EAAE,MAAM,EAAE,uBAAuB,EAgBxD;CACF"}

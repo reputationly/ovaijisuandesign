@@ -1,0 +1,17 @@
+# Gateway 开发环境配置
+app:
+  name: hilo-gateway
+  env: development
+  port: 8001
+
+# OpenCode runtime
+runtime:
+  openCodeUrl: http://127.0.0.1:4096
+
+# 文件存储
+storage:
+  outputDir: ./output_files
+
+logger:
+  level: debug
+  pretty: true
