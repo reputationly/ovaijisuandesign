@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 101 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 105 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -62,20 +62,20 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/internal/document/read
 ```
 
-## FilesController（15/57）
+## FilesController（19/57）
 
 ```
   GET    /api/asset/peaks
   GET    /api/asset/video-playback
   GET    /api/asset/video-stream
 ✓ GET    /api/assets
-  POST   /api/assets/:id/locate
-  POST   /api/assets/:id/merge-candidate
+✓ POST   /api/assets/:id/locate
+✓ POST   /api/assets/:id/merge-candidate
 ✓ PATCH  /api/assets/:id/metadata
-  POST   /api/assets/:id/remove-missing
+✓ POST   /api/assets/:id/remove-missing
   PATCH  /api/assets/:id/tags
 ✓ GET    /api/assets/changes
-  POST   /api/assets/reconcile
+✓ POST   /api/assets/reconcile
   PATCH  /api/assets/tags/batch
   PATCH  /api/assets/tags/mutations/batch
 ✓ GET    /api/assets/{*folder}

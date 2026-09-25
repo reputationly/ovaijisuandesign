@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -7,6 +7,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../bootstrap.js";
+import { GatewayEventBus } from "../common/gateway-event-bus.js";
 
 const PNG = Buffer.from(
   "89504e470d0a1a0a0000000d4948445200000001000000010806000000" +
@@ -131,5 +132,37 @@ describe("files（真实工作区）", () => {
     expect(r.status).toBe(201);
     expect(r.body.imported).toEqual([]);
     expect(r.body.errors[0].error).toMatch(/SSRF policy rejected URL \(private-address\)/);
+  });
+  it("reconcile：改名的保住 id、删掉的标 missing，变化合成一条 changed_batch；locate / remove-missing", async () => {
+    await http.put("/api/files/content").send({ path: "对账/原名.md", content: "对账用" });
+    await http.put("/api/files/content").send({ path: "对账/要删.md", content: "会被删" });
+    const orig = (await http.get("/api/assets?path=对账/原名.md")).body.assets[0];
+    const doomed = (await http.get("/api/assets?path=对账/要删.md")).body.assets[0];
+    renameSync(path.join(ws, "对账/原名.md"), path.join(ws, "对账/新名.md"));
+    rmSync(path.join(ws, "对账/要删.md"));
+    const batches: any[] = [];
+    const off = app.get(GatewayEventBus).subscribe((m) => m.event === "assets:changed_batch" && batches.push(m.payload));
+    const r = await http.post("/api/assets/reconcile");
+    off();
+    expect(r.status).toBe(201);
+    expect(r.body).toMatchObject({ status: "completed", rebound: 1 });
+    expect(r.body.marked_missing).toBeGreaterThanOrEqual(1);
+    expect((await http.get("/api/assets?path=对账/新名.md")).body.assets[0].id).toBe(orig.id);
+    expect(batches).toHaveLength(1);
+    expect(batches[0].events).toContainEqual(expect.objectContaining({ id: orig.id, change: "renamed", old_path: "对账/原名.md" }));
+
+    // 用户指出文件现在在哪。
+    writeFileSync(path.join(ws, "对账/找回来了.md"), "会被删");
+    expect((await http.post(`/api/assets/${doomed.id}/locate`).send({ newPath: "对账/找回来了.md" })).body).toEqual({ ok: true });
+    expect((await http.get("/api/assets?path=对账/找回来了.md")).body.assets[0].id).toBe(doomed.id);
+    expect((await http.post(`/api/assets/${doomed.id}/locate`).send({ newPath: "../外面.md" })).status).toBe(400);
+    expect((await http.post(`/api/assets/${doomed.id}/locate`).send({ newPath: "没有.md" })).status).toBe(404);
+
+    // 文件还在的不让当"找不到"删。
+    expect((await http.post(`/api/assets/${doomed.id}/remove-missing`)).status).toBe(400);
+    rmSync(path.join(ws, "对账/找回来了.md"));
+    await http.post("/api/assets/reconcile");
+    expect((await http.post(`/api/assets/${doomed.id}/remove-missing`)).body).toEqual({ ok: true });
+    expect((await http.post("/api/assets/nope/remove-missing")).status).toBe(404);
   });
 });

@@ -87,13 +87,13 @@
 
 ## 三、gateway
 
-路由 101 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
+路由 105 / 466。共 75 个控制器：全部做完 10 个、部分 8 个、完全没做 57 个。明细见 [`gateway-api.md`](gateway-api.md)，没有 ✓ 的就是没做。
 
 **做了一部分的控制器（A）**
 
 | 控制器 | 进度 | 缺的主要是 |
 |---|---|---|
-| FilesController | 15/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
+| FilesController | 19/57 | 文件版本、项目素材锚点、提及搜索、目录操作等 |
 | EditController | 8/23 | 增强、擦除字幕、口型同步、扩图 / 重绘 / 移动物体 / 擦除、图层拆分、抠图、语音识别（asr）、音频分离 |
 | SpeechController | 3/6 | voice_clone、voice_design、voice_isolation |
 | MusicController | 2/4 | 翻唱预处理、歌词生成 |
@@ -160,6 +160,7 @@
 | 表格重命名 | 只广播 | 同时写进 `canvas.json` |
 | split-sub-images 的成员匹配 | 未核对 | `imageIds` 按节点 id 或资产 id 认，主图有 `groupId` 时只认同组的；`removed` = 拆出来的个数 |
 | file-node 复用 | 只改形状 | 改形状，另外和 media-node 一样补来源边 |
+| 资产对账（reconcile） | 细节未核对 | 认亲规则：同 inode，或唯一一个 (size, 快速指纹) 相同；多个相同只记候选。丢失比例检查只在记录 ≥10 条时生效。`evicted` 恒为 0（不自动清掉丢失的记录）。merge / locate / remove-missing 另发 `assets:changed` |
 | 插件存储超限 | 未核对 | 400，文案我们写的；没有 comfyui 草稿的大限额 |
 
 聊天：

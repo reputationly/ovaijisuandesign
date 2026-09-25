@@ -3,7 +3,7 @@ import { mkdir, open, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { toAssetInfo } from "@ov/assets";
+import { reconcileWorkspace, toAssetInfo } from "@ov/assets";
 import { type AssetInfo, detectFileType, MEDIA_EXTENSIONS } from "@ov/protocol";
 
 import { AssetChangeLog } from "../common/asset-change-log.js";
@@ -87,6 +87,58 @@ export class FilesService {
     const updated = this.assets.vault.setMetadata(id, merged)!;
     this.changes.emit(this.paths.root, { id, change: "updated", asset: toAssetInfo(updated), path: updated.path });
     return { ok: true, metadata: merged };
+  }
+
+  // -------------------------------------------------------------------------
+  // 和盘上对账 / 找不到的文件
+  // -------------------------------------------------------------------------
+
+  /** 和盘上的文件对一遍账，变化合成一条 `assets:changed_batch` 发出去（渲染层一次刷新，不是几百次）。 */
+  async reconcileAssets() {
+    const { result, changes } = await reconcileWorkspace(this.assets.vault);
+    this.changes.emitBatch(
+      this.paths.root,
+      changes.map((c) => {
+        const row = this.assets.byId(c.id);
+        return { ...c, ...(row ? { asset: toAssetInfo(row) } : {}) };
+      }),
+    );
+    return result;
+  }
+
+  private missingRow(id: string) {
+    const row = this.assets.byId(id);
+    if (!row) throw new NotFoundException(`Asset not found: ${id}`);
+    return row;
+  }
+
+  async mergeCandidate(id: string, candidateId: string) {
+    const row = this.missingRow(id);
+    if (!this.assets.byId(candidateId)) throw new NotFoundException(`Asset not found: ${candidateId}`);
+    const moved = await this.assets.vault.mergeCandidate(id, candidateId);
+    this.changes.emit(this.paths.root, { id: candidateId, change: "removed", path: moved.path });
+    this.changes.emit(this.paths.root, { id, change: "renamed", asset: toAssetInfo(moved), path: moved.path, old_path: row.path });
+    return { ok: true };
+  }
+
+  removeMissing(id: string) {
+    const row = this.missingRow(id);
+    if (row.status !== "missing") throw new BadRequestException(`Asset is not missing: ${id}`);
+    this.assets.vault.removeMissing(id);
+    this.changes.emit(this.paths.root, { id, change: "removed", path: row.path });
+    return { ok: true };
+  }
+
+  /** 用户手动指出文件现在在哪。新位置上已经登记过的那条会被并掉，保留老 id。 */
+  async locate(id: string, newPath: string) {
+    const row = this.missingRow(id);
+    const abs = this.paths.resolve(newPath);
+    if (!abs) throw new BadRequestException("Path traversal detected");
+    const st = await stat(abs).catch(() => undefined);
+    if (!st?.isFile()) throw new NotFoundException(`File not found: ${newPath}`);
+    const moved = await this.assets.vault.rebind(id, path.relative(this.paths.root, abs).split(path.sep).join("/"));
+    this.changes.emit(this.paths.root, { id, change: "renamed", asset: toAssetInfo(moved), path: moved.path, old_path: row.path });
+    return { ok: true };
   }
 
   // -------------------------------------------------------------------------

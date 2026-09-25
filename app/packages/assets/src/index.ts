@@ -4,5 +4,6 @@ export * from "./fingerprint.js";
 export * from "./migrations.js";
 export * from "./mp4.js";
 export * from "./probe.js";
+export * from "./reconcile.js";
 export * from "./sqlite-store.js";
 export * from "./workspace-paths.js";

@@ -19,7 +19,7 @@ import { memoryStorage } from "multer";
 
 import { AssetChangeLog } from "../common/asset-change-log.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
-import { ImportUrlsDto, PatchMetadataDto, PathsDto, TextAssetDto, WriteContentDto } from "./files.dto.js";
+import { ImportUrlsDto, LocateAssetDto, MergeCandidateDto, PatchMetadataDto, PathsDto, TextAssetDto, WriteContentDto } from "./files.dto.js";
 import { FilesService, type UploadedFileLike } from "./files.service.js";
 
 const UPLOAD_LIMITS = {
@@ -83,6 +83,26 @@ export class FilesController {
   @Patch("api/assets/:id/metadata")
   patchMetadata(@Param("id") id: string, @Body() body: PatchMetadataDto) {
     return this.files.patchMetadata(id, body.patch);
+  }
+
+  @Post("api/assets/reconcile")
+  reconcile() {
+    return this.files.reconcileAssets();
+  }
+
+  @Post("api/assets/:id/merge-candidate")
+  mergeCandidate(@Param("id") id: string, @Body() body: MergeCandidateDto) {
+    return this.files.mergeCandidate(id, body.candidateId);
+  }
+
+  @Post("api/assets/:id/remove-missing")
+  removeMissing(@Param("id") id: string) {
+    return this.files.removeMissing(id);
+  }
+
+  @Post("api/assets/:id/locate")
+  locate(@Param("id") id: string, @Body() body: LocateAssetDto) {
+    return this.files.locate(id, body.newPath);
   }
 
   @Post("api/upload")

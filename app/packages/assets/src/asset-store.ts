@@ -220,6 +220,74 @@ export class AssetStore {
     this.db.transaction(() => ids.forEach((id) => st.run(id)))();
   }
 
+  // -------------------------------------------------------------------------
+  // 找不到的文件：认亲、候选、移除
+  // -------------------------------------------------------------------------
+
+  /**
+   * 把一条记录搬到另一个路径上（文件被挪动 / 改名了），**id 不变**，文件属性按新位置重读。
+   * 新路径上已经有别的记录（reconcile 先把新文件当孤儿登记了）时，那条被合并掉 —— 同一个文件只留一个 id，
+   * 留的是老的，画布上的引用都指着它。
+   */
+  async rebind(id: string, newRel: string): Promise<AssetRow> {
+    const row = this.byId(id);
+    if (!row) throw new Error(`Asset not found: ${id}`);
+    const abs = safeResolve(this.root, newRel);
+    if (!abs) throw new Error(`路径超出工作区: ${newRel}`);
+    const st = await stat(abs).catch(() => null);
+    if (!st?.isFile()) throw new Error(`读不到 ${newRel}`);
+    const norm = newRel.split(/[\\/]+/).filter((p) => p && p !== ".").join("/");
+    const [probe, hash] = await Promise.all([probeMedia(abs), quickHash(abs)]);
+    const t = this.now();
+    this.db.transaction(() => {
+      this.db.prepare("DELETE FROM assets WHERE path = ? AND id <> ?").run(norm, id);
+      this.db
+        .prepare(
+          `UPDATE assets SET path = ?, name = ?, mime_type = ?, status = 'active', size = ?, mtime_ms = ?, dev_id = ?, inode = ?, birthtime_ms = ?,
+             quick_hash = ?, width = COALESCE(?, width), height = COALESCE(?, height), duration_ms = COALESCE(?, duration_ms),
+             candidate_asset_id = NULL, candidate_path = NULL, soft_deleted_at = NULL, updated_at = ? WHERE id = ?`,
+        )
+        .run(
+          norm,
+          path.basename(norm),
+          mimeFromPath(norm),
+          st.size,
+          Math.trunc(st.mtimeMs),
+          Number(st.dev),
+          Number(st.ino),
+          st.birthtimeMs ? Math.trunc(st.birthtimeMs) : null,
+          hash,
+          probe.width ?? null,
+          probe.height ?? null,
+          probe.durationMs ?? null,
+          t,
+          id,
+        );
+    })();
+    return this.byId(id)!;
+  }
+
+  markMissing(id: string): void {
+    this.db.prepare("UPDATE assets SET status = 'missing', updated_at = ? WHERE id = ?").run(this.now(), id);
+  }
+
+  /** 记下"这个可能就是它"。候选本身得还在库里，否则不记。 */
+  setCandidate(id: string, candidateId: string, candidatePath: string): boolean {
+    return this.db.prepare("UPDATE assets SET candidate_asset_id = ?, candidate_path = ?, updated_at = ? WHERE id = ?").run(candidateId, candidatePath, this.now(), id).changes > 0;
+  }
+
+  /** 用户确认候选就是丢失的那个：丢失的记录搬到候选的路径上，候选那条并掉。 */
+  async mergeCandidate(id: string, candidateId: string): Promise<AssetRow> {
+    const cand = this.byId(candidateId);
+    if (!cand) throw new Error(`Candidate asset not found: ${candidateId}`);
+    return this.rebind(id, cand.path);
+  }
+
+  /** 删掉一条找不到文件的记录。还在的文件不走这里（那是删除，要进回收站）。 */
+  removeMissing(id: string): boolean {
+    return this.db.prepare("DELETE FROM assets WHERE id = ? AND status = 'missing'").run(id).changes > 0;
+  }
+
   /**
    * 重新读一遍所有资产的尺寸，**不碰画布**。返回尺寸变了的条数。
    * 加了新的尺寸解析（比如视频）之后，已登记的老记录要靠它补上。

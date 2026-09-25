@@ -43,3 +43,15 @@ export class TextAssetDto {
   @IsString()
   content!: string;
 }
+
+export class MergeCandidateDto {
+  @IsString()
+  @IsNotEmpty()
+  candidateId!: string;
+}
+
+export class LocateAssetDto {
+  @IsString()
+  @IsNotEmpty()
+  newPath!: string;
+}
