@@ -4,6 +4,7 @@
  * 首页和工作区页一上来就会碰的那些先做实：窗口、应用信息、网络、shell、剪贴板、
  * 文件、对话框、日志。登录、自动更新、内置浏览器等不在范围内的给固定返回值。
  */
+import { execFile } from "node:child_process";
 import { copyFile, cp, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -21,7 +22,9 @@ import {
   shell,
 } from "electron";
 
+import { createFileReferenceRevealer, type FileReferenceHost, inspectFileReference, pathKindOnDisk } from "./file-reference.js";
 import { IPC } from "./ipc/channels.js";
+import type { GlobalStore, RecentWorkspace } from "./storage/global-store.js";
 
 type Handler = (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown;
 
@@ -43,6 +46,12 @@ function handle(channel: string, fn: Handler): void {
 
 export interface RawIpcDeps {
   logDir: string;
+  /** 主日志文件（诊断面板显示的是文件路径）。 */
+  logFile: string;
+  /** 全局存储：本地文件引用要读允许目录、写"信任的目录"。 */
+  store: GlobalStore;
+  /** 数据根目录，本地文件引用默认放行。 */
+  hubRoot: string;
   /** 菜单动作（新建工作区、关标签…）。 */
   triggerMenu: (actionId: string, sender: Electron.WebContents) => void | Promise<void>;
   /** opencode 需要按新配置重启（技能开关变更后渲染层会调）。 */
@@ -71,7 +80,9 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   handle("window:maximize", (e) => {
     const w = windowOf(e);
     if (!w) return;
-    if (w.isMaximized()) w.unmaximize();
+    // 全屏时"最大化"按钮的意思是退出全屏
+    if (w.isFullScreen()) w.setFullScreen(false);
+    else if (w.isMaximized()) w.unmaximize();
     else w.maximize();
   });
   handle("window:close", (e) => windowOf(e)?.close());
@@ -86,30 +97,40 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   handle("app:get-version", () => app.getVersion());
   handle("app:get-platform", () => ({ platform: process.platform, arch: process.arch }));
   handle("app:quit", () => app.quit());
-  handle("app:get-log-path", () => deps.logDir);
+  handle("app:get-log-path", () => deps.logFile);
   handle("app:open-log-dir", async () => {
     const err = await shell.openPath(deps.logDir);
     return err ? { success: false, error: err } : { success: true };
   });
+  // 诊断面板按 version / env / release.* 拼摘要
   handle("app:get-runtime-info", () => ({
-    appVersion: app.getVersion(),
-    electron: process.versions.electron,
-    chrome: process.versions.chrome,
-    node: process.versions.node,
-    platform: process.platform,
-    arch: process.arch,
-    cpuCount: os.cpus().length,
-    totalMemoryMb: Math.round(os.totalmem() / 1048576),
-    uptimeSec: Math.round(process.uptime()),
+    appId: "ovaijisuandesign",
+    appName: app.getName(),
+    version: app.getVersion(),
+    env: app.isPackaged ? "production" : "development",
+    release: { channel: "prod", region: "domestic" },
+    logDir: deps.logDir,
+    logFilePath: deps.logFile,
   }));
+  // userId 没有就给 null（渲染层用 ?? 兜底成 unknown，空串会原样显示），时间是 ISO 字符串
   handle("app:get-diagnostics-context", () => ({
-    userId: "",
+    userId: null,
     appVersion: app.getVersion(),
     releaseChannel: "prod",
     releaseRegion: "domestic",
-    timestamp: Date.now(),
+    timestamp: new Date().toISOString(),
   }));
-  handle("app:get-proxy-status", () => ({ status: "direct" }));
+  // 只做代理解析，不做连通性探测：解析出代理就如实报，但不提示用户（shouldWarn 只在代理连不通时才该为真）
+  handle("app:get-proxy-status", async (e) => {
+    let raw: string;
+    try {
+      raw = (await e.sender.session.resolveProxy("https://www.baidu.com")) || "DIRECT";
+    } catch {
+      return { hasProxy: false, shouldWarn: false, raw: "DIRECT", error: "detection_failed" };
+    }
+    const hasProxy = raw.split(";").some((part) => part.trim() !== "" && part.trim().toUpperCase() !== "DIRECT");
+    return { hasProxy, shouldWarn: false, raw };
+  });
   handle("app:add-breadcrumb", () => undefined);
   // 渲染层读 status.online；直接回布尔值会被当成离线，底部一直挂着"网络连接已断开"。
   handle("network:get-status", () => ({ online: net.isOnline() }));
@@ -128,19 +149,10 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   handle("shell:open-path", (_e, p) => shell.openPath(absPath(p)));
   handle("shell:show-item-in-folder", (_e, p) => shell.showItemInFolder(absPath(p)));
   handle("shell:trash-item", (_e, p) => shell.trashItem(absPath(p)));
-  handle("shell:inspect-file-reference", async (_e, req) => {
-    const p = (req as { path?: unknown } | undefined)?.path;
-    try {
-      const s = await stat(absPath(p));
-      return { exists: true, isDirectory: s.isDirectory(), size: s.size };
-    } catch {
-      return { exists: false };
-    }
-  });
-  handle("shell:reveal-file-reference", (_e, req) => {
-    shell.showItemInFolder(absPath((req as { path?: unknown } | undefined)?.path));
-    return { success: true };
-  });
+  const fileRefHost = fileReferenceHost(deps);
+  const revealFileReference = createFileReferenceRevealer(fileRefHost);
+  handle("shell:inspect-file-reference", (_e, req) => inspectFileReference(fileRefHost, req as Parameters<typeof inspectFileReference>[1]));
+  handle("shell:reveal-file-reference", (_e, req) => revealFileReference(req as Parameters<typeof revealFileReference>[0]));
 
   // 剪贴板
   handle("clipboard:read-text", () => clipboard.readText());
@@ -167,9 +179,15 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   });
   handle("fs:read-dir", async (_e, p) => {
     const entries = await readdir(absPath(p), { withFileTypes: true });
-    return entries.map((d) => ({ name: d.name, isDirectory: d.isDirectory(), isFile: d.isFile() }));
+    return entries.map((d) => ({ name: d.name, isDirectory: d.isDirectory(), isFile: d.isFile(), isSymbolicLink: d.isSymbolicLink() }));
   });
-  handle("fs:read-text-file", (_e, p) => readFile(absPath(p), "utf8"));
+  handle("fs:read-text-file", async (_e, p) => {
+    const file = absPath(p);
+    const { size } = await stat(file);
+    // 大文件整份读进内存会拖垮主进程
+    if (size > MAX_TEXT_READ_BYTES) throw new Error(`File too large to read into memory: ${(size / 1048576).toFixed(1)} MB (limit: 50MB)`);
+    return readFile(file, "utf8");
+  });
   handle("fs:write-text-file", (_e, p, content) => writeFile(absPath(p), String(content ?? "")));
   handle("fs:write-binary-file", (_e, p, data) => writeFile(absPath(p), Buffer.from(data as Uint8Array)));
   handle("fs:mkdir", (_e, p) => mkdir(absPath(p), { recursive: true }).then(() => undefined));
@@ -177,7 +195,7 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   handle("fs:delete", (_e, p) => rm(absPath(p), { recursive: true, force: true }));
   handle("fs:stat", async (_e, p) => {
     const s = await stat(absPath(p));
-    return { size: s.size, isDirectory: s.isDirectory(), isFile: s.isFile(), mtimeMs: s.mtimeMs, ctimeMs: s.ctimeMs };
+    return { isDirectory: s.isDirectory(), isFile: s.isFile(), size: s.size, mtimeMs: s.mtimeMs, birthtimeMs: s.birthtimeMs };
   });
   handle("fs:copy", async (_e, a, b, overwrite) => {
     const src = absPath(a);
@@ -187,15 +205,23 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   });
   handle("fs:watch", () => undefined);
   handle("fs:unwatch", () => undefined);
-  handle("dialog:open", (e, opts) => {
+  // 渲染层给的是 { directory, multiple, title, filters }，要的是选中路径数组（取消 = 空数组）
+  handle("dialog:open", async (e, opts) => {
     const w = windowOf(e);
-    const o = (opts ?? {}) as Electron.OpenDialogOptions;
-    return w ? dialog.showOpenDialog(w, o) : dialog.showOpenDialog(o);
+    const o = (opts ?? {}) as { directory?: boolean; multiple?: boolean; title?: string; filters?: Electron.FileFilter[]; defaultPath?: string };
+    const properties: Electron.OpenDialogOptions["properties"] = o.directory ? ["openDirectory", "createDirectory"] : ["openFile"];
+    if (o.multiple) properties.push("multiSelections");
+    const options: Electron.OpenDialogOptions = { title: o.title, defaultPath: o.defaultPath, filters: o.filters, properties };
+    const r = w ? await dialog.showOpenDialog(w, options) : await dialog.showOpenDialog(options);
+    return r.canceled ? [] : r.filePaths;
   });
-  handle("dialog:save", (e, opts) => {
+  // 要的是选中的路径，取消给 undefined（渲染层 `if (!path) return`）
+  handle("dialog:save", async (e, opts) => {
     const w = windowOf(e);
-    const o = (opts ?? {}) as Electron.SaveDialogOptions;
-    return w ? dialog.showSaveDialog(w, o) : dialog.showSaveDialog(o);
+    const o = (opts ?? {}) as { title?: string; defaultPath?: string; filters?: Electron.FileFilter[] };
+    const options: Electron.SaveDialogOptions = { title: o.title, defaultPath: o.defaultPath, filters: o.filters };
+    const r = w ? await dialog.showSaveDialog(w, options) : await dialog.showSaveDialog(options);
+    return r.canceled ? undefined : r.filePath;
   });
 
   // 通知
@@ -208,7 +234,16 @@ export function registerRawIpc(deps: RawIpcDeps): void {
     const id = `n${++notificationSeq}`;
     const n = new Notification({ title: String(p.title ?? ""), body: String(p.body ?? ""), silent: Boolean(p.silent) });
     const sender = e.sender;
-    n.on("click", () => !sender.isDestroyed() && sender.send("notification:click", id));
+    n.on("click", () => {
+      // 点通知要把窗口叫回前台，再让渲染层跳到对应位置
+      const w = (sender.isDestroyed() ? null : BrowserWindow.fromWebContents(sender)) ?? BrowserWindow.getAllWindows()[0];
+      if (w && !w.isDestroyed()) {
+        if (w.isMinimized()) w.restore();
+        w.show();
+        w.focus();
+      }
+      if (!sender.isDestroyed()) sender.send("notification:click", id);
+    });
     n.on("close", () => !sender.isDestroyed() && sender.send("notification:close", id));
     n.show();
     return { success: true, id };
@@ -216,9 +251,10 @@ export function registerRawIpc(deps: RawIpcDeps): void {
 
   // 日志
   handle("log:write", (_e, level, message, category) => deps.log(String(level), `${category ? `[${String(category)}] ` : ""}${String(message)}`));
-  handle("log:export", () => ({ success: false, error: "unsupported" }));
-  handle("log:upload", () => ({ success: false, error: "unsupported" }));
-  handle("memory:get-stats", () => ({ ...process.memoryUsage() }));
+  handle("log:export", (e) => exportLogs(windowOf(e), deps.logDir));
+  // 没有日志上传服务
+  handle("log:upload", () => ({ success: false, error: "日志上传不可用，请用「导出日志」", retriable: false }));
+  handle("memory:get-stats", () => memoryStats());
   for (const ch of ["perf:capture-cpu", "perf:capture-heap", "perf:capture-trace", "perf:capture-netlog"]) {
     handle(ch, () => ({ success: false, error: "unsupported" }));
   }
@@ -233,16 +269,124 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   });
   handle("updater:check", () => ({ accepted: false }));
   handle("updater:get-version", () => app.getVersion());
+  // 没有热更新：没装热更新包（版本 null），检查一律报禁用
+  handle("hot-update:check", () => ({ success: false, error: "Hot update disabled", currentVersion: null }));
+  handle("hot-update:clear-cache", () => false);
+  handle("hot-update:reload", (e) => {
+    e.sender.reloadIgnoringCache();
+    return { success: true };
+  });
+  handle("hot-update:get-version", () => null);
   handle("screenshot:start", () => ({ success: false, error: "unsupported" }));
   handle("auth:fetch-user-info", () => ({ user: null, error: null }));
   handle("auth:renew-token", () => ({ success: false }));
   handle("auth:login", () => ({ success: false, error: "unsupported" }));
   handle("auth:logout", () => ({ success: true }));
-  handle("auth:changed-to-main", () => undefined);
-  handle("auth:expired-to-main", () => undefined);
+  handle("auth:changed-to-main", () => ({ success: true }));
+  handle("auth:expired-to-main", () => ({ success: true }));
   ipcMain.on("hot-update:get-version-sync", (e) => {
-    e.returnValue = app.getVersion();
+    e.returnValue = "";
   });
+}
+
+const MAX_TEXT_READ_BYTES = 50 * 1024 * 1024;
+
+function fileReferenceHost(deps: RawIpcDeps): FileReferenceHost {
+  const safePath = (name: Parameters<typeof app.getPath>[0]) => {
+    try {
+      return app.getPath(name);
+    } catch {
+      return "";
+    }
+  };
+  const trustedDirs = () => {
+    const dirs = deps.store.get("config").localFileRevealAllowedDirs;
+    return Array.isArray(dirs) ? dirs.filter((d): d is string => typeof d === "string") : [];
+  };
+  return {
+    // 用户目录、数据目录、当前 / 最近打开的项目：这些地方的文件直接可点
+    getStaticAllowedDirs: () => {
+      const config = deps.store.get("config");
+      const recents = deps.store.get("recentWorkspaces") as RecentWorkspace[];
+      return [
+        ...(["userData", "temp", "downloads", "documents", "desktop", "pictures", "music", "videos"] as const).map(safePath),
+        deps.hubRoot,
+        String(deps.store.get("currentWorkspace") ?? ""),
+        String(config.workingDirectory ?? ""),
+        String(config.dataDirectory ?? ""),
+        ...recents.map((r) => r.path),
+      ].filter(Boolean);
+    },
+    getTrustedDirs: trustedDirs,
+    trustDirectory: (dir) => {
+      const current = trustedDirs();
+      if (!current.includes(dir)) deps.store.set("config", { localFileRevealAllowedDirs: [...current, dir] });
+    },
+    getPathKind: pathKindOnDisk,
+    openPath: (p) => shell.openPath(p),
+    showItemInFolder: (p) => shell.showItemInFolder(p),
+  };
+}
+
+const toMB = (bytes: number) => Math.round((bytes / 1048576) * 100) / 100;
+
+function memoryStats(): Record<string, unknown> {
+  const mem = process.memoryUsage();
+  const metrics = app.getAppMetrics();
+  const renderers = BrowserWindow.getAllWindows()
+    .filter((w) => !w.isDestroyed())
+    .map((w) => {
+      const pid = w.webContents.getOSProcessId();
+      const m = metrics.find((x) => x.pid === pid);
+      // getAppMetrics 的 workingSetSize 单位是 KB
+      return { pid, title: w.getTitle(), workingSetSizeMB: m ? toMB(m.memory.workingSetSize * 1024) : 0 };
+    });
+  return {
+    timestamp: Date.now(),
+    main: { heapUsedMB: toMB(mem.heapUsed), heapTotalMB: toMB(mem.heapTotal), rssMB: toMB(mem.rss), externalMB: toMB(mem.external) },
+    renderers,
+    freeMemMB: toMB(os.freemem()),
+    availableMemMB: toMB(os.freemem()),
+    memorySource: "os.freemem",
+  };
+}
+
+/** 选个位置，把日志目录打成 zip。系统自带的 bsdtar（macOS / Windows 10+）能写 zip，Linux 用 zip。 */
+export async function exportLogs(win: BrowserWindow | null, logDir: string): Promise<Record<string, unknown>> {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const options: Electron.SaveDialogOptions = {
+    title: "导出日志",
+    defaultPath: `logs-${stamp}.zip`,
+    filters: [{ name: "ZIP Archive", extensions: ["zip"] }],
+  };
+  const r = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options);
+  if (r.canceled || !r.filePath) return { success: false, cancelled: true };
+  const filePath = r.filePath;
+  try {
+    const files = (await readdir(logDir, { withFileTypes: true })).filter((d) => d.isFile()).map((d) => d.name);
+    if (files.length === 0) return { success: false, error: "没有可导出的日志", filePath };
+    await rm(filePath, { force: true });
+    const [cmd, args]: [string, string[]] =
+      process.platform === "linux"
+        ? ["zip", ["-q", "-j", filePath, ...files.map((f) => path.join(logDir, f))]]
+        : ["tar", ["-a", "-c", "-f", filePath, "-C", logDir, ...files]];
+    await new Promise<void>((resolve, reject) => execFile(cmd, args, (err) => (err ? reject(err) : resolve())));
+    shell.showItemInFolder(filePath);
+    return { success: true, fileCount: files.length, diagnosticsSummary: null, filePath };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err), filePath };
+  }
+}
+
+/** 系统联网状态变化推给所有窗口（载荷是布尔值）。主进程没有联网事件，隔几秒看一次，变了才推。 */
+export function wireNetworkStatusEvents(): void {
+  let last = net.isOnline();
+  setInterval(() => {
+    const now = net.isOnline();
+    if (now === last) return;
+    last = now;
+    for (const w of BrowserWindow.getAllWindows()) if (!w.webContents.isDestroyed()) w.webContents.send("network:status-changed", now);
+  }, 5000).unref();
 }
 
 /** 把全屏变化推给窗口里的渲染层。 */

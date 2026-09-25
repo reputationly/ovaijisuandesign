@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { isForeignAppPath, resolveRoots } from "../roots.js";
 import { GLOBAL_STORAGE_VERSION, GlobalStore } from "./global-store.js";
-import { globalGet, globalSet, type IpcHandleLike, registerStorageIpc } from "./storage-ipc.js";
+import { desktopConfig, globalGet, globalSet, type IpcHandleLike, registerStorageIpc } from "./storage-ipc.js";
 import { WorkspaceStorageRegistry, workspaceStoragePath } from "./workspace-store.js";
 
 let dir: string;
@@ -89,7 +89,7 @@ describe("GlobalStore", () => {
 });
 
 describe("storage IPC 规则", () => {
-  it("私有键读不到也写不了；customModels 由主进程掌管", () => {
+  it("私有键读不到也写不了；customModels 可读、只归主进程写", () => {
     const s = new GlobalStore(path.join(dir, "g.json"));
     s.replace("customMcpVault", "secret");
     s.set("config", { customModels: { p: 1 } });
@@ -99,7 +99,21 @@ describe("storage IPC 规则", () => {
     expect(() => globalSet(s, "config.customModels", {})).toThrow();
     globalSet(s, "config", { theme: "dark", customModels: { evil: true } });
     expect(s.get("config").customModels).toEqual({ p: 1 });
-    expect((globalGet(s, "config") as Record<string, unknown>).customModels).toBeUndefined();
+    // 设置页的自定义模型列表从 global.config 读，不能抹掉
+    expect((globalGet(s, "config") as Record<string, unknown>).customModels).toEqual({ p: 1 });
+    expect(((globalGet(s) as Record<string, Record<string, unknown>>).config ?? {}).customModels).toEqual({ p: 1 });
+  });
+
+  it("desktop-config：工作目录没设或不存在时换回默认目录并写回", () => {
+    const s = new GlobalStore(path.join(dir, "g.json"));
+    s.set("config", { workingDirectory: path.join(dir, "gone") });
+    expect((desktopConfig(s, dir) as Record<string, unknown>).workingDirectory).toBe(dir);
+    expect(s.get("config").workingDirectory).toBe(dir);
+    // 存在的目录原样返回
+    const kept = path.join(dir, "kept");
+    mkdirSync(kept);
+    s.set("config", { workingDirectory: kept });
+    expect((desktopConfig(s, dir) as Record<string, unknown>).workingDirectory).toBe(kept);
   });
 
   it("注册的 handler 走通 global/workspace 读写", async () => {

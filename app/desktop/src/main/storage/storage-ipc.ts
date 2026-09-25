@@ -2,11 +2,14 @@
  * `storage:*` 原始通道。
  *
  * - global-get 不带 key 时返回整份（私有键抹掉）；带私有键返回 undefined。
- * - global-set 拒绝私有键和 `config.customModels*`；写 `config` 时保留已存的
- *   customModels —— 渲染层拿到的 config 里没有它，整份写回来会把它冲掉。
+ *   `config.customModels` 照常给渲染层读：设置页的自定义模型列表就是从这里取的。
+ * - global-set 拒绝私有键和 `config.customModels*`；写 `config` 时忽略渲染层带来的
+ *   customModels、保留已存的那份 —— 它只归主进程写。
  * - workspace-* 的目录必须是绝对路径。
  * - tokens / user 只存本地（没有登录流程），不向 gateway 推送。
  */
+import { existsSync } from "node:fs";
+
 import { isPlainObject } from "./json-file.js";
 import { type GlobalStore, PRIVATE_GLOBAL_KEYS } from "./global-store.js";
 import type { WorkspaceStorageRegistry } from "./workspace-store.js";
@@ -18,24 +21,13 @@ export interface IpcHandleLike {
 export function redactGlobal(all: Record<string, unknown>): Record<string, unknown> {
   const out = { ...all };
   for (const k of PRIVATE_GLOBAL_KEYS) delete out[k];
-  if (isPlainObject(out.config)) {
-    const cfg = { ...out.config };
-    delete cfg.customModels;
-    out.config = cfg;
-  }
   return out;
 }
 
 export function globalGet(store: GlobalStore, key?: unknown): unknown {
-  if (key === undefined || key === null) return redactGlobal(store.getAll());
+  if (key === undefined || key === null || key === "") return redactGlobal(store.getAll());
   if (typeof key !== "string" || PRIVATE_GLOBAL_KEYS.has(key)) return undefined;
-  const value = store.get(key);
-  if (key === "config" && isPlainObject(value)) {
-    const cfg = { ...value };
-    delete cfg.customModels;
-    return cfg;
-  }
-  return value;
+  return store.get(key);
 }
 
 export function globalSet(store: GlobalStore, key: unknown, value: unknown): void {
@@ -52,7 +44,23 @@ export function globalSet(store: GlobalStore, key: unknown, value: unknown): voi
   store.set(key, value);
 }
 
-export function registerStorageIpc(ipc: IpcHandleLike, global: GlobalStore, workspaces: WorkspaceStorageRegistry): void {
+/** 工作目录没设或已经不存在时换回默认目录并写回（渲染层按它开新项目）。 */
+export function desktopConfig(store: GlobalStore, defaultWorkingDirectory?: string): unknown {
+  const config = store.get("config");
+  const wd = config.workingDirectory;
+  if (defaultWorkingDirectory && (typeof wd !== "string" || !wd || !existsSync(wd))) {
+    store.set("config", { workingDirectory: defaultWorkingDirectory });
+    return { ...config, workingDirectory: defaultWorkingDirectory };
+  }
+  return config;
+}
+
+export function registerStorageIpc(
+  ipc: IpcHandleLike,
+  global: GlobalStore,
+  workspaces: WorkspaceStorageRegistry,
+  defaultWorkingDirectory?: string,
+): void {
   ipc.handle("storage:global-get", (_e, key) => globalGet(global, key));
   ipc.handle("storage:global-set", (_e, key, value) => globalSet(global, key, value));
   ipc.handle("storage:workspace-get", (_e, dir, key) => workspaces.get(String(dir), typeof key === "string" ? key : undefined));
@@ -60,7 +68,7 @@ export function registerStorageIpc(ipc: IpcHandleLike, global: GlobalStore, work
     if (typeof key !== "string" || !key) throw new Error("storage key must be a non-empty string");
     workspaces.set(String(dir), key, value);
   });
-  ipc.handle("storage:get-desktop-config", () => globalGet(global, "config"));
+  ipc.handle("storage:get-desktop-config", () => desktopConfig(global, defaultWorkingDirectory));
   ipc.handle("storage:set-desktop-config", () => ({ success: false, error: "Deprecated: use storage:global-set('config', …)" }));
   ipc.handle("storage:clear-all", () => {
     global.reset();

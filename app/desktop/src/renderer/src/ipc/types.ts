@@ -141,7 +141,7 @@ export interface BundleStatus {
   openCodeUrl?: string;
   /** 给用户看的错误。 */
   error?: string;
-  readiness?: { chat: "ready" | "starting" | "failed" };
+  readiness?: { chat: "ready" | "starting" | "runtime_unavailable" };
 }
 
 /** `workspace-bundle-${id}` 频道。 */

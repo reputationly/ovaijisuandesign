@@ -143,7 +143,7 @@ describe("BundleHandle", () => {
     oc.fails = true;
     await h.start();
     await tick(40);
-    expect(h.status()).toMatchObject({ state: "bound", readiness: { chat: "failed" }, error: "bad model" });
+    expect(h.status()).toMatchObject({ state: "bound", readiness: { chat: "runtime_unavailable" }, error: "bad model" });
   });
 
   it("运行中 gateway 反复崩溃：failed", async () => {

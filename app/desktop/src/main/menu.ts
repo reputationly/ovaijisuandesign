@@ -2,13 +2,15 @@
  * 应用菜单与 `menu:trigger`。菜单项只通知渲染层（新建标签、关标签、导入导出），
  * 真正的流程在渲染层；"新建窗口"是例外：主进程先建好工作区，再把 id 发过去。
  */
-import { app, BrowserWindow, Menu, type MenuItemConstructorOptions, type WebContents } from "electron";
+import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, type WebContents } from "electron";
 
 import { IPC } from "./ipc/channels.js";
 
 export interface MenuDeps {
   createWorkspace(): Promise<string | undefined>;
   openLogDir(): void;
+  /** 选位置导出日志压缩包。 */
+  exportLogs?(win: BrowserWindow | null): Promise<unknown>;
 }
 
 function focusedContents(sender?: WebContents): WebContents | undefined {
@@ -60,11 +62,46 @@ export async function triggerMenuAction(actionId: string, deps: MenuDeps, sender
     case "open-logs-folder":
       deps.openLogDir();
       return;
+    case "export-logs":
+      await deps.exportLogs?.(win);
+      return;
+    case "upload-logs":
+      // 没有日志上传服务，告诉用户换成导出
+      dialog.showErrorBox("上传日志失败", "这个版本不能上传日志，请用「导出日志」保存后手动发送。");
+      return;
+    case "check-for-updates": {
+      const opts = { type: "info" as const, message: "已是最新版本", detail: `当前版本 ${app.getVersion()}`, buttons: ["好"] };
+      if (win) await dialog.showMessageBox(win, opts);
+      else await dialog.showMessageBox(opts);
+      return;
+    }
+    // 编辑类动作：Windows 自绘标题栏的菜单按钮会发这些
+    case "undo":
+      wc?.undo();
+      return;
+    case "redo":
+      wc?.redo();
+      return;
+    case "cut":
+      wc?.cut();
+      return;
+    case "copy":
+      wc?.copy();
+      return;
+    case "paste":
+      wc?.paste();
+      return;
+    case "delete":
+      wc?.delete();
+      return;
+    case "select-all":
+      wc?.selectAll();
+      return;
     case "quit":
       app.quit();
       return;
     default:
-      // 编辑类动作（undo/copy/…）由菜单角色直接处理；其余不支持的忽略
+      // documentation 等没有对应内容的动作忽略
       return;
   }
 }

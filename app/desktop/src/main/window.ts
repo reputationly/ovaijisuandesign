@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, shell } from "electron";
 
 export interface WindowArgs {
   /** 应用级 gateway 的地址（进程可能还没起来，就绪与否走 gateway-readiness）。 */
@@ -53,7 +53,13 @@ export function createMainWindow(a: WindowArgs): BrowserWindow {
     },
   });
   win.once("ready-to-show", () => win.show());
-  // 开发服务器只供我们自己的界面（OV_UI=ours）用；官方界面是构建好的静态文件，走 app://。
+  // 渲染层用 window.open 开一个透明小窗来放系统级浮层提示；我们没有这种窗口，拒掉后它会退回页面内的提示。
+  // 网页链接交给系统浏览器，其余一律不开新窗口。
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:/i.test(url)) void shell.openExternal(url);
+    return { action: "deny" };
+  });
+  // 开发服务器只供我们自己的界面（OV_UI=ours）用；默认界面是构建好的静态文件，走 app://。
   const dev = process.env.OV_UI === "ours" ? process.env.ELECTRON_RENDERER_URL : undefined;
   if (dev) void win.loadURL(dev);
   else void win.loadURL("app://./");

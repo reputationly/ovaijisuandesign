@@ -24,15 +24,17 @@ import { migrateLegacyWorkspace } from "./migration/legacy.js";
 import { OpenCodeRuntime, prepareLaunch } from "./opencode/index.js";
 import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
 import { readPlatform } from "./platform-config.js";
+import { ProjectAssetsService } from "./project/project-assets.js";
 import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
 import { readSettings, writeSettings } from "./settings.js";
-import { registerRawIpc, wireFullscreenEvents } from "./raw-ipc.js";
+import { exportLogs, registerRawIpc, wireFullscreenEvents, wireNetworkStatusEvents } from "./raw-ipc.js";
 import { RestoreHealth, runStartupRestore } from "./restore.js";
 import { GlobalStore, type RecentWorkspace } from "./storage/global-store.js";
 import { recordRecentOpen } from "./storage/recents.js";
 import { registerStorageIpc } from "./storage/storage-ipc.js";
 import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
+import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
 import { stubChannels } from "./stub-channels.js";
 import { createMainWindow } from "./window.js";
@@ -120,9 +122,10 @@ async function boot(): Promise<Running> {
   }
 
   // 存储
-  const store = new GlobalStore(dirs.globalStorePath, { workingDirectory: path.join(dirs.hubRoot, "projects"), log });
+  const defaultWorkingDirectory = path.join(dirs.hubRoot, "projects");
+  const store = new GlobalStore(dirs.globalStorePath, { workingDirectory: defaultWorkingDirectory, log });
   const workspaceStores = new WorkspaceStorageRegistry();
-  registerStorageIpc(ipcMain, store, workspaceStores);
+  registerStorageIpc(ipcMain, store, workspaceStores, defaultWorkingDirectory);
   const health = new RestoreHealth(store);
 
   // 总线
@@ -251,6 +254,9 @@ async function boot(): Promise<Running> {
 
   registerChannel("hilo", hilo);
   registerChannel("project", projects);
+  // 用户自建的技能优先于自带的
+  registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));
+  registerChannel("projectAssets", new ProjectAssetsService({ projectsRoot: () => dirs.projectsRoot, trashItem: (p) => shell.trashItem(p) }));
   registerChannel("gateway-readiness", readinessView(readiness));
   // 设置页「模型接入」：读写平台配置。新配置在下次起 opencode 时生效（渲染层保存后会请求重启）
   registerChannel("platform-settings", {
@@ -267,14 +273,19 @@ async function boot(): Promise<Running> {
   const menuDeps = {
     createWorkspace: () => hilo.createWorkspace(),
     openLogDir: () => void shell.openPath(path.join(dirs.userData, "logs")),
+    exportLogs: (w: BrowserWindow | null) => exportLogs(w, path.join(dirs.userData, "logs")),
   };
   registerRawIpc({
     logDir: path.join(dirs.userData, "logs"),
+    logFile: path.join(dirs.userData, "logs", "main.log"),
+    store,
+    hubRoot: dirs.hubRoot,
     triggerMenu: (id, sender) => triggerMenuAction(id, menuDeps, sender),
     restartOpencode: () => hilo.restartAllOpencode(),
     log: (level, message) => log(`[renderer ${level}] ${message}`),
   });
   installAppMenu(menuDeps);
+  wireNetworkStatusEvents();
 
   // 窗口不等 gateway
   const win = showMainWindow(appUrl);

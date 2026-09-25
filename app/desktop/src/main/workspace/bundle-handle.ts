@@ -10,6 +10,8 @@
  *
  * opencode 起不来时不判整套失败：画布、资产、生成都不依赖 agent，只是聊天不可用，
  * 原因放在 `readiness.chat` / `error` 里给界面显示。gateway 起不来才是 failed。
+ * 聊天不可用时 readiness.chat 用 `runtime_unavailable`：渲染层认识这个值，会在输入框里提示
+ * "运行时恢复中，聊天暂停"；别的值它不认识，输入框只会被锁住、什么也不说。
  */
 import type { EventEmitter } from "node:events";
 
@@ -160,7 +162,7 @@ export class BundleHandle implements WorkspaceRuntime {
       this.transition("bound", { openCodeUrl: ep.url, readiness: { chat: "ready" }, error: undefined });
     } else {
       const reason = this.opencode.status.state === "failed" ? this.opencode.status.reason : "opencode 没有启动";
-      this.transition("bound", { readiness: { chat: "failed" }, error: reason });
+      this.transition("bound", { readiness: { chat: "runtime_unavailable" }, error: reason });
     }
   }
 
@@ -186,7 +188,7 @@ export class BundleHandle implements WorkspaceRuntime {
       if (ep) void this.pushOpencodeUrl(ep);
       this.transition("bound", { openCodeUrl: s.url, readiness: { chat: "ready" }, error: undefined });
     } else if (s.state === "failed") {
-      this.transition("bound", { readiness: { chat: "failed" }, error: s.reason });
+      this.transition("bound", { readiness: { chat: "runtime_unavailable" }, error: s.reason });
     }
   }
 
