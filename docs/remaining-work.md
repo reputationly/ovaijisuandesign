@@ -86,6 +86,16 @@
 
 ## 四、待办（按优先级）
 
+> **2026-09-26 界面路线改变（用户定）：直接用参照 3.0.16 的渲染层编译产物当界面**，不再从头重写。
+> - 构建：`app/official-ui/build.mjs` 把 `reference/3.0.16/app/out/renderer` 拷到 `app/desktop/out/official-ui` 并打补丁（`patches.mjs`：品牌、去登录营销弹窗、隐藏浏览器和 ComfyUI）；补丁命中次数对不上就构建失败。
+> - `app://` 默认用它；`OV_UI=ours` 切回我们自己的旧界面。
+> - 界面上的问题一律在**主进程 / preload / gateway** 这边对齐形状，或者在补丁层改，不改渲染层代码本身。
+> - 因此下面 P0-1、P1 菜单对齐、P1 界面后续波次（W2～W5）**作废**；`ui-wave-1` 不再推进。
+> - 已验证：真平台下在参照界面里对话 → agent 调 `hub_generate_image` → 图进工作区、画布出节点。
+> - 还没做：项目导入导出和首次启动的示例项目（`project-templates/`）、自定义模型 / 自定义 MCP / 桌面连接器、代理模式真正生效。
+> - 源码还原延后：工具在 `.probe/decompile/`（本机），思路和结论见记忆里的 plan B 说明。
+
+
 ### P0-1 界面第一波收尾并合入（分支 `ui-wave-1`，已合进 `claude/beautiful-pascal-fa5c5l`）
 
 已完成：
