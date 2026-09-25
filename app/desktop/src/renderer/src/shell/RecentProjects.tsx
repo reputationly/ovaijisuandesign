@@ -1,6 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useRouterState } from "@tanstack/react-router"
 import { ArrowUpRight, ChevronDown, ChevronRight, CircleX, Copy, Folder, FolderOpen, FolderX, MessageSquare, Pencil, Pin, Plus, Users } from "lucide-react"
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { hiloPlatform } from "../api/runtime"
@@ -22,6 +23,7 @@ import { Hint } from "../components/ui/tooltip"
 import type { ProjectRecord } from "../ipc"
 import { cn } from "../lib"
 import { useGlobalConfig } from "../stores/global-config"
+import { storageKeys } from "../stores/global-storage"
 import { useProjectActions, useProjectStore, type ProjectKind } from "../stores/projects"
 import { useRecentWorkspaces, useRecentWorkspacesRefresh, useWorkspaceDisplayNameRename } from "../stores/recent-workspaces"
 import {
@@ -71,6 +73,15 @@ export function RecentProjects() {
   const sortMode = resolveRecentProjectsSortMode(sortModeRaw)
   const groupingEnabled = groupModeRaw !== "none"
   useRecentWorkspacesRefresh()
+  // 最近列表由主进程在打开工作区时追加，渲染层收不到通知：换页面、标签变化时都重拉一次，
+  // 否则刚建的工作区只以「标签」身份出现，关掉后就从侧栏消失了
+  const href = useRouterState({ select: (s) => s.location.href })
+  const qc = useQueryClient()
+  // 只看标签集合变没变：entries 会随显示名重算，拿它当依赖会和这次重拉互相触发
+  const entryIdsKey = entries.map((e) => e.workspaceId).join("\n")
+  useEffect(() => {
+    void qc.invalidateQueries({ queryKey: storageKeys.global("recentWorkspaces") })
+  }, [href, entryIdsKey, qc])
 
   // 只在标签里、还没进最近列表的项没有打开时间：第一次见到时记一个，之后保持不变，免得每次渲染都跳到最前
   const syntheticOpenedAtByPathRef = useRef(new Map<string, number>())
