@@ -75,10 +75,10 @@ Reference images are typically passed as URLs or base64. Keyframes generated in 
 
 Request duration ≥ beat VO duration; you will trim at assembly. If the model only supports fixed durations (e.g., 5s/10s), pick the smallest ≥ the VO length, or plan a hold-last-frame extension in ffmpeg for long beats.
 
-## Concurrency and retries
+## Concurrency and failures
 
 - Submit all Stage 4 tasks in one burst, collect task IDs, then poll round-robin. Serial generation turns a 10-minute job into an hour.
-- Retry transient failures (HTTP 5xx, task status `failed` with infra-sounding errors) once with the same payload. Content failures (moderation, malformed prompt) need a prompt fix, not a retry.
+- Report transient failures (HTTP 5xx or task status `failed` with infrastructure-related errors) to the user and await direction before resubmitting. Report content failures (moderation or malformed prompts) without automatically resubmitting.
 - Rate limits exist per model; on 429, back off 30s and continue the poll loop.
 
 ## Budgeting
@@ -86,7 +86,7 @@ Request duration ≥ beat VO duration; you will trim at assembly. If the model o
 A 60s film, 7 beats, 10s clips at Omni Flash pricing:
 
 - Keyframes: 1 anchor + 6 edits ≈ $0.42 (+regens ≈ $0.60)
-- Animation: 7 × 10s × $0.112 ≈ $7.84 → the dominant cost; shorter clips or a compatible lower-cost video tier can reduce this substantially
+- Animation: 7 × 10s × $0.112 ≈ $7.84 → the dominant cost; shorter clips reduce this substantially
 - VO + music: < $0.50
 
-Quote the user before Stage 3. Offer the cheap-video-tier tradeoff explicitly for drafts: generate a full draft on the budget tier, then regenerate hero beats on the premium tier.
+Quote the user before Stage 3 using current, verified prices and an itemized estimate for keyframes, animation, voiceover, and music.

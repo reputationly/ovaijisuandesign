@@ -228,6 +228,12 @@ source: official                  # official-featured | official | community,必
 | `source` | ✅ | 3 值枚举 `official-featured` / `official` / `community`,必须匹配目录（`skills/` → official-featured/official,`user-skills/` → community） |
 | `cover` | 可选 | 封面媒体 CDN URL（16:9）。使用仓库当前上传方式，再用 `scripts/set-cover.sh` 校验并回写 URL |
 | `cover-en` | 可选 | 英文环境封面媒体（同 `cover` 格式校验）。留空则 fallback 到 `cover` |
+| `showcase` | 可选 | 新增的详情页媒体 URL 有序列表。每个 URL 都必须使用批准的 CDN 域名和媒体扩展名。 |
+| `structured-info` | 所有正式 Skill 必填 | 独立的 `zh-CN` / `en-US` 对象，包含 `summary`、`best-for`、`how-to-use`、`outputs`；不得从旧摘要或描述字段派生。未上架的 `_` 前缀 stub 不参与校验。 |
+
+这些新增字段的写作示例和语义指导位于
+`references/STRUCTURED-META-GOOD-CASES.md` 与 `references/STRUCTURED-META-GOOD-CASES.cn.md`。
+编写或审查结构化卡片内容时读取它们；机器限制仍只定义在 `spec/metadata.yml` 中。
 
 `spec/metadata.yml` 中的兼容硬上限只用于保证未改动的历史元数据继续有效，
 不是新内容的写作目标。新建或改写时，frontmatter 遵循 200 字符上限，
@@ -397,7 +403,7 @@ grep -oE '(references|scripts)/[^\s`"]+' "$TARGET_DIR/SKILL.cn.md" | \
   done
 ```
 
-市场贡献在结束前运行 `.ci/validate.sh`。如果改动了 `SKILL.md`、`SKILL.cn.md` 或 `meta.yaml`，必须提升 `meta.yaml` 版本：内容修复升 patch，新能力升 minor。
+市场贡献在结束前运行 `.ci/validate.sh`。如果改动了 `SKILL.md`、`SKILL.cn.md` 或 `meta.yaml`，将 `meta.yaml` 版本设置为严格高于 main 基线一个 patch 版本。同一分支后续多次提交保持该版本不变。
 
 ### 3. 触发 Skill 重新加载
 

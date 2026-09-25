@@ -38,6 +38,19 @@ author-en: "MiniMax Design"            # official → MiniMax Design; community 
 author-cn: "MiniMax Design"
 source: official                       # official-featured | official | community (must match dir)
 cover: ""                              # optional 16:9 media CDN URL; empty → icon fallback
+showcase:                               # optional ordered list of detail-page media URLs
+  - "https://cdn.hailuoai.com/example.mp4"
+structured-info:                        # required detail-card content; do not derive from legacy fields
+  zh-CN:
+    summary: "..."
+    best-for: ["...", "..."]
+    how-to-use: "..."
+    outputs: "..."
+  en-US:
+    summary: "..."
+    best-for: ["...", "..."]
+    how-to-use: "..."
+    outputs: "..."
 -->
 
 <!-- Current enum: run `python3 .ci/lib/print_tag_enum.py en --pairs` / `cn --pairs`; do not copy a static list here. -->

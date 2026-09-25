@@ -1,5 +1,5 @@
 display-name-zh: 潮流音乐短片
-version: 1.0.2
+version: 1.0.3
 tag-en: "Sound & Music / Full Production"
 tag-cn: "音频音乐 / 成片制作"
 complete-tags-en:
@@ -13,3 +13,20 @@ desc-cn: "面向需要音乐节奏主导短片的创作者，把歌曲、表演�
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official
+structured-info:
+  zh-CN:
+    summary: 把歌曲、表演者和潮流视觉方向编排成一条十五秒内连续、节奏驱动的音乐短片。
+    best-for:
+      - 潮流音乐
+      - 说唱表演
+      - 节奏剪辑
+    how-to-use: 提供歌曲、表演者参考和视觉偏好，先确认片长、画幅、人物来源与表演路线。
+    outputs: 音乐结构分析、镜头设计、动态文字、长提示词与连续音乐短片。
+  en-US:
+    summary: Arrange a song, performer, and trend-led visual direction into one continuous, rhythm-driven music short under fifteen seconds.
+    best-for:
+      - Trend Music
+      - Rap Performance
+      - Rhythmic Editing
+    how-to-use: Provide the song, performer reference, and visual preference, then confirm duration, framing, character source, and performance route.
+    outputs: Music structure analysis, shot design, kinetic type, a long prompt, and the finished music short.

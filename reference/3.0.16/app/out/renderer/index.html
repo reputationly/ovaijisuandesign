@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CSP 由 Electron 主进程在运行时注入，不在 HTML 里硬编码 -->
+    <title>MiniMax Design</title>
+    <style>
+      /* Boot splash: pure HTML/CSS, zero JS dependency. Shown while the
+         renderer bundle is still loading (dev cold start can take 10-20s of
+         Vite on-demand transforms). React's createRoot() clears #root children
+         on first render, so this removes itself automatically once the app
+         mounts. Deliberately no text (i18n runtime is unavailable here) and no
+         body background override (transparent-window experiment must keep the
+         document background untouched). */
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      #boot-splash .boot-spinner {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-top-color: rgba(255, 255, 255, 0.55);
+        animation: boot-splash-spin 0.9s linear infinite;
+      }
+      @media (prefers-color-scheme: light) {
+        #boot-splash .boot-spinner {
+          border-color: rgba(0, 0, 0, 0.1);
+          border-top-color: rgba(0, 0, 0, 0.45);
+        }
+      }
+      @keyframes boot-splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-C4qF1HE0.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-wI6IKnRt.css">
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot-splash" aria-hidden="true">
+        <div class="boot-spinner"></div>
+      </div>
+    </div>
+  </body>
+</html>

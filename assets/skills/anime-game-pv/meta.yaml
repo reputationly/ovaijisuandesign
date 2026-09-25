@@ -1,5 +1,5 @@
 display-name-zh: 二次元游戏PV
-version: 1.0.7
+version: 1.0.9
 tag-en: "Animation / Full Production"
 tag-cn: "动画 / 成片制作"
 complete-tags-en:
@@ -13,3 +13,20 @@ desc-cn: "面向需要制作二次元角色宣传片的创作者，将角色立�
 author-en: "Official Design Team"
 author-cn: "官方设计团队"
 source: official
+structured-info:
+  zh-CN:
+    summary: 把二次元角色与世界观素材编排成画风统一、节奏清晰的短篇游戏或漫画宣传PV。
+    best-for:
+      - 游戏宣传
+      - 角色PV
+      - 二次元叙事
+    how-to-use: 提供角色立绘、场景或画风参考及宣传主题，先确认画风来源和核心卖点。
+    outputs: 角色与场景资产、语义分镜、完整宣传PV及发布检查结果。
+  en-US:
+    summary: Shape anime characters and world-building references into a cohesive, clearly paced game or comic promotional PV.
+    best-for:
+      - Game Promotion
+      - Character PVs
+      - Anime Storytelling
+    how-to-use: Provide character art, scene or style references, and the campaign theme, then confirm the style source and core message.
+    outputs: Character and scene assets, semantic storyboards, a finished promo PV, and release checks.

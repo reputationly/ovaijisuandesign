@@ -1,5 +1,5 @@
 display-name-zh: 界面动效演示
-version: 1.0.1
+version: 1.0.2
 tag-en: "Creative & Experimental / Full Production"
 tag-cn: "创意实验 / 成片制作"
 complete-tags-en:
@@ -13,3 +13,20 @@ desc-cn: "面向产品与品牌团队，基于真实品牌视觉制作界面动�
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official
+structured-info:
+  zh-CN:
+    summary: 从真实品牌视觉提炼界面语言，制作应用界面动效、产品演示镜头与可合成的品牌化宣传视频。
+    best-for:
+      - 界面动效
+      - 品牌系统
+      - 产品演示
+    how-to-use: 提供产品页面、品牌资产和动效目标，先锁定品牌视觉DNA、功能重点与叙事规格。
+    outputs: 品牌分析、界面与镜头方案、故事板、动效片段、声音设计与宣传片。
+  en-US:
+    summary: Extract a real brand language to create UI motion, product-demo shots, and a brand-led promo video ready for assembly.
+    best-for:
+      - UI Motion
+      - Brand Systems
+      - Product Demos
+    how-to-use: Provide product screens, brand assets, and a motion goal, then lock the visual DNA, feature focus, and narrative spec.
+    outputs: Brand analysis, interface and shot direction, storyboard, motion clips, sound design, and promo video.

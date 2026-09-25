@@ -1,5 +1,5 @@
 display-name-zh: 影视片头序列
-version: 1.0.1
+version: 1.0.3
 tag-en: "Professional Film / Full Production"
 tag-cn: "专业影视 / 成片制作"
 complete-tags-en:
@@ -13,3 +13,20 @@ desc-cn: "面向需要影视片头或概念预告的创作者，把剧照、海�
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official
+structured-info:
+  zh-CN:
+    summary: 把影视设定、片名与准确署名编排成叙事连贯的电影片头或概念预告，并以文字落板收束。
+    best-for:
+      - 影视片头
+      - 概念预告
+      - 片名字效
+    how-to-use: 提供片名、卡司、剧照或故事设定，先确认片头范围、文字内容和视觉方向。
+    outputs: 影片视觉方案、镜头与转场设计、文字系统、音乐及完整片头成片。
+  en-US:
+    summary: Turn film context, titles, and verified credits into a coherent cinematic title sequence or concept teaser that resolves on-screen.
+    best-for:
+      - Title Sequences
+      - Concept Teasers
+      - Title Design
+    how-to-use: Provide the title, credits, stills, or story setting, then confirm scope, exact text, and visual direction.
+    outputs: A film treatment, shot and transition design, typography system, music, and finished title sequence.

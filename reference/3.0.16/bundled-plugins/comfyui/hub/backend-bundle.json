@@ -1,0 +1,101 @@
+{
+  "comment": "与当前 ComfyUI 插件/前端精确绑定的后端清单。生产客户端只读取 targets.<target>.bundle，不读取公共 latest.json；使用 scripts/release-comfyui-backend.py 发布并回填，不要手工修改。",
+  "schemaVersion": 3,
+  "version": "0.1.12",
+  "targets": {
+    "darwin-arm64": {
+      "status": "published",
+      "runtime": "metal",
+      "bundle": {
+        "schemaVersion": 1,
+        "target": "darwin-arm64",
+        "version": "0.1.12",
+        "buildId": "build-20260903090511",
+        "file": "comfyui-backend-0.1.12-darwin-arm64.tar.gz",
+        "sha256": "6553ba8d0718b490de06142fbca960b1e8aeb465c963d5727220595beb571146",
+        "sizeBytes": 749237520,
+        "installedBytes": 1577371906,
+        "urls": {
+          "domestic": "https://cdn.hailuoai.com/public_assets/comfyui-backend/darwin-arm64/releases/0.1.12/build-20260903090511/comfyui-backend-0.1.12-darwin-arm64.tar.gz",
+          "overseas": "https://cdn.hailuoai.video/public_assets/comfyui-backend/darwin-arm64/releases/0.1.12/build-20260903090511/comfyui-backend-0.1.12-darwin-arm64.tar.gz"
+        },
+        "launchArgs": [
+          "--enable-manager"
+        ]
+      }
+    },
+    "win32-x64-nvidia-cuda12": {
+      "status": "published",
+      "runtime": "cuda12",
+      "bundle": {
+        "schemaVersion": 1,
+        "target": "win32-x64-nvidia-cuda12",
+        "version": "0.1.11",
+        "buildId": "build-20260904043839",
+        "file": "comfyui-backend-0.1.11-win32-x64-nvidia-cuda12.tar.gz",
+        "sha256": "443e2798f403ae2ecc1cbced9ad284ced282a3767d16d9ad7809f5b58f03cd5c",
+        "sizeBytes": 3305551891,
+        "installedBytes": 6699614572,
+        "urls": {
+          "domestic": "https://cdn.hailuoai.com/public_assets/comfyui-backend/win32-x64-nvidia-cuda12/releases/0.1.11/build-20260904043839/comfyui-backend-0.1.11-win32-x64-nvidia-cuda12.tar.gz",
+          "overseas": "https://cdn.hailuoai.video/public_assets/comfyui-backend/win32-x64-nvidia-cuda12/releases/0.1.11/build-20260904043839/comfyui-backend-0.1.11-win32-x64-nvidia-cuda12.tar.gz"
+        },
+        "launchArgs": [
+          "--enable-manager"
+        ]
+      }
+    },
+    "win32-x64-nvidia-cuda13": {
+      "status": "published",
+      "runtime": "cuda13",
+      "bundle": {
+        "schemaVersion": 1,
+        "target": "win32-x64-nvidia-cuda13",
+        "version": "0.1.11",
+        "buildId": "build-20260904052750",
+        "file": "comfyui-backend-0.1.11-win32-x64-nvidia-cuda13.tar.gz",
+        "sha256": "959df0710dfff24c20e91e9aefb7461861fc4ae25e103f8c746cbb2f56bcc638",
+        "sizeBytes": 2692010146,
+        "installedBytes": 5476274602,
+        "urls": {
+          "domestic": "https://cdn.hailuoai.com/public_assets/comfyui-backend/candidates/win32-x64-nvidia-cuda13/releases/0.1.11/build-20260904052750/comfyui-backend-0.1.11-win32-x64-nvidia-cuda13.tar.gz",
+          "overseas": "https://cdn.hailuoai.video/public_assets/comfyui-backend/candidates/win32-x64-nvidia-cuda13/releases/0.1.11/build-20260904052750/comfyui-backend-0.1.11-win32-x64-nvidia-cuda13.tar.gz"
+        },
+        "launchArgs": [
+          "--enable-manager"
+        ]
+      }
+    },
+    "win32-x64-amd-directml": {
+      "status": "published",
+      "runtime": "directml",
+      "bundle": {
+        "schemaVersion": 1,
+        "target": "win32-x64-amd-directml",
+        "version": "0.1.7",
+        "buildId": "build-20260811085542",
+        "file": "comfyui-backend-0.1.7-win32-x64-amd-directml.tar.gz",
+        "sha256": "7b9545dbf32770e15f56b5da208c1d984fbc1b500ad5a27ed71ca8368177260e",
+        "sizeBytes": 831195199,
+        "installedBytes": 1743603890,
+        "urls": {
+          "domestic": "https://cdn.hailuoai.com/public_assets/comfyui-backend/win32-x64-amd-directml/releases/0.1.7/build-20260811085542/comfyui-backend-0.1.7-win32-x64-amd-directml.tar.gz",
+          "overseas": "https://cdn.hailuoai.video/public_assets/comfyui-backend/win32-x64-amd-directml/releases/0.1.7/build-20260811085542/comfyui-backend-0.1.7-win32-x64-amd-directml.tar.gz"
+        },
+        "launchArgs": [
+          "--directml"
+        ]
+      }
+    },
+    "win32-x64-intel-xpu": {
+      "status": "candidate",
+      "runtime": "xpu",
+      "candidateUrls": {
+        "domestic": "https://cdn.hailuoai.com/public_assets/comfyui-backend/candidates/win32-x64-intel-xpu/releases/0.1.11/build-20260911075027/candidate.json",
+        "overseas": "https://cdn.hailuoai.video/public_assets/comfyui-backend/candidates/win32-x64-intel-xpu/releases/0.1.11/build-20260911075027/candidate.json"
+      }
+    }
+  },
+  "pluginVersion": "0.2.5",
+  "frontendVersion": "1.53.3"
+}

@@ -24,30 +24,30 @@ trigger-words: [动漫PV, 游戏PV, 漫画PV, 角色PV, 剧情预告, 战斗预�
 | `Master Timeline` | 包含全部 Logical Shot 的唯一完整生成计划。 |
 | `Storyboard Preview` | 从当前语义分镜派生的可选九宫格。存在时作为构图、动作阶段和镜头承接的辅助 Prompt 输入；它不是人物或画风权威，也不进入视频参考槽位。 |
 | `Storyboard Package` | 一次可供用户审阅的完整分镜版本，由 `storyboard_review.md`、全部 Panel、Logical Shot、Master Timeline，以及用户选择查看时生成的 Storyboard Preview 共同组成。 |
-| `Storyboard Approval` | 用户通过真实 确认卡 对当前 Storyboard Package 给出的批准回执；必须绑定 `storyboard_revision`，存在九宫格时同时绑定 `preview_revision`。它只授权 Prompt 编译，不授权视频生成。 |
+| `Storyboard Approval` | 用户通过真实 确认卡 对当前 Storyboard Package 给出的批准回执；必须绑定 `storyboard_revision`，存在九宫格时同时绑定 `preview_revision`。该批准同时授权系统编译 Prompt，并在 Preflight 通过后直接生成。 |
 | `Render Contract` | 一次完整生成的可执行合同；draft 先锁定能力与计划，locked 再锁定身份、唯一画风与色彩权威、实际参考槽位、当前模型参数、Prompt 预算和最终文件数量。 |
-| `Render Attempt` | 一份已确认的 Render Contract、一份已确认的完整 Prompt、一次 一次视频执行批次 和一条完整候选视频。 |
+| `Render Attempt` | 一份已确认的 Render Contract、一份通过 Preflight 的完整 Prompt、一次 一次视频执行批次 和一条完整候选视频。 |
 | `Final Video` | 通过检查并被选中的 Render Attempt；它替代先前候选，而不是与候选片段拼接。 |
 
-生产拓扑固定为：静默 Intake → 制作路线与身份确认 → Style Authority Gate → 色彩方向与参考处理 → 视觉权威决策 → Render Contract draft → 必要视觉权威图与唯一 `style_authority` → locked Render Contract → Panel → Logical Shot → Master Timeline → 可选九宫格 → 完整 Storyboard Package 确认 → `final_video_prompt` 编译与确认 → 一个完整 Render Attempt。`production_route` 记录用户选择且后续不改写；是否需要先生成视觉权威图由 `requires_visual_authority_asset` 独立派生。每个 Render Attempt 始终生成一条完整候选视频；多个独立最终成片、时长超过 15 秒或跨视频连续性才升级到 workflow。
+生产拓扑固定为：静默 Intake → 制作路线与身份确认 → Style Authority Gate → 色彩方向与参考处理 → 视觉权威决策 → Render Contract draft → 必要视觉权威图与唯一 `style_authority` → locked Render Contract → Panel → Logical Shot → Master Timeline → 可选九宫格 → 完整 Storyboard Package 确认 → `final_video_prompt` 编译与 Preflight → 生成一个完整 Render Attempt。`production_route` 记录用户选择且后续不改写；是否需要先生成视觉权威图由 `requires_visual_authority_asset` 独立派生。每个 Render Attempt 始终生成一条完整候选视频；多个独立最终成片、时长超过 15 秒或跨视频连续性才升级到 workflow。
 
 ## Interaction Contract
 
 先从用户原文、真实附件和画布资产建立 `intake_state`，再询问缺失决策。至少记录 `production_route / identity_source / has_valid_image_asset / style_candidates / style_source / style_authority / style_authority_kind / visual_policy / default_editorial_active / dominant_theme_color / accent_color / accent_policy / character_palette_policy / palette_authority / saturation_policy / reference_processing / requires_visual_authority_asset / visual_artifact_type / visual_authority_revision / visual_authority_status / narrative_focus / duration / aspect_ratio / audio_plan / audio_drive / storyboard_revision / preview_revision / storyboard_status / prompt_status`。用户已经明确或素材可以直接证明的身份、规格和声音信息必须继承，不得重复询问；画风方向属于强制确认项，不能仅凭文字或附件静默锁定。
 
-`visual_authority_status` 只允许 `not_applicable | pending | approved`；`storyboard_status` 与 `prompt_status` 只允许 `empty | pending | approved`。新生成视觉权威图、Storyboard Package 或 Prompt 首次创建或内容变化时为 `pending`；只有真实 确认卡 对当前版本返回有效确认后才为 `approved`。后续产物不能反向替代前一状态的批准。
+`visual_authority_status` 只允许 `not_applicable | pending | approved`；`storyboard_status` 与 `prompt_status` 只允许 `empty | pending | approved`。新生成视觉权威图或 Storyboard Package 首次创建或内容变化时为 `pending`。从获批 Storyboard Package 编译 Prompt 后设置 `prompt_status=pending`，Preflight 通过后设置为 `approved` 并直接派单。后续产物不能反向替代前一状态的批准。
 
-执行顺序固定为：静默 Intake → 有素材时完成媒体分析与候选 Ref Capsule → Style Authority Gate 确认 `style_source` → 解析色彩合同 → 内部默认视觉路径依次确认主题色、可选强调色和适用的参考图处理 → 根据视觉决策矩阵派生 `style_authority_kind / requires_visual_authority_asset / visual_artifact_type` → 确认其余规格 → 按路径生成并确认必要视觉权威图 → 锁定唯一 `style_authority` 和 Render Contract → 完成并确认 Storyboard Package → 编译并确认 Prompt。任何阶段都不得提前把候选来源当作最终画风权威，也不得越过前一产物的批准状态。
+执行顺序固定为：静默 Intake → 有素材时完成媒体分析与候选 Ref Capsule → Style Authority Gate 确认 `style_source` → 解析色彩合同 → 内部默认视觉路径依次确认主题色、可选强调色和适用的参考图处理 → 根据视觉决策矩阵派生 `style_authority_kind / requires_visual_authority_asset / visual_artifact_type` → 确认其余规格 → 按路径生成并确认必要视觉权威图 → 锁定唯一 `style_authority` 和 Render Contract → 完成并确认 Storyboard Package → 编译并 Preflight Prompt → 直接生成。任何阶段都不得提前把候选来源当作最终画风权威，也不得越过前一产物的批准状态。
 
 下游失效关系固定如下：
 
-1. `style_source` 或 `visual_policy` 变化：使配色、参考处理、视觉权威、Render Contract、Storyboard Approval 和 Prompt Approval 全部失效。
-2. 配色、强调色职责或 `reference_processing` 变化：如果使用生成型权威图，使当前 `visual_authority_revision` 失效；无论权威类型如何，都使 Render Contract、Storyboard Approval 和 Prompt Approval 失效。
-3. 视觉权威资产、类型或实际绑定变化：使 Render Contract、Storyboard Approval 和 Prompt Approval 失效。
-4. Panel、Logical Shot 或 Master Timeline 变化：形成新的 `storyboard_revision`；九宫格预览变化：形成新的 `preview_revision`。任一变化都使 Storyboard Approval 和 Prompt Approval 失效。
-5. 只修改不改变分镜语义的模型、合法参数、参考槽位或 Prompt 措辞：只使 Render Contract 或 Prompt Approval 失效，不回退视觉与分镜。
+1. `style_source` 或 `visual_policy` 变化：使配色、参考处理、视觉权威、Render Contract 和 Storyboard Approval 全部失效，并将 `prompt_status` 设为 `pending`。
+2. 配色、强调色职责或 `reference_processing` 变化：如果使用生成型权威图，使当前 `visual_authority_revision` 失效；无论权威类型如何，都使 Render Contract 和 Storyboard Approval 失效，并将 `prompt_status` 设为 `pending`。
+3. 视觉权威资产、类型或实际绑定变化：使 Render Contract 和 Storyboard Approval 失效，并将 `prompt_status` 设为 `pending`。
+4. Panel、Logical Shot 或 Master Timeline 变化：形成新的 `storyboard_revision`；九宫格预览变化：形成新的 `preview_revision`。任一变化都使 Storyboard Approval 失效，并将 `prompt_status` 设为 `pending`。
+5. 只修改不改变分镜语义的模型、合法参数、参考槽位或 Prompt 措辞：只更新 Render Contract 或将 `prompt_status` 设为 `pending`，不回退视觉与分镜。
 
-任何需要用户选择、确认或批准生成的步骤都必须调用真实 确认卡。普通文本只能解释结论、说明影响或请求上传已选素材；不得在普通回复中列编号选项、用“请回复 1/2/3”“如无修改我就继续”代替 Question Window，也不得在未获得对应确认时继续生成。问题标题、选项、说明和推荐表达必须统一遵循运行时注入的 `working_language`；推荐项只在有明确判断依据时标记，并使用该语言的自然表达。`default_editorial_active`、Editorial、内部视觉系统名称、内部路径、Skill 名称和转交过程不得向用户显示。分镜确认和 Prompt 生成确认都是阻塞门禁：只有对应完整产物已经可见后取得的答案才有效，提前对摘要、计划或尚未落盘的内容提问不能形成批准。确认卡 取消、报错或无有效结果时停在当前门禁。
+任何需要用户选择、确认或批准生成的步骤都必须调用真实 确认卡。普通文本只能解释结论、说明影响或请求上传已选素材；不得在普通回复中列编号选项、用“请回复 1/2/3”“如无修改我就继续”代替 Question Window，也不得在未获得对应确认时继续生成。问题标题、选项、说明和推荐表达必须统一遵循运行时注入的 `working_language`；推荐项只在有明确判断依据时标记，并使用该语言的自然表达。`default_editorial_active`、Editorial、内部视觉系统名称、内部路径、Skill 名称和转交过程不得向用户显示。分镜确认是执行前最后一道确认门禁；用户确认后，系统编译 Prompt、完成 Preflight 并直接派单。用户后续修改分镜、画风或参考处理时返回对应已有确认；其它明确修改更新后继续执行。必需的 确认卡 取消、报错或无有效结果时停在当前门禁。
 
 ### 静默 Intake
 
@@ -114,13 +114,13 @@ Style Authority Gate 返回后，先判断是否启用内部默认视觉路径�
 
 时长超过 15 秒时单独使用条件窗口，只提供“压缩到 15 秒以内”和“切换到长视频/完整分镜流程”。不得在本 Skill 内拆成多个视频后拼接。用户要求屏幕文字但未给准确原文时，再单独请求准确文字，不询问已经明确的“是否需要文字”。
 
-### 视觉确认与两道生成门禁
+### 视觉确认与生成授权
 
 1. `style_authority_kind=generated_asset` 时，视觉权威图生成并检查后设置 `visual_authority_status=pending`，用真实 确认卡 提供：使用当前视觉参考继续、调整画风表现、调整配色、调整参考图处理、调整角色一致性。确认后记录 `visual_authority_revision` 并设置为 approved；existing_asset 路径设置 `visual_authority_status=not_applicable / visual_authority_revision=not_applicable`。
-2. 完成全部 Panel、Logical Shot、Master Timeline 和 `storyboard_review.md` 后，设置 `storyboard_status=pending` 并显示第一道门禁：确认叙事分镜并继续、查看九宫格分镜预览、调整叙事与节奏、调整人物与动作、调整视觉与声音。用户选择查看预览时，从当前语义分镜生成九宫格并返回同一道门禁；最终确认绑定语义分镜和存在时的 `preview_revision`。
-3. 只有当前 `storyboard_status=approved` 且批准回执绑定的完整 Storyboard Package 与画布一致时，才能编译完整 Markdown Prompt。Prompt 和 Render Contract 通过 Preflight 后设置 `prompt_status=pending`，再用单选 确认卡 提供：确认并生成视频、调整镜头与时间线、调整人物/画风/参考绑定、调整声音与文字、调整模型与生成参数。用户确认当前 Prompt 后设置 `prompt_status=approved`；只在合同已经满足用户目标时对第一项使用 `working_language` 的自然推荐表达。
+2. 完成全部 Panel、Logical Shot、Master Timeline 和 `storyboard_review.md` 后，设置 `storyboard_status=pending` 并显示分镜确认卡：确认分镜并生成；查看九宫格分镜预览；调整叙事与节奏；调整人物与动作；调整视觉与声音。用户选择查看预览时，从当前语义分镜生成九宫格并返回同一道门禁；最终确认绑定语义分镜、当前 locked Render Contract 和存在时的 `preview_revision`。
+3. 当前 `storyboard_status=approved` 且批准回执绑定当前 Storyboard Package 与 Render Contract 时，编译完整 Markdown Prompt。编译只把已确认内容转成可执行 Prompt，不新增创意决定。Prompt 和 Render Contract 通过 Preflight 后，设置 `prompt_status=approved` 并直接派单。
 
-每次只修改用户所选范围，并按统一失效关系重新展示受影响内容。用户选择调整画风、色彩或参考绑定时，必须回到对应决策阶段，按需重新生成视觉权威图，再更新 Render Contract 和 Storyboard Package。Panel、Logical Shot、Master Timeline、分镜文字或已生成九宫格发生任何变化，都形成新的 Storyboard Package revision，并使 `storyboard_status=pending / prompt_status=pending`。第二道门禁未通过前不得调用 execution layer；Prompt、Render Contract、素材绑定或执行参数在确认后发生任何变化，都使 `prompt_status=pending`，必须重新 Preflight 和确认。
+每次只修改用户所选范围，并按统一失效关系重新展示受影响内容。用户选择调整画风、色彩或参考绑定时，回到对应决策阶段，按需重新生成视觉权威图，再更新 Render Contract 和 Storyboard Package。Panel、Logical Shot、Master Timeline、分镜文字或已生成九宫格发生变化时，形成新的 Storyboard Package revision，并重新显示分镜确认卡；其它执行信息按用户的新要求更新，重新 Preflight 后继续派单。
 
 ## 1. 判断路由与交付范围
 
@@ -195,11 +195,11 @@ Style Authority Gate 返回后，先判断是否启用内部默认视觉路径�
 1. 用 `画布写入` 创建或覆盖同一个 `storyboard_review.md`，写入完整 Brief、素材贡献、`style_source → style_authority`、`visual_artifact_type`、配色权威、饱和度策略、参考图处理、声音方案、全部 Panel、Logical Shot 分组和无空档的 Master Timeline。
 2. 确认完整 `storyboard_review.md` 已在画布可见；不得用 `final_video_prompt.md` 充当分镜文档。
 3. 以当前分镜文本节点及其语义内容组成新的 `storyboard_revision`，设置 `storyboard_status=pending`。尚未生成九宫格时记录 `preview_revision=none`。
-4. 调用第一道 确认卡，提供“确认叙事分镜并继续 / 查看九宫格分镜预览 / 调整叙事与节奏 / 调整人物与动作 / 调整视觉与声音”。用户确认时，Storyboard Approval 同时绑定当前 `storyboard_revision` 和存在时的 `preview_revision`；用户要求调整时覆盖分镜产物、生成新 revision 并再次等待确认。
+4. 调用分镜 确认卡，提供“确认分镜并生成 / 查看九宫格分镜预览 / 调整叙事与节奏 / 调整人物与动作 / 调整视觉与声音”。Storyboard Approval 同时绑定当前 `storyboard_revision`、locked Render Contract 和存在时的 `preview_revision`；用户要求调整时覆盖分镜产物、生成新 revision 并再次等待确认。
 
-用户选择“查看九宫格分镜预览”时，才从当前语义分镜派生一张九宫格，节点命名为 `《项目名》九宫格分镜预览`，并明确说明：“九宫格用于确认镜头顺序、动作节点和构图方向；确认后其中可执行的构图与动作信息会转译进视频提示词，但九宫格图片本身不会作为视频参考。成片的角色与画风由已确认视觉权威保持一致，动态与镜头过渡按照主时间线生成。”预览成功落到画布后记录新的 `preview_revision`，保持 `storyboard_status=pending` 并立即返回同一道分镜确认 确认卡。用户要求修改预览内容时，先修改对应 Panel、Logical Shot 或 Master Timeline，形成新 `storyboard_revision`，再从新语义分镜重新派生预览；不得只编辑预览图。重新生成九宫格会产生新的 `preview_revision`，使旧 Storyboard Approval 和 Prompt Approval 失效。
+用户选择“查看九宫格分镜预览”时，才从当前语义分镜派生一张九宫格，节点命名为 `《项目名》九宫格分镜预览`，并明确说明：“九宫格用于确认镜头顺序、动作节点和构图方向；确认后其中可执行的构图与动作信息会转译进视频提示词，但九宫格图片本身不会作为视频参考。成片的角色与画风由已确认视觉权威保持一致，动态与镜头过渡按照主时间线生成。”预览成功落到画布后记录新的 `preview_revision`，保持 `storyboard_status=pending` 并立即返回同一道分镜确认 确认卡。用户要求修改预览内容时，先修改对应 Panel、Logical Shot 或 Master Timeline，形成新 `storyboard_revision`，再从新语义分镜重新派生预览；不得只编辑预览图。重新生成九宫格会产生新的 `preview_revision`，使旧 Storyboard Approval 失效并将 `prompt_status` 设为 `pending`。
 
-第一道 确认卡 是本阶段的终点。未得到绑定当前 revision 的有效确认前，不得进入 Prompt 编译阶段，不得创建或覆盖 `final_video_prompt.md`，也不得把“已生成分镜”“接下来编译 Prompt”等普通回复视为默认批准。
+分镜 确认卡 是本阶段的终点。未得到绑定当前 revision 的有效确认前，不得进入 Prompt 编译阶段，不得创建或覆盖 `final_video_prompt.md`，也不得把“已生成分镜”“接下来编译 Prompt”等普通回复视为默认批准。
 
 ## 5. 从已批准 Storyboard Package 编译并 Preflight
 
@@ -223,19 +223,19 @@ Panel 不与 Prompt 章节一一对应，也不逐格机械复制进 Prompt；Lo
 2. 按最终 Prompt 的实际字符数与 Render Contract 的 `prompt_budget` 做精确校验。
 3. 超预算时，按 `references/prompt-rules.md` 的确定性收敛顺序删除重复身份、重复画风、重复否定词和没有新增信息的镜头表达，覆盖同一文档并重新计数；不得牺牲时间线覆盖、动作因果、素材绑定或声音事件。
 4. 在同一份 Prompt 和 Render Contract 上执行统一 Preflight：Style Authority Gate、唯一画风与色彩权威、Prompt 长度、当前模型参数白名单、模型与模式、素材最终角色、槽位/数量/时长、真实路径、音频方案、duration、画幅、分辨率、最终文件数量和未解析占位符。
-5. 任一项失败都返回合同或 Prompt 编译阶段修正，不创建 Render Attempt；全部通过后才显示第二道生成门禁。
+5. 任一项失败都返回对应合同、分镜或 Prompt 编译阶段修正，不创建 Render Attempt。全部通过后设置 `prompt_status=approved` 并直接派单。
 
-用户在第二道门禁要求修改时，先判断是否改变获批分镜语义：任何镜头、时间范围、叙事职责、动作、转场、构图、声音事件或结尾状态变化都回到第 4 阶段，生成新 `storyboard_revision` 并重新通过第一道门禁；只有不改变分镜语义的措辞压缩、合法参数、模型或参考槽位修正，才更新 Render Contract 或同一 `final_video_prompt.md`，重新 Preflight 并只重走第二道门禁。
+Prompt 编译后、派单前，如果用户主动要求修改，先判断是否改变获批分镜语义：镜头、时间范围、叙事职责、动作、转场、构图、声音事件或结尾状态变化回到第 4 阶段，生成新 `storyboard_revision` 并重新通过分镜门禁；不改变分镜语义的措辞压缩、合法参数、模型或参考槽位修正直接更新 Render Contract 或同一 `final_video_prompt.md`，重新 Preflight 后继续派单。
 
 ## 6. 创建、检查和修复 Render Attempt
 
-只有 `storyboard_status=approved`、`prompt_status=approved` 且两个批准回执都仍绑定当前产物时，才将确认后的 Render Contract 和 `final_video_prompt.md` 作为不可变执行简报，进入一次视频生成。执行层先确认简报仍满足合同，再提交字符级相同的 Prompt、素材顺序和设置；不得摘要、翻译、改写、压缩、增加设置、切换模型、改变素材绑定、压平 Markdown 结构或把 Logical Shot 拆成独立视频任务。
+只有 `storyboard_status=approved`、`prompt_status=approved`，且 Storyboard Approval 仍绑定当前产物时，才将确认后的 Render Contract 和 `final_video_prompt.md` 作为不可变执行简报，进入一次视频生成。执行层先确认简报仍满足合同，再提交字符级相同的 Prompt、素材顺序和设置；不得摘要、翻译、改写、压缩、增加设置、切换模型、改变素材绑定、压平 Markdown 结构或把 Logical Shot 拆成独立视频任务。
 
 失败按生产阶段回流：
 
 1. 提交前发现参数、长度、模式、素材或路径不合法：返回 Render Contract / Prompt 编译阶段，不创建 Render Attempt，也不发起生成。
 2. 修复需要改变画风权威、视觉产物形式、配色、参考处理或饱和度：回到对应 Style Authority Gate、配色或参考处理确认，按需重新生成视觉权威图，再更新 Master Timeline、Render Contract、Prompt、Preflight 和受影响的生成门禁。
-3. 修复改变镜头、时间线、动作、转场、构图、声音事件或结尾状态：回到 Storyboard Package，形成新 revision，重新通过第一道门禁后再编译 Prompt；只改变不影响分镜语义的措辞、参数、模型或参考槽位时，主 Agent 才可更新合同和同一 Prompt 文档，重新 Preflight，并只重走第二道门禁。
+3. 修复改变镜头、时间线、动作、转场、构图、声音事件或结尾状态：回到 Storyboard Package，形成新 revision，重新通过分镜门禁后再编译 Prompt；只改变不影响分镜语义的措辞、参数、模型或参考槽位时，主 Agent 更新合同和同一 Prompt 文档，重新 Preflight 后继续执行。
 4. 已成功生成但人物、画风、动作、节奏、声音或转场质量不合格，且不改变已确认权威：进入下方整条重生成流程。
 
 任何失败都不得通过静默删除参数、临时压缩 Prompt、替换素材或切换模型后继续执行；也不得绕过重新确认自动重试。
@@ -246,9 +246,9 @@ Panel 不与 Prompt 章节一一对应，也不逐格机械复制进 Prompt；Lo
 
 1. 在 Master Timeline 中定位失败位置。
 2. 修改对应 Panel、Logical Shot、连续性锁或时间线指令，并覆盖 Storyboard Package。
-3. 形成新的 `storyboard_revision`，重新通过第一道分镜门禁。
+3. 形成新的 `storyboard_revision`，重新通过分镜门禁。
 4. 从获批分镜重新编译完整 `final_video_prompt`；如执行条件变化，同时更新 Render Contract。
-5. 重新执行统一 Preflight，并通过第二道生成门禁。
+5. 重新执行统一 Preflight，通过后直接派单。
 6. 创建新的完整 Render Attempt，重新检查完整视频，并用通过的候选替代旧候选。
 
 不生成局部视频补丁，不把修复后的 Shot 拼接回旧视频，不原样重复失败调用，也不静默切换模型或丢弃参考素材。

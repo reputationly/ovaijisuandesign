@@ -8,9 +8,11 @@ dist/
 config.local.json
 config.json
 
-# 对照用的官方原文。**不进版本库** —— 那是 MiniMax 的专有文件，
-# 我们只读它当规格，不复制。
-reference/
+# 对照用的参照原文。按版本号放的快照（reference/<版本>/）进版本库，供云端对照；
+# 其余本地探测产物（截图、清单、运行时快照）不进。
+reference/*
+!reference/README.md
+!reference/3.0.16/
 
 # 探测脚本、截图之类的临时产物
 .probe/

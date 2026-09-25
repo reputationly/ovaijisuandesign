@@ -1,13 +1,11 @@
 # 自带的 Skill
 
-这批来自 MiniMax Design（`meta.yaml` 里 `author-cn: MiniMax Design` /
-`source: official`），原样收录，没有改写。
+这批来自 MiniMax Design 3.0.16 的 `~/.hub/skills`（36 个，`meta.yaml` 里
+`author-cn: MiniMax Design` / `source: official`），原样收录，没有改写。
 
-**保留了每个 skill 自己的 `meta.yaml`**，出处和作者信息都在里面 ——
-去掉那些会让它们看起来像我们写的。
+**保留了每个 skill 自己的 `meta.yaml`**，出处和作者信息都在里面。
 
-第一次启动时由 `gateway::skills::seed` 铺到工作区的
-`.hilo/skills/<slug>/`，之后**不再覆盖**：用户改过的那份是他自己的。
+新栈里由桌面主进程在启动时铺到 `~/.ovhub/skills/<slug>/`（开发时读仓库的
+`assets/skills`，发布包里读 `resources/skills`）。
 
-要更新到新版本，重新从官方应用的 `~/.hub/skills` 拷一遍，或者在
-Skill 页点「导入」。
+要更新到新版本，重新从官方应用的 `~/.hub/skills` 拷一遍。

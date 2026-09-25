@@ -1,0 +1,85 @@
+# External API Configuration
+# Gateway 后端服务密钥与端点配置
+# 本地 Gateway 仅通过 cloud_gateway 调用云端服务，不直接持有第三方 API 密钥
+#
+# cloud_gateway.base_url 由 @hilo/protocol cloud-gateway.ts 统一定义，
+# 可通过 CLOUD_GATEWAY_BASE_URL 环境变量覆盖
+
+cloud_gateway:
+  video:
+    minimax:
+      generate: /api/v1/video/minimax/generate
+      query: /api/v1/video/minimax/tasks
+      file_retrieve: /api/v1/video/minimax/files
+    minimax_v3:
+      generate: /api/v1/video/minimax-v3/generate
+      enhancement_generate: /api/v1/video/minimax-v3/enhancement/generate
+      continuation_generate: /api/v1/video/minimax-v3/continuation/generate
+      query: /api/v1/video/minimax-v3/tasks
+      file_retrieve: /api/v1/video/minimax/files
+    kling:
+      generate: /api/v1/video/kling/generate
+      query: /api/v1/video/kling/tasks
+      lip_sync: /api/v1/video/kling/lip-sync
+    veo3:
+      generate: /api/v1/video/veo3/generate
+      query: /api/v1/video/veo3/tasks
+    wan:
+      generate: /api/v1/video/wan/generate
+      query: /api/v1/video/wan/tasks
+    wan3:
+      generate: /api/v1/video/wan3/generate
+      query: /api/v1/video/wan3/tasks
+    seedance:
+      generate: /api/v1/video/seedance/generate
+      query: /api/v1/video/seedance/tasks
+    jimeng:
+      generate: /api/v1/video/jimeng/generate
+      query: /api/v1/video/jimeng/tasks
+    kling_avatar:
+      generate: /api/v1/video/kling/avatar
+      query: /api/v1/video/kling/avatar
+    kling_motion_control:
+      generate: /api/v1/video/kling/motion-control
+      query: /api/v1/video/kling/motion-control
+  image:
+    nano_banana:
+      generate: /api/v1/image/nano_banana/generate
+    openai:
+      generate_v2: /api/v2/image/openai/generate
+      query_v2: /api/v2/image/openai/tasks
+    qwen:
+      generate_v2: /api/v2/image/qwen/generate
+      query_v2: /api/v2/image/qwen/tasks
+    seedream:
+      generate_v2: /api/v2/image/seedream/generate
+      query_v2: /api/v2/image/seedream/tasks
+    kling:
+      generate: /api/v1/image/kling/generate
+      query: /api/v1/image/kling/tasks
+    midjourney:
+      generate: /api/v1/image/midjourney/generate
+      query: /api/v1/image/midjourney/tasks
+  speech:
+    minimax:
+      tts: /api/v1/audio/tts
+      tts_batch: /api/v1/audio/tts/batch
+      voices: /api/v1/audio/voices
+      voice_clone: /api/v1/audio/voice_clone
+      voice_design: /api/v1/audio/voice_design
+      voice_isolation: /api/v1/audio/voice_isolation
+      speech_model: speech-2.8-hd
+      hailuo03_audio_continuation: /api/v2/audio/minimax-v3/continuation
+      hailuo03_audio_continuation_query: /api/v2/audio/minimax-v3/continuation/tasks
+  music:
+    minimax:
+      generate: /api/v1/audio/music/minimax
+      cover:
+        preprocess: /api/v1/audio/music/cover/preprocess
+        generate: /api/v1/audio/music/cover/generate
+      lyrics: /api/v1/audio/lyrics/generate
+  media:
+    analyze: /api/v1/tool/analyze_media
+  super_resolution:
+    generate: /api/v1/tool/super-resolution/generate
+    query: /api/v1/tool/super-resolution/tasks

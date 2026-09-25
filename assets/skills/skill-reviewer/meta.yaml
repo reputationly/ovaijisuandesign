@@ -1,5 +1,5 @@
 display-name-zh: 技能审查
-version: 0.4.1
+version: 0.4.3
 tag-en: "Platform Tooling"
 tag-cn: "平台工具"
 complete-tags-en:
@@ -14,3 +14,20 @@ cover: ""
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official
+structured-info:
+  zh-CN:
+    summary: 审查Skill的触发描述、工作流结构、市场字段和中英对齐情况，输出上架前的质量判断。
+    best-for:
+      - Skill审查
+      - 元数据质检
+      - 上架检查
+    how-to-use: 提供Skill文件与市场元数据，先运行机器校验，再按结构、触发、内容和引用逐项审查。
+    outputs: 结构与字段审查报告、问题分级、对齐检查、校验结果与优先改进建议。
+  en-US:
+    summary: Review a Skill’s triggering, workflow structure, market fields, and bilingual alignment to assess publishing readiness.
+    best-for:
+      - Skill Audits
+      - Metadata QA
+      - Pre-publish Review
+    how-to-use: Provide the Skill files and market metadata, then run machine checks before reviewing structure, triggers, content, and references.
+    outputs: A structure and field report, prioritized issues, alignment checks, validation findings, and improvement recommendations.

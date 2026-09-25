@@ -1,5 +1,5 @@
 display-name-zh: "人物微表情视频生成"
-version: "1.0.1"
+version: "1.0.2"
 tag-en: "Professional Film"
 tag-cn: "专业影视"
 complete-tags-en:
@@ -12,6 +12,20 @@ desc-en: "This Skill helps filmmakers and character-video creators turn a charac
 desc-cn: "本 Skill 面向影视创作者和角色视频制作者，将角色图片、剧本片段或一句情绪短语转化为可执行的微表情表演提示词。流程先保护已确认的角色身份、场景、台词、调度和运镜，再确认镜头时长与表演强度，按需组合情绪路线、可见的面部与身体细节、节奏密度和镜头连续性约束；用户审阅提示词后，默认使用 MiniMax-H3 生成表演片段，明确指定其他模型时先做能力检查。最终交付分时表演提示词及可选视频片段，适合克制、含泪强撑、犹豫、愤怒、心动和冷静决绝等复杂表演，不替代完整编剧、医学判断、面部绑定、口型编辑或最终合成。"
 cover: "https://cdn.hailuoai.com/pre/2026-08-14-21/video/1786713874745782855-1786713874739.mp4"
 cover-en: "https://cdn.hailuoai.com/pre/2026-08-14-21/video/1786713874745782855-1786713874739.mp4"
+showcase:
+  - "https://cdn.hailuoai.com/hub-skill-market/showcase/2026-09-08/micro-expression-video-generator-01-20260908-1788854461283.mp4"
+  - "https://cdn.hailuoai.com/hub-skill-market/showcase/2026-09-08/micro-expression-video-generator-02-20260908-1788854461283.mp4"
+structured-info:
+  zh-CN:
+    summary: 将角色图、剧本或情绪短语转化为细腻可信、可执行的微表情指导。
+    best-for: [细腻角色演技, 情绪转折, 含蓄对白表演]
+    how-to-use: 提供角色图或剧本，补充镜头时长和表演强度后开始设计。
+    outputs: 分时表演提示词、动作细节、连续性约束及表演片段。
+  en-US:
+    summary: Turn a character image, script, or emotion phrase into subtle, believable, executable micro-expression direction.
+    best-for: [Subtle Acting, Emotional Turns, Understated Dialogue]
+    how-to-use: Provide a character image or script, then specify shot duration and performance intensity.
+    outputs: Timed acting prompts, movement details, continuity constraints, and performance clips.
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official-featured

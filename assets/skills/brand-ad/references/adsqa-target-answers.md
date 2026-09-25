@@ -46,7 +46,7 @@ Visual Reasoning Card
 
 ## 答案到成片映射
 
-在生成前确认中展示：`answer_id -> required_evidence -> sequence / shot -> product proof -> sound / copy`。30/45 秒任务让每个 sequence 承担一个主答案，所有片段共享同一产品锚点、视觉方向和 Voice Continuity Lock。旁白应表达完整叙事，只有确认的记忆点进入原生艺术字，不把每句旁白变成字幕。
+在生成前确认中展示：`answer_id -> required_evidence -> sequence / shot -> product proof -> sound / copy`。多 sequence 任务让每个 sequence 承担一个主答案，所有片段共享同一产品锚点、视觉方向和 Voice Continuity Lock。旁白应表达完整叙事，只有确认的记忆点进入原生艺术字，不把每句旁白变成字幕。
 
 ## 自检
 

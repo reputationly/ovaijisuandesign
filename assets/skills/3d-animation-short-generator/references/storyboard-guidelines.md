@@ -4,14 +4,14 @@
 
 After the Step 5.5 self-check passes, show a storyboard-mode choice card before producing any storyboard artifact:
 
-- **Text storyboards document only (default, recommended)** — one document containing all shot storyboards as in-document sections. Mirrors the half-narrated-drama storyboard structure: per-shot fields (title / hook / scene / characters / spatial anchors / continuity / performance) plus Pixar's per-panel four-quadrant content + mandatory `Mouth State` per panel + optional ASCII layout. Carries the full quality-control payload at near-zero cost. The video model selected in Step 7 reads this directly as the per-shot rendering reference.
+- **Text storyboards document only (default, recommended)** — one canvas text node containing all shot storyboards as in-document sections. Mirrors the half-narrated-drama storyboard structure: per-shot fields (title / hook / scene / characters / spatial anchors / continuity / performance) plus Pixar's per-panel four-quadrant content + mandatory `Mouth State` per panel + optional ASCII layout. Carries the full quality-control payload at near-zero cost. The video model selected in Step 7 reads this directly as the per-shot rendering reference.
 - **Text storyboards document + multi-panel pencil image (visualization mode, opt-in)** — the text storyboards document is still produced as the authoritative artifact, AND one multi-panel pencil image is generated per shot for human review. Higher cost, useful when the user wants a visual preview before committing to video generation, or when squash-and-stretch / pose silhouette is the main risk and the user wants to pre-check it visually.
 
 Store the chosen storyboard mode in the Project Brief and reuse it in Step 7, Step 9, and the Regeneration discipline.
 
 ### Default path: single text storyboards document
 
-Generate one document named `<title> text storyboards` for the whole short. This document is the authoritative rendering reference for Step 7 even when pencil images are also produced. Every shot is a section in the same document, so the user can read cross-shot continuity without switching artifacts.
+Generate one canvas text node named `<title> text storyboards` (one document for the whole short). This document is the authoritative rendering reference for Step 7 even when pencil images are also produced. The structure mirrors the half-narrated-drama storyboard — every shot is a section in the same document, so the user can read cross-shot continuity without node-hopping.
 
 Document top matter (header block at the top of the document):
 
@@ -158,7 +158,7 @@ The narration panel template is structurally similar to the dialogue panel but t
 - Performance: narrator-mouth-closed: true | expression-path: [0.0s brows soften, eyes drift UL; 0.3s gaze holds; 0.6s jaw relaxes; 1.0s lips press lightly] | [SPEAKER_HANDOFF → off-screen]
 ```
 
-After all sections are written, organize the document with the project and move directly to Step 7. Do not generate images in default mode.
+After all sections are written, place the document on canvas and present the storyboard approval gate below. Approval of text does not itself authorize unspecified video generation or fallback attempts; resolve the initial render scope before Step 7. Do not generate images in default text-only mode.
 
 ### Shot-level extraction (heavy-iteration mode)
 
@@ -166,7 +166,7 @@ The default single-document form is optimized for reading and cross-shot continu
 
 - User signal: at any time after Step 6, the user says things like "let me focus on S05", "S05 needs rework", "extract S05", or selects a shot during the storyboard approval choice card.
 - Extraction mechanics:
-  1. Create a new text artifact named `<title> S05 text storyboard (extracted)`.
+  1. Create a new canvas text node named `<title> S05 text storyboard (extracted)`.
   2. Move the full content of the `## S05` section from the document into the new node.
   3. In the document, replace the `## S05` section with a one-line placeholder: `> S05 — extracted to standalone node (see `<title> S05 text storyboard (extracted)`)`.
   4. Step 7 reads from the extracted node for S05; all other shots still read from the document.
@@ -196,7 +196,7 @@ For each pencil image storyboard:
   - 5-second shot → top row 3 + bottom row 2.
   - 6-second shot → 2×3 grid.
   - 7+ second shot → 3 rows, balanced panels.
-  - Each panel occupies the same frame area; do not let one panel dominate.
+  - Each panel occupies the same canvas area; do not let one panel dominate.
 - **Per-panel four-quadrant content (mandatory)**:
   - Top-left: timecode (e.g. `0–1s`).
   - Top-right: pose + expression sketch (the largest area; the actual visual beat).
@@ -212,7 +212,7 @@ For each pencil image storyboard:
 
 ### Storyboard approval (both modes)
 
-After all text storyboard sections (and pencil images, if visualization mode is on) are produced, organize them in shot order and group them as:
+After all text storyboard sections (and pencil images, if visualization mode is on) are produced, place them on canvas in shot order, group them as:
 - `<title> text storyboards` (default mode, single document), OR
 - `<title> text storyboards + multi-panel pencil storyboards` (visualization mode, group the text document and the pencil images separately because pencil images contain double-binding labels, ASCII labels, and shot numbers that the text document does not).
 
@@ -227,17 +227,14 @@ Show a user choice card:
 - Fix audio/anchor markers
 - **v1.1: Fix mouth-state / speaker-binding issue** (surfaced when a self-check or pre-render review flags a lip-sync risk in a specific panel)
 
-### Storyboard generation failure fallback (visualization mode only)
+### Storyboard failure: report first, obtain scoped authorization (v1.1.11)
 
-If a pencil image storyboard cannot be produced at the required quality (e.g. layout collapses, labels illegible, panels merged, character inconsistency), apply the following escalation before asking the user:
+Use the single bounded rework contract and visualization policy in `fallback-policy.md`; there is no independent storyboard retry ladder or fresh attempt allowance. A failed check records a result, not permission to create another image. Show the failing shot/panel, evidence, preserved text intent, proposed change, number of outputs/attempts, cost exposure, and stop conditions before any additional generation. Opting into pencil visualization authorizes the agreed first pass, not automatic redraws.
 
-1. **First retry**: regenerate the same shot storyboard with a tightened prompt that explicitly mentions the four-quadrant layout, the `[char:…] [scene:…] [shot:…] [audio_mode:…] [speaker:…]` labels, the per-panel content rules, and the new v1.1 mouth-state strip.
-2. **Second retry**: drop the bottom-right audio/anchor quadrant text (keep it as a blank cell with a tiny `♪` mark) to reduce text load; this usually fixes illegible labels without losing the visual beat. **v1.1: keep the mouth-state strip — never drop that quadrant.**
-3. **Third retry**: reduce panel count by one (e.g. 6 panels → 5 panels by merging the two least-actionable seconds) and simplify camera icons to single arrows.
-4. **After three failed attempts on the same shot**: pause and ask the user with a choice card:
-   - Switch to a block-color storyboard (gray boxes for poses, no pencil lines) for the failing shot only.
-   - Drop the pencil image for the failing shot and rely on the text storyboards document alone for that row.
-   - Split the failing shot into two shorter shots in Step 5 and re-run Step 5.5.
-   - Manually supply a reference image to bind instead of generating.
+Default approval covers one additional attempt per named image. Total for the same shot/artifact issue is at most initial + two additional attempts; model switches, section extraction, renamed errors, and shot splits do not reset the count. Stop at the acceptance target, authorized limits, cumulative cap, cancellation, external blocker, no material improvement, or unapproved scope change; preserve and report the existing output.
 
-In default text mode this whole fallback is unnecessary — text storyboards fail only when the model cannot produce coherent structured text, in which case return to Step 5 to revise the table row.
+Offer choices to authorize the displayed targeted redraw, revise the proposal, retain the current review image, omit that optional image and rely on approved text, supply a replacement, or stop. Do not automatically simplify labels, reduce panels, change layout style, split shots, or drop required information. If a user approves such a change, preserve full timing coverage, audio/anchor intent, mouth states, and required story beats in authoritative text. A changed shot structure requires affected table rows and storyboard sections to be approved before media generation.
+
+Only repair affected sections/images and actual invalidated dependencies; adjacent sections need handoff review, not automatic regeneration. A pencil redraw never forces a video rerender. A text edit triggers comparison against the existing clip; render only if needed and explicitly authorized. Unaffected approved images, clips, and BGM stay locked.
+
+In default text-only mode, fix affected rows/sections within the requested text-edit scope and perform one local recheck. Report unresolved issues and wait rather than revising indefinitely. Missing evidence stays unverified. Do not claim a text correction repaired media or that a new candidate is approved.

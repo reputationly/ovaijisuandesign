@@ -1,0 +1,30 @@
+{
+  "name": "@hilo/opencode-plugin-hilo",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm run build:tsc && pnpm run build:bundle",
+    "build:tsc": "tsc -b",
+    "build:bundle": "node scripts/bundle.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm run build:bundle && vitest run"
+  },
+  "dependencies": {
+    "@hilo/protocol": "workspace:*",
+    "@opencode-ai/plugin": "1.18.18"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "vitest": "^3.2.7"
+  }
+}

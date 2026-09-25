@@ -10,11 +10,13 @@
 
 ## 一、原则（不可违反）
 
-1. **对照重写，不拷代码。**官方代码只当规格读：接口路径、字段名、错误码、类名字符串、设计 token、文案、交互行为要一模一样；实现代码必须自己写。
-   - 合并前跑 `python3 scripts/check-verbatim.py <路径>`：逻辑文件和官方逐字相同的长行要低于 5%，模型 id 表这类接口数据不算。
-   - Markdown / agent 配置用 `scripts/check-verbatim-md.py`，在 `wip/m8-agent-profiles` 分支上。
+1. **等价复刻，能直接用原文就用原文。**（2026-09-25 用户定：产品内部使用，不考虑许可。）
+   - 参照原文在 `reference/3.0.16/`（见 [`reference/README.md`](../reference/README.md)），实现前先读。
+   - agent 配置、技能、提示词、工具描述、错误文案、设计 token、界面文案：原样照搬。
+   - 代码：可以直接照搬或改写参照的逻辑。连着他们云端的部分（生成、模型目录、账号……）改接我们的平台。
+   - 以前的「对照重写、逐字重合率要低」规则作废，`scripts/check-verbatim.py` 不再使用。
 2. **代码、注释、测试名、包描述里不写「官方」「official」「MiniMax」。**出处说明只写在 `docs/`。接口值本身例外，比如模型 id `minimax-h3-fl2va`、vendor 值 `"MiniMax"`。
-3. **不提交任何 MiniMax 专有文件。**`reference/` 已被 gitignore，只放本机抽出来的材料。
+3. **仓库必须保持私有。**`reference/3.0.16/`、`assets/agent-profiles/`、`assets/skills/` 都是参照原文。`reference/` 下除版本快照外的本机探测产物仍然 gitignore。
 4. **数据目录不和同机的官方应用共用。**
    - 我们用 `~/Movies/蒜狸小助手`、`~/.ovhub` 和自己的 userData。
    - 绝不读写 `~/Movies/Hub`、`~/.hub`、`~/Library/Application Support/@hilo`。
@@ -31,7 +33,7 @@
 |---|---|
 | `replicate-official-stack` | 主线，已完成的都在这里 |
 | `ui-wave-1` | 界面第一波，做到一半，已基于最新主线，**未验证，别直接合** |
-| `wip/m8-agent-profiles` | 我们自己的 agent 配置，做到一半 |
+| `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入 |
 | `main` | 旧的 Rust + Tauri 版本，M10 切换前不动 |
 
 ### 已完成
@@ -63,8 +65,8 @@
 
 | 缺什么 | 影响 |
 |---|---|
-| 官方应用 `/Applications/MiniMax Design.app` 和解包出来的 `/tmp/asar16` | 看不到官方源码，没法从中抽规格 |
-| `reference/`（gitignore 了）：`ui-inventory/`、`main-inventory/`、`config-v2/` | 界面清单、主进程服务清单、官方 agent 配置都不在 |
+| 官方应用 `/Applications/MiniMax Design.app` | 用仓库里的 `reference/3.0.16/` 代替：主进程、渲染层、gateway、mcp-tools、插件、agent 配置原文都在 |
+| `reference/` 下的本机探测产物：`ui-inventory/`、`main-inventory/`、`shots/` | 界面清单和截图不在，需要时直接读 `reference/3.0.16/app/out/renderer` |
 | 用户的平台配置和 key（`~/Library/Application Support/ovaijisuandesign/config.json`） | 不能打真实平台 |
 | macOS 图形界面 | 不能启动 Electron、截图、和官方并排比对 |
 
@@ -76,11 +78,10 @@
   - P2 的后端补齐：gateway 路由、主进程服务、飞书 / 微信移植；
   - P3 打包脚本和 CI；
   - 所有单元测试和 e2e 测试（vitest，gateway 用假平台）。
+  - 界面代码也可以在云上写（参照渲染层在 `reference/3.0.16/app/out/renderer`），但验收要回本机。
 - **必须在本机做**：
-  - 需要读官方包的界面工作：P0-1、P1、各界面波次；
-  - 截图比对；
+  - 截图比对、和官方并排看界面；
   - 真实平台联调。
-- **想把界面工作也放到云上**，需要先把 `reference/ui-inventory/`、`reference/main-inventory/` 里的**接口事实**整理进 `docs/`：组件树、类名、token、文案 key、菜单清单、交互说明，不含代码。这一步要用户同意，因为这些清单原本刻意只放在本机。
 
 ---
 
@@ -108,35 +109,31 @@
 4. 验收：
    - `pnpm --filter @ov/desktop typecheck`、`test`、`build` 全部通过；
    - 启动后能打开两个工作区，画布和聊天都能用；
-   - 首页、项目页、设置框（亮色和暗色）和官方并排截图一致，截图放 `/tmp/ui-wave1/`；
-   - `check-verbatim.py app/desktop/src/renderer` 达标。
+   - 首页、项目页、设置框（亮色和暗色）和官方并排截图一致，截图放 `/tmp/ui-wave1/`。
 
-### P0-2 M8 我们自己的 agent 配置（分支 `wip/m8-agent-profiles`）
+### P0-2 换用参照的 agent 配置、技能和工具文案（适合云上）
 
-已写 87 个文件：`config/opencode-v2/base*.json`，`.opencode-v2/` 下的 agents、contracts、knowledge、workflows、plugins。
+原先 `wip/m8-agent-profiles` 分支上自己写 agent 配置的方案作废，那个分支不再合入。原材料已经进库：
+- `assets/agent-profiles/v2/config/`：参照的 agent 配置原文（191 个文件），另加我们的 `knowledge/vendors/platform-routing.md`（各模态实际落到平台的哪个模型）；
+- `assets/skills/`：参照的 36 个技能原文；
+- `reference/3.0.16/`：参照的全部可读原文。
 
-剩余：
-1. 删掉 `.opencode-v2/agents/comfyui-agent.md`，我们不支持 ComfyUI；在 `.opencode-v2/README.md` 里列出所有刻意省略的结构和原因。
-2. 补齐 `agents/README.md`、`contracts/README.md`、顶层 `README.md`。
-3. 写完三个做到一半的工作流：
-   - `workflows/ad-tvc`：导演卡片（direction）；
-   - `workflows/drama-series`；
-   - `workflows/mv`：`reference/post.md` 在重写中。
-4. `base.json` 的 `tools` 白名单必须等于 MCP 实际注册的 33 个工具（带 `hub_` 前缀）。加一个始终运行的测试钉住这一点。
-5. 结构对照测试，放在 `app/desktop/src/main/opencode/`：本地有 `reference/config-v2` 时，比对文件集合（扣掉注明的省略项）、每个 agent 的 frontmatter 键、合同到 agent 的映射、各节标题；没有 reference 时跳过。
-6. `knowledge/vendors` 只描述我们平台真实有的模型：
-
-   | 用途 | 模型 |
-   |---|---|
-   | 图片（也用于图生图） | `qwen-image-pro`；另有 `z-image` 可用 |
-   | 视频 | `minimax-h3-fl2va`（文生、图生、首尾帧、尾帧）、`minimax-h3-ref2va`（参考生视频） |
-   | 音乐 | `minimax-music3`；`ace-step`（翻唱 / 重绘） |
-   | 语音 | `indextts-2.5`，靠 `voice_map` 里的参考音频零样本克隆，没有预设音色 |
-   | 超分 | `swiftvr` |
-
-   平台上各种坑见 `app/packages/maas-media/src/*.ts` 的注释。
-7. Markdown 重合率低于 3%（`scripts/check-verbatim-md.py`）。
-8. 本机联调（需要真实 key）：不设 `OV_AGENT_PROFILE_DIR` 启动；让 agent 生成一张图，确认它调了 `hub_generate_image`，图进了工作区、画布上出现节点。
+要做的：
+1. **加载 agent 配置。**`app/desktop/src/main/opencode/index.ts` 的 `locateProfile`：开发时读仓库的 `assets/agent-profiles/v2/config`，和发布包的 `agent-profiles/v2/config` 同一种单目录布局。去掉 `config/opencode-v2` + `.opencode-v2` 的双目录回退，`ProfileSource` 能简化就简化，`profile.ts` 顶部注释跟着改。
+   - `knowledge/README.md` 如有 vendor 索引，把 `platform-routing.md` 加进去。
+   - 核对 `plugins/session-header.ts` 在我们的 staging 下能加载（看它 import 了什么）。
+2. **工具白名单。**`base.json` 原样保留，里面有 21 个我们没注册的工具（见 `app/mcp-tools/src/tools/unsupported.ts`）。确认 opencode 对不存在的工具名不报错；加一个始终运行的测试：白名单里的每个 `hub_*` 要么已注册，要么在 unsupported 列表里。
+3. **铺技能。**桌面主进程启动时把自带技能（开发时是 `assets/skills`，发布包是 `resources/skills`）铺到 `~/.ovhub/skills/<slug>/`：
+   - 目录不存在，或 `meta.yaml` 的 `version` 和自带的不同，就整目录覆盖；
+   - 不碰用户自己建的、不在自带列表里的技能；
+   - 参照的做法先去 `reference/3.0.16/app/out/main` 和 gateway 的 SkillsController 里看，行为尽量一致。
+4. **MCP 文案。**`app/mcp-tools` 的 33 个工具：工具描述、参数描述原样换成 `reference/3.0.16/mcp-tools/dist/main.js` 里的。同一情形下的错误 / 提示文案也换成原文，agent 配置会按原文判断；我们多出来的安全检查保留。顺带发现的参数或枚举差异一并对齐。
+5. **冒烟脚本。**`scripts/smoke/electron.sh` 不再从 `wip/m8-agent-profiles` 导出配置，默认用仓库里的。顺便让它在 macOS 上也能跑：没有 `xvfb-run` 就直接起；没有 `timeout` 用别的方式限时；结束时杀掉 Electron 主进程和它拉起的 gateway / opencode（现在超时后会残留）。
+6. 删掉 `scripts/check-verbatim.py`，更新 `docs/parity-gaps.md` 第四、五节。
+7. 验收：
+   - `pnpm turbo run test typecheck build` 全过；
+   - 三个冒烟脚本全过，`electron.sh` 不设 `OV_AGENT_PROFILE_DIR`；
+   - 本机联调（用户来做）：让 agent 生成一张图，确认它调了 `hub_generate_image`，图进了工作区、画布上出现节点。
 
 ### P1 菜单对齐（本机）
 

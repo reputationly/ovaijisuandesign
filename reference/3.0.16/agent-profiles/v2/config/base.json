@@ -1,0 +1,250 @@
+{
+  "$schema": "https://opencode.ai/schema.json",
+  "experimental": {
+    "mcp_timeout": 3600000
+  },
+  "tools": {},
+  "default_agent": "media-agent",
+  "mcp": {
+    "hub": {
+      "type": "local",
+      "command": [
+        "node",
+        "../mcp-tools/dist/main.js"
+      ],
+      "environment": {
+        "GATEWAY_URL": "http://localhost:8001"
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    },
+    "media-agent": {
+      "mode": "primary",
+      "description": "Multi-modal creative orchestrator. Triages user intent, directly executes simple image/video/audio/postprocess work, dispatches router/planner/executor for complex assets, owns project state, and guarantees canvas delivery.",
+      "steps": 400,
+      "tools": {
+        "hub_*": false,
+        "task": true,
+        "hub_read": true,
+        "hub_analyse_media": true,
+        "hub_select_image_recipe": true,
+        "hub_list_capabilities": true,
+        "hub_generate_image": true,
+        "hub_generate_video": true,
+        "hub_generate_audio_speech": true,
+        "hub_generate_audio_music": true,
+        "hub_voice_prepare": true,
+        "hub_media_transcribe": true,
+        "hub_subtitle_format": true,
+        "hub_image_search": true,
+        "hub_web_media": true,
+        "hub_browser": true,
+        "hub_connector_authorize": true,
+        "hub_ffmpeg": true,
+        "hub_merge_videos": true,
+        "hub_canvas_list_nodes": true,
+        "hub_canvas_get_node": true,
+        "hub_canvas_grep_text": true,
+        "hub_canvas_read_text": true,
+        "hub_canvas_write_node": true,
+        "hub_canvas_apply_text_edits": true,
+        "hub_canvas_group_nodes": true,
+        "hub_canvas_group_recent_outputs": true,
+        "hub_canvas_ungroup_node": true,
+        "hub_plugin_agent_*": true,
+        "hub_asset_center_search": true,
+        "hub_asset_center_use_entity": true,
+        "hub_plan_get_stage_status": true,
+        "hub_plan_update_stage_state": true,
+        "hub_memory": true,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": true,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false,
+        "todowrite": false
+      },
+      "permission": {
+        "question": "allow",
+        "skill": {
+          "*": "allow"
+        }
+      }
+    },
+    "comfyui-agent": {
+      "mode": "subagent",
+      "description": "ComfyUI workflow specialist. Resolves an explicitly mentioned or current-canvas workflow, inspects its real graph, drives parameter and reference-input choices, confirms and runs it headlessly, persists approved edits, and reports outputs without opening the editor unless explicitly requested.",
+      "steps": 200,
+      "permission": {
+        "skill": {
+          "*": "deny"
+        },
+        "question": "allow"
+      },
+      "tools": {
+        "hub_*": false,
+        "task": false,
+        "hub_add_comfyui_workflow": true,
+        "hub_open_comfyui": true,
+        "hub_list_comfyui_workflow": true,
+        "hub_get_comfyui_workflow": true,
+        "hub_list_comfyui_template": true,
+        "hub_run_comfyui_workflow": true,
+        "hub_edit_comfyui_workflow": true,
+        "hub_save_comfyui_workflow": true,
+        "hub_save_comfyui_run_as_workflow": true,
+        "hub_get_comfyui_run_status": true,
+        "hub_canvas_list_nodes": true,
+        "hub_canvas_get_node": true,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": false,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false
+      }
+    },
+    "planner": {
+      "mode": "subagent",
+      "description": "Workflow planner. Receives approved brief or revision state, materializes planner-owned document nodes plus one Stage Execution Plan, and returns only plan_id, stage_count, and minimal stages.",
+      "steps": 100,
+      "permission": {
+        "skill": {
+          "*": "deny"
+        },
+        "question": "allow"
+      },
+      "tools": {
+        "hub_*": false,
+        "task": false,
+        "hub_read": true,
+        "hub_search_knowledge": false,
+        "hub_image_search": true,
+        "hub_analyse_media": true,
+        "hub_canvas_list_nodes": false,
+        "hub_canvas_get_node": true,
+        "hub_canvas_grep_text": true,
+        "hub_canvas_read_text": true,
+        "hub_canvas_write_node": true,
+        "hub_canvas_apply_text_edits": true,
+        "hub_plan_get_stage_status": true,
+        "hub_plan_get_stage_detail": true,
+        "hub_plan_get_work_items": true,
+        "hub_plan_write": true,
+        "hub_plan_patch_stage": true,
+        "hub_plan_replan": true,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": true,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false
+      }
+    },
+    "router": {
+      "mode": "subagent",
+      "description": "Scene/workflow router. Infers the user's intended creative deliverable from inline intent plus optional uploaded/canvas source pointers, asks route-blocking questions when needed, returns a compact route capsule, and never plans stages or generates media.",
+      "steps": 60,
+      "permission": {
+        "skill": {
+          "*": "deny"
+        },
+        "question": "allow"
+      },
+      "tools": {
+        "hub_*": false,
+        "task": false,
+        "hub_read": true,
+        "hub_asset_center_use_entity": true,
+        "hub_canvas_get_node": true,
+        "hub_canvas_grep_text": true,
+        "hub_canvas_read_text": true,
+        "hub_canvas_list_nodes": false,
+        "hub_canvas_write_node": false,
+        "hub_search_knowledge": false,
+        "hub_analyse_media": false,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": false,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false
+      }
+    },
+    "executor": {
+      "mode": "subagent",
+      "description": "Stage executor for ALL modalities (image / video / audio.tts / audio.music / postprocess). Receives one stage pointer, queries hub_plan_get_stage_detail, produces all outputs for that stage, and returns results or item-level failures. Never plans multi-stage projects, never spawns other agents.",
+      "steps": 200,
+      "permission": {
+        "skill": {
+          "*": "deny"
+        }
+      },
+      "tools": {
+        "hub_*": false,
+        "task": false,
+        "hub_generate_image": true,
+        "hub_generate_video": true,
+        "hub_generate_audio_speech": true,
+        "hub_generate_audio_music": true,
+        "hub_image_search": true,
+        "hub_list_capabilities": true,
+        "hub_search_knowledge": true,
+        "hub_report_outcome": true,
+        "hub_media_transcribe": true,
+        "hub_subtitle_format": true,
+        "hub_ffmpeg": true,
+        "hub_merge_videos": true,
+        "hub_image_remove_background": true,
+        "hub_voice_prepare": true,
+        "hub_read": true,
+        "hub_analyse_media": true,
+        "hub_plan_get_stage_detail": true,
+        "hub_plan_get_work_items": true,
+        "hub_canvas_get_node": true,
+        "hub_canvas_grep_text": true,
+        "hub_canvas_read_text": true,
+        "hub_canvas_write_node": true,
+        "hub_plugin_agent_*": true,
+        "hub_canvas_apply_text_edits": true,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": false,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false
+      }
+    }
+  },
+  "plugin": [
+    ".opencode-v2/plugins/session-header.ts"
+  ]
+}

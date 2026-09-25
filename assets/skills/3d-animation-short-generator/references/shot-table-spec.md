@@ -2,7 +2,7 @@
 
 ## STEP 5: Standardized Shot Table Video Prompts (Seven Columns, v1.1)
 
-After character cards and scene cards are locked, output standardized video prompts as a shot information table. This step is mandatory and cannot be swapped with storyboard or video generation. Create a project table named `standard-shot-table`.
+After character cards and scene cards are locked, output standardized video prompts as a shot information table. This step is mandatory and cannot be swapped with storyboard or video generation. Create a canvas table node or markdown table named `标准镜头信息表` or `standard-shot-table`.
 
 **v1.1 change**: the table now has **seven columns** (was six). The new seventh column is **`Audio Mode`**. The existing `Audio & Dialogue Track` column is upgraded with a mandatory **`Mouth State`** field per second. These two additions are the single most important defenses against AI character-confusion lip-sync errors.
 
@@ -23,7 +23,7 @@ Column rules:
   - Plus identity bindings: exact approved character card names and exact approved scene card name.
   - **v1.1 add**: for `dialogue` rows, the `Character Positions` block must explicitly mark `SPEAKER` next to the on-screen speaker's row, and `non-speaker mouth: closed` for every other on-screen character.
 - **Hook Type**: one short label from a controlled vocabulary, e.g. `visual-joke`, `reversal`, `suspense`, `tender`, `chase`, `reveal`, `callback`, `expression-beat`. Used for the per-episode hook distribution self-check.
-- **Shot Description**: shot size, camera movement, Dutch-angle design, performance style, SFX, negative prompt, **video-model generation notes** (use the model selected after capability checking; keep prompt structure, camera, packaging, text/UI, and performance details matched to that model), and a required `Per-Second Directives` subsection. The subsection must break the shot into second-by-second instructions such as `0–1s`, `1–2s`, `2–3s`; for sub-second critical beats, use `2.0–2.5s` style markers. Each per-second directive MUST cover all **six** required elements (v1.1 adds element 6):
+- **Shot Description**: shot size, camera movement, Dutch-angle design, performance style, SFX, negative prompt, **video-model generation notes** (H3 is the default; if another model is explicitly selected, adapt its prompt after checking capabilities), and a required `Per-Second Directives` subsection. The subsection must break the shot into second-by-second instructions such as `0–1s`, `1–2s`, `2–3s`; for sub-second critical beats, use `2.0–2.5s` style markers. Each per-second directive MUST cover all **six** required elements (v1.1 adds element 6):
   1. Action / pose / expression (squash-and-stretch, anticipation, overshoot, follow-through where applicable)
   2. Camera movement (push / pull / pan / tilt / handheld-shake / locked / orbit)
   3. Spatial position (where the character is, what they hold, what landmark is in frame)
@@ -95,7 +95,7 @@ Then show a user choice card:
 
 ## STEP 5.5: Shot Table Self-Check Gate (Mandatory, v1.1 = seven checks)
 
-Before moving to pencil storyboards, run a hard self-check on the approved shot table. If any check fails, revise the table and re-run before asking the user to approve storyboarding.
+Before moving to storyboards, check the approved shot table and record pass / fail / unverified / not applicable with affected rows and evidence. A failed check is a finding, not permission for endless text revision or any image/video generation. Make only local corrections within the user's approved text-edit scope, then recheck once; unresolved, ambiguous, or scope-changing issues require reporting and a decision before further work.
 
 **v1.1: the self-check has seven required checks** (was six). The new seventh check enforces the audio-mode and lip-sync safety rules.
 
@@ -117,11 +117,15 @@ Before moving to pencil storyboards, run a hard self-check on the approved shot 
    - **7f. No per-second directive contains both `Narration` and `Dialogue` in the same second.**
    - **7g. Narration second count is non-zero if the Step 0 audio mode is `narration-led`, and zero if the Step 0 audio mode is `silent` or `dialogue-led`.** For 3D animated shorts, narration seconds should be rare; if `narration-led` is chosen, double-check the choice before approving.
 
-If all seven pass, place a `shot-table self-check: passed` stamp at the top of the table and show these confirmation choices:
+If all seven pass, place a `shot-table self-check: passed` stamp at the top of the canvas table node and show the user choice card:
 
 - Approve self-check and draw shot storyboards (recommended)
 - Show self-check details
 - Revise failed checks
 - Re-run self-check
 
-If any check fails, do not enter Step 6. Return to Step 5, list the failed rows, and only re-show the storyboard approval card after the table is fixed and the self-check passes.
+If any required check fails or is unverified, do not represent the table as passed or launch dependent media generation. List the affected rows, impact, and evidence; retain the current table and all unaffected approved assets. Offer local text repair, scope revision, a clearly labeled review-only delivery, or stop. Passing self-check is not authorization for extra image/video attempts.
+
+For revisions, update only affected rows, matching storyboard sections, and actual invalidated handoffs. Recheck neighboring transitions and impacted global constraints without rewriting the whole table by default. Splitting rows, changing duration/cast/audio mode, or altering required beats requires explicit scope approval. If existing clips may be affected, compare first and propose only necessary targeted work under `fallback-policy.md`; do not automatically regenerate them. Text edits and shot splits do not reset the same issue's cumulative attempt ledger.
+
+Stop text-only repair after the authorized local change and one recheck if issues remain, or earlier on user pause, insufficient evidence, or a required scope change. Present the remaining issues instead of looping until all seven checks pass. Preserve main-Skill project locks; legacy examples do not grant permission to change audio mode as a repair.

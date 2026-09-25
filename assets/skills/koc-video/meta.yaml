@@ -1,5 +1,5 @@
 display-name-zh: 达人种草视频
-version: 8.7.2
+version: 8.7.3
 tag-en: "Commercial Ad / Full Production"
 tag-cn: "商业广告 / 成片制作"
 complete-tags-en:
@@ -13,3 +13,20 @@ desc-cn: "面向品牌与创作者的达人原生内容生产入口，生成产�
 author-en: "MiniMax Design"
 author-cn: "MiniMax Design"
 source: official
+structured-info:
+  zh-CN:
+    summary: 将产品事实和目标受众转化为口播、测评、证言或无脸视角的原生社交种草视频。
+    best-for:
+      - KOC种草
+      - 产品测评
+      - 原生口播
+    how-to-use: 提供产品资料、受众、平台和可用素材，先确认内容路线与前三秒开场策略。
+    outputs: 产品事实表、脚本与镜头表、原生表达方案、视频素材及种草成片。
+  en-US:
+    summary: Turn product facts and audience context into native social seeding videos across talking-head, review, testimonial, or faceless formats.
+    best-for:
+      - KOC Seeding
+      - Product Reviews
+      - Native Talking-head
+    how-to-use: Provide product information, audience, platform, and available assets, then choose the format and opening strategy.
+    outputs: A product fact sheet, script and shot list, native delivery direction, video assets, and the finished seeding video.
