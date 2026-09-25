@@ -136,7 +136,7 @@ describe("聊天链路（假 opencode）", () => {
     expect(p.body.agent).toBe("media-agent");
     expect(p.body.parts[0].metadata.hilo_working_language.locale).toBe("zh-CN");
     // 附件写成消息开头的清单，给的是绝对路径。
-    expect(p.body.parts[0].text).toMatch(/^\[User attached files:\n- \[1\] png: \/.*images\/a\.png\n\]\n画一只猫$/);
+    expect(p.body.parts[0].text).toMatch(/^\[User attached files:\n- \[1\] png: .+[\\/]images[\\/]a\.png\n\]\n画一只猫$/);
     expect(p.directory).toBe(process.env.WORKSPACE_DIR);
   });
 

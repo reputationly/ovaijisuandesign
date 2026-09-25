@@ -98,8 +98,9 @@ describe("profile", () => {
 
 describe("config", () => {
   it("file:// 要百分号编码 —— 数据目录带空格", () => {
-    expect(fileUrl("/Users/a/Library/Application Support/ov/x.ts")).toBe("file:///Users/a/Library/Application%20Support/ov/x.ts");
-    expect(fileUrl("/tmp/蒜狸/p.js")).toBe("file:///tmp/%E8%92%9C%E7%8B%B8/p.js");
+    // Windows 上根前面会多一个盘符（file:///D:/Users/…），要验的是编码。
+    expect(fileUrl("/Users/a/Library/Application Support/ov/x.ts")).toMatch(/^file:\/\/\/(?:[A-Z]:\/)?Users\/a\/Library\/Application%20Support\/ov\/x\.ts$/);
+    expect(fileUrl("/tmp/蒜狸/p.js")).toMatch(/^file:\/\/\/(?:[A-Z]:\/)?tmp\/%E8%92%9C%E7%8B%B8\/p\.js$/);
   });
 
   it("按自定义模型那条路径拼", () => {
@@ -134,6 +135,6 @@ describe("config", () => {
     expect(cfg.mcp.hub.command[1]).toBe("/opt/mcp/main.js");
     expect(cfg.mcp.hub.environment.GATEWAY_URL).toBe("http://127.0.0.1:8100");
     expect(cfg.plugin[0]).toMatch(/^file:\/\/.*\/plugins\/session-header\.ts$/);
-    expect(cfg.plugin[1]).toBe("file:///opt/ov/hilo.js");
+    expect(cfg.plugin[1]).toMatch(/^file:\/\/\/(?:[A-Z]:\/)?opt\/ov\/hilo\.js$/);
   });
 });

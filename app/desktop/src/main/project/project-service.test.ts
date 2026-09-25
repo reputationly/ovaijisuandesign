@@ -44,6 +44,9 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
+
+/** 期望值和输入一样按本机规则解析：Windows 上 "/w/one" 会变成 "D:\\w\\one"。 */
+const P = (p: string) => path.resolve(p);
 describe("ProjectService", () => {
   it("初始化前调用报错", async () => {
     const s = new ProjectService(deps());
@@ -93,14 +96,14 @@ describe("ProjectService", () => {
     const s = await ready();
     const a = await s.createProject({ name: "A", kind: "local" });
     const b = await s.createProject({ name: "B", kind: "local" });
-    await s.assignWorkspace("/w/one", a.id, false);
-    await s.assignWorkspace("/w/two", a.id, false);
-    await s.assignWorkspace("/W/ONE", b.id, true);
+    await s.assignWorkspace(P("/w/one"), a.id, false);
+    await s.assignWorkspace(P("/w/two"), a.id, false);
+    await s.assignWorkspace(P("/W/ONE"), b.id, true);
     const list = s.list();
-    expect(list.find((p) => p.id === a.id)!.workspacePaths).toEqual(["/w/two"]);
-    expect(list.find((p) => p.id === b.id)!.workspacePaths).toEqual(["/W/ONE"]);
-    await expect(s.assignWorkspace("/w/x", "missing", false)).rejects.toThrow("Project not found: missing");
-    await s.detachWorkspace("/w/two", false);
+    expect(list.find((p) => p.id === a.id)!.workspacePaths).toEqual([P("/w/two")]);
+    expect(list.find((p) => p.id === b.id)!.workspacePaths).toEqual([P("/W/ONE")]);
+    await expect(s.assignWorkspace(P("/w/x"), "missing", false)).rejects.toThrow("Project not found: missing");
+    await s.detachWorkspace(P("/w/two"), false);
     expect(s.list().find((p) => p.id === a.id)!.workspacePaths).toEqual([]);
   });
 
@@ -135,20 +138,20 @@ describe("ProjectService", () => {
 
   it("示例项目：复用同 id，工作区独占", async () => {
     const s = await ready();
-    const p1 = await s.provisionSampleProject({ id: "builtin-sample-project", name: "新手指引", workspacePath: "/w/sample" });
-    const p2 = await s.provisionSampleProject({ id: "builtin-sample-project", name: "新手指引", workspacePath: "/w/sample2" });
+    const p1 = await s.provisionSampleProject({ id: "builtin-sample-project", name: "新手指引", workspacePath: P("/w/sample") });
+    const p2 = await s.provisionSampleProject({ id: "builtin-sample-project", name: "新手指引", workspacePath: P("/w/sample2") });
     expect(p1.id).toBe("builtin-sample-project");
-    expect(p2.workspacePaths).toEqual(["/w/sample2", "/w/sample"]);
+    expect(p2.workspacePaths).toEqual([P("/w/sample2"), P("/w/sample")]);
     expect(s.list()).toHaveLength(1);
   });
 
   it("relocateProjectsRoot 只改旧根下的路径", async () => {
     const s = await ready();
     const a = await s.createProject({ name: "A", kind: "local" });
-    await s.assignWorkspace("/old/root/x", a.id);
-    await s.assignWorkspace("/elsewhere/y", a.id);
-    await s.relocateProjectsRoot("/old/root", "/new/root");
-    expect(s.list()[0]!.workspacePaths).toEqual(["/elsewhere/y", "/new/root/x"]);
+    await s.assignWorkspace(P("/old/root/x"), a.id);
+    await s.assignWorkspace(P("/elsewhere/y"), a.id);
+    await s.relocateProjectsRoot(P("/old/root"), P("/new/root"));
+    expect(s.list()[0]!.workspacePaths).toEqual([P("/elsewhere/y"), P("/new/root/x")]);
   });
 
   it("残留日志在启动时重放：删目录、建目录、写存储、删日志", async () => {
@@ -160,7 +163,7 @@ describe("ProjectService", () => {
       createdAt: 1,
       projectsRoot,
       projects: [
-        { id: "p1", name: "恢复的", kind: "local", createdAt: 1, updatedAt: 1, workspacePaths: ["/w/a"], revision: 3, transactionId: "t1", folderName: "恢复的" },
+        { id: "p1", name: "恢复的", kind: "local", createdAt: 1, updatedAt: 1, workspacePaths: [P("/w/a")], revision: 3, transactionId: "t1", folderName: "恢复的" },
       ],
       deletedFolderNames: ["gone"],
       markMigrationComplete: false,

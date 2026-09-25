@@ -15,6 +15,10 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
+
+/** 期望值按本机规则算：Windows 上分隔符是反斜杠、根前面有盘符。 */
+const J = (p: string) => path.join(p);
+const P = (p: string) => path.resolve(p);
 describe("GlobalStore", () => {
   it("首次打开写出默认值，键名是渲染层用的那套", () => {
     const file = path.join(dir, "hub-config.json");
@@ -150,13 +154,13 @@ describe("WorkspaceStorage", () => {
 describe("数据根", () => {
   it("默认换了名字，不和另一个应用共用；HILO_DATA_DIR 覆盖", () => {
     const r = resolveRoots({ env: {}, home: "/Users/u", userData: "/ud" });
-    expect(r.projectsRoot).toBe("/Users/u/Movies/蒜狸小助手/Projects");
-    expect(r.projectSpacesRoot).toBe("/Users/u/Movies/蒜狸小助手/Projects/.projects");
-    expect(r.hubRoot).toBe("/Users/u/.ovhub");
-    expect(r.outputDir).toBe("/ud/output_files");
+    expect(r.projectsRoot).toBe(J("/Users/u/Movies/蒜狸小助手/Projects"));
+    expect(r.projectSpacesRoot).toBe(J("/Users/u/Movies/蒜狸小助手/Projects/.projects"));
+    expect(r.hubRoot).toBe(J("/Users/u/.ovhub"));
+    expect(r.outputDir).toBe(J("/ud/output_files"));
     const c = resolveRoots({ env: { HILO_DATA_DIR: "/d" }, home: "/Users/u", userData: "/ud" });
-    expect(c.projectsRoot).toBe("/d/Projects");
-    expect(c.outputDir).toBe("/d/output_files");
+    expect(c.projectsRoot).toBe(J("/d/Projects"));
+    expect(c.outputDir).toBe(J("/d/output_files"));
     expect(c.hubRoot).toBe("/d");
   });
 
@@ -178,9 +182,9 @@ describe("最近项目", () => {
       { path: "/b/", openedAt: 3, manualOrder: 2, coverImage: "c.png" },
     ];
     expect(recordRecentOpen(list, "/b", 10)).toEqual([
-      { path: "/a", openedAt: 1, manualOrder: 0 },
-      { path: "/b", openedAt: 10, manualOrder: 1, displayName: "乙", coverImage: "c.png" },
+      { path: P("/a"), openedAt: 1, manualOrder: 0 },
+      { path: P("/b"), openedAt: 10, manualOrder: 1, displayName: "乙", coverImage: "c.png" },
     ]);
-    expect(recordRecentOpen(list, "/new", 11)[0]).toEqual({ path: "/new", openedAt: 11, manualOrder: 0 });
+    expect(recordRecentOpen(list, "/new", 11)[0]).toEqual({ path: P("/new"), openedAt: 11, manualOrder: 0 });
   });
 });

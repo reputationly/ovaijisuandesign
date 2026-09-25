@@ -152,7 +152,7 @@ describe("旧版迁移", () => {
     const files = (d: string) =>
       readdirSync(d, { recursive: true, withFileTypes: true })
         .filter((e) => e.isFile())
-        .map((e) => path.relative(d, path.join(e.parentPath, e.name)))
+        .map((e) => path.relative(d, path.join(e.parentPath, e.name)).split(path.sep).join("/"))
         .sort();
     expect(files(a)).toEqual([".hilo/canvas.json", "images/only-a.png", "images/shared.png", "texts/说明.md", "videos/clip.mp4"]);
     expect(files(b)).toEqual([".hilo/canvas.json", "images/only-b.png", "images/shared.png"]);

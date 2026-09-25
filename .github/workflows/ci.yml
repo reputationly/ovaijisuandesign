@@ -62,7 +62,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run build typecheck test
+      # --continue：一个包失败不要停，其余平台相关的失败一次看全。
+      - run: pnpm turbo run build typecheck test --continue
 
   # 前端和 MCP。这两块没有平台代码，但 bun 在 Windows 上的行为值得盯着 ——
   # `ovagent` 拉起 MCP server 用的就是它。
