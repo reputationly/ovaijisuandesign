@@ -61,10 +61,10 @@ const SAFE_OUTPUT_MAX_BYTES = 40 * 1024;
 const PROMPTS_OMITTED_NOTICE =
   "Work item prompts were left out because the full Stage detail is larger than the safe output size. Fetch the complete items with hub_plan_get_work_items and the matching work_item_ids.";
 
-const PLAN_ID_DESC = "Stage Execution Plan id: the file stem of `.hilo/plan/<id>.json`, as returned by plan_write.";
+const PLAN_ID_DESC = "Stage Execution Plan id (the `.hilo/plan/<id>.json` file stem). Returned by plan_write.";
 const PROJECT_ROOT_DESC =
-  "Absolute project root. The runtime fills it in with the active project (the session cwd) when omitted; set it only to address a different project.";
-const PROJECT_ROOT_SHORT_DESC = "Absolute project root. The runtime fills it in with the active project (the session cwd) when omitted.";
+  "Absolute path to the active project root. Auto-injected by the runtime when omitted (OpenCode's cwd = active project); pass explicitly only to target a different project.";
+const PROJECT_ROOT_SHORT_DESC = "Absolute path to the active project root. Auto-injected by the runtime when omitted (OpenCode's cwd = active project).";
 
 // ── 回话 ──
 
@@ -239,17 +239,20 @@ const StageStatusSchema = z.enum(PLAN_STAGE_STATUSES);
 const WaitingReasonSchema = z.enum(PLAN_WAITING_REASONS);
 const DetailItemSchema = z.record(z.string(), z.string());
 
-const stageShape = {
+/** 键顺序照参照（name 在 goal 前，决定 JSON Schema 里 required 的顺序）；每次新建，免得同一实例用两次变成 $ref。 */
+const stageFields = <N extends z.ZodTypeAny>(name: N) => ({
   id: z.string(),
   order: z.number(),
+  name,
   goal: z.string(),
   status: StageStatusSchema,
   waiting_reason: WaitingReasonSchema.optional(),
   blocked_reason: z.string().optional(),
   failed_item_ids: z.array(z.string()).optional(),
-};
-const StageSummarySchema = z.object({ ...stageShape, name: z.string() });
-const StageOptionalNameSchema = z.object({ ...stageShape, name: z.string().optional() });
+});
+const stageSummary = () => z.object(stageFields(z.string()));
+const StageSummarySchema = stageSummary();
+const StageOptionalNameSchema = z.object(stageFields(z.string().optional()));
 const PendingStageSchema = z.object({ id: z.string(), order: z.number(), name: z.string() });
 
 const ValidationIssueSchema = z.object({
@@ -306,25 +309,25 @@ const RuntimeOutputSchema = z.object({
 });
 
 const StageStateUpdateSchema = z.object({
-  stage_id: z.string().optional().describe("Id of the stage to update. Give either this or order, not both."),
-  order: z.number().int().min(1).optional().describe("Order of the stage to update. Give either this or stage_id, not both."),
-  status: StageStatusSchema.describe("Requested stage status."),
-  expected_status: StageStatusSchema.optional().describe("Optional guard: the update is rejected if the stage is not currently in this status."),
+  stage_id: z.string().optional().describe("Stage id to update. Mutually exclusive with order."),
+  order: z.number().int().min(1).optional().describe("Stage order to update. Mutually exclusive with stage_id."),
+  status: StageStatusSchema.describe("New stage status."),
+  expected_status: StageStatusSchema.optional().describe("Optional stale-state guard."),
   waiting_reason: WaitingReasonSchema.optional().describe(
-    "Set only when you explicitly want a framework wait. At the end of execution request done instead; the framework checks review.after_execution and returns the resulting state.",
+    "Use only for an explicit framework wait. Normal execution completion should request done; the framework applies review.after_execution and returns the effective state.",
   ),
   blocked_reason: z
     .string()
     .min(1)
     .optional()
-    .describe("Mandatory when moving to blocked. Name the specific obstacle so the main agent can put the reason and suggestions to the user."),
+    .describe("Required when entering blocked. Explain the concrete blocker so the main agent can ask the user with reason and suggestions."),
   failed_item_ids: z.array(z.string().min(1)).optional(),
-  note: z.string().optional().describe("Short runtime note recorded on the stage."),
+  note: z.string().optional().describe("Short runtime note to append under the stage."),
   outputs: z
     .array(RuntimeOutputSchema)
     .optional()
     .describe(
-      "Output refs the stage produced (each id has to be one of its work item ids). A ref whose id already exists takes its place, and the replaced one is kept under superseded_runtime_refs.",
+      "Optional produced output refs to upsert under the stage. A matching id replaces the current runtime ref and moves the previous ref to superseded_runtime_refs.",
     ),
 });
 
@@ -333,12 +336,12 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_get_stage_status",
     {
       description:
-        "Structured progress of a Stage Execution Plan; the file body is never included. next_action is about runtime work on stages that are already authored. If none of them needs anything, next_action is absent and pending_stages lists outline entries that still have to be authored; \"complete\" appears only when pending_stages is empty too. On wait_for_user, reply with a short normal chat message and end your turn: the user confirms or revises in chat or on the Production Board, not through the question tool. On blocked, use the question tool, citing blocked_reason and offering concrete choices.",
+        "Read a Stage Execution Plan as structured stage status only; never return the file body. next_action covers authored Stage runtime work only. When no authored Stage needs runtime action, omit next_action and return pending_stages; return complete only when pending_stages is empty. next_action=wait_for_user means send a short normal chat message and end the turn so the user can confirm or revise in chat or Production Board; do not call the question tool. next_action=blocked requires a question-tool decision using blocked_reason and concrete suggestions.",
       inputSchema: {
         plan_id: z.string().describe(PLAN_ID_DESC),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_DESC),
-        stage_id: z.string().optional().describe("Optional: only report this stage id."),
-        order: z.number().int().min(1).optional().describe("Optional: only report the stage at this order."),
+        stage_id: z.string().optional().describe("Optional stage id to filter."),
+        order: z.number().int().min(1).optional().describe("Optional stage order to filter."),
       },
       outputSchema: {
         plan_id: z.string(),
@@ -349,7 +352,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
         workflow_path: z.string().optional(),
         workflow_variant: z.string().optional(),
         pending_stages: z.array(PendingStageSchema).optional(),
-        next_stage: StageSummarySchema.optional(),
+        next_stage: stageSummary().optional(),
         waiting_user: z.boolean(),
       },
     },
@@ -382,12 +385,12 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_get_stage_detail",
     {
       description:
-        "Executor view of a single stage of a Stage Execution Plan: the stage, its work items, the source and ref locators its ordered refs point at, constraints, execution locks, runtime refs and ref capsules from direct dependencies, previously cached analyses of referenced assets, the execution excerpt, and can_execute / blocked_reason. Nothing about other stages or the whole plan is returned. When the result would be too big, work item prompts are dropped and a notice tells you to fetch them via plan_get_work_items.",
+        "Read exactly one Stage Execution Plan stage as structured executor detail. Returns the selected stage, work items, source/ref locators needed by ordered refs, normalized output assets, constraints, locks, direct dependency runtime refs/capsules, and execution excerpt; never returns other stages or the full plan.",
       inputSchema: {
         plan_id: z.string().describe(PLAN_ID_DESC),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_DESC),
-        stage_id: z.string().optional().describe("Id of the stage to read. Required unless order is given."),
-        order: z.number().int().min(1).optional().describe("Order of the stage to read. Required unless stage_id is given."),
+        stage_id: z.string().optional().describe("Stage id to read. Required unless order is set."),
+        order: z.number().int().min(1).optional().describe("Stage order to read. Required unless stage_id is set."),
       },
       outputSchema: {
         plan_id: z.string(),
@@ -447,16 +450,16 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_get_work_items",
     {
       description:
-        "Fetch full work items by id from one stage of a Stage Execution Plan; this is the follow-up when plan_get_stage_detail left the prompts out. Returns just the requested work_items. If they are too large for one response, ask for a smaller set of ids.",
+        "Return the selected complete work items from one Stage Execution Plan stage. Use this when plan_get_stage_detail says work item prompts were omitted. The response contains only the original work_items; request fewer ids if the result exceeds the safe output size.",
       inputSchema: {
         plan_id: z.string().describe(PLAN_ID_DESC),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_DESC),
-        stage_id: z.string().describe("Id of the stage that holds the requested work items."),
+        stage_id: z.string().describe("Stage id containing the requested work items."),
         work_item_ids: z
           .array(z.string().min(1))
           .min(1)
           .max(50)
-          .describe("Stable ids of the work items wanted. If the response would be too large, retry with fewer."),
+          .describe("Stable work item ids to return. Retry with fewer ids when the requested items exceed the safe output size."),
       },
       outputSchema: { work_items: z.array(DetailItemSchema) },
     },
@@ -496,7 +499,7 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_update_stage_state",
     {
       description:
-        "Change the runtime state of one or more stages. The plan body stays hidden, and all entries in updates[] succeed or fail together. How states flow: a new stage waits for the user when review.before_execution has checks, otherwise it starts in doing. When the executor finishes, send its outputs with status done; if review.after_execution has checks the stage lands in waiting_user(result_review), otherwise it is done. The user may confirm in normal chat or on the Production Board; fold in any requested revisions before moving on. Stages whose documents the planner already materialized have no executor and only go through review.after_execution. On problems, set blocked with a blocked_reason and ask the user via the question tool whether to retry or adjust the plan. If the user decides to retry, send status=doing with expected_status=blocked, and start the executor only after the response shows doing.",
+        "Patch one or more runtime states without exposing the Plan body. The framework derives the initial state from review.before_execution: non-empty checks wait for explicit user confirmation; omitted or empty checks start execution directly. After executor success, submit outputs and request done. The framework derives the effective state from review.after_execution: non-empty checks return waiting_user(result_review); omitted or empty checks complete the Stage. Explicit confirmation may arrive from ordinary chat or the Production Board. Apply revision feedback before advancing the Stage. Planner-materialized document stages apply only review.after_execution because no Executor runs. Enter blocked with blocked_reason, then use the question tool for retry or plan-adjust decisions. After an explicit user retry decision for a blocked Stage, request status=doing with expected_status=blocked and dispatch Executor only after the returned Stage status is doing. Pass updates[]; the whole batch is validated and committed atomically.",
       inputSchema: {
         plan_id: z.string().describe(PLAN_ID_DESC),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_DESC),
@@ -505,12 +508,12 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
           .int()
           .min(1)
           .optional()
-          .describe("Optional compare-and-set guard on the plan revision. On conflict, re-read and retry."),
+          .describe("Optional plan revision CAS guard. Re-read and retry on conflict."),
         updates: z
           .array(StageStateUpdateSchema)
           .min(1)
           .max(50)
-          .describe("All stage updates for this event, applied together. A single stage is a one-element list; use several entries when one user or executor event affects multiple stages."),
+          .describe("Batch of stage state updates. Use a single-element array for one stage; use multiple items when one user/executor event changes several stages."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -573,45 +576,47 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_replan",
     {
       description:
-        "For a major change requested by the user: atomically rewrite the stage at the execution frontier and those after it. The tool works out the preserved prefix from the saved plan, and stages ahead of the frontier are not changed. plan_id and the workflow binding remain; the outline may be edited without writing every future stage in full. Pick the operation by intent. revise_stage: an authored stage that is still the same logical deliverable. insert_stage: a new stage that has to be authored right now. insert_stage_outline: a new future entry in the outline only. omit_stage: drop a pending entry that is not authored. remove_unexecuted_stage: delete an authored stage that is no longer wanted and was never started. Affected authored stages get their runtime reset. The response carries impact, pending_stages and resume_stage_id (a pointer for attention only); no executor is started or stopped. Use expected_revision from your most recent plan read; repeating a request_id is safe. If the boundary is wrong, the error includes current_state.current_frontier_stage_id and the expected boundary; other errors include allowed_actions, recommended_action and requires_reread. Never swap in a whole new plan with plan_write for this.",
+        "Atomically update only the current execution frontier and its suffix after a major user change. The tool derives the preserved prefix from the persisted Plan; Stages before the current frontier stay unchanged. Keep the same plan_id and workflow binding, and update the stage outline without authoring every future Stage. Use revise_stage for the same authored logical deliverable, insert_stage only for a net-new Stage that must be authored now, insert_stage_outline for a net-new future entry, omit_stage for an unauthored pending entry, and remove_unexecuted_stage only for an authored Stage that is no longer required and has not started. The result resets affected authored runtime, returns pending_stages and an attention-only resume_stage_id, and never dispatches or cancels executors. Use expected_revision from the latest plan read. Replan is atomic; request_id safely identifies duplicate submissions. Boundary rejections return current_state.current_frontier_stage_id plus the expected preservation boundary; other rejected operations return allowed_actions, recommended_action, and whether the caller must reread before retrying. Do not use plan_write to replace the whole plan.",
       inputSchema: {
-        plan_id: z.string().min(1).describe("Id of the existing Stage Execution Plan."),
+        plan_id: z.string().min(1).describe("Existing Stage Execution Plan id."),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_SHORT_DESC),
         request_id: z
           .string()
           .min(1)
           .describe(
-            "Stable id of this user-requested replan. Sending it again returns the stored result as long as the plan has not moved past the revision it created; " +
-              "if the plan has moved on, the tool says the request was already applied and the caller must re-read before deciding on another replan.",
+            "Stable id for this user-requested replan. Reusing it replays the saved result while the plan remains at the applied revision. " +
+            "If the plan has advanced, the tool reports that this request was already applied and asks the caller to reread before deciding whether another replan " +
+            "is needed.",
           ),
-        expected_revision: z.number().int().min(1).describe("Revision from the latest plan read; a stale revision makes the write fail."),
-        workflow_path: z.string().min(1).optional().describe("The workflow path chosen earlier; when given it must equal the plan's binding."),
-        workflow_variant: z.string().min(1).optional().describe("The workflow variant chosen earlier; when given it must equal the plan's binding."),
+        expected_revision: z.number().int().min(1).describe("Revision returned by the latest plan read; the write fails on a stale revision."),
+        workflow_path: z.string().min(1).optional().describe("Previously selected workflow path. If supplied, it must match the plan binding."),
+        workflow_variant: z.string().min(1).optional().describe("Previously selected workflow variant. If supplied, it must match the plan binding."),
         preserve_through_stage_id: z
           .string()
           .min(1)
           .optional()
           .describe(
-            "Optional check on the boundary the tool derives. If passed, it has to name the active stage immediately ahead of the current execution frontier. Usually omit it.",
+            "Optional assertion of the server-derived preservation boundary. When supplied, it must equal the active Stage immediately before the current execution frontier; normally omit it and let the tool derive the boundary.",
           ),
-        reason: z.string().min(1).describe("Short explanation of the major user change behind this replan."),
+        reason: z.string().min(1).describe("Concise explanation of the user-raised major change driving the replan."),
         operations: z
           .array(PlanReplanOperationSchema)
           .min(1)
           .max(50)
           .describe(
-            "Operations on the frontier stage and later ones. For revise_stage and insert_stage, write the stage exactly like a plan_patch_stage `stage` (flat planner fields, no contract wrapper). " +
-              "revise_stage: change an authored stage at or after the frontier. insert_stage: add and author one stage directly behind an authored anchor. " +
-              "insert_stage_outline: add only a future pending entry to the outline. omit_stage: omit a pending outline entry that is not authored. " +
-              "remove_unexecuted_stage: delete an authored stage, allowed only if it was never started.",
+            "Current-and-later Stage operations. revise_stage and insert_stage use the same flat planner-owned Stage fields as plan_patch_stage; do not nest them u" +
+            "nder contract. revise_stage updates an authored Stage at or after the current frontier; insert_stage adds and authors one immediate Stage after an aut" +
+            "hored anchor; insert_stage_outline adds only a future pending outline entry; omit_stage omits an unauthored pending outline stage; remove_unexecuted_s" +
+            "tage removes an authored Stage only when the coordinator has not started it.",
           ),
         resume_stage_id: z
           .string()
           .min(1)
           .optional()
           .describe(
-            "Optional hint naming a stage in the active suffix that deserves attention. It neither moves the frontier nor permits skipping unresolved or pending stages before it; " +
-              "execution still proceeds from the frontier. When omitted, it is the first active outline entry past the preserved prefix.",
+            "Optional attention pointer within the active suffix. " +
+            "It does not change the execution frontier or authorize skipping earlier unresolved or pending Stages; execution still continues from the frontier. " +
+            "Defaults to the first active outline entry after the preserved prefix.",
           ),
       },
       outputSchema: {
@@ -625,8 +630,8 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
         impact: z
           .object({
             preserve_through_stage_id: z.string().optional(),
-            changed_stage_ids: z.array(z.string()).describe("Stages whose authored contract or outline position changed (pending ids included)."),
-            invalidated_stage_ids: z.array(z.string()).describe("Authored stages after the boundary that were removed or had their runtime reset."),
+            changed_stage_ids: z.array(z.string()).describe("Authored contract or stage-outline topology changes; may include pending ids."),
+            invalidated_stage_ids: z.array(z.string()).describe("Authored suffix stages whose runtime was reset or removed."),
             preserved_stage_ids: z.array(z.string()),
             resume_stage_id: z.string().optional(),
           })
@@ -723,15 +728,15 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_write",
     {
       description:
-        "Write a new JSON Stage Execution Plan, or overwrite an existing one completely, at `.hilo/plan/<id>.json`, from the structured `plan` object. The complete plan goes through semantic validation first and is then written atomically. Supply expected_revision when overwriting so concurrent edits are not lost.",
+        "Create or fully replace the JSON Stage Execution Plan under `.hilo/plan/<id>.json`. Pass the structured `plan` object. The complete plan is semantically validated before the atomic write. Use expected_revision for a guarded replacement.",
       inputSchema: {
-        plan: StagePlanSchema.describe("The plan as structured data: sources[] and stage_outline[] at the top level, plus stages[] that each carry their work_items[]."),
+        plan: StagePlanSchema.describe("Structured Stage Execution Plan with top-level sources[], stage_outline[], and stages[] with work_items[]."),
         plan_id: z
           .string()
           .optional()
-          .describe("Id (`.hilo/plan/<id>.json` stem) of an existing plan to rewrite completely. Omit to create a new plan; the generated id is returned."),
+          .describe("Existing plan id (`.hilo/plan/<id>.json` stem) to fully re-write. Omit to create a new plan; the tool generates and returns the id."),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_SHORT_DESC),
-        expected_revision: z.number().int().min(1).optional().describe("Optional compare-and-set guard on the revision when replacing an existing plan."),
+        expected_revision: z.number().int().min(1).optional().describe("Optional plan revision CAS guard when replacing an existing plan."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -771,21 +776,21 @@ export const registerPlanTools: RegisterTools = (registrar, gw) => {
     "plan_patch_stage",
     {
       description:
-        "Change a single stage of an existing JSON Stage Execution Plan: upsert or delete an authored stage, or omit a pending stage that has not been authored. To upsert, send `stage`; its stage_id picks the target. To delete or omit, send `stage_id` at the top level. omit=true leaves the stage_outline entry and all orders untouched and only stops listing it as pending. The full resulting plan is semantically validated and then written atomically; pass expected_revision so a newer plan is not overwritten.",
+        "Upsert or remove one authored stage, or omit one unauthored pending stage, in an existing JSON Stage Execution Plan. For upsert, pass `stage` and use its stage_id. For remove or omit, pass top-level `stage_id`. omit=true preserves the stage_outline entry and every Stage order while excluding that entry from pending stages. The resulting complete plan is semantically validated before the atomic write. Use expected_revision to avoid overwriting a newer plan.",
       inputSchema: {
         plan_id: z.string().describe(PLAN_ID_DESC),
         projectRoot: z.string().optional().describe(PROJECT_ROOT_DESC),
-        expected_revision: z.number().int().min(1).optional().describe("Optional compare-and-set guard on the plan revision. On conflict, re-read and retry."),
-        stage_id: z.string().optional().describe("Stable id of the stage to remove or omit. Leave it out for an upsert."),
-        stage: PlanStageSchema.optional().describe("Structured stage to upsert; its stage.stage_id selects the target."),
-        remove: z.boolean().optional().describe("Physically delete an authored stage."),
-        omit: z.boolean().optional().describe("Mark an unauthored pending stage as omitted; stage orders stay the same."),
+        expected_revision: z.number().int().min(1).optional().describe("Optional plan revision CAS guard. Re-read and retry on conflict."),
+        stage_id: z.string().optional().describe("Stable id of the stage to remove or omit. Do not pass it for an upsert."),
+        stage: PlanStageSchema.optional().describe("Structured stage to upsert. The tool uses stage.stage_id as the target id."),
+        remove: z.boolean().optional().describe("Physically remove an authored stage."),
+        omit: z.boolean().optional().describe("Mark an unauthored pending stage as omitted without changing Stage orders."),
         after_order: z
           .number()
           .int()
           .min(1)
           .optional()
-          .describe("For a stage that does not exist yet: insert it right after the stage with this order. Without it the stage is appended."),
+          .describe("When inserting a new stage, place it after the stage with this order. Defaults to appending at the end."),
       },
       outputSchema: {
         ok: z.boolean(),

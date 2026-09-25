@@ -79,78 +79,66 @@ export interface ManifestModality {
 
 // ── 选择策略（给 agent 看的规则文本） ──
 
-const ARTIFACT_RULE =
-  "Each generation prompt describes exactly one final artifact. Keep one user-intended outcome per artifact unless the deliverable itself is a composed layout. Splitting work with count/prompts does not make identities match: shared identity needs a common reference or a previously approved artifact, so create an anchor first when none exists. Video uses one tool call per deliverable.";
-export const IMAGE_ARTIFACT_RULE = `${ARTIFACT_RULE} For images, each aspect ratio is its own final artifact, not a sample multiplier: use count=1 for each ratio, and a higher count only when the user wants several options at one ratio, and then align prompts/filenames with count.`;
-const CONSULT_RULE = "Decide vendors, models, aliases, capabilities and allowed parameter values from this manifest alone; it reflects what is callable right now.";
-const CATALOG_RULE =
-  "Keep the identifiers in this manifest (models, default_model, vendor, backend, model_aliases, aliases, knowledge_card) to yourself: users must never see vendor family names or card paths. Whenever you mention a model to the user, quote a user_visible_models[].display_name verbatim, as it comes from the live catalog, with no shortening or replacement. If a vendor lists no user_visible_models, do not offer it to the user at all.";
-
-const ALIAS_RULE_DOMESTIC =
-  'People often refer to a vendor by a nickname listed in vendors[].aliases ("design image" means gpt-image, "beta" means veo3, "general image" or "banana" means banana). Translating such a nickname is recognising the vendor, not swapping models, so do it rather than refusing. A nickname that points at one variant ("General Image Pro") is looked up in vendors[].model_aliases; without a variant hint, take default_model. Compare loosely: ignore letter case and any spaces, hyphens or underscores. Only answer model_unavailable if nothing in aliases or model_aliases fits.';
-const ALIAS_RULE_OVERSEAS =
-  'People often refer to a vendor by a nickname listed in vendors[].aliases ("gpt image" means gpt-image, "veo" means veo3, "nano banana" or "banana" means banana). Translating such a nickname is recognising the vendor, not swapping models, so do it rather than refusing. A nickname that points at one variant ("Banana Pro") is looked up in vendors[].model_aliases; without a variant hint, take default_model. Compare loosely: ignore letter case and any spaces, hyphens or underscores. Only answer model_unavailable if nothing in aliases or model_aliases fits.';
-
-export const DOMESTIC_IMAGE_NAMING_RULE =
-  'Users only ever see product names, never vendor/model_id/backend/tool ids. Name mapping: vendor=banana is "General Image"; nano_banana_2_flash is "General Image 2"; nano_banana_2 is "General Image Pro"; gpt-image-2 is "Design Image 2"; gpt-image-2.5-sunburst is "Design Image 2.5 Sunburst"; gpt-image-2.5-flare is "Design Image 2.5 Flare". When a user says something like "GPT模型" or "GPT 图像模型", they mean vendor=gpt-image: until a model_id is picked, call it by that vendor\'s listed default_model, afterwards by the chosen model\'s exact name. Only translate words that refer to an image model — a banana/香蕉 that is fruit, or "GPT" as text to render, a subject, a quote or a filename, stays as written. Tool arguments keep the canonical ids, and no reply (errors, retries, fallbacks included) may reveal them.';
-
-export function imageNamingRule(region: ReleaseRegion): string | undefined {
-  return region === "domestic" ? DOMESTIC_IMAGE_NAMING_RULE : undefined;
-}
-
-function imagePolicy(region: ReleaseRegion): Record<string, unknown> {
-  const naming = imageNamingRule(region);
-  return {
-    consult_knowledge: CONSULT_RULE,
-    default_model_rule:
-      "Fallback choice when nothing constrains it (no picker selection, no model requested, no capability that rules it out): gpt-image-2.5-sunburst under vendor=gpt-image if present, else gpt-image-2, else whatever else is listed. An absent default is not callable. Because vendors[].models is already narrowed to the user's picker choice, that choice beats this fallback.",
-    operation_boundary:
-      "Use image generation when pixels must change in meaning: adding, removing or swapping things, repainting, restyling, new backgrounds or composition, designed text/logos. Mechanical resizing, format changes, extraction or layout go to postprocess tools.",
-    unavailable_vendor_rule: "A vendor that is not in vendors[] is off limits: answer model_unavailable rather than quietly using another one.",
-    alias_resolution_rule: region === "domestic" ? ALIAS_RULE_DOMESTIC : ALIAS_RULE_OVERSEAS,
-    model_id_rule: "model_id must be one value from the vendor's models; display names, picker ids and aliases are not model ids.",
-    aspect_ratio_rule:
-      'The frame shape belongs to the task, not to a vendor. Always send an explicit vendor_params.aspect_ratio; calls with image_paths add aspect_ratio_source, and if the source image dictates the frame, attach aspect_ratio_evidence whose width/height were measured by hub_analyse_media (type="metadata") or canvas_get_node. Names, prose descriptions and CDN links prove nothing, and a silent square default is never acceptable. Several requested ratios mean several artifacts, one call with count=1 per ratio.',
-    artifact_cardinality_rule: IMAGE_ARTIFACT_RULE,
-    ...(naming ? { user_facing_naming_rule: naming } : {}),
-  };
-}
-
-const VIDEO_POLICY = {
-  consult_knowledge: CONSULT_RULE,
-  operation_boundary:
-    "Use video generation when the content itself must change: what moves and how, the scene, the subject, the look, or an edit/continuation of a source clip. Mechanical work such as cutting, joining, cropping, re-encoding, muxing, captions or timeline assembly goes to postprocess tools instead.",
-  reference_routing_rule:
-    "Treat supplied media as guidance, not as frames, unless told otherwise: identity, look, setting and motion cues go through mode=multimodal and the reference_* fields where the vendor has them. Reserve first_frame_image/last_frame_image for a requested start or end frame, or for vendors that offer no reference mode.",
-  alias_resolution_rule:
-    'Users may name a vendor by alias (vendors[].aliases, e.g. "beta" -> veo3). Mapping it is identification, not a model switch; variants (e.g. "Beta Fast") map through vendors[].model_aliases, otherwise use default_model. Match case-insensitively ignoring spaces, hyphens and underscores; report model_unavailable only when nothing matches.',
-  model_id_rule:
-    "model_id is always one of the vendor's models. If model_modes is present, only the modes listed under that model_id are valid; the vendor-level modes list is a union and not enough.",
-  artifact_cardinality_rule: ARTIFACT_RULE,
+const ARTIFACT_CARDINALITY_RULE = "A generation prompt describes one final artifact. Preserve deliverable topology: one user-intended outcome unit per artifact unless the requested deliverable is a composed layout. Count/prompts split artifacts but do not bind identity; shared visual identity requires a common ref/anchor or sequential approved artifact. If no visual anchor exists, create one first, then generate finals from it. Video uses separate tool calls per deliverable.";
+export const IMAGE_ARTIFACT_CARDINALITY_RULE = `${ARTIFACT_CARDINALITY_RULE} For image tasks, aspect-ratio variants are separate final artifacts, not sample multipliers. Keep count=1 per ratio unless the user explicitly asks for multiple alternatives within the same ratio; only then use count with aligned prompts/filenames.`;
+const CONSULT_KNOWLEDGE_RULE = "Use this manifest as the source of truth for vendor selection, model availability, aliases, capabilities, and legal parameters.";
+const IMAGE_SELECTION_POLICY = {
+  consult_knowledge: CONSULT_KNOWLEDGE_RULE,
+  default_model_rule: "When the session carries no image-model selection, the user has not named a model, and no hard capability requirement excludes it, default to vendor=gpt-image with model_id=gpt-image-2.5-sunburst when that entry is listed in this manifest. If it is not listed, fall back to gpt-image-2, then to the remaining listed vendors/models; never treat an unavailable default as callable. A user model selection outranks this default: vendors[].models already reflects the current selection, so choose from the listed models instead of forcing the default when the default is absent from them.",
+  operation_boundary: "Image generation/editing owns content-plane changes: adding, removing, replacing, repainting, restyling, background changes, composition changes, and scene-integrated design/text/logo work. Postprocess owns only deterministic geometry/format/extraction/layout transforms.",
+  unavailable_vendor_rule: "If a vendor is not listed in vendors[], do not call it. Return model_unavailable instead of substituting silently.",
+  alias_resolution_rule: 'A user may name a vendor by a display name or spoken alias (see vendors[].aliases, e.g. "design image"/"Design Image" \u2192 vendor=gpt-image, "beta" \u2192 vendor=veo3, "general image"/"banana" \u2192 vendor=banana). Resolving such an alias to its listed vendor is identification, NOT a silent model switch \u2014 do it instead of rejecting the request. When the alias names a specific variant (e.g. "General Image Pro", "General Image 2"), consult vendors[].model_aliases to map it to the exact model_id; without a variant cue, use the vendor default_model. Match aliases and model_aliases SEMANTICALLY: case-insensitive, ignoring spaces / hyphens / underscores between tokens (so "general image pro", "General-Image-Pro", and "GENERAL_IMAGE_PRO" all match the listed "General Image Pro"). The manifest lists one canonical form per name, not every variant. Only return model_unavailable when the name matches no vendor alias AND no model_alias under this fuzzy matching.',
+  model_id_rule: "Use only vendor + one value from models as model_id. Do not use display names, picker ids, or aliases in model_id; aliases identify the vendor only.",
+  aspect_ratio_rule: 'Aspect ratio is a task-level framing decision, not a vendor preference. For any ref-bearing image task, call hub_generate_image with vendor_params.aspect_ratio plus top-level aspect_ratio_source. If the source/canvas asset owns the frame, include aspect_ratio_evidence with width/height from hub_analyse_media type="metadata" or canvas_get_node; filenames, visual descriptions, and CDN URLs are not evidence. Do not fall back to square defaults. When the user asks for the same design in multiple aspect ratios, treat each ratio as a separate final artifact and keep count=1 unless the user explicitly asks for multiple alternatives within the same ratio.',
+  artifact_cardinality_rule: IMAGE_ARTIFACT_CARDINALITY_RULE
 };
-
-const TTS_POLICY = {
+const OVERSEAS_IMAGE_ALIAS_RESOLUTION_RULE = 'A user may name a vendor by a display name or spoken alias (see vendors[].aliases, e.g. "gpt image"/"GPT Image" \u2192 vendor=gpt-image, "veo"/"Veo" \u2192 vendor=veo3, "nano banana"/"banana" \u2192 vendor=banana). Resolving such an alias to its listed vendor is identification, NOT a silent model switch \u2014 do it instead of rejecting the request. When the alias names a specific variant (e.g. "Banana Pro", "Banana Flash"), consult vendors[].model_aliases to map it to the exact model_id; without a variant cue, use the vendor default_model. Match aliases and model_aliases SEMANTICALLY: case-insensitive, ignoring spaces / hyphens / underscores between tokens. The manifest lists one canonical form per name, not every variant. Only return model_unavailable when the name matches no vendor alias AND no model_alias under this fuzzy matching.';
+const DOMESTIC_IMAGE_USER_FACING_NAMING_RULE = 'Canonical vendor, model_id, backend, and tool identifiers are internal-only. In natural-language messages visible to the user, call vendor=banana "General Image", model_id=nano_banana_2_flash "General Image 2", model_id=nano_banana_2 "General Image Pro", and vendor/model gpt-image/gpt-image-2 "Design Image 2", model_id=gpt-image-2.5-sunburst "Design Image 2.5 Sunburst", and model_id=gpt-image-2.5-flare "Design Image 2.5 Flare". Treat user-spoken "GPT\u6A21\u578B", "GPT \u56FE\u50CF\u6A21\u578B", and "GPT image model" as aliases for vendor=gpt-image; in a pre-tool-call explanation issued before the exact model_id is selected, name the default_model listed for vendor=gpt-image in this manifest. Once a model_id is selected, use its exact display name instead of repeating the user-spoken alias or paraphrasing it as a "high-quality Banana version". Apply these mappings SEMANTICALLY only when the terms denote an image model, vendor, or tool. If "banana"/"\u9999\u8549" denotes fruit, or "GPT" denotes requested visible text, a visual subject, quoted user content, a filename, or any other non-model meaning, preserve the original word. Example: for user text "\u7528\u9999\u8549\u6A21\u578B\u751F\u6210\u4E00\u4E2A\u9999\u8549" with model_id=nano_banana_2_flash, say "\u6211\u4F1A\u7528 General Image 2 \u751F\u6210\u4E00\u5F20\u4EE5\u9999\u8549\u4E3A\u4E3B\u4F53\u7684\u56FE\u7247", never "\u6211\u4F1A\u7528\u9999\u8549\u6A21\u578B". For user text "\u7528 General Image \u6A21\u578B\u751F\u6210\u4E00\u4E2A banana" with model_id=nano_banana_2, say "\u6211\u4F1A\u7528 General Image Pro \u751F\u6210\u53E6\u4E00\u5F20\u9999\u8549\u56FE\u7247", never "\u6211\u4F1A\u7528 Banana \u7684\u9AD8\u8D28\u91CF\u7248\u672C". For user text "\u7528GPT\u6A21\u578B\u751F\u6210\u4E00\u4E2AGPT\u5B57\u6BCD\u7684\u56FE\u7247" with model_id=gpt-image-2.5-sunburst, say "\u6211\u4F1A\u4F7F\u7528 Design Image 2.5 Sunburst\uFF0C\u751F\u6210\u4E00\u5F20\u4EE5\u201CGPT\u201D\u4E09\u4E2A\u5B57\u6BCD\u4E3A\u4E3B\u4F53\u7684\u65B9\u5F62\u8BBE\u8BA1\u56FE", never "\u6211\u4F1A\u4F7F\u7528 GPT \u56FE\u50CF\u6A21\u578B". Tool-call arguments must still use the canonical vendor and model_id. Never expose canonical identifiers in user-facing explanations, including error, retry, fallback, and availability messages.';
+export function imageUserFacingNamingRule(region: ReleaseRegion): string | undefined {
+  return region === "domestic" ? DOMESTIC_IMAGE_USER_FACING_NAMING_RULE : void 0;
+}
+const VIDEO_SELECTION_POLICY = {
+  consult_knowledge: CONSULT_KNOWLEDGE_RULE,
+  operation_boundary: "Video generation/editing owns content-plane changes: action, motion, scene, subject, style, source-video edits, and extensions. Postprocess owns only deterministic trim/merge/crop/transcode/mux/subtitle/timeline operations.",
+  reference_routing_rule: "Reference media are not keyframes by default. When Seedance can accept refs, route identity/style/design/world/action guidance through mode=multimodal + reference_*; use first_frame_image/last_frame_image only for explicit opening/ending/start/end/keyframe requests or vendors with no reference mode.",
+  alias_resolution_rule: 'A user may name a vendor by a display name or spoken alias (see vendors[].aliases, e.g. "beta" \u2192 vendor=veo3). Resolving such an alias to its listed vendor is identification, NOT a silent model switch \u2014 do it instead of rejecting the request. When the alias names a specific variant (e.g. "beta_fast"/"beta_pro"), consult vendors[].model_aliases to map it to the exact model_id; without a variant cue, use the vendor default_model. Match aliases and model_aliases SEMANTICALLY: case-insensitive, ignoring spaces / hyphens / underscores between tokens (so "beta fast", "Beta-Fast", "BETA_FAST" all match the listed "Beta Fast"). The manifest lists one canonical form per name, not every variant. Only return model_unavailable when the name matches no vendor alias AND no model_alias under this fuzzy matching.',
+  model_id_rule: "Use only vendor + one value from models as model_id. When model_modes is present, mode must come from model_modes[model_id], not merely the vendor-level modes union. Do not use picker ids or aliases in model_id; aliases identify the vendor only.",
+  artifact_cardinality_rule: ARTIFACT_CARDINALITY_RULE
+};
+const AUDIO_TTS_SELECTION_POLICY = {
   default_order: ["official:speech-2.8-hd", "official:speech-2.8-turbo"],
   use_hd_first_when: ["final delivery", "emotional speech", "character voice quality"],
   use_turbo_first_when: ["draft preview", "fast iteration"],
   use_seedaudio_when: [
-    "the user names SeedAudio (Seed Audio) directly",
-    "cinematic dubbing, drama/trailer performance or role-performance speech",
-    "voice style must be replicated from a reference audio or image",
-    "a voice described in free text that no catalog voice matches",
-    "speech must be produced together with ambience, BGM or SFX in one clip",
+    "user explicitly asks for SeedAudio / Seed Audio",
+    "film/cinematic dubbing, short-drama/radio-drama/trailer performance, or role-performance speech is requested",
+    "reference audio or reference image voice-style replication is required",
+    "a clear custom natural-language voice description cannot be satisfied by official catalog selection",
+    "speech must be generated together with ambience, BGM, or SFX in the same clip"
   ],
-  model_id_rule:
-    "Pass vendor plus one value from models as model_name (SeedAudio: vendor=seedaudio, model_name=seed-audio-1.0). A missing voice_id alone is not a reason to use SeedAudio; prepare a catalog voice first.",
-  artifact_cardinality_rule: ARTIFACT_RULE,
+  model_id_rule: "Use vendor + one value from models as model_name. Do not use display names or aliases. For SeedAudio use vendor=seedaudio and model_name=seed-audio-1.0. Missing voice_id alone is not a SeedAudio trigger; try official catalog voice prep first.",
+  artifact_cardinality_rule: ARTIFACT_CARDINALITY_RULE
+};
+const AUDIO_MUSIC_SELECTION_POLICY = {
+  default_order: ["official:music-3.0"],
+  rule: "Use vendor=official model_id=music-3.0 for all BGM/score/instrumental music and for vocal or lyrics-first songs after lyrics are confirmed. Use mode=instrumental for instrumental BGM requests. Duration targeting is not a generation parameter on this tool and must be handled by deterministic post-processing.",
+  model_id_rule: "Use vendor=official with model_id=music-3.0.",
+  artifact_cardinality_rule: ARTIFACT_CARDINALITY_RULE
 };
 
-const MUSIC_POLICY = {
-  default_order: ["official:music-3.0"],
-  rule: "Use vendor=official, model_id=music-3.0 for BGM, score and instrumentals (mode=instrumental), and for vocal songs once lyrics are confirmed. Target duration is not a generation parameter; trim or loop in post-processing.",
-  model_id_rule: "Only vendor=official + model_id=music-3.0 exists.",
-  artifact_cardinality_rule: ARTIFACT_RULE,
-};
+/** 地区差异照参照：国内版换一套别名说明，并加上面向用户的命名规则。 */
+function imageSelectionPolicy(region: ReleaseRegion): Record<string, unknown> {
+  const userFacingNamingRule = imageUserFacingNamingRule(region);
+  return {
+    ...IMAGE_SELECTION_POLICY,
+    alias_resolution_rule: region === "domestic" ? IMAGE_SELECTION_POLICY.alias_resolution_rule : OVERSEAS_IMAGE_ALIAS_RESOLUTION_RULE,
+    ...(userFacingNamingRule ? { user_facing_naming_rule: userFacingNamingRule } : {}),
+    consult_knowledge: CONSULT_KNOWLEDGE_RULE,
+  };
+}
+
+const USER_FACING_CATALOG_RULE =
+  "Canonical vendor, backend, default_model, models, aliases, model_aliases, and knowledge_card are Agent-internal fields. Never expose vendor family names or knowledge-card paths in user-visible replies. When naming available or selected models to the user, use only the exact user_visible_models[].display_name values from this live Apollo catalog; do not invent, abbreviate, or substitute a vendor label. If user_visible_models is empty, do not present that vendor as a user-visible model option.";
 
 function manifestVendor(type: ModelType, c: VendorConfig, region: ReleaseRegion): ManifestVendor {
   const models = unique<string>(c.modelIds);
@@ -185,25 +173,25 @@ export function buildStaticManifest(region: ReleaseRegion): ManifestModality[] {
     {
       modality: "image",
       tool: "hub_generate_image",
-      selection_policy: imagePolicy(region),
+      selection_policy: imageSelectionPolicy(region),
       vendors: IMAGE_VENDOR_ENUM.map((v) => manifestVendor("image", IMAGE_VENDOR_CONFIGS[v], region)),
     },
     {
       modality: "video",
       tool: "hub_generate_video",
-      selection_policy: VIDEO_POLICY,
+      selection_policy: { ...VIDEO_SELECTION_POLICY, consult_knowledge: CONSULT_KNOWLEDGE_RULE },
       vendors: VIDEO_VENDOR_ENUM.map((v) => manifestVendor("video", VIDEO_VENDOR_CONFIGS[v], region)),
     },
     {
       modality: "audio.tts",
       tool: "hub_generate_audio_speech",
-      selection_policy: TTS_POLICY,
+      selection_policy: AUDIO_TTS_SELECTION_POLICY,
       vendors: [manifestVendor("audio", AUDIO_TTS_VENDOR, region), manifestVendor("audio", AUDIO_TTS_SEEDAUDIO_VENDOR, region)],
     },
     {
       modality: "audio.music",
       tool: "hub_generate_audio_music",
-      selection_policy: MUSIC_POLICY,
+      selection_policy: AUDIO_MUSIC_SELECTION_POLICY,
       vendors: [manifestVendor("audio", AUDIO_MUSIC_VENDOR, region)],
     },
   ];
@@ -222,7 +210,7 @@ export function filterManifestByCatalog(manifest: ManifestModality[], catalog: P
     const pool = pools[modality.modality] ?? catalog.audioModels;
     return {
       ...modality,
-      selection_policy: { ...modality.selection_policy, user_facing_catalog_rule: CATALOG_RULE },
+      selection_policy: { ...modality.selection_policy, user_facing_catalog_rule: USER_FACING_CATALOG_RULE },
       vendors: modality.vendors.flatMap((vendor) => {
         const models = vendor.models.filter((id) => pool.some((m) => matches(m, vendor.backend, id)));
         if (models.length === 0) return [];

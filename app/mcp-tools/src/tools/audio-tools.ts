@@ -36,7 +36,8 @@ function inputError(msg: string): CallToolResult {
   return { isError: true, content };
 }
 
-const generationFailureFields = {
+/** 每处新建一份：同一批实例在一个 schema 里出现两次（顶层 + results[]），转成 JSON Schema 时会变成 $ref。 */
+const generationFailureFields = () => ({
   error: z.string().optional(),
   error_code: z.string().optional(),
   user_message: z.string().optional(),
@@ -44,7 +45,7 @@ const generationFailureFields = {
   recovery_handle: z.string().optional(),
   do_not_resubmit: z.boolean().optional(),
   billing: BillingErrorMetadataSchema.optional(),
-};
+});
 
 // ── generate_audio_music ──
 
@@ -63,32 +64,32 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
           mode: { type: "enum", values: ["song", "instrumental"] },
         },
       },
-      description: [
-        "Generate one music track (Music 3.0). Each call yields exactly one final track; if the user wants several pieces, make one call per piece.",
-        "",
-        'Pick vendor `official` + model_id `music-3.0` for everything: BGM, film-style scores, instrumentals, and — after the lyrics are agreed — sung songs. If you want the capability manifest, call `hub_list_capabilities({modality:"audio.music"})`.',
-        "",
-        "Modes:",
-        "  - mode=song: a full song with vocals. `lyrics` is REQUIRED — write them yourself or take the user's, and get the user's confirmation before calling.",
-        "  - mode=instrumental: no vocals; `lyrics` is ignored.",
-        "",
-        "Returns {ok, path, duration, node_id?}. The canvas node is created automatically when the task finishes.",
-      ].join("\n"),
+      description: "Generate music with Official Music 3.0.\n" +
+        "Artifact cardinality: one invocation returns one final track. " +
+        "The prompt/lyrics describe a single track; multiple deliverables must be represented as separate asset tasks/tool calls.\n" +
+        "\n" +
+        "Model selection: call `hub_list_capabilities({modality:\"audio.music\"})` if you need the canonical manifest. " +
+        "Use `vendor=official, model_id=music-3.0` for BGM/score/instrumental music and for vocal or lyrics-first songs after lyrics are confirmed.\n" +
+        "\n" +
+        "Mode selection:\n" +
+        "  - vendor=official mode=song: full song WITH vocals. " +
+        "`lyrics` REQUIRED; write lyrics directly or use user-provided lyrics, and have the user confirm before passing them in.\n" +
+        "  - vendor=official mode=instrumental: pure background music. `lyrics` ignored.",
       inputSchema: {
-        vendor: z.enum(MUSIC_VENDORS).optional().default("official").describe("Music vendor. Only `official` (Music 3.0) is available."),
+        vendor: z.enum(MUSIC_VENDORS).optional().default("official").describe("Music vendor. Only official Music 3.0 is supported."),
         model_id: z
           .enum(["music-3.0"])
           .optional()
-          .describe("Canonical model id as listed by hub_list_capabilities. Defaults per vendor."),
-        mode: z.enum(["song", "instrumental"]).describe("song = with vocals; instrumental = background music without vocals."),
+          .describe("Canonical model id from hub_list_capabilities. Defaults by vendor."),
+        mode: z.enum(["song", "instrumental"]).describe("song = vocals/music; instrumental = instrumental BGM."),
         prompt: z
           .string()
-          .describe("Style / mood / instrumentation brief for this single track. Keep separate deliverables in separate calls."),
+          .describe("Single-track style / mood brief for one final artifact. Preserve deliverable topology; separate user-intended outcome units use separate calls."),
         lyrics: z
           .string()
           .optional()
           .describe(
-            "Required for mode=song. Mark sections with tags such as [verse], [chorus], [bridge]. Confirm the lyrics with the user before passing them.",
+            "Required when mode=song. Use structure tags like [verse], [chorus], [bridge]. Write lyrics directly or use user-provided lyrics, and confirm with the user before passing in.",
           ),
         filename: z.string().describe("Output filename WITHOUT extension."),
       },
@@ -97,7 +98,7 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
         path: z.string().optional(),
         duration: z.number().optional(),
         node_id: z.string().optional(),
-        ...generationFailureFields,
+        ...generationFailureFields(),
       },
     },
     async (args) => {
@@ -145,7 +146,7 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
 // ── generate_audio_speech ──
 
 const EMOTIONS = ["happy", "sad", "angry", "fearful", "disgusted", "surprised", "calm", "fluent"] as const;
-const EmotionSchema = z.enum(EMOTIONS).describe("Delivery emotion. Omit for the model's default.");
+const EmotionSchema = z.enum(EMOTIONS).describe("Emotion for speech synthesis. Omit for default behavior.");
 
 const LANGUAGE_BOOST = [
   "Chinese",
@@ -195,7 +196,7 @@ const PronunciationDictSchema = z.object({
   tone: z
     .array(z.string())
     .describe(
-      'Pronunciation rules, each "<source>/<replacement>". The replacement may be Mandarin pinyin with tone digits in parentheses ("处理/(chu3)(li3)"), IPA in parentheses ("resume/(rɪˈzjuːm)"), Cantonese jyutping with tones 1-6 in parentheses, or plain replacement text ("omg/oh my god"). All rules apply together.',
+      'Pronunciation overrides. Each entry: "<source>/<replacement>". Replacement can be (1) Mandarin pinyin with tone digits in parens, e.g. "处理/(chu3)(li3)"; (2) IPA in parens, e.g. "resume/(rɪˈzjuːm)"; (3) Cantonese pinyin with tone digits 1-6 in parens, e.g. "(sung3)"; (4) plain text replacement, e.g. "omg/oh my god". Multiple rules apply simultaneously.',
     ),
 });
 
@@ -204,13 +205,13 @@ const SEED_SAMPLE_RATES = ["8000", "16000", "24000", "32000", "44100", "48000"] 
 
 const effectRange = (what: string) => z.number().int().min(-100).max(100).optional().describe(what);
 const VoiceModifySchema = z.object({
-  pitch: effectRange("Pitch shift in [-100, 100]: -100 deepest, 100 brightest."),
-  intensity: effectRange("Intensity in [-100, 100]: -100 most forceful, 100 softest."),
-  timbre: effectRange("Timbre in [-100, 100]: -100 warmest, 100 crispest."),
+  pitch: effectRange("Pitch adjustment, range [-100, 100]. -100 = lowest, 100 = brightest."),
+  intensity: effectRange("Intensity adjustment, range [-100, 100]. -100 = most forceful, 100 = softest."),
+  timbre: effectRange("Timbre adjustment, range [-100, 100]. -100 = warmest, 100 = crispest."),
   sound_effects: z
     .enum(SOUND_EFFECTS)
     .optional()
-    .describe("At most one effect: spacious_echo (open-room echo), auditorium_echo (PA hall), lofi_telephone (phone line), robotic (synthetic)."),
+    .describe("One sound effect: spacious_echo (open echo) / auditorium_echo (PA system) / lofi_telephone (phone distortion) / robotic (electronic)."),
 });
 
 const SPEECH_MODELS = ["speech-2.8-hd", "speech-2.8-turbo", "seed-audio-1.0"] as const;
@@ -242,74 +243,81 @@ const speechResultItem = z.object({
   duration: z.number().optional(),
   subtitle_path: z.string().optional(),
   node_id: z.string().optional(),
-  ...generationFailureFields,
+  ...generationFailureFields(),
 });
 
 function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
-  const numOrList = (item: z.ZodNumber) => z.union([item, z.array(item.nullable())]);
+  // 两个分支各建一份：同一个实例出现两次，转成 JSON Schema 时第二处会变成 $ref，模型看不到取值范围。
+  const numOrList = (item: () => z.ZodNumber) => z.union([item(), z.array(item().nullable())]);
   r.registerTool(
     "generate_audio_speech",
     {
       confirmable: true,
-      description: [
-        "Text-to-speech: synthesise one or more speech clips. Every `texts` entry becomes exactly one clip — the entry is the words to be spoken, not an instruction.",
-        "",
-        'Choosing a vendor (see `hub_list_capabilities({modality:"audio.tts"})`): vendor="official" covers plain reading, narration, everyday dialogue dubbing and ordinary voice preferences resolved through the voice catalog. vendor="seedaudio" with model_name="seed-audio-1.0" is for performed/cinematic dubbing (short drama, radio drama, trailers), cloning a voice from reference audio or an image, natural-language custom voices the catalog cannot satisfy, or speech mixed with ambience/BGM/SFX. Lacking a voice_id is not by itself a reason to pick seedaudio.',
-        "",
-        'vendor="official": `texts` as a string gives one clip; as an array gives a batch (multi-speaker dialogue, per-scene narration) synthesised in parallel. The per-text fields `voice_ids` / `filenames` / `emotions` / `speeds` / `vols` / `pitches` line up with `texts` by index (a scalar applies to all). `language_boost` (default auto) and `pronunciation_dict` apply to every text.',
-        "",
-        "SeedAudio: one clip per call; no voice catalog and no voice_id. Give up to 3 `reference_audio_paths` OR a single `reference_image_path` (not both), and refer to uploaded audio inside the text as @音频1 / @音频2 … in upload order.",
-        "",
-        'Voice ids: set voice_id_source="user" only for an exact id the user gave, "catalog" for ids from `hub_voice_prepare` search, "tool" for ids produced by clone/design. Never make up an id.',
-        "",
-        "Returns {ok, path, duration, subtitle_path?, node_id?} for one clip, or {ok, results[]} for a batch (per-item success or failure).",
-      ].join("\n"),
+      description: "Generate one or more TTS audio clips via the v2 audio.tts dispatcher.\n" +
+        "Artifact cardinality: each `texts` item produces one speech clip. " +
+        "Batch size is the length of `texts`; the text item itself is spoken content, not a planning prompt.\n" +
+        "\n" +
+        "Vendor selection: call `hub_list_capabilities({modality:\"audio.tts\"})`. " +
+        "Use `vendor=\"official\"` for plain reading, narration, ordinary dialogue dubbing, and ordinary voice preferences after catalog voice selection. " +
+        "Use `vendor=\"seedaudio\"` with `model_name=\"seed-audio-1.0\"` for cinematic/film dubbing, short-drama/radio-drama/trailer performance, reference audio/i" +
+        "mage voice replication, clearly custom natural-language voices that catalog prep cannot satisfy, or speech generated together with ambience/BGM/SFX. " +
+        "Missing voice_id alone is not a SeedAudio trigger.\n" +
+        "\n" +
+        "Official speech: pass `texts` as a string for one clip, or an array for batch (multi-speaker dialogue, scene-by-scene narration). " +
+        "Per-text array fields (`voice_ids` / `filenames` / `emotions` / `speeds` / `vols` / `pitches`) align by index with `texts`. " +
+        "`language_boost` and `pronunciation_dict` are GLOBAL (apply to every text); `language_boost` defaults to `auto`.\n" +
+        "\n" +
+        "SeedAudio: single clip only. It has no fixed voice catalog and does not use `voice_id`; pass up to 3 `reference_audio_paths` OR one `reference_image_p" +
+        "ath` (mutually exclusive). Reference uploaded audio inside the text yourself using @音频1 / @音频2 ... by upload order.\n" +
+        "\n" +
+        "Voice IDs: use voice_id_source=\"user\" only for an exact ID supplied by the user, \"catalog\" for `hub_voice_prepare` results, and \"tool\" for clone/desig" +
+        "n results. Never invent an ID.",
       inputSchema: {
-        texts: z.union([z.string(), z.array(z.string())]).describe("Words to speak. A string = one clip; an array = one clip per entry."),
+        texts: z.union([z.string(), z.array(z.string())]).describe("Text(s) to synthesise. String = single; array = batch."),
         vendor: z
           .enum(["official", "seedaudio"])
           .optional()
-          .describe("TTS vendor. Inferred when omitted: seedaudio for seed-audio-1.0, otherwise `official`."),
+          .describe("TTS vendor. Default/inferred: official for speech-2.8 models, seedaudio for seed-audio-1.0."),
         voice_ids: z
           .union([z.string(), z.array(z.string())])
           .optional()
-          .describe("Voice id(s); an array must match the length of `texts`. Defaults to `Friendly_Person`."),
-        voice_id: z.string().optional().describe("Shortcut for a single voice id applied to every text. Do not combine with `voice_ids`."),
+          .describe("Voice ID(s). Length must align with `texts` when both are arrays. Defaults to `Friendly_Person` when omitted."),
+        voice_id: z.string().optional().describe("Single voice_id shortcut for single-text calls. Mutually exclusive with `voice_ids`."),
         voice_id_source: z
           .enum(["user", "catalog", "tool"])
           .optional()
-          .describe("Required whenever a catalog-backed voice id (vendor `official`) is given: user = exact id from the user; catalog = hub_voice_prepare search result; tool = clone/design result."),
-        filenames: z.union([z.string(), z.array(z.string())]).optional().describe("Per-text output name(s), no file extension."),
-        filename: z.string().optional().describe("Shortcut for a single filename. Do not combine with `filenames`."),
-        speeds: numOrList(z.number().min(0.5).max(2)).optional().describe("Speaking-rate multiplier per text, 0.5–2. Default 1.0."),
-        vols: numOrList(z.number().gt(0).max(10)).optional().describe("Volume per text for vendor `official`, in (0, 10]. Default 1.0."),
-        volumes: numOrList(z.number().min(0.5).max(2)).optional().describe("SeedAudio volume multiplier, 0.5–2. Default 1.0."),
-        pitches: numOrList(z.number().int().min(-12).max(12)).optional().describe("Per-text pitch offset (semitones, integer -12..12); 0 when omitted."),
+          .describe("Required with explicit official voice_id(s): user=exact ID supplied by the user; catalog=hub_voice_prepare result; tool=clone/design result."),
+        filenames: z.union([z.string(), z.array(z.string())]).optional().describe("Output filename(s) WITHOUT extension."),
+        filename: z.string().optional().describe("Single filename shortcut for single-text calls. Mutually exclusive with `filenames`."),
+        speeds: numOrList(() => z.number().min(0.5).max(2)).optional().describe("Speed multiplier per text. Range [0.5, 2]. Default 1.0."),
+        vols: numOrList(() => z.number().gt(0).max(10)).optional().describe("Official speech volume per text. Range (0, 10]. Default 1.0."),
+        volumes: numOrList(() => z.number().min(0.5).max(2)).optional().describe("SeedAudio volume multiplier. Range [0.5, 2]. Default 1.0."),
+        pitches: numOrList(() => z.number().int().min(-12).max(12)).optional().describe("Pitch shift in semitones per text. Range [-12, 12]. Default 0."),
         emotions: z.union([EmotionSchema, z.array(EmotionSchema.nullable())]).optional(),
         language_boost: z
           .enum(LANGUAGE_BOOST)
           .default("auto")
-          .describe("Vendor `official` only. Tells the recognizer which language the text is in: name the language when the text is all one language, use `Chinese,Yue` for Cantonese, otherwise leave `auto` (the default)."),
+          .describe("Official speech only: language recognition enhancement. Use the exact language value for known monolingual text, `Chinese,Yue` for Cantonese, or `auto` (default) for automatic detection."),
         model_name: z
           .enum(SPEECH_MODELS)
           .optional()
-          .describe("speech-2.8-hd (default, best quality), speech-2.8-turbo (faster drafts), or seed-audio-1.0 (SeedAudio, reference-conditioned)."),
-        pronunciation_dict: PronunciationDictSchema.optional().describe("Pronunciation rules applied to every text in the call."),
-        voice_modify: VoiceModifySchema.optional().describe("Only for vendor `official`: post-processing voice effects. Use sparingly."),
+          .describe("Model: 'speech-2.8-hd' (default, highest fidelity), 'speech-2.8-turbo' (faster drafts), or 'seed-audio-1.0' (SeedAudio reference-conditioned TTS)."),
+        pronunciation_dict: PronunciationDictSchema.optional().describe("Pronunciation overrides (applied globally to every text in the batch)."),
+        voice_modify: VoiceModifySchema.optional().describe("Official speech only: post-synthesis effect chain. Use sparingly for stylistic effects."),
         reference_audio_paths: z
           .array(z.string())
           .max(3)
           .optional()
-          .describe("SeedAudio only: up to 3 reference audio files (wav/mp3/pcm/ogg_opus, ≤30s and ≤10MB each). Excludes reference_image_path."),
+          .describe("SeedAudio only: up to 3 reference audio paths (wav/mp3/pcm/ogg_opus, ≤30s / ≤10MB each). Mutually exclusive with reference_image_path."),
         reference_image_path: z
           .string()
           .optional()
-          .describe("SeedAudio only: one reference image (jpeg/png/webp, ≤10MB). Excludes reference_audio_paths."),
+          .describe("SeedAudio only: one reference image path (jpeg/png/webp, ≤10MB). Mutually exclusive with reference_audio_paths."),
         sample_rate: z
           .enum(SEED_SAMPLE_RATES)
           .optional()
-          .describe("Vendor seedaudio only: sample rate of the result in Hz; 24000 when omitted."),
-        format: z.enum(["wav", "mp3", "pcm", "ogg_opus"]).optional().describe("SeedAudio only: output format (default wav)."),
+          .describe("SeedAudio only: output sample rate in Hz, default 24000."),
+        format: z.enum(["wav", "mp3", "pcm", "ogg_opus"]).optional().describe("SeedAudio only: output audio format, default wav."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -318,7 +326,7 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
         subtitle_path: z.string().optional(),
         node_id: z.string().optional(),
         results: z.array(speechResultItem).optional(),
-        ...generationFailureFields,
+        ...generationFailureFields(),
       },
     },
     async (args) => {
@@ -625,59 +633,57 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
     sample_audio: z.string(),
   });
   const ItemSchema = z.object({
-    id: z.string().optional().describe("Optional caller-side id echoed back, e.g. a role or asset id."),
+    id: z.string().optional().describe("Optional caller id, e.g. role id or asset id."),
     action: VoiceActionSchema,
     language: z
       .preprocess((v) => caseInsensitiveEnumLookup(languages, v), z.enum(languages as [string, ...string[]]))
       .optional()
-      .describe("[search_catalog] Language of the voices to list; normally the user's chat language."),
+      .describe("[search_catalog] Voice language. Defaults should match user chat language."),
     gender: z
       .preprocess((v) => caseInsensitiveEnumLookup(genders, v), z.enum(genders as [string, ...string[]]))
       .optional()
-      .describe("[search_catalog] Set it only if the user named a gender."),
-    audio_path: z.string().optional().describe("[clone] Reference recording to clone (mp3/m4a/wav, 10s–5min, ≤20MB)."),
-    prompt_audio_path: z.string().optional().describe("[clone] Optional prompt clip, under 8 seconds and at most 20MB."),
-    prompt_text: z.string().optional().describe("[clone] Transcript of prompt_audio_path."),
-    demo_text: z.string().optional().describe("[clone] Optional preview sentence (≤1000 chars)."),
+      .describe("[search_catalog] Pass only when user explicitly mentioned gender."),
+    audio_path: z.string().optional().describe("[clone] Reference audio file path (mp3/m4a/wav, 10s-5min, <=20MB)."),
+    prompt_audio_path: z.string().optional().describe("[clone] Optional short prompt audio (<8s, <=20MB)."),
+    prompt_text: z.string().optional().describe("[clone] Text matching prompt_audio content."),
+    demo_text: z.string().optional().describe("[clone] Optional preview text (<=1000 chars)."),
     demo_model: z
       .enum(["speech-2.8-hd", "speech-2.8-turbo"])
       .optional()
       .default("speech-2.8-hd")
-      .describe("[clone] Model used for the preview."),
-    need_noise_reduction: z.boolean().optional().describe("[clone] Denoise the reference first."),
-    need_volume_normalization: z.boolean().optional().describe("[clone] Normalise the reference loudness first."),
-    prompt: z.string().optional().describe("[design] Natural-language description of the voice."),
-    preview_text: z.string().max(500).optional().describe("[design] Sentence spoken in the trial audio."),
+      .describe("[clone] Preview model."),
+    need_noise_reduction: z.boolean().optional().describe("[clone] Apply noise reduction."),
+    need_volume_normalization: z.boolean().optional().describe("[clone] Apply volume normalization."),
+    prompt: z.string().optional().describe("[design] Voice description."),
+    preview_text: z.string().max(500).optional().describe("[design] Trial text."),
   });
   const ResultSchema = z.object({
     index: z.number(),
     id: z.string().optional(),
     action: VoiceActionSchema,
     ok: z.boolean(),
-    total: z.number().optional().describe("[search_catalog] How many voices matched."),
+    total: z.number().optional().describe("[search_catalog] Number of voices returned."),
     voices: z.array(VoiceCandidateSchema).optional().describe("[search_catalog] Matching voices."),
-    voice_id: z.string().optional().describe("[clone/design] The new voice id."),
+    voice_id: z.string().optional().describe("[clone/design] Generated voice id."),
     demo_audio: z.string().optional().describe("[clone] Preview audio URL."),
     trial_audio_url: z.string().optional().describe("[design] Trial audio URL."),
-    input_sensitive_type: z.number().optional().describe("[clone] Risk flag for the reference audio (0 = clean)."),
-    error: z.string().optional().describe("[failed item] What went wrong."),
+    input_sensitive_type: z.number().optional().describe("[clone] Input audio risk type."),
+    error: z.string().optional().describe("[failed item] Error message."),
   });
 
   r.registerTool(
     "voice_prepare",
     {
-      description: [
-        "Get voice_id values ready for hub_generate_audio_speech. Always pass `items[]` (one element for a single role); items run in parallel.",
-        "",
-        "Actions per item:",
-        "- `search_catalog`: list preset voices for a language (optionally a gender). This is the normal way to pick a voice.",
-        "- `clone`: clone a voice from a user-supplied recording. Keep and reuse the returned `voice_id`; never clone the same recording twice.",
-        "- `design`: create a brand-new voice from a text description. Only when the user explicitly asks to design / customise / create a voice — not for ordinary adjective-based picking.",
-        "",
-        "Returns {ok, total, successCount, errorCount, results[], failed[]}; each result carries its `index` (and your `id`).",
-      ].join("\n"),
+      description: "Prepare one or more voice_id choices for speech generation. Pass items[]; use a single-element array for one role. " +
+        "Default agents use this single tool for voice catalog search, voice cloning, or explicit custom voice design.\n" +
+        "\n" +
+        "ACTIONS per item:\n" +
+        "- `search_catalog`: list preset voices by language and optional gender. Use for normal voice selection.\n" +
+        "- `clone`: clone from a user-provided reference audio. Reuse the returned `voice_id`; do not clone repeatedly for the same audio.\n" +
+        "- `design`: create a custom voice from text description. " +
+        "Use only when the user explicitly asks to design/customize/create a new voice, not for ordinary adjective-based voice selection.",
       inputSchema: {
-        items: z.array(ItemSchema).min(1).max(30).describe("Voice preparation requests. A single role still goes in a one-element array."),
+        items: z.array(ItemSchema).min(1).max(30).describe("Batch of voice preparation requests. Single-role calls must still use items[]."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -779,15 +785,15 @@ function registerAudioMeta(r: ToolRegistrar): void {
     "audio_meta",
     {
       description:
-        "Read an audio file's metadata (duration in seconds, container format, size, bit rate) with a local probe. Call it whenever a later step needs the exact audio duration, e.g. before cutting or aligning clips.",
+        "Get audio metadata including duration and format. Always call this before audio_subclip_batch or any operation that needs exact audio duration.",
       inputSchema: {
-        audio_path: z.string().describe("Path of the audio file"),
+        audio_path: z.string().describe("Audio file path"),
       },
       outputSchema: {
-        duration: z.number().describe("Duration in seconds"),
-        format_name: z.string().optional().describe('Container format name, e.g. "mp3" or "wav"'),
+        duration: z.number().describe("Audio duration in seconds"),
+        format_name: z.string().optional().describe("Audio format name (e.g. \"mp3\", \"wav\")"),
         size: z.number().optional().describe("File size in bytes"),
-        bit_rate: z.number().optional().describe("Bit rate in bits per second"),
+        bit_rate: z.number().optional().describe("Bit rate in bps"),
       },
     },
     async (args) => {

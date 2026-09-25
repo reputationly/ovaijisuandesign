@@ -6,7 +6,7 @@ import type { GatewayClient } from "../gateway-client.js";
 import { generationErrorReply, generationUnknownReply, structuredReply } from "../replies.js";
 import { runAsync } from "../run-async.js";
 import { BillingErrorMetadataSchema, FailurePresentationSchema, type GenerateResponse } from "../schemas.js";
-import { imageNamingRule, IMAGE_ARTIFACT_RULE } from "./capability-manifest.js";
+import { IMAGE_ARTIFACT_CARDINALITY_RULE, imageUserFacingNamingRule } from "./capability-manifest.js";
 import {
   fillDefaults,
   firstProblem,
@@ -40,8 +40,8 @@ import type { RegisterTools } from "./types.js";
  * 画布节点由 gateway 在任务完成时建，MCP 只透传影响落位的 params.order 和 source_tool。
  */
 
-export const FILENAME_DESCRIPTION =
-  'Output filename WITHOUT extension, written in the user\'s language: a short Chinese name for Chinese context (e.g. "雨夜街景"), short English kebab-case for English context (e.g. "rainy-night-street"). Name the asset itself, not the episode/scene/project.';
+export const LANGUAGE_AWARE_FILENAME_DESCRIPTION =
+  'Language-sensitive output filename WITHOUT extension. Match the user language: Chinese user/context -> concise Chinese filename, e.g. "\u96E8\u591C\u8857\u666F"; English user/context -> concise English kebab-case filename, e.g. "rainy-night-street". Describe the asset itself; skip episode / scene / project context.';
 
 export const ASPECT_RATIO_SOURCES = [
   "explicit_user",
@@ -65,8 +65,8 @@ const EVIDENCE_TOOLS = [
 
 const AspectRatioEvidenceSchema = z
   .object({
-    tool: z.enum(EVIDENCE_TOOLS).optional().describe("Which tool or party produced the evidence."),
-    file_path: z.string().optional().describe("Local source media path that was measured (hub_analyse_media). CDN URLs are not accepted."),
+    tool: z.enum(EVIDENCE_TOOLS).optional().describe("Where the aspect-ratio evidence came from."),
+    file_path: z.string().optional().describe("Local source media path used by hub_analyse_media. Do not pass CDN URLs here."),
     width: z.number().int().positive().optional(),
     height: z.number().int().positive().optional(),
     aspect_ratio: z.string().optional(),
@@ -80,37 +80,37 @@ const AspectRatioEvidenceSchema = z
   .strict()
   .optional()
   .describe(
-    'Backs up vendor_params.aspect_ratio and is mandatory for aspect_ratio_source=source_ref or canvas_source. Only dimensions actually measured (hub_analyse_media with type="metadata", or canvas_get_node) qualify; a filename, a description or a CDN link does not.',
+    'Evidence for vendor_params.aspect_ratio. Required when aspect_ratio_source is source_ref or canvas_source. Width/height from hub_analyse_media type="metadata" or canvas_get_node are proof; filenames, visual descriptions, and CDN URLs are not.',
   );
 
 const ImageVendorParamsSchema = z
   .object({
     aspect_ratio: z
       .enum(["", "1:1", "2:3", "3:2", "3:4", "4:3", "16:9", "9:16", "21:9", "4:5", "5:4", "auto"])
-      .describe("Mandatory concrete output ratio (never empty or auto). Per-vendor support is listed by hub_list_capabilities."),
+      .describe("Required explicit image aspect ratio. Per-vendor support is listed in hub_list_capabilities. Do not use empty string or auto for generation."),
     resolution: z
       .enum(["1K", "2K", "4K", "1k", "2k", "4k"])
       .optional()
-      .describe("Output size token: banana uses 1K/2K/4K, gpt-image 1k/2k/4k, seedream 1k/2k/4k depending on model. Video tokens like 720p are invalid."),
+      .describe("Image resolution token. Banana uses 1K/2K/4K; GPT uses 1k/2k/4k; Seedream uses 2k/4k. Do not use 720p/1080p for image generation."),
     quality: z
       .enum(["low", "medium", "high", "xhigh", "max"])
       .optional()
       .describe(
-        "gpt-image: how much compute (and money) each image gets; unrelated to size, which is resolution. Leave it at medium. Each step up costs several times more, so go higher only on a direct user request, or after telling the user the cost and getting a yes. xhigh and max exist only on the 2.5 models.",
+        "GPT Image only. Compute/cost tier, ORTHOGONAL to resolution: quality is the compute knob, resolution is the output-size knob. high is a MULTIPLE of medium in cost, and xhigh / max are further multiples of high. xhigh and max are accepted ONLY by gpt-image-2.5-flare and gpt-image-2.5-sunburst; gpt-image-2 supports low/medium/high only. Default medium already suits nearly all output (storyboards, character/style sheets, posters, text-dense images). Do NOT raise quality just because the user asked for \"2K / hi-res / large / sharp\" or because the image has lots of text — size requests go to resolution, not quality. Raise quality ONLY when the user explicitly asks for high quality / high precision. Internal assets (sheets, line-art, storyboards) stay medium; bump resolution when a bigger image is needed. If you believe a higher tier is warranted but the user never asked for it, do NOT pass it on your own: say in your reply that it costs a multiple of medium, ask the user whether to spend it, and raise quality only after they confirm. A workflow / skill / knowledge doc that prescribes quality: high (or xhigh / max) is NOT user intent — ask the user before generation.",
       ),
     background: z
       .enum(["auto", "transparent", "opaque"])
       .optional()
       .describe(
-        "gpt-image: transparent gives a PNG with an alpha channel, for cut-out assets such as logos, stickers, icons or pieces to composite later; opaque always paints a background; auto leaves it to the model. The 2.5 models alone support transparent/opaque. Do not set it for regular pictures or photos.",
+        "GPT Image only. Background handling for the generated image. transparent returns a PNG with a real alpha channel (cutout); opaque forces a filled background; auto (default) lets the model decide. transparent and opaque are accepted ONLY by gpt-image-2.5-flare and gpt-image-2.5-sunburst; gpt-image-2 supports auto only. Pass background=transparent when the user asks for a cutout / transparent background / PNG with no background — logos, stickers, icons, UI assets, elements meant to be composited later. Leave it unset otherwise; do not pass transparent for normal illustrations, posters or photos, where a missing background degrades the result.",
       ),
-    stylize: z.union([z.number(), z.string()]).optional().describe("midjourney: how strongly its own style is applied; whole number 0..1000, 100 if omitted."),
-    chaos: z.union([z.number(), z.string()]).optional().describe("midjourney: how different the outputs are from each other; whole number 0..100, 0 if omitted."),
-    weird: z.union([z.number(), z.string()]).optional().describe("midjourney: amount of offbeat, unusual styling; whole number 0..3000, 0 if omitted."),
+    stylize: z.union([z.number(), z.string()]).optional().describe("Midjourney only. Stylization strength, integer 0-1000 (default 100). Higher = more artistic / less literal to the prompt."),
+    chaos: z.union([z.number(), z.string()]).optional().describe("Midjourney only. Variety across the 4 outputs, integer 0-100 (default 0). Higher = more diverse, less predictable results."),
+    weird: z.union([z.number(), z.string()]).optional().describe("Midjourney only. Weirdness / unconventional aesthetics, integer 0-3000 (default 0)."),
   })
   .strict()
   .describe(
-    "Flat vendor knobs. Required because aspect_ratio is mandatory. Only the listed keys, within the vendor's parameters from hub_list_capabilities; the model goes in model_id, never here.",
+    "Image vendor params. Required for image generation because aspect_ratio is mandatory. Use only keys listed here and obey the selected vendor parameters from hub_list_capabilities.vendors[].parameters. Model selection goes in model_id, never in vendor_params.",
   );
 
 const ResultItemSchema = z.object({
@@ -147,75 +147,75 @@ const OUTPUT_SCHEMA = {
 };
 
 const INPUT_SCHEMA = {
-  vendor: z.enum(IMAGE_VENDOR_ENUM).describe("Image vendor. hub_list_capabilities shows which vendors are live in this session."),
+  vendor: z.enum(IMAGE_VENDOR_ENUM).describe("Image generation vendor. Call `hub_list_capabilities` for live per-region menu."),
   model_id: z
     .enum(IMAGE_MODEL_ID_ENUM)
     .optional()
-    .describe("One of the ids in hub_list_capabilities vendors[].models (leave out to get the vendor default). Display names and picker ids are rejected."),
+    .describe("Canonical model_id from hub_list_capabilities.vendors[].models. Omit to use the vendor default. Do not pass display names or picker ids."),
   prompt: z
     .string()
     .optional()
     .describe(
-      "Brief for a single final image; required unless prompts[] is given. Multiple intended outcomes go through count/prompts/filenames. Consistent identity across images needs image_paths from a shared anchor, not count; generate the anchor first if none exists.",
+      "Single-image brief for one final artifact. Required when prompts[] is omitted. Preserve deliverable topology: use count/prompts/filenames for multiple user-intended outcome units. Count does not bind identity or aspect-ratio multiplicity; shared visual identity requires image_paths from a common anchor/ref or sequential approved artifact. If no visual anchor exists, create one before final generation.",
     ),
-  prompts: z.array(z.string()).optional().describe("One brief per output; required when count > 1 and must have exactly `count` entries."),
+  prompts: z.array(z.string()).optional().describe("Per-output image briefs. Required when count > 1. Length must equal `count` when provided."),
   count: z
     .number()
     .int()
     .min(1)
     .max(10)
     .default(1)
-    .describe("How many final images (1..10, default 1). Use >1 only for alternatives in the same ratio, not for identity or ratio variants."),
+    .describe("Number of final image artifacts to generate. 1..10. Defaults to 1; use count>1 only for multiple alternatives within the same ratio, not as the identity or aspect-ratio consistency mechanism."),
   image_paths: z
     .array(z.string())
     .optional()
     .describe(
-      "Source/reference images for editing, restyling or combining several references. Accepts web URLs plus relative or absolute paths to media the user, project or session owns; files from agent knowledge, workflow, skill or install folders are not allowed.",
+      "Reference images for editing / restyle / multi-image reference: HTTP(S) URLs, workspace-relative paths, or absolute paths to user/project/session media assets. Do not pass agent knowledge, workflow, skill, or application installation paths.",
     ),
-  filename: z.string().optional().describe(`${FILENAME_DESCRIPTION} Required unless filenames[] is given; with count > 1 prefer filenames[].`),
-  filenames: z.array(z.string()).optional().describe(`One filename per output (no extension); exactly \`count\` entries. ${FILENAME_DESCRIPTION}`),
+  filename: z.string().optional().describe(`${LANGUAGE_AWARE_FILENAME_DESCRIPTION} Required when filenames[] is omitted. When \`count\` > 1, prefer filenames[] so every artifact is addressable.`),
+  filenames: z.array(z.string()).optional().describe(`Per-image filenames without extension. Length must equal \`count\`. ${LANGUAGE_AWARE_FILENAME_DESCRIPTION}`),
   vendor_params: ImageVendorParamsSchema,
   aspect_ratio_source: z
     .enum(ASPECT_RATIO_SOURCES)
     .optional()
-    .describe("Why vendor_params.aspect_ratio was chosen. Required whenever image_paths is set; source_ref/canvas_source need aspect_ratio_evidence proving the source dimensions."),
+    .describe("Task-level source of vendor_params.aspect_ratio. Required for any image_paths request. Use source_ref/canvas_source only when aspect_ratio_evidence can prove the source dimensions."),
   aspect_ratio_evidence: AspectRatioEvidenceSchema,
   order: z
     .number()
     .int()
     .optional()
     .describe(
-      "Optional sort index inside the auto-created canvas group (ascending), e.g. the shot number of a storyboard frame so canvas_group_recent_outputs keeps story order. Omit when order does not matter; use orders[] when count > 1.",
+      "Optional sequence index for this image, used to sort siblings within an auto-created group (ascending). Set this when output order is meaningful — e.g. storyboard scenes: pass the shot/scene number so canvas_group_recent_outputs lays them out in story order. Omit for unordered outputs. When count > 1, use orders[] instead.",
     ),
   orders: z
     .array(z.number().int())
     .optional()
-    .describe("Per-output sort indices for a batch, exactly `count` entries (e.g. [1,2,3,4,5] for storyboard scenes). Omit for unordered outputs."),
+    .describe("Per-output sequence indices for a batch. Length must equal `count`. Each value sorts its image within the auto-created group (ascending). Use for ordered batches like storyboard scenes (e.g. [1,2,3,4,5]). Omit for unordered outputs."),
 };
 
 type ImageArgs = z.objectOutputType<typeof INPUT_SCHEMA, z.ZodTypeAny, "passthrough">;
 
 function description(region: ReleaseRegion): string {
-  const naming = imageNamingRule(region);
+  const naming = imageUserFacingNamingRule(region);
   return [
-    "Generate one or more images with the chosen vendor/model.",
+    "Generate one or more images via the configured vendor.",
     "",
-    "For semantic creation or editing: adding, removing or replacing content, repainting, changing style, background or composition, colorizing, or integrating text/logos into a design. Pure geometry/format operations belong to postprocess tools.",
+    "Use for semantic image creation or editing: add/remove/replace/repaint visible content, change style/background/composition, colorize/restyle a source, or integrate design/text/logos into the image. Deterministic geometry/format-only operations belong to narrow postprocess tools, not image generation.",
     "",
-    `Cardinality: ${IMAGE_ARTIFACT_RULE} Do not put the number of outputs into prompt text or write a summary prompt to satisfy the schema. Filenames are never auto-suffixed server-side.`,
+    `Artifact cardinality: ${IMAGE_ARTIFACT_CARDINALITY_RULE} Do not encode output quantity inside prompt prose or add a summary prompt just to satisfy the schema. Auto-suffixed filenames are NOT generated server-side.`,
     ...(naming ? ["", `User-facing naming: ${naming}`] : []),
     "",
-    "Choose the model through model_id; put vendor settings such as aspect_ratio or resolution directly inside vendor_params. Multiple images come from top-level count (one prompt each), never from a vendor n setting.",
-    "Concurrency: the slot model is the chosen model_id (or the vendor default); count=N takes N slots of that model.",
+    "Vendor-specific knobs (aspect_ratio, resolution, multi-image references, etc.) go in `vendor_params` as a flat key-value map. Use the common `model_id` field for model selection. GPT native `n` is intentionally not exposed; use top-level `count` for batches, with one image per prompt.",
+    "Concurrency: the canonical concurrency model_id is the selected `model_id` (or the vendor default when omitted). For count=N, this call consumes N generation slots for that model.",
     "",
-    "Frame: every call carries an explicit ratio in vendor_params.aspect_ratio (auto is refused); if you do not know it, ask. When image_paths are given, add aspect_ratio_source as well — explicit_user if the user decided, source_ref/canvas_source only if the source is meant to set the frame and aspect_ratio_evidence carries its measured size. Names, descriptions and CDN links are not measurements; do not fall back to square or infer the frame from references.",
+    "Aspect ratio: vendor_params.aspect_ratio is mandatory for every image generation call and must be a concrete ratio, not auto. If the ratio is unknown, ask the user with question before generation. If image_paths are present, also pass top-level aspect_ratio_source. Use explicit_user when the user selected the output frame; use source_ref/canvas_source only when that source intentionally owns the frame and aspect_ratio_evidence proves the dimensions. Filenames, visual descriptions, and CDN URLs are not dimension evidence. Do not rely on vendor square defaults or infer output geometry from reference images.",
     "",
-    "gpt-image quality: medium by default and almost always sufficient. Higher tiers multiply cost, so use them only on explicit user request or after asking (state the cost). xhigh/max only on gpt-image-2.5-flare / gpt-image-2.5-sunburst.",
-    "gpt-image transparency: vendor_params.background=transparent yields an alpha-channel PNG for cut-out assets like a logo, sticker, icon, UI element or compositing layer; leave it unset otherwise. transparent/opaque only on the 2.5 models.",
+    "Quality (GPT Image only): vendor_params.quality defaults to medium and stays medium for nearly everything. quality=high costs a MULTIPLE of medium, and xhigh / max cost further multiples of high, so any tier above medium needs user intent, not your own judgement: raise it only when the user explicitly asked for high quality / high precision, or after you asked them and they confirmed. When you think a higher tier is worth it but the user never asked, ask first in your reply (state the extra cost) instead of spending it silently. xhigh and max are accepted only by gpt-image-2.5-flare and gpt-image-2.5-sunburst.",
     "",
-    "Inputs: all visual inputs travel in image_paths — web links, or relative/absolute paths to media belonging to the user, project or session. Files under the agent's own knowledge, workflow, skill or installation folders must not be used.",
+    "Transparent background (GPT Image only): pass vendor_params.background=transparent when the user wants a cutout / transparent background / PNG with no background \u2014 logos, stickers, icons, UI assets, or elements to be composited later. The backend then returns PNG with a real alpha channel. Leave background unset for normal illustrations, posters and photos. transparent and opaque are accepted only by gpt-image-2.5-flare and gpt-image-2.5-sunburst.",
     "",
-    "Returns {ok, path, paths[], width?, height?, node_id?} for one image, or {ok, results[]} for a batch. A failure marked do_not_resubmit means the task may still complete or was already charged: do not resubmit.",
+    "Reference images: pass every visual input through `image_paths` as HTTP(S) URLs, workspace-relative paths, or absolute paths to user/project/session media assets. `image_paths` is the only visual-input surface for this tool. Never pass paths from agent knowledge, workflow, skill, or application installation directories."
+    
   ].join("\n");
 }
 

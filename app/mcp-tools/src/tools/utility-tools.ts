@@ -244,17 +244,19 @@ export const registerUtilityTools: RegisterTools = (registrar, gateway) => {
     "read",
     {
       description:
-        "Open a single local file (plain text, source code, JSON, Word .docx or PDF) or list a folder. Output is line-numbered and paged via offset/limit; archives and other binaries are refused.\n" +
-        "Images, video and audio are not handled here: use `hub_analyse_media`. If the media sits on the canvas, canvas_get_node already gives its model, prompt, size and connections from the asset store, with no model call. " +
-        "Logical paths starting with `<knowledgeDir>` or `<workflowsDir>` (as returned by search_knowledge) are accepted.",
+        "Read a text/code/JSON/DOCX/PDF file from disk. Returns numbered lines with offset/limit pagination; unsupported binary files are rejected. " +
+        "Single file only — text reading is one-file-at-a-time.\n" +
+        "For image/video/audio understanding use `hub_analyse_media`. " +
+        "For canvas-attached media (model / prompt / dimensions / user-arranged edges), prefer canvas_get_node — it returns metadata directly from the SQLite v" +
+        "ault without invoking multimodal analysis.",
       inputSchema: {
         file_path: z
           .string()
           .describe(
-            "Where the file lives. Use an absolute path when you can: relative paths are taken from the server working directory (normally the project root), which may not be the workspace you mean.",
+            "Single file path (text/code/JSON/DOCX/PDF). Absolute path strongly recommended; relative paths are resolved against the MCP server cwd (typically the project root) and may be ambiguous when the agent operates across workspaces.",
           ),
-        offset: z.number().int().nonnegative().optional().describe("1-based line number to start from (default 1)."),
-        limit: z.number().int().positive().optional().describe("Maximum number of lines to return (default 2000)."),
+        offset: z.number().int().nonnegative().optional().describe("1-indexed line number to start reading from (default 1)"),
+        limit: z.number().int().positive().optional().describe("Max lines to read (default 2000)"),
       },
     },
     async (args) => {
@@ -289,29 +291,30 @@ export const registerUtilityTools: RegisterTools = (registrar, gateway) => {
     "analyse_media",
     {
       description:
-        "Inspect local image, video or audio files. Choose `type` according to what you need to know. `metadata` probes the file itself and gives exact " +
-        "numbers — pixel size, length, aspect ratio, orientation and media_type — with no AI involved. `semantic` sends each file with your question to a " +
-        "multimodal model and returns its description: who or what appears, what happens, where, how it is framed, and the overall medium or style. " +
-        "`both` gives you the two together. Call it before generating whenever an input file should drive the framing, or when the request hinges on " +
-        "what a file depicts or sounds like. Model descriptions are observations, not measurements. When a file will be used as a generation reference, " +
-        "leave its colors out of your prompt text (tones, backgrounds, skin, hair, clothing, color words) and hand over the file so the generator sees them.",
+        "Unified local media understanding. Choose `type` by evidence need: `metadata` returns deterministic file facts (width, height, duration, aspect ratio," +
+        " orientation, media_type) without multimodal inference; `semantic` returns question-scoped multimodal observations (subjects, actions, scene/world, br" +
+        "oad medium/style, composition, and portable design signals); `both` returns both in one call. " +
+        "Use this before generation when source/reference media should determine framing or when user intent depends on visual/audio semantics. " +
+        "Do not promote semantic prose into measured facts. " +
+        "For reference-based generation, semantic mode must not textify colors, palette, background tone, paper/substrate hue, complexion, hair/clothing color," +
+        " or color adjectives; pass refs so the generation model sees color directly.",
       inputSchema: {
         file_path: z
           .string()
           .optional()
-          .describe("Path of one media file; absolute is safest since relative paths depend on the server working directory."),
-        file_paths: z.array(z.string()).optional().describe("A list of media files; each gets its own result."),
+          .describe("Single media file path. Absolute path strongly recommended; relative paths are resolved against the MCP server cwd and may be ambiguous across workspaces."),
+        file_paths: z.array(z.string()).optional().describe("Multiple media file paths for per-file analysis."),
         type: z
           .enum(["semantic", "metadata", "both"])
-          .describe("semantic = model description, metadata = probed file facts, both = the two combined."),
+          .describe("Which evidence class to return: semantic multimodal observations, deterministic metadata, or both."),
         question: z
           .string()
           .optional()
-          .describe("What the model should look for in each file; mandatory unless type is metadata."),
+          .describe("Required when type is semantic or both. State what semantic facts to extract from each media file."),
         force: z
           .boolean()
           .default(false)
-          .describe("Ignore any stored answer to the same question and analyse again (semantic part only)."),
+          .describe("For semantic analysis only: re-analyze even if a question-scoped cache entry exists."),
       },
       outputSchema: {
         type: z.enum(["semantic", "metadata", "both"]),

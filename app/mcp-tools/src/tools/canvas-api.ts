@@ -65,28 +65,26 @@ export const TableContentSchema = z.object({
 export type TableContent = z.infer<typeof TableContentSchema>;
 
 export const EdgeSummarySchema = z.object({
-  source: z.string().describe("Source node id"),
-  target: z.string().describe("Target node id"),
-  type: z.string().describe('Edge type, e.g. "derivation"'),
+  source: z.string().describe("Source canvas node ID"),
+  target: z.string().describe("Target canvas node ID"),
+  type: z.string().describe("Edge type (e.g. \"derivation\")"),
 });
 
 /** 资产元数据白名单；其余键透传（gateway 已剥掉内部字段）。 */
-export const AssetMetadataSchema = z
-  .object({
-    model: z.string().optional(),
-    model_id: z.string().optional(),
-    description: z.string().optional(),
-    voice_id: z.string().optional(),
-    width: z.number().optional(),
-    height: z.number().optional(),
-    duration_ms: z.number().optional(),
-    fps: z.number().optional(),
-    reference_images: z.array(z.string()).optional(),
-    reference_audios: z.array(z.string()).optional(),
-    reference_videos: z.array(z.string()).optional(),
-    error_message: z.string().optional(),
-  })
-  .passthrough();
+export const AssetMetadataSchema = z.object({
+  model: z.string().optional().describe("Generator model identifier"),
+  model_id: z.string().optional().describe("Alternate generator model identifier"),
+  description: z.string().optional().describe("Cached multimodal-AI description (populated by media `read`)"),
+  voice_id: z.string().optional().describe("TTS voice identifier (audio assets)"),
+  width: z.number().optional().describe("Intrinsic width in pixels"),
+  height: z.number().optional().describe("Intrinsic height in pixels"),
+  duration_ms: z.number().optional().describe("Duration in milliseconds (audio / video)"),
+  fps: z.number().optional().describe("Frames per second (video)"),
+  reference_images: z.array(z.string()).optional().describe("Asset ids of reference images used at generation time"),
+  reference_audios: z.array(z.string()).optional().describe("Asset ids of reference audios used at generation time"),
+  reference_videos: z.array(z.string()).optional().describe("Asset ids of reference videos used at generation time"),
+  error_message: z.string().optional().describe("Failure reason for failed generations")
+}).passthrough();
 
 export const CanvasNodeDetailSchema = z.object({
   id: z.string(),

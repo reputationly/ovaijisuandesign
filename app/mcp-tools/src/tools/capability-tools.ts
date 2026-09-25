@@ -52,25 +52,36 @@ export async function buildLiveManifest(gw: GatewayClient, region: ReleaseRegion
   }
 }
 
-const LIST_DESCRIPTION = [
-  "List the generation capabilities behind the four hub_generate_* tools (image, video, speech, music).",
-  "",
-  "Call it when a requested model may not exist in this session (answer model_unavailable with the available options), or when planning needs the real modes/parameters of a vendor.",
-  "",
-  "Returns {ok, region, modalities[]}: per modality a selection_policy and vendors[]. The list is intersected with the live model catalog and the session's model-picker selection (Auto keeps the full catalog). Each vendor carries canonical models (the values for model_id), default_model, modes/model_modes, capabilities, parameters, aliases/model_aliases, knowledge_card, user_visible_models (exact display names from the catalog) and task_concurrency.models[model_id] = {limited, limit} static per-model limits (limit 0 = no configured limit; live usage is not included, see get_model_concurrency). Default choices follow selection_policy; model_id only ever takes a value from models.",
-  "",
-  "Everything except display names is internal (knowledge_card, vendor, backend, model ids) and must stay out of replies to the user. Refer to a model only by its user_visible_models[].display_name, copied exactly; a vendor family name is never a model option.",
-].join("\n");
+const LIST_DESCRIPTION = "List the generation capabilities currently exposed via the four hub_generate_* dispatchers.\n" +
+  "\n" +
+  "Use this when:\n" +
+  "  - the orchestrator named a model that may not exist in this session (executor returns `model_unavailable` + `available[]` after consulting this list" +
+  ")\n" +
+  "  - the planner needs to know what modes a vendor actually supports (e.g. seedance has 6 modes, wan has 4)\n" +
+  "\n" +
+  "Returns a structured manifest grouped by modality and intersected with the current session model-picker selection; Auto keeps the full runtime catalog" +
+  ". Each vendor entry carries canonical `models` for tool `model_id`, quality/routing fields, a `knowledge_card`, exact Apollo names under `user_visible" +
+  "_models`, and static same-model limits under `task_concurrency.models[model_id]`. " +
+  "`limited=false` / `limit=0` means no configured task concurrency limit; current usage is dynamic and not included. " +
+  "Use `selection_policy` and `selection_priority` for default model choice; do not use display names or picker ids as model_id.\n" +
+  "\n" +
+  "`knowledge_card` is Agent-internal lookup metadata. Never quote, link, render, or otherwise expose its path in a user-visible reply. " +
+  "Canonical vendor/backend/model fields are also internal. " +
+  "When naming models to the user, use only the exact `user_visible_models[].display_name` values from the live Apollo catalog. " +
+  "Never expose vendor family names as model options or substitute them for a concrete display_name.";
 
-const CONCURRENCY_DESCRIPTION = [
-  "Report current task concurrency (limit, used, available) for generation model_ids.",
-  "",
-  "Use it before firing several concurrent calls at the same model when you need live free slots; static limits are already in hub_list_capabilities vendors[].task_concurrency. Not needed for a single simple generation.",
-  "",
-  "model_id naming: image/video use their model_id; speech uses the model_name value (e.g. speech-2.8-hd); music tools state their fixed model id in their descriptions.",
-  "",
-  "Contract: when a limited model shows available=0, do not call generation for it; let running tasks finish or check with the user; picking a different model just to get around the cap is only fine if the user wants it. available is null when the model has no limit.",
-].join("\n");
+const CONCURRENCY_DESCRIPTION = "Return current task concurrency for selected generation model_ids.\n" +
+  "\n" +
+  "Use this before concurrent calls to the same generation model when you need current used/available slots. " +
+  "For capability dispatchers, hub_list_capabilities may already expose static limits under vendors[].task_concurrency.models.\n" +
+  "Do not call this for a single simple generation; use it only when planning concurrent same-model generation or when static limit/usage is unknown.\n" +
+  "\n" +
+  "model_id naming: image/video tools use the `model_id` parameter directly. " +
+  "Speech tools use `model_name`, but its value is the concurrency model_id (for example speech-2.8-hd). " +
+  "Music tools document their fixed concurrency model_id in each tool description.\n" +
+  "\n" +
+  "Contract: if available is 0 for a limited model, do not call the generation tool for that model. " +
+  "Wait for the previous task to finish or ask the user. Do not switch models just to bypass the limit unless the user explicitly asks.";
 
 function normalizeModels(models: readonly string[]): string[] {
   return [...new Set(models.map((m) => m.trim()).filter(Boolean))];
@@ -86,7 +97,7 @@ export const registerCapabilityTools: RegisterTools = (registrar, gw, region) =>
           .array(z.string())
           .min(1)
           .max(50)
-          .describe("Canonical concurrency model ids: model_id for image/video, model_name for speech, the stated fixed id for music tools."),
+          .describe("Canonical concurrency model_id values. For image/video, use hub_generate_image/video model_id. For speech, use model_name. For fixed-model music tools, use the model_id stated in the tool description."),
       },
       outputSchema: {
         models: z.array(
@@ -131,7 +142,7 @@ export const registerCapabilityTools: RegisterTools = (registrar, gw, region) =>
         modality: z
           .enum(["image", "video", "audio.tts", "audio.music", "all"])
           .optional()
-          .describe('Restrict to one modality; omit or pass "all" for everything.'),
+          .describe('Filter to one modality. Omit or pass "all" to get the full manifest.'),
       },
       outputSchema: { ok: z.boolean(), region: z.string(), modalities: z.array(z.any()) },
     },

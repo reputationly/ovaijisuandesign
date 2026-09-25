@@ -14,16 +14,13 @@ const PositionSchema = z.enum(["bottom", "top", "middle"]);
 const MaxLinesSchema = z.union([z.literal(1), z.literal(2)]);
 
 const DESCRIPTION =
-  "Turn an existing SRT subtitle / timed-text file into ASS, SRT or VTT with the house subtitle style. " +
-  'The default style_preset="social_safe" derives everything from output_size: it classifies the frame as portrait, ' +
-  "landscape or square; caps each rendered line (portrait: 10 CJK chars / 7 English words, landscape: 12 / 14, " +
-  "square: 13 / 8); folds CJK and English text without splitting words; splits a cue into timed parts (weighted by text) " +
-  "only when it exceeds the two-line default; puts bottom subtitles at MarginV = 10% of H and top subtitles at 12.5% of H; " +
-  "sets font size to round(H/24) portrait, round(H/19) landscape, round(H/26) square; draws a 2px black outline; and " +
-  "anchors ASS events at a fixed centre so the block does not jump between one- and two-line cues. " +
-  "Typical input is the SRT produced by media_transcribe, or any SRT / subtitle_path the user hands over. The " +
-  "reply gives `absolute_path` plus `burn_hint`, a filter string ready for hub_ffmpeg. Set style parameters only when " +
-  "the user asked for that specific change, and keep safe_area on unless they deliberately want text near the edges.";
+  "Format an existing SRT subtitle/timed-text file into ASS/SRT/VTT using the v2 subtitle style system. " +
+  "Default style_preset=\"social_safe\" applies product defaults: automatic portrait/landscape/square classification from output_size, line limits per rend" +
+  "ered line (portrait CJK<=10 / English<=7 words, landscape CJK<=12 / English<=14 words, square CJK<=13 / English<=8 words), CJK/English word-safe foldi" +
+  "ng, text-weighted timing only when one source cue must split beyond the two-line default, bottom MarginV=H*10% for portrait, landscape, and square, to" +
+  "p MarginV=H*12.5%, font size rounded from H/24 for portrait, H/19 for landscape, and H/26 for square, a 2-unit black outline, and ASS center anchoring" +
+  " so subtitle blocks keep a stable visual center. Use this after media_transcribe, or directly when the user provides an SRT/subtitle_path. " +
+  "Pass only user-explicit style overrides; do not disable safe_area unless the user explicitly asks for unsafe placement.";
 
 export const registerSubtitleTools: RegisterTools = (registrar) => {
   registrar.registerTool(
@@ -33,89 +30,90 @@ export const registerSubtitleTools: RegisterTools = (registrar) => {
       inputSchema: {
         source_srt_path: z
           .string()
-          .describe("Path of the SRT file to format. Only run media_transcribe first if no trustworthy timed text exists."),
+          .describe("Existing SRT file path to format. Use media_transcribe first only when no trusted timed text exists."),
         output_size: z
           .string()
           .regex(/^\d{2,5}x\d{2,5}$/)
-          .describe('Final video size as "WxH" (e.g. "1080x1920"). Drives frame classification, safe margins and line limits.'),
-        format: FormatSchema.default("ass").optional().describe("Output subtitle format; ASS is the one to use for burn-in."),
+          .describe('Final target video dimensions as "WxH". Required for aspect classification, safe-area margins, and line budgets.'),
+        format: FormatSchema.default("ass").optional().describe("Output subtitle format. ASS is recommended for burn-in."),
         style_preset: PresetSchema.default("social_safe")
           .optional()
-          .describe("Named look; defaults to social_safe. Pick custom only if the user spelled out their own styling."),
+          .describe("Default preset is social_safe. Use custom only when the user gives explicit style instructions."),
         position: PositionSchema.default("bottom")
           .optional()
-          .describe("Where the subtitles sit. An explicit user request for top overrides the preset placement."),
+          .describe("Subtitle placement. User-explicit top overrides preset placement."),
         font_name: z
           .string()
           .optional()
-          .describe("ASS font family. Leave empty to pick an installed / bundled font that can render CJK."),
+          .describe("Optional ASS font family. Leave unset to auto-pick an installed CJK-capable font."),
         font_size: z
           .number()
           .int()
           .positive()
           .optional()
-          .describe('Absolute ASS font size in pixels. For relative requests like "bigger" use font_scale instead.'),
-        font_scale: z.number().positive().optional().describe('Multiplier on the derived font size, e.g. 1.2 for "larger".'),
+          .describe('Explicit ASS font size in pixels. Prefer font_scale for relative user requests like "bigger".'),
+        font_scale: z.number().positive().optional().describe('Relative font size multiplier, e.g. 1.2 for "larger".'),
         margin_v: z
           .number()
           .int()
           .nonnegative()
           .optional()
-          .describe("Vertical margin in pixels. Raised to the safe-area minimum unless unsafe_override=true."),
+          .describe("Explicit vertical margin in pixels. Clamped by safe_area unless unsafe_override=true."),
         margin_l: z
           .number()
           .int()
           .nonnegative()
           .optional()
-          .describe("Space on the left, px. Values under 7% of the width are bumped up to it, except with unsafe_override=true."),
+          .describe("Explicit left margin in pixels. Clamped to 7% safe area unless unsafe_override=true."),
         margin_r: z
           .number()
           .int()
           .nonnegative()
           .optional()
-          .describe("Space on the right, px. Values under 7% of the width are bumped up to it, except with unsafe_override=true."),
+          .describe("Explicit right margin in pixels. Clamped to 7% safe area unless unsafe_override=true."),
         cjk_chars_per_line: z
           .number()
           .int()
           .positive()
           .optional()
-          .describe("Override the CJK characters-per-line limit (default depends on the frame class)."),
+          .describe("Override CJK chars per line. Default comes from aspect bucket."),
         english_words_per_line: z
           .number()
           .int()
           .positive()
           .optional()
-          .describe("Override the English words-per-line limit (default depends on the frame class)."),
+          .describe("Override English words per line. Default comes from aspect bucket."),
         max_lines: MaxLinesSchema.default(2)
           .optional()
           .describe(
-            "Most lines a cue may render before the rest moves into a following cue. 2 (default) keeps source timing best; use 1 only if the user explicitly wants single-line cues.",
+            "Maximum rendered lines per cue before splitting into the next cue. Default 2 preserves source timing better; set 1 only when the user explicitly wants single-line cues.",
           ),
         safe_area: SafeAreaSchema.default("social")
           .optional()
-          .describe("How strictly to keep text away from frame edges. Stay on auto or social; none only on an explicit user request."),
+          .describe("Keep auto/social unless the user explicitly asks to ignore safe areas."),
         unsafe_override: z
           .boolean()
           .default(false)
           .optional()
-          .describe("Skip the safe-area clamping of margins. Enable only on an explicit user request."),
+          .describe("Allow unsafe margins/placement only when the user explicitly asks for it."),
         filename: z
           .string()
           .optional()
-          .describe("Output filename without extension, written next to the source. Default: the source name with the new extension."),
+          .describe("Optional output filename without extension. Defaults to replacing .srt with the output extension."),
       },
       outputSchema: {
-        path: z.string().describe("Written subtitle file path, in the same style (relative/absolute) as the input."),
-        absolute_path: z.string().describe("Absolute path of the written subtitle; use it in ffmpeg subtitles= / ass= filters."),
+        path: z.string().describe("Generated subtitle file path, preserving the caller/workspace style."),
+        absolute_path: z.string().describe("Absolute generated subtitle file path. Use this for ffmpeg subtitles= filters."),
         burn_hint: z
           .string()
           .describe(
-            "Ready-made ffmpeg filter that burns this subtitle in. Pass it to hub_ffmpeg rather than hand-writing drawtext (which shows CJK as tofu and loses line breaks and timing).",
+            "Ready-to-use ffmpeg burn-in filter for this subtitle. " +
+            "Pass this to hub_ffmpeg; do NOT hand-roll a drawtext filter (it renders CJK as tofu and breaks line breaks/timing).",
           ),
-        source_srt_path: z.string().describe("The input SRT path."),
+        source_srt_path: z.string().describe("Input SRT file path."),
         format: FormatSchema,
-        cue_count: z.number().describe("Number of cues after folding and splitting."),
-        play_res: z.string().describe("Size used for ASS PlayResX/PlayResY and style derivation."),
+        cue_count: z.number().describe("Final cue count after line folding/splitting."),
+        play_res: z.string().describe("Output size used for ASS PlayResX/Y and style derivation."),
         style_resolved: z.object({
           preset: PresetSchema,
           frame_class: z.enum(["portrait", "landscape", "square"]),
@@ -130,7 +128,7 @@ export const registerSubtitleTools: RegisterTools = (registrar) => {
           max_lines: MaxLinesSchema,
           safe_area: SafeAreaSchema,
         }),
-        warnings: z.array(z.string()).describe("Notes about requested values that were adjusted, for relaying to the user if relevant."),
+        warnings: z.array(z.string()).describe("Style overrides that were clamped or may need agent/user attention."),
       },
     },
     async (args) => {

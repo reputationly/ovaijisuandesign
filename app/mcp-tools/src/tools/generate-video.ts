@@ -32,77 +32,77 @@ const VIDEO_VENDOR_PARAM_SHAPE = {
     .enum(["480p", "720p", "1080p", "4k", "480P", "720P", "768P", "1080P", "2K"])
     .optional()
     .describe(
-      "Output resolution token; accepted values depend on vendor/model (hub_list_capabilities parameters). MiniMax-H3: 768P/2K (2K if unspecified); H3-Max family: 480P/768P (480P if unspecified); seedance 480p..4k; veo3 720p/1080p; kling 720P/768P/1080P; wan 480P/720P/1080P.",
+      "Video resolution token. MiniMax-H3 supports 768P/2K; use resolution=2K when the user does not specify a resolution. MiniMax-H3-Max and MiniMax-H3-Max-Turbo support 480P/768P; use resolution=480P when unspecified. Seedance uses 480p/720p/1080p/4k; veo3 uses 720p/1080p; Kling uses 720P/768P/1080P; wan uses 480P/720P/1080P. Obey the selected model rules from hub_list_capabilities.",
     ),
   aspect_ratio: z
     .enum(["adaptive", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"])
     .optional()
     .describe(
-      "Framing for every vendor that has one. Text-to-video and most reference modes need a fixed ratio; frame-driven modes (i2v / first-last-frame) inherit the frame ratio, so omit it there. adaptive is only valid where the vendor allows it (e.g. H3-Max multimodal, wan).",
+      "Unified video aspect ratio for every vendor that exposes a framing control. MiniMax-H3 t2v/multimodal requires an explicit non-adaptive ratio; MiniMax-H3-Max multimodal also accepts adaptive, but its t2v still requires a fixed ratio. Omit this key for MiniMax-H3 i2v/first-last-frame and MiniMax-H3-Max family first-last-frame because they inherit the supplied frame ratio; fixed ratios are rejected.",
     ),
-  mode: z.enum(["std", "pro", "4k"]).optional().describe("kling quality tier."),
-  sound: z.enum(["on", "off"]).optional().describe("kling native audio."),
-  multi_shot: Boolish.optional().describe("kling multi-shot."),
-  generate_audio: Boolish.optional().describe("Native audio for seedance / MiniMax-H3 / wan."),
-  prompt_extend: Boolish.optional().describe("wan prompt rewriting (default true; false sends the prompt verbatim)."),
-  watermark: Boolish.optional().describe("wan watermark (default false)."),
-  seed: z.union([z.number().int(), z.string()]).optional().describe("wan seed: -1 random, else 0..2147483647."),
-  file_url: z.string().optional().describe("wan: a document (docx, pdf, pptx, xlsx, txt or md) to turn into video, as a public link or local file; mode=multimodal only."),
-  prompt_expansion_mode: z.enum(["disabled", "balanced", "quality"]).optional().describe("Prompt expansion for the MiniMax-H3-Max family."),
-  output_format: z.enum(["mp4", "mov"]).optional().describe("seedance2.5 output container."),
-  image_types_json: z.string().optional().describe("kling: JSON array string."),
-  video_list_json: z.string().optional().describe("kling: JSON array string."),
+  mode: z.enum(["std", "pro", "4k"]).optional().describe("Kling quality mode."),
+  sound: z.enum(["on", "off"]).optional().describe("Kling native audio switch."),
+  multi_shot: Boolish.optional().describe("Kling multi-shot switch."),
+  generate_audio: Boolish.optional().describe("Seedance / MiniMax-H3 / wan audio switch."),
+  prompt_extend: Boolish.optional().describe("wan upstream prompt rewriting switch. Default true; set false to send the prompt verbatim."),
+  watermark: Boolish.optional().describe("wan watermark switch. Default false."),
+  seed: z.union([z.number().int(), z.string()]).optional().describe("wan random seed: -1 for random, otherwise 0..2147483647."),
+  file_url: z.string().optional().describe("wan source document (docx/pdf/pptx/xlsx/txt/md) as a public URL or local path, usable with mode=multimodal."),
+  prompt_expansion_mode: z.enum(["disabled", "balanced", "quality"]).optional().describe("MiniMax-H3-Max family prompt expansion mode."),
+  output_format: z.enum(["mp4", "mov"]).optional().describe("Seedance 2.5 output container."),
+  image_types_json: z.string().optional().describe("Kling JSON array string."),
+  video_list_json: z.string().optional().describe("Kling JSON array string."),
   video_refer_type: z.enum(["feature", "base"]).optional(),
   keep_original_sound: z.enum(["yes", "no"]).optional(),
-  character_orientation: z.enum(["video", "image"]).optional().describe("kling motion-control only."),
+  character_orientation: z.enum(["video", "image"]).optional().describe("Kling motion-control only."),
 };
 
 const MISPLACED_KEYS = Object.keys(VIDEO_VENDOR_PARAM_SHAPE).filter((k) => k !== "mode"); // 顶层 mode 是生成模式，同名合法
 
 const INPUT_SCHEMA = {
-  vendor: z.enum(VIDEO_VENDOR_ENUM).describe("Video vendor. hub_list_capabilities shows which vendors are live in this session."),
+  vendor: z.enum(VIDEO_VENDOR_ENUM).describe("Video generation vendor. Call `hub_list_capabilities` for live per-region menu."),
   mode: z
     .enum(VIDEO_MODE_ENUM)
-    .describe("Generation mode. Only some (vendor, model_id, mode) combinations exist: check model_modes (or modes) in hub_list_capabilities."),
+    .describe("Generation mode. Not every (vendor, model_id, mode) combination is supported; see `hub_list_capabilities` vendors[].model_modes when present, otherwise vendors[].modes."),
   model_id: z
     .enum(VIDEO_MODEL_ID_ENUM)
     .optional()
-    .describe("One of the ids in hub_list_capabilities vendors[].models (leave out to get the default for this vendor and mode). Display names and picker ids are rejected."),
-  prompt: z.string().describe("Brief for one final video. Separate deliverables go in separate calls."),
-  filename: z.string().describe("Output filename without extension."),
+    .describe("Canonical model_id from hub_list_capabilities.vendors[].models. Omit to use the vendor+mode default. Do not pass display names or picker ids."),
+  prompt: z.string().describe("Single-video brief for one final artifact. Preserve deliverable topology; separate user-intended outcome units use separate calls."),
+  filename: z.string().describe("Output filename WITHOUT extension."),
   duration: z
     .number()
     .optional()
-    .describe("Seconds; the allowed range differs per vendor/model (see hub_list_capabilities). Ignored by kling avatar (follows the audio) and kling motion-control (follows the source video)."),
+    .describe("Duration in seconds. Per-vendor allowed range differs; see hub_list_capabilities parameters. IGNORED by kling mode=avatar (length follows the input audio, up to ~60s per generation) and kling mode=motion-control (length follows the source motion video) — do not pass it for those modes."),
   first_frame_image: z
     .string()
     .optional()
     .describe(
-      "Explicit opening keyframe (path or URL), only when the user wants the video to start from this image. Cannot be combined with reference_* fields; generic character/style/scene references belong in reference_image_paths.",
+      "Explicit opening/head keyframe path or URL. Mutually exclusive with reference_image_paths, reference_video_urls, and reference_audio_urls. Use only when the user asks for the video to start from this image; generic character/style/scene refs belong in reference_image_paths. Do not pass private asset prefixes from MCP.",
     ),
   last_frame_image: z
     .string()
     .optional()
-    .describe("Explicit closing keyframe for first-last-frame modes; cannot be combined with reference_* fields. The H3-Max family needs first_frame_image and treats this as optional."),
+    .describe("Explicit tail keyframe for vendors/modes that support first-last-frame; mutually exclusive with reference_image_paths, reference_video_urls, and reference_audio_urls. MiniMax-H3-Max and MiniMax-H3-Max-Turbo require first_frame_image and accept last_frame_image only as an optional closing frame."),
   reference_image_paths: z
     .array(z.string())
     .optional()
-    .describe("Reference images guiding identity/style/design/world/action; the default slot for image refs in multimodal (image files only)."),
-  reference_video_urls: z.array(z.string()).optional().describe("Reference videos for multimodal; seedance also takes the source clip here for video-edit / video-extend."),
-  reference_audio_urls: z.array(z.string()).optional().describe("Reference audios (MiniMax-H3 multimodal, seedance multimodal / video-edit, wan). seedance accepts mp3 and wav only."),
-  audio_path: z.string().optional().describe("Driving audio for avatar / audio-driven modes (workspace-relative, absolute or URL)."),
-  video_url: z.string().optional().describe("Driving video for motion-control modes."),
+    .describe("Reference images for identity/style/design/world/action guidance. This is the default multimodal slot for generated or attached image refs; multimodal restricts these to image extensions."),
+  reference_video_urls: z.array(z.string()).optional().describe("Reference video URLs for multimodal references. Seedance also uses this field for video-edit / video-extend."),
+  reference_audio_urls: z.array(z.string()).optional().describe("Reference audio URLs (MiniMax-H3 multimodal; Seedance multimodal / video-edit). Only mp3 and wav are supported for Seedance; convert other formats first."),
+  audio_path: z.string().optional().describe("Audio driving file for supported avatar or audio-driven modes. Workspace-relative / absolute / URL."),
+  video_url: z.string().optional().describe("Driving video URL for motion-control modes."),
   vendor_params: z
     .object(VIDEO_VENDOR_PARAM_SHAPE)
     .strict()
     .optional()
-    .describe("Flat vendor knobs, only the listed keys and within the vendor's parameters from hub_list_capabilities. The model goes in model_id, never here."),
+    .describe("Video vendor params. Use only keys listed here and obey the selected vendor parameters from hub_list_capabilities.vendors[].parameters. Model selection goes in model_id, never in vendor_params."),
   order: z
     .number()
     .int()
     .optional()
     .describe(
-      "Position of this clip among its siblings when the canvas groups them (smaller first) — typically the shot number, so canvas_group_recent_outputs arranges the story correctly. Make one call per shot and give each its own value.",
+      "Optional sequence index for this video, used to sort siblings within an auto-created group (ascending). Set this when output order is meaningful — e.g. storyboard shot videos: pass the shot/scene number so canvas_group_recent_outputs lays them out in story order. Generate shots one call at a time, each with its own order. Omit for unordered outputs.",
     ),
 };
 
@@ -121,22 +121,42 @@ const OUTPUT_SCHEMA = {
   billing: BillingErrorMetadataSchema.optional(),
 };
 
-const DESCRIPTION = [
-  "Generate one video with the chosen vendor + mode. One call returns one final video; the prompt briefs that single video, and multiple deliverables need separate calls.",
-  "",
-  "Use it when the content must change: new footage, or edits/continuations of a clip that alter action, movement, setting, subject, backdrop, look, camera direction or meaningful sound and picture. Mechanical cutting, joining, cropping, re-encoding, muxing, captions or timeline assembly go to postprocess tools.",
-  "",
-  "Modes: t2v = from text alone; multimodal = guided by image/video/audio references; i2v = starts on a given frame; first-last-frame = pinned start and/or end frame; plus video-edit, video-extend, motion-control, avatar and omni. Which vendor/model supports which mode is in hub_list_capabilities (model_modes, falling back to modes).",
-  "",
-  "Guidance media (who, what it looks like, where, how it moves) are references, not frames. With seedance, pass them via mode=multimodal in the reference_* field for their kind — images, videos and audios each in their own list; an image becomes first_frame_image only if the user wants the clip to open on it. No vendor accepts frame fields and reference_* fields together.",
-  "",
-  "wan (wan3.0-video and its -prime variant) decides what to do from the media you attach: either keyframes, or references/vendor_params.file_url, never both. Prompts can point at inputs as 图1 / 视频1 / 音频1. For editing or continuing a clip, attach it as a reference video under mode=multimodal and leave aspect_ratio adaptive.",
-  "",
-  'Anything vendor-specific (resolution, aspect ratio, multi-shot, sound, character_orientation and so on) belongs in the flat vendor_params object and never beside the common fields — for example vendor_params: { resolution: "1080p", aspect_ratio: "16:9" }. The model is chosen through model_id.',
-  "Concurrency: the slot model is the chosen model_id (or the vendor+mode default); one call takes one slot.",
-  "",
-  "Returns {ok, path, duration?, node_id?, effective_params?}. A failure with do_not_resubmit means the task may still finish or was already charged: do not resubmit.",
-].join("\n");
+const DESCRIPTION = "Generate one video via the configured vendor + mode combo.\n" +
+  "Artifact cardinality: one invocation returns one final video. " +
+  "The prompt is a single-video brief; multiple deliverables must be represented as separate asset tasks/tool calls.\n" +
+  "\n" +
+  "Use for semantic video creation, source-video editing, or extension: change action, motion, scene, subject, background, style, camera intent, or meani" +
+  "ng-bearing audio/visual content. Deterministic trim/merge/crop/transcode/mux/subtitle/timeline operations belong to narrow postprocess tools.\n" +
+  "\n" +
+  "Mode selection: t2v (text-only) / multimodal (Seedance all-purpose refs across image/video/audio) / i2v (explicit opening-frame anchor) / first-last-f" +
+  "rame (explicit head and/or tail keyframes) / video-edit / video-extend / motion-control / avatar / omni. " +
+  "Not every (vendor, model_id, mode) combo is supported — see hub_list_capabilities.vendors[].model_modes when present, otherwise vendors[].modes.\n" +
+  "\n" +
+  "Reference routing: images/videos/audios that should guide identity, style, design, world, or action are references by default. " +
+  "For Seedance, use mode=multimodal with `reference_image_paths` / `reference_video_urls` / `reference_audio_urls`; do not put a generated character/sty" +
+  "le/scene image into `first_frame_image` unless the user explicitly asked it to be the opening frame.\n" +
+  "\n" +
+  "Seedance i2v/first-last-frame: `first_frame_image` and `last_frame_image` are timeline keyframes. " +
+  "Use them only for explicit start/end/opening/closing frame or keyframe-transition requests. " +
+  "Do not pass private asset prefixes; Seedance private-avatar retry is handled inside the gateway when needed.\n" +
+  "\n" +
+  "Frame/reference exclusivity: if either `first_frame_image` or `last_frame_image` is provided, do not pass `reference_image_paths`, `reference_video_ur" +
+  "ls`, or `reference_audio_urls`. Explicit keyframes and reference media cannot be combined for any vendor or mode.\n" +
+  "\n" +
+  "Seedance multimodal: reference images / videos / audios must each go in their own slot (mixing video extensions into `reference_image_paths` will be r" +
+  "ejected with a clear error).\n" +
+  "\n" +
+  "Wan (wan3.0-video / wan3.0-video-prime) is one entry point whose operation follows the attached media: keyframes and reference media (plus `vendor_par" +
+  "ams.file_url`) are mutually exclusive groups, and the prompt may address the attached media positionally as 图1 / 视频1 / 音频1. " +
+  "It has no video-edit / video-extend mode but still does both: use mode=multimodal with the source clip in `reference_video_urls` and the edit or conti" +
+  "nuation intent in the prompt, keeping the default adaptive aspect_ratio.\n" +
+  "\n" +
+  "Vendor knobs not in the common schema (resolution, aspect ratio, multi-shot, sound on/off, character_orientation, etc.) MUST go in `vendor_params` as " +
+  "a flat key-value map; never put them at the top level. " +
+  "All video vendors use the same framing key, for example: `vendor_params: { aspect_ratio: \"9:16\", resolution: \"720p\", generate_audio: true }`. " +
+  "Use the common `model_id` field for model selection.\n" +
+  "Concurrency: the canonical concurrency model_id is the selected `model_id` (or the vendor+mode default when omitted). " +
+  "One video invocation consumes one generation slot for that model.\n";
 
 function misplacedParamsError(raw: Record<string, unknown>): string | undefined {
   const misplaced = MISPLACED_KEYS.filter((k) => k in raw);

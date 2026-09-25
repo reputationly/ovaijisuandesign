@@ -89,7 +89,7 @@ const WorkflowBindingSchema = z
 /** planner 写的一个 stage。runtime_refs 故意不在这里 —— 输出只能经 plan_update_stage_state 写入。 */
 export const PlanStageSchema = z
   .object({
-    stage_id: singleLine(z.string().min(1)).describe("Stable stage id; must match a stage_outline entry."),
+    stage_id: singleLine(z.string().min(1)).describe("Stable stage id."),
     order: z.number().int().min(1),
     goal: singleLine(z.string().min(1)),
     depends_on: z.array(InlineListMemberString).optional(),
@@ -115,17 +115,17 @@ const StageOutlineItemSchema = z
 
 export const StagePlanSchema = z
   .object({
-    title: singleLine(z.string()).optional().describe('Plan title; "Stage Execution Plan" when omitted.'),
+    title: singleLine(z.string()).optional().describe('Plan document title; defaults to "Stage Execution Plan".'),
     header_fields: z.record(z.string(), SingleLineScalarSchema).optional(),
     workflow: WorkflowBindingSchema.optional(),
     sources: z
       .array(PlanItemSchema)
       .optional()
-      .describe("External source artifacts the plan starts from (uploaded scripts, briefs, reference files)."),
+      .describe("Top-level external source artifacts such as uploaded scripts, briefs, or refs."),
     stage_outline: z
       .array(StageOutlineItemSchema)
       .min(1)
-      .describe("The full ordered stage skeleton; each name is the label shown on the Production Board."),
+      .describe("Complete ordered Stage skeleton. name is the user-facing Production Board label."),
     stages: z.array(PlanStageSchema).min(1),
   })
   .superRefine((plan, ctx) => {

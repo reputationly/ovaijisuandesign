@@ -28,7 +28,7 @@ type TextMode = (typeof UPDATE_TEXT_MODES)[number];
 
 export const TableColumnInputSchema = z.object({
   title: z.string().min(1),
-  type: z.enum(["text", "number", "attachment"]).optional().describe('Column field type; defaults to "text".'),
+  type: z.enum(["text", "number", "attachment"]).optional().describe('Column field type (default "text").'),
   visible: z.boolean().optional(),
   width: z.number().int().min(40).max(2000).optional(),
 });
@@ -43,7 +43,7 @@ export const TableRowInputSchema = z.object({
   cells: z
     .array(z.union([z.string(), z.number(), z.array(TableAttachmentInputSchema), z.null()]))
     .describe(
-      "Cell values in column order. Use string / number / null for ordinary columns and an array of {assetId, name, kind} for attachment columns. Trailing nulls can be left out.",
+      "Cells positionally aligned with `columns`. Strings / numbers / null for normal columns; for attachment columns pass an array of {assetId,name,kind}. Trailing nulls may be omitted.",
     ),
 });
 
@@ -59,29 +59,29 @@ export const TableFilterInputSchema = z.object({
 });
 
 export const CanvasWriteItemSchema = z.object({
-  kind: z.enum(CANVAS_WRITE_KINDS).describe("What to write: text | table | media."),
-  content: z.string().optional().describe("[text] Markdown body. Required when kind=text."),
-  nodeId: z.string().optional().describe("[text/table] Id of a node to update in place; without it a new node is made."),
-  name: z.string().optional().describe("[text create] File name, no extension."),
-  title: z.string().optional().describe("[table] Optional preview title."),
-  columns: z.array(TableColumnInputSchema).optional().describe("[table] Column definitions."),
-  rows: z.array(TableRowInputSchema).optional().describe("[table] Row data."),
-  filter: TableFilterInputSchema.optional().describe("[table] Optional row filter."),
-  rowHeight: z.enum(TableRowHeights).optional().describe("[table] Row height preset."),
-  assetPath: z.string().optional().describe("[media] A tracked file path inside the workspace, or an http(s) link that returns the media bytes."),
-  sourceNodeId: z.string().optional().describe("[create/media] One source node id to link with a derivation edge."),
-  sourceNodeIds: z.array(z.string()).optional().describe("[create] Ids of the nodes this one derives from (one edge each)."),
+  kind: z.enum(CANVAS_WRITE_KINDS).describe("Node kind to write: text | table | media."),
+  content: z.string().optional().describe("[text] Markdown content. Required for kind=text."),
+  nodeId: z.string().optional().describe("[text/table] Existing node to patch/replace. Omit to create a new node."),
+  name: z.string().optional().describe("[text create] File name without extension."),
+  title: z.string().optional().describe("[table] Optional cached preview title."),
+  columns: z.array(TableColumnInputSchema).optional().describe("[table] Table columns."),
+  rows: z.array(TableRowInputSchema).optional().describe("[table] Table rows."),
+  filter: TableFilterInputSchema.optional().describe("[table] Optional table filter."),
+  rowHeight: z.enum(TableRowHeights).optional().describe("[table] Row-height preset."),
+  assetPath: z.string().optional().describe("[media] Workspace-relative tracked media path or direct http(s) media URL."),
+  sourceNodeId: z.string().optional().describe("[create/media] Source node id for one derivation edge."),
+  sourceNodeIds: z.array(z.string()).optional().describe("[create] Source node ids for derivation edges."),
   mode: z
     .enum(UPDATE_TEXT_MODES)
     .optional()
-    .describe("[patching text] replace, append or prepend relative to the current body. Needs `nodeId`; omit it when creating."),
+    .describe("[text patch only] replace | append | prepend. Requires `nodeId`; omit for create."),
   expectedContentHash: z
     .string()
     .optional()
     .describe(
-      "[text patch only] Version token (contentHash) from your most recent canvas_get_node / canvas_grep_text / canvas_read_text. The gateway rejects the patch with 409 if the document changed after that read.",
+      "[text patch only] CAS token: contentHash from your latest canvas_get_node / canvas_grep_text / canvas_read_text. The patch is rejected (409) when the document changed since that read.",
     ),
-  allowDuplicate: z.boolean().optional().describe("[media] Create a second card even if this file is already on the canvas. Default false."),
+  allowDuplicate: z.boolean().optional().describe("[media] Force a second card for the same file. Default false."),
 });
 export type CanvasWriteItem = z.infer<typeof CanvasWriteItemSchema>;
 

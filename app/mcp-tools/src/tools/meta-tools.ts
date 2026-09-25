@@ -166,16 +166,16 @@ function classifierPrompt(userRequest: string): string {
 const OutcomeItemSchema = z.object({
   phase: z
     .enum(["triage", "plan", "execute", "deliver"])
-    .describe("Pipeline step this record belongs to; `execute` records cover a single asset, `deliver` records a whole batch."),
+    .describe("Which orchestrator stage emitted this. `execute` is per-asset; `deliver` is per-batch."),
   outcome: z
     .enum(["success", "failed", "partial"])
-    .describe("Result of the step. Reserve `partial` for batches with a mix of passing and failing assets."),
-  asset_id: z.string().optional().describe("Planner-given asset identifier such as `asset-1`; must be set for execute records."),
+    .describe("Coarse verdict. `partial` only for batches where some assets passed and others failed."),
+  asset_id: z.string().optional().describe("Planner-assigned id (e.g. `asset-1`). Required for `execute` phase."),
   modality: z
     .enum(["image", "video", "audio.tts", "audio.music", "postprocess"])
     .optional()
-    .describe("Kind of asset involved, if any."),
-  vendor: z.string().optional().describe("Vendor the executor dispatched to (for example `seedance`); must be set when an execute record succeeds."),
+    .describe("Modality of the asset, if applicable."),
+  vendor: z.string().optional().describe("Picked vendor (e.g. `seedance`). Required for `execute` phase outcomes."),
   error_class: z
     .enum([
       "tool_unavailable",
@@ -188,9 +188,9 @@ const OutcomeItemSchema = z.object({
       "unknown",
     ])
     .optional()
-    .describe("Why it failed, named after the executor failure signals; must be set for failed records."),
-  details: z.string().max(500).optional().describe('Brief free-text detail, for example "provider answered 429 too many requests".'),
-  retries: z.number().int().min(0).max(10).optional().describe("Retry number this record reports for the asset (0 = first attempt)."),
+    .describe("Matches the executor failure signals in `executor.md`. Required when outcome=failed."),
+  details: z.string().max(500).optional().describe('One-line specifics, e.g. "veo3 returned 429 rate-limit".'),
+  retries: z.number().int().min(0).max(10).optional().describe("Retry index for this asset."),
 });
 type OutcomeItem = z.infer<typeof OutcomeItemSchema>;
 
@@ -215,30 +215,29 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
   registrar.registerTool(
     "search_knowledge",
     {
-      description: [
-        "Look up markdown knowledge cards and workflow definitions, either by exact card name or by keywords, optionally within one category.",
-        "",
-        "Examples:",
-        '  - fetch the card for a vendor you already picked: category "vendors" with topic set to that vendor',
-        '  - check known pitfalls before a risky step: category "failures" with keywords such as "reference consistency"',
-        '  - find a workflow that suits the project: category "workflows" with keywords describing the project',
-        "",
-        "Each hit carries a score, a few lines of excerpt and the line count. Hit paths begin with the placeholder `<knowledgeDir>` or `<workflowsDir>`; give them to `hub_read` as-is and it maps them to the real profile folder.",
-      ].join("\n"),
+      description: "Search versioned knowledge and workflow markdown resources by recall terms + category.\n" +
+        "\n" +
+        "Use this when:\n" +
+        "  - executor knows the vendor it picked but needs the right card path (pass `category: \"vendors\", topic: \"<vendor>\"`)\n" +
+        "  - executor detects a semantic risk (pass `category: \"failures\", query: \"character refs\"`)\n" +
+        "  - planner is looking for a workflow that matches the project type (pass `category: \"workflows\", query: \"narrative video\"`)\n" +
+        "\n" +
+        "Returns ranked logical file paths + short excerpts. " +
+        "Paths start with `<knowledgeDir>` or `<workflowsDir>` and can be passed directly to `hub_read`; that tool resolves the active profile root.",
       inputSchema: {
         query: z
           .string()
           .optional()
-          .describe("Keywords separated by spaces; each is counted as a case-insensitive substring in the card text. Not used when `topic` is given."),
+          .describe("Space-separated recall terms. Case-insensitive substring match against file bodies. Ignored when `topic` is supplied."),
         topic: z
           .string()
           .optional()
-          .describe('File name of one card, extension optional (a vendor name, a pitfall slug, a workflow folder). If it exists in the searched categories it is returned directly.'),
+          .describe('Exact card name without `.md` (e.g. "seedance", "character-refs"). Returns the file directly if it exists under the category.'),
         category: z
           .enum(KNOWLEDGE_CATEGORIES)
           .optional()
-          .describe('Category to search: vendors, failures, workflows or image-recipes. Leave it out or use "all" to search every category.'),
-        limit: z.number().int().min(1).max(20).optional().describe("How many hits to return at most (5 when omitted)."),
+          .describe('Restrict search to one of vendors / failures / workflows. Omit or "all" to search the whole knowledge corpus.'),
+        limit: z.number().int().min(1).max(20).optional().describe("Cap on returned hits. Default 5."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -295,20 +294,18 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
   registrar.registerTool(
     "select_image_recipe",
     {
-      description: [
-        "Ask whether a specialised prompt-writing recipe applies to an image-only request, and get its card if so.",
-        "",
-        "Meant for the Simple Direct Path, i.e. one image being generated or edited without planning.",
-        "Recipes only guide prompt writing: they are unrelated to workflows, the planner, or Stage Execution Plans.",
-        "On a hit, open recipe_path with `hub_read`, use it to write the prompt, and then call hub_generate_image.",
-        "If nothing applies the result has selected=false.",
-      ].join("\n"),
+      description: "Select one optional direct-image recipe card for specialty prompt compilation.\n" +
+        "\n" +
+        "Use this only on the Simple Direct Path for image-only generation or image editing.\n" +
+        "A selected recipe is not a workflow, not a planner dependency, and not a Stage Execution Plan.\n" +
+        "Caller should `hub_read` the returned recipe_path, compile a better direct prompt, then call hub_generate_image.\n" +
+        "Returns selected=false when no specialty recipe applies.",
       inputSchema: {
-        user_request: z.string().min(1).describe("What the user is asking for now, verbatim or condensed to the image task."),
+        user_request: z.string().min(1).describe("The current user request or concise image-task summary."),
         modality: z
           .enum(RECIPE_MODALITIES)
           .optional()
-          .describe("Modality of the task when you already know it (unknown if omitted). Anything other than image or unknown returns no recipe."),
+          .describe("Task modality if already known. Defaults to unknown; non-image values return selected=false."),
       },
       outputSchema: {
         ok: z.boolean(),
@@ -360,21 +357,21 @@ export const registerMetaTools: RegisterTools = (registrar, gateway) => {
   registrar.registerTool(
     "report_outcome",
     {
-      description: [
-        "Log how pipeline steps turned out, as structured records.",
-        "",
-        "Who calls it:",
-        "  - the orchestrator when triage, planning or delivery checks finish",
-        "  - the executor after each dispatch, whether it succeeded or failed (give error_class on failure)",
-        "",
-        "Records go in the outcomes array, even when there is only one. Every record becomes a single `[hub-outcome] {json}` line on stderr, which log tooling collects to tally outcomes per session. The reply is just an acknowledgement and changes nothing about generation.",
-      ].join("\n"),
+      description: "Emit structured outcome records for one or more pipeline phase results.\n" +
+        "\n" +
+        "Called by:\n" +
+        "  - orchestrator at end of triage, planning, or deliver readiness\n" +
+        "  - executor on every dispatch outcome (success or `failed: true` + signal)\n" +
+        "\n" +
+        "Pass outcomes[]; use a single-element array for one outcome. " +
+        "Output is logged to stderr as one `[hub-outcome] {json}` line per item so opencode-trace and downstream log harvesters can aggregate per-session succe" +
+        "ss classes. Returns ack only — does not affect generation.",
       inputSchema: {
         outcomes: z
           .array(OutcomeItemSchema)
           .min(1)
           .max(100)
-          .describe("List of outcome records; wrap even a single record in the array."),
+          .describe("Batch of outcome records. Single outcome calls must still use outcomes[]."),
       },
       outputSchema: {
         ok: z.boolean(),

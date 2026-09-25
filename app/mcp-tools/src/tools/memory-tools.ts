@@ -71,16 +71,15 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
     "memory",
     {
       description:
-        "Persistent memory for the root orchestrator, driven by a single `action` (list / read / write / delete / search). " +
-        "Sub-agents should not call it: the orchestrator reads project or user memory and passes the relevant facts into the task description. " +
-        "When unsure, list or search before writing; read an entry before updating it. Only write durable preferences " +
-        "(user or project scope) or asset pins — not transient task state.",
+        "Root orchestrator memory tool. Use one `action` instead of choosing among CRUD tool names. " +
+        "Sub-agents should not call memory; the orchestrator reads project/user memory and injects relevant context into task_description. " +
+        "List/search before writing when unsure, read before updating, write only durable user/project preferences or asset pins.",
       inputSchema: {
         action: z.enum(ACTIONS),
         scope: z
           .enum(["user", "project", "all"])
           .optional()
-          .describe("Filter for list/search, or the target scope (user | project) for read/write/delete."),
+          .describe("Scope filter or target scope."),
         name: z
           .string()
           .min(1)
@@ -88,7 +87,7 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
           .regex(/^[a-z0-9][a-z0-9-]{0,63}$/, "use the lowercase-hyphenated name from the entry frontmatter, not its file name")
           .optional()
           .describe(
-            'The entry\'s frontmatter name, such as "image-style-preference" — the label shown in the memory index. Do not pass the on-disk file name.',
+            'Memory entry name from frontmatter, e.g. "image-style-preference". Use the bare frontmatter name shown in the injected memory index, not the on-disk filename stem.',
           ),
         type: z.enum(MEMORY_TYPES).optional().describe("[write/search] Memory type."),
         description: z
@@ -96,19 +95,19 @@ export const registerMemoryTools: RegisterTools = (registrar, gateway) => {
           .min(1)
           .max(MAX_MEMORY_DESCRIPTION_LENGTH)
           .optional()
-          .describe(`[write] Single-line summary, at most ${MAX_MEMORY_DESCRIPTION_LENGTH} characters.`),
-        body: z.string().optional().describe(`[write] Markdown body, at most ${MAX_MEMORY_BODY_BYTES} bytes.`),
+          .describe(`[write] One-line summary, \u2264${MAX_MEMORY_DESCRIPTION_LENGTH} chars`),
+        body: z.string().optional().describe(`[write] Markdown body, \u2264${MAX_MEMORY_BODY_BYTES} bytes`),
         asset_uri: z
           .string()
           .optional()
-          .describe("[write asset-pin] Required for type='asset-pin'. Format: hilo://asset/<id>"),
-        asset_modality: z.enum(ASSET_MODALITIES).optional().describe("[write asset-pin] Required for type='asset-pin'."),
-        query: z.string().optional().describe("[search] Case-insensitive substring to look for."),
+          .describe("[write asset-pin] Required when type='asset-pin'; format: hilo://asset/<id>"),
+        asset_modality: z.enum(ASSET_MODALITIES).optional().describe("[write asset-pin] Required when type='asset-pin'"),
+        query: z.string().optional().describe("[search] Substring to match."),
         projectRoot: z
           .string()
           .optional()
           .describe(
-            "Absolute path of the active project. The runtime fills it in (the session cwd) when omitted; only pass it to target a different project.",
+            "Absolute path to the active project root. Auto-injected by the runtime when omitted (set to OpenCode's cwd, which equals the active project); pass it explicitly only when targeting a different project.",
           ),
       },
       outputSchema: {
