@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 151 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 155 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -711,10 +711,10 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/v1/apollo/config
 ```
 
-## BillingController（3/6）
+## BillingController（4/6）
 
 ```
-  GET    /api/v1/billing/pricing
+✓ GET    /api/v1/billing/pricing
 ✓ GET    /api/v1/billing/promotion
   POST   /api/v1/billing/session-cost
   GET    /api/v1/billing/transactions
@@ -743,12 +743,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/v1/cloud-folder/upload-from-path
 ```
 
-## CreditController（0/3）
+## CreditController（1/3）
 
 ```
   POST   /api/v1/credit/migrate
   POST   /api/v1/credit/transfer
-  GET    /api/v1/credit/wallet
+✓ GET    /api/v1/credit/wallet
 ```
 
 ## HomeQuickStartConfigController（1/1）
@@ -783,12 +783,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   DELETE /api/v1/projects/:projectId/members/:userId
 ```
 
-## TeamController（0/31）
+## TeamController（1/31）
 
 ```
   GET    /api/v1/team/capabilities
   GET    /api/v1/team/contexts
-  GET    /api/v1/team/contract
+✓ GET    /api/v1/team/contract
   POST   /api/v1/team/groups
   DELETE /api/v1/team/groups/:groupId
   GET    /api/v1/team/groups/:groupId
@@ -837,11 +837,11 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/web-media/yt-dlp
 ```
 
-## HubGroupController（0/4）
+## HubGroupController（1/4）
 
 ```
   POST   /backend/group/create
-  GET    /backend/group/list
+✓ GET    /backend/group/list
   POST   /backend/group/members/batch_add
   POST   /backend/group/members/query
 ```
