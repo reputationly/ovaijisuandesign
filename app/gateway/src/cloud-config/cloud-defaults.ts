@@ -81,3 +81,27 @@ export const APOLLO_DEFAULTS: Readonly<Record<string, unknown>> = {
  * CDN 素材。所以给空分区，首页只剩 Skill 页签（数据来自本地自带技能），和断网兜底时看到的一样。
  */
 export const HOME_QUICK_START_DEFAULT = { schema_version: 2, enabled: true, sections: [] };
+
+/** 积分钱包：没有计费，钱包为空（界面上余额显示成 "--"）。 */
+export const EMPTY_WALLET = { wallets: [], migrate_end_time: 0 } as const;
+
+/** 计费价格表：enabled=false 表示不计费，其余字段渲染层都有默认值。 */
+export const PRICING_DISABLED = { enabled: false } as const;
+
+/**
+ * 团队功能协议：渲染层逐字段严格校验，少一个字段就整条报错。
+ * 所有团队能力关闭、标成暂不可用，界面只保留个人空间。
+ */
+export const TEAM_CONTRACT_UNAVAILABLE = {
+  contract_version: "1",
+  minimum_client_version: "0.0.0",
+  compatibility: "TEMPORARILY_UNAVAILABLE",
+  gates: { team_read: false, team_switch: false, team_invitation: false, team_billing: false, team_mutation: false },
+  limits: { max_groups_including_personal: 1, max_members_per_team: 0, max_member_page_size: 0 },
+} as const;
+
+/**
+ * 团队列表：一个都没有。个人空间的 id 由主进程给（不是正整数），渲染层对这里的 group_id
+ * 要求正整数，伪造一条对不上号，所以留空。
+ */
+export const EMPTY_GROUP_LIST = { groups: [], user_group_roles: {} } as const;

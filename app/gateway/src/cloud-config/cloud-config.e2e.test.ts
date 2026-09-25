@@ -80,6 +80,17 @@ describe("云端配置类路由的本地默认值", () => {
     expect(claim.body).toEqual(empty);
   });
 
+  it("积分钱包、计费价格、团队协议、团队列表：不计费、团队功能暂不可用", async () => {
+    expect((await http.get(`/api/v1/credit/wallet?${COMMON}`)).body).toEqual({ wallets: [], migrate_end_time: 0 });
+    expect((await http.get(`/api/v1/billing/pricing?${COMMON}`)).body).toEqual({ enabled: false });
+    const contract = (await http.get(`/api/v1/team/contract?client_version=3.0.16&${COMMON}`)).body;
+    // 渲染层逐字段严格校验：兼容性只认三个值，limits 三个字段都要是整数
+    expect(contract.compatibility).toBe("TEMPORARILY_UNAVAILABLE");
+    expect(Object.values(contract.gates).every((v) => v === false)).toBe(true);
+    for (const k of ["max_groups_including_personal", "max_members_per_team", "max_member_page_size"]) expect(Number.isSafeInteger(contract.limits[k])).toBe(true);
+    expect((await http.get(`/backend/group/list?biz_line=4&${COMMON}`)).body).toEqual({ groups: [], user_group_roles: {} });
+  });
+
   it("插件、ComfyUI 工作流：空列表", async () => {
     expect((await http.get(`/api/plugins?${COMMON}`)).body).toEqual({ plugins: [] });
     expect((await http.get(`/api/comfyui/workflows?${COMMON}`)).body).toEqual({ workflows: [] });

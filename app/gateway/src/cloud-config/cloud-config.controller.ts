@@ -1,6 +1,16 @@
 import { Controller, Get, NotFoundException, Post, Query } from "@nestjs/common";
 
-import { APOLLO_DEFAULTS, EMPTY_POPUP, EMPTY_PROMOTION, EMPTY_VIDEO_TRIAL_STATUS, HOME_QUICK_START_DEFAULT } from "./cloud-defaults.js";
+import {
+  APOLLO_DEFAULTS,
+  EMPTY_GROUP_LIST,
+  EMPTY_POPUP,
+  EMPTY_PROMOTION,
+  EMPTY_VIDEO_TRIAL_STATUS,
+  EMPTY_WALLET,
+  HOME_QUICK_START_DEFAULT,
+  PRICING_DISABLED,
+  TEAM_CONTRACT_UNAVAILABLE,
+} from "./cloud-defaults.js";
 
 /**
  * 云端配置类路由的本地实现：客户端配置、Apollo 配置项、首页快速开始、全局弹窗、计费活动。
@@ -32,6 +42,26 @@ export class CloudConfigController {
   @Get("api/v1/home/quick_start_config")
   homeQuickStartConfig() {
     return HOME_QUICK_START_DEFAULT;
+  }
+
+  @Get("api/v1/credit/wallet")
+  creditWallet() {
+    return EMPTY_WALLET;
+  }
+
+  @Get("api/v1/billing/pricing")
+  billingPricing() {
+    return PRICING_DISABLED;
+  }
+
+  @Get("api/v1/team/contract")
+  teamContract() {
+    return TEAM_CONTRACT_UNAVAILABLE;
+  }
+
+  @Get("backend/group/list")
+  groupList() {
+    return EMPTY_GROUP_LIST;
   }
 
   @Get("api/v1/popup")
