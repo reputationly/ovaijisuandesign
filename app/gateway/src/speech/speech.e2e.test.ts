@@ -142,15 +142,15 @@ describe("音色：克隆登记进本机音色表，合成时查表（假平台�
 
   it("语音合成查本机音色表：克隆出的 voice_id 换回登记的参考音频", async () => {
     const { voice_id } = (await http.post("/api/speech/voice_clone").send({ audio_path: "ref.wav" })).body;
-    const r = await http.post("/api/generate/speech").send({ prompt: "欢迎收听", filename: "welcome", params: { voice_id } });
-    expect(r.body).toMatchObject({ ok: true, status: "succeeded", result: { path: "welcome.mp3" } });
+    const r = await http.post("/api/generate/speech").send({ backend: "speech", prompt: "欢迎收听", filename: "welcome", params: { voice_id } });
+    expect(r.body).toMatchObject({ ok: true, path: "welcome.mp3" });
     const submit = platform.calls.find((c) => c.method === "POST");
     expect(submit!.body.metadata).toEqual({ task_type: "tts", voice: `data:audio/wav;base64,${WAV.toString("base64")}` });
   });
 
   it("配置里的 voice_map 照旧可用", async () => {
-    const r = await http.post("/api/generate/speech").send({ prompt: "hi", filename: "narr", params: { voice_id: "narrator" } });
-    expect(r.body).toMatchObject({ ok: true, status: "succeeded" });
+    const r = await http.post("/api/generate/speech").send({ backend: "speech", prompt: "hi", filename: "narr", params: { voice_id: "narrator" } });
+    expect(r.body).toMatchObject({ ok: true, path: "narr.mp3" });
     expect(platform.calls.find((c) => c.method === "POST")!.body.metadata.voice).toBe("https://x/ref.wav");
   });
 
@@ -164,8 +164,8 @@ describe("音色：克隆登记进本机音色表，合成时查表（假平台�
       await app2.init();
       const voices = (await request(app2.getHttpServer()).get("/api/speech/voices")).body;
       expect(voices.map((v: any) => v.voice_id)).toContain(voice_id);
-      const r = await request(app2.getHttpServer()).post("/api/generate/speech").send({ prompt: "hi", filename: "x", params: { voice_id } });
-      expect(r.body).toMatchObject({ ok: true, status: "succeeded" });
+      const r = await request(app2.getHttpServer()).post("/api/generate/speech").send({ backend: "speech", prompt: "hi", filename: "x", params: { voice_id } });
+      expect(r.body).toMatchObject({ ok: true, path: "x.mp3" });
       expect(existsSync(path.join(other, "x.mp3"))).toBe(true);
     } finally {
       await app2.close();

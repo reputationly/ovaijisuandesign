@@ -14,7 +14,7 @@ export function gatewayUrl(env: NodeJS.ProcessEnv = process.env): string {
 }
 
 /**
- * 所在工作区 gateway 的身份头。主进程经 opencode 的 MCP 环境变量传进来；gateway 对缺身份的写请求回 428、
+ * 所在工作区 gateway 的身份头。主进程经 opencode 的 MCP 环境变量传进来；gateway 对缺身份的请求回 428（读请求缺 claim、写请求缺任何一项）、
  * 对不上的回 409 —— 防的是 gateway 重启后这个 MCP 进程还往旧地址写。没有这些变量（独立跑）就不带。
  */
 export function workspaceIdentityHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, string> {

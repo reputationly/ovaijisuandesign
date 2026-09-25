@@ -58,7 +58,12 @@ async function callTool(extraEnv, name, args) {
 const args = { kind: "text", content: "MCP 写进来的一段字", name: "mcp测试" };
 const withId = await callTool(ID, "canvas_write_node", args);
 const withoutId = await callTool({}, "canvas_write_node", { ...args, name: "不带身份" });
-const canvas = await (await fetch(`${base}/api/canvas`)).json();
+// 读请求也要带 claim（和参照一致），这里用同一套身份读回画布
+const canvas = await (
+  await fetch(`${base}/api/canvas`, {
+    headers: { "x-hilo-workspace": ID.HILO_WORKSPACE_CLAIM, "x-hilo-workspace-instance": ID.HILO_WORKSPACE_INSTANCE_ID, "x-hilo-workspace-generation": ID.HILO_WORKSPACE_GENERATION },
+  })
+).json();
 gw.kill();
 
 const text = (r) => JSON.stringify(r.result?.content ?? r.result).slice(0, 300);
@@ -68,6 +73,6 @@ console.log("不带身份:", withoutId.result?.isError ? "ERROR" : "OK", text(wi
 const nodes = canvas.nodes.filter((n) => n.type === "text").length;
 console.log("画布上的文本节点:", nodes);
 const inner = (r) => JSON.parse(r.result?.content?.[0]?.text ?? "{}");
-const pass = inner(withId).ok === true && /Workspace identity required/.test(inner(withoutId).error ?? "") && nodes === 1;
+const pass = inner(withId).ok === true && /Workspace identity is required/.test(inner(withoutId).error ?? "") && nodes === 1;
 console.log(pass ? "\n全部通过" : "\n失败");
 process.exit(pass ? 0 : 1);
