@@ -118,7 +118,7 @@
 - `assets/skills/`：参照的 36 个技能原文；
 - `reference/3.0.16/`：参照的全部可读原文。
 
-进度：1、2、3、5、6 已完成；4 待做（`reference/3.0.16/` 下各个 `dist/` 已补进库）。
+进度：1–6 已完成；7 的前两条已过，剩本机联调。
 
 要做的：
 1. ~~**加载 agent 配置。**~~`app/desktop/src/main/opencode/index.ts` 的 `locateProfile`：开发时读仓库的 `assets/agent-profiles/v2/config`，和发布包的 `agent-profiles/v2/config` 同一种单目录布局。去掉 `config/opencode-v2` + `.opencode-v2` 的双目录回退，`ProfileSource` 能简化就简化，`profile.ts` 顶部注释跟着改。
@@ -129,7 +129,10 @@
    - 目录不存在，或 `meta.yaml` 的 `version` 和自带的不同，就整目录覆盖；
    - 不碰用户自己建的、不在自带列表里的技能；
    - 参照的做法先去 `reference/3.0.16/app/out/main` 和 gateway 的 SkillsController 里看，行为尽量一致。
-4. **MCP 文案。**`app/mcp-tools` 的 33 个工具：工具描述、参数描述原样换成 `reference/3.0.16/mcp-tools/dist/main.js` 里的。同一情形下的错误 / 提示文案也换成原文，agent 配置会按原文判断；我们多出来的安全检查保留。顺带发现的参数或枚举差异一并对齐。
+4. ~~**MCP 文案。**~~`app/mcp-tools` 的 33 个工具：工具描述、参数描述原样换成 `reference/3.0.16/mcp-tools/dist/main.js` 里的。同一情形下的错误 / 提示文案也换成原文，agent 配置会按原文判断；我们多出来的安全检查保留。顺带发现的参数或枚举差异一并对齐。
+   - `scripts/smoke/mcp-surface.mjs`：`tools/list` 两边逐字一致（国内、海外两个区域）；
+   - `scripts/smoke/mcp-behavior.mjs`：同一组调用分别打参照和我们的 MCP 逐字比，场景在 `scripts/smoke/mcp-scenarios/`（画布、计划、出图 / 视频 / 能力、音频、剪辑 / 读取 / 知识 / 记忆 / 字幕）；剩下的有意差异见 `docs/parity-gaps.md` 第四节；
+   - 顺带修了 gateway 的计费分组回复：`source` 原来回 `local`，MCP 不认，每次提交生成都被拒。
 5. ~~**冒烟脚本。**~~`scripts/smoke/electron.sh` 不再从 `wip/m8-agent-profiles` 导出配置，默认用仓库里的。顺便让它在 macOS 上也能跑：没有 `xvfb-run` 就直接起；没有 `timeout` 用别的方式限时；结束时杀掉 Electron 主进程和它拉起的 gateway / opencode（现在超时后会残留）。
 6. ~~删掉 `scripts/check-verbatim.py`，更新 `docs/parity-gaps.md` 第四、五节。~~
 7. 验收：
