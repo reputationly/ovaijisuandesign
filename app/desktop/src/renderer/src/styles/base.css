@@ -1,0 +1,167 @@
+/* 基础层：在 Tailwind preflight 之后补全局默认。 */
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  html {
+    font-family: Inter Variable, sans-serif;
+  }
+
+  /* 光标统一用品牌紫，所有可编辑区域一致 */
+  input,
+  textarea,
+  [contenteditable="true"],
+  [contenteditable="plaintext-only"],
+  .ProseMirror {
+    caret-color: var(--brand-accent);
+  }
+
+  /* 文本框聚焦只加深描边，不要浏览器默认的外发光 */
+  :where(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not(
+          [type="hidden"]
+        ):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+      textarea
+    ):focus:not([aria-invalid="true"]) {
+    outline: none;
+    border-color: var(--foreground) !important;
+    box-shadow: none !important;
+  }
+
+  /* 滚动时才显示滚动条：<html data-auto-hide-scrollbars>，滚动中的元素挂 data-scroll-active */
+  :root[data-auto-hide-scrollbars],
+  :root[data-auto-hide-scrollbars] * {
+    scrollbar-color: transparent transparent !important;
+  }
+  :root[data-auto-hide-scrollbars][data-scroll-active],
+  :root[data-auto-hide-scrollbars] [data-scroll-active] {
+    scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent) transparent !important;
+  }
+  :root[data-auto-hide-scrollbars]:not([data-scroll-active])::-webkit-scrollbar-thumb,
+  :root[data-auto-hide-scrollbars] :not([data-scroll-active])::-webkit-scrollbar-thumb {
+    background-color: #0000 !important;
+  }
+  :root[data-auto-hide-scrollbars][data-scroll-active]::-webkit-scrollbar-thumb,
+  :root[data-auto-hide-scrollbars] [data-scroll-active]::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--foreground) 20%, transparent) !important;
+  }
+  :root[data-auto-hide-scrollbars] [data-slot="scroll-area-scrollbar"] {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  :root[data-auto-hide-scrollbars] [data-slot="scroll-area"]:has(> [data-slot="scroll-area-viewport"][data-scroll-active])
+    > [data-slot="scroll-area-scrollbar"] {
+    opacity: 1;
+  }
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+  overflow: hidden;
+}
+
+/* 整个应用默认不可选中，只有输入与正文类区域放开 */
+#root {
+  user-select: none;
+}
+#root
+  :where(
+    input,
+    textarea,
+    [contenteditable="true"],
+    [contenteditable="plaintext-only"],
+    .ProseMirror,
+    .chat-markdown,
+    pre,
+    code,
+    .select-text,
+    [data-text-selectable="true"]
+  ) {
+  user-select: text;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: none;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+::-webkit-scrollbar-corner {
+  background: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* 细滚动条，只在滚动（data-scrolling=true）或悬停时浮现 */
+.scrollbar-fade {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.scrollbar-fade::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.scrollbar-fade.scrollbar-fade-compact::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+.scrollbar-fade::-webkit-scrollbar-track {
+  background: none;
+}
+.scrollbar-fade::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 999px;
+  transition: background-color 0.3s ease-in-out;
+}
+.scrollbar-fade[data-scrolling="true"] {
+  scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent) transparent;
+}
+.scrollbar-fade[data-scrolling="true"]::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+}
+.scrollbar-fade::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--foreground) 35%, transparent);
+}
+
+/* GPU 被禁用时去掉模糊，保住帧率 */
+html[data-hilo-gpu="disabled"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+
+/* 紧凑密度下描边更淡 */
+[data-density="compact"] {
+  --border: #0000000d;
+  --border-strong: #00000014;
+  --input: #0000000d;
+}
+.dark [data-density="compact"] {
+  --border: #ffffff0f;
+  --border-strong: #ffffff1a;
+  --input: #ffffff0f;
+}

@@ -120,7 +120,24 @@ describe("深色变量是完整的", () => {
      * （查过他们的样式表，全文只有一处 `--modal-mask-bg: #0000009e`）。
      * 遮罩的作用是压暗背后的内容，深浅色下要压暗的量是一样的。
      */
-    const SHARED = new Set(["--modal-mask-bg"])
+    const SHARED = new Set([
+      "--modal-mask-bg",
+      // 以下都是压在图片 / 视频之上的层（遮罩、角标、卡片 CTA），底下是媒体而不是界面底色，
+      // 所以两个主题共用同一组值；规格表里它们本来就只在 :root 定义。
+      "--modal-mask-foreground",
+      "--canvas-prompt-panel-shadow",
+      "--workspace-display-mode-current-tag-foreground",
+      "--workspace-display-mode-preview-fallback",
+      "--badge-hot-bg",
+      "--badge-hot-fg",
+      "--home-query-card-cta-bg",
+      "--home-query-card-cta-text",
+      "--home-media-showcase-overlay-bg",
+      "--home-media-showcase-overlay-bg-hover",
+      "--media-overlay-surface",
+      "--media-overlay-surface-strong",
+      "--media-overlay-foreground",
+    ])
 
     const missing = [...light]
       .filter(

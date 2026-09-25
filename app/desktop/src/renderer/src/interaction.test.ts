@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url"
 
 import { describe, expect, it } from "vitest"
 
+import { allCss } from "./testing-css"
+
 /**
  * 交互层的静态检查。
  *
@@ -36,7 +38,7 @@ function files(): { name: string; text: string }[] {
 }
 
 describe("画布光标", () => {
-  const css = readFileSync(join(SRC, "styles.css"), "utf8")
+  const css = allCss()
 
   /**
    * 这三组规则**缺一不可**,我亲手删错过一次。
@@ -65,7 +67,7 @@ describe("画布光标", () => {
   it("canvas-space-pan 这个类真的有人挂", () => {
     // 官方 `isHandPanning = handTool || isSpacePanning`,两种情况共用它。
     // 只写 CSS 不挂类的话，这几条规则永远不生效。
-    const app = readFileSync(join(SRC, "App.tsx"), "utf8")
+    const app = readFileSync(join(SRC, "WorkspaceView.tsx"), "utf8")
     expect(app.includes('"canvas-space-pan"')).toBe(true)
     // 小手工具那一路也要覆盖到，不能只有空格。
     expect(/tool === "hand"[\s\S]{0,80}canvas-space-pan|canvas-space-pan[\s\S]{0,80}tool === "hand"/.test(app)).toBe(true)
