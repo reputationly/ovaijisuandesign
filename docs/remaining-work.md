@@ -32,7 +32,7 @@
 | 分支 | 内容 |
 |---|---|
 | `replicate-official-stack` | 主线，已完成的都在这里 |
-| `ui-wave-1` | 界面第一波，做到一半，已基于最新主线，**未验证，别直接合** |
+| `ui-wave-1` | 界面第一波，已合进 `claude/beautiful-pascal-fa5c5l` 并补完 P0-1 的代码部分，剩本机截图验收 |
 | `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入，可以删 |
 | `main` | 2026-09-25 起和 `replicate-official-stack` 同步（用户定）：新栈在 `app/`，旧的 Rust + Tauri 代码（`crates/`、`apps/`、`mcp/`、`agent/`）还在，M10 再删；发布流水线只认 `v*` 标签，仍是旧栈的 |
 
@@ -54,7 +54,6 @@
 
 ### 已知问题
 
-- **主线上画布连不到工作区。**M5 之后 `__HILO_CONFIG__.gatewayUrl` 是应用级 gateway，它没有工作区。现在的旧界面把它当成工作区 gateway 用，所以画布和聊天请求都打错了地方。界面第一波合入后恢复，见 P0-1。
 - **界面没有对齐。**主线上跑的还是旧界面原样搬进 Electron 的样子，菜单、画布、聊天都和官方不一样。
 
 ---
@@ -87,7 +86,7 @@
 
 ## 四、待办（按优先级）
 
-### P0-1 界面第一波收尾并合入（分支 `ui-wave-1`）
+### P0-1 界面第一波收尾并合入（分支 `ui-wave-1`，已合进 `claude/beautiful-pascal-fa5c5l`）
 
 已完成：
 - 库版本钉死：React 19.2.4、lucide 0.468.0、Tailwind 4.2.2、Base UI、TanStack Router / Query、zustand、i18next、sonner 等；
@@ -95,21 +94,21 @@
 - 中英文案资源；
 - 基础组件；
 - 路由和外壳；
-- 11 个分区的设置框外壳。
+- 11 个分区的设置框外壳；
+- ~~工作区页面按工作区连接 gateway~~：每个请求带 `x-hilo-workspace*` 三个头，文件地址和 WS 带 `hilo_workspace*` query；身份来自打开结果的 binding，bundle 状态变化时从 `listWorkspaceEntries` 取。`scripts/smoke/electron.sh` 经远程调试端口进渲染页验证（写请求能过、不带身份 428、过期 WS 1008）；
+- ~~打开的工作区（「标签」）~~：照参照移植 `visiblePreviewTabsStore`、`TopbarProvider` / `useTopbar*`、关标签逻辑、打开结果处理和菜单事件（`menu:new-workspace` / `menu:close-tab` / `menu:new-chat`）。参照 3.0.16 顶栏没有标签条，已打开的工作区显示在全局侧栏的最近项目里；
+- ~~首页和项目页~~：项目库、项目详情、新建项目 / 新建创作弹窗、改名、解散、挂入 / 移出项目，走主进程 `main.project`；缩略图打应用级 gateway。
+
+给了桩或没做的（界面后续波次补）：
+- 团队项目、云端资产页签、教程按钮、文本安全检查、遥测；
+- 项目详情的本地资产页签（主进程项目资产服务还是桩）；
+- 缩略图要的 `/api/files/scan-media`、`/api/local-file` 还没有，退回占位图；
+- 侧栏最近项的删除、置顶、拖拽排序、悬停详情卡、分组右键菜单，分组折叠状态不持久化；
+- 任务状态和完成通知（`workspaceStatusById` 恒空），「按优先级」排序退化成原顺序；
+- `/creations` 页和首页输入框仍用旧的 `useWorkspaceList`。
 
 剩余：
-1. 工作区页面按工作区连接 gateway：
-   - 从 `main.hilo.getWorkspaceRuntime(id)`（或 `workspace-bundle-<id>` 的状态）拿到工作区自己的 gateway 地址和身份（binding 里的 claim / instanceId / generation）。
-   - **每个请求带 `x-hilo-workspace*` 三个头，WS 和 `<img src>` 用 `hilo_workspace*` query**：gateway 已经校验，写请求不带回 428。
-   - `api.ts` / `chat.ts` 从模块级单例改成每个工作区一份实例，画布、聊天、WS 都指向它。
-2. 标签栏：标签列表来自 `listWorkspaceEntries` 加变更事件，再按 `visiblePreviewTabs` 过滤。
-   - `lastActiveWorkspacePath`、`visiblePreviewTabs` 通过 `storage:global-set` 写回。
-   - 响应 `menu:new-workspace` / `menu:close-tab`。
-3. 首页和项目页连应用级 gateway，项目增删改走 `main.project`。
-4. 验收：
-   - `pnpm --filter @ov/desktop typecheck`、`test`、`build` 全部通过；
-   - 启动后能打开两个工作区，画布和聊天都能用；
-   - 首页、项目页、设置框（亮色和暗色）和官方并排截图一致，截图放 `/tmp/ui-wave1/`。
+1. 验收（本机）：首页、项目页、设置框（亮色和暗色）和参照并排截图一致，截图放 `/tmp/ui-wave1/`；真窗口里打开两个工作区，画布和聊天都能用。
 
 ### P0-2 换用参照的 agent 配置、技能和工具文案（适合云上）
 
