@@ -279,13 +279,13 @@ export class GenerationRunner implements OnApplicationBootstrap {
       ...(nodeId ? { node_id: nodeId } : {}),
     };
     const asset = { assetId: row.id, name: row.name, path: rel, mediaType: r.mediaType === "speech" || r.mediaType === "music" ? "audio" : r.mediaType, model, width: info.width, height: info.height, duration: info.duration };
-    this.settled.set(r.taskId, { status: "succeeded", result, asset, at: Date.now() });
+    // 先下账再对外报完成：轮询方看到 succeeded 时账上必须已经没有它，否则这时候重启会把落过地的任务再落一遍。
     await this.store.remove(r.id);
+    this.settled.set(r.taskId, { status: "succeeded", result, asset, at: Date.now() });
     this.log.log(`[task] ${r.mediaType} task=${r.taskId} succeeded path=${rel} node=${nodeId ?? "-"}`);
   }
 
   private async settleFailure(r: ActiveGenerationRecord, message: string, code: string, opts: { recoverable?: boolean } = {}): Promise<void> {
-    this.settled.set(r.taskId, { status: "failed", error: message, error_code: code, user_message: message, at: Date.now() });
     const target = r.placeholderId ?? r.request.replace_node_id;
     if (target) {
       await this.canvas
@@ -293,6 +293,8 @@ export class GenerationRunner implements OnApplicationBootstrap {
         .catch((err) => this.log.warn(`[task] failPlaceholder(${target}) failed: ${(err as Error).message}`));
     }
     await this.store.remove(r.id).catch(() => undefined);
+    // 最后才报失败：轮询方拿到 failed 就会去看画布，占位卡得已经是错误态。
+    this.settled.set(r.taskId, { status: "failed", error: message, error_code: code, user_message: message, at: Date.now() });
   }
 
   private prune(): void {
