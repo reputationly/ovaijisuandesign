@@ -37,6 +37,20 @@ export interface StubDeps {
 
 export function stubChannels(deps: StubDeps): Record<string, object> {
   const config = () => deps.store.get("config");
+  // 没有真的探测：给一份"一切正常"的完整快照。渲染层直接读 probes / recommendations，缺字段会整页崩。
+  const diagnosticsSnapshot = () => ({
+    generatedAt: new Date().toISOString(),
+    release: { region: "domestic", channel: "prod" },
+    online: true,
+    overall: "ok",
+    proxyMode: config().networkProxyMode ?? "auto",
+    proxyDetected: false,
+    proxyRaw: "",
+    tunDetected: false,
+    tunInterfaces: [],
+    probes: [],
+    recommendations: [],
+  });
   const log = (level: string) => (message: unknown) => deps.log(level, String(message));
   return {
     log: stubService(
@@ -114,8 +128,8 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
     networkDiagnostics: stubService({
       getProxyMode: () => config().networkProxyMode ?? "auto",
       setProxyMode: (mode) => ({ success: false, mode, restartHint: true, error: "unsupported" }),
-      runDiagnostics: () => ({ generatedAt: Date.now(), online: true, overall: "ok", proxyMode: config().networkProxyMode ?? "auto", checks: [] }),
-      getLastSnapshot: () => undefined,
+      runDiagnostics: () => diagnosticsSnapshot(),
+      getLastSnapshot: () => diagnosticsSnapshot(),
     }),
     "team-account": stubService(
       {
