@@ -110,10 +110,12 @@ describe("generate_audio_speech", () => {
   it("rejects explicit voice id without voice_id_source, and unknown catalog ids", async () => {
     const r1 = await h.call("generate_audio_speech", { texts: "hi", filename: "x", voice_id: "female-shaonv" });
     expect(r1.isError).toBe(true);
-    expect(resultText(r1)).toContain("voice_id_source is required");
+    expect(resultText(r1)).toBe("voice_id_source is required with explicit official voice_id(s).");
     const r2 = await h.call("generate_audio_speech", { texts: "hi", filename: "x", voice_id: "shaonv", voice_id_source: "catalog" });
     expect(r2.isError).toBe(true);
-    expect(resultText(r2)).toContain("Closest catalog matches: female-shaonv");
+    expect(resultText(r2)).toBe('Error: voice_id "shaonv" not found in current voice catalog.\nDid you mean: female-shaonv (少女, 中文（普通话）)');
+    const r3 = await h.call("generate_audio_speech", { texts: "hi", filename: "x", voice_id: "zzz", voice_id_source: "tool" });
+    expect(resultText(r3)).toBe('Error: voice_id "zzz" not found in current voice catalog.\nCall get_voice_id to find available voices.');
     expect(submits("speech")).toHaveLength(0);
   });
 
@@ -167,8 +169,9 @@ describe("audio picker guard", () => {
     gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["music-3.0"] } } });
     const r = await h.call("generate_audio_speech", { texts: "hi", filename: "x", _session_id: "s1" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("vendor=speech is not among");
-    expect(resultText(r)).toContain("available_vendors=[official]");
+    expect(resultText(r)).toBe(
+      "Selected audio models do not include vendor=speech. selected_ids=[music-3.0] available_vendors=[official]",
+    );
     expect(submits("speech")).toHaveLength(0);
   });
 
@@ -176,12 +179,34 @@ describe("audio picker guard", () => {
     gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["seed-audio-1.0"] } } });
     const r = await h.call("generate_audio_music", { mode: "instrumental", prompt: "p", filename: "f", _session_id: "s1" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("available_series=[seedaudio]");
+    expect(resultText(r)).toBe(
+      "Selected audio models do not include series=official-music. selected_ids=[seed-audio-1.0] available_series=[seedaudio]",
+    );
 
     gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["music-3.0"] } } });
     const ok = await h.call("generate_audio_music", { mode: "instrumental", prompt: "p", filename: "f", _session_id: "s1" });
     expect(ok.isError).toBeFalsy();
     expect(submits("music")[0]?.headers["x-session-id"]).toBe("s1");
+  });
+
+  it("speech: vendor ticked without a concrete model, or a different model ticked", async () => {
+    gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["official-speech"] } } });
+    const r1 = await h.call("generate_audio_speech", { texts: "hi", filename: "x", _session_id: "s1" });
+    expect(resultText(r1)).toBe(
+      "Selected audio models do not include a concrete model_id for vendor=speech. selected_ids=[official-speech]. Ask the user to enable a concrete model in the picker.",
+    );
+    gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["speech-2.8-hd"] } } });
+    const r2 = await h.call("generate_audio_speech", { texts: "hi", filename: "x", model_name: "speech-2.8-turbo", _session_id: "s1" });
+    expect(resultText(r2)).toBe(
+      "Selected audio models do not include model_id=speech-2.8-turbo (vendor=speech). selected_models=[speech-2.8-hd]. Use one of the selected models, or ask the user to enable this model in the picker.",
+    );
+    expect(submits("speech")).toHaveLength(0);
+  });
+
+  it("music: series ticked without its concrete model", async () => {
+    gw.on("GET", "/api/internal/sessions/s1/selected-models", { json: { selected: { audio: ["official-music"] } } });
+    const r = await h.call("generate_audio_music", { mode: "instrumental", prompt: "p", filename: "f", _session_id: "s1" });
+    expect(resultText(r)).toBe("Selected audio models do not include a concrete model_id for series=official-music.");
   });
 
   it("fails open when the selection lookup errors", async () => {
@@ -220,7 +245,8 @@ describe("voice_prepare", () => {
     const out = resultJson<any>(r);
     expect(out.ok).toBe(false);
     expect(out.errorCount).toBe(2);
-    expect(out.results[1].error).toContain("design needs both prompt and preview_text");
+    expect(out.results[1].error).toBe("items[1].prompt and preview_text are required for action=design.");
+    expect(out.results[0].error).toBe("not run because batch validation failed");
     expect(gw.requests.some((q) => q.path === "/api/speech/voice_clone")).toBe(false);
   });
 
@@ -228,7 +254,12 @@ describe("voice_prepare", () => {
     gw.on("POST", "/api/speech/voice_clone", { json: { voice_id: "hub_clone_1", input_sensitive_type: 2 } });
     const r = await h.call("voice_prepare", { items: [{ action: "clone", audio_path: "/ref.mp3", demo_text: "hello" }] });
     const out = resultJson<any>(r);
-    expect(out.failed[0]).toMatchObject({ voice_id: "hub_clone_1", input_sensitive_type: 2, ok: false });
+    expect(out.failed[0]).toMatchObject({
+      voice_id: "hub_clone_1",
+      input_sensitive_type: 2,
+      ok: false,
+      error: "reference audio was flagged for risk (type=2); ask the user before using it",
+    });
     const req = gw.requests.find((q) => q.path === "/api/speech/voice_clone")!;
     expect(req.body).toEqual({ audio_path: "/ref.mp3", demo_text: "hello", demo_model: "speech-2.8-hd" });
   });
@@ -257,7 +288,7 @@ describe("audio_meta", () => {
   it("missing file is an error", async () => {
     const r = await h.call("audio_meta", { audio_path: "/definitely/not/here.mp3" });
     expect(r.isError).toBe(true);
-    expect(resultText(r)).toContain("could not probe audio file");
+    expect(resultText(r)).toMatch(/^Error getting audio metadata: Error: Command failed: /);
   });
 
   const hasFfprobe = (() => {

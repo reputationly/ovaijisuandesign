@@ -16,19 +16,19 @@ async function selectedAudioIds(context: string, gw: GatewayClient): Promise<str
   try {
     return (await gw.getSelectedMediaModels(sessionId))?.audio;
   } catch (err) {
-    warn(`audio picker guard fail-open ${context}: ${errorMessage(err)}`);
+    warn(`${context}: ${errorMessage(err)}`);
     return undefined;
   }
 }
 
 /** 按系列判断（音乐用）：返回错误文本，null = 放行。 */
 export async function selectedAudioSeriesError(gw: GatewayClient, series: string, modelId: string): Promise<string | null> {
-  const ids = await selectedAudioIds(`series=${series}`, gw);
+  const ids = await selectedAudioIds(`audio picker guard fail-open series=${series}`, gw);
   if (!ids || ids.length === 0) return null;
   const selected = new Set(ids);
   const seriesModels = AUDIO_SERIES_MODELS[series] ?? [];
   if (!seriesModels.some((m) => selected.has(m))) {
-    if (selected.has(series)) return `The audio picker has series=${series} ticked but none of its concrete models; no usable model_id.`;
+    if (selected.has(series)) return `Selected audio models do not include a concrete model_id for series=${series}.`;
     const available = Object.entries(AUDIO_SERIES_MODELS)
       .filter(([, ms]) => ms.some((m) => selected.has(m)))
       .map(([s]) => s);
@@ -37,18 +37,18 @@ export async function selectedAudioSeriesError(gw: GatewayClient, series: string
       return null;
     }
     return [
-      `series=${series} is not among the audio models the user picked.`,
+      `Selected audio models do not include series=${series}.`,
       `selected_ids=[${ids.join(", ")}]`,
       `available_series=[${available.join(", ")}]`,
     ].join(" ");
   }
   const selectedSeriesModels = seriesModels.filter((m) => selected.has(m));
-  if (!seriesModels.includes(modelId)) return `model_id=${modelId} does not belong to audio series=${series}.`;
+  if (!seriesModels.includes(modelId)) return `Unsupported model_id=${modelId} for audio series=${series}.`;
   if (selectedSeriesModels.includes(modelId)) return null;
   return [
-    `model_id=${modelId} (series=${series}) is not ticked in the audio picker.`,
+    `Selected audio models do not include model_id=${modelId} (series=${series}).`,
     `selected_models=[${selectedSeriesModels.join(", ")}].`,
-    "Switch to a ticked model, or have the user turn this one on in the model picker.",
+    "Use one of the selected models, or ask the user to enable this model in the picker.",
   ].join(" ");
 }
 
@@ -76,7 +76,7 @@ export function pickerSelectionError(
       return null;
     }
     return [
-      `vendor=${vendor} is not among the ${category} models the user picked.`,
+      `Selected ${category} models do not include vendor=${vendor}.`,
       `selected_ids=[${selectedIds.join(", ")}]`,
       `available_vendors=[${available.join(", ")}]`,
     ].join(" ");
@@ -85,17 +85,17 @@ export function pickerSelectionError(
   const selectedVendorModels = vendorModels.filter((m) => selected.has(m));
   if (selectedVendorModels.length === 0) {
     return [
-      `The ${category} picker has no concrete model ticked for vendor=${vendor}.`,
+      `Selected ${category} models do not include a concrete model_id for vendor=${vendor}.`,
       `selected_ids=[${selectedIds.join(", ")}].`,
-      "Have the user tick a specific model in the model picker.",
+      "Ask the user to enable a concrete model in the picker.",
     ].join(" ");
   }
-  if (!vendorModels.includes(modelId)) return `model_id=${modelId} is not a model of vendor=${vendor}.`;
+  if (!vendorModels.includes(modelId)) return `Unsupported model_id=${modelId} for vendor=${vendor}.`;
   if (selectedVendorModels.includes(modelId)) return null;
   return [
-    `model_id=${modelId} (vendor=${vendor}) is not ticked in the ${category} picker.`,
+    `Selected ${category} models do not include model_id=${modelId} (vendor=${vendor}).`,
     `selected_models=[${selectedVendorModels.join(", ")}].`,
-    "Switch to a ticked model, or have the user turn this one on in the model picker.",
+    "Use one of the selected models, or ask the user to enable this model in the picker.",
   ].join(" ");
 }
 
@@ -106,6 +106,6 @@ export async function selectedAudioVendorError(
   vendorPickerIds: Readonly<Record<string, readonly string[]>>,
   vendorModelIds: Readonly<Record<string, readonly string[]>>,
 ): Promise<string | null> {
-  const ids = await selectedAudioIds(`category=audio vendor=${vendor}`, gw);
+  const ids = await selectedAudioIds(`picker guard fail-open category=audio vendor=${vendor}`, gw);
   return pickerSelectionError("audio", vendor, modelId, vendorPickerIds, vendorModelIds, ids);
 }

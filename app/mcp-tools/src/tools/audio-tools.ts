@@ -103,7 +103,7 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
     },
     async (args) => {
       const vendor = args.vendor ?? "official";
-      if (!MUSIC_VENDORS.includes(vendor)) return inputError(`Unknown music vendor "${String(vendor)}".`);
+      if (!MUSIC_VENDORS.includes(vendor)) return inputError(`Unsupported music vendor: ${String(vendor)}.`);
       const modelId = args.model_id ?? MUSIC_DEFAULT_MODEL;
       const pickerError = await selectedAudioSeriesError(gw, MUSIC_VENDOR_SERIES[vendor], modelId);
       if (pickerError) return inputError(pickerError);
@@ -112,7 +112,7 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
       if (args.mode === "song") {
         if (!args.lyrics || args.lyrics.trim() === "") {
           return inputError(
-            "mode=song needs `lyrics` (non-empty). Draft them or take them from the user, get the user's OK on them, then call again.",
+            "vendor=official mode=song requires non-empty `lyrics`. Write lyrics directly or use user-provided lyrics, and have the user confirm them first.",
           );
         }
         params = { lyrics: args.lyrics };
@@ -137,7 +137,7 @@ function registerMusic(r: ToolRegistrar, gw: GatewayClient): void {
           ...(res.node_id ? { node_id: res.node_id } : {}),
         });
       } catch (err) {
-        return generationUnknownReply(`Music generation failed: ${err instanceof Error ? err.message : String(err)}`);
+        return generationUnknownReply(`Error generating music: ${err instanceof Error ? err.message : String(err)}`);
       }
     },
   );
@@ -221,7 +221,7 @@ const DEFAULT_VOICE = "Friendly_Person";
 function alignToTexts<T>(name: string, v: T | (T | null)[] | undefined, length: number): { values: (T | null)[]; error?: string } {
   if (v === undefined) return { values: Array.from({ length }, () => null) };
   if (Array.isArray(v)) {
-    if (v.length !== length) return { values: [], error: `${name} has ${v.length} entries but texts has ${length}; per-text arrays must be the same length.` };
+    if (v.length !== length) return { values: [], error: `${name} length (${v.length}) does not match texts length (${length}).` };
     return { values: v };
   }
   return { values: Array.from({ length }, () => v) };
@@ -333,7 +333,7 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
       // vendor 缺省按 model_name 推断，model_name 缺省取该 vendor 的默认模型
       const wantsSeed = args.vendor === "seedaudio" || (args.vendor === undefined && args.model_name === "seed-audio-1.0");
       const vendor = wantsSeed ? "seedaudio" : "official";
-      const modelName = args.model_name || (wantsSeed ? "seed-audio-1.0" : "speech-2.8-hd");
+      const modelName = args.model_name ?? (wantsSeed ? "seed-audio-1.0" : "speech-2.8-hd");
       const pickerError = await selectedAudioVendorError(
         gw,
         vendor === "seedaudio" ? "seedaudio" : "speech",
@@ -347,11 +347,11 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
       const count = texts.length;
 
       if (vendor === "seedaudio") return seedAudio(gw, args, modelName, texts);
-      if (modelName === "seed-audio-1.0") return inputError('seed-audio-1.0 is only served by vendor="seedaudio"; set vendor accordingly.');
+      if (modelName === "seed-audio-1.0") return inputError('model_name="seed-audio-1.0" requires vendor="seedaudio".');
 
       const explicitVoice = args.voice_ids !== undefined || args.voice_id !== undefined;
       if (explicitVoice && !args.voice_id_source) {
-        return inputError("voice_id_source is required whenever voice_id / voice_ids is given.");
+        return inputError("voice_id_source is required with explicit official voice_id(s).");
       }
       const voices: string[] =
         args.voice_ids !== undefined
@@ -360,7 +360,7 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
             : Array.from({ length: count }, () => args.voice_ids as string)
           : Array.from({ length: count }, () => args.voice_id || DEFAULT_VOICE);
       if (voices.length !== count) {
-        return inputError(`voice_ids has ${voices.length} entries but texts has ${count}; they must line up one-to-one.`);
+        return inputError(`voice_ids length (${voices.length}) does not match texts length (${count}).`);
       }
       // 用户亲口给的 id 不查目录：可能是目录外的私有音色
       if (args.voice_id_source !== "user") {
@@ -378,7 +378,7 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
             : [];
       if (filenames.length !== count) {
         return inputError(
-          `Got ${filenames.length} filename(s) for ${count} text(s). Give one \`filename\` for a single clip, or a \`filenames\` array with one entry per text.`,
+          `filenames length (${filenames.length}) does not match texts length (${count}). Pass either \`filename\` (single) or \`filenames\` (length=texts).`,
         );
       }
 
@@ -426,7 +426,7 @@ function registerSpeech(r: ToolRegistrar, gw: GatewayClient): void {
         const settled = await Promise.allSettled(Array.from({ length: count }, (_, i) => callOne(i)));
         return structuredReply(aggregateSpeech(settled));
       } catch (err) {
-        return generationUnknownReply(`Speech generation failed: ${err instanceof Error ? err.message : String(err)}`);
+        return generationUnknownReply(`Error generating speech: ${err instanceof Error ? err.message : String(err)}`);
       }
     },
   );
@@ -452,28 +452,28 @@ type SpeechArgs = {
 };
 
 async function seedAudio(gw: GatewayClient, args: SpeechArgs, modelName: string, texts: string[]): Promise<CallToolResult> {
-  if (modelName !== "seed-audio-1.0") return inputError('vendor="seedaudio" only has model_name="seed-audio-1.0".');
+  if (modelName !== "seed-audio-1.0") return inputError('SeedAudio requires model_name="seed-audio-1.0".');
   if (texts.length !== 1) {
     return inputError(
-      'vendor="seedaudio" makes a single clip per call. Issue one call per line, or switch to vendor="official" to batch several texts.',
+      'SeedAudio currently supports one clip per hub_generate_audio_speech call. Call once per line, or use vendor="official" for batch TTS.',
     );
   }
   const hasVoiceArgs = Boolean(args.voice_id) || Boolean(args.voice_ids) || Boolean(args.voice_id_source);
   if (hasVoiceArgs) {
     return inputError(
-      "vendor=\"seedaudio\" has no voice catalog, so voice_id / voice_ids / voice_id_source are not accepted. Condition the voice with reference_audio_paths or reference_image_path.",
+      "SeedAudio does not use voice_id, voice_ids, or voice_id_source; provide reference_audio_paths or reference_image_path instead.",
     );
   }
-  if (args.emotions) return inputError("emotions is not available with vendor=\"seedaudio\"; put the intended delivery into the text itself.");
-  if (args.pronunciation_dict || args.voice_modify) return inputError("pronunciation_dict and voice_modify only work with vendor=\"official\", not seedaudio.");
+  if (args.emotions) return inputError("SeedAudio does not support emotions; describe the desired delivery in texts instead.");
+  if (args.pronunciation_dict || args.voice_modify) return inputError("SeedAudio does not support pronunciation_dict or voice_modify.");
   const audioRefs = args.reference_audio_paths?.filter((ref) => ref.trim().length > 0) ?? [];
   const imageRef = args.reference_image_path?.trim();
   if (audioRefs.length > 0 && imageRef) {
-    return inputError("Pass reference_audio_paths or reference_image_path, not both.");
+    return inputError("reference_audio_paths and reference_image_path are mutually exclusive — provide only one kind.");
   }
   const firstListed = typeof args.filenames === "string" ? args.filenames : args.filenames?.[0];
   const filename = args.filename ?? firstListed;
-  if (!filename) return inputError("vendor=\"seedaudio\" needs a filename.");
+  if (!filename) return inputError("filename is required for SeedAudio.");
   const speed = alignToTexts("speeds", args.speeds, 1);
   // SeedAudio 的音量叫 volumes；agent 写成 vols 也认
   const volume = alignToTexts("volumes", args.volumes ?? args.vols, 1);
@@ -504,7 +504,7 @@ async function seedAudio(gw: GatewayClient, args: SpeechArgs, modelName: string,
     if (!res.ok) return generationErrorReply(res);
     return structuredReply({ ok: true, path: res.path, duration: res.duration ?? 0, ...(res.node_id ? { node_id: res.node_id } : {}) });
   } catch (err) {
-    return generationUnknownReply(`SeedAudio speech generation failed: ${err instanceof Error ? err.message : String(err)}`);
+    return generationUnknownReply(`Error generating SeedAudio speech: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -598,11 +598,11 @@ function failedItem(item: VoicePrepareItem, index: number, error: string, extra:
 }
 
 function validateItem(item: VoicePrepareItem, index: number): string | undefined {
-  if (item.action === "search_catalog" && !item.language) return `items[${index}]: search_catalog needs a language.`;
-  if (item.action === "clone" && !item.audio_path) return `items[${index}]: clone needs audio_path.`;
+  if (item.action === "search_catalog" && !item.language) return `items[${index}].language is required for action=search_catalog.`;
+  if (item.action === "clone" && !item.audio_path) return `items[${index}].audio_path is required for action=clone.`;
   const designIncomplete = !item.prompt || !item.preview_text;
   if (item.action === "design" && designIncomplete) {
-    return `items[${index}]: design needs both prompt and preview_text.`;
+    return `items[${index}].prompt and preview_text are required for action=design.`;
   }
   return undefined;
 }
@@ -704,7 +704,7 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
       });
       if (invalid.size > 0) {
         return voicePrepareReply(
-          items.map((item, i) => failedItem(item, i, invalid.get(i) ?? "skipped: another item in this batch has invalid input")),
+          items.map((item, i) => failedItem(item, i, invalid.get(i) ?? "not run because batch validation failed")),
         );
       }
 
@@ -716,7 +716,7 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
           const idPart = item.id ? { id: item.id } : {};
           if (item.action === "search_catalog") {
             const all = await getVoices();
-            if (all.length === 0) return failedItem(item, index, "voice catalog unavailable (gateway returned no voices)");
+            if (all.length === 0) return failedItem(item, index, "failed to fetch voice list from gateway");
             let voices = filterByLanguage(all, item.language ?? "");
             if (item.gender) voices = voices.filter((v) => matchesGender(v.gender, item.gender as string));
             const list = voices.map(publicVoice);
@@ -743,7 +743,7 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
                 return failedItem(
                   item,
                   index,
-                  `the reference recording was risk-flagged (type=${res.input_sensitive_type}); confirm with the user before using this voice`,
+                  `reference audio was flagged for risk (type=${res.input_sensitive_type}); ask the user before using it`,
                   { voice_id: res.voice_id, input_sensitive_type: res.input_sensitive_type },
                 );
               }
@@ -757,7 +757,7 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
                 ...(typeof res.input_sensitive_type === "number" ? { input_sensitive_type: res.input_sensitive_type } : {}),
               };
             } catch (err) {
-              return failedItem(item, index, `Voice clone failed: ${err instanceof Error ? err.message : String(err)}`);
+              return failedItem(item, index, `Error cloning voice: ${err instanceof Error ? err.message : String(err)}`);
             }
           }
           try {
@@ -769,7 +769,7 @@ function registerVoicePrepare(r: ToolRegistrar, gw: GatewayClient, overseas: boo
             );
             return { index, ...idPart, action: "design", ok: true, voice_id: res.voice_id, trial_audio_url: res.trial_audio_url };
           } catch (err) {
-            return failedItem(item, index, `Voice design failed: ${err instanceof Error ? err.message : String(err)}`);
+            return failedItem(item, index, `Error designing voice: ${err instanceof Error ? err.message : String(err)}`);
           }
         }),
       );
@@ -807,7 +807,7 @@ function registerAudioMeta(r: ToolRegistrar): void {
           ...(fmt.bit_rate ? { bit_rate: Number.parseInt(fmt.bit_rate, 10) } : {}),
         });
       } catch (err) {
-        return { isError: true, content: [{ type: "text", text: `Error: could not probe audio file: ${err instanceof Error ? err.message : String(err)}` }] };
+        return { isError: true, content: [{ type: "text", text: `Error getting audio metadata: ${String(err)}` }] };
       }
     },
   );

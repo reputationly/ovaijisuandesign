@@ -183,9 +183,9 @@ export async function voiceIdValidationError(gw: GatewayClient, voiceIds: string
       .slice(0, 5);
     const hint =
       suggestions.length > 0
-        ? `\nClosest catalog matches: ${suggestions.map((v) => `${v.voice_id} (${v.name}, ${v.language})`).join(", ")}`
-        : "\nUse hub_voice_prepare (action=search_catalog) to look up valid voices.";
-    return `Error: the voice catalog has no voice_id "${vid}".${hint}`;
+        ? `\nDid you mean: ${suggestions.map((v) => `${v.voice_id} (${v.name}, ${v.language})`).join(", ")}`
+        : "\nCall get_voice_id to find available voices.";
+    return `Error: voice_id "${vid}" not found in current voice catalog.${hint}`;
   }
   return null;
 }
