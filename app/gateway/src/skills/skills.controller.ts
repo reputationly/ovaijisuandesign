@@ -24,7 +24,8 @@ const SKILL_UPLOAD_OPTIONS = {
 };
 
 /**
- * 本地技能路由。技能市场、创作者计划（上传 / 投稿 / 审核）都要云端账号，不做，见 docs/parity-gaps.md。
+ * 本地技能路由。技能市场只读地展示自带技能；安装、创作者计划（上传 / 投稿 / 审核）都要云端账号，不做，
+ * 只回「没有」的空结果，见 docs/parity-gaps.md。
  */
 @Controller()
 export class SkillsController {
@@ -37,6 +38,51 @@ export class SkillsController {
   @Get("api/skills")
   listSkills() {
     return this.skills.listSkills();
+  }
+
+  /**
+   * 技能市场列表。市场就是自带技能（见 SkillsService.listMarketSkills）；插件市场没有，回空列表。
+   * `source=official-featured` 是首页 Skill 页签要的精选来源。
+   */
+  @Get("api/skills/market")
+  listMarketSkills(
+    @Query("tag") tag?: string,
+    @Query("page") page?: string,
+    @Query("page_size") pageSize?: string,
+    @Query("skill_type") skillType?: string,
+    @Query("source") source?: string,
+  ) {
+    if (skillType === "plugin") return { plugins: [], total: 0 };
+    return this.skills.listMarketSkills({ tag, source, page: toInt(page), pageSize: toInt(pageSize) });
+  }
+
+  @Get("api/skills/market/search")
+  searchMarketSkills(@Query("query") query?: string, @Query("page") page?: string, @Query("page_size") pageSize?: string, @Query("skill_type") skillType?: string) {
+    if (skillType === "plugin") return { plugins: [], total: 0 };
+    return this.skills.listMarketSkills({ query: query ?? "", page: toInt(page), pageSize: toInt(pageSize) });
+  }
+
+  @Get("api/skills/market/categories")
+  listMarketCategories(@Query("tag_type") tagType?: string) {
+    return this.skills.listMarketCategories(tagType);
+  }
+
+  /** 市场同步状态：没有云端市场，永远是「没在同步、从没同步过」。 */
+  @Get("api/skills/market/sync-status")
+  marketSyncStatus() {
+    return { syncing: false, progress: null, lastSyncAt: null, lastSyncResult: null };
+  }
+
+  /** 运营 / 审核身份要云端账号，本地用户一律不是。 */
+  @Get("api/skills/market/check-operator")
+  checkOperator() {
+    return { is_operator: false, role: "none" };
+  }
+
+  /** 创作者计划的投稿记录在云端，本地没有投稿。 */
+  @Get("api/skills/creator-plan/submissions")
+  creatorPlanSubmissions() {
+    return { submissions: [] };
   }
 
   @Get("api/skills/runtime")
@@ -128,4 +174,9 @@ export class SkillsController {
     if (!isValidSkillName(body.name)) throw new BadRequestException("Invalid skill name");
     return this.imports.confirmStagingInstall(body.stagingPath, body.name);
   }
+}
+
+function toInt(v: string | undefined): number | undefined {
+  const n = v === undefined ? Number.NaN : Number.parseInt(v, 10);
+  return Number.isFinite(n) ? n : undefined;
 }

@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 119 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 151 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -18,7 +18,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /__hub-sdk__.js
 ```
 
-## AssetCenterController（0/31）
+## AssetCenterController（3/31）
 
 ```
   GET    /api/asset-center/attachments/:aid
@@ -28,7 +28,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/asset-center/blobs
   GET    /api/asset-center/blobs/playback
   GET    /api/asset-center/blobs/preview
-  GET    /api/asset-center/entities
+✓ GET    /api/asset-center/entities
   POST   /api/asset-center/entities
   GET    /api/asset-center/entities-export
   POST   /api/asset-center/entities-from-paths
@@ -43,7 +43,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/asset-center/entities/:eid/materialize
   POST   /api/asset-center/import
   POST   /api/asset-center/internal/reset
-  GET    /api/asset-center/library-status
+✓ GET    /api/asset-center/library-status
   GET    /api/asset-center/lookup-attachment
   POST   /api/asset-center/migrate
   GET    /api/asset-center/search
@@ -51,7 +51,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/asset-center/suggestions
   POST   /api/asset-center/suggestions/:sid/approve
   POST   /api/asset-center/suggestions/:sid/reject
-  GET    /api/asset-center/workspace-refs
+✓ GET    /api/asset-center/workspace-refs
 ```
 
 ## AssetPreviewController（1/3）
@@ -62,7 +62,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/internal/document/read
 ```
 
-## FilesController（19/57）
+## FilesController（31/57）
 
 ```
   GET    /api/asset/peaks
@@ -73,22 +73,22 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/assets/:id/merge-candidate
 ✓ PATCH  /api/assets/:id/metadata
 ✓ POST   /api/assets/:id/remove-missing
-  PATCH  /api/assets/:id/tags
+✓ PATCH  /api/assets/:id/tags
 ✓ GET    /api/assets/changes
 ✓ POST   /api/assets/reconcile
-  PATCH  /api/assets/tags/batch
-  PATCH  /api/assets/tags/mutations/batch
+✓ PATCH  /api/assets/tags/batch
+✓ PATCH  /api/assets/tags/mutations/batch
 ✓ GET    /api/assets/{*folder}
 ✓ GET    /api/canvas
 ✓ POST   /api/canvas
   POST   /api/canvas/add-node
   POST   /api/canvas/recovery-result
-  GET    /api/canvas/tag-registry
-  POST   /api/canvas/tags
-  DELETE /api/canvas/tags/:id
-  PATCH  /api/canvas/tags/:id
-  GET    /api/canvas/tags/:id/impact
-  PUT    /api/canvas/tags/order
+✓ GET    /api/canvas/tag-registry
+✓ POST   /api/canvas/tags
+✓ DELETE /api/canvas/tags/:id
+✓ PATCH  /api/canvas/tags/:id
+✓ GET    /api/canvas/tags/:id/impact
+✓ PUT    /api/canvas/tags/order
   GET    /api/files
   POST   /api/files/adopt
   POST   /api/files/anchor-project-asset
@@ -108,12 +108,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/files/project-asset-mention-search
   POST   /api/files/project-asset-propagate
   POST   /api/files/rename
-  GET    /api/files/scan-media
+✓ GET    /api/files/scan-media
 ✓ POST   /api/files/text-asset
   POST   /api/files/track
   POST   /api/files/upload-cdn
-  GET    /api/files/workspace-summary
-  GET    /api/local-file
+✓ GET    /api/files/workspace-summary
+✓ GET    /api/local-file
 ✓ GET    /api/thumbnail/{*filepath}
 ✓ POST   /api/upload
   POST   /api/upload/commit
@@ -216,18 +216,18 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/lane/config
 ```
 
-## ComfyUiWorkflowController（0/23）
+## ComfyUiWorkflowController（2/23）
 
 ```
   POST   /api/comfyui/commands/:requestId/ack
   GET    /api/comfyui/compiler/status
-  GET    /api/comfyui/featured-workflows
+✓ GET    /api/comfyui/featured-workflows
   POST   /api/comfyui/inputs/import
   GET    /api/comfyui/launch-args
   PUT    /api/comfyui/launch-args
   GET    /api/comfyui/node-workflows/:sourceNodeId
   POST   /api/comfyui/runs
-  GET    /api/comfyui/workflows
+✓ GET    /api/comfyui/workflows
   DELETE /api/comfyui/workflows/:workflowId
   GET    /api/comfyui/workflows/:workflowId
   PATCH  /api/comfyui/workflows/:workflowId/agent-access
@@ -533,10 +533,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   PATCH  /api/plan/stage-work-items
 ```
 
-## PluginsController（0/6）
+## PluginsController（1/6）
 
 ```
-  GET    /api/plugins
+✓ GET    /api/plugins
   GET    /api/plugins/:id/data/{*path}
   PUT    /api/plugins/:id/data/{*path}
   POST   /api/plugins/:id/instantiate
@@ -641,25 +641,25 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/skills/upload-check
 ```
 
-## SkillMarketController（4/39）
+## SkillMarketController（10/39）
 
 ```
   POST   /api/skills/creator-plan/asset-presign
   POST   /api/skills/creator-plan/asset-upload
   POST   /api/skills/creator-plan/cover-upload
   POST   /api/skills/creator-plan/offline
-  GET    /api/skills/creator-plan/submissions
+✓ GET    /api/skills/creator-plan/submissions
   POST   /api/skills/creator-plan/submit
 ✓ POST   /api/skills/fork
 ✓ POST   /api/skills/import
 ✓ POST   /api/skills/import/confirm-staging
-  GET    /api/skills/market
+✓ GET    /api/skills/market
   DELETE /api/skills/market/:name/preview
   POST   /api/skills/market/:name/preview
   GET    /api/skills/market/:name/preview-file
-  GET    /api/skills/market/categories
+✓ GET    /api/skills/market/categories
   POST   /api/skills/market/categories
-  GET    /api/skills/market/check-operator
+✓ GET    /api/skills/market/check-operator
   GET    /api/skills/market/detail
   POST   /api/skills/market/install
   GET    /api/skills/market/operation
@@ -674,9 +674,9 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/skills/market/operator/submissions/:submissionId/package-upload
   POST   /api/skills/market/operator/submissions/batch-approve
   PATCH  /api/skills/market/preference
-  GET    /api/skills/market/search
+✓ GET    /api/skills/market/search
   POST   /api/skills/market/sync
-  GET    /api/skills/market/sync-status
+✓ GET    /api/skills/market/sync-status
   GET    /api/skills/market/trending
   DELETE /api/skills/market/uninstall
   GET    /api/skills/market/whitelist
@@ -705,27 +705,27 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/v1/account/profile
 ```
 
-## ApolloConfigController（0/1）
+## ApolloConfigController（1/1）
 
 ```
-  GET    /api/v1/apollo/config
+✓ GET    /api/v1/apollo/config
 ```
 
-## BillingController（0/6）
+## BillingController（3/6）
 
 ```
   GET    /api/v1/billing/pricing
-  GET    /api/v1/billing/promotion
+✓ GET    /api/v1/billing/promotion
   POST   /api/v1/billing/session-cost
   GET    /api/v1/billing/transactions
-  POST   /api/v1/promotions/hailuo03-video-trial/claim
-  GET    /api/v1/promotions/hailuo03-video-trial/status
+✓ POST   /api/v1/promotions/hailuo03-video-trial/claim
+✓ GET    /api/v1/promotions/hailuo03-video-trial/status
 ```
 
-## ClientConfigController（0/1）
+## ClientConfigController（1/1）
 
 ```
-  GET    /api/v1/client_config
+✓ GET    /api/v1/client_config
 ```
 
 ## CloudFolderController（0/10）
@@ -751,22 +751,22 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/v1/credit/wallet
 ```
 
-## HomeQuickStartConfigController（0/1）
+## HomeQuickStartConfigController（1/1）
 
 ```
-  GET    /api/v1/home/quick_start_config
+✓ GET    /api/v1/home/quick_start_config
 ```
 
-## HubClientConfigController（0/1）
+## HubClientConfigController（1/1）
 
 ```
-  GET    /api/v1/hub/client_config
+✓ GET    /api/v1/hub/client_config
 ```
 
-## PopupController（0/1）
+## PopupController（1/1）
 
 ```
-  GET    /api/v1/popup
+✓ GET    /api/v1/popup
 ```
 
 ## CloudProjectController（0/9）

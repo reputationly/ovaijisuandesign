@@ -137,7 +137,8 @@ describe("本地技能路由", () => {
       version: "1.2.3",
       "display-name-zh": "阿尔法",
       "summary-cn": "中文简介",
-      "complete-tags-en": ["Ads", "Video"],
+      "complete-tags-en": ["Ads", "Video / Editing"],
+      source: "official-featured",
     });
     const alpha = path.join(installed, "alpha");
     mkdirSync(path.join(alpha, "references"));
@@ -450,6 +451,75 @@ describe("本地技能路由", () => {
       expect(r.body).toEqual({ ok: false, errorType: "invalid_staging_path", error: "Invalid staging path" });
       r = await http.post("/api/skills/import/confirm-staging").send({ name: "x", stagingPath: path.join(skillStagingRoot(), "gone") });
       expect(r.body).toEqual({ ok: false, errorType: "staging_not_found", error: "Staging directory not found. Please re-upload the file." });
+    });
+  });
+
+  describe("技能市场（自带技能）", () => {
+    // 渲染层的公共参数一并带上：它们必须被忽略，而不是当成筛选条件或让请求 400。
+    const COMMON = "device_platform=desktop&app_id=3001&version_code=3.0.16&unix=1";
+
+    it("只列已装目录里的自带技能（不含用户技能和子代理技能）；来源按 meta 的 source 分精选 / 用户 / 其他", async () => {
+      let r = await http.get(`/api/skills/market?page=1&page_size=20&${COMMON}`);
+      expect(r.status).toBe(200);
+      expect(r.body.total).toBe(2);
+      expect(r.body.skills.map((s: any) => s.name).sort()).toEqual(["alpha", "beta-one"]);
+      r = await http.get(`/api/skills/market?page=1&page_size=20&source=official-featured&${COMMON}`);
+      expect(r.body).toMatchObject({ total: 1, skills: [{ name: "alpha", source: "official-featured" }] });
+      r = await http.get("/api/skills/market?source=community");
+      expect(r.body).toMatchObject({ total: 1, skills: [{ name: "beta-one" }] });
+      // 「其他」是 meta 里写 official 的，这里没有。
+      r = await http.get("/api/skills/market?source=official");
+      expect(r.body).toEqual({ skills: [], total: 0 });
+    });
+
+    it("条目字段齐全、一律已装；没写分类代码时从标签的一级分类推出来", async () => {
+      const r = await http.get("/api/skills/market?source=official-featured");
+      const alpha = byName(r.body.skills, "alpha");
+      expect(alpha).toMatchObject({
+        name: "alpha",
+        version: "1.2.3",
+        displayNameZh: "阿尔法",
+        summaryZh: "中文简介",
+        description: "第一个",
+        tags: ["video", "ad"],
+        tagEn: "Ads",
+        completeTagsEn: ["Ads", "Video / Editing"],
+        categoryCodes: ["Ads", "Video"],
+        installed: true,
+        updateAvailable: false,
+        installedVersion: "1.2.3",
+        guidePrompt: "为我解释一下这个技能的最佳使用方式。",
+      });
+    });
+
+    it("按标签筛、分页、搜索；插件市场是空的", async () => {
+      let r = await http.get("/api/skills/market?tag=Video");
+      expect(r.body.skills.map((s: any) => s.name)).toEqual(["alpha"]);
+      r = await http.get("/api/skills/market?page=2&page_size=1");
+      expect(r.body.total).toBe(2);
+      expect(r.body.skills).toHaveLength(1);
+      r = await http.get("/api/skills/market/search?query=阿尔法&page=1&page_size=20");
+      expect(r.body).toMatchObject({ total: 1, skills: [{ name: "alpha" }] });
+      r = await http.get("/api/skills/market?skill_type=plugin");
+      expect(r.body).toEqual({ plugins: [], total: 0 });
+    });
+
+    it("分类从标签归纳；同步状态、运营身份、投稿记录回空结果", async () => {
+      let r = await http.get(`/api/skills/market/categories?tag_type=all&${COMMON}`);
+      expect(r.body.categories.map((c: any) => [c.tag_type, c.category])).toEqual([
+        ["category", "Ads"],
+        ["category", "Video"],
+        ["stage", "Editing"],
+      ]);
+      r = await http.get("/api/skills/market/categories");
+      expect(r.body.categories.map((c: any) => c.category)).toEqual(["Ads", "Video"]);
+      expect(r.body.categories[0]).toMatchObject({ en_name: "Ads", cn_name: "Ads", enabled: true, sort_order: 0 });
+      r = await http.get("/api/skills/market/sync-status");
+      expect(r.body).toEqual({ syncing: false, progress: null, lastSyncAt: null, lastSyncResult: null });
+      r = await http.get("/api/skills/market/check-operator");
+      expect(r.body).toEqual({ is_operator: false, role: "none" });
+      r = await http.get("/api/skills/creator-plan/submissions");
+      expect(r.body).toEqual({ submissions: [] });
     });
   });
 });

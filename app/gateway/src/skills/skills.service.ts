@@ -18,7 +18,8 @@ import {
   type SkillMeta,
   type SkillSource,
 } from "./skill-meta.js";
-import { allSkillsDirs, allSubAgentSkillsDirs, baseConfigPath, runtimeSkillsCachePath, userPermissionsFile, userSkillsDir } from "./skill-paths.js";
+import { buildMarketCategories, buildMarketList, type MarketListQuery, type MarketSkillInfo, toMarketSkillInfo } from "./skill-market.js";
+import { allSkillsDirs, allSubAgentSkillsDirs, baseConfigPath, installedSkillsDir, runtimeSkillsCachePath, userPermissionsFile, userSkillsDir } from "./skill-paths.js";
 
 type Permissions = Record<string, string>;
 interface RuntimeSkill {
@@ -148,6 +149,30 @@ export class SkillsService {
       this.logger.warn(`Failed to fetch runtime skills: ${errorMessage(err)}`);
       return this.listRuntimeSkillFallback(errorMessage(err));
     }
+  }
+
+  /**
+   * 技能市场列表 / 搜索。没有云端市场：「市场」就是随应用自带、由主进程铺到已装目录的那批技能，
+   * 首页 Skill 页签（精选来源）和技能页的市场都从这里取。它们本来就装好了，所以一律 installed。
+   */
+  async listMarketSkills(q: MarketListQuery) {
+    return buildMarketList(await this.scanBundledSkills(), q);
+  }
+
+  /** 市场分类：从自带技能的标签归纳（见 buildMarketCategories）。 */
+  async listMarketCategories(tagType?: string) {
+    return buildMarketCategories(await this.scanBundledSkills(), tagType);
+  }
+
+  private async scanBundledSkills(): Promise<MarketSkillInfo[]> {
+    const entries = await mapSkillDirs([installedSkillsDir()], (c) => this.readSkillEntry(c));
+    const seen = new Set<string>();
+    return entries.flatMap((e) => {
+      const name = e.meta.name ?? e.entryName;
+      if (seen.has(name)) return [];
+      seen.add(name);
+      return [toMarketSkillInfo(name, e.meta)];
+    });
   }
 
   async toggleSkill(name: string, enabled: boolean) {
