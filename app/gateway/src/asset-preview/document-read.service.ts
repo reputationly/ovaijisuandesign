@@ -71,7 +71,7 @@ export class DocumentReadService {
 }
 
 /** 解析库按需加载：pdf.js 很大，启动时不该为一个很少用到的接口付这个代价。 */
-async function extractText(abs: string, ext: string): Promise<string> {
+export async function extractText(abs: string, ext: string): Promise<string> {
   if (ext === ".pdf") {
     const { PDFParse } = await import("pdf-parse");
     const parser = new PDFParse({ data: await readFile(abs) });
