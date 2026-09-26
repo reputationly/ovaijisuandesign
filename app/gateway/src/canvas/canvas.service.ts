@@ -1160,6 +1160,79 @@ export class CanvasService {
     });
   }
 
+  /**
+   * 用户自己把一个已登记的资产放上画布（右键"添加到画布"、从资源面板拖、粘贴、裁剪出的新图）。
+   *
+   * `replaceNodeId` 指向的节点还在就**原地填**：id、位置不动，只广播 `updatedNodes`，渲染层不卸载
+   * 重挂；不在了就当新节点加。`sourceNodeId` 连一条来源 → 新节点的派生边，`targetNodeId`
+   * 连一条新节点 → 目标的边（例如给视频节点挂参考图）。广播带 `origin:"user-add"`：
+   * 用户自己放的东西不该弹"新节点已生成"的提示，哪怕资产元数据里还留着上次生成的 model。
+   */
+  async addNodeByAsset(
+    row: AssetRow,
+    dto: { position?: Point; sourceNodeId?: string; replaceNodeId?: string; targetNodeId?: string },
+  ): Promise<string> {
+    const info = toAssetInfo(row);
+    const m = this.metadataOf(row);
+    const data: Record<string, unknown> = { name: info.name, path: info.path };
+    if (m.prompt) data.prompt = m.prompt;
+    if (m.description) data.description = m.description;
+    if (m.model) data.model = m.model;
+    if (m.voice_id) data.voiceId = m.voice_id;
+    for (const [from, to] of [
+      ["reference_images", "referenceImageIds"],
+      ["reference_audios", "referenceAudioIds"],
+      ["reference_videos", "referenceVideoIds"],
+    ] as const) {
+      if (Array.isArray(m[from]) && m[from].length) data[to] = m[from];
+    }
+    if (info.width != null) data.width = info.width;
+    if (info.height != null) data.height = info.height;
+    if (info.duration != null) data.duration = info.duration;
+    const size = computeNodeSize(info.width, info.height) ?? defaultNodeSize(info.type);
+    return this.mutate((c) => {
+      const target = dto.replaceNodeId ? c.nodes.find((n) => n.id === dto.replaceNodeId) : undefined;
+      if (target) {
+        const { isEmpty: _dropped, ...rest } = target as CanvasNode & { isEmpty?: unknown };
+        const node: CanvasNode = { ...rest, type: info.type, assetId: row.id, size, data };
+        c.nodes[c.nodes.indexOf(target)] = node;
+        this.pendingNodes.add(node.id);
+        return { canvas: c, result: node.id, event: { updatedNodes: [node], origin: "user-add" } };
+      }
+      if (dto.replaceNodeId) this.log.warn(`add-node 要填的节点 ${dto.replaceNodeId} 已经不在了，改为新加一个`);
+      const sources = dto.sourceNodeId ? [dto.sourceNodeId] : [];
+      const { node, edges } = this.addAssetNode(c, row, { position: dto.position, sourceNodeIds: sources, extraData: data, size });
+      if (dto.targetNodeId && c.nodes.some((n) => n.id === dto.targetNodeId)) {
+        edges.push(...this.addDerivationEdges(c, [node.id], dto.targetNodeId));
+      }
+      return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges, origin: "user-add" } };
+    });
+  }
+
+  /**
+   * 文件改了名：引用这个资产的节点上的名字和路径跟着改，画布标签才不会停在旧名字上。
+   * 尽力而为 —— 文件和资产库已经改好了，这里失败只是标签晚一点更新，不能让改名本身失败。
+   */
+  async renameAssetNodes(assetId: string, newName: string, newPath: string): Promise<void> {
+    try {
+      await this.mutate((c) => {
+        const updated: CanvasNode[] = [];
+        for (const n of c.nodes) {
+          if (n.assetId !== assetId) continue;
+          const data = { ...(n.data ?? {}) } as Record<string, unknown>;
+          if (data.name === newName && data.path === newPath) continue;
+          data.name = newName;
+          data.path = newPath;
+          n.data = data;
+          updated.push(n);
+        }
+        return updated.length ? { canvas: c, result: undefined, event: { updatedNodes: updated } } : { result: undefined };
+      });
+    } catch (err) {
+      this.log.warn(`改名后更新画布节点失败 asset=${assetId}: ${(err as Error).message}`);
+    }
+  }
+
   // -------------------------------------------------------------------------
   // 表格节点
   // -------------------------------------------------------------------------

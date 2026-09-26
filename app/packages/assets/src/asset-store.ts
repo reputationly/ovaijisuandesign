@@ -267,6 +267,35 @@ export class AssetStore {
     return this.byId(id)!;
   }
 
+  /**
+   * 文件或文件夹在盘上整体挪了位置（改名 / 移动），库里跟着改路径，**id 不变**。
+   * `oldRel` 是文件时只动那一行；是文件夹时它下面所有行的前缀一起换。返回改过的行和各自的原路径。
+   *
+   * 只改路径和由路径推出来的列（名字、mime），不重读文件：rename 不改内容，也不改 inode。
+   * 新路径上已经有别的记录时（外部工具抢先登记了）那条并掉 —— 同一个文件只留一个 id，留老的。
+   */
+  relocate(oldRel: string, newRel: string): { row: AssetRow; oldPath: string }[] {
+    const from = normRel(oldRel);
+    const to = normRel(newRel);
+    if (!from || !to || from === to) return [];
+    const like = `${from.replace(/([\\%_])/g, "\\$1")}/%`;
+    const hits = this.db.prepare("SELECT * FROM assets WHERE path = ? OR path LIKE ? ESCAPE '\\'").all(from, like) as AssetRow[];
+    if (hits.length === 0) return [];
+    const t = this.now();
+    const out: { row: AssetRow; oldPath: string }[] = [];
+    this.db.transaction(() => {
+      for (const r of hits) {
+        const next = to + r.path.slice(from.length);
+        this.db.prepare("DELETE FROM assets WHERE path = ? AND id <> ?").run(next, r.id);
+        this.db
+          .prepare("UPDATE assets SET path = ?, name = ?, mime_type = ?, updated_at = ? WHERE id = ?")
+          .run(next, path.basename(next), mimeFromPath(next), t, r.id);
+      }
+    })();
+    for (const r of hits) out.push({ row: this.byId(r.id)!, oldPath: r.path });
+    return out;
+  }
+
   markMissing(id: string): void {
     this.db.prepare("UPDATE assets SET status = 'missing', updated_at = ? WHERE id = ?").run(this.now(), id);
   }
@@ -381,6 +410,11 @@ export class AssetStore {
     this.log("info", `已导入旧资产索引 ${rows.length} 条`);
     return true;
   }
+}
+
+/** 相对路径归一成库里存的形式：`/` 分隔、去掉空段和 `.`。 */
+function normRel(rel: string): string {
+  return rel.split(/[\\/]+/).filter((p) => p && p !== ".").join("/");
 }
 
 interface LegacyAsset {

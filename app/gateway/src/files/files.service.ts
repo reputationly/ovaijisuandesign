@@ -9,6 +9,7 @@ import { type AssetInfo, detectFileType, MEDIA_EXTENSIONS } from "@ov/protocol";
 import { AssetChangeLog } from "../common/asset-change-log.js";
 import { AssetsService } from "../common/assets.service.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
+import { MutationQueue } from "../operations/mutation-queue.js";
 import { type UndoOp, TrashBufferService } from "../operations/trash-buffer.service.js";
 import { deriveImportTarget, sanitizeFileName, uploadFileName, writeFileExclusive, writeUniqueSpaced } from "./file-names.js";
 import { assertPublicUrl, SsrfError } from "./ssrf.js";
@@ -19,9 +20,6 @@ const HILO_ALLOWED = [/^\.hilo\/tables\/[A-Za-z0-9_-]+\.htable$/, /^\.hilo\/text
 /** 下载超时按类型分：视频大、图片小。 */
 const IMPORT_TIMEOUT_MS: Record<string, number> = { video: 120_000, audio: 60_000, image: 30_000 };
 
-/** 单个删除任务的上限。卡住的话后面排队的删除全堵着，不如失败让用户重试。 */
-const MUTATION_TIMEOUT_MS = 5500;
-
 export interface UploadedFileLike {
   originalname: string;
   buffer: Buffer;
@@ -29,13 +27,12 @@ export interface UploadedFileLike {
 
 @Injectable()
 export class FilesService {
-  private queue: Promise<unknown> = Promise.resolve();
-
   constructor(
     private readonly paths: WorkspacePathService,
     private readonly assets: AssetsService,
     private readonly changes: AssetChangeLog,
     private readonly trash: TrashBufferService,
+    private readonly queue: MutationQueue,
   ) {}
 
   /** 相对路径 → 绝对路径，越界统一 400（不回显路径，免得把探测结果反馈给调用方）。 */
@@ -275,9 +272,9 @@ export class FilesService {
   // 删除
   // -------------------------------------------------------------------------
 
-  /** 批量删除进一个串行队列：两个删除请求交错执行会让撤销栈里的操作顺序对不上。 */
+  /** 批量删除进工作区改动的串行队列：和改名、移动交错执行会让撤销栈里的操作顺序对不上。 */
   deletePaths(paths: string[]) {
-    const task = async () => {
+    return this.queue.enqueue(async () => {
       const ops: UndoOp[] = [];
       for (const rel of paths) {
         const op = await this.trash.bufferDelete(rel);
@@ -286,10 +283,7 @@ export class FilesService {
       if (ops.length === 1) this.trash.push(ops[0]!);
       else if (ops.length > 1) this.trash.push({ type: "batch", ops });
       return { ok: true };
-    };
-    const run = this.queue.then(task, task);
-    this.queue = run.catch(() => undefined);
-    return withTimeout(run, MUTATION_TIMEOUT_MS, "删除超时");
+    }, "删除超时");
   }
 }
 
@@ -311,14 +305,4 @@ async function exists(p: string): Promise<boolean> {
 function stamp(d: Date): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
-}
-
-function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(msg)), ms);
-    p.then(
-      (v) => (clearTimeout(t), resolve(v)),
-      (e) => (clearTimeout(t), reject(e)),
-    );
-  });
 }

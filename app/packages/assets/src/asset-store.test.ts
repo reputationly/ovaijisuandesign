@@ -227,4 +227,23 @@ describe("文件模块用到的操作", () => {
     expect(s.purgeSoftDeleted(1000)).toBe(1);
     expect(s.byId(a.id)).toBeUndefined();
   });
+
+  it("relocate：文件改名只动一行，文件夹整体换前缀，id 都不变", async () => {
+    const d = ws();
+    writeFileSync(path.join(d, "images/ab.png"), PNG);
+    writeFileSync(path.join(d, "images_x.png"), PNG);
+    const s = open(d);
+    const a = await s.enroll("images/a.png");
+    const ab = await s.enroll("images/ab.png");
+    const other = await s.enroll("images_x.png");
+    const one = s.relocate("images/a.png", "images/b.png");
+    expect(one.map((m) => [m.oldPath, m.row.path, m.row.id])).toEqual([["images/a.png", "images/b.png", a.id]]);
+    expect(s.byId(a.id)?.name).toBe("b.png");
+    const dir = s.relocate("images", "pics/imgs");
+    expect(dir.map((m) => m.row.path).sort()).toEqual(["pics/imgs/ab.png", "pics/imgs/b.png"]);
+    expect(s.byId(ab.id)?.path).toBe("pics/imgs/ab.png");
+    // 前缀要按目录边界匹配：`images_x.png` 不属于 `images/`。
+    expect(s.byId(other.id)?.path).toBe("images_x.png");
+    expect(s.relocate("nope", "x")).toEqual([]);
+  });
 });

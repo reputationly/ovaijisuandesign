@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Headers, HttpCode, HttpException, HttpStatus, Post, Query } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Headers, HttpCode, HttpException, HttpStatus, Logger, NotFoundException, Post, Query } from "@nestjs/common";
 import type { CanvasFile } from "@ov/protocol";
 
 import { CanvasDestructiveSaveRejectedError, CanvasInvalidSaveRejectedError, type DeletionIntent } from "./canvas-persistence.js";
+import { AssetsService } from "../common/assets.service.js";
 import { CanvasService } from "./canvas.service.js";
 import {
+  AddCanvasNodeDto,
   ApplyTextEditsDto,
   FileNodeDto,
   FocusDto,
@@ -82,7 +84,12 @@ function parseSaveRequest(body: Record<string, unknown>): { canvas: CanvasFile; 
 
 @Controller("api/canvas")
 export class CanvasController {
-  constructor(private readonly canvas: CanvasService) {}
+  private readonly log = new Logger("Canvas");
+
+  constructor(
+    private readonly canvas: CanvasService,
+    private readonly assets: AssetsService,
+  ) {}
 
   @Get()
   get() {
@@ -94,6 +101,29 @@ export class CanvasController {
   save(@Body() body: Record<string, unknown>) {
     const { canvas, deletionIntent } = parseSaveRequest(body);
     return guarded(() => this.canvas.replaceCanvas(canvas, deletionIntent), "renderer");
+  }
+
+  /** 用户把已登记的资产放上画布。资产不存在 404（渲染层先上传、拿到 id 再调这里）。 */
+  @Post("add-node")
+  async addNode(@Body() b: AddCanvasNodeDto) {
+    const row = this.assets.byId(b.assetId);
+    if (!row) throw new NotFoundException(`Asset not found: ${b.assetId}`);
+    const nodeId = await guarded(() => this.canvas.addNodeByAsset(row, b), "gateway");
+    return { ok: true, nodeId };
+  }
+
+  /**
+   * 渲染层从"上次完好的画布"恢复之后报一下结果。只记日志、不改任何东西；
+   * 不走 DTO 白名单：这是诊断上报，多带几个字段不该变成 400 把上报本身弄丢。
+   */
+  @Post("recovery-result")
+  recoveryResult(@Body() body: Record<string, unknown>) {
+    if (body.result !== "restored" && body.result !== "failed") throw new BadRequestException("Invalid canvas recovery result");
+    const n = (v: unknown) => Math.max(0, Math.round(Number(v) || 0));
+    const line = `画布恢复 ${body.result} 用时=${n(body.durationMs)}ms 保留节点=${n(body.preservedCandidateNodeCount)} 保留边=${n(body.preservedCandidateEdgeCount)}`;
+    if (body.result === "failed") this.log.error(line);
+    else this.log.log(line);
+    return { ok: true };
   }
 
   @Get("nodes")

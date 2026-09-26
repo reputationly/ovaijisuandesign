@@ -233,3 +233,17 @@ export class NodesGroupDto {
   @IsOptional() @IsString() label?: string;
   @IsOptional() @IsIn(["grid", "vertical"]) layout?: "grid" | "vertical";
 }
+
+/** 渲染层按鼠标位置算出来的坐标，常带小数，所以不用 `PositionDto` 的整数校验。 */
+export class NodePositionDto {
+  @IsNumber() x!: number;
+  @IsNumber() y!: number;
+}
+
+export class AddCanvasNodeDto {
+  @IsString() @IsNotEmpty() assetId!: string;
+  @IsOptional() @ValidateNested() @Type(() => NodePositionDto) position?: NodePositionDto;
+  @IsOptional() @IsString() sourceNodeId?: string;
+  @IsOptional() @IsString() replaceNodeId?: string;
+  @IsOptional() @IsString() targetNodeId?: string;
+}
