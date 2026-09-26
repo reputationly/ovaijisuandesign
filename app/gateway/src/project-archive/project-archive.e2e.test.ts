@@ -189,6 +189,8 @@ describe("工具调用块的清理", () => {
   });
 });
 
+/** 会话表里存的目录：真实路径；Windows 上反斜杠统一成正斜杠（和 opencode 自己存的一样）。 */
 function realDir(p: string): string {
-  return realpathSync.native(p);
+  const real = realpathSync.native(p);
+  return process.platform === "win32" ? real.replaceAll("\\", "/") : real;
 }

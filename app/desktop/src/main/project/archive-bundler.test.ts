@@ -203,6 +203,7 @@ describe("项目归档：导出 → 导入往返", () => {
     await expect(importProjectFromZip(path.join(out, "junk.zip"), { projectsRoot, gatewayUrl: url, opencodeDbPath: "", log: quiet })).rejects.toThrow(/incomplete or corrupted|central directory/);
   });
 
+  // 解压 4.4MB 的真示例包：CI 的 Windows 机器上超过默认的 5 秒。
   it.skipIf(!existsSync(SAMPLE))("示例项目包：导入成功，去重掉的两个文件补回来，没有会话", async () => {
     const r = await importProjectFromZip(SAMPLE, { projectsRoot, gatewayUrl: url, opencodeDbPath: "", log: quiet });
     expect(r).toMatchObject({ originalName: "查看项目使用指南-2-6", opencodeSessionCount: 0, expectedOpencodeSessionCount: 0, rematerializedAliasCount: 2 });
@@ -211,7 +212,7 @@ describe("项目归档：导出 → 导入往返", () => {
     expect(existsSync(path.join(r.targetDir, ".hilo", "canvas.json"))).toBe(true);
     expect(existsSync(path.join(r.targetDir, ".hilo", "index.sqlite"))).toBe(true);
     expect(gw.calls.some((c) => c.url === "/api/projects/archive/import")).toBe(false);
-  });
+  }, 60_000);
 
   it("排除规则", () => {
     for (const p of ["node_modules", "a/.git/x", ".hilo/.thumbnails/t.jpg", ".hilo/index.sqlite-wal", ".hilo/index.sqlite", "logs/x", ".hilo/.tmp/s.sqlite", "x/__pycache__/y.pyc"]) expect(isExcluded(p), p).toBe(true);
@@ -285,7 +286,7 @@ describe("projectArchive 频道", () => {
     await expect(svc.importBundledProject("nope")).rejects.toThrow(/Unknown bundled project template/);
     await expect(service({ templateDirs: () => [root] }).importBundledProject("h3-playground")).rejects.toThrow(/missing: h3-playground/);
     await expect(service({ appGatewayUrl: () => undefined }).importBundledProject("sample-project")).rejects.toThrow(/not ready/);
-  });
+  }, 60_000);
 
   it("导入：打开框取消回 cancelled；远程模板地址一律拒绝", async () => {
     expect(await service().importProject()).toEqual({ cancelled: true });

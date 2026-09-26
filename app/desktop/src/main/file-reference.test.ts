@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -11,7 +11,8 @@ let allowed: string;
 let outside: string;
 
 beforeEach(() => {
-  root = mkdtempSync(path.join(tmpdir(), "fileref-"));
+  // 取真实路径：Windows 的 tmpdir() 可能是 8.3 短名（RUNNER~1），和解析出来的长名比不上。
+  root = realpathSync(mkdtempSync(path.join(tmpdir(), "fileref-")));
   allowed = path.join(root, "allowed");
   outside = path.join(root, "outside");
   mkdirSync(allowed);
@@ -28,7 +29,8 @@ function host(over: Partial<FileReferenceHost> = {}): FileReferenceHost & { trus
   return {
     trusted,
     shown,
-    platform: "darwin",
+    // 用本机平台：路径都是按本机临时目录拼的，写死 darwin 在 Windows 上会把 C:\ 路径当成"别的平台"拦掉。
+    platform: process.platform,
     getStaticAllowedDirs: () => [allowed],
     getTrustedDirs: () => trusted,
     trustDirectory: (d) => void trusted.push(d),
