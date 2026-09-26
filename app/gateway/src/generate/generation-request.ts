@@ -1,5 +1,7 @@
 import { type Client, type MediaConfig, PlatformError, audio, image, route, video } from "@ov/maas-media";
 
+import { loadCoverFeature } from "../music/cover-features.js";
+
 export type MediaType = "image" | "video" | "speech" | "music";
 
 /**
@@ -212,7 +214,11 @@ async function runMusic(client: Client, cfg: MediaConfig, root: string, req: Gen
   const p = req.params ?? {};
   const lyrics = str(p.lyrics) ?? str(req.lyrics) ?? "";
   const model = str(req.model_id) ?? str(p.model_name);
-  const cover = str(p.audio) ?? str(p.reference_audio) ?? (req.audio_paths ?? []).find(nonEmpty);
+  // 两步翻唱：先 /api/music/cover/preprocess 拿 cover_feature_id，生成时凭它取回那段参考音频。
+  const featureId = str(p.cover_feature_id);
+  const featureAudio = featureId ? await loadCoverFeature(root, featureId) : undefined;
+  if (featureId && !featureAudio) throw PlatformError.config(`cover_feature_id 不认识或已失效：${featureId}，请重新预处理参考音频`);
+  const cover = str(p.audio) ?? str(p.reference_audio) ?? featureAudio ?? (req.audio_paths ?? []).find(nonEmpty);
   if (cover) {
     const [src] = await image.loadMediaInputs(root, [cover]);
     if (!src) throw PlatformError.config("翻唱缺少参考音频");

@@ -18,3 +18,10 @@ export class VoiceDesignDto {
   @IsString() @IsNotEmpty() @MaxLength(500) preview_text!: string;
   @IsString() @IsOptional() source_node_id?: string;
 }
+
+export class VoiceIsolationDto {
+  @IsString() @IsNotEmpty() audio_path!: string;
+  @IsString() @IsOptional() filename?: string;
+  @IsString() @IsOptional() language?: string;
+  @IsString() @IsOptional() source_node_id?: string;
+}

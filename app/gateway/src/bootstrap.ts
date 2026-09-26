@@ -44,6 +44,10 @@ export async function createApp(): Promise<INestApplication> {
   app.use("/api/files/content", json({ limit: "256mb" }));
   // 生成请求会带长提示词和一串参考路径 / 参数。
   app.use("/api/generate", json({ limit: "16mb" }));
+  // 画布编辑把整张图（含高亮 / 扩图画布）以 data URI 发过来，几 MB 很常见。
+  app.use("/api/edit", json({ limit: "64mb" }));
+  // 项目导入把整个会话库的导出一次发过来，长期项目能到上百 MB。
+  app.use("/api/projects/archive", json({ limit: "300mb" }));
   app.use(json());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
   return app;
