@@ -239,8 +239,8 @@ describe("聊天链路（假 opencode）", () => {
       expect(oc.prompts.length).toBe(n + 1);
       return oc.prompts.at(-1).body.model;
     };
-    expect(await send("rm1", "user-custom-maas/27b")).toEqual({ providerID: "user-custom-maas", modelID: "flash" });
-    expect(await send("rm2", "user-custom-maas/flash")).toEqual({ providerID: "user-custom-maas", modelID: "flash" });
+    expect(await send("rm1", "user-custom-maas/27b")).toEqual({ providerID: "maas", modelID: "flash" });
+    expect(await send("rm2", "maas/flash")).toEqual({ providerID: "maas", modelID: "flash" });
   });
 
 });

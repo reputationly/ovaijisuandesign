@@ -130,8 +130,8 @@ describe("config", () => {
       extraPlugins: ["/opt/ov/hilo.js"],
       skillsPaths: [],
     });
-    expect(cfg.model).toBe("user-custom-maas/qwen3");
-    expect(cfg.provider["user-custom-maas"].npm).toBe("@ai-sdk/openai-compatible");
+    expect(cfg.model).toBe("maas/qwen3");
+    expect(cfg.provider["maas"].npm).toBe("@ai-sdk/openai-compatible");
     expect(cfg.agent["media-agent"].model).toBeUndefined();
     expect(cfg.small_model).toBeUndefined();
     // 知识库在工作区外，不能是 ask。

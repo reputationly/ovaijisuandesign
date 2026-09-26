@@ -1,5 +1,7 @@
 import { type MediaConfig, params } from "@ov/maas-media";
 
+import { CHAT_PROVIDER_ID } from "../runtime/chat-models.js";
+
 /** 目录里的一个媒体模型。形状和模型选择器、`list_capabilities` 读的目录一致。 */
 export interface CatalogModel {
   id: string;
@@ -95,7 +97,7 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
   add(audio, m.music_edit, (id) => media(id, "audio", ["hub_generate_audio_music"], { ...SLOT_ALIAS.music_edit, max_refs: 0, max_audio_refs: 1, params: {}, promptLabel: "musicStyle" }));
 
   const chat = cfg.platform.chat_model.trim();
-  const textModels = chat ? [{ id: chat, name: chat, provider: "user-custom-maas" }] : [];
+  const textModels = chat ? [{ id: chat, name: chat, provider: CHAT_PROVIDER_ID }] : [];
   return { imageModels: image, videoModels: video, audioModels: audio, textModels, defaultTextModelId: textModels[0]?.id ?? "" };
 }
 

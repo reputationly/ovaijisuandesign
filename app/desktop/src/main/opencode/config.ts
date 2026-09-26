@@ -12,7 +12,9 @@ import { pathToFileURL } from "node:url";
 import { loadMergedConfig } from "./profile.js";
 
 /** 平台在 opencode 里的 provider id。**必须以 `user-custom-` 开头**，见模块说明。 */
-export const PROVIDER_ID = "user-custom-maas";
+// 不能用 `user-custom-*`：界面把这种 provider 一律当成用户自配的"自定义模型"，
+// 对话框的模型选择器里就不把它当平台模型列出来，也不当默认。
+export const PROVIDER_ID = "maas";
 
 /** 插件运行时依赖的版本，钉死和 opencode 同版本。 */
 export const PLUGIN_RUNTIME_VERSION = "1.18.18";

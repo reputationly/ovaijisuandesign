@@ -28,13 +28,14 @@ export class RuntimeController {
 
   /**
    * 对话模型目录（输入框的模型选择器）。只有一个 provider：配置里的自建平台。
-   * id 形如 `user-custom-maas/<模型>`，和 opencode 配置里的 provider id 一致。
+   * id 形如 `maas/<模型>`，和 opencode 配置里的 provider id 一致。
    */
   @Get("models")
   models() {
     const models = chatModelIds(this.cfg).map((id) => {
       const modelID = id.slice(CHAT_PROVIDER_ID.length + 1);
-      return { id, providerID: CHAT_PROVIDER_ID, modelID, name: modelID };
+      // 界面按 `provider` 校验每一行，少了整份目录作废；providerID / modelID 给 opencode 那边的调用方用。
+      return { id, name: modelID, provider: CHAT_PROVIDER_ID, providerID: CHAT_PROVIDER_ID, modelID };
     });
     return { models, default: models[0]?.id ?? null };
   }

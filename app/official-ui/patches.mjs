@@ -296,6 +296,29 @@ export const PATCHES = [
     find: '  { id: "comfyui", icon: Blocks, labelKey: "settings.comfyui.title" },\n',
     replace: "",
   },
+  // 自定义模型不做（2026-09-26 定）：设置里的"模型"分区（添加自定义提供商和模型）。
+  // 当前分区找不到时会退回第一项，从别处带着 "models" 打开设置也不会出错。
+  {
+    id: "scope.custom-models-settings",
+    file: MAIN,
+    find: '  { id: "models", icon: Bot, labelKey: "settings.models.title" },\n',
+    replace: "",
+  },
+  // 对话框模型选择器右上角的"自定义模型"按钮，点了就是跳到上面那个分区。
+  {
+    id: "scope.custom-models-picker",
+    file: MAIN,
+    find: "trailing: /* @__PURE__ */ jsxRuntimeExports.jsxs(\n                Button$1,\n                {\n                  type: \"button\",\n                  variant: \"ghost\",\n                  size: \"xs\",\n                  onClick: handleConfigureCustom,",
+    replace: "trailing: false && /* @__PURE__ */ jsxRuntimeExports.jsxs(\n                Button$1,\n                {\n                  type: \"button\",\n                  variant: \"ghost\",\n                  size: \"xs\",\n                  onClick: handleConfigureCustom,",
+  },
+  // 对话框模型选择器的 Agent 标签页只认一份写死的模型 id 白名单（参照自家的三个对话模型），
+  // 我们平台的对话模型永远被滤掉，标签页一直是"…"。gateway 本来只回当前可用的模型，照单全收。
+  {
+    id: "agent-models.no-whitelist",
+    file: MAIN,
+    find: "...normalizedModels.filter((model) => SELECTABLE_AGENT_MODEL_IDS.has(model.id)),",
+    replace: "...normalizedModels,",
+  },
   // 输入框占位符末尾的 "Design 使用指南 ↗ · H3 使用指南 ↗" 外链，指向参照产品的在线文档，不给链接。
   {
     id: "scope.creation-guide-links",
