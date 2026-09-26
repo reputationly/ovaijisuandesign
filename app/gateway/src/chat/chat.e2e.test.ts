@@ -185,6 +185,11 @@ describe("聊天链路（假 opencode）", () => {
     ws.send(JSON.stringify({ type: "question_reply", id: "que_1", session_id: ui, answers: [["1"]] }));
     await new Promise((r) => setTimeout(r, 100));
     expect(oc.replies).toEqual([{ id: "que_1", answers: [["1"]] }]);
+    // 界面按 request_id 把卡片标成已答（字段名错了卡片会一直"等待回答"）
+    expect(await waitFor((f) => f.type === "question_resolved" && f.request_id === "que_1")).toMatchObject({ session_id: ui, answers: [["1"]] });
+    frames.length = 0;
+    oc.push({ type: "question.rejected", properties: { requestID: "que_2", sessionID: rid } });
+    expect(await waitFor((f) => f.type === "question_resolved" && f.request_id === "que_2")).toMatchObject({ session_id: ui, rejected: true });
   });
 
   it("工具确认：自动模式直接放行；询问模式要等界面回复", async () => {

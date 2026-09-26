@@ -239,9 +239,14 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         this.sessions.delete(String(msg.session_id));
         return true;
       }
-      case "question_reply":
-        await this.runtime.replyQuestion(String(msg.id), (msg.answers as string[][]) ?? []);
+      case "question_reply": {
+        const answers = (msg.answers as string[][]) ?? [];
+        await this.runtime.replyQuestion(String(msg.id), answers);
+        // 回复成功就告诉界面这张卡已答完（带上答案）。界面按 request_id 找卡片，不发的话卡片一直停在
+        // "Agent 运行中…"、侧栏一直"等待回答"，要等 opencode 的 replied 事件才可能收尾。
+        this.broadcast({ type: "question_resolved", session_id: String(msg.session_id ?? ""), request_id: String(msg.id), answers });
         return true;
+      }
       case "question_reject":
         await this.runtime.rejectQuestion(String(msg.id));
         return true;
@@ -368,7 +373,15 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         return;
       case "question.replied":
       case "question.rejected":
-        this.broadcast(this.withSession(p.sessionID, { type: "question_resolved", id: p.requestID ?? p.id, rejected: e.type === "question.rejected" }));
+        // 界面按 request_id 对卡片；答案随 replied 带回去，被拒只带 rejected。
+        this.broadcast(
+          this.withSession(p.sessionID, {
+            type: "question_resolved",
+            request_id: p.requestID ?? p.id,
+            ...(e.type === "question.replied" && p.answers ? { answers: p.answers } : {}),
+            ...(e.type === "question.rejected" ? { rejected: true } : {}),
+          }),
+        );
         return;
       default:
     }
