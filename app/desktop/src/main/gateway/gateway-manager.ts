@@ -103,7 +103,9 @@ export class GatewayManager extends EventEmitter {
       HILO_GATEWAY_HOST: "127.0.0.1",
       HILO_GATEWAY_ROLE: this.spec.role,
       GATEWAY_NONCE: nonce,
-      ...(this.spec.workspaceDir ? { WORKSPACE_DIR: this.spec.workspaceDir, OUTPUT_DIR: this.spec.workspaceDir } : {}),
+      // OUTPUT_DIR 是应用级的输出暂存区（首页附件先落在那里，进工作区时再搬过去），调用方给了就用它；
+      // 没给才退回工作区本身。
+      ...(this.spec.workspaceDir ? { WORKSPACE_DIR: this.spec.workspaceDir, OUTPUT_DIR: this.spec.env?.OUTPUT_DIR ?? this.spec.workspaceDir } : {}),
     };
     const child = spawn(this.spec.exec ?? process.execPath, [this.spec.entry], {
       cwd: path.dirname(this.spec.entry),

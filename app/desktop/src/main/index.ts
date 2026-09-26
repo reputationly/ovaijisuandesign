@@ -196,7 +196,7 @@ async function boot(): Promise<Running> {
               role: "workspace",
               workspaceDir: dir,
               exec: nodeExec,
-              env: { OV_CONFIG_PATH: dirs.configPath, HUB_SKILLS_DIR: path.join(dirs.hubRoot, "skills"), HUB_USER_SKILLS_DIR: dirs.userSkillsDir, ...env },
+              env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, HUB_SKILLS_DIR: path.join(dirs.hubRoot, "skills"), HUB_USER_SKILLS_DIR: dirs.userSkillsDir, ...env },
             },
             log,
           ),
