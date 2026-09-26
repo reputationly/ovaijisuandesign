@@ -431,17 +431,6 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
         }
       },
     }),
-    projectArchive: stub("projectArchive",
-      {
-        // failureReason 要是渲染层认识的键，否则提示文案是空的
-        exportProject: () => ({ cancelled: false, failureReason: "unexpected" }),
-        cancelExport: () => false,
-        importProject: () => ({ cancelled: true }),
-        importProjectFromUrl: reject("project import"),
-        importBundledProject: reject("project templates"),
-      },
-      ["onProgress"],
-    ),
     comfyUiModelDownload: stub("comfyUiModelDownload",
       {
         getTasks: () => [],

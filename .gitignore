@@ -33,3 +33,6 @@ app/desktop/out/
 # Claude Code 的本地设置与 worktree
 .claude/settings.local.json
 .claude/worktrees/
+
+# 体积大的自带模板（75MB）放本地可用，但不进仓库
+assets/project-templates/h3-playground.zip

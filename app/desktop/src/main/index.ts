@@ -24,6 +24,7 @@ import { migrateLegacyWorkspace } from "./migration/legacy.js";
 import { OpenCodeRuntime, prepareLaunch } from "./opencode/index.js";
 import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
 import { readPlatform } from "./platform-config.js";
+import { ProjectArchiveService } from "./project/project-archive-service.js";
 import { ProjectAssetsService } from "./project/project-assets.js";
 import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
@@ -141,6 +142,11 @@ async function boot(): Promise<Running> {
     };
   };
 
+  // 每个 gateway 都要知道的两处位置：opencode 的会话库（项目导出导入读写它）、项目根（画布引用解析项目素材）。
+  // opencode 的 XDG_DATA_HOME 指在 runtimeDir 下，见 opencode/index.ts。
+  const opencodeDbPath = path.join(dirs.runtimeDir, "data-home", "opencode", "opencode.db");
+  const sharedGatewayEnv = { HILO_OPENCODE_DB: opencodeDbPath, HILO_PROJECTS_ROOT: dirs.projectsRoot };
+
   // 应用级 gateway：先占端口，窗口拿到地址就能开
   mkdirSync(dirs.outputDir, { recursive: true });
   const gateways = new GatewayRegistry();
@@ -150,7 +156,7 @@ async function boot(): Promise<Running> {
       role: "app-level",
       exec: nodeExec,
       // 没有工作区：状态都落在输出目录，别让它把 gateway 的安装目录当工作区
-      env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, WORKSPACE_DIR: dirs.outputDir },
+      env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, WORKSPACE_DIR: dirs.outputDir, ...sharedGatewayEnv },
     },
     log,
   );
@@ -196,7 +202,7 @@ async function boot(): Promise<Running> {
               role: "workspace",
               workspaceDir: dir,
               exec: nodeExec,
-              env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, HUB_SKILLS_DIR: path.join(dirs.hubRoot, "skills"), HUB_USER_SKILLS_DIR: dirs.userSkillsDir, ...env },
+              env: { OV_CONFIG_PATH: dirs.configPath, OUTPUT_DIR: dirs.outputDir, HUB_SKILLS_DIR: path.join(dirs.hubRoot, "skills"), HUB_USER_SKILLS_DIR: dirs.userSkillsDir, ...sharedGatewayEnv, ...env },
             },
             log,
           ),
@@ -258,6 +264,29 @@ async function boot(): Promise<Running> {
   registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));
   registerChannel("projectAssets", new ProjectAssetsService({ projectsRoot: () => dirs.projectsRoot, trashItem: (p) => shell.trashItem(p) }));
   registerChannel("gateway-readiness", readinessView(readiness));
+  // 项目导出 / 导入 / 示例项目
+  registerChannel(
+    "projectArchive",
+    new ProjectArchiveService({
+      appVersion: app.getVersion(),
+      projectsRoot: () => dirs.projectsRoot,
+      opencodeDbPath,
+      workspaceBinding: (folderPath) => gateways.get(path.resolve(folderPath))?.binding?.(),
+      appGatewayUrl: () => appGatewayProc.running?.url,
+      templateDirs: () => [roots.resources && path.join(roots.resources, "project-templates"), roots.repoRoot && path.join(roots.repoRoot, "assets", "project-templates")].filter((d): d is string => !!d),
+      downloadsDir: () => app.getPath("downloads"),
+      showSaveDialog: (o) => {
+        const w = BrowserWindow.getFocusedWindow();
+        return w ? dialog.showSaveDialog(w, o) : dialog.showSaveDialog(o);
+      },
+      showOpenDialog: (o) => {
+        const w = BrowserWindow.getFocusedWindow();
+        const opts = o as Electron.OpenDialogOptions;
+        return w ? dialog.showOpenDialog(w, opts) : dialog.showOpenDialog(opts);
+      },
+      log,
+    }),
+  );
   // 设置页「模型接入」：读写平台配置。新配置在下次起 opencode 时生效（渲染层保存后会请求重启）
   registerChannel("platform-settings", {
     get: async () => readSettings(dirs.configPath, dirs.projectsRoot, 0),
