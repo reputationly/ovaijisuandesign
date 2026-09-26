@@ -1,11 +1,9 @@
-import { readFileSync } from "node:fs";
-
 import { Body, Controller, Get, HttpCode, Post } from "@nestjs/common";
-import { parseMediaConfig } from "@ov/maas-media";
 
 import { GatewayConfig } from "../config/gateway-config.js";
 import { IsOptional, IsString, IsUrl } from "class-validator";
 
+import { CHAT_PROVIDER_ID, chatModelIds } from "./chat-models.js";
 import { RuntimeConnection } from "./runtime-connection.js";
 
 class OpencodeUrlDto {
@@ -34,13 +32,10 @@ export class RuntimeController {
    */
   @Get("models")
   models() {
-    let chat = "";
-    try {
-      if (this.cfg.mediaConfigPath) chat = parseMediaConfig(JSON.parse(readFileSync(this.cfg.mediaConfigPath, "utf8"))).platform.chat_model.trim();
-    } catch {
-      chat = "";
-    }
-    const models = chat ? [{ id: `user-custom-maas/${chat}`, providerID: "user-custom-maas", modelID: chat, name: chat }] : [];
+    const models = chatModelIds(this.cfg).map((id) => {
+      const modelID = id.slice(CHAT_PROVIDER_ID.length + 1);
+      return { id, providerID: CHAT_PROVIDER_ID, modelID, name: modelID };
+    });
     return { models, default: models[0]?.id ?? null };
   }
 

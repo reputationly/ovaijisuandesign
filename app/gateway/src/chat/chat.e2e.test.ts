@@ -1,4 +1,4 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -99,6 +99,10 @@ describe("聊天链路（假 opencode）", () => {
   beforeAll(async () => {
     await new Promise<void>((r) => oc.server.listen(0, "127.0.0.1", () => r()));
     process.env.WORKSPACE_DIR = mkdtempSync(path.join(tmpdir(), "ov-chat-"));
+    // 当前对话模型是 flash；界面记住的旧模型（27b）不该再转给 opencode。
+    const cfgPath = path.join(process.env.WORKSPACE_DIR, "config.json");
+    writeFileSync(cfgPath, JSON.stringify({ platform: { base_url: "http://127.0.0.1:1/v1", api_key: "k", chat_model: "flash" }, models: {} }));
+    process.env.OV_CONFIG_PATH = cfgPath;
     app = await createApp();
     await app.listen(0, "127.0.0.1");
     const port = app.getHttpServer().address().port;
@@ -118,6 +122,7 @@ describe("聊天链路（假 opencode）", () => {
     oc.server.closeAllConnections();
     oc.server.close();
     delete process.env.WORKSPACE_DIR;
+    delete process.env.OV_CONFIG_PATH;
   });
 
   let ui = "";
@@ -222,4 +227,20 @@ describe("聊天链路（假 opencode）", () => {
     await new Promise((r) => setTimeout(r, 100));
     expect(oc.aborted).toContain(rid);
   });
+
+  // 放在最后：这两条消息的会话会一直处于"在跑"，放前面会干扰活动探测那条用例。
+  it("界面带的模型不在当前可用列表里（换过对话模型）就换成当前模型", async () => {
+    const send = async (reqId: string, modelId: string) => {
+      ws.send(JSON.stringify({ type: "create_session", request_id: reqId, model_id: modelId }));
+      const sid = (await waitFor((f) => f.type === "session_created" && f.request_id === reqId)).session_id;
+      const n = oc.prompts.length;
+      ws.send(JSON.stringify({ type: "message", session_id: sid, content: "你好", client_message_id: reqId }));
+      await waitFor((f) => f.type === "message_accepted" && f.client_message_id === reqId);
+      expect(oc.prompts.length).toBe(n + 1);
+      return oc.prompts.at(-1).body.model;
+    };
+    expect(await send("rm1", "user-custom-maas/27b")).toEqual({ providerID: "user-custom-maas", modelID: "flash" });
+    expect(await send("rm2", "user-custom-maas/flash")).toEqual({ providerID: "user-custom-maas", modelID: "flash" });
+  });
+
 });

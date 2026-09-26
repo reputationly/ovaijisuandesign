@@ -4,9 +4,11 @@ import path from "node:path";
 import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { GatewayConfig } from "../config/gateway-config.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { ActivityService } from "../health/activity.service.js";
 import { EventPump, type OcEvent } from "../runtime/event-pump.js";
+import { chatModelIds } from "../runtime/chat-models.js";
 import { RuntimeClient } from "../runtime/runtime-client.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
 
@@ -96,6 +98,7 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     private readonly confirm: ConfirmService,
     private readonly paths: WorkspacePathService,
     private readonly activity: ActivityService,
+    private readonly cfg: GatewayConfig,
   ) {}
 
   onModuleInit(): void {
@@ -266,13 +269,18 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         this.confirm.setMode(created.id, s.mode);
         this.broadcast({ type: "session_bound", ui_session_id: s.id, runtime_session_id: created.id });
       }
-      const [providerID, ...rest] = (s.modelId ?? "").split("/");
+      // 界面会记住上次选的模型并一直带着；配置里换了对话模型以后，旧 id 在 opencode 里已经不存在，
+      // 照传会让每条消息都报 Model not found。不在当前可用列表里的换成当前模型、显式带上：
+      // 不带的话 opencode 沿用这个会话上一条消息的模型，老会话照样是那个不存在的旧模型。
+      const available = chatModelIds(this.cfg);
+      const modelId = s.modelId && available.includes(s.modelId) ? s.modelId : (available[0] ?? s.modelId);
+      const [providerID, ...rest] = (modelId ?? "").split("/");
       // 提交到第一个 status 事件之间也算忙，否则这一小段里探测会说空闲。
       this.busy.set(s.runtimeId, Date.now());
       await this.runtime.promptAsync(s.runtimeId, {
         agent: DEFAULT_AGENT,
         system: assetPrimer(this.paths.root),
-        ...(s.modelId && rest.length ? { model: { providerID, modelID: rest.join("/") } } : {}),
+        ...(modelId && rest.length ? { model: { providerID, modelID: rest.join("/") } } : {}),
         parts: [
           {
             type: "text",
