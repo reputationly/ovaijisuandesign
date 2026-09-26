@@ -1,4 +1,9 @@
-import { Controller, Get, NotFoundException, Post, Query } from "@nestjs/common";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { Controller, Get, NotFoundException, Param, Post, Query, Res } from "@nestjs/common";
+import type { Response } from "express";
 
 import {
   APOLLO_DEFAULTS,
@@ -7,10 +12,10 @@ import {
   EMPTY_PROMOTION,
   EMPTY_VIDEO_TRIAL_STATUS,
   EMPTY_WALLET,
-  HOME_QUICK_START_DEFAULT,
   PRICING_DISABLED,
   TEAM_CONTRACT_UNAVAILABLE,
 } from "./cloud-defaults.js";
+import { HOME_QUICK_START_CONFIG, HOME_SHOWCASE_ASSET_FILES, HOME_SHOWCASE_ASSET_ROUTE } from "./home-showcase.js";
 
 /**
  * 云端配置类路由的本地实现：客户端配置、Apollo 配置项、首页快速开始、全局弹窗、计费活动。
@@ -38,10 +43,22 @@ export class CloudConfigController {
     return APOLLO_DEFAULTS[key];
   }
 
-  /** 首页快速开始（场景 + 精选技能）。`config_version` 只影响云端取哪一版，本地只有一版。 */
+  /** 首页快速开始（场景示例 + 精选技能，见 home-showcase.ts）。`config_version` 只影响云端取哪一版，本地只有一版。 */
   @Get("api/v1/home/quick_start_config")
   homeQuickStartConfig() {
-    return HOME_QUICK_START_DEFAULT;
+    return HOME_QUICK_START_CONFIG;
+  }
+
+  /**
+   * 首页示例用到的图片 / 附件。只发 HOME_SHOWCASE_ASSET_FILES 里登记过的文件名，别的一律 404。
+   * 渲染层点示例时会把附件整个下载下来塞进输入框，所以这里要回真实的 Content-Type（sendFile 按扩展名给）。
+   */
+  @Get(`${HOME_SHOWCASE_ASSET_ROUTE}/:name`)
+  homeShowcaseAsset(@Param("name") name: string, @Res() res: Response) {
+    const dir = homeShowcaseDir();
+    if (!dir || !(HOME_SHOWCASE_ASSET_FILES as readonly string[]).includes(name)) throw new NotFoundException();
+    // 路径里的上级目录可能带点开头（比如开发时的 .claude/worktrees/…），sendFile 默认会当隐藏文件拒掉。
+    res.sendFile(path.join(dir, name), { dotfiles: "allow" });
   }
 
   @Get("api/v1/credit/wallet")
@@ -84,4 +101,18 @@ export class CloudConfigController {
   claimVideoTrial() {
     return EMPTY_VIDEO_TRIAL_STATUS;
   }
+}
+
+/**
+ * 示例素材目录：发布包里是 resources/home-showcase，开发时是仓库的 assets/home-showcase
+ * （和自带技能 resources/skills ↔ assets/skills 同一个约定）。开发时从本文件往上找，src/ 和 dist/ 下跑都认得。
+ */
+function homeShowcaseDir(): string | undefined {
+  const resources = (process as { resourcesPath?: string }).resourcesPath;
+  const candidates = resources ? [path.join(resources, "home-showcase")] : [];
+  for (let dir = path.dirname(fileURLToPath(import.meta.url)); ; dir = path.dirname(dir)) {
+    candidates.push(path.join(dir, "assets", "home-showcase"));
+    if (path.dirname(dir) === dir) break;
+  }
+  return candidates.find((c) => existsSync(c));
 }

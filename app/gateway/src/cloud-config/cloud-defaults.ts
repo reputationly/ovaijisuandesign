@@ -74,14 +74,6 @@ export const APOLLO_DEFAULTS: Readonly<Record<string, unknown>> = {
   comfyui_featured_workflows: {},
 };
 
-/**
- * 首页快速开始（v2）：启用但没有任何分区。
- *
- * 渲染层内置的兜底场景没有展示视频，灵感页签本来就是空的、会被隐藏；场景里的示例又都指向云端才有的技能和
- * CDN 素材。所以给空分区，首页只剩 Skill 页签（数据来自本地自带技能），和断网兜底时看到的一样。
- */
-export const HOME_QUICK_START_DEFAULT = { schema_version: 2, enabled: true, sections: [] };
-
 /** 积分钱包：没有计费，钱包为空（界面上余额显示成 "--"）。 */
 export const EMPTY_WALLET = { wallets: [], migrate_end_time: 0 } as const;
 
