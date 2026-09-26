@@ -456,6 +456,39 @@ export async function memoryList(dirs: MemoryDirs, scope: MemoryScope | "all" = 
   return { entries };
 }
 
+export const DEFAULT_RECENT_AUTO_LIMIT = 50;
+export const MAX_RECENT_AUTO_LIMIT = 200;
+
+/** 最近一段时间里自动提取出来的记忆（source=auto），按提取时间新的在前。给界面"刚记住了什么"的提示用。 */
+export async function listRecentAutoFeedback(dirs: MemoryDirs, input: { scope: MemoryScope | "all"; sinceMs: number; limit?: number }) {
+  requireProjectRootFor(input.scope, dirs);
+  if (!Number.isFinite(input.sinceMs) || input.sinceMs < 0) throw new MemoryError(`sinceMs must be a non-negative finite number: ${input.sinceMs}`);
+  const limit = Math.min(Math.max(1, Math.floor(input.limit ?? DEFAULT_RECENT_AUTO_LIMIT)), MAX_RECENT_AUTO_LIMIT);
+  const cutoff = Date.now() - input.sinceMs;
+  const hits: (MemoryListEntry & { source: "auto"; extracted_at: string })[] = [];
+  for (const s of resolvedScopes(dirs)) {
+    if (input.scope !== "all" && s.scope !== input.scope) continue;
+    for (const f of await listMemoryFiles(s.dir)) {
+      const { source, extracted_at } = f.frontmatter;
+      if (source !== "auto" || !extracted_at) continue;
+      const at = Date.parse(extracted_at);
+      if (Number.isNaN(at) || at < cutoff) continue;
+      hits.push({
+        scope: s.scope,
+        name: f.frontmatter.name,
+        type: f.frontmatter.type,
+        description: f.frontmatter.description,
+        updated_at: new Date(f.mtimeMs).toISOString(),
+        path: f.path,
+        source: "auto",
+        extracted_at,
+      });
+    }
+  }
+  hits.sort((a, b) => Date.parse(b.extracted_at) - Date.parse(a.extracted_at));
+  return { entries: hits.slice(0, limit) };
+}
+
 /** 大小写不敏感的子串匹配，查 description 和正文。 */
 export async function memorySearch(
   dirs: MemoryDirs,

@@ -10,6 +10,7 @@ import {
   MemoryError,
   type MemoryScope,
   type MemoryWriteInput,
+  listRecentAutoFeedback,
   memoryDelete,
   memoryList,
   memoryRead,
@@ -18,8 +19,7 @@ import {
 } from "./memory-store.js";
 
 /**
- * 记忆的增删查（设置页的记忆管理、项目面板）。项目级记忆需要打开的工作区：app-level gateway
- * 没有工作区，问 project / all 就回 400，只问 user 可以。
+ * 记忆的增删查（设置页的记忆管理、项目面板）。
  */
 @Injectable()
 export class MemoryService {
@@ -36,13 +36,22 @@ export class MemoryService {
     return process.env.HUB_MEMORY_DIR || path.join(this.cfg.hubDir, "memory");
   }
 
+  /**
+   * 项目级目录取 gateway 的基准目录。app-level gateway 没有绑定工作区，基准目录是它的输出目录：
+   * 设置页（连的就是 app-level）按 all 列表时，项目级那一半自然是空的，而不是整个请求 400。
+   */
   private dirsFor(scope: MemoryScope | "all"): MemoryDirs {
-    return { userDir: this.userDir(), ...(scope === "user" ? {} : { projectRoot: this.requireProjectRoot(scope) }) };
+    return { userDir: this.userDir(), ...(scope === "user" ? {} : { projectRoot: this.paths.root }) };
   }
 
-  private requireProjectRoot(scope: string): string {
-    if (this.cfg.role === "app-level") throw new BadRequestException(`Scope '${scope}' requires an open workspace; gateway has no baseDir.`);
-    return this.paths.root;
+  /** 最近自动提取的记忆；读失败回空列表（这只是个提示条，不该让设置页报错）。 */
+  async recentAuto(sinceMs: number, limit?: number) {
+    try {
+      return (await listRecentAutoFeedback(this.dirsFor("all"), { scope: "all", sinceMs, ...(limit !== undefined ? { limit } : {}) })).entries;
+    } catch (err) {
+      this.log.warn(`recent-auto list failed: ${(err as Error).message}`);
+      return [];
+    }
   }
 
   async list(scope: MemoryScope | "all" = "all") {

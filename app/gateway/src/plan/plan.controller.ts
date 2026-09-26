@@ -2,7 +2,6 @@ import { BadRequestException, Body, ConflictException, Controller, Get, HttpCode
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
-import { GatewayConfig } from "../config/gateway-config.js";
 import { patchStageWorkItems, PlanStoreError, planFileToReviewModel, readPlanFile, type ReferenceItemInput, type WorkItemPatch } from "./plan-file.js";
 
 export const PLAN_CHANGE_ACTIONS = ["write", "patch_stage", "patch_work_items", "update_stage_state", "remove_stage", "replan"] as const;
@@ -16,11 +15,10 @@ export class PlanController {
   constructor(
     private readonly bus: GatewayEventBus,
     private readonly paths: WorkspacePathService,
-    private readonly cfg: GatewayConfig,
   ) {}
 
-  private projectRoot(action: string): string {
-    if (this.cfg.role === "app-level") throw new BadRequestException(`${action} requires an open workspace; gateway has no baseDir.`);
+  /** 计划在 gateway 的基准目录下（app-level 没绑工作区时是它的输出目录，那里没有计划，查了回 404）。 */
+  private projectRoot(_action: string): string {
     return this.paths.root;
   }
 

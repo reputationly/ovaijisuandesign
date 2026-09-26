@@ -43,6 +43,15 @@ export class MemoryController {
     return { entries: await this.memory.list(q.scope) };
   }
 
+  /** 回看窗口默认 1 小时、最长 7 天；参数不合法就用默认值，不回 400（这是个提示条）。 */
+  @Get("api/memory/recent-auto")
+  async recentAuto(@Query("lookback_ms") lookback?: string, @Query("limit") limit?: string) {
+    const n = Number(lookback);
+    const sinceMs = lookback && Number.isFinite(n) && n > 0 ? Math.min(n, 7 * 24 * 60 * 60 * 1000) : 60 * 60 * 1000;
+    const l = Number(limit);
+    return { entries: await this.memory.recentAuto(sinceMs, limit && Number.isFinite(l) && l > 0 ? Math.floor(l) : undefined) };
+  }
+
   @Get("api/memory/search")
   async search(@Query() q: MemorySearchQueryDto) {
     return { entries: await this.memory.search(q.q, q.scope, q.type) };

@@ -92,6 +92,22 @@ describe("记忆管理与压缩", () => {
     expect((await http.get("/api/memory/team/x")).status).toBe(400);
   });
 
+  it("recent-auto：只列回看窗口内自动提取的记忆，新的在前", async () => {
+    const recent = new Date(Date.now() - 60_000).toISOString();
+    const old = new Date(Date.now() - 3 * 3600_000).toISOString();
+    const fm = (name: string, at: string) => `---\nname: ${name}\ndescription: 自动 ${name}\ntype: feedback\nsource: auto\nextracted_at: "${at}"\n---\n\nx\n`;
+    writeFileSync(path.join(userDir, "feedback_auto-new.md"), fm("auto-new", recent));
+    writeFileSync(path.join(userDir, "feedback_auto-old.md"), fm("auto-old", old));
+    const r = await http.get("/api/memory/recent-auto");
+    expect(r.status).toBe(200);
+    expect(r.body.entries.map((e: any) => e.name)).toEqual(["auto-new"]);
+    expect(r.body.entries[0]).toMatchObject({ source: "auto", extracted_at: recent });
+    const wide = await http.get(`/api/memory/recent-auto?lookback_ms=${6 * 3600_000}&limit=1`);
+    expect(wide.body.entries.map((e: any) => e.name)).toEqual(["auto-new"]);
+    await http.delete("/api/memory/user/auto-new").expect(200);
+    await http.delete("/api/memory/user/auto-old").expect(200);
+  });
+
   it("删除：删掉回 deleted:true 并广播，不存在回 deleted:false", async () => {
     await write({ scope: "user", name: "temp", type: "reference", description: "临时", body: "" }).expect(200);
     const n = events.length;
