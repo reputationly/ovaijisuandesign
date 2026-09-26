@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 155 条**
+共 466 条，75 个控制器。**我们同名同方法实现了 258 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -54,20 +54,20 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/asset-center/workspace-refs
 ```
 
-## AssetPreviewController（1/3）
+## AssetPreviewController（3/3）
 
 ```
-  GET    /api/asset/:id/metadata
-  GET    /api/asset/text-preview
+✓ GET    /api/asset/:id/metadata
+✓ GET    /api/asset/text-preview
 ✓ GET    /api/internal/document/read
 ```
 
-## FilesController（31/57）
+## FilesController（57/57）
 
 ```
-  GET    /api/asset/peaks
-  GET    /api/asset/video-playback
-  GET    /api/asset/video-stream
+✓ GET    /api/asset/peaks
+✓ GET    /api/asset/video-playback
+✓ GET    /api/asset/video-stream
 ✓ GET    /api/assets
 ✓ POST   /api/assets/:id/locate
 ✓ POST   /api/assets/:id/merge-candidate
@@ -81,45 +81,45 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/assets/{*folder}
 ✓ GET    /api/canvas
 ✓ POST   /api/canvas
-  POST   /api/canvas/add-node
-  POST   /api/canvas/recovery-result
+✓ POST   /api/canvas/add-node
+✓ POST   /api/canvas/recovery-result
 ✓ GET    /api/canvas/tag-registry
 ✓ POST   /api/canvas/tags
 ✓ DELETE /api/canvas/tags/:id
 ✓ PATCH  /api/canvas/tags/:id
 ✓ GET    /api/canvas/tags/:id/impact
 ✓ PUT    /api/canvas/tags/order
-  GET    /api/files
-  POST   /api/files/adopt
-  POST   /api/files/anchor-project-asset
-  POST   /api/files/check-conflicts
+✓ GET    /api/files
+✓ POST   /api/files/adopt
+✓ POST   /api/files/anchor-project-asset
+✓ POST   /api/files/check-conflicts
 ✓ GET    /api/files/content
 ✓ PUT    /api/files/content
-  POST   /api/files/copy
+✓ POST   /api/files/copy
 ✓ POST   /api/files/delete
-  GET    /api/files/dirs
-  POST   /api/files/duplicate
-  POST   /api/files/fork-rename
-  POST   /api/files/import-external
+✓ GET    /api/files/dirs
+✓ POST   /api/files/duplicate
+✓ POST   /api/files/fork-rename
+✓ POST   /api/files/import-external
 ✓ POST   /api/files/import-url
-  GET    /api/files/mention-search
-  POST   /api/files/mkdir
-  POST   /api/files/move
-  GET    /api/files/project-asset-mention-search
-  POST   /api/files/project-asset-propagate
-  POST   /api/files/rename
+✓ GET    /api/files/mention-search
+✓ POST   /api/files/mkdir
+✓ POST   /api/files/move
+✓ GET    /api/files/project-asset-mention-search
+✓ POST   /api/files/project-asset-propagate
+✓ POST   /api/files/rename
 ✓ GET    /api/files/scan-media
 ✓ POST   /api/files/text-asset
-  POST   /api/files/track
-  POST   /api/files/upload-cdn
+✓ POST   /api/files/track
+✓ POST   /api/files/upload-cdn
 ✓ GET    /api/files/workspace-summary
 ✓ GET    /api/local-file
 ✓ GET    /api/thumbnail/{*filepath}
 ✓ POST   /api/upload
-  POST   /api/upload/commit
-  POST   /api/upload/commit/abort
-  POST   /api/upload/commit/finalize
-  POST   /api/upload/staging/delete
+✓ POST   /api/upload/commit
+✓ POST   /api/upload/commit/abort
+✓ POST   /api/upload/commit/finalize
+✓ POST   /api/upload/staging/delete
 ✓ GET    /api/workspace
 ✓ POST   /api/workspace
 ```
@@ -155,18 +155,18 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/browser/automation
 ```
 
-## CanvasReferencesController（0/3）
+## CanvasReferencesController（3/3）
 
 ```
-  GET    /api/canvas-references/content
-  POST   /api/canvas-references/resolve
-  GET    /api/canvas-references/search
+✓ GET    /api/canvas-references/content
+✓ POST   /api/canvas-references/resolve
+✓ GET    /api/canvas-references/search
 ```
 
-## CanvasGroupExecutorController（0/1）
+## CanvasGroupExecutorController（1/1）
 
 ```
-  POST   /api/canvas/execute-group
+✓ POST   /api/canvas/execute-group
 ```
 
 ## CanvasController（26/26）
@@ -244,11 +244,11 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/comfyui/workflows/preflight
 ```
 
-## CustomMcpController（0/2）
+## CustomMcpController（2/2）
 
 ```
-  POST   /api/connectors/mcp
-  POST   /api/connectors/mcp/authenticate
+✓ POST   /api/connectors/mcp
+✓ POST   /api/connectors/mcp/authenticate
 ```
 
 ## ConnectorPreparationController（0/1）
@@ -257,12 +257,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/connectors/prepare
 ```
 
-## DagController（0/3）
+## DagController（3/3）
 
 ```
-  POST   /api/dag/run
-  POST   /api/dag/run-and-watch
-  GET    /api/dag/run/:runId
+✓ POST   /api/dag/run
+✓ POST   /api/dag/run-and-watch
+✓ GET    /api/dag/run/:runId
 ```
 
 ## DependenciesController（0/5）
@@ -275,37 +275,37 @@ gateway —— 每一块都能单独和官方那块对跑。
   DELETE /api/dependencies/:id
 ```
 
-## NetworkDiagnosticsController（0/1）
+## NetworkDiagnosticsController（1/1）
 
 ```
-  GET    /api/diagnostics/network
+✓ GET    /api/diagnostics/network
 ```
 
-## EditController（8/23）
+## EditController（23/23）
 
 ```
 ✓ POST   /api/edit/analyze-media
-  POST   /api/edit/asr
-  POST   /api/edit/asr-mediakit
-  POST   /api/edit/asr-whisper
-  POST   /api/edit/audio-separate
+✓ POST   /api/edit/asr
+✓ POST   /api/edit/asr-mediakit
+✓ POST   /api/edit/asr-whisper
+✓ POST   /api/edit/audio-separate
 ✓ POST   /api/edit/concatenate-videos
 ✓ POST   /api/edit/embed-audio
-  POST   /api/edit/enhance-image
-  POST   /api/edit/enhance-video-mediakit
-  POST   /api/edit/erase-banana
-  POST   /api/edit/erase-subtitle-mediakit
+✓ POST   /api/edit/enhance-image
+✓ POST   /api/edit/enhance-video-mediakit
+✓ POST   /api/edit/erase-banana
+✓ POST   /api/edit/erase-subtitle-mediakit
 ✓ POST   /api/edit/extract-audio
 ✓ POST   /api/edit/ffmpeg
 ✓ POST   /api/edit/generate-text
 ✓ POST   /api/edit/generate-text-messages
-  POST   /api/edit/hailuo03-video-super-resolution
-  POST   /api/edit/layer-decompose
-  POST   /api/edit/lip-sync
-  POST   /api/edit/move-object-banana
-  POST   /api/edit/outpaint-banana
-  POST   /api/edit/redraw-banana
-  POST   /api/edit/remove-background
+✓ POST   /api/edit/hailuo03-video-super-resolution
+✓ POST   /api/edit/layer-decompose
+✓ POST   /api/edit/lip-sync
+✓ POST   /api/edit/move-object-banana
+✓ POST   /api/edit/outpaint-banana
+✓ POST   /api/edit/redraw-banana
+✓ POST   /api/edit/remove-background
 ✓ POST   /api/edit/super-resolution
 ```
 
@@ -326,18 +326,18 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/feedback-extractor/notify-manual-write
 ```
 
-## TextVersionController（0/9）
+## TextVersionController（9/9）
 
 ```
-  GET    /api/files/versions
-  POST   /api/files/versions
-  DELETE /api/files/versions/:id
-  PATCH  /api/files/versions/:id
-  GET    /api/files/versions/:id/content
-  POST   /api/files/versions/:id/materialize
-  POST   /api/files/versions/:id/restore
-  GET    /api/files/versions/diff
-  POST   /api/files/versions/summarize
+✓ GET    /api/files/versions
+✓ POST   /api/files/versions
+✓ DELETE /api/files/versions/:id
+✓ PATCH  /api/files/versions/:id
+✓ GET    /api/files/versions/:id/content
+✓ POST   /api/files/versions/:id/materialize
+✓ POST   /api/files/versions/:id/restore
+✓ GET    /api/files/versions/diff
+✓ POST   /api/files/versions/summarize
 ```
 
 ## GenerateController（13/13）
@@ -369,23 +369,23 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/generate/video/submit
 ```
 
-## MusicController（2/4）
+## MusicController（4/4）
 
 ```
 ✓ POST   /api/generate/music
 ✓ GET    /api/models/music
-  POST   /api/music/cover/preprocess
-  POST   /api/music/lyrics/generate
+✓ POST   /api/music/cover/preprocess
+✓ POST   /api/music/lyrics/generate
 ```
 
-## SpeechController（5/6）
+## SpeechController（6/6）
 
 ```
 ✓ POST   /api/generate/speech
 ✓ GET    /api/models/speech
 ✓ POST   /api/speech/voice_clone
 ✓ POST   /api/speech/voice_design
-  POST   /api/speech/voice_isolation
+✓ POST   /api/speech/voice_isolation
 ✓ GET    /api/speech/voices
 ```
 
@@ -399,16 +399,16 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ DELETE /api/health/suspend-lease
 ```
 
-## HeartbeatController（0/1）
+## HeartbeatController（1/1）
 
 ```
-  POST   /api/heartbeat
+✓ POST   /api/heartbeat
 ```
 
-## I18nController（0/1）
+## I18nController（1/1）
 
 ```
-  POST   /api/i18n/lang
+✓ POST   /api/i18n/lang
 ```
 
 ## ComfyUiDesignProxyController（0/1）
@@ -417,29 +417,29 @@ gateway —— 每一块都能单独和官方那块对跑。
   ALL    /api/internal/comfyui/design/{*path}
 ```
 
-## ChatAttachmentCdnController（1/2）
+## ChatAttachmentCdnController（2/2）
 
 ```
 ✓ POST   /api/internal/sessions/:opencodeSessionId/attachment-observations
-  POST   /api/internal/sessions/:opencodeSessionId/attachment-outputs
+✓ POST   /api/internal/sessions/:opencodeSessionId/attachment-outputs
 ```
 
-## InternalSessionController（11/15）
+## InternalSessionController（15/15）
 
 ```
 ✓ POST   /api/internal/sessions/:opencodeSessionId/loop-guard/ask
 ✓ GET    /api/internal/sessions/:opencodeSessionId/loop-guard/settlements/:requestId
 ✓ POST   /api/internal/sessions/:opencodeSessionId/mcp-tool-call
-  POST   /api/internal/sessions/:opencodeSessionId/open-comfyui
+✓ POST   /api/internal/sessions/:opencodeSessionId/open-comfyui
 ✓ GET    /api/internal/sessions/:opencodeSessionId/request-group
 ✓ GET    /api/internal/sessions/:opencodeSessionId/root
 ✓ GET    /api/internal/sessions/:opencodeSessionId/selected-models
 ✓ POST   /api/internal/sessions/:opencodeSessionId/tool-confirm/ask
 ✓ POST   /api/internal/sessions/:uiSessionId/loop-guard-trip
-  GET    /api/internal/sessions/:uiSessionId/metrics
-  GET    /api/internal/sessions/any-busy
+✓ GET    /api/internal/sessions/:uiSessionId/metrics
+✓ GET    /api/internal/sessions/any-busy
 ✓ GET    /api/internal/sessions/billing-current-scope
-  GET    /api/internal/sessions/metrics
+✓ GET    /api/internal/sessions/metrics
 ✓ GET    /api/internal/sessions/opencode-busy
 ✓ POST   /api/internal/sessions/request-group-diagnostic
 ```
@@ -466,48 +466,48 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/logs/request-upload
 ```
 
-## LutsController（0/4）
+## LutsController（4/4）
 
 ```
-  GET    /api/luts
-  DELETE /api/luts/:name
-  GET    /api/luts/content
-  POST   /api/luts/import
+✓ GET    /api/luts
+✓ DELETE /api/luts/:name
+✓ GET    /api/luts/content
+✓ POST   /api/luts/import
 ```
 
-## MediaPreviewController（0/1）
+## MediaPreviewController（1/1）
 
 ```
-  POST   /api/media/heic-preview
+✓ POST   /api/media/heic-preview
 ```
 
-## MemoryController（0/5）
+## MemoryController（5/5）
 
 ```
-  GET    /api/memory
-  POST   /api/memory
-  DELETE /api/memory/:scope/:name
-  GET    /api/memory/:scope/:name
-  GET    /api/memory/search
+✓ GET    /api/memory
+✓ POST   /api/memory
+✓ DELETE /api/memory/:scope/:name
+✓ GET    /api/memory/:scope/:name
+✓ GET    /api/memory/search
 ```
 
-## MemoryCompactionController（0/8）
+## MemoryCompactionController（8/8）
 
 ```
-  GET    /api/memory-compaction/config
-  POST   /api/memory-compaction/config
-  POST   /api/memory-compaction/execute
-  GET    /api/memory-compaction/preview
-  POST   /api/memory-compaction/rewrite/execute
-  POST   /api/memory-compaction/rewrite/preview
-  GET    /api/memory-compaction/snapshots
-  POST   /api/memory-compaction/snapshots/:id/restore
+✓ GET    /api/memory-compaction/config
+✓ POST   /api/memory-compaction/config
+✓ POST   /api/memory-compaction/execute
+✓ GET    /api/memory-compaction/preview
+✓ POST   /api/memory-compaction/rewrite/execute
+✓ POST   /api/memory-compaction/rewrite/preview
+✓ GET    /api/memory-compaction/snapshots
+✓ POST   /api/memory-compaction/snapshots/:id/restore
 ```
 
-## RecentAutoFeedbackController（0/1）
+## RecentAutoFeedbackController（1/1）
 
 ```
-  GET    /api/memory/recent-auto
+✓ GET    /api/memory/recent-auto
 ```
 
 ## NodePackagesController（0/4）
@@ -525,12 +525,12 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/operations/undo
 ```
 
-## PlanController（1/3）
+## PlanController（3/3）
 
 ```
 ✓ POST   /api/plan/notify-changed
-  GET    /api/plan/review
-  PATCH  /api/plan/stage-work-items
+✓ GET    /api/plan/review
+✓ PATCH  /api/plan/stage-work-items
 ```
 
 ## PluginsController（1/6）
@@ -569,22 +569,22 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/plugins/agent/surface
 ```
 
-## ProjectArchiveActivityController（0/3）
+## ProjectArchiveActivityController（3/3）
 
 ```
-  POST   /api/projects/archive/activity/begin
-  POST   /api/projects/archive/activity/end
-  POST   /api/projects/archive/activity/heartbeat
+✓ POST   /api/projects/archive/activity/begin
+✓ POST   /api/projects/archive/activity/end
+✓ POST   /api/projects/archive/activity/heartbeat
 ```
 
-## ProjectArchiveController（0/5）
+## ProjectArchiveController（5/5）
 
 ```
-  POST   /api/projects/archive/asset-hashes
-  POST   /api/projects/archive/export
-  POST   /api/projects/archive/import
-  POST   /api/projects/archive/prepare-export
-  POST   /api/projects/archive/rewrite-vault-paths
+✓ POST   /api/projects/archive/asset-hashes
+✓ POST   /api/projects/archive/export
+✓ POST   /api/projects/archive/import
+✓ POST   /api/projects/archive/prepare-export
+✓ POST   /api/projects/archive/rewrite-vault-paths
 ```
 
 ## PythonPackagesController（0/4）
@@ -616,16 +616,16 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/safety/check-text
 ```
 
-## SearchController（0/1）
+## SearchController（1/1）
 
 ```
-  POST   /api/search/images
+✓ POST   /api/search/images
 ```
 
-## ExportController（0/1）
+## ExportController（1/1）
 
 ```
-  GET    /api/sessions/:id/export
+✓ GET    /api/sessions/:id/export
 ```
 
 ## SkillsController（8/8）

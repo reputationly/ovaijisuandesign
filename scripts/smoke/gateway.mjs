@@ -162,7 +162,8 @@ try {
   ok(save.status < 300, "画布：300KB 整份保存不再 413", save.status);
   const longText = await call("PUT", "/api/files/content", { path: "长.md", content: "字".repeat(200_000) });
   ok(longText.status === 200, "文本：600KB 写入不再 413", longText.status);
-  const small = await call("POST", "/api/edit/generate-text", { prompt: "x".repeat(200_000) });
+  // /api/edit 整个放宽了（编辑要传整张大图），默认上限拿别的路由验。
+  const small = await call("POST", "/api/safety/check-text", { text: "x".repeat(200_000) });
   ok(small.status === 413, "其他路由仍是默认 100kb 上限", small.status);
 
   // ---- 缩略图
