@@ -58,8 +58,18 @@ const IMAGE_RATIOS = ["adaptive", "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2
  */
 const VIDEO_RATIOS = ["adaptive", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"] as const;
 
-/** 这个模态有哪些参数。没有就是空 —— 界面上那一区整个不显示。 */
-export function forModality(modality: string): ParamSpec[] {
+/**
+ * 平台的视频聚合模型（`minimax-h3-2k` / `minimax-h3-ref-2k`）：改写提示词 → 768P 生成 → 超分到 2K。
+ * 成片档位由平台定死，分辨率只有 2K 一个选项；时长、有声视频照平台模型目录开放。
+ */
+export function isAggregateVideoModel(model: string | null | undefined): boolean {
+  return /-2k$/i.test((model ?? "").trim());
+}
+
+const AGGREGATE_VIDEO_DURATIONS = ["4", "5", "6", "7", "8", "9", "10"] as const;
+
+/** 这个模态有哪些参数。没有就是空 —— 界面上那一区整个不显示。`model` 用来区分聚合模型。 */
+export function forModality(modality: string, model?: string | null): ParamSpec[] {
   switch (modality) {
     // 图生图的比例由输入图决定，只留分辨率。
     case "image_edit":
@@ -71,6 +81,15 @@ export function forModality(modality: string): ParamSpec[] {
       ];
     case "video":
     case "video_ref":
+      if (isAggregateVideoModel(model)) {
+        return [
+          spec("aspect_ratio", "比例", VIDEO_RATIOS, "adaptive"),
+          // 选什么都出 2K（超分段的目标由平台配置），摆 768P / 1080P 就是骗用户。
+          spec("resolution", "分辨率", ["2K"], "2K"),
+          spec("duration", "时长", AGGREGATE_VIDEO_DURATIONS, "5"),
+          spec("generate_audio", "有声视频", ["true", "false"], "true"),
+        ];
+      }
       return [
         spec("aspect_ratio", "比例", VIDEO_RATIOS, "adaptive"),
         // **不给 1K/2K。** 视频这边的档位是 P 制，给 1K 的话

@@ -83,12 +83,12 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
       ...SLOT_ALIAS.video,
       max_refs: 2,
       imageMode: "first-last-frame",
-      params: toParams(params.forModality("video")),
+      params: toParams(params.forModality("video", id)),
       hiddenParamsByImageMode: { "first-last-frame": ["aspect_ratio"] },
     }),
   );
   add(video, m.video_ref, (id) =>
-    media(id, "video", ["hub_generate_video"], { ...SLOT_ALIAS.video_ref, max_refs: 4, max_video_refs: 3, max_audio_refs: 3, imageMode: "reference", params: toParams(params.forModality("video_ref")) }),
+    media(id, "video", ["hub_generate_video"], { ...SLOT_ALIAS.video_ref, max_refs: 4, max_video_refs: 3, max_audio_refs: 3, imageMode: "reference", params: toParams(params.forModality("video_ref", id)) }),
   );
   add(audio, m.speech, (id) => media(id, "audio", ["hub_generate_audio_speech"], { ...SLOT_ALIAS.speech, max_refs: 0, params: {}, promptLabel: "text" }));
   add(audio, m.music, (id) => media(id, "audio", ["hub_generate_audio_music"], { ...SLOT_ALIAS.music, max_refs: 0, params: {}, promptLabel: "musicStyle" }));

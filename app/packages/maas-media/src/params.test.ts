@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { forModality } from "./params.js";
+import { forModality, isAggregateVideoModel } from "./params.js";
 import { resolveSize } from "./video.js";
 
 describe("params", () => {
@@ -46,8 +46,10 @@ describe("params", () => {
   /** 默认值必须在选项里。不在的话界面打开就是个"选中了一个不存在的项"。 */
   it("every default is one of its options", () => {
     for (const m of ["image", "image_edit", "video", "video_ref", "music", "speech"]) {
-      for (const p of forModality(m)) {
-        expect(p.options.includes(p.default), `${m} 的 ${p.name} 默认值 ${p.default} 不在选项里`).toBe(true);
+      for (const model of [undefined, "minimax-h3-2k"]) {
+        for (const p of forModality(m, model)) {
+          expect(p.options.includes(p.default), `${m} 的 ${p.name} 默认值 ${p.default} 不在选项里`).toBe(true);
+        }
       }
     }
   });
@@ -61,4 +63,21 @@ describe("params", () => {
     expect(forModality("speech")).toEqual([]);
     expect(forModality("music_edit")).toEqual([]);
   });
+
+  /** 聚合视频模型照平台模型目录：分辨率只有 2K，时长 4～10，可选有声。 */
+  it("aggregate video models: 2K only, 4-10s, audio toggle", () => {
+    expect(isAggregateVideoModel("minimax-h3-2k")).toBe(true);
+    expect(isAggregateVideoModel("minimax-h3-ref-2k")).toBe(true);
+    expect(isAggregateVideoModel("minimax-h3-fl2va")).toBe(false);
+    for (const m of ["video", "video_ref"]) {
+      const byName = Object.fromEntries(forModality(m, "minimax-h3-2k").map((p) => [p.name, p]));
+      expect(byName.resolution!.options).toEqual(["2K"]);
+      expect(byName.duration!.options).toEqual(["4", "5", "6", "7", "8", "9", "10"]);
+      expect(byName.duration!.default).toBe("5");
+      expect(byName.generate_audio!.options).toEqual(["true", "false"]);
+      // 原始模型的选项不变
+      expect(forModality(m, "minimax-h3-fl2va").find((p) => p.name === "resolution")!.options).toEqual(["768P", "1080P"]);
+    }
+  });
+
 });
