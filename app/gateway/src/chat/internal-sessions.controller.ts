@@ -1,8 +1,10 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
 
+import { ActivityService } from "../health/activity.service.js";
 import { RuntimeClient } from "../runtime/runtime-client.js";
 import { ChatService } from "./chat.service.js";
 import { ConfirmService } from "./confirm.service.js";
+import { SessionMetricsService } from "./session-metrics.service.js";
 
 /**
  * 没有计费体系：计费分组一律回 legacy，插件和 MCP 见到它就直接放行。
@@ -20,6 +22,8 @@ export class InternalSessionsController {
     private readonly chat: ChatService,
     private readonly confirm: ConfirmService,
     private readonly runtime: RuntimeClient,
+    private readonly metrics: SessionMetricsService,
+    private readonly activity: ActivityService,
   ) {}
 
   @Get("billing-current-scope")
@@ -36,6 +40,22 @@ export class InternalSessionsController {
   @Get("opencode-busy")
   busy() {
     return { busy: false };
+  }
+
+  /**
+   * 这个 gateway 上有没有不能被打断的活：主进程重启 opencode（换 token、改技能配置）、切团队之前问一声，
+   * 免得把正在跑或刚开始的一轮截断。和挂起判断用同一份活动快照（agent 在跑、写请求在飞、账上有没落地的生成）。
+   */
+  @Get("any-busy")
+  async anyBusy() {
+    const snap = await this.activity.snapshot();
+    return { busy: !snap.safe_to_restart };
+  }
+
+  /** 所有会话的运行统计（最多 500 个，最近活跃的在后）。 */
+  @Get("metrics")
+  listMetrics() {
+    return this.metrics.list();
   }
 
   @Get(":id/request-group")
@@ -90,21 +110,28 @@ export class InternalSessionsController {
 
   @Post(":id/loop-guard-trip")
   @HttpCode(200)
-  trip() {
+  trip(@Param("id") uiSessionId: string, @Body() body: { tool?: unknown }) {
+    this.metrics.recordLoopGuardTrip(uiSessionId, typeof body?.tool === "string" ? body.tool : "unknown");
     return { ok: true };
+  }
+
+  /** 单个会话的运行统计；还没有任何事件时只回 `{uiSessionId}`，调用方当"没数据"处理。 */
+  @Get(":id/metrics")
+  sessionMetrics(@Param("id") uiSessionId: string) {
+    return this.metrics.get(uiSessionId) ?? { uiSessionId };
+  }
+
+  /** ComfyUI 不在这个版本里：回"插件不可用"，调用方据此告诉用户而不是等一个永远不会出现的节点。 */
+  @Post(":id/open-comfyui")
+  @HttpCode(200)
+  openComfyUi() {
+    return { status: "unknown_plugin" };
   }
 
   @Post(":id/mcp-tool-call")
   @HttpCode(200)
   mcpToolCall() {
     return { ok: true };
-  }
-
-  /** 附件归属：我们不做云端上传，回空引用。 */
-  @Post(":id/attachment-observations")
-  @HttpCode(200)
-  attachments() {
-    return { attachment_refs: [] };
   }
 }
 
