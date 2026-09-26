@@ -303,4 +303,49 @@ export const PATCHES = [
     find: "function CreationGuidePlaceholder({ guides, source }) {\n",
     replace: "function CreationGuidePlaceholder({ source }) {\n  const guides = [];\n",
   },
+
+  // ---------------------------------------------------------------------------------------------
+  // 五、首页「创作灵感」：示例和素材都由本地 gateway 提供（数据见 app/gateway/src/cloud-config/home-showcase.ts）
+  // ---------------------------------------------------------------------------------------------
+  // 快速开始配置里的素材地址（封面、附件）只认两个 CDN 域名的 https，别的一律丢掉；点示例时下载附件也
+  // 过同一道检查（重定向后的最终地址也查）。这里加一条放行：gateway 的示例素材路由。配置里写相对路径
+  // `/api/v1/home/showcase-assets/…`，按当前连着的 gateway 补全——端口每次启动都可能换，写死的话缓存的
+  // 上一份配置就对不上了；已经补全过的绝对地址（下载后的 response.url）同源同前缀也认。
+  // gateway 还没就绪（拿不到地址）时照旧丢掉，等 gateway 就绪后重新拉配置再补上。
+  {
+    id: "home-showcase.local-assets",
+    file: MAIN,
+    find: 'function normalizeHomeQuickStartAssetUrl(value) {\n  if (typeof value !== "string") return void 0;\n  const text2 = value.trim();\n  if (!text2) return void 0;\n',
+    replace: [
+      "function localHomeShowcaseAssetUrl(text2) {",
+      "  let origin;",
+      "  try {",
+      "    origin = new URL(getBaseUrl() ?? \"\").origin;",
+      "  } catch {",
+      "    return void 0;",
+      "  }",
+      "  try {",
+      "    const url2 = text2.startsWith(\"/\") && !text2.startsWith(\"//\") ? new URL(text2, origin) : new URL(text2);",
+      "    return url2.origin === origin && url2.pathname.startsWith(\"/api/v1/home/showcase-assets/\") ? url2.toString() : void 0;",
+      "  } catch {",
+      "    return void 0;",
+      "  }",
+      "}",
+      "function normalizeHomeQuickStartAssetUrl(value) {",
+      '  if (typeof value !== "string") return void 0;',
+      "  const text2 = value.trim();",
+      "  if (!text2) return void 0;",
+      "  const localUrl = localHomeShowcaseAssetUrl(text2);",
+      "  if (localUrl) return localUrl;",
+      "",
+    ].join("\n"),
+  },
+  // 灵感页签的每张卡片原本都必须有演示视频，没有视频的示例直接不出卡片。我们的示例只有图（没有成片可演示），
+  // 放行没有视频的示例：卡片组件本来就支持纯图片卡（封面取示例封面 → 第一张图片附件 → 场景配图）。
+  {
+    id: "home-showcase.image-cards",
+    file: MAIN,
+    find: "  const videoUrl = output?.videoUrl ?? query.videoUrl ?? sectionVideoUrl;\n  if (!videoUrl) return void 0;\n",
+    replace: "  const videoUrl = output?.videoUrl ?? query.videoUrl ?? sectionVideoUrl;\n",
+  },
 ];
