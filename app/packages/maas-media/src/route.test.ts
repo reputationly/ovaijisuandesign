@@ -132,4 +132,15 @@ describe("route", () => {
     r = route(m, cover, Modality.Music)!;
     expect(r.model, "被换成了文生音乐 —— 出来的歌和原曲无关").toBe(cover);
   });
+
+  // 外部名只分得出"视频"，分不出帧族 / 参考族；参考生视频要落到参考族模型。
+  it("an external name keeps the requested modality within its family", () => {
+    const models = { ...defaultModels(), video: "minimax-h3-2k", video_ref: "minimax-h3-ref-2k", image: "img", image_edit: "img-edit", music: "m3" };
+    expect(route(models, "MiniMax-H3", Modality.VideoRef)?.model).toBe("minimax-h3-ref-2k");
+    expect(route(models, "MiniMax-H3", Modality.Video)?.model).toBe("minimax-h3-2k");
+    expect(route(models, "nano-banana", Modality.ImageEdit)?.model).toBe("img-edit");
+    // 跨族的名字照旧按名字的模态走
+    expect(route(models, "music-3.0", Modality.Video)?.model).toBe("m3");
+  });
+
 });

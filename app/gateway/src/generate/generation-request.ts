@@ -106,7 +106,12 @@ export function planOf(mode: string | undefined, first: boolean, last: boolean, 
     const m = mode.toLowerCase().replace(/[ _]/g, "-");
     // 顺序有讲究：`first-last-frame` 同时含 first 和 last，先判 last 会被当成"只给尾帧"。
     if (m.includes("ref") || m === "r2va") return video.VideoPlan.Reference;
-    if ((m.includes("first") && m.includes("last")) || m === "flf2v") return video.VideoPlan.FirstLastFrame;
+    if ((m.includes("first") && m.includes("last")) || m === "flf2v") {
+      // 图生视频在工具里就是"首尾帧方式、只给首帧"（image_mode=first-last-frame，image_paths=[首帧]）。
+      // 照字面要求两张的话，agent 做普通图生视频会被拒（"需要尾帧图"）。只给尾帧的仍按缺首帧报错。
+      if (first && !last) return video.VideoPlan.ImageToVideo;
+      return video.VideoPlan.FirstLastFrame;
+    }
     if (m.includes("last") || m === "l2va") return video.VideoPlan.LastFrame;
     if (m.includes("first") || m.includes("image") || m === "i2v") return video.VideoPlan.ImageToVideo;
     if (m.includes("text") || m === "t2v") return video.VideoPlan.TextToVideo;
@@ -232,7 +237,18 @@ function str(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : typeof v === "number" ? String(v) : undefined;
 }
 
+/**
+ * 列表参数。MCP 把列表编码成 JSON 字符串塞进 params（`params.reference_images = '["a.png"]'`），
+ * 只认数组的话参考图全丢，参考生视频就成了"没有参考图"被平台拒。
+ */
 function arr(v: unknown): string[] {
+  if (typeof v === "string" && v.trim().startsWith("[")) {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return [];
+    }
+  }
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 }
 

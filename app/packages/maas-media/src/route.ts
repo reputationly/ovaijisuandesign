@@ -205,11 +205,30 @@ export function route(
 
   // 外部名 → 按它的模态找我们的默认。认不出模态时也退回本次调用的模态，
   // 而不是失败：外部随时会冒出新模型名。
-  const target = modalityOf(w) ?? modality;
+  // 名字只认得出"是视频"，分不出帧族还是参考族（`MiniMax-H3` 两族共用一个外部名）。这时以本次调用的
+  // 模态为准：调用方是按玩法定的模态，参考生视频发去帧族模型会被平台拒（"r2va 需要参考图"）。
+  // 出图 / 改图、音乐 / 翻唱同理。
+  const named = modalityOf(w);
+  const target = named !== null && sameFamily(named, modality) ? modality : (named ?? modality);
   const model = defaultFor(models, target) ?? fallback;
   return {
     substituted: !eqIgnoreAsciiCase(model, w),
     model,
     requested: w,
   };
+}
+
+/** 基础模态 → 它的特化槽位（帧族 → 参考族，出图 → 改图，音乐 → 翻唱）。 */
+const SPECIALIZED: Partial<Record<Modality, Modality>> = {
+  [Modality.Video]: Modality.VideoRef,
+  [Modality.Image]: Modality.ImageEdit,
+  [Modality.Music]: Modality.MusicEdit,
+};
+
+/**
+ * 名字只认得出基础模态、而本次调用要的是它的特化槽位 —— 名字本身分不出来，以调用为准。
+ * 反过来（名字明确是改图 / 参考 / 翻唱模型）照名字走：调用方点名了专门的模型。
+ */
+function sameFamily(named: Modality, requested: Modality): boolean {
+  return named === requested || SPECIALIZED[named] === requested;
 }

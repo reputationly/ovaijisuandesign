@@ -17,6 +17,17 @@ describe("视频玩法", () => {
     expect(planOf(undefined, false, true, false)).toBe(P.LastFrame);
   });
 
+  it("图生视频 = 首尾帧方式只给首帧（工具就是这么发的）", () => {
+    expect(planOf("first-last-frame", true, false, false)).toBe(P.ImageToVideo);
+    expect(videoPlan({ image_paths: ["head.png"], params: { image_mode: "first-last-frame" }, source_tool: "hub_generate_video:MiniMax:i2v" })).toBe(P.ImageToVideo);
+  });
+
+  it("参考图从 params 里的 JSON 字符串读出来", () => {
+    const req = { params: { image_mode: "reference", reference_images: '["a.png","b.png"]' }, image_paths: [] };
+    expect(videoPlan(req)).toBe(P.Reference);
+    expect(videoReferences(req).images).toEqual(["a.png", "b.png"]);
+  });
+
   it("认不出的玩法按输入推，不当失败", () => {
     expect(planOf("cinemagraph-v9", true, true, false)).toBe(P.FirstLastFrame);
   });
