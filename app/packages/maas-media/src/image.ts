@@ -189,12 +189,11 @@ export async function generate(
       throw PlatformError.config("models.image 未配置，这个能力不可用");
     }
     path = "/images/generations";
-    body = {
-      model,
-      prompt,
-      n: 1,
-      size: resolveSize(aspectRatio, resolution),
-    };
+    body = { model, prompt, n: 1 };
+    // 自适应（或没给比例）就不传 size，由平台定画幅：聚合模型（qwen-image-pro-enhanced）
+    // 会按改写后的内容挑比例，传了 size 它就照办、不再自己定。和视频的做法一致。
+    const ratio = aspectRatio.trim();
+    if (ratio !== "" && asciiUpper(ratio) !== "ADAPTIVE") body.size = resolveSize(aspectRatio, resolution);
   } else {
     const model = route(cfg.models, modelId, Modality.ImageEdit)?.model;
     if (model === undefined) {

@@ -220,6 +220,14 @@ describe("image（TS 移植新增）", () => {
     expect(TIMEOUT_MS).toBe(300_000);
   });
 
+  it("自适应或没给比例：不传 size，由平台定画幅", async () => {
+    for (const ratio of ["adaptive", "ADAPTIVE", "", "  "]) {
+      const { client, calls } = stub(() => Response.json({ data: [{ url: "https://o/a.png" }] }));
+      await generate(client, cfg(), "猫", [], ratio, "2K", null);
+      expect(calls[0]!.body).toEqual({ model: "qwen-image", prompt: "猫", n: 1 });
+    }
+  });
+
   it("图生图走 /images/edits，底图放 images", async () => {
     const { client, calls } = stub(() => Response.json({ data: [{ url: "https://o/b.png" }] }));
     await generate(client, cfg(), "重绘", ["data:image/png;base64,A"], "", "", null);
