@@ -2,11 +2,14 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { startFakeGateway, type FakeGateway } from "../testing/fake-gateway.js";
 import { createHarness, gatewayFor, resultJson, resultText, type Harness } from "../testing/harness.js";
 import { cacheKey, registerUtilityTools } from "./utility-tools.js";
+
+// Windows CI 上第一次调 read 要冷加载依赖，5 秒默认超时偶尔不够
+vi.setConfig({ testTimeout: 60_000 });
 
 let fake: FakeGateway;
 let h: Harness;
