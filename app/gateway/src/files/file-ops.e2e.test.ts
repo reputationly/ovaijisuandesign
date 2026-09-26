@@ -245,6 +245,10 @@ describe("文件面板操作（真实工作区）", () => {
       await new Promise((r) => setTimeout(r, 50));
       const node = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.id === nodeId);
       expect(node.data).toMatchObject({ name: "tiger.png", path: "素材/tiger.png" });
+      // 移动也一样：节点上记着的路径跟着换。
+      await http.post("/api/files/move").send({ paths: ["素材/tiger.png"], target: "拷贝" });
+      const moved = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.id === nodeId);
+      expect(moved.data).toMatchObject({ name: "tiger.png", path: "拷贝/tiger.png" });
     });
 
     it("recovery-result：只认 restored / failed", async () => {

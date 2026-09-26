@@ -3,6 +3,7 @@ import { lstat, rename } from "node:fs/promises";
 import { Injectable } from "@nestjs/common";
 import { toAssetInfo } from "@ov/assets";
 
+import { CanvasService } from "../canvas/canvas.service.js";
 import { AssetChangeLog, type AssetChange } from "../common/asset-change-log.js";
 import { AssetsService } from "../common/assets.service.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
@@ -18,7 +19,7 @@ function isVisibleDir(rel: string): boolean {
  *
  * 没有文件监听兜底：改名、移动之后库里的路径不跟着改的话，资产面板会看到一条"找不到文件"
  * 和一个新冒出来的陌生文件，画布上引用它的节点也断了。所以挪完就在库里换路径（id 不变），
- * 再按条发 `renamed`；挪的是文件夹时另外发 `dirs_changed`，让目录树重新拉一遍。
+ * 再按条发 `renamed`；挪的是文件夹时另外发 `dirs_changed`，让目录树重新拉一遍。画布节点上记着的路径也跟着换。
  * 改名、移动和它们的撤销都走这里，行为才一致。
  */
 @Injectable()
@@ -28,6 +29,7 @@ export class PathRelocator {
     private readonly assets: AssetsService,
     private readonly changes: AssetChangeLog,
     private readonly bus: GatewayEventBus,
+    private readonly canvas: CanvasService,
   ) {}
 
   /** 目标已存在时 POSIX rename 会直接覆盖文件，调用方负责先挑好不冲突的名字。 */
@@ -47,6 +49,7 @@ export class PathRelocator {
     }));
     if (evs.length === 1) this.changes.emit(this.paths.root, evs[0]!);
     else this.changes.emitBatch(this.paths.root, evs);
+    await this.canvas.syncAssetPaths(moved.map(({ row }) => ({ id: row.id, path: row.path })));
     if (isDir) {
       this.dirsChanged(oldRel, "removed");
       this.dirsChanged(newRel, "added");

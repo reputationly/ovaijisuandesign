@@ -1233,6 +1233,30 @@ export class CanvasService {
     }
   }
 
+  /**
+   * 资产挪了位置（移动、文件夹改名、撤销）：节点上记着的路径跟着换。只改本来就带 `data.path` 的节点 ——
+   * 其余节点按 assetId 解析，本来就不受影响。尽力而为，失败不影响挪动本身。
+   */
+  async syncAssetPaths(moved: { id: string; path: string }[]): Promise<void> {
+    if (moved.length === 0) return;
+    const byId = new Map(moved.map((m) => [m.id, m.path]));
+    try {
+      await this.mutate((c) => {
+        const updated: CanvasNode[] = [];
+        for (const n of c.nodes) {
+          const next = n.assetId ? byId.get(n.assetId) : undefined;
+          const data = n.data as Record<string, unknown> | undefined;
+          if (!next || typeof data?.path !== "string" || data.path === next) continue;
+          n.data = { ...data, path: next, ...(typeof data.name === "string" ? { name: path.posix.basename(next) } : {}) };
+          updated.push(n);
+        }
+        return updated.length ? { canvas: c, result: undefined, event: { updatedNodes: updated } } : { result: undefined };
+      });
+    } catch (err) {
+      this.log.warn(`挪动后更新画布节点路径失败: ${(err as Error).message}`);
+    }
+  }
+
   // -------------------------------------------------------------------------
   // 表格节点
   // -------------------------------------------------------------------------
