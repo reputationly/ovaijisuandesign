@@ -1,54 +1,84 @@
+import { resolveRootSession } from "./_session-skill-grants.js";
+import {
+  getWorkingLanguage,
+  getWorkingLanguageForSessions,
+  type WorkingLanguageContext,
+  type WorkingLanguageSource,
+} from "./_session-working-language.js";
+
 /**
- * 工作语言：界面在用户消息的 part metadata 里带 `hilo_working_language`，这里记下，
- * 每轮拼进 system 提示词末尾。agent 的合同里写着"用注入的 working_language 回复"——
- * 不注入的话它只能猜，而读完一份英文的知识库文件后常常就改说英文了。
+ * 工作语言：从用户消息 metadata 里读出来，每轮拼进 system 末尾。agent 的合同里写着"用注入的
+ * working_language 回复"——不注入的话它只能猜，读完一份中文的技能文件后常常就跟着换了语言。
  */
-export interface WorkingLanguage {
-  locale: string;
-  source: string;
-}
+export const WORKING_LANGUAGE_METADATA_KEY = "hilo_working_language";
 
-const SOURCES = new Set(["explicit", "current-message", "ui-preference", "session", "region"]);
-const bySession = new Map<string, WorkingLanguage>();
-const MAX = 2048;
+const SOURCES: readonly string[] = ["explicit", "current-message", "ui-preference", "session", "region"];
 
-export function recordFromParts(sessionId: string, parts: { metadata?: Record<string, unknown> }[]): void {
-  for (const p of parts) {
-    const wl = p.metadata?.hilo_working_language as Partial<WorkingLanguage> | undefined;
-    if (wl && typeof wl.locale === "string" && wl.locale && SOURCES.has(String(wl.source))) {
-      bySession.delete(sessionId);
-      bySession.set(sessionId, { locale: wl.locale, source: String(wl.source) });
-      if (bySession.size > MAX) bySession.delete(bySession.keys().next().value!);
-      return;
+export function workingLanguageFromParts(parts: readonly unknown[]): WorkingLanguageContext | undefined {
+  for (const raw of parts) {
+    const part = raw as { metadata?: Record<string, unknown> } | null;
+    if (!part || typeof part !== "object" || !part.metadata || typeof part.metadata !== "object") continue;
+    const rawContext = part.metadata[WORKING_LANGUAGE_METADATA_KEY] as { locale?: unknown; source?: unknown } | undefined;
+    if (!rawContext || typeof rawContext !== "object") continue;
+    const { locale, source } = rawContext;
+    if (typeof locale === "string" && SOURCES.includes(String(source))) {
+      return { locale, source: source as WorkingLanguageSource };
     }
   }
+  return undefined;
 }
 
-export function languageOf(sessionId: string): WorkingLanguage | undefined {
-  return bySession.get(sessionId);
-}
-
-export function workingLanguageBlock(wl: WorkingLanguage): string {
+/**
+ * 注入 system 的 `<working-language>` 块。逐字保持：agent 合同和技能里的 question 模板都按这里的
+ * 措辞理解"逐字"只约束语义、不约束模板的书写语言。
+ */
+export function formatWorkingLanguage(context: WorkingLanguageContext): string {
   return [
     "<working-language>",
-    `working_language: ${wl.locale}`,
-    `source: ${wl.source}`,
-    "- Reply to the user in the working language.",
-    "- Write every user-facing field of the question tool (question, header, option labels and descriptions) in the working language.",
-    "- Documents, plans and canvas text written for the user use the working language.",
-    "- The language of skill files, knowledge files or tool output never changes the working language.",
-    "- When a template says to ask something verbatim, keep its meaning, option count and order, but phrase it in the working language.",
+    `working_language: ${context.locale}`,
+    `source: ${context.source}`,
+    `Use ${context.locale} as working_language for interaction and instruction content in this turn: replies, progress updates, question fields, user-facing documents, planning descriptions, prompt instructions, and summaries.`,
+    "Audience-facing artifact language is owned by the selected Skill/workflow and confirmed user requirements. Do not infer it globally from market or audience.",
+    "Skill, workflow, and knowledge files may be written in Chinese for internal authoring. Their language must never change working_language.",
+    'For Question tool templates from Skill, workflow, or knowledge files, "verbatim", "fixed wording", and "do not rewrite" preserve business semantics, option count and order, recommendation, and result mapping—not the template authoring language.',
+    "Render every user-visible Question header, question, option label, and description in working_language. Preserve internal identifiers and exact user-provided text verbatim.",
+    "Do not let internal file language alter either language. Keep exact user-provided text verbatim. Briefly explain any hard provider language constraint to the user in working_language.",
     "</working-language>",
   ].join("\n");
 }
 
-/** 压缩之后 opencode 会补一条合成的"继续"消息；不加语言提示的话模型常常改说英文。 */
-export function continueLanguageHint(locale?: string): string {
-  const env = process.env.HILO_USER_LANG;
-  const l = (locale ?? env ?? "").toLowerCase();
-  if (l.startsWith("zh")) return "[language] 请用中文回复。";
-  if (l.startsWith("ja")) return "[language] 日本語で返答してください。";
-  if (l.startsWith("ko")) return "[language] 한국어로 답변해 주세요.";
-  if (l.startsWith("en")) return "[language] Reply in English.";
-  return "[language] Respond in the same language the user has been using.";
+/** 自己没有记录时沿根会话取：子 agent 的会话从来不直接收到用户消息。 */
+export async function getEffectiveWorkingLanguage(sessionId: string | undefined, gatewayUrl: string): Promise<WorkingLanguageContext | undefined> {
+  const direct = getWorkingLanguage(sessionId);
+  if (direct || !sessionId) return direct;
+  const rootSessionId = await resolveRootSession(sessionId, gatewayUrl);
+  if (rootSessionId === sessionId) return undefined;
+  return getWorkingLanguage(rootSessionId);
+}
+
+export async function getEffectiveWorkingLanguageForSessions(
+  sessionIds: readonly string[],
+  gatewayUrl: string,
+): Promise<WorkingLanguageContext | undefined> {
+  const direct = getWorkingLanguageForSessions(sessionIds);
+  if (direct) return direct;
+  for (const sessionId of sessionIds) {
+    const inherited = await getEffectiveWorkingLanguage(sessionId, gatewayUrl);
+    if (inherited) return inherited;
+  }
+  return undefined;
+}
+
+/** messages.transform 的入参没有会话 id：从消息和 part 上收集。 */
+export function collectMessageSessionIds(messages: readonly unknown[]): string[] {
+  const sessionIds = new Set<string>();
+  for (const rawMessage of messages) {
+    const message = rawMessage as { info?: { sessionID?: unknown }; parts?: unknown[] };
+    if (typeof message.info?.sessionID === "string") sessionIds.add(message.info.sessionID);
+    for (const rawPart of message.parts ?? []) {
+      const part = rawPart as { sessionID?: unknown } | null;
+      if (typeof part?.sessionID === "string" && part.sessionID.length > 0) sessionIds.add(part.sessionID);
+    }
+  }
+  return [...sessionIds];
 }

@@ -2,7 +2,7 @@
   "name": "@ov/opencode-plugin-hilo",
   "version": "0.0.0",
   "private": true,
-  "description": "opencode 插件：工作语言注入、loop-guard、给 hub 工具注入 _session_id 等。见 docs/plugin-hilo.md。",
+  "description": "opencode 插件：工作语言、记忆上下文、防打转、工具确认、技能授权、question 选项校验、给 hub 工具注入会话参数等。",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "@opencode-ai/plugin": "1.18.18",
-    "esbuild": "^0.28.2"
+    "@types/js-yaml": "4.0.9",
+    "esbuild": "^0.28.2",
+    "js-yaml": "4.3.2"
   }
 }

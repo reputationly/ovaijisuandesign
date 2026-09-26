@@ -196,6 +196,9 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
     // 插件按 NODE_ENV 选数据根：非 production 会去读 *-dev 目录。
     NODE_ENV: "production",
     HILO_LOAD_USER_MEMORY: "1",
+    // 插件按技能 SKILL.md 里声明的工具给 agent 授权，要和 gateway 找同一批技能目录。
+    HUB_SKILLS_DIR: i.skillsDir,
+    ...(i.userSkillsDir ? { HUB_USER_SKILLS_DIR: i.userSkillsDir } : {}),
     ...xdg,
     ...SWITCHES,
     // opencode 的 grep 工具要 `rg`，发布包里放在它旁边。

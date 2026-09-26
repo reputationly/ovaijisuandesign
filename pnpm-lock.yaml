@@ -303,9 +303,15 @@ importers:
       '@opencode-ai/plugin':
         specifier: 1.18.18
         version: 1.18.18
+      '@types/js-yaml':
+        specifier: 4.0.9
+        version: 4.0.9
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
+      js-yaml:
+        specifier: 4.3.2
+        version: 4.3.2
 
   app/packages/plan-store: {}
 
