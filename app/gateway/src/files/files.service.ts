@@ -2,13 +2,14 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, type OnApplicationBootstrap } from "@nestjs/common";
 import { reconcileWorkspace, toAssetInfo } from "@ov/assets";
 import { type AssetInfo, detectFileType, MEDIA_EXTENSIONS } from "@ov/protocol";
 
 import { AssetChangeLog } from "../common/asset-change-log.js";
 import { AssetsService } from "../common/assets.service.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
+import { GatewayConfig } from "../config/gateway-config.js";
 import { MutationQueue } from "../operations/mutation-queue.js";
 import { type UndoOp, TrashBufferService } from "../operations/trash-buffer.service.js";
 import { deriveImportTarget, sanitizeFileName, uploadFileName, writeFileExclusive, writeUniqueSpaced } from "./file-names.js";
@@ -26,14 +27,28 @@ export interface UploadedFileLike {
 }
 
 @Injectable()
-export class FilesService {
+export class FilesService implements OnApplicationBootstrap {
+  private readonly log = new Logger(FilesService.name);
+
   constructor(
     private readonly paths: WorkspacePathService,
     private readonly assets: AssetsService,
     private readonly changes: AssetChangeLog,
     private readonly trash: TrashBufferService,
     private readonly queue: MutationQueue,
+    private readonly cfg: GatewayConfig,
   ) {}
+
+  /**
+   * 工作区 gateway 起来后在后台和盘上对一遍账：不开应用时放进文件夹的文件、上次没来得及登记的文件，
+   * 要不然打开工作区时文件面板和 @ 搜索里都看不到。失败不影响启动，只记一条警告。
+   */
+  onApplicationBootstrap(): void {
+    if (this.cfg.role !== "workspace") return;
+    setImmediate(() => {
+      this.reconcileAssets().catch((err: unknown) => this.log.warn(`启动时对账失败（不影响使用）：${err instanceof Error ? err.message : String(err)}`));
+    });
+  }
 
   /** 相对路径 → 绝对路径，越界统一 400（不回显路径，免得把探测结果反馈给调用方）。 */
   resolve(rel: string): string {
