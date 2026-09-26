@@ -10,6 +10,7 @@ import { ComfyUiModule } from "./comfyui/comfyui.controller.js";
 import { CommonModule } from "./common/common.module.js";
 import { DagModule } from "./dag/dag.module.js";
 import { EditModule } from "./edit/edit.module.js";
+import { FeatureModules } from "./feature-modules.js";
 import { FeedbackExtractorModule } from "./feedback-extractor/feedback-extractor.module.js";
 import { FilesModule } from "./files/files.module.js";
 import { GenerateModule } from "./generate/generate.module.js";
@@ -28,5 +29,5 @@ import { SpeechModule } from "./speech/speech.module.js";
 /**
  * 根模块。模块按里程碑逐个补。
  */
-@Module({ imports: [CommonModule, HealthModule, OperationsModule, FilesModule, CanvasModule, SafetyModule, RuntimeModule, ChatModule, GenerateModule, SpeechModule, EditModule, PlanModule, FeedbackExtractorModule, AssetPreviewModule, SkillsModule, CloudConfigModule, AssetCenterModule, ComfyUiModule, PluginsModule, ProjectArchiveModule, LutsModule, DagModule, CanvasReferencesModule, MusicToolsModule] })
+@Module({ imports: [CommonModule, HealthModule, OperationsModule, FilesModule, CanvasModule, SafetyModule, RuntimeModule, ChatModule, GenerateModule, SpeechModule, EditModule, PlanModule, FeedbackExtractorModule, AssetPreviewModule, SkillsModule, CloudConfigModule, AssetCenterModule, ComfyUiModule, PluginsModule, ProjectArchiveModule, LutsModule, DagModule, CanvasReferencesModule, MusicToolsModule, FeatureModules] })
 export class AppModule {}
