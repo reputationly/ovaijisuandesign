@@ -16,8 +16,8 @@ backend: maas
 |---|---|---|---|
 | 文生图 | `hub_generate_image` | `vendor: banana`，不传 `model_id` | `qwen-image-pro-enhanced`（或用户配的 `qwen-image-pro`） |
 | 图生图 / 编辑 | `hub_generate_image` + `image_paths` | 同上 | 配了编辑模型就用它，否则同一个出图模型 |
-| 视频（t2v / i2v / 首尾帧） | `hub_generate_video` | `vendor: MiniMax`，`model_id: MiniMax-H3` | `minimax-h3-fl2va` |
-| 参考素材驱动的视频 | `hub_generate_video` + `mode: multimodal` | 同上 | `minimax-h3-ref2va` |
+| 视频（t2v / i2v / 首尾帧） | `hub_generate_video` | `vendor: MiniMax`，`model_id: MiniMax-H3` | `minimax-h3-2k`（或用户配的 `minimax-h3-fl2va`） |
+| 参考素材驱动的视频 | `hub_generate_video` + `mode: multimodal` | 同上 | `minimax-h3-ref-2k`（或 `minimax-h3-ref2va`） |
 | 文生音乐 | `hub_generate_audio_music` | 不传 `vendor`，`model_id: music-3.0` | `minimax-music3` |
 | 语音 | `hub_generate_audio_speech` | 不传 `vendor`，`model_name: speech-2.8-hd` | `indextts-2.5`（零样本克隆） |
 
@@ -35,6 +35,9 @@ backend: maas
   - 提示词写清楚要画什么、画面里要出现的文字原样写出即可，不必自己堆砌摄影参数和长描述，改写会做这件事。
   - 改图时底图会一起交给改写模型看，描述只写要改的地方和要保留的东西。
   - 单张耗时比裸模型多约 1 分钟（改写 + 出图），一次别同时挂太多张。
+- 视频模型是 `minimax-h3-2k` / `minimax-h3-ref-2k` 时，平台会先改写提示词，在 768P 生成，再自动超分到 2K 交付：
+  - 用户要的清晰度 / 分辨率不用再传，成片就是 2K；比例照常用 `aspect_ratio` 传。
+  - 单条耗时是裸模型的几倍（改写 + 生成 + 超分），计费也按三段合计；并发更要收着（3 条以内）。
 
 ## 已知 bug
 
