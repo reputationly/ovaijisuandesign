@@ -28,13 +28,15 @@ beforeEach(() => {
 
 describe("附件路径", () => {
   it("用户消息：file part 的 file: URL + 正文开头的附件清单；远程 URL 跳过，Windows 盘符保留", () => {
+    // file: URL 按本机规则转路径：Windows 上要带盘符，否则不是本地文件、会被跳过。
+    const win = process.platform === "win32";
     const parts = [
-      { type: "file", url: "file:///tmp/a%20b.png" },
+      { type: "file", url: win ? "file:///C:/tmp/a%20b.png" : "file:///tmp/a%20b.png" },
       { type: "file", url: "https://x/y.png" },
       { type: "text", text: "[User attached files:\n- [1] image: /w/cat.png\n- video: C:\\v\\clip.mp4\n- https://cdn/x.png\n\n- /ignored.png\n]\n\n帮我做个视频" },
       { type: "text", text: "正文里 [User attached files:\n- /not-at-start.png\n]\n\n" },
     ];
-    expect(userAttachmentPaths(parts)).toEqual(["/tmp/a b.png", "/w/cat.png", "C:\\v\\clip.mp4"]);
+    expect(userAttachmentPaths(parts)).toEqual([win ? "C:\\tmp\\a b.png" : "/tmp/a b.png", "/w/cat.png", "C:\\v\\clip.mp4"]);
   });
 
   it("工具参数：按命名约定取输入路径，最多 32 个、去重", () => {
