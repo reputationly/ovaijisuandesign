@@ -20,6 +20,11 @@ function additionalArguments(a: WindowArgs): string[] {
   return args;
 }
 
+/** 开发用：窗口不显示（界面逐屏对比时在后台跑，不抢焦点、不被人误操作）。页面照常渲染，截图走调试协议。 */
+export function devHiddenWindow(): boolean {
+  return !app.isPackaged && process.env.OV_DEV_HIDDEN_WINDOW === "1";
+}
+
 /**
  * 主窗口（唯一的窗口；工作区是渲染层里的标签）。
  *
@@ -52,7 +57,7 @@ export function createMainWindow(a: WindowArgs): BrowserWindow {
       additionalArguments: additionalArguments(a),
     },
   });
-  win.once("ready-to-show", () => win.show());
+  if (!devHiddenWindow()) win.once("ready-to-show", () => win.show());
   // 渲染层用 window.open 开一个透明小窗来放系统级浮层提示；我们没有这种窗口，拒掉后它会退回页面内的提示。
   // 网页链接交给系统浏览器，其余一律不开新窗口。
   win.webContents.setWindowOpenHandler(({ url }) => {

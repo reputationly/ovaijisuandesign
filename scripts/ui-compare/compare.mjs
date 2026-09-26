@@ -37,11 +37,13 @@ const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:n
 const SETTLE = `(async()=>{
   for (const v of document.querySelectorAll("video")) { try { v.pause(); v.currentTime = 0; } catch {} }
   await Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); })));
-  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 500); });
 })()`;
 // 首次启动的弹窗（AI 水印设置等）会挡住页面：两边都点掉。
 const DISMISS_STARTUP = `(()=>{
-  const btn = [...document.querySelectorAll("button")].find((b) => ["保存设置", "我知道了", "知道了", "关闭"].includes(b.innerText.trim()));
+  // 只点真正露在最上层的按钮：后台保活的工作区页面里也有同名按钮
+  const onTop = (b) => { const r = b.getBoundingClientRect(); return r.width > 0 && b.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)); };
+  const btn = [...document.querySelectorAll("button")].find((b) => ["保存设置", "我知道了", "知道了", "关闭"].includes(b.innerText.trim()) && onTop(b));
   if (btn) { btn.click(); return btn.innerText.trim(); }
   return "";
 })()`;
@@ -67,7 +69,14 @@ async function cdp(port) {
           else if (m.method === "Runtime.exceptionThrown") errors.push("EXC " + (m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text).split("\n")[0]);
           else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300));
         };
-        const send = (method, params = {}) => new Promise((resolve) => { const id = ++seq; pending.set(id, resolve); ws.send(JSON.stringify({ id, method, params })); });
+        // 页面卡死时不要无限等：每个调用 60 秒超时
+        const send = (method, params = {}) =>
+          new Promise((resolve, reject) => {
+            const id = ++seq;
+            const timer = setTimeout(() => reject(new Error(`${method} 60 秒没响应，界面可能卡死或报错了`)), 60000);
+            pending.set(id, (m) => (clearTimeout(timer), resolve(m)));
+            ws.send(JSON.stringify({ id, method, params }));
+          });
         await send("Runtime.enable");
         await send("Page.enable");
         return { send, errors, close: () => ws.close() };
@@ -79,15 +88,20 @@ async function cdp(port) {
 }
 
 async function runMode(mode) {
+  // 上一次异常退出留下的实例会占着调试端口，连上去就是旧页面
+  if (await fetch(`http://127.0.0.1:${PORT}/json`).then(() => true, () => false)) throw new Error(`调试端口 ${PORT} 已被占用，先关掉残留的 Electron`);
   // 每次都从模板重置数据：两种界面看到的是完全一样的状态
   rmSync(ROOT, { recursive: true, force: true });
   mkdirSync(ROOT, { recursive: true });
   for (const d of ["ud", "data"]) mkdirSync(path.join(ROOT, d));
+  // 引导提示（coach mark）预先标成已看过：它们是延时弹出的，会让截图时有时无
+  cpSync(path.join(FIXTURE, "ud"), path.join(ROOT, "ud"), { recursive: true });
   cpSync(path.join(FIXTURE, "ws-a"), WS_A, { recursive: true });
   cpSync(path.join(FIXTURE, "ws-b"), WS_B, { recursive: true });
   const env = {
     ...process.env,
     OV_UI: mode,
+    OV_DEV_HIDDEN_WINDOW: "1",
     OV_USER_DATA_DIR: `${ROOT}/ud`,
     HILO_DATA_DIR: `${ROOT}/data`,
     OV_SKIP_LEGACY_MIGRATION: "1",
@@ -96,7 +110,14 @@ async function runMode(mode) {
     ...(process.env.OPENCODE_BIN ? {} : { OPENCODE_BIN: "/Applications/MiniMax Design.app/Contents/Resources/opencode/opencode" }),
   };
   const electron = createRequire(path.join(repo, "app/desktop/package.json"))("electron");
-  const child = spawn(electron, [path.join(repo, "app/desktop"), `--remote-debugging-port=${PORT}`], { env, stdio: "ignore", detached: true });
+  const child = spawn(electron, [
+    path.join(repo, "app/desktop"),
+    `--remote-debugging-port=${PORT}`,
+    // 窗口被挡住或在后台时 Chromium 会停掉渲染（requestAnimationFrame 不回调），对比会卡住
+    "--disable-renderer-backgrounding",
+    "--disable-backgrounding-occluded-windows",
+    "--disable-background-timer-throttling",
+  ], { env, stdio: "ignore", detached: true });
   const results = {};
   try {
     const c = await cdp(PORT);
@@ -106,13 +127,21 @@ async function runMode(mode) {
       await sleep(800);
     }
     for (const p of PAGES) {
+      console.log(`  ${mode} ${p.id}`);
       c.errors.length = 0;
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(`app://.${p.url}`)})` });
       await sleep(6000);
       await c.send("Runtime.evaluate", { expression: `(()=>{const s=document.createElement('style');s.textContent=${JSON.stringify(NO_ANIMATION)};document.head.appendChild(s)})()` });
-      await c.send("Runtime.evaluate", { expression: DISMISS_STARTUP });
-      await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
-      await sleep(1000);
+      // 引导提示（快速切换布局模式等）是延时弹出的，多点几轮，直到连续一轮什么都没点到
+      for (let i = 0; i < 5; i++) {
+        const r = await c.send("Runtime.evaluate", { expression: DISMISS_STARTUP, returnByValue: true });
+        await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
+        await sleep(1500);
+        if (!r.result?.result?.value && i >= 1) break;
+      }
+      // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
+      await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+      await sleep(300);
       const shot = await c.send("Page.captureScreenshot", { format: "png" });
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, Buffer.from(shot.result.data, "base64"));

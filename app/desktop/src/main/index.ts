@@ -38,7 +38,7 @@ import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
 import { stubChannels } from "./stub-channels.js";
-import { createMainWindow } from "./window.js";
+import { createMainWindow, devHiddenWindow } from "./window.js";
 import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
 import { HiloApp } from "./workspace/hilo-app.js";
 import { identityHeaders } from "./workspace/identity.js";
@@ -86,6 +86,7 @@ function showMainWindow(appUrl: string): BrowserWindow {
     w = createMainWindow({ gatewayUrl: appUrl });
     wireFullscreenEvents(w);
   }
+  if (devHiddenWindow()) return w;
   if (w.isMinimized()) w.restore();
   w.show();
   w.focus();
@@ -342,14 +343,18 @@ async function boot(): Promise<Running> {
     log,
   });
 
-  // 开发用：启动后直接打开这些工作区（路径用系统分隔符隔开），便于不经界面验证多工作区
+  // 开发用：启动后直接打开这些工作区（路径用系统分隔符隔开），便于不经界面验证多工作区。
+  // 按给定顺序一个一个打开，最近项目的先后才是确定的（界面逐屏对比依赖这一点）。
   if (!app.isPackaged && process.env.OV_DEV_OPEN_WORKSPACES) {
-    for (const p of process.env.OV_DEV_OPEN_WORKSPACES.split(path.delimiter).filter(Boolean)) {
-      void hilo.openWorkspaceWithResult(p).then(
-        (r) => log(`[dev] open ${p} → ${r.kind}${r.kind === "opened" || r.kind === "reused" ? ` ${r.runtime.gatewayUrl}` : ""}`),
-        (err) => log(`[dev] open ${p} failed: ${String(err)}`),
-      );
-    }
+    const paths = process.env.OV_DEV_OPEN_WORKSPACES.split(path.delimiter).filter(Boolean);
+    void (async () => {
+      for (const p of paths) {
+        await hilo.openWorkspaceWithResult(p).then(
+          (r) => log(`[dev] open ${p} → ${r.kind}${r.kind === "opened" || r.kind === "reused" ? ` ${r.runtime.gatewayUrl}` : ""}`),
+          (err) => log(`[dev] open ${p} failed: ${String(err)}`),
+        );
+      }
+    })();
   }
 
   // 开发用：到时间走一遍正常退出流程（验证退出时不留孤儿进程）

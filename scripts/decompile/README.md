@@ -16,7 +16,21 @@ node scripts/ui-compare/compare.mjs          # official-raw ↔ recovered 逐屏
 
 `OV_UI=recovered` 启动桌面端就是用还原版界面。
 
-- `gen-renderer.mjs`：主 bundle 还原 JSX、去掉预加载包装，JSX 通过 `__jsx` 适配函数调回原来的 `jsx` / `jsxs` 运行时。
+逐屏对比在后台隐藏窗口里跑（`OV_DEV_HIDDEN_WINDOW=1`），不抢焦点；测试数据里预先把引导提示标成已看过。
+
+## 阶段 1：第三方库和参照代码分开
+
+先跑一遍归类（`bash scripts/decompile/run-all.sh`，产出 `.probe/decompile/classified.json`），再跑 `gen-renderer.mjs`，
+主 bundle 就拆成两份：
+
+- `src/vendor.js`：第三方库，原样，末尾 `export` 出 main 用到的名字；
+- `src/main.jsx`：参照自己的代码，JSX 已还原，开头从 `./vendor.js` 导入。
+
+拆分规则在 `split.mjs`：vendor 不能引用 main、main 不能给 vendor 的变量赋值、模块初始化时给库对象挂属性的语句和库待在同一边；
+有锚点（逐字比对确认过）的语句说了算，没把握的一律留在 main。`split-report.mjs` 按包汇总 vendor 的内容，
+之后按这个清单逐个换成 npm 包（`07-versions.mjs` 反推版本），每换一个都构建 + 逐屏对比。
+
+- `gen-renderer.mjs`：主 bundle 去掉预加载包装、拆 vendor / main、main 还原 JSX；JSX 通过 `__jsx` 适配函数调回原来的 `jsx` / `jsxs` 运行时。
 - `jsx-lib.mjs`：`jsxRuntimeExports.jsx(...)` → JSX 的转换。
 
 ## 阶段 1 起用到的分析工具
