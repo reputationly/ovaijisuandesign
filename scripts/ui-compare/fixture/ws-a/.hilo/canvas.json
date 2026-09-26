@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "mode": "workflow",
+  "nodes": [
+    {
+      "id": "4db95676-40ee-49d0-8b2e-d010e25fd0e3",
+      "type": "image",
+      "positions": {
+        "workflow": {
+          "x": -71,
+          "y": 38
+        }
+      },
+      "size": {
+        "width": 350,
+        "height": 235
+      },
+      "assetId": "7c99bb9f-bae3-41aa-a3db-0e5e6a6b605f",
+      "data": {
+        "createdAt": "2026-09-25T08:39:47.494Z"
+      }
+    },
+    {
+      "id": "af64baa9-6c18-4b9e-b7f5-eae6d889bc71",
+      "type": "image",
+      "positions": {
+        "workflow": {
+          "x": 379,
+          "y": 38
+        }
+      },
+      "size": {
+        "width": 350,
+        "height": 197
+      },
+      "assetId": "edbebfbc-2657-4043-9a4f-5a78dbf79576",
+      "data": {
+        "createdAt": "2026-09-26T00:28:20.149Z"
+      }
+    }
+  ],
+  "edges": []
+}

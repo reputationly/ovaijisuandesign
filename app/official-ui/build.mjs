@@ -13,11 +13,18 @@ import { ASSETS, PATCHES, VERSION } from "./patches.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "../..");
 const src = path.join(repo, "reference", VERSION, "app/out/renderer");
-const out = path.join(repo, "app/desktop/out/official-ui");
+// --raw：原样拷一份、不打补丁、不加资源，输出到 official-ui-raw，给还原版做逐屏对比的基准。
+const RAW = process.argv.includes("--raw");
+const out = path.join(repo, RAW ? "app/desktop/out/official-ui-raw" : "app/desktop/out/official-ui");
 
 if (!existsSync(path.join(src, "index.html"))) throw new Error(`找不到渲染层 ${src}`);
 rmSync(out, { recursive: true, force: true });
 cpSync(src, out, { recursive: true });
+
+if (RAW) {
+  console.log(`official-ui ${VERSION}（原样，不打补丁）→ ${path.relative(repo, out)}`);
+  process.exit(0);
+}
 
 let failed = 0;
 const fail = (msg) => {

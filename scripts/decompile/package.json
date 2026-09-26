@@ -1,0 +1,13 @@
+{
+  "name": "ov-decompile",
+  "private": true,
+  "type": "module",
+  "description": "界面源码还原用的工具（开发时用，不进产品）。见 scripts/decompile/README.md。",
+  "dependencies": {
+    "@babel/generator": "^7.29.8",
+    "@babel/parser": "^7.29.9",
+    "@babel/traverse": "^7.29.8",
+    "@babel/types": "^7.29.8",
+    "prettier": "^3.9.9"
+  }
+}
