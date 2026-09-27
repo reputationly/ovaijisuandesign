@@ -20,6 +20,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { restoreJsx } from "./jsx-lib.mjs";
+import { swapPackages } from "./npm-swap.mjs";
 import { splitProgram } from "./split.mjs";
 
 const traverse = _traverse.default;
@@ -29,6 +30,23 @@ const repo = path.resolve(here, "../..");
 const version = process.argv[2] ?? "3.0.16";
 const assets = path.join(repo, "reference", version, "app/out/renderer/assets");
 const outDir = path.join(repo, "app/renderer/src");
+const swapList = JSON.parse(readFileSync(path.join(here, "npm-packages.json"), "utf8"));
+// 换成 npm 的包写进 app/renderer/package.json（精确版本）。被换的包之间的依赖在根 package.json 的
+// pnpm.overrides 里按 "父>子" 钉成同一个版本，保证依赖树里只有一份实例（只影响这些包，不碰仓库里别的包）。
+function writeDependencies(done) {
+  const version = Object.fromEntries(done.map((r) => [r.name, r.version]));
+  const file = path.join(repo, "app/renderer/package.json");
+  const pj = JSON.parse(readFileSync(file, "utf8"));
+  pj.dependencies = Object.fromEntries(Object.entries({ ...pj.dependencies, ...version }).sort());
+  writeFileSync(file, JSON.stringify(pj, null, 2) + "\n");
+  const pins = Object.fromEntries(done.flatMap((r) => (r.deps ?? []).filter((d) => version[d]).map((d) => [`${r.name}>${d}`, version[d]])));
+  if (!Object.keys(pins).length) return;
+  const rootFile = path.join(repo, "package.json");
+  const root = JSON.parse(readFileSync(rootFile, "utf8"));
+  root.pnpm ??= {};
+  root.pnpm.overrides = Object.fromEntries(Object.entries({ ...root.pnpm.overrides, ...pins }).sort());
+  writeFileSync(rootFile, JSON.stringify(root, null, 2) + "\n");
+}
 const classified = process.env.CLASSIFIED ?? path.join(repo, ".probe/decompile/classified.json");
 
 const MAIN = readdirSync(assets).find((n) => /^index-[\w-]{8}\.js$/.test(n) && readFileSync(path.join(assets, n), "utf8").includes("__vite__mapDeps"));
@@ -75,13 +93,20 @@ let chunks = 0;
 for (const name of readdirSync(assets)) {
   const file = path.join(assets, name);
   if (name === MAIN) {
-    let ast = parse(readFileSync(file, "utf8"), { sourceType: "module", plugins: ["jsx"], errorRecovery: true });
+    const bundleSrc = readFileSync(file, "utf8");
+    let ast = parse(bundleSrc, { sourceType: "module", plugins: ["jsx"], errorRecovery: true });
     const preload = stripPreload(ast);
     let header = "";
     if (existsSync(classified)) {
       const { vendor, main, exportNames, stats } = splitProgram(ast, JSON.parse(readFileSync(classified, "utf8")));
       // JSX 适配函数和 Fragment 要用 jsxRuntimeExports，即使它在 vendor 里也得导入
       const imports = [...new Set([...exportNames, ...(vendor.program.body.some((n) => declares(n, "jsxRuntimeExports")) ? ["jsxRuntimeExports"] : [])])].sort();
+      if (swapList.length) {
+        console.log(`换成 npm 包（${swapList.length} 个）：`);
+        const reports = swapPackages(vendor, bundleSrc, imports, swapList, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
+        writeDependencies(reports.filter((r) => !r.error));
+        if (reports.some((r) => r.error) && process.env.SWAP_STRICT !== "0") throw new Error("有包没换成，见上面的 ✗");
+      }
       const vendorCode = generate(vendor, { comments: true, jsescOption: { minimal: true } }).code + `\nexport { ${imports.join(", ")} };\n`;
       writeFileSync(path.join(outDir, "vendor.js"), renameViteHelpers(vendorCode));
       header = `import { ${imports.join(", ")} } from "./vendor.js";\n`;

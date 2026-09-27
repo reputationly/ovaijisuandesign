@@ -94,6 +94,7 @@ export function splitProgram(ast, cls, { debug = false } = {}) {
         if (kind[d] !== "app") continue;
         if (pin[d] === "app") changed = set(i, "app", true, d) || changed; // 依赖一定在 main 的东西，自己也一定在 main
         else if (pin[i] === "lib") changed = set(d, "lib", true, i) || changed; // 确定是库的依赖它，它也是库
+        else if (!refs[d].size) changed = set(d, "lib", false, i) || changed; // 它不引用任何东西（var x = {} 之类），放进 vendor 总是安全的
         else changed = set(i, "app", false, d) || changed; // 两边都没把握：留在 main 总是安全的
         if (kind[i] !== "lib") break;
       }
@@ -106,7 +107,7 @@ export function splitProgram(ast, cls, { debug = false } = {}) {
         if (kind[d] !== "lib") continue;
         if (pin[i] === "app") changed = set(d, "app", true, i) || changed;
         else if (pin[d] === "lib") changed = set(i, "lib", true, d) || changed;
-        else changed = set(d, "app", false, i) || changed;
+        else changed = set(d, "app", true, i) || changed; // 钉住，否则规则 1 会把不引用东西的它再挪回 vendor，来回摆
         if (kind[i] !== "app") break;
       }
     }
