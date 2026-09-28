@@ -20,7 +20,40 @@
   },
   "pnpm": {
     "overrides": {
-      "react-dom>react": "19.2.4"
+      "@codemirror/lang-css>@lezer/common": "1.5.2",
+      "@dnd-kit/sortable>@dnd-kit/utilities": "3.2.2",
+      "@dnd-kit/sortable>react": "19.2.4",
+      "@dnd-kit/utilities>react": "19.2.4",
+      "@lezer/highlight>@lezer/common": "1.5.2",
+      "@lezer/html>@lezer/common": "1.5.2",
+      "@lezer/html>@lezer/highlight": "1.2.3",
+      "@lezer/html>@lezer/lr": "1.4.10",
+      "@lezer/lr>@lezer/common": "1.5.2",
+      "d3-drag>d3-dispatch": "3.0.1",
+      "d3-drag>d3-selection": "3.0.0",
+      "micromark-extension-gfm-task-list-item>micromark-factory-space": "2.0.1",
+      "micromark-extension-gfm-task-list-item>micromark-util-character": "2.1.1",
+      "micromark-factory-destination>micromark-util-character": "2.1.1",
+      "micromark-factory-space>micromark-util-character": "2.1.1",
+      "micromark-factory-title>micromark-factory-space": "2.0.1",
+      "micromark-factory-title>micromark-util-character": "2.1.1",
+      "micromark-factory-whitespace>micromark-factory-space": "2.0.1",
+      "micromark-factory-whitespace>micromark-util-character": "2.1.1",
+      "micromark-util-classify-character>micromark-util-character": "2.1.1",
+      "micromark-util-subtokenize>micromark-util-chunked": "2.0.1",
+      "prosemirror-keymap>w3c-keyname": "2.2.8",
+      "prosemirror-model>orderedmap": "2.1.1",
+      "prosemirror-schema-list>prosemirror-model": "1.25.11",
+      "prosemirror-schema-list>prosemirror-state": "1.4.4",
+      "prosemirror-schema-list>prosemirror-transform": "1.12.1",
+      "prosemirror-state>prosemirror-model": "1.25.11",
+      "prosemirror-state>prosemirror-transform": "1.12.1",
+      "prosemirror-transform>prosemirror-model": "1.25.11",
+      "react-dom>react": "19.2.4",
+      "react-error-boundary>react": "19.2.4",
+      "sonner>react": "19.2.4",
+      "sonner>react-dom": "19.2.4",
+      "use-sync-external-store>react": "19.2.4"
     }
   }
 }

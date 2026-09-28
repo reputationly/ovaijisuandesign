@@ -101,15 +101,40 @@ for (const name of readdirSync(assets)) {
       const { vendor, main, exportNames, stats } = splitProgram(ast, JSON.parse(readFileSync(classified, "utf8")));
       // JSX 适配函数和 Fragment 要用 jsxRuntimeExports，即使它在 vendor 里也得导入
       const imports = [...new Set([...exportNames, ...(vendor.program.body.some((n) => declares(n, "jsxRuntimeExports")) ? ["jsxRuntimeExports"] : [])])].sort();
-      if (swapList.length) {
+      // main 语句实际引用的 vendor 名：main 的 import 表是"宁多勿少"的语句粒度导出，
+      // 其中很多名字 main 并不使用（也不被 chunk re-export），把全集传给 swapEsm 会让"包的内部名
+      // 恰好在表里"变成假冲突（unwrapElement）。main 尾部的 export {...} 不受影响——那些名字
+      // 依然从 vendor import（import 行见下），只是不再要求被换的包认领它们。
+      const imported = new Set(imports);
+      const mainRefs = new Set();
+      // split 后的 main 还没有 import 行（header 最后才拼），"main 在用"的判据是：
+      // 名字在 import 表里且 main 内部没有同名绑定（split 保证 main 不重定义 vendor 的名字）。
+      // split.mjs 内部 traverse 过同一个 Program 节点，babel 的 scope 缓存还在上面：
+      // body 被替换后 getBinding 仍会返回已移到 vendor 的定义，下面的判定就永远不成立。
+      // 清掉缓存让这次 traverse 重建 scope。
+      traverse.cache.clear();
+      traverse(main, {
+        ReferencedIdentifier(p) {
+          if (imported.has(p.node.name) && !p.scope.getBinding(p.node.name)) mainRefs.add(p.node.name);
+        },
+      });
+            if (swapList.length) {
         console.log(`换成 npm 包（${swapList.length} 个）：`);
-        const reports = swapPackages(vendor, bundleSrc, imports, swapList, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
+        const reports = swapPackages(vendor, bundleSrc, [...mainRefs], swapList, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
         writeDependencies(reports.filter((r) => !r.error));
         if (reports.some((r) => r.error) && process.env.SWAP_STRICT !== "0") throw new Error("有包没换成，见上面的 ✗");
       }
       const vendorCode = generate(vendor, { comments: true, jsescOption: { minimal: true } }).code + `\nexport { ${imports.join(", ")} };\n`;
       writeFileSync(path.join(outDir, "vendor.js"), renameViteHelpers(vendorCode));
-      header = `import { ${imports.join(", ")} } from "./vendor.js";\n`;
+      {
+        // main 的 import 行同样收紧：mainRefs ∪（export 表里仍由 vendor 提供的原名）。
+        // export 表 618 项里 508 项的原名是 main 自己定义的组件，不需要 import；
+        // 死名字（requireType 之类）定义已被换成 npm 的包删掉，import 了反而是未定义错误。
+        const exportOrigins = (generate(main).code.match(/export \{([\s\S]*?)\};?\s*$/) ?? ["", ""])[1]
+          .split(",").map((s) => s.trim().split(/\s+as\s+/)[0].trim()).filter((n) => imported.has(n));
+        const need = [...new Set([...mainRefs, ...exportOrigins])].sort();
+        header = `import { ${need.join(", ")} } from "./vendor.js";\n`;
+      }
       ast = main;
       console.log(`拆分：vendor ${stats.lib} 条语句，main ${stats.app} 条，导出 ${imports.length} 个名字，收敛 ${stats.rounds} 轮`);
     }
