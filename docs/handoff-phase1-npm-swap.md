@@ -14,6 +14,14 @@
 
 **能跑通的部分：** react、react-dom、@lezer/common 三个包已换成功（gen-renderer 全流程跑通过，8 屏对比 0.000%，是上个会话验证的）。
 
+**像素对比的假差异已查清（2026-09-28）。** 一度出现 home 7.704% / skills 6.393%，看着像我们换包改坏了渲染。查了四层：
+差异永远落在卡片封面那 432px 宽 × 240px 高的矩形里（差异带 `y1222-1464`、`y533-770`、`y1091-1328`，列段 `634-1065` / `2031-2461`），
+非封面区域逐行完全一致；而这些封面是 **CDN 上的 mp4**（`cdn.hailuoai.com/...`，实测 18 个 `video` 元素里只有 4~8 个能解码出来）。
+**决定性证据**：不挡 CDN 时，同一种模式连跑两次差 **7.342%**——比两种构建之间的差（2.451%）还大。
+所以这是采集噪声，不是渲染回归。`compare.mjs` 现在采集时挡掉 `*cdn.hailuoai.com*`，改完连跑两次 8 屏全 0.000%。
+（另外顺带修了两处会让结果不可信的东西：截图改成"连拍到相邻两帧一致"，`diff` 的硬编码阈值 24 收进 `TOL` 常量。）
+**注意**：`official-raw` ↔ `official-raw` 这种自比会写同名文件、自己和自己比必然 0%，别拿它当"稳定"的证据。
+
 **卡住的地方：** 完整跑 `gen-renderer.mjs`（88 包清单时）从第 4 个包 @floating-ui/dom 起级联失败。今天诊断跑（40 分钟后手动杀掉）输出在
 `/private/tmp/claude-501/…/tasks/bhygob901.output`（本机会话临时目录，可能已清理；结论已抄在下面）：
 
@@ -65,6 +73,8 @@ node app/official-ui/build.mjs --raw
 # 逐屏像素对比（official-raw ↔ recovered，隐藏窗口跑，8 个页面）
 node scripts/ui-compare/compare.mjs
 #   结果在 .probe/ui-compare/<时间戳>/，report.json 里 diff 百分比；要求全部 0.000%
+#   采集时会挡掉 CDN 上那批卡片封面视频（*cdn.hailuoai.com*）：它们是外部资源、边下边播，
+#   同一份界面连跑两次能差出 7%，会把真正的界面差异淹掉。挡掉后两边封面都是空白，差异才有意义。
 ```
 
 调试单个包为什么没认全：`scripts/decompile/dbg-swap.mjs`（**我刚建了个空壳，没写完**）。

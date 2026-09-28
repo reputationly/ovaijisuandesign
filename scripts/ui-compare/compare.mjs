@@ -6,6 +6,9 @@
 // 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会生成 out/official-ui 等）、
 //       official-raw 用 node app/official-ui/build.mjs --raw 生成、recovered 用 pnpm --filter @ov/renderer build。
 // 结果写到 .probe/ui-compare/<时间>/：每页两张截图 + 差异图 + report.json；终端打印每页差异比例。
+//
+// 注意：卡片封面是 CDN 上的 mp4，属外部资源、与仓库代码无关，采集时会被挡掉（见 BLOCKED_URLS）。
+// 不挡的话同一份界面连跑两次都能差出 7%——差异来自视频下到第几帧，会掩盖真正的界面差异。
 import { spawn } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -33,7 +36,7 @@ const PAGES = [
   { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
 ];
 const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}";
-// 截图前让页面静下来：视频（技能卡片封面是自动播放的 mp4）停在第 0 帧，等图片加载完。
+// 截图前让页面静下来：视频（封面已被挡掉，这里顺手停在第 0 帧）停住，等图片加载完。
 const SETTLE = `(async()=>{
   for (const v of document.querySelectorAll("video")) { try { v.pause(); v.currentTime = 0; } catch {} }
   await Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); })));
@@ -48,7 +51,49 @@ const DISMISS_STARTUP = `(()=>{
   return "";
 })()`;
 
+// 卡片封面是 CDN 上的 mp4，边下边播：截到第几帧取决于当时下到哪，同一份界面连跑两次都能差出整条
+// 卡片带（实测同模式两次差 7.3%，比两种构建之间的差还大）。这些封面不属于本仓库的代码，把 CDN 挡掉
+// 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
+const BLOCKED_URLS = ["*cdn.hailuoai.com*"];
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const TOL = 24; // 小于这个差值的像素当作抗锯齿抖动
+
+async function rawOf(src) {
+  return sharp(src).raw().ensureAlpha().toBuffer({ resolveWithObject: true });
+}
+// 两张图的差异比例。传文件路径或 PNG buffer 都行。
+async function ratio(a, b) {
+  const [ia, ib] = await Promise.all([rawOf(a), rawOf(b)]);
+  if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) return 1;
+  const px = ia.info.width * ia.info.height;
+  let changed = 0;
+  for (let i = 0; i < px; i++) {
+    const o = i * 4;
+    if (Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]) > TOL) changed++;
+  }
+  return changed / px;
+}
+// 卡片网格的位置、每行每列都靠封面视频撑开：等一两秒抓一次，抓到的时机随采集轮次漂移，
+// 于是同一份界面两次采集能差出一整条卡片带。改成反复重拍，直到连续两张像素一致为止。
+// 封面 CDN 已在 cdp() 里挡掉，这里的重拍只需兜住字体、光标这类残留抖动。
+const STABLE_TOL = 0.0002; // 0.02% 以内当作已经稳定（残留通常只有光标/滚动条这类单像素抖动）
+async function stableShot(c) {
+  let prev = null;
+  let last = null;
+  for (let i = 0; i < 8; i++) {
+    await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+    await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
+    await sleep(700);
+    const shot = await c.send("Page.captureScreenshot", { format: "png" });
+    const buf = Buffer.from(shot.result.data, "base64");
+    if (prev && (await ratio(prev, buf)) <= STABLE_TOL) return buf;
+    prev = buf;
+    last = buf;
+  }
+  console.log(`    （重拍 8 次仍未完全稳定，用最后一张）`);
+  return last;
+}
 const outDir = path.join(repo, ".probe/ui-compare", new Date().toISOString().replace(/[:.]/g, "-"));
 mkdirSync(outDir, { recursive: true });
 
@@ -79,7 +124,11 @@ async function cdp(port) {
           });
         await send("Runtime.enable");
         await send("Page.enable");
-        return { send, errors, close: () => ws.close() };
+        // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
+        await send("Network.enable");
+        await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
+        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e));
+        return { send, errors: visible, clearErrors: () => (errors.length = 0), close: () => ws.close() };
       }
     } catch {}
     await sleep(500);
@@ -128,7 +177,7 @@ async function runMode(mode) {
     }
     for (const p of PAGES) {
       console.log(`  ${mode} ${p.id}`);
-      c.errors.length = 0;
+      c.clearErrors();
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(`app://.${p.url}`)})` });
       await sleep(6000);
       await c.send("Runtime.evaluate", { expression: `(()=>{const s=document.createElement('style');s.textContent=${JSON.stringify(NO_ANIMATION)};document.head.appendChild(s)})()` });
@@ -140,12 +189,10 @@ async function runMode(mode) {
         if (!r.result?.result?.value && i >= 1) break;
       }
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
-      await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
-      await sleep(300);
-      const shot = await c.send("Page.captureScreenshot", { format: "png" });
+      const buf = await stableShot(c);
       const file = path.join(outDir, `${p.id}.${mode}.png`);
-      writeFileSync(file, Buffer.from(shot.result.data, "base64"));
-      results[p.id] = { file, errors: [...new Set(c.errors)] };
+      writeFileSync(file, buf);
+      results[p.id] = { file, errors: [...new Set(c.errors())] };
     }
     c.close();
   } finally {
@@ -161,7 +208,7 @@ async function runMode(mode) {
 }
 
 async function diff(a, b, out) {
-  const [ia, ib] = await Promise.all([sharp(a).raw().ensureAlpha().toBuffer({ resolveWithObject: true }), sharp(b).raw().ensureAlpha().toBuffer({ resolveWithObject: true })]);
+  const [ia, ib] = await Promise.all([rawOf(a), rawOf(b)]);
   if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) return { ratio: 1, note: "尺寸不同" };
   const px = ia.info.width * ia.info.height;
   const mask = Buffer.alloc(px * 4);
@@ -170,7 +217,7 @@ async function diff(a, b, out) {
     const o = i * 4;
     const d = Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]);
     // 小于 24 的差当作抗锯齿抖动
-    if (d > 24) {
+    if (d > TOL) {
       changed++;
       mask[o] = 255;
       mask[o + 3] = 255;
