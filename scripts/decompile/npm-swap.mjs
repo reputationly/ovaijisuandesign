@@ -431,12 +431,17 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   // 声明头（const/var/let/export default）两侧形态不同（vendor 是打平后的顶层声明，dist 是模块
   // 导出语句），比"语句体是否是 dist 文本的子串"时把头剥掉；命中的判别靠 40+ 字的表体本身。
   const stripHead = (s) => s.replace(/^(?:export)?(?:const|var|let)_=/, "").replace(/^exportdefault/, "");
+  const bodies = shapes.map(stripHead);
   const hit = shapes.map((s, i) => {
     if (isImport(i) || s.length === 0) return false;
-    const stmtBody = stripHead(s);
+    const stmtBody = bodies[i];
     return stmtBody.length > 0 && (text.includes(stmtBody) || (stmtBody.length >= 400 && text.includes(stmtBody.slice(0, 400))));
   });
-  const strong = (i) => hit[i] && shapes[i].length >= 40;
+  // 阈值必须量"命中时实际拿去比的那段文本"（剥头后的表体），不能量带声明头的整体：
+  // `const win = typeof window !== "undefined" ? window : void 0;` 整体 40 字刚好过线，
+  // 剥掉 `const_=` 只剩 33 字的通用片段，能匹配上任何声明了同名风格的包，于是被当成
+  // 这个包的长语句锚点，把不相干的语句拉成簇、再被 main 用到就成了"不是包的导出"。
+  const strong = (i) => hit[i] && bodies[i].length >= 40;
   const head = (i) => src.slice(body[i].start, body[i].start + 60).replace(/\s+/g, " ");
   // 属于这个包：长语句命中；短语句命中且前后最近的长语句也是它的；夹在它的长语句中间（≤3 条）没命中的
   // （打包时被改写过，比如 process.env.NODE_ENV 被替换）也算。
