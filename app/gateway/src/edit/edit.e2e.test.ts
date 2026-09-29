@@ -8,12 +8,16 @@ import path from "node:path";
 import type { INestApplication } from "@nestjs/common";
 import sharp from "sharp";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../bootstrap.js";
 import { AssetsService } from "../common/assets.service.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { MediaConfigService } from "../generate/media-config.service.js";
+
+// 这里的用例要起真的 ffmpeg / sharp 处理图片和视频，Windows CI 上机器一忙，5 秒默认超时不够
+// （报 "Test timed out in 5000ms"，看着像产品代码挂了，其实只是这一轮跑得慢）。
+vi.setConfig({ testTimeout: 60_000 });
 
 const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
 const FFPROBE = process.env.FFPROBE_PATH || "ffprobe";

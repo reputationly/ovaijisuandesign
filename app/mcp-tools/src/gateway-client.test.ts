@@ -1,9 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { runWithSession } from "./context.js";
 import { GatewayClient, GatewayHttpError } from "./gateway-client.js";
 import { startFakeGateway, type FakeGateway } from "./testing/fake-gateway.js";
+
+// 这些用例靠真实计时（超时/延迟都用毫秒级），Windows CI 上机器一忙，5 秒默认超时就不够：
+// 报的是 "Test timed out in 5000ms"，看着像产品代码挂了，其实只是这一轮跑得慢。
+vi.setConfig({ testTimeout: 60_000 });
 
 let fg: FakeGateway;
 let gw: GatewayClient;
