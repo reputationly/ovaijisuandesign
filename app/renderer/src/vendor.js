@@ -12,7 +12,7 @@ import withSelectorExports from "use-sync-external-store/shim/with-selector";
 import { NodeProp, Tree, TreeFragment, Parser as Parser$1, NodeType as NodeType3, NodeSet, parseMixed, IterMode, NodeWeakMap, DefaultBufferLength } from "@lezer/common";
 import { tabbable, isTabbable, focusable } from "tabbable";
 import { tags as tags$1, styleTags, Tag, tagHighlighter, highlightTree } from "@lezer/highlight";
-import { canUseDOM, getWindow, isDocument, isHTMLElement, isSVGElement, isWindow, isNode, getOwnerDocument, isKeyboardEvent, getEventCoordinates, findFirstFocusableNode, CSS as CSS$1 } from "@dnd-kit/utilities";
+import { canUseDOM, getWindow, isDocument, isHTMLElement, isSVGElement, isWindow, isNode, getOwnerDocument, isKeyboardEvent, subtract, add as add$2, getEventCoordinates, findFirstFocusableNode, CSS as CSS$1 } from "@dnd-kit/utilities";
 import { HiddenText, LiveRegion } from "@dnd-kit/accessibility";
 import { ascending } from "d3-array";
 import { dispatch } from "d3-dispatch";
@@ -71817,27 +71817,6 @@ function useUniqueId(prefix, value) {
     return prefix + "-" + id2;
   }, [prefix, value]);
 }
-function createAdjustmentFn(modifier) {
-  return function (object2) {
-    for (var _len = arguments.length, adjustments = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      adjustments[_key - 1] = arguments[_key];
-    }
-    return adjustments.reduce((accumulator, adjustment) => {
-      const entries2 = Object.entries(adjustment);
-      for (const [key2, valueAdjustment] of entries2) {
-        const value = accumulator[key2];
-        if (value != null) {
-          accumulator[key2] = value + modifier * valueAdjustment;
-        }
-      }
-      return accumulator;
-    }, {
-      ...object2
-    });
-  };
-}
-const add$2 = /* @__PURE__ */createAdjustmentFn(1);
-const subtract = /* @__PURE__ */createAdjustmentFn(-1);
 function useAnnouncement() {
   const [announcement, setAnnouncement] = reactExports.useState("");
   const announce = reactExports.useCallback(value => {
