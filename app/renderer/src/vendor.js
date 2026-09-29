@@ -13,9 +13,11 @@ import { NodeProp, Tree, TreeFragment, Parser as Parser$1, NodeType as NodeType3
 import { tabbable, isTabbable, focusable } from "tabbable";
 import { tags as tags$1, styleTags, Tag, tagHighlighter, highlightTree } from "@lezer/highlight";
 import { canUseDOM, getWindow, isDocument, isHTMLElement, isSVGElement, isWindow, isNode, getOwnerDocument, isKeyboardEvent, getEventCoordinates, findFirstFocusableNode, CSS as CSS$1 } from "@dnd-kit/utilities";
+import { HiddenText, LiveRegion } from "@dnd-kit/accessibility";
 import { ascending } from "d3-array";
 import { dispatch } from "d3-dispatch";
 import { timer as timer$1, timeout, now } from "d3-timer";
+import { easeCubicInOut as cubicInOut } from "d3-ease";
 import { asciiAlphanumeric, markdownSpace, markdownLineEnding, markdownLineEndingOrSpace, unicodeWhitespace, unicodePunctuation, asciiAlpha, asciiControl, asciiAtext, asciiPunctuation, asciiHexDigit, asciiDigit } from "micromark-util-character";
 import { factoryDestination } from "micromark-factory-destination";
 import { factorySpace } from "micromark-factory-space";
@@ -24,10 +26,16 @@ import { splice, push } from "micromark-util-chunked";
 import { subtokenize } from "micromark-util-subtokenize";
 import { factoryWhitespace } from "micromark-factory-whitespace";
 import { classifyCharacter } from "micromark-util-classify-character";
+import { factoryLabel } from "micromark-factory-label";
+import { htmlRawNames, htmlBlockNames } from "micromark-util-html-tag-name";
+import { normalizeIdentifier } from "micromark-util-normalize-identifier";
+import { resolveAll } from "micromark-util-resolve-all";
+import { combineExtensions } from "micromark-util-combine-extensions";
 import OrderedMap from "orderedmap";
 import { ReplaceError, Fragment, Slice, MarkType, Mark as Mark$1, Node as Node$4, NodeRange, DOMSerializer, DOMParser as DOMParser$1, Schema as Schema$2 } from "prosemirror-model";
 import { ReplaceStep, ReplaceAroundStep, Transform, liftTarget, replaceStep, canJoin, joinPoint, canSplit, findWrapping, RemoveMarkStep, dropPoint, Mapping, Step, StepResult, StepMap } from "prosemirror-transform";
 import { NodeSelection, Selection, TextSelection, AllSelection, Plugin, PluginKey, SelectionRange as SelectionRange$1, EditorState as EditorState$1 } from "prosemirror-state";
+import RopeSequence from "rope-sequence";
 import { liftListItem, sinkListItem, wrapInList } from "prosemirror-schema-list";
 import { gfmTaskListItem } from "micromark-extension-gfm-task-list-item";
 function _mergeNamespaces(n2, m3) {
@@ -4623,9 +4631,6 @@ function transition_end() {
 var id$2 = 0;
 function newId() {
   return ++id$2;
-}
-function cubicInOut(t2) {
-  return ((t2 *= 2) <= 1 ? t2 * t2 * t2 : (t2 -= 2) * t2 * t2 + 2) / 2;
 }
 var defaultTiming = {
   time: null,
@@ -50502,192 +50507,6 @@ function drawGapCursor(state2) {
     key: "gapcursor"
   })]);
 }
-var GOOD_LEAF_SIZE = 200;
-var RopeSequence = function RopeSequence2() {};
-RopeSequence.prototype.append = function append(other) {
-  if (!other.length) {
-    return this;
-  }
-  other = RopeSequence.from(other);
-  return !this.length && other || other.length < GOOD_LEAF_SIZE && this.leafAppend(other) || this.length < GOOD_LEAF_SIZE && other.leafPrepend(this) || this.appendInner(other);
-};
-RopeSequence.prototype.prepend = function prepend(other) {
-  if (!other.length) {
-    return this;
-  }
-  return RopeSequence.from(other).append(this);
-};
-RopeSequence.prototype.appendInner = function appendInner(other) {
-  return new Append(this, other);
-};
-RopeSequence.prototype.slice = function slice(from2, to) {
-  if (from2 === void 0) from2 = 0;
-  if (to === void 0) to = this.length;
-  if (from2 >= to) {
-    return RopeSequence.empty;
-  }
-  return this.sliceInner(Math.max(0, from2), Math.min(this.length, to));
-};
-RopeSequence.prototype.get = function get(i2) {
-  if (i2 < 0 || i2 >= this.length) {
-    return void 0;
-  }
-  return this.getInner(i2);
-};
-RopeSequence.prototype.forEach = function forEach(f2, from2, to) {
-  if (from2 === void 0) from2 = 0;
-  if (to === void 0) to = this.length;
-  if (from2 <= to) {
-    this.forEachInner(f2, from2, to, 0);
-  } else {
-    this.forEachInvertedInner(f2, from2, to, 0);
-  }
-};
-RopeSequence.prototype.map = function map(f2, from2, to) {
-  if (from2 === void 0) from2 = 0;
-  if (to === void 0) to = this.length;
-  var result = [];
-  this.forEach(function (elt2, i2) {
-    return result.push(f2(elt2, i2));
-  }, from2, to);
-  return result;
-};
-RopeSequence.from = function from(values3) {
-  if (values3 instanceof RopeSequence) {
-    return values3;
-  }
-  return values3 && values3.length ? new Leaf(values3) : RopeSequence.empty;
-};
-var Leaf = /* @__PURE__ */function (RopeSequence3) {
-  function Leaf2(values3) {
-    RopeSequence3.call(this);
-    this.values = values3;
-  }
-  if (RopeSequence3) Leaf2.__proto__ = RopeSequence3;
-  Leaf2.prototype = Object.create(RopeSequence3 && RopeSequence3.prototype);
-  Leaf2.prototype.constructor = Leaf2;
-  var prototypeAccessors = {
-    length: {
-      configurable: true
-    },
-    depth: {
-      configurable: true
-    }
-  };
-  Leaf2.prototype.flatten = function flatten2() {
-    return this.values;
-  };
-  Leaf2.prototype.sliceInner = function sliceInner(from2, to) {
-    if (from2 == 0 && to == this.length) {
-      return this;
-    }
-    return new Leaf2(this.values.slice(from2, to));
-  };
-  Leaf2.prototype.getInner = function getInner(i2) {
-    return this.values[i2];
-  };
-  Leaf2.prototype.forEachInner = function forEachInner(f2, from2, to, start2) {
-    for (var i2 = from2; i2 < to; i2++) {
-      if (f2(this.values[i2], start2 + i2) === false) {
-        return false;
-      }
-    }
-  };
-  Leaf2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from2, to, start2) {
-    for (var i2 = from2 - 1; i2 >= to; i2--) {
-      if (f2(this.values[i2], start2 + i2) === false) {
-        return false;
-      }
-    }
-  };
-  Leaf2.prototype.leafAppend = function leafAppend(other) {
-    if (this.length + other.length <= GOOD_LEAF_SIZE) {
-      return new Leaf2(this.values.concat(other.flatten()));
-    }
-  };
-  Leaf2.prototype.leafPrepend = function leafPrepend(other) {
-    if (this.length + other.length <= GOOD_LEAF_SIZE) {
-      return new Leaf2(other.flatten().concat(this.values));
-    }
-  };
-  prototypeAccessors.length.get = function () {
-    return this.values.length;
-  };
-  prototypeAccessors.depth.get = function () {
-    return 0;
-  };
-  Object.defineProperties(Leaf2.prototype, prototypeAccessors);
-  return Leaf2;
-}(RopeSequence);
-RopeSequence.empty = new Leaf([]);
-var Append = /* @__PURE__ */function (RopeSequence3) {
-  function Append2(left, right) {
-    RopeSequence3.call(this);
-    this.left = left;
-    this.right = right;
-    this.length = left.length + right.length;
-    this.depth = Math.max(left.depth, right.depth) + 1;
-  }
-  if (RopeSequence3) Append2.__proto__ = RopeSequence3;
-  Append2.prototype = Object.create(RopeSequence3 && RopeSequence3.prototype);
-  Append2.prototype.constructor = Append2;
-  Append2.prototype.flatten = function flatten2() {
-    return this.left.flatten().concat(this.right.flatten());
-  };
-  Append2.prototype.getInner = function getInner(i2) {
-    return i2 < this.left.length ? this.left.get(i2) : this.right.get(i2 - this.left.length);
-  };
-  Append2.prototype.forEachInner = function forEachInner(f2, from2, to, start2) {
-    var leftLen = this.left.length;
-    if (from2 < leftLen && this.left.forEachInner(f2, from2, Math.min(to, leftLen), start2) === false) {
-      return false;
-    }
-    if (to > leftLen && this.right.forEachInner(f2, Math.max(from2 - leftLen, 0), Math.min(this.length, to) - leftLen, start2 + leftLen) === false) {
-      return false;
-    }
-  };
-  Append2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from2, to, start2) {
-    var leftLen = this.left.length;
-    if (from2 > leftLen && this.right.forEachInvertedInner(f2, from2 - leftLen, Math.max(to, leftLen) - leftLen, start2 + leftLen) === false) {
-      return false;
-    }
-    if (to < leftLen && this.left.forEachInvertedInner(f2, Math.min(from2, leftLen), to, start2) === false) {
-      return false;
-    }
-  };
-  Append2.prototype.sliceInner = function sliceInner(from2, to) {
-    if (from2 == 0 && to == this.length) {
-      return this;
-    }
-    var leftLen = this.left.length;
-    if (to <= leftLen) {
-      return this.left.slice(from2, to);
-    }
-    if (from2 >= leftLen) {
-      return this.right.slice(from2 - leftLen, to - leftLen);
-    }
-    return this.left.slice(from2, leftLen).append(this.right.slice(0, to - leftLen));
-  };
-  Append2.prototype.leafAppend = function leafAppend(other) {
-    var inner = this.right.leafAppend(other);
-    if (inner) {
-      return new Append2(this.left, inner);
-    }
-  };
-  Append2.prototype.leafPrepend = function leafPrepend(other) {
-    var inner = this.left.leafPrepend(other);
-    if (inner) {
-      return new Append2(inner, this.right);
-    }
-  };
-  Append2.prototype.appendInner = function appendInner2(other) {
-    if (this.left.depth >= Math.max(this.right.depth, other.depth) + 1) {
-      return new Append2(this.left, new Append2(this.right, other));
-    }
-    return new Append2(this, other);
-  };
-  return Append2;
-}(RopeSequence);
 const max_empty_items = 500;
 class Branch {
   constructor(items, eventCount) {
@@ -72019,47 +71838,6 @@ function createAdjustmentFn(modifier) {
 }
 const add$2 = /* @__PURE__ */createAdjustmentFn(1);
 const subtract = /* @__PURE__ */createAdjustmentFn(-1);
-const hiddenStyles = {
-  display: "none"
-};
-function HiddenText(_ref) {
-  let {
-    id: id2,
-    value
-  } = _ref;
-  return React.createElement("div", {
-    id: id2,
-    style: hiddenStyles
-  }, value);
-}
-function LiveRegion(_ref) {
-  let {
-    id: id2,
-    announcement,
-    ariaLiveType = "assertive"
-  } = _ref;
-  const visuallyHidden2 = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    margin: -1,
-    border: 0,
-    padding: 0,
-    overflow: "hidden",
-    clip: "rect(0 0 0 0)",
-    clipPath: "inset(100%)",
-    whiteSpace: "nowrap"
-  };
-  return React.createElement("div", {
-    id: id2,
-    style: visuallyHidden2,
-    role: "status",
-    "aria-live": ariaLiveType,
-    "aria-atomic": true
-  }, announcement);
-}
 function useAnnouncement() {
   const [announcement, setAnnouncement] = reactExports.useState("");
   const announce = reactExports.useCallback(value => {
@@ -78453,41 +78231,6 @@ const own$9 = {}.hasOwnProperty;
 function decodeNamedCharacterReference(value) {
   return own$9.call(characterEntities, value) ? characterEntities[value] : false;
 }
-const hasOwnProperty = {}.hasOwnProperty;
-function combineExtensions(extensions) {
-  const all2 = {};
-  let index2 = -1;
-  while (++index2 < extensions.length) {
-    syntaxExtension(all2, extensions[index2]);
-  }
-  return all2;
-}
-function syntaxExtension(all2, extension2) {
-  let hook;
-  for (hook in extension2) {
-    const maybe = hasOwnProperty.call(all2, hook) ? all2[hook] : void 0;
-    const left = maybe || (all2[hook] = {});
-    const right = extension2[hook];
-    let code2;
-    if (right) {
-      for (code2 in right) {
-        if (!hasOwnProperty.call(left, code2)) left[code2] = [];
-        const value = right[code2];
-        constructs(
-        // @ts-expect-error Looks like a list.
-        left[code2], Array.isArray(value) ? value : value ? [value] : []);
-      }
-    }
-  }
-}
-function constructs(existing, list2) {
-  let index2 = -1;
-  const before = [];
-  while (++index2 < list2.length) {
-    (list2[index2].add === "after" ? existing : before).push(list2[index2]);
-  }
-  splice(existing, 0, 0, before);
-}
 function decodeNumericCharacterReference(value, base2) {
   const code2 = Number.parseInt(value, base2);
   if (
@@ -78505,9 +78248,6 @@ function decodeNumericCharacterReference(value, base2) {
     return "�";
   }
   return String.fromCodePoint(code2);
-}
-function normalizeIdentifier(value) {
-  return value.replace(/[\t\n\r ]+/g, " ").replace(/^ | $/g, "").toLowerCase().toUpperCase();
 }
 function normalizeUri(value) {
   const result = [];
@@ -78774,18 +78514,6 @@ function initializeDocument(effects) {
 }
 function tokenizeContainer(effects, ok2, nok) {
   return factorySpace(effects, effects.attempt(this.parser.constructs.document, ok2, nok), "linePrefix", this.parser.constructs.disable.null.includes("codeIndented") ? void 0 : 4);
-}
-function resolveAll(constructs2, events2, context) {
-  const called = [];
-  let index2 = -1;
-  while (++index2 < constructs2.length) {
-    const resolve = constructs2[index2].resolveAll;
-    if (resolve && !called.includes(resolve)) {
-      events2 = resolve(events2, context);
-      called.push(resolve);
-    }
-  }
-  return events2;
 }
 const attention = {
   name: "attention",
@@ -79596,66 +79324,6 @@ function tokenizeContinuation(effects, ok2, nok) {
     return effects.interrupt(self2.parser.constructs.flow, nok, ok2)(code2);
   }
 }
-function factoryLabel(effects, ok2, nok, type2, markerType, stringType) {
-  const self2 = this;
-  let size2 = 0;
-  let seen2;
-  return start2;
-  function start2(code2) {
-    effects.enter(type2);
-    effects.enter(markerType);
-    effects.consume(code2);
-    effects.exit(markerType);
-    effects.enter(stringType);
-    return atBreak;
-  }
-  function atBreak(code2) {
-    if (size2 > 999 || code2 === null || code2 === 91 || code2 === 93 && !seen2 ||
-    // To do: remove in the future once we’ve switched from
-    // `micromark-extension-footnote` to `micromark-extension-gfm-footnote`,
-    // which doesn’t need this.
-    // Hidden footnotes hook.
-    /* c8 ignore next 3 */
-    code2 === 94 && !size2 && "_hiddenFootnoteSupport" in self2.parser.constructs) {
-      return nok(code2);
-    }
-    if (code2 === 93) {
-      effects.exit(stringType);
-      effects.enter(markerType);
-      effects.consume(code2);
-      effects.exit(markerType);
-      effects.exit(type2);
-      return ok2;
-    }
-    if (markdownLineEnding(code2)) {
-      effects.enter("lineEnding");
-      effects.consume(code2);
-      effects.exit("lineEnding");
-      return atBreak;
-    }
-    effects.enter("chunkString", {
-      contentType: "string"
-    });
-    return labelInside(code2);
-  }
-  function labelInside(code2) {
-    if (code2 === null || code2 === 91 || code2 === 93 || markdownLineEnding(code2) || size2++ > 999) {
-      effects.exit("chunkString");
-      return atBreak(code2);
-    }
-    effects.consume(code2);
-    if (!seen2) seen2 = !markdownSpace(code2);
-    return code2 === 92 ? labelEscape : labelInside;
-  }
-  function labelEscape(code2) {
-    if (code2 === 91 || code2 === 92 || code2 === 93) {
-      effects.consume(code2);
-      size2++;
-      return labelInside;
-    }
-    return labelInside(code2);
-  }
-}
 const definition$1 = {
   name: "definition",
   tokenize: tokenizeDefinition
@@ -79833,8 +79501,6 @@ function tokenizeHeadingAtx(effects, ok2, nok) {
     return data2;
   }
 }
-const htmlBlockNames = ["address", "article", "aside", "base", "basefont", "blockquote", "body", "caption", "center", "col", "colgroup", "dd", "details", "dialog", "dir", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hr", "html", "iframe", "legend", "li", "link", "main", "menu", "menuitem", "nav", "noframes", "ol", "optgroup", "option", "p", "param", "search", "section", "summary", "table", "tbody", "td", "tfoot", "th", "thead", "title", "tr", "track", "ul"];
-const htmlRawNames = ["pre", "script", "style", "textarea"];
 const htmlFlow = {
   concrete: true,
   name: "htmlFlow",

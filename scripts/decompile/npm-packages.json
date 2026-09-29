@@ -1,469 +1,146 @@
 [
-  {
-    "name": "react",
-    "version": "19.2.4",
-    "cjs": {
-      "requireReact": "react",
-      "requireJsxRuntime": "react/jsx-runtime"
-    }
-  },
-  {
-    "name": "react-dom",
-    "version": "19.2.4",
-    "cjs": {
-      "requireReactDom": "react-dom",
-      "requireClient": "react-dom/client"
-    },
-    "deps": [
-      "react",
-      "scheduler"
-    ]
-  },
-  {
-    "name": "use-sync-external-store",
-    "version": "1.7.0",
-    "cjs": {
-      "requireShim": "use-sync-external-store/shim",
-      "requireWithSelector": "use-sync-external-store/shim/with-selector"
-    },
-    "deps": [
-      "react"
-    ]
-  },
-  {
-    "name": "@lezer/common",
-    "version": "1.5.2"
-  },
-  {
-    "name": "@floating-ui/utils",
-    "version": "0.2.12"
-  },
-  {
-    "name": "@floating-ui/core",
-    "version": "1.7.5"
-  },
-  {
-    "name": "@floating-ui/dom",
-    "version": "1.7.6"
-  },
-  {
-    "name": "@floating-ui/react-dom",
-    "version": "2.1.9"
-  },
-  {
-    "name": "@base-ui/utils",
-    "version": "0.2.6"
-  },
-  {
-    "name": "tabbable",
-    "version": "6.4.0"
-  },
-  {
-    "name": "@base-ui/react",
-    "version": "1.3.0"
-  },
-  {
-    "name": "@codemirror/state",
-    "version": "6.7.5"
-  },
-  {
-    "name": "@codemirror/view",
-    "version": "6.43.6"
-  },
-  {
-    "name": "@lezer/highlight",
-    "version": "1.2.3"
-  },
-  {
-    "name": "@lezer/lr",
-    "version": "1.4.10"
-  },
-  {
-    "name": "@codemirror/language",
-    "version": "6.12.4"
-  },
-  {
-    "name": "@codemirror/autocomplete",
-    "version": "6.20.3"
-  },
-  {
-    "name": "@codemirror/commands",
-    "version": "6.10.4"
-  },
-  {
-    "name": "@lezer/javascript",
-    "version": "1.5.4"
-  },
-  {
-    "name": "@codemirror/lang-javascript",
-    "version": "6.2.5"
-  },
-  {
-    "name": "@lezer/html",
-    "version": "1.3.13"
-  },
-  {
-    "name": "@lezer/css",
-    "version": "1.3.4"
-  },
-  {
-    "name": "@codemirror/lang-css",
-    "version": "6.3.1"
-  },
-  {
-    "name": "@codemirror/lang-html",
-    "version": "6.4.12"
-  },
-  {
-    "name": "@lezer/markdown",
-    "version": "1.7.2"
-  },
-  {
-    "name": "@codemirror/lang-markdown",
-    "version": "6.5.2"
-  },
-  {
-    "name": "@codemirror/search",
-    "version": "6.7.2"
-  },
-  {
-    "name": "@date-fns/tz",
-    "version": "1.5.0"
-  },
-  {
-    "name": "@dnd-kit/utilities",
-    "version": "3.2.2"
-  },
-  {
-    "name": "@dnd-kit/core",
-    "version": "6.3.1"
-  },
-  {
-    "name": "@dnd-kit/sortable",
-    "version": "10.0.0"
-  },
-  {
-    "name": "@floating-ui/react",
-    "version": "0.27.20"
-  },
-  {
-    "name": "@shikijs/vscode-textmate",
-    "version": "10.0.2"
-  },
-  {
-    "name": "@shikijs/core",
-    "version": "3.23.0"
-  },
-  {
-    "name": "@shikijs/engine-oniguruma",
-    "version": "4.4.3"
-  },
-  {
-    "name": "@shikijs/primitive",
-    "version": "4.0.2"
-  },
-  {
-    "name": "@tanstack/query-core",
-    "version": "5.101.4"
-  },
-  {
-    "name": "@tanstack/router-core",
-    "version": "1.171.13"
-  },
-  {
-    "name": "@tanstack/virtual-core",
-    "version": "3.14.0"
-  },
-  {
-    "name": "@tiptap/core",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-blockquote",
-    "version": "3.27.3"
-  },
-  {
-    "name": "@tiptap/extension-bold",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-bubble-menu",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-code",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-code-block",
-    "version": "3.30.2"
-  },
-  {
-    "name": "@tiptap/extension-floating-menu",
-    "version": "3.30.2"
-  },
-  {
-    "name": "@tiptap/extension-italic",
-    "version": "3.31.3"
-  },
-  {
-    "name": "linkifyjs",
-    "version": "4.3.3"
-  },
-  {
-    "name": "@tiptap/extension-link",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-list",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-paragraph",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-strike",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-underline",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extensions",
-    "version": "3.31.3"
-  },
-  {
-    "name": "fast-equals",
-    "version": "5.4.1"
-  },
-  {
-    "name": "@tiptap/react",
-    "version": "3.31.3"
-  },
-  {
-    "name": "zustand",
-    "version": "5.0.15"
-  },
-  {
-    "name": "d3-color",
-    "version": "3.1.0"
-  },
-  {
-    "name": "d3-interpolate",
-    "version": "3.0.1"
-  },
-  {
-    "name": "d3-array",
-    "version": "2.12.1"
-  },
-  {
-    "name": "d3-dispatch",
-    "version": "3.0.1"
-  },
-  {
-    "name": "d3-timer",
-    "version": "3.0.1"
-  },
-  {
-    "name": "d3-transition",
-    "version": "3.0.1"
-  },
-  {
-    "name": "@xyflow/system",
-    "version": "0.0.76"
-  },
-  {
-    "name": "@xyflow/react",
-    "version": "12.10.2"
-  },
-  {
-    "name": "date-fns",
-    "version": "4.4.0"
-  },
-  {
-    "name": "entities",
-    "version": "6.0.1"
-  },
-  {
-    "name": "lucide-react",
-    "version": "1.41.0"
-  },
-  {
-    "name": "mediabunny",
-    "version": "1.52.3"
-  },
-  {
-    "name": "micromark-util-character",
-    "version": "2.1.1"
-  },
-  {
-    "name": "micromark-factory-destination",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-factory-space",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-factory-title",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-util-chunked",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-util-subtokenize",
-    "version": "2.1.0"
-  },
-  {
-    "name": "micromark-factory-whitespace",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-util-classify-character",
-    "version": "2.0.1"
-  },
-  {
-    "name": "micromark-core-commonmark",
-    "version": "2.0.3"
-  },
-  {
-    "name": "micromark",
-    "version": "4.0.2"
-  },
-  {
-    "name": "micromark-extension-gfm-autolink-literal",
-    "version": "2.1.0"
-  },
-  {
-    "name": "oniguruma-parser",
-    "version": "0.12.2"
-  },
-  {
-    "name": "oniguruma-to-es",
-    "version": "4.3.6"
-  },
-  {
-    "name": "parse5",
-    "version": "8.0.1"
-  },
-  {
-    "name": "pdfjs-dist",
-    "version": "4.10.38"
-  },
-  {
-    "name": "orderedmap",
-    "version": "2.1.1"
-  },
-  {
-    "name": "prosemirror-model",
-    "version": "1.25.11"
-  },
-  {
-    "name": "prosemirror-transform",
-    "version": "1.12.1"
-  },
-  {
-    "name": "prosemirror-state",
-    "version": "1.4.4"
-  },
-  {
-    "name": "prosemirror-gapcursor",
-    "version": "1.4.1"
-  },
-  {
-    "name": "prosemirror-history",
-    "version": "1.5.0"
-  },
-  {
-    "name": "prosemirror-schema-list",
-    "version": "1.5.1"
-  },
-  {
-    "name": "prosemirror-tables",
-    "version": "1.8.5"
-  },
-  {
-    "name": "react-day-picker",
-    "version": "9.14.0"
-  },
-  {
-    "name": "i18next",
-    "version": "25.10.10"
-  },
-  {
-    "name": "react-i18next",
-    "version": "15.7.4"
-  },
-  {
-    "name": "rehype-harden",
-    "version": "1.1.8"
-  },
-  {
-    "name": "@shikijs/engine-javascript",
-    "version": "4.0.2"
-  },
-  {
-    "name": "@tanstack/react-query",
-    "version": "5.101.4"
-  },
-  {
-    "name": "@tanstack/react-router",
-    "version": "1.170.32"
-  },
-  {
-    "name": "@tanstack/store",
-    "version": "0.9.3"
-  },
-  {
-    "name": "@tiptap/extension-document",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/extension-text",
-    "version": "3.31.3"
-  },
-  {
-    "name": "@tiptap/starter-kit",
-    "version": "3.31.3"
-  },
-  {
-    "name": "hls.js",
-    "version": "1.7.3"
-  },
-  {
-    "name": "micromark-util-decode-string",
-    "version": "2.0.1"
-  },
-  {
-    "name": "mdast-util-from-markdown",
-    "version": "2.0.3"
-  },
-  {
-    "name": "micromark-extension-gfm-task-list-item",
-    "version": "2.1.0"
-  },
-  {
-    "name": "react-error-boundary",
-    "version": "6.1.5"
-  },
-  {
-    "name": "remend",
-    "version": "1.3.1"
-  },
-  {
-    "name": "sonner",
-    "version": "2.0.7"
-  },
-  {
-    "name": "style-to-js",
-    "version": "1.1.21"
-  },
-  {
-    "name": "@tanstack/form-core",
-    "version": "1.33.5"
-  }
+  {"name":"react","version":"19.2.4","cjs":{"requireReact":"react","requireJsxRuntime":"react/jsx-runtime"}},
+  {"name":"react-dom","version":"19.2.4","cjs":{"requireReactDom":"react-dom","requireClient":"react-dom/client"},"deps":["react","scheduler"]},
+  {"name":"use-sync-external-store","version":"1.7.0","cjs":{"requireShim":"use-sync-external-store/shim","requireWithSelector":"use-sync-external-store/shim/with-selector"},"deps":["react"]},
+  {"name":"@lezer/common","version":"1.5.2"},
+  {"name":"@floating-ui/utils","version":"0.2.12"},
+  {"name":"@floating-ui/core","version":"1.7.5"},
+  {"name":"@floating-ui/dom","version":"1.7.6"},
+  {"name":"@floating-ui/react-dom","version":"2.1.9"},
+  {"name":"reselect","version":"5.2.0"},
+  {"name":"@base-ui/utils","version":"0.2.6"},
+  {"name":"tabbable","version":"6.4.0"},
+  {"name":"@base-ui/react","version":"1.3.0"},
+  {"name":"@marijn/find-cluster-break","version":"1.0.4"},
+  {"name":"@codemirror/state","version":"6.7.5"},
+  {"name":"crelt","version":"1.0.7"},
+  {"name":"style-mod","version":"4.1.4"},
+  {"name":"w3c-keyname","version":"2.2.8"},
+  {"name":"@codemirror/view","version":"6.43.6"},
+  {"name":"@lezer/highlight","version":"1.2.3"},
+  {"name":"@lezer/lr","version":"1.4.10"},
+  {"name":"@codemirror/language","version":"6.12.4"},
+  {"name":"@codemirror/autocomplete","version":"6.20.3"},
+  {"name":"@codemirror/commands","version":"6.10.4"},
+  {"name":"@lezer/javascript","version":"1.5.4"},
+  {"name":"@codemirror/lang-javascript","version":"6.2.5"},
+  {"name":"@lezer/html","version":"1.3.13"},
+  {"name":"@lezer/css","version":"1.3.4"},
+  {"name":"@codemirror/lang-css","version":"6.3.1"},
+  {"name":"@codemirror/lang-html","version":"6.4.12"},
+  {"name":"@lezer/markdown","version":"1.7.2"},
+  {"name":"@codemirror/lang-markdown","version":"6.5.2"},
+  {"name":"@codemirror/search","version":"6.7.2"},
+  {"name":"@date-fns/tz","version":"1.5.0"},
+  {"name":"@dnd-kit/utilities","version":"3.2.2"},
+  {"name":"@dnd-kit/accessibility","version":"3.1.1"},
+  {"name":"@dnd-kit/core","version":"6.3.1"},
+  {"name":"@dnd-kit/sortable","version":"10.0.0"},
+  {"name":"@floating-ui/react","version":"0.27.20"},
+  {"name":"@shikijs/vscode-textmate","version":"10.0.2"},
+  {"name":"hast-util-to-html","version":"9.0.5"},
+  {"name":"@shikijs/core","version":"3.23.0"},
+  {"name":"@shikijs/engine-oniguruma","version":"4.4.3"},
+  {"name":"@shikijs/primitive","version":"4.0.2"},
+  {"name":"@tanstack/query-core","version":"5.101.4"},
+  {"name":"seroval","version":"1.5.6"},
+  {"name":"seroval-plugins","version":"1.5.6"},
+  {"name":"@tanstack/history","version":"1.162.1"},
+  {"name":"@tanstack/router-core","version":"1.171.13"},
+  {"name":"@tanstack/virtual-core","version":"3.14.0"},
+  {"name":"@tiptap/core","version":"3.31.3"},
+  {"name":"@tiptap/extension-blockquote","version":"3.27.3"},
+  {"name":"@tiptap/extension-bold","version":"3.31.3"},
+  {"name":"@tiptap/extension-bubble-menu","version":"3.31.3"},
+  {"name":"@tiptap/extension-code","version":"3.31.3"},
+  {"name":"@tiptap/extension-code-block","version":"3.30.2"},
+  {"name":"@tiptap/extension-floating-menu","version":"3.30.2"},
+  {"name":"@tiptap/extension-italic","version":"3.31.3"},
+  {"name":"linkifyjs","version":"4.3.3"},
+  {"name":"@tiptap/extension-link","version":"3.31.3"},
+  {"name":"@tiptap/extension-list","version":"3.31.3"},
+  {"name":"@tiptap/extension-paragraph","version":"3.31.3"},
+  {"name":"@tiptap/extension-strike","version":"3.31.3"},
+  {"name":"@tiptap/extension-underline","version":"3.31.3"},
+  {"name":"@tiptap/extensions","version":"3.31.3"},
+  {"name":"fast-equals","version":"5.4.1"},
+  {"name":"@tiptap/react","version":"3.31.3"},
+  {"name":"zustand","version":"5.0.15"},
+  {"name":"d3-color","version":"3.1.0"},
+  {"name":"d3-interpolate","version":"3.0.1"},
+  {"name":"d3-array","version":"2.12.1"},
+  {"name":"d3-dispatch","version":"3.0.1"},
+  {"name":"d3-timer","version":"3.0.1"},
+  {"name":"d3-ease","version":"3.0.1"},
+  {"name":"d3-selection","version":"3.0.0"},
+  {"name":"d3-transition","version":"3.0.1"},
+  {"name":"d3-drag","version":"3.0.0"},
+  {"name":"d3-zoom","version":"3.0.0"},
+  {"name":"@xyflow/system","version":"0.0.76"},
+  {"name":"@xyflow/react","version":"12.10.2"},
+  {"name":"date-fns","version":"4.4.0"},
+  {"name":"entities","version":"6.0.1"},
+  {"name":"lucide-react","version":"1.41.0"},
+  {"name":"mediabunny","version":"1.52.3"},
+  {"name":"micromark-util-character","version":"2.1.1"},
+  {"name":"micromark-factory-destination","version":"2.0.1"},
+  {"name":"micromark-factory-space","version":"2.0.1"},
+  {"name":"micromark-factory-title","version":"2.0.1"},
+  {"name":"micromark-util-chunked","version":"2.0.1"},
+  {"name":"micromark-util-subtokenize","version":"2.1.0"},
+  {"name":"micromark-factory-whitespace","version":"2.0.1"},
+  {"name":"micromark-util-classify-character","version":"2.0.1"},
+  {"name":"decode-named-character-reference","version":"1.3.0"},
+  {"name":"micromark-factory-label","version":"2.0.1"},
+  {"name":"micromark-util-html-tag-name","version":"2.0.1"},
+  {"name":"micromark-util-normalize-identifier","version":"2.0.1"},
+  {"name":"micromark-util-resolve-all","version":"2.0.1"},
+  {"name":"micromark-core-commonmark","version":"2.0.3"},
+  {"name":"micromark-util-combine-extensions","version":"2.0.1"},
+  {"name":"micromark","version":"4.0.2"},
+  {"name":"micromark-extension-gfm-autolink-literal","version":"2.1.0"},
+  {"name":"oniguruma-parser","version":"0.12.2"},
+  {"name":"regex","version":"6.1.0"},
+  {"name":"regex-recursion","version":"6.0.2"},
+  {"name":"oniguruma-to-es","version":"4.3.6"},
+  {"name":"parse5","version":"8.0.1"},
+  {"name":"pdfjs-dist","version":"4.10.38"},
+  {"name":"orderedmap","version":"2.1.1"},
+  {"name":"prosemirror-model","version":"1.25.11"},
+  {"name":"prosemirror-transform","version":"1.12.1"},
+  {"name":"prosemirror-view","version":"1.42.3"},
+  {"name":"prosemirror-state","version":"1.4.4"},
+  {"name":"prosemirror-keymap","version":"1.2.3"},
+  {"name":"prosemirror-gapcursor","version":"1.4.1"},
+  {"name":"rope-sequence","version":"1.3.4"},
+  {"name":"prosemirror-history","version":"1.5.0"},
+  {"name":"prosemirror-schema-list","version":"1.5.1"},
+  {"name":"prosemirror-tables","version":"1.8.5"},
+  {"name":"react-day-picker","version":"9.14.0"},
+  {"name":"i18next","version":"25.10.10"},
+  {"name":"html-parse-stringify","version":"3.1.0"},
+  {"name":"react-i18next","version":"15.7.4"},
+  {"name":"unist-util-visit","version":"5.1.0"},
+  {"name":"rehype-harden","version":"1.1.8"},
+  {"name":"@shikijs/engine-javascript","version":"4.0.2"},
+  {"name":"@tanstack/react-query","version":"5.101.4"},
+  {"name":"@tanstack/react-router","version":"1.170.32"},
+  {"name":"@tanstack/store","version":"0.9.3"},
+  {"name":"@tiptap/extension-document","version":"3.31.3"},
+  {"name":"@tiptap/extension-text","version":"3.31.3"},
+  {"name":"@tiptap/starter-kit","version":"3.31.3"},
+  {"name":"hls.js","version":"1.7.3"},
+  {"name":"micromark-util-decode-string","version":"2.0.1"},
+  {"name":"mdast-util-from-markdown","version":"2.0.3"},
+  {"name":"micromark-extension-gfm-task-list-item","version":"2.1.0"},
+  {"name":"react-error-boundary","version":"6.1.5"},
+  {"name":"remend","version":"1.3.1"},
+  {"name":"sonner","version":"2.0.7"},
+  {"name":"inline-style-parser","version":"0.2.4"},
+  {"name":"style-to-object","version":"1.0.11"},
+  {"name":"style-to-js","version":"1.1.21"},
+  {"name":"@tanstack/form-core","version":"1.33.5"},
+  {"name":"js-yaml","version":"4.3.2"},
+  {"name":"prosemirror-commands","version":"1.7.2"},
+  {"name":"tailwind-merge","version":"3.5.0"}
 ]

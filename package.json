@@ -21,6 +21,7 @@
   "pnpm": {
     "overrides": {
       "@codemirror/lang-css>@lezer/common": "1.5.2",
+      "@dnd-kit/accessibility>react": "19.2.4",
       "@dnd-kit/sortable>@dnd-kit/utilities": "3.2.2",
       "@dnd-kit/sortable>react": "19.2.4",
       "@dnd-kit/utilities>react": "19.2.4",
@@ -34,12 +35,14 @@
       "micromark-extension-gfm-task-list-item>micromark-factory-space": "2.0.1",
       "micromark-extension-gfm-task-list-item>micromark-util-character": "2.1.1",
       "micromark-factory-destination>micromark-util-character": "2.1.1",
+      "micromark-factory-label>micromark-util-character": "2.1.1",
       "micromark-factory-space>micromark-util-character": "2.1.1",
       "micromark-factory-title>micromark-factory-space": "2.0.1",
       "micromark-factory-title>micromark-util-character": "2.1.1",
       "micromark-factory-whitespace>micromark-factory-space": "2.0.1",
       "micromark-factory-whitespace>micromark-util-character": "2.1.1",
       "micromark-util-classify-character>micromark-util-character": "2.1.1",
+      "micromark-util-combine-extensions>micromark-util-chunked": "2.0.1",
       "micromark-util-subtokenize>micromark-util-chunked": "2.0.1",
       "prosemirror-keymap>w3c-keyname": "2.2.8",
       "prosemirror-model>orderedmap": "2.1.1",

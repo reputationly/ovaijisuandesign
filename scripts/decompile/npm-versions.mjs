@@ -60,9 +60,18 @@ for (const pkg of pkgs) {
   try {
     const scores = [];
     for (const v of candidates(pkg)) {
-      const text = textOf(fetchPackage(path.join(probe, "pkg-cache"), pkg, v));
+      let text;
+      // npm view time 里有版本、tarball 却已撤包（@tanstack/history@1.161.9 就是），
+      // 取不到就跳过这个版本，别让一个坏版本把整包的检测带崩。
+      try {
+        text = textOf(fetchPackage(path.join(probe, "pkg-cache"), pkg, v));
+      } catch (e) {
+        console.log(`  ${pkg}@${v} 取不到，跳过（${String(e.message).split("\n")[0].slice(0, 60)}）`);
+        continue;
+      }
       scores.push([v, shapes.filter((s) => text.includes(s)).length]);
     }
+    if (!scores.length) throw new Error("所有候选版本都取不到");
     const max = Math.max(...scores.map(([, n]) => n));
     const tied = scores.filter(([, n]) => n === max).map(([v]) => v);
     result[pkg] = { version: tied.at(-1), hits: max, tied, range: ranges[pkg] };
