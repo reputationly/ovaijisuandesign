@@ -31,6 +31,9 @@ const version = process.argv[2] ?? "3.0.16";
 const assets = path.join(repo, "reference", version, "app/out/renderer/assets");
 const outDir = path.join(repo, "app/renderer/src");
 const swapList = JSON.parse(readFileSync(path.join(here, "npm-packages.json"), "utf8"));
+// 阶段计时（OV_TIME=1 时打印）：改 swapEsm 的规则时，先看时间花在哪一段。
+const T0 = process.env.OV_TIME ? Date.now() : 0;
+const mark = (label) => { if (T0) console.log(`[计时] ${label}: ${((Date.now() - T0) / 1000).toFixed(1)}s`); };
 // 换成 npm 的包写进 app/renderer/package.json（精确版本）。被换的包之间的依赖在根 package.json 的
 // pnpm.overrides 里按 "父>子" 钉成同一个版本，保证依赖树里只有一份实例（只影响这些包，不碰仓库里别的包）。
 function writeDependencies(done) {
@@ -120,7 +123,9 @@ for (const name of readdirSync(assets)) {
       });
             if (swapList.length) {
         console.log(`换成 npm 包（${swapList.length} 个）：`);
+        mark("拆分+归类")
         const reports = swapPackages(vendor, bundleSrc, [...mainRefs], swapList, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
+        mark("swapPackages")
         writeDependencies(reports.filter((r) => !r.error));
         if (reports.some((r) => r.error) && process.env.SWAP_STRICT !== "0") throw new Error("有包没换成，见上面的 ✗");
       }
@@ -136,6 +141,7 @@ for (const name of readdirSync(assets)) {
         header = `import { ${need.join(", ")} } from "./vendor.js";\n`;
       }
       ast = main;
+      mark("生成 vendor/main 文本")
       console.log(`拆分：vendor ${stats.lib} 条语句，main ${stats.app} 条，导出 ${imports.length} 个名字，收敛 ${stats.rounds} 轮`);
     }
     const jsx = restoreJsx(ast);
@@ -152,4 +158,5 @@ for (const name of readdirSync(assets)) {
     chunks++;
   } else copyFileSync(file, path.join(outDir, name));
 }
+mark("全部完成")
 console.log(`其余 ${chunks} 个 chunk 和资源已拷到 ${path.relative(repo, outDir)}`);

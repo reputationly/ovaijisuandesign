@@ -99,15 +99,31 @@ export const norm = (text) =>
       .replace(/;/g, ""),
   );
 
+// 尾部标识符：从末尾往前扫，比 result.match(/([A-Za-z_$][\w$]*)$/) 快得多——后者在每次遇到
+// "(" 时都对整个已累积的 result 做一次 $ 锚定回溯，字符串越长越慢（实测占 82% 的 CPU）。
+const trailingWord = (s) => {
+  let i = s.length;
+  while (i > 0) {
+    const c = s.charCodeAt(i - 1);
+    const isWord = (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c === 36 || c === 95;
+    if (!isWord) break;
+    i--;
+  }
+  return s.slice(i);
+};
+
 // 叶子花括号的**前文**判断它是不是表达式位置的对象字面量：
 // 函数体 / if 块 / 箭头函数体前面的 `)` 不是；`=` `(` `,` `:` `[` `return` 之后的是。
+// 只看末尾：末尾是 `)`/`]` 说明前面是函数签名或条件；是 `}` 说明前面是块；是标识符字符时取
+// 尾部完整词判断是不是块关键字（旧实现在这里对 before 做了一次 $ 锚定正则，占了一半的 CPU）。
 const isExprBrace = (before) => {
-  const m = before.match(/([A-Za-z_$][\w$]*|[)\]}])$/);
-  if (!m) return true; // 文件/语句开头，多半是表达式
-  const token = m[1];
-  if (token === ")" || token === "]") return false; // function f(){ / if(x){ / (a)=>{ 的体
-  if (token === "}") return true; // 块结束后面的 { 一般是对象（保守）
-  return !/^(function|if|else|for|while|do|try|catch|finally|switch|case|default|class|with|synchronized)$/.test(token);
+  if (!before.length) return true; // 文件/语句开头，多半是表达式
+  const last = before[before.length - 1];
+  if (last === ")" || last === "]") return false; // function f(){ / if(x){ / (a)=>{ 的体
+  if (last === "}") return true; // 块结束后面的 { 一般是对象（保守）
+  const word = trailingWord(before);
+  if (!word) return true; // 末尾不是标识符字符（= ( , : [ 等），是表达式位置
+  return !/^(function|if|else|for|while|do|try|catch|finally|switch|case|default|class|with|synchronized)$/.test(word);
 };
 
 // 对象字面量叶子成员按顶层逗号分割（跳过括号内的逗号），键序无关语义时排序用。
@@ -141,17 +157,18 @@ const dropRedundantParens = (text) => {
   // 前字符是 ? 的是三元真值分支，保守不剥（?: 假值分支和对象值 {k:(v)} 可剥）；
   // 后面紧跟运算符或语句边界。多轮到不动点。
   const KW = /^(return|typeof|case|new|in|of|do|else|void|delete|throw|await|yield)$/;
+  // 跟在 ")" 后面、决定能不能剥的关键词最长 8 字（function），取 12 足够
+  const AFTER = /^(\?|&&|\|\||\?\.|:|[-+*/%<>=]|\{|\}|\)|$|let|const|var|return|if|for|while|function|class|new|typeof|throw|case|switch|do|try)/;
   for (let round = 0; round < 8; round++) {
     let changed = false;
     let result = "";
     let i = 0;
     while (i < text.length) {
       if (text[i] === "(") {
-        const prevCh = result.slice(-1);
+        const prevCh = result.length ? result[result.length - 1] : "";
         let isCall = false;
         if (/[\w$]/.test(prevCh)) {
-          const word = result.match(/([A-Za-z_$][\w$]*)$/)?.[1] ?? "";
-          isCall = !KW.test(word);
+          isCall = !KW.test(trailingWord(result));
         } else if (prevCh === ")" || prevCh === "]") {
           isCall = true;
         }
@@ -167,7 +184,6 @@ const dropRedundantParens = (text) => {
         }
         if (depth === 0 && !isCall) {
           const inner = text.slice(i + 1, j);
-          const rest = text.slice(j + 1);
           let d2 = 0;
           let topLevel = true;
           for (const ch of inner) {
@@ -178,7 +194,7 @@ const dropRedundantParens = (text) => {
               break;
             }
           }
-          if (topLevel && inner.length > 0 && /^(\?|&&|\|\||\?\.|:|[-+*/%<>=]|\{|\}|\)|$|let|const|var|return|if|for|while|function|class|new|typeof|throw|case|switch|do|try)/.test(rest)) {
+          if (topLevel && inner.length > 0 && AFTER.test(text.slice(j + 1, j + 13))) {
             result += inner;
             i = j + 1;
             changed = true;
@@ -368,6 +384,8 @@ export function swapPackages(vendorAst, src, externalRefs, list, { cacheDir, log
   const a = analyze(vendorAst);
   a.swapped = new Set();
   a.shapes = a.body.map((n) => (n.start == null ? "" : norm(src.slice(n.start, n.end))));
+  // 剥掉声明头后的"表体"也跟包无关，一次算好（原来每个包都要 7000 条重算一遍）。
+  a.bodies = a.shapes.map(stripHead);
   for (const item of list) {
     const pkgDir = fetchPackage(cacheDir, item.name, item.version);
     const report = { name: item.name, version: item.version };
@@ -425,17 +443,18 @@ export function moduleGraph(pkgDir) {
   return [...seen];
 }
 
+// 声明头（const/var/let/export default）两侧形态不同（vendor 是打平后的顶层声明，dist 是模块
+// 导出语句），比"语句体是否是 dist 文本的子串"时把头剥掉；命中的判别靠 40+ 字的表体本身。
+const stripHead = (s) => s.replace(/^(?:export)?(?:const|var|let)_=/, "").replace(/^exportdefault/, "");
+
 function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   const { body, declOf, namesOf, refs, mutates, swapped } = a;
   const files = moduleGraph(pkgDir);
   if (!files.length) return fail(report, "找不到 ESM 入口");
   const text = files.map((f) => norm(readFileSync(f, "utf8"))).join("\n");
   const shapes = a.shapes;
+  const bodies = a.bodies;
   const isImport = (i) => swapped.has(i) || t.isImportDeclaration(body[i]);
-  // 声明头（const/var/let/export default）两侧形态不同（vendor 是打平后的顶层声明，dist 是模块
-  // 导出语句），比"语句体是否是 dist 文本的子串"时把头剥掉；命中的判别靠 40+ 字的表体本身。
-  const stripHead = (s) => s.replace(/^(?:export)?(?:const|var|let)_=/, "").replace(/^exportdefault/, "");
-  const bodies = shapes.map(stripHead);
   const hit = shapes.map((s, i) => {
     if (isImport(i) || s.length === 0) return false;
     const stmtBody = bodies[i];
