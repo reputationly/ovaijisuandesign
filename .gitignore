@@ -15,6 +15,8 @@ reference/*
 !reference/3.0.16/
 # 参照的 gateway / mcp-tools / 插件原文就在各自的 dist/ 里，别被上面通用的 dist/ 规则吞掉。
 !reference/3.0.16/**/dist/
+!reference/3.0.20/
+!reference/3.0.20/**/dist/
 
 # 探测脚本、截图之类的临时产物
 .probe/

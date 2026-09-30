@@ -1,0 +1,93 @@
+{
+  "id": "clip-studio",
+  "name": {
+    "zh-CN": "AI剪辑工坊",
+    "en-US": "Video Editor"
+  },
+  "description": {
+    "zh-CN": "开源 AI 视频剪辑工具，支持自动剪辑与字幕生成。",
+    "en-US": "Open-source AI video editor for auto-cutting and subtitle generation."
+  },
+  "details": {
+    "zh-CN": "AI-native 开源视频编辑工具，支持自动切片、静音删除、字幕识别、时间轴整理与内容重组。适合播客剪辑、短视频生产与自动化内容流水线。不适用于：专业电影级调色与重型后期。",
+    "en-US": "Open-source AI-native video editing tool with automatic cutting, silence removal, subtitle generation, and lightweight timeline workflows. Ideal for podcasts, short-form videos, and automated content pipelines. Not applicable for: high-end cinematic color grading or advanced post-production."
+  },
+  "previews": {
+    "zh-CN": [],
+    "en-US": []
+  },
+  "tags": {
+    "zh-CN": [
+      "剪辑",
+      "视频",
+      "字幕",
+      "播客"
+    ],
+    "en-US": [
+      "Editing",
+      "Video",
+      "Subtitles",
+      "Podcast"
+    ]
+  },
+  "version": "0.10.2",
+  "icon": {
+    "zh-CN": "https://cdn.hailuoai.com/public_assets/minimax-hub/plugins/video-editor/0.2.3/vendor/icons/video-editor.svg",
+    "en-US": "https://cdn.hailuoai.video/public_assets/minimax-hub/plugins/video-editor/0.2.3/vendor/icons/video-editor.svg"
+  },
+  "entry": "index.html",
+  "skill": {
+    "entry": "skills/SKILL.md",
+    "name": "plugin.clip-studio.craft",
+    "load": "on-demand",
+    "fallback": "inline"
+  },
+  "displayMode": "launcher",
+  "width": 350,
+  "height": 400,
+  "agent": {
+    "editorSurface": true,
+    "sessionName": {
+      "zh-CN": "剪辑 Agent",
+      "en-US": "Clip Agent"
+    },
+    "methods": [
+      {
+        "name": "project.get",
+        "timeoutMs": 15000,
+        "description": "Read the current project. args: { view?: \"summary\"|\"tracks\"|\"clips\"|\"full\" (default \"clips\"), trackId?, clipId?, fromSec?, toSec? }.\nReturns settings (name/width/height/frameRate), durationSec, playheadSec, selectedClipIds, selectedTrackIds (tracks the user has selected in the timeline header), counts, tracks[] (id, type, name, clipCount, locked/hidden/muted/solo, gaps[]), clips[] (id, trackId, trackName, trackType, name, mediaId, startSec, endSec, durationSec, sourceInSec, sourceOutSec, speed?, volume, effectCount?), textClips[] (caption / title overlays: id, trackId, trackName?, text, startSec, endSec, durationSec, fontSizePx?) whenever any exist, and with view=\"full\" also media[] and markers[]. Track `name` / `trackName` is the label visible in the timeline header (for example, \"Video 1\" or \"Captions\"), so user references to a named track can be mapped to its id. `fontSizePx` is in canvas pixels, so read it against width/height before judging a caption too small: ~56px is a normal caption on 1080p and scales proportionally from there.\nmedia[] entries carry {id, name, type, durationSec?} plus {assetId, path} when the item is backed by a Hub asset - `path` is what host media tools (transcription, analysis) take as input.\nUse trackId / clipId / fromSec / toSec to keep responses small on long projects."
+      },
+      {
+        "name": "project.edit",
+        "timeoutMs": 180000,
+        "description": "Apply an ordered batch of edit operations as ONE undo step. args: { description: string (short user-facing label), operations: object[] (1-50), validateOnly?: boolean }.\nReturns { ok, applied, failed, rolledBack, results[] (per-operation ok/error/detail/affectedClipIds), summary (projectName, durationSec, trackCount, clipCount, mediaCount, playheadSec), affectedClipIds[], nonUndoable[] }.\nnonUndoable[] lists applied operation types the user canNOT Ctrl+Z afterwards. Most operations ARE undoable; only text/caption edits, colour grading, markers, set_speed and import_media still fall outside the history. When it is non-empty, say so in your reply. It is always empty when rolledBack is true.\nThis method only CHANGES the project — to move the playhead or play a range use project.view, to step history use project.history.\nvalidateOnly:true validates the whole batch and applies nothing.\nOPERATIONS (each { type, ...fields }; times are absolute project seconds):\n- split_clip {clipId, atSec} — cut a clip in two at atSec.\n- trim_clip {clipId, newStartSec?, newEndSec?} — move the clip's timeline edge(s) inward; at least one required. To relocate a clip use move_clip.\n- remove_clip {clipId, ripple?} — delete a clip; ripple:true shifts later same-track clips left to close the gap.\n- remove_range {fromSec, toSec, trackIds?, ripple?} — cut out [fromSec,toSec) across the given tracks (default: all unlocked tracks): splits at both edges then deletes the middle. ripple defaults true. This is the one-shot way to do \"delete seconds X to Y\".\n- move_clip {clipId, toSec, trackId?} — reposition a clip, optionally onto another compatible track.\n- add_clip {mediaId, trackId?, atSec?} — place a media-library item; omit atSec to append to the main track.\n- import_media {assetId? | path?, addToTimeline?, trackId?, atSec?} — pull a Hub workspace asset (video/audio/image) into this project's media library and, by default, also place it on the timeline (same placement rules as add_clip). Use it when the user asks to edit a file that project.get media[] does NOT list yet — e.g. something just generated on the canvas. assetId/path come from the host's canvas or file tools. Re-importing an asset already in the library reuses it (no duplicate). Returns mediaId in results[].\n- duplicate_clip {clipId}\n- close_gap {clipId} — remove the empty space immediately before a clip.\n- add_track {kind} — \"video\" | \"audio\" | \"text\".\n- set_track {trackId, muted?, hidden?, locked?, solo?, name?}\n- remove_track {trackId}\n- add_text {text, atSec, durationSec?, trackId?} — text overlay clip (default 3s; creates a text track when none exists).\n- cut_silences {clipId, thresholdDb?, minSilenceSec?, padSec?} — detect and ripple-remove silent stretches inside one audio/video clip (defaults -40dB / 0.5s / 0.1s padding). Reports how much was removed.\n- import_srt {srt, clipId?, offsetSec?, trackId?, clipToRange?, preset?} — land an SRT transcript on the caption track (created on demand, named \"Captions\"). Cue times in an SRT produced by transcribing a source file are SOURCE times: pass `clipId` and they are rebased onto that clip's timeline position (and cues outside it are dropped); pass `offsetSec` to shift explicitly instead. The whole import is ONE undo step. `preset` styles the cues on the way in; with no preset they get the same look as the editor's own \"import subtitles\" button, which is the safe default.\n- set_subtitle_style {preset?, trackId?, clipIds?, fontFamily?, fontSizePx?, color?, backgroundColor?, position?} — restyle caption clips; defaults to every caption clip. `position` is \"top\" | \"center\" | \"bottom\" and defaults to whatever the preset specifies. Presets: default / minimal / bold / centered / modern / elegant / casual. `fontSizePx` is in CANVAS pixels, so scale it against the project resolution rather than assuming web-page sizes: ~56px is a normal caption on 1080p, so a 4K project needs ~112. Presets scale themselves; a raw `fontSizePx` does not.\n- set_text {clipId, text} — rewrite one caption or text-overlay clip (ids come from textClips[]).\n- set_clip {clipId, volume} — per-clip playback gain: 0 silent, 1 unity, max 2.\n- set_speed {clipId, speed?, reverse?, affectAudio?} — playback speed 0.1–20× and/or reverse. Changes the clip's TIMELINE duration (duration = source window / speed) without rippling neighbours — check for a resulting gap or overlap afterwards (project.diagnostics). affectAudio defaults true and retimes the audio clip split from the same media.\n- add_transition {clipAId, clipBId?, kind?, durationSec?} — transition between two adjacent clips; clipBId defaults to the next clip on the same track, kind defaults to \"crossfade\" (crossfade / dipToBlack / dipToWhite / wipe / slide / zoom / push), durationSec defaults to 1.\n- remove_transition {clipAId, clipBId?}\n- add_effect {clipId, effect, params?} — one of brightness / contrast / saturation / hue / blur / sharpen / vignette / grain / temperature / tint / tonal / chromaKey / shadow / glow / motion-blur / radial-blur / chromatic-aberration.\n- remove_effect {clipId, effectId?  |  effect?}\n- set_color_grading {clipId, temperature?, tint?, reset?} — temperature and tint are [-100, 100]; negative temperature cools, negative tint goes green.\n- add_marker {atSec, label?} — flag a moment on the timeline (useful for handing highlights back to the user).\n- remove_marker {markerId?  |  atSec?} — drop a marker by id, or the one closest to atSec. Marker ids come from `project.get` view=\"full\".\n- remove_text_clip {clipId} — delete one caption / text-overlay clip (ids come from textClips[]). Timeline clips use remove_clip instead; the two id namespaces are separate."
+      },
+      {
+        "name": "project.view",
+        "timeoutMs": 5000,
+        "description": "Playback and navigation. Changes nothing, so it is never part of an undo step. args: { action: \"seek\" | \"play\" | \"pause\", toSec?, fromSec? }.\n- seek: requires toSec — move the playhead so the user sees a specific moment.\n- play: optional fromSec (seeks first) and fromSec+toSec together (loops that range).\n- pause: stop playback.\nReturns { ok, action, playheadSec, detail }. Use this to SHOW the user a result after editing."
+      },
+      {
+        "name": "project.history",
+        "timeoutMs": 30000,
+        "description": "Step the project undo history. args: { action: \"undo\" | \"redo\", steps?: number (1-20, default 1) }.\nOne earlier project.edit batch is ONE step. Look/feel operations are not in this history (see project.edit nonUndoable[]) and cannot be reverted here — re-apply the inverse operation instead.\nReturns { ok, action, stepsTaken, canUndo, canRedo, summary, detail }. stepsTaken can be less than requested when the stack runs out; ok is false when nothing moved."
+      },
+      {
+        "name": "project.export",
+        "timeoutMs": 15000,
+        "description": "Render the current timeline and export it to the Hub canvas using the editor's export pipeline. Does not modify the project or create an undo step. The editor must be open.\n\nStart: { action?: \"start\", destination?: \"canvas\", format?: \"mp4\" | \"wav\" }.\nDefaults: canvas, mp4. MP4 uses project dimensions/frame rate (subject to the export engine's safety limits); WAV exports audio only. Local file export is not exposed through this method.\nReturns { jobId, status: \"running\" }. Rendering/upload continues asynchronously; do not report completion yet. A repeated start while running returns the existing job, not a second export.\n\nQuery: { action: \"status\", jobId: string }.\nReturns { jobId, status: \"running\" | \"completed\" | \"failed\", result?: { ok, error? } }.\nOnly completed means the output has actually been delivered to the canvas. Poll with a delay (not a tight loop); if still running, tell the user export is underway and check status later. Never start another export just because a status call timed out. On failed, report result.error accurately; cancellation is not success.\n\nWhen the user asks to export to canvas, call this method rather than directing them to export manually. Do not edit the project as part of an export-only request. Agent edits/history are blocked while this export is running."
+      },
+      {
+        "name": "project.snapshot",
+        "timeoutMs": 60000,
+        "description": "Export composited frames from the timeline as image files — YOUR EYES on the project. The frames are the exact preview render the user sees: clips with effects, transitions, colour grading, captions and text overlays all baked in. Use it to VERIFY what you did (captions legible? not covering a face? effect not overdone? transition landing right?) and to UNDERSTAND footage before content decisions.\nargs: { times?: number[] (1-8 explicit timeline seconds), fromSec?+toSec?+count? (sample count frames evenly, default 4, max 8), maxDim? (longest edge px, default 640, max 1280) }. Pass either times[] or a range, not both.\nReturns { ok, frames: [{ atSec, path, width, height }], detail }. Each `path` is a workspace-relative image path — read it with the host's image viewing tool in the SAME turn to actually look at it. Files are transient staging artifacts: they do not appear on the user's canvas and may be cleaned up later; do not reference them in replies as durable outputs.\nCapture pauses playback if running and restores the user's view afterwards.\nErrors: PREVIEW_NOT_READY (editor view not mounted — ask the user to open the editor), busy (a capture is running — retry once it settles), CAPTURE_FAILED (nothing rendered at that time — likely a timeline gap; run project.diagnostics).\nWHEN TO USE — after any visual edit worth checking: subtitle styling (grab 1-2 frames where cues show), colour/effect changes (before+after moments), transitions (frame at the seam), and before telling the user a visual task is done. One call with a few well-chosen times beats many calls."
+      },
+      {
+        "name": "project.diagnostics",
+        "timeoutMs": 10000,
+        "description": "Mechanical health checks over the live project — run this before declaring an edit finished, after any batch that moved/removed/retimed clips, and when the user reports \"something looks wrong\". Read-only and instant.\nargs: {} (none).\nReturns { ok, clean, issues[], summary }. `clean` is true when there are no error-severity issues. Each issue: { kind, severity: \"error\"|\"warning\", detail, fromSec?, toSec?, clipIds?, trackId? }.\nIssue kinds:\n- timeline_gap (error) — no visible video in a time span; renders as black frames. Fix with close_gap / move_clip / remove_range.\n- clip_overlap (error) — two clips on one track overlap; rendering is undefined. Fix with move_clip / trim_clip.\n- media_missing (error) — a clip references media with no readable bytes.\n- caption_overlap (warning) — two captions on one track overlap in time (usually an import offset mistake).\n- caption_out_of_video (warning) — caption extends past the last visible video frame.\n- tiny_clip (warning) — clip shorter than 2 frames, probably split residue; remove or extend it.\n- empty_track (warning) — track with no clips; remove_track if it is leftover.\nFix errors (or explain why they are intended) before reporting completion. Warnings are judgement calls — mention them when relevant. For visual confirmation of a fix, follow with project.snapshot."
+      }
+    ],
+    "instructions": "You are editing a VIDEO PROJECT in this clip editor. Domain model: a project has tracks (video/audio/text); each track holds clips; a clip has an id, a media reference, a timeline placement (startSec/endSec) and a source window (sourceInSec/sourceOutSec).\n\n- ALL times are SECONDS of project time (decimals allowed), never frames or timecode strings.\n- Clip / track / media ids come from <editor_state> or `project.get`. Ids in <editor_state> are truncated to 8 chars and are valid prefixes; never invent or reshape them.\n- Track `name` / `trackName` is the human-visible label in the timeline header (for example, \"Video 1\" or \"Captions\"). Resolve the user's named-track reference case-insensitively to that track, then use its id in tool calls. If multiple tracks have the same matching name, ask which one; do not silently choose.\n- Small edits can rely on the <editor_state> snapshot. Call `project.get` when you need exact timings, source windows, media ids, or the snapshot is missing/stale.\n\nWORKFLOW for a non-trivial edit (several operations, or anything visual):\n1. READ — `project.get` (view=\"full\" when you need media paths or markers). For content decisions (what to cut, where the good moment is), do not guess from clip names: `project.snapshot` a few frames, or run host media tools on `media[].path`, and look first.\n2. EDIT — put EVERY change for one user request into ONE `project.edit` call: operations run in order and commit as a single undo step titled by `description` (write it in the user's language). For a large/risky batch, send it once with validateOnly:true first, then apply.\n3. VERIFY — after a batch that moved/removed/retimed anything, run `project.diagnostics` and fix error-severity issues (black gaps, overlapping clips). After a VISUAL change (captions, effects, grading, transitions), `project.snapshot` the affected moments and actually look at the frames before calling it done.\n4. SHOW — use `project.view` (seek, or play with fromSec+toSec) to land the user on the result, and summarize what changed in plain language plus the new duration (`summary.durationSec`). Never paste tool JSON.\n\nFailure handling:\n- On the first failing operation the batch stops and applied operations are rolled back. Read `results[]`, fix the named operation, and resend the whole corrected batch.\n- Some look / feel operations are kept OUT of this editor's undo history: they are reverted correctly when a batch fails, but the user cannot Ctrl+Z them afterwards. Do not guess which — `project.edit` returns `nonUndoable[]` listing exactly the applied operations with that limitation. When it is non-empty, mention it in your reply.\n- Only touch what the user asked for; leave unrelated clips, tracks and settings alone.\n\nMEDIA NOT IN THE PROJECT YET: when the user references a workspace/canvas file that `project.get` media[] does not list (e.g. a video just generated on the canvas), use the `import_media` operation inside `project.edit` with its assetId or workspace path — do not tell the user to import manually.\n\nSUBTITLES / TRANSCRIPTION: this plugin does not run speech recognition. To caption a named track (for example, \"给 Video 1 加字幕\"), only transcribe the video/audio clips whose `trackName` matches that label. Then bring the result back:\n  1. `project.get` with view=\"full\" -> clips[] identifies the target track and media, while media[] carries `path` (a workspace path the host tools accept);\n  2. for each matching clip, run the host transcription tool on its media path to get an SRT file, and read it;\n  3. add one `import_srt` operation per matching clip, passing that `clipId` so cue times are rebased from source time onto the timeline; keep all operations in the request's single `project.edit` batch.\n  Caption clips then show up as `textClips[]` in later reads, so you can quote them, restyle them, or cut the timeline where a sentence sits. After styling captions, snapshot a frame where a cue is visible and check it is legible and not covering a face or key action."
+  }
+}

@@ -19,3 +19,16 @@
 技能原文在 `assets/skills/`（来自 `~/.hub/skills`）。
 
 应用升级后新建一个版本目录重新拷，不要覆盖旧的。
+
+## `3.0.20/`（macOS arm64）
+
+同一口径（`app/`、`gateway/`、`mcp-tools/`、两个 opencode 插件、`agent-profiles/`、`conf/`、
+`bundled-plugins/`），路线和上面的 `3.0.16/` 一致。和 3.0.16 的差异：
+
+- **gateway 多出 `node_modules/`（57MB）**，按"不收第三方 node_modules"的口径删掉了，只留 `dist`、`assets`、`package.json`。
+- **bundled-plugins 的三个插件前端资源变多**（`comfyui/assets` 就 43MB），同样按口径只留
+  `{manifest.json,skills,python,hub}`。3.0.16 收的时候就是这个口径，两边可比。
+- 渲染层主 bundle 从 `index-C4qF1HE0.js` 变成 `index-CANVzzmD.js`（21MB → 22MB），
+  首页 chunk 从 `index-CzL_EVKV.js` 变成 `index-BOHfiUzs.js`。
+
+两个版本都留着，对照用；不要覆盖旧的。

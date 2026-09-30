@@ -3,11 +3,11 @@
 //
 // find 可以是带 g 的正则，replace 可以是函数；within: [开始锚点, 结束锚点] 把替换限定在一段区间里。
 // 具体语义见 build.mjs。
-export const VERSION = "3.0.16";
+export const VERSION = "3.0.20";
 
 // 主 bundle 和首页那块懒加载的 chunk。同前缀（assets/index-）的文件有好几个，这里写全名免得误伤。
-const MAIN = "assets/index-C4qF1HE0.js";
-const HOME = "assets/index-CzL_EVKV.js";
+const MAIN = "assets/index-CANVzzmD.js";
+const HOME = "assets/index-BOHfiUzs.js";
 
 // 产品名。英文名和 app/desktop 旧界面的 i18n 保持一致。
 const NAME_ZH = "蒜狸小助手";
@@ -56,8 +56,8 @@ export const PATCHES = [
   { id: "brand.html-title", file: "index.html", find: "<title>MiniMax Design</title>", replace: `<title>${NAME_ZH}</title>` },
 
   // i18n 资源里的完整产品名。数量是两份资源里逐条数出来的，文案增减时这里会报错提醒复查。
-  { id: "brand.i18n-en", file: MAIN, within: EN_I18N, find: /MiniMax Design/g, replace: NAME_EN, count: 100 },
-  { id: "brand.i18n-zh", file: MAIN, within: ZH_I18N, find: /( ?)MiniMax Design( ?)/g, replace: zhName, count: 102 },
+  { id: "brand.i18n-en", file: MAIN, within: EN_I18N, find: /MiniMax Design/g, replace: NAME_EN, count: 113 },
+  { id: "brand.i18n-zh", file: MAIN, within: ZH_I18N, find: /( ?)MiniMax Design( ?)/g, replace: zhName, count: 113 },
 
   // 首页标题的 i18n 键。界面上实际画的是 HubWordmark（见下面 logo 一节），这里只是别让资源里留着旧名。
   i18n("brand.hero-title-en", "home.heroTitle", "MiniMax <brand>Design</brand>", "Suanli <brand>Assistant</brand>"),
@@ -286,8 +286,8 @@ export const PATCHES = [
   {
     id: "scope.comfyui-canvas-menu",
     file: MAIN,
-    find: "/* @__PURE__ */ jsxRuntimeExports.jsx(\n              ComfyUiSubmenu,",
-    replace: "false && /* @__PURE__ */ jsxRuntimeExports.jsx(\n              ComfyUiSubmenu,",
+    find: "/* @__PURE__ */ jsxRuntimeExports.jsx(\n            ComfyUiSubmenu,",
+    replace: "false && /* @__PURE__ */ jsxRuntimeExports.jsx(\n            ComfyUiSubmenu,",
   },
   // 设置里的 ComfyUI 分区。当前分区找不到时会退回第一项，删掉这一行不会让打开设置的旧参数出错。
   {
@@ -323,8 +323,8 @@ export const PATCHES = [
   {
     id: "scope.creation-guide-links",
     file: MAIN,
-    find: "function CreationGuidePlaceholder({ guides, source }) {\n",
-    replace: "function CreationGuidePlaceholder({ source }) {\n  const guides = [];\n",
+    find: "function CreationGuidePlaceholder({\n  guides,\n  source,\n  triggerMention,\n  triggerSlash\n}) {\n",
+    replace: "function CreationGuidePlaceholder({ source, triggerMention, triggerSlash }) {\n  const guides = [];\n",
   },
 
   // ---------------------------------------------------------------------------------------------
@@ -362,13 +362,5 @@ export const PATCHES = [
       "  if (localUrl) return localUrl;",
       "",
     ].join("\n"),
-  },
-  // 灵感页签的每张卡片原本都必须有演示视频，没有视频的示例直接不出卡片。我们的示例只有图（没有成片可演示），
-  // 放行没有视频的示例：卡片组件本来就支持纯图片卡（封面取示例封面 → 第一张图片附件 → 场景配图）。
-  {
-    id: "home-showcase.image-cards",
-    file: MAIN,
-    find: "  const videoUrl = output?.videoUrl ?? query.videoUrl ?? sectionVideoUrl;\n  if (!videoUrl) return void 0;\n",
-    replace: "  const videoUrl = output?.videoUrl ?? query.videoUrl ?? sectionVideoUrl;\n",
   },
 ];
