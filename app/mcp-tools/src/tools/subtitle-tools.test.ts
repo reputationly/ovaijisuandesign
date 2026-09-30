@@ -2,12 +2,17 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createHarness, resultJson, resultText } from "../testing/harness.js";
 import { escapeFfmpegFilterValue } from "./ffmpeg-guards.js";
 import { foldCjkSegment, formatSubtitleContent, hexToAssColor, parseSrt } from "./subtitle-format.js";
 import { registerSubtitleTools } from "./subtitle-tools.js";
+
+// 折行用例本身是纯计算（本地 14ms），慢的是第一次用 Intl.Segmenter：Windows CI 上
+// 冷启动加载 ICU 数据能到十几秒，报出来是 "Test timed out in 5000ms"，
+// 看着像折行逻辑挂了，其实只是这一轮跑得慢。放宽容差。
+vi.setConfig({ testTimeout: 60_000 });
 
 const SRT = `1
 00:00:01,000 --> 00:00:03,500
