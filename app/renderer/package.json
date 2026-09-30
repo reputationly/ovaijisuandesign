@@ -23,6 +23,7 @@
     "@lezer/lr": "1.4.10",
     "@tanstack/store": "0.9.3",
     "@tanstack/virtual-core": "3.14.0",
+    "crelt": "1.0.7",
     "d3-array": "2.12.1",
     "d3-color": "3.1.0",
     "d3-dispatch": "3.0.1",
