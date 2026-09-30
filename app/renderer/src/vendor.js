@@ -11,9 +11,11 @@ import __ov_use_sync_external_store_shim_with_selector from "use-sync-external-s
 import withSelectorExports from "use-sync-external-store/shim/with-selector";
 import { NodeProp, Tree, TreeFragment, Parser as Parser$1, NodeType as NodeType3, NodeSet, parseMixed, IterMode, NodeWeakMap, DefaultBufferLength } from "@lezer/common";
 import { tabbable, isTabbable, focusable } from "tabbable";
+import crelt from "crelt";
 import { tags as tags$1, styleTags, Tag, tagHighlighter, highlightTree } from "@lezer/highlight";
 import { canUseDOM, getWindow, isDocument, isHTMLElement, isSVGElement, isWindow, isNode, getOwnerDocument, isKeyboardEvent, subtract, add as add$2, getEventCoordinates, findFirstFocusableNode, CSS as CSS$1 } from "@dnd-kit/utilities";
 import { HiddenText, LiveRegion } from "@dnd-kit/accessibility";
+import { Virtualizer, observeElementRect, observeElementOffset, elementScroll } from "@tanstack/virtual-core";
 import { ascending } from "d3-array";
 import { dispatch } from "d3-dispatch";
 import { timer as timer$1, timeout, now } from "d3-timer";
@@ -33,8 +35,8 @@ import { resolveAll } from "micromark-util-resolve-all";
 import { combineExtensions } from "micromark-util-combine-extensions";
 import OrderedMap from "orderedmap";
 import { ReplaceError, Fragment, Slice, MarkType, Mark as Mark$1, Node as Node$4, NodeRange, DOMSerializer, DOMParser as DOMParser$1, Schema as Schema$2 } from "prosemirror-model";
-import { ReplaceStep, ReplaceAroundStep, Transform, liftTarget, replaceStep, canJoin, joinPoint, canSplit, findWrapping, RemoveMarkStep, dropPoint, Mapping, Step, StepResult, StepMap } from "prosemirror-transform";
-import { NodeSelection, Selection, TextSelection, AllSelection, Plugin, PluginKey, SelectionRange as SelectionRange$1, EditorState as EditorState$1 } from "prosemirror-state";
+import { ReplaceStep, ReplaceAroundStep, Transform, liftTarget, replaceStep, canJoin, joinPoint, canSplit, findWrapping, dropPoint, RemoveMarkStep, Mapping, Step, StepResult, StepMap } from "prosemirror-transform";
+import { NodeSelection, Selection, TextSelection, AllSelection, Plugin, PluginKey, EditorState as EditorState$1, SelectionRange as SelectionRange$1 } from "prosemirror-state";
 import RopeSequence from "rope-sequence";
 import { liftListItem, sinkListItem, wrapInList } from "prosemirror-schema-list";
 import { gfmTaskListItem } from "micromark-extension-gfm-task-list-item";
@@ -485,6 +487,49 @@ function requireFailsafe() {
   });
   return failsafe;
 }
+var _null;
+var hasRequired_null;
+function require_null() {
+  if (hasRequired_null) return _null;
+  hasRequired_null = 1;
+  const Type2 = requireType();
+  function resolveYamlNull(data2) {
+    if (data2 === null) return true;
+    const max2 = data2.length;
+    return max2 === 1 && data2 === "~" || max2 === 4 && (data2 === "null" || data2 === "Null" || data2 === "NULL");
+  }
+  function constructYamlNull() {
+    return null;
+  }
+  function isNull(object2) {
+    return object2 === null;
+  }
+  _null = new Type2("tag:yaml.org,2002:null", {
+    kind: "scalar",
+    resolve: resolveYamlNull,
+    construct: constructYamlNull,
+    predicate: isNull,
+    represent: {
+      canonical: function () {
+        return "~";
+      },
+      lowercase: function () {
+        return "null";
+      },
+      uppercase: function () {
+        return "NULL";
+      },
+      camelcase: function () {
+        return "Null";
+      },
+      empty: function () {
+        return "";
+      }
+    },
+    defaultStyle: "lowercase"
+  });
+  return _null;
+}
 var bool;
 var hasRequiredBool;
 function requireBool() {
@@ -719,6 +764,24 @@ function requireFloat() {
     defaultStyle: "lowercase"
   });
   return float;
+}
+var json;
+var hasRequiredJson;
+function requireJson() {
+  if (hasRequiredJson) return json;
+  hasRequiredJson = 1;
+  json = requireFailsafe().extend({
+    implicit: [require_null(), requireBool(), requireInt(), requireFloat()]
+  });
+  return json;
+}
+var core$1;
+var hasRequiredCore;
+function requireCore() {
+  if (hasRequiredCore) return core$1;
+  hasRequiredCore = 1;
+  core$1 = requireJson();
+  return core$1;
 }
 var timestamp;
 var hasRequiredTimestamp;
@@ -990,7 +1053,2085 @@ function requireSet() {
   });
   return set$3;
 }
+var _default;
+var hasRequired_default;
+function require_default() {
+  if (hasRequired_default) return _default;
+  hasRequired_default = 1;
+  _default = requireCore().extend({
+    implicit: [requireTimestamp(), requireMerge()],
+    explicit: [requireBinary(), requireOmap(), requirePairs(), requireSet()]
+  });
+  return _default;
+}
+var hasRequiredLoader;
+function requireLoader() {
+  if (hasRequiredLoader) return loader;
+  hasRequiredLoader = 1;
+  const common2 = requireCommon();
+  const YAMLException2 = requireException();
+  const makeSnippet = requireSnippet();
+  const DEFAULT_SCHEMA2 = require_default();
+  const _hasOwnProperty = Object.prototype.hasOwnProperty;
+  const CONTEXT_FLOW_IN = 1;
+  const CONTEXT_FLOW_OUT = 2;
+  const CONTEXT_BLOCK_IN = 3;
+  const CONTEXT_BLOCK_OUT = 4;
+  const CHOMPING_CLIP = 1;
+  const CHOMPING_STRIP = 2;
+  const CHOMPING_KEEP = 3;
+  const PATTERN_NON_PRINTABLE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+  const PATTERN_NON_ASCII_LINE_BREAKS = /[\x85\u2028\u2029]/;
+  const PATTERN_FLOW_INDICATORS = /[,\[\]{}]/;
+  const PATTERN_TAG_HANDLE = /^(?:!|!!|![0-9A-Za-z-]+!)$/;
+  const PATTERN_TAG_URI = /^(?:!|[^,\[\]{}])(?:%[0-9a-f]{2}|[0-9a-z\-#;/?:@&=+$,_.!~*'()\[\]])*$/i;
+  function _class(obj) {
+    return Object.prototype.toString.call(obj);
+  }
+  function isEol(c3) {
+    return c3 === 10 || c3 === 13;
+  }
+  function isWhiteSpace(c3) {
+    return c3 === 9 || c3 === 32;
+  }
+  function isWsOrEol(c3) {
+    return c3 === 9 || c3 === 32 || c3 === 10 || c3 === 13;
+  }
+  function isFlowIndicator(c3) {
+    return c3 === 44 || c3 === 91 || c3 === 93 || c3 === 123 || c3 === 125;
+  }
+  function fromHexCode(c3) {
+    if (c3 >= 48 && c3 <= 57) {
+      return c3 - 48;
+    }
+    const lc = c3 | 32;
+    if (lc >= 97 && lc <= 102) {
+      return lc - 97 + 10;
+    }
+    return -1;
+  }
+  function escapedHexLen(c3) {
+    if (c3 === 120) {
+      return 2;
+    }
+    if (c3 === 117) {
+      return 4;
+    }
+    if (c3 === 85) {
+      return 8;
+    }
+    return 0;
+  }
+  function fromDecimalCode(c3) {
+    if (c3 >= 48 && c3 <= 57) {
+      return c3 - 48;
+    }
+    return -1;
+  }
+  function simpleEscapeSequence(c3) {
+    switch (c3) {
+      case 48:
+        return "\0";
+      case 97:
+        return "\x07";
+      case 98:
+        return "\b";
+      case 116:
+        return "	";
+      case 9:
+        return "	";
+      case 110:
+        return "\n";
+      case 118:
+        return "\v";
+      case 102:
+        return "\f";
+      case 114:
+        return "\r";
+      case 101:
+        return "\x1B";
+      case 32:
+        return " ";
+      case 34:
+        return '"';
+      case 47:
+        return "/";
+      case 92:
+        return "\\";
+      case 78:
+        return "";
+      case 95:
+        return " ";
+      case 76:
+        return "\u2028";
+      case 80:
+        return "\u2029";
+      default:
+        return "";
+    }
+  }
+  function charFromCodepoint(c3) {
+    if (c3 <= 65535) {
+      return String.fromCharCode(c3);
+    }
+    return String.fromCharCode((c3 - 65536 >> 10) + 55296, (c3 - 65536 & 1023) + 56320);
+  }
+  function setProperty(object2, key2, value) {
+    if (key2 === "__proto__") {
+      Object.defineProperty(object2, key2, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value
+      });
+    } else {
+      object2[key2] = value;
+    }
+  }
+  const simpleEscapeCheck = new Array(256);
+  const simpleEscapeMap = new Array(256);
+  for (let i2 = 0; i2 < 256; i2++) {
+    simpleEscapeCheck[i2] = simpleEscapeSequence(i2) ? 1 : 0;
+    simpleEscapeMap[i2] = simpleEscapeSequence(i2);
+  }
+  function State2(input, options) {
+    this.input = input;
+    this.filename = options["filename"] || null;
+    this.schema = options["schema"] || DEFAULT_SCHEMA2;
+    this.onWarning = options["onWarning"] || null;
+    this.legacy = options["legacy"] || false;
+    this.json = options["json"] || false;
+    this.listener = options["listener"] || null;
+    this.maxDepth = typeof options["maxDepth"] === "number" ? options["maxDepth"] : 100;
+    this.maxTotalMergeKeys = typeof options["maxTotalMergeKeys"] === "number" ? options["maxTotalMergeKeys"] : 1e4;
+    this.implicitTypes = this.schema.compiledImplicit;
+    this.typeMap = this.schema.compiledTypeMap;
+    this.length = input.length;
+    this.position = 0;
+    this.line = 0;
+    this.lineStart = 0;
+    this.lineIndent = 0;
+    this.depth = 0;
+    this.totalMergeKeys = 0;
+    this.firstTabInLine = -1;
+    this.documents = [];
+    this.anchorMapTransactions = [];
+  }
+  function generateError(state2, message2) {
+    const mark2 = {
+      name: state2.filename,
+      buffer: state2.input.slice(0, -1),
+      // omit trailing \0
+      position: state2.position,
+      line: state2.line,
+      column: state2.position - state2.lineStart
+    };
+    mark2.snippet = makeSnippet(mark2);
+    return new YAMLException2(message2, mark2);
+  }
+  function throwError(state2, message2) {
+    throw generateError(state2, message2);
+  }
+  function throwWarning(state2, message2) {
+    if (state2.onWarning) {
+      state2.onWarning.call(null, generateError(state2, message2));
+    }
+  }
+  function storeAnchor(state2, name2, value) {
+    const transactions = state2.anchorMapTransactions;
+    if (transactions.length !== 0) {
+      const transaction = transactions[transactions.length - 1];
+      if (!_hasOwnProperty.call(transaction, name2)) {
+        transaction[name2] = {
+          existed: _hasOwnProperty.call(state2.anchorMap, name2),
+          value: state2.anchorMap[name2]
+        };
+      }
+    }
+    state2.anchorMap[name2] = value;
+  }
+  function beginAnchorTransaction(state2) {
+    state2.anchorMapTransactions.push(/* @__PURE__ */Object.create(null));
+  }
+  function commitAnchorTransaction(state2) {
+    const transaction = state2.anchorMapTransactions.pop();
+    const transactions = state2.anchorMapTransactions;
+    if (transactions.length === 0) return;
+    const parent = transactions[transactions.length - 1];
+    const names = Object.keys(transaction);
+    for (let index2 = 0, length2 = names.length; index2 < length2; index2 += 1) {
+      const name2 = names[index2];
+      if (!_hasOwnProperty.call(parent, name2)) {
+        parent[name2] = transaction[name2];
+      }
+    }
+  }
+  function rollbackAnchorTransaction(state2) {
+    const transaction = state2.anchorMapTransactions.pop();
+    const names = Object.keys(transaction);
+    for (let index2 = names.length - 1; index2 >= 0; index2 -= 1) {
+      const entry = transaction[names[index2]];
+      if (entry.existed) {
+        state2.anchorMap[names[index2]] = entry.value;
+      } else {
+        delete state2.anchorMap[names[index2]];
+      }
+    }
+  }
+  function snapshotState(state2) {
+    return {
+      position: state2.position,
+      line: state2.line,
+      lineStart: state2.lineStart,
+      lineIndent: state2.lineIndent,
+      firstTabInLine: state2.firstTabInLine,
+      tag: state2.tag,
+      anchor: state2.anchor,
+      kind: state2.kind,
+      result: state2.result
+    };
+  }
+  function restoreState(state2, snapshot2) {
+    state2.position = snapshot2.position;
+    state2.line = snapshot2.line;
+    state2.lineStart = snapshot2.lineStart;
+    state2.lineIndent = snapshot2.lineIndent;
+    state2.firstTabInLine = snapshot2.firstTabInLine;
+    state2.tag = snapshot2.tag;
+    state2.anchor = snapshot2.anchor;
+    state2.kind = snapshot2.kind;
+    state2.result = snapshot2.result;
+  }
+  const directiveHandlers = {
+    YAML: function handleYamlDirective(state2, name2, args) {
+      if (state2.version !== null) {
+        throwError(state2, "duplication of %YAML directive");
+      }
+      if (args.length !== 1) {
+        throwError(state2, "YAML directive accepts exactly one argument");
+      }
+      const match2 = /^([0-9]+)\.([0-9]+)$/.exec(args[0]);
+      if (match2 === null) {
+        throwError(state2, "ill-formed argument of the YAML directive");
+      }
+      const major = parseInt(match2[1], 10);
+      const minor = parseInt(match2[2], 10);
+      if (major !== 1) {
+        throwError(state2, "unacceptable YAML version of the document");
+      }
+      state2.version = args[0];
+      state2.checkLineBreaks = minor < 2;
+      if (minor !== 1 && minor !== 2) {
+        throwWarning(state2, "unsupported YAML version of the document");
+      }
+    },
+    TAG: function handleTagDirective(state2, name2, args) {
+      let prefix;
+      if (args.length !== 2) {
+        throwError(state2, "TAG directive accepts exactly two arguments");
+      }
+      const handle2 = args[0];
+      prefix = args[1];
+      if (!PATTERN_TAG_HANDLE.test(handle2)) {
+        throwError(state2, "ill-formed tag handle (first argument) of the TAG directive");
+      }
+      if (_hasOwnProperty.call(state2.tagMap, handle2)) {
+        throwError(state2, 'there is a previously declared suffix for "' + handle2 + '" tag handle');
+      }
+      if (!PATTERN_TAG_URI.test(prefix)) {
+        throwError(state2, "ill-formed tag prefix (second argument) of the TAG directive");
+      }
+      try {
+        prefix = decodeURIComponent(prefix);
+      } catch (err) {
+        throwError(state2, "tag prefix is malformed: " + prefix);
+      }
+      state2.tagMap[handle2] = prefix;
+    }
+  };
+  function captureSegment(state2, start2, end2, checkJson) {
+    if (start2 < end2) {
+      const _result = state2.input.slice(start2, end2);
+      if (checkJson) {
+        for (let _position = 0, _length = _result.length; _position < _length; _position += 1) {
+          const _character = _result.charCodeAt(_position);
+          if (!(_character === 9 || _character >= 32 && _character <= 1114111)) {
+            throwError(state2, "expected valid JSON character");
+          }
+        }
+      } else if (PATTERN_NON_PRINTABLE.test(_result)) {
+        throwError(state2, "the stream contains non-printable characters");
+      }
+      state2.result += _result;
+    }
+  }
+  function chargeMergeWork(state2) {
+    state2.totalMergeKeys++;
+    if (state2.maxTotalMergeKeys !== -1 && state2.totalMergeKeys > state2.maxTotalMergeKeys) {
+      throwError(state2, "merge keys exceeded maxTotalMergeKeys (" + state2.maxTotalMergeKeys + ")");
+    }
+  }
+  function mergeMappings(state2, destination, source, overridableKeys) {
+    if (!common2.isObject(source)) {
+      throwError(state2, "cannot merge mappings; the provided source object is unacceptable");
+    }
+    chargeMergeWork(state2);
+    const sourceKeys = Object.keys(source);
+    for (let index2 = 0, quantity = sourceKeys.length; index2 < quantity; index2 += 1) {
+      const key2 = sourceKeys[index2];
+      chargeMergeWork(state2);
+      if (!_hasOwnProperty.call(destination, key2)) {
+        setProperty(destination, key2, source[key2]);
+        overridableKeys[key2] = true;
+      }
+    }
+  }
+  function storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, valueNode, startLine, startLineStart, startPos) {
+    if (Array.isArray(keyNode)) {
+      keyNode = Array.prototype.slice.call(keyNode);
+      for (let index2 = 0, quantity = keyNode.length; index2 < quantity; index2 += 1) {
+        if (Array.isArray(keyNode[index2])) {
+          throwError(state2, "nested arrays are not supported inside keys");
+        }
+        if (typeof keyNode === "object" && _class(keyNode[index2]) === "[object Object]") {
+          keyNode[index2] = "[object Object]";
+        }
+      }
+    }
+    if (typeof keyNode === "object" && _class(keyNode) === "[object Object]") {
+      keyNode = "[object Object]";
+    }
+    keyNode = String(keyNode);
+    if (_result === null) {
+      _result = {};
+    }
+    if (keyTag === "tag:yaml.org,2002:merge") {
+      if (Array.isArray(valueNode)) {
+        if (valueNode.length > 100) {
+          throwError(state2, "abnormal merge sequence size");
+        }
+        for (let index2 = 0, quantity = valueNode.length; index2 < quantity; index2 += 1) {
+          mergeMappings(state2, _result, valueNode[index2], overridableKeys);
+        }
+      } else {
+        mergeMappings(state2, _result, valueNode, overridableKeys);
+      }
+    } else {
+      if (!state2.json && !_hasOwnProperty.call(overridableKeys, keyNode) && _hasOwnProperty.call(_result, keyNode)) {
+        state2.line = startLine || state2.line;
+        state2.lineStart = startLineStart || state2.lineStart;
+        state2.position = startPos || state2.position;
+        throwError(state2, "duplicated mapping key");
+      }
+      setProperty(_result, keyNode, valueNode);
+      delete overridableKeys[keyNode];
+    }
+    return _result;
+  }
+  function readLineBreak(state2) {
+    const ch = state2.input.charCodeAt(state2.position);
+    if (ch === 10) {
+      state2.position++;
+    } else if (ch === 13) {
+      state2.position++;
+      if (state2.input.charCodeAt(state2.position) === 10) {
+        state2.position++;
+      }
+    } else {
+      throwError(state2, "a line break is expected");
+    }
+    state2.line += 1;
+    state2.lineStart = state2.position;
+    state2.firstTabInLine = -1;
+  }
+  function skipSeparationSpace(state2, allowComments, checkIndent) {
+    let lineBreaks = 0;
+    let ch = state2.input.charCodeAt(state2.position);
+    while (ch !== 0) {
+      while (isWhiteSpace(ch)) {
+        if (ch === 9 && state2.firstTabInLine === -1) {
+          state2.firstTabInLine = state2.position;
+        }
+        ch = state2.input.charCodeAt(++state2.position);
+      }
+      if (allowComments && ch === 35) {
+        do {
+          ch = state2.input.charCodeAt(++state2.position);
+        } while (ch !== 10 && ch !== 13 && ch !== 0);
+      }
+      if (isEol(ch)) {
+        readLineBreak(state2);
+        ch = state2.input.charCodeAt(state2.position);
+        lineBreaks++;
+        state2.lineIndent = 0;
+        while (ch === 32) {
+          state2.lineIndent++;
+          ch = state2.input.charCodeAt(++state2.position);
+        }
+      } else {
+        break;
+      }
+    }
+    if (checkIndent !== -1 && lineBreaks !== 0 && state2.lineIndent < checkIndent) {
+      throwWarning(state2, "deficient indentation");
+    }
+    return lineBreaks;
+  }
+  function testDocumentSeparator(state2) {
+    let _position = state2.position;
+    let ch = state2.input.charCodeAt(_position);
+    if ((ch === 45 || ch === 46) && ch === state2.input.charCodeAt(_position + 1) && ch === state2.input.charCodeAt(_position + 2)) {
+      _position += 3;
+      ch = state2.input.charCodeAt(_position);
+      if (ch === 0 || isWsOrEol(ch)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function writeFoldedLines(state2, count2) {
+    if (count2 === 1) {
+      state2.result += " ";
+    } else if (count2 > 1) {
+      state2.result += common2.repeat("\n", count2 - 1);
+    }
+  }
+  function readPlainScalar(state2, nodeIndent, withinFlowCollection) {
+    let captureStart;
+    let captureEnd;
+    let hasPendingContent;
+    let _line;
+    let _lineStart;
+    let _lineIndent;
+    const _kind = state2.kind;
+    const _result = state2.result;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (isWsOrEol(ch) || isFlowIndicator(ch) || ch === 35 || ch === 38 || ch === 42 || ch === 33 || ch === 124 || ch === 62 || ch === 39 || ch === 34 || ch === 37 || ch === 64 || ch === 96) {
+      return false;
+    }
+    if (ch === 63 || ch === 45) {
+      const following = state2.input.charCodeAt(state2.position + 1);
+      if (isWsOrEol(following) || withinFlowCollection && isFlowIndicator(following)) {
+        return false;
+      }
+    }
+    state2.kind = "scalar";
+    state2.result = "";
+    captureStart = captureEnd = state2.position;
+    hasPendingContent = false;
+    while (ch !== 0) {
+      if (ch === 58) {
+        const following = state2.input.charCodeAt(state2.position + 1);
+        if (isWsOrEol(following) || withinFlowCollection && isFlowIndicator(following)) {
+          break;
+        }
+      } else if (ch === 35) {
+        const preceding = state2.input.charCodeAt(state2.position - 1);
+        if (isWsOrEol(preceding)) {
+          break;
+        }
+      } else if (state2.position === state2.lineStart && testDocumentSeparator(state2) || withinFlowCollection && isFlowIndicator(ch)) {
+        break;
+      } else if (isEol(ch)) {
+        _line = state2.line;
+        _lineStart = state2.lineStart;
+        _lineIndent = state2.lineIndent;
+        skipSeparationSpace(state2, false, -1);
+        if (state2.lineIndent >= nodeIndent) {
+          hasPendingContent = true;
+          ch = state2.input.charCodeAt(state2.position);
+          continue;
+        } else {
+          state2.position = captureEnd;
+          state2.line = _line;
+          state2.lineStart = _lineStart;
+          state2.lineIndent = _lineIndent;
+          break;
+        }
+      }
+      if (hasPendingContent) {
+        captureSegment(state2, captureStart, captureEnd, false);
+        writeFoldedLines(state2, state2.line - _line);
+        captureStart = captureEnd = state2.position;
+        hasPendingContent = false;
+      }
+      if (!isWhiteSpace(ch)) {
+        captureEnd = state2.position + 1;
+      }
+      ch = state2.input.charCodeAt(++state2.position);
+    }
+    captureSegment(state2, captureStart, captureEnd, false);
+    if (state2.result) {
+      return true;
+    }
+    state2.kind = _kind;
+    state2.result = _result;
+    return false;
+  }
+  function readSingleQuotedScalar(state2, nodeIndent) {
+    let captureStart;
+    let captureEnd;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch !== 39) {
+      return false;
+    }
+    state2.kind = "scalar";
+    state2.result = "";
+    state2.position++;
+    captureStart = captureEnd = state2.position;
+    while ((ch = state2.input.charCodeAt(state2.position)) !== 0) {
+      if (ch === 39) {
+        captureSegment(state2, captureStart, state2.position, true);
+        ch = state2.input.charCodeAt(++state2.position);
+        if (ch === 39) {
+          captureStart = state2.position;
+          state2.position++;
+          captureEnd = state2.position;
+        } else {
+          return true;
+        }
+      } else if (isEol(ch)) {
+        captureSegment(state2, captureStart, captureEnd, true);
+        writeFoldedLines(state2, skipSeparationSpace(state2, false, nodeIndent));
+        captureStart = captureEnd = state2.position;
+      } else if (state2.position === state2.lineStart && testDocumentSeparator(state2)) {
+        throwError(state2, "unexpected end of the document within a single quoted scalar");
+      } else {
+        state2.position++;
+        if (!isWhiteSpace(ch)) {
+          captureEnd = state2.position;
+        }
+      }
+    }
+    throwError(state2, "unexpected end of the stream within a single quoted scalar");
+  }
+  function readDoubleQuotedScalar(state2, nodeIndent) {
+    let captureStart;
+    let captureEnd;
+    let tmp;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch !== 34) {
+      return false;
+    }
+    state2.kind = "scalar";
+    state2.result = "";
+    state2.position++;
+    captureStart = captureEnd = state2.position;
+    while ((ch = state2.input.charCodeAt(state2.position)) !== 0) {
+      if (ch === 34) {
+        captureSegment(state2, captureStart, state2.position, true);
+        state2.position++;
+        return true;
+      } else if (ch === 92) {
+        captureSegment(state2, captureStart, state2.position, true);
+        ch = state2.input.charCodeAt(++state2.position);
+        if (isEol(ch)) {
+          skipSeparationSpace(state2, false, nodeIndent);
+        } else if (ch < 256 && simpleEscapeCheck[ch]) {
+          state2.result += simpleEscapeMap[ch];
+          state2.position++;
+        } else if ((tmp = escapedHexLen(ch)) > 0) {
+          let hexLength = tmp;
+          let hexResult = 0;
+          for (; hexLength > 0; hexLength--) {
+            ch = state2.input.charCodeAt(++state2.position);
+            if ((tmp = fromHexCode(ch)) >= 0) {
+              hexResult = (hexResult << 4) + tmp;
+            } else {
+              throwError(state2, "expected hexadecimal character");
+            }
+          }
+          state2.result += charFromCodepoint(hexResult);
+          state2.position++;
+        } else {
+          throwError(state2, "unknown escape sequence");
+        }
+        captureStart = captureEnd = state2.position;
+      } else if (isEol(ch)) {
+        captureSegment(state2, captureStart, captureEnd, true);
+        writeFoldedLines(state2, skipSeparationSpace(state2, false, nodeIndent));
+        captureStart = captureEnd = state2.position;
+      } else if (state2.position === state2.lineStart && testDocumentSeparator(state2)) {
+        throwError(state2, "unexpected end of the document within a double quoted scalar");
+      } else {
+        state2.position++;
+        if (!isWhiteSpace(ch)) {
+          captureEnd = state2.position;
+        }
+      }
+    }
+    throwError(state2, "unexpected end of the stream within a double quoted scalar");
+  }
+  function readFlowCollection(state2, nodeIndent) {
+    let readNext = true;
+    let _line;
+    let _lineStart;
+    let _pos;
+    const _tag = state2.tag;
+    let _result;
+    const _anchor = state2.anchor;
+    let terminator;
+    let isPair;
+    let isExplicitPair;
+    let isMapping;
+    const overridableKeys = /* @__PURE__ */Object.create(null);
+    let keyNode;
+    let keyTag;
+    let valueNode;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch === 91) {
+      terminator = 93;
+      isMapping = false;
+      _result = [];
+    } else if (ch === 123) {
+      terminator = 125;
+      isMapping = true;
+      _result = {};
+    } else {
+      return false;
+    }
+    if (state2.anchor !== null) {
+      storeAnchor(state2, state2.anchor, _result);
+    }
+    ch = state2.input.charCodeAt(++state2.position);
+    while (ch !== 0) {
+      skipSeparationSpace(state2, true, nodeIndent);
+      ch = state2.input.charCodeAt(state2.position);
+      if (ch === terminator) {
+        state2.position++;
+        state2.tag = _tag;
+        state2.anchor = _anchor;
+        state2.kind = isMapping ? "mapping" : "sequence";
+        state2.result = _result;
+        return true;
+      } else if (!readNext) {
+        throwError(state2, "missed comma between flow collection entries");
+      } else if (ch === 44) {
+        throwError(state2, "expected the node content, but found ','");
+      }
+      keyTag = keyNode = valueNode = null;
+      isPair = isExplicitPair = false;
+      if (ch === 63) {
+        const following = state2.input.charCodeAt(state2.position + 1);
+        if (isWsOrEol(following)) {
+          isPair = isExplicitPair = true;
+          state2.position++;
+          skipSeparationSpace(state2, true, nodeIndent);
+        }
+      }
+      _line = state2.line;
+      _lineStart = state2.lineStart;
+      _pos = state2.position;
+      composeNode(state2, nodeIndent, CONTEXT_FLOW_IN, false, true);
+      keyTag = state2.tag;
+      keyNode = state2.result;
+      skipSeparationSpace(state2, true, nodeIndent);
+      ch = state2.input.charCodeAt(state2.position);
+      if ((isExplicitPair || state2.line === _line) && ch === 58) {
+        isPair = true;
+        ch = state2.input.charCodeAt(++state2.position);
+        skipSeparationSpace(state2, true, nodeIndent);
+        composeNode(state2, nodeIndent, CONTEXT_FLOW_IN, false, true);
+        valueNode = state2.result;
+      }
+      if (isMapping) {
+        storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, valueNode, _line, _lineStart, _pos);
+      } else if (isPair) {
+        _result.push(storeMappingPair(state2, null, overridableKeys, keyTag, keyNode, valueNode, _line, _lineStart, _pos));
+      } else {
+        _result.push(keyNode);
+      }
+      skipSeparationSpace(state2, true, nodeIndent);
+      ch = state2.input.charCodeAt(state2.position);
+      if (ch === 44) {
+        readNext = true;
+        ch = state2.input.charCodeAt(++state2.position);
+      } else {
+        readNext = false;
+      }
+    }
+    throwError(state2, "unexpected end of the stream within a flow collection");
+  }
+  function readBlockScalar(state2, nodeIndent) {
+    let folding;
+    let chomping = CHOMPING_CLIP;
+    let didReadContent = false;
+    let detectedIndent = false;
+    let textIndent = nodeIndent;
+    let emptyLines = 0;
+    let atMoreIndented = false;
+    let tmp;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch === 124) {
+      folding = false;
+    } else if (ch === 62) {
+      folding = true;
+    } else {
+      return false;
+    }
+    state2.kind = "scalar";
+    state2.result = "";
+    while (ch !== 0) {
+      ch = state2.input.charCodeAt(++state2.position);
+      if (ch === 43 || ch === 45) {
+        if (CHOMPING_CLIP === chomping) {
+          chomping = ch === 43 ? CHOMPING_KEEP : CHOMPING_STRIP;
+        } else {
+          throwError(state2, "repeat of a chomping mode identifier");
+        }
+      } else if ((tmp = fromDecimalCode(ch)) >= 0) {
+        if (tmp === 0) {
+          throwError(state2, "bad explicit indentation width of a block scalar; it cannot be less than one");
+        } else if (!detectedIndent) {
+          textIndent = nodeIndent + tmp - 1;
+          detectedIndent = true;
+        } else {
+          throwError(state2, "repeat of an indentation width identifier");
+        }
+      } else {
+        break;
+      }
+    }
+    if (isWhiteSpace(ch)) {
+      do {
+        ch = state2.input.charCodeAt(++state2.position);
+      } while (isWhiteSpace(ch));
+      if (ch === 35) {
+        do {
+          ch = state2.input.charCodeAt(++state2.position);
+        } while (!isEol(ch) && ch !== 0);
+      }
+    }
+    while (ch !== 0) {
+      readLineBreak(state2);
+      state2.lineIndent = 0;
+      ch = state2.input.charCodeAt(state2.position);
+      while ((!detectedIndent || state2.lineIndent < textIndent) && ch === 32) {
+        state2.lineIndent++;
+        ch = state2.input.charCodeAt(++state2.position);
+      }
+      if (!detectedIndent && state2.lineIndent > textIndent) {
+        textIndent = state2.lineIndent;
+      }
+      if (isEol(ch)) {
+        emptyLines++;
+        continue;
+      }
+      if (!detectedIndent && textIndent === 0) {
+        throwError(state2, "missing indentation for block scalar");
+      }
+      if (state2.lineIndent < textIndent) {
+        if (chomping === CHOMPING_KEEP) {
+          state2.result += common2.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
+        } else if (chomping === CHOMPING_CLIP) {
+          if (didReadContent) {
+            state2.result += "\n";
+          }
+        }
+        break;
+      }
+      if (folding) {
+        if (isWhiteSpace(ch)) {
+          atMoreIndented = true;
+          state2.result += common2.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
+        } else if (atMoreIndented) {
+          atMoreIndented = false;
+          state2.result += common2.repeat("\n", emptyLines + 1);
+        } else if (emptyLines === 0) {
+          if (didReadContent) {
+            state2.result += " ";
+          }
+        } else {
+          state2.result += common2.repeat("\n", emptyLines);
+        }
+      } else {
+        state2.result += common2.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
+      }
+      didReadContent = true;
+      detectedIndent = true;
+      emptyLines = 0;
+      const captureStart = state2.position;
+      while (!isEol(ch) && ch !== 0) {
+        ch = state2.input.charCodeAt(++state2.position);
+      }
+      captureSegment(state2, captureStart, state2.position, false);
+    }
+    return true;
+  }
+  function readBlockSequence(state2, nodeIndent) {
+    const _tag = state2.tag;
+    const _anchor = state2.anchor;
+    const _result = [];
+    let detected = false;
+    if (state2.firstTabInLine !== -1) return false;
+    if (state2.anchor !== null) {
+      storeAnchor(state2, state2.anchor, _result);
+    }
+    let ch = state2.input.charCodeAt(state2.position);
+    while (ch !== 0) {
+      if (state2.firstTabInLine !== -1) {
+        state2.position = state2.firstTabInLine;
+        throwError(state2, "tab characters must not be used in indentation");
+      }
+      if (ch !== 45) {
+        break;
+      }
+      const following = state2.input.charCodeAt(state2.position + 1);
+      if (!isWsOrEol(following)) {
+        break;
+      }
+      detected = true;
+      state2.position++;
+      if (skipSeparationSpace(state2, true, -1)) {
+        if (state2.lineIndent <= nodeIndent) {
+          _result.push(null);
+          ch = state2.input.charCodeAt(state2.position);
+          continue;
+        }
+      }
+      const _line = state2.line;
+      composeNode(state2, nodeIndent, CONTEXT_BLOCK_IN, false, true);
+      _result.push(state2.result);
+      skipSeparationSpace(state2, true, -1);
+      ch = state2.input.charCodeAt(state2.position);
+      if ((state2.line === _line || state2.lineIndent > nodeIndent) && ch !== 0) {
+        throwError(state2, "bad indentation of a sequence entry");
+      } else if (state2.lineIndent < nodeIndent) {
+        break;
+      }
+    }
+    if (detected) {
+      state2.tag = _tag;
+      state2.anchor = _anchor;
+      state2.kind = "sequence";
+      state2.result = _result;
+      return true;
+    }
+    return false;
+  }
+  function readBlockMapping(state2, nodeIndent, flowIndent) {
+    let allowCompact;
+    let _keyLine;
+    let _keyLineStart;
+    let _keyPos;
+    const _tag = state2.tag;
+    const _anchor = state2.anchor;
+    const _result = {};
+    const overridableKeys = /* @__PURE__ */Object.create(null);
+    let keyTag = null;
+    let keyNode = null;
+    let valueNode = null;
+    let atExplicitKey = false;
+    let detected = false;
+    if (state2.firstTabInLine !== -1) return false;
+    if (state2.anchor !== null) {
+      storeAnchor(state2, state2.anchor, _result);
+    }
+    let ch = state2.input.charCodeAt(state2.position);
+    while (ch !== 0) {
+      if (!atExplicitKey && state2.firstTabInLine !== -1) {
+        state2.position = state2.firstTabInLine;
+        throwError(state2, "tab characters must not be used in indentation");
+      }
+      const following = state2.input.charCodeAt(state2.position + 1);
+      const _line = state2.line;
+      if ((ch === 63 || ch === 58) && isWsOrEol(following)) {
+        if (ch === 63) {
+          if (atExplicitKey) {
+            storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
+            keyTag = keyNode = valueNode = null;
+          }
+          detected = true;
+          atExplicitKey = true;
+          allowCompact = true;
+        } else if (atExplicitKey) {
+          atExplicitKey = false;
+          allowCompact = true;
+        } else {
+          throwError(state2, "incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line");
+        }
+        state2.position += 1;
+        ch = following;
+      } else {
+        _keyLine = state2.line;
+        _keyLineStart = state2.lineStart;
+        _keyPos = state2.position;
+        if (!composeNode(state2, flowIndent, CONTEXT_FLOW_OUT, false, true)) {
+          break;
+        }
+        if (state2.line === _line) {
+          ch = state2.input.charCodeAt(state2.position);
+          while (isWhiteSpace(ch)) {
+            ch = state2.input.charCodeAt(++state2.position);
+          }
+          if (ch === 58) {
+            ch = state2.input.charCodeAt(++state2.position);
+            if (!isWsOrEol(ch)) {
+              throwError(state2, "a whitespace character is expected after the key-value separator within a block mapping");
+            }
+            if (atExplicitKey) {
+              storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
+              keyTag = keyNode = valueNode = null;
+            }
+            detected = true;
+            atExplicitKey = false;
+            allowCompact = false;
+            keyTag = state2.tag;
+            keyNode = state2.result;
+          } else if (detected) {
+            throwError(state2, "can not read an implicit mapping pair; a colon is missed");
+          } else {
+            state2.tag = _tag;
+            state2.anchor = _anchor;
+            return true;
+          }
+        } else if (detected) {
+          throwError(state2, "can not read a block mapping entry; a multiline key may not be an implicit key");
+        } else {
+          state2.tag = _tag;
+          state2.anchor = _anchor;
+          return true;
+        }
+      }
+      if (state2.line === _line || state2.lineIndent > nodeIndent) {
+        if (atExplicitKey) {
+          _keyLine = state2.line;
+          _keyLineStart = state2.lineStart;
+          _keyPos = state2.position;
+        }
+        if (composeNode(state2, nodeIndent, CONTEXT_BLOCK_OUT, true, allowCompact)) {
+          if (atExplicitKey) {
+            keyNode = state2.result;
+          } else {
+            valueNode = state2.result;
+          }
+        }
+        if (!atExplicitKey) {
+          storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, valueNode, _keyLine, _keyLineStart, _keyPos);
+          keyTag = keyNode = valueNode = null;
+        }
+        skipSeparationSpace(state2, true, -1);
+        ch = state2.input.charCodeAt(state2.position);
+      }
+      if ((state2.line === _line || state2.lineIndent > nodeIndent) && ch !== 0) {
+        throwError(state2, "bad indentation of a mapping entry");
+      } else if (state2.lineIndent < nodeIndent) {
+        break;
+      }
+    }
+    if (atExplicitKey) {
+      storeMappingPair(state2, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
+    }
+    if (detected) {
+      state2.tag = _tag;
+      state2.anchor = _anchor;
+      state2.kind = "mapping";
+      state2.result = _result;
+    }
+    return detected;
+  }
+  function readTagProperty(state2) {
+    let isVerbatim = false;
+    let isNamed = false;
+    let tagHandle;
+    let tagName;
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch !== 33) return false;
+    if (state2.tag !== null) {
+      throwError(state2, "duplication of a tag property");
+    }
+    ch = state2.input.charCodeAt(++state2.position);
+    if (ch === 60) {
+      isVerbatim = true;
+      ch = state2.input.charCodeAt(++state2.position);
+    } else if (ch === 33) {
+      isNamed = true;
+      tagHandle = "!!";
+      ch = state2.input.charCodeAt(++state2.position);
+    } else {
+      tagHandle = "!";
+    }
+    let _position = state2.position;
+    if (isVerbatim) {
+      do {
+        ch = state2.input.charCodeAt(++state2.position);
+      } while (ch !== 0 && ch !== 62);
+      if (state2.position < state2.length) {
+        tagName = state2.input.slice(_position, state2.position);
+        ch = state2.input.charCodeAt(++state2.position);
+      } else {
+        throwError(state2, "unexpected end of the stream within a verbatim tag");
+      }
+    } else {
+      while (ch !== 0 && !isWsOrEol(ch)) {
+        if (ch === 33) {
+          if (!isNamed) {
+            tagHandle = state2.input.slice(_position - 1, state2.position + 1);
+            if (!PATTERN_TAG_HANDLE.test(tagHandle)) {
+              throwError(state2, "named tag handle cannot contain such characters");
+            }
+            isNamed = true;
+            _position = state2.position + 1;
+          } else {
+            throwError(state2, "tag suffix cannot contain exclamation marks");
+          }
+        }
+        ch = state2.input.charCodeAt(++state2.position);
+      }
+      tagName = state2.input.slice(_position, state2.position);
+      if (PATTERN_FLOW_INDICATORS.test(tagName)) {
+        throwError(state2, "tag suffix cannot contain flow indicator characters");
+      }
+    }
+    if (tagName && !PATTERN_TAG_URI.test(tagName)) {
+      throwError(state2, "tag name cannot contain such characters: " + tagName);
+    }
+    try {
+      tagName = decodeURIComponent(tagName);
+    } catch (err) {
+      throwError(state2, "tag name is malformed: " + tagName);
+    }
+    if (isVerbatim) {
+      state2.tag = tagName;
+    } else if (_hasOwnProperty.call(state2.tagMap, tagHandle)) {
+      state2.tag = state2.tagMap[tagHandle] + tagName;
+    } else if (tagHandle === "!") {
+      state2.tag = "!" + tagName;
+    } else if (tagHandle === "!!") {
+      state2.tag = "tag:yaml.org,2002:" + tagName;
+    } else {
+      throwError(state2, 'undeclared tag handle "' + tagHandle + '"');
+    }
+    return true;
+  }
+  function readAnchorProperty(state2) {
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch !== 38) return false;
+    if (state2.anchor !== null) {
+      throwError(state2, "duplication of an anchor property");
+    }
+    ch = state2.input.charCodeAt(++state2.position);
+    const _position = state2.position;
+    while (ch !== 0 && !isWsOrEol(ch) && !isFlowIndicator(ch)) {
+      ch = state2.input.charCodeAt(++state2.position);
+    }
+    if (state2.position === _position) {
+      throwError(state2, "name of an anchor node must contain at least one character");
+    }
+    state2.anchor = state2.input.slice(_position, state2.position);
+    return true;
+  }
+  function readAlias(state2) {
+    let ch = state2.input.charCodeAt(state2.position);
+    if (ch !== 42) return false;
+    ch = state2.input.charCodeAt(++state2.position);
+    const _position = state2.position;
+    while (ch !== 0 && !isWsOrEol(ch) && !isFlowIndicator(ch)) {
+      ch = state2.input.charCodeAt(++state2.position);
+    }
+    if (state2.position === _position) {
+      throwError(state2, "name of an alias node must contain at least one character");
+    }
+    const alias = state2.input.slice(_position, state2.position);
+    if (!_hasOwnProperty.call(state2.anchorMap, alias)) {
+      throwError(state2, 'unidentified alias "' + alias + '"');
+    }
+    state2.result = state2.anchorMap[alias];
+    skipSeparationSpace(state2, true, -1);
+    return true;
+  }
+  function tryReadBlockMappingFromProperty(state2, propertyStart, nodeIndent, flowIndent) {
+    const fallbackState = snapshotState(state2);
+    beginAnchorTransaction(state2);
+    restoreState(state2, propertyStart);
+    state2.tag = null;
+    state2.anchor = null;
+    state2.kind = null;
+    state2.result = null;
+    if (readBlockMapping(state2, nodeIndent, flowIndent) && state2.kind === "mapping") {
+      commitAnchorTransaction(state2);
+      return true;
+    }
+    rollbackAnchorTransaction(state2);
+    restoreState(state2, fallbackState);
+    return false;
+  }
+  function composeNode(state2, parentIndent, nodeContext, allowToSeek, allowCompact) {
+    let allowBlockScalars;
+    let allowBlockCollections;
+    let indentStatus = 1;
+    let atNewLine = false;
+    let hasContent2 = false;
+    let propertyStart = null;
+    let type2;
+    let flowIndent;
+    let blockIndent;
+    if (state2.depth >= state2.maxDepth) {
+      throwError(state2, "nesting exceeded maxDepth (" + state2.maxDepth + ")");
+    }
+    state2.depth += 1;
+    if (state2.listener !== null) {
+      state2.listener("open", state2);
+    }
+    state2.tag = null;
+    state2.anchor = null;
+    state2.kind = null;
+    state2.result = null;
+    const allowBlockStyles = allowBlockScalars = allowBlockCollections = CONTEXT_BLOCK_OUT === nodeContext || CONTEXT_BLOCK_IN === nodeContext;
+    if (allowToSeek) {
+      if (skipSeparationSpace(state2, true, -1)) {
+        atNewLine = true;
+        if (state2.lineIndent > parentIndent) {
+          indentStatus = 1;
+        } else if (state2.lineIndent === parentIndent) {
+          indentStatus = 0;
+        } else if (state2.lineIndent < parentIndent) {
+          indentStatus = -1;
+        }
+      }
+    }
+    if (indentStatus === 1) {
+      while (true) {
+        const ch = state2.input.charCodeAt(state2.position);
+        const propertyState = snapshotState(state2);
+        if (atNewLine && (ch === 33 && state2.tag !== null || ch === 38 && state2.anchor !== null)) {
+          break;
+        }
+        if (!readTagProperty(state2) && !readAnchorProperty(state2)) {
+          break;
+        }
+        if (propertyStart === null) {
+          propertyStart = propertyState;
+        }
+        if (skipSeparationSpace(state2, true, -1)) {
+          atNewLine = true;
+          allowBlockCollections = allowBlockStyles;
+          if (state2.lineIndent > parentIndent) {
+            indentStatus = 1;
+          } else if (state2.lineIndent === parentIndent) {
+            indentStatus = 0;
+          } else if (state2.lineIndent < parentIndent) {
+            indentStatus = -1;
+          }
+        } else {
+          allowBlockCollections = false;
+        }
+      }
+    }
+    if (allowBlockCollections) {
+      allowBlockCollections = atNewLine || allowCompact;
+    }
+    if (indentStatus === 1 || CONTEXT_BLOCK_OUT === nodeContext) {
+      if (CONTEXT_FLOW_IN === nodeContext || CONTEXT_FLOW_OUT === nodeContext) {
+        flowIndent = parentIndent;
+      } else {
+        flowIndent = parentIndent + 1;
+      }
+      blockIndent = state2.position - state2.lineStart;
+      if (indentStatus === 1) {
+        if (allowBlockCollections && (readBlockSequence(state2, blockIndent) || readBlockMapping(state2, blockIndent, flowIndent)) || readFlowCollection(state2, flowIndent)) {
+          hasContent2 = true;
+        } else {
+          const ch = state2.input.charCodeAt(state2.position);
+          if (propertyStart !== null && allowBlockStyles && !allowBlockCollections && ch !== 124 && ch !== 62 && tryReadBlockMappingFromProperty(state2, propertyStart, propertyStart.position - propertyStart.lineStart, flowIndent)) {
+            hasContent2 = true;
+          } else if (allowBlockScalars && readBlockScalar(state2, flowIndent) || readSingleQuotedScalar(state2, flowIndent) || readDoubleQuotedScalar(state2, flowIndent)) {
+            hasContent2 = true;
+          } else if (readAlias(state2)) {
+            hasContent2 = true;
+            if (state2.tag !== null || state2.anchor !== null) {
+              throwError(state2, "alias node should not have any properties");
+            }
+          } else if (readPlainScalar(state2, flowIndent, CONTEXT_FLOW_IN === nodeContext)) {
+            hasContent2 = true;
+            if (state2.tag === null) {
+              state2.tag = "?";
+            }
+          }
+          if (state2.anchor !== null) {
+            storeAnchor(state2, state2.anchor, state2.result);
+          }
+        }
+      } else if (indentStatus === 0) {
+        hasContent2 = allowBlockCollections && readBlockSequence(state2, blockIndent);
+      }
+    }
+    if (state2.tag === null) {
+      if (state2.anchor !== null) {
+        storeAnchor(state2, state2.anchor, state2.result);
+      }
+    } else if (state2.tag === "?") {
+      if (state2.result !== null && state2.kind !== "scalar") {
+        throwError(state2, 'unacceptable node kind for !<?> tag; it should be "scalar", not "' + state2.kind + '"');
+      }
+      for (let typeIndex = 0, typeQuantity = state2.implicitTypes.length; typeIndex < typeQuantity; typeIndex += 1) {
+        type2 = state2.implicitTypes[typeIndex];
+        if (type2.resolve(state2.result)) {
+          state2.result = type2.construct(state2.result);
+          state2.tag = type2.tag;
+          if (state2.anchor !== null) {
+            storeAnchor(state2, state2.anchor, state2.result);
+          }
+          break;
+        }
+      }
+    } else if (state2.tag !== "!") {
+      if (_hasOwnProperty.call(state2.typeMap[state2.kind || "fallback"], state2.tag)) {
+        type2 = state2.typeMap[state2.kind || "fallback"][state2.tag];
+      } else {
+        type2 = null;
+        const typeList = state2.typeMap.multi[state2.kind || "fallback"];
+        for (let typeIndex = 0, typeQuantity = typeList.length; typeIndex < typeQuantity; typeIndex += 1) {
+          if (state2.tag.slice(0, typeList[typeIndex].tag.length) === typeList[typeIndex].tag) {
+            type2 = typeList[typeIndex];
+            break;
+          }
+        }
+      }
+      if (!type2) {
+        throwError(state2, "unknown tag !<" + state2.tag + ">");
+      }
+      if (state2.result !== null && type2.kind !== state2.kind) {
+        throwError(state2, "unacceptable node kind for !<" + state2.tag + '> tag; it should be "' + type2.kind + '", not "' + state2.kind + '"');
+      }
+      if (!type2.resolve(state2.result, state2.tag)) {
+        throwError(state2, "cannot resolve a node with !<" + state2.tag + "> explicit tag");
+      } else {
+        state2.result = type2.construct(state2.result, state2.tag);
+        if (state2.anchor !== null) {
+          storeAnchor(state2, state2.anchor, state2.result);
+        }
+      }
+    }
+    if (state2.listener !== null) {
+      state2.listener("close", state2);
+    }
+    state2.depth -= 1;
+    return state2.tag !== null || state2.anchor !== null || hasContent2;
+  }
+  function readDocument(state2) {
+    const documentStart = state2.position;
+    let hasDirectives = false;
+    let ch;
+    state2.version = null;
+    state2.checkLineBreaks = state2.legacy;
+    state2.tagMap = /* @__PURE__ */Object.create(null);
+    state2.anchorMap = /* @__PURE__ */Object.create(null);
+    while ((ch = state2.input.charCodeAt(state2.position)) !== 0) {
+      skipSeparationSpace(state2, true, -1);
+      ch = state2.input.charCodeAt(state2.position);
+      if (state2.lineIndent > 0 || ch !== 37) {
+        break;
+      }
+      hasDirectives = true;
+      ch = state2.input.charCodeAt(++state2.position);
+      let _position = state2.position;
+      while (ch !== 0 && !isWsOrEol(ch)) {
+        ch = state2.input.charCodeAt(++state2.position);
+      }
+      const directiveName = state2.input.slice(_position, state2.position);
+      const directiveArgs = [];
+      if (directiveName.length < 1) {
+        throwError(state2, "directive name must not be less than one character in length");
+      }
+      while (ch !== 0) {
+        while (isWhiteSpace(ch)) {
+          ch = state2.input.charCodeAt(++state2.position);
+        }
+        if (ch === 35) {
+          do {
+            ch = state2.input.charCodeAt(++state2.position);
+          } while (ch !== 0 && !isEol(ch));
+          break;
+        }
+        if (isEol(ch)) break;
+        _position = state2.position;
+        while (ch !== 0 && !isWsOrEol(ch)) {
+          ch = state2.input.charCodeAt(++state2.position);
+        }
+        directiveArgs.push(state2.input.slice(_position, state2.position));
+      }
+      if (ch !== 0) readLineBreak(state2);
+      if (_hasOwnProperty.call(directiveHandlers, directiveName)) {
+        directiveHandlers[directiveName](state2, directiveName, directiveArgs);
+      } else {
+        throwWarning(state2, 'unknown document directive "' + directiveName + '"');
+      }
+    }
+    skipSeparationSpace(state2, true, -1);
+    if (state2.lineIndent === 0 && state2.input.charCodeAt(state2.position) === 45 && state2.input.charCodeAt(state2.position + 1) === 45 && state2.input.charCodeAt(state2.position + 2) === 45) {
+      state2.position += 3;
+      skipSeparationSpace(state2, true, -1);
+    } else if (hasDirectives) {
+      throwError(state2, "directives end mark is expected");
+    }
+    composeNode(state2, state2.lineIndent - 1, CONTEXT_BLOCK_OUT, false, true);
+    skipSeparationSpace(state2, true, -1);
+    if (state2.checkLineBreaks && PATTERN_NON_ASCII_LINE_BREAKS.test(state2.input.slice(documentStart, state2.position))) {
+      throwWarning(state2, "non-ASCII line breaks are interpreted as content");
+    }
+    state2.documents.push(state2.result);
+    if (state2.position === state2.lineStart && testDocumentSeparator(state2)) {
+      if (state2.input.charCodeAt(state2.position) === 46) {
+        state2.position += 3;
+        skipSeparationSpace(state2, true, -1);
+      }
+      return;
+    }
+    if (state2.position < state2.length - 1) {
+      throwError(state2, "end of the stream or a document separator is expected");
+    }
+  }
+  function loadDocuments(input, options) {
+    input = String(input);
+    options = options || {};
+    if (input.length !== 0) {
+      if (input.charCodeAt(input.length - 1) !== 10 && input.charCodeAt(input.length - 1) !== 13) {
+        input += "\n";
+      }
+      if (input.charCodeAt(0) === 65279) {
+        input = input.slice(1);
+      }
+    }
+    const state2 = new State2(input, options);
+    const nullpos = input.indexOf("\0");
+    if (nullpos !== -1) {
+      state2.position = nullpos;
+      throwError(state2, "null byte is not allowed in input");
+    }
+    state2.input += "\0";
+    while (state2.input.charCodeAt(state2.position) === 32) {
+      state2.lineIndent += 1;
+      state2.position += 1;
+    }
+    while (state2.position < state2.length - 1) {
+      readDocument(state2);
+    }
+    return state2.documents;
+  }
+  function loadAll2(input, iterator, options) {
+    if (iterator !== null && typeof iterator === "object" && typeof options === "undefined") {
+      options = iterator;
+      iterator = null;
+    }
+    const documents = loadDocuments(input, options);
+    if (typeof iterator !== "function") {
+      return documents;
+    }
+    for (let index2 = 0, length2 = documents.length; index2 < length2; index2 += 1) {
+      iterator(documents[index2]);
+    }
+  }
+  function load2(input, options) {
+    const documents = loadDocuments(input, options);
+    if (documents.length === 0) {
+      return void 0;
+    } else if (documents.length === 1) {
+      return documents[0];
+    }
+    throw new YAMLException2("expected a single document in the stream, but found more");
+  }
+  loader.loadAll = loadAll2;
+  loader.load = load2;
+  return loader;
+}
 var dumper = {};
+var hasRequiredDumper;
+function requireDumper() {
+  if (hasRequiredDumper) return dumper;
+  hasRequiredDumper = 1;
+  const common2 = requireCommon();
+  const YAMLException2 = requireException();
+  const DEFAULT_SCHEMA2 = require_default();
+  const _toString = Object.prototype.toString;
+  const _hasOwnProperty = Object.prototype.hasOwnProperty;
+  const CHAR_BOM = 65279;
+  const CHAR_TAB = 9;
+  const CHAR_LINE_FEED = 10;
+  const CHAR_CARRIAGE_RETURN = 13;
+  const CHAR_SPACE = 32;
+  const CHAR_EXCLAMATION = 33;
+  const CHAR_DOUBLE_QUOTE = 34;
+  const CHAR_SHARP = 35;
+  const CHAR_PERCENT = 37;
+  const CHAR_AMPERSAND = 38;
+  const CHAR_SINGLE_QUOTE = 39;
+  const CHAR_ASTERISK = 42;
+  const CHAR_COMMA = 44;
+  const CHAR_MINUS = 45;
+  const CHAR_COLON = 58;
+  const CHAR_EQUALS = 61;
+  const CHAR_GREATER_THAN = 62;
+  const CHAR_QUESTION = 63;
+  const CHAR_COMMERCIAL_AT = 64;
+  const CHAR_LEFT_SQUARE_BRACKET = 91;
+  const CHAR_RIGHT_SQUARE_BRACKET = 93;
+  const CHAR_GRAVE_ACCENT = 96;
+  const CHAR_LEFT_CURLY_BRACKET = 123;
+  const CHAR_VERTICAL_LINE = 124;
+  const CHAR_RIGHT_CURLY_BRACKET = 125;
+  const ESCAPE_SEQUENCES = {};
+  ESCAPE_SEQUENCES[0] = "\\0";
+  ESCAPE_SEQUENCES[7] = "\\a";
+  ESCAPE_SEQUENCES[8] = "\\b";
+  ESCAPE_SEQUENCES[9] = "\\t";
+  ESCAPE_SEQUENCES[10] = "\\n";
+  ESCAPE_SEQUENCES[11] = "\\v";
+  ESCAPE_SEQUENCES[12] = "\\f";
+  ESCAPE_SEQUENCES[13] = "\\r";
+  ESCAPE_SEQUENCES[27] = "\\e";
+  ESCAPE_SEQUENCES[34] = '\\"';
+  ESCAPE_SEQUENCES[92] = "\\\\";
+  ESCAPE_SEQUENCES[133] = "\\N";
+  ESCAPE_SEQUENCES[160] = "\\_";
+  ESCAPE_SEQUENCES[8232] = "\\L";
+  ESCAPE_SEQUENCES[8233] = "\\P";
+  const DEPRECATED_BOOLEANS_SYNTAX = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON", "n", "N", "no", "No", "NO", "off", "Off", "OFF"];
+  const DEPRECATED_BASE60_SYNTAX = /^[-+]?[0-9_]+(?::[0-9_]+)+(?:\.[0-9_]*)?$/;
+  function compileStyleMap(schema2, map22) {
+    if (map22 === null) return {};
+    const result = {};
+    const keys2 = Object.keys(map22);
+    for (let index2 = 0, length2 = keys2.length; index2 < length2; index2 += 1) {
+      let tag = keys2[index2];
+      let style2 = String(map22[tag]);
+      if (tag.slice(0, 2) === "!!") {
+        tag = "tag:yaml.org,2002:" + tag.slice(2);
+      }
+      const type2 = schema2.compiledTypeMap["fallback"][tag];
+      if (type2 && _hasOwnProperty.call(type2.styleAliases, style2)) {
+        style2 = type2.styleAliases[style2];
+      }
+      result[tag] = style2;
+    }
+    return result;
+  }
+  function encodeHex(character) {
+    let handle2;
+    let length2;
+    const string2 = character.toString(16).toUpperCase();
+    if (character <= 255) {
+      handle2 = "x";
+      length2 = 2;
+    } else if (character <= 65535) {
+      handle2 = "u";
+      length2 = 4;
+    } else if (character <= 4294967295) {
+      handle2 = "U";
+      length2 = 8;
+    } else {
+      throw new YAMLException2("code point within a string may not be greater than 0xFFFFFFFF");
+    }
+    return "\\" + handle2 + common2.repeat("0", length2 - string2.length) + string2;
+  }
+  const QUOTING_TYPE_SINGLE = 1;
+  const QUOTING_TYPE_DOUBLE = 2;
+  function State2(options) {
+    this.schema = options["schema"] || DEFAULT_SCHEMA2;
+    this.indent = Math.max(1, options["indent"] || 2);
+    this.noArrayIndent = options["noArrayIndent"] || false;
+    this.skipInvalid = options["skipInvalid"] || false;
+    this.flowLevel = common2.isNothing(options["flowLevel"]) ? -1 : options["flowLevel"];
+    this.styleMap = compileStyleMap(this.schema, options["styles"] || null);
+    this.sortKeys = options["sortKeys"] || false;
+    this.lineWidth = options["lineWidth"] || 80;
+    this.noRefs = options["noRefs"] || false;
+    this.noCompatMode = options["noCompatMode"] || false;
+    this.condenseFlow = options["condenseFlow"] || false;
+    this.quotingType = options["quotingType"] === '"' ? QUOTING_TYPE_DOUBLE : QUOTING_TYPE_SINGLE;
+    this.forceQuotes = options["forceQuotes"] || false;
+    this.replacer = typeof options["replacer"] === "function" ? options["replacer"] : null;
+    this.implicitTypes = this.schema.compiledImplicit;
+    this.explicitTypes = this.schema.compiledExplicit;
+    this.tag = null;
+    this.result = "";
+    this.duplicates = [];
+    this.usedDuplicates = null;
+  }
+  function indentString2(string2, spaces2) {
+    const ind = common2.repeat(" ", spaces2);
+    let position2 = 0;
+    let result = "";
+    const length2 = string2.length;
+    while (position2 < length2) {
+      let line;
+      const next2 = string2.indexOf("\n", position2);
+      if (next2 === -1) {
+        line = string2.slice(position2);
+        position2 = length2;
+      } else {
+        line = string2.slice(position2, next2 + 1);
+        position2 = next2 + 1;
+      }
+      if (line.length && line !== "\n") result += ind;
+      result += line;
+    }
+    return result;
+  }
+  function generateNextLine(state2, level) {
+    return "\n" + common2.repeat(" ", state2.indent * level);
+  }
+  function testImplicitResolving(state2, str2) {
+    for (let index2 = 0, length2 = state2.implicitTypes.length; index2 < length2; index2 += 1) {
+      const type2 = state2.implicitTypes[index2];
+      if (type2.resolve(str2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isWhitespace2(c3) {
+    return c3 === CHAR_SPACE || c3 === CHAR_TAB;
+  }
+  function isPrintable(c3) {
+    return c3 >= 32 && c3 <= 126 || c3 >= 161 && c3 <= 55295 && c3 !== 8232 && c3 !== 8233 || c3 >= 57344 && c3 <= 65533 && c3 !== CHAR_BOM || c3 >= 65536 && c3 <= 1114111;
+  }
+  function isNsCharOrWhitespace(c3) {
+    return isPrintable(c3) && c3 !== CHAR_BOM &&
+    // - b-char
+    c3 !== CHAR_CARRIAGE_RETURN && c3 !== CHAR_LINE_FEED;
+  }
+  function isPlainSafe(c3, prev, inblock) {
+    const cIsNsCharOrWhitespace = isNsCharOrWhitespace(c3);
+    const cIsNsChar = cIsNsCharOrWhitespace && !isWhitespace2(c3);
+    return (
+      // ns-plain-safe
+      (inblock ? cIsNsCharOrWhitespace : cIsNsCharOrWhitespace &&
+      // - c-flow-indicator
+      c3 !== CHAR_COMMA && c3 !== CHAR_LEFT_SQUARE_BRACKET && c3 !== CHAR_RIGHT_SQUARE_BRACKET && c3 !== CHAR_LEFT_CURLY_BRACKET && c3 !== CHAR_RIGHT_CURLY_BRACKET) &&
+      // ns-plain-char
+      c3 !== CHAR_SHARP &&
+      // false on '#'
+      !(prev === CHAR_COLON && !cIsNsChar) ||
+      // false on ': '
+      isNsCharOrWhitespace(prev) && !isWhitespace2(prev) && c3 === CHAR_SHARP ||
+      // change to true on '[^ ]#'
+      prev === CHAR_COLON && cIsNsChar
+    );
+  }
+  function isPlainSafeFirst(c3) {
+    return isPrintable(c3) && c3 !== CHAR_BOM && !isWhitespace2(c3) &&
+    // - s-white
+    // - (c-indicator ::=
+    // “-” | “?” | “:” | “,” | “[” | “]” | “{” | “}”
+    c3 !== CHAR_MINUS && c3 !== CHAR_QUESTION && c3 !== CHAR_COLON && c3 !== CHAR_COMMA && c3 !== CHAR_LEFT_SQUARE_BRACKET && c3 !== CHAR_RIGHT_SQUARE_BRACKET && c3 !== CHAR_LEFT_CURLY_BRACKET && c3 !== CHAR_RIGHT_CURLY_BRACKET &&
+    // | “#” | “&” | “*” | “!” | “|” | “=” | “>” | “'” | “"”
+    c3 !== CHAR_SHARP && c3 !== CHAR_AMPERSAND && c3 !== CHAR_ASTERISK && c3 !== CHAR_EXCLAMATION && c3 !== CHAR_VERTICAL_LINE && c3 !== CHAR_EQUALS && c3 !== CHAR_GREATER_THAN && c3 !== CHAR_SINGLE_QUOTE && c3 !== CHAR_DOUBLE_QUOTE &&
+    // | “%” | “@” | “`”)
+    c3 !== CHAR_PERCENT && c3 !== CHAR_COMMERCIAL_AT && c3 !== CHAR_GRAVE_ACCENT;
+  }
+  function isPlainSafeLast(c3) {
+    return !isWhitespace2(c3) && c3 !== CHAR_COLON;
+  }
+  function codePointAt2(string2, pos) {
+    const first2 = string2.charCodeAt(pos);
+    let second;
+    if (first2 >= 55296 && first2 <= 56319 && pos + 1 < string2.length) {
+      second = string2.charCodeAt(pos + 1);
+      if (second >= 56320 && second <= 57343) {
+        return (first2 - 55296) * 1024 + second - 56320 + 65536;
+      }
+    }
+    return first2;
+  }
+  function needIndentIndicator(string2) {
+    const leadingSpaceRe = /^\n* /;
+    return leadingSpaceRe.test(string2);
+  }
+  const STYLE_PLAIN = 1;
+  const STYLE_SINGLE = 2;
+  const STYLE_LITERAL = 3;
+  const STYLE_FOLDED = 4;
+  const STYLE_DOUBLE = 5;
+  function chooseScalarStyle(string2, singleLineOnly, indentPerLevel, lineWidth, testAmbiguousType, quotingType, forceQuotes, inblock) {
+    let i2;
+    let char = 0;
+    let prevChar = null;
+    let hasLineBreak = false;
+    let hasFoldableLine = false;
+    const shouldTrackWidth = lineWidth !== -1;
+    let previousLineBreak = -1;
+    let plain = isPlainSafeFirst(codePointAt2(string2, 0)) && isPlainSafeLast(codePointAt2(string2, string2.length - 1));
+    if (singleLineOnly || forceQuotes) {
+      for (i2 = 0; i2 < string2.length; char >= 65536 ? i2 += 2 : i2++) {
+        char = codePointAt2(string2, i2);
+        if (!isPrintable(char)) {
+          return STYLE_DOUBLE;
+        }
+        plain = plain && isPlainSafe(char, prevChar, inblock);
+        prevChar = char;
+      }
+    } else {
+      for (i2 = 0; i2 < string2.length; char >= 65536 ? i2 += 2 : i2++) {
+        char = codePointAt2(string2, i2);
+        if (char === CHAR_LINE_FEED) {
+          hasLineBreak = true;
+          if (shouldTrackWidth) {
+            hasFoldableLine = hasFoldableLine ||
+            // Foldable line = too long, and not more-indented.
+            i2 - previousLineBreak - 1 > lineWidth && string2[previousLineBreak + 1] !== " ";
+            previousLineBreak = i2;
+          }
+        } else if (!isPrintable(char)) {
+          return STYLE_DOUBLE;
+        }
+        plain = plain && isPlainSafe(char, prevChar, inblock);
+        prevChar = char;
+      }
+      hasFoldableLine = hasFoldableLine || shouldTrackWidth && i2 - previousLineBreak - 1 > lineWidth && string2[previousLineBreak + 1] !== " ";
+    }
+    if (!hasLineBreak && !hasFoldableLine) {
+      if (plain && !forceQuotes && !testAmbiguousType(string2)) {
+        return STYLE_PLAIN;
+      }
+      return quotingType === QUOTING_TYPE_DOUBLE ? STYLE_DOUBLE : STYLE_SINGLE;
+    }
+    if (indentPerLevel > 9 && needIndentIndicator(string2)) {
+      return STYLE_DOUBLE;
+    }
+    if (!forceQuotes) {
+      return hasFoldableLine ? STYLE_FOLDED : STYLE_LITERAL;
+    }
+    return quotingType === QUOTING_TYPE_DOUBLE ? STYLE_DOUBLE : STYLE_SINGLE;
+  }
+  function writeScalar(state2, string2, level, iskey, inblock) {
+    state2.dump = function () {
+      if (string2.length === 0) {
+        return state2.quotingType === QUOTING_TYPE_DOUBLE ? '""' : "''";
+      }
+      if (!state2.noCompatMode) {
+        if (DEPRECATED_BOOLEANS_SYNTAX.indexOf(string2) !== -1 || DEPRECATED_BASE60_SYNTAX.test(string2)) {
+          return state2.quotingType === QUOTING_TYPE_DOUBLE ? '"' + string2 + '"' : "'" + string2 + "'";
+        }
+      }
+      const indent2 = state2.indent * Math.max(1, level);
+      const lineWidth = state2.lineWidth === -1 ? -1 : Math.max(Math.min(state2.lineWidth, 40), state2.lineWidth - indent2);
+      const singleLineOnly = iskey ||
+      // No block styles in flow mode.
+      state2.flowLevel > -1 && level >= state2.flowLevel;
+      function testAmbiguity(string22) {
+        return testImplicitResolving(state2, string22);
+      }
+      switch (chooseScalarStyle(string2, singleLineOnly, state2.indent, lineWidth, testAmbiguity, state2.quotingType, state2.forceQuotes && !iskey, inblock)) {
+        case STYLE_PLAIN:
+          return string2;
+        case STYLE_SINGLE:
+          return "'" + string2.replace(/'/g, "''") + "'";
+        case STYLE_LITERAL:
+          return "|" + blockHeader(string2, state2.indent) + dropEndingNewline(indentString2(string2, indent2));
+        case STYLE_FOLDED:
+          return ">" + blockHeader(string2, state2.indent) + dropEndingNewline(indentString2(foldString(string2, lineWidth), indent2));
+        case STYLE_DOUBLE:
+          return '"' + escapeString(string2) + '"';
+        default:
+          throw new YAMLException2("impossible error: invalid scalar style");
+      }
+    }();
+  }
+  function blockHeader(string2, indentPerLevel) {
+    const indentIndicator = needIndentIndicator(string2) ? String(indentPerLevel) : "";
+    const clip2 = string2[string2.length - 1] === "\n";
+    const keep = clip2 && (string2[string2.length - 2] === "\n" || string2 === "\n");
+    const chomp = keep ? "+" : clip2 ? "" : "-";
+    return indentIndicator + chomp + "\n";
+  }
+  function dropEndingNewline(string2) {
+    return string2[string2.length - 1] === "\n" ? string2.slice(0, -1) : string2;
+  }
+  function foldString(string2, width) {
+    const lineRe = /(\n+)([^\n]*)/g;
+    let result = function () {
+      let nextLF = string2.indexOf("\n");
+      nextLF = nextLF !== -1 ? nextLF : string2.length;
+      lineRe.lastIndex = nextLF;
+      return foldLine(string2.slice(0, nextLF), width);
+    }();
+    let prevMoreIndented = string2[0] === "\n" || string2[0] === " ";
+    let moreIndented;
+    let match2;
+    while (match2 = lineRe.exec(string2)) {
+      const prefix = match2[1];
+      const line = match2[2];
+      moreIndented = line[0] === " ";
+      result += prefix + (!prevMoreIndented && !moreIndented && line !== "" ? "\n" : "") + foldLine(line, width);
+      prevMoreIndented = moreIndented;
+    }
+    return result;
+  }
+  function foldLine(line, width) {
+    if (line === "" || line[0] === " ") return line;
+    const breakRe = / [^ ]/g;
+    let match2;
+    let start2 = 0;
+    let end2;
+    let curr = 0;
+    let next2 = 0;
+    let result = "";
+    while (match2 = breakRe.exec(line)) {
+      next2 = match2.index;
+      if (next2 - start2 > width) {
+        end2 = curr > start2 ? curr : next2;
+        result += "\n" + line.slice(start2, end2);
+        start2 = end2 + 1;
+      }
+      curr = next2;
+    }
+    result += "\n";
+    if (line.length - start2 > width && curr > start2) {
+      result += line.slice(start2, curr) + "\n" + line.slice(curr + 1);
+    } else {
+      result += line.slice(start2);
+    }
+    return result.slice(1);
+  }
+  function escapeString(string2) {
+    let result = "";
+    let char = 0;
+    for (let i2 = 0; i2 < string2.length; char >= 65536 ? i2 += 2 : i2++) {
+      char = codePointAt2(string2, i2);
+      const escapeSeq = ESCAPE_SEQUENCES[char];
+      if (!escapeSeq && isPrintable(char)) {
+        result += string2[i2];
+        if (char >= 65536) result += string2[i2 + 1];
+      } else {
+        result += escapeSeq || encodeHex(char);
+      }
+    }
+    return result;
+  }
+  function writeFlowSequence(state2, level, object2) {
+    let _result = "";
+    const _tag = state2.tag;
+    for (let index2 = 0, length2 = object2.length; index2 < length2; index2 += 1) {
+      let value = object2[index2];
+      if (state2.replacer) {
+        value = state2.replacer.call(object2, String(index2), value);
+      }
+      if (writeNode(state2, level, value, false, false) || typeof value === "undefined" && writeNode(state2, level, null, false, false)) {
+        if (_result !== "") _result += "," + (!state2.condenseFlow ? " " : "");
+        _result += state2.dump;
+      }
+    }
+    state2.tag = _tag;
+    state2.dump = "[" + _result + "]";
+  }
+  function writeBlockSequence(state2, level, object2, compact) {
+    let _result = "";
+    const _tag = state2.tag;
+    for (let index2 = 0, length2 = object2.length; index2 < length2; index2 += 1) {
+      let value = object2[index2];
+      if (state2.replacer) {
+        value = state2.replacer.call(object2, String(index2), value);
+      }
+      if (writeNode(state2, level + 1, value, true, true, false, true) || typeof value === "undefined" && writeNode(state2, level + 1, null, true, true, false, true)) {
+        if (!compact || _result !== "") {
+          _result += generateNextLine(state2, level);
+        }
+        if (state2.dump && CHAR_LINE_FEED === state2.dump.charCodeAt(0)) {
+          _result += "-";
+        } else {
+          _result += "- ";
+        }
+        _result += state2.dump;
+      }
+    }
+    state2.tag = _tag;
+    state2.dump = _result || "[]";
+  }
+  function writeFlowMapping(state2, level, object2) {
+    let _result = "";
+    const _tag = state2.tag;
+    const objectKeyList = Object.keys(object2);
+    for (let index2 = 0, length2 = objectKeyList.length; index2 < length2; index2 += 1) {
+      let pairBuffer = "";
+      if (_result !== "") pairBuffer += ", ";
+      if (state2.condenseFlow) pairBuffer += '"';
+      const objectKey = objectKeyList[index2];
+      let objectValue = object2[objectKey];
+      if (state2.replacer) {
+        objectValue = state2.replacer.call(object2, objectKey, objectValue);
+      }
+      if (!writeNode(state2, level, objectKey, false, false)) {
+        continue;
+      }
+      if (state2.dump.length > 1024) pairBuffer += "? ";
+      pairBuffer += state2.dump + (state2.condenseFlow ? '"' : "") + ":" + (state2.condenseFlow ? "" : " ");
+      if (!writeNode(state2, level, objectValue, false, false)) {
+        continue;
+      }
+      pairBuffer += state2.dump;
+      _result += pairBuffer;
+    }
+    state2.tag = _tag;
+    state2.dump = "{" + _result + "}";
+  }
+  function writeBlockMapping(state2, level, object2, compact) {
+    let _result = "";
+    const _tag = state2.tag;
+    const objectKeyList = Object.keys(object2);
+    if (state2.sortKeys === true) {
+      objectKeyList.sort();
+    } else if (typeof state2.sortKeys === "function") {
+      objectKeyList.sort(state2.sortKeys);
+    } else if (state2.sortKeys) {
+      throw new YAMLException2("sortKeys must be a boolean or a function");
+    }
+    for (let index2 = 0, length2 = objectKeyList.length; index2 < length2; index2 += 1) {
+      let pairBuffer = "";
+      if (!compact || _result !== "") {
+        pairBuffer += generateNextLine(state2, level);
+      }
+      const objectKey = objectKeyList[index2];
+      let objectValue = object2[objectKey];
+      if (state2.replacer) {
+        objectValue = state2.replacer.call(object2, objectKey, objectValue);
+      }
+      if (!writeNode(state2, level + 1, objectKey, true, true, true)) {
+        continue;
+      }
+      const explicitPair = state2.tag !== null && state2.tag !== "?" || state2.dump && state2.dump.length > 1024;
+      if (explicitPair) {
+        if (state2.dump && CHAR_LINE_FEED === state2.dump.charCodeAt(0)) {
+          pairBuffer += "?";
+        } else {
+          pairBuffer += "? ";
+        }
+      }
+      pairBuffer += state2.dump;
+      if (explicitPair) {
+        pairBuffer += generateNextLine(state2, level);
+      }
+      if (!writeNode(state2, level + 1, objectValue, true, explicitPair)) {
+        continue;
+      }
+      if (state2.dump && CHAR_LINE_FEED === state2.dump.charCodeAt(0)) {
+        pairBuffer += ":";
+      } else {
+        pairBuffer += ": ";
+      }
+      pairBuffer += state2.dump;
+      _result += pairBuffer;
+    }
+    state2.tag = _tag;
+    state2.dump = _result || "{}";
+  }
+  function detectType(state2, object2, explicit) {
+    const typeList = explicit ? state2.explicitTypes : state2.implicitTypes;
+    for (let index2 = 0, length2 = typeList.length; index2 < length2; index2 += 1) {
+      const type2 = typeList[index2];
+      if ((type2.instanceOf || type2.predicate) && (!type2.instanceOf || typeof object2 === "object" && object2 instanceof type2.instanceOf) && (!type2.predicate || type2.predicate(object2))) {
+        if (explicit) {
+          if (type2.multi && type2.representName) {
+            state2.tag = type2.representName(object2);
+          } else {
+            state2.tag = type2.tag;
+          }
+        } else {
+          state2.tag = "?";
+        }
+        if (type2.represent) {
+          const style2 = state2.styleMap[type2.tag] || type2.defaultStyle;
+          let _result;
+          if (_toString.call(type2.represent) === "[object Function]") {
+            _result = type2.represent(object2, style2);
+          } else if (_hasOwnProperty.call(type2.represent, style2)) {
+            _result = type2.represent[style2](object2, style2);
+          } else {
+            throw new YAMLException2("!<" + type2.tag + '> tag resolver accepts not "' + style2 + '" style');
+          }
+          state2.dump = _result;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  function writeNode(state2, level, object2, block, compact, iskey, isblockseq) {
+    state2.tag = null;
+    state2.dump = object2;
+    if (!detectType(state2, object2, false)) {
+      detectType(state2, object2, true);
+    }
+    const type2 = _toString.call(state2.dump);
+    const inblock = block;
+    if (block) {
+      block = state2.flowLevel < 0 || state2.flowLevel > level;
+    }
+    const objectOrArray = type2 === "[object Object]" || type2 === "[object Array]";
+    let duplicateIndex;
+    let duplicate;
+    if (objectOrArray) {
+      duplicateIndex = state2.duplicates.indexOf(object2);
+      duplicate = duplicateIndex !== -1;
+    }
+    if (state2.tag !== null && state2.tag !== "?" || duplicate || state2.indent !== 2 && level > 0) {
+      compact = false;
+    }
+    if (duplicate && state2.usedDuplicates[duplicateIndex]) {
+      state2.dump = "*ref_" + duplicateIndex;
+    } else {
+      if (objectOrArray && duplicate && !state2.usedDuplicates[duplicateIndex]) {
+        state2.usedDuplicates[duplicateIndex] = true;
+      }
+      if (type2 === "[object Object]") {
+        if (block && Object.keys(state2.dump).length !== 0) {
+          writeBlockMapping(state2, level, state2.dump, compact);
+          if (duplicate) {
+            state2.dump = "&ref_" + duplicateIndex + state2.dump;
+          }
+        } else {
+          writeFlowMapping(state2, level, state2.dump);
+          if (duplicate) {
+            state2.dump = "&ref_" + duplicateIndex + " " + state2.dump;
+          }
+        }
+      } else if (type2 === "[object Array]") {
+        if (block && state2.dump.length !== 0) {
+          if (state2.noArrayIndent && !isblockseq && level > 0) {
+            writeBlockSequence(state2, level - 1, state2.dump, compact);
+          } else {
+            writeBlockSequence(state2, level, state2.dump, compact);
+          }
+          if (duplicate) {
+            state2.dump = "&ref_" + duplicateIndex + state2.dump;
+          }
+        } else {
+          writeFlowSequence(state2, level, state2.dump);
+          if (duplicate) {
+            state2.dump = "&ref_" + duplicateIndex + " " + state2.dump;
+          }
+        }
+      } else if (type2 === "[object String]") {
+        if (state2.tag !== "?") {
+          writeScalar(state2, state2.dump, level, iskey, inblock);
+        }
+      } else if (type2 === "[object Undefined]") {
+        return false;
+      } else {
+        if (state2.skipInvalid) return false;
+        throw new YAMLException2("unacceptable kind of an object to dump " + type2);
+      }
+      if (state2.tag !== null && state2.tag !== "?") {
+        let tagStr = encodeURI(state2.tag[0] === "!" ? state2.tag.slice(1) : state2.tag).replace(/!/g, "%21");
+        if (state2.tag[0] === "!") {
+          tagStr = "!" + tagStr;
+        } else if (tagStr.slice(0, 18) === "tag:yaml.org,2002:") {
+          tagStr = "!!" + tagStr.slice(18);
+        } else {
+          tagStr = "!<" + tagStr + ">";
+        }
+        state2.dump = tagStr + " " + state2.dump;
+      }
+    }
+    return true;
+  }
+  function getDuplicateReferences(object2, state2) {
+    const objects = [];
+    const duplicatesIndexes = [];
+    inspectNode(object2, objects, duplicatesIndexes);
+    const length2 = duplicatesIndexes.length;
+    for (let index2 = 0; index2 < length2; index2 += 1) {
+      state2.duplicates.push(objects[duplicatesIndexes[index2]]);
+    }
+    state2.usedDuplicates = new Array(length2);
+  }
+  function inspectNode(object2, objects, duplicatesIndexes) {
+    if (object2 !== null && typeof object2 === "object") {
+      const index2 = objects.indexOf(object2);
+      if (index2 !== -1) {
+        if (duplicatesIndexes.indexOf(index2) === -1) {
+          duplicatesIndexes.push(index2);
+        }
+      } else {
+        objects.push(object2);
+        if (Array.isArray(object2)) {
+          for (let i2 = 0, length2 = object2.length; i2 < length2; i2 += 1) {
+            inspectNode(object2[i2], objects, duplicatesIndexes);
+          }
+        } else {
+          const objectKeyList = Object.keys(object2);
+          for (let i2 = 0, length2 = objectKeyList.length; i2 < length2; i2 += 1) {
+            inspectNode(object2[objectKeyList[i2]], objects, duplicatesIndexes);
+          }
+        }
+      }
+    }
+  }
+  function dump2(input, options) {
+    options = options || {};
+    const state2 = new State2(options);
+    if (!state2.noRefs) getDuplicateReferences(input, state2);
+    let value = input;
+    if (state2.replacer) {
+      value = state2.replacer.call({
+        "": value
+      }, "", value);
+    }
+    if (writeNode(state2, 0, value, true, true)) return state2.dump + "\n";
+    return "";
+  }
+  dumper.dump = dump2;
+  return dumper;
+}
+var hasRequiredJsYaml;
+function requireJsYaml() {
+  if (hasRequiredJsYaml) return jsYaml;
+  hasRequiredJsYaml = 1;
+  const loader2 = requireLoader();
+  const dumper2 = requireDumper();
+  function renamed(from2, to) {
+    return function () {
+      throw new Error("Function yaml." + from2 + " is removed in js-yaml 4. Use yaml." + to + " instead, which is now safe by default.");
+    };
+  }
+  jsYaml.Type = requireType();
+  jsYaml.Schema = requireSchema();
+  jsYaml.FAILSAFE_SCHEMA = requireFailsafe();
+  jsYaml.JSON_SCHEMA = requireJson();
+  jsYaml.CORE_SCHEMA = requireCore();
+  jsYaml.DEFAULT_SCHEMA = require_default();
+  jsYaml.load = loader2.load;
+  jsYaml.loadAll = loader2.loadAll;
+  jsYaml.dump = dumper2.dump;
+  jsYaml.YAMLException = requireException();
+  jsYaml.types = {
+    binary: requireBinary(),
+    float: requireFloat(),
+    map: requireMap(),
+    null: require_null(),
+    pairs: requirePairs(),
+    set: requireSet(),
+    timestamp: requireTimestamp(),
+    bool: requireBool(),
+    int: requireInt(),
+    merge: requireMerge(),
+    omap: requireOmap(),
+    seq: requireSeq(),
+    str: requireStr()
+  };
+  jsYaml.safeLoad = renamed("safeLoad", "load");
+  jsYaml.safeLoadAll = renamed("safeLoadAll", "loadAll");
+  jsYaml.safeDump = renamed("safeDump", "dump");
+  return jsYaml;
+}
+var jsYamlExports = requireJsYaml();
+const yaml = /* @__PURE__ */getDefaultExportFromCjs(jsYamlExports);
+const {
+  Type: Type$2,
+  Schema: Schema$3,
+  FAILSAFE_SCHEMA,
+  JSON_SCHEMA,
+  CORE_SCHEMA,
+  DEFAULT_SCHEMA,
+  load,
+  loadAll,
+  dump,
+  YAMLException,
+  types: types$2,
+  safeLoad,
+  safeLoadAll,
+  safeDump
+} = yaml;
 function requireReact() {
   return __ov_react;
 }
@@ -5196,6 +7337,9 @@ const initStartValues = {
   pointerY: 0,
   aspectRatio: 1
 };
+function nodeToParentExtent(node2) {
+  return [[0, 0], [node2.measured.width, node2.measured.height]];
+}
 function nodeToChildExtent(child, parent, nodeOrigin) {
   const x2 = parent.position.x + child.position.x;
   const y4 = parent.position.y + child.position.y;
@@ -6900,4467 +9044,7 @@ const Icon$1 = reactExports.forwardRef(({
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const createLucideIcon = (iconName, iconNode) => {
-  const Component = reactExports.forwardRef(({
-    className,
-    ...props
-  }, ref) => reactExports.createElement(Icon$1, {
-    ref,
-    iconNode,
-    className: mergeClasses(`lucide-${toKebabCase(iconName)}`, className),
-    ...props
-  }));
-  Component.displayName = `${iconName}`;
-  return Component;
-};
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Activity = createLucideIcon("Activity", [["path", {
-  d: "M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2",
-  key: "169zse"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AlignCenter = createLucideIcon("AlignCenter", [["path", {
-  d: "M17 12H7",
-  key: "16if0g"
-}], ["path", {
-  d: "M19 18H5",
-  key: "18s9l3"
-}], ["path", {
-  d: "M21 6H3",
-  key: "1jwq7v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AlignHorizontalSpaceBetween = createLucideIcon("AlignHorizontalSpaceBetween", [["rect", {
-  width: "6",
-  height: "14",
-  x: "3",
-  y: "5",
-  rx: "2",
-  key: "j77dae"
-}], ["rect", {
-  width: "6",
-  height: "10",
-  x: "15",
-  y: "7",
-  rx: "2",
-  key: "bq30hj"
-}], ["path", {
-  d: "M3 2v20",
-  key: "1d2pfg"
-}], ["path", {
-  d: "M21 2v20",
-  key: "p059bm"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AlignLeft = createLucideIcon("AlignLeft", [["path", {
-  d: "M15 12H3",
-  key: "6jk70r"
-}], ["path", {
-  d: "M17 18H3",
-  key: "1amg6g"
-}], ["path", {
-  d: "M21 6H3",
-  key: "1jwq7v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AlignRight = createLucideIcon("AlignRight", [["path", {
-  d: "M21 12H9",
-  key: "dn1m92"
-}], ["path", {
-  d: "M21 18H7",
-  key: "1ygte8"
-}], ["path", {
-  d: "M21 6H3",
-  key: "1jwq7v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AlignVerticalSpaceBetween = createLucideIcon("AlignVerticalSpaceBetween", [["rect", {
-  width: "14",
-  height: "6",
-  x: "5",
-  y: "15",
-  rx: "2",
-  key: "1w91an"
-}], ["rect", {
-  width: "10",
-  height: "6",
-  x: "7",
-  y: "3",
-  rx: "2",
-  key: "17wqzy"
-}], ["path", {
-  d: "M2 21h20",
-  key: "1nyx9w"
-}], ["path", {
-  d: "M2 3h20",
-  key: "91anmk"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Archive = createLucideIcon("Archive", [["rect", {
-  width: "20",
-  height: "5",
-  x: "2",
-  y: "3",
-  rx: "1",
-  key: "1wp1u1"
-}], ["path", {
-  d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8",
-  key: "1s80jp"
-}], ["path", {
-  d: "M10 12h4",
-  key: "a56b0p"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowDownToLine = createLucideIcon("ArrowDownToLine", [["path", {
-  d: "M12 17V3",
-  key: "1cwfxf"
-}], ["path", {
-  d: "m6 11 6 6 6-6",
-  key: "12ii2o"
-}], ["path", {
-  d: "M19 21H5",
-  key: "150jfl"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowDown = createLucideIcon("ArrowDown", [["path", {
-  d: "M12 5v14",
-  key: "s699le"
-}], ["path", {
-  d: "m19 12-7 7-7-7",
-  key: "1idqje"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowLeftRight = createLucideIcon("ArrowLeftRight", [["path", {
-  d: "M8 3 4 7l4 4",
-  key: "9rb6wj"
-}], ["path", {
-  d: "M4 7h16",
-  key: "6tx8e3"
-}], ["path", {
-  d: "m16 21 4-4-4-4",
-  key: "siv7j2"
-}], ["path", {
-  d: "M20 17H4",
-  key: "h6l3hr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowLeftToLine = createLucideIcon("ArrowLeftToLine", [["path", {
-  d: "M3 19V5",
-  key: "rwsyhb"
-}], ["path", {
-  d: "m13 6-6 6 6 6",
-  key: "1yhaz7"
-}], ["path", {
-  d: "M7 12h14",
-  key: "uoisry"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowLeft = createLucideIcon("ArrowLeft", [["path", {
-  d: "m12 19-7-7 7-7",
-  key: "1l729n"
-}], ["path", {
-  d: "M19 12H5",
-  key: "x3x0zl"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowRightToLine = createLucideIcon("ArrowRightToLine", [["path", {
-  d: "M17 12H3",
-  key: "8awo09"
-}], ["path", {
-  d: "m11 18 6-6-6-6",
-  key: "8c2y43"
-}], ["path", {
-  d: "M21 5v14",
-  key: "nzette"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowRight = createLucideIcon("ArrowRight", [["path", {
-  d: "M5 12h14",
-  key: "1ays0h"
-}], ["path", {
-  d: "m12 5 7 7-7 7",
-  key: "xquz4c"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowUpFromLine = createLucideIcon("ArrowUpFromLine", [["path", {
-  d: "m18 9-6-6-6 6",
-  key: "kcunyi"
-}], ["path", {
-  d: "M12 3v14",
-  key: "7cf3v8"
-}], ["path", {
-  d: "M5 21h14",
-  key: "11awu3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowUpRight = createLucideIcon("ArrowUpRight", [["path", {
-  d: "M7 7h10v10",
-  key: "1tivn9"
-}], ["path", {
-  d: "M7 17 17 7",
-  key: "1vkiza"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowUpToLine = createLucideIcon("ArrowUpToLine", [["path", {
-  d: "M5 3h14",
-  key: "7usisc"
-}], ["path", {
-  d: "m18 13-6-6-6 6",
-  key: "1kf1n9"
-}], ["path", {
-  d: "M12 7v14",
-  key: "1akyts"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ArrowUp = createLucideIcon("ArrowUp", [["path", {
-  d: "m5 12 7-7 7 7",
-  key: "hav0vg"
-}], ["path", {
-  d: "M12 19V5",
-  key: "x0mq9r"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AtSign = createLucideIcon("AtSign", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "4",
-  key: "4exip2"
-}], ["path", {
-  d: "M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8",
-  key: "7n84p3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const AudioLines = createLucideIcon("AudioLines", [["path", {
-  d: "M2 10v3",
-  key: "1fnikh"
-}], ["path", {
-  d: "M6 6v11",
-  key: "11sgs0"
-}], ["path", {
-  d: "M10 3v18",
-  key: "yhl04a"
-}], ["path", {
-  d: "M14 8v7",
-  key: "3a1oy3"
-}], ["path", {
-  d: "M18 5v13",
-  key: "123xd1"
-}], ["path", {
-  d: "M22 10v3",
-  key: "154ddg"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const BadgeInfo = createLucideIcon("BadgeInfo", [["path", {
-  d: "M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z",
-  key: "3c2336"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "16",
-  y2: "12",
-  key: "1y1yb1"
-}], ["line", {
-  x1: "12",
-  x2: "12.01",
-  y1: "8",
-  y2: "8",
-  key: "110wyk"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Ban = createLucideIcon("Ban", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "m4.9 4.9 14.2 14.2",
-  key: "1m5liu"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const BellRing = createLucideIcon("BellRing", [["path", {
-  d: "M10.268 21a2 2 0 0 0 3.464 0",
-  key: "vwvbt9"
-}], ["path", {
-  d: "M22 8c0-2.3-.8-4.3-2-6",
-  key: "5bb3ad"
-}], ["path", {
-  d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
-  key: "11g9vi"
-}], ["path", {
-  d: "M4 2C2.8 3.7 2 5.7 2 8",
-  key: "tap9e0"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Bell = createLucideIcon("Bell", [["path", {
-  d: "M10.268 21a2 2 0 0 0 3.464 0",
-  key: "vwvbt9"
-}], ["path", {
-  d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
-  key: "11g9vi"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Blocks = createLucideIcon("Blocks", [["rect", {
-  width: "7",
-  height: "7",
-  x: "14",
-  y: "3",
-  rx: "1",
-  key: "6d4xhi"
-}], ["path", {
-  d: "M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3",
-  key: "1fpvtg"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Bold$1 = createLucideIcon("Bold", [["path", {
-  d: "M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8",
-  key: "mg9rjx"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const BookOpen = createLucideIcon("BookOpen", [["path", {
-  d: "M12 7v14",
-  key: "1akyts"
-}], ["path", {
-  d: "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
-  key: "ruj8y"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Bookmark = createLucideIcon("Bookmark", [["path", {
-  d: "m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z",
-  key: "1fy3hk"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Bot = createLucideIcon("Bot", [["path", {
-  d: "M12 8V4H8",
-  key: "hb8ula"
-}], ["rect", {
-  width: "16",
-  height: "12",
-  x: "4",
-  y: "8",
-  rx: "2",
-  key: "enze0r"
-}], ["path", {
-  d: "M2 14h2",
-  key: "vft8re"
-}], ["path", {
-  d: "M20 14h2",
-  key: "4cs60a"
-}], ["path", {
-  d: "M15 13v2",
-  key: "1xurst"
-}], ["path", {
-  d: "M9 13v2",
-  key: "rq6x2g"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Box = createLucideIcon("Box", [["path", {
-  d: "M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z",
-  key: "hh9hay"
-}], ["path", {
-  d: "m3.3 7 8.7 5 8.7-5",
-  key: "g66t2b"
-}], ["path", {
-  d: "M12 22V12",
-  key: "d0xqtd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Brain = createLucideIcon("Brain", [["path", {
-  d: "M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z",
-  key: "l5xja"
-}], ["path", {
-  d: "M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z",
-  key: "ep3f8r"
-}], ["path", {
-  d: "M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4",
-  key: "1p4c4q"
-}], ["path", {
-  d: "M17.599 6.5a3 3 0 0 0 .399-1.375",
-  key: "tmeiqw"
-}], ["path", {
-  d: "M6.003 5.125A3 3 0 0 0 6.401 6.5",
-  key: "105sqy"
-}], ["path", {
-  d: "M3.477 10.896a4 4 0 0 1 .585-.396",
-  key: "ql3yin"
-}], ["path", {
-  d: "M19.938 10.5a4 4 0 0 1 .585.396",
-  key: "1qfode"
-}], ["path", {
-  d: "M6 18a4 4 0 0 1-1.967-.516",
-  key: "2e4loj"
-}], ["path", {
-  d: "M19.967 17.484A4 4 0 0 1 18 18",
-  key: "159ez6"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Brush = createLucideIcon("Brush", [["path", {
-  d: "m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08",
-  key: "1styjt"
-}], ["path", {
-  d: "M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z",
-  key: "z0l1mu"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Building2 = createLucideIcon("Building2", [["path", {
-  d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z",
-  key: "1b4qmf"
-}], ["path", {
-  d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2",
-  key: "i71pzd"
-}], ["path", {
-  d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2",
-  key: "10jefs"
-}], ["path", {
-  d: "M10 6h4",
-  key: "1itunk"
-}], ["path", {
-  d: "M10 10h4",
-  key: "tcdvrf"
-}], ["path", {
-  d: "M10 14h4",
-  key: "kelpxr"
-}], ["path", {
-  d: "M10 18h4",
-  key: "1ulq68"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Cable = createLucideIcon("Cable", [["path", {
-  d: "M17 21v-2a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1",
-  key: "10bnsj"
-}], ["path", {
-  d: "M19 15V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V9",
-  key: "1eqmu1"
-}], ["path", {
-  d: "M21 21v-2h-4",
-  key: "14zm7j"
-}], ["path", {
-  d: "M3 5h4V3",
-  key: "z442eg"
-}], ["path", {
-  d: "M7 5a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1V3",
-  key: "ebdjd7"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CalendarDays = createLucideIcon("CalendarDays", [["path", {
-  d: "M8 2v4",
-  key: "1cmpym"
-}], ["path", {
-  d: "M16 2v4",
-  key: "4m81vk"
-}], ["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "4",
-  rx: "2",
-  key: "1hopcy"
-}], ["path", {
-  d: "M3 10h18",
-  key: "8toen8"
-}], ["path", {
-  d: "M8 14h.01",
-  key: "6423bh"
-}], ["path", {
-  d: "M12 14h.01",
-  key: "1etili"
-}], ["path", {
-  d: "M16 14h.01",
-  key: "1gbofw"
-}], ["path", {
-  d: "M8 18h.01",
-  key: "lrp35t"
-}], ["path", {
-  d: "M12 18h.01",
-  key: "mhygvu"
-}], ["path", {
-  d: "M16 18h.01",
-  key: "kzsmim"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Camera = createLucideIcon("Camera", [["path", {
-  d: "M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z",
-  key: "1tc9qg"
-}], ["circle", {
-  cx: "12",
-  cy: "13",
-  r: "3",
-  key: "1vg3eu"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CaseSensitive = createLucideIcon("CaseSensitive", [["path", {
-  d: "m3 15 4-8 4 8",
-  key: "1vwr6u"
-}], ["path", {
-  d: "M4 13h6",
-  key: "1r9ots"
-}], ["circle", {
-  cx: "18",
-  cy: "12",
-  r: "3",
-  key: "1kchzo"
-}], ["path", {
-  d: "M21 9v6",
-  key: "anns31"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Cctv = createLucideIcon("Cctv", [["path", {
-  d: "M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97",
-  key: "ir91b5"
-}], ["path", {
-  d: "M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z",
-  key: "jlp8i1"
-}], ["path", {
-  d: "M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15",
-  key: "19bib8"
-}], ["path", {
-  d: "M2 21v-4",
-  key: "l40lih"
-}], ["path", {
-  d: "M7 9h.01",
-  key: "19b3jx"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CheckCheck = createLucideIcon("CheckCheck", [["path", {
-  d: "M18 6 7 17l-5-5",
-  key: "116fxf"
-}], ["path", {
-  d: "m22 10-7.5 7.5L13 16",
-  key: "ke71qq"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Check = createLucideIcon("Check", [["path", {
-  d: "M20 6 9 17l-5-5",
-  key: "1gmf2c"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ChevronDown = createLucideIcon("ChevronDown", [["path", {
-  d: "m6 9 6 6 6-6",
-  key: "qrunsl"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ChevronLeft = createLucideIcon("ChevronLeft", [["path", {
-  d: "m15 18-6-6 6-6",
-  key: "1wnfg3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ChevronRight$1 = createLucideIcon("ChevronRight", [["path", {
-  d: "m9 18 6-6-6-6",
-  key: "mthhwq"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ChevronUp = createLucideIcon("ChevronUp", [["path", {
-  d: "m18 15-6-6-6 6",
-  key: "153udz"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Chrome = createLucideIcon("Chrome", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["circle", {
-  cx: "12",
-  cy: "12",
-  r: "4",
-  key: "4exip2"
-}], ["line", {
-  x1: "21.17",
-  x2: "12",
-  y1: "8",
-  y2: "8",
-  key: "a0cw5f"
-}], ["line", {
-  x1: "3.95",
-  x2: "8.54",
-  y1: "6.06",
-  y2: "14",
-  key: "1kftof"
-}], ["line", {
-  x1: "10.88",
-  x2: "15.46",
-  y1: "21.94",
-  y2: "14",
-  key: "1ymyh8"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleAlert = createLucideIcon("CircleAlert", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "8",
-  y2: "12",
-  key: "1pkeuh"
-}], ["line", {
-  x1: "12",
-  x2: "12.01",
-  y1: "16",
-  y2: "16",
-  key: "4dfq90"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleArrowUp = createLucideIcon("CircleArrowUp", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "m16 12-4-4-4 4",
-  key: "177agl"
-}], ["path", {
-  d: "M12 16V8",
-  key: "1sbj14"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleCheck = createLucideIcon("CircleCheck", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "m9 12 2 2 4-4",
-  key: "dzmm74"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleHelp = createLucideIcon("CircleHelp", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3",
-  key: "1u773s"
-}], ["path", {
-  d: "M12 17h.01",
-  key: "p32p05"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CirclePlus = createLucideIcon("CirclePlus", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "M8 12h8",
-  key: "1wcyev"
-}], ["path", {
-  d: "M12 8v8",
-  key: "napkw2"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleUserRound = createLucideIcon("CircleUserRound", [["path", {
-  d: "M18 20a6 6 0 0 0-12 0",
-  key: "1qehca"
-}], ["circle", {
-  cx: "12",
-  cy: "10",
-  r: "4",
-  key: "1h16sb"
-}], ["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleX = createLucideIcon("CircleX", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "m15 9-6 6",
-  key: "1uzhvr"
-}], ["path", {
-  d: "m9 9 6 6",
-  key: "z0biqf"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Circle = createLucideIcon("Circle", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Clapperboard = createLucideIcon("Clapperboard", [["path", {
-  d: "M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z",
-  key: "1tn4o7"
-}], ["path", {
-  d: "m6.2 5.3 3.1 3.9",
-  key: "iuk76l"
-}], ["path", {
-  d: "m12.4 3.4 3.1 4",
-  key: "6hsd6n"
-}], ["path", {
-  d: "M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z",
-  key: "ltgou9"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ClipboardList = createLucideIcon("ClipboardList", [["rect", {
-  width: "8",
-  height: "4",
-  x: "8",
-  y: "2",
-  rx: "1",
-  ry: "1",
-  key: "tgr4d6"
-}], ["path", {
-  d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-  key: "116196"
-}], ["path", {
-  d: "M12 11h4",
-  key: "1jrz19"
-}], ["path", {
-  d: "M12 16h4",
-  key: "n85exb"
-}], ["path", {
-  d: "M8 11h.01",
-  key: "1dfujw"
-}], ["path", {
-  d: "M8 16h.01",
-  key: "18s6g9"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ClipboardPaste = createLucideIcon("ClipboardPaste", [["path", {
-  d: "M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z",
-  key: "1pp7kr"
-}], ["path", {
-  d: "M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10",
-  key: "2ik1ml"
-}], ["path", {
-  d: "m17 10 4 4-4 4",
-  key: "vp2hj1"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Clipboard = createLucideIcon("Clipboard", [["rect", {
-  width: "8",
-  height: "4",
-  x: "8",
-  y: "2",
-  rx: "1",
-  ry: "1",
-  key: "tgr4d6"
-}], ["path", {
-  d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
-  key: "116196"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Clock3 = createLucideIcon("Clock3", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["polyline", {
-  points: "12 6 12 12 16.5 12",
-  key: "1aq6pp"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Clock = createLucideIcon("Clock", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["polyline", {
-  points: "12 6 12 12 16 14",
-  key: "68esgv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CloudDownload = createLucideIcon("CloudDownload", [["path", {
-  d: "M12 13v8l-4-4",
-  key: "1f5nwf"
-}], ["path", {
-  d: "m12 21 4-4",
-  key: "1lfcce"
-}], ["path", {
-  d: "M4.393 15.269A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.436 8.284",
-  key: "ui1hmy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CloudOff = createLucideIcon("CloudOff", [["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}], ["path", {
-  d: "M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193",
-  key: "yfwify"
-}], ["path", {
-  d: "M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07",
-  key: "jlfiyv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CloudUpload = createLucideIcon("CloudUpload", [["path", {
-  d: "M12 13v8",
-  key: "1l5pq0"
-}], ["path", {
-  d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
-  key: "1pljnt"
-}], ["path", {
-  d: "m8 17 4-4 4 4",
-  key: "1quai1"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Cloud = createLucideIcon("Cloud", [["path", {
-  d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z",
-  key: "p7xjir"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Cog = createLucideIcon("Cog", [["path", {
-  d: "M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z",
-  key: "sobvz5"
-}], ["path", {
-  d: "M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
-  key: "11i496"
-}], ["path", {
-  d: "M12 2v2",
-  key: "tus03m"
-}], ["path", {
-  d: "M12 22v-2",
-  key: "1osdcq"
-}], ["path", {
-  d: "m17 20.66-1-1.73",
-  key: "eq3orb"
-}], ["path", {
-  d: "M11 10.27 7 3.34",
-  key: "16pf9h"
-}], ["path", {
-  d: "m20.66 17-1.73-1",
-  key: "sg0v6f"
-}], ["path", {
-  d: "m3.34 7 1.73 1",
-  key: "1ulond"
-}], ["path", {
-  d: "M14 12h8",
-  key: "4f43i9"
-}], ["path", {
-  d: "M2 12h2",
-  key: "1t8f8n"
-}], ["path", {
-  d: "m20.66 7-1.73 1",
-  key: "1ow05n"
-}], ["path", {
-  d: "m3.34 17 1.73-1",
-  key: "nuk764"
-}], ["path", {
-  d: "m17 3.34-1 1.73",
-  key: "2wel8s"
-}], ["path", {
-  d: "m11 13.73-4 6.93",
-  key: "794ttg"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CopyPlus = createLucideIcon("CopyPlus", [["line", {
-  x1: "15",
-  x2: "15",
-  y1: "12",
-  y2: "18",
-  key: "1p7wdc"
-}], ["line", {
-  x1: "12",
-  x2: "18",
-  y1: "15",
-  y2: "15",
-  key: "1nscbv"
-}], ["rect", {
-  width: "14",
-  height: "14",
-  x: "8",
-  y: "8",
-  rx: "2",
-  ry: "2",
-  key: "17jyea"
-}], ["path", {
-  d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2",
-  key: "zix9uf"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Copy = createLucideIcon("Copy", [["rect", {
-  width: "14",
-  height: "14",
-  x: "8",
-  y: "8",
-  rx: "2",
-  ry: "2",
-  key: "17jyea"
-}], ["path", {
-  d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2",
-  key: "zix9uf"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CornerDownRight = createLucideIcon("CornerDownRight", [["polyline", {
-  points: "15 10 20 15 15 20",
-  key: "1q7qjw"
-}], ["path", {
-  d: "M4 4v7a4 4 0 0 0 4 4h12",
-  key: "z08zvw"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CreditCard = createLucideIcon("CreditCard", [["rect", {
-  width: "20",
-  height: "14",
-  x: "2",
-  y: "5",
-  rx: "2",
-  key: "ynyp8z"
-}], ["line", {
-  x1: "2",
-  x2: "22",
-  y1: "10",
-  y2: "10",
-  key: "1b3vmo"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Crosshair = createLucideIcon("Crosshair", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["line", {
-  x1: "22",
-  x2: "18",
-  y1: "12",
-  y2: "12",
-  key: "l9bcsi"
-}], ["line", {
-  x1: "6",
-  x2: "2",
-  y1: "12",
-  y2: "12",
-  key: "13hhkx"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "6",
-  y2: "2",
-  key: "10w3f3"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "22",
-  y2: "18",
-  key: "15g9kq"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Crown = createLucideIcon("Crown", [["path", {
-  d: "M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z",
-  key: "1vdc57"
-}], ["path", {
-  d: "M5 21h14",
-  key: "11awu3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Download = createLucideIcon("Download", [["path", {
-  d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4",
-  key: "ih7n3h"
-}], ["polyline", {
-  points: "7 10 12 15 17 10",
-  key: "2ggqvy"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "15",
-  y2: "3",
-  key: "1vk2je"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Droplet = createLucideIcon("Droplet", [["path", {
-  d: "M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z",
-  key: "c7niix"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Earth = createLucideIcon("Earth", [["path", {
-  d: "M21.54 15H17a2 2 0 0 0-2 2v4.54",
-  key: "1djwo0"
-}], ["path", {
-  d: "M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17",
-  key: "1tzkfa"
-}], ["path", {
-  d: "M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05",
-  key: "14pb5j"
-}], ["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Ellipsis = createLucideIcon("Ellipsis", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "1",
-  key: "41hilf"
-}], ["circle", {
-  cx: "19",
-  cy: "12",
-  r: "1",
-  key: "1wjl8i"
-}], ["circle", {
-  cx: "5",
-  cy: "12",
-  r: "1",
-  key: "1pcz8c"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Expand = createLucideIcon("Expand", [["path", {
-  d: "m21 21-6-6m6 6v-4.8m0 4.8h-4.8",
-  key: "1c15vz"
-}], ["path", {
-  d: "M3 16.2V21m0 0h4.8M3 21l6-6",
-  key: "1fsnz2"
-}], ["path", {
-  d: "M21 7.8V3m0 0h-4.8M21 3l-6 6",
-  key: "hawz9i"
-}], ["path", {
-  d: "M3 7.8V3m0 0h4.8M3 3l6 6",
-  key: "u9ee12"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ExternalLink = createLucideIcon("ExternalLink", [["path", {
-  d: "M15 3h6v6",
-  key: "1q9fwt"
-}], ["path", {
-  d: "M10 14 21 3",
-  key: "gplh6r"
-}], ["path", {
-  d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6",
-  key: "a6xqqp"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const EyeOff = createLucideIcon("EyeOff", [["path", {
-  d: "M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49",
-  key: "ct8e1f"
-}], ["path", {
-  d: "M14.084 14.158a3 3 0 0 1-4.242-4.242",
-  key: "151rxh"
-}], ["path", {
-  d: "M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143",
-  key: "13bj9a"
-}], ["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Eye = createLucideIcon("Eye", [["path", {
-  d: "M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0",
-  key: "1nclc0"
-}], ["circle", {
-  cx: "12",
-  cy: "12",
-  r: "3",
-  key: "1v7zrd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileArchive = createLucideIcon("FileArchive", [["path", {
-  d: "M10 12v-1",
-  key: "v7bkov"
-}], ["path", {
-  d: "M10 18v-2",
-  key: "1cjy8d"
-}], ["path", {
-  d: "M10 7V6",
-  key: "dljcrl"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M15.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 .274 1.01",
-  key: "gkbcor"
-}], ["circle", {
-  cx: "10",
-  cy: "20",
-  r: "2",
-  key: "1xzdoj"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileAudio = createLucideIcon("FileAudio", [["path", {
-  d: "M17.5 22h.5a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3",
-  key: "rslqgf"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M2 19a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0v-4a6 6 0 0 1 12 0v4a2 2 0 1 1-4 0v-1a2 2 0 1 1 4 0",
-  key: "9f7x3i"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileClock = createLucideIcon("FileClock", [["path", {
-  d: "M16 22h2a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3",
-  key: "37hlfg"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["circle", {
-  cx: "8",
-  cy: "16",
-  r: "6",
-  key: "10v15b"
-}], ["path", {
-  d: "M9.5 17.5 8 16.25V14",
-  key: "1o80t2"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileCode2 = createLucideIcon("FileCode2", [["path", {
-  d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4",
-  key: "1pf5j1"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "m5 12-3 3 3 3",
-  key: "oke12k"
-}], ["path", {
-  d: "m9 18 3-3-3-3",
-  key: "112psh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileCode = createLucideIcon("FileCode", [["path", {
-  d: "M10 12.5 8 15l2 2.5",
-  key: "1tg20x"
-}], ["path", {
-  d: "m14 12.5 2 2.5-2 2.5",
-  key: "yinavb"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z",
-  key: "1mlx9k"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileDiff = createLucideIcon("FileDiff", [["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-  key: "1rqfz7"
-}], ["path", {
-  d: "M9 10h6",
-  key: "9gxzsh"
-}], ["path", {
-  d: "M12 13V7",
-  key: "h0r20n"
-}], ["path", {
-  d: "M9 17h6",
-  key: "r8uit2"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileInput = createLucideIcon("FileInput", [["path", {
-  d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4",
-  key: "1pf5j1"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M2 15h10",
-  key: "jfw4w8"
-}], ["path", {
-  d: "m9 18 3-3-3-3",
-  key: "112psh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileJson2 = createLucideIcon("FileJson2", [["path", {
-  d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4",
-  key: "1pf5j1"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M4 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1",
-  key: "fq0c9t"
-}], ["path", {
-  d: "M8 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1",
-  key: "4gibmv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileMusic = createLucideIcon("FileMusic", [["path", {
-  d: "M10.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v8.4",
-  key: "1d3kfm"
-}], ["path", {
-  d: "M8 18v-7.7L16 9v7",
-  key: "1oie6o"
-}], ["circle", {
-  cx: "14",
-  cy: "16",
-  r: "2",
-  key: "1bzzi3"
-}], ["circle", {
-  cx: "6",
-  cy: "18",
-  r: "2",
-  key: "1fncim"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileText = createLucideIcon("FileText", [["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-  key: "1rqfz7"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "M10 9H8",
-  key: "b1mrlr"
-}], ["path", {
-  d: "M16 13H8",
-  key: "t4e002"
-}], ["path", {
-  d: "M16 17H8",
-  key: "z1uh3a"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileVideo = createLucideIcon("FileVideo", [["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-  key: "1rqfz7"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}], ["path", {
-  d: "m10 11 5 3-5 3v-6Z",
-  key: "7ntvm4"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FileWarning = createLucideIcon("FileWarning", [["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-  key: "1rqfz7"
-}], ["path", {
-  d: "M12 9v4",
-  key: "juzpu7"
-}], ["path", {
-  d: "M12 17h.01",
-  key: "p32p05"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const File$1 = createLucideIcon("File", [["path", {
-  d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-  key: "1rqfz7"
-}], ["path", {
-  d: "M14 2v4a2 2 0 0 0 2 2h4",
-  key: "tnqrlb"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Files = createLucideIcon("Files", [["path", {
-  d: "M20 7h-3a2 2 0 0 1-2-2V2",
-  key: "x099mo"
-}], ["path", {
-  d: "M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z",
-  key: "18t6ie"
-}], ["path", {
-  d: "M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8",
-  key: "1nja0z"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Film = createLucideIcon("Film", [["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "afitv7"
-}], ["path", {
-  d: "M7 3v18",
-  key: "bbkbws"
-}], ["path", {
-  d: "M3 7.5h4",
-  key: "zfgn84"
-}], ["path", {
-  d: "M3 12h18",
-  key: "1i2n21"
-}], ["path", {
-  d: "M3 16.5h4",
-  key: "1230mu"
-}], ["path", {
-  d: "M17 3v18",
-  key: "in4fa5"
-}], ["path", {
-  d: "M17 7.5h4",
-  key: "myr1c1"
-}], ["path", {
-  d: "M17 16.5h4",
-  key: "go4c1d"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Flag = createLucideIcon("Flag", [["path", {
-  d: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z",
-  key: "i9b6wo"
-}], ["line", {
-  x1: "4",
-  x2: "4",
-  y1: "22",
-  y2: "15",
-  key: "1cm3nv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderClosed = createLucideIcon("FolderClosed", [["path", {
-  d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
-  key: "1kt360"
-}], ["path", {
-  d: "M2 10h20",
-  key: "1ir3d8"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderInput = createLucideIcon("FolderInput", [["path", {
-  d: "M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1",
-  key: "fm4g5t"
-}], ["path", {
-  d: "M2 13h10",
-  key: "pgb2dq"
-}], ["path", {
-  d: "m9 16 3-3-3-3",
-  key: "6m91ic"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderKey = createLucideIcon("FolderKey", [["circle", {
-  cx: "16",
-  cy: "20",
-  r: "2",
-  key: "1vifvg"
-}], ["path", {
-  d: "M10 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v2",
-  key: "3hgo9p"
-}], ["path", {
-  d: "m22 14-4.5 4.5",
-  key: "1ef6z8"
-}], ["path", {
-  d: "m21 15 1 1",
-  key: "1ejcpy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderOpen = createLucideIcon("FolderOpen", [["path", {
-  d: "m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2",
-  key: "usdka0"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderPlus = createLucideIcon("FolderPlus", [["path", {
-  d: "M12 10v6",
-  key: "1bos4e"
-}], ["path", {
-  d: "M9 13h6",
-  key: "1uhe8q"
-}], ["path", {
-  d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
-  key: "1kt360"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderUp = createLucideIcon("FolderUp", [["path", {
-  d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
-  key: "1kt360"
-}], ["path", {
-  d: "M12 10v6",
-  key: "1bos4e"
-}], ["path", {
-  d: "m9 13 3-3 3 3",
-  key: "1pxg3c"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderX = createLucideIcon("FolderX", [["path", {
-  d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
-  key: "1kt360"
-}], ["path", {
-  d: "m9.5 10.5 5 5",
-  key: "ra9qjz"
-}], ["path", {
-  d: "m14.5 10.5-5 5",
-  key: "l2rkpq"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Folder = createLucideIcon("Folder", [["path", {
-  d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
-  key: "1kt360"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Gift = createLucideIcon("Gift", [["rect", {
-  x: "3",
-  y: "8",
-  width: "18",
-  height: "4",
-  rx: "1",
-  key: "bkv52"
-}], ["path", {
-  d: "M12 8v13",
-  key: "1c76mn"
-}], ["path", {
-  d: "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7",
-  key: "6wjy6b"
-}], ["path", {
-  d: "M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5",
-  key: "1ihvrl"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const GitCompare = createLucideIcon("GitCompare", [["circle", {
-  cx: "18",
-  cy: "18",
-  r: "3",
-  key: "1xkwt0"
-}], ["circle", {
-  cx: "6",
-  cy: "6",
-  r: "3",
-  key: "1lh9wr"
-}], ["path", {
-  d: "M13 6h3a2 2 0 0 1 2 2v7",
-  key: "1yeb86"
-}], ["path", {
-  d: "M11 18H8a2 2 0 0 1-2-2V9",
-  key: "19pyzm"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Globe = createLucideIcon("Globe", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20",
-  key: "13o1zl"
-}], ["path", {
-  d: "M2 12h20",
-  key: "9i4pu4"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const GraduationCap = createLucideIcon("GraduationCap", [["path", {
-  d: "M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z",
-  key: "j76jl0"
-}], ["path", {
-  d: "M22 10v6",
-  key: "1lu8f3"
-}], ["path", {
-  d: "M6 12.5V16a6 3 0 0 0 12 0v-3.5",
-  key: "1r8lef"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Grid2x2Plus = createLucideIcon("Grid2x2Plus", [["path", {
-  d: "M12 3v17a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1H3",
-  key: "11za1p"
-}], ["path", {
-  d: "M16 19h6",
-  key: "xwg31i"
-}], ["path", {
-  d: "M19 22v-6",
-  key: "qhmiwi"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Grid2x2 = createLucideIcon("Grid2x2", [["path", {
-  d: "M12 3v18",
-  key: "108xh3"
-}], ["path", {
-  d: "M3 12h18",
-  key: "1i2n21"
-}], ["rect", {
-  x: "3",
-  y: "3",
-  width: "18",
-  height: "18",
-  rx: "2",
-  key: "h1oib"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Grid3x3 = createLucideIcon("Grid3x3", [["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "afitv7"
-}], ["path", {
-  d: "M3 9h18",
-  key: "1pudct"
-}], ["path", {
-  d: "M3 15h18",
-  key: "5xshup"
-}], ["path", {
-  d: "M9 3v18",
-  key: "fh3hqa"
-}], ["path", {
-  d: "M15 3v18",
-  key: "14nvp0"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const GripVertical = createLucideIcon("GripVertical", [["circle", {
-  cx: "9",
-  cy: "12",
-  r: "1",
-  key: "1vctgf"
-}], ["circle", {
-  cx: "9",
-  cy: "5",
-  r: "1",
-  key: "hp0tcf"
-}], ["circle", {
-  cx: "9",
-  cy: "19",
-  r: "1",
-  key: "fkjjf6"
-}], ["circle", {
-  cx: "15",
-  cy: "12",
-  r: "1",
-  key: "1tmaij"
-}], ["circle", {
-  cx: "15",
-  cy: "5",
-  r: "1",
-  key: "19l28e"
-}], ["circle", {
-  cx: "15",
-  cy: "19",
-  r: "1",
-  key: "f4zoj3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Hand = createLucideIcon("Hand", [["path", {
-  d: "M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2",
-  key: "1fvzgz"
-}], ["path", {
-  d: "M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2",
-  key: "1kc0my"
-}], ["path", {
-  d: "M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8",
-  key: "10h0bg"
-}], ["path", {
-  d: "M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15",
-  key: "1s1gnw"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const HardDrive = createLucideIcon("HardDrive", [["line", {
-  x1: "22",
-  x2: "2",
-  y1: "12",
-  y2: "12",
-  key: "1y58io"
-}], ["path", {
-  d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
-  key: "oot6mr"
-}], ["line", {
-  x1: "6",
-  x2: "6.01",
-  y1: "16",
-  y2: "16",
-  key: "sgf278"
-}], ["line", {
-  x1: "10",
-  x2: "10.01",
-  y1: "16",
-  y2: "16",
-  key: "1l4acy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const History = createLucideIcon("History", [["path", {
-  d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8",
-  key: "1357e3"
-}], ["path", {
-  d: "M3 3v5h5",
-  key: "1xhq8a"
-}], ["path", {
-  d: "M12 7v5l4 2",
-  key: "1fdv2h"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Inbox = createLucideIcon("Inbox", [["polyline", {
-  points: "22 12 16 12 14 15 10 15 8 12 2 12",
-  key: "o97t9d"
-}], ["path", {
-  d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
-  key: "oot6mr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Info$1 = createLucideIcon("Info", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "10",
-  key: "1mglay"
-}], ["path", {
-  d: "M12 16v-4",
-  key: "1dtifu"
-}], ["path", {
-  d: "M12 8h.01",
-  key: "e9boi3"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Italic$1 = createLucideIcon("Italic", [["line", {
-  x1: "19",
-  x2: "10",
-  y1: "4",
-  y2: "4",
-  key: "15jd3p"
-}], ["line", {
-  x1: "14",
-  x2: "5",
-  y1: "20",
-  y2: "20",
-  key: "bu0au3"
-}], ["line", {
-  x1: "15",
-  x2: "9",
-  y1: "4",
-  y2: "20",
-  key: "uljnxc"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const KeyRound = createLucideIcon("KeyRound", [["path", {
-  d: "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z",
-  key: "1s6t7t"
-}], ["circle", {
-  cx: "16.5",
-  cy: "7.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "w0ekpg"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Keyboard = createLucideIcon("Keyboard", [["path", {
-  d: "M10 8h.01",
-  key: "1r9ogq"
-}], ["path", {
-  d: "M12 12h.01",
-  key: "1mp3jc"
-}], ["path", {
-  d: "M14 8h.01",
-  key: "1primd"
-}], ["path", {
-  d: "M16 12h.01",
-  key: "1l6xoz"
-}], ["path", {
-  d: "M18 8h.01",
-  key: "emo2bl"
-}], ["path", {
-  d: "M6 8h.01",
-  key: "x9i8wu"
-}], ["path", {
-  d: "M7 16h10",
-  key: "wp8him"
-}], ["path", {
-  d: "M8 12h.01",
-  key: "czm47f"
-}], ["rect", {
-  width: "20",
-  height: "16",
-  x: "2",
-  y: "4",
-  rx: "2",
-  key: "18n3k1"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Layers = createLucideIcon("Layers", [["path", {
-  d: "M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z",
-  key: "zw3jo"
-}], ["path", {
-  d: "M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12",
-  key: "1wduqc"
-}], ["path", {
-  d: "M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17",
-  key: "kqbvx6"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LayoutDashboard = createLucideIcon("LayoutDashboard", [["rect", {
-  width: "7",
-  height: "9",
-  x: "3",
-  y: "3",
-  rx: "1",
-  key: "10lvy0"
-}], ["rect", {
-  width: "7",
-  height: "5",
-  x: "14",
-  y: "3",
-  rx: "1",
-  key: "16une8"
-}], ["rect", {
-  width: "7",
-  height: "9",
-  x: "14",
-  y: "12",
-  rx: "1",
-  key: "1hutg5"
-}], ["rect", {
-  width: "7",
-  height: "5",
-  x: "3",
-  y: "16",
-  rx: "1",
-  key: "ldoo1y"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LayoutGrid = createLucideIcon("LayoutGrid", [["rect", {
-  width: "7",
-  height: "7",
-  x: "3",
-  y: "3",
-  rx: "1",
-  key: "1g98yp"
-}], ["rect", {
-  width: "7",
-  height: "7",
-  x: "14",
-  y: "3",
-  rx: "1",
-  key: "6d4xhi"
-}], ["rect", {
-  width: "7",
-  height: "7",
-  x: "14",
-  y: "14",
-  rx: "1",
-  key: "nxv5o0"
-}], ["rect", {
-  width: "7",
-  height: "7",
-  x: "3",
-  y: "14",
-  rx: "1",
-  key: "1bb6yr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LayoutList = createLucideIcon("LayoutList", [["rect", {
-  width: "7",
-  height: "7",
-  x: "3",
-  y: "3",
-  rx: "1",
-  key: "1g98yp"
-}], ["rect", {
-  width: "7",
-  height: "7",
-  x: "3",
-  y: "14",
-  rx: "1",
-  key: "1bb6yr"
-}], ["path", {
-  d: "M14 4h7",
-  key: "3xa0d5"
-}], ["path", {
-  d: "M14 9h7",
-  key: "1icrd9"
-}], ["path", {
-  d: "M14 15h7",
-  key: "1mj8o2"
-}], ["path", {
-  d: "M14 20h7",
-  key: "11slyb"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LayoutTemplate = createLucideIcon("LayoutTemplate", [["rect", {
-  width: "18",
-  height: "7",
-  x: "3",
-  y: "3",
-  rx: "1",
-  key: "f1a2em"
-}], ["rect", {
-  width: "9",
-  height: "7",
-  x: "3",
-  y: "14",
-  rx: "1",
-  key: "jqznyg"
-}], ["rect", {
-  width: "5",
-  height: "7",
-  x: "16",
-  y: "14",
-  rx: "1",
-  key: "q5h2i8"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Library = createLucideIcon("Library", [["path", {
-  d: "m16 6 4 14",
-  key: "ji33uf"
-}], ["path", {
-  d: "M12 6v14",
-  key: "1n7gus"
-}], ["path", {
-  d: "M8 8v12",
-  key: "1gg7y9"
-}], ["path", {
-  d: "M4 4v16",
-  key: "6qkkli"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Lightbulb = createLucideIcon("Lightbulb", [["path", {
-  d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5",
-  key: "1gvzjb"
-}], ["path", {
-  d: "M9 18h6",
-  key: "x1upvd"
-}], ["path", {
-  d: "M10 22h4",
-  key: "ceow96"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Link2 = createLucideIcon("Link2", [["path", {
-  d: "M9 17H7A5 5 0 0 1 7 7h2",
-  key: "8i5ue5"
-}], ["path", {
-  d: "M15 7h2a5 5 0 1 1 0 10h-2",
-  key: "1b9ql8"
-}], ["line", {
-  x1: "8",
-  x2: "16",
-  y1: "12",
-  y2: "12",
-  key: "1jonct"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const List = createLucideIcon("List", [["path", {
-  d: "M3 12h.01",
-  key: "nlz23k"
-}], ["path", {
-  d: "M3 18h.01",
-  key: "1tta3j"
-}], ["path", {
-  d: "M3 6h.01",
-  key: "1rqtza"
-}], ["path", {
-  d: "M8 12h13",
-  key: "1za7za"
-}], ["path", {
-  d: "M8 18h13",
-  key: "1lx6n3"
-}], ["path", {
-  d: "M8 6h13",
-  key: "ik3vkj"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LoaderCircle = createLucideIcon("LoaderCircle", [["path", {
-  d: "M21 12a9 9 0 1 1-6.219-8.56",
-  key: "13zald"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LockKeyhole = createLucideIcon("LockKeyhole", [["circle", {
-  cx: "12",
-  cy: "16",
-  r: "1",
-  key: "1au0dj"
-}], ["rect", {
-  x: "3",
-  y: "10",
-  width: "18",
-  height: "12",
-  rx: "2",
-  key: "6s8ecr"
-}], ["path", {
-  d: "M7 10V7a5 5 0 0 1 10 0v3",
-  key: "1pqi11"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Lock = createLucideIcon("Lock", [["rect", {
-  width: "18",
-  height: "11",
-  x: "3",
-  y: "11",
-  rx: "2",
-  ry: "2",
-  key: "1w4ew1"
-}], ["path", {
-  d: "M7 11V7a5 5 0 0 1 10 0v4",
-  key: "fwvmzm"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const LogOut = createLucideIcon("LogOut", [["path", {
-  d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4",
-  key: "1uf3rs"
-}], ["polyline", {
-  points: "16 17 21 12 16 7",
-  key: "1gabdz"
-}], ["line", {
-  x1: "21",
-  x2: "9",
-  y1: "12",
-  y2: "12",
-  key: "1uyos4"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Magnet = createLucideIcon("Magnet", [["path", {
-  d: "m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15",
-  key: "1i3lhw"
-}], ["path", {
-  d: "m5 8 4 4",
-  key: "j6kj7e"
-}], ["path", {
-  d: "m12 15 4 4",
-  key: "lnac28"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Map$1 = createLucideIcon("Map", [["path", {
-  d: "M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z",
-  key: "169xi5"
-}], ["path", {
-  d: "M15 5.764v15",
-  key: "1pn4in"
-}], ["path", {
-  d: "M9 3.236v15",
-  key: "1uimfh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Maximize2 = createLucideIcon("Maximize2", [["polyline", {
-  points: "15 3 21 3 21 9",
-  key: "mznyad"
-}], ["polyline", {
-  points: "9 21 3 21 3 15",
-  key: "1avn1i"
-}], ["line", {
-  x1: "21",
-  x2: "14",
-  y1: "3",
-  y2: "10",
-  key: "ota7mn"
-}], ["line", {
-  x1: "3",
-  x2: "10",
-  y1: "21",
-  y2: "14",
-  key: "1atl0r"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Maximize = createLucideIcon("Maximize", [["path", {
-  d: "M8 3H5a2 2 0 0 0-2 2v3",
-  key: "1dcmit"
-}], ["path", {
-  d: "M21 8V5a2 2 0 0 0-2-2h-3",
-  key: "1e4gt3"
-}], ["path", {
-  d: "M3 16v3a2 2 0 0 0 2 2h3",
-  key: "wsl5sc"
-}], ["path", {
-  d: "M16 21h3a2 2 0 0 0 2-2v-3",
-  key: "18trek"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Megaphone = createLucideIcon("Megaphone", [["path", {
-  d: "m3 11 18-5v12L3 14v-3z",
-  key: "n962bs"
-}], ["path", {
-  d: "M11.6 16.8a3 3 0 1 1-5.8-1.6",
-  key: "1yl0tm"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const MessageSquarePlus = createLucideIcon("MessageSquarePlus", [["path", {
-  d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  key: "1lielz"
-}], ["path", {
-  d: "M12 7v6",
-  key: "lw1j43"
-}], ["path", {
-  d: "M9 10h6",
-  key: "9gxzsh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const MessageSquareQuote = createLucideIcon("MessageSquareQuote", [["path", {
-  d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  key: "1lielz"
-}], ["path", {
-  d: "M8 12a2 2 0 0 0 2-2V8H8",
-  key: "1jfesj"
-}], ["path", {
-  d: "M14 12a2 2 0 0 0 2-2V8h-2",
-  key: "1dq9mh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const MessageSquare = createLucideIcon("MessageSquare", [["path", {
-  d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  key: "1lielz"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Mic = createLucideIcon("Mic", [["path", {
-  d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z",
-  key: "131961"
-}], ["path", {
-  d: "M19 10v2a7 7 0 0 1-14 0v-2",
-  key: "1vc78b"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "19",
-  y2: "22",
-  key: "x3vr5v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Minimize2 = createLucideIcon("Minimize2", [["polyline", {
-  points: "4 14 10 14 10 20",
-  key: "11kfnr"
-}], ["polyline", {
-  points: "20 10 14 10 14 4",
-  key: "rlmsce"
-}], ["line", {
-  x1: "14",
-  x2: "21",
-  y1: "10",
-  y2: "3",
-  key: "o5lafz"
-}], ["line", {
-  x1: "3",
-  x2: "10",
-  y1: "21",
-  y2: "14",
-  key: "1atl0r"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Minus = createLucideIcon("Minus", [["path", {
-  d: "M5 12h14",
-  key: "1ays0h"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Monitor = createLucideIcon("Monitor", [["rect", {
-  width: "20",
-  height: "14",
-  x: "2",
-  y: "3",
-  rx: "2",
-  key: "48i651"
-}], ["line", {
-  x1: "8",
-  x2: "16",
-  y1: "21",
-  y2: "21",
-  key: "1svkeh"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "17",
-  y2: "21",
-  key: "vw1qmm"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Moon = createLucideIcon("Moon", [["path", {
-  d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z",
-  key: "a7tn18"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const MousePointer2 = createLucideIcon("MousePointer2", [["path", {
-  d: "M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z",
-  key: "edeuup"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Music2 = createLucideIcon("Music2", [["circle", {
-  cx: "8",
-  cy: "18",
-  r: "4",
-  key: "1fc0mg"
-}], ["path", {
-  d: "M12 18V2l7 4",
-  key: "g04rme"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Music = createLucideIcon("Music", [["path", {
-  d: "M9 18V5l12-2v13",
-  key: "1jmyc2"
-}], ["circle", {
-  cx: "6",
-  cy: "18",
-  r: "3",
-  key: "fqmcym"
-}], ["circle", {
-  cx: "18",
-  cy: "16",
-  r: "3",
-  key: "1hluhg"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Network = createLucideIcon("Network", [["rect", {
-  x: "16",
-  y: "16",
-  width: "6",
-  height: "6",
-  rx: "1",
-  key: "4q2zg0"
-}], ["rect", {
-  x: "2",
-  y: "16",
-  width: "6",
-  height: "6",
-  rx: "1",
-  key: "8cvhb9"
-}], ["rect", {
-  x: "9",
-  y: "2",
-  width: "6",
-  height: "6",
-  rx: "1",
-  key: "1egb70"
-}], ["path", {
-  d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3",
-  key: "1jsf9p"
-}], ["path", {
-  d: "M12 12V8",
-  key: "2874zd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const NotebookPen = createLucideIcon("NotebookPen", [["path", {
-  d: "M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4",
-  key: "re6nr2"
-}], ["path", {
-  d: "M2 6h4",
-  key: "aawbzj"
-}], ["path", {
-  d: "M2 10h4",
-  key: "l0bgd4"
-}], ["path", {
-  d: "M2 14h4",
-  key: "1gsvsf"
-}], ["path", {
-  d: "M2 18h4",
-  key: "1bu2t1"
-}], ["path", {
-  d: "M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z",
-  key: "pqwjuv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const OctagonX = createLucideIcon("OctagonX", [["path", {
-  d: "m15 9-6 6",
-  key: "1uzhvr"
-}], ["path", {
-  d: "M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z",
-  key: "2d38gg"
-}], ["path", {
-  d: "m9 9 6 6",
-  key: "z0biqf"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Package = createLucideIcon("Package", [["path", {
-  d: "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z",
-  key: "1a0edw"
-}], ["path", {
-  d: "M12 22V12",
-  key: "d0xqtd"
-}], ["path", {
-  d: "m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7",
-  key: "yx3hmr"
-}], ["path", {
-  d: "m7.5 4.27 9 5.15",
-  key: "1c824w"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Palette = createLucideIcon("Palette", [["circle", {
-  cx: "13.5",
-  cy: "6.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "1okk4w"
-}], ["circle", {
-  cx: "17.5",
-  cy: "10.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "f64h9f"
-}], ["circle", {
-  cx: "8.5",
-  cy: "7.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "fotxhn"
-}], ["circle", {
-  cx: "6.5",
-  cy: "12.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "qy21gx"
-}], ["path", {
-  d: "M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z",
-  key: "12rzf8"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PanelBottomClose = createLucideIcon("PanelBottomClose", [["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "afitv7"
-}], ["path", {
-  d: "M3 15h18",
-  key: "5xshup"
-}], ["path", {
-  d: "m15 8-3 3-3-3",
-  key: "1oxy1z"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PanelsTopLeft = createLucideIcon("PanelsTopLeft", [["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "afitv7"
-}], ["path", {
-  d: "M3 9h18",
-  key: "1pudct"
-}], ["path", {
-  d: "M9 21V9",
-  key: "1oto5p"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Paperclip = createLucideIcon("Paperclip", [["path", {
-  d: "M13.234 20.252 21 12.3",
-  key: "1cbrk9"
-}], ["path", {
-  d: "m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486",
-  key: "1pkts6"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Pause = createLucideIcon("Pause", [["rect", {
-  x: "14",
-  y: "4",
-  width: "4",
-  height: "16",
-  rx: "1",
-  key: "zuxfzm"
-}], ["rect", {
-  x: "6",
-  y: "4",
-  width: "4",
-  height: "16",
-  rx: "1",
-  key: "1okwgv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PenLine = createLucideIcon("PenLine", [["path", {
-  d: "M12 20h9",
-  key: "t2du7b"
-}], ["path", {
-  d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z",
-  key: "1ykcvy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PencilLine = createLucideIcon("PencilLine", [["path", {
-  d: "M12 20h9",
-  key: "t2du7b"
-}], ["path", {
-  d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z",
-  key: "1ykcvy"
-}], ["path", {
-  d: "m15 5 3 3",
-  key: "1w25hb"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PencilRuler = createLucideIcon("PencilRuler", [["path", {
-  d: "M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13",
-  key: "orapub"
-}], ["path", {
-  d: "m8 6 2-2",
-  key: "115y1s"
-}], ["path", {
-  d: "m18 16 2-2",
-  key: "ee94s4"
-}], ["path", {
-  d: "m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17",
-  key: "cfq27r"
-}], ["path", {
-  d: "M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z",
-  key: "1a8usu"
-}], ["path", {
-  d: "m15 5 4 4",
-  key: "1mk7zo"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Pencil = createLucideIcon("Pencil", [["path", {
-  d: "M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z",
-  key: "1a8usu"
-}], ["path", {
-  d: "m15 5 4 4",
-  key: "1mk7zo"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PinOff = createLucideIcon("PinOff", [["path", {
-  d: "M12 17v5",
-  key: "bb1du9"
-}], ["path", {
-  d: "M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89",
-  key: "znwnzq"
-}], ["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}], ["path", {
-  d: "M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11",
-  key: "c9qhm2"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Pin = createLucideIcon("Pin", [["path", {
-  d: "M12 17v5",
-  key: "bb1du9"
-}], ["path", {
-  d: "M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z",
-  key: "1nkz8b"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Play = createLucideIcon("Play", [["polygon", {
-  points: "6 3 20 12 6 21 6 3",
-  key: "1oa8hb"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Plug = createLucideIcon("Plug", [["path", {
-  d: "M12 22v-5",
-  key: "1ega77"
-}], ["path", {
-  d: "M9 8V2",
-  key: "14iosj"
-}], ["path", {
-  d: "M15 8V2",
-  key: "18g5xt"
-}], ["path", {
-  d: "M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z",
-  key: "osxo6l"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Plus = createLucideIcon("Plus", [["path", {
-  d: "M5 12h14",
-  key: "1ays0h"
-}], ["path", {
-  d: "M12 5v14",
-  key: "s699le"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Power = createLucideIcon("Power", [["path", {
-  d: "M12 2v10",
-  key: "mnfbl"
-}], ["path", {
-  d: "M18.4 6.6a9 9 0 1 1-12.77.04",
-  key: "obofu9"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Puzzle = createLucideIcon("Puzzle", [["path", {
-  d: "M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z",
-  key: "w46dr5"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ReceiptText = createLucideIcon("ReceiptText", [["path", {
-  d: "M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z",
-  key: "q3az6g"
-}], ["path", {
-  d: "M14 8H8",
-  key: "1l3xfs"
-}], ["path", {
-  d: "M16 12H8",
-  key: "1fr5h0"
-}], ["path", {
-  d: "M13 16H8",
-  key: "wsln4y"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Redo2 = createLucideIcon("Redo2", [["path", {
-  d: "m15 14 5-5-5-5",
-  key: "12vg1m"
-}], ["path", {
-  d: "M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13",
-  key: "6uklza"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Regex = createLucideIcon("Regex", [["path", {
-  d: "M17 3v10",
-  key: "15fgeh"
-}], ["path", {
-  d: "m12.67 5.5 8.66 5",
-  key: "1gpheq"
-}], ["path", {
-  d: "m12.67 10.5 8.66-5",
-  key: "1dkfa6"
-}], ["path", {
-  d: "M9 17a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2z",
-  key: "swwfx4"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Repeat2 = createLucideIcon("Repeat2", [["path", {
-  d: "m2 9 3-3 3 3",
-  key: "1ltn5i"
-}], ["path", {
-  d: "M13 18H7a2 2 0 0 1-2-2V6",
-  key: "1r6tfw"
-}], ["path", {
-  d: "m22 15-3 3-3-3",
-  key: "4rnwn2"
-}], ["path", {
-  d: "M11 6h6a2 2 0 0 1 2 2v10",
-  key: "2f72bc"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ReplaceAll = createLucideIcon("ReplaceAll", [["path", {
-  d: "M14 14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2",
-  key: "1yyzbs"
-}], ["path", {
-  d: "M14 4a2 2 0 0 1 2-2",
-  key: "1w2hp7"
-}], ["path", {
-  d: "M16 10a2 2 0 0 1-2-2",
-  key: "shjach"
-}], ["path", {
-  d: "M20 14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2",
-  key: "zfj4xr"
-}], ["path", {
-  d: "M20 2a2 2 0 0 1 2 2",
-  key: "188mtx"
-}], ["path", {
-  d: "M22 8a2 2 0 0 1-2 2",
-  key: "ddf4tu"
-}], ["path", {
-  d: "m3 7 3 3 3-3",
-  key: "x25e72"
-}], ["path", {
-  d: "M6 10V5a 3 3 0 0 1 3-3h1",
-  key: "1ageje"
-}], ["rect", {
-  x: "2",
-  y: "14",
-  width: "8",
-  height: "8",
-  rx: "2",
-  key: "4rksxw"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Replace = createLucideIcon("Replace", [["path", {
-  d: "M14 4a2 2 0 0 1 2-2",
-  key: "1w2hp7"
-}], ["path", {
-  d: "M16 10a2 2 0 0 1-2-2",
-  key: "shjach"
-}], ["path", {
-  d: "M20 2a2 2 0 0 1 2 2",
-  key: "188mtx"
-}], ["path", {
-  d: "M22 8a2 2 0 0 1-2 2",
-  key: "ddf4tu"
-}], ["path", {
-  d: "m3 7 3 3 3-3",
-  key: "x25e72"
-}], ["path", {
-  d: "M6 10V5a3 3 0 0 1 3-3h1",
-  key: "3y3t5z"
-}], ["rect", {
-  x: "2",
-  y: "14",
-  width: "8",
-  height: "8",
-  rx: "2",
-  key: "4rksxw"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const RotateCcw = createLucideIcon("RotateCcw", [["path", {
-  d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8",
-  key: "1357e3"
-}], ["path", {
-  d: "M3 3v5h5",
-  key: "1xhq8a"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const RotateCw = createLucideIcon("RotateCw", [["path", {
-  d: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8",
-  key: "1p45f6"
-}], ["path", {
-  d: "M21 3v5h-5",
-  key: "1q7to0"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Save = createLucideIcon("Save", [["path", {
-  d: "M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
-  key: "1c8476"
-}], ["path", {
-  d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7",
-  key: "1ydtos"
-}], ["path", {
-  d: "M7 3v4a1 1 0 0 0 1 1h7",
-  key: "t51u73"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Scan = createLucideIcon("Scan", [["path", {
-  d: "M3 7V5a2 2 0 0 1 2-2h2",
-  key: "aa7l1z"
-}], ["path", {
-  d: "M17 3h2a2 2 0 0 1 2 2v2",
-  key: "4qcy5o"
-}], ["path", {
-  d: "M21 17v2a2 2 0 0 1-2 2h-2",
-  key: "6vwrx8"
-}], ["path", {
-  d: "M7 21H5a2 2 0 0 1-2-2v-2",
-  key: "ioqczr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Scissors = createLucideIcon("Scissors", [["circle", {
-  cx: "6",
-  cy: "6",
-  r: "3",
-  key: "1lh9wr"
-}], ["path", {
-  d: "M8.12 8.12 12 12",
-  key: "1alkpv"
-}], ["path", {
-  d: "M20 4 8.12 15.88",
-  key: "xgtan2"
-}], ["circle", {
-  cx: "6",
-  cy: "18",
-  r: "3",
-  key: "fqmcym"
-}], ["path", {
-  d: "M14.8 14.8 20 20",
-  key: "ptml3r"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ScrollText = createLucideIcon("ScrollText", [["path", {
-  d: "M15 12h-5",
-  key: "r7krc0"
-}], ["path", {
-  d: "M15 8h-5",
-  key: "1khuty"
-}], ["path", {
-  d: "M19 17V5a2 2 0 0 0-2-2H4",
-  key: "zz82l3"
-}], ["path", {
-  d: "M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3",
-  key: "1ph1d7"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Search = createLucideIcon("Search", [["circle", {
-  cx: "11",
-  cy: "11",
-  r: "8",
-  key: "4ej97u"
-}], ["path", {
-  d: "m21 21-4.3-4.3",
-  key: "1qie3q"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Send = createLucideIcon("Send", [["path", {
-  d: "M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z",
-  key: "1ffxy3"
-}], ["path", {
-  d: "m21.854 2.147-10.94 10.939",
-  key: "12cjpa"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ServerOff = createLucideIcon("ServerOff", [["path", {
-  d: "M7 2h13a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-5",
-  key: "bt2siv"
-}], ["path", {
-  d: "M10 10 2.5 2.5C2 2 2 2.5 2 5v3a2 2 0 0 0 2 2h6z",
-  key: "1hjrv1"
-}], ["path", {
-  d: "M22 17v-1a2 2 0 0 0-2-2h-1",
-  key: "1iynyr"
-}], ["path", {
-  d: "M4 14a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16.5l1-.5.5.5-8-8H4z",
-  key: "161ggg"
-}], ["path", {
-  d: "M6 18h.01",
-  key: "uhywen"
-}], ["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Server = createLucideIcon("Server", [["rect", {
-  width: "20",
-  height: "8",
-  x: "2",
-  y: "2",
-  rx: "2",
-  ry: "2",
-  key: "ngkwjq"
-}], ["rect", {
-  width: "20",
-  height: "8",
-  x: "2",
-  y: "14",
-  rx: "2",
-  ry: "2",
-  key: "iecqi9"
-}], ["line", {
-  x1: "6",
-  x2: "6.01",
-  y1: "6",
-  y2: "6",
-  key: "16zg32"
-}], ["line", {
-  x1: "6",
-  x2: "6.01",
-  y1: "18",
-  y2: "18",
-  key: "nzw8ys"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Settings2 = createLucideIcon("Settings2", [["path", {
-  d: "M20 7h-9",
-  key: "3s1dr2"
-}], ["path", {
-  d: "M14 17H5",
-  key: "gfn3mx"
-}], ["circle", {
-  cx: "17",
-  cy: "17",
-  r: "3",
-  key: "18b49y"
-}], ["circle", {
-  cx: "7",
-  cy: "7",
-  r: "3",
-  key: "dfmy0x"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Settings = createLucideIcon("Settings", [["path", {
-  d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z",
-  key: "1qme2f"
-}], ["circle", {
-  cx: "12",
-  cy: "12",
-  r: "3",
-  key: "1v7zrd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Shapes = createLucideIcon("Shapes", [["path", {
-  d: "M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z",
-  key: "1bo67w"
-}], ["rect", {
-  x: "3",
-  y: "14",
-  width: "7",
-  height: "7",
-  rx: "1",
-  key: "1bkyp8"
-}], ["circle", {
-  cx: "17.5",
-  cy: "17.5",
-  r: "3.5",
-  key: "w3z12y"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ShieldAlert = createLucideIcon("ShieldAlert", [["path", {
-  d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-  key: "oel41y"
-}], ["path", {
-  d: "M12 8v4",
-  key: "1got3b"
-}], ["path", {
-  d: "M12 16h.01",
-  key: "1drbdi"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ShieldCheck = createLucideIcon("ShieldCheck", [["path", {
-  d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-  key: "oel41y"
-}], ["path", {
-  d: "m9 12 2 2 4-4",
-  key: "dzmm74"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ShieldOff = createLucideIcon("ShieldOff", [["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}], ["path", {
-  d: "M5 5a1 1 0 0 0-1 1v7c0 5 3.5 7.5 7.67 8.94a1 1 0 0 0 .67.01c2.35-.82 4.48-1.97 5.9-3.71",
-  key: "1jlk70"
-}], ["path", {
-  d: "M9.309 3.652A12.252 12.252 0 0 0 11.24 2.28a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7a9.784 9.784 0 0 1-.08 1.264",
-  key: "18rp1v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ShoppingBag = createLucideIcon("ShoppingBag", [["path", {
-  d: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z",
-  key: "hou9p0"
-}], ["path", {
-  d: "M3 6h18",
-  key: "d0wm0j"
-}], ["path", {
-  d: "M16 10a4 4 0 0 1-8 0",
-  key: "1ltviw"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Shuffle = createLucideIcon("Shuffle", [["path", {
-  d: "m18 14 4 4-4 4",
-  key: "10pe0f"
-}], ["path", {
-  d: "m18 2 4 4-4 4",
-  key: "pucp1d"
-}], ["path", {
-  d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22",
-  key: "1ailkh"
-}], ["path", {
-  d: "M2 6h1.972a4 4 0 0 1 3.6 2.2",
-  key: "km57vx"
-}], ["path", {
-  d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45",
-  key: "os18l9"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Slash = createLucideIcon("Slash", [["path", {
-  d: "M22 2 2 22",
-  key: "y4kqgn"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const SlidersHorizontal = createLucideIcon("SlidersHorizontal", [["line", {
-  x1: "21",
-  x2: "14",
-  y1: "4",
-  y2: "4",
-  key: "obuewd"
-}], ["line", {
-  x1: "10",
-  x2: "3",
-  y1: "4",
-  y2: "4",
-  key: "1q6298"
-}], ["line", {
-  x1: "21",
-  x2: "12",
-  y1: "12",
-  y2: "12",
-  key: "1iu8h1"
-}], ["line", {
-  x1: "8",
-  x2: "3",
-  y1: "12",
-  y2: "12",
-  key: "ntss68"
-}], ["line", {
-  x1: "21",
-  x2: "16",
-  y1: "20",
-  y2: "20",
-  key: "14d8ph"
-}], ["line", {
-  x1: "12",
-  x2: "3",
-  y1: "20",
-  y2: "20",
-  key: "m0wm8r"
-}], ["line", {
-  x1: "14",
-  x2: "14",
-  y1: "2",
-  y2: "6",
-  key: "14e1ph"
-}], ["line", {
-  x1: "8",
-  x2: "8",
-  y1: "10",
-  y2: "14",
-  key: "1i6ji0"
-}], ["line", {
-  x1: "16",
-  x2: "16",
-  y1: "18",
-  y2: "22",
-  key: "1lctlv"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Smartphone = createLucideIcon("Smartphone", [["rect", {
-  width: "14",
-  height: "20",
-  x: "5",
-  y: "2",
-  rx: "2",
-  ry: "2",
-  key: "1yt0o3"
-}], ["path", {
-  d: "M12 18h.01",
-  key: "mhygvu"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Sparkles = createLucideIcon("Sparkles", [["path", {
-  d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",
-  key: "4pj2yx"
-}], ["path", {
-  d: "M20 3v4",
-  key: "1olli1"
-}], ["path", {
-  d: "M22 5h-4",
-  key: "1gvqau"
-}], ["path", {
-  d: "M4 17v2",
-  key: "vumght"
-}], ["path", {
-  d: "M5 18H3",
-  key: "zchphs"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Speech = createLucideIcon("Speech", [["path", {
-  d: "M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20",
-  key: "11atix"
-}], ["path", {
-  d: "M19.8 17.8a7.5 7.5 0 0 0 .003-10.603",
-  key: "yol142"
-}], ["path", {
-  d: "M17 15a3.5 3.5 0 0 0-.025-4.975",
-  key: "ssbmkc"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Split = createLucideIcon("Split", [["path", {
-  d: "M16 3h5v5",
-  key: "1806ms"
-}], ["path", {
-  d: "M8 3H3v5",
-  key: "15dfkv"
-}], ["path", {
-  d: "M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3",
-  key: "1qrqzj"
-}], ["path", {
-  d: "m15 9 6-6",
-  key: "ko1vev"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Sprout = createLucideIcon("Sprout", [["path", {
-  d: "M7 20h10",
-  key: "e6iznv"
-}], ["path", {
-  d: "M10 20c5.5-2.5.8-6.4 3-10",
-  key: "161w41"
-}], ["path", {
-  d: "M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z",
-  key: "9gtqwd"
-}], ["path", {
-  d: "M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z",
-  key: "bkxnd2"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const SquareDashed = createLucideIcon("SquareDashed", [["path", {
-  d: "M5 3a2 2 0 0 0-2 2",
-  key: "y57alp"
-}], ["path", {
-  d: "M19 3a2 2 0 0 1 2 2",
-  key: "18rm91"
-}], ["path", {
-  d: "M21 19a2 2 0 0 1-2 2",
-  key: "1j7049"
-}], ["path", {
-  d: "M5 21a2 2 0 0 1-2-2",
-  key: "sbafld"
-}], ["path", {
-  d: "M9 3h1",
-  key: "1yesri"
-}], ["path", {
-  d: "M9 21h1",
-  key: "15o7lz"
-}], ["path", {
-  d: "M14 3h1",
-  key: "1ec4yj"
-}], ["path", {
-  d: "M14 21h1",
-  key: "v9vybs"
-}], ["path", {
-  d: "M3 9v1",
-  key: "1r0deq"
-}], ["path", {
-  d: "M21 9v1",
-  key: "mxsmne"
-}], ["path", {
-  d: "M3 14v1",
-  key: "vnatye"
-}], ["path", {
-  d: "M21 14v1",
-  key: "169vum"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const SquareMousePointer = createLucideIcon("SquareMousePointer", [["path", {
-  d: "M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z",
-  key: "xwnzip"
-}], ["path", {
-  d: "M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6",
-  key: "14rsvq"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Square = createLucideIcon("Square", [["rect", {
-  width: "18",
-  height: "18",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "afitv7"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Stamp = createLucideIcon("Stamp", [["path", {
-  d: "M5 22h14",
-  key: "ehvnwv"
-}], ["path", {
-  d: "M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z",
-  key: "1sy9ra"
-}], ["path", {
-  d: "M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.66 0-3 1-3 3s1 2 1 3.5V13",
-  key: "cnxgux"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Sun = createLucideIcon("Sun", [["circle", {
-  cx: "12",
-  cy: "12",
-  r: "4",
-  key: "4exip2"
-}], ["path", {
-  d: "M12 2v2",
-  key: "tus03m"
-}], ["path", {
-  d: "M12 20v2",
-  key: "1lh1kg"
-}], ["path", {
-  d: "m4.93 4.93 1.41 1.41",
-  key: "149t6j"
-}], ["path", {
-  d: "m17.66 17.66 1.41 1.41",
-  key: "ptbguv"
-}], ["path", {
-  d: "M2 12h2",
-  key: "1t8f8n"
-}], ["path", {
-  d: "M20 12h2",
-  key: "1q8mjw"
-}], ["path", {
-  d: "m6.34 17.66-1.41 1.41",
-  key: "1m8zz5"
-}], ["path", {
-  d: "m19.07 4.93-1.41 1.41",
-  key: "1shlcs"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const SwatchBook = createLucideIcon("SwatchBook", [["path", {
-  d: "M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z",
-  key: "1ldrpk"
-}], ["path", {
-  d: "M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7",
-  key: "11i5po"
-}], ["path", {
-  d: "M 7 17h.01",
-  key: "1euzgo"
-}], ["path", {
-  d: "m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8",
-  key: "o2gii7"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Table2 = createLucideIcon("Table2", [["path", {
-  d: "M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18",
-  key: "gugj83"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Tag$1 = createLucideIcon("Tag", [["path", {
-  d: "M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z",
-  key: "vktsd0"
-}], ["circle", {
-  cx: "7.5",
-  cy: "7.5",
-  r: ".5",
-  fill: "currentColor",
-  key: "kqv944"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ThumbsDown = createLucideIcon("ThumbsDown", [["path", {
-  d: "M17 14V2",
-  key: "8ymqnk"
-}], ["path", {
-  d: "M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z",
-  key: "m61m77"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ThumbsUp = createLucideIcon("ThumbsUp", [["path", {
-  d: "M7 10v12",
-  key: "1qc93n"
-}], ["path", {
-  d: "M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z",
-  key: "emmmcr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Trash2 = createLucideIcon("Trash2", [["path", {
-  d: "M3 6h18",
-  key: "d0wm0j"
-}], ["path", {
-  d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6",
-  key: "4alrt4"
-}], ["path", {
-  d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2",
-  key: "v07s0e"
-}], ["line", {
-  x1: "10",
-  x2: "10",
-  y1: "11",
-  y2: "17",
-  key: "1uufr5"
-}], ["line", {
-  x1: "14",
-  x2: "14",
-  y1: "11",
-  y2: "17",
-  key: "xtxkd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const TriangleAlert = createLucideIcon("TriangleAlert", [["path", {
-  d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",
-  key: "wmoenq"
-}], ["path", {
-  d: "M12 9v4",
-  key: "juzpu7"
-}], ["path", {
-  d: "M12 17h.01",
-  key: "p32p05"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Type$1 = createLucideIcon("Type", [["polyline", {
-  points: "4 7 4 4 20 4 20 7",
-  key: "1nosan"
-}], ["line", {
-  x1: "9",
-  x2: "15",
-  y1: "20",
-  y2: "20",
-  key: "swin9y"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "4",
-  y2: "20",
-  key: "1tx1rr"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Underline$1 = createLucideIcon("Underline", [["path", {
-  d: "M6 4v6a6 6 0 0 0 12 0V4",
-  key: "9kb039"
-}], ["line", {
-  x1: "4",
-  x2: "20",
-  y1: "20",
-  y2: "20",
-  key: "nun2al"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Undo2 = createLucideIcon("Undo2", [["path", {
-  d: "M9 14 4 9l5-5",
-  key: "102s5s"
-}], ["path", {
-  d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11",
-  key: "f3b9sd"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Upload = createLucideIcon("Upload", [["path", {
-  d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4",
-  key: "ih7n3h"
-}], ["polyline", {
-  points: "17 8 12 3 7 8",
-  key: "t8dd8p"
-}], ["line", {
-  x1: "12",
-  x2: "12",
-  y1: "3",
-  y2: "15",
-  key: "widbto"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const UserRoundPlus = createLucideIcon("UserRoundPlus", [["path", {
-  d: "M2 21a8 8 0 0 1 13.292-6",
-  key: "bjp14o"
-}], ["circle", {
-  cx: "10",
-  cy: "8",
-  r: "5",
-  key: "o932ke"
-}], ["path", {
-  d: "M19 16v6",
-  key: "tddt3s"
-}], ["path", {
-  d: "M22 19h-6",
-  key: "vcuq98"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const UserRound = createLucideIcon("UserRound", [["circle", {
-  cx: "12",
-  cy: "8",
-  r: "5",
-  key: "1hypcn"
-}], ["path", {
-  d: "M20 21a8 8 0 0 0-16 0",
-  key: "rfgkzh"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const User = createLucideIcon("User", [["path", {
-  d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",
-  key: "975kel"
-}], ["circle", {
-  cx: "12",
-  cy: "7",
-  r: "4",
-  key: "17ys0d"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Users = createLucideIcon("Users", [["path", {
-  d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
-  key: "1yyitq"
-}], ["circle", {
-  cx: "9",
-  cy: "7",
-  r: "4",
-  key: "nufk8"
-}], ["path", {
-  d: "M22 21v-2a4 4 0 0 0-3-3.87",
-  key: "kshegd"
-}], ["path", {
-  d: "M16 3.13a4 4 0 0 1 0 7.75",
-  key: "1da9ce"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const VideoOff = createLucideIcon("VideoOff", [["path", {
-  d: "M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196",
-  key: "w8jjjt"
-}], ["path", {
-  d: "M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2",
-  key: "1xawa7"
-}], ["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Video = createLucideIcon("Video", [["path", {
-  d: "m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5",
-  key: "ftymec"
-}], ["rect", {
-  x: "2",
-  y: "6",
-  width: "14",
-  height: "12",
-  rx: "2",
-  key: "158x01"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Volume2 = createLucideIcon("Volume2", [["path", {
-  d: "M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z",
-  key: "uqj9uw"
-}], ["path", {
-  d: "M16 9a5 5 0 0 1 0 6",
-  key: "1q6k2b"
-}], ["path", {
-  d: "M19.364 18.364a9 9 0 0 0 0-12.728",
-  key: "ijwkga"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const VolumeX = createLucideIcon("VolumeX", [["path", {
-  d: "M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z",
-  key: "uqj9uw"
-}], ["line", {
-  x1: "22",
-  x2: "16",
-  y1: "9",
-  y2: "15",
-  key: "1ewh16"
-}], ["line", {
-  x1: "16",
-  x2: "22",
-  y1: "9",
-  y2: "15",
-  key: "5ykzw1"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const WandSparkles = createLucideIcon("WandSparkles", [["path", {
-  d: "m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72",
-  key: "ul74o6"
-}], ["path", {
-  d: "m14 7 3 3",
-  key: "1r5n42"
-}], ["path", {
-  d: "M5 6v4",
-  key: "ilb8ba"
-}], ["path", {
-  d: "M19 14v4",
-  key: "blhpug"
-}], ["path", {
-  d: "M10 2v2",
-  key: "7u0qdc"
-}], ["path", {
-  d: "M7 8H3",
-  key: "zfb6yr"
-}], ["path", {
-  d: "M21 16h-4",
-  key: "1cnmox"
-}], ["path", {
-  d: "M11 3H9",
-  key: "1obp7u"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const WholeWord = createLucideIcon("WholeWord", [["circle", {
-  cx: "7",
-  cy: "12",
-  r: "3",
-  key: "12clwm"
-}], ["path", {
-  d: "M10 9v6",
-  key: "17i7lo"
-}], ["circle", {
-  cx: "17",
-  cy: "12",
-  r: "3",
-  key: "gl7c2s"
-}], ["path", {
-  d: "M14 7v8",
-  key: "dl84cr"
-}], ["path", {
-  d: "M22 17v1c0 .5-.5 1-1 1H3c-.5 0-1-.5-1-1v-1",
-  key: "lt2kga"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const WifiOff = createLucideIcon("WifiOff", [["path", {
-  d: "M12 20h.01",
-  key: "zekei9"
-}], ["path", {
-  d: "M8.5 16.429a5 5 0 0 1 7 0",
-  key: "1bycff"
-}], ["path", {
-  d: "M5 12.859a10 10 0 0 1 5.17-2.69",
-  key: "1dl1wf"
-}], ["path", {
-  d: "M19 12.859a10 10 0 0 0-2.007-1.523",
-  key: "4k23kn"
-}], ["path", {
-  d: "M2 8.82a15 15 0 0 1 4.177-2.643",
-  key: "1grhjp"
-}], ["path", {
-  d: "M22 8.82a15 15 0 0 0-11.288-3.764",
-  key: "z3jwby"
-}], ["path", {
-  d: "m2 2 20 20",
-  key: "1ooewy"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Wifi = createLucideIcon("Wifi", [["path", {
-  d: "M12 20h.01",
-  key: "zekei9"
-}], ["path", {
-  d: "M2 8.82a15 15 0 0 1 20 0",
-  key: "dnpr2z"
-}], ["path", {
-  d: "M5 12.859a10 10 0 0 1 14 0",
-  key: "1x1e6c"
-}], ["path", {
-  d: "M8.5 16.429a5 5 0 0 1 7 0",
-  key: "1bycff"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Workflow = createLucideIcon("Workflow", [["rect", {
-  width: "8",
-  height: "8",
-  x: "3",
-  y: "3",
-  rx: "2",
-  key: "by2w9f"
-}], ["path", {
-  d: "M7 11v4a2 2 0 0 0 2 2h4",
-  key: "xkn7yn"
-}], ["rect", {
-  width: "8",
-  height: "8",
-  x: "13",
-  y: "13",
-  rx: "2",
-  key: "1cgmvn"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Wrench = createLucideIcon("Wrench", [["path", {
-  d: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
-  key: "cbrjhi"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const X$7 = createLucideIcon("X", [["path", {
-  d: "M18 6 6 18",
-  key: "1bl5f8"
-}], ["path", {
-  d: "m6 6 12 12",
-  key: "d8bk6v"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Zap = createLucideIcon("Zap", [["path", {
-  d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z",
-  key: "1xq2db"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ZoomIn = createLucideIcon("ZoomIn", [["circle", {
-  cx: "11",
-  cy: "11",
-  r: "8",
-  key: "4ej97u"
-}], ["line", {
-  x1: "21",
-  x2: "16.65",
-  y1: "21",
-  y2: "16.65",
-  key: "13gj7c"
-}], ["line", {
-  x1: "11",
-  x2: "11",
-  y1: "8",
-  y2: "14",
-  key: "1vmskp"
-}], ["line", {
-  x1: "8",
-  x2: "14",
-  y1: "11",
-  y2: "11",
-  key: "durymu"
-}]]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ZoomOut = createLucideIcon("ZoomOut", [["circle", {
-  cx: "11",
-  cy: "11",
-  r: "8",
-  key: "4ej97u"
-}], ["line", {
-  x1: "21",
-  x2: "16.65",
-  y1: "21",
-  y2: "16.65",
-  key: "13gj7c"
-}], ["line", {
-  x1: "8",
-  x2: "14",
-  y1: "11",
-  y2: "11",
-  key: "durymu"
-}]]);
+
 const UNINITIALIZED = {};
 function useRefWithInit(init2, initArg) {
   const ref = reactExports.useRef(UNINITIALIZED);
@@ -11620,7 +9304,9 @@ const isWebKit$1 = typeof CSS === "undefined" || !CSS.supports ? false : CSS.sup
 const isIOS =
 // iPads can claim to be MacIntel
 nav$2.platform === "MacIntel" && nav$2.maxTouchPoints > 1 ? true : /iP(hone|ad|od)|iOS/.test(nav$2.platform);
+const isSafari$1 = hasNavigator && /apple/i.test(navigator.vendor);
 const isAndroid$1 = hasNavigator && /android/i.test(platform$1) || /android/i.test(userAgent);
+const isMac$1 = hasNavigator && platform$1.toLowerCase().startsWith("mac") && !navigator.maxTouchPoints;
 const isJSDOM = userAgent.includes("jsdom/");
 function getNavigatorData() {
   if (!hasNavigator) {
@@ -11698,6 +9384,21 @@ function contains$1(parent, child) {
   }
   return false;
 }
+function isTargetInsideEnabledTrigger(target, triggerElements) {
+  if (!isElement(target)) {
+    return false;
+  }
+  const targetElement = target;
+  if (triggerElements.hasElement(targetElement)) {
+    return !targetElement.hasAttribute("data-trigger-disabled");
+  }
+  for (const [, trigger] of triggerElements.entries()) {
+    if (contains$1(trigger, targetElement)) {
+      return !trigger.hasAttribute("data-trigger-disabled");
+    }
+  }
+  return false;
+}
 function getTarget(event) {
   if ("composedPath" in event) {
     return event.composedPath()[0];
@@ -11726,6 +9427,16 @@ function isTypeableCombobox(element2) {
   }
   return element2.getAttribute("role") === "combobox" && isTypeableElement(element2);
 }
+function matchesFocusVisible(element2) {
+  if (!element2 || isJSDOM) {
+    return true;
+  }
+  try {
+    return element2.matches(":focus-visible");
+  } catch (_e2) {
+    return true;
+  }
+}
 function getFloatingFocusElement(floatingElement) {
   if (!floatingElement) {
     return null;
@@ -11735,6 +9446,18 @@ function getFloatingFocusElement(floatingElement) {
 function getNodeChildren(nodes, id2, onlyOpenChildren = true) {
   const directChildren = nodes.filter(node2 => node2.parentId === id2 && (!onlyOpenChildren || node2.context?.open));
   return directChildren.flatMap(child => [child, ...getNodeChildren(nodes, child.id, onlyOpenChildren)]);
+}
+function getNodeAncestors(nodes, id2) {
+  let allAncestors = [];
+  let currentParentId = nodes.find(node2 => node2.id === id2)?.parentId;
+  while (currentParentId) {
+    const currentNode = nodes.find(node2 => node2.id === currentParentId);
+    currentParentId = currentNode?.parentId;
+    if (currentNode) {
+      allAncestors = allAncestors.concat(currentNode);
+    }
+  }
+  return allAncestors;
 }
 function stopEvent$2(event) {
   event.preventDefault();
@@ -12654,6 +10377,27 @@ const visuallyHiddenInput = {
   ...visuallyHiddenBase,
   position: "absolute"
 };
+const FocusGuard = /* @__PURE__ */reactExports.forwardRef(function FocusGuard2(props, ref) {
+  const [role, setRole] = reactExports.useState();
+  useIsoLayoutEffect(() => {
+    if (isSafari$1) {
+      setRole("button");
+    }
+  }, []);
+  const restProps = {
+    tabIndex: 0,
+    // Role is only for VoiceOver
+    role
+  };
+  return /* @__PURE__ */jsxRuntimeExports.jsx("span", {
+    ...props,
+    ref,
+    style: visuallyHidden,
+    "aria-hidden": role ? void 0 : true,
+    ...restProps,
+    "data-base-ui-focus-guard": ""
+  });
+});
 function createAttribute(name2) {
   return `data-base-ui-${name2}`;
 }
@@ -12676,12 +10420,45 @@ function enqueueFocus(el, options = {}) {
     rafId = requestAnimationFrame(exec);
   }
 }
+const counters = {
+  inert: /* @__PURE__ */new WeakMap(),
+  "aria-hidden": /* @__PURE__ */new WeakMap()
+};
+const markerName = "data-base-ui-inert";
+const uncontrolledElementsSets = {
+  inert: /* @__PURE__ */new WeakSet(),
+  "aria-hidden": /* @__PURE__ */new WeakSet()
+};
+function getUncontrolledElementsSet(controlAttribute) {
+  return uncontrolledElementsSets[controlAttribute];
+}
 function unwrapHost(node2) {
   if (!node2) {
     return null;
   }
   return isShadowRoot(node2) ? node2.host : unwrapHost(node2.parentNode);
 }
+const correctElements = (parent, targets) => targets.map(target => {
+  if (parent.contains(target)) {
+    return target;
+  }
+  const correctedTarget = unwrapHost(target);
+  if (parent.contains(correctedTarget)) {
+    return correctedTarget;
+  }
+  return null;
+}).filter(x2 => x2 != null);
+const buildKeepSet = targets => {
+  const keep = /* @__PURE__ */new Set();
+  targets.forEach(target => {
+    let node2 = target;
+    while (node2 && !keep.has(node2)) {
+      keep.add(node2);
+      node2 = node2.parentNode;
+    }
+  });
+  return keep;
+};
 const SafeReact = {
   ...React$1
 };
@@ -12969,6 +10746,159 @@ function renderTag(Tag2, props) {
 const PortalContext = /* @__PURE__ */reactExports.createContext(null);
 const usePortalContext = () => reactExports.useContext(PortalContext);
 const attr = createAttribute("portal");
+function useFloatingPortalNode(props = {}) {
+  const {
+    ref,
+    container: containerProp,
+    componentProps = EMPTY_OBJECT,
+    elementProps
+  } = props;
+  const uniqueId = useId();
+  const portalContext = usePortalContext();
+  const parentPortalNode = portalContext?.portalNode;
+  const [containerElement, setContainerElement] = reactExports.useState(null);
+  const [portalNode, setPortalNode] = reactExports.useState(null);
+  const setPortalNodeRef = useStableCallback$1(node2 => {
+    if (node2 !== null) {
+      setPortalNode(node2);
+    }
+  });
+  const containerRef = reactExports.useRef(null);
+  useIsoLayoutEffect(() => {
+    if (containerProp === null) {
+      if (containerRef.current) {
+        containerRef.current = null;
+        setPortalNode(null);
+        setContainerElement(null);
+      }
+      return;
+    }
+    if (uniqueId == null) {
+      return;
+    }
+    const resolvedContainer = (containerProp && (isNode$1(containerProp) ? containerProp : containerProp.current)) ?? parentPortalNode ?? document.body;
+    if (resolvedContainer == null) {
+      if (containerRef.current) {
+        containerRef.current = null;
+        setPortalNode(null);
+        setContainerElement(null);
+      }
+      return;
+    }
+    if (containerRef.current !== resolvedContainer) {
+      containerRef.current = resolvedContainer;
+      setPortalNode(null);
+      setContainerElement(resolvedContainer);
+    }
+  }, [containerProp, parentPortalNode, uniqueId]);
+  const portalElement = useRenderElement("div", componentProps, {
+    ref: [ref, setPortalNodeRef],
+    props: [{
+      id: uniqueId,
+      [attr]: ""
+    }, elementProps]
+  });
+  const portalSubtree = containerElement && portalElement ? /* @__PURE__ */reactDomExports.createPortal(portalElement, containerElement) : null;
+  return {
+    portalNode,
+    portalSubtree
+  };
+}
+const FloatingPortal = /* @__PURE__ */reactExports.forwardRef(function FloatingPortal2(componentProps, forwardedRef) {
+  const {
+    children: children2,
+    container,
+    className,
+    render: render2,
+    renderGuards,
+    ...elementProps
+  } = componentProps;
+  const {
+    portalNode,
+    portalSubtree
+  } = useFloatingPortalNode({
+    container,
+    ref: forwardedRef,
+    componentProps,
+    elementProps
+  });
+  const beforeOutsideRef = reactExports.useRef(null);
+  const afterOutsideRef = reactExports.useRef(null);
+  const beforeInsideRef = reactExports.useRef(null);
+  const afterInsideRef = reactExports.useRef(null);
+  const [focusManagerState, setFocusManagerState] = reactExports.useState(null);
+  const modal = focusManagerState?.modal;
+  const open = focusManagerState?.open;
+  const shouldRenderGuards = typeof renderGuards === "boolean" ? renderGuards : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
+  reactExports.useEffect(() => {
+    if (!portalNode || modal) {
+      return void 0;
+    }
+    function onFocus(event) {
+      if (portalNode && event.relatedTarget && isOutsideEvent(event)) {
+        const focusing = event.type === "focusin";
+        const manageFocus = focusing ? enableFocusInside : disableFocusInside;
+        manageFocus(portalNode);
+      }
+    }
+    portalNode.addEventListener("focusin", onFocus, true);
+    portalNode.addEventListener("focusout", onFocus, true);
+    return () => {
+      portalNode.removeEventListener("focusin", onFocus, true);
+      portalNode.removeEventListener("focusout", onFocus, true);
+    };
+  }, [portalNode, modal]);
+  reactExports.useEffect(() => {
+    if (!portalNode || open) {
+      return;
+    }
+    enableFocusInside(portalNode);
+  }, [open, portalNode]);
+  const portalContextValue = reactExports.useMemo(() => ({
+    beforeOutsideRef,
+    afterOutsideRef,
+    beforeInsideRef,
+    afterInsideRef,
+    portalNode,
+    setFocusManagerState
+  }), [portalNode]);
+  return /* @__PURE__ */jsxRuntimeExports.jsxs(reactExports.Fragment, {
+    children: [portalSubtree, /* @__PURE__ */jsxRuntimeExports.jsxs(PortalContext.Provider, {
+      value: portalContextValue,
+      children: [shouldRenderGuards && portalNode && /* @__PURE__ */jsxRuntimeExports.jsx(FocusGuard, {
+        "data-type": "outside",
+        ref: beforeOutsideRef,
+        onFocus: event => {
+          if (isOutsideEvent(event, portalNode)) {
+            beforeInsideRef.current?.focus();
+          } else {
+            const domReference = focusManagerState ? focusManagerState.domReference : null;
+            const prevTabbable = getPreviousTabbable(domReference);
+            prevTabbable?.focus();
+          }
+        }
+      }), shouldRenderGuards && portalNode && /* @__PURE__ */jsxRuntimeExports.jsx("span", {
+        "aria-owns": portalNode.id,
+        style: ownerVisuallyHidden
+      }), portalNode && /* @__PURE__ */reactDomExports.createPortal(children2, portalNode), shouldRenderGuards && portalNode && /* @__PURE__ */jsxRuntimeExports.jsx(FocusGuard, {
+        "data-type": "outside",
+        ref: afterOutsideRef,
+        onFocus: event => {
+          if (isOutsideEvent(event, portalNode)) {
+            afterInsideRef.current?.focus();
+          } else {
+            const domReference = focusManagerState ? focusManagerState.domReference : null;
+            const nextTabbable = getNextTabbable(domReference);
+            nextTabbable?.focus();
+            if (focusManagerState?.closeOnFocusOut) {
+              focusManagerState?.onOpenChange(false, createChangeEventDetails(focusOut, event.nativeEvent));
+            }
+          }
+        }
+      })]
+    })]
+  });
+});
 function createEventEmitter() {
   const map3 = /* @__PURE__ */new Map();
   return {
@@ -13064,25 +10994,6 @@ function getEventType(event, lastInteractionType) {
   return "";
 }
 const LIST_LIMIT = 20;
-let previouslyFocusedElements = [];
-function clearDisconnectedPreviouslyFocusedElements() {
-  previouslyFocusedElements = previouslyFocusedElements.filter(entry => {
-    return entry.deref()?.isConnected;
-  });
-}
-function addPreviouslyFocusedElement(element2) {
-  clearDisconnectedPreviouslyFocusedElements();
-  if (element2 && getNodeName(element2) !== "body") {
-    previouslyFocusedElements.push(new WeakRef(element2));
-    if (previouslyFocusedElements.length > LIST_LIMIT) {
-      previouslyFocusedElements = previouslyFocusedElements.slice(-LIST_LIMIT);
-    }
-  }
-}
-function getPreviouslyFocusedElement() {
-  clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
-}
 function getFirstTabbableElement(container) {
   if (!container) {
     return null;
@@ -13092,6 +11003,15 @@ function getFirstTabbableElement(container) {
     return container;
   }
   return tabbable(container, tabbableOptions)[0] || container;
+}
+function isFocusable(element2) {
+  if (!element2 || !element2.isConnected) {
+    return false;
+  }
+  if (typeof element2.checkVisibility === "function") {
+    return element2.checkVisibility();
+  }
+  return isElementVisible(element2);
 }
 function handleTabIndex(floatingFocusElement, orderRef) {
   if (!orderRef.current.includes("floating") && !floatingFocusElement.getAttribute("role")?.includes("dialog")) {
@@ -13112,6 +11032,92 @@ function handleTabIndex(floatingFocusElement, orderRef) {
     floatingFocusElement.setAttribute("tabindex", "-1");
     floatingFocusElement.setAttribute("data-tabindex", "-1");
   }
+}
+function useClick(context, props = {}) {
+  const store = "rootStore" in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
+  const {
+    enabled = true,
+    event: eventOption = "click",
+    toggle = true,
+    ignoreMouse = false,
+    stickIfOpen = true,
+    touchOpenDelay = 0,
+    reason = triggerPress
+  } = props;
+  const pointerTypeRef = reactExports.useRef(void 0);
+  const frame2 = useAnimationFrame();
+  const touchOpenTimeout = useTimeout();
+  const reference = reactExports.useMemo(() => ({
+    onPointerDown(event) {
+      pointerTypeRef.current = event.pointerType;
+    },
+    onMouseDown(event) {
+      const pointerType = pointerTypeRef.current;
+      const nativeEvent = event.nativeEvent;
+      const open = store.select("open");
+      if (event.button !== 0 || eventOption === "click" || isMouseLikePointerType(pointerType, true) && ignoreMouse) {
+        return;
+      }
+      const openEvent = dataRef.current.openEvent;
+      const openEventType = openEvent?.type;
+      const hasClickedOnInactiveTrigger = store.select("domReferenceElement") !== event.currentTarget;
+      const nextOpen = open && hasClickedOnInactiveTrigger || !(open && toggle && (openEvent && stickIfOpen ? openEventType === "click" || openEventType === "mousedown" : true));
+      if (isTypeableElement(nativeEvent.target)) {
+        const details = createChangeEventDetails(reason, nativeEvent, nativeEvent.target);
+        if (nextOpen && pointerType === "touch" && touchOpenDelay > 0) {
+          touchOpenTimeout.start(touchOpenDelay, () => {
+            store.setOpen(true, details);
+          });
+        } else {
+          store.setOpen(nextOpen, details);
+        }
+        return;
+      }
+      const eventCurrentTarget = event.currentTarget;
+      frame2.request(() => {
+        const details = createChangeEventDetails(reason, nativeEvent, eventCurrentTarget);
+        if (nextOpen && pointerType === "touch" && touchOpenDelay > 0) {
+          touchOpenTimeout.start(touchOpenDelay, () => {
+            store.setOpen(true, details);
+          });
+        } else {
+          store.setOpen(nextOpen, details);
+        }
+      });
+    },
+    onClick(event) {
+      if (eventOption === "mousedown-only") {
+        return;
+      }
+      const pointerType = pointerTypeRef.current;
+      if (eventOption === "mousedown" && pointerType) {
+        pointerTypeRef.current = void 0;
+        return;
+      }
+      if (isMouseLikePointerType(pointerType, true) && ignoreMouse) {
+        return;
+      }
+      const open = store.select("open");
+      const openEvent = dataRef.current.openEvent;
+      const hasClickedOnInactiveTrigger = store.select("domReferenceElement") !== event.currentTarget;
+      const nextOpen = open && hasClickedOnInactiveTrigger || !(open && toggle && (openEvent && stickIfOpen ? isClickLikeEvent(openEvent) : true));
+      const details = createChangeEventDetails(reason, event.nativeEvent, event.currentTarget);
+      if (nextOpen && pointerType === "touch" && touchOpenDelay > 0) {
+        touchOpenTimeout.start(touchOpenDelay, () => {
+          store.setOpen(true, details);
+        });
+      } else {
+        store.setOpen(nextOpen, details);
+      }
+    },
+    onKeyDown() {
+      pointerTypeRef.current = void 0;
+    }
+  }), [dataRef, eventOption, ignoreMouse, store, stickIfOpen, toggle, frame2, touchOpenTimeout, touchOpenDelay, reason]);
+  return reactExports.useMemo(() => enabled ? {
+    reference
+  } : EMPTY_OBJECT, [enabled, reference]);
 }
 function createVirtualElement(domElement, data2) {
   let offsetX = null;
@@ -16506,6 +14512,143 @@ function useSyncedFloatingRootContext(options) {
   store.context.noEmit = noEmit;
   return store;
 }
+const isMacSafari = isMac$1 && isSafari$1;
+function useFocus$1(context, props = {}) {
+  const store = "rootStore" in context ? context.rootStore : context;
+  const {
+    events: events2,
+    dataRef
+  } = store.context;
+  const {
+    enabled = true,
+    delay
+  } = props;
+  const blockFocusRef = reactExports.useRef(false);
+  const blockedReferenceRef = reactExports.useRef(null);
+  const timeout2 = useTimeout();
+  const keyboardModalityRef = reactExports.useRef(true);
+  reactExports.useEffect(() => {
+    const domReference = store.select("domReferenceElement");
+    if (!enabled) {
+      return void 0;
+    }
+    const win2 = getWindow$1(domReference);
+    function onBlur() {
+      const currentDomReference = store.select("domReferenceElement");
+      if (!store.select("open") && isHTMLElement$1(currentDomReference) && currentDomReference === activeElement(ownerDocument(currentDomReference))) {
+        blockFocusRef.current = true;
+      }
+    }
+    function onKeyDown() {
+      keyboardModalityRef.current = true;
+    }
+    function onPointerDown2() {
+      keyboardModalityRef.current = false;
+    }
+    win2.addEventListener("blur", onBlur);
+    if (isMacSafari) {
+      win2.addEventListener("keydown", onKeyDown, true);
+      win2.addEventListener("pointerdown", onPointerDown2, true);
+    }
+    return () => {
+      win2.removeEventListener("blur", onBlur);
+      if (isMacSafari) {
+        win2.removeEventListener("keydown", onKeyDown, true);
+        win2.removeEventListener("pointerdown", onPointerDown2, true);
+      }
+    };
+  }, [store, enabled]);
+  reactExports.useEffect(() => {
+    if (!enabled) {
+      return void 0;
+    }
+    function onOpenChangeLocal(details) {
+      if (details.reason === triggerPress || details.reason === escapeKey) {
+        const referenceElement = store.select("domReferenceElement");
+        if (isElement(referenceElement)) {
+          blockedReferenceRef.current = referenceElement;
+          blockFocusRef.current = true;
+        }
+      }
+    }
+    events2.on("openchange", onOpenChangeLocal);
+    return () => {
+      events2.off("openchange", onOpenChangeLocal);
+    };
+  }, [events2, enabled, store]);
+  const reference = reactExports.useMemo(() => ({
+    onMouseLeave() {
+      blockFocusRef.current = false;
+      blockedReferenceRef.current = null;
+    },
+    onFocus(event) {
+      const focusTarget = event.currentTarget;
+      if (blockFocusRef.current) {
+        if (blockedReferenceRef.current === focusTarget) {
+          return;
+        }
+        blockFocusRef.current = false;
+        blockedReferenceRef.current = null;
+      }
+      const target = getTarget(event.nativeEvent);
+      if (isElement(target)) {
+        if (isMacSafari && !event.relatedTarget) {
+          if (!keyboardModalityRef.current && !isTypeableElement(target)) {
+            return;
+          }
+        } else if (!matchesFocusVisible(target)) {
+          return;
+        }
+      }
+      const movedFromOtherEnabledTrigger = isTargetInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements);
+      const {
+        nativeEvent,
+        currentTarget
+      } = event;
+      const delayValue = typeof delay === "function" ? delay() : delay;
+      if (store.select("open") && movedFromOtherEnabledTrigger || delayValue === 0 || delayValue === void 0) {
+        store.setOpen(true, createChangeEventDetails(triggerFocus, nativeEvent, currentTarget));
+        return;
+      }
+      timeout2.start(delayValue, () => {
+        if (blockFocusRef.current) {
+          return;
+        }
+        store.setOpen(true, createChangeEventDetails(triggerFocus, nativeEvent, currentTarget));
+      });
+    },
+    onBlur(event) {
+      blockFocusRef.current = false;
+      blockedReferenceRef.current = null;
+      const relatedTarget = event.relatedTarget;
+      const nativeEvent = event.nativeEvent;
+      const movedToFocusGuard = isElement(relatedTarget) && relatedTarget.hasAttribute(createAttribute("focus-guard")) && relatedTarget.getAttribute("data-type") === "outside";
+      timeout2.start(0, () => {
+        const domReference = store.select("domReferenceElement");
+        const activeEl = activeElement(domReference ? domReference.ownerDocument : document);
+        if (!relatedTarget && activeEl === domReference) {
+          return;
+        }
+        if (contains$1(dataRef.current.floatingContext?.refs.floating.current, activeEl) || contains$1(domReference, activeEl) || movedToFocusGuard) {
+          return;
+        }
+        const nextFocusedElement = relatedTarget ?? activeEl;
+        if (isTargetInsideEnabledTrigger(nextFocusedElement, store.context.triggerElements)) {
+          return;
+        }
+        store.setOpen(false, createChangeEventDetails(triggerFocus, nativeEvent));
+      });
+    }
+  }), [dataRef, store, timeout2, delay]);
+  return reactExports.useMemo(() => enabled ? {
+    reference,
+    trigger: reference
+  } : {}, [enabled, reference]);
+}
+const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+function isInteractiveElement(element2) {
+  return element2 ? Boolean(element2.closest(interactiveSelector)) : false;
+}
 class HoverInteraction {
   constructor() {
     this.pointerType = void 0;
@@ -16567,6 +14710,144 @@ function useHoverInteractionSharedState(store) {
   }
   useOnMount(data2.hoverInteractionState.disposeEffect);
   return data2.hoverInteractionState;
+}
+function useHoverFloatingInteraction(context, parameters = {}) {
+  const store = "rootStore" in context ? context.rootStore : context;
+  const open = store.useState("open");
+  const floatingElement = store.useState("floatingElement");
+  const domReferenceElement = store.useState("domReferenceElement");
+  const {
+    dataRef
+  } = store.context;
+  const {
+    enabled = true,
+    closeDelay: closeDelayProp = 0
+  } = parameters;
+  const instance2 = useHoverInteractionSharedState(store);
+  const tree = useFloatingTree();
+  const parentId = useFloatingParentNodeId();
+  const isClickLikeOpenEvent$1 = useStableCallback$1(() => {
+    return isClickLikeOpenEvent(dataRef.current.openEvent?.type, instance2.interactedInside);
+  });
+  const isHoverOpen = useStableCallback$1(() => {
+    const type2 = dataRef.current.openEvent?.type;
+    return type2?.includes("mouse") && type2 !== "mousedown";
+  });
+  const isRelatedTargetInsideEnabledTrigger = useStableCallback$1(target => {
+    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
+  });
+  const closeWithDelay = reactExports.useCallback(event => {
+    const closeDelay = getDelay(closeDelayProp, "close", instance2.pointerType);
+    const close2 = () => {
+      store.setOpen(false, createChangeEventDetails(triggerHover, event));
+      tree?.events.emit("floating.closed", event);
+    };
+    if (closeDelay) {
+      instance2.openChangeTimeout.start(closeDelay, close2);
+    } else {
+      instance2.openChangeTimeout.clear();
+      close2();
+    }
+  }, [closeDelayProp, store, instance2, tree]);
+  const clearPointerEvents = useStableCallback$1(() => {
+    clearSafePolygonPointerEventsMutation(instance2);
+  });
+  const handleInteractInside = useStableCallback$1(event => {
+    const target = getTarget(event);
+    if (!isInteractiveElement(target)) {
+      instance2.interactedInside = false;
+      return;
+    }
+    instance2.interactedInside = target?.closest("[aria-haspopup]") != null;
+  });
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      instance2.pointerType = void 0;
+      instance2.restTimeoutPending = false;
+      instance2.interactedInside = false;
+      clearPointerEvents();
+    }
+  }, [open, instance2, clearPointerEvents]);
+  reactExports.useEffect(() => {
+    return clearPointerEvents;
+  }, [clearPointerEvents]);
+  useIsoLayoutEffect(() => {
+    if (!enabled) {
+      return void 0;
+    }
+    if (open && instance2.handleCloseOptions?.blockPointerEvents && isHoverOpen() && isElement(domReferenceElement) && floatingElement) {
+      const ref = domReferenceElement;
+      const floatingEl = floatingElement;
+      const doc2 = ownerDocument(floatingElement);
+      const parentFloating = tree?.nodesRef.current.find(node2 => node2.id === parentId)?.context?.elements.floating;
+      if (parentFloating) {
+        parentFloating.style.pointerEvents = "";
+      }
+      const scopeElement = instance2.handleCloseOptions?.getScope?.() ?? instance2.pointerEventsScopeElement ?? parentFloating ?? ref.closest("[data-rootownerid]") ?? doc2.body;
+      applySafePolygonPointerEventsMutation(instance2, {
+        scopeElement,
+        referenceElement: ref,
+        floatingElement: floatingEl
+      });
+      return () => {
+        clearPointerEvents();
+      };
+    }
+    return void 0;
+  }, [enabled, open, domReferenceElement, floatingElement, instance2, isHoverOpen, tree, parentId, clearPointerEvents]);
+  const childClosedTimeout = useTimeout();
+  reactExports.useEffect(() => {
+    if (!enabled) {
+      return void 0;
+    }
+    function onFloatingMouseEnter() {
+      instance2.openChangeTimeout.clear();
+      childClosedTimeout.clear();
+      tree?.events.off("floating.closed", onNodeClosed);
+      clearPointerEvents();
+    }
+    function onFloatingMouseLeave(event) {
+      if (tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+        tree.events.on("floating.closed", onNodeClosed);
+        return;
+      }
+      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+        return;
+      }
+      if (instance2.handler) {
+        instance2.handler(event);
+        return;
+      }
+      clearPointerEvents();
+      if (!isClickLikeOpenEvent$1()) {
+        closeWithDelay(event);
+      }
+    }
+    function onNodeClosed(event) {
+      if (!tree || !parentId || getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+        return;
+      }
+      childClosedTimeout.start(0, () => {
+        tree.events.off("floating.closed", onNodeClosed);
+        store.setOpen(false, createChangeEventDetails(triggerHover, event));
+        tree.events.emit("floating.closed", event);
+      });
+    }
+    const floating = floatingElement;
+    if (floating) {
+      floating.addEventListener("mouseenter", onFloatingMouseEnter);
+      floating.addEventListener("mouseleave", onFloatingMouseLeave);
+      floating.addEventListener("pointerdown", handleInteractInside, true);
+    }
+    return () => {
+      if (floating) {
+        floating.removeEventListener("mouseenter", onFloatingMouseEnter);
+        floating.removeEventListener("mouseleave", onFloatingMouseLeave);
+        floating.removeEventListener("pointerdown", handleInteractInside, true);
+      }
+      tree?.events.off("floating.closed", onNodeClosed);
+    };
+  }, [enabled, floatingElement, store, dataRef, isClickLikeOpenEvent$1, isRelatedTargetInsideEnabledTrigger, closeWithDelay, clearPointerEvents, handleInteractInside, instance2, tree, parentId, childClosedTimeout]);
 }
 const EMPTY_REF = {
   current: null
@@ -17614,6 +15895,13 @@ function safePolygon(options = {}) {
   };
   return fn2;
 }
+function createTooltipEventDetails(store, reason) {
+  const details = createChangeEventDetails(reason);
+  details.preventUnmountOnClose = () => {
+    store.set("preventUnmountingOnClose", true);
+  };
+  return details;
+}
 let CommonPopupDataAttributes = function (CommonPopupDataAttributes2) {
   CommonPopupDataAttributes2["open"] = "data-open";
   CommonPopupDataAttributes2["closed"] = "data-closed";
@@ -17624,6 +15912,18 @@ let CommonPopupDataAttributes = function (CommonPopupDataAttributes2) {
   CommonPopupDataAttributes2["align"] = "data-align";
   return CommonPopupDataAttributes2;
 }({});
+let CommonTriggerDataAttributes = /* @__PURE__ */function (CommonTriggerDataAttributes2) {
+  CommonTriggerDataAttributes2["popupOpen"] = "data-popup-open";
+  CommonTriggerDataAttributes2["pressed"] = "data-pressed";
+  return CommonTriggerDataAttributes2;
+}({});
+const TRIGGER_HOOK = {
+  [CommonTriggerDataAttributes.popupOpen]: ""
+};
+const PRESSABLE_TRIGGER_HOOK = {
+  [CommonTriggerDataAttributes.popupOpen]: "",
+  [CommonTriggerDataAttributes.pressed]: ""
+};
 const POPUP_OPEN_HOOK = {
   [CommonPopupDataAttributes.open]: ""
 };
@@ -17632,6 +15932,22 @@ const POPUP_CLOSED_HOOK = {
 };
 const ANCHOR_HIDDEN_HOOK = {
   [CommonPopupDataAttributes.anchorHidden]: ""
+};
+const triggerOpenStateMapping$1 = {
+  open(value) {
+    if (value) {
+      return TRIGGER_HOOK;
+    }
+    return null;
+  }
+};
+const pressableTriggerOpenStateMapping = {
+  open(value) {
+    if (value) {
+      return PRESSABLE_TRIGGER_HOOK;
+    }
+    return null;
+  }
 };
 const popupStateMapping = {
   open(value) {
@@ -17647,6 +15963,16 @@ const popupStateMapping = {
     return null;
   }
 };
+const TooltipProviderContext = /* @__PURE__ */reactExports.createContext(void 0);
+function useTooltipProviderContext() {
+  return reactExports.useContext(TooltipProviderContext);
+}
+let TooltipTriggerDataAttributes = function (TooltipTriggerDataAttributes2) {
+  TooltipTriggerDataAttributes2[TooltipTriggerDataAttributes2["popupOpen"] = CommonTriggerDataAttributes.popupOpen] = "popupOpen";
+  TooltipTriggerDataAttributes2["triggerDisabled"] = "data-trigger-disabled";
+  return TooltipTriggerDataAttributes2;
+}({});
+const OPEN_DELAY$2 = 600;
 const TooltipPortalContext = /* @__PURE__ */reactExports.createContext(void 0);
 const TooltipPositionerContext = /* @__PURE__ */reactExports.createContext(void 0);
 const DirectionContext = /* @__PURE__ */reactExports.createContext(void 0);
@@ -18826,8 +17152,135 @@ const CompositeListContext = /* @__PURE__ */reactExports.createContext({
     current: 0
   }
 });
+function useCompositeListContext() {
+  return reactExports.useContext(CompositeListContext);
+}
+let IndexGuessBehavior = /* @__PURE__ */function (IndexGuessBehavior2) {
+  IndexGuessBehavior2[IndexGuessBehavior2["None"] = 0] = "None";
+  IndexGuessBehavior2[IndexGuessBehavior2["GuessFromOrder"] = 1] = "GuessFromOrder";
+  return IndexGuessBehavior2;
+}({});
+function useCompositeListItem(params = {}) {
+  const {
+    label,
+    metadata,
+    textRef,
+    indexGuessBehavior,
+    index: externalIndex
+  } = params;
+  const {
+    register: register2,
+    unregister,
+    subscribeMapChange,
+    elementsRef,
+    labelsRef,
+    nextIndexRef
+  } = useCompositeListContext();
+  const indexRef = reactExports.useRef(-1);
+  const [index2, setIndex] = reactExports.useState(externalIndex ?? (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder ? () => {
+    if (indexRef.current === -1) {
+      const newIndex = nextIndexRef.current;
+      nextIndexRef.current += 1;
+      indexRef.current = newIndex;
+    }
+    return indexRef.current;
+  } : -1));
+  const componentRef = reactExports.useRef(null);
+  const ref = reactExports.useCallback(node2 => {
+    componentRef.current = node2;
+    if (index2 !== -1 && node2 !== null) {
+      elementsRef.current[index2] = node2;
+      if (labelsRef) {
+        const isLabelDefined = label !== void 0;
+        labelsRef.current[index2] = isLabelDefined ? label : textRef?.current?.textContent ?? node2.textContent;
+      }
+    }
+  }, [index2, elementsRef, labelsRef, label, textRef]);
+  useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return void 0;
+    }
+    const node2 = componentRef.current;
+    if (node2) {
+      register2(node2, metadata);
+      return () => {
+        unregister(node2);
+      };
+    }
+    return void 0;
+  }, [externalIndex, register2, unregister, metadata]);
+  useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return void 0;
+    }
+    return subscribeMapChange(map3 => {
+      const i2 = componentRef.current ? map3.get(componentRef.current)?.index : null;
+      if (i2 != null) {
+        setIndex(i2);
+      }
+    });
+  }, [externalIndex, subscribeMapChange, setIndex]);
+  return reactExports.useMemo(() => ({
+    ref,
+    index: index2
+  }), [index2, ref]);
+}
+let MenuCheckboxItemDataAttributes = /* @__PURE__ */function (MenuCheckboxItemDataAttributes2) {
+  MenuCheckboxItemDataAttributes2["checked"] = "data-checked";
+  MenuCheckboxItemDataAttributes2["unchecked"] = "data-unchecked";
+  MenuCheckboxItemDataAttributes2["disabled"] = "data-disabled";
+  MenuCheckboxItemDataAttributes2["highlighted"] = "data-highlighted";
+  return MenuCheckboxItemDataAttributes2;
+}({});
+const itemMapping = {
+  checked(value) {
+    if (value) {
+      return {
+        [MenuCheckboxItemDataAttributes.checked]: ""
+      };
+    }
+    return {
+      [MenuCheckboxItemDataAttributes.unchecked]: ""
+    };
+  },
+  ...transitionStatusMapping
+};
 const MenuGroupContext = /* @__PURE__ */reactExports.createContext(void 0);
+const ToolbarRootContext = /* @__PURE__ */reactExports.createContext(void 0);
+function useToolbarRootContext(optional) {
+  const context = reactExports.useContext(ToolbarRootContext);
+  return context;
+}
+const ARROW_UP = "ArrowUp";
+const ARROW_DOWN = "ArrowDown";
+const ARROW_LEFT = "ArrowLeft";
+const ARROW_RIGHT = "ArrowRight";
+const HOME = "Home";
+const END = "End";
+const HORIZONTAL_KEYS = /* @__PURE__ */new Set([ARROW_LEFT, ARROW_RIGHT]);
+const HORIZONTAL_KEYS_WITH_EXTRA_KEYS = /* @__PURE__ */new Set([ARROW_LEFT, ARROW_RIGHT, HOME, END]);
+const VERTICAL_KEYS = /* @__PURE__ */new Set([ARROW_UP, ARROW_DOWN]);
+const VERTICAL_KEYS_WITH_EXTRA_KEYS = /* @__PURE__ */new Set([ARROW_UP, ARROW_DOWN, HOME, END]);
+const ARROW_KEYS = /* @__PURE__ */new Set([...HORIZONTAL_KEYS, ...VERTICAL_KEYS]);
+const ALL_KEYS$1 = /* @__PURE__ */new Set([...ARROW_KEYS, HOME, END]);
+const COMPOSITE_KEYS = /* @__PURE__ */new Set([ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END]);
 const SHIFT = "Shift";
+const CONTROL = "Control";
+const ALT = "Alt";
+const META = "Meta";
+const MODIFIER_KEYS$1 = /* @__PURE__ */new Set([SHIFT, CONTROL, ALT, META]);
+function isInputElement(element2) {
+  return isHTMLElement$1(element2) && element2.tagName === "INPUT";
+}
+function isNativeInput(element2) {
+  if (isInputElement(element2) && element2.selectionStart != null) {
+    return true;
+  }
+  if (isHTMLElement$1(element2) && element2.tagName === "TEXTAREA") {
+    return true;
+  }
+  return false;
+}
 function scrollIntoViewIfNeeded$1(scrollContainer, element2, direction, orientation) {
   if (!scrollContainer || !element2 || !element2.scrollTo) {
     return;
@@ -19771,6 +18224,36 @@ function useStickIfOpen(open, openReason) {
   }, [open, openReason, stickIfOpenTimeout]);
   return stickIfOpen;
 }
+const Separator$3 = /* @__PURE__ */reactExports.forwardRef(function SeparatorComponent(componentProps, forwardedRef) {
+  const {
+    className,
+    render: render2,
+    orientation = "horizontal",
+    ...elementProps
+  } = componentProps;
+  const state2 = {
+    orientation
+  };
+  const element2 = useRenderElement("div", componentProps, {
+    state: state2,
+    ref: forwardedRef,
+    props: [{
+      role: "separator",
+      "aria-orientation": orientation
+    }, elementProps]
+  });
+  return element2;
+});
+let FieldControlDataAttributes = /* @__PURE__ */function (FieldControlDataAttributes2) {
+  FieldControlDataAttributes2["disabled"] = "data-disabled";
+  FieldControlDataAttributes2["valid"] = "data-valid";
+  FieldControlDataAttributes2["invalid"] = "data-invalid";
+  FieldControlDataAttributes2["touched"] = "data-touched";
+  FieldControlDataAttributes2["dirty"] = "data-dirty";
+  FieldControlDataAttributes2["filled"] = "data-filled";
+  FieldControlDataAttributes2["focused"] = "data-focused";
+  return FieldControlDataAttributes2;
+}({});
 const DEFAULT_VALIDITY_STATE = {
   badInput: false,
   customError: false,
@@ -19791,6 +18274,39 @@ const DEFAULT_FIELD_STATE_ATTRIBUTES = {
   filled: false,
   focused: false
 };
+const DEFAULT_FIELD_ROOT_STATE = {
+  disabled: false,
+  ...DEFAULT_FIELD_STATE_ATTRIBUTES
+};
+const fieldValidityMapping = {
+  valid(value) {
+    if (value === null) {
+      return null;
+    }
+    if (value) {
+      return {
+        [FieldControlDataAttributes.valid]: ""
+      };
+    }
+    return {
+      [FieldControlDataAttributes.invalid]: ""
+    };
+  }
+};
+let SwitchRootDataAttributes = /* @__PURE__ */function (SwitchRootDataAttributes2) {
+  SwitchRootDataAttributes2["checked"] = "data-checked";
+  SwitchRootDataAttributes2["unchecked"] = "data-unchecked";
+  SwitchRootDataAttributes2["disabled"] = "data-disabled";
+  SwitchRootDataAttributes2["readonly"] = "data-readonly";
+  SwitchRootDataAttributes2["required"] = "data-required";
+  SwitchRootDataAttributes2["valid"] = "data-valid";
+  SwitchRootDataAttributes2["invalid"] = "data-invalid";
+  SwitchRootDataAttributes2["touched"] = "data-touched";
+  SwitchRootDataAttributes2["dirty"] = "data-dirty";
+  SwitchRootDataAttributes2["filled"] = "data-filled";
+  SwitchRootDataAttributes2["focused"] = "data-focused";
+  return SwitchRootDataAttributes2;
+}({});
 function getCombinedFieldValidityData(validityData, invalid2) {
   return {
     ...validityData,
@@ -19811,6 +18327,46 @@ const FormContext = /* @__PURE__ */reactExports.createContext({
   validationMode: "onSubmit",
   submitAttemptedRef: {
     current: false
+  }
+});
+function useFormContext() {
+  return reactExports.useContext(FormContext);
+}
+const FieldRootContext = /* @__PURE__ */reactExports.createContext({
+  invalid: void 0,
+  name: void 0,
+  validityData: {
+    state: DEFAULT_VALIDITY_STATE,
+    errors: [],
+    error: "",
+    value: "",
+    initialValue: null
+  },
+  setValidityData: NOOP,
+  disabled: void 0,
+  touched: DEFAULT_FIELD_STATE_ATTRIBUTES.touched,
+  setTouched: NOOP,
+  dirty: DEFAULT_FIELD_STATE_ATTRIBUTES.dirty,
+  setDirty: NOOP,
+  filled: DEFAULT_FIELD_STATE_ATTRIBUTES.filled,
+  setFilled: NOOP,
+  focused: DEFAULT_FIELD_STATE_ATTRIBUTES.focused,
+  setFocused: NOOP,
+  validate: () => null,
+  validationMode: "onSubmit",
+  validationDebounceTime: 0,
+  shouldValidateOnChange: () => false,
+  state: DEFAULT_FIELD_ROOT_STATE,
+  markedDirtyRef: {
+    current: false
+  },
+  validation: {
+    getValidationProps: (props = EMPTY_OBJECT) => props,
+    getInputValidationProps: (props = EMPTY_OBJECT) => props,
+    inputRef: {
+      current: null
+    },
+    commit: async () => {}
   }
 });
 const LabelableContext = /* @__PURE__ */reactExports.createContext({
@@ -20056,6 +18612,25 @@ const selectors$3 = {
   scrollDownArrowVisible: createSelector(state2 => state2.scrollDownArrowVisible),
   hasScrollArrows: createSelector(state2 => state2.hasScrollArrows)
 };
+const SelectPortalContext = /* @__PURE__ */reactExports.createContext(void 0);
+const SelectPortal = /* @__PURE__ */reactExports.forwardRef(function SelectPortal2(portalProps, forwardedRef) {
+  const {
+    store
+  } = useSelectRootContext();
+  const mounted = useStore$1(store, selectors$3.mounted);
+  const forceMount = useStore$1(store, selectors$3.forceMount);
+  const shouldRender = mounted || forceMount;
+  if (!shouldRender) {
+    return null;
+  }
+  return /* @__PURE__ */jsxRuntimeExports.jsx(SelectPortalContext.Provider, {
+    value: true,
+    children: /* @__PURE__ */jsxRuntimeExports.jsx(FloatingPortal, {
+      ref: forwardedRef,
+      ...portalProps
+    })
+  });
+});
 const SelectPositionerContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useSelectPositionerContext() {
   const context = reactExports.useContext(SelectPositionerContext);
@@ -20064,6 +18639,20 @@ function useSelectPositionerContext() {
   }
   return context;
 }
+function clearStyles(element2, originalStyles) {
+  if (element2) {
+    Object.assign(element2.style, originalStyles);
+  }
+}
+const LIST_FUNCTIONAL_STYLES = {
+  position: "relative",
+  maxHeight: "100%",
+  overflowX: "hidden",
+  overflowY: "auto"
+};
+const FIXED = {
+  position: "fixed"
+};
 function isMouseWithinBounds(event) {
   const targetRect = event.currentTarget.getBoundingClientRect();
   const isWithinBounds = targetRect.top + 1 <= event.clientY && event.clientY <= targetRect.bottom - 1 && targetRect.left + 1 <= event.clientX && event.clientX <= targetRect.right - 1;
@@ -20083,6 +18672,24 @@ const styleDisableScrollbar = {
 };
 function clamp$b(val, min2 = Number.MIN_SAFE_INTEGER, max2 = Number.MAX_SAFE_INTEGER) {
   return Math.max(min2, Math.min(val, max2));
+}
+function getMaxPopupHeight(popupStyles) {
+  const maxHeightStyle = popupStyles.maxHeight || "";
+  return maxHeightStyle.endsWith("px") ? parseFloat(maxHeightStyle) || Infinity : Infinity;
+}
+function getMaxScrollTop(scroller) {
+  return Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+}
+function getScale$1(element2) {
+  return platform.getScale(element2);
+}
+function normalizeRect(rect, scale2) {
+  return rectToClientRect({
+    x: rect.x / scale2.x,
+    y: rect.y / scale2.y,
+    width: rect.width / scale2.x,
+    height: rect.height / scale2.y
+  });
 }
 const TRANSFORM_STYLE_RESETS = [["transform", "none"], ["scale", "1"], ["translate", "0 0"]];
 function unsetTransformStyles(popupElement) {
@@ -20105,6 +18712,7 @@ function unsetTransformStyles(popupElement) {
     }
   };
 }
+const SelectItemContext = /* @__PURE__ */reactExports.createContext(void 0);
 const SelectScrollArrow = /* @__PURE__ */reactExports.forwardRef(function SelectScrollArrow2(componentProps, forwardedRef) {
   const {
     render: render2,
@@ -20277,6 +18885,123 @@ const SelectScrollUpArrow = /* @__PURE__ */reactExports.forwardRef(function Sele
   });
 });
 const SelectGroupContext = /* @__PURE__ */reactExports.createContext(void 0);
+const SelectGroup$2 = /* @__PURE__ */reactExports.forwardRef(function SelectGroup2(componentProps, forwardedRef) {
+  const {
+    className,
+    render: render2,
+    ...elementProps
+  } = componentProps;
+  const [labelId, setLabelId] = reactExports.useState();
+  const contextValue = reactExports.useMemo(() => ({
+    labelId,
+    setLabelId
+  }), [labelId, setLabelId]);
+  const element2 = useRenderElement("div", componentProps, {
+    ref: forwardedRef,
+    props: [{
+      role: "group",
+      "aria-labelledby": labelId
+    }, elementProps]
+  });
+  return /* @__PURE__ */jsxRuntimeExports.jsx(SelectGroupContext.Provider, {
+    value: contextValue,
+    children: element2
+  });
+});
+function areArraysEqual$1(array1, array2, itemComparer = (a2, b3) => a2 === b3) {
+  return array1.length === array2.length && array1.every((value, index2) => itemComparer(value, array2[index2]));
+}
+function asc(a2, b3) {
+  return a2 - b3;
+}
+function replaceArrayItemAtIndex(array2, index2, newValue) {
+  const output = array2.slice();
+  output[index2] = newValue;
+  return output.sort(asc);
+}
+function getSliderValue(valueInput, index2, min2, max2, range2, values3) {
+  let newValue = valueInput;
+  newValue = clamp$b(newValue, min2, max2);
+  if (range2) {
+    newValue = replaceArrayItemAtIndex(values3, index2,
+    // Bound the new value to the thumb's neighbours.
+    clamp$b(newValue, values3[index2 - 1] || -Infinity, values3[index2 + 1] || Infinity));
+  }
+  return newValue;
+}
+function validateMinimumDistance(values3, step, minStepsBetweenValues) {
+  if (!Array.isArray(values3)) {
+    return true;
+  }
+  const distances = values3.reduce((acc, val, index2, vals) => {
+    if (index2 === vals.length - 1) {
+      return acc;
+    }
+    acc.push(Math.abs(val - vals[index2 + 1]));
+    return acc;
+  }, []);
+  return Math.min(...distances) >= step * minStepsBetweenValues;
+}
+const sliderStateAttributesMapping = {
+  activeThumbIndex: () => null,
+  max: () => null,
+  min: () => null,
+  minStepsBetweenValues: () => null,
+  step: () => null,
+  values: () => null,
+  ...fieldValidityMapping
+};
+const cache$1 = /* @__PURE__ */new Map();
+function getFormatter(locale, options) {
+  const optionsString = JSON.stringify({
+    locale,
+    options
+  });
+  const cachedFormatter = cache$1.get(optionsString);
+  if (cachedFormatter) {
+    return cachedFormatter;
+  }
+  const formatter = new Intl.NumberFormat(locale, options);
+  cache$1.set(optionsString, formatter);
+  return formatter;
+}
+function formatNumber$4(value, locale, options) {
+  if (value == null) {
+    return "";
+  }
+  return getFormatter(locale, options).format(value);
+}
+function formatNumberValue(value, locale, format2) {
+  if (value == null) {
+    return "";
+  }
+  if (!format2) {
+    return formatNumber$4(value / 100, locale, {
+      style: "percent"
+    });
+  }
+  return formatNumber$4(value, locale, format2);
+}
+function getMidpoint(element2) {
+  const rect = element2.getBoundingClientRect();
+  return {
+    x: (rect.left + rect.right) / 2,
+    y: (rect.top + rect.bottom) / 2
+  };
+}
+function getDecimalPrecision(num) {
+  if (Math.abs(num) < 1) {
+    const parts = num.toExponential().split("e-");
+    const matissaDecimalPart = parts[0].split(".")[1];
+    return (matissaDecimalPart ? matissaDecimalPart.length : 0) + parseInt(parts[1], 10);
+  }
+  const decimalPart = num.toString().split(".")[1];
+  return decimalPart ? decimalPart.length : 0;
+}
+function roundValueToStep(value, step, min2) {
+  const nearest = Math.round((value - min2) / step) * step + min2;
+  return Number(nearest.toFixed(getDecimalPrecision(step)));
+}
 function getPushedThumbValues({
   values: values3,
   index: index2,
@@ -20486,7 +19211,79 @@ function getFingerCoords(event, touchIdRef) {
     y: event.clientY
   };
 }
+function valueToPercent(value, min2, max2) {
+  return (value - min2) * 100 / (max2 - min2);
+}
+let SliderThumbDataAttributes = /* @__PURE__ */function (SliderThumbDataAttributes2) {
+  SliderThumbDataAttributes2["index"] = "data-index";
+  SliderThumbDataAttributes2["dragging"] = "data-dragging";
+  SliderThumbDataAttributes2["orientation"] = "data-orientation";
+  SliderThumbDataAttributes2["disabled"] = "data-disabled";
+  SliderThumbDataAttributes2["valid"] = "data-valid";
+  SliderThumbDataAttributes2["invalid"] = "data-invalid";
+  SliderThumbDataAttributes2["touched"] = "data-touched";
+  SliderThumbDataAttributes2["dirty"] = "data-dirty";
+  SliderThumbDataAttributes2["focused"] = "data-focused";
+  return SliderThumbDataAttributes2;
+}({});
 const script$1 = '!function(){const t=document.currentScript?.parentElement;if(!t)return;const e=t.closest("[data-base-ui-slider-control]");if(!e)return;const r=e.querySelector("[data-base-ui-slider-indicator]"),i=e.getBoundingClientRect(),n="vertical"===e.getAttribute("data-orientation")?"height":"width",o=e.querySelectorAll(\'input[type="range"]\'),l=o.length>1,s=o.length-1;let a=null,u=null;for(let t=0;t<o.length;t+=1){const e=o[t],y=parseFloat(e.getAttribute("value")??"");if(Number.isNaN(y))return;const c=e.parentElement;if(!c)return;const p=parseFloat(e.getAttribute("max")??"100"),g=parseFloat(e.getAttribute("min")??"0"),b=c?.getBoundingClientRect(),d=i[n]-b[n],m=100*(y-g)/(p-g),v=(b[n]/2+d*m/100)/i[n]*100;c.style.setProperty("--position",`${v}%`),Number.isFinite(v)&&(c.style.removeProperty("visibility"),r&&(0===t?(a=v,r.style.setProperty("--start-position",`${v}%`),l||r.style.removeProperty("visibility")):t===s&&(u=v-(a??0),r.style.setProperty("--end-position",`${v}%`),r.style.setProperty("--relative-size",`${u}%`),r.style.removeProperty("visibility"))))}}();';
+const PAGE_UP = "PageUp";
+const PAGE_DOWN = "PageDown";
+const ALL_KEYS = /* @__PURE__ */new Set([ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN]);
+function getDefaultAriaValueText$1(values3, index2, format2, locale) {
+  if (index2 < 0) {
+    return void 0;
+  }
+  if (values3.length === 2) {
+    if (index2 === 0) {
+      return `${formatNumber$4(values3[index2], locale, format2)} start range`;
+    }
+    return `${formatNumber$4(values3[index2], locale, format2)} end range`;
+  }
+  return format2 ? formatNumber$4(values3[index2], locale, format2) : void 0;
+}
+function getNewValue(thumbValue, step, direction, min2, max2) {
+  return direction === 1 ? Math.min(thumbValue + step, max2) : Math.max(thumbValue - step, min2);
+}
+function getInsetStyles(vertical, range2, start2, end2, renderBeforeHydration, mounted) {
+  const visibility = start2 === void 0 || range2 && end2 === void 0 ? "hidden" : void 0;
+  const startEdge = vertical ? "bottom" : "insetInlineStart";
+  const mainSide = vertical ? "height" : "width";
+  const crossSide = vertical ? "width" : "height";
+  const styles = {
+    visibility: renderBeforeHydration && !mounted ? "hidden" : visibility,
+    position: vertical ? "absolute" : "relative",
+    [crossSide]: "inherit"
+  };
+  styles["--start-position"] = `${start2 ?? 0}%`;
+  if (!range2) {
+    styles[startEdge] = 0;
+    styles[mainSide] = "var(--start-position)";
+    return styles;
+  }
+  styles["--relative-size"] = `${(end2 ?? 0) - (start2 ?? 0)}%`;
+  styles[startEdge] = "var(--start-position)";
+  styles[mainSide] = "var(--relative-size)";
+  return styles;
+}
+function getCenteredStyles(vertical, range2, start2, end2) {
+  const startEdge = vertical ? "bottom" : "insetInlineStart";
+  const mainSide = vertical ? "height" : "width";
+  const crossSide = vertical ? "width" : "height";
+  const styles = {
+    position: vertical ? "absolute" : "relative",
+    [crossSide]: "inherit"
+  };
+  if (!range2) {
+    styles[startEdge] = 0;
+    styles[mainSide] = `${start2}%`;
+    return styles;
+  }
+  const size2 = end2 - start2;
+  styles[startEdge] = `${start2}%`;
+  styles[mainSide] = `${size2}%`;
+  return styles;
+}
 const PreviewCardRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function usePreviewCardRootContext(optional) {
   const context = reactExports.useContext(PreviewCardRootContext);
@@ -20664,10 +19461,46 @@ function createPreviewCardEventDetails(store, reason) {
   };
   return details;
 }
+const PreviewCardPortalContext = /* @__PURE__ */reactExports.createContext(void 0);
 const PreviewCardPositionerContext = /* @__PURE__ */reactExports.createContext(void 0);
+const stateAttributesMapping$8 = {
+  ...popupStateMapping,
+  ...transitionStatusMapping
+};
 const OPEN_DELAY = 300;
 const PopoverPortalContext = /* @__PURE__ */reactExports.createContext(void 0);
 const PopoverPositionerContext = /* @__PURE__ */reactExports.createContext(void 0);
+const ClosePartContext = /* @__PURE__ */reactExports.createContext(void 0);
+function useClosePartCount() {
+  const [closePartCount, setClosePartCount] = reactExports.useState(0);
+  const register2 = useStableCallback$1(() => {
+    setClosePartCount(count2 => count2 + 1);
+    return () => {
+      setClosePartCount(count2 => Math.max(0, count2 - 1));
+    };
+  });
+  const context = reactExports.useMemo(() => ({
+    register: register2
+  }), [register2]);
+  return {
+    context,
+    hasClosePart: closePartCount > 0
+  };
+}
+function ClosePartProvider(props) {
+  const {
+    value,
+    children: children2
+  } = props;
+  return /* @__PURE__ */jsxRuntimeExports.jsx(ClosePartContext.Provider, {
+    value,
+    children: children2
+  });
+}
+const stateAttributesMapping$7 = {
+  ...popupStateMapping,
+  ...transitionStatusMapping
+};
 /*!
  * Copyright (c) 2026-present, Vanilagy and contributors
  *
@@ -21126,6 +19959,15 @@ class CallSerializer {
     return this.currentPromise = this.currentPromise.then(fn2);
   }
 }
+let isWebKitCache = null;
+const isWebKit = () => {
+  if (isWebKitCache !== null) {
+    return isWebKitCache;
+  }
+  return isWebKitCache = !!(typeof navigator !== "undefined" && (
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  navigator.vendor?.match(/apple/i) || /AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) || /\b(iPad|iPhone|iPod)\b/.test(navigator.userAgent)));
+};
 let isFirefoxCache = null;
 const isFirefox = () => {
   if (isFirefoxCache !== null) {
@@ -31161,6 +30003,572 @@ const VIDEO_SAMPLE_PIXEL_FORMATS = [
 // 4:4:4 BGRX (opaque)
 "BGRX"];
 const VIDEO_SAMPLE_PIXEL_FORMATS_SET = new Set(VIDEO_SAMPLE_PIXEL_FORMATS);
+class VideoSample {
+  /** The width of the frame in pixels. */
+  get codedWidth() {
+    return this.visibleRect.width;
+  }
+  /** The height of the frame in pixels. */
+  get codedHeight() {
+    return this.visibleRect.height;
+  }
+  /** The display width of the frame in pixels, after aspect ratio adjustment and rotation. */
+  get displayWidth() {
+    return this.rotation % 180 === 0 ? this.squarePixelWidth : this.squarePixelHeight;
+  }
+  /** The display height of the frame in pixels, after aspect ratio adjustment and rotation. */
+  get displayHeight() {
+    return this.rotation % 180 === 0 ? this.squarePixelHeight : this.squarePixelWidth;
+  }
+  /** The presentation timestamp of the frame in microseconds. */
+  get microsecondTimestamp() {
+    return Math.trunc(SECOND_TO_MICROSECOND_FACTOR * this.timestamp);
+  }
+  /** The duration of the frame in microseconds. */
+  get microsecondDuration() {
+    return Math.trunc(SECOND_TO_MICROSECOND_FACTOR * this.duration);
+  }
+  /**
+   * Whether this sample uses a pixel format that can hold transparency data. Note that this doesn't necessarily mean
+   * that the sample is transparent.
+   */
+  get hasAlpha() {
+    return this.format && this.format.includes("A");
+  }
+  constructor(data2, init2) {
+    this._closed = false;
+    if (data2 instanceof ArrayBuffer || typeof SharedArrayBuffer !== "undefined" && data2 instanceof SharedArrayBuffer || ArrayBuffer.isView(data2)) {
+      if (!init2 || typeof init2 !== "object") {
+        throw new TypeError("init must be an object.");
+      }
+      if (init2.format === void 0 || !VIDEO_SAMPLE_PIXEL_FORMATS_SET.has(init2.format)) {
+        throw new TypeError("init.format must be one of: " + VIDEO_SAMPLE_PIXEL_FORMATS.join(", "));
+      }
+      if (!Number.isInteger(init2.codedWidth) || init2.codedWidth <= 0) {
+        throw new TypeError("init.codedWidth must be a positive integer.");
+      }
+      if (!Number.isInteger(init2.codedHeight) || init2.codedHeight <= 0) {
+        throw new TypeError("init.codedHeight must be a positive integer.");
+      }
+      if (init2.rotation !== void 0 && ![0, 90, 180, 270].includes(init2.rotation)) {
+        throw new TypeError("init.rotation, when provided, must be 0, 90, 180, or 270.");
+      }
+      if (!Number.isFinite(init2.timestamp)) {
+        throw new TypeError("init.timestamp must be a number.");
+      }
+      if (init2.duration !== void 0 && (!Number.isFinite(init2.duration) || init2.duration < 0)) {
+        throw new TypeError("init.duration, when provided, must be a non-negative number.");
+      }
+      if (init2.layout !== void 0) {
+        if (!Array.isArray(init2.layout)) {
+          throw new TypeError("init.layout, when provided, must be an array.");
+        }
+        for (const plane of init2.layout) {
+          if (!plane || typeof plane !== "object" || Array.isArray(plane)) {
+            throw new TypeError("Each entry in init.layout must be an object.");
+          }
+          if (!Number.isInteger(plane.offset) || plane.offset < 0) {
+            throw new TypeError("plane.offset must be a non-negative integer.");
+          }
+          if (!Number.isInteger(plane.stride) || plane.stride < 0) {
+            throw new TypeError("plane.stride must be a non-negative integer.");
+          }
+        }
+      }
+      if (init2.visibleRect !== void 0) {
+        validateRectangle(init2.visibleRect, "init.visibleRect");
+      }
+      if (init2.displayWidth !== void 0 && (!Number.isInteger(init2.displayWidth) || init2.displayWidth <= 0)) {
+        throw new TypeError("init.displayWidth, when provided, must be a positive integer.");
+      }
+      if (init2.displayHeight !== void 0 && (!Number.isInteger(init2.displayHeight) || init2.displayHeight <= 0)) {
+        throw new TypeError("init.displayHeight, when provided, must be a positive integer.");
+      }
+      if (init2.displayWidth !== void 0 !== (init2.displayHeight !== void 0)) {
+        throw new TypeError("init.displayWidth and init.displayHeight must be either both provided or both omitted.");
+      }
+      this._data = toUint8Array(data2).slice();
+      this._layout = init2.layout ?? createDefaultPlaneLayout(init2.format, init2.codedWidth, init2.codedHeight);
+      this.format = init2.format;
+      this.rotation = init2.rotation ?? 0;
+      this.timestamp = init2.timestamp;
+      this.duration = init2.duration ?? 0;
+      this.colorSpace = new VideoSampleColorSpace(init2.colorSpace);
+      this.visibleRect = {
+        left: init2.visibleRect?.left ?? 0,
+        top: init2.visibleRect?.top ?? 0,
+        width: init2.visibleRect?.width ?? init2.codedWidth,
+        height: init2.visibleRect?.height ?? init2.codedHeight
+      };
+      if (init2.displayWidth !== void 0) {
+        this.squarePixelWidth = this.rotation % 180 === 0 ? init2.displayWidth : init2.displayHeight;
+        this.squarePixelHeight = this.rotation % 180 === 0 ? init2.displayHeight : init2.displayWidth;
+      } else {
+        this.squarePixelWidth = this.codedWidth;
+        this.squarePixelHeight = this.codedHeight;
+      }
+    } else if (typeof VideoFrame !== "undefined" && data2 instanceof VideoFrame) {
+      if (init2?.rotation !== void 0 && ![0, 90, 180, 270].includes(init2.rotation)) {
+        throw new TypeError("init.rotation, when provided, must be 0, 90, 180, or 270.");
+      }
+      if (init2?.timestamp !== void 0 && !Number.isFinite(init2?.timestamp)) {
+        throw new TypeError("init.timestamp, when provided, must be a number.");
+      }
+      if (init2?.duration !== void 0 && (!Number.isFinite(init2.duration) || init2.duration < 0)) {
+        throw new TypeError("init.duration, when provided, must be a non-negative number.");
+      }
+      if (init2?.visibleRect !== void 0) {
+        validateRectangle(init2.visibleRect, "init.visibleRect");
+      }
+      this._data = data2;
+      this._layout = null;
+      this.format = data2.format;
+      this.visibleRect = {
+        left: data2.visibleRect?.x ?? 0,
+        top: data2.visibleRect?.y ?? 0,
+        width: data2.visibleRect?.width ?? data2.codedWidth,
+        height: data2.visibleRect?.height ?? data2.codedHeight
+      };
+      this.rotation = init2?.rotation ?? 0;
+      this.squarePixelWidth = data2.displayWidth;
+      this.squarePixelHeight = data2.displayHeight;
+      this.timestamp = init2?.timestamp ?? data2.timestamp / 1e6;
+      this.duration = init2?.duration ?? (data2.duration ?? 0) / 1e6;
+      this.colorSpace = new VideoSampleColorSpace(data2.colorSpace);
+    } else if (typeof HTMLImageElement !== "undefined" && data2 instanceof HTMLImageElement || typeof SVGImageElement !== "undefined" && data2 instanceof SVGImageElement || typeof ImageBitmap !== "undefined" && data2 instanceof ImageBitmap || typeof HTMLVideoElement !== "undefined" && data2 instanceof HTMLVideoElement || typeof HTMLCanvasElement !== "undefined" && data2 instanceof HTMLCanvasElement || typeof OffscreenCanvas !== "undefined" && data2 instanceof OffscreenCanvas) {
+      if (!init2 || typeof init2 !== "object") {
+        throw new TypeError("init must be an object.");
+      }
+      if (init2.rotation !== void 0 && ![0, 90, 180, 270].includes(init2.rotation)) {
+        throw new TypeError("init.rotation, when provided, must be 0, 90, 180, or 270.");
+      }
+      if (!Number.isFinite(init2.timestamp)) {
+        throw new TypeError("init.timestamp must be a number.");
+      }
+      if (init2.duration !== void 0 && (!Number.isFinite(init2.duration) || init2.duration < 0)) {
+        throw new TypeError("init.duration, when provided, must be a non-negative number.");
+      }
+      if (typeof VideoFrame !== "undefined") {
+        return new VideoSample(new VideoFrame(data2, {
+          timestamp: Math.trunc(init2.timestamp * SECOND_TO_MICROSECOND_FACTOR),
+          // Drag 0 to undefined
+          duration: Math.trunc((init2.duration ?? 0) * SECOND_TO_MICROSECOND_FACTOR) || void 0
+        }), init2);
+      }
+      let width = 0;
+      let height = 0;
+      if ("naturalWidth" in data2) {
+        width = data2.naturalWidth;
+        height = data2.naturalHeight;
+      } else if ("videoWidth" in data2) {
+        width = data2.videoWidth;
+        height = data2.videoHeight;
+      } else if ("width" in data2) {
+        width = Number(data2.width);
+        height = Number(data2.height);
+      }
+      if (!width || !height) {
+        throw new TypeError("Could not determine dimensions.");
+      }
+      const canvas = new OffscreenCanvas(width, height);
+      const context = canvas.getContext("2d", {
+        alpha: isFirefox(),
+        // Firefox has VideoFrame glitches with opaque canvases
+        willReadFrequently: true
+      });
+      assert$3(context);
+      context.drawImage(data2, 0, 0);
+      this._data = canvas;
+      this._layout = null;
+      this.format = "RGBX";
+      this.visibleRect = {
+        left: 0,
+        top: 0,
+        width,
+        height
+      };
+      this.squarePixelWidth = width;
+      this.squarePixelHeight = height;
+      this.rotation = init2.rotation ?? 0;
+      this.timestamp = init2.timestamp;
+      this.duration = init2.duration ?? 0;
+      this.colorSpace = new VideoSampleColorSpace({
+        matrix: "rgb",
+        primaries: "bt709",
+        transfer: "iec61966-2-1",
+        fullRange: true
+      });
+    } else {
+      throw new TypeError("Invalid data type: Must be a BufferSource or CanvasImageSource.");
+    }
+    this.pixelAspectRatio = simplifyRational({
+      num: this.squarePixelWidth * this.codedHeight,
+      den: this.squarePixelHeight * this.codedWidth
+    });
+    finalizationRegistry?.register(this, {
+      type: "video",
+      data: this._data
+    }, this);
+  }
+  /** Clones this video sample. */
+  clone() {
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    assert$3(this._data !== null);
+    if (isVideoFrame(this._data)) {
+      return new VideoSample(this._data.clone(), {
+        timestamp: this.timestamp,
+        duration: this.duration,
+        rotation: this.rotation
+      });
+    } else if (this._data instanceof Uint8Array) {
+      assert$3(this._layout);
+      return new VideoSample(this._data, {
+        format: this.format,
+        layout: this._layout,
+        codedWidth: this.codedWidth,
+        codedHeight: this.codedHeight,
+        timestamp: this.timestamp,
+        duration: this.duration,
+        colorSpace: this.colorSpace,
+        rotation: this.rotation,
+        visibleRect: this.visibleRect,
+        displayWidth: this.displayWidth,
+        displayHeight: this.displayHeight
+      });
+    } else {
+      return new VideoSample(this._data, {
+        format: this.format,
+        codedWidth: this.codedWidth,
+        codedHeight: this.codedHeight,
+        timestamp: this.timestamp,
+        duration: this.duration,
+        colorSpace: this.colorSpace,
+        rotation: this.rotation,
+        visibleRect: this.visibleRect,
+        displayWidth: this.displayWidth,
+        displayHeight: this.displayHeight
+      });
+    }
+  }
+  /**
+   * Closes this video sample, releasing held resources. Video samples should be closed as soon as they are not
+   * needed anymore.
+   */
+  close() {
+    if (this._closed) {
+      return;
+    }
+    finalizationRegistry?.unregister(this);
+    if (isVideoFrame(this._data)) {
+      this._data.close();
+    } else {
+      this._data = null;
+    }
+    this._closed = true;
+  }
+  /**
+   * Returns the number of bytes required to hold this video sample's pixel data. Throws if `format` is `null`.
+   */
+  allocationSize(options = {}) {
+    validateVideoFrameCopyToOptions(options);
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    if (this.format === null) {
+      throw new Error("Cannot get allocation size when format is null. Sorry!");
+    }
+    assert$3(this._data !== null);
+    if (!isVideoFrame(this._data)) {
+      if (options.colorSpace || options.format && options.format !== this.format || options.layout || options.rect) {
+        const videoFrame = this.toVideoFrame();
+        const size2 = videoFrame.allocationSize(options);
+        videoFrame.close();
+        return size2;
+      }
+    }
+    if (isVideoFrame(this._data)) {
+      return this._data.allocationSize(options);
+    } else if (this._data instanceof Uint8Array) {
+      return this._data.byteLength;
+    } else {
+      return this.codedWidth * this.codedHeight * 4;
+    }
+  }
+  /**
+   * Copies this video sample's pixel data to an ArrayBuffer or ArrayBufferView. Throws if `format` is `null`.
+   * @returns The byte layout of the planes of the copied data.
+   */
+  async copyTo(destination, options = {}) {
+    if (!isAllowSharedBufferSource(destination)) {
+      throw new TypeError("destination must be an ArrayBuffer or an ArrayBuffer view.");
+    }
+    validateVideoFrameCopyToOptions(options);
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    if (this.format === null) {
+      throw new Error("Cannot copy video sample data when format is null. Sorry!");
+    }
+    assert$3(this._data !== null);
+    if (!isVideoFrame(this._data)) {
+      if (options.colorSpace || options.format && options.format !== this.format || options.layout || options.rect) {
+        const videoFrame = this.toVideoFrame();
+        const layout = await videoFrame.copyTo(destination, options);
+        videoFrame.close();
+        return layout;
+      }
+    }
+    if (isVideoFrame(this._data)) {
+      return this._data.copyTo(destination, options);
+    } else if (this._data instanceof Uint8Array) {
+      assert$3(this._layout);
+      const dest = toUint8Array(destination);
+      dest.set(this._data);
+      return this._layout;
+    } else {
+      const canvas = this._data;
+      const context = canvas.getContext("2d");
+      assert$3(context);
+      const imageData = context.getImageData(0, 0, this.codedWidth, this.codedHeight);
+      const dest = toUint8Array(destination);
+      dest.set(imageData.data);
+      return [{
+        offset: 0,
+        stride: 4 * this.codedWidth
+      }];
+    }
+  }
+  /**
+   * Converts this video sample to a VideoFrame for use with the WebCodecs API. The VideoFrame returned by this
+   * method *must* be closed separately from this video sample.
+   */
+  toVideoFrame() {
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    assert$3(this._data !== null);
+    if (isVideoFrame(this._data)) {
+      return new VideoFrame(this._data, {
+        timestamp: this.microsecondTimestamp,
+        duration: this.microsecondDuration || void 0
+        // Drag 0 duration to undefined, glitches some codecs
+      });
+    } else if (this._data instanceof Uint8Array) {
+      return new VideoFrame(this._data, {
+        format: this.format,
+        codedWidth: this.codedWidth,
+        codedHeight: this.codedHeight,
+        timestamp: this.microsecondTimestamp,
+        duration: this.microsecondDuration || void 0,
+        colorSpace: this.colorSpace
+      });
+    } else {
+      return new VideoFrame(this._data, {
+        timestamp: this.microsecondTimestamp,
+        duration: this.microsecondDuration || void 0
+      });
+    }
+  }
+  draw(context, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
+    let sx = 0;
+    let sy = 0;
+    let sWidth = this.displayWidth;
+    let sHeight = this.displayHeight;
+    let dx = 0;
+    let dy = 0;
+    let dWidth = this.displayWidth;
+    let dHeight = this.displayHeight;
+    if (arg5 !== void 0) {
+      sx = arg1;
+      sy = arg2;
+      sWidth = arg3;
+      sHeight = arg4;
+      dx = arg5;
+      dy = arg6;
+      if (arg7 !== void 0) {
+        dWidth = arg7;
+        dHeight = arg8;
+      } else {
+        dWidth = sWidth;
+        dHeight = sHeight;
+      }
+    } else {
+      dx = arg1;
+      dy = arg2;
+      if (arg3 !== void 0) {
+        dWidth = arg3;
+        dHeight = arg4;
+      }
+    }
+    if (!(typeof CanvasRenderingContext2D !== "undefined" && context instanceof CanvasRenderingContext2D || typeof OffscreenCanvasRenderingContext2D !== "undefined" && context instanceof OffscreenCanvasRenderingContext2D)) {
+      throw new TypeError("context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.");
+    }
+    if (!Number.isFinite(sx)) {
+      throw new TypeError("sx must be a number.");
+    }
+    if (!Number.isFinite(sy)) {
+      throw new TypeError("sy must be a number.");
+    }
+    if (!Number.isFinite(sWidth) || sWidth < 0) {
+      throw new TypeError("sWidth must be a non-negative number.");
+    }
+    if (!Number.isFinite(sHeight) || sHeight < 0) {
+      throw new TypeError("sHeight must be a non-negative number.");
+    }
+    if (!Number.isFinite(dx)) {
+      throw new TypeError("dx must be a number.");
+    }
+    if (!Number.isFinite(dy)) {
+      throw new TypeError("dy must be a number.");
+    }
+    if (!Number.isFinite(dWidth) || dWidth < 0) {
+      throw new TypeError("dWidth must be a non-negative number.");
+    }
+    if (!Number.isFinite(dHeight) || dHeight < 0) {
+      throw new TypeError("dHeight must be a non-negative number.");
+    }
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    ({
+      sx,
+      sy,
+      sWidth,
+      sHeight
+    } = this._rotateSourceRegion(sx, sy, sWidth, sHeight, this.rotation));
+    const source = this.toCanvasImageSource();
+    context.save();
+    const centerX = dx + dWidth / 2;
+    const centerY = dy + dHeight / 2;
+    context.translate(centerX, centerY);
+    context.rotate(this.rotation * Math.PI / 180);
+    const aspectRatioChange = this.rotation % 180 === 0 ? 1 : dWidth / dHeight;
+    context.scale(1 / aspectRatioChange, aspectRatioChange);
+    context.drawImage(source, sx, sy, sWidth, sHeight, -dWidth / 2, -dHeight / 2, dWidth, dHeight);
+    context.restore();
+  }
+  /**
+   * Draws the sample in the middle of the canvas corresponding to the context with the specified fit behavior.
+   */
+  drawWithFit(context, options) {
+    if (!(typeof CanvasRenderingContext2D !== "undefined" && context instanceof CanvasRenderingContext2D || typeof OffscreenCanvasRenderingContext2D !== "undefined" && context instanceof OffscreenCanvasRenderingContext2D)) {
+      throw new TypeError("context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.");
+    }
+    if (!options || typeof options !== "object") {
+      throw new TypeError("options must be an object.");
+    }
+    if (!["fill", "contain", "cover"].includes(options.fit)) {
+      throw new TypeError("options.fit must be 'fill', 'contain', or 'cover'.");
+    }
+    if (options.rotation !== void 0 && ![0, 90, 180, 270].includes(options.rotation)) {
+      throw new TypeError("options.rotation, when provided, must be 0, 90, 180, or 270.");
+    }
+    if (options.crop !== void 0) {
+      validateCropRectangle(options.crop, "options.");
+    }
+    const canvasWidth = context.canvas.width;
+    const canvasHeight = context.canvas.height;
+    const rotation = options.rotation ?? this.rotation;
+    const [rotatedWidth, rotatedHeight] = rotation % 180 === 0 ? [this.squarePixelWidth, this.squarePixelHeight] : [this.squarePixelHeight, this.squarePixelWidth];
+    if (options.crop) {
+      clampCropRectangle(options.crop, rotatedWidth, rotatedHeight);
+    }
+    let dx;
+    let dy;
+    let newWidth;
+    let newHeight;
+    const {
+      sx,
+      sy,
+      sWidth,
+      sHeight
+    } = this._rotateSourceRegion(options.crop?.left ?? 0, options.crop?.top ?? 0, options.crop?.width ?? rotatedWidth, options.crop?.height ?? rotatedHeight, rotation);
+    if (options.fit === "fill") {
+      dx = 0;
+      dy = 0;
+      newWidth = canvasWidth;
+      newHeight = canvasHeight;
+    } else {
+      const [sampleWidth, sampleHeight] = options.crop ? [options.crop.width, options.crop.height] : [rotatedWidth, rotatedHeight];
+      const scale2 = options.fit === "contain" ? Math.min(canvasWidth / sampleWidth, canvasHeight / sampleHeight) : Math.max(canvasWidth / sampleWidth, canvasHeight / sampleHeight);
+      newWidth = sampleWidth * scale2;
+      newHeight = sampleHeight * scale2;
+      dx = (canvasWidth - newWidth) / 2;
+      dy = (canvasHeight - newHeight) / 2;
+    }
+    context.save();
+    const aspectRatioChange = rotation % 180 === 0 ? 1 : newWidth / newHeight;
+    context.translate(canvasWidth / 2, canvasHeight / 2);
+    context.rotate(rotation * Math.PI / 180);
+    context.scale(1 / aspectRatioChange, aspectRatioChange);
+    context.translate(-canvasWidth / 2, -canvasHeight / 2);
+    context.drawImage(this.toCanvasImageSource(), sx, sy, sWidth, sHeight, dx, dy, newWidth, newHeight);
+    context.restore();
+  }
+  /** @internal */
+  _rotateSourceRegion(sx, sy, sWidth, sHeight, rotation) {
+    if (rotation === 90) {
+      [sx, sy, sWidth, sHeight] = [sy, this.squarePixelHeight - sx - sWidth, sHeight, sWidth];
+    } else if (rotation === 180) {
+      [sx, sy] = [this.squarePixelWidth - sx - sWidth, this.squarePixelHeight - sy - sHeight];
+    } else if (rotation === 270) {
+      [sx, sy, sWidth, sHeight] = [this.squarePixelWidth - sy - sHeight, sx, sHeight, sWidth];
+    }
+    return {
+      sx,
+      sy,
+      sWidth,
+      sHeight
+    };
+  }
+  /**
+   * Converts this video sample to a
+   * [`CanvasImageSource`](https://udn.realityripple.com/docs/Web/API/CanvasImageSource) for drawing to a canvas.
+   *
+   * You must use the value returned by this method immediately, as any VideoFrame created internally will
+   * automatically be closed in the next microtask.
+   */
+  toCanvasImageSource() {
+    if (this._closed) {
+      throw new Error("VideoSample is closed.");
+    }
+    assert$3(this._data !== null);
+    if (this._data instanceof Uint8Array) {
+      const videoFrame = this.toVideoFrame();
+      queueMicrotask(() => videoFrame.close());
+      return videoFrame;
+    } else {
+      return this._data;
+    }
+  }
+  /** Sets the rotation metadata of this video sample. */
+  setRotation(newRotation) {
+    if (![0, 90, 180, 270].includes(newRotation)) {
+      throw new TypeError("newRotation must be 0, 90, 180, or 270.");
+    }
+    this.rotation = newRotation;
+  }
+  /** Sets the presentation timestamp of this video sample, in seconds. */
+  setTimestamp(newTimestamp) {
+    if (!Number.isFinite(newTimestamp)) {
+      throw new TypeError("newTimestamp must be a number.");
+    }
+    this.timestamp = newTimestamp;
+  }
+  /** Sets the duration of this video sample, in seconds. */
+  setDuration(newDuration) {
+    if (!Number.isFinite(newDuration) || newDuration < 0) {
+      throw new TypeError("newDuration must be a non-negative number.");
+    }
+    this.duration = newDuration;
+  }
+  /** Calls `.close()`. */
+  [Symbol.dispose]() {
+    this.close();
+  }
+}
 class VideoSampleColorSpace {
   /** Creates a new VideoSampleColorSpace. */
   constructor(init2) {
@@ -32678,6 +32086,476 @@ class BaseMediaSampleSink {
 const computeMaxQueueSize = decodedSampleQueueSize => {
   return decodedSampleQueueSize === 0 ? 40 : 8;
 };
+class VideoDecoderWrapper extends DecoderWrapper {
+  constructor(onSample, onError, codec, decoderConfig, rotation, timeResolution) {
+    super(onSample, onError);
+    this.codec = codec;
+    this.decoderConfig = decoderConfig;
+    this.rotation = rotation;
+    this.timeResolution = timeResolution;
+    this.decoder = null;
+    this.customDecoder = null;
+    this.customDecoderCallSerializer = new CallSerializer();
+    this.customDecoderQueueSize = 0;
+    this.inputTimestamps = [];
+    this.sampleQueue = [];
+    this.currentPacketIndex = 0;
+    this.raslSkipped = false;
+    this.alphaDecoder = null;
+    this.alphaHadKeyframe = false;
+    this.colorQueue = [];
+    this.alphaQueue = [];
+    this.merger = null;
+    this.mergerCreationFailed = false;
+    this.decodedAlphaChunkCount = 0;
+    this.alphaDecoderQueueSize = 0;
+    this.nullAlphaFrameQueue = [];
+    this.currentAlphaPacketIndex = 0;
+    this.alphaRaslSkipped = false;
+    const MatchingCustomDecoder = customVideoDecoders.find(x2 => x2.supports(codec, decoderConfig));
+    if (MatchingCustomDecoder) {
+      this.customDecoder = new MatchingCustomDecoder();
+      this.customDecoder.codec = codec;
+      this.customDecoder.config = decoderConfig;
+      this.customDecoder.onSample = sample => {
+        if (!(sample instanceof VideoSample)) {
+          throw new TypeError("The argument passed to onSample must be a VideoSample.");
+        }
+        this.finalizeAndEmitSample(sample);
+      };
+      void this.customDecoderCallSerializer.call(() => this.customDecoder.init());
+    } else {
+      const colorHandler = frame2 => {
+        if (this.alphaQueue.length > 0) {
+          const alphaFrame = this.alphaQueue.shift();
+          assert$3(alphaFrame !== void 0);
+          this.mergeAlpha(frame2, alphaFrame);
+        } else {
+          this.colorQueue.push(frame2);
+        }
+      };
+      if (codec === "avc" && this.decoderConfig.description && isChromium()) {
+        const record = deserializeAvcDecoderConfigurationRecord(toUint8Array(this.decoderConfig.description));
+        if (record && record.sequenceParameterSets.length > 0) {
+          const sps = parseAvcSps(record.sequenceParameterSets[0]);
+          if (sps && sps.frameMbsOnlyFlag === 0) {
+            this.decoderConfig = {
+              ...this.decoderConfig,
+              hardwareAcceleration: "prefer-software"
+            };
+          }
+        }
+      }
+      const stack = new Error("Decoding error").stack;
+      this.decoder = new VideoDecoder({
+        output: frame2 => {
+          try {
+            colorHandler(frame2);
+          } catch (error) {
+            this.onError(error);
+          }
+        },
+        error: error => {
+          error.stack = stack;
+          this.onError(error);
+        }
+      });
+      this.decoder.configure(this.decoderConfig);
+    }
+  }
+  getDecodeQueueSize() {
+    if (this.customDecoder) {
+      return this.customDecoderQueueSize;
+    } else {
+      assert$3(this.decoder);
+      return Math.max(this.decoder.decodeQueueSize, this.alphaDecoder?.decodeQueueSize ?? 0);
+    }
+  }
+  decode(packet) {
+    if (this.codec === "hevc" && this.currentPacketIndex > 0 && !this.raslSkipped) {
+      if (this.hasHevcRaslPicture(packet.data)) {
+        return;
+      }
+      this.raslSkipped = true;
+    }
+    if (this.customDecoder) {
+      this.customDecoderQueueSize++;
+      void this.customDecoderCallSerializer.call(() => this.customDecoder.decode(packet)).then(() => this.customDecoderQueueSize--);
+    } else {
+      assert$3(this.decoder);
+      if (!isWebKit()) {
+        insertSorted(this.inputTimestamps, packet.timestamp, x2 => x2);
+      }
+      if (isChromium() && this.currentPacketIndex === 0) {
+        if (this.codec === "avc") {
+          const filteredNalUnits = [];
+          for (const loc of iterateAvcNalUnits(packet.data, this.decoderConfig)) {
+            const type2 = extractNalUnitTypeForAvc(packet.data[loc.offset]);
+            if (!(type2 >= 20 && type2 <= 31)) {
+              filteredNalUnits.push(packet.data.subarray(loc.offset, loc.offset + loc.length));
+            }
+          }
+          const newData = concatAvcNalUnits(filteredNalUnits, this.decoderConfig);
+          packet = new EncodedPacket(newData, packet.type, packet.timestamp, packet.duration);
+        } else if (this.codec === "hevc") {
+          const sanitizedData = sanitizeHevcPacketForChromium(packet.data, this.decoderConfig);
+          if (sanitizedData) {
+            packet = new EncodedPacket(sanitizedData, packet.type, packet.timestamp, packet.duration);
+          }
+        }
+      }
+      this.decoder.decode(packet.toEncodedVideoChunk());
+      this.decodeAlphaData(packet);
+    }
+    this.currentPacketIndex++;
+  }
+  decodeAlphaData(packet) {
+    if (!packet.sideData.alpha || this.mergerCreationFailed) {
+      this.pushNullAlphaFrame();
+      return;
+    }
+    if (!this.merger) {
+      try {
+        this.merger = new ColorAlphaMerger();
+      } catch (error) {
+        console.error("Due to an error, only color data will be decoded.", error);
+        this.mergerCreationFailed = true;
+        this.decodeAlphaData(packet);
+        return;
+      }
+    }
+    if (!this.alphaDecoder) {
+      const alphaHandler = frame2 => {
+        this.alphaDecoderQueueSize--;
+        if (this.colorQueue.length > 0) {
+          const colorFrame = this.colorQueue.shift();
+          assert$3(colorFrame !== void 0);
+          this.mergeAlpha(colorFrame, frame2);
+        } else {
+          this.alphaQueue.push(frame2);
+        }
+        this.decodedAlphaChunkCount++;
+        while (this.nullAlphaFrameQueue.length > 0 && this.nullAlphaFrameQueue[0] === this.decodedAlphaChunkCount) {
+          this.nullAlphaFrameQueue.shift();
+          if (this.colorQueue.length > 0) {
+            const colorFrame = this.colorQueue.shift();
+            assert$3(colorFrame !== void 0);
+            this.mergeAlpha(colorFrame, null);
+          } else {
+            this.alphaQueue.push(null);
+          }
+        }
+      };
+      const stack = new Error("Decoding error").stack;
+      this.alphaDecoder = new VideoDecoder({
+        output: frame2 => {
+          try {
+            alphaHandler(frame2);
+          } catch (error) {
+            this.onError(error);
+          }
+        },
+        error: error => {
+          error.stack = stack;
+          this.onError(error);
+        }
+      });
+      this.alphaDecoder.configure(this.decoderConfig);
+    }
+    const type2 = determineVideoPacketType(this.codec, this.decoderConfig, packet.sideData.alpha);
+    if (!this.alphaHadKeyframe) {
+      this.alphaHadKeyframe = type2 === "key";
+    }
+    if (this.alphaHadKeyframe) {
+      if (this.codec === "hevc" && this.currentAlphaPacketIndex > 0 && !this.alphaRaslSkipped) {
+        if (this.hasHevcRaslPicture(packet.sideData.alpha)) {
+          this.pushNullAlphaFrame();
+          return;
+        }
+        this.alphaRaslSkipped = true;
+      }
+      this.currentAlphaPacketIndex++;
+      this.alphaDecoder.decode(packet.alphaToEncodedVideoChunk(type2 ?? packet.type));
+      this.alphaDecoderQueueSize++;
+    } else {
+      this.pushNullAlphaFrame();
+    }
+  }
+  pushNullAlphaFrame() {
+    if (this.alphaDecoderQueueSize === 0) {
+      this.alphaQueue.push(null);
+    } else {
+      this.nullAlphaFrameQueue.push(this.decodedAlphaChunkCount + this.alphaDecoderQueueSize);
+    }
+  }
+  /**
+   * If we're using HEVC, we need to make sure to skip any RASL slices that follow a non-IDR key frame such as
+   * CRA_NUT. This is because RASL slices cannot be decoded without data before the CRA_NUT. Browsers behave
+   * differently here: Chromium drops the packets, Safari throws a decoder error. Either way, it's not good
+   * and causes bugs upstream. So, let's take the dropping into our own hands.
+   */
+  hasHevcRaslPicture(packetData) {
+    for (const loc of iterateHevcNalUnits(packetData, this.decoderConfig)) {
+      const type2 = extractNalUnitTypeForHevc(packetData[loc.offset]);
+      if (type2 === HevcNalUnitType.RASL_N || type2 === HevcNalUnitType.RASL_R) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /** Handler for the WebCodecs VideoDecoder for ironing out browser differences. */
+  sampleHandler(sample) {
+    if (isWebKit()) {
+      if (this.sampleQueue.length > 0 && sample.timestamp >= last$1(this.sampleQueue).timestamp) {
+        for (const sample2 of this.sampleQueue) {
+          this.finalizeAndEmitSample(sample2);
+        }
+        this.sampleQueue.length = 0;
+      }
+      insertSorted(this.sampleQueue, sample, x2 => x2.timestamp);
+    } else {
+      const timestamp2 = this.inputTimestamps.shift();
+      assert$3(timestamp2 !== void 0);
+      sample.setTimestamp(timestamp2);
+      this.finalizeAndEmitSample(sample);
+    }
+  }
+  finalizeAndEmitSample(sample) {
+    sample.setTimestamp(Math.round(sample.timestamp * this.timeResolution) / this.timeResolution);
+    sample.setDuration(Math.round(sample.duration * this.timeResolution) / this.timeResolution);
+    sample.setRotation(this.rotation);
+    this.onSample(sample);
+  }
+  mergeAlpha(color2, alpha2) {
+    if (!alpha2) {
+      const finalSample2 = new VideoSample(color2);
+      this.sampleHandler(finalSample2);
+      return;
+    }
+    assert$3(this.merger);
+    this.merger.update(color2, alpha2);
+    color2.close();
+    alpha2.close();
+    const finalFrame = new VideoFrame(this.merger.canvas, {
+      timestamp: color2.timestamp,
+      duration: color2.duration ?? void 0
+    });
+    const finalSample = new VideoSample(finalFrame);
+    this.sampleHandler(finalSample);
+  }
+  async flush() {
+    if (this.customDecoder) {
+      await this.customDecoderCallSerializer.call(() => this.customDecoder.flush());
+    } else {
+      assert$3(this.decoder);
+      await Promise.all([this.decoder.flush(), this.alphaDecoder?.flush()]);
+      this.colorQueue.forEach(x2 => x2.close());
+      this.colorQueue.length = 0;
+      this.alphaQueue.forEach(x2 => x2?.close());
+      this.alphaQueue.length = 0;
+      this.alphaHadKeyframe = false;
+      this.decodedAlphaChunkCount = 0;
+      this.alphaDecoderQueueSize = 0;
+      this.nullAlphaFrameQueue.length = 0;
+      this.currentAlphaPacketIndex = 0;
+      this.alphaRaslSkipped = false;
+    }
+    if (isWebKit()) {
+      for (const sample of this.sampleQueue) {
+        this.finalizeAndEmitSample(sample);
+      }
+      this.sampleQueue.length = 0;
+    }
+    this.currentPacketIndex = 0;
+    this.raslSkipped = false;
+  }
+  close() {
+    if (this.customDecoder) {
+      void this.customDecoderCallSerializer.call(() => this.customDecoder.close());
+    } else {
+      assert$3(this.decoder);
+      this.decoder.close();
+      this.alphaDecoder?.close();
+      this.colorQueue.forEach(x2 => x2.close());
+      this.colorQueue.length = 0;
+      this.alphaQueue.forEach(x2 => x2?.close());
+      this.alphaQueue.length = 0;
+      this.merger?.close();
+    }
+    for (const sample of this.sampleQueue) {
+      sample.close();
+    }
+    this.sampleQueue.length = 0;
+  }
+}
+class ColorAlphaMerger {
+  constructor() {
+    if (typeof OffscreenCanvas !== "undefined") {
+      this.canvas = new OffscreenCanvas(300, 150);
+    } else {
+      this.canvas = document.createElement("canvas");
+    }
+    const gl = this.canvas.getContext("webgl2", {
+      premultipliedAlpha: false
+    });
+    if (!gl) {
+      throw new Error("Couldn't acquire WebGL 2 context.");
+    }
+    this.gl = gl;
+    this.program = this.createProgram();
+    this.vao = this.createVAO();
+    this.colorTexture = this.createTexture();
+    this.alphaTexture = this.createTexture();
+    this.gl.useProgram(this.program);
+    this.gl.uniform1i(this.gl.getUniformLocation(this.program, "u_colorTexture"), 0);
+    this.gl.uniform1i(this.gl.getUniformLocation(this.program, "u_alphaTexture"), 1);
+  }
+  createProgram() {
+    const vertexShader2 = this.createShader(this.gl.VERTEX_SHADER, `#version 300 es
+			in vec2 a_position;
+			in vec2 a_texCoord;
+			out vec2 v_texCoord;
+			
+			void main() {
+				gl_Position = vec4(a_position, 0.0, 1.0);
+				v_texCoord = a_texCoord;
+			}
+		`);
+    const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, `#version 300 es
+			precision highp float;
+			
+			uniform sampler2D u_colorTexture;
+			uniform sampler2D u_alphaTexture;
+			in vec2 v_texCoord;
+			out vec4 fragColor;
+			
+			void main() {
+				vec3 color = texture(u_colorTexture, v_texCoord).rgb;
+				float alpha = texture(u_alphaTexture, v_texCoord).r;
+				fragColor = vec4(color, alpha);
+			}
+		`);
+    const program = this.gl.createProgram();
+    this.gl.attachShader(program, vertexShader2);
+    this.gl.attachShader(program, fragmentShader);
+    this.gl.linkProgram(program);
+    return program;
+  }
+  createShader(type2, source) {
+    const shader = this.gl.createShader(type2);
+    this.gl.shaderSource(shader, source);
+    this.gl.compileShader(shader);
+    return shader;
+  }
+  createVAO() {
+    const vao = this.gl.createVertexArray();
+    this.gl.bindVertexArray(vao);
+    const vertices = new Float32Array([-1, -1, 0, 1, 1, -1, 1, 1, -1, 1, 0, 0, 1, 1, 1, 0]);
+    const buffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+    const positionLocation = this.gl.getAttribLocation(this.program, "a_position");
+    const texCoordLocation = this.gl.getAttribLocation(this.program, "a_texCoord");
+    this.gl.enableVertexAttribArray(positionLocation);
+    this.gl.vertexAttribPointer(positionLocation, 2, this.gl.FLOAT, false, 16, 0);
+    this.gl.enableVertexAttribArray(texCoordLocation);
+    this.gl.vertexAttribPointer(texCoordLocation, 2, this.gl.FLOAT, false, 16, 8);
+    return vao;
+  }
+  createTexture() {
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    return texture;
+  }
+  update(color2, alpha2) {
+    if (color2.displayWidth !== this.canvas.width || color2.displayHeight !== this.canvas.height) {
+      this.canvas.width = color2.displayWidth;
+      this.canvas.height = color2.displayHeight;
+    }
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.colorTexture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, color2);
+    this.gl.activeTexture(this.gl.TEXTURE1);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.alphaTexture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, alpha2);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.bindVertexArray(this.vao);
+    this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
+  }
+  close() {
+    this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+    this.gl = null;
+  }
+}
+class VideoSampleSink extends BaseMediaSampleSink {
+  /** Creates a new {@link VideoSampleSink} for the given {@link InputVideoTrack}. */
+  constructor(videoTrack) {
+    if (!(videoTrack instanceof InputVideoTrack)) {
+      throw new TypeError("videoTrack must be an InputVideoTrack.");
+    }
+    super();
+    this._track = videoTrack;
+  }
+  /** @internal */
+  async _createDecoder(onSample, onError) {
+    if (!(await this._track.canDecode())) {
+      throw new Error("This video track cannot be decoded by this browser. Make sure to check decodability before using a track.");
+    }
+    const codec = await this._track.getCodec();
+    const rotation = await this._track.getRotation();
+    const decoderConfig = await this._track.getDecoderConfig();
+    const timeResolution = await this._track.getTimeResolution();
+    assert$3(codec && decoderConfig);
+    return new VideoDecoderWrapper(onSample, onError, codec, decoderConfig, rotation, timeResolution);
+  }
+  /** @internal */
+  _createPacketSink() {
+    return new EncodedPacketSink(this._track);
+  }
+  /**
+   * Retrieves the video sample (frame) corresponding to the given timestamp, in seconds. More specifically, returns
+   * the last video sample (in presentation order) with a start timestamp less than or equal to the given timestamp.
+   * Returns null if the timestamp is before the track's first timestamp.
+   *
+   * @param timestamp - The timestamp used for retrieval, in seconds.
+   * @param options - Options used for the underlying packet retrieval.
+   */
+  async getSample(timestamp2, options = {}) {
+    validateTimestamp(timestamp2);
+    for await (const sample of this.mediaSamplesAtTimestamps([timestamp2], options)) {
+      return sample;
+    }
+    throw new Error("Internal error: Iterator returned nothing.");
+  }
+  /**
+   * Creates an async iterator that yields the video samples (frames) of this track in presentation order. This method
+   * will intelligently pre-decode a few frames ahead to enable fast iteration.
+   *
+   * @param startTimestamp - The timestamp in seconds at which to start yielding samples (inclusive).
+   * @param endTimestamp - The timestamp in seconds at which to stop yielding samples (exclusive).
+   * @param options - Options used for the underlying packet retrieval.
+   */
+  samples(startTimestamp = 0, endTimestamp = Infinity, options = {}) {
+    return this.mediaSamplesInRange(startTimestamp, endTimestamp, options);
+  }
+  /**
+   * Creates an async iterator that yields a video sample (frame) for each timestamp in the argument. This method
+   * uses an optimized decoding pipeline if these timestamps are monotonically sorted, decoding each packet at most
+   * once, and is therefore more efficient than manually getting the sample for every timestamp. The iterator may
+   * yield null if no frame is available for a given timestamp.
+   *
+   * @param timestamps - An iterable or async iterable of timestamps in seconds.
+   * @param options - Options used for the underlying packet retrieval.
+   */
+  samplesAtTimestamps(timestamps, options = {}) {
+    return this.mediaSamplesAtTimestamps(timestamps, options);
+  }
+}
 /*!
  * Copyright (c) 2026-present, Vanilagy and contributors
  *
@@ -43206,6 +43084,8 @@ function addContext(slice2, context) {
   }
   return new Slice(content2, openStart, openEnd);
 }
+const handlers$2 = {};
+const editHandlers = {};
 const passiveHandlers = {
   touchstart: true,
   touchmove: true
@@ -43243,6 +43123,18 @@ let InputState$1 = class InputState {
     this.hideSelectionGuard = null;
   }
 };
+function initInput(view2) {
+  for (let event in handlers$2) {
+    let handler = handlers$2[event];
+    view2.dom.addEventListener(event, view2.input.eventHandlers[event] = event2 => {
+      if (eventBelongsToView(view2, event2) && !runCustomHandler(view2, event2) && (view2.editable || !(event2.type in editHandlers))) handler(view2, event2);
+    }, passiveHandlers[event] ? {
+      passive: true
+    } : void 0);
+  }
+  if (safari$1) view2.dom.addEventListener("input", () => null);
+  ensureListeners(view2);
+}
 function setSelectionOrigin(view2, origin) {
   view2.input.lastSelectionOrigin = origin;
   view2.input.lastSelectionTime = Date.now();
@@ -43271,6 +43163,50 @@ function eventBelongsToView(view2, event) {
   for (let node2 = event.target; node2 != view2.dom; node2 = node2.parentNode) if (!node2 || node2.nodeType == 11 || node2.pmViewDesc && node2.pmViewDesc.stopEvent(event)) return false;
   return true;
 }
+function dispatchEvent(view2, event) {
+  if (!runCustomHandler(view2, event) && handlers$2[event.type] && (view2.editable || !(event.type in editHandlers))) handlers$2[event.type](view2, event);
+}
+editHandlers.keydown = (view2, _event) => {
+  let event = _event;
+  view2.input.shiftKey = event.keyCode == 16 || event.shiftKey;
+  if (inOrNearComposition(view2)) return;
+  view2.input.lastKeyCode = event.keyCode;
+  view2.input.lastKeyCodeTime = Date.now();
+  if (android$1 && chrome$1 && event.keyCode == 13) return;
+  if (event.keyCode != 229) view2.domObserver.forceFlush();
+  if (ios$1 && event.keyCode == 13 && !event.ctrlKey && !event.altKey && !event.metaKey) {
+    let now2 = Date.now();
+    view2.input.lastIOSEnter = now2;
+    view2.input.lastIOSEnterFallbackTimeout = setTimeout(() => {
+      if (view2.input.lastIOSEnter == now2) {
+        view2.someProp("handleKeyDown", f2 => f2(view2, keyEvent(13, "Enter")));
+        view2.input.lastIOSEnter = 0;
+      }
+    }, 200);
+  } else if (view2.someProp("handleKeyDown", f2 => f2(view2, event)) || captureKeyDown(view2, event)) {
+    event.preventDefault();
+  } else {
+    setSelectionOrigin(view2, "key");
+  }
+};
+editHandlers.keyup = (view2, event) => {
+  if (event.keyCode == 16) view2.input.shiftKey = false;
+};
+editHandlers.keypress = (view2, _event) => {
+  let event = _event;
+  if (inOrNearComposition(view2) || !event.charCode || event.ctrlKey && !event.altKey || mac$2 && event.metaKey) return;
+  if (view2.someProp("handleKeyPress", f2 => f2(view2, event))) {
+    event.preventDefault();
+    return;
+  }
+  let sel = view2.state.selection;
+  if (!(sel instanceof TextSelection) || !sel.$from.sameParent(sel.$to)) {
+    let text2 = String.fromCharCode(event.charCode);
+    let deflt = () => view2.state.tr.insertText(text2).scrollIntoView();
+    if (!/[\r\n]/.test(text2) && !view2.someProp("handleTextInput", f2 => f2(view2, sel.$from.pos, sel.$to.pos, text2, deflt))) view2.dispatch(deflt());
+    event.preventDefault();
+  }
+};
 function eventCoords(event) {
   return {
     left: event.clientX,
@@ -43361,6 +43297,33 @@ function forceDOMFlush(view2) {
   return endComposition(view2);
 }
 const selectNodeModifier = mac$2 ? "metaKey" : "ctrlKey";
+handlers$2.mousedown = (view2, _event) => {
+  let event = _event;
+  view2.input.shiftKey = event.shiftKey;
+  let flushed = forceDOMFlush(view2);
+  let now2 = Date.now(),
+    type2 = "singleClick";
+  if (now2 - view2.input.lastClick.time < 500 && isNear(event, view2.input.lastClick) && !event[selectNodeModifier] && view2.input.lastClick.button == event.button) {
+    if (view2.input.lastClick.type == "singleClick") type2 = "doubleClick";else if (view2.input.lastClick.type == "doubleClick") type2 = "tripleClick";
+  }
+  view2.input.lastClick = {
+    time: now2,
+    x: event.clientX,
+    y: event.clientY,
+    type: type2,
+    button: event.button
+  };
+  if (view2.input.mouseDown) view2.input.mouseDown.done();
+  let pos = view2.posAtCoords(eventCoords(event));
+  if (!pos) return;
+  if (type2 == "singleClick") {
+    view2.input.mouseDown = new LeftMouseDown(view2, pos, event, !!flushed);
+  } else if ((type2 == "doubleClick" ? handleDoubleClick : handleTripleClick$1)(view2, pos.pos, pos.inside, event)) {
+    event.preventDefault();
+  } else {
+    setSelectionOrigin(view2, "pointer");
+  }
+};
 class MouseDown {
   constructor(view2) {
     this.view = view2;
@@ -43501,6 +43464,16 @@ class TripleClickDrag extends MouseDown {
     updateSelection(this.view, TextSelection.create(doc2, anchor, head2));
   }
 }
+handlers$2.touchstart = view2 => {
+  view2.input.lastTouch = Date.now();
+  forceDOMFlush(view2);
+  setSelectionOrigin(view2, "pointer");
+};
+handlers$2.touchmove = view2 => {
+  view2.input.lastTouch = Date.now();
+  setSelectionOrigin(view2, "pointer");
+};
+handlers$2.contextmenu = view2 => forceDOMFlush(view2);
 function inOrNearComposition(view2, event) {
   if (view2.composing) return true;
   if (safari$1 && Math.abs(Date.now() - view2.input.compositionEndedAt) < 500) {
@@ -43510,6 +43483,39 @@ function inOrNearComposition(view2, event) {
   return false;
 }
 const timeoutComposition = android$1 ? 5e3 : -1;
+editHandlers.compositionstart = editHandlers.compositionupdate = view2 => {
+  if (!view2.composing) {
+    view2.domObserver.flush();
+    let {
+        state: state2
+      } = view2,
+      $pos = state2.selection.$to;
+    if (state2.selection instanceof TextSelection && (state2.storedMarks || !$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some(m3 => m3.type.spec.inclusive === false) || chrome$1 && windows$1 && selectionBeforeUneditable(view2))) {
+      view2.markCursor = view2.state.storedMarks || $pos.marks();
+      endComposition(view2, true);
+      view2.markCursor = null;
+    } else {
+      endComposition(view2, !state2.selection.empty);
+      if (gecko$1 && state2.selection.empty && $pos.parentOffset && !$pos.textOffset && $pos.nodeBefore.marks.length) {
+        let sel = view2.domSelectionRange();
+        for (let node2 = sel.focusNode, offset2 = sel.focusOffset; node2 && node2.nodeType == 1 && offset2 != 0;) {
+          let before = offset2 < 0 ? node2.lastChild : node2.childNodes[offset2 - 1];
+          if (!before) break;
+          if (before.nodeType == 3) {
+            let sel2 = view2.domSelection();
+            if (sel2) sel2.collapse(before, before.nodeValue.length);
+            break;
+          } else {
+            node2 = before;
+            offset2 = -1;
+          }
+        }
+      }
+    }
+    view2.input.composing = true;
+  }
+  scheduleComposeEnd(view2, timeoutComposition);
+};
 function selectionBeforeUneditable(view2) {
   let {
     focusNode,
@@ -43519,6 +43525,17 @@ function selectionBeforeUneditable(view2) {
   let next2 = focusNode.childNodes[focusOffset];
   return next2.nodeType == 1 && next2.contentEditable == "false";
 }
+editHandlers.compositionend = (view2, event) => {
+  if (view2.composing) {
+    view2.input.composing = false;
+    view2.input.compositionEndedAt = Date.now();
+    view2.input.compositionPendingChanges = view2.domObserver.pendingRecords().length ? view2.input.compositionID : 0;
+    view2.input.compositionNode = null;
+    if (view2.input.badSafariComposition) view2.domObserver.forceFlush();else if (view2.input.compositionPendingChanges) Promise.resolve().then(() => view2.domObserver.flush());
+    view2.input.compositionID++;
+    scheduleComposeEnd(view2, 20);
+  }
+};
 function scheduleComposeEnd(view2, delay) {
   clearTimeout(view2.input.composingTimeout);
   if (delay > -1) view2.input.composingTimeout = setTimeout(() => endComposition(view2), delay);
@@ -43577,6 +43594,27 @@ function captureCopy$1(view2, dom) {
   }, 50);
 }
 const brokenClipboardAPI$1 = ie$6 && ie_version < 15 || ios$1 && webkit_version < 604;
+handlers$2.copy = editHandlers.cut = (view2, _event) => {
+  let event = _event;
+  let sel = view2.state.selection,
+    cut2 = event.type == "cut";
+  if (sel.empty) return;
+  let data2 = brokenClipboardAPI$1 ? null : event.clipboardData;
+  let slice2 = sel.content(),
+    {
+      dom,
+      text: text2
+    } = serializeForClipboard(view2, slice2);
+  if (data2) {
+    event.preventDefault();
+    data2.clearData();
+    data2.setData("text/html", dom.innerHTML);
+    data2.setData("text/plain", text2);
+  } else {
+    captureCopy$1(view2, dom);
+  }
+  if (cut2) view2.dispatch(view2.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut"));
+};
 function sliceSingleNode(slice2) {
   return slice2.openStart == 0 && slice2.openEnd == 0 && slice2.content.childCount == 1 ? slice2.content.firstChild : null;
 }
@@ -43609,6 +43647,13 @@ function getText$1(clipboardData) {
   let uris = clipboardData.getData("text/uri-list");
   return uris ? uris.replace(/\r?\n/g, " ") : "";
 }
+editHandlers.paste = (view2, _event) => {
+  let event = _event;
+  if (view2.composing && !android$1) return;
+  let data2 = brokenClipboardAPI$1 ? null : event.clipboardData;
+  let plain = view2.input.shiftKey && view2.input.lastKeyCode != 45;
+  if (data2 && doPaste$1(view2, getText$1(data2), data2.getData("text/html"), plain, event)) event.preventDefault();else capturePaste$1(view2, event);
+};
 class Dragging {
   constructor(slice2, move, node2) {
     this.slice = slice2;
@@ -43624,6 +43669,133 @@ function dragMoves(view2, event) {
   });
   return copy2 != null ? !copy2 : !event[dragCopyModifier];
 }
+handlers$2.dragstart = (view2, _event) => {
+  let event = _event;
+  let mouseDown = view2.input.mouseDown;
+  if (mouseDown) mouseDown.done();
+  if (!event.dataTransfer) return;
+  let sel = view2.state.selection;
+  let pos = sel.empty ? null : view2.posAtCoords(eventCoords(event));
+  let node2;
+  if (pos && pos.pos >= sel.from && pos.pos <= (sel instanceof NodeSelection ? sel.to - 1 : sel.to)) ;else if (mouseDown && mouseDown.mightDrag) {
+    node2 = NodeSelection.create(view2.state.doc, mouseDown.mightDrag.pos);
+  } else if (event.target && event.target.nodeType == 1) {
+    let desc2 = view2.docView.nearestDesc(event.target, true);
+    if (desc2 && desc2.node.type.spec.draggable && desc2 != view2.docView) node2 = NodeSelection.create(view2.state.doc, desc2.posBefore);
+  }
+  let draggedSlice = (node2 || view2.state.selection).content();
+  let {
+    dom,
+    text: text2,
+    slice: slice2
+  } = serializeForClipboard(view2, draggedSlice);
+  if (!event.dataTransfer.files.length || !chrome$1 || chrome_version > 120) event.dataTransfer.clearData();
+  event.dataTransfer.setData(brokenClipboardAPI$1 ? "Text" : "text/html", dom.innerHTML);
+  event.dataTransfer.effectAllowed = "copyMove";
+  if (!brokenClipboardAPI$1) event.dataTransfer.setData("text/plain", text2);
+  view2.dragging = new Dragging(slice2, dragMoves(view2, event), node2);
+};
+handlers$2.dragend = view2 => {
+  let dragging = view2.dragging;
+  window.setTimeout(() => {
+    if (view2.dragging == dragging) view2.dragging = null;
+  }, 50);
+};
+editHandlers.dragover = editHandlers.dragenter = (_2, e2) => e2.preventDefault();
+editHandlers.drop = (view2, event) => {
+  try {
+    handleDrop(view2, event, view2.dragging);
+  } finally {
+    view2.dragging = null;
+  }
+};
+function handleDrop(view2, event, dragging) {
+  if (!event.dataTransfer) return;
+  let eventPos = view2.posAtCoords(eventCoords(event));
+  if (!eventPos) return;
+  let $mouse = view2.state.doc.resolve(eventPos.pos);
+  let slice2 = dragging && dragging.slice;
+  if (slice2) {
+    view2.someProp("transformPasted", f2 => {
+      slice2 = f2(slice2, view2, false);
+    });
+  } else {
+    slice2 = parseFromClipboard(view2, getText$1(event.dataTransfer), brokenClipboardAPI$1 ? null : event.dataTransfer.getData("text/html"), false, $mouse);
+  }
+  let move = !!(dragging && dragMoves(view2, event));
+  if (view2.someProp("handleDrop", f2 => f2(view2, event, slice2 || Slice.empty, move))) {
+    event.preventDefault();
+    return;
+  }
+  if (!slice2) return;
+  event.preventDefault();
+  let insertPos = slice2 ? dropPoint(view2.state.doc, $mouse.pos, slice2) : $mouse.pos;
+  if (insertPos == null) insertPos = $mouse.pos;
+  let tr2 = view2.state.tr;
+  if (move) {
+    let {
+      node: node2
+    } = dragging;
+    if (node2) node2.replace(tr2);else tr2.deleteSelection();
+  }
+  let pos = tr2.mapping.map(insertPos);
+  let isNode2 = slice2.openStart == 0 && slice2.openEnd == 0 && slice2.content.childCount == 1;
+  let beforeInsert = tr2.doc;
+  if (isNode2) tr2.replaceRangeWith(pos, pos, slice2.content.firstChild);else tr2.replaceRange(pos, pos, slice2);
+  if (tr2.doc.eq(beforeInsert)) return;
+  let $pos = tr2.doc.resolve(pos);
+  if (isNode2 && NodeSelection.isSelectable(slice2.content.firstChild) && $pos.nodeAfter && $pos.nodeAfter.sameMarkup(slice2.content.firstChild)) {
+    tr2.setSelection(new NodeSelection($pos));
+  } else {
+    let end2 = tr2.mapping.map(insertPos);
+    tr2.mapping.maps[tr2.mapping.maps.length - 1].forEach((_from, _to, _newFrom, newTo) => end2 = newTo);
+    tr2.setSelection(selectionBetween(view2, $pos, tr2.doc.resolve(end2)));
+  }
+  view2.focus();
+  view2.dispatch(tr2.setMeta("uiEvent", "drop"));
+}
+handlers$2.focus = view2 => {
+  view2.input.lastFocus = Date.now();
+  if (!view2.focused) {
+    view2.domObserver.stop();
+    view2.dom.classList.add("ProseMirror-focused");
+    view2.domObserver.start();
+    view2.focused = true;
+    setTimeout(() => {
+      if (view2.docView && view2.hasFocus() && !view2.domObserver.currentSelection.eq(view2.domSelectionRange())) selectionToDOM(view2);
+    }, 20);
+  }
+};
+handlers$2.blur = (view2, _event) => {
+  let event = _event;
+  if (view2.focused) {
+    view2.domObserver.stop();
+    view2.dom.classList.remove("ProseMirror-focused");
+    view2.domObserver.start();
+    if (event.relatedTarget && view2.dom.contains(event.relatedTarget)) view2.domObserver.currentSelection.clear();
+    view2.focused = false;
+  }
+};
+handlers$2.beforeinput = (view2, _event) => {
+  let event = _event;
+  if (android$1 && event.inputType == "deleteContentBackward") {
+    view2.domObserver.flushSoon();
+    let {
+      domChangeCount
+    } = view2.input;
+    setTimeout(() => {
+      if (view2.input.domChangeCount != domChangeCount) return;
+      view2.dom.blur();
+      view2.focus();
+      if (view2.someProp("handleKeyDown", f2 => f2(view2, keyEvent(8, "Backspace")))) return;
+      let {
+        $cursor
+      } = view2.state.selection;
+      if ($cursor && $cursor.pos > 0) view2.dispatch(view2.state.tr.delete($cursor.pos - 1, $cursor.pos).scrollIntoView());
+    }, 50);
+  }
+};
+for (let prop in editHandlers) handlers$2[prop] = editHandlers[prop];
 function compareObjs(a2, b3) {
   if (a2 == b3) return true;
   for (let p3 in a2) if (a2[p3] !== b3[p3]) return false;
@@ -44838,6 +45010,425 @@ function findDiff$1(a2, b3, pos, preferredPos, preferredSide) {
     endB
   };
 }
+let EditorView$1 = class EditorView {
+  /**
+  Create a view. `place` may be a DOM node that the editor should
+  be appended to, a function that will place it into the document,
+  or an object whose `mount` property holds the node to use as the
+  document container. If it is `null`, the editor will not be
+  added to the document.
+  */
+  constructor(place, props) {
+    this._root = null;
+    this.focused = false;
+    this.trackWrites = null;
+    this.mounted = false;
+    this.markCursor = null;
+    this.cursorWrapper = null;
+    this.lastSelectedViewDesc = void 0;
+    this.input = new InputState$1();
+    this.prevDirectPlugins = [];
+    this.pluginViews = [];
+    this.requiresGeckoHackNode = false;
+    this.dragging = null;
+    this._props = props;
+    this.state = props.state;
+    this.directPlugins = props.plugins || [];
+    this.directPlugins.forEach(checkStateComponent);
+    this.dispatch = this.dispatch.bind(this);
+    this.dom = place && place.mount || document.createElement("div");
+    if (place) {
+      if (place.appendChild) place.appendChild(this.dom);else if (typeof place == "function") place(this.dom);else if (place.mount) this.mounted = true;
+    }
+    this.editable = getEditable(this);
+    updateCursorWrapper(this);
+    this.nodeViews = buildNodeViews(this);
+    this.docView = docViewDesc(this.state.doc, computeDocDeco(this), viewDecorations(this), this.dom, this);
+    this.domObserver = new DOMObserver$1(this, (from2, to, typeOver, added) => readDOMChange(this, from2, to, typeOver, added));
+    this.domObserver.start();
+    initInput(this);
+    this.updatePluginViews();
+  }
+  /**
+  Holds `true` when a
+  [composition](https://w3c.github.io/uievents/#events-compositionevents)
+  is active.
+  */
+  get composing() {
+    return this.input.composing;
+  }
+  /**
+  The view's current [props](https://prosemirror.net/docs/ref/#view.EditorProps).
+  */
+  get props() {
+    if (this._props.state != this.state) {
+      let prev = this._props;
+      this._props = {};
+      for (let name2 in prev) this._props[name2] = prev[name2];
+      this._props.state = this.state;
+    }
+    return this._props;
+  }
+  /**
+  Update the view's props. Will immediately cause an update to
+  the DOM.
+  */
+  update(props) {
+    if (props.handleDOMEvents != this._props.handleDOMEvents) ensureListeners(this);
+    let prevProps = this._props;
+    this._props = props;
+    if (props.plugins) {
+      props.plugins.forEach(checkStateComponent);
+      this.directPlugins = props.plugins;
+    }
+    this.updateStateInner(props.state, prevProps);
+  }
+  /**
+  Update the view by updating existing props object with the object
+  given as argument. Equivalent to `view.update(Object.assign({},
+  view.props, props))`.
+  */
+  setProps(props) {
+    let updated = {};
+    for (let name2 in this._props) updated[name2] = this._props[name2];
+    updated.state = this.state;
+    for (let name2 in props) updated[name2] = props[name2];
+    this.update(updated);
+  }
+  /**
+  Update the editor's `state` prop, without touching any of the
+  other props.
+  */
+  updateState(state2) {
+    this.updateStateInner(state2, this._props);
+  }
+  updateStateInner(state2, prevProps) {
+    var _a2;
+    let prev = this.state,
+      redraw = false,
+      updateSel2 = false;
+    if (state2.storedMarks && this.composing) {
+      clearComposition(this);
+      updateSel2 = true;
+    }
+    this.state = state2;
+    let pluginsChanged = prev.plugins != state2.plugins || this._props.plugins != prevProps.plugins;
+    if (pluginsChanged || this._props.plugins != prevProps.plugins || this._props.nodeViews != prevProps.nodeViews) {
+      let nodeViews = buildNodeViews(this);
+      if (changedNodeViews(nodeViews, this.nodeViews)) {
+        this.nodeViews = nodeViews;
+        redraw = true;
+      }
+    }
+    if (pluginsChanged || prevProps.handleDOMEvents != this._props.handleDOMEvents) {
+      ensureListeners(this);
+    }
+    this.editable = getEditable(this);
+    updateCursorWrapper(this);
+    let innerDeco = viewDecorations(this),
+      outerDeco = computeDocDeco(this);
+    let scroll = prev.plugins != state2.plugins && !prev.doc.eq(state2.doc) ? "reset" : state2.scrollToSelection > prev.scrollToSelection ? "to selection" : "preserve";
+    let updateDoc = redraw || !this.docView.matchesNode(state2.doc, outerDeco, innerDeco);
+    if (updateDoc || !state2.selection.eq(prev.selection)) updateSel2 = true;
+    let oldScrollPos = scroll == "preserve" && updateSel2 && this.dom.style.overflowAnchor == null && storeScrollPos(this);
+    if (updateSel2) {
+      this.domObserver.stop();
+      let forceSelUpdate = updateDoc && (ie$6 || chrome$1) && !this.composing && !prev.selection.empty && !state2.selection.empty && selectionContextChanged(prev.selection, state2.selection);
+      if (updateDoc) {
+        let chromeKludge = chrome$1 ? this.trackWrites = this.domSelectionRange().focusNode : null;
+        if (this.composing) this.input.compositionNode = findCompositionNode$1(this);
+        if (redraw || !this.docView.update(state2.doc, outerDeco, innerDeco, this)) {
+          this.docView.updateOuterDeco(outerDeco);
+          this.docView.destroy();
+          this.docView = docViewDesc(state2.doc, outerDeco, innerDeco, this.dom, this);
+        }
+        if (chromeKludge && (!this.trackWrites || !this.dom.contains(this.trackWrites))) forceSelUpdate = true;
+      }
+      let mouseDown = this.input.mouseDown;
+      if (forceSelUpdate || !(mouseDown && this.domObserver.currentSelection.eq(this.domSelectionRange()) && anchorInRightPlace(this) && mouseDown.delaySelUpdate())) {
+        selectionToDOM(this, forceSelUpdate);
+      } else {
+        syncNodeSelection(this, state2.selection);
+        this.domObserver.setCurSelection();
+      }
+      this.domObserver.start();
+    }
+    this.updatePluginViews(prev);
+    if (((_a2 = this.dragging) === null || _a2 === void 0 ? void 0 : _a2.node) && !prev.doc.eq(state2.doc)) this.updateDraggedNode(this.dragging, prev);
+    if (scroll == "reset") {
+      this.dom.scrollTop = 0;
+    } else if (scroll == "to selection") {
+      this.scrollToSelection();
+    } else if (oldScrollPos) {
+      resetScrollPos(oldScrollPos);
+    }
+  }
+  /**
+  @internal
+  */
+  scrollToSelection() {
+    let startDOM = this.domSelectionRange().focusNode;
+    if (!startDOM || !this.dom.contains(startDOM.nodeType == 1 ? startDOM : startDOM.parentNode)) ;else if (this.someProp("handleScrollToSelection", f2 => f2(this))) ;else if (this.state.selection instanceof NodeSelection) {
+      let target = this.docView.domAfterPos(this.state.selection.from);
+      if (target.nodeType == 1) scrollRectIntoView$1(this, target.getBoundingClientRect(), startDOM);
+    } else {
+      scrollRectIntoView$1(this, this.coordsAtPos(this.state.selection.head, 1), startDOM);
+    }
+  }
+  destroyPluginViews() {
+    let view2;
+    while (view2 = this.pluginViews.pop()) if (view2.destroy) view2.destroy();
+  }
+  updatePluginViews(prevState) {
+    if (!prevState || prevState.plugins != this.state.plugins || this.directPlugins != this.prevDirectPlugins) {
+      this.prevDirectPlugins = this.directPlugins;
+      this.destroyPluginViews();
+      for (let i2 = 0; i2 < this.directPlugins.length; i2++) {
+        let plugin = this.directPlugins[i2];
+        if (plugin.spec.view) this.pluginViews.push(plugin.spec.view(this));
+      }
+      for (let i2 = 0; i2 < this.state.plugins.length; i2++) {
+        let plugin = this.state.plugins[i2];
+        if (plugin.spec.view) this.pluginViews.push(plugin.spec.view(this));
+      }
+    } else {
+      for (let i2 = 0; i2 < this.pluginViews.length; i2++) {
+        let pluginView = this.pluginViews[i2];
+        if (pluginView.update) pluginView.update(this, prevState);
+      }
+    }
+  }
+  updateDraggedNode(dragging, prev) {
+    let sel = dragging.node,
+      found2 = -1;
+    if (sel.from < this.state.doc.content.size && this.state.doc.nodeAt(sel.from) == sel.node) {
+      found2 = sel.from;
+    } else {
+      let movedPos = sel.from + (this.state.doc.content.size - prev.doc.content.size);
+      let moved = movedPos > 0 && movedPos < this.state.doc.content.size && this.state.doc.nodeAt(movedPos);
+      if (moved == sel.node) found2 = movedPos;
+    }
+    this.dragging = new Dragging(dragging.slice, dragging.move, found2 < 0 ? void 0 : NodeSelection.create(this.state.doc, found2));
+  }
+  someProp(propName, f2) {
+    let prop = this._props && this._props[propName],
+      value;
+    if (prop != null && (value = f2 ? f2(prop) : prop)) return value;
+    for (let i2 = 0; i2 < this.directPlugins.length; i2++) {
+      let prop2 = this.directPlugins[i2].props[propName];
+      if (prop2 != null && (value = f2 ? f2(prop2) : prop2)) return value;
+    }
+    let plugins = this.state.plugins;
+    if (plugins) for (let i2 = 0; i2 < plugins.length; i2++) {
+      let prop2 = plugins[i2].props[propName];
+      if (prop2 != null && (value = f2 ? f2(prop2) : prop2)) return value;
+    }
+  }
+  /**
+  Query whether the view has focus.
+  */
+  hasFocus() {
+    if (ie$6) {
+      let node2 = this.root.activeElement;
+      if (node2 == this.dom) return true;
+      if (!node2 || !this.dom.contains(node2)) return false;
+      while (node2 && this.dom != node2 && this.dom.contains(node2)) {
+        if (node2.contentEditable == "false") return false;
+        node2 = node2.parentElement;
+      }
+      return true;
+    }
+    return this.root.activeElement == this.dom;
+  }
+  /**
+  Focus the editor.
+  */
+  focus() {
+    this.domObserver.stop();
+    if (this.editable) focusPreventScroll$1(this.dom);
+    selectionToDOM(this);
+    this.domObserver.start();
+  }
+  /**
+  Get the document root in which the editor exists. This will
+  usually be the top-level `document`, but might be a [shadow
+  DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM)
+  root if the editor is inside one.
+  */
+  get root() {
+    let cached = this._root;
+    if (cached == null) for (let search2 = this.dom.parentNode; search2; search2 = search2.parentNode) {
+      if (search2.nodeType == 9 || search2.nodeType == 11 && search2.host) {
+        if (!search2.getSelection) Object.getPrototypeOf(search2).getSelection = () => search2.ownerDocument.getSelection();
+        return this._root = search2;
+      }
+    }
+    return cached || document;
+  }
+  /**
+  When an existing editor view is moved to a new document or
+  shadow tree, call this to make it recompute its root.
+  */
+  updateRoot() {
+    this._root = null;
+  }
+  /**
+  Given a pair of viewport coordinates, return the document
+  position that corresponds to them. May return null if the given
+  coordinates aren't inside of the editor. When an object is
+  returned, its `pos` property is the position nearest to the
+  coordinates, and its `inside` property holds the position of the
+  inner node that the position falls inside of, or -1 if it is at
+  the top level, not in any node.
+  */
+  posAtCoords(coords) {
+    return posAtCoords$1(this, coords);
+  }
+  /**
+  Returns the viewport rectangle at a given document position.
+  `left` and `right` will be the same number, as this returns a
+  flat cursor-ish rectangle. If the position is between two things
+  that aren't directly adjacent, `side` determines which element
+  is used. When < 0, the element before the position is used,
+  otherwise the element after.
+  */
+  coordsAtPos(pos, side = 1) {
+    return coordsAtPos(this, pos, side);
+  }
+  /**
+  Find the DOM position that corresponds to the given document
+  position. When `side` is negative, find the position as close as
+  possible to the content before the position. When positive,
+  prefer positions close to the content after the position. When
+  zero, prefer as shallow a position as possible.
+  
+  Note that you should **not** mutate the editor's internal DOM,
+  only inspect it (and even that is usually not necessary).
+  */
+  domAtPos(pos, side = 0) {
+    return this.docView.domFromPos(pos, side);
+  }
+  /**
+  Find the DOM node that represents the document node after the
+  given position. May return `null` when the position doesn't point
+  in front of a node or if the node is inside an opaque node view.
+  
+  This is intended to be able to call things like
+  `getBoundingClientRect` on that DOM node. Do **not** mutate the
+  editor DOM directly, or add styling this way, since that will be
+  immediately overriden by the editor as it redraws the node.
+  */
+  nodeDOM(pos) {
+    let desc2 = this.docView.descAt(pos);
+    return desc2 ? desc2.nodeDOM : null;
+  }
+  /**
+  Find the document position that corresponds to a given DOM
+  position. (Whenever possible, it is preferable to inspect the
+  document structure directly, rather than poking around in the
+  DOM, but sometimes—for example when interpreting an event
+  target—you don't have a choice.)
+  
+  The `bias` parameter can be used to influence which side of a DOM
+  node to use when the position is inside a leaf node.
+  */
+  posAtDOM(node2, offset2, bias = -1) {
+    let pos = this.docView.posFromDOM(node2, offset2, bias);
+    if (pos == null) throw new RangeError("DOM position not inside the editor");
+    return pos;
+  }
+  /**
+  Find out whether the selection is at the end of a textblock when
+  moving in a given direction. When, for example, given `"left"`,
+  it will return true if moving left from the current cursor
+  position would leave that position's parent textblock. Will apply
+  to the view's current state by default, but it is possible to
+  pass a different state.
+  */
+  endOfTextblock(dir, state2) {
+    return endOfTextblock(this, state2 || this.state, dir);
+  }
+  /**
+  Run the editor's paste logic with the given HTML string. The
+  `event`, if given, will be passed to the
+  [`handlePaste`](https://prosemirror.net/docs/ref/#view.EditorProps.handlePaste) hook.
+  */
+  pasteHTML(html2, event) {
+    return doPaste$1(this, "", html2, false, event || new ClipboardEvent("paste"));
+  }
+  /**
+  Run the editor's paste logic with the given plain-text input.
+  */
+  pasteText(text2, event) {
+    return doPaste$1(this, text2, null, true, event || new ClipboardEvent("paste"));
+  }
+  /**
+  Serialize the given slice as it would be if it was copied from
+  this editor. Returns a DOM element that contains a
+  representation of the slice as its children, a textual
+  representation, and the transformed slice (which can be
+  different from the given input due to hooks like
+  [`transformCopied`](https://prosemirror.net/docs/ref/#view.EditorProps.transformCopied)).
+  */
+  serializeForClipboard(slice2) {
+    return serializeForClipboard(this, slice2);
+  }
+  /**
+  Removes the editor from the DOM and destroys all [node
+  views](https://prosemirror.net/docs/ref/#view.NodeView).
+  */
+  destroy() {
+    if (!this.docView) return;
+    destroyInput(this);
+    this.destroyPluginViews();
+    if (this.mounted) {
+      this.docView.update(this.state.doc, [], viewDecorations(this), this);
+      this.dom.textContent = "";
+    } else if (this.dom.parentNode) {
+      this.dom.parentNode.removeChild(this.dom);
+    }
+    this.docView.destroy();
+    this.docView = null;
+    clearReusedRange();
+  }
+  /**
+  This is true when the view has been
+  [destroyed](https://prosemirror.net/docs/ref/#view.EditorView.destroy) (and thus should not be
+  used anymore).
+  */
+  get isDestroyed() {
+    return this.docView == null;
+  }
+  /**
+  Used for testing.
+  */
+  dispatchEvent(event) {
+    return dispatchEvent(this, event);
+  }
+  /**
+  @internal
+  */
+  domSelectionRange() {
+    let sel = this.domSelection();
+    if (!sel) return {
+      focusNode: null,
+      focusOffset: 0,
+      anchorNode: null,
+      anchorOffset: 0
+    };
+    return safari$1 && this.root.nodeType === 11 && deepActiveElement(this.dom.ownerDocument) == this.dom && safariShadowSelectionRange(this, sel) || sel;
+  }
+  /**
+  @internal
+  */
+  domSelection() {
+    return this.root.getSelection();
+  }
+};
+EditorView$1.prototype.dispatch = function (tr2) {
+  let dispatchTransaction = this._props.dispatchTransaction;
+  if (dispatchTransaction) dispatchTransaction.call(this, tr2);else this.updateState(this.state.apply(tr2));
+};
 function computeDocDeco(view2) {
   let attrs = /* @__PURE__ */Object.create(null);
   attrs.class = "ProseMirror";
@@ -49800,6 +50391,543 @@ img.ProseMirror-separator {
 .ProseMirror-focused .ProseMirror-gapcursor {
   display: block;
 }`;
+var Editor$1 = class Editor extends EventEmitter$1 {
+  constructor(options = {}) {
+    super();
+    this.css = null;
+    this.className = "tiptap";
+    this.editorView = null;
+    this.isFocused = false;
+    this.destroyed = false;
+    this.isInitialized = false;
+    this.extensionStorage = {};
+    this.instanceId = Math.random().toString(36).slice(2, 9);
+    this.hasWarnedStaleDecorationRead = false;
+    this.options = {
+      element: typeof document !== "undefined" ? document.createElement("div") : null,
+      content: "",
+      injectCSS: true,
+      injectNonce: void 0,
+      extensions: [],
+      autofocus: false,
+      editable: true,
+      textDirection: void 0,
+      editorProps: {},
+      parseOptions: {},
+      coreExtensionOptions: {},
+      enableInputRules: true,
+      enablePasteRules: true,
+      enableCoreExtensions: true,
+      enableContentCheck: false,
+      emitContentError: false,
+      onBeforeCreate: () => null,
+      onCreate: () => null,
+      onMount: () => null,
+      onUnmount: () => null,
+      onUpdate: () => null,
+      onSelectionUpdate: () => null,
+      onTransaction: () => null,
+      onFocus: () => null,
+      onBlur: () => null,
+      onDestroy: () => null,
+      onContentError: ({
+        error
+      }) => {
+        throw error;
+      },
+      onPaste: () => null,
+      onDrop: () => null,
+      onDelete: () => null,
+      enableExtensionDispatchTransaction: true
+    };
+    this.isCapturingTransaction = false;
+    this.capturedTransaction = null;
+    this.utils = {
+      getUpdatedPosition,
+      createMappablePosition
+    };
+    this.setOptions(options);
+    this.createExtensionManager();
+    this.createCommandManager();
+    this.createSchema();
+    this.on("beforeCreate", this.options.onBeforeCreate);
+    this.emit("beforeCreate", {
+      editor: this
+    });
+    this.on("mount", this.options.onMount);
+    this.on("unmount", this.options.onUnmount);
+    this.on("contentError", this.options.onContentError);
+    this.on("create", this.options.onCreate);
+    this.on("update", this.options.onUpdate);
+    this.on("selectionUpdate", this.options.onSelectionUpdate);
+    this.on("transaction", this.options.onTransaction);
+    this.on("focus", this.options.onFocus);
+    this.on("blur", this.options.onBlur);
+    this.on("destroy", this.options.onDestroy);
+    this.on("drop", ({
+      event,
+      slice: slice2,
+      moved
+    }) => this.options.onDrop(event, slice2, moved));
+    this.on("paste", ({
+      event,
+      slice: slice2
+    }) => this.options.onPaste(event, slice2));
+    this.on("delete", this.options.onDelete);
+    const initialDoc = this.createDoc();
+    if (!this.editorState) {
+      const selection2 = resolveFocusPosition(initialDoc, this.options.autofocus);
+      this.editorState = EditorState$1.create({
+        doc: initialDoc,
+        schema: this.schema,
+        selection: selection2 || void 0
+      });
+    }
+    warnOnDuplicatedProseMirrorModel(this.schema);
+    if (this.options.element) this.mount(this.options.element);
+  }
+  /**
+  * Attach the editor to the DOM, creating a new editor view.
+  */
+  mount(el) {
+    if (typeof document === "undefined") throw new Error(`[tiptap error]: The editor cannot be mounted because there is no 'document' defined in this environment.`);
+    this.createView(el);
+    this.emit("mount", {
+      editor: this
+    });
+    if (this.css && !document.head.contains(this.css)) document.head.appendChild(this.css);
+    window.setTimeout(() => {
+      if (this.isDestroyed) return;
+      if (this.options.autofocus !== false && this.options.autofocus !== null) this.commands.focus(this.options.autofocus);
+      this.emit("create", {
+        editor: this
+      });
+      this.isInitialized = true;
+    }, 0);
+  }
+  /**
+  * Remove the editor from the DOM, but still allow remounting at a different point in time
+  */
+  unmount() {
+    if (this.editorView) {
+      this.editorState = this.editorView.state;
+      const dom = this.editorView.dom;
+      if (dom === null || dom === void 0 ? void 0 : dom.editor) delete dom.editor;
+      this.editorView.destroy();
+    }
+    this.editorView = null;
+    this.isInitialized = false;
+    if (this.css && !document.querySelectorAll(`.${this.className}`).length) try {
+      if (typeof this.css.remove === "function") this.css.remove();else if (this.css.parentNode) this.css.parentNode.removeChild(this.css);
+    } catch (error) {
+      console.warn("Failed to remove CSS element:", error);
+    }
+    this.css = null;
+    this.emit("unmount", {
+      editor: this
+    });
+  }
+  /**
+  * Returns the editor storage.
+  */
+  get storage() {
+    return this.extensionStorage;
+  }
+  /**
+  * An object of all registered commands.
+  */
+  get commands() {
+    return this.commandManager.commands;
+  }
+  /**
+  * Create a command chain to call multiple commands at once.
+  */
+  chain() {
+    if (!this.commandManager) return CommandManager$1.createFakeChain();
+    return this.commandManager.chain();
+  }
+  /**
+  * Check if a command or a command chain can be executed. Without executing it.
+  */
+  can() {
+    if (!this.commandManager) return CommandManager$1.createFallbackCan();
+    return this.commandManager.can();
+  }
+  /**
+  * Inject CSS styles.
+  */
+  injectCSS() {
+    if (this.options.injectCSS && typeof document !== "undefined") this.css = createStyleTag(style$1, this.options.injectNonce);
+  }
+  /**
+  * Update editor options.
+  *
+  * @param options A list of options
+  */
+  setOptions(options = {}) {
+    this.options = {
+      ...this.options,
+      ...options
+    };
+    if (!this.editorView || !this.state || this.isDestroyed) return;
+    if (this.options.editorProps) this.view.setProps(this.options.editorProps);
+    this.view.updateState(this.state);
+  }
+  /**
+  * Update editable state of the editor.
+  */
+  setEditable(editable2, emitUpdate = true) {
+    this.setOptions({
+      editable: editable2
+    });
+    if (emitUpdate) this.emit("update", {
+      editor: this,
+      transaction: this.state.tr,
+      appendedTransactions: []
+    });
+  }
+  /**
+  * Returns whether the editor is editable.
+  */
+  get isEditable() {
+    return this.options.editable && this.view && this.view.editable;
+  }
+  /**
+  * Returns the editor view.
+  */
+  get view() {
+    if (this.editorView) return this.editorView;
+    return new Proxy({
+      state: this.editorState,
+      updateState: state2 => {
+        this.editorState = state2;
+      },
+      dispatch: tr2 => {
+        this.dispatchTransaction(tr2);
+      },
+      composing: false,
+      dragging: null,
+      editable: true,
+      isDestroyed: false
+    }, {
+      get: (obj, key2) => {
+        if (this.editorView) return this.editorView[key2];
+        if (key2 === "state") return this.editorState;
+        if (key2 in obj) return Reflect.get(obj, key2);
+        throw new Error(`[tiptap error]: The editor view is not available. Cannot access view['${key2}']. The editor may not be mounted yet.`);
+      }
+    });
+  }
+  /**
+  * Returns the editor state.
+  */
+  get state() {
+    if (this.editorView) this.editorState = this.view.state;
+    return this.editorState;
+  }
+  /**
+  * Register a ProseMirror plugin.
+  *
+  * @param plugin A ProseMirror plugin
+  * @param handlePlugins Control how to merge the plugin into the existing plugins.
+  * @returns The new editor state
+  */
+  registerPlugin(plugin, handlePlugins) {
+    const plugins = isFunction$2(handlePlugins) ? handlePlugins(plugin, [...this.state.plugins]) : [...this.state.plugins, plugin];
+    const state2 = this.state.reconfigure({
+      plugins
+    });
+    this.view.updateState(state2);
+    return state2;
+  }
+  /**
+  * Unregister a ProseMirror plugin.
+  *
+  * @param nameOrPluginKeyToRemove The plugins name
+  * @returns The new editor state or undefined if the editor is destroyed
+  */
+  unregisterPlugin(nameOrPluginKeyToRemove) {
+    if (this.isDestroyed) return;
+    const prevPlugins = this.state.plugins;
+    let plugins = prevPlugins;
+    [].concat(nameOrPluginKeyToRemove).forEach(nameOrPluginKey => {
+      const name2 = typeof nameOrPluginKey === "string" ? `${nameOrPluginKey}$` : nameOrPluginKey.key;
+      plugins = plugins.filter(plugin => !plugin.key.startsWith(name2));
+    });
+    if (prevPlugins.length === plugins.length) return;
+    const state2 = this.state.reconfigure({
+      plugins
+    });
+    this.view.updateState(state2);
+    return state2;
+  }
+  /**
+  * Creates an extension manager.
+  */
+  createExtensionManager() {
+    var _this$options$coreExt, _this$options$coreExt2;
+    const allExtensions = [...(this.options.enableCoreExtensions ? [Editable, ClipboardTextSerializer.configure({
+      blockSeparator: (_this$options$coreExt = this.options.coreExtensionOptions) === null || _this$options$coreExt === void 0 || (_this$options$coreExt = _this$options$coreExt.clipboardTextSerializer) === null || _this$options$coreExt === void 0 ? void 0 : _this$options$coreExt.blockSeparator
+    }), Commands, FocusEvents, Keymap, Tabindex.configure({
+      value: (_this$options$coreExt2 = this.options.coreExtensionOptions) === null || _this$options$coreExt2 === void 0 || (_this$options$coreExt2 = _this$options$coreExt2.tabindex) === null || _this$options$coreExt2 === void 0 ? void 0 : _this$options$coreExt2.value
+    }), Drop, Paste, Delete, TextDirection.configure({
+      direction: this.options.textDirection
+    })].filter(ext => {
+      if (typeof this.options.enableCoreExtensions === "object") return this.options.enableCoreExtensions[ext.name] !== false;
+      return true;
+    }) : []), ...this.options.extensions].filter(extension2 => {
+      return ["extension", "node", "mark"].includes(extension2 === null || extension2 === void 0 ? void 0 : extension2.type);
+    });
+    this.extensionManager = new ExtensionManager(allExtensions, this);
+  }
+  /**
+  * Creates an command manager.
+  */
+  createCommandManager() {
+    this.commandManager = new CommandManager$1({
+      editor: this
+    });
+  }
+  /**
+  * Creates a ProseMirror schema.
+  */
+  createSchema() {
+    this.schema = this.extensionManager.schema;
+  }
+  /**
+  * Creates the initial document.
+  */
+  createDoc() {
+    let doc2;
+    try {
+      doc2 = createDocument(this.options.content, this.schema, this.options.parseOptions, {
+        errorOnInvalidContent: this.options.enableContentCheck
+      });
+    } catch (e2) {
+      if (!(e2 instanceof Error) || !["[tiptap error]: Invalid JSON content", "[tiptap error]: Invalid HTML content"].includes(e2.message)) throw e2;
+      const fallbackDoc = createDocument(this.options.content, this.schema, this.options.parseOptions, {
+        errorOnInvalidContent: false
+      });
+      this.editorState = EditorState$1.create({
+        doc: fallbackDoc,
+        schema: this.schema,
+        selection: resolveFocusPosition(fallbackDoc, this.options.autofocus) || void 0
+      });
+      this.emit("contentError", {
+        editor: this,
+        error: e2,
+        disableCollaboration: () => {
+          if ("collaboration" in this.storage && typeof this.storage.collaboration === "object" && this.storage.collaboration) this.storage.collaboration.isDisabled = true;
+          this.options.extensions = this.options.extensions.filter(extension2 => extension2.name !== "collaboration");
+          this.createExtensionManager();
+        }
+      });
+      return this.editorState.doc;
+    }
+    return doc2;
+  }
+  /**
+  * Creates a ProseMirror view.
+  */
+  createView(element2) {
+    const {
+      editorProps,
+      enableExtensionDispatchTransaction
+    } = this.options;
+    const baseDispatch = editorProps.dispatchTransaction || this.dispatchTransaction.bind(this);
+    const dispatch2 = enableExtensionDispatchTransaction ? this.extensionManager.dispatchTransaction(baseDispatch) : baseDispatch;
+    const baseTransformPastedHTML = editorProps.transformPastedHTML;
+    const transformPastedHTML = this.extensionManager.transformPastedHTML(baseTransformPastedHTML);
+    this.editorView = new EditorView$1(element2, {
+      ...editorProps,
+      attributes: {
+        role: "textbox",
+        ...(editorProps === null || editorProps === void 0 ? void 0 : editorProps.attributes)
+      },
+      dispatchTransaction: dispatch2,
+      transformPastedHTML,
+      state: this.editorState,
+      markViews: this.extensionManager.markViews,
+      nodeViews: this.extensionManager.nodeViews
+    });
+    const newState = this.state.reconfigure({
+      plugins: this.extensionManager.plugins
+    });
+    this.view.updateState(newState);
+    this.prependClass();
+    this.injectCSS();
+    const dom = this.view.dom;
+    dom.editor = this;
+  }
+  /**
+  * Creates all node and mark views.
+  */
+  createNodeViews() {
+    if (this.view.isDestroyed) return;
+    this.view.setProps({
+      markViews: this.extensionManager.markViews,
+      nodeViews: this.extensionManager.nodeViews
+    });
+  }
+  /**
+  * Prepend class name to element.
+  */
+  prependClass() {
+    this.view.dom.className = `${this.className} ${this.view.dom.className}`;
+  }
+  captureTransaction(fn2) {
+    this.isCapturingTransaction = true;
+    fn2();
+    this.isCapturingTransaction = false;
+    const tr2 = this.capturedTransaction;
+    this.capturedTransaction = null;
+    return tr2;
+  }
+  /**
+  * The callback over which to send transactions (state updates) produced by the view.
+  *
+  * @param transaction An editor state transaction
+  */
+  dispatchTransaction(transaction) {
+    if (this.view.isDestroyed) return;
+    if (this.isCapturingTransaction) {
+      if (!this.capturedTransaction) {
+        this.capturedTransaction = transaction;
+        return;
+      }
+      transaction.steps.forEach(step => {
+        var _this$capturedTransac;
+        return (_this$capturedTransac = this.capturedTransaction) === null || _this$capturedTransac === void 0 ? void 0 : _this$capturedTransac.step(step);
+      });
+      return;
+    }
+    const {
+      state: state2,
+      transactions
+    } = this.state.applyTransaction(transaction);
+    const selectionHasChanged = !this.state.selection.eq(state2.selection);
+    const rootTrWasApplied = transactions.includes(transaction);
+    const prevState = this.state;
+    this.emit("beforeTransaction", {
+      editor: this,
+      transaction,
+      nextState: state2
+    });
+    if (!rootTrWasApplied) return;
+    this.view.updateState(state2);
+    this.emit("transaction", {
+      editor: this,
+      transaction,
+      appendedTransactions: transactions.slice(1)
+    });
+    if (selectionHasChanged) this.emit("selectionUpdate", {
+      editor: this,
+      transaction
+    });
+    const mostRecentFocusTr = transactions.findLast(tr2 => tr2.getMeta("focus") || tr2.getMeta("blur"));
+    const focus2 = mostRecentFocusTr === null || mostRecentFocusTr === void 0 ? void 0 : mostRecentFocusTr.getMeta("focus");
+    const blur2 = mostRecentFocusTr === null || mostRecentFocusTr === void 0 ? void 0 : mostRecentFocusTr.getMeta("blur");
+    if (focus2) this.emit("focus", {
+      editor: this,
+      event: focus2.event,
+      transaction: mostRecentFocusTr
+    });
+    if (blur2) this.emit("blur", {
+      editor: this,
+      event: blur2.event,
+      transaction: mostRecentFocusTr
+    });
+    if (transaction.getMeta("preventUpdate") || !transactions.some(tr2 => tr2.docChanged) || prevState.doc.eq(state2.doc)) return;
+    this.emit("update", {
+      editor: this,
+      transaction,
+      appendedTransactions: transactions.slice(1)
+    });
+  }
+  /**
+  * Get attributes of the currently selected node or mark.
+  */
+  getAttributes(nameOrType) {
+    return getAttributes(this.state, nameOrType);
+  }
+  isActive(nameOrAttributes, attributesOrUndefined) {
+    const name2 = typeof nameOrAttributes === "string" ? nameOrAttributes : null;
+    const attributes = typeof nameOrAttributes === "string" ? attributesOrUndefined : nameOrAttributes;
+    return isActive(this.state, name2, attributes);
+  }
+  /**
+  * Get the document as JSON.
+  */
+  getJSON() {
+    return this.state.doc.toJSON();
+  }
+  /**
+  * Get the document as HTML.
+  */
+  getHTML() {
+    return getHTMLFromFragment(this.state.doc.content, this.schema);
+  }
+  /**
+  * Get the document as text.
+  */
+  getText(options) {
+    const {
+      blockSeparator = "\n\n",
+      textSerializers = {}
+    } = options || {};
+    return getText(this.state.doc, {
+      blockSeparator,
+      textSerializers: {
+        ...getTextSerializersFromSchema(this.schema),
+        ...textSerializers
+      }
+    });
+  }
+  /**
+  * Check if there is no content.
+  */
+  get isEmpty() {
+    return isNodeEmpty(this.state.doc);
+  }
+  /**
+  * Destroy the editor.
+  */
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.emit("destroy");
+    this.unmount();
+    this.removeAllListeners();
+    this.extensionManager.destroy();
+    this.extensionManager = null;
+    this.schema = null;
+    this.commandManager = null;
+    this.extensionStorage = {};
+  }
+  /**
+  * Check if the editor is already destroyed.
+  */
+  get isDestroyed() {
+    var _this$editorView$isDe, _this$editorView;
+    return (_this$editorView$isDe = (_this$editorView = this.editorView) === null || _this$editorView === void 0 ? void 0 : _this$editorView.isDestroyed) !== null && _this$editorView$isDe !== void 0 ? _this$editorView$isDe : true;
+  }
+  $node(selector2, attributes) {
+    var _this$$doc;
+    return ((_this$$doc = this.$doc) === null || _this$$doc === void 0 ? void 0 : _this$$doc.querySelector(selector2, attributes)) || null;
+  }
+  $nodes(selector2, attributes) {
+    var _this$$doc2;
+    return ((_this$$doc2 = this.$doc) === null || _this$$doc2 === void 0 ? void 0 : _this$$doc2.querySelectorAll(selector2, attributes)) || null;
+  }
+  $pos(pos) {
+    const $pos = this.state.doc.resolve(pos);
+    const node2 = pos > 0 && $pos.nodeAfter && !$pos.nodeAfter.isText && $pos.nodeAfter.isAtom ? $pos.nodeAfter : null;
+    return new NodePos($pos, this, false, node2);
+  }
+  get $doc() {
+    return this.$pos(0);
+  }
+};
 function markInputRule(config2) {
   return new InputRule({
     find: config2.find,
@@ -52087,6 +53215,198 @@ var EditorStateManager = class {
 const isDev = false;
 const isSSR = typeof window === "undefined";
 const isNext = isSSR || Boolean(typeof window !== "undefined" && window.next);
+var EditorInstanceManager = class EditorInstanceManager2 {
+  constructor(options) {
+    this.editor = null;
+    this.subscriptions = /* @__PURE__ */new Set();
+    this.isComponentMounted = false;
+    this.previousDeps = null;
+    this.instanceId = "";
+    this.options = options;
+    this.subscriptions = /* @__PURE__ */new Set();
+    this.setEditor(this.getInitialEditor());
+    this.scheduleDestroy();
+    this.getEditor = this.getEditor.bind(this);
+    this.getServerSnapshot = this.getServerSnapshot.bind(this);
+    this.subscribe = this.subscribe.bind(this);
+    this.refreshEditorInstance = this.refreshEditorInstance.bind(this);
+    this.scheduleDestroy = this.scheduleDestroy.bind(this);
+    this.onRender = this.onRender.bind(this);
+    this.createEditor = this.createEditor.bind(this);
+  }
+  setEditor(editor) {
+    this.editor = editor;
+    this.instanceId = Math.random().toString(36).slice(2, 9);
+    this.subscriptions.forEach(cb => cb());
+  }
+  getInitialEditor() {
+    const explicit = this.options.current.immediatelyRender;
+    let immediatelyRender = explicit !== null && explicit !== void 0 ? explicit : true;
+    if (isSSR) {
+      if (immediatelyRender && isDev) console.warn("SSR detected. `immediatelyRender` has been set to false to avoid hydration mismatches");
+      immediatelyRender = false;
+    } else if (isNext && explicit === void 0) {
+      immediatelyRender = false;
+    }
+    return immediatelyRender ? this.createEditor() : null;
+  }
+  /**
+  * Create a new editor instance. And attach event listeners.
+  */
+  createEditor() {
+    const optionsToApply = {
+      ...this.options.current,
+      onBeforeCreate: (...args) => {
+        var _this$options$current, _this$options$current2;
+        return (_this$options$current = (_this$options$current2 = this.options.current).onBeforeCreate) === null || _this$options$current === void 0 ? void 0 : _this$options$current.call(_this$options$current2, ...args);
+      },
+      onBlur: (...args) => {
+        var _this$options$current3, _this$options$current4;
+        return (_this$options$current3 = (_this$options$current4 = this.options.current).onBlur) === null || _this$options$current3 === void 0 ? void 0 : _this$options$current3.call(_this$options$current4, ...args);
+      },
+      onCreate: (...args) => {
+        var _this$options$current5, _this$options$current6;
+        return (_this$options$current5 = (_this$options$current6 = this.options.current).onCreate) === null || _this$options$current5 === void 0 ? void 0 : _this$options$current5.call(_this$options$current6, ...args);
+      },
+      onDestroy: (...args) => {
+        var _this$options$current7, _this$options$current8;
+        return (_this$options$current7 = (_this$options$current8 = this.options.current).onDestroy) === null || _this$options$current7 === void 0 ? void 0 : _this$options$current7.call(_this$options$current8, ...args);
+      },
+      onFocus: (...args) => {
+        var _this$options$current9, _this$options$current10;
+        return (_this$options$current9 = (_this$options$current10 = this.options.current).onFocus) === null || _this$options$current9 === void 0 ? void 0 : _this$options$current9.call(_this$options$current10, ...args);
+      },
+      onSelectionUpdate: (...args) => {
+        var _this$options$current11, _this$options$current12;
+        return (_this$options$current11 = (_this$options$current12 = this.options.current).onSelectionUpdate) === null || _this$options$current11 === void 0 ? void 0 : _this$options$current11.call(_this$options$current12, ...args);
+      },
+      onTransaction: (...args) => {
+        var _this$options$current13, _this$options$current14;
+        return (_this$options$current13 = (_this$options$current14 = this.options.current).onTransaction) === null || _this$options$current13 === void 0 ? void 0 : _this$options$current13.call(_this$options$current14, ...args);
+      },
+      onUpdate: (...args) => {
+        var _this$options$current15, _this$options$current16;
+        return (_this$options$current15 = (_this$options$current16 = this.options.current).onUpdate) === null || _this$options$current15 === void 0 ? void 0 : _this$options$current15.call(_this$options$current16, ...args);
+      },
+      onContentError: (...args) => {
+        var _this$options$current17, _this$options$current18;
+        return (_this$options$current17 = (_this$options$current18 = this.options.current).onContentError) === null || _this$options$current17 === void 0 ? void 0 : _this$options$current17.call(_this$options$current18, ...args);
+      },
+      onDrop: (...args) => {
+        var _this$options$current19, _this$options$current20;
+        return (_this$options$current19 = (_this$options$current20 = this.options.current).onDrop) === null || _this$options$current19 === void 0 ? void 0 : _this$options$current19.call(_this$options$current20, ...args);
+      },
+      onPaste: (...args) => {
+        var _this$options$current21, _this$options$current22;
+        return (_this$options$current21 = (_this$options$current22 = this.options.current).onPaste) === null || _this$options$current21 === void 0 ? void 0 : _this$options$current21.call(_this$options$current22, ...args);
+      },
+      onDelete: (...args) => {
+        var _this$options$current23, _this$options$current24;
+        return (_this$options$current23 = (_this$options$current24 = this.options.current).onDelete) === null || _this$options$current23 === void 0 ? void 0 : _this$options$current23.call(_this$options$current24, ...args);
+      },
+      onMount: (...args) => {
+        var _this$options$current25, _this$options$current26;
+        return (_this$options$current25 = (_this$options$current26 = this.options.current).onMount) === null || _this$options$current25 === void 0 ? void 0 : _this$options$current25.call(_this$options$current26, ...args);
+      },
+      onUnmount: (...args) => {
+        var _this$options$current27, _this$options$current28;
+        return (_this$options$current27 = (_this$options$current28 = this.options.current).onUnmount) === null || _this$options$current27 === void 0 ? void 0 : _this$options$current27.call(_this$options$current28, ...args);
+      }
+    };
+    return new Editor$1(optionsToApply);
+  }
+  /**
+  * Get the current editor instance.
+  */
+  getEditor() {
+    return this.editor;
+  }
+  /**
+  * Always disable the editor on the server-side.
+  */
+  getServerSnapshot() {
+    return null;
+  }
+  /**
+  * Subscribe to the editor instance's changes.
+  */
+  subscribe(onStoreChange) {
+    this.subscriptions.add(onStoreChange);
+    return () => {
+      this.subscriptions.delete(onStoreChange);
+    };
+  }
+  static compareOptions(a2, b3) {
+    return Object.keys(a2).every(key2 => {
+      if (["onCreate", "onBeforeCreate", "onDestroy", "onUpdate", "onTransaction", "onFocus", "onBlur", "onSelectionUpdate", "onContentError", "onDrop", "onPaste"].includes(key2)) return true;
+      if (key2 === "extensions" && a2.extensions && b3.extensions) {
+        if (a2.extensions.length !== b3.extensions.length) return false;
+        return a2.extensions.every((extension2, index2) => {
+          var _b$extensions;
+          if (extension2 !== ((_b$extensions = b3.extensions) === null || _b$extensions === void 0 ? void 0 : _b$extensions[index2])) return false;
+          return true;
+        });
+      }
+      if (a2[key2] !== b3[key2]) return false;
+      return true;
+    });
+  }
+  /**
+  * On each render, we will create, update, or destroy the editor instance.
+  * @param deps The dependencies to watch for changes
+  * @returns A cleanup function
+  */
+  onRender(deps) {
+    return () => {
+      this.isComponentMounted = true;
+      clearTimeout(this.scheduledDestructionTimeout);
+      if (this.editor && !this.editor.isDestroyed && deps.length === 0) {
+        if (!EditorInstanceManager2.compareOptions(this.options.current, this.editor.options)) this.editor.setOptions({
+          ...this.options.current,
+          editable: this.editor.isEditable
+        });
+      } else this.refreshEditorInstance(deps);
+      return () => {
+        this.isComponentMounted = false;
+        this.scheduleDestroy();
+      };
+    };
+  }
+  /**
+  * Recreate the editor instance if the dependencies have changed.
+  */
+  refreshEditorInstance(deps) {
+    if (this.editor && !this.editor.isDestroyed) {
+      if (this.previousDeps === null) {
+        this.previousDeps = deps;
+        return;
+      }
+      if (this.previousDeps.length === deps.length && this.previousDeps.every((dep, index2) => dep === deps[index2])) return;
+    }
+    if (this.editor && !this.editor.isDestroyed) this.editor.destroy();
+    this.setEditor(this.createEditor());
+    this.previousDeps = deps;
+  }
+  /**
+  * Schedule the destruction of the editor instance.
+  * This will only destroy the editor if it was not mounted on the next tick.
+  * This is to avoid destroying the editor instance when it's actually still mounted.
+  */
+  scheduleDestroy() {
+    const currentInstanceId = this.instanceId;
+    const currentEditor = this.editor;
+    this.scheduledDestructionTimeout = setTimeout(() => {
+      if (this.isComponentMounted && this.instanceId === currentInstanceId) {
+        if (currentEditor) currentEditor.setOptions(this.options.current);
+        return;
+      }
+      if (currentEditor && !currentEditor.isDestroyed) {
+        currentEditor.destroy();
+        if (this.instanceId === currentInstanceId) this.setEditor(null);
+      }
+    }, 1);
+  }
+};
 const EditorContext = reactExports.createContext({
   editor: null
 });
@@ -56765,6 +58085,29 @@ const StarterKit = Extension.create({
     return extensions;
   }
 });
+let DialogPopupCssVars = /* @__PURE__ */function (DialogPopupCssVars2) {
+  DialogPopupCssVars2["nestedDialogs"] = "--nested-dialogs";
+  return DialogPopupCssVars2;
+}({});
+let DialogPopupDataAttributes = function (DialogPopupDataAttributes2) {
+  DialogPopupDataAttributes2[DialogPopupDataAttributes2["open"] = CommonPopupDataAttributes.open] = "open";
+  DialogPopupDataAttributes2[DialogPopupDataAttributes2["closed"] = CommonPopupDataAttributes.closed] = "closed";
+  DialogPopupDataAttributes2[DialogPopupDataAttributes2["startingStyle"] = CommonPopupDataAttributes.startingStyle] = "startingStyle";
+  DialogPopupDataAttributes2[DialogPopupDataAttributes2["endingStyle"] = CommonPopupDataAttributes.endingStyle] = "endingStyle";
+  DialogPopupDataAttributes2["nested"] = "data-nested";
+  DialogPopupDataAttributes2["nestedDialogOpen"] = "data-nested-dialog-open";
+  return DialogPopupDataAttributes2;
+}({});
+const DialogPortalContext = /* @__PURE__ */reactExports.createContext(void 0);
+const stateAttributesMapping$5 = {
+  ...popupStateMapping,
+  ...transitionStatusMapping,
+  nestedDialogOpen(value) {
+    return value ? {
+      [DialogPopupDataAttributes.nestedDialogOpen]: ""
+    } : null;
+  }
+};
 var a$1 = (t2, e2) => () => (t2 && (e2 = t2(t2 = 0)), e2);
 var Wt$2,
   F$6 = a$1(() => {
@@ -56830,6 +58173,46 @@ var M$7,
     }, M$7];
   });
 var v$7 = {};
+var Kt$1,
+  H$5 = a$1(() => {
+    Kt$1 = [{
+      match: /\/\/.*\n?|\/\*((?!\*\/)[^])*(\*\/)?/g,
+      sub: "todo"
+    }, {
+      expand: "str"
+    }, {
+      expand: "num"
+    }, {
+      type: "kwd",
+      match: /#\s*include (<.*>|".*")/g,
+      sub: [{
+        type: "str",
+        match: /(<|").*/g
+      }]
+    }, {
+      match: /asm\s*{[^}]*}/g,
+      sub: [{
+        type: "kwd",
+        match: /^asm/g
+      }, {
+        match: /[^{}]*(?=}$)/g,
+        sub: "asm"
+      }]
+    }, {
+      type: "kwd",
+      match: /\*|&|#[a-z]+\b|\b(asm|auto|double|int|struct|break|else|long|switch|case|enum|register|typedef|char|extern|return|union|const|float|short|unsigned|continue|for|signed|void|default|goto|sizeof|volatile|do|if|static|while)\b/g
+    }, {
+      type: "oper",
+      match: /[/*+:?&|%^~=!,<>.^-]+/g
+    }, {
+      type: "func",
+      match: /[a-zA-Z_][\w_]*(?=\s*\()/g
+    }, {
+      type: "class",
+      match: /\b[A-Z][\w_]*\b/g
+    }];
+  });
+var _$5 = {};
 var Vt$1,
   k$6 = a$1(() => {
     Vt$1 = [{
@@ -56972,30 +58355,6 @@ var pe$2,
     }];
   });
 var pt$2 = {};
-var ce$3,
-  mt$2 = a$1(() => {
-    ce$3 = [{
-      match: /\/\/.*\n?|\/\*((?!\*\/)[^])*(\*\/)?/g,
-      sub: "todo"
-    }, {
-      expand: "str"
-    }, {
-      expand: "num"
-    }, {
-      type: "kwd",
-      match: /\b(abstract|assert|boolean|break|byte|case|catch|char|class|continue|const|default|do|double|else|enum|exports|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|module|native|new|package|private|protected|public|requires|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|var|void|volatile|while)\b/g
-    }, {
-      type: "oper",
-      match: /[/*+:?&|%^~=!,<>.^-]+/g
-    }, {
-      type: "func",
-      match: /[a-zA-Z_][\w_]*(?=\s*\()/g
-    }, {
-      type: "class",
-      match: /\b[A-Z][\w_]*\b/g
-    }];
-  });
-var rt$3 = {};
 var me$1,
   re$6,
   ut$2 = a$1(() => {
@@ -60388,9 +61747,102 @@ var __webpack_require__ = {};
   __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 })();
 var __webpack_exports__ = globalThis.pdfjsLib = {};
+__webpack_require__.d(__webpack_exports__, {
+  AbortException: () => (/* reexport */
+  AbortException),
+  AnnotationEditorLayer: () => (/* reexport */
+  AnnotationEditorLayer),
+  AnnotationEditorParamsType: () => (/* reexport */
+  AnnotationEditorParamsType),
+  AnnotationEditorType: () => (/* reexport */
+  AnnotationEditorType),
+  AnnotationEditorUIManager: () => (/* reexport */
+  AnnotationEditorUIManager),
+  AnnotationLayer: () => (/* reexport */
+  AnnotationLayer),
+  AnnotationMode: () => (/* reexport */
+  AnnotationMode),
+  ColorPicker: () => (/* reexport */
+  ColorPicker),
+  DOMSVGFactory: () => (/* reexport */
+  DOMSVGFactory),
+  DrawLayer: () => (/* reexport */
+  DrawLayer),
+  FeatureTest: () => (/* reexport */
+  util_FeatureTest),
+  GlobalWorkerOptions: () => (/* reexport */
+  GlobalWorkerOptions),
+  ImageKind: () => (/* reexport */
+  util_ImageKind),
+  InvalidPDFException: () => (/* reexport */
+  InvalidPDFException),
+  MissingPDFException: () => (/* reexport */
+  MissingPDFException),
+  OPS: () => (/* reexport */
+  OPS),
+  OutputScale: () => (/* reexport */
+  OutputScale),
+  PDFDataRangeTransport: () => (/* reexport */
+  PDFDataRangeTransport),
+  PDFDateString: () => (/* reexport */
+  PDFDateString),
+  PDFWorker: () => (/* reexport */
+  PDFWorker),
+  PasswordResponses: () => (/* reexport */
+  PasswordResponses),
+  PermissionFlag: () => (/* reexport */
+  PermissionFlag),
+  PixelsPerInch: () => (/* reexport */
+  PixelsPerInch),
+  RenderingCancelledException: () => (/* reexport */
+  RenderingCancelledException),
+  TextLayer: () => (/* reexport */
+  TextLayer),
+  TouchManager: () => (/* reexport */
+  TouchManager),
+  UnexpectedResponseException: () => (/* reexport */
+  UnexpectedResponseException),
+  Util: () => (/* reexport */
+  Util),
+  VerbosityLevel: () => (/* reexport */
+  VerbosityLevel),
+  XfaLayer: () => (/* reexport */
+  XfaLayer),
+  build: () => (/* reexport */
+  build),
+  createValidAbsoluteUrl: () => (/* reexport */
+  createValidAbsoluteUrl),
+  fetchData: () => (/* reexport */
+  fetchData),
+  getDocument: () => (/* reexport */
+  getDocument),
+  getFilenameFromUrl: () => (/* reexport */
+  getFilenameFromUrl),
+  getPdfFilenameFromUrl: () => (/* reexport */
+  getPdfFilenameFromUrl),
+  getXfaPageViewport: () => (/* reexport */
+  getXfaPageViewport),
+  isDataScheme: () => (/* reexport */
+  isDataScheme),
+  isPdfFile: () => (/* reexport */
+  isPdfFile),
+  noContextMenu: () => (/* reexport */
+  noContextMenu),
+  normalizeUnicode: () => (/* reexport */
+  normalizeUnicode),
+  setLayerDimensions: () => (/* reexport */
+  setLayerDimensions),
+  shadow: () => (/* reexport */
+  shadow),
+  stopEvent: () => (/* reexport */
+  stopEvent),
+  version: () => (/* reexport */
+  version)
+});
 const isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
 const IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 const FONT_IDENTITY_MATRIX = [1e-3, 0, 0, 1e-3, 0, 0];
+const MAX_IMAGE_SIZE_TO_CACHE = 1e7;
 const LINE_FACTOR = 1.35;
 const RenderingIntentFlag = {
   ANY: 1,
@@ -60694,6 +62146,11 @@ class UnexpectedResponseException extends BaseException {
     this.status = status;
   }
 }
+class FormatError extends BaseException {
+  constructor(msg) {
+    super(msg, "FormatError");
+  }
+}
 class AbortException extends BaseException {
   constructor(msg) {
     super(msg, "AbortException");
@@ -60958,6 +62415,19 @@ function getUuid() {
   return bytesToString(buf);
 }
 const AnnotationPrefix = "pdfjs_internal_id_";
+function toBase64Util(arr) {
+  if (Uint8Array.prototype.toBase64) {
+    return arr.toBase64();
+  }
+  return btoa(bytesToString(arr));
+}
+if (typeof Promise.try !== "function") {
+  Promise.try = function (fn2, ...args) {
+    return new Promise(resolve => {
+      resolve(fn2(...args));
+    });
+  };
+}
 const SVG_NS$1 = "http://www.w3.org/2000/svg";
 class PixelsPerInch {
   static CSS = 96;
@@ -61003,6 +62473,121 @@ async function fetchData(url2, type2 = "text") {
     };
     request.send(null);
   });
+}
+class PageViewport {
+  constructor({
+    viewBox,
+    userUnit,
+    scale: scale2,
+    rotation,
+    offsetX = 0,
+    offsetY = 0,
+    dontFlip = false
+  }) {
+    this.viewBox = viewBox;
+    this.userUnit = userUnit;
+    this.scale = scale2;
+    this.rotation = rotation;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    scale2 *= userUnit;
+    const centerX = (viewBox[2] + viewBox[0]) / 2;
+    const centerY = (viewBox[3] + viewBox[1]) / 2;
+    let rotateA, rotateB, rotateC, rotateD;
+    rotation %= 360;
+    if (rotation < 0) {
+      rotation += 360;
+    }
+    switch (rotation) {
+      case 180:
+        rotateA = -1;
+        rotateB = 0;
+        rotateC = 0;
+        rotateD = 1;
+        break;
+      case 90:
+        rotateA = 0;
+        rotateB = 1;
+        rotateC = 1;
+        rotateD = 0;
+        break;
+      case 270:
+        rotateA = 0;
+        rotateB = -1;
+        rotateC = -1;
+        rotateD = 0;
+        break;
+      case 0:
+        rotateA = 1;
+        rotateB = 0;
+        rotateC = 0;
+        rotateD = -1;
+        break;
+      default:
+        throw new Error("PageViewport: Invalid rotation, must be a multiple of 90 degrees.");
+    }
+    if (dontFlip) {
+      rotateC = -rotateC;
+      rotateD = -rotateD;
+    }
+    let offsetCanvasX, offsetCanvasY;
+    let width, height;
+    if (rotateA === 0) {
+      offsetCanvasX = Math.abs(centerY - viewBox[1]) * scale2 + offsetX;
+      offsetCanvasY = Math.abs(centerX - viewBox[0]) * scale2 + offsetY;
+      width = (viewBox[3] - viewBox[1]) * scale2;
+      height = (viewBox[2] - viewBox[0]) * scale2;
+    } else {
+      offsetCanvasX = Math.abs(centerX - viewBox[0]) * scale2 + offsetX;
+      offsetCanvasY = Math.abs(centerY - viewBox[1]) * scale2 + offsetY;
+      width = (viewBox[2] - viewBox[0]) * scale2;
+      height = (viewBox[3] - viewBox[1]) * scale2;
+    }
+    this.transform = [rotateA * scale2, rotateB * scale2, rotateC * scale2, rotateD * scale2, offsetCanvasX - rotateA * scale2 * centerX - rotateC * scale2 * centerY, offsetCanvasY - rotateB * scale2 * centerX - rotateD * scale2 * centerY];
+    this.width = width;
+    this.height = height;
+  }
+  get rawDims() {
+    const {
+      userUnit,
+      viewBox
+    } = this;
+    const dims = viewBox.map(x2 => x2 * userUnit);
+    return shadow(this, "rawDims", {
+      pageWidth: dims[2] - dims[0],
+      pageHeight: dims[3] - dims[1],
+      pageX: dims[0],
+      pageY: dims[1]
+    });
+  }
+  clone({
+    scale: scale2 = this.scale,
+    rotation = this.rotation,
+    offsetX = this.offsetX,
+    offsetY = this.offsetY,
+    dontFlip = false
+  } = {}) {
+    return new PageViewport({
+      viewBox: this.viewBox.slice(),
+      userUnit: this.userUnit,
+      scale: scale2,
+      rotation,
+      offsetX,
+      offsetY,
+      dontFlip
+    });
+  }
+  convertToViewportPoint(x2, y4) {
+    return Util.applyTransform([x2, y4], this.transform);
+  }
+  convertToViewportRectangle(rect) {
+    const topLeft = Util.applyTransform([rect[0], rect[1]], this.transform);
+    const bottomRight = Util.applyTransform([rect[2], rect[3]], this.transform);
+    return [topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]];
+  }
+  convertToPdfPoint(x2, y4) {
+    return Util.applyInverseTransform([x2, y4], this.transform);
+  }
 }
 class RenderingCancelledException extends BaseException {
   constructor(msg, extraDelay = 0) {
@@ -61140,6 +62725,22 @@ class PDFDateString {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
   }
 }
+function getXfaPageViewport(xfaPage, {
+  scale: scale2 = 1,
+  rotation = 0
+}) {
+  const {
+    width,
+    height
+  } = xfaPage.attributes.style;
+  const viewBox = [0, 0, parseInt(width), parseInt(height)];
+  return new PageViewport({
+    viewBox,
+    userUnit: 1,
+    scale: scale2,
+    rotation
+  });
+}
 function getRGB(color2) {
   if (color2.startsWith("#")) {
     const colorRGB2 = parseInt(color2.slice(1), 16);
@@ -61175,6 +62776,43 @@ function getCurrentTransform(ctx) {
     f: f2
   } = ctx.getTransform();
   return [a2, b3, c3, d2, e2, f2];
+}
+function getCurrentTransformInverse(ctx) {
+  const {
+    a: a2,
+    b: b3,
+    c: c3,
+    d: d2,
+    e: e2,
+    f: f2
+  } = ctx.getTransform().invertSelf();
+  return [a2, b3, c3, d2, e2, f2];
+}
+function setLayerDimensions(div, viewport, mustFlip = false, mustRotate = true) {
+  if (viewport instanceof PageViewport) {
+    const {
+      pageWidth,
+      pageHeight
+    } = viewport.rawDims;
+    const {
+      style: style2
+    } = div;
+    const useRound = util_FeatureTest.isCSSRoundSupported;
+    const w3 = `var(--scale-factor) * ${pageWidth}px`,
+      h2 = `var(--scale-factor) * ${pageHeight}px`;
+    const widthStr = useRound ? `round(down, ${w3}, var(--scale-round-x, 1px))` : `calc(${w3})`,
+      heightStr = useRound ? `round(down, ${h2}, var(--scale-round-y, 1px))` : `calc(${h2})`;
+    if (!mustFlip || viewport.rotation % 180 === 0) {
+      style2.width = widthStr;
+      style2.height = heightStr;
+    } else {
+      style2.width = heightStr;
+      style2.height = widthStr;
+    }
+  }
+  if (mustRotate) {
+    div.setAttribute("data-main-rotation", viewport.rotation);
+  }
 }
 class OutputScale {
   constructor() {
@@ -65398,6 +67036,75 @@ class FontLoader {
     });
   }
 }
+class FontFaceObject {
+  constructor(translatedData, {
+    disableFontFace = false,
+    fontExtraProperties = false,
+    inspectFont = null
+  }) {
+    this.compiledGlyphs = /* @__PURE__ */Object.create(null);
+    for (const i2 in translatedData) {
+      this[i2] = translatedData[i2];
+    }
+    this.disableFontFace = disableFontFace === true;
+    this.fontExtraProperties = fontExtraProperties === true;
+    this._inspectFont = inspectFont;
+  }
+  createNativeFontFace() {
+    if (!this.data || this.disableFontFace) {
+      return null;
+    }
+    let nativeFontFace;
+    if (!this.cssFontInfo) {
+      nativeFontFace = new FontFace(this.loadedName, this.data, {});
+    } else {
+      const css2 = {
+        weight: this.cssFontInfo.fontWeight
+      };
+      if (this.cssFontInfo.italicAngle) {
+        css2.style = `oblique ${this.cssFontInfo.italicAngle}deg`;
+      }
+      nativeFontFace = new FontFace(this.cssFontInfo.fontFamily, this.data, css2);
+    }
+    this._inspectFont?.(this);
+    return nativeFontFace;
+  }
+  createFontFaceRule() {
+    if (!this.data || this.disableFontFace) {
+      return null;
+    }
+    const url2 = `url(data:${this.mimetype};base64,${toBase64Util(this.data)});`;
+    let rule;
+    if (!this.cssFontInfo) {
+      rule = `@font-face {font-family:"${this.loadedName}";src:${url2}}`;
+    } else {
+      let css2 = `font-weight: ${this.cssFontInfo.fontWeight};`;
+      if (this.cssFontInfo.italicAngle) {
+        css2 += `font-style: oblique ${this.cssFontInfo.italicAngle}deg;`;
+      }
+      rule = `@font-face {font-family:"${this.cssFontInfo.fontFamily}";${css2}src:${url2}}`;
+    }
+    this._inspectFont?.(this, url2);
+    return rule;
+  }
+  getPathGenerator(objs, character) {
+    if (this.compiledGlyphs[character] !== void 0) {
+      return this.compiledGlyphs[character];
+    }
+    const objId = this.loadedName + "_path_" + character;
+    let cmds;
+    try {
+      cmds = objs.get(objId);
+    } catch (ex) {
+      warn(`getPathGenerator - ignoring character: "${ex}".`);
+    }
+    const path2 = new Path2D(cmds || "");
+    if (!this.fontExtraProperties) {
+      objs.delete(objId);
+    }
+    return this.compiledGlyphs[character] = path2;
+  }
+}
 const CallbackKind = {
   DATA: 1,
   ERROR: 2
@@ -65842,6 +67549,58 @@ class BaseCanvasFactory {
     unreachable$1("Abstract method `_createCanvas` called.");
   }
 }
+class DOMCanvasFactory extends BaseCanvasFactory {
+  constructor({
+    ownerDocument: ownerDocument2 = globalThis.document,
+    enableHWA = false
+  }) {
+    super({
+      enableHWA
+    });
+    this._document = ownerDocument2;
+  }
+  _createCanvas(width, height) {
+    const canvas = this._document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+}
+class BaseCMapReaderFactory {
+  constructor({
+    baseUrl = null,
+    isCompressed = true
+  }) {
+    this.baseUrl = baseUrl;
+    this.isCompressed = isCompressed;
+  }
+  async fetch({
+    name: name2
+  }) {
+    if (!this.baseUrl) {
+      throw new Error("Ensure that the `cMapUrl` and `cMapPacked` API parameters are provided.");
+    }
+    if (!name2) {
+      throw new Error("CMap name must be specified.");
+    }
+    const url2 = this.baseUrl + name2 + (this.isCompressed ? ".bcmap" : "");
+    return this._fetch(url2).then(cMapData => ({
+      cMapData,
+      isCompressed: this.isCompressed
+    })).catch(reason => {
+      throw new Error(`Unable to load ${this.isCompressed ? "binary " : ""}CMap at: ${url2}`);
+    });
+  }
+  async _fetch(url2) {
+    unreachable$1("Abstract method `_fetch` called.");
+  }
+}
+class DOMCMapReaderFactory extends BaseCMapReaderFactory {
+  async _fetch(url2) {
+    const data2 = await fetchData(url2, this.isCompressed ? "arraybuffer" : "text");
+    return data2 instanceof ArrayBuffer ? new Uint8Array(data2) : stringToBytes(data2);
+  }
+}
 class BaseFilterFactory {
   addFilter(maps) {
     return "none";
@@ -65860,6 +67619,353 @@ class BaseFilterFactory {
   }
   destroy(keepHCM = false) {}
 }
+class DOMFilterFactory extends BaseFilterFactory {
+  #baseUrl;
+  #_cache;
+  #_defs;
+  #docId;
+  #document;
+  #_hcmCache;
+  #id = 0;
+  constructor({
+    docId,
+    ownerDocument: ownerDocument2 = globalThis.document
+  }) {
+    super();
+    this.#docId = docId;
+    this.#document = ownerDocument2;
+  }
+  get #cache() {
+    return this.#_cache ||= /* @__PURE__ */new Map();
+  }
+  get #hcmCache() {
+    return this.#_hcmCache ||= /* @__PURE__ */new Map();
+  }
+  get #defs() {
+    if (!this.#_defs) {
+      const div = this.#document.createElement("div");
+      const {
+        style: style2
+      } = div;
+      style2.visibility = "hidden";
+      style2.contain = "strict";
+      style2.width = style2.height = 0;
+      style2.position = "absolute";
+      style2.top = style2.left = 0;
+      style2.zIndex = -1;
+      const svg2 = this.#document.createElementNS(SVG_NS$1, "svg");
+      svg2.setAttribute("width", 0);
+      svg2.setAttribute("height", 0);
+      this.#_defs = this.#document.createElementNS(SVG_NS$1, "defs");
+      div.append(svg2);
+      svg2.append(this.#_defs);
+      this.#document.body.append(div);
+    }
+    return this.#_defs;
+  }
+  #createTables(maps) {
+    if (maps.length === 1) {
+      const mapR2 = maps[0];
+      const buffer = new Array(256);
+      for (let i2 = 0; i2 < 256; i2++) {
+        buffer[i2] = mapR2[i2] / 255;
+      }
+      const table2 = buffer.join(",");
+      return [table2, table2, table2];
+    }
+    const [mapR, mapG, mapB] = maps;
+    const bufferR = new Array(256);
+    const bufferG = new Array(256);
+    const bufferB = new Array(256);
+    for (let i2 = 0; i2 < 256; i2++) {
+      bufferR[i2] = mapR[i2] / 255;
+      bufferG[i2] = mapG[i2] / 255;
+      bufferB[i2] = mapB[i2] / 255;
+    }
+    return [bufferR.join(","), bufferG.join(","), bufferB.join(",")];
+  }
+  #createUrl(id2) {
+    if (this.#baseUrl === void 0) {
+      this.#baseUrl = "";
+      const url2 = this.#document.URL;
+      if (url2 !== this.#document.baseURI) {
+        if (isDataScheme(url2)) {
+          warn('#createUrl: ignore "data:"-URL for performance reasons.');
+        } else {
+          this.#baseUrl = url2.split("#", 1)[0];
+        }
+      }
+    }
+    return `url(${this.#baseUrl}#${id2})`;
+  }
+  addFilter(maps) {
+    if (!maps) {
+      return "none";
+    }
+    let value = this.#cache.get(maps);
+    if (value) {
+      return value;
+    }
+    const [tableR, tableG, tableB] = this.#createTables(maps);
+    const key2 = maps.length === 1 ? tableR : `${tableR}${tableG}${tableB}`;
+    value = this.#cache.get(key2);
+    if (value) {
+      this.#cache.set(maps, value);
+      return value;
+    }
+    const id2 = `g_${this.#docId}_transfer_map_${this.#id++}`;
+    const url2 = this.#createUrl(id2);
+    this.#cache.set(maps, url2);
+    this.#cache.set(key2, url2);
+    const filter2 = this.#createFilter(id2);
+    this.#addTransferMapConversion(tableR, tableG, tableB, filter2);
+    return url2;
+  }
+  addHCMFilter(fgColor, bgColor) {
+    const key2 = `${fgColor}-${bgColor}`;
+    const filterName = "base";
+    let info2 = this.#hcmCache.get(filterName);
+    if (info2?.key === key2) {
+      return info2.url;
+    }
+    if (info2) {
+      info2.filter?.remove();
+      info2.key = key2;
+      info2.url = "none";
+      info2.filter = null;
+    } else {
+      info2 = {
+        key: key2,
+        url: "none",
+        filter: null
+      };
+      this.#hcmCache.set(filterName, info2);
+    }
+    if (!fgColor || !bgColor) {
+      return info2.url;
+    }
+    const fgRGB = this.#getRGB(fgColor);
+    fgColor = Util.makeHexColor(...fgRGB);
+    const bgRGB = this.#getRGB(bgColor);
+    bgColor = Util.makeHexColor(...bgRGB);
+    this.#defs.style.color = "";
+    if (fgColor === "#000000" && bgColor === "#ffffff" || fgColor === bgColor) {
+      return info2.url;
+    }
+    const map3 = new Array(256);
+    for (let i2 = 0; i2 <= 255; i2++) {
+      const x2 = i2 / 255;
+      map3[i2] = x2 <= 0.03928 ? x2 / 12.92 : ((x2 + 0.055) / 1.055) ** 2.4;
+    }
+    const table2 = map3.join(",");
+    const id2 = `g_${this.#docId}_hcm_filter`;
+    const filter2 = info2.filter = this.#createFilter(id2);
+    this.#addTransferMapConversion(table2, table2, table2, filter2);
+    this.#addGrayConversion(filter2);
+    const getSteps = (c3, n2) => {
+      const start2 = fgRGB[c3] / 255;
+      const end2 = bgRGB[c3] / 255;
+      const arr = new Array(n2 + 1);
+      for (let i2 = 0; i2 <= n2; i2++) {
+        arr[i2] = start2 + i2 / n2 * (end2 - start2);
+      }
+      return arr.join(",");
+    };
+    this.#addTransferMapConversion(getSteps(0, 5), getSteps(1, 5), getSteps(2, 5), filter2);
+    info2.url = this.#createUrl(id2);
+    return info2.url;
+  }
+  addAlphaFilter(map3) {
+    let value = this.#cache.get(map3);
+    if (value) {
+      return value;
+    }
+    const [tableA] = this.#createTables([map3]);
+    const key2 = `alpha_${tableA}`;
+    value = this.#cache.get(key2);
+    if (value) {
+      this.#cache.set(map3, value);
+      return value;
+    }
+    const id2 = `g_${this.#docId}_alpha_map_${this.#id++}`;
+    const url2 = this.#createUrl(id2);
+    this.#cache.set(map3, url2);
+    this.#cache.set(key2, url2);
+    const filter2 = this.#createFilter(id2);
+    this.#addTransferMapAlphaConversion(tableA, filter2);
+    return url2;
+  }
+  addLuminosityFilter(map3) {
+    let value = this.#cache.get(map3 || "luminosity");
+    if (value) {
+      return value;
+    }
+    let tableA, key2;
+    if (map3) {
+      [tableA] = this.#createTables([map3]);
+      key2 = `luminosity_${tableA}`;
+    } else {
+      key2 = "luminosity";
+    }
+    value = this.#cache.get(key2);
+    if (value) {
+      this.#cache.set(map3, value);
+      return value;
+    }
+    const id2 = `g_${this.#docId}_luminosity_map_${this.#id++}`;
+    const url2 = this.#createUrl(id2);
+    this.#cache.set(map3, url2);
+    this.#cache.set(key2, url2);
+    const filter2 = this.#createFilter(id2);
+    this.#addLuminosityConversion(filter2);
+    if (map3) {
+      this.#addTransferMapAlphaConversion(tableA, filter2);
+    }
+    return url2;
+  }
+  addHighlightHCMFilter(filterName, fgColor, bgColor, newFgColor, newBgColor) {
+    const key2 = `${fgColor}-${bgColor}-${newFgColor}-${newBgColor}`;
+    let info2 = this.#hcmCache.get(filterName);
+    if (info2?.key === key2) {
+      return info2.url;
+    }
+    if (info2) {
+      info2.filter?.remove();
+      info2.key = key2;
+      info2.url = "none";
+      info2.filter = null;
+    } else {
+      info2 = {
+        key: key2,
+        url: "none",
+        filter: null
+      };
+      this.#hcmCache.set(filterName, info2);
+    }
+    if (!fgColor || !bgColor) {
+      return info2.url;
+    }
+    const [fgRGB, bgRGB] = [fgColor, bgColor].map(this.#getRGB.bind(this));
+    let fgGray = Math.round(0.2126 * fgRGB[0] + 0.7152 * fgRGB[1] + 0.0722 * fgRGB[2]);
+    let bgGray = Math.round(0.2126 * bgRGB[0] + 0.7152 * bgRGB[1] + 0.0722 * bgRGB[2]);
+    let [newFgRGB, newBgRGB] = [newFgColor, newBgColor].map(this.#getRGB.bind(this));
+    if (bgGray < fgGray) {
+      [fgGray, bgGray, newFgRGB, newBgRGB] = [bgGray, fgGray, newBgRGB, newFgRGB];
+    }
+    this.#defs.style.color = "";
+    const getSteps = (fg, bg, n2) => {
+      const arr = new Array(256);
+      const step = (bgGray - fgGray) / n2;
+      const newStart = fg / 255;
+      const newStep = (bg - fg) / (255 * n2);
+      let prev = 0;
+      for (let i2 = 0; i2 <= n2; i2++) {
+        const k2 = Math.round(fgGray + i2 * step);
+        const value = newStart + i2 * newStep;
+        for (let j2 = prev; j2 <= k2; j2++) {
+          arr[j2] = value;
+        }
+        prev = k2 + 1;
+      }
+      for (let i2 = prev; i2 < 256; i2++) {
+        arr[i2] = arr[prev - 1];
+      }
+      return arr.join(",");
+    };
+    const id2 = `g_${this.#docId}_hcm_${filterName}_filter`;
+    const filter2 = info2.filter = this.#createFilter(id2);
+    this.#addGrayConversion(filter2);
+    this.#addTransferMapConversion(getSteps(newFgRGB[0], newBgRGB[0], 5), getSteps(newFgRGB[1], newBgRGB[1], 5), getSteps(newFgRGB[2], newBgRGB[2], 5), filter2);
+    info2.url = this.#createUrl(id2);
+    return info2.url;
+  }
+  destroy(keepHCM = false) {
+    if (keepHCM && this.#_hcmCache?.size) {
+      return;
+    }
+    this.#_defs?.parentNode.parentNode.remove();
+    this.#_defs = null;
+    this.#_cache?.clear();
+    this.#_cache = null;
+    this.#_hcmCache?.clear();
+    this.#_hcmCache = null;
+    this.#id = 0;
+  }
+  #addLuminosityConversion(filter2) {
+    const feColorMatrix = this.#document.createElementNS(SVG_NS$1, "feColorMatrix");
+    feColorMatrix.setAttribute("type", "matrix");
+    feColorMatrix.setAttribute("values", "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0.59 0.11 0 0");
+    filter2.append(feColorMatrix);
+  }
+  #addGrayConversion(filter2) {
+    const feColorMatrix = this.#document.createElementNS(SVG_NS$1, "feColorMatrix");
+    feColorMatrix.setAttribute("type", "matrix");
+    feColorMatrix.setAttribute("values", "0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0");
+    filter2.append(feColorMatrix);
+  }
+  #createFilter(id2) {
+    const filter2 = this.#document.createElementNS(SVG_NS$1, "filter");
+    filter2.setAttribute("color-interpolation-filters", "sRGB");
+    filter2.setAttribute("id", id2);
+    this.#defs.append(filter2);
+    return filter2;
+  }
+  #appendFeFunc(feComponentTransfer, func, table2) {
+    const feFunc = this.#document.createElementNS(SVG_NS$1, func);
+    feFunc.setAttribute("type", "discrete");
+    feFunc.setAttribute("tableValues", table2);
+    feComponentTransfer.append(feFunc);
+  }
+  #addTransferMapConversion(rTable, gTable, bTable, filter2) {
+    const feComponentTransfer = this.#document.createElementNS(SVG_NS$1, "feComponentTransfer");
+    filter2.append(feComponentTransfer);
+    this.#appendFeFunc(feComponentTransfer, "feFuncR", rTable);
+    this.#appendFeFunc(feComponentTransfer, "feFuncG", gTable);
+    this.#appendFeFunc(feComponentTransfer, "feFuncB", bTable);
+  }
+  #addTransferMapAlphaConversion(aTable, filter2) {
+    const feComponentTransfer = this.#document.createElementNS(SVG_NS$1, "feComponentTransfer");
+    filter2.append(feComponentTransfer);
+    this.#appendFeFunc(feComponentTransfer, "feFuncA", aTable);
+  }
+  #getRGB(color2) {
+    this.#defs.style.color = color2;
+    return getRGB(getComputedStyle(this.#defs).getPropertyValue("color"));
+  }
+}
+class BaseStandardFontDataFactory {
+  constructor({
+    baseUrl = null
+  }) {
+    this.baseUrl = baseUrl;
+  }
+  async fetch({
+    filename
+  }) {
+    if (!this.baseUrl) {
+      throw new Error("Ensure that the `standardFontDataUrl` API parameter is provided.");
+    }
+    if (!filename) {
+      throw new Error("Font filename must be specified.");
+    }
+    const url2 = `${this.baseUrl}${filename}`;
+    return this._fetch(url2).catch(reason => {
+      throw new Error(`Unable to load font data at: ${url2}`);
+    });
+  }
+  async _fetch(url2) {
+    unreachable$1("Abstract method `_fetch` called.");
+  }
+}
+class DOMStandardFontDataFactory extends BaseStandardFontDataFactory {
+  async _fetch(url2) {
+    const data2 = await fetchData(url2, "arraybuffer");
+    return new Uint8Array(data2);
+  }
+}
+if (isNodeJS) {
+  warn("Please use the `legacy` build in Node.js environments.");
+}
 async function node_utils_fetchData(url2) {
   const fs = process.getBuiltinModule("fs");
   const data2 = await fs.promises.readFile(url2);
@@ -65871,6 +67977,16 @@ class NodeCanvasFactory extends BaseCanvasFactory {
     const require2 = process.getBuiltinModule("module").createRequire(import.meta.url);
     const canvas = require2("@napi-rs/canvas");
     return canvas.createCanvas(width, height);
+  }
+}
+class NodeCMapReaderFactory extends BaseCMapReaderFactory {
+  async _fetch(url2) {
+    return node_utils_fetchData(url2);
+  }
+}
+class NodeStandardFontDataFactory extends BaseStandardFontDataFactory {
+  async _fetch(url2) {
+    return node_utils_fetchData(url2);
   }
 }
 const PathType = {
@@ -66177,7 +68293,349 @@ const PaintType = {
   COLORED: 1,
   UNCOLORED: 2
 };
+class TilingPattern {
+  static MAX_PATTERN_SIZE = 3e3;
+  constructor(IR, color2, ctx, canvasGraphicsFactory, baseTransform) {
+    this.operatorList = IR[2];
+    this.matrix = IR[3];
+    this.bbox = IR[4];
+    this.xstep = IR[5];
+    this.ystep = IR[6];
+    this.paintType = IR[7];
+    this.tilingType = IR[8];
+    this.color = color2;
+    this.ctx = ctx;
+    this.canvasGraphicsFactory = canvasGraphicsFactory;
+    this.baseTransform = baseTransform;
+  }
+  createPatternCanvas(owner) {
+    const {
+      bbox,
+      operatorList,
+      paintType,
+      tilingType,
+      color: color2,
+      canvasGraphicsFactory
+    } = this;
+    let {
+      xstep,
+      ystep
+    } = this;
+    xstep = Math.abs(xstep);
+    ystep = Math.abs(ystep);
+    info("TilingType: " + tilingType);
+    const x0 = bbox[0],
+      y0 = bbox[1],
+      x1 = bbox[2],
+      y1 = bbox[3];
+    const width = x1 - x0;
+    const height = y1 - y0;
+    const matrixScale = Util.singularValueDecompose2dScale(this.matrix);
+    const curMatrixScale = Util.singularValueDecompose2dScale(this.baseTransform);
+    const combinedScaleX = matrixScale[0] * curMatrixScale[0];
+    const combinedScaleY = matrixScale[1] * curMatrixScale[1];
+    let canvasWidth = width,
+      canvasHeight = height,
+      redrawHorizontally = false,
+      redrawVertically = false;
+    const xScaledStep = Math.ceil(xstep * combinedScaleX);
+    const yScaledStep = Math.ceil(ystep * combinedScaleY);
+    const xScaledWidth = Math.ceil(width * combinedScaleX);
+    const yScaledHeight = Math.ceil(height * combinedScaleY);
+    if (xScaledStep >= xScaledWidth) {
+      canvasWidth = xstep;
+    } else {
+      redrawHorizontally = true;
+    }
+    if (yScaledStep >= yScaledHeight) {
+      canvasHeight = ystep;
+    } else {
+      redrawVertically = true;
+    }
+    const dimx = this.getSizeAndScale(canvasWidth, this.ctx.canvas.width, combinedScaleX);
+    const dimy = this.getSizeAndScale(canvasHeight, this.ctx.canvas.height, combinedScaleY);
+    const tmpCanvas = owner.cachedCanvases.getCanvas("pattern", dimx.size, dimy.size);
+    const tmpCtx = tmpCanvas.context;
+    const graphics = canvasGraphicsFactory.createCanvasGraphics(tmpCtx);
+    graphics.groupLevel = owner.groupLevel;
+    this.setFillAndStrokeStyleToContext(graphics, paintType, color2);
+    tmpCtx.translate(-dimx.scale * x0, -dimy.scale * y0);
+    graphics.transform(dimx.scale, 0, 0, dimy.scale, 0, 0);
+    tmpCtx.save();
+    this.clipBbox(graphics, x0, y0, x1, y1);
+    graphics.baseTransform = getCurrentTransform(graphics.ctx);
+    graphics.executeOperatorList(operatorList);
+    graphics.endDrawing();
+    tmpCtx.restore();
+    if (redrawHorizontally || redrawVertically) {
+      const image2 = tmpCanvas.canvas;
+      if (redrawHorizontally) {
+        canvasWidth = xstep;
+      }
+      if (redrawVertically) {
+        canvasHeight = ystep;
+      }
+      const dimx2 = this.getSizeAndScale(canvasWidth, this.ctx.canvas.width, combinedScaleX);
+      const dimy2 = this.getSizeAndScale(canvasHeight, this.ctx.canvas.height, combinedScaleY);
+      const xSize = dimx2.size;
+      const ySize = dimy2.size;
+      const tmpCanvas2 = owner.cachedCanvases.getCanvas("pattern-workaround", xSize, ySize);
+      const tmpCtx2 = tmpCanvas2.context;
+      const ii = redrawHorizontally ? Math.floor(width / xstep) : 0;
+      const jj = redrawVertically ? Math.floor(height / ystep) : 0;
+      for (let i2 = 0; i2 <= ii; i2++) {
+        for (let j2 = 0; j2 <= jj; j2++) {
+          tmpCtx2.drawImage(image2, xSize * i2, ySize * j2, xSize, ySize, 0, 0, xSize, ySize);
+        }
+      }
+      return {
+        canvas: tmpCanvas2.canvas,
+        scaleX: dimx2.scale,
+        scaleY: dimy2.scale,
+        offsetX: x0,
+        offsetY: y0
+      };
+    }
+    return {
+      canvas: tmpCanvas.canvas,
+      scaleX: dimx.scale,
+      scaleY: dimy.scale,
+      offsetX: x0,
+      offsetY: y0
+    };
+  }
+  getSizeAndScale(step, realOutputSize, scale2) {
+    const maxSize = Math.max(TilingPattern.MAX_PATTERN_SIZE, realOutputSize);
+    let size2 = Math.ceil(step * scale2);
+    if (size2 >= maxSize) {
+      size2 = maxSize;
+    } else {
+      scale2 = size2 / step;
+    }
+    return {
+      scale: scale2,
+      size: size2
+    };
+  }
+  clipBbox(graphics, x0, y0, x1, y1) {
+    const bboxWidth = x1 - x0;
+    const bboxHeight = y1 - y0;
+    graphics.ctx.rect(x0, y0, bboxWidth, bboxHeight);
+    graphics.current.updateRectMinMax(getCurrentTransform(graphics.ctx), [x0, y0, x1, y1]);
+    graphics.clip();
+    graphics.endPath();
+  }
+  setFillAndStrokeStyleToContext(graphics, paintType, color2) {
+    const context = graphics.ctx,
+      current2 = graphics.current;
+    switch (paintType) {
+      case PaintType.COLORED:
+        const ctx = this.ctx;
+        context.fillStyle = ctx.fillStyle;
+        context.strokeStyle = ctx.strokeStyle;
+        current2.fillColor = ctx.fillStyle;
+        current2.strokeColor = ctx.strokeStyle;
+        break;
+      case PaintType.UNCOLORED:
+        const cssColor = Util.makeHexColor(color2[0], color2[1], color2[2]);
+        context.fillStyle = cssColor;
+        context.strokeStyle = cssColor;
+        current2.fillColor = cssColor;
+        current2.strokeColor = cssColor;
+        break;
+      default:
+        throw new FormatError(`Unsupported paint type: ${paintType}`);
+    }
+  }
+  getPattern(ctx, owner, inverse, pathType) {
+    let matrix = inverse;
+    if (pathType !== PathType.SHADING) {
+      matrix = Util.transform(matrix, owner.baseTransform);
+      if (this.matrix) {
+        matrix = Util.transform(matrix, this.matrix);
+      }
+    }
+    const temporaryPatternCanvas = this.createPatternCanvas(owner);
+    let domMatrix = new DOMMatrix(matrix);
+    domMatrix = domMatrix.translate(temporaryPatternCanvas.offsetX, temporaryPatternCanvas.offsetY);
+    domMatrix = domMatrix.scale(1 / temporaryPatternCanvas.scaleX, 1 / temporaryPatternCanvas.scaleY);
+    const pattern = ctx.createPattern(temporaryPatternCanvas.canvas, "repeat");
+    pattern.setTransform(domMatrix);
+    return pattern;
+  }
+}
+function convertBlackAndWhiteToRGBA({
+  src,
+  srcPos = 0,
+  dest,
+  width,
+  height,
+  nonBlackColor = 4294967295,
+  inverseDecode = false
+}) {
+  const black = util_FeatureTest.isLittleEndian ? 4278190080 : 255;
+  const [zeroMapping, oneMapping] = inverseDecode ? [nonBlackColor, black] : [black, nonBlackColor];
+  const widthInSource = width >> 3;
+  const widthRemainder = width & 7;
+  const srcLength = src.length;
+  dest = new Uint32Array(dest.buffer);
+  let destPos = 0;
+  for (let i2 = 0; i2 < height; i2++) {
+    for (const max2 = srcPos + widthInSource; srcPos < max2; srcPos++) {
+      const elem2 = srcPos < srcLength ? src[srcPos] : 255;
+      dest[destPos++] = elem2 & 128 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 64 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 32 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 16 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 8 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 4 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 2 ? oneMapping : zeroMapping;
+      dest[destPos++] = elem2 & 1 ? oneMapping : zeroMapping;
+    }
+    if (widthRemainder === 0) {
+      continue;
+    }
+    const elem = srcPos < srcLength ? src[srcPos++] : 255;
+    for (let j2 = 0; j2 < widthRemainder; j2++) {
+      dest[destPos++] = elem & 1 << 7 - j2 ? oneMapping : zeroMapping;
+    }
+  }
+  return {
+    srcPos,
+    destPos
+  };
+}
+const MIN_FONT_SIZE = 16;
+const MAX_FONT_SIZE = 100;
+const EXECUTION_TIME = 15;
+const EXECUTION_STEPS = 10;
+const MAX_SIZE_TO_COMPILE = 1e3;
 const FULL_CHUNK_HEIGHT = 16;
+function mirrorContextOperations(ctx, destCtx) {
+  if (ctx._removeMirroring) {
+    throw new Error("Context is already forwarding operations.");
+  }
+  ctx.__originalSave = ctx.save;
+  ctx.__originalRestore = ctx.restore;
+  ctx.__originalRotate = ctx.rotate;
+  ctx.__originalScale = ctx.scale;
+  ctx.__originalTranslate = ctx.translate;
+  ctx.__originalTransform = ctx.transform;
+  ctx.__originalSetTransform = ctx.setTransform;
+  ctx.__originalResetTransform = ctx.resetTransform;
+  ctx.__originalClip = ctx.clip;
+  ctx.__originalMoveTo = ctx.moveTo;
+  ctx.__originalLineTo = ctx.lineTo;
+  ctx.__originalBezierCurveTo = ctx.bezierCurveTo;
+  ctx.__originalRect = ctx.rect;
+  ctx.__originalClosePath = ctx.closePath;
+  ctx.__originalBeginPath = ctx.beginPath;
+  ctx._removeMirroring = () => {
+    ctx.save = ctx.__originalSave;
+    ctx.restore = ctx.__originalRestore;
+    ctx.rotate = ctx.__originalRotate;
+    ctx.scale = ctx.__originalScale;
+    ctx.translate = ctx.__originalTranslate;
+    ctx.transform = ctx.__originalTransform;
+    ctx.setTransform = ctx.__originalSetTransform;
+    ctx.resetTransform = ctx.__originalResetTransform;
+    ctx.clip = ctx.__originalClip;
+    ctx.moveTo = ctx.__originalMoveTo;
+    ctx.lineTo = ctx.__originalLineTo;
+    ctx.bezierCurveTo = ctx.__originalBezierCurveTo;
+    ctx.rect = ctx.__originalRect;
+    ctx.closePath = ctx.__originalClosePath;
+    ctx.beginPath = ctx.__originalBeginPath;
+    delete ctx._removeMirroring;
+  };
+  ctx.save = function ctxSave() {
+    destCtx.save();
+    this.__originalSave();
+  };
+  ctx.restore = function ctxRestore() {
+    destCtx.restore();
+    this.__originalRestore();
+  };
+  ctx.translate = function ctxTranslate(x2, y4) {
+    destCtx.translate(x2, y4);
+    this.__originalTranslate(x2, y4);
+  };
+  ctx.scale = function ctxScale(x2, y4) {
+    destCtx.scale(x2, y4);
+    this.__originalScale(x2, y4);
+  };
+  ctx.transform = function ctxTransform(a2, b3, c3, d2, e2, f2) {
+    destCtx.transform(a2, b3, c3, d2, e2, f2);
+    this.__originalTransform(a2, b3, c3, d2, e2, f2);
+  };
+  ctx.setTransform = function ctxSetTransform(a2, b3, c3, d2, e2, f2) {
+    destCtx.setTransform(a2, b3, c3, d2, e2, f2);
+    this.__originalSetTransform(a2, b3, c3, d2, e2, f2);
+  };
+  ctx.resetTransform = function ctxResetTransform() {
+    destCtx.resetTransform();
+    this.__originalResetTransform();
+  };
+  ctx.rotate = function ctxRotate(angle) {
+    destCtx.rotate(angle);
+    this.__originalRotate(angle);
+  };
+  ctx.clip = function ctxRotate(rule) {
+    destCtx.clip(rule);
+    this.__originalClip(rule);
+  };
+  ctx.moveTo = function (x2, y4) {
+    destCtx.moveTo(x2, y4);
+    this.__originalMoveTo(x2, y4);
+  };
+  ctx.lineTo = function (x2, y4) {
+    destCtx.lineTo(x2, y4);
+    this.__originalLineTo(x2, y4);
+  };
+  ctx.bezierCurveTo = function (cp1x, cp1y, cp2x, cp2y, x2, y4) {
+    destCtx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x2, y4);
+    this.__originalBezierCurveTo(cp1x, cp1y, cp2x, cp2y, x2, y4);
+  };
+  ctx.rect = function (x2, y4, width, height) {
+    destCtx.rect(x2, y4, width, height);
+    this.__originalRect(x2, y4, width, height);
+  };
+  ctx.closePath = function () {
+    destCtx.closePath();
+    this.__originalClosePath();
+  };
+  ctx.beginPath = function () {
+    destCtx.beginPath();
+    this.__originalBeginPath();
+  };
+}
+class CachedCanvases {
+  constructor(canvasFactory) {
+    this.canvasFactory = canvasFactory;
+    this.cache = /* @__PURE__ */Object.create(null);
+  }
+  getCanvas(id2, width, height) {
+    let canvasEntry;
+    if (this.cache[id2] !== void 0) {
+      canvasEntry = this.cache[id2];
+      this.canvasFactory.reset(canvasEntry, width, height);
+    } else {
+      canvasEntry = this.canvasFactory.create(width, height);
+      this.cache[id2] = canvasEntry;
+    }
+    return canvasEntry;
+  }
+  delete(id2) {
+    delete this.cache[id2];
+  }
+  clear() {
+    for (const id2 in this.cache) {
+      const canvasEntry = this.cache[id2];
+      this.canvasFactory.destroy(canvasEntry);
+      delete this.cache[id2];
+    }
+  }
+}
 function drawImageAtIntegerCoords(ctx, srcImg, srcX, srcY, srcW, srcH, destX, destY, destW, destH) {
   const [a2, b3, c3, d2, tx, ty] = getCurrentTransform(ctx);
   if (b3 === 0 && c3 === 0) {
@@ -66212,6 +68670,361 @@ function drawImageAtIntegerCoords(ctx, srcImg, srcX, srcY, srcW, srcH, destX, de
   const scaleX = Math.hypot(a2, b3);
   const scaleY = Math.hypot(c3, d2);
   return [scaleX * destW, scaleY * destH];
+}
+function compileType3Glyph(imgData) {
+  const {
+    width,
+    height
+  } = imgData;
+  if (width > MAX_SIZE_TO_COMPILE || height > MAX_SIZE_TO_COMPILE) {
+    return null;
+  }
+  const POINT_TO_PROCESS_LIMIT = 1e3;
+  const POINT_TYPES = new Uint8Array([0, 2, 4, 0, 1, 0, 5, 4, 8, 10, 0, 8, 0, 2, 1, 0]);
+  const width1 = width + 1;
+  let points = new Uint8Array(width1 * (height + 1));
+  let i2, j2, j0;
+  const lineSize = width + 7 & -8;
+  let data2 = new Uint8Array(lineSize * height),
+    pos = 0;
+  for (const elem of imgData.data) {
+    let mask = 128;
+    while (mask > 0) {
+      data2[pos++] = elem & mask ? 0 : 255;
+      mask >>= 1;
+    }
+  }
+  let count2 = 0;
+  pos = 0;
+  if (data2[pos] !== 0) {
+    points[0] = 1;
+    ++count2;
+  }
+  for (j2 = 1; j2 < width; j2++) {
+    if (data2[pos] !== data2[pos + 1]) {
+      points[j2] = data2[pos] ? 2 : 1;
+      ++count2;
+    }
+    pos++;
+  }
+  if (data2[pos] !== 0) {
+    points[j2] = 2;
+    ++count2;
+  }
+  for (i2 = 1; i2 < height; i2++) {
+    pos = i2 * lineSize;
+    j0 = i2 * width1;
+    if (data2[pos - lineSize] !== data2[pos]) {
+      points[j0] = data2[pos] ? 1 : 8;
+      ++count2;
+    }
+    let sum2 = (data2[pos] ? 4 : 0) + (data2[pos - lineSize] ? 8 : 0);
+    for (j2 = 1; j2 < width; j2++) {
+      sum2 = (sum2 >> 2) + (data2[pos + 1] ? 4 : 0) + (data2[pos - lineSize + 1] ? 8 : 0);
+      if (POINT_TYPES[sum2]) {
+        points[j0 + j2] = POINT_TYPES[sum2];
+        ++count2;
+      }
+      pos++;
+    }
+    if (data2[pos - lineSize] !== data2[pos]) {
+      points[j0 + j2] = data2[pos] ? 2 : 4;
+      ++count2;
+    }
+    if (count2 > POINT_TO_PROCESS_LIMIT) {
+      return null;
+    }
+  }
+  pos = lineSize * (height - 1);
+  j0 = i2 * width1;
+  if (data2[pos] !== 0) {
+    points[j0] = 8;
+    ++count2;
+  }
+  for (j2 = 1; j2 < width; j2++) {
+    if (data2[pos] !== data2[pos + 1]) {
+      points[j0 + j2] = data2[pos] ? 4 : 8;
+      ++count2;
+    }
+    pos++;
+  }
+  if (data2[pos] !== 0) {
+    points[j0 + j2] = 4;
+    ++count2;
+  }
+  if (count2 > POINT_TO_PROCESS_LIMIT) {
+    return null;
+  }
+  const steps = new Int32Array([0, width1, -1, 0, -width1, 0, 0, 0, 1]);
+  const path2 = new Path2D();
+  for (i2 = 0; count2 && i2 <= height; i2++) {
+    let p3 = i2 * width1;
+    const end2 = p3 + width;
+    while (p3 < end2 && !points[p3]) {
+      p3++;
+    }
+    if (p3 === end2) {
+      continue;
+    }
+    path2.moveTo(p3 % width1, i2);
+    const p0 = p3;
+    let type2 = points[p3];
+    do {
+      const step = steps[type2];
+      do {
+        p3 += step;
+      } while (!points[p3]);
+      const pp = points[p3];
+      if (pp !== 5 && pp !== 10) {
+        type2 = pp;
+        points[p3] = 0;
+      } else {
+        type2 = pp & 51 * type2 >> 4;
+        points[p3] &= type2 >> 2 | type2 << 2;
+      }
+      path2.lineTo(p3 % width1, p3 / width1 | 0);
+      if (!points[p3]) {
+        --count2;
+      }
+    } while (p0 !== p3);
+    --i2;
+  }
+  data2 = null;
+  points = null;
+  const drawOutline = function (c3) {
+    c3.save();
+    c3.scale(1 / width, -1 / height);
+    c3.translate(0, -height);
+    c3.fill(path2);
+    c3.beginPath();
+    c3.restore();
+  };
+  return drawOutline;
+}
+class CanvasExtraState {
+  constructor(width, height) {
+    this.alphaIsShape = false;
+    this.fontSize = 0;
+    this.fontSizeScale = 1;
+    this.textMatrix = IDENTITY_MATRIX;
+    this.textMatrixScale = 1;
+    this.fontMatrix = FONT_IDENTITY_MATRIX;
+    this.leading = 0;
+    this.x = 0;
+    this.y = 0;
+    this.lineX = 0;
+    this.lineY = 0;
+    this.charSpacing = 0;
+    this.wordSpacing = 0;
+    this.textHScale = 1;
+    this.textRenderingMode = TextRenderingMode.FILL;
+    this.textRise = 0;
+    this.fillColor = "#000000";
+    this.strokeColor = "#000000";
+    this.patternFill = false;
+    this.patternStroke = false;
+    this.fillAlpha = 1;
+    this.strokeAlpha = 1;
+    this.lineWidth = 1;
+    this.activeSMask = null;
+    this.transferMaps = "none";
+    this.startNewPathAndClipBox([0, 0, width, height]);
+  }
+  clone() {
+    const clone2 = Object.create(this);
+    clone2.clipBox = this.clipBox.slice();
+    return clone2;
+  }
+  setCurrentPoint(x2, y4) {
+    this.x = x2;
+    this.y = y4;
+  }
+  updatePathMinMax(transform2, x2, y4) {
+    [x2, y4] = Util.applyTransform([x2, y4], transform2);
+    this.minX = Math.min(this.minX, x2);
+    this.minY = Math.min(this.minY, y4);
+    this.maxX = Math.max(this.maxX, x2);
+    this.maxY = Math.max(this.maxY, y4);
+  }
+  updateRectMinMax(transform2, rect) {
+    const p1 = Util.applyTransform(rect, transform2);
+    const p22 = Util.applyTransform(rect.slice(2), transform2);
+    const p3 = Util.applyTransform([rect[0], rect[3]], transform2);
+    const p4 = Util.applyTransform([rect[2], rect[1]], transform2);
+    this.minX = Math.min(this.minX, p1[0], p22[0], p3[0], p4[0]);
+    this.minY = Math.min(this.minY, p1[1], p22[1], p3[1], p4[1]);
+    this.maxX = Math.max(this.maxX, p1[0], p22[0], p3[0], p4[0]);
+    this.maxY = Math.max(this.maxY, p1[1], p22[1], p3[1], p4[1]);
+  }
+  updateScalingPathMinMax(transform2, minMax2) {
+    Util.scaleMinMax(transform2, minMax2);
+    this.minX = Math.min(this.minX, minMax2[0]);
+    this.minY = Math.min(this.minY, minMax2[1]);
+    this.maxX = Math.max(this.maxX, minMax2[2]);
+    this.maxY = Math.max(this.maxY, minMax2[3]);
+  }
+  updateCurvePathMinMax(transform2, x0, y0, x1, y1, x2, y22, x3, y32, minMax2) {
+    const box2 = Util.bezierBoundingBox(x0, y0, x1, y1, x2, y22, x3, y32, minMax2);
+    if (minMax2) {
+      return;
+    }
+    this.updateRectMinMax(transform2, box2);
+  }
+  getPathBoundingBox(pathType = PathType.FILL, transform2 = null) {
+    const box2 = [this.minX, this.minY, this.maxX, this.maxY];
+    if (pathType === PathType.STROKE) {
+      if (!transform2) {
+        unreachable$1("Stroke bounding box must include transform.");
+      }
+      const scale2 = Util.singularValueDecompose2dScale(transform2);
+      const xStrokePad = scale2[0] * this.lineWidth / 2;
+      const yStrokePad = scale2[1] * this.lineWidth / 2;
+      box2[0] -= xStrokePad;
+      box2[1] -= yStrokePad;
+      box2[2] += xStrokePad;
+      box2[3] += yStrokePad;
+    }
+    return box2;
+  }
+  updateClipFromPath() {
+    const intersect = Util.intersect(this.clipBox, this.getPathBoundingBox());
+    this.startNewPathAndClipBox(intersect || [0, 0, 0, 0]);
+  }
+  isEmptyClip() {
+    return this.minX === Infinity;
+  }
+  startNewPathAndClipBox(box2) {
+    this.clipBox = box2;
+    this.minX = Infinity;
+    this.minY = Infinity;
+    this.maxX = 0;
+    this.maxY = 0;
+  }
+  getClippedPathBoundingBox(pathType = PathType.FILL, transform2 = null) {
+    return Util.intersect(this.clipBox, this.getPathBoundingBox(pathType, transform2));
+  }
+}
+function putBinaryImageData(ctx, imgData) {
+  if (imgData instanceof ImageData) {
+    ctx.putImageData(imgData, 0, 0);
+    return;
+  }
+  const height = imgData.height,
+    width = imgData.width;
+  const partialChunkHeight = height % FULL_CHUNK_HEIGHT;
+  const fullChunks = (height - partialChunkHeight) / FULL_CHUNK_HEIGHT;
+  const totalChunks = partialChunkHeight === 0 ? fullChunks : fullChunks + 1;
+  const chunkImgData = ctx.createImageData(width, FULL_CHUNK_HEIGHT);
+  let srcPos = 0,
+    destPos;
+  const src = imgData.data;
+  const dest = chunkImgData.data;
+  let i2, j2, thisChunkHeight, elemsInThisChunk;
+  if (imgData.kind === util_ImageKind.GRAYSCALE_1BPP) {
+    const srcLength = src.byteLength;
+    const dest32 = new Uint32Array(dest.buffer, 0, dest.byteLength >> 2);
+    const dest32DataLength = dest32.length;
+    const fullSrcDiff = width + 7 >> 3;
+    const white = 4294967295;
+    const black = util_FeatureTest.isLittleEndian ? 4278190080 : 255;
+    for (i2 = 0; i2 < totalChunks; i2++) {
+      thisChunkHeight = i2 < fullChunks ? FULL_CHUNK_HEIGHT : partialChunkHeight;
+      destPos = 0;
+      for (j2 = 0; j2 < thisChunkHeight; j2++) {
+        const srcDiff = srcLength - srcPos;
+        let k2 = 0;
+        const kEnd = srcDiff > fullSrcDiff ? width : srcDiff * 8 - 7;
+        const kEndUnrolled = kEnd & -8;
+        let mask = 0;
+        let srcByte = 0;
+        for (; k2 < kEndUnrolled; k2 += 8) {
+          srcByte = src[srcPos++];
+          dest32[destPos++] = srcByte & 128 ? white : black;
+          dest32[destPos++] = srcByte & 64 ? white : black;
+          dest32[destPos++] = srcByte & 32 ? white : black;
+          dest32[destPos++] = srcByte & 16 ? white : black;
+          dest32[destPos++] = srcByte & 8 ? white : black;
+          dest32[destPos++] = srcByte & 4 ? white : black;
+          dest32[destPos++] = srcByte & 2 ? white : black;
+          dest32[destPos++] = srcByte & 1 ? white : black;
+        }
+        for (; k2 < kEnd; k2++) {
+          if (mask === 0) {
+            srcByte = src[srcPos++];
+            mask = 128;
+          }
+          dest32[destPos++] = srcByte & mask ? white : black;
+          mask >>= 1;
+        }
+      }
+      while (destPos < dest32DataLength) {
+        dest32[destPos++] = 0;
+      }
+      ctx.putImageData(chunkImgData, 0, i2 * FULL_CHUNK_HEIGHT);
+    }
+  } else if (imgData.kind === util_ImageKind.RGBA_32BPP) {
+    j2 = 0;
+    elemsInThisChunk = width * FULL_CHUNK_HEIGHT * 4;
+    for (i2 = 0; i2 < fullChunks; i2++) {
+      dest.set(src.subarray(srcPos, srcPos + elemsInThisChunk));
+      srcPos += elemsInThisChunk;
+      ctx.putImageData(chunkImgData, 0, j2);
+      j2 += FULL_CHUNK_HEIGHT;
+    }
+    if (i2 < totalChunks) {
+      elemsInThisChunk = width * partialChunkHeight * 4;
+      dest.set(src.subarray(srcPos, srcPos + elemsInThisChunk));
+      ctx.putImageData(chunkImgData, 0, j2);
+    }
+  } else if (imgData.kind === util_ImageKind.RGB_24BPP) {
+    thisChunkHeight = FULL_CHUNK_HEIGHT;
+    elemsInThisChunk = width * thisChunkHeight;
+    for (i2 = 0; i2 < totalChunks; i2++) {
+      if (i2 >= fullChunks) {
+        thisChunkHeight = partialChunkHeight;
+        elemsInThisChunk = width * thisChunkHeight;
+      }
+      destPos = 0;
+      for (j2 = elemsInThisChunk; j2--;) {
+        dest[destPos++] = src[srcPos++];
+        dest[destPos++] = src[srcPos++];
+        dest[destPos++] = src[srcPos++];
+        dest[destPos++] = 255;
+      }
+      ctx.putImageData(chunkImgData, 0, i2 * FULL_CHUNK_HEIGHT);
+    }
+  } else {
+    throw new Error(`bad image kind: ${imgData.kind}`);
+  }
+}
+function putBinaryImageMask(ctx, imgData) {
+  if (imgData.bitmap) {
+    ctx.drawImage(imgData.bitmap, 0, 0);
+    return;
+  }
+  const height = imgData.height,
+    width = imgData.width;
+  const partialChunkHeight = height % FULL_CHUNK_HEIGHT;
+  const fullChunks = (height - partialChunkHeight) / FULL_CHUNK_HEIGHT;
+  const totalChunks = partialChunkHeight === 0 ? fullChunks : fullChunks + 1;
+  const chunkImgData = ctx.createImageData(width, FULL_CHUNK_HEIGHT);
+  let srcPos = 0;
+  const src = imgData.data;
+  const dest = chunkImgData.data;
+  for (let i2 = 0; i2 < totalChunks; i2++) {
+    const thisChunkHeight = i2 < fullChunks ? FULL_CHUNK_HEIGHT : partialChunkHeight;
+    ({
+      srcPos
+    } = convertBlackAndWhiteToRGBA({
+      src,
+      srcPos,
+      dest,
+      width,
+      height: thisChunkHeight,
+      nonBlackColor: 0
+    }));
+    ctx.putImageData(chunkImgData, 0, i2 * FULL_CHUNK_HEIGHT);
+  }
 }
 function copyCtxState(sourceCtx, destCtx) {
   const properties2 = ["strokeStyle", "fillStyle", "fillRule", "globalAlpha", "lineWidth", "lineCap", "lineJoin", "miterLimit", "globalCompositeOperation", "font", "filter"];
@@ -66248,10 +69061,1652 @@ function resetCtxToDefault(ctx) {
     }
   }
 }
+function getImageSmoothingEnabled(transform2, interpolate2) {
+  if (interpolate2) {
+    return true;
+  }
+  const scale2 = Util.singularValueDecompose2dScale(transform2);
+  scale2[0] = Math.fround(scale2[0]);
+  scale2[1] = Math.fround(scale2[1]);
+  const actualScale = Math.fround((globalThis.devicePixelRatio || 1) * PixelsPerInch.PDF_TO_CSS_UNITS);
+  return scale2[0] <= actualScale && scale2[1] <= actualScale;
+}
 const LINE_CAP_STYLES = ["butt", "round", "square"];
 const LINE_JOIN_STYLES = ["miter", "round", "bevel"];
 const NORMAL_CLIP = {};
 const EO_CLIP = {};
+class CanvasGraphics {
+  constructor(canvasCtx, commonObjs, objs, canvasFactory, filterFactory, {
+    optionalContentConfig,
+    markedContentStack = null
+  }, annotationCanvasMap, pageColors) {
+    this.ctx = canvasCtx;
+    this.current = new CanvasExtraState(this.ctx.canvas.width, this.ctx.canvas.height);
+    this.stateStack = [];
+    this.pendingClip = null;
+    this.pendingEOFill = false;
+    this.res = null;
+    this.xobjs = null;
+    this.commonObjs = commonObjs;
+    this.objs = objs;
+    this.canvasFactory = canvasFactory;
+    this.filterFactory = filterFactory;
+    this.groupStack = [];
+    this.processingType3 = null;
+    this.baseTransform = null;
+    this.baseTransformStack = [];
+    this.groupLevel = 0;
+    this.smaskStack = [];
+    this.smaskCounter = 0;
+    this.tempSMask = null;
+    this.suspendedCtx = null;
+    this.contentVisible = true;
+    this.markedContentStack = markedContentStack || [];
+    this.optionalContentConfig = optionalContentConfig;
+    this.cachedCanvases = new CachedCanvases(this.canvasFactory);
+    this.cachedPatterns = /* @__PURE__ */new Map();
+    this.annotationCanvasMap = annotationCanvasMap;
+    this.viewportScale = 1;
+    this.outputScaleX = 1;
+    this.outputScaleY = 1;
+    this.pageColors = pageColors;
+    this._cachedScaleForStroking = [-1, 0];
+    this._cachedGetSinglePixelWidth = null;
+    this._cachedBitmapsMap = /* @__PURE__ */new Map();
+  }
+  getObject(data2, fallback = null) {
+    if (typeof data2 === "string") {
+      return data2.startsWith("g_") ? this.commonObjs.get(data2) : this.objs.get(data2);
+    }
+    return fallback;
+  }
+  beginDrawing({
+    transform: transform2,
+    viewport,
+    transparency = false,
+    background = null
+  }) {
+    const width = this.ctx.canvas.width;
+    const height = this.ctx.canvas.height;
+    const savedFillStyle = this.ctx.fillStyle;
+    this.ctx.fillStyle = background || "#ffffff";
+    this.ctx.fillRect(0, 0, width, height);
+    this.ctx.fillStyle = savedFillStyle;
+    if (transparency) {
+      const transparentCanvas = this.cachedCanvases.getCanvas("transparent", width, height);
+      this.compositeCtx = this.ctx;
+      this.transparentCanvas = transparentCanvas.canvas;
+      this.ctx = transparentCanvas.context;
+      this.ctx.save();
+      this.ctx.transform(...getCurrentTransform(this.compositeCtx));
+    }
+    this.ctx.save();
+    resetCtxToDefault(this.ctx);
+    if (transform2) {
+      this.ctx.transform(...transform2);
+      this.outputScaleX = transform2[0];
+      this.outputScaleY = transform2[0];
+    }
+    this.ctx.transform(...viewport.transform);
+    this.viewportScale = viewport.scale;
+    this.baseTransform = getCurrentTransform(this.ctx);
+  }
+  executeOperatorList(operatorList, executionStartIdx, continueCallback, stepper) {
+    const argsArray = operatorList.argsArray;
+    const fnArray = operatorList.fnArray;
+    let i2 = executionStartIdx || 0;
+    const argsArrayLen = argsArray.length;
+    if (argsArrayLen === i2) {
+      return i2;
+    }
+    const chunkOperations = argsArrayLen - i2 > EXECUTION_STEPS && typeof continueCallback === "function";
+    const endTime = chunkOperations ? Date.now() + EXECUTION_TIME : 0;
+    let steps = 0;
+    const commonObjs = this.commonObjs;
+    const objs = this.objs;
+    let fnId;
+    while (true) {
+      if (stepper !== void 0 && i2 === stepper.nextBreakPoint) {
+        stepper.breakIt(i2, continueCallback);
+        return i2;
+      }
+      fnId = fnArray[i2];
+      if (fnId !== OPS.dependency) {
+        this[fnId].apply(this, argsArray[i2]);
+      } else {
+        for (const depObjId of argsArray[i2]) {
+          const objsPool = depObjId.startsWith("g_") ? commonObjs : objs;
+          if (!objsPool.has(depObjId)) {
+            objsPool.get(depObjId, continueCallback);
+            return i2;
+          }
+        }
+      }
+      i2++;
+      if (i2 === argsArrayLen) {
+        return i2;
+      }
+      if (chunkOperations && ++steps > EXECUTION_STEPS) {
+        if (Date.now() > endTime) {
+          continueCallback();
+          return i2;
+        }
+        steps = 0;
+      }
+    }
+  }
+  #restoreInitialState() {
+    while (this.stateStack.length || this.inSMaskMode) {
+      this.restore();
+    }
+    this.current.activeSMask = null;
+    this.ctx.restore();
+    if (this.transparentCanvas) {
+      this.ctx = this.compositeCtx;
+      this.ctx.save();
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.drawImage(this.transparentCanvas, 0, 0);
+      this.ctx.restore();
+      this.transparentCanvas = null;
+    }
+  }
+  endDrawing() {
+    this.#restoreInitialState();
+    this.cachedCanvases.clear();
+    this.cachedPatterns.clear();
+    for (const cache2 of this._cachedBitmapsMap.values()) {
+      for (const canvas of cache2.values()) {
+        if (typeof HTMLCanvasElement !== "undefined" && canvas instanceof HTMLCanvasElement) {
+          canvas.width = canvas.height = 0;
+        }
+      }
+      cache2.clear();
+    }
+    this._cachedBitmapsMap.clear();
+    this.#drawFilter();
+  }
+  #drawFilter() {
+    if (this.pageColors) {
+      const hcmFilterId = this.filterFactory.addHCMFilter(this.pageColors.foreground, this.pageColors.background);
+      if (hcmFilterId !== "none") {
+        const savedFilter = this.ctx.filter;
+        this.ctx.filter = hcmFilterId;
+        this.ctx.drawImage(this.ctx.canvas, 0, 0);
+        this.ctx.filter = savedFilter;
+      }
+    }
+  }
+  _scaleImage(img, inverseTransform2) {
+    const width = img.width ?? img.displayWidth;
+    const height = img.height ?? img.displayHeight;
+    let widthScale = Math.max(Math.hypot(inverseTransform2[0], inverseTransform2[1]), 1);
+    let heightScale = Math.max(Math.hypot(inverseTransform2[2], inverseTransform2[3]), 1);
+    let paintWidth = width,
+      paintHeight = height;
+    let tmpCanvasId = "prescale1";
+    let tmpCanvas, tmpCtx;
+    while (widthScale > 2 && paintWidth > 1 || heightScale > 2 && paintHeight > 1) {
+      let newWidth = paintWidth,
+        newHeight = paintHeight;
+      if (widthScale > 2 && paintWidth > 1) {
+        newWidth = paintWidth >= 16384 ? Math.floor(paintWidth / 2) - 1 || 1 : Math.ceil(paintWidth / 2);
+        widthScale /= paintWidth / newWidth;
+      }
+      if (heightScale > 2 && paintHeight > 1) {
+        newHeight = paintHeight >= 16384 ? Math.floor(paintHeight / 2) - 1 || 1 : Math.ceil(paintHeight) / 2;
+        heightScale /= paintHeight / newHeight;
+      }
+      tmpCanvas = this.cachedCanvases.getCanvas(tmpCanvasId, newWidth, newHeight);
+      tmpCtx = tmpCanvas.context;
+      tmpCtx.clearRect(0, 0, newWidth, newHeight);
+      tmpCtx.drawImage(img, 0, 0, paintWidth, paintHeight, 0, 0, newWidth, newHeight);
+      img = tmpCanvas.canvas;
+      paintWidth = newWidth;
+      paintHeight = newHeight;
+      tmpCanvasId = tmpCanvasId === "prescale1" ? "prescale2" : "prescale1";
+    }
+    return {
+      img,
+      paintWidth,
+      paintHeight
+    };
+  }
+  _createMaskCanvas(img) {
+    const ctx = this.ctx;
+    const {
+      width,
+      height
+    } = img;
+    const fillColor = this.current.fillColor;
+    const isPatternFill = this.current.patternFill;
+    const currentTransform = getCurrentTransform(ctx);
+    let cache2, cacheKey, scaled, maskCanvas;
+    if ((img.bitmap || img.data) && img.count > 1) {
+      const mainKey = img.bitmap || img.data.buffer;
+      cacheKey = JSON.stringify(isPatternFill ? currentTransform : [currentTransform.slice(0, 4), fillColor]);
+      cache2 = this._cachedBitmapsMap.get(mainKey);
+      if (!cache2) {
+        cache2 = /* @__PURE__ */new Map();
+        this._cachedBitmapsMap.set(mainKey, cache2);
+      }
+      const cachedImage = cache2.get(cacheKey);
+      if (cachedImage && !isPatternFill) {
+        const offsetX2 = Math.round(Math.min(currentTransform[0], currentTransform[2]) + currentTransform[4]);
+        const offsetY2 = Math.round(Math.min(currentTransform[1], currentTransform[3]) + currentTransform[5]);
+        return {
+          canvas: cachedImage,
+          offsetX: offsetX2,
+          offsetY: offsetY2
+        };
+      }
+      scaled = cachedImage;
+    }
+    if (!scaled) {
+      maskCanvas = this.cachedCanvases.getCanvas("maskCanvas", width, height);
+      putBinaryImageMask(maskCanvas.context, img);
+    }
+    let maskToCanvas = Util.transform(currentTransform, [1 / width, 0, 0, -1 / height, 0, 0]);
+    maskToCanvas = Util.transform(maskToCanvas, [1, 0, 0, 1, 0, -height]);
+    const [minX, minY, maxX, maxY] = Util.getAxialAlignedBoundingBox([0, 0, width, height], maskToCanvas);
+    const drawnWidth = Math.round(maxX - minX) || 1;
+    const drawnHeight = Math.round(maxY - minY) || 1;
+    const fillCanvas = this.cachedCanvases.getCanvas("fillCanvas", drawnWidth, drawnHeight);
+    const fillCtx = fillCanvas.context;
+    const offsetX = minX;
+    const offsetY = minY;
+    fillCtx.translate(-offsetX, -offsetY);
+    fillCtx.transform(...maskToCanvas);
+    if (!scaled) {
+      scaled = this._scaleImage(maskCanvas.canvas, getCurrentTransformInverse(fillCtx));
+      scaled = scaled.img;
+      if (cache2 && isPatternFill) {
+        cache2.set(cacheKey, scaled);
+      }
+    }
+    fillCtx.imageSmoothingEnabled = getImageSmoothingEnabled(getCurrentTransform(fillCtx), img.interpolate);
+    drawImageAtIntegerCoords(fillCtx, scaled, 0, 0, scaled.width, scaled.height, 0, 0, width, height);
+    fillCtx.globalCompositeOperation = "source-in";
+    const inverse = Util.transform(getCurrentTransformInverse(fillCtx), [1, 0, 0, 1, -offsetX, -offsetY]);
+    fillCtx.fillStyle = isPatternFill ? fillColor.getPattern(ctx, this, inverse, PathType.FILL) : fillColor;
+    fillCtx.fillRect(0, 0, width, height);
+    if (cache2 && !isPatternFill) {
+      this.cachedCanvases.delete("fillCanvas");
+      cache2.set(cacheKey, fillCanvas.canvas);
+    }
+    return {
+      canvas: fillCanvas.canvas,
+      offsetX: Math.round(offsetX),
+      offsetY: Math.round(offsetY)
+    };
+  }
+  setLineWidth(width) {
+    if (width !== this.current.lineWidth) {
+      this._cachedScaleForStroking[0] = -1;
+    }
+    this.current.lineWidth = width;
+    this.ctx.lineWidth = width;
+  }
+  setLineCap(style2) {
+    this.ctx.lineCap = LINE_CAP_STYLES[style2];
+  }
+  setLineJoin(style2) {
+    this.ctx.lineJoin = LINE_JOIN_STYLES[style2];
+  }
+  setMiterLimit(limit) {
+    this.ctx.miterLimit = limit;
+  }
+  setDash(dashArray, dashPhase) {
+    const ctx = this.ctx;
+    if (ctx.setLineDash !== void 0) {
+      ctx.setLineDash(dashArray);
+      ctx.lineDashOffset = dashPhase;
+    }
+  }
+  setRenderingIntent(intent) {}
+  setFlatness(flatness) {}
+  setGState(states) {
+    for (const [key2, value] of states) {
+      switch (key2) {
+        case "LW":
+          this.setLineWidth(value);
+          break;
+        case "LC":
+          this.setLineCap(value);
+          break;
+        case "LJ":
+          this.setLineJoin(value);
+          break;
+        case "ML":
+          this.setMiterLimit(value);
+          break;
+        case "D":
+          this.setDash(value[0], value[1]);
+          break;
+        case "RI":
+          this.setRenderingIntent(value);
+          break;
+        case "FL":
+          this.setFlatness(value);
+          break;
+        case "Font":
+          this.setFont(value[0], value[1]);
+          break;
+        case "CA":
+          this.current.strokeAlpha = value;
+          break;
+        case "ca":
+          this.current.fillAlpha = value;
+          this.ctx.globalAlpha = value;
+          break;
+        case "BM":
+          this.ctx.globalCompositeOperation = value;
+          break;
+        case "SMask":
+          this.current.activeSMask = value ? this.tempSMask : null;
+          this.tempSMask = null;
+          this.checkSMaskState();
+          break;
+        case "TR":
+          this.ctx.filter = this.current.transferMaps = this.filterFactory.addFilter(value);
+          break;
+      }
+    }
+  }
+  get inSMaskMode() {
+    return !!this.suspendedCtx;
+  }
+  checkSMaskState() {
+    const inSMaskMode = this.inSMaskMode;
+    if (this.current.activeSMask && !inSMaskMode) {
+      this.beginSMaskMode();
+    } else if (!this.current.activeSMask && inSMaskMode) {
+      this.endSMaskMode();
+    }
+  }
+  beginSMaskMode() {
+    if (this.inSMaskMode) {
+      throw new Error("beginSMaskMode called while already in smask mode");
+    }
+    const drawnWidth = this.ctx.canvas.width;
+    const drawnHeight = this.ctx.canvas.height;
+    const cacheId = "smaskGroupAt" + this.groupLevel;
+    const scratchCanvas = this.cachedCanvases.getCanvas(cacheId, drawnWidth, drawnHeight);
+    this.suspendedCtx = this.ctx;
+    this.ctx = scratchCanvas.context;
+    const ctx = this.ctx;
+    ctx.setTransform(...getCurrentTransform(this.suspendedCtx));
+    copyCtxState(this.suspendedCtx, ctx);
+    mirrorContextOperations(ctx, this.suspendedCtx);
+    this.setGState([["BM", "source-over"], ["ca", 1], ["CA", 1]]);
+  }
+  endSMaskMode() {
+    if (!this.inSMaskMode) {
+      throw new Error("endSMaskMode called while not in smask mode");
+    }
+    this.ctx._removeMirroring();
+    copyCtxState(this.ctx, this.suspendedCtx);
+    this.ctx = this.suspendedCtx;
+    this.suspendedCtx = null;
+  }
+  compose(dirtyBox) {
+    if (!this.current.activeSMask) {
+      return;
+    }
+    if (!dirtyBox) {
+      dirtyBox = [0, 0, this.ctx.canvas.width, this.ctx.canvas.height];
+    } else {
+      dirtyBox[0] = Math.floor(dirtyBox[0]);
+      dirtyBox[1] = Math.floor(dirtyBox[1]);
+      dirtyBox[2] = Math.ceil(dirtyBox[2]);
+      dirtyBox[3] = Math.ceil(dirtyBox[3]);
+    }
+    const smask = this.current.activeSMask;
+    const suspendedCtx = this.suspendedCtx;
+    this.composeSMask(suspendedCtx, smask, this.ctx, dirtyBox);
+    this.ctx.save();
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.restore();
+  }
+  composeSMask(ctx, smask, layerCtx, layerBox) {
+    const layerOffsetX = layerBox[0];
+    const layerOffsetY = layerBox[1];
+    const layerWidth = layerBox[2] - layerOffsetX;
+    const layerHeight = layerBox[3] - layerOffsetY;
+    if (layerWidth === 0 || layerHeight === 0) {
+      return;
+    }
+    this.genericComposeSMask(smask.context, layerCtx, layerWidth, layerHeight, smask.subtype, smask.backdrop, smask.transferMap, layerOffsetX, layerOffsetY, smask.offsetX, smask.offsetY);
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(layerCtx.canvas, 0, 0);
+    ctx.restore();
+  }
+  genericComposeSMask(maskCtx, layerCtx, width, height, subtype, backdrop, transferMap, layerOffsetX, layerOffsetY, maskOffsetX, maskOffsetY) {
+    let maskCanvas = maskCtx.canvas;
+    let maskX = layerOffsetX - maskOffsetX;
+    let maskY = layerOffsetY - maskOffsetY;
+    if (backdrop) {
+      const backdropRGB = Util.makeHexColor(...backdrop);
+      if (maskX < 0 || maskY < 0 || maskX + width > maskCanvas.width || maskY + height > maskCanvas.height) {
+        const canvas = this.cachedCanvases.getCanvas("maskExtension", width, height);
+        const ctx = canvas.context;
+        ctx.drawImage(maskCanvas, -maskX, -maskY);
+        ctx.globalCompositeOperation = "destination-atop";
+        ctx.fillStyle = backdropRGB;
+        ctx.fillRect(0, 0, width, height);
+        ctx.globalCompositeOperation = "source-over";
+        maskCanvas = canvas.canvas;
+        maskX = maskY = 0;
+      } else {
+        maskCtx.save();
+        maskCtx.globalAlpha = 1;
+        maskCtx.setTransform(1, 0, 0, 1, 0, 0);
+        const clip3 = new Path2D();
+        clip3.rect(maskX, maskY, width, height);
+        maskCtx.clip(clip3);
+        maskCtx.globalCompositeOperation = "destination-atop";
+        maskCtx.fillStyle = backdropRGB;
+        maskCtx.fillRect(maskX, maskY, width, height);
+        maskCtx.restore();
+      }
+    }
+    layerCtx.save();
+    layerCtx.globalAlpha = 1;
+    layerCtx.setTransform(1, 0, 0, 1, 0, 0);
+    if (subtype === "Alpha" && transferMap) {
+      layerCtx.filter = this.filterFactory.addAlphaFilter(transferMap);
+    } else if (subtype === "Luminosity") {
+      layerCtx.filter = this.filterFactory.addLuminosityFilter(transferMap);
+    }
+    const clip2 = new Path2D();
+    clip2.rect(layerOffsetX, layerOffsetY, width, height);
+    layerCtx.clip(clip2);
+    layerCtx.globalCompositeOperation = "destination-in";
+    layerCtx.drawImage(maskCanvas, maskX, maskY, width, height, layerOffsetX, layerOffsetY, width, height);
+    layerCtx.restore();
+  }
+  save() {
+    if (this.inSMaskMode) {
+      copyCtxState(this.ctx, this.suspendedCtx);
+      this.suspendedCtx.save();
+    } else {
+      this.ctx.save();
+    }
+    const old = this.current;
+    this.stateStack.push(old);
+    this.current = old.clone();
+  }
+  restore() {
+    if (this.stateStack.length === 0 && this.inSMaskMode) {
+      this.endSMaskMode();
+    }
+    if (this.stateStack.length !== 0) {
+      this.current = this.stateStack.pop();
+      if (this.inSMaskMode) {
+        this.suspendedCtx.restore();
+        copyCtxState(this.suspendedCtx, this.ctx);
+      } else {
+        this.ctx.restore();
+      }
+      this.checkSMaskState();
+      this.pendingClip = null;
+      this._cachedScaleForStroking[0] = -1;
+      this._cachedGetSinglePixelWidth = null;
+    }
+  }
+  transform(a2, b3, c3, d2, e2, f2) {
+    this.ctx.transform(a2, b3, c3, d2, e2, f2);
+    this._cachedScaleForStroking[0] = -1;
+    this._cachedGetSinglePixelWidth = null;
+  }
+  constructPath(ops, args, minMax2) {
+    const ctx = this.ctx;
+    const current2 = this.current;
+    let x2 = current2.x,
+      y4 = current2.y;
+    let startX, startY;
+    const currentTransform = getCurrentTransform(ctx);
+    const isScalingMatrix = currentTransform[0] === 0 && currentTransform[3] === 0 || currentTransform[1] === 0 && currentTransform[2] === 0;
+    const minMaxForBezier = isScalingMatrix ? minMax2.slice(0) : null;
+    for (let i2 = 0, j2 = 0, ii = ops.length; i2 < ii; i2++) {
+      switch (ops[i2] | 0) {
+        case OPS.rectangle:
+          x2 = args[j2++];
+          y4 = args[j2++];
+          const width = args[j2++];
+          const height = args[j2++];
+          const xw = x2 + width;
+          const yh = y4 + height;
+          ctx.moveTo(x2, y4);
+          if (width === 0 || height === 0) {
+            ctx.lineTo(xw, yh);
+          } else {
+            ctx.lineTo(xw, y4);
+            ctx.lineTo(xw, yh);
+            ctx.lineTo(x2, yh);
+          }
+          if (!isScalingMatrix) {
+            current2.updateRectMinMax(currentTransform, [x2, y4, xw, yh]);
+          }
+          ctx.closePath();
+          break;
+        case OPS.moveTo:
+          x2 = args[j2++];
+          y4 = args[j2++];
+          ctx.moveTo(x2, y4);
+          if (!isScalingMatrix) {
+            current2.updatePathMinMax(currentTransform, x2, y4);
+          }
+          break;
+        case OPS.lineTo:
+          x2 = args[j2++];
+          y4 = args[j2++];
+          ctx.lineTo(x2, y4);
+          if (!isScalingMatrix) {
+            current2.updatePathMinMax(currentTransform, x2, y4);
+          }
+          break;
+        case OPS.curveTo:
+          startX = x2;
+          startY = y4;
+          x2 = args[j2 + 4];
+          y4 = args[j2 + 5];
+          ctx.bezierCurveTo(args[j2], args[j2 + 1], args[j2 + 2], args[j2 + 3], x2, y4);
+          current2.updateCurvePathMinMax(currentTransform, startX, startY, args[j2], args[j2 + 1], args[j2 + 2], args[j2 + 3], x2, y4, minMaxForBezier);
+          j2 += 6;
+          break;
+        case OPS.curveTo2:
+          startX = x2;
+          startY = y4;
+          ctx.bezierCurveTo(x2, y4, args[j2], args[j2 + 1], args[j2 + 2], args[j2 + 3]);
+          current2.updateCurvePathMinMax(currentTransform, startX, startY, x2, y4, args[j2], args[j2 + 1], args[j2 + 2], args[j2 + 3], minMaxForBezier);
+          x2 = args[j2 + 2];
+          y4 = args[j2 + 3];
+          j2 += 4;
+          break;
+        case OPS.curveTo3:
+          startX = x2;
+          startY = y4;
+          x2 = args[j2 + 2];
+          y4 = args[j2 + 3];
+          ctx.bezierCurveTo(args[j2], args[j2 + 1], x2, y4, x2, y4);
+          current2.updateCurvePathMinMax(currentTransform, startX, startY, args[j2], args[j2 + 1], x2, y4, x2, y4, minMaxForBezier);
+          j2 += 4;
+          break;
+        case OPS.closePath:
+          ctx.closePath();
+          break;
+      }
+    }
+    if (isScalingMatrix) {
+      current2.updateScalingPathMinMax(currentTransform, minMaxForBezier);
+    }
+    current2.setCurrentPoint(x2, y4);
+  }
+  closePath() {
+    this.ctx.closePath();
+  }
+  stroke(consumePath = true) {
+    const ctx = this.ctx;
+    const strokeColor = this.current.strokeColor;
+    ctx.globalAlpha = this.current.strokeAlpha;
+    if (this.contentVisible) {
+      if (typeof strokeColor === "object" && strokeColor?.getPattern) {
+        ctx.save();
+        ctx.strokeStyle = strokeColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.STROKE);
+        this.rescaleAndStroke(false);
+        ctx.restore();
+      } else {
+        this.rescaleAndStroke(true);
+      }
+    }
+    if (consumePath) {
+      this.consumePath(this.current.getClippedPathBoundingBox());
+    }
+    ctx.globalAlpha = this.current.fillAlpha;
+  }
+  closeStroke() {
+    this.closePath();
+    this.stroke();
+  }
+  fill(consumePath = true) {
+    const ctx = this.ctx;
+    const fillColor = this.current.fillColor;
+    const isPatternFill = this.current.patternFill;
+    let needRestore = false;
+    if (isPatternFill) {
+      ctx.save();
+      ctx.fillStyle = fillColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.FILL);
+      needRestore = true;
+    }
+    const intersect = this.current.getClippedPathBoundingBox();
+    if (this.contentVisible && intersect !== null) {
+      if (this.pendingEOFill) {
+        ctx.fill("evenodd");
+        this.pendingEOFill = false;
+      } else {
+        ctx.fill();
+      }
+    }
+    if (needRestore) {
+      ctx.restore();
+    }
+    if (consumePath) {
+      this.consumePath(intersect);
+    }
+  }
+  eoFill() {
+    this.pendingEOFill = true;
+    this.fill();
+  }
+  fillStroke() {
+    this.fill(false);
+    this.stroke(false);
+    this.consumePath();
+  }
+  eoFillStroke() {
+    this.pendingEOFill = true;
+    this.fillStroke();
+  }
+  closeFillStroke() {
+    this.closePath();
+    this.fillStroke();
+  }
+  closeEOFillStroke() {
+    this.pendingEOFill = true;
+    this.closePath();
+    this.fillStroke();
+  }
+  endPath() {
+    this.consumePath();
+  }
+  clip() {
+    this.pendingClip = NORMAL_CLIP;
+  }
+  eoClip() {
+    this.pendingClip = EO_CLIP;
+  }
+  beginText() {
+    this.current.textMatrix = IDENTITY_MATRIX;
+    this.current.textMatrixScale = 1;
+    this.current.x = this.current.lineX = 0;
+    this.current.y = this.current.lineY = 0;
+  }
+  endText() {
+    const paths = this.pendingTextPaths;
+    const ctx = this.ctx;
+    if (paths === void 0) {
+      ctx.beginPath();
+      return;
+    }
+    const newPath = new Path2D();
+    const invTransf = ctx.getTransform().invertSelf();
+    for (const {
+      transform: transform2,
+      x: x2,
+      y: y4,
+      fontSize,
+      path: path2
+    } of paths) {
+      newPath.addPath(path2, new DOMMatrix(transform2).preMultiplySelf(invTransf).translate(x2, y4).scale(fontSize, -fontSize));
+    }
+    ctx.clip(newPath);
+    ctx.beginPath();
+    delete this.pendingTextPaths;
+  }
+  setCharSpacing(spacing) {
+    this.current.charSpacing = spacing;
+  }
+  setWordSpacing(spacing) {
+    this.current.wordSpacing = spacing;
+  }
+  setHScale(scale2) {
+    this.current.textHScale = scale2 / 100;
+  }
+  setLeading(leading) {
+    this.current.leading = -leading;
+  }
+  setFont(fontRefName, size2) {
+    const fontObj = this.commonObjs.get(fontRefName);
+    const current2 = this.current;
+    if (!fontObj) {
+      throw new Error(`Can't find font for ${fontRefName}`);
+    }
+    current2.fontMatrix = fontObj.fontMatrix || FONT_IDENTITY_MATRIX;
+    if (current2.fontMatrix[0] === 0 || current2.fontMatrix[3] === 0) {
+      warn("Invalid font matrix for font " + fontRefName);
+    }
+    if (size2 < 0) {
+      size2 = -size2;
+      current2.fontDirection = -1;
+    } else {
+      current2.fontDirection = 1;
+    }
+    this.current.font = fontObj;
+    this.current.fontSize = size2;
+    if (fontObj.isType3Font) {
+      return;
+    }
+    const name2 = fontObj.loadedName || "sans-serif";
+    const typeface = fontObj.systemFontInfo?.css || `"${name2}", ${fontObj.fallbackName}`;
+    let bold = "normal";
+    if (fontObj.black) {
+      bold = "900";
+    } else if (fontObj.bold) {
+      bold = "bold";
+    }
+    const italic = fontObj.italic ? "italic" : "normal";
+    let browserFontSize = size2;
+    if (size2 < MIN_FONT_SIZE) {
+      browserFontSize = MIN_FONT_SIZE;
+    } else if (size2 > MAX_FONT_SIZE) {
+      browserFontSize = MAX_FONT_SIZE;
+    }
+    this.current.fontSizeScale = size2 / browserFontSize;
+    this.ctx.font = `${italic} ${bold} ${browserFontSize}px ${typeface}`;
+  }
+  setTextRenderingMode(mode2) {
+    this.current.textRenderingMode = mode2;
+  }
+  setTextRise(rise) {
+    this.current.textRise = rise;
+  }
+  moveText(x2, y4) {
+    this.current.x = this.current.lineX += x2;
+    this.current.y = this.current.lineY += y4;
+  }
+  setLeadingMoveText(x2, y4) {
+    this.setLeading(-y4);
+    this.moveText(x2, y4);
+  }
+  setTextMatrix(a2, b3, c3, d2, e2, f2) {
+    this.current.textMatrix = [a2, b3, c3, d2, e2, f2];
+    this.current.textMatrixScale = Math.hypot(a2, b3);
+    this.current.x = this.current.lineX = 0;
+    this.current.y = this.current.lineY = 0;
+  }
+  nextLine() {
+    this.moveText(0, this.current.leading);
+  }
+  #getScaledPath(path2, currentTransform, transform2) {
+    const newPath = new Path2D();
+    newPath.addPath(path2, new DOMMatrix(transform2).invertSelf().multiplySelf(currentTransform));
+    return newPath;
+  }
+  paintChar(character, x2, y4, patternFillTransform, patternStrokeTransform) {
+    const ctx = this.ctx;
+    const current2 = this.current;
+    const font = current2.font;
+    const textRenderingMode = current2.textRenderingMode;
+    const fontSize = current2.fontSize / current2.fontSizeScale;
+    const fillStrokeMode = textRenderingMode & TextRenderingMode.FILL_STROKE_MASK;
+    const isAddToPathSet = !!(textRenderingMode & TextRenderingMode.ADD_TO_PATH_FLAG);
+    const patternFill = current2.patternFill && !font.missingFile;
+    const patternStroke = current2.patternStroke && !font.missingFile;
+    let path2;
+    if (font.disableFontFace || isAddToPathSet || patternFill || patternStroke) {
+      path2 = font.getPathGenerator(this.commonObjs, character);
+    }
+    if (font.disableFontFace || patternFill || patternStroke) {
+      ctx.save();
+      ctx.translate(x2, y4);
+      ctx.scale(fontSize, -fontSize);
+      if (fillStrokeMode === TextRenderingMode.FILL || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
+        if (patternFillTransform) {
+          const currentTransform = ctx.getTransform();
+          ctx.setTransform(...patternFillTransform);
+          ctx.fill(this.#getScaledPath(path2, currentTransform, patternFillTransform));
+        } else {
+          ctx.fill(path2);
+        }
+      }
+      if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
+        if (patternStrokeTransform) {
+          const currentTransform = ctx.getTransform();
+          ctx.setTransform(...patternStrokeTransform);
+          ctx.stroke(this.#getScaledPath(path2, currentTransform, patternStrokeTransform));
+        } else {
+          ctx.lineWidth /= fontSize;
+          ctx.stroke(path2);
+        }
+      }
+      ctx.restore();
+    } else {
+      if (fillStrokeMode === TextRenderingMode.FILL || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
+        ctx.fillText(character, x2, y4);
+      }
+      if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
+        ctx.strokeText(character, x2, y4);
+      }
+    }
+    if (isAddToPathSet) {
+      const paths = this.pendingTextPaths ||= [];
+      paths.push({
+        transform: getCurrentTransform(ctx),
+        x: x2,
+        y: y4,
+        fontSize,
+        path: path2
+      });
+    }
+  }
+  get isFontSubpixelAAEnabled() {
+    const {
+      context: ctx
+    } = this.cachedCanvases.getCanvas("isFontSubpixelAAEnabled", 10, 10);
+    ctx.scale(1.5, 1);
+    ctx.fillText("I", 0, 10);
+    const data2 = ctx.getImageData(0, 0, 10, 10).data;
+    let enabled = false;
+    for (let i2 = 3; i2 < data2.length; i2 += 4) {
+      if (data2[i2] > 0 && data2[i2] < 255) {
+        enabled = true;
+        break;
+      }
+    }
+    return shadow(this, "isFontSubpixelAAEnabled", enabled);
+  }
+  showText(glyphs) {
+    const current2 = this.current;
+    const font = current2.font;
+    if (font.isType3Font) {
+      return this.showType3Text(glyphs);
+    }
+    const fontSize = current2.fontSize;
+    if (fontSize === 0) {
+      return void 0;
+    }
+    const ctx = this.ctx;
+    const fontSizeScale = current2.fontSizeScale;
+    const charSpacing = current2.charSpacing;
+    const wordSpacing = current2.wordSpacing;
+    const fontDirection = current2.fontDirection;
+    const textHScale = current2.textHScale * fontDirection;
+    const glyphsLength = glyphs.length;
+    const vertical = font.vertical;
+    const spacingDir = vertical ? 1 : -1;
+    const defaultVMetrics = font.defaultVMetrics;
+    const widthAdvanceScale = fontSize * current2.fontMatrix[0];
+    const simpleFillText = current2.textRenderingMode === TextRenderingMode.FILL && !font.disableFontFace && !current2.patternFill;
+    ctx.save();
+    ctx.transform(...current2.textMatrix);
+    ctx.translate(current2.x, current2.y + current2.textRise);
+    if (fontDirection > 0) {
+      ctx.scale(textHScale, -1);
+    } else {
+      ctx.scale(textHScale, 1);
+    }
+    let patternFillTransform, patternStrokeTransform;
+    if (current2.patternFill) {
+      ctx.save();
+      const pattern = current2.fillColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.FILL);
+      patternFillTransform = getCurrentTransform(ctx);
+      ctx.restore();
+      ctx.fillStyle = pattern;
+    }
+    if (current2.patternStroke) {
+      ctx.save();
+      const pattern = current2.strokeColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.STROKE);
+      patternStrokeTransform = getCurrentTransform(ctx);
+      ctx.restore();
+      ctx.strokeStyle = pattern;
+    }
+    let lineWidth = current2.lineWidth;
+    const scale2 = current2.textMatrixScale;
+    if (scale2 === 0 || lineWidth === 0) {
+      const fillStrokeMode = current2.textRenderingMode & TextRenderingMode.FILL_STROKE_MASK;
+      if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
+        lineWidth = this.getSinglePixelWidth();
+      }
+    } else {
+      lineWidth /= scale2;
+    }
+    if (fontSizeScale !== 1) {
+      ctx.scale(fontSizeScale, fontSizeScale);
+      lineWidth /= fontSizeScale;
+    }
+    ctx.lineWidth = lineWidth;
+    if (font.isInvalidPDFjsFont) {
+      const chars2 = [];
+      let width = 0;
+      for (const glyph of glyphs) {
+        chars2.push(glyph.unicode);
+        width += glyph.width;
+      }
+      ctx.fillText(chars2.join(""), 0, 0);
+      current2.x += width * widthAdvanceScale * textHScale;
+      ctx.restore();
+      this.compose();
+      return void 0;
+    }
+    let x2 = 0,
+      i2;
+    for (i2 = 0; i2 < glyphsLength; ++i2) {
+      const glyph = glyphs[i2];
+      if (typeof glyph === "number") {
+        x2 += spacingDir * glyph * fontSize / 1e3;
+        continue;
+      }
+      let restoreNeeded = false;
+      const spacing = (glyph.isSpace ? wordSpacing : 0) + charSpacing;
+      const character = glyph.fontChar;
+      const accent = glyph.accent;
+      let scaledX, scaledY;
+      let width = glyph.width;
+      if (vertical) {
+        const vmetric = glyph.vmetric || defaultVMetrics;
+        const vx = -(glyph.vmetric ? vmetric[1] : width * 0.5) * widthAdvanceScale;
+        const vy = vmetric[2] * widthAdvanceScale;
+        width = vmetric ? -vmetric[0] : width;
+        scaledX = vx / fontSizeScale;
+        scaledY = (x2 + vy) / fontSizeScale;
+      } else {
+        scaledX = x2 / fontSizeScale;
+        scaledY = 0;
+      }
+      if (font.remeasure && width > 0) {
+        const measuredWidth = ctx.measureText(character).width * 1e3 / fontSize * fontSizeScale;
+        if (width < measuredWidth && this.isFontSubpixelAAEnabled) {
+          const characterScaleX = width / measuredWidth;
+          restoreNeeded = true;
+          ctx.save();
+          ctx.scale(characterScaleX, 1);
+          scaledX /= characterScaleX;
+        } else if (width !== measuredWidth) {
+          scaledX += (width - measuredWidth) / 2e3 * fontSize / fontSizeScale;
+        }
+      }
+      if (this.contentVisible && (glyph.isInFont || font.missingFile)) {
+        if (simpleFillText && !accent) {
+          ctx.fillText(character, scaledX, scaledY);
+        } else {
+          this.paintChar(character, scaledX, scaledY, patternFillTransform, patternStrokeTransform);
+          if (accent) {
+            const scaledAccentX = scaledX + fontSize * accent.offset.x / fontSizeScale;
+            const scaledAccentY = scaledY - fontSize * accent.offset.y / fontSizeScale;
+            this.paintChar(accent.fontChar, scaledAccentX, scaledAccentY, patternFillTransform, patternStrokeTransform);
+          }
+        }
+      }
+      const charWidth = vertical ? width * widthAdvanceScale - spacing * fontDirection : width * widthAdvanceScale + spacing * fontDirection;
+      x2 += charWidth;
+      if (restoreNeeded) {
+        ctx.restore();
+      }
+    }
+    if (vertical) {
+      current2.y -= x2;
+    } else {
+      current2.x += x2 * textHScale;
+    }
+    ctx.restore();
+    this.compose();
+    return void 0;
+  }
+  showType3Text(glyphs) {
+    const ctx = this.ctx;
+    const current2 = this.current;
+    const font = current2.font;
+    const fontSize = current2.fontSize;
+    const fontDirection = current2.fontDirection;
+    const spacingDir = font.vertical ? 1 : -1;
+    const charSpacing = current2.charSpacing;
+    const wordSpacing = current2.wordSpacing;
+    const textHScale = current2.textHScale * fontDirection;
+    const fontMatrix = current2.fontMatrix || FONT_IDENTITY_MATRIX;
+    const glyphsLength = glyphs.length;
+    const isTextInvisible = current2.textRenderingMode === TextRenderingMode.INVISIBLE;
+    let i2, glyph, width, spacingLength;
+    if (isTextInvisible || fontSize === 0) {
+      return;
+    }
+    this._cachedScaleForStroking[0] = -1;
+    this._cachedGetSinglePixelWidth = null;
+    ctx.save();
+    ctx.transform(...current2.textMatrix);
+    ctx.translate(current2.x, current2.y);
+    ctx.scale(textHScale, fontDirection);
+    for (i2 = 0; i2 < glyphsLength; ++i2) {
+      glyph = glyphs[i2];
+      if (typeof glyph === "number") {
+        spacingLength = spacingDir * glyph * fontSize / 1e3;
+        this.ctx.translate(spacingLength, 0);
+        current2.x += spacingLength * textHScale;
+        continue;
+      }
+      const spacing = (glyph.isSpace ? wordSpacing : 0) + charSpacing;
+      const operatorList = font.charProcOperatorList[glyph.operatorListId];
+      if (!operatorList) {
+        warn(`Type3 character "${glyph.operatorListId}" is not available.`);
+        continue;
+      }
+      if (this.contentVisible) {
+        this.processingType3 = glyph;
+        this.save();
+        ctx.scale(fontSize, fontSize);
+        ctx.transform(...fontMatrix);
+        this.executeOperatorList(operatorList);
+        this.restore();
+      }
+      const transformed = Util.applyTransform([glyph.width, 0], fontMatrix);
+      width = transformed[0] * fontSize + spacing;
+      ctx.translate(width, 0);
+      current2.x += width * textHScale;
+    }
+    ctx.restore();
+    this.processingType3 = null;
+  }
+  setCharWidth(xWidth, yWidth) {}
+  setCharWidthAndBounds(xWidth, yWidth, llx, lly, urx, ury) {
+    this.ctx.rect(llx, lly, urx - llx, ury - lly);
+    this.ctx.clip();
+    this.endPath();
+  }
+  getColorN_Pattern(IR) {
+    let pattern;
+    if (IR[0] === "TilingPattern") {
+      const color2 = IR[1];
+      const baseTransform = this.baseTransform || getCurrentTransform(this.ctx);
+      const canvasGraphicsFactory = {
+        createCanvasGraphics: ctx => new CanvasGraphics(ctx, this.commonObjs, this.objs, this.canvasFactory, this.filterFactory, {
+          optionalContentConfig: this.optionalContentConfig,
+          markedContentStack: this.markedContentStack
+        })
+      };
+      pattern = new TilingPattern(IR, color2, this.ctx, canvasGraphicsFactory, baseTransform);
+    } else {
+      pattern = this._getPattern(IR[1], IR[2]);
+    }
+    return pattern;
+  }
+  setStrokeColorN() {
+    this.current.strokeColor = this.getColorN_Pattern(arguments);
+    this.current.patternStroke = true;
+  }
+  setFillColorN() {
+    this.current.fillColor = this.getColorN_Pattern(arguments);
+    this.current.patternFill = true;
+  }
+  setStrokeRGBColor(r2, g2, b3) {
+    this.ctx.strokeStyle = this.current.strokeColor = Util.makeHexColor(r2, g2, b3);
+    this.current.patternStroke = false;
+  }
+  setStrokeTransparent() {
+    this.ctx.strokeStyle = this.current.strokeColor = "transparent";
+    this.current.patternStroke = false;
+  }
+  setFillRGBColor(r2, g2, b3) {
+    this.ctx.fillStyle = this.current.fillColor = Util.makeHexColor(r2, g2, b3);
+    this.current.patternFill = false;
+  }
+  setFillTransparent() {
+    this.ctx.fillStyle = this.current.fillColor = "transparent";
+    this.current.patternFill = false;
+  }
+  _getPattern(objId, matrix = null) {
+    let pattern;
+    if (this.cachedPatterns.has(objId)) {
+      pattern = this.cachedPatterns.get(objId);
+    } else {
+      pattern = getShadingPattern(this.getObject(objId));
+      this.cachedPatterns.set(objId, pattern);
+    }
+    if (matrix) {
+      pattern.matrix = matrix;
+    }
+    return pattern;
+  }
+  shadingFill(objId) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const ctx = this.ctx;
+    this.save();
+    const pattern = this._getPattern(objId);
+    ctx.fillStyle = pattern.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.SHADING);
+    const inv = getCurrentTransformInverse(ctx);
+    if (inv) {
+      const {
+        width,
+        height
+      } = ctx.canvas;
+      const [x0, y0, x1, y1] = Util.getAxialAlignedBoundingBox([0, 0, width, height], inv);
+      this.ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    } else {
+      this.ctx.fillRect(-1e10, -1e10, 2e10, 2e10);
+    }
+    this.compose(this.current.getClippedPathBoundingBox());
+    this.restore();
+  }
+  beginInlineImage() {
+    unreachable$1("Should not call beginInlineImage");
+  }
+  beginImageData() {
+    unreachable$1("Should not call beginImageData");
+  }
+  paintFormXObjectBegin(matrix, bbox) {
+    if (!this.contentVisible) {
+      return;
+    }
+    this.save();
+    this.baseTransformStack.push(this.baseTransform);
+    if (matrix) {
+      this.transform(...matrix);
+    }
+    this.baseTransform = getCurrentTransform(this.ctx);
+    if (bbox) {
+      const width = bbox[2] - bbox[0];
+      const height = bbox[3] - bbox[1];
+      this.ctx.rect(bbox[0], bbox[1], width, height);
+      this.current.updateRectMinMax(getCurrentTransform(this.ctx), bbox);
+      this.clip();
+      this.endPath();
+    }
+  }
+  paintFormXObjectEnd() {
+    if (!this.contentVisible) {
+      return;
+    }
+    this.restore();
+    this.baseTransform = this.baseTransformStack.pop();
+  }
+  beginGroup(group) {
+    if (!this.contentVisible) {
+      return;
+    }
+    this.save();
+    if (this.inSMaskMode) {
+      this.endSMaskMode();
+      this.current.activeSMask = null;
+    }
+    const currentCtx = this.ctx;
+    if (!group.isolated) {
+      info("TODO: Support non-isolated groups.");
+    }
+    if (group.knockout) {
+      warn("Knockout groups not supported.");
+    }
+    const currentTransform = getCurrentTransform(currentCtx);
+    if (group.matrix) {
+      currentCtx.transform(...group.matrix);
+    }
+    if (!group.bbox) {
+      throw new Error("Bounding box is required.");
+    }
+    let bounds = Util.getAxialAlignedBoundingBox(group.bbox, getCurrentTransform(currentCtx));
+    const canvasBounds = [0, 0, currentCtx.canvas.width, currentCtx.canvas.height];
+    bounds = Util.intersect(bounds, canvasBounds) || [0, 0, 0, 0];
+    const offsetX = Math.floor(bounds[0]);
+    const offsetY = Math.floor(bounds[1]);
+    const drawnWidth = Math.max(Math.ceil(bounds[2]) - offsetX, 1);
+    const drawnHeight = Math.max(Math.ceil(bounds[3]) - offsetY, 1);
+    this.current.startNewPathAndClipBox([0, 0, drawnWidth, drawnHeight]);
+    let cacheId = "groupAt" + this.groupLevel;
+    if (group.smask) {
+      cacheId += "_smask_" + this.smaskCounter++ % 2;
+    }
+    const scratchCanvas = this.cachedCanvases.getCanvas(cacheId, drawnWidth, drawnHeight);
+    const groupCtx = scratchCanvas.context;
+    groupCtx.translate(-offsetX, -offsetY);
+    groupCtx.transform(...currentTransform);
+    if (group.smask) {
+      this.smaskStack.push({
+        canvas: scratchCanvas.canvas,
+        context: groupCtx,
+        offsetX,
+        offsetY,
+        subtype: group.smask.subtype,
+        backdrop: group.smask.backdrop,
+        transferMap: group.smask.transferMap || null,
+        startTransformInverse: null
+      });
+    } else {
+      currentCtx.setTransform(1, 0, 0, 1, 0, 0);
+      currentCtx.translate(offsetX, offsetY);
+      currentCtx.save();
+    }
+    copyCtxState(currentCtx, groupCtx);
+    this.ctx = groupCtx;
+    this.setGState([["BM", "source-over"], ["ca", 1], ["CA", 1]]);
+    this.groupStack.push(currentCtx);
+    this.groupLevel++;
+  }
+  endGroup(group) {
+    if (!this.contentVisible) {
+      return;
+    }
+    this.groupLevel--;
+    const groupCtx = this.ctx;
+    const ctx = this.groupStack.pop();
+    this.ctx = ctx;
+    this.ctx.imageSmoothingEnabled = false;
+    if (group.smask) {
+      this.tempSMask = this.smaskStack.pop();
+      this.restore();
+    } else {
+      this.ctx.restore();
+      const currentMtx = getCurrentTransform(this.ctx);
+      this.restore();
+      this.ctx.save();
+      this.ctx.setTransform(...currentMtx);
+      const dirtyBox = Util.getAxialAlignedBoundingBox([0, 0, groupCtx.canvas.width, groupCtx.canvas.height], currentMtx);
+      this.ctx.drawImage(groupCtx.canvas, 0, 0);
+      this.ctx.restore();
+      this.compose(dirtyBox);
+    }
+  }
+  beginAnnotation(id2, rect, transform2, matrix, hasOwnCanvas) {
+    this.#restoreInitialState();
+    resetCtxToDefault(this.ctx);
+    this.ctx.save();
+    this.save();
+    if (this.baseTransform) {
+      this.ctx.setTransform(...this.baseTransform);
+    }
+    if (rect) {
+      const width = rect[2] - rect[0];
+      const height = rect[3] - rect[1];
+      if (hasOwnCanvas && this.annotationCanvasMap) {
+        transform2 = transform2.slice();
+        transform2[4] -= rect[0];
+        transform2[5] -= rect[1];
+        rect = rect.slice();
+        rect[0] = rect[1] = 0;
+        rect[2] = width;
+        rect[3] = height;
+        const [scaleX, scaleY] = Util.singularValueDecompose2dScale(getCurrentTransform(this.ctx));
+        const {
+          viewportScale
+        } = this;
+        const canvasWidth = Math.ceil(width * this.outputScaleX * viewportScale);
+        const canvasHeight = Math.ceil(height * this.outputScaleY * viewportScale);
+        this.annotationCanvas = this.canvasFactory.create(canvasWidth, canvasHeight);
+        const {
+          canvas,
+          context
+        } = this.annotationCanvas;
+        this.annotationCanvasMap.set(id2, canvas);
+        this.annotationCanvas.savedCtx = this.ctx;
+        this.ctx = context;
+        this.ctx.save();
+        this.ctx.setTransform(scaleX, 0, 0, -scaleY, 0, height * scaleY);
+        resetCtxToDefault(this.ctx);
+      } else {
+        resetCtxToDefault(this.ctx);
+        this.endPath();
+        this.ctx.rect(rect[0], rect[1], width, height);
+        this.ctx.clip();
+        this.ctx.beginPath();
+      }
+    }
+    this.current = new CanvasExtraState(this.ctx.canvas.width, this.ctx.canvas.height);
+    this.transform(...transform2);
+    this.transform(...matrix);
+  }
+  endAnnotation() {
+    if (this.annotationCanvas) {
+      this.ctx.restore();
+      this.#drawFilter();
+      this.ctx = this.annotationCanvas.savedCtx;
+      delete this.annotationCanvas.savedCtx;
+      delete this.annotationCanvas;
+    }
+  }
+  paintImageMaskXObject(img) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const count2 = img.count;
+    img = this.getObject(img.data, img);
+    img.count = count2;
+    const ctx = this.ctx;
+    const glyph = this.processingType3;
+    if (glyph) {
+      if (glyph.compiled === void 0) {
+        glyph.compiled = compileType3Glyph(img);
+      }
+      if (glyph.compiled) {
+        glyph.compiled(ctx);
+        return;
+      }
+    }
+    const mask = this._createMaskCanvas(img);
+    const maskCanvas = mask.canvas;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(maskCanvas, mask.offsetX, mask.offsetY);
+    ctx.restore();
+    this.compose();
+  }
+  paintImageMaskXObjectRepeat(img, scaleX, skewX = 0, skewY = 0, scaleY, positions) {
+    if (!this.contentVisible) {
+      return;
+    }
+    img = this.getObject(img.data, img);
+    const ctx = this.ctx;
+    ctx.save();
+    const currentTransform = getCurrentTransform(ctx);
+    ctx.transform(scaleX, skewX, skewY, scaleY, 0, 0);
+    const mask = this._createMaskCanvas(img);
+    ctx.setTransform(1, 0, 0, 1, mask.offsetX - currentTransform[4], mask.offsetY - currentTransform[5]);
+    for (let i2 = 0, ii = positions.length; i2 < ii; i2 += 2) {
+      const trans = Util.transform(currentTransform, [scaleX, skewX, skewY, scaleY, positions[i2], positions[i2 + 1]]);
+      const [x2, y4] = Util.applyTransform([0, 0], trans);
+      ctx.drawImage(mask.canvas, x2, y4);
+    }
+    ctx.restore();
+    this.compose();
+  }
+  paintImageMaskXObjectGroup(images) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const ctx = this.ctx;
+    const fillColor = this.current.fillColor;
+    const isPatternFill = this.current.patternFill;
+    for (const image2 of images) {
+      const {
+        data: data2,
+        width,
+        height,
+        transform: transform2
+      } = image2;
+      const maskCanvas = this.cachedCanvases.getCanvas("maskCanvas", width, height);
+      const maskCtx = maskCanvas.context;
+      maskCtx.save();
+      const img = this.getObject(data2, image2);
+      putBinaryImageMask(maskCtx, img);
+      maskCtx.globalCompositeOperation = "source-in";
+      maskCtx.fillStyle = isPatternFill ? fillColor.getPattern(maskCtx, this, getCurrentTransformInverse(ctx), PathType.FILL) : fillColor;
+      maskCtx.fillRect(0, 0, width, height);
+      maskCtx.restore();
+      ctx.save();
+      ctx.transform(...transform2);
+      ctx.scale(1, -1);
+      drawImageAtIntegerCoords(ctx, maskCanvas.canvas, 0, 0, width, height, 0, -1, 1, 1);
+      ctx.restore();
+    }
+    this.compose();
+  }
+  paintImageXObject(objId) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const imgData = this.getObject(objId);
+    if (!imgData) {
+      warn("Dependent image isn't ready yet");
+      return;
+    }
+    this.paintInlineImageXObject(imgData);
+  }
+  paintImageXObjectRepeat(objId, scaleX, scaleY, positions) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const imgData = this.getObject(objId);
+    if (!imgData) {
+      warn("Dependent image isn't ready yet");
+      return;
+    }
+    const width = imgData.width;
+    const height = imgData.height;
+    const map3 = [];
+    for (let i2 = 0, ii = positions.length; i2 < ii; i2 += 2) {
+      map3.push({
+        transform: [scaleX, 0, 0, scaleY, positions[i2], positions[i2 + 1]],
+        x: 0,
+        y: 0,
+        w: width,
+        h: height
+      });
+    }
+    this.paintInlineImageXObjectGroup(imgData, map3);
+  }
+  applyTransferMapsToCanvas(ctx) {
+    if (this.current.transferMaps !== "none") {
+      ctx.filter = this.current.transferMaps;
+      ctx.drawImage(ctx.canvas, 0, 0);
+      ctx.filter = "none";
+    }
+    return ctx.canvas;
+  }
+  applyTransferMapsToBitmap(imgData) {
+    if (this.current.transferMaps === "none") {
+      return imgData.bitmap;
+    }
+    const {
+      bitmap,
+      width,
+      height
+    } = imgData;
+    const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", width, height);
+    const tmpCtx = tmpCanvas.context;
+    tmpCtx.filter = this.current.transferMaps;
+    tmpCtx.drawImage(bitmap, 0, 0);
+    tmpCtx.filter = "none";
+    return tmpCanvas.canvas;
+  }
+  paintInlineImageXObject(imgData) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const width = imgData.width;
+    const height = imgData.height;
+    const ctx = this.ctx;
+    this.save();
+    if (!isNodeJS) {
+      const {
+        filter: filter2
+      } = ctx;
+      if (filter2 !== "none" && filter2 !== "") {
+        ctx.filter = "none";
+      }
+    }
+    ctx.scale(1 / width, -1 / height);
+    let imgToPaint;
+    if (imgData.bitmap) {
+      imgToPaint = this.applyTransferMapsToBitmap(imgData);
+    } else if (typeof HTMLElement === "function" && imgData instanceof HTMLElement || !imgData.data) {
+      imgToPaint = imgData;
+    } else {
+      const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", width, height);
+      const tmpCtx = tmpCanvas.context;
+      putBinaryImageData(tmpCtx, imgData);
+      imgToPaint = this.applyTransferMapsToCanvas(tmpCtx);
+    }
+    const scaled = this._scaleImage(imgToPaint, getCurrentTransformInverse(ctx));
+    ctx.imageSmoothingEnabled = getImageSmoothingEnabled(getCurrentTransform(ctx), imgData.interpolate);
+    drawImageAtIntegerCoords(ctx, scaled.img, 0, 0, scaled.paintWidth, scaled.paintHeight, 0, -height, width, height);
+    this.compose();
+    this.restore();
+  }
+  paintInlineImageXObjectGroup(imgData, map3) {
+    if (!this.contentVisible) {
+      return;
+    }
+    const ctx = this.ctx;
+    let imgToPaint;
+    if (imgData.bitmap) {
+      imgToPaint = imgData.bitmap;
+    } else {
+      const w3 = imgData.width;
+      const h2 = imgData.height;
+      const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", w3, h2);
+      const tmpCtx = tmpCanvas.context;
+      putBinaryImageData(tmpCtx, imgData);
+      imgToPaint = this.applyTransferMapsToCanvas(tmpCtx);
+    }
+    for (const entry of map3) {
+      ctx.save();
+      ctx.transform(...entry.transform);
+      ctx.scale(1, -1);
+      drawImageAtIntegerCoords(ctx, imgToPaint, entry.x, entry.y, entry.w, entry.h, 0, -1, 1, 1);
+      ctx.restore();
+    }
+    this.compose();
+  }
+  paintSolidColorImageMask() {
+    if (!this.contentVisible) {
+      return;
+    }
+    this.ctx.fillRect(0, 0, 1, 1);
+    this.compose();
+  }
+  markPoint(tag) {}
+  markPointProps(tag, properties2) {}
+  beginMarkedContent(tag) {
+    this.markedContentStack.push({
+      visible: true
+    });
+  }
+  beginMarkedContentProps(tag, properties2) {
+    if (tag === "OC") {
+      this.markedContentStack.push({
+        visible: this.optionalContentConfig.isVisible(properties2)
+      });
+    } else {
+      this.markedContentStack.push({
+        visible: true
+      });
+    }
+    this.contentVisible = this.isContentVisible();
+  }
+  endMarkedContent() {
+    this.markedContentStack.pop();
+    this.contentVisible = this.isContentVisible();
+  }
+  beginCompat() {}
+  endCompat() {}
+  consumePath(clipBox) {
+    const isEmpty2 = this.current.isEmptyClip();
+    if (this.pendingClip) {
+      this.current.updateClipFromPath();
+    }
+    if (!this.pendingClip) {
+      this.compose(clipBox);
+    }
+    const ctx = this.ctx;
+    if (this.pendingClip) {
+      if (!isEmpty2) {
+        if (this.pendingClip === EO_CLIP) {
+          ctx.clip("evenodd");
+        } else {
+          ctx.clip();
+        }
+      }
+      this.pendingClip = null;
+    }
+    this.current.startNewPathAndClipBox(this.current.clipBox);
+    ctx.beginPath();
+  }
+  getSinglePixelWidth() {
+    if (!this._cachedGetSinglePixelWidth) {
+      const m3 = getCurrentTransform(this.ctx);
+      if (m3[1] === 0 && m3[2] === 0) {
+        this._cachedGetSinglePixelWidth = 1 / Math.min(Math.abs(m3[0]), Math.abs(m3[3]));
+      } else {
+        const absDet = Math.abs(m3[0] * m3[3] - m3[2] * m3[1]);
+        const normX = Math.hypot(m3[0], m3[2]);
+        const normY = Math.hypot(m3[1], m3[3]);
+        this._cachedGetSinglePixelWidth = Math.max(normX, normY) / absDet;
+      }
+    }
+    return this._cachedGetSinglePixelWidth;
+  }
+  getScaleForStroking() {
+    if (this._cachedScaleForStroking[0] === -1) {
+      const {
+        lineWidth
+      } = this.current;
+      const {
+        a: a2,
+        b: b3,
+        c: c3,
+        d: d2
+      } = this.ctx.getTransform();
+      let scaleX, scaleY;
+      if (b3 === 0 && c3 === 0) {
+        const normX = Math.abs(a2);
+        const normY = Math.abs(d2);
+        if (normX === normY) {
+          if (lineWidth === 0) {
+            scaleX = scaleY = 1 / normX;
+          } else {
+            const scaledLineWidth = normX * lineWidth;
+            scaleX = scaleY = scaledLineWidth < 1 ? 1 / scaledLineWidth : 1;
+          }
+        } else if (lineWidth === 0) {
+          scaleX = 1 / normX;
+          scaleY = 1 / normY;
+        } else {
+          const scaledXLineWidth = normX * lineWidth;
+          const scaledYLineWidth = normY * lineWidth;
+          scaleX = scaledXLineWidth < 1 ? 1 / scaledXLineWidth : 1;
+          scaleY = scaledYLineWidth < 1 ? 1 / scaledYLineWidth : 1;
+        }
+      } else {
+        const absDet = Math.abs(a2 * d2 - b3 * c3);
+        const normX = Math.hypot(a2, b3);
+        const normY = Math.hypot(c3, d2);
+        if (lineWidth === 0) {
+          scaleX = normY / absDet;
+          scaleY = normX / absDet;
+        } else {
+          const baseArea = lineWidth * absDet;
+          scaleX = normY > baseArea ? normY / baseArea : 1;
+          scaleY = normX > baseArea ? normX / baseArea : 1;
+        }
+      }
+      this._cachedScaleForStroking[0] = scaleX;
+      this._cachedScaleForStroking[1] = scaleY;
+    }
+    return this._cachedScaleForStroking;
+  }
+  rescaleAndStroke(saveRestore) {
+    const {
+      ctx
+    } = this;
+    const {
+      lineWidth
+    } = this.current;
+    const [scaleX, scaleY] = this.getScaleForStroking();
+    ctx.lineWidth = lineWidth || 1;
+    if (scaleX === 1 && scaleY === 1) {
+      ctx.stroke();
+      return;
+    }
+    const dashes = ctx.getLineDash();
+    if (saveRestore) {
+      ctx.save();
+    }
+    ctx.scale(scaleX, scaleY);
+    if (dashes.length > 0) {
+      const scale2 = Math.max(scaleX, scaleY);
+      ctx.setLineDash(dashes.map(x2 => x2 / scale2));
+      ctx.lineDashOffset /= scale2;
+    }
+    ctx.stroke();
+    if (saveRestore) {
+      ctx.restore();
+    }
+  }
+  isContentVisible() {
+    for (let i2 = this.markedContentStack.length - 1; i2 >= 0; i2--) {
+      if (!this.markedContentStack[i2].visible) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+for (const op in OPS) {
+  if (CanvasGraphics.prototype[op] !== void 0) {
+    CanvasGraphics.prototype[OPS[op]] = CanvasGraphics.prototype[op];
+  }
+}
 class GlobalWorkerOptions {
   static #port = null;
   static #src = "";
@@ -66556,6 +71011,123 @@ class OptionalContentConfig {
     return this.#cachedGetHash = hash2.hexdigest();
   }
 }
+class PDFDataTransportStream {
+  constructor(pdfDataRangeTransport, {
+    disableRange = false,
+    disableStream = false
+  }) {
+    assert(pdfDataRangeTransport, 'PDFDataTransportStream - missing required "pdfDataRangeTransport" argument.');
+    const {
+      length: length2,
+      initialData,
+      progressiveDone,
+      contentDispositionFilename
+    } = pdfDataRangeTransport;
+    this._queuedChunks = [];
+    this._progressiveDone = progressiveDone;
+    this._contentDispositionFilename = contentDispositionFilename;
+    if (initialData?.length > 0) {
+      const buffer = initialData instanceof Uint8Array && initialData.byteLength === initialData.buffer.byteLength ? initialData.buffer : new Uint8Array(initialData).buffer;
+      this._queuedChunks.push(buffer);
+    }
+    this._pdfDataRangeTransport = pdfDataRangeTransport;
+    this._isStreamingSupported = !disableStream;
+    this._isRangeSupported = !disableRange;
+    this._contentLength = length2;
+    this._fullRequestReader = null;
+    this._rangeReaders = [];
+    pdfDataRangeTransport.addRangeListener((begin, chunk2) => {
+      this._onReceiveData({
+        begin,
+        chunk: chunk2
+      });
+    });
+    pdfDataRangeTransport.addProgressListener((loaded, total) => {
+      this._onProgress({
+        loaded,
+        total
+      });
+    });
+    pdfDataRangeTransport.addProgressiveReadListener(chunk2 => {
+      this._onReceiveData({
+        chunk: chunk2
+      });
+    });
+    pdfDataRangeTransport.addProgressiveDoneListener(() => {
+      this._onProgressiveDone();
+    });
+    pdfDataRangeTransport.transportReady();
+  }
+  _onReceiveData({
+    begin,
+    chunk: chunk2
+  }) {
+    const buffer = chunk2 instanceof Uint8Array && chunk2.byteLength === chunk2.buffer.byteLength ? chunk2.buffer : new Uint8Array(chunk2).buffer;
+    if (begin === void 0) {
+      if (this._fullRequestReader) {
+        this._fullRequestReader._enqueue(buffer);
+      } else {
+        this._queuedChunks.push(buffer);
+      }
+    } else {
+      const found2 = this._rangeReaders.some(function (rangeReader) {
+        if (rangeReader._begin !== begin) {
+          return false;
+        }
+        rangeReader._enqueue(buffer);
+        return true;
+      });
+      assert(found2, "_onReceiveData - no `PDFDataTransportStreamRangeReader` instance found.");
+    }
+  }
+  get _progressiveDataLength() {
+    return this._fullRequestReader?._loaded ?? 0;
+  }
+  _onProgress(evt) {
+    if (evt.total === void 0) {
+      this._rangeReaders[0]?.onProgress?.({
+        loaded: evt.loaded
+      });
+    } else {
+      this._fullRequestReader?.onProgress?.({
+        loaded: evt.loaded,
+        total: evt.total
+      });
+    }
+  }
+  _onProgressiveDone() {
+    this._fullRequestReader?.progressiveDone();
+    this._progressiveDone = true;
+  }
+  _removeRangeReader(reader) {
+    const i2 = this._rangeReaders.indexOf(reader);
+    if (i2 >= 0) {
+      this._rangeReaders.splice(i2, 1);
+    }
+  }
+  getFullReader() {
+    assert(!this._fullRequestReader, "PDFDataTransportStream.getFullReader can only be called once.");
+    const queuedChunks = this._queuedChunks;
+    this._queuedChunks = null;
+    return new PDFDataTransportStreamReader(this, queuedChunks, this._progressiveDone, this._contentDispositionFilename);
+  }
+  getRangeReader(begin, end2) {
+    if (end2 <= this._progressiveDataLength) {
+      return null;
+    }
+    const reader = new PDFDataTransportStreamRangeReader(this, begin, end2);
+    this._pdfDataRangeTransport.requestDataRange(begin, end2);
+    this._rangeReaders.push(reader);
+    return reader;
+  }
+  cancelAllRequests(reason) {
+    this._fullRequestReader?.cancel(reason);
+    for (const reader of this._rangeReaders.slice(0)) {
+      reader.cancel(reason);
+    }
+    this._pdfDataRangeTransport.abort();
+  }
+}
 class PDFDataTransportStreamReader {
   constructor(stream, queuedChunks, progressiveDone = false, contentDispositionFilename = null) {
     this._stream = stream;
@@ -66831,6 +71403,19 @@ function getFilenameFromContentDispositionHeader(contentDisposition) {
   }
   return "";
 }
+function createHeaders(isHttp, httpHeaders) {
+  const headers = new Headers();
+  if (!isHttp || !httpHeaders || typeof httpHeaders !== "object") {
+    return headers;
+  }
+  for (const key2 in httpHeaders) {
+    const val = httpHeaders[key2];
+    if (val !== void 0) {
+      headers.append(key2, val);
+    }
+  }
+  return headers;
+}
 function getResponseOrigin(url2) {
   try {
     return new URL(url2).origin;
@@ -66883,6 +71468,12 @@ function extractFilenameFromHeader(responseHeaders) {
   }
   return null;
 }
+function createResponseStatusError(status, url2) {
+  if (status === 404 || status === 0 && url2.startsWith("file:")) {
+    return new MissingPDFException('Missing PDF "' + url2 + '".');
+  }
+  return new UnexpectedResponseException(`Unexpected server response (${status}) while retrieving PDF "${url2}".`, status);
+}
 function validateResponseStatus(status) {
   return status === 200 || status === 206;
 }
@@ -66895,6 +71486,1194 @@ function createFetchOptions(headers, withCredentials, abortController) {
     credentials: withCredentials ? "include" : "same-origin",
     redirect: "follow"
   };
+}
+function getArrayBuffer(val) {
+  if (val instanceof Uint8Array) {
+    return val.buffer;
+  }
+  if (val instanceof ArrayBuffer) {
+    return val;
+  }
+  warn(`getArrayBuffer - unexpected data format: ${val}`);
+  return new Uint8Array(val).buffer;
+}
+class PDFFetchStream {
+  _responseOrigin = null;
+  constructor(source) {
+    this.source = source;
+    this.isHttp = /^https?:/i.test(source.url);
+    this.headers = createHeaders(this.isHttp, source.httpHeaders);
+    this._fullRequestReader = null;
+    this._rangeRequestReaders = [];
+  }
+  get _progressiveDataLength() {
+    return this._fullRequestReader?._loaded ?? 0;
+  }
+  getFullReader() {
+    assert(!this._fullRequestReader, "PDFFetchStream.getFullReader can only be called once.");
+    this._fullRequestReader = new PDFFetchStreamReader(this);
+    return this._fullRequestReader;
+  }
+  getRangeReader(begin, end2) {
+    if (end2 <= this._progressiveDataLength) {
+      return null;
+    }
+    const reader = new PDFFetchStreamRangeReader(this, begin, end2);
+    this._rangeRequestReaders.push(reader);
+    return reader;
+  }
+  cancelAllRequests(reason) {
+    this._fullRequestReader?.cancel(reason);
+    for (const reader of this._rangeRequestReaders.slice(0)) {
+      reader.cancel(reason);
+    }
+  }
+}
+class PDFFetchStreamReader {
+  constructor(stream) {
+    this._stream = stream;
+    this._reader = null;
+    this._loaded = 0;
+    this._filename = null;
+    const source = stream.source;
+    this._withCredentials = source.withCredentials || false;
+    this._contentLength = source.length;
+    this._headersCapability = Promise.withResolvers();
+    this._disableRange = source.disableRange || false;
+    this._rangeChunkSize = source.rangeChunkSize;
+    if (!this._rangeChunkSize && !this._disableRange) {
+      this._disableRange = true;
+    }
+    this._abortController = new AbortController();
+    this._isStreamingSupported = !source.disableStream;
+    this._isRangeSupported = !source.disableRange;
+    const headers = new Headers(stream.headers);
+    const url2 = source.url;
+    fetch(url2, createFetchOptions(headers, this._withCredentials, this._abortController)).then(response => {
+      stream._responseOrigin = getResponseOrigin(response.url);
+      if (!validateResponseStatus(response.status)) {
+        throw createResponseStatusError(response.status, url2);
+      }
+      this._reader = response.body.getReader();
+      this._headersCapability.resolve();
+      const responseHeaders = response.headers;
+      const {
+        allowRangeRequests,
+        suggestedLength
+      } = validateRangeRequestCapabilities({
+        responseHeaders,
+        isHttp: stream.isHttp,
+        rangeChunkSize: this._rangeChunkSize,
+        disableRange: this._disableRange
+      });
+      this._isRangeSupported = allowRangeRequests;
+      this._contentLength = suggestedLength || this._contentLength;
+      this._filename = extractFilenameFromHeader(responseHeaders);
+      if (!this._isStreamingSupported && this._isRangeSupported) {
+        this.cancel(new AbortException("Streaming is disabled."));
+      }
+    }).catch(this._headersCapability.reject);
+    this.onProgress = null;
+  }
+  get headersReady() {
+    return this._headersCapability.promise;
+  }
+  get filename() {
+    return this._filename;
+  }
+  get contentLength() {
+    return this._contentLength;
+  }
+  get isRangeSupported() {
+    return this._isRangeSupported;
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  async read() {
+    await this._headersCapability.promise;
+    const {
+      value,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value,
+        done
+      };
+    }
+    this._loaded += value.byteLength;
+    this.onProgress?.({
+      loaded: this._loaded,
+      total: this._contentLength
+    });
+    return {
+      value: getArrayBuffer(value),
+      done: false
+    };
+  }
+  cancel(reason) {
+    this._reader?.cancel(reason);
+    this._abortController.abort();
+  }
+}
+class PDFFetchStreamRangeReader {
+  constructor(stream, begin, end2) {
+    this._stream = stream;
+    this._reader = null;
+    this._loaded = 0;
+    const source = stream.source;
+    this._withCredentials = source.withCredentials || false;
+    this._readCapability = Promise.withResolvers();
+    this._isStreamingSupported = !source.disableStream;
+    this._abortController = new AbortController();
+    const headers = new Headers(stream.headers);
+    headers.append("Range", `bytes=${begin}-${end2 - 1}`);
+    const url2 = source.url;
+    fetch(url2, createFetchOptions(headers, this._withCredentials, this._abortController)).then(response => {
+      const responseOrigin = getResponseOrigin(response.url);
+      if (responseOrigin !== stream._responseOrigin) {
+        throw new Error(`Expected range response-origin "${responseOrigin}" to match "${stream._responseOrigin}".`);
+      }
+      if (!validateResponseStatus(response.status)) {
+        throw createResponseStatusError(response.status, url2);
+      }
+      this._readCapability.resolve();
+      this._reader = response.body.getReader();
+    }).catch(this._readCapability.reject);
+    this.onProgress = null;
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  async read() {
+    await this._readCapability.promise;
+    const {
+      value,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value,
+        done
+      };
+    }
+    this._loaded += value.byteLength;
+    this.onProgress?.({
+      loaded: this._loaded
+    });
+    return {
+      value: getArrayBuffer(value),
+      done: false
+    };
+  }
+  cancel(reason) {
+    this._reader?.cancel(reason);
+    this._abortController.abort();
+  }
+}
+const OK_RESPONSE = 200;
+const PARTIAL_CONTENT_RESPONSE = 206;
+function network_getArrayBuffer(xhr) {
+  const data2 = xhr.response;
+  if (typeof data2 !== "string") {
+    return data2;
+  }
+  return stringToBytes(data2).buffer;
+}
+class NetworkManager {
+  _responseOrigin = null;
+  constructor({
+    url: url2,
+    httpHeaders,
+    withCredentials
+  }) {
+    this.url = url2;
+    this.isHttp = /^https?:/i.test(url2);
+    this.headers = createHeaders(this.isHttp, httpHeaders);
+    this.withCredentials = withCredentials || false;
+    this.currXhrId = 0;
+    this.pendingRequests = /* @__PURE__ */Object.create(null);
+  }
+  request(args) {
+    const xhr = new XMLHttpRequest();
+    const xhrId = this.currXhrId++;
+    const pendingRequest = this.pendingRequests[xhrId] = {
+      xhr
+    };
+    xhr.open("GET", this.url);
+    xhr.withCredentials = this.withCredentials;
+    for (const [key2, val] of this.headers) {
+      xhr.setRequestHeader(key2, val);
+    }
+    if (this.isHttp && "begin" in args && "end" in args) {
+      xhr.setRequestHeader("Range", `bytes=${args.begin}-${args.end - 1}`);
+      pendingRequest.expectedStatus = PARTIAL_CONTENT_RESPONSE;
+    } else {
+      pendingRequest.expectedStatus = OK_RESPONSE;
+    }
+    xhr.responseType = "arraybuffer";
+    assert(args.onError, "Expected `onError` callback to be provided.");
+    xhr.onerror = () => {
+      args.onError(xhr.status);
+    };
+    xhr.onreadystatechange = this.onStateChange.bind(this, xhrId);
+    xhr.onprogress = this.onProgress.bind(this, xhrId);
+    pendingRequest.onHeadersReceived = args.onHeadersReceived;
+    pendingRequest.onDone = args.onDone;
+    pendingRequest.onError = args.onError;
+    pendingRequest.onProgress = args.onProgress;
+    xhr.send(null);
+    return xhrId;
+  }
+  onProgress(xhrId, evt) {
+    const pendingRequest = this.pendingRequests[xhrId];
+    if (!pendingRequest) {
+      return;
+    }
+    pendingRequest.onProgress?.(evt);
+  }
+  onStateChange(xhrId, evt) {
+    const pendingRequest = this.pendingRequests[xhrId];
+    if (!pendingRequest) {
+      return;
+    }
+    const xhr = pendingRequest.xhr;
+    if (xhr.readyState >= 2 && pendingRequest.onHeadersReceived) {
+      pendingRequest.onHeadersReceived();
+      delete pendingRequest.onHeadersReceived;
+    }
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    if (!(xhrId in this.pendingRequests)) {
+      return;
+    }
+    delete this.pendingRequests[xhrId];
+    if (xhr.status === 0 && this.isHttp) {
+      pendingRequest.onError(xhr.status);
+      return;
+    }
+    const xhrStatus = xhr.status || OK_RESPONSE;
+    const ok_response_on_range_request = xhrStatus === OK_RESPONSE && pendingRequest.expectedStatus === PARTIAL_CONTENT_RESPONSE;
+    if (!ok_response_on_range_request && xhrStatus !== pendingRequest.expectedStatus) {
+      pendingRequest.onError(xhr.status);
+      return;
+    }
+    const chunk2 = network_getArrayBuffer(xhr);
+    if (xhrStatus === PARTIAL_CONTENT_RESPONSE) {
+      const rangeHeader = xhr.getResponseHeader("Content-Range");
+      const matches2 = /bytes (\d+)-(\d+)\/(\d+)/.exec(rangeHeader);
+      if (matches2) {
+        pendingRequest.onDone({
+          begin: parseInt(matches2[1], 10),
+          chunk: chunk2
+        });
+      } else {
+        warn(`Missing or invalid "Content-Range" header.`);
+        pendingRequest.onError(0);
+      }
+    } else if (chunk2) {
+      pendingRequest.onDone({
+        begin: 0,
+        chunk: chunk2
+      });
+    } else {
+      pendingRequest.onError(xhr.status);
+    }
+  }
+  getRequestXhr(xhrId) {
+    return this.pendingRequests[xhrId].xhr;
+  }
+  isPendingRequest(xhrId) {
+    return xhrId in this.pendingRequests;
+  }
+  abortRequest(xhrId) {
+    const xhr = this.pendingRequests[xhrId].xhr;
+    delete this.pendingRequests[xhrId];
+    xhr.abort();
+  }
+}
+class PDFNetworkStream {
+  constructor(source) {
+    this._source = source;
+    this._manager = new NetworkManager(source);
+    this._rangeChunkSize = source.rangeChunkSize;
+    this._fullRequestReader = null;
+    this._rangeRequestReaders = [];
+  }
+  _onRangeRequestReaderClosed(reader) {
+    const i2 = this._rangeRequestReaders.indexOf(reader);
+    if (i2 >= 0) {
+      this._rangeRequestReaders.splice(i2, 1);
+    }
+  }
+  getFullReader() {
+    assert(!this._fullRequestReader, "PDFNetworkStream.getFullReader can only be called once.");
+    this._fullRequestReader = new PDFNetworkStreamFullRequestReader(this._manager, this._source);
+    return this._fullRequestReader;
+  }
+  getRangeReader(begin, end2) {
+    const reader = new PDFNetworkStreamRangeRequestReader(this._manager, begin, end2);
+    reader.onClosed = this._onRangeRequestReaderClosed.bind(this);
+    this._rangeRequestReaders.push(reader);
+    return reader;
+  }
+  cancelAllRequests(reason) {
+    this._fullRequestReader?.cancel(reason);
+    for (const reader of this._rangeRequestReaders.slice(0)) {
+      reader.cancel(reason);
+    }
+  }
+}
+class PDFNetworkStreamFullRequestReader {
+  constructor(manager, source) {
+    this._manager = manager;
+    this._url = source.url;
+    this._fullRequestId = manager.request({
+      onHeadersReceived: this._onHeadersReceived.bind(this),
+      onDone: this._onDone.bind(this),
+      onError: this._onError.bind(this),
+      onProgress: this._onProgress.bind(this)
+    });
+    this._headersCapability = Promise.withResolvers();
+    this._disableRange = source.disableRange || false;
+    this._contentLength = source.length;
+    this._rangeChunkSize = source.rangeChunkSize;
+    if (!this._rangeChunkSize && !this._disableRange) {
+      this._disableRange = true;
+    }
+    this._isStreamingSupported = false;
+    this._isRangeSupported = false;
+    this._cachedChunks = [];
+    this._requests = [];
+    this._done = false;
+    this._storedError = void 0;
+    this._filename = null;
+    this.onProgress = null;
+  }
+  _onHeadersReceived() {
+    const fullRequestXhrId = this._fullRequestId;
+    const fullRequestXhr = this._manager.getRequestXhr(fullRequestXhrId);
+    this._manager._responseOrigin = getResponseOrigin(fullRequestXhr.responseURL);
+    const rawResponseHeaders = fullRequestXhr.getAllResponseHeaders();
+    const responseHeaders = new Headers(rawResponseHeaders ? rawResponseHeaders.trimStart().replace(/[^\S ]+$/, "").split(/[\r\n]+/).map(x2 => {
+      const [key2, ...val] = x2.split(": ");
+      return [key2, val.join(": ")];
+    }) : []);
+    const {
+      allowRangeRequests,
+      suggestedLength
+    } = validateRangeRequestCapabilities({
+      responseHeaders,
+      isHttp: this._manager.isHttp,
+      rangeChunkSize: this._rangeChunkSize,
+      disableRange: this._disableRange
+    });
+    if (allowRangeRequests) {
+      this._isRangeSupported = true;
+    }
+    this._contentLength = suggestedLength || this._contentLength;
+    this._filename = extractFilenameFromHeader(responseHeaders);
+    if (this._isRangeSupported) {
+      this._manager.abortRequest(fullRequestXhrId);
+    }
+    this._headersCapability.resolve();
+  }
+  _onDone(data2) {
+    if (data2) {
+      if (this._requests.length > 0) {
+        const requestCapability = this._requests.shift();
+        requestCapability.resolve({
+          value: data2.chunk,
+          done: false
+        });
+      } else {
+        this._cachedChunks.push(data2.chunk);
+      }
+    }
+    this._done = true;
+    if (this._cachedChunks.length > 0) {
+      return;
+    }
+    for (const requestCapability of this._requests) {
+      requestCapability.resolve({
+        value: void 0,
+        done: true
+      });
+    }
+    this._requests.length = 0;
+  }
+  _onError(status) {
+    this._storedError = createResponseStatusError(status, this._url);
+    this._headersCapability.reject(this._storedError);
+    for (const requestCapability of this._requests) {
+      requestCapability.reject(this._storedError);
+    }
+    this._requests.length = 0;
+    this._cachedChunks.length = 0;
+  }
+  _onProgress(evt) {
+    this.onProgress?.({
+      loaded: evt.loaded,
+      total: evt.lengthComputable ? evt.total : this._contentLength
+    });
+  }
+  get filename() {
+    return this._filename;
+  }
+  get isRangeSupported() {
+    return this._isRangeSupported;
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  get contentLength() {
+    return this._contentLength;
+  }
+  get headersReady() {
+    return this._headersCapability.promise;
+  }
+  async read() {
+    await this._headersCapability.promise;
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    if (this._cachedChunks.length > 0) {
+      const chunk2 = this._cachedChunks.shift();
+      return {
+        value: chunk2,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const requestCapability = Promise.withResolvers();
+    this._requests.push(requestCapability);
+    return requestCapability.promise;
+  }
+  cancel(reason) {
+    this._done = true;
+    this._headersCapability.reject(reason);
+    for (const requestCapability of this._requests) {
+      requestCapability.resolve({
+        value: void 0,
+        done: true
+      });
+    }
+    this._requests.length = 0;
+    if (this._manager.isPendingRequest(this._fullRequestId)) {
+      this._manager.abortRequest(this._fullRequestId);
+    }
+    this._fullRequestReader = null;
+  }
+}
+class PDFNetworkStreamRangeRequestReader {
+  constructor(manager, begin, end2) {
+    this._manager = manager;
+    this._url = manager.url;
+    this._requestId = manager.request({
+      begin,
+      end: end2,
+      onHeadersReceived: this._onHeadersReceived.bind(this),
+      onDone: this._onDone.bind(this),
+      onError: this._onError.bind(this),
+      onProgress: this._onProgress.bind(this)
+    });
+    this._requests = [];
+    this._queuedChunk = null;
+    this._done = false;
+    this._storedError = void 0;
+    this.onProgress = null;
+    this.onClosed = null;
+  }
+  _onHeadersReceived() {
+    const responseOrigin = getResponseOrigin(this._manager.getRequestXhr(this._requestId)?.responseURL);
+    if (responseOrigin !== this._manager._responseOrigin) {
+      this._storedError = new Error(`Expected range response-origin "${responseOrigin}" to match "${this._manager._responseOrigin}".`);
+      this._onError(0);
+    }
+  }
+  _close() {
+    this.onClosed?.(this);
+  }
+  _onDone(data2) {
+    const chunk2 = data2.chunk;
+    if (this._requests.length > 0) {
+      const requestCapability = this._requests.shift();
+      requestCapability.resolve({
+        value: chunk2,
+        done: false
+      });
+    } else {
+      this._queuedChunk = chunk2;
+    }
+    this._done = true;
+    for (const requestCapability of this._requests) {
+      requestCapability.resolve({
+        value: void 0,
+        done: true
+      });
+    }
+    this._requests.length = 0;
+    this._close();
+  }
+  _onError(status) {
+    this._storedError ??= createResponseStatusError(status, this._url);
+    for (const requestCapability of this._requests) {
+      requestCapability.reject(this._storedError);
+    }
+    this._requests.length = 0;
+    this._queuedChunk = null;
+  }
+  _onProgress(evt) {
+    if (!this.isStreamingSupported) {
+      this.onProgress?.({
+        loaded: evt.loaded
+      });
+    }
+  }
+  get isStreamingSupported() {
+    return false;
+  }
+  async read() {
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    if (this._queuedChunk !== null) {
+      const chunk2 = this._queuedChunk;
+      this._queuedChunk = null;
+      return {
+        value: chunk2,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const requestCapability = Promise.withResolvers();
+    this._requests.push(requestCapability);
+    return requestCapability.promise;
+  }
+  cancel(reason) {
+    this._done = true;
+    for (const requestCapability of this._requests) {
+      requestCapability.resolve({
+        value: void 0,
+        done: true
+      });
+    }
+    this._requests.length = 0;
+    if (this._manager.isPendingRequest(this._requestId)) {
+      this._manager.abortRequest(this._requestId);
+    }
+    this._close();
+  }
+}
+const urlRegex = /^[a-z][a-z0-9\-+.]+:/i;
+function parseUrlOrPath(sourceUrl) {
+  if (urlRegex.test(sourceUrl)) {
+    return new URL(sourceUrl);
+  }
+  const url2 = process.getBuiltinModule("url");
+  return new URL(url2.pathToFileURL(sourceUrl));
+}
+class PDFNodeStream {
+  constructor(source) {
+    this.source = source;
+    this.url = parseUrlOrPath(source.url);
+    assert(this.url.protocol === "file:", "PDFNodeStream only supports file:// URLs.");
+    this._fullRequestReader = null;
+    this._rangeRequestReaders = [];
+  }
+  get _progressiveDataLength() {
+    return this._fullRequestReader?._loaded ?? 0;
+  }
+  getFullReader() {
+    assert(!this._fullRequestReader, "PDFNodeStream.getFullReader can only be called once.");
+    this._fullRequestReader = new PDFNodeStreamFsFullReader(this);
+    return this._fullRequestReader;
+  }
+  getRangeReader(start2, end2) {
+    if (end2 <= this._progressiveDataLength) {
+      return null;
+    }
+    const rangeReader = new PDFNodeStreamFsRangeReader(this, start2, end2);
+    this._rangeRequestReaders.push(rangeReader);
+    return rangeReader;
+  }
+  cancelAllRequests(reason) {
+    this._fullRequestReader?.cancel(reason);
+    for (const reader of this._rangeRequestReaders.slice(0)) {
+      reader.cancel(reason);
+    }
+  }
+}
+class PDFNodeStreamFsFullReader {
+  constructor(stream) {
+    this._url = stream.url;
+    this._done = false;
+    this._storedError = null;
+    this.onProgress = null;
+    const source = stream.source;
+    this._contentLength = source.length;
+    this._loaded = 0;
+    this._filename = null;
+    this._disableRange = source.disableRange || false;
+    this._rangeChunkSize = source.rangeChunkSize;
+    if (!this._rangeChunkSize && !this._disableRange) {
+      this._disableRange = true;
+    }
+    this._isStreamingSupported = !source.disableStream;
+    this._isRangeSupported = !source.disableRange;
+    this._readableStream = null;
+    this._readCapability = Promise.withResolvers();
+    this._headersCapability = Promise.withResolvers();
+    const fs = process.getBuiltinModule("fs");
+    fs.promises.lstat(this._url).then(stat => {
+      this._contentLength = stat.size;
+      this._setReadableStream(fs.createReadStream(this._url));
+      this._headersCapability.resolve();
+    }, error => {
+      if (error.code === "ENOENT") {
+        error = new MissingPDFException(`Missing PDF "${this._url}".`);
+      }
+      this._storedError = error;
+      this._headersCapability.reject(error);
+    });
+  }
+  get headersReady() {
+    return this._headersCapability.promise;
+  }
+  get filename() {
+    return this._filename;
+  }
+  get contentLength() {
+    return this._contentLength;
+  }
+  get isRangeSupported() {
+    return this._isRangeSupported;
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  async read() {
+    await this._readCapability.promise;
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    const chunk2 = this._readableStream.read();
+    if (chunk2 === null) {
+      this._readCapability = Promise.withResolvers();
+      return this.read();
+    }
+    this._loaded += chunk2.length;
+    this.onProgress?.({
+      loaded: this._loaded,
+      total: this._contentLength
+    });
+    const buffer = new Uint8Array(chunk2).buffer;
+    return {
+      value: buffer,
+      done: false
+    };
+  }
+  cancel(reason) {
+    if (!this._readableStream) {
+      this._error(reason);
+      return;
+    }
+    this._readableStream.destroy(reason);
+  }
+  _error(reason) {
+    this._storedError = reason;
+    this._readCapability.resolve();
+  }
+  _setReadableStream(readableStream) {
+    this._readableStream = readableStream;
+    readableStream.on("readable", () => {
+      this._readCapability.resolve();
+    });
+    readableStream.on("end", () => {
+      readableStream.destroy();
+      this._done = true;
+      this._readCapability.resolve();
+    });
+    readableStream.on("error", reason => {
+      this._error(reason);
+    });
+    if (!this._isStreamingSupported && this._isRangeSupported) {
+      this._error(new AbortException("streaming is disabled"));
+    }
+    if (this._storedError) {
+      this._readableStream.destroy(this._storedError);
+    }
+  }
+}
+class PDFNodeStreamFsRangeReader {
+  constructor(stream, start2, end2) {
+    this._url = stream.url;
+    this._done = false;
+    this._storedError = null;
+    this.onProgress = null;
+    this._loaded = 0;
+    this._readableStream = null;
+    this._readCapability = Promise.withResolvers();
+    const source = stream.source;
+    this._isStreamingSupported = !source.disableStream;
+    const fs = process.getBuiltinModule("fs");
+    this._setReadableStream(fs.createReadStream(this._url, {
+      start: start2,
+      end: end2 - 1
+    }));
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  async read() {
+    await this._readCapability.promise;
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    const chunk2 = this._readableStream.read();
+    if (chunk2 === null) {
+      this._readCapability = Promise.withResolvers();
+      return this.read();
+    }
+    this._loaded += chunk2.length;
+    this.onProgress?.({
+      loaded: this._loaded
+    });
+    const buffer = new Uint8Array(chunk2).buffer;
+    return {
+      value: buffer,
+      done: false
+    };
+  }
+  cancel(reason) {
+    if (!this._readableStream) {
+      this._error(reason);
+      return;
+    }
+    this._readableStream.destroy(reason);
+  }
+  _error(reason) {
+    this._storedError = reason;
+    this._readCapability.resolve();
+  }
+  _setReadableStream(readableStream) {
+    this._readableStream = readableStream;
+    readableStream.on("readable", () => {
+      this._readCapability.resolve();
+    });
+    readableStream.on("end", () => {
+      readableStream.destroy();
+      this._done = true;
+      this._readCapability.resolve();
+    });
+    readableStream.on("error", reason => {
+      this._error(reason);
+    });
+    if (this._storedError) {
+      this._readableStream.destroy(this._storedError);
+    }
+  }
+}
+const MAX_TEXT_DIVS_TO_RENDER = 1e5;
+const DEFAULT_FONT_SIZE$1 = 30;
+const DEFAULT_FONT_ASCENT = 0.8;
+class TextLayer {
+  #capability = Promise.withResolvers();
+  #container = null;
+  #disableProcessItems = false;
+  #fontInspectorEnabled = !!globalThis.FontInspector?.enabled;
+  #lang = null;
+  #layoutTextParams = null;
+  #pageHeight = 0;
+  #pageWidth = 0;
+  #reader = null;
+  #rootContainer = null;
+  #rotation = 0;
+  #scale = 0;
+  #styleCache = /* @__PURE__ */Object.create(null);
+  #textContentItemsStr = [];
+  #textContentSource = null;
+  #textDivs = [];
+  #textDivProperties = /* @__PURE__ */new WeakMap();
+  #transform = null;
+  static #ascentCache = /* @__PURE__ */new Map();
+  static #canvasContexts = /* @__PURE__ */new Map();
+  static #canvasCtxFonts = /* @__PURE__ */new WeakMap();
+  static #minFontSize = null;
+  static #pendingTextLayers = /* @__PURE__ */new Set();
+  constructor({
+    textContentSource,
+    container,
+    viewport
+  }) {
+    if (textContentSource instanceof ReadableStream) {
+      this.#textContentSource = textContentSource;
+    } else if (typeof textContentSource === "object") {
+      this.#textContentSource = new ReadableStream({
+        start(controller) {
+          controller.enqueue(textContentSource);
+          controller.close();
+        }
+      });
+    } else {
+      throw new Error('No "textContentSource" parameter specified.');
+    }
+    this.#container = this.#rootContainer = container;
+    this.#scale = viewport.scale * (globalThis.devicePixelRatio || 1);
+    this.#rotation = viewport.rotation;
+    this.#layoutTextParams = {
+      div: null,
+      properties: null,
+      ctx: null
+    };
+    const {
+      pageWidth,
+      pageHeight,
+      pageX,
+      pageY
+    } = viewport.rawDims;
+    this.#transform = [1, 0, 0, -1, -pageX, pageY + pageHeight];
+    this.#pageWidth = pageWidth;
+    this.#pageHeight = pageHeight;
+    TextLayer.#ensureMinFontSizeComputed();
+    setLayerDimensions(container, viewport);
+    this.#capability.promise.finally(() => {
+      TextLayer.#pendingTextLayers.delete(this);
+      this.#layoutTextParams = null;
+      this.#styleCache = null;
+    }).catch(() => {});
+  }
+  static get fontFamilyMap() {
+    const {
+      isWindows,
+      isFirefox: isFirefox2
+    } = util_FeatureTest.platform;
+    return shadow(this, "fontFamilyMap", /* @__PURE__ */new Map([["sans-serif", `${isWindows && isFirefox2 ? "Calibri, " : ""}sans-serif`], ["monospace", `${isWindows && isFirefox2 ? "Lucida Console, " : ""}monospace`]]));
+  }
+  render() {
+    const pump = () => {
+      this.#reader.read().then(({
+        value,
+        done
+      }) => {
+        if (done) {
+          this.#capability.resolve();
+          return;
+        }
+        this.#lang ??= value.lang;
+        Object.assign(this.#styleCache, value.styles);
+        this.#processItems(value.items);
+        pump();
+      }, this.#capability.reject);
+    };
+    this.#reader = this.#textContentSource.getReader();
+    TextLayer.#pendingTextLayers.add(this);
+    pump();
+    return this.#capability.promise;
+  }
+  update({
+    viewport,
+    onBefore = null
+  }) {
+    const scale2 = viewport.scale * (globalThis.devicePixelRatio || 1);
+    const rotation = viewport.rotation;
+    if (rotation !== this.#rotation) {
+      onBefore?.();
+      this.#rotation = rotation;
+      setLayerDimensions(this.#rootContainer, {
+        rotation
+      });
+    }
+    if (scale2 !== this.#scale) {
+      onBefore?.();
+      this.#scale = scale2;
+      const params = {
+        div: null,
+        properties: null,
+        ctx: TextLayer.#getCtx(this.#lang)
+      };
+      for (const div of this.#textDivs) {
+        params.properties = this.#textDivProperties.get(div);
+        params.div = div;
+        this.#layout(params);
+      }
+    }
+  }
+  cancel() {
+    const abortEx = new AbortException("TextLayer task cancelled.");
+    this.#reader?.cancel(abortEx).catch(() => {});
+    this.#reader = null;
+    this.#capability.reject(abortEx);
+  }
+  get textDivs() {
+    return this.#textDivs;
+  }
+  get textContentItemsStr() {
+    return this.#textContentItemsStr;
+  }
+  #processItems(items) {
+    if (this.#disableProcessItems) {
+      return;
+    }
+    this.#layoutTextParams.ctx ??= TextLayer.#getCtx(this.#lang);
+    const textDivs = this.#textDivs,
+      textContentItemsStr = this.#textContentItemsStr;
+    for (const item of items) {
+      if (textDivs.length > MAX_TEXT_DIVS_TO_RENDER) {
+        warn("Ignoring additional textDivs for performance reasons.");
+        this.#disableProcessItems = true;
+        return;
+      }
+      if (item.str === void 0) {
+        if (item.type === "beginMarkedContentProps" || item.type === "beginMarkedContent") {
+          const parent = this.#container;
+          this.#container = document.createElement("span");
+          this.#container.classList.add("markedContent");
+          if (item.id !== null) {
+            this.#container.setAttribute("id", `${item.id}`);
+          }
+          parent.append(this.#container);
+        } else if (item.type === "endMarkedContent") {
+          this.#container = this.#container.parentNode;
+        }
+        continue;
+      }
+      textContentItemsStr.push(item.str);
+      this.#appendText(item);
+    }
+  }
+  #appendText(geom) {
+    const textDiv = document.createElement("span");
+    const textDivProperties = {
+      angle: 0,
+      canvasWidth: 0,
+      hasText: geom.str !== "",
+      hasEOL: geom.hasEOL,
+      fontSize: 0
+    };
+    this.#textDivs.push(textDiv);
+    const tx = Util.transform(this.#transform, geom.transform);
+    let angle = Math.atan2(tx[1], tx[0]);
+    const style2 = this.#styleCache[geom.fontName];
+    if (style2.vertical) {
+      angle += Math.PI / 2;
+    }
+    let fontFamily = this.#fontInspectorEnabled && style2.fontSubstitution || style2.fontFamily;
+    fontFamily = TextLayer.fontFamilyMap.get(fontFamily) || fontFamily;
+    const fontHeight = Math.hypot(tx[2], tx[3]);
+    const fontAscent = fontHeight * TextLayer.#getAscent(fontFamily, this.#lang);
+    let left, top2;
+    if (angle === 0) {
+      left = tx[4];
+      top2 = tx[5] - fontAscent;
+    } else {
+      left = tx[4] + fontAscent * Math.sin(angle);
+      top2 = tx[5] - fontAscent * Math.cos(angle);
+    }
+    const scaleFactorStr = "calc(var(--scale-factor)*";
+    const divStyle = textDiv.style;
+    if (this.#container === this.#rootContainer) {
+      divStyle.left = `${(100 * left / this.#pageWidth).toFixed(2)}%`;
+      divStyle.top = `${(100 * top2 / this.#pageHeight).toFixed(2)}%`;
+    } else {
+      divStyle.left = `${scaleFactorStr}${left.toFixed(2)}px)`;
+      divStyle.top = `${scaleFactorStr}${top2.toFixed(2)}px)`;
+    }
+    divStyle.fontSize = `${scaleFactorStr}${(TextLayer.#minFontSize * fontHeight).toFixed(2)}px)`;
+    divStyle.fontFamily = fontFamily;
+    textDivProperties.fontSize = fontHeight;
+    textDiv.setAttribute("role", "presentation");
+    textDiv.textContent = geom.str;
+    textDiv.dir = geom.dir;
+    if (this.#fontInspectorEnabled) {
+      textDiv.dataset.fontName = style2.fontSubstitutionLoadedName || geom.fontName;
+    }
+    if (angle !== 0) {
+      textDivProperties.angle = angle * (180 / Math.PI);
+    }
+    let shouldScaleText = false;
+    if (geom.str.length > 1) {
+      shouldScaleText = true;
+    } else if (geom.str !== " " && geom.transform[0] !== geom.transform[3]) {
+      const absScaleX = Math.abs(geom.transform[0]),
+        absScaleY = Math.abs(geom.transform[3]);
+      if (absScaleX !== absScaleY && Math.max(absScaleX, absScaleY) / Math.min(absScaleX, absScaleY) > 1.5) {
+        shouldScaleText = true;
+      }
+    }
+    if (shouldScaleText) {
+      textDivProperties.canvasWidth = style2.vertical ? geom.height : geom.width;
+    }
+    this.#textDivProperties.set(textDiv, textDivProperties);
+    this.#layoutTextParams.div = textDiv;
+    this.#layoutTextParams.properties = textDivProperties;
+    this.#layout(this.#layoutTextParams);
+    if (textDivProperties.hasText) {
+      this.#container.append(textDiv);
+    }
+    if (textDivProperties.hasEOL) {
+      const br = document.createElement("br");
+      br.setAttribute("role", "presentation");
+      this.#container.append(br);
+    }
+  }
+  #layout(params) {
+    const {
+      div,
+      properties: properties2,
+      ctx
+    } = params;
+    const {
+      style: style2
+    } = div;
+    let transform2 = "";
+    if (TextLayer.#minFontSize > 1) {
+      transform2 = `scale(${1 / TextLayer.#minFontSize})`;
+    }
+    if (properties2.canvasWidth !== 0 && properties2.hasText) {
+      const {
+        fontFamily
+      } = style2;
+      const {
+        canvasWidth,
+        fontSize
+      } = properties2;
+      TextLayer.#ensureCtxFont(ctx, fontSize * this.#scale, fontFamily);
+      const {
+        width
+      } = ctx.measureText(div.textContent);
+      if (width > 0) {
+        transform2 = `scaleX(${canvasWidth * this.#scale / width}) ${transform2}`;
+      }
+    }
+    if (properties2.angle !== 0) {
+      transform2 = `rotate(${properties2.angle}deg) ${transform2}`;
+    }
+    if (transform2.length > 0) {
+      style2.transform = transform2;
+    }
+  }
+  static cleanup() {
+    if (this.#pendingTextLayers.size > 0) {
+      return;
+    }
+    this.#ascentCache.clear();
+    for (const {
+      canvas
+    } of this.#canvasContexts.values()) {
+      canvas.remove();
+    }
+    this.#canvasContexts.clear();
+  }
+  static #getCtx(lang = null) {
+    let ctx = this.#canvasContexts.get(lang ||= "");
+    if (!ctx) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "hiddenCanvasElement";
+      canvas.lang = lang;
+      document.body.append(canvas);
+      ctx = canvas.getContext("2d", {
+        alpha: false,
+        willReadFrequently: true
+      });
+      this.#canvasContexts.set(lang, ctx);
+      this.#canvasCtxFonts.set(ctx, {
+        size: 0,
+        family: ""
+      });
+    }
+    return ctx;
+  }
+  static #ensureCtxFont(ctx, size2, family) {
+    const cached = this.#canvasCtxFonts.get(ctx);
+    if (size2 === cached.size && family === cached.family) {
+      return;
+    }
+    ctx.font = `${size2}px ${family}`;
+    cached.size = size2;
+    cached.family = family;
+  }
+  static #ensureMinFontSizeComputed() {
+    if (this.#minFontSize !== null) {
+      return;
+    }
+    const div = document.createElement("div");
+    div.style.opacity = 0;
+    div.style.lineHeight = 1;
+    div.style.fontSize = "1px";
+    div.style.position = "absolute";
+    div.textContent = "X";
+    document.body.append(div);
+    this.#minFontSize = div.getBoundingClientRect().height;
+    div.remove();
+  }
+  static #getAscent(fontFamily, lang) {
+    const cachedAscent = this.#ascentCache.get(fontFamily);
+    if (cachedAscent) {
+      return cachedAscent;
+    }
+    const ctx = this.#getCtx(lang);
+    ctx.canvas.width = ctx.canvas.height = DEFAULT_FONT_SIZE$1;
+    this.#ensureCtxFont(ctx, DEFAULT_FONT_SIZE$1, fontFamily);
+    const metrics = ctx.measureText("");
+    let ascent = metrics.fontBoundingBoxAscent;
+    let descent = Math.abs(metrics.fontBoundingBoxDescent);
+    if (ascent) {
+      const ratio2 = ascent / (ascent + descent);
+      this.#ascentCache.set(fontFamily, ratio2);
+      ctx.canvas.width = ctx.canvas.height = 0;
+      return ratio2;
+    }
+    ctx.strokeStyle = "red";
+    ctx.clearRect(0, 0, DEFAULT_FONT_SIZE$1, DEFAULT_FONT_SIZE$1);
+    ctx.strokeText("g", 0, 0);
+    let pixels = ctx.getImageData(0, 0, DEFAULT_FONT_SIZE$1, DEFAULT_FONT_SIZE$1).data;
+    descent = 0;
+    for (let i2 = pixels.length - 1 - 3; i2 >= 0; i2 -= 4) {
+      if (pixels[i2] > 0) {
+        descent = Math.ceil(i2 / 4 / DEFAULT_FONT_SIZE$1);
+        break;
+      }
+    }
+    ctx.clearRect(0, 0, DEFAULT_FONT_SIZE$1, DEFAULT_FONT_SIZE$1);
+    ctx.strokeText("A", 0, DEFAULT_FONT_SIZE$1);
+    pixels = ctx.getImageData(0, 0, DEFAULT_FONT_SIZE$1, DEFAULT_FONT_SIZE$1).data;
+    ascent = 0;
+    for (let i2 = 0, ii = pixels.length; i2 < ii; i2 += 4) {
+      if (pixels[i2] > 0) {
+        ascent = DEFAULT_FONT_SIZE$1 - Math.floor(i2 / 4 / DEFAULT_FONT_SIZE$1);
+        break;
+      }
+    }
+    ctx.canvas.width = ctx.canvas.height = 0;
+    const ratio = ascent ? ascent / (ascent + descent) : DEFAULT_FONT_ASCENT;
+    this.#ascentCache.set(fontFamily, ratio);
+    return ratio;
+  }
 }
 class XfaText {
   static textContent(xfa) {
@@ -66937,6 +72716,180 @@ class XfaText {
     return !(name2 === "textarea" || name2 === "input" || name2 === "option" || name2 === "select");
   }
 }
+const DEFAULT_RANGE_CHUNK_SIZE = 65536;
+const RENDERING_CANCELLED_TIMEOUT = 100;
+const DELAYED_CLEANUP_TIMEOUT = 5e3;
+const DefaultCanvasFactory = isNodeJS ? NodeCanvasFactory : DOMCanvasFactory;
+const DefaultCMapReaderFactory = isNodeJS ? NodeCMapReaderFactory : DOMCMapReaderFactory;
+const DefaultFilterFactory = isNodeJS ? NodeFilterFactory : DOMFilterFactory;
+const DefaultStandardFontDataFactory = isNodeJS ? NodeStandardFontDataFactory : DOMStandardFontDataFactory;
+function getDocument(src = {}) {
+  if (typeof src === "string" || src instanceof URL) {
+    src = {
+      url: src
+    };
+  } else if (src instanceof ArrayBuffer || ArrayBuffer.isView(src)) {
+    src = {
+      data: src
+    };
+  }
+  const task = new PDFDocumentLoadingTask();
+  const {
+    docId
+  } = task;
+  const url2 = src.url ? getUrlProp(src.url) : null;
+  const data2 = src.data ? getDataProp(src.data) : null;
+  const httpHeaders = src.httpHeaders || null;
+  const withCredentials = src.withCredentials === true;
+  const password = src.password ?? null;
+  const rangeTransport = src.range instanceof PDFDataRangeTransport ? src.range : null;
+  const rangeChunkSize = Number.isInteger(src.rangeChunkSize) && src.rangeChunkSize > 0 ? src.rangeChunkSize : DEFAULT_RANGE_CHUNK_SIZE;
+  let worker = src.worker instanceof PDFWorker ? src.worker : null;
+  const verbosity2 = src.verbosity;
+  const docBaseUrl = typeof src.docBaseUrl === "string" && !isDataScheme(src.docBaseUrl) ? src.docBaseUrl : null;
+  const cMapUrl = typeof src.cMapUrl === "string" ? src.cMapUrl : null;
+  const cMapPacked = src.cMapPacked !== false;
+  const CMapReaderFactory = src.CMapReaderFactory || DefaultCMapReaderFactory;
+  const standardFontDataUrl = typeof src.standardFontDataUrl === "string" ? src.standardFontDataUrl : null;
+  const StandardFontDataFactory = src.StandardFontDataFactory || DefaultStandardFontDataFactory;
+  const ignoreErrors = src.stopAtErrors !== true;
+  const maxImageSize = Number.isInteger(src.maxImageSize) && src.maxImageSize > -1 ? src.maxImageSize : -1;
+  const isEvalSupported2 = src.isEvalSupported !== false;
+  const isOffscreenCanvasSupported = typeof src.isOffscreenCanvasSupported === "boolean" ? src.isOffscreenCanvasSupported : !isNodeJS;
+  const isImageDecoderSupported = typeof src.isImageDecoderSupported === "boolean" ? src.isImageDecoderSupported : !isNodeJS && (util_FeatureTest.platform.isFirefox || !globalThis.chrome);
+  const canvasMaxAreaInBytes = Number.isInteger(src.canvasMaxAreaInBytes) ? src.canvasMaxAreaInBytes : -1;
+  const disableFontFace = typeof src.disableFontFace === "boolean" ? src.disableFontFace : isNodeJS;
+  const fontExtraProperties = src.fontExtraProperties === true;
+  const enableXfa = src.enableXfa === true;
+  const ownerDocument2 = src.ownerDocument || globalThis.document;
+  const disableRange = src.disableRange === true;
+  const disableStream = src.disableStream === true;
+  const disableAutoFetch = src.disableAutoFetch === true;
+  const pdfBug = src.pdfBug === true;
+  const CanvasFactory = src.CanvasFactory || DefaultCanvasFactory;
+  const FilterFactory = src.FilterFactory || DefaultFilterFactory;
+  const enableHWA = src.enableHWA === true;
+  const length2 = rangeTransport ? rangeTransport.length : src.length ?? NaN;
+  const useSystemFonts = typeof src.useSystemFonts === "boolean" ? src.useSystemFonts : !isNodeJS && !disableFontFace;
+  const useWorkerFetch = typeof src.useWorkerFetch === "boolean" ? src.useWorkerFetch : CMapReaderFactory === DOMCMapReaderFactory && StandardFontDataFactory === DOMStandardFontDataFactory && cMapUrl && standardFontDataUrl && isValidFetchUrl(cMapUrl, document.baseURI) && isValidFetchUrl(standardFontDataUrl, document.baseURI);
+  const styleElement = null;
+  setVerbosityLevel(verbosity2);
+  const transportFactory = {
+    canvasFactory: new CanvasFactory({
+      ownerDocument: ownerDocument2,
+      enableHWA
+    }),
+    filterFactory: new FilterFactory({
+      docId,
+      ownerDocument: ownerDocument2
+    }),
+    cMapReaderFactory: useWorkerFetch ? null : new CMapReaderFactory({
+      baseUrl: cMapUrl,
+      isCompressed: cMapPacked
+    }),
+    standardFontDataFactory: useWorkerFetch ? null : new StandardFontDataFactory({
+      baseUrl: standardFontDataUrl
+    })
+  };
+  if (!worker) {
+    const workerParams = {
+      verbosity: verbosity2,
+      port: GlobalWorkerOptions.workerPort
+    };
+    worker = workerParams.port ? PDFWorker.fromPort(workerParams) : new PDFWorker(workerParams);
+    task._worker = worker;
+  }
+  const docParams = {
+    docId,
+    apiVersion: "4.10.38",
+    data: data2,
+    password,
+    disableAutoFetch,
+    rangeChunkSize,
+    length: length2,
+    docBaseUrl,
+    enableXfa,
+    evaluatorOptions: {
+      maxImageSize,
+      disableFontFace,
+      ignoreErrors,
+      isEvalSupported: isEvalSupported2,
+      isOffscreenCanvasSupported,
+      isImageDecoderSupported,
+      canvasMaxAreaInBytes,
+      fontExtraProperties,
+      useSystemFonts,
+      cMapUrl: useWorkerFetch ? cMapUrl : null,
+      standardFontDataUrl: useWorkerFetch ? standardFontDataUrl : null
+    }
+  };
+  const transportParams = {
+    disableFontFace,
+    fontExtraProperties,
+    ownerDocument: ownerDocument2,
+    pdfBug,
+    styleElement,
+    loadingParams: {
+      disableAutoFetch,
+      enableXfa
+    }
+  };
+  worker.promise.then(function () {
+    if (task.destroyed) {
+      throw new Error("Loading aborted");
+    }
+    if (worker.destroyed) {
+      throw new Error("Worker was destroyed");
+    }
+    const workerIdPromise = worker.messageHandler.sendWithPromise("GetDocRequest", docParams, data2 ? [data2.buffer] : null);
+    let networkStream;
+    if (rangeTransport) {
+      networkStream = new PDFDataTransportStream(rangeTransport, {
+        disableRange,
+        disableStream
+      });
+    } else if (!data2) {
+      if (!url2) {
+        throw new Error("getDocument - no `url` parameter provided.");
+      }
+      let NetworkStream;
+      if (isNodeJS) {
+        if (isValidFetchUrl(url2)) {
+          if (typeof fetch === "undefined" || typeof Response === "undefined" || !("body" in Response.prototype)) {
+            throw new Error("getDocument - the Fetch API was disabled in Node.js, see `--no-experimental-fetch`.");
+          }
+          NetworkStream = PDFFetchStream;
+        } else {
+          NetworkStream = PDFNodeStream;
+        }
+      } else {
+        NetworkStream = isValidFetchUrl(url2) ? PDFFetchStream : PDFNetworkStream;
+      }
+      networkStream = new NetworkStream({
+        url: url2,
+        length: length2,
+        httpHeaders,
+        withCredentials,
+        rangeChunkSize,
+        disableRange,
+        disableStream
+      });
+    }
+    return workerIdPromise.then(workerId => {
+      if (task.destroyed) {
+        throw new Error("Loading aborted");
+      }
+      if (worker.destroyed) {
+        throw new Error("Worker was destroyed");
+      }
+      const messageHandler = new MessageHandler(docId, workerId, worker.port);
+      const transport = new WorkerTransport(messageHandler, task, networkStream, transportParams, transportFactory);
+      task._transport = transport;
+      messageHandler.send("Ready", null);
+    });
+  }).catch(task._capability.reject);
+  return task;
+}
 function getUrlProp(val) {
   if (val instanceof URL) {
     return val.href;
@@ -66949,6 +72902,21 @@ function getUrlProp(val) {
     }
   }
   throw new Error("Invalid PDF url data: either string or URL-object is expected in the url property.");
+}
+function getDataProp(val) {
+  if (isNodeJS && typeof Buffer !== "undefined" && val instanceof Buffer) {
+    throw new Error("Please provide binary data as `Uint8Array`, rather than `Buffer`.");
+  }
+  if (val instanceof Uint8Array && val.byteLength === val.buffer.byteLength) {
+    return val;
+  }
+  if (typeof val === "string") {
+    return stringToBytes(val);
+  }
+  if (val instanceof ArrayBuffer || ArrayBuffer.isView(val) || typeof val === "object" && !isNaN(val?.length)) {
+    return new Uint8Array(val);
+  }
+  throw new Error("Invalid PDF binary data: either TypedArray, string, or array-like object is expected in the data property.");
 }
 function isRefProxy(ref) {
   return typeof ref === "object" && Number.isInteger(ref?.num) && ref.num >= 0 && Number.isInteger(ref?.gen) && ref.gen >= 0;
@@ -66984,6 +72952,64 @@ class PDFDocumentLoadingTask {
     this._worker?.destroy();
     this._worker = null;
   }
+}
+class PDFDataRangeTransport {
+  constructor(length2, initialData, progressiveDone = false, contentDispositionFilename = null) {
+    this.length = length2;
+    this.initialData = initialData;
+    this.progressiveDone = progressiveDone;
+    this.contentDispositionFilename = contentDispositionFilename;
+    this._rangeListeners = [];
+    this._progressListeners = [];
+    this._progressiveReadListeners = [];
+    this._progressiveDoneListeners = [];
+    this._readyCapability = Promise.withResolvers();
+  }
+  addRangeListener(listener) {
+    this._rangeListeners.push(listener);
+  }
+  addProgressListener(listener) {
+    this._progressListeners.push(listener);
+  }
+  addProgressiveReadListener(listener) {
+    this._progressiveReadListeners.push(listener);
+  }
+  addProgressiveDoneListener(listener) {
+    this._progressiveDoneListeners.push(listener);
+  }
+  onDataRange(begin, chunk2) {
+    for (const listener of this._rangeListeners) {
+      listener(begin, chunk2);
+    }
+  }
+  onDataProgress(loaded, total) {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressListeners) {
+        listener(loaded, total);
+      }
+    });
+  }
+  onDataProgressiveRead(chunk2) {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressiveReadListeners) {
+        listener(chunk2);
+      }
+    });
+  }
+  onDataProgressiveDone() {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressiveDoneListeners) {
+        listener();
+      }
+    });
+  }
+  transportReady() {
+    this._readyCapability.resolve();
+  }
+  requestDataRange(begin, end2) {
+    unreachable$1("Abstract method PDFDataRangeTransport.requestDataRange");
+  }
+  abort() {}
 }
 class PDFDocumentProxy {
   constructor(pdfInfo, transport) {
@@ -67096,6 +73122,450 @@ class PDFDocumentProxy {
   }
   getCalculationOrderIds() {
     return this._transport.getCalculationOrderIds();
+  }
+}
+class PDFPageProxy {
+  #delayedCleanupTimeout = null;
+  #pendingCleanup = false;
+  constructor(pageIndex, pageInfo2, transport, pdfBug = false) {
+    this._pageIndex = pageIndex;
+    this._pageInfo = pageInfo2;
+    this._transport = transport;
+    this._stats = pdfBug ? new StatTimer() : null;
+    this._pdfBug = pdfBug;
+    this.commonObjs = transport.commonObjs;
+    this.objs = new PDFObjects();
+    this._maybeCleanupAfterRender = false;
+    this._intentStates = /* @__PURE__ */new Map();
+    this.destroyed = false;
+  }
+  get pageNumber() {
+    return this._pageIndex + 1;
+  }
+  get rotate() {
+    return this._pageInfo.rotate;
+  }
+  get ref() {
+    return this._pageInfo.ref;
+  }
+  get userUnit() {
+    return this._pageInfo.userUnit;
+  }
+  get view() {
+    return this._pageInfo.view;
+  }
+  getViewport({
+    scale: scale2,
+    rotation = this.rotate,
+    offsetX = 0,
+    offsetY = 0,
+    dontFlip = false
+  } = {}) {
+    return new PageViewport({
+      viewBox: this.view,
+      userUnit: this.userUnit,
+      scale: scale2,
+      rotation,
+      offsetX,
+      offsetY,
+      dontFlip
+    });
+  }
+  getAnnotations({
+    intent = "display"
+  } = {}) {
+    const {
+      renderingIntent
+    } = this._transport.getRenderingIntent(intent);
+    return this._transport.getAnnotations(this._pageIndex, renderingIntent);
+  }
+  getJSActions() {
+    return this._transport.getPageJSActions(this._pageIndex);
+  }
+  get filterFactory() {
+    return this._transport.filterFactory;
+  }
+  get isPureXfa() {
+    return shadow(this, "isPureXfa", !!this._transport._htmlForXfa);
+  }
+  async getXfa() {
+    return this._transport._htmlForXfa?.children[this._pageIndex] || null;
+  }
+  render({
+    canvasContext,
+    viewport,
+    intent = "display",
+    annotationMode = AnnotationMode.ENABLE,
+    transform: transform2 = null,
+    background = null,
+    optionalContentConfigPromise = null,
+    annotationCanvasMap = null,
+    pageColors = null,
+    printAnnotationStorage = null,
+    isEditing = false
+  }) {
+    this._stats?.time("Overall");
+    const intentArgs = this._transport.getRenderingIntent(intent, annotationMode, printAnnotationStorage, isEditing);
+    const {
+      renderingIntent,
+      cacheKey
+    } = intentArgs;
+    this.#pendingCleanup = false;
+    this.#abortDelayedCleanup();
+    optionalContentConfigPromise ||= this._transport.getOptionalContentConfig(renderingIntent);
+    let intentState = this._intentStates.get(cacheKey);
+    if (!intentState) {
+      intentState = /* @__PURE__ */Object.create(null);
+      this._intentStates.set(cacheKey, intentState);
+    }
+    if (intentState.streamReaderCancelTimeout) {
+      clearTimeout(intentState.streamReaderCancelTimeout);
+      intentState.streamReaderCancelTimeout = null;
+    }
+    const intentPrint = !!(renderingIntent & RenderingIntentFlag.PRINT);
+    if (!intentState.displayReadyCapability) {
+      intentState.displayReadyCapability = Promise.withResolvers();
+      intentState.operatorList = {
+        fnArray: [],
+        argsArray: [],
+        lastChunk: false,
+        separateAnnots: null
+      };
+      this._stats?.time("Page Request");
+      this._pumpOperatorList(intentArgs);
+    }
+    const complete = error => {
+      intentState.renderTasks.delete(internalRenderTask);
+      if (this._maybeCleanupAfterRender || intentPrint) {
+        this.#pendingCleanup = true;
+      }
+      this.#tryCleanup(!intentPrint);
+      if (error) {
+        internalRenderTask.capability.reject(error);
+        this._abortOperatorList({
+          intentState,
+          reason: error instanceof Error ? error : new Error(error)
+        });
+      } else {
+        internalRenderTask.capability.resolve();
+      }
+      if (this._stats) {
+        this._stats.timeEnd("Rendering");
+        this._stats.timeEnd("Overall");
+        if (globalThis.Stats?.enabled) {
+          globalThis.Stats.add(this.pageNumber, this._stats);
+        }
+      }
+    };
+    const internalRenderTask = new InternalRenderTask({
+      callback: complete,
+      params: {
+        canvasContext,
+        viewport,
+        transform: transform2,
+        background
+      },
+      objs: this.objs,
+      commonObjs: this.commonObjs,
+      annotationCanvasMap,
+      operatorList: intentState.operatorList,
+      pageIndex: this._pageIndex,
+      canvasFactory: this._transport.canvasFactory,
+      filterFactory: this._transport.filterFactory,
+      useRequestAnimationFrame: !intentPrint,
+      pdfBug: this._pdfBug,
+      pageColors
+    });
+    (intentState.renderTasks ||= /* @__PURE__ */new Set()).add(internalRenderTask);
+    const renderTask = internalRenderTask.task;
+    Promise.all([intentState.displayReadyCapability.promise, optionalContentConfigPromise]).then(([transparency, optionalContentConfig]) => {
+      if (this.destroyed) {
+        complete();
+        return;
+      }
+      this._stats?.time("Rendering");
+      if (!(optionalContentConfig.renderingIntent & renderingIntent)) {
+        throw new Error("Must use the same `intent`-argument when calling the `PDFPageProxy.render` and `PDFDocumentProxy.getOptionalContentConfig` methods.");
+      }
+      internalRenderTask.initializeGraphics({
+        transparency,
+        optionalContentConfig
+      });
+      internalRenderTask.operatorListChanged();
+    }).catch(complete);
+    return renderTask;
+  }
+  getOperatorList({
+    intent = "display",
+    annotationMode = AnnotationMode.ENABLE,
+    printAnnotationStorage = null,
+    isEditing = false
+  } = {}) {
+    function operatorListChanged() {
+      if (intentState.operatorList.lastChunk) {
+        intentState.opListReadCapability.resolve(intentState.operatorList);
+        intentState.renderTasks.delete(opListTask);
+      }
+    }
+    const intentArgs = this._transport.getRenderingIntent(intent, annotationMode, printAnnotationStorage, isEditing, true);
+    let intentState = this._intentStates.get(intentArgs.cacheKey);
+    if (!intentState) {
+      intentState = /* @__PURE__ */Object.create(null);
+      this._intentStates.set(intentArgs.cacheKey, intentState);
+    }
+    let opListTask;
+    if (!intentState.opListReadCapability) {
+      opListTask = /* @__PURE__ */Object.create(null);
+      opListTask.operatorListChanged = operatorListChanged;
+      intentState.opListReadCapability = Promise.withResolvers();
+      (intentState.renderTasks ||= /* @__PURE__ */new Set()).add(opListTask);
+      intentState.operatorList = {
+        fnArray: [],
+        argsArray: [],
+        lastChunk: false,
+        separateAnnots: null
+      };
+      this._stats?.time("Page Request");
+      this._pumpOperatorList(intentArgs);
+    }
+    return intentState.opListReadCapability.promise;
+  }
+  streamTextContent({
+    includeMarkedContent = false,
+    disableNormalization = false
+  } = {}) {
+    const TEXT_CONTENT_CHUNK_SIZE = 100;
+    return this._transport.messageHandler.sendWithStream("GetTextContent", {
+      pageIndex: this._pageIndex,
+      includeMarkedContent: includeMarkedContent === true,
+      disableNormalization: disableNormalization === true
+    }, {
+      highWaterMark: TEXT_CONTENT_CHUNK_SIZE,
+      size(textContent) {
+        return textContent.items.length;
+      }
+    });
+  }
+  getTextContent(params = {}) {
+    if (this._transport._htmlForXfa) {
+      return this.getXfa().then(xfa => XfaText.textContent(xfa));
+    }
+    const readableStream = this.streamTextContent(params);
+    return new Promise(function (resolve, reject) {
+      function pump() {
+        reader.read().then(function ({
+          value,
+          done
+        }) {
+          if (done) {
+            resolve(textContent);
+            return;
+          }
+          textContent.lang ??= value.lang;
+          Object.assign(textContent.styles, value.styles);
+          textContent.items.push(...value.items);
+          pump();
+        }, reject);
+      }
+      const reader = readableStream.getReader();
+      const textContent = {
+        items: [],
+        styles: /* @__PURE__ */Object.create(null),
+        lang: null
+      };
+      pump();
+    });
+  }
+  getStructTree() {
+    return this._transport.getStructTree(this._pageIndex);
+  }
+  _destroy() {
+    this.destroyed = true;
+    const waitOn = [];
+    for (const intentState of this._intentStates.values()) {
+      this._abortOperatorList({
+        intentState,
+        reason: new Error("Page was destroyed."),
+        force: true
+      });
+      if (intentState.opListReadCapability) {
+        continue;
+      }
+      for (const internalRenderTask of intentState.renderTasks) {
+        waitOn.push(internalRenderTask.completed);
+        internalRenderTask.cancel();
+      }
+    }
+    this.objs.clear();
+    this.#pendingCleanup = false;
+    this.#abortDelayedCleanup();
+    return Promise.all(waitOn);
+  }
+  cleanup(resetStats = false) {
+    this.#pendingCleanup = true;
+    const success = this.#tryCleanup(false);
+    if (resetStats && success) {
+      this._stats &&= new StatTimer();
+    }
+    return success;
+  }
+  #tryCleanup(delayed = false) {
+    this.#abortDelayedCleanup();
+    if (!this.#pendingCleanup || this.destroyed) {
+      return false;
+    }
+    if (delayed) {
+      this.#delayedCleanupTimeout = setTimeout(() => {
+        this.#delayedCleanupTimeout = null;
+        this.#tryCleanup(false);
+      }, DELAYED_CLEANUP_TIMEOUT);
+      return false;
+    }
+    for (const {
+      renderTasks,
+      operatorList
+    } of this._intentStates.values()) {
+      if (renderTasks.size > 0 || !operatorList.lastChunk) {
+        return false;
+      }
+    }
+    this._intentStates.clear();
+    this.objs.clear();
+    this.#pendingCleanup = false;
+    return true;
+  }
+  #abortDelayedCleanup() {
+    if (this.#delayedCleanupTimeout) {
+      clearTimeout(this.#delayedCleanupTimeout);
+      this.#delayedCleanupTimeout = null;
+    }
+  }
+  _startRenderPage(transparency, cacheKey) {
+    const intentState = this._intentStates.get(cacheKey);
+    if (!intentState) {
+      return;
+    }
+    this._stats?.timeEnd("Page Request");
+    intentState.displayReadyCapability?.resolve(transparency);
+  }
+  _renderPageChunk(operatorListChunk, intentState) {
+    for (let i2 = 0, ii = operatorListChunk.length; i2 < ii; i2++) {
+      intentState.operatorList.fnArray.push(operatorListChunk.fnArray[i2]);
+      intentState.operatorList.argsArray.push(operatorListChunk.argsArray[i2]);
+    }
+    intentState.operatorList.lastChunk = operatorListChunk.lastChunk;
+    intentState.operatorList.separateAnnots = operatorListChunk.separateAnnots;
+    for (const internalRenderTask of intentState.renderTasks) {
+      internalRenderTask.operatorListChanged();
+    }
+    if (operatorListChunk.lastChunk) {
+      this.#tryCleanup(true);
+    }
+  }
+  _pumpOperatorList({
+    renderingIntent,
+    cacheKey,
+    annotationStorageSerializable,
+    modifiedIds
+  }) {
+    const {
+      map: map3,
+      transfer
+    } = annotationStorageSerializable;
+    const readableStream = this._transport.messageHandler.sendWithStream("GetOperatorList", {
+      pageIndex: this._pageIndex,
+      intent: renderingIntent,
+      cacheKey,
+      annotationStorage: map3,
+      modifiedIds
+    }, transfer);
+    const reader = readableStream.getReader();
+    const intentState = this._intentStates.get(cacheKey);
+    intentState.streamReader = reader;
+    const pump = () => {
+      reader.read().then(({
+        value,
+        done
+      }) => {
+        if (done) {
+          intentState.streamReader = null;
+          return;
+        }
+        if (this._transport.destroyed) {
+          return;
+        }
+        this._renderPageChunk(value, intentState);
+        pump();
+      }, reason => {
+        intentState.streamReader = null;
+        if (this._transport.destroyed) {
+          return;
+        }
+        if (intentState.operatorList) {
+          intentState.operatorList.lastChunk = true;
+          for (const internalRenderTask of intentState.renderTasks) {
+            internalRenderTask.operatorListChanged();
+          }
+          this.#tryCleanup(true);
+        }
+        if (intentState.displayReadyCapability) {
+          intentState.displayReadyCapability.reject(reason);
+        } else if (intentState.opListReadCapability) {
+          intentState.opListReadCapability.reject(reason);
+        } else {
+          throw reason;
+        }
+      });
+    };
+    pump();
+  }
+  _abortOperatorList({
+    intentState,
+    reason,
+    force = false
+  }) {
+    if (!intentState.streamReader) {
+      return;
+    }
+    if (intentState.streamReaderCancelTimeout) {
+      clearTimeout(intentState.streamReaderCancelTimeout);
+      intentState.streamReaderCancelTimeout = null;
+    }
+    if (!force) {
+      if (intentState.renderTasks.size > 0) {
+        return;
+      }
+      if (reason instanceof RenderingCancelledException) {
+        let delay = RENDERING_CANCELLED_TIMEOUT;
+        if (reason.extraDelay > 0 && reason.extraDelay < 1e3) {
+          delay += reason.extraDelay;
+        }
+        intentState.streamReaderCancelTimeout = setTimeout(() => {
+          intentState.streamReaderCancelTimeout = null;
+          this._abortOperatorList({
+            intentState,
+            reason,
+            force: true
+          });
+        }, delay);
+        return;
+      }
+    }
+    intentState.streamReader.cancel(new AbortException(reason.message)).catch(() => {});
+    intentState.streamReader = null;
+    if (this._transport.destroyed) {
+      return;
+    }
+    for (const [curCacheKey, curIntentState] of this._intentStates) {
+      if (curIntentState === intentState) {
+        this._intentStates.delete(curCacheKey);
+        break;
+      }
+    }
+    this.cleanup();
+  }
+  get stats() {
+    return this._stats;
   }
 }
 class LoopbackPort {
@@ -67349,6 +73819,551 @@ class PDFWorker {
     return shadow(this, "_setupFakeWorkerGlobal", loader2());
   }
 }
+class WorkerTransport {
+  #methodPromises = /* @__PURE__ */new Map();
+  #pageCache = /* @__PURE__ */new Map();
+  #pagePromises = /* @__PURE__ */new Map();
+  #pageRefCache = /* @__PURE__ */new Map();
+  #passwordCapability = null;
+  constructor(messageHandler, loadingTask, networkStream, params, factory) {
+    this.messageHandler = messageHandler;
+    this.loadingTask = loadingTask;
+    this.commonObjs = new PDFObjects();
+    this.fontLoader = new FontLoader({
+      ownerDocument: params.ownerDocument,
+      styleElement: params.styleElement
+    });
+    this.loadingParams = params.loadingParams;
+    this._params = params;
+    this.canvasFactory = factory.canvasFactory;
+    this.filterFactory = factory.filterFactory;
+    this.cMapReaderFactory = factory.cMapReaderFactory;
+    this.standardFontDataFactory = factory.standardFontDataFactory;
+    this.destroyed = false;
+    this.destroyCapability = null;
+    this._networkStream = networkStream;
+    this._fullReader = null;
+    this._lastProgress = null;
+    this.downloadInfoCapability = Promise.withResolvers();
+    this.setupMessageHandler();
+  }
+  #cacheSimpleMethod(name2, data2 = null) {
+    const cachedPromise = this.#methodPromises.get(name2);
+    if (cachedPromise) {
+      return cachedPromise;
+    }
+    const promise = this.messageHandler.sendWithPromise(name2, data2);
+    this.#methodPromises.set(name2, promise);
+    return promise;
+  }
+  get annotationStorage() {
+    return shadow(this, "annotationStorage", new AnnotationStorage());
+  }
+  getRenderingIntent(intent, annotationMode = AnnotationMode.ENABLE, printAnnotationStorage = null, isEditing = false, isOpList = false) {
+    let renderingIntent = RenderingIntentFlag.DISPLAY;
+    let annotationStorageSerializable = SerializableEmpty;
+    switch (intent) {
+      case "any":
+        renderingIntent = RenderingIntentFlag.ANY;
+        break;
+      case "display":
+        break;
+      case "print":
+        renderingIntent = RenderingIntentFlag.PRINT;
+        break;
+      default:
+        warn(`getRenderingIntent - invalid intent: ${intent}`);
+    }
+    const annotationStorage = renderingIntent & RenderingIntentFlag.PRINT && printAnnotationStorage instanceof PrintAnnotationStorage ? printAnnotationStorage : this.annotationStorage;
+    switch (annotationMode) {
+      case AnnotationMode.DISABLE:
+        renderingIntent += RenderingIntentFlag.ANNOTATIONS_DISABLE;
+        break;
+      case AnnotationMode.ENABLE:
+        break;
+      case AnnotationMode.ENABLE_FORMS:
+        renderingIntent += RenderingIntentFlag.ANNOTATIONS_FORMS;
+        break;
+      case AnnotationMode.ENABLE_STORAGE:
+        renderingIntent += RenderingIntentFlag.ANNOTATIONS_STORAGE;
+        annotationStorageSerializable = annotationStorage.serializable;
+        break;
+      default:
+        warn(`getRenderingIntent - invalid annotationMode: ${annotationMode}`);
+    }
+    if (isEditing) {
+      renderingIntent += RenderingIntentFlag.IS_EDITING;
+    }
+    if (isOpList) {
+      renderingIntent += RenderingIntentFlag.OPLIST;
+    }
+    const {
+      ids: modifiedIds,
+      hash: modifiedIdsHash
+    } = annotationStorage.modifiedIds;
+    const cacheKeyBuf = [renderingIntent, annotationStorageSerializable.hash, modifiedIdsHash];
+    return {
+      renderingIntent,
+      cacheKey: cacheKeyBuf.join("_"),
+      annotationStorageSerializable,
+      modifiedIds
+    };
+  }
+  destroy() {
+    if (this.destroyCapability) {
+      return this.destroyCapability.promise;
+    }
+    this.destroyed = true;
+    this.destroyCapability = Promise.withResolvers();
+    this.#passwordCapability?.reject(new Error("Worker was destroyed during onPassword callback"));
+    const waitOn = [];
+    for (const page of this.#pageCache.values()) {
+      waitOn.push(page._destroy());
+    }
+    this.#pageCache.clear();
+    this.#pagePromises.clear();
+    this.#pageRefCache.clear();
+    if (this.hasOwnProperty("annotationStorage")) {
+      this.annotationStorage.resetModified();
+    }
+    const terminated = this.messageHandler.sendWithPromise("Terminate", null);
+    waitOn.push(terminated);
+    Promise.all(waitOn).then(() => {
+      this.commonObjs.clear();
+      this.fontLoader.clear();
+      this.#methodPromises.clear();
+      this.filterFactory.destroy();
+      TextLayer.cleanup();
+      this._networkStream?.cancelAllRequests(new AbortException("Worker was terminated."));
+      this.messageHandler?.destroy();
+      this.messageHandler = null;
+      this.destroyCapability.resolve();
+    }, this.destroyCapability.reject);
+    return this.destroyCapability.promise;
+  }
+  setupMessageHandler() {
+    const {
+      messageHandler,
+      loadingTask
+    } = this;
+    messageHandler.on("GetReader", (data2, sink) => {
+      assert(this._networkStream, "GetReader - no `IPDFStream` instance available.");
+      this._fullReader = this._networkStream.getFullReader();
+      this._fullReader.onProgress = evt => {
+        this._lastProgress = {
+          loaded: evt.loaded,
+          total: evt.total
+        };
+      };
+      sink.onPull = () => {
+        this._fullReader.read().then(function ({
+          value,
+          done
+        }) {
+          if (done) {
+            sink.close();
+            return;
+          }
+          assert(value instanceof ArrayBuffer, "GetReader - expected an ArrayBuffer.");
+          sink.enqueue(new Uint8Array(value), 1, [value]);
+        }).catch(reason => {
+          sink.error(reason);
+        });
+      };
+      sink.onCancel = reason => {
+        this._fullReader.cancel(reason);
+        sink.ready.catch(readyReason => {
+          if (this.destroyed) {
+            return;
+          }
+          throw readyReason;
+        });
+      };
+    });
+    messageHandler.on("ReaderHeadersReady", async data2 => {
+      await this._fullReader.headersReady;
+      const {
+        isStreamingSupported,
+        isRangeSupported,
+        contentLength: contentLength2
+      } = this._fullReader;
+      if (!isStreamingSupported || !isRangeSupported) {
+        if (this._lastProgress) {
+          loadingTask.onProgress?.(this._lastProgress);
+        }
+        this._fullReader.onProgress = evt => {
+          loadingTask.onProgress?.({
+            loaded: evt.loaded,
+            total: evt.total
+          });
+        };
+      }
+      return {
+        isStreamingSupported,
+        isRangeSupported,
+        contentLength: contentLength2
+      };
+    });
+    messageHandler.on("GetRangeReader", (data2, sink) => {
+      assert(this._networkStream, "GetRangeReader - no `IPDFStream` instance available.");
+      const rangeReader = this._networkStream.getRangeReader(data2.begin, data2.end);
+      if (!rangeReader) {
+        sink.close();
+        return;
+      }
+      sink.onPull = () => {
+        rangeReader.read().then(function ({
+          value,
+          done
+        }) {
+          if (done) {
+            sink.close();
+            return;
+          }
+          assert(value instanceof ArrayBuffer, "GetRangeReader - expected an ArrayBuffer.");
+          sink.enqueue(new Uint8Array(value), 1, [value]);
+        }).catch(reason => {
+          sink.error(reason);
+        });
+      };
+      sink.onCancel = reason => {
+        rangeReader.cancel(reason);
+        sink.ready.catch(readyReason => {
+          if (this.destroyed) {
+            return;
+          }
+          throw readyReason;
+        });
+      };
+    });
+    messageHandler.on("GetDoc", ({
+      pdfInfo
+    }) => {
+      this._numPages = pdfInfo.numPages;
+      this._htmlForXfa = pdfInfo.htmlForXfa;
+      delete pdfInfo.htmlForXfa;
+      loadingTask._capability.resolve(new PDFDocumentProxy(pdfInfo, this));
+    });
+    messageHandler.on("DocException", ex => {
+      loadingTask._capability.reject(wrapReason(ex));
+    });
+    messageHandler.on("PasswordRequest", ex => {
+      this.#passwordCapability = Promise.withResolvers();
+      try {
+        if (!loadingTask.onPassword) {
+          throw wrapReason(ex);
+        }
+        const updatePassword = password => {
+          if (password instanceof Error) {
+            this.#passwordCapability.reject(password);
+          } else {
+            this.#passwordCapability.resolve({
+              password
+            });
+          }
+        };
+        loadingTask.onPassword(updatePassword, ex.code);
+      } catch (err) {
+        this.#passwordCapability.reject(err);
+      }
+      return this.#passwordCapability.promise;
+    });
+    messageHandler.on("DataLoaded", data2 => {
+      loadingTask.onProgress?.({
+        loaded: data2.length,
+        total: data2.length
+      });
+      this.downloadInfoCapability.resolve(data2);
+    });
+    messageHandler.on("StartRenderPage", data2 => {
+      if (this.destroyed) {
+        return;
+      }
+      const page = this.#pageCache.get(data2.pageIndex);
+      page._startRenderPage(data2.transparency, data2.cacheKey);
+    });
+    messageHandler.on("commonobj", ([id2, type2, exportedData]) => {
+      if (this.destroyed) {
+        return null;
+      }
+      if (this.commonObjs.has(id2)) {
+        return null;
+      }
+      switch (type2) {
+        case "Font":
+          const {
+            disableFontFace,
+            fontExtraProperties,
+            pdfBug
+          } = this._params;
+          if ("error" in exportedData) {
+            const exportedError = exportedData.error;
+            warn(`Error during font loading: ${exportedError}`);
+            this.commonObjs.resolve(id2, exportedError);
+            break;
+          }
+          const inspectFont = pdfBug && globalThis.FontInspector?.enabled ? (font2, url2) => globalThis.FontInspector.fontAdded(font2, url2) : null;
+          const font = new FontFaceObject(exportedData, {
+            disableFontFace,
+            fontExtraProperties,
+            inspectFont
+          });
+          this.fontLoader.bind(font).catch(() => messageHandler.sendWithPromise("FontFallback", {
+            id: id2
+          })).finally(() => {
+            if (!fontExtraProperties && font.data) {
+              font.data = null;
+            }
+            this.commonObjs.resolve(id2, font);
+          });
+          break;
+        case "CopyLocalImage":
+          const {
+            imageRef
+          } = exportedData;
+          assert(imageRef, "The imageRef must be defined.");
+          for (const pageProxy of this.#pageCache.values()) {
+            for (const [, data2] of pageProxy.objs) {
+              if (data2?.ref !== imageRef) {
+                continue;
+              }
+              if (!data2.dataLen) {
+                return null;
+              }
+              this.commonObjs.resolve(id2, structuredClone(data2));
+              return data2.dataLen;
+            }
+          }
+          break;
+        case "FontPath":
+        case "Image":
+        case "Pattern":
+          this.commonObjs.resolve(id2, exportedData);
+          break;
+        default:
+          throw new Error(`Got unknown common object type ${type2}`);
+      }
+      return null;
+    });
+    messageHandler.on("obj", ([id2, pageIndex, type2, imageData]) => {
+      if (this.destroyed) {
+        return;
+      }
+      const pageProxy = this.#pageCache.get(pageIndex);
+      if (pageProxy.objs.has(id2)) {
+        return;
+      }
+      if (pageProxy._intentStates.size === 0) {
+        imageData?.bitmap?.close();
+        return;
+      }
+      switch (type2) {
+        case "Image":
+          pageProxy.objs.resolve(id2, imageData);
+          if (imageData?.dataLen > MAX_IMAGE_SIZE_TO_CACHE) {
+            pageProxy._maybeCleanupAfterRender = true;
+          }
+          break;
+        case "Pattern":
+          pageProxy.objs.resolve(id2, imageData);
+          break;
+        default:
+          throw new Error(`Got unknown object type ${type2}`);
+      }
+    });
+    messageHandler.on("DocProgress", data2 => {
+      if (this.destroyed) {
+        return;
+      }
+      loadingTask.onProgress?.({
+        loaded: data2.loaded,
+        total: data2.total
+      });
+    });
+    messageHandler.on("FetchBuiltInCMap", async data2 => {
+      if (this.destroyed) {
+        throw new Error("Worker was destroyed.");
+      }
+      if (!this.cMapReaderFactory) {
+        throw new Error("CMapReaderFactory not initialized, see the `useWorkerFetch` parameter.");
+      }
+      return this.cMapReaderFactory.fetch(data2);
+    });
+    messageHandler.on("FetchStandardFontData", async data2 => {
+      if (this.destroyed) {
+        throw new Error("Worker was destroyed.");
+      }
+      if (!this.standardFontDataFactory) {
+        throw new Error("StandardFontDataFactory not initialized, see the `useWorkerFetch` parameter.");
+      }
+      return this.standardFontDataFactory.fetch(data2);
+    });
+  }
+  getData() {
+    return this.messageHandler.sendWithPromise("GetData", null);
+  }
+  saveDocument() {
+    if (this.annotationStorage.size <= 0) {
+      warn("saveDocument called while `annotationStorage` is empty, please use the getData-method instead.");
+    }
+    const {
+      map: map3,
+      transfer
+    } = this.annotationStorage.serializable;
+    return this.messageHandler.sendWithPromise("SaveDocument", {
+      isPureXfa: !!this._htmlForXfa,
+      numPages: this._numPages,
+      annotationStorage: map3,
+      filename: this._fullReader?.filename ?? null
+    }, transfer).finally(() => {
+      this.annotationStorage.resetModified();
+    });
+  }
+  getPage(pageNumber) {
+    if (!Number.isInteger(pageNumber) || pageNumber <= 0 || pageNumber > this._numPages) {
+      return Promise.reject(new Error("Invalid page request."));
+    }
+    const pageIndex = pageNumber - 1,
+      cachedPromise = this.#pagePromises.get(pageIndex);
+    if (cachedPromise) {
+      return cachedPromise;
+    }
+    const promise = this.messageHandler.sendWithPromise("GetPage", {
+      pageIndex
+    }).then(pageInfo2 => {
+      if (this.destroyed) {
+        throw new Error("Transport destroyed");
+      }
+      if (pageInfo2.refStr) {
+        this.#pageRefCache.set(pageInfo2.refStr, pageNumber);
+      }
+      const page = new PDFPageProxy(pageIndex, pageInfo2, this, this._params.pdfBug);
+      this.#pageCache.set(pageIndex, page);
+      return page;
+    });
+    this.#pagePromises.set(pageIndex, promise);
+    return promise;
+  }
+  getPageIndex(ref) {
+    if (!isRefProxy(ref)) {
+      return Promise.reject(new Error("Invalid pageIndex request."));
+    }
+    return this.messageHandler.sendWithPromise("GetPageIndex", {
+      num: ref.num,
+      gen: ref.gen
+    });
+  }
+  getAnnotations(pageIndex, intent) {
+    return this.messageHandler.sendWithPromise("GetAnnotations", {
+      pageIndex,
+      intent
+    });
+  }
+  getFieldObjects() {
+    return this.#cacheSimpleMethod("GetFieldObjects");
+  }
+  hasJSActions() {
+    return this.#cacheSimpleMethod("HasJSActions");
+  }
+  getCalculationOrderIds() {
+    return this.messageHandler.sendWithPromise("GetCalculationOrderIds", null);
+  }
+  getDestinations() {
+    return this.messageHandler.sendWithPromise("GetDestinations", null);
+  }
+  getDestination(id2) {
+    if (typeof id2 !== "string") {
+      return Promise.reject(new Error("Invalid destination request."));
+    }
+    return this.messageHandler.sendWithPromise("GetDestination", {
+      id: id2
+    });
+  }
+  getPageLabels() {
+    return this.messageHandler.sendWithPromise("GetPageLabels", null);
+  }
+  getPageLayout() {
+    return this.messageHandler.sendWithPromise("GetPageLayout", null);
+  }
+  getPageMode() {
+    return this.messageHandler.sendWithPromise("GetPageMode", null);
+  }
+  getViewerPreferences() {
+    return this.messageHandler.sendWithPromise("GetViewerPreferences", null);
+  }
+  getOpenAction() {
+    return this.messageHandler.sendWithPromise("GetOpenAction", null);
+  }
+  getAttachments() {
+    return this.messageHandler.sendWithPromise("GetAttachments", null);
+  }
+  getDocJSActions() {
+    return this.#cacheSimpleMethod("GetDocJSActions");
+  }
+  getPageJSActions(pageIndex) {
+    return this.messageHandler.sendWithPromise("GetPageJSActions", {
+      pageIndex
+    });
+  }
+  getStructTree(pageIndex) {
+    return this.messageHandler.sendWithPromise("GetStructTree", {
+      pageIndex
+    });
+  }
+  getOutline() {
+    return this.messageHandler.sendWithPromise("GetOutline", null);
+  }
+  getOptionalContentConfig(renderingIntent) {
+    return this.#cacheSimpleMethod("GetOptionalContentConfig").then(data2 => new OptionalContentConfig(data2, renderingIntent));
+  }
+  getPermissions() {
+    return this.messageHandler.sendWithPromise("GetPermissions", null);
+  }
+  getMetadata() {
+    const name2 = "GetMetadata",
+      cachedPromise = this.#methodPromises.get(name2);
+    if (cachedPromise) {
+      return cachedPromise;
+    }
+    const promise = this.messageHandler.sendWithPromise(name2, null).then(results => ({
+      info: results[0],
+      metadata: results[1] ? new Metadata(results[1]) : null,
+      contentDispositionFilename: this._fullReader?.filename ?? null,
+      contentLength: this._fullReader?.contentLength ?? null
+    }));
+    this.#methodPromises.set(name2, promise);
+    return promise;
+  }
+  getMarkInfo() {
+    return this.messageHandler.sendWithPromise("GetMarkInfo", null);
+  }
+  async startCleanup(keepLoadedFonts = false) {
+    if (this.destroyed) {
+      return;
+    }
+    await this.messageHandler.sendWithPromise("Cleanup", null);
+    for (const page of this.#pageCache.values()) {
+      const cleanupSuccessful = page.cleanup();
+      if (!cleanupSuccessful) {
+        throw new Error(`startCleanup: Page ${page.pageNumber} is currently rendering.`);
+      }
+    }
+    this.commonObjs.clear();
+    if (!keepLoadedFonts) {
+      this.fontLoader.clear();
+    }
+    this.#methodPromises.clear();
+    this.filterFactory.destroy(true);
+    TextLayer.cleanup();
+  }
+  cachedPageNumber(ref) {
+    if (!isRefProxy(ref)) {
+      return null;
+    }
+    const refStr = ref.gen === 0 ? `${ref.num}R` : `${ref.num}R${ref.gen}`;
+    return this.#pageRefCache.get(refStr) ?? null;
+  }
+}
 const INITIAL_DATA = Symbol("INITIAL_DATA");
 class PDFObjects {
   #objs = /* @__PURE__ */Object.create(null);
@@ -67431,6 +74446,146 @@ class RenderTask {
       annotationCanvasMap
     } = this.#internalRenderTask;
     return separateAnnots.form || separateAnnots.canvas && annotationCanvasMap?.size > 0;
+  }
+}
+class InternalRenderTask {
+  #rAF = null;
+  static #canvasInUse = /* @__PURE__ */new WeakSet();
+  constructor({
+    callback,
+    params,
+    objs,
+    commonObjs,
+    annotationCanvasMap,
+    operatorList,
+    pageIndex,
+    canvasFactory,
+    filterFactory,
+    useRequestAnimationFrame = false,
+    pdfBug = false,
+    pageColors = null
+  }) {
+    this.callback = callback;
+    this.params = params;
+    this.objs = objs;
+    this.commonObjs = commonObjs;
+    this.annotationCanvasMap = annotationCanvasMap;
+    this.operatorListIdx = null;
+    this.operatorList = operatorList;
+    this._pageIndex = pageIndex;
+    this.canvasFactory = canvasFactory;
+    this.filterFactory = filterFactory;
+    this._pdfBug = pdfBug;
+    this.pageColors = pageColors;
+    this.running = false;
+    this.graphicsReadyCallback = null;
+    this.graphicsReady = false;
+    this._useRequestAnimationFrame = useRequestAnimationFrame === true && typeof window !== "undefined";
+    this.cancelled = false;
+    this.capability = Promise.withResolvers();
+    this.task = new RenderTask(this);
+    this._cancelBound = this.cancel.bind(this);
+    this._continueBound = this._continue.bind(this);
+    this._scheduleNextBound = this._scheduleNext.bind(this);
+    this._nextBound = this._next.bind(this);
+    this._canvas = params.canvasContext.canvas;
+  }
+  get completed() {
+    return this.capability.promise.catch(function () {});
+  }
+  initializeGraphics({
+    transparency = false,
+    optionalContentConfig
+  }) {
+    if (this.cancelled) {
+      return;
+    }
+    if (this._canvas) {
+      if (InternalRenderTask.#canvasInUse.has(this._canvas)) {
+        throw new Error("Cannot use the same canvas during multiple render() operations. Use different canvas or ensure previous operations were cancelled or completed.");
+      }
+      InternalRenderTask.#canvasInUse.add(this._canvas);
+    }
+    if (this._pdfBug && globalThis.StepperManager?.enabled) {
+      this.stepper = globalThis.StepperManager.create(this._pageIndex);
+      this.stepper.init(this.operatorList);
+      this.stepper.nextBreakPoint = this.stepper.getNextBreakPoint();
+    }
+    const {
+      canvasContext,
+      viewport,
+      transform: transform2,
+      background
+    } = this.params;
+    this.gfx = new CanvasGraphics(canvasContext, this.commonObjs, this.objs, this.canvasFactory, this.filterFactory, {
+      optionalContentConfig
+    }, this.annotationCanvasMap, this.pageColors);
+    this.gfx.beginDrawing({
+      transform: transform2,
+      viewport,
+      transparency,
+      background
+    });
+    this.operatorListIdx = 0;
+    this.graphicsReady = true;
+    this.graphicsReadyCallback?.();
+  }
+  cancel(error = null, extraDelay = 0) {
+    this.running = false;
+    this.cancelled = true;
+    this.gfx?.endDrawing();
+    if (this.#rAF) {
+      window.cancelAnimationFrame(this.#rAF);
+      this.#rAF = null;
+    }
+    InternalRenderTask.#canvasInUse.delete(this._canvas);
+    this.callback(error || new RenderingCancelledException(`Rendering cancelled, page ${this._pageIndex + 1}`, extraDelay));
+  }
+  operatorListChanged() {
+    if (!this.graphicsReady) {
+      this.graphicsReadyCallback ||= this._continueBound;
+      return;
+    }
+    this.stepper?.updateOperatorList(this.operatorList);
+    if (this.running) {
+      return;
+    }
+    this._continue();
+  }
+  _continue() {
+    this.running = true;
+    if (this.cancelled) {
+      return;
+    }
+    if (this.task.onContinue) {
+      this.task.onContinue(this._scheduleNextBound);
+    } else {
+      this._scheduleNext();
+    }
+  }
+  _scheduleNext() {
+    if (this._useRequestAnimationFrame) {
+      this.#rAF = window.requestAnimationFrame(() => {
+        this.#rAF = null;
+        this._nextBound().catch(this._cancelBound);
+      });
+    } else {
+      Promise.resolve().then(this._nextBound).catch(this._cancelBound);
+    }
+  }
+  async _next() {
+    if (this.cancelled) {
+      return;
+    }
+    this.operatorListIdx = this.gfx.executeOperatorList(this.operatorList, this.operatorListIdx, this._continueBound, this.stepper);
+    if (this.operatorListIdx === this.operatorList.argsArray.length) {
+      this.running = false;
+      if (this.operatorList.lastChunk) {
+        this.gfx.endDrawing();
+        InternalRenderTask.#canvasInUse.delete(this._canvas);
+        this.callback();
+      }
+    }
   }
 }
 const version = "4.10.38";
@@ -70199,7 +77354,766 @@ class FileAttachmentAnnotationElement extends AnnotationElement {
     this.downloadManager?.openOrDownloadData(this.content, this.filename);
   }
 }
+class AnnotationLayer {
+  #accessibilityManager = null;
+  #annotationCanvasMap = null;
+  #editableAnnotations = /* @__PURE__ */new Map();
+  #structTreeLayer = null;
+  constructor({
+    div,
+    accessibilityManager,
+    annotationCanvasMap,
+    annotationEditorUIManager,
+    page,
+    viewport,
+    structTreeLayer
+  }) {
+    this.div = div;
+    this.#accessibilityManager = accessibilityManager;
+    this.#annotationCanvasMap = annotationCanvasMap;
+    this.#structTreeLayer = structTreeLayer || null;
+    this.page = page;
+    this.viewport = viewport;
+    this.zIndex = 0;
+    this._annotationEditorUIManager = annotationEditorUIManager;
+  }
+  hasEditableAnnotations() {
+    return this.#editableAnnotations.size > 0;
+  }
+  async #appendElement(element2, id2) {
+    const contentElement = element2.firstChild || element2;
+    const annotationId = contentElement.id = `${AnnotationPrefix}${id2}`;
+    const ariaAttributes = await this.#structTreeLayer?.getAriaAttributes(annotationId);
+    if (ariaAttributes) {
+      for (const [key2, value] of ariaAttributes) {
+        contentElement.setAttribute(key2, value);
+      }
+    }
+    this.div.append(element2);
+    this.#accessibilityManager?.moveElementInDOM(this.div, element2, contentElement, false);
+  }
+  async render(params) {
+    const {
+      annotations
+    } = params;
+    const layer2 = this.div;
+    setLayerDimensions(layer2, this.viewport);
+    const popupToElements = /* @__PURE__ */new Map();
+    const elementParams = {
+      data: null,
+      layer: layer2,
+      linkService: params.linkService,
+      downloadManager: params.downloadManager,
+      imageResourcesPath: params.imageResourcesPath || "",
+      renderForms: params.renderForms !== false,
+      svgFactory: new DOMSVGFactory(),
+      annotationStorage: params.annotationStorage || new AnnotationStorage(),
+      enableScripting: params.enableScripting === true,
+      hasJSActions: params.hasJSActions,
+      fieldObjects: params.fieldObjects,
+      parent: this,
+      elements: null
+    };
+    for (const data2 of annotations) {
+      if (data2.noHTML) {
+        continue;
+      }
+      const isPopupAnnotation = data2.annotationType === AnnotationType$1.POPUP;
+      if (!isPopupAnnotation) {
+        const {
+          width,
+          height
+        } = getRectDims(data2.rect);
+        if (width <= 0 || height <= 0) {
+          continue;
+        }
+      } else {
+        const elements = popupToElements.get(data2.id);
+        if (!elements) {
+          continue;
+        }
+        elementParams.elements = elements;
+      }
+      elementParams.data = data2;
+      const element2 = AnnotationElementFactory.create(elementParams);
+      if (!element2.isRenderable) {
+        continue;
+      }
+      if (!isPopupAnnotation && data2.popupRef) {
+        const elements = popupToElements.get(data2.popupRef);
+        if (!elements) {
+          popupToElements.set(data2.popupRef, [element2]);
+        } else {
+          elements.push(element2);
+        }
+      }
+      const rendered = element2.render();
+      if (data2.hidden) {
+        rendered.style.visibility = "hidden";
+      }
+      await this.#appendElement(rendered, data2.id);
+      if (element2._isEditable) {
+        this.#editableAnnotations.set(element2.data.id, element2);
+        this._annotationEditorUIManager?.renderAnnotationElement(element2);
+      }
+    }
+    this.#setAnnotationCanvasMap();
+  }
+  update({
+    viewport
+  }) {
+    const layer2 = this.div;
+    this.viewport = viewport;
+    setLayerDimensions(layer2, {
+      rotation: viewport.rotation
+    });
+    this.#setAnnotationCanvasMap();
+    layer2.hidden = false;
+  }
+  #setAnnotationCanvasMap() {
+    if (!this.#annotationCanvasMap) {
+      return;
+    }
+    const layer2 = this.div;
+    for (const [id2, canvas] of this.#annotationCanvasMap) {
+      const element2 = layer2.querySelector(`[data-annotation-id="${id2}"]`);
+      if (!element2) {
+        continue;
+      }
+      canvas.className = "annotationContent";
+      const {
+        firstChild
+      } = element2;
+      if (!firstChild) {
+        element2.append(canvas);
+      } else if (firstChild.nodeName === "CANVAS") {
+        firstChild.replaceWith(canvas);
+      } else if (!firstChild.classList.contains("annotationContent")) {
+        firstChild.before(canvas);
+      } else {
+        firstChild.after(canvas);
+      }
+    }
+    this.#annotationCanvasMap.clear();
+  }
+  getEditableAnnotations() {
+    return Array.from(this.#editableAnnotations.values());
+  }
+  getEditableAnnotation(id2) {
+    return this.#editableAnnotations.get(id2);
+  }
+}
 const EOL_PATTERN = /\r\n?|\n/g;
+class FreeTextEditor extends AnnotationEditor {
+  #color;
+  #content = "";
+  #editorDivId = `${this.id}-editor`;
+  #editModeAC = null;
+  #fontSize;
+  static _freeTextDefaultContent = "";
+  static _internalPadding = 0;
+  static _defaultColor = null;
+  static _defaultFontSize = 10;
+  static get _keyboardManager() {
+    const proto2 = FreeTextEditor.prototype;
+    const arrowChecker = self2 => self2.isEmpty();
+    const small = AnnotationEditorUIManager.TRANSLATE_SMALL;
+    const big = AnnotationEditorUIManager.TRANSLATE_BIG;
+    return shadow(this, "_keyboardManager", new KeyboardManager([[["ctrl+s", "mac+meta+s", "ctrl+p", "mac+meta+p"], proto2.commitOrRemove, {
+      bubbles: true
+    }], [["ctrl+Enter", "mac+meta+Enter", "Escape", "mac+Escape"], proto2.commitOrRemove], [["ArrowLeft", "mac+ArrowLeft"], proto2._translateEmpty, {
+      args: [-small, 0],
+      checker: arrowChecker
+    }], [["ctrl+ArrowLeft", "mac+shift+ArrowLeft"], proto2._translateEmpty, {
+      args: [-big, 0],
+      checker: arrowChecker
+    }], [["ArrowRight", "mac+ArrowRight"], proto2._translateEmpty, {
+      args: [small, 0],
+      checker: arrowChecker
+    }], [["ctrl+ArrowRight", "mac+shift+ArrowRight"], proto2._translateEmpty, {
+      args: [big, 0],
+      checker: arrowChecker
+    }], [["ArrowUp", "mac+ArrowUp"], proto2._translateEmpty, {
+      args: [0, -small],
+      checker: arrowChecker
+    }], [["ctrl+ArrowUp", "mac+shift+ArrowUp"], proto2._translateEmpty, {
+      args: [0, -big],
+      checker: arrowChecker
+    }], [["ArrowDown", "mac+ArrowDown"], proto2._translateEmpty, {
+      args: [0, small],
+      checker: arrowChecker
+    }], [["ctrl+ArrowDown", "mac+shift+ArrowDown"], proto2._translateEmpty, {
+      args: [0, big],
+      checker: arrowChecker
+    }]]));
+  }
+  static _type = "freetext";
+  static _editorType = AnnotationEditorType.FREETEXT;
+  constructor(params) {
+    super({
+      ...params,
+      name: "freeTextEditor"
+    });
+    this.#color = params.color || FreeTextEditor._defaultColor || AnnotationEditor._defaultLineColor;
+    this.#fontSize = params.fontSize || FreeTextEditor._defaultFontSize;
+  }
+  static initialize(l10n, uiManager) {
+    AnnotationEditor.initialize(l10n, uiManager);
+    const style2 = getComputedStyle(document.documentElement);
+    this._internalPadding = parseFloat(style2.getPropertyValue("--freetext-padding"));
+  }
+  static updateDefaultParams(type2, value) {
+    switch (type2) {
+      case AnnotationEditorParamsType.FREETEXT_SIZE:
+        FreeTextEditor._defaultFontSize = value;
+        break;
+      case AnnotationEditorParamsType.FREETEXT_COLOR:
+        FreeTextEditor._defaultColor = value;
+        break;
+    }
+  }
+  updateParams(type2, value) {
+    switch (type2) {
+      case AnnotationEditorParamsType.FREETEXT_SIZE:
+        this.#updateFontSize(value);
+        break;
+      case AnnotationEditorParamsType.FREETEXT_COLOR:
+        this.#updateColor(value);
+        break;
+    }
+  }
+  static get defaultPropertiesToUpdate() {
+    return [[AnnotationEditorParamsType.FREETEXT_SIZE, FreeTextEditor._defaultFontSize], [AnnotationEditorParamsType.FREETEXT_COLOR, FreeTextEditor._defaultColor || AnnotationEditor._defaultLineColor]];
+  }
+  get propertiesToUpdate() {
+    return [[AnnotationEditorParamsType.FREETEXT_SIZE, this.#fontSize], [AnnotationEditorParamsType.FREETEXT_COLOR, this.#color]];
+  }
+  #updateFontSize(fontSize) {
+    const setFontsize = size2 => {
+      this.editorDiv.style.fontSize = `calc(${size2}px * var(--scale-factor))`;
+      this.translate(0, -(size2 - this.#fontSize) * this.parentScale);
+      this.#fontSize = size2;
+      this.#setEditorDimensions();
+    };
+    const savedFontsize = this.#fontSize;
+    this.addCommands({
+      cmd: setFontsize.bind(this, fontSize),
+      undo: setFontsize.bind(this, savedFontsize),
+      post: this._uiManager.updateUI.bind(this._uiManager, this),
+      mustExec: true,
+      type: AnnotationEditorParamsType.FREETEXT_SIZE,
+      overwriteIfSameType: true,
+      keepUndo: true
+    });
+  }
+  #updateColor(color2) {
+    const setColor = col => {
+      this.#color = this.editorDiv.style.color = col;
+    };
+    const savedColor = this.#color;
+    this.addCommands({
+      cmd: setColor.bind(this, color2),
+      undo: setColor.bind(this, savedColor),
+      post: this._uiManager.updateUI.bind(this._uiManager, this),
+      mustExec: true,
+      type: AnnotationEditorParamsType.FREETEXT_COLOR,
+      overwriteIfSameType: true,
+      keepUndo: true
+    });
+  }
+  _translateEmpty(x2, y4) {
+    this._uiManager.translateSelectedEditors(x2, y4, true);
+  }
+  getInitialTranslation() {
+    const scale2 = this.parentScale;
+    return [-FreeTextEditor._internalPadding * scale2, -(FreeTextEditor._internalPadding + this.#fontSize) * scale2];
+  }
+  rebuild() {
+    if (!this.parent) {
+      return;
+    }
+    super.rebuild();
+    if (this.div === null) {
+      return;
+    }
+    if (!this.isAttachedToDOM) {
+      this.parent.add(this);
+    }
+  }
+  enableEditMode() {
+    if (this.isInEditMode()) {
+      return;
+    }
+    this.parent.setEditingState(false);
+    this.parent.updateToolbar(AnnotationEditorType.FREETEXT);
+    super.enableEditMode();
+    this.overlayDiv.classList.remove("enabled");
+    this.editorDiv.contentEditable = true;
+    this._isDraggable = false;
+    this.div.removeAttribute("aria-activedescendant");
+    this.#editModeAC = new AbortController();
+    const signal = this._uiManager.combinedSignal(this.#editModeAC);
+    this.editorDiv.addEventListener("keydown", this.editorDivKeydown.bind(this), {
+      signal
+    });
+    this.editorDiv.addEventListener("focus", this.editorDivFocus.bind(this), {
+      signal
+    });
+    this.editorDiv.addEventListener("blur", this.editorDivBlur.bind(this), {
+      signal
+    });
+    this.editorDiv.addEventListener("input", this.editorDivInput.bind(this), {
+      signal
+    });
+    this.editorDiv.addEventListener("paste", this.editorDivPaste.bind(this), {
+      signal
+    });
+  }
+  disableEditMode() {
+    if (!this.isInEditMode()) {
+      return;
+    }
+    this.parent.setEditingState(true);
+    super.disableEditMode();
+    this.overlayDiv.classList.add("enabled");
+    this.editorDiv.contentEditable = false;
+    this.div.setAttribute("aria-activedescendant", this.#editorDivId);
+    this._isDraggable = true;
+    this.#editModeAC?.abort();
+    this.#editModeAC = null;
+    this.div.focus({
+      preventScroll: true
+    });
+    this.isEditing = false;
+    this.parent.div.classList.add("freetextEditing");
+  }
+  focusin(event) {
+    if (!this._focusEventsAllowed) {
+      return;
+    }
+    super.focusin(event);
+    if (event.target !== this.editorDiv) {
+      this.editorDiv.focus();
+    }
+  }
+  onceAdded(focus2) {
+    if (this.width) {
+      return;
+    }
+    this.enableEditMode();
+    if (focus2) {
+      this.editorDiv.focus();
+    }
+    if (this._initialOptions?.isCentered) {
+      this.center();
+    }
+    this._initialOptions = null;
+  }
+  isEmpty() {
+    return !this.editorDiv || this.editorDiv.innerText.trim() === "";
+  }
+  remove() {
+    this.isEditing = false;
+    if (this.parent) {
+      this.parent.setEditingState(true);
+      this.parent.div.classList.add("freetextEditing");
+    }
+    super.remove();
+  }
+  #extractText() {
+    const buffer = [];
+    this.editorDiv.normalize();
+    let prevChild = null;
+    for (const child of this.editorDiv.childNodes) {
+      if (prevChild?.nodeType === Node.TEXT_NODE && child.nodeName === "BR") {
+        continue;
+      }
+      buffer.push(FreeTextEditor.#getNodeContent(child));
+      prevChild = child;
+    }
+    return buffer.join("\n");
+  }
+  #setEditorDimensions() {
+    const [parentWidth, parentHeight] = this.parentDimensions;
+    let rect;
+    if (this.isAttachedToDOM) {
+      rect = this.div.getBoundingClientRect();
+    } else {
+      const {
+        currentLayer,
+        div
+      } = this;
+      const savedDisplay = div.style.display;
+      const savedVisibility = div.classList.contains("hidden");
+      div.classList.remove("hidden");
+      div.style.display = "hidden";
+      currentLayer.div.append(this.div);
+      rect = div.getBoundingClientRect();
+      div.remove();
+      div.style.display = savedDisplay;
+      div.classList.toggle("hidden", savedVisibility);
+    }
+    if (this.rotation % 180 === this.parentRotation % 180) {
+      this.width = rect.width / parentWidth;
+      this.height = rect.height / parentHeight;
+    } else {
+      this.width = rect.height / parentWidth;
+      this.height = rect.width / parentHeight;
+    }
+    this.fixAndSetPosition();
+  }
+  commit() {
+    if (!this.isInEditMode()) {
+      return;
+    }
+    super.commit();
+    this.disableEditMode();
+    const savedText = this.#content;
+    const newText = this.#content = this.#extractText().trimEnd();
+    if (savedText === newText) {
+      return;
+    }
+    const setText = text2 => {
+      this.#content = text2;
+      if (!text2) {
+        this.remove();
+        return;
+      }
+      this.#setContent();
+      this._uiManager.rebuild(this);
+      this.#setEditorDimensions();
+    };
+    this.addCommands({
+      cmd: () => {
+        setText(newText);
+      },
+      undo: () => {
+        setText(savedText);
+      },
+      mustExec: false
+    });
+    this.#setEditorDimensions();
+  }
+  shouldGetKeyboardEvents() {
+    return this.isInEditMode();
+  }
+  enterInEditMode() {
+    this.enableEditMode();
+    this.editorDiv.focus();
+  }
+  dblclick(event) {
+    this.enterInEditMode();
+  }
+  keydown(event) {
+    if (event.target === this.div && event.key === "Enter") {
+      this.enterInEditMode();
+      event.preventDefault();
+    }
+  }
+  editorDivKeydown(event) {
+    FreeTextEditor._keyboardManager.exec(this, event);
+  }
+  editorDivFocus(event) {
+    this.isEditing = true;
+  }
+  editorDivBlur(event) {
+    this.isEditing = false;
+  }
+  editorDivInput(event) {
+    this.parent.div.classList.toggle("freetextEditing", this.isEmpty());
+  }
+  disableEditing() {
+    this.editorDiv.setAttribute("role", "comment");
+    this.editorDiv.removeAttribute("aria-multiline");
+  }
+  enableEditing() {
+    this.editorDiv.setAttribute("role", "textbox");
+    this.editorDiv.setAttribute("aria-multiline", true);
+  }
+  render() {
+    if (this.div) {
+      return this.div;
+    }
+    let baseX, baseY;
+    if (this.width) {
+      baseX = this.x;
+      baseY = this.y;
+    }
+    super.render();
+    this.editorDiv = document.createElement("div");
+    this.editorDiv.className = "internal";
+    this.editorDiv.setAttribute("id", this.#editorDivId);
+    this.editorDiv.setAttribute("data-l10n-id", "pdfjs-free-text2");
+    this.editorDiv.setAttribute("data-l10n-attrs", "default-content");
+    this.enableEditing();
+    this.editorDiv.contentEditable = true;
+    const {
+      style: style2
+    } = this.editorDiv;
+    style2.fontSize = `calc(${this.#fontSize}px * var(--scale-factor))`;
+    style2.color = this.#color;
+    this.div.append(this.editorDiv);
+    this.overlayDiv = document.createElement("div");
+    this.overlayDiv.classList.add("overlay", "enabled");
+    this.div.append(this.overlayDiv);
+    bindEvents(this, this.div, ["dblclick", "keydown"]);
+    if (this.width) {
+      const [parentWidth, parentHeight] = this.parentDimensions;
+      if (this.annotationElementId) {
+        const {
+          position: position2
+        } = this._initialData;
+        let [tx, ty] = this.getInitialTranslation();
+        [tx, ty] = this.pageTranslationToScreen(tx, ty);
+        const [pageWidth, pageHeight] = this.pageDimensions;
+        const [pageX, pageY] = this.pageTranslation;
+        let posX, posY;
+        switch (this.rotation) {
+          case 0:
+            posX = baseX + (position2[0] - pageX) / pageWidth;
+            posY = baseY + this.height - (position2[1] - pageY) / pageHeight;
+            break;
+          case 90:
+            posX = baseX + (position2[0] - pageX) / pageWidth;
+            posY = baseY - (position2[1] - pageY) / pageHeight;
+            [tx, ty] = [ty, -tx];
+            break;
+          case 180:
+            posX = baseX - this.width + (position2[0] - pageX) / pageWidth;
+            posY = baseY - (position2[1] - pageY) / pageHeight;
+            [tx, ty] = [-tx, -ty];
+            break;
+          case 270:
+            posX = baseX + (position2[0] - pageX - this.height * pageHeight) / pageWidth;
+            posY = baseY + (position2[1] - pageY - this.width * pageWidth) / pageHeight;
+            [tx, ty] = [-ty, tx];
+            break;
+        }
+        this.setAt(posX * parentWidth, posY * parentHeight, tx, ty);
+      } else {
+        this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
+      }
+      this.#setContent();
+      this._isDraggable = true;
+      this.editorDiv.contentEditable = false;
+    } else {
+      this._isDraggable = false;
+      this.editorDiv.contentEditable = true;
+    }
+    return this.div;
+  }
+  static #getNodeContent(node2) {
+    return (node2.nodeType === Node.TEXT_NODE ? node2.nodeValue : node2.innerText).replaceAll(EOL_PATTERN, "");
+  }
+  editorDivPaste(event) {
+    const clipboardData = event.clipboardData || window.clipboardData;
+    const {
+      types: types2
+    } = clipboardData;
+    if (types2.length === 1 && types2[0] === "text/plain") {
+      return;
+    }
+    event.preventDefault();
+    const paste = FreeTextEditor.#deserializeContent(clipboardData.getData("text") || "").replaceAll(EOL_PATTERN, "\n");
+    if (!paste) {
+      return;
+    }
+    const selection2 = window.getSelection();
+    if (!selection2.rangeCount) {
+      return;
+    }
+    this.editorDiv.normalize();
+    selection2.deleteFromDocument();
+    const range2 = selection2.getRangeAt(0);
+    if (!paste.includes("\n")) {
+      range2.insertNode(document.createTextNode(paste));
+      this.editorDiv.normalize();
+      selection2.collapseToStart();
+      return;
+    }
+    const {
+      startContainer,
+      startOffset
+    } = range2;
+    const bufferBefore = [];
+    const bufferAfter = [];
+    if (startContainer.nodeType === Node.TEXT_NODE) {
+      const parent = startContainer.parentElement;
+      bufferAfter.push(startContainer.nodeValue.slice(startOffset).replaceAll(EOL_PATTERN, ""));
+      if (parent !== this.editorDiv) {
+        let buffer = bufferBefore;
+        for (const child of this.editorDiv.childNodes) {
+          if (child === parent) {
+            buffer = bufferAfter;
+            continue;
+          }
+          buffer.push(FreeTextEditor.#getNodeContent(child));
+        }
+      }
+      bufferBefore.push(startContainer.nodeValue.slice(0, startOffset).replaceAll(EOL_PATTERN, ""));
+    } else if (startContainer === this.editorDiv) {
+      let buffer = bufferBefore;
+      let i2 = 0;
+      for (const child of this.editorDiv.childNodes) {
+        if (i2++ === startOffset) {
+          buffer = bufferAfter;
+        }
+        buffer.push(FreeTextEditor.#getNodeContent(child));
+      }
+    }
+    this.#content = `${bufferBefore.join("\n")}${paste}${bufferAfter.join("\n")}`;
+    this.#setContent();
+    const newRange = new Range();
+    let beforeLength = bufferBefore.reduce((acc, line) => acc + line.length, 0);
+    for (const {
+      firstChild
+    } of this.editorDiv.childNodes) {
+      if (firstChild.nodeType === Node.TEXT_NODE) {
+        const length2 = firstChild.nodeValue.length;
+        if (beforeLength <= length2) {
+          newRange.setStart(firstChild, beforeLength);
+          newRange.setEnd(firstChild, beforeLength);
+          break;
+        }
+        beforeLength -= length2;
+      }
+    }
+    selection2.removeAllRanges();
+    selection2.addRange(newRange);
+  }
+  #setContent() {
+    this.editorDiv.replaceChildren();
+    if (!this.#content) {
+      return;
+    }
+    for (const line of this.#content.split("\n")) {
+      const div = document.createElement("div");
+      div.append(line ? document.createTextNode(line) : document.createElement("br"));
+      this.editorDiv.append(div);
+    }
+  }
+  #serializeContent() {
+    return this.#content.replaceAll(" ", " ");
+  }
+  static #deserializeContent(content2) {
+    return content2.replaceAll(" ", " ");
+  }
+  get contentDiv() {
+    return this.editorDiv;
+  }
+  static async deserialize(data2, parent, uiManager) {
+    let initialData = null;
+    if (data2 instanceof FreeTextAnnotationElement) {
+      const {
+        data: {
+          defaultAppearanceData: {
+            fontSize,
+            fontColor
+          },
+          rect,
+          rotation,
+          id: id2,
+          popupRef
+        },
+        textContent,
+        textPosition,
+        parent: {
+          page: {
+            pageNumber
+          }
+        }
+      } = data2;
+      if (!textContent || textContent.length === 0) {
+        return null;
+      }
+      initialData = data2 = {
+        annotationType: AnnotationEditorType.FREETEXT,
+        color: Array.from(fontColor),
+        fontSize,
+        value: textContent.join("\n"),
+        position: textPosition,
+        pageIndex: pageNumber - 1,
+        rect: rect.slice(0),
+        rotation,
+        id: id2,
+        deleted: false,
+        popupRef
+      };
+    }
+    const editor = await super.deserialize(data2, parent, uiManager);
+    editor.#fontSize = data2.fontSize;
+    editor.#color = Util.makeHexColor(...data2.color);
+    editor.#content = FreeTextEditor.#deserializeContent(data2.value);
+    editor.annotationElementId = data2.id || null;
+    editor._initialData = initialData;
+    return editor;
+  }
+  serialize(isForCopying = false) {
+    if (this.isEmpty()) {
+      return null;
+    }
+    if (this.deleted) {
+      return this.serializeDeleted();
+    }
+    const padding = FreeTextEditor._internalPadding * this.parentScale;
+    const rect = this.getRect(padding, padding);
+    const color2 = AnnotationEditor._colorManager.convert(this.isAttachedToDOM ? getComputedStyle(this.editorDiv).color : this.#color);
+    const serialized = {
+      annotationType: AnnotationEditorType.FREETEXT,
+      color: color2,
+      fontSize: this.#fontSize,
+      value: this.#serializeContent(),
+      pageIndex: this.pageIndex,
+      rect,
+      rotation: this.rotation,
+      structTreeParentId: this._structTreeParentId
+    };
+    if (isForCopying) {
+      return serialized;
+    }
+    if (this.annotationElementId && !this.#hasElementChanged(serialized)) {
+      return null;
+    }
+    serialized.id = this.annotationElementId;
+    return serialized;
+  }
+  #hasElementChanged(serialized) {
+    const {
+      value,
+      fontSize,
+      color: color2,
+      pageIndex
+    } = this._initialData;
+    return this._hasBeenMoved || serialized.value !== value || serialized.fontSize !== fontSize || serialized.color.some((c3, i2) => c3 !== color2[i2]) || serialized.pageIndex !== pageIndex;
+  }
+  renderAnnotationElement(annotation) {
+    const content2 = super.renderAnnotationElement(annotation);
+    if (this.deleted) {
+      return content2;
+    }
+    const {
+      style: style2
+    } = content2;
+    style2.fontSize = `calc(${this.#fontSize}px * var(--scale-factor))`;
+    style2.color = this.#color;
+    content2.replaceChildren();
+    for (const line of this.#content.split("\n")) {
+      const div = document.createElement("div");
+      div.append(line ? document.createTextNode(line) : document.createElement("br"));
+      content2.append(div);
+    }
+    const padding = FreeTextEditor._internalPadding * this.parentScale;
+    annotation.updateEdited({
+      rect: this.getRect(padding, padding),
+      popupContent: this.#content
+    });
+    return content2;
+  }
+  resetAnnotationElement(annotation) {
+    super.resetAnnotationElement(annotation);
+    annotation.resetEdited();
+  }
+}
 class Outline {
   static PRECISION = 1e-4;
   toSVGPath() {
@@ -70264,6 +78178,1648 @@ class Outline {
   }
   static createBezierPoints(x1, y1, x2, y22, x3, y32) {
     return [(x1 + 5 * x2) / 6, (y1 + 5 * y22) / 6, (5 * x2 + x3) / 6, (5 * y22 + y32) / 6, (x2 + x3) / 2, (y22 + y32) / 2];
+  }
+}
+class FreeDrawOutliner {
+  #box;
+  #bottom = [];
+  #innerMargin;
+  #isLTR;
+  #top = [];
+  #last = new Float32Array(18);
+  #lastX;
+  #lastY;
+  #min;
+  #min_dist;
+  #scaleFactor;
+  #thickness;
+  #points = [];
+  static #MIN_DIST = 8;
+  static #MIN_DIFF = 2;
+  static #MIN = FreeDrawOutliner.#MIN_DIST + FreeDrawOutliner.#MIN_DIFF;
+  constructor({
+    x: x2,
+    y: y4
+  }, box2, scaleFactor, thickness, isLTR, innerMargin = 0) {
+    this.#box = box2;
+    this.#thickness = thickness * scaleFactor;
+    this.#isLTR = isLTR;
+    this.#last.set([NaN, NaN, NaN, NaN, x2, y4], 6);
+    this.#innerMargin = innerMargin;
+    this.#min_dist = FreeDrawOutliner.#MIN_DIST * scaleFactor;
+    this.#min = FreeDrawOutliner.#MIN * scaleFactor;
+    this.#scaleFactor = scaleFactor;
+    this.#points.push(x2, y4);
+  }
+  isEmpty() {
+    return isNaN(this.#last[8]);
+  }
+  #getLastCoords() {
+    const lastTop = this.#last.subarray(4, 6);
+    const lastBottom = this.#last.subarray(16, 18);
+    const [x2, y4, width, height] = this.#box;
+    return [(this.#lastX + (lastTop[0] - lastBottom[0]) / 2 - x2) / width, (this.#lastY + (lastTop[1] - lastBottom[1]) / 2 - y4) / height, (this.#lastX + (lastBottom[0] - lastTop[0]) / 2 - x2) / width, (this.#lastY + (lastBottom[1] - lastTop[1]) / 2 - y4) / height];
+  }
+  add({
+    x: x2,
+    y: y4
+  }) {
+    this.#lastX = x2;
+    this.#lastY = y4;
+    const [layerX, layerY, layerWidth, layerHeight] = this.#box;
+    let [x1, y1, x22, y22] = this.#last.subarray(8, 12);
+    const diffX = x2 - x22;
+    const diffY = y4 - y22;
+    const d2 = Math.hypot(diffX, diffY);
+    if (d2 < this.#min) {
+      return false;
+    }
+    const diffD = d2 - this.#min_dist;
+    const K3 = diffD / d2;
+    const shiftX = K3 * diffX;
+    const shiftY = K3 * diffY;
+    let x0 = x1;
+    let y0 = y1;
+    x1 = x22;
+    y1 = y22;
+    x22 += shiftX;
+    y22 += shiftY;
+    this.#points?.push(x2, y4);
+    const nX = -shiftY / diffD;
+    const nY = shiftX / diffD;
+    const thX = nX * this.#thickness;
+    const thY = nY * this.#thickness;
+    this.#last.set(this.#last.subarray(2, 8), 0);
+    this.#last.set([x22 + thX, y22 + thY], 4);
+    this.#last.set(this.#last.subarray(14, 18), 12);
+    this.#last.set([x22 - thX, y22 - thY], 16);
+    if (isNaN(this.#last[6])) {
+      if (this.#top.length === 0) {
+        this.#last.set([x1 + thX, y1 + thY], 2);
+        this.#top.push(NaN, NaN, NaN, NaN, (x1 + thX - layerX) / layerWidth, (y1 + thY - layerY) / layerHeight);
+        this.#last.set([x1 - thX, y1 - thY], 14);
+        this.#bottom.push(NaN, NaN, NaN, NaN, (x1 - thX - layerX) / layerWidth, (y1 - thY - layerY) / layerHeight);
+      }
+      this.#last.set([x0, y0, x1, y1, x22, y22], 6);
+      return !this.isEmpty();
+    }
+    this.#last.set([x0, y0, x1, y1, x22, y22], 6);
+    const angle = Math.abs(Math.atan2(y0 - y1, x0 - x1) - Math.atan2(shiftY, shiftX));
+    if (angle < Math.PI / 2) {
+      [x1, y1, x22, y22] = this.#last.subarray(2, 6);
+      this.#top.push(NaN, NaN, NaN, NaN, ((x1 + x22) / 2 - layerX) / layerWidth, ((y1 + y22) / 2 - layerY) / layerHeight);
+      [x1, y1, x0, y0] = this.#last.subarray(14, 18);
+      this.#bottom.push(NaN, NaN, NaN, NaN, ((x0 + x1) / 2 - layerX) / layerWidth, ((y0 + y1) / 2 - layerY) / layerHeight);
+      return true;
+    }
+    [x0, y0, x1, y1, x22, y22] = this.#last.subarray(0, 6);
+    this.#top.push(((x0 + 5 * x1) / 6 - layerX) / layerWidth, ((y0 + 5 * y1) / 6 - layerY) / layerHeight, ((5 * x1 + x22) / 6 - layerX) / layerWidth, ((5 * y1 + y22) / 6 - layerY) / layerHeight, ((x1 + x22) / 2 - layerX) / layerWidth, ((y1 + y22) / 2 - layerY) / layerHeight);
+    [x22, y22, x1, y1, x0, y0] = this.#last.subarray(12, 18);
+    this.#bottom.push(((x0 + 5 * x1) / 6 - layerX) / layerWidth, ((y0 + 5 * y1) / 6 - layerY) / layerHeight, ((5 * x1 + x22) / 6 - layerX) / layerWidth, ((5 * y1 + y22) / 6 - layerY) / layerHeight, ((x1 + x22) / 2 - layerX) / layerWidth, ((y1 + y22) / 2 - layerY) / layerHeight);
+    return true;
+  }
+  toSVGPath() {
+    if (this.isEmpty()) {
+      return "";
+    }
+    const top2 = this.#top;
+    const bottom = this.#bottom;
+    if (isNaN(this.#last[6]) && !this.isEmpty()) {
+      return this.#toSVGPathTwoPoints();
+    }
+    const buffer = [];
+    buffer.push(`M${top2[4]} ${top2[5]}`);
+    for (let i2 = 6; i2 < top2.length; i2 += 6) {
+      if (isNaN(top2[i2])) {
+        buffer.push(`L${top2[i2 + 4]} ${top2[i2 + 5]}`);
+      } else {
+        buffer.push(`C${top2[i2]} ${top2[i2 + 1]} ${top2[i2 + 2]} ${top2[i2 + 3]} ${top2[i2 + 4]} ${top2[i2 + 5]}`);
+      }
+    }
+    this.#toSVGPathEnd(buffer);
+    for (let i2 = bottom.length - 6; i2 >= 6; i2 -= 6) {
+      if (isNaN(bottom[i2])) {
+        buffer.push(`L${bottom[i2 + 4]} ${bottom[i2 + 5]}`);
+      } else {
+        buffer.push(`C${bottom[i2]} ${bottom[i2 + 1]} ${bottom[i2 + 2]} ${bottom[i2 + 3]} ${bottom[i2 + 4]} ${bottom[i2 + 5]}`);
+      }
+    }
+    this.#toSVGPathStart(buffer);
+    return buffer.join(" ");
+  }
+  #toSVGPathTwoPoints() {
+    const [x2, y4, width, height] = this.#box;
+    const [lastTopX, lastTopY, lastBottomX, lastBottomY] = this.#getLastCoords();
+    return `M${(this.#last[2] - x2) / width} ${(this.#last[3] - y4) / height} L${(this.#last[4] - x2) / width} ${(this.#last[5] - y4) / height} L${lastTopX} ${lastTopY} L${lastBottomX} ${lastBottomY} L${(this.#last[16] - x2) / width} ${(this.#last[17] - y4) / height} L${(this.#last[14] - x2) / width} ${(this.#last[15] - y4) / height} Z`;
+  }
+  #toSVGPathStart(buffer) {
+    const bottom = this.#bottom;
+    buffer.push(`L${bottom[4]} ${bottom[5]} Z`);
+  }
+  #toSVGPathEnd(buffer) {
+    const [x2, y4, width, height] = this.#box;
+    const lastTop = this.#last.subarray(4, 6);
+    const lastBottom = this.#last.subarray(16, 18);
+    const [lastTopX, lastTopY, lastBottomX, lastBottomY] = this.#getLastCoords();
+    buffer.push(`L${(lastTop[0] - x2) / width} ${(lastTop[1] - y4) / height} L${lastTopX} ${lastTopY} L${lastBottomX} ${lastBottomY} L${(lastBottom[0] - x2) / width} ${(lastBottom[1] - y4) / height}`);
+  }
+  newFreeDrawOutline(outline, points, box2, scaleFactor, innerMargin, isLTR) {
+    return new FreeDrawOutline(outline, points, box2, scaleFactor, innerMargin, isLTR);
+  }
+  getOutlines() {
+    const top2 = this.#top;
+    const bottom = this.#bottom;
+    const last2 = this.#last;
+    const [layerX, layerY, layerWidth, layerHeight] = this.#box;
+    const points = new Float32Array((this.#points?.length ?? 0) + 2);
+    for (let i2 = 0, ii = points.length - 2; i2 < ii; i2 += 2) {
+      points[i2] = (this.#points[i2] - layerX) / layerWidth;
+      points[i2 + 1] = (this.#points[i2 + 1] - layerY) / layerHeight;
+    }
+    points[points.length - 2] = (this.#lastX - layerX) / layerWidth;
+    points[points.length - 1] = (this.#lastY - layerY) / layerHeight;
+    if (isNaN(last2[6]) && !this.isEmpty()) {
+      return this.#getOutlineTwoPoints(points);
+    }
+    const outline = new Float32Array(this.#top.length + 24 + this.#bottom.length);
+    let N2 = top2.length;
+    for (let i2 = 0; i2 < N2; i2 += 2) {
+      if (isNaN(top2[i2])) {
+        outline[i2] = outline[i2 + 1] = NaN;
+        continue;
+      }
+      outline[i2] = top2[i2];
+      outline[i2 + 1] = top2[i2 + 1];
+    }
+    N2 = this.#getOutlineEnd(outline, N2);
+    for (let i2 = bottom.length - 6; i2 >= 6; i2 -= 6) {
+      for (let j2 = 0; j2 < 6; j2 += 2) {
+        if (isNaN(bottom[i2 + j2])) {
+          outline[N2] = outline[N2 + 1] = NaN;
+          N2 += 2;
+          continue;
+        }
+        outline[N2] = bottom[i2 + j2];
+        outline[N2 + 1] = bottom[i2 + j2 + 1];
+        N2 += 2;
+      }
+    }
+    this.#getOutlineStart(outline, N2);
+    return this.newFreeDrawOutline(outline, points, this.#box, this.#scaleFactor, this.#innerMargin, this.#isLTR);
+  }
+  #getOutlineTwoPoints(points) {
+    const last2 = this.#last;
+    const [layerX, layerY, layerWidth, layerHeight] = this.#box;
+    const [lastTopX, lastTopY, lastBottomX, lastBottomY] = this.#getLastCoords();
+    const outline = new Float32Array(36);
+    outline.set([NaN, NaN, NaN, NaN, (last2[2] - layerX) / layerWidth, (last2[3] - layerY) / layerHeight, NaN, NaN, NaN, NaN, (last2[4] - layerX) / layerWidth, (last2[5] - layerY) / layerHeight, NaN, NaN, NaN, NaN, lastTopX, lastTopY, NaN, NaN, NaN, NaN, lastBottomX, lastBottomY, NaN, NaN, NaN, NaN, (last2[16] - layerX) / layerWidth, (last2[17] - layerY) / layerHeight, NaN, NaN, NaN, NaN, (last2[14] - layerX) / layerWidth, (last2[15] - layerY) / layerHeight], 0);
+    return this.newFreeDrawOutline(outline, points, this.#box, this.#scaleFactor, this.#innerMargin, this.#isLTR);
+  }
+  #getOutlineStart(outline, pos) {
+    const bottom = this.#bottom;
+    outline.set([NaN, NaN, NaN, NaN, bottom[4], bottom[5]], pos);
+    return pos += 6;
+  }
+  #getOutlineEnd(outline, pos) {
+    const lastTop = this.#last.subarray(4, 6);
+    const lastBottom = this.#last.subarray(16, 18);
+    const [layerX, layerY, layerWidth, layerHeight] = this.#box;
+    const [lastTopX, lastTopY, lastBottomX, lastBottomY] = this.#getLastCoords();
+    outline.set([NaN, NaN, NaN, NaN, (lastTop[0] - layerX) / layerWidth, (lastTop[1] - layerY) / layerHeight, NaN, NaN, NaN, NaN, lastTopX, lastTopY, NaN, NaN, NaN, NaN, lastBottomX, lastBottomY, NaN, NaN, NaN, NaN, (lastBottom[0] - layerX) / layerWidth, (lastBottom[1] - layerY) / layerHeight], pos);
+    return pos += 24;
+  }
+}
+class FreeDrawOutline extends Outline {
+  #box;
+  #bbox = new Float32Array(4);
+  #innerMargin;
+  #isLTR;
+  #points;
+  #scaleFactor;
+  #outline;
+  constructor(outline, points, box2, scaleFactor, innerMargin, isLTR) {
+    super();
+    this.#outline = outline;
+    this.#points = points;
+    this.#box = box2;
+    this.#scaleFactor = scaleFactor;
+    this.#innerMargin = innerMargin;
+    this.#isLTR = isLTR;
+    this.lastPoint = [NaN, NaN];
+    this.#computeMinMax(isLTR);
+    const [x2, y4, width, height] = this.#bbox;
+    for (let i2 = 0, ii = outline.length; i2 < ii; i2 += 2) {
+      outline[i2] = (outline[i2] - x2) / width;
+      outline[i2 + 1] = (outline[i2 + 1] - y4) / height;
+    }
+    for (let i2 = 0, ii = points.length; i2 < ii; i2 += 2) {
+      points[i2] = (points[i2] - x2) / width;
+      points[i2 + 1] = (points[i2 + 1] - y4) / height;
+    }
+  }
+  toSVGPath() {
+    const buffer = [`M${this.#outline[4]} ${this.#outline[5]}`];
+    for (let i2 = 6, ii = this.#outline.length; i2 < ii; i2 += 6) {
+      if (isNaN(this.#outline[i2])) {
+        buffer.push(`L${this.#outline[i2 + 4]} ${this.#outline[i2 + 5]}`);
+        continue;
+      }
+      buffer.push(`C${this.#outline[i2]} ${this.#outline[i2 + 1]} ${this.#outline[i2 + 2]} ${this.#outline[i2 + 3]} ${this.#outline[i2 + 4]} ${this.#outline[i2 + 5]}`);
+    }
+    buffer.push("Z");
+    return buffer.join(" ");
+  }
+  serialize([blX, blY, trX, trY], rotation) {
+    const width = trX - blX;
+    const height = trY - blY;
+    let outline;
+    let points;
+    switch (rotation) {
+      case 0:
+        outline = Outline._rescale(this.#outline, blX, trY, width, -height);
+        points = Outline._rescale(this.#points, blX, trY, width, -height);
+        break;
+      case 90:
+        outline = Outline._rescaleAndSwap(this.#outline, blX, blY, width, height);
+        points = Outline._rescaleAndSwap(this.#points, blX, blY, width, height);
+        break;
+      case 180:
+        outline = Outline._rescale(this.#outline, trX, blY, -width, height);
+        points = Outline._rescale(this.#points, trX, blY, -width, height);
+        break;
+      case 270:
+        outline = Outline._rescaleAndSwap(this.#outline, trX, trY, -width, -height);
+        points = Outline._rescaleAndSwap(this.#points, trX, trY, -width, -height);
+        break;
+    }
+    return {
+      outline: Array.from(outline),
+      points: [Array.from(points)]
+    };
+  }
+  #computeMinMax(isLTR) {
+    const outline = this.#outline;
+    let lastX = outline[4];
+    let lastY = outline[5];
+    let minX = lastX;
+    let minY = lastY;
+    let maxX = lastX;
+    let maxY = lastY;
+    let lastPointX = lastX;
+    let lastPointY = lastY;
+    const ltrCallback = isLTR ? Math.max : Math.min;
+    for (let i2 = 6, ii = outline.length; i2 < ii; i2 += 6) {
+      if (isNaN(outline[i2])) {
+        minX = Math.min(minX, outline[i2 + 4]);
+        minY = Math.min(minY, outline[i2 + 5]);
+        maxX = Math.max(maxX, outline[i2 + 4]);
+        maxY = Math.max(maxY, outline[i2 + 5]);
+        if (lastPointY < outline[i2 + 5]) {
+          lastPointX = outline[i2 + 4];
+          lastPointY = outline[i2 + 5];
+        } else if (lastPointY === outline[i2 + 5]) {
+          lastPointX = ltrCallback(lastPointX, outline[i2 + 4]);
+        }
+      } else {
+        const bbox2 = Util.bezierBoundingBox(lastX, lastY, ...outline.slice(i2, i2 + 6));
+        minX = Math.min(minX, bbox2[0]);
+        minY = Math.min(minY, bbox2[1]);
+        maxX = Math.max(maxX, bbox2[2]);
+        maxY = Math.max(maxY, bbox2[3]);
+        if (lastPointY < bbox2[3]) {
+          lastPointX = bbox2[2];
+          lastPointY = bbox2[3];
+        } else if (lastPointY === bbox2[3]) {
+          lastPointX = ltrCallback(lastPointX, bbox2[2]);
+        }
+      }
+      lastX = outline[i2 + 4];
+      lastY = outline[i2 + 5];
+    }
+    const bbox = this.#bbox;
+    bbox[0] = minX - this.#innerMargin;
+    bbox[1] = minY - this.#innerMargin;
+    bbox[2] = maxX - minX + 2 * this.#innerMargin;
+    bbox[3] = maxY - minY + 2 * this.#innerMargin;
+    this.lastPoint = [lastPointX, lastPointY];
+  }
+  get box() {
+    return this.#bbox;
+  }
+  newOutliner(point2, box2, scaleFactor, thickness, isLTR, innerMargin = 0) {
+    return new FreeDrawOutliner(point2, box2, scaleFactor, thickness, isLTR, innerMargin);
+  }
+  getNewOutline(thickness, innerMargin) {
+    const [x2, y4, width, height] = this.#bbox;
+    const [layerX, layerY, layerWidth, layerHeight] = this.#box;
+    const sx = width * layerWidth;
+    const sy = height * layerHeight;
+    const tx = x2 * layerWidth + layerX;
+    const ty = y4 * layerHeight + layerY;
+    const outliner = this.newOutliner({
+      x: this.#points[0] * sx + tx,
+      y: this.#points[1] * sy + ty
+    }, this.#box, this.#scaleFactor, thickness, this.#isLTR, innerMargin ?? this.#innerMargin);
+    for (let i2 = 2; i2 < this.#points.length; i2 += 2) {
+      outliner.add({
+        x: this.#points[i2] * sx + tx,
+        y: this.#points[i2 + 1] * sy + ty
+      });
+    }
+    return outliner.getOutlines();
+  }
+}
+class HighlightOutliner {
+  #box;
+  #lastPoint;
+  #verticalEdges = [];
+  #intervals = [];
+  constructor(boxes, borderWidth = 0, innerMargin = 0, isLTR = true) {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    const EPSILON2 = 10 ** -4;
+    for (const {
+      x: x2,
+      y: y4,
+      width,
+      height
+    } of boxes) {
+      const x1 = Math.floor((x2 - borderWidth) / EPSILON2) * EPSILON2;
+      const x22 = Math.ceil((x2 + width + borderWidth) / EPSILON2) * EPSILON2;
+      const y1 = Math.floor((y4 - borderWidth) / EPSILON2) * EPSILON2;
+      const y22 = Math.ceil((y4 + height + borderWidth) / EPSILON2) * EPSILON2;
+      const left = [x1, y1, y22, true];
+      const right = [x22, y1, y22, false];
+      this.#verticalEdges.push(left, right);
+      minX = Math.min(minX, x1);
+      maxX = Math.max(maxX, x22);
+      minY = Math.min(minY, y1);
+      maxY = Math.max(maxY, y22);
+    }
+    const bboxWidth = maxX - minX + 2 * innerMargin;
+    const bboxHeight = maxY - minY + 2 * innerMargin;
+    const shiftedMinX = minX - innerMargin;
+    const shiftedMinY = minY - innerMargin;
+    const lastEdge = this.#verticalEdges.at(isLTR ? -1 : -2);
+    const lastPoint = [lastEdge[0], lastEdge[2]];
+    for (const edge of this.#verticalEdges) {
+      const [x2, y1, y22] = edge;
+      edge[0] = (x2 - shiftedMinX) / bboxWidth;
+      edge[1] = (y1 - shiftedMinY) / bboxHeight;
+      edge[2] = (y22 - shiftedMinY) / bboxHeight;
+    }
+    this.#box = new Float32Array([shiftedMinX, shiftedMinY, bboxWidth, bboxHeight]);
+    this.#lastPoint = lastPoint;
+  }
+  getOutlines() {
+    this.#verticalEdges.sort((a2, b3) => a2[0] - b3[0] || a2[1] - b3[1] || a2[2] - b3[2]);
+    const outlineVerticalEdges = [];
+    for (const edge of this.#verticalEdges) {
+      if (edge[3]) {
+        outlineVerticalEdges.push(...this.#breakEdge(edge));
+        this.#insert(edge);
+      } else {
+        this.#remove(edge);
+        outlineVerticalEdges.push(...this.#breakEdge(edge));
+      }
+    }
+    return this.#getOutlines(outlineVerticalEdges);
+  }
+  #getOutlines(outlineVerticalEdges) {
+    const edges = [];
+    const allEdges = /* @__PURE__ */new Set();
+    for (const edge of outlineVerticalEdges) {
+      const [x2, y1, y22] = edge;
+      edges.push([x2, y1, edge], [x2, y22, edge]);
+    }
+    edges.sort((a2, b3) => a2[1] - b3[1] || a2[0] - b3[0]);
+    for (let i2 = 0, ii = edges.length; i2 < ii; i2 += 2) {
+      const edge1 = edges[i2][2];
+      const edge2 = edges[i2 + 1][2];
+      edge1.push(edge2);
+      edge2.push(edge1);
+      allEdges.add(edge1);
+      allEdges.add(edge2);
+    }
+    const outlines = [];
+    let outline;
+    while (allEdges.size > 0) {
+      const edge = allEdges.values().next().value;
+      let [x2, y1, y22, edge1, edge2] = edge;
+      allEdges.delete(edge);
+      let lastPointX = x2;
+      let lastPointY = y1;
+      outline = [x2, y22];
+      outlines.push(outline);
+      while (true) {
+        let e2;
+        if (allEdges.has(edge1)) {
+          e2 = edge1;
+        } else if (allEdges.has(edge2)) {
+          e2 = edge2;
+        } else {
+          break;
+        }
+        allEdges.delete(e2);
+        [x2, y1, y22, edge1, edge2] = e2;
+        if (lastPointX !== x2) {
+          outline.push(lastPointX, lastPointY, x2, lastPointY === y1 ? y1 : y22);
+          lastPointX = x2;
+        }
+        lastPointY = lastPointY === y1 ? y22 : y1;
+      }
+      outline.push(lastPointX, lastPointY);
+    }
+    return new HighlightOutline(outlines, this.#box, this.#lastPoint);
+  }
+  #binarySearch(y4) {
+    const array2 = this.#intervals;
+    let start2 = 0;
+    let end2 = array2.length - 1;
+    while (start2 <= end2) {
+      const middle = start2 + end2 >> 1;
+      const y1 = array2[middle][0];
+      if (y1 === y4) {
+        return middle;
+      }
+      if (y1 < y4) {
+        start2 = middle + 1;
+      } else {
+        end2 = middle - 1;
+      }
+    }
+    return end2 + 1;
+  }
+  #insert([, y1, y22]) {
+    const index2 = this.#binarySearch(y1);
+    this.#intervals.splice(index2, 0, [y1, y22]);
+  }
+  #remove([, y1, y22]) {
+    const index2 = this.#binarySearch(y1);
+    for (let i2 = index2; i2 < this.#intervals.length; i2++) {
+      const [start2, end2] = this.#intervals[i2];
+      if (start2 !== y1) {
+        break;
+      }
+      if (start2 === y1 && end2 === y22) {
+        this.#intervals.splice(i2, 1);
+        return;
+      }
+    }
+    for (let i2 = index2 - 1; i2 >= 0; i2--) {
+      const [start2, end2] = this.#intervals[i2];
+      if (start2 !== y1) {
+        break;
+      }
+      if (start2 === y1 && end2 === y22) {
+        this.#intervals.splice(i2, 1);
+        return;
+      }
+    }
+  }
+  #breakEdge(edge) {
+    const [x2, y1, y22] = edge;
+    const results = [[x2, y1, y22]];
+    const index2 = this.#binarySearch(y22);
+    for (let i2 = 0; i2 < index2; i2++) {
+      const [start2, end2] = this.#intervals[i2];
+      for (let j2 = 0, jj = results.length; j2 < jj; j2++) {
+        const [, y32, y4] = results[j2];
+        if (end2 <= y32 || y4 <= start2) {
+          continue;
+        }
+        if (y32 >= start2) {
+          if (y4 > end2) {
+            results[j2][1] = end2;
+          } else {
+            if (jj === 1) {
+              return [];
+            }
+            results.splice(j2, 1);
+            j2--;
+            jj--;
+          }
+          continue;
+        }
+        results[j2][2] = start2;
+        if (y4 > end2) {
+          results.push([x2, end2, y4]);
+        }
+      }
+    }
+    return results;
+  }
+}
+class HighlightOutline extends Outline {
+  #box;
+  #outlines;
+  constructor(outlines, box2, lastPoint) {
+    super();
+    this.#outlines = outlines;
+    this.#box = box2;
+    this.lastPoint = lastPoint;
+  }
+  toSVGPath() {
+    const buffer = [];
+    for (const polygon of this.#outlines) {
+      let [prevX, prevY] = polygon;
+      buffer.push(`M${prevX} ${prevY}`);
+      for (let i2 = 2; i2 < polygon.length; i2 += 2) {
+        const x2 = polygon[i2];
+        const y4 = polygon[i2 + 1];
+        if (x2 === prevX) {
+          buffer.push(`V${y4}`);
+          prevY = y4;
+        } else if (y4 === prevY) {
+          buffer.push(`H${x2}`);
+          prevX = x2;
+        }
+      }
+      buffer.push("Z");
+    }
+    return buffer.join(" ");
+  }
+  serialize([blX, blY, trX, trY], _rotation) {
+    const outlines = [];
+    const width = trX - blX;
+    const height = trY - blY;
+    for (const outline of this.#outlines) {
+      const points = new Array(outline.length);
+      for (let i2 = 0; i2 < outline.length; i2 += 2) {
+        points[i2] = blX + outline[i2] * width;
+        points[i2 + 1] = trY - outline[i2 + 1] * height;
+      }
+      outlines.push(points);
+    }
+    return outlines;
+  }
+  get box() {
+    return this.#box;
+  }
+  get classNamesForOutlining() {
+    return ["highlightOutline"];
+  }
+}
+class FreeHighlightOutliner extends FreeDrawOutliner {
+  newFreeDrawOutline(outline, points, box2, scaleFactor, innerMargin, isLTR) {
+    return new FreeHighlightOutline(outline, points, box2, scaleFactor, innerMargin, isLTR);
+  }
+}
+class FreeHighlightOutline extends FreeDrawOutline {
+  newOutliner(point2, box2, scaleFactor, thickness, isLTR, innerMargin = 0) {
+    return new FreeHighlightOutliner(point2, box2, scaleFactor, thickness, isLTR, innerMargin);
+  }
+}
+class ColorPicker {
+  #button = null;
+  #buttonSwatch = null;
+  #defaultColor;
+  #dropdown = null;
+  #dropdownWasFromKeyboard = false;
+  #isMainColorPicker = false;
+  #editor = null;
+  #eventBus;
+  #openDropdownAC = null;
+  #uiManager = null;
+  #type;
+  static #l10nColor = null;
+  static get _keyboardManager() {
+    return shadow(this, "_keyboardManager", new KeyboardManager([[["Escape", "mac+Escape"], ColorPicker.prototype._hideDropdownFromKeyboard], [[" ", "mac+ "], ColorPicker.prototype._colorSelectFromKeyboard], [["ArrowDown", "ArrowRight", "mac+ArrowDown", "mac+ArrowRight"], ColorPicker.prototype._moveToNext], [["ArrowUp", "ArrowLeft", "mac+ArrowUp", "mac+ArrowLeft"], ColorPicker.prototype._moveToPrevious], [["Home", "mac+Home"], ColorPicker.prototype._moveToBeginning], [["End", "mac+End"], ColorPicker.prototype._moveToEnd]]));
+  }
+  constructor({
+    editor = null,
+    uiManager = null
+  }) {
+    if (editor) {
+      this.#isMainColorPicker = false;
+      this.#type = AnnotationEditorParamsType.HIGHLIGHT_COLOR;
+      this.#editor = editor;
+    } else {
+      this.#isMainColorPicker = true;
+      this.#type = AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR;
+    }
+    this.#uiManager = editor?._uiManager || uiManager;
+    this.#eventBus = this.#uiManager._eventBus;
+    this.#defaultColor = editor?.color || this.#uiManager?.highlightColors.values().next().value || "#FFFF98";
+    ColorPicker.#l10nColor ||= Object.freeze({
+      blue: "pdfjs-editor-colorpicker-blue",
+      green: "pdfjs-editor-colorpicker-green",
+      pink: "pdfjs-editor-colorpicker-pink",
+      red: "pdfjs-editor-colorpicker-red",
+      yellow: "pdfjs-editor-colorpicker-yellow"
+    });
+  }
+  renderButton() {
+    const button = this.#button = document.createElement("button");
+    button.className = "colorPicker";
+    button.tabIndex = "0";
+    button.setAttribute("data-l10n-id", "pdfjs-editor-colorpicker-button");
+    button.setAttribute("aria-haspopup", true);
+    const signal = this.#uiManager._signal;
+    button.addEventListener("click", this.#openDropdown.bind(this), {
+      signal
+    });
+    button.addEventListener("keydown", this.#keyDown.bind(this), {
+      signal
+    });
+    const swatch = this.#buttonSwatch = document.createElement("span");
+    swatch.className = "swatch";
+    swatch.setAttribute("aria-hidden", true);
+    swatch.style.backgroundColor = this.#defaultColor;
+    button.append(swatch);
+    return button;
+  }
+  renderMainDropdown() {
+    const dropdown = this.#dropdown = this.#getDropdownRoot();
+    dropdown.setAttribute("aria-orientation", "horizontal");
+    dropdown.setAttribute("aria-labelledby", "highlightColorPickerLabel");
+    return dropdown;
+  }
+  #getDropdownRoot() {
+    const div = document.createElement("div");
+    const signal = this.#uiManager._signal;
+    div.addEventListener("contextmenu", noContextMenu, {
+      signal
+    });
+    div.className = "dropdown";
+    div.role = "listbox";
+    div.setAttribute("aria-multiselectable", false);
+    div.setAttribute("aria-orientation", "vertical");
+    div.setAttribute("data-l10n-id", "pdfjs-editor-colorpicker-dropdown");
+    for (const [name2, color2] of this.#uiManager.highlightColors) {
+      const button = document.createElement("button");
+      button.tabIndex = "0";
+      button.role = "option";
+      button.setAttribute("data-color", color2);
+      button.title = name2;
+      button.setAttribute("data-l10n-id", ColorPicker.#l10nColor[name2]);
+      const swatch = document.createElement("span");
+      button.append(swatch);
+      swatch.className = "swatch";
+      swatch.style.backgroundColor = color2;
+      button.setAttribute("aria-selected", color2 === this.#defaultColor);
+      button.addEventListener("click", this.#colorSelect.bind(this, color2), {
+        signal
+      });
+      div.append(button);
+    }
+    div.addEventListener("keydown", this.#keyDown.bind(this), {
+      signal
+    });
+    return div;
+  }
+  #colorSelect(color2, event) {
+    event.stopPropagation();
+    this.#eventBus.dispatch("switchannotationeditorparams", {
+      source: this,
+      type: this.#type,
+      value: color2
+    });
+  }
+  _colorSelectFromKeyboard(event) {
+    if (event.target === this.#button) {
+      this.#openDropdown(event);
+      return;
+    }
+    const color2 = event.target.getAttribute("data-color");
+    if (!color2) {
+      return;
+    }
+    this.#colorSelect(color2, event);
+  }
+  _moveToNext(event) {
+    if (!this.#isDropdownVisible) {
+      this.#openDropdown(event);
+      return;
+    }
+    if (event.target === this.#button) {
+      this.#dropdown.firstChild?.focus();
+      return;
+    }
+    event.target.nextSibling?.focus();
+  }
+  _moveToPrevious(event) {
+    if (event.target === this.#dropdown?.firstChild || event.target === this.#button) {
+      if (this.#isDropdownVisible) {
+        this._hideDropdownFromKeyboard();
+      }
+      return;
+    }
+    if (!this.#isDropdownVisible) {
+      this.#openDropdown(event);
+    }
+    event.target.previousSibling?.focus();
+  }
+  _moveToBeginning(event) {
+    if (!this.#isDropdownVisible) {
+      this.#openDropdown(event);
+      return;
+    }
+    this.#dropdown.firstChild?.focus();
+  }
+  _moveToEnd(event) {
+    if (!this.#isDropdownVisible) {
+      this.#openDropdown(event);
+      return;
+    }
+    this.#dropdown.lastChild?.focus();
+  }
+  #keyDown(event) {
+    ColorPicker._keyboardManager.exec(this, event);
+  }
+  #openDropdown(event) {
+    if (this.#isDropdownVisible) {
+      this.hideDropdown();
+      return;
+    }
+    this.#dropdownWasFromKeyboard = event.detail === 0;
+    if (!this.#openDropdownAC) {
+      this.#openDropdownAC = new AbortController();
+      window.addEventListener("pointerdown", this.#pointerDown.bind(this), {
+        signal: this.#uiManager.combinedSignal(this.#openDropdownAC)
+      });
+    }
+    if (this.#dropdown) {
+      this.#dropdown.classList.remove("hidden");
+      return;
+    }
+    const root2 = this.#dropdown = this.#getDropdownRoot();
+    this.#button.append(root2);
+  }
+  #pointerDown(event) {
+    if (this.#dropdown?.contains(event.target)) {
+      return;
+    }
+    this.hideDropdown();
+  }
+  hideDropdown() {
+    this.#dropdown?.classList.add("hidden");
+    this.#openDropdownAC?.abort();
+    this.#openDropdownAC = null;
+  }
+  get #isDropdownVisible() {
+    return this.#dropdown && !this.#dropdown.classList.contains("hidden");
+  }
+  _hideDropdownFromKeyboard() {
+    if (this.#isMainColorPicker) {
+      return;
+    }
+    if (!this.#isDropdownVisible) {
+      this.#editor?.unselect();
+      return;
+    }
+    this.hideDropdown();
+    this.#button.focus({
+      preventScroll: true,
+      focusVisible: this.#dropdownWasFromKeyboard
+    });
+  }
+  updateColor(color2) {
+    if (this.#buttonSwatch) {
+      this.#buttonSwatch.style.backgroundColor = color2;
+    }
+    if (!this.#dropdown) {
+      return;
+    }
+    const i2 = this.#uiManager.highlightColors.values();
+    for (const child of this.#dropdown.children) {
+      child.setAttribute("aria-selected", i2.next().value === color2);
+    }
+  }
+  destroy() {
+    this.#button?.remove();
+    this.#button = null;
+    this.#buttonSwatch = null;
+    this.#dropdown?.remove();
+    this.#dropdown = null;
+  }
+}
+class HighlightEditor extends AnnotationEditor {
+  #anchorNode = null;
+  #anchorOffset = 0;
+  #boxes;
+  #clipPathId = null;
+  #colorPicker = null;
+  #focusOutlines = null;
+  #focusNode = null;
+  #focusOffset = 0;
+  #highlightDiv = null;
+  #highlightOutlines = null;
+  #id = null;
+  #isFreeHighlight = false;
+  #lastPoint = null;
+  #opacity;
+  #outlineId = null;
+  #text = "";
+  #thickness;
+  #methodOfCreation = "";
+  static _defaultColor = null;
+  static _defaultOpacity = 1;
+  static _defaultThickness = 12;
+  static _type = "highlight";
+  static _editorType = AnnotationEditorType.HIGHLIGHT;
+  static _freeHighlightId = -1;
+  static _freeHighlight = null;
+  static _freeHighlightClipId = "";
+  static get _keyboardManager() {
+    const proto2 = HighlightEditor.prototype;
+    return shadow(this, "_keyboardManager", new KeyboardManager([[["ArrowLeft", "mac+ArrowLeft"], proto2._moveCaret, {
+      args: [0]
+    }], [["ArrowRight", "mac+ArrowRight"], proto2._moveCaret, {
+      args: [1]
+    }], [["ArrowUp", "mac+ArrowUp"], proto2._moveCaret, {
+      args: [2]
+    }], [["ArrowDown", "mac+ArrowDown"], proto2._moveCaret, {
+      args: [3]
+    }]]));
+  }
+  constructor(params) {
+    super({
+      ...params,
+      name: "highlightEditor"
+    });
+    this.color = params.color || HighlightEditor._defaultColor;
+    this.#thickness = params.thickness || HighlightEditor._defaultThickness;
+    this.#opacity = params.opacity || HighlightEditor._defaultOpacity;
+    this.#boxes = params.boxes || null;
+    this.#methodOfCreation = params.methodOfCreation || "";
+    this.#text = params.text || "";
+    this._isDraggable = false;
+    if (params.highlightId > -1) {
+      this.#isFreeHighlight = true;
+      this.#createFreeOutlines(params);
+      this.#addToDrawLayer();
+    } else if (this.#boxes) {
+      this.#anchorNode = params.anchorNode;
+      this.#anchorOffset = params.anchorOffset;
+      this.#focusNode = params.focusNode;
+      this.#focusOffset = params.focusOffset;
+      this.#createOutlines();
+      this.#addToDrawLayer();
+      this.rotate(this.rotation);
+    }
+  }
+  get telemetryInitialData() {
+    return {
+      action: "added",
+      type: this.#isFreeHighlight ? "free_highlight" : "highlight",
+      color: this._uiManager.highlightColorNames.get(this.color),
+      thickness: this.#thickness,
+      methodOfCreation: this.#methodOfCreation
+    };
+  }
+  get telemetryFinalData() {
+    return {
+      type: "highlight",
+      color: this._uiManager.highlightColorNames.get(this.color)
+    };
+  }
+  static computeTelemetryFinalData(data2) {
+    return {
+      numberOfColors: data2.get("color").size
+    };
+  }
+  #createOutlines() {
+    const outliner = new HighlightOutliner(this.#boxes, 1e-3);
+    this.#highlightOutlines = outliner.getOutlines();
+    [this.x, this.y, this.width, this.height] = this.#highlightOutlines.box;
+    const outlinerForOutline = new HighlightOutliner(this.#boxes, 25e-4, 1e-3, this._uiManager.direction === "ltr");
+    this.#focusOutlines = outlinerForOutline.getOutlines();
+    const {
+      lastPoint
+    } = this.#focusOutlines;
+    this.#lastPoint = [(lastPoint[0] - this.x) / this.width, (lastPoint[1] - this.y) / this.height];
+  }
+  #createFreeOutlines({
+    highlightOutlines,
+    highlightId,
+    clipPathId
+  }) {
+    this.#highlightOutlines = highlightOutlines;
+    const extraThickness = 1.5;
+    this.#focusOutlines = highlightOutlines.getNewOutline(this.#thickness / 2 + extraThickness, 25e-4);
+    if (highlightId >= 0) {
+      this.#id = highlightId;
+      this.#clipPathId = clipPathId;
+      this.parent.drawLayer.finalizeDraw(highlightId, {
+        bbox: highlightOutlines.box,
+        path: {
+          d: highlightOutlines.toSVGPath()
+        }
+      });
+      this.#outlineId = this.parent.drawLayer.drawOutline({
+        rootClass: {
+          highlightOutline: true,
+          free: true
+        },
+        bbox: this.#focusOutlines.box,
+        path: {
+          d: this.#focusOutlines.toSVGPath()
+        }
+      }, true);
+    } else if (this.parent) {
+      const angle = this.parent.viewport.rotation;
+      this.parent.drawLayer.updateProperties(this.#id, {
+        bbox: HighlightEditor.#rotateBbox(this.#highlightOutlines.box, (angle - this.rotation + 360) % 360),
+        path: {
+          d: highlightOutlines.toSVGPath()
+        }
+      });
+      this.parent.drawLayer.updateProperties(this.#outlineId, {
+        bbox: HighlightEditor.#rotateBbox(this.#focusOutlines.box, angle),
+        path: {
+          d: this.#focusOutlines.toSVGPath()
+        }
+      });
+    }
+    const [x2, y4, width, height] = highlightOutlines.box;
+    switch (this.rotation) {
+      case 0:
+        this.x = x2;
+        this.y = y4;
+        this.width = width;
+        this.height = height;
+        break;
+      case 90:
+        {
+          const [pageWidth, pageHeight] = this.parentDimensions;
+          this.x = y4;
+          this.y = 1 - x2;
+          this.width = width * pageHeight / pageWidth;
+          this.height = height * pageWidth / pageHeight;
+          break;
+        }
+      case 180:
+        this.x = 1 - x2;
+        this.y = 1 - y4;
+        this.width = width;
+        this.height = height;
+        break;
+      case 270:
+        {
+          const [pageWidth, pageHeight] = this.parentDimensions;
+          this.x = 1 - y4;
+          this.y = x2;
+          this.width = width * pageHeight / pageWidth;
+          this.height = height * pageWidth / pageHeight;
+          break;
+        }
+    }
+    const {
+      lastPoint
+    } = this.#focusOutlines;
+    this.#lastPoint = [(lastPoint[0] - x2) / width, (lastPoint[1] - y4) / height];
+  }
+  static initialize(l10n, uiManager) {
+    AnnotationEditor.initialize(l10n, uiManager);
+    HighlightEditor._defaultColor ||= uiManager.highlightColors?.values().next().value || "#fff066";
+  }
+  static updateDefaultParams(type2, value) {
+    switch (type2) {
+      case AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR:
+        HighlightEditor._defaultColor = value;
+        break;
+      case AnnotationEditorParamsType.HIGHLIGHT_THICKNESS:
+        HighlightEditor._defaultThickness = value;
+        break;
+    }
+  }
+  translateInPage(x2, y4) {}
+  get toolbarPosition() {
+    return this.#lastPoint;
+  }
+  updateParams(type2, value) {
+    switch (type2) {
+      case AnnotationEditorParamsType.HIGHLIGHT_COLOR:
+        this.#updateColor(value);
+        break;
+      case AnnotationEditorParamsType.HIGHLIGHT_THICKNESS:
+        this.#updateThickness(value);
+        break;
+    }
+  }
+  static get defaultPropertiesToUpdate() {
+    return [[AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR, HighlightEditor._defaultColor], [AnnotationEditorParamsType.HIGHLIGHT_THICKNESS, HighlightEditor._defaultThickness]];
+  }
+  get propertiesToUpdate() {
+    return [[AnnotationEditorParamsType.HIGHLIGHT_COLOR, this.color || HighlightEditor._defaultColor], [AnnotationEditorParamsType.HIGHLIGHT_THICKNESS, this.#thickness || HighlightEditor._defaultThickness], [AnnotationEditorParamsType.HIGHLIGHT_FREE, this.#isFreeHighlight]];
+  }
+  #updateColor(color2) {
+    const setColorAndOpacity = (col, opa) => {
+      this.color = col;
+      this.#opacity = opa;
+      this.parent?.drawLayer.updateProperties(this.#id, {
+        root: {
+          fill: col,
+          "fill-opacity": opa
+        }
+      });
+      this.#colorPicker?.updateColor(col);
+    };
+    const savedColor = this.color;
+    const savedOpacity = this.#opacity;
+    this.addCommands({
+      cmd: setColorAndOpacity.bind(this, color2, HighlightEditor._defaultOpacity),
+      undo: setColorAndOpacity.bind(this, savedColor, savedOpacity),
+      post: this._uiManager.updateUI.bind(this._uiManager, this),
+      mustExec: true,
+      type: AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+      overwriteIfSameType: true,
+      keepUndo: true
+    });
+    this._reportTelemetry({
+      action: "color_changed",
+      color: this._uiManager.highlightColorNames.get(color2)
+    }, true);
+  }
+  #updateThickness(thickness) {
+    const savedThickness = this.#thickness;
+    const setThickness = th => {
+      this.#thickness = th;
+      this.#changeThickness(th);
+    };
+    this.addCommands({
+      cmd: setThickness.bind(this, thickness),
+      undo: setThickness.bind(this, savedThickness),
+      post: this._uiManager.updateUI.bind(this._uiManager, this),
+      mustExec: true,
+      type: AnnotationEditorParamsType.INK_THICKNESS,
+      overwriteIfSameType: true,
+      keepUndo: true
+    });
+    this._reportTelemetry({
+      action: "thickness_changed",
+      thickness
+    }, true);
+  }
+  async addEditToolbar() {
+    const toolbar = await super.addEditToolbar();
+    if (!toolbar) {
+      return null;
+    }
+    if (this._uiManager.highlightColors) {
+      this.#colorPicker = new ColorPicker({
+        editor: this
+      });
+      toolbar.addColorPicker(this.#colorPicker);
+    }
+    return toolbar;
+  }
+  disableEditing() {
+    super.disableEditing();
+    this.div.classList.toggle("disabled", true);
+  }
+  enableEditing() {
+    super.enableEditing();
+    this.div.classList.toggle("disabled", false);
+  }
+  fixAndSetPosition() {
+    return super.fixAndSetPosition(this.#getRotation());
+  }
+  getBaseTranslation() {
+    return [0, 0];
+  }
+  getRect(tx, ty) {
+    return super.getRect(tx, ty, this.#getRotation());
+  }
+  onceAdded(focus2) {
+    if (!this.annotationElementId) {
+      this.parent.addUndoableEditor(this);
+    }
+    if (focus2) {
+      this.div.focus();
+    }
+  }
+  remove() {
+    this.#cleanDrawLayer();
+    this._reportTelemetry({
+      action: "deleted"
+    });
+    super.remove();
+  }
+  rebuild() {
+    if (!this.parent) {
+      return;
+    }
+    super.rebuild();
+    if (this.div === null) {
+      return;
+    }
+    this.#addToDrawLayer();
+    if (!this.isAttachedToDOM) {
+      this.parent.add(this);
+    }
+  }
+  setParent(parent) {
+    let mustBeSelected = false;
+    if (this.parent && !parent) {
+      this.#cleanDrawLayer();
+    } else if (parent) {
+      this.#addToDrawLayer(parent);
+      mustBeSelected = !this.parent && this.div?.classList.contains("selectedEditor");
+    }
+    super.setParent(parent);
+    this.show(this._isVisible);
+    if (mustBeSelected) {
+      this.select();
+    }
+  }
+  #changeThickness(thickness) {
+    if (!this.#isFreeHighlight) {
+      return;
+    }
+    this.#createFreeOutlines({
+      highlightOutlines: this.#highlightOutlines.getNewOutline(thickness / 2)
+    });
+    this.fixAndSetPosition();
+    const [parentWidth, parentHeight] = this.parentDimensions;
+    this.setDims(this.width * parentWidth, this.height * parentHeight);
+  }
+  #cleanDrawLayer() {
+    if (this.#id === null || !this.parent) {
+      return;
+    }
+    this.parent.drawLayer.remove(this.#id);
+    this.#id = null;
+    this.parent.drawLayer.remove(this.#outlineId);
+    this.#outlineId = null;
+  }
+  #addToDrawLayer(parent = this.parent) {
+    if (this.#id !== null) {
+      return;
+    }
+    ({
+      id: this.#id,
+      clipPathId: this.#clipPathId
+    } = parent.drawLayer.draw({
+      bbox: this.#highlightOutlines.box,
+      root: {
+        viewBox: "0 0 1 1",
+        fill: this.color,
+        "fill-opacity": this.#opacity
+      },
+      rootClass: {
+        highlight: true,
+        free: this.#isFreeHighlight
+      },
+      path: {
+        d: this.#highlightOutlines.toSVGPath()
+      }
+    }, false, true));
+    this.#outlineId = parent.drawLayer.drawOutline({
+      rootClass: {
+        highlightOutline: true,
+        free: this.#isFreeHighlight
+      },
+      bbox: this.#focusOutlines.box,
+      path: {
+        d: this.#focusOutlines.toSVGPath()
+      }
+    }, this.#isFreeHighlight);
+    if (this.#highlightDiv) {
+      this.#highlightDiv.style.clipPath = this.#clipPathId;
+    }
+  }
+  static #rotateBbox([x2, y4, width, height], angle) {
+    switch (angle) {
+      case 90:
+        return [1 - y4 - height, x2, height, width];
+      case 180:
+        return [1 - x2 - width, 1 - y4 - height, width, height];
+      case 270:
+        return [y4, 1 - x2 - width, height, width];
+    }
+    return [x2, y4, width, height];
+  }
+  rotate(angle) {
+    const {
+      drawLayer
+    } = this.parent;
+    let box2;
+    if (this.#isFreeHighlight) {
+      angle = (angle - this.rotation + 360) % 360;
+      box2 = HighlightEditor.#rotateBbox(this.#highlightOutlines.box, angle);
+    } else {
+      box2 = HighlightEditor.#rotateBbox([this.x, this.y, this.width, this.height], angle);
+    }
+    drawLayer.updateProperties(this.#id, {
+      bbox: box2,
+      root: {
+        "data-main-rotation": angle
+      }
+    });
+    drawLayer.updateProperties(this.#outlineId, {
+      bbox: HighlightEditor.#rotateBbox(this.#focusOutlines.box, angle),
+      root: {
+        "data-main-rotation": angle
+      }
+    });
+  }
+  render() {
+    if (this.div) {
+      return this.div;
+    }
+    const div = super.render();
+    if (this.#text) {
+      div.setAttribute("aria-label", this.#text);
+      div.setAttribute("role", "mark");
+    }
+    if (this.#isFreeHighlight) {
+      div.classList.add("free");
+    } else {
+      this.div.addEventListener("keydown", this.#keydown.bind(this), {
+        signal: this._uiManager._signal
+      });
+    }
+    const highlightDiv = this.#highlightDiv = document.createElement("div");
+    div.append(highlightDiv);
+    highlightDiv.setAttribute("aria-hidden", "true");
+    highlightDiv.className = "internal";
+    highlightDiv.style.clipPath = this.#clipPathId;
+    const [parentWidth, parentHeight] = this.parentDimensions;
+    this.setDims(this.width * parentWidth, this.height * parentHeight);
+    bindEvents(this, this.#highlightDiv, ["pointerover", "pointerleave"]);
+    this.enableEditing();
+    return div;
+  }
+  pointerover() {
+    if (!this.isSelected) {
+      this.parent?.drawLayer.updateProperties(this.#outlineId, {
+        rootClass: {
+          hovered: true
+        }
+      });
+    }
+  }
+  pointerleave() {
+    if (!this.isSelected) {
+      this.parent?.drawLayer.updateProperties(this.#outlineId, {
+        rootClass: {
+          hovered: false
+        }
+      });
+    }
+  }
+  #keydown(event) {
+    HighlightEditor._keyboardManager.exec(this, event);
+  }
+  _moveCaret(direction) {
+    this.parent.unselect(this);
+    switch (direction) {
+      case 0:
+      case 2:
+        this.#setCaret(true);
+        break;
+      case 1:
+      case 3:
+        this.#setCaret(false);
+        break;
+    }
+  }
+  #setCaret(start2) {
+    if (!this.#anchorNode) {
+      return;
+    }
+    const selection2 = window.getSelection();
+    if (start2) {
+      selection2.setPosition(this.#anchorNode, this.#anchorOffset);
+    } else {
+      selection2.setPosition(this.#focusNode, this.#focusOffset);
+    }
+  }
+  select() {
+    super.select();
+    if (!this.#outlineId) {
+      return;
+    }
+    this.parent?.drawLayer.updateProperties(this.#outlineId, {
+      rootClass: {
+        hovered: false,
+        selected: true
+      }
+    });
+  }
+  unselect() {
+    super.unselect();
+    if (!this.#outlineId) {
+      return;
+    }
+    this.parent?.drawLayer.updateProperties(this.#outlineId, {
+      rootClass: {
+        selected: false
+      }
+    });
+    if (!this.#isFreeHighlight) {
+      this.#setCaret(false);
+    }
+  }
+  get _mustFixPosition() {
+    return !this.#isFreeHighlight;
+  }
+  show(visible = this._isVisible) {
+    super.show(visible);
+    if (this.parent) {
+      this.parent.drawLayer.updateProperties(this.#id, {
+        rootClass: {
+          hidden: !visible
+        }
+      });
+      this.parent.drawLayer.updateProperties(this.#outlineId, {
+        rootClass: {
+          hidden: !visible
+        }
+      });
+    }
+  }
+  #getRotation() {
+    return this.#isFreeHighlight ? this.rotation : 0;
+  }
+  #serializeBoxes() {
+    if (this.#isFreeHighlight) {
+      return null;
+    }
+    const [pageWidth, pageHeight] = this.pageDimensions;
+    const [pageX, pageY] = this.pageTranslation;
+    const boxes = this.#boxes;
+    const quadPoints = new Float32Array(boxes.length * 8);
+    let i2 = 0;
+    for (const {
+      x: x2,
+      y: y4,
+      width,
+      height
+    } of boxes) {
+      const sx = x2 * pageWidth + pageX;
+      const sy = (1 - y4) * pageHeight + pageY;
+      quadPoints[i2] = quadPoints[i2 + 4] = sx;
+      quadPoints[i2 + 1] = quadPoints[i2 + 3] = sy;
+      quadPoints[i2 + 2] = quadPoints[i2 + 6] = sx + width * pageWidth;
+      quadPoints[i2 + 5] = quadPoints[i2 + 7] = sy - height * pageHeight;
+      i2 += 8;
+    }
+    return quadPoints;
+  }
+  #serializeOutlines(rect) {
+    return this.#highlightOutlines.serialize(rect, this.#getRotation());
+  }
+  static startHighlighting(parent, isLTR, {
+    target: textLayer,
+    x: x2,
+    y: y4
+  }) {
+    const {
+      x: layerX,
+      y: layerY,
+      width: parentWidth,
+      height: parentHeight
+    } = textLayer.getBoundingClientRect();
+    const ac = new AbortController();
+    const signal = parent.combinedSignal(ac);
+    const pointerUpCallback = e2 => {
+      ac.abort();
+      this.#endHighlight(parent, e2);
+    };
+    window.addEventListener("blur", pointerUpCallback, {
+      signal
+    });
+    window.addEventListener("pointerup", pointerUpCallback, {
+      signal
+    });
+    window.addEventListener("pointerdown", stopEvent, {
+      capture: true,
+      passive: false,
+      signal
+    });
+    window.addEventListener("contextmenu", noContextMenu, {
+      signal
+    });
+    textLayer.addEventListener("pointermove", this.#highlightMove.bind(this, parent), {
+      signal
+    });
+    this._freeHighlight = new FreeHighlightOutliner({
+      x: x2,
+      y: y4
+    }, [layerX, layerY, parentWidth, parentHeight], parent.scale, this._defaultThickness / 2, isLTR, 1e-3);
+    ({
+      id: this._freeHighlightId,
+      clipPathId: this._freeHighlightClipId
+    } = parent.drawLayer.draw({
+      bbox: [0, 0, 1, 1],
+      root: {
+        viewBox: "0 0 1 1",
+        fill: this._defaultColor,
+        "fill-opacity": this._defaultOpacity
+      },
+      rootClass: {
+        highlight: true,
+        free: true
+      },
+      path: {
+        d: this._freeHighlight.toSVGPath()
+      }
+    }, true, true));
+  }
+  static #highlightMove(parent, event) {
+    if (this._freeHighlight.add(event)) {
+      parent.drawLayer.updateProperties(this._freeHighlightId, {
+        path: {
+          d: this._freeHighlight.toSVGPath()
+        }
+      });
+    }
+  }
+  static #endHighlight(parent, event) {
+    if (!this._freeHighlight.isEmpty()) {
+      parent.createAndAddNewEditor(event, false, {
+        highlightId: this._freeHighlightId,
+        highlightOutlines: this._freeHighlight.getOutlines(),
+        clipPathId: this._freeHighlightClipId,
+        methodOfCreation: "main_toolbar"
+      });
+    } else {
+      parent.drawLayer.remove(this._freeHighlightId);
+    }
+    this._freeHighlightId = -1;
+    this._freeHighlight = null;
+    this._freeHighlightClipId = "";
+  }
+  static async deserialize(data2, parent, uiManager) {
+    let initialData = null;
+    if (data2 instanceof HighlightAnnotationElement) {
+      const {
+        data: {
+          quadPoints: quadPoints2,
+          rect,
+          rotation,
+          id: id2,
+          color: color3,
+          opacity: opacity2,
+          popupRef
+        },
+        parent: {
+          page: {
+            pageNumber
+          }
+        }
+      } = data2;
+      initialData = data2 = {
+        annotationType: AnnotationEditorType.HIGHLIGHT,
+        color: Array.from(color3),
+        opacity: opacity2,
+        quadPoints: quadPoints2,
+        boxes: null,
+        pageIndex: pageNumber - 1,
+        rect: rect.slice(0),
+        rotation,
+        id: id2,
+        deleted: false,
+        popupRef
+      };
+    } else if (data2 instanceof InkAnnotationElement) {
+      const {
+        data: {
+          inkLists: inkLists2,
+          rect,
+          rotation,
+          id: id2,
+          color: color3,
+          borderStyle: {
+            rawWidth: thickness
+          },
+          popupRef
+        },
+        parent: {
+          page: {
+            pageNumber
+          }
+        }
+      } = data2;
+      initialData = data2 = {
+        annotationType: AnnotationEditorType.HIGHLIGHT,
+        color: Array.from(color3),
+        thickness,
+        inkLists: inkLists2,
+        boxes: null,
+        pageIndex: pageNumber - 1,
+        rect: rect.slice(0),
+        rotation,
+        id: id2,
+        deleted: false,
+        popupRef
+      };
+    }
+    const {
+      color: color2,
+      quadPoints,
+      inkLists,
+      opacity
+    } = data2;
+    const editor = await super.deserialize(data2, parent, uiManager);
+    editor.color = Util.makeHexColor(...color2);
+    editor.#opacity = opacity || 1;
+    if (inkLists) {
+      editor.#thickness = data2.thickness;
+    }
+    editor.annotationElementId = data2.id || null;
+    editor._initialData = initialData;
+    const [pageWidth, pageHeight] = editor.pageDimensions;
+    const [pageX, pageY] = editor.pageTranslation;
+    if (quadPoints) {
+      const boxes = editor.#boxes = [];
+      for (let i2 = 0; i2 < quadPoints.length; i2 += 8) {
+        boxes.push({
+          x: (quadPoints[i2] - pageX) / pageWidth,
+          y: 1 - (quadPoints[i2 + 1] - pageY) / pageHeight,
+          width: (quadPoints[i2 + 2] - quadPoints[i2]) / pageWidth,
+          height: (quadPoints[i2 + 1] - quadPoints[i2 + 5]) / pageHeight
+        });
+      }
+      editor.#createOutlines();
+      editor.#addToDrawLayer();
+      editor.rotate(editor.rotation);
+    } else if (inkLists) {
+      editor.#isFreeHighlight = true;
+      const points = inkLists[0];
+      const point2 = {
+        x: points[0] - pageX,
+        y: pageHeight - (points[1] - pageY)
+      };
+      const outliner = new FreeHighlightOutliner(point2, [0, 0, pageWidth, pageHeight], 1, editor.#thickness / 2, true, 1e-3);
+      for (let i2 = 0, ii = points.length; i2 < ii; i2 += 2) {
+        point2.x = points[i2] - pageX;
+        point2.y = pageHeight - (points[i2 + 1] - pageY);
+        outliner.add(point2);
+      }
+      const {
+        id: id2,
+        clipPathId
+      } = parent.drawLayer.draw({
+        bbox: [0, 0, 1, 1],
+        root: {
+          viewBox: "0 0 1 1",
+          fill: editor.color,
+          "fill-opacity": editor._defaultOpacity
+        },
+        rootClass: {
+          highlight: true,
+          free: true
+        },
+        path: {
+          d: outliner.toSVGPath()
+        }
+      }, true, true);
+      editor.#createFreeOutlines({
+        highlightOutlines: outliner.getOutlines(),
+        highlightId: id2,
+        clipPathId
+      });
+      editor.#addToDrawLayer();
+    }
+    return editor;
+  }
+  serialize(isForCopying = false) {
+    if (this.isEmpty() || isForCopying) {
+      return null;
+    }
+    if (this.deleted) {
+      return this.serializeDeleted();
+    }
+    const rect = this.getRect(0, 0);
+    const color2 = AnnotationEditor._colorManager.convert(this.color);
+    const serialized = {
+      annotationType: AnnotationEditorType.HIGHLIGHT,
+      color: color2,
+      opacity: this.#opacity,
+      thickness: this.#thickness,
+      quadPoints: this.#serializeBoxes(),
+      outlines: this.#serializeOutlines(rect),
+      pageIndex: this.pageIndex,
+      rect,
+      rotation: this.#getRotation(),
+      structTreeParentId: this._structTreeParentId
+    };
+    if (this.annotationElementId && !this.#hasElementChanged(serialized)) {
+      return null;
+    }
+    serialized.id = this.annotationElementId;
+    return serialized;
+  }
+  #hasElementChanged(serialized) {
+    const {
+      color: color2
+    } = this._initialData;
+    return serialized.color.some((c3, i2) => c3 !== color2[i2]);
+  }
+  renderAnnotationElement(annotation) {
+    annotation.updateEdited({
+      rect: this.getRect(0, 0)
+    });
+    return null;
+  }
+  static canCreateNewEmptyEditor() {
+    return false;
   }
 }
 class DrawingOptions {
@@ -70883,6 +80439,664 @@ class DrawingEditor extends AnnotationEditor {
     return false;
   }
 }
+class InkDrawOutliner {
+  #last = new Float64Array(6);
+  #line;
+  #lines;
+  #rotation;
+  #thickness;
+  #points;
+  #lastSVGPath = "";
+  #lastIndex = 0;
+  #outlines = new InkDrawOutline();
+  #parentWidth;
+  #parentHeight;
+  constructor(x2, y4, parentWidth, parentHeight, rotation, thickness) {
+    this.#parentWidth = parentWidth;
+    this.#parentHeight = parentHeight;
+    this.#rotation = rotation;
+    this.#thickness = thickness;
+    [x2, y4] = this.#normalizePoint(x2, y4);
+    const line = this.#line = [NaN, NaN, NaN, NaN, x2, y4];
+    this.#points = [x2, y4];
+    this.#lines = [{
+      line,
+      points: this.#points
+    }];
+    this.#last.set(line, 0);
+  }
+  updateProperty(name2, value) {
+    if (name2 === "stroke-width") {
+      this.#thickness = value;
+    }
+  }
+  #normalizePoint(x2, y4) {
+    return Outline._normalizePoint(x2, y4, this.#parentWidth, this.#parentHeight, this.#rotation);
+  }
+  isEmpty() {
+    return !this.#lines || this.#lines.length === 0;
+  }
+  isCancellable() {
+    return this.#points.length <= 10;
+  }
+  add(x2, y4) {
+    [x2, y4] = this.#normalizePoint(x2, y4);
+    const [x1, y1, x22, y22] = this.#last.subarray(2, 6);
+    const diffX = x2 - x22;
+    const diffY = y4 - y22;
+    const d2 = Math.hypot(this.#parentWidth * diffX, this.#parentHeight * diffY);
+    if (d2 <= 2) {
+      return null;
+    }
+    this.#points.push(x2, y4);
+    if (isNaN(x1)) {
+      this.#last.set([x22, y22, x2, y4], 2);
+      this.#line.push(NaN, NaN, NaN, NaN, x2, y4);
+      return {
+        path: {
+          d: this.toSVGPath()
+        }
+      };
+    }
+    if (isNaN(this.#last[0])) {
+      this.#line.splice(6, 6);
+    }
+    this.#last.set([x1, y1, x22, y22, x2, y4], 0);
+    this.#line.push(...Outline.createBezierPoints(x1, y1, x22, y22, x2, y4));
+    return {
+      path: {
+        d: this.toSVGPath()
+      }
+    };
+  }
+  end(x2, y4) {
+    const change = this.add(x2, y4);
+    if (change) {
+      return change;
+    }
+    if (this.#points.length === 2) {
+      return {
+        path: {
+          d: this.toSVGPath()
+        }
+      };
+    }
+    return null;
+  }
+  startNew(x2, y4, parentWidth, parentHeight, rotation) {
+    this.#parentWidth = parentWidth;
+    this.#parentHeight = parentHeight;
+    this.#rotation = rotation;
+    [x2, y4] = this.#normalizePoint(x2, y4);
+    const line = this.#line = [NaN, NaN, NaN, NaN, x2, y4];
+    this.#points = [x2, y4];
+    const last2 = this.#lines.at(-1);
+    if (last2) {
+      last2.line = new Float32Array(last2.line);
+      last2.points = new Float32Array(last2.points);
+    }
+    this.#lines.push({
+      line,
+      points: this.#points
+    });
+    this.#last.set(line, 0);
+    this.#lastIndex = 0;
+    this.toSVGPath();
+    return null;
+  }
+  getLastElement() {
+    return this.#lines.at(-1);
+  }
+  setLastElement(element2) {
+    if (!this.#lines) {
+      return this.#outlines.setLastElement(element2);
+    }
+    this.#lines.push(element2);
+    this.#line = element2.line;
+    this.#points = element2.points;
+    this.#lastIndex = 0;
+    return {
+      path: {
+        d: this.toSVGPath()
+      }
+    };
+  }
+  removeLastElement() {
+    if (!this.#lines) {
+      return this.#outlines.removeLastElement();
+    }
+    this.#lines.pop();
+    this.#lastSVGPath = "";
+    for (let i2 = 0, ii = this.#lines.length; i2 < ii; i2++) {
+      const {
+        line,
+        points
+      } = this.#lines[i2];
+      this.#line = line;
+      this.#points = points;
+      this.#lastIndex = 0;
+      this.toSVGPath();
+    }
+    return {
+      path: {
+        d: this.#lastSVGPath
+      }
+    };
+  }
+  toSVGPath() {
+    const firstX = Outline.svgRound(this.#line[4]);
+    const firstY = Outline.svgRound(this.#line[5]);
+    if (this.#points.length === 2) {
+      this.#lastSVGPath = `${this.#lastSVGPath} M ${firstX} ${firstY} Z`;
+      return this.#lastSVGPath;
+    }
+    if (this.#points.length <= 6) {
+      const i2 = this.#lastSVGPath.lastIndexOf("M");
+      this.#lastSVGPath = `${this.#lastSVGPath.slice(0, i2)} M ${firstX} ${firstY}`;
+      this.#lastIndex = 6;
+    }
+    if (this.#points.length === 4) {
+      const secondX = Outline.svgRound(this.#line[10]);
+      const secondY = Outline.svgRound(this.#line[11]);
+      this.#lastSVGPath = `${this.#lastSVGPath} L ${secondX} ${secondY}`;
+      this.#lastIndex = 12;
+      return this.#lastSVGPath;
+    }
+    const buffer = [];
+    if (this.#lastIndex === 0) {
+      buffer.push(`M ${firstX} ${firstY}`);
+      this.#lastIndex = 6;
+    }
+    for (let i2 = this.#lastIndex, ii = this.#line.length; i2 < ii; i2 += 6) {
+      const [c1x, c1y, c2x, c2y, x2, y4] = this.#line.slice(i2, i2 + 6).map(Outline.svgRound);
+      buffer.push(`C${c1x} ${c1y} ${c2x} ${c2y} ${x2} ${y4}`);
+    }
+    this.#lastSVGPath += buffer.join(" ");
+    this.#lastIndex = this.#line.length;
+    return this.#lastSVGPath;
+  }
+  getOutlines(parentWidth, parentHeight, scale2, innerMargin) {
+    const last2 = this.#lines.at(-1);
+    last2.line = new Float32Array(last2.line);
+    last2.points = new Float32Array(last2.points);
+    this.#outlines.build(this.#lines, parentWidth, parentHeight, scale2, this.#rotation, this.#thickness, innerMargin);
+    this.#last = null;
+    this.#line = null;
+    this.#lines = null;
+    this.#lastSVGPath = null;
+    return this.#outlines;
+  }
+  get defaultSVGProperties() {
+    return {
+      root: {
+        viewBox: "0 0 10000 10000"
+      },
+      rootClass: {
+        draw: true
+      },
+      bbox: [0, 0, 1, 1]
+    };
+  }
+}
+class InkDrawOutline extends Outline {
+  #bbox;
+  #currentRotation = 0;
+  #innerMargin;
+  #lines;
+  #parentWidth;
+  #parentHeight;
+  #parentScale;
+  #rotation;
+  #thickness;
+  build(lines, parentWidth, parentHeight, parentScale, rotation, thickness, innerMargin) {
+    this.#parentWidth = parentWidth;
+    this.#parentHeight = parentHeight;
+    this.#parentScale = parentScale;
+    this.#rotation = rotation;
+    this.#thickness = thickness;
+    this.#innerMargin = innerMargin ?? 0;
+    this.#lines = lines;
+    this.#computeBbox();
+  }
+  setLastElement(element2) {
+    this.#lines.push(element2);
+    return {
+      path: {
+        d: this.toSVGPath()
+      }
+    };
+  }
+  removeLastElement() {
+    this.#lines.pop();
+    return {
+      path: {
+        d: this.toSVGPath()
+      }
+    };
+  }
+  toSVGPath() {
+    const buffer = [];
+    for (const {
+      line
+    } of this.#lines) {
+      buffer.push(`M${Outline.svgRound(line[4])} ${Outline.svgRound(line[5])}`);
+      if (line.length === 6) {
+        buffer.push("Z");
+        continue;
+      }
+      if (line.length === 12) {
+        buffer.push(`L${Outline.svgRound(line[10])} ${Outline.svgRound(line[11])}`);
+        continue;
+      }
+      for (let i2 = 6, ii = line.length; i2 < ii; i2 += 6) {
+        const [c1x, c1y, c2x, c2y, x2, y4] = line.subarray(i2, i2 + 6).map(Outline.svgRound);
+        buffer.push(`C${c1x} ${c1y} ${c2x} ${c2y} ${x2} ${y4}`);
+      }
+    }
+    return buffer.join("");
+  }
+  serialize([pageX, pageY, pageWidth, pageHeight], isForCopying) {
+    const serializedLines = [];
+    const serializedPoints = [];
+    const [x2, y4, width, height] = this.#getBBoxWithNoMargin();
+    let tx, ty, sx, sy, x1, y1, x22, y22, rescaleFn;
+    switch (this.#rotation) {
+      case 0:
+        rescaleFn = Outline._rescale;
+        tx = pageX;
+        ty = pageY + pageHeight;
+        sx = pageWidth;
+        sy = -pageHeight;
+        x1 = pageX + x2 * pageWidth;
+        y1 = pageY + (1 - y4 - height) * pageHeight;
+        x22 = pageX + (x2 + width) * pageWidth;
+        y22 = pageY + (1 - y4) * pageHeight;
+        break;
+      case 90:
+        rescaleFn = Outline._rescaleAndSwap;
+        tx = pageX;
+        ty = pageY;
+        sx = pageWidth;
+        sy = pageHeight;
+        x1 = pageX + y4 * pageWidth;
+        y1 = pageY + x2 * pageHeight;
+        x22 = pageX + (y4 + height) * pageWidth;
+        y22 = pageY + (x2 + width) * pageHeight;
+        break;
+      case 180:
+        rescaleFn = Outline._rescale;
+        tx = pageX + pageWidth;
+        ty = pageY;
+        sx = -pageWidth;
+        sy = pageHeight;
+        x1 = pageX + (1 - x2 - width) * pageWidth;
+        y1 = pageY + y4 * pageHeight;
+        x22 = pageX + (1 - x2) * pageWidth;
+        y22 = pageY + (y4 + height) * pageHeight;
+        break;
+      case 270:
+        rescaleFn = Outline._rescaleAndSwap;
+        tx = pageX + pageWidth;
+        ty = pageY + pageHeight;
+        sx = -pageWidth;
+        sy = -pageHeight;
+        x1 = pageX + (1 - y4 - height) * pageWidth;
+        y1 = pageY + (1 - x2 - width) * pageHeight;
+        x22 = pageX + (1 - y4) * pageWidth;
+        y22 = pageY + (1 - x2) * pageHeight;
+        break;
+    }
+    for (const {
+      line,
+      points
+    } of this.#lines) {
+      serializedLines.push(rescaleFn(line, tx, ty, sx, sy, isForCopying ? new Array(line.length) : null));
+      serializedPoints.push(rescaleFn(points, tx, ty, sx, sy, isForCopying ? new Array(points.length) : null));
+    }
+    return {
+      lines: serializedLines,
+      points: serializedPoints,
+      rect: [x1, y1, x22, y22]
+    };
+  }
+  static deserialize(pageX, pageY, pageWidth, pageHeight, innerMargin, {
+    paths: {
+      lines,
+      points
+    },
+    rotation,
+    thickness
+  }) {
+    const newLines = [];
+    let tx, ty, sx, sy, rescaleFn;
+    switch (rotation) {
+      case 0:
+        rescaleFn = Outline._rescale;
+        tx = -pageX / pageWidth;
+        ty = pageY / pageHeight + 1;
+        sx = 1 / pageWidth;
+        sy = -1 / pageHeight;
+        break;
+      case 90:
+        rescaleFn = Outline._rescaleAndSwap;
+        tx = -pageY / pageHeight;
+        ty = -pageX / pageWidth;
+        sx = 1 / pageHeight;
+        sy = 1 / pageWidth;
+        break;
+      case 180:
+        rescaleFn = Outline._rescale;
+        tx = pageX / pageWidth + 1;
+        ty = -pageY / pageHeight;
+        sx = -1 / pageWidth;
+        sy = 1 / pageHeight;
+        break;
+      case 270:
+        rescaleFn = Outline._rescaleAndSwap;
+        tx = pageY / pageHeight + 1;
+        ty = pageX / pageWidth + 1;
+        sx = -1 / pageHeight;
+        sy = -1 / pageWidth;
+        break;
+    }
+    if (!lines) {
+      lines = [];
+      for (const point2 of points) {
+        const len = point2.length;
+        if (len === 2) {
+          lines.push(new Float32Array([NaN, NaN, NaN, NaN, point2[0], point2[1]]));
+          continue;
+        }
+        if (len === 4) {
+          lines.push(new Float32Array([NaN, NaN, NaN, NaN, point2[0], point2[1], NaN, NaN, NaN, NaN, point2[2], point2[3]]));
+          continue;
+        }
+        const line = new Float32Array(3 * (len - 2));
+        lines.push(line);
+        let [x1, y1, x2, y22] = point2.subarray(0, 4);
+        line.set([NaN, NaN, NaN, NaN, x1, y1], 0);
+        for (let i2 = 4; i2 < len; i2 += 2) {
+          const x3 = point2[i2];
+          const y4 = point2[i2 + 1];
+          line.set(Outline.createBezierPoints(x1, y1, x2, y22, x3, y4), (i2 - 2) * 3);
+          [x1, y1, x2, y22] = [x2, y22, x3, y4];
+        }
+      }
+    }
+    for (let i2 = 0, ii = lines.length; i2 < ii; i2++) {
+      newLines.push({
+        line: rescaleFn(lines[i2].map(x2 => x2 ?? NaN), tx, ty, sx, sy),
+        points: rescaleFn(points[i2].map(x2 => x2 ?? NaN), tx, ty, sx, sy)
+      });
+    }
+    const outlines = new InkDrawOutline();
+    outlines.build(newLines, pageWidth, pageHeight, 1, rotation, thickness, innerMargin);
+    return outlines;
+  }
+  #getMarginComponents(thickness = this.#thickness) {
+    const margin = this.#innerMargin + thickness / 2 * this.#parentScale;
+    return this.#rotation % 180 === 0 ? [margin / this.#parentWidth, margin / this.#parentHeight] : [margin / this.#parentHeight, margin / this.#parentWidth];
+  }
+  #getBBoxWithNoMargin() {
+    const [x2, y4, width, height] = this.#bbox;
+    const [marginX, marginY] = this.#getMarginComponents(0);
+    return [x2 + marginX, y4 + marginY, width - 2 * marginX, height - 2 * marginY];
+  }
+  #computeBbox() {
+    const bbox = this.#bbox = new Float32Array([Infinity, Infinity, -Infinity, -Infinity]);
+    for (const {
+      line
+    } of this.#lines) {
+      if (line.length <= 12) {
+        for (let i2 = 4, ii = line.length; i2 < ii; i2 += 6) {
+          const [x2, y4] = line.subarray(i2, i2 + 2);
+          bbox[0] = Math.min(bbox[0], x2);
+          bbox[1] = Math.min(bbox[1], y4);
+          bbox[2] = Math.max(bbox[2], x2);
+          bbox[3] = Math.max(bbox[3], y4);
+        }
+        continue;
+      }
+      let lastX = line[4],
+        lastY = line[5];
+      for (let i2 = 6, ii = line.length; i2 < ii; i2 += 6) {
+        const [c1x, c1y, c2x, c2y, x2, y4] = line.subarray(i2, i2 + 6);
+        Util.bezierBoundingBox(lastX, lastY, c1x, c1y, c2x, c2y, x2, y4, bbox);
+        lastX = x2;
+        lastY = y4;
+      }
+    }
+    const [marginX, marginY] = this.#getMarginComponents();
+    bbox[0] = Math.min(1, Math.max(0, bbox[0] - marginX));
+    bbox[1] = Math.min(1, Math.max(0, bbox[1] - marginY));
+    bbox[2] = Math.min(1, Math.max(0, bbox[2] + marginX));
+    bbox[3] = Math.min(1, Math.max(0, bbox[3] + marginY));
+    bbox[2] -= bbox[0];
+    bbox[3] -= bbox[1];
+  }
+  get box() {
+    return this.#bbox;
+  }
+  updateProperty(name2, value) {
+    if (name2 === "stroke-width") {
+      return this.#updateThickness(value);
+    }
+    return null;
+  }
+  #updateThickness(thickness) {
+    const [oldMarginX, oldMarginY] = this.#getMarginComponents();
+    this.#thickness = thickness;
+    const [newMarginX, newMarginY] = this.#getMarginComponents();
+    const [diffMarginX, diffMarginY] = [newMarginX - oldMarginX, newMarginY - oldMarginY];
+    const bbox = this.#bbox;
+    bbox[0] -= diffMarginX;
+    bbox[1] -= diffMarginY;
+    bbox[2] += 2 * diffMarginX;
+    bbox[3] += 2 * diffMarginY;
+    return bbox;
+  }
+  updateParentDimensions([width, height], scale2) {
+    const [oldMarginX, oldMarginY] = this.#getMarginComponents();
+    this.#parentWidth = width;
+    this.#parentHeight = height;
+    this.#parentScale = scale2;
+    const [newMarginX, newMarginY] = this.#getMarginComponents();
+    const diffMarginX = newMarginX - oldMarginX;
+    const diffMarginY = newMarginY - oldMarginY;
+    const bbox = this.#bbox;
+    bbox[0] -= diffMarginX;
+    bbox[1] -= diffMarginY;
+    bbox[2] += 2 * diffMarginX;
+    bbox[3] += 2 * diffMarginY;
+    return bbox;
+  }
+  updateRotation(rotation) {
+    this.#currentRotation = rotation;
+    return {
+      path: {
+        transform: this.rotationTransform
+      }
+    };
+  }
+  get viewBox() {
+    return this.#bbox.map(Outline.svgRound).join(" ");
+  }
+  get defaultProperties() {
+    const [x2, y4] = this.#bbox;
+    return {
+      root: {
+        viewBox: this.viewBox
+      },
+      path: {
+        "transform-origin": `${Outline.svgRound(x2)} ${Outline.svgRound(y4)}`
+      }
+    };
+  }
+  get rotationTransform() {
+    const [,, width, height] = this.#bbox;
+    let a2 = 0,
+      b3 = 0,
+      c3 = 0,
+      d2 = 0,
+      e2 = 0,
+      f2 = 0;
+    switch (this.#currentRotation) {
+      case 90:
+        b3 = height / width;
+        c3 = -width / height;
+        e2 = width;
+        break;
+      case 180:
+        a2 = -1;
+        d2 = -1;
+        e2 = width;
+        f2 = height;
+        break;
+      case 270:
+        b3 = -height / width;
+        c3 = width / height;
+        f2 = height;
+        break;
+      default:
+        return "";
+    }
+    return `matrix(${a2} ${b3} ${c3} ${d2} ${Outline.svgRound(e2)} ${Outline.svgRound(f2)})`;
+  }
+  getPathResizingSVGProperties([newX, newY, newWidth, newHeight]) {
+    const [marginX, marginY] = this.#getMarginComponents();
+    const [x2, y4, width, height] = this.#bbox;
+    if (Math.abs(width - marginX) <= Outline.PRECISION || Math.abs(height - marginY) <= Outline.PRECISION) {
+      const tx = newX + newWidth / 2 - (x2 + width / 2);
+      const ty = newY + newHeight / 2 - (y4 + height / 2);
+      return {
+        path: {
+          "transform-origin": `${Outline.svgRound(newX)} ${Outline.svgRound(newY)}`,
+          transform: `${this.rotationTransform} translate(${tx} ${ty})`
+        }
+      };
+    }
+    const s1x = (newWidth - 2 * marginX) / (width - 2 * marginX);
+    const s1y = (newHeight - 2 * marginY) / (height - 2 * marginY);
+    const s2x = width / newWidth;
+    const s2y = height / newHeight;
+    return {
+      path: {
+        "transform-origin": `${Outline.svgRound(x2)} ${Outline.svgRound(y4)}`,
+        transform: `${this.rotationTransform} scale(${s2x} ${s2y}) translate(${Outline.svgRound(marginX)} ${Outline.svgRound(marginY)}) scale(${s1x} ${s1y}) translate(${Outline.svgRound(-marginX)} ${Outline.svgRound(-marginY)})`
+      }
+    };
+  }
+  getPathResizedSVGProperties([newX, newY, newWidth, newHeight]) {
+    const [marginX, marginY] = this.#getMarginComponents();
+    const bbox = this.#bbox;
+    const [x2, y4, width, height] = bbox;
+    bbox[0] = newX;
+    bbox[1] = newY;
+    bbox[2] = newWidth;
+    bbox[3] = newHeight;
+    if (Math.abs(width - marginX) <= Outline.PRECISION || Math.abs(height - marginY) <= Outline.PRECISION) {
+      const tx2 = newX + newWidth / 2 - (x2 + width / 2);
+      const ty2 = newY + newHeight / 2 - (y4 + height / 2);
+      for (const {
+        line,
+        points
+      } of this.#lines) {
+        Outline._translate(line, tx2, ty2, line);
+        Outline._translate(points, tx2, ty2, points);
+      }
+      return {
+        root: {
+          viewBox: this.viewBox
+        },
+        path: {
+          "transform-origin": `${Outline.svgRound(newX)} ${Outline.svgRound(newY)}`,
+          transform: this.rotationTransform || null,
+          d: this.toSVGPath()
+        }
+      };
+    }
+    const s1x = (newWidth - 2 * marginX) / (width - 2 * marginX);
+    const s1y = (newHeight - 2 * marginY) / (height - 2 * marginY);
+    const tx = -s1x * (x2 + marginX) + newX + marginX;
+    const ty = -s1y * (y4 + marginY) + newY + marginY;
+    if (s1x !== 1 || s1y !== 1 || tx !== 0 || ty !== 0) {
+      for (const {
+        line,
+        points
+      } of this.#lines) {
+        Outline._rescale(line, tx, ty, s1x, s1y, line);
+        Outline._rescale(points, tx, ty, s1x, s1y, points);
+      }
+    }
+    return {
+      root: {
+        viewBox: this.viewBox
+      },
+      path: {
+        "transform-origin": `${Outline.svgRound(newX)} ${Outline.svgRound(newY)}`,
+        transform: this.rotationTransform || null,
+        d: this.toSVGPath()
+      }
+    };
+  }
+  getPathTranslatedSVGProperties([newX, newY], parentDimensions) {
+    const [newParentWidth, newParentHeight] = parentDimensions;
+    const bbox = this.#bbox;
+    const tx = newX - bbox[0];
+    const ty = newY - bbox[1];
+    if (this.#parentWidth === newParentWidth && this.#parentHeight === newParentHeight) {
+      for (const {
+        line,
+        points
+      } of this.#lines) {
+        Outline._translate(line, tx, ty, line);
+        Outline._translate(points, tx, ty, points);
+      }
+    } else {
+      const sx = this.#parentWidth / newParentWidth;
+      const sy = this.#parentHeight / newParentHeight;
+      this.#parentWidth = newParentWidth;
+      this.#parentHeight = newParentHeight;
+      for (const {
+        line,
+        points
+      } of this.#lines) {
+        Outline._rescale(line, tx, ty, sx, sy, line);
+        Outline._rescale(points, tx, ty, sx, sy, points);
+      }
+      bbox[2] *= sx;
+      bbox[3] *= sy;
+    }
+    bbox[0] = newX;
+    bbox[1] = newY;
+    return {
+      root: {
+        viewBox: this.viewBox
+      },
+      path: {
+        d: this.toSVGPath(),
+        "transform-origin": `${Outline.svgRound(newX)} ${Outline.svgRound(newY)}`
+      }
+    };
+  }
+  get defaultSVGProperties() {
+    const bbox = this.#bbox;
+    return {
+      root: {
+        viewBox: this.viewBox
+      },
+      rootClass: {
+        draw: true
+      },
+      path: {
+        d: this.toSVGPath(),
+        "transform-origin": `${Outline.svgRound(bbox[0])} ${Outline.svgRound(bbox[1])}`,
+        transform: this.rotationTransform || null
+      },
+      bbox
+    };
+  }
+}
 class InkDrawingOptions extends DrawingOptions {
   #viewParameters;
   constructor(viewerParameters) {
@@ -70909,6 +81123,179 @@ class InkDrawingOptions extends DrawingOptions {
     const clone2 = new InkDrawingOptions(this.#viewParameters);
     clone2.updateAll(this);
     return clone2;
+  }
+}
+class InkEditor extends DrawingEditor {
+  static _type = "ink";
+  static _editorType = AnnotationEditorType.INK;
+  static _defaultDrawingOptions = null;
+  constructor(params) {
+    super({
+      ...params,
+      name: "inkEditor"
+    });
+    this._willKeepAspectRatio = true;
+  }
+  static initialize(l10n, uiManager) {
+    AnnotationEditor.initialize(l10n, uiManager);
+    this._defaultDrawingOptions = new InkDrawingOptions(uiManager.viewParameters);
+  }
+  static getDefaultDrawingOptions(options) {
+    const clone2 = this._defaultDrawingOptions.clone();
+    clone2.updateProperties(options);
+    return clone2;
+  }
+  static get supportMultipleDrawings() {
+    return true;
+  }
+  static get typesMap() {
+    return shadow(this, "typesMap", /* @__PURE__ */new Map([[AnnotationEditorParamsType.INK_THICKNESS, "stroke-width"], [AnnotationEditorParamsType.INK_COLOR, "stroke"], [AnnotationEditorParamsType.INK_OPACITY, "stroke-opacity"]]));
+  }
+  static createDrawerInstance(x2, y4, parentWidth, parentHeight, rotation) {
+    return new InkDrawOutliner(x2, y4, parentWidth, parentHeight, rotation, this._defaultDrawingOptions["stroke-width"]);
+  }
+  static deserializeDraw(pageX, pageY, pageWidth, pageHeight, innerMargin, data2) {
+    return InkDrawOutline.deserialize(pageX, pageY, pageWidth, pageHeight, innerMargin, data2);
+  }
+  static async deserialize(data2, parent, uiManager) {
+    let initialData = null;
+    if (data2 instanceof InkAnnotationElement) {
+      const {
+        data: {
+          inkLists,
+          rect,
+          rotation,
+          id: id2,
+          color: color2,
+          opacity,
+          borderStyle: {
+            rawWidth: thickness
+          },
+          popupRef
+        },
+        parent: {
+          page: {
+            pageNumber
+          }
+        }
+      } = data2;
+      initialData = data2 = {
+        annotationType: AnnotationEditorType.INK,
+        color: Array.from(color2),
+        thickness,
+        opacity,
+        paths: {
+          points: inkLists
+        },
+        boxes: null,
+        pageIndex: pageNumber - 1,
+        rect: rect.slice(0),
+        rotation,
+        id: id2,
+        deleted: false,
+        popupRef
+      };
+    }
+    const editor = await super.deserialize(data2, parent, uiManager);
+    editor.annotationElementId = data2.id || null;
+    editor._initialData = initialData;
+    return editor;
+  }
+  onScaleChanging() {
+    if (!this.parent) {
+      return;
+    }
+    super.onScaleChanging();
+    const {
+      _drawId,
+      _drawingOptions,
+      parent
+    } = this;
+    _drawingOptions.updateSVGProperty("stroke-width");
+    parent.drawLayer.updateProperties(_drawId, _drawingOptions.toSVGProperties());
+  }
+  static onScaleChangingWhenDrawing() {
+    const parent = this._currentParent;
+    if (!parent) {
+      return;
+    }
+    super.onScaleChangingWhenDrawing();
+    this._defaultDrawingOptions.updateSVGProperty("stroke-width");
+    parent.drawLayer.updateProperties(this._currentDrawId, this._defaultDrawingOptions.toSVGProperties());
+  }
+  createDrawingOptions({
+    color: color2,
+    thickness,
+    opacity
+  }) {
+    this._drawingOptions = InkEditor.getDefaultDrawingOptions({
+      stroke: Util.makeHexColor(...color2),
+      "stroke-width": thickness,
+      "stroke-opacity": opacity
+    });
+  }
+  serialize(isForCopying = false) {
+    if (this.isEmpty()) {
+      return null;
+    }
+    if (this.deleted) {
+      return this.serializeDeleted();
+    }
+    const {
+      lines,
+      points,
+      rect
+    } = this.serializeDraw(isForCopying);
+    const {
+      _drawingOptions: {
+        stroke,
+        "stroke-opacity": opacity,
+        "stroke-width": thickness
+      }
+    } = this;
+    const serialized = {
+      annotationType: AnnotationEditorType.INK,
+      color: AnnotationEditor._colorManager.convert(stroke),
+      opacity,
+      thickness,
+      paths: {
+        lines,
+        points
+      },
+      pageIndex: this.pageIndex,
+      rect,
+      rotation: this.rotation,
+      structTreeParentId: this._structTreeParentId
+    };
+    if (isForCopying) {
+      return serialized;
+    }
+    if (this.annotationElementId && !this.#hasElementChanged(serialized)) {
+      return null;
+    }
+    serialized.id = this.annotationElementId;
+    return serialized;
+  }
+  #hasElementChanged(serialized) {
+    const {
+      color: color2,
+      thickness,
+      opacity,
+      pageIndex
+    } = this._initialData;
+    return this._hasBeenMoved || this._hasBeenResized || serialized.color.some((c3, i2) => c3 !== color2[i2]) || serialized.thickness !== thickness || serialized.opacity !== opacity || serialized.pageIndex !== pageIndex;
+  }
+  renderAnnotationElement(annotation) {
+    const {
+      points,
+      rect
+    } = this.serializeDraw(false);
+    annotation.updateEdited({
+      rect,
+      thickness: this._drawingOptions["stroke-width"],
+      points
+    });
+    return null;
   }
 }
 class StampEditor extends AnnotationEditor {
@@ -71554,6 +81941,668 @@ class StampEditor extends AnnotationEditor {
     return null;
   }
 }
+class AnnotationEditorLayer {
+  #accessibilityManager;
+  #allowClick = false;
+  #annotationLayer = null;
+  #clickAC = null;
+  #editorFocusTimeoutId = null;
+  #editors = /* @__PURE__ */new Map();
+  #hadPointerDown = false;
+  #isDisabling = false;
+  #isEnabling = false;
+  #drawingAC = null;
+  #focusedElement = null;
+  #textLayer = null;
+  #textSelectionAC = null;
+  #uiManager;
+  static _initialized = false;
+  static #editorTypes = new Map([FreeTextEditor, InkEditor, StampEditor, HighlightEditor].map(type2 => [type2._editorType, type2]));
+  constructor({
+    uiManager,
+    pageIndex,
+    div,
+    structTreeLayer,
+    accessibilityManager,
+    annotationLayer,
+    drawLayer,
+    textLayer,
+    viewport,
+    l10n
+  }) {
+    const editorTypes = [...AnnotationEditorLayer.#editorTypes.values()];
+    if (!AnnotationEditorLayer._initialized) {
+      AnnotationEditorLayer._initialized = true;
+      for (const editorType of editorTypes) {
+        editorType.initialize(l10n, uiManager);
+      }
+    }
+    uiManager.registerEditorTypes(editorTypes);
+    this.#uiManager = uiManager;
+    this.pageIndex = pageIndex;
+    this.div = div;
+    this.#accessibilityManager = accessibilityManager;
+    this.#annotationLayer = annotationLayer;
+    this.viewport = viewport;
+    this.#textLayer = textLayer;
+    this.drawLayer = drawLayer;
+    this._structTree = structTreeLayer;
+    this.#uiManager.addLayer(this);
+  }
+  get isEmpty() {
+    return this.#editors.size === 0;
+  }
+  get isInvisible() {
+    return this.isEmpty && this.#uiManager.getMode() === AnnotationEditorType.NONE;
+  }
+  updateToolbar(mode2) {
+    this.#uiManager.updateToolbar(mode2);
+  }
+  updateMode(mode2 = this.#uiManager.getMode()) {
+    this.#cleanup();
+    switch (mode2) {
+      case AnnotationEditorType.NONE:
+        this.disableTextSelection();
+        this.togglePointerEvents(false);
+        this.toggleAnnotationLayerPointerEvents(true);
+        this.disableClick();
+        return;
+      case AnnotationEditorType.INK:
+        this.disableTextSelection();
+        this.togglePointerEvents(true);
+        this.enableClick();
+        break;
+      case AnnotationEditorType.HIGHLIGHT:
+        this.enableTextSelection();
+        this.togglePointerEvents(false);
+        this.disableClick();
+        break;
+      default:
+        this.disableTextSelection();
+        this.togglePointerEvents(true);
+        this.enableClick();
+    }
+    this.toggleAnnotationLayerPointerEvents(false);
+    const {
+      classList: classList2
+    } = this.div;
+    for (const editorType of AnnotationEditorLayer.#editorTypes.values()) {
+      classList2.toggle(`${editorType._type}Editing`, mode2 === editorType._editorType);
+    }
+    this.div.hidden = false;
+  }
+  hasTextLayer(textLayer) {
+    return textLayer === this.#textLayer?.div;
+  }
+  setEditingState(isEditing) {
+    this.#uiManager.setEditingState(isEditing);
+  }
+  addCommands(params) {
+    this.#uiManager.addCommands(params);
+  }
+  cleanUndoStack(type2) {
+    this.#uiManager.cleanUndoStack(type2);
+  }
+  toggleDrawing(enabled = false) {
+    this.div.classList.toggle("drawing", !enabled);
+  }
+  togglePointerEvents(enabled = false) {
+    this.div.classList.toggle("disabled", !enabled);
+  }
+  toggleAnnotationLayerPointerEvents(enabled = false) {
+    this.#annotationLayer?.div.classList.toggle("disabled", !enabled);
+  }
+  async enable() {
+    this.#isEnabling = true;
+    this.div.tabIndex = 0;
+    this.togglePointerEvents(true);
+    const annotationElementIds = /* @__PURE__ */new Set();
+    for (const editor of this.#editors.values()) {
+      editor.enableEditing();
+      editor.show(true);
+      if (editor.annotationElementId) {
+        this.#uiManager.removeChangedExistingAnnotation(editor);
+        annotationElementIds.add(editor.annotationElementId);
+      }
+    }
+    if (!this.#annotationLayer) {
+      this.#isEnabling = false;
+      return;
+    }
+    const editables = this.#annotationLayer.getEditableAnnotations();
+    for (const editable2 of editables) {
+      editable2.hide();
+      if (this.#uiManager.isDeletedAnnotationElement(editable2.data.id)) {
+        continue;
+      }
+      if (annotationElementIds.has(editable2.data.id)) {
+        continue;
+      }
+      const editor = await this.deserialize(editable2);
+      if (!editor) {
+        continue;
+      }
+      this.addOrRebuild(editor);
+      editor.enableEditing();
+    }
+    this.#isEnabling = false;
+  }
+  disable() {
+    this.#isDisabling = true;
+    this.div.tabIndex = -1;
+    this.togglePointerEvents(false);
+    const changedAnnotations = /* @__PURE__ */new Map();
+    const resetAnnotations = /* @__PURE__ */new Map();
+    for (const editor of this.#editors.values()) {
+      editor.disableEditing();
+      if (!editor.annotationElementId) {
+        continue;
+      }
+      if (editor.serialize() !== null) {
+        changedAnnotations.set(editor.annotationElementId, editor);
+        continue;
+      } else {
+        resetAnnotations.set(editor.annotationElementId, editor);
+      }
+      this.getEditableAnnotation(editor.annotationElementId)?.show();
+      editor.remove();
+    }
+    if (this.#annotationLayer) {
+      const editables = this.#annotationLayer.getEditableAnnotations();
+      for (const editable2 of editables) {
+        const {
+          id: id2
+        } = editable2.data;
+        if (this.#uiManager.isDeletedAnnotationElement(id2)) {
+          continue;
+        }
+        let editor = resetAnnotations.get(id2);
+        if (editor) {
+          editor.resetAnnotationElement(editable2);
+          editor.show(false);
+          editable2.show();
+          continue;
+        }
+        editor = changedAnnotations.get(id2);
+        if (editor) {
+          this.#uiManager.addChangedExistingAnnotation(editor);
+          if (editor.renderAnnotationElement(editable2)) {
+            editor.show(false);
+          }
+        }
+        editable2.show();
+      }
+    }
+    this.#cleanup();
+    if (this.isEmpty) {
+      this.div.hidden = true;
+    }
+    const {
+      classList: classList2
+    } = this.div;
+    for (const editorType of AnnotationEditorLayer.#editorTypes.values()) {
+      classList2.remove(`${editorType._type}Editing`);
+    }
+    this.disableTextSelection();
+    this.toggleAnnotationLayerPointerEvents(true);
+    this.#isDisabling = false;
+  }
+  getEditableAnnotation(id2) {
+    return this.#annotationLayer?.getEditableAnnotation(id2) || null;
+  }
+  setActiveEditor(editor) {
+    const currentActive = this.#uiManager.getActive();
+    if (currentActive === editor) {
+      return;
+    }
+    this.#uiManager.setActiveEditor(editor);
+  }
+  enableTextSelection() {
+    this.div.tabIndex = -1;
+    if (this.#textLayer?.div && !this.#textSelectionAC) {
+      this.#textSelectionAC = new AbortController();
+      const signal = this.#uiManager.combinedSignal(this.#textSelectionAC);
+      this.#textLayer.div.addEventListener("pointerdown", this.#textLayerPointerDown.bind(this), {
+        signal
+      });
+      this.#textLayer.div.classList.add("highlighting");
+    }
+  }
+  disableTextSelection() {
+    this.div.tabIndex = 0;
+    if (this.#textLayer?.div && this.#textSelectionAC) {
+      this.#textSelectionAC.abort();
+      this.#textSelectionAC = null;
+      this.#textLayer.div.classList.remove("highlighting");
+    }
+  }
+  #textLayerPointerDown(event) {
+    this.#uiManager.unselectAll();
+    const {
+      target
+    } = event;
+    if (target === this.#textLayer.div || (target.getAttribute("role") === "img" || target.classList.contains("endOfContent")) && this.#textLayer.div.contains(target)) {
+      const {
+        isMac: isMac2
+      } = util_FeatureTest.platform;
+      if (event.button !== 0 || event.ctrlKey && isMac2) {
+        return;
+      }
+      this.#uiManager.showAllEditors("highlight", true, true);
+      this.#textLayer.div.classList.add("free");
+      this.toggleDrawing();
+      HighlightEditor.startHighlighting(this, this.#uiManager.direction === "ltr", {
+        target: this.#textLayer.div,
+        x: event.x,
+        y: event.y
+      });
+      this.#textLayer.div.addEventListener("pointerup", () => {
+        this.#textLayer.div.classList.remove("free");
+        this.toggleDrawing(true);
+      }, {
+        once: true,
+        signal: this.#uiManager._signal
+      });
+      event.preventDefault();
+    }
+  }
+  enableClick() {
+    if (this.#clickAC) {
+      return;
+    }
+    this.#clickAC = new AbortController();
+    const signal = this.#uiManager.combinedSignal(this.#clickAC);
+    this.div.addEventListener("pointerdown", this.pointerdown.bind(this), {
+      signal
+    });
+    const pointerup = this.pointerup.bind(this);
+    this.div.addEventListener("pointerup", pointerup, {
+      signal
+    });
+    this.div.addEventListener("pointercancel", pointerup, {
+      signal
+    });
+  }
+  disableClick() {
+    this.#clickAC?.abort();
+    this.#clickAC = null;
+  }
+  attach(editor) {
+    this.#editors.set(editor.id, editor);
+    const {
+      annotationElementId
+    } = editor;
+    if (annotationElementId && this.#uiManager.isDeletedAnnotationElement(annotationElementId)) {
+      this.#uiManager.removeDeletedAnnotationElement(editor);
+    }
+  }
+  detach(editor) {
+    this.#editors.delete(editor.id);
+    this.#accessibilityManager?.removePointerInTextLayer(editor.contentDiv);
+    if (!this.#isDisabling && editor.annotationElementId) {
+      this.#uiManager.addDeletedAnnotationElement(editor);
+    }
+  }
+  remove(editor) {
+    this.detach(editor);
+    this.#uiManager.removeEditor(editor);
+    editor.div.remove();
+    editor.isAttachedToDOM = false;
+  }
+  changeParent(editor) {
+    if (editor.parent === this) {
+      return;
+    }
+    if (editor.parent && editor.annotationElementId) {
+      this.#uiManager.addDeletedAnnotationElement(editor.annotationElementId);
+      AnnotationEditor.deleteAnnotationElement(editor);
+      editor.annotationElementId = null;
+    }
+    this.attach(editor);
+    editor.parent?.detach(editor);
+    editor.setParent(this);
+    if (editor.div && editor.isAttachedToDOM) {
+      editor.div.remove();
+      this.div.append(editor.div);
+    }
+  }
+  add(editor) {
+    if (editor.parent === this && editor.isAttachedToDOM) {
+      return;
+    }
+    this.changeParent(editor);
+    this.#uiManager.addEditor(editor);
+    this.attach(editor);
+    if (!editor.isAttachedToDOM) {
+      const div = editor.render();
+      this.div.append(div);
+      editor.isAttachedToDOM = true;
+    }
+    editor.fixAndSetPosition();
+    editor.onceAdded(!this.#isEnabling);
+    this.#uiManager.addToAnnotationStorage(editor);
+    editor._reportTelemetry(editor.telemetryInitialData);
+  }
+  moveEditorInDOM(editor) {
+    if (!editor.isAttachedToDOM) {
+      return;
+    }
+    const {
+      activeElement: activeElement2
+    } = document;
+    if (editor.div.contains(activeElement2) && !this.#editorFocusTimeoutId) {
+      editor._focusEventsAllowed = false;
+      this.#editorFocusTimeoutId = setTimeout(() => {
+        this.#editorFocusTimeoutId = null;
+        if (!editor.div.contains(document.activeElement)) {
+          editor.div.addEventListener("focusin", () => {
+            editor._focusEventsAllowed = true;
+          }, {
+            once: true,
+            signal: this.#uiManager._signal
+          });
+          activeElement2.focus();
+        } else {
+          editor._focusEventsAllowed = true;
+        }
+      }, 0);
+    }
+    editor._structTreeParentId = this.#accessibilityManager?.moveElementInDOM(this.div, editor.div, editor.contentDiv, true);
+  }
+  addOrRebuild(editor) {
+    if (editor.needsToBeRebuilt()) {
+      editor.parent ||= this;
+      editor.rebuild();
+      editor.show();
+    } else {
+      this.add(editor);
+    }
+  }
+  addUndoableEditor(editor) {
+    const cmd2 = () => editor._uiManager.rebuild(editor);
+    const undo2 = () => {
+      editor.remove();
+    };
+    this.addCommands({
+      cmd: cmd2,
+      undo: undo2,
+      mustExec: false
+    });
+  }
+  getNextId() {
+    return this.#uiManager.getId();
+  }
+  get #currentEditorType() {
+    return AnnotationEditorLayer.#editorTypes.get(this.#uiManager.getMode());
+  }
+  combinedSignal(ac) {
+    return this.#uiManager.combinedSignal(ac);
+  }
+  #createNewEditor(params) {
+    const editorType = this.#currentEditorType;
+    return editorType ? new editorType.prototype.constructor(params) : null;
+  }
+  canCreateNewEmptyEditor() {
+    return this.#currentEditorType?.canCreateNewEmptyEditor();
+  }
+  pasteEditor(mode2, params) {
+    this.#uiManager.updateToolbar(mode2);
+    this.#uiManager.updateMode(mode2);
+    const {
+      offsetX,
+      offsetY
+    } = this.#getCenterPoint();
+    const id2 = this.getNextId();
+    const editor = this.#createNewEditor({
+      parent: this,
+      id: id2,
+      x: offsetX,
+      y: offsetY,
+      uiManager: this.#uiManager,
+      isCentered: true,
+      ...params
+    });
+    if (editor) {
+      this.add(editor);
+    }
+  }
+  async deserialize(data2) {
+    return (await AnnotationEditorLayer.#editorTypes.get(data2.annotationType ?? data2.annotationEditorType)?.deserialize(data2, this, this.#uiManager)) || null;
+  }
+  createAndAddNewEditor(event, isCentered, data2 = {}) {
+    const id2 = this.getNextId();
+    const editor = this.#createNewEditor({
+      parent: this,
+      id: id2,
+      x: event.offsetX,
+      y: event.offsetY,
+      uiManager: this.#uiManager,
+      isCentered,
+      ...data2
+    });
+    if (editor) {
+      this.add(editor);
+    }
+    return editor;
+  }
+  #getCenterPoint() {
+    const {
+      x: x2,
+      y: y4,
+      width,
+      height
+    } = this.div.getBoundingClientRect();
+    const tlX = Math.max(0, x2);
+    const tlY = Math.max(0, y4);
+    const brX = Math.min(window.innerWidth, x2 + width);
+    const brY = Math.min(window.innerHeight, y4 + height);
+    const centerX = (tlX + brX) / 2 - x2;
+    const centerY = (tlY + brY) / 2 - y4;
+    const [offsetX, offsetY] = this.viewport.rotation % 180 === 0 ? [centerX, centerY] : [centerY, centerX];
+    return {
+      offsetX,
+      offsetY
+    };
+  }
+  addNewEditor() {
+    this.createAndAddNewEditor(this.#getCenterPoint(), true);
+  }
+  setSelected(editor) {
+    this.#uiManager.setSelected(editor);
+  }
+  toggleSelected(editor) {
+    this.#uiManager.toggleSelected(editor);
+  }
+  unselect(editor) {
+    this.#uiManager.unselect(editor);
+  }
+  pointerup(event) {
+    const {
+      isMac: isMac2
+    } = util_FeatureTest.platform;
+    if (event.button !== 0 || event.ctrlKey && isMac2) {
+      return;
+    }
+    if (event.target !== this.div) {
+      return;
+    }
+    if (!this.#hadPointerDown) {
+      return;
+    }
+    this.#hadPointerDown = false;
+    if (this.#currentEditorType?.isDrawer && this.#currentEditorType.supportMultipleDrawings) {
+      return;
+    }
+    if (!this.#allowClick) {
+      this.#allowClick = true;
+      return;
+    }
+    if (this.#uiManager.getMode() === AnnotationEditorType.STAMP) {
+      this.#uiManager.unselectAll();
+      return;
+    }
+    this.createAndAddNewEditor(event, false);
+  }
+  pointerdown(event) {
+    if (this.#uiManager.getMode() === AnnotationEditorType.HIGHLIGHT) {
+      this.enableTextSelection();
+    }
+    if (this.#hadPointerDown) {
+      this.#hadPointerDown = false;
+      return;
+    }
+    const {
+      isMac: isMac2
+    } = util_FeatureTest.platform;
+    if (event.button !== 0 || event.ctrlKey && isMac2) {
+      return;
+    }
+    if (event.target !== this.div) {
+      return;
+    }
+    this.#hadPointerDown = true;
+    if (this.#currentEditorType?.isDrawer) {
+      this.startDrawingSession(event);
+      return;
+    }
+    const editor = this.#uiManager.getActive();
+    this.#allowClick = !editor || editor.isEmpty();
+  }
+  startDrawingSession(event) {
+    this.div.focus();
+    if (this.#drawingAC) {
+      this.#currentEditorType.startDrawing(this, this.#uiManager, false, event);
+      return;
+    }
+    this.#uiManager.setCurrentDrawingSession(this);
+    this.#drawingAC = new AbortController();
+    const signal = this.#uiManager.combinedSignal(this.#drawingAC);
+    this.div.addEventListener("blur", ({
+      relatedTarget
+    }) => {
+      if (relatedTarget && !this.div.contains(relatedTarget)) {
+        this.#focusedElement = null;
+        this.commitOrRemove();
+      }
+    }, {
+      signal
+    });
+    this.#currentEditorType.startDrawing(this, this.#uiManager, false, event);
+  }
+  pause(on2) {
+    if (on2) {
+      const {
+        activeElement: activeElement2
+      } = document;
+      if (this.div.contains(activeElement2)) {
+        this.#focusedElement = activeElement2;
+      }
+      return;
+    }
+    if (this.#focusedElement) {
+      setTimeout(() => {
+        this.#focusedElement?.focus();
+        this.#focusedElement = null;
+      }, 0);
+    }
+  }
+  endDrawingSession(isAborted = false) {
+    if (!this.#drawingAC) {
+      return null;
+    }
+    this.#uiManager.setCurrentDrawingSession(null);
+    this.#drawingAC.abort();
+    this.#drawingAC = null;
+    this.#focusedElement = null;
+    return this.#currentEditorType.endDrawing(isAborted);
+  }
+  findNewParent(editor, x2, y4) {
+    const layer2 = this.#uiManager.findParent(x2, y4);
+    if (layer2 === null || layer2 === this) {
+      return false;
+    }
+    layer2.changeParent(editor);
+    return true;
+  }
+  commitOrRemove() {
+    if (this.#drawingAC) {
+      this.endDrawingSession();
+      return true;
+    }
+    return false;
+  }
+  onScaleChanging() {
+    if (!this.#drawingAC) {
+      return;
+    }
+    this.#currentEditorType.onScaleChangingWhenDrawing(this);
+  }
+  destroy() {
+    this.commitOrRemove();
+    if (this.#uiManager.getActive()?.parent === this) {
+      this.#uiManager.commitOrRemove();
+      this.#uiManager.setActiveEditor(null);
+    }
+    if (this.#editorFocusTimeoutId) {
+      clearTimeout(this.#editorFocusTimeoutId);
+      this.#editorFocusTimeoutId = null;
+    }
+    for (const editor of this.#editors.values()) {
+      this.#accessibilityManager?.removePointerInTextLayer(editor.contentDiv);
+      editor.setParent(null);
+      editor.isAttachedToDOM = false;
+      editor.div.remove();
+    }
+    this.div = null;
+    this.#editors.clear();
+    this.#uiManager.removeLayer(this);
+  }
+  #cleanup() {
+    for (const editor of this.#editors.values()) {
+      if (editor.isEmpty()) {
+        editor.remove();
+      }
+    }
+  }
+  render({
+    viewport
+  }) {
+    this.viewport = viewport;
+    setLayerDimensions(this.div, viewport);
+    for (const editor of this.#uiManager.getEditors(this.pageIndex)) {
+      this.add(editor);
+      editor.rebuild();
+    }
+    this.updateMode();
+  }
+  update({
+    viewport
+  }) {
+    this.#uiManager.commitOrRemove();
+    this.#cleanup();
+    const oldRotation = this.viewport.rotation;
+    const rotation = viewport.rotation;
+    this.viewport = viewport;
+    setLayerDimensions(this.div, {
+      rotation
+    });
+    if (oldRotation !== rotation) {
+      for (const editor of this.#editors.values()) {
+        editor.rotate(rotation);
+      }
+    }
+  }
+  get pageDimensions() {
+    const {
+      pageWidth,
+      pageHeight
+    } = this.viewport.rawDims;
+    return [pageWidth, pageHeight];
+  }
+  get scale() {
+    return this.#uiManager.viewParameters.realScale;
+  }
+}
 class DrawLayer {
   #parent = null;
   #id = 0;
@@ -71753,6 +82802,11 @@ class DrawLayer {
     this.#toUpdate.clear();
   }
 }
+{
+  globalThis.pdfjsTestingUtils = {
+    HighlightOutliner
+  };
+}
 __webpack_exports__.AbortException;
 __webpack_exports__.AnnotationEditorLayer;
 __webpack_exports__.AnnotationEditorParamsType;
@@ -71764,6 +82818,39 @@ __webpack_exports__.ColorPicker;
 __webpack_exports__.DOMSVGFactory;
 __webpack_exports__.DrawLayer;
 __webpack_exports__.FeatureTest;
+__webpack_exports__.ImageKind;
+__webpack_exports__.InvalidPDFException;
+__webpack_exports__.MissingPDFException;
+__webpack_exports__.OPS;
+__webpack_exports__.OutputScale;
+__webpack_exports__.PDFDataRangeTransport;
+__webpack_exports__.PDFDateString;
+__webpack_exports__.PDFWorker;
+__webpack_exports__.PasswordResponses;
+__webpack_exports__.PermissionFlag;
+__webpack_exports__.PixelsPerInch;
+__webpack_exports__.RenderingCancelledException;
+__webpack_exports__.TextLayer;
+__webpack_exports__.TouchManager;
+__webpack_exports__.UnexpectedResponseException;
+__webpack_exports__.Util;
+__webpack_exports__.VerbosityLevel;
+__webpack_exports__.XfaLayer;
+__webpack_exports__.build;
+__webpack_exports__.createValidAbsoluteUrl;
+__webpack_exports__.fetchData;
+var __webpack_exports__getDocument = __webpack_exports__.getDocument;
+__webpack_exports__.getFilenameFromUrl;
+__webpack_exports__.getPdfFilenameFromUrl;
+__webpack_exports__.getXfaPageViewport;
+__webpack_exports__.isDataScheme;
+__webpack_exports__.isPdfFile;
+__webpack_exports__.noContextMenu;
+__webpack_exports__.normalizeUnicode;
+__webpack_exports__.setLayerDimensions;
+__webpack_exports__.shadow;
+__webpack_exports__.stopEvent;
+__webpack_exports__.version;
 const useIsomorphicLayoutEffect$2 = canUseDOM ? reactExports.useLayoutEffect : reactExports.useEffect;
 function useEvent(handler) {
   const handlerRef = reactExports.useRef(handler);
@@ -74390,6 +85477,11 @@ equals.autoRemove = val => testFalsey(val);
 function testFalsey(val) {
   return val === void 0 || val === null || val === "";
 }
+const Operation = {
+  Remove: "remove",
+  Replace: "replace",
+  Add: "add"
+};
 "function" == typeof SuppressedError && SuppressedError;
 const r$5 = t2 => "replace" === t2.op && 0 === t2.path.length,
   n$1 = (t2, e2) => {
@@ -82098,6 +93190,15 @@ const serializer = (strict, json2, $3, _2) => {
   };
   return pair2;
 };
+const serialize$2 = (value, {
+  json: json2,
+  lossy
+} = {}) => {
+  const _2 = [];
+  return serializer(!(json2 || lossy), !!json2, /* @__PURE__ */new Map(), _2)(value), _2;
+};
+const structuredClone$1 = typeof structuredClone === "function" ? (/* c8 ignore start */
+(any, options) => options && ("json" in options || "lossy" in options) ? deserialize$1(serialize$2(any, options)) : structuredClone(any)) : (any, options) => deserialize$1(serialize$2(any, options));
 function defaultFootnoteBackContent(_2, rereferenceIndex) {
   const result = [{
     type: "text",
@@ -82118,6 +93219,115 @@ function defaultFootnoteBackContent(_2, rereferenceIndex) {
 }
 function defaultFootnoteBackLabel(referenceIndex, rereferenceIndex) {
   return "Back to reference " + (referenceIndex + 1) + (rereferenceIndex > 1 ? "-" + rereferenceIndex : "");
+}
+function footer(state2) {
+  const clobberPrefix = typeof state2.options.clobberPrefix === "string" ? state2.options.clobberPrefix : "user-content-";
+  const footnoteBackContent = state2.options.footnoteBackContent || defaultFootnoteBackContent;
+  const footnoteBackLabel = state2.options.footnoteBackLabel || defaultFootnoteBackLabel;
+  const footnoteLabel = state2.options.footnoteLabel || "Footnotes";
+  const footnoteLabelTagName = state2.options.footnoteLabelTagName || "h2";
+  const footnoteLabelProperties = state2.options.footnoteLabelProperties || {
+    className: ["sr-only"]
+  };
+  const listItems = [];
+  let referenceIndex = -1;
+  while (++referenceIndex < state2.footnoteOrder.length) {
+    const definition2 = state2.footnoteById.get(state2.footnoteOrder[referenceIndex]);
+    if (!definition2) {
+      continue;
+    }
+    const content2 = state2.all(definition2);
+    const id2 = String(definition2.identifier).toUpperCase();
+    const safeId = normalizeUri(id2.toLowerCase());
+    let rereferenceIndex = 0;
+    const backReferences = [];
+    const counts = state2.footnoteCounts.get(id2);
+    while (counts !== void 0 && ++rereferenceIndex <= counts) {
+      if (backReferences.length > 0) {
+        backReferences.push({
+          type: "text",
+          value: " "
+        });
+      }
+      let children2 = typeof footnoteBackContent === "string" ? footnoteBackContent : footnoteBackContent(referenceIndex, rereferenceIndex);
+      if (typeof children2 === "string") {
+        children2 = {
+          type: "text",
+          value: children2
+        };
+      }
+      backReferences.push({
+        type: "element",
+        tagName: "a",
+        properties: {
+          href: "#" + clobberPrefix + "fnref-" + safeId + (rereferenceIndex > 1 ? "-" + rereferenceIndex : ""),
+          dataFootnoteBackref: "",
+          ariaLabel: typeof footnoteBackLabel === "string" ? footnoteBackLabel : footnoteBackLabel(referenceIndex, rereferenceIndex),
+          className: ["data-footnote-backref"]
+        },
+        children: Array.isArray(children2) ? children2 : [children2]
+      });
+    }
+    const tail = content2[content2.length - 1];
+    if (tail && tail.type === "element" && tail.tagName === "p") {
+      const tailTail = tail.children[tail.children.length - 1];
+      if (tailTail && tailTail.type === "text") {
+        tailTail.value += " ";
+      } else {
+        tail.children.push({
+          type: "text",
+          value: " "
+        });
+      }
+      tail.children.push(...backReferences);
+    } else {
+      content2.push(...backReferences);
+    }
+    const listItem2 = {
+      type: "element",
+      tagName: "li",
+      properties: {
+        id: clobberPrefix + "fn-" + safeId
+      },
+      children: state2.wrap(content2, true)
+    };
+    state2.patch(definition2, listItem2);
+    listItems.push(listItem2);
+  }
+  if (listItems.length === 0) {
+    return;
+  }
+  return {
+    type: "element",
+    tagName: "section",
+    properties: {
+      dataFootnotes: true,
+      className: ["footnotes"]
+    },
+    children: [{
+      type: "element",
+      tagName: footnoteLabelTagName,
+      properties: {
+        ...structuredClone$1(footnoteLabelProperties),
+        id: "footnote-label"
+      },
+      children: [{
+        type: "text",
+        value: footnoteLabel
+      }]
+    }, {
+      type: "text",
+      value: "\n"
+    }, {
+      type: "element",
+      tagName: "ol",
+      properties: {},
+      children: state2.wrap(listItems, true)
+    }, {
+      type: "text",
+      value: "\n"
+    }]
+  };
 }
 const convert =
 // Note: overloads in JSDoc can’t yet use different `@template`s.
@@ -82295,6 +93505,34 @@ function visit(tree, testOrVisitor, visitorOrReverse, maybeReverse) {
 }
 const own$7 = {}.hasOwnProperty;
 const emptyOptions$3 = {};
+function applyData(from2, to) {
+  let result = to;
+  if (from2 && from2.data) {
+    const hName = from2.data.hName;
+    const hChildren = from2.data.hChildren;
+    const hProperties = from2.data.hProperties;
+    if (typeof hName === "string") {
+      if (result.type === "element") {
+        result.tagName = hName;
+      } else {
+        const children2 = "children" in result ? result.children : [result];
+        result = {
+          type: "element",
+          tagName: hName,
+          properties: {},
+          children: children2
+        };
+      }
+    }
+    if (result.type === "element" && hProperties) {
+      Object.assign(result.properties, structuredClone$1(hProperties));
+    }
+    if ("children" in result && result.children && hChildren !== null && hChildren !== void 0) {
+      result.children = hChildren;
+    }
+  }
+  return result;
+}
 function defaultUnknownHandler(state2, node2) {
   const data2 = node2.data || {};
   const result = "value" in node2 && !(own$7.call(data2, "hProperties") || own$7.call(data2, "hChildren")) ? {
@@ -93342,32 +104580,6 @@ class StyleSet {
     if (this.styleTag && this.styleTag.getAttribute("nonce") != nonce) this.styleTag.setAttribute("nonce", nonce);
   }
 }
-function crelt() {
-  var elt2 = arguments[0];
-  if (typeof elt2 == "string") elt2 = document.createElement(elt2);
-  var i2 = 1,
-    next2 = arguments[1];
-  if (next2 && typeof next2 == "object" && next2.nodeType == null && !Array.isArray(next2)) {
-    for (var name2 in next2) if (Object.prototype.hasOwnProperty.call(next2, name2)) {
-      var value = next2[name2];
-      if (typeof value == "string") elt2.setAttribute(name2, value);else if (value != null) elt2[name2] = value;
-    }
-    i2++;
-  }
-  for (; i2 < arguments.length; i2++) add(elt2, arguments[i2]);
-  return elt2;
-}
-function add(elt2, child) {
-  if (typeof child == "string") {
-    elt2.appendChild(document.createTextNode(child));
-  } else if (child == null) ;else if (child.nodeType != null) {
-    elt2.appendChild(child);
-  } else if (Array.isArray(child)) {
-    for (var i2 = 0; i2 < child.length; i2++) add(elt2, child[i2]);
-  } else {
-    throw new RangeError("Unsupported child node: " + child);
-  }
-}
 let nav = typeof navigator != "undefined" ? navigator : {
   userAgent: "",
   vendor: "",
@@ -94403,6 +105615,27 @@ function computeOrder(line, direction, isolates) {
 }
 function trivialOrder(length2) {
   return [new BidiSpan(0, length2, 0)];
+}
+let movedOver = "";
+function moveVisually(line, order2, dir, start2, forward) {
+  var _a2;
+  let startIndex = start2.head - line.from;
+  let spanI = BidiSpan.find(order2, startIndex, (_a2 = start2.bidiLevel) !== null && _a2 !== void 0 ? _a2 : -1, start2.assoc);
+  let span = order2[spanI],
+    spanEnd = span.side(forward, dir);
+  if (startIndex == spanEnd) {
+    let nextI = spanI += forward ? 1 : -1;
+    if (nextI < 0 || nextI >= order2.length) return null;
+    span = order2[spanI = nextI];
+    startIndex = span.side(!forward, dir);
+    spanEnd = span.side(forward, dir);
+  }
+  let nextIndex = findClusterBreak(line.text, startIndex, span.forward(forward, dir));
+  if (nextIndex < span.from || nextIndex > span.to) nextIndex = spanEnd;
+  movedOver = line.text.slice(Math.min(startIndex, nextIndex), Math.max(startIndex, nextIndex));
+  let nextSpan = spanI == (forward ? order2.length - 1 : 0) ? null : order2[spanI + (forward ? 1 : -1)];
+  if (nextSpan && nextIndex == spanEnd && nextSpan.level + (forward ? 0 : 1) < span.level) return EditorSelection.cursor(nextSpan.side(!forward, dir) + line.from, nextSpan.forward(forward, dir) ? 1 : -1, nextSpan.level);
+  return EditorSelection.cursor(nextIndex + line.from, span.forward(forward, dir) ? -1 : 1, span.level);
 }
 function autoDirection(text2, from2, to) {
   for (let i2 = from2; i2 < to; i2++) {
@@ -96592,6 +107825,29 @@ function moveToLineBoundary(view2, start2, forward, includeWrap) {
     if (pos != null) return EditorSelection.cursor(pos, forward ? -1 : 1);
   }
   return EditorSelection.cursor(forward ? line.to : line.from, forward ? -1 : 1);
+}
+function moveByChar(view2, start2, forward, by) {
+  let line = view2.state.doc.lineAt(start2.head),
+    spans = view2.bidiSpans(line);
+  let direction = view2.textDirectionAt(line.from);
+  for (let cur = start2, check = null;;) {
+    let next2 = moveVisually(line, spans, direction, cur, forward),
+      char = movedOver;
+    if (!next2) {
+      if (line.number == (forward ? view2.state.doc.lines : 1)) return cur;
+      char = "\n";
+      line = view2.state.doc.line(line.number + (forward ? 1 : -1));
+      spans = view2.bidiSpans(line);
+      next2 = view2.visualLineSide(line, !forward);
+    }
+    if (!check) {
+      if (!by) return next2;
+      check = by(char);
+    } else if (!check(char)) {
+      return cur;
+    }
+    cur = next2;
+  }
 }
 function byGroup(view2, pos, start2) {
   let categorize = view2.state.charCategorizer(pos);
@@ -101857,9 +113113,36 @@ const indentMore = ({
   }));
   return true;
 };
+const indentLess = ({
+  state: state2,
+  dispatch: dispatch2
+}) => {
+  if (state2.readOnly) return false;
+  dispatch2(state2.update(changeBySelectedLine(state2, (line, changes) => {
+    let space2 = /^\s*/.exec(line.text)[0];
+    if (!space2) return;
+    let col = countColumn(space2, state2.tabSize),
+      keep = 0;
+    let insert2 = indentString(state2, Math.max(0, col - getIndentUnit(state2)));
+    while (keep < space2.length && keep < insert2.length && space2.charCodeAt(keep) == insert2.charCodeAt(keep)) keep++;
+    changes.push({
+      from: line.from + keep,
+      to: line.from + space2.length,
+      insert: insert2.slice(keep)
+    });
+  }), {
+    userEvent: "delete.dedent"
+  }));
+  return true;
+};
 const toggleTabFocusMode = view2 => {
   view2.setTabFocusMode();
   return true;
+};
+const indentWithTab = {
+  key: "Tab",
+  run: indentMore,
+  shift: indentLess
 };
 function toSet(chars2) {
   let flat = Object.keys(chars2).join("");
@@ -105710,6 +116993,22 @@ const braceR = 125,
   question = 63,
   dot = 46,
   bracketL = 91;
+const trackNewline = new ContextTracker({
+  start: false,
+  shift(context, term) {
+    return term == LineComment || term == BlockComment || term == spaces ? context : term == newline;
+  },
+  strict: false
+});
+const insertSemicolon = new ExternalTokenizer((input, stack) => {
+  let {
+    next: next2
+  } = input;
+  if (next2 == braceR || next2 == -1 || stack.context) input.acceptToken(insertSemi);
+}, {
+  contextual: true,
+  fallback: true
+});
 const noSemicolon = new ExternalTokenizer((input, stack) => {
   let {
       next: next2
@@ -107405,211 +118704,7 @@ function phrase(view2, phrase2) {
 }
 const AnnounceMargin = 30;
 const Break = /[\s\.,:;?!]/;
-function memo(getDeps, fn2, opts) {
-  let deps = opts.initialDeps ?? [];
-  let result;
-  let isInitial = true;
-  function memoizedFunction() {
-    var _a2, _b, _c;
-    let depTime;
-    if (opts.key && ((_a2 = opts.debug) == null ? void 0 : _a2.call(opts))) depTime = Date.now();
-    const newDeps = getDeps();
-    const depsChanged = newDeps.length !== deps.length || newDeps.some((dep, index2) => deps[index2] !== dep);
-    if (!depsChanged) {
-      return result;
-    }
-    deps = newDeps;
-    let resultTime;
-    if (opts.key && ((_b = opts.debug) == null ? void 0 : _b.call(opts))) resultTime = Date.now();
-    result = fn2(...newDeps);
-    if (opts.key && ((_c = opts.debug) == null ? void 0 : _c.call(opts))) {
-      const depEndTime = Math.round((Date.now() - depTime) * 100) / 100;
-      const resultEndTime = Math.round((Date.now() - resultTime) * 100) / 100;
-      const resultFpsPercentage = resultEndTime / 16;
-      const pad = (str2, num) => {
-        str2 = String(str2);
-        while (str2.length < num) {
-          str2 = " " + str2;
-        }
-        return str2;
-      };
-      console.info(`%c⏱ ${pad(resultEndTime, 5)} /${pad(depEndTime, 5)} ms`, `
-            font-size: .6rem;
-            font-weight: bold;
-            color: hsl(${Math.max(0, Math.min(120 - 120 * resultFpsPercentage, 120))}deg 100% 31%);`, opts == null ? void 0 : opts.key);
-    }
-    if ((opts == null ? void 0 : opts.onChange) && !(isInitial && opts.skipInitialOnChange)) {
-      opts.onChange(result);
-    }
-    isInitial = false;
-    return result;
-  }
-  memoizedFunction.updateDeps = newDeps => {
-    deps = newDeps;
-  };
-  return memoizedFunction;
-}
-function notUndefined(value, msg) {
-  if (value === void 0) {
-    throw new Error(`Unexpected undefined${""}`);
-  } else {
-    return value;
-  }
-}
-const approxEqual = (a2, b3) => Math.abs(a2 - b3) < 1.01;
-const debounce = (targetWindow, fn2, ms) => {
-  let timeoutId;
-  return function (...args) {
-    targetWindow.clearTimeout(timeoutId);
-    timeoutId = targetWindow.setTimeout(() => fn2.apply(this, args), ms);
-  };
-};
-const getRect = element2 => {
-  const {
-    offsetWidth,
-    offsetHeight
-  } = element2;
-  return {
-    width: offsetWidth,
-    height: offsetHeight
-  };
-};
-const defaultKeyExtractor = index2 => index2;
-const defaultRangeExtractor = range2 => {
-  const start2 = Math.max(range2.startIndex - range2.overscan, 0);
-  const end2 = Math.min(range2.endIndex + range2.overscan, range2.count - 1);
-  const arr = [];
-  for (let i2 = start2; i2 <= end2; i2++) {
-    arr.push(i2);
-  }
-  return arr;
-};
-const observeElementRect = (instance2, cb) => {
-  const element2 = instance2.scrollElement;
-  if (!element2) {
-    return;
-  }
-  const targetWindow = instance2.targetWindow;
-  if (!targetWindow) {
-    return;
-  }
-  const handler = rect => {
-    const {
-      width,
-      height
-    } = rect;
-    cb({
-      width: Math.round(width),
-      height: Math.round(height)
-    });
-  };
-  handler(getRect(element2));
-  if (!targetWindow.ResizeObserver) {
-    return () => {};
-  }
-  const observer2 = new targetWindow.ResizeObserver(entries2 => {
-    const run2 = () => {
-      const entry = entries2[0];
-      if (entry == null ? void 0 : entry.borderBoxSize) {
-        const box2 = entry.borderBoxSize[0];
-        if (box2) {
-          handler({
-            width: box2.inlineSize,
-            height: box2.blockSize
-          });
-          return;
-        }
-      }
-      handler(getRect(element2));
-    };
-    instance2.options.useAnimationFrameWithResizeObserver ? requestAnimationFrame(run2) : run2();
-  });
-  observer2.observe(element2, {
-    box: "border-box"
-  });
-  return () => {
-    observer2.unobserve(element2);
-  };
-};
-const addEventListenerOptions = {
-  passive: true
-};
-const supportsScrollend = typeof window == "undefined" ? true : "onscrollend" in window;
-const observeElementOffset = (instance2, cb) => {
-  const element2 = instance2.scrollElement;
-  if (!element2) {
-    return;
-  }
-  const targetWindow = instance2.targetWindow;
-  if (!targetWindow) {
-    return;
-  }
-  let offset2 = 0;
-  const fallback = instance2.options.useScrollendEvent && supportsScrollend ? () => void 0 : debounce(targetWindow, () => {
-    cb(offset2, false);
-  }, instance2.options.isScrollingResetDelay);
-  const createHandler = isScrolling => () => {
-    const {
-      horizontal,
-      isRtl
-    } = instance2.options;
-    offset2 = horizontal ? element2["scrollLeft"] * (isRtl && -1 || 1) : element2["scrollTop"];
-    fallback();
-    cb(offset2, isScrolling);
-  };
-  const handler = createHandler(true);
-  const endHandler = createHandler(false);
-  element2.addEventListener("scroll", handler, addEventListenerOptions);
-  const registerScrollendEvent = instance2.options.useScrollendEvent && supportsScrollend;
-  if (registerScrollendEvent) {
-    element2.addEventListener("scrollend", endHandler, addEventListenerOptions);
-  }
-  return () => {
-    element2.removeEventListener("scroll", handler);
-    if (registerScrollendEvent) {
-      element2.removeEventListener("scrollend", endHandler);
-    }
-  };
-};
-const measureElement = (element2, entry, instance2) => {
-  if (entry == null ? void 0 : entry.borderBoxSize) {
-    const box2 = entry.borderBoxSize[0];
-    if (box2) {
-      const size2 = Math.round(box2[instance2.options.horizontal ? "inlineSize" : "blockSize"]);
-      return size2;
-    }
-  }
-  return element2[instance2.options.horizontal ? "offsetWidth" : "offsetHeight"];
-};
-const elementScroll = (offset2, {
-  adjustments = 0,
-  behavior
-}, instance2) => {
-  var _a2, _b;
-  const toOffset = offset2 + adjustments;
-  (_b = (_a2 = instance2.scrollElement) == null ? void 0 : _a2.scrollTo) == null ? void 0 : _b.call(_a2, {
-    [instance2.options.horizontal ? "left" : "top"]: toOffset,
-    behavior
-  });
-};
-const findNearestBinarySearch = (low, high, getCurrentValue, value) => {
-  while (low <= high) {
-    const middle = (low + high) / 2 | 0;
-    const currentValue = getCurrentValue(middle);
-    if (currentValue < value) {
-      low = middle + 1;
-    } else if (currentValue > value) {
-      high = middle - 1;
-    } else {
-      return middle;
-    }
-  }
-  if (low > 0) {
-    return low - 1;
-  } else {
-    return 0;
-  }
-};
+const useIsomorphicLayoutEffect = typeof document !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
 const isIterable = obj => Symbol.iterator in obj;
 const hasIterableEntries = value =>
 // HACK: avoid checking entries type
@@ -107692,8 +118787,33 @@ function tr$2(e2) {
     e2.node(n2).dummy === "border" && e2.removeNode(n2);
   });
 }
+function useIntersectionObserver(ref, callback, intersectionObserverOptions2 = {}, options = {}) {
+  reactExports.useEffect(() => {
+    if (!ref.current || options.disabled || typeof IntersectionObserver !== "function") return;
+    const observer2 = new IntersectionObserver(([entry]) => {
+      callback(entry);
+    }, intersectionObserverOptions2);
+    observer2.observe(ref.current);
+    return () => {
+      observer2.disconnect();
+    };
+  }, [callback, intersectionObserverOptions2, options.disabled, ref]);
+}
+function useForwardedRef(ref) {
+  const innerRef = reactExports.useRef(null);
+  reactExports.useImperativeHandle(ref, () => innerRef.current, []);
+  return innerRef;
+}
+var isServer$1 = false;
 function last(arr) {
   return arr[arr.length - 1];
+}
+function isFunction(d2) {
+  return typeof d2 === "function";
+}
+function functionalUpdate$1(updater, previous2) {
+  if (isFunction(updater)) return updater(previous2);
+  return updater;
 }
 var hasOwn$1 = Object.prototype.hasOwnProperty;
 var isEnumerable = Object.prototype.propertyIsEnumerable;
@@ -107756,6 +118876,33 @@ function hasObjectPrototype$1(o2) {
 }
 function isPlainArray$1(value) {
   return Array.isArray(value) && value.length === Object.keys(value).length;
+}
+function deepEqual(a2, b3, opts) {
+  if (a2 === b3) return true;
+  if (typeof a2 !== typeof b3) return false;
+  if (Array.isArray(a2) && Array.isArray(b3)) {
+    if (a2.length !== b3.length) return false;
+    for (let i2 = 0, l2 = a2.length; i2 < l2; i2++) if (!deepEqual(a2[i2], b3[i2], opts)) return false;
+    return true;
+  }
+  if (isPlainObject$2(a2) && isPlainObject$2(b3)) {
+    const ignoreUndefined = opts?.ignoreUndefined ?? true;
+    if (opts?.partial) {
+      for (const k2 in b3) if (!ignoreUndefined || b3[k2] !== void 0) {
+        if (!deepEqual(a2[k2], b3[k2], opts)) return false;
+      }
+      return true;
+    }
+    let aCount = 0;
+    if (!ignoreUndefined) aCount = Object.keys(a2).length;else for (const k2 in a2) if (a2[k2] !== void 0) aCount++;
+    let bCount = 0;
+    for (const k2 in b3) if (!ignoreUndefined || b3[k2] !== void 0) {
+      bCount++;
+      if (bCount > aCount || !deepEqual(a2[k2], b3[k2], opts)) return false;
+    }
+    return aCount === bCount;
+  }
+  return false;
 }
 function createControlledPromise(onResolve) {
   let resolveLoadPromise;
@@ -107823,6 +118970,38 @@ var HTML_ESCAPE_REGEX = /[&><\u2028\u2029]/g;
 function escapeHtml(str2) {
   return str2.replace(HTML_ESCAPE_REGEX, match2 => HTML_ESCAPE_LOOKUP[match2]);
 }
+function decodePath(path2) {
+  if (!path2) return {
+    path: path2,
+    handledProtocolRelativeURL: false
+  };
+  if (!/[%\\\x00-\x1f\x7f]/.test(path2) && !path2.startsWith("//")) return {
+    path: path2,
+    handledProtocolRelativeURL: false
+  };
+  const re2 = /%25|%5C/gi;
+  let cursor = 0;
+  let result = "";
+  let match2;
+  while (null !== (match2 = re2.exec(path2))) {
+    result += decodeSegment(path2.slice(cursor, match2.index)) + match2[0];
+    cursor = re2.lastIndex;
+  }
+  result = result + decodeSegment(cursor ? path2.slice(cursor) : path2);
+  let handledProtocolRelativeURL = false;
+  if (result.startsWith("//")) {
+    handledProtocolRelativeURL = true;
+    result = "/" + result.replace(/^\/+/, "");
+  }
+  return {
+    path: result,
+    handledProtocolRelativeURL
+  };
+}
+function encodePathLikeUrl(path2) {
+  if (!/\s|[^\u0000-\u007F]/.test(path2)) return path2;
+  return path2.replace(/\s|[^\u0000-\u007F]/gu, encodeURIComponent);
+}
 function arraysEqual(a2, b3) {
   if (a2 === b3) return true;
   if (a2.length !== b3.length) return false;
@@ -107832,8 +119011,323 @@ function arraysEqual(a2, b3) {
 function invariant() {
   throw new Error("Invariant failed");
 }
+function createLRUCache(max2) {
+  const cache2 = /* @__PURE__ */new Map();
+  let oldest;
+  let newest;
+  const touch2 = entry => {
+    if (!entry.next) return;
+    if (!entry.prev) {
+      entry.next.prev = void 0;
+      oldest = entry.next;
+      entry.next = void 0;
+      if (newest) {
+        entry.prev = newest;
+        newest.next = entry;
+      }
+    } else {
+      entry.prev.next = entry.next;
+      entry.next.prev = entry.prev;
+      entry.next = void 0;
+      if (newest) {
+        newest.next = entry;
+        entry.prev = newest;
+      }
+    }
+    newest = entry;
+  };
+  return {
+    get(key2) {
+      const entry = cache2.get(key2);
+      if (!entry) return void 0;
+      touch2(entry);
+      return entry.value;
+    },
+    set(key2, value) {
+      if (cache2.size >= max2 && oldest) {
+        const toDelete = oldest;
+        cache2.delete(toDelete.key);
+        if (toDelete.next) {
+          oldest = toDelete.next;
+          toDelete.next.prev = void 0;
+        }
+        if (toDelete === newest) newest = void 0;
+      }
+      const existing = cache2.get(key2);
+      if (existing) {
+        existing.value = value;
+        touch2(existing);
+      } else {
+        const entry = {
+          key: key2,
+          value,
+          prev: newest
+        };
+        if (newest) newest.next = entry;
+        newest = entry;
+        if (!oldest) oldest = entry;
+        cache2.set(key2, entry);
+      }
+    },
+    clear() {
+      cache2.clear();
+      oldest = void 0;
+      newest = void 0;
+    }
+  };
+}
 var SEGMENT_TYPE_INDEX = 4;
 var SEGMENT_TYPE_PATHLESS = 5;
+function getOpenAndCloseBraces(part) {
+  const openBrace = part.indexOf("{");
+  if (openBrace === -1) return null;
+  const closeBrace = part.indexOf("}", openBrace);
+  if (closeBrace === -1) return null;
+  if (openBrace + 1 >= part.length) return null;
+  return [openBrace, closeBrace];
+}
+function parseSegment(path2, start2, output = new Uint16Array(6)) {
+  const next2 = path2.indexOf("/", start2);
+  const end2 = next2 === -1 ? path2.length : next2;
+  const part = path2.substring(start2, end2);
+  if (!part || !part.includes("$")) {
+    output[0] = 0;
+    output[1] = start2;
+    output[2] = start2;
+    output[3] = end2;
+    output[4] = end2;
+    output[5] = end2;
+    return output;
+  }
+  if (part === "$") {
+    const total = path2.length;
+    output[0] = 2;
+    output[1] = start2;
+    output[2] = start2;
+    output[3] = total;
+    output[4] = total;
+    output[5] = total;
+    return output;
+  }
+  if (part.charCodeAt(0) === 36) {
+    output[0] = 1;
+    output[1] = start2;
+    output[2] = start2 + 1;
+    output[3] = end2;
+    output[4] = end2;
+    output[5] = end2;
+    return output;
+  }
+  const braces = getOpenAndCloseBraces(part);
+  if (braces) {
+    const [openBrace, closeBrace] = braces;
+    const firstChar = part.charCodeAt(openBrace + 1);
+    if (firstChar === 45) {
+      if (openBrace + 2 < part.length && part.charCodeAt(openBrace + 2) === 36) {
+        const paramStart = openBrace + 3;
+        const paramEnd = closeBrace;
+        if (paramStart < paramEnd) {
+          output[0] = 3;
+          output[1] = start2 + openBrace;
+          output[2] = start2 + paramStart;
+          output[3] = start2 + paramEnd;
+          output[4] = start2 + closeBrace + 1;
+          output[5] = end2;
+          return output;
+        }
+      }
+    } else if (firstChar === 36) {
+      const dollarPos = openBrace + 1;
+      const afterDollar = openBrace + 2;
+      if (afterDollar === closeBrace) {
+        output[0] = 2;
+        output[1] = start2 + openBrace;
+        output[2] = start2 + dollarPos;
+        output[3] = start2 + afterDollar;
+        output[4] = start2 + closeBrace + 1;
+        output[5] = path2.length;
+        return output;
+      }
+      output[0] = 1;
+      output[1] = start2 + openBrace;
+      output[2] = start2 + afterDollar;
+      output[3] = start2 + closeBrace;
+      output[4] = start2 + closeBrace + 1;
+      output[5] = end2;
+      return output;
+    }
+  }
+  output[0] = 0;
+  output[1] = start2;
+  output[2] = start2;
+  output[3] = end2;
+  output[4] = end2;
+  output[5] = end2;
+  return output;
+}
+function parseSegments(defaultCaseSensitive, data2, route, start2, node2, depth2, onRoute) {
+  onRoute?.(route);
+  let cursor = start2;
+  {
+    const path2 = route.fullPath ?? route.from;
+    const length2 = path2.length;
+    const caseSensitive = route.options?.caseSensitive ?? defaultCaseSensitive;
+    const skipOnParamError = !!(route.options?.params?.parse && route.options?.skipRouteOnParseError?.params);
+    while (cursor < length2) {
+      const segment = parseSegment(path2, cursor, data2);
+      let nextNode;
+      const start22 = cursor;
+      const end2 = segment[5];
+      cursor = end2 + 1;
+      depth2++;
+      switch (segment[0]) {
+        case 0:
+          {
+            const value = path2.substring(segment[2], segment[3]);
+            if (caseSensitive) {
+              const existingNode = node2.static?.get(value);
+              if (existingNode) nextNode = existingNode;else {
+                node2.static ??= /* @__PURE__ */new Map();
+                const next2 = createStaticNode(route.fullPath ?? route.from);
+                next2.parent = node2;
+                next2.depth = depth2;
+                nextNode = next2;
+                node2.static.set(value, next2);
+              }
+            } else {
+              const name2 = value.toLowerCase();
+              const existingNode = node2.staticInsensitive?.get(name2);
+              if (existingNode) nextNode = existingNode;else {
+                node2.staticInsensitive ??= /* @__PURE__ */new Map();
+                const next2 = createStaticNode(route.fullPath ?? route.from);
+                next2.parent = node2;
+                next2.depth = depth2;
+                nextNode = next2;
+                node2.staticInsensitive.set(name2, next2);
+              }
+            }
+            break;
+          }
+        case 1:
+          {
+            const prefix_raw = path2.substring(start22, segment[1]);
+            const suffix_raw = path2.substring(segment[4], end2);
+            const actuallyCaseSensitive = caseSensitive && !!(prefix_raw || suffix_raw);
+            const prefix = !prefix_raw ? void 0 : actuallyCaseSensitive ? prefix_raw : prefix_raw.toLowerCase();
+            const suffix = !suffix_raw ? void 0 : actuallyCaseSensitive ? suffix_raw : suffix_raw.toLowerCase();
+            const existingNode = !skipOnParamError && node2.dynamic?.find(s2 => !s2.skipOnParamError && s2.caseSensitive === actuallyCaseSensitive && s2.prefix === prefix && s2.suffix === suffix);
+            if (existingNode) nextNode = existingNode;else {
+              const next2 = createDynamicNode(1, route.fullPath ?? route.from, actuallyCaseSensitive, prefix, suffix);
+              nextNode = next2;
+              next2.depth = depth2;
+              next2.parent = node2;
+              node2.dynamic ??= [];
+              node2.dynamic.push(next2);
+            }
+            break;
+          }
+        case 3:
+          {
+            const prefix_raw = path2.substring(start22, segment[1]);
+            const suffix_raw = path2.substring(segment[4], end2);
+            const actuallyCaseSensitive = caseSensitive && !!(prefix_raw || suffix_raw);
+            const prefix = !prefix_raw ? void 0 : actuallyCaseSensitive ? prefix_raw : prefix_raw.toLowerCase();
+            const suffix = !suffix_raw ? void 0 : actuallyCaseSensitive ? suffix_raw : suffix_raw.toLowerCase();
+            const existingNode = !skipOnParamError && node2.optional?.find(s2 => !s2.skipOnParamError && s2.caseSensitive === actuallyCaseSensitive && s2.prefix === prefix && s2.suffix === suffix);
+            if (existingNode) nextNode = existingNode;else {
+              const next2 = createDynamicNode(3, route.fullPath ?? route.from, actuallyCaseSensitive, prefix, suffix);
+              nextNode = next2;
+              next2.parent = node2;
+              next2.depth = depth2;
+              node2.optional ??= [];
+              node2.optional.push(next2);
+            }
+            break;
+          }
+        case 2:
+          {
+            const prefix_raw = path2.substring(start22, segment[1]);
+            const suffix_raw = path2.substring(segment[4], end2);
+            const actuallyCaseSensitive = caseSensitive && !!(prefix_raw || suffix_raw);
+            const prefix = !prefix_raw ? void 0 : actuallyCaseSensitive ? prefix_raw : prefix_raw.toLowerCase();
+            const suffix = !suffix_raw ? void 0 : actuallyCaseSensitive ? suffix_raw : suffix_raw.toLowerCase();
+            const next2 = createDynamicNode(2, route.fullPath ?? route.from, actuallyCaseSensitive, prefix, suffix);
+            nextNode = next2;
+            next2.parent = node2;
+            next2.depth = depth2;
+            node2.wildcard ??= [];
+            node2.wildcard.push(next2);
+          }
+      }
+      node2 = nextNode;
+    }
+    if (skipOnParamError && route.children && !route.isRoot && route.id && route.id.charCodeAt(route.id.lastIndexOf("/") + 1) === 95) {
+      const pathlessNode = createStaticNode(route.fullPath ?? route.from);
+      pathlessNode.kind = SEGMENT_TYPE_PATHLESS;
+      pathlessNode.parent = node2;
+      depth2++;
+      pathlessNode.depth = depth2;
+      node2.pathless ??= [];
+      node2.pathless.push(pathlessNode);
+      node2 = pathlessNode;
+    }
+    const isLeaf = (route.path || !route.children) && !route.isRoot;
+    if (isLeaf && path2.endsWith("/")) {
+      const indexNode = createStaticNode(route.fullPath ?? route.from);
+      indexNode.kind = SEGMENT_TYPE_INDEX;
+      indexNode.parent = node2;
+      depth2++;
+      indexNode.depth = depth2;
+      node2.index = indexNode;
+      node2 = indexNode;
+    }
+    node2.parse = route.options?.params?.parse ?? null;
+    node2.skipOnParamError = skipOnParamError;
+    node2.parsingPriority = route.options?.skipRouteOnParseError?.priority ?? 0;
+    if (isLeaf && !node2.route) {
+      node2.route = route;
+      node2.fullPath = route.fullPath ?? route.from;
+    }
+  }
+  if (route.children) for (const child of route.children) parseSegments(defaultCaseSensitive, data2, child, cursor, node2, depth2, onRoute);
+}
+function sortDynamic(a2, b3) {
+  if (a2.skipOnParamError && !b3.skipOnParamError) return -1;
+  if (!a2.skipOnParamError && b3.skipOnParamError) return 1;
+  if (a2.skipOnParamError && b3.skipOnParamError && (a2.parsingPriority || b3.parsingPriority)) return b3.parsingPriority - a2.parsingPriority;
+  if (a2.prefix && b3.prefix && a2.prefix !== b3.prefix) {
+    if (a2.prefix.startsWith(b3.prefix)) return -1;
+    if (b3.prefix.startsWith(a2.prefix)) return 1;
+  }
+  if (a2.suffix && b3.suffix && a2.suffix !== b3.suffix) {
+    if (a2.suffix.endsWith(b3.suffix)) return -1;
+    if (b3.suffix.endsWith(a2.suffix)) return 1;
+  }
+  if (a2.prefix && !b3.prefix) return -1;
+  if (!a2.prefix && b3.prefix) return 1;
+  if (a2.suffix && !b3.suffix) return -1;
+  if (!a2.suffix && b3.suffix) return 1;
+  if (a2.caseSensitive && !b3.caseSensitive) return -1;
+  if (!a2.caseSensitive && b3.caseSensitive) return 1;
+  return 0;
+}
+function sortTreeNodes(node2) {
+  if (node2.pathless) for (const child of node2.pathless) sortTreeNodes(child);
+  if (node2.static) for (const child of node2.static.values()) sortTreeNodes(child);
+  if (node2.staticInsensitive) for (const child of node2.staticInsensitive.values()) sortTreeNodes(child);
+  if (node2.dynamic?.length) {
+    node2.dynamic.sort(sortDynamic);
+    for (const child of node2.dynamic) sortTreeNodes(child);
+  }
+  if (node2.optional?.length) {
+    node2.optional.sort(sortDynamic);
+    for (const child of node2.optional) sortTreeNodes(child);
+  }
+  if (node2.wildcard?.length) {
+    node2.wildcard.sort(sortDynamic);
+    for (const child of node2.wildcard) sortTreeNodes(child);
+  }
+}
 function createStaticNode(fullPath) {
   return {
     kind: 0,
@@ -107853,6 +119347,58 @@ function createStaticNode(fullPath) {
     parsingPriority: 0
   };
 }
+function createDynamicNode(kind, fullPath, caseSensitive, prefix, suffix) {
+  return {
+    kind,
+    depth: 0,
+    pathless: null,
+    index: null,
+    static: null,
+    staticInsensitive: null,
+    dynamic: null,
+    optional: null,
+    wildcard: null,
+    route: null,
+    fullPath,
+    parent: null,
+    parse: null,
+    skipOnParamError: false,
+    parsingPriority: 0,
+    caseSensitive,
+    prefix,
+    suffix
+  };
+}
+function processRouteMasks(routeList, processedTree) {
+  const segmentTree = createStaticNode("/");
+  const data2 = new Uint16Array(6);
+  for (const route of routeList) parseSegments(false, data2, route, 1, segmentTree, 0);
+  sortTreeNodes(segmentTree);
+  processedTree.masksTree = segmentTree;
+  processedTree.flatCache = createLRUCache(1e3);
+}
+function findFlatMatch(path2, processedTree) {
+  path2 ||= "/";
+  const cached = processedTree.flatCache.get(path2);
+  if (cached) return cached;
+  const result = findMatch(path2, processedTree.masksTree);
+  processedTree.flatCache.set(path2, result);
+  return result;
+}
+function findSingleMatch(from2, caseSensitive, fuzzy, path2, processedTree) {
+  from2 ||= "/";
+  path2 ||= "/";
+  const key2 = caseSensitive ? `case\0${from2}` : from2;
+  let tree = processedTree.singleCache.get(key2);
+  if (!tree) {
+    tree = createStaticNode("/");
+    parseSegments(caseSensitive, new Uint16Array(6), {
+      from: from2
+    }, 1, tree, 0);
+    processedTree.singleCache.set(key2, tree);
+  }
+  return findMatch(path2, tree, fuzzy);
+}
 function findRouteMatch(path2, processedTree, fuzzy = false) {
   const key2 = fuzzy ? path2 : `nofuzz\0${path2}`;
   const cached = processedTree.matchCache.get(key2);
@@ -107870,6 +119416,37 @@ function findRouteMatch(path2, processedTree, fuzzy = false) {
 }
 function trimPathRight$1(path2) {
   return path2 === "/" ? path2 : path2.replace(/\/{1,}$/, "");
+}
+function processRouteTree(routeTree2, caseSensitive = false, initRoute) {
+  const segmentTree = createStaticNode(routeTree2.fullPath);
+  const data2 = new Uint16Array(6);
+  const routesById = {};
+  const routesByPath = {};
+  let index2 = 0;
+  parseSegments(caseSensitive, data2, routeTree2, 1, segmentTree, 0, route => {
+    initRoute?.(route, index2);
+    if (route.id in routesById) {
+      invariant();
+    }
+    routesById[route.id] = route;
+    if (index2 !== 0 && route.path) {
+      const trimmedFullPath = trimPathRight$1(route.fullPath);
+      if (!routesByPath[trimmedFullPath] || route.fullPath.endsWith("/")) routesByPath[trimmedFullPath] = route;
+    }
+    index2++;
+  });
+  sortTreeNodes(segmentTree);
+  return {
+    processedTree: {
+      segmentTree,
+      singleCache: createLRUCache(1e3),
+      matchCache: createLRUCache(1e3),
+      flatCache: null,
+      masksTree: null
+    },
+    routesById,
+    routesByPath
+  };
 }
 function findMatch(path2, segmentTree, fuzzy = false) {
   const parts = path2.split("/");
@@ -108236,6 +119813,158 @@ function removeTrailingSlash(value, basepath) {
 function exactPathTest(pathName1, pathName2, basepath) {
   return removeTrailingSlash(pathName1, basepath) === removeTrailingSlash(pathName2, basepath);
 }
+function resolvePath({
+  base: base2,
+  to,
+  trailingSlash = "never",
+  cache: cache2
+}) {
+  const isAbsolute = to.startsWith("/");
+  const isBase = !isAbsolute && to === ".";
+  let key2;
+  if (cache2) {
+    key2 = isAbsolute ? to : isBase ? base2 : base2 + "\0" + to;
+    const cached = cache2.get(key2);
+    if (cached) return cached;
+  }
+  let baseSegments;
+  if (isBase) baseSegments = base2.split("/");else if (isAbsolute) baseSegments = to.split("/");else {
+    baseSegments = base2.split("/");
+    while (baseSegments.length > 1 && last(baseSegments) === "") baseSegments.pop();
+    const toSegments = to.split("/");
+    for (let index2 = 0, length2 = toSegments.length; index2 < length2; index2++) {
+      const value = toSegments[index2];
+      if (value === "") {
+        if (!index2) baseSegments = [value];else if (index2 === length2 - 1) baseSegments.push(value);
+      } else if (value === "..") baseSegments.pop();else if (value === ".") ;else baseSegments.push(value);
+    }
+  }
+  if (baseSegments.length > 1) {
+    if (last(baseSegments) === "") {
+      if (trailingSlash === "never") baseSegments.pop();
+    } else if (trailingSlash === "always") baseSegments.push("");
+  }
+  let segment;
+  let joined = "";
+  for (let i2 = 0; i2 < baseSegments.length; i2++) {
+    if (i2 > 0) joined += "/";
+    const part = baseSegments[i2];
+    if (!part) continue;
+    segment = parseSegment(part, 0, segment);
+    const kind = segment[0];
+    if (kind === 0) {
+      joined += part;
+      continue;
+    }
+    const end2 = segment[5];
+    const prefix = part.substring(0, segment[1]);
+    const suffix = part.substring(segment[4], end2);
+    const value = part.substring(segment[2], segment[3]);
+    if (kind === 1) joined += prefix || suffix ? `${prefix}{$${value}}${suffix}` : `$${value}`;else if (kind === 2) joined += prefix || suffix ? `${prefix}{$}${suffix}` : "$";else joined += `${prefix}{-$${value}}${suffix}`;
+  }
+  joined = cleanPath$2(joined);
+  const result = joined || "/";
+  if (key2 && cache2) cache2.set(key2, result);
+  return result;
+}
+function compileDecodeCharMap(pathParamsAllowedCharacters) {
+  const charMap = new Map(pathParamsAllowedCharacters.map(char => [encodeURIComponent(char), char]));
+  const pattern = Array.from(charMap.keys()).map(key2 => key2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const regex = new RegExp(pattern, "g");
+  return encoded => encoded.replace(regex, match2 => charMap.get(match2) ?? match2);
+}
+function encodeParam(key2, params, decoder) {
+  const value = params[key2];
+  if (typeof value !== "string") return value;
+  if (key2 === "_splat") {
+    if (/^[a-zA-Z0-9\-._~!/]*$/.test(value)) return value;
+    return value.split("/").map(segment => encodePathParam(segment, decoder)).join("/");
+  } else return encodePathParam(value, decoder);
+}
+function interpolatePath({
+  path: path2,
+  params,
+  decoder,
+  ...rest
+}) {
+  let isMissingParams = false;
+  const usedParams = /* @__PURE__ */Object.create(null);
+  if (!path2 || path2 === "/") return {
+    interpolatedPath: "/",
+    usedParams,
+    isMissingParams
+  };
+  if (!path2.includes("$")) return {
+    interpolatedPath: path2,
+    usedParams,
+    isMissingParams
+  };
+  const length2 = path2.length;
+  let cursor = 0;
+  let segment;
+  let joined = "";
+  while (cursor < length2) {
+    const start2 = cursor;
+    segment = parseSegment(path2, start2, segment);
+    const end2 = segment[5];
+    cursor = end2 + 1;
+    if (start2 === end2) continue;
+    const kind = segment[0];
+    if (kind === 0) {
+      joined += "/" + path2.substring(start2, end2);
+      continue;
+    }
+    if (kind === 2) {
+      const splat = params._splat;
+      usedParams._splat = splat;
+      usedParams["*"] = splat;
+      const prefix = path2.substring(start2, segment[1]);
+      const suffix = path2.substring(segment[4], end2);
+      if (!splat) {
+        isMissingParams = true;
+        if (prefix || suffix) joined += "/" + prefix + suffix;
+        continue;
+      }
+      const value = encodeParam("_splat", params, decoder);
+      joined += "/" + prefix + value + suffix;
+      continue;
+    }
+    if (kind === 1) {
+      const key2 = path2.substring(segment[2], segment[3]);
+      if (!isMissingParams && !(key2 in params)) isMissingParams = true;
+      usedParams[key2] = params[key2];
+      const prefix = path2.substring(start2, segment[1]);
+      const suffix = path2.substring(segment[4], end2);
+      const value = encodeParam(key2, params, decoder) ?? "undefined";
+      joined += "/" + prefix + value + suffix;
+      continue;
+    }
+    if (kind === 3) {
+      const key2 = path2.substring(segment[2], segment[3]);
+      const valueRaw = params[key2];
+      if (valueRaw == null) continue;
+      usedParams[key2] = valueRaw;
+      const prefix = path2.substring(start2, segment[1]);
+      const suffix = path2.substring(segment[4], end2);
+      const value = encodeParam(key2, params, decoder) ?? "";
+      joined += "/" + prefix + value + suffix;
+      continue;
+    }
+  }
+  if (path2.endsWith("/")) joined += "/";
+  return {
+    usedParams,
+    interpolatedPath: joined || "/",
+    isMissingParams
+  };
+}
+function encodePathParam(value, decoder) {
+  const encoded = encodeURIComponent(value);
+  return decoder?.(encoded) ?? encoded;
+}
+function isNotFound(obj) {
+  return !!obj?.isNotFound;
+}
 var storageKey$1 = "tsr-scroll-restoration-v1_3";
 var defaultGetScrollRestorationKey = location2 => {
   return location2.state.__TSR_key || location2.href;
@@ -108311,6 +120040,20 @@ function redirect(opts) {
   if (opts.throw) throw response;
   return response;
 }
+function isRedirect(obj) {
+  return obj instanceof Response && !!obj.options;
+}
+var triggerOnReady = inner => {
+  if (!inner.rendered) {
+    inner.rendered = true;
+    return inner.onReady?.();
+  }
+};
+var hasForcePendingActiveMatch = router2 => {
+  return router2.stores.matchesId.state.some(matchId => {
+    return router2.stores.activeMatchStoresById.get(matchId)?.state._forcePending;
+  });
+};
 var resolvePreload = (inner, matchId) => {
   return !!(inner.preload && !inner.router.stores.activeMatchStoresById.has(matchId));
 };
@@ -108327,6 +120070,256 @@ var buildMatchContext = (inner, index2, includeCurrentMatch = true) => {
     Object.assign(context, m3.__routeContext, m3.__beforeLoadContext);
   }
   return context;
+};
+var getNotFoundBoundaryIndex = (inner, err) => {
+  if (!inner.matches.length) return;
+  const requestedRouteId = err.routeId;
+  const matchedRootIndex = inner.matches.findIndex(m3 => m3.routeId === inner.router.routeTree.id);
+  const rootIndex = matchedRootIndex >= 0 ? matchedRootIndex : 0;
+  let startIndex = requestedRouteId ? inner.matches.findIndex(match2 => match2.routeId === requestedRouteId) : inner.firstBadMatchIndex ?? inner.matches.length - 1;
+  if (startIndex < 0) startIndex = rootIndex;
+  for (let i2 = startIndex; i2 >= 0; i2--) {
+    const match2 = inner.matches[i2];
+    if (inner.router.looseRoutesById[match2.routeId].options.notFoundComponent) return i2;
+  }
+  return requestedRouteId ? startIndex : rootIndex;
+};
+var handleRedirectAndNotFound = (inner, match2, err) => {
+  if (!isRedirect(err) && !isNotFound(err)) return;
+  if (isRedirect(err) && err.redirectHandled && !err.options.reloadDocument) throw err;
+  if (match2) {
+    match2._nonReactive.beforeLoadPromise?.resolve();
+    match2._nonReactive.loaderPromise?.resolve();
+    match2._nonReactive.beforeLoadPromise = void 0;
+    match2._nonReactive.loaderPromise = void 0;
+    match2._nonReactive.error = err;
+    inner.updateMatch(match2.id, prev => ({
+      ...prev,
+      status: isRedirect(err) ? "redirected" : prev.status === "pending" ? "success" : prev.status,
+      context: buildMatchContext(inner, match2.index),
+      isFetching: false,
+      error: err
+    }));
+    if (isNotFound(err) && !err.routeId) err.routeId = match2.routeId;
+    match2._nonReactive.loadPromise?.resolve();
+  }
+  if (isRedirect(err)) {
+    inner.rendered = true;
+    err.options._fromLocation = inner.location;
+    err.redirectHandled = true;
+    err = inner.router.resolveRedirect(err);
+  }
+  throw err;
+};
+var shouldSkipLoader = (inner, matchId) => {
+  const match2 = inner.router.getMatch(matchId);
+  if (!match2) return true;
+  if (match2._nonReactive.dehydrated) return true;
+  return false;
+};
+var syncMatchContext = (inner, matchId, index2) => {
+  const nextContext = buildMatchContext(inner, index2);
+  inner.updateMatch(matchId, prev => {
+    return {
+      ...prev,
+      context: nextContext
+    };
+  });
+};
+var handleSerialError = (inner, index2, err, routerCode) => {
+  const {
+    id: matchId,
+    routeId
+  } = inner.matches[index2];
+  const route = inner.router.looseRoutesById[routeId];
+  if (err instanceof Promise) throw err;
+  err.routerCode = routerCode;
+  inner.firstBadMatchIndex ??= index2;
+  handleRedirectAndNotFound(inner, inner.router.getMatch(matchId), err);
+  try {
+    route.options.onError?.(err);
+  } catch (errorHandlerErr) {
+    err = errorHandlerErr;
+    handleRedirectAndNotFound(inner, inner.router.getMatch(matchId), err);
+  }
+  inner.updateMatch(matchId, prev => {
+    prev._nonReactive.beforeLoadPromise?.resolve();
+    prev._nonReactive.beforeLoadPromise = void 0;
+    prev._nonReactive.loadPromise?.resolve();
+    return {
+      ...prev,
+      error: err,
+      status: "error",
+      isFetching: false,
+      updatedAt: Date.now(),
+      abortController: new AbortController()
+    };
+  });
+  if (!inner.preload && !isRedirect(err) && !isNotFound(err)) inner.serialError ??= err;
+};
+var setupPendingTimeout = (inner, matchId, route, match2) => {
+  if (match2._nonReactive.pendingTimeout !== void 0) return;
+  const pendingMs = route.options.pendingMs ?? inner.router.options.defaultPendingMs;
+  if (!!(inner.onReady && true && !resolvePreload(inner, matchId) && (route.options.loader || route.options.beforeLoad || routeNeedsPreload(route)) && typeof pendingMs === "number" && pendingMs !== Infinity && (route.options.pendingComponent ?? inner.router.options?.defaultPendingComponent))) {
+    const pendingTimeout = setTimeout(() => {
+      triggerOnReady(inner);
+    }, pendingMs);
+    match2._nonReactive.pendingTimeout = pendingTimeout;
+  }
+};
+var preBeforeLoadSetup = (inner, matchId, route) => {
+  const existingMatch = inner.router.getMatch(matchId);
+  if (!existingMatch._nonReactive.beforeLoadPromise && !existingMatch._nonReactive.loaderPromise) return;
+  setupPendingTimeout(inner, matchId, route, existingMatch);
+  const then = () => {
+    const match2 = inner.router.getMatch(matchId);
+    if (match2.preload && (match2.status === "redirected" || match2.status === "notFound")) handleRedirectAndNotFound(inner, match2, match2.error);
+  };
+  return existingMatch._nonReactive.beforeLoadPromise ? existingMatch._nonReactive.beforeLoadPromise.then(then) : then();
+};
+var executeBeforeLoad = (inner, matchId, index2, route) => {
+  const match2 = inner.router.getMatch(matchId);
+  let prevLoadPromise = match2._nonReactive.loadPromise;
+  match2._nonReactive.loadPromise = createControlledPromise(() => {
+    prevLoadPromise?.resolve();
+    prevLoadPromise = void 0;
+  });
+  const {
+    paramsError,
+    searchError
+  } = match2;
+  if (paramsError) handleSerialError(inner, index2, paramsError, "PARSE_PARAMS");
+  if (searchError) handleSerialError(inner, index2, searchError, "VALIDATE_SEARCH");
+  setupPendingTimeout(inner, matchId, route, match2);
+  const abortController = new AbortController();
+  let isPending = false;
+  const pending2 = () => {
+    if (isPending) return;
+    isPending = true;
+    inner.updateMatch(matchId, prev => ({
+      ...prev,
+      isFetching: "beforeLoad",
+      fetchCount: prev.fetchCount + 1,
+      abortController
+    }));
+  };
+  const resolve = () => {
+    match2._nonReactive.beforeLoadPromise?.resolve();
+    match2._nonReactive.beforeLoadPromise = void 0;
+    inner.updateMatch(matchId, prev => ({
+      ...prev,
+      isFetching: false
+    }));
+  };
+  if (!route.options.beforeLoad) {
+    inner.router.batch(() => {
+      pending2();
+      resolve();
+    });
+    return;
+  }
+  match2._nonReactive.beforeLoadPromise = createControlledPromise();
+  const context = {
+    ...buildMatchContext(inner, index2, false),
+    ...match2.__routeContext
+  };
+  const {
+    search: search2,
+    params,
+    cause
+  } = match2;
+  const preload2 = resolvePreload(inner, matchId);
+  const beforeLoadFnContext = {
+    search: search2,
+    abortController,
+    params,
+    preload: preload2,
+    context,
+    location: inner.location,
+    navigate: opts => inner.router.navigate({
+      ...opts,
+      _fromLocation: inner.location
+    }),
+    buildLocation: inner.router.buildLocation,
+    cause: preload2 ? "preload" : cause,
+    matches: inner.matches,
+    routeId: route.id,
+    ...inner.router.options.additionalContext
+  };
+  const updateContext = beforeLoadContext2 => {
+    if (beforeLoadContext2 === void 0) {
+      inner.router.batch(() => {
+        pending2();
+        resolve();
+      });
+      return;
+    }
+    if (isRedirect(beforeLoadContext2) || isNotFound(beforeLoadContext2)) {
+      pending2();
+      handleSerialError(inner, index2, beforeLoadContext2, "BEFORE_LOAD");
+    }
+    inner.router.batch(() => {
+      pending2();
+      inner.updateMatch(matchId, prev => ({
+        ...prev,
+        __beforeLoadContext: beforeLoadContext2
+      }));
+      resolve();
+    });
+  };
+  let beforeLoadContext;
+  try {
+    beforeLoadContext = route.options.beforeLoad(beforeLoadFnContext);
+    if (isPromise(beforeLoadContext)) {
+      pending2();
+      return beforeLoadContext.catch(err => {
+        handleSerialError(inner, index2, err, "BEFORE_LOAD");
+      }).then(updateContext);
+    }
+  } catch (err) {
+    pending2();
+    handleSerialError(inner, index2, err, "BEFORE_LOAD");
+  }
+  updateContext(beforeLoadContext);
+};
+var handleBeforeLoad = (inner, index2) => {
+  const {
+    id: matchId,
+    routeId
+  } = inner.matches[index2];
+  const route = inner.router.looseRoutesById[routeId];
+  const serverSsr = () => {
+    return queueExecution();
+  };
+  const execute = () => executeBeforeLoad(inner, matchId, index2, route);
+  const queueExecution = () => {
+    if (shouldSkipLoader(inner, matchId)) return;
+    const result = preBeforeLoadSetup(inner, matchId, route);
+    return isPromise(result) ? result.then(execute) : execute();
+  };
+  return serverSsr();
+};
+var executeHead = (inner, matchId, route) => {
+  const match2 = inner.router.getMatch(matchId);
+  if (!match2) return;
+  if (!route.options.head && !route.options.scripts && !route.options.headers) return;
+  const assetContext = {
+    ssr: inner.router.options.ssr,
+    matches: inner.matches,
+    match: match2,
+    params: match2.params,
+    loaderData: match2.loaderData
+  };
+  return Promise.all([route.options.head?.(assetContext), route.options.scripts?.(assetContext), route.options.headers?.(assetContext)]).then(([headFnContent, scripts, headers]) => {
+    return {
+      meta: headFnContent?.meta,
+      links: headFnContent?.links,
+      headScripts: headFnContent?.scripts,
+      headers,
+      scripts,
+      styles: headFnContent?.styles
+    };
+  });
 };
 var getLoaderContext = (inner, matchPromises, matchId, index2, route) => {
   const parentMatchPromise = matchPromises[index2 - 1];
@@ -108355,7 +120348,435 @@ var getLoaderContext = (inner, matchPromises, matchId, index2, route) => {
     ...inner.router.options.additionalContext
   };
 };
+var runLoader = async (inner, matchPromises, matchId, index2, route) => {
+  try {
+    const match2 = inner.router.getMatch(matchId);
+    try {
+      if (!(isServer$1 ?? inner.router.isServer) || match2.ssr === true) loadRouteChunk(route);
+      const routeLoader = route.options.loader;
+      const loader2 = typeof routeLoader === "function" ? routeLoader : routeLoader?.handler;
+      const loaderResult = loader2?.(getLoaderContext(inner, matchPromises, matchId, index2, route));
+      const loaderResultIsPromise = !!loader2 && isPromise(loaderResult);
+      if (!!(loaderResultIsPromise || route._lazyPromise || route._componentsPromise || route.options.head || route.options.scripts || route.options.headers || match2._nonReactive.minPendingPromise)) inner.updateMatch(matchId, prev => ({
+        ...prev,
+        isFetching: "loader"
+      }));
+      if (loader2) {
+        const loaderData = loaderResultIsPromise ? await loaderResult : loaderResult;
+        handleRedirectAndNotFound(inner, inner.router.getMatch(matchId), loaderData);
+        if (loaderData !== void 0) inner.updateMatch(matchId, prev => ({
+          ...prev,
+          loaderData
+        }));
+      }
+      if (route._lazyPromise) await route._lazyPromise;
+      const pendingPromise = match2._nonReactive.minPendingPromise;
+      if (pendingPromise) await pendingPromise;
+      if (route._componentsPromise) await route._componentsPromise;
+      inner.updateMatch(matchId, prev => ({
+        ...prev,
+        error: void 0,
+        context: buildMatchContext(inner, index2),
+        status: "success",
+        isFetching: false,
+        updatedAt: Date.now()
+      }));
+    } catch (e2) {
+      let error = e2;
+      if (error?.name === "AbortError") {
+        if (match2.abortController.signal.aborted) {
+          match2._nonReactive.loaderPromise?.resolve();
+          match2._nonReactive.loaderPromise = void 0;
+          return;
+        }
+        inner.updateMatch(matchId, prev => ({
+          ...prev,
+          status: prev.status === "pending" ? "success" : prev.status,
+          isFetching: false,
+          context: buildMatchContext(inner, index2)
+        }));
+        return;
+      }
+      const pendingPromise = match2._nonReactive.minPendingPromise;
+      if (pendingPromise) await pendingPromise;
+      if (isNotFound(e2)) await route.options.notFoundComponent?.preload?.();
+      handleRedirectAndNotFound(inner, inner.router.getMatch(matchId), e2);
+      try {
+        route.options.onError?.(e2);
+      } catch (onErrorError) {
+        error = onErrorError;
+        handleRedirectAndNotFound(inner, inner.router.getMatch(matchId), onErrorError);
+      }
+      if (!isRedirect(error) && !isNotFound(error)) await loadRouteChunk(route, ["errorComponent"]);
+      inner.updateMatch(matchId, prev => ({
+        ...prev,
+        error,
+        context: buildMatchContext(inner, index2),
+        status: "error",
+        isFetching: false
+      }));
+    }
+  } catch (err) {
+    const match2 = inner.router.getMatch(matchId);
+    if (match2) match2._nonReactive.loaderPromise = void 0;
+    handleRedirectAndNotFound(inner, match2, err);
+  }
+};
+var loadRouteMatch = async (inner, matchPromises, index2) => {
+  async function handleLoader(preload2, prevMatch, previousRouteMatchId, match22, route2) {
+    const age = Date.now() - prevMatch.updatedAt;
+    const staleAge = preload2 ? route2.options.preloadStaleTime ?? inner.router.options.defaultPreloadStaleTime ?? 3e4 : route2.options.staleTime ?? inner.router.options.defaultStaleTime ?? 0;
+    const shouldReloadOption = route2.options.shouldReload;
+    const shouldReload = typeof shouldReloadOption === "function" ? shouldReloadOption(getLoaderContext(inner, matchPromises, matchId, index2, route2)) : shouldReloadOption;
+    const {
+      status,
+      invalid: invalid2
+    } = match22;
+    const staleMatchShouldReload = age >= staleAge && (!!inner.forceStaleReload || match22.cause === "enter" || previousRouteMatchId !== void 0 && previousRouteMatchId !== match22.id);
+    loaderShouldRunAsync = status === "success" && (invalid2 || (shouldReload ?? staleMatchShouldReload));
+    if (preload2 && route2.options.preload === false) ;else if (loaderShouldRunAsync && !inner.sync && shouldReloadInBackground) {
+      loaderIsRunningAsync = true;
+      (async () => {
+        try {
+          await runLoader(inner, matchPromises, matchId, index2, route2);
+          const match3 = inner.router.getMatch(matchId);
+          match3._nonReactive.loaderPromise?.resolve();
+          match3._nonReactive.loadPromise?.resolve();
+          match3._nonReactive.loaderPromise = void 0;
+          match3._nonReactive.loadPromise = void 0;
+        } catch (err) {
+          if (isRedirect(err)) await inner.router.navigate(err.options);
+        }
+      })();
+    } else if (status !== "success" || loaderShouldRunAsync) await runLoader(inner, matchPromises, matchId, index2, route2);else syncMatchContext(inner, matchId, index2);
+  }
+  const {
+    id: matchId,
+    routeId
+  } = inner.matches[index2];
+  let loaderShouldRunAsync = false;
+  let loaderIsRunningAsync = false;
+  const route = inner.router.looseRoutesById[routeId];
+  const routeLoader = route.options.loader;
+  const shouldReloadInBackground = ((typeof routeLoader === "function" ? void 0 : routeLoader?.staleReloadMode) ?? inner.router.options.defaultStaleReloadMode) !== "blocking";
+  if (shouldSkipLoader(inner, matchId)) {
+    if (!inner.router.getMatch(matchId)) return inner.matches[index2];
+    syncMatchContext(inner, matchId, index2);
+  } else {
+    const prevMatch = inner.router.getMatch(matchId);
+    const activeIdAtIndex = inner.router.stores.matchesId.state[index2];
+    const previousRouteMatchId = (activeIdAtIndex && inner.router.stores.activeMatchStoresById.get(activeIdAtIndex) || null)?.routeId === routeId ? activeIdAtIndex : inner.router.stores.activeMatchesSnapshot.state.find(d2 => d2.routeId === routeId)?.id;
+    const preload2 = resolvePreload(inner, matchId);
+    if (prevMatch._nonReactive.loaderPromise) {
+      if (prevMatch.status === "success" && !inner.sync && !prevMatch.preload && shouldReloadInBackground) return prevMatch;
+      await prevMatch._nonReactive.loaderPromise;
+      const match22 = inner.router.getMatch(matchId);
+      const error = match22._nonReactive.error || match22.error;
+      if (error) handleRedirectAndNotFound(inner, match22, error);
+      if (match22.status === "pending") await handleLoader(preload2, prevMatch, previousRouteMatchId, match22, route);
+    } else {
+      const nextPreload = preload2 && !inner.router.stores.activeMatchStoresById.has(matchId);
+      const match22 = inner.router.getMatch(matchId);
+      match22._nonReactive.loaderPromise = createControlledPromise();
+      if (nextPreload !== match22.preload) inner.updateMatch(matchId, prev => ({
+        ...prev,
+        preload: nextPreload
+      }));
+      await handleLoader(preload2, prevMatch, previousRouteMatchId, match22, route);
+    }
+  }
+  const match2 = inner.router.getMatch(matchId);
+  if (!loaderIsRunningAsync) {
+    match2._nonReactive.loaderPromise?.resolve();
+    match2._nonReactive.loadPromise?.resolve();
+    match2._nonReactive.loadPromise = void 0;
+  }
+  clearTimeout(match2._nonReactive.pendingTimeout);
+  match2._nonReactive.pendingTimeout = void 0;
+  if (!loaderIsRunningAsync) match2._nonReactive.loaderPromise = void 0;
+  match2._nonReactive.dehydrated = void 0;
+  const nextIsFetching = loaderIsRunningAsync ? match2.isFetching : false;
+  if (nextIsFetching !== match2.isFetching || match2.invalid !== false) {
+    inner.updateMatch(matchId, prev => ({
+      ...prev,
+      isFetching: nextIsFetching,
+      invalid: false
+    }));
+    return inner.router.getMatch(matchId);
+  } else return match2;
+};
+async function loadMatches(arg) {
+  const inner = arg;
+  const matchPromises = [];
+  if (hasForcePendingActiveMatch(inner.router)) triggerOnReady(inner);
+  let beforeLoadNotFound;
+  for (let i2 = 0; i2 < inner.matches.length; i2++) {
+    try {
+      const beforeLoad = handleBeforeLoad(inner, i2);
+      if (isPromise(beforeLoad)) await beforeLoad;
+    } catch (err) {
+      if (isRedirect(err)) throw err;
+      if (isNotFound(err)) beforeLoadNotFound = err;else if (!inner.preload) throw err;
+      break;
+    }
+    if (inner.serialError || inner.firstBadMatchIndex != null) break;
+  }
+  const baseMaxIndexExclusive = inner.firstBadMatchIndex ?? inner.matches.length;
+  const boundaryIndex = beforeLoadNotFound && !inner.preload ? getNotFoundBoundaryIndex(inner, beforeLoadNotFound) : void 0;
+  const maxIndexExclusive = beforeLoadNotFound && inner.preload ? 0 : boundaryIndex !== void 0 ? Math.min(boundaryIndex + 1, baseMaxIndexExclusive) : baseMaxIndexExclusive;
+  let firstNotFound;
+  let firstUnhandledRejection;
+  for (let i2 = 0; i2 < maxIndexExclusive; i2++) matchPromises.push(loadRouteMatch(inner, matchPromises, i2));
+  try {
+    await Promise.all(matchPromises);
+  } catch {
+    const settled = await Promise.allSettled(matchPromises);
+    for (const result of settled) {
+      if (result.status !== "rejected") continue;
+      const reason = result.reason;
+      if (isRedirect(reason)) throw reason;
+      if (isNotFound(reason)) firstNotFound ??= reason;else firstUnhandledRejection ??= reason;
+    }
+    if (firstUnhandledRejection !== void 0) throw firstUnhandledRejection;
+  }
+  const notFoundToThrow = firstNotFound ?? (beforeLoadNotFound && !inner.preload ? beforeLoadNotFound : void 0);
+  let headMaxIndex = inner.firstBadMatchIndex !== void 0 ? inner.firstBadMatchIndex : inner.matches.length - 1;
+  if (!notFoundToThrow && beforeLoadNotFound && inner.preload) return inner.matches;
+  if (notFoundToThrow) {
+    const renderedBoundaryIndex = getNotFoundBoundaryIndex(inner, notFoundToThrow);
+    if (renderedBoundaryIndex === void 0) {
+      invariant();
+    }
+    const boundaryMatch = inner.matches[renderedBoundaryIndex];
+    const boundaryRoute = inner.router.looseRoutesById[boundaryMatch.routeId];
+    const defaultNotFoundComponent = inner.router.options?.defaultNotFoundComponent;
+    if (!boundaryRoute.options.notFoundComponent && defaultNotFoundComponent) boundaryRoute.options.notFoundComponent = defaultNotFoundComponent;
+    notFoundToThrow.routeId = boundaryMatch.routeId;
+    const boundaryIsRoot = boundaryMatch.routeId === inner.router.routeTree.id;
+    inner.updateMatch(boundaryMatch.id, prev => ({
+      ...prev,
+      ...(boundaryIsRoot ? {
+        status: "success",
+        globalNotFound: true,
+        error: void 0
+      } : {
+        status: "notFound",
+        error: notFoundToThrow
+      }),
+      isFetching: false
+    }));
+    headMaxIndex = renderedBoundaryIndex;
+    await loadRouteChunk(boundaryRoute, ["notFoundComponent"]);
+  } else if (!inner.preload) {
+    const rootMatch = inner.matches[0];
+    if (!rootMatch.globalNotFound) {
+      if (inner.router.getMatch(rootMatch.id)?.globalNotFound) inner.updateMatch(rootMatch.id, prev => ({
+        ...prev,
+        globalNotFound: false,
+        error: void 0
+      }));
+    }
+  }
+  if (inner.serialError && inner.firstBadMatchIndex !== void 0) {
+    const errorRoute = inner.router.looseRoutesById[inner.matches[inner.firstBadMatchIndex].routeId];
+    await loadRouteChunk(errorRoute, ["errorComponent"]);
+  }
+  for (let i2 = 0; i2 <= headMaxIndex; i2++) {
+    const {
+      id: matchId,
+      routeId
+    } = inner.matches[i2];
+    const route = inner.router.looseRoutesById[routeId];
+    try {
+      const headResult = executeHead(inner, matchId, route);
+      if (headResult) {
+        const head2 = await headResult;
+        inner.updateMatch(matchId, prev => ({
+          ...prev,
+          ...head2
+        }));
+      }
+    } catch (err) {
+      console.error(`Error executing head for route ${routeId}:`, err);
+    }
+  }
+  const readyPromise = triggerOnReady(inner);
+  if (isPromise(readyPromise)) await readyPromise;
+  if (notFoundToThrow) throw notFoundToThrow;
+  if (inner.serialError && !inner.preload && !inner.onReady) throw inner.serialError;
+  return inner.matches;
+}
+function preloadRouteComponents(route, componentTypesToLoad) {
+  const preloads = componentTypesToLoad.map(type2 => route.options[type2]?.preload?.()).filter(Boolean);
+  if (preloads.length === 0) return void 0;
+  return Promise.all(preloads);
+}
+function loadRouteChunk(route, componentTypesToLoad = componentTypes) {
+  if (!route._lazyLoaded && route._lazyPromise === void 0) if (route.lazyFn) route._lazyPromise = route.lazyFn().then(lazyRoute => {
+    const {
+      id: _id,
+      ...options
+    } = lazyRoute.options;
+    Object.assign(route.options, options);
+    route._lazyLoaded = true;
+    route._lazyPromise = void 0;
+  });else route._lazyLoaded = true;
+  const runAfterLazy = () => route._componentsLoaded ? void 0 : componentTypesToLoad === componentTypes ? (() => {
+    if (route._componentsPromise === void 0) {
+      const componentsPromise = preloadRouteComponents(route, componentTypes);
+      if (componentsPromise) route._componentsPromise = componentsPromise.then(() => {
+        route._componentsLoaded = true;
+        route._componentsPromise = void 0;
+      });else route._componentsLoaded = true;
+    }
+    return route._componentsPromise;
+  })() : preloadRouteComponents(route, componentTypesToLoad);
+  return route._lazyPromise ? route._lazyPromise.then(runAfterLazy) : runAfterLazy();
+}
+function routeNeedsPreload(route) {
+  for (const componentType of componentTypes) if (route.options[componentType]?.preload) return true;
+  return false;
+}
+var componentTypes = ["component", "errorComponent", "pendingComponent", "notFoundComponent"];
 var stateIndexKey = "__TSR_index";
+var popStateEvent = "popstate";
+var beforeUnloadEvent = "beforeunload";
+function createHistory(opts) {
+  let location2 = opts.getLocation();
+  const subscribers2 = /* @__PURE__ */new Set();
+  const notify2 = action => {
+    location2 = opts.getLocation();
+    subscribers2.forEach(subscriber => subscriber({
+      location: location2,
+      action
+    }));
+  };
+  const handleIndexChange = action => {
+    if (opts.notifyOnIndexChange ?? true) notify2(action);else location2 = opts.getLocation();
+  };
+  const tryNavigation = async ({
+    task,
+    navigateOpts,
+    ...actionInfo
+  }) => {
+    if (navigateOpts?.ignoreBlocker ?? false) {
+      task();
+      return;
+    }
+    const blockers = opts.getBlockers?.() ?? [];
+    const isPushOrReplace = actionInfo.type === "PUSH" || actionInfo.type === "REPLACE";
+    if (typeof document !== "undefined" && blockers.length && isPushOrReplace) for (const blocker of blockers) {
+      const nextLocation = parseHref(actionInfo.path, actionInfo.state);
+      if (await blocker.blockerFn({
+        currentLocation: location2,
+        nextLocation,
+        action: actionInfo.type
+      })) {
+        opts.onBlocked?.();
+        return;
+      }
+    }
+    task();
+  };
+  return {
+    get location() {
+      return location2;
+    },
+    get length() {
+      return opts.getLength();
+    },
+    subscribers: subscribers2,
+    subscribe: cb => {
+      subscribers2.add(cb);
+      return () => {
+        subscribers2.delete(cb);
+      };
+    },
+    push: (path2, state2, navigateOpts) => {
+      const currentIndex = location2.state[stateIndexKey];
+      state2 = assignKeyAndIndex(currentIndex + 1, state2);
+      tryNavigation({
+        task: () => {
+          opts.pushState(path2, state2);
+          notify2({
+            type: "PUSH"
+          });
+        },
+        navigateOpts,
+        type: "PUSH",
+        path: path2,
+        state: state2
+      });
+    },
+    replace: (path2, state2, navigateOpts) => {
+      const currentIndex = location2.state[stateIndexKey];
+      state2 = assignKeyAndIndex(currentIndex, state2);
+      tryNavigation({
+        task: () => {
+          opts.replaceState(path2, state2);
+          notify2({
+            type: "REPLACE"
+          });
+        },
+        navigateOpts,
+        type: "REPLACE",
+        path: path2,
+        state: state2
+      });
+    },
+    go: (index2, navigateOpts) => {
+      tryNavigation({
+        task: () => {
+          opts.go(index2);
+          handleIndexChange({
+            type: "GO",
+            index: index2
+          });
+        },
+        navigateOpts,
+        type: "GO"
+      });
+    },
+    back: navigateOpts => {
+      tryNavigation({
+        task: () => {
+          opts.back(navigateOpts?.ignoreBlocker ?? false);
+          handleIndexChange({
+            type: "BACK"
+          });
+        },
+        navigateOpts,
+        type: "BACK"
+      });
+    },
+    forward: navigateOpts => {
+      tryNavigation({
+        task: () => {
+          opts.forward(navigateOpts?.ignoreBlocker ?? false);
+          handleIndexChange({
+            type: "FORWARD"
+          });
+        },
+        navigateOpts,
+        type: "FORWARD"
+      });
+    },
+    canGoBack: () => location2.state[stateIndexKey] !== 0,
+    createHref: str2 => opts.createHref(str2),
+    block: blocker => {
+      if (!opts.setBlockers) return () => {};
+      const blockers = opts.getBlockers?.() ?? [];
+      opts.setBlockers([...blockers, blocker]);
+      return () => {
+        const blockers2 = opts.getBlockers?.() ?? [];
+        opts.setBlockers?.(blockers2.filter(b3 => b3 !== blocker));
+      };
+    },
+    flush: () => opts.flush?.(),
+    destroy: () => opts.destroy?.(),
+    notify: notify2
+  };
+}
 function assignKeyAndIndex(index2, state2) {
   if (!state2) state2 = {};
   const key2 = createRandomKey();
@@ -108364,6 +120785,191 @@ function assignKeyAndIndex(index2, state2) {
     key: key2,
     __TSR_key: key2,
     [stateIndexKey]: index2
+  };
+}
+function createBrowserHistory(opts) {
+  const win2 = typeof document !== "undefined" ? window : void 0;
+  const originalPushState = win2.history.pushState;
+  const originalReplaceState = win2.history.replaceState;
+  let blockers = [];
+  const _getBlockers = () => blockers;
+  const _setBlockers = newBlockers => blockers = newBlockers;
+  const createHref = path2 => path2;
+  const parseLocation = () => parseHref(`${win2.location.pathname}${win2.location.search}${win2.location.hash}`, win2.history.state);
+  if (!win2.history.state?.__TSR_key && !win2.history.state?.key) {
+    const addedKey = createRandomKey();
+    win2.history.replaceState({
+      [stateIndexKey]: 0,
+      key: addedKey,
+      __TSR_key: addedKey
+    }, "");
+  }
+  let currentLocation = parseLocation();
+  let rollbackLocation;
+  let nextPopIsGo = false;
+  let ignoreNextPop = false;
+  let skipBlockerNextPop = false;
+  let ignoreNextBeforeUnload = false;
+  const getLocation = () => currentLocation;
+  let next2;
+  let scheduled;
+  const flush2 = () => {
+    if (!next2) return;
+    history2._ignoreSubscribers = true;
+    (next2.isPush ? win2.history.pushState : win2.history.replaceState)(next2.state, "", next2.href);
+    history2._ignoreSubscribers = false;
+    next2 = void 0;
+    scheduled = void 0;
+    rollbackLocation = void 0;
+  };
+  const queueHistoryAction = (type2, destHref, state2) => {
+    const href = createHref(destHref);
+    if (!scheduled) rollbackLocation = currentLocation;
+    currentLocation = parseHref(destHref, state2);
+    next2 = {
+      href,
+      state: state2,
+      isPush: next2?.isPush || type2 === "push"
+    };
+    if (!scheduled) scheduled = Promise.resolve().then(() => flush2());
+  };
+  const onPushPop = type2 => {
+    currentLocation = parseLocation();
+    history2.notify({
+      type: type2
+    });
+  };
+  const onPushPopEvent = async () => {
+    if (ignoreNextPop) {
+      ignoreNextPop = false;
+      return;
+    }
+    const nextLocation = parseLocation();
+    const delta = nextLocation.state[stateIndexKey] - currentLocation.state[stateIndexKey];
+    const isForward = delta === 1;
+    const isBack = delta === -1;
+    const isGo = !isForward && !isBack || nextPopIsGo;
+    nextPopIsGo = false;
+    const action = isGo ? "GO" : isBack ? "BACK" : "FORWARD";
+    const notify2 = isGo ? {
+      type: "GO",
+      index: delta
+    } : {
+      type: isBack ? "BACK" : "FORWARD"
+    };
+    if (skipBlockerNextPop) skipBlockerNextPop = false;else {
+      const blockers2 = _getBlockers();
+      if (typeof document !== "undefined" && blockers2.length) {
+        for (const blocker of blockers2) if (await blocker.blockerFn({
+          currentLocation,
+          nextLocation,
+          action
+        })) {
+          ignoreNextPop = true;
+          win2.history.go(1);
+          history2.notify(notify2);
+          return;
+        }
+      }
+    }
+    currentLocation = parseLocation();
+    history2.notify(notify2);
+  };
+  const onBeforeUnload = e2 => {
+    if (ignoreNextBeforeUnload) {
+      ignoreNextBeforeUnload = false;
+      return;
+    }
+    let shouldBlock = false;
+    const blockers2 = _getBlockers();
+    if (typeof document !== "undefined" && blockers2.length) for (const blocker of blockers2) {
+      const shouldHaveBeforeUnload = blocker.enableBeforeUnload ?? true;
+      if (shouldHaveBeforeUnload === true) {
+        shouldBlock = true;
+        break;
+      }
+      if (typeof shouldHaveBeforeUnload === "function" && shouldHaveBeforeUnload() === true) {
+        shouldBlock = true;
+        break;
+      }
+    }
+    if (shouldBlock) {
+      e2.preventDefault();
+      return e2.returnValue = "";
+    }
+  };
+  const history2 = createHistory({
+    getLocation,
+    getLength: () => win2.history.length,
+    pushState: (href, state2) => queueHistoryAction("push", href, state2),
+    replaceState: (href, state2) => queueHistoryAction("replace", href, state2),
+    back: ignoreBlocker => {
+      if (ignoreBlocker) skipBlockerNextPop = true;
+      ignoreNextBeforeUnload = true;
+      return win2.history.back();
+    },
+    forward: ignoreBlocker => {
+      if (ignoreBlocker) skipBlockerNextPop = true;
+      ignoreNextBeforeUnload = true;
+      win2.history.forward();
+    },
+    go: n2 => {
+      nextPopIsGo = true;
+      win2.history.go(n2);
+    },
+    createHref: href => createHref(href),
+    flush: flush2,
+    destroy: () => {
+      win2.history.pushState = originalPushState;
+      win2.history.replaceState = originalReplaceState;
+      win2.removeEventListener(beforeUnloadEvent, onBeforeUnload, {
+        capture: true
+      });
+      win2.removeEventListener(popStateEvent, onPushPopEvent);
+    },
+    onBlocked: () => {
+      if (rollbackLocation && currentLocation !== rollbackLocation) currentLocation = rollbackLocation;
+    },
+    getBlockers: _getBlockers,
+    setBlockers: _setBlockers,
+    notifyOnIndexChange: false
+  });
+  win2.addEventListener(beforeUnloadEvent, onBeforeUnload, {
+    capture: true
+  });
+  win2.addEventListener(popStateEvent, onPushPopEvent);
+  win2.history.pushState = function (...args) {
+    const res = originalPushState.apply(win2.history, args);
+    if (!history2._ignoreSubscribers) onPushPop("PUSH");
+    return res;
+  };
+  win2.history.replaceState = function (...args) {
+    const res = originalReplaceState.apply(win2.history, args);
+    if (!history2._ignoreSubscribers) onPushPop("REPLACE");
+    return res;
+  };
+  return history2;
+}
+function sanitizePath(path2) {
+  let sanitized = path2.replace(/[\x00-\x1f\x7f]/g, "");
+  if (sanitized.startsWith("//")) sanitized = "/" + sanitized.replace(/^\/+/, "");
+  return sanitized;
+}
+function parseHref(href, state2) {
+  const sanitizedHref = sanitizePath(href);
+  const hashIndex = sanitizedHref.indexOf("#");
+  const searchIndex = sanitizedHref.indexOf("?");
+  const addedKey = createRandomKey();
+  return {
+    href: sanitizedHref,
+    pathname: sanitizedHref.substring(0, hashIndex > 0 ? searchIndex > 0 ? Math.min(hashIndex, searchIndex) : hashIndex : searchIndex > 0 ? searchIndex : sanitizedHref.length),
+    hash: hashIndex > -1 ? sanitizedHref.substring(hashIndex) : "",
+    search: searchIndex > -1 ? sanitizedHref.slice(searchIndex, hashIndex === -1 ? void 0 : hashIndex) : "",
+    state: state2 || {
+      [stateIndexKey]: 0,
+      key: addedKey,
+      __TSR_key: addedKey
+    }
   };
 }
 function createRandomKey() {
@@ -108381,6 +120987,19 @@ function getLocationChangeInfo(location2, resolvedLocation) {
   };
 }
 var SearchParamError = class extends Error {};
+var PathParamError = class extends Error {};
+function getInitialRouterState(location2) {
+  return {
+    loadedAt: 0,
+    isLoading: false,
+    isTransitioning: false,
+    status: "idle",
+    resolvedLocation: void 0,
+    location: location2,
+    matches: [],
+    statusCode: 200
+  };
+}
 function validateSearch(validateSearch2, input) {
   if (validateSearch2 == null) return {};
   if ("~standard" in validateSearch2) {
@@ -108395,6 +121014,45 @@ function validateSearch(validateSearch2, input) {
   if (typeof validateSearch2 === "function") return validateSearch2(input);
   return {};
 }
+function getMatchedRoutes({
+  pathname,
+  routesById,
+  processedTree
+}) {
+  const routeParams = /* @__PURE__ */Object.create(null);
+  const trimmedPath = trimPathRight(pathname);
+  let foundRoute = void 0;
+  let parsedParams = void 0;
+  const match2 = findRouteMatch(trimmedPath, processedTree, true);
+  if (match2) {
+    foundRoute = match2.route;
+    Object.assign(routeParams, match2.rawParams);
+    parsedParams = Object.assign(/* @__PURE__ */Object.create(null), match2.parsedParams);
+  }
+  return {
+    matchedRoutes: match2?.branch || [routesById["__root__"]],
+    routeParams,
+    foundRoute,
+    parsedParams
+  };
+}
+function findGlobalNotFoundRouteId(notFoundMode, routes) {
+  if (notFoundMode !== "root") for (let i2 = routes.length - 1; i2 >= 0; i2--) {
+    const route = routes[i2];
+    if (route.children) return route.id;
+  }
+  return rootRouteId;
+}
+function extractStrictParams(route, referenceParams, parsedParams, accumulatedParams) {
+  const parseParams2 = route.options.params?.parse ?? route.options.parseParams;
+  if (parseParams2) if (route.options.skipRouteOnParseError) {
+    for (const key2 in referenceParams) if (key2 in parsedParams) accumulatedParams[key2] = parsedParams[key2];
+  } else {
+    const result = parseParams2(accumulatedParams);
+    Object.assign(accumulatedParams, result);
+  }
+}
+var preloadWarning = "Error preloading route! ☝️";
 var BaseRoute = class {
   get to() {
     return this._to;
@@ -108461,6 +121119,11 @@ var BaseRoute = class {
     if (options?.id && options?.path) throw new Error(`Route cannot have both an 'id' and a 'path' option.`);
   }
 };
+var BaseRootRoute = class extends BaseRoute {
+  constructor(options) {
+    super(options);
+  }
+};
 function ErrorComponent({
   error
 }) {
@@ -108513,6 +121176,22 @@ function ErrorComponent({
       })
     }) : null]
   });
+}
+function ClientOnly({
+  children: children2,
+  fallback = null
+}) {
+  return useHydrated() ? /* @__PURE__ */jsxRuntimeExports.jsx(React.Fragment, {
+    children: children2
+  }) : /* @__PURE__ */jsxRuntimeExports.jsx(React.Fragment, {
+    children: fallback
+  });
+}
+function useHydrated() {
+  return React.useSyncExternalStore(subscribe$1, () => true, () => false);
+}
+function subscribe$1() {
+  return () => {};
 }
 var routerContext = reactExports.createContext(null);
 function useRouter(opts) {
@@ -108760,6 +121439,236 @@ function toObserver(nextHandler, errorHandler2, completionHandler) {
   };
 }
 const queuedEffects = [];
+let cycle = 0;
+const {
+  link,
+  unlink,
+  propagate,
+  checkDirty,
+  shallowPropagate
+} = /* @__PURE__ */createReactiveSystem({
+  update(atom) {
+    return atom._update();
+  },
+  // eslint-disable-next-line no-shadow
+  notify(effect2) {
+    queuedEffects[queuedEffectsLength++] = effect2;
+    effect2.flags &= ~ReactiveFlags.Watching;
+  },
+  unwatched(atom) {
+    if (atom.depsTail !== void 0) {
+      atom.depsTail = void 0;
+      atom.flags = ReactiveFlags.Mutable | ReactiveFlags.Dirty;
+      purgeDeps(atom);
+    }
+  }
+});
+let notifyIndex = 0;
+let queuedEffectsLength = 0;
+let activeSub;
+let batchDepth = 0;
+function batch(fn2) {
+  try {
+    ++batchDepth;
+    fn2();
+  } finally {
+    if (! --batchDepth) {
+      flush$1();
+    }
+  }
+}
+function purgeDeps(sub) {
+  const depsTail = sub.depsTail;
+  let dep = depsTail !== void 0 ? depsTail.nextDep : sub.deps;
+  while (dep !== void 0) {
+    dep = unlink(dep, sub);
+  }
+}
+function flush$1() {
+  if (batchDepth > 0) {
+    return;
+  }
+  while (notifyIndex < queuedEffectsLength) {
+    const effect2 = queuedEffects[notifyIndex];
+    queuedEffects[notifyIndex++] = void 0;
+    effect2.notify();
+  }
+  notifyIndex = 0;
+  queuedEffectsLength = 0;
+}
+function createAtom(valueOrFn, options) {
+  const isComputed = typeof valueOrFn === "function";
+  const getter = valueOrFn;
+  const atom = {
+    _snapshot: isComputed ? void 0 : valueOrFn,
+    subs: void 0,
+    subsTail: void 0,
+    deps: void 0,
+    depsTail: void 0,
+    flags: isComputed ? ReactiveFlags.None : ReactiveFlags.Mutable,
+    get() {
+      if (activeSub !== void 0) {
+        link(atom, activeSub, cycle);
+      }
+      return atom._snapshot;
+    },
+    subscribe(observerOrFn) {
+      const obs = toObserver(observerOrFn);
+      const observed = {
+        current: false
+      };
+      const e2 = effect(() => {
+        atom.get();
+        if (!observed.current) {
+          observed.current = true;
+        } else {
+          obs.next?.(atom._snapshot);
+        }
+      });
+      return {
+        unsubscribe: () => {
+          e2.stop();
+        }
+      };
+    },
+    _update(getValue2) {
+      const prevSub = activeSub;
+      const compare2 = Object.is;
+      if (isComputed) {
+        activeSub = atom;
+        ++cycle;
+        atom.depsTail = void 0;
+      } else if (getValue2 === void 0) {
+        return false;
+      }
+      if (isComputed) {
+        atom.flags = ReactiveFlags.Mutable | ReactiveFlags.RecursedCheck;
+      }
+      try {
+        const oldValue = atom._snapshot;
+        const newValue = typeof getValue2 === "function" ? getValue2(oldValue) : getValue2 === void 0 && isComputed ? getter(oldValue) : getValue2;
+        if (oldValue === void 0 || !compare2(oldValue, newValue)) {
+          atom._snapshot = newValue;
+          return true;
+        }
+        return false;
+      } finally {
+        activeSub = prevSub;
+        if (isComputed) {
+          atom.flags &= ~ReactiveFlags.RecursedCheck;
+        }
+        purgeDeps(atom);
+      }
+    }
+  };
+  if (isComputed) {
+    atom.flags = ReactiveFlags.Mutable | ReactiveFlags.Dirty;
+    atom.get = function () {
+      const flags = atom.flags;
+      if (flags & ReactiveFlags.Dirty || flags & ReactiveFlags.Pending && checkDirty(atom.deps, atom)) {
+        if (atom._update()) {
+          const subs = atom.subs;
+          if (subs !== void 0) {
+            shallowPropagate(subs);
+          }
+        }
+      } else if (flags & ReactiveFlags.Pending) {
+        atom.flags = flags & ~ReactiveFlags.Pending;
+      }
+      if (activeSub !== void 0) {
+        link(atom, activeSub, cycle);
+      }
+      return atom._snapshot;
+    };
+  } else {
+    atom.set = function (valueOrFn2) {
+      if (atom._update(valueOrFn2)) {
+        const subs = atom.subs;
+        if (subs !== void 0) {
+          propagate(subs);
+          shallowPropagate(subs);
+          flush$1();
+        }
+      }
+    };
+  }
+  return atom;
+}
+function effect(fn2) {
+  const run2 = () => {
+    const prevSub = activeSub;
+    activeSub = effectObj;
+    ++cycle;
+    effectObj.depsTail = void 0;
+    effectObj.flags = ReactiveFlags.Watching | ReactiveFlags.RecursedCheck;
+    try {
+      return fn2();
+    } finally {
+      activeSub = prevSub;
+      effectObj.flags &= ~ReactiveFlags.RecursedCheck;
+      purgeDeps(effectObj);
+    }
+  };
+  const effectObj = {
+    deps: void 0,
+    depsTail: void 0,
+    subs: void 0,
+    subsTail: void 0,
+    flags: ReactiveFlags.Watching | ReactiveFlags.RecursedCheck,
+    notify() {
+      const flags = this.flags;
+      if (flags & ReactiveFlags.Dirty || flags & ReactiveFlags.Pending && checkDirty(this.deps, this)) {
+        run2();
+      } else {
+        this.flags = ReactiveFlags.Watching;
+      }
+    },
+    stop() {
+      this.flags = ReactiveFlags.None;
+      this.depsTail = void 0;
+      purgeDeps(this);
+    }
+  };
+  run2();
+  return effectObj;
+}
+class Store2 {
+  constructor(valueOrFn) {
+    this.atom = createAtom(valueOrFn);
+  }
+  setState(updater) {
+    this.atom.set(updater);
+  }
+  get state() {
+    return this.atom.get();
+  }
+  get() {
+    return this.state;
+  }
+  subscribe(observerOrFn) {
+    return this.atom.subscribe(toObserver(observerOrFn));
+  }
+}
+class ReadonlyStore {
+  constructor(valueOrFn) {
+    this.atom = createAtom(valueOrFn);
+  }
+  get state() {
+    return this.atom.get();
+  }
+  get() {
+    return this.state;
+  }
+  subscribe(observerOrFn) {
+    return this.atom.subscribe(toObserver(observerOrFn));
+  }
+}
+function createStore(valueOrFn) {
+  if (typeof valueOrFn === "function") {
+    return new ReadonlyStore(valueOrFn);
+  }
+  return new Store2(valueOrFn);
+}
 function defaultCompare(a2, b3) {
   return a2 === b3;
 }
@@ -108812,6 +121721,18 @@ function useLoaderData(opts) {
     }
   });
 }
+function useLoaderDeps(opts) {
+  const {
+    select: select2,
+    ...rest
+  } = opts;
+  return useMatch({
+    ...rest,
+    select: s2 => {
+      return select2 ? select2(s2.loaderDeps) : s2.loaderDeps;
+    }
+  });
+}
 function useParams(opts) {
   return useMatch({
     from: opts.from,
@@ -108850,6 +121771,368 @@ function useRouteContext(opts) {
     select: match2 => opts.select ? opts.select(match2.context) : match2.context
   });
 }
+function useLinkProps(options, forwardedRef) {
+  const router2 = useRouter();
+  const innerRef = useForwardedRef(forwardedRef);
+  const {
+    activeProps,
+    inactiveProps,
+    activeOptions,
+    to,
+    preload: userPreload,
+    preloadDelay: userPreloadDelay,
+    hashScrollIntoView,
+    replace: replace2,
+    startTransition,
+    resetScroll,
+    viewTransition,
+    children: children2,
+    target,
+    disabled: disabled2,
+    style: style2,
+    className,
+    onClick,
+    onBlur,
+    onFocus,
+    onMouseEnter,
+    onMouseLeave,
+    onTouchStart,
+    ignoreBlocker,
+    params: _params,
+    search: _search,
+    hash: _hash,
+    state: _state,
+    mask: _mask,
+    reloadDocument: _reloadDocument,
+    unsafeRelative: _unsafeRelative,
+    from: _from,
+    _fromLocation,
+    ...propsSafeToSpread
+  } = options;
+  const isHydrated = useHydrated();
+  const _options = reactExports.useMemo(() => options, [router2, options.from, options._fromLocation, options.hash, options.to, options.search, options.params, options.state, options.mask, options.unsafeRelative]);
+  const currentLocation = useStore(router2.stores.location, l2 => l2, (prev, next22) => prev.href === next22.href);
+  const next2 = reactExports.useMemo(() => {
+    const opts = {
+      _fromLocation: currentLocation,
+      ..._options
+    };
+    return router2.buildLocation(opts);
+  }, [router2, currentLocation, _options]);
+  const hrefOptionPublicHref = next2.maskedLocation ? next2.maskedLocation.publicHref : next2.publicHref;
+  const hrefOptionExternal = next2.maskedLocation ? next2.maskedLocation.external : next2.external;
+  const hrefOption = reactExports.useMemo(() => getHrefOption(hrefOptionPublicHref, hrefOptionExternal, router2.history, disabled2), [disabled2, hrefOptionExternal, hrefOptionPublicHref, router2.history]);
+  const externalLink = reactExports.useMemo(() => {
+    if (hrefOption?.external) {
+      if (isDangerousProtocol(hrefOption.href, router2.protocolAllowlist)) {
+        return;
+      }
+      return hrefOption.href;
+    }
+    if (isSafeInternal(to)) return void 0;
+    if (typeof to !== "string" || to.indexOf(":") === -1) return void 0;
+    try {
+      new URL(to);
+      if (isDangerousProtocol(to, router2.protocolAllowlist)) {
+        if (false) ;
+        return;
+      }
+      return to;
+    } catch {}
+  }, [to, hrefOption, router2.protocolAllowlist]);
+  const isActive2 = reactExports.useMemo(() => {
+    if (externalLink) return false;
+    if (activeOptions?.exact) {
+      if (!exactPathTest(currentLocation.pathname, next2.pathname, router2.basepath)) return false;
+    } else {
+      const currentPathSplit = removeTrailingSlash(currentLocation.pathname, router2.basepath);
+      const nextPathSplit = removeTrailingSlash(next2.pathname, router2.basepath);
+      if (!(currentPathSplit.startsWith(nextPathSplit) && (currentPathSplit.length === nextPathSplit.length || currentPathSplit[nextPathSplit.length] === "/"))) return false;
+    }
+    if (activeOptions?.includeSearch ?? true) {
+      if (!deepEqual(currentLocation.search, next2.search, {
+        partial: !activeOptions?.exact,
+        ignoreUndefined: !activeOptions?.explicitUndefined
+      })) return false;
+    }
+    if (activeOptions?.includeHash) return isHydrated && currentLocation.hash === next2.hash;
+    return true;
+  }, [activeOptions?.exact, activeOptions?.explicitUndefined, activeOptions?.includeHash, activeOptions?.includeSearch, currentLocation, externalLink, isHydrated, next2.hash, next2.pathname, next2.search, router2.basepath]);
+  const resolvedActiveProps = isActive2 ? functionalUpdate$1(activeProps, {}) ?? STATIC_ACTIVE_OBJECT : STATIC_EMPTY_OBJECT;
+  const resolvedInactiveProps = isActive2 ? STATIC_EMPTY_OBJECT : functionalUpdate$1(inactiveProps, {}) ?? STATIC_EMPTY_OBJECT;
+  const resolvedClassName = [className, resolvedActiveProps.className, resolvedInactiveProps.className].filter(Boolean).join(" ");
+  const resolvedStyle = (style2 || resolvedActiveProps.style || resolvedInactiveProps.style) && {
+    ...style2,
+    ...resolvedActiveProps.style,
+    ...resolvedInactiveProps.style
+  };
+  const [isTransitioning, setIsTransitioning] = reactExports.useState(false);
+  const hasRenderFetched = reactExports.useRef(false);
+  const preload2 = options.reloadDocument || externalLink ? false : userPreload ?? router2.options.defaultPreload;
+  const preloadDelay = userPreloadDelay ?? router2.options.defaultPreloadDelay ?? 0;
+  const doPreload = reactExports.useCallback(() => {
+    router2.preloadRoute({
+      ..._options,
+      _builtLocation: next2
+    }).catch(err => {
+      console.warn(err);
+      console.warn(preloadWarning);
+    });
+  }, [router2, _options, next2]);
+  useIntersectionObserver(innerRef, reactExports.useCallback(entry => {
+    if (entry?.isIntersecting) doPreload();
+  }, [doPreload]), intersectionObserverOptions, {
+    disabled: !!disabled2 || !(preload2 === "viewport")
+  });
+  reactExports.useEffect(() => {
+    if (hasRenderFetched.current) return;
+    if (!disabled2 && preload2 === "render") {
+      doPreload();
+      hasRenderFetched.current = true;
+    }
+  }, [disabled2, doPreload, preload2]);
+  const handleClick2 = e2 => {
+    const elementTarget = e2.currentTarget.getAttribute("target");
+    const effectiveTarget = target !== void 0 ? target : elementTarget;
+    if (!disabled2 && !isCtrlEvent(e2) && !e2.defaultPrevented && (!effectiveTarget || effectiveTarget === "_self") && e2.button === 0) {
+      e2.preventDefault();
+      reactDomExports.flushSync(() => {
+        setIsTransitioning(true);
+      });
+      const unsub = router2.subscribe("onResolved", () => {
+        unsub();
+        setIsTransitioning(false);
+      });
+      router2.navigate({
+        ..._options,
+        replace: replace2,
+        resetScroll,
+        hashScrollIntoView,
+        startTransition,
+        viewTransition,
+        ignoreBlocker
+      });
+    }
+  };
+  if (externalLink) return {
+    ...propsSafeToSpread,
+    ref: innerRef,
+    href: externalLink,
+    ...(children2 && {
+      children: children2
+    }),
+    ...(target && {
+      target
+    }),
+    ...(disabled2 && {
+      disabled: disabled2
+    }),
+    ...(style2 && {
+      style: style2
+    }),
+    ...(className && {
+      className
+    }),
+    ...(onClick && {
+      onClick
+    }),
+    ...(onBlur && {
+      onBlur
+    }),
+    ...(onFocus && {
+      onFocus
+    }),
+    ...(onMouseEnter && {
+      onMouseEnter
+    }),
+    ...(onMouseLeave && {
+      onMouseLeave
+    }),
+    ...(onTouchStart && {
+      onTouchStart
+    })
+  };
+  const enqueueIntentPreload = e2 => {
+    if (disabled2 || preload2 !== "intent") return;
+    if (!preloadDelay) {
+      doPreload();
+      return;
+    }
+    const eventTarget = e2.currentTarget;
+    if (timeoutMap.has(eventTarget)) return;
+    const id2 = setTimeout(() => {
+      timeoutMap.delete(eventTarget);
+      doPreload();
+    }, preloadDelay);
+    timeoutMap.set(eventTarget, id2);
+  };
+  const handleTouchStart = _2 => {
+    if (disabled2 || preload2 !== "intent") return;
+    doPreload();
+  };
+  const handleLeave = e2 => {
+    if (disabled2 || !preload2 || !preloadDelay) return;
+    const eventTarget = e2.currentTarget;
+    const id2 = timeoutMap.get(eventTarget);
+    if (id2) {
+      clearTimeout(id2);
+      timeoutMap.delete(eventTarget);
+    }
+  };
+  return {
+    ...propsSafeToSpread,
+    ...resolvedActiveProps,
+    ...resolvedInactiveProps,
+    href: hrefOption?.href,
+    ref: innerRef,
+    onClick: composeHandlers([onClick, handleClick2]),
+    onBlur: composeHandlers([onBlur, handleLeave]),
+    onFocus: composeHandlers([onFocus, enqueueIntentPreload]),
+    onMouseEnter: composeHandlers([onMouseEnter, enqueueIntentPreload]),
+    onMouseLeave: composeHandlers([onMouseLeave, handleLeave]),
+    onTouchStart: composeHandlers([onTouchStart, handleTouchStart]),
+    disabled: !!disabled2,
+    target,
+    ...(resolvedStyle && {
+      style: resolvedStyle
+    }),
+    ...(resolvedClassName && {
+      className: resolvedClassName
+    }),
+    ...(disabled2 && STATIC_DISABLED_PROPS),
+    ...(isActive2 && STATIC_ACTIVE_PROPS),
+    ...(isHydrated && isTransitioning && STATIC_TRANSITIONING_PROPS)
+  };
+}
+var STATIC_EMPTY_OBJECT = {};
+var STATIC_ACTIVE_OBJECT = {
+  className: "active"
+};
+var STATIC_DISABLED_PROPS = {
+  role: "link",
+  "aria-disabled": true
+};
+var STATIC_ACTIVE_PROPS = {
+  "data-status": "active",
+  "aria-current": "page"
+};
+var STATIC_TRANSITIONING_PROPS = {
+  "data-transitioning": "transitioning"
+};
+var timeoutMap = /* @__PURE__ */new WeakMap();
+var intersectionObserverOptions = {
+  rootMargin: "100px"
+};
+var composeHandlers = handlers2 => e2 => {
+  for (const handler of handlers2) {
+    if (!handler) continue;
+    if (e2.defaultPrevented) return;
+    handler(e2);
+  }
+};
+function getHrefOption(publicHref, external, history2, disabled2) {
+  if (disabled2) return void 0;
+  if (external) return {
+    href: publicHref,
+    external: true
+  };
+  return {
+    href: history2.createHref(publicHref) || "/",
+    external: false
+  };
+}
+function isSafeInternal(to) {
+  if (typeof to !== "string") return false;
+  const zero2 = to.charCodeAt(0);
+  if (zero2 === 47) return to.charCodeAt(1) !== 47;
+  return zero2 === 46;
+}
+var Link = reactExports.forwardRef((props, ref) => {
+  const {
+    _asChild,
+    ...rest
+  } = props;
+  const {
+    type: _type,
+    ...linkProps
+  } = useLinkProps(rest, ref);
+  const children2 = typeof rest.children === "function" ? rest.children({
+    isActive: linkProps["data-status"] === "active"
+  }) : rest.children;
+  if (!_asChild) {
+    const {
+      disabled: _2,
+      ...rest2
+    } = linkProps;
+    return reactExports.createElement("a", rest2, children2);
+  }
+  return reactExports.createElement(_asChild, linkProps, children2);
+});
+function isCtrlEvent(e2) {
+  return !!(e2.metaKey || e2.altKey || e2.ctrlKey || e2.shiftKey);
+}
+var RootRoute = class extends BaseRootRoute {
+  /**
+  * @deprecated `RootRoute` is now an internal implementation detail. Use `createRootRoute()` instead.
+  */
+  constructor(options) {
+    super(options);
+    this.useMatch = opts => {
+      return useMatch({
+        select: opts?.select,
+        from: this.id,
+        structuralSharing: opts?.structuralSharing
+      });
+    };
+    this.useRouteContext = opts => {
+      return useRouteContext({
+        ...opts,
+        from: this.id
+      });
+    };
+    this.useSearch = opts => {
+      return useSearch({
+        select: opts?.select,
+        structuralSharing: opts?.structuralSharing,
+        from: this.id
+      });
+    };
+    this.useParams = opts => {
+      return useParams({
+        select: opts?.select,
+        structuralSharing: opts?.structuralSharing,
+        from: this.id
+      });
+    };
+    this.useLoaderDeps = opts => {
+      return useLoaderDeps({
+        ...opts,
+        from: this.id
+      });
+    };
+    this.useLoaderData = opts => {
+      return useLoaderData({
+        ...opts,
+        from: this.id
+      });
+    };
+    this.useNavigate = () => {
+      return useNavigate({
+        from: this.fullPath
+      });
+    };
+    this.Link = React.forwardRef((props, ref) => {
+      return /* @__PURE__ */jsxRuntimeExports.jsx(Link, {
+        ref,
+        from: this.fullPath,
+        ...props
+      });
+    });
+  }
+};
+function createRootRoute(options) {
+  return new RootRoute(options);
+}
 function ScriptOnce({
   children: children2
 }) {
@@ -108887,6 +122170,13 @@ function ScrollRestoration() {
     children: script2
   });
 }
+var getStoreFactory = opts => {
+  return {
+    createMutableStore: createStore,
+    createReadonlyStore: createStore,
+    batch
+  };
+};
 function requireClient() {
   return __ov_react_dom_client;
 }
@@ -109255,11 +122545,30 @@ const tabsStateAttributesMapping = {
 };
 const ACTIVE_COMPOSITE_ITEM = "data-composite-item-active";
 const TabsListContext = /* @__PURE__ */reactExports.createContext(void 0);
+const script = '!function(){const t=document.currentScript.previousElementSibling;if(!t)return;const e=t.closest(\'[role="tablist"]\');if(!e)return;const i=e.querySelector("[data-active]");if(!i)return;if(0===i.offsetWidth||0===e.offsetWidth)return;let o=0,n=0,h=0,l=0,r=0,f=0;function s(t){const e=getComputedStyle(t);let i=parseFloat(e.width)||0,o=parseFloat(e.height)||0;return(Math.round(i)!==t.offsetWidth||Math.round(o)!==t.offsetHeight)&&(i=t.offsetWidth,o=t.offsetHeight),{width:i,height:o}}if(null!=i&&null!=e){const{width:t,height:c}=s(i),{width:u,height:d}=s(e),a=i.getBoundingClientRect(),g=e.getBoundingClientRect(),p=u>0?g.width/u:1,b=d>0?g.height/d:1;if(Math.abs(p)>Number.EPSILON&&Math.abs(b)>Number.EPSILON){const t=a.left-g.left,i=a.top-g.top;o=t/p+e.scrollLeft-e.clientLeft,h=i/b+e.scrollTop-e.clientTop}else o=i.offsetLeft,h=i.offsetTop;r=t,f=c,n=e.scrollWidth-o-r,l=e.scrollHeight-h-f}function c(e,i){t.style.setProperty(`--active-tab-${e}`,`${i}px`)}c("left",o),c("right",n),c("top",h),c("bottom",l),c("width",r),c("height",f),r>0&&f>0&&t.removeAttribute("hidden")}();';
+let TabsIndicatorCssVars = /* @__PURE__ */function (TabsIndicatorCssVars2) {
+  TabsIndicatorCssVars2["activeTabLeft"] = "--active-tab-left";
+  TabsIndicatorCssVars2["activeTabRight"] = "--active-tab-right";
+  TabsIndicatorCssVars2["activeTabTop"] = "--active-tab-top";
+  TabsIndicatorCssVars2["activeTabBottom"] = "--active-tab-bottom";
+  TabsIndicatorCssVars2["activeTabWidth"] = "--active-tab-width";
+  TabsIndicatorCssVars2["activeTabHeight"] = "--active-tab-height";
+  return TabsIndicatorCssVars2;
+}({});
 const stateAttributesMapping$4 = {
   ...tabsStateAttributesMapping,
   activeTabPosition: () => null,
   activeTabSize: () => null
 };
+let TabsPanelDataAttributes = function (TabsPanelDataAttributes2) {
+  TabsPanelDataAttributes2["index"] = "data-index";
+  TabsPanelDataAttributes2["activationDirection"] = "data-activation-direction";
+  TabsPanelDataAttributes2["orientation"] = "data-orientation";
+  TabsPanelDataAttributes2["hidden"] = "data-hidden";
+  TabsPanelDataAttributes2[TabsPanelDataAttributes2["startingStyle"] = TransitionStatusDataAttributes.startingStyle] = "startingStyle";
+  TabsPanelDataAttributes2[TabsPanelDataAttributes2["endingStyle"] = TransitionStatusDataAttributes.endingStyle] = "endingStyle";
+  return TabsPanelDataAttributes2;
+}({});
 const stateAttributesMapping$3 = {
   ...tabsStateAttributesMapping,
   ...transitionStatusMapping
@@ -109268,6 +122577,17 @@ function isElementDisabled(element2) {
   return element2 == null || element2.hasAttribute("disabled") || element2.getAttribute("aria-disabled") === "true";
 }
 const EMPTY_ARRAY = [];
+function isModifierKeySet(event, ignoredModifierKeys) {
+  for (const key2 of MODIFIER_KEYS$1.values()) {
+    if (ignoredModifierKeys.includes(key2)) {
+      continue;
+    }
+    if (event.getModifierState(key2)) {
+      return true;
+    }
+  }
+  return false;
+}
 var M$3 = (e2, i2, s2, u4, m3, a2, l2, h2) => {
   let d2 = document.documentElement,
     w3 = ["light", "dark"];
@@ -110430,6 +123750,412 @@ function getDefaultState$1(options) {
     fetchStatus: "idle"
   };
 }
+var QueryObserver = class extends Subscribable {
+  constructor(client2, options) {
+    super();
+    this.options = options;
+    this.#client = client2;
+    this.#selectError = null;
+    this.#currentThenable = pendingThenable();
+    this.bindMethods();
+    this.setOptions(options);
+  }
+  #client;
+  #currentQuery = void 0;
+  #currentQueryInitialState = void 0;
+  #currentResult = void 0;
+  #currentResultState;
+  #currentResultOptions;
+  #currentThenable;
+  #selectError;
+  #selectFn;
+  #selectResult;
+  // This property keeps track of the last query with defined data.
+  // It will be used to pass the previous data and query to the placeholder function between renders.
+  #lastQueryWithDefinedData;
+  #staleTimeoutId;
+  #refetchIntervalId;
+  #currentRefetchInterval;
+  #trackedProps = /* @__PURE__ */new Set();
+  bindMethods() {
+    this.refetch = this.refetch.bind(this);
+  }
+  onSubscribe() {
+    if (this.listeners.size === 1) {
+      this.#currentQuery.addObserver(this);
+      if (shouldFetchOnMount(this.#currentQuery, this.options)) {
+        this.#executeFetch();
+      } else {
+        this.updateResult();
+      }
+      this.#updateTimers();
+    }
+  }
+  onUnsubscribe() {
+    if (!this.hasListeners()) {
+      this.destroy();
+    }
+  }
+  shouldFetchOnReconnect() {
+    return shouldFetchOn(this.#currentQuery, this.options, this.options.refetchOnReconnect);
+  }
+  shouldFetchOnWindowFocus() {
+    return shouldFetchOn(this.#currentQuery, this.options, this.options.refetchOnWindowFocus);
+  }
+  destroy() {
+    this.listeners = /* @__PURE__ */new Set();
+    this.#clearStaleTimeout();
+    this.#clearRefetchInterval();
+    this.#currentQuery.removeObserver(this);
+  }
+  setOptions(options) {
+    const prevOptions = this.options;
+    const prevQuery = this.#currentQuery;
+    this.options = this.#client.defaultQueryOptions(options);
+    if (this.options.enabled !== void 0 && typeof this.options.enabled !== "boolean" && typeof this.options.enabled !== "function" && typeof resolveEnabled(this.options.enabled, this.#currentQuery) !== "boolean") {
+      throw new Error("Expected enabled to be a boolean or a callback that returns a boolean");
+    }
+    this.#updateQuery();
+    this.#currentQuery.setOptions(this.options);
+    if (prevOptions._defaulted && !shallowEqualObjects(this.options, prevOptions)) {
+      this.#client.getQueryCache().notify({
+        type: "observerOptionsUpdated",
+        query: this.#currentQuery,
+        observer: this
+      });
+    }
+    const mounted = this.hasListeners();
+    if (mounted && shouldFetchOptionally(this.#currentQuery, prevQuery, this.options, prevOptions)) {
+      this.#executeFetch();
+    }
+    this.updateResult();
+    if (mounted && (this.#currentQuery !== prevQuery || resolveEnabled(this.options.enabled, this.#currentQuery) !== resolveEnabled(prevOptions.enabled, this.#currentQuery) || resolveStaleTime(this.options.staleTime, this.#currentQuery) !== resolveStaleTime(prevOptions.staleTime, this.#currentQuery))) {
+      this.#updateStaleTimeout();
+    }
+    const nextRefetchInterval = this.#computeRefetchInterval();
+    if (mounted && (this.#currentQuery !== prevQuery || resolveEnabled(this.options.enabled, this.#currentQuery) !== resolveEnabled(prevOptions.enabled, this.#currentQuery) || nextRefetchInterval !== this.#currentRefetchInterval)) {
+      this.#updateRefetchInterval(nextRefetchInterval);
+    }
+  }
+  getOptimisticResult(options) {
+    const query = this.#client.getQueryCache().build(this.#client, options);
+    const result = this.createResult(query, options);
+    if (shouldAssignObserverCurrentProperties(this, result)) {
+      this.#currentResult = result;
+      this.#currentResultOptions = this.options;
+      this.#currentResultState = this.#currentQuery.state;
+    }
+    return result;
+  }
+  getCurrentResult() {
+    return this.#currentResult;
+  }
+  trackResult(result, onPropTracked) {
+    return new Proxy(result, {
+      get: (target, key2) => {
+        this.trackProp(key2);
+        onPropTracked?.(key2);
+        if (key2 === "promise") {
+          this.trackProp("data");
+          if (!this.options.experimental_prefetchInRender && this.#currentThenable.status === "pending") {
+            this.#currentThenable.reject(new Error("experimental_prefetchInRender feature flag is not enabled"));
+          }
+        }
+        return Reflect.get(target, key2);
+      }
+    });
+  }
+  trackProp(key2) {
+    this.#trackedProps.add(key2);
+  }
+  getCurrentQuery() {
+    return this.#currentQuery;
+  }
+  refetch({
+    ...options
+  } = {}) {
+    return this.fetch({
+      ...options
+    });
+  }
+  fetchOptimistic(options) {
+    const defaultedOptions = this.#client.defaultQueryOptions(options);
+    const query = this.#client.getQueryCache().build(this.#client, defaultedOptions);
+    return query.fetch().then(() => this.createResult(query, defaultedOptions));
+  }
+  fetch(fetchOptions) {
+    return this.#executeFetch({
+      ...fetchOptions,
+      cancelRefetch: fetchOptions.cancelRefetch ?? true
+    }).then(() => {
+      this.updateResult();
+      return this.#currentResult;
+    });
+  }
+  #executeFetch(fetchOptions) {
+    this.#updateQuery();
+    let promise = this.#currentQuery.fetch(this.options, fetchOptions);
+    if (!fetchOptions?.throwOnError) {
+      promise = promise.catch(noop2);
+    }
+    return promise;
+  }
+  #updateStaleTimeout() {
+    this.#clearStaleTimeout();
+    const staleTime = resolveStaleTime(this.options.staleTime, this.#currentQuery);
+    if (environmentManager.isServer() || this.#currentResult.isStale || !isValidTimeout(staleTime)) {
+      return;
+    }
+    const time = timeUntilStale(this.#currentResult.dataUpdatedAt, staleTime);
+    const timeout2 = time + 1;
+    this.#staleTimeoutId = timeoutManager.setTimeout(() => {
+      if (!this.#currentResult.isStale) {
+        this.updateResult();
+      }
+    }, timeout2);
+  }
+  #computeRefetchInterval() {
+    return (typeof this.options.refetchInterval === "function" ? this.options.refetchInterval(this.#currentQuery) : this.options.refetchInterval) ?? false;
+  }
+  #updateRefetchInterval(nextInterval) {
+    this.#clearRefetchInterval();
+    this.#currentRefetchInterval = nextInterval;
+    if (environmentManager.isServer() || resolveEnabled(this.options.enabled, this.#currentQuery) === false || !isValidTimeout(this.#currentRefetchInterval) || this.#currentRefetchInterval === 0) {
+      return;
+    }
+    this.#refetchIntervalId = timeoutManager.setInterval(() => {
+      if (this.options.refetchIntervalInBackground || focusManager.isFocused()) {
+        this.#executeFetch();
+      }
+    }, this.#currentRefetchInterval);
+  }
+  #updateTimers() {
+    this.#updateStaleTimeout();
+    this.#updateRefetchInterval(this.#computeRefetchInterval());
+  }
+  #clearStaleTimeout() {
+    if (this.#staleTimeoutId) {
+      timeoutManager.clearTimeout(this.#staleTimeoutId);
+      this.#staleTimeoutId = void 0;
+    }
+  }
+  #clearRefetchInterval() {
+    if (this.#refetchIntervalId) {
+      timeoutManager.clearInterval(this.#refetchIntervalId);
+      this.#refetchIntervalId = void 0;
+    }
+  }
+  createResult(query, options) {
+    const prevQuery = this.#currentQuery;
+    const prevOptions = this.options;
+    const prevResult = this.#currentResult;
+    const prevResultState = this.#currentResultState;
+    const prevResultOptions = this.#currentResultOptions;
+    const queryChange = query !== prevQuery;
+    const queryInitialState = queryChange ? query.state : this.#currentQueryInitialState;
+    const {
+      state: state2
+    } = query;
+    let newState = {
+      ...state2
+    };
+    let isPlaceholderData = false;
+    let data2;
+    if (options._optimisticResults) {
+      const mounted = this.hasListeners();
+      const fetchOnMount = !mounted && shouldFetchOnMount(query, options);
+      const fetchOptionally = mounted && shouldFetchOptionally(query, prevQuery, options, prevOptions);
+      if (fetchOnMount || fetchOptionally) {
+        newState = {
+          ...newState,
+          ...fetchState(state2.data, query.options)
+        };
+      }
+      if (options._optimisticResults === "isRestoring") {
+        newState.fetchStatus = "idle";
+      }
+    }
+    let {
+      error,
+      errorUpdatedAt,
+      status
+    } = newState;
+    data2 = newState.data;
+    let skipSelect = false;
+    if (options.placeholderData !== void 0 && data2 === void 0 && status === "pending") {
+      let placeholderData;
+      if (prevResult?.isPlaceholderData && options.placeholderData === prevResultOptions?.placeholderData) {
+        placeholderData = prevResult.data;
+        skipSelect = true;
+      } else {
+        placeholderData = typeof options.placeholderData === "function" ? options.placeholderData(this.#lastQueryWithDefinedData?.state.data, this.#lastQueryWithDefinedData) : options.placeholderData;
+      }
+      if (placeholderData !== void 0) {
+        status = "success";
+        data2 = replaceData(prevResult?.data, placeholderData, options);
+        isPlaceholderData = true;
+      }
+    }
+    if (options.select && data2 !== void 0 && !skipSelect) {
+      if (prevResult && data2 === prevResultState?.data && options.select === this.#selectFn) {
+        data2 = this.#selectResult;
+      } else {
+        try {
+          this.#selectFn = options.select;
+          data2 = options.select(data2);
+          data2 = replaceData(prevResult?.data, data2, options);
+          this.#selectResult = data2;
+          this.#selectError = null;
+        } catch (selectError) {
+          this.#selectError = selectError;
+        }
+      }
+    }
+    if (this.#selectError) {
+      error = this.#selectError;
+      data2 = this.#selectResult;
+      errorUpdatedAt = Date.now();
+      status = "error";
+    }
+    const isFetching = newState.fetchStatus === "fetching";
+    const isPending = status === "pending";
+    const isError = status === "error";
+    const isLoading = isPending && isFetching;
+    const hasData = data2 !== void 0;
+    const result = {
+      status,
+      fetchStatus: newState.fetchStatus,
+      isPending,
+      isSuccess: status === "success",
+      isError,
+      isInitialLoading: isLoading,
+      isLoading,
+      data: data2,
+      dataUpdatedAt: newState.dataUpdatedAt,
+      error,
+      errorUpdatedAt,
+      failureCount: newState.fetchFailureCount,
+      failureReason: newState.fetchFailureReason,
+      errorUpdateCount: newState.errorUpdateCount,
+      isFetched: query.isFetched(),
+      isFetchedAfterMount: newState.dataUpdateCount > queryInitialState.dataUpdateCount || newState.errorUpdateCount > queryInitialState.errorUpdateCount,
+      isFetching,
+      isRefetching: isFetching && !isPending,
+      isLoadingError: isError && !hasData,
+      isPaused: newState.fetchStatus === "paused",
+      isPlaceholderData,
+      isRefetchError: isError && hasData,
+      isStale: isStale(query, options),
+      refetch: this.refetch,
+      promise: this.#currentThenable,
+      isEnabled: resolveEnabled(options.enabled, query) !== false
+    };
+    const nextResult = result;
+    if (this.options.experimental_prefetchInRender) {
+      const hasResultData = nextResult.data !== void 0;
+      const isErrorWithoutData = nextResult.status === "error" && !hasResultData;
+      const finalizeThenableIfPossible = thenable => {
+        if (isErrorWithoutData) {
+          thenable.reject(nextResult.error);
+        } else if (hasResultData) {
+          thenable.resolve(nextResult.data);
+        }
+      };
+      const recreateThenable = () => {
+        const pending2 = this.#currentThenable = nextResult.promise = pendingThenable();
+        finalizeThenableIfPossible(pending2);
+      };
+      const prevThenable = this.#currentThenable;
+      switch (prevThenable.status) {
+        case "pending":
+          if (query.queryHash === prevQuery.queryHash) {
+            finalizeThenableIfPossible(prevThenable);
+          }
+          break;
+        case "fulfilled":
+          if (isErrorWithoutData || nextResult.data !== prevThenable.value) {
+            recreateThenable();
+          }
+          break;
+        case "rejected":
+          if (!isErrorWithoutData || nextResult.error !== prevThenable.reason) {
+            recreateThenable();
+          }
+          break;
+      }
+    }
+    return nextResult;
+  }
+  updateResult() {
+    const prevResult = this.#currentResult;
+    const nextResult = this.createResult(this.#currentQuery, this.options);
+    this.#currentResultState = this.#currentQuery.state;
+    this.#currentResultOptions = this.options;
+    if (this.#currentResultState.data !== void 0) {
+      this.#lastQueryWithDefinedData = this.#currentQuery;
+    }
+    if (shallowEqualObjects(nextResult, prevResult)) {
+      return;
+    }
+    this.#currentResult = nextResult;
+    const shouldNotifyListeners = () => {
+      if (!prevResult) {
+        return true;
+      }
+      const {
+        notifyOnChangeProps
+      } = this.options;
+      const notifyOnChangePropsValue = typeof notifyOnChangeProps === "function" ? notifyOnChangeProps() : notifyOnChangeProps;
+      if (notifyOnChangePropsValue === "all" || !notifyOnChangePropsValue && !this.#trackedProps.size) {
+        return true;
+      }
+      const includedProps = new Set(notifyOnChangePropsValue ?? this.#trackedProps);
+      if (this.options.throwOnError) {
+        includedProps.add("error");
+      }
+      return Object.keys(this.#currentResult).some(key2 => {
+        const typedKey = key2;
+        const changed = this.#currentResult[typedKey] !== prevResult[typedKey];
+        return changed && includedProps.has(typedKey);
+      });
+    };
+    this.#notify({
+      listeners: shouldNotifyListeners()
+    });
+  }
+  #updateQuery() {
+    const query = this.#client.getQueryCache().build(this.#client, this.options);
+    if (query === this.#currentQuery) {
+      return;
+    }
+    const prevQuery = this.#currentQuery;
+    this.#currentQuery = query;
+    this.#currentQueryInitialState = query.state;
+    if (this.hasListeners()) {
+      prevQuery?.removeObserver(this);
+      query.addObserver(this);
+    }
+  }
+  onQueryUpdate() {
+    this.updateResult();
+    if (this.hasListeners()) {
+      this.#updateTimers();
+    }
+  }
+  #notify(notifyOptions) {
+    notifyManager.batch(() => {
+      if (notifyOptions.listeners) {
+        this.listeners.forEach(listener => {
+          listener(this.#currentResult);
+        });
+      }
+      this.#client.getQueryCache().notify({
+        query: this.#currentQuery,
+        type: "observerResultsUpdated"
+      });
+    });
+  }
+};
 function shouldLoadOnMount(query, options) {
   return resolveEnabled(options.enabled, query) !== false && query.state.data === void 0 && !(query.state.status === "error" && options.retryOnMount === false);
 }
@@ -110448,6 +124174,12 @@ function shouldFetchOptionally(query, prevQuery, options, prevOptions) {
 }
 function isStale(query, options) {
   return resolveEnabled(options.enabled, query) !== false && query.isStaleByTime(resolveStaleTime(options.staleTime, query));
+}
+function shouldAssignObserverCurrentProperties(observer2, optimisticResult) {
+  if (!shallowEqualObjects(observer2.getCurrentResult(), optimisticResult)) {
+    return true;
+  }
+  return false;
 }
 function infiniteQueryBehavior(pages) {
   return {
@@ -110554,6 +124286,77 @@ function hasPreviousPage(options, data2) {
   if (!data2 || !options.getPreviousPageParam) return false;
   return getPreviousPageParam(options, data2) != null;
 }
+var InfiniteQueryObserver = class extends QueryObserver {
+  constructor(client2, options) {
+    super(client2, options);
+  }
+  bindMethods() {
+    super.bindMethods();
+    this.fetchNextPage = this.fetchNextPage.bind(this);
+    this.fetchPreviousPage = this.fetchPreviousPage.bind(this);
+  }
+  setOptions(options) {
+    super.setOptions({
+      ...options,
+      behavior: infiniteQueryBehavior()
+    });
+  }
+  getOptimisticResult(options) {
+    options.behavior = infiniteQueryBehavior();
+    return super.getOptimisticResult(options);
+  }
+  fetchNextPage(options) {
+    return this.fetch({
+      ...options,
+      meta: {
+        fetchMore: {
+          direction: "forward"
+        }
+      }
+    });
+  }
+  fetchPreviousPage(options) {
+    return this.fetch({
+      ...options,
+      meta: {
+        fetchMore: {
+          direction: "backward"
+        }
+      }
+    });
+  }
+  createResult(query, options) {
+    const {
+      state: state2
+    } = query;
+    const parentResult = super.createResult(query, options);
+    const {
+      isFetching,
+      isRefetching,
+      isError,
+      isRefetchError
+    } = parentResult;
+    const fetchDirection = state2.fetchMeta?.fetchMore?.direction;
+    const isFetchNextPageError = isError && fetchDirection === "forward";
+    const isFetchingNextPage = isFetching && fetchDirection === "forward";
+    const isFetchPreviousPageError = isError && fetchDirection === "backward";
+    const isFetchingPreviousPage = isFetching && fetchDirection === "backward";
+    const result = {
+      ...parentResult,
+      fetchNextPage: this.fetchNextPage,
+      fetchPreviousPage: this.fetchPreviousPage,
+      hasNextPage: hasNextPage(options, state2.data),
+      hasPreviousPage: hasPreviousPage(options, state2.data),
+      isFetchNextPageError,
+      isFetchingNextPage,
+      isFetchPreviousPageError,
+      isFetchingPreviousPage,
+      isRefetchError: isRefetchError && !isFetchNextPageError && !isFetchPreviousPageError,
+      isRefetching: isRefetching && !isFetchingNextPage && !isFetchingPreviousPage
+    };
+    return result;
+  }
+};
 var Mutation = class extends Removable {
   #client;
   #observers;
@@ -110909,10 +124712,291 @@ var MutationCache = class extends Subscribable {
 function scopeFor(mutation) {
   return mutation.options.scope?.id;
 }
+var MutationObserver$1 = class MutationObserver2 extends Subscribable {
+  #client;
+  #currentResult = void 0;
+  #currentMutation;
+  #mutateOptions;
+  constructor(client2, options) {
+    super();
+    this.#client = client2;
+    this.setOptions(options);
+    this.bindMethods();
+    this.#updateResult();
+  }
+  bindMethods() {
+    this.mutate = this.mutate.bind(this);
+    this.reset = this.reset.bind(this);
+  }
+  setOptions(options) {
+    const prevOptions = this.options;
+    this.options = this.#client.defaultMutationOptions(options);
+    if (!shallowEqualObjects(this.options, prevOptions)) {
+      this.#client.getMutationCache().notify({
+        type: "observerOptionsUpdated",
+        mutation: this.#currentMutation,
+        observer: this
+      });
+    }
+    if (prevOptions?.mutationKey && this.options.mutationKey && hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)) {
+      this.reset();
+    } else if (this.#currentMutation?.state.status === "pending") {
+      this.#currentMutation.setOptions(this.options);
+    }
+  }
+  onUnsubscribe() {
+    if (!this.hasListeners()) {
+      this.#currentMutation?.removeObserver(this);
+    }
+  }
+  onMutationUpdate(action) {
+    this.#updateResult();
+    this.#notify(action);
+  }
+  getCurrentResult() {
+    return this.#currentResult;
+  }
+  reset() {
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = void 0;
+    this.#updateResult();
+    this.#notify();
+  }
+  mutate(variables, options) {
+    this.#mutateOptions = options;
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = this.#client.getMutationCache().build(this.#client, this.options);
+    this.#currentMutation.addObserver(this);
+    return this.#currentMutation.execute(variables);
+  }
+  #updateResult() {
+    const state2 = this.#currentMutation?.state ?? getDefaultState();
+    this.#currentResult = {
+      ...state2,
+      isPending: state2.status === "pending",
+      isSuccess: state2.status === "success",
+      isError: state2.status === "error",
+      isIdle: state2.status === "idle",
+      mutate: this.mutate,
+      reset: this.reset
+    };
+  }
+  #notify(action) {
+    notifyManager.batch(() => {
+      if (this.#mutateOptions && this.hasListeners()) {
+        const variables = this.#currentResult.variables;
+        const onMutateResult = this.#currentResult.context;
+        const context = {
+          client: this.#client,
+          meta: this.options.meta,
+          mutationKey: this.options.mutationKey
+        };
+        if (action?.type === "success") {
+          try {
+            this.#mutateOptions.onSuccess?.(action.data, variables, onMutateResult, context);
+          } catch (e2) {
+            void Promise.reject(e2);
+          }
+          try {
+            this.#mutateOptions.onSettled?.(action.data, null, variables, onMutateResult, context);
+          } catch (e2) {
+            void Promise.reject(e2);
+          }
+        } else if (action?.type === "error") {
+          try {
+            this.#mutateOptions.onError?.(action.error, variables, onMutateResult, context);
+          } catch (e2) {
+            void Promise.reject(e2);
+          }
+          try {
+            this.#mutateOptions.onSettled?.(void 0, action.error, variables, onMutateResult, context);
+          } catch (e2) {
+            void Promise.reject(e2);
+          }
+        }
+      }
+      this.listeners.forEach(listener => {
+        listener(this.#currentResult);
+      });
+    });
+  }
+};
 function difference(array1, array2) {
   const excludeSet = new Set(array2);
   return array1.filter(x2 => !excludeSet.has(x2));
 }
+function replaceAt(array2, index2, value) {
+  const copy2 = array2.slice(0);
+  copy2[index2] = value;
+  return copy2;
+}
+var QueriesObserver = class extends Subscribable {
+  #client;
+  #result;
+  #queries;
+  #options;
+  #observers;
+  #combinedResult;
+  #lastCombine;
+  #lastResult;
+  #lastQueryHashes;
+  #observerMatches = [];
+  constructor(client2, queries, options) {
+    super();
+    this.#client = client2;
+    this.#options = options;
+    this.#queries = [];
+    this.#observers = [];
+    this.#result = [];
+    this.setQueries(queries);
+  }
+  onSubscribe() {
+    if (this.listeners.size === 1) {
+      this.#observers.forEach(observer2 => {
+        observer2.subscribe(result => {
+          this.#onUpdate(observer2, result);
+        });
+      });
+    }
+  }
+  onUnsubscribe() {
+    if (!this.listeners.size) {
+      this.destroy();
+    }
+  }
+  destroy() {
+    this.listeners = /* @__PURE__ */new Set();
+    this.#observers.forEach(observer2 => {
+      observer2.destroy();
+    });
+  }
+  setQueries(queries, options) {
+    this.#queries = queries;
+    this.#options = options;
+    notifyManager.batch(() => {
+      const prevObservers = this.#observers;
+      const newObserverMatches = this.#findMatchingObservers(this.#queries);
+      newObserverMatches.forEach(match2 => match2.observer.setOptions(match2.defaultedQueryOptions));
+      const newObservers = newObserverMatches.map(match2 => match2.observer);
+      const newResult = newObservers.map(observer2 => observer2.getCurrentResult());
+      const hasLengthChange = prevObservers.length !== newObservers.length;
+      const hasIndexChange = newObservers.some((observer2, index2) => observer2 !== prevObservers[index2]);
+      const hasStructuralChange = hasLengthChange || hasIndexChange;
+      const hasResultChange = hasStructuralChange ? true : newResult.some((result, index2) => {
+        const prev = this.#result[index2];
+        return !prev || !shallowEqualObjects(result, prev);
+      });
+      if (!hasStructuralChange && !hasResultChange) return;
+      if (hasStructuralChange) {
+        this.#observerMatches = newObserverMatches;
+        this.#observers = newObservers;
+      }
+      this.#result = newResult;
+      if (!this.hasListeners()) return;
+      if (hasStructuralChange) {
+        difference(prevObservers, newObservers).forEach(observer2 => {
+          observer2.destroy();
+        });
+        difference(newObservers, prevObservers).forEach(observer2 => {
+          observer2.subscribe(result => {
+            this.#onUpdate(observer2, result);
+          });
+        });
+      }
+      this.#notify();
+    });
+  }
+  getCurrentResult() {
+    return this.#result;
+  }
+  getQueries() {
+    return this.#observers.map(observer2 => observer2.getCurrentQuery());
+  }
+  getObservers() {
+    return this.#observers;
+  }
+  getOptimisticResult(queries, combine) {
+    const matches2 = this.#findMatchingObservers(queries);
+    const result = matches2.map(match2 => match2.observer.getOptimisticResult(match2.defaultedQueryOptions));
+    const queryHashes = matches2.map(match2 => match2.defaultedQueryOptions.queryHash);
+    return [result, r2 => {
+      return this.#combineResult(r2 ?? result, combine, queryHashes);
+    }, () => {
+      return this.#trackResult(result, matches2);
+    }];
+  }
+  #trackResult(result, matches2) {
+    return matches2.map((match2, index2) => {
+      const observerResult = result[index2];
+      return !match2.defaultedQueryOptions.notifyOnChangeProps ? match2.observer.trackResult(observerResult, accessedProp => {
+        matches2.forEach(m3 => {
+          m3.observer.trackProp(accessedProp);
+        });
+      }) : observerResult;
+    });
+  }
+  #combineResult(input, combine, queryHashes) {
+    if (combine) {
+      const lastHashes = this.#lastQueryHashes;
+      const queryHashesChanged = queryHashes !== void 0 && lastHashes !== void 0 && (lastHashes.length !== queryHashes.length || queryHashes.some((hash2, i2) => hash2 !== lastHashes[i2]));
+      if (!this.#combinedResult || this.#result !== this.#lastResult || queryHashesChanged || combine !== this.#lastCombine) {
+        this.#lastCombine = combine;
+        this.#lastResult = this.#result;
+        if (queryHashes !== void 0) {
+          this.#lastQueryHashes = queryHashes;
+        }
+        this.#combinedResult = replaceEqualDeep(this.#combinedResult, combine(input));
+      }
+      return this.#combinedResult;
+    }
+    return input;
+  }
+  #findMatchingObservers(queries) {
+    const prevObserversMap = /* @__PURE__ */new Map();
+    this.#observers.forEach(observer2 => {
+      const key2 = observer2.options.queryHash;
+      if (!key2) return;
+      const previousObservers = prevObserversMap.get(key2);
+      if (previousObservers) {
+        previousObservers.push(observer2);
+      } else {
+        prevObserversMap.set(key2, [observer2]);
+      }
+    });
+    const observers2 = [];
+    queries.forEach(options => {
+      const defaultedOptions = this.#client.defaultQueryOptions(options);
+      const match2 = prevObserversMap.get(defaultedOptions.queryHash)?.shift();
+      const observer2 = match2 ?? new QueryObserver(this.#client, defaultedOptions);
+      observers2.push({
+        defaultedQueryOptions: defaultedOptions,
+        observer: observer2
+      });
+    });
+    return observers2;
+  }
+  #onUpdate(observer2, result) {
+    const index2 = this.#observers.indexOf(observer2);
+    if (index2 !== -1) {
+      this.#result = replaceAt(this.#result, index2, result);
+      this.#notify();
+    }
+  }
+  #notify() {
+    if (this.hasListeners()) {
+      const previousResult = this.#combinedResult;
+      const newTracked = this.#trackResult(this.#result, this.#observerMatches);
+      const newResult = this.#combineResult(newTracked, this.#options?.combine);
+      if (previousResult !== newResult) {
+        notifyManager.batch(() => {
+          this.listeners.forEach(listener => {
+            listener(this.#result);
+          });
+        });
+      }
+    }
+  }
+};
 var QueryCache = class extends Subscribable {
   constructor(config2 = {}) {
     super();
@@ -111367,10 +125451,114 @@ var ensureSuspenseTimers = defaultedOptions => {
     }
   }
 };
+var willFetch = (result, isRestoring) => result.isLoading && result.isFetching && !isRestoring;
 var shouldSuspend = (defaultedOptions, result) => defaultedOptions?.suspense && result.isPending;
 var fetchOptimistic = (defaultedOptions, observer2, errorResetBoundary) => observer2.fetchOptimistic(defaultedOptions).catch(() => {
   errorResetBoundary.clearReset();
 });
+function useQueries({
+  queries,
+  ...options
+}, queryClient2) {
+  const client2 = useQueryClient(queryClient2);
+  const isRestoring = useIsRestoring();
+  const errorResetBoundary = useQueryErrorResetBoundary();
+  const defaultedQueries = reactExports.useMemo(() => queries.map(opts => {
+    const defaultedOptions = client2.defaultQueryOptions(opts);
+    defaultedOptions._optimisticResults = isRestoring ? "isRestoring" : "optimistic";
+    return defaultedOptions;
+  }), [queries, client2, isRestoring]);
+  defaultedQueries.forEach(queryOptions => {
+    ensureSuspenseTimers(queryOptions);
+    const query = client2.getQueryCache().get(queryOptions.queryHash);
+    ensurePreventErrorBoundaryRetry(queryOptions, errorResetBoundary, query);
+  });
+  useClearResetErrorBoundary(errorResetBoundary);
+  const [observer2] = reactExports.useState(() => new QueriesObserver(client2, defaultedQueries, options));
+  const [optimisticResult, getCombinedResult, trackResult] = observer2.getOptimisticResult(defaultedQueries, options.combine);
+  const shouldSubscribe = !isRestoring && options.subscribed !== false;
+  reactExports.useSyncExternalStore(reactExports.useCallback(onStoreChange => shouldSubscribe ? observer2.subscribe(notifyManager.batchCalls(onStoreChange)) : noop2, [observer2, shouldSubscribe]), () => observer2.getCurrentResult(), () => observer2.getCurrentResult());
+  reactExports.useEffect(() => {
+    observer2.setQueries(defaultedQueries, options);
+  }, [defaultedQueries, options, observer2]);
+  const shouldAtLeastOneSuspend = optimisticResult.some((result, index2) => shouldSuspend(defaultedQueries[index2], result));
+  const suspensePromises = shouldAtLeastOneSuspend ? optimisticResult.flatMap((result, index2) => {
+    const opts = defaultedQueries[index2];
+    if (opts && shouldSuspend(opts, result)) {
+      const queryObserver = new QueryObserver(client2, opts);
+      return fetchOptimistic(opts, queryObserver, errorResetBoundary);
+    }
+    return [];
+  }) : [];
+  if (suspensePromises.length > 0) {
+    throw Promise.all(suspensePromises);
+  }
+  const firstSingleResultWhichShouldThrow = optimisticResult.find((result, index2) => {
+    const query = defaultedQueries[index2];
+    return query && getHasError({
+      result,
+      errorResetBoundary,
+      throwOnError: query.throwOnError,
+      query: client2.getQueryCache().get(query.queryHash),
+      suspense: query.suspense
+    });
+  });
+  if (firstSingleResultWhichShouldThrow?.error) {
+    throw firstSingleResultWhichShouldThrow.error;
+  }
+  return getCombinedResult(trackResult());
+}
+function useBaseQuery(options, Observer2, queryClient2) {
+  const isRestoring = useIsRestoring();
+  const errorResetBoundary = useQueryErrorResetBoundary();
+  const client2 = useQueryClient(queryClient2);
+  const defaultedOptions = client2.defaultQueryOptions(options);
+  client2.getDefaultOptions().queries?._experimental_beforeQuery?.(defaultedOptions);
+  const query = client2.getQueryCache().get(defaultedOptions.queryHash);
+  defaultedOptions._optimisticResults = isRestoring ? "isRestoring" : "optimistic";
+  ensureSuspenseTimers(defaultedOptions);
+  ensurePreventErrorBoundaryRetry(defaultedOptions, errorResetBoundary, query);
+  useClearResetErrorBoundary(errorResetBoundary);
+  const isNewCacheEntry = !client2.getQueryCache().get(defaultedOptions.queryHash);
+  const [observer2] = reactExports.useState(() => new Observer2(client2, defaultedOptions));
+  const result = observer2.getOptimisticResult(defaultedOptions);
+  const shouldSubscribe = !isRestoring && options.subscribed !== false;
+  reactExports.useSyncExternalStore(reactExports.useCallback(onStoreChange => {
+    const unsubscribe = shouldSubscribe ? observer2.subscribe(notifyManager.batchCalls(onStoreChange)) : noop2;
+    observer2.updateResult();
+    return unsubscribe;
+  }, [observer2, shouldSubscribe]), () => observer2.getCurrentResult(), () => observer2.getCurrentResult());
+  reactExports.useEffect(() => {
+    observer2.setOptions(defaultedOptions);
+  }, [defaultedOptions, observer2]);
+  if (shouldSuspend(defaultedOptions, result)) {
+    throw fetchOptimistic(defaultedOptions, observer2, errorResetBoundary);
+  }
+  if (getHasError({
+    result,
+    errorResetBoundary,
+    throwOnError: defaultedOptions.throwOnError,
+    query,
+    suspense: defaultedOptions.suspense
+  })) {
+    throw result.error;
+  }
+  client2.getDefaultOptions().queries?._experimental_afterQuery?.(defaultedOptions, result);
+  if (defaultedOptions.experimental_prefetchInRender && !environmentManager.isServer() && willFetch(result, isRestoring)) {
+    const promise = isNewCacheEntry ?
+    // Fetch immediately on render in order to ensure `.promise` is resolved even if the component is unmounted
+    fetchOptimistic(defaultedOptions, observer2, errorResetBoundary) :
+    // subscribe to the "cache promise" so that we can finalize the currentThenable once data comes in
+    query?.promise;
+    promise?.catch(noop2).finally(() => {
+      observer2.updateResult();
+    });
+  }
+  return !defaultedOptions.notifyOnChangeProps ? observer2.trackResult(result) : result;
+}
+function useQuery(options, queryClient2) {
+  return useBaseQuery(options, QueryObserver, queryClient2);
+}
 function useIsMutating(filters, queryClient2) {
   const client2 = useQueryClient(queryClient2);
   return useMutationState({
@@ -111400,6 +125588,25 @@ function useMutationState(options = {}, queryClient2) {
       notifyManager.schedule(onStoreChange);
     }
   }), [mutationCache]), () => result.current, () => result.current);
+}
+function useMutation(options, queryClient2) {
+  const client2 = useQueryClient(queryClient2);
+  const [observer2] = reactExports.useState(() => new MutationObserver$1(client2, options));
+  reactExports.useEffect(() => {
+    observer2.setOptions(options);
+  }, [observer2, options]);
+  const result = reactExports.useSyncExternalStore(reactExports.useCallback(onStoreChange => observer2.subscribe(notifyManager.batchCalls(onStoreChange)), [observer2]), () => observer2.getCurrentResult(), () => observer2.getCurrentResult());
+  const mutate = reactExports.useCallback((variables, mutateOptions) => {
+    observer2.mutate(variables, mutateOptions).catch(noop2);
+  }, [observer2]);
+  if (result.error && shouldThrowError(observer2.options.throwOnError, [result.error])) {
+    throw result.error;
+  }
+  return {
+    ...result,
+    mutate,
+    mutateAsync: result.mutate
+  };
 }
 function tzName(timeZone, date2, format2 = "long") {
   return new Intl.DateTimeFormat("en-US", {
@@ -116041,6 +130248,41 @@ function formatDate(value) {
   const day = String(value.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
 }
+let CheckboxRootDataAttributes = /* @__PURE__ */function (CheckboxRootDataAttributes2) {
+  CheckboxRootDataAttributes2["checked"] = "data-checked";
+  CheckboxRootDataAttributes2["unchecked"] = "data-unchecked";
+  CheckboxRootDataAttributes2["indeterminate"] = "data-indeterminate";
+  CheckboxRootDataAttributes2["disabled"] = "data-disabled";
+  CheckboxRootDataAttributes2["readonly"] = "data-readonly";
+  CheckboxRootDataAttributes2["required"] = "data-required";
+  CheckboxRootDataAttributes2["valid"] = "data-valid";
+  CheckboxRootDataAttributes2["invalid"] = "data-invalid";
+  CheckboxRootDataAttributes2["touched"] = "data-touched";
+  CheckboxRootDataAttributes2["dirty"] = "data-dirty";
+  CheckboxRootDataAttributes2["filled"] = "data-filled";
+  CheckboxRootDataAttributes2["focused"] = "data-focused";
+  return CheckboxRootDataAttributes2;
+}({});
+function useStateAttributesMapping(state2) {
+  return reactExports.useMemo(() => ({
+    checked(value) {
+      if (state2.indeterminate) {
+        return {};
+      }
+      if (value) {
+        return {
+          [CheckboxRootDataAttributes.checked]: ""
+        };
+      }
+      return {
+        [CheckboxRootDataAttributes.unchecked]: ""
+      };
+    },
+    ...fieldValidityMapping
+  }), [state2.indeterminate]);
+}
+const CheckboxRootContext = /* @__PURE__ */reactExports.createContext(void 0);
+const PARENT_CHECKBOX = "data-parent";
 const avatarStateAttributesMapping = {
   imageLoadingStatus: () => null
 };
@@ -116811,22 +131053,23 @@ const defaultSchema = {
   "input", "ins", "kbd", "li", "ol", "p", "picture", "pre", "q", "rp", "rt", "ruby", "s", "samp", "section", "source", "span", "strike", "strong", "sub", "summary", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "ul", "var"]
 };
 const own$4 = {}.hasOwnProperty;
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Number.POSITIVE_INFINITY,
-      gcTime: Number.POSITIVE_INFINITY,
-      retry: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      networkMode: "always"
-    },
-    mutations: {
-      networkMode: "always"
-    }
-  }
-});
 const LONG_PRESS_DELAY = 500;
+let ToggleGroupDataAttributes = /* @__PURE__ */function (ToggleGroupDataAttributes2) {
+  ToggleGroupDataAttributes2["disabled"] = "data-disabled";
+  ToggleGroupDataAttributes2["orientation"] = "data-orientation";
+  ToggleGroupDataAttributes2["multiple"] = "data-multiple";
+  return ToggleGroupDataAttributes2;
+}({});
+const stateAttributesMapping$1 = {
+  multiple(value) {
+    if (value) {
+      return {
+        [ToggleGroupDataAttributes.multiple]: ""
+      };
+    }
+    return null;
+  }
+};
 function t(t2, e2, i2, n2) {
   return new (i2 || (i2 = Promise))(function (s2, r2) {
     function o2(t3) {
@@ -137036,7 +151279,397 @@ var un = () => e2 => {
     });
   });
 };
+const CollapsibleRootContext = /* @__PURE__ */reactExports.createContext(void 0);
+const AccordionItemContext = /* @__PURE__ */reactExports.createContext(void 0);
+let CollapsiblePanelDataAttributes = function (CollapsiblePanelDataAttributes2) {
+  CollapsiblePanelDataAttributes2["open"] = "data-open";
+  CollapsiblePanelDataAttributes2["closed"] = "data-closed";
+  CollapsiblePanelDataAttributes2[CollapsiblePanelDataAttributes2["startingStyle"] = TransitionStatusDataAttributes.startingStyle] = "startingStyle";
+  CollapsiblePanelDataAttributes2[CollapsiblePanelDataAttributes2["endingStyle"] = TransitionStatusDataAttributes.endingStyle] = "endingStyle";
+  return CollapsiblePanelDataAttributes2;
+}({});
+let CollapsibleTriggerDataAttributes = /* @__PURE__ */function (CollapsibleTriggerDataAttributes2) {
+  CollapsibleTriggerDataAttributes2["panelOpen"] = "data-panel-open";
+  return CollapsibleTriggerDataAttributes2;
+}({});
+const PANEL_OPEN_HOOK = {
+  [CollapsiblePanelDataAttributes.open]: ""
+};
+const PANEL_CLOSED_HOOK = {
+  [CollapsiblePanelDataAttributes.closed]: ""
+};
+const triggerOpenStateMapping = {
+  open(value) {
+    if (value) {
+      return {
+        [CollapsibleTriggerDataAttributes.panelOpen]: ""
+      };
+    }
+    return null;
+  }
+};
+const collapsibleOpenStateMapping = {
+  open(value) {
+    if (value) {
+      return PANEL_OPEN_HOOK;
+    }
+    return PANEL_CLOSED_HOOK;
+  }
+};
+let AccordionItemDataAttributes = /* @__PURE__ */function (AccordionItemDataAttributes2) {
+  AccordionItemDataAttributes2["index"] = "data-index";
+  AccordionItemDataAttributes2["disabled"] = "data-disabled";
+  AccordionItemDataAttributes2["open"] = "data-open";
+  return AccordionItemDataAttributes2;
+}({});
+const accordionStateAttributesMapping = {
+  ...collapsibleOpenStateMapping,
+  index: value => {
+    return Number.isInteger(value) ? {
+      [AccordionItemDataAttributes.index]: String(value)
+    } : null;
+  },
+  ...transitionStatusMapping,
+  value: () => null
+};
+const SUPPORTED_KEYS = /* @__PURE__ */new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
+function getActiveTriggers(accordionItemRefs) {
+  const {
+    current: accordionItemElements
+  } = accordionItemRefs;
+  const output = [];
+  for (let i2 = 0; i2 < accordionItemElements.length; i2 += 1) {
+    const section = accordionItemElements[i2];
+    if (!isElementDisabled(section)) {
+      const trigger = section?.querySelector('[type="button"], [role="button"]');
+      if (trigger && !isElementDisabled(trigger)) {
+        output.push(trigger);
+      }
+    }
+  }
+  return output;
+}
+let AccordionRootDataAttributes = /* @__PURE__ */function (AccordionRootDataAttributes2) {
+  AccordionRootDataAttributes2["disabled"] = "data-disabled";
+  AccordionRootDataAttributes2["orientation"] = "data-orientation";
+  return AccordionRootDataAttributes2;
+}({});
+function useCollapsiblePanel(parameters) {
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    externalRef,
+    height,
+    hiddenUntilFound,
+    keepMounted,
+    id: idParam,
+    mounted,
+    onOpenChange,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    setOpen,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width
+  } = parameters;
+  const isBeforeMatchRef = reactExports.useRef(false);
+  const latestAnimationNameRef = reactExports.useRef(null);
+  const shouldCancelInitialOpenAnimationRef = reactExports.useRef(open);
+  const shouldCancelInitialOpenTransitionRef = reactExports.useRef(open);
+  const endingStyleFrame = useAnimationFrame();
+  const hidden = reactExports.useMemo(() => {
+    if (animationTypeRef.current === "css-animation") {
+      return !visible;
+    }
+    return !open && !mounted;
+  }, [open, mounted, visible, animationTypeRef]);
+  const handlePanelRef = useStableCallback$1(element2 => {
+    if (!element2) {
+      return void 0;
+    }
+    if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
+      const panelStyles = getComputedStyle(element2);
+      const hasAnimation = panelStyles.animationName !== "none" && panelStyles.animationName !== "";
+      const hasTransition = panelStyles.transitionDuration !== "0s" && panelStyles.transitionDuration !== "";
+      if (hasAnimation && hasTransition) ;else if (panelStyles.animationName === "none" && panelStyles.transitionDuration !== "0s") {
+        animationTypeRef.current = "css-transition";
+      } else if (panelStyles.animationName !== "none" && panelStyles.transitionDuration === "0s") {
+        animationTypeRef.current = "css-animation";
+      } else {
+        animationTypeRef.current = "none";
+      }
+      if (element2.getAttribute(AccordionRootDataAttributes.orientation) === "horizontal" || panelStyles.transitionProperty.indexOf("width") > -1) {
+        transitionDimensionRef.current = "width";
+      } else {
+        transitionDimensionRef.current = "height";
+      }
+    }
+    if (animationTypeRef.current !== "css-transition") {
+      return void 0;
+    }
+    if (height === void 0 || width === void 0) {
+      setDimensions({
+        height: element2.scrollHeight,
+        width: element2.scrollWidth
+      });
+      if (shouldCancelInitialOpenTransitionRef.current) {
+        element2.style.setProperty("transition-duration", "0s");
+      }
+    }
+    let frame2 = -1;
+    let nextFrame = -1;
+    frame2 = AnimationFrame.request(() => {
+      shouldCancelInitialOpenTransitionRef.current = false;
+      nextFrame = AnimationFrame.request(() => {
+        setTimeout(() => {
+          element2.style.removeProperty("transition-duration");
+        });
+      });
+    });
+    return () => {
+      AnimationFrame.cancel(frame2);
+      AnimationFrame.cancel(nextFrame);
+    };
+  });
+  const mergedPanelRef = useMergedRefs(externalRef, panelRef, handlePanelRef);
+  useIsoLayoutEffect(() => {
+    if (animationTypeRef.current !== "css-transition") {
+      return void 0;
+    }
+    const panel = panelRef.current;
+    if (!panel) {
+      return void 0;
+    }
+    let resizeFrame = -1;
+    if (abortControllerRef.current != null) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    if (open) {
+      const originalLayoutStyles = {
+        "justify-content": panel.style.justifyContent,
+        "align-items": panel.style.alignItems,
+        "align-content": panel.style.alignContent,
+        "justify-items": panel.style.justifyItems
+      };
+      Object.keys(originalLayoutStyles).forEach(key2 => {
+        panel.style.setProperty(key2, "initial", "important");
+      });
+      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, "");
+      }
+      setDimensions({
+        height: panel.scrollHeight,
+        width: panel.scrollWidth
+      });
+      resizeFrame = AnimationFrame.request(() => {
+        Object.entries(originalLayoutStyles).forEach(([key2, value]) => {
+          if (value === "") {
+            panel.style.removeProperty(key2);
+          } else {
+            panel.style.setProperty(key2, value);
+          }
+        });
+      });
+    } else {
+      if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
+        return void 0;
+      }
+      setDimensions({
+        height: panel.scrollHeight,
+        width: panel.scrollWidth
+      });
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      const signal = abortController.signal;
+      let attributeObserver = null;
+      const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
+      attributeObserver = new MutationObserver(mutationList => {
+        const hasEndingStyle = mutationList.some(mutation => mutation.type === "attributes" && mutation.attributeName === endingStyleAttribute);
+        if (hasEndingStyle) {
+          attributeObserver?.disconnect();
+          attributeObserver = null;
+          runOnceAnimationsFinish(() => {
+            setDimensions({
+              height: 0,
+              width: 0
+            });
+            panel.style.removeProperty("content-visibility");
+            setMounted(false);
+            if (abortControllerRef.current === abortController) {
+              abortControllerRef.current = null;
+            }
+          }, signal);
+        }
+      });
+      attributeObserver.observe(panel, {
+        attributes: true,
+        attributeFilter: [endingStyleAttribute]
+      });
+      return () => {
+        attributeObserver?.disconnect();
+        endingStyleFrame.cancel();
+        if (abortControllerRef.current === abortController) {
+          abortController.abort();
+          abortControllerRef.current = null;
+        }
+      };
+    }
+    return () => {
+      AnimationFrame.cancel(resizeFrame);
+    };
+  }, [abortControllerRef, animationTypeRef, endingStyleFrame, hiddenUntilFound, keepMounted, mounted, open, panelRef, runOnceAnimationsFinish, setDimensions, setMounted]);
+  useIsoLayoutEffect(() => {
+    if (animationTypeRef.current !== "css-animation") {
+      return;
+    }
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+    latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
+    panel.style.setProperty("animation-name", "none");
+    setDimensions({
+      height: panel.scrollHeight,
+      width: panel.scrollWidth
+    });
+    if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
+      panel.style.removeProperty("animation-name");
+    }
+    if (open) {
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      setMounted(true);
+      setVisible(true);
+    } else {
+      abortControllerRef.current = new AbortController();
+      runOnceAnimationsFinish(() => {
+        setMounted(false);
+        setVisible(false);
+        abortControllerRef.current = null;
+      }, abortControllerRef.current.signal);
+    }
+  }, [abortControllerRef, animationTypeRef, open, panelRef, runOnceAnimationsFinish, setDimensions, setMounted, setVisible, visible]);
+  useOnMount(() => {
+    const frame2 = AnimationFrame.request(() => {
+      shouldCancelInitialOpenAnimationRef.current = false;
+    });
+    return () => AnimationFrame.cancel(frame2);
+  });
+  useIsoLayoutEffect(() => {
+    if (!hiddenUntilFound) {
+      return void 0;
+    }
+    const panel = panelRef.current;
+    if (!panel) {
+      return void 0;
+    }
+    let frame2 = -1;
+    let nextFrame = -1;
+    if (open && isBeforeMatchRef.current) {
+      panel.style.transitionDuration = "0s";
+      setDimensions({
+        height: panel.scrollHeight,
+        width: panel.scrollWidth
+      });
+      frame2 = AnimationFrame.request(() => {
+        isBeforeMatchRef.current = false;
+        nextFrame = AnimationFrame.request(() => {
+          setTimeout(() => {
+            panel.style.removeProperty("transition-duration");
+          });
+        });
+      });
+    }
+    return () => {
+      AnimationFrame.cancel(frame2);
+      AnimationFrame.cancel(nextFrame);
+    };
+  }, [hiddenUntilFound, open, panelRef, setDimensions]);
+  useIsoLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (panel && hiddenUntilFound && hidden) {
+      panel.setAttribute("hidden", "until-found");
+      if (animationTypeRef.current === "css-transition") {
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, "");
+      }
+    }
+  }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);
+  reactExports.useEffect(function registerBeforeMatchListener() {
+    const panel = panelRef.current;
+    if (!panel) {
+      return void 0;
+    }
+    function handleBeforeMatch(event) {
+      isBeforeMatchRef.current = true;
+      setOpen(true);
+      onOpenChange(true, createChangeEventDetails(none$4, event));
+    }
+    panel.addEventListener("beforematch", handleBeforeMatch);
+    return () => {
+      panel.removeEventListener("beforematch", handleBeforeMatch);
+    };
+  }, [onOpenChange, panelRef, setOpen]);
+  return reactExports.useMemo(() => ({
+    props: {
+      hidden,
+      id: idParam,
+      ref: mergedPanelRef
+    }
+  }), [hidden, idParam, mergedPanelRef]);
+}
+let AccordionPanelCssVars = /* @__PURE__ */function (AccordionPanelCssVars2) {
+  AccordionPanelCssVars2["accordionPanelHeight"] = "--accordion-panel-height";
+  AccordionPanelCssVars2["accordionPanelWidth"] = "--accordion-panel-width";
+  return AccordionPanelCssVars2;
+}({});
+let RadioRootDataAttributes = /* @__PURE__ */function (RadioRootDataAttributes2) {
+  RadioRootDataAttributes2["checked"] = "data-checked";
+  RadioRootDataAttributes2["unchecked"] = "data-unchecked";
+  RadioRootDataAttributes2["disabled"] = "data-disabled";
+  RadioRootDataAttributes2["readonly"] = "data-readonly";
+  RadioRootDataAttributes2["required"] = "data-required";
+  RadioRootDataAttributes2["valid"] = "data-valid";
+  RadioRootDataAttributes2["invalid"] = "data-invalid";
+  RadioRootDataAttributes2["touched"] = "data-touched";
+  RadioRootDataAttributes2["dirty"] = "data-dirty";
+  RadioRootDataAttributes2["filled"] = "data-filled";
+  RadioRootDataAttributes2["focused"] = "data-focused";
+  return RadioRootDataAttributes2;
+}({});
+const stateAttributesMapping = {
+  checked(value) {
+    if (value) {
+      return {
+        [RadioRootDataAttributes.checked]: ""
+      };
+    }
+    return {
+      [RadioRootDataAttributes.unchecked]: ""
+    };
+  },
+  ...transitionStatusMapping,
+  ...fieldValidityMapping
+};
+const RadioGroupContext = /* @__PURE__ */reactExports.createContext(void 0);
+function useRadioGroupContext() {
+  return reactExports.useContext(RadioGroupContext);
+}
+const RadioRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 const MODIFIER_KEYS = [SHIFT];
+let ScrollAreaRootCssVars = /* @__PURE__ */function (ScrollAreaRootCssVars2) {
+  ScrollAreaRootCssVars2["scrollAreaCornerHeight"] = "--scroll-area-corner-height";
+  ScrollAreaRootCssVars2["scrollAreaCornerWidth"] = "--scroll-area-corner-width";
+  return ScrollAreaRootCssVars2;
+}({});
+const SCROLL_TIMEOUT = 500;
+const MIN_THUMB_SIZE = 16;
 function getOffset(element2, prop, axis) {
   if (!element2) {
     return 0;
@@ -137048,6 +151681,18 @@ function getOffset(element2, prop, axis) {
   }
   return parseFloat(styles[`${prop}${propAxis}Start`]) + parseFloat(styles[`${prop}${propAxis}End`]);
 }
+let ScrollAreaScrollbarDataAttributes = /* @__PURE__ */function (ScrollAreaScrollbarDataAttributes2) {
+  ScrollAreaScrollbarDataAttributes2["orientation"] = "data-orientation";
+  ScrollAreaScrollbarDataAttributes2["hovering"] = "data-hovering";
+  ScrollAreaScrollbarDataAttributes2["scrolling"] = "data-scrolling";
+  ScrollAreaScrollbarDataAttributes2["hasOverflowX"] = "data-has-overflow-x";
+  ScrollAreaScrollbarDataAttributes2["hasOverflowY"] = "data-has-overflow-y";
+  ScrollAreaScrollbarDataAttributes2["overflowXStart"] = "data-overflow-x-start";
+  ScrollAreaScrollbarDataAttributes2["overflowXEnd"] = "data-overflow-x-end";
+  ScrollAreaScrollbarDataAttributes2["overflowYStart"] = "data-overflow-y-start";
+  ScrollAreaScrollbarDataAttributes2["overflowYEnd"] = "data-overflow-y-end";
+  return ScrollAreaScrollbarDataAttributes2;
+}({});
 let ScrollAreaRootDataAttributes = /* @__PURE__ */function (ScrollAreaRootDataAttributes2) {
   ScrollAreaRootDataAttributes2["scrolling"] = "data-scrolling";
   ScrollAreaRootDataAttributes2["hasOverflowX"] = "data-has-overflow-x";
@@ -137115,6 +151760,24 @@ function normalizeOverflowEdgeThreshold(threshold) {
     yEnd: Math.max(0, threshold?.yEnd || 0)
   };
 }
+const ScrollAreaViewportContext = /* @__PURE__ */reactExports.createContext(void 0);
+function onVisible(element2, callback) {
+  if (typeof IntersectionObserver === "undefined") {
+    return () => {};
+  }
+  const observer2 = new IntersectionObserver(entries2 => {
+    entries2.forEach(entry => {
+      if (entry.intersectionRatio > 0) {
+        callback();
+        observer2.disconnect();
+      }
+    });
+  });
+  observer2.observe(element2);
+  return () => {
+    observer2.disconnect();
+  };
+}
 let ScrollAreaViewportCssVars = /* @__PURE__ */function (ScrollAreaViewportCssVars2) {
   ScrollAreaViewportCssVars2["scrollAreaOverflowXStart"] = "--scroll-area-overflow-x-start";
   ScrollAreaViewportCssVars2["scrollAreaOverflowXEnd"] = "--scroll-area-overflow-x-end";
@@ -137144,6 +151807,7 @@ function normalizeScrollOffset(value, max2) {
   return clamped;
 }
 let scrollAreaOverflowVarsRegistered = false;
+const HAS_RESIZE_OBSERVER = typeof ResizeObserver !== "undefined";
 function removeCSSVariableInheritance() {
   if (scrollAreaOverflowVarsRegistered ||
   // When `inherits: false`, specifying `inherit` on child elements doesn't work
@@ -137165,6 +151829,27 @@ function removeCSSVariableInheritance() {
   }
   scrollAreaOverflowVarsRegistered = true;
 }
+function getHiddenState(viewport) {
+  const y4 = viewport.clientHeight >= viewport.scrollHeight;
+  const x2 = viewport.clientWidth >= viewport.scrollWidth;
+  return {
+    y: y4,
+    x: x2,
+    corner: y4 || x2
+  };
+}
+function mergeHiddenState(prevState, nextState) {
+  if (prevState.y === nextState.y && prevState.x === nextState.x && prevState.corner === nextState.corner) {
+    return prevState;
+  }
+  return nextState;
+}
+const ScrollAreaScrollbarContext = /* @__PURE__ */reactExports.createContext(void 0);
+let ScrollAreaScrollbarCssVars = /* @__PURE__ */function (ScrollAreaScrollbarCssVars2) {
+  ScrollAreaScrollbarCssVars2["scrollAreaThumbHeight"] = "--scroll-area-thumb-height";
+  ScrollAreaScrollbarCssVars2["scrollAreaThumbWidth"] = "--scroll-area-thumb-width";
+  return ScrollAreaScrollbarCssVars2;
+}({});
 const root = document.getElementById("root");
 if (!root) throw new Error("Root element not found");
-export { $$8, AC3_ACMOD_CHANNEL_COUNTS, AC3_SAMPLE_RATES, ACTIVE_COMPOSITE_ITEM, ADTS, AES_128_BLOCK_SIZE, ARIA_EDGE_DESC_KEY, ARIA_LIVE_MESSAGE, ARIA_NODE_DESC_KEY, AUDIO_CODECS, AUDIO_SAMPLE_FORMATS, AbortException, Action, ActiveDraggableContext, ActiveSnippet, Activity, AdtsInputFormat, AdtsOutputFormat, AlignCenter, AlignHorizontalSpaceBetween, AlignLeft, AlignRight, AlignVerticalSpaceBetween, AnimationFrame, AnimationManager, AnnotationEditor, AnnotationEditorParamsType, AnnotationEditorType, AnnotationEditorUIManager, AnnotationElementFactory, AnnotationMode, AnnotationPrefix, AnnotationStorage, AnnotationType$1, AnnounceMargin, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRightToLine, ArrowUp, ArrowUpFromLine, ArrowUpRight, ArrowUpToLine, AsyncMutex, AtSign, AttachedFile, AttributeList, AudioLines, AudioSource, AutoScrollActivator, BASE64_DATA_URI_REGEX, BASE_LOC, BOUNDARY_OFFSET$1, BadMeasure, BadgeInfo, Ban, BaseCanvasFactory, BaseException, BaseFilterFactory, BaseMediaSampleSink, BaseRoute, Bell, BellRing, BidiSpan, Bitstream$1, BlockComment, BlockLacing, BlockPolicy, Blocks, Bold$1, BookOpen, Bookmark, Bot, Box, Brain, Break, Brush, Bs, Bt$1, BubbleMenuPlugin, BufferTarget, Building2, C$5, CLICK_TRIGGER_IDENTIFIER, CLOSE_DELAY, CODEC_STRING_MAP, CODE_POINTS, COLOR_PRIMARIES_MAP_INVERSE, CSS$1, Cable, CachedOrder, CalendarDays, CallSerializer, CallableInstance, Camera, CaseSensitive, Cctv, CellSelection, Check, CheckCheck, ChevronDown, ChevronLeft, ChevronRight$1, ChevronUp, Chrome, Circle, CircleAlert, CircleArrowUp, CircleCheck, CircleHelp, CirclePlus, CircleUserRound, CircleX, Clapperboard, Clipboard, ClipboardList, ClipboardPaste, ClipboardTextSerializer, Clock, Clock3, Cloud, CloudDownload, CloudOff, CloudUpload, Cog, Color, CommandManager$1, Commands, CommonPopupDataAttributes, Compartment, CompositeListContext, ConnectionLineType, ContentCompAlgo, ContentEncodingScope, Context$2, ContextMenuRootContext, ContextTracker, ConversionCanceledError, Copy, CopyPlus, CornerDownRight, CreditCard, Crosshair, Crown, Ct$3, CustomAudioEncoder, CustomPathedSource, D$1, DEFAULT_COORDS, DEFAULT_FIELD_STATE_ATTRIBUTES, DEFAULT_HIDDEN_STATE, DEFAULT_OVERFLOW_EDGES, DEFAULT_PROTOCOL_ALLOWLIST, DEFAULT_SIDES, DEFAULT_SIZE, DEFAULT_SOURCE_CACHE_GROUP, DEFAULT_TRACK_DISPOSITION, DEFAULT_VALIDITY_STATE, DOMObserver$1, DOMObserver2, DOMSVGFactory, DOMSerializer, DROPDOWN_COLLISION_AVOIDANCE, DayPicker, DecoderWrapper, Decoration$1, Decoration2, DecorationSet, DefaultBrackets, DefaultBufferLength, DefaultScanDist, Delete, Demuxer, Dialect, Dialect_jsx, Direction, DndMonitorContext, DocView, Download, DragEvent$1, Dragging, DrawLayer, DrawingEditor, Drop, Droplet, Ds, E$4, E$7, EBMLId, EMPTY_ARRAY, EMPTY_ARRAY$1, EMPTY_OBJECT, EMPTY_REF, ENCRYPTION_KEY_CACHE_GROUP, EOL_PATTERN, EO_CLIP, ERR, Earth, Editable, EditorSelection, EditorState$1, EditorState2, EditorStateManager, Ee$3, Ellipsis, EmacsyPendingKeys, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EntryType, ErrorComponent, Es, EventEmitter$1, EventEmitter$2, EventEmitter3, Expand, Extension, ExtensionManager, ExternalLink, ExternalTokenizer, Eye, EyeOff, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FLAC, FONT_IDENTITY_MATRIX, FULL_CHUNK_HEIGHT, Facet, File$1, FileArchive, FileAudio, FileClock, FileCode, FileCode2, FileDiff, FileInput, FileJson2, FileMusic, FileSlice, FileText, FileVideo, FileWarning, Files, Film, FlacBlockType, FlacInputFormat, FlacOutputFormat, Flag, FloatingDelayGroupContext, FloatingMenuPlugin, FloatingNodeContext, FloatingRootStore, FloatingTree, FloatingTreeStore, FocusEvents, Folder, FolderClosed, FolderInput, FolderKey, FolderOpen, FolderPlus, FolderUp, FolderX, FontLoader, FormContext, FormattingElementList, FragmentCursor3, FreeTextAnnotationElement, GAP$1, GLOBAL_TIMESCALE, Gift, GitCompare, GlobalWorkerOptions, Globe, GraduationCap, Grid2x2, Grid2x2Plus, Grid3x3, GripVertical, GroupNode$1, Gt$1, H, HLS_MIME_TYPE, Hand, HardDrive, HevcNalUnitType, HiddenText, HighlightAnnotationElement, History, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Hs, Hsl, I, I$5, I18nContext, IDENTITY_MATRIX, ID_PREFIX$1, ID_PREFIX$1$1, INTENTIONAL_DRAG_COUNT_THRESHOLD, IV_STRING_REGEX, Identifier, Inbox, IndentContext, Info$1, InkAnnotationElement, InkDrawingOptions, InputAudioTrack, InputFormat, InputState$1, InputStream, InputVideoTrack, InsertionMode, InternalContext, InvalidPDFException, IsobmffBoxWriter, Italic$1, IterMode, J$6, JSXStartTag, Jt$2, K$6, K2, KeyRound, Keyboard, KeyboardManager, KeyboardSensor, Keymap, Keymaps, L, LEVEL_0_AND_1_EBML_IDS, LEVEL_1_EBML_IDS, LINE_CAP_STYLES, LINE_JOIN_STYLES, LONG_PRESS_DELAY, LanguageSupport, Layers, LayoutDashboard, LayoutGrid, LayoutList, LayoutTemplate, LeftMouseDown, Library, Lightbulb, LineComment, Link2, List, LiveRegion, LoaderCircle, LocalTokenGroup, Lock, LockKeyhole, LogOut, Logger, Ls, M, M$7, MATRIX_COEFFICIENTS_MAP_INVERSE, MAX_ADTS_FRAME_HEADER_SIZE, MAX_BOX_HEADER_SIZE, MAX_HEADER_SIZE, MAX_PAGE_HEADER_SIZE, MAX_PAGE_SIZE, MAX_RESYNC_LENGTH, METADATA_ELEMENTS, MIN_ADTS_FRAME_HEADER_SIZE, MIN_BOX_HEADER_SIZE, MIN_HEADER_SIZE, MIN_PAGE_HEADER_SIZE, MODIFIER_KEYS, MP3, Magnet, Map$1, MarkdownParser, Maximize, Maximize2, MeasuringStrategy, Megaphone, MenuGroupContext, MenuPortalContext, MenuRadioGroupContext, MenuRadioItemContext, MenuRoot, MenuRootContext, MenuSubmenuRoot, MessageHandler, MessageSquare, MessageSquarePlus, MessageSquareQuote, Metadata, Mic, Minimize2, Minus, MissingPDFException, MkvOutputFormat, Monitor, Moon, MousePointer2, Mp3InputFormat, Mp3OutputFormat, Music, Music2, Muxer, N, N$4, NON_PCM_AUDIO_CODECS, NOOP, NORMAL_CLIP, NS, Network, Node$3, Node$4, NodeCanvasFactory, NodeFilterFactory, NodePos, NodeProp, NodeSelection, NodeSet, NodeType3, NodeViewWrapper, NotebookPen, NullContext, NullTarget, NullifiedContextProvider, O, OPEN_DELAY, OPS, OPUS_SAMPLE_RATE, OctagonX, OggOutputFormat, OpenElementStack, OptionalContentConfig, Outline, Output, OutputFormat, OutputScale, OutputTrackGroup, PATIENT_CLICK_THRESHOLD, PCM_AUDIO_CODECS, PDFDataTransportStreamRangeReader, PDFDataTransportStreamReader, PDFDateString, PDFDocumentLoadingTask, PDFDocumentProxy, PDFObjects, PDFWorker, PLACEHOLDER_DATA, POPUP_COLLISION_AVOIDANCE, PREFETCH_PROFILES, Package, PacketBuffer, PacketReadingContext, PaintType, Palette, PanOnScrollMode, PanelBottomClose, PanelGroup, PanelsTopLeft, Paperclip, ParseContext2, Parser$1, PasswordResponses, Paste, PathType, PathedSource, Pause, PenLine, Pencil, PencilLine, PencilRuler, PendingKeys, PermissionFlag, Pin, PinOff, PixelsPerInch, Play, Plug, Plugin, PluginInstance, PluginKey, Plus, PointerSensor, PopoverPortalContext, PopoverPositionerContext, PopupTriggerMap, PortalContext, Position, Power, Prec, PreviewCardPositionerContext, PreviewCardRoot, PrintAnnotationStorage, PublicContext, Puzzle, QUALITY_HIGH, Qt$1, QueryClientProvider, R$1, REGULAR_ITEM, RangeSetBuilder, Re$2, React, ReactDOM, ReactNodeViewRenderer, ReactStore, ReactiveFlags, ReadOrchestrator, ReadableStreamSource, Reader, ReceiptText, Redo2, Regex, RenderTask, RenderingCancelledException, RenderingIntentFlag, Repeat2, Replace, ReplaceAll, ResizeControlVariant, RestoreFocus, Rgb, RichImageData, RotateCcw, RotateCw, Rs, SAMPLING_RATES, SECOND_TO_MICROSECOND_FACTOR, SEGMENT_TYPE_INDEX, SEGMENT_TYPE_PATHLESS, SHIFT, SKIP, SPECIAL_ELEMENTS, SUBTITLE_CODECS, SVG_NS$1, Save, Scan, Schema3, Scissors, ScopeNodes, ScrollAreaViewportCssVars, ScrollRestoration, ScrollTarget, ScrollText, Search, SearchParamError, SearchQuery, SearchState, SegmentedInput, SelectFloatingContext, SelectGroupContext, SelectPositionerContext, SelectRootContext, SelectScrollDownArrow, SelectScrollUpArrow, Selection, SelectionMode, Send, SerializableEmpty, Server, ServerOff, Settings, Settings2, Shapes, ShieldAlert, ShieldCheck, ShieldOff, ShoppingBag, Shuffle, Slash, Slice, SlidersHorizontal, Smartphone, Snippet, SortableContext, Source, SourceRef, Sparkles, Speech, Split, Sprout, Square, SquareDashed, SquareMousePointer, Ss, St$2, Stack, StackBufferCursor, Stamp, StampEditor, StarterKit, StatTimer, StateEffect, StateField, Status, Step, StepMap, StepResult, Store$1, StyleModule, Subscribable, Sun, SwatchBook, T$6, TABLE_STRUCTURE_TAGS, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_ID, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_NAMES, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, TIMESCALE, TIMESTAMP_OFFSET, TRACK_TYPE_TO_COMPONENT_SUBTYPE, TRACK_TYPE_TO_HANDLER_NAME, TRANSFER_CHARACTERISTICS_MAP_INVERSE, TS_PACKET_SIZE, TYPEABLE_SELECTOR, Tabindex, Table2, TabsListContext, Tag$1, Text, TextDirection, TextRenderingMode, TextSelection, ThumbsDown, ThumbsUp, Tile, Timeout, TiptapWrapper, Toast, TokenCache, TokenGroup, TokenType, Tokenizer, TokenizerMode, TooltipPortalContext, TooltipPositionerContext, TouchManager, TrackSynchronizer, Transaction2, Transform$1, TransitionStatusDataAttributes, Trash2, TraversalOrder, Tree, TriangleAlert, Tt$2, Type$1, U, U$3, UNDETERMINED_LANGUAGE, Underline$1, Undo2, UnexpectedResponseException, UnsupportedInputFormatError, Upload, UrlSource, User, UserRound, UserRoundPlus, Users, Ut, Util, V$6, VIDEO_CODECS, VIDEO_SAMPLE_PIXEL_FORMATS, VIDEO_SAMPLE_PIXEL_FORMATS_SET, VISIBLE_TOASTS_AMOUNT, VerbosityLevel, Video, VideoOff, VideoSampleColorSpace, VideoSource, ViewPlugin, ViewState, ViewUpdate, Volume2, VolumeX, Vt$1, W$1, W$7, WAVE, WandSparkles, WavOutputFormat, WaveInputFormat, WebMOutputFormat, WholeWord, WidgetType2, Wifi, WifiOff, Workflow, Wrench, Writer, Wt$2, X$6, X$7, XY_RESIZER_HANDLE_POSITIONS, XY_RESIZER_LINE_POSITIONS, XfaLayer, XfaText, Yt$2, Zap, ZoomEvent, ZoomIn, ZoomOut, __addDisposableResource, __disposeResources, __insertCSS, __require, __require$1, __ovVitePreload, __webpack_exports__, __webpack_require__, _t$2, a$1, aacChannelMap$1, aacFrequencyTable$1, activeElement, adaptiveOrigin, add$2, addChild, addChildren, addColumnAfter, addColumnBefore, addCursorAbove, addCursorBelow, addEdge, addNode, addPreviouslyFocusedElement, addQuickTimeMetadataTagBoxes, addRowAfter, addRowBefore, addsSelectionRange, adjustScale, all, alwaysValid, an, anchorInRightPlace, android, android$1, appendComment, appendCommentToDocument, appendCommentToRootHtmlElement, applyDOMChange, applyDOMChangeInner, applyEdgeChanges, applyModifiers, applyNodeChanges, applySafePolygonPointerEventsMutation, approxEqual, arbitraryValueRegex, arbitraryVariableRegex, areEqual, areSetsEqual$1, ariaLabelConfigSelector, ariaLiveSelector, ariaLiveStyle, arrayAll, arrayArgmin, arrayCount, arrayMove, arraylike, arraysEqual, arrowKeyDiffs, ascending, ascii$1, assert, assert$3, assertCompiler, assertDefinedSize, assertDone, assertNever, assertNode, assertNonEmpty, assertParser, assertPath, assertUnfrozen, assignKeyAndIndex, assignOffset, astTop, at, at$3, atRules, atomicRanges, attention, attr, attrConstant, attrConstantNS, attrFunction, attrFunctionNS, attrRemove, attrRemoveNS, attrsEqual, attrsFromFacet, autoUpdate, avatarStateAttributesMapping, b2, bail, base64ToBytes, baseDarkID, baseLightID, baseStyles, baseThemeID, basicMouseSelection, bidiIsolatedRanges, binarySearchExact, binarySearchLessOrEqual, bindEvents, bindHandler, bindIndex, bindKey, bindMemberFunctions, blankLine$1, blockWrappers, blockquote$1, box, braceR, bracketL, bracketMatchingHandle, brokenClipboardAPI, brokenClipboardAPI$1, browser, build, buildAacAudioSpecificConfig, buildAdtsHeaderTemplate, buildAudioEncoderConfig, buildIsobmffMimeType, buildKeymap, buildMatchContext, buildMatroskaMimeType, buildMpegTsMimeType, buildNodeViews, buildOggMimeType, buildVideoEncoderConfig, bundledLanguagesAlias, bundledLanguagesInfo, byGroup, bytesToHexString, bytesToString, c$4, calcAutoPanVelocity, calculateNodePosition, calculateSnapOffset, callOrReturn, canIgnoreLine, cancelOpen, captureCopy, captureCopy$1, captureKeyDown, capturePaste$1, ce$3, ceilToMultipleOfTwo, changeBySelectedLine, changeSelector, changedNodeViews, changelog, characterEscape, characterInBody, characterInForeignContent, characterInTable, characterInTableText, characterReference, checkStateComponent, checkedLoadedFor, chrome$1, chrome_version, clamp$a, clamp$b, clamp$c, clamp$d, clampCropRectangle, clampa, clampi, cleanPath$2, clearComposition, clearDisconnectedPreviouslyFocusedElements, clearReusedRange, clearSafePolygonPointerEventsMutation, clickAddsSelectionRange, clipboardInputFilter, closeHistoryKey, closePress, closestCenter, clsx, cn, code$2, codeIndented, columnResizing, combineConfig, combineExtensions, comma, commands_exports, comment$1, commentContent, commonmark, compareItemEquality, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, computeDocDeco, computeOggPageCrc, computeOrder, computePosition, computeRationalApproximation, concatAvcNalUnits, concatNalUnitsInLengthPrefixed, configure, configureNesting, connectingSelector, constant, constant$2, constant$3, containerStyle, contains$1, content$2, contentAttributes, contextNodeForDelete, continuedIndent, coordsAtPos, copy, copyCtxState, copyLineDown, copyLineUp, countColumn, createAdjustMap, createAes128CbcDecryptStream, createAttribute, createBundledHighlighter, createCachedFormatter, createChangeEventDetails, createConfigUtils, createContentComponent, createControlledPromise, createDefaultPlaneLayout, createDocument, createFetchOptions, createFilter, createGenericEventDetails, createGridCellMap, createImpl, createInitialPopupStoreState, createJavaScriptRegexEngine, createListeners, createLucideIcon, createMap, createMappablePosition, createNonCachedFormatter, createOnigurumaEngine, createPanOnScrollHandler, createPanZoomEndHandler, createPanZoomHandler, createPanZoomStartHandler, createQueue, createRandomKey, createReactiveSystem, createSelector, createStaticNode, createStore$1, createStore$2, createStyleTag, createTokenizer, createValidAbsoluteUrl, createVisitor, createZoomOnScrollHandler, crelt, cssHighlighting, cursorCharLeft, cursorCharRight, cursorDocEnd, cursorDocStart, cursorGroupLeft, cursorGroupRight, cursorLayer, cursorLineBoundaryBackward, cursorLineBoundaryForward, cursorLineBoundaryLeft, cursorLineBoundaryRight, cursorLineDown, cursorLineEnd, cursorLineStart, cursorLineUp, customAudioDecoders, customAudioEncoders, customVideoDecoders, customVideoEncoders, cva, d, d$3, d$4, darkTheme, data, datum, decodeArray, decodeHtmlEntities, decodeNamedCharacterReference, decodeNumericCharacterReference, decodeSegment, decodeString, decorations$1, decryptSample, deepActiveElement, deepEqual$1, deepEqual$2, deepFind, defaultAnimateLayoutChanges, defaultAnnouncements, defaultAttributes, defaultConstrain, defaultContainer, defaultCoordinates, defaultData, defaultDoc, defaultExtent, defaultFilter, defaultFilter$1, defaultFootnoteBackContent, defaultFootnoteBackLabel, defaultGetScrollRestorationKey, defaultItemEquality, defaultKeyExtractor, defaultNewIndexGetter, defaultNodeOrigin, defaultParseSearch, defaultParserOptions, defaultPositions, defaultRangeExtractor, defaultResizeObserverConfig, defaultRole, defaultSchema, defaultScreenReaderInstructions, defaultSensors, defaultStringifySearch, defaultSubject, defaultTiming, defaultTouchable, defaultTouchable$1, defaultTransform$1, defaultTransition, defaultTransition$1, defaultUnknownHandler, defaultUrlTransform, defaultValue$1, defaultValue$2, defaultViewport, defaultWheelDelta, defer, define, defineLanguageFacet, definition$1, deleteColumn, deleteLine, deleteRow, deleteTable, delimitedIndent, deprecations, desc, descendant, deserialize$1, deserializeAvcDecoderConfigurationRecord, destroyInput, determineVideoPacketType, difference, disableFocusInside, disabled, disabledTransition, dispatch, dispatchKey, dist, dn, doAudioDataCopyToWebKitWorkaround, doPaste$1, docViewDesc, docs, doctype$1, doctypeInInitialMode, document$1, document$2, documentMode, dontComplete, dot, drag, dragMoves, dragMovesSelection$1, dragScrollMargin, dragScrollSpeed, drawImageAtIntegerCoords, dropPoint, dropText, dt, dt$4, dummyRule, dumper, editable, editorAttributes, edts, elementContext, elementName, elementName$1, elementScroll, elementSelectionKeys, elementToRemoveChange, emphasis$1, emptyMap, emptyOptions, emptyOptions$2, emptyOptions$3, emptyPlugins, emptyRemarkRehypeOptions, emptyTypes, enableFocusInside, encodeHtmlEntities, endComposition, endOfTextblock, endTag$1, endTagAfterBody, endTagAfterFrameset, endTagAfterHead, endTagBeforeHead, endTagBeforeHtml, endTagInBody, endTagInCaption, endTagInCell, endTagInColumnGroup, endTagInForeignContent, endTagInFrameset, endTagInHead, endTagInHeadNoScript, endTagInRow, endTagInSelect, endTagInSelectInTable, endTagInTable, endTagInTableBody, endTagInTemplate, endTagInText, enqueueFocus, ensureAnchor, ensureListeners, ensurePreventErrorBoundaryRetry, ensureSuspenseTimers, enterLiteralAutolink, enterLiteralAutolinkValue, environmentManager, eofInBody, eofInTemplate, eofInText, equals, errorMessages, escape$1, escapeKey, evaluate, evaluateAbsolutePosition, eventAttributes, eventBelongsToEditor, eventBelongsToView, eventCoords, exactPathTest, exceptionSink, exitLiteralAutolink, exitLiteralAutolinkEmail, exitLiteralAutolinkHttp, extend$2, extendSel, extended, extractAudioCodecString, extractAv1CodecInfoFromPacket, extractAvcDecoderConfigurationRecord, extractFilenameFromHeader, extractHevcDecoderConfigurationRecord, extractNalUnitTypeForAvc, extractNalUnitTypeForHevc, extractRotationFromMatrix, extractSampleMetadata, extractVideoCodecString, extractVp9CodecInfoFromPacket, f$3, f$4, fastComponent, fetchData, fetchOptimistic, fetchState, fieldSelection, fieldsToTrack, finalizationRegistry, find$1, findClusterBreak, findCompositionNode$1, findFinished, findHandle, findItemIndex, findLastIndex$1, findMatch, findNearestBinarySearch, findNextPageHeader, findNonDisabledListIndex, findOpenTag, findPacketStartPosition, findParentNodeClosestToPos, findPreviousPacketEndPosition, findRootOwnerId, findRouteMatch, findSectionEnd, firefoxCopyCutHack, fixTables, flatIndent, flattenExtensions, flip, flow, flow$1, fn$1, focusChangeEffect, focusChangeTransaction, focusManager, focusOut, focusPreventScroll, focusPreventScroll$1, foldInside, foldNodeProp, foldService, footnoteReference$1, forceDOMFlush, formatDate, formatErrorMessage, formatIsPlanar, fr, free, fromAlaw, fromUlaw, ftyp, fullBox, g$2, gecko$1, generateComponents, generateJSON, generateMetadataPairs, get$2, getAdjustedRect, getAlignment, getAlignmentAxis, getAriaLabelledBy, getAsArray, getAttributes, getAutoPluginKey, getAxisLength, getBezierPath, getBoundsOfRects, getBytesPerSample, getChildren$1, getCleanedCode, getClickType, getClientRect, getClosestHandle, getCodeParser, getCombinedFieldValidityData, getConnectionStatus, getContext, getControlDirection, getControlOffset, getCssDimensions, getCurrentTransform, getD3Transition, getDPR, getDefaultAriaValueText, getDefaultClassNames, getDefaultExportFromCjs, getDefaultExportFromCjs$1, getDefaultState, getDefaults, getDelay, getDimensions$1, getDimensionsAfterResize, getDisabledMountTransitionStyles, getDocumentDirection, getDragBounds, getDragItems, getEac3ChannelCount, getEac3SampleRate, getEdgePosition, getEditable, getElementsDiffChanges, getElementsToRemove, getEncodableAudioCodecs, getEventCoordinates, getEventHandlerParams, getEventPosition, getEventType, getExtensionField, getFilenameFromUrl, getFingerCoords, getFirstCollision, getFirstEncodableVideoCodec, getFirstTabbableElement, getFloatingFocusElement, getGridCellIndexOfCorner, getGridCellIndices, getGridNavigatedIndex, getHTMLFromFragment, getHandle, getHandlePosition, getHandleType, getHasError, getHighlighters, getHostForElement, getI18n, getIndentUnit, getInitialState, getInt24, getInternalNodesBounds, getIsArbitraryValue, getIsArbitraryVariable, getIsolatedRanges, getKeyframeSampleIndexForTimestamp, getLoaderContext, getLocationChangeInfo, getLogicalSide, getMaxListIndex, getMeasurableNode, getMediaQuery, getMediaTagAutoselect, getMediaTagDefault, getMinListIndex, getNextKeyframeIndexForSample, getNextTabbable, getNodeChildren, getNodeDimensions, getNodeInlineStyleDimensions, getNodeName, getNodeToolbarTransform, getNodesBounds, getNodesInside, getOffset, getOffsetData, getOrCreateEncryptionAuxInfo, getOverlappingArea, getPaddingObject, getPdfFilenameFromUrl, getPointerPosition, getPreviousTabbable, getPreviouslyFocusedElement, getPseudoElementBounds, getRGB, getReadFunction, getRectDims, getResizeDirection, getResponseOrigin, getRestMs, getRoot, getSampleIndexForTimestamp, getSampleInfo, getSchema, getScope, getScrollCoordinates, getScrollDirectionAndSpeed, getScrollMargins, getScrollableAncestors, getScrollableElement, getSelectionChanges, getSelector, getShadingPattern, getSide$1, getSideAxis, getSimpleBezierPath, getSmoothStepPath, getSpecializer, getStraightPath, getSupportNoticeShown, getTabbableAfterElement, getTabbableBeforeElement, getTabbableOptions, getTagID, getTarget, getText, getText$1, getTextSerializersFromSchema, getTrackMetadata, getUint24, getUpdatedPosition, getUrlProp, getViewportForBounds, getWindow, getWindow$1, getWriteFunction, gfm, gfmFootnoteFromMarkdown, gfmFootnoteToMarkdown, gfmStrikethroughFromMarkdown, gfmStrikethroughToMarkdown, gfmTableFromMarkdown, gfmTableToMarkdown, gfmTagfilterExpression, gfmTaskListItemFromMarkdown, gfmTaskListItemToMarkdown, goToNextCell, gt$2, h$5, handleDoubleClick, handleExpandParent, handleNodeClick, handleTabIndex, handleTripleClick$1, hardBreak$1, hasChildren, hasNavigator, hasNextPage, hasPreviousPage, hasSelection, hasSelector, hashKey, hastToReact, heading$2, headingProp, hide, highlightTree, highlighterFacet, historyConfig, historyField_, historyKeymap, hooks, horizontalListSortingStrategy, hsl, hsl2rgb, html$4, html$5, htmlHighlighting, htmlVoidElements, i$4, identifier$1, identifiers, identity$2, ie$6, ignore, ignoredStreamTypes, image$1, imageReference$1, imperativeAction, inConstruct, inOrNearComposition, incdec, incdecPrefix, indentMore, indentNodeProp, indentService, indentString, index$1, inertValue, inferCodecFromCodecString, infiniteExtent, infiniteQueryBehavior, info, inherit, initPrevValues, initPrevValues$1, initReactI18next, initStartValues, inlineCode$1, inlineTimestampRegex, inputChange, inputHandler, insertSemi, insertSorted, interestingNode, interpolate, interpolate$1, interpolateTransform, interrupt, intoTimescale, invariant, ios$1, iosVirtualKeyboardOpen, isActive, isAllowSharedBufferSource, isAudioData, isButtonElement, isChild, isChromium, isClickLikeEvent, isClickLikeOpenEvent, isComponentsMap, isConnectionValid, isDangerousProtocol, isDataScheme, isDev, isDocumentScrollingElement, isEdge, isElement, isElementDisabled, isElementVisible, isFirefox, isFocusChange, isFunction$2, isHTMLElement, isHTMLElement$1, isHttpResponse, isInPrimarySelection, isIndexOutOfListBounds, isInputDOMNode, isInputPending, isIntegrationPoint, isIso639Dash2LanguageCode, isJSDOM, isKeyboardEvent, isListIndexDisabled, isMacOs, isMatchingKey, isModuleNotFoundError, isMouseEvent, isMouseLikePointerType, isMouseWithinBounds, isNear, isNext, isNode$1, isNode$2, isNodeEmpty, isNodeJS, isNumber$2, isNumeric, isObject$1, isOutsideEvent, isPdfFile, isPlainObject$2, isPlainObject$3, isPromise, isRectObject, isRef, isRefProxy, isSSR, isScrolledToBottom, isStale, isString, isString$2, isTypeableCombobox, isTypeableElement, isUint8Array$1, isUrl$1, isValidFetchUrl, isValidHandle, isValidIndex, isValidLinkElement, isValidTimeout, isVarArg, isVideoFrame, isVirtualClick, isVirtualPointerEvent, isWebKit$1, isolatesEq, itemPress, iterateAvcNalUnits, iterateHevcNalUnits, iterateNalUnitsInAnnexB, j$5, je, joinPaths, joinPaths$1, jsHighlight, jsYaml, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keyEvent, keyboard, keysFromSelector, keywords, knownMdxNames, kt, l$3, languageDataProp, last, last$1, lengthUnitRegex, lib, limitShift, link$2, linkReference$1, list$1, listItem$1, ln, loader, location, logException, looksLikeAVFile, looksLikeAValue, looksLikeObjectPath, lt$1, lt$3, ltrAtCursor, mac$2, makeEventPreventable, mapAsyncGenerator, marksEqual, matchContext, matchMarkedBrackets, matchPlainBrackets, matcher, matchingNodes, maybeEnsureIsKeyPacket, maybeInsertReferencePacket, mdat, mdhd, me$1, measureElement, memo, mergeAriaLabelConfig, mergeAttributes, mergeCells, mergeClassList, mergeInputTrackQueries, mergeProps$1, mergeProps$2, mergeRefs, mfra, minus, mn, modifierCodes, moof, moveLineDown, moveLineUp, moveSel, moveToField, moveToLineBoundary, moveVertically, mt$2, mvex, mvhd, n$1, namespace, nativeSelectionHidden, ne, newId, newline, nn, noContextMenu, noSemi, noSemiType, noSemicolon, noSemicolonType, nodeHasDimensions, nodeToChildExtent, nodeToRect$1, node_utils_fetchData, nodesEqualityFn, noevent, noevent$1, nonPlainText, nonTightList, none$4, nonpassive, nonpassivecapture, noop$1, noop2, nopropagation, normalizeIdentifier, normalizeIndent, normalizeLocalDisabled, normalizeOverflowEdgeThreshold, normalizeRotation, normalizeScrollOffset, normalizeUnicode, normalizeUri, notInConstruct, notUndefined, notifyManager, now, nullCharacterInForeignContent, o$4, observeElementOffset, observeElementRect, observers, offset, offsetFragmentTrackDataByTimestamp, ok$1, operatorToken, oppositePosition, order, outerDecorations, outsidePress, own, own$1, own$4, own$6, own$7, own$8, own$a, ownerDocument, ownerVisuallyHidden, p$5, pair, panelConfig, paragraph$1, parse$1, parseAacAudioSpecificConfig, parseAacAudioSpecificConfig$1, parseAc3SyncFrame, parseAvcSps, parseCode, parseEac3Config, parseEac3SyncFrame, parseFormatStr, parseFromClipboard, parseHevcSps, parseModesFromVorbisSetupPacket, parseOptions, parseOpusIdentificationHeader, parsePcmCodec, parsePrimitive, parsePsshBoxContents, parseSelector, parseSvg, passiveHandlers, patch, pe, pe$2, pendingThenable, phrase, pickedCompletion, platform, platform$1, plus, point$1, pointToRendererPoint, pointer, popupStateMapping, popupStoreSelectors, posAtCoords, posAtCoords$1, position, postProcessor, postprocess, prefer, preprocess, preprocessLanguageCode, productionCreate, progressStateAttributesMapping, promiseWithResolvers, properties$1, properties$2, proto, pseudoClasses, psshBoxesAreEqual, pt$2, pushStackDedup, q$5, queryClient, queryIdentifiers, queryInputTracks, question, questionDot, queuedEffects, r$5, r$7, rangeEnd, rangeFrom, rangeTo, re, re$6, reactDomExports, reactExports, readAdtsFrameHeader, readAllLines, readAscii, readAsciiString, readBoxHeader, readBytes, readDOMChange, readDataBox, readElementHeader, readElementId, readElementSize, readF64Be, readFixed_16_16, readFixed_2_30, readFloat, readI16Be, readI32Be, readI64Be, readIsomVariableInteger, readMetadataStringShort, readMp3FrameHeader, readMp3FrameHeader$1, readPageHeader, readPesPacket, readPesPacketHeader, readU16Be, readU24Be, readU32Be, readU64Be, readU8, readUnicodeString, readUnsignedBigInt, readUnsignedInt, readVarInt, readVarIntSize, readVorbisComments, rectIntersection, rectToBox, rectToClientRect, redirect, redo, redo$1, redoDepth, redoDepth$1, reducer, regexSafe, registerEncoder, removeCSSVariableInheritance, removeItem, removeItem$1, removePending, removeTrailingSlash, rendererPointToPoint, renumberList, replaceData, replaceEqualDeep, replaceEqualDeep$1, requestIdle, requireBinary, requireBitBuffer, requireBool, requireCjs, requireClient, requireCommon, requireErrorCorrectLevel, requireException, requireExtend, requireFailsafe, requireFloat, requireInt, requireJszip_min, requireMap, requireMerge, requireMode, requireOmap, requirePairs, requirePolynomial, requirePropTypes, requireQRCodeSvg, requireRSBlock, requireReact, requireSchema, requireSeq, requireSet, requireSnippet, requireStr, requireTimestamp, requireType, requireUtil, requireVoidElements, resetCtxToDefault, resetScrollPos, resetTokenizer, resolveEnabled, resolveEncryptionAuxInfo, resolveFocusPosition, resolveMultipleLabels, resolvePreload, resolveRef, resolveSelectedLabel, resolveStaleTime, resolveThumbCollision, resolver, resync, rgb, rgb_formatHex, rgb_formatHex8, rgb_formatRgb, rn, root, root$1, root$6, root$8, rootRouteId, roundByDPR, roundToDivisor, roundToMultiple, routerContext, rt$3, runCustomHandler, runHandlers, s$5, safari$1, safariShadowSelectionRange, safePolygon, sampleTableIsEmpty, sanitizeHevcPacketForChromium, scaleSelector, schedule$1, scheduleComposeEnd, script$1, scriptTokens, scrollAreaStateAttributesMapping, scrollHandler, scrollIntoView, scrollIntoViewIfNeeded$1, scrollMargins, scrollRectIntoView$1, scrollableParents, se$3, searchForNextElementId, selectAll, selectCharLeft, selectCharRight, selectDocEnd, selectDocStart, selectGroupLeft, selectGroupRight, selectLine, selectLineBoundaryBackward, selectLineBoundaryForward, selectLineBoundaryLeft, selectLineBoundaryRight, selectLineDown, selectLineEnd, selectLineStart, selectLineUp, selectNodeModifier, selected, selectedAndDraggable, selectedValueIncludes, selectionBeforeUneditable, selectionBetween, selectionConfig, selectionContextChanged, selectionLayer, selectionToDOM, selection_append, selection_attr, selection_call, selection_classed, selection_clone, selection_datum, selection_dispatch, selection_each, selection_empty, selection_html, selection_insert, selection_interrupt, selection_iterator, selection_join, selection_lower, selection_node, selection_nodes, selection_on, selection_order, selection_property, selection_raise, selection_remove, selection_selectChild, selection_selectChildren, selection_selection, selection_size, selection_style, selection_text, selector, selector$1, selector$2, selector$3, selector$4, selector$5, selector$6, selector$7, selector$9, selector$a, selector$b, selector$c, selector$d, selector$e, selector$f, selector$g, selector$h, selector$i, selectorAll, selectors$3, selfClosers, semicolon, serializeAvcDecoderConfigurationRecord, serializeForClipboard, serializeHevcDecoderConfigurationRecord, serializeValue, serializer, setActive, setCellAttr, setInt24, setPoint, setSearchQuery, setSel, setSelectionOrigin, setSupportNoticeShown, setUint24, setVerbosityLevel, shadow, shadowRegex, shallow, shallow$1, shallowEqualObjects, shallowNodeData, shift$1, shimExports, shouldFetchOn, shouldFetchOnMount, shouldFetchOptionally, shouldHandleAsObject, shouldSuspend, shouldThrowError, siblingOpen, sidx, simplifyRational, simplifySelection, size, skipAtoms, skipAtomsForSelection, slash, sn, snapPosition, sortByDocumentPosition, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, spaces, sparse, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, splitCell, splitLine, src_default$1, st$3, star, startTagAfterAfterBody, startTagAfterAfterFrameset, startTagAfterBody, startTagAfterFrameset, startTagAfterHead, startTagBeforeHead, startTagBeforeHtml, startTagInBody, startTagInCaption, startTagInCell, startTagInColumnGroup, startTagInForeignContent, startTagInFrameset, startTagInHead, startTagInHeadNoScript, startTagInRow, startTagInSelect, startTagInSelectInTable, startTagInTable, startTagInTableBody, startTagInTemplate, stateAttributesMapping$2, stateAttributesMapping$3, stateAttributesMapping$4, stateIndexKey, stbl, stopEvent, stopEvent$2, stopParsing, storageKey$1, storeScrollPos, storeSelector, strikethrough, string$2, stringToBytes, stringify$1, stringify$2, stringifyAsValue, stripNullChildren, strong$1, style, style$1, style$2, styleDisableScrollbar, styleModule, styleTokens, styp, sublanguageProp, suffixesOrder, svg, svgCaseSensitiveTagNames, syncNodeSelection, syntaxIndentation, tabbable, tableCell, tableCellElement, tableEditing, tableElements, tableRow, tabsStateAttributesMapping, tagHighlighter, tagStart, tags, tags$1, te$3, testFalsey, text$1, text$6, text$7, text$8, text$9, textDecoder$1, textEncoder$2, textFilter, textareaTokens, thematicBreak$1, theme, timeUntilStale, timeoutComposition, timeoutManager, tkhd, toAlaw, toDataView, toInterleavedAudioFormat, toObserver, toString$1, toUint8Array, toUlaw, toValidatedInputTrackQuery, toggleBlockComment, toggleComment, toggleHeader, toggleHeaderCell, togglePanel, toggleTabFocusMode, tokenAfterAfterBody, tokenAfterBody, tokenAfterHead, tokenBeforeHead, tokenBeforeHtml, tokenInColumnGroup, tokenInHead, tokenInHeadNoScript, tokenInInitialMode, tokenInTableText, tr$2, trackPress, transform$2, transformGfmAutolinkLiterals, transformOptions, transformStylesToCssCasing, transitionProperty, transitionStatusMapping, transition_attrTween, transition_delay, transition_duration, transition_ease, transition_easeVarying, transition_end, transition_on, transition_remove, transition_style, transition_styleTween, transition_text, transition_textTween, transition_tween, transposeChars, triggerFocus, triggerHover, triggerPress, trimMarkdownSpaceStart, trimPath, trimPathRight, trimPathRight$1, trivialOrder, trough, tweenValue, typescriptKeywords, u$3, u16, u32, ue, un, undo, undo$1, undoDepth, undoDepth$1, unitToken, unreachable, unreachable$1, unsetTransformStyles, unwrapHost, updateAttrs, updateCursorWrapper, updateListener, updateSel, urlAttributes, urlToPath, useAnimationFrame, useAnimationsFinished, useAnnouncement, useCachedNode, useClearResetErrorBoundary, useClientPoint, useCombineActivators, useContextMenuRootContext, useCurrentEditor, useDerivedTransform, useDirection, useDismiss, useDndContext, useDndMonitor, useDndMonitorProvider, useDropAnimation, useEvent, useFloatingNodeId, useFloatingParentNodeId, useFloatingTree, useFocusableWhenDisabled, useForcedRerendering, useHoverInteractionSharedState, useId, useImageLoadingStatus, useImplicitActiveTrigger, useInitialRect, useInitialValue, useInteractions, useIsMutating, useIsRestoring, useIsoLayoutEffect, useIsomorphicLayoutEffect$2, useIsomorphicLayoutEffect$3, useKey, useKeyOrCode, useLabelableContext, useLatestRef, useLatestValue, useLayoutShiftScrollCompensation, useLazyMemo, useListNavigation, useLoaderData, useMatch, useMeasuringConfiguration, useMenuElementProps, useMenuRootContext, useMenuSubmenuRootContext, useMenubarContext, useMergedRefs, useMixedToggleClickHandler, useMutationObserver, useNavigate, useOnFirstRender, useOnMount, useOpenChangeComplete, useOpenInteractionType, useOpenStateTransitions, useParams, usePortalContext, usePreviewCardRootContext, useQueryClient, useQueryErrorResetBoundary, useRectDelta, useRefWithInit, useRenderElement, useResizeObserver, useRole, useRouteContext, useRouter, useScrollIntent, useScrollLock, useScrollOffsetsDelta, useScrollableAncestors, useSearch, useSelectPositionerContext, useSelectRootContext, useSensor, useSensorSetup, useSensors, useStableCallback$1, useStickIfOpen, useStore, useStore$1, useStore$2, useStoreWithEqualityFn, useSyncedFloatingRootContext, useSyntheticListeners, useTimeout, useTiptap, useTransitionStatus, useTranslation, useTriggerDataForwarding, useTriggerRegistration, useTypeahead, useUniqueId, useValueAsRef, useValueChanged, useWindowRect, usesLocize, ut$2, util_FeatureTest, util_ImageKind, v$6, v$7, validateAudioChunkMetadata, validateAudioEncodingConfig, validateAudioOptions, validateCropRectangle, validateInputFormatOptions, validateMetadataTags, validateRangeRequestCapabilities, validateRectangle, validateResponseStatus, validateSearch, validateSubtitleMetadata, validateTimestamp, validateVideoChunkMetadata, validateVideoEncodingConfig, validateVideoFrameCopyToOptions, validateVideoOptions, variable, variableNames, verbose, version, verticalListSortingStrategy, viewDecorations, viewPlugin, viewportToTransform, visit, visitParents, visuallyHidden, visuallyHiddenInput, vtta, vttc, vtte, w2, wait$1, warn, warn$2, warnOnDuplicatedProseMirrorModel, warnOnce, we, webNamespaces, wheelDelta, whitespace, whitespaceCharacterInBody, whitespaceCharacterInTableText, win, win$1, windowResize, windows$1, withResolvers, withSelectorExports, wrap$1, wrapHandler, wrapReason, wrapperStyle, x$4, xe$1, y$1, y$6, ye$2, z$3, z$4, z$7, zustandErrorMessage, zwitch };
+export { $$8, AC3_ACMOD_CHANNEL_COUNTS, AC3_SAMPLE_RATES, ACTIVE_COMPOSITE_ITEM, ADTS, AES_128_BLOCK_SIZE, ALL_KEYS, ALL_KEYS$1, ARIA_EDGE_DESC_KEY, ARIA_LIVE_MESSAGE, ARIA_NODE_DESC_KEY, ARROW_DOWN, ARROW_KEYS, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, AUDIO_CODECS, AUDIO_SAMPLE_FORMATS, AccordionItemContext, AccordionPanelCssVars, Action, ActiveDraggableContext, ActiveSnippet, AdtsInputFormat, AdtsOutputFormat, AnimationManager, AnnounceMargin, AsyncMutex, AttachedFile, AttributeList, AudioSource, AutoScrollActivator, BASE64_DATA_URI_REGEX, BASE_LOC, BOUNDARY_OFFSET$1, BadMeasure, BaseMediaSampleSink, BaseRoute, BidiSpan, Bitstream$1, BlockLacing, BlockPolicy, Break, Bs, Bt$1, BubbleMenuPlugin, BufferTarget, C$5, CLICK_TRIGGER_IDENTIFIER, CLOSE_DELAY, CODEC_STRING_MAP, CODE_POINTS, COLOR_PRIMARIES_MAP_INVERSE, COMPOSITE_KEYS, CSS$1, CachedOrder, CallSerializer, CallableInstance, CellSelection, CheckboxRootContext, ClientOnly, ClosePartProvider, CollapsibleRootContext, Color, Compartment, CompositeListContext, ConnectionLineType, ContentCompAlgo, ContentEncodingScope, Context$2, ContextMenuRootContext, ConversionCanceledError, Ct$3, CustomAudioEncoder, CustomPathedSource, D$1, DEFAULT_COORDS, DEFAULT_HIDDEN_STATE, DEFAULT_OVERFLOW_EDGES, DEFAULT_PROTOCOL_ALLOWLIST, DEFAULT_SIDES, DEFAULT_SIZE, DEFAULT_SOURCE_CACHE_GROUP, DEFAULT_TRACK_DISPOSITION, DOMObserver2, DOMSerializer, DROPDOWN_COLLISION_AVOIDANCE, DayPicker, DecoderWrapper, Decoration$1, Decoration2, DecorationSet, DefaultBrackets, DefaultBufferLength, DefaultScanDist, Demuxer, Dialect, DialogPopupCssVars, DialogPortalContext, Direction, DndMonitorContext, DocView, DragEvent$1, Ds, E$4, E$7, EBMLId, EMPTY_ARRAY, EMPTY_ARRAY$1, EMPTY_OBJECT, EMPTY_REF, ENCRYPTION_KEY_CACHE_GROUP, END, ERR, EditorInstanceManager, EditorSelection, EditorState2, EditorStateManager, Ee$3, EmacsyPendingKeys, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EntryType, ErrorComponent, Es, EventEmitter$2, EventEmitter3, Extension, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FIXED, FLAC, Facet, FieldRootContext, FileSlice, FlacBlockType, FlacInputFormat, FlacOutputFormat, FloatingDelayGroupContext, FloatingMenuPlugin, FloatingNodeContext, FloatingPortal, FloatingRootStore, FloatingTree, FloatingTreeStore, FocusGuard, FormattingElementList, FragmentCursor3, GAP$1, GLOBAL_TIMESCALE, GroupNode$1, Gt$1, H, H$5, HAS_RESIZE_OBSERVER, HLS_MIME_TYPE, HOME, HORIZONTAL_KEYS, HORIZONTAL_KEYS_WITH_EXTRA_KEYS, HevcNalUnitType, HiddenText, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Hs, Hsl, I, I$5, I18nContext, ID_PREFIX$1, ID_PREFIX$1$1, INTENTIONAL_DRAG_COUNT_THRESHOLD, IV_STRING_REGEX, Icon$1, Identifier, IndentContext, IndexGuessBehavior, InfiniteQueryObserver, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, InsertionMode, InternalContext, IsobmffBoxWriter, IterMode, J$6, Jt$2, K$6, K2, KeyboardSensor, Keymaps, Kt$1, L, LEVEL_0_AND_1_EBML_IDS, LEVEL_1_EBML_IDS, LIST_FUNCTIONAL_STYLES, LIST_LIMIT, LONG_PRESS_DELAY, LanguageSupport, Link, LiveRegion, LocalTokenGroup, Logger, Ls, M, M$7, MATRIX_COEFFICIENTS_MAP_INVERSE, MAX_ADTS_FRAME_HEADER_SIZE, MAX_BOX_HEADER_SIZE, MAX_HEADER_SIZE, MAX_PAGE_HEADER_SIZE, MAX_PAGE_SIZE, MAX_RESYNC_LENGTH, METADATA_ELEMENTS, MIN_ADTS_FRAME_HEADER_SIZE, MIN_BOX_HEADER_SIZE, MIN_HEADER_SIZE, MIN_PAGE_HEADER_SIZE, MIN_THUMB_SIZE, MODIFIER_KEYS, MP3, MarkdownParser, MeasuringStrategy, MenuGroupContext, MenuPortalContext, MenuRadioGroupContext, MenuRadioItemContext, MenuRoot, MenuRootContext, MenuSubmenuRoot, MkvOutputFormat, Mp3InputFormat, Mp3OutputFormat, Muxer, N, N$4, NON_PCM_AUDIO_CODECS, NOOP, NS, Node$3, Node$4, NodeProp, NodeSelection, NodeSet, NodeType3, NodeViewWrapper, NullContext, NullTarget, NullifiedContextProvider, O, OPEN_DELAY, OPEN_DELAY$2, OPUS_SAMPLE_RATE, OggOutputFormat, OpenElementStack, Operation, Output, OutputFormat, OutputTrackGroup, PAGE_DOWN, PAGE_UP, PARENT_CHECKBOX, PATIENT_CLICK_THRESHOLD, PCM_AUDIO_CODECS, PLACEHOLDER_DATA, POPUP_COLLISION_AVOIDANCE, PREFETCH_PROFILES, PacketBuffer, PacketReadingContext, PanOnScrollMode, PanelGroup, ParseContext2, Parser$1, PathParamError, PathedSource, PendingKeys, Plugin, PluginInstance, PluginKey, PointerSensor, PopoverPortalContext, PopoverPositionerContext, PopupTriggerMap, Position, Prec, PreviewCardPortalContext, PreviewCardPositionerContext, PreviewCardRoot, PublicContext, QUALITY_HIGH, Qt$1, QueryClient, QueryClientProvider, R$1, REGULAR_ITEM, RadioGroupContext, RadioRootContext, RangeSetBuilder, Re$2, React, ReactDOM, ReactNodeViewRenderer, ReactStore, ReadOrchestrator, ReadableStreamSource, Reader, ResizeControlVariant, RestoreFocus, Rgb, RichImageData, Rs, SAMPLING_RATES, SCROLL_TIMEOUT, SECOND_TO_MICROSECOND_FACTOR, SKIP, SPECIAL_ELEMENTS, SUBTITLE_CODECS, SUPPORTED_KEYS, Schema3, ScopeNodes, ScrollAreaRootCssVars, ScrollAreaScrollbarContext, ScrollAreaScrollbarCssVars, ScrollAreaScrollbarDataAttributes, ScrollAreaViewportContext, ScrollAreaViewportCssVars, ScrollRestoration, ScrollTarget, SearchParamError, SearchQuery, SearchState, SegmentedInput, SelectFloatingContext, SelectGroup$2, SelectGroupContext, SelectItemContext, SelectPortal, SelectPositionerContext, SelectRootContext, SelectScrollDownArrow, SelectScrollUpArrow, Selection, SelectionMode, Separator$3, Slice, SliderThumbDataAttributes, Snippet, SortableContext, Source, SourceRef, Ss, St$2, Stack, StackBufferCursor, StarterKit, StateEffect, StateField, Status, Step, StepMap, StepResult, Store$1, StyleModule, SwitchRootDataAttributes, T$6, TABLE_STRUCTURE_TAGS, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_ID, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_NAMES, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, TIMESCALE, TIMESTAMP_OFFSET, TRACK_TYPE_TO_COMPONENT_SUBTYPE, TRACK_TYPE_TO_HANDLER_NAME, TRANSFER_CHARACTERISTICS_MAP_INVERSE, TS_PACKET_SIZE, TabsIndicatorCssVars, TabsListContext, TabsPanelDataAttributes, Text, TextSelection, Tile, Timeout, TiptapWrapper, Toast, TokenCache, TokenGroup, TokenType, Tokenizer, TokenizerMode, TooltipPortalContext, TooltipPositionerContext, TooltipProviderContext, TooltipTriggerDataAttributes, TrackSynchronizer, Transaction2, Transform$1, TraversalOrder, Tree, Tt$2, U, U$3, UNDETERMINED_LANGUAGE, UnsupportedInputFormatError, UrlSource, Ut, V$6, VERTICAL_KEYS, VERTICAL_KEYS_WITH_EXTRA_KEYS, VIDEO_CODECS, VISIBLE_TOASTS_AMOUNT, VideoSample, VideoSampleSink, VideoSource, ViewPlugin, ViewState, ViewUpdate, Virtualizer, Vt$1, W$1, W$7, WAVE, WavOutputFormat, WaveInputFormat, WebMOutputFormat, WidgetType2, Writer, Wt$2, X$6, XY_RESIZER_HANDLE_POSITIONS, XY_RESIZER_LINE_POSITIONS, Yt$2, ZoomEvent, _$5, __addDisposableResource, __disposeResources, __insertCSS, __require, __require$1, __ovVitePreload, __webpack_exports__, __webpack_exports__getDocument, _t$2, a$1, aacChannelMap$1, aacFrequencyTable$1, accordionStateAttributesMapping, activeElement, adaptiveOrigin, add$2, addChild, addChildren, addColumnAfter, addColumnBefore, addCursorAbove, addCursorBelow, addEdge, addNode, addQuickTimeMetadataTagBoxes, addRowAfter, addRowBefore, addsSelectionRange, adjustScale, all, alwaysValid, an, android, appendComment, appendCommentToDocument, appendCommentToRootHtmlElement, applyDOMChange, applyDOMChangeInner, applyData, applyEdgeChanges, applyModifiers, applyNodeChanges, arbitraryValueRegex, arbitraryVariableRegex, areArraysEqual$1, areEqual, areSetsEqual$1, ariaLabelConfigSelector, ariaLiveSelector, ariaLiveStyle, arrayAll, arrayArgmin, arrayCount, arrayMove, arraylike, arraysEqual, arrowKeyDiffs, asc, ascending, ascii$1, assert$3, assertCompiler, assertDefinedSize, assertDone, assertNever, assertNode, assertNonEmpty, assertParser, assertPath, assertUnfrozen, assignOffset, astTop, at, at$3, atRules, atomicRanges, attention, attrConstant, attrConstantNS, attrFunction, attrFunctionNS, attrRemove, attrRemoveNS, attrsEqual, attrsFromFacet, autoUpdate, avatarStateAttributesMapping, b2, bail, base64ToBytes, baseDarkID, baseLightID, baseStyles, baseThemeID, basicMouseSelection, batch, bidiIsolatedRanges, binarySearchExact, binarySearchLessOrEqual, bindHandler, bindIndex, bindKey, bindMemberFunctions, blankLine$1, blockWrappers, blockquote$1, box, bracketMatchingHandle, brokenClipboardAPI, browser, buildAacAudioSpecificConfig, buildAdtsHeaderTemplate, buildAudioEncoderConfig, buildIsobmffMimeType, buildKeepSet, buildKeymap, buildMatroskaMimeType, buildMpegTsMimeType, buildOggMimeType, buildVideoEncoderConfig, bundledLanguagesAlias, bundledLanguagesInfo, byGroup, bytesToHexString, c$4, calcAutoPanVelocity, calculateNodePosition, calculateSnapOffset, callOrReturn, canIgnoreLine, cancelOpen, captureCopy, ceilToMultipleOfTwo, changeBySelectedLine, changeSelector, changelog, characterEscape, characterInBody, characterInForeignContent, characterInTable, characterInTableText, characterReference, checkedLoadedFor, clamp$a, clamp$b, clamp$c, clamp$d, clampCropRectangle, clampa, clampi, cleanPath$2, clearSafePolygonPointerEventsMutation, clearStyles, clickAddsSelectionRange, clipboardInputFilter, closeHistoryKey, closePress, closestCenter, clsx, cn, code$2, codeIndented, columnResizing, combineConfig, combineExtensions, commands_exports, comment$1, commentContent, commonmark, compareItemEquality, compileDecodeCharMap, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, computeOggPageCrc, computeOrder, computePosition, computeRationalApproximation, concatNalUnitsInLengthPrefixed, configure, configureNesting, connectingSelector, constant, constant$2, constant$3, containerStyle, contains$1, content$2, contentAttributes, contextNodeForDelete, continuedIndent, copy, copyLineDown, copyLineUp, correctElements, countColumn, counters, createAdjustMap, createAes128CbcDecryptStream, createAttribute, createBrowserHistory, createBundledHighlighter, createCachedFormatter, createChangeEventDetails, createConfigUtils, createContentComponent, createControlledPromise, createFilter, createGenericEventDetails, createGridCellMap, createImpl, createInitialPopupStoreState, createJavaScriptRegexEngine, createLRUCache, createListeners, createMap, createNonCachedFormatter, createOnigurumaEngine, createPanOnScrollHandler, createPanZoomEndHandler, createPanZoomHandler, createPanZoomStartHandler, createQueue, createRootRoute, createSelector, createStore$1, createStore$2, createTokenizer, createTooltipEventDetails, createVisitor, createZoomOnScrollHandler, crelt, cssHighlighting, cursorCharLeft, cursorCharRight, cursorDocEnd, cursorDocStart, cursorGroupLeft, cursorGroupRight, cursorLayer, cursorLineBoundaryBackward, cursorLineBoundaryForward, cursorLineBoundaryLeft, cursorLineBoundaryRight, cursorLineDown, cursorLineEnd, cursorLineStart, cursorLineUp, customAudioDecoders, customAudioEncoders, customVideoEncoders, cva, d, d$3, d$4, darkTheme, data, datum, decodeArray, decodeHtmlEntities, decodeNamedCharacterReference, decodeNumericCharacterReference, decodePath, decodeString, decorations$1, decryptSample, deepEqual, deepEqual$1, deepEqual$2, deepFind, defaultAnimateLayoutChanges, defaultAnnouncements, defaultAttributes, defaultConstrain, defaultContainer, defaultCoordinates, defaultData, defaultDoc, defaultExtent, defaultFilter, defaultFilter$1, defaultGetScrollRestorationKey, defaultItemEquality, defaultNewIndexGetter, defaultNodeOrigin, defaultParseSearch, defaultParserOptions, defaultPositions, defaultResizeObserverConfig, defaultRole, defaultSchema, defaultScreenReaderInstructions, defaultSensors, defaultStringifySearch, defaultSubject, defaultTiming, defaultTouchable, defaultTouchable$1, defaultTransform$1, defaultTransition, defaultTransition$1, defaultUnknownHandler, defaultUrlTransform, defaultValue$1, defaultValue$2, defaultViewport, defaultWheelDelta, defer, define, defineLanguageFacet, definition$1, deleteColumn, deleteLine, deleteRow, deleteTable, delimitedIndent, deprecations, desc, descendant, disabled, disabledTransition, dispatch, dispatchKey, dist, dn, doAudioDataCopyToWebKitWorkaround, docs, doctype$1, doctypeInInitialMode, document$1, document$2, documentMode, dontComplete, drag, dragMovesSelection$1, dragScrollMargin, dragScrollSpeed, dropText, dt, dt$4, dummyRule, editable, editorAttributes, edts, elementContext, elementName, elementName$1, elementScroll, elementSelectionKeys, elementToRemoveChange, emphasis$1, emptyMap, emptyOptions, emptyOptions$2, emptyOptions$3, emptyPlugins, emptyRemarkRehypeOptions, emptyTypes, encodeHtmlEntities, encodePathLikeUrl, endTag$1, endTagAfterBody, endTagAfterFrameset, endTagAfterHead, endTagBeforeHead, endTagBeforeHtml, endTagInBody, endTagInCaption, endTagInCell, endTagInColumnGroup, endTagInForeignContent, endTagInFrameset, endTagInHead, endTagInHeadNoScript, endTagInRow, endTagInSelect, endTagInSelectInTable, endTagInTable, endTagInTableBody, endTagInTemplate, endTagInText, enqueueFocus, ensureAnchor, enterLiteralAutolink, enterLiteralAutolinkValue, eofInBody, eofInTemplate, eofInText, equals, errorMessages, escape$1, escapeKey, evaluate, evaluateAbsolutePosition, eventAttributes, eventBelongsToEditor, exceptionSink, exitLiteralAutolink, exitLiteralAutolinkEmail, exitLiteralAutolinkHttp, extend$2, extendSel, extended, extractAudioCodecString, extractAv1CodecInfoFromPacket, extractAvcDecoderConfigurationRecord, extractHevcDecoderConfigurationRecord, extractRotationFromMatrix, extractSampleMetadata, extractStrictParams, extractVideoCodecString, extractVp9CodecInfoFromPacket, f$3, f$4, fastComponent, fieldSelection, fieldValidityMapping, fieldsToTrack, finalizationRegistry, find$1, findClusterBreak, findFinished, findFlatMatch, findGlobalNotFoundRouteId, findHandle, findItemIndex, findLastIndex$1, findNextPageHeader, findNonDisabledListIndex, findOpenTag, findPacketStartPosition, findParentNodeClosestToPos, findPreviousPacketEndPosition, findRootOwnerId, findSectionEnd, findSingleMatch, firefoxCopyCutHack, fixTables, flatIndent, flattenExtensions, flip, flow, flow$1, fn$1, focusChangeEffect, focusChangeTransaction, focusOut, focusPreventScroll, foldInside, foldNodeProp, foldService, footer, footnoteReference$1, formatDate, formatErrorMessage, formatIsPlanar, formatNumber$4, formatNumberValue, fr, free, fromAlaw, fromUlaw, ftyp, fullBox, functionalUpdate$1, g$2, generateComponents, generateJSON, generateMetadataPairs, get$2, getActiveTriggers, getAdjustedRect, getAlignment, getAlignmentAxis, getAriaLabelledBy, getAsArray, getAutoPluginKey, getAxisLength, getBezierPath, getBoundsOfRects, getBytesPerSample, getCenteredStyles, getChildren$1, getCleanedCode, getClickType, getClientRect, getClosestHandle, getCodeParser, getCombinedFieldValidityData, getConnectionStatus, getContext, getControlDirection, getControlOffset, getCssDimensions, getD3Transition, getDPR, getDefaultAriaValueText, getDefaultAriaValueText$1, getDefaultClassNames, getDefaultExportFromCjs$1, getDefaults, getDelay, getDimensions$1, getDimensionsAfterResize, getDisabledMountTransitionStyles, getDocumentDirection, getDragBounds, getDragItems, getEac3ChannelCount, getEac3SampleRate, getEdgePosition, getElementsDiffChanges, getElementsToRemove, getEncodableAudioCodecs, getEventCoordinates, getEventHandlerParams, getEventPosition, getEventType, getExtensionField, getFingerCoords, getFirstCollision, getFirstEncodableVideoCodec, getFirstTabbableElement, getFloatingFocusElement, getGridCellIndexOfCorner, getGridCellIndices, getGridNavigatedIndex, getHandle, getHandlePosition, getHandleType, getHiddenState, getHighlighters, getHostForElement, getI18n, getIndentUnit, getInitialRouterState, getInitialState, getInsetStyles, getInt24, getInternalNodesBounds, getIsArbitraryValue, getIsArbitraryVariable, getIsolatedRanges, getKeyframeSampleIndexForTimestamp, getLocationChangeInfo, getLogicalSide, getMatchedRoutes, getMaxListIndex, getMaxPopupHeight, getMaxScrollTop, getMeasurableNode, getMediaQuery, getMediaTagAutoselect, getMediaTagDefault, getMidpoint, getMinListIndex, getNewValue, getNextKeyframeIndexForSample, getNextTabbable, getNodeAncestors, getNodeChildren, getNodeDimensions, getNodeInlineStyleDimensions, getNodeName, getNodeToolbarTransform, getNodesBounds, getNodesInside, getOffset, getOffsetData, getOrCreateEncryptionAuxInfo, getOverlappingArea, getPaddingObject, getPointerPosition, getPreviousTabbable, getPseudoElementBounds, getReadFunction, getResizeDirection, getRestMs, getRoot, getSampleIndexForTimestamp, getSampleInfo, getScale$1, getSchema, getScope, getScrollCoordinates, getScrollDirectionAndSpeed, getScrollMargins, getScrollableAncestors, getScrollableElement, getSelectionChanges, getSelector, getSide$1, getSideAxis, getSimpleBezierPath, getSliderValue, getSmoothStepPath, getSpecializer, getStoreFactory, getStraightPath, getSupportNoticeShown, getTabbableAfterElement, getTabbableBeforeElement, getTabbableOptions, getTagID, getTarget, getTrackMetadata, getUint24, getUncontrolledElementsSet, getViewportForBounds, getWindow, getWindow$1, getWriteFunction, gfm, gfmFootnoteFromMarkdown, gfmFootnoteToMarkdown, gfmStrikethroughFromMarkdown, gfmStrikethroughToMarkdown, gfmTableFromMarkdown, gfmTableToMarkdown, gfmTagfilterExpression, gfmTaskListItemFromMarkdown, gfmTaskListItemToMarkdown, goToNextCell, gt$2, h$5, handleExpandParent, handleNodeClick, handleTabIndex, hardBreak$1, hasChildren, hasSelection, hasSelector, hastToReact, heading$2, headingProp, hide, highlightTree, highlighterFacet, historyConfig, historyField_, historyKeymap, hooks, horizontalListSortingStrategy, hsl, hsl2rgb, html$4, html$5, htmlHighlighting, htmlVoidElements, i$4, identifier$1, identifiers, identity$2, ignore, ignoredStreamTypes, image$1, imageReference$1, imperativeAction, inConstruct, indentLess, indentMore, indentNodeProp, indentService, indentString, indentWithTab, index$1, inertValue, inferCodecFromCodecString, infiniteExtent, inherit, initPrevValues, initPrevValues$1, initReactI18next, initStartValues, inlineCode$1, inlineTimestampRegex, inputChange, inputHandler, insertSemicolon, interestingNode, interpolate, interpolate$1, interpolatePath, interpolateTransform, interrupt, intoTimescale, invariant, iosVirtualKeyboardOpen, isAllowSharedBufferSource, isAudioData, isButtonElement, isChild, isClickLikeOpenEvent, isComponentsMap, isConnectionValid, isDangerousProtocol, isDocumentScrollingElement, isEdge, isElement, isElementDisabled, isFirefox, isFocusChange, isFocusable, isHTMLElement, isHTMLElement$1, isHttpResponse, isInPrimarySelection, isIndexOutOfListBounds, isInputDOMNode, isInputPending, isIntegrationPoint, isIso639Dash2LanguageCode, isKeyboardEvent, isListIndexDisabled, isMac$1, isMacOs, isMatchingKey, isModifierKeySet, isModuleNotFoundError, isMouseEvent, isMouseLikePointerType, isMouseWithinBounds, isNativeInput, isNode$2, isNotFound, isNumber$2, isNumeric, isObject$1, isOutsideEvent, isPlainObject$2, isPlainObject$3, isRectObject, isRedirect, isRef, isScrolledToBottom, isServer$1, isString, isString$2, isTargetInsideEnabledTrigger, isTypeableCombobox, isTypeableElement, isUint8Array$1, isUrl$1, isValidHandle, isValidIndex, isValidLinkElement, isVarArg, isVirtualClick, isVirtualPointerEvent, isWebKit, isWebKit$1, isolatesEq, itemMapping, itemPress, iterateNalUnitsInAnnexB, j$5, je, joinPaths, joinPaths$1, jsHighlight, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keyboard, keysFromSelector, keywords, knownMdxNames, kt, l$3, languageDataProp, last, last$1, lengthUnitRegex, lib, limitShift, link$2, linkReference$1, list$1, listItem$1, ln, loadMatches, loadRouteChunk, location, logException, looksLikeAVFile, looksLikeAValue, looksLikeObjectPath, lt$3, ltrAtCursor, makeEventPreventable, mapAsyncGenerator, markerName, marksEqual, matchContext, matchMarkedBrackets, matchPlainBrackets, matcher, matchingNodes, maybeEnsureIsKeyPacket, maybeInsertReferencePacket, mdat, mdhd, me$1, mergeAriaLabelConfig, mergeAttributes, mergeCells, mergeClassList, mergeClasses, mergeHiddenState, mergeInputTrackQueries, mergeProps$1, mergeProps$2, mergeRefs, mfra, mn, modifierCodes, moof, moveByChar, moveLineDown, moveLineUp, moveSel, moveToField, moveToLineBoundary, moveVertically, mvex, mvhd, n$1, namespace, nativeSelectionHidden, ne, newId, nn, noSemicolon, noSemicolonType, nodeHasDimensions, nodeToChildExtent, nodeToParentExtent, nodeToRect$1, nodesEqualityFn, noevent, noevent$1, nonPlainText, nonTightList, none$4, nonpassive, nonpassivecapture, noop$1, nopropagation, normalizeIdentifier, normalizeIndent, normalizeLocalDisabled, normalizeOverflowEdgeThreshold, normalizeRect, normalizeRotation, normalizeScrollOffset, notInConstruct, now, nullCharacterInForeignContent, o$4, observeElementOffset, observeElementRect, observers, offset, offsetFragmentTrackDataByTimestamp, ok$1, onVisible, operatorToken, oppositePosition, order, outerDecorations, outsidePress, own, own$1, own$4, own$6, own$7, own$8, own$a, ownerDocument, p$5, pair, panelConfig, paragraph$1, parse$1, parseAacAudioSpecificConfig, parseAacAudioSpecificConfig$1, parseAc3SyncFrame, parseAvcSps, parseCode, parseEac3Config, parseEac3SyncFrame, parseFormatStr, parseHevcSps, parseHref, parseModesFromVorbisSetupPacket, parseOptions, parseOpusIdentificationHeader, parsePcmCodec, parsePrimitive, parsePsshBoxContents, parseSelector, parseSvg, patch, pe, pe$2, phrase, pickedCompletion, point$1, pointToRendererPoint, pointer, popupStateMapping, popupStoreSelectors, posAtCoords, position, postProcessor, postprocess, prefer, preprocess, preprocessLanguageCode, pressableTriggerOpenStateMapping, processRouteMasks, processRouteTree, productionCreate, progressStateAttributesMapping, promiseWithResolvers, properties$1, properties$2, proto, pseudoClasses, psshBoxesAreEqual, pt$2, pushStackDedup, q$5, queryIdentifiers, queryInputTracks, r$5, r$7, rangeEnd, rangeFrom, rangeTo, re, re$6, reactDomExports, reactExports, readAdtsFrameHeader, readAllLines, readAscii, readAsciiString, readBoxHeader, readBytes, readDataBox, readElementHeader, readElementId, readElementSize, readF64Be, readFixed_16_16, readFixed_2_30, readFloat, readI16Be, readI32Be, readI64Be, readIsomVariableInteger, readMetadataStringShort, readMp3FrameHeader, readMp3FrameHeader$1, readPageHeader, readPesPacket, readPesPacketHeader, readU16Be, readU24Be, readU32Be, readU64Be, readU8, readUnicodeString, readUnsignedBigInt, readUnsignedInt, readVarInt, readVarIntSize, readVorbisComments, rectIntersection, rectToBox, redirect, redo, redo$1, redoDepth, redoDepth$1, reducer, regexSafe, registerEncoder, removeCSSVariableInheritance, removeItem, removeItem$1, removePending, rendererPointToPoint, renumberList, replaceEqualDeep$1, requestIdle, requireBitBuffer, requireCjs, requireClient, requireErrorCorrectLevel, requireExtend, requireJszip_min, requireMode, requirePolynomial, requirePropTypes, requireQRCodeSvg, requireRSBlock, requireReact, requireUtil, requireVoidElements, resetTokenizer, resolveEncryptionAuxInfo, resolveMultipleLabels, resolvePath, resolveRef, resolveSelectedLabel, resolveThumbCollision, resolver, resync, rgb, rgb_formatHex, rgb_formatHex8, rgb_formatRgb, rn, root, root$1, root$6, root$8, rootRouteId, roundByDPR, roundToDivisor, roundToMultiple, roundValueToStep, routeNeedsPreload, routerContext, runHandlers, s$5, safePolygon, sampleTableIsEmpty, scaleSelector, schedule$1, script, script$1, scriptTokens, scrollAreaStateAttributesMapping, scrollHandler, scrollIntoView, scrollIntoViewIfNeeded$1, scrollMargins, scrollableParents, se$3, searchForNextElementId, selectAll, selectCharLeft, selectCharRight, selectDocEnd, selectDocStart, selectGroupLeft, selectGroupRight, selectLine, selectLineBoundaryBackward, selectLineBoundaryForward, selectLineBoundaryLeft, selectLineBoundaryRight, selectLineDown, selectLineEnd, selectLineStart, selectLineUp, selected, selectedAndDraggable, selectedValueIncludes, selectionConfig, selectionLayer, selection_append, selection_attr, selection_call, selection_classed, selection_clone, selection_datum, selection_dispatch, selection_each, selection_empty, selection_html, selection_insert, selection_interrupt, selection_iterator, selection_join, selection_lower, selection_node, selection_nodes, selection_on, selection_order, selection_property, selection_raise, selection_remove, selection_selectChild, selection_selectChildren, selection_selection, selection_size, selection_style, selection_text, selector, selector$1, selector$2, selector$3, selector$4, selector$5, selector$6, selector$7, selector$9, selector$a, selector$b, selector$c, selector$d, selector$e, selector$f, selector$g, selector$h, selector$i, selectorAll, selectors$3, selfClosers, serializeAvcDecoderConfigurationRecord, serializeHevcDecoderConfigurationRecord, serializeValue, setActive, setCellAttr, setInt24, setPoint, setSearchQuery, setSel, setSupportNoticeShown, setUint24, shadowRegex, shallow, shallow$1, shallowNodeData, shift$1, shimExports, shouldHandleAsObject, siblingOpen, sidx, simplifyRational, simplifySelection, size, skipAtoms, skipAtomsForSelection, sliderStateAttributesMapping, sn, snapPosition, sortByDocumentPosition, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, sparse, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, splitCell, splitLine, src_default$1, st$3, startTagAfterAfterBody, startTagAfterAfterFrameset, startTagAfterBody, startTagAfterFrameset, startTagAfterHead, startTagBeforeHead, startTagBeforeHtml, startTagInBody, startTagInCaption, startTagInCell, startTagInColumnGroup, startTagInForeignContent, startTagInFrameset, startTagInHead, startTagInHeadNoScript, startTagInRow, startTagInSelect, startTagInSelectInTable, startTagInTable, startTagInTableBody, startTagInTemplate, stateAttributesMapping, stateAttributesMapping$1, stateAttributesMapping$2, stateAttributesMapping$3, stateAttributesMapping$4, stateAttributesMapping$5, stateAttributesMapping$7, stateAttributesMapping$8, stbl, stopEvent$2, stopParsing, storageKey$1, storeSelector, strikethrough, string$2, stringify$1, stringify$2, stringifyAsValue, stripNullChildren, strong$1, structuredClone$1, style, style$2, styleDisableScrollbar, styleModule, styleTokens, styp, sublanguageProp, suffixesOrder, svg, svgCaseSensitiveTagNames, syntaxIndentation, tabbable, tableCell, tableCellElement, tableEditing, tableElements, tableRow, tabsStateAttributesMapping, tagHighlighter, tagStart, tags, tags$1, te$3, testFalsey, text$1, text$6, text$7, text$8, text$9, textDecoder$1, textEncoder$2, textFilter, textareaTokens, thematicBreak$1, theme, tkhd, toAlaw, toDataView, toInterleavedAudioFormat, toKebabCase, toString$1, toUint8Array, toUlaw, toValidatedInputTrackQuery, toggleBlockComment, toggleComment, toggleHeader, toggleHeaderCell, togglePanel, toggleTabFocusMode, tokenAfterAfterBody, tokenAfterBody, tokenAfterHead, tokenBeforeHead, tokenBeforeHtml, tokenInColumnGroup, tokenInHead, tokenInHeadNoScript, tokenInInitialMode, tokenInTableText, tr$2, trackNewline, trackPress, transform$2, transformGfmAutolinkLiterals, transformOptions, transformStylesToCssCasing, transitionProperty, transitionStatusMapping, transition_attrTween, transition_delay, transition_duration, transition_ease, transition_easeVarying, transition_end, transition_on, transition_remove, transition_style, transition_styleTween, transition_text, transition_textTween, transition_tween, transposeChars, triggerFocus, triggerHover, triggerOpenStateMapping, triggerOpenStateMapping$1, triggerPress, trimMarkdownSpaceStart, trimPath, trimPathRight, trivialOrder, trough, tweenValue, typescriptKeywords, u$3, u16, u32, ue, un, uncontrolledElementsSets, undo, undo$1, undoDepth, undoDepth$1, unitToken, unreachable, unsetTransformStyles, updateAttrs, updateListener, updateSel, urlAttributes, urlToPath, useAnimationFrame, useAnimationsFinished, useAnnouncement, useBaseQuery, useCachedNode, useClick, useClientPoint, useClosePartCount, useCollapsiblePanel, useCombineActivators, useCompositeListItem, useContextMenuRootContext, useCurrentEditor, useDerivedTransform, useDirection, useDismiss, useDndContext, useDndMonitor, useDndMonitorProvider, useDropAnimation, useEvent, useFloatingNodeId, useFloatingParentNodeId, useFloatingPortalNode, useFloatingTree, useFocus$1, useFocusableWhenDisabled, useForcedRerendering, useFormContext, useHoverFloatingInteraction, useHoverInteractionSharedState, useId, useImageLoadingStatus, useImplicitActiveTrigger, useInitialRect, useInitialValue, useInteractions, useIsMutating, useIsoLayoutEffect, useIsomorphicLayoutEffect, useIsomorphicLayoutEffect$2, useIsomorphicLayoutEffect$3, useKey, useKeyOrCode, useLabelableContext, useLatestRef, useLatestValue, useLayoutShiftScrollCompensation, useLazyMemo, useListNavigation, useLoaderData, useLoaderDeps, useMatch, useMeasuringConfiguration, useMenuElementProps, useMenuRootContext, useMenuSubmenuRootContext, useMenubarContext, useMergedRefs, useMixedToggleClickHandler, useMutation, useMutationObserver, useNavigate, useOnFirstRender, useOnMount, useOpenChangeComplete, useOpenInteractionType, useOpenStateTransitions, useParams, usePortalContext, usePreviewCardRootContext, useQueries, useQuery, useQueryClient, useRadioGroupContext, useRectDelta, useRefWithInit, useRenderElement, useResizeObserver, useRole, useRouteContext, useRouter, useScrollIntent, useScrollLock, useScrollOffsetsDelta, useScrollableAncestors, useSearch, useSelectPositionerContext, useSelectRootContext, useSensor, useSensorSetup, useSensors, useStableCallback$1, useStateAttributesMapping, useStickIfOpen, useStore, useStore$1, useStore$2, useStoreWithEqualityFn, useSyncedFloatingRootContext, useSyntheticListeners, useTimeout, useTiptap, useToolbarRootContext, useTooltipProviderContext, useTransitionStatus, useTranslation, useTriggerDataForwarding, useTriggerRegistration, useTypeahead, useUniqueId, useValueAsRef, useValueChanged, useWindowRect, usesLocize, ut$2, v$6, v$7, validateAudioChunkMetadata, validateAudioEncodingConfig, validateAudioOptions, validateCropRectangle, validateInputFormatOptions, validateMetadataTags, validateMinimumDistance, validateSearch, validateSubtitleMetadata, validateTimestamp, validateVideoChunkMetadata, validateVideoEncodingConfig, validateVideoOptions, valueToPercent, variable, variableNames, verbose, verticalListSortingStrategy, viewPlugin, viewportToTransform, visit, visitParents, visuallyHidden, visuallyHiddenInput, vtta, vttc, vtte, w2, wait$1, warn$2, warnOnce, we, webNamespaces, wheelDelta, whitespace, whitespaceCharacterInBody, whitespaceCharacterInTableText, win, win$1, windowResize, withResolvers, withSelectorExports, wrap$1, wrapHandler, wrapperStyle, x$4, xe$1, y$1, y$6, ye$2, z$3, z$4, z$7, zustandErrorMessage, zwitch };

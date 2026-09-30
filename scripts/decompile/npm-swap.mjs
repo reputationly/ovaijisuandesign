@@ -57,6 +57,13 @@ export const norm = (text) =>
       .replace(/_\.jsxs?\(/g, "_(")
       .replace(/_(\._)+/g, "_")
       .replace(/\s+/g, "")
+      // 空语句块：minifier 把 `if (x) ;`（空语句）打成 `if (x) {}`（空块），重打印会还原成 `;`。
+      // 两种写法语义相同，统一把空的 {} 也去掉——配合最后的删分号，`;` 和 `{}` 都变成"没有"。
+      // 必须放在去空白**之后**：dist 里是 `{\n      }`，带换行和缩进，去空白前匹配不到 `{}`。
+      // 也只吃"当语句体的空块"：前面是 `)`（if/for/while 条件）或 `else`，后面是 `}` 或 `else`。
+      // 注意此时 `else if` 已经粘成 `elseif`，所以 lookahead 不能写 `else\b`。
+      .replace(/\)\{\}(?=\}|else)/g, ")")
+      .replace(/else\{\}(?=\}|else)/g, "else")
       // 解构里的属性名是"属性位置"不该被抹：const { length: l } = x 里的 length。
       // 上面那条把 rename 后的属性名换成 _，重排成多行后 {_:_} 和 {_} 对不上，这里统一抹掉冒号后的局部名。
       .replace(/\{(_):_\}/g, "{$1}")
