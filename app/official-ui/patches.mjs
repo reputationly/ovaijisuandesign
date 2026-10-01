@@ -47,6 +47,19 @@ const i18n = (id, key, from, to) => ({
   replace: `"${key}": "${to}"`,
 });
 
+// ---------------------------------------------------------------------------------------------
+// 六、设置页「平台接入」：我们的 MaaS 平台配置分区（地址 / 密钥 / 各模态模型）
+// ---------------------------------------------------------------------------------------------
+// 组件代码、服务代理、i18n 文案都在 platform-section.mjs 里，这里只做拼接和挂载：
+//   1. 代码插在官方 SECTIONS 数组前面（PlatformSection 组件 + __ovPlatformService 服务代理）；
+//   2. SECTIONS / SECTION_COMPONENTS 各加一行（icon 用 ServerIcon —— 产物里已有的包装版图标）；
+//   3. i18n 两份资源各加一组 ov.platform.* 键；
+//   4. SettingsDialogProvider 挂首次引导：没配过密钥自动弹到本分区（sessionStorage 只挡当次会话内的重复弹）。
+// 数据走主进程 platform-settings 通道（get / save，见 app/desktop/src/main/index.ts）。
+import { PlatformSection, PlatformServiceShim, FirstRunShim, I18N_ZH, I18N_EN } from "./platform-section.mjs";
+
+const i18nInsert = (obj) => Object.entries(obj).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)},`).join("\n");
+
 export const PATCHES = [
   // ---------------------------------------------------------------------------------------------
   // 一、品牌名
@@ -362,5 +375,54 @@ export const PATCHES = [
       "  if (localUrl) return localUrl;",
       "",
     ].join("\n"),
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 六（续）、「平台接入」分区的挂载补丁
+  // ---------------------------------------------------------------------------------------------
+
+  // 组件 + 服务代理，插在官方 SECTIONS 数组前（那里所有依赖的标识符都已定义）。
+  {
+    id: "platform-section.code",
+    file: MAIN,
+    find: "const SECTIONS = [",
+    replace: PlatformServiceShim + "\n" + PlatformSection + "\nconst SECTIONS = [",
+  },
+  // 导航项：放在「网络」后面。icon 用 ServerIcon（产物里 withIconCompositing 包装过的，SECTIONS 前已定义）。
+  {
+    id: "platform-section.nav",
+    file: MAIN,
+    find: '  { id: "network", icon: Globe, labelKey: "settings.networkSection" },\n',
+    replace: '  { id: "network", icon: Globe, labelKey: "settings.networkSection" },\n  { id: "platform", icon: ServerIcon, labelKey: "ov.platform.nav" },\n',
+  },
+  // 组件映射。
+  {
+    id: "platform-section.component",
+    file: MAIN,
+    find: "  network: NetworkSection,\n",
+    replace: "  network: NetworkSection,\n  platform: PlatformSection,\n",
+  },
+  // 首次引导：没配过密钥就自动弹设置到本分区（挂在 SettingsDialogProvider 的第一个 effect 后面，
+  // 那里有 openSettings 这个局部函数）。sessionStorage 挡住本次会话内的重复弹；真正"不再弹"靠 hasApiKey。
+  {
+    id: "platform-section.first-run",
+    file: MAIN,
+    find: "  reactExports.useEffect(() => {\n    if (!isLoggedIn) setOpen(false);\n  }, [isLoggedIn]);",
+    replace: "  reactExports.useEffect(() => {\n    if (!isLoggedIn) setOpen(false);\n  }, [isLoggedIn]);\n  " + FirstRunShim.trim() + "\n  __ovPlatformFirstRun();",
+  },
+  // i18n：两份资源各加一组键。挂在 settings.network.proxyGroup 那一行后面（两份资源里都唯一）。
+  {
+    id: "platform-section.i18n-zh",
+    file: MAIN,
+    within: ZH_I18N,
+    find: '  "settings.network.proxyGroup": "代理",\n',
+    replace: '  "settings.network.proxyGroup": "代理",\n' + i18nInsert(I18N_ZH) + "\n",
+  },
+  {
+    id: "platform-section.i18n-en",
+    file: MAIN,
+    within: EN_I18N,
+    find: '  "settings.network.proxyGroup": "Proxy",\n',
+    replace: '  "settings.network.proxyGroup": "Proxy",\n' + i18nInsert(I18N_EN) + "\n",
   },
 ];

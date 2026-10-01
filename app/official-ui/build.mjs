@@ -8,6 +8,7 @@ import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { injectIcons } from "./icon-inject.mjs";
 import { ASSETS, PATCHES, VERSION } from "./patches.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -101,4 +102,14 @@ for (const p of PATCHES) {
   applyPatch(p);
 }
 if (failed) process.exit(1);
+
+// 定制图标放在补丁之后：它换的是图标工厂的数据来源，和补丁改的那些地方不重叠，
+// 但排在后面能保证补丁里的锚点（比如 logo.wordmark 引用的图标名）看到的是官方原文。
+// 表的内容见 icons.mjs —— 只换数据，工厂实现和调用方都不动。
+for (const file of resolve("assets/index-")) {
+  const text = readFileSync(file, "utf8");
+  const out = injectIcons(text, path.relative(repo, file));
+  if (out !== text) writeFileSync(file, out);
+}
+
 console.log(`official-ui ${VERSION}：${PATCHES.length} 个补丁、${ASSETS.length} 个资源 → ${path.relative(repo, out)}`);
