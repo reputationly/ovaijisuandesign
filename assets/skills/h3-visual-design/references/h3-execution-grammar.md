@@ -10,7 +10,7 @@
 - 参考视频：单段 2–15 秒，最多 3 段，总计不超过 15 秒。
 - 参考图：最多 9 张；参考音频最多 3 段且不能单独输入；混合素材最多 12 个。
 - 素材按上传顺序写 `@图片1`、`@视频2`、`@音频3`，不写本地路径。
-- 派单 Prompt 使用 `working_language` 的自然语言；非口播 `agent_curated` 先按用户确认的 `text_language` 执行，选择 `agent_recommended` 时必须先说明推荐理由。`exact_user_text` 只使用用户原文，语言选择只能决定排版角色，不能翻译、补写或替换；口播字幕保持准确台词，编辑标题和标签仍按用户设置混排。
+- 派单 Prompt 使用 `working_language` 的自然语言；非口播 `agent_curated` 按已确定的 `text_language` 执行；用户未指定时由 Agent 直接选择并简述理由，不追加语言确认。`exact_user_text` 只使用用户原文，语言选择只能决定排版角色，不能翻译、补写或替换；口播字幕保持准确台词，编辑标题和标签仍按用户设置混排。
 - 目标 5600–6200 字符，硬上限 7000。长度按最终字符串逐字符计数，包含空格、标点、换行和素材标记；超过 7000 或无法可靠计数时禁止展示和派单。先删重复形容词，再合并重复身份/负面边界和相邻状态同义句；不压缩准确文字、文案角色、素材用途、画幅、时间点、主体身份、字体角色、构图状态或原片锁定项。
 
 Prompt length gate: count the final string once. If it exceeds 7000 characters or cannot be counted, stop before display or execution. If it exceeds 6200, apply the defined deterministic compression order, recount once, and continue only when the result is within range.
@@ -267,7 +267,7 @@ Talking-head only: `SFX MAP` = [准确时间] → [Keyword Hero / Evidence Card 
 
 ## 12. 派单前检查
 
-- 设置是否全部来自用户确认，参考比例是否只作信息；未明确改档时分辨率是否为 `2K`。
+- 画幅和时长是否已明确；其余设置是否优先采用用户要求、缺失时由 Agent 补齐且没有追加设置问询；参考比例是否只作信息；未明确改档时分辨率是否为 `2K`。
 - 最终是否使用中文、是否已逐字符计数且 `<=7000`；目标是否落在 5600–6200，超过硬上限是否已阻止派单。
 - 是否具有 TYPE CAST、COLOR SCRIPT、GRAPHIC KIT、SPACE BINDING、COMPOSITION SCORE。
 - 13–15 秒非口播是否有 3–5 个 `COMPOSITION STATE` 和 2–4 个字体角色。

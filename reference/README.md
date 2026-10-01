@@ -32,3 +32,21 @@
   首页 chunk 从 `index-CzL_EVKV.js` 变成 `index-BOHfiUzs.js`。
 
 两个版本都留着，对照用；不要覆盖旧的。
+
+## `3.0.21/`（macOS arm64）
+
+同一口径。渲染层主 bundle 从 `index-CANVzzmD.js` 变成 `index-ZNI5SgRm.js`（22.3MB），
+首页 chunk 从 `index-BOHfiUzs.js` 变成 `index-CHLulaMq.js`。
+
+和 3.0.20 的差异（逐目录比对）：
+
+- **渲染层**：补丁跑到 3.0.21 上，63 条里 62 条原样命中，1 条要重锚（`agent-models.no-whitelist`，
+  原因见下）。真机跑起来又发现第一次重锚只清了排序表、没换掉 `filter` 谓词——3.0.21 的
+  `normalizeAgentModels` 是「按排序表 filter + sort」，表空了整段就什么都不剩，Agent 标签页
+  显示「该类别暂无可用模型」；已改成把 filter+sort 整段换成 `...normalizedModels`。
+- **gateway**：`dist/main.js` 只差一处——对话模型白名单 `BUILTIN_AGENT_MODEL_ACCESS` 从两个
+  参照自家模型（`gamma/*`）变成四个（多了 `alpha/alpha`、`alpha/claude-opus-5-5`），
+  多出来的一个 `dist/pdf.worker.mjs` 是新增文件。路由表没动（158 条）。
+- **mcp-tools / 两个 opencode 插件 / agent-profiles / bundled-plugins / conf**：逐字节一致。
+- **技能**：`~/.hub/skills` 里只有 `h3-visual-design`、`ui-motion` 变过（1.0.2 → 1.0.3），
+  已经重新拷进 `assets/skills/`；其余 34 个一致。

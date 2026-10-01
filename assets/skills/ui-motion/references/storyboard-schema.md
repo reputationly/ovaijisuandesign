@@ -39,4 +39,4 @@ Generate all segments before creating one instrumental BGM. Concatenate clips in
 - If a reference image cannot be used, stop and ask for a replacement or an explicit text description; do not fall back to a stock brand.
 - If a continuation tail frame is missing, stop the chain, identify the missing segment, and regenerate only that segment after its predecessor is stable.
 - If a join drifts, preserve the approved brand profile and local motion treatment, then regenerate the affected continuation rather than relabeling a new opening.
-- If assembly is unavailable, deliver the ordered clips, planning artifacts, and a clear note that final concatenation and mixing remain.
+- If assembly is unavailable, report the blocker and retain clips and planning artifacts internally for retry. Do not deliver them or create canvas documents; the only deliverable is the completed final video.

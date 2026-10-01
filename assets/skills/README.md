@@ -9,3 +9,6 @@
 `assets/skills`，发布包里读 `resources/skills`）。
 
 要更新到新版本，重新从官方应用的 `~/.hub/skills` 拷一遍。
+
+更新记录：3.0.21 时按同一来源补拷，只有两个 skill 变过，都从 1.0.2 升到 1.0.3
+（`h3-visual-design`、`ui-motion`），其余 34 个逐字节一致。

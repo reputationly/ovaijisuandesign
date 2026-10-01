@@ -60,7 +60,7 @@ describe("云端配置类路由的本地默认值", () => {
     expect((await http.get("/api/v1/apollo/config?key=no_such_key")).status).toBe(404);
   });
 
-  it("首页快速开始：按渲染层解析规则逐条校验，影视 / 短剧 / 电商三个场景和精选技能分区都能解析出来", async () => {
+  it("首页快速开始：按渲染层解析规则逐条校验，四个场景和精选技能分区都能解析出来", async () => {
     const r = await http.get(`/api/v1/home/quick_start_config?config_version=2&${COMMON}`);
     expect(r.status).toBe(200);
     const cfg = r.body;
@@ -71,14 +71,16 @@ describe("云端配置类路由的本地默认值", () => {
     expect(Buffer.byteLength(JSON.stringify(cfg))).toBeLessThan(1_000_000);
 
     const scenes = cfg.sections.filter((s: any) => s.type === "prompt");
-    expect(scenes.map((s: any) => s.id)).toEqual(["film", "short-drama", "ecommerce"]);
+    expect(scenes.map((s: any) => s.id)).toEqual(["film", "short-drama", "ecommerce", "graphic-design"]);
     expect(scenes.map((s: any) => s.title)).toEqual([
       { zh: "影视", en: "Film" },
       { zh: "短剧", en: "Short Drama" },
       { zh: "电商带货", en: "E-commerce" },
+      { zh: "平面设计", en: "Graphic Design" },
     ]);
     expect(scenes[0].items.map((i: any) => i.id)).toEqual(["character-storyboard", "episode-script", "character-cards"]);
     expect(scenes[2].items.map((i: any) => i.id)).toEqual(["product-listing", "batch-recolor", "promo-video"]);
+    expect(scenes[3].items.map((i: any) => i.id)).toEqual(["image-remix", "anime-style", "nine-panel-comic"]);
 
     let total = 0;
     for (const s of scenes) {

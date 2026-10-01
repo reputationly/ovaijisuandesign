@@ -17,6 +17,8 @@ reference/*
 !reference/3.0.16/**/dist/
 !reference/3.0.20/
 !reference/3.0.20/**/dist/
+!reference/3.0.21/
+!reference/3.0.21/**/dist/
 
 # 探测脚本、截图之类的临时产物
 .probe/

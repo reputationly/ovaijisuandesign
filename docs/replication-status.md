@@ -2,6 +2,10 @@
 
 对照 MiniMax Design 3.0.16，写于 2026-09-26，同日更新（gateway 本地可用路由补齐之后）。参照原文都在 `reference/3.0.16/`。
 
+> 参照版本已升到 **3.0.21**（2026-10-01）：界面改从 `reference/3.0.21/app/out/renderer` 拷，
+> 补丁 64 条；`reference/3.0.16/` 和 `3.0.20/` 留着对照。下文提到 3.0.16 的地方，
+> 除版本号本身外结论未变（gateway / mcp-tools / 插件 / agent 配置在 3.0.20 → 3.0.21 之间没动）。
+
 三种来源：
 
 - **原样**：直接用参照的文件（编译产物或原文），不改或只打补丁。行为和参照一致。
@@ -27,7 +31,7 @@
 
 | 部分 | 位置 | 说明 |
 |---|---|---|
-| **界面（渲染层）** | `reference/3.0.16/app/out/renderer` → 构建时拷到 `app/desktop/out/official-ui` | 唯一在运行时直接用的编译产物；打 58 个补丁（`app/official-ui/patches.mjs`） |
+| **界面（渲染层）** | `reference/3.0.21/app/out/renderer` → 构建时拷到 `app/desktop/out/official-ui` | 唯一在运行时直接用的编译产物；打 64 个补丁（`app/official-ui/patches.mjs`） |
 
 `reference/3.0.16/` 里的 gateway、mcp-tools、opencode 插件、主进程也是编译产物，但**只作对照参考，运行时不用**。
 

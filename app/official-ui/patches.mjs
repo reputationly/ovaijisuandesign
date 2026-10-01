@@ -3,11 +3,11 @@
 //
 // find 可以是带 g 的正则，replace 可以是函数；within: [开始锚点, 结束锚点] 把替换限定在一段区间里。
 // 具体语义见 build.mjs。
-export const VERSION = "3.0.20";
+export const VERSION = "3.0.21";
 
 // 主 bundle 和首页那块懒加载的 chunk。同前缀（assets/index-）的文件有好几个，这里写全名免得误伤。
-const MAIN = "assets/index-CANVzzmD.js";
-const HOME = "assets/index-BOHfiUzs.js";
+const MAIN = "assets/index-ZNI5SgRm.js";
+const HOME = "assets/index-CHLulaMq.js";
 
 // 产品名。英文名和 app/desktop 旧界面的 i18n 保持一致。
 const NAME_ZH = "蒜狸小助手";
@@ -324,13 +324,25 @@ export const PATCHES = [
     find: "trailing: /* @__PURE__ */ jsxRuntimeExports.jsxs(\n                Button$1,\n                {\n                  type: \"button\",\n                  variant: \"ghost\",\n                  size: \"xs\",\n                  onClick: handleConfigureCustom,",
     replace: "trailing: false && /* @__PURE__ */ jsxRuntimeExports.jsxs(\n                Button$1,\n                {\n                  type: \"button\",\n                  variant: \"ghost\",\n                  size: \"xs\",\n                  onClick: handleConfigureCustom,",
   },
-  // 对话框模型选择器的 Agent 标签页只认一份写死的模型 id 白名单（参照自家的三个对话模型），
-  // 我们平台的对话模型永远被滤掉，标签页一直是"…"。gateway 本来只回当前可用的模型，照单全收。
+  // 对话框模型选择器的 Agent 标签页只认一份写死的模型 id 表（参照自家的几个对话模型），
+  // 我们平台的对话模型永远进不了这张表，标签页一直是「该类别暂无可用模型」。gateway 本来
+  // 只回当前可用的模型，照单全收。
+  //
+  // 3.0.21 起这份表从"白名单式"（Set + has 过滤）变成"排序表"（Map + 按序重排，不在表里的进不去），
+  // 所以要把 filter 那一整段换掉，而不是像 3.0.20 那样只删过滤谓词。同一版还新增了会员门禁
+  // （BUILTIN_AGENT_MODEL_ACCESS，界面据此打「会员」标、发送时拦一道会员校验），我们没有订阅
+  // 体系，会一律当成非会员挡下来，一并清空。
   {
     id: "agent-models.no-whitelist",
     file: MAIN,
-    find: "...normalizedModels.filter((model) => SELECTABLE_AGENT_MODEL_IDS.has(model.id)),",
+    find: "...normalizedModels.filter((model) => SELECTABLE_AGENT_MODEL_ORDER.has(model.id)).sort(\n      (a2, b3) => (SELECTABLE_AGENT_MODEL_ORDER.get(a2.id) ?? 0) - (SELECTABLE_AGENT_MODEL_ORDER.get(b3.id) ?? 0)\n    ),",
     replace: "...normalizedModels,",
+  },
+  {
+    id: "agent-models.no-membership-gate",
+    file: MAIN,
+    find: "BUILTIN_AGENT_MODEL_ACCESS = {\n  \"alpha/alpha\": { requirement: \"membership\" },\n  \"alpha/claude-opus-5-5\": { requirement: \"membership\" },\n  \"gamma/gamma-6-astra\": { requirement: \"membership\" },\n  \"gamma/gpt-6-astra\": { requirement: \"membership\" }\n};",
+    replace: "BUILTIN_AGENT_MODEL_ACCESS = {};",
   },
   // 输入框占位符末尾的 "Design 使用指南 ↗ · H3 使用指南 ↗" 外链，指向参照产品的在线文档，不给链接。
   {

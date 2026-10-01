@@ -1,6 +1,6 @@
 # 与参照版本不一致的地方
 
-逐层列出和 MiniMax Design 3.0.16 **不一致**的所有已知项。怎么做、先做哪个见 [`remaining-work.md`](remaining-work.md)。
+逐层列出和 MiniMax Design 3.0.21 **不一致**的所有已知项（写的时候对照的是 3.0.16，两者在这些项上没差别）。怎么做、先做哪个见 [`remaining-work.md`](remaining-work.md)。
 写于 2026-09-25，基于分支 `replicate-official-stack`。
 
 分三类：

@@ -1,5 +1,5 @@
 display-name-zh: 界面动效演示
-version: 1.0.2
+version: 1.0.3
 tag-en: "Creative & Experimental / Full Production"
 tag-cn: "创意实验 / 成片制作"
 complete-tags-en:
@@ -21,7 +21,7 @@ structured-info:
       - 品牌系统
       - 产品演示
     how-to-use: 提供产品页面、品牌资产和动效目标，先锁定品牌视觉DNA、功能重点与叙事规格。
-    outputs: 品牌分析、界面与镜头方案、故事板、动效片段、声音设计与宣传片。
+    outputs: 完成的界面动效视频；品牌分析、分镜和制作资料仅供内部使用，不生成画布文档。
   en-US:
     summary: Extract a real brand language to create UI motion, product-demo shots, and a brand-led promo video ready for assembly.
     best-for:
@@ -29,4 +29,4 @@ structured-info:
       - Brand Systems
       - Product Demos
     how-to-use: Provide product screens, brand assets, and a motion goal, then lock the visual DNA, feature focus, and narrative spec.
-    outputs: Brand analysis, interface and shot direction, storyboard, motion clips, sound design, and promo video.
+    outputs: Completed UI motion video; brand analysis, storyboards, and production records stay internal, with no canvas documents.

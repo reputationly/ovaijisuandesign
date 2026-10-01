@@ -6,6 +6,11 @@
  * 影视和短剧本来就共用同一组示例。素材是那份兜底配置指向的 8 个公开 CDN 文件，下载一次放在
  * 仓库的 assets/home-showcase/，文件名不改，由 gateway 的静态路由发出去（见 cloud-config.controller.ts）。
  *
+ * 「平面设计」不在兜底配置的默认顺序（DEFAULT_SCENE_IDS）里，界面上看不到它，但场景表里有这一项：
+ * 三条示例（图像重混 / 画风转换 / 九格漫画）也一并搬过来，挂在 film、short-drama、ecommerce 之后。
+ * 参照的示例按场景 id 从渲染层自己的 i18n 取分区名（home.scene.graphic-design），本地配置给不出，
+ * 也不影响渲染。
+ *
  * 和兜底配置不一样的地方：
  * - 技能绑定：原来绑的是云端市场的技能（character-scene-storyboard、short-drama、ecommerce-image、
  *   promo-video），我们没有。渲染层点示例时会先确保技能可用，本地没有就去市场装，装不上就弹「安装失败」、
@@ -25,7 +30,7 @@ export const HOME_SHOWCASE_ASSET_ROUTE = "api/v1/home/showcase-assets";
 /**
  * assets/home-showcase/ 下的文件，文件名就是兜底配置里的附件名。静态路由只认这张表，
  * 名字不在表里一律 404，不拿请求里的路径去拼文件系统路径。
- * 使用教程 PDF 和「原始照片」（平面设计场景用的）、「产品界面图」（见下面「产品动画」）没有示例引用，照样放着，文件名不改。
+ * 使用教程 PDF 和「产品界面图」（见下面「产品动画」）没有示例引用，照样放着，文件名不改。
  */
 export const HOME_SHOWCASE_ASSET_FILES = [
   "MiniMax Design使用教程.pdf",
@@ -136,6 +141,38 @@ const ECOMMERCE_ITEMS: PromptItem[] = [
   }),
 ];
 
+/** 平面设计：三条示例绑定的是云端市场的技能，和上面一样去掉绑定，提示词开头的 `/技能名` 一并去掉。 */
+const GRAPHIC_DESIGN_ITEMS: PromptItem[] = [
+  item({
+    id: "image-remix",
+    title: { zh: "图像重混", en: "Image Remix" },
+    prompt: {
+      zh: "把这张照片改成 [参考照片.png] 里克莱因蓝极简的画风，内容换成柴犬。",
+      en: "Restyle this photo with the Klein-blue minimalist vibe of [reference.png], change the subject to a Shiba Inu.",
+    },
+    attachments: [image("参考照片.png", ["reference.png"])],
+  }),
+  item({
+    id: "anime-style",
+    title: { zh: "画风转换", en: "Anime Style" },
+    prompt: {
+      zh: "把 [原始照片.png] 转成吉卜力风格，保留人物特征和背景氛围。",
+      en: "Turn [original.png] into Ghibli style, keep the character features and background mood.",
+    },
+    attachments: [image("原始照片.png", ["original.png"])],
+  }),
+  item({
+    id: "nine-panel-comic",
+    title: { zh: "九格漫画", en: "9-Panel Comic" },
+    prompt: {
+      zh: '用 3×3 九格漫画讲"小猫咪的早晨"：睁眼 → 大伸懒腰 → 跳下床 → 蹲在空食碗前 → 用爪子拨碗 → 抬头发现没人来 → 跳上厨房柜台 → 推倒一个杯子 → 回头无辜看镜头',
+      en: `Tell "a kitten's morning" as a 3×3 nine-panel comic: open eyes → big stretch → jump off the bed → sit by empty food bowl → paw at the bowl → look up, nobody's coming → leap onto kitchen counter → push a cup off the edge → glance back, all innocent.`,
+    },
+    cover: homeShowcaseAssetUrl("参考照片.png"),
+    attachments: [],
+  }),
+];
+
 /** 精选技能分区里的预置提示词：用户在 Skill 页签点这些技能时，输入框里填的就是这一句。 */
 const FEATURED_SKILL_PRESETS = [
   {
@@ -168,6 +205,7 @@ export const HOME_QUICK_START_CONFIG = {
     { type: "prompt", id: "film", title: { zh: "影视", en: "Film" }, icon: "film", items: SHORT_DRAMA_ITEMS },
     { type: "prompt", id: "short-drama", title: { zh: "短剧", en: "Short Drama" }, icon: "film", items: SHORT_DRAMA_ITEMS },
     { type: "prompt", id: "ecommerce", title: { zh: "电商带货", en: "E-commerce" }, icon: "shopping-bag", items: ECOMMERCE_ITEMS },
+    { type: "prompt", id: "graphic-design", title: { zh: "平面设计", en: "Graphic Design" }, icon: "palette", items: GRAPHIC_DESIGN_ITEMS },
     {
       type: "skill",
       id: "official-featured",
