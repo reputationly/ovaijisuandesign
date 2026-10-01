@@ -2,7 +2,10 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// 这条用例要把整个 agent 配置目录同步一遍，Windows 上磁盘慢，默认 5 秒不够。
+vi.setConfig({ testTimeout: 60_000 });
 
 import { buildOpencodeConfig, fileUrl } from "./config.js";
 import { locateProfile, mergeSkillDirs } from "./index.js";
