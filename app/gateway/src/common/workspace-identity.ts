@@ -239,7 +239,7 @@ export function workspaceIdentityMiddleware(expected: WorkspaceIdentity | undefi
     const rejected = verifyIdentity(expected, req);
     if (rejected) {
       const pathname = (req.url ?? "/").split("?")[0]!;
-      log.warn(`[workspace-identity] code=${rejected.code} transport=${isIdentityHostname(hostnameOf(req.headers.host)) ? "browser" : "http"} method=${(req.method ?? "GET").toUpperCase()} route_class=${routeClass(pathname)}`);
+      log.warn(`[workspace-identity] code=${rejected.code} transport=${isIdentityHostname(hostnameOf(req.headers.host)) ? "browser" : "http"} method=${(req.method ?? "GET").toUpperCase()} route_class=${routeClass(pathname)} path=${pathname}`);
       res.statusCode = rejected.status;
       res.setHeader("content-type", "application/json; charset=utf-8");
       res.end(JSON.stringify(rejected.body));
