@@ -19,24 +19,36 @@ const FFMPEG_TIMEOUT_MS = 5 * 60_000;
 const CONCAT_TIMEOUT_MS = 10 * 60_000;
 
 const CJK_DRAWTEXT_GUIDANCE =
-  "For Chinese/Japanese/Korean `drawtext`, omit `font` and `fontfile` by default: the Desktop runtime automatically injects the " +
+  "For Chinese/Japanese/Korean or pure English `drawtext`, omit `font` and `fontfile` by default: the Desktop runtime automatically injects the " +
   "app-bundled Noto Sans CJK SC font. Never guess an OS font path (for example PingFang); set an explicit font only when the user " +
   "requests it and the font is known to exist on the rendering host.";
 
+const CANVAS_TARGET_GUIDANCE =
+  "CANVAS PLACEMENT is controlled by `canvas_target` (default `new_round`): a derivative of a canvas asset lands as a NEW ROUND on the node that " +
+  "currently shows the first `-i` input, so the user can switch between the previous and new version and the old one is never lost. Use `new_node` " +
+  "when the output is a different work rather than a new version (extract audio, grab a frame, split clips, first-time compose of several sources). " +
+  "Gateway enforces: audio outputs and outputs whose type differs from the target node always become a new node; a node that is already filled is " +
+  "never overwritten.";
+
 const FFMPEG_DESCRIPTION =
   "Run ffmpeg command on local media files via Gateway. " +
+  "When source nodeIds are already available in attachment context or tool results, include input_node_ids even if the input paths are correct. " +
+  "To produce a concatenated video file, you MUST use merge_videos. Do NOT use ffmpeg to produce concatenated video. Use ffmpeg for other editing " +
+  "operations, such as trimming, scaling, and audio mixing. " +
   CJK_DRAWTEXT_GUIDANCE +
   " Output path is managed automatically -- do NOT include one in args. Input paths after `-i` must be absolute local paths; do not " +
-  "pass display filenames copied from summaries or timeline text. Two modes are supported: (1) NORMAL — produces an output file " +
-  "enrolled into the workspace asset vault and placed on canvas automatically; do NOT call canvas_write_node afterwards; (2) DRY-RUN " +
+  "pass display filenames copied from summaries or timeline text. QUALITY: when a video filter forces re-encoding and you pass no rate control, " +
+  "Gateway injects `-c:v libx264 -crf 18` to preserve source quality -- do not hand-pick `-crf` / `-b:v` unless the user explicitly asks to compress. " +
+  "Two modes are supported: (1) NORMAL — produces an output file enrolled into the workspace asset vault and placed on canvas automatically -- the " +
+  "returned `node_id` is the completion proof; do NOT call canvas_write_node afterwards; (2) DRY-RUN " +
   "/ PROBE — pass `-f null` in args (e.g. `[\"-i\",\"/absolute/path/clip.mp4\",\"-f\",\"null\"]` or with a `showinfo`/`silencedetect`/etc. " +
   "filter) to inspect input streams without producing any file; the tool returns ffmpeg stderr (where stream metadata and `showinfo` " +
   "lines live) as `probe`. The trailing `-` stdout placeholder that ffmpeg requires for the null muxer is auto-appended for you. " +
-  "Prefer merge_videos for concatenation. When postprocess finalizes an immediately preceding temporary visual-only generation, pass " +
-  "that generation result node_id as replace_node_id so the canvas shows only the final video. A pure audio-replacement mux is " +
-  "rejected unless replace_node_id is provided or preserve_source_canvas_node=true is explicitly requested. For simple ordered " +
-  "concatenation that preserves clip audio, use merge_videos instead of hand-written audio concat filters; generic ffmpeg audio " +
-  "resample/re-encode can add hiss to generated clip audio. Use ffmpeg only for operations without a dedicated tool.";
+  CANVAS_TARGET_GUIDANCE +
+  " When postprocess finalizes an immediately preceding temporary visual-only generation (e.g. muxing the original audio back), keep the default " +
+  "`new_round` and pass that generation result node_id as target_node_id. For video concatenation that preserves clip audio, use merge_videos " +
+  "instead of hand-written audio concat filters; generic ffmpeg audio resample/re-encode can add hiss to generated clip audio. Use ffmpeg only for " +
+  "operations without a dedicated tool.";
 
 const FILENAME_DESCRIPTION =
   "Output filename without extension. 2-3 words, kebab-case, e.g. \"guo-portrait\", \"rain-scene\". " +
@@ -65,6 +77,18 @@ export const registerEditingTools: RegisterTools = (registrar, gw) => {
             "`-i` inputs must be absolute local paths, not display filenames. The output path is appended automatically by Gateway. " +
             "For dry-run / probe (no output file), include `-f null` in args.",
           ),
+        input_node_ids: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "Optional source canvas nodeIds in the exact order of ALL -i inputs: [\"video-node\"] for one input, [\"video-node\", \"audio-node\"] for two. " +
+              "When any source nodeId is known, include the array and use \"\" for every unknown input, including special inputs; never omit its slot. " +
+              "Omit the array when no source nodeIds are known; no extra lookup is required just to populate this optional parameter. Copy ids from canvas " +
+              "attachments, generation results or hub_canvas_get_node results; do not guess. Gateway checks each path first (relative paths use the current " +
+              "workspace); only a missing ordinary local file may fall back to its corresponding node in the same project. Existing paths, special inputs " +
+              "(URLs, pipes, devices, sequences, explicit input demuxers) and failed lookups stay unchanged. A length mismatch disables node fallback. " +
+              "Identifies INPUTS; target_node_id controls OUTPUT placement.",
+          ),
         output_type: z
           .enum(["video", "audio", "image"])
           .default("video")
@@ -74,21 +98,24 @@ export const registerEditingTools: RegisterTools = (registrar, gw) => {
             "vorbis -> .ogg, mp3 -> .mp3) — so just pass the encoder you want and the extension follows. An encoder that the chosen container cannot hold (e.g. " +
             "video output with `-c:a pcm_s16le` in an .mp4) is rejected up front with a fix hint, not run. Ignored in DRY-RUN mode (no file produced).",
           ),
-        replace_node_id: z
+        canvas_target: z
+          .enum(["new_round", "new_node"])
+          .default("new_round")
+          .describe(
+            "Where the NORMAL-mode output goes on canvas. `new_round` (default): append as a new switchable version on the node showing the first `-i` input " +
+              "(or `target_node_id`) — use for any derivative of the same work: subtitles, watermark, BGM / audio mux, color grade, trim, resize, format convert. " +
+              "`new_node`: create a separate node — use when the output is a different work: extract audio, grab a frame, split into clips, first-time compose of " +
+              "several inputs. Ignored in DRY-RUN mode. If the input is not on canvas, `new_round` silently behaves like `new_node`.",
+          ),
+        target_node_id: z
           .string()
           .optional()
           .describe(
-            "Canvas nodeId to replace in-place with this finalized output. " +
-            "REQUIRED when this command only replaces/muxes audio onto a temporary video returned by hub_generate_video; pass that tool result node_id to avoid sho" +
-            "wing both the intermediate and final video.",
+            "Optional explicit canvas nodeId that the `new_round` output should be appended to. Only needed when the first `-i` input does not identify the " +
+              "intended node (e.g. finalizing a temporary generation result: pass the node_id returned by hub_generate_video). Must be a node of the same media " +
+              "type as output_type.",
           ),
-        preserve_source_canvas_node: z
-          .boolean()
-          .default(false)
-          .describe(
-            "Set true only when the user explicitly wants both the source video and the audio-muxed derivative visible on canvas. " +
-            "For normal generation finalization, leave false and pass replace_node_id.",
-          ),
+        replace_node_id: z.string().optional().describe("DEPRECATED alias of target_node_id; prefer target_node_id."),
         metadata: MetadataSchema.optional().describe(
           "Optional metadata for the output asset. Pass prompt/model/description to preserve provenance when the ffmpeg output derives from a generated image (e." +
           "g. cropping a Midjourney grid). Ignored in DRY-RUN mode.",
@@ -98,31 +125,27 @@ export const registerEditingTools: RegisterTools = (registrar, gw) => {
       outputSchema: {
         path: z.string().optional().describe("Output file path managed by Gateway. Present only in NORMAL mode; absent in DRY-RUN / PROBE mode."),
         probe: z.string().optional().describe("ffmpeg probe output (stderr+stdout merged). Present only in DRY-RUN mode (when `-f null` is in args)."),
+        node_id: z.string().optional().describe("Canvas node id when placement landed."),
       },
       attachmentInputPaths: (input) => inputPaths((input.args as string[]) ?? []),
       attachmentOutputPaths: (output) => (typeof output.path === "string" ? [output.path] : []),
     },
-    async ({ args, output_type, replace_node_id, preserve_source_canvas_node, metadata, filename }) => {
+    async ({ args, input_node_ids, output_type, canvas_target, target_node_id, replace_node_id, metadata, filename }) => {
       const font = injectBundledCjkFont(args);
       if (!font.ok) return errorReply(font.error);
       const drawtext = checkFfmpegDrawtext(font.args);
       if (!drawtext.ok) return errorReply(drawtext.error);
       const audio = checkFfmpegAudioPreserve(args, metadata, output_type);
       if (!audio.ok) return errorReply(audio.error);
-      if (isPureAudioReplacementMux(font.args, output_type ?? "video") && !replace_node_id && !preserve_source_canvas_node) {
-        return errorReply(
-          "audio-replacement mux must finalize the temporary canvas video in-place. Retry with replace_node_id set to the " +
-            "node_id returned by hub_generate_video. Set preserve_source_canvas_node=true only when the user explicitly " +
-            "requested both versions.",
-        );
-      }
       const inputs = inputPaths(font.args);
       const r = await gw.post(
         "/api/edit/ffmpeg",
         {
           args: font.args,
+          ...(input_node_ids ? { input_node_ids } : {}),
           output_type,
-          replace_node_id,
+          canvas_target,
+          target_node_id: target_node_id ?? replace_node_id,
           input_paths: inputs.length > 0 ? inputs : undefined,
           metadata,
           filename,
@@ -137,7 +160,7 @@ export const registerEditingTools: RegisterTools = (registrar, gw) => {
         // 预演输出原样给文本，不包 JSON —— stderr 里的换行要保持可读
         return { structuredContent: { probe: text }, content: [{ type: "text", text }] };
       }
-      return structuredReply({ path: r.path });
+      return structuredReply({ path: r.path, ...(r.node_id ? { node_id: r.node_id } : {}) });
     },
   );
 

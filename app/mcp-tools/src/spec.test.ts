@@ -45,8 +45,8 @@ describe("tool surface", () => {
   const h = registered();
   const spec = specParams();
 
-  it("spec table parses all 54 tools", () => {
-    expect(spec.size).toBe(54);
+  it("spec table parses all 57 tools", () => {
+    expect(spec.size).toBe(57);
   });
 
   it("registered names = agent whitelist minus UNSUPPORTED_TOOLS (plus the non-whitelisted extras)", () => {
@@ -55,7 +55,7 @@ describe("tool surface", () => {
     expect([...h.tools.keys()].sort()).toEqual(expected);
   });
 
-  it("registered + UNSUPPORTED covers the whole 54-tool surface exactly once", () => {
+  it("registered + UNSUPPORTED covers the whole 57-tool surface exactly once", () => {
     const all = [...h.tools.keys(), ...UNSUPPORTED_TOOLS.map((t) => t.name)].sort();
     expect(all).toEqual([...spec.keys()].sort());
   });

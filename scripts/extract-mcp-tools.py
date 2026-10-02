@@ -92,12 +92,18 @@ def top_level_keys(obj: str) -> list[str]:
             depth -= 1
         elif depth == 1:
             m = token.match(obj, i)
-            # 深度 1 且后面直接跟冒号（排除 `?:` 三元和 `::`）
             if m:
+                at_line_start = not obj[:i].split("\n")[-1].strip()
                 j = m.end()
                 while j < len(obj) and obj[j] in " \t\n\r":
                     j += 1
+                # 深度 1 且后面直接跟冒号（排除 `?:` 三元和 `::`）
                 if j < len(obj) and obj[j] == ":" and obj[j : j + 2] != "::":
+                    keys.append(m.group(0))
+                # ES6 简写 `filename,`：值来自同名的共享 schema 常量。不认这种写法会**静默漏字段**
+                # —— image_enhance 的 filename 就是这么漏的。只在行首才算，免得把表达式中间
+                # 的标识符（例如 `Math.min(a, b)` 里的 a）当成键。
+                elif at_line_start and j < len(obj) and obj[j] in ",}":
                     keys.append(m.group(0))
                 i = m.end()
                 continue

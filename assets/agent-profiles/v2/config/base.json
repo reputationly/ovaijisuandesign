@@ -78,7 +78,11 @@
         "read": false,
         "write": false,
         "edit": false,
-        "todowrite": false
+        "todowrite": false,
+        "hub_image_remove_background": true,
+        "hub_image_enhance": true,
+        "hub_image_layer_decompose": true,
+        "hub_capability_search": true
       },
       "permission": {
         "question": "allow",
@@ -240,7 +244,9 @@
         "plan-exit": false,
         "read": false,
         "write": false,
-        "edit": false
+        "edit": false,
+        "hub_image_enhance": true,
+        "hub_image_layer_decompose": true
       }
     }
   },

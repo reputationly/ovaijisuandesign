@@ -71,7 +71,14 @@ export class FfmpegRunDto {
   @IsOptional() @IsIn(["video", "audio", "image"]) output_type?: OutputType;
   @IsString() @IsNotEmpty() filename!: string;
   @IsOptional() @IsString() source_node_id?: string;
+  /** 产物落位方式：`new_round`（默认）追加成目标节点的新一版，`new_node` 另建节点。 */
+  @IsOptional() @IsIn(["new_round", "new_node"]) canvas_target?: "new_round" | "new_node";
+  /** `new_round` 显式点名要追加到哪个节点上；缺省按第一个 `-i` 输入自己找。 */
+  @IsOptional() @IsString() target_node_id?: string;
+  /** 已废弃：`target_node_id` 的旧名，仍在收（渲染层可能还在发）。 */
   @IsOptional() @IsString() replace_node_id?: string;
+  /** 与每个 `-i` 输入一一对应的来源节点 id；用到时未知项写空串，不要省槽位。 */
+  @IsOptional() @IsArray() @IsString({ each: true }) input_node_ids?: string[];
   /** 为真时即使给了 replace_node_id 也不原地替换：源节点保留，产物作为它的派生节点另放。 */
   @IsOptional() @IsBoolean() preserve_source_canvas_node?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) input_paths?: string[];

@@ -9,6 +9,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../bootstrap.js";
 import { AssetsService } from "../common/assets.service.js";
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { CanvasService } from "./canvas.service.js";
 
 const PNG = Buffer.from(
   "89504e470d0a1a0a0000000d4948445200000001000000010806000000" +
@@ -191,5 +192,38 @@ describe("canvas：文件节点、插件存储、撤回修改、成组创建、�
     const bad = await http.post("/api/canvas/split-sub-images").send({ nodeId: imageNode, imageIds: [] });
     expect(bad.status).toBe(400);
     expect(bad.body.message).toBe("nodeId and non-empty imageIds[] are required");
+  });
+
+  /**
+   * 「派生结果该追加到哪个节点上成为新一轮」的判定规则。ffmpeg 的 canvas_target=new_round
+   * 靠它落位，判错就会把产物挂到不相干的节点上、或把旧版覆盖掉。
+   */
+  it("resolveDerivativeRoundTarget：按类型匹配、音频不成轮、hidden 回主节点、未知返回 null", async () => {
+    const svc = app.get(CanvasService);
+    const img = await enroll("轮次图.png", PNG);
+    const imgNode = (await http.post("/api/canvas/media-node").send({ assetPath: "轮次图.png" })).body.nodeId;
+
+    // 第一个 -i 输入正是这个节点显示的资产 → 轮次目标就是它
+    expect(await svc.resolveDerivativeRoundTarget({ inputRelativePath: "轮次图.png", outputType: "image" })).toBe(imgNode);
+    // 音频产物没有「轮次」这种东西
+    expect(await svc.resolveDerivativeRoundTarget({ inputRelativePath: "轮次图.png", outputType: "audio" })).toBeNull();
+    // 类型对不上（画布上是 image，产物是 video）→ 不接管，调用方另建节点
+    expect(await svc.resolveDerivativeRoundTarget({ inputRelativePath: "轮次图.png", outputType: "video" })).toBeNull();
+    // 没给输入路径也没给 target → null
+    expect(await svc.resolveDerivativeRoundTarget({ outputType: "image" })).toBeNull();
+
+    // 显式 target：节点能承载该类型才用
+    expect(await svc.resolveDerivativeRoundTarget({ targetNodeId: imgNode, outputType: "image" })).toBe(imgNode);
+    expect(await svc.resolveDerivativeRoundTarget({ targetNodeId: imgNode, outputType: "video" })).toBeNull();
+    expect(await svc.resolveDerivativeRoundTarget({ targetNodeId: "nobody", outputType: "image" })).toBeNull();
+
+    // hidden 的旧版节点 → 回到同组的可见主节点
+    const c = await canvas();
+    const main = c.nodes.find((n: any) => n.id === imgNode);
+    main.groupId = "rg1";
+    main.round = 2;
+    c.nodes.push({ id: "old-1", type: "image", assetId: img.id, groupId: "rg1", round: 1, positions: { workflow: { x: 0, y: 0 } }, meta: { hidden: true } });
+    expect((await http.post("/api/canvas").send(c)).status).toBeLessThan(300);
+    expect(await svc.resolveDerivativeRoundTarget({ targetNodeId: "old-1", outputType: "image" })).toBe(imgNode);
   });
 });

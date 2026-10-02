@@ -24,7 +24,9 @@ import { checkFfmpegCommand, inputIndices, isDryRun, type OutputType, resolveOut
 import { FfmpegService } from "./ffmpeg.service.js";
 import { type OutputKind, reserveOutputPath, resolveInsideWorkspace, toWorkspaceRel } from "./paths.js";
 
-export type EditResult = { ok: true; path: string; warnings?: string[]; _probe?: { stdout: string; stderr: string } } | { ok: false; error: string };
+export type EditResult =
+  | { ok: true; path: string; node_id?: string; warnings?: string[]; _probe?: { stdout: string; stderr: string } }
+  | { ok: false; error: string };
 export type TextResult = { ok: true; text: string } | { ok: false; error: string };
 
 const IMAGE_EXTS = new Set(["png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "heic", "heif", "avif"]);
@@ -48,6 +50,8 @@ const ANALYZE_BUDGET = 4096;
 interface RecordOptions {
   sourceNodeId?: string;
   replaceNodeId?: string;
+  /** 追加成这个节点的新一轮（旧版降级保留），与 replaceNodeId 互斥。 */
+  roundTargetNodeId?: string;
   referencePaths?: string[];
   metadata?: { prompt?: string; model?: string; description?: string };
   sessionId?: string;
@@ -87,7 +91,10 @@ export class EditService {
     const outputType: OutputType = dto.output_type ?? "video";
     const check = checkFfmpegCommand(dto.args, outputType);
     if (!check.ok) return check;
-    const sandboxed = await this.sandboxInputs(dto.args.filter((a) => a !== "-y"));
+    // input_node_ids：agent 只记得节点 id、路径写的是显示名时，用对应节点上的资产路径兜底。
+    // 必须在沙箱改写之前做 —— 它只认「原路径不存在」的情况，存在的一律不动。
+    const recovered = await this.resolveInputNodeIds(dto.args, dto.input_node_ids);
+    const sandboxed = await this.sandboxInputs(recovered.filter((a) => a !== "-y"));
     if ("error" in sandboxed) return { ok: false, error: sandboxed.error };
     let args = sandboxed.args;
 
@@ -114,16 +121,66 @@ export class EditService {
       return { ok: false, error: `ffmpeg failed: ${(err as Error).message}` };
     }
     const rel = toWorkspaceRel(this.root, out)!;
-    // preserve_source_canvas_node：用户要两版都留着，被点名替换的节点改当来源连派生边。
+    // 产物落位：默认（new_round）作为新一版追加到「当前显示第一个 -i 输入」的节点上，
+    // 旧版降级成同组 hidden 节点，用户能在版本切换器里回看。audio 不参与轮次。
+    // preserve_source_canvas_node 是旧口径：用户要两版都留，源节点保留、产物另建派生节点。
     const preserve = dto.preserve_source_canvas_node === true;
-    await this.recordOutput(rel, outputType, {
-      sourceNodeId: dto.source_node_id ?? (preserve ? dto.replace_node_id : undefined),
-      replaceNodeId: preserve ? undefined : dto.replace_node_id,
+    const targetNodeId = dto.target_node_id ?? dto.replace_node_id;
+    let roundTargetNodeId: string | undefined;
+    if (!preserve && (dto.canvas_target ?? "new_round") === "new_round") {
+      const inputs = dto.input_paths ?? sandboxed.inputs;
+      const first = inputs[0] ? (toWorkspaceRel(this.root, inputs[0]) ?? undefined) : undefined;
+      roundTargetNodeId =
+        (await this.canvas
+          .resolveDerivativeRoundTarget({ targetNodeId, inputRelativePath: first, outputType })
+          .catch(() => null)) ?? undefined;
+    }
+    const nodeId = await this.recordOutput(rel, outputType, {
+      sourceNodeId: dto.source_node_id ?? (preserve ? targetNodeId : undefined),
+      replaceNodeId: preserve || roundTargetNodeId ? undefined : targetNodeId,
+      roundTargetNodeId,
       referencePaths: dto.input_paths ?? sandboxed.inputs,
       metadata: dto.metadata,
       sessionId,
     });
-    return { ok: true, path: rel };
+    // 落位成功才有 node_id：agent 靠它确认产物真的上了画布（不再调 canvas_write_node）。
+    return { ok: true, path: rel, ...(nodeId ? { node_id: nodeId } : {}) };
+  }
+
+  /**
+   * `input_node_ids` 与每个 `-i` 输入一一对应；原路径不存在且不是特殊输入（URL / 管道 / 设备 /
+   * 序列 / 显式 demuxer）时，改用该节点上资产的路径。路径存在、数量对不上、未知槽位为空串，
+   * 都原样返回 —— 兜底只在"确实找不到"时发生，绝不覆盖 agent 给的可用路径。
+   */
+  private async resolveInputNodeIds(args: string[], inputNodeIds?: string[]): Promise<string[]> {
+    if (!inputNodeIds) return args;
+    const inputIndices = args.flatMap((a, i) => (a === "-i" ? [i + 1] : []));
+    if (inputNodeIds.length !== inputIndices.length || inputIndices.some((i) => !args[i])) return args;
+    const out = [...args];
+    let changed = false;
+    for (const [inputIndex, index] of inputIndices.entries()) {
+      const input = args[index]!;
+      const nodeId = inputNodeIds[inputIndex];
+      if (!nodeId) continue;
+      // 输入自带格式（-f / -pattern_type）时不猜：那多半是管道或序列。
+      const optionsStart = inputIndex === 0 ? 0 : (inputIndices[inputIndex - 1] as number) + 1;
+      if (args.slice(optionsStart, index - 1).some((a) => a === "-f" || a === "-pattern_type")) continue;
+      const special =
+        input === "-" ||
+        input.startsWith("/dev/") ||
+        input.startsWith("\\\\.\\") ||
+        /[*?]|%\d*d/.test(input) ||
+        (/^[a-z][a-z\d+.-]*:/i.test(input) && !/^[a-z]:[\\/]/i.test(input));
+      if (special) continue;
+      if (await stat(path.resolve(this.root, input)).then(() => true).catch(() => false)) continue;
+      const rel = await this.canvas.getNodeAssetRelativePath(nodeId).catch(() => null);
+      if (!rel) continue;
+      const abs = path.join(this.root, rel);
+      if (!(await stat(abs).then((s) => s.isFile()).catch(() => false))) continue;
+      out[index] = abs;
+      changed = true;
+    }
+    return changed ? out : args;
   }
 
   /**
@@ -355,6 +412,7 @@ export class EditService {
       return await this.canvas.placeDerivedMedia({
         row,
         replaceNodeId: o.replaceNodeId,
+        roundTargetNodeId: o.roundTargetNodeId,
         sourceNodeId: o.sourceNodeId,
         referenceAssetIds: refIds,
         data: {

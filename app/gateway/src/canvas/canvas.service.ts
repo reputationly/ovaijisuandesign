@@ -1132,17 +1132,78 @@ export class CanvasService {
   // 编辑产物（ffmpeg / 拼接 / 配音轨）
   // -------------------------------------------------------------------------
 
+  /** 画布节点承载的资产在工作区里的相对路径；节点不存在或没挂资产时返回 null。 */
+  async getNodeAssetRelativePath(nodeId: string): Promise<string | null> {
+    const canvas = await this.getCanvas();
+    const node = canvas.nodes.find((n) => n.id === nodeId);
+    if (!node) return null;
+    const assetId = node.assetId ?? (node.data as Record<string, unknown> | undefined)?.assetId;
+    if (typeof assetId !== "string" || !assetId) return null;
+    return this.assets.byId(assetId)?.path ?? null;
+  }
+
+  /**
+   * 解析「派生结果该追加到哪个节点上成为新一轮」。给 ffmpeg 这类编辑用：默认把产物作为
+   * 新一版追加到当前显示第一个 `-i` 输入的那个节点上，用户能在版本间切换、旧版不丢。
+   *
+   * 规则（与参照一致）：
+   * - 音频产物永远不轮次化（没有音频轮次这种东西）；
+   * - 显式给了 `targetNodeId` 就用它，但类型必须能承载 `outputType`，否则返回 null；
+   * - 否则从画布上找「正在显示该输入」的可见节点；找不到就找被顶掉（hidden）的那个，
+   *   并回到它所在分组的可见主节点；
+   * - 都没找到返回 null，调用方按新节点落。
+   */
+  async resolveDerivativeRoundTarget(opts: { targetNodeId?: string; inputRelativePath?: string; outputType: string }): Promise<string | null> {
+    if (opts.outputType === "audio") return null;
+    const canvas = await this.getCanvas();
+    const wantedType = outputTypeToNodeType(opts.outputType);
+    const hosts = (n: CanvasNode) =>
+      n.type === wantedType || (n.type === "placeholder" && (n.data as Record<string, unknown> | undefined)?.mediaType === opts.outputType);
+    const visibleMainOfGroup = (n: CanvasNode): CanvasNode | undefined =>
+      n.groupId ? canvas.nodes.find((x) => x.groupId === n.groupId && (x.meta as Record<string, unknown> | undefined)?.hidden !== true && hosts(x)) : undefined;
+    if (opts.targetNodeId) {
+      const node = canvas.nodes.find((n) => n.id === opts.targetNodeId);
+      if (!node || !hosts(node)) return null;
+      const resolved = (node.meta as Record<string, unknown> | undefined)?.hidden !== true ? node : visibleMainOfGroup(node);
+      return resolved ? resolved.id : null;
+    }
+    if (!opts.inputRelativePath) return null;
+    const rel = opts.inputRelativePath.replace(/^\.\//, "");
+    const assetId = this.assets.byPath(rel)?.id;
+    const shows = (n: CanvasNode): boolean =>
+      (!!assetId && n.assetId === assetId) ||
+      (n.data as Record<string, unknown> | undefined)?.path === rel ||
+      (n.data as Record<string, unknown> | undefined)?.assetId === assetId;
+    let match = canvas.nodes.find((n) => (n.meta as Record<string, unknown> | undefined)?.hidden !== true && n.type === wantedType && shows(n));
+    if (!match) {
+      const superseded = canvas.nodes.find(
+        (n) => (n.meta as Record<string, unknown> | undefined)?.hidden === true && n.type === wantedType && n.groupId && shows(n),
+      );
+      match = superseded ? visibleMainOfGroup(superseded) : undefined;
+    }
+    return match ? match.id : null;
+  }
+
   /**
    * 编辑产物上画布。`replaceNodeId` 指向的节点还在就原地替换（例如给临时视频配上音轨后，
    * 画布上只留最终版）；否则新建节点，从来源节点和各输入素材的节点连派生边。
+   *
+   * `roundTargetNodeId` 给的是「成为新一轮」的目标节点：目标上原有的资产不丢，而是被降级成
+   * 同组的 hidden 节点（round 里更小的一轮），新产物占住目标的 id 升到新 round。用户在
+   * 版本切换器里能回到旧版。
    */
   async placeDerivedMedia(dto: {
     row: AssetRow;
     replaceNodeId?: string;
+    roundTargetNodeId?: string;
     sourceNodeId?: string;
     referenceAssetIds?: string[];
     data: Record<string, unknown>;
   }): Promise<string> {
+    if (dto.roundTargetNodeId) {
+      const placed = await this.appendRound(dto);
+      if (placed) return placed;
+    }
     if (dto.replaceNodeId && (await this.getCanvas()).nodes.some((n) => n.id === dto.replaceNodeId)) {
       return this.fillGeneratedNode({ placeholderId: dto.replaceNodeId, replace: true, row: dto.row, data: dto.data });
     }
@@ -1158,6 +1219,74 @@ export class CanvasService {
       const { node, edges } = this.addAssetNode(c, dto.row, { sourceNodeIds: sources, extraData: dto.data, size });
       return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges } };
     });
+  }
+
+  /**
+   * 把产物追加成目标节点的新一轮。目标不在、或目标上本来没有资产（占位卡）时不接管，
+   * 返回 undefined 让调用方走普通落位。
+   */
+  private async appendRound(dto: {
+    row: AssetRow;
+    roundTargetNodeId?: string;
+    sourceNodeId?: string;
+    referenceAssetIds?: string[];
+    data: Record<string, unknown>;
+  }): Promise<string | undefined> {
+    const previous = await this.mutate((c) => {
+      const idx = c.nodes.findIndex((n) => n.id === dto.roundTargetNodeId);
+      const target = idx >= 0 ? c.nodes[idx] : undefined;
+      if (!target || !target.assetId || target.assetId === dto.row.id) return { result: undefined };
+      const previousAssetId = target.assetId;
+      const type = toAssetInfo(dto.row).type;
+      const size = computeNodeSize(dto.row.width, dto.row.height) ?? defaultNodeSize(type);
+      const groupId = target.groupId || randomUUID();
+      const wasStandalone = !target.groupId;
+      const supersededRound = wasStandalone ? 1 : Number.isInteger(target.round) ? (target.round as number) : 1;
+      let maxRound = 0;
+      for (const n of c.nodes) if (n.groupId === groupId && Number.isInteger(n.round) && (n.round as number) > maxRound) maxRound = n.round as number;
+      const newRound = wasStandalone ? 2 : maxRound + 1;
+
+      // 旧资产原样保留，降级成同组的 hidden 节点（位置尺寸都跟着走）。
+      const superseded: CanvasNode = {
+        id: randomUUID(),
+        type: target.type,
+        assetId: previousAssetId,
+        groupId,
+        round: supersededRound,
+        ...(target.parentId ? { parentId: target.parentId } : {}),
+        positions: { ...target.positions },
+        ...(target.size ? { size: target.size } : {}),
+        data: { ...(target.data ?? {}), assetId: previousAssetId },
+        meta: { ...((target.meta as Record<string, unknown>) ?? {}), hidden: true },
+      };
+      const { isEmpty: _dropped, ...rest } = target as CanvasNode & { isEmpty?: unknown };
+      const updated: CanvasNode = {
+        ...rest,
+        type,
+        assetId: dto.row.id,
+        groupId,
+        round: newRound,
+        size,
+        data: { ...(target.data ?? {}), ...dto.data, assetId: dto.row.id },
+      };
+      for (const k of ["status", "errorMessage", "errorReason", "generationAttemptId", "generationStartedAt", "retryPayload"]) delete (updated.data as Record<string, unknown>)[k];
+      c.nodes[idx] = updated;
+      c.nodes.push(superseded);
+      this.pendingNodes.add(updated.id);
+      // 引用旧节点的边整体挪到降级节点上，新节点保持"它才是当前版本"的位置。
+      for (const edge of c.edges) {
+        if (edge.source === target.id) edge.source = superseded.id;
+        if (edge.target === target.id) edge.target = superseded.id;
+        edge.id = `${edge.source}->${edge.target}`;
+      }
+      const sources = [
+        ...(dto.sourceNodeId && dto.sourceNodeId !== target.id ? [dto.sourceNodeId] : []),
+        ...(dto.referenceAssetIds ?? []).map((id) => c.nodes.find((x) => x.assetId === id && x.groupId !== groupId)?.id).filter((x): x is string => !!x),
+      ];
+      const addedEdges = this.addDerivationEdges(c, sources, updated.id);
+      return { canvas: c, result: updated.id, event: { addedNodes: [superseded], updatedNodes: [updated], addedEdges } };
+    });
+    return previous;
   }
 
   /**
@@ -1426,6 +1555,14 @@ function relayoutGroup(c: CanvasFile, group: CanvasNode, layout: "grid" | "verti
       },
     };
   });
+}
+
+/** `/api/edit/*` 的 output_type 对照画布节点类型；对不上就返回空串（不参与轮次解析）。 */
+function outputTypeToNodeType(outputType: string): string {
+  if (outputType === "video") return "video";
+  if (outputType === "image") return "image";
+  if (outputType === "audio") return "audio";
+  return "";
 }
 
 /** 组框贴合成员：成员外包框 + 内边距。子节点坐标跟着平移，保持绝对位置不变。 */

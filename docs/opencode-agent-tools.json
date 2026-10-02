@@ -1,7 +1,7 @@
 {
  "_": "官方 opencode 配置里每个专家子 agent 的工具白名单（base.json 的 agent.<名>.tools 里 hub_* 为 true 的那些，去掉 hub_ 前缀）。",
  "_why": "reference/ 是 gitignore 的（那是从官方应用里解出来的材料），而 mcp/src/tools.test.ts 要用这份名单做对齐校验 —— 直接读 reference/ 的话本地绿、CI 红。工具名是规格事实，固化进仓。",
- "_source": "MiniMax Design 3.0.16 · Contents/Resources/agent-profiles/v2/config/base.json（主进程把它设成 OPENCODE_CONFIG_DIR，这才是官方实际加载的那份）",
+ "_source": "MiniMax Design 3.0.21 · Contents/Resources/agent-profiles/v2/config/base.json（主进程把它设成 OPENCODE_CONFIG_DIR，这才是官方实际加载的那份）",
  "tools": [
   "add_comfyui_workflow",
   "analyse_media",
@@ -17,6 +17,7 @@
   "canvas_read_text",
   "canvas_ungroup_node",
   "canvas_write_node",
+  "capability_search",
   "connector_authorize",
   "edit_comfyui_workflow",
   "ffmpeg",
@@ -26,6 +27,8 @@
   "generate_video",
   "get_comfyui_run_status",
   "get_comfyui_workflow",
+  "image_enhance",
+  "image_layer_decompose",
   "image_remove_background",
   "image_search",
   "list_capabilities",
@@ -52,5 +55,6 @@
   "subtitle_format",
   "voice_prepare",
   "web_media"
- ]
+ ],
+ "_note": "通配符（hub_plugin_agent_*）不记在这里：它不是具体工具名，spec.test 用它算白名单时会多出一个注册不出来的名字。"
 }

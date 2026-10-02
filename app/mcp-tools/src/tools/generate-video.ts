@@ -73,7 +73,7 @@ const INPUT_SCHEMA = {
   duration: z
     .number()
     .optional()
-    .describe("Duration in seconds. Per-vendor allowed range differs; see hub_list_capabilities parameters. IGNORED by kling mode=avatar (length follows the input audio, up to ~60s per generation) and kling mode=motion-control (length follows the source motion video) — do not pass it for those modes."),
+    .describe("Requested duration in seconds. Rounded up to integer seconds and capped at the selected model maximum before submission; values still below its minimum are rejected. Per-vendor allowed range differs; see hub_list_capabilities parameters. IGNORED by kling mode=avatar (length follows the input audio, up to ~60s per generation) — do not pass it for that mode."),
   first_frame_image: z
     .string()
     .optional()
@@ -88,10 +88,9 @@ const INPUT_SCHEMA = {
     .array(z.string())
     .optional()
     .describe("Reference images for identity/style/design/world/action guidance. This is the default multimodal slot for generated or attached image refs; multimodal restricts these to image extensions."),
-  reference_video_urls: z.array(z.string()).optional().describe("Reference video URLs for multimodal references. Seedance also uses this field for video-edit / video-extend."),
+  reference_video_urls: z.array(z.string()).optional().describe("Reference video local paths or URLs for multimodal references, including Kling Omni. Seedance also uses this field for video-edit / video-extend."),
   reference_audio_urls: z.array(z.string()).optional().describe("Reference audio URLs (MiniMax-H3 multimodal; Seedance multimodal / video-edit). Only mp3 and wav are supported for Seedance; convert other formats first."),
   audio_path: z.string().optional().describe("Audio driving file for supported avatar or audio-driven modes. Workspace-relative / absolute / URL."),
-  video_url: z.string().optional().describe("Driving video URL for motion-control modes."),
   vendor_params: z
     .object(VIDEO_VENDOR_PARAM_SHAPE)
     .strict()
@@ -128,8 +127,7 @@ const DESCRIPTION = "Generate one video via the configured vendor + mode combo.\
   "Use for semantic video creation, source-video editing, or extension: change action, motion, scene, subject, background, style, camera intent, or meani" +
   "ng-bearing audio/visual content. Deterministic trim/merge/crop/transcode/mux/subtitle/timeline operations belong to narrow postprocess tools.\n" +
   "\n" +
-  "Mode selection: t2v (text-only) / multimodal (Seedance all-purpose refs across image/video/audio) / i2v (explicit opening-frame anchor) / first-last-f" +
-  "rame (explicit head and/or tail keyframes) / video-edit / video-extend / motion-control / avatar / omni. " +
+  "Mode selection: t2v (text-only) / multimodal (all-purpose references; supported media depend on the selected model) / i2v (explicit opening-frame anchor) / first-last-frame (explicit head and/or tail keyframes) / video-edit / video-extend / avatar. " +
   "Not every (vendor, model_id, mode) combo is supported — see hub_list_capabilities.vendors[].model_modes when present, otherwise vendors[].modes.\n" +
   "\n" +
   "Reference routing: images/videos/audios that should guide identity, style, design, world, or action are references by default. " +

@@ -7,6 +7,7 @@ import { registerCapabilityTools } from "./capability-tools.js";
 import { registerEditingTools } from "./editing-tools.js";
 import { registerGenerateImage } from "./generate-image.js";
 import { registerGenerateVideo } from "./generate-video.js";
+import { registerImageEnhance } from "./image-enhance.js";
 import { registerMemoryTools } from "./memory-tools.js";
 import { registerMetaTools } from "./meta-tools.js";
 import { registerPlanTools } from "./plan-tools.js";
@@ -21,6 +22,7 @@ const MODULES: RegisterTools[] = [
   registerCapabilityTools,
   registerGenerateImage,
   registerGenerateVideo,
+  registerImageEnhance,
   registerAudioTools,
   registerMetaTools,
   registerSubtitleTools,

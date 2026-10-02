@@ -118,6 +118,8 @@ describe("ffmpeg / merge_videos tools", () => {
     expect(req.body).toEqual({
       args: ["-i", "/abs/in.mp4", "-vf", `drawtext=fontfile='${font}':text='标题'`],
       output_type: "video",
+      canvas_target: "new_round",
+      target_node_id: undefined,
       input_paths: ["/abs/in.mp4"],
       metadata: { prompt: "p" },
       filename: "title-card",
@@ -133,18 +135,29 @@ describe("ffmpeg / merge_videos tools", () => {
     expect(r.structuredContent).toEqual({ probe: "Stream #0:0 Video" });
   });
 
-  it("refuses an audio-replacement mux without replace_node_id, and never calls the gateway", async () => {
-    const r = await tools().call("ffmpeg", { args: ["-i", "/v.mp4", "-i", "/s.mp3", "-c:v", "copy"], filename: "x" });
-    expect(r.isError).toBe(true);
-    expect(gw.requests).toHaveLength(0);
-    gw.on("POST", "/api/edit/ffmpeg", { json: { ok: true, path: "/o.mp4" } });
+  it("defaults to new_round and forwards target_node_id / input_node_ids", async () => {
+    gw.on("POST", "/api/edit/ffmpeg", { json: { ok: true, path: "/o.mp4", node_id: "n9" } });
     const ok = await tools().call("ffmpeg", {
       args: ["-i", "/v.mp4", "-i", "/s.mp3", "-c:v", "copy"],
       filename: "x",
-      replace_node_id: "n1",
+      input_node_ids: ["nv", ""],
+      target_node_id: "n1",
     });
     expect(ok.isError).toBeFalsy();
-    expect((gw.requests[0]!.body as Record<string, unknown>).replace_node_id).toBe("n1");
+    expect(resultJson(ok)).toEqual({ path: "/o.mp4", node_id: "n9" });
+    expect(gw.requests[0]!.body).toMatchObject({
+      canvas_target: "new_round",
+      target_node_id: "n1",
+      input_node_ids: ["nv", ""],
+    });
+  });
+
+  it("omits input_node_ids when not supplied, and honours new_node", async () => {
+    gw.on("POST", "/api/edit/ffmpeg", { json: { ok: true, path: "/o.mp4" } });
+    await tools().call("ffmpeg", { args: ["-i", "/v.mp4"], filename: "x", canvas_target: "new_node" });
+    const body = gw.requests[0]!.body as Record<string, unknown>;
+    expect(body.canvas_target).toBe("new_node");
+    expect(body).not.toHaveProperty("input_node_ids");
   });
 
   it("surfaces gateway failures as Error text", async () => {

@@ -1,6 +1,6 @@
 # gateway HTTP 接口面
 
-官方本地 gateway（MiniMax Design **3.0.16**）注册的全部路由。
+官方本地 gateway（MiniMax Design **3.0.21**）注册的全部路由。
 
 这是**要对齐的接口规格**：只要我们的 gateway 提供同样的路由和形状，
 官方的 mcp-tools 和渲染进程都能直接接上，反过来我们的前端也能接官方
@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 466 条，75 个控制器。**我们同名同方法实现了 258 条**
+共 482 条，79 个控制器。**我们同名同方法实现了 258 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（0/1）
@@ -54,11 +54,12 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/asset-center/workspace-refs
 ```
 
-## AssetPreviewController（3/3）
+## AssetPreviewController（3/4）
 
 ```
 ✓ GET    /api/asset/:id/metadata
 ✓ GET    /api/asset/text-preview
+  GET    /api/internal/document/cache-context
 ✓ GET    /api/internal/document/read
 ```
 
@@ -244,11 +245,37 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/comfyui/workflows/preflight
 ```
 
-## CustomMcpController（2/2）
+## ConnectorPackageController（0/2）
+
+```
+  POST   /api/connector-package/install
+  POST   /api/connector-package/uninstall
+```
+
+## ConnectorCapabilityController（0/5）
+
+```
+  GET    /api/connectors/capability-access
+  GET    /api/connectors/capability-catalog
+  POST   /api/connectors/capability-resolve
+  GET    /api/connectors/capability-selection
+  POST   /api/connectors/capability-selection
+```
+
+## ConnectorMarketController（0/3）
+
+```
+  GET    /api/connectors/market
+  PUT    /api/connectors/market/:connectorId/visibility
+  GET    /api/connectors/market/summary
+```
+
+## CustomMcpController（2/3）
 
 ```
 ✓ POST   /api/connectors/mcp
 ✓ POST   /api/connectors/mcp/authenticate
+  POST   /api/connectors/mcp/authorize
 ```
 
 ## ConnectorPreparationController（0/1）
@@ -510,13 +537,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/memory/recent-auto
 ```
 
-## NodePackagesController（0/4）
+## NodePackagesController（0/5）
 
 ```
   GET    /api/node-packages
   DELETE /api/node-packages/:name
   GET    /api/node-packages/:name
   POST   /api/node-packages/ensure
+  POST   /api/node-packages/ensure-npm
 ```
 
 ## UndoController（1/1）
@@ -587,13 +615,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/projects/archive/rewrite-vault-paths
 ```
 
-## PythonPackagesController（0/4）
+## PythonPackagesController（0/5）
 
 ```
   GET    /api/python-packages
   DELETE /api/python-packages/:name
   GET    /api/python-packages/:name
   POST   /api/python-packages/ensure
+  POST   /api/python-packages/ensure-pypi
 ```
 
 ## RemoteToolsController（0/2）
@@ -641,7 +670,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/skills/upload-check
 ```
 
-## SkillMarketController（10/39）
+## SkillMarketController（10/40）
 
 ```
   POST   /api/skills/creator-plan/asset-presign
@@ -662,6 +691,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/skills/market/check-operator
   GET    /api/skills/market/detail
   POST   /api/skills/market/install
+  POST   /api/skills/market/install-remote-zip
   GET    /api/skills/market/operation
   POST   /api/skills/market/operation
   DELETE /api/skills/market/operation/:skillName
@@ -741,6 +771,12 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/v1/cloud-folder/storage
   POST   /api/v1/cloud-folder/upload
   POST   /api/v1/cloud-folder/upload-from-path
+```
+
+## ConnectorOAuthController（0/1）
+
+```
+  POST   /api/v1/connector/oauth/exchange
 ```
 
 ## CreditController（1/3）

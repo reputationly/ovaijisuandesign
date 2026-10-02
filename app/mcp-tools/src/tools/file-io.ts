@@ -145,11 +145,20 @@ export function resolveLogicalPath(raw: string): { path: string } | { error: str
   return null;
 }
 
+export interface DocumentImage {
+  page: number;
+  index: number;
+  mimeType: string;
+  data: string;
+  width: number;
+  height: number;
+}
+
 export type DocumentPage =
-  | { ok: true; lines: string[]; offset: number; totalLines: number; more: boolean }
+  | { ok: true; lines: string[]; offset: number; totalLines: number; more: boolean; images?: DocumentImage[]; imagesOmitted?: number }
   | { ok: false; reason: string; message?: string };
 
-export type DocumentReader = (absPath: string, offset: number, limit: number) => Promise<DocumentPage>;
+export type DocumentReader = (absPath: string, offset: number, limit: number, pdfPage?: number) => Promise<DocumentPage>;
 
 const text = (t: string): CallToolResult => ({ content: [{ type: "text", text: t }] });
 
@@ -159,6 +168,7 @@ export async function readTextOrDirectory(
   limitArg: number | undefined,
   sessionId: string | undefined,
   documentReader?: DocumentReader,
+  pdfPage?: number,
 ): Promise<CallToolResult> {
   const logical = resolveLogicalPath(rawPath);
   if (logical && "error" in logical) return errorReply(logical.error);
@@ -203,7 +213,7 @@ export async function readTextOrDirectory(
   if (READABLE_DOCUMENTS.has(path.extname(abs).toLowerCase()) && documentReader) {
     let page: DocumentPage;
     try {
-      page = await documentReader(abs, offset, limit);
+      page = await documentReader(abs, offset, limit, pdfPage);
     } catch (err) {
       return errorReply(`Failed to extract document text from ${rawPath}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -215,8 +225,20 @@ export async function readTextOrDirectory(
       ? `\n\n(Showing lines ${page.offset}-${last} of ${page.totalLines}. Use offset=${last + 1} to continue.)`
       : `\n\n(End of file - total ${page.totalLines} lines)`;
     out += "\n</content>";
+    if (pdfPage !== undefined) {
+      out += `\n<pdf-images page="${pdfPage}" returned="${page.images?.length ?? 0}" omitted="${page.imagesOmitted ?? 0}" />`;
+    }
     markFileRead(sessionId, abs);
-    return text(out);
+    // 内嵌图跟着文本一起回：只回 PNG 且已按 2MB/4MB 封顶，直接作为 image content 下发。
+    return {
+      content: [
+        { type: "text", text: out },
+        ...(page.images ?? []).flatMap((image) => [
+          { type: "text", text: `PDF page ${image.page}, embedded image ${image.index} (${image.width}x${image.height})` },
+          { type: "image", data: image.data, mimeType: image.mimeType },
+        ]),
+      ],
+    } as CallToolResult;
   }
 
   if (BINARY_EXTENSIONS.has(path.extname(abs).toLowerCase())) {

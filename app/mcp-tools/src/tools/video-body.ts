@@ -44,7 +44,6 @@ export interface VideoArgs {
   reference_video_urls?: string[];
   reference_audio_urls?: string[];
   audio_path?: string;
-  video_url?: string;
   vendor_params?: Record<string, unknown>;
   order?: number;
 }
@@ -91,14 +90,12 @@ function addReferences(params: Params, args: VideoArgs, videos = args.reference_
   putJsonList(params, "reference_audios", args.reference_audio_urls);
 }
 
-/** kling 的 avatar / motion-control 走独立 backend 和固定内部模型。 */
+/** kling 的 avatar 走独立 backend 和固定内部模型。 */
 export function videoRouteModel(vendor: VideoVendor, mode: VideoMode, override: string | undefined): { backend: string; modelId: string } {
   const c = VIDEO_VENDOR_CONFIGS[vendor];
-  if (vendor === "kling" && (mode === "avatar" || mode === "motion-control")) {
-    const route = mode === "avatar" ? "kling-avatar" : "kling-motion-control";
-    const backend = mode === "avatar" ? BACKEND.klingAvatar : BACKEND.klingMotionControl;
+  if (vendor === "kling" && mode === "avatar") {
     // 传了 omni 的 model_id 也回到路由模型；传了别的保留原值，下面报错
-    return { backend, modelId: override === undefined || c.modelIds.includes(override) ? route : override };
+    return { backend: BACKEND.klingAvatar, modelId: override === undefined || c.modelIds.includes(override) ? "kling-avatar" : override };
   }
   return { backend: c.backend, modelId: override ?? c.defaultModel };
 }
@@ -190,7 +187,7 @@ function buildH3Max(args: VideoArgs, modelId: string): Built {
     };
   }
   if (!args.prompt.trim()) return { error: `${scope} requires a non-empty prompt.` };
-  if ((refCount(args) > 0 || args.audio_path || args.video_url) && !multimodal) {
+  if ((refCount(args) > 0 || args.audio_path) && !multimodal) {
     return { error: `${scope} mode=${args.mode} does not support reference media, audio_path, or video_url.` };
   }
   const hasFirst = Boolean(args.first_frame_image);
@@ -201,7 +198,7 @@ function buildH3Max(args: VideoArgs, modelId: string): Built {
   if (args.mode === "first-last-frame" && !hasFirst) {
     return { error: `${scope} mode=first-last-frame requires \`first_frame_image\`; \`last_frame_image\` is optional.` };
   }
-  if (multimodal && (hasFirst || hasLast || args.audio_path || args.video_url)) {
+  if (multimodal && (hasFirst || hasLast || args.audio_path)) {
     return { error: `${scope} mode=multimodal accepts only reference_image_paths, reference_video_urls, and reference_audio_urls.` };
   }
   if (multimodal) {
@@ -370,28 +367,32 @@ async function buildSeedance(args: VideoArgs, rawModelId: string, region: Releas
 
 // ── kling ──
 
-const KLING_MODES = ["std", "pro"];
+const KLING_RESOLUTIONS = ["720P", "1080P"];
+const KLING_OMNI_RESOLUTIONS = [...KLING_RESOLUTIONS, "4K"];
+/** 画质走 vendor_params.resolution，但上游 body 收的是老的 mode 值，提交前映射。 */
+const KLING_RESOLUTION_MODES: Record<string, string> = { "720P": "std", "1080P": "pro", "4K": "4k" };
 const KLING_KEEP_SOUND = ["yes", "no"];
 const KLING_OMNI_DURATIONS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
+/** resolution → mode，并把 resolution 从 params 里摘掉（上游只认 mode）。 */
+function mapKlingResolutionToMode(scope: string, params: Params, supports4K: boolean): string | undefined {
+  const e = pickEnum(scope, params, "resolution", supports4K ? KLING_OMNI_RESOLUTIONS : KLING_RESOLUTIONS);
+  if (e !== undefined) return e;
+  const resolution = params.resolution;
+  if (resolution !== undefined) params.mode = KLING_RESOLUTION_MODES[resolution] as string;
+  delete params.resolution;
+  return undefined;
+}
+
 function klingOmniParamError(scope: string, params: Params): string | undefined {
   const e = firstProblem(
-    pickEnum(scope, params, "mode", ["std", "pro", "4k"]),
     pickEnum(scope, params, "aspect_ratio", ["16:9", "9:16", "1:1"]),
     pickInt(scope, params, "duration", KLING_OMNI_DURATIONS),
-    pickEnum(scope, params, "sound", ["on", "off"]),
+    pickBool(scope, params, "generate_audio"),
     pickBool(scope, params, "multi_shot"),
-    requireJsonArray(scope, params, "image_types_json"),
     requireJsonArray(scope, params, "video_list_json"),
   );
   if (e) return e;
-  const o1 = params.model_name === "kling-video-o1";
-  if (o1 && params.sound === "on") return `${scope} model_id=kling-video-o1 does not support sound=on. Use model_id=kling-v3-omni or sound=off.`;
-  if (o1 && params.multi_shot === "true") {
-    return `${scope} model_id=kling-video-o1 does not support multi_shot=true. Use multi_shot=false or model_id=kling-v3-omni.`;
-  }
-  if (o1 && params.duration !== undefined && Number(params.duration) > 10) return `${scope} model_id=kling-video-o1 supports duration up to 10 seconds.`;
-  if (params.mode === "4k" && params.model_name !== "kling-v3-omni") return `${scope} mode=4k requires model_id=kling-v3-omni.`;
   return undefined;
 }
 
@@ -415,7 +416,6 @@ function klingReferenceError(scope: string, args: VideoArgs, params: Params): st
   if (imageCount > maxImages) {
     return `${scope} accepts at most ${maxImages} reference images with ${videoCount > 0 ? "a" : "no"} reference video.`;
   }
-  if (videoCount > 0 && params.sound === "on") return `${scope} video reference mode does not support sound=on. Use sound=off.`;
   if (videos?.some((item) => item.refer_type === "base") && params.multi_shot === "true") {
     return `${scope} base video reference mode does not support multi_shot=true.`;
   }
@@ -428,35 +428,18 @@ function buildKling(args: VideoArgs, route: { backend: string; modelId: string }
     if (!args.audio_path) return { error: "kling avatar requires `audio_path`." };
     if (!args.first_frame_image) return { error: "kling avatar requires `first_frame_image`." };
     if (route.modelId !== "kling-avatar") return { error: `${scope} uses a fixed internal model; omit model_id (got model_id=${route.modelId}).` };
-    const m = collectVendorParams(scope, {}, args.vendor_params, ["mode"]);
+    const m = collectVendorParams(scope, {}, args.vendor_params, ["resolution"]);
     if (m.error !== undefined) return { error: m.error };
-    fillDefaults(m.params, { mode: "std" });
-    const e = pickEnum(scope, m.params, "mode", KLING_MODES);
+    fillDefaults(m.params, { resolution: "720P" });
+    const e = mapKlingResolutionToMode(scope, m.params, false);
     if (e) return { error: e };
     return body(args, route.backend, route.modelId, [args.first_frame_image], { ...m.params, type: "avatar", sound_file: args.audio_path });
   }
   if (args.audio_path) {
     return {
       error:
-        "Kling `audio_path` is supported only with mode=avatar. vendor_params.sound=on generates native audio and does not use the supplied audio file. Generation aborted. Do NOT automatically switch models or modes; ask the user whether to use mode=avatar or remove audio_path.",
+        "Kling `audio_path` is supported only with mode=avatar. vendor_params.generate_audio=true generates native audio and does not use the supplied audio file. Generation aborted. Do NOT automatically switch models or modes; ask the user whether to use mode=avatar or remove audio_path.",
     };
-  }
-  if (args.mode === "motion-control") {
-    const scope = "video vendor=kling mode=motion-control";
-    if (!args.video_url) return { error: "kling motion-control requires `video_url`." };
-    const image = args.first_frame_image ?? args.reference_image_paths?.[0];
-    if (!image) return { error: "kling motion-control requires `first_frame_image` or `reference_image_paths[0]`." };
-    if (route.modelId !== "kling-motion-control") return { error: `${scope} uses a fixed internal model; omit model_id (got model_id=${route.modelId}).` };
-    const m = collectVendorParams(scope, {}, args.vendor_params, ["mode", "keep_original_sound", "character_orientation"]);
-    if (m.error !== undefined) return { error: m.error };
-    fillDefaults(m.params, { mode: "std", keep_original_sound: "yes", character_orientation: "video" });
-    const e = firstProblem(
-      pickEnum(scope, m.params, "mode", KLING_MODES),
-      pickEnum(scope, m.params, "keep_original_sound", KLING_KEEP_SOUND),
-      pickEnum(scope, m.params, "character_orientation", ["video", "image"]),
-    );
-    if (e) return { error: e };
-    return body(args, route.backend, route.modelId, [image], { ...m.params, type: "motion_control", video_url: args.video_url });
   }
   if (args.mode === "i2v" && !args.first_frame_image) return { error: "kling i2v requires `first_frame_image`." };
   if (args.mode === "first-last-frame") {
@@ -465,45 +448,50 @@ function buildKling(args: VideoArgs, route: { backend: string; modelId: string }
   }
 
   const scope = `video vendor=kling mode=${args.mode}`;
-  const m = merge(scope, args, ["mode", "aspect_ratio", "sound", "multi_shot", "image_types_json", "video_list_json", "video_refer_type", "keep_original_sound"]);
+  const m = merge(scope, args, [
+    "resolution",
+    "aspect_ratio",
+    "generate_audio",
+    "multi_shot",
+    "video_list_json",
+    "video_refer_type",
+    "keep_original_sound",
+  ]);
   if (!m.params) return { error: m.error ?? "" };
   const params = m.params;
   const resolved = resolveModelId("video", VIDEO_VENDOR_CONFIGS.kling, region, route.modelId, scope);
   if (resolved.error !== undefined) return { error: resolved.error };
   const modelId = resolved.modelId;
-  fillDefaults(params, { model_name: modelId, mode: "pro", aspect_ratio: "16:9", duration: "5", sound: "off", multi_shot: "false" });
+  fillDefaults(params, { model_name: modelId, resolution: "1080P", aspect_ratio: "16:9", duration: "5", generate_audio: "false", multi_shot: "false" });
+  const resolutionError = mapKlingResolutionToMode(`${scope} model_id=${modelId}`, params, modelId === "kling-v3-omni");
+  if (resolutionError) return { error: resolutionError };
   const referError = firstProblem(
     params.video_refer_type ? pickEnum(scope, params, "video_refer_type", ["feature", "base"]) : undefined,
     params.keep_original_sound ? pickEnum(scope, params, "keep_original_sound", KLING_KEEP_SOUND) : undefined,
   );
   if (referError) return { error: referError };
-  if (args.video_url) {
-    if (params.video_list_json) return { error: `${scope} got both video_url and vendor_params.video_list_json. Use one video source path.` };
-    if (params.sound === "on") return { error: `${scope} video_url reference mode does not support sound=on. Use sound=off.` };
-    // 参考视频作为 video_list_json 的唯一项；refer_type 缺省 base（输出时长跟随源视频）
-    params.video_list_json = JSON.stringify([
-      { local_path: args.video_url, refer_type: params.video_refer_type ?? "base", keep_original_sound: params.keep_original_sound },
-    ]);
-  } else if (params.video_refer_type || params.keep_original_sound) {
-    return { error: `${scope} vendor_params.video_refer_type/keep_original_sound require common field video_url.` };
+  if (args.reference_video_urls?.length) {
+    params.video_list_json = JSON.stringify(
+      args.reference_video_urls.map((local_path) => ({
+        local_path,
+        refer_type: params.video_refer_type ?? "base",
+        keep_original_sound: params.keep_original_sound,
+      })),
+    );
   }
   delete params.video_refer_type;
   delete params.keep_original_sound;
+  const hasVideoReference = (klingVideoItems(params.video_list_json)?.length ?? 0) > 0;
+  // 带参考视频时 generate_audio 被忽略（源音频保留与否由 keep_original_sound 决定）
+  if (hasVideoReference) delete params.generate_audio;
   const paramError = klingOmniParamError(scope, params);
   if (paramError) return { error: paramError };
-  const extras = Array.from({ length: args.reference_image_paths?.length ?? 0 }, () => "");
-  if (!params.image_types_json) {
-    if (args.mode === "i2v" && args.first_frame_image) params.image_types_json = JSON.stringify(["first_frame", ...extras]);
-    else if (args.mode === "first-last-frame") params.image_types_json = JSON.stringify(["first_frame", "end_frame", ...extras]);
-  }
   const referenceError = klingReferenceError(scope, args, params);
   if (referenceError) return { error: referenceError };
-  const refs = [
-    ...(args.first_frame_image ? [args.first_frame_image] : []),
-    ...(args.last_frame_image ? [args.last_frame_image] : []),
-    ...(args.reference_image_paths ?? []),
-  ];
-  return body(args, route.backend, modelId, refs, params);
+  // 上游只认老的 sound 字段，提交前从 generate_audio 反推
+  if (!hasVideoReference) params.sound = params.generate_audio === "true" ? "on" : "off";
+  delete params.generate_audio;
+  return body(args, route.backend, modelId, args.reference_image_paths ?? [], params);
 }
 
 // ── wan3 ──
@@ -520,7 +508,6 @@ function wanConflictError(scope: string, args: VideoArgs, params: Params): strin
     (args.reference_image_paths?.length ?? 0) > 0 ? "`reference_image_paths`" : undefined,
     (args.reference_video_urls?.length ?? 0) > 0 ? "`reference_video_urls`" : undefined,
     (args.reference_audio_urls?.length ?? 0) > 0 ? "`reference_audio_urls`" : undefined,
-    args.video_url ? "`video_url`" : undefined,
     params.file_url ? "`vendor_params.file_url`" : undefined,
   ].filter((f): f is string => f !== undefined);
   if (conflicting.length === 0) return undefined;
@@ -586,7 +573,7 @@ function buildWan(args: VideoArgs, modelId: string): Built {
   const params = m.params;
   const conflict = wanConflictError(scope, args, params);
   if (conflict) return { error: conflict };
-  const videos = [...new Set([...(args.video_url ? [args.video_url] : []), ...(args.reference_video_urls ?? [])].filter(Boolean))];
+  const videos = [...new Set((args.reference_video_urls ?? []).filter(Boolean))];
   const intake = firstProblem(wanIntakeError(scope, args, params, videos), wanReferenceCountError(scope, args, videos));
   if (intake) return { error: intake };
   const typeError = referenceMediaTypeError({ ...args, reference_video_urls: videos });
@@ -669,16 +656,6 @@ export async function buildVideoBody(args: VideoArgs, region: ReleaseRegion): Pr
         imagePaths.push(args.first_frame_image);
       }
       return body(args, config.backend, r.modelId, imagePaths, params);
-    }
-    case "jimeng": {
-      if (!args.video_url) return { error: "jimeng motion-control requires `video_url`." };
-      const image = args.first_frame_image ?? args.reference_image_paths?.[0];
-      if (!image) return { error: "jimeng motion-control requires `first_frame_image` or `reference_image_paths[0]`." };
-      const r = resolveModelId("video", config, region, route.modelId, scope);
-      if (r.error !== undefined) return { error: r.error };
-      const m = collectVendorParams(scope, {}, args.vendor_params, []);
-      if (m.error !== undefined) return { error: m.error };
-      return body(args, config.backend, r.modelId, [image], { video_url: args.video_url });
     }
   }
 }

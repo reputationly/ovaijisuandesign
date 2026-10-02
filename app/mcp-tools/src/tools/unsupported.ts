@@ -25,6 +25,8 @@ export const UNSUPPORTED_TOOLS: readonly { name: string; reason: string }[] = [
   { name: "asset_center_use_entity", reason: "no cross-workspace subject library" },
   { name: "media_transcribe", reason: "no ASR service" },
   { name: "image_remove_background", reason: "no background removal service" },
+  { name: "capability_search", reason: "no connector market / capability resolver (routes /api/connectors/capability-* absent)" },
+  { name: "image_layer_decompose", reason: "no layer decomposition model on the configured platform" },
 ];
 
 export const UNSUPPORTED_TOOL_NAMES: ReadonlySet<string> = new Set(UNSUPPORTED_TOOLS.map((t) => t.name));

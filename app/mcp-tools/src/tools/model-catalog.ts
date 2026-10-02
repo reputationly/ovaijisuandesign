@@ -22,12 +22,10 @@ export const BACKEND = {
   musicGen: "minimax_music",
   seedance: "seedance",
   klingAvatar: "kling_avatar",
-  klingMotionControl: "kling_motion_control",
-  jimengMotionControl: "jimeng_motion_control",
 } as const;
 
 export const IMAGE_VENDOR_ENUM = ["gpt-image", "banana", "seedream", "midjourney"] as const;
-export const VIDEO_VENDOR_ENUM = ["MiniMax", "veo3", "seedance", "jimeng", "kling", "wan"] as const;
+export const VIDEO_VENDOR_ENUM = ["MiniMax", "veo3", "seedance", "kling", "wan"] as const;
 export type ImageVendor = (typeof IMAGE_VENDOR_ENUM)[number];
 export type VideoVendor = (typeof VIDEO_VENDOR_ENUM)[number];
 
@@ -40,9 +38,7 @@ export const VIDEO_MODE_ENUM = [
   "multimodal",
   "video-edit",
   "video-extend",
-  "motion-control",
   "avatar",
-  "omni",
 ] as const;
 export type VideoMode = (typeof VIDEO_MODE_ENUM)[number];
 
@@ -73,8 +69,6 @@ export const VIDEO_MODEL_ID_ENUM = [
   "seedance2.0-fast",
   "seedance2.0-mini",
   "seedance2.5",
-  "jimeng_motion_control",
-  "kling-video-o1",
   "kling-v3-omni",
   "wan3.0-video",
   "wan3.0-video-prime",
@@ -166,8 +160,7 @@ export const VIDEO_SUPPORTED_MODES: Record<VideoVendor, readonly VideoMode[]> = 
   MiniMax: ["t2v", "i2v", "first-last-frame", "multimodal"],
   veo3: ["t2v", "i2v", "first-last-frame"],
   seedance: ["t2v", "i2v", "first-last-frame", "multimodal", "video-edit", "video-extend"],
-  jimeng: ["motion-control"],
-  kling: ["t2v", "i2v", "first-last-frame", "avatar", "motion-control", "omni"],
+  kling: ["multimodal", "avatar"],
   wan: ["t2v", "i2v", "first-last-frame", "multimodal"],
 };
 
@@ -214,28 +207,18 @@ export const VIDEO_VENDOR_CONFIGS: Record<VideoVendor, VendorConfig> = {
     pickerAliases: ["seedance"],
     modelAliases: { "Seedance 2.5": "seedance2.5", "Seedance Fast": "seedance2.0-fast", "Seedance Mini": "seedance2.0-mini" },
   },
-  jimeng: {
-    vendor: "jimeng",
-    backend: BACKEND.jimengMotionControl,
-    defaultModel: "jimeng_motion_control",
-    modelIds: ["jimeng_motion_control"],
-    knowledgeCard: "vendors/jimeng.md",
-    modes: VIDEO_SUPPORTED_MODES.jimeng,
-    capabilities: ["motion-control"],
-    pickerAliases: ["jimeng"],
-    extraModels: ["jimeng_motion_control"],
-  },
   kling: {
     vendor: "kling",
     backend: BACKEND.kling,
-    defaultModel: "kling-video-o1",
-    modelIds: ["kling-video-o1", "kling-v3-omni"],
+    defaultModel: "kling-v3-omni",
+    modelIds: ["kling-v3-omni"],
     knowledgeCard: "vendors/kling-omni.md",
     modes: VIDEO_SUPPORTED_MODES.kling,
-    capabilities: ["t2v", "i2v", "first-last-frame", "avatar", "motion-control", "multi-shot"],
+    modelModes: { "kling-v3-omni": ["multimodal"] },
+    capabilities: ["multimodal", "avatar", "multi-shot"],
     pickerAliases: ["kling"],
-    pickerBackends: [BACKEND.kling, BACKEND.klingAvatar, BACKEND.klingMotionControl],
-    pickerExtraIds: ["kling-avatar", "kling-motion-control"],
+    pickerBackends: [BACKEND.kling, BACKEND.klingAvatar],
+    pickerExtraIds: ["kling-avatar"],
   },
   // wan3 复用 wan_i2v 这个 backend id：旧客户端遇到未知 backend 会整表报错
   wan: {
@@ -315,14 +298,11 @@ const REGISTRY: Record<ModelType, readonly RegistryEntry[]> = {
     { id: "seedance2.0-fast", backend: BACKEND.seedance, model_name: "seedance2.0-fast" },
     { id: "seedance2.0-mini", backend: BACKEND.seedance, model_name: "seedance2.0-mini" },
     { id: "seedance2.5", backend: BACKEND.seedance, model_name: "seedance2.5" },
-    { id: "kling-video-o1", backend: BACKEND.kling, model_name: "kling-video-o1" },
     { id: "kling-v3-omni-video", backend: BACKEND.kling, model_name: "kling-v3-omni" },
     { id: "kling-avatar", backend: BACKEND.klingAvatar, model_name: "kling-avatar" },
-    { id: "kling-motion-control", backend: BACKEND.klingMotionControl, model_name: "kling-motion-control" },
     { id: "wan2.6-i2v", backend: BACKEND.wanI2v, model_name: "wan2.6-i2v" },
     { id: "wan3.0-video", backend: BACKEND.wanI2v, model_name: "wan3.0-video" },
     { id: "wan3.0-video-prime", backend: BACKEND.wanI2v, model_name: "wan3.0-video-prime" },
-    { id: "jimeng_motion_control", backend: BACKEND.jimengMotionControl, model_name: "jimeng_motion_control" },
     { id: "beta-3-1-fast", publicToken: "beta_fast", region: "domestic", backend: BACKEND.veo3, model_name: "veo-3.1-fast-generate-001" },
     { id: "beta-3-1", publicToken: "beta_pro", region: "domestic", backend: BACKEND.veo3, model_name: "veo-3.1-generate-001" },
     { id: "veo-3.1-fast-generate-001", region: "overseas", backend: BACKEND.veo3, model_name: "veo-3.1-fast-generate-001" },
@@ -557,48 +537,33 @@ export const VIDEO_PARAMETER_RULES: Record<VideoVendor, ParameterRule> = {
       "Reference audio must be mp3 or wav.",
     ],
   },
-  jimeng: {
-    model_id: ["jimeng_motion_control"],
-    mode: ["motion-control"],
-    vendor_params: {},
-    constraints: [
-      "Needs video_url plus first_frame_image (or reference_image_paths[0]). The prompt is not sent upstream: look comes from the image, motion from the video.",
-    ],
-  },
   kling: {
-    model_id: ["kling-video-o1", "kling-v3-omni"],
-    mode: ["t2v", "i2v", "first-last-frame", "avatar", "motion-control", "omni"],
+    model_id: ["kling-v3-omni"],
+    mode: ["multimodal", "avatar"],
     duration: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     vendor_params: {
-      mode: ["std", "pro", "4k"],
+      resolution: ["720P", "1080P", "4K"],
       aspect_ratio: ["16:9", "9:16", "1:1"],
-      sound: ["on", "off"],
+      generate_audio: ["true", "false"],
       multi_shot: ["true", "false"],
-      image_types_json: "JSON array string",
-      video_list_json: "JSON array string",
       video_refer_type: ["feature", "base"],
       keep_original_sound: ["yes", "no"],
-      character_orientation: ["video", "image"],
     },
     mode_overrides: {
       avatar: {
-        duration: "omit; length follows audio_path (up to about 60s per call; split longer speech).",
+        duration: "omit — clip length is driven by the input audio (audio_path), NOT this field. A single generation supports up to ~60s; split longer speech into <=60s segments and stitch. There is no 15s cap.",
         required: ["audio_path", "first_frame_image"],
-        vendor_params: { mode: ["std", "pro"] },
-        note: "Talking-head route: only vendor_params.mode is accepted; ratio follows first_frame_image. Omit model_id.",
-      },
-      "motion-control": {
-        duration: "omit; length follows video_url.",
-        required: ["first_frame_image", "video_url"],
-        vendor_params: { mode: ["std", "pro"], keep_original_sound: ["yes", "no"], character_orientation: ["video", "image"] },
-        note: "Moves the motion of video_url onto the image. Allowed vendor_params: mode, keep_original_sound, character_orientation; nothing else. Leave model_id out.",
+        vendor_params: { resolution: ["720P", "1080P"] },
+        note: "Talking-head route. The ONLY accepted vendor_params key is `resolution` (720P/1080P, default 720P). Do NOT pass aspect_ratio / generate_audio / multi_shot / duration — the dispatcher rejects any other key. Aspect ratio follows first_frame_image (9:16 portrait, 16:9 landscape). Omit model_id.",
       },
     },
     constraints: [
-      "kling-video-o1: duration 3..10, no sound=on, no mode=4k, no multi_shot; 11..15s, sound and 4k need kling-v3-omni.",
-      "At most 7 images across first/last frame and reference_image_paths, or 4 when a reference video is present.",
-      "video_url is one 3..10s reference clip; with video_refer_type=base the output length follows the clip.",
-      "audio_path is accepted only with mode=avatar.",
+      "Kling quality is selected only with vendor_params.resolution: 720P/1080P/4K (case-insensitive). Default 1080P for Omni, 720P for avatar. Top-level mode selects the generation operation, not quality; vendor_params.mode is not accepted.",
+      "resolution=4K is unavailable for avatar.",
+      "vendor_params.generate_audio controls output audio: native generation by default (default false). Unavailable for avatar. For Kling reference videos, generate_audio is ignored; keep_original_sound controls source audio retention.",
+      "reference_image_paths accepts at most 7 reference images, and at most 4 when a reference video is also provided.",
+      "reference_video_urls accepts one reference video of 3..10s (<=200MB). With video_refer_type=feature, duration caps at 10; with video_refer_type=base, duration is ignored and the output length equals the source video.",
+      "Common field audio_path is supported ONLY when mode=avatar; all other Kling modes reject it.",
     ],
   },
   wan: {

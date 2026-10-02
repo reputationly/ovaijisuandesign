@@ -119,6 +119,8 @@ describe("edit（真实工作区 + 假平台）", () => {
       makeVideo(abs("a.mp4"), { w: 320, h: 240, dur: 1, audio: true });
       makeVideo(abs("b.mp4"), { w: 160, h: 120, dur: 1, audio: false });
       makeVideo(abs("c.mp4"), { w: 320, h: 240, dur: 1, audio: true });
+      // 轮次测试单独用一份素材：目标节点被改写后，别的用例还要按老路径找 c.mp4。
+      makeVideo(abs("d.mp4"), { w: 320, h: 240, dur: 1, audio: true });
     }
   });
   afterAll(async () => {
@@ -154,14 +156,20 @@ describe("edit（真实工作区 + 假平台）", () => {
   });
 
   let aNode = "";
-  it.skipIf(!HAS_FFMPEG)("ffmpeg：产物落在根目录、登记入库、从输入节点连派生边；重名加 _1", async () => {
+  it.skipIf(!HAS_FFMPEG)("ffmpeg：new_node 另建节点、登记入库、从输入节点连派生边；重名加 _1", async () => {
     aNode = await place("a.mp4");
     const r = await http
       .post("/api/edit/ffmpeg")
       .set("x-session-id", "ses-1")
-      .send({ args: ["-i", abs("a.mp4"), "-t", "0.5", "-c:v", "libx264", "-c:a", "aac", "out.mp4"], filename: "trimmed", input_paths: [abs("a.mp4")], metadata: { prompt: "裁半秒" } });
+      .send({
+        args: ["-i", abs("a.mp4"), "-t", "0.5", "-c:v", "libx264", "-c:a", "aac", "out.mp4"],
+        filename: "trimmed",
+        canvas_target: "new_node",
+        input_paths: [abs("a.mp4")],
+        metadata: { prompt: "裁半秒" },
+      });
     expect(r.status).toBe(201);
-    expect(r.body).toEqual({ ok: true, path: "trimmed.mp4" });
+    expect(r.body).toEqual({ ok: true, path: "trimmed.mp4", node_id: expect.any(String) });
     expect(statSync(abs("trimmed.mp4")).size).toBeGreaterThan(0);
     const row = app.get(AssetsService).byPath("trimmed.mp4")!;
     const meta = JSON.parse(row.metadata!);
@@ -172,8 +180,32 @@ describe("edit（真实工作区 + 假平台）", () => {
     expect(c.edges).toContainEqual(expect.objectContaining({ source: aNode, target: node.id, type: "derivation" }));
     expect(events.at(-1)).toMatchObject({ type: "canvas_updated", addedNodes: [{ id: node.id }] });
 
-    const again = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "a.mp4", "-t", "0.5"], filename: "trimmed" });
-    expect(again.body).toEqual({ ok: true, path: "trimmed_1.mp4" });
+    const again = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "a.mp4", "-t", "0.5"], filename: "trimmed", canvas_target: "new_node" });
+    expect(again.body).toEqual({ ok: true, path: "trimmed_1.mp4", node_id: expect.any(String) });
+  });
+
+  it.skipIf(!HAS_FFMPEG)("ffmpeg：默认 new_round 追加成新一版，旧版降级保留；audio 输出不轮次化", async () => {
+    const target = await place("d.mp4");
+    const before = (await http.get("/api/canvas")).body.nodes.length;
+    const prevAsset = (await http.get("/api/canvas")).body.nodes.find((n: any) => n.id === target).assetId;
+    const r = await http.post("/api/edit/ffmpeg").send({
+      args: ["-i", "d.mp4", "-t", "0.4", "-c:v", "libx264", "-c:a", "aac"],
+      filename: "graded",
+      input_paths: [abs("d.mp4")],
+    });
+    expect(r.body).toEqual({ ok: true, path: "graded.mp4", node_id: target });
+    const c = (await http.get("/api/canvas")).body;
+    // 目标节点原地升到新一轮，旧资产降级成同组 hidden 节点（总数 +1，旧版没丢）
+    expect(c.nodes.length).toBe(before + 1);
+    const main = c.nodes.find((n: any) => n.id === target);
+    expect(main.assetId).toBe(app.get(AssetsService).byPath("graded.mp4")!.id);
+    expect(main.round).toBeGreaterThan(1);
+    const superseded = c.nodes.find((n: any) => n.assetId === prevAsset);
+    expect(superseded).toMatchObject({ groupId: main.groupId, round: 1, meta: { hidden: true } });
+
+    // audio 产物没有「轮次」可谈，永远另建节点
+    const audio = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "d.mp4", "-vn", "-c:a", "pcm_s16le"], filename: "stem", output_type: "audio" });
+    expect(audio.body).toEqual({ ok: true, path: "stem.wav", node_id: expect.any(String) });
   });
 
   it.skipIf(!HAS_FFMPEG)("ffmpeg：-f null 是探测，回 _probe 不产出文件；音频输出按编码定扩展名", async () => {
@@ -182,7 +214,7 @@ describe("edit（真实工作区 + 假平台）", () => {
     expect(existsSync(abs("ignored.mp4"))).toBe(false);
 
     const wav = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "a.mp4", "-vn", "-c:a", "pcm_s16le"], filename: "tone", output_type: "audio" });
-    expect(wav.body).toEqual({ ok: true, path: "tone.wav" });
+    expect(wav.body).toEqual({ ok: true, path: "tone.wav", node_id: expect.any(String) });
     const bad = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "a.mp4", "-c:a", "pcm_s16le"], filename: "bad" });
     expect(bad.body).toMatchObject({ ok: false, error: expect.stringMatching(/Incompatible/) });
     // ffmpeg 自己失败：占位文件要删掉
@@ -191,18 +223,21 @@ describe("edit（真实工作区 + 假平台）", () => {
     expect(existsSync(abs("broken.mp4"))).toBe(false);
   });
 
-  it.skipIf(!HAS_FFMPEG)("ffmpeg：replace_node_id 原地替换；preserve_source_canvas_node 改为另放并连边", async () => {
+  it.skipIf(!HAS_FFMPEG)("ffmpeg：target_node_id 追加成新一版；preserve_source_canvas_node 改为另放并连边", async () => {
     const target = await place("c.mp4");
     const before = (await http.get("/api/canvas")).body.nodes.length;
-    const r = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "c.mp4", "-t", "0.5"], filename: "final", replace_node_id: target });
+    const r = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "c.mp4", "-t", "0.5"], filename: "final", target_node_id: target });
     expect(r.body.ok).toBe(true);
     const c = (await http.get("/api/canvas")).body;
-    expect(c.nodes.length).toBe(before);
+    // 旧版降级成 hidden 子节点，总数 +1（不丢旧版）
+    expect(c.nodes.length).toBe(before + 1);
     expect(c.nodes.find((n: any) => n.id === target).assetId).toBe(app.get(AssetsService).byPath("final.mp4")!.id);
 
-    const keep = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "c.mp4", "-t", "0.5"], filename: "both", replace_node_id: target, preserve_source_canvas_node: true });
+    // 旧口径：显式要求两版都留 → 源节点保留，产物另建派生节点
+    const keep = await http.post("/api/edit/ffmpeg").send({ args: ["-i", "c.mp4", "-t", "0.5"], filename: "both", target_node_id: target, preserve_source_canvas_node: true });
     const c2 = (await http.get("/api/canvas")).body;
-    expect(c2.nodes.length).toBe(before + 1);
+    // 上一轮已经 +1（降级节点），这次再另建一个 → before + 1 基础上再 +1
+    expect(c2.nodes.length).toBe(before + 2);
     const both = c2.nodes.find((n: any) => n.assetId === app.get(AssetsService).byPath(keep.body.path)!.id);
     expect(c2.edges).toContainEqual(expect.objectContaining({ source: target, target: both.id }));
   });

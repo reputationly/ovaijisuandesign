@@ -48,8 +48,24 @@
 | P2 第一批 | 图片超分、工作区身份校验（gateway + 插件 + MCP）、同步生成和 `/api/generate/text`、画布剩余 7 条路由、视频 / 音频缩略图、资产对账和找不到文件的三个入口、`agent_running`；顺带修了生成轮询的竞态、`/api/canvas` 和 `/api/files/content` 的 body 上限 | gateway 152、assets 38、mcp-tools 187、desktop 344、maas-media 130、插件 11 |
 
 对齐程度：
-- gateway 路由 119 / 466。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
-- MCP 工具 33 / 54，另外 21 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
+- gateway 路由 258 / 482（3.0.21 口径）。以 `docs/gateway-api.md` 里行首的 ✓ 为准，用 `scripts/extract-gateway-routes.py` 重新生成；没装官方应用的环境（云上）加 `--from-doc docs/gateway-api.md`，只按我们的代码重标 ✓。
+- MCP 工具 34 / 57，另外 23 个在 `app/mcp-tools/src/tools/unsupported.ts` 里注明了原因。
+
+### 3.0.16 → 3.0.21 的漂移（2026-10-02 对齐）
+
+逐版本比对（`reference/3.0.16`、`3.0.20`、`3.0.21`）后发现的差异，都发生在 3.0.16 → 3.0.20：
+
+| 面 | 变化 | 处理 |
+|---|---|---|
+| MCP 工具 | 新增 `capability_search`、`image_enhance`、`image_layer_decompose`（54 → 57） | `image_enhance` 已注册（gateway 早就有可用的 `/api/edit/enhance-image`）；另两个进 unsupported（无连接器市场 / 平台无图层拆分模型） |
+| `generate_video` | 删掉 `video_url`；mode 去掉 `motion-control`、`omni`；vendor 去掉 `jimeng` | 已跟着删（官方 gateway / 渲染层 / mcp-tools 三处都搜不到 motion-control） |
+| `kling` 参数面 | 画质从 `vendor_params.mode`(std/pro/4k) 改为 `resolution`(720P/1080P/4K)；`sound` → `generate_audio`；model 只剩 `kling-v3-omni` | 已对齐 |
+| `ffmpeg` | `preserve_source_canvas_node` + 纯音频替换守卫 → `canvas_target`(new_round/new_node) + `target_node_id` + `input_node_ids` | 已对齐，含 gateway 侧新增的画布「轮次」落位（`resolveDerivativeRoundTarget` / `appendRound`） |
+| `read` | 新增 `pdf_page`（回该页内嵌 PNG，单张 2MiB / 合计 4MiB 封顶） | 已对齐（gateway `/api/internal/document/read` 新增 `image_page`） |
+| `analyse_media` | 新增 `purpose`(reference/prompt-reconstruction) | 已对齐，两种口径的语义缓存分开存 |
+| gateway 路由 | +16 条（466 → 482），全是连接器 / 连接器市场 / 包安装 | **未做**：都是「装第三方 MCP / 连接器」那套，我们的范围外（见 `parity-gaps.md` B 类） |
+
+漂移核查用 `scripts/extract-mcp-tools.py` 和 `scripts/extract-gateway-routes.py`；两个脚本都只提取接口事实。
 
 真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
 
@@ -251,7 +267,7 @@ pnpm --filter @ov/desktop dev
 
 | 文档 | 内容 |
 |---|---|
-| `docs/gateway-api.md` | 466 条路由，✓ 表示已实现 |
+| `docs/gateway-api.md` | 482 条路由，✓ 表示已实现 |
 | `docs/mcp-tools.md`、`docs/mcp-tools-architecture.md` | MCP 工具面和架构 |
 | `docs/opencode-runtime.md`、`docs/plugin-hilo.md` | opencode 运行时和插件契约 |
 | `docs/contracts-canvas.md`、`docs/contracts-files.md` | 画布和文件路由的契约 |

@@ -1,6 +1,6 @@
 # MCP 工具面
 
-官方 `mcp-tools` 注册的**全部 54 个工具**。opencode 按 MCP server 名加前缀，
+官方 `mcp-tools` 注册的**全部 57 个工具**。opencode 按 MCP server 名加前缀，
 所以 agent 侧看到的是 `hub_<name>`。
 
 这是**要对齐的接口规格** —— 名字和入参保持一致，官方那套 agent 配置就能直接
@@ -49,7 +49,7 @@
 
 | 工具 | 入参 |
 |---|---|
-| `generate_video` | `audio_path`, `duration`, `filename`, `first_frame_image`, `last_frame_image`, `mode`, `model_id`, `order`, `prompt`, `reference_audio_urls`, `reference_image_paths`, `reference_video_urls`, `vendor`, `vendor_params`, `video_url` |
+| `generate_video` | `audio_path`, `duration`, `filename`, `first_frame_image`, `last_frame_image`, `mode`, `model_id`, `order`, `prompt`, `reference_audio_urls`, `reference_image_paths`, `reference_video_urls`, `vendor`, `vendor_params` |
 | `merge_videos` | `filename`, `scale_mode`, `source_node_id`, `target_height`, `target_width`, `video_paths` |
 
 ## 生成 · 语音（2）
@@ -70,7 +70,7 @@
 | 工具 | 入参 |
 |---|---|
 | `audio_meta` | `audio_path` |
-| `ffmpeg` | `args`, `filename`, `metadata`, `output_type`, `preserve_source_canvas_node`, `replace_node_id` |
+| `ffmpeg` | `args`, `canvas_target`, `filename`, `input_node_ids`, `metadata`, `output_type`, `replace_node_id`, `target_node_id` |
 | `media_transcribe` | `audio_path`, `file_path`, `filename`, `language`, `mode`, `total_duration` |
 | `subtitle_format` | `cjk_chars_per_line`, `english_words_per_line`, `filename`, `font_name`, `font_scale`, `font_size`, `format`, `margin_l`, `margin_r`, `margin_v`, `max_lines`, `output_size`, `position`, `safe_area`, `source_srt_path`, `style_preset`, `unsafe_override` |
 
@@ -80,8 +80,8 @@
 |---|---|
 | `asset_center_search` | `limit`, `q`, `type` |
 | `asset_center_use_entity` | `entity_id`, `workspace_path` |
-| `read` | `file_path`, `limit`, `offset` |
-| `analyse_media` | `file_path`, `file_paths`, `force`, `question`, `type` |
+| `read` | `file_path`, `limit`, `offset`, `pdf_page` |
+| `analyse_media` | `file_path`, `file_paths`, `force`, `purpose`, `question`, `type` |
 | `web_media` | `container`, `filename`, `format_id`, `include_auto_subtitles`, `max_items`, `playlist_mode`, `quality`, `source_node_id`, `subtitle_format`, `subtitle_languages`, `type`, `url` |
 
 ## 记忆与知识（3）
@@ -115,6 +115,13 @@
 | `plugin_agent_describe` | `nodeId` |
 | `plugin_agent_invoke` | `args`, `method`, `nodeId` |
 
+## 浏览器与连接器（2）
+
+| 工具 | 入参 |
+|---|---|
+| `browser` | `delta_x`, `delta_y`, `elements`, `expression`, `include_links`, `include_snapshot`, `key`, `limit`, `modifiers`, `op`, `selector`, `tab_id`, `text`, `timeout_ms`, `uid`, `url`, `value` |
+| `connector_authorize` | `connector_id` |
+
 ## DAG / 其他（2）
 
 | 工具 | 入参 |
@@ -122,9 +129,10 @@
 | `list_capabilities` | `modality` |
 | `get_model_concurrency` | `models` |
 
-## 未归类（2）
+## 未归类（3）
 
 | 工具 | 入参 |
 |---|---|
-| `browser` | `delta_x`, `delta_y`, `elements`, `expression`, `include_links`, `include_snapshot`, `key`, `limit`, `modifiers`, `op`, `selector`, `tab_id`, `text`, `timeout_ms`, `uid`, `url`, `value` |
-| `connector_authorize` | `connector_id` |
+| `capability_search` | `queries`, `targetConnectorId` |
+| `image_enhance` | `filename`, `image_path`, `multiple`, `source_node_id`, `target_height`, `target_width` |
+| `image_layer_decompose` | `filename`, `image_path`, `prompt`, `source_node_id` |
