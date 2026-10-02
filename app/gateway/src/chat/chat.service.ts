@@ -10,6 +10,7 @@ import { ActivityService } from "../health/activity.service.js";
 import { EventPump, type OcEvent } from "../runtime/event-pump.js";
 import { chatModelIds } from "../runtime/chat-models.js";
 import { RuntimeClient, RuntimeUnavailableError } from "../runtime/runtime-client.js";
+import { collectTaskChildSessionIds, convertOpenCodeMessages, type RawMessage } from "./history-normalize.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
 
 /**
@@ -197,8 +198,11 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
       case "switch_session": {
         const s = this.session(String(msg.session_id));
         if (msg.mode) s.mode = msg.mode as AgentMode;
-        const messages = s.runtimeId ? await this.history(s.runtimeId).catch(() => []) : [];
-        reply({ type: "session_switched", session_id: s.id, runtime_session_id: s.runtimeId ?? null, request_id: msg.request_id, messages });
+        // 3.0.21 水合协议：渲染器只有拿到带 request_id 的回帧（把它从
+        // authoritativeHydrationRequestIdsRef 里消费掉）才会把这份历史**替换**进 store，
+        // 否则 `replaceSessionSnapshot=false`，历史被整段丢弃。activated 决定焦点归属，
+        // 显式回 true（我们单客户端，不存在抢占）。
+        await this.emitHydration(s, msg);
         return true;
       }
       case "message":
@@ -318,6 +322,66 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
   async history(runtimeId: string) {
     const msgs = await this.historyWithRetry(runtimeId);
     return msgs.map((m) => ({ info: m.info, parts: m.parts.filter((p) => !p.synthetic && !p.ignored && p.type !== "compaction") }));
+  }
+
+  /**
+   * 3.0.21 水合协议的历史下发帧。
+   *
+   * 渲染器（官方 bundle `ChatController.applyServerMessage` 的 `session_switched`
+   * reducer）拿 `message.messages` 直接喂 `backendMessagesToChat()`，后者**只认扁平帧**
+   * （`text` / `thinking` / `tool_call` / `tool_result` / `sub_agent_*` / `file_added` /
+   * `error`）。喂 `{info, parts}` 原始结构的话逐条落 default，结果必然是空历史 —— 这就是
+   * 重启后历史面板空白的根因，与后端数据、网络、竞态都无关。
+   *
+   * 因此这里在网关侧完成压缩：先取根会话原始消息，再递归拉 `task` 子会话，
+   * 最后 `convertOpenCodeMessages` 压平。
+   */
+  private async emitHydration(s: UiSession, msg: ChatFrame): Promise<void> {
+    const historySyncId = `history_${randomBytes(16).toString("hex")}`;
+    let messages: ReturnType<typeof convertOpenCodeMessages> = [];
+    let historyLoadFailed = false;
+    if (s.runtimeId) {
+      try {
+        const raw = (await this.historyWithRetry(s.runtimeId)) as RawMessage[];
+        const childMessages = new Map<string, RawMessage[]>();
+        await this.collectChildMessages(raw, childMessages, new Set([s.runtimeId]));
+        messages = convertOpenCodeMessages(raw, { directory: this.paths.root, childMessages });
+      } catch (err) {
+        historyLoadFailed = true;
+        this.log.warn(`历史加载失败 session=${s.id}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    this.broadcast({
+      type: "session_switched",
+      session_id: s.id,
+      ...(msg.request_id ? { request_id: msg.request_id } : {}),
+      activated: true,
+      history_sync_id: historySyncId,
+      ...(s.title ? { name: s.title } : {}),
+      ...(s.modelId ? { model_id: s.modelId } : {}),
+      messages,
+      ...(historyLoadFailed ? { history_load_failed: true } : {}),
+      agent_running: s.runtimeId ? this.busy.has(s.runtimeId) : false,
+      runtime_session_id: s.runtimeId ?? undefined,
+      selected_media_models: s.selectedMediaModels ?? {},
+    });
+  }
+
+  /** 递归收集 `task` 子会话的原始消息（子 agent 的内容要展开到父级 task 卡下面）。 */
+  private async collectChildMessages(raw: RawMessage[], into: Map<string, RawMessage[]>, visited: Set<string>): Promise<void> {
+    const childIds = [...collectTaskChildSessionIds(raw)].filter((id) => !visited.has(id));
+    await Promise.all(
+      childIds.map(async (childId) => {
+        visited.add(childId);
+        try {
+          const childRaw = (await this.runtime.messages(childId)) as RawMessage[];
+          into.set(childId, childRaw);
+          await this.collectChildMessages(childRaw, into, visited);
+        } catch {
+          // 子会话拉不到就只跳过它的展开，不影响主历史
+        }
+      }),
+    );
   }
 
   /**
