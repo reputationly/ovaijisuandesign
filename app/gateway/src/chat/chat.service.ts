@@ -9,7 +9,7 @@ import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { ActivityService } from "../health/activity.service.js";
 import { EventPump, type OcEvent } from "../runtime/event-pump.js";
 import { chatModelIds } from "../runtime/chat-models.js";
-import { RuntimeClient } from "../runtime/runtime-client.js";
+import { RuntimeClient, RuntimeUnavailableError } from "../runtime/runtime-client.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
 
 /**
@@ -316,8 +316,44 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
 
   /** 会话历史：子会话展开，去掉合成的 / 被忽略的 part。 */
   async history(runtimeId: string) {
-    const msgs = await this.runtime.messages(runtimeId);
+    const msgs = await this.historyWithRetry(runtimeId);
     return msgs.map((m) => ({ info: m.info, parts: m.parts.filter((p) => !p.synthetic && !p.ignored && p.type !== "compaction") }));
+  }
+
+  /**
+   * 带重试的历史加载。两类启动竞态（日志实测，2026-10-02）：
+   * ① gateway 先于 opencode 就绪 —— messages() 抛「还没有连上」，以前被
+   *    switch_session 的 `.catch(() => [])` 静默吞掉；
+   * ② serve 刚 listen 的约 2 秒内，消息查询返回 **200 + 空数组**（成功但空），
+   *    数据在 t≈2.7s 才可见（预热探测 t=2.7s count=19）。
+   * 两者都会让渲染器装进一份空历史且不再重试（重启后聊天面板空白）。
+   * 错误：500ms × 30 有界重试（4xx 立即抛）；空结果：800ms × 3 重试后接受
+   * （真空会话只多花一两次查询）。
+   */
+  private async historyWithRetry(runtimeId: string): Promise<Awaited<ReturnType<RuntimeClient["messages"]>>> {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let msgs: Awaited<ReturnType<RuntimeClient["messages"]>> | undefined;
+    for (let i = 0; i < 30; i++) {
+      try {
+        msgs = await this.runtime.messages(runtimeId);
+        break;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const transient = err instanceof RuntimeUnavailableError || !/→ 4\d\d:/.test(msg);
+        if (!transient) throw err;
+        await sleep(500);
+      }
+    }
+    if (msgs === undefined) throw new RuntimeUnavailableError("opencode 历史加载重试耗尽");
+    for (let j = 0; j < 3 && msgs.length === 0; j++) {
+      await sleep(800);
+      try {
+        msgs = await this.runtime.messages(runtimeId);
+      } catch {
+        break; // 空结果复查失败就接受空，不打断回复
+      }
+    }
+    return msgs;
   }
 
   // -------------------------------------------------------------------------
