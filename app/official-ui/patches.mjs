@@ -437,4 +437,50 @@ export const PATCHES = [
     find: '  "settings.network.proxyGroup": "Proxy",\n',
     replace: '  "settings.network.proxyGroup": "Proxy",\n' + i18nInsert(I18N_EN) + "\n",
   },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十、草稿不该持久化"附件所有权"，否则首页示例点不动
+  // ---------------------------------------------------------------------------------------------
+  //
+  // 症状：输入框里手动加过附件（还没发出去），点首页的示例/场景卡片，弹
+  // 「部分附件仍在发送中，请重试发送以完成处理」，并且提示词和示例图片都不刷新。
+  //
+  // 机制（全在官方渲染层里，不是 gateway 的问题）：
+  // ① 附件只有在**发送**时才会被 `commitFiles()` 打上 `commitOperationId`（=已发布到工作区、
+  //    有台账兜底的所有权标记）；发送成功后 `finalizeCommit` 清掉它。
+  // ② 发送中途被打断（或关掉应用）时，`DraftController.set` 会把当前草稿存进 localStorage，
+  //    而 `stripForPersist` 是 `{ ...attachment, previewUrl: "" }` —— **把 `commitOperationId`
+  //    一起存了进去**。
+  // ③ 重启后 `loadDraft` 把附件连同这个所有权一起还原，成为"幽灵所有权"。渲染器内存侧的
+  //    `flushUploadFinalizeOutbox` 挂载时会把该 operation finalize 掉（gateway 台账消失），
+  //    但 **persist 下来的草稿没被清**，于是这个附件一直带着它。
+  // ④ 点首页示例 → `applyChatShowcaseSelection` 调 `clearAttachments({source:"scene-query"})`
+  //    再 `addFromLocal`。`clear` 只对 `source === "scene-query"` 的附件去 finalize，幽灵附件
+  //    source 不是它、不在 `dropping` 里、operation 没被释放；而 `guardCommittedOwnership`
+  //    是无视 source 过滤遍历**全部**在架附件算 blocked 的，于是整个 `updateAttachments` 被拒
+  //    → `replaceAttachments` 返回 false → `applyChatShowcaseSelection` 在设置附件处提前 return，
+  //    **连提示词都停在旧值**，再弹那条 toast。
+  //
+  // 修法（最小改动、与官方设计一致）：所有权是**进程内的运行时状态**，不该进持久化；台账清理
+  // 由 `hilo:upload-commit-finalize-outbox:v1` 那套 outbox 负责，草稿不需要背它。
+  // 照 `previewUrl` 的既有写法，在持久化时把这两个字段剥掉。
+  {
+    id: "chat.draft-strip-commit-ownership",
+    file: MAIN,
+    find: 'function stripForPersist(attachment) {\n  return { ...attachment, previewUrl: "" };\n}',
+    replace: [
+      "function stripForPersist(attachment) {",
+      "  const { commitOperationId: __ovOperationId, commitSourcePath: __ovSourcePath, ...rest } = attachment;",
+      '  return { ...rest, previewUrl: "" };',
+      "}",
+    ].join("\n"),
+  },
+  // 上面那条只管以后存进去的。已经被污染过的草稿（升级前存下的）在**读取时**再洗一次，
+  // 这样不用让用户手动清缓存，第一次打开就把幽灵所有权丢掉。
+  {
+    id: "chat.draft-strip-commit-ownership-on-load",
+    file: MAIN,
+    find: "      attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],",
+    replace: "      attachments: (Array.isArray(parsed.attachments) ? parsed.attachments : []).map(stripForPersist),",
+  },
 ];
