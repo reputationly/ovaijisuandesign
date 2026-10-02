@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,7 +60,7 @@ describe("云端配置类路由的本地默认值", () => {
     expect((await http.get("/api/v1/apollo/config?key=no_such_key")).status).toBe(404);
   });
 
-  it("首页快速开始：按渲染层解析规则逐条校验，四个场景和精选技能分区都能解析出来", async () => {
+  it("首页快速开始：云端原文（8 分区 165 条示例），按渲染层解析规则逐条校验", async () => {
     const r = await http.get(`/api/v1/home/quick_start_config?config_version=2&${COMMON}`);
     expect(r.status).toBe(200);
     const cfg = r.body;
@@ -70,25 +70,25 @@ describe("云端配置类路由的本地默认值", () => {
     expect(cfg.sections.length).toBeLessThanOrEqual(16);
     expect(Buffer.byteLength(JSON.stringify(cfg))).toBeLessThan(1_000_000);
 
+    // 云端原文的 8 个分区，顺序与云端一致（官方在线时界面上就是这 8 个）。
     const scenes = cfg.sections.filter((s: any) => s.type === "prompt");
-    expect(scenes.map((s: any) => s.id)).toEqual(["film", "short-drama", "ecommerce", "graphic-design"]);
-    expect(scenes.map((s: any) => s.title)).toEqual([
-      { zh: "影视", en: "Film" },
-      { zh: "短剧", en: "Short Drama" },
-      { zh: "电商带货", en: "E-commerce" },
-      { zh: "平面设计", en: "Graphic Design" },
+    expect(scenes.map((s: any) => s.id)).toEqual([
+      "tool-integration",
+      "effects-packaging",
+      "influencer-marketing",
+      "cinematic-intro",
+      "mv",
+      "game-pv",
+      "brand-advertising",
+      "ui-motion",
     ]);
-    expect(scenes[0].items.map((i: any) => i.id)).toEqual(["character-storyboard", "episode-script", "character-cards"]);
-    expect(scenes[2].items.map((i: any) => i.id)).toEqual(["product-listing", "batch-recolor", "promo-video"]);
-    expect(scenes[3].items.map((i: any) => i.id)).toEqual(["image-remix", "anime-style", "nine-panel-comic"]);
+    expect(scenes.every((s: any) => s.showcase === true)).toBe(true);
 
     let total = 0;
     for (const s of scenes) {
       expectIdentifier(s.id);
       expectLocalized(s.title);
-      expect(["film", "palette", "shopping-bag"]).toContain(s.icon);
-      expect(s.min_client_version).toBeUndefined();
-      // 一个示例都解析不出来的分区会被整个丢掉；分区内 id 重复的只留第一条。
+      // 云端分区不带 icon（渲染层有自己的兜底图标）；手写兜底配置才有 icon。
       expect(s.items.length).toBeGreaterThan(0);
       expect(s.items.length).toBeLessThanOrEqual(64);
       expect(new Set(s.items.map((i: any) => i.id)).size).toBe(s.items.length);
@@ -97,55 +97,87 @@ describe("云端配置类路由的本地默认值", () => {
         expectIdentifier(it.id);
         expectLocalized(it.title);
         expectLocalized(it.prompt);
-        expectLocalized(it.description);
-        if (it.skill !== undefined) expectIdentifier(it.skill);
-        if (it.media !== undefined) expect(["image", "video", "audio", "document"]).toContain(it.media);
-        expect(it.attachments.length).toBeLessThanOrEqual(14);
-        for (const a of it.attachments) {
-          expect(["image", "video", "audio", "pdf", "folder", "file"]).toContain(a.type);
-          expect(a.name.trim()).toBe(a.name);
-          expect(a.aliases.every((x: unknown) => typeof x === "string" && x.trim().length > 0)).toBe(true);
+        // 云端示例没有 description（渲染层拿提示词当卡片描述）；有 skill / media 的也不该有。
+        expect(it.description).toBeUndefined();
+        expect(it.skill).toBeUndefined();
+        // model_id 是 {domestic, overseas}（两个区域的模型 id 不同，如 gamma-6-astra / gpt-6-astra）。
+        if (it.model_id !== undefined) {
+          expect(typeof it.model_id.domestic).toBe("string");
+          expect(typeof it.model_id.overseas).toBe("string");
         }
-        // 提示词里不再带 `/技能名` 前缀，也不再叫 agent「按技能流程」——绑定的技能已经去掉了。
+        // attachments 是可选字段（云端有 12 条示例没有这个字段）；类型有 image / video / audio。
+        if (it.attachments !== undefined) {
+          expect(it.attachments.length).toBeLessThanOrEqual(14);
+          for (const a of it.attachments) {
+            expect(["image", "video", "audio"]).toContain(a.type);
+            expect(a.name.trim()).toBe(a.name);
+            // aliases 可选（云端有附件没这个字段）。
+            if (a.aliases !== undefined) {
+              expect(a.aliases.every((x: unknown) => typeof x === "string" && x.trim().length > 0)).toBe(true);
+            }
+          }
+        }
+        // 云端示例的提示词不带 /技能名 前缀（不依赖技能市场），整份配置一条绑技能的都没有。
         for (const text of [it.prompt.zh, it.prompt.en]) {
           expect(text.startsWith("/")).toBe(false);
-          expect(text).not.toMatch(/skill/i);
         }
       }
     }
-    expect(total).toBeLessThanOrEqual(256);
+    // 8 分区共 165 条（13+12+7+18+11+30+36+38）。
+    expect(total).toBe(165);
 
-    const featured = cfg.sections.filter((s: any) => s.type === "skill");
-    expect(featured).toHaveLength(1);
-    expect(featured[0]).toMatchObject({ id: "official-featured", source: "official-featured" });
-    expect(featured[0].items.length).toBeGreaterThan(0);
-    for (const it of featured[0].items) {
-      expectIdentifier(it.skill);
-      expectLocalized(it.prompt);
-      expectLocalized(it.tag);
-    }
-  });
-
-  it("首页示例素材：配置里的每个地址都能从静态路由取到，内容和仓库里的文件一致", async () => {
-    const cfg = (await http.get("/api/v1/home/quick_start_config?config_version=2")).body;
-    const urls = new Set<string>();
-    for (const s of cfg.sections.filter((x: any) => x.type === "prompt")) {
+    // 每条示例都有输出（效果演示：封面 + 视频，cover/video 是 {domestic, overseas}）。
+    for (const s of scenes) {
       for (const it of s.items) {
-        if (it.cover) urls.add(it.cover);
-        for (const a of it.attachments) urls.add(a.url);
+        expect(it.outputs.length).toBeGreaterThan(0);
+        for (const o of it.outputs) {
+          expectIdentifier(o.id);
+          expectLocalized(o.title);
+          expect(["image", "video"]).toContain(o.media);
+          expect(typeof o.cover.domestic).toBe("string");
+          // image 类输出没有 video 字段。
+          if (o.video !== undefined) expect(typeof o.video.domestic).toBe("string");
+        }
       }
     }
-    expect(urls.size).toBeGreaterThan(0);
-    for (const url of urls) {
-      // 相对路径、只走示例素材路由：渲染层只按这个前缀、以当前 gateway 为基准补全。
-      expect(url).toMatch(/^\/api\/v1\/home\/showcase-assets\/[^/]+$/);
-      const name = decodeURIComponent(url.split("/").pop()!);
+    // 云端原文没有精选技能分区（Skill 页签的数据来自 home_skill_showcase_config，不在这里）。
+    expect(cfg.sections.filter((s: any) => s.type === "skill")).toHaveLength(0);
+  });
+
+  it("首页示例素材：配置里的图片地址都能从静态路由取到（视频保持 CDN 原地址）", async () => {
+    const cfg = (await http.get("/api/v1/home/quick_start_config?config_version=2")).body;
+    const imageUrls = new Set<string>();
+    const videoUrls = new Set<string>();
+    for (const s of cfg.sections) {
+      for (const it of s.items) {
+        for (const a of it.attachments ?? []) {
+          const urls = [a.url.domestic, a.url.overseas];
+          if (a.type === "image") for (const url of urls) imageUrls.add(url);
+          else for (const url of urls) videoUrls.add(url); // video / audio 附件保持 CDN
+        }
+        for (const o of it.outputs) {
+          if (o.cover) for (const url of [o.cover.domestic, o.cover.overseas]) imageUrls.add(url);
+          if (o.video) for (const url of [o.video.domestic, o.video.overseas]) videoUrls.add(url);
+        }
+      }
+    }
+    // 452 个图片 URL 全部本地化（domestic/overseas 各自的 key）；318 个媒体 URL（video/audio 附件 + 输出视频）保持 CDN。
+    expect(imageUrls.size).toBe(452);
+    expect([...imageUrls].every((u) => u.startsWith("/api/v1/home/showcase-assets/"))).toBe(true);
+    expect(videoUrls.size).toBe(318);
+    // 视频主机有三种（cdn.hailuoai.com / cdn.hailuoai.video / cdn.hailuo.ai），原文如此。
+    expect([...videoUrls].every((u) => /^https:\/\/cdn\.hailuoai\.(com|video)\/|^https:\/\/cdn\.hailuo\.ai\//.test(u))).toBe(true);
+
+    // 抽 6 张图核对：路由回 200，字节和 media/ 下的一致。
+    for (const url of [...imageUrls].slice(0, 3)) {
       const r = await http.get(url).buffer(true);
       expect(r.status, url).toBe(200);
-      expect(r.headers["content-type"]).toBe("image/png");
-      expect(Buffer.compare(r.body, readFileSync(path.join(REPO, "assets/home-showcase", name)))).toBe(0);
+      const key = decodeURIComponent(url.split("/").pop()!);
+      expect(r.headers["content-type"]).toMatch(/^image\//);
+      expect(Buffer.compare(r.body, readFileSync(path.join(REPO, "assets/home-showcase/media", key)))).toBe(0);
     }
-    // 登记过的文件都在，包括没有示例引用的使用教程 PDF。
+
+    // legacy 的 8 个文件 + 使用教程 PDF 也还在（渲染层缓存的旧配置还引用）。
     for (const name of HOME_SHOWCASE_ASSET_FILES) {
       const r = await http.get(`/api/v1/home/showcase-assets/${encodeURIComponent(name)}`);
       expect(r.status, name).toBe(200);
@@ -155,19 +187,34 @@ describe("云端配置类路由的本地默认值", () => {
     expect((await http.get(`/api/v1/home/showcase-assets/..%2Fskills`)).status).toBe(404);
   });
 
-  it("首页示例绑定的技能都是自带的：渲染层找不到技能会去云端市场装，装不上整个示例就填不进去", async () => {
+  it("云端示例没有技能绑定（这正是换云端原文的收益：不会弹「安装 Skill 失败」）", async () => {
     const cfg = (await http.get("/api/v1/home/quick_start_config?config_version=2")).body;
-    const wanted = new Set<string>();
     for (const s of cfg.sections) {
-      for (const it of s.items) if (it.skill) wanted.add(it.skill);
+      for (const it of s.items) {
+        expect(it.skill, `${it.id}`).toBeUndefined();
+        expect(it.prompt.zh.startsWith("/") || it.prompt.en.startsWith("/"), `${it.id}`).toBe(false);
+      }
     }
-    expect(wanted.size).toBeGreaterThan(0);
+    // 自带技能市场照常工作（Skill 页签的数据源），和创作灵感无关。
     const local = await http.get("/api/skills");
     const names = new Set((local.body.skills ?? local.body).map((x: any) => x.name));
-    for (const name of wanted) expect(names.has(name), name).toBe(true);
-    // 精选技能分区的预置提示词只对精选来源里的技能生效。
-    const featured = (await http.get("/api/skills/market?source=official-featured&page_size=100")).body.skills.map((x: any) => x.name);
-    for (const it of cfg.sections.find((s: any) => s.type === "skill").items) expect(featured).toContain(it.skill);
+    expect(names.has("3d-animation-short-generator")).toBe(true);
+  });
+
+  it("图片本地还没下载时 302 回 CDN（新 clone / 发布包没带素材时界面照常工作）", async () => {
+    const manifest = JSON.parse(readFileSync(path.join(REPO, "assets/home-showcase/media-manifest.json"), "utf8")) as Record<string, { url: string }>;
+    const [key, entry] = Object.entries(manifest)[0]!;
+    const file = path.join(REPO, "assets/home-showcase/media", key);
+    const backup = `${file}.e2e-bak`;
+    renameSync(file, backup);
+    try {
+      // superagent 默认跟 302，关掉才能看到这个状态本身。
+      const r = await http.get(`/api/v1/home/showcase-assets/${key}`).redirects(0).buffer(true);
+      expect(r.status).toBe(302);
+      expect(r.headers.location).toBe(entry.url);
+    } finally {
+      renameSync(backup, file);
+    }
   });
 
   it("弹窗 / 计费活动 / 视频试用：「不弹」「没有活动」「不可领」", async () => {

@@ -48,7 +48,8 @@ export const APOLLO_DEFAULTS: Readonly<Record<string, unknown>> = {
     enabled: true,
     default_primary_id: "inspiration",
     primary_categories: [
-      { id: "inspiration", title: { zh: "创作灵感", en: "Inspiration" }, provider: { type: "quick-start-v2" } },
+      // 云端原文（3.0.21 应用拉到的 home_tabs_showcase_config）里 provider 还带 config_key / section_type 两个字段。
+      { id: "inspiration", title: { zh: "创作灵感", en: "Inspiration" }, provider: { type: "quick-start-v2", config_key: "home_quick_start_config_v2", section_type: "prompt" } },
       {
         id: "skill",
         title: { zh: "Skill", en: "Skill" },

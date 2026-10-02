@@ -40,3 +40,6 @@ app/desktop/out/
 
 # 体积大的自带模板（75MB）放本地可用，但不进仓库
 assets/project-templates/h3-playground.zip
+
+# 首页「创作灵感」图片素材（~665MB，用 scripts/fetch-home-showcase-images.py 下载）
+assets/home-showcase/media/

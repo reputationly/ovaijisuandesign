@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { Controller, Get, NotFoundException, Param, Post, Query, Res } from "@nestjs/common";
 import type { Response } from "express";
@@ -15,7 +14,13 @@ import {
   PRICING_DISABLED,
   TEAM_CONTRACT_UNAVAILABLE,
 } from "./cloud-defaults.js";
-import { HOME_QUICK_START_CONFIG, HOME_SHOWCASE_ASSET_FILES, HOME_SHOWCASE_ASSET_ROUTE } from "./home-showcase.js";
+import {
+  HOME_QUICK_START_CONFIG,
+  HOME_SHOWCASE_ASSET_FILES,
+  HOME_SHOWCASE_ASSET_ROUTE,
+  homeShowcaseDir,
+} from "./home-showcase.js";
+import { loadShowcaseCloudConfig, showcaseMediaEntry } from "./home-quick-start-cloud.js";
 
 /**
  * 云端配置类路由的本地实现：客户端配置、Apollo 配置项、首页快速开始、全局弹窗、计费活动。
@@ -43,22 +48,37 @@ export class CloudConfigController {
     return APOLLO_DEFAULTS[key];
   }
 
-  /** 首页快速开始（场景示例 + 精选技能，见 home-showcase.ts）。`config_version` 只影响云端取哪一版，本地只有一版。 */
+  /**
+   * 首页快速开始（v2）：云端原文（8 分区 165 条示例，见 home-quick-start-cloud.ts），
+   * 图片地址已重写成静态路由。原文文件缺失（发布包漏拷 / 仓库不完整）时退回手写兜底配置
+   * （home-showcase.ts 的 4 场景），保证首页有东西可渲染。`config_version` 只影响云端取哪一版，本地只有一版。
+   */
   @Get("api/v1/home/quick_start_config")
   homeQuickStartConfig() {
-    return HOME_QUICK_START_CONFIG;
+    return localQuickStartConfig();
   }
 
   /**
-   * 首页示例用到的图片 / 附件。只发 HOME_SHOWCASE_ASSET_FILES 里登记过的文件名，别的一律 404。
+   * 首页示例用到的素材。两类：
+   * - legacy：HOME_SHOWCASE_ASSET_FILES 里登记过的文件名（手写兜底配置的 8 张图 + 使用教程 PDF）；
+   * - 云端配置的图片（`<sha1 前 16 位>-<文件名>`，458 个）：从 media/ 下发，本地还没下载时 302 回 CDN
+   *   （新 clone / 发布包没带素材时界面照常工作，只是图走网络）。
+   * 名字不在登记表里一律 404，不拿请求里的路径去拼文件系统路径。
    * 渲染层点示例时会把附件整个下载下来塞进输入框，所以这里要回真实的 Content-Type（sendFile 按扩展名给）。
    */
   @Get(`${HOME_SHOWCASE_ASSET_ROUTE}/:name`)
   homeShowcaseAsset(@Param("name") name: string, @Res() res: Response) {
     const dir = homeShowcaseDir();
-    if (!dir || !(HOME_SHOWCASE_ASSET_FILES as readonly string[]).includes(name)) throw new NotFoundException();
+    if (!dir) throw new NotFoundException();
+    const media = showcaseMediaEntry(name);
+    if (media) {
+      const file = path.join(dir, "media", name);
+      if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
+      return res.redirect(302, media.cdnUrl);
+    }
+    if (!(HOME_SHOWCASE_ASSET_FILES as readonly string[]).includes(name)) throw new NotFoundException();
     // 路径里的上级目录可能带点开头（比如开发时的 .claude/worktrees/…），sendFile 默认会当隐藏文件拒掉。
-    res.sendFile(path.join(dir, name), { dotfiles: "allow" });
+    return res.sendFile(path.join(dir, name), { dotfiles: "allow" });
   }
 
   @Get("api/v1/credit/wallet")
@@ -104,15 +124,16 @@ export class CloudConfigController {
 }
 
 /**
- * 示例素材目录：发布包里是 resources/home-showcase，开发时是仓库的 assets/home-showcase
- * （和自带技能 resources/skills ↔ assets/skills 同一个约定）。开发时从本文件往上找，src/ 和 dist/ 下跑都认得。
+ * 云端原文配置（重写后），加载失败退回手写兜底。进程内缓存，加载失败也缓存兜底结果。
  */
-function homeShowcaseDir(): string | undefined {
-  const resources = (process as { resourcesPath?: string }).resourcesPath;
-  const candidates = resources ? [path.join(resources, "home-showcase")] : [];
-  for (let dir = path.dirname(fileURLToPath(import.meta.url)); ; dir = path.dirname(dir)) {
-    candidates.push(path.join(dir, "assets", "home-showcase"));
-    if (path.dirname(dir) === dir) break;
+let quickStartConfigCache: unknown;
+function localQuickStartConfig(): unknown {
+  if (quickStartConfigCache !== undefined) return quickStartConfigCache;
+  try {
+    quickStartConfigCache = loadShowcaseCloudConfig().config;
+  } catch (error) {
+    console.warn(`[cloud-config] 云端创作灵感配置不可用，退回手写兜底：${error instanceof Error ? error.message : error}`);
+    quickStartConfigCache = HOME_QUICK_START_CONFIG;
   }
-  return candidates.find((c) => existsSync(c));
+  return quickStartConfigCache;
 }
