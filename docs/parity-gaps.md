@@ -241,6 +241,15 @@
 - 多一张 `knowledge/vendors/platform-routing.md`：工具入参里的 vendor / model 只是接口词汇，各模态实际落到平台上配好的那个模型（qwen-image-pro、minimax-h3、minimax-music3、ace-step、indextts-2.5、swiftvr）。其余 vendor 卡是参照原文，描述的是参照的云端后端。
 - `comfyui-agent` 原样保留（配置完整性检查要求它），但它的工具一个都没注册，派给它的活做不了。
 - 技能：参照是登录后从云端技能市场同步到 `~/.hub/skills`；我们随包自带，主进程启动时铺到 `~/.ovhub/skills`（按 `meta.yaml` 的 `version` 整目录更新，不碰用户自己的技能）。没有技能市场、自动更新和白名单。
+- 首页「创作灵感」**2026-10-02 起换成云端原文**（`quick_start_config` v2，8 分区 165 条示例，
+  提取自官方 3.0.21 应用的磁盘缓存，见 `assets/home-showcase/README.md`）：提示词、封面、
+  演示视频地址、示例组织方式都和官方在线时一致，且**没有任何技能绑定**——云端这批示例
+  不依赖技能市场，点卡片直接把提示词填进输入框，不会再弹「安装 Skill 失败」。
+  图片（452 个 URL，484MB）本地化到 `assets/home-showcase/media/`（gitignored，缺文件时网关
+  302 回 CDN）；video / audio 附件和输出视频（318 个 URL，~6.9GB）保持 CDN 原地址，联网可看。
+  旧的手写 4 场景配置（`home-showcase.ts`，带 11 个云端技能绑定）只在云端原文文件缺失时兜底，
+  「安装 Skill 失败」的问题只存在于那条兜底路径上；精选技能四张卡片的数据源是
+  `home_skill_showcase_config`，和这份配置无关。
 
 ---
 

@@ -21,7 +21,8 @@
 | agent 配置 191 个文件 | `assets/agent-profiles/v2/config` | 只有 `knowledge/README.md` 的 vendors 那一行多了半句，另加一份 `platform-routing.md` |
 | 技能 36 个 | `assets/skills` | 与 `~/.hub/skills` 零差异 |
 | 示例项目 | `assets/project-templates/sample-project.zip` | 哈希相同 |
-| 首页示例图 8 个 | `assets/home-showcase/` | 与参照 CDN 上的文件哈希相同 |
+| 首页示例图 8 个 | `assets/home-showcase/`（legacy，旧手写配置用） | 与参照 CDN 上的文件哈希相同 |
+| 创作灵感云端配置 + 图片素材 | `assets/home-showcase/quick-start-config-v2.json`（319KB 原文入库）、`media/` 452 张图（gitignored）、`media-manifest.json` | 2026-10-02 从官方 3.0.21 应用缓存提取的云端原文；图片经网关 `showcase-assets/:key` 路由下发 |
 | LUT 预设 10 个 | `app/gateway/assets/luts-presets/` | 相同 |
 | MCP 工具描述、参数说明、错误文案 | `app/mcp-tools` | 文字逐字照原文（代码是重写的，见 C） |
 | opencode 1.18.18 | — | 同一个开源二进制 |
@@ -59,7 +60,7 @@
 | 编辑能力 | 全 | 语音识别、抠图、口型、擦字幕、音频分离、图层拆分、人声分离平台没有，返回"当前平台不支持" |
 | 账号 / 团队 / 计费 | 云端 | 固定本机用户、个人空间、不计费 |
 | 云端配置、弹窗、推广、技能市场、图片搜索、CDN 上传 | 云端 | 本地默认值 / 空结果；技能市场只列自带的 36 个 |
-| 首页创作灵感 | 云端下发，带演示视频 | 参照内置的三组示例，去掉了我们没有的技能绑定，素材本地提供 |
+| 首页创作灵感 | 云端下发，带演示视频 | **整包搬过来了**（2026-10-02）：云端原文 8 分区 165 条示例（提示词 + 封面 + 演示视频，来自官方 3.0.21 应用的缓存，见 `assets/home-showcase/README.md`），接口形状和官方在线一致；图片本地化（452 个 / 484MB，缺文件 302 回 CDN），视频走 CDN。无技能绑定，不再有「安装 Skill 失败」问题（见 [`parity-gaps.md`](parity-gaps.md) 第五节） |
 | 数据目录 | `~/Movies/Hub`、`~/.hub` | `~/Movies/蒜狸小助手`、`~/.ovhub`（不和同机的参照应用互相覆盖） |
 | 不做 / 暂缓 | — | 登录、团队、计费、ComfyUI、内置浏览器、插件、自定义模型；资产中心、反馈、水印暂缓 |
 | 打包、自动更新 | Velopack | 还没做（M10） |
