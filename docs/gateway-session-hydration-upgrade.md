@@ -1,4 +1,80 @@
-# Gateway 会话水合协议升级 —— 聊天历史面板空白的根因与修复方案
+# Gateway 会话水合协议升级 —— 聊天历史面板空白（已修复）
+
+> **状态：已修复（2026-10-02，commit 6f5c1d4 / 8814063）。**
+> 真正的根因比本文档初稿的判断更具体：不是"多帧 vs 单帧"，而是**消息内容的形状**。
+> 见下方「最终根因」。
+
+## 最终根因（已实测确认）
+
+渲染器（官方 app.asar `out/renderer/assets/index-ZNI5SgRm.js`）的
+`ChatController.applyServerMessage` 里 `session_switched` 分支：
+
+```js
+const rawMsgs = [...this.store.projectMessages(
+  effect2.sessionId, backendMessagesToChat(effect2.messages ?? []))];
+```
+
+而 `backendMessagesToChat(msgs)`（同文件 ~342221）是一个 **switch 分派**，
+只认这些 `type`：`text` / `thinking` / `tool_call` / `tool_result` /
+`sub_agent_start` / `sub_agent_text` / `sub_agent_thinking` /
+`sub_agent_tool_call` / `sub_agent_tool_result` / `sub_agent_end` /
+`file_added` / `error`（+ `done` 跳过）。
+
+我们的旧 `switch_session` 把 opencode 原始 `{info, parts}` 直接塞进
+`messages` —— **每条都落进 default，`result` 始终为空数组**。所以渲染器
+永远装进一份空历史：`history-store-applied {beforeCount:0, afterCount:0,
+sourcePartCount:0}`。这解释了为什么三层后端直查全健康、而渲染器就是 0 条。
+
+修法：在 **gateway 侧**把原始消息压平成上面这套帧 —— 复刻官方
+`convertOpenCodeMessages`（`reference/3.0.21/gateway/dist/main.js` ~264710）。
+
+第二处（次要但同样必须）：渲染器只在 `session_switched` 帧的 `request_id`
+能被 `authoritativeHydrationRequestIdsRef` 消费掉时，才把
+`replaceSessionSnapshot` 置为 true 去**替换** store：
+
+```js
+const replaceSessionSnapshot = focusSafeMsg.type === "session_switched" && Boolean(
+  focusSafeMsg.request_id && authoritativeHydrationRequestIdsRef.current.delete(focusSafeMsg.request_id));
+```
+
+渲染器发 `switch_session` 时把自造的 `request_id` 加进那个集合（~431386），
+所以 gateway **必须原样回带 `request_id`**，并带 `activated`（焦点归属；
+不是 `false` 时渲染器才清 loading 并 `switchSession`）。我们的旧实现带了
+`request_id`，但 messages 形状不对，所以照样 0 条。
+
+## 修复落地
+
+- 新增 `app/gateway/src/chat/history-normalize.ts`：复刻 `convertOpenCodeMessages`
+  + `collectTaskChildSessionIds` / `buildTaskInvocationWindows` /
+  `selectChildMessagesForTask` / `expandChildMessages`（task 子 agent 展开）
+  + `parseAttachmentPrefix`（附件清单 → serve URL）。
+  工具 status **原样透传**（渲染器自己 `mapToolStatus`，不能预先改写）。
+- `app/gateway/src/chat/chat.service.ts`：`switch_session` 改为
+  `emitHydration()` —— 拉根会话 + 递归拉 task 子会话 → 压平 → 发
+  `session_switched { session_id, request_id, activated:true, history_sync_id,
+  messages, agent_running, runtime_session_id, name, model_id,
+  selected_media_models }`；失败时带 `history_load_failed: true`。
+- 测试：`history-normalize.test.ts` 13 条锁帧形状；`chat.e2e.test.ts` 断言对齐。
+  全量 360 条通过。
+
+## 验证（2026-10-02 19:55 重启实测）
+
+重启后**开机自动恢复**（`/tmp/ov-dev.log` 第 760-762 行，7:55 PM，无人工点击）：
+
+```
+[runtime-bind] seed sid=ses_f03c20ff0ffesjcDQrL6fJ3b4v runtime=... src=session_switched running=0
+[chat-diag] stage=history-controller-input outcome=install-if-empty-requested count=19
+[chat-diag] stage=history-store-applied outcome=initial-history-installed
+            beforeCount=0  afterCount=19  sourcePartCount=19   ← 修复前恒为 0
+```
+
+另有 4 条会话在开机时以 `initial-history-installed beforeCount=0` 装上
+19 / 18 / 4 / 3 条。WS 直连实测（带身份三件套）：KOC 会话 19 条原始消息 →
+66 帧；带 8 个子会话的会话 66 条原始消息 → 753 帧。
+
+---
+
+以下为初稿的排查记录（根因定位过程仍有参考价值）。
 
 ## 症状（2026-10-02 实测）
 
