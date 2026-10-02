@@ -47,6 +47,15 @@ describe("video submit body", () => {
     expect(b.body?.params).toMatchObject({ aspect_ratio: "adaptive", image_mode: "first-last-frame", resolution: "768P" });
   });
 
+  it("H3 t2v labels itself text-to-video — 必须如实标注，网关按它选玩法", async () => {
+    // 回归：这里曾被错写成 image_mode="reference"，网关把纯文字 t2v 判成参考生视频（r2va）、
+    // 路由到参考族模型，没带参考图直接被平台拒（「r2va 需要至少 1 张参考图」）。
+    const b = await buildVideoBody(v({ vendor: "MiniMax", mode: "t2v", vendor_params: { aspect_ratio: "16:9" } }), "domestic");
+    expect(b.error).toBeUndefined();
+    expect(b.body?.params).toMatchObject({ image_mode: "text-to-video", aspect_ratio: "16:9", resolution: "768P" });
+    expect(b.body?.image_paths).toEqual([]);
+  });
+
   it("kling avatar routes to its own backend", async () => {
     const b = await buildVideoBody(v({ vendor: "kling", mode: "avatar", audio_path: "a.mp3", first_frame_image: "f.png" }), "domestic");
     expect(b.body).toMatchObject({ backend: "kling_avatar", model_id: "kling-avatar", params: { mode: "std", type: "avatar", sound_file: "a.mp3" } });

@@ -152,7 +152,13 @@ function buildH3(args: VideoArgs, region: ReleaseRegion): Built {
 
   const backend = BACKEND.h3Video;
   if (args.mode === "t2v") {
-    params.image_mode = "reference";
+    // params.image_mode 是网关 videoPlan() 的玩法提示：这里必须如实写 t2v。
+    // 之前错写成 "reference"，网关会把纯文字的文生视频判成参考生视频（r2va）、
+    // 路由到参考族模型（minimax-h3-ref-2k → ref2va 通道），没带参考图直接被平台拒：
+    //   「模型 minimax-h3-ref2va 的任务类型 r2va 需要至少 1 张参考图」
+    // 实测（2026-10-02，直连平台 /v1/videos）：h3-2k 聚合对 task_type=t2v 正常接单，
+    // 路由到 fl2va 通道 —— 文生视频本来就走帧族，跟参考族无关。
+    params.image_mode = "text-to-video";
     return body(args, backend, H3, [], params);
   }
   if (isFrame) {
