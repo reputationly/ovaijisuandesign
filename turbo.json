@@ -1,5 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "//": "globalEnv：turbo 2.x 默认 strict env 模式，不声明就把变量从任务进程里剥掉。OPENCODE_BIN 是开发时指定 agent 二进制的入口（app/desktop/src/main/opencode/index.ts 的 locateOpencode），OV_UI 选要加载的界面目录（protocol.ts）。",
+  "globalEnv": ["OPENCODE_BIN", "OV_UI"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "out/**"] },
     "typecheck": { "dependsOn": ["^build"] },
