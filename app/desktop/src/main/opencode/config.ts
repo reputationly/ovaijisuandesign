@@ -23,6 +23,11 @@ export interface Platform {
   base_url: string;
   api_key: string;
   chat_model: string;
+  /** 对话模型的上下文窗口（tokens）。opencode 拿它当自动压缩的水位线 —— 平台模型
+   *  多为 1M 级，不配就落 128K 保守值，长流程会过早压缩、压缩后 agent 退化。 */
+  chat_context_limit?: number;
+  /** 对话模型单次输出上限（tokens），不配落 32K。 */
+  chat_output_limit?: number;
 }
 
 export interface McpLaunch {
@@ -100,15 +105,25 @@ function defaultPermission(): Record<string, string> {
 
 function customProvider(p: Platform) {
   const model = p.chat_model.trim();
+  // opencode 拿 limit.context 做自动压缩的水位线：报小了会过早压缩（长流程压缩后
+  // agent 会退化成只说话不调工具），报大了撞上游真实窗口会 400。默认 128K 是对
+  // 未知模型的保守值；平台模型的真实窗口在 config.json 的
+  // platform.chat_context_limit / chat_output_limit 里按模型设置。
+  const context = clampPositive(p.chat_context_limit, 128_000);
+  const output = clampPositive(p.chat_output_limit, 32_000);
   return {
     name: "maas",
     npm: "@ai-sdk/openai-compatible",
     options: { baseURL: p.base_url, apiKey: p.api_key, headers: {} },
     models: {
-      // opencode 拿 context 做压缩水位线，报大了会在长会话里直接撞上游限制。
-      [model]: { id: model, name: model, tool_call: true, limit: { context: 128_000, output: 32_000 } },
+      [model]: { id: model, name: model, tool_call: true, limit: { context, output } },
     },
   };
+}
+
+/** 没配 / 配了非正数 / 超过 10M 一律落默认值。 */
+function clampPositive(v: number | undefined, fallback: number): number {
+  return typeof v === "number" && Number.isFinite(v) && v > 0 && v <= 10_000_000 ? Math.floor(v) : fallback;
 }
 
 /**
