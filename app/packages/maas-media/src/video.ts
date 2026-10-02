@@ -10,8 +10,12 @@ import { PlatformError } from "./error.js";
 import { Modality, route } from "./route.js";
 import { asciiUpper, asU32, eqIgnoreAsciiCase, isObject, parseF64, roundHalfAway } from "./text.js";
 
-/** @internal */
-export const SUBMIT_TIMEOUT_MS = 60_000;
+/** @internal
+ * 提交超时：平台的 h3-2k / h3-ref-2k 是「改写 → 生成 → 超分」聚合，**带参考图的
+ * r2va 提交在回任务号前要做同步预处理**，实测能超过 60s（2026-10-02，
+ * gen_9184014e… multimodal 提交在 60s 整被掐断，平台空载时同接口 0.06s 应答）。
+ * 提交是 runner 的后台步骤，放宽不影响工具调用的返回时间。 */
+export const SUBMIT_TIMEOUT_MS = 180_000;
 /** @internal */
 export const QUERY_TIMEOUT_MS = 30_000;
 /**

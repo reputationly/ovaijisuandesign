@@ -310,8 +310,8 @@ function scripted(steps: Step[]) {
 }
 
 describe("video 提交/轮询（TS 移植新增）", () => {
-  it("时间常数和 Rust 一致", () => {
-    expect(SUBMIT_TIMEOUT_MS).toBe(60_000);
+  it("时间常数（提交放宽到 180s：带参考图的 r2va 提交有聚合同步预处理）", () => {
+    expect(SUBMIT_TIMEOUT_MS).toBe(180_000);
     expect(QUERY_TIMEOUT_MS).toBe(30_000);
     expect(POLL_INTERVAL_MS).toBe(5_000);
     expect(POLL_MAX_WAIT_MS).toBe(1_800_000);
