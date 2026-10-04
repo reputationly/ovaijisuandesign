@@ -102,21 +102,25 @@ const COPY = [
  *
  * 所以这里枚举几种已知布局，**并且在 Windows 上找不到就直接报错** —— 静默退回那个
  * 不可执行的垫片只会换来一个看不出来的 ENOENT。
+ *
+ * **platform / env / execPath 都做成入参**（默认取进程自己的），因为这个函数是
+ * 纯的文件系统布局判断 —— 不这样的话它只能在真 Windows 上跑，而这里出的每一个
+ * 平台 bug 都是「本地跑不到、CI 上去打脸」。见 scripts/verify-platform-branches.mjs。
  */
-function pmCli(name) {
+export function pmCli(name, { env = process.env, platform = process.platform, execPath = process.execPath, exists = existsSync } = {}) {
   const candidates = [];
-  const home = process.env.PNPM_HOME;
+  const home = env.PNPM_HOME;
   if (home) {
     candidates.push(path.join(home, `${name}.cjs`)); // PNPM_HOME = 包根
     candidates.push(path.join(home, "..", name, "bin", `${name}.cjs`)); // PNPM_HOME = .bin（action-setup 就是这种）
   }
-  candidates.push(path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", `${name}-cli.js`));
-  const found = candidates.find((c) => existsSync(c));
+  candidates.push(path.join(path.dirname(execPath), "node_modules", "npm", "bin", `${name}-cli.js`));
+  const found = candidates.find((c) => exists(c));
   if (found) {
-    if (process.platform === "win32") process.stderr.write(`    ${name} → ${found}\n`);
-    return { cmd: process.execPath, prefix: [found] };
+    if (platform === "win32") process.stderr.write(`    ${name} → ${found}\n`);
+    return { cmd: execPath, prefix: [found] };
   }
-  if (process.platform === "win32") {
+  if (platform === "win32") {
     throw new Error(
       `Windows 上找不到 ${name} 的 JS 入口（找过：\n  ${candidates.join("\n  ")}）。\n` +
         `不要退回 "${name}.cmd" —— Node 不允许 spawnSync 直接跑 .cmd。`,
@@ -254,9 +258,13 @@ function rebuild() {
   console.log("  （若开发环境的 better-sqlite3 报 ABI 不匹配，跑 `pnpm install --force` 铺回系统 node 的预编译。）");
 }
 
-try {
-  main();
-} catch (err) {
-  console.error(`\nstage 失败：${err instanceof Error ? err.message : String(err)}`);
-  process.exitCode = 1;
+// 直接 `node scripts/stage-desktop-resources.mjs` 跑时执行 main()；被 import 时（自检
+// 要拿 pmCli）不跑 —— 否则「import 一下」就会真的去装配一次，副作用大到没法测试。
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    main();
+  } catch (err) {
+    console.error(`\nstage 失败：${err instanceof Error ? err.message : String(err)}`);
+    process.exitCode = 1;
+  }
 }

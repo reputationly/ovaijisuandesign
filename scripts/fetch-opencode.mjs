@@ -60,12 +60,18 @@ const TARGETS = {
   "aarch64-pc-windows-msvc": { asset: "opencode-windows-arm64.zip", exe: "opencode.exe" },
 };
 
-/** 没给 --target 时按当前机器推一个 Rust triple。 */
-function hostTarget() {
-  const arch = process.arch === "arm64" ? "aarch64" : "x86_64";
-  if (process.platform === "darwin") return `${arch}-apple-darwin`;
-  if (process.platform === "win32") return `${arch}-pc-windows-msvc`;
-  throw new Error(`没有 ${process.platform} 的预编译产物；本项目只发 macOS 和 Windows。`);
+/**
+ * 没给 `--target` 时按当前机器推一个 Rust triple。
+ *
+ * platform / arch 是入参（默认取进程自己的）—— 这是个纯函数，**不该只能在真 Windows
+ * 上验**。本项目出的平台 bug 几乎都是「本地跑不到、CI 上去打脸」，
+ * 见 scripts/verify-platform-branches.mjs。
+ */
+export function hostTarget(platform = process.platform, arch = process.arch) {
+  const a = arch === "arm64" ? "aarch64" : "x86_64";
+  if (platform === "darwin") return `${a}-apple-darwin`;
+  if (platform === "win32") return `${a}-pc-windows-msvc`;
+  throw new Error(`没有 ${platform} 的预编译产物；本项目只发 macOS 和 Windows。`);
 }
 
 /**
@@ -187,13 +193,25 @@ async function main() {
   }
 }
 
-async function extract(zip, dir, exeName) {
-  // zip 里通常就是 exeName 一个文件，也有带一层目录的；两种都吃。
-  if (process.platform === "win32") {
-    execFileSync("powershell", ["-NoProfile", "-Command", `Expand-Archive -Force -LiteralPath '${zip}' -DestinationPath '${dir}'`], { stdio: "inherit" });
-  } else {
-    execFileSync("unzip", ["-o", "-q", zip, "-d", dir], { stdio: "inherit" });
+/**
+ * 解压命令。**选命令是纯函数**，跟实际执行分开 —— 这样「Windows 走 PowerShell、
+ * 其他走 unzip」这条分支在 macOS 上也能断言，不用等真 Windows runner 才发现写错。
+ *
+ * PowerShell 的参数用**单引号**包 `-LiteralPath` / `-DestinationPath`：Windows 路径里
+ * 常有 `C:\Users\runneradmin\...` 这种反斜杠和可能的括号，双引号会让 PowerShell 去做
+ * 插值，单引号才是字面量。
+ */
+export function extractCommand(platform, zip, dir) {
+  if (platform === "win32") {
+    return { cmd: "powershell", args: ["-NoProfile", "-Command", `Expand-Archive -Force -LiteralPath '${zip}' -DestinationPath '${dir}'`] };
   }
+  return { cmd: "unzip", args: ["-o", "-q", zip, "-d", dir] };
+}
+
+async function extract(zip, dir, exeName) {
+  const { cmd, args } = extractCommand(process.platform, zip, dir);
+  execFileSync(cmd, args, { stdio: "inherit" });
+  // zip 里通常就是 exeName 一个文件，也有带一层目录的；两种都吃。
   const direct = path.join(dir, exeName);
   if (await exists(direct)) return;
   const { readdir } = await import("node:fs/promises");

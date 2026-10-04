@@ -99,6 +99,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build
 
+      # 平台相关分支的离线自检：hostTarget / extractCommand / pmCli 三个纯函数，
+      # 用 fixture 目录把 mac 和 Windows 的每条分支都跑一遍。
+      # **这几个分支在本机（macOS、无 PNPM_HOME）一次都跑不到** —— Windows 上出包
+      # 连挂三次全是它们。所以不管在哪个 runner 上，都先跑这个：几秒钟，
+      # 换掉一整轮 8~10 分钟的试错。
+      - name: 平台分支离线自检
+        shell: bash
+        run: node scripts/verify-platform-branches.mjs
+
       # 取件逻辑的**离线自检**：不联网，用现造的 zip 走一遍真实的解压/校验/落盘路径。
       # 那些坑（魔数、体积、格式匹配、失败不留残骸）全都在这儿钉住 ——
       # 之前它们只能靠押 CI 一轮 8~10 分钟去撞，撞出来五个。
