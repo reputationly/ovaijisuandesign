@@ -211,8 +211,11 @@ function verifyBinary(bin, size) {
     closeSync(fd);
   }
   const magic = head.toString("hex");
+  // Mach-O 的魔数是 4 字节，整个比对。
   const isMachO = ["feedfacf", "cffaedfe", "cafebabe", "befcafe"].includes(magic);
-  const isPE = magic === "4d5a"; // "MZ"
+  // **PE 只有 2 字节** "MZ"。拿 4 字节的完整 hex 去比 "4d5a" 永远不相等 ——
+  // 读 4 字节是上面 Mach-O 需要的，PE 这边得截前两位比。踩过一次。
+  const isPE = magic.slice(0, 4) === "4d5a";
   if (!isMachO && !isPE) {
     throw new Error(`不是可执行文件（魔数 ${magic}）。多半下到了错误页而不是 zip。`);
   }
