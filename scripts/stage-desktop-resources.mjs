@@ -86,20 +86,36 @@ const COPY = [
 ];
 
 /**
- * Windows 上 `pnpm` / `npx` 是 **.cmd 垫片**，不是可执行文件 ——
- * `spawnSync`（也就是 `execFileSync`）不带 shell 时直接 ENOENT。win-x64 上撞过：
- * `stage 失败：spawnSync pnpm ENOENT`。macOS/Linux 上它们是有 shebang 的脚本，叫法一样。
+ * pnpm / npx 的**真实 JS 入口**，用当前 node 去跑。
  *
- * `du` 同样没有 Windows 版，只用来打体积日志，Windows 上拿不到就返回 0。
+ * Windows 上它们是 `.cmd` 垫片，而 Node 20.12+/22 起**不允许 spawnSync 直接执行
+ * `.cmd` / `.bat`**（CVE-2024-27980 的加固）—— 不处理会抛 `EINVAL`。
+ * 这个坑踩了两次才对上：先是 `ENOENT`（没加 `.cmd` 后缀），改完变成 `EINVAL`
+ * （加了后缀但垫片依然不可直接执行）。两次是同一个根因：**垫片根本不是可执行文件**。
+ *
+ * 找真正的 JS 入口：pnpm 跟着 `PNPM_HOME`（`pnpm/action-setup` 会设），npx-cli.js
+ * 跟着 Node 一起装。**全程不过 shell**，所以 checkout 路径带空格也不会被重新解析 ——
+ * `shell: true` 那条路会，而且失败时错得莫名其妙。
  */
-const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+function pmCli(name) {
+  const candidates = [];
+  if (process.env.PNPM_HOME) candidates.push(path.join(process.env.PNPM_HOME, `${name}.cjs`));
+  candidates.push(path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", `${name}-cli.js`));
+  const found = candidates.find((c) => existsSync(c));
+  return found ? { cmd: process.execPath, prefix: [found] } : { cmd: name, prefix: [] };
+}
+
+function runPm(name, args, opts = {}) {
+  const { cmd, prefix } = pmCli(name);
+  return run(cmd, [...prefix, ...args], opts);
+}
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...opts });
 }
 
-/** 目录体积（MB）。用 `du` 而不是递归 walk —— node_modules 里有几万个软链，walk 很慢。 */
+/** 目录体积（MB）。用 `du` 而不是递归 walk —— node_modules 里有几万个软链，walk 很慢。
+ *  Windows 上没有 `du`（`tar` 也没有），只打日志所以返回 0 而不是抛错。 */
 function dirSizeMb(dir) {
   if (process.platform === "win32") return 0; // Windows 没有 du；只是日志，不该因此失败
   try {
@@ -118,7 +134,7 @@ function main() {
 
   for (const { filter, dir } of DEPLOY) {
     process.stdout.write(`  pnpm deploy ${filter} → ${dir} … `);
-    run(PNPM, ["--filter", filter, "deploy", "--prod", path.join(OUT, dir)]);
+    runPm("pnpm", ["--filter", filter, "deploy", "--prod", path.join(OUT, dir)]);
     const dist = path.join(OUT, dir, "dist");
     if (!existsSync(dist)) throw new Error(`${filter} deploy 出来没有 dist/ —— 先跑 turbo build`);
     console.log(`${dirSizeMb(path.join(OUT, dir)).toFixed(0)} MB`);
@@ -203,7 +219,7 @@ function rebuild() {
   for (const dir of mods) {
     const abs = path.join(OUT, dir);
     process.stdout.write(`  ${dir} … `);
-    run(NPX, ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", abs, "--only", "better-sqlite3"], {
+    runPm("npx", ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", abs, "--only", "better-sqlite3"], {
       stdio: ["ignore", "inherit", "inherit"],
     });
     console.log("done");
