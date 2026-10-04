@@ -22,9 +22,8 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { createWriteStream } from "node:fs";
+import { closeSync, createWriteStream, openSync, readSync } from "node:fs";
 import { chmod, mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -128,20 +127,18 @@ async function main() {
   const spec = TARGETS[target];
   if (!spec) throw new Error(`不认识的 target：${target}\n  支持：${Object.keys(TARGETS).join(" / ")}`);
 
+  // 临时目录**必须和目标同卷**。Windows 上 CI 的工作区在 D:\ 而 %TEMP% 在 C:\，
+  // 跨卷 rename 直接 EXDEV（cross-device link not permitted）——踩过一次。
   await mkdir(DEST_DIR, { recursive: true });
   const dest = path.join(DEST_DIR, spec.exe);
   const stamp = path.join(DEST_DIR, ".version");
-
-  // 已经是这一版就什么都不做。CI 里每个 runner 都会跑一次，重复下载 44MB 纯属浪费。
-  if (await exists(stamp) && (await readFile(stamp, "utf8")).trim() === VERSION) {
-    if (await exists(dest)) {
+  const tmp = await mkdtemp(path.join(DEST_DIR, ".fetch-"));
+  try {
+    // 已经是这一版就什么都不做。CI 里每个 runner 都会跑一次，重复下载 44MB 纯属浪费。
+    if ((await exists(stamp)) && (await readFile(stamp, "utf8")).trim() === VERSION && (await exists(dest))) {
       console.log(`opencode ${VERSION} 已经在 ${path.relative(REPO_ROOT, dest)}，跳过。`);
       return;
     }
-  }
-
-  const tmp = await mkdtemp(path.join(tmpdir(), "ov-opencode-"));
-  try {
     const zip = path.join(tmp, spec.asset);
     console.log(`取 opencode ${VERSION}（${target}）…`);
     await download(assetUrls(spec.asset), zip);
@@ -154,14 +151,12 @@ async function main() {
 
     const got = path.join(tmp, spec.exe);
     if (spec.exe.endsWith(".exe") === false) await chmod(got, 0o755);
-    const version = probeVersion(got, spec.exe.endsWith(".exe"));
-    if (version !== VERSION) {
-      throw new Error(`版本对不上：拿到的 ${version}，要的是 ${VERSION}。资产名或 tag 写错了？`);
-    }
+    const check = verifyBinary(got, size);
 
     await rename(got, dest);
     await writeFile(stamp, `${VERSION}\n`);
-    console.log(`✓ opencode ${version} → ${path.relative(REPO_ROOT, dest)}（${(size / 1048576).toFixed(1)} MB zip）`);
+    const how = check.probed ? `自检 ${check.version}` : "已过魔数校验（本机架构跑不了，未自检）";
+    console.log(`✓ opencode ${VERSION} → ${path.relative(REPO_ROOT, dest)}（${(size / 1048576).toFixed(1)} MB zip，${how}）`);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -188,21 +183,52 @@ async function extract(zip, dir, exeName) {
   throw new Error(`解压后没找到 ${exeName}`);
 }
 
-/** 跑一下 `--version` 确认拿到的是能用的二进制。 */
-function probeVersion(bin, isWindows) {
+/**
+ * 校验取到的二进制。
+ *
+ * **硬标准是「文件对不对」，不是「本机能不能跑」。** 后者从来不是硬要求 ——
+ * x64 产物在 arm64 构建机、Windows 产物在 mac 上都跑不起来，那是正常的。
+ *
+ * 所以：
+ * - 大小和魔数是硬标准。魔数认 Mach-O（feedfacf / cffaedfe / cafebabe）和 PE（MZ）——
+ *   截断的 zip、错误页、只剩半个文件都过不了这一关。
+ * - `--version` 只是**尽力而为**的附加检查，失败只记日志不失败。曾经把它做成硬失败，
+ *   结果 macos-14 上那个 x64 二进制跑不起来，报错只有一句
+ *   `Command failed: …/opencode --version`，完全看不出是架构不对还是文件坏了 ——
+ *   而这两种情况的处理方式完全相反。
+ */
+function verifyBinary(bin, size) {
+  if (size < 50_000_000) throw new Error(`只有 ${(size / 1048576).toFixed(1)}MB，opencode 单体二进制不该这么小`);
+
+  const fd = openSync(bin, "r");
+  const head = Buffer.alloc(4);
+  try {
+    readSync(fd, head, 0, 4, 0);
+  } finally {
+    closeSync(fd);
+  }
+  const magic = head.toString("hex");
+  const isMachO = ["feedfacf", "cffaedfe", "cafebabe", "befcafe"].includes(magic);
+  const isPE = magic === "4d5a"; // "MZ"
+  if (!isMachO && !isPE) {
+    throw new Error(`不是可执行文件（魔数 ${magic}）。多半下到了错误页而不是 zip。`);
+  }
+
   try {
     const out = execFileSync(bin, ["--version"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "pipe"] });
     const m = out.match(/(\d+\.\d+\.\d+)/);
     if (!m) throw new Error(`输出里没有版本号：${out.trim().slice(0, 80)}`);
-    return m[1];
+    if (m[1] !== VERSION) throw new Error(`版本对不上：拿到的 ${m[1]}，要的是 ${VERSION}`);
+    return { probed: true, version: m[1] };
   } catch (err) {
-    // 交叉架构的二进制在本机跑不起来（arm64 上跑 x64 需要 Rosetta，Windows 的更跑不了）。
-    // 这不是错误 —— 文件在就已经够了，真正能不能跑由目标机器验证。
-    if (isWindows || err.code === "ENOEXEC" || err.code === "EBADARCH") {
-      process.stderr.write(`  （本机跑不了这个架构的二进制，跳过版本自检）\n`);
-      return VERSION;
-    }
-    throw err;
+    // 跑不起来不等于文件坏 —— 交叉架构构建就是这样。把原因打出来，别让人只能猜。
+    const code = err?.code ?? err?.status ?? "?";
+    const sig = err?.signal ? ` signal=${err.signal}` : "";
+    process.stderr.write(
+      `  （本机 ${process.platform}/${process.arch} 跑不了这个 ${isPE ? "Windows" : "Mach-O"} 产物` +
+        `（code=${code}${sig}），跳过版本自检 —— 文件本身已按魔数校验通过）\n`,
+    );
+    return { probed: false };
   }
 }
 
@@ -215,7 +241,12 @@ async function exists(p) {
   }
 }
 
-main().catch((err) => {
-  console.error(`fetch-opencode 失败：${err instanceof Error ? err.message : String(err)}`);
-  process.exitCode = 1;
-});
+export { verifyBinary, TARGETS, VERSION as PINNED_VERSION };
+
+// 直接 `node scripts/fetch-opencode.mjs` 跑时执行 main()；被 import 时（测试）不跑。
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(`fetch-opencode 失败：${err instanceof Error ? err.message : String(err)}`);
+    process.exitCode = 1;
+  });
+}

@@ -183,13 +183,21 @@ function main() {
 function rebuild() {
   if (!ELECTRON_VERSION) return;
   console.log(`\n按 Electron ${ELECTRON_VERSION} 的 ABI 重编原生模块 …`);
-  const targets = [path.join(OUT, "gateway"), path.join(OUT, "mcp-tools")].filter((d) => existsSync(d));
-  for (const dir of targets) {
-    process.stdout.write(`  ${path.relative(OUT, dir)} … `);
-    run("npx", ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", dir, "--only-module", "better-sqlite3"], { stdio: ["ignore", "inherit", "inherit"] });
+  // `--module-dir` 指的是**带 package.json 的包根**，不是 node_modules ——
+  // electron-rebuild 会去读 `<module-dir>/package.json` 找依赖树，而 pnpm deploy
+  // 出来的 node_modules 顶层并没有 package.json（传它会 ENOENT）。
+  // 只挑 better-sqlite3：sharp 是 prebuilt N-API 包，ABI 跨 Node/Electron 版本稳定，
+  // 重编它只会多一次 node-gyp 和一堆编译输出。
+  const mods = ["gateway", "mcp-tools"].filter((d) => existsSync(path.join(OUT, d, "node_modules")));
+  for (const dir of mods) {
+    const abs = path.join(OUT, dir);
+    process.stdout.write(`  ${dir} … `);
+    run("npx", ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", abs, "--only", "better-sqlite3"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
     console.log("done");
   }
-  console.log("  注：sharp 是 prebuilt N-API 包，跨 Node/Electron 版本 ABI 稳定，不需要重编。");
+  console.log("  （sharp 是 prebuilt N-API 包，跨 Node/Electron ABI 稳定，不需要重编。）");
 }
 
 try {
