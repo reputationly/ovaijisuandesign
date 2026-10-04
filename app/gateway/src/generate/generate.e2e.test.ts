@@ -200,6 +200,45 @@ describe("生成（假平台）", () => {
     expect(canvas.edges.some((e: any) => e.source === imageNode && e.target === done.result.node_id)).toBe(true);
   });
 
+  it("参考生视频 / 首尾帧：不传 source_node_id，光靠路径也要连出派生边", async () => {
+    // **这条路上 `source_node_id` 永远是空的。** agent（MCP）提交的是 `image_paths` /
+    // `params.reference_images` 这些**路径**，不是节点 id。建边只能照路径反查资产再反查节点。
+    //
+    // 以前这里什么都不填，占位卡和结果节点都没有边 —— 参考图和视频在画布上看起来毫无关系，
+    // 而平台明明是照着那张参考图生成的。
+    //
+    // 两种请求体都照 MCP `buildVideoBody` 的真实形状写：参考图走
+    // `params.image_mode="reference"` + JSON 化的 `params.reference_images`（`image_paths` 是空的），
+    // 首尾帧走 `image_paths` 的两个槽位。写错形状的话测的是网关的容错，不是客户端的真请求。
+    const second = await http.post("/api/generate/image/submit").send({ backend: "nano_banana", prompt: "一只黑猫", filename: "黑猫" });
+    const secondNode = (await settle(second.body.task_id)).result.node_id as string;
+    const both = [imageNode, secondNode].sort();
+    const sourcesInto = async (target: string) =>
+      ((await http.get("/api/canvas")).body.edges as any[]).filter((e) => e.target === target).map((e) => e.source).sort();
+
+    // 参考生视频。
+    const ref = await http.post("/api/generate/video/submit").send({
+      backend: "minimax_v3",
+      prompt: "照着参考图动起来",
+      image_paths: [],
+      params: { image_mode: "reference", reference_images: JSON.stringify(["白猫.png", "黑猫.png"]) },
+      source_tool: "hub_generate_video:MiniMax:multimodal",
+    });
+    const refNode = (await settle(ref.body.task_id)).result.node_id as string;
+    expect(await sourcesInto(refNode)).toEqual(both);
+
+    // 首尾帧：两个槽位分别落到两张图上。
+    const flf = await http.post("/api/generate/video/submit").send({
+      backend: "minimax_v3",
+      prompt: "从白猫到黑猫",
+      image_paths: ["白猫.png", "黑猫.png"],
+      params: { image_mode: "first-last-frame" },
+      source_tool: "hub_generate_video:MiniMax:first-last-frame",
+    });
+    const flfNode = (await settle(flf.body.task_id)).result.node_id as string;
+    expect(await sourcesInto(flfNode)).toEqual(both);
+  });
+
   it("平台终态失败：占位卡标错误，查询回 cloud_terminal", async () => {
     platform.failVideos();
     const sub = await http.post("/api/generate/video/submit").send({ prompt: "不合规的内容" });

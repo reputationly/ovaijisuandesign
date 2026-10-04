@@ -761,8 +761,28 @@ export class CanvasService {
   }
 
   /**
+   * 资产 id → 画布上代表它的节点 id。
+   *
+   * 同一个资产在画布上可能有好几个节点（被降级的旧版本、用户复制出来的）。连线要落在
+   * **当前那一个**上：优先主节点（不是克隆、没藏起来），都不合格才退回第一个 ——
+   * 连到藏起来的节点上，那条线用户在界面上根本看不见，而"边建了"这件事却是真的。
+   */
+  private nodeIdForAsset(c: CanvasFile, assetId: string): string | undefined {
+    const withAsset = c.nodes.filter((n) => n.assetId === assetId);
+    const primary = withAsset.find((n) => {
+      const meta = (n.meta ?? {}) as { cloneOf?: string; hidden?: boolean };
+      return !meta.cloneOf && !meta.hidden;
+    });
+    return primary?.id ?? withAsset[0]?.id;
+  }
+
+  /**
    * 建一张"生成中"的占位卡。来源可选：有来源时贴着来源往下排、连派生边，并清掉同来源同 prompt
    * 之前失败的卡（这次重试就是替它的）；没有来源时找一块空地。
+   *
+   * **`referenceImageAssetIds` 也是来源。** `sourceNodeId` 是单数，而参考生视频最多 9 张
+   * 参考图、首尾帧是两个槽位 —— 只认 `sourceNodeId` 的话，agent 用 `image_paths` 提交的
+   * 参考图一条边都不会有（`source` 是 undefined），占位卡和结果节点在画布上凭空出现。
    */
   async addPlaceholder(dto: PlaceholderInput): Promise<{ placeholderId: string }> {
     return this.mutate((c) => {
@@ -799,10 +819,14 @@ export class CanvasService {
       const createdAt = new Date().toISOString();
       const size = placeholderNodeSize("generating", aspectRatio, dto.mediaType);
       const refs = dto.referenceImageAssetIds ?? [];
+      const refNodeIds = refs.map((id) => this.nodeIdForAsset(c, id)).filter((x): x is string => !!x);
+      // 来源 = 显式 sourceNodeId + 解析出来的参考图节点。`addDerivationEdges` 自己会去重，
+      // 但位置计算要一份干净的列表（重复 id 会让"兄弟节点"判定失真）。
+      const sourceIds = [...new Set([...(source ? [source.id] : []), ...refNodeIds])];
       const node: CanvasNode = {
         id: randomUUID(),
         type: "placeholder",
-        positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, source ? [source.id] : []) },
+        positions: { [c.mode]: resolveDerivedOrFreePosition(c, c.mode, size, sourceIds) },
         size,
         data: {
           prompt: dto.prompt,
@@ -822,7 +846,7 @@ export class CanvasService {
       };
       c.nodes.push(node);
       this.pendingNodes.add(node.id);
-      const edges = source ? this.addDerivationEdges(c, [source.id], node.id, { prompt: dto.prompt, model: dto.model }) : [];
+      const edges = this.addDerivationEdges(c, sourceIds, node.id, { prompt: dto.prompt, model: dto.model });
       return {
         canvas: c,
         result: { placeholderId: node.id },
@@ -836,7 +860,7 @@ export class CanvasService {
    * 生成结果上画布。占位卡还在就**原地填**：id、位置、父组、边都不动，渲染层只收到一次
    * `updatedNodes`，节点不会卸载重挂；占位卡没了（用户删了）就当新节点加，贴着来源放。
    */
-  async fillGeneratedNode(dto: { placeholderId?: string; replace?: boolean; sourceNodeId?: string; row: AssetRow; data: Record<string, unknown> }): Promise<string> {
+  async fillGeneratedNode(dto: { placeholderId?: string; replace?: boolean; sourceNodeId?: string; referenceAssetIds?: string[]; row: AssetRow; data: Record<string, unknown> }): Promise<string> {
     return this.mutate((c) => {
       const type = toAssetInfo(dto.row).type;
       const size = computeNodeSize(dto.row.width, dto.row.height) ?? defaultNodeSize(type);
@@ -850,8 +874,13 @@ export class CanvasService {
         this.pendingNodes.add(node.id);
         return { canvas: c, result: node.id, event: { updatedNodes: [node] } };
       }
-      const sources = dto.sourceNodeId && c.nodes.some((n) => n.id === dto.sourceNodeId) ? [dto.sourceNodeId] : [];
-      const { node, edges } = this.addAssetNode(c, dto.row, { sourceNodeIds: sources, extraData: dto.data, size });
+      const sources = [
+        ...(dto.sourceNodeId && c.nodes.some((n) => n.id === dto.sourceNodeId) ? [dto.sourceNodeId] : []),
+        // 占位卡没了（用户生成中途删了，或 gateway 重启后补跑）才走到这里，边得在这儿补上，
+        // 否则结果节点是"凭空出现"的 —— 和它参考了谁的图完全对不上。
+        ...(dto.referenceAssetIds ?? []).map((id) => this.nodeIdForAsset(c, id)).filter((x): x is string => !!x),
+      ];
+      const { node, edges } = this.addAssetNode(c, dto.row, { sourceNodeIds: [...new Set(sources)], extraData: dto.data, size });
       return { canvas: c, result: node.id, event: { addedNodes: [node], addedEdges: edges } };
     });
   }

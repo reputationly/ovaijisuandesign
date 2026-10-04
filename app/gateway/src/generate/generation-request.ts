@@ -149,6 +149,43 @@ export function videoReferences(req: GenerationRequest): { images: string[]; vid
   };
 }
 
+/**
+ * 这次生成**实际提交给平台的图片输入**，顺序即提交顺序。
+ *
+ * 画布要照这份清单建派生边（图片 → 视频生成节点），所以它必须和 `runImage` /
+ * `runVideo` 用的是同一套解析 —— 复用 `videoPlan` / `videoFrames` /
+ * `videoReferences` / `selectFrames`，而不是重新读一遍 `req`。另算一套的话，线上的图
+ * 和平台收到的图可能不是同一批，而这种不一致在界面上完全看不出来，只有成片出来才发现对不上。
+ *
+ * 视频的帧槽位排在参考图前面：首尾帧是"从这张图开始/结束"，参考图是"照这些图的感觉"，
+ * 连线从时间顺序上也是这个先后。
+ *
+ * **走 `selectFrames` 而不是 `framesFor`**：建边发生在建占位卡那一步，早于平台校验，
+ * 不能因为"尾帧没给"就把整次提交变成一个 400 —— 那是 `runVideo` 该报、且要报成可重试的错。
+ */
+export function submittedImageInputs(mediaType: MediaType, req: GenerationRequest): string[] {
+  if (mediaType === "video") {
+    const f = videoFrames(req);
+    const refs = videoReferences(req);
+    return uniq([...selectFrames(videoPlan(req), f.first, f.last), ...refs.images]);
+  }
+  return uniq((req.image_paths ?? []).filter(nonEmpty));
+}
+
+/** 按玩法挑出要发的帧，顺序 [首帧, 尾帧]。**缺帧的位置直接不出现**，不做校验。 */
+function selectFrames(plan: video.VideoPlan, first?: string, last?: string): string[] {
+  switch (plan) {
+    case video.VideoPlan.FirstLastFrame:
+      return [first, last].filter(nonEmpty);
+    case video.VideoPlan.ImageToVideo:
+      return nonEmpty(first) ? [first] : [];
+    case video.VideoPlan.LastFrame:
+      return nonEmpty(last) ? [last] : [];
+    default:
+      return [];
+  }
+}
+
 /** 按玩法挑出要发的帧，顺序 [首帧, 尾帧]。缺帧报错而不是降级：flf2v 少一张会被平台当成 i2v。 */
 export function framesFor(plan: video.VideoPlan, first?: string, last?: string): string[] {
   const need = (what: string) => PlatformError.config(`这种玩法需要${what}`);

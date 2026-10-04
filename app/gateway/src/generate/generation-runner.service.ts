@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
+import path from "node:path";
 
 import { BadRequestException, Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import { toAssetInfo } from "@ov/assets";
@@ -11,7 +12,7 @@ import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { GatewayConfig } from "../config/gateway-config.js";
 import { VoiceLibraryService } from "../speech/voice-library.service.js";
 import { type ActiveGenerationRecord, ActiveGenerationsStore } from "./active-generations.store.js";
-import { type GenerationRequest, type MediaType, displayModel, runOnPlatform } from "./generation-request.js";
+import { type GenerationRequest, type MediaType, displayModel, runOnPlatform, submittedImageInputs } from "./generation-request.js";
 import { downloadMediaToDir } from "./media-download.js";
 import { MediaConfigService } from "./media-config.service.js";
 
@@ -218,9 +219,34 @@ export class GenerationRunner implements OnApplicationBootstrap {
     }
   }
 
+  /**
+   * 这次生成的图片输入 → 资产 id，交给画布去连派生边。
+   *
+   * **只认工作区里的文件。** 远程 URL 在画布上没有对应节点，硬凑一条线只会指向一个
+   * 不存在的东西；而相对/绝对路径都先归一成工作区相对路径再查，否则同一个图换个
+   * 写法就连不上了。
+   *
+   * 用 `submittedImageInputs` 而不是自己读 `req` —— 那是 `runImage` / `runVideo` 真正
+   * 提交给平台的那份清单，边照着它建，线上的图和平台收到的图就不可能对不上。
+   */
+  private referenceAssetIds(mediaType: MediaType, req: GenerationRequest): string[] {
+    const out: string[] = [];
+    for (const p of submittedImageInputs(mediaType, req)) {
+      if (!p || /^https?:\/\//i.test(p)) continue;
+      const rel = path.isAbsolute(p) ? this.paths.relativize(p) : p;
+      const id = rel ? this.assets.byPath(rel)?.id : undefined;
+      if (id) out.push(id);
+    }
+    return [...new Set(out)];
+  }
+
   private async createPlaceholder(mediaType: MediaType, req: GenerationRequest, model: string, generationAttemptId: string): Promise<string | null> {
     const input = {
       sourceNodeId: req.source_node_id,
+      // agent 用 `image_paths` / `first_frame_image` 提交的是**路径**而不是节点 id，所以
+      // `source_node_id` 对它永远是空的。以前这里什么都不填，于是占位卡和结果节点都没有
+      // 派生边 —— 参考生视频、首尾帧在画布上看起来像凭空冒出来的。
+      referenceImageAssetIds: this.referenceAssetIds(mediaType, req),
       prompt: req.display_prompt ?? req.prompt ?? "",
       model,
       mediaType: mediaType === "speech" || mediaType === "music" ? "audio" : mediaType,
@@ -320,6 +346,8 @@ export class GenerationRunner implements OnApplicationBootstrap {
       placeholderId: r.placeholderId ?? req.replace_node_id,
       replace: !r.placeholderId && !!req.replace_node_id,
       sourceNodeId: req.source_node_id,
+      // 占位卡正常建出来时边已经连好了，这里是给"占位卡没了"那条路兜底的。
+      referenceAssetIds: this.referenceAssetIds(r.mediaType, req),
       row,
       data: {
         prompt: assetMeta.prompt,
