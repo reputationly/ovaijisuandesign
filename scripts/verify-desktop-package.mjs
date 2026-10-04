@@ -39,17 +39,36 @@ function opencodeExe(resources) {
 }
 
 /**
- * 这个产物**应该**是什么架构 —— 从产物路径反推。
+ * 产物**自己的主二进制**是什么架构 —— 这才是这个包的真实架构。
  *
- * electron-builder 的输出目录带架构：`mac/`（x64）、`mac-arm64/`、`mac-x64/`、
- * `win-unpacked/`。**不能读 `process.platform`** —— 本机是 mac 而校验的是别人机器上
- * 打出来的包。
+ * ## 为什么不按目录名猜
+ *
+ * electron-builder 只出一种架构时，目录就叫 `mac`，**不是** `mac-x64`。
+ * 我原来按 `mac/` = x64 猜，结果栽了：GitHub 的 `macos-14` label 现在解析到
+ * **arm64** 镜像，于是 `--mac --x64` 是在 arm64 机器上交叉编出来的，
+ * 目录叫 `mac/`、看着像 x64，里面却全是 arm64 原生模块。
+ *
+ * **主二进制（`Contents/MacOS/<产品名>` 或 `win-unpacked/<产品名>.exe`）不会说谎** ——
+ * electron-builder 交叉编时它也是目标架构，而原生模块是构建机的。拿它们互相比，
+ * 就把「这个包到底是什么架构」和「里面的模块是什么架构」绑在同一个事实上。
  */
-function expectedArch(resources) {
-  if (/[\\/]win-unpacked[\\/]/.test(resources)) return { os: "win32", arch: "x64" };
-  if (/[\\/]mac-arm64[\\/]/.test(resources)) return { os: "darwin", arch: "arm64" };
-  if (/[\\/]mac-x64[\\/]/.test(resources)) return { os: "darwin", arch: "x64" };
-  return { os: "darwin", arch: "x64" };
+function productArch(resources) {
+  const mac = path.resolve(resources, "..", "MacOS");
+  if (existsSync(mac)) {
+    for (const f of readdirSync(mac)) {
+      const p = path.join(mac, f);
+      if (statSync(p).isFile()) return { arch: binaryArch(p), from: path.relative(REPO, p) };
+    }
+  }
+  // win-unpacked：resources 的同级就是 exe
+  const dir = path.resolve(resources, "..");
+  for (const f of readdirSync(dir)) {
+    if (f.toLowerCase().endsWith(".exe")) {
+      const p = path.join(dir, f);
+      return { arch: binaryArch(p), from: path.relative(REPO, p) };
+    }
+  }
+  return null;
 }
 
 /**
@@ -187,13 +206,23 @@ function main() {
     console.log("  ❌ gateway/node_modules 整个不见了 —— pnpm deploy 的软链没解开？");
   }
 
-  // **架构必须对得上。** 文件齐 ≠ 能跑：arm64 机器上打出来的 x64 包文件是全的，
-  // 但 better_sqlite3.node 和 sharp libvips 是 arm64 的，Intel Mac 上一碰资产库就炸。
-  // 这条断言就是为了堵这个 —— 之前只查存在性，那个坏包能一路绿到发出去。
-  //
+  // **架构必须和 app 自己的主二进制一致。** 文件齐 ≠ 能跑，而且「文件齐」连架构对都
+  // 不保证：一个在 arm64 机器上交叉编出来的 x64 包文件是全的、目录名也像 x64，
+  // 里面的 better_sqlite3.node 和 sharp libvips 却全是 arm64 的，Intel Mac 用户
+  // 装上后一碰资产库才炸。踩过一次。
+  const product = productArch(resources);
+  if (!product) {
+    bad++;
+    console.log("  ❌ 找不到产物的主二进制 —— 无从判断这个包到底是什么架构");
+  } else if (product.arch === "未知格式" || product.arch.startsWith("cputype") || product.arch.startsWith("machine")) {
+    bad++;
+    console.log(`  ❌ 主二进制架构读不出来（${product.arch}）：${product.from}`);
+  } else {
+    console.log(`  ℹ️  产物主二进制是 ${product.arch}（${product.from}）`);
+  }
+  const want = product?.arch;
   // **定向查这几个包，不扫目录** —— 扫的话 pnpm 的 `.pnpm/<pkg>@ver/node_modules/<pkg>/…`
   // 有六七层深，扫全树又慢又容易漏（better-sqlite3 就在第 7 层，扫浅了会漏掉它）。
-  const want = expectedArch(resources);
   const NATIVE = ["better-sqlite3", "sharp", "@napi-rs/canvas", "@node-rs/xxhash"];
   const nativeFiles = [];
   for (const dep of NATIVE) {
@@ -219,11 +248,11 @@ function main() {
     for (const f of nativeFiles) {
       const got = binaryArch(f);
       // fat（universal）两个架构都有，x64 目标也接受。
-      const okArch = got === want.arch || got === "fat";
-      if (okArch) console.log(`  ✅ 原生模块 ${got}（期望 ${want.arch}）  ${path.relative(gwModules, f)}`);
+      const okArch = got === want || got === "fat";
+      if (okArch) console.log(`  ✅ 原生模块 ${got}（与主二进制一致）  ${path.relative(gwModules, f)}`);
       else {
         bad++;
-        console.log(`  ❌ 原生模块架构不符：${path.relative(gwModules, f)} 是 ${got}，这个包应该是 ${want.arch}`);
+        console.log(`  ❌ 原生模块架构不符：${path.relative(gwModules, f)} 是 ${got}，这个包的主二进制是 ${want}，但它不一样`);
         console.log(`     —— 交叉编出来的包在目标机器上第一次碰资产库就会炸`);
       }
     }

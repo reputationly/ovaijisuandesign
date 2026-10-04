@@ -86,7 +86,13 @@ jobs:
       matrix:
         include:
           - { os: macos-latest, rust: aarch64-apple-darwin, target: "--mac --arm64", label: mac-arm64 }
-          - { os: macos-14, rust: x86_64-apple-darwin, target: "--mac --x64", label: mac-x64 }
+          # **必须是真 Intel runner。** 曾经写 `macos-14`，而那个 label 现在解析到
+          # `macos-14-arm64` 镜像 —— 于是 `--mac --x64` 是在 arm64 机器上交叉编，
+          # 产出的 x64 包里面装的是 arm64 原生模块。目录叫 `mac/`、看着像 x64，
+          # 布局断言全绿，实际上装到 Intel Mac 上第一次碰资产库就炸。
+          # 现在由 verify-desktop-package 拿「app 自己的主二进制」当权威来比对，
+          # runner 选错也会红 —— 但更省事的是一开始就选对。
+          - { os: macos-15-intel, rust: x86_64-apple-darwin, target: "--mac --x64", label: mac-x64 }
           - { os: windows-latest, rust: x86_64-pc-windows-msvc, target: "--win --x64", label: win-x64 }
     runs-on: ${{ matrix.os }}
     steps:
