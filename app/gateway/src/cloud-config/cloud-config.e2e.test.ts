@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -168,13 +168,30 @@ describe("云端配置类路由的本地默认值", () => {
     // 视频主机有三种（cdn.hailuoai.com / cdn.hailuoai.video / cdn.hailuo.ai），原文如此。
     expect([...videoUrls].every((u) => /^https:\/\/cdn\.hailuoai\.(com|video)\/|^https:\/\/cdn\.hailuo\.ai\//.test(u))).toBe(true);
 
-    // 抽 6 张图核对：路由回 200，字节和 media/ 下的一致。
+    // 抽 3 张图核对。**这里有两种合法环境，用同一份断言盖住**：
+    //
+    // - 仓库里下过素材（本地开发）：`assets/home-showcase/media/` 有文件 → 200，字节逐一对得上。
+    // - 仓库里没下过（CI、新 clone、发布包）：那个目录是 gitignore 的，CI 不下载 →
+    //   路由 302 回登记的 CDN 原地址。这正是注释里写的那条契约
+    //   （「新 clone / 发布包没带素材时界面照常工作，只是图走网络」）。
+    //
+    // 之前这里无条件要求 200 + 读本地文件比对，于是 **CI 必挂** —— 那条断言是 1b2ff45 加的，
+    // 而 CI 上一轮成功（2adc15e）在它之前，所以它从来没在 CI 上跑过。
+    const manifest = JSON.parse(readFileSync(path.join(REPO, "assets/home-showcase/media-manifest.json"), "utf8")) as Record<string, { url: string }>;
     for (const url of [...imageUrls].slice(0, 3)) {
-      const r = await http.get(url).buffer(true);
-      expect(r.status, url).toBe(200);
       const key = decodeURIComponent(url.split("/").pop()!);
-      expect(r.headers["content-type"]).toMatch(/^image\//);
-      expect(Buffer.compare(r.body, readFileSync(path.join(REPO, "assets/home-showcase/media", key)))).toBe(0);
+      const local = path.join(REPO, "assets/home-showcase/media", key);
+      if (existsSync(local)) {
+        const r = await http.get(url).buffer(true);
+        expect(r.status, key).toBe(200);
+        expect(r.headers["content-type"]).toMatch(/^image\//);
+        expect(Buffer.compare(r.body, readFileSync(local)), key).toBe(0);
+      } else {
+        // redirects(0)：默认 supertest 会跟 302，跟了就看不到这个状态本身。
+        const r = await http.get(url).redirects(0);
+        expect(r.status, key).toBe(302);
+        expect(r.headers.location, key).toBe(manifest[key]?.url);
+      }
     }
 
     // legacy 的 8 个文件 + 使用教程 PDF 也还在（渲染层缓存的旧配置还引用）。
@@ -201,10 +218,18 @@ describe("云端配置类路由的本地默认值", () => {
     expect(names.has("3d-animation-short-generator")).toBe(true);
   });
 
-  it("图片本地还没下载时 302 回 CDN（新 clone / 发布包没带素材时界面照常工作）", async () => {
+  it("图片本地还没有时 302 回 CDN（新 clone / 发布包没带素材时界面照常工作）", async () => {
     const manifest = JSON.parse(readFileSync(path.join(REPO, "assets/home-showcase/media-manifest.json"), "utf8")) as Record<string, { url: string }>;
     const [key, entry] = Object.entries(manifest)[0]!;
     const file = path.join(REPO, "assets/home-showcase/media", key);
+    // CI 上 media/ 整个目录都不存在（gitignore + CI 不下载），这时候没有可挪走的文件，
+    // 直接断言 302 即可 —— 挪一个不存在的文件会 ENOENT，那才是这条用例在 CI 上挂的原因。
+    if (!existsSync(file)) {
+      const direct = await http.get(`/api/v1/home/showcase-assets/${key}`).redirects(0).buffer(true);
+      expect(direct.status).toBe(302);
+      expect(direct.headers.location).toBe(entry.url);
+      return;
+    }
     const backup = `${file}.e2e-bak`;
     renameSync(file, backup);
     try {
@@ -214,6 +239,28 @@ describe("云端配置类路由的本地默认值", () => {
       expect(r.headers.location).toBe(entry.url);
     } finally {
       renameSync(backup, file);
+    }
+  });
+
+  it("首启预热写进可写缓存后，路由优先发缓存那份（而不是包内那份旧图）", async () => {
+    // 缓存目录由 HILO_HOMESHOWCASE_CACHE 指定（主进程给 userData/home-showcase）。
+    // 必须在 createApp 之前设好 —— showcaseCacheDir 是每次请求时读的，但这里要跟
+    // 路由读的是同一个值，设晚了就测不到这条路径。
+    const cacheRoot = path.join(root, "home-showcase-cache");
+    process.env.HILO_HOMESHOWCASE_CACHE = cacheRoot;
+    try {
+      const manifest = JSON.parse(readFileSync(path.join(REPO, "assets/home-showcase/media-manifest.json"), "utf8")) as Record<string, { url: string }>;
+      const [key] = Object.entries(manifest)[0]!;
+      const media = path.join(cacheRoot, "media");
+      mkdirSync(media, { recursive: true });
+      // 内容故意和真图不一样：能断言出「发的是缓存那份」而不是碰巧命中包内。
+      writeFileSync(path.join(media, key), "缓存里的图");
+
+      const r = await http.get(`/api/v1/home/showcase-assets/${key}`).buffer(true);
+      expect(r.status).toBe(200);
+      expect(r.body.toString()).toBe("缓存里的图");
+    } finally {
+      delete process.env.HILO_HOMESHOWCASE_CACHE;
     }
   });
 

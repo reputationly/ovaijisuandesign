@@ -156,6 +156,14 @@ export class ShowcaseWarmer implements OnApplicationBootstrap {
   constructor(private readonly paths: WorkspacePathService) {}
 
   onApplicationBootstrap(): void {
+    // 测试里不预热。e2e 每个文件都会 `createApp()`，于是一次全量跑能起十几个 app，
+    // 十几个预热一起往 CDN 打 —— 既白花 CI 带宽，也给那些对时序敏感的老用例添噪声
+    // （实测把 `i18n：记下界面语言` 偶发带挂）。预热对测试也没有意义：断言的是路由
+    // 的三级回落，不该由真下载来满足。
+    if (process.env.VITEST || process.env.NODE_ENV === "test") {
+      this.log.log("测试环境，跳过首启预热");
+      return;
+    }
     // 不 await：启动路径不因为下载图片变慢。
     void warmShowcaseCovers(this.paths).then((r) => {
       if (r.warmed > 0) this.log.log(`首启预热：写入 ${r.warmed} 张封面${r.reason ? `（${r.reason}）` : ""}`);
