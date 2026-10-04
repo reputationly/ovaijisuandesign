@@ -115,6 +115,38 @@ export interface ShowcaseCloudConfig {
   mediaKeys: Map<string, string>;
   /** 保持 CDN 的媒体 URL 数（video / audio 附件 + 输出视频）。 */
   mediaCount: number;
+  /**
+   * 封面图，按首页显示顺序，每项是 `{key, cdnUrl}`。
+   * 首启预热按这个顺序取前 N 个（见 showcase-warm.ts）。
+   */
+  covers: { key: string; cdnUrl: string }[];
+}
+
+/**
+ * 按**首页实际显示顺序**列出封面图 URL：section 顺序 → item 顺序 → outputs 顺序。
+ *
+ * 首启预热（showcase-warm.ts）只预热这个列表的前 N 个，而不是整个 452 张 ——
+ * 那是用户打开首页第一屏会看到的顺序，预热别的等于替用户猜他往哪滚。
+ *
+ * 每个 cover 是 `{domestic, overseas}`：**两个都收**。gateway 这边没有"当前区域"这个概念
+ * （区域是平台配置里的事，不在这里），只挑一个就有一半用户看到的是 302。
+ * `urlValues` 的顺序是 `Object.values`，先 domestic 后 overseas，所以前 N 个自然覆盖到。
+ */
+export function showcaseCoverUrlsInOrder(config: AnyRecord): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const section of config.sections ?? []) {
+    for (const item of section.items ?? []) {
+      for (const outItem of item.outputs ?? []) {
+        for (const url of urlValues(outItem?.cover)) {
+          if (seen.has(url)) continue;
+          seen.add(url);
+          out.push(url);
+        }
+      }
+    }
+  }
+  return out;
 }
 
 let cached: ShowcaseCloudConfig | undefined;
@@ -131,8 +163,18 @@ export function loadShowcaseCloudConfig(): ShowcaseCloudConfig {
   const { images, media } = collectShowcaseAssets(raw);
   const mediaKeys = new Map(images.map((url) => [showcaseAssetKey(url), url]));
   // 同一 URL 的 domestic/overseas 是镜像，key 不同（URL 不同）、内容各自一份，都下载。
-  cached = { config: rewriteShowcaseConfig(raw), mediaKeys, mediaCount: media.length };
+  const covers = showcaseCoverUrlsInOrder(raw).map((url) => ({ key: showcaseAssetKey(url), cdnUrl: url }));
+  cached = { config: rewriteShowcaseConfig(raw), mediaKeys, mediaCount: media.length, covers };
   return cached;
+}
+
+/** 首页封面图（按显示顺序）。首启预热用；拿不到配置时返回空数组而不是抛 —— 预热是锦上添花。 */
+export function showcaseCovers(): { key: string; cdnUrl: string }[] {
+  try {
+    return loadShowcaseCloudConfig().covers;
+  } catch {
+    return [];
+  }
 }
 
 /** 静态路由用：key → CDN 原地址；不在登记表里返回 undefined（调用方 404）。 */

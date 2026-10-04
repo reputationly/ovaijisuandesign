@@ -146,7 +146,15 @@ async function boot(): Promise<Running> {
   // 每个 gateway 都要知道的两处位置：opencode 的会话库（项目导出导入读写它）、项目根（画布引用解析项目素材）。
   // opencode 的 XDG_DATA_HOME 指在 runtimeDir 下，见 opencode/index.ts。
   const opencodeDbPath = path.join(dirs.runtimeDir, "data-home", "opencode", "opencode.db");
-  const sharedGatewayEnv = { HILO_OPENCODE_DB: opencodeDbPath, HILO_PROJECTS_ROOT: dirs.projectsRoot };
+  const sharedGatewayEnv = {
+    HILO_OPENCODE_DB: opencodeDbPath,
+    HILO_PROJECTS_ROOT: dirs.projectsRoot,
+    // 首页示例图的**可写**缓存。必须给一个包外的地方：发布包里 `resources/home-showcase`
+    // 是只读的（macOS 的 .app/Contents 和 Windows 的 Program Files 都不是当前用户能写的），
+    // 预热往那儿写会 EACCES。放 userData 是全应用共享的 —— 应用级 gateway 和每个工作区的
+    // gateway 都指到同一份，不会每个项目重下一遍。
+    HILO_HOMESHOWCASE_CACHE: path.join(dirs.userData, "home-showcase"),
+  };
 
   // 应用级 gateway：先占端口，窗口拿到地址就能开
   mkdirSync(dirs.outputDir, { recursive: true });

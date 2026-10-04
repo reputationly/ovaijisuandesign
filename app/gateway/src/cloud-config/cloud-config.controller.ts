@@ -4,6 +4,8 @@ import path from "node:path";
 import { Controller, Get, NotFoundException, Param, Post, Query, Res } from "@nestjs/common";
 import type { Response } from "express";
 
+import { WorkspacePathService } from "../common/workspace-path.service.js";
+
 import {
   APOLLO_DEFAULTS,
   EMPTY_GROUP_LIST,
@@ -21,6 +23,7 @@ import {
   homeShowcaseDir,
 } from "./home-showcase.js";
 import { loadShowcaseCloudConfig, showcaseMediaEntry } from "./home-quick-start-cloud.js";
+import { showcaseCacheDir } from "./showcase-warm.js";
 
 /**
  * 云端配置类路由的本地实现：客户端配置、Apollo 配置项、首页快速开始、全局弹窗、计费活动。
@@ -28,6 +31,8 @@ import { loadShowcaseCloudConfig, showcaseMediaEntry } from "./home-quick-start-
  */
 @Controller()
 export class CloudConfigController {
+  constructor(private readonly paths: WorkspacePathService) {}
+
   /** 客户端配置：云端失败时就回 `{}`，渲染层据此判定「没有进行中的活动」。 */
   @Get("api/v1/client_config")
   clientConfig() {
@@ -59,10 +64,19 @@ export class CloudConfigController {
   }
 
   /**
-   * 首页示例用到的素材。两类：
-   * - legacy：HOME_SHOWCASE_ASSET_FILES 里登记过的文件名（手写兜底配置的 8 张图 + 使用教程 PDF）；
-   * - 云端配置的图片（`<sha1 前 16 位>-<文件名>`，458 个）：从 media/ 下发，本地还没下载时 302 回 CDN
-   *   （新 clone / 发布包没带素材时界面照常工作，只是图走网络）。
+   * 首页示例用到的素材。三级，**顺序不能换**：
+   * 1. **可写缓存**（`HILO_HOMESHOWCASE_CACHE`，通常是 userData/home-showcase/media）——
+   *    首启预热写在这里（见 showcase-warm.ts）。开发时仓库里的 media/ 已经有全套，所以这一级
+   *    基本不命中；发布包里没有素材，靠预热把它填上。
+   * 2. **包内 / 仓库内**的 `media/`（开发时是 assets/home-showcase/media，468MB 全套）。
+   * 3. 都没有 → 302 回 CDN，界面照常工作，只是图走网络。
+   *
+   * 缓存排在包内之前，是为了让「预热写的新图」和「包里自带的图」在同名时以预热为准 ——
+   * 预热拿到的是更新过的 CDN 版本，而包里那份可能是上一次发布时抓的旧图。
+   *
+   * legacy 那 8 个文件名 + 教程 PDF 不走这套，它们必须来自包内（用户点开示例要把附件
+   * 塞进输入框，302 到 CDN 的话附件会是跨域 URL，行为和官方不一致）。
+   *
    * 名字不在登记表里一律 404，不拿请求里的路径去拼文件系统路径。
    * 渲染层点示例时会把附件整个下载下来塞进输入框，所以这里要回真实的 Content-Type（sendFile 按扩展名给）。
    */
@@ -72,6 +86,8 @@ export class CloudConfigController {
     if (!dir) throw new NotFoundException();
     const media = showcaseMediaEntry(name);
     if (media) {
+      const cached = path.join(showcaseCacheDir(this.paths), name);
+      if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
       const file = path.join(dir, "media", name);
       if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
       return res.redirect(302, media.cdnUrl);
