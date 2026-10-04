@@ -56,9 +56,12 @@ mac:
   category: public.app-category.productivity
   target:
     - target: dmg
-      arch:
-        - arm64
-        - x64
+  # **这里绝不能写 `arch:`。** 写了会**覆盖**命令行上的 `--mac --arm64` / `--mac --x64`，
+  # 于是在 arm64 机器上顺手把 x64 包也打出来 —— 而那个 x64 包里的原生模块
+  # （better_sqlite3.node、sharp 的 libvips）**全是 arm64 的**，装到 Intel Mac 上
+  # 一碰资产库就炸。踩过一次：两个 DMG 都绿着出，x64 那个是坏的，而只查「文件在不在」
+  # 的 verify 一点都看不出来。
+  # 架构由命令行的 arch flag 决定；CI 矩阵一个 target 一个 runner，各自 stage 各自 rebuild。
   # hardenedRuntime / 公证（notarization）暂不开：需要 Apple 开发者证书和公证凭据，
   # 仓库里没有。开了反而会让 dmg 挂不上 —— 未签名公证的包 Gatekeeper 直接拒。
   # 要分发时再补，届时需要 entitlements 文件 + APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD。
@@ -66,8 +69,7 @@ mac:
 win:
   target:
     - target: nsis
-      arch:
-        - x64
+  # 同上：不写 `arch:`，让命令行的 `--win --x64` 说了算。
 
 nsis:
   oneClick: false
