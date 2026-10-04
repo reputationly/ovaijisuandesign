@@ -143,20 +143,23 @@ async function main() {
     console.log(`取 opencode ${VERSION}（${target}）…`);
     await download(assetUrls(spec.asset), zip);
 
-    const size = (await stat(zip)).size;
-    if (size < 1_000_000) throw new Error(`下到的只有 ${size} 字节，多半是错误页而不是 zip`);
+    // zip 自身的体积只用来排掉「下到的其实是错误页」——它压缩过，比解压后的
+    // 小好几倍（darwin-arm64：zip 43.9MB → 二进制 139MB），拿它去过二进制的
+    // 门槛会误杀。踩过一次。
+    const zipSize = (await stat(zip)).size;
+    if (zipSize < 1_000_000) throw new Error(`下到的只有 ${zipSize} 字节，多半是错误页而不是 zip`);
 
     process.stderr.write("  解压…\n");
     await extract(zip, tmp, spec.exe);
 
     const got = path.join(tmp, spec.exe);
     if (spec.exe.endsWith(".exe") === false) await chmod(got, 0o755);
-    const check = verifyBinary(got, size);
+    const check = verifyBinary(got, (await stat(got)).size);
 
     await rename(got, dest);
     await writeFile(stamp, `${VERSION}\n`);
     const how = check.probed ? `自检 ${check.version}` : "已过魔数校验（本机架构跑不了，未自检）";
-    console.log(`✓ opencode ${VERSION} → ${path.relative(REPO_ROOT, dest)}（${(size / 1048576).toFixed(1)} MB zip，${how}）`);
+    console.log(`✓ opencode ${VERSION} → ${path.relative(REPO_ROOT, dest)}（${how}；zip ${(zipSize / 1048576).toFixed(1)} MB）`);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
