@@ -85,12 +85,23 @@ const COPY = [
   { from: "assets/home-showcase", to: "home-showcase", skip: (name) => name === "media" },
 ];
 
+/**
+ * Windows 上 `pnpm` / `npx` 是 **.cmd 垫片**，不是可执行文件 ——
+ * `spawnSync`（也就是 `execFileSync`）不带 shell 时直接 ENOENT。win-x64 上撞过：
+ * `stage 失败：spawnSync pnpm ENOENT`。macOS/Linux 上它们是有 shebang 的脚本，叫法一样。
+ *
+ * `du` 同样没有 Windows 版，只用来打体积日志，Windows 上拿不到就返回 0。
+ */
+const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...opts });
 }
 
 /** 目录体积（MB）。用 `du` 而不是递归 walk —— node_modules 里有几万个软链，walk 很慢。 */
 function dirSizeMb(dir) {
+  if (process.platform === "win32") return 0; // Windows 没有 du；只是日志，不该因此失败
   try {
     return (Number(execFileSync("du", ["-sk", dir], { encoding: "utf8" }).split(/\s+/)[0]) * 1024) / 1048576;
   } catch {
@@ -107,7 +118,7 @@ function main() {
 
   for (const { filter, dir } of DEPLOY) {
     process.stdout.write(`  pnpm deploy ${filter} → ${dir} … `);
-    run("pnpm", ["--filter", filter, "deploy", "--prod", path.join(OUT, dir)]);
+    run(PNPM, ["--filter", filter, "deploy", "--prod", path.join(OUT, dir)]);
     const dist = path.join(OUT, dir, "dist");
     if (!existsSync(dist)) throw new Error(`${filter} deploy 出来没有 dist/ —— 先跑 turbo build`);
     console.log(`${dirSizeMb(path.join(OUT, dir)).toFixed(0)} MB`);
@@ -192,7 +203,7 @@ function rebuild() {
   for (const dir of mods) {
     const abs = path.join(OUT, dir);
     process.stdout.write(`  ${dir} … `);
-    run("npx", ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", abs, "--only", "better-sqlite3"], {
+    run(NPX, ["--yes", "@electron/rebuild", "--version", ELECTRON_VERSION, "--module-dir", abs, "--only", "better-sqlite3"], {
       stdio: ["ignore", "inherit", "inherit"],
     });
     console.log("done");

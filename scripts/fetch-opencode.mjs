@@ -70,22 +70,12 @@ function hostTarget() {
  * 不可达**（国内直连 github.com 会超时，而 `api.github.com` 通）。所以顺序是：
  * 先试直链，失败/超时再退到 API —— `api.github.com` 上 asset 本身能拿到二进制流
  * （`Accept: application/octet-stream`），不需要经过 github.com。
+ *
+ * 这两个源在 `download()` 里以**函数**形式按需取，见那里的注释。
  */
-function assetUrls(asset) {
-  return [
-    `https://github.com/anomalyco/opencode/releases/download/v${VERSION}/${asset}`,
-    assetIdUrl(asset),
-  ];
-}
 
-let cachedAssetId;
-function assetIdUrl(asset) {
-  if (!cachedAssetId) cachedAssetId = resolveAssetId(asset);
-  return cachedAssetId;
-}
-
-/** 查 API 拿 asset 的 id，0/None 表示没查到。 */
-function resolveAssetId(asset) {
+/** 查 API 拿 asset 的可下载地址。慢，但能绕开被墙的 github.com。 */
+function resolveAssetUrl(asset) {
   const api = `https://api.github.com/repos/anomalyco/opencode/releases/tags/v${VERSION}`;
   const raw = execFileSync("curl", ["-sfL", "--max-time", "60", api], { encoding: "utf8", maxBuffer: 8 << 20 });
   const rel = JSON.parse(raw);
@@ -94,17 +84,32 @@ function resolveAssetId(asset) {
   return `https://api.github.com/repos/anomalyco/opencode/releases/assets/${hit.id}`;
 }
 
-async function download(urls, dest) {
+/**
+ * 下载，两个源按顺序试。
+ *
+ * **第二个源是懒的。** 之前写成 `assetUrls()` 返回一个 URL 数组，两个元素在数组
+ * 字面量里就一起求值了 —— 于是每次运行都会先打一次 API，**不管直连能不能用**。
+ * 那个 API 一慢（GitHub 偶尔会抖），整个脚本就在"还没开始下载"的时候挂掉。
+ * CI 上撞到过一次：日志里连 `下载 …` 那行都没有，说明直连压根没被试过。
+ *
+ * 所以传的是**函数**，用到了才算。
+ */
+async function download(asset, dest) {
+  const sources = [
+    { what: "直链", url: () => `https://github.com/anomalyco/opencode/releases/download/v${VERSION}/${asset}` },
+    { what: "API 兜底", url: () => resolveAssetUrl(asset) },
+  ];
   let lastError;
-  for (const [i, url] of urls.entries()) {
+  for (const [i, s] of sources.entries()) {
     try {
-      process.stderr.write(`  下载 ${url}\n`);
+      const url = s.url(); // 懒求值：失败才走 API
+      process.stderr.write(`  下载（${s.what}）${url}\n`);
       await fetchToFile(url, dest);
       return;
     } catch (err) {
       lastError = err;
       process.stderr.write(`  失败：${err instanceof Error ? err.message : String(err)}\n`);
-      if (i < urls.length - 1) process.stderr.write("  退到下一个源…\n");
+      if (i < sources.length - 1) process.stderr.write("  退到下一个源…\n");
     }
   }
   throw lastError;
@@ -141,7 +146,7 @@ async function main() {
     }
     const zip = path.join(tmp, spec.asset);
     console.log(`取 opencode ${VERSION}（${target}）…`);
-    await download(assetUrls(spec.asset), zip);
+    await download(spec.asset, zip);
 
     // zip 自身的体积只用来排掉「下到的其实是错误页」——它压缩过，比解压后的
     // 小好几倍（darwin-arm64：zip 43.9MB → 二进制 139MB），拿它去过二进制的
