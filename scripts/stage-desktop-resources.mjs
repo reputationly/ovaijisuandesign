@@ -89,20 +89,40 @@ const COPY = [
  * pnpm / npx 的**真实 JS 入口**，用当前 node 去跑。
  *
  * Windows 上它们是 `.cmd` 垫片，而 Node 20.12+/22 起**不允许 spawnSync 直接执行
- * `.cmd` / `.bat`**（CVE-2024-27980 的加固）—— 不处理会抛 `EINVAL`。
- * 这个坑踩了两次才对上：先是 `ENOENT`（没加 `.cmd` 后缀），改完变成 `EINVAL`
- * （加了后缀但垫片依然不可直接执行）。两次是同一个根因：**垫片根本不是可执行文件**。
+ * `.cmd` / `.bat`**（CVE-2024-27980 的加固）—— 不处理会抛 `EINVAL`。这个坑踩了两次
+ * 才对上：先 `ENOENT`（没加 `.cmd` 后缀），改完 `.cmd` 又是 `EINVAL`（垫片依然不是
+ * 可执行文件）。**两次是同一个根因。**
  *
- * 找真正的 JS 入口：pnpm 跟着 `PNPM_HOME`（`pnpm/action-setup` 会设），npx-cli.js
- * 跟着 Node 一起装。**全程不过 shell**，所以 checkout 路径带空格也不会被重新解析 ——
- * `shell: true` 那条路会，而且失败时错得莫名其妙。
+ * ## 入口在哪
+ *
+ * `pnpm/action-setup` 设的 `PNPM_HOME` 指向的是 `.../node_modules/.bin` —— 那一层
+ * **只有垫片**，真正的 `pnpm.cjs` 在 `.../node_modules/pnpm/bin/` 下，也就是
+ * `PNPM_HOME` 的**上一级**。我一开始只找 `PNPM_HOME/pnpm.cjs`，在 runner 上没找到
+ * （本地也没 PNPM_HOME，所以更测不出来），于是静默退回裸名 → 又 ENOENT。
+ *
+ * 所以这里枚举几种已知布局，**并且在 Windows 上找不到就直接报错** —— 静默退回那个
+ * 不可执行的垫片只会换来一个看不出来的 ENOENT。
  */
 function pmCli(name) {
   const candidates = [];
-  if (process.env.PNPM_HOME) candidates.push(path.join(process.env.PNPM_HOME, `${name}.cjs`));
+  const home = process.env.PNPM_HOME;
+  if (home) {
+    candidates.push(path.join(home, `${name}.cjs`)); // PNPM_HOME = 包根
+    candidates.push(path.join(home, "..", name, "bin", `${name}.cjs`)); // PNPM_HOME = .bin（action-setup 就是这种）
+  }
   candidates.push(path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", `${name}-cli.js`));
   const found = candidates.find((c) => existsSync(c));
-  return found ? { cmd: process.execPath, prefix: [found] } : { cmd: name, prefix: [] };
+  if (found) {
+    if (process.platform === "win32") process.stderr.write(`    ${name} → ${found}\n`);
+    return { cmd: process.execPath, prefix: [found] };
+  }
+  if (process.platform === "win32") {
+    throw new Error(
+      `Windows 上找不到 ${name} 的 JS 入口（找过：\n  ${candidates.join("\n  ")}）。\n` +
+        `不要退回 "${name}.cmd" —— Node 不允许 spawnSync 直接跑 .cmd。`,
+    );
+  }
+  return { cmd: name, prefix: [] };
 }
 
 function runPm(name, args, opts = {}) {
