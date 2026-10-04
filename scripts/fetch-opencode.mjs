@@ -19,10 +19,15 @@
  *
  * CI 里每个 target 单独跑一次再打包 —— electron-builder 一次只出一个架构，
  * 共用同一个 checkout 时后一个会覆盖前一个，所以 release 的矩阵是「一个 target 一个 runner」。
+ *
+ * `--from <本地 zip>` 是**给「这台机器下不到」准备的**：github 被墙、或网络受限时手动下
+ * 一份 zip 丢进来即可，走的是和线上一模一样的解压 → 校验 → 落盘路径。它也是这条路径
+ * 唯一的本地测试入口 —— 脚本里那些魔数、体积、跨卷 rename 的坑，没有它就只能靠押
+ * CI 一轮 8~10 分钟去撞（见 scripts/verify-fetch-opencode.mjs）。
  */
 
 import { execFileSync } from "node:child_process";
-import { closeSync, createWriteStream, openSync, readSync } from "node:fs";
+import { chmodSync, closeSync, cpSync, createWriteStream, openSync, readSync } from "node:fs";
 import { chmod, mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
@@ -132,6 +137,12 @@ async function main() {
   const spec = TARGETS[target];
   if (!spec) throw new Error(`不认识的 target：${target}\n  支持：${Object.keys(TARGETS).join(" / ")}`);
 
+  // `--from`：跳过下载，直接用一份已经下好的 zip。**目标架构照常校验** ——
+  // `--target win --from mac.zip` 必须是失败，而不是把 Mach-O 塞进 Windows 包。
+  const fromIdx = argv.indexOf("--from");
+  const from = fromIdx >= 0 ? argv[fromIdx + 1] : undefined;
+  if (fromIdx >= 0 && !from) throw new Error("--from 后面要跟 zip 路径");
+
   // 临时目录**必须和目标同卷**。Windows 上 CI 的工作区在 D:\ 而 %TEMP% 在 C:\，
   // 跨卷 rename 直接 EXDEV（cross-device link not permitted）——踩过一次。
   await mkdir(DEST_DIR, { recursive: true });
@@ -145,8 +156,14 @@ async function main() {
       return;
     }
     const zip = path.join(tmp, spec.asset);
-    console.log(`取 opencode ${VERSION}（${target}）…`);
-    await download(spec.asset, zip);
+    if (from) {
+      if (!(await exists(from))) throw new Error(`--from 指的路径不存在：${from}`);
+      console.log(`取 opencode ${VERSION}（${target}，来自 ${from}）…`);
+      cpSync(from, zip);
+    } else {
+      console.log(`取 opencode ${VERSION}（${target}）…`);
+      await download(spec.asset, zip);
+    }
 
     // zip 自身的体积只用来排掉「下到的其实是错误页」——它压缩过，比解压后的
     // 小好几倍（darwin-arm64：zip 43.9MB → 二进制 139MB），拿它去过二进制的
@@ -159,7 +176,7 @@ async function main() {
 
     const got = path.join(tmp, spec.exe);
     if (spec.exe.endsWith(".exe") === false) await chmod(got, 0o755);
-    const check = verifyBinary(got, (await stat(got)).size);
+    const check = verifyBinary(got, (await stat(got)).size, spec.exe.endsWith(".exe") ? "pe" : "macho");
 
     await rename(got, dest);
     await writeFile(stamp, `${VERSION}\n`);
@@ -205,7 +222,7 @@ async function extract(zip, dir, exeName) {
  *   `Command failed: …/opencode --version`，完全看不出是架构不对还是文件坏了 ——
  *   而这两种情况的处理方式完全相反。
  */
-function verifyBinary(bin, size) {
+function verifyBinary(bin, size, expect) {
   if (size < 50_000_000) throw new Error(`只有 ${(size / 1048576).toFixed(1)}MB，opencode 单体二进制不该这么小`);
 
   const fd = openSync(bin, "r");
@@ -223,6 +240,15 @@ function verifyBinary(bin, size) {
   const isPE = magic.slice(0, 4) === "4d5a";
   if (!isMachO && !isPE) {
     throw new Error(`不是可执行文件（魔数 ${magic}）。多半下到了错误页而不是 zip。`);
+  }
+  // **格式要和 --target 对得上。** `--from` 是给人手动喂 zip 的入口，喂错了
+  // （比如 `--target win --from 某个 mac 的 zip`）如果只查「是个可执行文件」就放行，
+  // 产出的 Windows 包里会躺着一个 Mach-O —— 装上之后 spawn 直接失败，而构建是绿的。
+  if (expect && ((expect === "pe" && !isPE) || (expect === "macho" && !isMachO))) {
+    throw new Error(
+      `格式和 target 对不上：--target 要的是 ${expect === "pe" ? "Windows PE" : "Mach-O"}，` +
+        `拿到的是 ${isPE ? "Windows PE" : "Mach-O"}（魔数 ${magic}）。--from 喂错文件了。`,
+    );
   }
 
   try {

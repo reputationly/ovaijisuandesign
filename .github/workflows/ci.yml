@@ -97,6 +97,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build
 
+      # 取件逻辑的**离线自检**：不联网，用现造的 zip 走一遍真实的解压/校验/落盘路径。
+      # 那些坑（魔数、体积、格式匹配、失败不留残骸）全都在这儿钉住 ——
+      # 之前它们只能靠押 CI 一轮 8~10 分钟去撞，撞出来五个。
+      # Windows 上没有 zip 命令，脚本会跳过造 zip 的那几条并明说。
+      - name: 取件脚本离线自检
+        shell: bash
+        run: node scripts/verify-fetch-opencode.mjs
+
       # agent runtime。opencode 官方就发这几个平台的包（没有 linux、也没有
       # mac 的 baseline 之外变体）；取不到就**直接红**，不许打个缺 agent 的包 ——
       # 那种包装完是「能启动、能看图、就是没法生成」，用户完全不知道该装什么。
