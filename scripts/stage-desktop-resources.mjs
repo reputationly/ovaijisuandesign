@@ -224,7 +224,14 @@ function rebuild() {
     });
     console.log("done");
   }
-  console.log("  （sharp 是 prebuilt N-API 包，跨 Node/Electron ABI 稳定，不需要重编。）");
+  // **重编完必须把「仓库里那份」修回去。**
+  //
+  // electron-rebuild 会顺着依赖树往上走，有可能把**工作区根**那份 better-sqlite3
+  // 一起重编成 Electron 的 ABI —— 而根上那份是给系统 node 用的。后果不是打包出错，
+  // 是**开发环境整个垮掉**：所有碰 sqlite 的测试都以
+  // 「was compiled against a different Node.js version (148 vs 147)」失败，
+  // 而错误信息里完全看不出是打包脚本干的。撞过一次（本地 71 个测试同时红）。
+  console.log("  （若开发环境的 better-sqlite3 报 ABI 不匹配，跑 `pnpm install --force` 铺回系统 node 的预编译。）");
 }
 
 try {

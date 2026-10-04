@@ -165,7 +165,10 @@ describe("记忆管理与压缩", () => {
     // 恢复前拍了一份安全快照。
     expect((await http.get("/api/memory-compaction/snapshots?scope=user")).body.snapshots).toHaveLength(2);
     expect(readdirSync(path.join(userDir, ".snapshots"))).toHaveLength(2);
-  });
+    // 60s：这条要连打十几个 HTTP 请求（写入 → 预览 → 强制预览 → 执行 → 快照 → 恢复），
+    // Windows runner 上起 Nest app 慢，vitest 默认的 5s 不够 —— 撞过一次。
+    // 和 2adc15e 给 desktop 的 agent 配置同步用例放宽是同一类治法。
+  }, 60_000);
 
   it("合并改写：预览用平台对话模型生成计划，执行按缓存的计划落盘，同一个 proposal 不能再执行", async () => {
     llmReply = JSON.stringify([

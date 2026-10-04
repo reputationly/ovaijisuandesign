@@ -78,7 +78,9 @@ jobs:
   # **先只验产物，不接 publish。** release.yml 的 publish job 认的是旧栈的产物格式
   # （tar.gz），dmg / nsis 走不通；而且 Windows 包目前一行证据都没有，先发出去是害用户。
   package:
-    needs: node
+    # **故意不 depends on `node`。** 打包和测试是两件独立的事：node 挂了一条 5s
+    # 超时的 memory 用例，不该让三个平台的出包验证整轮都不跑（`needs` 会直接 skip）。
+    # 出包有自己的判据 —— 产物布局对不对，那才是它该回答的问题。
     strategy:
       fail-fast: false
       matrix:
