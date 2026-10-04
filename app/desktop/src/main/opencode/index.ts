@@ -6,7 +6,7 @@
  * buildOpencodeConfig ─► tmp/ov-opencode-config-<pid>-<uuid>.json                     OPENCODE_CONFIG
  * ```
  */
-import { existsSync, mkdirSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -65,8 +65,25 @@ export interface PrepareInputs {
 
 const exe = (name: string) => (process.platform === "win32" ? `${name}.exe` : name);
 
+/**
+ * 第一个**存在且非空的文件**。
+ *
+ * **只查存在性是不够的。** 下载被打断会留下 0 字节的残骸（`scripts/fetch-opencode.mjs`
+ * 正常是先写 `.part` 再 rename，所以不该出现，但断电、被 kill、磁盘满都会），
+ * 而一个 0 字节的 `opencode` 会被当成有效路径返回 —— 表现是 opencode 起不来、
+ * 历史面板空白，而日志里看不出是哪个环节坏了，只能一路猜。
+ * 同一个坑对 `mcp-tools/dist/main.js`、插件 `dist/index.js` 也成立，所以在这里一次堵死。
+ */
 function firstExisting(...candidates: (string | undefined)[]): string | undefined {
-  return candidates.find((c): c is string => !!c && existsSync(c));
+  for (const c of candidates) {
+    if (!c) continue;
+    try {
+      if (statSync(c).isFile() && statSync(c).size > 0) return c;
+    } catch {
+      // 不存在 / 不可读：继续试下一个。
+    }
+  }
+  return undefined;
 }
 
 export function locateOpencode(roots: ResourceRoots): string | undefined {
