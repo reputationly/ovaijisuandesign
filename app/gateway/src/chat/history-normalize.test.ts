@@ -50,7 +50,9 @@ describe("convertOpenCodeMessages", () => {
 
   it("工具原始 status 不被改写（渲染器自己 map completed→ok）", () => {
     const out = convertOpenCodeMessages([assistantMsg("m", [{ type: "tool", tool: "t", id: "p", callID: "c", state: { status: "running" } }])], { directory: DIR });
-    expect(out[0].status).toBe("running");
+    // 整个数组比，不去索引 out[0] —— `noUncheckedIndexedAccess` 下那玩意可能是 undefined，
+    // 而 `!` 会把「真的有一帧」这个前提藏起来。旁边几个用例都是数组级断言，保持一致。
+    expect(out).toMatchObject([{ status: "running" }]);
   });
 
   it("reasoning 压成 thinking 帧", () => {
@@ -144,7 +146,7 @@ describe("convertOpenCodeMessages", () => {
 
   it("注入前缀（CONTEXT/HISTORY）不显示给用户", () => {
     const out = convertOpenCodeMessages([userMsg("u", "[CONTEXT foo] 真正的内容")], { directory: DIR });
-    expect(out[0].content).toBe("真正的内容");
+    expect(out).toMatchObject([{ content: "真正的内容" }]);
   });
 });
 
