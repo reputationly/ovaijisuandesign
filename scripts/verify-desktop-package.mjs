@@ -22,17 +22,32 @@ import { fileURLToPath } from "node:url";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * 产物里 opencode 可执行文件的名字。**按平台不同** —— Windows 上是 `opencode.exe`。
+ *
+ * 这里从产物路径反推是哪个平台（`win-unpacked` → Windows），而不是读 `process.platform`：
+ * **本机是 mac，而校验的是别人机器上打出来的包** —— 读本机平台会验错对象
+ * （win-x64 上就是这么误报「缺 opencode/opencode」的，实际上人家有 `opencode.exe`）。
+ */
+function opencodeExe(resources) {
+  const isWin = /(^|[\\/])win(-unpacked)?([\\/]|$)/i.test(resources) || /[\\/]win-unpacked[\\/]/.test(resources);
+  return isWin ? "opencode.exe" : "opencode";
+}
+
 /** `resources/` 下必须存在的路径 → 谁在找它。 */
-const REQUIRED = [
-  ["opencode/opencode", "locateOpencode（agent runtime，缺了 agent 起不来）"],
-  ["opencode/.version", "agent runtime 版本戳（自证装的是哪一版）"],
-  ["gateway/dist/main.js", "index.ts:111（应用级 + 每个工作区的 gateway）"],
-  ["mcp-tools/dist/main.js", "locateMcpEntry（agent 的 MCP server）"],
-  ["opencode-plugin-hilo/dist/index.js", "locatePlugin（画布工具）"],
-  ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置）"],
-  ["skills", "locateBundledSkills（自带技能）"],
-  ["home-showcase/quick-start-config-v2.json", "homeShowcaseDir()（首页创作灵感，缺了首页是空的）"],
-];
+function required(resources) {
+  const oc = opencodeExe(resources);
+  return [
+    [`opencode/${oc}`, "locateOpencode（agent runtime，缺了 agent 起不来）"],
+    ["opencode/.version", "agent runtime 版本戳（自证装的是哪一版）"],
+    ["gateway/dist/main.js", "index.ts:111（应用级 + 每个工作区的 gateway）"],
+    ["mcp-tools/dist/main.js", "locateMcpEntry（agent 的 MCP server）"],
+    ["opencode-plugin-hilo/dist/index.js", "locatePlugin（画布工具）"],
+    ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置）"],
+    ["skills", "locateBundledSkills（自带技能）"],
+    ["home-showcase/quick-start-config-v2.json", "homeShowcaseDir()（首页创作灵感，缺了首页是空的）"],
+  ];
+}
 
 /** 明确**不该**在包里的。带了就等于白打包。 */
 const FORBIDDEN = [
@@ -82,14 +97,19 @@ function main() {
   console.log(`产物 resources：${path.relative(REPO, resources)}`);
 
   let bad = 0;
-  for (const [rel, why] of REQUIRED) {
+  for (const [rel, why] of required(resources)) {
     const p = path.join(resources, rel);
     if (existsSync(p)) {
       const size = statSync(p).isDirectory() ? "" : ` (${(statSync(p).size / 1024).toFixed(0)} KB)`;
       console.log(`  ✅ ${rel}${size}`);
     } else {
       bad++;
+      // **把实际找到的东西打出来。** 只说「缺 X」的话，X 写错了（平台后缀、分隔符）
+      // 和「真的没打进去」看起来一模一样 —— win-x64 上就误报过一次。
+      const dir = path.dirname(p);
+      const near = existsSync(dir) ? readdirSync(dir).slice(0, 8).join(" ") : "(目录都没有)";
       console.log(`  ❌ ${rel} —— ${why}`);
+      console.log(`     实际在 ${path.relative(REPO, dir)} 的是：${near}`);
     }
   }
   for (const [rel, why] of FORBIDDEN) {
