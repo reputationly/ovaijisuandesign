@@ -1,0 +1,80 @@
+# electron-builder 配置 —— 新栈（Electron + NestJS gateway）的打包。
+#
+# 产物里 `resources/` 的内容由 `scripts/stage-desktop-resources.mjs` 预先装配到
+# `build-resources/`，这里只负责搬。**别在这里手写资源清单**：那份清单的权威在
+# `app/desktop/src/main/paths.ts` 的 `resourceRoots()` 和各处 `locate*` 函数，
+# 两边对不上的症状是「装完启动就报找不到 opencode / 历史面板空白」。
+#
+# 跑法（顺序不能反）：
+#   1. node scripts/fetch-opencode.mjs                          取 agent runtime
+#   2. pnpm turbo run build                                     各包产出 dist/
+#   3. node scripts/stage-desktop-resources.mjs --rebuild       装配 + 按 Electron ABI 重编
+#   4. pnpm --filter @ov/desktop exec electron-builder --mac --arm64
+#
+# --rebuild 不能省：产物里 gateway 是用 `process.execPath` + `ELECTRON_RUN_AS_NODE=1`
+# 跑的（paths.ts:55），即用 Electron 自带的 Node；pnpm 装出来的 better-sqlite3 是按
+# 系统 Node 的 ABI 编的，不重编就是 NODE_MODULE_VERSION 不一致 —— 而且只在第一次碰
+# 资产库时才抛，gateway 照常启动，表现为「生成成功了却登记不进资产库」。
+#
+# 原生模块（better-sqlite3 的 .node、sharp 的 libvips）**不需要 asarUnpack** ——
+# 它们在 extraResources 里，本来就在 asar 外。asarUnpack 是给打进 asar 的 .node 用的，
+# 这里用不上。
+
+appId: com.ovaijisuan.design
+productName: 蒜狸小助手
+
+directories:
+  output: dist-electron
+
+# 只把主进程/预加载/渲染层自己的代码和 official-ui 打进 asar；运行时依赖走 extraResources。
+# `out/` 是 electron-vite 的产物，**必须进 asar** —— 官方 UI 由 protocol.ts:34 从
+# `app.getAppPath()/out/official-ui` 读。
+files:
+  - out/**/*
+  - package.json
+  - "!**/*.map"
+
+asar: true
+
+# 装配好的运行时。`to: "."` = 落在 resources/ 根下，和 resourceRoots() 对得上：
+#   opencode/opencode              locateOpencode
+#   gateway/dist/main.js           index.ts:111
+#   mcp-tools/dist/main.js         locateMcpEntry
+#   opencode-plugin-hilo/dist/     locatePlugin
+#   agent-profiles/v2/config       locateProfile
+#   skills/                        locateBundledSkills
+#   home-showcase/                 homeShowcaseDir()（不含 media）
+extraResources:
+  - from: build-resources
+    to: .
+    filter:
+      - "**/*"
+      # 装配过程的记账文件，不给用户看。
+      - "!.staged.json"
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+  # hardenedRuntime / 公证（notarization）暂不开：需要 Apple 开发者证书和公证凭据，
+  # 仓库里没有。开了反而会让 dmg 挂不上 —— 未签名公证的包 Gatekeeper 直接拒。
+  # 要分发时再补，届时需要 entitlements 文件 + APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD。
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+
+# electron-builder 自己会 rebuild **根项目**的原生模块。我们要 rebuild 的是
+# extraResources 里那份独立的 gateway 树，stage 脚本已经做过了，所以关掉 ——
+# 否则它会去 rebuild 根项目（那里根本没有原生模块），白跑一遍还可能失败。
+npmRebuild: false

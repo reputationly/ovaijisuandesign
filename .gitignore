@@ -51,3 +51,7 @@ assets/project-templates/h3-playground.zip
 
 # 首页「创作灵感」图片素材（~665MB，用 scripts/fetch-home-showcase-images.py 下载）
 assets/home-showcase/media/
+
+# 新栈打包产物（electron-builder 的输出目录，几百 MB）
+app/desktop/dist-electron/
+app/desktop/build-resources/
