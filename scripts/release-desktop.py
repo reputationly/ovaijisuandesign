@@ -55,6 +55,9 @@ from release import (  # noqa: E402
 )
 
 DIST = ROOT / "dist-desktop"
+
+# 公网回读的重试轮数。CDN 对刚上传的对象不是立刻可见的（先命中旧的 miss 缓存）。
+PUBLIC_READ_ATTEMPTS = 5
 ELECTRON_OUT = ROOT / "app/desktop/dist-electron"
 
 # electron-builder 的输出目录名 → 我们对外的 target 名。
@@ -293,16 +296,39 @@ def main() -> int:
             upload(s, ver, target, DIST / ver / target, args.prefix)
         print(f"✓ {s}：上传并逐个回读校验通过")
 
-    # 从公开域名再读一次指针。光验 S3 API 不够 —— 域名的缓存规则、权限、
-    # 内容类型问题都只在这一步才暴露。
+    # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
+    # 问题都只在这一步才暴露。
+    #
+    # **必须重试。** 刚传上去的对象在 CDN 上不是立刻可见的：第一次请求很可能命中
+    # 之前缓存下来的 miss，回一个错误页而不是 yml。踩过一次 —— 明明每个文件都
+    # 「上传并逐个回读校验通过」，最后一步却报「里没有 url 字段」，而几分钟后
+    # 同一个地址读出来完全正常。判失败之前多等几轮。
     for s in sources:
         base = os.environ[SOURCES[s]["base"]].rstrip("/")
         url = f"{base}/{key_prefix(args.prefix)}/{ver}/darwin-arm64/latest-mac.yml"
-        body = http_get(url)
+        body, last = "", ""
+        for attempt in range(1, PUBLIC_READ_ATTEMPTS + 1):
+            if attempt > 1:
+                delay = 5 * attempt
+                print(f"    公网还读不到（{last}），{delay}s 后重试 {attempt}/{PUBLIC_READ_ATTEMPTS}")
+                time.sleep(delay)
+            try:
+                # `http_get()` 返回的是 **HTTPResponse 对象**，不是字符串 ——
+                # 忘了 `.read().decode()` 的话，下面的 `"url:" in body` 是在拿字符串
+                # 比一个对象，恒为 False，于是这一步**永远失败**。踩过一次：
+                # 每个文件都「上传并逐个回读校验通过」，最后一步却报「没有 url 字段」。
+                # 旧栈自己的用法见 release.py 的 `.read().decode("utf8").strip()`。
+                body = http_get(url).read().decode("utf8", "replace")
+            except Exception as e:  # 连不上 / 4xx / 5xx 都算「还没好」
+                last = f"{type(e).__name__}: {e}"
+                continue
+            if "url:" in body:
+                break
+            last = f"响应里没有 url: {body.strip()[:80]!r}"
         if "url:" not in body:
-            fail(f"{s} 公网回读 {url} 里没有 url 字段")
+            fail(f"{s} 公网回读 {url} 失败：{last}\n  （对象在 S3 上是校验过的；这里读不到通常是 CDN 还没生效，再等一会儿重试本 job。）")
         print(f"✓ {s} 公网回读 {url}")
-    print(f"\n✓ 已发布 {ver} 到 {', '.join(sources)}")
+    print(f"\n✓ 已发布 {ver} 到 {', '.join(sources)}（前缀 {key_prefix(args.prefix) or '（无）'}）")
     return 0
 
 
