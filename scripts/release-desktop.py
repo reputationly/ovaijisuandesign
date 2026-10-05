@@ -131,7 +131,7 @@ def stage(target: str, files: list[Path], ver: str) -> Path:
     return dst
 
 
-def rewrite_manifest(target: str, stage_dir: Path, base: str) -> None:
+def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) -> None:
     """把 `latest-*.yml` 里的占位/相对地址换成这个源自己的公开地址。
 
     **不能共用一个 base** —— 两个源共用的话，「双源互为备份」就成摆设，
@@ -152,7 +152,7 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str) -> None:
     name = "latest-mac.yml" if target.startswith("darwin") else "latest.yml"
     f = stage_dir / name
     # 包在 CDN 上的完整地址，和 top_manifest() 里 latestUrls 用的是同一条规则。
-    prefix = f"{base.rstrip('/')}/{PRODUCT}/{ver_of(stage_dir)}/{target}/"
+    prefix = f"{base.rstrip('/')}/{key_prefix(namespace)}/{ver_of(stage_dir)}/{target}/"
 
     def fix(m: "re.Match[str]") -> str:
         val = m.group(2)
@@ -186,7 +186,19 @@ def ver_of(stage_dir: Path) -> str:
     return stage_dir.parent.name
 
 
-def top_manifest(ver: str, sources: list[str], targets: list[str]) -> Path:
+# dry-run/ 与产品命名空间的拼接。和 release.py 的 key_prefix() 同一套规则：
+# 空前缀不能拼成 `/dry-run/`（S3 key 以斜杠开头会多一层空目录，URL 里的 `//`
+# 又会被某些 CDN 规范化掉，于是"传上去了但公网 404"）。
+def key_prefix(namespace: str) -> str:
+    """`ovaijisuandesign` 或 `ovaijisuandesign/dry-run`。**不带尾斜杠** ——
+    拼接时统一由调用方加 `/`，两处都加就会出现 `//`，而 URL 里的 `//` 会被某些
+    CDN 规范化掉，于是「传上去了但公网 404」。"""
+    ns = PRODUCT.strip("/")
+    tail = namespace.strip("/")
+    return f"{ns}/{tail}" if (ns and tail) else (ns or tail)
+
+
+def top_manifest(ver: str, sources: list[str], targets: list[str], namespace: str) -> Path:
     """顶层 manifest.json：每个 target 指向各源自己的 latest 清单地址。
 
     和旧栈的形状一致（`schemaVersion` / `targets.<target>.latestUrls.<source>`），
@@ -198,7 +210,7 @@ def top_manifest(ver: str, sources: list[str], targets: list[str]) -> Path:
         for s in sources:
             base = os.environ[SOURCES[s]["base"]].rstrip("/")
             name = "latest-mac.yml" if t.startswith("darwin") else "latest.yml"
-            entry["latestUrls"][s] = f"{base}/{PRODUCT}/{t}/{ver}/{name}"
+            entry["latestUrls"][s] = f"{base}/{key_prefix(namespace)}/{ver}/{t}/{name}"
         doc["targets"][t] = entry
     out = DIST / "manifest.json"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -206,7 +218,7 @@ def top_manifest(ver: str, sources: list[str], targets: list[str]) -> Path:
     return out
 
 
-def upload(source: str, ver: str, target: str, stage_dir: Path) -> None:
+def upload(source: str, ver: str, target: str, stage_dir: Path, namespace: str) -> None:
     """传一个 target 的全部文件，然后**逐个回读校验**。
 
     用旧栈的 `s3_upload()` / `verify()`，不为新栈另写一份上传 —— 那段代码已经踩过
@@ -216,7 +228,7 @@ def upload(source: str, ver: str, target: str, stage_dir: Path) -> None:
     for p in sorted(stage_dir.iterdir()):
         if not p.is_file():
             continue
-        key = f"{ver}/{target}/{p.name}"
+        key = f"{key_prefix(namespace)}/{ver}/{target}/{p.name}"
         digest = hashlib.sha256(p.read_bytes()).hexdigest()
         s3_upload(source, p, key)
         verify(source, key, digest)
@@ -229,6 +241,8 @@ def main() -> int:
     ap.add_argument("--target", dest="targets", action="append", required=True,
                     choices=["darwin-arm64", "darwin-x64", "win32-x64"],
                     help="要发布的 target，可重复。CI 矩阵知道自己在出哪个，别让它猜。")
+    ap.add_argument("--prefix", default="",
+                    help="发布前缀。dry-run 传 'dry-run/'，别让空跑写进生产命名空间。")
     ap.add_argument("--layout-only", action="store_true", help="只摆产物 + 重写指针，不上传")
     ap.add_argument("--publish", action="store_true", help="摆好 + 上传 + 回读校验")
     args = ap.parse_args()
@@ -243,9 +257,9 @@ def main() -> int:
     for s in sources:
         base = os.environ[SOURCES[s]["base"]]
         for target in found:
-            rewrite_manifest(target, DIST / ver / target, base)
+            rewrite_manifest(target, DIST / ver / target, base, args.prefix)
     print(f"✓ 指针按源重写：{', '.join(sources)}" + ("" if len(sources) > 1 else "  （OBS 没配 OBS_* 凭据，所以只有这一个源）"))
-    top = top_manifest(ver, sources, list(found))
+    top = top_manifest(ver, sources, list(found), args.prefix)
     print(f"✓ 顶层清单 {top.relative_to(ROOT)}")
 
     if not args.publish:
@@ -257,14 +271,14 @@ def main() -> int:
     for s in sources:
         for target in found:
             print(f"  {s} / {target}")
-            upload(s, ver, target, DIST / ver / target)
+            upload(s, ver, target, DIST / ver / target, args.prefix)
         print(f"✓ {s}：上传并逐个回读校验通过")
 
     # 从公开域名再读一次指针。光验 S3 API 不够 —— 域名的缓存规则、权限、
     # 内容类型问题都只在这一步才暴露。
     for s in sources:
         base = os.environ[SOURCES[s]["base"]].rstrip("/")
-        url = f"{base}/{PRODUCT}/{ver}/darwin-arm64/latest-mac.yml"
+        url = f"{base}/{key_prefix(args.prefix)}/{ver}/darwin-arm64/latest-mac.yml"
         body = http_get(url)
         if "url:" not in body:
             fail(f"{s} 公网回读 {url} 里没有 url 字段")

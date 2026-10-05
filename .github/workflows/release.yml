@@ -441,8 +441,14 @@ jobs:
           # OBS_ACCESS_KEY_ID: ${{ secrets.OBS_ACCESS_KEY_ID }}
           # OBS_SECRET_ACCESS_KEY: ${{ secrets.OBS_SECRET_ACCESS_KEY }}
         run: |
+          # **空跑必须带 --prefix dry-run/** —— 否则空跑的包会写进生产命名空间，
+          # 线上 manifest 指过去的就是一次没验过的发布。旧栈的 prepare 在空跑时
+          # 给的就是 `prefix=dry-run/`，这里跟着走同一套。
+          PREFIX=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then PREFIX="dry-run/"; fi
           python3 scripts/release-desktop.py \
             --version "$V" \
+            --prefix "$PREFIX" \
             --target darwin-arm64 --target darwin-x64 --target win32-x64 \
             --publish
 
