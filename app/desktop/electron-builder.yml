@@ -20,6 +20,18 @@
 # 它们在 extraResources 里，本来就在 asar 外。asarUnpack 是给打进 asar 的 .node 用的，
 # 这里用不上。
 
+# electron-builder 只有在**知道往哪发布**时才会生成更新清单（`latest-mac.yml` /
+# `latest.yml`），否则 `--publish never` 打出来的包里根本没有这两个文件 —— 而
+# 它们正是消费方（electron-updater）唯一会读的东西。
+#
+# 这里的 url 是**占位域名**。真正的地址由 `scripts/release-desktop.py` 在发布时
+# 按每个源自己的公开域名重写（和旧栈丢掉打包阶段的 `latest.json`、由 publish
+# 重新生成指针，是同一个道理）。写死一个源会毁掉「双源互为备份」——
+# 那台挂了，另一条的 latestUrls 也跟着指向它。
+publish:
+  provider: generic
+  url: https://REPLACE-ME.invalid/app
+
 appId: com.ovaijisuan.design
 productName: 蒜狸小助手
 

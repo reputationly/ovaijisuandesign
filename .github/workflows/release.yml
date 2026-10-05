@@ -319,6 +319,133 @@ jobs:
           path: out/
           retention-days: 7
 
+  # ==================== 新栈出包（Electron） ====================
+  #
+  # 拆成 build + publish 两个 job，和上面旧栈的 desktop + publish 一个道理：
+  # 矩阵各自出包上传，**一个 job 汇总下载再统一发布** —— 每个 matrix 分支自己发布的话，
+  # 谁最后跑完谁说了算，指针会跟着最后一次跑动，发布顺序完全不可控。
+  #
+  # **runner 必须是本架构的**。旧栈 mac-x64 排在 `macos-latest` 上交叉编没问题
+  # （Rust 那边 macOS 能交叉，见 release.py 的注释），但新栈的原生模块
+  # （better_sqlite3.node、sharp 的 libvips）是**按构建机平台**落的，交叉编出来的
+  # x64 包装的是 arm64 模块，Intel Mac 上一碰资产库就炸。`verify-desktop-package`
+  # 会拿「app 自己的主二进制」当权威来比对，runner 选错也会红。
+  desktop-electron:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, rust: aarch64-apple-darwin, target: "--mac --arm64", name: darwin-arm64 }
+          - { os: macos-15-intel, rust: x86_64-apple-darwin, target: "--mac --x64", name: darwin-x64 }
+          - { os: windows-latest, rust: x86_64-pc-windows-msvc, target: "--win --x64", name: win32-x64 }
+    runs-on: ${{ matrix.os }}
+    name: 新栈应用包 ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+
+      # 两个离线自检（不联网，几秒钟）。平台分支和取件逻辑里有 mac 跑不到的分支，
+      # 没有它们就只能靠一整轮试错去撞。
+      - name: 平台分支离线自检
+        shell: bash
+        run: node scripts/verify-platform-branches.mjs
+      - name: 取件脚本离线自检
+        shell: bash
+        run: node scripts/verify-fetch-opencode.mjs
+
+      - name: 取 opencode
+        shell: bash
+        run: node scripts/fetch-opencode.mjs --target ${{ matrix.rust }}
+      - name: 装配 resources 并按 Electron ABI 重编原生模块
+        shell: bash
+        run: node scripts/stage-desktop-resources.mjs --rebuild
+      - name: 出包
+        shell: bash
+        working-directory: app/desktop
+        run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
+      - name: 核对产物 resources 布局与架构
+        shell: bash
+        run: node scripts/verify-desktop-package.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: electron-${{ matrix.name }}
+          path: app/desktop/dist-electron/*
+          retention-days: 7
+          if-no-files-found: error
+
+  # ==================== 新栈发布 ====================
+  #
+  # 产物形状和旧栈完全不同（dmg/exe + blockmap + electron-updater 的 `latest-*.yml`，
+  # 不是 tar.gz + 自定义 latest.json），所以走独立脚本；**但发布源机制是共用的** ——
+  # scripts/release-desktop.py 直接 import release.py 的 SOURCES / configured() /
+  # s3_upload() / verify()。
+  #
+  # 于是「配了 OBS_* 就发 OBS、没配就只发 R2」这条语义是**自动继承**的：
+  # 现在仓库里 OBS 凭据一个都没有（只有 R2 那组），所以实际只发 R2；将来补上凭据
+  # 不用改任何代码，取消下面那几行注释即可。
+  publish-electron:
+    needs: [prepare, desktop-electron]
+    # 和旧栈那个 publish 同一个纪律：**别用 always()**。
+    if: ${{ needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
+    runs-on: ubuntu-latest
+    name: 发布新栈
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: electron-*
+
+      # **electron-builder 自己写的 `latest-*.yml` 必须丢掉**：里面是
+      # `publish.url` 那个占位域名。真正的地址由发布阶段按每个源自己的公开域名重写 ——
+      # 和上面旧栈丢掉打包阶段的 `latest.json` 是同一个道理。留着它的话，
+      # 指针指向的是一个谁也下不动的地址。
+      - name: 摆放各平台产物
+        run: |
+          mkdir -p app/desktop/dist-electron
+          python3 - <<'PY'
+          import pathlib, shutil
+          out = pathlib.Path("app/desktop/dist-electron")
+          for d in sorted(pathlib.Path("artifacts").iterdir()):
+              for item in d.iterdir():
+                  if item.name in ("latest-mac.yml", "latest.yml", "builder-debug.yml"):
+                      continue
+                  dst = out / item.name
+                  if item.is_dir():
+                      shutil.copytree(item, dst, dirs_exist_ok=True)
+                  else:
+                      shutil.copy2(item, dst)
+          PY
+          find app/desktop/dist-electron -maxdepth 1 -type f | sort
+
+      - name: 发布并回读校验
+        env:
+          V: ${{ needs.prepare.outputs.version }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC_BASE: ${{ vars.R2_PUBLIC_BASE }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          # OBS 那组没配就不给 —— configured() 会自动只发 R2。将来配上取消注释即可。
+          # OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
+          # OBS_BUCKET: ${{ secrets.OBS_BUCKET }}
+          # OBS_PUBLIC_BASE: ${{ vars.OBS_PUBLIC_BASE }}
+          # OBS_ACCESS_KEY_ID: ${{ secrets.OBS_ACCESS_KEY_ID }}
+          # OBS_SECRET_ACCESS_KEY: ${{ secrets.OBS_SECRET_ACCESS_KEY }}
+        run: |
+          python3 scripts/release-desktop.py \
+            --version "$V" \
+            --target darwin-arm64 --target darwin-x64 --target win32-x64 \
+            --publish
+
   # ==================== 发布 ====================
   # 矩阵由 prepare 动态给出，空跑时不再有被 skip 的 build，所以这里用默认的
   # `success()` 语义就够了——千万别退回 `always()`：它会连「某个平台打包失败」
