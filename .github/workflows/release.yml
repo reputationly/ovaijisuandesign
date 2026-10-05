@@ -464,8 +464,14 @@ jobs:
   # 一切正常，问题很难被发现。fail-fast: false 也保证了失败平台一定会被记成
   # failure 而不是 cancelled。
   publish:
-    needs: [prepare, build]
-    if: ${{ needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
+    # **必须 needs `publish-electron`。** 本 job 末尾那个「清理空跑产物」步骤带
+    # `always()`，而 `always()` 只保证「不因为上游失败而跳过」—— 它**不排序**。
+    # 没有 needs 关系时，本 job（空跑时出包被跳过、几秒就完）和清理步骤会在
+    # `desktop-electron` 还在出包时就跑完，**把上一轮的残留清掉、然后本轮的
+    # `dry-run/` 就整个留在了桶里**。实测过一轮：清理发生在 03:01，发布在 03:11，
+    # 800MB 全留下。旧栈没这问题只是因为它空跑时秒完，不是因为机制对。
+    needs: [prepare, build, publish-electron]
+    if: ${{ always() && needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
     runs-on: ubuntu-latest
     name: 发布
     steps:
