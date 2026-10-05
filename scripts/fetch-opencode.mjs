@@ -104,26 +104,38 @@ function resolveAssetUrl(asset) {
  * CI 上撞到过一次：日志里连 `下载 …` 那行都没有，说明直连压根没被试过。
  *
  * 所以传的是**函数**，用到了才算。
+ *
+ * ## 每个源内部还要重试
+ *
+ * 单源 3 次。46MB 从 GitHub 拉抖得厉害（darwin-x64 在 CI 上因为这个挂过一次，
+ * 而上一轮同样的代码是绿的）。重试是安全的：下完有魔数 + 体积 + 版本三重校验，
+ * 而且每次都重写同一个临时文件，不会攒出半截产物。
  */
+const ATTEMPTS = 3;
+
 async function download(asset, dest) {
   const sources = [
     { what: "直链", url: () => `https://github.com/anomalyco/opencode/releases/download/v${VERSION}/${asset}` },
     { what: "API 兜底", url: () => resolveAssetUrl(asset) },
   ];
-  let lastError;
-  for (const [i, s] of sources.entries()) {
-    try {
-      const url = s.url(); // 懒求值：失败才走 API
-      process.stderr.write(`  下载（${s.what}）${url}\n`);
-      await fetchToFile(url, dest);
-      return;
-    } catch (err) {
-      lastError = err;
-      process.stderr.write(`  失败：${err instanceof Error ? err.message : String(err)}\n`);
-      if (i < sources.length - 1) process.stderr.write("  退到下一个源…\n");
+  const failures = [];
+  for (const s of sources) {
+    for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+      try {
+        const url = s.url(); // 懒求值：直链全失败才打 API
+        if (attempt > 1) process.stderr.write(`  重试 ${attempt}/${ATTEMPTS}（${s.what}）\n`);
+        else process.stderr.write(`  下载（${s.what}）${url}\n`);
+        await fetchToFile(url, dest);
+        return;
+      } catch (err) {
+        const why = err instanceof Error ? err.message : String(err);
+        failures.push(`${s.what} 第 ${attempt} 次：${why}`);
+        process.stderr.write(`  失败：${why}\n`);
+      }
     }
+    process.stderr.write(`  ${s.what} 试了 ${ATTEMPTS} 次都不行，退到下一个源…\n`);
   }
-  throw lastError;
+  throw new Error(`两个源都下不动：\n  ${failures.join("\n  ")}`);
 }
 
 async function fetchToFile(url, dest) {
