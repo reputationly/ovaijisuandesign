@@ -404,10 +404,15 @@ jobs:
           path: artifacts
           pattern: electron-*
 
-      # **electron-builder 自己写的 `latest-*.yml` 必须丢掉**：里面是
-      # `publish.url` 那个占位域名。真正的地址由发布阶段按每个源自己的公开域名重写 ——
-      # 和上面旧栈丢掉打包阶段的 `latest.json` 是同一个道理。留着它的话，
-      # 指针指向的是一个谁也下不动的地址。
+      # **这里不要丢 `latest-*.yml`。** 它是 electron-builder 写的更新清单，
+      # **输入**正是它 —— 发布阶段靠它重写出新的（换掉里面的 `publish.url` 占位域名）。
+      # 旧栈那边「丢掉打包阶段的 `latest.json`」是另一回事：那边那个文件是纯产物，
+      # 没有被当成输入重写。
+      #
+      # 占位域名的问题在 release-desktop.py 里解决：它改的是**摆进 dist-desktop/ 的那份**，
+      # 原始文件留在 electron-builder 的输出目录里不上传。另外那里还有一条断言兜底。
+      #
+      # 只丢 `builder-debug.yml`（构建调试信息，不是发布物）。
       - name: 摆放各平台产物
         run: |
           mkdir -p app/desktop/dist-electron
@@ -416,7 +421,7 @@ jobs:
           out = pathlib.Path("app/desktop/dist-electron")
           for d in sorted(pathlib.Path("artifacts").iterdir()):
               for item in d.iterdir():
-                  if item.name in ("latest-mac.yml", "latest.yml", "builder-debug.yml"):
+                  if item.name == "builder-debug.yml":
                       continue
                   dst = out / item.name
                   if item.is_dir():

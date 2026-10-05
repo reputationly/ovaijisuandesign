@@ -162,6 +162,15 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
 
     # `url:` / `path:` 两处，行首可能有 "- " 列表标记，值可能带引号。
     text = re.sub(r"^(\s*(?:-\s+)?(?:url|path):\s*)(.+?)\s*$", fix, f.read_text(encoding="utf8"), flags=re.M)
+
+    # **占位域名不许发出去。** 重写逻辑改坏了的话，症状是「指针指向一个谁也下不动的
+    # 地址」—— 发布全绿、校验全过，只有用户升级时才发现。所以传之前先确认它真被换掉了。
+    leftovers = [ln for ln in text.splitlines() if "REPLACE-ME" in ln or "github.com" in ln]
+    if leftovers:
+        fail(f"{target}: {name} 里还有没被重写的地址：\n    " + "\n    ".join(leftovers))
+    if prefix.rstrip("/") not in text:
+        fail(f"{target}: {name} 里找不到重写后的地址（期望包含 {prefix}）—— 发布的指针会指向别处。")
+
     f.write_text(text, encoding="utf8")
 
     # 落一份 JSON 边表：给不认 electron-updater 格式的东西（人、脚本、以后自己写的
