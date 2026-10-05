@@ -1,6 +1,6 @@
 {
   "name": "@ov/renderer",
-  "version": "3.0.16",
+  "version": "3.0.21",
   "private": true,
   "type": "module",
   "description": "界面源码（从参照渲染层还原中）。构建产物给桌面端用：app/desktop/out/recovered-ui，OV_UI=recovered 时加载。",

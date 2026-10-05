@@ -1,6 +1,6 @@
 {
   "name": "@ov/desktop",
-  "version": "3.0.16",
+  "version": "3.0.21",
   "private": true,
   "productName": "蒜狸小助手",
   "description": "桌面壳（Electron + electron-vite）。主进程负责编排 gateway 和 opencode。",

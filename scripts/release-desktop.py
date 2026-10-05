@@ -163,6 +163,14 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     # `url:` / `path:` 两处，行首可能有 "- " 列表标记，值可能带引号。
     text = re.sub(r"^(\s*(?:-\s+)?(?:url|path):\s*)(.+?)\s*$", fix, f.read_text(encoding="utf8"), flags=re.M)
 
+    # **版本号也钉成真实发布版本。** electron-builder 的 `version:` 取自
+    # app/desktop/package.json，那儿放的是**三段基线**（3.0.21）——
+    # 因为四段不是合法 semver，cargo 的 workspace 装不下（见 release.py::baseline 的注释）。
+    # 而存储路径是四段（3.0.21.1），两者对不上：消费方拿 yml 里的 `version` 和
+    # 自己运行的版本比，基线相同的话会判定「已经是最新」而**永远不提示更新**。
+    ver = ver_of(stage_dir)
+    text = re.sub(r"^version:\s*.+$", f"version: {ver}", text, count=1, flags=re.M)
+
     # **占位域名不许发出去。** 重写逻辑改坏了的话，症状是「指针指向一个谁也下不动的
     # 地址」—— 发布全绿、校验全过，只有用户升级时才发现。所以传之前先确认它真被换掉了。
     leftovers = [ln for ln in text.splitlines() if "REPLACE-ME" in ln or "github.com" in ln]
@@ -170,6 +178,8 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
         fail(f"{target}: {name} 里还有没被重写的地址：\n    " + "\n    ".join(leftovers))
     if prefix.rstrip("/") not in text:
         fail(f"{target}: {name} 里找不到重写后的地址（期望包含 {prefix}）—— 发布的指针会指向别处。")
+    if f"version: {ver}" not in text:
+        fail(f"{target}: {name} 的 version 不是 {ver} —— 消费方会比对错版本。")
 
     f.write_text(text, encoding="utf8")
 
