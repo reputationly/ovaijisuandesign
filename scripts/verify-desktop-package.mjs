@@ -170,18 +170,63 @@ function outDirOf(resources) {
 }
 
 /**
+ * 从 `app.asar` 里读出 `package.json` 的 `version` —— **应用启动后 `app.getVersion()`
+ * 读到的就是它。**
+ *
+ * ## 为什么非要挖 asar，而不是只信清单
+ *
+ * 自动更新是拿「清单里的版本」和「应用自报的版本」比大小。这两个值分别来自
+ * `latest-*.yml` 和 asar 里那份 package.json，是**两处独立的产物**。只查清单的话，
+ * 「清单说 30.21.3、asar 里其实是 30.21.2」这种情况完全看不出来 ——
+ * 而它正是无限弹「有新版」的那个原因。
+ *
+ * asar 格式（`@electron/asar` 的 disk.ts）本身很简单，手写十几行就够，
+ * 省掉一个构建期依赖：
+ *
+ *     0..3   UInt32  恒为 4（后面那个 UInt32 的字节数）
+ *     4..7   UInt32  headerSize —— 头部 pickle 的**总长**（含它自己的 8 字节前缀）
+ *     8..11  UInt32  头部 pickle 的载荷长度
+ *     12..15 UInt32  头部 JSON 的字节数
+ *     16..   头部 JSON
+ *     文件数据从 8 + headerSize 开始，条目里的 offset 是相对它的
+ *
+ * 注意 12..15 和 16 那个 4 字节错位：字符串长度在前，字符串在后。
+ */
+function asarAppVersion(resources) {
+  const asar = path.join(resources, "app.asar");
+  if (!existsSync(asar)) return { error: "产物里没有 app.asar" };
+  const fd = openSync(asar, "r");
+  try {
+    const head = Buffer.alloc(16);
+    readSync(fd, head, 0, 16, 0);
+    if (head.readUInt32LE(0) !== 4) return { error: "asar 头部不像 pickle（0..3 不是 4）" };
+    const headerSize = head.readUInt32LE(4);
+    const jsonLen = head.readUInt32LE(12);
+    if (!(jsonLen > 0 && jsonLen < 64 * 1024 * 1024)) {
+      return { error: `asar 头部 JSON 长度不合理（${jsonLen}）` };
+    }
+    const json = Buffer.alloc(jsonLen);
+    readSync(fd, json, 0, jsonLen, 16);
+    const entry = JSON.parse(json.toString("utf8")).files?.["package.json"];
+    if (!entry || entry.files) return { error: "asar 里找不到 package.json 条目" };
+    const base = 8 + headerSize;
+    const buf = Buffer.alloc(entry.size);
+    readSync(fd, buf, 0, entry.size, base + Number(entry.offset));
+    return { version: JSON.parse(buf.toString("utf8")).version };
+  } catch (err) {
+    return { error: `读 app.asar 失败：${err.message}` };
+  } finally {
+    closeSync(fd);
+  }
+}
+
+/**
  * 核对「装出来的应用会自报哪个版本」。
  *
- * ## 为什么验的是清单 + 文件名，不是 `package.json`
- *
- * `app.getVersion()` 读的是 asar 里那份 package.json。直接去挖 asar 要实现一层
- * asar 解析，而这里要拦的其实不是「asar 里写没写对」（那必然和源文件一致），
- * 是**整条链有没有拿错版本**：`set-desktop-version.py` 漏跑、或者跑在
- * `electron-builder` 之后，包和清单就会带着**上一次发布**的版本号发出去。
- *
- * 那时症状极其难认：发布全绿、包能装能跑，只是客户端装完仍然认为有新版，
- * 而且每次点「检查更新」都被弹一次。所以这里从**产物**这一侧反查 ——
- * 清单的 `version:` 和安装包文件名里都必须带着预期的编码值。
+ * 查三处，缺一不可：清单的 `version:`、安装包文件名、**asar 里的 package.json**。
+ * 前两处是 electron-builder 用同一个版本填的，天然一致；asar 那份是应用真正读的，
+ * 它对不上前面两处的唯一原因是版本被改在了 electron-builder 之后
+ * （或者压根没跑 `set-desktop-version.py`）。
  *
  * 只在传了 `--expect-version` / `EXPECT_VERSION` 时才查（发版流水线传，
  * CI 的出包验证不传 —— 那条流水线没有 tag，没有「预期的版本」这回事）。
@@ -213,10 +258,24 @@ function checkVersion(resources, expect) {
     console.log(`        python3 scripts/set-desktop-version.py <人读四段版本号>`);
     console.log(`     后果不是「版本号不好看」：客户端装完仍认为有新版，每次检查更新都被弹一次。`);
   } else {
-    console.log(`  ✅ 清单 version = ${got}（客户端拿它和 app.getVersion() 比大小）`);
+    console.log(`  ✅ 清单 version = ${got}（electron-updater 拿它和 app.getVersion() 比大小）`);
   }
-  // 文件名里也带一遍 —— electron-builder 用同一个版本命名产物。两处对不上
-  // 说明出包中途版本被改过（改在了 electron-builder 之后）。
+
+  // **asar 里那份才是应用真正读的。** 只查清单的话，「清单新、应用自报旧」
+  // 这种无限弹提示的情况完全看不出来。
+  const asar = asarAppVersion(resources);
+  if (asar.error) {
+    bad++;
+    console.log(`  ❌ ${asar.error} —— 无从确认应用启动后会自报哪个版本`);
+  } else if (asar.version !== expect) {
+    bad++;
+    console.log(`  ❌ app.asar 里的 version 是 ${asar.version}，期望 ${expect}`);
+    console.log(`     —— 清单和包名对、但应用自报的是旧的，客户端会**永远**认为有新版`);
+  } else {
+    console.log(`  ✅ app.asar 里 version = ${asar.version}（应用启动后 app.getVersion() 报的就是它）`);
+  }
+
+  // 文件名里也带一遍 —— electron-builder 用同一个版本命名产物。
   const pkgs = readdirSync(out).filter((f) => /\.(dmg|exe)$/.test(f));
   if (pkgs.length === 0) {
     bad++;
