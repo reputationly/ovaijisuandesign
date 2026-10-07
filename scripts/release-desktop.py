@@ -52,7 +52,6 @@ from release import (  # noqa: E402
     endpoint,
     http_get,
     preflight,
-    run,
     s3_upload,
     verify,
 )
@@ -248,6 +247,22 @@ def top_manifest(ver: str, sources: list[str], targets: list[str], namespace: st
     return out
 
 
+def remove_key(source: str, bucket: str, key: str) -> None:
+    """删一个 key，**删不掉不算失败**。
+
+    `aws s3 rm` 对不存在的 key 会往 stderr 打一行、退出码非 0；而清理本来就是
+    「有就删、没有就跳过」。直接用 `run()`（check=True）的话，**第一次跑清理就会
+    因为「桶根本来就没有清单」而整次发布失败** —— 而那恰恰是最常见的情况。
+    """
+    import subprocess
+
+    subprocess.run(
+        ["aws", "s3", "rm", f"s3://{bucket}/{key}", "--endpoint-url", endpoint(source)],
+        env={**os.environ, **creds(source)},
+        capture_output=True,
+    )
+
+
 def upload(source: str, ver: str, target: str, stage_dir: Path, namespace: str) -> None:
     """传一个 target 的全部文件，然后**逐个回读校验**。
 
@@ -358,12 +373,12 @@ def main() -> int:
     if key_prefix(args.prefix):
         for s in sources:
             bucket = os.environ[SOURCES[s]["bucket"]]
-            run("aws", ["s3", "rm", f"s3://{bucket}/manifest.json", "--endpoint-url", endpoint(s)], env={**os.environ, **creds(s)})
+            remove_key(s, bucket, "manifest.json")
             # **旧栈留下的稳定指针**（`<target>/latest.json`）。新栈的稳定指针是
             # `<target>/latest-mac.yml` / `latest.yml`，旧的那三个还在指着 3.0.14.5 ——
             # 留着就是个「这里有个当前版本」的假指针，读到的人会拿到旧包。
             for legacy in ("darwin-arm64", "darwin-x64", "win32-x64"):
-                run("aws", ["s3", "rm", f"s3://{bucket}/{key_prefix(args.prefix)}/{legacy}/latest.json", "--endpoint-url", endpoint(s)], env={**os.environ, **creds(s)})
+                remove_key(s, bucket, f"{key_prefix(args.prefix)}/{legacy}/latest.json")
         print(f"✓ 桶根已清；旧栈的 latest.json 遗留指针已清（正式清单在 <product>/<target>/latest-*.yml）")
 
     # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
