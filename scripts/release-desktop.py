@@ -311,10 +311,16 @@ def main() -> int:
     # 既让自己的指针没翻，又可能踩到别人。而 `verify()` 校验的是同一个错 key，
     # 于是**回读校验还绿着** —— 比不校验更坏。
     top_key = f"{key_prefix(args.prefix)}/manifest.json"
-    # **命名空间为空就直接拒**。桶可能是和别的项目共用的（release.py 里 PRODUCT 那段
-    # 注释就在讲这个：共用桶而不分命名空间，对方的清理会把我们的版本删光）。往桶根写
-    # 一次「我们的清单」不只是自己指针没翻 —— 那是别人的地盘。
-    if key_prefix(args.prefix).count("/") < 1:
+    # **命名空间真的为空才拒**（`RELEASE_PRODUCT=` 时）。
+    #
+    # 上一版写的是 `count("/") < 1`，而 `key_prefix("")` 返回 `ovaijisuandesign` ——
+    # 它**就是**产品命名空间、一个斜杠都没有。于是正常发布被判成「命名空间为空」而拒掉，
+    # 三个平台的包全传完并校验过之后才在最后一步挂。判断依据只能是「是不是空串」。
+    #
+    # 这个守卫本身是有用的：桶可能和别的项目共用（release.py 里 PRODUCT 那段注释就在讲，
+    # 共用桶而不分命名空间，对方的清理会把我们的版本删光），往桶根写「我们的清单」
+    # 不只是自己指针没翻 —— 那是别人的地盘。
+    if not key_prefix(args.prefix):
         fail(f"产品命名空间为空，拒绝对桶根写清单（key={top_key!r}）")
     for s in sources:
         digest = hashlib.sha256(top.read_bytes()).hexdigest()
