@@ -301,11 +301,26 @@ def main() -> int:
     #
     # （漏掉这一步的后果更隐蔽：包全在 R2 上、发布日志也全绿，但顶层 manifest 没人改，
     #  **消费者还在拿旧版本** —— 2026-10-07 的 v3.0.21.1 就是这么"发布成功但没生效"的。）
+    #
+    # ## key 必须自己带上命名空间，不能指望 s3_upload 拼
+    #
+    # `s3_upload()` 内部会拼一个模块级的 `PREFIX`，而那个值**只在 release.py 的 main()
+    # 里赋值**。本脚本 import 它时 main() 从没跑过，`PREFIX` 还是 `""` —— 于是
+    # `s3_upload(…, "manifest.json")` 落到 **桶根**，把清单写到了产品的命名空间外面。
+    # 桶可能是和别的项目共用的（release.py 里 PRODUCT 那段注释就是讲这个），写错地方
+    # 既让自己的指针没翻，又可能踩到别人。而 `verify()` 校验的是同一个错 key，
+    # 于是**回读校验还绿着** —— 比不校验更坏。
+    top_key = f"{key_prefix(args.prefix)}/manifest.json"
+    # **命名空间为空就直接拒**。桶可能是和别的项目共用的（release.py 里 PRODUCT 那段
+    # 注释就在讲这个：共用桶而不分命名空间，对方的清理会把我们的版本删光）。往桶根写
+    # 一次「我们的清单」不只是自己指针没翻 —— 那是别人的地盘。
+    if key_prefix(args.prefix).count("/") < 1:
+        fail(f"产品命名空间为空，拒绝对桶根写清单（key={top_key!r}）")
     for s in sources:
         digest = hashlib.sha256(top.read_bytes()).hexdigest()
-        s3_upload(s, top, "manifest.json")
-        verify(s, "manifest.json", digest)
-        print(f"✓ {s}：顶层指针已翻到 {ver}")
+        s3_upload(s, top, top_key)
+        verify(s, top_key, digest)
+        print(f"✓ {s}：顶层指针已翻到 {ver}（{top_key}）")
 
     # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
     # 问题都只在这一步才暴露。
