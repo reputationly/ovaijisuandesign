@@ -142,14 +142,31 @@ function resourcesOf(dir) {
   return null;
 }
 
-/** 产物根 → electron-builder 的输出目录（清单和安装包都在这一层）。 */
+/**
+ * 产物根 → electron-builder 的输出目录（清单和安装包都在这一层）。
+ *
+ * **向上找，不按层级推。** 真实布局是：
+ *
+ *     dist-electron/latest-mac.yml                      ← 清单和 dmg 都在这层
+ *     dist-electron/mac-arm64/蒜狸小助手.app/Contents/Resources/…
+ *
+ * 而 `resources` 到输出根隔着**四层**（Resources → Contents → .app → mac-arm64），
+ * 中间还夹着一个随 target 变名的目录（`mac` / `mac-arm64` / `mac-x64` …）。
+ * 写死层数就会错 —— 写少一层找不到清单，报「找不到 latest-mac.yml」，
+ * 一个纯布局检查平白变成红。认「哪一层同时有清单和安装包」不会错。
+ */
 function outDirOf(resources) {
-  // mac: <x>.app/Contents/Resources → <x>.app/Contents → <x>.app
-  // win: win-unpacked/resources      → win-unpacked
-  const win = path.basename(resources) === "resources" && /[\\/]win-unpacked$/.test(path.dirname(resources));
-  if (win) return path.dirname(resources);
-  if (path.basename(path.dirname(resources)) === "Contents") return path.resolve(resources, "..", "..");
-  return path.resolve(resources, "..");
+  let dir = resources;
+  for (let i = 0; i < 6; i++) {
+    const names = readdirSync(dir);
+    const hasManifest = names.some((f) => /^latest(-mac)?\.yml$/.test(f));
+    const hasPackage = names.some((f) => /\.(dmg|exe)$/.test(f));
+    if (hasManifest && hasPackage) return dir;
+    const up = path.resolve(dir, "..");
+    if (up === dir) break;
+    dir = up;
+  }
+  return null;
 }
 
 /**
@@ -171,6 +188,11 @@ function outDirOf(resources) {
  */
 function checkVersion(resources, expect) {
   const out = outDirOf(resources);
+  if (!out) {
+    console.log(`  ❌ 从 ${path.relative(REPO, resources)} 往上找不到同时有清单和安装包的那一层`);
+    console.log(`     —— 电子更新清单和安装包在 electron-builder 的**输出根**，不在 .app 里`);
+    return 1;
+  }
   const isMac = !/win-unpacked/.test(resources);
   const manifest = path.join(out, isMac ? "latest-mac.yml" : "latest.yml");
   if (!existsSync(manifest)) {
