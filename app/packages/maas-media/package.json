@@ -2,7 +2,7 @@
   "name": "@ov/maas-media",
   "version": "0.0.0",
   "private": true,
-  "description": "平台适配层：给一段提示词和素材，让自建 MaaS 平台产出图 / 视频 / 语音 / 音乐。从 crates/maas-media 逐模块移植（含 94 个测试）。不知道 MiniMax 的存在。",
+  "description": "平台适配层：给一段提示词和素材，让自建 MaaS 平台产出图 / 视频 / 语音 / 音乐。不知道 MiniMax 的存在。",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
