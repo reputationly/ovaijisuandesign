@@ -18,6 +18,7 @@ import { IPC } from "./ipc/channels.js";
 import { createMainIpcServer } from "./ipc/electron-server.js";
 import { DisposableStore } from "./ipc/events.js";
 import { fromService } from "./ipc/proxy.js";
+import { UpdaterService, createElectronAutoUpdater, shouldAutoUpdate, currentUpdateTarget } from "./updater.js";
 import type { ProjectRecord, WorkspaceOpenResult } from "./ipc/types.js";
 import { installAppMenu, triggerMenuAction } from "./menu.js";
 import { migrateLegacyWorkspace } from "./migration/legacy.js";
@@ -269,6 +270,33 @@ async function boot(): Promise<Running> {
 
   registerChannel("hilo", hilo);
   registerChannel("project", projects);
+  // 自动更新。官方渲染层已经把整条链路建好了（UpdateBanner / ForcedUpdateDialog /
+  // 设置页的「检查更新」），它通过 `ProxyChannel.toService(client.getChannel("updater"))`
+  // 取服务 —— 所以这里只要**通道名叫 `updater`** 且实现那 10 个方法，UI 侧零改动。
+  // 名字对不上它不会报错，只是静默退化（官方那整段包在 try/catch 里 return）。
+  registerChannel(
+    "updater",
+    new UpdaterService({
+      // 开发态返回 null：本地开发不该被线上版本打断（官方也是这么做的）。
+      createAutoUpdater: () => {
+        if (!shouldAutoUpdate()) return null;
+        const feed = process.env.OV_UPDATE_FEED_BASE?.trim();
+        if (!feed) {
+          // 不静默：没有 feed 就没法更新，但用户点了「检查更新」应该有句话看。
+          log("[updater] 未配置 OV_UPDATE_FEED_BASE，无法检查更新");
+          return null;
+        }
+        return createElectronAutoUpdater({ feedBase: feed, target: currentUpdateTarget() });
+      },
+      currentVersion: () => app.getVersion(),
+      readDismissed: () => {
+        const d = store.get("updaterDismissed") as { version?: string; at?: number } | undefined;
+        return { version: d?.version ?? null, at: d?.at ?? 0 };
+      },
+      writeDismissed: (version, at) => void store.set("updaterDismissed", { version, at }),
+      log,
+    }),
+  );
   // 用户自建的技能优先于自带的
   registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));
   registerChannel("projectAssets", new ProjectAssetsService({ projectsRoot: () => dirs.projectsRoot, trashItem: (p) => shell.trashItem(p) }));

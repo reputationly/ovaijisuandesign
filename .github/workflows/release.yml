@@ -28,6 +28,8 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       prefix: ${{ steps.v.outputs.prefix }}
       cdn: ${{ steps.v.outputs.cdn }}
+      # 产品命名空间。应用端的更新源也用它拼 —— 单一出处，别在 workflow 里再写一遍。
+      product: ${{ steps.v.outputs.product }}
     steps:
       - uses: actions/checkout@v4
       - id: v
@@ -41,6 +43,10 @@ jobs:
           HAS_CDN: ${{ secrets.R2_ACCOUNT_ID != '' && vars.R2_PUBLIC_BASE != '' && secrets.R2_ACCESS_KEY_ID != '' }}
         run: |
           echo "cdn=$HAS_CDN" >> "$GITHUB_OUTPUT"
+          # PRODUCT 只有一个出处：scripts/release.py。这里 import 出来，
+          # 免得改产品名时要同时改 Python 和三处 workflow。
+          PRODUCT=$(python3 -c "import sys;sys.path.insert(0,'scripts');import release;print(release.PRODUCT)")
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
           [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2，本次跳过 CDN 分发，只出 GitHub Release"
           # 三段基线取自**新栈自己的版本源**。以前读的是 workspace 的 Cargo.toml，
           # 旧栈（Rust）删掉之后那个文件就没了。
@@ -136,9 +142,13 @@ jobs:
       - name: 装配 resources 并按 Electron ABI 重编原生模块
         shell: bash
         run: node scripts/stage-desktop-resources.mjs --rebuild
+      # 更新源。装好的应用会拿它去读 `<base>/<target>/latest-mac.yml`（发布时写的清单）。
+      # 缺了它应用仍然能出包，只是「检查更新」永远查不到东西 —— 所以这里不给就红。
       - name: 出包
         shell: bash
         working-directory: app/desktop
+        env:
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
       - name: 核对产物 resources 布局与架构
         shell: bash
