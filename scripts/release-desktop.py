@@ -224,10 +224,15 @@ def key_prefix(namespace: str) -> str:
 
 
 def top_manifest(ver: str, sources: list[str], targets: list[str], namespace: str) -> Path:
-    """顶层 manifest.json：每个 target 指向各源自己的 latest 清单地址。
+    """顶层 manifest.json：每个 target 指向各源自己的**稳定**清单地址。
 
     和旧栈的形状一致（`schemaVersion` / `targets.<target>.latestUrls.<source>`），
     所以现有的监控脚本和用户的自检脚本不用改。
+
+    **地址里不带版本号。** 带了就把读者锁死在某一版：装的是 3.0.21.1 时读到的
+    latestUrls 指向 `3.0.21.1/…`，于是 3.0.21.2 发布后它永远看不见 —— 而这正是
+    自动更新失效最常见的一种形态，且没有任何报错。旧栈的 `<target>/latest.json`
+    是同一个约定（所以它的更新一直能工作）。
     """
     doc = {"schemaVersion": 1, "targets": {}}
     for t in targets:
@@ -235,7 +240,7 @@ def top_manifest(ver: str, sources: list[str], targets: list[str], namespace: st
         for s in sources:
             base = os.environ[SOURCES[s]["base"]].rstrip("/")
             name = "latest-mac.yml" if t.startswith("darwin") else "latest.yml"
-            entry["latestUrls"][s] = f"{base}/{key_prefix(namespace)}/{ver}/{t}/{name}"
+            entry["latestUrls"][s] = f"{base}/{key_prefix(namespace)}/{t}/{name}"
         doc["targets"][t] = entry
     out = DIST / "manifest.json"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -249,7 +254,17 @@ def upload(source: str, ver: str, target: str, stage_dir: Path, namespace: str) 
     用旧栈的 `s3_upload()` / `verify()`，不为新栈另写一份上传 —— 那段代码已经踩过
     R2 不支持 CRC32 尾部校验（会 501，而报错看不出是校验问题）这类坑。
     `verify()` 自己会拼 `PREFIX`，所以传进去的 key **不带产品命名空间**。
+
+    ## 更新清单要传两份：版本化的留档 + 不带版本号的稳定指针
+
+    electron-updater 找的是 `<base>/<target>/latest-mac.yml`（mac）或 `latest.yml`
+    （win）—— **不带版本号**。所以只在版本化目录里放一份的话，更新器永远 404：
+    装的是 3.0.21.1 就只找 `…/3.0.21.1/<target>/`，新版本发到 `3.0.21.2/` 它看不见。
+    （旧栈的 `<target>/latest.json` 就是这个稳定指针，也正因为如此更新才能一直工作。）
+
+    所以：清单传两份，其余文件只传版本化那一份。
     """
+    manifest = "latest-mac.yml" if target.startswith("darwin") else "latest.yml"
     for p in sorted(stage_dir.iterdir()):
         if not p.is_file():
             continue
@@ -258,6 +273,12 @@ def upload(source: str, ver: str, target: str, stage_dir: Path, namespace: str) 
         s3_upload(source, p, key)
         verify(source, key, digest)
         print(f"    ✓ {key}")
+        if p.name == manifest:
+            # 稳定指针：**不带版本号**。更新器只认这个路径（provider=generic 的约定）。
+            stable = f"{key_prefix(namespace)}/{target}/{p.name}"
+            s3_upload(source, p, stable)
+            verify(source, stable, digest)
+            print(f"    ✓ {stable}   ← 更新器读的是这份（不带版本号）")
 
 
 def main() -> int:
@@ -336,13 +357,14 @@ def main() -> int:
     # 这么躺了一个，是那次守卫没挡住留下的）。顺手清掉，不留给下一个人去猜。
     if key_prefix(args.prefix):
         for s in sources:
-            run(
-                "aws",
-                ["s3", "rm", f"s3://{os.environ[SOURCES[s]['bucket']]}/manifest.json",
-                 "--endpoint-url", endpoint(s)],
-                env={**os.environ, **creds(s)},
-            )
-        print(f"✓ 桶根已清（正式清单在 {top_key}）")
+            bucket = os.environ[SOURCES[s]["bucket"]]
+            run("aws", ["s3", "rm", f"s3://{bucket}/manifest.json", "--endpoint-url", endpoint(s)], env={**os.environ, **creds(s)})
+            # **旧栈留下的稳定指针**（`<target>/latest.json`）。新栈的稳定指针是
+            # `<target>/latest-mac.yml` / `latest.yml`，旧的那三个还在指着 3.0.14.5 ——
+            # 留着就是个「这里有个当前版本」的假指针，读到的人会拿到旧包。
+            for legacy in ("darwin-arm64", "darwin-x64", "win32-x64"):
+                run("aws", ["s3", "rm", f"s3://{bucket}/{key_prefix(args.prefix)}/{legacy}/latest.json", "--endpoint-url", endpoint(s)], env={**os.environ, **creds(s)})
+        print(f"✓ 桶根已清；旧栈的 latest.json 遗留指针已清（正式清单在 <product>/<target>/latest-*.yml）")
 
     # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
     # 问题都只在这一步才暴露。
