@@ -123,6 +123,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 -c "import ast, pathlib; ast.parse(pathlib.Path('scripts/extract-mcp-tools.py').read_text())"
+      # 版本编码自检。**放这儿而不是出包流水线**：它几秒钟跑完、不联网，
+      # 而它守的东西一旦坏了，症状是「用户永远收不到更新」——不报错、不提示，
+      # 要等真实发布之后才暴露。编码规则和单调性证明在 scripts/versioning.py。
+      - name: 版本编码离线自检
+        run: python3 scripts/verify-versioning.py
       - name: 规格文档没被手改坏
         run: |
           test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 57

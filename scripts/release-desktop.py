@@ -13,19 +13,24 @@
 旧栈发的是 `tar.gz`（一个 Rust 二进制 + 静态产物打一个包），指针是自定义的
 `latest.json`。新栈是 electron-builder 的标准三件套：
 
-    mac-arm64/  蒜狸小助手-<ver>-arm64.dmg  +  .dmg.blockmap  +  latest-mac.yml
-    mac-x64/    蒜狸小助手-<ver>.dmg         +  .dmg.blockmap  +  latest-mac.yml
-    win-x64/    蒜狸小助手-<ver>-Setup.exe  +  .exe.blockmap  +  latest.yml
+    mac-arm64/  蒜狸小助手-30.21.2-arm64.dmg  +  .dmg.blockmap  +  latest-mac.yml
+    mac-x64/    蒜狸小助手-30.21.2.dmg         +  .dmg.blockmap  +  latest-mac.yml
+    win-x64/    蒜狸小助手-30.21.2-Setup.exe  +  .exe.blockmap  +  latest.yml
 
 指针沿用 electron-updater 的 `latest-*.yml` 格式 —— 消费方（`electron-updater`、
 或任何按这个格式读的工具）不用改就能认。
 
+**`--version` 收的是人读四段（`3.0.21.2`），而文件名和清单里的版本是编码值
+（`30.21.2`）。** 这不是笔误 —— 四段不是合法 semver，而清单的 `version:` 必须能被
+`electron-updater` 和官方 UI 当 semver 解析。编码规则和它的单调性证明在
+`scripts/versioning.py`，这里只负责断言 electron-builder 出的清单已经是编码值。
+
 **包名不带 sha，按版本存死。** 和旧栈不同，这里保留 electron-builder 的原始命名：
-`latest-*.yml` 里引用的就是它，**改名就得连 yml 一起改**，而 yml 是我们重写的 ——
+`latest-*.yml` 里引用的就是它，**改名就得连 yml 一起改**，而 yml 是我们改地址的 ——
 多一处可以出错的地方。真要防「覆盖发布」，靠的是「版本号只增」而不是文件名。
 
 **打包阶段 electron-builder 自己写的 `latest-*.yml` 必须丢掉**（里面是占位域名），
-由本脚本按每个源自己的公开域名重新生成。概念和旧栈丢掉 `latest.json` 完全一样
+由本脚本按每个源自己的公开域名重新生成地址。概念和旧栈丢掉 `latest.json` 完全一样
 （`release.yml` 里那段注释）。
 """
 
@@ -55,6 +60,7 @@ from release import (  # noqa: E402
     s3_upload,
     verify,
 )
+from versioning import encode_or_die  # noqa: E402
 
 DIST = ROOT / "dist-desktop"
 
@@ -147,9 +153,9 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     electron-updater 格式里有**两个**引用包地址的字段：
 
         files:
-          - url:  蒜狸小助手-3.0.16-arm64.dmg     ← 列表项，前面有 "- "，正则要能匹配到
+          - url:  蒜狸小助手-30.21.2-arm64.dmg     ← 列表项，前面有 "- "，正则要能匹配到
             sha512: …
-        path: 蒜狸小助手-3.0.16-arm64.dmg          ← 顶层
+        path: 蒜狸小助手-30.21.2-arm64.dmg          ← 顶层
 
     漏掉 `files[].url` 的话，下载走 files 而校验走 path，行为取决于消费方读哪个 ——
     这正是最坏的一类：有的客户端能升，有的一直转圈。
@@ -157,7 +163,8 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     name = "latest-mac.yml" if target.startswith("darwin") else "latest.yml"
     f = stage_dir / name
     # 包在 CDN 上的完整地址，和 top_manifest() 里 latestUrls 用的是同一条规则。
-    prefix = f"{base.rstrip('/')}/{key_prefix(namespace)}/{ver_of(stage_dir)}/{target}/"
+    ver = ver_of(stage_dir)
+    prefix = f"{base.rstrip('/')}/{key_prefix(namespace)}/{ver}/{target}/"
 
     def fix(m: "re.Match[str]") -> str:
         val = m.group(2)
@@ -168,13 +175,36 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     # `url:` / `path:` 两处，行首可能有 "- " 列表标记，值可能带引号。
     text = re.sub(r"^(\s*(?:-\s+)?(?:url|path):\s*)(.+?)\s*$", fix, f.read_text(encoding="utf8"), flags=re.M)
 
-    # **版本号也钉成真实发布版本。** electron-builder 的 `version:` 取自
-    # app/desktop/package.json，那儿放的是**三段基线**（3.0.21）——
-    # 因为四段不是合法 semver，cargo 的 workspace 装不下（见 release.py::baseline 的注释）。
-    # 而存储路径是四段（3.0.21.1），两者对不上：消费方拿 yml 里的 `version` 和
-    # 自己运行的版本比，基线相同的话会判定「已经是最新」而**永远不提示更新**。
-    ver = ver_of(stage_dir)
-    text = re.sub(r"^version:\s*.+$", f"version: {ver}", text, count=1, flags=re.M)
+    # **版本号：断言，不改写。**
+    #
+    # electron-builder 的 `version:` 取自 `app/desktop/package.json`，而那儿的值
+    # 由 `scripts/set-desktop-version.py` 在出包前写成**编码后的三段**
+    # （3.0.21.2 → 30.21.2）。这里只负责确认它对 —— 见下面 fail 的注释。
+    encoded = encode_or_die(ver, where=f"{target} 的 {name}")
+    found = re.search(r"^version:\s*(.+?)\s*$", text, flags=re.M)
+    if not found:
+        fail(f"{target}: {name} 里没有 version: 字段，消费方无从判断有没有新版。")
+    got = found.group(1).strip().strip("'\"")
+    if got != encoded:
+        # **这里必须失败，不能像以前那样把清单补写成我们想要的值。**
+        #
+        # 补写的后果是：清单说 30.21.2，而**应用自报的是 package.json 里那个值**
+        # （它被编进 asar 了，改清单改不动它）。两边对不上 → 用户装完 30.21.2
+        # 之后应用仍然报旧版本 → 下次点「检查更新」又被告知有新版，无限循环。
+        # 而发布日志一路绿：上传成功、回读校验通过、指针也翻了。
+        #
+        # 补写曾经是必要的，因为那时 package.json 放的是**三段基线**（3.0.21）而
+        # 存储用四段。现在 package.json 自己就是编码值，正确的做法是让
+        # electron-builder 从一开始就写对，然后在这里盯着它。
+        fail(
+            f"{target}: {name} 的 version 是 {got!r}，但这一版应该是 {encoded!r}"
+            f"（{ver} 的编码值）。\n"
+            f"    electron-builder 抄的是 app/desktop/package.json 的 version —— "
+            f"出包流程里在 electron-builder **之前**加一步：\n"
+            f"        python3 scripts/set-desktop-version.py {ver}\n"
+            f"    后果不是「版本号不好看」，是装完之后客户端仍然认为有新版，"
+            f"每次点检查更新都被弹一次。"
+        )
 
     # **占位域名不许发出去。** 重写逻辑改坏了的话，症状是「指针指向一个谁也下不动的
     # 地址」—— 发布全绿、校验全过，只有用户升级时才发现。所以传之前先确认它真被换掉了。
@@ -183,18 +213,20 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
         fail(f"{target}: {name} 里还有没被重写的地址：\n    " + "\n    ".join(leftovers))
     if prefix.rstrip("/") not in text:
         fail(f"{target}: {name} 里找不到重写后的地址（期望包含 {prefix}）—— 发布的指针会指向别处。")
-    if f"version: {ver}" not in text:
-        fail(f"{target}: {name} 的 version 不是 {ver} —— 消费方会比对错版本。")
 
     f.write_text(text, encoding="utf8")
 
     # 落一份 JSON 边表：给不认 electron-updater 格式的东西（人、脚本、以后自己写的
     # 检查器）一个能读的入口。老实说现在没有消费者，但它是唯一不带前置假设的那份数据。
+    #
+    # `version` 是人读四段（和存储目录同名），`semverVersion` 是清单里那个编码值 ——
+    # 两者**必然不同**，写在一起是为了看的人一眼知道该拿哪个去比。
     (stage_dir / "release.json").write_text(
         json.dumps(
             {
                 "target": target,
-                "version": ver_of(stage_dir),
+                "version": ver,
+                "semverVersion": encoded,
                 "base": base,
                 "files": sorted(p.name for p in stage_dir.iterdir() if p.is_file()),
             },

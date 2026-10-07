@@ -55,3 +55,11 @@ assets/home-showcase/media/
 # 新栈打包产物（electron-builder 的输出目录，几百 MB）
 app/desktop/dist-electron/
 app/desktop/build-resources/
+
+# 发布脚本的本地摆盘目录（scripts/release-desktop.py 的 DIST）。
+# 里面是「还没上传」的产物，桶上那份才是真的 —— 两边同名很容易看错。
+dist-desktop/
+# 「清理旧版本」那段 shell 的中间文件。跑一次就留在仓库根上，
+# 不忽略的话 `git status` 永远不干净，久了就没人看了。
+/raw.txt
+/versions.txt

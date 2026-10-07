@@ -122,6 +122,21 @@ export interface AutoUpdaterLike {
   removeAllListeners?(): void;
 }
 
+/**
+ * **官方 UI 的 `parseSemver` 正则**，一字不改地从
+ * `out/official-ui/assets/index-*.js` 抄过来。
+ *
+ * 主进程和渲染层必须用同一个判据。两边不一致的话，我们这边一切正常，
+ * 用户那边 `parseSemver()` 返回 `null` → `compareSemver()` 恒为 0 →
+ * 「更新详情」算不出落后几个版本、error 阶段的横幅也走不通。
+ */
+const STRICT_SEMVER_RE = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/;
+
+/** 这个版本号能被官方 UI 解析、也能被 electron-updater 的 semver 接受吗。 */
+export function isStrictSemver(version: string): boolean {
+  return STRICT_SEMVER_RE.test((version || "").trim());
+}
+
 export interface UpdaterDeps {
   /** 开发态注入 null —— 本地开发不该被线上版本打断。 */
   createAutoUpdater: () => AutoUpdaterLike | null;
@@ -141,7 +156,26 @@ export class UpdaterService {
   readonly onStateChanged = this.changed.event;
 
   constructor(private readonly deps: UpdaterDeps) {
-    this.state = initialUpdaterState(deps.currentVersion());
+    const current = deps.currentVersion();
+    // **自报版本不合法就喊出来。**
+    //
+    // 症状极其难认：`app.getVersion()` 是四段（3.0.21.2）时，electron-updater
+    // 拿清单里的三段和它比，永远 `gt` —— 用户每次点「检查更新」都被告知有新版，
+    // 装完还是。而这和「网络不通」长得一模一样：都不弹横幅，也都不报错。
+    //
+    // 真踩过一次：清单的 `version:` 被钉成了四段，客户端直接报
+    // `does not have a valid semver version`。修好之后加这一行，是为了下次
+    // 出包流程漏了 `set-desktop-version.py` 的时候，**日志里当场就能看见**，
+    // 而不是等用户来报「更新装不上」。
+    if (!isStrictSemver(current)) {
+      deps.log(
+        `[updater] ✗ app.getVersion() = ${JSON.stringify(current)} 不是三段 semver，自动更新会失效` +
+          `（客户端会永远认为有新版）。package.json 的 version 必须是**编码值**` +
+          `（人读 3.0.21.2 → 编码 30.21.2），出包流程由 scripts/set-desktop-version.py 写入，` +
+          `规则见 scripts/versioning.py。`,
+      );
+    }
+    this.state = initialUpdaterState(current);
     const d = deps.readDismissed();
     if (d.version) {
       this.state.dismissedVersion = d.version;

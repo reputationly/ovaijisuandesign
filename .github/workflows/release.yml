@@ -19,19 +19,31 @@ env:
 
 jobs:
   # ==================== 版本号与前缀 ====================
-  # 独立成 job 让所有下游共用同一份。版本号必须集中解析：包名、latest.json、
-  # 二进制自报的版本（env!("CARGO_PKG_VERSION")）三处取值不一致的话，
-  # 用户装完立刻会被提示更新到自己刚装的那个版本。
+  # 独立成 job 让所有下游共用同一份。版本号必须集中解析：**包名、清单的 version:、
+  # 应用自报的版本（app.getVersion()）三处取值必须来自同一次发布**，不一致的话
+  # 用户装完立刻会被提示「还有新版」，而且每次点检查更新都弹一次。
   prepare:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.v.outputs.version }}
+      # 同一版的**编码值**（三段 semver）。清单的 `version:`、包文件名、
+      # `app.getVersion()` 三处都用它，而 `version`（人读四段）只用在 tag
+      # 和存储路径上。两者必然不同，别在下游混用。
+      semver: ${{ steps.v.outputs.semver }}
       prefix: ${{ steps.v.outputs.prefix }}
       cdn: ${{ steps.v.outputs.cdn }}
       # 产品命名空间。应用端的更新源也用它拼 —— 单一出处，别在 workflow 里再写一遍。
       product: ${{ steps.v.outputs.product }}
     steps:
       - uses: actions/checkout@v4
+
+      # 版本编码的离线自检（几秒钟，不联网）。**放在解析版本号之前**：
+      # 编码规则被改坏时，这里红比出完三个平台的包再红便宜得多 ——
+      # 而且这里红的话症状好懂：单调性破了 = 永远收不到更新。
+      - name: 版本编码离线自检
+        shell: bash
+        run: python3 scripts/verify-versioning.py
+
       - id: v
         env:
           # secrets 不能在 job 级 if 里判，只能在 step 里转成 output。
@@ -48,14 +60,24 @@ jobs:
           PRODUCT=$(python3 -c "import sys;sys.path.insert(0,'scripts');import release;print(release.PRODUCT)")
           echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
           [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2，本次跳过 CDN 分发，只出 GitHub Release"
-          # 三段基线取自**新栈自己的版本源**。以前读的是 workspace 的 Cargo.toml，
-          # 旧栈（Rust）删掉之后那个文件就没了。
-          CARGO=$(python3 -c "import json;print(json.load(open('app/desktop/package.json'))['version'])")
-          echo "版本基线：$CARGO（app/desktop/package.json）"
+
+          # **人读的**官方基线（3.0.21），只从 `hiloOfficialVersion` 读。
+          #
+          # 注意**不是** `version` 那一栏 —— 那是编码后的三段（30.21.2），
+          # 机器比大小用。两者混了的话 tag 校验会对不上，或者清单写出
+          # 「30.21.2.3」这种既不是人读也不是 semver 的四不像。
+          BASE=$(python3 -c "import sys;sys.path.insert(0,'scripts');import release;print(release.baseline())")
+          echo "官方基线：$BASE（app/desktop/package.json 的 hiloOfficialVersion）"
+          # 基线的编码值先算好，三条分支都要用。`encode_or_die` 在越界时退出非 0，
+          # 所以基线本身编不出来的话，这里就停 —— 后面所有分支都不用再各自判一次。
+          BASE_SEMVER=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import encode_or_die;print(encode_or_die('$BASE'))" 2>&1) || {
+            echo "::error::基线 $BASE 编不出合法的 semver：$BASE_SEMVER"; exit 1;
+          }
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             # 空跑没有 tag，直接用三段基线。产物发到 dry-run/ 前缀，跑完清掉。
             {
-              echo "version=$CARGO"
+              echo "version=$BASE"
+              echo "semver=$BASE_SEMVER"
               echo "prefix=dry-run/"
             } >> "$GITHUB_OUTPUT"
             exit 0
@@ -68,33 +90,38 @@ jobs:
           # `startsWith(github.ref, 'refs/tags/')`,这条路上它们保持跳过 ——
           # 也就是说这次 run 只产出 artifacts，不对外发任何东西。
           #
-          # 版本号用 package.json 的三段基线：这种包不会进分发渠道，
-          # 第四段迭代号没有意义。
+          # 版本号用官方基线：这种包不会进分发渠道，本仓的迭代号没有意义。
           if [ "${{ github.ref_type }}" != "tag" ]; then
-            echo "::notice::非 tag 触发，出包但不发布（版本 $CARGO）"
+            echo "::notice::非 tag 触发，出包但不发布（版本 $BASE）"
             {
-              echo "version=$CARGO"
+              echo "version=$BASE"
+              echo "semver=$BASE_SEMVER"
               echo "prefix="
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           # 版本号四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
-          # 三段基线在 app/desktop/package.json（四段不能当 semver 比对），完整版本号
-          # 在 tag 里。校验前三段一致 —— 对不上的话包名、清单 URL、二进制自报的
-          # 版本会各说各的，发出去的 latest.json 直接 404。
+          # 完整人读版本号在 tag 里，校验前三段和基线一致 —— 对不上的话包名、
+          # 清单 URL、发布路径会各说各的。
+          #
+          # 后面那个 `encode` 是**真正的判据**：它验的不只是「四段纯数字」，
+          # 还验「主版本号是不是一位数」—— 越界的话编码会不再单调，新版本排到
+          # 旧版本后面，客户端就静默地永远收不到更新（`versioning.py` 开头有推导）。
+          # 用 `encoding.encode` 判而不是 `grep -E '^[0-9]+(\.[0-9]+){2,3}$'`：
+          # 后者放行一切四段数字，包括 10.0.0.0 那种会让更新停摆的。
           TAG="${GITHUB_REF_NAME#v}"
           case "$TAG" in
-            "$CARGO"|"$CARGO".*) ;;
-            *) echo "::error::tag v$TAG 的前三段和 app/desktop/package.json 的 $CARGO 对不上，先同步再发"; exit 1 ;;
+            "$BASE"|"$BASE".*) ;;
+            *) echo "::error::tag v$TAG 的前三段和 app/desktop/package.json 的 $BASE 对不上，先同步再发"; exit 1 ;;
           esac
-          if ! echo "$TAG" | grep -qE '^[0-9]+(\.[0-9]+){2,3}$'; then
-            # is_newer() 把非数字段按 0 处理，带后缀的版本号会让客户端
-            # **静默地永远收不到更新** —— 不报错、不提示。
-            echo "::error::版本号必须是纯数字分段：$TAG"; exit 1
-          fi
+          ENCODED=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import encode_or_die;print(encode_or_die('$TAG'))" 2>&1) || {
+            echo "::error::tag v$TAG 不是可用的版本号：$ENCODED"; exit 1;
+          }
+          echo "tag $TAG（人读）→ 清单/包名 $ENCODED（semver）"
           {
             echo "version=$TAG"
+            echo "semver=$ENCODED"
             echo "prefix="
           } >> "$GITHUB_OUTPUT"
 
@@ -125,6 +152,24 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      # **必须在 electron-builder 之前。**
+      #
+      # electron-builder 从 `app/desktop/package.json` 的 `version` 取版本，
+      # 既写进 `latest-*.yml` 的 `version:`，也编进 asar 里的 package.json ——
+      # 于是运行中的应用 `app.getVersion()` 读到的也是它。清单和应用自报的值
+      # 必须来自**同一次发布**，否则客户端装完新版仍认为有更新，每次点检查
+      # 更新都被弹一次。
+      #
+      # 这里写的是编码后的三段（3.0.21.3 → 30.21.3），不是人读四段 ——
+      # 原因见 scripts/versioning.py。仓库里那份 `version` 只代表「上一次
+      # 发布的版本」，所以这步不是可有可无的。
+      - name: 把版本号写进 package.json（编码后的三段 semver）
+        shell: bash
+        env:
+          V: ${{ needs.prepare.outputs.version }}
+        run: python3 scripts/set-desktop-version.py "$V"
+
       - run: pnpm turbo run build
 
       # 两个离线自检（不联网，几秒钟）。平台分支和取件逻辑里有 mac 跑不到的分支，
@@ -152,7 +197,7 @@ jobs:
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
       - name: 核对产物 resources 布局与架构
         shell: bash
-        run: node scripts/verify-desktop-package.mjs
+        run: node scripts/verify-desktop-package.mjs --expect-version "${{ needs.prepare.outputs.semver }}"
 
       - uses: actions/upload-artifact@v4
         with:

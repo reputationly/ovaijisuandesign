@@ -13,17 +13,26 @@
    官方 MiniMax   本仓的迭代号
    Design 的版本
 
-前三段是**基线**，写在 `app/desktop/package.json` 里，只在跟进官方新版本时手改。
-第四段是本仓自己的迭代号，每发一版 +1，由这个脚本算。
+前三段是**基线**，写在 `app/desktop/package.json` 的 `hiloOfficialVersion`，
+只在跟进官方新版本时手改。第四段是本仓自己的迭代号，每发一版 +1，
+由这个脚本算。
 
-为什么基线不能直接写四段：完整版本号要能被消费方当 semver 比对
-（`latest-*.yml` 的 `version:` 由 electron-updater 拿去和运行中的版本比），
-`3.0.12.1` 在部分实现里会被判成非法而**永远不提示更新**。所以基线只放三段，
-完整四段在 tag 里，发布时由 `release-desktop.py` 钉进清单。
+## 四段只是「人读」的那一半
 
-**版本号必须是纯数字分段。** 比对逻辑逐段解析比较，非数字段一律按 0 ——
-用 `3.0.12-ovaijisuan-20260909` 那种风格的话，客户端会
-**静默地永远收不到更新**：不报错、不提示，只是永远认为自己是最新的。
+`tag.py` 算出来的四段会出现在 tag、桶里的存储目录、包文件名上 ——
+全是给人看的。而 `app/desktop/package.json` 的 `version` 那一栏是**另一回事**：
+它必须是编码后的三段 semver（`3.0.21.3` → `30.21.3`），因为
+`electron-updater` 拿更新清单里的 `version:` 和 `app.getVersion()` 比 semver，
+四段会被直接拒掉（真跑过：`does not have a valid semver version: "3.0.21.2"`）。
+
+编码规则、单调性证明、以及「越界就静默停更」的后果，都在
+**`scripts/versioning.py`** —— 整个仓库只有那一个文件知道怎么编码。
+`tag.py` 只管人读的四段，不参与编码。
+
+**版本号必须是纯数字分段。** 官方 UI 用严格三段正则解析它
+（`out/official-ui/assets/index-*.js` 的 `parseSemver`），我们自己也拒
+非数字段：带后缀的版本号（`3.0.12-ovaijisuan-20260909`）会让客户端
+**静默地永远收不到更新** —— 不报错、不提示，只是永远认为自己是最新的。
 """
 
 import argparse
@@ -33,14 +42,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-
-def baseline() -> str:
-    """三段基线，取自新栈的版本源。旧栈（Rust/Cargo）删掉前也是这里。"""
-    import json
-
-    pkg = json.loads((ROOT / "app/desktop/package.json").read_text(encoding="utf8"))
-    return str(pkg["version"])
+# 基线的读法只有一处，在 release.py 里。这里 import 而不是各写一份 ——
+# 以前两处各读各的，改了一处忘了另一处，症状是 tag 和清单对不上而两边都绿。
+from release import baseline  # noqa: E402
+from versioning import encode  # noqa: E402
 
 
 def git(*args: str) -> str:
@@ -69,11 +76,18 @@ def main() -> int:
     tags = git("tag", "--list").splitlines()
     ver = next_version(base, tags)
     tag = f"v{ver}"
+    # 算完先问一遍编码能不能做。**在这里炸掉，好过在 CI 出完 800MB 的包之后
+    # 炸在 release-desktop.py 里** —— 那时候三个平台的钱已经花了。
+    encoded = encode(ver)
 
     same_base = sorted(t for t in tags if t.startswith(f"v{base}"))
-    print(f"官方基线    {base}   (Cargo.toml)")
+    print(f"官方基线    {base}   (app/desktop/package.json 的 hiloOfficialVersion)")
     print(f"本基线已发  {' '.join(same_base) or '（还没有）'}")
     print(f"即将发布    {tag}")
+    # 印出来是为了**肉眼对得上**：人读四段在 tag 和存储路径上，编码三段在包文件名
+    # 和更新清单上。两者不同是设计，不是笔误。
+    print(f"清单/包名   {encoded}   (三段 semver；客户端靠它比大小)")
+    print(f"            set-desktop-version.py 会把 {encoded} 写进 package.json 的 version")
 
     if not args.push:
         print("\n（没加 --push，什么也没做）")

@@ -164,28 +164,47 @@ def host_target() -> str:
 
 
 def baseline() -> str:
-    """三段基线，取自**新栈**的 `app/desktop/package.json`。**跟着官方 MiniMax Design 走。**
+    """**人读**的官方基线（`3.0.21`），取自 `app/desktop/package.json` 的
+    `hiloOfficialVersion`。**跟着官方 MiniMax Design 走**，只在跟进官方新版本时手改。
+
+    ## 为什么它不能住在 `version` 那一栏
+
+    `app/desktop/package.json` 里有**两个**版本号，别混：
+
+    | 字段                      | 形态      | 谁在用                                     |
+    | ------------------------- | --------- | ------------------------------------------ |
+    | `version`                 | `30.21.2` | electron-builder → 清单 `version:` → `app.getVersion()` |
+    | `hiloOfficialVersion`     | `3.0.21`  | 本函数、`tag.py`、CI 的 tag 校验            |
+
+    `version` 必须是**编码后的三段**：它被编进 asar，也写进更新清单，
+    而 `electron-updater` 会拿清单里的值和 `app.getVersion()` 比 semver。
+    四段在它那儿直接被拒（真跑过：`does not have a valid semver version:
+    "3.0.21.2"`），官方 UI 的 `parseSemver` 也一样。编码规则见
+    `scripts/versioning.py`。
 
     以前读的是 workspace 的 `Cargo.toml` —— 旧栈（Rust）删掉之后那个文件就没了。
-    换成新栈自己的版本源：electron-builder 也从这儿取版本进 `latest-*.yml`，
-    界面「关于」显示的也是它，所以**这一处就是发布版本号的唯一权威**。
-
-    为什么必须三段：完整版本号是 `<三段>.<迭代号>`，迭代号在 git tag 里
-    （见 `version()`）。而 `latest-*.yml` 的 `version:` 字段要能被
-    `electron-updater` 当 semver 比对，四段在部分实现里会被判成非法而**永远不提示更新**，
-    所以基线只放三段、`release-desktop.py` 发布时再把 yml 的 version 钉成四段。
     """
+
     pkg = json.loads((ROOT / "app/desktop/package.json").read_text(encoding="utf8"))
-    return str(pkg["version"])
+    value = str(pkg.get("hiloOfficialVersion", "")).strip()
+    if not value:
+        raise SystemExit(
+            "app/desktop/package.json 里没有 hiloOfficialVersion —— "
+            "那是人读的官方基线（形如 3.0.21）。"
+            "注意 version 那一栏是编码后的三段（形如 30.21.2），不能拿来当基线。"
+        )
+    return value
 
 
 def version() -> str:
-    """完整版本号：`<官方三段>.<我们的迭代号>`。
+    """**人读**的完整版本号：`<官方三段>.<我们的迭代号>`，形如 `3.0.21.2`。
 
     发布时由 CI 通过 `OVAIJISUAN_VERSION` 给出，本地开发回落到三段基线。
-    这个值有三个去处，必须是同一个：包名、latest.json 的 version、
-    以及编译进二进制的 `gateway::VERSION`。任何一处不一致，用户装完都会
-    立刻被提示更新到自己刚装的那一版。
+    这个值会流向：tag、桶里的存储目录、`release-desktop.py --version`。
+
+    **清单里那个编码值不归它管** —— 那是 `versioning.encode()` 的活，
+    `release-desktop.py` 在写清单时自己算。分开放是为了让「人读的」和
+    「机器比的」各有各的单一出处，改编码规则不会牵动 tag 命名。
     """
     v = os.environ.get("OVAIJISUAN_VERSION", "").strip()
     if not v:

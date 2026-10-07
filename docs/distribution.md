@@ -268,30 +268,63 @@ sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
 第四段是本仓的迭代号**（和 Toonflow-app 同一套）：
 
 ```
-   3.0.12  .1
+   3.0.21  .3
    └──┬─┘   └┬┘
   官方版本   本仓迭代号
 ```
 
-意思是"对齐到官方 3.0.12 的功能面，这是我们在这条基线上的第 1 版"。
+意思是"对齐到官方 3.0.21 的功能面，这是我们在这条基线上的第 3 版"。
+
+#### 同一个版本号有两个人读形态
+
+四段 `3.0.21.3` 是**人读**的那一半，只出现在 git tag、桶里的存储目录、
+包文件名上。**机器比大小的那个形态是三段 semver**，因为消费者只认三段：
 
 | 放在哪 | 形态 | 谁维护 |
 |---|---|---|
-| `Cargo.toml` 的 `version` | `3.0.12` 三段 | **手改**，只在跟进官方新版时 |
-| Git tag | `v3.0.12.1` 四段 | `scripts/tag.py --push` 自动算 |
-| `gateway::VERSION` | 四段 | CI 编译期经 `OVAIJISUAN_VERSION` 注入 |
-| `latest-<target>.json` 的 `version` | 四段 | CI 生成 |
+| `app/desktop/package.json` 的 `hiloOfficialVersion` | `3.0.21` 三段 | **手改**，只在跟进官方新版时 |
+| Git tag | `v3.0.21.3` 四段 | `scripts/tag.py --push` 自动算 |
+| 桶里的存储目录 | `3.0.21.3/` 四段 | CI 用 tag 推出来的 |
+| `app/desktop/package.json` 的 `version` | `30.21.3` **编码三段** | CI 出包前经 `set-desktop-version.py` 写入 |
+| `latest-<target>/latest-*.yml` 的 `version:` | `30.21.3` 编码三段 | electron-builder 从上面那份抄 |
+| `app.getVersion()` | `30.21.3` 编码三段 | asar 里那份 package.json |
 
-**基线为什么不能直接写四段**：`3.0.12.1` 不是合法 semver，cargo 会拒绝解析
-整个 workspace。所以基线在 Cargo.toml，完整版本号在 tag 里。
-`crates/gateway/build.rs` 只干一件事 —— 声明 `rerun-if-env-changed`，
-否则 CI 上有构建缓存时改了版本号也不重编，二进制自报的还是上一版。
+编码规则：**前两段拼成一个数字，第四段缺省 0。**
 
-**版本号必须是纯数字分段。** `is_newer()` 逐段解析，非数字段一律按 0 ——
-用 new-api 那种 `v0.13.2-ovaijisuan-20260903-6e9f99b1` 风格喂进清单的话，
-客户端会**静默地永远收不到更新**：不报错、不提示，只是永远认为自己最新。
+```
+   3.0.21  →  30.21.0
+   3.0.21.3 →  30.21.3
+   3.10.0  →  310.0.0      # 39 < 310，次版本进位也排得对
+```
 
-跟进官方新版本时：改 `Cargo.toml` 的基线 → `scripts/tag.py` 会从 `.1`
+**为什么非要编码。** 真跑过一次 electron-updater：
+
+```
+[err] Error: …the latest version (from update server) does not have a
+      valid semver version: "3.0.21.2"
+```
+
+清单读到了、路径也对，唯独版本号被拒。官方 UI 那边更早一道关：它**自己**就用
+严格三段正则解析 `currentVersion` / `targetVersion`
+（`out/official-ui/assets/index-*.js` 的 `parseSemver`），四段返回 `null`，
+于是 `compareSemver()` 恒为 0 ——「更新详情」算不出落后几个版本。
+
+**两处必须同时是对的那一个值**，否则用户每次点「检查更新」都被告知有新版、
+装完还是，而且不报错。CI 里有三道关卡盯这件事：`set-desktop-version.py`
+（写入）、`verify-desktop-package.mjs --expect-version`（查产物里的）、
+`release-desktop.py` 的清单断言（上传前最后一道）。主进程启动时还会自检
+`app.getVersion()` 是不是三段，不是就在日志里喊出来。
+
+**编码只在主版本号是一位数时成立。** 越界（`10.0.x`）的话 `9.99.x → 999.x`
+而 `10.0.x → 100.x`，新版本排到旧版本后面，客户端**静默地永远收不到更新**。
+`versioning.py` 硬拒主版本号 0 和 ≥10。规则、单调性证明和它的离线自检都在
+`scripts/versioning.py` / `scripts/verify-versioning.py`。
+
+**版本号必须是纯数字分段。** 官方 UI 的正则和 semver 都不认带后缀的版本 ——
+用 new-api 那种 `v0.13.2-ovaijisuan-20260903-6e9f99b1` 风格的话，
+客户端同样**静默地永远收不到更新**：不报错、不提示，只是永远认为自己最新。
+
+跟进官方新版本时：改 `hiloOfficialVersion` 的基线 → `scripts/tag.py` 会从 `.1`
 重新起（不跟着旧基线跳号，否则 `3.0.11.7 → 3.0.12.8` 看着像丢了七个版本）。
 
 ### `.github/workflows/release.yml`
@@ -299,20 +332,25 @@ sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
 打 `v*` tag 触发，也可以手动跑空跑。
 
 ```
-prepare          解析四段版本 + 前缀 + 打包矩阵（空跑用 dry-run/）
-build（矩阵）     macos-latest→darwin-arm64 + darwin-x64（交叉）
-                 windows-latest→win32-x64   ubuntu-latest→linux-x64
-publish          汇总各平台产物 → 上传 → 回读校验 → 清理旧版本
+prepare          版本编码自检 + 解析四段版本/人读基线/编码值 + 前缀 + 产品命名空间
+                 （空跑用 dry-run/）
+desktop-electron 矩阵出包。每个 runner 先跑 set-desktop-version.py 写版本，
+                 再 electron-builder，然后 verify-desktop-package --expect-version
+                 核对包和清单带的是不是这一版的编码值
+publish-electron 上传 → 逐个回读校验 → 最后翻顶层指针 → 清旧版本
                  （没配 R2 凭据时整个跳过）
-github-release   挂到 Release 页面 → 再翻升级指针
 ```
 
-**一台 macOS runner 出两个架构**：arm64 ⇄ x86_64 能交叉（Xcode 自带两个
-SDK，连 ring 的 C 代码都能过，实测 15 秒）。别的方向交叉不了 —— 在 Mac 上
-试过给 Windows 交叉，卡在 `assert.h` 找不到。所以 Windows 和 Linux 各用
-自己的 runner。
+**三个平台三个 runner，不交叉编。** `sharp` 的 libvips 和 `better-sqlite3` 的
+`.node` 是按构建机平台落的预编译：在 arm64 mac 上交叉编 x64，拿到的是 arm64 的
+二进制，装到 Intel Mac 上第一次碰资产库就炸。mac-arm64 用 `macos-latest`、
+mac-x64 用 `macos-15-intel`、win-x64 用 `windows-latest`。
+（`macos-14` 现在解析到 arm64 镜像，写它会静默地交叉编出坏包。）
 
-`prepare` 里算打包矩阵，而不是在 `build` 的 `if:` 里筛：**job 级 `if:` 拿不到
+不过 `verify-desktop-package.mjs` 仍然会拿「产物自己的主二进制」当权威去比对
+每个原生模块的架构 —— **runner 选错了它也会红**，只是更省事的是一开始就选对。
+
+`prepare` 里算打包矩阵，而不是在出包 job 的 `if:` 里筛：**job 级 `if:` 拿不到
 `matrix` 上下文**，写了会让整个 workflow 文件校验失败，症状是每次 push 都
 冒出一个 0 秒的失败 run，点进去只说"workflow file issue"。
 

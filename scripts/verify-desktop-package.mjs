@@ -20,7 +20,7 @@
  *   node scripts/verify-desktop-package.mjs <产物目录>
  */
 
-import { closeSync, existsSync, openSync, readSync, readdirSync, statSync } from "node:fs";
+import { closeSync, existsSync, openSync, readFileSync, readSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -123,7 +123,9 @@ const FORBIDDEN = [
   [".staged.json", "装配过程的记账文件"],
 ];
 
-/** 产物根 → resources 目录。mac 是 `<x>.app/Contents/Resources`，win 是 `win-unpacked/resources`。 */
+/**
+ * 产物根 → resources 目录。mac 是 `<x>.app/Contents/Resources`，win 是 `win-unpacked/resources`。
+ */
 function resourcesOf(dir) {
   if (!existsSync(dir) || !statSync(dir).isDirectory()) return null;
   if (existsSync(path.join(dir, "resources"))) return path.join(dir, "resources");
@@ -138,6 +140,74 @@ function resourcesOf(dir) {
     if (existsSync(p)) return p;
   }
   return null;
+}
+
+/** 产物根 → electron-builder 的输出目录（清单和安装包都在这一层）。 */
+function outDirOf(resources) {
+  // mac: <x>.app/Contents/Resources → <x>.app/Contents → <x>.app
+  // win: win-unpacked/resources      → win-unpacked
+  const win = path.basename(resources) === "resources" && /[\\/]win-unpacked$/.test(path.dirname(resources));
+  if (win) return path.dirname(resources);
+  if (path.basename(path.dirname(resources)) === "Contents") return path.resolve(resources, "..", "..");
+  return path.resolve(resources, "..");
+}
+
+/**
+ * 核对「装出来的应用会自报哪个版本」。
+ *
+ * ## 为什么验的是清单 + 文件名，不是 `package.json`
+ *
+ * `app.getVersion()` 读的是 asar 里那份 package.json。直接去挖 asar 要实现一层
+ * asar 解析，而这里要拦的其实不是「asar 里写没写对」（那必然和源文件一致），
+ * 是**整条链有没有拿错版本**：`set-desktop-version.py` 漏跑、或者跑在
+ * `electron-builder` 之后，包和清单就会带着**上一次发布**的版本号发出去。
+ *
+ * 那时症状极其难认：发布全绿、包能装能跑，只是客户端装完仍然认为有新版，
+ * 而且每次点「检查更新」都被弹一次。所以这里从**产物**这一侧反查 ——
+ * 清单的 `version:` 和安装包文件名里都必须带着预期的编码值。
+ *
+ * 只在传了 `--expect-version` / `EXPECT_VERSION` 时才查（发版流水线传，
+ * CI 的出包验证不传 —— 那条流水线没有 tag，没有「预期的版本」这回事）。
+ */
+function checkVersion(resources, expect) {
+  const out = outDirOf(resources);
+  const isMac = !/win-unpacked/.test(resources);
+  const manifest = path.join(out, isMac ? "latest-mac.yml" : "latest.yml");
+  if (!existsSync(manifest)) {
+    console.log(`  ❌ 找不到 ${path.basename(manifest)} —— 无从判断这个包会告诉客户端自己是哪一版`);
+    return 1;
+  }
+  const text = readFileSync(manifest, "utf8");
+  const m = text.match(/^version:\s*(.+?)\s*$/m);
+  const got = m ? m[1].replace(/^['"]|['"]$/g, "") : null;
+  let bad = 0;
+  if (!got) {
+    bad++;
+    console.log(`  ❌ ${path.basename(manifest)} 里没有 version: 字段`);
+  } else if (got !== expect) {
+    bad++;
+    console.log(`  ❌ 清单的 version 是 ${got}，期望 ${expect}`);
+    console.log(`     —— 出包流程里 electron-builder **之前**应该有一句：`);
+    console.log(`        python3 scripts/set-desktop-version.py <人读四段版本号>`);
+    console.log(`     后果不是「版本号不好看」：客户端装完仍认为有新版，每次检查更新都被弹一次。`);
+  } else {
+    console.log(`  ✅ 清单 version = ${got}（客户端拿它和 app.getVersion() 比大小）`);
+  }
+  // 文件名里也带一遍 —— electron-builder 用同一个版本命名产物。两处对不上
+  // 说明出包中途版本被改过（改在了 electron-builder 之后）。
+  const pkgs = readdirSync(out).filter((f) => /\.(dmg|exe)$/.test(f));
+  if (pkgs.length === 0) {
+    bad++;
+    console.log(`  ❌ ${path.relative(REPO, out)} 下没有 dmg/exe 产物`);
+  }
+  for (const f of pkgs) {
+    if (f.includes(expect)) console.log(`  ✅ 产物文件名带上了 ${expect}：${f}`);
+    else {
+      bad++;
+      console.log(`  ❌ 产物文件名 ${f} 里没有 ${expect}`);
+    }
+  }
+  return bad;
 }
 
 /**
@@ -157,7 +227,16 @@ function findResources(explicit) {
 }
 
 function main() {
-  const resources = findResources(process.argv[2]);
+  const argv = process.argv.slice(2);
+  // `--expect-version <编码后的三段>`：发版流水线传，用来断言包和清单带的是
+  // **这一次发布**的版本号。CI 的出包验证不传 —— 它没有 tag，也没有「预期版本」。
+  let expect = process.env.EXPECT_VERSION || "";
+  const rest = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--expect-version") expect = argv[++i] ?? "";
+    else rest.push(argv[i]);
+  }
+  const resources = findResources(rest[0]);
   if (!resources) {
     console.error("❌ 找不到打包产物。先跑 electron-builder，或把产物目录作为参数传进来。");
     process.exit(1);
@@ -256,6 +335,11 @@ function main() {
         console.log(`     —— 交叉编出来的包在目标机器上第一次碰资产库就会炸`);
       }
     }
+  }
+
+  if (expect) {
+    console.log(`\n版本（期望 ${expect}，人读四段在 tag 和存储路径上，客户端比的是这个三段）`);
+    bad += checkVersion(resources, expect);
   }
 
   console.log(bad === 0 ? "\n✓ 产物布局符合契约" : `\n✗ ${bad} 项不符`);
