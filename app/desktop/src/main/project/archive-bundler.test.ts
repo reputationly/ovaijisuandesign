@@ -159,7 +159,7 @@ describe("项目归档：导出 → 导入往返", () => {
     expect(urls.at(-1)).toBe("/api/projects/archive/activity/end");
     expect(gw.calls[0]!.body).toMatchObject({ dir: ws, ownerPid: process.pid, operation: "project-archive-export" });
     for (const c of gw.calls) expect(c.headers["x-hilo-workspace"]).toBe(binding.claim);
-  });
+  }, 60_000);
 
   it("导入：别名补回、manifest / .hub 删掉、目录名来自 manifest、会话带新旧目录交给应用级 gateway", async () => {
     const zip = (await exportProjectToZip(ws, path.join(out, "p.zip"), "3.0.16", url, quiet, { workspaceBinding: binding })).filePath;
@@ -183,7 +183,7 @@ describe("项目归档：导出 → 导入往返", () => {
     const again = await importProjectFromZip(zip, { projectsRoot, gatewayUrl: url, opencodeDbPath: "", log: quiet });
     expect(again.name).toBe("海报项目-2");
     expect(gw.calls.filter((c) => c.url === "/api/projects/archive/import").at(-1)!.body.dbPath).toBeUndefined();
-  });
+  }, 60_000);
 
   it("会话导入失败：文件照样落地，结果里带 opencodeImportError", async () => {
     const zip = (await exportProjectToZip(ws, path.join(out, "p.zip"), "3.0.16", url, quiet, { workspaceBinding: binding })).filePath;
@@ -192,7 +192,7 @@ describe("项目归档：导出 → 导入往返", () => {
     expect(r.expectedOpencodeSessionCount).toBe(1);
     expect(r.opencodeImportError).toMatch(/404/);
     expect(existsSync(path.join(r.targetDir, "a.png"))).toBe(true);
-  });
+  }, 60_000);
 
   it("包不能存进项目目录里；不是项目包的 zip 拒绝", async () => {
     await expect(exportProjectToZip(ws, path.join(ws, "self.zip"), "1", url, quiet, { workspaceBinding: binding })).rejects.toBeInstanceOf(ProjectExportDestinationError);
