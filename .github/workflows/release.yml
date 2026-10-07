@@ -168,7 +168,14 @@ jobs:
         shell: bash
         env:
           V: ${{ needs.prepare.outputs.version }}
-        run: python3 scripts/set-desktop-version.py "$V"
+        # **python3 → python 的回退不是多余的。** 这个矩阵里有 windows-latest，
+        # 而 release 流水线此前**从没在 Windows runner 上调用过 python**（那几步
+        # 都是 node）。Git Bash 里到底有没有 `python3` 别赌 —— 两行 shim 换掉
+        # 一次 8~10 分钟的失败。
+        run: |
+          PY=python3
+          command -v python3 >/dev/null 2>&1 || PY=python
+          "$PY" scripts/set-desktop-version.py "$V"
 
       - run: pnpm turbo run build
 
