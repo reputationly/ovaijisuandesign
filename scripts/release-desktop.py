@@ -296,6 +296,17 @@ def main() -> int:
             upload(s, ver, target, DIST / ver / target, args.prefix)
         print(f"✓ {s}：上传并逐个回读校验通过")
 
+    # **最后才翻顶层指针。** 包全传完并逐个校验过之后才轮到它 —— 顺序反了会出现
+    # 「指针已经指向新版本、包却还没传完」，用户点下载 404，而这次发布看起来是绿的。
+    #
+    # （漏掉这一步的后果更隐蔽：包全在 R2 上、发布日志也全绿，但顶层 manifest 没人改，
+    #  **消费者还在拿旧版本** —— 2026-10-07 的 v3.0.21.1 就是这么"发布成功但没生效"的。）
+    for s in sources:
+        digest = hashlib.sha256(top.read_bytes()).hexdigest()
+        s3_upload(s, top, "manifest.json")
+        verify(s, "manifest.json", digest)
+        print(f"✓ {s}：顶层指针已翻到 {ver}")
+
     # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
     # 问题都只在这一步才暴露。
     #
