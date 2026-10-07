@@ -49,10 +49,15 @@ HUMAN = "3.0.21.3"
 ENCODED = "30.21.3"
 TARGETS = ("darwin-arm64", "darwin-x64", "win32-x64")
 # 每个 target 的包名/载荷。载荷不同 → sha512 必然不同，这正是要断言的东西。
+#
+# **Windows 的包名里带空格**（`蒜狸小助手 Setup 30.21.3.exe`），和 mac 的
+# `<产品名>-<版本>[-arch].dmg` 不一样。别为了好写而简化成没空格 —— 上一版
+# 就是这么漏的：断言里用了 `(\S+)` 取包名，Windows 那一行匹配不上，误报成
+# 「没有 url/path 字段」，白跑了一轮发布。真实的线上文件名就是带空格的。
 LAYOUT = {
     "darwin-arm64": (".dmg", f"蒜狸小助手-{ENCODED}-arm64.dmg", b"arm64-payload"),
     "darwin-x64": (".dmg", f"蒜狸小助手-{ENCODED}.dmg", b"x64-payload"),
-    "win32-x64": (".exe", f"蒜狸小助手-{ENCODED}-Setup.exe", b"win-payload"),
+    "win32-x64": (".exe", f"蒜狸小助手 Setup {ENCODED}.exe", b"win-payload"),
 }
 
 FAILED: list[str] = []

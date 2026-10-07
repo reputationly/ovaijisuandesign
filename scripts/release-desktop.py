@@ -274,8 +274,11 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     if not local:
         fail(f"{target}: {stage_dir} 下没有 dmg/exe，别的都无从谈起。")
 
-    refs = re.findall(r"^\s*(?:-\s+)?(?:url|path):\s*(\S+)\s*$", text, flags=re.M)
-    names = {r.rsplit("/", 1)[-1] for r in refs}
+    # **Windows 的包名里有空格**（`蒜狸小助手 Setup 30.21.3.exe`），所以取值
+    # 必须用 `(.+?)` 而不是 `(\S+)` —— 后者一行都匹配不上，会误报成
+    # 「没有 url/path 字段」。踩过一次，白跑了一轮发布。
+    refs = re.findall(r"^\s*(?:-\s+)?(?:url|path):\s*(.+?)\s*$", text, flags=re.M)
+    names = {r.strip("'\"").rsplit("/", 1)[-1] for r in refs}
     if not names:
         fail(f"{target}: {name} 里没有 url/path 字段，消费方无从知道该下哪个包。")
     stray = names - set(local)
