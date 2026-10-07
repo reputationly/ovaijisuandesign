@@ -67,7 +67,7 @@ jobs:
           # 机器比大小用。两者混了的话 tag 校验会对不上，或者清单写出
           # 「30.21.2.3」这种既不是人读也不是 semver 的四不像。
           BASE=$(python3 -c "import sys;sys.path.insert(0,'scripts');import release;print(release.baseline())")
-          echo "官方基线：$BASE（app/desktop/package.json 的 hiloOfficialVersion）"
+          echo "官方基线：${BASE}（app/desktop/package.json 的 hiloOfficialVersion）"
           # 基线的编码值先算好，三条分支都要用。`encode_or_die` 在越界时退出非 0，
           # 所以基线本身编不出来的话，这里就停 —— 后面所有分支都不用再各自判一次。
           BASE_SEMVER=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import encode_or_die;print(encode_or_die('$BASE'))" 2>&1) || {
@@ -92,7 +92,7 @@ jobs:
           #
           # 版本号用官方基线：这种包不会进分发渠道，本仓的迭代号没有意义。
           if [ "${{ github.ref_type }}" != "tag" ]; then
-            echo "::notice::非 tag 触发，出包但不发布（版本 $BASE）"
+            echo "::notice::非 tag 触发，出包但不发布（版本 ${BASE}）"
             {
               echo "version=$BASE"
               echo "semver=$BASE_SEMVER"
@@ -118,7 +118,7 @@ jobs:
           ENCODED=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import encode_or_die;print(encode_or_die('$TAG'))" 2>&1) || {
             echo "::error::tag v$TAG 不是可用的版本号：$ENCODED"; exit 1;
           }
-          echo "tag $TAG（人读）→ 清单/包名 $ENCODED（semver）"
+          echo "tag ${TAG}（人读）→ 清单/包名 ${ENCODED}（semver）"
           {
             echo "version=$TAG"
             echo "semver=$ENCODED"
