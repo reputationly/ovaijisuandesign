@@ -158,33 +158,38 @@ async function main() {
   // Windows CI，下载/体积/魔数全过、二进制已经落盘，却因为
   // `EBUSY: unlink …opencode.exe` 把整轮 8~10 分钟的出包验证判红。
   //
-  // 这里直接调 `cleanupDir()`，给它一个**删不掉**的目录（去掉写权限）。
-  // Windows 上删不掉的原因不同（杀毒持句柄），但契约一样：**不抛异常**。
+  // Windows 上跳过「造一个删不掉的目录」那两条：`chmod` 在那儿只管只读位，
+  // 去掉写权限并不会让 unlink 失败，于是这个目录**是删得掉的**，测不到契约
+  // （恢复权限时反而会 ENOENT）。那边真正的锁来自杀毒持句柄，本地复现不了。
+  // 「正常时真的删掉了」那条两边都跑 —— 防止「吞异常」退化成「什么都不做」。
   console.log("\n临时目录清理：");
   {
-    const stuck = path.join(work, "stuck");
-    mkdirSync(stuck, { recursive: true });
-    writeFileSync(path.join(stuck, "held.bin"), "x");
-    // 去掉目录自己的写权限 → 里面的文件就删不掉（POSIX 语义）。
-    chmodSync(stuck, 0o500);
-    let threw = null;
-    let result = null;
-    try {
-      result = await cleanupDir(stuck);
-    } catch (err) {
-      threw = err;
-    } finally {
-      chmodSync(stuck, 0o700);
-      rmSync(stuck, { recursive: true, force: true });
-    }
-    ok(threw === null, "cleanupDir 遇到删不掉的目录不抛异常", threw ? String(threw.code ?? threw) : "");
-    ok(result === false, "cleanupDir 如实返回 false（而不是假装成功）", `实际 ${result}`);
-
-    // 正常情况必须真的删掉，不能因为「吞异常」而变成「什么都不做」。
     const normal = path.join(work, "normal");
     mkdirSync(normal, { recursive: true });
     writeFileSync(path.join(normal, "a.bin"), "x");
     ok((await cleanupDir(normal)) === true && !existsSync(normal), "cleanupDir 正常时真的删掉了");
+
+    if (process.platform === "win32") {
+      console.log("  – 跳过「删不掉」两条：Windows 的 chmod 只管只读位，造不出删不掉的目录");
+    } else {
+      const stuck = path.join(work, "stuck");
+      mkdirSync(stuck, { recursive: true });
+      writeFileSync(path.join(stuck, "held.bin"), "x");
+      chmodSync(stuck, 0o500); // 去掉目录自己的写权限 → 里面的文件删不掉
+      let threw = null;
+      let result = null;
+      try {
+        result = await cleanupDir(stuck);
+      } catch (err) {
+        threw = err;
+      } finally {
+        // 目录可能已经被删掉了（cleanupDir 成功时就是），所以先问一句。
+        if (existsSync(stuck)) chmodSync(stuck, 0o700);
+        rmSync(stuck, { recursive: true, force: true });
+      }
+      ok(threw === null, "cleanupDir 遇到删不掉的目录不抛异常", threw ? String(threw.code ?? threw) : "");
+      ok(result === false, "cleanupDir 如实返回 false（而不是假装成功）", `实际 ${result}`);
+    }
   }
 
   clearBin();
