@@ -103,7 +103,7 @@ export function ChatPanel({
       style={{ background: "var(--background)", borderColor: "var(--border)" }}
     >
       {/* 右栏顶部也当拖拽区：侧栏收起时那一条就没了，不留第二处会拖不动。 */}
-      <div data-tauri-drag-region className="flex h-11 shrink-0 items-center gap-2 px-3">
+      <div className="flex h-11 shrink-0 items-center gap-2 px-3">
         <GripVertical size={14} style={{ color: "var(--muted-foreground)" }} />
         {/* **标题是这次创作的名字，不是"画布"。** 官方那栏顶上写的就是
             会话名（也就是第一句提示词），侧边栏里选中的那条和这里是同一个

@@ -359,7 +359,7 @@ export function Home({
       style={{ background: "var(--home-content-surface, var(--background))" }}
     >
       {/* 顶部一条透明的拖拽区。首页可能左右栏都收着，没有它整个窗口拖不动。 */}
-      <div data-tauri-drag-region className="absolute inset-x-0 top-0 z-0 h-11" />
+      <div className="absolute inset-x-0 top-0 z-0 h-11" />
       <div
         className="home-hero-zone relative flex shrink-0 flex-col items-center"
         style={{
