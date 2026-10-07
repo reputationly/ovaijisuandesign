@@ -255,23 +255,48 @@ jobs:
       # 原始文件留在 electron-builder 的输出目录里不上传。另外那里还有一条断言兜底。
       #
       # 只丢 `builder-debug.yml`（构建调试信息，不是发布物）。
-      - name: 摆放各平台产物
+      # **必须按 target 分目录，不能全堆在顶层。**
+      #
+      # 三个平台各自跑 electron-builder，各自写出**同名**的更新清单
+      # （mac 两份都叫 `latest-mac.yml`，win 那份叫 `latest.yml`）。
+      # 堆到同一层就是互相覆盖 —— 而 `sorted()` 决定了最后赢的是哪个：
+      # `electron-darwin-arm64` < `electron-darwin-x64`，所以 **x64 那份赢**。
+      #
+      # 后果不是「某个平台少个文件」，而是：
+      #   - `darwin-arm64/latest-mac.yml` 里写着 x64 的包名和 sha512
+      #   - 而那个包从没被传进 `darwin-arm64/`
+      #   - **arm64 Mac 点更新 → 404，而且发布日志一路绿**
+      #
+      # 2026-10-07 手工读线上文件才发现：3.0.21.1 和 3.0.21.2 的
+      # darwin-arm64 清单里是 `蒜狸小助手-3.0.21.dmg`（x64 的命名），
+      # sha512 和 darwin-x64 **完全一样**。之前只验了「200 且 version 对」，
+      # 没比对文件名和 hash，所以一直没看见。
+      #
+      # 目录名用 target（darwin-arm64 / darwin-x64 / win32-x64）而不是
+      # electron-builder 自己的输出目录名（mac / mac-arm64 / win-unpacked …）：
+      # 前者是我们对外发布用的名字，`release-desktop.py` 和清理脚本都认它。
+      - name: 摆放各平台产物（按 target 分目录）
         run: |
           mkdir -p app/desktop/dist-electron
           python3 - <<'PY'
           import pathlib, shutil
           out = pathlib.Path("app/desktop/dist-electron")
           for d in sorted(pathlib.Path("artifacts").iterdir()):
+              # artifact 名是 `electron-<target>`，由出包矩阵的 name 决定。
+              target = d.name[len("electron-"):]
+              dst = out / target
+              dst.mkdir(parents=True, exist_ok=True)
               for item in d.iterdir():
                   if item.name == "builder-debug.yml":
                       continue
-                  dst = out / item.name
+                  to = dst / item.name
                   if item.is_dir():
-                      shutil.copytree(item, dst, dirs_exist_ok=True)
+                      shutil.copytree(item, to, dirs_exist_ok=True)
                   else:
-                      shutil.copy2(item, dst)
+                      shutil.copy2(item, to)
+              print(f"  {d.name} → {dst}")
           PY
-          find app/desktop/dist-electron -maxdepth 1 -type f | sort
+          find app/desktop/dist-electron -maxdepth 2 -name 'latest*.yml' | sort
 
       - name: 发布并回读校验
         env:

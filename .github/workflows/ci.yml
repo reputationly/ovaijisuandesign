@@ -128,6 +128,13 @@ jobs:
       # 要等真实发布之后才暴露。编码规则和单调性证明在 scripts/versioning.py。
       - name: 版本编码离线自检
         run: python3 scripts/verify-versioning.py
+      # 发布布局自检。用的是**线上真实发生过**的夹具：三个 target 各有一份
+      # 同名 latest-mac.yml，堆在一层时互相覆盖 —— arm64 于是发布了指向 x64
+      # 包名的清单，用户点更新 404 而发布日志全绿。
+      # release-desktop.py 只在发版流水线里跑（一轮就是三份几百 MB），
+      # 所以这个夹具必须能在 CI 上离线跑。
+      - name: 发布布局离线自检
+        run: python3 scripts/verify-release-layout.py
       - name: 规格文档没被手改坏
         run: |
           test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 57

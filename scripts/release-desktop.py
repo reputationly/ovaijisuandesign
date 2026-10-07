@@ -35,6 +35,7 @@
 """
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -72,6 +73,17 @@ ELECTRON_OUT = ROOT / "app/desktop/dist-electron"
 # **和旧栈的 target 命名保持一致**（darwin-arm64 / darwin-x64 / win32-x64）：
 # 用户的升级检查、监控、脚本都认这一套，换名字等于让所有下游失效。
 # electron-builder 只出一种架构时目录就叫 `mac` 而不是 `mac-x64`，两种都要认。
+#
+# ## 这张表现在只用于「兼容单平台布局」，不再是定位手段
+#
+# 三个平台各自跑 electron-builder、各自写出**同名**的更新清单
+# （mac 两份都叫 `latest-mac.yml`）。以前三个 runner 的产物被堆进同一个
+# `dist-electron/` 顶层，于是三份同名清单互相覆盖，而 `sorted()` 决定了最后
+# 赢的是 `darwin-x64` 那份 —— 后果是 `darwin-arm64` 发布了指向 x64 包名的
+# 清单，而那个包从没进过 `darwin-arm64/`，**arm64 Mac 点更新直接 404**。
+#
+# 现在 publish job 按 target 分目录摆（`dist-electron/<target>/`），本脚本也
+# 只从 `<target>/` 里取。这张表留给「传进来的是单平台目录」的老调用方式。
 DIR_TO_TARGET = {
     "mac-arm64": "darwin-arm64",
     "mac-x64": "darwin-x64",
@@ -94,34 +106,66 @@ def fail(msg: str) -> "None":
     raise SystemExit(1)
 
 
+def display_path(p: Path) -> str:
+    """能写成仓库相对路径就写相对路径，写不了就用绝对路径。
+
+    别直接 `p.relative_to(ROOT)` —— 那个假设了 DIST 一定在仓库内，
+    一旦不是（比如自检用临时目录）就抛 `ValueError`，而报错出现在
+    「已经摆完盘、正要打日志」的地方，看着像前面全白干了。
+    """
+    try:
+        return str(p.relative_to(ROOT))
+    except ValueError:
+        return str(p)
+
+
+def electron_out(target: str) -> Path:
+    """这个 target 的产物在 `dist-electron/` 下的哪一层。
+
+    **主形态是 `dist-electron/<target>/`** —— 三个平台各有自己的目录，清单和
+    包都在一起（publish job 已经摆好了）。见 `DIR_TO_TARGET` 上面那段：
+    共用一层会被同名的清单互相覆盖。
+
+    找不到时退回单平台布局（`dist-electron/` 顶层，或 electron-builder 自己的
+    目录名），这样本地 `--layout-only` 对着一次 mac 出包也能跑。
+    """
+    own = ELECTRON_OUT / target
+    if own.is_dir():
+        return own
+    for name, mapped in DIR_TO_TARGET.items():
+        if mapped == target and (ELECTRON_OUT / name).is_dir():
+            return ELECTRON_OUT / name
+    return ELECTRON_OUT
+
+
 def pick_files(target: str) -> list[Path]:
-    """挑出这个 target 该发布的文件（从 electron-builder 的输出**顶层**）。
+    """挑出这个 target 该发布的文件。
 
     ## 为什么由调用方说 target，而不是从目录/文件名猜
 
-    electron-builder 的实际布局是：可发布产物在输出**顶层**，架构子目录里只有解包后的
-    `.app` / `win-unpacked`（几百 MB 的中间产物）。而且 mac x64 的文件名**没有架构后缀**
-    （`蒜狸小助手-3.0.16.dmg`），x64 只有「不是 arm64」这一条线索可推 —— 猜不得。
-    CI 矩阵本来就知道自己在出哪个 target，让它说，别猜。
+    electron-builder 的实际布局里，架构子目录（如 `mac` / `win-unpacked`）只有
+    解包后的 `.app` / `win-unpacked`（几百 MB 的中间产物）。而且 mac x64 的
+    文件名**没有架构后缀**（`蒜狸小助手-3.0.21.dmg`），x64 只有「不是 arm64」
+    这一条线索可推 —— 猜不得。CI 矩阵本来就知道自己在出哪个 target，让它说，别猜。
 
     同一版里出现两个同后缀包是硬错误：指针只能指一个，指错了就是用户下到别的版本。
     """
+    out = electron_out(target)
     if target.startswith("darwin"):
-        hits = [p for p in ELECTRON_OUT.glob("*.dmg")]
-        if target.endswith("arm64"):
-            hits = [p for p in hits if p.stem.endswith("-arm64")]
-        else:
-            hits = [p for p in hits if not p.stem.endswith("-arm64")]
-        manifest = ELECTRON_OUT / "latest-mac.yml"
+        hits = [p for p in out.glob("*.dmg")]
+        manifest = out / "latest-mac.yml"
     else:
-        hits = [p for p in ELECTRON_OUT.glob("*.exe")]
-        manifest = ELECTRON_OUT / "latest.yml"
+        hits = [p for p in out.glob("*.exe")]
+        manifest = out / "latest.yml"
     if not hits:
-        fail(f"{target}: {ELECTRON_OUT} 下没有匹配的产物（dmg/exe）。")
+        fail(f"{target}: {out} 下没有匹配的产物（dmg/exe）。")
     if len(hits) > 1:
         fail(f"{target}: 有 {len(hits)} 个候选：{[p.name for p in hits]}。指针该指哪个说不清。")
     if not manifest.is_file():
-        fail(f"{target}: 缺 {manifest.name}。electron-builder 只有配了 publish 段才会生成更新清单。")
+        fail(
+            f"{target}: 缺 {manifest.name}。electron-builder 只有配了 publish 段才会生成更新清单。\n"
+            f"    （在 {out} 找的 —— 三个平台各有一份同名清单，堆在一层会互相覆盖。）"
+        )
     pkg = hits[0]
     files = [pkg, manifest]
     bm = pkg.with_suffix(pkg.suffix + ".blockmap")
@@ -213,6 +257,52 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
         fail(f"{target}: {name} 里还有没被重写的地址：\n    " + "\n    ".join(leftovers))
     if prefix.rstrip("/") not in text:
         fail(f"{target}: {name} 里找不到重写后的地址（期望包含 {prefix}）—— 发布的指针会指向别处。")
+
+    # **清单里指的包，必须真的是这个 target 自己目录里那个包。**
+    #
+    # 2026-10-07 手工读线上文件抓到的：三个平台的 `latest-mac.yml` 同名，
+    # 被堆进同一个目录时互相覆盖，x64 那份赢了。于是 darwin-arm64 发布的
+    # 清单里写的是 **x64 的包名和 sha512** —— 而那个包从没进过 `darwin-arm64/`，
+    # **arm64 Mac 点更新 404**。发布日志全绿，因为「上传成功、回读校验通过、
+    # 指针也翻了」这几步验的都不是「清单里指的文件真的在这儿」。
+    #
+    # 两条都要对：
+    #   - 文件名 —— 少了就是 404
+    #   - sha512 —— 少了更阴险，包能下下来，但 electron-updater 要等下载完
+    #     才校验失败
+    local = {p.name: p for p in stage_dir.iterdir() if p.suffix in (".dmg", ".exe")}
+    if not local:
+        fail(f"{target}: {stage_dir} 下没有 dmg/exe，别的都无从谈起。")
+
+    refs = re.findall(r"^\s*(?:-\s+)?(?:url|path):\s*(\S+)\s*$", text, flags=re.M)
+    names = {r.rsplit("/", 1)[-1] for r in refs}
+    if not names:
+        fail(f"{target}: {name} 里没有 url/path 字段，消费方无从知道该下哪个包。")
+    stray = names - set(local)
+    if stray:
+        fail(
+            f"{target}: {name} 指向的包 {sorted(stray)} 不在这个 target 的目录里"
+            f"（这里只有 {sorted(local)}）。\n"
+            f"    几乎总是同一个原因：三个平台各写一份**同名**的 latest-mac.yml，\n"
+            f"    摆产物时堆进了同一层于是互相覆盖。publish job 必须按 target 分目录。\n"
+            f"    症状是用户点更新 404，而发布日志一路绿。"
+        )
+
+    declared = set()
+    for b64 in re.findall(r"^\s*sha512:\s*(\S+)\s*$", text, flags=re.M):
+        try:
+            declared.add(base64.b64decode(b64).hex())
+        except (ValueError, TypeError):
+            pass
+    for fname, fpath in sorted(local.items()):
+        digest = hashlib.sha512(fpath.read_bytes()).hexdigest()
+        if digest not in declared:
+            fail(
+                f"{target}: {name} 里 {fname} 的 sha512 和文件本身对不上"
+                f"（清单里的是 {sorted(declared)[0][:16] if declared else '（没有）'}…，"
+                f"实际是 {digest[:16]}…）。\n"
+                f"    清单和包来自不同的平台 —— 和上面那个覆盖是同一个病根。"
+            )
 
     f.write_text(text, encoding="utf8")
 
@@ -353,7 +443,7 @@ def main() -> int:
             rewrite_manifest(target, DIST / ver / target, base, args.prefix)
     print(f"✓ 指针按源重写：{', '.join(sources)}" + ("" if len(sources) > 1 else "  （OBS 没配 OBS_* 凭据，所以只有这一个源）"))
     top = top_manifest(ver, sources, list(found), args.prefix)
-    print(f"✓ 顶层清单 {top.relative_to(ROOT)}")
+    print(f"✓ 顶层清单 {display_path(top)}")
 
     if not args.publish:
         print("\n（--layout-only：没有上传。--publish 才上传。）")
