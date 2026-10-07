@@ -95,9 +95,25 @@ def main() -> int:
 
     # 工作区脏着打 tag 的话，tag 指向的提交里没有你刚改的东西，
     # 而包是按 tag 构建的 —— 发出去的和你手上的不是一回事。
-    if git("status", "--porcelain"):
-        print("\n工作区有未提交的改动，先提交再发版", file=sys.stderr)
+    #
+    # **只查 tracked 改动。** 未跟踪的文件不在 tag 指向的那次提交里，也不会
+    # 被 `stage-desktop-resources.mjs` 搬进包（它只搬白名单里的那几个目录），
+    # 所以它们不构成「发出去的和我手上的不是一回事」。
+    #
+    # 之前用裸的 `git status --porcelain`，把未跟踪文件也算成脏 —— 结果是
+    # `.claude/`、`.opencode-v2/` 这类每台机器各自一份的工具目录**把发版挡住**，
+    # 而真正该拦的（改了已跟踪的文件）反而被淹没在噪音里。
+    dirty = [ln for ln in git("status", "--porcelain", "--untracked-files=no").splitlines() if ln]
+    if dirty:
+        print("\n已跟踪的文件有未提交的改动，先提交再发版：", file=sys.stderr)
+        for ln in dirty[:20]:
+            print(f"  {ln}", file=sys.stderr)
         return 1
+    untracked = git("status", "--porcelain").splitlines()
+    if untracked:
+        # 不拦，但要说一声 —— 万一里面有个该进包的东西被漏看了。
+        print(f"（{len(untracked)} 个未跟踪项，不影响发版：{', '.join(l[3:] for l in untracked[:5])}"
+              + ("…" if len(untracked) > 5 else "") + "）")
     if git("rev-parse", "HEAD") != git("rev-parse", "@{u}"):
         print("\n本地和远端不一致，先 push", file=sys.stderr)
         return 1

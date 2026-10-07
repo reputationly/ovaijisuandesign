@@ -63,3 +63,12 @@ dist-desktop/
 # 不忽略的话 `git status` 永远不干净，久了就没人看了。
 /raw.txt
 /versions.txt
+
+# 本机的 agent 工具目录和发版中间产物。
+# `.claude/` 是 Claude Code 的设置与 worktree，`.opencode-v2/` 是 agent 的工作流 ——
+# 每台机器各自一份，不该进仓库。不忽略的话它们会一直挂在 `git status` 里，
+# 而 `scripts/tag.py` 的「工作区脏就别发版」守卫看的是 porcelain 输出 ——
+# 于是**发版被两个工具目录挡住**，真正该拦的（tracked 改动）反而被淹没。
+.claude/
+.opencode-v2/
+artifacts/
