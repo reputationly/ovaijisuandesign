@@ -147,6 +147,65 @@ async function fetchToFile(url, dest) {
   await pipeline(Readable.fromWeb(res.body), createWriteStream(dest));
 }
 
+/**
+ * 删掉临时目录。**删不掉不算失败。**
+ *
+ * ## 为什么这里必须吞掉异常
+ *
+ * 它只写在 `finally` 里，而 **`finally` 抛出的异常会替换掉真正的错误** ——
+ * 于是取件本来成功，日志上却只看到一条和成功毫无关系的报错。
+ *
+ * 真实踩过（2026-10-07，Windows CI）：
+ *
+ *     解压…
+ *     fetch-opencode 失败：EBUSY: resource busy or locked,
+ *       unlink 'D:\a\…\bin\.fetch-4zLV2F\opencode.exe'
+ *
+ * 那一步之前下载、体积、魔数校验全都过了，二进制也已经落到 `bin/opencode.exe`，
+ * 整轮 8~10 分钟的出包验证就因为「临时文件删不掉」判红。Windows 上刚写过的文件
+ * 常被杀毒/索引器短暂持有，锁是**瞬时**的，所以先重试几次。
+ *
+ * 删不掉最坏也就是 `bin/` 下留一个 `.fetch-XXXX` 目录（那里本来就 gitignore），
+ * 下一轮 `mkdtemp` 换个名字，不影响任何东西 —— 远比整个构建失败划算。
+ */
+async function cleanupDir(dir) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      await rm(dir, { recursive: true, force: true });
+      return true;
+    } catch (err) {
+      if (attempt === 5) {
+        console.warn(
+          `  ⚠ 临时目录 ${path.basename(dir)} 删不掉（${err.code ?? err.message}），` +
+            `留着也不影响出包 —— 那里本来就 gitignore。`,
+        );
+        return false;
+      }
+      await new Promise((r) => setTimeout(r, 300 * attempt));
+    }
+  }
+  return false;
+}
+
+/**
+ * 改名，带 Windows 上必需的耐心。
+ *
+ * 刚解压出来的文件可能还被杀毒扫描器按着句柄不放，这时候 `rename` 抛
+ * EPERM/EBUSY。重试几次通常就过去了；实在不行让它照常抛出去（那是真失败）。
+ */
+async function renameWithRetry(from, to) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await rename(from, to);
+      return;
+    } catch (err) {
+      const transient = process.platform === "win32" && ["EPERM", "EBUSY", "EACCES"].includes(err.code);
+      if (!transient || attempt >= 8) throw err;
+      await new Promise((r) => setTimeout(r, 250 * attempt));
+    }
+  }
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   const i = argv.indexOf("--target");
@@ -196,12 +255,13 @@ async function main() {
     if (spec.exe.endsWith(".exe") === false) await chmod(got, 0o755);
     const check = verifyBinary(got, (await stat(got)).size, spec.exe.endsWith(".exe") ? "pe" : "macho");
 
-    await rename(got, dest);
+    await renameWithRetry(got, dest);
     await writeFile(stamp, `${VERSION}\n`);
     const how = check.probed ? `自检 ${check.version}` : "已过魔数校验（本机架构跑不了，未自检）";
     console.log(`✓ opencode ${VERSION} → ${path.relative(REPO_ROOT, dest)}（${how}；zip ${(zipSize / 1048576).toFixed(1)} MB）`);
   } finally {
-    await rm(tmp, { recursive: true, force: true });
+    // **绝不让这里的异常冒出去** —— finally 抛异常会顶掉真正的错误信息。
+    await cleanupDir(tmp);
   }
 }
 
@@ -231,7 +291,7 @@ async function extract(zip, dir, exeName) {
     if (!entry.isDirectory()) continue;
     const nested = path.join(dir, entry.name, exeName);
     if (await exists(nested)) {
-      await rename(nested, direct);
+      await renameWithRetry(nested, direct);
       return;
     }
   }
@@ -308,7 +368,9 @@ async function exists(p) {
   }
 }
 
-export { verifyBinary, TARGETS, VERSION as PINNED_VERSION };
+// cleanupDir 导出是为了让「删不掉不算失败」这条能离线断言 ——
+// 它救的是整轮 8~10 分钟的出包验证，不能只靠押 CI 撞。
+export { verifyBinary, TARGETS, VERSION as PINNED_VERSION, cleanupDir };
 
 // 直接 `node scripts/fetch-opencode.mjs` 跑时执行 main()；被 import 时（测试）不跑。
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

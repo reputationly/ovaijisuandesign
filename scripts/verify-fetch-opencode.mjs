@@ -17,10 +17,14 @@
 
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+// 静态 import 是安全的：fetch-opencode.mjs 里 `main()` 只在它被当入口直接跑时才执行，
+// 被 import 时不会碰网络。
+import { cleanupDir } from "./fetch-opencode.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SCRIPT = path.join(REPO, "scripts/fetch-opencode.mjs");
@@ -84,7 +88,7 @@ function clearBin() {
   }
 }
 
-function main() {
+async function main() {
   const work = mkdtempSync(path.join(tmpdir(), "ov-fetch-test-"));
   const HOST = process.platform === "win32" ? "x86_64-pc-windows-msvc" : process.arch === "arm64" ? "aarch64-apple-darwin" : "x86_64-apple-darwin";
   const hostIsPE = HOST.includes("windows");
@@ -147,6 +151,42 @@ function main() {
     ok(r6.code !== 0 && /不认识的 target/.test(r6.out), "未知 target → 明确报错并列出支持项");
   }
 
+  // 6. **临时目录删不掉，不能让取件失败。**
+  //
+  // 它只写在 `finally` 里，而 finally 抛出的异常会**顶掉真正的错误信息** ——
+  // 于是「删临时文件失败」会伪装成「取件失败」。真实踩过：2026-10-07 的
+  // Windows CI，下载/体积/魔数全过、二进制已经落盘，却因为
+  // `EBUSY: unlink …opencode.exe` 把整轮 8~10 分钟的出包验证判红。
+  //
+  // 这里直接调 `cleanupDir()`，给它一个**删不掉**的目录（去掉写权限）。
+  // Windows 上删不掉的原因不同（杀毒持句柄），但契约一样：**不抛异常**。
+  console.log("\n临时目录清理：");
+  {
+    const stuck = path.join(work, "stuck");
+    mkdirSync(stuck, { recursive: true });
+    writeFileSync(path.join(stuck, "held.bin"), "x");
+    // 去掉目录自己的写权限 → 里面的文件就删不掉（POSIX 语义）。
+    chmodSync(stuck, 0o500);
+    let threw = null;
+    let result = null;
+    try {
+      result = await cleanupDir(stuck);
+    } catch (err) {
+      threw = err;
+    } finally {
+      chmodSync(stuck, 0o700);
+      rmSync(stuck, { recursive: true, force: true });
+    }
+    ok(threw === null, "cleanupDir 遇到删不掉的目录不抛异常", threw ? String(threw.code ?? threw) : "");
+    ok(result === false, "cleanupDir 如实返回 false（而不是假装成功）", `实际 ${result}`);
+
+    // 正常情况必须真的删掉，不能因为「吞异常」而变成「什么都不做」。
+    const normal = path.join(work, "normal");
+    mkdirSync(normal, { recursive: true });
+    writeFileSync(path.join(normal, "a.bin"), "x");
+    ok((await cleanupDir(normal)) === true && !existsSync(normal), "cleanupDir 正常时真的删掉了");
+  }
+
   clearBin();
   rmSync(work, { recursive: true, force: true });
 
@@ -154,4 +194,4 @@ function main() {
   process.exitCode = fail === 0 ? 0 : 1;
 }
 
-main();
+await main();
