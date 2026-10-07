@@ -13,15 +13,16 @@
    官方 MiniMax   本仓的迭代号
    Design 的版本
 
-前三段是**基线**，写在 `Cargo.toml` 里，只在跟进官方新版本时手改。
+前三段是**基线**，写在 `app/desktop/package.json` 里，只在跟进官方新版本时手改。
 第四段是本仓自己的迭代号，每发一版 +1，由这个脚本算。
 
-为什么基线不能直接写四段：`3.0.12.1` 不是合法 semver，cargo 会拒绝解析
-整个 workspace。所以基线在 Cargo.toml，完整版本号在 tag 里，编译时通过
-`OVAIJISUAN_VERSION` 注进二进制。
+为什么基线不能直接写四段：完整版本号要能被消费方当 semver 比对
+（`latest-*.yml` 的 `version:` 由 electron-updater 拿去和运行中的版本比），
+`3.0.12.1` 在部分实现里会被判成非法而**永远不提示更新**。所以基线只放三段，
+完整四段在 tag 里，发布时由 `release-desktop.py` 钉进清单。
 
-**版本号必须是纯数字分段。** `update.rs` 的 `is_newer()` 逐段解析比较，
-非数字段一律按 0 —— 用 `3.0.12-ovaijisuan-20260909` 那种风格的话，客户端会
+**版本号必须是纯数字分段。** 比对逻辑逐段解析比较，非数字段一律按 0 ——
+用 `3.0.12-ovaijisuan-20260909` 那种风格的话，客户端会
 **静默地永远收不到更新**：不报错、不提示，只是永远认为自己是最新的。
 """
 
@@ -35,10 +36,11 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def baseline() -> str:
-    for line in (ROOT / "Cargo.toml").read_text(encoding="utf8").splitlines():
-        if line.startswith("version = "):
-            return line.split('"')[1]
-    raise SystemExit("Cargo.toml 里找不到 version")
+    """三段基线，取自新栈的版本源。旧栈（Rust/Cargo）删掉前也是这里。"""
+    import json
+
+    pkg = json.loads((ROOT / "app/desktop/package.json").read_text(encoding="utf8"))
+    return str(pkg["version"])
 
 
 def git(*args: str) -> str:

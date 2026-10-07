@@ -27,7 +27,6 @@ jobs:
     outputs:
       version: ${{ steps.v.outputs.version }}
       prefix: ${{ steps.v.outputs.prefix }}
-      matrix: ${{ steps.v.outputs.matrix }}
       cdn: ${{ steps.v.outputs.cdn }}
     steps:
       - uses: actions/checkout@v4
@@ -43,28 +42,15 @@ jobs:
         run: |
           echo "cdn=$HAS_CDN" >> "$GITHUB_OUTPUT"
           [ "$HAS_CDN" = "true" ] || echo "::notice::未配置 R2，本次跳过 CDN 分发，只出 GitHub Release"
-          CARGO=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
-
-          # 打包矩阵在这里算，不在 build 的 `if:` 里筛。job 级 `if:` 拿不到
-          # `matrix` 上下文（GitHub 要先算完 if 才展开矩阵），写了会让整个
-          # workflow 文件校验失败——症状是每次 push 都冒出一个 0 秒的失败 run。
-          # **不出 Linux。** 没有实际用户，而留着它的代价是实打实的：
-          # 每次发布多一条要看的绿灯，坏了还得修一个没人装的目标。
-          # 启动器那边 `host_target()` 在 Linux 上会返回 linux-x64,
-          # 取不到就是明确的「这个平台没有发布」,不会装错东西。
-          ALL='[{"os":"macos-latest","targets":"darwin-arm64 darwin-x64"},
-                {"os":"windows-latest","targets":"win32-x64"}]'
-          # 空跑只打一个目标，够验证分发链路了。用 Windows 而不是 Linux ——
-          # 空跑要验的是"真的会发出去的东西"，拿一个我们根本不发布的目标
-          # 去验，验过了也不说明什么。
-          DRY='[{"os":"windows-latest","targets":"win32-x64"}]'
-
+          # 三段基线取自**新栈自己的版本源**。以前读的是 workspace 的 Cargo.toml，
+          # 旧栈（Rust）删掉之后那个文件就没了。
+          CARGO=$(python3 -c "import json;print(json.load(open('app/desktop/package.json'))['version'])")
+          echo "版本基线：$CARGO（app/desktop/package.json）"
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             # 空跑没有 tag，直接用三段基线。产物发到 dry-run/ 前缀，跑完清掉。
             {
               echo "version=$CARGO"
               echo "prefix=dry-run/"
-              echo "matrix=$(echo "$DRY" | jq -c .)"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -76,26 +62,25 @@ jobs:
           # `startsWith(github.ref, 'refs/tags/')`,这条路上它们保持跳过 ——
           # 也就是说这次 run 只产出 artifacts，不对外发任何东西。
           #
-          # 版本号用 Cargo.toml 的三段基线：这种包不会进分发渠道，
+          # 版本号用 package.json 的三段基线：这种包不会进分发渠道，
           # 第四段迭代号没有意义。
           if [ "${{ github.ref_type }}" != "tag" ]; then
             echo "::notice::非 tag 触发，出包但不发布（版本 $CARGO）"
             {
               echo "version=$CARGO"
               echo "prefix="
-              echo "matrix=$(echo "$ALL" | jq -c .)"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           # 版本号四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
-          # 三段基线在 Cargo.toml（四段不是合法 semver，cargo 不收），完整版本号
+          # 三段基线在 app/desktop/package.json（四段不能当 semver 比对），完整版本号
           # 在 tag 里。校验前三段一致 —— 对不上的话包名、清单 URL、二进制自报的
           # 版本会各说各的，发出去的 latest.json 直接 404。
           TAG="${GITHUB_REF_NAME#v}"
           case "$TAG" in
             "$CARGO"|"$CARGO".*) ;;
-            *) echo "::error::tag v$TAG 的前三段和 Cargo.toml 的 $CARGO 对不上，先同步再发"; exit 1 ;;
+            *) echo "::error::tag v$TAG 的前三段和 app/desktop/package.json 的 $CARGO 对不上，先同步再发"; exit 1 ;;
           esac
           if ! echo "$TAG" | grep -qE '^[0-9]+(\.[0-9]+){2,3}$'; then
             # is_newer() 把非数字段按 0 处理，带后缀的版本号会让客户端
@@ -105,7 +90,6 @@ jobs:
           {
             echo "version=$TAG"
             echo "prefix="
-            echo "matrix=$(echo "$ALL" | jq -c .)"
           } >> "$GITHUB_OUTPUT"
 
   # ==================== 各平台打包 ====================
@@ -116,220 +100,6 @@ jobs:
   # 别的方向交叉不了：rustls 依赖 ring，要目标平台的 SDK 头文件 ——
   # 在 Mac 上试过给 Windows 交叉，卡在 assert.h 找不到。所以 Windows 和
   # Linux 各用自己的 runner。
-  build:
-    needs: prepare
-    strategy:
-      fail-fast: false
-      # 矩阵由 prepare 算好（空跑时只剩 win32-x64）。见那边的注释。
-      matrix:
-        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
-    runs-on: ${{ matrix.os }}
-    name: 打包 ${{ matrix.targets }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: release-${{ matrix.os }}
-      - uses: oven-sh/setup-bun@v2
-
-      - name: 装交叉编译目标
-        if: matrix.os == 'macos-latest'
-        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
-
-      - name: 打包
-        shell: bash
-        env:
-          # 四段版本号编译期注入。不传的话二进制自报三段基线，而清单里是四段，
-          # 于是所有人装完都被提示"有新版本"，装了还提示。
-          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          for t in ${{ matrix.targets }}; do
-            echo "::group::$t"
-            # macOS 上一律走 --cross 显式指定 triple：不指定的话两个架构会
-            # 写进同一个 target/release/，第二次构建把第一次的覆盖掉，
-            # 而两个包的内容会变成一样的——名字不同、架构相同，装错的人
-            # 只会看到"打不开"。
-            EXTRA=""
-            [ "${{ matrix.os }}" = "macos-latest" ] && EXTRA="--cross"
-            # 这里不传 --base：真正的指针由 publish 按每个源自己的公开域名
-            # 生成（见 release.py 的 pointers()）。打包阶段还不知道有几个源。
-            python3 scripts/release.py --target "$t" $EXTRA
-            echo "::endgroup::"
-          done
-
-      # 只传 dist/，里面已经是发布布局（版本目录 + latest.json + manifest.json）。
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist-${{ matrix.os }}
-          # 排掉 stage/：那是打包前的中间目录，内容和 tar 包重复一份，
-          # 传上去只是让 artifact 翻倍，下游也用不到。
-          path: |
-            dist/
-            !dist/stage/
-          retention-days: 7
-
-  # ==================== 桌面端应用包 ====================
-  # tar.gz 那条路是"解压即用"的命令行形态；这一条出的是双击就能开的应用：
-  # macOS 的 .dmg / Windows 的 .msi / Linux 的 .deb 和 AppImage。
-  #
-  # **和 tar.gz 的升级链路是分开的。** 自升级换的是 ovgw/ovagent/web/mcp 四项，
-  # 而应用包的布局完全不同（Contents/MacOS + Contents/Resources），就地换会
-  # 把包弄坏、签名也会失效。所以应用包只挂到 Release 页面，不进升级清单 ——
-  # 客户端那边有 `in_app_bundle()` 会拒掉就地升级并说明原因。
-  # **只出 macOS 和 Windows 的应用包。** Linux 那份不做了：AppImage 要把整套
-  # WebKitGTK 打进去，77 MB（deb 只有 6 MB），而这个项目没有 Linux 桌面用户。
-  # Linux 仍然有 tar.gz —— 服务器上跑 gateway 用得着，那条路不受影响。
-  desktop:
-    needs: prepare
-    if: ${{ !inputs.dry_run }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { os: macos-latest, rust: aarch64-apple-darwin, name: darwin-arm64 }
-          - { os: macos-latest, rust: x86_64-apple-darwin, name: darwin-x64 }
-          - { os: windows-latest, rust: x86_64-pc-windows-msvc, name: win32-x64 }
-    runs-on: ${{ matrix.os }}
-    name: 应用包 ${{ matrix.name }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.rust }}
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: desktop-${{ matrix.rust }}
-      - uses: oven-sh/setup-bun@v2
-
-      - name: 前端与 MCP 产物
-        shell: bash
-        run: |
-          # tauri.conf.json 的 resources 指着这两个路径，缺了构建脚本直接失败。
-          (cd apps/canvas-web && bun install --frozen-lockfile && bun run build)
-          (cd mcp && bun install --frozen-lockfile && bun build src/main.ts --target=bun --outfile dist/main.js)
-
-      - name: 打包
-        shell: bash
-        working-directory: apps/desktop
-        env:
-          # 四段版本号编译期注入，和 tar.gz 那条一致。
-          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          bun install --frozen-lockfile
-          # **不能用 `bunx tauri`** —— npm 上那个同名包是别的东西，
-          # 会去编译 sharp 然后失败。
-          # `-v`：**把子进程的输出转发出来**。没有它，WiX 的 light.exe 失败时
-          # 日志里只有一句「failed to run light.exe」—— 真正的原因
-          # （哪个文件、哪条 ICE 校验）全被 Tauri 吞掉，只能靠猜。
-          bunx @tauri-apps/cli build -v --target ${{ matrix.rust }}
-
-      # ==================== Windows：Velopack 自升级包 ====================
-      #
-      # **msi 保留、Velopack 额外出**,两者服务不同阶段：
-      #
-      #   msi        首次安装（也是我们能签名、能让用户双击的那个）
-      #   Velopack   装好之后的**就地自升级**
-      #
-      # 为什么 msi 自己做不到自升级：一个正在运行的进程不能替换自己的
-      # 可执行文件（Windows 上文件被锁）。Velopack 随包带一个独立的
-      # `Update.exe`,等主进程退出之后再动手 —— 官方 3.0.14 用的也是它。
-      #
-      # 打包对象是**装配好的目录**（exe + web/ + mcp/ + skills/），不是 msi ——
-      # Tauri 在 Windows 上就是把 resources 放在 exe 旁边，而 gateway 的
-      # `web::locate` 找的就是 `exe 同级的 web/`。
-      - name: Velopack 打包（Windows）
-        if: matrix.os == 'windows-latest'
-        shell: bash
-        env:
-          V: ${{ needs.prepare.outputs.version }}
-        run: |
-          set -euo pipefail
-          dotnet tool install -g vpk
-          export PATH="$PATH:$HOME/.dotnet/tools"
-
-          # 装配：把 exe 和资源摆成运行时的样子。
-          STAGE=target/velopack-stage
-          rm -rf "$STAGE" && mkdir -p "$STAGE"
-          cp "target/${{ matrix.rust }}/release/蒜狸小助手.exe" "$STAGE/"
-          cp -R apps/canvas-web/dist "$STAGE/web"
-          mkdir -p "$STAGE/mcp" && cp mcp/dist/main.js "$STAGE/mcp/main.js"
-          cp -R assets/skills "$STAGE/skills"
-
-          # Velopack **只认 3 段 SemVer2**，而我们的版本号是 4 段
-          # （官方基线 3 段 + 本仓迭代号）。直接传会被拒：
-          #   --packVersion contains an invalid package version '3.0.14.2'
-          #
-          # 把后两段合成一段：3.0.14.2 → 3.0.14002（PATCH*1000 + BUILD）。
-          #
-          # **必须把基线也编进去**，不能只用迭代号 —— 迭代号跨基线会重置
-          # （见 scripts/tag.py 的 next_version），只传它的话
-          # 3.0.14.7 之后的 3.0.15.1 会变成"降级"，Velopack 就再也不推更新了。
-          # 合成之后 15001 > 14007，单调性成立。
-          #
-          # **用 shell 算，不要嵌多行 python** —— 嵌进来的话它的行首没有
-          # YAML 需要的缩进，整个 `run:` 块标量就断了。表现是这条工作流
-          # 0 秒失败、名字显示成文件路径（GitHub 根本没解析出工作流），
-          # 而 push 的 tag 什么都不会构建。
-          IFS=. read -r VP_MAJOR VP_MINOR VP_PATCH VP_BUILD <<< "$V"
-          VPK_V="${VP_MAJOR}.${VP_MINOR}.$((VP_PATCH * 1000 + VP_BUILD))"
-          echo "velopack 版本 $V → $VPK_V"
-
-          # `--packId` 是这个应用的**永久标识**,升级时靠它认"是不是同一个
-          # 应用"。改了等于所有老用户收不到更新，所以写死、不跟版本走。
-          vpk pack \
-            --packId ovaijisuandesign \
-            --packVersion "$VPK_V" \
-            --packDir "$STAGE" \
-            --mainExe "蒜狸小助手.exe" \
-            --packTitle "蒜狸小助手" \
-            --outputDir target/velopack-out
-
-          ls -lh target/velopack-out/
-
-      # 只收最终产物，不收整个 bundle 目录（里面还有一份未压缩的 .app，
-      # 和 dmg 内容重复，artifact 会翻倍）。
-      - name: 收产物
-        shell: bash
-        run: |
-          mkdir -p out
-          V="${{ needs.prepare.outputs.version }}"
-          B=target/${{ matrix.rust }}/release/bundle
-          # tauri 按 productName 命名产物，现在是中文（蒜狸小助手_3.0.12_…dmg）。
-          # **下载地址不能带非 ASCII** —— 会被各种客户端转义成 %E5%85%89…，
-          # 贴到聊天窗口里断行、curl 也要额外引号。所以一律改成 ASCII 文件名。
-          # 用 while read 而不是 for：中文文件名里可能有空格。
-          find "$B" -maxdepth 2 -type f \
-               \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' \) -print0 |
-          while IFS= read -r -d "" f; do
-            ext="${f##*.}"
-            cp "$f" "out/ovaijisuandesign-$V-${{ matrix.name }}.$ext"
-          done
-          # Velopack 那一组**整个目录照搬**,文件名不能改 ——
-          # `RELEASES` 清单里记的就是这些名字，客户端按名字取。
-          if [ -d target/velopack-out ]; then
-            mkdir -p out/velopack
-            cp target/velopack-out/* out/velopack/ || true
-          fi
-          ls -lh out/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: desktop-${{ matrix.name }}
-          path: out/
-          retention-days: 7
-
-  # ==================== 新栈出包（Electron） ====================
-  #
-  # 拆成 build + publish 两个 job，和上面旧栈的 desktop + publish 一个道理：
-  # 矩阵各自出包上传，**一个 job 汇总下载再统一发布** —— 每个 matrix 分支自己发布的话，
-  # 谁最后跑完谁说了算，指针会跟着最后一次跑动，发布顺序完全不可控。
-  #
-  # **runner 必须是本架构的**。旧栈 mac-x64 排在 `macos-latest` 上交叉编没问题
-  # （Rust 那边 macOS 能交叉，见 release.py 的注释），但新栈的原生模块
-  # （better_sqlite3.node、sharp 的 libvips）是**按构建机平台**落的，交叉编出来的
-  # x64 包装的是 arm64 模块，Intel Mac 上一碰资产库就炸。`verify-desktop-package`
-  # 会拿「app 自己的主二进制」当权威来比对，runner 选错也会红。
   desktop-electron:
     needs: prepare
     strategy:
@@ -393,8 +163,18 @@ jobs:
   # 不用改任何代码，取消下面那几行注释即可。
   publish-electron:
     needs: [prepare, desktop-electron]
-    # 和旧栈那个 publish 同一个纪律：**别用 always()**。
-    if: ${{ needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
+    # **这里用 `always()`，但发布本身仍然被卡住。** 两个性质要同时成立：
+    #
+    #   1. 某个平台打包失败时，**不能**发部分平台 —— 否则 latest 指针照翻，
+    #      那个平台的用户升级撞 404，而其余平台一切正常，极难发现。
+    #   2. 但**清理空跑产物必须照跑** —— 失败恰恰是空跑最常见的结果，
+    #      清理被跳过就等于「空跑在桶里留 800MB」。
+    #
+    # job 级加 `always()` 只解决第 2 条；第 1 条靠脚本兜底：`release-desktop.py`
+    # 在 stage 阶段就要求三个 target 的产物**全都在**，缺一个就硬失败，
+    # 而那发生在**任何一次上传之前** —— 所以部分平台发不出去。
+    # （代价是构建失败时空跑会红而不是绿，这正是应该红的。）
+    if: ${{ always() && needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
     runs-on: ubuntu-latest
     name: 发布新栈
     steps:
@@ -457,135 +237,9 @@ jobs:
             --target darwin-arm64 --target darwin-x64 --target win32-x64 \
             --publish
 
-  # ==================== 发布 ====================
-  # 矩阵由 prepare 动态给出，空跑时不再有被 skip 的 build，所以这里用默认的
-  # `success()` 语义就够了——千万别退回 `always()`：它会连「某个平台打包失败」
-  # 一起放行，于是 latest 指针照翻，那个平台的用户升级时撞 404，而其余平台
-  # 一切正常，问题很难被发现。fail-fast: false 也保证了失败平台一定会被记成
-  # failure 而不是 cancelled。
-  publish:
-    # **必须 needs `publish-electron`。** 本 job 末尾那个「清理空跑产物」步骤带
-    # `always()`，而 `always()` 只保证「不因为上游失败而跳过」—— 它**不排序**。
-    # 没有 needs 关系时，本 job（空跑时出包被跳过、几秒就完）和清理步骤会在
-    # `desktop-electron` 还在出包时就跑完，**把上一轮的残留清掉、然后本轮的
-    # `dry-run/` 就整个留在了桶里**。实测过一轮：清理发生在 03:01，发布在 03:11，
-    # 800MB 全留下。旧栈没这问题只是因为它空跑时秒完，不是因为机制对。
-    needs: [prepare, build, publish-electron]
-    if: ${{ always() && needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
-    runs-on: ubuntu-latest
-    name: 发布
-    steps:
-      - uses: actions/checkout@v4
+      # 下面两步是从旧栈的 `publish` job 搬过来的。**它们不是可有可无的收尾**：
+      # 少了任一步，桶会随着版本数无限涨。
 
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          pattern: dist-*
-
-      # 各平台的 dist/ 摆成一份，供 release.py 的 discover() 找到所有目标。
-      #
-      # **各平台打包时写的 manifest.json / latest.json 一律丢掉**：那是打包
-      # 阶段的本地预览，用的是占位域名。真正的指针由 publish 按每个源自己的
-      # 公开域名重新生成（release.py 的 pointers()）。留着它们的话，很容易
-      # 误以为传上去的是那一份。
-      - name: 摆放各平台产物
-        run: |
-          mkdir -p dist
-          python3 - <<'PY'
-          import pathlib, shutil
-          out = pathlib.Path("dist")
-          for d in sorted(pathlib.Path("artifacts").iterdir()):
-              for item in d.iterdir():
-                  if item.name == "manifest.json":
-                      continue
-                  dst = out / item.name
-                  if item.is_dir():
-                      shutil.copytree(item, dst, dirs_exist_ok=True)
-                  else:
-                      shutil.copy2(item, dst)
-          # 打包阶段写的 <target>/latest.json 同样是预览，删掉。
-          for stale in out.glob("*/latest.json"):
-              stale.unlink()
-          PY
-          find dist -type f | sort
-
-      # **每个源的凭据分开传。** 两个源共用一组 AWS_ACCESS_KEY_ID 的话，
-      # OBS 会拿 R2 的 key 去认证，403 —— release.py 的 creds() 现在按源取，
-      # aws cli 的那几个 checksum 开关也在那里设（v2 默认发 CRC32 尾部校验，
-      # R2 不支持会直接 501，而错误信息完全看不出是校验的问题）。
-      - name: 上传并回读校验
-        env:
-          # **publish 也必须拿到四段版本号。** release.py 的 version() 没有它就
-          # 回落到 Cargo.toml 的三段基线，而包在 dist/<四段>/ 下 —— 报错是
-          # "dist/3.0.12/ 下没有任何包"，看着像打包那步没产出。
-          # 空跑不会暴露：空跑的版本号正好就是基线。
-          OVAIJISUAN_VERSION: ${{ needs.prepare.outputs.version }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_BUCKET: ${{ secrets.R2_BUCKET }}
-          R2_PUBLIC_BASE: ${{ vars.R2_PUBLIC_BASE }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
-          OBS_BUCKET: ${{ secrets.OBS_BUCKET }}
-          OBS_PUBLIC_BASE: ${{ vars.OBS_PUBLIC_BASE }}
-          OBS_ACCESS_KEY_ID: ${{ secrets.OBS_ACCESS_KEY_ID }}
-          OBS_SECRET_ACCESS_KEY: ${{ secrets.OBS_SECRET_ACCESS_KEY }}
-          RELEASE_PREFIX: ${{ needs.prepare.outputs.prefix }}
-        run: python3 scripts/release.py --publish-only
-
-      # 从**公开域名**再读一次。上一步的校验走的是 S3 API，这一步走 CDN ——
-      # 能抓到"传上去了但公网读不到"这类只在真发版时才暴露的问题
-      # （自定义域没映射、缓存策略把清单缓住了）。
-      - name: 公网回读
-        env:
-          BASE: ${{ vars.R2_PUBLIC_BASE }}
-          PREFIX: ovaijisuandesign/${{ needs.prepare.outputs.prefix }}
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          URL="${BASE%/}/${PREFIX}manifest.json"
-          curl -fsS --retry 3 --retry-delay 2 "$URL" -o m.json
-          echo "--- 缓存响应头 ---"
-          curl -fsSI "$URL" | grep -iE "cache-control|cf-cache-status|content-type" || true
-          python3 - <<'PY'
-          import json, os, urllib.request
-          want = os.environ["VERSION"]
-          # **必须带 UA。** Python 默认发 Python-urllib/3.x，Cloudflare 的托管
-          # 机器人规则直接 403，而且和对象存不存在无关 —— 症状是"S3 API 一切
-          # 正常，只有走 CDN 的校验挂"，很容易误判成域名绑错了桶。
-          UA = {"User-Agent": "ovaijisuandesign-release/1.0"}
-
-          def fetch(url, method="GET"):
-              return urllib.request.urlopen(
-                  urllib.request.Request(url, headers=UA, method=method), timeout=20
-              )
-
-          m = json.load(open("m.json"))
-          assert m["targets"], "清单里一个目标都没有"
-          for target, entry in m["targets"].items():
-              # **每个源都读一遍**，不是只读第一个。双源的意义就在于任一个
-              # 都能独立服务，只验一个的话另一个传坏了要等用户来报。
-              for name, url in entry["latestUrls"].items():
-                  latest = json.load(fetch(url))
-                  assert latest["version"] == want, \
-                      f"{target}@{name}: 清单 {latest['version']} != 期望 {want}"
-                  # HEAD 一下包本体：清单对了但包传丢了的话，用户点更新才会发现。
-                  size = int(fetch(latest["url"], "HEAD").headers["content-length"])
-                  assert size == latest["size"], \
-                      f"{target}@{name}: 包大小 {size} != 清单 {latest['size']}"
-                  print(f"  ✓ {target:16} {name:6} {latest['version']}  {size / 1048576:.1f} MB")
-          PY
-
-      # 按「数量」保留而不是用生命周期规则按「天数」：后者有个陷阱 ——
-      # 长期不发版时，规则会把当前正在服役的那一版一并删掉。
-      #
-      # 放在回读之后：确认新版本确实可公开下载，才动旧版本。
-      # 不加 always()：前面失败时保持现状，宁可多占空间也不误删。
-      #
-      # ⚠️ **只列 ovaijisuandesign/ 这一层，绝不列桶根。**
-      # 桶是和 Toonflow 共用的，两边的清理逻辑一样：列出顶层目录 → 挑版本号
-      # 形状的 → 只留最新 N 个 → 其余整个删掉。列桶根的话，我们的 3.0.12.x
-      # 会和它的 1.1.x 混在一张表里 sort -V —— 我们的永远排在上面，发够三版
-      # 就把 Toonflow 的所有版本连同正在服役的那一版一起删光。
       - name: 清理旧版本（保留最近 3 个）
         if: ${{ !inputs.dry_run }}
         env:
@@ -618,6 +272,11 @@ jobs:
       # 空跑产物不留存。**必须带 always()** —— 否则前面任何一步失败
       # （这恰恰是空跑最可能的结果）本步就被跳过，dry-run/ 残留在桶里，
       # 和「不污染桶」的目标自相矛盾。
+      #
+      # 放在 `publish-electron` 里而不是独立 job，是因为 `always()` **只保证不被
+      # 上游失败跳过、不排序**。之前它待在旧 `publish` job 末尾、又没有 needs 指向
+      # 新栈，于是空跑时几秒就跑完了 —— 把上一轮的残留清掉，本轮的 800MB 全留下。
+      # 放进本 job 就必然排在发布之后。
       - name: 清理空跑产物
         if: ${{ always() && inputs.dry_run }}
         env:
@@ -639,168 +298,9 @@ jobs:
                 "${{ secrets.OBS_ACCESS_KEY_ID }}" "${{ secrets.OBS_SECRET_ACCESS_KEY }}"
           echo "空跑产物已清理，生产清单未被触碰"
 
-  # ==================== GitHub Release ====================
-  github-release:
-    needs: [prepare, build, desktop]
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          pattern: dist-*
-      - uses: actions/download-artifact@v4
-        with:
-          path: desktop
-          pattern: desktop-*
-      - name: 整理并改成能看懂的文件名
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          mkdir -p out
-          # 包名是内容哈希（不可变、便于回滚），但挂到 Release 页面上得让人
-          # 一眼看出是哪个平台的。
-          for f in $(find artifacts -name "*.tar.gz"); do
-            target=$(basename "$(dirname "$f")")
-            cp "$f" "out/ovaijisuandesign-$VERSION-$target.tar.gz"
-          done
-          # 应用包已经是最终文件名，直接搬过去。
-          find desktop -type f -print0 | xargs -0 -I{} cp {} out/ || true
-          ls -lh out/
-      - uses: softprops/action-gh-release@v2
-        with:
-          name: ovaijisuandesign ${{ github.ref_name }}
-          generate_release_notes: true
-          files: out/*
-          body: |
-            解压即用，不需要装别的东西。
-
-            ### 桌面应用（双击就能开）
-
-            | 系统 | 文件 |
-            |---|---|
-            | macOS (M 系列) | `*-darwin-arm64.dmg` |
-            | macOS (Intel) | `*-darwin-x64.dmg` |
-            | Windows | `*-win32-x64.msi` |
-
-
-            ### 命令行形态（解压即用，能自升级）
-
-            | 系统 | 文件 |
-            |---|---|
-            | macOS (M 系列) | `*-darwin-arm64.tar.gz` |
-            | macOS (Intel) | `*-darwin-x64.tar.gz` |
-            | Windows | `*-win32-x64.tar.gz` |
-
-            两种形态装的是同一套东西。**应用包不能就地自升级** ——
-            它的目录结构和 tar.gz 不同（`Contents/MacOS` + `Contents/Resources`），
-            就地换文件会把包弄坏；升级请重新下载安装包。tar.gz 那份
-            在界面上点一下就能自己升。
-
-            ```bash
-            tar -xzf ovaijisuandesign-*.tar.gz && ./ovgw
-            ```
-
-            ### ⚠️ macOS：从浏览器下载的话要先去隔离属性
-
-            这些包**没有签名和公证**。浏览器会给下载的文件打上
-            `com.apple.quarantine`，而 `tar` 会把它传给解出来的二进制 ——
-            于是运行时被 Gatekeeper 直接 SIGKILL，**退出码 137、没有任何输出**，
-            看着像程序自己崩了。
-
-            ```bash
-            xattr -dr com.apple.quarantine ovgw ovagent
-            ```
-
-            用 `curl -L` 下载则不受影响（curl 不打这个属性）。
-            装好之后的自动升级也不受影响 —— 那些文件是程序自己写的。
-
-            ---
-
-            首次启动会写一份配置模板，填好 `platform.api_key` 再启动。
-            **没有登录流程，key 就是唯一凭据。**
-
-            跑 agent 还需要 [opencode](https://opencode.ai) 在 `PATH` 里。
-
-            界面顶栏会显示有没有新版，点一下就能下载安装（装完需重启）。
-
-      # ---------- 把 GitHub Release 本身当成一个分发源 ----------
-      # R2/OBS 的桶还没开，但公开仓的 Release 资产本来就是公网可下的不可变对象
-      # （版本 tag 一旦发出，资产不会再变），正好满足"包不可变"这一条。
-      # 于是升级链路今天就能真跑通，而不是一直停在"代码写完了没试过"。
-      #
-      # 可变的那一层放在固定 tag `manifest` 的 release 上，每次发版覆盖。
-      # 桶开了之后不用改结构：manifest 里多一个源就行，客户端本来就按顺序试。
-      #
-      # **必须排在上面那步之后**：先有包，再翻指针。反过来的话中间那几十秒里
-      # 客户端查到新版本、去下载、404。
-      - name: 生成指针（manifest + 各平台 latest）
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-          TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
-          R2_BASE: ${{ vars.R2_PUBLIC_BASE }}
-          OBS_BASE: ${{ vars.OBS_PUBLIC_BASE }}
-        run: |
-          mkdir -p ptr
-          python3 - <<'PY'
-          import hashlib, json, os, pathlib
-
-          ver, tag, repo = os.environ["VERSION"], os.environ["TAG"], os.environ["REPO"]
-          NS = "ovaijisuandesign"  # 桶里的命名空间，和 release.py 的 PRODUCT 一致
-          dl = f"https://github.com/{repo}/releases/download"
-          ptr = pathlib.Path("ptr")
-          targets = {}
-
-          # 从 build 传上来的 dist/ 里取 target 和真实字节。sha256 重新算一遍
-          # 而不是信文件名——文件名是上一个 job 写的，重算一次几乎免费，
-          # 而校验和错了的后果是所有人都装不上。
-          for f in sorted(pathlib.Path("artifacts").rglob("*.tar.gz")):
-              target = f.parent.name
-              digest = hashlib.sha256(f.read_bytes()).hexdigest()
-              # .stem 对 `x.tar.gz` 给的是 `x.tar`，会永远对不上。
-              named = f.name.removesuffix(".tar.gz")
-              assert digest == named, f"{f}: 文件名 {named} 和实际 {digest} 对不上"
-              (ptr / f"latest-{target}.json").write_text(json.dumps({
-                  "version": ver,
-                  "url": f"{dl}/{tag}/ovaijisuandesign-{ver}-{target}.tar.gz",
-                  "sha256": digest,
-                  "size": f.stat().st_size,
-              }, indent=2) + "\n")
-              # 把已配置的 CDN 源也列上。客户端读的是**这一份**清单
-              # （DEFAULT_MANIFEST 指向这里），只列 github 的话，桶开了之后
-              # 客户端依然只会走 GitHub —— 国内那条慢链路。
-              urls = {"github": f"{dl}/manifest/latest-{target}.json"}
-              for name in ("r2", "obs"):
-                  cdn = os.environ.get(f"{name.upper()}_BASE", "").rstrip("/")
-                  if cdn:
-                      # **别漏 NS。** 桶里所有 key 都在命名空间下，漏了这一段
-                      # 拼出来的是 404 —— 而且不会有人发现：github 排在前面
-                      # 且能用，客户端读到第一个就返回了。只有 GitHub 挂掉、
-                      # 真的要靠备份源的那一刻才暴露，那时最没空查。
-                      urls[name] = f"{cdn}/{NS}/{target}/latest.json"
-              targets[target] = {"status": "published", "latestUrls": urls}
-
-          assert targets, "一个 target 都没有，不要拿空清单去覆盖旧的"
-          (ptr / "manifest.json").write_text(json.dumps(
-              {"schemaVersion": 1, "targets": targets}, indent=2, ensure_ascii=False) + "\n")
-          print(json.dumps(targets, indent=2))
-          PY
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: manifest
-          name: 升级指针（不是发行版）
-          files: ptr/*
-          # 不要抢走版本 release 的"Latest"标记，否则 Release 页面顶上显示的
-          # 是这个只有几个 JSON 的条目，用户找不到包。
-          make_latest: false
-          body: |
-            客户端升级检查读的就是这里，**不是给人下载的**。
-
-            - `manifest.json` —— 有哪些平台、各自的 latest 在哪
-            - `latest-<平台>.json` —— 当前版本、包地址、sha256、大小
-
-            每次发版被覆盖。包本体在各个版本的 Release 里，发出去就不再改动。
+  # ==================== 发布 ====================
+  # 矩阵由 prepare 动态给出，空跑时不再有被 skip 的 build，所以这里用默认的
+  # `success()` 语义就够了——千万别退回 `always()`：它会连「某个平台打包失败」
+  # 一起放行，于是 latest 指针照翻，那个平台的用户升级时撞 404，而其余平台
+  # 一切正常，问题很难被发现。fail-fast: false 也保证了失败平台一定会被记成
+  # failure 而不是 cancelled。

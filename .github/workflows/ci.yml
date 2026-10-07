@@ -12,41 +12,6 @@ env:
   CARGO_INCREMENTAL: 0
 
 jobs:
-  rust:
-    # 三个平台都跑。**Windows 是重点** —— 代码里没有平台分支，但在这条
-    # 流水线跑起来之前，"支持 Windows" 只是个没验证过的说法。
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.os }}
-
-      # **不能用 --all / --workspace。** `apps/desktop` 是 Tauri，编它要整套
-      # WebKitGTK（Linux）和一堆系统库；这个 job 只负责验业务逻辑，为它装
-      # 一套 GUI 依赖既慢又和目的无关。桌面端由 release.yml 的 desktop job
-      # 在各自平台上真打包时验证。
-      #
-      # fmt 例外：格式检查不编译，扫全仓是对的。
-      - name: fmt
-        run: cargo fmt --all -- --check
-
-      - name: clippy
-        run: cargo clippy -p gateway -p maas-media --all-targets -- -D warnings
-
-      - name: test
-        run: cargo test -p gateway -p maas-media
-
-  # 新栈（app/：Electron + NestJS gateway + mcp-tools + 共享包）。和旧栈并排跑，
-  # M10 切换后旧的 rust / bun job 删掉。原生模块（better-sqlite3、sharp）在
-  # Windows 上的构建是重点，所以两个平台都跑。
   node:
     strategy:
       fail-fast: false
@@ -153,35 +118,6 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
-  # 前端和 MCP。这两块没有平台代码，但 bun 在 Windows 上的行为值得盯着 ——
-  # `ovagent` 拉起 MCP server 用的就是它。
-  bun:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-
-      - name: mcp
-        working-directory: mcp
-        run: |
-          bun install --frozen-lockfile
-          bun run typecheck
-          bun test
-
-      - name: canvas-web
-        working-directory: apps/canvas-web
-        run: |
-          bun install --frozen-lockfile
-          bun run typecheck
-          bun test
-          bun run build
-
-  # 接口规格是从官方产物里提取的，本地跑过就该和仓库里那份一致。
-  # 这一步只验脚本本身没写坏 —— CI 上没有 MiniMax Design，提不了真数据。
   spec:
     runs-on: ubuntu-latest
     steps:
@@ -189,4 +125,4 @@ jobs:
       - run: python3 -c "import ast, pathlib; ast.parse(pathlib.Path('scripts/extract-mcp-tools.py').read_text())"
       - name: 规格文档没被手改坏
         run: |
-          test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 54
+          test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 57

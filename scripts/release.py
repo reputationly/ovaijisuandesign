@@ -164,15 +164,19 @@ def host_target() -> str:
 
 
 def baseline() -> str:
-    """三段基线，取自 workspace 的 Cargo.toml。**跟着官方 MiniMax Design 走。**
+    """三段基线，取自**新栈**的 `app/desktop/package.json`。**跟着官方 MiniMax Design 走。**
 
-    Cargo.toml 里只能放三段 —— 四段不是合法 semver，cargo 会拒绝解析整个
-    workspace。所以基线在这里，迭代号在 tag 里。
+    以前读的是 workspace 的 `Cargo.toml` —— 旧栈（Rust）删掉之后那个文件就没了。
+    换成新栈自己的版本源：electron-builder 也从这儿取版本进 `latest-*.yml`，
+    界面「关于」显示的也是它，所以**这一处就是发布版本号的唯一权威**。
+
+    为什么必须三段：完整版本号是 `<三段>.<迭代号>`，迭代号在 git tag 里
+    （见 `version()`）。而 `latest-*.yml` 的 `version:` 字段要能被
+    `electron-updater` 当 semver 比对，四段在部分实现里会被判成非法而**永远不提示更新**，
+    所以基线只放三段、`release-desktop.py` 发布时再把 yml 的 version 钉成四段。
     """
-    for line in (ROOT / "Cargo.toml").read_text(encoding="utf8").splitlines():
-        if line.startswith("version = "):
-            return line.split('"')[1]
-    raise SystemExit("Cargo.toml 里找不到 version")
+    pkg = json.loads((ROOT / "app/desktop/package.json").read_text(encoding="utf8"))
+    return str(pkg["version"])
 
 
 def version() -> str:
@@ -188,7 +192,7 @@ def version() -> str:
         return baseline()
     base = baseline()
     if not (v == base or v.startswith(base + ".")):
-        raise SystemExit(f"OVAIJISUAN_VERSION={v} 和 Cargo.toml 的基线 {base} 对不上")
+        raise SystemExit(f"OVAIJISUAN_VERSION={v} 和 app/desktop/package.json 的基线 {base} 对不上")
     return v
 
 
