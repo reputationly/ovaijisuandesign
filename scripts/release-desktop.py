@@ -48,8 +48,11 @@ from release import (  # noqa: E402
     PRODUCT,
     SOURCES,
     configured,
+    creds,
+    endpoint,
     http_get,
     preflight,
+    run,
     s3_upload,
     verify,
 )
@@ -327,6 +330,19 @@ def main() -> int:
         s3_upload(s, top, top_key)
         verify(s, top_key, digest)
         print(f"✓ {s}：顶层指针已翻到 {ver}（{top_key}）")
+
+    # **桶根不该有清单。** 有命名空间（RELEASE_PRODUCT 非空）时，桶根的 manifest.json
+    # 按定义就是错的 —— 谁都不会去读它，但留着会让人以为发布没生效（2026-10-07 线上就
+    # 这么躺了一个，是那次守卫没挡住留下的）。顺手清掉，不留给下一个人去猜。
+    if key_prefix(args.prefix):
+        for s in sources:
+            run(
+                "aws",
+                ["s3", "rm", f"s3://{os.environ[SOURCES[s]['bucket']]}/manifest.json",
+                 "--endpoint-url", endpoint(s)],
+                env={**os.environ, **creds(s)},
+            )
+        print(f"✓ 桶根已清（正式清单在 {top_key}）")
 
     # 从公开域名再读一次指针。**光验 S3 API 不够** —— 域名的缓存规则、权限、内容类型
     # 问题都只在这一步才暴露。
