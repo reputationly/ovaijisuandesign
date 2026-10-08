@@ -83,6 +83,13 @@ const COPY = [
   // **不带 media/**。那 468MB 靠 `showcase-assets/:key` 的 302 回落 CDN，
   // 首启由 showcase-warm 预热前 24 张封面到 userData（包内是只读的，写不了）。
   { from: "assets/home-showcase", to: "home-showcase", skip: (name) => name === "media" },
+  // **首启的内置示例项目**（`sample-project.zip`，4.6MB）。漏了它的症状特别难看：
+  // 应用启动时去 resources/project-templates/ 找模板，找不到 → 导入失败 →
+  // 官方 UI 弹一个「导入失败 / 项目导入未完成」——而发布日志和 CI 全绿，
+  // 因为**没有任何一处检查这个目录在不在包里**（见 verify-desktop-package.mjs
+  // 的 required 契约，它一开始也没列这一项）。
+  // 侧栏里的「项目新手指引」就是这个模板带来的。
+  { from: "assets/project-templates", to: "project-templates" },
 ];
 
 /**

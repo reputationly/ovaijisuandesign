@@ -114,6 +114,9 @@ function required(resources) {
     ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置）"],
     ["skills", "locateBundledSkills（自带技能）"],
     ["home-showcase/quick-start-config-v2.json", "homeShowcaseDir()（首页创作灵感，缺了首页是空的）"],
+    // 首启要导入的内置示例项目。**缺了它每次首启都弹「导入失败」**，
+    // 而发布日志全绿 —— 这个目录曾经不在 required 里，于是没人发现。
+    ["project-templates/sample-project.zip", "project-archive-service.ts:31（首启 provision-sample-project）"],
   ];
 }
 
