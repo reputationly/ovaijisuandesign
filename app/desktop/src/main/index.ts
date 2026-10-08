@@ -270,33 +270,6 @@ async function boot(): Promise<Running> {
 
   registerChannel("hilo", hilo);
   registerChannel("project", projects);
-  // 自动更新。官方渲染层已经把整条链路建好了（UpdateBanner / ForcedUpdateDialog /
-  // 设置页的「检查更新」），它通过 `ProxyChannel.toService(client.getChannel("updater"))`
-  // 取服务 —— 所以这里只要**通道名叫 `updater`** 且实现那 10 个方法，UI 侧零改动。
-  // 名字对不上它不会报错，只是静默退化（官方那整段包在 try/catch 里 return）。
-  registerChannel(
-    "updater",
-    new UpdaterService({
-      // 开发态返回 null：本地开发不该被线上版本打断（官方也是这么做的）。
-      createAutoUpdater: () => {
-        if (!shouldAutoUpdate()) return null;
-        const feed = process.env.OV_UPDATE_FEED_BASE?.trim();
-        if (!feed) {
-          // 不静默：没有 feed 就没法更新，但用户点了「检查更新」应该有句话看。
-          log("[updater] 未配置 OV_UPDATE_FEED_BASE，无法检查更新");
-          return null;
-        }
-        return createElectronAutoUpdater({ feedBase: feed, target: currentUpdateTarget() });
-      },
-      currentVersion: () => app.getVersion(),
-      readDismissed: () => {
-        const d = store.get("updaterDismissed") as { version?: string; at?: number } | undefined;
-        return { version: d?.version ?? null, at: d?.at ?? 0 };
-      },
-      writeDismissed: (version, at) => void store.set("updaterDismissed", { version, at }),
-      log,
-    }),
-  );
   // 用户自建的技能优先于自带的
   registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));
   registerChannel("projectAssets", new ProjectAssetsService({ projectsRoot: () => dirs.projectsRoot, trashItem: (p) => shell.trashItem(p) }));
@@ -336,12 +309,43 @@ async function boot(): Promise<Running> {
     registerChannel(name, svc);
   }
 
+  // 自动更新。官方渲染层已经把整条链路建好了（UpdateBanner / ForcedUpdateDialog /
+  // 设置页的「检查更新」），它通过 `ProxyChannel.toService(client.getChannel("updater"))`
+  // 取服务 —— 所以这里只要**通道名叫 `updater`** 且实现那 10 个方法，UI 侧零改动。
+  // 名字对不上它不会报错，只是静默退化（官方那整段包在 try/catch 里 return）。
+  //
+  // **实例要提成变量**：raw-ipc 里那个 `updater:check` 也得指到同一个实例，
+  // 否则渲染层那半边永远是个返回 `{accepted:false}` 的死桩（见 registerRawIpc 的注释）。
+  const updaterService = new UpdaterService({
+      // 开发态返回 null：本地开发不该被线上版本打断（官方也是这么做的）。
+      createAutoUpdater: () => {
+        if (!shouldAutoUpdate()) return null;
+        const feed = process.env.OV_UPDATE_FEED_BASE?.trim();
+        if (!feed) {
+          // 不静默：没有 feed 就没法更新，但用户点了「检查更新」应该有句话看。
+          log("[updater] 未配置 OV_UPDATE_FEED_BASE，无法检查更新");
+          return null;
+        }
+        return createElectronAutoUpdater({ feedBase: feed, target: currentUpdateTarget() });
+      },
+      currentVersion: () => app.getVersion(),
+      readDismissed: () => {
+        const d = store.get("updaterDismissed") as { version?: string; at?: number } | undefined;
+        return { version: d?.version ?? null, at: d?.at ?? 0 };
+      },
+    writeDismissed: (version, at) => void store.set("updaterDismissed", { version, at }),
+    log,
+  });
+
   const menuDeps = {
     createWorkspace: () => hilo.createWorkspace(),
     openLogDir: () => void shell.openPath(path.join(dirs.userData, "logs")),
     exportLogs: (w: BrowserWindow | null) => exportLogs(w, path.join(dirs.userData, "logs")),
   };
   registerRawIpc({
+    // 渲染层 preload 的 `hilo.updater` 也指到这个实例 —— 见 registerRawIpc 里
+    // `updater:check` 那条的注释：以前是硬编码的 `{accepted:false}` 死桩。
+    updater: updaterService,
     logDir: path.join(dirs.userData, "logs"),
     logFile: path.join(dirs.userData, "logs", "main.log"),
     store,

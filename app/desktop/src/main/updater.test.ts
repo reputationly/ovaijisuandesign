@@ -96,6 +96,33 @@ describe("自动更新：状态机", () => {
     expect(svc.getState().state.error).toBeNull();
   });
 
+  it("已经是最新时**不能**因为 checkForUpdates 有返回值就报 available", async () => {
+    // electron-updater 的 `checkForUpdates()` 即使没有新版也会 resolve，返回值里带的是
+    // 「线上当前是哪个版本」。「有没有新版」的判据是 update-not-available 那个事件。
+    // 只看返回值就会把「已是最新」报成「有新版」——
+    // 拿装好的包真跑一次才抓到：状态是 not-available，返回值却是 available。
+    const u = fakeUpdater();
+    u.checkForUpdates = vi.fn(async () => {
+      // 事件在 await 返回之前就打了（真实 electron-updater 就是这个顺序）
+      (u as unknown as { emit: (e: string, a?: unknown) => void }).emit("update-not-available");
+      return { version: "30.21.5" };
+    });
+    const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
+    expect(await svc.check()).toEqual({ status: "not-available" });
+    expect(svc.getState().state.phase).toBe("not-available");
+  });
+
+  it("有新版时事件和返回值都要给出 available", async () => {
+    const u = fakeUpdater();
+    u.checkForUpdates = vi.fn(async () => {
+      (u as unknown as { emit: (e: string, a?: unknown) => void }).emit("update-available", { version: "30.21.6" });
+      return { version: "30.21.6" };
+    });
+    const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
+    expect(await svc.check()).toEqual({ status: "available", version: "30.21.6" });
+    expect(svc.getState().state.phase).toBe("available");
+  });
+
   it("autoDownload 关掉：下载必须由用户点，available 和 downloaded 才是两个能分辨的阶段", async () => {
     const u = fakeUpdater();
     const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));

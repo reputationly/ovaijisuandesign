@@ -56,6 +56,15 @@ export interface RawIpcDeps {
   triggerMenu: (actionId: string, sender: Electron.WebContents) => void | Promise<void>;
   /** opencode 需要按新配置重启（技能开关变更后渲染层会调）。 */
   restartOpencode: () => Promise<void>;
+  /**
+   * 自动更新服务。和 `registerChannel("updater", …)` 那个是**同一个实例**。
+   *
+   * 以前这里是 `handle("updater:check", () => ({ accepted: false }))` —— 一个
+   * 硬编码的桩，写它的时候还没有自动更新（preload 注释原话：「没有自动更新，
+   * 给占位实现」）。现在真服务有了，桩就成陷阱了：名字一模一样，静默返回
+   * `accepted:false`，谁都不会知道它根本没接上。
+   */
+  updater: { check: (opts?: { userTriggered?: boolean }) => Promise<unknown> };
   log: (level: string, message: string) => void;
 }
 
@@ -267,7 +276,10 @@ export function registerRawIpc(deps: RawIpcDeps): void {
       // 与渲染层约定：重启失败不抛
     }
   });
-  handle("updater:check", () => ({ accepted: false }));
+  // 直通真服务。**不要**再写回 `{ accepted: false }` 那种桩 ——
+  // 它和下面 `registerChannel("updater")` 是同一个服务的两条入口，
+  // 返回值直接透传（`{status, version?, error?}`），渲染层自己看。
+  handle("updater:check", (_e, options?: unknown) => deps.updater.check((options ?? {}) as { userTriggered?: boolean }));
   handle("updater:get-version", () => app.getVersion());
   // 没有热更新：没装热更新包（版本 null），检查一律报禁用
   handle("hot-update:check", () => ({ success: false, error: "Hot update disabled", currentVersion: null }));

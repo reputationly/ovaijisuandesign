@@ -218,6 +218,25 @@ export class UpdaterService {
     try {
       const info = await this.updater.checkForUpdates();
       const latest = readVersion(info);
+      // **先看事件，再看返回值。**
+      //
+      // electron-updater 的 `checkForUpdates()` **即使没有新版也会 resolve**，
+      // 返回值里带着的是「线上当前是哪个版本」。「有没有新版」的判据是
+      // `update-available` / `update-not-available` 那两个事件，而它们在 await
+      // 返回之前就已经打过、状态已经落好了。
+      //
+      // 顺序反了就会把「已是最新」报成「有新版」。真跑一次装好的包才抓到：
+      //
+      //     [updater] checking
+      //     Update for version 30.21.5 is not available
+      //     [updater] not-available
+      //     ……而 check() 返回的是 { status: "available", version: "30.21.5" }
+      //
+      // 官方 UI 读的是 state 而不是返回值，所以横幅当时没出错 —— 但任何按
+      // 返回值判断的调用方都会被骗。
+      if (this.state.phase === "not-available") {
+        return { status: "not-available" };
+      }
       if (!latest) {
         this.patch({ phase: "not-available", targetVersion: null });
         return { status: "not-available" };
