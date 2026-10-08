@@ -100,15 +100,24 @@ jobs:
         shell: bash
         run: node scripts/stage-desktop-resources.mjs --rebuild
 
+      # 更新源**必须作为构建期变量给进去**，然后由核对那步断言它编进了产物。
+      # 出包时传而不核对的话，「变量没被固化」这件事只有真装一次才能发现 ——
+      # v3.0.21.4 就是这么坏的：包能装能跑，就是永远收不到更新。
+      # 这里刻意也带上，好让回归在每个 PR 上就被抓住，而不是等发版。
       - name: 出包
         shell: bash
         working-directory: app/desktop
+        env:
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
 
       # 产物对不上契约不会让 electron-builder 报错 —— 它只管把 build-resources 搬过去。
       # 坏掉的症状要等用户装完才发现（agent 起不来 / 首页空白），所以这里逐条断言。
       - name: 核对产物 resources 布局
         shell: bash
+        env:
+          # 和出包那步同一个值。核对要断言的就是「出包时用的那个更新源真编进去了」。
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
         run: node scripts/verify-desktop-package.mjs
 
       - uses: actions/upload-artifact@v4

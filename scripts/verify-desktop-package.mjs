@@ -307,6 +307,81 @@ function findResources(explicit) {
   return null;
 }
 
+/**
+ * 读主进程的构建产物（`out/main/index.js`，被打进 asar）。
+ * 只读前 N 字节足够找到那两样东西。
+ */
+function readMainBundle(resources) {
+  // asar 里的路径是 out/main/index.js。用 asarAppVersion 那套偏移去定位它。
+  const asar = path.join(resources, "app.asar");
+  if (!existsSync(asar)) return { error: "产物里没有 app.asar" };
+  const fd = openSync(asar, "r");
+  try {
+    const head = Buffer.alloc(16);
+    readSync(fd, head, 0, 16, 0);
+    const headerSize = head.readUInt32LE(4);
+    const jsonLen = head.readUInt32LE(12);
+    const json = Buffer.alloc(jsonLen);
+    readSync(fd, json, 0, jsonLen, 16);
+    const files = JSON.parse(json.toString("utf8")).files ?? {};
+    // 逐层找 out/main/index.js（asar 目录是嵌套的）
+    let node = files;
+    for (const part of ["out", "main"]) {
+      node = node?.[part]?.files;
+      if (!node) return { error: `asar 里找不到 out/${part}/…` };
+    }
+    const entry = node["index.js"];
+    if (!entry) return { error: "asar 里找不到 out/main/index.js" };
+    const n = Math.min(entry.size, 4 * 1024 * 1024);
+    const buf = Buffer.alloc(n);
+    readSync(fd, buf, 0, n, 8 + headerSize + Number(entry.offset));
+    return { text: buf.toString("utf8") };
+  } catch (err) {
+    return { error: `读 app.asar 失败：${err.message}` };
+  } finally {
+    closeSync(fd);
+  }
+}
+
+/**
+ * 更新源必须真的在产物里，而且 `process.env.OV_UPDATE_FEED_BASE` 这个字面量
+ * **必须已经不见了。
+ *
+ * ## 为什么要查字面量
+ *
+ * 只查「产物里含那个 URL」不够 —— 主进程 bundle 里有几百个字符串，
+ * 万一别处也引用了同一个域名，这条会假绿。查「**那个表达式不见了**」才是
+ * 真的在验证 define 生效：还在，就说明它仍然是运行时才求值的 `process.env.X`，
+ * 而出包时传进去的环境变量到不了运行中的应用。
+ *
+ * 症状极其难认：包能装、能启动、能生成，就是**永远收不到更新**，而且
+ * 主进程只在日志里打一行「未配置 OV_UPDATE_FEED_BASE」。
+ * 真踩过一次：v3.0.21.4 装到 mac 上手工读 asar 才发现 CDN 域名根本不在里面。
+ */
+function checkUpdateFeed(resources, expect) {
+  const main = readMainBundle(resources);
+  if (main.error) {
+    console.log(`  ❌ ${main.error} —— 无从确认更新源有没有编进去`);
+    return 1;
+  }
+  let bad = 0;
+  if (main.text.includes(expect)) {
+    console.log(`  ✅ 主进程产物里已固化更新源：${expect}`);
+  } else {
+    bad++;
+    console.log(`  ❌ 主进程产物里**没有** ${expect}`);
+    console.log(`     —— 出包时传的 OV_UPDATE_FEED_BASE 是**构建进程**的环境变量，`);
+    console.log(`        不会到运行中的应用。electron.vite.config.ts 的 main.define 必须固化它。`);
+  }
+  if (main.text.includes("process.env.OV_UPDATE_FEED_BASE")) {
+    bad++;
+    console.log(`  ❌ 产物里还留着 process.env.OV_UPDATE_FEED_BASE 这个字面量 —— define 没生效`);
+  } else {
+    console.log(`  ✅ 产物里已没有 process.env.OV_UPDATE_FEED_BASE 字面量（确实被固化了）`);
+  }
+  return bad;
+}
+
 function main() {
   const argv = process.argv.slice(2);
   // `--expect-version <编码后的三段>`：发版流水线传，用来断言包和清单带的是
@@ -421,6 +496,15 @@ function main() {
   if (expect) {
     console.log(`\n版本（期望 ${expect}，人读四段在 tag 和存储路径上，客户端比的是这个三段）`);
     bad += checkVersion(resources, expect);
+  }
+
+  // 更新源。**期望值从环境变量读**（`OV_UPDATE_FEED_BASE`）而不是另设一个 ——
+  // 「出包时用的那个值」和「这里断言的那个值」必须是同一个来源，
+  // 写成两个地方就会各自漂移，然后离线谁也发现不了。
+  const feed = (process.env.OV_UPDATE_FEED_BASE || "").trim();
+  if (feed) {
+    console.log(`\n更新源（期望 ${feed}）`);
+    bad += checkUpdateFeed(resources, feed);
   }
 
   console.log(bad === 0 ? "\n✓ 产物布局符合契约" : `\n✗ ${bad} 项不符`);

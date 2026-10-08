@@ -200,10 +200,17 @@ jobs:
         shell: bash
         working-directory: app/desktop
         env:
+          # 这个值由 electron.vite.config.ts 的 main.define **固化进主进程产物**。
+          # 它必须是构建期常量 —— 运行时 `process.env` 读不到出包时传进去的变量
+          # （v3.0.21.4 就是这么坏掉的：包能装能跑，就是永远收不到更新）。
           OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
       - name: 核对产物 resources 布局与架构
         shell: bash
+        env:
+          # **和上面那一步同一个值。** 核对要断言的就是「出包时用的那个更新源
+          # 真的编进去了」，两处写两个地方就会各自漂移，离线谁也发现不了。
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
         run: node scripts/verify-desktop-package.mjs --expect-version "${{ needs.prepare.outputs.semver }}"
 
       - uses: actions/upload-artifact@v4
