@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "//": "globalEnv：turbo 2.x 默认 strict env 模式，不声明就把变量从任务进程里剥掉。OPENCODE_BIN 是开发时指定 agent 二进制的入口（app/desktop/src/main/opencode/index.ts 的 locateOpencode），OV_UI 选要加载的界面目录（protocol.ts）。",
-  "globalEnv": ["OPENCODE_BIN", "OV_UI"],
+  "//": "globalEnv：turbo 2.x 默认 strict env 模式，不声明就把变量从任务进程里剥掉（而且缓存键里也没有它）。OPENCODE_BIN 是开发时指定 agent 二进制的入口（app/desktop/src/main/opencode/index.ts 的 locateOpencode），OV_UI 选要加载的界面目录（protocol.ts）。OV_UPDATE_FEED_BASE 是更新源，**构建期**由 electron.vite.config.ts 的 main.define 固化进主进程 —— 漏在这里会出一个能装能跑、但永远收不到更新的包，而 CI 全绿，只有装到机器上点「检查更新」才发现。scripts/verify-desktop-package.mjs 的 checkUpdateFeed 专门盯这个。",
+  "globalEnv": ["OPENCODE_BIN", "OV_UI", "OV_UPDATE_FEED_BASE"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "out/**"] },
     "typecheck": { "dependsOn": ["^build"] },
