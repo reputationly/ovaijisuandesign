@@ -177,7 +177,15 @@ jobs:
           command -v python3 >/dev/null 2>&1 || PY=python
           "$PY" scripts/set-desktop-version.py "$V"
 
+      # **这个变量必须加在「build」这一步，不是 electron-builder 那一步。**
+      # `electron-vite build` 跑在上面的 turbo build 里，define 是在那时求值的；
+      # electron-builder 只是把已经生成的 out/ 打包，它再带这个变量也没用。
+      #
+      # 踩过一次：只加在 electron-builder 步上，CI 上构建出来的主进程 bundle 里
+      # 根本没有那个 URL —— 而新加的核对断言当场报红（这正是它存在的意义）。
       - run: pnpm turbo run build
+        env:
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
 
       # 两个离线自检（不联网，几秒钟）。平台分支和取件逻辑里有 mac 跑不到的分支，
       # 没有它们就只能靠一整轮试错去撞。
@@ -199,11 +207,6 @@ jobs:
       - name: 出包
         shell: bash
         working-directory: app/desktop
-        env:
-          # 这个值由 electron.vite.config.ts 的 main.define **固化进主进程产物**。
-          # 它必须是构建期常量 —— 运行时 `process.env` 读不到出包时传进去的变量
-          # （v3.0.21.4 就是这么坏掉的：包能装能跑，就是永远收不到更新）。
-          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
       - name: 核对产物 resources 布局与架构
         shell: bash

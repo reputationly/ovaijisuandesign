@@ -68,7 +68,12 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # 更新源变量必须给到**这一步**：`electron-vite build` 在这里跑，
+      # electron.vite.config.ts 的 main.define 也在这里求值。
+      # electron-builder 那一步再带也没用 —— 它只打包已经生成好的 out/。
       - run: pnpm turbo run build
+        env:
+          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
 
       # 平台相关分支的离线自检：hostTarget / extractCommand / pmCli 三个纯函数，
       # 用 fixture 目录把 mac 和 Windows 的每条分支都跑一遍。
@@ -100,15 +105,11 @@ jobs:
         shell: bash
         run: node scripts/stage-desktop-resources.mjs --rebuild
 
-      # 更新源**必须作为构建期变量给进去**，然后由核对那步断言它编进了产物。
-      # 出包时传而不核对的话，「变量没被固化」这件事只有真装一次才能发现 ——
-      # v3.0.21.4 就是这么坏的：包能装能跑，就是永远收不到更新。
-      # 这里刻意也带上，好让回归在每个 PR 上就被抓住，而不是等发版。
+      # 这里**不需要**再带更新源变量：`electron-vite build` 已经在上面那步跑完，
+      # define 也已经求值完。electron-builder 只负责把生成好的 out/ 打包。
       - name: 出包
         shell: bash
         working-directory: app/desktop
-        env:
-          OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
         run: npx --yes electron-builder@26.15.3 ${{ matrix.target }} --publish never
 
       # 产物对不上契约不会让 electron-builder 报错 —— 它只管把 build-resources 搬过去。
