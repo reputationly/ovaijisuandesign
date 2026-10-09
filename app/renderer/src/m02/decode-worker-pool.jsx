@@ -209,7 +209,7 @@ function defaultWorkerFactory() {
   return new Worker(
     new URL(
       /* @vite-ignore */
-      "" + new URL("decode-worker-DBC09hCG.js", import.meta.url).href,
+      "" + new URL("../decode-worker-DBC09hCG.js", import.meta.url).href,
       import.meta.url,
     ),
     {

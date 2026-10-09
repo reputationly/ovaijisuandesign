@@ -184,7 +184,7 @@ function ImageViewer({ filePath, displayName: displayName2 }) {
   );
 }
 var __webpack_exports__GlobalWorkerOptions = __webpack_exports__.GlobalWorkerOptions;
-const pdfWorkerUrl = "" + new URL("pdf.worker.min-yatZIOMy.mjs", import.meta.url).href;
+const pdfWorkerUrl = "" + new URL("../pdf.worker.min-yatZIOMy.mjs", import.meta.url).href;
 __webpack_exports__GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 function PdfViewer({ filePath, paneWidth, interactive, displayName: displayName2, sizeLabel }) {
   const { t: t2 } = useTranslation();

@@ -35,7 +35,7 @@ function renderInWorker(params) {
     const worker = new Worker(
       new URL(
         /* @vite-ignore */
-        "" + new URL("relight-reference.worker-Dx90rBtG.js", import.meta.url).href,
+        "" + new URL("../relight-reference.worker-Dx90rBtG.js", import.meta.url).href,
         import.meta.url,
       ),
       {
