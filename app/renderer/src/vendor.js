@@ -237752,11 +237752,11 @@ const Route$8 = createFileRoute("/_home/projects/")({
   validateSearch: parseProjectListSearch,
   component: lazyRouteComponent($$splitComponentImporter$8, "component")
 });
-const $$splitComponentImporter$7 = () => (() => import("./index-BCQ6qH4b.js"))();
+const $$splitComponentImporter$7 = () => (() => import("./creations/index.jsx"))();
 const Route$7 = createFileRoute("/_home/creations/")({
   component: lazyRouteComponent($$splitComponentImporter$7, "component")
 });
-const $$splitComponentImporter$6 = () => (() => import("./index-BA4RHGot.js"))();
+const $$splitComponentImporter$6 = () => (() => import("./changelog/index.jsx"))();
 const Route$6 = createFileRoute("/_home/changelog/")({
   component: lazyRouteComponent($$splitComponentImporter$6, "component"),
   validateSearch: search2 => ({
