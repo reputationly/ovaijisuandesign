@@ -11,8 +11,7 @@ import {
 import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { getFileName$1 } from "../canvas/uploading-assets.jsx";
-
+import { getFileName } from "../canvas/uploading-assets.jsx";
 export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
   const ta2 = timeA ?? "";
   const tb = timeB ?? "";
@@ -23,21 +22,15 @@ export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
   if (cmp2 !== 0) return sortOrder === "desc" ? -cmp2 : cmp2;
   return keyA.localeCompare(keyB);
 }
-
 export function matchesTagFilter(tagIds, tagFilters) {
   if (!tagFilters || tagFilters.length === 0) return true;
   if (!tagIds || tagIds.length === 0) return false;
   return tagFilters.some((id2) => tagIds.includes(id2));
 }
-
 export const DEFAULTS = WORKSPACE_STORAGE_DEFAULTS.assetPanel;
-
 const VALID_CATEGORIES = ["image", "video", "audio", "text", "other"];
-
 const VALID_DATE_KINDS = ["all", "today", "last7days", "last30days", "custom"];
-
 const VALID_SORT = ["desc", "asc"];
-
 export function normalizeAssetPanelPreferences(raw2) {
   if (!raw2 || typeof raw2 !== "object") return DEFAULTS;
   const r2 = raw2;
@@ -105,11 +98,9 @@ export function normalizeAssetPanelPreferences(raw2) {
     sortOrder,
   };
 }
-
 function preferredSeparator(path2) {
   return path2.includes("\\") && !path2.includes("/") ? "\\" : "/";
 }
-
 export function joinFilePath(parent, child) {
   if (!parent) return child;
   const sep = preferredSeparator(parent);
@@ -118,14 +109,12 @@ export function joinFilePath(parent, child) {
     return `${parent}${normalizedChild}`;
   return `${parent}${sep}${normalizedChild}`;
 }
-
 export function getParentDir(path2) {
   const slash2 = path2.lastIndexOf("/");
   const backslash2 = path2.lastIndexOf("\\");
   const idx = Math.max(slash2, backslash2);
   return idx >= 0 ? path2.slice(0, idx) : "";
 }
-
 export function toRelativeFromRoot(rootPath, absPath) {
   if (!rootPath) return absPath;
   const sep = preferredSeparator(rootPath);
@@ -136,7 +125,6 @@ export function toRelativeFromRoot(rootPath, absPath) {
   if (!absPath.startsWith(prefix)) return absPath;
   return absPath.slice(prefix.length).replace(/\\/g, "/");
 }
-
 export function generateCopyName(name2, isDirectory) {
   if (isDirectory) {
     const match22 = name2.match(/^(.+)\((\d+)\)$/);
@@ -159,9 +147,7 @@ export function generateCopyName(name2, isDirectory) {
   }
   return `${baseName}(1)${ext}`;
 }
-
 const LEGACY_DRAG_MIME = "application/x-file-explorer-path";
-
 export function extractDropSourcePaths(dataTransfer) {
   const parsed = parseResourceDrag({
     dataTransfer,
@@ -172,14 +158,12 @@ export function extractDropSourcePaths(dataTransfer) {
   const legacySingle = dataTransfer.getData(LEGACY_DRAG_MIME);
   return legacySingle ? [legacySingle] : [];
 }
-
 export function isInvalidDropTarget(sourcePaths, targetPath) {
   for (const src of sourcePaths) {
     if (src === targetPath || targetPath.startsWith(`${src}/`)) return true;
   }
   return false;
 }
-
 export function useFileExplorerCanvasIntegration({
   selectedPaths,
   toRelativePath,
@@ -195,7 +179,7 @@ export function useFileExplorerCanvasIntegration({
       : [anchorAbsPath];
     const items = pathsToAdd.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName$1(absPath);
+      const name2 = getFileName(absPath);
       const treeEntry = findEntryByPath(filteredTree, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);

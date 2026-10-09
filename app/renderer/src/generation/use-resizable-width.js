@@ -1,10 +1,8 @@
 // use-resizable-width.js
 import { reactDomExports, reactExports } from "../vendor.js";
-
-function clamp$2(value, min2, max2) {
+function clamp(value, min2, max2) {
   return Math.min(max2, Math.max(min2, value));
 }
-
 export function useResizableWidth({
   defaultWidth,
   minWidth,
@@ -16,7 +14,7 @@ export function useResizableWidth({
   const [width, setWidth] = reactExports.useState(() => {
     const seed = externalValue ?? storage?.read();
     return typeof seed === "number" && Number.isFinite(seed)
-      ? clamp$2(seed, minWidth, maxWidth)
+      ? clamp(seed, minWidth, maxWidth)
       : defaultWidth;
   });
   const [isDragging, setIsDragging] = reactExports.useState(false);
@@ -63,13 +61,13 @@ export function useResizableWidth({
     ) {
       return;
     }
-    const next2 = clamp$2(externalValue, minWidth, maxWidth);
+    const next2 = clamp(externalValue, minWidth, maxWidth);
     latestW.current = next2;
     setWidth((previous2) => (previous2 === next2 ? previous2 : next2));
   }, [externalValue, maxWidth, minWidth]);
   const onValueChange = reactExports.useCallback(
     (value) => {
-      const next2 = clamp$2(value, minWidth, maxWidth);
+      const next2 = clamp(value, minWidth, maxWidth);
       latestW.current = next2;
       setWidth(next2);
       storage?.write(Math.round(next2));
@@ -90,7 +88,7 @@ export function useResizableWidth({
         const delta = invertDelta
           ? startX.current - ev.clientX
           : ev.clientX - startX.current;
-        const next2 = clamp$2(startW.current + delta, minWidth, maxWidth);
+        const next2 = clamp(startW.current + delta, minWidth, maxWidth);
         latestW.current = next2;
         reactDomExports.flushSync(() => setWidth(next2));
       };

@@ -2,17 +2,12 @@
 import {
   DEFAULT_WORKFLOW_LAYER_SPACING,
   DEFAULT_WORKFLOW_NODE_SPACING,
-  rectsOverlap$1,
+  rectsOverlap,
 } from "./ungroup-in-canvas.js";
-
 const LEGACY_WORKFLOW_NODE_SPACING = 100;
-
 const MAX_STACK_PER_COLUMN = 5;
-
 const COLUMN_X_TOLERANCE = 10;
-
 const DEFAULT_MAX_DERIVED_COLLISION_SHIFT = 1200;
-
 function resolveDerivedCollision(
   candidate,
   fallbackSize,
@@ -41,7 +36,7 @@ function resolveDerivedCollision(
     h: h2,
   };
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const blocker = occupied.find((o2) => rectsOverlap$1(rect, o2, margin));
+    const blocker = occupied.find((o2) => rectsOverlap(rect, o2, margin));
     if (!blocker)
       return {
         x: rect.x,
@@ -70,7 +65,7 @@ function resolveDerivedCollision(
   rect.x = originX;
   rect.y = originY;
   for (let attempt = 0; attempt <= occupied.length; attempt++) {
-    const blocker = occupied.find((item) => rectsOverlap$1(rect, item, margin));
+    const blocker = occupied.find((item) => rectsOverlap(rect, item, margin));
     if (!blocker)
       return {
         x: rect.x,
@@ -87,7 +82,6 @@ function resolveDerivedCollision(
     y: rect.y,
   };
 }
-
 function rightmostPeerColumn(peers) {
   const columns = [];
   for (const peer of peers) {
@@ -105,7 +99,6 @@ function rightmostPeerColumn(peers) {
   }
   return columns.reduce((a2, b3) => (b3.x > a2.x ? b3 : a2)).peers;
 }
-
 function localityRectsAreConnected(a2, b3, maxGap) {
   const horizontalGap = Math.max(
     0,
@@ -119,7 +112,6 @@ function localityRectsAreConnected(a2, b3, maxGap) {
   );
   return horizontalGap <= maxGap && verticalGap <= maxGap;
 }
-
 function localityRectGapSquared(a2, b3) {
   const horizontalGap = Math.max(
     0,
@@ -133,7 +125,6 @@ function localityRectGapSquared(a2, b3) {
   );
   return horizontalGap * horizontalGap + verticalGap * verticalGap;
 }
-
 function localDerivedPeers(source, peers, siblingGap, layerGap, newSize) {
   if (peers.length === 0) return peers;
   const sourceSideAnchor = {
@@ -204,7 +195,6 @@ function localDerivedPeers(source, peers, siblingGap, layerGap, newSize) {
   }
   return local;
 }
-
 export function computeDerivedNodePosition(
   source,
   peers,

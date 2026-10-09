@@ -15,13 +15,11 @@ import {
   buildInternalClipboardItemData,
   writeCanvasSystemClipboard,
 } from "./reorder-parents-before-children.js";
-
 function isCanvasInteractive(rootEl, enabled = true) {
   if (!enabled) return false;
   if (rootEl === null) return true;
   return rootEl.offsetParent !== null;
 }
-
 function isInsideCanvas(target) {
   if (typeof window !== "undefined") {
     const sel = window.getSelection();
@@ -46,7 +44,6 @@ function isInsideCanvas(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
   return target.closest('.react-flow, [data-hilo-canvas-root="true"]') !== null;
 }
-
 function collectClipboardFiles(data2) {
   if (!data2) return [];
   const collected = [];
@@ -80,7 +77,6 @@ function collectClipboardFiles(data2) {
   }
   return collected;
 }
-
 function isFromInternalNativeCopy(files, internalNodes) {
   if (files.length === 0 || files.length !== internalNodes.length) return false;
   const fileNames = new Set(files.map((f2) => f2.name));
@@ -95,7 +91,6 @@ function isFromInternalNativeCopy(files, internalNodes) {
     );
   });
 }
-
 function resolveCanvasShortcut(event) {
   if (event.metaKey || event.ctrlKey || event.altKey) return void 0;
   if (event.shiftKey && event.code === "KeyI") return CANVAS_COMMAND_IDS.assets;
@@ -123,30 +118,24 @@ function resolveCanvasShortcut(event) {
       return void 0;
   }
 }
-
 const INTERNAL_COPY_MARKER = "​[hilo-canvas-internal-copy]​";
-
 function hasInternalCopyMarker(text2, html2) {
   return (
     text2 === INTERNAL_COPY_MARKER ||
     html2.includes(INTERNAL_COPY_HTML_ATTRIBUTE)
   );
 }
-
 function getCopiedSystemText() {
   return copiedSystemText;
 }
-
 function makeAssetPathResolver(assetMetadataStore) {
   return (assetId) => assetMetadataStore.getState().get(assetId)?.path;
 }
-
-function isEditableTarget$2(target) {
+function isEditableTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
   return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
 }
-
 function decidePasteIntent(input) {
   const {
     text: text2,
@@ -185,7 +174,6 @@ function decidePasteIntent(input) {
     kind: "internal-fallback",
   };
 }
-
 export function useKeyboardShortcuts(instance2, options = {}) {
   const assetMetadataStore = useAssetMetadataApi();
   const {
@@ -237,7 +225,7 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     };
     const handleCopy = (e2) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget$2(e2.target)) return;
+      if (isEditableTarget(e2.target)) return;
       if (!isInsideCanvas(e2.target)) return;
       if (instance2.selection.getSelected().length === 0) return;
       e2.preventDefault();
@@ -249,7 +237,7 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     };
     const handleCut = (e2) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget$2(e2.target)) return;
+      if (isEditableTarget(e2.target)) return;
       if (!isInsideCanvas(e2.target)) return;
       if (instance2.selection.getSelected().length === 0) return;
       e2.preventDefault();
@@ -261,7 +249,7 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     };
     const handlePaste2 = (e2) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget$2(e2.target)) return;
+      if (isEditableTarget(e2.target)) return;
       if (!isInsideCanvas(e2.target)) return;
       const text2 = e2.clipboardData?.getData("text/plain") ?? "";
       const html2 = e2.clipboardData?.getData("text/html") ?? "";
@@ -294,7 +282,7 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     const handler = (e2) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
       if (e2.defaultPrevented) return;
-      if (isEditableTarget$2(e2.target)) return;
+      if (isEditableTarget(e2.target)) return;
       if (e2.isComposing || e2.key === "Process") return;
       if (
         !e2.defaultPrevented &&

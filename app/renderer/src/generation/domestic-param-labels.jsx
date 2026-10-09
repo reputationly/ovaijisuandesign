@@ -8,18 +8,16 @@ import {
   Video,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { VIDEO_DISPATCHER_TOOL } from "../chat/use-tool-confirm-settlement.js";
 import { resolveMediaTaskCategory } from "../chat/has-structured-success-payload.js";
 import { Clapperboard, ImageOutlineIcon } from "../media-editing/package.jsx";
-
 function nextProductionPlanExpanded(expanded, event) {
   if (event === "plan-discovered") return expanded ?? true;
   if (event === "message-sent" || event === "manually-collapsed") return false;
   if (event === "timeline-opened" || event === "manually-expanded") return true;
   return expanded ?? false;
 }
-
 export function updateProductionPlanDisclosureState(
   current2,
   conversationKey,
@@ -32,17 +30,13 @@ export function updateProductionPlanDisclosureState(
   next2.set(conversationKey, nextExpanded);
   return next2;
 }
-
 export function canOpenProductionPlan(activePlanId, requestedPlanId) {
   return Boolean(activePlanId && requestedPlanId === activePlanId);
 }
-
 export function productionPlanDisclosureKey(sessionId) {
   return sessionId ? `session:${sessionId}` : void 0;
 }
-
 export const ToolConfirmEditsContext = reactExports.createContext(null);
-
 export const INTERNAL_KEYS = new Set([
   // system-injected / opaque
   "filename",
@@ -95,17 +89,11 @@ export const INTERNAL_KEYS = new Set([
   "target_width",
   "target_height",
 ]);
-
 export const MODEL_NAME_KEYS = new Set(["model", "model_name", "model_id"]);
-
 const MINIMAX_H3_MODEL_ID = "MiniMax-H3";
-
 const MINIMAX_H3_RESOLUTIONS = ["768P", "2K"];
-
 const BATCH_PROMPT_KEYS = new Set(["prompts", "texts"]);
-
 export const LOCKED_COMFYUI_DRAFT_VALUE = "minimax h3";
-
 export function comfyUiDraftParameters(value) {
   if (!Array.isArray(value)) return [];
   const controls = new Set([
@@ -135,7 +123,6 @@ export function comfyUiDraftParameters(value) {
     return [entry];
   });
 }
-
 export function comfyUiInputBindings(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -148,13 +135,11 @@ export function comfyUiInputBindings(value) {
       : [];
   });
 }
-
 export function isProtectedComfyUiModelParameter(parameter) {
   return /^(?:model(?:_name|_id)?|ckpt(?:_name)?|checkpoint(?:_name)?|vae(?:_name)?|unet(?:_name)?|clip(?:_name)?|lora(?:_name)?|diffusion_model(?:_name)?)$/i.test(
     parameter,
   );
 }
-
 export function comfyUiRunInputValues(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -173,13 +158,11 @@ export function comfyUiRunInputValues(value) {
       : [];
   });
 }
-
 export function isComfyUiPromptParameter(parameter) {
   return /(?:^|[._])(?:positive_prompt|negative_prompt|prompt)$/i.test(
     parameter,
   );
 }
-
 export function mergeComfyUiInputValues(preflightValues, explicitValues) {
   const values3 = new Map();
   for (const entry of preflightValues) {
@@ -194,7 +177,6 @@ export function mergeComfyUiInputValues(preflightValues, explicitValues) {
   }
   return [...values3.values()];
 }
-
 export const VENDOR_PARAM_KEYS = new Set([
   // image dispatcher
   "aspect_ratio",
@@ -210,15 +192,12 @@ export const VENDOR_PARAM_KEYS = new Set([
   // sit in the PM-decided "advanced" bucket (INTERNAL_KEYS) and never
   // render in the inline card.
 ]);
-
 export function isVendorParamsObject(v2) {
   return v2 != null && typeof v2 === "object" && !Array.isArray(v2);
 }
-
 function isMiniMaxH3ModelValue(value) {
   return typeof value === "string" && value.trim() === MINIMAX_H3_MODEL_ID;
 }
-
 function isMiniMaxH3ConfirmArgs(args) {
   for (const key2 of MODEL_NAME_KEYS) {
     if (isMiniMaxH3ModelValue(args[key2])) return true;
@@ -231,7 +210,6 @@ function isMiniMaxH3ConfirmArgs(args) {
   }
   return false;
 }
-
 export function withMiniMaxH3ParamHints(args, hints) {
   if (!isMiniMaxH3ConfirmArgs(args)) return hints;
   const resolutionHint = {
@@ -246,7 +224,6 @@ export function withMiniMaxH3ParamHints(args, hints) {
     resolution: resolutionHint,
   };
 }
-
 const DOMESTIC_PARAM_LABELS = {
   // content
   prompt: "提示词",
@@ -318,15 +295,13 @@ const DOMESTIC_PARAM_LABELS = {
   // DAG
   inputs: "参数",
 };
-
 export function getParamLabel(key2) {
   if (getRuntimeConfig().region === "domestic") {
     return DOMESTIC_PARAM_LABELS[key2] ?? key2;
   }
   return key2;
 }
-
-export const CATEGORY_ICON$1 = {
+export const CATEGORY_ICON = {
   imageGen: ImageOutlineIcon,
   videoGen: Video,
   videoEdit: Scissors,
@@ -334,9 +309,7 @@ export const CATEGORY_ICON$1 = {
   musicGen: Music,
   other: Clapperboard,
 };
-
 export const resolveTaskCategory = resolveMediaTaskCategory;
-
 export function mediaKindForKey(key2) {
   if (
     key2 === "image_path" ||
@@ -371,14 +344,12 @@ export function mediaKindForKey(key2) {
   }
   return void 0;
 }
-
 export function acceptForMediaKind(kind) {
   if (kind === "image") return "image/*";
   if (kind === "video") return "video/*";
   if (kind === "audio") return "audio/*";
   return void 0;
 }
-
 export function mediaValues(value) {
   if (typeof value === "string" && value.length > 0) {
     if (value.startsWith("[")) {
@@ -398,12 +369,10 @@ export function mediaValues(value) {
   }
   return [];
 }
-
 export function stringifyParamValue(value) {
   if (typeof value === "object" && value !== null) return JSON.stringify(value);
   return String(value ?? "");
 }
-
 export function isInheritedSeedance25Param(tool2, args, paramKey) {
   if (
     tool2 !== VIDEO_DISPATCHER_TOOL ||
@@ -423,7 +392,6 @@ export function isInheritedSeedance25Param(tool2, args, paramKey) {
   }
   return paramKey === "duration" && mode2 === "video-edit";
 }
-
 export function batchPageCountForArgs(args, keys2) {
   let count2 = 1;
   for (const key2 of keys2) {
@@ -438,18 +406,15 @@ export function batchPageCountForArgs(args, keys2) {
   }
   return count2;
 }
-
 export function valueAtBatchPage(value, pageIndex, pageCount) {
   if (pageCount > 1 && Array.isArray(value) && value.length === pageCount) {
     return value[pageIndex];
   }
   return value;
 }
-
 export function mediaItemId(paramKey, index2) {
   return `${paramKey}:${index2}`;
 }
-
 export function uploadedRelativePath(body2) {
   if (!body2 || typeof body2 !== "object") return void 0;
   const record2 = body2;
@@ -459,17 +424,15 @@ export function uploadedRelativePath(body2) {
     return record2.path;
   return void 0;
 }
-
 export function updateIndexedMediaValue(current2, index2, nextPath) {
   if (!Array.isArray(current2)) return nextPath;
   return current2.map((item, i2) => (i2 === index2 ? nextPath : item));
 }
-
 export function AudioBarsIcon({ className }) {
   return (
     <AudioLines
       aria-hidden="true"
-      className={cn$2("size-4", className)}
+      className={cn("size-4", className)}
       strokeWidth={2}
     />
   );

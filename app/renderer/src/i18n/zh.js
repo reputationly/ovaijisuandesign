@@ -1,7 +1,7 @@
 // zh.js
 import { initReactI18next, instance } from "../vendor.js";
 import { getDefaultLanguage } from "../vendor-inline/vscode-base/linked-list.js";
-import { en$2 } from "./en.js";
+import { en as en$2 } from "./en.js";
 import {
   canvas_lyrics,
   error_auth_unauthorized,
@@ -15,7 +15,6 @@ import {
   error_seedance_member_locked,
   model_input_error_general,
 } from "../infra/error-safety-image-output-blocked.js";
-
 const zh = {
   "assetPicker.source.local": "本地上传",
   "assetPicker.source.task": "当前任务文件中选择",
@@ -9947,7 +9946,6 @@ const zh = {
   "uiSpec.icons.listPairing.hint":
     "可悬停、Tab 聚焦或点击列表项；此处仅演示交互。",
 };
-
 instance.use(initReactI18next).init({
   resources: {
     en: {

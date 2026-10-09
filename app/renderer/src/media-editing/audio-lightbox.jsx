@@ -1,8 +1,8 @@
 // audio-lightbox.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import {
-  MenuItem$3,
+  MenuItem$3 as MenuItem,
   MenuPopup,
   MenuPortal,
   MenuPositioner,
@@ -13,8 +13,7 @@ import {
 import { Download } from "./package.jsx";
 import { normalizeLegacyLightboxItems } from "./use-warn-missing-asset-meta.jsx";
 import { useLightboxMediaActions } from "./use-lightbox-media-actions.jsx";
-import { MediaLightbox$1 } from "./media-lightbox.jsx";
-
+import { MediaLightbox } from "./media-lightbox.jsx";
 function LightboxDownloadButton({ label, dataActionUiId, onClick, className }) {
   return (
     <button
@@ -22,7 +21,7 @@ function LightboxDownloadButton({ label, dataActionUiId, onClick, className }) {
       data-action-ui-id={dataActionUiId}
       aria-label={label}
       title={label}
-      className={cn$5(
+      className={cn(
         "pointer-events-auto flex size-7 cursor-pointer items-center justify-center rounded-full bg-black/55 text-white/80 transition-[background-color,color,transform] duration-150 hover:bg-black/70 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/60",
         className,
       )}
@@ -32,8 +31,7 @@ function LightboxDownloadButton({ label, dataActionUiId, onClick, className }) {
     </button>
   );
 }
-
-export const AudioLightbox$1 = reactExports.memo(function AudioLightbox2({
+export const AudioLightbox = reactExports.memo(function AudioLightbox2({
   src,
   name: name2,
   lyrics,
@@ -51,7 +49,7 @@ export const AudioLightbox$1 = reactExports.memo(function AudioLightbox2({
     });
   if (!current2?.url) return null;
   return (
-    <MediaLightbox$1 onClose={onClose} onContextMenu={handleContextMenu}>
+    <MediaLightbox onClose={onClose} onContextMenu={handleContextMenu}>
       <div
         className="flex flex-col items-center gap-4 cursor-default"
         onClick={(e2) => e2.stopPropagation()}
@@ -85,11 +83,10 @@ export const AudioLightbox$1 = reactExports.memo(function AudioLightbox2({
           />
         </div>
       )}
-    </MediaLightbox$1>
+    </MediaLightbox>
   );
 });
-
-export function DropdownMenuContent$1({
+export function DropdownMenuContent({
   className,
   positionerClassName,
   variant,
@@ -102,7 +99,7 @@ export function DropdownMenuContent$1({
   return (
     <MenuPortal>
       <MenuPositioner
-        className={cn$5("isolate z-50 outline-none", positionerClassName)}
+        className={cn("isolate z-50 outline-none", positionerClassName)}
         align={align}
         alignOffset={alignOffset}
         side={side}
@@ -110,7 +107,7 @@ export function DropdownMenuContent$1({
       >
         <MenuPopup
           data-slot="dropdown-menu-content"
-          className={cn$5(
+          className={cn(
             "z-50 flex max-h-(--available-height) min-w-32 origin-(--transform-origin) flex-col overflow-x-hidden overflow-y-auto rounded-lg p-1 outline-none dp-motion-quick-zoom",
             variant === "toolbar" && "canvas-toolbar-menu",
             className,
@@ -130,12 +127,11 @@ export function DropdownMenuContent$1({
     </MenuPortal>
   );
 }
-
-export function DropdownMenuItem$1({ className, ...props }) {
+export function DropdownMenuItem({ className, ...props }) {
   return (
-    <MenuItem$3
+    <MenuItem
       data-slot="dropdown-menu-item"
-      className={cn$5(
+      className={cn(
         "list-row-hit-area relative flex cursor-default items-center gap-2.5 rounded-sm px-3 py-2 text-[12px] outline-hidden select-none transition-colors duration-[80ms] hover:bg-[var(--canvas-controls-hover)] focus:bg-[var(--canvas-controls-hover)] data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
       )}
@@ -143,12 +139,11 @@ export function DropdownMenuItem$1({ className, ...props }) {
     />
   );
 }
-
-export function DropdownMenuSeparator$1({ className, ...props }) {
+export function DropdownMenuSeparator({ className, ...props }) {
   return (
     <hr
       data-slot="dropdown-menu-separator"
-      className={cn$5("mx-1 my-1 h-px border-none", className)}
+      className={cn("mx-1 my-1 h-px border-none", className)}
       style={{
         background:
           "var(--canvas-divider-subtle, var(--canvas-controls-border))",
@@ -157,12 +152,11 @@ export function DropdownMenuSeparator$1({ className, ...props }) {
     />
   );
 }
-
-export function DropdownMenuSubTrigger$1({ className, ...props }) {
+export function DropdownMenuSubTrigger({ className, ...props }) {
   return (
     <MenuSubmenuTrigger
       data-slot="dropdown-menu-sub-trigger"
-      className={cn$5(
+      className={cn(
         "list-row-hit-area relative flex cursor-default items-center gap-2.5 rounded-sm px-3 py-2 text-[12px] outline-hidden select-none transition-colors duration-[80ms] hover:bg-[var(--canvas-controls-hover)] focus:bg-[var(--canvas-controls-hover)] data-popup-open:bg-[var(--canvas-controls-hover)] data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
       )}
@@ -170,18 +164,16 @@ export function DropdownMenuSubTrigger$1({ className, ...props }) {
     />
   );
 }
-
 export function ToolbarSurface({ density = "standard", className, ...props }) {
   return (
     <div
       {...props}
       data-canvas-toolbar="true"
       data-density={density}
-      className={cn$5("canvas-toolbar-surface", className)}
+      className={cn("canvas-toolbar-surface", className)}
     />
   );
 }
-
 export function buildPlaceholderFillData(existingData, staged) {
   return staged
     ? {

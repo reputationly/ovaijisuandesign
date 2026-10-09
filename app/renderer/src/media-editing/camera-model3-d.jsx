@@ -6,11 +6,10 @@ import {
   getCameraModelView,
   planeEllipse,
   pointsAttribute,
-  project$1,
+  project,
   VIEWBOX_SIZE,
 } from "./layer-decompose-prompt.jsx";
 import { createBoxFaces } from "./create-box-faces.js";
-
 export function CameraModel3D({
   horizontalAngle,
   verticalAngle,
@@ -163,7 +162,7 @@ export function CameraModel3D({
           y: 9.1,
           z: -0.5,
         },
-      ].map((point2) => project$1(point2, view2)),
+      ].map((point2) => project(point2, view2)),
     };
   }, [horizontalAngle, verticalAngle]);
   return (

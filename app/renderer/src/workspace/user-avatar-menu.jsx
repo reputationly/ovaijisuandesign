@@ -1,7 +1,7 @@
 // user-avatar-menu.jsx
 import {
   Check,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Copy,
   dedupedToast,
   getRuntimeConfig,
@@ -30,7 +30,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -110,9 +110,7 @@ import {
   UserMenuAccountSummary,
   UserMenuRootView,
 } from "../generation/user-menu-account-summary.jsx";
-
 const AVATAR_DECODE_SIZE = 128;
-
 function useResizedAvatar(src) {
   const [resized, setResized] = reactExports.useState();
   const blobUrl = reactExports.useRef(void 0);
@@ -159,7 +157,6 @@ function useResizedAvatar(src) {
   }, []);
   return resized;
 }
-
 function useUserMenuController() {
   const [open, setOpen] = reactExports.useState(false);
   const menuRef = reactExports.useRef(null);
@@ -211,9 +208,7 @@ function useUserMenuController() {
     handleTriggerClick,
   };
 }
-
 const IM_BRIDGE_SHORTCUT_SEEN_KEY = "hilo:im-bridge-shortcut-seen";
-
 function hasSeenImBridgeShortcut() {
   try {
     return localStorage.getItem(IM_BRIDGE_SHORTCUT_SEEN_KEY) === "1";
@@ -221,7 +216,6 @@ function hasSeenImBridgeShortcut() {
     return false;
   }
 }
-
 function ImBridgeShortcutWithTooltip({
   className,
   onClick,
@@ -258,7 +252,7 @@ function ImBridgeShortcutWithTooltip({
               onMouseLeave={() => setTooltipOpen(false)}
               onFocus={() => setTooltipOpen(true)}
               onBlur={() => setTooltipOpen(false)}
-              className={cn$2(
+              className={cn(
                 "relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent text-muted-foreground transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
                 compact ? "size-8" : "size-7",
                 isOverseas &&
@@ -286,18 +280,16 @@ function ImBridgeShortcutWithTooltip({
     </TooltipProvider>
   );
 }
-
 function SidebarBottomActionStack({ children: children2, className }) {
   return (
     <div
       data-action-ui-id="sidebar.bottom-action-stack"
-      className={cn$2("flex flex-col items-center gap-1.5", className)}
+      className={cn("flex flex-col items-center gap-1.5", className)}
     >
       {children2}
     </div>
   );
 }
-
 function MenuSection({ title, children: children2 }) {
   return (
     <section className="px-1 py-1">
@@ -312,7 +304,6 @@ function MenuSection({ title, children: children2 }) {
     </section>
   );
 }
-
 function NewBadge() {
   const { t: t2 } = useTranslation();
   return (
@@ -321,7 +312,6 @@ function NewBadge() {
     </span>
   );
 }
-
 function ImBridgeConnectionStatus({ connected }) {
   const { t: t2 } = useTranslation();
   return (
@@ -332,7 +322,6 @@ function ImBridgeConnectionStatus({ connected }) {
     </span>
   );
 }
-
 const THEME_OPTIONS = [
   {
     value: "dark",
@@ -347,7 +336,6 @@ const THEME_OPTIONS = [
     icon: Monitor,
   },
 ];
-
 function ThemeSwitcher() {
   const { t: t2 } = useTranslation();
   const { theme: theme2, setTheme } = useTheme();
@@ -372,7 +360,6 @@ function ThemeSwitcher() {
     </div>
   );
 }
-
 function MenuButton({
   icon: Icon2,
   label,
@@ -404,7 +391,7 @@ function MenuButton({
         onClick();
       }}
       data-action-ui-id={dataActionUiId}
-      className={cn$2(
+      className={cn(
         "list-row-hit-area [--list-row-gap:var(--user-menu-row-gap,0px)] flex h-9 w-full items-center gap-2 rounded-sm px-3 text-[14px] leading-5 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
         destructive
           ? "text-destructive hover:bg-destructive/10"
@@ -420,7 +407,7 @@ function MenuButton({
         <span className="ml-auto flex shrink-0 items-center gap-1">
           {trailing}
           {shouldShowChevron && (
-            <ChevronRight$1
+            <ChevronRight
               size={14}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground"
@@ -431,7 +418,6 @@ function MenuButton({
     </button>
   );
 }
-
 function MemoryManagementMenuButton() {
   const { t: t2 } = useTranslation();
   const { openSettings } = useSettingsDialog();
@@ -444,7 +430,6 @@ function MemoryManagementMenuButton() {
     />
   );
 }
-
 const POSITION_CLASS = {
   "top-left": "right-0 bottom-full mb-1 [--dp-quick-zoom-origin:bottom_right]",
   "top-right": "left-2 bottom-full mb-1 [--dp-quick-zoom-origin:bottom_left]",
@@ -452,15 +437,10 @@ const POSITION_CLASS = {
   "right-bottom": "left-full top-0 ml-2 [--dp-quick-zoom-origin:top_left]",
   right: "left-full bottom-2 ml-2 [--dp-quick-zoom-origin:bottom_left]",
 };
-
 const VIEWPORT_INSET = 8;
-
 const TOP_POSITION_GAP = 4;
-
 const BOTTOM_POSITION_GAP = 8;
-
 const RIGHT_POSITION_BOTTOM_OFFSET = 8;
-
 function getAvailableHeight(rect, position2) {
   let availableHeight;
   switch (position2) {
@@ -482,7 +462,6 @@ function getAvailableHeight(rect, position2) {
   }
   return Math.max(0, Math.floor(availableHeight));
 }
-
 function UserMenuPopoverContent({
   motionProps,
   open,
@@ -585,7 +564,7 @@ function UserMenuPopoverContent({
         inert={motionProps["data-ending-style"] !== void 0}
         aria-hidden={motionProps["data-ending-style"] !== void 0 || void 0}
         data-action-ui-id="user-menu.popover"
-        className={cn$2(
+        className={cn(
           "pointer-events-auto absolute z-50 w-[280px]",
           "dp-motion-quick-zoom",
           POSITION_CLASS[position2],
@@ -597,7 +576,7 @@ function UserMenuPopoverContent({
           role="dialog"
           aria-label={ariaLabel}
           data-scrolling={isScrolling || void 0}
-          className={cn$2(
+          className={cn(
             "elevated-surface-border max-h-[min(32rem,var(--user-menu-available-height))] w-full rounded-lg bg-popover shadow-lg",
             overflow === "auto"
               ? "scrollbar-fade overflow-y-auto"
@@ -614,7 +593,6 @@ function UserMenuPopoverContent({
     anchor.host,
   );
 }
-
 function UserMenuPopoverShell(props) {
   return (
     <QuickZoomPresence value={props.open ? props : null}>
@@ -624,7 +602,6 @@ function UserMenuPopoverShell(props) {
     </QuickZoomPresence>
   );
 }
-
 const PROTOCOL_LABEL_KEYS = {
   userAgreement: "userMenu.protocol.userAgreement",
   privacyPolicy: "userMenu.protocol.privacyPolicy",
@@ -632,11 +609,8 @@ const PROTOCOL_LABEL_KEYS = {
   autoRenewal: "userMenu.protocol.autoRenewal",
   pointsRules: "userMenu.protocol.pointsRules",
 };
-
 const HIDE_DELAY_MS = 200;
-
 const FLYOUT_PADDING = 4;
-
 function useUserProtocolSubmenu(anchorRef) {
   const [open, setOpen] = reactExports.useState(false);
   const [offsetTop, setOffsetTop] = reactExports.useState(0);
@@ -685,11 +659,9 @@ function useUserProtocolSubmenu(anchorRef) {
     hide: hide2,
   };
 }
-
 function protocolKeysForRegion() {
   return USER_PROTOCOL_KEYS_BY_REGION[getRuntimeConfig().region];
 }
-
 function UserProtocolMenuRow({ submenu }) {
   const { t: t2 } = useTranslation();
   const protocolKeys = protocolKeysForRegion();
@@ -711,7 +683,6 @@ function UserProtocolMenuRow({ submenu }) {
     </div>
   );
 }
-
 function UserProtocolFlyout({ submenu, onClose }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -752,9 +723,7 @@ function UserProtocolFlyout({ submenu, onClose }) {
     </div>
   );
 }
-
 const FREE_PRIVILEGE_TYPE = 0;
-
 function SubscriptionSummaryRow({ onClick }) {
   const { t: t2 } = useTranslation();
   const { isLoading, isError, isRefetchError } = useWalletQuery();
@@ -795,7 +764,7 @@ function SubscriptionSummaryRow({ onClick }) {
         {status}
         {showChevron ? (
           <Icon
-            icon={ChevronRight$1}
+            icon={ChevronRight}
             size="sm"
             className="shrink-0 text-muted-foreground"
             aria-hidden={true}
@@ -847,7 +816,6 @@ function SubscriptionSummaryRow({ onClick }) {
     </button>
   );
 }
-
 function ComponentsLibrary() {
   return (
     <div className="flex flex-col gap-3">
@@ -862,7 +830,6 @@ function ComponentsLibrary() {
     </div>
   );
 }
-
 const PREVIEW_FRAMES = [
   {
     key: "page",
@@ -875,7 +842,6 @@ const PREVIEW_FRAMES = [
     className: "w-full max-w-md self-center",
   },
 ];
-
 function PageStatePreview() {
   const { t: t2 } = useTranslation();
   const [schemaSource, setSchemaSource] = reactExports.useState(
@@ -1013,7 +979,6 @@ function PageStatePreview() {
     </div>
   );
 }
-
 function SpacingTokens() {
   return (
     <div className="flex flex-col gap-4">
@@ -1078,7 +1043,6 @@ function SpacingTokens() {
     </div>
   );
 }
-
 const TABS = [
   {
     value: "colors",
@@ -1111,7 +1075,6 @@ const TABS = [
     Component: PageStatePreview,
   },
 ];
-
 function UISpecContent() {
   return (
     <Tabs defaultValue="colors" className="flex h-full flex-col">
@@ -1146,7 +1109,6 @@ function UISpecContent() {
     </Tabs>
   );
 }
-
 function UISpecDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   return (
@@ -1165,7 +1127,6 @@ function UISpecDialog({ open, onOpenChange }) {
     </Dialog>
   );
 }
-
 export function UserAvatarMenu({
   user,
   onLogout,
@@ -1341,7 +1302,7 @@ export function UserAvatarMenu({
     fallbackTextClassName,
     showBadge = false,
   ) => (
-    <span className={cn$2("relative shrink-0 rounded-full", sizeClassName)}>
+    <span className={cn("relative shrink-0 rounded-full", sizeClassName)}>
       {avatarSrc ? (
         <img
           src={avatarSrc}
@@ -1350,7 +1311,7 @@ export function UserAvatarMenu({
         />
       ) : (
         <span
-          className={cn$2(
+          className={cn(
             "flex h-full w-full items-center justify-center rounded-full bg-primary font-medium text-primary-foreground",
             fallbackTextClassName ?? (showUsername ? "text-xs" : "text-sm"),
           )}
@@ -1383,7 +1344,7 @@ export function UserAvatarMenu({
                 className="group/avatar-trigger flex h-10 w-full min-w-0 cursor-pointer items-center text-left text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
               >
                 <span
-                  className={cn$2(
+                  className={cn(
                     "sidebar-user-menu-trigger-content flex h-9 w-full min-w-0 items-center gap-2 rounded-md pr-2 transition-colors",
                     open
                       ? "bg-[var(--home-sidebar-nav-active)]"
@@ -1422,7 +1383,7 @@ export function UserAvatarMenu({
                 aria-expanded={open}
                 aria-controls={menuId}
                 onClick={handleAvatarTriggerClick}
-                className={cn$2(
+                className={cn(
                   "group/avatar-trigger flex size-8 cursor-pointer items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
                   open
                     ? "bg-[var(--home-sidebar-nav-active)]"

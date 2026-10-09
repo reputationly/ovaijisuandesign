@@ -1,6 +1,5 @@
 // parse-timeline-operations.js
 import { parseJsonRecord } from "./unwrap-mcp-json-record.js";
-
 const TIMELINE_OPERATION_TOOL_ALIASES = {
   hub_canvas_apply_text_edits: "canvas_apply_text_edits",
   hub_canvas_group_nodes: "canvas_group_nodes",
@@ -9,12 +8,10 @@ const TIMELINE_OPERATION_TOOL_ALIASES = {
   hub_plan_write: "plan_write",
   hub_plan_replan: "plan_replan",
 };
-
 function normaliseTimelineOperationToolName(toolName2) {
   if (!toolName2) return void 0;
   return TIMELINE_OPERATION_TOOL_ALIASES[toolName2] ?? toolName2;
 }
-
 function stringField(record2, keys2) {
   if (!record2) return void 0;
   for (const key2 of keys2) {
@@ -24,7 +21,6 @@ function stringField(record2, keys2) {
   }
   return void 0;
 }
-
 function recordField(record2, keys2) {
   if (!record2) return void 0;
   for (const key2 of keys2) {
@@ -34,7 +30,6 @@ function recordField(record2, keys2) {
   }
   return void 0;
 }
-
 function booleanField(record2, keys2) {
   if (!record2) return void 0;
   for (const key2 of keys2) {
@@ -43,7 +38,6 @@ function booleanField(record2, keys2) {
   }
   return void 0;
 }
-
 function recordArrayField(record2, keys2) {
   if (!record2) return [];
   for (const key2 of keys2) {
@@ -55,25 +49,21 @@ function recordArrayField(record2, keys2) {
   }
   return [];
 }
-
-function basename$1(path2) {
+function basename(path2) {
   const trimmed = path2.trim();
   const withoutSlash = trimmed.replace(/[\\/]+$/, "");
   const parts = withoutSlash.split(/[\\/]/);
   return parts[parts.length - 1] || trimmed;
 }
-
 function firstDefined(...values3) {
   return values3.find((value) => value && value.trim().length > 0);
 }
-
 function nodeIdFrom(args, result) {
   return firstDefined(
     stringField(result, ["nodeId", "node_id"]),
     stringField(args, ["nodeId", "node_id"]),
   );
 }
-
 function groupIdFrom(result) {
   return firstDefined(
     stringField(result, [
@@ -85,21 +75,18 @@ function groupIdFrom(result) {
     stringField(result, ["nodeId", "node_id"]),
   );
 }
-
 function assetIdFrom(args, result) {
   return firstDefined(
     stringField(result, ["assetId", "asset_id"]),
     stringField(args, ["assetId", "asset_id"]),
   );
 }
-
 function assetPathFrom(args, result) {
   return firstDefined(
     stringField(result, ["assetPath", "asset_path"]),
     stringField(args, ["assetPath", "asset_path"]),
   );
 }
-
 function canvasMediaLabelKey(assetType) {
   switch (assetType) {
     case "image":
@@ -112,7 +99,6 @@ function canvasMediaLabelKey(assetType) {
       return "chat.canvasOperation.addMedia";
   }
 }
-
 function parseUnifiedCanvasWrite(args, result) {
   if (booleanField(result, ["ok"]) === false) return void 0;
   const kind = firstDefined(
@@ -129,7 +115,7 @@ function parseUnifiedCanvasWrite(args, result) {
       const path2 = stringField(result, ["path"]);
       const name2 = firstDefined(
         stringField(args, ["name"]),
-        path2 ? basename$1(path2) : void 0,
+        path2 ? basename(path2) : void 0,
       );
       return {
         kind: "text-create",
@@ -148,7 +134,7 @@ function parseUnifiedCanvasWrite(args, result) {
       const tablePath = stringField(result, ["tablePath", "table_path"]);
       const name2 = firstDefined(
         stringField(args, ["title", "name"]),
-        tablePath ? basename$1(tablePath) : void 0,
+        tablePath ? basename(tablePath) : void 0,
       );
       return {
         kind: "table-node",
@@ -169,7 +155,7 @@ function parseUnifiedCanvasWrite(args, result) {
       const assetType = stringField(result, ["assetType", "asset_type"]);
       const reused = booleanField(result, ["reused"]);
       if (reused) return void 0;
-      const name2 = assetPath ? basename$1(assetPath) : void 0;
+      const name2 = assetPath ? basename(assetPath) : void 0;
       return {
         kind: "media-node",
         labelKey: canvasMediaLabelKey(assetType),
@@ -186,7 +172,6 @@ function parseUnifiedCanvasWrite(args, result) {
       return void 0;
   }
 }
-
 export function parseTimelineOperations(
   toolName2,
   toolArgs,

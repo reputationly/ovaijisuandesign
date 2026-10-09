@@ -7,13 +7,13 @@ import {
   createTailwindMerge,
   cva,
   DialogBackdrop,
-  DialogClose$1,
+  DialogClose$1 as DialogClose,
   DialogPopup,
   DialogRoot,
   FieldControl,
   Loader2Icon,
   MenuGroupLabel,
-  MenuItem$3,
+  MenuItem$3 as MenuItem,
   MenuPopup,
   MenuPortal,
   MenuPositioner,
@@ -30,18 +30,14 @@ import {
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogPortal, listeners$a } from "./gateway-http-error.jsx";
-
 const subscribe = (listener) => {
   listeners$a.add(listener);
   return () => listeners$a.delete(listener);
 };
-
 export const twMerge = createTailwindMerge(getDefaultConfig);
-
-export function cn$5(...inputs) {
+export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-
 export function splitMentionFilename(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 <= 0 || dot2 >= filename.length - 1)
@@ -54,23 +50,18 @@ export function splitMentionFilename(filename) {
     ext: filename.slice(dot2),
   };
 }
-
-export const Input$2 = reactExports.forwardRef(
+export const Input = reactExports.forwardRef(
   function Input2(props, forwardedRef) {
     return <FieldControl ref={forwardedRef} {...props} />;
   },
 );
-
 export function cn$2(...inputs) {
   return twMerge(clsx(inputs));
 }
-
 export const MENU_ITEM_LAYOUT =
   "gap-2 px-2.5 py-1.5 text-[11px] font-normal [&_svg:not([class*=size-])]:size-3.5";
-
 const MENU_LABEL_LAYOUT =
   "px-2.5 py-1 text-[10px] font-normal text-muted-foreground select-none";
-
 export function DropdownMenuTrigger({ className, ...props }) {
   return (
     <MenuTrigger
@@ -80,7 +71,6 @@ export function DropdownMenuTrigger({ className, ...props }) {
     />
   );
 }
-
 export function DropdownMenuContent({
   className,
   align = "start",
@@ -112,10 +102,9 @@ export function DropdownMenuContent({
     </MenuPortal>
   );
 }
-
 export function DropdownMenuItem({ className, variant = "default", ...props }) {
   return (
-    <MenuItem$3
+    <MenuItem
       data-slot="dropdown-menu-item"
       data-variant={variant}
       className={cn$2(
@@ -127,7 +116,6 @@ export function DropdownMenuItem({ className, variant = "default", ...props }) {
     />
   );
 }
-
 export function DropdownMenuLabel({ className, ...props }) {
   return (
     <MenuGroupLabel
@@ -137,7 +125,6 @@ export function DropdownMenuLabel({ className, ...props }) {
     />
   );
 }
-
 export function DropdownMenuRadioItem({
   className,
   children: children2,
@@ -164,7 +151,6 @@ export function DropdownMenuRadioItem({
     </MenuRadioItem>
   );
 }
-
 export function TooltipContent({
   className,
   positionerClassName,
@@ -202,7 +188,6 @@ export function TooltipContent({
     </TooltipPortal>
   );
 }
-
 export const buttonVariants = cva(
   "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-sm border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -244,8 +229,7 @@ export const buttonVariants = cva(
     },
   },
 );
-
-export function Button$1({
+export function Button({
   className,
   variant = "default",
   size: size2 = "default",
@@ -272,13 +256,10 @@ export function Button$1({
     </Button$3>
   );
 }
-
 const notify = () => {
   for (const listener of listeners$a) listener();
 };
-
 let preparePreview = null;
-
 export function registerBrowserHoverPreview(prepare) {
   const lifetime = new AbortController();
   const handler = (signal, options) =>
@@ -292,9 +273,7 @@ export function registerBrowserHoverPreview(prepare) {
     notify();
   };
 }
-
 const getPreview = () => preparePreview;
-
 export function useBrowserHoverPreview(
   requested,
   { requireSnapshot = false, onError } = {},
@@ -338,7 +317,6 @@ export function useBrowserHoverPreview(
   }, [request, onError]);
   return !requested || !prepare || prepared === request;
 }
-
 export function useBrowserOverlayDialogProps(
   props,
   browserPreviewManaged = false,
@@ -369,22 +347,18 @@ export function useBrowserOverlayDialogProps(
     },
   };
 }
-
 export const dialogChromeButtonClassName =
   "rounded-lg text-foreground/55 hover:bg-muted hover:text-foreground focus-visible:border-brand-accent/30 focus-visible:bg-brand-accent/5 focus-visible:ring-0 focus-visible:shadow-none";
-
 const DIALOG_CONTENT_SIZE_CLASSES = {
   sm: "sm:max-w-sm",
   md: "sm:max-w-[560px]",
   lg: "sm:max-w-[760px]",
   xl: "sm:max-w-[960px]",
 };
-
 const DIALOG_CONTENT_LAYER_CLASSES = {
   default: "z-50",
   nested: "z-[60]",
 };
-
 export function Dialog({ browserPreviewManaged = false, ...props }) {
   const dialogProps = useBrowserOverlayDialogProps(
     props,
@@ -392,7 +366,6 @@ export function Dialog({ browserPreviewManaged = false, ...props }) {
   );
   return <DialogRoot data-slot="dialog" {...dialogProps} />;
 }
-
 function DialogOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
@@ -405,7 +378,6 @@ function DialogOverlay({ className, ...props }) {
     />
   );
 }
-
 export function DialogContent({
   className,
   children: children2,
@@ -435,10 +407,10 @@ export function DialogContent({
       >
         {children2}
         {showCloseButton && (
-          <DialogClose$1
+          <DialogClose
             data-slot="dialog-close"
             render={
-              <Button$1
+              <Button
                 variant="ghost"
                 className={`no-drag absolute top-2 right-2 size-11 ${dialogChromeButtonClassName}`}
               />
@@ -446,13 +418,12 @@ export function DialogContent({
           >
             <XIcon className="size-6" strokeWidth={1.75} />
             <span className="sr-only">{t2("common.close")}</span>
-          </DialogClose$1>
+          </DialogClose>
         )}
       </DialogPopup>
     </DialogPortal>
   );
 }
-
 export function DialogHeader({ className, ...props }) {
   return (
     <div
@@ -462,7 +433,6 @@ export function DialogHeader({ className, ...props }) {
     />
   );
 }
-
 export function DialogFooter({
   className,
   showCloseButton = false,
@@ -481,14 +451,13 @@ export function DialogFooter({
     >
       {children2}
       {showCloseButton && (
-        <DialogClose$1 render={<Button$1 variant="outline" />}>
+        <DialogClose render={<Button variant="outline" />}>
           {t2("common.close")}
-        </DialogClose$1>
+        </DialogClose>
       )}
     </div>
   );
 }
-
 export function AlertDialog({ ...props }) {
   return (
     <AlertDialogRoot

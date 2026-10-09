@@ -5,10 +5,10 @@ import {
   useReactFlow,
   useStoreApi,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$2 } from "./node-shell-inner.jsx";
+import { Button } from "./node-shell-inner.jsx";
 import { CANVAS_TOOL_DOCK_SAFE_BOTTOM_PX } from "./cursor-icon.jsx";
 import { syncStableZoomSignals } from "./separator.jsx";
 import { useActiveMode } from "./use-active-mode.js";
@@ -17,18 +17,14 @@ import {
   useCanvasIsDragging,
 } from "../media-editing/package.jsx";
 import { ReferenceNavigationContext } from "../media-editing/get-reference-navigation-defaults.jsx";
-
 const RECENTER_PADDING = 0.5;
-
 const RECENTER_MAX_ZOOM = 0.2;
-
 function isUsableNode(node2) {
   if (node2.hidden) return false;
   const w3 = node2.measured?.width ?? node2.width ?? 0;
   const h2 = node2.measured?.height ?? node2.height ?? 0;
   return w3 > 0 && h2 > 0;
 }
-
 function readBox(node2) {
   if (node2.hidden) return null;
   const w3 = node2.measured?.width ?? node2.width ?? 0;
@@ -41,7 +37,6 @@ function readBox(node2) {
     bottom: node2.position.y + h2,
   };
 }
-
 function findLastNodeId(state2) {
   let last2 = null;
   for (const [id2, node2] of state2.nodeLookup) {
@@ -49,7 +44,6 @@ function findLastNodeId(state2) {
   }
   return last2;
 }
-
 function recenterToNodes(args) {
   const id2 = findLastNodeId(args.state);
   if (!id2) return void 0;
@@ -64,7 +58,6 @@ function recenterToNodes(args) {
     duration: args.duration ?? 500,
   });
 }
-
 function selectIsViewportEmpty(s2) {
   if (s2.nodeLookup.size === 0) return false;
   const [tx, ty, zoom2] = s2.transform;
@@ -90,7 +83,6 @@ function selectIsViewportEmpty(s2) {
   }
   return consideredCount > 0;
 }
-
 function CanvasBottomToast(props) {
   const { show } = props;
   const [retained, setRetained] = reactExports.useState(show);
@@ -143,7 +135,7 @@ function CanvasBottomToast(props) {
         }}
       >
         <span className="min-w-0">{message2}</span>
-        <Button$2
+        <Button
           size="sm"
           variant={action.variant}
           disabled={!show}
@@ -152,9 +144,9 @@ function CanvasBottomToast(props) {
           data-action-ui-id={action.dataActionUiId}
         >
           {action.label}
-        </Button$2>
+        </Button>
         {dismiss && (
-          <Button$2
+          <Button
             size="icon-sm"
             variant="ghost"
             disabled={!show}
@@ -162,14 +154,13 @@ function CanvasBottomToast(props) {
             data-action-ui-id={dismiss.dataActionUiId}
             onClick={dismiss.onClick}
           >
-            <X$7 size={16} strokeWidth={1.5} />
-          </Button$2>
+            <X size={16} strokeWidth={1.5} />
+          </Button>
         )}
       </div>
     </Panel>
   );
 }
-
 export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
   const { t: t2 } = useTranslation();
   const referenceNavigation = reactExports.useContext(

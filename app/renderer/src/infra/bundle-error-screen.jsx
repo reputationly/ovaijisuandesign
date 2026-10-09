@@ -4,7 +4,7 @@ import {
   AlertTriangle,
   ChevronDown,
   dedupedToast,
-  Info$1,
+  Info$1 as Info,
   jsxRuntimeExports,
   reactExports,
   useTranslation,
@@ -17,11 +17,10 @@ import {
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { Upload } from "../media-editing/package.jsx";
 import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
-import { Button$1 } from "./dialog-content.jsx";
+import { Button } from "./dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 import { reportRumAction, reportRumError } from "../i18n/init-rum.js";
-
 function buildWorkspaceStartupRumContext(status) {
   const evidence = status.diagnosis?.evidence;
   const meta2 = status.diagnosis?.code
@@ -49,7 +48,6 @@ function buildWorkspaceStartupRumContext(status) {
     evidence_stderr_signatures: evidence?.stderrSignatures.join(","),
   };
 }
-
 function formatPhase(phase) {
   switch (phase) {
     case "allocate_port":
@@ -66,7 +64,6 @@ function formatPhase(phase) {
       return phase;
   }
 }
-
 function formatHealthError(kind) {
   switch (kind) {
     case "timeout":
@@ -89,7 +86,6 @@ function formatHealthError(kind) {
       return kind;
   }
 }
-
 function formatSignature(signature) {
   switch (signature) {
     case "config_json_error":
@@ -142,12 +138,10 @@ function formatSignature(signature) {
       return signature;
   }
 }
-
-function formatDuration$2(ms) {
+function formatDuration(ms) {
   if (ms >= 1e3 && ms % 1e3 === 0) return `${ms / 1e3}s`;
   return `${ms}ms`;
 }
-
 function buildEvidenceItems(evidence) {
   if (!evidence) return [];
   const items = [
@@ -176,7 +170,7 @@ function buildEvidenceItems(evidence) {
       key: "timeout",
       labelKey: "bundleError.evidence.timeout",
       labelDefault: "超时",
-      valueDefault: formatDuration$2(evidence.healthTimeoutMs),
+      valueDefault: formatDuration(evidence.healthTimeoutMs),
     });
   }
   if (evidence.proxyEnvPresent) {
@@ -211,15 +205,12 @@ function buildEvidenceItems(evidence) {
   }
   return items;
 }
-
 const SYSTEM_UPGRADE_REQUIRED_CODES = new Set([
   "macos_version_unsupported",
   "windows_version_unsupported",
   "windows_cpu_unsupported",
 ]);
-
 const WORKSPACE_STARTUP_FAILED_RUM_ACTION = "Workspace 启动失败";
-
 const INTERNAL_ERROR_MARKERS = [
   "gateway",
   "runtime",
@@ -236,11 +227,8 @@ const INTERNAL_ERROR_MARKERS = [
   "https://",
   "error:",
 ];
-
 const MAX_UPLOAD_CACHE = 50;
-
 const AUTO_UPLOAD_PROMISES = new Map();
-
 function setUploadPromise(failureId, promise) {
   AUTO_UPLOAD_PROMISES.set(failureId, promise);
   if (AUTO_UPLOAD_PROMISES.size > MAX_UPLOAD_CACHE) {
@@ -250,7 +238,6 @@ function setUploadPromise(failureId, promise) {
     }
   }
 }
-
 function isUserFacingStatusError(error) {
   const message2 = error?.trim();
   if (!message2) return false;
@@ -259,11 +246,9 @@ function isUserFacingStatusError(error) {
     normalized.includes(marker.toLowerCase()),
   );
 }
-
 function normalizeDisplayMessage(message2) {
   return message2.replace(/[。.!！\s]/g, "").toLowerCase();
 }
-
 export function BundleErrorScreen({
   status,
   retrying = false,
@@ -676,7 +661,7 @@ export function BundleErrorScreen({
             {onRetry &&
             diagnosis?.code !== "workspace_data_migration_conflict" &&
             diagnosis?.code !== "workspace_index_recovery_required" ? (
-              <Button$1
+              <Button
                 loading={retrying}
                 disabled={retryCount >= maxRetries}
                 onClick={onRetry}
@@ -684,9 +669,9 @@ export function BundleErrorScreen({
               >
                 <RetryIcon />
                 {retryButtonLabel}
-              </Button$1>
+              </Button>
             ) : null}
-            <Button$1
+            <Button
               variant="outline"
               loading={feedbackState === "loading"}
               disabled={!diagnosticsActionsEnabled}
@@ -695,12 +680,12 @@ export function BundleErrorScreen({
             >
               <Upload />
               {feedbackButtonLabel}
-            </Button$1>
+            </Button>
           </div>
         </div>
         <div className="mx-6 mt-3 rounded-lg px-4 py-3 ring-1 ring-border/60">
           <div className="flex items-start gap-2.5">
-            <Info$1
+            <Info
               className="mt-0.5 size-4 shrink-0 text-foreground opacity-50"
               strokeWidth={1}
             />
@@ -760,7 +745,7 @@ export function BundleErrorScreen({
                   })}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button$1
+                  <Button
                     variant="secondary"
                     size="sm"
                     loading={networkRecoveryState === "system"}
@@ -774,8 +759,8 @@ export function BundleErrorScreen({
                     {t2("bundleError.networkRecovery.systemRetry", {
                       defaultValue: "切到系统代理并重试",
                     })}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     variant="outline"
                     size="sm"
                     loading={networkRecoveryState === "direct"}
@@ -789,8 +774,8 @@ export function BundleErrorScreen({
                     {t2("bundleError.networkRecovery.directRetry", {
                       defaultValue: "切到直连并重试",
                     })}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="sm"
                     loading={networkRecoveryState === "checking"}
@@ -804,7 +789,7 @@ export function BundleErrorScreen({
                     {t2("bundleError.networkRecovery.recheck", {
                       defaultValue: "重新检测网络",
                     })}
-                  </Button$1>
+                  </Button>
                 </div>
               </div>
             </div>

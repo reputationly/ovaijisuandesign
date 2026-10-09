@@ -1,13 +1,16 @@
 // reference-thumbnail-overlay.jsx
-import { AtSign, PlaybackPlayIcon$1, useTranslation } from "../vendor.js";
+import {
+  AtSign,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ImageLightbox$2 } from "./image-lightbox.jsx";
+import { ImageLightbox } from "./image-lightbox.jsx";
 import { VideoLightbox } from "./video-lightbox.jsx";
-
 export function ReferenceMediaLightbox({ item, onClose }) {
   if (item?.kind === "image") {
     return (
-      <ImageLightbox$2
+      <ImageLightbox
         items={[item]}
         index={0}
         onIndexChange={() => {}}
@@ -20,7 +23,6 @@ export function ReferenceMediaLightbox({ item, onClose }) {
     return <VideoLightbox item={item} onClose={onClose} />;
   return null;
 }
-
 export function ReferenceThumbnailOverlay({
   visible,
   disabled: disabled2,
@@ -56,7 +58,6 @@ export function ReferenceThumbnailOverlay({
     </div>
   );
 }
-
 export function ReferenceThumbnailVideoInfo({ visible, durationLabel }) {
   return (
     <span
@@ -64,7 +65,7 @@ export function ReferenceThumbnailVideoInfo({ visible, durationLabel }) {
       aria-hidden={!visible}
       className={`pointer-events-none absolute bottom-0.5 left-0.5 flex items-center gap-0.5 rounded-[3px] bg-[var(--canvas-media-control-bg)] px-0.5 py-0.5 text-[8px] leading-none tabular-nums text-[var(--canvas-media-control-fg)] transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-0"}`}
     >
-      <PlaybackPlayIcon$1 size={8} strokeWidth={1.5} fill="currentColor" />
+      <PlaybackPlayIcon size={8} strokeWidth={1.5} fill="currentColor" />
       {durationLabel}
     </span>
   );

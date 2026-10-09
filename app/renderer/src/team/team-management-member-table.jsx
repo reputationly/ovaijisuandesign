@@ -1,7 +1,6 @@
 // team-management-member-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 function Table({ className, ...props }) {
   return (
     <div
@@ -10,18 +9,17 @@ function Table({ className, ...props }) {
     >
       <table
         data-slot="table"
-        className={cn$2("w-full caption-bottom text-sm", className)}
+        className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
     </div>
   );
 }
-
 function TableHeader({ className, ...props }) {
   return (
     <thead
       data-slot="table-header"
-      className={cn$2(
+      className={cn(
         "[&_tr]:[border-bottom-width:var(--divider-width)]",
         className,
       )}
@@ -29,47 +27,42 @@ function TableHeader({ className, ...props }) {
     />
   );
 }
-
 function TableBody({ className, ...props }) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn$2("[&_tr:last-child]:border-0", className)}
+      className={cn("[&_tr:last-child]:border-0", className)}
       {...props}
     />
   );
 }
-
 function TableRow({ className, ...props }) {
   return (
     <tr
       data-slot="table-row"
-      className={cn$2("border-b", className)}
+      className={cn("border-b", className)}
       {...props}
     />
   );
 }
-
 function TableHead({ className, ...props }) {
   return (
     <th
       data-slot="table-head"
-      className={cn$2("text-left align-middle font-medium", className)}
+      className={cn("text-left align-middle font-medium", className)}
       {...props}
     />
   );
 }
-
 function TableCell({ className, ...props }) {
   return (
     <td
       data-slot="table-cell"
-      className={cn$2("align-middle", className)}
+      className={cn("align-middle", className)}
       {...props}
     />
   );
 }
-
 export function TeamManagementMemberTable({
   showCredits = true,
   headerSelection,

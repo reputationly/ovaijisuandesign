@@ -4,7 +4,7 @@ import {
   CompositedSvg,
   PencilRuler,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   withArtworkOpacity,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -15,47 +15,37 @@ import {
   INACTIVE_NODE_UNMOUNT_GRACE_MS,
   useDelayedFalse,
 } from "../media-editing/package.jsx";
-
 const TOOL_CONFIRM_REJECT_REASONS = [
   "user_rejected",
   "confirmation_expired",
   "confirmation_unavailable",
 ];
-
 function isToolConfirmRejectReason(value) {
   return (
     typeof value === "string" && TOOL_CONFIRM_REJECT_REASONS.includes(value)
   );
 }
-
 export function parseToolConfirmRejectReason(value) {
   if (!value) return void 0;
   const match2 = value.match(/\[tool-confirm-reject:([a-z_]+)\]/);
   return isToolConfirmRejectReason(match2?.[1]) ? match2[1] : void 0;
 }
-
 export const QUEUED_USER_MESSAGE_LIMIT = 20;
-
 export function deriveBusy(agentRunning, pendingReasons) {
   return Boolean(agentRunning) || (pendingReasons?.length ?? 0) > 0;
 }
-
 export const DEFAULT_SESSION_NAME = "New Chat";
-
 export const MAX_SESSION_NAME_LENGTH = 50;
-
 export function useInactiveNodeVirtualization(
   isPresented,
   graceMs = INACTIVE_NODE_UNMOUNT_GRACE_MS,
 ) {
   return useDelayedFalse(isPresented, graceMs);
 }
-
 export function useCanvasActiveDeferred() {
   const ctx = reactExports.useContext(CanvasActiveDeferredContext);
   return ctx ?? true;
 }
-
 function shallowEqualActions(a2, b3) {
   if (a2 === b3) return true;
   const keysA = Object.keys(a2);
@@ -66,7 +56,6 @@ function shallowEqualActions(a2, b3) {
   }
   return true;
 }
-
 function useShallowStableActions(actions) {
   const ref = reactExports.useRef(actions);
   const prev = ref.current;
@@ -76,7 +65,6 @@ function useShallowStableActions(actions) {
   }
   return prev;
 }
-
 export function CanvasBridgeProvider({ children: children2, ...actions }) {
   const stable = useShallowStableActions(actions);
   return (
@@ -85,21 +73,17 @@ export function CanvasBridgeProvider({ children: children2, ...actions }) {
     </CanvasBridgeContext.Provider>
   );
 }
-
 function createNodeDraggingSelector(nodeId) {
   return (state2) => !!state2.nodeLookup.get(nodeId)?.dragging;
 }
-
 export function useCanvasNodeIsDragging(nodeId) {
   const selector2 = reactExports.useMemo(
     () => createNodeDraggingSelector(nodeId),
     [nodeId],
   );
-  return useStore$3(selector2);
+  return useStore(selector2);
 }
-
 const DEFAULT_VIEWPORT_BUFFER_RATIO = 1.5;
-
 function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
   const lookup = state2.nodeLookup?.get(nodeId);
   if (!lookup) return "far";
@@ -139,7 +123,6 @@ function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
   );
   return near ? "nearView" : "far";
 }
-
 export function useViewportStatus(nodeId, width, height, options) {
   const bufferRatio = DEFAULT_VIEWPORT_BUFFER_RATIO;
   const selector2 = reactExports.useMemo(
@@ -148,9 +131,8 @@ export function useViewportStatus(nodeId, width, height, options) {
     },
     [nodeId, width, height, bufferRatio],
   );
-  return useStore$3(selector2);
+  return useStore(selector2);
 }
-
 export function AssetMetadataStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     AssetMetadataStoreContext.Provider,
@@ -160,11 +142,9 @@ export function AssetMetadataStoreProvider({ store, children: children2 }) {
     children2,
   );
 }
-
 export function getAssetMetaByNodeIdFromStore(store, key2) {
   return store.getState().assets.get(key2);
 }
-
 export function GeneratingStateStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     GeneratingStateStoreContext.Provider,
@@ -174,7 +154,6 @@ export function GeneratingStateStoreProvider({ store, children: children2 }) {
     children2,
   );
 }
-
 export function areNodePropsEqual(prev, next2) {
   if (prev.id !== next2.id) return false;
   if (prev.selected !== next2.selected) return false;
@@ -183,7 +162,6 @@ export function areNodePropsEqual(prev, next2) {
   if (prev.height !== next2.height) return false;
   return true;
 }
-
 export function formatFileSize(bytes2) {
   if (typeof bytes2 !== "number" || !Number.isFinite(bytes2) || bytes2 < 0)
     return void 0;
@@ -195,16 +173,13 @@ export function formatFileSize(bytes2) {
   const gb = mb / 1024;
   return `${gb.toFixed(2)} GB`;
 }
-
 export function getFileExtension(name2) {
   if (!name2) return void 0;
   const idx = name2.lastIndexOf(".");
   if (idx <= 0 || idx === name2.length - 1) return void 0;
   return name2.slice(idx).toLowerCase();
 }
-
 const ADD_TO_CHAT_VIEW_BOX = "0 0 20 20";
-
 const ADD_TO_CHAT_PATHS = [
   "M12.1545 15.3767H18.6118",
   "M15.3896 12.1545L15.3896 18.6118",
@@ -212,7 +187,6 @@ const ADD_TO_CHAT_PATHS = [
   "M5.93323 7.60952L12.7507 7.60952",
   "M5.93323 12.1545L9.34196 12.1545",
 ];
-
 export function AddToChatIcon({ size: size2 = 20, ...props } = {}) {
   return (
     <CompositedSvg
@@ -233,7 +207,6 @@ export function AddToChatIcon({ size: size2 = 20, ...props } = {}) {
     </CompositedSvg>
   );
 }
-
 export function AnnotationIcon$1({ size: size2 = 24, ...props } = {}) {
   return (
     <CompositedSvg
@@ -252,8 +225,7 @@ export function AnnotationIcon$1({ size: size2 = 24, ...props } = {}) {
     </CompositedSvg>
   );
 }
-
-export const RetryIcon$1 = reactExports.forwardRef(function RetryIcon2(
+export const RetryIcon = reactExports.forwardRef(function RetryIcon2(
   { size: size2 = 24, style: style2, ...props },
   ref,
 ) {
@@ -278,15 +250,12 @@ export const RetryIcon$1 = reactExports.forwardRef(function RetryIcon2(
     </CompositedSvg>
   );
 });
-
 const TOOLBAR_STROKE_WIDTH_24 = 1.8;
-
 export function AnnotationIcon({ size: size2 = 20 } = {}) {
   return (
     <AnnotationIcon$1 size={size2} strokeWidth={TOOLBAR_STROKE_WIDTH_24} />
   );
 }
-
 export function TextEditIcon() {
   return (
     <PencilRuler
@@ -296,8 +265,7 @@ export function TextEditIcon() {
     />
   );
 }
-
-export function CopyIcon$2() {
+export function CopyIcon() {
   return (
     <CompositedSvg
       width="20"
@@ -315,8 +283,7 @@ export function CopyIcon$2() {
     </CompositedSvg>
   );
 }
-
-export function MoreVerticalIcon$1({ size: size2 = 16 } = {}) {
+export function MoreVerticalIcon({ size: size2 = 16 } = {}) {
   return (
     <CompositedSvg
       width={size2}
@@ -331,8 +298,7 @@ export function MoreVerticalIcon$1({ size: size2 = 16 } = {}) {
     </CompositedSvg>
   );
 }
-
-export function FullscreenIcon$1() {
+export function FullscreenIcon() {
   return (
     <CompositedSvg
       width="16"
@@ -372,7 +338,6 @@ export function FullscreenIcon$1() {
     </CompositedSvg>
   );
 }
-
 export function MinimizeIcon() {
   return (
     <CompositedSvg
@@ -413,7 +378,6 @@ export function MinimizeIcon() {
     </CompositedSvg>
   );
 }
-
 export function RelightIcon({ size: size2 = 18 } = {}) {
   return (
     <CompositedSvg
@@ -437,7 +401,6 @@ export function RelightIcon({ size: size2 = 18 } = {}) {
     </CompositedSvg>
   );
 }
-
 export function StoryboardGridIcon({
   size: size2 = 18,
   strokeWidth = 1.5,
@@ -458,7 +421,6 @@ export function StoryboardGridIcon({
     </CompositedSvg>
   );
 }
-
 export function PanoramaIcon({ size: size2 = 18 } = {}) {
   return (
     <CompositedSvg
@@ -475,7 +437,6 @@ export function PanoramaIcon({ size: size2 = 18 } = {}) {
     </CompositedSvg>
   );
 }
-
 export function MultiAngleIcon({ size: size2 = 16 } = {}) {
   return (
     <CompositedSvg
@@ -492,7 +453,6 @@ export function MultiAngleIcon({ size: size2 = 16 } = {}) {
     </CompositedSvg>
   );
 }
-
 export function AddToClipNodeIcon({ size: size2 = 20 } = {}) {
   return (
     <CompositedSvg
@@ -509,8 +469,6 @@ export function AddToClipNodeIcon({ size: size2 = 20 } = {}) {
     </CompositedSvg>
   );
 }
-
 export const PLACEHOLDER_ICON_CLASS =
   "text-[var(--canvas-empty-placeholder-fg)]";
-
 export const PLACEHOLDER_ICON_SIZE = 42;

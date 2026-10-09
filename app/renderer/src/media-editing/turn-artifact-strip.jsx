@@ -15,19 +15,17 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { ArtifactAssetCard } from "../generation/artifact-asset-card.jsx";
 import { normalizeJsonToolResult } from "../chat/has-structured-success-payload.js";
 import { parseToolConfirmRejectReason } from "../canvas/fullscreen-icon.jsx";
 import { Brain, Clock, FileText, ImageOutlineIcon, Plug } from "./package.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-
 function resolveArtifactUrl(raw2, resolve) {
   if (/^https?:\/\//i.test(raw2)) return resolve(raw2);
   if (raw2.startsWith("/")) return resolve(raw2);
   return resolve(API_PATHS.serveFile(raw2));
 }
-
 export function TurnArtifactStrip({ artifacts }) {
   const resolveUrl = useResolveMediaUrl();
   const { t: t2 } = useTranslation();
@@ -46,7 +44,7 @@ export function TurnArtifactStrip({ artifacts }) {
         onClick={() => setExpanded((value) => !value)}
       >
         <ChevronDown
-          className={cn$2(
+          className={cn(
             "size-3.5 transition-transform",
             expanded ? "rotate-0" : "-rotate-90",
           )}
@@ -81,7 +79,6 @@ export function TurnArtifactStrip({ artifacts }) {
     </div>
   );
 }
-
 export const CATEGORY_I18N = {
   thinking: "chat.activity.thinking",
   read: "chat.activity.read",
@@ -105,7 +102,6 @@ export const CATEGORY_I18N = {
   connector: "chat.activity.connector",
   other: "chat.activity.other",
 };
-
 export const CATEGORY_RUNNING_I18N = {
   analyseMedia: "chat.activity.analyseMedia.running",
   imageGen: "chat.activity.imageGen.running",
@@ -114,7 +110,6 @@ export const CATEGORY_RUNNING_I18N = {
   audioGen: "chat.activity.audioGen.running",
   musicGen: "chat.activity.musicGen.running",
 };
-
 export function getStreamingAction(items) {
   const msg = items[items.length - 1];
   if (msg?.type !== "tool") return void 0;
@@ -122,7 +117,6 @@ export function getStreamingAction(items) {
   if (status === "running" || status === "pending") return msg;
   return void 0;
 }
-
 export const CATEGORY_ICON = {
   thinking: Brain,
   read: FileText,
@@ -146,7 +140,6 @@ export const CATEGORY_ICON = {
   connector: Plug,
   other: Cog,
 };
-
 function stripUserOverrideNotice(text2) {
   return text2
     .split(/\r?\n/)
@@ -155,19 +148,16 @@ function stripUserOverrideNotice(text2) {
     .join("\n")
     .trim();
 }
-
 export function sanitizeDisplayText(text2) {
   if (!text2) return void 0;
   const sanitized = stripUserOverrideNotice(text2);
   return sanitized.length > 0 ? sanitized : void 0;
 }
-
 export function normalizeStructuredToolResult(text2) {
   const sanitized = sanitizeDisplayText(text2);
   if (!sanitized) return void 0;
   return normalizeJsonToolResult(sanitized);
 }
-
 function toolConfirmSettlementRejectReason(cause) {
   switch (cause) {
     case void 0:
@@ -184,7 +174,6 @@ function toolConfirmSettlementRejectReason(cause) {
       return "confirmation_unavailable";
   }
 }
-
 export function resolveToolConfirmRejectReason(entry) {
   const settlementReason = toolConfirmSettlementRejectReason(
     entry.rejectedConfirm?.toolConfirmSettlementCause,
@@ -195,7 +184,6 @@ export function resolveToolConfirmRejectReason(entry) {
     (entry.rejectedConfirm ? "user_rejected" : void 0)
   );
 }
-
 export function toolConfirmRejectLabel(reason, t2) {
   switch (reason) {
     case "user_rejected":

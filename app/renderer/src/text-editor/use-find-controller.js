@@ -1,6 +1,5 @@
 // use-find-controller.js
 import { reactExports } from "../vendor.js";
-
 function pickInitialMatchIndex(matches2, caretPos) {
   if (matches2.length === 0) return -1;
   for (let i2 = 0; i2 < matches2.length; i2++) {
@@ -8,32 +7,27 @@ function pickInitialMatchIndex(matches2, caretPos) {
   }
   return 0;
 }
-
 function stepMatchIndex(current2, total, dir) {
   if (total <= 0) return -1;
   if (current2 < 0) return dir === 1 ? 0 : total - 1;
   return (current2 + dir + total) % total;
 }
-
 const SEARCH_DEBOUNCE_MS = 150;
-
-const DEFAULT_OPTIONS$1 = {
+const DEFAULT_OPTIONS = {
   matchCase: false,
   wholeWord: false,
   regex: false,
 };
-
 const INITIAL_STATE = {
   isOpen: false,
   query: "",
-  options: DEFAULT_OPTIONS$1,
+  options: DEFAULT_OPTIONS,
   total: 0,
   limited: false,
   currentIndex: -1,
   replaceOpen: false,
   replaceValue: "",
 };
-
 export function useFindController(adapter) {
   const adapterRef = reactExports.useRef(adapter);
   adapterRef.current = adapter;

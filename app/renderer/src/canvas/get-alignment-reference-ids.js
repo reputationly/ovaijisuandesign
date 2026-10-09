@@ -1,10 +1,7 @@
 // get-alignment-reference-ids.js
-import { createStore$1 } from "../vendor.js";
-
+import { createStore$1 as createStore } from "../vendor.js";
 export const DEFAULT_BUFFER_RATIO = 1.5;
-
 export const MIN_EDGES_TO_CULL = 32;
-
 export function applyEdgeCullingVisibility(edges, hiddenIds) {
   if (hiddenIds.size === 0) return edges;
   let dirty = false;
@@ -24,7 +21,6 @@ export function applyEdgeCullingVisibility(edges, hiddenIds) {
   }
   return dirty ? out : edges;
 }
-
 export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
   const hidden = new Set();
   const [tx, ty, zoom2] = state2.transform;
@@ -66,7 +62,6 @@ export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
   }
   return hidden;
 }
-
 export function sameMembership(a2, b3) {
   if (a2 === b3) return true;
   if (a2.size !== b3.size) return false;
@@ -75,11 +70,8 @@ export function sameMembership(a2, b3) {
   }
   return true;
 }
-
 export const MIDDLE_DRAG_CLASS = "hilo-canvas-middle-pan";
-
 export const STYLE_ELEMENT_ID = "hilo-middle-pan-style";
-
 function ancestors(node2, byId) {
   const result = [];
   const seen2 = new Set([node2.id]);
@@ -91,7 +83,6 @@ function ancestors(node2, byId) {
   }
   return result;
 }
-
 export function getAlignmentReferenceIds(nodes, draggedIds) {
   const byId = new Map(nodes.map((node2) => [node2.id, node2]));
   const dragged = new Set(draggedIds);
@@ -146,7 +137,6 @@ export function getAlignmentReferenceIds(nodes, draggedIds) {
     })
     .map((node2) => node2.id);
 }
-
 export function intersectsViewport(a2, b3) {
   return (
     a2.width > 0 &&
@@ -159,11 +149,9 @@ export function intersectsViewport(a2, b3) {
     a2.y + a2.height > b3.y
   );
 }
-
 export const EMPTY_GUIDES = [];
-
 export function createAlignmentGuidesStore() {
-  return createStore$1(() => ({
+  return createStore(() => ({
     guides: EMPTY_GUIDES,
     transform: [0, 0, 1],
   }));

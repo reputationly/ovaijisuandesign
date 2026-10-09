@@ -3,7 +3,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import {
   dedupedToast,
   guardAccountSubmission,
-  InfoIcon$1,
+  InfoIcon$1 as InfoIcon,
   jsxRuntimeExports,
   reactExports,
   usePlatform,
@@ -16,7 +16,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -33,11 +33,8 @@ import {
   useHailuoWallet,
   useMigrateDeadline,
 } from "../team/hailuo-credit-row.jsx";
-
 const BLOCK_TAGS = new Set(["title", "subtitle", "bullet", "details"]);
-
 const INLINE_TAGS = new Set(["b", "br"]);
-
 function parseInlines(parent) {
   const out = [];
   for (const child of Array.from(parent.childNodes)) {
@@ -86,7 +83,6 @@ function parseInlines(parent) {
   }
   return out;
 }
-
 function parseDetailsItems(parent) {
   const items = [];
   for (const child of Array.from(parent.childNodes)) {
@@ -97,7 +93,6 @@ function parseDetailsItems(parent) {
   }
   return items;
 }
-
 function parseBulletContent(parent) {
   const out = [];
   for (const child of Array.from(parent.childNodes)) {
@@ -153,7 +148,6 @@ function parseBulletContent(parent) {
   }
   return out;
 }
-
 function fallbackPlainText(text2) {
   return [
     {
@@ -167,7 +161,6 @@ function fallbackPlainText(text2) {
     },
   ];
 }
-
 function parsePopupRichText(raw2) {
   if (!raw2 || typeof raw2 !== "string") return [];
   const trimmed = raw2.trim();
@@ -243,22 +236,17 @@ function parsePopupRichText(raw2) {
   if (!hasBlockTag && blocks.length === 0) return fallbackPlainText(trimmed);
   return blocks;
 }
-
 function firstBlockOf(blocks, kind) {
   return blocks.find((b3) => b3.kind === kind);
 }
-
 function allBlocksOf(blocks, kind) {
   return blocks.filter((b3) => b3.kind === kind);
 }
-
 const POPUP_TYPE = "migration";
-
 function renderInlines(inlines) {
   if (!inlines || inlines.length === 0) return null;
   return inlines.map((inline2, i2) => renderInline(inline2, i2));
 }
-
 function renderInline(inline2, key2) {
   if (inline2.kind === "text") return <span key={key2}>{inline2.value}</span>;
   if (inline2.kind === "br") return <br key={key2} />;
@@ -268,7 +256,6 @@ function renderInline(inline2, key2) {
     </strong>
   );
 }
-
 function DetailsTooltipTrigger({ details }) {
   const { t: t2 } = useTranslation();
   const items = details.items;
@@ -286,7 +273,7 @@ function DetailsTooltipTrigger({ details }) {
             aria-label={t2("mediaplan.migration.popup.detailsAriaLabel")}
             className="inline-flex cursor-help items-center text-muted-foreground/70 hover:text-foreground transition-colors"
           >
-            <InfoIcon$1 size={12} strokeWidth={1.75} />
+            <InfoIcon size={12} strokeWidth={1.75} />
           </button>
         </TooltipTrigger>
         <TooltipContent
@@ -312,7 +299,6 @@ function DetailsTooltipTrigger({ details }) {
     </TooltipProvider>
   );
 }
-
 function renderBulletInlines(inlines) {
   if (inlines.length === 0) return null;
   const first2 = inlines[0];
@@ -330,7 +316,6 @@ function renderBulletInlines(inlines) {
   }
   return renderInlines(inlines);
 }
-
 function renderBulletContent(content2) {
   if (content2.length === 0) return null;
   const detailsIdx = content2.findIndex((n2) => n2.kind === "details");
@@ -348,7 +333,6 @@ function renderBulletContent(content2) {
     </>
   );
 }
-
 function inlinesToPlainText(inlines) {
   if (!inlines) return "";
   return inlines
@@ -360,7 +344,6 @@ function inlinesToPlainText(inlines) {
     .join("")
     .trim();
 }
-
 export function MigrationPopup({ popup, onClose }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -508,7 +491,7 @@ export function MigrationPopup({ popup, onClose }) {
             )}
           </div>
           <DialogFooter className="flex flex-col gap-2 px-6 pb-6 pt-2 sm:flex-col sm:justify-stretch">
-            <Button$1
+            <Button
               ref={primaryButtonRef}
               className="h-9 w-full text-[13px]"
               onClick={handlePrimary}
@@ -516,9 +499,9 @@ export function MigrationPopup({ popup, onClose }) {
               data-action-ui-id="server-popup.migration.primary"
             >
               {primaryLabel}
-            </Button$1>
+            </Button>
             {showRedeem && (
-              <Button$1
+              <Button
                 variant="outline"
                 className="h-8 w-full text-xs"
                 onClick={handleRedeem}
@@ -526,7 +509,7 @@ export function MigrationPopup({ popup, onClose }) {
                 data-action-ui-id="server-popup.migration.redeem"
               >
                 {t2("mediaplan.migration.popup.redeemCta")}
-              </Button$1>
+              </Button>
             )}
           </DialogFooter>
         </DialogContent>

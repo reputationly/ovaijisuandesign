@@ -47,7 +47,7 @@ import {
   ProductionPlanDisclosureContext,
 } from "../text-editor/capability-search-card.jsx";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
 import { MediaGenDetail } from "./media-gen-detail.jsx";
@@ -57,11 +57,9 @@ import {
 } from "../workspace/use-deep-link-router.js";
 import { Progress } from "../team/team-management-detail-loading.jsx";
 import { ToolConfirmCard } from "../generation/tool-confirm-card.jsx";
-
 function useProductionPlanDisclosure() {
   return reactExports.useContext(ProductionPlanDisclosureContext);
 }
-
 function matchKnowledgePath(path2) {
   if (!path2) return void 0;
   const match2 = path2.match(KNOWLEDGE_PATH_RE);
@@ -71,27 +69,20 @@ function matchKnowledgePath(path2) {
     full: path2.replace(/\\/g, "/"),
   };
 }
-
 const HTTP_URL_RE$1 = /^https?:\/\//i;
-
 const WINDOWS_ABSOLUTE_PATH_RE$1 = /^[a-zA-Z]:[\\/]/;
-
 const WINDOWS_UNC_PATH_RE$1 = /^\\\\/;
-
 function isWindowsPath(path2) {
   return (
     WINDOWS_ABSOLUTE_PATH_RE$1.test(path2) || WINDOWS_UNC_PATH_RE$1.test(path2)
   );
 }
-
 function isAbsoluteLocalPath$1(path2) {
   return path2.startsWith("/") || isWindowsPath(path2);
 }
-
 function stripQueryAndHash(path2) {
   return path2.split(/[?#]/, 1)[0] ?? path2;
 }
-
 function decodeRoutePath(path2) {
   try {
     return decodeURIComponent(path2);
@@ -99,7 +90,6 @@ function decodeRoutePath(path2) {
     return void 0;
   }
 }
-
 function normalizeRelativePath(path2) {
   const segments = path2
     .replace(/\\/g, "/")
@@ -109,7 +99,6 @@ function normalizeRelativePath(path2) {
     return void 0;
   return segments.join("/");
 }
-
 function toWorkspaceFileRelativePath(path2, workspacePath) {
   const source = path2.trim();
   if (!source || HTTP_URL_RE$1.test(source)) return void 0;
@@ -140,45 +129,36 @@ function toWorkspaceFileRelativePath(path2, workspacePath) {
     normalizedPath.slice(normalizedWorkspace.length + 1),
   );
 }
-
-const MEDIA_GEN_CATEGORIES$1 = new Set([
+const MEDIA_GEN_CATEGORIES = new Set([
   "imageGen",
   "videoGen",
   "videoEdit",
   "audioGen",
   "musicGen",
 ]);
-
 const FILE_ACTIVITY_FAILED_I18N = {
   analyseMedia: "chat.activity.analyseMedia.failed",
 };
-
 function formatElapsedMilliseconds(milliseconds) {
   const totalSeconds = Math.max(0, Math.floor(milliseconds / 1e3));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 }
-
 const TIMELINE_ICON_SIZE = 16;
-
 function thinkingSummary(content2) {
   return content2
     .replace(/[*_`#>]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
-
 const TIMELINE_TOOL_ICON_SIZE = 18;
-
 const TIMELINE_ICON_STROKE_WIDTH = 1.24;
-
 function getTimelineIconSize(entry) {
   return entry.type === "tool" && entry.category === "execute"
     ? TIMELINE_TOOL_ICON_SIZE
     : TIMELINE_ICON_SIZE;
 }
-
 function extractKnowledgePaths(toolName2, toolArgs) {
   if (toolName2 !== "hub_read" || !toolArgs) return void 0;
   try {
@@ -188,7 +168,6 @@ function extractKnowledgePaths(toolName2, toolArgs) {
   } catch {}
   return void 0;
 }
-
 function extractSkillName(toolArgs) {
   if (!toolArgs) return void 0;
   try {
@@ -203,7 +182,6 @@ function extractSkillName(toolArgs) {
   } catch {}
   return void 0;
 }
-
 function parseComfyUiRunDisplayResult(toolResult) {
   const normalized = normalizeStructuredToolResult(toolResult);
   if (!normalized) return void 0;
@@ -235,7 +213,6 @@ function parseComfyUiRunDisplayResult(toolResult) {
     return void 0;
   }
 }
-
 function renderToolLabel(entry, t2) {
   if (entry.type === "tool" && entry.toolName === "hub_run_comfyui_workflow") {
     const result = parseComfyUiRunDisplayResult(entry.toolResult);
@@ -318,7 +295,7 @@ function renderToolLabel(entry, t2) {
   }
   const isLyrics =
     entry.type === "tool" && !!entry.toolName?.includes("lyrics_");
-  if (MEDIA_GEN_CATEGORIES$1.has(entry.category)) {
+  if (MEDIA_GEN_CATEGORIES.has(entry.category)) {
     if (entry.toolStatus === "running" || entry.toolStatus === "pending") {
       if (isLyrics)
         return t2("chat.activity.lyricsGen.running", {
@@ -375,7 +352,6 @@ function renderToolLabel(entry, t2) {
     count: 1,
   });
 }
-
 function TimelineOperationTargetChip({ operation }) {
   const currentWorkspace = useCurrentWorkspace();
   const { activePlanId, openPlan } = useProductionPlanDisclosure();
@@ -395,7 +371,7 @@ function TimelineOperationTargetChip({ operation }) {
   if (!operation.inputSummary) return null;
   if (canOpenPlan || operation.targetNodeIds.length > 0) {
     return (
-      <Button$1
+      <Button
         type="button"
         variant="ghost"
         size="xs"
@@ -408,7 +384,7 @@ function TimelineOperationTargetChip({ operation }) {
         onClick={handleOpenTarget}
       >
         <span className="min-w-0 truncate">{operation.inputSummary}</span>
-      </Button$1>
+      </Button>
     );
   }
   return (
@@ -417,7 +393,6 @@ function TimelineOperationTargetChip({ operation }) {
     </span>
   );
 }
-
 function TimelineOperationRow({ operation, isActive: isActive2 }) {
   const { t: t2 } = useTranslation();
   const labelKey = isActive2
@@ -448,7 +423,6 @@ function TimelineOperationRow({ operation, isActive: isActive2 }) {
     </div>
   );
 }
-
 function timelineOperationKey(operation) {
   return [
     operation.kind,
@@ -459,7 +433,6 @@ function timelineOperationKey(operation) {
     operation.inputSummary,
   ].join("|");
 }
-
 function TimelineOperationRows({ operations, isActive: isActive2 }) {
   return (
     <div
@@ -479,17 +452,12 @@ function TimelineOperationRows({ operations, isActive: isActive2 }) {
     </div>
   );
 }
-
 const HTTP_URL_RE = /^https?:\/\//i;
-
 const WINDOWS_ABSOLUTE_PATH_RE = /^[a-zA-Z]:[\\/]/;
-
 const WINDOWS_UNC_PATH_RE = /^\\\\/;
-
 function isGatewayRoute(path2) {
   return path2.startsWith("/files/") || path2.startsWith("/api/");
 }
-
 function isAbsoluteLocalPath(path2) {
   return (
     (!isGatewayRoute(path2) && path2.startsWith("/")) ||
@@ -497,7 +465,6 @@ function isAbsoluteLocalPath(path2) {
     WINDOWS_UNC_PATH_RE.test(path2)
   );
 }
-
 function resolveFileChipMediaUrl(item, resolveUrl) {
   const source = item.url?.trim() || item.path;
   if (!source) return void 0;
@@ -507,7 +474,6 @@ function resolveFileChipMediaUrl(item, resolveUrl) {
     return resolveUrl(API_PATHS.serveLocal(source));
   return resolveUrl(API_PATHS.serveFile(source));
 }
-
 function FileOpChipsRow({ items }) {
   const resolveUrl = useResolveMediaUrl();
   const currentWorkspace = useCurrentWorkspace();
@@ -554,7 +520,6 @@ function FileOpChipsRow({ items }) {
     </div>
   );
 }
-
 function ProcessStepsDetail({ steps, t: t2 }) {
   return (
     <div className="flex min-w-0 flex-col gap-2" data-process-steps={true}>
@@ -604,7 +569,6 @@ function ProcessStepsDetail({ steps, t: t2 }) {
     </div>
   );
 }
-
 function DetailCornerWrap({ children: children2, dataMessageId }) {
   return (
     <div className="ml-[9px] pl-3 min-w-0" data-message-id={dataMessageId}>
@@ -612,7 +576,6 @@ function DetailCornerWrap({ children: children2, dataMessageId }) {
     </div>
   );
 }
-
 export function TimelineItem({
   entry,
   isActive: isActive2,
@@ -653,7 +616,7 @@ export function TimelineItem({
     if (entry.interruption === "canvas_continuation") setDetailExpanded(true);
   }, [entry.interruption]);
   const rawToolView = useDebugFlag(DEBUG_FLAGS.rawToolView);
-  const isMediaGen = MEDIA_GEN_CATEGORIES$1.has(entry.category);
+  const isMediaGen = MEDIA_GEN_CATEGORIES.has(entry.category);
   const isConnector = entry.type === "tool" && entry.category === "connector";
   const detailEligible = isMediaGen || isConnector || rawToolView;
   const knowledgePaths =

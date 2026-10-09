@@ -4,7 +4,7 @@ import {
   isGenerationErrorStatus,
 } from "../canvas/compute-group-bounds-from-children.js";
 import {
-  Download$2,
+  Download$2 as Download,
   isUserProvidedAssetModel,
   jsxRuntimeExports,
   PlaybackCircleToggleIcon,
@@ -17,7 +17,7 @@ import { AudioActionSurface } from "./audio-action-surface.jsx";
 import { useNodeRename } from "../infra/use-node-rename.js";
 import { useNodeIsEmpty } from "../infra/create-recently-added-store.js";
 import {
-  formatTime$2,
+  formatTime,
   MEDIA_NODE_RADIUS,
   useAssetMeta,
   useCanvasBridge,
@@ -63,7 +63,6 @@ import {
 } from "./use-warn-missing-asset-meta.jsx";
 import { NodeHeader } from "../canvas/node-header-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
-
 function hashCode(str2) {
   let hash2 = 5381;
   for (let i2 = 0; i2 < str2.length; i2++) {
@@ -71,31 +70,22 @@ function hashCode(str2) {
   }
   return Math.abs(hash2);
 }
-
-function seededRandom$1(seed) {
+function seededRandom(seed) {
   let s2 = seed;
   return () => {
     s2 = (s2 * 1103515245 + 12345) & 2147483647;
     return s2 / 2147483647;
   };
 }
-
-const WAVEFORM_HEIGHT$1 = 64;
-
+const WAVEFORM_HEIGHT = 64;
 const BAR_WIDTH = 3;
-
-const BAR_GAP$3 = 2;
-
+const BAR_GAP = 2;
 const BAR_RADIUS = BAR_WIDTH / 2;
-
-const MAX_BAR_HEIGHT_RATIO = 40 / WAVEFORM_HEIGHT$1;
-
-const MIN_BAR_HEIGHT_RATIO = BAR_WIDTH / WAVEFORM_HEIGHT$1;
-
+const MAX_BAR_HEIGHT_RATIO = 40 / WAVEFORM_HEIGHT;
+const MIN_BAR_HEIGHT_RATIO = BAR_WIDTH / WAVEFORM_HEIGHT;
 const PLAYHEAD_HIT_WIDTH = 12;
-
 function generateBarHeights(fileName, count2) {
-  const rng = seededRandom$1(hashCode(fileName));
+  const rng = seededRandom(hashCode(fileName));
   const heights = [];
   for (let i2 = 0; i2 < count2; i2++) {
     heights.push(
@@ -105,20 +95,18 @@ function generateBarHeights(fileName, count2) {
   }
   return heights;
 }
-
 function roundedBarPath(x2, y4, width, height) {
   const radius = Math.min(BAR_RADIUS, width / 2, height / 2);
   const right = x2 + width;
   const bottom = y4 + height;
   return `M${x2 + radius},${y4}H${right - radius}Q${right},${y4} ${right},${y4 + radius}V${bottom - radius}Q${right},${bottom} ${right - radius},${bottom}H${x2 + radius}Q${x2},${bottom} ${x2},${bottom - radius}V${y4 + radius}Q${x2},${y4} ${x2 + radius},${y4}Z`;
 }
-
 function buildWaveformPath(barHeights, height) {
   return barHeights
     .map((ratio, index2) => {
       const barHeight = ratio * height;
       return roundedBarPath(
-        index2 * (BAR_WIDTH + BAR_GAP$3),
+        index2 * (BAR_WIDTH + BAR_GAP),
         (height - barHeight) / 2,
         BAR_WIDTH,
         barHeight,
@@ -126,7 +114,6 @@ function buildWaveformPath(barHeights, height) {
     })
     .join("");
 }
-
 const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
   { fileName, progress, width, height, onClick },
   ref,
@@ -134,7 +121,7 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
   const { t: t2 } = useTranslation();
   const svgRef = reactExports.useRef(null);
   const isDraggingRef = reactExports.useRef(false);
-  const barCount = Math.floor(width / (BAR_WIDTH + BAR_GAP$3));
+  const barCount = Math.floor(width / (BAR_WIDTH + BAR_GAP));
   const barHeights = reactExports.useMemo(
     () => generateBarHeights(fileName, barCount),
     [fileName, barCount],
@@ -275,7 +262,6 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
     </svg>
   );
 });
-
 const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next2) => {
   return (
     prev.fileName === next2.fileName &&
@@ -285,7 +271,6 @@ const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next2) => {
     prev.onClick === next2.onClick
   );
 });
-
 function resolveCanvasAudioSource({
   resourceActive,
   url: url2,
@@ -296,13 +281,9 @@ function resolveCanvasAudioSource({
   if (viewportStatus === "far" && !isPlaying) return void 0;
   return url2;
 }
-
 const WAVEFORM_H_PADDING = 16;
-
 const WAVEFORM_CONTAINER_HEIGHT = 64;
-
 const WAVEFORM_WIDTH = AUDIO_CARD_SIZE.width - WAVEFORM_H_PADDING * 2;
-
 export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
   const { t: t2 } = useTranslation();
   const generatingStateStore = useGeneratingStateApi();
@@ -513,10 +494,10 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
       const d2 = audio.duration;
       progressRef.current = d2 > 0 ? t22 / d2 : 0;
       if (playedRef.current) {
-        playedRef.current.textContent = formatTime$2(t22);
+        playedRef.current.textContent = formatTime(t22);
       }
       if (durationRef.current) {
-        durationRef.current.textContent = formatTime$2(d2, true);
+        durationRef.current.textContent = formatTime(d2, true);
       }
       waveformRef.current?.setPlayheadProgress(progressRef.current);
       rafRef.current = requestAnimationFrame(tick);
@@ -537,10 +518,10 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
     progressRef.current = 0;
     waveformRef.current?.setPlayheadProgress(0);
     if (playedRef.current) {
-      playedRef.current.textContent = formatTime$2(0);
+      playedRef.current.textContent = formatTime(0);
     }
     if (durationRef.current) {
-      durationRef.current.textContent = formatTime$2(duration, true);
+      durationRef.current.textContent = formatTime(duration, true);
     }
   }, [stop, duration]);
   const handleTogglePlay = reactExports.useCallback(
@@ -571,10 +552,10 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
       progressRef.current = p3;
       waveformRef.current?.setPlayheadProgress(p3);
       if (playedRef.current) {
-        playedRef.current.textContent = formatTime$2(audio.currentTime);
+        playedRef.current.textContent = formatTime(audio.currentTime);
       }
       if (durationRef.current) {
-        durationRef.current.textContent = formatTime$2(duration, true);
+        durationRef.current.textContent = formatTime(duration, true);
       }
     },
     [duration],
@@ -799,7 +780,7 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
                       color: "var(--fg-default, #141414)",
                     }}
                   >
-                    {formatTime$2(0)}
+                    {formatTime(0)}
                   </span>
                   <span
                     style={{
@@ -807,9 +788,7 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
                     }}
                   >
                     {" / "}
-                    <span ref={durationRef}>
-                      {formatTime$2(duration, true)}
-                    </span>
+                    <span ref={durationRef}>{formatTime(duration, true)}</span>
                   </span>
                 </span>
                 <button
@@ -859,7 +838,7 @@ export function AudioNodeInner({ id: id2, data: data2, selected: selected2 }) {
                       flexShrink: 0,
                     }}
                   >
-                    <Download$2 size={14} />
+                    <Download size={14} />
                   </button>
                 ) : (
                   <div

@@ -6,8 +6,8 @@ import {
   cloudErrorDisplayMessage,
 } from "../workspace/asset-lineage-query-key.js";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -20,7 +20,6 @@ import {
   instantiationService,
   IProjectAssetsService,
 } from "../workspace/home-service.jsx";
-
 function isLive(item) {
   return (
     item.status === "pending" ||
@@ -29,19 +28,17 @@ function isLive(item) {
     item.status === "reviewing"
   );
 }
-
 export function FolderTileGlyph({ className }) {
   return (
     <span
       aria-hidden="true"
-      className={cn$2("relative inline-block h-8 w-8 shrink-0", className)}
+      className={cn("relative inline-block h-8 w-8 shrink-0", className)}
     >
       <span className="absolute left-[3px] top-[6px] h-[6px] w-[14px] rounded-[3px] bg-[color:color-mix(in_oklch,var(--brand-accent)_55%,var(--background))]" />
       <span className="absolute inset-x-[2px] top-[10px] bottom-[4px] rounded-[4px] bg-[color:color-mix(in_oklch,var(--brand-accent)_42%,var(--background))] shadow-[0_1px_2px_rgba(0,0,0,0.04)]" />
     </span>
   );
 }
-
 export function useProjectAssetsService() {
   return reactExports.useMemo(
     () =>
@@ -51,7 +48,6 @@ export function useProjectAssetsService() {
     [],
   );
 }
-
 export function useTransfers() {
   const service2 = useProjectAssetsService();
   const [transfers, setTransfers] = reactExports.useState([]);
@@ -106,7 +102,6 @@ export function useTransfers() {
     removeTransfer,
   };
 }
-
 export function rejectionToastText(t2, rejected) {
   const name2 = rejected.fileName;
   switch (rejected.rejection) {
@@ -134,7 +129,6 @@ export function rejectionToastText(t2, rejected) {
       });
   }
 }
-
 export function toastFolderDownloadSummary(t2, summary) {
   const parts = [];
   if (summary.skippedSynced > 0) {
@@ -191,7 +185,6 @@ export function toastFolderDownloadSummary(t2, summary) {
     });
   }
 }
-
 export function NewFolderDialog({
   open,
   projectId,
@@ -256,20 +249,20 @@ export function NewFolderDialog({
           autoComplete="off"
         />
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={!trimmed || pending2}
             onClick={() => void handleConfirm()}
           >
             {t2("common.confirm")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

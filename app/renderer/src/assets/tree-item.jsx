@@ -2,7 +2,7 @@
 import {
   API_PATHS,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Crosshair,
   reactExports,
   useTranslation,
@@ -20,7 +20,7 @@ import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
 import { Folder, FolderOpen } from "../media-editing/package.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { splitFilename } from "../canvas/uploading-assets.jsx";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { ContextMenuTrigger } from "../workspace/context-menu-content.jsx";
@@ -29,7 +29,6 @@ import {
   isInvalidDropTarget,
 } from "./use-file-explorer-canvas-integration.js";
 import { AssetContextMenuContent } from "./asset-context-menu-content.jsx";
-
 const IMAGE_EXTS = new Set([
   "png",
   "jpg",
@@ -40,23 +39,15 @@ const IMAGE_EXTS = new Set([
   "ico",
   "bmp",
 ]);
-
 const VIDEO_EXTS = new Set(["mp4", "mov", "avi", "webm", "mkv"]);
-
 const AUDIO_EXTS = new Set(["mp3", "wav", "ogg", "flac", "aac", "m4a"]);
-
 const DRAG_MIME = "application/x-file-explorer-path";
-
 const TREE_ROW_OUTER_CLASS =
   "group flex h-8 mx-2 w-[calc(100%-1rem)] items-center text-[13px] select-none transition-colors outline-none";
-
 const TREE_ROW_INNER_CLASS =
   "flex h-7 w-full min-w-0 items-center gap-0.5 rounded-md px-2 transition-colors";
-
 const TREE_ROW_HOVER_CLASS = "group-hover:bg-foreground/5";
-
 const TREE_ROW_SELECTED_CLASS = "bg-foreground/[0.12]";
-
 function getThumbnailUrl(gatewayUrl2, fileName, absPath, rootPath) {
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
   const prefix =
@@ -76,7 +67,6 @@ function getThumbnailUrl(gatewayUrl2, fileName, absPath, rootPath) {
   }
   return null;
 }
-
 function FileThumbnail({ url: url2, name: name2, isVideo }) {
   const [error, setError] = reactExports.useState(false);
   const [retried, setRetried] = reactExports.useState(false);
@@ -113,9 +103,7 @@ function FileThumbnail({ url: url2, name: name2, isVideo }) {
     </div>
   );
 }
-
 const SPECIAL_PROPS = ["renamingPath", "entry", "asset"];
-
 function arePropsEqual(prev, next2) {
   const prevIsRenaming = prev.renamingPath === prev.entry.path;
   const nextIsRenaming = next2.renamingPath === next2.entry.path;
@@ -148,7 +136,6 @@ function arePropsEqual(prev, next2) {
   }
   return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS);
 }
-
 export const TreeItem = reactExports.memo(function TreeItem2({
   entry,
   depth: depth2,
@@ -312,7 +299,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
         }}
       >
         <div
-          className={cn$2(
+          className={cn(
             TREE_ROW_INNER_CLASS,
             !entry.isDirectory && "h-8 gap-2",
           )}
@@ -402,7 +389,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
   };
   if (entry.isDirectory) {
     const FolderIcon = isExpanded ? FolderOpen : Folder;
-    const Arrow = isExpanded ? ChevronDown : ChevronRight$1;
+    const Arrow = isExpanded ? ChevronDown : ChevronRight;
     return (
       <ContextMenu onOpenChange={onMenuOpenChange}>
         <ContextMenuTrigger
@@ -410,7 +397,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
             <button
               type="button"
               draggable={!isRenaming}
-              className={cn$2(TREE_ROW_OUTER_CLASS, "cursor-pointer text-left")}
+              className={cn(TREE_ROW_OUTER_CLASS, "cursor-pointer text-left")}
               style={{
                 paddingLeft,
               }}
@@ -424,7 +411,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
           }
         >
           <div
-            className={cn$2(
+            className={cn(
               TREE_ROW_INNER_CLASS,
               dragOver || isSelected || contextOpen
                 ? TREE_ROW_SELECTED_CLASS
@@ -485,7 +472,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
           ref={rowRef}
           draggable={!isRenaming}
           data-coach-anchor="file-item"
-          className={cn$2(
+          className={cn(
             TREE_ROW_OUTER_CLASS,
             "cursor-pointer",
             isMissing && "opacity-50",
@@ -503,7 +490,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
       }
     >
       <div
-        className={cn$2(
+        className={cn(
           TREE_ROW_INNER_CLASS,
           "h-8 gap-2",
           isSelected || contextOpen
@@ -528,7 +515,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
             const { head: stem, tail: ext2 } = splitFilename(entry.name);
             return (
               <span
-                className={cn$2(
+                className={cn(
                   "min-w-0 flex flex-1 items-baseline",
                   isMissing ? "text-foreground/30" : "text-foreground/70",
                 )}
@@ -565,7 +552,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
             title={t2("fileExplorer.locateOnCanvas")}
             data-action-ui-id="asset-panel.row-locate-on-canvas"
             onClick={handleLocateButtonClick}
-            className={cn$2(
+            className={cn(
               "inline-flex size-6 shrink-0 items-center justify-center rounded-sm",
               "text-foreground/40 opacity-0 transition-colors",
               "group-hover:opacity-100 hover:bg-foreground/5 hover:text-foreground/70",

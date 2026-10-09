@@ -1,21 +1,20 @@
 // build-decorations.js
-import { Decoration$1, DecorationSet, PluginKey } from "../vendor.js";
-
+import {
+  Decoration$1 as Decoration,
+  DecorationSet,
+  PluginKey,
+} from "../vendor.js";
 export const findPluginKey = new PluginKey("canvasFindHighlight");
-
 const FIND_MATCH_CLASS = "canvas-find-match";
-
 export const FIND_MATCH_ACTIVE_CLASS = "canvas-find-match-active";
-
 const MAX_FIND_DECORATIONS = 2e3;
-
-export function buildDecorations$1(doc2, meta2) {
+export function buildDecorations(doc2, meta2) {
   if (meta2.ranges.length === 0) return DecorationSet.empty;
   const decorations2 = [];
   const push2 = ({ from: from2, to }, active2) => {
     if (from2 >= to || to > doc2.content.size) return;
     decorations2.push(
-      Decoration$1.inline(from2, to, {
+      Decoration.inline(from2, to, {
         class: active2
           ? `${FIND_MATCH_CLASS} ${FIND_MATCH_ACTIVE_CLASS}`
           : FIND_MATCH_CLASS,
@@ -31,7 +30,6 @@ export function buildDecorations$1(doc2, meta2) {
   }
   return DecorationSet.create(doc2, decorations2);
 }
-
 export async function hashDiffReviewMarkdown(markdown2) {
   if (!globalThis.crypto?.subtle) return null;
   const digest = await globalThis.crypto.subtle.digest(
@@ -42,7 +40,6 @@ export async function hashDiffReviewMarkdown(markdown2) {
     byte.toString(16).padStart(2, "0"),
   ).join("");
 }
-
 export function reconstructDiffReviewBaseline(postApplyMarkdown, session) {
   if (session.hunks.every((hunk) => hunk.status === "undone"))
     return postApplyMarkdown;
@@ -64,17 +61,13 @@ export function reconstructDiffReviewBaseline(postApplyMarkdown, session) {
   }
   return markdown2;
 }
-
 export const DIFF_REVIEW_WRITE_ACK_TTL_MS = 15e3;
-
 export const MAX_PENDING_DIFF_REVIEW_WRITE_ACKS = 32;
-
 export function beginDiffReviewWriteAckEpoch(tracker2, epoch) {
   if (tracker2.epoch === epoch) return;
   tracker2.epoch = epoch;
   tracker2.pending = [];
 }
-
 export function pruneExpiredDiffReviewWriteAcks(tracker2, now2) {
   if (tracker2.pending.length === 0) return;
   tracker2.pending = tracker2.pending.filter((entry) => entry.expiresAt > now2);

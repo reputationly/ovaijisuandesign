@@ -8,7 +8,6 @@ import { Settings2 } from "../media-editing/package.jsx";
 import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { CanvasToolbarExtensionButton } from "../canvas/canvas-toolbar-extension-button.jsx";
-
 export function CanvasHostToolbarButton({
   icon,
   label,
@@ -75,7 +74,6 @@ export function CanvasHostToolbarButton({
   }
   return trigger;
 }
-
 export function CanvasWatermarkChip({ variant = "floating" }) {
   const { t: t2 } = useTranslation();
   const { openSettings } = useSettingsDialog();
@@ -115,29 +113,26 @@ export function CanvasWatermarkChip({ variant = "floating" }) {
     </div>
   );
 }
-
-function asRecord$2(value) {
+function asRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? value
     : null;
 }
-
-function requiredString$1(record2, key2) {
+function requiredString(record2, key2) {
   const value = record2[key2];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
-
 export function mapLocalComfyUiWorkflows(value) {
-  const workflows = asRecord$2(value)?.workflows;
+  const workflows = asRecord(value)?.workflows;
   if (!Array.isArray(workflows)) return [];
   return workflows.flatMap((candidate) => {
-    const record2 = asRecord$2(candidate);
+    const record2 = asRecord(candidate);
     if (!record2 || record2.source !== "user") return [];
-    const id2 = requiredString$1(record2, "id");
-    const name2 = requiredString$1(record2, "name");
-    const title = requiredString$1(record2, "title");
+    const id2 = requiredString(record2, "id");
+    const name2 = requiredString(record2, "name");
+    const title = requiredString(record2, "title");
     if (!id2 || !name2 || !title) return [];
-    const shortDesc = requiredString$1(record2, "short_desc");
+    const shortDesc = requiredString(record2, "short_desc");
     const tags2 = Array.isArray(record2.tags)
       ? record2.tags.filter((tag) => typeof tag === "string")
       : void 0;
@@ -161,7 +156,6 @@ export function mapLocalComfyUiWorkflows(value) {
     ];
   });
 }
-
 export function computeGridDropPositions(
   anchor,
   sizes,
@@ -187,20 +181,16 @@ export function computeGridDropPositions(
   }
   return positions;
 }
-
 const MEDIA_TYPE_SET = new Set(["image", "video", "audio", "text", "file"]);
-
 export function asMediaType(t2) {
   return t2 && MEDIA_TYPE_SET.has(t2) ? t2 : void 0;
 }
-
-const MARK_ID$1 = "canvas-group-intro";
-
+const MARK_ID = "canvas-group-intro";
 export function GroupCoachMark({ anchorRef, selectedCount }) {
   const { t: t2 } = useTranslation();
   return (
     <CoachMark
-      markId={MARK_ID$1}
+      markId={MARK_ID}
       enabled={selectedCount >= 2}
       anchorRef={anchorRef}
       side="top"
@@ -221,11 +211,8 @@ export function GroupCoachMark({ anchorRef, selectedCount }) {
     />
   );
 }
-
 export const NODE_CONTEXT_MENU_VIEWPORT_MARGIN = 8;
-
 const NODE_CONTEXT_MENU_ANCHOR_GAP = 4;
-
 function resolveAxis(anchor, menuSize, viewportSize, margin, gap) {
   const min2 = margin;
   const max2 = Math.max(min2, viewportSize - margin - menuSize);
@@ -235,7 +222,6 @@ function resolveAxis(anchor, menuSize, viewportSize, margin, gap) {
   if (before >= min2 && before <= max2) return before;
   return Math.min(Math.max(after, min2), max2);
 }
-
 export function resolveNodeContextMenuPosition({
   anchor,
   menuSize,

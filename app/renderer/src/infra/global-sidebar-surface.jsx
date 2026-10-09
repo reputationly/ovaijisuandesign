@@ -6,22 +6,17 @@ import {
   GLOBAL_SIDEBAR_MIN_WIDTH,
   GLOBAL_SIDEBAR_RAIL_WIDTH,
 } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2, useBrowserHoverPreview } from "./dialog-content.jsx";
+import { cn$2 as cn, useBrowserHoverPreview } from "./dialog-content.jsx";
 import { useWindowChrome } from "../workspace/offline-banner.jsx";
 import {
   GLOBAL_SIDEBAR_PREVIEW_EDGE_HIT_WIDTH,
   useGlobalSidebar,
 } from "../media-editing/derive-session-task-snapshot.jsx";
 import { HomeSidebar } from "../workspace/home-sidebar.jsx";
-
 const GLOBAL_SIDEBAR_PREVIEW_PANEL_INSET = 4;
-
 const GLOBAL_SIDEBAR_DOCKED_FOOTER_HEIGHT = 56;
-
 const GLOBAL_SIDEBAR_RAIL_FOOTER_HEIGHT = 136;
-
 const SIDEBAR_USER_MENU_PREVIEW_HOLD = "sidebar-user-menu";
-
 export function GlobalSidebarSurface() {
   const {
     width,
@@ -152,7 +147,7 @@ export function GlobalSidebarSurface() {
         }
       />
       <div
-        className={cn$2(
+        className={cn(
           "absolute inset-y-0 left-0",
           previewInteractionBridge
             ? "no-drag pointer-events-auto z-50"
@@ -182,7 +177,7 @@ export function GlobalSidebarSurface() {
         onBlur={handleSurfaceBlur}
       >
         <div
-          className={cn$2(
+          className={cn(
             "transparent-window-floating-sidebar elevated-surface-border pointer-events-none absolute inset-y-1 left-1 rounded-xl transition-[clip-path,opacity,box-shadow] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
             previewExpanded ? "duration-[160ms]" : "duration-0",
             previewExpanded ? "opacity-100 shadow-lg" : "opacity-0 shadow-none",
@@ -199,7 +194,7 @@ export function GlobalSidebarSurface() {
           aria-hidden="true"
         />
         <div
-          className={cn$2(
+          className={cn(
             "pointer-events-auto absolute inset-y-0 left-0 transition-[clip-path] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
             previewExpanded ? "duration-[160ms]" : "duration-0",
             railMode ? "overflow-hidden" : "overflow-visible",

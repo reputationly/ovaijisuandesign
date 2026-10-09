@@ -17,7 +17,7 @@ import {
   SUBMIT_LOCK_AFTER_SEND_MS,
   WARNING_KEYS,
 } from "./map-hub-cancel-check.js";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -30,7 +30,6 @@ import {
 import { Checkbox } from "../infra/checkbox.jsx";
 import { Label } from "./use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
   const { t: t2 } = useTranslation();
   const { clearLocalAuth } = useAuth();
@@ -191,7 +190,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
                 autoComplete="one-time-code"
                 data-action-ui-id="account-delete-confirm.verify-code"
               />
-              <Button$1
+              <Button
                 type="button"
                 variant="secondary"
                 disabled={
@@ -207,7 +206,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
                       seconds: countdown,
                     })
                   : t2("account.delete.sendCode")}
-              </Button$1>
+              </Button>
             </div>
           </div>
           {actionError ? (

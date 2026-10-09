@@ -75,7 +75,7 @@ import {
   ContextMenu,
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import {
   canWriteResourceDragData,
@@ -84,7 +84,7 @@ import {
 import { splitFilename } from "../canvas/uploading-assets.jsx";
 import {
   findAssetForPath,
-  toWorkspaceRelativePath$1,
+  toWorkspaceRelativePath,
 } from "../media-editing/parse-workspace-path.js";
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { ToolConfirmCard } from "../generation/tool-confirm-card.jsx";
@@ -112,12 +112,10 @@ import { SentAnnotationCards } from "./sent-annotation-cards.jsx";
 import { BillingInsufficientCard } from "../team/billing-insufficient-card.jsx";
 import { CreditThresholdReminderCard } from "../team/credit-threshold-reminder-card.jsx";
 import { ErrorMessage } from "../team/error-message.jsx";
-
 function useIsChildRecovering(childSessionId) {
   const recovering = reactExports.useContext(RecoveringChildrenContext);
   return childSessionId ? recovering.has(childSessionId) : false;
 }
-
 function AudioArtifactChip({
   src,
   originalSrc,
@@ -127,7 +125,7 @@ function AudioArtifactChip({
 }) {
   const workspaceId2 = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath$1(originalSrc, src),
+    () => toWorkspaceRelativePath(originalSrc, src),
     [originalSrc, src],
   );
   const { assets } = useAssets({
@@ -168,7 +166,7 @@ function AudioArtifactChip({
       data-slot={dataSlot}
       data-artifact-type="audio"
       data-artifact-path={src}
-      className={cn$2(
+      className={cn(
         "my-2 flex h-8 w-full items-center gap-1.5 rounded-md bg-foreground/[0.05] pr-2 pl-0.5 text-left transition-colors hover:bg-foreground/[0.08] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         canDrag && "cursor-grab active:cursor-grabbing",
         className,
@@ -188,7 +186,6 @@ function AudioArtifactChip({
     </button>
   );
 }
-
 function SubImage({ sub }) {
   const { t: t2 } = useTranslation();
   const [error, setError] = reactExports.useState(false);
@@ -218,7 +215,6 @@ function SubImage({ sub }) {
     />
   );
 }
-
 function SubVideo({ sub }) {
   const { t: t2 } = useTranslation();
   const [error, setError] = reactExports.useState(false);
@@ -248,7 +244,6 @@ function SubVideo({ sub }) {
     />
   );
 }
-
 function SubAudio({ sub }) {
   const { t: t2 } = useTranslation();
   const resolveMediaUrl2 = useResolveMediaUrl();
@@ -261,7 +256,6 @@ function SubAudio({ sub }) {
     );
   return <AudioArtifactChip src={src} originalSrc={sub.url ?? sub.content} />;
 }
-
 function collectArtifactsFromSubMessages(subs) {
   if (!subs?.length) return [];
   const seen2 = new Set();
@@ -269,12 +263,10 @@ function collectArtifactsFromSubMessages(subs) {
   collectFromSubMessages(subs, seen2, out);
   return out;
 }
-
 function isOutputProducingTool(toolName2) {
   const labelId = getToolLabelId(toolName2);
   return labelId === "mediaGen" || labelId === "contentProcess";
 }
-
 function isFailedGenerationResult(result) {
   if (!result) return false;
   try {
@@ -297,7 +289,6 @@ function isFailedGenerationResult(result) {
     );
   }
 }
-
 function subAgentHasError(subs) {
   if (!subs?.length) return false;
   let generationError = false;
@@ -328,17 +319,12 @@ function subAgentHasError(subs) {
   if (hasOkGeneration) return false;
   return collectArtifactsFromSubMessages(subs).length === 0;
 }
-
 const SUB_AGENT_TIMELINE_ICON_STROKE_WIDTH = 1.24;
-
 const MIN_REPLAY_SEQUENCE_LENGTH = 3;
-
 const IN_PROGRESS_AGENT_KEYS = new Set(["planner", "executor", "excutor"]);
-
 function dropResumePrompts(subs) {
   return subs.filter((s2) => !isResumeChildPrompt(s2.content ?? ""));
 }
-
 function replayBlocksMatch(keys2, firstStart, secondStart, length2) {
   for (let offset2 = 0; offset2 < length2; offset2++) {
     if (keys2[firstStart + offset2] !== keys2[secondStart + offset2])
@@ -346,7 +332,6 @@ function replayBlocksMatch(keys2, firstStart, secondStart, length2) {
   }
   return true;
 }
-
 function collapseReplayedSubMessageSequences(messages2) {
   const keys2 = messages2.map(subMessageSemanticKey);
   const result = [];
@@ -389,7 +374,6 @@ function collapseReplayedSubMessageSequences(messages2) {
   }
   return result;
 }
-
 function ToolCallCard({ msg, repeatCount, questionDefaultExpanded = true }) {
   const toolName2 = msg.content;
   const capabilityResult =
@@ -413,7 +397,6 @@ function ToolCallCard({ msg, repeatCount, questionDefaultExpanded = true }) {
   }
   return <GenericToolCard msg={msg} repeatCount={repeatCount} />;
 }
-
 function subMessageToChatMessage(sub) {
   const maybeConfirm = sub;
   if (maybeConfirm.type === "tool_confirm_ask") {
@@ -463,7 +446,6 @@ function subMessageToChatMessage(sub) {
     role: "agent",
   };
 }
-
 function AudioMessage({ msg }) {
   const { t: t2 } = useTranslation();
   const resolveMediaUrl2 = useResolveMediaUrl();
@@ -477,9 +459,7 @@ function AudioMessage({ msg }) {
   }
   return <AudioArtifactChip src={src} originalSrc={msg.url ?? msg.content} />;
 }
-
 const CANCELLED_MESSAGE_ICON_STROKE_WIDTH = 1.24;
-
 function CancelledMessage() {
   const { t: t2 } = useTranslation();
   return (
@@ -497,7 +477,6 @@ function CancelledMessage() {
     </div>
   );
 }
-
 function CompactionStatusMessage({ message: message2 }) {
   const { t: t2 } = useTranslation();
   const completed = message2.content === "compacted";
@@ -523,7 +502,6 @@ function CompactionStatusMessage({ message: message2 }) {
     </div>
   );
 }
-
 function ConfirmRequest({ msg, onSend }) {
   const { t: t2 } = useTranslation();
   const [choice, setChoice] = reactExports.useState(null);
@@ -565,13 +543,11 @@ function ConfirmRequest({ msg, onSend }) {
     </div>
   );
 }
-
 function getFileName(path2) {
   const normalized = path2.replace(/\\/g, "/");
   const parts = normalized.split("/");
   return parts[parts.length - 1] || path2;
 }
-
 function isSafeUrl(url2) {
   try {
     const { protocol } = new URL(url2);
@@ -580,7 +556,6 @@ function isSafeUrl(url2) {
     return false;
   }
 }
-
 function FileAddedMessage({ msg }) {
   const resolveMediaUrl2 = useResolveMediaUrl();
   const path2 = msg.content;
@@ -620,9 +595,7 @@ function FileAddedMessage({ msg }) {
     </div>
   );
 }
-
 const LOCATE_CLICK_DELAY_MS = 180;
-
 function ImageMessage({ msg }) {
   const { t: t2 } = useTranslation();
   const [error, setError] = reactExports.useState(false);
@@ -635,7 +608,7 @@ function ImageMessage({ msg }) {
   const locateTimerRef = reactExports.useRef(null);
   const workspaceId2 = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath$1(msg.url, src),
+    () => toWorkspaceRelativePath(msg.url, src),
     [msg.url, src],
   );
   const { assets } = useAssets({
@@ -744,7 +717,6 @@ function ImageMessage({ msg }) {
     </>
   );
 }
-
 function InteractRequest({ msg, onSend }) {
   const { t: t2 } = useTranslation();
   const [reply, setReply] = reactExports.useState("");
@@ -792,7 +764,6 @@ function InteractRequest({ msg, onSend }) {
     </div>
   );
 }
-
 function MessageWithdrawn({ reason }) {
   const { t: t2 } = useTranslation();
   return (
@@ -816,7 +787,6 @@ function MessageWithdrawn({ reason }) {
     </div>
   );
 }
-
 function QuestionMessage({ msg }) {
   const { t: t2 } = useTranslation();
   const raw2 = msg.questionData?.questions;
@@ -903,7 +873,6 @@ function QuestionMessage({ msg }) {
     </div>
   );
 }
-
 function dedupeReplayedSubMessages(messages2) {
   const seen2 = new Set();
   return messages2.filter((message2) => {
@@ -913,7 +882,6 @@ function dedupeReplayedSubMessages(messages2) {
     return true;
   });
 }
-
 function keepLatestSubAgentThinking(messages2) {
   let latestThinkingIndex = -1;
   for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
@@ -928,11 +896,9 @@ function keepLatestSubAgentThinking(messages2) {
       message2.type !== "thinking" || index2 === latestThinkingIndex,
   );
 }
-
 function getInitialExpandedState(collapsed, resolved) {
   return !collapsed && !resolved;
 }
-
 function pendingToolConfirmIds(messages2) {
   return messages2.flatMap((message2) => {
     if (message2.type === "tool_confirm_ask") {
@@ -945,11 +911,9 @@ function pendingToolConfirmIds(messages2) {
       : [];
   });
 }
-
 function IndentL({ children: children2 }) {
   return <div className="ml-[9px] pl-3 min-w-0">{children2}</div>;
 }
-
 function SubAgentIcon({ agentKey, agentLabel }) {
   const identity2 = `${agentKey} ${agentLabel}`.toLocaleLowerCase();
   const Icon$12 =
@@ -976,12 +940,10 @@ function SubAgentIcon({ agentKey, agentLabel }) {
     />
   );
 }
-
 function nodeKey(node2, idx) {
   if (node2.kind === "activity-group") return node2.items[0]?.id ?? `ag-${idx}`;
   return node2.msg.id;
 }
-
 function isGroupedNodeStreaming(
   node2,
   index2,
@@ -1005,7 +967,6 @@ function isGroupedNodeStreaming(
   }
   return !pinnedStreamingActionId && index2 === total - 1;
 }
-
 function SubTextBlock({ sub }) {
   const { t: t2 } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
@@ -1059,7 +1020,6 @@ function SubTextBlock({ sub }) {
     </div>
   );
 }
-
 function SubGroupedNode({
   node: node2,
   subLookup,
@@ -1104,7 +1064,6 @@ function SubGroupedNode({
     return <NestedSubAgent sub={sub} onSend={onSend} />;
   return <SubTextBlock sub={sub} />;
 }
-
 function NestedSubAgent({ sub, onSend }) {
   const { t: t2 } = useTranslation();
   const pendingConfirmKey = JSON.stringify(
@@ -1253,7 +1212,6 @@ function NestedSubAgent({ sub, onSend }) {
     </div>
   );
 }
-
 function SubAgentGroup({ msg, onSend }) {
   const { t: t2 } = useTranslation();
   const agentKey = msg.agent ?? "";
@@ -1442,7 +1400,6 @@ function SubAgentGroup({ msg, onSend }) {
     </div>
   );
 }
-
 function RecoveredMessage({ content: content2 }) {
   const headline = stripRecoveredPrefix(content2.split("\n")[0] ?? "")
     .replace(/[:：]\s*$/, "")
@@ -1458,10 +1415,8 @@ function RecoveredMessage({ content: content2 }) {
     </div>
   );
 }
-
 const BILLING_ERROR_CODE_PATTERN =
   /`{1,3}billing_insufficient_balance`{1,3}|\[billing_insufficient_balance\]|billing_insufficient_balance/gi;
-
 function RemoteToolGuiLink() {
   const remoteTool = useWorkspaceRemoteToolOptional();
   const { t: t2 } = useTranslation();
@@ -1483,7 +1438,6 @@ function RemoteToolGuiLink() {
     </button>
   );
 }
-
 const TextMessage = reactExports.memo(function TextMessage2({
   msg,
   isLast,
@@ -1538,11 +1492,9 @@ const TextMessage = reactExports.memo(function TextMessage2({
     </div>
   );
 });
-
 function stripMdMarkers(text2) {
   return text2.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
 }
-
 function ThinkingBlock({ msg, isStreaming }) {
   const { t: t2 } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(!!isStreaming);
@@ -1596,7 +1548,6 @@ function ThinkingBlock({ msg, isStreaming }) {
     </div>
   );
 }
-
 function VideoMessage({ msg }) {
   const { t: t2 } = useTranslation();
   const [error, setError] = reactExports.useState(false);
@@ -1667,7 +1618,6 @@ function VideoMessage({ msg }) {
     </div>
   );
 }
-
 export const MessageBubble = reactExports.memo(function MessageBubble2({
   msg,
   isStreaming,

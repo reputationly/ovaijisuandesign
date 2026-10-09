@@ -1,6 +1,6 @@
 // create-team-dialog.jsx
 import {
-  Info$1,
+  Info$1 as Info,
   jsxRuntimeExports,
   reactExports,
   useTranslation,
@@ -42,13 +42,10 @@ import {
 import { TeamCreditPage } from "./team-credit-page.jsx";
 import { TeamManagementDialog } from "./team-management-dialog.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
-
 const USER_STOPPABLE_REASONS = ["ACTIVE_RUN"];
-
 function hasUserStoppableReason(reasons) {
   return reasons.some((reason) => USER_STOPPABLE_REASONS.includes(reason));
 }
-
 function CreateTeamDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const { createTeamAndSwitch, lastTransitionAttempt } = useTeamAccount();
@@ -128,7 +125,7 @@ function CreateTeamDialog({ open, onOpenChange }) {
                     />
                   }
                 >
-                  <Info$1 size={14} strokeWidth={1.5} aria-hidden={true} />
+                  <Info size={14} strokeWidth={1.5} aria-hidden={true} />
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
                   {t2("team.create.creditInfo", {
@@ -171,7 +168,6 @@ function CreateTeamDialog({ open, onOpenChange }) {
     </Dialog>
   );
 }
-
 function DissolveTransferSuccessDialog({ result, onClose }) {
   const { t: t2 } = useTranslation();
   return (
@@ -202,7 +198,6 @@ function DissolveTransferSuccessDialog({ result, onClose }) {
     </AlertDialog>
   );
 }
-
 function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const stoppable = hasUserStoppableReason(blockingReasons);
@@ -258,11 +253,9 @@ function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
     </AlertDialog>
   );
 }
-
 function dialogScopeKey(scope) {
   return [scope.identityKey, scope.groupId, scope.epoch].join(":");
 }
-
 function dialogScopeIdentityEquals(left, right) {
   if (!left || !right) return false;
   return (
@@ -271,7 +264,6 @@ function dialogScopeIdentityEquals(left, right) {
     left.epoch === right.epoch
   );
 }
-
 export function TeamDialogHost() {
   const { t: t2 } = useTranslation();
   const {

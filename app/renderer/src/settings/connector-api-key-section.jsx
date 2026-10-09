@@ -17,12 +17,10 @@ import {
   ConnectorDialogStep,
   useConnectorCopy,
 } from "./make-async-image-task.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 const API_KEY_MAX_LENGTH = 2048;
-
 function isValidApiKey(value) {
   const key2 = value.trim();
   return (
@@ -33,7 +31,6 @@ function isValidApiKey(value) {
     !/^(?:Authorization|secret-key):/iu.test(key2)
   );
 }
-
 function buildApiKeyConnectorInput(manifest, key2, description) {
   const mcp = manifest.capabilities.mcp;
   if (mcp?.kind !== "remote" || manifest.auth.kind !== "apiKey") {
@@ -66,7 +63,6 @@ function buildApiKeyConnectorInput(manifest, key2, description) {
     },
   };
 }
-
 export function ConnectorApiKeySection({
   manifest,
   iconUrl,
@@ -195,7 +191,7 @@ export function ConnectorApiKeySection({
                     className="mt-3 flex flex-wrap items-center gap-2"
                     data-layout-slot="connector-credential-actions"
                   >
-                    <Button$1
+                    <Button
                       type="button"
                       variant="outline"
                       className="h-8 gap-1 rounded-lg bg-card px-3 hover:bg-card/80"
@@ -212,9 +208,9 @@ export function ConnectorApiKeySection({
                     >
                       {copy2("login")}
                       <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
-                    </Button$1>
+                    </Button>
                     {auth?.docsUrl ? (
-                      <Button$1
+                      <Button
                         type="button"
                         variant="ghost"
                         className="h-8 gap-1 rounded-lg px-3 text-muted-foreground hover:text-foreground"
@@ -234,7 +230,7 @@ export function ConnectorApiKeySection({
                           size="sm"
                           aria-hidden={true}
                         />
-                      </Button$1>
+                      </Button>
                     ) : null}
                   </div>
                   {loginError ? (
@@ -296,7 +292,7 @@ export function ConnectorApiKeySection({
           cancelDisabled={submitting}
           onCancel={handleClose}
         >
-          <Button$1
+          <Button
             type="submit"
             className="h-9 min-w-26 rounded-lg px-4"
             disabled={!keyValid || submitting}
@@ -304,7 +300,7 @@ export function ConnectorApiKeySection({
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
             {submitting ? t2("connectors.detail.connecting") : copy2("connect")}
-          </Button$1>
+          </Button>
         </ConnectorDialogActions>
       </form>
     </ConnectorDialogShell>

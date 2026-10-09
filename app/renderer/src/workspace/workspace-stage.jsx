@@ -1,54 +1,36 @@
 // workspace-stage.jsx
 import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2, useBrowserHoverPreview } from "../infra/dialog-content.jsx";
+import {
+  cn$2 as cn,
+  useBrowserHoverPreview,
+} from "../infra/dialog-content.jsx";
 import { WorkspacePaneReorderProvider } from "../chat/use-browser-chat-media.jsx";
 import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
-
 const MIN_CHAT_RATIO = 0;
-
 const MAX_CHAT_RATIO = 0.72;
-
 const TARGET_MIN_CHAT_WIDTH = 220;
-
 const TARGET_MIN_CANVAS_WIDTH = 320;
-
 const PANE_REORDER_ACTIVATION_DISTANCE = 8;
-
 const PANE_REORDER_MIN_SWAP_DISTANCE = 96;
-
 const PANE_REORDER_MAX_SWAP_DISTANCE = 128;
-
 const PANE_REORDER_SWAP_DISTANCE_RATIO = 0.1;
-
 const PANE_REORDER_TARGET_DWELL_MS = 100;
-
 const PANE_REORDER_HYSTERESIS = 28;
-
 const PANE_REORDER_MAX_FOLLOW_DISTANCE = 16;
-
 const PANE_REORDER_TRANSITION_MS = 320;
-
 const PANE_REORDER_LIFT_TRANSITION_MS = 140;
-
 const PANE_REORDER_DOCK_TRANSITION_MS = 140;
-
 const PANE_REORDER_COMMIT_TIMEOUT_MS = 1e3;
-
 const DIVIDER_LAYOUT_WIDTH = 0;
-
 const PANE_REORDER_VISUAL_GAP = 8;
-
 const PANE_REORDER_EASING = "cubic-bezier(0.2, 0.9, 0.25, 1.02)";
-
 function clampChatRatio(value) {
   return Math.min(MAX_CHAT_RATIO, Math.max(MIN_CHAT_RATIO, value));
 }
-
 function clamp(value, min2, max2) {
   return Math.min(max2, Math.max(min2, value));
 }
-
 function resolvePaneReorderSwapDistance(stageWidth) {
   return clamp(
     stageWidth * PANE_REORDER_SWAP_DISTANCE_RATIO,
@@ -56,7 +38,6 @@ function resolvePaneReorderSwapDistance(stageWidth) {
     PANE_REORDER_MAX_SWAP_DISTANCE,
   );
 }
-
 function usePrefersReducedMotion() {
   const [prefersReducedMotion2, setPrefersReducedMotion] =
     reactExports.useState(false);
@@ -70,7 +51,6 @@ function usePrefersReducedMotion() {
   }, []);
   return prefersReducedMotion2;
 }
-
 function resolveWorkspaceStagePixelBudget(stageWidth, chatRatio) {
   const availablePaneWidth = Math.max(0, stageWidth - DIVIDER_LAYOUT_WIDTH);
   const ratioMax = stageWidth * MAX_CHAT_RATIO;
@@ -90,17 +70,14 @@ function resolveWorkspaceStagePixelBudget(stageWidth, chatRatio) {
     maxChatWidth,
   };
 }
-
 const IDLE_PANE_REORDER_STATE = {
   phase: "idle",
   targetOrder: null,
   dragOffsetX: 0,
 };
-
 function oppositePaneOrder(paneOrder) {
   return paneOrder === "chat-canvas" ? "canvas-chat" : "chat-canvas";
 }
-
 function dismissWorkspaceFloatingPanels() {
   document.dispatchEvent(
     new globalThis.KeyboardEvent("keydown", {
@@ -111,7 +88,6 @@ function dismissWorkspaceFloatingPanels() {
     }),
   );
 }
-
 export function WorkspaceStage({
   isActive: isActive2 = true,
   paneOrder,
@@ -879,7 +855,7 @@ export function WorkspaceStage({
       data-pane-visible={chatVisible ? "true" : "false"}
       aria-hidden={!chatVisible || overlayOpen}
       inert={!chatVisible || overlayOpen}
-      className={cn$2(
+      className={cn(
         "relative min-h-0 min-w-0",
         chatLifted && "z-30",
         resizeActive && "pointer-events-none",
@@ -892,7 +868,7 @@ export function WorkspaceStage({
       }}
     >
       <div
-        className={cn$2(
+        className={cn(
           "h-full min-h-0 min-w-0 overflow-hidden bg-card",
           paneSurfacesSeparated && "elevated-surface-border",
         )}
@@ -912,7 +888,7 @@ export function WorkspaceStage({
       data-pane-visible={canvasVisible ? "true" : "false"}
       aria-hidden={!canvasVisible || overlayOpen}
       inert={!canvasVisible || overlayOpen}
-      className={cn$2(
+      className={cn(
         "relative min-h-0 min-w-0",
         (paneReorderPointerActive || resizeActive) && "pointer-events-none",
       )}
@@ -924,7 +900,7 @@ export function WorkspaceStage({
       }}
     >
       <div
-        className={cn$2(
+        className={cn(
           "h-full min-h-0 min-w-0 overflow-hidden bg-background",
           paneSurfacesSeparated && "elevated-surface-border",
         )}
@@ -939,7 +915,7 @@ export function WorkspaceStage({
   const divider = splitVisible ? (
     <div
       key={"chat-canvas-divider"}
-      className={cn$2(
+      className={cn(
         "relative z-30 h-full w-0 shrink-0",
         paneReorderPointerActive && "pointer-events-none",
       )}
@@ -999,7 +975,7 @@ export function WorkspaceStage({
     <WorkspacePaneReorderProvider value={paneReorderContext}>
       <div
         ref={rootRef}
-        className={cn$2(
+        className={cn(
           "relative flex min-h-0 min-w-0 flex-1 rounded-xl bg-background elevated-surface-border",
           paneSurfacesSeparated ? "overflow-visible" : "overflow-hidden",
         )}

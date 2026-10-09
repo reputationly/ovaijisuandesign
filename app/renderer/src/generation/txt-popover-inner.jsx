@@ -10,10 +10,10 @@ import {
   useAssetMetadataStore,
   useMusicPromptLayout,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { summarizeParams$1 } from "./summarize-params.js";
+import { summarizeParams } from "./summarize-params.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { BACKEND_SEEDAUDIO } from "./normalize-skill-detail-metadata.js";
 import { PromptTextarea } from "./time-intervals.jsx";
@@ -33,7 +33,7 @@ import {
 } from "./param-label-fallbacks.js";
 import { getDisabledOptions } from "./resolve-reference-texts.js";
 import {
-  CloseButton$1,
+  CloseButton,
   ExpandToggleButton,
   GeneratingButton,
   ParamTextarea,
@@ -66,11 +66,11 @@ import {
   resolveAudioModeSelection,
   resolveAudioPricingId,
   resolveModelSelection,
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   stringRecordsEqual,
 } from "./select-content.jsx";
 import { calcVideoCost } from "./calc-video-cost.js";
@@ -112,7 +112,6 @@ import {
   PopoverShell,
   TextPopoverReferenceSection,
 } from "./attachment-bar.jsx";
-
 export function TxtPopoverInner({
   mode: mode2,
   onSubmit,
@@ -410,7 +409,7 @@ export function TxtPopoverInner({
   const hasAudioRefs = attachmentState.audioPaths.length > 0;
   const blockedRefKind = hasImageRefs ? "audio" : hasAudioRefs ? "image" : null;
   const paramsSummary = reactExports.useMemo(
-    () => summarizeParams$1(t2, selectedModel, modelParams),
+    () => summarizeParams(t2, selectedModel, modelParams),
     [t2, selectedModel, modelParams],
   );
   const computedCreditCost = reactExports.useMemo(() => {
@@ -1955,7 +1954,7 @@ export function TxtPopoverInner({
                 <span className="text-[10px] font-medium text-[var(--canvas-controls-text-muted)]">
                   {t2("canvas.voice.title")}
                 </span>
-                <CloseButton$1
+                <CloseButton
                   variant="inline"
                   onClick={(e2) => {
                     e2.stopPropagation();
@@ -2022,35 +2021,35 @@ export function TxtPopoverInner({
                     key={f2.key}
                     className="flex-1 min-w-0 flex items-center bg-[var(--canvas-node-bg)] border border-[var(--canvas-controls-border)] rounded cursor-pointer transition-[border-color] duration-150 focus-within:border-[var(--canvas-node-border-selected)]"
                   >
-                    <Select$2
+                    <Select
                       value={f2.value}
                       onValueChange={(value) => {
                         if (typeof value === "string") f2.set(value);
                       }}
                     >
-                      <SelectTrigger$1
+                      <SelectTrigger
                         size="sm"
                         onClick={(e2) => e2.stopPropagation()}
                         className="h-6 min-w-0 flex-1 border-none! bg-transparent! py-1 pr-0 pl-1 text-[10px] text-[var(--canvas-controls-text)] shadow-none outline-none focus-visible:border-transparent! focus-visible:ring-0! data-placeholder:text-[var(--canvas-controls-text-muted)] [&>svg]:hidden"
                       >
-                        <SelectValue$1 placeholder={f2.label} />
-                      </SelectTrigger$1>
-                      <SelectContent$1
+                        <SelectValue placeholder={f2.label} />
+                      </SelectTrigger>
+                      <SelectContent
                         sideOffset={6}
                         className="min-w-32"
                         onClick={(e2) => e2.stopPropagation()}
                       >
                         {voiceFilterOptions[f2.key].map((opt) => (
-                          <SelectItem$1
+                          <SelectItem
                             key={opt}
                             value={opt}
                             className="text-[11px]"
                           >
                             {opt}
-                          </SelectItem$1>
+                          </SelectItem>
                         ))}
-                      </SelectContent$1>
-                    </Select$2>
+                      </SelectContent>
+                    </Select>
                     {f2.value ? (
                       <button
                         type="button"
@@ -2061,7 +2060,7 @@ export function TxtPopoverInner({
                         }}
                         className="shrink-0 flex items-center justify-center w-4 h-4 mr-px text-[var(--canvas-controls-text-muted)] hover:text-[var(--canvas-controls-text)] transition-colors duration-150"
                       >
-                        <X$7 size={9} strokeWidth={1.5} />
+                        <X size={9} strokeWidth={1.5} />
                       </button>
                     ) : (
                       <span className="shrink-0 flex items-center justify-center w-4 h-4 mr-px pointer-events-none text-[var(--canvas-controls-text-muted)]">

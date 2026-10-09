@@ -1,11 +1,11 @@
 // hailuo03-super-resolution-popover.jsx
 import {
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -18,16 +18,14 @@ import {
 } from "./package.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
 } from "../generation/select-content.jsx";
-
 const H3_TARGET_RESOLUTION = "2K";
-
 export const Hailuo03SuperResolutionPopover = reactExports.memo(
   function Hailuo03SuperResolutionPopover2({
     onSubmit,
@@ -51,7 +49,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
       (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore$3(selectedSelector);
+    const selected2 = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -87,8 +85,8 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
             {t2("canvas.hailuo03SuperResolution.resolutionLabel", "分辨率")}
           </span>
-          <Select$2 value={H3_TARGET_RESOLUTION}>
-            <SelectTrigger$1
+          <Select value={H3_TARGET_RESOLUTION}>
+            <SelectTrigger
               size="sm"
               data-action-ui-id="canvas.hailuo03-super-resolution.resolution-select"
               className="w-full"
@@ -97,27 +95,27 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
                 <span>{H3_TARGET_RESOLUTION}</span>
                 {nativeBadge}
               </span>
-            </SelectTrigger$1>
-            <SelectContent$1>
-              <SelectItem$1 value={H3_TARGET_RESOLUTION}>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={H3_TARGET_RESOLUTION}>
                 <span className="flex items-center gap-1.5">
                   <span>{H3_TARGET_RESOLUTION}</span>
                   {nativeBadge}
                 </span>
-              </SelectItem$1>
-            </SelectContent$1>
-          </Select$2>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center justify-end gap-2 pt-1">
-          <Button$2
+          <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
             data-action-ui-id="canvas.hailuo03-super-resolution.cancel"
           >
             {t2("canvas.hailuo03SuperResolution.cancel", "取消")}
-          </Button$2>
-          <Button$2
+          </Button>
+          <Button
             variant="default"
             size="sm"
             disabled={!accountSubmissionAllowed}
@@ -132,7 +130,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
                 className="text-[12px] opacity-90"
               />
             )}
-          </Button$2>
+          </Button>
         </div>
       </div>
     );
@@ -146,14 +144,14 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         </>
       );
     return (
-      <NodeToolbar$1
+      <NodeToolbar
         isVisible={true}
         position={Position.Bottom}
         offset={NODE_POPOVER_SAFE_GAP}
         align="center"
       >
         {body2}
-      </NodeToolbar$1>
+      </NodeToolbar>
     );
   },
 );

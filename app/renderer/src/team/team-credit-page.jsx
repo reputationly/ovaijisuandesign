@@ -17,7 +17,7 @@ import {
   useTeamAccount,
 } from "../assets/credit-query-keys.jsx";
 import { WalletSource } from "../generation/to-workspace-browser-url.js";
-import { CREDIT_CACHE_GC_MS$1, fetchWalletInfo } from "./use-wallet-query.jsx";
+import { CREDIT_CACHE_GC_MS, fetchWalletInfo } from "./use-wallet-query.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   deriveMemberCreditDisplay,
@@ -31,7 +31,7 @@ import { TeamPanelError, TeamPanelGated } from "./team-panel-error.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { useMediaModels } from "../generation/normalize-model-info.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
 import { CreditLedgerTable } from "./credit-ledger-table.jsx";
 import { getBillingModelDisplayName } from "./billing-model-display-labels.js";
@@ -50,16 +50,13 @@ import {
   useTeamTransactionsFeedQuery,
   useTeamTransfersFeedQuery,
 } from "./use-team-transactions-feed-query.jsx";
-
 const CONSUMER_LABEL_SEPARATOR = " · ";
-
 function formatConsumerLabel(userName, memberUid) {
   const name2 = (userName ?? "").trim();
   const uid2 = (memberUid ?? "").trim();
   if (name2 && uid2) return `${name2}${CONSUMER_LABEL_SEPARATOR}${uid2}`;
   return name2 || uid2 || null;
 }
-
 function useTeamWalletCreditSummary(scope, enabled = true) {
   const queryScope = scope ? canonicalCreditScope(scope) : null;
   const query = useQuery({
@@ -73,7 +70,7 @@ function useTeamWalletCreditSummary(scope, enabled = true) {
     },
     enabled: enabled && queryScope !== null,
     staleTime: 2e3,
-    gcTime: CREDIT_CACHE_GC_MS$1,
+    gcTime: CREDIT_CACHE_GC_MS,
     retry: false,
   });
   const mpWallet = query.data?.wallets?.find(
@@ -88,7 +85,6 @@ function useTeamWalletCreditSummary(scope, enabled = true) {
     trusted,
   };
 }
-
 function BreakdownOperator({ symbol }) {
   return (
     <span className="hidden pb-1 text-xl text-muted-foreground/60 select-none sm:block">
@@ -96,7 +92,6 @@ function BreakdownOperator({ symbol }) {
     </span>
   );
 }
-
 function TeamCreditBreakdownRow({ teamRemaining, summary }) {
   const { t: t2 } = useTranslation();
   const parts = [
@@ -156,19 +151,13 @@ function TeamCreditBreakdownRow({ teamRemaining, summary }) {
     </div>
   );
 }
-
 const UTF8_BOM = "\uFEFF";
-
 const FORMULA_TRIGGERS = ["=", "+", "-", "@", "	", "\r"];
-
 const PLAIN_NUMBER_RE = /^-?\d+(?:\.\d+)?$/;
-
 function isPlainNumber(value) {
   return PLAIN_NUMBER_RE.test(value);
 }
-
 const LEDGER_DIRECTIONS = new Set(["consume", "refund", "grant", "expired"]);
-
 function parseTransactionId(transactionId) {
   const separator = transactionId.lastIndexOf(":");
   if (separator < 0)
@@ -184,20 +173,17 @@ function parseTransactionId(transactionId) {
     direction,
   };
 }
-
 function formatCsvTime(ms) {
   const date2 = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
   return `${date2.getFullYear()}-${pad(date2.getMonth() + 1)}-${pad(date2.getDate())} ${pad(date2.getHours())}:${pad(date2.getMinutes())}:${pad(date2.getSeconds())}`;
 }
-
 function quoteCsvCell(value) {
   if (/[",\r\n]/.test(value)) {
     return `"${value.replaceAll('"', '""')}"`;
   }
   return value;
 }
-
 function escapeCsvCell(value) {
   const neutralized =
     !isPlainNumber(value) &&
@@ -206,13 +192,11 @@ function escapeCsvCell(value) {
       : value;
   return quoteCsvCell(neutralized);
 }
-
 function escapeCsvIdentifier(value) {
   return /^\d+$/.test(value)
     ? quoteCsvCell(`="${value}"`)
     : escapeCsvCell(value);
 }
-
 function toRow(cells2) {
   return cells2
     .map((cell) =>
@@ -222,7 +206,6 @@ function toRow(cells2) {
     )
     .join(",");
 }
-
 function buildCreditLedgerCsv(transactions, options) {
   const { labels, formatDescription, formatModel, formatDirection } = options;
   const lines = [
@@ -260,13 +243,11 @@ function buildCreditLedgerCsv(transactions, options) {
   return `${UTF8_BOM}${lines.join("\r\n")}\r
 `;
 }
-
 function formatFileDate(ms) {
   const date2 = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
   return `${date2.getFullYear()}${pad(date2.getMonth() + 1)}${pad(date2.getDate())}`;
 }
-
 function buildTeamUsageFileName(options) {
   const now2 = options.now ?? new Date();
   const teamName =
@@ -276,11 +257,8 @@ function buildTeamUsageFileName(options) {
   const memberPart = options.memberId ? `-${options.memberId}` : "";
   return `${teamName}${memberPart}-usage-${start2}-${end2}.csv`;
 }
-
 const EXPORT_PAGE_SIZE = 100;
-
 const MAX_PAGES = 200;
-
 async function fetchAllTransactions(request, signal, onProgress) {
   const all2 = [];
   let cursor = null;
@@ -305,7 +283,6 @@ async function fetchAllTransactions(request, signal, onProgress) {
   }
   throw new Error(`ledger export exceeded ${MAX_PAGES} pages`);
 }
-
 function useTeamLedgerExport() {
   const platform2 = usePlatform();
   const [state2, setState] = reactExports.useState({
@@ -369,12 +346,10 @@ function useTeamLedgerExport() {
     cancel,
   };
 }
-
 const LEDGER_TAB = {
   INTERNAL: "INTERNAL",
   TRANSFER: "TRANSFER",
 };
-
 function formatTransferCounterparty(transfer) {
   const name2 = transfer.counterpartyGroupName;
   const id2 = transfer.counterpartyGroupId;
@@ -393,14 +368,12 @@ function formatTransferCounterparty(transfer) {
     </span>
   );
 }
-
-function amountTone$1(amount) {
+function amountTone(amount) {
   const value = BigInt(amount);
   if (value > 0n) return "credit";
   if (value < 0n) return "debit";
   return "neutral";
 }
-
 export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   const { t: t2 } = useTranslation();
   const { data: mediaModels } = useMediaModels();
@@ -716,7 +689,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     ]);
   }, [ledgerScope, open, queryClient2, scope]);
   const exportButton = exportAllowed ? (
-    <Button$1
+    <Button
       variant="outline"
       size="sm"
       disabled={ledgerExport.exporting || exportPermissionRefreshing}
@@ -732,7 +705,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         : t2("team.credit.exportCsv", {
             defaultValue: "导出 CSV",
           })}
-    </Button$1>
+    </Button>
   ) : (
     void 0
   );
@@ -1001,7 +974,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                         model: formatTransferCounterparty(transfer),
                         createdAtMs: transfer.createdAtMs,
                         amount: formatSignedCreditAmount(transfer.amount),
-                        tone: amountTone$1(transfer.amount),
+                        tone: amountTone(transfer.amount),
                       }))}
                       loading={transfersQuery.isPending && !transfersQuery.data}
                       error={transfersQuery.isError && !transfersQuery.data}
@@ -1077,7 +1050,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                         operator: formatOperator(transaction),
                         createdAtMs: transaction.createdAtMs,
                         amount: formatAmount(transaction),
-                        tone: amountTone$1(transaction.amount),
+                        tone: amountTone(transaction.amount),
                       }))}
                       loading={
                         transactionsQuery.isPending && !transactionsQuery.data

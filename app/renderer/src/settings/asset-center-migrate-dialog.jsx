@@ -8,7 +8,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,7 +16,6 @@ import {
   AlertDialogTitle,
 } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-
 export function AssetCenterMigrateDialog({
   open,
   fromPath,
@@ -112,7 +111,7 @@ export function AssetCenterMigrateDialog({
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <Button$1
+          <Button
             onClick={onMigrate}
             disabled={migrateDisabled}
             className="h-9 w-full justify-start gap-2"
@@ -124,8 +123,8 @@ export function AssetCenterMigrateDialog({
               <FolderInput size={16} strokeWidth={1.5} />
             )}
             {t2("settings.assetCenter.migrateConfirm")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             onClick={onSwitchOnly}
             disabled={busy}
@@ -135,8 +134,8 @@ export function AssetCenterMigrateDialog({
             {targetHasContent
               ? t2("settings.assetCenter.useExisting")
               : t2("settings.assetCenter.switchOnly")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             onClick={onCancel}
             disabled={busy}
@@ -144,7 +143,7 @@ export function AssetCenterMigrateDialog({
             data-action-ui-id="settings-asset-center-migrate-cancel"
           >
             {t2("common.cancel")}
-          </Button$1>
+          </Button>
         </div>
       </AlertDialogContent>
     </AlertDialog>

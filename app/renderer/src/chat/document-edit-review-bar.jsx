@@ -10,8 +10,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FileDiff } from "../media-editing/package.jsx";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import { isDiffReviewSessionReady } from "../text-editor/is-diff-review-session-ready.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
-
+import { Button } from "../infra/dialog-content.jsx";
 export function DocumentEditReviewBar() {
   const { t: t2 } = useTranslation();
   const session = useDiffReviewStore((state2) => state2.session);
@@ -85,7 +84,7 @@ export function DocumentEditReviewBar() {
       )}
       {inEditor ? (
         <>
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="h-7 rounded-md px-2 text-xs"
@@ -94,8 +93,8 @@ export function DocumentEditReviewBar() {
             data-action-ui-id="chat-diff-review-undo-all"
           >
             {t2("chat.diffReview.undoAll", "全部撤销")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             className="h-7 rounded-md px-2 text-xs"
             disabled={reviewBlocked}
@@ -103,11 +102,11 @@ export function DocumentEditReviewBar() {
             data-action-ui-id="chat-diff-review-accept-all"
           >
             {t2("chat.diffReview.acceptAll", "全部接受")}
-          </Button$1>
+          </Button>
         </>
       ) : (
         <>
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="h-7 rounded-md px-2 text-xs"
@@ -116,8 +115,8 @@ export function DocumentEditReviewBar() {
             data-action-ui-id="chat-diff-review-cancel"
           >
             {t2("chat.diffReview.cancel", "取消")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             className="h-7 gap-1 rounded-md px-2 text-xs"
             onClick={() => requestOpenEditor(session.nodeId)}
@@ -125,7 +124,7 @@ export function DocumentEditReviewBar() {
           >
             <Eye size={14} strokeWidth={1.5} />
             {t2("chat.diffReview.view", "查看")}
-          </Button$1>
+          </Button>
         </>
       )}
     </div>

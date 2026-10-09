@@ -3,9 +3,9 @@ import { MEDIA_NODE_RADIUS } from "./package.jsx";
 import { GROUP_NODE_PADDING } from "../canvas/compute-group-bounds-from-children.js";
 import { GROUP_COLOR_PRESETS } from "./group-color-presets.jsx";
 import {
-  ChevronDown$2,
+  ChevronDown$2 as ChevronDown,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -23,17 +23,13 @@ import {
 import { NodeFrameStroke } from "../canvas/node-shell-inner.jsx";
 import { useInlineRename } from "../canvas/use-inline-rename.jsx";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
-
 function getGroupColorPreset(key2) {
   if (!key2) return null;
   return GROUP_COLOR_PRESETS[key2] ?? null;
 }
-
 const GROUP_RESIZE_MIN_WIDTH = GROUP_NODE_PADDING.x * 2;
-
 const GROUP_RESIZE_MIN_HEIGHT =
   GROUP_NODE_PADDING.top + GROUP_NODE_PADDING.bottom;
-
 const GROUP_FRAME_BASE_STYLE = {
   position: "absolute",
   inset: 0,
@@ -48,21 +44,13 @@ const GROUP_FRAME_BASE_STYLE = {
   // clips overflow to the contain box — it would invisibly trim the chip.
   contain: "layout style",
 };
-
 const LABEL_HEIGHT_PX = 24;
-
 const LABEL_PADDING_RIGHT_PX = 8;
-
 const LABEL_PADDING_LEFT_PX = 4;
-
 const LABEL_CHEVRON_SIZE_PX = 14;
-
 const LABEL_GAP_PX = 4;
-
 const LABEL_INPUT_MIN_WIDTH_PX = 140;
-
-const zoomSelector$6 = (s2) => s2.transform[2];
-
+const zoomSelector = (s2) => s2.transform[2];
 const GROUP_LABEL_INNER_BASE_STYLE = {
   position: "relative",
   display: "inline-flex",
@@ -83,9 +71,7 @@ const GROUP_LABEL_INNER_BASE_STYLE = {
   userSelect: "none",
   boxSizing: "border-box",
 };
-
 const stopMouseEvent = (e2) => e2.stopPropagation();
-
 function GroupNodeInner({
   id: id2,
   selected: selected2,
@@ -96,7 +82,7 @@ function GroupNodeInner({
   const { resizeGroupNode, mergeNodeData, setGroupCollapsed } =
     useCanvasActions();
   const tagFilterActive = useCanvasTagFilterActive();
-  const zoom2 = useStore$3(zoomSelector$6);
+  const zoom2 = useStore(zoomSelector);
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
   const groupData = data2;
@@ -241,7 +227,7 @@ function GroupNodeInner({
             aria-expanded={!collapsed}
             data-action-ui-id="canvas.group-collapse-toggle"
           >
-            <ChevronDown$2 size={LABEL_CHEVRON_SIZE_PX} />
+            <ChevronDown size={LABEL_CHEVRON_SIZE_PX} />
           </button>
           {rename.editing ? (
             <input
@@ -285,5 +271,4 @@ function GroupNodeInner({
     </div>
   );
 }
-
 export const GroupNode = reactExports.memo(GroupNodeInner, areNodePropsEqual);

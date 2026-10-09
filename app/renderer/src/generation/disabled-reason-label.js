@@ -1,20 +1,17 @@
 // disabled-reason-label.js
 import { ReferenceDisabledReason } from "./attachment-bar.jsx";
-
-function finitePositive$1(value) {
+function finitePositive(value) {
   return typeof value === "number" && Number.isFinite(value) && value > 0
     ? value
     : void 0;
 }
-
-function formatSeconds$1(value, fallback) {
+function formatSeconds(value, fallback) {
   if (value === void 0 || !Number.isFinite(value)) return fallback;
   return Number.isInteger(value) ? String(value) : String(value);
 }
-
-function formatImageMinDimensionLimit$1(constraints2, t2) {
-  const minWidth = finitePositive$1(constraints2?.imageMinWidth);
-  const minHeight = finitePositive$1(constraints2?.imageMinHeight);
+function formatImageMinDimensionLimit(constraints2, t2) {
+  const minWidth = finitePositive(constraints2?.imageMinWidth);
+  const minHeight = finitePositive(constraints2?.imageMinHeight);
   if (minWidth !== void 0 && minHeight !== void 0)
     return `${minWidth}×${minHeight}`;
   if (minWidth !== void 0)
@@ -27,8 +24,7 @@ function formatImageMinDimensionLimit$1(constraints2, t2) {
     });
   return t2("canvas.reference.requiredDimensions", "the required dimensions");
 }
-
-export function disabledReasonLabel$1(reason, constraints2, t2) {
+export function disabledReasonLabel(reason, constraints2, t2) {
   switch (reason) {
     case ReferenceDisabledReason.Unsupported:
       return t2(
@@ -50,7 +46,7 @@ export function disabledReasonLabel$1(reason, constraints2, t2) {
         "canvas.reference.disabledImageSize",
         "Image dimensions must be at least {{dimensions}}.",
         {
-          dimensions: formatImageMinDimensionLimit$1(constraints2, t2),
+          dimensions: formatImageMinDimensionLimit(constraints2, t2),
         },
       );
     case "image-aspect":
@@ -63,8 +59,8 @@ export function disabledReasonLabel$1(reason, constraints2, t2) {
         "canvas.reference.disabledAudioRange",
         "Each audio clip must be between {{min}} and {{max}} seconds.",
         {
-          min: formatSeconds$1(constraints2?.audioPerClipMinSec, "1.8"),
-          max: formatSeconds$1(constraints2?.audioPerClipMaxSec, "15.2"),
+          min: formatSeconds(constraints2?.audioPerClipMinSec, "1.8"),
+          max: formatSeconds(constraints2?.audioPerClipMaxSec, "15.2"),
         },
       );
     case "audio-budget":
@@ -72,10 +68,7 @@ export function disabledReasonLabel$1(reason, constraints2, t2) {
         "canvas.reference.disabledAudioBudget",
         "This audio exceeds the remaining allowance of {{seconds}} seconds.",
         {
-          seconds: formatSeconds$1(
-            constraints2?.remainingAudioTotalSec,
-            "15.2",
-          ),
+          seconds: formatSeconds(constraints2?.remainingAudioTotalSec, "15.2"),
         },
       );
     case "video-budget":
@@ -83,10 +76,7 @@ export function disabledReasonLabel$1(reason, constraints2, t2) {
         "canvas.reference.disabledVideoBudget",
         "This video exceeds the remaining allowance of {{seconds}} seconds.",
         {
-          seconds: formatSeconds$1(
-            constraints2?.remainingVideoTotalSec,
-            "15.2",
-          ),
+          seconds: formatSeconds(constraints2?.remainingVideoTotalSec, "15.2"),
         },
       );
     case "video-range":
@@ -94,8 +84,8 @@ export function disabledReasonLabel$1(reason, constraints2, t2) {
         "canvas.reference.disabledVideoRange",
         "Each video must be between {{min}} and {{max}} seconds.",
         {
-          min: formatSeconds$1(constraints2?.videoPerClipMinSec, "2"),
-          max: formatSeconds$1(constraints2?.videoPerClipMaxSec, "15"),
+          min: formatSeconds(constraints2?.videoPerClipMinSec, "2"),
+          max: formatSeconds(constraints2?.videoPerClipMaxSec, "15"),
         },
       );
     default:

@@ -1,15 +1,19 @@
 // changelog-detail-dialog.jsx
-import { CircleArrowUp, reactExports, useTranslation, X$7 } from "../vendor.js";
+import {
+  CircleArrowUp,
+  reactExports,
+  useTranslation,
+  X$7 as X,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-
 export function ChangelogDetailDialog({
   item,
   onClose,
@@ -27,7 +31,7 @@ export function ChangelogDetailDialog({
   const closeButton = (
     <DialogClose
       render={
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           size="icon-xs"
@@ -36,7 +40,7 @@ export function ChangelogDetailDialog({
         />
       }
     >
-      <X$7 className="size-3" strokeWidth={1.8} />
+      <X className="size-3" strokeWidth={1.8} />
       <span className="sr-only">{t2("common.close")}</span>
     </DialogClose>
   );
@@ -90,7 +94,7 @@ export function ChangelogDetailDialog({
             </span>
           </div>
           {onUpdate && (
-            <Button$1
+            <Button
               type="button"
               size="lg"
               className="w-full rounded-md"
@@ -106,7 +110,7 @@ export function ChangelogDetailDialog({
                 strokeWidth={1.7}
               />
               {t2("update.btn.installNow")}
-            </Button$1>
+            </Button>
           )}
         </div>
       </DialogContent>

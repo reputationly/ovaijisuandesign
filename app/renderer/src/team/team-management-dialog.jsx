@@ -62,7 +62,7 @@ import {
 import { ReceiptText, Users } from "../media-editing/package.jsx";
 import {
   AlertDialog,
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -114,7 +114,6 @@ import { TeamDefaultQuotaPage } from "./team-default-quota-page.jsx";
 import { TeamMemberSettingsPage } from "./team-member-settings-page.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { useMpSubscribeUrl } from "./hailuo-credit-row.jsx";
-
 function useTeamMemberDetailsQuery({ scope, enabled = true }) {
   return useQuery({
     queryKey: scope
@@ -134,9 +133,7 @@ function useTeamMemberDetailsQuery({ scope, enabled = true }) {
     refetchInterval: TEAM_INFO_REFRESH_MS,
   });
 }
-
 const QUOTA_CELL_IDS = ["used", "remaining"];
-
 function TeamManagementQuotaLoading() {
   const { t: t2 } = useTranslation();
   return (
@@ -167,37 +164,29 @@ function TeamManagementQuotaLoading() {
     </div>
   );
 }
-
 const ANONYMOUS_USER_KEY = "anonymous";
-
 const PERSONAL_SCENARIO_KEY = "personal";
-
 function creditTransferTermsKey(params) {
   const userKey = params.userId?.trim() || ANONYMOUS_USER_KEY;
   const scenarioKey = params.groupId?.trim() || PERSONAL_SCENARIO_KEY;
   return `${userKey}:${HILO_HUB_BIZ_LINE}:${scenarioKey}`;
 }
-
 function isCreditTransferTermsAccepted(accepted, key2) {
   if (accepted === void 0 || typeof accepted === "boolean") return false;
   return accepted[key2] !== void 0;
 }
-
 function isBatchRemoveEligible(member) {
   return member.permissions.removeMember.allowed;
 }
-
 function toggleMemberSelection(selected2, userId, nextSelected) {
   const copy2 = new Set(selected2);
   if (nextSelected) copy2.add(userId);
   else copy2.delete(userId);
   return copy2;
 }
-
 function selectLoadedEligible(members, eligible) {
   return new Set(members.filter(eligible).map((member) => member.userId));
 }
-
 function partitionSelection(members, selectedIds, eligible) {
   const selectedEligible = [];
   const selectedIneligible = [];
@@ -211,11 +200,9 @@ function partitionSelection(members, selectedIds, eligible) {
     selectedIneligible,
   };
 }
-
 function hasMemberGovernanceAction(actions) {
   return actions.changeRole || actions.changeQuota || actions.removeMember;
 }
-
 function TransferCreditPage({
   open,
   scope,
@@ -269,9 +256,7 @@ function TransferCreditPage({
     </Page>
   );
 }
-
 const MEMBER_SEARCH_DEBOUNCE_MS = 250;
-
 export function TeamManagementDialog({
   open,
   scope,
@@ -643,7 +628,7 @@ export function TeamManagementDialog({
             {tabs
               .filter((tab2) => tab2.visible)
               .map((tab2) => (
-                <Button$1
+                <Button
                   key={tab2.id}
                   variant={currentTab === tab2.id ? "default" : "ghost"}
                   aria-pressed={currentTab === tab2.id}
@@ -657,7 +642,7 @@ export function TeamManagementDialog({
                 >
                   <Icon icon={tab2.icon} size="sm" aria-hidden={true} />
                   {tab2.label}
-                </Button$1>
+                </Button>
               ))}
           </nav>
           <TeamDialogNavigationContext.Provider value={nestedCloseRef}>
@@ -703,7 +688,7 @@ export function TeamManagementDialog({
                         <code className="truncate font-mono text-foreground">
                           {scope.groupId}
                         </code>
-                        <Button$1
+                        <Button
                           type="button"
                           variant="ghost"
                           size="icon-xs"
@@ -715,7 +700,7 @@ export function TeamManagementDialog({
                           data-action-ui-id="team.management-copy-group-id"
                         >
                           <Icon icon={Copy} size="xs" aria-hidden={true} />
-                        </Button$1>
+                        </Button>
                       </div>
                     ) : null}
                   </div>
@@ -792,7 +777,7 @@ export function TeamManagementDialog({
                                   size="sm"
                                 />
                               ) : (
-                                <Button$1
+                                <Button
                                   type="button"
                                   size="sm"
                                   className="shrink-0"
@@ -803,7 +788,7 @@ export function TeamManagementDialog({
                                   {t2("team.credit.purchase", {
                                     defaultValue: "去购买",
                                   })}
-                                </Button$1>
+                                </Button>
                               )
                             ) : null}
                             {!isMemberView && billingOpen ? (
@@ -811,7 +796,7 @@ export function TeamManagementDialog({
                                 <Tooltip>
                                   <TooltipTrigger
                                     render={
-                                      <Button$1
+                                      <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon-xs"
@@ -840,7 +825,7 @@ export function TeamManagementDialog({
                                           strokeWidth={2}
                                           aria-hidden={true}
                                         />
-                                      </Button$1>
+                                      </Button>
                                     }
                                   />
                                   <TooltipContent>
@@ -1039,7 +1024,7 @@ export function TeamManagementDialog({
                                           <Tooltip>
                                             <TooltipTrigger
                                               render={
-                                                <Button$1
+                                                <Button
                                                   type="button"
                                                   variant="ghost"
                                                   size="icon-xs"
@@ -1073,7 +1058,7 @@ export function TeamManagementDialog({
                                                     strokeWidth={2}
                                                     aria-hidden={true}
                                                   />
-                                                </Button$1>
+                                                </Button>
                                               }
                                             />
                                             <TooltipContent>
@@ -1151,7 +1136,7 @@ export function TeamManagementDialog({
                           {currentTab === "members" && viewInviteLinks ? (
                             <div className="flex min-w-0 flex-wrap items-center gap-2">
                               {canCreateInviteLink ? (
-                                <Button$1
+                                <Button
                                   type="button"
                                   size="sm"
                                   onClick={() =>
@@ -1169,9 +1154,9 @@ export function TeamManagementDialog({
                                   {t2("team.management.invite", {
                                     defaultValue: "邀请成员",
                                   })}
-                                </Button$1>
+                                </Button>
                               ) : null}
-                              <Button$1
+                              <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
@@ -1185,12 +1170,12 @@ export function TeamManagementDialog({
                                 {t2("team.management.inviteRecords", {
                                   defaultValue: "邀请记录",
                                 })}
-                              </Button$1>
+                              </Button>
                             </div>
                           ) : null}
                           {currentTab === "credits" &&
                           canConfigureDefaultQuota ? (
-                            <Button$1
+                            <Button
                               type="button"
                               variant="outline"
                               size="sm"
@@ -1202,7 +1187,7 @@ export function TeamManagementDialog({
                               {t2("team.management.configureDefaultQuota", {
                                 defaultValue: "一键配置限额",
                               })}
-                            </Button$1>
+                            </Button>
                           ) : null}
                         </div>
                       </div>
@@ -1231,7 +1216,7 @@ export function TeamManagementDialog({
                             />
                           </span>
                           {removePartition.selectedEligible.length > 0 ? (
-                            <Button$1
+                            <Button
                               type="button"
                               size="sm"
                               variant="destructive"
@@ -1241,7 +1226,7 @@ export function TeamManagementDialog({
                               {t2("team.management.removeSelected", {
                                 defaultValue: "移除成员",
                               })}
-                            </Button$1>
+                            </Button>
                           ) : null}
                         </div>
                       ) : null}
@@ -1498,7 +1483,7 @@ export function TeamManagementDialog({
                                     className="grid w-full grid-cols-2 items-center gap-1"
                                     data-action-ui-id="team.management-member-actions"
                                   >
-                                    <Button$1
+                                    <Button
                                       type="button"
                                       variant="ghost"
                                       size="sm"
@@ -1517,9 +1502,9 @@ export function TeamManagementDialog({
                                       {t2("team.management.usageDetail", {
                                         defaultValue: "明细",
                                       })}
-                                    </Button$1>
+                                    </Button>
                                     {canManage ? (
-                                      <Button$1
+                                      <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
@@ -1540,9 +1525,9 @@ export function TeamManagementDialog({
                                         {t2("team.management.settings", {
                                           defaultValue: "设置",
                                         })}
-                                      </Button$1>
+                                      </Button>
                                     ) : (
-                                      <Button$1
+                                      <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
@@ -1572,7 +1557,7 @@ export function TeamManagementDialog({
                                         }
                                       >
                                         —
-                                      </Button$1>
+                                      </Button>
                                     )}
                                   </div>
                                 ),
@@ -1724,7 +1709,7 @@ export function TeamManagementDialog({
               (canDissolveTeam || canLeaveTeam) ? (
                 <DialogFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6 sm:py-4">
                   {canLeaveTeam ? (
-                    <Button$1
+                    <Button
                       type="button"
                       variant="destructive"
                       size="sm"
@@ -1734,10 +1719,10 @@ export function TeamManagementDialog({
                       {t2("team.management.leave", {
                         defaultValue: "退出团队",
                       })}
-                    </Button$1>
+                    </Button>
                   ) : null}
                   {canDissolveTeam ? (
-                    <Button$1
+                    <Button
                       type="button"
                       variant="destructive"
                       size="sm"
@@ -1747,7 +1732,7 @@ export function TeamManagementDialog({
                       {t2("team.management.dissolve", {
                         defaultValue: "解散团队",
                       })}
-                    </Button$1>
+                    </Button>
                   ) : null}
                 </DialogFooter>
               ) : null}

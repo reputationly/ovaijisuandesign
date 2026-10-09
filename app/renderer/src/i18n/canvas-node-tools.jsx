@@ -25,9 +25,7 @@ import {
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { buildRumInitStatusTrackProps } from "./init-rum.js";
-
 const CanvasReleaseRegionProvider = CanvasReleaseRegionContext.Provider;
-
 const PAGE_MAP = {
   "/": "Home",
   "/projects": "Projects",
@@ -39,19 +37,14 @@ const PAGE_MAP = {
   "/workspace": "Workspace",
   "/workspace/": "Workspace",
 };
-
 function resolvePageTitle(pathname) {
   return (
     PAGE_MAP[pathname] ?? PAGE_MAP[pathname.replace(/\/$/, "")] ?? pathname
   );
 }
-
 const CanvasTagColorsProvider = CanvasTagColorsContext.Provider;
-
 const CanvasTagFilterActiveProvider = CanvasTagFilterActiveContext.Provider;
-
 const EMPTY_TAG_COLOR_RESOLVER = () => [];
-
 function NodeTagColorStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     NodeTagColorStoreContext.Provider,
@@ -61,11 +54,9 @@ function NodeTagColorStoreProvider({ store, children: children2 }) {
     children2,
   );
 }
-
 function useOptionalHtmlFullscreenApi() {
   return reactExports.useContext(HtmlFullscreenStoreContext);
 }
-
 function CanvasViewProviders({
   region = "overseas",
   tagColorResolver,
@@ -95,7 +86,6 @@ function CanvasViewProviders({
     </CanvasReleaseRegionProvider>
   );
 }
-
 export const HiloCanvasView = reactExports.forwardRef(
   function HiloCanvasView2(props, ref) {
     return (
@@ -109,7 +99,6 @@ export const HiloCanvasView = reactExports.forwardRef(
     );
   },
 );
-
 export function getAttachmentSlotActions({
   kind,
   ready,
@@ -132,7 +121,6 @@ export function getAttachmentSlotActions({
     locate: ready && visual && canLocate,
   };
 }
-
 export function resolveTrackingDomain(rawUrl) {
   try {
     const url2 = new URL(rawUrl);
@@ -142,7 +130,6 @@ export function resolveTrackingDomain(rawUrl) {
     return null;
   }
 }
-
 const CANVAS_NODE_TOOLS = [
   "erase",
   "redraw",
@@ -173,11 +160,9 @@ const CANVAS_NODE_TOOLS = [
   "copy",
   "other",
 ];
-
 export function normalizeCanvasNodeTool(value) {
   return CANVAS_NODE_TOOLS.includes(value) ? value : "other";
 }
-
 export function waitForUserReady(timeoutMs = 1500) {
   return new Promise((resolve) => {
     let done = false;
@@ -199,7 +184,6 @@ export function waitForUserReady(timeoutMs = 1500) {
     }, timeoutMs);
   });
 }
-
 export function markTrackUserAnonymous() {
   if (
     _userReady ||
@@ -209,7 +193,6 @@ export function markTrackUserAnonymous() {
     return;
   _markUserReady();
 }
-
 export function useTrackPageView(pathname) {
   const lastRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -221,11 +204,8 @@ export function useTrackPageView(pathname) {
     });
   }, [pathname]);
 }
-
 const RUM_INIT_STATUS_REPORT_DELAY_MS = 3e3;
-
 const RUM_INIT_STATUS_SNAPSHOT_DELAY_MS = 1e4;
-
 export function scheduleRumInitStatusTrackReports(
   report,
   schedule2 = (handler, delayMs) => window.setTimeout(handler, delayMs),
@@ -237,34 +217,23 @@ export function scheduleRumInitStatusTrackReports(
     report(buildRumInitStatusTrackProps("bootstrap_snapshot_10s"));
   }, RUM_INIT_STATUS_SNAPSHOT_DELAY_MS);
 }
-
-export const canvas_lyrics$1 = "Lyrics";
-
-export const error_auth_unauthorized$1 = "Please sign in to continue.";
-
-export const error_input_audio_blocked$1 =
+export const canvas_lyrics = "Lyrics";
+export const error_auth_unauthorized = "Please sign in to continue.";
+export const error_input_audio_blocked =
   "Your input audio failed safety check. Please check your audio and try again.";
-
-export const error_input_image_blocked$1 =
+export const error_input_image_blocked =
   "Your input image failed safety check. Please check your image and try again.";
-
-export const error_input_text_blocked$1 =
+export const error_input_text_blocked =
   "Your prompt failed safety check. Please check your content and try again.";
-
-export const error_input_video_blocked$1 =
+export const error_input_video_blocked =
   "Your input video failed safety check. Please check your video and try again.";
-
-export const error_network_reconnecting$1 =
+export const error_network_reconnecting =
   "Connection lost. Reconnecting to fetch your result…";
-
-export const error_safety_image_output_blocked$1 =
+export const error_safety_image_output_blocked =
   "The generated image failed safety review. Please revise your prompt or reference and try again.";
-
-export const error_seedance_free_quota_exhausted$1 =
+export const error_seedance_free_quota_exhausted =
   "Seedance is temporarily unavailable. Please try again later.";
-
-export const error_seedance_member_locked$1 =
+export const error_seedance_member_locked =
   "Seedance is not available on your current plan. Please upgrade to continue.";
-
-export const model_input_error_general$1 =
+export const model_input_error_general =
   "The provided input does not meet the model's requirements.";

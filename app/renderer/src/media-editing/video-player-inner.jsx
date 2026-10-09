@@ -1,5 +1,5 @@
 // video-player-inner.jsx
-import { create$2, reactExports, useTranslation } from "../vendor.js";
+import { create$2 as create, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ProgressBar } from "./progress-bar-inner.jsx";
 import { useMediaPlayback } from "./package.jsx";
@@ -11,35 +11,30 @@ import {
   VolumeOffTablerIcon,
   VolumeOnTablerIcon,
 } from "./build-video-thumb-base.jsx";
-
-const STORAGE_KEY$8 = "hilo:canvas:video-muted";
-
+const STORAGE_KEY = "hilo:canvas:video-muted";
 const DEFAULT_MUTED = true;
-
-function readPersisted$2() {
+function readPersisted() {
   if (typeof window === "undefined") return DEFAULT_MUTED;
   try {
-    const v2 = window.localStorage.getItem(STORAGE_KEY$8);
+    const v2 = window.localStorage.getItem(STORAGE_KEY);
     if (v2 === "0") return false;
     if (v2 === "1") return true;
   } catch {}
   return DEFAULT_MUTED;
 }
-
-const useVideoMutedStore = create$2((set2, get3) => ({
-  muted: readPersisted$2(),
+const useVideoMutedStore = create((set2, get3) => ({
+  muted: readPersisted(),
   setMuted: (muted) => {
     if (get3().muted === muted) return;
     set2({
       muted,
     });
     try {
-      window.localStorage.setItem(STORAGE_KEY$8, muted ? "1" : "0");
+      window.localStorage.setItem(STORAGE_KEY, muted ? "1" : "0");
     } catch {}
   },
   toggleMuted: () => get3().setMuted(!get3().muted),
 }));
-
 function recoverPlayingVideoSurface(video, shouldBePlaying) {
   if (!video || !shouldBePlaying) return false;
   try {
@@ -49,7 +44,6 @@ function recoverPlayingVideoSurface(video, shouldBePlaying) {
     return false;
   }
 }
-
 function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
   const { t: t2 } = useTranslation();
   const videoRef = reactExports.useRef(null);
@@ -204,5 +198,4 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
     </div>
   );
 }
-
 export const VideoPlayer = reactExports.memo(VideoPlayerInner);

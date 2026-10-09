@@ -10,43 +10,42 @@ import {
   DEFAULT_WORKFLOW_NODE_SPACING,
 } from "./ungroup-in-canvas.js";
 import {
-  _$2,
-  Bn$2,
+  _,
+  Bn,
   buildAdjacency,
-  H$2,
-  it$1,
-  j$2,
-  k$3,
-  N$1,
+  H,
+  it,
+  j,
+  k,
+  N,
   nodeToRect,
-  O$3,
-  q$2,
+  O,
+  q,
   rectsOverlap,
-  T$3,
+  T,
   topoSortLevels,
   w$3,
-  X$3,
+  X,
   Yn,
 } from "./layout-category-lanes.js";
-import { dt$2, en$3, L$4, le$1, mt, ne$2, Ot, Rt$1, te$2, vt } from "./ot.js";
+import { dt, en, L, le, mt, ne, Ot, Rt, te, vt } from "./ot.js";
 import {
-  _t$1,
-  de$2,
-  Ft$1,
+  _t,
+  de,
+  Ft,
   GridSlotLayout,
   lt2,
   Mt,
   Pt,
   Qe,
-  st$1,
+  st,
 } from "./grid-slot-layout.js";
 import { It } from "./it.js";
-import { p$4, tr$2, z$4 } from "../vendor.js";
-import { W$4 } from "./w.js";
-import { qe$1 } from "./we.js";
+import { p$4 as p, tr$2 as tr, z$4 as z } from "../vendor.js";
+import { W } from "./w.js";
+import { qe } from "./we.js";
 import { CanvasMode } from "./compute-group-bounds-from-children.js";
 import { findFreePositionForRects } from "./find-free-position-for-rects.js";
-
 function findConnectedComponents(nodeIds, edges) {
   const adj = new Map();
   for (const id2 of nodeIds) adj.set(id2, []);
@@ -77,9 +76,8 @@ function findConnectedComponents(nodeIds, edges) {
   }
   return components2;
 }
-
-function A$3(e2) {
-  let n2 = new p$4({
+function A(e2) {
+  let n2 = new p({
     multigraph: e2.isMultigraph(),
   }).setGraph(e2.graph());
   return (
@@ -92,25 +90,23 @@ function A$3(e2) {
     n2
   );
 }
-
-function Te$1(e2) {
+function Te(e2) {
   let n2 = e2.nodes().map((r2) => {
       let o2 = e2.node(r2).rank;
       return o2 === void 0 ? Number.MAX_VALUE : o2;
     }),
-    t2 = L$4(Math.min, n2);
+    t2 = L(Math.min, n2);
   e2.nodes().forEach((r2) => {
     let o2 = e2.node(r2);
     Object.hasOwn(o2, "rank") && (o2.rank -= t2);
   });
 }
-
-function Oe$1(e2) {
+function Oe(e2) {
   let n2 = e2
       .nodes()
       .map((s2) => e2.node(s2).rank)
       .filter((s2) => s2 !== void 0),
-    t2 = L$4(Math.min, n2),
+    t2 = L(Math.min, n2),
     r2 = [];
   e2.nodes().forEach((s2) => {
     let a2 = e2.node(s2).rank - t2;
@@ -124,18 +120,15 @@ function Oe$1(e2) {
       : s2 !== void 0 && o2 && s2.forEach((d2) => (e2.node(d2).rank += o2));
   });
 }
-
-var Wn$2 = () => 1;
-
-function Q$3(e2, n2) {
+var Wn = () => 1;
+function Q(e2, n2) {
   if (e2.nodeCount() <= 1) return [];
-  let t2 = Yn(e2, n2 || Wn$2);
-  return Bn$2(t2.graph, t2.buckets, t2.zeroIdx).flatMap(
+  let t2 = Yn(e2, n2 || Wn);
+  return Bn(t2.graph, t2.buckets, t2.zeroIdx).flatMap(
     (o2) => e2.outEdges(o2.v, o2.w) || [],
   );
 }
-
-function Hn$1(e2) {
+function Hn(e2) {
   let n2 = [],
     t2 = {},
     r2 = {};
@@ -150,22 +143,18 @@ function Hn$1(e2) {
   }
   return (e2.nodes().forEach(o2), n2);
 }
-
-function je$1(e2) {
-  (e2.graph().acyclicer === "greedy" ? Q$3(e2, t2(e2)) : Hn$1(e2)).forEach(
-    (r2) => {
-      let o2 = e2.edge(r2);
-      (e2.removeEdge(r2),
-        (o2.forwardName = r2.name),
-        (o2.reversed = true),
-        e2.setEdge(r2.w, r2.v, o2, j$2("rev")));
-    },
-  );
+function je(e2) {
+  (e2.graph().acyclicer === "greedy" ? Q(e2, t2(e2)) : Hn(e2)).forEach((r2) => {
+    let o2 = e2.edge(r2);
+    (e2.removeEdge(r2),
+      (o2.forwardName = r2.name),
+      (o2.reversed = true),
+      e2.setEdge(r2.w, r2.v, o2, j("rev")));
+  });
   function t2(r2) {
     return (o2) => r2.edge(o2).weight;
   }
 }
-
 function Se(e2) {
   e2.edges().forEach((n2) => {
     let t2 = e2.edge(n2);
@@ -178,8 +167,7 @@ function Se(e2) {
     }
   });
 }
-
-function Xn$2(e2, n2) {
+function Xn(e2, n2) {
   let t2 = n2.v,
     r2 = e2.node(t2).rank,
     o2 = n2.w,
@@ -224,12 +212,10 @@ function Xn$2(e2, n2) {
     s2,
   );
 }
-
-function Fe$1(e2) {
-  ((e2.graph().dummyChains = []), e2.edges().forEach((n2) => Xn$2(e2, n2)));
+function Fe(e2) {
+  ((e2.graph().dummyChains = []), e2.edges().forEach((n2) => Xn(e2, n2)));
 }
-
-function De$1(e2) {
+function De(e2) {
   e2.graph().dummyChains.forEach((n2) => {
     let t2 = e2.node(n2),
       r2 = t2.edgeLabel,
@@ -250,35 +236,32 @@ function De$1(e2) {
         (t2 = e2.node(n2)));
   });
 }
-
-function ot$1(e2) {
+function ot(e2) {
   let n2 = e2.graph().ranker;
   if (typeof n2 == "function") return n2(e2);
   switch (n2) {
     case "network-simplex":
-      qe$1(e2);
+      qe(e2);
       break;
     case "tight-tree":
-      st$1(e2);
+      st(e2);
       break;
     case "longest-path":
-      it$1(e2);
+      it(e2);
       break;
     case "none":
       break;
     default:
-      qe$1(e2);
+      qe(e2);
   }
 }
-
-var Xe = ot$1;
-
-function at$1(e2) {
+var Xe = ot;
+function at(e2) {
   let n2 = lt2(e2);
   e2.graph().dummyChains.forEach((t2) => {
     let r2 = e2.node(t2),
       o2 = r2.edgeObj,
-      i2 = dt$2(e2, n2, o2.v, o2.w),
+      i2 = dt(e2, n2, o2.v, o2.w),
       s2 = i2.path,
       a2 = i2.lca,
       d2 = 0,
@@ -298,10 +281,8 @@ function at$1(e2) {
     }
   });
 }
-
-var Ue = at$1;
-
-function $e$2(e2, n2, t2, r2, o2, i2, s2) {
+var Ue = at;
+function $e(e2, n2, t2, r2, o2, i2, s2) {
   var c3;
   let a2 = e2.children(s2);
   if (!a2.length) {
@@ -312,8 +293,8 @@ function $e$2(e2, n2, t2, r2, o2, i2, s2) {
       });
     return;
   }
-  let d2 = q$2(e2, "_bt"),
-    l2 = q$2(e2, "_bb"),
+  let d2 = q(e2, "_bt"),
+    l2 = q(e2, "_bb"),
     u4 = e2.node(s2);
   (e2.setParent(d2, s2),
     (u4.borderTop = d2),
@@ -321,7 +302,7 @@ function $e$2(e2, n2, t2, r2, o2, i2, s2) {
     (u4.borderBottom = l2),
     a2.forEach((h2) => {
       var y4;
-      $e$2(e2, n2, t2, r2, o2, i2, h2);
+      $e(e2, n2, t2, r2, o2, i2, h2);
       let f2 = e2.node(h2),
         g2 = f2.borderTop ? f2.borderTop : h2,
         b3 = f2.borderBottom ? f2.borderBottom : h2,
@@ -344,33 +325,29 @@ function $e$2(e2, n2, t2, r2, o2, i2, s2) {
         minlen: o2 + ((c3 = i2[s2]) != null ? c3 : 0),
       }));
 }
-
 function ut(e2) {
   let n2 = {};
   function t2(r2, o2) {
     let i2 = e2.children(r2);
     (i2 && i2.length && i2.forEach((s2) => t2(s2, o2 + 1)), (n2[r2] = o2));
   }
-  return (e2.children(_$2).forEach((r2) => t2(r2, 1)), n2);
+  return (e2.children(_).forEach((r2) => t2(r2, 1)), n2);
 }
-
-function ct$1(e2) {
+function ct(e2) {
   return e2.edges().reduce((n2, t2) => n2 + e2.edge(t2).weight, 0);
 }
-
 function Ke(e2) {
   let n2 = w$3(e2, "root", {}, "_root"),
     t2 = ut(e2),
     r2 = Object.values(t2),
-    o2 = L$4(Math.max, r2) - 1,
+    o2 = L(Math.max, r2) - 1,
     i2 = 2 * o2 + 1;
   ((e2.graph().nestingRoot = n2),
     e2.edges().forEach((a2) => (e2.edge(a2).minlen *= i2)));
-  let s2 = ct$1(e2) + 1;
-  (e2.children(_$2).forEach((a2) => $e$2(e2, n2, i2, s2, o2, t2, a2)),
+  let s2 = ct(e2) + 1;
+  (e2.children(_).forEach((a2) => $e(e2, n2, i2, s2, o2, t2, a2)),
     (e2.graph().nodeRankFactor = i2));
 }
-
 function Je(e2) {
   let n2 = e2.graph();
   (e2.removeNode(n2.nestingRoot),
@@ -379,8 +356,7 @@ function Je(e2) {
       e2.edge(t2).nestingEdge && e2.removeEdge(t2);
     }));
 }
-
-function ft$1(e2) {
+function ft(e2) {
   function n2(t2) {
     let r2 = e2.children(t2),
       o2 = e2.node(t2);
@@ -391,55 +367,48 @@ function ft$1(e2) {
           Qe(e2, "borderRight", "_br", t2, o2, i2));
     }
   }
-  e2.children(_$2).forEach(n2);
+  e2.children(_).forEach(n2);
 }
-
-var Ze$1 = ft$1;
-
-function rn$2(e2) {
-  (e2.nodes().forEach((n2) => en$3(e2.node(n2))),
-    e2.edges().forEach((n2) => en$3(e2.edge(n2))));
+var Ze = ft;
+function rn(e2) {
+  (e2.nodes().forEach((n2) => en(e2.node(n2))),
+    e2.edges().forEach((n2) => en(e2.edge(n2))));
 }
-
-function nn$2(e2) {
+function nn(e2) {
   var t2;
   let n2 = (t2 = e2.graph().rankdir) == null ? void 0 : t2.toLowerCase();
-  (n2 === "lr" || n2 === "rl") && rn$2(e2);
+  (n2 === "lr" || n2 === "rl") && rn(e2);
 }
-
-function bt$1(e2) {
-  (e2.nodes().forEach((n2) => ne$2(e2.node(n2))),
+function bt(e2) {
+  (e2.nodes().forEach((n2) => ne(e2.node(n2))),
     e2.edges().forEach((n2) => {
       var r2;
       let t2 = e2.edge(n2);
-      ((r2 = t2.points) == null || r2.forEach(ne$2),
-        Object.hasOwn(t2, "y") && ne$2(t2));
+      ((r2 = t2.points) == null || r2.forEach(ne),
+        Object.hasOwn(t2, "y") && ne(t2));
     }));
 }
-
 function gt(e2) {
-  (e2.nodes().forEach((n2) => te$2(e2.node(n2))),
+  (e2.nodes().forEach((n2) => te(e2.node(n2))),
     e2.edges().forEach((n2) => {
       var r2;
       let t2 = e2.edge(n2);
-      ((r2 = t2.points) == null || r2.forEach(te$2),
-        Object.hasOwn(t2, "x") && te$2(t2));
+      ((r2 = t2.points) == null || r2.forEach(te),
+        Object.hasOwn(t2, "x") && te(t2));
     }));
 }
-
-function tn$2(e2) {
+function tn(e2) {
   var t2;
   let n2 = (t2 = e2.graph().rankdir) == null ? void 0 : t2.toLowerCase();
-  ((n2 === "bt" || n2 === "rl") && bt$1(e2),
-    (n2 === "lr" || n2 === "rl") && (gt(e2), rn$2(e2)));
+  ((n2 === "bt" || n2 === "rl") && bt(e2),
+    (n2 === "lr" || n2 === "rl") && (gt(e2), rn(e2)));
 }
-
-function re$3(e2) {
+function re(e2) {
   let n2 = {},
     t2 = e2.nodes().filter((d2) => !e2.children(d2).length),
     r2 = t2.map((d2) => e2.node(d2).rank),
-    o2 = L$4(Math.max, r2),
-    i2 = k$3(o2 + 1).map(() => []);
+    o2 = L(Math.max, r2),
+    i2 = k(o2 + 1).map(() => []);
   function s2(d2) {
     if (n2[d2]) return;
     n2[d2] = true;
@@ -453,14 +422,12 @@ function re$3(e2) {
     i2
   );
 }
-
-function oe$1(e2, n2) {
+function oe(e2, n2) {
   let t2 = 0;
   for (let r2 = 1; r2 < n2.length; ++r2) t2 += mt(e2, n2[r2 - 1], n2[r2]);
   return t2;
 }
-
-function sn$2(e2, n2, t2) {
+function sn(e2, n2, t2) {
   let r2 = new Map(),
     o2 = (i2, s2) => {
       (r2.has(i2) || r2.set(i2, []), r2.get(i2).push(s2));
@@ -475,52 +442,48 @@ function sn$2(e2, n2, t2) {
         a2 !== s2.rank && o2(a2, i2);
   }
   return n2.map(function (i2) {
-    return de$2(e2, i2, t2, r2.get(i2) || []);
+    return de(e2, i2, t2, r2.get(i2) || []);
   });
 }
-
-function kt$1(e2, n2, t2) {
-  let r2 = new p$4();
+function kt(e2, n2, t2) {
+  let r2 = new p();
   e2.forEach(function (o2) {
     t2.forEach((a2) => r2.setEdge(a2.left, a2.right));
     let i2 = o2.graph().root,
-      s2 = W$4(o2, i2, r2, n2);
-    (s2.vs.forEach((a2, d2) => (o2.node(a2).order = d2)), le$1(o2, r2, s2.vs));
+      s2 = W(o2, i2, r2, n2);
+    (s2.vs.forEach((a2, d2) => (o2.node(a2).order = d2)), le(o2, r2, s2.vs));
   });
 }
-
-function an$2(e2, n2) {
+function an(e2, n2) {
   Object.values(n2).forEach((t2) =>
     t2.forEach((r2, o2) => (e2.node(r2).order = o2)),
   );
 }
-
-function B$4(e2, n2 = {}) {
+function B(e2, n2 = {}) {
   if (typeof n2.customOrder == "function") {
-    n2.customOrder(e2, B$4);
+    n2.customOrder(e2, B);
     return;
   }
-  let t2 = X$3(e2),
-    r2 = sn$2(e2, k$3(1, t2 + 1), "inEdges"),
-    o2 = sn$2(e2, k$3(t2 - 1, -1, -1), "outEdges"),
-    i2 = re$3(e2);
-  if ((an$2(e2, i2), n2.disableOptimalOrderHeuristic)) return;
+  let t2 = X(e2),
+    r2 = sn(e2, k(1, t2 + 1), "inEdges"),
+    o2 = sn(e2, k(t2 - 1, -1, -1), "outEdges"),
+    i2 = re(e2);
+  if ((an(e2, i2), n2.disableOptimalOrderHeuristic)) return;
   let s2 = Number.POSITIVE_INFINITY,
     a2,
     d2 = n2.constraints || [];
   for (let l2 = 0, u4 = 0; u4 < 4; ++l2, ++u4) {
-    (kt$1(l2 % 2 ? r2 : o2, l2 % 4 >= 2, d2), (i2 = N$1(e2)));
-    let c3 = oe$1(e2, i2);
+    (kt(l2 % 2 ? r2 : o2, l2 % 4 >= 2, d2), (i2 = N(e2)));
+    let c3 = oe(e2, i2);
     c3 < s2
       ? ((u4 = 0), (a2 = Object.assign({}, i2)), (s2 = c3))
       : c3 === s2 && (a2 = structuredClone(i2));
   }
-  an$2(e2, a2);
+  an(e2, a2);
 }
-
-function ln$2(e2) {
-  let n2 = N$1(e2),
-    t2 = Object.assign(vt(e2, n2), _t$1(e2, n2)),
+function ln(e2) {
+  let n2 = N(e2),
+    t2 = Object.assign(vt(e2, n2), _t(e2, n2)),
     r2 = {},
     o2;
   ["u", "d"].forEach((s2) => {
@@ -535,40 +498,32 @@ function ln$2(e2) {
               (s2 === "u" ? e2.predecessors(c3) : e2.successors(c3)) || [],
           ),
           u4 = It(e2, o2, l2.root, l2.align, a2 === "r");
-        (a2 === "r" && (u4 = O$3(u4, (c3) => -c3)), (r2[s2 + a2] = u4));
+        (a2 === "r" && (u4 = O(u4, (c3) => -c3)), (r2[s2 + a2] = u4));
       }));
   });
-  let i2 = Rt$1(e2, r2);
+  let i2 = Rt(e2, r2);
   return (Pt(r2, i2), Mt(r2, e2.graph().align));
 }
-
-function un$2(e2) {
-  ((e2 = A$3(e2)),
-    Ft$1(e2),
-    Object.entries(ln$2(e2)).forEach(([n2, t2]) => (e2.node(n2).x = t2)));
+function un(e2) {
+  ((e2 = A(e2)),
+    Ft(e2),
+    Object.entries(ln(e2)).forEach(([n2, t2]) => (e2.node(n2).x = t2)));
 }
-
 var Vt = ["nodesep", "edgesep", "ranksep", "marginx", "marginy"];
-
-var Wt$1 = {
+var Wt = {
   ranksep: 50,
   edgesep: 20,
   nodesep: 50,
   rankdir: "TB",
   rankalign: "center",
 };
-
 var Bt = ["acyclicer", "ranker", "rankdir", "align", "rankalign"];
-
-var Yt$1 = ["width", "height", "rank"];
-
-var cn$3 = {
+var Yt = ["width", "height", "rank"];
+var cn = {
   width: 0,
   height: 0,
 };
-
-var zt$1 = ["minlen", "weight", "width", "height", "labeloffset"];
-
+var zt = ["minlen", "weight", "width", "height", "labeloffset"];
 var Ht = {
   minlen: 1,
   weight: 1,
@@ -577,10 +532,8 @@ var Ht = {
   labeloffset: 10,
   labelpos: "r",
 };
-
-var qt$1 = ["labelpos"];
-
-function Ut$1(e2) {
+var qt = ["labelpos"];
+function Ut(e2) {
   let n2 = e2.graph();
   ((n2.ranksep /= 2),
     e2.edges().forEach((t2) => {
@@ -592,7 +545,6 @@ function Ut$1(e2) {
             : (r2.height += r2.labeloffset)));
     }));
 }
-
 function Kt(e2) {
   e2.edges().forEach((n2) => {
     let t2 = e2.edge(n2);
@@ -606,8 +558,7 @@ function Kt(e2) {
     }
   });
 }
-
-function $t$1(e2) {
+function $t(e2) {
   let n2 = 0;
   (e2.nodes().forEach((t2) => {
     let r2 = e2.node(t2);
@@ -618,8 +569,7 @@ function $t$1(e2) {
   }),
     (e2.graph().maxRank = n2));
 }
-
-function Jt$1(e2) {
+function Jt(e2) {
   e2.nodes().forEach((n2) => {
     let t2 = e2.node(n2);
     if (t2.dummy === "edge-proxy") {
@@ -628,7 +578,6 @@ function Jt$1(e2) {
     }
   });
 }
-
 function Qt(e2) {
   let n2 = Number.POSITIVE_INFINITY,
     t2 = 0,
@@ -669,8 +618,7 @@ function Qt(e2) {
     (i2.width = t2 - n2 + s2),
     (i2.height = o2 - r2 + a2));
 }
-
-function Zt$1(e2) {
+function Zt(e2) {
   e2.edges().forEach((n2) => {
     let t2 = e2.edge(n2),
       r2 = e2.node(n2.v),
@@ -680,11 +628,10 @@ function Zt$1(e2) {
     (t2.points
       ? ((i2 = t2.points[0]), (s2 = t2.points[t2.points.length - 1]))
       : ((t2.points = []), (i2 = o2), (s2 = r2)),
-      t2.points.unshift(H$2(r2, i2)),
-      t2.points.push(H$2(o2, s2)));
+      t2.points.unshift(H(r2, i2)),
+      t2.points.push(H(o2, s2)));
   });
 }
-
 function er(e2) {
   e2.edges().forEach((n2) => {
     let t2 = e2.edge(n2);
@@ -703,14 +650,12 @@ function er(e2) {
       }
   });
 }
-
 function nr(e2) {
   e2.edges().forEach((n2) => {
     let t2 = e2.edge(n2);
     t2.reversed && t2.points.reverse();
   });
 }
-
 function rr(e2) {
   e2.edges().forEach((n2) => {
     if (n2.v === n2.w) {
@@ -724,9 +669,8 @@ function rr(e2) {
     }
   });
 }
-
-function or$1(e2) {
-  N$1(e2).forEach((t2) => {
+function or(e2) {
+  N(e2).forEach((t2) => {
     let r2 = 0;
     t2.forEach((o2, i2) => {
       let s2 = e2.node(o2);
@@ -750,7 +694,6 @@ function or$1(e2) {
     });
   });
 }
-
 function ir(e2) {
   e2.nodes().forEach((n2) => {
     let t2 = e2.node(n2);
@@ -790,42 +733,39 @@ function ir(e2) {
     }
   });
 }
-
-function Dt$1(e2, n2, t2) {
-  (n2("    makeSpaceForEdgeLabels", () => Ut$1(e2)),
+function Dt(e2, n2, t2) {
+  (n2("    makeSpaceForEdgeLabels", () => Ut(e2)),
     n2("    removeSelfEdges", () => rr(e2)),
-    n2("    acyclic", () => je$1(e2)),
+    n2("    acyclic", () => je(e2)),
     n2("    nestingGraph.run", () => Ke(e2)),
-    n2("    rank", () => Xe(A$3(e2))),
+    n2("    rank", () => Xe(A(e2))),
     n2("    injectEdgeLabelProxies", () => Kt(e2)),
-    n2("    removeEmptyRanks", () => Oe$1(e2)),
+    n2("    removeEmptyRanks", () => Oe(e2)),
     n2("    nestingGraph.cleanup", () => Je(e2)),
-    n2("    normalizeRanks", () => Te$1(e2)),
-    n2("    assignRankMinMax", () => $t$1(e2)),
-    n2("    removeEdgeLabelProxies", () => Jt$1(e2)),
-    n2("    normalize.run", () => Fe$1(e2)),
+    n2("    normalizeRanks", () => Te(e2)),
+    n2("    assignRankMinMax", () => $t(e2)),
+    n2("    removeEdgeLabelProxies", () => Jt(e2)),
+    n2("    normalize.run", () => Fe(e2)),
     n2("    parentDummyChains", () => Ue(e2)),
-    n2("    addBorderSegments", () => Ze$1(e2)),
-    n2("    order", () => B$4(e2, t2)),
-    n2("    insertSelfEdges", () => or$1(e2)),
-    n2("    adjustCoordinateSystem", () => nn$2(e2)),
-    n2("    position", () => un$2(e2)),
+    n2("    addBorderSegments", () => Ze(e2)),
+    n2("    order", () => B(e2, t2)),
+    n2("    insertSelfEdges", () => or(e2)),
+    n2("    adjustCoordinateSystem", () => nn(e2)),
+    n2("    position", () => un(e2)),
     n2("    positionSelfEdges", () => ir(e2)),
-    n2("    removeBorderNodes", () => tr$2(e2)),
-    n2("    normalize.undo", () => De$1(e2)),
+    n2("    removeBorderNodes", () => tr(e2)),
+    n2("    normalize.undo", () => De(e2)),
     n2("    fixupEdgeLabelCoords", () => er(e2)),
-    n2("    undoCoordinateSystem", () => tn$2(e2)),
+    n2("    undoCoordinateSystem", () => tn(e2)),
     n2("    translateGraph", () => Qt(e2)),
-    n2("    assignNodeIntersects", () => Zt$1(e2)),
+    n2("    assignNodeIntersects", () => Zt(e2)),
     n2("    reversePoints", () => nr(e2)),
     n2("    acyclic.undo", () => Se(e2)));
 }
-
-function ue$1(e2, n2) {
-  return O$3(T$3(e2, n2), Number);
+function ue(e2, n2) {
+  return O(T(e2, n2), Number);
 }
-
-function ce$1(e2) {
+function ce(e2) {
   let n2 = {};
   return (
     e2 &&
@@ -835,54 +775,44 @@ function ce$1(e2) {
     n2
   );
 }
-
-function Xt$1(e2) {
-  let n2 = new p$4({
+function Xt(e2) {
+  let n2 = new p({
       multigraph: true,
       compound: true,
     }),
-    t2 = ce$1(e2.graph());
+    t2 = ce(e2.graph());
   return (
-    n2.setGraph(Object.assign({}, Wt$1, ue$1(t2, Vt), T$3(t2, Bt))),
+    n2.setGraph(Object.assign({}, Wt, ue(t2, Vt), T(t2, Bt))),
     e2.nodes().forEach((r2) => {
-      let o2 = ce$1(e2.node(r2)),
-        i2 = ue$1(o2, Yt$1);
-      (Object.keys(cn$3).forEach((a2) => {
-        i2[a2] === void 0 && (i2[a2] = cn$3[a2]);
+      let o2 = ce(e2.node(r2)),
+        i2 = ue(o2, Yt);
+      (Object.keys(cn).forEach((a2) => {
+        i2[a2] === void 0 && (i2[a2] = cn[a2]);
       }),
         n2.setNode(r2, i2));
       let s2 = e2.parent(r2);
       s2 !== void 0 && n2.setParent(r2, s2);
     }),
     e2.edges().forEach((r2) => {
-      let o2 = ce$1(e2.edge(r2));
-      n2.setEdge(r2, Object.assign({}, Ht, ue$1(o2, zt$1), T$3(o2, qt$1)));
+      let o2 = ce(e2.edge(r2));
+      n2.setEdge(r2, Object.assign({}, Ht, ue(o2, zt), T(o2, qt)));
     }),
     n2
   );
 }
-
 const DIRECTION_MAP = {
   LR: "LR",
   RL: "RL",
   TB: "TB",
   BT: "BT",
 };
-
 const DEFAULT_NODE_SPACING = DEFAULT_WORKFLOW_NODE_SPACING;
-
 const DEFAULT_LAYER_SPACING = DEFAULT_WORKFLOW_LAYER_SPACING;
-
 const DEFAULT_INCREMENTAL_NODE_SPACING = DEFAULT_NODE_SPACING;
-
 const DEFAULT_INCREMENTAL_LAYER_SPACING = DEFAULT_LAYER_SPACING;
-
 const MAX_INCREMENTAL_SHIFT_ATTEMPTS = 80;
-
 const INCREMENTAL_COLLISION_MARGIN = 12;
-
 const MAX_INCREMENTAL_ITEMS_PER_COLUMN = 5;
-
 function maxTopoDepth(nodeIds, edges) {
   const { children: children2, parents } = buildAdjacency(nodeIds, edges);
   const levels = topoSortLevels(nodeIds, children2, parents);
@@ -892,7 +822,6 @@ function maxTopoDepth(nodeIds, edges) {
   }
   return max2 + 1;
 }
-
 function pickPrimaryParent(parents, mode2) {
   if (parents.length === 0) return void 0;
   return parents.reduce((best, p3) => {
@@ -904,7 +833,6 @@ function pickPrimaryParent(parents, mode2) {
     return pPos.y < bestPos.y ? p3 : best;
   });
 }
-
 function placeWrappedItem(
   slotIndex,
   origin,
@@ -920,9 +848,7 @@ function placeWrappedItem(
     y: origin.y + rowIndex * (itemHeight + rowGap),
   };
 }
-
 const ALIGN_TOLERANCE = 2;
-
 function buildLayerEntries(nodes, localPositions, layerAxis, mode2) {
   return nodes
     .map((node2) => {
@@ -940,7 +866,6 @@ function buildLayerEntries(nodes, localPositions, layerAxis, mode2) {
     })
     .filter((e2) => e2 !== null);
 }
-
 function clusterByLayerAlignment(entries2) {
   const parent = entries2.map((_2, i2) => i2);
   const find2 = (i2) => {
@@ -973,7 +898,6 @@ function clusterByLayerAlignment(entries2) {
   });
   return [...groups.values()];
 }
-
 function normalizeLayerSpacing(
   localPositions,
   nodes,
@@ -1009,7 +933,6 @@ function normalizeLayerSpacing(
     }
   }
 }
-
 function collectLeafFanOutGroups(nodes, edges) {
   const nodeIdSet = new Set(nodes.map((n2) => n2.id));
   const { children: childrenByParent, parents } = buildAdjacency(
@@ -1032,7 +955,6 @@ function collectLeafFanOutGroups(nodes, edges) {
   }
   return groups;
 }
-
 function rewrapLeafFanOuts(
   localPositions,
   nodes,
@@ -1222,7 +1144,6 @@ function rewrapLeafFanOuts(
     cumulativeShift += Math.max(0, newRight - oldRight);
   }
 }
-
 function createParentPlacementPlan(
   node2,
   parentNodes,
@@ -1270,8 +1191,7 @@ function createParentPlacementPlan(
       ),
   };
 }
-
-function P$4(e2, n2) {
+function P(e2, n2) {
   let t2 = Date.now();
   try {
     return n2();
@@ -1279,12 +1199,10 @@ function P$4(e2, n2) {
     console.log(e2 + " time: " + (Date.now() - t2) + "ms");
   }
 }
-
-function M$4(e2, n2) {
+function M(e2, n2) {
   return n2();
 }
-
-function At$1(e2, n2) {
+function At(e2, n2) {
   (e2.nodes().forEach((t2) => {
     let r2 = e2.node(t2),
       o2 = n2.node(t2);
@@ -1305,26 +1223,24 @@ function At$1(e2, n2) {
     (e2.graph().width = n2.graph().width),
     (e2.graph().height = n2.graph().height));
 }
-
-function he$1(e2, n2 = {}) {
-  let t2 = n2.debugTiming ? P$4 : M$4;
+function he(e2, n2 = {}) {
+  let t2 = n2.debugTiming ? P : M;
   return t2("layout", () => {
-    let r2 = t2("  buildLayoutGraph", () => Xt$1(e2));
+    let r2 = t2("  buildLayoutGraph", () => Xt(e2));
     return (
-      t2("  runLayout", () => Dt$1(r2, t2, n2)),
-      t2("  updateInputGraph", () => At$1(e2, r2)),
+      t2("  runLayout", () => Dt(r2, t2, n2)),
+      t2("  updateInputGraph", () => At(e2, r2)),
       r2
     );
   });
 }
-
 function dagreLayoutWorkflow(nodes, edges, options) {
   const nodeIdSet = new Set(nodes.map((n2) => n2.id));
   const direction = DIRECTION_MAP[options?.direction ?? "LR"] ?? "LR";
   const nodeSpacing = options?.spacing?.y ?? DEFAULT_NODE_SPACING;
   const layerSpacing = options?.spacing?.x ?? DEFAULT_LAYER_SPACING;
   const mode2 = options?.mode ?? CanvasMode.Workflow;
-  const g2 = new z$4.Graph({
+  const g2 = new z.Graph({
     directed: true,
   });
   g2.setGraph({
@@ -1358,7 +1274,7 @@ function dagreLayoutWorkflow(nodes, edges, options) {
       g2.setEdge(e2.source, e2.target);
     }
   }
-  he$1(g2);
+  he(g2);
   const positions = new Map();
   for (const id2 of g2.nodes()) {
     const node2 = g2.node(id2);
@@ -1371,7 +1287,6 @@ function dagreLayoutWorkflow(nodes, edges, options) {
   }
   return positions;
 }
-
 export class DagreLayout {
   name = "dagre";
   compute(_nodes, _edges, _options) {

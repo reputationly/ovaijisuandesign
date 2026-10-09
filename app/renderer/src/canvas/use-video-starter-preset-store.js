@@ -1,7 +1,6 @@
 // use-video-starter-preset-store.js
-import { create$2 } from "../vendor.js";
-
-export const useVideoStarterPresetStore = create$2((set2, get3) => ({
+import { create$2 as create } from "../vendor.js";
+export const useVideoStarterPresetStore = create((set2, get3) => ({
   tokens: {},
   refNodeIds: {},
   markApplied: (nodeId) =>
@@ -34,7 +33,6 @@ export const useVideoStarterPresetStore = create$2((set2, get3) => ({
     return previous2;
   },
 }));
-
 export const VIDEO_TOOLBAR_TOOLS = [
   "hailuo03-super-resolution",
   "enhance-video",
@@ -46,17 +44,14 @@ export const VIDEO_TOOLBAR_TOOLS = [
   "asr",
   "color-adjust",
 ];
-
 export const DEFAULT_PINNED = [
   "hailuo03-super-resolution",
   "clip",
   "watermark",
   "extract-audio",
 ];
-
 export const DEFAULT_SHOW_LABELS = true;
-
-export function arePropsEqual$2(prev, next2) {
+export function arePropsEqual(prev, next2) {
   if (prev.nodes === next2.nodes) return true;
   if (prev.nodes.length !== next2.nodes.length) return false;
   for (let i2 = 0; i2 < prev.nodes.length; i2++) {
@@ -66,7 +61,5 @@ export function arePropsEqual$2(prev, next2) {
   }
   return true;
 }
-
 export const DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT = "bottom-left";
-
 export const VIEWPORT_CONTROLS_INSET = 8;

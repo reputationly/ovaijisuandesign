@@ -15,12 +15,11 @@ import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";
 import { DEFAULT_CROP } from "./image-edit-pricing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download } from "./package.jsx";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { isEditResultSourceTool } from "../infra/parse-connector-selection.js";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { getPopoverDraftMap } from "../canvas/is-reexecutable-generation-node.js";
-
-export function cropImageToBlob$1(
+export function cropImageToBlob(
   imageSrc,
   cropRect,
   originalWidth,
@@ -56,12 +55,7 @@ export function cropImageToBlob$1(
     img.src = imageSrc;
   });
 }
-
-export function cropRectForAspectRatio$1(
-  ratio,
-  containerWidth,
-  containerHeight,
-) {
+export function cropRectForAspectRatio(ratio, containerWidth, containerHeight) {
   if (ratio == null) return DEFAULT_CROP;
   const imageAspect =
     containerWidth && containerHeight ? containerWidth / containerHeight : 1;
@@ -90,7 +84,6 @@ export function cropRectForAspectRatio$1(
     height: h2,
   };
 }
-
 export function resolveGifAnimationSrc(src, path2, name2) {
   if (!src) return void 0;
   if (path2) return /\.gif$/i.test(path2) ? src : void 0;
@@ -106,7 +99,6 @@ export function resolveGifAnimationSrc(src, path2, name2) {
     return void 0;
   }
 }
-
 export function emptySizeFromRatio(ratio) {
   if (!ratio || ratio.toLowerCase() === "auto") return IMAGE_CARD_DEFAULT_SIZE;
   const parsed = parseRatio(ratio);
@@ -114,11 +106,9 @@ export function emptySizeFromRatio(ratio) {
   const [w3, h2] = parsed;
   return computeNodeSize(w3, h2) ?? IMAGE_CARD_DEFAULT_SIZE;
 }
-
 function draftRatioFromParams(params) {
   return params?.aspect_ratio ?? params?.ratio;
 }
-
 export function emptyMediaNodeInit(
   type2,
   getLastUsedModelParams,
@@ -150,11 +140,9 @@ export function emptyMediaNodeInit(
     aspectRatio,
   };
 }
-
 function hasNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
-
 export function canOpenAssetGenerationPopover(opts) {
   if (opts.isUserEmpty) return true;
   if (isEditResultSourceTool(opts.sourceTool)) return false;
@@ -165,7 +153,6 @@ export function canOpenAssetGenerationPopover(opts) {
   if (hasNonEmptyString(opts.backend)) return true;
   return hasNonEmptyString(opts.model);
 }
-
 export function MediaDownloadButton({
   onClick,
   label,
@@ -180,7 +167,7 @@ export function MediaDownloadButton({
       onClick={onClick}
       aria-label={label}
       title={title}
-      className={cn$5(
+      className={cn(
         "pointer-events-auto absolute z-20 flex size-6 cursor-pointer items-center justify-center rounded-[8px] bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-[opacity,transform,background-color] duration-150 ease-out hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
         className,
       )}
@@ -189,7 +176,6 @@ export function MediaDownloadButton({
     </button>
   );
 }
-
 export function mergeReferenceImageIds(
   nodeReferenceImageIds,
   assetReferenceImageIds,
@@ -209,7 +195,6 @@ export function mergeReferenceImageIds(
   append2(assetReferenceImageIds);
   return merged.length > 0 ? merged : void 0;
 }
-
 export function resolveReferenceImages(
   incomingSourceIds,
   referenceImageIds,
@@ -296,7 +281,6 @@ export function resolveReferenceImages(
   }
   return paths;
 }
-
 export function resolveReferenceVideos(
   incomingSourceIds,
   referenceVideoIds,
@@ -331,7 +315,6 @@ export function resolveReferenceVideos(
   }
   return paths;
 }
-
 export function useEmptyAspectRatio({
   id: id2,
   data: data2,
@@ -382,7 +365,6 @@ export function useEmptyAspectRatio({
     setEmptyAspectRatio,
   };
 }
-
 export function useLutBundle(
   listLuts,
   importLut,
@@ -411,7 +393,6 @@ export function useLutBundle(
     [listLuts, importLut, loadLutContent, deleteLut, nodeType, onLutImport],
   );
 }
-
 export class BaseBackend {
   canvas;
   width = 0;
@@ -497,9 +478,7 @@ export class BaseBackend {
     return this.initialized;
   }
 }
-
 let _webgpuSupported = null;
-
 export function isWebGPUSupported() {
   if (_webgpuSupported === null) {
     _webgpuSupported = typeof navigator !== "undefined" && "gpu" in navigator;

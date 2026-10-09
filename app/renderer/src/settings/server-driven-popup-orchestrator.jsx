@@ -3,14 +3,14 @@ import {
   ChevronLeftIcon,
   dedupedToast,
   DialogBackdrop,
-  DialogClose$1,
+  DialogClose$1 as DialogClose,
   DialogDescription$2,
   DialogPopup,
-  DialogPortal$2,
+  DialogPortal$2 as DialogPortal,
   DialogTitle$2,
   getRuntimeConfig,
   jsxRuntimeExports,
-  m$4,
+  m$4 as m,
   QueryClientProvider,
   reactExports,
   storageKeys,
@@ -41,7 +41,7 @@ import {
 } from "./request-prompt-prefill.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   dialogChromeButtonClassName,
   DialogContent,
@@ -161,18 +161,15 @@ import {
 import { TeamOperationHost } from "../team/team-operation-host.jsx";
 import { TopbarProvider } from "../workspace/topbar-provider.jsx";
 import { UpdaterProvider } from "./updater-provider.jsx";
-
 function getLoggedErrorBoundaryDiagnostic(error) {
   return loggedErrorBoundaryDiagnostics.get(error);
 }
-
 function writeSessionDismissed(value) {
   try {
     if (value) sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
     else sessionStorage.removeItem(SESSION_DISMISS_KEY);
   } catch {}
 }
-
 function LoginGateProvider({ children: children2 }) {
   const { user, isLoggedIn, isLoading, login } = useAuth();
   const [isOpen, setIsOpen] = reactExports.useState(false);
@@ -234,15 +231,12 @@ function LoginGateProvider({ children: children2 }) {
     </LoginGateContext.Provider>
   );
 }
-
 const DebugPanelDialog = reactExports.lazy(() =>
   (() => import("../DebugPanelDialog-C7RBwCiN.js"))(),
 );
-
 function canUseDebugPanel() {
   return canUseDebugTooling();
 }
-
 function DebugPanelProvider({ children: children2 }) {
   const [open, setOpen] = reactExports.useState(false);
   const isEnabled = canUseDebugPanel();
@@ -278,7 +272,6 @@ function DebugPanelProvider({ children: children2 }) {
     </>
   );
 }
-
 function InterestSelectionProvider({ children: children2 }) {
   const { isLoggedIn } = useAuth();
   const loginGate = useLoginGate();
@@ -338,7 +331,6 @@ function InterestSelectionProvider({ children: children2 }) {
     </InterestSelectionContext.Provider>
   );
 }
-
 function V1LaunchNoticeSilentMigration() {
   const { isLoggedIn, isLoading: authLoading, clearLocalAuth } = useAuth();
   const [pending2, setPending, , isHydrated] = useStorage(
@@ -361,7 +353,6 @@ function V1LaunchNoticeSilentMigration() {
   ]);
   return null;
 }
-
 function isGlobalStorageSchema(data2) {
   if (data2 == null || typeof data2 !== "object") return false;
   const obj = data2;
@@ -371,9 +362,7 @@ function isGlobalStorageSchema(data2) {
     typeof obj.config === "object"
   );
 }
-
 const TEAM_ACCOUNT_BOOTSTRAP_ENABLED = true;
-
 function AppWSConnectionProvider({ children: children2 }) {
   return (
     <WSConnectionProviderCore
@@ -385,7 +374,6 @@ function AppWSConnectionProvider({ children: children2 }) {
     </WSConnectionProviderCore>
   );
 }
-
 function ThemeProvider({ children: children2 }) {
   const { config: config2, set: set2 } = useSettings();
   const theme2 = config2.theme ?? "system";
@@ -420,7 +408,6 @@ function ThemeProvider({ children: children2 }) {
   );
   return <ThemeCtx value={value}>{children2}</ThemeCtx>;
 }
-
 function SettingsDialogProvider({ children: children2 }) {
   const [open, setOpen] = reactExports.useState(false);
   const [initialSection, setInitialSection] = reactExports.useState("general");
@@ -464,7 +451,6 @@ function SettingsDialogProvider({ children: children2 }) {
     </SettingsDialogCtx>
   );
 }
-
 function LoginGateDialog() {
   const { isOpen, dismissForSession, triggerLogin } = useLoginGate();
   const { t: t2 } = useTranslation();
@@ -497,7 +483,7 @@ function LoginGateDialog() {
         <DialogDescription className="sr-only">
           {t2("auth.loginGate.subtitle")}
         </DialogDescription>
-        <Button$1
+        <Button
           variant="ghost"
           size="icon-sm"
           className="absolute top-3 right-3 z-10 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
@@ -506,7 +492,7 @@ function LoginGateDialog() {
           data-action-ui-id="auth.login-gate.close"
         >
           <XIcon size={16} strokeWidth={1.5} />
-        </Button$1>
+        </Button>
         <div className="grid h-full grid-cols-[320px_1fr]">
           <div className="relative h-full w-[320px]">
             <div
@@ -575,7 +561,7 @@ function LoginGateDialog() {
               ))}
             </ul>
             <div className="mt-auto pt-6">
-              <Button$1
+              <Button
                 type="button"
                 size="lg"
                 className="h-10 w-full rounded-xl px-6 text-sm font-medium"
@@ -583,7 +569,7 @@ function LoginGateDialog() {
                 data-action-ui-id="auth.login-gate.confirm"
               >
                 {t2("auth.loginGate.button")}
-              </Button$1>
+              </Button>
             </div>
           </div>
         </div>
@@ -591,7 +577,6 @@ function LoginGateDialog() {
     </Dialog>
   );
 }
-
 function NewWorkspaceDialogProvider({ children: children2 }) {
   const { createWorkspace } = useTopbarActions();
   const [open, setOpen] = reactExports.useState(false);
@@ -657,7 +642,6 @@ function NewWorkspaceDialogProvider({ children: children2 }) {
     </NewWorkspaceDialogContext>
   );
 }
-
 function LowMemoryToast() {
   const pendingPayloadRef = reactExports.useRef(null);
   const showOrDefer = reactExports.useCallback((payload) => {
@@ -690,7 +674,6 @@ function LowMemoryToast() {
   }, [flushPending]);
   return null;
 }
-
 function ModalSchedulerBridge() {
   const { startupModalSchedule } = useHubClientConfig();
   reactExports.useEffect(() => {
@@ -698,7 +681,6 @@ function ModalSchedulerBridge() {
   }, [startupModalSchedule]);
   return null;
 }
-
 function ProxyDetectedToast() {
   reactExports.useEffect(() => {
     const diagnostics = window.hilo?.diagnostics;
@@ -831,7 +813,6 @@ function ProxyDetectedToast() {
   }, []);
   return null;
 }
-
 function RemoteConnectorAuthorizationHost() {
   const [preparation, setPreparation] = reactExports.useState();
   const dismissed = reactExports.useRef(false);
@@ -875,7 +856,6 @@ function RemoteConnectorAuthorizationHost() {
     />
   ) : null;
 }
-
 function InterestSelectionDialog() {
   const {
     isOpen,
@@ -935,7 +915,7 @@ function InterestSelectionDialog() {
                 max: MAX_INTERESTS,
               })}
             </div>
-            <Button$1
+            <Button
               variant="default"
               size="lg"
               className="h-10 px-5 text-sm font-medium"
@@ -944,14 +924,13 @@ function InterestSelectionDialog() {
               data-action-ui-id="interestSelection.cta"
             >
               {t2("interestSelection.cta")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
 function ProjectArchiveMenuProvider({ children: children2 }) {
   const { runExport, runImport } = useProjectArchiveActions();
   const routerSearch = useRouterState({
@@ -987,7 +966,6 @@ function ProjectArchiveMenuProvider({ children: children2 }) {
   }, [runExport, runImport]);
   return <>{children2}</>;
 }
-
 const UpdaterRoot = () => {
   const { state: state2 } = useUpdaterContext();
   return (
@@ -996,7 +974,6 @@ const UpdaterRoot = () => {
     </UpdaterErrorBoundary>
   );
 };
-
 function ServerDrivenPopupOrchestrator() {
   const { user } = useAuth();
   const popupQuery = usePopup();
@@ -1219,7 +1196,6 @@ function ServerDrivenPopupOrchestrator() {
       return null;
   }
 }
-
 function WatermarkOnboarding() {
   const [config2, , , isHydrated] = useStorage("global.config");
   const { set: set2 } = useSettings();
@@ -1364,18 +1340,17 @@ function WatermarkOnboarding() {
           </div>
         </div>
         <div className="flex justify-end">
-          <Button$1
+          <Button
             onClick={() => void handleSave()}
             data-action-ui-id="watermark-onboarding.save"
           >
             {isDomestic ? "保存设置" : "Save Settings"}
-          </Button$1>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
 function WindowCloseDialog() {
   const platform2 = usePlatform();
   const [request, setRequest] = reactExports.useState(null);
@@ -1449,7 +1424,6 @@ function WindowCloseDialog() {
     />
   );
 }
-
 function CanvasRenderRuntimeProvider({
   services: services2,
   children: children2,
@@ -1627,7 +1601,6 @@ function CanvasRenderRuntimeProvider({
     </CanvasRenderPolicyProvider>
   );
 }
-
 function ImBridgeDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const regionSuffix =
@@ -1644,7 +1617,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
   }, []);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPortal$2>
+      <DialogPortal>
         <DialogBackdrop
           data-slot="dialog-overlay"
           className="modal-mask fixed inset-0 isolate z-50 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
@@ -1657,7 +1630,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
             className={`relative flex h-16 shrink-0 items-center border-border border-b ${hasBackButton ? "gap-1 px-3" : "gap-3 pr-3 pl-7"}`}
           >
             {headerConfig?.onBack && (
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon-lg"
@@ -1667,14 +1640,14 @@ function ImBridgeDialog({ open, onOpenChange }) {
               >
                 <ChevronLeftIcon className="size-6" strokeWidth={1.5} />
                 <span className="sr-only">{t2("common.back")}</span>
-              </Button$1>
+              </Button>
             )}
             <DialogTitle$2 className="min-w-0 flex-1 truncate pr-14 font-heading font-medium text-base text-foreground">
               {title}
             </DialogTitle$2>
-            <DialogClose$1
+            <DialogClose
               render={
-                <Button$1
+                <Button
                   variant="ghost"
                   size="icon-lg"
                   className={`absolute top-1 right-1 size-11 ${dialogChromeButtonClassName}`}
@@ -1684,7 +1657,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
             >
               <XIcon className="size-6" strokeWidth={1.75} />
               <span className="sr-only">{t2("common.close")}</span>
-            </DialogClose$1>
+            </DialogClose>
           </div>
           <DialogDescription$2 className="sr-only">{title}</DialogDescription$2>
           <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [&::-webkit-scrollbar]:w-1! [&::-webkit-scrollbar-track]:bg-transparent! [&::-webkit-scrollbar-thumb]:rounded-full! [&::-webkit-scrollbar-thumb]:bg-foreground/20! [&::-webkit-scrollbar-thumb:hover]:bg-foreground/35!">
@@ -1693,11 +1666,10 @@ function ImBridgeDialog({ open, onOpenChange }) {
             </div>
           </div>
         </DialogPopup>
-      </DialogPortal$2>
+      </DialogPortal>
     </Dialog>
   );
 }
-
 function ImBridgeDialogProvider({ children: children2 }) {
   const [open, setOpen] = reactExports.useState(false);
   const openImBridge = reactExports.useCallback(() => setOpen(true), []);
@@ -1717,7 +1689,6 @@ function ImBridgeDialogProvider({ children: children2 }) {
     </ImBridgeDialogCtx>
   );
 }
-
 function AppQueryProvider({ children: children2 }) {
   reactExports.useEffect(() => {
     const service2 = instantiationService.invokeFunction((accessor) =>
@@ -1734,7 +1705,6 @@ function AppQueryProvider({ children: children2 }) {
     <QueryClientProvider client={queryClient}>{children2}</QueryClientProvider>
   );
 }
-
 function StorageEffect() {
   const platform2 = usePlatform();
   const queryClient2 = useQueryClient();
@@ -1779,7 +1749,6 @@ function StorageEffect() {
   }, [config2.language]);
   return null;
 }
-
 function ErrorFallback({ error }) {
   const [showDetails, setShowDetails] = reactExports.useState(false);
   const err = error instanceof Error ? error : new Error(String(error));
@@ -1807,12 +1776,10 @@ function ErrorFallback({ error }) {
     />
   );
 }
-
 function handleBoundaryError(error, info2) {
   const err = error instanceof Error ? error : new Error(String(error));
   logErrorBoundary(err, info2.componentStack);
 }
-
 function PlatformCanvasRenderProvider({ children: children2 }) {
   return (
     <PlatformProvider>
@@ -1820,9 +1787,8 @@ function PlatformCanvasRenderProvider({ children: children2 }) {
     </PlatformProvider>
   );
 }
-
 export function AppProviders({ children: children2 }) {
-  return jsxRuntimeExports.jsx(m$4, {
+  return jsxRuntimeExports.jsx(m, {
     FallbackComponent: ErrorFallback,
     onError: handleBoundaryError,
     children: (

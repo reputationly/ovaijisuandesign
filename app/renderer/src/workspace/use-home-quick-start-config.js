@@ -5,7 +5,7 @@ import {
   HOME_QUICK_START_MAX_ITEMS_PER_SECTION,
   HOME_QUICK_START_MAX_SECTIONS,
   HOME_QUICK_START_SCHEMA_VERSION,
-  isRecord$5,
+  isRecord,
   nonEmptyString,
   normalizeConfiguredAssetUrl,
   parseLocalizedText,
@@ -31,10 +31,8 @@ import { parseProjectArchiveSection } from "./parse-project-archive-item.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
-
 const STRICT_SEMVER_PATTERN =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
-
 function parseStrictSemver(version2) {
   const match2 = version2
     .trim()
@@ -48,12 +46,10 @@ function parseStrictSemver(version2) {
     prerelease,
   };
 }
-
 function compareNumericIdentifiers(a2, b3) {
   if (a2.length !== b3.length) return a2.length - b3.length;
   return a2 === b3 ? 0 : a2 < b3 ? -1 : 1;
 }
-
 function compareSemverStrict(a2, b3) {
   const pa = parseStrictSemver(a2);
   const pb = parseStrictSemver(b3);
@@ -87,21 +83,15 @@ function compareSemverStrict(a2, b3) {
   }
   return 0;
 }
-
 const HOME_QUICK_START_CONFIG_MAX_BYTES = 1e6;
-
 const HOME_QUICK_START_MAX_OUTPUTS_PER_QUERY = 8;
-
 const HOME_QUICK_START_MAX_TOTAL_QUERIES = 256;
-
 const HOME_QUICK_START_MAX_SHOWCASE_TABS = HOME_QUICK_START_MAX_SECTIONS + 2;
-
 const PROMPT_ICON_MAP = {
   film: Film,
   palette: Palette,
   "shopping-bag": ShoppingBag,
 };
-
 function stringArray(value) {
   if (!Array.isArray(value)) return [];
   return value
@@ -111,7 +101,6 @@ function stringArray(value) {
       return parsed ? [parsed] : [];
     });
 }
-
 function meetsMinClientVersion(value) {
   if (value === void 0) return true;
   const minClientVersion = nonEmptyString(value);
@@ -125,18 +114,16 @@ function meetsMinClientVersion(value) {
     return false;
   }
 }
-
 function parseAgentModelId(value) {
   const modelId = nonEmptyString(
-    isRecord$5(value) ? value[runtimeRegion()] : value,
+    isRecord(value) ? value[runtimeRegion()] : value,
   );
   if (!modelId || /[\s\p{Cc}]/u.test(modelId)) return void 0;
   const slash2 = modelId.indexOf("/");
   return slash2 > 0 && slash2 < modelId.length - 1 ? modelId : void 0;
 }
-
 function parseSelectedMediaModels(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const image2 = stringArray(value.image);
   const video = stringArray(value.video);
   const audio = stringArray(value.audio);
@@ -160,19 +147,15 @@ function parseSelectedMediaModels(value) {
       : {}),
   };
 }
-
 const SHOWCASE_ORIENTATIONS = new Set(["landscape", "portrait"]);
-
 const SHOWCASE_BADGE_LABELS = new Set(["NEW", "HOT"]);
-
 function parseShowcaseOrientation(value) {
   return typeof value === "string" && SHOWCASE_ORIENTATIONS.has(value)
     ? value
     : "landscape";
 }
-
 function parseShowcaseTabBadge(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const label = parseLocalizedText(value);
   if (!label) return void 0;
   const normalizedLabel = label.zh.toUpperCase();
@@ -188,9 +171,8 @@ function parseShowcaseTabBadge(value) {
     labelEn: normalizedLabelEn,
   };
 }
-
 function parseShowcaseConfig(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const defaultTabId = configIdentifier(value.default_tab_id);
   const parsedTabs = [];
   if (Array.isArray(value.tabs)) {
@@ -198,7 +180,7 @@ function parseShowcaseConfig(value) {
       0,
       HOME_QUICK_START_MAX_SHOWCASE_TABS,
     )) {
-      if (!isRecord$5(tab2)) continue;
+      if (!isRecord(tab2)) continue;
       const id2 = configIdentifier(tab2.id);
       if (!id2) continue;
       const title = parseOptionalLocalizedText(tab2.title);
@@ -219,13 +201,13 @@ function parseShowcaseConfig(value) {
           : {}),
       });
     }
-  } else if (isRecord$5(value.tabs)) {
+  } else if (isRecord(value.tabs)) {
     for (const [id2, tab2] of Object.entries(value.tabs).slice(
       0,
       HOME_QUICK_START_MAX_SHOWCASE_TABS,
     )) {
       const normalizedId = configIdentifier(id2);
-      if (!normalizedId || !isRecord$5(tab2)) continue;
+      if (!normalizedId || !isRecord(tab2)) continue;
       const title = parseOptionalLocalizedText(tab2.title);
       const badge = parseShowcaseTabBadge(tab2.badge);
       parsedTabs.push({
@@ -254,7 +236,6 @@ function parseShowcaseConfig(value) {
     tabs: Object.fromEntries(parsedTabs.map((tab2) => [tab2.id, tab2])),
   };
 }
-
 const ATTACHMENT_TYPES = new Set([
   "image",
   "video",
@@ -263,9 +244,8 @@ const ATTACHMENT_TYPES = new Set([
   "folder",
   "file",
 ]);
-
 function parseAttachment(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const name2 = nonEmptyString(value.name);
   const type2 = nonEmptyString(value.type);
   if (!name2 || !type2 || !ATTACHMENT_TYPES.has(type2)) return void 0;
@@ -288,11 +268,9 @@ function parseAttachment(value) {
       : {}),
   };
 }
-
 const MEDIA_TYPES = new Set(["image", "video", "audio", "document"]);
-
 function parsePromptOutput(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   if (!id2 || !title) return void 0;
@@ -331,9 +309,8 @@ function parsePromptOutput(value) {
     featured: value.featured === true,
   };
 }
-
 function parsePromptItem(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   const prompt = parseLocalizedText(value.prompt);
@@ -408,9 +385,8 @@ function parsePromptItem(value) {
     attachments,
   };
 }
-
 function parseFeaturedSkill(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const name2 = configIdentifier(value.skill);
   const prompt = parseLocalizedText(value.prompt);
   if (!name2 || !prompt) return void 0;
@@ -423,7 +399,6 @@ function parseFeaturedSkill(value) {
     tagEn: tag?.en,
   };
 }
-
 function parsePromptSection(value) {
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
@@ -465,7 +440,6 @@ function parsePromptSection(value) {
     scene,
   };
 }
-
 function parseFeaturePopupSection(value) {
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
@@ -482,22 +456,15 @@ function parseFeaturePopupSection(value) {
     videoUrl: normalizeConfiguredAssetUrl(value.video),
   };
 }
-
 const HOME_QUICK_START_STALE_TIME_MS = 6e4;
-
 const HOME_QUICK_START_LKG_PREFIX = "hilo:home-quick-start:lkg";
-
 const textEncoder = new TextEncoder();
-
 class InvalidHomeQuickStartPayloadError extends Error {}
-
 class OversizedHomeQuickStartPayloadError extends InvalidHomeQuickStartPayloadError {}
-
 function boundedRegion(region) {
   if (region === "domestic" || region === "overseas") return region;
   return "other";
 }
-
 function boundedChannel(channel) {
   if (
     channel === "dev" ||
@@ -509,11 +476,9 @@ function boundedChannel(channel) {
   }
   return "other";
 }
-
 function utf8ByteLength(value) {
   return textEncoder.encode(value).byteLength;
 }
-
 function isRawPayloadWithinLimit(raw2) {
   let serialized;
   try {
@@ -526,17 +491,14 @@ function isRawPayloadWithinLimit(raw2) {
     utf8ByteLength(serialized) <= HOME_QUICK_START_CONFIG_MAX_BYTES
   );
 }
-
 function homeQuickStartLkgKey(region, channel) {
   return `${HOME_QUICK_START_LKG_PREFIX}:v${HOME_QUICK_START_SCHEMA_VERSION}:${encodeURIComponent(region)}:${encodeURIComponent(channel)}`;
 }
-
 function removeHomeQuickStartLkg(key2) {
   try {
     localStorage.removeItem(key2);
   } catch {}
 }
-
 function pruneOtherHomeQuickStartLkgEntries(currentKey) {
   try {
     const staleKeys = [];
@@ -548,7 +510,6 @@ function pruneOtherHomeQuickStartLkgEntries(currentKey) {
     for (const key2 of staleKeys) localStorage.removeItem(key2);
   } catch {}
 }
-
 async function readBoundedConfigJson(response) {
   const contentLength2 = response.headers.get("content-length");
   if (contentLength2) {
@@ -598,7 +559,6 @@ async function readBoundedConfigJson(response) {
     );
   }
 }
-
 function gatewayHttpStatus(error) {
   if (!error || typeof error !== "object") return void 0;
   const direct = error.status;
@@ -608,7 +568,6 @@ function gatewayHttpStatus(error) {
   const nested = response.status;
   return typeof nested === "number" ? nested : void 0;
 }
-
 function parseSkillSection(value) {
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
@@ -638,9 +597,8 @@ function parseSkillSection(value) {
     skills,
   };
 }
-
 function parseSection(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   if (!meetsMinClientVersion(value.min_client_version)) return void 0;
   const type2 = nonEmptyString(value.type);
   if (type2 === "prompt") return parsePromptSection(value);
@@ -649,9 +607,8 @@ function parseSection(value) {
   if (type2 === "project-archive") return parseProjectArchiveSection(value);
   return void 0;
 }
-
 function parseHomeQuickStartConfig(rawConfig) {
-  if (!isRecord$5(rawConfig)) return null;
+  if (!isRecord(rawConfig)) return null;
   if (rawConfig.schema_version !== HOME_QUICK_START_SCHEMA_VERSION) return null;
   if (typeof rawConfig.enabled !== "boolean") return null;
   if (!Array.isArray(rawConfig.sections)) return null;
@@ -702,7 +659,6 @@ function parseHomeQuickStartConfig(rawConfig) {
       : {}),
   };
 }
-
 function reportConfigResolution(region, channel, phase, outcome, failureKind) {
   const properties2 = {
     phase,
@@ -735,7 +691,6 @@ function reportConfigResolution(region, channel, phase, outcome, failureKind) {
     }
   } catch {}
 }
-
 function readHomeQuickStartLkg(region, channel) {
   const lkgKey = homeQuickStartLkgKey(region, channel);
   pruneOtherHomeQuickStartLkgEntries(lkgKey);
@@ -793,7 +748,6 @@ function readHomeQuickStartLkg(region, channel) {
   reportConfigResolution(region, channel, "lkg_read", "hit");
   return parsed;
 }
-
 function writeHomeQuickStartLkg(region, channel, raw2) {
   let serialized;
   try {
@@ -845,12 +799,10 @@ function writeHomeQuickStartLkg(region, channel, raw2) {
     );
   }
 }
-
 const LOADING_HOME_QUICK_START_CONFIG = {
   schemaVersion: DEFAULT_HOME_QUICK_START_CONFIG.schemaVersion,
   categories: [],
 };
-
 export function useHomeQuickStartConfig() {
   const gatewayReady = useGatewayReady();
   const { region, channel } = useRuntimeConfig();

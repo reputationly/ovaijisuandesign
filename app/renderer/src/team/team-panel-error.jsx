@@ -3,8 +3,7 @@ import { AlertCircle, LockKeyhole, useTranslation } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getTeamReasonText } from "./team-panel-stale.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
-
+import { Button } from "../infra/dialog-content.jsx";
 export function TeamPanelError({ title, description, onRetry }) {
   const { t: t2 } = useTranslation();
   return (
@@ -29,7 +28,7 @@ export function TeamPanelError({ title, description, onRetry }) {
         ) : null}
       </div>
       {onRetry ? (
-        <Button$1
+        <Button
           type="button"
           variant="outline"
           size="sm"
@@ -40,12 +39,11 @@ export function TeamPanelError({ title, description, onRetry }) {
           {t2("common.retry", {
             defaultValue: "重试",
           })}
-        </Button$1>
+        </Button>
       ) : null}
     </div>
   );
 }
-
 const TITLE_KEY_BY_REASON = {
   permission_denied: "team.gated.permissionDenied",
   resource_closed: "team.gated.teamDissolved",
@@ -63,7 +61,6 @@ const TITLE_KEY_BY_REASON = {
   upstream_contract_not_ready: "team.credit.historyUnavailable",
   user_capability_unavailable: "team.gated.permissionsSyncing",
 };
-
 export function TeamPanelGated({ reasonCode }) {
   const { t: t2 } = useTranslation();
   const titleKey =

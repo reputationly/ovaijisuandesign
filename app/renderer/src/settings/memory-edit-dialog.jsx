@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Label } from "../team/use-wallet-query.jsx";
 import {
-  BASE$1,
+  BASE,
   expectOk,
   memoryQueryKeys,
   useMemoryEntry,
@@ -19,9 +19,9 @@ import {
   useGatewayFetch,
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
-import { Select$1 } from "../assets/credit-query-keys.jsx";
+import { Select } from "../assets/credit-query-keys.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -45,9 +45,8 @@ import {
   MAX_MEMORY_DESCRIPTION_LENGTH,
   MEMORY_TYPES,
 } from "../generation/to-workspace-browser-url.js";
-
 async function writeMemory(fetcher, payload) {
-  const res = await fetcher(BASE$1, {
+  const res = await fetcher(BASE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,7 +56,6 @@ async function writeMemory(fetcher, payload) {
   await expectOk(res);
   return await res.json();
 }
-
 function useMemoryWrite() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -71,11 +69,8 @@ function useMemoryWrite() {
     },
   });
 }
-
 const NAME_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
-
-const ASSET_URI_RE$1 = /^hilo:\/\/asset\/[a-zA-Z0-9_-]+$/;
-
+const ASSET_URI_RE = /^hilo:\/\/asset\/[a-zA-Z0-9_-]+$/;
 const DEFAULT_STATE = {
   scope: "project",
   name: "",
@@ -85,7 +80,6 @@ const DEFAULT_STATE = {
   asset_uri: "",
   asset_modality: "image",
 };
-
 function Field({ label, hint, error, children: children2 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -100,7 +94,6 @@ function Field({ label, hint, error, children: children2 }) {
     </div>
   );
 }
-
 export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const isEdit = mode2.mode === "edit";
@@ -171,7 +164,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
           "memory.errAssetUriRequired",
           "asset_uri is required",
         );
-      else if (!ASSET_URI_RE$1.test(state2.asset_uri))
+      else if (!ASSET_URI_RE.test(state2.asset_uri))
         out.asset_uri = t2(
           "memory.errAssetUriFormat",
           "asset_uri must look like hilo://asset/<id>",
@@ -238,7 +231,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
               label={t2("memory.fieldScope", "Scope")}
               error={submitted ? errors.scope : void 0}
             >
-              <Select$1
+              <Select
                 value={state2.scope}
                 onValueChange={(v2) =>
                   setState((s2) => ({
@@ -268,10 +261,10 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                     {t2("memory.scopeUser", "User")}
                   </SelectItem>
                 </SelectContent>
-              </Select$1>
+              </Select>
             </Field>
             <Field label={t2("memory.fieldType", "Type")}>
-              <Select$1
+              <Select
                 value={state2.type}
                 onValueChange={(v2) =>
                   setState((s2) => ({
@@ -296,7 +289,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select$1>
+              </Select>
             </Field>
           </div>
           <Field
@@ -364,7 +357,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                 />
               </Field>
               <Field label={t2("memory.fieldAssetModality", "Modality")}>
-                <Select$1
+                <Select
                   value={state2.asset_modality}
                   onValueChange={(v2) =>
                     setState((s2) => ({
@@ -387,7 +380,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select$1>
+                </Select>
               </Field>
             </>
           )}
@@ -414,15 +407,15 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={writer.isPending}
             data-action-ui-id="settings.memory.editor.cancel"
           >
             {t2("common.cancel", "Cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             onClick={submit}
             disabled={writer.isPending || (submitted && hasErrors)}
             data-action-ui-id="settings.memory.editor.save"
@@ -432,7 +425,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
               : isEdit
                 ? t2("common.save", "Save")
                 : t2("common.create", "Create")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

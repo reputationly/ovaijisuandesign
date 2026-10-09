@@ -7,7 +7,6 @@ import {
   h,
 } from "./build-inspiration-media-showcase-collections.js";
 import { d, U } from "../vendor.js";
-
 var In = (n2, r2) => {
   for (let e2 = r2; e2 < n2.length; e2 += 1) {
     if (n2[e2] === ")") return true;
@@ -20,7 +19,6 @@ var In = (n2, r2) => {
   }
   return false;
 };
-
 var m2 = (n2, r2) => {
   for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
     if (n2[e2] === ")") return false;
@@ -35,7 +33,6 @@ var m2 = (n2, r2) => {
   }
   return false;
 };
-
 var z2 = (n2, r2) => {
   for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
     if (n2[e2] === ">") return false;
@@ -52,8 +49,7 @@ var z2 = (n2, r2) => {
   }
   return false;
 };
-
-var bn$1 = (n2, r2, e2, i2) =>
+var bn = (n2, r2, e2, i2) =>
   !!(
     e2 === "\\" ||
     (n2.includes("$") && h(n2, r2)) ||
@@ -63,8 +59,7 @@ var bn$1 = (n2, r2, e2, i2) =>
     i2 === "_" ||
     (e2 && i2 && g(e2) && g(i2))
   );
-
-var Tn$1 = (n2) => {
+var Tn = (n2) => {
   let r2 = 0,
     e2 = false,
     i2 = n2.length;
@@ -81,11 +76,10 @@ var Tn$1 = (n2) => {
     if (e2 || n2[s2] !== "_") continue;
     let o2 = s2 > 0 ? n2[s2 - 1] : "",
       t2 = s2 < i2 - 1 ? n2[s2 + 1] : "";
-    bn$1(n2, s2, o2, t2) || (r2 += 1);
+    bn(n2, s2, o2, t2) || (r2 += 1);
   }
   return r2;
 };
-
 var q = (n2) => {
   let r2 = false;
   for (let e2 = 0; e2 < n2.length; e2 += 1) {
@@ -115,8 +109,7 @@ var q = (n2) => {
   }
   return -1;
 };
-
-var _n$1 = (n2) => {
+var _n = (n2) => {
   let r2 = n2.length;
   for (
     ;
@@ -133,7 +126,6 @@ var _n$1 = (n2) => {
   }
   return `${n2}_`;
 };
-
 var Pn = (n2) => {
   if (!n2.endsWith("**")) return null;
   let r2 = n2.slice(0, -2);
@@ -142,16 +134,15 @@ var Pn = (n2) => {
     s2 = q(r2);
   return i2 !== -1 && s2 !== -1 && i2 < s2 ? `${r2}_**` : null;
 };
-
 export var J2 = (n2) => {
   if (!n2.match(U)) return n2;
   let e2 = q(n2);
   if (e2 === -1) return n2;
   let i2 = n2.substring(e2 + 1);
   if (!i2 || d.test(i2) || c2(n2, e2) || f(n2, e2)) return n2;
-  if (Tn$1(n2) % 2 === 1) {
+  if (Tn(n2) % 2 === 1) {
     let o2 = Pn(n2);
-    return o2 !== null ? o2 : _n$1(n2);
+    return o2 !== null ? o2 : _n(n2);
   }
   return n2;
 };

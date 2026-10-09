@@ -1,10 +1,10 @@
 // enhance-image-popover.jsx
 import {
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -13,46 +13,37 @@ import {
   useCanvasIsDragging,
   useCanvasIsMultiSelect,
 } from "./package.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
-
 const OUTPUT_EDGE_MAX = 10240;
-
 const ENHANCE_IMAGE_RESOLUTIONS = ["1k", "2k", "4k", "8k"];
-
 const RESOLUTION_LONG_EDGE = {
   "1k": 1024,
   "2k": 2048,
   "4k": 3840,
   "8k": 7680,
 };
-
-const RESOLUTION_LABELS$1 = {
+const RESOLUTION_LABELS = {
   "1k": "1K",
   "2k": "2K",
   "4k": "4K",
   "8k": "8K",
 };
-
 function formatEnhanceImageResolution(value) {
-  return RESOLUTION_LABELS$1[value];
+  return RESOLUTION_LABELS[value];
 }
-
 const DEFAULT_ENHANCE_IMAGE_RESOLUTION = "2k";
-
 function longEdge(width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   return Math.max(width, height);
 }
-
 function isEnhanceImageResolutionBelowSource(option2, width, height) {
   const long = longEdge(width, height);
   if (long === void 0) return false;
   return RESOLUTION_LONG_EDGE[option2] <= long;
 }
-
 function computeEnhanceImageTarget(option2, width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   const long = Math.max(width, height);
@@ -65,7 +56,6 @@ function computeEnhanceImageTarget(option2, width, height) {
     targetHeight,
   };
 }
-
 function suggestEnhanceImageResolution(width, height) {
   const long = longEdge(width, height);
   if (long === void 0) return DEFAULT_ENHANCE_IMAGE_RESOLUTION;
@@ -74,7 +64,6 @@ function suggestEnhanceImageResolution(width, height) {
   }
   return "8k";
 }
-
 function ResolutionToggle({ value, width, height, onChange }) {
   const { t: t2 } = useTranslation();
   return (
@@ -125,7 +114,6 @@ function ResolutionToggle({ value, width, height, onChange }) {
     </div>
   );
 }
-
 export const EnhanceImagePopover = reactExports.memo(
   function EnhanceImagePopover2({
     onSubmit,
@@ -147,7 +135,7 @@ export const EnhanceImagePopover = reactExports.memo(
       (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore$3(selectedSelector);
+    const selected2 = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -170,7 +158,7 @@ export const EnhanceImagePopover = reactExports.memo(
       });
     }, [isBelowSource, resolution, width, height, onSubmit]);
     return (
-      <NodeToolbar$1
+      <NodeToolbar
         isVisible={true}
         position={Position.Bottom}
         offset={NODE_POPOVER_SAFE_GAP}
@@ -206,11 +194,11 @@ export const EnhanceImagePopover = reactExports.memo(
               aria-label={t2("canvas.enhanceImage.cancel", "取消")}
               title={t2("canvas.enhanceImage.cancel", "取消")}
             >
-              <CloseIcon$1 />
+              <CloseIcon />
             </button>
             <div className="flex items-center gap-1.5">
               <CreditCostBadge cost={creditCost} compact={true} />
-              <Button$2
+              <Button
                 variant="default"
                 size="icon"
                 disabled={isBelowSource}
@@ -227,11 +215,11 @@ export const EnhanceImagePopover = reactExports.memo(
                 }
               >
                 <SendArrowIcon />
-              </Button$2>
+              </Button>
             </div>
           </div>
         </div>
-      </NodeToolbar$1>
+      </NodeToolbar>
     );
   },
 );

@@ -12,7 +12,7 @@ import {
   creditQueryKeys,
   useTeamAccount,
 } from "../assets/credit-query-keys.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { formatCreditAmount } from "./team-panel-stale.jsx";
 import {
@@ -30,15 +30,12 @@ import {
 } from "./page-content.jsx";
 import { teamApi } from "./team-api.js";
 import { accountScopeEquals } from "./account-scope-equals.js";
-
-let ScopeChangedError$1 = class ScopeChangedError2 extends Error {};
-
+let ScopeChangedError = class ScopeChangedError2 extends Error {};
 function isValidLimit(value) {
   if (!/^(0|[1-9]\d*)$/.test(value)) return false;
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) && parsed >= 0;
 }
-
 export function TeamDefaultQuotaPage({
   scope,
   quota,
@@ -68,7 +65,7 @@ export function TeamDefaultQuotaPage({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!activeScope || !accountScopeEquals(activeScope, scope)) {
-        throw new ScopeChangedError$1();
+        throw new ScopeChangedError();
       }
       const controller = new AbortController();
       controllerRef.current = controller;
@@ -104,7 +101,7 @@ export function TeamDefaultQuotaPage({
       onClose();
     },
     onError: (mutationError) => {
-      if (mutationError instanceof ScopeChangedError$1) {
+      if (mutationError instanceof ScopeChangedError) {
         dedupedToast.error(
           t2("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
@@ -243,7 +240,7 @@ export function TeamDefaultQuotaPage({
           ) : null}
         </div>
         <PageFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6">
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             disabled={mutation.isPending}
@@ -253,8 +250,8 @@ export function TeamDefaultQuotaPage({
             {t2("common.cancel", {
               defaultValue: "取消",
             })}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             loading={mutation.isPending}
             disabled={mutation.isPending || !hasEligibleMembers || !limitValid}
@@ -264,7 +261,7 @@ export function TeamDefaultQuotaPage({
             {t2("team.management.applyDefaultQuota", {
               defaultValue: "配置",
             })}
-          </Button$1>
+          </Button>
         </PageFooter>
       </PageContent>
     </Page>

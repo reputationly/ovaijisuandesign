@@ -8,11 +8,11 @@ import {
   Minus,
   reactExports,
   Redo2,
-  Tag$1,
+  Tag$1 as Tag,
   Undo2,
   usePlatform,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   Brush,
@@ -21,15 +21,15 @@ import {
   MousePointer2,
   Square,
   Trash2,
-  Type$1,
+  Type,
 } from "../media-editing/package.jsx";
 import { filenameExtension } from "./read-preview-text-response.jsx";
 import { DropdownMenu, Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AlertDialog,
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -53,7 +53,6 @@ import {
 import { useEditorState } from "../media-editing/use-editor-state.js";
 import { ImageEditor } from "../media-editing/image-editor.jsx";
 import { DEFAULT_STYLE } from "../media-editing/history-manager.js";
-
 const TOOLS = [
   {
     tool: "select",
@@ -87,12 +86,12 @@ const TOOLS = [
   },
   {
     tool: "text",
-    icon: Type$1,
+    icon: Type,
     labelKey: "imageEdit.toolText",
   },
   {
     tool: "tag",
-    icon: Tag$1,
+    icon: Tag,
     labelKey: "imageEdit.toolTag",
   },
   {
@@ -101,11 +100,8 @@ const TOOLS = [
     labelKey: "imageEdit.toolMosaic",
   },
 ];
-
 const IMAGE_ANNOTATION_SAVE_TIMEOUT_MS = 12e4;
-
 const JPEG_SOURCE_EXTENSIONS = new Set(["jpg", "jpeg", "heic", "heif"]);
-
 function getImageAnnotationOutput(filename) {
   if (JPEG_SOURCE_EXTENSIONS.has(filenameExtension(filename))) {
     return {
@@ -119,16 +115,13 @@ function getImageAnnotationOutput(filename) {
     mimeType: "image/png",
   };
 }
-
 function getAnnotatedFilename(filename, extension2) {
   const dot2 = filename.lastIndexOf(".");
   const base2 =
     (dot2 > 0 ? filename.slice(0, dot2) : filename).trim() || "image";
   return `${base2}-annotated.${extension2}`;
 }
-
 const IMAGE_ANNOTATION_VIEWPORT_INSET = 16;
-
 function observeImageAnnotationViewport(element2, onSize) {
   let disposed = false;
   let frame2 = 0;
@@ -164,7 +157,6 @@ function observeImageAnnotationViewport(element2, onSize) {
     observer2?.disconnect();
   };
 }
-
 function isUsableSize(size2) {
   return (
     Number.isFinite(size2.width) &&
@@ -173,7 +165,6 @@ function isUsableSize(size2) {
     size2.height > 0
   );
 }
-
 function calculateImageAnnotationDisplayFrame(
   editorSize,
   viewportSize,
@@ -213,7 +204,6 @@ function calculateImageAnnotationDisplayFrame(
     scale: scale2,
   };
 }
-
 const COLORS = [
   "#FF3B30",
   "#FF9500",
@@ -223,13 +213,10 @@ const COLORS = [
   "#AF52DE",
   "#FFFFFF",
 ];
-
 const STROKE_WIDTHS = [2, 4, 8];
-
 function getErrorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
-
 export function ImageAnnotationDialog({
   attachment,
   canAppend,
@@ -595,7 +582,7 @@ export function ImageAnnotationDialog({
               })}
             </DialogDescription>
           </DialogHeader>
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -604,14 +591,14 @@ export function ImageAnnotationDialog({
             data-action-ui-id="chat-image-annotation-close"
             onClick={requestClose}
           >
-            <Icon icon={X$7} size="lg" aria-hidden={true} />
-          </Button$1>
+            <Icon icon={X} size="lg" aria-hidden={true} />
+          </Button>
           <div
             inert={Boolean(working) || !editorReady}
             className="flex min-h-10 flex-wrap items-center gap-1 border-y border-border px-3 py-2"
           >
             {TOOLS.map((option2) => (
-              <Button$1
+              <Button
                 key={option2.tool}
                 type="button"
                 variant={activeTool === option2.tool ? "secondary" : "ghost"}
@@ -622,7 +609,7 @@ export function ImageAnnotationDialog({
                 onClick={() => selectTool(option2.tool)}
               >
                 <Icon icon={option2.icon} size="md" aria-hidden={true} />
-              </Button$1>
+              </Button>
             ))}
             <div className="mx-1 h-5 w-px bg-border" />
             {activeTool !== "select" && activeTool !== "mosaic" ? (
@@ -635,7 +622,7 @@ export function ImageAnnotationDialog({
                     <button
                       key={color2}
                       type="button"
-                      className={cn$2(
+                      className={cn(
                         "size-5 rounded-full border border-border outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring",
                         activeColor === color2 &&
                           "ring-2 ring-ring ring-offset-1 ring-offset-popover",
@@ -655,7 +642,7 @@ export function ImageAnnotationDialog({
                     {t2("imageEdit.strokeWidth")}
                   </legend>
                   {STROKE_WIDTHS.map((width) => (
-                    <Button$1
+                    <Button
                       key={width}
                       type="button"
                       variant={
@@ -672,7 +659,7 @@ export function ImageAnnotationDialog({
                           height: Math.max(1, width / 2),
                         }}
                       />
-                    </Button$1>
+                    </Button>
                   ))}
                 </fieldset>
               </>
@@ -680,7 +667,7 @@ export function ImageAnnotationDialog({
             {activeTool === "mosaic" ? (
               <div className="flex items-center gap-1">
                 {["mosaic", "blur"].map((mode2) => (
-                  <Button$1
+                  <Button
                     key={mode2}
                     type="button"
                     variant={mosaicMode === mode2 ? "secondary" : "ghost"}
@@ -693,10 +680,10 @@ export function ImageAnnotationDialog({
                         ? "imageEdit.mosaicModeMosaic"
                         : "imageEdit.mosaicModeBlur",
                     )}
-                  </Button$1>
+                  </Button>
                 ))}
                 {["rectangle", "brush"].map((shape) => (
-                  <Button$1
+                  <Button
                     key={shape}
                     type="button"
                     variant={mosaicShape === shape ? "secondary" : "ghost"}
@@ -709,12 +696,12 @@ export function ImageAnnotationDialog({
                         ? "imageEdit.mosaicShapeRect"
                         : "imageEdit.mosaicShapeBrush",
                     )}
-                  </Button$1>
+                  </Button>
                 ))}
               </div>
             ) : null}
             <div className="ml-auto flex items-center gap-1">
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
@@ -725,8 +712,8 @@ export function ImageAnnotationDialog({
                 onClick={() => editorRef.current?.undo()}
               >
                 <Icon icon={Undo2} size="md" aria-hidden={true} />
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
@@ -737,8 +724,8 @@ export function ImageAnnotationDialog({
                 onClick={() => editorRef.current?.redo()}
               >
                 <Icon icon={Redo2} size="md" aria-hidden={true} />
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
@@ -749,7 +736,7 @@ export function ImageAnnotationDialog({
                 onClick={() => editorRef.current?.clear()}
               >
                 <Icon icon={Trash2} size="md" aria-hidden={true} />
-              </Button$1>
+              </Button>
             </div>
           </div>
           <div
@@ -758,7 +745,7 @@ export function ImageAnnotationDialog({
             className="relative flex min-h-0 items-center justify-center overflow-clip bg-muted/40 p-4"
           >
             <div
-              className={cn$2(
+              className={cn(
                 "relative shrink-0 overflow-clip rounded-sm bg-background shadow-sm",
                 !displayReady && "invisible",
               )}
@@ -792,14 +779,14 @@ export function ImageAnnotationDialog({
                 className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-popover p-4 text-sm text-muted-foreground"
               >
                 <p>{t2("chat.imageAnnotation.loadFailed")}</p>
-                <Button$1
+                <Button
                   type="button"
                   variant="outline"
                   onClick={handleRetryLoad}
                   data-action-ui-id="chat-image-annotation-retry"
                 >
                   {t2("common.retry")}
-                </Button$1>
+                </Button>
               </div>
             ) : !displayReady ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/40 text-sm text-muted-foreground">
@@ -809,7 +796,7 @@ export function ImageAnnotationDialog({
           </div>
           <DialogFooter className="items-center border-t border-border px-4 py-3 sm:justify-end">
             <div className="flex items-center gap-2">
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 disabled={!editorReady || !hasChanges || Boolean(working)}
@@ -819,17 +806,17 @@ export function ImageAnnotationDialog({
               >
                 <Icon icon={Download} size="sm" aria-hidden={true} />
                 {t2("chat.imageAnnotation.export")}
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 variant="outline"
                 disabled={working === "export"}
                 onClick={requestClose}
               >
                 {t2("common.cancel")}
-              </Button$1>
+              </Button>
               <div className="flex">
-                <Button$1
+                <Button
                   type="button"
                   className="rounded-r-none"
                   disabled={!canFinish}
@@ -838,11 +825,11 @@ export function ImageAnnotationDialog({
                   onClick={() => requestApply("replace")}
                 >
                   {t2("chat.imageAnnotation.replace")}
-                </Button$1>
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <Button$1
+                      <Button
                         type="button"
                         className="rounded-l-none border-l-primary-foreground/25 px-2"
                         disabled={!canFinish}

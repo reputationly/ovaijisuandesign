@@ -31,11 +31,10 @@ import {
   isTagNameTaken,
   validateCanvasTagName,
 } from "../infra/parse-connector-selection.js";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { useCanvasTags } from "./use-canvas-tags.js";
 import { useCanvasTagName } from "../assets/use-canvas-model-registry-hydration.js";
-
 export function CanvasTagManagerPanel({
   assetCountsByTag,
   taggedAssetCount = 0,
@@ -332,7 +331,7 @@ export function CanvasTagManagerPanel({
       </div>
       {onDownloadAllTagged ? (
         <div className="relative shrink-0 px-2 py-1.5 before:absolute before:top-0 before:right-2 before:left-2 before:border-t before:border-border before:content-['']">
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             aria-label={t2("canvasTags.downloadAllTagged")}
@@ -361,7 +360,7 @@ export function CanvasTagManagerPanel({
                 aria-hidden={true}
               />
             </span>
-          </Button$1>
+          </Button>
         </div>
       ) : null}
     </div>

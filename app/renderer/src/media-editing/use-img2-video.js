@@ -31,11 +31,9 @@ import {
   HILO_SOURCE_HEADER,
   pickUserMessage,
 } from "../generation/normalize-skill-detail-metadata.js";
-
 function isEnoentErrorMessage(message2) {
   return /ENOENT|no such file or directory/i.test(message2);
 }
-
 function classifyVideoGenerationMode(input) {
   const kinds = [
     input.imageRefCount > 0,
@@ -48,7 +46,6 @@ function classifyVideoGenerationMode(input) {
   if (input.audioRefCount > 0) return "a2v";
   return "t2v";
 }
-
 function modelValues(model, modelId) {
   return [
     modelId,
@@ -58,14 +55,12 @@ function modelValues(model, modelId) {
     model?.name,
   ].filter((value) => typeof value === "string");
 }
-
 function isHailuo03VideoTrialModel(model, modelId, eligibility) {
   if (!eligibility) return false;
   return modelValues(model, modelId).some((value) =>
     includesString(eligibility.models, value),
   );
 }
-
 function isHailuo03OrdinaryVideoTrialSubmit(
   model,
   modelId,
@@ -90,13 +85,11 @@ function isHailuo03OrdinaryVideoTrialSubmit(
     })
   );
 }
-
 const CANVAS_VIDEO_MODEL_DISPLAY_ORDER = {
   "MiniMax-H3": 0,
   "MiniMax-H3-Max": 1,
   "MiniMax-H3-Max-Turbo": 2,
 };
-
 function visibleCanvasVideoModels(models) {
   return visibleCanvasModels(models)
     .map((model, index2) => ({
@@ -111,11 +104,8 @@ function visibleCanvasVideoModels(models) {
     })
     .map(({ model }) => model);
 }
-
 const MINIMAX_H3_NORMALIZED_MODEL_ID = "minimax-h3";
-
 const MINIMAX_H3_NORMALIZED_BACKEND_ID = "minimax-v3";
-
 function normalizeModelValue(value) {
   return typeof value === "string"
     ? value
@@ -124,26 +114,22 @@ function normalizeModelValue(value) {
         .replace(/[\s_]+/g, "-")
     : "";
 }
-
-function isMiniMaxH3ModelValue$1(value) {
+function isMiniMaxH3ModelValue(value) {
   return normalizeModelValue(value) === MINIMAX_H3_NORMALIZED_MODEL_ID;
 }
-
 function isMiniMaxH3VideoPromptRequired(args) {
   const { backend, modelId, model } = args;
   return (
     normalizeModelValue(backend) === MINIMAX_H3_NORMALIZED_BACKEND_ID ||
     [modelId, model?.id, model?.model_name, model?.pricingId, model?.name].some(
-      isMiniMaxH3ModelValue$1,
+      isMiniMaxH3ModelValue,
     )
   );
 }
-
 function isMiniMaxH3VideoPromptMissing(args) {
   const prompt = typeof args.prompt === "string" ? args.prompt : "";
   return isMiniMaxH3VideoPromptRequired(args) && prompt.trim().length === 0;
 }
-
 function buildCanvasVideoSubmitTracking(input) {
   return {
     popover_type: "i2v",
@@ -169,13 +155,9 @@ function buildCanvasVideoSubmitTracking(input) {
     duration: input.duration,
   };
 }
-
-const GENERATE_ERROR_CODE_QUEUE_PAUSED$1 = "queue_paused";
-
+const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
 const MODEL_LIST_TIMEOUT_MS = 1e4;
-
 const MAX_VIDEOS_PER_SUBMIT = 9;
-
 function formatGenerateError(message2) {
   if (isEnoentErrorMessage(message2)) {
     return instance.t("canvas.generateRefFileMissing", {
@@ -184,13 +166,11 @@ function formatGenerateError(message2) {
   }
   return message2;
 }
-
 function trackCanvasVideoSubmit(input) {
   trackEvent(TRACK_EVENTS.CANVAS_GENERATE_SUBMIT, {
     ...buildCanvasVideoSubmitTracking(input),
   });
 }
-
 export function useImg2Video({
   httpClient,
   catalogScopeKey,
@@ -352,7 +332,7 @@ export function useImg2Video({
         if (!resp.ok) {
           if (
             resp.error_code === GENERATE_ERROR_CODE_SHUTDOWN ||
-            resp.error_code === GENERATE_ERROR_CODE_QUEUE_PAUSED$1
+            resp.error_code === GENERATE_ERROR_CODE_QUEUE_PAUSED
           ) {
             return {
               success: true,

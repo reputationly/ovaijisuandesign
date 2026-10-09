@@ -4,12 +4,11 @@ import { IMAGE_MODELS } from "./image-models.js";
 import { VIDEO_MODELS } from "./video-models.js";
 import { AUDIO_MODELS } from "./audio-models.js";
 import { getToolLabelId } from "../chat/has-structured-success-payload.js";
-import { TOOL_LABEL_DEFINITIONS$1 } from "../workspace/tool-label-definitions.js";
+import { TOOL_LABEL_DEFINITIONS as TOOL_LABEL_DEFINITIONS$1 } from "../workspace/tool-label-definitions.js";
 import { getBuiltInToolLabelId } from "../media-editing/tool-name-to-label-id.js";
 import { getConfiguredToolDisplayLabel } from "../settings/request-prompt-prefill.jsx";
 import { RECONNECTING_STUCK_THRESHOLD_MS } from "../chat/use-browser-chat-media.jsx";
 import { BROWSER_IMAGE_EDIT_EVENT, reactExports } from "../vendor.js";
-
 export function dispatchBrowserImageEditToChat(request) {
   const event = new CustomEvent(BROWSER_IMAGE_EDIT_EVENT, {
     detail: request,
@@ -18,7 +17,6 @@ export function dispatchBrowserImageEditToChat(request) {
   window.dispatchEvent(event);
   return event.defaultPrevented;
 }
-
 export function useChatConnectionPhase(workspaceId2, connected) {
   const [history2, setHistory] = reactExports.useState(() => ({
     workspaceId: workspaceId2,
@@ -46,7 +44,6 @@ export function useChatConnectionPhase(workspaceId2, connected) {
     history2.workspaceId === workspaceId2 && history2.hasConnected;
   return hasConnected ? "reconnecting" : "connecting";
 }
-
 function buildRegistryIndex(entries2) {
   const map3 = new Map();
   for (const entry of entries2) {
@@ -57,20 +54,15 @@ function buildRegistryIndex(entries2) {
   }
   return map3;
 }
-
 export const REGISTRY_BY_TYPE = {
   image: buildRegistryIndex(IMAGE_MODELS),
   video: buildRegistryIndex(VIDEO_MODELS),
   audio: buildRegistryIndex(AUDIO_MODELS),
 };
-
 const legacyMidjourney = REGISTRY_BY_TYPE.image.get("midjourney-8.2");
-
 if (legacyMidjourney)
   REGISTRY_BY_TYPE.image.set("midjourney", legacyMidjourney);
-
 const RECLAIM_TTL_MS = RECONNECTING_STUCK_THRESHOLD_MS + 6e4;
-
 export function useRuntimeMemoryReclaim() {
   const [reclaimed, setReclaimed] = reactExports.useState(false);
   const timerRef = reactExports.useRef(null);
@@ -94,7 +86,6 @@ export function useRuntimeMemoryReclaim() {
   }, [clearTimer2]);
   return reclaimed;
 }
-
 function retainActiveEntries(previous2, activeIds2) {
   let changed = false;
   const next2 = {};
@@ -104,7 +95,6 @@ function retainActiveEntries(previous2, activeIds2) {
   }
   return changed ? next2 : previous2;
 }
-
 export function useToolConfirmEditState(pendingMessages, submittingIds) {
   const [edits, setEdits] = reactExports.useState({});
   const [approvalState, setApprovalState] = reactExports.useState({});
@@ -145,20 +135,17 @@ export function useToolConfirmEditState(pendingMessages, submittingIds) {
     edits,
   };
 }
-
 const TOOL_LABEL_DEFINITIONS = {
   ...TOOL_LABEL_DEFINITIONS$1,
   browser: {
     i18nKey: "chat.toolLabel.browser",
   },
 };
-
 const MAIN_AGENT_THINKING_TOOL_NAMES = new Set([
   "todowrite",
   "hub_search_knowledge",
   "hub_select_image_recipe",
 ]);
-
 const TRANSIENT_TOOL_LABEL_KEYS = {
   hub_canvas_get_node: "chat.toolLabel.canvasGetNode",
   hub_canvas_list_nodes: "chat.toolLabel.canvasListNodes",
@@ -180,15 +167,12 @@ const TRANSIENT_TOOL_LABEL_KEYS = {
   hub_run_comfyui_workflow: "chat.toolLabel.runComfyUiWorkflow",
   hub_get_comfyui_run_status: "chat.toolLabel.getComfyUiRunStatus",
 };
-
 export function isMainAgentThinkingTool(toolName2) {
   return !!toolName2 && MAIN_AGENT_THINKING_TOOL_NAMES.has(toolName2);
 }
-
 export function isTransientTool(toolName2) {
   return getToolLabelId(toolName2) === "transient";
 }
-
 export function getToolDisplayLabel(toolName2, t2) {
   const labelId = getToolLabelId(toolName2);
   if (labelId === "silent") return "";
@@ -218,7 +202,6 @@ export function getToolDisplayLabel(toolName2, t2) {
   }
   return t2(TOOL_LABEL_DEFINITIONS[labelId].i18nKey);
 }
-
 export function filterSilentTools(messages2, getToolName) {
   return messages2.filter((msg) => {
     if (msg.type !== "tool") return true;

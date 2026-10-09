@@ -13,7 +13,7 @@ import {
 } from "../generation/use-model-catalog-scope-key.js";
 import { seedTagRegistry } from "../infra/parse-connector-selection.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogAction,
   AlertDialogContent,
@@ -23,13 +23,11 @@ import {
   AlertDialogTitle,
 } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-
 export async function fetchTagRegistry(gatewayFetch2) {
   const res = await gatewayFetch2(API_PATHS.tagRegistry);
   const data2 = await res.json();
   return normalizeTagRegistry(data2.registry);
 }
-
 export function useTagRegistry() {
   const gatewayFetch2 = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
@@ -43,7 +41,6 @@ export function useTagRegistry() {
     [data2],
   );
 }
-
 export function aggregateTagState(tagId, assets) {
   if (assets.length === 0) return "none";
   let have = 0;
@@ -54,7 +51,6 @@ export function aggregateTagState(tagId, assets) {
   if (have === assets.length) return "all";
   return "mixed";
 }
-
 export function ConflictResolutionDialog({
   open,
   conflict,
@@ -109,20 +105,20 @@ export function ConflictResolutionDialog({
           </div>
         )}
         <AlertDialogFooter className="!flex !flex-row !justify-end !gap-2">
-          <Button$1
+          <Button
             variant="ghost"
             onClick={() => decide("skip")}
             data-action-ui-id="asset-panel.conflict-skip"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="secondary"
             onClick={() => decide("rename")}
             data-action-ui-id="asset-panel.conflict-rename"
           >
             {t2("fileExplorer.conflictRename")}
-          </Button$1>
+          </Button>
           <AlertDialogAction
             variant="destructive"
             disabled={isFolder}

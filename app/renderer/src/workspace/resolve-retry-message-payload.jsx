@@ -4,11 +4,10 @@ import { API_PATHS, reactExports, useStorage } from "../vendor.js";
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { OPEN_BROWSER_EVENT } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { SessionStore } from "../chat/session-store.js";
-
 function WorkspaceLoadingDotField() {
   return (
     <div className="workspace-loading-dot-field" aria-hidden="true">
@@ -17,11 +16,10 @@ function WorkspaceLoadingDotField() {
     </div>
   );
 }
-
 export function CanvasLoadingState({ label, className }) {
   return (
     <div
-      className={cn$2(
+      className={cn(
         "pointer-events-none flex size-full items-center justify-center overflow-hidden bg-background",
         className,
       )}
@@ -39,9 +37,7 @@ export function CanvasLoadingState({ label, className }) {
     </div>
   );
 }
-
 const SessionStoreContext = reactExports.createContext(null);
-
 export function SessionStoreProvider({ children: children2 }) {
   const store = reactExports.useMemo(() => new SessionStore(), []);
   return (
@@ -50,27 +46,22 @@ export function SessionStoreProvider({ children: children2 }) {
     </SessionStoreContext.Provider>
   );
 }
-
 export function useSessionStore() {
   const ctx = reactExports.useContext(SessionStoreContext);
   if (!ctx)
     throw new Error("useSessionStore must be used within SessionStoreProvider");
   return ctx;
 }
-
 export function subscribeAddEntityToCanvas(events2, handlers2) {
   return events2.onAddEntityToCanvas(({ entityId, attachmentIds }) => {
     if (!handlers2.isActiveRef.current) return;
     handlers2.dropEntityById(entityId, void 0, attachmentIds);
   });
 }
-
 const DEFAULT_AGENT_MODE_PREFERENCE = "auto";
-
 function resolveAgentModePreference(preference) {
   return preference === "ask" ? "ask" : DEFAULT_AGENT_MODE_PREFERENCE;
 }
-
 export function useAgentModePreference() {
   const [config2, setConfig] = useStorage("global.config");
   const mode2 = resolveAgentModePreference(config2.agentModePreference);
@@ -86,11 +77,8 @@ export function useAgentModePreference() {
   );
   return [mode2, setMode];
 }
-
 export const BROWSER_SCREENSHOT_EVENT = "hilo:browser-screenshot";
-
 export const BROWSER_FILE_EVENT = "hilo:browser-file";
-
 export function dispatchBrowserScreenshotToChat(detail) {
   window.dispatchEvent(
     new CustomEvent(BROWSER_SCREENSHOT_EVENT, {
@@ -98,14 +86,12 @@ export function dispatchBrowserScreenshotToChat(detail) {
     }),
   );
 }
-
 export function dispatchBrowserAnnotationToChat(dataUrl) {
   dispatchBrowserScreenshotToChat({
     dataUrl,
     annotated: true,
   });
 }
-
 export function dispatchBrowserPickedFileToChat(detail) {
   window.dispatchEvent(
     new CustomEvent(BROWSER_FILE_EVENT, {
@@ -113,11 +99,9 @@ export function dispatchBrowserPickedFileToChat(detail) {
     }),
   );
 }
-
 let browserChatContext = {
   surface_open: false,
 };
-
 export function setBuiltinBrowserChatContext(context) {
   browserChatContext = {
     surface_open: context.surface_open,
@@ -130,7 +114,6 @@ export function setBuiltinBrowserChatContext(context) {
       : {}),
   };
 }
-
 function getBuiltinBrowserChatContext() {
   return {
     surface_open: browserChatContext.surface_open,
@@ -143,12 +126,10 @@ function getBuiltinBrowserChatContext() {
       : {}),
   };
 }
-
 export function getBuiltinBrowserChatContextForSend() {
   const context = getBuiltinBrowserChatContext();
   return context.surface_open ? context : void 0;
 }
-
 function isWebUrl(url2) {
   try {
     const parsed = new URL(url2);
@@ -157,19 +138,15 @@ function isWebUrl(url2) {
     return false;
   }
 }
-
 function canOpenInBuiltinBrowser(url2) {
   return Boolean(window.hilo?.browser) && isWebUrl(url2);
 }
-
 let pendingUrl = null;
-
 export function takePendingBuiltinBrowserUrl() {
   const url2 = pendingUrl;
   pendingUrl = null;
   return url2;
 }
-
 export async function openUrlInBuiltinBrowser(platform2, url2, options) {
   if (!canOpenInBuiltinBrowser(url2)) {
     return openExternalUrl(platform2, url2, options);
@@ -184,7 +161,6 @@ export async function openUrlInBuiltinBrowser(platform2, url2, options) {
   );
   return true;
 }
-
 export function useQueuedMessageScrollRequest(focusedSessionId) {
   const revisionRef = reactExports.useRef(0);
   const [sessionRequest, setSessionRequest] = reactExports.useState(null);
@@ -209,7 +185,6 @@ export function useQueuedMessageScrollRequest(focusedSessionId) {
     requestQueuedMessageScroll,
   };
 }
-
 export function applyQueuedMessageScrollRequest(container, request) {
   const row = container.querySelector(
     `[data-queued-client-message-id="${CSS.escape(request.clientMessageId)}"]`,
@@ -217,7 +192,6 @@ export function applyQueuedMessageScrollRequest(container, request) {
   if (!row) return;
   container.scrollTop = container.scrollHeight;
 }
-
 export function resolveRetryMessagePayload(messages2, targetUserMessage) {
   const userMessage =
     targetUserMessage ??
@@ -245,9 +219,7 @@ export function resolveRetryMessagePayload(messages2, targetUserMessage) {
     pluginNodeAttachments: userMessage.pluginNodeAttachments,
   };
 }
-
 export const DRAFT_NEW_TAB = "__new_tab__";
-
 export function equalStringSets(a2, b3) {
   if (a2.size !== b3.size) return false;
   for (const value of a2) {
@@ -255,7 +227,6 @@ export function equalStringSets(a2, b3) {
   }
   return true;
 }
-
 export function chatAttachmentsFromPaths(attachments, attachmentRefs) {
   if (!attachments?.length) return void 0;
   const refsByPath = new Map(attachmentRefs?.map((ref) => [ref.path, ref]));

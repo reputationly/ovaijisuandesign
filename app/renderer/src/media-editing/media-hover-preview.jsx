@@ -9,17 +9,12 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioPreviewPlayer } from "./audio-preview-player.jsx";
 import { useHoverPreview } from "./use-hover-preview.js";
-import { formatTime$2, useCanvasBridge } from "./package.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-
+import { formatTime, useCanvasBridge } from "./package.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 const PREVIEW_MAX_W = 180;
-
-const PREVIEW_MAX_H$1 = 240;
-
+const PREVIEW_MAX_H = 240;
 const PREVIEW_FALLBACK_W = 180;
-
 const PREVIEW_FALLBACK_H = 135;
-
 function hasValidMediaSize(size2) {
   return (
     typeof size2.width === "number" &&
@@ -30,7 +25,6 @@ function hasValidMediaSize(size2) {
     size2.height > 0
   );
 }
-
 function getMediaPreviewSize(width, height) {
   const intrinsicSize = {
     width,
@@ -44,28 +38,23 @@ function getMediaPreviewSize(width, height) {
   }
   const scale2 = Math.min(
     PREVIEW_MAX_W / intrinsicSize.width,
-    PREVIEW_MAX_H$1 / intrinsicSize.height,
+    PREVIEW_MAX_H / intrinsicSize.height,
   );
   return {
     width: Math.max(1, Math.round(intrinsicSize.width * scale2)),
     height: Math.max(1, Math.round(intrinsicSize.height * scale2)),
   };
 }
-
 function getInteractiveMediaPreviewSize(size2) {
   return {
     width: Math.max(144, size2.width),
     height: Math.max(72, size2.height),
   };
 }
-
 const AUDIO_PREVIEW_W = 320;
-
 const AUDIO_PREVIEW_H_FALLBACK = 108;
-
 const AUDIO_PREVIEW_ACTION_H = 32;
-
-function ReferenceAudioIcon$2() {
+function ReferenceAudioIcon() {
   return (
     <CompositedSvg
       width="16"
@@ -88,7 +77,6 @@ function ReferenceAudioIcon$2() {
     </CompositedSvg>
   );
 }
-
 export function MediaHoverPreview({
   kind,
   active: active2 = true,
@@ -160,7 +148,7 @@ export function MediaHoverPreview({
     Number.isFinite(effectiveDuration) && effectiveDuration > 0
       ? kind === "video"
         ? `${effectiveDuration.toFixed(2)}s`
-        : formatTime$2(effectiveDuration, true)
+        : formatTime(effectiveDuration, true)
       : void 0;
   const handleImageLoad = reactExports.useCallback(
     (e2) => {
@@ -255,7 +243,7 @@ export function MediaHoverPreview({
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pt-3 text-xs text-[var(--canvas-controls-text)]">
           <div className="flex w-full min-w-0 items-start gap-2">
             <span className="shrink-0 text-[var(--canvas-controls-text)]">
-              <ReferenceAudioIcon$2 />
+              <ReferenceAudioIcon />
             </span>
             {showFileName && (
               <span
@@ -266,7 +254,7 @@ export function MediaHoverPreview({
               </span>
             )}
             <span className="shrink-0 tabular-nums text-[12px] text-[var(--canvas-controls-text-muted)]">
-              {durationLabel ?? formatTime$2(0, true)}
+              {durationLabel ?? formatTime(0, true)}
             </span>
           </div>
           {description && (
@@ -335,7 +323,7 @@ export function MediaHoverPreview({
       )}
       {!isAudio && locateAction && (
         <div className="absolute bottom-1 left-1 z-10">
-          <Tooltip$1 content={locateAction.label} side="top">
+          <Tooltip content={locateAction.label} side="top">
             <button
               type="button"
               aria-label={locateAction.label}
@@ -355,12 +343,12 @@ export function MediaHoverPreview({
                 }}
               />
             </button>
-          </Tooltip$1>
+          </Tooltip>
         </div>
       )}
       {previewAction && !isAudio && (
         <div className="absolute bottom-1 right-1 z-10">
-          <Tooltip$1 content={previewAction.label} side="top">
+          <Tooltip content={previewAction.label} side="top">
             <button
               type="button"
               aria-label={previewAction.label}
@@ -380,7 +368,7 @@ export function MediaHoverPreview({
                 }}
               />
             </button>
-          </Tooltip$1>
+          </Tooltip>
         </div>
       )}
       {action && isAudio && (

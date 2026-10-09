@@ -16,11 +16,9 @@ export function setCell(doc2, rowId, columnId, value) {
     ),
   };
 }
-
 export function serializeTableDocument(doc2) {
   return JSON.stringify(doc2, null, 2);
 }
-
 export function tableDocumentToLlmContent(doc2) {
   const columnIndexById = new Map();
   doc2.columns.forEach((col, idx) => {
@@ -80,13 +78,10 @@ export function tableDocumentToLlmContent(doc2) {
   if (doc2.rowHeight) llm.rowHeight = doc2.rowHeight;
   return llm;
 }
-
 export function DerivationEdge() {
   return null;
 }
-
 const MENTION_TOKEN_RE = /@\[([^\]\n]+)\]|@([^\s@[\]]+)/g;
-
 export function findAllMentions(text2) {
   if (!text2) return [];
   const out = [];
@@ -103,23 +98,18 @@ export function findAllMentions(text2) {
   }
   return out;
 }
-
 export const CANVAS_REFERENCE_API = {
   search: "/api/canvas-references/search",
   resolve: "/api/canvas-references/resolve",
   content: "/api/canvas-references/content",
 };
-
-const PREFIX$1 = "hilo-ref:";
-
+const PREFIX = "hilo-ref:";
 export function isCanvasReferenceUri(value) {
-  return value.startsWith(PREFIX$1);
+  return value.startsWith(PREFIX);
 }
-
 export function encodeCanvasReference(reference) {
-  return PREFIX$1 + encodeURIComponent(JSON.stringify(reference));
+  return PREFIX + encodeURIComponent(JSON.stringify(reference));
 }
-
 export function mapCanvasDirectReference(value) {
   if (!value || typeof value !== "object") return;
   const row = value;
@@ -175,7 +165,6 @@ export function mapCanvasDirectReference(value) {
       : {}),
   };
 }
-
 export function parseCanvasReference(value) {
   if (
     typeof value !== "string" ||
@@ -185,13 +174,12 @@ export function parseCanvasReference(value) {
     return;
   try {
     return mapCanvasDirectReference(
-      JSON.parse(decodeURIComponent(value.slice(PREFIX$1.length))),
+      JSON.parse(decodeURIComponent(value.slice(PREFIX.length))),
     );
   } catch {
     return void 0;
   }
 }
-
 export function canvasReferenceIdentity(reference) {
   return JSON.stringify([
     reference.source,
@@ -200,7 +188,6 @@ export function canvasReferenceIdentity(reference) {
     ...(reference.target ? [reference.target] : []),
   ]);
 }
-
 export function mapCanvasReferenceCandidates(value) {
   if (!Array.isArray(value))
     throw new Error("Invalid reference search response");
@@ -232,7 +219,6 @@ export function mapCanvasReferenceCandidates(value) {
     };
   });
 }
-
 export function existingCanvasReferencePath(reference, paths) {
   const identity2 = canvasReferenceIdentity(reference);
   for (const path2 of paths) {
@@ -242,13 +228,10 @@ export function existingCanvasReferencePath(reference, paths) {
   }
   return void 0;
 }
-
 export function isCanvasSubjectReference(value) {
   return parseCanvasReference(value)?.target === "entity";
 }
-
 export const CLOUD_SERVER_TIME_HEADER = "X-Hilo-Server-Time";
-
 const CLOUD_GATEWAY_URLS = {
   domestic: {
     dev: "https://hub-pre.xaminim.com",
@@ -263,7 +246,6 @@ const CLOUD_GATEWAY_URLS = {
     prod: "https://design.minimax.io",
   },
 };
-
 const LEGACY_PLATFORM_PROVIDER_URLS = [
   // The config endpoint is routed through hub-pre, but provider baseURL values
   // can still be served as the legacy hilo-pre alias.
@@ -277,7 +259,6 @@ const LEGACY_PLATFORM_PROVIDER_URLS = [
   // Dropping this would stop token injection and fail LLM calls with 401.
   "https://design.minimaxi.com",
 ];
-
 const CLOUD_GATEWAY_URL_PREFIXES = [
   ...new Set(
     [
@@ -288,7 +269,6 @@ const CLOUD_GATEWAY_URL_PREFIXES = [
     ].flatMap((url2) => [url2, url2.replace("https://", "http://")]),
   ),
 ];
-
 new Set([
   "https://design.minimax.cn",
   ...CLOUD_GATEWAY_URL_PREFIXES.filter((url2) => url2.startsWith("https://")),

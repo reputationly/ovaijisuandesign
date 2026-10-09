@@ -1,32 +1,28 @@
 // param-slider.jsx
 import {
-  SliderControl$1,
+  SliderControl$1 as SliderControl,
   SliderIndicator,
   SliderRoot,
   SliderThumb,
   SliderTrack,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Slider$1 } from "./slider.jsx";
+import { Slider } from "./slider.jsx";
 import { ParamSectionLabel, ParamStepper } from "./resolution-tabs.jsx";
-
 function decimalsOf(step) {
   if (!Number.isFinite(step)) return 0;
   const s2 = String(step);
   const dot2 = s2.indexOf(".");
   return dot2 < 0 ? 0 : s2.length - dot2 - 1;
 }
-
-function formatNumber$3(n2, decimals) {
+function formatNumber(n2, decimals) {
   const s2 = n2.toFixed(decimals);
   return decimals === 0 ? s2 : s2.replace(/\.?0+$/, "") || "0";
 }
-
 function parseValue(value, fallback) {
   const n2 = Number(value);
   return Number.isFinite(n2) ? n2 : fallback;
 }
-
 export function ParamSlider({
   label,
   value,
@@ -40,11 +36,11 @@ export function ParamSlider({
 }) {
   const decimals = decimalsOf(step);
   const numeric2 = parseValue(value, min2);
-  const display = formatNumber$3(numeric2, decimals);
+  const display = formatNumber(numeric2, decimals);
   const emit2 = (n2) => {
     if (!onChange || disabled2) return;
     const clamped = Math.min(max2, Math.max(min2, n2));
-    onChange(formatNumber$3(clamped, decimals));
+    onChange(formatNumber(clamped, decimals));
   };
   const atMin = numeric2 <= min2 + step / 2;
   const atMax = numeric2 >= max2 - step / 2;
@@ -64,7 +60,7 @@ export function ParamSlider({
         </ParamStepper>
       </div>
       {variant === "filled" ? (
-        <Slider$1
+        <Slider
           variant="filled"
           size="compact"
           value={numeric2}
@@ -97,7 +93,7 @@ export function ParamSlider({
           onPointerDown={(e2) => e2.stopPropagation()}
           className="data-horizontal:w-full px-1.5"
         >
-          <SliderControl$1 className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 py-1.5">
+          <SliderControl className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 py-1.5">
             <SliderTrack
               data-slot="slider-track"
               className="relative grow overflow-hidden rounded-full bg-[var(--canvas-controls-hover)] border border-[var(--canvas-controls-border)] select-none h-1.5"
@@ -122,7 +118,7 @@ export function ParamSlider({
                 "disabled:pointer-events-none disabled:opacity-50",
               ].join(" ")}
             />
-          </SliderControl$1>
+          </SliderControl>
         </SliderRoot>
       )}
       {marks && marks.length > 0 && (

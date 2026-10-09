@@ -51,7 +51,6 @@ import {
   TopbarStateContext,
 } from "./topbar-state-context.jsx";
 import { workspaceDisplayName } from "../generation/use-model-catalog-scope-key.js";
-
 function useVisiblePreviewTabsSnapshot() {
   return reactExports.useSyncExternalStore(
     visiblePreviewTabsStore.subscribe,
@@ -59,7 +58,6 @@ function useVisiblePreviewTabsSnapshot() {
     visiblePreviewTabsStore.getSnapshot,
   );
 }
-
 function useWindowTitleSync(entries2, currentWorkspaceId, platform2) {
   reactExports.useEffect(() => {
     const active2 = entries2.find(
@@ -71,7 +69,6 @@ function useWindowTitleSync(entries2, currentWorkspaceId, platform2) {
     platform2.window.setTitle(title);
   }, [currentWorkspaceId, entries2, platform2.window]);
 }
-
 function useLastActivePersistence(currentWorkspaceId, platform2) {
   reactExports.useEffect(() => {
     if (currentWorkspaceId) {
@@ -81,30 +78,24 @@ function useLastActivePersistence(currentWorkspaceId, platform2) {
     }
   }, [currentWorkspaceId, platform2.storage]);
 }
-
 const COMPLETED_TASK_LIMIT = 20;
-
 function getTaskCompletionKey(task) {
   const prompt = task.promptPreview?.trim();
   return prompt
     ? `${task.workspaceId}:prompt:${prompt}`
     : `${task.workspaceId}:task:${task.id}`;
 }
-
-const listeners$6 = new Set();
-
+const listeners = new Set();
 let emitScheduled = false;
-
 function scheduleEmit() {
   if (emitScheduled) return;
   emitScheduled = true;
   queueMicrotask(() => {
     emitScheduled = false;
-    for (const listener of listeners$6) listener();
+    for (const listener of listeners) listener();
   });
 }
-
-function shallowEqualObject$1(previous2, next2) {
+function shallowEqualObject(previous2, next2) {
   if (Object.is(previous2, next2)) return true;
   const previousKeys = Object.keys(previous2);
   const nextKeys = Object.keys(next2);
@@ -114,24 +105,20 @@ function shallowEqualObject$1(previous2, next2) {
       Object.hasOwn(next2, key2) && Object.is(previous2[key2], next2[key2]),
   );
 }
-
 function areShallowEqualArrays(previous2, next2) {
   if (Object.is(previous2, next2)) return true;
   if (previous2.length !== next2.length) return false;
   return previous2.every((item, index2) =>
-    shallowEqualObject$1(item, next2[index2]),
+    shallowEqualObject(item, next2[index2]),
   );
 }
-
 function areTopbarSnapshotsEqual(previous2, next2) {
   return (
     areShallowEqualArrays(previous2.sessions, next2.sessions) &&
     areShallowEqualArrays(previous2.tasks, next2.tasks)
   );
 }
-
 let snapshots = new Map();
-
 function setTopbarSnapshot(workspaceId2, snapshot2) {
   const previousSnapshot = snapshots.get(workspaceId2);
   if (previousSnapshot && areTopbarSnapshotsEqual(previousSnapshot, snapshot2))
@@ -139,7 +126,6 @@ function setTopbarSnapshot(workspaceId2, snapshot2) {
   snapshots = new Map(snapshots).set(workspaceId2, snapshot2);
   scheduleEmit();
 }
-
 function pruneTopbarSnapshots(activeWorkspaceIds) {
   let changed = false;
   const next2 = new Map(snapshots);
@@ -153,23 +139,19 @@ function pruneTopbarSnapshots(activeWorkspaceIds) {
   snapshots = next2;
   scheduleEmit();
 }
-
 function getTopbarSnapshots() {
   return snapshots;
 }
-
 function subscribeTopbarSnapshots(listener) {
-  listeners$6.add(listener);
-  return () => listeners$6.delete(listener);
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
-
 function getNextWorkspaceIdAfterClose(entries2, closingWorkspaceId) {
   return getNextPreviewTabIdAfterHide(
     entries2.map((entry) => entry.workspaceId),
     closingWorkspaceId,
   );
 }
-
 function performWorkspacePreviewHide(
   entries2,
   workspaceId2,
@@ -201,7 +183,6 @@ function performWorkspacePreviewHide(
   }
   effects.requestRuntimeClose(workspaceId2, source);
 }
-
 function performWorkspacePreviewsBatchHide(
   workspaceId2,
   currentWorkspaceId,
@@ -224,7 +205,6 @@ function performWorkspacePreviewsBatchHide(
     effects.requestRuntimeClose(hiddenWorkspaceId, source);
   }
 }
-
 function performOtherWorkspacePreviewsHide(
   entries2,
   workspaceId2,
@@ -242,7 +222,6 @@ function performOtherWorkspacePreviewsHide(
     effects,
   );
 }
-
 function performWorkspacePreviewsToRightHide(
   entries2,
   workspaceId2,
@@ -261,7 +240,6 @@ function performWorkspacePreviewsToRightHide(
     effects,
   );
 }
-
 async function activateWorkspaceIfAvailable(
   hiloApp2,
   workspaceId2,
@@ -271,23 +249,19 @@ async function activateWorkspaceIfAvailable(
   if (!runtime) return;
   await navigateToWorkspaceId(runtime.workspaceId);
 }
-
 function shouldActivateWorkspaceThroughRoute(entries2, workspaceId2) {
   const entry = entries2.find(
     (candidate) => candidate.workspaceId === workspaceId2,
   );
   return Boolean(entry && !entry.gatewayUrl);
 }
-
 let _service = null;
-
 function getNotificationMainService() {
   if (!_service) {
     _service = services.get(INotificationMainService);
   }
   return _service;
 }
-
 function notifyTaskNeedsUserAction(
   task,
   t2,
@@ -339,7 +313,6 @@ function notifyTaskNeedsUserAction(
     })
     .finally(() => onNotificationSettled?.());
 }
-
 function getTaskCompletionBody(count2, promptPreview, t2) {
   if (count2 === 1) {
     return promptPreview
@@ -372,7 +345,6 @@ function getTaskCompletionBody(count2, promptPreview, t2) {
         },
       );
 }
-
 function notifyTaskCompletion(
   tasks,
   t2,
@@ -403,7 +375,6 @@ function notifyTaskCompletion(
     })
     .finally(() => onNotificationSettled?.());
 }
-
 function useCompletedTasks(entries2, options = {}) {
   const { t: t2 } = useTranslation();
   const [completedTasks, setCompletedTasks] = reactExports.useState([]);
@@ -620,7 +591,6 @@ function useCompletedTasks(entries2, options = {}) {
     markWorkspaceCompletedTasksRead,
   };
 }
-
 function useTopbarEntries() {
   const [entries2, setEntries] = reactExports.useState([]);
   const [workspaceSnapshots, setWorkspaceSnapshots] = reactExports.useState(
@@ -681,7 +651,6 @@ function useTopbarEntries() {
     reportWorkspaceSnapshot,
   };
 }
-
 function useTopbarNavigation(
   hiloApp2,
   allEntries,
@@ -905,7 +874,6 @@ function useTopbarNavigation(
     openWorkspaceFromDialog,
   };
 }
-
 export function TopbarProvider({ children: children2 }) {
   const platform2 = usePlatform();
   const routerLocation = useRouterState({

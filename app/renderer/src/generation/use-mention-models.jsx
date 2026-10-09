@@ -27,31 +27,24 @@ import {
   useGatewayFetch,
   useModelCatalogScopeKey,
 } from "./use-model-catalog-scope-key.js";
-
 const HAILUO03_VIDEO_CONTINUATION_SUB_TYPE = "hailuo03_video_continuation";
-
 export function stringValue(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-
 export function includesString(values3, value) {
   return Array.isArray(values3) && values3.includes(value);
 }
-
 function hasPath(paths) {
   return paths.some((path2) => path2.trim().length > 0);
 }
-
 export function imageModeSubType(imageMode) {
   return stringValue(imageMode) === "video-extension"
     ? HAILUO03_VIDEO_CONTINUATION_SUB_TYPE
     : "";
 }
-
 export function isHailuo03VideoTrialEligibleResolution(value, eligibility) {
   return includesString(eligibility?.resolutions, stringValue(value));
 }
-
 export function areHailuo03VideoTrialReferencesEligible({
   eligibility,
   imageMode,
@@ -71,11 +64,9 @@ export function areHailuo03VideoTrialReferencesEligible({
   }
   return true;
 }
-
 export function visibleCanvasModels(models) {
   return models.filter((model) => model.visibility !== "hidden");
 }
-
 export function findCanvasModel(models, modelId) {
   return models.find(
     (model) =>
@@ -84,19 +75,16 @@ export function findCanvasModel(models, modelId) {
       model.name === modelId,
   );
 }
-
 const PERSISTED_GENERATE_ERROR_REASONS = new Set([
   GENERATE_ERROR_CODE_CONCURRENCY_LIMIT,
   GENERATE_ERROR_CODE_NETWORK_CONNECT_TIMEOUT,
   GENERATE_ERROR_CODE_NETWORK_ERROR,
   GENERATE_ERROR_CODE_CONTENT_POLICY_VIOLATION,
 ]);
-
 export function persistedGenerateErrorReason(errorCode) {
   return PERSISTED_GENERATE_ERROR_REASONS.has(errorCode) ? errorCode : void 0;
 }
-
-const RAW_ERROR_CLASS_I18N$1 = {
+const RAW_ERROR_CLASS_I18N = {
   concurrency: "canvas.errors.concurrency",
   interrupted: "canvas.errors.interrupted",
   timeout: "canvas.errors.timeout",
@@ -104,20 +92,16 @@ const RAW_ERROR_CLASS_I18N$1 = {
   storage: "canvas.errors.storage",
   technical: "canvas.errors.technical",
 };
-
 export function semanticGenerationErrorCopy(raw2) {
   const cls = classifyRawErrorText(raw2);
-  return cls ? instance.t(RAW_ERROR_CLASS_I18N$1[cls]) : raw2;
+  return cls ? instance.t(RAW_ERROR_CLASS_I18N[cls]) : raw2;
 }
-
 const AMBIGUOUS_SUBMIT_HTTP_STATUSES = new Set([408, 500, 502, 503, 504]);
-
 export function generationErrorStatusFromResponse(presentation) {
   if (presentation === "recoverable") return "recoverable_error";
   if (presentation === "status_unknown") return "status_unknown";
   return "error";
 }
-
 export function generationErrorStatusFromThrown(error) {
   if (!(error instanceof ApiError)) return "error";
   if (
@@ -132,14 +116,12 @@ export function generationErrorStatusFromThrown(error) {
     ? "status_unknown"
     : "error";
 }
-
 export function retainedGenerationBlocksResubmit(info2) {
   return (
     info2?.errorStatus === "recoverable_error" ||
     info2?.errorStatus === "status_unknown"
   );
 }
-
 export const RESUBMIT_BLOCKED_I18N = [
   "canvas.generationRecovery.resubmitBlocked",
   {
@@ -147,13 +129,11 @@ export const RESUBMIT_BLOCKED_I18N = [
       "该内容的生成任务已保留，暂无法重新提交。请先处理卡片上的恢复提示",
   },
 ];
-
 function scopeChangedError() {
   const error = new Error("Model catalog scope changed while loading");
   error.name = "AbortError";
   return error;
 }
-
 export class ScopedAsyncCache {
   state;
   setScope(scope) {
@@ -188,7 +168,6 @@ export class ScopedAsyncCache {
     return request;
   }
 }
-
 function resolveReleaseBadges(configs, dismissedCoachMarks) {
   const badges2 = {};
   const completableBadgeIds = {};
@@ -209,7 +188,6 @@ function resolveReleaseBadges(configs, dismissedCoachMarks) {
     completableBadgeIds,
   };
 }
-
 export function useReleaseBadges(configs) {
   const [dismissedCoachMarks, setDismissedCoachMarks] = useStorage(
     "global.dismissedCoachMarks",
@@ -238,7 +216,6 @@ export function useReleaseBadges(configs) {
     markReleaseBadgeComplete,
   };
 }
-
 export function pluginTrackBase(plugin, surface, entrySource) {
   const source = "source" in plugin ? plugin.source : "market";
   return {
@@ -253,7 +230,6 @@ export function pluginTrackBase(plugin, surface, entrySource) {
       : {}),
   };
 }
-
 export function pluginError(error) {
   const errorType = error instanceof TypeError ? "network" : "business";
   return {
@@ -261,9 +237,7 @@ export function pluginError(error) {
     error_code: errorType,
   };
 }
-
 export const MAX_ATTACHMENTS = 14;
-
 export function connectorReferenceFromServer(server) {
   const catalog = findOfficialConnectorForServer(server);
   return {
@@ -273,7 +247,6 @@ export function connectorReferenceFromServer(server) {
     iconUrl: catalog?.iconUrl ?? null,
   };
 }
-
 export function connectorReferenceFromServerName(serverName) {
   const catalog = findOfficialConnectorByServerName(serverName);
   return {
@@ -283,9 +256,7 @@ export function connectorReferenceFromServerName(serverName) {
     iconUrl: catalog?.iconUrl ?? null,
   };
 }
-
 const STALE_24H = 24 * 60 * 60 * 1e3;
-
 export function useMentionModels() {
   const gatewayFetch2 = useGatewayFetch();
   const catalogScopeKey = useModelCatalogScopeKey();
@@ -359,13 +330,11 @@ export function useMentionModels() {
     retry: 1,
   });
 }
-
 function isHexColorValue(value) {
   return /^#(?:[\dA-Fa-f]{3}|[\dA-Fa-f]{4}|[\dA-Fa-f]{6}|[\dA-Fa-f]{8})$/.test(
     value,
   );
 }
-
 export function InlineColorValue({ value, children: children2, className }) {
   if (!isHexColorValue(value)) return <>{children2 ?? value}</>;
   const swatchStyle = {
@@ -389,15 +358,12 @@ export function InlineColorValue({ value, children: children2, className }) {
     </span>
   );
 }
-
 export function resolveSkillCoverUrl(skill) {
   return getSkillCoverUrl(skill) || CDN_SKILL_SHOWCASE_FALLBACK;
 }
-
 function isVideoCover(url2) {
   return /\.(?:mp4|webm|mov|m4v)(?:[?#]|$)/i.test(url2);
 }
-
 export function SkillCoverMedia({
   url: url2,
   alt = "",
@@ -440,7 +406,6 @@ export function SkillCoverMedia({
     />
   );
 }
-
 export function StableTabLabel({ label }) {
   return (
     <span
@@ -457,49 +422,37 @@ export function StableTabLabel({ label }) {
     </span>
   );
 }
-
 export const FEATURED_TAG = "Featured";
-
 export const UPDATE_INDICATOR_STYLES = {
   base: "border border-warning/[.45] bg-warning/[.14] text-warning-foreground",
   hover:
     "hover:border-warning/70 hover:bg-warning/[.22] hover:text-warning-foreground",
 };
-
-const UPPERCASE_WORDS$1 = new Set(["mv", "ai", "api", "id", "3d"]);
-
-export function toDisplayName$1(name2) {
+const UPPERCASE_WORDS = new Set(["mv", "ai", "api", "id", "3d"]);
+export function toDisplayName(name2) {
   return name2
     .split("-")
     .map((w3) =>
-      UPPERCASE_WORDS$1.has(w3)
+      UPPERCASE_WORDS.has(w3)
         ? w3.toUpperCase()
         : w3.charAt(0).toUpperCase() + w3.slice(1),
     )
     .join(" ");
 }
-
 export function formatDownloads(n2) {
   if (n2 >= 1e6) return `${(n2 / 1e6).toFixed(1)}M`;
   if (n2 >= 1e3) return `${(n2 / 1e3).toFixed(1)}k`;
   return String(n2);
 }
-
 export const FEATURED_MARKET_PAGE_SIZE = 200;
-
 export const OTHER_MARKET_PAGE_SIZE = 50;
-
 export const RecoveringChildrenContext = reactExports.createContext(new Set());
-
 export const RecoveringChildrenProvider = RecoveringChildrenContext.Provider;
-
 export const PENDING_AUTO_UPDATE_KEY = "skills:pendingAutoUpdate";
-
 export function writePendingAutoUpdate(update2) {
   try {
     sessionStorage.setItem(PENDING_AUTO_UPDATE_KEY, JSON.stringify(update2));
   } catch {}
 }
-
 export const ecommerceArtwork =
   "" + new URL("../ecommerce-B8DC3jB9.png", import.meta.url).href;

@@ -3,7 +3,7 @@ import {
   BellRing,
   Check,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   CompositedSvg,
   Hand,
   jsxRuntimeExports,
@@ -15,7 +15,6 @@ import { useComposerActionsCompact } from "./create-expanded-composer-actions-me
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 import { QuickZoomPresence } from "../canvas/canvas-high-blast-delete-dialog.jsx";
 import { CreditReminderSettings } from "../team/credit-reminder-settings.jsx";
-
 function ShieldArrowIcon({ size: size2 = 24, strokeWidth = 2, className }) {
   return (
     <CompositedSvg
@@ -38,7 +37,6 @@ function ShieldArrowIcon({ size: size2 = 24, strokeWidth = 2, className }) {
     </CompositedSvg>
   );
 }
-
 const MODE_OPTIONS = [
   {
     value: "auto",
@@ -53,7 +51,6 @@ const MODE_OPTIONS = [
     descKey: "chat.mode.askDesc",
   },
 ];
-
 export const ModeSelector = reactExports.memo(function ModeSelector2({
   mode: mode2,
   onChange,
@@ -177,7 +174,7 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
                 : t2("chat.creditReminder.disabled", "Off")}
             </span>
             <StrokeIcon
-              icon={ChevronRight$1}
+              icon={ChevronRight}
               size={14}
               className="text-muted-foreground"
             />
@@ -242,5 +239,4 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
     </div>
   );
 });
-
 ModeSelector.displayName = "ModeSelector";

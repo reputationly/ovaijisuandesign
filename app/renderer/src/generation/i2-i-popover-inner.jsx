@@ -45,7 +45,7 @@ import {
 } from "../canvas/is-reexecutable-generation-node.js";
 import { getDisabledOptions } from "./resolve-reference-texts.js";
 import { ParamQualitySlider } from "../media-editing/param-quality-slider.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 import { calcImageCost } from "./resolve-video-billing-tooltip.js";
 import { nextAtPickerState, resolvePricingId } from "./select-content.jsx";
 import { ParamSectionLabel, ResolutionTabs } from "./resolution-tabs.jsx";
@@ -83,7 +83,6 @@ import { MentionPickerPopover } from "./mention-picker-popover.jsx";
 import { ParamsChip } from "./params-chip.jsx";
 import { ParamsPopup } from "./params-popup.jsx";
 import { CountChip } from "../media-editing/count-chip.jsx";
-
 const I2I_STANDARD_PARAMS = [
   {
     id: "aspect_ratio",
@@ -98,7 +97,6 @@ const I2I_STANDARD_PARAMS = [
     aliases: ["resolution"],
   },
 ];
-
 function summarizeI2IParams(t2, model, modelParams) {
   if (!model) return "";
   const parts = [];
@@ -125,14 +123,11 @@ function summarizeI2IParams(t2, model, modelParams) {
   }
   return parts.join(" · ");
 }
-
 function appendMidjourneyHdFlag(prompt, clarity) {
   if (clarity !== "2k" || /(^|\s)--hd(?:\s|$)/i.test(prompt)) return prompt;
   return prompt ? `${prompt} --hd` : "--hd";
 }
-
 const IMAGE_MODE_FOR_I2I = "reference";
-
 export function I2IPopoverInner({
   onSubmit,
   onClose,
@@ -1228,7 +1223,7 @@ export function I2IPopoverInner({
                 aria-hidden={true}
                 className="w-px h-3 bg-foreground/15 shrink-0"
               />
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.popover.restoreOriginalDraft")}
                 side="top"
               >
@@ -1242,7 +1237,7 @@ export function I2IPopoverInner({
                 >
                   <FileClock size={16} strokeWidth={1} />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
             </>
           )}
         </div>

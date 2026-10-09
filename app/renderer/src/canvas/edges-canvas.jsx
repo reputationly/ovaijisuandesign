@@ -15,64 +15,45 @@ import {
   useStoreApi,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 function tracePath(target, p3, side = "right") {
   const cp2 = controlPointsFor(p3, side);
   target.moveTo(cp2.sx, cp2.sy);
   target.bezierCurveTo(cp2.cp1x, cp2.cp1y, cp2.cp2x, cp2.cp2y, cp2.tx, cp2.ty);
 }
-
 function subscribe$2(cb) {
   subscribers.add(cb);
   return () => {
     subscribers.delete(cb);
   };
 }
-
-function getSnapshot$1() {
+function getSnapshot() {
   return hoveredId;
 }
-
 function useHoveredEdgeId() {
   return reactExports.useSyncExternalStore(
     subscribe$2,
-    getSnapshot$1,
-    getSnapshot$1,
+    getSnapshot,
+    getSnapshot,
   );
 }
-
 const EDGE_FLOW_PULSE_LENGTH_PX = 36;
-
 const EDGE_FLOW_GAP_LENGTH_PX = 120;
-
 const EDGE_FLOW_SPEED_PX_PER_SECOND = 104;
-
 const EDGE_FLOW_SEGMENT_COUNT = 6;
-
 const EDGE_FLOW_TAIL_WIDTH = 1.2;
-
 const EDGE_FLOW_HEAD_WIDTH = 2.6;
-
 const EDGE_FLOW_HALO_EXTRA_WIDTH = 1.15;
-
 const EDGE_FLOW_MIN_ZOOM = 0.01;
-
 const EDGE_FLOW_TAIL_OPACITY = 0.46;
-
 const EDGE_FLOW_HEAD_OPACITY = 0.96;
-
 const EDGE_FLOW_BREATH_MIN = 0.9;
-
 const EDGE_FLOW_BREATH_RANGE = 0.1;
-
 const EDGE_FLOW_BREATH_PERIOD_MS = 1600;
-
 function safeZoom(zoom2) {
   return Number.isFinite(zoom2) && zoom2 > 0
     ? Math.max(zoom2, EDGE_FLOW_MIN_ZOOM)
     : 1;
 }
-
 function getEdgeFlowFrame(timestampMs, zoom2) {
   const resolvedZoom = safeZoom(zoom2);
   const patternLengthPx = EDGE_FLOW_PULSE_LENGTH_PX + EDGE_FLOW_GAP_LENGTH_PX;
@@ -118,7 +99,6 @@ function getEdgeFlowFrame(timestampMs, zoom2) {
     ),
   };
 }
-
 function resolveColors(host) {
   const styles = getComputedStyle(host);
   const selectedColor =
@@ -135,7 +115,6 @@ function resolveColors(host) {
       styles.getPropertyValue("--canvas-edge-flow-glow").trim() || flowColor,
   };
 }
-
 export function EdgesCanvas({
   active: active2 = true,
   onlySelectedNodes = false,

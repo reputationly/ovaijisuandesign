@@ -3,7 +3,7 @@ import {
   AlertTriangle,
   jsxRuntimeExports,
   LoaderCircle,
-  m$4,
+  m$4 as m,
   reactExports,
   RotateCw,
   usePlatform,
@@ -14,7 +14,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { UpdateBanner } from "./update-banner.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { useOptionalUpdaterContext } from "./use-active-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   isManualRecoveryCheckRetryable,
   isManualRecoveryRetryable,
@@ -24,7 +24,6 @@ import {
   installUpdateForPlatform,
   openManualInstallerDownload,
 } from "./diagnostics-group.jsx";
-
 const UpdateSidebarWidgetInner = ({ compact }) => {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -160,7 +159,7 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
   const canExpandShortcut = !compact && state2.phase !== "downloading";
   return (
     <span
-      className={cn$2(
+      className={cn(
         "update-sidebar-shortcut-slot",
         compact && "update-sidebar-shortcut-slot--compact",
         shortcutExpanded && "update-sidebar-shortcut-slot--expanded",
@@ -168,7 +167,7 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
     >
       <button
         type="button"
-        className={cn$2(
+        className={cn(
           "update-sidebar-shortcut group/update-shortcut no-drag relative inline-flex h-6 w-6 min-w-6 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-brand-accent px-0 text-brand-accent-foreground shadow-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-default disabled:opacity-50",
           state2.phase === "downloading" && "cursor-default",
         )}
@@ -189,7 +188,7 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
         onBlur={() => setShortcutExpanded(false)}
       >
         <Icon2
-          className={cn$2(
+          className={cn(
             "update-sidebar-shortcut-icon size-3.5",
             state2.phase === "downloading" &&
               "update-sidebar-shortcut-icon--loading",
@@ -208,9 +207,8 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
     </span>
   );
 };
-
 export const UpdateSidebarWidget = (props) =>
-  jsxRuntimeExports.jsx(m$4, {
+  jsxRuntimeExports.jsx(m, {
     fallback: null,
     onError: (error, info2) => {
       actionTrailLog.error("update sidebar render failed", {

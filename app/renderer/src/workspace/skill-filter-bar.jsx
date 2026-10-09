@@ -1,5 +1,5 @@
 // skill-filter-bar.jsx
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   FEATURED_TAG,
@@ -16,19 +16,16 @@ import {
   FilterMenuItem,
 } from "../generation/filter-trigger.jsx";
 import { Switch } from "../generation/select-content.jsx";
-
 const SKILL_SECONDARY_TAB_CLASS_NAME =
   "skills-category-secondary-tab inline-flex h-8 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-md border px-2.5 py-0 text-[15px] font-normal leading-5 tracking-[0.02em] shadow-none transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-
 function skillSecondaryTabClassName(active2) {
-  return cn$2(
+  return cn(
     SKILL_SECONDARY_TAB_CLASS_NAME,
     active2
       ? "border-transparent bg-[var(--secondary-tab-active-bg)] font-medium text-foreground"
       : "border-transparent bg-transparent text-foreground/50 hover:text-foreground",
   );
 }
-
 function SkillSecondaryTab({ actionId, active: active2, label, onClick }) {
   return (
     <button
@@ -45,7 +42,6 @@ function SkillSecondaryTab({ actionId, active: active2, label, onClick }) {
     </button>
   );
 }
-
 function SkillFilterDropdown({
   label,
   value,
@@ -101,7 +97,6 @@ function SkillFilterDropdown({
     </FilterMenu>
   );
 }
-
 export function SkillFilterBar({
   categories,
   activeTab,

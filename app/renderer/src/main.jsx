@@ -1,6 +1,6 @@
 import {
   $$8,
-  $t$2,
+  $t$2 as $t,
   ACCOUNT_SUBMISSION_BLOCKED_EVENT,
   ADTS,
   AES_128_BLOCK_SIZE,
@@ -62,7 +62,7 @@ import {
   AudioSample,
   AudioSampleSink,
   AudioSampleSource,
-  AudioWaveform$1,
+  AudioWaveform$1 as AudioWaveform,
   AvatarImage$1,
   AvatarRootContext,
   B$7,
@@ -82,7 +82,7 @@ import {
   BlockComment,
   BlockPolicy,
   Blocks$1,
-  Bold$1,
+  Bold$1 as Bold,
   BookOpen$1,
   BookUser,
   Bookmark$1,
@@ -94,19 +94,19 @@ import {
   Brain$2,
   Break,
   Brush$1,
-  Bt$1,
+  Bt$1 as Bt,
   BubbleMenu,
   BufferContext,
   BufferTarget,
   Bug,
   Bug$1,
   Building2$1,
-  Button$3,
+  Button$3 as Button,
   CDN_BASE_MAP,
   CDN_BROWSER_START_ICON,
   CONNECTOR_STATUS_VISUAL,
   CONNECTOR_TOKEN_SOURCE,
-  CSS$1,
+  CSS$1 as CSS,
   Cable$1,
   CachedOrder,
   Calculator,
@@ -130,11 +130,11 @@ import {
   ChevronDown,
   ChevronDown$1,
   ChevronDown$2,
-  ChevronDownIcon$1,
+  ChevronDownIcon$1 as ChevronDownIcon,
   ChevronLeft,
   ChevronLeft$1,
   ChevronLeftIcon,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   ChevronRight$2,
   ChevronRightIcon,
   ChevronUp,
@@ -168,7 +168,7 @@ import {
   CloudIcon,
   CloudOff$1,
   CloudUpload,
-  Code$1,
+  Code$1 as Code,
   Cog,
   Cog$1,
   Command,
@@ -189,7 +189,7 @@ import {
   Crosshair,
   Crown,
   Crown$1,
-  Ct$3,
+  Ct$3 as Ct,
   CurrentWorkspaceContext,
   CustomAudioEncoder,
   CustomPathedSource,
@@ -197,12 +197,12 @@ import {
   D$7,
   DEFAULT_RUNTIME_CONFIG,
   DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT,
-  DOMParser$1,
+  DOMParser$1 as DOMParser,
   DOMSelectionState,
   DOMSerializer,
   DateLib,
   DayFlag,
-  Decoration$1,
+  Decoration$1 as Decoration,
   Decoration2,
   DecorationSet,
   DefaultBufferLength,
@@ -213,10 +213,10 @@ import {
   DialogClose$1,
   DialogDescription$2,
   DialogPopup,
-  DialogPortal$2,
+  DialogPortal$2 as DialogPortal,
   DialogRoot,
   DialogTitle$2,
-  DialogTrigger$1,
+  DialogTrigger$1 as DialogTrigger,
   Direction,
   DndContext,
   DocInput,
@@ -226,14 +226,14 @@ import {
   DownloadIcon,
   DragOverlay,
   Droplet$1,
-  Dt$2,
+  Dt$2 as Dt,
   E$4,
   E2,
   EdgeLabelRenderer,
   EditContextManager,
   EditorContent,
   EditorSelection,
-  Element$1,
+  Element$1 as Element,
   Ellipsis,
   EmacsyPendingKeys,
   Emoji,
@@ -243,8 +243,8 @@ import {
   EncodedPacketSink,
   EncodedVideoPacketSource,
   ErrorComponent,
-  Et$2,
-  EventEmitter$2,
+  Et$2 as Et,
+  EventEmitter$2 as EventEmitter,
   Expand$1,
   Extension,
   ExternalLink,
@@ -253,9 +253,9 @@ import {
   Eye,
   Eye$1,
   Eye$2,
-  EyeIcon$1,
+  EyeIcon$1 as EyeIcon,
   EyeOff,
-  EyeOffIcon$1,
+  EyeOffIcon$1 as EyeOffIcon,
   F$6,
   FALLBACK_NUMBER_OF_CHANNELS,
   FALLBACK_SAMPLE_RATE,
@@ -265,7 +265,7 @@ import {
   Facet,
   FieldControl,
   FieldRoot,
-  File$3,
+  File$3 as File,
   FileArchive$1,
   FileAudio$1,
   FileClock$1,
@@ -297,7 +297,7 @@ import {
   FolderPlus,
   FolderUp,
   FolderX,
-  Ft$2,
+  Ft$2 as Ft,
   G$1,
   G$5,
   GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT,
@@ -318,7 +318,7 @@ import {
   Grid3X3,
   GripHorizontalIcon,
   GripVertical,
-  Gt$1,
+  Gt$1 as Gt,
   H,
   H$5,
   HILO_HUB_BIZ_LINE,
@@ -339,7 +339,7 @@ import {
   HlsInputVideoTrackBacking,
   Home,
   House,
-  Ht$1,
+  Ht$1 as Ht,
   I,
   ICON_STROKE_SPEC,
   IV_STRING_REGEX,
@@ -350,8 +350,8 @@ import {
   Inbox,
   IndentContext,
   InfiniteQueryObserver,
-  Info$1,
-  InfoIcon$1,
+  Info$1 as Info,
+  InfoIcon$1 as InfoIcon,
   InlineDelimiter,
   InnerParse,
   InputAudioTrack,
@@ -359,8 +359,8 @@ import {
   InputStream,
   InputVideoTrack,
   IsobmffInputFormat,
-  It$1,
-  Italic$1,
+  It$1 as It,
+  Italic$1 as Italic,
   IterMode,
   J$6,
   JPEG,
@@ -402,7 +402,7 @@ import {
   Lock,
   LockKeyhole,
   LogOut$1,
-  Lt$1,
+  Lt$1 as Lt,
   M,
   MATROSKA,
   MEDIA_EXTENSIONS,
@@ -413,9 +413,9 @@ import {
   MP4,
   MPEG_TS,
   Mail,
-  Map$1,
+  Map$1 as Map,
   MapPin,
-  Markdown$1,
+  Markdown$1 as Markdown,
   MatroskaInputFormat,
   Maximize,
   Maximize2$1,
@@ -423,7 +423,7 @@ import {
   Megaphone$2,
   MenuGroup,
   MenuGroupLabel,
-  MenuItem$3,
+  MenuItem$3 as MenuItem,
   MenuPopup,
   MenuPortal,
   MenuPositioner,
@@ -455,7 +455,7 @@ import {
   Mp3InputFormat,
   Mp3OutputFormat,
   Mp4OutputFormat,
-  Mt$1,
+  Mt$1 as Mt,
   Music,
   Music$2,
   Music2,
@@ -466,7 +466,7 @@ import {
   Network,
   Network$1,
   Newspaper,
-  Node$3,
+  Node$3 as Node,
   Node$4,
   NodeResizer,
   NodeSelection,
@@ -474,7 +474,7 @@ import {
   NodeViewWrapper,
   NotLast,
   NotebookPen,
-  Nt$1,
+  Nt$1 as Nt,
   NullTarget,
   OGG,
   OctagonXIcon,
@@ -482,7 +482,7 @@ import {
   OggOutputFormat,
   OpenTag,
   Operation,
-  Ot$2,
+  Ot$2 as Ot,
   Output,
   OutputTrackGroup,
   P$7,
@@ -503,7 +503,7 @@ import {
   PanelRightOpen,
   PanelsTopLeft,
   Paperclip$1,
-  Parser$1,
+  Parser$1 as Parser,
   PathedSource,
   PenLine$1,
   Pencil,
@@ -521,7 +521,7 @@ import {
   PlaybackCirclePlayIcon$1,
   PlaybackCircleToggleIcon,
   PlaybackNextIcon$1,
-  PlaybackPauseIcon$1,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
   PlaybackPlayIcon$1,
   PlaybackPreviousIcon$1,
   PlaybackStopIcon$1,
@@ -552,12 +552,12 @@ import {
   ProcessingEnd,
   ProgressRoot,
   ProgressRootContext,
-  Pt$2,
+  Pt$2 as Pt,
   Punctuation,
   Puzzle$1,
   QTFF,
   QUALITY_HIGH,
-  QUERY_KEY$1,
+  QUERY_KEY$1 as QUERY_KEY,
   QueryClient,
   QueryClientProvider,
   QueryType,
@@ -569,10 +569,10 @@ import {
   RadioGroup$1,
   RadioIndicator,
   RadioRoot,
-  Range$1,
+  Range$1 as Range,
   RangeSetBuilder,
   React,
-  ReactFlow$1,
+  ReactFlow$1 as ReactFlow,
   ReactFlowProvider,
   ReactNodeViewRenderer,
   ReadableStreamSource,
@@ -587,8 +587,8 @@ import {
   RotateCcw$1,
   RotateCw,
   RouterCore,
-  Rt$2,
-  Rule$1,
+  Rt$2 as Rt,
+  Rule$1 as Rule,
   S$7,
   SAMPLING_RATES,
   SELECTED_GLOW_BLUR,
@@ -646,7 +646,7 @@ import {
   Shuffle,
   Slash,
   Slice,
-  SliderControl$1,
+  SliderControl$1 as SliderControl,
   SliderIndicator,
   SliderRoot,
   SliderThumb,
@@ -666,7 +666,7 @@ import {
   SquareDashed,
   SquareMousePointer,
   SquareMousePointer$1,
-  St$2,
+  St$2 as St,
   Stack,
   StackBufferCursor,
   Stamp$1,
@@ -706,10 +706,10 @@ import {
   TAG_PROGRAM_DATE_TIME,
   TAG_STREAM_INF,
   TAG_TARGETDURATION,
-  Table$2,
-  TableCell$1,
-  TableHeader$1,
-  TableRow$1,
+  Table$2 as Table,
+  TableCell$1 as TableCell,
+  TableHeader$1 as TableHeader,
+  TableRow$1 as TableRow,
   TableView2,
   TabsIndicator,
   TabsList$1,
@@ -726,7 +726,7 @@ import {
   ThumbsUp,
   ThumbsUp$1,
   Tile,
-  Toaster$1,
+  Toaster$1 as Toaster,
   Toggle$1,
   ToggleGroup$1,
   TokenCache,
@@ -749,20 +749,20 @@ import {
   TriangleAlert,
   TriangleAlert$1,
   TriangleAlertIcon,
-  Tt$2,
+  Tt$2 as Tt,
   Tv,
   Type,
   Type$2,
   U,
   UI,
   UNDETERMINED_LANGUAGE,
-  Underline$1,
+  Underline$1 as Underline,
   Undo2,
   Ungroup$1,
   UnquotedAttributeValue,
   UnsupportedInputFormatError,
   Upload$1,
-  UploadIcon$1,
+  UploadIcon$1 as UploadIcon,
   UrlSource,
   User,
   UserRound,
@@ -770,7 +770,7 @@ import {
   UserRoundPlus,
   Users$1,
   UsersIcon,
-  Ut$2,
+  Ut$2 as Ut,
   V$6,
   VIDEO_CODECS,
   Video,
@@ -818,7 +818,7 @@ import {
   XIcon,
   XYMinimap,
   Y$4,
-  Yt$2,
+  Yt$2 as Yt,
   Z$4,
   Zap,
   Zap$1,
@@ -831,7 +831,7 @@ import {
   __ovVitePreload,
   __webpack_exports__,
   __webpack_exports__getDocument,
-  _t$2,
+  _t$2 as _t,
   activateAccountSubmissionGuard,
   addCursorAbove,
   addCursorBelow,
@@ -843,8 +843,8 @@ import {
   arrayArgmin,
   arrayCount,
   arrayMove,
-  asArray$1,
-  assert$3,
+  asArray$1 as asArray,
+  assert$3 as assert,
   assertNever,
   astTop,
   at,
@@ -863,7 +863,7 @@ import {
   bidiIsolatedRanges,
   binarySearchLessOrEqual,
   bindHandler,
-  blankLine$1,
+  blankLine$1 as blankLine,
   blockWrappers,
   braceR,
   brokenClipboardAPI,
@@ -890,7 +890,7 @@ import {
   checkRanges,
   checkSelection,
   checkSide,
-  clamp$9,
+  clamp$9 as clamp,
   clampCropRectangle,
   classifyFileType,
   clickAddsSelectionRange,
@@ -924,7 +924,7 @@ import {
   copyLineDown,
   copyLineUp,
   countColumn,
-  create$2,
+  create$2 as create,
   createAes128CbcDecryptStream,
   createAssetMetadataStore,
   createAssetMutator,
@@ -935,7 +935,7 @@ import {
   createLucideIcon,
   createNoonOverrides,
   createRootRoute,
-  createStore$1,
+  createStore$1 as createStore,
   createTailwindMerge,
   createVisitor,
   crelt,
@@ -966,7 +966,7 @@ import {
   declSelector,
   decodeArray,
   decodeHtmlEntities,
-  decorations$1,
+  decorations$1 as decorations,
   dedupedToast,
   defaultSchema,
   defineLanguageFacet,
@@ -983,7 +983,7 @@ import {
   dist,
   domBoundsAround,
   dontComplete,
-  dragMovesSelection$1,
+  dragMovesSelection$1 as dragMovesSelection,
   dragScrollMargin,
   dragScrollSpeed,
   dropText,
@@ -998,7 +998,7 @@ import {
   emptyConnectorMarketPolicy,
   enUS,
   encodeHtmlEntities,
-  endTag$1,
+  endTag$1 as endTag,
   ensureAddr,
   ensureAnchor,
   enterFragments,
@@ -1052,7 +1052,7 @@ import {
   getComponents,
   getContext,
   getDataAttributes,
-  getDefaultExportFromCjs$1,
+  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
   getEncodableAudioCodecs,
   getExtensionField,
   getFileActivityKind,
@@ -1075,7 +1075,7 @@ import {
   getRuntimeConfig,
   getSchema,
   getScrollMargins,
-  getSelection$1,
+  getSelection$1 as getSelection,
   getSkillCoverUrl,
   getStoreFactory,
   getStyleForModifiers,
@@ -1097,7 +1097,7 @@ import {
   hooks,
   horizontalListSortingStrategy,
   ht$2,
-  identifier$1,
+  identifier$1 as identifier,
   identifiers,
   ignoreClosed,
   inList,
@@ -1133,11 +1133,11 @@ import {
   isList,
   isNotFound,
   isParent,
-  isRecord$2,
+  isRecord$2 as isRecord,
   isRecord$g,
   isRedirect,
   isScrolledToBottom,
-  isServer$1,
+  isServer$1 as isServer,
   isSetextUnderline,
   isSkillsOnly,
   isUserProvidedAssetModel,
@@ -1147,7 +1147,7 @@ import {
   isolatesEq,
   it$3,
   j$5,
-  joinPaths$1,
+  joinPaths$1 as joinPaths,
   jsx,
   jsxRuntimeExports,
   jsxSublanguage,
@@ -1157,12 +1157,12 @@ import {
   kt,
   kt$2,
   languageData,
-  last$1,
+  last$1 as last,
   lazyRouteComponent,
   leftOverSpace,
   lineEnd,
   lineSeparator,
-  listeners$8,
+  listeners$8 as listeners,
   ln,
   localizedI18nText,
   logException,
@@ -1183,7 +1183,7 @@ import {
   mediaLineageRequestId,
   mergeAttributes,
   mergeInputTrackQueries,
-  mergeProps$1,
+  mergeProps$1 as mergeProps,
   minCreditAmount,
   mn,
   modifierCodes,
@@ -1206,13 +1206,13 @@ import {
   nodeHasDimensions,
   nodeSizeCache,
   nodeToMiniMapRect,
-  nonEmpty$1,
+  nonEmpty$1 as nonEmpty,
   nonPlainText,
   nonTightList,
   none,
   normalizeGatewayBaseUrl,
   normalizeIndent,
-  normalizeLabel$1,
+  normalizeLabel$1 as normalizeLabel,
   normalizeRotation,
   nt$4,
   o$4,
@@ -1221,7 +1221,7 @@ import {
   observers,
   operatorToken,
   orderTidyNodes,
-  ot$3,
+  ot$3 as ot,
   outerDecorations,
   p$4,
   p$5,
@@ -1241,10 +1241,10 @@ import {
   probeMediaDurationSec,
   progressStateAttributesMapping,
   promiseWithResolvers,
-  properties$1,
+  properties$1 as properties,
   pseudoClasses,
   psshBoxesAreEqual,
-  pt$2,
+  pt$2 as pt,
   punchRanges,
   pushStackDedup,
   q$5,
@@ -1280,7 +1280,7 @@ import {
   remarkRehype,
   removeItem,
   renumberList,
-  replaceEqualDeep$1,
+  replaceEqualDeep$1 as replaceEqualDeep,
   requestIdle,
   requireJszip_min,
   requireLib,
@@ -1291,10 +1291,10 @@ import {
   resolveTransaction,
   rootRouteId,
   routerContext,
-  rt$3,
+  rt$3 as rt,
   runHandlers,
   safariSelectionRangeHack,
-  sameArray$1,
+  sameArray$1 as sameArray,
   sameSelPos,
   sanitize,
   satisfiesMinHubVersion,
@@ -1340,7 +1340,7 @@ import {
   sortExtensions,
   sortableKeyboardCoordinates,
   sourceRequestsAreEqual,
-  space$2,
+  space$2 as space,
   spaces,
   spec_AtKeyword,
   spec_LessThan,
@@ -1352,7 +1352,7 @@ import {
   spec_word,
   splitLine,
   src_default$1,
-  st$3,
+  st$3 as st,
   storageKeys,
   stringCursor,
   stripNullChildren,
@@ -1378,13 +1378,13 @@ import {
   toggleComment,
   toggleTabFocusMode,
   topIndent,
-  tr$2,
+  tr$2 as tr,
   transactionExtender,
   transactionFilter,
   transposeChars,
   trimPathRight,
-  tryParseJson$1,
-  tt$4,
+  tryParseJson$1 as tryParseJson,
+  tt$4 as tt,
   typescriptKeywords,
   u$3,
   ue,
@@ -1452,7 +1452,7 @@ import {
   useTranslation,
   useUpdateNodeInternals,
   useVirtualizer,
-  ut$2,
+  ut$2 as ut,
   v$7,
   validRegExp,
   validateAudioOptions,
@@ -1467,9 +1467,9 @@ import {
   viewPlugin,
   visit,
   visitParents,
-  vt$2,
+  vt$2 as vt,
   w2,
-  wait$1,
+  wait$1 as wait,
   warnForPart,
   withArtworkOpacity,
   withAutomaticDedupeId,
@@ -1477,15 +1477,15 @@ import {
   withWorkspaceGatewayHeaders,
   workspaceGatewayUrl,
   workspaceLog,
-  wt$3,
-  xt$2,
+  wt$3 as wt,
+  xt$2 as xt,
   y$1,
   y$6,
-  yt$2,
+  yt$2 as yt,
   z$3,
   z$4,
   z$7,
-  zt$2,
+  zt$2 as zt,
 } from "./vendor.js";
 import { LRParser } from "@lezer/lr";
 import {
@@ -1546,7 +1546,7 @@ import {
 } from "./infra/select-content.jsx";
 import {
   AlertDialog,
-  Button$1,
+  Button as Button$1,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -1556,12 +1556,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-  Input$2,
+  Input,
   MENU_ITEM_LAYOUT,
   TooltipContent,
   buttonVariants,
   cn$2,
-  cn$5,
+  cn as cn$5,
   dialogChromeButtonClassName,
   registerBrowserHoverPreview,
   splitMentionFilename,
@@ -1594,14 +1594,14 @@ import {
   CanvasSwitch,
   HAILUO03_VIDEO_CONTINUATION_PRICING_ID,
   MIN_MUSIC_BILLING_SECONDS,
-  Select$2,
-  SelectContent$1,
+  Select,
+  SelectContent as SelectContent$1,
   SelectGroup,
-  SelectItem$1,
+  SelectItem as SelectItem$1,
   SelectLabel,
   SelectSeparator,
-  SelectTrigger$1,
-  SelectValue$1,
+  SelectTrigger as SelectTrigger$1,
+  SelectValue as SelectValue$1,
   Switch,
   audioModeForModel,
   createPopoverModelInitializationKey,
@@ -1634,8 +1634,8 @@ import {
   MissingAssetCard,
   ModelRegistryStoreProvider,
   RefundHint,
-  TokenIcon$2,
-  Tooltip$1,
+  TokenIcon,
+  Tooltip as Tooltip$1,
   isMissingAssetNodeData,
   translateModelName,
 } from "./generation/missing-asset-card.jsx";
@@ -1648,18 +1648,18 @@ import {
   AnnotationIcon$1,
   AssetMetadataStoreProvider,
   CanvasBridgeProvider,
-  CopyIcon$2,
+  CopyIcon,
   DEFAULT_SESSION_NAME,
-  FullscreenIcon$1,
+  FullscreenIcon as FullscreenIcon$1,
   GeneratingStateStoreProvider,
   MAX_SESSION_NAME_LENGTH,
   MinimizeIcon,
-  MoreVerticalIcon$1,
+  MoreVerticalIcon as MoreVerticalIcon$1,
   MultiAngleIcon,
   PanoramaIcon,
   QUEUED_USER_MESSAGE_LIMIT,
   RelightIcon,
-  RetryIcon$1,
+  RetryIcon as RetryIcon$1,
   StoryboardGridIcon,
   TextEditIcon,
   areNodePropsEqual,
@@ -1677,7 +1677,7 @@ import {
   AsrIcon,
   CardViewIcon,
   ClipIcon,
-  CloseIcon$1,
+  CloseIcon,
   ColorAdjustIcon,
   CropIcon,
   EraseIcon,
@@ -1688,11 +1688,11 @@ import {
   GroupIcon,
   ImagePlaceholderIcon,
   OutpaintIcon,
-  PaperclipIcon$1,
+  PaperclipIcon,
   ParagraphIcon,
-  PluginIcon$1,
+  PluginIcon as PluginIcon$1,
   PreviewViewIcon,
-  RedoIcon$1,
+  RedoIcon,
   RedrawIcon,
   RemoveBgIcon,
   RenameIcon,
@@ -1702,7 +1702,7 @@ import {
   SplitGridIcon,
   SuperResolutionIcon,
   ToolbarSpinnerIcon,
-  UndoIcon$1,
+  UndoIcon,
   UngroupIcon,
   VisibleIcon,
   VoiceIsolateIcon,
@@ -1727,7 +1727,7 @@ import {
   Input$3,
 } from "./vendor-inline/mediabunny/hls-segmented-input.js";
 import {
-  ClockIcon$1,
+  ClockIcon,
   GeneralImageIcon,
   GptImageDomesticIcon,
   GptImageOverseasIcon,
@@ -1802,7 +1802,7 @@ import { normalizeTagRegistry } from "./infra/normalize-v2-registry.js";
 import { parseCapabilitySearchResult } from "./infra/parse-capability-search-result.js";
 import { parseConnectorCatalog } from "./infra/parse-connector-catalog.js";
 import {
-  CloseButton$1,
+  CloseButton,
   ExpandToggleButton,
   GeneratingButton,
   ParamTextarea,
@@ -1822,7 +1822,7 @@ import {
 import { ParamsChip } from "./generation/params-chip.jsx";
 import { ParamsPopup } from "./generation/params-popup.jsx";
 import { PromptInputMetaRow } from "./generation/prompt-font-size-control.jsx";
-import { SegmentedSwitch$1 } from "./generation/segmented-switch.jsx";
+import { SegmentedSwitch as SegmentedSwitch$1 } from "./generation/segmented-switch.jsx";
 import {
   AGENT_CANVAS_TEXT_SOURCE_TOOL,
   CANVAS_TEXT_AGENT_PROMPT_SOURCE,
@@ -1839,8 +1839,8 @@ import {
   TABLE_DOCUMENT_VERSION,
   TEXT_CARD_MIN_SIZE,
   VIDEO_CARD_MAX_WIDTH,
-  addColumn$1,
-  addRow$1,
+  addColumn,
+  addRow,
   clampRowHeightPx,
   composePromptWithReferenceText,
   createEmptyDocument,
@@ -1911,9 +1911,9 @@ import {
   parseRatio,
 } from "./generation/resolution-tabs.jsx";
 import { ParamSlider } from "./generation/param-slider.jsx";
-import { Slider$1 } from "./generation/slider.jsx";
+import { Slider } from "./generation/slider.jsx";
 import {
-  inlineWorker$1,
+  inlineWorker$1 as inlineWorker,
   writeAdtsFrameLength,
 } from "./vendor-inline/mediabunny/inline-worker.js";
 import {
@@ -2022,9 +2022,9 @@ import { NodeHandles } from "./canvas/proximity-handle-inner.jsx";
 import { NodeHeader } from "./canvas/node-header-inner.jsx";
 import {
   ASPECT_RATIO_PARAM_KEYS,
-  DropdownMenu$1,
-  DropdownMenuSub$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu as DropdownMenu$1,
+  DropdownMenuSub as DropdownMenuSub$1,
+  DropdownMenuTrigger as DropdownMenuTrigger$1,
   IMAGE_MODE_KEY,
   LightboxActionButton,
   NODE_POPOVER_SAFE_GAP,
@@ -2042,7 +2042,7 @@ import {
   readGenerationSubmittedAt,
   rejectedReferencePaths,
   resolveCanvasPlatform,
-  resolveCanvasShortcut$1,
+  resolveCanvasShortcut,
   resolveGenerationProgressStartedAt,
   resolveLightboxIndexForSlot,
   shouldPersistPopoverDraftOnUnmount,
@@ -2052,21 +2052,21 @@ import {
   useWarnMissingAssetMeta,
 } from "./media-editing/use-warn-missing-asset-meta.jsx";
 import {
-  AudioLightbox$1,
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-  DropdownMenuSeparator$1,
-  DropdownMenuSubTrigger$1,
+  AudioLightbox,
+  DropdownMenuContent as DropdownMenuContent$1,
+  DropdownMenuItem as DropdownMenuItem$1,
+  DropdownMenuSeparator as DropdownMenuSeparator$1,
+  DropdownMenuSubTrigger as DropdownMenuSubTrigger$1,
   ToolbarSurface,
   buildPlaceholderFillData,
 } from "./media-editing/audio-lightbox.jsx";
-import { MediaLightbox$1 } from "./media-editing/media-lightbox.jsx";
+import { MediaLightbox as MediaLightbox$1 } from "./media-editing/media-lightbox.jsx";
 import { NodeToolbar } from "./media-editing/toolbar-item.jsx";
-import { useCanvasShortcutGuard$1 } from "./media-editing/use-canvas-shortcut-guard.js";
+import { useCanvasShortcutGuard } from "./media-editing/use-canvas-shortcut-guard.js";
 import { useLightboxMediaActions } from "./media-editing/use-lightbox-media-actions.jsx";
 import "./media-editing/use-lightbox-media-actions-effects.js";
 import {
-  Button$2,
+  Button as Button$2,
   GenerationWaitEstimate,
   NodeEmptyState,
   NodeFrameStroke,
@@ -2090,7 +2090,7 @@ import { useHoverPreview } from "./media-editing/use-hover-preview.js";
 import {
   AudioNode,
   CLIP_STUDIO_PLUGIN_ID,
-  COMFYUI_PLUGIN_ID$1,
+  COMFYUI_PLUGIN_ID,
   DIRECTOR_STAGE_PLUGIN_ID,
   PANORAMA_EMPTY_NODE_SIZE,
   PANORAMA_VIEWER_NODE_SIZE,
@@ -2119,7 +2119,7 @@ import {
 } from "./media-editing/get-reference-navigation-defaults.jsx";
 import { useReferenceAttachmentNavigation } from "./media-editing/use-reference-attachment-navigation.js";
 import { useVideoReferenceNavigation } from "./media-editing/use-video-reference-navigation.js";
-import { ImageLightbox$2 } from "./media-editing/image-lightbox.jsx";
+import { ImageLightbox } from "./media-editing/image-lightbox.jsx";
 import { VideoLightbox } from "./media-editing/video-lightbox.jsx";
 import {
   FullscreenIcon,
@@ -2145,11 +2145,11 @@ import {
 } from "./chat/merge-direct-reference-metadata.js";
 import { CAPTURE_PLACEMENT_RESERVATION_MS } from "./infra/capture-placement-reservation-ms.js";
 import {
-  DialogContent$1,
-  DialogDescription$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent as DialogContent$1,
+  DialogDescription as DialogDescription$1,
+  DialogFooter as DialogFooter$1,
+  DialogHeader as DialogHeader$1,
+  DialogTitle as DialogTitle$1,
   TextReadDialog,
   calculateAudioDurationExcesses,
   calculateVideoDurationExcesses,
@@ -2165,7 +2165,7 @@ import { useAttachmentState } from "./assets/use-attachment-state.js";
 import {
   AttachmentBar,
   PopoverShell,
-  VideoPlayIndicator$1,
+  VideoPlayIndicator,
   getImageConstraintReason,
   src_default,
 } from "./generation/attachment-bar.jsx";
@@ -2177,8 +2177,8 @@ import {
 import {
   MediaDownloadButton,
   canOpenAssetGenerationPopover,
-  cropImageToBlob$1,
-  cropRectForAspectRatio$1,
+  cropImageToBlob,
+  cropRectForAspectRatio,
   emptyMediaNodeInit,
   emptySizeFromRatio,
   isWebGPUSupported,
@@ -2205,7 +2205,7 @@ import { GroupNode } from "./media-editing/group-node-inner.jsx";
 import { calcCropRect } from "./media-editing/calc-crop-rect.js";
 import { ColorAdjustDialog } from "./media-editing/color-adjust-dialog.jsx";
 import { ColorAdjustSlider } from "./media-editing/color-adjust-slider.jsx";
-import { CustomizeToolbarDialog$2 } from "./media-editing/customize-toolbar-dialog.jsx";
+import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./media-editing/customize-toolbar-dialog.jsx";
 import {
   CanvasRootElementProvider,
   useCanvasRootElement,
@@ -2216,7 +2216,7 @@ import {
 } from "./media-editing/default-settings.js";
 import { isMiniMaxH3MaxModelValue } from "./generation/i2-v-aspect-ratio-field.jsx";
 import {
-  CustomizeToolbarDialog$1,
+  CustomizeToolbarDialog as CustomizeToolbarDialog$1,
   MultiImageOverlayStoreProvider,
 } from "./media-editing/customize-toolbar-dialog-2.jsx";
 import { EnhanceImagePopover } from "./media-editing/enhance-image-popover.jsx";
@@ -2237,7 +2237,7 @@ import {
   TAG_PADDING_X,
   TAG_PADDING_Y,
   keepTagInCanvas,
-  loadImage$4,
+  loadImage,
   pickContrastColor,
 } from "./media-editing/keep-tag-in-canvas.js";
 import { DrawShapeTool } from "./media-editing/draw-shape-tool.js";
@@ -2262,7 +2262,7 @@ import {
 } from "./media-editing/group-color-presets.jsx";
 import {
   DEFAULT_STYLE,
-  HistoryManager$1,
+  HistoryManager$1 as HistoryManager,
   cloneShapeData,
 } from "./media-editing/history-manager.js";
 import { Renderer } from "./media-editing/renderer.js";
@@ -2270,8 +2270,8 @@ import {
   CANVAS_INITIAL_FIT_MAX_ZOOM,
   CANVAS_INITIAL_FIT_MIN_ZOOM,
   CANVAS_ZOOM_PRESETS,
-  Input$1,
-  Label$1,
+  Input as Input$1,
+  Label as Label$1,
   WorkspaceContentBudgetScopeProvider,
   exitFullscreenForRemovedNode,
   getPluginAgentEditSession,
@@ -2458,7 +2458,7 @@ import {
   waitForUserReady,
 } from "./i18n/canvas-node-tools.jsx";
 import { RouterProvider } from "./infra/transitioner.jsx";
-import { en$2 } from "./i18n/en.js";
+import { en as en$2 } from "./i18n/en.js";
 import { initRum, reportRumAction, reportRumError } from "./i18n/init-rum.js";
 import {
   canvas_lyrics,
@@ -2530,9 +2530,9 @@ import {
   IHiloApp,
   ILogService,
   createDecorator,
-  getErrorMessage$1,
+  getErrorMessage,
   getProjectExportFailureReason,
-  hilo$1,
+  hilo,
   isPathAccessError,
   isReservedCustomMcpName,
   parseCustomMcpArguments,
@@ -2723,7 +2723,6 @@ import {
   useHubCancelCheck,
   useUpdateAccountProfile,
 } from "./team/map-hub-cancel-check.js";
-
 import { AssetCenterRelocationCoachMark } from "./assets/asset-center-relocation-coach-mark.jsx";
 import { AssetsDropzoneEmpty } from "./assets/assets-dropzone-empty.jsx";
 import {
@@ -2778,7 +2777,7 @@ import {
   SyncBadge,
   UploadingAssets,
   buildRenamedFilename,
-  getFileName$1,
+  getFileName,
   importPickedFiles,
   splitFilename,
 } from "./canvas/uploading-assets.jsx";
@@ -2931,9 +2930,7 @@ import {
 import { useHubClientConfig } from "./settings/parse-home-survey.js";
 import { getConfiguredToolDisplayLabel } from "./settings/request-prompt-prefill.jsx";
 import { useProjectArchiveActions } from "./workspace/use-project-archive-actions.js";
-
 import "./settings/updater-provider.jsx";
-
 import {
   FileTypeBadge,
   getCanvasTagPresentationColor,
@@ -2987,7 +2984,7 @@ import {
   requestRecentWorkspacesRefresh,
   useGlobalSidebar,
 } from "./media-editing/derive-session-task-snapshot.jsx";
-import { RemoteToolHost$1 } from "./media-editing/remote-tool-host.jsx";
+import { RemoteToolHost } from "./media-editing/remote-tool-host.jsx";
 import { useBundleStatus } from "./media-editing/use-bundle-status.js";
 import { SaveToProjectAssetsDialog } from "./workspace/save-to-project-assets-dialog.jsx";
 import { AssetPickerDialog } from "./assets/asset-picker-dialog.jsx";
@@ -3029,7 +3026,7 @@ import {
 } from "./assets/use-file-explorer-canvas-integration.js";
 import {
   HtableParseError,
-  PreviewCard$1,
+  PreviewCard,
   PreviewCardContent,
   PreviewCardTrigger,
   blobToPng,
@@ -3132,7 +3129,6 @@ import {
 } from "./workspace/resolve-retry-message-payload.jsx";
 import { fetchVideoStarterRefs } from "./workspace/read-bounded-blob.js";
 import { useWorkspaceCanvasPersistence } from "./workspace/use-workspace-canvas-persistence.js";
-
 import { AttachmentPreview } from "./text-editor/attachment-preview.jsx";
 import {
   ColorVisualDecoration,
@@ -3155,9 +3151,9 @@ import {
   MESSAGE_ACTION_BUTTON_CLASS,
   MESSAGE_ACTION_LABEL_BUTTON_CLASS,
   POPOVER_ID,
-  basename$7,
+  basename,
   mentionKindFromFileType,
-  mentionKindFromPath$1,
+  mentionKindFromPath,
   workflowAttachmentName,
 } from "./text-editor/file-drop-feedback.jsx";
 import { buildDocContentFromInput } from "./text-editor/build-doc-content-from-input.js";
@@ -3237,7 +3233,6 @@ import {
   isHeicFilename,
 } from "./assets/classify-upload-error.js";
 import { useUpload } from "./assets/use-upload.js";
-
 import { collectFallbackTurnArtifacts } from "./chat/collect-fallback-turn-artifacts.js";
 import { LocalConnectorDialog } from "./settings/local-connector-dialog.jsx";
 import { useConnectorCatalog } from "./settings/use-connector-catalog.js";
@@ -3353,7 +3348,6 @@ import { At } from "./chat/at.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX, R } from "./chat/ae.jsx";
 import { useHistoryRailState } from "./chat/use-history-rail-state.js";
 import "./chat/qs.jsx";
-
 import {
   Accordion,
   AccordionContent,
@@ -3393,9 +3387,7 @@ import {
 } from "./generation/user-menu-account-summary.jsx";
 import { WorkspaceBrowser } from "./workspace/workspace-browser.jsx";
 import "./infra/app-root-effects.js";
-
 import "./workspace/topbar-search-dialog-lazy.jsx";
-
 import {
   DialogClose,
   GatewayHttpError,
@@ -3407,7 +3399,7 @@ import { gatewayFetchFromBase } from "./infra/perform-gateway-fetch.js";
 import {
   AlertDialogPortal,
   Popover,
-  Select$1,
+  Select as Select$1,
   applyReactScan,
   useAuth,
   useIsScrolling,
@@ -3532,7 +3524,7 @@ import {
   CalendarDays,
   Camera,
   CaseSensitive,
-  CheckIcon$5,
+  CheckIcon,
   Chrome,
   Circle,
   CircleHelp,
@@ -3600,11 +3592,11 @@ import {
   Square,
   Stamp,
   Trash2,
-  Type$1,
+  Type as Type$1,
   Upload,
   Users,
   VolumeX,
-  formatTime$2,
+  formatTime,
   hasMessagePayload,
 } from "./media-editing/package.jsx";
 import { buildMediaShowcaseCollections } from "./workspace/build-media-showcase-collections.js";
@@ -3615,7 +3607,7 @@ import {
   MemberRole,
   PopupType,
   isSkillShowcaseUrl,
-  isValidSkillName$1,
+  isValidSkillName,
   normalizePublicSkillShowcaseUrl,
   normalizeSkillContentLocale,
   normalizeSkillDetailMetadata,
@@ -3697,7 +3689,7 @@ import { useCloudFolder } from "./assets/use-cloud-folder.js";
 import { useCloudSearch } from "./assets/use-cloud-search.js";
 import {
   filterMoveOptions,
-  formatBytes$1,
+  formatBytes,
   isCloudFileDownloadEnabled,
   localFolderOptions,
   normalizeCloudParentId,
@@ -3738,7 +3730,7 @@ import {
   formatDownloads,
   pluginTrackBase,
   resolveSkillCoverUrl,
-  toDisplayName$1,
+  toDisplayName,
   useMentionModels,
   writePendingAutoUpdate,
 } from "./generation/use-mention-models.jsx";
@@ -3780,31 +3772,21 @@ import {
 } from "./workspace/normalize-project-entries.js";
 import { mergeWorkspaceInventory } from "./workspace/merge-workspace-inventory.js";
 import { useRemoteToolSdk } from "./assets/create-remote-tool-sdk.js";
-
 import "./vendor-inline/vscode-base/channel-client.js";
 import "./infra/use-plugin-metadata-store.js";
 import "./infra/create-html-iframe-pool-store.jsx";
 import "./vendor-inline/minified/ct.js";
 import "./infra/shallow-copy.js";
-
 import "./vendor-inline/minified/h.js";
-
 import "./canvas/we.js";
 import "./vendor-inline/codemirror/line2.js";
-
 import "./vendor-inline/immer/make-creator.js";
 import "./vendor-inline/immer/map-handler.js";
-
 import "./vendor-inline/immer/proxy-handler.js";
-
 import "./vendor-inline/minified/s2.js";
-
 import "./canvas/use-start-crop-from-node.js";
-
 import "./media-editing/use-start-cloud-edit-from-node.js";
-
 import "./vendor-inline/vscode-base/vs-buffer.js";
-
 function __jsx(type, props, ...children) {
   const { key, ...rest } = props ?? {};
   if (children.length === 1) rest.children = children[0];
@@ -3990,12 +3972,12 @@ export {
   CheckCheck as bA,
   CheckCircle2 as bB,
   CheckCircle2Icon as bC,
-  CheckIcon$5 as bD,
+  CheckIcon as bD,
   ChevronDown as bE,
-  ChevronDownIcon$1 as bF,
+  ChevronDownIcon as bF,
   ChevronLeft as bG,
   ChevronLeftIcon as bH,
-  ChevronRight$1 as bI,
+  ChevronRight as bI,
   ChevronRightIcon as bJ,
   ChevronUp as bK,
   ChevronUpIcon as bL,
@@ -4016,14 +3998,14 @@ export {
   ClipboardPaste as b_,
   AtSign as ba,
   AudioLines as bb,
-  AudioWaveform$1 as bc,
+  AudioWaveform as bc,
   BadgeCheck as bd,
   BadgeInfo as be,
   Ban as bf,
   Bell as bg,
   BellRing as bh,
   Blocks as bi,
-  Bold$1 as bj,
+  Bold as bj,
   Bookmark as bk,
   BookUser as bl,
   Bot as bm,
@@ -4048,7 +4030,7 @@ export {
   CloudIcon as c3,
   CloudOff as c4,
   CloudUpload as c5,
-  Code$1 as c6,
+  Code as c6,
   Cog as c7,
   Compass as c8,
   Copy as c9,
@@ -4091,9 +4073,9 @@ export {
   Expand as cj,
   ExternalLink as ck,
   Eye as cl,
-  EyeIcon$1 as cm,
+  EyeIcon as cm,
   EyeOff as cn,
-  EyeOffIcon$1 as co,
+  EyeOffIcon as co,
   File$1 as cp,
   FileArchive as cq,
   FileAudio as cr,
@@ -4112,9 +4094,9 @@ export {
   ImagePlusOutlineIcon as d2,
   Import as d3,
   Inbox as d4,
-  Info$1 as d5,
-  InfoIcon$1 as d6,
-  Italic$1 as d7,
+  Info as d5,
+  InfoIcon as d6,
+  Italic as d7,
   Keyboard as d8,
   KeyRound as d9,
   MessageSquareMore as dA,
@@ -4142,7 +4124,7 @@ export {
   PanelRightOpen as dW,
   PanelsTopLeft as dX,
   Paperclip as dY,
-  PlaybackPauseIcon$1 as dZ,
+  PlaybackPauseIcon as dZ,
   Pencil as d_,
   Languages as da,
   Layers as db,
@@ -4162,7 +4144,7 @@ export {
   LockKeyhole as dq,
   LogOut as dr,
   Mail as ds,
-  Map$1 as dt,
+  Map as dt,
   MapPin as du,
   Maximize as dv,
   Maximize2 as dw,
@@ -4207,7 +4189,7 @@ export {
   TriangleAlertIcon as eX,
   Tv as eY,
   Type$1 as eZ,
-  Underline$1 as e_,
+  Underline as e_,
   PlaybackPreviousIcon$1 as ea,
   Plug as eb,
   PlusCircle as ec,
@@ -4237,7 +4219,7 @@ export {
   Input3 as f,
   ProductionPlanTimeline as f$,
   Upload as f0,
-  UploadIcon$1 as f1,
+  UploadIcon as f1,
   User as f2,
   UserRound as f3,
   UserRoundPlus as f4,
@@ -4264,12 +4246,12 @@ export {
   Avatar as fP,
   AvatarImage as fQ,
   AvatarFallback as fR,
-  getDefaultExportFromCjs$1 as fS,
+  getDefaultExportFromCjs as fS,
   useSearch as fT,
   useRemoteToolSdk as fU,
   remoteDebugLog as fV,
   RemoteToolDialogShell as fW,
-  RemoteToolHost$1 as fX,
+  RemoteToolHost as fX,
   GENERATION_FAILURE_ERROR_CODES as fY,
   ActivityGroup as fZ,
   groupIntoActivityGroups as f_,
@@ -4295,7 +4277,7 @@ export {
   Download$2 as ft,
   ExternalLink$2 as fu,
   Eye$2 as fv,
-  File$3 as fw,
+  File as fw,
   Film$2 as fx,
   FolderInput$2 as fy,
   Headphones$2 as fz,
@@ -4326,7 +4308,7 @@ export {
   TAB_CONTENT_ENTER_CLASS_NAME as gM,
   CreateProjectDialog as gN,
   DissolveProjectDialog as gO,
-  Button$3 as gP,
+  Button as gP,
   LoaderCircle$1 as gQ,
   cva as gR,
   CloudOff$1 as gS,
@@ -4379,7 +4361,7 @@ export {
   SegmentedSwitch as hA,
   Skeleton as hB,
   Checkbox as hC,
-  formatBytes$1 as hD,
+  formatBytes as hD,
   useCloudFolder as hE,
   useProjectAssetsService as hF,
   useTransfers as hG,
@@ -4607,7 +4589,7 @@ export {
   useInterestSelection as ki,
   useDebugFlag as kj,
   resolveSeenRevision as kk,
-  DialogPortal$2 as kl,
+  DialogPortal as kl,
   DialogBackdrop as km,
   DialogPopup as kn,
   Wrench$1 as ko,
@@ -4651,9 +4633,9 @@ export {
   completeRandomInspiration as lO,
   ProjectImportIcon as lP,
   UsePromptIcon as lQ,
-  formatTime$2 as lR,
+  formatTime as lR,
   resolveSkillCoverUrl as lS,
-  toDisplayName$1 as lT,
+  toDisplayName as lT,
   SkillCoverMedia as lU,
   FilledSkillIcon as lV,
   getCreationGuideUrlsByLocale as lW,
@@ -4725,7 +4707,7 @@ export {
   getSkillCoverUrl as mX,
   normalizeSkillCategoriesResponse as mY,
   useSortable as mZ,
-  CSS$1 as m_,
+  CSS as m_,
   useFolderPermissionGate as ma,
   DraftController as mb,
   HOME_DRAFT_WORKSPACE as mc,
@@ -4747,7 +4729,7 @@ export {
   HubWordmark as ms,
   OPEN_BROWSER_EVENT as mt,
   WorkspaceBrowser as mu,
-  isValidSkillName$1 as mv,
+  isValidSkillName as mv,
   workspaceEvents as mw,
   CDN_BROWSER_START_ICON as mx,
   getMergedHcpCatalog as my,

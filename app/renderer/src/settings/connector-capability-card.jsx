@@ -1,7 +1,7 @@
 // connector-capability-card.jsx
 import { homeService } from "../workspace/home-service.jsx";
 import {
-  LoaderCircle$1,
+  LoaderCircle$1 as LoaderCircle,
   matchesLocalConnectorServer,
   matchesRemoteConnectorServer,
   reactExports,
@@ -19,7 +19,7 @@ import {
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
 import { useConnectorInventory } from "../text-editor/get-wire-content-text.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { SESSION_ID_HEADER } from "../generation/to-workspace-browser-url.js";
 import { useSessionStore } from "../workspace/resolve-retry-message-payload.jsx";
 import { useWorkspaceChatOptional } from "../assets/use-canvas-model-registry-hydration.js";
@@ -35,14 +35,11 @@ import {
   ConnectorStatusPill,
 } from "./connector-prompt-action.jsx";
 import { CustomConnectorDialog } from "./custom-connector-dialog.jsx";
-
 const jobs = new Map();
-
 function stopConnectorPreparation(key2) {
   clearTimeout(jobs.get(key2));
   jobs.delete(key2);
 }
-
 function followConnectorPreparation(key2, check) {
   if (jobs.has(key2)) return;
   const poll = async () => {
@@ -65,9 +62,7 @@ function followConnectorPreparation(key2, check) {
     setTimeout(() => void poll(), 3e3),
   );
 }
-
 const POLL_INTERVAL_MS = 3e3;
-
 function createLocalConnectorInstallationTracker(service2) {
   let snapshot2 = {};
   const active2 = new Map();
@@ -179,12 +174,10 @@ function createLocalConnectorInstallationTracker(service2) {
     },
   };
 }
-
 const tracker = createLocalConnectorInstallationTracker({
   install: (id2) => homeService.connector.install(id2),
   status: (id2) => homeService.connector.status(id2),
 });
-
 function useLocalConnectorInstallations(
   onFinished,
   installationTracker = tracker,
@@ -209,7 +202,6 @@ function useLocalConnectorInstallations(
     observe: installationTracker.observe,
   };
 }
-
 export function ConnectorCapabilityCard({ capability, searchCallId }) {
   const { t: t2 } = useTranslation();
   const catalog = useConnectorCatalog();
@@ -758,7 +750,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       </div>
       <p className="grid text-xs text-muted-foreground">
         <span
-          className={cn$2(
+          className={cn(
             "col-start-1 row-start-1",
             showCancelledResult && "invisible",
           )}
@@ -788,7 +780,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
         <span
           role="status"
           data-action-ui-id="capability-connector-cancel-result"
-          className={cn$2(
+          className={cn(
             "col-start-1 row-start-1",
             !showCancelledResult && "invisible",
           )}
@@ -854,7 +846,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
         {configuredOnly &&
           (!savedConnector ||
             !findOfficialConnectorForServer(savedConnector)) && (
-            <Button$1
+            <Button
               size="sm"
               variant="outline"
               className="h-8 min-w-24 shrink-0 whitespace-nowrap rounded-[10px] px-4"
@@ -870,7 +862,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               onClick={() => void handleEditConfiguration()}
             >
               {t2("connectors.editConfiguration")}
-            </Button$1>
+            </Button>
           )}
         {(busy ||
           waiting ||
@@ -879,7 +871,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           deliveryPending ||
           selection2?.state === "selected" ||
           selection2?.state === "ready") && (
-          <Button$1
+          <Button
             size="sm"
             variant="ghost"
             className="h-8 rounded-[10px] px-4 disabled:opacity-100 data-[cancelled=true]:text-muted-foreground"
@@ -891,7 +883,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           >
             <span className="grid">
               <span
-                className={cn$2(
+                className={cn(
                   "col-start-1 row-start-1",
                   (showCancelling || showCancelledResult) && "invisible",
                 )}
@@ -900,7 +892,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 {t2("chat.connector.cancel")}
               </span>
               <span
-                className={cn$2(
+                className={cn(
                   "col-start-1 row-start-1",
                   !showCancelling && "invisible",
                 )}
@@ -909,7 +901,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 {t2("chat.connector.cancelling")}
               </span>
               <span
-                className={cn$2(
+                className={cn(
                   "col-start-1 row-start-1",
                   !showCancelledResult && "invisible",
                 )}
@@ -918,7 +910,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 {t2("chat.connector.cancelledLabel")}
               </span>
             </span>
-          </Button$1>
+          </Button>
         )}
       </div>
       {deliveryPending && (
@@ -987,7 +979,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           role="status"
           className="flex items-center gap-2 text-xs text-muted-foreground"
         >
-          <LoaderCircle$1 className="size-4 animate-spin" strokeWidth={1.5} />
+          <LoaderCircle className="size-4 animate-spin" strokeWidth={1.5} />
           {t2(`chat.connector.phase.${phase || "connecting"}`)}
         </div>
       )}
@@ -1000,7 +992,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           <p>{t2("chat.connector.waitingRuntime")}</p>
           <p className="grid">
             <span
-              className={cn$2(
+              className={cn(
                 "col-start-1 row-start-1",
                 showCancelledResult && "invisible",
               )}
@@ -1009,7 +1001,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               {t2("chat.connector.autoContinue")}
             </span>
             <span
-              className={cn$2(
+              className={cn(
                 "col-start-1 row-start-1",
                 !showCancelledResult && "invisible",
               )}

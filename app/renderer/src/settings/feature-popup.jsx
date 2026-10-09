@@ -1,7 +1,7 @@
 // feature-popup.jsx
 import {
   GiftIcon,
-  Markdown$1,
+  Markdown$1 as Markdown,
   reactExports,
   remarkGfm,
   useTranslation,
@@ -17,7 +17,7 @@ import { DialogClose } from "../infra/gateway-http-error.jsx";
 import { rehypeSanitize } from "./request-prompt-prefill.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -26,9 +26,7 @@ import {
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
-const POPUP_TYPE$2 = "feature";
-
+const POPUP_TYPE = "feature";
 export function FeaturePopup({ popup, onClose }) {
   const { t: t2 } = useTranslation();
   const videoRef = reactExports.useRef(null);
@@ -92,7 +90,7 @@ export function FeaturePopup({ popup, onClose }) {
     const method =
       eventDetails.reason === "escape-key" ? "escape" : "cancel_button";
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_DISMISS, {
-      popup_type: POPUP_TYPE$2,
+      popup_type: POPUP_TYPE,
       url: url2,
       method,
     });
@@ -119,7 +117,7 @@ export function FeaturePopup({ popup, onClose }) {
         {popup.can_close && (
           <DialogClose
             render={
-              <Button$1
+              <Button
                 variant="ghost"
                 size="icon-lg"
                 onClick={(event) => event.stopPropagation()}
@@ -171,7 +169,7 @@ export function FeaturePopup({ popup, onClose }) {
                   </span>
                 )}
               </button>
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon"
@@ -192,7 +190,7 @@ export function FeaturePopup({ popup, onClose }) {
                   size="md"
                   strokeWidth={2}
                 />
-              </Button$1>
+              </Button>
             </div>
           </div>
         ) : coverUrl ? (
@@ -232,18 +230,18 @@ export function FeaturePopup({ popup, onClose }) {
             render={<div />}
             className="chat-markdown text-left text-sm text-foreground [&_ol]:!pl-[1em] [&_ol]:list-decimal [&_ul]:!pl-[1em] [&_ul]:list-disc"
           >
-            <Markdown$1
+            <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSanitize]}
             >
               {popup.description}
-            </Markdown$1>
+            </Markdown>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter
           className={`flex-col gap-0 px-8 pt-6 ${actionHint ? "pb-4" : "pb-8"} sm:flex-col`}
         >
-          <Button$1
+          <Button
             className="relative h-12 w-full rounded-xl text-sm"
             onClick={handleAction}
             loading={isActionPending}
@@ -252,7 +250,7 @@ export function FeaturePopup({ popup, onClose }) {
           >
             {actionHint && <Icon icon={GiftIcon} size="lg" strokeWidth={2} />}
             {label}
-          </Button$1>
+          </Button>
           {actionHint && (
             <div
               className="mt-3 flex h-10 w-full items-center justify-center gap-2 bg-[linear-gradient(90deg,transparent_0%,color-mix(in_srgb,var(--brand-accent)_8%,transparent)_18%,color-mix(in_srgb,var(--brand-accent)_8%,transparent)_82%,transparent_100%)] px-8 text-center text-sm leading-none text-foreground"

@@ -8,7 +8,7 @@ import {
   Shuffle,
   TAB_CONTENT_ENTER_CLASS_NAME,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./shortcut-hint.jsx";
 import { BrowserSearchHistory } from "./browser-search-history.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { EnterIcon } from "./home-service.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {
@@ -31,7 +31,6 @@ import {
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { browserInspirationSites } from "./browser-inspiration-sites.js";
-
 function groupBrowserBookmarks(bookmarks) {
   const groups = new Map();
   for (const bookmark of bookmarks) {
@@ -54,7 +53,6 @@ function groupBrowserBookmarks(bookmarks) {
   }
   return [...groups.values()];
 }
-
 function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
   const { t: t2 } = useTranslation();
   const groups = reactExports.useMemo(
@@ -234,7 +232,7 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
                         })}
                         onClick={() => onRemoveBookmark(bookmark.id)}
                       >
-                        <Icon icon={X$7} size="sm" />
+                        <Icon icon={X} size="sm" />
                       </button>
                     </div>
                   ))}
@@ -247,11 +245,9 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
     </section>
   );
 }
-
 function inspirationRegionForLanguage(language2) {
   return language2.toLowerCase().startsWith("zh") ? "domestic" : "overseas";
 }
-
 function pickInspirationSites(sites, previous2 = []) {
   const uniqueSites = [
     ...new Map(sites.map((site) => [site.id, site])).values(),
@@ -268,7 +264,6 @@ function pickInspirationSites(sites, previous2 = []) {
   }
   return selected2;
 }
-
 const categorySiteIds = {
   domestic: {
     filmMotion: [
@@ -370,14 +365,12 @@ const categorySiteIds = {
     ],
   },
 };
-
 const categoryOrder = [
   "filmMotion",
   "visualDesign",
   "brandCreative",
   "architectureProduct",
 ];
-
 function getBrowserInspirationCategories(region) {
   const sitesById = new Map(
     browserInspirationSites[region].map((site) => [site.id, site]),
@@ -390,7 +383,6 @@ function getBrowserInspirationCategories(region) {
     }),
   }));
 }
-
 function pickCategorizedInspirationSites(categories, previous2 = []) {
   const previousById = new Map(
     previous2.map((category) => [category.id, category.sites]),
@@ -400,7 +392,6 @@ function pickCategorizedInspirationSites(categories, previous2 = []) {
     sites: pickInspirationSites(category.sites, previousById.get(category.id)),
   }));
 }
-
 function FaviconImage({ src }) {
   const [status, setStatus] = reactExports.useState("loading");
   return (
@@ -432,13 +423,10 @@ function FaviconImage({ src }) {
     </span>
   );
 }
-
 function BrowserInspirationFavicon({ src }) {
   return <FaviconImage key={src} src={src} />;
 }
-
 const BROWSER_INSPIRATION_ICON_PATH = "browser-inspiration-icons/20260907";
-
 const browserInspirationFaviconFiles = {
   "abduzeedo.com": "abduzeedo.com.ico",
   "adquan.com": "adquan.com.ico",
@@ -509,7 +497,6 @@ const browserInspirationFaviconFiles = {
   "xiaohongshu.com": "xiaohongshu.com.ico",
   "xinpianchang.com": "xinpianchang.com.ico",
 };
-
 const recoveredBrowserInspirationFaviconFiles = {
   "behance.net": "behance.net.png",
   "eyecannndy.com": "eyecannndy.com.png",
@@ -523,7 +510,6 @@ const recoveredBrowserInspirationFaviconFiles = {
   "ui.cn": "ui.cn.png",
   "zcool.com.cn": "zcool.com.cn.png",
 };
-
 const browserInspirationFavicons = Object.fromEntries([
   ...Object.entries(browserInspirationFaviconFiles).map(
     ([siteId, fileName]) => [
@@ -538,13 +524,12 @@ const browserInspirationFavicons = Object.fromEntries([
     ],
   ),
 ]);
-
 function BrowserInspirationTrigger({ open, panelId, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const openLabel = t2("workspace.browser.inspiration.open", "开启今日灵感");
   const closeLabel = t2("workspace.browser.inspiration.close", "点击收起");
   return (
-    <Button$1
+    <Button
       variant="ghost"
       size="icon-xs"
       className="bg-transparent! text-muted-foreground hover:text-muted-foreground aria-expanded:text-muted-foreground active:not-aria-[haspopup]:translate-y-0"
@@ -561,21 +546,18 @@ function BrowserInspirationTrigger({ open, panelId, onOpenChange }) {
           className={`size-3 transition-transform duration-200 motion-reduce:transition-none ${open ? "" : "-rotate-90"}`}
         />
       </span>
-    </Button$1>
+    </Button>
   );
 }
-
 const categoryIcons = {
   filmMotion: Clapperboard,
   visualDesign: Palette,
   brandCreative: Megaphone,
   architectureProduct: Building2,
 };
-
 function categoryTranslationKey(categoryId) {
   return `workspace.browser.inspiration.category.${categoryId}`;
 }
-
 function categoryFallback(categoryId) {
   const fallbacks = {
     filmMotion: "影视动态",
@@ -585,7 +567,6 @@ function categoryFallback(categoryId) {
   };
   return fallbacks[categoryId];
 }
-
 function InspirationCategory({ category, region, onNavigate }) {
   const { t: t2 } = useTranslation();
   const CategoryIcon = categoryIcons[category.id];
@@ -611,7 +592,7 @@ function InspirationCategory({ category, region, onNavigate }) {
       </div>
       <div className="mt-1 space-y-0.5">
         {category.sites.map((site) => (
-          <Button$1
+          <Button
             key={site.id}
             variant="ghost"
             data-action-ui-id="browser-inspiration-site"
@@ -632,13 +613,12 @@ function InspirationCategory({ category, region, onNavigate }) {
               src={browserInspirationFavicons[site.id]}
             />
             <span className="truncate text-sm font-normal">{site.title}</span>
-          </Button$1>
+          </Button>
         ))}
       </div>
     </article>
   );
 }
-
 function InspirationCategories({ region, panelId, categories, onNavigate }) {
   const { t: t2 } = useTranslation();
   return (
@@ -662,7 +642,6 @@ function InspirationCategories({ region, panelId, categories, onNavigate }) {
     </section>
   );
 }
-
 function InspirationExperience({
   region,
   open,
@@ -732,7 +711,7 @@ function InspirationExperience({
           />
         </div>
         {open && (
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="min-w-[77px] gap-1 bg-transparent text-xs font-normal text-muted-foreground hover:bg-foreground/5! hover:text-muted-foreground [border-width:var(--divider-width)] active:not-aria-[haspopup]:translate-y-0"
@@ -742,7 +721,7 @@ function InspirationExperience({
           >
             <Icon icon={Shuffle} size="sm" className="size-[13px]" />
             {t2("workspace.browser.inspiration.shuffle", "换一换")}
-          </Button$1>
+          </Button>
         )}
       </div>
       <div
@@ -775,7 +754,6 @@ function InspirationExperience({
     </div>
   );
 }
-
 function BrowserInspiration({ onNavigate }) {
   const { i18n } = useTranslation();
   const language2 = i18n.resolvedLanguage ?? i18n.language;
@@ -793,7 +771,6 @@ function BrowserInspiration({ onNavigate }) {
     />
   );
 }
-
 function BrowserStartSearch({
   onSearch,
   searchHistory,
@@ -846,7 +823,7 @@ function BrowserStartSearch({
         />
         <div className="size-7 shrink-0">
           {value.trim() && (
-            <Button$1
+            <Button
               type="submit"
               variant="ghost"
               size="icon-sm"
@@ -855,7 +832,7 @@ function BrowserStartSearch({
               className="text-muted-foreground/60 hover:text-muted-foreground/60 active:not-aria-[haspopup]:translate-y-0"
             >
               <EnterIcon size={16} />
-            </Button$1>
+            </Button>
           )}
         </div>
         {focused && !value.trim() && (
@@ -874,7 +851,6 @@ function BrowserStartSearch({
     </div>
   );
 }
-
 export function BrowserStartPage({
   searchHistory,
   onSelectHistory,

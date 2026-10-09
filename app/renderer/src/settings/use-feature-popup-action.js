@@ -8,7 +8,7 @@ import {
 } from "./normalize-hailuo03-video-trial-eligibility.js";
 import { CHANGE_EVENT, PENDING_KEY } from "./use-auto-announcement.js";
 import {
-  KEY_PREFIX$3,
+  KEY_PREFIX,
   requestPromptPrefill,
   requestRandomInspiration,
 } from "./request-prompt-prefill.jsx";
@@ -27,27 +27,23 @@ import { useAuth } from "../assets/credit-query-keys.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { useProjectArchiveActions } from "../workspace/use-project-archive-actions.js";
-
-function buildKey$1(userID, popupId) {
-  return `${KEY_PREFIX$3}${userID}:${popupId}`;
+function buildKey(userID, popupId) {
+  return `${KEY_PREFIX}${userID}:${popupId}`;
 }
-
 function isClaimed(userID, popupId) {
   if (!userID || !popupId) return false;
   try {
-    return window.localStorage.getItem(buildKey$1(userID, popupId)) === "1";
+    return window.localStorage.getItem(buildKey(userID, popupId)) === "1";
   } catch {
     return false;
   }
 }
-
 function markClaimed(userID, popupId) {
   if (!userID || !popupId) return;
   try {
-    window.localStorage.setItem(buildKey$1(userID, popupId), "1");
+    window.localStorage.setItem(buildKey(userID, popupId), "1");
   } catch {}
 }
-
 function isProjectArchiveUrl(url2) {
   try {
     return new URL(url2).pathname.toLowerCase().endsWith(".zip");
@@ -55,13 +51,11 @@ function isProjectArchiveUrl(url2) {
     return false;
   }
 }
-
 function bundledProjectTemplateForAction(popupId, url2) {
   return popupId === H3_LAUNCH_POPUP_ID && isProjectArchiveUrl(url2)
     ? "h3-playground"
     : null;
 }
-
 function requestTrialGrantedPopup(userID) {
   if (!userID || hasShownTrialGranted(userID)) return;
   try {
@@ -69,7 +63,6 @@ function requestTrialGrantedPopup(userID) {
   } catch {}
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
-
 export function useFeaturePopupAction(popup, { source }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();

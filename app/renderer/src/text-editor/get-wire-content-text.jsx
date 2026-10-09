@@ -2,7 +2,7 @@
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
 import {
   createConnectorInventory,
-  Decoration$1,
+  Decoration$1 as Decoration,
   DecorationSet,
   Extension,
   Plugin,
@@ -13,7 +13,6 @@ import { homeService } from "../workspace/home-service.jsx";
 import { connectorReferenceFromServer } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CreationGuidePlaceholder } from "./creation-guide-placeholder.jsx";
-
 export function WorkspaceCreationGuidePlaceholder({
   triggerMention,
   triggerSlash,
@@ -27,22 +26,18 @@ export function WorkspaceCreationGuidePlaceholder({
     />
   );
 }
-
 export function connectorMentionToken(serverName, displayName2) {
   return formatConnectorMention(serverName, displayName2);
 }
-
 function isUsableConnector(server) {
   return (
     server.enabled &&
     (server.runtimeState === "connected" || server.runtimeState === "saved")
   );
 }
-
 const connectorInventory = createConnectorInventory(() =>
   homeService.customMcp.list(),
 );
-
 export function useConnectorInventory() {
   const snapshot2 = reactExports.useSyncExternalStore(
     connectorInventory.subscribe,
@@ -57,7 +52,6 @@ export function useConnectorInventory() {
     update: connectorInventory.update,
   };
 }
-
 export function useConnectorReferences() {
   const inventory = useConnectorInventory();
   const connectors = reactExports.useMemo(
@@ -79,22 +73,14 @@ export function useConnectorReferences() {
     refresh,
   };
 }
-
 const HEX_COLOR_PATTERN =
   /#(?:[\dA-Fa-f]{8}|[\dA-Fa-f]{6}|[\dA-Fa-f]{4}|[\dA-Fa-f]{3})(?![\dA-Fa-f])/g;
-
 const URL_PATTERN = /https?:\/\/[^\s<>()]+/gi;
-
 const FENCED_CODE_PATTERN = /```[\s\S]*?```/g;
-
 const INLINE_CODE_PATTERN = /(`+)(?!`)[\s\S]*?\1/g;
-
 const INLINE_MARKDOWN_LINK_PATTERN = /!?\[[^\]\n]*\]\((?:\\.|[^)\n])*\)/g;
-
 const REFERENCE_MARKDOWN_LINK_PATTERN = /!?\[[^\]\n]*\]\[[^\]\n]*\]/g;
-
 const IDENTIFIER_CHAR_PATTERN = /[\dA-Za-z_]/;
-
 function collectExcludedRanges(text2) {
   const ranges = [];
   for (const pattern of [
@@ -118,15 +104,12 @@ function collectExcludedRanges(text2) {
   }
   return ranges;
 }
-
 function overlapsExcludedRange(start2, end2, ranges) {
   return ranges.some((range2) => start2 < range2.end && end2 > range2.start);
 }
-
 function colorHasAlpha(value) {
   return value.length === 5 || value.length === 9;
 }
-
 export function findInlineVisualTokens(text2, { allowEnd = true } = {}) {
   const excludedRanges = collectExcludedRanges(text2);
   const tokens2 = [];
@@ -156,9 +139,7 @@ export function findInlineVisualTokens(text2, { allowEnd = true } = {}) {
   }
   return tokens2;
 }
-
 const colorVisualPluginKey = new PluginKey("chatColorVisual");
-
 function createColorSwatch(value, hasAlpha) {
   const swatch = document.createElement("span");
   swatch.className = "inline-color-swatch inline-color-swatch-widget";
@@ -172,7 +153,6 @@ function createColorSwatch(value, hasAlpha) {
   swatch.append(fill);
   return swatch;
 }
-
 function buildColorDecorations(doc2) {
   const decorations2 = [];
   doc2.descendants((node2, position2) => {
@@ -181,14 +161,14 @@ function buildColorDecorations(doc2) {
       const from2 = position2 + token2.start;
       const to = position2 + token2.end;
       decorations2.push(
-        Decoration$1.inline(from2, to, {
+        Decoration.inline(from2, to, {
           class: "inline-color-value-label",
           "data-inline-visual": "color",
           "data-color-value": token2.value,
         }),
       );
       decorations2.push(
-        Decoration$1.widget(
+        Decoration.widget(
           to,
           () => createColorSwatch(token2.value, token2.hasAlpha),
           {
@@ -201,7 +181,6 @@ function buildColorDecorations(doc2) {
   });
   return DecorationSet.create(doc2, decorations2);
 }
-
 export const ColorVisualDecoration = Extension.create({
   name: "chatColorVisual",
   addProseMirrorPlugins() {
@@ -223,9 +202,7 @@ export const ColorVisualDecoration = Extension.create({
     ];
   },
 });
-
 export const ghostTextPluginKey = new PluginKey("chatGhostText");
-
 function createGhostWidget(text2) {
   const wrapper = document.createElement("span");
   wrapper.className = "ghost-text-wrapper";
@@ -242,7 +219,6 @@ function createGhostWidget(text2) {
   wrapper.appendChild(badge);
   return wrapper;
 }
-
 export const GhostTextDecoration = Extension.create({
   name: "chatGhostText",
   addProseMirrorPlugins() {
@@ -264,7 +240,7 @@ export const GhostTextDecoration = Extension.create({
             const text2 = ghostTextPluginKey.getState(state2);
             if (!text2) return DecorationSet.empty;
             const pos = Math.max(1, state2.doc.content.size - 1);
-            const widget = Decoration$1.widget(
+            const widget = Decoration.widget(
               pos,
               () => createGhostWidget(text2),
               {
@@ -278,7 +254,6 @@ export const GhostTextDecoration = Extension.create({
     ];
   },
 });
-
 export function mentionRefLeafText(leafNode) {
   if (leafNode.type.name === "hardBreak") return "\n";
   if (leafNode.type.name !== "mentionRef") return "";
@@ -304,7 +279,6 @@ export function mentionRefLeafText(leafNode) {
   if (!value) return "";
   return marker === "bracket" ? `[${attrs.name}]` : `@${value}`;
 }
-
 function getWireContentText(content2) {
   let text2 = "";
   let previous2;
@@ -339,11 +313,9 @@ function getWireContentText(content2) {
   }
   return text2;
 }
-
 export function getDocText(doc2) {
   return doc2.textBetween(0, doc2.content.size, "\n", mentionRefLeafText);
 }
-
 export function getDocTriggerText(doc2) {
   return doc2.textBetween(0, doc2.content.size, "\n", (node2) =>
     node2.type.name === "mentionRef"
@@ -351,11 +323,9 @@ export function getDocTriggerText(doc2) {
       : mentionRefLeafText(node2),
   );
 }
-
 export function getWireFragmentText(fragment2) {
   return getWireContentText(fragment2.toJSON() ?? []);
 }
-
 export function getDocWireText(doc2) {
   return getWireFragmentText(doc2.content);
 }

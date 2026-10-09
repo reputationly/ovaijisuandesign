@@ -1,5 +1,9 @@
 // image-slot-body.jsx
-import { CircleAlert$2, reactExports, useTranslation } from "../vendor.js";
+import {
+  CircleAlert$2 as CircleAlert,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { RefundHint } from "../generation/missing-asset-card.jsx";
@@ -12,7 +16,6 @@ import { GeneratingMediaArea } from "../canvas/generating-media-area.jsx";
 import { MediaGenerationErrorOverlay } from "../generation/media-generation-error-overlay.jsx";
 import { CanvasImage } from "./canvas-image.jsx";
 import { resolveGifAnimationSrc } from "./base-backend.jsx";
-
 function ImageSlotErrorTile({
   message: message2,
   recoverable = false,
@@ -45,7 +48,7 @@ function ImageSlotErrorTile({
       title={tooltip}
       className={`pointer-events-auto absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 overflow-hidden px-2 py-2 ${recoverable ? "border border-border bg-card" : "border border-destructive/40 bg-destructive/10"}`}
     >
-      <CircleAlert$2
+      <CircleAlert
         size={18}
         className={
           recoverable
@@ -80,7 +83,6 @@ function ImageSlotErrorTile({
     </div>
   );
 }
-
 function computeContainSize(imgW, imgH, boxW, boxH) {
   if (!imgW || !imgH || imgW <= 0 || imgH <= 0) {
     return {
@@ -101,7 +103,6 @@ function computeContainSize(imgW, imgH, boxW, boxH) {
     height: boxH,
   };
 }
-
 export const ImageSlotBody = reactExports.memo(function ImageSlotBody2({
   nodeId,
   slot,

@@ -1,10 +1,7 @@
 // use-hover-preview.js
 import { reactExports } from "../vendor.js";
-
-const ANCHOR_GAP$3 = 8;
-
+const ANCHOR_GAP = 8;
 const VIEWPORT_PADDING = 8;
-
 function isPointInPreviewBridge(x2, y4, anchor, preview) {
   const contains2 = (rect) =>
     x2 >= rect.left &&
@@ -44,19 +41,17 @@ function isPointInPreviewBridge(x2, y4, anchor, preview) {
     x2 <= start2.right + (end2.right - start2.right) * progress
   );
 }
-
-function clamp$8(value, min2, max2) {
+function clamp(value, min2, max2) {
   return Math.min(Math.max(value, min2), max2);
 }
-
 function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
-  const preferredTop = anchorRect.top - previewSize.height - ANCHOR_GAP$3;
-  const fallbackTop = anchorRect.bottom + ANCHOR_GAP$3;
+  const preferredTop = anchorRect.top - previewSize.height - ANCHOR_GAP;
+  const fallbackTop = anchorRect.bottom + ANCHOR_GAP;
   const fitsAbove = preferredTop >= VIEWPORT_PADDING;
   const fitsBelow =
     fallbackTop + previewSize.height <= viewport.height - VIEWPORT_PADDING;
   const moreSpaceAbove = anchorRect.top > viewport.height - anchorRect.bottom;
-  const top2 = clamp$8(
+  const top2 = clamp(
     fitsAbove || (!fitsBelow && moreSpaceAbove) ? preferredTop : fallbackTop,
     VIEWPORT_PADDING,
     Math.max(
@@ -64,7 +59,7 @@ function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
       viewport.height - previewSize.height - VIEWPORT_PADDING,
     ),
   );
-  const left = clamp$8(
+  const left = clamp(
     anchorRect.left + anchorRect.width / 2 - previewSize.width / 2,
     VIEWPORT_PADDING,
     Math.max(
@@ -77,7 +72,6 @@ function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
     left,
   };
 }
-
 function getMediaPreviewLayout(
   anchorRect,
   previewSize,
@@ -136,7 +130,6 @@ function getMediaPreviewLayout(
     top: position2.top + top2,
   };
 }
-
 function getBoundary(anchor) {
   return (
     anchor?.closest("[data-media-preview-boundary]") ??
@@ -144,7 +137,6 @@ function getBoundary(anchor) {
     null
   );
 }
-
 export function useHoverPreview({
   anchorElement,
   anchorRect,

@@ -1,16 +1,12 @@
 // session-tabs-persister.js
 
-const STORAGE_KEY$2 = "workspaceSessionTabs";
-
-const LOCAL_CACHE_KEY = `hilo:storage:global.${STORAGE_KEY$2}`;
-
+const STORAGE_KEY = "workspaceSessionTabs";
+const LOCAL_CACHE_KEY = `hilo:storage:global.${STORAGE_KEY}`;
 const MAX_WORKSPACE_RECORDS = 100;
-
-function isRecord$6(value) {
+function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-
-function uniqueStrings$1(value) {
+function uniqueStrings(value) {
   if (!Array.isArray(value)) return [];
   const seen2 = new Set();
   const result = [];
@@ -22,10 +18,9 @@ function uniqueStrings$1(value) {
   }
   return result;
 }
-
 function normalizeTabsState(value) {
-  if (!isRecord$6(value)) return null;
-  const openedTabIds = uniqueStrings$1(value.openedTabIds);
+  if (!isRecord(value)) return null;
+  const openedTabIds = uniqueStrings(value.openedTabIds);
   const rawFocused = value.focusedSessionId;
   const focusedSessionId =
     typeof rawFocused === "string" && openedTabIds.includes(rawFocused)
@@ -41,9 +36,8 @@ function normalizeTabsState(value) {
     updatedAt,
   };
 }
-
 function normalizeTabsRecord(value) {
-  if (!isRecord$6(value)) return {};
+  if (!isRecord(value)) return {};
   const result = {};
   for (const [workspaceKey, rawState] of Object.entries(value)) {
     if (!workspaceKey) continue;
@@ -52,14 +46,12 @@ function normalizeTabsRecord(value) {
   }
   return result;
 }
-
 function pruneTabsRecord(value) {
   const entries2 = Object.entries(value).sort(
     (a2, b3) => b3[1].updatedAt - a2[1].updatedAt,
   );
   return Object.fromEntries(entries2.slice(0, MAX_WORKSPACE_RECORDS));
 }
-
 function readLocalCache() {
   if (typeof localStorage === "undefined") return {};
   try {
@@ -70,14 +62,12 @@ function readLocalCache() {
     return {};
   }
 }
-
 function writeLocalCache(value) {
   if (typeof localStorage === "undefined") return;
   try {
     localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(value));
   } catch {}
 }
-
 export class SessionTabsPersister {
   constructor(getStorage) {
     this.getStorage = getStorage;
@@ -90,7 +80,7 @@ export class SessionTabsPersister {
     if (storage) {
       try {
         const record2 = normalizeTabsRecord(
-          await storage.globalGet(STORAGE_KEY$2),
+          await storage.globalGet(STORAGE_KEY),
         );
         writeLocalCache(record2);
         return record2[workspaceKey] ?? null;
@@ -109,7 +99,7 @@ export class SessionTabsPersister {
         if (storage) {
           try {
             current2 = normalizeTabsRecord(
-              await storage.globalGet(STORAGE_KEY$2),
+              await storage.globalGet(STORAGE_KEY),
             );
           } catch {}
         }
@@ -122,7 +112,7 @@ export class SessionTabsPersister {
           },
         });
         writeLocalCache(next2);
-        if (storage) await storage.globalSet(STORAGE_KEY$2, next2);
+        if (storage) await storage.globalSet(STORAGE_KEY, next2);
       });
     return this.queue;
   }
@@ -137,7 +127,7 @@ export class SessionTabsPersister {
     let current2 = readLocalCache();
     if (storage) {
       try {
-        current2 = normalizeTabsRecord(await storage.globalGet(STORAGE_KEY$2));
+        current2 = normalizeTabsRecord(await storage.globalGet(STORAGE_KEY));
       } catch {}
     }
     if (!(workspaceKey in current2)) return;
@@ -145,7 +135,7 @@ export class SessionTabsPersister {
     writeLocalCache(rest);
     if (storage) {
       try {
-        await storage.globalSet(STORAGE_KEY$2, rest);
+        await storage.globalSet(STORAGE_KEY, rest);
       } catch {}
     }
   }

@@ -10,20 +10,18 @@ import {
   GatewayScopeContext,
   getRuntimeConfig,
   guardAccountSubmission,
-  listeners$8,
+  listeners$8 as listeners,
   normalizeGatewayBaseUrl,
   PopoverTrigger$1,
   reactExports,
   WorkspaceGatewayClient,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 export async function refreshAssetIndex({ qc, gatewayScopeKey }) {
   await qc.invalidateQueries({
     queryKey: scopedAssetsQueryKey(gatewayScopeKey),
   });
 }
-
 export const teamQueryKeys = {
   root: ["team"],
   contract: (clientVersion) => ["team", "contract", clientVersion],
@@ -78,16 +76,13 @@ export const teamQueryKeys = {
   ],
   quota: (scope) => [...teamQueryKeys.membership(scope), "quota"],
 };
-
 function subscribeAccountSubmissionDecision(listener) {
-  listeners$8.add(listener);
-  return () => listeners$8.delete(listener);
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
-
 function getAccountSubmissionDecisionVersion() {
   return decisionVersion;
 }
-
 export function MpIcon({ size: size2 = 14, className }) {
   return (
     <svg
@@ -107,23 +102,19 @@ export function MpIcon({ size: size2 = 14, className }) {
     </svg>
   );
 }
-
 export function PopoverTrigger({ ...props }) {
   return <PopoverTrigger$1 data-slot="popover-trigger" {...props} />;
 }
-
 const INPUT_EDITABLE_WHILE_BLOCKED_REASON_CODES = new Set([
   "quota_insufficient",
   "team_balance_insufficient",
 ]);
-
 function accountSubmissionBlocksInput(decision) {
   return (
     !decision.allowed &&
     !INPUT_EDITABLE_WHILE_BLOCKED_REASON_CODES.has(decision.reasonCode)
   );
 }
-
 export function useAccountSubmissionDecision(kind) {
   reactExports.useSyncExternalStore(
     subscribeAccountSubmissionDecision,
@@ -132,11 +123,9 @@ export function useAccountSubmissionDecision(kind) {
   );
   return evaluateAccountSubmission(kind);
 }
-
 function useAccountSubmissionBlocksInput(kind) {
   return accountSubmissionBlocksInput(useAccountSubmissionDecision(kind));
 }
-
 export function useAccountSubmissionControls(kind) {
   const blocksInput = useAccountSubmissionBlocksInput(kind);
   const beforeAccountSubmission = reactExports.useCallback(
@@ -148,7 +137,6 @@ export function useAccountSubmissionControls(kind) {
     beforeAccountSubmission,
   };
 }
-
 export function GatewayScopeProvider({
   children: children2,
   gatewayUrl: gatewayUrl2,

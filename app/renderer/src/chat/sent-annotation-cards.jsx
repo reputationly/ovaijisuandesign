@@ -1,16 +1,14 @@
 // sent-annotation-cards.jsx
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
-const MAX_VISIBLE_CARDS$1 = 3;
-
+const MAX_VISIBLE_CARDS = 3;
 export function SentAnnotationCards({ annotations }) {
   const { t: t2 } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
   if (annotations.length === 0) return null;
   const visible = expanded
     ? annotations
-    : annotations.slice(0, MAX_VISIBLE_CARDS$1);
+    : annotations.slice(0, MAX_VISIBLE_CARDS);
   const hiddenCount = annotations.length - visible.length;
   return (
     <div

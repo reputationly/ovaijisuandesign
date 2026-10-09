@@ -8,37 +8,32 @@ import {
   NodeToolbar$1,
   Position,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-  DropdownMenuSubTrigger$1,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSubTrigger,
   ToolbarSurface,
 } from "./audio-lightbox.jsx";
 import {
-  DropdownMenu$1,
-  DropdownMenuSub$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu,
+  DropdownMenuSub,
+  DropdownMenuTrigger,
 } from "./use-warn-missing-asset-meta.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import {
   useCanvasIsBoxSelecting,
   useCanvasIsDragging,
   useCanvasIsMultiSelect,
 } from "./package.jsx";
-
-const HEADER_FLOW_HEIGHT$3 = 28;
-
-const TOOLBAR_GAP$5 = 12;
-
-const zoomSelector$8 = (s2) => s2.transform[2];
-
+const HEADER_FLOW_HEIGHT = 28;
+const TOOLBAR_GAP = 12;
+const zoomSelector = (s2) => s2.transform[2];
 const TOOLBAR_ANIM_MS = 150;
-
 function useDelayedUnmount(visible, hidden) {
   const [shouldRender, setShouldRender] = reactExports.useState(
     visible && !hidden,
@@ -77,7 +72,6 @@ function useDelayedUnmount(visible, hidden) {
     state: state2,
   };
 }
-
 function NewFeatureDot() {
   return (
     <span
@@ -86,7 +80,6 @@ function NewFeatureDot() {
     />
   );
 }
-
 function SubmenuChevron() {
   return (
     <CompositedSvg
@@ -106,13 +99,12 @@ function SubmenuChevron() {
     </CompositedSvg>
   );
 }
-
 function DropdownEntry({ child, isActive: isActive2 }) {
   if (child.renderSubmenu) {
     return (
-      <DropdownMenuSub$1>
+      <DropdownMenuSub>
         <ActionListItem
-          render={<DropdownMenuSubTrigger$1 />}
+          render={<DropdownMenuSubTrigger />}
           disabled={child.disabled}
           onClick={() => {
             if (!child.disabled) child.onSelect();
@@ -134,7 +126,7 @@ function DropdownEntry({ child, isActive: isActive2 }) {
         <ActionListPanel
           className="w-max"
           render={
-            <DropdownMenuContent$1
+            <DropdownMenuContent
               variant="toolbar"
               className="data-open:zoom-in-100 data-closed:zoom-out-100"
               side="right"
@@ -145,13 +137,13 @@ function DropdownEntry({ child, isActive: isActive2 }) {
         >
           {child.renderSubmenu()}
         </ActionListPanel>
-      </DropdownMenuSub$1>
+      </DropdownMenuSub>
     );
   }
   return (
-    <Tooltip$1 content={child.tooltipLabel} side="right" sideOffset={8}>
+    <Tooltip content={child.tooltipLabel} side="right" sideOffset={8}>
       <ActionListItem
-        render={<DropdownMenuItem$1 />}
+        render={<DropdownMenuItem />}
         disabled={child.disabled}
         onClick={() => {
           if (!child.disabled) child.onSelect();
@@ -173,10 +165,9 @@ function DropdownEntry({ child, isActive: isActive2 }) {
           </span>
         )}
       </ActionListItem>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 function DropdownChildSlot({ child, isActive: isActive2, showSeparator }) {
   return (
     <>
@@ -185,7 +176,6 @@ function DropdownChildSlot({ child, isActive: isActive2, showSeparator }) {
     </>
   );
 }
-
 function ToolbarItem({ item, showSeparator }) {
   const hasDropdown = !!item.dropdownItems;
   const hasMainAction = hasDropdown && !!item.onClick;
@@ -243,8 +233,8 @@ function ToolbarItem({ item, showSeparator }) {
             {newFeatureDot}
             {trailingEl}
           </button>
-          <DropdownMenu$1 open={open} onOpenChange={handleOpenChange}>
-            <DropdownMenuTrigger$1
+          <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+            <DropdownMenuTrigger
               disabled={item.disabled}
               className="canvas-toolbar-action canvas-toolbar-disclosure"
               openOnHover={true}
@@ -252,11 +242,11 @@ function ToolbarItem({ item, showSeparator }) {
               closeDelay={150}
             >
               <DropdownArrowIcon />
-            </DropdownMenuTrigger$1>
+            </DropdownMenuTrigger>
             <ActionListPanel
               className="w-max"
               render={
-                <DropdownMenuContent$1
+                <DropdownMenuContent
                   variant="toolbar"
                   className="data-open:zoom-in-100 data-closed:zoom-out-100"
                   side="bottom"
@@ -274,7 +264,7 @@ function ToolbarItem({ item, showSeparator }) {
                 />
               ))}
             </ActionListPanel>
-          </DropdownMenu$1>
+          </DropdownMenu>
         </div>
       </>
     );
@@ -283,9 +273,9 @@ function ToolbarItem({ item, showSeparator }) {
     return (
       <>
         {separator}
-        <DropdownMenu$1 open={open} onOpenChange={handleOpenChange}>
-          <Tooltip$1 content={tooltipContent}>
-            <DropdownMenuTrigger$1
+        <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+          <Tooltip content={tooltipContent}>
+            <DropdownMenuTrigger
               disabled={item.disabled}
               className="canvas-toolbar-action"
               data-action-ui-id={`canvas.toolbar-dropdown-${item.id}`}
@@ -296,12 +286,12 @@ function ToolbarItem({ item, showSeparator }) {
               {newFeatureDot}
               {trailingEl}
               {item.hideDropdownArrow ? null : <DropdownArrowIcon />}
-            </DropdownMenuTrigger$1>
-          </Tooltip$1>
+            </DropdownMenuTrigger>
+          </Tooltip>
           <ActionListPanel
             className="w-max"
             render={
-              <DropdownMenuContent$1
+              <DropdownMenuContent
                 variant="toolbar"
                 className="data-open:zoom-in-100 data-closed:zoom-out-100"
                 side="bottom"
@@ -319,14 +309,14 @@ function ToolbarItem({ item, showSeparator }) {
               />
             ))}
           </ActionListPanel>
-        </DropdownMenu$1>
+        </DropdownMenu>
       </>
     );
   }
   return (
     <>
       {separator}
-      <Tooltip$1 content={tooltipContent}>
+      <Tooltip content={tooltipContent}>
         <button
           type="button"
           aria-disabled={item.disabled || void 0}
@@ -344,11 +334,10 @@ function ToolbarItem({ item, showSeparator }) {
           {newFeatureDot}
           {trailingEl}
         </button>
-      </Tooltip$1>
+      </Tooltip>
     </>
   );
 }
-
 function NodeToolbarPalette({
   items,
   state: state2 = "entering",
@@ -360,7 +349,7 @@ function NodeToolbarPalette({
       ? `toolbar-fade-in ${TOOLBAR_ANIM_MS}ms ease-out`
       : `toolbar-fade-out ${TOOLBAR_ANIM_MS}ms ease-in forwards`;
   return (
-    <TooltipProvider$1 delay={80} closeDelay={0}>
+    <TooltipProvider delay={80} closeDelay={0}>
       <ToolbarSurface
         density={density}
         className="pointer-events-auto relative z-[1] nopan nodrag nokey"
@@ -378,12 +367,11 @@ function NodeToolbarPalette({
           />
         ))}
       </ToolbarSurface>
-    </TooltipProvider$1>
+    </TooltipProvider>
   );
 }
-
 function NodeToolbarInner({ items, visible, renderShell, density }) {
-  const zoom2 = useStore$3(zoomSelector$8);
+  const zoom2 = useStore(zoomSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -398,7 +386,7 @@ function NodeToolbarInner({ items, visible, renderShell, density }) {
   if (renderShell) {
     return <>{renderShell(palette)}</>;
   }
-  const offset2 = HEADER_FLOW_HEIGHT$3 * zoom2 + TOOLBAR_GAP$5;
+  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
   return (
     <NodeToolbar$1
       isVisible={true}
@@ -410,5 +398,4 @@ function NodeToolbarInner({ items, visible, renderShell, density }) {
     </NodeToolbar$1>
   );
 }
-
 export const NodeToolbar = reactExports.memo(NodeToolbarInner);

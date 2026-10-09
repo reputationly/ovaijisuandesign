@@ -3,7 +3,7 @@ import {
   API_PATHS,
   Check,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   CircleAlert,
   Copy,
   Crosshair,
@@ -65,7 +65,6 @@ import {
 } from "./turn-artifact-strip.jsx";
 import { useMentionModels } from "../generation/use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-
 const VIDEO_MODE_I18N_KEYS = new Map([
   ["first-last-frame", "chat.videoMode.firstLastFrame"],
   ["multimodal", "chat.videoMode.omniReference"],
@@ -74,7 +73,6 @@ const VIDEO_MODE_I18N_KEYS = new Map([
   ["video-extend", "chat.videoMode.videoExtend"],
   ["avatar", "chat.videoMode.avatar"],
 ]);
-
 function resolveVideoModeValueDisplay(value, t2) {
   const i18nKey = VIDEO_MODE_I18N_KEYS.get(value);
   if (!i18nKey) return value;
@@ -82,17 +80,13 @@ function resolveVideoModeValueDisplay(value, t2) {
     defaultValue: value,
   });
 }
-
 const CREDITS_INSUFFICIENT_TEXT_PATTERN =
   /credits?\s+(?:are|is|were)\s+insufficient/i;
-
 const IMAGE_ASPECT_RATIO_CONFLICT_TEXT_PATTERN =
   /vendor_params\.aspect_ratio=\S+\s+conflicts with (?:source_ref|canvas_source) dimensions \d+x\d+;\s*nearest supported ratio for \S+ is \S+/i;
-
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
 const LEGACY_ERROR_CODE_MATCHERS = Object.keys(GENERATION_ERROR_CODE_I18N).map(
   (code2) => [
     code2,
@@ -102,11 +96,9 @@ const LEGACY_ERROR_CODE_MATCHERS = Object.keys(GENERATION_ERROR_CODE_I18N).map(
     ),
   ],
 );
-
 function hasMappedErrorCode(code2) {
   return Object.hasOwn(GENERATION_ERROR_CODE_I18N, code2);
 }
-
 function mappedErrorCode({ errorCode, rawError }) {
   const normalizedCode = errorCode?.trim().toLowerCase();
   if (normalizedCode && hasMappedErrorCode(normalizedCode))
@@ -120,7 +112,6 @@ function mappedErrorCode({ errorCode, rawError }) {
     pattern.test(raw2),
   )?.[0];
 }
-
 function isBillingInsufficientFailure({ errorCode, rawError }) {
   const normalizedCode = errorCode?.trim().toLowerCase();
   if (normalizedCode === GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE)
@@ -135,7 +126,6 @@ function isBillingInsufficientFailure({ errorCode, rawError }) {
     CREDITS_INSUFFICIENT_TEXT_PATTERN.test(raw2)
   );
 }
-
 function generationFailureDisplayText(input, t2) {
   const userMessage = stripErrorHtml(input.userMessage).trim();
   if (userMessage) return userMessage;
@@ -150,7 +140,6 @@ function generationFailureDisplayText(input, t2) {
     stripErrorHtml(t2("chat.activity.mediaGenFailed")).trim()
   );
 }
-
 function MediaGenCardLayout({
   prompt,
   tags: tags2,
@@ -169,9 +158,7 @@ function MediaGenCardLayout({
     </div>
   );
 }
-
 const MODEL_TAG_KEYS = new Set(["model_name", "model", "model_id", "series"]);
-
 const TAG_I18N_KEYS = {
   model_name: "canvas.model",
   model: "canvas.model",
@@ -188,7 +175,6 @@ const TAG_I18N_KEYS = {
   emotion: "canvas.params.emotion",
   speed: "canvas.params.speed",
 };
-
 function TagsRow({ tags: tags2, tagIcons, categoryIcon }) {
   const { t: t2 } = useTranslation();
   if (tags2.length === 0) return null;
@@ -234,29 +220,23 @@ function TagsRow({ tags: tags2, tagIcons, categoryIcon }) {
     </TooltipProvider>
   );
 }
-
 const INTERNAL_FIELDS = new Set([
   "_session_id",
   "_tool_use_id",
   "_user_override_note",
   "filename",
 ]);
-
 const PROMPT_FIELDS = new Set(["prompt", "text", "description", "lyrics"]);
-
 const MODEL_TAG_FIELDS = new Set(["model_name", "model", "model_id"]);
-
 const CAPABILITY_VIDEO_TOOL_NAMES = new Set([
   "hub_generate_video",
   "generate_video",
 ]);
-
 const MISPLACED_CAPABILITY_VIDEO_TAG_FIELDS = new Set([
   "aspect_ratio",
   "ratio",
   "resolution",
 ]);
-
 const DISPLAY_TAG_FIELDS = new Set([
   "model_name",
   "model",
@@ -285,11 +265,9 @@ const DISPLAY_TAG_FIELDS = new Set([
   // Editing signal fields for hub_merge_videos.
   "scale_mode",
 ]);
-
 const TAG_ICON = {
   duration: Clock,
 };
-
 const VENDOR_PARAM_TAG_KEYS = new Set([
   // image dispatcher
   "aspect_ratio",
@@ -300,13 +278,11 @@ const VENDOR_PARAM_TAG_KEYS = new Set([
   "ratio",
   "mode",
 ]);
-
 function formatVersionTag(value) {
   const niji = value.match(/^niji\s*(\d+)$/i);
   if (niji) return `Niji ${niji[1]}`;
   return /^\d/.test(value) ? `v${value}` : value;
 }
-
 function tagDisplayValue(key2, value, t2, preferType, modelDisplayMap) {
   if (MODEL_TAG_FIELDS.has(key2)) {
     const modelName = String(value);
@@ -326,16 +302,13 @@ function tagDisplayValue(key2, value, t2, preferType, modelDisplayMap) {
     defaultValue: raw2,
   });
 }
-
 function vendorParamsHasMode(args) {
   const vp = args.vendor_params;
   return (
     vp != null && typeof vp === "object" && !Array.isArray(vp) && "mode" in vp
   );
 }
-
 const BATCH_PROMPT_FIELDS = new Set(["prompts", "texts"]);
-
 const BATCH_ARRAY_FIELDS = new Set([
   "prompts",
   "texts",
@@ -347,7 +320,6 @@ const BATCH_ARRAY_FIELDS = new Set([
   "first_frame_images",
   "duration",
 ]);
-
 const REF_MEDIA_FIELDS = new Set([
   "image_path",
   "image_paths",
@@ -376,7 +348,6 @@ const REF_MEDIA_FIELDS = new Set([
   "attachment",
   "attachments",
 ]);
-
 function collectRefPaths(parsed) {
   const paths = [];
   for (const [key2, value] of Object.entries(parsed)) {
@@ -402,7 +373,6 @@ function collectRefPaths(parsed) {
   }
   return paths;
 }
-
 function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
   if (!toolArgs) return void 0;
   try {
@@ -483,7 +453,6 @@ function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
     return void 0;
   }
 }
-
 function parseBatchItems(
   toolArgs,
   toolResult,
@@ -625,7 +594,6 @@ function parseBatchItems(
     return void 0;
   }
 }
-
 function extractFailureReason(toolResult) {
   const sanitizedToolResult = normalizeStructuredToolResult(toolResult);
   if (!sanitizedToolResult) return void 0;
@@ -653,7 +621,6 @@ function extractFailureReason(toolResult) {
   }
   return void 0;
 }
-
 function extractFailureCode(toolResult) {
   const sanitizedToolResult = normalizeStructuredToolResult(toolResult);
   if (!sanitizedToolResult) return void 0;
@@ -687,7 +654,6 @@ function extractFailureCode(toolResult) {
   }
   return void 0;
 }
-
 function extractUserMessage(toolResult) {
   const sanitizedToolResult = normalizeStructuredToolResult(toolResult);
   if (!sanitizedToolResult) return void 0;
@@ -719,15 +685,12 @@ function extractUserMessage(toolResult) {
   }
   return void 0;
 }
-
 const FAILURE_REASON_PATTERN =
   /(?:\b\w+Error:|\bError:|\bException:|\bfailed\b|\bfailure\b|\brejected\b|\bdenied\b|\bblocked\b|\btimeout\b|timed out|quota|violat|unauthori[sz]ed|forbidden|not available|\baborted?\b|\bcancell?ed\b)/i;
-
 function looksLikeFailureReason(reason) {
   if (!reason) return false;
   return FAILURE_REASON_PATTERN.test(reason);
 }
-
 function parseEffectiveParams(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
@@ -736,7 +699,6 @@ function parseEffectiveParams(value) {
   );
   return entries2.length > 0 ? Object.fromEntries(entries2) : void 0;
 }
-
 function parseGenOutput(toolResult, toolName2) {
   if (!toolResult) return void 0;
   try {
@@ -832,19 +794,16 @@ function parseGenOutput(toolResult, toolName2) {
     return void 0;
   }
 }
-
 function tagSemanticKey(key2) {
   if (MODEL_TAG_FIELDS.has(key2)) return "model";
   if (key2 === "ratio" || key2 === "aspect_ratio") return "aspect_ratio";
   return key2;
 }
-
 const GENERATION_TAG_ORDER = {
   model: 0,
   aspect_ratio: 1,
   resolution: 2,
 };
-
 function sortGenerationTags(tags2) {
   return [...tags2].sort(
     (a2, b3) =>
@@ -852,7 +811,6 @@ function sortGenerationTags(tags2) {
       (GENERATION_TAG_ORDER[tagSemanticKey(b3.key)] ?? 3),
   );
 }
-
 function applyEffectiveParamTags(
   input,
   effectiveParams,
@@ -906,7 +864,6 @@ function applyEffectiveParamTags(
     tags: tags2,
   };
 }
-
 function PromptBlock({ text: text2, lineClamp }) {
   const [copied, setCopied] = reactExports.useState(false);
   const handleCopy = reactExports.useCallback(
@@ -950,7 +907,6 @@ function PromptBlock({ text: text2, lineClamp }) {
     </div>
   );
 }
-
 function RefPreviews({ paths, resolveFilePath }) {
   if (paths.length === 0) return null;
   return (
@@ -974,7 +930,6 @@ function RefPreviews({ paths, resolveFilePath }) {
     </div>
   );
 }
-
 function FailureBlock({
   label: labelOverride,
   reason,
@@ -1006,7 +961,6 @@ function FailureBlock({
     </div>
   );
 }
-
 function GenerationFailureBlock({ label, rawError, errorCode, userMessage }) {
   const { t: t2 } = useTranslation();
   const reason = generationFailureDisplayText(
@@ -1019,7 +973,6 @@ function GenerationFailureBlock({ label, rawError, errorCode, userMessage }) {
   );
   return <FailureBlock label={label} reason={reason} />;
 }
-
 function BatchSummaryFooter({ succeeded, total, failures }) {
   const { t: t2 } = useTranslation();
   const hasFailures = failures.length > 0;
@@ -1076,7 +1029,6 @@ function BatchSummaryFooter({ succeeded, total, failures }) {
     </div>
   );
 }
-
 function GenerationHandoffTargetCard({ target }) {
   const { t: t2 } = useTranslation();
   const workspacePath = useCurrentWorkspace();
@@ -1153,7 +1105,6 @@ function GenerationHandoffTargetCard({ target }) {
     </button>
   );
 }
-
 function GenerationHandoffNotice({ targets }) {
   const { t: t2 } = useTranslation();
   return (
@@ -1180,7 +1131,6 @@ function GenerationHandoffNotice({ targets }) {
     </div>
   );
 }
-
 export function MediaGenDetail({ entry }) {
   const { t: t2 } = useTranslation();
   const promptLineClamp =
@@ -1326,7 +1276,7 @@ export function MediaGenDetail({ entry }) {
             cursor: pageIndex === total - 1 ? "not-allowed" : "pointer",
           }}
         >
-          <Icon icon={ChevronRight$1} size="xs" strokeWidth={1.5} />
+          <Icon icon={ChevronRight} size="xs" strokeWidth={1.5} />
         </button>
       </div>
     );

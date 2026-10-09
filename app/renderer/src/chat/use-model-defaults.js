@@ -1,28 +1,25 @@
 // use-model-defaults.js
 import {
   listTextEditSessionEntries,
-  LOCAL_CACHE_KEY$1,
+  LOCAL_CACHE_KEY,
   normalizeEntryList,
   normalizeTextEditSessionRecord,
 } from "./handle-session-created-response.js";
 import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
-
-export function readLocalCache$1() {
+export function readLocalCache() {
   if (typeof localStorage === "undefined") return {};
   try {
     return normalizeTextEditSessionRecord(
-      JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY$1) ?? "{}"),
+      JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY) ?? "{}"),
     );
   } catch {
     return {};
   }
 }
-
 export function cachedTextEditSessionBindings(workspaceKey) {
   if (!workspaceKey) return {};
-  return readLocalCache$1()[workspaceKey] ?? {};
+  return readLocalCache()[workspaceKey] ?? {};
 }
-
 export function mergeTextEditSessionBindings(persisted, inMemory) {
   const merged = {};
   for (const nodeId of new Set([
@@ -58,7 +55,6 @@ export function mergeTextEditSessionBindings(persisted, inMemory) {
   }
   return merged;
 }
-
 export function collectBindingSessionIds(binding) {
   const ids2 = new Set();
   if (!binding) return ids2;
@@ -70,7 +66,6 @@ export function collectBindingSessionIds(binding) {
   }
   return ids2;
 }
-
 export function collectTextEditSessionIds(bindings) {
   const ids2 = new Set();
   for (const binding of Object.values(bindings)) {
@@ -78,7 +73,6 @@ export function collectTextEditSessionIds(bindings) {
   }
   return ids2;
 }
-
 export function resolveTextEditSessionId(binding, state2) {
   if (!binding) return null;
   const candidates2 = [binding.runtimeSessionId, binding.uiSessionId].filter(
@@ -96,7 +90,6 @@ export function resolveTextEditSessionId(binding, state2) {
   }
   return null;
 }
-
 export function useAgentModeAwareSend(sendRaw, agentMode = "auto") {
   const agentModeRef = reactExports.useRef(agentMode);
   agentModeRef.current = agentMode;
@@ -116,7 +109,6 @@ export function useAgentModeAwareSend(sendRaw, agentMode = "auto") {
     [sendRaw],
   );
 }
-
 export function useModelDefaults({
   defaultModelId,
   defaultSelectedMediaModels,

@@ -1,8 +1,7 @@
 // progress-bar-inner.jsx
 import { jsxRuntimeExports, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { formatTime$2 } from "./package.jsx";
-
+import { formatTime } from "./package.jsx";
 function formatControlTime(seconds, roundUp = false) {
   if (!Number.isFinite(seconds) || seconds < 0) return "00:00";
   const total = roundUp ? Math.ceil(seconds) : Math.floor(seconds);
@@ -10,7 +9,6 @@ function formatControlTime(seconds, roundUp = false) {
   const s2 = total % 60;
   return `${m3.toString().padStart(2, "0")}:${s2.toString().padStart(2, "0")}`;
 }
-
 function ProgressBarInner({
   videoRef,
   isPlaying,
@@ -35,10 +33,10 @@ function ProgressBarInner({
       timeRef.current.textContent =
         display === "time"
           ? `${formatControlTime(displayTime, el.ended)} / ${formatControlTime(d2, true)}`
-          : formatTime$2(displayTime, el.ended);
+          : formatTime(displayTime, el.ended);
     }
     if (durationRef.current)
-      durationRef.current.textContent = formatTime$2(d2, true);
+      durationRef.current.textContent = formatTime(d2, true);
     if (filledRef.current) filledRef.current.style.width = `${pct}%`;
     if (thumbRef.current) thumbRef.current.style.left = `${pct}%`;
   }, [display, videoRef]);
@@ -190,5 +188,4 @@ function ProgressBarInner({
     </>
   );
 }
-
 export const ProgressBar = reactExports.memo(ProgressBarInner);

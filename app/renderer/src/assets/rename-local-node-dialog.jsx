@@ -9,8 +9,8 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { checkTextSafety } from "../workspace/asset-lineage-query-key.js";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -27,7 +27,6 @@ import {
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { toggleVariants } from "../infra/use-online.jsx";
-
 export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
   const { t: t2 } = useTranslation();
   const [name2, setName] = reactExports.useState("");
@@ -83,26 +82,25 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
           autoComplete="off"
         />
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={!trimmed || pending2}
             onClick={() => void handleConfirm()}
           >
             {t2("common.confirm")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
 export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
   const { t: t2 } = useTranslation();
   const [name2, setName] = reactExports.useState("");
@@ -157,26 +155,25 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
           autoComplete="off"
         />
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={!fullName || pending2 || fullName === node2?.name}
             onClick={() => void handleConfirm()}
           >
             {t2("common.confirm")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
 export function useAnchorProjectAssets() {
   const scopedFetch = useGatewayFetch();
   return reactExports.useCallback(
@@ -200,7 +197,6 @@ export function useAnchorProjectAssets() {
     [scopedFetch],
   );
 }
-
 export function useExternalFileDrop(rootDropProps, { enabled, onFiles }) {
   return reactExports.useMemo(() => {
     const isExternalFileDrag = (event) =>
@@ -231,7 +227,6 @@ export function useExternalFileDrop(rootDropProps, { enabled, onFiles }) {
     };
   }, [enabled, onFiles, rootDropProps]);
 }
-
 export function AssetRowThumb({ thumbSrc, filename, mime }) {
   const [failed, setFailed] = reactExports.useState(false);
   if (failed || !thumbSrc) {
@@ -248,7 +243,6 @@ export function AssetRowThumb({ thumbSrc, filename, mime }) {
     />
   );
 }
-
 export function Toggle({
   className,
   variant = "default",
@@ -258,7 +252,7 @@ export function Toggle({
   return (
     <Toggle$1
       data-slot="toggle"
-      className={cn$2(
+      className={cn(
         toggleVariants({
           variant,
           size: size2,

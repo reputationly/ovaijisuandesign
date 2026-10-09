@@ -100,7 +100,7 @@ import {
   getParentDir,
   joinFilePath,
 } from "../assets/use-file-explorer-canvas-integration.js";
-import { getFileName$1 } from "./uploading-assets.jsx";
+import { getFileName as getFileName$1 } from "./uploading-assets.jsx";
 import { requestNodeRename } from "./use-inline-rename.jsx";
 import { hiloMediaPlugin } from "./hilo-media-plugin.js";
 import {
@@ -196,7 +196,6 @@ import { NodeContextMenu } from "../text-editor/node-context-menu.jsx";
 import { buildComfyUiNodePriceDescription } from "../text-editor/collect-video-rows.js";
 import { instantiatePluginOnCanvas } from "../text-editor/instantiate-plugin-on-canvas.js";
 import { useTxt2Text } from "../text-editor/use-txt2-text.js";
-
 export function CanvasArea({
   onCanvasTasksChange,
   onRenderableContentChange,

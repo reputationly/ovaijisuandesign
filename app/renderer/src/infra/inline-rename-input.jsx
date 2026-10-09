@@ -19,7 +19,7 @@ import {
   PROJECT_NAME_MAX_CHARS,
   truncateProjectName,
 } from "../generation/normalize-skill-detail-metadata.js";
-import { AlertDialog, cn$2 } from "./dialog-content.jsx";
+import { AlertDialog, cn$2 as cn } from "./dialog-content.jsx";
 import { Users } from "../media-editing/package.jsx";
 import { useLoginGuard } from "./schedule.js";
 import {
@@ -36,9 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./badge-variants.jsx";
-
 const GATEWAY_READINESS_FALLBACK_MS = 3e3;
-
 export function HubWordmark({
   width = 158,
   height = 24,
@@ -55,7 +53,7 @@ export function HubWordmark({
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={alt}
-      className={cn$2("shrink-0", className)}
+      className={cn("shrink-0", className)}
       {...rest}
     >
       <g fill="var(--hub-wordmark-foreground)">
@@ -78,13 +76,11 @@ export function HubWordmark({
     </svg>
   );
 }
-
 export const BULLET_KEYS = [
   "auth.loginGate.bullet0",
   "auth.loginGate.bullet1",
   "auth.loginGate.bullet2",
 ];
-
 export function CreateProjectMenuContent({
   actionUiIdPrefix,
   onSelectKind,
@@ -127,7 +123,6 @@ export function CreateProjectMenuContent({
     </ActionDropdownMenuContent>
   );
 }
-
 export function DissolveProjectDialog({
   project: project2,
   onConfirm,
@@ -158,7 +153,6 @@ export function DissolveProjectDialog({
     </AlertDialog>
   );
 }
-
 const AvatarRoot = reactExports.forwardRef(
   function AvatarRoot2(componentProps, forwardedRef) {
     const { className, render: render2, ...elementProps } = componentProps;
@@ -187,7 +181,6 @@ const AvatarRoot = reactExports.forwardRef(
     );
   },
 );
-
 const AvatarFallback$1 = reactExports.forwardRef(
   function AvatarFallback2(componentProps, forwardedRef) {
     const {
@@ -220,13 +213,12 @@ const AvatarFallback$1 = reactExports.forwardRef(
     return element2;
   },
 );
-
 export function Avatar({ className, size: size2 = "default", ...props }) {
   return (
     <AvatarRoot
       data-slot="avatar"
       data-size={size2}
-      className={cn$2(
+      className={cn(
         "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
         className,
       )}
@@ -234,12 +226,11 @@ export function Avatar({ className, size: size2 = "default", ...props }) {
     />
   );
 }
-
 export function AvatarImage({ className, ...props }) {
   return (
     <AvatarImage$1
       data-slot="avatar-image"
-      className={cn$2(
+      className={cn(
         "aspect-square size-full rounded-full object-cover",
         className,
       )}
@@ -247,12 +238,11 @@ export function AvatarImage({ className, ...props }) {
     />
   );
 }
-
 export function AvatarFallback({ className, ...props }) {
   return (
     <AvatarFallback$1
       data-slot="avatar-fallback"
-      className={cn$2(
+      className={cn(
         "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
         className,
       )}
@@ -260,12 +250,11 @@ export function AvatarFallback({ className, ...props }) {
     />
   );
 }
-
 export function AvatarGroup({ className, ...props }) {
   return (
     <div
       data-slot="avatar-group"
-      className={cn$2(
+      className={cn(
         "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
         className,
       )}
@@ -273,7 +262,6 @@ export function AvatarGroup({ className, ...props }) {
     />
   );
 }
-
 export const ClickableArea = reactExports.forwardRef(
   ({ onClick, onKeyDown, children: children2, ...props }, ref) => {
     return (
@@ -297,9 +285,7 @@ export const ClickableArea = reactExports.forwardRef(
     );
   },
 );
-
 ClickableArea.displayName = "ClickableArea";
-
 export function InlineRenameInput({
   initialName,
   placeholder,
@@ -355,14 +341,13 @@ export function InlineRenameInput({
       onDoubleClick={(e2) => e2.stopPropagation()}
       onMouseDown={(e2) => e2.stopPropagation()}
       onPointerDown={(e2) => e2.stopPropagation()}
-      className={cn$2(
+      className={cn(
         "w-full min-w-[100px] rounded-sm border border-primary bg-transparent px-1 text-[14px] font-medium text-foreground outline-none placeholder:text-muted-foreground",
         className,
       )}
     />
   );
 }
-
 export function useGatewayReadiness() {
   const [snapshot2, setSnapshot] = reactExports.useState(void 0);
   reactExports.useEffect(() => {
@@ -403,7 +388,6 @@ export function useGatewayReadiness() {
   }, []);
   return snapshot2;
 }
-
 export function useGatewayReady() {
   return useGatewayReadiness()?.state === "ready";
 }

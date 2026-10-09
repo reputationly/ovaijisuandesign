@@ -2,7 +2,6 @@
 import { placeholderNodeSize } from "../canvas/placeholder-node-size.js";
 import { reactExports } from "../vendor.js";
 import { getType } from "./get-type.js";
-
 function isUsableDisplaySize(value) {
   if (!value || typeof value !== "object") return false;
   const size2 = value;
@@ -15,7 +14,6 @@ function isUsableDisplaySize(value) {
     size2.height > 0
   );
 }
-
 export function resolvePlaceholderCardSize(
   status,
   aspectRatio,
@@ -27,22 +25,17 @@ export function resolvePlaceholderCardSize(
   }
   return placeholderNodeSize(status, aspectRatio, mediaType);
 }
-
 export function testFalsey(val) {
   return val === void 0 || val === null || val === "";
 }
-
 export const equals = (row, columnId, filterValue) => {
   return row.getValue(columnId) === filterValue;
 };
-
 equals.autoRemove = (val) => testFalsey(val);
-
 function readDpr() {
   if (typeof window === "undefined") return 1;
   return window.devicePixelRatio || 1;
 }
-
 export function useDevicePixelRatio() {
   const [dpr, setDpr] = reactExports.useState(readDpr);
   reactExports.useEffect(() => {
@@ -72,26 +65,19 @@ export function useDevicePixelRatio() {
   }, []);
   return dpr;
 }
-
 export const PROXY_DRAFT = Symbol.for("__MUTATIVE_PROXY_DRAFT__");
-
 export const RAW_RETURN_SYMBOL = Symbol("__MUTATIVE_RAW_RETURN_SYMBOL__");
-
 export const iteratorSymbol = Symbol.iterator;
-
 export const dataTypes = {
   mutable: "mutable",
   immutable: "immutable",
 };
-
 export const internal = {};
-
 export function has(target, key2) {
   return target instanceof Map
     ? target.has(key2)
     : Object.prototype.hasOwnProperty.call(target, key2);
 }
-
 export function getDescriptor(target, key2) {
   if (key2 in target) {
     let prototype = Reflect.getPrototypeOf(target);
@@ -103,27 +89,22 @@ export function getDescriptor(target, key2) {
   }
   return;
 }
-
 export function isBaseSetInstance(obj) {
   return Object.getPrototypeOf(obj) === Set.prototype;
 }
-
 export function isBaseMapInstance(obj) {
   return Object.getPrototypeOf(obj) === Map.prototype;
 }
-
 export function latest(proxyDraft) {
   var _a2;
   return (_a2 = proxyDraft.copy) !== null && _a2 !== void 0
     ? _a2
     : proxyDraft.original;
 }
-
 export function getProxyDraft(value) {
   if (typeof value !== "object") return null;
   return value === null || value === void 0 ? void 0 : value[PROXY_DRAFT];
 }
-
 export function getValue(value) {
   var _a2;
   const proxyDraft = getProxyDraft(value);
@@ -133,7 +114,6 @@ export function getValue(value) {
       : proxyDraft.original
     : value;
 }
-
 export function isDraftable(value, options) {
   if (!value || typeof value !== "object") return false;
   let markResult;
@@ -147,11 +127,9 @@ export function isDraftable(value, options) {
         typeof markResult === "function"))
   );
 }
-
 export function get$1(target, key2) {
   return getType(target) === 2 ? target.get(key2) : target[key2];
 }
-
 export function set(target, key2, value) {
   const type2 = getType(target);
   if (type2 === 2) {
@@ -160,13 +138,11 @@ export function set(target, key2, value) {
     target[key2] = value;
   }
 }
-
 export function peek(target, key2) {
   const state2 = getProxyDraft(target);
   const source = state2 ? latest(state2) : target;
   return source[key2];
 }
-
 export function isEqual(x2, y4) {
   if (x2 === y4) {
     return x2 !== 0 || 1 / x2 === 1 / y4;
@@ -174,7 +150,6 @@ export function isEqual(x2, y4) {
     return x2 !== x2 && y4 !== y4;
   }
 }
-
 export function revokeProxy(proxyDraft) {
   if (!proxyDraft) return;
   while (proxyDraft.finalities.revoke.length > 0) {
@@ -182,7 +157,6 @@ export function revokeProxy(proxyDraft) {
     revoke();
   }
 }
-
 export function escapePath(path2, pathAsArray) {
   return pathAsArray
     ? path2
@@ -195,7 +169,6 @@ export function escapePath(path2, pathAsArray) {
         })
         .join("/");
 }
-
 export function unescapePath(path2) {
   if (Array.isArray(path2)) return path2;
   return path2
@@ -203,8 +176,7 @@ export function unescapePath(path2) {
     .map((_item) => _item.replace(/~1/g, "/").replace(/~0/g, "~"))
     .slice(1);
 }
-
-function resolvePath$1(base2, path2) {
+function resolvePath(base2, path2) {
   for (let index2 = 0; index2 < path2.length - 1; index2 += 1) {
     const key2 = path2[index2];
     base2 = get$1(getType(base2) === 3 ? Array.from(base2) : base2, key2);
@@ -214,8 +186,7 @@ function resolvePath$1(base2, path2) {
   }
   return base2;
 }
-
-export function getPath$1(target, path2 = []) {
+export function getPath(target, path2 = []) {
   if (Object.hasOwnProperty.call(target, "key")) {
     const parentCopy = target.parent.copy;
     const proxyDraft = getProxyDraft(get$1(parentCopy, target.key));
@@ -236,17 +207,16 @@ export function getPath$1(target, path2 = []) {
     path2.push(key2);
   }
   if (target.parent) {
-    return getPath$1(target.parent, path2);
+    return getPath(target.parent, path2);
   }
   path2.reverse();
   try {
-    resolvePath$1(target.copy, path2);
+    resolvePath(target.copy, path2);
   } catch (e2) {
     return null;
   }
   return path2;
 }
-
 function strictCopy(target) {
   const copy2 = Object.create(Object.getPrototypeOf(target));
   Reflect.ownKeys(target).forEach((key2) => {
@@ -270,9 +240,7 @@ function strictCopy(target) {
   });
   return copy2;
 }
-
 const propIsEnum = Object.prototype.propertyIsEnumerable;
-
 export function shallowCopy(original, options) {
   let markResult;
   if (Array.isArray(original)) {
@@ -327,12 +295,10 @@ export function shallowCopy(original, options) {
     );
   }
 }
-
 export function ensureShallowCopy(target) {
   if (target.copy) return;
   target.copy = shallowCopy(target.original, target.options);
 }
-
 export function deepClone(target) {
   if (!isDraftable(target)) return getValue(target);
   if (Array.isArray(target)) return target.map(deepClone);
@@ -359,7 +325,6 @@ export function deepClone(target) {
   for (const key2 in target) copy2[key2] = deepClone(target[key2]);
   return copy2;
 }
-
 export function markChanged(proxyDraft) {
   var _a2;
   proxyDraft.assignedMap =

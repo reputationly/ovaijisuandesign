@@ -11,7 +11,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "./use-prompt-icon.jsx";
 import {
   shouldRefreshStatusOnResume,
@@ -37,18 +37,15 @@ import { useBundleStatus } from "../media-editing/use-bundle-status.js";
 import { IHiloApp } from "../settings/parse-custom-mcp-arguments.js";
 import { replaceVisiblePreviewTab } from "../infra/error-boundary.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
-
 function reportWorkspaceRetentionDiagnostics(workspaceId2, entry) {
   entries.set(workspaceId2, entry);
   return () => {
     entries.delete(workspaceId2);
   };
 }
-
 function useRetainInactiveWorkspaceContent(isActive2) {
   return true;
 }
-
 function createWorkspaceResumeFailureStatus(
   workspaceId2,
   folderPath,
@@ -63,7 +60,6 @@ function createWorkspaceResumeFailureStatus(
     synthetic: true,
   };
 }
-
 function deriveWorkspaceRuntimeView(input) {
   const {
     workspaceId: workspaceId2,
@@ -187,7 +183,6 @@ function deriveWorkspaceRuntimeView(input) {
     runtimeIssueStatus,
   });
 }
-
 function toWorkspaceWsUrl(binding) {
   const protocol = binding.baseUrl.startsWith("https") ? "wss" : "ws";
   const host = binding.baseUrl.replace(/^https?:\/\//, "");
@@ -200,7 +195,6 @@ function toWorkspaceWsUrl(binding) {
   );
   return url2.toString();
 }
-
 function resolveEffectiveWorkspaceRuntime({
   runtime,
   renderableStatus,
@@ -215,7 +209,6 @@ function resolveEffectiveWorkspaceRuntime({
     return runtime;
   return runtime;
 }
-
 function sameBinding(left, right) {
   return (
     left.baseUrl === right.baseUrl &&
@@ -224,7 +217,6 @@ function sameBinding(left, right) {
     left.generation === right.generation
   );
 }
-
 function resyncRuntimeGatewayBinding(prev, workspaceId2, nextBinding, options) {
   if (!prev || prev.workspaceId !== workspaceId2) return prev;
   if (!nextBinding) return options?.dropWhenUnavailable ? void 0 : prev;
@@ -239,7 +231,6 @@ function resyncRuntimeGatewayBinding(prev, workspaceId2, nextBinding, options) {
     wsUrl: toWorkspaceWsUrl(nextBinding),
   };
 }
-
 function writeDiagnostic(level, message2) {
   const logger = window.hilo?.logger;
   if (logger) {
@@ -260,12 +251,10 @@ function writeDiagnostic(level, message2) {
     console.info(message2);
   }
 }
-
 function formatWorkspaceMatch(value, workspaceId2) {
   if (!value) return "unknown";
   return String(value === workspaceId2);
 }
-
 function formatDiagnosticSnapshot(instanceId, input) {
   return [
     `instance=${instanceId}`,
@@ -286,7 +275,6 @@ function formatDiagnosticSnapshot(instanceId, input) {
     `refreshKey=${input.statusRefreshKey}`,
   ].join(" ");
 }
-
 function useWorkspaceRuntimeViewDiagnostics(input) {
   const reactId = reactExports.useId();
   const instanceId = `workspace-runtime-${reactId.replace(/:/g, "")}`;
@@ -333,16 +321,13 @@ function useWorkspaceRuntimeViewDiagnostics(input) {
     );
   }, [input.viewKind, instanceId]);
 }
-
 const announced = new Set();
-
 function shouldAnnounceRecoveryNotice(notice) {
   if (!notice) return false;
   if (announced.has(notice.atMs)) return false;
   announced.add(notice.atMs);
   return true;
 }
-
 function resolveWorkspaceActivationResult(result) {
   if (!result)
     return {
@@ -363,7 +348,6 @@ function resolveWorkspaceActivationResult(result) {
       };
   }
 }
-
 function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
   const { i18n, t: t2 } = useTranslation();
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
@@ -397,7 +381,7 @@ function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
           </div>
         ) : null}
         {onRetry ? (
-          <Button$1
+          <Button
             variant="outline"
             size="xs"
             className="mt-1.5"
@@ -410,13 +394,12 @@ function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
                   defaultValue: "Retrying...",
                 })
               : t2("common.retry")}
-          </Button$1>
+          </Button>
         ) : null}
       </div>
     </div>
   );
 }
-
 export function RetainedWorkspaceRuntimeHost({
   workspaceId: workspaceId2,
   isActive: isActive2,

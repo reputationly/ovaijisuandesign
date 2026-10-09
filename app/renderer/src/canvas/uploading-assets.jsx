@@ -15,8 +15,8 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -26,7 +26,7 @@ import {
 import { Input3 } from "../infra/select-content.jsx";
 import { cloudErrorDisplayMessage } from "../workspace/asset-lineage-query-key.js";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-import { formatBytes$1 } from "../assets/use-cloud-review-nodes.js";
+import { formatBytes } from "../assets/use-cloud-review-nodes.js";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
 import { ProjectAssetThumbnail } from "../infra/project-asset-thumbnail-generation.jsx";
 import {
@@ -34,7 +34,6 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-
 async function renameCloudNode(nodeId, newName) {
   await requestJson(
     `/api/v1/cloud-folder/nodes/${encodeURIComponent(nodeId)}/rename`,
@@ -49,7 +48,6 @@ async function renameCloudNode(nodeId, newName) {
     },
   );
 }
-
 function formatCloudUpdatedAt(ts2, language2) {
   if (!Number.isFinite(ts2) || ts2 <= 0) return "";
   const date2 = new Date(ts2);
@@ -64,7 +62,6 @@ function formatCloudUpdatedAt(ts2, language2) {
   });
   return `${day} ${hm}`;
 }
-
 export function SyncBadge({ state: state2, className }) {
   const { t: t2 } = useTranslation();
   if (!state2) return null;
@@ -81,7 +78,7 @@ export function SyncBadge({ state: state2, className }) {
       aria-label={label}
       data-action-ui-id="cloud-assets.sync-badge"
       data-sync-state={state2}
-      className={cn$2(
+      className={cn(
         "flex size-6 shrink-0 cursor-default items-center justify-center rounded-full text-[11px] font-medium",
         // Every state is icon-only; hover reveals text via Tooltip while the
         // accessible name remains available without adding a no-op tab stop.
@@ -110,7 +107,6 @@ export function SyncBadge({ state: state2, className }) {
     </Tooltip>
   );
 }
-
 export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
   const { t: t2, i18n } = useTranslation();
   const time = formatCloudUpdatedAt(node2.updatedAt, i18n.language);
@@ -128,7 +124,7 @@ export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
     <span
       title={title}
       data-action-ui-id="cloud-assets.updated-meta"
-      className={cn$2(
+      className={cn(
         "shrink-0 truncate text-[12px] text-muted-foreground",
         className,
       )}
@@ -137,12 +133,10 @@ export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
     </span>
   );
 }
-
-export function getFileName$1(path2) {
+export function getFileName(path2) {
   const idx = Math.max(path2.lastIndexOf("/"), path2.lastIndexOf("\\"));
   return idx >= 0 ? path2.slice(idx + 1) : path2;
 }
-
 export function splitFilename(name2, kind = "file") {
   const dot2 = name2.lastIndexOf(".");
   if (kind === "folder" || dot2 <= 0 || dot2 === name2.length - 1)
@@ -155,12 +149,10 @@ export function splitFilename(name2, kind = "file") {
     tail: name2.slice(dot2),
   };
 }
-
 export function buildRenamedFilename(originalName, newStem, kind = "file") {
   const trimmed = newStem.trim();
   return trimmed ? trimmed + splitFilename(originalName, kind).tail : "";
 }
-
 export function AssetRenameInput({
   extension: extension2,
   className,
@@ -170,7 +162,7 @@ export function AssetRenameInput({
   const extensionId = reactExports.useId();
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex h-8 min-w-0 items-center overflow-hidden rounded-lg border border-input text-xs focus-within:border-foreground",
         className,
       )}
@@ -182,7 +174,7 @@ export function AssetRenameInput({
             .filter(Boolean)
             .join(" ") || void 0
         }
-        className={cn$2(
+        className={cn(
           "h-full flex-1 rounded-none border-0 text-[length:inherit] md:text-[length:inherit]",
           inputClassName,
         )}
@@ -199,7 +191,6 @@ export function AssetRenameInput({
     </div>
   );
 }
-
 export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
   const { t: t2 } = useTranslation();
   const [name2, setName] = reactExports.useState("");
@@ -252,26 +243,25 @@ export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
           autoComplete="off"
         />
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={!fullName || pending2 || fullName === node2?.name}
             onClick={() => void handleConfirm()}
           >
             {t2("common.confirm")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
 export function FileTypeThumbnail({ filename, mime }) {
   return (
     <span
@@ -290,7 +280,6 @@ export function FileTypeThumbnail({ filename, mime }) {
     </span>
   );
 }
-
 export function UploadingAssets({ transfers, viewMode, compact = false }) {
   const { t: t2 } = useTranslation();
   const isGrid = viewMode === "grid";
@@ -316,7 +305,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
     return (
       <div
         key={item.id}
-        className={cn$2(
+        className={cn(
           "min-w-0",
           isGrid
             ? "overflow-hidden rounded-lg border border-border bg-card"
@@ -326,7 +315,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
         )}
         data-action-ui-id="cloud-assets.upload-item"
       >
-        <div className={cn$2("relative", !isGrid && "shrink-0")}>
+        <div className={cn("relative", !isGrid && "shrink-0")}>
           {compact && !isGrid ? (
             <FileTypeThumbnail filename={item.name} />
           ) : (
@@ -347,7 +336,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
           ) : null}
         </div>
         <div
-          className={cn$2(
+          className={cn(
             "flex min-w-0 flex-1",
             isGrid ? "flex-col gap-1 p-3" : "items-center gap-2",
           )}
@@ -361,7 +350,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
           {!isGrid ? status : null}
           {isGrid && item.totalBytes !== void 0 ? (
             <span className="text-xs text-muted-foreground">
-              {formatBytes$1(item.totalBytes)}
+              {formatBytes(item.totalBytes)}
             </span>
           ) : null}
         </div>
@@ -376,9 +365,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
               aria-hidden="true"
             />
             <span className="-translate-x-4 w-20 shrink-0 pr-3 text-xs text-muted-foreground">
-              {item.totalBytes !== void 0
-                ? formatBytes$1(item.totalBytes)
-                : null}
+              {item.totalBytes !== void 0 ? formatBytes(item.totalBytes) : null}
             </span>
           </>
         ) : null}
@@ -386,7 +373,6 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
     );
   });
 }
-
 export async function importPickedFiles({
   service: service2,
   folderName,

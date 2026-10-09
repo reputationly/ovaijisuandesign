@@ -2,7 +2,7 @@
 import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -10,7 +10,6 @@ import {
 } from "./dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
 import { FolderDrillDownPicker } from "../assets/folder-drill-down-picker.jsx";
-
 export function MoveNodeDialog({
   open,
   name: name2,
@@ -98,14 +97,14 @@ export function MoveNodeDialog({
           actionUiId="asset-move.destination"
         />
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={
               !selected2 ||
@@ -117,7 +116,7 @@ export function MoveNodeDialog({
             data-action-ui-id="asset-move.confirm"
           >
             {t2("localAssets.move")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

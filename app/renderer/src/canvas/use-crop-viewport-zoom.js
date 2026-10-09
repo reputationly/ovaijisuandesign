@@ -1,21 +1,21 @@
 // use-crop-viewport-zoom.js
-import { clamp$6 } from "./use-start-crop-from-node.js";
+import { clamp } from "./use-start-crop-from-node.js";
 import {
   CANVAS_MAX_ZOOM,
   CANVAS_MIN_ZOOM,
 } from "../infra/use-plugin-metadata-store.js";
-import { reactExports, useReactFlow, useStore$3 } from "../vendor.js";
-
+import {
+  reactExports,
+  useReactFlow,
+  useStore$3 as useStore,
+} from "../vendor.js";
 const SAFE_AREA = {
   top: 80,
   bottom: 88,
   horizontal: 72,
 };
-
 const GEOMETRY_REFIT_THRESHOLD = 4;
-
 const RESERVE_REFIT_THRESHOLD = 8;
-
 function shouldRefitViewportFocusLayout(previous2, next2) {
   if (!previous2) return true;
   const geometryChanged =
@@ -43,7 +43,6 @@ function shouldRefitViewportFocusLayout(previous2, next2) {
     (previous2.maxZoom ?? CANVAS_MAX_ZOOM);
   return geometryChanged || reserveChanged || zoomLimitChanged;
 }
-
 function computeViewportFocusLayout(input) {
   const {
     canvasWidth,
@@ -64,10 +63,10 @@ function computeViewportFocusLayout(input) {
   const rawAvailH = canvasHeight - effectiveTop - effectiveBottom;
   const availW = Math.max(1, rawAvailW);
   const availH = Math.max(1, rawAvailH);
-  const zoom2 = clamp$6(
+  const zoom2 = clamp(
     Math.min(availW / Math.max(1, nodeWidth), availH / Math.max(1, nodeHeight)),
     CANVAS_MIN_ZOOM,
-    clamp$6(maxZoom, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM),
+    clamp(maxZoom, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM),
   );
   const nodeCenterX = nodeFlowX + nodeWidth / 2;
   const nodeCenterY = nodeFlowY + nodeHeight / 2;
@@ -81,7 +80,6 @@ function computeViewportFocusLayout(input) {
     zoom: zoom2,
   };
 }
-
 export function useCropViewportZoom(
   target,
   bottomReserve = 0,
@@ -90,8 +88,8 @@ export function useCropViewportZoom(
   maxZoom = CANVAS_MAX_ZOOM,
 ) {
   const { setViewport, getViewport } = useReactFlow();
-  const canvasWidth = useStore$3((s2) => s2.width);
-  const canvasHeight = useStore$3((s2) => s2.height);
+  const canvasWidth = useStore((s2) => s2.width);
+  const canvasHeight = useStore((s2) => s2.height);
   const lastLayoutInput = reactExports.useRef(null);
   if (!target) {
     lastLayoutInput.current = null;
@@ -124,7 +122,7 @@ export function useCropViewportZoom(
         (targetX - current2.x) ** 2 + (targetY - current2.y) ** 2,
       );
       const zoomDelta = Math.abs(targetZoom - current2.zoom);
-      duration = clamp$6(
+      duration = clamp(
         200 +
           distance2 * 0.5 +
           zoomDelta * 600 +

@@ -1,8 +1,7 @@
 // stalled-turn-banner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
-
+import { Button } from "../infra/dialog-content.jsx";
 export function QuestionComposerGate({ blocked, dock, children: children2 }) {
   return (
     <>
@@ -18,7 +17,6 @@ export function QuestionComposerGate({ blocked, dock, children: children2 }) {
     </>
   );
 }
-
 export function queuedMessageSuccessorIds(messages2, clientMessageId) {
   const editIndex = messages2.findIndex(
     (item) => item.clientMessageId === clientMessageId,
@@ -29,7 +27,6 @@ export function queuedMessageSuccessorIds(messages2, clientMessageId) {
     .map((item) => item.queueId)
     .filter((queueId) => Boolean(queueId));
 }
-
 export function restoreQueuedMessageToComposer(
   input,
   message2,
@@ -48,7 +45,6 @@ export function restoreQueuedMessageToComposer(
   }
   requestAnimationFrame(() => input?.focus());
 }
-
 export function SessionListUnavailableNotice({ onRetry }) {
   const { t: t2 } = useTranslation();
   return (
@@ -68,18 +64,17 @@ export function SessionListUnavailableNotice({ onRetry }) {
           "The current workspace, canvas, assets, and loaded messages remain available. Retry loading chat sessions.",
         )}
       </div>
-      <Button$1
+      <Button
         variant="outline"
         size="sm"
         className="mt-1.5 h-6 px-2 text-xs"
         onClick={onRetry}
       >
         {t2("chat.retry", "Retry")}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 export function StalledTurnBanner({
   minutes,
   watchdog,
@@ -119,7 +114,7 @@ export function StalledTurnBanner({
             )}
       </div>
       <div className="mt-1.5 flex gap-2">
-        <Button$1
+        <Button
           size="sm"
           variant="outline"
           className="h-6 px-2 text-xs"
@@ -127,8 +122,8 @@ export function StalledTurnBanner({
           onClick={onKeepWaiting}
         >
           {t2("chat.stalled.keepWaiting", "Keep waiting")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           size="sm"
           variant="outline"
           className="h-6 px-2 text-xs"
@@ -136,32 +131,26 @@ export function StalledTurnBanner({
           onClick={onStop}
         >
           {t2("chat.stalled.stopTask", "Stop task")}
-        </Button$1>
+        </Button>
       </div>
     </div>
   );
 }
-
 const SELECTION_PLACEHOLDER = {
   key: "chat.textEditAgent.selectionPlaceholder",
   fallback:
     "How should I revise this selection? Tell me the tone, focus, or length",
 };
-
 const WHOLE_DOCUMENT_PLACEHOLDER = {
   key: "chat.textEditAgent.wholeDocumentPlaceholder",
   fallback:
     "Want to make the whole piece shine? Tell me the goal, tone, or length",
 };
-
 export function textAgentInputPlaceholder(hasSelection2) {
   return hasSelection2 ? SELECTION_PLACEHOLDER : WHOLE_DOCUMENT_PLACEHOLDER;
 }
-
 const SELECTION_QUOTE_MAX_LENGTH = 40;
-
 export const DOCUMENT_EDIT_TARGETS_PER_ANNOTATION = 32;
-
 export function buildSelectionQuote(anchors2) {
   const normalized = anchors2
     .map((anchor) => anchor.exact)
@@ -171,5 +160,4 @@ export function buildSelectionQuote(anchors2) {
   if (normalized.length <= SELECTION_QUOTE_MAX_LENGTH) return normalized;
   return `${normalized.slice(0, SELECTION_QUOTE_MAX_LENGTH)}…`;
 }
-
 export const MILLISECONDS_PER_MINUTE = 6e4;

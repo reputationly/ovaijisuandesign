@@ -2,41 +2,39 @@
 import {
   cva,
   reactExports,
-  Toggle$1,
+  Toggle$1 as Toggle,
   ToggleGroup$1,
   useMutation,
   useQueryClient,
 } from "../vendor.js";
 import {
   BASE,
-  isRecord$9,
+  isRecord,
   readObject,
-  ROOT_KEY$1,
+  ROOT_KEY,
   wrapAsAssetCenterError,
 } from "../assets/wrap-as-asset-center-error.js";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { TRACK_EVENTS } from "./track-events.js";
 import { trackEvent } from "./sanitize-track-props.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "./dialog-content.jsx";
+import { cn$2 as cn } from "./dialog-content.jsx";
 import { ImportEntityConflictError } from "../assets/import-entity-conflict-error.js";
-
 function extractConflictPayload(body2) {
-  if (!isRecord$9(body2)) return null;
-  if (isRecord$9(body2.existingEntity) && isRecord$9(body2.importedManifest)) {
+  if (!isRecord(body2)) return null;
+  if (isRecord(body2.existingEntity) && isRecord(body2.importedManifest)) {
     return body2;
   }
   const nested = body2.message;
   if (
-    isRecord$9(nested) &&
-    isRecord$9(nested.existingEntity) &&
-    isRecord$9(nested.importedManifest)
+    isRecord(nested) &&
+    isRecord(nested.existingEntity) &&
+    isRecord(nested.importedManifest)
   ) {
     return nested;
   }
   return null;
 }
-
 async function importEntity(buildUrl, file, mode2 = "create-new") {
   const form = new FormData();
   form.append("file", file);
@@ -78,7 +76,6 @@ async function importEntity(buildUrl, file, mode2 = "create-new") {
   }
   return readObject(res, "import entity result");
 }
-
 export function useOnline() {
   const [online, setOnline] = reactExports.useState(() =>
     typeof navigator === "undefined" ? true : navigator.onLine,
@@ -128,7 +125,6 @@ export function useOnline() {
   }, []);
   return online;
 }
-
 export function jsonInit(method, body2) {
   return {
     method,
@@ -138,11 +134,9 @@ export function jsonInit(method, body2) {
     body: JSON.stringify(body2),
   };
 }
-
 function exportEntityUrl(buildUrl, entityId) {
   return buildUrl(`${BASE}/entities/${encodeURIComponent(entityId)}/export`);
 }
-
 export function classifyAssetError(err) {
   const msg = err instanceof Error ? err.message : String(err);
   const lower2 = msg.toLowerCase();
@@ -163,11 +157,9 @@ export function classifyAssetError(err) {
     return "validation";
   return "unknown";
 }
-
 export function trackAssetCreate(props) {
   trackEvent(TRACK_EVENTS.ASSET_CREATE, props);
 }
-
 export function trackAssetCenterAction(props) {
   const eventName = (() => {
     if (props.action === "search") return TRACK_EVENTS.ASSET_CENTER_SEARCH;
@@ -211,7 +203,6 @@ export function trackAssetCenterAction(props) {
   })();
   trackEvent(eventName, props);
 }
-
 export function useImportEntity() {
   const queryClient2 = useQueryClient();
   const buildUrl = useGatewayUrl();
@@ -219,24 +210,20 @@ export function useImportEntity() {
     mutationFn: ({ file, mode: mode2 }) => importEntity(buildUrl, file, mode2),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
 export function useExportEntityUrl() {
   const buildUrl = useGatewayUrl();
   return (entityId) => exportEntityUrl(buildUrl, entityId);
 }
-
 export const ENTITY_DRAG_MIME = "application/x-hilo-asset-entity";
-
 export function writeEntityDragData(e2, payload) {
   e2.dataTransfer?.setData(ENTITY_DRAG_MIME, JSON.stringify(payload));
   if (e2.dataTransfer) e2.dataTransfer.effectAllowed = "copy";
 }
-
 export const toggleVariants = cva(
   "group/toggle inline-flex items-center justify-center gap-1 rounded-sm text-xs font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -258,14 +245,12 @@ export const toggleVariants = cva(
     },
   },
 );
-
 const ToggleGroupContext = reactExports.createContext({
   size: "default",
   variant: "default",
   spacing: 0,
   orientation: "horizontal",
 });
-
 export function ToggleGroup({
   className,
   variant,
@@ -285,7 +270,7 @@ export function ToggleGroup({
       style={{
         "--gap": spacing,
       }}
-      className={cn$2(
+      className={cn(
         "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-sm data-[size=sm]:rounded-sm data-vertical:flex-col data-vertical:items-stretch",
         className,
       )}
@@ -304,7 +289,6 @@ export function ToggleGroup({
     </ToggleGroup$1>
   );
 }
-
 export function ToggleGroupItem({
   className,
   children: children2,
@@ -314,12 +298,12 @@ export function ToggleGroupItem({
 }) {
   const context = reactExports.useContext(ToggleGroupContext);
   return (
-    <Toggle$1
+    <Toggle
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size2}
       data-spacing={context.spacing}
-      className={cn$2(
+      className={cn(
         "shrink-0 group-data-[spacing=0]/toggle-group:rounded-sm group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-left-width:var(--control-border-width)] group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-top-width:var(--control-border-width)]",
         toggleVariants({
           variant: context.variant || variant,
@@ -330,6 +314,6 @@ export function ToggleGroupItem({
       {...props}
     >
       {children2}
-    </Toggle$1>
+    </Toggle>
   );
 }

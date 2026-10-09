@@ -8,7 +8,7 @@ import {
   redoDepth,
   StateEffect,
   StateField,
-  tags$1,
+  tags$1 as tags,
   undo,
   undoDepth,
 } from "../vendor.js";
@@ -37,19 +37,14 @@ import { defaultKeymap } from "../vendor-inline/codemirror/base-theme.js";
 import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
 import { history } from "../vendor-inline/codemirror/standard-keymap.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 const setSourceFindHighlights = StateEffect.define();
-
 const sourceFindMatch = Decoration2.mark({
   class: "canvas-find-match",
 });
-
 const sourceFindMatchActive = Decoration2.mark({
   class: "canvas-find-match canvas-find-match-active",
 });
-
 const MAX_SOURCE_FIND_DECORATIONS = 2e3;
-
 function buildSourceFindDecorations(
   docLength,
   { matches: matches2, activeIndex },
@@ -71,7 +66,6 @@ function buildSourceFindDecorations(
     push2(matches2[activeIndex], true);
   return Decoration2.set(ranges, true);
 }
-
 const sourceFindHighlightField = StateField.define({
   create: () => Decoration2.none,
   update(value, transaction) {
@@ -88,7 +82,6 @@ const sourceFindHighlightField = StateField.define({
   },
   provide: (field) => EditorView2.decorations.from(field),
 });
-
 function createSourceSearchQuery(query, options, replacement = "") {
   return new SearchQuery({
     search: query,
@@ -104,70 +97,68 @@ function createSourceSearchQuery(query, options, replacement = "") {
     test: (match2) => match2.length > 0,
   });
 }
-
 const emptySourceSearchQuery = new SearchQuery({
   search: "",
 });
-
 const markdownHighlightStyle = HighlightStyle.define([
   {
-    tag: tags$1.heading1,
+    tag: tags.heading1,
     color: "var(--foreground)",
     fontSize: "1.5em",
     fontWeight: "700",
   },
   {
-    tag: tags$1.heading2,
+    tag: tags.heading2,
     color: "var(--foreground)",
     fontSize: "1.25em",
     fontWeight: "600",
   },
   {
-    tag: tags$1.heading3,
+    tag: tags.heading3,
     color: "var(--foreground)",
     fontSize: "1.1em",
     fontWeight: "600",
   },
   // h4-h6 fallback.
   {
-    tag: tags$1.heading,
+    tag: tags.heading,
     color: "var(--foreground)",
     fontWeight: "600",
   },
   {
-    tag: tags$1.strong,
+    tag: tags.strong,
     color: "var(--foreground)",
     fontWeight: "700",
   },
   {
-    tag: tags$1.emphasis,
+    tag: tags.emphasis,
     fontStyle: "italic",
   },
   {
-    tag: tags$1.strikethrough,
+    tag: tags.strikethrough,
     textDecoration: "line-through",
   },
   {
     tag: [
-      tags$1.meta,
-      tags$1.processingInstruction,
-      tags$1.contentSeparator,
-      tags$1.quote,
+      tags.meta,
+      tags.processingInstruction,
+      tags.contentSeparator,
+      tags.quote,
     ],
     color: "var(--muted-foreground)",
   },
   {
-    tag: tags$1.link,
+    tag: tags.link,
     color: "var(--primary, #2563eb)",
     textDecoration: "underline",
     textUnderlineOffset: "2px",
   },
   {
-    tag: tags$1.url,
+    tag: tags.url,
     color: "var(--muted-foreground)",
   },
   {
-    tag: tags$1.monospace,
+    tag: tags.monospace,
     color: "var(--foreground)",
     fontFamily: "'SF Mono', 'Fira Code', Menlo, Consolas, monospace",
     fontSize: "0.9em",
@@ -176,7 +167,6 @@ const markdownHighlightStyle = HighlightStyle.define([
     padding: "0.1em 0.3em",
   },
 ]);
-
 const sourceEditorTheme = EditorView2.theme({
   "&": {
     height: "100%",
@@ -218,14 +208,12 @@ const sourceEditorTheme = EditorView2.theme({
         "color-mix(in srgb, var(--canvas-text-accent) 28%, transparent)",
     },
 });
-
 function historyAvailability(state2) {
   return {
     canUndo: undoDepth(state2) > 0,
     canRedo: redoDepth(state2) > 0,
   };
 }
-
 export const CodeMirrorSourceEditor = reactExports.forwardRef(
   function CodeMirrorSourceEditor2(
     {

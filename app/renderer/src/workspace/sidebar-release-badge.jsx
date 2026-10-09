@@ -1,7 +1,6 @@
 // sidebar-release-badge.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 export function SidebarReleaseBadge({ compact = false, target, releaseBadge }) {
   if (!target || !releaseBadge) return null;
   if (compact) {
@@ -27,7 +26,7 @@ export function SidebarReleaseBadge({ compact = false, target, releaseBadge }) {
   return (
     <span
       aria-hidden="true"
-      className={cn$2(
+      className={cn(
         "home-sidebar-detail shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none",
         releaseBadge.tone === "brand"
           ? "bg-brand-accent text-brand-accent-foreground"

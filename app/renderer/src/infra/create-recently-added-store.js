@@ -1,19 +1,18 @@
 // create-recently-added-store.js
 import {
-  createStore$1,
+  createStore$1 as createStore,
   hooks,
   reactExports,
   shimExports,
   TooltipProvider$2,
-  useStore$2,
+  useStore$2 as useStore,
 } from "../vendor.js";
 import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
 import { computeDerivedNodePosition } from "../canvas/resolve-derived-collision.js";
 import { normalizeLegacyModelId } from "../generation/normalize-skill-detail-metadata.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
-
 export function createModelRegistryStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     image: [],
     video: [],
     audio: [],
@@ -24,27 +23,19 @@ export function createModelRegistryStore() {
       })),
   }));
 }
-
 const defaultModelRegistryStore = createModelRegistryStore();
-
 export const ModelRegistryStoreContext = reactExports.createContext(null);
-
 export function useModelRegistryApi() {
   return (
     reactExports.useContext(ModelRegistryStoreContext) ??
     defaultModelRegistryStore
   );
 }
-
 export const useModelRegistryStore = (selector2) =>
-  useStore$2(useModelRegistryApi(), selector2);
-
+  useStore(useModelRegistryApi(), selector2);
 useModelRegistryStore.getState = defaultModelRegistryStore.getState;
-
 useModelRegistryStore.setState = defaultModelRegistryStore.setState;
-
 useModelRegistryStore.subscribe = defaultModelRegistryStore.subscribe;
-
 function lookupForAsset(state2, backend, modelId, type2) {
   if (!backend || !modelId) return void 0;
   if (type2 !== "image" && type2 !== "video" && type2 !== "audio")
@@ -57,17 +48,14 @@ function lookupForAsset(state2, backend, modelId, type2) {
       (m3.id === id2 || m3.model_name === id2 || m3.pricingId === id2),
   );
 }
-
 export function useModelForAsset(backend, modelId, type2) {
   return useModelRegistryStore((s2) =>
     lookupForAsset(s2, backend, modelId, type2),
   );
 }
-
 function register(hook) {
   hooks.push(hook);
 }
-
 register({
   before(instance2) {
     instance2.syncIndex = 0;
@@ -126,22 +114,16 @@ register({
     }
   },
 });
-
-export const TooltipProvider$1 = TooltipProvider$2;
-
+export const TooltipProvider = TooltipProvider$2;
 const HTML_TAG_RE = /<\/?(?:a|strong|em|code|br|p|span)(?:\s[^>]*)?\/?>/i;
-
 const HTML_TAG_RE_GLOBAL =
   /<\/?(?:a|strong|em|code|br|p|span)(?:\s[^>]*)?\/?>/gi;
-
 export function looksLikeHtml(s2) {
   return HTML_TAG_RE.test(s2);
 }
-
 function stripWhitelistedTags(html2) {
   return html2.replace(HTML_TAG_RE_GLOBAL, "");
 }
-
 export function stripErrorHtml(html2) {
   if (!html2) return "";
   if (!looksLikeHtml(html2)) return html2;
@@ -153,18 +135,14 @@ export function stripErrorHtml(html2) {
     return stripWhitelistedTags(html2);
   }
 }
-
 const registry = new Set();
-
 let lastZoom = 1;
-
 export function broadcastZoom(zoom2) {
   lastZoom = zoom2;
   for (const el of registry) {
     el.style.setProperty("--canvas-zoom", String(zoom2));
   }
 }
-
 function registerZoomCounter(el) {
   registry.add(el);
   el.style.setProperty("--canvas-zoom", String(lastZoom));
@@ -172,7 +150,6 @@ function registerZoomCounter(el) {
     registry.delete(el);
   };
 }
-
 export function useRegisterZoomCounter(ref, enabled = true) {
   reactExports.useEffect(() => {
     if (!enabled) return;
@@ -181,16 +158,12 @@ export function useRegisterZoomCounter(ref, enabled = true) {
     return registerZoomCounter(el);
   }, [ref, enabled]);
 }
-
 export const CanvasTagColorsContext = reactExports.createContext(() => []);
-
 export const CanvasTagFilterActiveContext = reactExports.createContext(false);
-
 export function useCanvasTagFilterActive() {
   return reactExports.useContext(CanvasTagFilterActiveContext);
 }
-
-export const renameRequestStore = createStore$1((set2) => ({
+export const renameRequestStore = createStore((set2) => ({
   pendingNodeId: null,
   requestRename: (nodeId) =>
     set2({
@@ -205,9 +178,8 @@ export const renameRequestStore = createStore$1((set2) => ({
         : s2,
     ),
 }));
-
 export function useRenameRequest(nodeId, beginEdit, enabled = true) {
-  const pending2 = useStore$2(
+  const pending2 = useStore(
     renameRequestStore,
     (s2) => nodeId != null && s2.pendingNodeId === nodeId,
   );
@@ -217,9 +189,7 @@ export function useRenameRequest(nodeId, beginEdit, enabled = true) {
     renameRequestStore.getState().consume(nodeId);
   }, [pending2, nodeId, enabled, beginEdit]);
 }
-
 const NODE_TAG_RING_ZOOM_FLOOR = 0.7;
-
 const NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET = {
   "#0A84FF": "--canvas-node-tag-blue-surface",
   "#BF5AF2": "--canvas-node-tag-purple-surface",
@@ -229,28 +199,23 @@ const NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET = {
   "#30D158": "--canvas-node-tag-green-surface",
   "#FFD60A": "--canvas-node-tag-yellow-surface",
 };
-
 export function resolveNodeTagRingColor(color2, readThemeToken) {
   const token2 = NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET[color2.toUpperCase()];
   return (token2 ? readThemeToken(token2).trim() : "") || color2;
 }
-
 export function getNodeTagRingWidth(zoom2) {
   const safeZoom2 = zoom2 > 0 ? zoom2 : 1;
   const visualZoom = Math.max(safeZoom2, NODE_TAG_RING_ZOOM_FLOOR);
   const screenWidth = 4 - visualZoom;
   return Math.max(1, Math.min(28, screenWidth / safeZoom2));
 }
-
 export const CanvasModalGuardContext = reactExports.createContext(null);
-
 export function useIsCanvasModalOpen() {
   const ctx = reactExports.useContext(CanvasModalGuardContext);
   return (ctx?.count ?? 0) > 0;
 }
-
 export function createNodeTagColorStore() {
-  return createStore$1((set2, get3) => ({
+  return createStore((set2, get3) => ({
     colors: new Map(),
     activeNodeIds: new Set(),
     setColor: (nodeId, color2, active2 = false) => {
@@ -281,23 +246,18 @@ export function createNodeTagColorStore() {
     },
   }));
 }
-
 const defaultNodeTagColorStore = createNodeTagColorStore();
-
 export const NodeTagColorStoreContext = reactExports.createContext(null);
-
 export function useNodeTagColorApi() {
   return (
     reactExports.useContext(NodeTagColorStoreContext) ??
     defaultNodeTagColorStore
   );
 }
-
 const DEFAULT_TTL_MS = 3e4;
-
 export function createRecentlyAddedStore() {
   const timers = new Map();
-  const store = createStore$1((set2, get3) => {
+  const store = createStore((set2, get3) => {
     const dropImmediate = (id2) => {
       const t2 = timers.get(id2);
       if (t2) {
@@ -366,18 +326,14 @@ export function createRecentlyAddedStore() {
   });
   return store;
 }
-
 export const defaultRecentlyAddedStore = createRecentlyAddedStore();
-
 export const RecentlyAddedStoreContext = reactExports.createContext(null);
-
 export function useRecentlyAddedApi() {
   return (
     reactExports.useContext(RecentlyAddedStoreContext) ??
     defaultRecentlyAddedStore
   );
 }
-
 export function getDerivedNodePosition(
   reactFlow,
   sourceNodeId,
@@ -449,7 +405,6 @@ export function getDerivedNodePosition(
     collision,
   );
 }
-
 export function useNodeIsEmpty(nodeId) {
   const { getNodeById, subscribeGraphChange } = useCanvasActions();
   const getSnapshot2 = reactExports.useCallback(() => {

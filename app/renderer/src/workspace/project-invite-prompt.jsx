@@ -1,7 +1,7 @@
 // project-invite-prompt.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Users } from "../media-editing/package.jsx";
-import { AlertDialog, cn$2 } from "../infra/dialog-content.jsx";
+import { AlertDialog, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   dedupedToast,
   reactExports,
@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
 } from "../infra/badge-variants.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
-
 function parseProjectInviteParams(params) {
   const token2 = params.token?.trim();
   if (!token2) return null;
@@ -36,7 +35,6 @@ function parseProjectInviteParams(params) {
         : 0,
   };
 }
-
 function useProjectInviteDeepLink() {
   const [pendingInvite, setPendingInvite] = reactExports.useState(null);
   const recentTokensRef = reactExports.useRef(new Map());
@@ -77,12 +75,11 @@ function useProjectInviteDeepLink() {
     dismiss,
   };
 }
-
 function ProjectFolderPreview({ className }) {
   return (
     <div
       aria-hidden="true"
-      className={cn$2("relative overflow-visible", className)}
+      className={cn("relative overflow-visible", className)}
       data-action-ui-id="project.folder-preview"
     >
       <span className="pointer-events-none absolute inset-x-0 top-1 bottom-0 z-0 rounded-[24px] border border-[color:color-mix(in_srgb,var(--sidebar-foreground)_4%,transparent)] bg-[color:color-mix(in_srgb,var(--sidebar-accent)_98%,var(--sidebar-foreground))] shadow-[0_1px_3px_rgba(0,0,0,0.04)]" />
@@ -102,7 +99,6 @@ function ProjectFolderPreview({ className }) {
     </div>
   );
 }
-
 export function ProjectInvitePrompt() {
   const { t: t2 } = useTranslation();
   const navigate = useNavigate();

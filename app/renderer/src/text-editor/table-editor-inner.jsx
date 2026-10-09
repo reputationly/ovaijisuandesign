@@ -7,7 +7,7 @@ import {
   getRowHeightPx,
   moveItem,
   PaperclipIcon,
-  PlusIcon$1,
+  PlusIcon,
   renameColumn,
 } from "../media-editing/canvas-sticker-assets.jsx";
 import {
@@ -21,8 +21,8 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  addColumn$1,
-  addRow$1,
+  addColumn,
+  addRow,
   clampRowHeightPx,
   MAX_ROW_HEIGHT_PX,
   MIN_ROW_HEIGHT_PX,
@@ -33,13 +33,13 @@ import {
   getDisplayLyrics,
   lightboxItemFromAssetMeta,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
-import { AudioLightbox$1 } from "../media-editing/audio-lightbox.jsx";
-import { ImageLightbox$2 } from "../media-editing/image-lightbox.jsx";
+import { AudioLightbox } from "../media-editing/audio-lightbox.jsx";
+import { ImageLightbox } from "../media-editing/image-lightbox.jsx";
 import { VideoLightbox } from "../media-editing/video-lightbox.jsx";
 import { RESOURCE_DRAG_MIME } from "./build-asr-gateway-request.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { setCell } from "./table-document-to-llm-content.js";
-import { createTable$1 } from "../vendor-inline/tanstack-table/row-sorting.js";
+import { createTable$1 as createTable } from "../vendor-inline/tanstack-table/row-sorting.js";
 import { createRow } from "../vendor-inline/tanstack-table/column-filtering.js";
 import {
   applyFilter,
@@ -49,15 +49,10 @@ import {
 } from "../media-editing/create-column.jsx";
 import { OverlayScrollbar } from "./overlay-scrollbar-inner.jsx";
 import { AddColumnDialog } from "../media-editing/add-column-dialog-inner.jsx";
-
 const VERTICAL_PADDING = 6;
-
 const HORIZONTAL_PADDING = 4;
-
 const MIN_CHIP_SIZE = 22;
-
 const PREVIEW_THUMB_WIDTH = 280;
-
 function ChipPreviewCard({
   x: x2,
   anchorTop,
@@ -130,8 +125,7 @@ function ChipPreviewCard({
     host,
   );
 }
-
-function AttachmentChip$1({ attachment, size: size2, onRemove: onRemove2 }) {
+function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
   const { t: t2 } = useTranslation();
   const meta2 = useAssetMetadataStore((s2) =>
     s2.assets.get(attachment.assetId),
@@ -314,7 +308,7 @@ function AttachmentChip$1({ attachment, size: size2, onRemove: onRemove2 }) {
           </ChipTooltip>
         ))}
       {lightboxOpen && lightboxItem && attachment.kind === "image" && (
-        <ImageLightbox$2
+        <ImageLightbox
           items={[lightboxItem]}
           index={0}
           onIndexChange={() => {}}
@@ -326,7 +320,7 @@ function AttachmentChip$1({ attachment, size: size2, onRemove: onRemove2 }) {
         <VideoLightbox item={lightboxItem} onClose={closeLightbox} />
       )}
       {lightboxOpen && lightboxItem && attachment.kind === "audio" && (
-        <AudioLightbox$1
+        <AudioLightbox
           item={lightboxItem}
           name={attachment.name}
           lyrics={getDisplayLyrics(meta2)}
@@ -336,7 +330,6 @@ function AttachmentChip$1({ attachment, size: size2, onRemove: onRemove2 }) {
     </>
   );
 }
-
 function TableCellAttachmentInner({
   attachments,
   rowHeightPx,
@@ -396,7 +389,7 @@ function TableCellAttachmentInner({
       onWheel={(e2) => e2.stopPropagation()}
     >
       {attachments.map((att) => (
-        <AttachmentChip$1
+        <AttachmentChip
           key={att.assetId}
           attachment={att}
           size={chipSize}
@@ -421,9 +414,7 @@ function TableCellAttachmentInner({
     </div>
   );
 }
-
 const TableCellAttachment = reactExports.memo(TableCellAttachmentInner);
-
 function TableCellNumberInner({ value, onChange }) {
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState(
@@ -507,11 +498,8 @@ function TableCellNumberInner({ value, onChange }) {
     </div>
   );
 }
-
 const TableCellNumber = reactExports.memo(TableCellNumberInner);
-
 const MAX_EDIT_HEIGHT = 150;
-
 function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState(value);
@@ -607,9 +595,7 @@ function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
     </div>
   );
 }
-
 const TableCellText = reactExports.memo(TableCellTextInner);
-
 function resizeColumn(doc2, columnId, width) {
   const clamped = Math.max(100, Math.round(width));
   return {
@@ -624,7 +610,6 @@ function resizeColumn(doc2, columnId, width) {
     ),
   };
 }
-
 function moveRow(doc2, fromId, toId, position2 = "before") {
   const rows = moveItem(doc2.rows, fromId, toId, position2);
   if (rows === doc2.rows) return doc2;
@@ -633,7 +618,6 @@ function moveRow(doc2, fromId, toId, position2 = "before") {
     rows,
   };
 }
-
 function appendAttachments(doc2, rowId, columnId, add2) {
   if (add2.length === 0) return doc2;
   return {
@@ -654,7 +638,6 @@ function appendAttachments(doc2, rowId, columnId, add2) {
     }),
   };
 }
-
 function removeAttachment(doc2, rowId, columnId, assetId) {
   return {
     ...doc2,
@@ -673,21 +656,16 @@ function removeAttachment(doc2, rowId, columnId, assetId) {
     }),
   };
 }
-
 const ROW_HEIGHT_VERTICAL_PADDING = 12;
-
 const ROW_HEIGHT_LINE_PX = 18;
-
 function getRowEffectiveHeightPx(doc2, row) {
   if (row.height !== void 0) return row.height;
   return getRowHeightPx(doc2);
 }
-
 function linesForHeightPx(heightPx) {
   const usable = Math.max(0, heightPx - ROW_HEIGHT_VERTICAL_PADDING);
   return Math.max(1, Math.floor(usable / ROW_HEIGHT_LINE_PX));
 }
-
 function setRowHeightOverride(doc2, rowId, heightPx) {
   let mutated = false;
   const rows = doc2.rows.map((r2) => {
@@ -712,7 +690,6 @@ function setRowHeightOverride(doc2, rowId, heightPx) {
     rows,
   };
 }
-
 function getCoreRowModel() {
   return (table2) =>
     memo$1(
@@ -765,7 +742,6 @@ function getCoreRowModel() {
       ),
     );
 }
-
 function isClassComponent(component) {
   return (
     typeof component === "function" &&
@@ -775,7 +751,6 @@ function isClassComponent(component) {
     })()
   );
 }
-
 function isExoticComponent(component) {
   return (
     typeof component === "object" &&
@@ -783,7 +758,6 @@ function isExoticComponent(component) {
     ["react.memo", "react.forward_ref"].includes(component.$$typeof.description)
   );
 }
-
 function isReactComponent(component) {
   return (
     isClassComponent(component) ||
@@ -791,7 +765,6 @@ function isReactComponent(component) {
     isExoticComponent(component)
   );
 }
-
 function flexRender(Comp, props) {
   return !Comp
     ? null
@@ -799,7 +772,6 @@ function flexRender(Comp, props) {
       ? reactExports.createElement(Comp, props)
       : Comp;
 }
-
 function useReactTable(options) {
   const resolvedOptions = {
     state: {},
@@ -810,7 +782,7 @@ function useReactTable(options) {
     ...options,
   };
   const [tableRef] = reactExports.useState(() => ({
-    current: createTable$1(resolvedOptions),
+    current: createTable(resolvedOptions),
   }));
   const [state2, setState] = reactExports.useState(
     () => tableRef.current.initialState,
@@ -831,21 +803,13 @@ function useReactTable(options) {
   }));
   return tableRef.current;
 }
-
-const HEADER_HEIGHT$1 = 36;
-
+const HEADER_HEIGHT = 36;
 const ROW_HANDLE_WIDTH = 56;
-
 const ADD_COLUMN_WIDTH = 80;
-
 const ROW_DRAG_MIME = "application/x-table-row-id";
-
 const DEFAULT_COLUMN_WIDTH = 200;
-
 const MIN_COLUMN_WIDTH = 100;
-
 const RESIZE_HANDLE_HIT = 6;
-
 const CellRenderer = reactExports.memo(function CellRenderer2({
   rowId,
   columnId,
@@ -896,7 +860,6 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
     />
   );
 });
-
 function RowToggle({ rowIndex, selected: selected2, onToggle }) {
   const { t: t2 } = useTranslation();
   return (
@@ -925,7 +888,6 @@ function RowToggle({ rowIndex, selected: selected2, onToggle }) {
     </div>
   );
 }
-
 function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
   const { t: t2 } = useTranslation();
   const handleDragStart = (e2) => {
@@ -951,7 +913,6 @@ function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
     </div>
   );
 }
-
 function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
   const { t: t2 } = useTranslation();
   const title =
@@ -974,7 +935,6 @@ function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
     </div>
   );
 }
-
 function useColumnResize(apply2) {
   const [previewWidth, setPreviewWidth] = reactExports.useState(null);
   const restoreBodyStylesRef = reactExports.useRef(null);
@@ -1039,7 +999,6 @@ function useColumnResize(apply2) {
     beginColumnResize,
   };
 }
-
 function ColumnResizeHandle({
   active: active2,
   onPointerDown: onPointerDown2,
@@ -1073,7 +1032,6 @@ function ColumnResizeHandle({
     </div>
   );
 }
-
 function useRowResize(apply2) {
   const [previewRowHeight, setPreviewRowHeight] = reactExports.useState(null);
   const restoreBodyStylesRef = reactExports.useRef(null);
@@ -1141,7 +1099,6 @@ function useRowResize(apply2) {
     beginRowResize,
   };
 }
-
 function RowResizeHandle({
   active: active2,
   width,
@@ -1176,7 +1133,6 @@ function RowResizeHandle({
     </div>
   );
 }
-
 function FieldTypeIcon({ type: type2 }) {
   if (type2 === "number") {
     return (
@@ -1212,7 +1168,6 @@ function FieldTypeIcon({ type: type2 }) {
     </CompositedSvg>
   );
 }
-
 function ColumnHeader({ column, onRename }) {
   const { t: t2 } = useTranslation();
   const [editing, setEditing] = reactExports.useState(false);
@@ -1276,7 +1231,6 @@ function ColumnHeader({ column, onRename }) {
     </span>
   );
 }
-
 export function TableEditorInner({
   history: history2,
   selectedRowIds,
@@ -1387,7 +1341,7 @@ export function TableEditorInner({
   const handleCommitColumn = reactExports.useCallback(
     ({ title, type: type2 }) => {
       apply2((prev) =>
-        addColumn$1(prev, {
+        addColumn(prev, {
           title,
           type: type2,
         }),
@@ -1397,7 +1351,7 @@ export function TableEditorInner({
     [apply2],
   );
   const handleAddRow = reactExports.useCallback(() => {
-    apply2((prev) => addRow$1(prev));
+    apply2((prev) => addRow(prev));
   }, [apply2]);
   const [rowDragOver, setRowDragOver] = reactExports.useState(null);
   const handleRowDragOver = reactExports.useCallback((rowId, e2) => {
@@ -1463,7 +1417,7 @@ export function TableEditorInner({
               <thead>
                 <tr
                   style={{
-                    height: HEADER_HEIGHT$1,
+                    height: HEADER_HEIGHT,
                   }}
                 >
                   <th
@@ -1518,7 +1472,7 @@ export function TableEditorInner({
                       background: "var(--bg-subtle, #fafafa)",
                       borderColor: "var(--canvas-node-border, #e0e0e0)",
                       padding: 0,
-                      height: HEADER_HEIGHT$1,
+                      height: HEADER_HEIGHT,
                     }}
                   >
                     <button
@@ -1529,10 +1483,10 @@ export function TableEditorInner({
                       style={{
                         color: "var(--fg-muted, #666)",
                         width: ADD_COLUMN_WIDTH,
-                        height: HEADER_HEIGHT$1,
+                        height: HEADER_HEIGHT,
                       }}
                     >
-                      <PlusIcon$1 />
+                      <PlusIcon />
                     </button>
                   </th>
                 </tr>
@@ -1681,7 +1635,7 @@ export function TableEditorInner({
                       >
                         <span className="h-5 w-3 shrink-0" aria-hidden="true" />
                         <span className="flex h-5 w-5 items-center justify-center">
-                          <PlusIcon$1 />
+                          <PlusIcon />
                         </span>
                       </span>
                       <span>{t2("canvas.table.addRow", "Add row")}</span>

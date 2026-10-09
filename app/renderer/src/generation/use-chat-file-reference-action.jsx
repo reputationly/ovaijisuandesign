@@ -16,7 +16,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { dispatchCanvasLocate } from "./dispatch-canvas-locate.js";
 import { getNodeIdsForAsset } from "../infra/use-canvas-node-assets-store.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { AlertDialog, Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   AlertDialogCancel,
   AlertDialogContent,
@@ -28,34 +28,26 @@ import {
 import { useAssets } from "../settings/use-assets.js";
 import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payload.jsx";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-
 const MAX_ASSET_REFERENCE_LENGTH = 260;
-
 function shouldResolveAssetList(raw2) {
   const text2 = raw2.trim();
   if (!text2 || text2.length > MAX_ASSET_REFERENCE_LENGTH) return false;
   if (/^https?:/i.test(text2)) return false;
   return true;
 }
-
 function isImmediatelyClickableChatFileReference(ref) {
   if (ref.kind === "workspace-file") return !!ref.workspaceRelativePath;
   if (ref.kind === "remote") return !!ref.url;
   return false;
 }
-
 function shouldInspectChatFileReference(ref) {
   if (ref.kind === "workspace-internal") return !!ref.absolutePath;
   if (ref.kind === "external-local") return !!ref.absolutePath || !!ref.rawPath;
   return false;
 }
-
 const LOCAL_REFERENCE_INSPECT_CACHE_TTL_MS = 15e3;
-
 const localReferenceInspectionCache = new Map();
-
 const localReferenceInspectionInflight = new Map();
-
 function blockedToastKey(result) {
   if (result.status !== "blocked") return "fileExplorer.cannotOpenFolder";
   if (result.reason === "sensitive-path")
@@ -64,18 +56,16 @@ function blockedToastKey(result) {
     return "chat.fileReference.permissionExpired";
   return "fileExplorer.cannotOpenFolder";
 }
-
-function basename$4(value) {
+function basename(value) {
   if (!value) return "";
   const clean = value.split(/[?#]/)[0]?.replace(/\\/g, "/") ?? value;
   return clean.split("/").filter(Boolean).pop() ?? clean;
 }
-
 function workspaceImageCanvasItem(ref) {
   if (ref.kind !== "workspace-file") return void 0;
   if (!ref.workspaceRelativePath || !ref.absolutePath || !ref.assetId)
     return void 0;
-  const name2 = basename$4(ref.workspaceRelativePath) || ref.displayName;
+  const name2 = basename(ref.workspaceRelativePath) || ref.displayName;
   if (!name2) return void 0;
   const item = buildResourceDragItem(
     ref.absolutePath,
@@ -86,21 +76,17 @@ function workspaceImageCanvasItem(ref) {
   );
   return item.type === "image" ? item : void 0;
 }
-
 function isOpenableInspectResult(result) {
   return result.status === "openable" || result.status === "needs-consent";
 }
-
 function localInspectionRawPath(ref) {
   if (ref.kind === "workspace-internal") return ref.absolutePath;
   if (ref.kind === "external-local") return ref.absolutePath ?? ref.rawPath;
   return void 0;
 }
-
 function localInspectionCacheKey(rawPath, currentWorkspace, os2) {
   return `${os2 ?? "unknown"}\0${currentWorkspace ?? ""}\0${rawPath}`;
 }
-
 function cachedLocalReferenceOpenable(cacheKey) {
   const cached = localReferenceInspectionCache.get(cacheKey);
   if (!cached) return void 0;
@@ -110,7 +96,6 @@ function cachedLocalReferenceOpenable(cacheKey) {
   }
   return cached.openable;
 }
-
 async function fallbackLocalReferenceOpenable(rawPath, exists) {
   try {
     return await exists(rawPath);
@@ -118,7 +103,6 @@ async function fallbackLocalReferenceOpenable(rawPath, exists) {
     return false;
   }
 }
-
 export function useChatFileReferenceAction(raw2) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -367,21 +351,21 @@ export function useChatFileReferenceAction(raw2) {
             <AlertDialogCancel data-action-ui-id="chat-file-reference-permission-cancel">
               {t2("common.cancel")}
             </AlertDialogCancel>
-            <Button$1
+            <Button
               type="button"
               variant="outline"
               data-action-ui-id="chat-file-reference-permission-once"
               onClick={() => handleRevealWithConsent("once")}
             >
               {t2("chat.fileReference.openOnce")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               type="button"
               data-action-ui-id="chat-file-reference-permission-trust-folder"
               onClick={() => handleRevealWithConsent("trust-folder")}
             >
               {t2("chat.fileReference.trustFolder")}
-            </Button$1>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -397,7 +381,7 @@ export function useChatFileReferenceAction(raw2) {
             >
               <PopoverPopup
                 data-slot="chat-file-reference-locate-missing-popover"
-                className={cn$2(
+                className={cn(
                   "elevated-surface-border z-50 flex w-64 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-xs text-popover-foreground shadow-lg outline-hidden",
                   "dp-motion-quick-zoom",
                 )}
@@ -411,21 +395,21 @@ export function useChatFileReferenceAction(raw2) {
                   </span>
                 </div>
                 <div className="flex justify-end gap-1">
-                  <Button$1
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setInsertPromptOpen(false)}
                     data-action-ui-id="chat-file-reference-locate-missing-cancel"
                   >
                     {t2("common.cancel")}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     size="sm"
                     onClick={handleInsertToCanvas}
                     data-action-ui-id="chat-file-reference-locate-missing-confirm"
                   >
                     {t2("fileExplorer.locateMissing.confirm")}
-                  </Button$1>
+                  </Button>
                 </div>
               </PopoverPopup>
             </PopoverPositioner>

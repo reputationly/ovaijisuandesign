@@ -6,12 +6,10 @@ import {
   reactExports,
   useTranslation,
 } from "../vendor.js";
-import { Button$1 } from "./dialog-content.jsx";
+import { Button } from "./dialog-content.jsx";
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 import { FeedbackButton } from "../settings/use-direct-feedback.jsx";
-
 const ERROR_BOUNDARY_FEEDBACK_REASON = "user_feedback:error_boundary";
-
 function buildSupportPayload(input) {
   return [
     `uid: ${input.userId ?? "unknown"}`,
@@ -19,13 +17,11 @@ function buildSupportPayload(input) {
     `time: ${input.timestamp}`,
   ].join("\n");
 }
-
 function formatSupportTime(timestamp2) {
   const date2 = new Date(timestamp2);
   if (Number.isNaN(date2.getTime())) return timestamp2;
   return date2.toLocaleString();
 }
-
 function SupportInfoRow({ label, value }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-md bg-background/60 px-2.5 py-1.5">
@@ -36,7 +32,6 @@ function SupportInfoRow({ label, value }) {
     </div>
   );
 }
-
 export function ErrorFallbackUI({
   message: message2,
   stack,
@@ -133,7 +128,7 @@ message: ${message2}`
                   defaultValue: "Diagnostics info",
                 })}
               </span>
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="xs"
@@ -148,7 +143,7 @@ message: ${message2}`
                   : t2("errorBoundary.copyDiagnostics", {
                       defaultValue: "Copy info",
                     })}
-              </Button$1>
+              </Button>
             </div>
             <div className="grid gap-1.5">
               <SupportInfoRow
@@ -198,7 +193,7 @@ message: ${message2}`
               })}
             />
           ) : null}
-          <Button$1
+          <Button
             type="button"
             onClick={onRetry}
             className="h-auto rounded-lg px-4 py-2 text-[13px]"
@@ -207,11 +202,11 @@ message: ${message2}`
             {t2("errorBoundary.tryAgain", {
               defaultValue: "Try Again",
             })}
-          </Button$1>
+          </Button>
         </div>
         {message2 && (
           <div className="flex w-full flex-col items-center">
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="xs"
@@ -239,7 +234,7 @@ message: ${message2}`
               {t2("errorBoundary.errorDetails", {
                 defaultValue: "Error details",
               })}
-            </Button$1>
+            </Button>
             {showDetails && (
               <pre className="mt-3 max-h-48 w-full overflow-auto rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
                 {message2}

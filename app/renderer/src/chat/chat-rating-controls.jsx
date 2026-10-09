@@ -13,7 +13,7 @@ import {
   useQuery,
   useQueryClient,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
 import {
@@ -34,28 +34,26 @@ import {
 } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { PopoverTitle } from "../canvas/popover-title.jsx";
-
 const CHAT_MODEL_TRACES_PATH = "/api/chat/model-traces";
-
 const CHAT_MODEL_TRACE_LOOKUP_LIMIT = 100;
-
 const AUXILIARY_AGENTS = new Set(["title", "summary", "compaction"]);
-
 function selectChatModelTraceForFeedback(traces) {
   return traces.find((trace) => !AUXILIARY_AGENTS.has(trace.agent));
 }
-
 function isChatModelTraceId(value) {
   return (
     typeof value === "string" &&
     /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/.test(value)
   );
 }
-
 function isLabel(value) {
   return (
     typeof value === "string" &&
@@ -67,7 +65,6 @@ function isLabel(value) {
     })
   );
 }
-
 function mapChatModelTrace(value) {
   if (
     !isRecord$g(value) ||
@@ -98,7 +95,6 @@ function mapChatModelTrace(value) {
     status_code: value.status_code,
   };
 }
-
 function mapChatModelTraceLookup(value) {
   if (
     !isRecord$g(value) ||
@@ -123,7 +119,6 @@ function mapChatModelTraceLookup(value) {
     traces,
   };
 }
-
 async function tryFetchModelTraces(fetchFeedback, target) {
   try {
     const query = new URLSearchParams({
@@ -151,7 +146,6 @@ async function tryFetchModelTraces(fetchFeedback, target) {
     return void 0;
   }
 }
-
 async function saveChatRating(
   fetchFeedback,
   target,
@@ -199,11 +193,9 @@ async function saveChatRating(
   );
   return saved.ticket_id;
 }
-
-function isRecord$4(value) {
+function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-
 function buildChatRatingRequest(
   target,
   rating,
@@ -262,7 +254,6 @@ function buildChatRatingRequest(
     locale,
   };
 }
-
 function captureChatRatingIdentity(userId) {
   const groupId2 = getSelectedRequestGroupId();
   return async () => {
@@ -279,14 +270,12 @@ function captureChatRatingIdentity(userId) {
     }
   };
 }
-
 function chatRatingStorageKey(workspaceKey, userId, sessionId) {
   return `hilo:chat-feedback:v1:${JSON.stringify([workspaceKey, userId, sessionId])}`;
 }
-
 function isRatingDetails(value) {
   return (
-    isRecord$4(value) &&
+    isRecord(value) &&
     typeof value.request_id === "string" &&
     value.request_id.length > 0 &&
     (value.rating === "up" ||
@@ -303,16 +292,14 @@ function isRatingDetails(value) {
     )
   );
 }
-
 function isRatingState(value) {
   return (
-    isRecord$4(value) &&
+    isRecord(value) &&
     typeof value.ticket_id === "string" &&
     value.ticket_id.length > 0 &&
     isRatingDetails(value)
   );
 }
-
 function loadLocalChatRatings(key2) {
   try {
     const raw2 = localStorage.getItem(key2);
@@ -324,7 +311,6 @@ function loadLocalChatRatings(key2) {
     return [];
   }
 }
-
 function storeLocalChatRating(key2, rating) {
   try {
     const others = loadLocalChatRatings(key2).filter(
@@ -337,14 +323,12 @@ function storeLocalChatRating(key2, rating) {
     );
   }
 }
-
 function chatRatingRetryStorageKey(workspaceKey, userId, sessionId, groupId2) {
   return `hilo:chat-feedback-retry:v1:${JSON.stringify([workspaceKey, userId, sessionId, groupId2])}`;
 }
-
 function isPendingEvent(value) {
   return (
-    isRecord$4(value) &&
+    isRecord(value) &&
     isRatingDetails(value) &&
     value.schema_version === 1 &&
     value.kind === "chat_feedback" &&
@@ -359,7 +343,6 @@ function isPendingEvent(value) {
     value.comment.length <= CHAT_RATING_COMMENT_MAX_LENGTH
   );
 }
-
 function pendingEvents(client2, key2) {
   const cached = client2.getQueryData(["chat-rating-retry", key2]);
   if (cached) return cached;
@@ -371,7 +354,6 @@ function pendingEvents(client2, key2) {
     return [];
   }
 }
-
 function storePendingEvents(client2, key2, events2) {
   client2.setQueryData(["chat-rating-retry", key2], events2);
   try {
@@ -381,7 +363,6 @@ function storePendingEvents(client2, key2, events2) {
     chatLog.warn("Feedback retry metadata could not be persisted");
   }
 }
-
 function prepareChatRatingRetry(client2, key2, candidate) {
   const events2 = pendingEvents(client2, key2);
   const previous2 = events2.find(
@@ -404,7 +385,6 @@ function prepareChatRatingRetry(client2, key2, candidate) {
   storePendingEvents(client2, key2, [...others.slice(-999), event]);
   return event;
 }
-
 function acknowledgeChatRatingRetry(client2, key2, eventId) {
   storePendingEvents(
     client2,
@@ -412,7 +392,6 @@ function acknowledgeChatRatingRetry(client2, key2, eventId) {
     pendingEvents(client2, key2).filter((event) => event.event_id !== eventId),
   );
 }
-
 function useChatRating(target) {
   const { user, isLoggedIn } = useAuth();
   const { t: t2, i18n } = useTranslation();
@@ -559,7 +538,6 @@ function useChatRating(target) {
     signedIn: Boolean(userId),
   };
 }
-
 const CHAT_RATING_REASON_OPTIONS = [
   "misunderstood_request",
   "misused_materials",
@@ -568,7 +546,6 @@ const CHAT_RATING_REASON_OPTIONS = [
   "slow_or_repeated_failures",
   "other",
 ];
-
 const CHAT_RATING_CATEGORY_OPTIONS = [
   "shortDrama",
   "ecommerce",
@@ -577,17 +554,14 @@ const CHAT_RATING_CATEGORY_OPTIONS = [
   "knowledge",
   "other",
 ];
-
 const LEGACY_REASON_MAP = {
   forgot_requirements: "misunderstood_request",
   vague_or_unprofessional: "poor_quality",
 };
-
 const LEGACY_CATEGORY_MAP = {
   filmEdit: "shortDrama",
   adsMarketing: "ecommerce",
 };
-
 function normalizeReasons(reasonCodes) {
   const visibleReasons = new Set(CHAT_RATING_REASON_OPTIONS);
   return Array.from(
@@ -598,14 +572,12 @@ function normalizeReasons(reasonCodes) {
     ),
   );
 }
-
 function normalizeCategory(category) {
   const normalized = LEGACY_CATEGORY_MAP[category] ?? category;
   return CHAT_RATING_CATEGORY_OPTIONS.some((option2) => option2 === normalized)
     ? normalized
     : "";
 }
-
 export function ChatRatingControls({ target, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const {
@@ -655,14 +627,14 @@ export function ChatRatingControls({ target, onOpenChange }) {
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button$1
+            <Button
               variant="ghost"
               size="icon-xs"
               disabled={disabled2}
               aria-label={likeLabel}
               aria-pressed={current2?.rating === "up"}
               data-action-ui-id="chat-assistant-like"
-              className={cn$2(
+              className={cn(
                 "icon-muted-control",
                 current2?.rating === "up" &&
                   "bg-muted text-brand-accent hover:text-brand-accent",
@@ -678,7 +650,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   aria-hidden="true"
                 />
               </MonochromeIcon>
-            </Button$1>
+            </Button>
           }
         />
         <TooltipContent>{likeLabel}</TooltipContent>
@@ -689,14 +661,14 @@ export function ChatRatingControls({ target, onOpenChange }) {
             render={
               <PopoverTrigger
                 render={
-                  <Button$1
+                  <Button
                     variant="ghost"
                     size="icon-xs"
                     disabled={disabled2}
                     aria-label={dislikeLabel}
                     aria-pressed={current2?.rating === "down"}
                     data-action-ui-id="chat-assistant-dislike"
-                    className={cn$2(
+                    className={cn(
                       "icon-muted-control",
                       current2?.rating === "down" &&
                         "bg-muted text-brand-accent hover:text-brand-accent",
@@ -709,7 +681,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                         aria-hidden="true"
                       />
                     </MonochromeIcon>
-                  </Button$1>
+                  </Button>
                 }
               />
             }
@@ -725,7 +697,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
         >
           <div className="flex items-center justify-between gap-3">
             <PopoverTitle>{t2("chat.rating.title")}</PopoverTitle>
-            <Button$1
+            <Button
               variant="ghost"
               size="icon-xs"
               disabled={submitting}
@@ -733,8 +705,8 @@ export function ChatRatingControls({ target, onOpenChange }) {
               onClick={() => handleOpenChange(false)}
               data-action-ui-id="chat-rating-close"
             >
-              <X$7 strokeWidth={1.5} aria-hidden="true" />
-            </Button$1>
+              <X strokeWidth={1.5} aria-hidden="true" />
+            </Button>
           </div>
           <fieldset disabled={submitting} className="flex flex-col gap-2">
             <legend className="mb-2 text-xs font-medium">
@@ -744,12 +716,12 @@ export function ChatRatingControls({ target, onOpenChange }) {
               {CHAT_RATING_REASON_OPTIONS.map((reason) => {
                 const selected2 = reasons.includes(reason);
                 return (
-                  <Button$1
+                  <Button
                     key={reason}
                     variant={selected2 ? "default" : "outline"}
                     size="sm"
                     aria-pressed={selected2}
-                    className={cn$2(
+                    className={cn(
                       "font-normal",
                       selected2 &&
                         "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
@@ -764,7 +736,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                     }
                   >
                     {t2(`chat.rating.reason.${reason}`)}
-                  </Button$1>
+                  </Button>
                 );
               })}
             </div>
@@ -787,12 +759,12 @@ export function ChatRatingControls({ target, onOpenChange }) {
             </legend>
             <div className="flex flex-wrap gap-2">
               {CHAT_RATING_CATEGORY_OPTIONS.map((key2) => (
-                <Button$1
+                <Button
                   key={key2}
                   variant={category === key2 ? "default" : "outline"}
                   size="sm"
                   aria-pressed={category === key2}
-                  className={cn$2(
+                  className={cn(
                     "font-normal",
                     category === key2 &&
                       "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
@@ -801,7 +773,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   onClick={() => setCategory(key2)}
                 >
                   {t2(`chat.rating.category.${key2}`)}
-                </Button$1>
+                </Button>
               ))}
             </div>
           </fieldset>
@@ -810,7 +782,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
           </p>
           <div className="flex gap-2">
             {current2?.rating === "down" && (
-              <Button$1
+              <Button
                 variant="outline"
                 disabled={submitting}
                 data-action-ui-id="chat-rating-withdraw"
@@ -822,9 +794,9 @@ export function ChatRatingControls({ target, onOpenChange }) {
                 }}
               >
                 {t2("chat.rating.withdraw")}
-              </Button$1>
+              </Button>
             )}
-            <Button$1
+            <Button
               className="flex-1"
               loading={submitting}
               disabled={reasons.length === 0 || !category}
@@ -832,7 +804,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
               data-action-ui-id="chat-rating-submit"
             >
               {t2("chat.rating.submit")}
-            </Button$1>
+            </Button>
           </div>
         </PopoverContent>
       </Popover>
@@ -840,7 +812,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button$1
+              <Button
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => void retry()}
@@ -848,7 +820,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                 data-action-ui-id="chat-rating-reload"
               >
                 <RotateCcw strokeWidth={1.5} aria-hidden="true" />
-              </Button$1>
+              </Button>
             }
           />
           <TooltipContent>{t2("chat.rating.retryLoad")}</TooltipContent>

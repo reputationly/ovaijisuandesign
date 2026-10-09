@@ -4,13 +4,12 @@ import { getNodePosition, setNodePosition, sizeOf } from "./use-active-mode.js";
 import {
   collectGroupMembers,
   pickSuccessorMain,
-  rectsOverlap$1,
+  rectsOverlap,
   ungroupInCanvas,
 } from "./ungroup-in-canvas.js";
 import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
 import { CanvasNodeType } from "../vendor.js";
 import { buildCanvasFileSnapshot } from "./runtime-node-to-file-node.js";
-
 export function removeNodesAndPromoteGroupMains(nodes, removedNodeIds) {
   const affectedGroupIds = new Set();
   const removedVisibleMainByGroup = new Map();
@@ -88,21 +87,17 @@ export function removeNodesAndPromoteGroupMains(nodes, removedNodeIds) {
   }
   return remaining;
 }
-
 const IN_FLIGHT_NODE_STATUSES = new Set(["pending", "generating", "loading"]);
-
 export function isInFlightNode(node2) {
   if (!node2) return false;
   const status = node2.data?.status;
   return typeof status === "string" && IN_FLIGHT_NODE_STATUSES.has(status);
 }
-
 export function isRetainedGenerationNode(node2) {
   if (!node2) return false;
   const status = node2.data?.status;
   return status === "recoverable_error" || status === "status_unknown";
 }
-
 function historyTraversalBlock(current2, candidate, isProtectedNode) {
   if (!candidate) return "empty";
   const candidateById = new Map(
@@ -115,7 +110,6 @@ function historyTraversalBlock(current2, candidate, isProtectedNode) {
   }
   return "none";
 }
-
 export function decideHistoryStep(current2, candidate) {
   const inFlightBlock = historyTraversalBlock(
     current2,
@@ -141,7 +135,6 @@ export function decideHistoryStep(current2, candidate) {
     allow: inFlightBlock === "none" && retainedBlock === "none",
   };
 }
-
 export function isChildFullyInsideParent(
   childAbsPos,
   childSize,
@@ -158,7 +151,6 @@ export function isChildFullyInsideParent(
     childAbsPos.y + ch <= parentAbsPos.y + parentSize.height
   );
 }
-
 export function isChildFullyOutsideParent(
   childAbsPos,
   childSize,
@@ -175,9 +167,7 @@ export function isChildFullyOutsideParent(
     childAbsPos.y >= parentAbsPos.y + parentSize.height
   );
 }
-
 const COMFYUI_PLUGIN_ID = "comfyui";
-
 function readComfyUiWorkflowIdentity(node2) {
   if (!node2.data || typeof node2.data !== "object") return void 0;
   const data2 = node2.data;
@@ -190,7 +180,6 @@ function readComfyUiWorkflowIdentity(node2) {
   }
   return void 0;
 }
-
 function readTemplateCopyOrdinal(node2) {
   if (!node2.data || typeof node2.data !== "object") return 0;
   const ordinal = node2.data.comfyuiTemplateCopyOrdinal;
@@ -198,7 +187,6 @@ function readTemplateCopyOrdinal(node2) {
     ? ordinal
     : 0;
 }
-
 export function assignComfyUiTemplateCopyOrdinals(existingNodes, pastedNodes) {
   const nextOrdinalByTemplate = new Map();
   for (const node2 of existingNodes) {
@@ -227,7 +215,6 @@ export function assignComfyUiTemplateCopyOrdinals(existingNodes, pastedNodes) {
     };
   });
 }
-
 export function backfillLegacyComfyUiTemplateCopyOrdinals(nodes) {
   const templatesWithOrdinals = new Set();
   for (const node2 of nodes) {
@@ -258,7 +245,6 @@ export function backfillLegacyComfyUiTemplateCopyOrdinals(nodes) {
     };
   });
 }
-
 export function planGroupAwareRemoval(
   graph,
   mode2,
@@ -292,7 +278,6 @@ export function planGroupAwareRemoval(
     ungroupedChildrenByGroupId,
   };
 }
-
 export function isBoxOutsideRect(box2, rect) {
   const a2 = {
     x: box2.minX,
@@ -306,9 +291,8 @@ export function isBoxOutsideRect(box2, rect) {
     w: rect.width,
     h: rect.height,
   };
-  return !rectsOverlap$1(a2, b3);
+  return !rectsOverlap(a2, b3);
 }
-
 export function computeNodeGroupBounds(nodes, mode2) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
@@ -333,7 +317,6 @@ export function computeNodeGroupBounds(nodes, mode2) {
     },
   };
 }
-
 export function centerNodeGroupAt(nodes, target, mode2) {
   const topLevel = nodes.filter(
     (n2) => !n2.parentId && n2.meta?.hidden !== true,
@@ -351,7 +334,6 @@ export function centerNodeGroupAt(nodes, target, mode2) {
     });
   }
 }
-
 export function expandSelectionWithGroupChildren(allNodes, selectedIds) {
   const result = new Set(selectedIds);
   for (const node2 of allNodes) {
@@ -379,7 +361,6 @@ export function expandSelectionWithGroupChildren(allNodes, selectedIds) {
   }
   return result;
 }
-
 export function normalizeOrphanChildForClipboard(
   node2,
   allNodes,
@@ -432,7 +413,6 @@ export function normalizeOrphanChildForClipboard(
     },
   };
 }
-
 export function resolveNodeAssetId(node2) {
   if (typeof node2.assetId === "string" && node2.assetId.length > 0)
     return node2.assetId;
@@ -442,7 +422,6 @@ export function resolveNodeAssetId(node2) {
   const parsed = parseNodeId(node2.id).assetId;
   return parsed.length > 0 ? parsed : void 0;
 }
-
 export function collectClipboardAssetPaths(nodes, resolveAssetPath) {
   const result = {};
   for (const node2 of nodes) {

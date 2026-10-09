@@ -4,7 +4,7 @@ import {
   Link2,
   Loader2,
   MessageCircle,
-  PlaybackPlayIcon$1,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   useTranslation,
 } from "../vendor.js";
 import {
@@ -15,17 +15,15 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { IntegrationStatusPill } from "./integration-status-pill.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
-
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 const connectorPromptActionIcon = {
   requiresInstall: Download,
   installing: Loader2,
   requiresConnection: Link2,
   ready: MessageCircle,
-  requiresEnable: PlaybackPlayIcon$1,
+  requiresEnable: PlaybackPlayIcon,
   requiresRecovery: RetryIcon,
 };
-
 export function ConnectorPromptAction({
   mode: mode2,
   label,
@@ -35,11 +33,11 @@ export function ConnectorPromptAction({
 }) {
   const actionIcon = connectorPromptActionIcon[mode2];
   return (
-    <Button$1
+    <Button
       type="button"
       size="sm"
       variant="default"
-      className={cn$2(
+      className={cn(
         "h-[30px] shrink-0 self-center gap-1 rounded-[10px] pl-2.5 pr-3 font-normal",
         className,
       )}
@@ -66,10 +64,9 @@ export function ConnectorPromptAction({
         />
       </span>
       <span>{label}</span>
-    </Button$1>
+    </Button>
   );
 }
-
 export function ConnectorStatusPill({ state: state2 }) {
   const { t: t2 } = useTranslation();
   const visual = CONNECTOR_STATUS_VISUAL[state2];

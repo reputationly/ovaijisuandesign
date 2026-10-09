@@ -1,17 +1,14 @@
 // remote-tool-dialog.jsx
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "./gateway-fetch.js";
-import { reactExports, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRemoteToolSdk } from "../assets/create-remote-tool-sdk.js";
-import { Button$1 } from "./dialog-content.jsx";
+import { Button } from "./dialog-content.jsx";
 import { RemoteToolDialogShell } from "../media-editing/derive-session-task-snapshot.jsx";
-import { RemoteToolHost$1 } from "../media-editing/remote-tool-host.jsx";
-
+import { RemoteToolHost } from "../media-editing/remote-tool-host.jsx";
 const LOCAL_PATH_RE = /^(\/|[A-Za-z]:[\\/])/;
-
 const MEDIA_EXT_RE = /\.(png|jpg|jpeg|webp|gif|avif|mp4|mp3|wav|m4a|ogg)$/i;
-
 function looksLikeLocalPath(value) {
   if (typeof value !== "string" || value.length === 0) return false;
   if (value.startsWith("http://") || value.startsWith("https://")) return false;
@@ -19,7 +16,6 @@ function looksLikeLocalPath(value) {
   if (LOCAL_PATH_RE.test(value)) return true;
   return !value.includes("://") && MEDIA_EXT_RE.test(value);
 }
-
 async function normalizeInitialParams(params) {
   const entries2 = await Promise.all(
     Object.entries(params).map(async ([key2, value]) => {
@@ -61,7 +57,6 @@ async function normalizeInitialParams(params) {
   );
   return Object.fromEntries(entries2);
 }
-
 export function RemoteToolDialog({
   open,
   onClose,
@@ -175,7 +170,7 @@ export function RemoteToolDialog({
       />
       {manifestReady && paramsReady && (
         <RemoteToolDialogShell width={guiWidth} height={guiHeight}>
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             size="icon-sm"
@@ -184,8 +179,8 @@ export function RemoteToolDialog({
             aria-label={t2("common.close")}
             data-action-ui-id="remote-tool-dialog.close"
           >
-            <X$7 size={16} strokeWidth={1.5} />
-          </Button$1>
+            <X size={16} strokeWidth={1.5} />
+          </Button>
           <div
             className={
               interactionDisabled
@@ -194,7 +189,7 @@ export function RemoteToolDialog({
             }
           >
             {open && (
-              <RemoteToolHost$1
+              <RemoteToolHost
                 toolUrl={toolUrl}
                 toolId={toolId}
                 sdk={sdk}

@@ -1,10 +1,8 @@
 // map-team-credit-summary.js
 import { InfiniteQueryObserver, useBaseQuery } from "../vendor.js";
-
 export function useInfiniteQuery(options, queryClient2) {
   return useBaseQuery(options, InfiniteQueryObserver, queryClient2);
 }
-
 export class TeamApiError extends Error {
   constructor(payload, options) {
     super(`Team API request failed: ${payload.code}`, options);
@@ -12,11 +10,8 @@ export class TeamApiError extends Error {
     this.name = "TeamApiError";
   }
 }
-
-const UNSIGNED_DECIMAL_RE$1 = /^(0|[1-9]\d*)$/;
-
+const UNSIGNED_DECIMAL_RE = /^(0|[1-9]\d*)$/;
 const POSITIVE_DECIMAL_RE = /^[1-9]\d*$/;
-
 export class TeamContractError extends Error {
   constructor(field, message2) {
     super(`Invalid Team contract field "${field}": ${message2}`);
@@ -24,56 +19,48 @@ export class TeamContractError extends Error {
     this.name = "TeamContractError";
   }
 }
-
-export function asRecord$5(value, field) {
+export function asRecord(value, field) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new TeamContractError(field, "expected object");
   }
   return value;
 }
-
-export function asString$2(value, field) {
+export function asString(value, field) {
   if (typeof value !== "string")
     throw new TeamContractError(field, "expected string");
   return value;
 }
-
 export function asNonEmptyString(value, field) {
-  const result = asString$2(value, field).trim();
+  const result = asString(value, field).trim();
   if (!result) throw new TeamContractError(field, "must not be empty");
   return result;
 }
-
 export function asUnsignedDecimal(value, field) {
-  const result = asString$2(value, field);
-  if (!UNSIGNED_DECIMAL_RE$1.test(result)) {
+  const result = asString(value, field);
+  if (!UNSIGNED_DECIMAL_RE.test(result)) {
     throw new TeamContractError(field, "expected unsigned decimal string");
   }
   return result;
 }
-
-export function asPositiveDecimal$1(value, field) {
-  const result = asString$2(value, field);
+export function asPositiveDecimal(value, field) {
+  const result = asString(value, field);
   if (!POSITIVE_DECIMAL_RE.test(result)) {
     throw new TeamContractError(field, "expected positive decimal string");
   }
   return result;
 }
-
-export function asSafeInteger$1(value, field) {
+export function asSafeInteger(value, field) {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
     throw new TeamContractError(field, "expected non-negative safe integer");
   }
   return value;
 }
-
 export function asNullableDecimal(value, field) {
   return value == null ? null : asUnsignedDecimal(value, field);
 }
-
 export function mapTeamCreditSummary(value, field = "credit_summary") {
-  const record2 = asRecord$5(value, field);
-  const mode2 = asString$2(record2.mode, `${field}.mode`);
+  const record2 = asRecord(value, field);
+  const mode2 = asString(record2.mode, `${field}.mode`);
   if (mode2 !== "LIMITED" && mode2 !== "UNLIMITED" && mode2 !== "UNAVAILABLE") {
     throw new TeamContractError(`${field}.mode`, `unsupported value ${mode2}`);
   }
@@ -115,7 +102,7 @@ export function mapTeamCreditSummary(value, field = "credit_summary") {
     );
   }
   return {
-    groupId: asPositiveDecimal$1(record2.group_id, `${field}.group_id`),
+    groupId: asPositiveDecimal(record2.group_id, `${field}.group_id`),
     mode: mode2,
     memberLimit,
     memberUsed,
@@ -127,9 +114,6 @@ export function mapTeamCreditSummary(value, field = "credit_summary") {
       `${field}.team_remaining`,
     ),
     unit: asNonEmptyString(record2.unit, `${field}.unit`),
-    updatedAtMs: asSafeInteger$1(
-      record2.updated_at_ms,
-      `${field}.updated_at_ms`,
-    ),
+    updatedAtMs: asSafeInteger(record2.updated_at_ms, `${field}.updated_at_ms`),
   };
 }

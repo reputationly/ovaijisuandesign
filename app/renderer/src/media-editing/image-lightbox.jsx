@@ -2,7 +2,7 @@
 import {
   Archive,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Crown,
   ExternalLink,
   jsxRuntimeExports,
@@ -18,44 +18,31 @@ import {
   LightboxActionButton,
 } from "./use-warn-missing-asset-meta.jsx";
 import { useLightboxMediaActions } from "./use-lightbox-media-actions.jsx";
-import { MediaLightbox$1 } from "./media-lightbox.jsx";
-
-const MIN_SCALE$1 = 0.5;
-
-const MAX_SCALE$1 = 10;
-
+import { MediaLightbox } from "./media-lightbox.jsx";
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 10;
 const LINE_HEIGHT_PX = 16;
-
 const PAGE_HEIGHT_PX = 800;
-
 const MAX_WHEEL_DELTA_PX = 120;
-
 const WHEEL_ZOOM_SENSITIVITY = 18e-4;
-
-const BUTTON_ZOOM_FACTOR$1 = 1.3;
-
+const BUTTON_ZOOM_FACTOR = 1.3;
 const COMPACT_HEADER_MAX_WIDTH_PX = 224;
-
 function normalizeWheelDeltaY(event) {
   if (event.deltaMode === 1) return event.deltaY * LINE_HEIGHT_PX;
   if (event.deltaMode === 2) return event.deltaY * PAGE_HEIGHT_PX;
   return event.deltaY;
 }
-
 function clampWheelDeltaY(deltaY) {
   return Math.max(-MAX_WHEEL_DELTA_PX, Math.min(MAX_WHEEL_DELTA_PX, deltaY));
 }
-
 function isLightboxCopyShortcut(event) {
   return (
     (event.metaKey || event.ctrlKey) && !event.altKey && event.code === "KeyC"
   );
 }
-
 function clampScale(scale2) {
-  return Math.min(MAX_SCALE$1, Math.max(MIN_SCALE$1, scale2));
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale2));
 }
-
 function getWheelZoomScale(currentScale, event) {
   if (!Number.isFinite(currentScale) || currentScale <= 0) return 1;
   const normalizedDelta = normalizeWheelDeltaY(event);
@@ -64,8 +51,7 @@ function getWheelZoomScale(currentScale, event) {
     currentScale * Math.exp(-clampedDelta * WHEEL_ZOOM_SENSITIVITY),
   );
 }
-
-export const ImageLightbox$2 = reactExports.memo(function ImageLightbox2({
+export const ImageLightbox = reactExports.memo(function ImageLightbox2({
   items,
   index: index2,
   onIndexChange,
@@ -238,13 +224,13 @@ export const ImageLightbox$2 = reactExports.memo(function ImageLightbox2({
   const handleZoomIn = reactExports.useCallback((e2) => {
     e2.stopPropagation();
     setTransitioning(true);
-    setScale((s2) => Math.min(MAX_SCALE$1, s2 * BUTTON_ZOOM_FACTOR$1));
+    setScale((s2) => Math.min(MAX_SCALE, s2 * BUTTON_ZOOM_FACTOR));
   }, []);
   const handleZoomOut = reactExports.useCallback((e2) => {
     e2.stopPropagation();
     setTransitioning(true);
     setScale((s2) => {
-      const next2 = Math.max(MIN_SCALE$1, s2 / BUTTON_ZOOM_FACTOR$1);
+      const next2 = Math.max(MIN_SCALE, s2 / BUTTON_ZOOM_FACTOR);
       if (next2 <= 1) {
         setTranslate({
           x: 0,
@@ -343,7 +329,7 @@ export const ImageLightbox$2 = reactExports.memo(function ImageLightbox2({
       : "default";
   const scalePercent = `${Math.round(scale2 * 100)}%`;
   return (
-    <MediaLightbox$1
+    <MediaLightbox
       onClose={onClose}
       onContextMenu={handleContextMenu}
       allowHorizontalArrowKeys={isMulti}
@@ -496,10 +482,10 @@ export const ImageLightbox$2 = reactExports.memo(function ImageLightbox2({
             className="absolute right-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/55 hover:bg-black/70 text-white/80 hover:text-white transition-colors cursor-pointer pointer-events-auto"
             onClick={handleNextClick}
           >
-            <ChevronRight$1 size={18} strokeWidth={1.5} aria-hidden={true} />
+            <ChevronRight size={18} strokeWidth={1.5} aria-hidden={true} />
           </button>
         </>
       )}
-    </MediaLightbox$1>
+    </MediaLightbox>
   );
 });

@@ -8,7 +8,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -21,14 +21,12 @@ import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
 import { useDataDirectory } from "./use-data-directory.js";
-
-function formatBytes$4(bytes2) {
+function formatBytes(bytes2) {
   if (bytes2 === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
   const unitIndex = Math.floor(Math.log(bytes2) / Math.log(1024));
   return `${(bytes2 / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
 }
-
 function DataDirectoryMigrateDialog({
   pending: pending2,
   busy,
@@ -59,7 +57,7 @@ function DataDirectoryMigrateDialog({
             : pending2?.totalBytes === void 0
               ? t2("settings.storage.confirm.descriptionUnknownSize")
               : t2("settings.storage.confirm.description", {
-                  size: formatBytes$4(pending2.totalBytes),
+                  size: formatBytes(pending2.totalBytes),
                 });
   const safetyNote =
     pending2?.mode === "recover"
@@ -151,7 +149,7 @@ function DataDirectoryMigrateDialog({
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <Button$1
+          <Button
             onClick={onConfirm}
             disabled={busy}
             className="h-9 w-full justify-start gap-2"
@@ -163,21 +161,20 @@ function DataDirectoryMigrateDialog({
               <FolderInput size={16} strokeWidth={1.5} />
             )}
             {failure ? t2("settings.storage.confirm.retry") : action}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             onClick={onCancel}
             disabled={busy}
             className="h-9 w-full justify-start font-normal text-muted-foreground"
           >
             {t2("common.cancel")}
-          </Button$1>
+          </Button>
         </div>
       </AlertDialogContent>
     </AlertDialog>
   );
 }
-
 const WORKSPACE_STATUS_KEYS = {
   cold: "settings.storage.projectNotStarted",
   starting: "settings.storage.projectOpening",
@@ -191,7 +188,6 @@ const WORKSPACE_STATUS_KEYS = {
   stopping: "settings.storage.projectClosing",
   stopped: "settings.storage.projectPaused",
 };
-
 export function DataDirectorySettings() {
   const { t: t2 } = useTranslation();
   const {
@@ -241,7 +237,7 @@ export function DataDirectorySettings() {
           description={t2("settings.storage.dataDirectoryDesc")}
         >
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               className="h-8 gap-1.5 text-xs font-normal"
@@ -255,9 +251,9 @@ export function DataDirectorySettings() {
                 <LocalFolderIcon />
               )}
               {busy ? busyLabel : t2("settings.storage.browse")}
-            </Button$1>
+            </Button>
             {dataDir && (
-              <Button$1
+              <Button
                 variant="ghost"
                 size="sm"
                 className="h-8 text-xs font-normal text-muted-foreground"
@@ -267,7 +263,7 @@ export function DataDirectorySettings() {
                 {configuredLocationUnavailable
                   ? t2("settings.storage.confirm.recoverAction")
                   : t2("settings.storage.reset")}
-              </Button$1>
+              </Button>
             )}
           </div>
         </SettingRow>
@@ -306,7 +302,7 @@ export function DataDirectorySettings() {
               {t2("settings.storage.openProjects")}
             </p>
             {idleWorkspacePaths.length > 1 && (
-              <Button$1
+              <Button
                 variant="ghost"
                 size="sm"
                 className="h-6 shrink-0 text-xs font-normal text-muted-foreground"
@@ -317,7 +313,7 @@ export function DataDirectorySettings() {
                 data-action-ui-id="settings-storage-close-idle-projects"
               >
                 {t2("settings.storage.closeIdleProjects")}
-              </Button$1>
+              </Button>
             )}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -359,7 +355,7 @@ export function DataDirectorySettings() {
                       {t2(statusKey)}
                     </span>
                   </span>
-                  <Button$1
+                  <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 shrink-0 text-xs font-normal text-muted-foreground"
@@ -375,7 +371,7 @@ export function DataDirectorySettings() {
                     data-action-ui-id="settings-storage-close-project"
                   >
                     {t2("settings.storage.closeProject")}
-                  </Button$1>
+                  </Button>
                 </li>
               );
             })}
@@ -405,7 +401,7 @@ export function DataDirectorySettings() {
             </div>
           </div>
           <div className="flex justify-end">
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               className="h-7 text-xs font-normal"
@@ -414,7 +410,7 @@ export function DataDirectorySettings() {
               data-action-ui-id="settings-storage-recover"
             >
               {t2("settings.storage.recover")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       )}
@@ -450,7 +446,7 @@ export function DataDirectorySettings() {
             </div>
           </div>
           <div className="flex justify-end">
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               className="h-7 text-xs font-normal"
@@ -459,7 +455,7 @@ export function DataDirectorySettings() {
               data-action-ui-id="settings-storage-recover-residue"
             >
               {t2("settings.storage.recoverResidue")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       )}

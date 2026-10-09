@@ -1,7 +1,7 @@
 // customize-toolbar-dialog-2.jsx
 import {
-  DEFAULT_PINNED$1,
-  DEFAULT_SHOW_LABELS$1,
+  DEFAULT_PINNED,
+  DEFAULT_SHOW_LABELS,
   IMAGE_TOOLBAR_TOOLS,
   LEGACY_IMAGE_TOOLBAR_TOOLS,
   MultiImageOverlayStoreContext,
@@ -13,23 +13,18 @@ import { useImageToolbarCustomizationStore } from "./read-persisted.js";
 import {
   AddToChatIcon,
   AnnotationIcon,
-  FullscreenIcon$1,
+  FullscreenIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
-import { CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
-
-const IMAGE_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED$1;
-
-const IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS$1;
-
+import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
+const IMAGE_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED;
+const IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS;
 const TOOL_META = IMAGE_TOOL_META;
-
-const DEFAULTS$2 = {
+const DEFAULTS = {
   pinned: IMAGE_TOOLBAR_DEFAULT_PINNED,
   showLabels: IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS,
 };
-
-export function CustomizeToolbarDialog$1({ open, onOpenChange }) {
+export function CustomizeToolbarDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const store = useImageToolbarCustomizationStore();
   const allToolIds =
@@ -57,7 +52,7 @@ export function CustomizeToolbarDialog$1({ open, onOpenChange }) {
     },
     {
       id: "fullscreen",
-      icon: <FullscreenIcon$1 />,
+      icon: <FullscreenIcon />,
       label: t2("canvas.fullscreen"),
       showLabel: false,
     },
@@ -69,12 +64,11 @@ export function CustomizeToolbarDialog$1({ open, onOpenChange }) {
       allToolIds={allToolIds}
       toolMeta={TOOL_META}
       store={store}
-      defaults={DEFAULTS$2}
+      defaults={DEFAULTS}
       fixedRightChips={fixedRightChips}
     />
   );
 }
-
 export function MultiImageOverlayStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     MultiImageOverlayStoreContext.Provider,

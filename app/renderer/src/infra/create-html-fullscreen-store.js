@@ -1,6 +1,5 @@
 // create-html-fullscreen-store.js
-import { createStore$1 } from "../vendor.js";
-
+import { createStore$1 as createStore } from "../vendor.js";
 function isSamePluginOpenRequest(left, right) {
   return (
     left === right ||
@@ -13,9 +12,8 @@ function isSamePluginOpenRequest(left, right) {
       left.target === right.target)
   );
 }
-
 export function createHtmlFullscreenStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     nodeId: null,
     containerEl: null,
     containerElByNode: new Map(),

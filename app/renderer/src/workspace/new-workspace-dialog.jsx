@@ -14,7 +14,7 @@ import {
   useStorage,
   useTranslation,
   workspaceLog,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ import { useCreateProjectAndSelect } from "./context-menu-content.jsx";
 import { CreateProjectDialog } from "./create-project-dialog.jsx";
 import { Folder, Users } from "../media-editing/package.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -56,7 +56,6 @@ import {
   DATA_DIRECTORY_STATUS_CHANGED_EVENT,
   getDataDirectoryMainService,
 } from "../settings/get-data-directory-main-service.js";
-
 function ProjectSelectRow({
   projects,
   selectedProjectId,
@@ -177,7 +176,7 @@ function ProjectSelectRow({
             aria-label={t2("common.clear")}
             data-action-ui-id="new-workspace-project-clear"
           >
-            <X$7 size={14} strokeWidth={1.5} />
+            <X size={14} strokeWidth={1.5} />
           </button>
         ) : null}
       </div>
@@ -190,7 +189,6 @@ function ProjectSelectRow({
     </div>
   );
 }
-
 export function NewWorkspaceDialog({
   open,
   onOpenChange,
@@ -492,7 +490,7 @@ export function NewWorkspaceDialog({
                         data-action-ui-id="new-workspace-folder-clear"
                         aria-label={t2("common.clear", "清除")}
                       >
-                        <X$7 size={14} strokeWidth={1.5} />
+                        <X size={14} strokeWidth={1.5} />
                       </button>
                     ) : null}
                   </div>
@@ -596,21 +594,21 @@ export function NewWorkspaceDialog({
             </section>
           </div>
           <DialogFooter className="shrink-0 flex-row justify-end gap-2 px-4 pb-4 sm:px-5 sm:pb-5">
-            <Button$1
+            <Button
               variant="secondary"
               onClick={() => handleOpenChange(false)}
               className="creation-dialog-action-button min-w-20 font-medium"
             >
               {t2("common.cancel")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               data-action-ui-id="new-workspace-confirm"
               disabled={!trimmed || storageBlocked || submitting}
               onClick={handleConfirm}
               className="creation-dialog-action-button min-w-22 font-medium"
             >
               {t2("topbar.newProject.create")}
-            </Button$1>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

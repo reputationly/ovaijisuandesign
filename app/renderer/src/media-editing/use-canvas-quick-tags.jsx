@@ -5,7 +5,7 @@ import {
   selectDownloadableCanvasAssets,
   useCanvasTagName,
 } from "../assets/use-canvas-model-registry-hydration.js";
-import { getFileName$1 } from "../canvas/uploading-assets.jsx";
+import { getFileName } from "../canvas/uploading-assets.jsx";
 import {
   API_PATHS,
   dedupedToast,
@@ -32,12 +32,9 @@ import { useCanvasTags } from "../canvas/use-canvas-tags.js";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { CanvasGlobalTagManager } from "../canvas/canvas-global-tag-manager.jsx";
 import { CanvasTagPickerPanel } from "../canvas/canvas-tag-picker-panel.jsx";
-
 const TAG_FILTER_FOCUS_ZOOM = 0.8;
-
 const TAG_FILTER_MIN_READABLE_ZOOM = 0.25;
-
-function isEditableTarget$1(target) {
+function isEditableTarget(target) {
   if (!(target instanceof HTMLElement)) return false;
   return (
     target.tagName === "INPUT" ||
@@ -46,14 +43,12 @@ function isEditableTarget$1(target) {
     target.isContentEditable
   );
 }
-
 function hasForegroundKeyboardSurface(target) {
   const selector2 =
     '[role="dialog"]:not([aria-hidden="true"]), [role="menu"]:not([aria-hidden="true"]), [role="listbox"]:not([aria-hidden="true"])';
   if (target instanceof Element && target.closest(selector2)) return true;
   return document.querySelector(selector2) !== null;
 }
-
 function releaseTagFilterToolbarFocus() {
   const activeElement2 = document.activeElement;
   if (
@@ -63,7 +58,6 @@ function releaseTagFilterToolbarFocus() {
     activeElement2.blur();
   }
 }
-
 function useCanvasTagFilter({
   canvasViewRef,
   isPresented,
@@ -219,7 +213,7 @@ function useCanvasTagFilter({
         event.metaKey ||
         event.ctrlKey ||
         event.altKey ||
-        isEditableTarget$1(event.target) ||
+        isEditableTarget(event.target) ||
         hasForegroundKeyboardSurface(event.target)
       ) {
         return false;
@@ -271,13 +265,11 @@ function useCanvasTagFilter({
     tagFilterActive: activeTagId !== void 0,
   };
 }
-
 function resolveAssetSourcePath(workspaceRoot, filePath) {
   return isAbsoluteLocalFilePath(filePath)
     ? filePath
     : joinFilePath(workspaceRoot, filePath);
 }
-
 function buildSingleTagDownloadPlan(options, tagId) {
   const assets = selectDownloadableCanvasAssets(
     options.assets,
@@ -287,11 +279,10 @@ function buildSingleTagDownloadPlan(options, tagId) {
     assetCount: assets.length,
     files: assets.map((asset) => ({
       filePath: resolveAssetSourcePath(options.workspaceRoot, asset.path),
-      fileName: getFileName$1(asset.path),
+      fileName: getFileName(asset.path),
     })),
   };
 }
-
 function buildAllTaggedDownloadPlan(options) {
   const assets = selectDownloadableCanvasAssets(
     options.assets,
@@ -311,7 +302,7 @@ function buildAllTaggedDownloadPlan(options) {
     for (const asset of assetsByTag.get(tag.id) ?? []) {
       files.push({
         filePath: resolveAssetSourcePath(options.workspaceRoot, asset.path),
-        fileName: getFileName$1(asset.path),
+        fileName: getFileName(asset.path),
         folderName,
       });
     }
@@ -326,20 +317,15 @@ function buildAllTaggedDownloadPlan(options) {
     files,
   };
 }
-
 class CanvasTagDownloadActivityError extends Error {
   constructor(options = {}) {
     super("Canvas tag download lifecycle protection is unavailable", options);
     this.name = "CanvasTagDownloadActivityError";
   }
 }
-
 const ACTIVITY_REQUEST_TIMEOUT_MS = 5e3;
-
 const RELEASE_RECOVERY_BASE_MS = 1e3;
-
 const RELEASE_RECOVERY_MAX_MS = 3e4;
-
 async function postActivity(gatewayFetch2, path2, body2, options = {}) {
   return gatewayFetch2(path2, {
     method: "POST",
@@ -351,7 +337,6 @@ async function postActivity(gatewayFetch2, path2, body2, options = {}) {
     ...options,
   });
 }
-
 function mapHeartbeatResponse(raw2) {
   if (!raw2 || typeof raw2 !== "object") {
     throw new Error(
@@ -368,7 +353,6 @@ function mapHeartbeatResponse(raw2) {
     renewed,
   };
 }
-
 async function renewActivity(gatewayFetch2, beginRequest, leaseRequest) {
   const response = await postActivity(
     gatewayFetch2,
@@ -384,14 +368,12 @@ async function renewActivity(gatewayFetch2, beginRequest, leaseRequest) {
     beginRequest,
   );
 }
-
 function logActivityWarning(phase, error) {
   window.hilo?.logger?.warn(
     `[canvas-tag-download] activity ${phase} failed: ${error instanceof Error ? error.message : String(error)}`,
     "canvas-tag-download",
   );
 }
-
 function scheduleReleaseRecovery(gatewayFetch2, leaseRequest, attempt = 0) {
   const delayMs = Math.min(
     RELEASE_RECOVERY_BASE_MS * 2 ** attempt,
@@ -408,7 +390,6 @@ function scheduleReleaseRecovery(gatewayFetch2, leaseRequest, attempt = 0) {
     });
   }, delayMs);
 }
-
 async function withCanvasTagDownloadActivity({
   gatewayFetch: gatewayFetch2,
   ownerPid,
@@ -482,7 +463,6 @@ async function withCanvasTagDownloadActivity({
     }
   }
 }
-
 function useCanvasTagDownload({
   workspaceAssets,
   workspaceId: workspaceId2,
@@ -666,10 +646,8 @@ function useCanvasTagDownload({
     downloadTag,
   };
 }
-
 const TAG_TRIGGER_SELECTOR =
   '[data-action-ui-id="canvas.node-tag-switch"], [data-action-ui-id="canvas.node-tag-trigger"]';
-
 export function useCanvasQuickTags({
   canvasViewRef,
   closeNodeContextMenu,

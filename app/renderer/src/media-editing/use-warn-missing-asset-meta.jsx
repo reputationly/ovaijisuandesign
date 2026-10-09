@@ -9,19 +9,14 @@ import {
   withAutomaticDedupeId,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
-
 export function isCloneData(data2) {
   return data2?.cloneOf != null;
 }
-
 const PROGRESS_UPDATE_INTERVAL_MS = 500;
-
 const H3_MAX_PROGRESS_DURATION_MS = 4e4;
-
 const H3_MAX_PROGRESS_CAP = 95;
-
 const PROFILES = {
   // 2min→90%, 7min→99%；起步约 2%/s，尾段几十秒涨 1%
   image: {
@@ -44,7 +39,6 @@ const PROFILES = {
     tau: 12,
   },
 };
-
 function calculateProgress(kind, originMs, nowMs, profile) {
   const elapsedMs2 = Math.max(0, nowMs - originMs);
   if (profile === "h3-max-video") {
@@ -59,13 +53,11 @@ function calculateProgress(kind, originMs, nowMs, profile) {
   const elapsed = elapsedMs2 / 1e3;
   return Math.min(99, Math.round(ceiling * (1 - Math.exp(-elapsed / tau))));
 }
-
 export function parseGenerationStartedAt(value) {
   if (!value) return void 0;
   const ms = Date.parse(value);
   return Number.isFinite(ms) ? ms : void 0;
 }
-
 function calculateInitialProgress(active2, kind, startedAt, profile) {
   if (!active2) return 0;
   const nowMs = Date.now();
@@ -76,17 +68,14 @@ function calculateInitialProgress(active2, kind, startedAt, profile) {
     profile,
   );
 }
-
 export function readGenerationStartedAt(data2) {
   const value = data2?.generationStartedAt;
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-
 export function readGenerationAttemptId(data2) {
   const value = data2?.generationAttemptId;
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-
 export function readGenerationSubmittedAt(data2) {
   const receipt = data2?.generationTaskReceipt;
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt))
@@ -102,7 +91,6 @@ export function readGenerationSubmittedAt(data2) {
   const date2 = new Date(submittedAt);
   return Number.isFinite(date2.getTime()) ? date2.toISOString() : void 0;
 }
-
 export function resolveGenerationProgressStartedAt(
   data2,
   persistedActive,
@@ -113,7 +101,6 @@ export function resolveGenerationProgressStartedAt(
     inMemoryStartedAt
   );
 }
-
 export function useSimulatedProgress(
   active2,
   kind = "image",
@@ -155,9 +142,7 @@ export function useSimulatedProgress(
   }, [active2, kind, startedAt, profile, resolvedAttemptKey]);
   return progress;
 }
-
 const warnedKeys = new Set();
-
 export function useWarnMissingAssetMeta(ctx) {
   const { nodeId, nodeType, data: data2, meta: meta2, isUserEmpty } = ctx;
   reactExports.useEffect(() => {
@@ -201,12 +186,10 @@ export function useWarnMissingAssetMeta(ctx) {
     );
   }, [nodeId, nodeType, meta2, isUserEmpty, data2]);
 }
-
 function createDedupedMethod(kind, method) {
   return (message2, data2) =>
     method(message2, withAutomaticDedupeId(kind, message2, data2));
 }
-
 Object.assign(dedupedToast, {
   success: createDedupedMethod("success", toast.success),
   info: createDedupedMethod("info", toast.info),
@@ -221,15 +204,12 @@ Object.assign(dedupedToast, {
   getHistory: toast.getHistory,
   getToasts: toast.getToasts,
 });
-
 export function isDraftSubmitFormDisabled(modelsLoading, isPreparing) {
   return modelsLoading || isPreparing;
 }
-
 export function shouldPersistPopoverDraftOnUnmount(submitted, modelLoaded) {
   return !submitted && modelLoaded;
 }
-
 export async function submitWithPersistedPopoverDraft({
   draft,
   saveDraft: saveDraft2,
@@ -245,7 +225,6 @@ export async function submitWithPersistedPopoverDraft({
   markSubmitted();
   return true;
 }
-
 async function submitAfterDraftFlush({ flushDraft, submit, onFlushError }) {
   try {
     await flushDraft();
@@ -260,7 +239,6 @@ async function submitAfterDraftFlush({ flushDraft, submit, onFlushError }) {
   submit();
   return true;
 }
-
 export function submitAfterOptionalDraftFlush({ shouldFlush, ...options }) {
   if (!shouldFlush) {
     options.submit();
@@ -268,9 +246,7 @@ export function submitAfterOptionalDraftFlush({ shouldFlush, ...options }) {
   }
   return submitAfterDraftFlush(options);
 }
-
 const INSTRUMENTAL_PARAM_VALUES = new Set(["instrumental", "true"]);
-
 function getCompositionPlanLyrics(compositionPlan) {
   if (!compositionPlan?.trim()) return void 0;
   try {
@@ -307,18 +283,15 @@ function getCompositionPlanLyrics(compositionPlan) {
   }
   return void 0;
 }
-
 function isInstrumentalAudioAsset(meta2) {
   const mode2 = meta2?.params?.is_instrumental;
   return mode2 !== void 0 && INSTRUMENTAL_PARAM_VALUES.has(mode2);
 }
-
 export function getDisplayLyrics(meta2) {
   if (!meta2 || isInstrumentalAudioAsset(meta2)) return void 0;
   if (meta2.lyrics?.trim()) return meta2.lyrics;
   return getCompositionPlanLyrics(meta2.compositionPlan);
 }
-
 export function resolveCanvasPlatform(platform2) {
   const value = (
     typeof navigator === "undefined"
@@ -329,8 +302,7 @@ export function resolveCanvasPlatform(platform2) {
   if (value.includes("win")) return "windows";
   return "other";
 }
-
-export function resolveCanvasShortcut$1(accelerator, platform2) {
+export function resolveCanvasShortcut(accelerator, platform2) {
   const os2 = resolveCanvasPlatform();
   if (os2 === "mac") {
     if (accelerator === "redo") return ["⇧", "⌘", "Z"];
@@ -341,18 +313,15 @@ export function resolveCanvasShortcut$1(accelerator, platform2) {
   if (accelerator === "copyDebug") return ["Ctrl", "Alt", "C"];
   return ["Ctrl", accelerator === "paste" ? "V" : "Z"];
 }
-
 export function getCanvasFileManagerLabelKey(platform2) {
   const os2 = resolveCanvasPlatform();
   if (os2 === "mac") return "canvas.lightbox.openInFinder";
   if (os2 === "windows") return "canvas.lightbox.openInFileExplorer";
   return "canvas.lightbox.openInFileManager";
 }
-
 export function getLightboxSlotKey(slot) {
   return `${slot.round ?? 0}:${slot.id}`;
 }
-
 export function lightboxItemFromAssetMeta(kind, meta2) {
   if (!meta2?.url) return void 0;
   return {
@@ -362,7 +331,6 @@ export function lightboxItemFromAssetMeta(kind, meta2) {
     fileName: meta2.name,
   };
 }
-
 function getLightboxNodeAssetId(node2) {
   const dataAssetId = node2?.data?.assetId;
   if (typeof dataAssetId === "string" && dataAssetId.length > 0)
@@ -371,7 +339,6 @@ function getLightboxNodeAssetId(node2) {
     ? node2.assetId
     : void 0;
 }
-
 export function normalizeLegacyLightboxItems(kind, items, item, sources, src) {
   if (items && items.length > 0) {
     return items.filter((candidate) => !!candidate.url);
@@ -401,7 +368,6 @@ export function normalizeLegacyLightboxItems(kind, items, item, sources, src) {
   }
   return normalized;
 }
-
 export function lightboxItemsFromSlots(kind, slots, options) {
   return slots.flatMap((slot) => {
     if (!slot.url) return [];
@@ -426,7 +392,6 @@ export function lightboxItemsFromSlots(kind, slots, options) {
     ];
   });
 }
-
 export function resolveLightboxIndexForSlot(items, slot, fallbackIndex) {
   if (!slot) return fallbackIndex;
   const slotKey = getLightboxSlotKey(slot);
@@ -436,7 +401,6 @@ export function resolveLightboxIndexForSlot(items, slot, fallbackIndex) {
   const legacyIndex = items.findIndex((item) => item.url === slot.url);
   return legacyIndex >= 0 ? legacyIndex : fallbackIndex;
 }
-
 export function LightboxActionButton({
   label,
   dataActionUiId,
@@ -455,7 +419,7 @@ export function LightboxActionButton({
       aria-busy={busy || void 0}
       title={label}
       disabled={disabled2}
-      className={cn$5(
+      className={cn(
         "pointer-events-auto inline-flex h-8 min-w-[8.5rem] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-white/10 bg-black/55 px-3 text-xs font-normal text-white/85 backdrop-blur-sm transition-[background-color,border-color,color,transform] duration-150 hover:border-white/20 hover:bg-black/70 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:border-white/10 disabled:hover:bg-black/55 disabled:hover:text-white/85 disabled:active:scale-100",
         className,
       )}
@@ -469,27 +433,22 @@ export function LightboxActionButton({
     </button>
   );
 }
-
 export const NODE_POPOVER_SAFE_GAP = 12;
-
-export function DropdownMenu$1({ ...props }) {
+export function DropdownMenu({ ...props }) {
   return <MenuRoot data-slot="dropdown-menu" {...props} />;
 }
-
-export function DropdownMenuTrigger$1({ className, ...props }) {
+export function DropdownMenuTrigger({ className, ...props }) {
   return (
     <MenuTrigger
       data-slot="dropdown-menu-trigger"
-      className={cn$5("select-none outline-none", className)}
+      className={cn("select-none outline-none", className)}
       {...props}
     />
   );
 }
-
-export function DropdownMenuSub$1({ ...props }) {
+export function DropdownMenuSub({ ...props }) {
   return <MenuSubmenuRoot {...props} />;
 }
-
 export function rejectedReferencePaths(
   incomingPaths,
   existingPaths,
@@ -498,7 +457,5 @@ export function rejectedReferencePaths(
   const accepted = new Set([...existingPaths, ...admittedPaths]);
   return incomingPaths.filter((path2) => !accepted.has(path2));
 }
-
 export const IMAGE_MODE_KEY = "image_mode";
-
 export const ASPECT_RATIO_PARAM_KEYS = ["aspect_ratio", "ratio"];

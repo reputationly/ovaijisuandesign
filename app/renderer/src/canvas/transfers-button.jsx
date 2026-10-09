@@ -7,16 +7,15 @@ import {
   LoaderCircle,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Trash2 } from "../media-editing/package.jsx";
-import { formatBytes$1 } from "../assets/use-cloud-review-nodes.js";
+import { formatBytes } from "../assets/use-cloud-review-nodes.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-
 function transferFailureText(t2, item) {
   if (item.userMessage) return item.userMessage;
   switch (item.errorKind) {
@@ -30,14 +29,13 @@ function transferFailureText(t2, item) {
       return t2("cloudAssets.failUnknown");
   }
 }
-
 function TabButton({ active: active2, label, icon, onClick, actionId }) {
   return (
     <button
       type="button"
       onClick={onClick}
       data-action-ui-id={actionId}
-      className={cn$2(
+      className={cn(
         "flex h-6 flex-1 items-center justify-center gap-1 rounded-md text-[12px] transition-colors",
         active2
           ? "bg-background font-medium text-foreground shadow-sm"
@@ -49,8 +47,7 @@ function TabButton({ active: active2, label, icon, onClick, actionId }) {
     </button>
   );
 }
-
-function EmptyState$1({ loading }) {
+function EmptyState({ loading }) {
   const { t: t2 } = useTranslation();
   if (loading) {
     return (
@@ -69,7 +66,6 @@ function EmptyState$1({ loading }) {
     </p>
   );
 }
-
 function UploadTransferRow({ item, onRemove: onRemove2 }) {
   const { t: t2 } = useTranslation();
   const failed = item.status === "failed";
@@ -86,7 +82,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
       <ArrowUpFromLine
         size={14}
         strokeWidth={1.5}
-        className={cn$2(
+        className={cn(
           "shrink-0",
           failed ? "text-destructive" : "text-muted-foreground",
         )}
@@ -97,13 +93,13 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
           {item.name}
         </span>
         <span
-          className={cn$2(
+          className={cn(
             "truncate text-[11px]",
             failed ? "text-destructive" : "text-muted-foreground",
           )}
         >
           {statusText}
-          {item.totalBytes ? ` · ${formatBytes$1(item.totalBytes)}` : null}
+          {item.totalBytes ? ` · ${formatBytes(item.totalBytes)}` : null}
         </span>
         {failed ? (
           <span className="truncate text-[11px] text-muted-foreground">
@@ -120,7 +116,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
-          <X$7 size={14} strokeWidth={1.5} />
+          <X size={14} strokeWidth={1.5} />
         </button>
       ) : (
         <LoaderCircle
@@ -132,7 +128,6 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
     </div>
   );
 }
-
 function ReviewNodeRow({ node: node2, onDelete }) {
   const { t: t2 } = useTranslation();
   const blocked = node2.review === "block";
@@ -144,7 +139,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
       <ArrowUpFromLine
         size={14}
         strokeWidth={1.5}
-        className={cn$2(
+        className={cn(
           "mt-0.5 shrink-0",
           blocked ? "text-destructive" : "text-muted-foreground",
         )}
@@ -155,7 +150,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
           {node2.name}
         </span>
         <span
-          className={cn$2(
+          className={cn(
             "truncate text-[11px]",
             blocked ? "text-destructive" : "text-muted-foreground",
           )}
@@ -163,7 +158,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
           {blocked
             ? t2("cloudAssets.statusReviewFailed")
             : t2("cloudAssets.statusReviewing")}
-          {node2.size > 0 ? ` · ${formatBytes$1(node2.size)}` : null}
+          {node2.size > 0 ? ` · ${formatBytes(node2.size)}` : null}
         </span>
         {blocked ? (
           <span className="truncate text-[11px] text-muted-foreground">
@@ -191,7 +186,6 @@ function ReviewNodeRow({ node: node2, onDelete }) {
     </div>
   );
 }
-
 function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
   const { t: t2 } = useTranslation();
   const failed = item.status === "failed";
@@ -215,7 +209,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
       <ArrowDownToLine
         size={14}
         strokeWidth={1.5}
-        className={cn$2(
+        className={cn(
           "shrink-0",
           failed ? "text-destructive" : "text-muted-foreground",
         )}
@@ -226,7 +220,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           {item.name}
         </span>
         <span
-          className={cn$2(
+          className={cn(
             "truncate text-[11px]",
             failed ? "text-destructive" : "text-muted-foreground",
           )}
@@ -250,7 +244,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
-          <X$7 size={14} strokeWidth={1.5} />
+          <X size={14} strokeWidth={1.5} />
         </button>
       ) : (
         <>
@@ -266,14 +260,13 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
             data-action-ui-id="cloud-assets.cancel-download"
             className="hidden shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground group-hover:block"
           >
-            <X$7 size={14} strokeWidth={1.5} />
+            <X size={14} strokeWidth={1.5} />
           </button>
         </>
       )}
     </div>
   );
 }
-
 export function TransfersButton({
   reviewNodes,
   reviewLoading,
@@ -359,7 +352,7 @@ export function TransfersButton({
         }
         title={showFailureWarning ? failureHint : void 0}
         data-action-ui-id="cloud-assets.transfers"
-        className={cn$2(
+        className={cn(
           "relative flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-muted",
           showFailureWarning
             ? "text-destructive hover:text-destructive"
@@ -404,7 +397,7 @@ export function TransfersButton({
         </div>
         {tab2 === "upload" ? (
           uploadEmpty ? (
-            <EmptyState$1 loading={reviewLoading} />
+            <EmptyState loading={reviewLoading} />
           ) : (
             <div className="max-h-80 overflow-y-auto">
               {uploading.map((item) => (
@@ -438,7 +431,7 @@ export function TransfersButton({
             </div>
           )
         ) : downloadEmpty ? (
-          <EmptyState$1 loading={false} />
+          <EmptyState loading={false} />
         ) : (
           <div className="max-h-80 overflow-y-auto">
             {downloads.map((item) => (

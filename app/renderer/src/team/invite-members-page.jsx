@@ -4,10 +4,10 @@ import {
   jsxRuntimeExports,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {
@@ -21,11 +21,8 @@ import {
 import { PastTeamMembersPanel } from "./past-team-members-panel.jsx";
 import { teamApi } from "./team-api.js";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
-
 const MAX_TEAM_INVITES = 30;
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function parseInviteEmails(value) {
   const candidates2 = value
     .split(/[,;\n]+/)
@@ -59,7 +56,6 @@ function parseInviteEmails(value) {
     emails,
   };
 }
-
 function mergeInviteEmails(existingEmails, value) {
   const parsed = parseInviteEmails(value);
   if (!parsed.ok) return parsed;
@@ -81,14 +77,12 @@ function mergeInviteEmails(existingEmails, value) {
     emails,
   };
 }
-
 function inviteResultBadgeVariant(status) {
   if (status === "PENDING") return "success";
   if (status === "FAILED") return "destructive";
   if (status === "ACCEPTED") return "secondary";
   return "warning";
 }
-
 export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
   const { t: t2 } = useTranslation();
   const [emails, setEmails] = reactExports.useState([]);
@@ -314,7 +308,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
           </div>
         ) : null}
         <div
-          className={cn$2(
+          className={cn(
             "min-h-0 min-w-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 py-4 sm:px-6",
             !showEmailTab && "hidden",
           )}
@@ -374,7 +368,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                         })}
                         onClick={() => handleRemoveEmail(email)}
                       >
-                        <X$7 className="size-3.5" aria-hidden={true} />
+                        <X className="size-3.5" aria-hidden={true} />
                       </button>
                     </Badge>
                   ))}
@@ -443,7 +437,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
         </div>
         {pastTabMounted ? (
           <div
-            className={cn$2(
+            className={cn(
               "flex min-h-0 min-w-0 flex-1 flex-col",
               showEmailTab && "hidden",
             )}
@@ -455,7 +449,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
           </div>
         ) : null}
         <PageFooter
-          className={cn$2(
+          className={cn(
             "shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6",
             !showEmailTab && "hidden",
           )}
@@ -466,7 +460,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
               result.results.some(
                 (item) => item.status === "FAILED" || item.status === "UNKNOWN",
               ) ? (
-                <Button$1
+                <Button
                   type="button"
                   variant="outline"
                   onClick={handleRetryFailed}
@@ -475,9 +469,9 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                   {t2("team.inviteMembers.retryFailed", {
                     defaultValue: "修正失败项并重试",
                   })}
-                </Button$1>
+                </Button>
               ) : null}
-              <Button$1
+              <Button
                 type="button"
                 onClick={() => handleOpenChange(false)}
                 data-action-ui-id="team.invite-members-done"
@@ -485,11 +479,11 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 {t2("common.done", {
                   defaultValue: "Done",
                 })}
-              </Button$1>
+              </Button>
             </>
           ) : (
             <>
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
@@ -497,8 +491,8 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 {t2("common.cancel", {
                   defaultValue: "Cancel",
                 })}
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 loading={submitting}
                 disabled={
@@ -511,7 +505,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 {t2("team.inviteMembers.send", {
                   defaultValue: "Send invitations",
                 })}
-              </Button$1>
+              </Button>
             </>
           )}
         </PageFooter>

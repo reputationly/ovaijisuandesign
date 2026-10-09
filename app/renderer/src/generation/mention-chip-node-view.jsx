@@ -8,7 +8,7 @@ import {
   reactExports,
   useTranslation,
   Video,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceSwitchPopover } from "./reference-switch-popover.jsx";
@@ -23,10 +23,8 @@ import { useAssetsRefValidate } from "../assets/use-assets-ref-validate.js";
 import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
 import { TextHoverPreview } from "../media-editing/text-hover-preview.jsx";
 import { TextReadDialog } from "../media-editing/use-preview-text.jsx";
-import { VideoPlayIndicator$1 } from "./attachment-bar.jsx";
-
-const THUMB_PX$3 = 18;
-
+import { VideoPlayIndicator } from "./attachment-bar.jsx";
+const THUMB_PX = 18;
 export function MentionChipNodeView({
   node: node2,
   selected: selected2,
@@ -200,8 +198,8 @@ export function MentionChipNodeView({
         <span
           className="relative shrink-0 flex items-center justify-center overflow-hidden rounded-[4px] border-[0.5px] border-border bg-muted/60"
           style={{
-            width: THUMB_PX$3,
-            height: THUMB_PX$3,
+            width: THUMB_PX,
+            height: THUMB_PX,
           }}
         >
           {unavailable ? (
@@ -228,7 +226,7 @@ export function MentionChipNodeView({
               >
                 <track kind="captions" />
               </video>
-              <VideoPlayIndicator$1 size={8} />
+              <VideoPlayIndicator size={8} />
             </>
           ) : kind === "audio" ? (
             <Music size={12} />
@@ -279,7 +277,7 @@ export function MentionChipNodeView({
           deleteNode2();
         }}
       >
-        <X$7 size={9} strokeWidth={2.2} />
+        <X size={9} strokeWidth={2.2} />
       </button>
     </span>
   );

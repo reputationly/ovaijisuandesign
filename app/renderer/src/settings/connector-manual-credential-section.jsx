@@ -14,7 +14,7 @@ import {
   installStagedConnector,
   isRequiredInputSatisfied,
 } from "./connector-required-input-fields.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
@@ -27,7 +27,6 @@ import {
   connectorTitle,
   useConnectorCopy,
 } from "./make-async-image-task.jsx";
-
 function normalizeHostInput(value) {
   return value
     .trim()
@@ -35,14 +34,12 @@ function normalizeHostInput(value) {
     .replace(/^https?:\/\//, "")
     .replace(/\/.*$/, "");
 }
-
 function isValidSecret(value) {
   const secret = value.trim();
   return (
     secret.length > 0 && secret.length <= 512 && /^[\x21-\x7e]+$/.test(secret)
   );
 }
-
 export function ConnectorManualCredentialSection({
   manifest,
   iconUrl,
@@ -294,7 +291,7 @@ export function ConnectorManualCredentialSection({
           cancelDisabled={pending2}
           onCancel={onClose}
         >
-          <Button$1
+          <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
             disabled={pending2 || !inputsReady || !credentialsReady}
@@ -305,7 +302,7 @@ export function ConnectorManualCredentialSection({
             {pending2
               ? t2("connectors.detail.connecting")
               : manualCopy("connect")}
-          </Button$1>
+          </Button>
         </ConnectorDialogActions>
       </div>
     </ConnectorDialogShell>

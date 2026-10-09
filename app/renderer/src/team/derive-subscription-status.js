@@ -6,11 +6,8 @@ import {
   useAuth,
   useCreditAccountState,
 } from "../assets/credit-query-keys.jsx";
-
 const DEFAULT_RENEWAL_WINDOW_DAYS = 5;
-
-const DAY_MS$2 = 864e5;
-
+const DAY_MS = 864e5;
 function parseRenewalDay(value) {
   const match2 = value?.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match2) return null;
@@ -22,7 +19,6 @@ function parseRenewalDay(value) {
     ? date2.getTime()
     : null;
 }
-
 function deriveSubscriptionStatus(
   wallet,
   serverTimeMs,
@@ -56,7 +52,7 @@ function deriveSubscriptionStatus(
     const get3 = (type2) =>
       Number(parts.find((part) => part.type === type2)?.value);
     const today = Date.UTC(get3("year"), get3("month") - 1, get3("day"));
-    const days = (renewalDay - today) / DAY_MS$2;
+    const days = (renewalDay - today) / DAY_MS;
     if (days >= 0) daysUntilRenewal = days;
   }
   return {
@@ -70,7 +66,6 @@ function deriveSubscriptionStatus(
       daysUntilRenewal !== null && daysUntilRenewal <= windowDays,
   };
 }
-
 function useSubscriptionStatus(windowDays = DEFAULT_RENEWAL_WINDOW_DAYS) {
   const query = useWalletQuery({
     refetchInterval: 6 * 60 * 60 * 1e3,
@@ -94,7 +89,6 @@ function useSubscriptionStatus(windowDays = DEFAULT_RENEWAL_WINDOW_DAYS) {
     isError: failed,
   };
 }
-
 export function useSubscriptionRenewalNotice() {
   const status = useSubscriptionStatus();
   const { user } = useAuth();

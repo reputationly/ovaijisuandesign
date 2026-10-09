@@ -15,7 +15,7 @@ import {
   usePluginRunInfo,
 } from "../infra/use-plugin-metadata-store.js";
 import { pickLocalized } from "../generation/normalize-skill-detail-metadata.js";
-import { PluginIcon$1, RunIcon } from "../canvas/file-missing-icon.jsx";
+import { PluginIcon, RunIcon } from "../canvas/file-missing-icon.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import {
@@ -25,7 +25,7 @@ import {
   useCanvasIsMultiSelect,
 } from "./package.jsx";
 import {
-  FullscreenIcon$1,
+  FullscreenIcon,
   MinimizeIcon,
   useCanvasNodeIsDragging,
 } from "../canvas/fullscreen-icon.jsx";
@@ -36,7 +36,7 @@ import {
 } from "../canvas/is-reexecutable-generation-node.js";
 import {
   CLIP_STUDIO_PLUGIN_ID,
-  COMFYUI_PLUGIN_ID$1,
+  COMFYUI_PLUGIN_ID,
   DIRECTOR_STAGE_PLUGIN_ID,
   isPluginEditorSurface,
   shouldShowPluginNodeSourceAffordance,
@@ -51,7 +51,6 @@ import {
   VideoEditorHeaderIcon,
 } from "./director-stage-header-icon.jsx";
 import { PluginLauncher } from "./plugin-launcher.jsx";
-
 function PluginPreview({
   selected: selected2,
   interactive,
@@ -108,7 +107,7 @@ function PluginPreview({
                   onError={() => setIconBroken(true)}
                 />
               ) : (
-                <PluginIcon$1 />
+                <PluginIcon />
               )}
             </div>
             <div
@@ -159,7 +158,6 @@ function PluginPreview({
     </NodeBody>
   );
 }
-
 export function PluginNodeInner({
   id: id2,
   data: data2,
@@ -212,7 +210,7 @@ export function PluginNodeInner({
   const displayMode =
     pluginMeta?.displayMode ?? persisted?.pluginDisplayMode ?? "inline";
   const isLauncher = displayMode === "launcher";
-  const isComfyUi = persisted?.pluginId === COMFYUI_PLUGIN_ID$1;
+  const isComfyUi = persisted?.pluginId === COMFYUI_PLUGIN_ID;
   const isEditorSurface =
     isLauncher && isPluginEditorSurface(pluginMeta?.agent);
   const runInfo = usePluginRunInfo(id2);
@@ -281,7 +279,7 @@ export function PluginNodeInner({
             label: isHtmlFullscreen
               ? t2("canvas.file.exitFullscreen", "退出全屏")
               : t2("canvas.file.enterFullscreen", "全屏预览"),
-            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon$1 />,
+            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon />,
             onClick: isHtmlFullscreen
               ? exitHtmlFullscreen
               : enterHtmlFullscreen,

@@ -1,9 +1,12 @@
 // canvas-file-ref-node.js
-import { mergeAttributes, Node$3, ReactNodeViewRenderer } from "../vendor.js";
+import {
+  mergeAttributes,
+  Node$3 as Node,
+  ReactNodeViewRenderer,
+} from "../vendor.js";
 import { MentionChipNodeView } from "./mention-chip-node-view.jsx";
 import { parseCanvasReference } from "../text-editor/table-document-to-llm-content.js";
 import { serializeMentionToken } from "../assets/parse-prompt-to-tiptap.js";
-
 function isPathInCurrentWorkspace(path2, assetMetadataStore) {
   if (!assetMetadataStore) return false;
   const assets = assetMetadataStore.getState().assets;
@@ -12,8 +15,7 @@ function isPathInCurrentWorkspace(path2, assetMetadataStore) {
   }
   return false;
 }
-
-export const CanvasFileRefNode = Node$3.create({
+export const CanvasFileRefNode = Node.create({
   name: "canvasFileRef",
   group: "inline",
   inline: true,

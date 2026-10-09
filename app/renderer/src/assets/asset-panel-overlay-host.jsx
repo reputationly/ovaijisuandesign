@@ -5,10 +5,10 @@ import {
   BROWSER_ASSET_SOURCE_METADATA_KEYS,
   ChevronDown,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   classifyFileType,
   Crosshair,
-  E$4,
+  E$4 as E,
   jsxRuntimeExports,
   Network,
   PopoverPopup,
@@ -31,12 +31,12 @@ import {
   useGatewayScopeKey,
   useGatewayUrl,
 } from "../generation/use-model-catalog-scope-key.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import {
-  formatDuration$3,
+  formatDuration,
   formatFileSizeCompact,
 } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { ROLE_DISPLAY_NAMES } from "../infra/parse-connector-selection.js";
@@ -46,7 +46,6 @@ import {
   useAssetInputs,
   useAssetLineage,
 } from "../settings/use-asset-lineage.js";
-
 function formatModifiedAt(value) {
   if (value == null || value === "") return "";
   let d2;
@@ -60,7 +59,6 @@ function formatModifiedAt(value) {
   const pad = (n2) => n2.toString().padStart(2, "0");
   return `${d2.getFullYear()}-${pad(d2.getMonth() + 1)}-${pad(d2.getDate())} ${pad(d2.getHours())}:${pad(d2.getMinutes())}`;
 }
-
 function browserAssetSourceWebsite(metadata) {
   const pageUrl = metadata?.[BROWSER_ASSET_SOURCE_METADATA_KEYS.pageUrl];
   if (typeof pageUrl !== "string" || !pageUrl) return "";
@@ -72,28 +70,23 @@ function browserAssetSourceWebsite(metadata) {
     return "";
   }
 }
-
 function pickString(meta2, key2) {
   const v2 = meta2?.[key2];
   return typeof v2 === "string" && v2 ? v2 : void 0;
 }
-
 function pickNumber(meta2, key2) {
   const v2 = meta2?.[key2];
   return typeof v2 === "number" && Number.isFinite(v2) ? v2 : void 0;
 }
-
 function extOf(asset) {
   const base2 = asset.path.split(/[/\\]/).pop() ?? "";
   const dot2 = base2.lastIndexOf(".");
   return dot2 > 0 ? base2.slice(dot2 + 1).toUpperCase() : "";
 }
-
 function dimensions(asset) {
   if (asset.width && asset.height) return `${asset.width} × ${asset.height}`;
   return "";
 }
-
 function modifiedAt(asset) {
   const mtime = asset.metadata?.mtime;
   if (typeof mtime === "number" || typeof mtime === "string") {
@@ -102,7 +95,6 @@ function modifiedAt(asset) {
   }
   return formatModifiedAt(asset.time);
 }
-
 function imageRows(asset) {
   return [
     {
@@ -127,7 +119,6 @@ function imageRows(asset) {
     },
   ];
 }
-
 function videoRows(asset, _t2) {
   const fps = pickNumber(asset.metadata, "fps");
   const codec = pickString(asset.metadata, "codec");
@@ -141,7 +132,7 @@ function videoRows(asset, _t2) {
     {
       labelKey: "duration",
       labelFallback: "Duration",
-      value: formatDuration$3(asset.duration),
+      value: formatDuration(asset.duration),
     },
     {
       labelKey: "fps",
@@ -170,7 +161,6 @@ function videoRows(asset, _t2) {
     },
   ];
 }
-
 function fileRows(asset) {
   const pageCount = pickNumber(asset.metadata, "pageCount");
   const wordCount = pickNumber(asset.metadata, "wordCount");
@@ -204,13 +194,11 @@ function fileRows(asset) {
     },
   ];
 }
-
 const LINEAGE_DEPTH = 5;
-
 function Section({ title, loading, error, children: children2 }) {
   const { t: t2 } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
-  const Arrow = collapsed ? ChevronRight$1 : ChevronDown;
+  const Arrow = collapsed ? ChevronRight : ChevronDown;
   return (
     <section className="flex flex-col gap-1">
       <button
@@ -238,7 +226,6 @@ function Section({ title, loading, error, children: children2 }) {
     </section>
   );
 }
-
 function RoleChip({ role }) {
   const { t: t2 } = useTranslation();
   const fallback = ROLE_DISPLAY_NAMES[role] ?? role;
@@ -249,7 +236,6 @@ function RoleChip({ role }) {
     </span>
   );
 }
-
 function AssetRow({
   assetId,
   path: path2,
@@ -266,7 +252,7 @@ function AssetRow({
       type="button"
       onClick={() => onSelectAsset?.(assetId)}
       disabled={!onSelectAsset}
-      className={cn$2(
+      className={cn(
         "flex items-center gap-1.5 w-full px-1 py-0.5 text-left rounded-sm transition-colors",
         onSelectAsset
           ? "cursor-pointer hover:bg-hl-alpha-08 text-hl-text-01"
@@ -285,7 +271,6 @@ function AssetRow({
     </button>
   );
 }
-
 function EntityTypeChip({ type: type2 }) {
   const { t: t2 } = useTranslation();
   const display = t2(`assetCenter.types.${type2}`);
@@ -295,7 +280,6 @@ function EntityTypeChip({ type: type2 }) {
     </span>
   );
 }
-
 function AttachmentRow({ node: node2, role }) {
   const { t: t2 } = useTranslation();
   if (node2.parent_attachment_entity_name && node2.parent_attachment_filename) {
@@ -330,7 +314,6 @@ function AttachmentRow({ node: node2, role }) {
     </div>
   );
 }
-
 function UpstreamRow({ node: node2, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   if (node2.parent_id !== null) {
@@ -366,11 +349,10 @@ function UpstreamRow({ node: node2, onSelectAsset }) {
     </div>
   );
 }
-
 function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
-  const Arrow = collapsed ? ChevronRight$1 : ChevronDown;
+  const Arrow = collapsed ? ChevronRight : ChevronDown;
   return (
     <div className="flex flex-col">
       <button
@@ -398,7 +380,6 @@ function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
     </div>
   );
 }
-
 function InputRow({ node: node2, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   if (node2.parent_id !== null) {
@@ -424,7 +405,6 @@ function InputRow({ node: node2, onSelectAsset }) {
     </div>
   );
 }
-
 function InputsView({ nodes, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   if (nodes.length === 0) {
@@ -445,7 +425,6 @@ function InputsView({ nodes, onSelectAsset }) {
     </ul>
   );
 }
-
 function StandaloneHint({ variant = "upstream" }) {
   const { t: t2 } = useTranslation();
   const text2 =
@@ -459,7 +438,6 @@ function StandaloneHint({ variant = "upstream" }) {
     </div>
   );
 }
-
 function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   const groupedByDepth = reactExports.useMemo(() => {
@@ -497,7 +475,6 @@ function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
     </div>
   );
 }
-
 function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
   const { t: t2 } = useTranslation();
   if (nodes.length === 0) {
@@ -531,7 +508,6 @@ function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
     </div>
   );
 }
-
 function LineageTree({
   assetId,
   depth: depth2 = LINEAGE_DEPTH,
@@ -549,7 +525,7 @@ function LineageTree({
   if (!assetId) {
     return (
       <div
-        className={cn$2(
+        className={cn(
           "flex items-center justify-center text-xs text-hl-text-03 py-6",
           className,
         )}
@@ -559,7 +535,7 @@ function LineageTree({
     );
   }
   return (
-    <div className={cn$2("flex flex-col gap-4 text-xs", className)}>
+    <div className={cn("flex flex-col gap-4 text-xs", className)}>
       <Section
         title={t2("lineage.upstreamTitle")}
         loading={lineage.isLoading}
@@ -595,9 +571,7 @@ function LineageTree({
     </div>
   );
 }
-
-const STALE_TIME_MS$2 = 5 * 60 * 1e3;
-
+const STALE_TIME_MS = 5 * 60 * 1e3;
 function useAssetMetadata(asset, { enabled }) {
   const gatewayFetch2 = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -606,18 +580,15 @@ function useAssetMetadata(asset, { enabled }) {
     // missing — TanStack Query complains about `undefined` slots in keys.
     queryKey: ["asset-metadata", scopeKey, asset.id ?? null],
     enabled: Boolean(asset.id),
-    staleTime: STALE_TIME_MS$2,
+    staleTime: STALE_TIME_MS,
     queryFn: async () => {
       const resp = await gatewayFetch2(API_PATHS.assetMetadata(asset.id));
       return await resp.json();
     },
   });
 }
-
 const DEFAULT_CHARS = 200;
-
 const STALE_TIME_MS$1 = 5 * 60 * 1e3;
-
 function useAssetTextPreview(
   asset,
   { enabled, chars: chars2 = DEFAULT_CHARS },
@@ -636,7 +607,6 @@ function useAssetTextPreview(
     },
   });
 }
-
 function RowItem({ t: t2, row }) {
   return (
     <>
@@ -651,7 +621,6 @@ function RowItem({ t: t2, row }) {
     </>
   );
 }
-
 function audioRows(asset, t2) {
   const sampleRate = pickNumber(asset.metadata, "sampleRate");
   const channels = pickNumber(asset.metadata, "channels");
@@ -675,7 +644,7 @@ function audioRows(asset, t2) {
     {
       labelKey: "duration",
       labelFallback: "Duration",
-      value: formatDuration$3(asset.duration),
+      value: formatDuration(asset.duration),
     },
     {
       labelKey: "sampleRate",
@@ -704,8 +673,7 @@ function audioRows(asset, t2) {
     },
   ];
 }
-
-function buildRows$1(asset, t2) {
+function buildRows(asset, t2) {
   let rows;
   switch (asset.type) {
     case "image":
@@ -729,15 +697,14 @@ function buildRows$1(asset, t2) {
     },
   ];
 }
-
 function MetadataTable({ asset, className }) {
   const { t: t2 } = useTranslation();
-  const rows = buildRows$1(asset, t2).filter((r2) => r2.value);
+  const rows = buildRows(asset, t2).filter((r2) => r2.value);
   if (rows.length === 0) return null;
   return (
     <dl
       data-slot="metadata-table"
-      className={cn$2(
+      className={cn(
         "grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs",
         className,
       )}
@@ -748,21 +715,13 @@ function MetadataTable({ asset, className }) {
     </dl>
   );
 }
-
 const WAVE_HEIGHT = 96;
-
 const UNMUTED_VOLUME = 0.3;
-
 const WAVE_COLOR = "#9ca3af";
-
 const PROGRESS_COLOR = "#8b5cf6";
-
 const CURSOR_COLOR = "#8b5cf6";
-
 const PEAKS_ENDPOINT_THRESHOLD_BYTES = 10 * 1024 * 1024;
-
 const PEAKS_BUCKETS = 200;
-
 function AudioPreview({ asset }) {
   const { t: t2 } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
@@ -785,7 +744,7 @@ function AudioPreview({ asset }) {
     const fetchAbort = new AbortController();
     const start2 = (peaksData) => {
       if (cancelled || !container) return;
-      ws2 = E$4.create({
+      ws2 = E.create({
         container,
         url: url2,
         ...(peaksData
@@ -908,7 +867,7 @@ function AudioPreview({ asset }) {
                 defaultValue: "Mute",
               })
         }
-        className={cn$2(
+        className={cn(
           // `z-10` is required because wavesurfer's internal <canvas> +
           // wrapper divs sit above the default stacking context, which
           // would otherwise hide / block clicks on this absolute-
@@ -926,9 +885,7 @@ function AudioPreview({ asset }) {
     </div>
   );
 }
-
-const PREVIEW_MAX_WIDTH$1 = 480;
-
+const PREVIEW_MAX_WIDTH = 480;
 function ImagePreview({ asset }) {
   const { t: t2 } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
@@ -937,7 +894,7 @@ function ImagePreview({ asset }) {
   const src = reactExports.useMemo(() => {
     return withThumbnail(
       gatewayUrl2(API_PATHS.serveFile(asset.path)),
-      PREVIEW_MAX_WIDTH$1,
+      PREVIEW_MAX_WIDTH,
     );
   }, [asset.path, gatewayUrl2]);
   const onLoad = reactExports.useCallback(() => setLoaded(true), []);
@@ -990,7 +947,6 @@ function ImagePreview({ asset }) {
     </div>
   );
 }
-
 function TextPreview({ asset: _asset, previewText, loading, error }) {
   const { t: t2 } = useTranslation();
   if (loading) {
@@ -1031,7 +987,7 @@ function TextPreview({ asset: _asset, previewText, loading, error }) {
   return (
     <pre
       data-slot="text-preview"
-      className={cn$2(
+      className={cn(
         "whitespace-pre-wrap break-words text-xs text-foreground/50 line-clamp-10 font-mono",
       )}
     >
@@ -1039,9 +995,7 @@ function TextPreview({ asset: _asset, previewText, loading, error }) {
     </pre>
   );
 }
-
 let currentInlineVideo = null;
-
 function claimInlineVideoSlot(video) {
   if (currentInlineVideo === video) return;
   if (currentInlineVideo) {
@@ -1051,9 +1005,7 @@ function claimInlineVideoSlot(video) {
   }
   currentInlineVideo = video;
 }
-
 const PREVIEW_LOOP_LIMIT_S = 5;
-
 function VideoPreview({ asset }) {
   const { t: t2 } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
@@ -1154,7 +1106,7 @@ function VideoPreview({ asset }) {
                 defaultValue: "Mute",
               })
         }
-        className={cn$2(
+        className={cn(
           "absolute top-2 right-2 inline-flex items-center justify-center size-7 rounded-full",
           "bg-foreground/60 text-background hover:bg-foreground/80 transition-colors",
         )}
@@ -1180,7 +1132,6 @@ function VideoPreview({ asset }) {
     </div>
   );
 }
-
 function AssetHoverPopupInner({
   target,
   onMouseEnter,
@@ -1288,7 +1239,7 @@ function AssetHoverPopupInner({
           sideOffset={8}
           align="start"
           alignOffset={0}
-          className={cn$2(
+          className={cn(
             "isolate z-50",
             // Smooth slide when the panel's overlay host swaps to a new
             // target row without unmounting (target prop changes but
@@ -1307,7 +1258,7 @@ function AssetHoverPopupInner({
             data-slot="preview-card-content"
             onPointerEnter={onMouseEnter}
             onPointerLeave={onMouseLeave}
-            className={cn$2(
+            className={cn(
               "elevated-surface-border z-50 w-[260px] origin-(--transform-origin) rounded-lg bg-popover text-popover-foreground shadow-lg outline-none",
               "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             )}
@@ -1326,7 +1277,7 @@ function AssetHoverPopupInner({
                   onClick={handleLocate}
                   disabled={locateDisabled}
                   title={t2("assetPreview.locateOnCanvas")}
-                  className={cn$2(
+                  className={cn(
                     "inline-flex items-center justify-center size-6 rounded",
                     "text-foreground/50 hover:text-foreground/70 hover:bg-muted transition-colors",
                     "disabled:opacity-40 disabled:pointer-events-none",
@@ -1347,7 +1298,7 @@ function AssetHoverPopupInner({
                   onMouseLeave={scheduleLineageClose}
                   onFocus={openLineage}
                   onBlur={scheduleLineageClose}
-                  className={cn$2(
+                  className={cn(
                     "flex w-full items-center justify-between gap-1 py-1.5 text-xs cursor-default",
                     "text-foreground/50 opacity-40 hover:opacity-100 focus-visible:opacity-100 transition-opacity",
                   )}
@@ -1365,7 +1316,7 @@ function AssetHoverPopupInner({
                   data-slot="asset-hover-card-lineage"
                   onMouseEnter={openLineage}
                   onMouseLeave={scheduleLineageClose}
-                  className={cn$2(
+                  className={cn(
                     "absolute top-0 right-full mr-1 w-[260px] max-h-full overflow-auto",
                     "elevated-surface-border rounded-lg bg-popover text-popover-foreground shadow-lg",
                     "p-3 flex flex-col gap-2",
@@ -1384,16 +1335,12 @@ function AssetHoverPopupInner({
     </PreviewCardRoot>
   );
 }
-
 function AssetHoverPopup(props) {
   if (!props.target) return null;
   return <AssetHoverPopupInner {...props} target={props.target} />;
 }
-
 const HOVER_OPEN_DELAY_MS = 300;
-
 const HOVER_CLOSE_DELAY_MS = 150;
-
 export const AssetPanelOverlayHost = reactExports.forwardRef(
   function AssetPanelOverlayHost2(
     { onLocateOnCanvas, onLocateMissingConfirmInsert },
@@ -1573,7 +1520,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
               >
                 <PopoverPopup
                   data-slot="locate-missing-popover"
-                  className={cn$2(
+                  className={cn(
                     "elevated-surface-border z-50 flex w-64 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-xs text-popover-foreground shadow-lg outline-hidden",
                     "dp-motion-quick-zoom",
                   )}
@@ -1589,21 +1536,21 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
                     </div>
                   </div>
                   <div className="flex justify-end gap-1">
-                    <Button$1
+                    <Button
                       size="sm"
                       variant="ghost"
                       onClick={handleLocateCancel}
                       data-action-ui-id="asset-panel.locate-missing-cancel"
                     >
                       {t2("common.cancel")}
-                    </Button$1>
-                    <Button$1
+                    </Button>
+                    <Button
                       size="sm"
                       onClick={handleLocateConfirm}
                       data-action-ui-id="asset-panel.locate-missing-confirm"
                     >
                       {t2("fileExplorer.locateMissing.confirm")}
-                    </Button$1>
+                    </Button>
                   </div>
                 </PopoverPopup>
               </PopoverPositioner>

@@ -12,7 +12,7 @@ import {
   reactExports,
   ServerIcon,
   ShieldCheckIcon,
-  UploadIcon$1,
+  UploadIcon$1 as UploadIcon,
   UsersIcon,
   useTranslation,
   WifiIcon,
@@ -25,10 +25,14 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { useNetworkDiagnostics } from "./use-network-diagnostics.js";
-import { Popover, Select$1 } from "../assets/credit-query-keys.jsx";
+import { Popover, Select } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { useTopbarState } from "../workspace/topbar-state-context.jsx";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
@@ -40,54 +44,40 @@ import {
 } from "../infra/select-content.jsx";
 import { useBundleStatus } from "../media-editing/use-bundle-status.js";
 import { useGatewayReadiness } from "../infra/inline-rename-input.jsx";
-
 const LOCAL_TARGETS = ["local_gateway", "gateway_network"];
-
 const CLOUD_TARGETS = ["cloud_gateway_api", "app_api"];
-
 const ACCOUNT_TARGETS = ["team_account_api"];
-
 const UPDATE_TARGETS = ["update_cdn"];
-
 const OBSERVABILITY_TARGETS = ["guance_rum", "sensors"];
-
 const LEGACY_UNUSED_PROBE_TARGETS = new Set(["hot_update_cdn"]);
-
 const PROXY_RECOMMENDATION_CODES = new Set([
   "proxy_unreachable",
   "tun_detected",
   "try_direct_proxy_mode",
   "try_system_proxy_mode",
 ]);
-
 function diagnosticsRecommendationKey(code2) {
   return `topbar.diagnostics.recommendation.${code2}`;
 }
-
 function diagnosticsProbeLabelKey(target) {
   return `topbar.diagnostics.probe.${target}`;
 }
-
 function diagnosticsProbeStatusKey(status) {
   return `topbar.diagnostics.probeStatus.${status}`;
 }
-
 function diagnosticsFailureKindKey(failureKind) {
   return `topbar.diagnostics.failureKind.${failureKind}`;
 }
-
 function proxyModeForDiagnosticsRecommendation(code2) {
   if (code2 === "try_direct_proxy_mode") return "direct";
   if (code2 === "try_system_proxy_mode") return "system";
   return null;
 }
-
 function worstDiagnosticsStatusCardSeverity(cards) {
   if (cards.some((card) => card.severity === "error")) return "error";
   if (cards.some((card) => card.severity === "warning")) return "warning";
   return "ok";
 }
-
 function summarizeDiagnosticsOverall(input) {
   if (input.error) {
     return {
@@ -175,7 +165,6 @@ function summarizeDiagnosticsOverall(input) {
     detailKey: "topbar.diagnostics.summary.okDetail",
   };
 }
-
 function pickWorstSeverity(probes, targets, failedSeverity) {
   if (!probes) return "ok";
   const matched = probes.filter((probe) => targets.includes(probe.target));
@@ -185,7 +174,6 @@ function pickWorstSeverity(probes, targets, failedSeverity) {
   if (matched.every((probe) => probe.status === "skipped")) return "warning";
   return "ok";
 }
-
 function buildDiagnosticsDomainCards(snapshot2) {
   const localSeverity = pickWorstSeverity(
     snapshot2?.probes,
@@ -275,21 +263,17 @@ function buildDiagnosticsDomainCards(snapshot2) {
   );
   return cards;
 }
-
 function statusOrUnknown(value, fallback) {
   return value ?? fallback;
 }
-
 function readinessLabel(t2, state2) {
   return t2(`topbar.diagnostics.readiness.${state2}`);
 }
-
 function finiteNumberText(value) {
   return typeof value === "number" && Number.isFinite(value)
     ? String(value)
     : void 0;
 }
-
 function buildRuntimeDetail(
   t2,
   localServiceState,
@@ -302,7 +286,6 @@ function buildRuntimeDetail(
     toolService: readinessLabel(t2, toolServiceState),
   });
 }
-
 function buildUpdaterDetail(t2, status, installMarker, staleInstallMarker) {
   if (
     !status ||
@@ -318,7 +301,6 @@ function buildUpdaterDetail(t2, status, installMarker, staleInstallMarker) {
   }
   return t2("topbar.diagnostics.status.updater.detail.ok");
 }
-
 function buildMemoryDetail(t2, pressure, memory) {
   const usage =
     finiteNumberText(memory?.appTotalMemMB) ??
@@ -342,12 +324,10 @@ function buildMemoryDetail(t2, pressure, memory) {
     usage,
   });
 }
-
 const INTEGRITY_NOT_APPLICABLE_REASONS = new Set([
   "unsupported_platform",
   "not_packaged",
 ]);
-
 function isIntegrityNotApplicable(integrity) {
   return (
     integrity?.state === "unknown" &&
@@ -356,44 +336,37 @@ function isIntegrityNotApplicable(integrity) {
     INTEGRITY_NOT_APPLICABLE_REASONS.has(integrity.reason)
   );
 }
-
 function buildIntegrityDetail(t2, state2) {
   return t2(`topbar.diagnostics.status.integrity.detail.${state2}`);
 }
-
 function readinessSeverity(state2) {
   if (state2 === "not_ready") return "error";
   if (state2 === "degraded") return "warning";
   if (state2 === "unknown") return "pending";
   return "ok";
 }
-
 function markerSeverity(state2) {
   if (state2 === "present") return "warning";
   if (state2 === "unknown") return "pending";
   return "ok";
 }
-
 function memorySeverity(pressure) {
   if (pressure === "low") return "warning";
   if (pressure === "unknown") return "pending";
   return "ok";
 }
-
 function integritySeverity(state2) {
   if (state2 === "error") return "error";
   if (state2 === "warning") return "warning";
   if (state2 === "unknown") return "pending";
   return "ok";
 }
-
 function strongestSeverity(severities) {
   if (severities.includes("error")) return "error";
   if (severities.includes("warning")) return "warning";
   if (severities.includes("pending")) return "pending";
   return "ok";
 }
-
 function buildDiagnosticsStatusCards(status, t2) {
   const localServiceState = statusOrUnknown(
     status?.runtime?.gateway?.state,
@@ -466,13 +439,11 @@ function buildDiagnosticsStatusCards(status, t2) {
     },
   ];
 }
-
 function probeAttentionSeverity(status) {
   if (status === "failed") return "error";
   if (status === "warning") return "warning";
   return "ok";
 }
-
 function buildAttentionProbeMeta(probe, t2) {
   const meta2 = [t2(diagnosticsProbeStatusKey(probe.status))];
   const hasHttpStatus =
@@ -499,7 +470,6 @@ function buildAttentionProbeMeta(probe, t2) {
   }
   return meta2;
 }
-
 function buildDiagnosticsAttentionProbes(probes, t2) {
   return (probes ?? [])
     .filter(
@@ -514,9 +484,7 @@ function buildDiagnosticsAttentionProbes(probes, t2) {
       meta: buildAttentionProbeMeta(probe, t2),
     }));
 }
-
 const PROXY_MODES = ["auto", "direct", "system"];
-
 function canProbeWorkspaceRuntime(currentWorkspaceId, status) {
   if (!currentWorkspaceId || status?.workspaceId !== currentWorkspaceId)
     return false;
@@ -526,43 +494,36 @@ function canProbeWorkspaceRuntime(currentWorkspaceId, status) {
     status.state === "stopped"
   );
 }
-
 function severityClass(severity) {
   if (severity === "error") return "text-destructive";
   if (severity === "warning") return "text-warning";
   return "text-muted-foreground";
 }
-
 function statusDotClass(severity) {
   if (severity === "error") return "bg-destructive";
   if (severity === "warning") return "bg-warning";
   if (severity === "pending") return "bg-muted-foreground/50";
   return "bg-success";
 }
-
 function domainSurfaceClass(severity) {
   if (severity === "error") return "bg-destructive/8 text-destructive";
   if (severity === "warning") return "bg-warning/10 text-warning";
   return "bg-muted text-muted-foreground";
 }
-
 function statusIcon(severity) {
   if (severity === "error") return <WifiOffIcon size={15} strokeWidth={1.75} />;
   return <WifiIcon size={15} strokeWidth={1.75} />;
 }
-
 function headerStatusIcon(severity) {
   if (severity === "error") return <WifiOffIcon size={18} strokeWidth={1.5} />;
   return <WifiIcon size={18} strokeWidth={1.5} />;
 }
-
 function statusCardIcon(id2) {
   if (id2 === "runtime") return <ServerIcon size={14} />;
   if (id2 === "updater") return <DownloadIcon size={14} />;
   if (id2 === "memory") return <ActivityIcon size={14} />;
   return <ShieldCheckIcon size={14} />;
 }
-
 function domainCardIcon(id2) {
   if (id2 === "local") return <ServerIcon size={14} />;
   if (id2 === "cloud") return <CloudIcon size={14} />;
@@ -571,7 +532,6 @@ function domainCardIcon(id2) {
   if (id2 === "observability") return <ActivityIcon size={14} />;
   return <ShieldCheckIcon size={14} />;
 }
-
 export function DiagnosticsStatusButton({
   mockSeverity,
   surface = "topbar",
@@ -750,7 +710,7 @@ export function DiagnosticsStatusButton({
                 <button
                   type="button"
                   aria-label={`${triggerLabel}: ${triggerText}`}
-                  className={cn$2(
+                  className={cn(
                     "relative flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
                     surface === "chat"
                       ? "icon-muted-control size-7 rounded-md text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
@@ -768,7 +728,7 @@ export function DiagnosticsStatusButton({
           </MonochromeIcon>
           {summary.triggerSeverity !== "ok" && (
             <span
-              className={cn$2(
+              className={cn(
                 "absolute right-1 top-1 size-1.5 rounded-full ring-1",
                 surface === "chat" ? "ring-card" : "ring-[var(--topbar-bg)]",
                 statusDotClass(summary.triggerSeverity),
@@ -789,7 +749,7 @@ export function DiagnosticsStatusButton({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <div
-                  className={cn$2(
+                  className={cn(
                     "flex size-7 shrink-0 items-center justify-center rounded-lg",
                     domainSurfaceClass(summary.severity),
                   )}
@@ -809,7 +769,7 @@ export function DiagnosticsStatusButton({
               </div>
             </div>
             <div
-              className={cn$2(
+              className={cn(
                 "flex shrink-0 items-center gap-1 text-[11px]",
                 severityClass(summary.severity),
               )}
@@ -824,7 +784,7 @@ export function DiagnosticsStatusButton({
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 border-b border-border/70 px-4 py-3">
-          <Button$1
+          <Button
             variant="default"
             size="xs"
             onClick={() => void refresh()}
@@ -836,18 +796,18 @@ export function DiagnosticsStatusButton({
               className={loading ? "animate-spin" : void 0}
             />
             {t2("topbar.diagnostics.refresh")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             size="xs"
             onClick={() => void handleUpload()}
             disabled={!window.hilo?.diagnostics?.uploadLogs}
             data-action-ui-id="topbar.diagnostics.upload"
           >
-            <UploadIcon$1 className="size-3.5" />
+            <UploadIcon className="size-3.5" />
             {t2("topbar.diagnostics.upload")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             size="xs"
             onClick={() => void handleExport()}
@@ -856,8 +816,8 @@ export function DiagnosticsStatusButton({
           >
             <FolderOpenIcon className="size-3.5" />
             {t2("topbar.diagnostics.export")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             size="xs"
             onClick={() => void handleCopy()}
@@ -866,7 +826,7 @@ export function DiagnosticsStatusButton({
           >
             <ClipboardIcon className="size-3.5" />
             {t2("topbar.diagnostics.copy")}
-          </Button$1>
+          </Button>
         </div>
         <div className="border-b border-border/70 px-4 py-3">
           <div className="mb-2 text-[12px] font-medium">
@@ -893,7 +853,7 @@ export function DiagnosticsStatusButton({
                     <span className="truncate">{t2(card.titleKey)}</span>
                   </div>
                   <span
-                    className={cn$2(
+                    className={cn(
                       "size-1.5 shrink-0 rounded-full",
                       statusDotClass(card.severity),
                     )}
@@ -925,7 +885,7 @@ export function DiagnosticsStatusButton({
                     <span className="truncate">{t2(card.titleKey)}</span>
                   </div>
                   <span
-                    className={cn$2(
+                    className={cn(
                       "size-1.5 shrink-0 rounded-full",
                       statusDotClass(card.severity),
                     )}
@@ -960,7 +920,7 @@ export function DiagnosticsStatusButton({
                         {meta2.map((item) => (
                           <span
                             key={item}
-                            className={cn$2(
+                            className={cn(
                               "rounded-sm bg-background/70 px-1.5 py-0.5 text-[10px] leading-none",
                               severityClass(severity),
                             )}
@@ -984,7 +944,7 @@ export function DiagnosticsStatusButton({
                 {t2("topbar.diagnostics.proxyModeHint")}
               </div>
             </div>
-            <Select$1
+            <Select
               value={proxyMode}
               onValueChange={handleProxyModeChange}
               disabled={proxyUpdating}
@@ -1005,7 +965,7 @@ export function DiagnosticsStatusButton({
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select$1>
+            </Select>
           </div>
         </div>
         {error && (
@@ -1046,7 +1006,7 @@ export function DiagnosticsStatusButton({
                       {t2(diagnosticsRecommendationKey(item.code))}
                     </span>
                     {actionMode ? (
-                      <Button$1
+                      <Button
                         variant="outline"
                         size="xs"
                         className="shrink-0"
@@ -1060,13 +1020,13 @@ export function DiagnosticsStatusButton({
                         {t2(
                           `topbar.diagnostics.recommendation.action.${actionMode}`,
                         )}
-                      </Button$1>
+                      </Button>
                     ) : null}
                   </li>
                 );
               })}
             </ul>
-            <Button$1
+            <Button
               variant="ghost"
               size="xs"
               className="mt-2 px-0 text-muted-foreground"
@@ -1076,11 +1036,11 @@ export function DiagnosticsStatusButton({
             >
               <LocalFolderIcon className="size-3.5" />
               {t2("topbar.diagnostics.openLogs")}
-            </Button$1>
+            </Button>
           </div>
         ) : (
           <div className="px-4 py-3">
-            <Button$1
+            <Button
               variant="ghost"
               size="xs"
               className="px-0 text-muted-foreground"
@@ -1090,7 +1050,7 @@ export function DiagnosticsStatusButton({
             >
               <LocalFolderIcon className="size-3.5" />
               {t2("topbar.diagnostics.openLogs")}
-            </Button$1>
+            </Button>
           </div>
         )}
       </PopoverContent>

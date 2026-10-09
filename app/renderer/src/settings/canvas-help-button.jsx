@@ -1,6 +1,6 @@
 // canvas-help-button.jsx
 import {
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Keyboard,
   Lightbulb,
   reactExports,
@@ -25,7 +25,6 @@ import {
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { FeedbackIcon } from "../workspace/home-service.jsx";
-
 export function CanvasHelpButton({
   menuOpen: controlledMenuOpen,
   onMenuOpenChange,
@@ -110,7 +109,7 @@ export function CanvasHelpButton({
               <Lightbulb size={16} strokeWidth={1.5} />
               {t2("canvas.help.tutorial")}
             </span>
-            <ChevronRight$1
+            <ChevronRight
               size={14}
               strokeWidth={1.5}
               className="text-muted-foreground"
@@ -125,7 +124,7 @@ export function CanvasHelpButton({
               <FeedbackIcon size={16} />
               {t2("canvas.help.feedback")}
             </span>
-            <ChevronRight$1
+            <ChevronRight
               size={14}
               strokeWidth={1.5}
               className="text-muted-foreground"
@@ -140,7 +139,7 @@ export function CanvasHelpButton({
               <MessageSquarePlus size={16} strokeWidth={1.5} />
               {t2("canvas.help.featureRequest")}
             </span>
-            <ChevronRight$1
+            <ChevronRight
               size={14}
               strokeWidth={1.5}
               className="text-muted-foreground"
@@ -155,7 +154,7 @@ export function CanvasHelpButton({
               <Keyboard size={16} strokeWidth={1.5} />
               {t2("canvas.help.shortcuts")}
             </span>
-            <ChevronRight$1
+            <ChevronRight
               size={14}
               strokeWidth={1.5}
               className="text-muted-foreground"

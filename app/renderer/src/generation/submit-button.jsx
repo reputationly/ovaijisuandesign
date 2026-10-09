@@ -8,11 +8,9 @@ import {
 } from "./expand-arrow-icon.jsx";
 import { renderCostDisclosure } from "./render-cost-disclosure.jsx";
 import { renderCostBadgeWithTooltip } from "./render-cost-badge-with-tooltip.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-
+import { Tooltip } from "./missing-asset-card.jsx";
 const SQUARE_BTN_BASE =
   "flex h-8 w-8 items-center justify-center rounded-[8px] border border-[var(--canvas-controls-border)] text-[13px] font-medium transition-colors duration-150";
-
 export function SubmitButton({
   submitting,
   canSubmit,
@@ -90,9 +88,9 @@ export function SubmitButton({
           children: <CompactCreditCost creditCost={creditCost} />,
         })}
       {disabledTooltip ? (
-        <Tooltip$1 content={disabledTooltip}>
+        <Tooltip content={disabledTooltip}>
           <span className="inline-flex">{button}</span>
-        </Tooltip$1>
+        </Tooltip>
       ) : (
         button
       )}

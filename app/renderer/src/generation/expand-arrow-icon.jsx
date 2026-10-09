@@ -2,13 +2,10 @@
 import { CompositedSvg, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ParamSectionLabel } from "./resolution-tabs.jsx";
-
 const SECONDS_OPTION_PATTERN = /^\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?$/;
-
 export function formatSecondsOption(value) {
   return SECONDS_OPTION_PATTERN.test(value.trim()) ? `${value}s` : value;
 }
-
 export function ParamTextarea({
   label,
   value,
@@ -35,7 +32,6 @@ export function ParamTextarea({
     </div>
   );
 }
-
 function ExpandArrowIcon({ expanded }) {
   return expanded ? (
     <CompositedSvg
@@ -69,7 +65,6 @@ function ExpandArrowIcon({ expanded }) {
     </CompositedSvg>
   );
 }
-
 export function ExpandToggleButton({ expanded, onToggle }) {
   const { t: t2 } = useTranslation();
   return (
@@ -88,8 +83,7 @@ export function ExpandToggleButton({ expanded, onToggle }) {
     </button>
   );
 }
-
-export function CloseButton$1({
+export function CloseButton({
   onClick,
   disabled: disabled2,
   title,
@@ -120,12 +114,10 @@ export function CloseButton$1({
     </button>
   );
 }
-
 export const SPINNER = (
   <div className="w-3 h-3 border-[1.5px] border-[var(--canvas-controls-text-muted)] border-t-[var(--canvas-controls-text)] rounded-full animate-spin" />
 );
-
-export function TokenIcon$1() {
+export function TokenIcon() {
   return (
     <CompositedSvg
       width="14"
@@ -142,22 +134,18 @@ export function TokenIcon$1() {
     </CompositedSvg>
   );
 }
-
 export const ACTION_BTN_BASE =
   "flex h-8 items-center gap-1.5 rounded-[8px] border border-[var(--canvas-controls-border)] px-3.5 text-[13px] font-medium transition-colors duration-150";
-
 const COST_BADGE_CLASS =
   "inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[13px] tracking-tight text-[var(--canvas-controls-text,#fff)]/70";
-
 export function CompactCreditCost({ creditCost }) {
   return (
     <span className={COST_BADGE_CLASS}>
-      <TokenIcon$1 />
+      <TokenIcon />
       <span className="pointer-events-none tabular-nums">{creditCost}</span>
     </span>
   );
 }
-
 export function GeneratingButton({ label }) {
   return (
     <button
@@ -171,7 +159,6 @@ export function GeneratingButton({ label }) {
     </button>
   );
 }
-
 export function svgBase({ size: size2 = 16, ...rest }) {
   return {
     width: size2,

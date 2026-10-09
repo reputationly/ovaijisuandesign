@@ -9,38 +9,28 @@ import { setToolCallDisplayConfig } from "./request-prompt-prefill.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
-
 const VIDEO_STARTER_PRESETS_SCHEMA_VERSION = 1;
-
 const MAX_PRESET_ITEMS = 8;
-
 const MAX_PRESET_REFS = 12;
-
 const MAX_PARAM_ENTRIES = 16;
-
 const PRESET_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/;
-
 const REF_TYPES = new Set(["image", "video", "audio"]);
-
 function isRecord$f(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-
-function nonEmptyString$2(value) {
+function nonEmptyString(value) {
   if (typeof value !== "string") return void 0;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : void 0;
 }
-
 function localizedString(value, locale) {
-  if (typeof value === "string") return nonEmptyString$2(value);
+  if (typeof value === "string") return nonEmptyString(value);
   if (!isRecord$f(value)) return void 0;
   return (
-    nonEmptyString$2(value[locale]) ??
-    nonEmptyString$2(value[locale === "zh" ? "en" : "zh"])
+    nonEmptyString(value[locale]) ??
+    nonEmptyString(value[locale === "zh" ? "en" : "zh"])
   );
 }
-
 function localizedText$1(value, locale) {
   if (typeof value === "string") return value.trim();
   if (!isRecord$f(value)) return "";
@@ -49,7 +39,6 @@ function localizedText$1(value, locale) {
   const fallback = value[locale === "zh" ? "en" : "zh"];
   return typeof fallback === "string" ? fallback.trim() : "";
 }
-
 function httpsUrl(value, locale) {
   const text2 = localizedString(value, locale);
   if (!text2) return void 0;
@@ -67,26 +56,24 @@ function httpsUrl(value, locale) {
     return void 0;
   }
 }
-
 function parseParams(value) {
   if (!isRecord$f(value)) return {};
   const out = {};
   let count2 = 0;
   for (const [key2, raw2] of Object.entries(value)) {
     if (count2 >= MAX_PARAM_ENTRIES) break;
-    const parsedKey = nonEmptyString$2(key2);
+    const parsedKey = nonEmptyString(key2);
     if (!parsedKey || typeof raw2 !== "string") continue;
     out[parsedKey] = raw2;
     count2 += 1;
   }
   return out;
 }
-
 function parseRef(value, locale) {
   if (!isRecord$f(value)) return void 0;
   const url2 = httpsUrl(value.url, locale);
   const name2 = localizedString(value.name, locale);
-  const type2 = nonEmptyString$2(value.type);
+  const type2 = nonEmptyString(value.type);
   if (!url2 || !name2 || !type2 || !REF_TYPES.has(type2)) {
     return void 0;
   }
@@ -96,15 +83,14 @@ function parseRef(value, locale) {
     type: type2,
   };
 }
-
 function parseItem(value, locale) {
   if (!isRecord$f(value)) return void 0;
-  const id2 = nonEmptyString$2(value.id);
+  const id2 = nonEmptyString(value.id);
   if (!id2 || !PRESET_ID_PATTERN.test(id2)) return void 0;
   const title = localizedString(value.title, locale);
   if (!title) return void 0;
   const prompt = localizedText$1(value.prompt, locale);
-  const modelId = nonEmptyString$2(value.model_id);
+  const modelId = nonEmptyString(value.model_id);
   const refs = Array.isArray(value.refs)
     ? value.refs.slice(0, MAX_PRESET_REFS).flatMap((ref) => {
         const parsed = parseRef(ref, locale);
@@ -124,7 +110,6 @@ function parseItem(value, locale) {
     refs,
   };
 }
-
 function parseVideoStarterPresets(raw2, locale = "en") {
   if (!isRecord$f(raw2)) return [];
   if (raw2.schema_version !== VIDEO_STARTER_PRESETS_SCHEMA_VERSION) return [];
@@ -140,9 +125,7 @@ function parseVideoStarterPresets(raw2, locale = "en") {
   }
   return items;
 }
-
 const KNOWN_IDS = Object.values(STARTUP_MODAL_IDS);
-
 function parseIdList(raw2) {
   if (!Array.isArray(raw2)) return null;
   const out = [];
@@ -154,13 +137,11 @@ function parseIdList(raw2) {
   }
   return out;
 }
-
 function parseBoundedNumber(raw2, min2, max2, fallback) {
   if (typeof raw2 !== "number" || !Number.isFinite(raw2)) return fallback;
   if (raw2 < min2 || raw2 > max2) return fallback;
   return Math.floor(raw2);
 }
-
 function parseStartupModalSchedule(raw2) {
   if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) {
     return DEFAULT_MODAL_SCHEDULE_CONFIG;
@@ -200,13 +181,10 @@ function parseStartupModalSchedule(raw2) {
     ),
   };
 }
-
 const HOME_WIDGET_KINDS = ["update", "survey"];
-
 const DEFAULT_UPDATE_WIDGET_CONFIG = {
   imageUrl: null,
 };
-
 async function refreshToolCallDisplayConfig() {
   try {
     const response = await gatewayFetch(
@@ -217,7 +195,6 @@ async function refreshToolCallDisplayConfig() {
     setToolCallDisplayConfig(raw2);
   } catch {}
 }
-
 const DEFAULT_HUB_CLIENT_CONFIG = {
   whatsNewEnabled: true,
   videoStarterPresets: [],
@@ -225,13 +202,10 @@ const DEFAULT_HUB_CLIENT_CONFIG = {
   homeWidget: DEFAULT_HOME_WIDGET_CONFIG,
   updateWidget: DEFAULT_UPDATE_WIDGET_CONFIG,
 };
-
 const HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS = 6e4;
-
 function isRecord$b(value) {
   return typeof value === "object" && value !== null;
 }
-
 function safeHttpsUrl(value) {
   if (typeof value !== "string" || value.trim().length === 0) return null;
   try {
@@ -243,7 +217,6 @@ function safeHttpsUrl(value) {
     return null;
   }
 }
-
 function localizedText(value, locale) {
   if (typeof value === "string") return value.trim();
   if (!isRecord$b(value)) return "";
@@ -258,11 +231,9 @@ function localizedText(value, locale) {
   }
   return "";
 }
-
 function plainText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-
 function parseHomeSurvey(value) {
   if (!isRecord$b(value) || value.enabled !== true) return null;
   const id2 = plainText(value.id);
@@ -298,7 +269,6 @@ function parseHomeSurvey(value) {
     cooldownMs,
   };
 }
-
 function parseUpdateWidget(value, locale) {
   if (!isRecord$b(value)) return DEFAULT_UPDATE_WIDGET_CONFIG;
   const imageUrl = safeHttpsUrl(localizedText(value.image_url, locale));
@@ -311,7 +281,6 @@ function parseUpdateWidget(value, locale) {
         imageUrl,
       };
 }
-
 function parseHomeWidget(value) {
   if (!isRecord$b(value)) return DEFAULT_HOME_WIDGET_CONFIG;
   const legacyOrder = Array.isArray(value.order)
@@ -329,7 +298,6 @@ function parseHomeWidget(value) {
       : {}),
   };
 }
-
 function mapHubClientConfig(raw2, locale) {
   if (!isRecord$b(raw2)) return DEFAULT_HUB_CLIENT_CONFIG;
   const cfg = raw2;
@@ -349,7 +317,6 @@ function mapHubClientConfig(raw2, locale) {
     updateWidget: parseUpdateWidget(cfg.update_widget, locale),
   };
 }
-
 export function useHubClientConfig() {
   const gatewayReady = useGatewayReady();
   const { region, channel } = useRuntimeConfig();

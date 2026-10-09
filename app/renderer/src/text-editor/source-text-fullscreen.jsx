@@ -15,7 +15,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ToolbarBtn, ToolbarSeparator$1 } from "./editor-history-controls.jsx";
+import { ToolbarBtn, ToolbarSeparator } from "./editor-history-controls.jsx";
 import { buildTextareaSelectionState } from "../vendor-inline/codemirror/delete-markup-backward.js";
 import { DiffPendingDialog } from "./diff-pending-dialog.jsx";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
@@ -34,7 +34,6 @@ import { useSourceDiffReview } from "./use-source-diff-review.jsx";
 import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
 import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
 import { useTextVersionPanel } from "./use-text-version-panel.jsx";
-
 function countNewlinesBefore(text2, offset2) {
   let count2 = 0;
   const end2 = Math.min(offset2, text2.length);
@@ -43,20 +42,17 @@ function countNewlinesBefore(text2, offset2) {
   }
   return count2;
 }
-
 function scrollTextareaToOffset(textarea, offset2, lineHeight) {
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
   const line = countNewlinesBefore(textarea.value, offset2);
   const target = line * lineHeight - textarea.clientHeight / 2;
   textarea.scrollTop = Math.max(0, target);
 }
-
 function resolveLineHeight(textarea) {
   const raw2 = window.getComputedStyle(textarea).lineHeight;
   const parsed = Number.parseFloat(raw2);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
 }
-
 function replaceAllInText(text2, query, options, replacement, maxMatches) {
   const pattern = compileFindPattern(query, options);
   if (!pattern)
@@ -90,7 +86,6 @@ function replaceAllInText(text2, query, options, replacement, maxMatches) {
     count: matches2.length,
   };
 }
-
 function SourceEditorHistoryControls({ editorRef, availability }) {
   const { t: t2 } = useTranslation();
   return (
@@ -124,7 +119,6 @@ function SourceEditorHistoryControls({ editorRef, availability }) {
     </>
   );
 }
-
 export function SourceTextFullscreen({
   initialMarkdown,
   onClose,
@@ -536,7 +530,7 @@ export function SourceTextFullscreen({
               editorRef={codeMirrorRef}
               availability={sourceHistory}
             />
-            <ToolbarSeparator$1 />
+            <ToolbarSeparator />
             {versionPanel.toolbarButtons}
           </>
         ) : (

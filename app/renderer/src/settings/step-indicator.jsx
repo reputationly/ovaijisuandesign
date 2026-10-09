@@ -11,8 +11,7 @@ import {
   Tooltip,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 function getStepLabelKey({ platform: platform2, state: state2, step }) {
   if (state2 === "done") {
     if (step === "scan")
@@ -24,7 +23,6 @@ function getStepLabelKey({ platform: platform2, state: state2, step }) {
     ? `settings.imBridge.addFlow.step.scan.${platform2}`
     : `settings.imBridge.addFlow.step.${step}`;
 }
-
 function StepHintContent({ platform: platform2, step }) {
   const { t: t2 } = useTranslation();
   const hintKey =
@@ -33,7 +31,6 @@ function StepHintContent({ platform: platform2, step }) {
       : `settings.imBridge.addFlow.stepHint.${step}.${platform2}`;
   return <>{t2(hintKey)}</>;
 }
-
 function StepIndicator({
   platform: platform2,
   step,
@@ -62,7 +59,7 @@ function StepIndicator({
                 <TooltipTrigger
                   render={
                     <span
-                      className={cn$2(
+                      className={cn(
                         "group/step relative isolate inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-1 text-[15px] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
                         state2 === "active" && "font-medium text-foreground",
                         state2 === "done" &&
@@ -74,7 +71,7 @@ function StepIndicator({
                   }
                 >
                   <span
-                    className={cn$2(
+                    className={cn(
                       "relative isolate flex h-4 min-w-12 items-center justify-center rounded-full px-2 text-[10px] font-medium leading-none transition-colors",
                       state2 === "active" &&
                         "bg-foreground text-background group-hover/step:bg-foreground/90",
@@ -115,7 +112,7 @@ function StepIndicator({
               </Tooltip>
               {index2 < stepKeys.length - 1 && (
                 <span
-                  className={cn$2(
+                  className={cn(
                     "h-px w-16 bg-border",
                     shouldFlowLine &&
                       "bg-[linear-gradient(90deg,var(--border)_0%,var(--border)_35%,color-mix(in_srgb,var(--foreground)_42%,var(--border))_50%,var(--border)_65%,var(--border)_100%)] bg-[length:200%_100%] motion-safe:animate-[im-step-line-flow_1400ms_linear_infinite]",
@@ -138,7 +135,6 @@ function StepIndicator({
     </div>
   );
 }
-
 export function AddFlowFrame({
   platform: platform2,
   step,
@@ -165,7 +161,7 @@ export function AddFlowFrame({
   }, [onDialogHeaderChange, title]);
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex min-h-full flex-1 flex-col duration-150 animate-in fade-in-0 slide-in-from-right-4",
         layout === "settings" ? "gap-0 pt-5" : "gap-6",
       )}

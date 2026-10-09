@@ -1,19 +1,16 @@
 // compute-group-bounds-from-children.js
 import { CanvasNodeType } from "../vendor.js";
-
-const GENERATION_REFERENCE_DATA_KEYS$1 = [
+const GENERATION_REFERENCE_DATA_KEYS = [
   "referenceImageIds",
   "referenceAudioIds",
   "referenceVideoIds",
   "referenceTextIds",
 ];
-
 function asDataRecord(value) {
   if (typeof value !== "object" || value === null || Array.isArray(value))
     return void 0;
   return value;
 }
-
 function collectNodeIdentities(node2) {
   const identities = new Set([node2.id]);
   if (typeof node2.assetId === "string" && node2.assetId.length > 0)
@@ -23,13 +20,12 @@ function collectNodeIdentities(node2) {
     identities.add(dataAssetId);
   return identities;
 }
-
 function collectReferenceIds(node2, options) {
   if (!node2) return [];
   const collected = [];
   const data2 = asDataRecord(node2.data);
   if (data2) {
-    for (const key2 of GENERATION_REFERENCE_DATA_KEYS$1) {
+    for (const key2 of GENERATION_REFERENCE_DATA_KEYS) {
       const references = data2[key2];
       if (!Array.isArray(references)) continue;
       for (const reference of references) {
@@ -41,7 +37,6 @@ function collectReferenceIds(node2, options) {
   if (collected.length > 0) return collected;
   return options?.resolveReferenceIds?.(node2) ?? [];
 }
-
 export function isArtifactProvenanceEdge(edge, nodes, options) {
   if (edge.type !== "derivation") return false;
   const sourceNode = nodes.find((node2) => node2.id === edge.source);
@@ -52,12 +47,10 @@ export function isArtifactProvenanceEdge(edge, nodes, options) {
   const sourceIdentities = collectNodeIdentities(sourceNode);
   return references.some((reference) => sourceIdentities.has(reference));
 }
-
 export const CanvasMode = {
   Freeform: "freeform",
   Workflow: "workflow",
 };
-
 const ASSET_BACKED_TYPES = new Set([
   CanvasNodeType.Image,
   CanvasNodeType.Video,
@@ -65,11 +58,9 @@ const ASSET_BACKED_TYPES = new Set([
   CanvasNodeType.Text,
   CanvasNodeType.File,
 ]);
-
 export function isAssetBackedNode(type2) {
   return ASSET_BACKED_TYPES.has(type2);
 }
-
 export function isGenerationErrorStatus(status) {
   return (
     status === "error" ||
@@ -77,24 +68,17 @@ export function isGenerationErrorStatus(status) {
     status === "status_unknown"
   );
 }
-
 const GENERATION_REFUND_STATUSES = ["none", "pending", "refunded"];
-
 export function isGenerationRefundStatus(value) {
   return GENERATION_REFUND_STATUSES.includes(value);
 }
-
 export const POPOVER_DRAFT_DATA_KEY = "popoverDraft";
-
 const NODE_SIZE_MIN = 100;
-
 export const NODE_SIZE_MAX = 350;
-
 export const VIDEO_EMPTY_CARD_SIZE = {
   width: 350,
   height: 280,
 };
-
 const VIDEO_EMPTY_NON_IDLE_STATUSES = new Set([
   "pending",
   "generating",
@@ -102,32 +86,26 @@ const VIDEO_EMPTY_NON_IDLE_STATUSES = new Set([
   "queue_paused",
   "error",
 ]);
-
 export const AUDIO_CARD_SIZE = {
   width: 350,
   height: 150,
 };
-
 export const TEXT_CARD_DEFAULT_SIZE = {
   width: 350,
   height: 500,
 };
-
 export const IMAGE_CARD_DEFAULT_SIZE = {
   width: 350,
   height: 350,
 };
-
 export const TABLE_CARD_DEFAULT_SIZE = {
   width: 350,
   height: 200,
 };
-
 export const FILE_CARD_DEFAULT_SIZE = {
   width: 350,
   height: 76,
 };
-
 export function parseAspectRatio(ratio) {
   if (!ratio) return void 0;
   const trimmed = ratio.trim().toLowerCase();
@@ -142,7 +120,6 @@ export function parseAspectRatio(ratio) {
     h: h2,
   };
 }
-
 export const GROUP_NODE_PADDING = {
   /** Left/right inner padding (px). */
   x: 24,
@@ -151,7 +128,6 @@ export const GROUP_NODE_PADDING = {
   /** Bottom inner padding (px). */
   bottom: 24,
 };
-
 export function computeNodeSize(w3, h2) {
   if (!w3 || !h2 || w3 <= 0 || h2 <= 0) return void 0;
   const scale2 = Math.min(NODE_SIZE_MAX / w3, NODE_SIZE_MAX / h2);
@@ -160,7 +136,6 @@ export function computeNodeSize(w3, h2) {
     height: Math.max(NODE_SIZE_MIN, Math.round(h2 * scale2)),
   };
 }
-
 export function isIdleEmptyVideoNode(node2) {
   if (node2.type !== "video" || node2.isEmpty !== true || !!node2.assetId)
     return false;
@@ -169,7 +144,6 @@ export function isIdleEmptyVideoNode(node2) {
     typeof status !== "string" || !VIDEO_EMPTY_NON_IDLE_STATUSES.has(status)
   );
 }
-
 export function defaultNodeSizeForType(type2) {
   switch (type2) {
     case "audio":
@@ -189,7 +163,6 @@ export function defaultNodeSizeForType(type2) {
       return IMAGE_CARD_DEFAULT_SIZE;
   }
 }
-
 export function computeGroupBoundsFromChildren(children2) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
@@ -213,11 +186,9 @@ export function computeGroupBoundsFromChildren(children2) {
     },
   };
 }
-
 export function readGroupSize(node2, mode2) {
   return node2.sizes?.[mode2] ?? node2.size;
 }
-
 export function withParentId(node2, parentId) {
   if (parentId === void 0) {
     const { parentId: _drop, ...rest } = node2;

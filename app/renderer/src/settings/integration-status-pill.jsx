@@ -1,33 +1,29 @@
 // integration-status-pill.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
-import { InfoIcon$1, jsxRuntimeExports } from "../vendor.js";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { InfoIcon$1 as InfoIcon, jsxRuntimeExports } from "../vendor.js";
 import {
   Tooltip,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
-
 const integrationStatusPillToneClass = {
   muted: "bg-secondary text-muted-foreground",
   neutral: "bg-secondary text-foreground/70",
   warning: "bg-warning/10 text-warning",
   destructive: "bg-destructive/10 text-destructive",
 };
-
 const integrationStatusMarkerOuterClass = {
   muted: "bg-muted-foreground/15",
   success: "bg-success/15",
   warning: "bg-warning/15",
   destructive: "bg-destructive/15",
 };
-
 const integrationStatusMarkerInnerClass = {
   muted: "bg-muted-foreground/60",
   success: "bg-success",
   warning: "bg-warning",
   destructive: "bg-destructive",
 };
-
 function IntegrationStatusMarker({
   tone,
   active: active2 = false,
@@ -50,7 +46,7 @@ function IntegrationStatusMarker({
     return (
       <span
         role="status"
-        className={cn$2(
+        className={cn(
           "size-1.5 shrink-0 rounded-full",
           integrationStatusMarkerInnerClass[tone],
         )}
@@ -62,7 +58,7 @@ function IntegrationStatusMarker({
   return (
     <span
       role="status"
-      className={cn$2(
+      className={cn(
         "relative isolate flex size-2.5 shrink-0 items-center justify-center rounded-full",
         integrationStatusMarkerOuterClass[tone],
       )}
@@ -74,7 +70,7 @@ function IntegrationStatusMarker({
         className="absolute -inset-px -z-10 rounded-full border border-warning/10 bg-warning/[0.02] motion-safe:animate-[im-status-radar_3600ms_ease-out_infinite]"
       />
       <span
-        className={cn$2(
+        className={cn(
           "size-1 rounded-full",
           integrationStatusMarkerInnerClass[tone],
         )}
@@ -82,7 +78,6 @@ function IntegrationStatusMarker({
     </span>
   );
 }
-
 export function IntegrationStatusPill({
   label,
   tone,
@@ -104,11 +99,11 @@ export function IntegrationStatusPill({
       />
       <span className="truncate">{label}</span>
       {tooltipContent && (
-        <InfoIcon$1 className="ml-0.5 size-3 shrink-0" strokeWidth={2} />
+        <InfoIcon className="ml-0.5 size-3 shrink-0" strokeWidth={2} />
       )}
     </>
   );
-  const pillClassName = cn$2(
+  const pillClassName = cn(
     "inline-flex h-[22px] min-w-0 items-center gap-1.5 rounded-full px-2 text-xs font-normal leading-none",
     integrationStatusPillToneClass[tone],
     markerIcon && "gap-1",
@@ -123,7 +118,7 @@ export function IntegrationStatusPill({
         render={
           <button
             type="button"
-            className={cn$2(
+            className={cn(
               pillClassName,
               "cursor-pointer transition-colors hover:bg-warning/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
             )}

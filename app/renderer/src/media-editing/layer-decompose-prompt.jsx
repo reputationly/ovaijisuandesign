@@ -6,14 +6,12 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { TokenIcon$2 } from "../generation/missing-asset-card.jsx";
+import { TokenIcon } from "../generation/missing-asset-card.jsx";
 import { PopoverShell } from "../generation/attachment-bar.jsx";
 import { SubmitButton } from "../generation/submit-button.jsx";
 import { drawWatermark } from "./single-position.js";
 import { ImageSplitOverlayInner } from "./image-split-overlay-inner.jsx";
-
 export const ImageSplitOverlay = reactExports.memo(ImageSplitOverlayInner);
-
 export const DEFAULT_WATERMARK_SETTINGS = {
   text: "@ 水印文案",
   fontFamily:
@@ -30,7 +28,6 @@ export const DEFAULT_WATERMARK_SETTINGS = {
   shadow: false,
   shadowBlur: 4,
 };
-
 export const ImageWatermarkPreview = reactExports.memo(
   function ImageWatermarkPreview2({
     displayWidth,
@@ -73,7 +70,6 @@ export const ImageWatermarkPreview = reactExports.memo(
     );
   },
 );
-
 export function LayerDecomposePrompt({
   prompt,
   submitting,
@@ -94,7 +90,7 @@ export function LayerDecomposePrompt({
         data-action-ui-id="canvas.layer-decompose-prompt.credit-cost"
         className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[13px] tracking-tight text-[var(--canvas-controls-text,#fff)]/70"
       >
-        <TokenIcon$2 />
+        <TokenIcon />
         <span className="pointer-events-none tabular-nums">{creditCost}</span>
         <span>{t2("canvas.layerDecompose.costPerImage", "积分/张")}</span>
       </span>
@@ -152,34 +148,26 @@ export function LayerDecomposePrompt({
     </PopoverShell>
   );
 }
-
 export const VIEWBOX_SIZE = 40;
-
 const VIEWBOX_CENTER = VIEWBOX_SIZE / 2;
-
-const DEG$2 = Math.PI / 180;
-
-export const add$1 = (a2, b3) => ({
+const DEG = Math.PI / 180;
+export const add = (a2, b3) => ({
   x: a2.x + b3.x,
   y: a2.y + b3.y,
   z: a2.z + b3.z,
 });
-
 const scale = (value, amount) => ({
   x: value.x * amount,
   y: value.y * amount,
   z: value.z * amount,
 });
-
 const cross = (a2, b3) => ({
   x: a2.y * b3.z - a2.z * b3.y,
   y: a2.z * b3.x - a2.x * b3.z,
   z: a2.x * b3.y - a2.y * b3.x,
 });
-
 const length$1 = (value) => Math.hypot(value.x, value.y, value.z);
-
-const normalize$4 = (value) => {
+const normalize = (value) => {
   const magnitude = length$1(value);
   return magnitude < 1e-6
     ? {
@@ -189,17 +177,16 @@ const normalize$4 = (value) => {
       }
     : scale(value, 1 / magnitude);
 };
-
 export function getCameraModelView(horizontalAngle, verticalAngle) {
-  const h2 = horizontalAngle * DEG$2;
-  const v2 = verticalAngle * DEG$2;
-  const position2 = normalize$4({
+  const h2 = horizontalAngle * DEG;
+  const v2 = verticalAngle * DEG;
+  const position2 = normalize({
     x: Math.sin(h2) * Math.cos(v2),
     y: Math.sin(v2),
     z: Math.cos(h2) * Math.cos(v2),
   });
   const forward = scale(position2, -1);
-  let right = normalize$4(
+  let right = normalize(
     cross(forward, {
       x: 0,
       y: 1,
@@ -212,7 +199,7 @@ export function getCameraModelView(horizontalAngle, verticalAngle) {
       y: 0,
       z: 0,
     };
-  const up = normalize$4(cross(right, forward));
+  const up = normalize(cross(right, forward));
   return {
     right,
     up,
@@ -221,15 +208,13 @@ export function getCameraModelView(horizontalAngle, verticalAngle) {
     backVisibility: -forward.z,
   };
 }
-
 export function localToWorld(point2, basis) {
-  return add$1(
-    add$1(scale(basis.right, point2.x), scale(basis.up, point2.y)),
+  return add(
+    add(scale(basis.right, point2.x), scale(basis.up, point2.y)),
     scale(basis.forward, point2.z),
   );
 }
-
-export function project$1(point2, basis) {
+export function project(point2, basis) {
   const world = localToWorld(point2, basis);
   return {
     x: VIEWBOX_CENTER + world.x,
@@ -237,13 +222,11 @@ export function project$1(point2, basis) {
     z: world.z,
   };
 }
-
 export function pointsAttribute(points) {
   return points
     .map(({ x: x2, y: y4 }) => `${x2.toFixed(2)},${y4.toFixed(2)}`)
     .join(" ");
 }
-
 export function planeEllipse({ center, radius, basis, steps = 28 }) {
   return Array.from(
     {
@@ -251,7 +234,7 @@ export function planeEllipse({ center, radius, basis, steps = 28 }) {
     },
     (_2, index2) => {
       const angle = (index2 / steps) * Math.PI * 2;
-      return project$1(
+      return project(
         {
           x: center.x + Math.cos(angle) * radius,
           y: center.y + Math.sin(angle) * radius,

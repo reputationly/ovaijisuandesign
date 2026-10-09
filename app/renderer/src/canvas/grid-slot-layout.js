@@ -1,26 +1,24 @@
 // grid-slot-layout.js
 import { sizeOf } from "./use-active-mode.js";
 import {
-  _$2,
-  j$2,
-  k$3,
-  N$1,
+  _,
+  j,
+  k,
+  N,
   nodeToRect,
-  O$3,
-  S$4,
-  V$3,
+  O,
+  S,
+  V,
   w$3,
 } from "./layout-category-lanes.js";
 import { CanvasMode } from "./compute-group-bounds-from-children.js";
 import { DEFAULT_PLACEMENT_GAP } from "./ungroup-in-canvas.js";
 import { findFreePositionForRects } from "./find-free-position-for-rects.js";
-import { dn$2, L$4 } from "./ot.js";
-import { p$4 } from "../vendor.js";
-
-export function st$1(e2) {
-  (S$4(e2), V$3(e2));
+import { dn, L } from "./ot.js";
+import { p$4 as p } from "../vendor.js";
+export function st(e2) {
+  (S(e2), V(e2));
 }
-
 export function lt2(e2) {
   let n2 = {},
     t2 = 0;
@@ -32,9 +30,8 @@ export function lt2(e2) {
         lim: t2++,
       }));
   }
-  return (e2.children(_$2).forEach(r2), n2);
+  return (e2.children(_).forEach(r2), n2);
 }
-
 export function Qe(e2, n2, t2, r2, o2, i2) {
   let s2 = {
       width: 0,
@@ -51,17 +48,15 @@ export function Qe(e2, n2, t2, r2, o2, i2) {
         weight: 1,
       }));
 }
-
 function Gt(e2) {
   let n2;
-  for (; e2.hasNode((n2 = j$2("_root"))););
+  for (; e2.hasNode((n2 = j("_root"))););
   return n2;
 }
-
-export function de$2(e2, n2, t2, r2) {
+export function de(e2, n2, t2, r2) {
   r2 || (r2 = e2.nodes());
   let o2 = Gt(e2),
-    i2 = new p$4({
+    i2 = new p({
       compound: true,
     })
       .setGraph({
@@ -94,11 +89,10 @@ export function de$2(e2, n2, t2, r2) {
     i2
   );
 }
-
-export function _t$1(e2, n2) {
+export function _t(e2, n2) {
   let t2 = {};
   function r2(i2, s2, a2, d2, l2) {
-    k$3(s2, a2).forEach((u4) => {
+    k(s2, a2).forEach((u4) => {
       let c3 = i2[u4];
       if (c3 !== void 0 && e2.node(c3).dummy) {
         let h2 = e2.predecessors(c3);
@@ -106,7 +100,7 @@ export function _t$1(e2, n2) {
           h2.forEach((f2) => {
             if (f2 === void 0) return;
             let g2 = e2.node(f2);
-            g2.dummy && (g2.order < d2 || g2.order > l2) && dn$2(t2, f2, c3);
+            g2.dummy && (g2.order < d2 || g2.order > l2) && dn(t2, f2, c3);
           });
       }
     });
@@ -135,28 +129,26 @@ export function _t$1(e2, n2) {
   }
   return (n2.length && n2.reduce(o2), t2);
 }
-
 export function Pt(e2, n2) {
   let t2 = Object.values(n2),
-    r2 = L$4(Math.min, t2),
-    o2 = L$4(Math.max, t2);
+    r2 = L(Math.min, t2),
+    o2 = L(Math.max, t2);
   ["u", "d"].forEach((i2) => {
     ["l", "r"].forEach((s2) => {
       let a2 = i2 + s2,
         d2 = e2[a2];
       if (!d2 || d2 === n2) return;
       let l2 = Object.values(d2),
-        u4 = r2 - L$4(Math.min, l2);
-      (s2 !== "l" && (u4 = o2 - L$4(Math.max, l2)),
-        u4 && (e2[a2] = O$3(d2, (c3) => c3 + u4)));
+        u4 = r2 - L(Math.min, l2);
+      (s2 !== "l" && (u4 = o2 - L(Math.max, l2)),
+        u4 && (e2[a2] = O(d2, (c3) => c3 + u4)));
     });
   });
 }
-
 export function Mt(e2, n2 = void 0) {
   let t2 = e2.ul;
   return t2
-    ? O$3(t2, (r2, o2) => {
+    ? O(t2, (r2, o2) => {
         var s2, a2;
         if (n2) {
           let d2 = n2.toLowerCase(),
@@ -176,9 +168,8 @@ export function Mt(e2, n2 = void 0) {
       })
     : {};
 }
-
-export function Ft$1(e2) {
-  let n2 = N$1(e2),
+export function Ft(e2) {
+  let n2 = N(e2),
     t2 = e2.graph(),
     r2 = t2.ranksep,
     o2 = t2.rankalign,
@@ -200,18 +191,14 @@ export function Ft$1(e2) {
       (i2 += a2 + r2));
   });
 }
-
 const DEFAULT_NODE_WIDTH = 350;
-
 const MAX_COLS = 8;
-
 function computeMaxRowWidth(nodes, gap, mode2) {
   if (nodes.length === 0)
     return MAX_COLS * DEFAULT_NODE_WIDTH + (MAX_COLS - 1) * gap;
   const maxW = Math.max(...nodes.map((n2) => sizeOf(n2, mode2).width));
   return maxW * MAX_COLS + gap * (MAX_COLS - 1);
 }
-
 export class GridSlotLayout {
   name = "grid-slot";
   compute(nodes, _edges, options) {

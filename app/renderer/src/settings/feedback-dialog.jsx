@@ -1,5 +1,10 @@
 // feedback-dialog.jsx
-import { dedupedToast, reactExports, useTranslation, X$7 } from "../vendor.js";
+import {
+  dedupedToast,
+  reactExports,
+  useTranslation,
+  X$7 as X,
+} from "../vendor.js";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
@@ -7,7 +12,7 @@ import { ImagePlusOutlineIcon } from "../media-editing/package.jsx";
 import { FEEDBACK_CONSTRAINTS } from "../generation/normalize-skill-detail-metadata.js";
 import { getActiveChatSnapshot } from "../chat/attach-handoff-targets-to-sub-messages.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -18,7 +23,6 @@ import {
   DialogTitle,
   Textarea,
 } from "../infra/badge-variants.jsx";
-
 function makePreview(file) {
   return {
     id: `${file.name}:${file.lastModified}:${file.size}:${Math.random().toString(36).slice(2, 8)}`,
@@ -26,7 +30,6 @@ function makePreview(file) {
     previewUrl: URL.createObjectURL(file),
   };
 }
-
 const FEATURE_REQUEST_MODULES = [
   "canvas",
   "asset_center",
@@ -36,7 +39,6 @@ const FEATURE_REQUEST_MODULES = [
   "general",
   "other",
 ];
-
 export function FeedbackDialog({ open, options, onClose }) {
   const { t: t2 } = useTranslation();
   const [description, setDescription] = reactExports.useState("");
@@ -287,7 +289,7 @@ export function FeedbackDialog({ open, options, onClose }) {
                   aria-label={t2("feedback.dialog.removeAttachment")}
                   data-action-ui-id="feedback.dialog.removeAttachment"
                 >
-                  <X$7 className="size-3" />
+                  <X className="size-3" />
                 </button>
               </div>
             ))}
@@ -326,7 +328,7 @@ export function FeedbackDialog({ open, options, onClose }) {
             {isFeatureRequest ? "" : t2("feedback.dialog.privacyNote")}
           </span>
           <div className="flex items-center gap-2">
-            <Button$1
+            <Button
               variant="ghost"
               size="default"
               onClick={onClose}
@@ -334,8 +336,8 @@ export function FeedbackDialog({ open, options, onClose }) {
               data-action-ui-id="feedback.dialog.cancel"
             >
               {t2("common.cancel")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               size="default"
               onClick={() => void handleSubmit()}
               disabled={!canSubmit}
@@ -343,7 +345,7 @@ export function FeedbackDialog({ open, options, onClose }) {
               data-action-ui-id="feedback.dialog.submit"
             >
               {t2("feedback.dialog.submit")}
-            </Button$1>
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

@@ -12,14 +12,13 @@ import {
   reactExports,
   SELECTED_GLOW_BLUR,
   shallow,
-  useStore$3,
+  useStore$3 as useStore,
   useStoreApi,
   XYMinimap,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRecentlyAddedApi } from "../infra/create-recently-added-store.js";
 import { useGeneratingStateApi } from "../media-editing/package.jsx";
-
 function computeCanvasMiniMapLayout({
   elementWidth,
   elementHeight,
@@ -53,7 +52,6 @@ function computeCanvasMiniMapLayout({
     offsetY: (safeElementHeight - viewBox.height * scale2) / 2,
   };
 }
-
 function isCanvasMiniMapStaticLayoutEqual(previous2, next2) {
   return (
     previous2?.viewBox.x === next2.viewBox.x &&
@@ -65,14 +63,12 @@ function isCanvasMiniMapStaticLayoutEqual(previous2, next2) {
     previous2.offsetY === next2.offsetY
   );
 }
-
 function miniMapPointToFlow(point2, layout) {
   return {
     x: layout.viewBox.x + (point2.x - layout.offsetX) / layout.scale,
     y: layout.viewBox.y + (point2.y - layout.offsetY) / layout.scale,
   };
 }
-
 function parseMiniMapGenerationSequence(...timestamps) {
   for (const timestamp2 of timestamps) {
     if (typeof timestamp2 !== "string" || timestamp2.length === 0) continue;
@@ -81,7 +77,6 @@ function parseMiniMapGenerationSequence(...timestamps) {
   }
   return void 0;
 }
-
 function selectLatestGeneration(candidates2) {
   let latest2;
   for (const candidate of candidates2) {
@@ -89,17 +84,11 @@ function selectLatestGeneration(candidates2) {
   }
   return latest2?.value;
 }
-
 const RIPPLE_DURATION_MS = 2e3;
-
 const RIPPLE_REPEAT_COUNT = 3;
-
 const RIPPLE_DELAYS_MS = [0, 670, 1330];
-
 const RIPPLE_START_RADIUS = 3;
-
 const RIPPLE_END_RADIUS = 20;
-
 function getMiniMapRippleFrames(elapsedMs2, continuous) {
   const frames = [];
   let animating = false;
@@ -125,19 +114,12 @@ function getMiniMapRippleFrames(elapsedMs2, continuous) {
     animating,
   };
 }
-
 const MIN_VIEWPORT_INDICATOR_SIZE = 12;
-
 const VIEWPORT_INDICATOR_STROKE_WIDTH = 1.5;
-
 const VIEWPORT_INDICATOR_DISPERSED_STROKE_WIDTH = 2.75;
-
 const VIEWPORT_INDICATOR_TRANSITION_MS = 280;
-
 const DEFAULT_WIDTH = 200;
-
 const DEFAULT_HEIGHT = 150;
-
 function getClientPoint(event) {
   const source = "nativeEvent" in event ? event.nativeEvent : event;
   if ("touches" in source) {
@@ -156,7 +138,6 @@ function getClientPoint(event) {
     y: mouseEvent.clientY,
   };
 }
-
 function resolveCssColor(element2, color2) {
   const computedStyle = getComputedStyle(element2);
   let resolved = color2;
@@ -172,13 +153,11 @@ function resolveCssColor(element2, color2) {
   }
   return resolved;
 }
-
 function roundedRect(context, x2, y4, width, height, radius) {
   const safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
   context.beginPath();
   context.roundRect(x2, y4, width, height, safeRadius);
 }
-
 function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
   const canvas = existing ?? document.createElement("canvas");
   const bitmapWidth = Math.max(1, Math.round(elementWidth * pixelRatio));
@@ -196,7 +175,6 @@ function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
     context,
   };
 }
-
 export function CanvasMiniMap({
   position: position2,
   style: style2,
@@ -229,7 +207,7 @@ export function CanvasMiniMap({
   const storeApi = useStoreApi();
   const recentlyAddedStore = useRecentlyAddedApi();
   const generatingStateStore = useGeneratingStateApi();
-  const interactionState = useStore$3(
+  const interactionState = useStore(
     (state2) => ({
       panZoom: state2.panZoom,
       translateExtent: state2.translateExtent,

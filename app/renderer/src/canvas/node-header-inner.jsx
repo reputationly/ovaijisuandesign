@@ -4,7 +4,7 @@ import {
   reactExports,
   useNodeId,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MAX_VISIBLE_CANVAS_TAG_COLORS } from "../infra/parse-connector-selection.js";
@@ -18,24 +18,16 @@ import {
   useNodeTagColors,
 } from "./use-inline-rename.jsx";
 import { useCanvasBridge } from "../media-editing/package.jsx";
-
 const NODE_TAG_MAX_VISIBLE_COLORS = MAX_VISIBLE_CANVAS_TAG_COLORS;
-
 const NODE_TAG_HEADER_HEIGHT = 24;
-
 const NODE_TAG_MIN_COUNTER_SCALE = 1;
-
 const NODE_TAG_MAX_COUNTER_SCALE = 4.35;
-
 const NODE_TAG_SURFACE_COLOR =
   "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-surface-strength, 35%), var(--canvas-node-tag-surface-base, #ffffff))";
-
 const NODE_TAG_INK_COLOR =
   "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-ink-strength, 30%), var(--canvas-node-tag-ink-base, #141414))";
-
 const NODE_TAG_BORDER_COLOR =
   "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-border-strength, 100%), var(--node-tag-surface))";
-
 const NODE_TAG_THEME_TOKEN_BY_PRESET = {
   "#0A84FF": "--canvas-node-tag-blue",
   "#BF5AF2": "--canvas-node-tag-purple",
@@ -45,12 +37,10 @@ const NODE_TAG_THEME_TOKEN_BY_PRESET = {
   "#30D158": "--canvas-node-tag-green",
   "#FFD60A": "--canvas-node-tag-yellow",
 };
-
 function resolveNodeTagPresentationColor(color2) {
   const token2 = NODE_TAG_THEME_TOKEN_BY_PRESET[color2.toUpperCase()];
   return token2 ? `var(${token2}, ${color2.toUpperCase()})` : color2;
 }
-
 function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
   const { t: t2 } = useTranslation();
   const labelsRef = reactExports.useRef(null);
@@ -118,7 +108,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
                   onTagRemove?.(tag);
                 }}
               >
-                <X$7 className="size-3" strokeWidth={3} aria-hidden="true" />
+                <X className="size-3" strokeWidth={3} aria-hidden="true" />
               </button>
             ) : null}
           </span>
@@ -127,8 +117,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
     </div>
   );
 }
-
-function ImageIcon$2() {
+function ImageIcon() {
   return (
     <CompositedSvg
       width="14"
@@ -141,8 +130,7 @@ function ImageIcon$2() {
     </CompositedSvg>
   );
 }
-
-function VideoIcon$2() {
+function VideoIcon() {
   return (
     <CompositedSvg
       width="14"
@@ -155,8 +143,7 @@ function VideoIcon$2() {
     </CompositedSvg>
   );
 }
-
-function AudioIcon$1() {
+function AudioIcon() {
   return (
     <CompositedSvg
       width="18"
@@ -172,8 +159,7 @@ function AudioIcon$1() {
     </CompositedSvg>
   );
 }
-
-function TextIcon$1() {
+function TextIcon() {
   return (
     <CompositedSvg
       width="14"
@@ -186,8 +172,7 @@ function TextIcon$1() {
     </CompositedSvg>
   );
 }
-
-function TableIcon$1() {
+function TableIcon() {
   return (
     <CompositedSvg
       width="14"
@@ -200,7 +185,6 @@ function TableIcon$1() {
     </CompositedSvg>
   );
 }
-
 function FileIcon() {
   return (
     <CompositedSvg
@@ -222,16 +206,14 @@ function FileIcon() {
     </CompositedSvg>
   );
 }
-
 const ICON_MAP = {
-  image: ImageIcon$2,
-  video: VideoIcon$2,
-  audio: AudioIcon$1,
-  text: TextIcon$1,
-  table: TableIcon$1,
+  image: ImageIcon,
+  video: VideoIcon,
+  audio: AudioIcon,
+  text: TextIcon,
+  table: TableIcon,
   file: FileIcon,
 };
-
 function NodeHeaderInner({
   nodeType,
   name: name2,
@@ -242,7 +224,7 @@ function NodeHeaderInner({
   onRename,
   preserveExtension: preserveExtension2 = true,
 }) {
-  const IconComponent = ICON_MAP[nodeType] ?? TextIcon$1;
+  const IconComponent = ICON_MAP[nodeType] ?? TextIcon;
   const tagColors = useNodeTagColors(tagIds);
   const hasColorTag = tagColors.length > 0;
   const hasAssignedTag = (tagIds?.length ?? 0) > 0;
@@ -369,5 +351,4 @@ function NodeHeaderInner({
     </div>
   );
 }
-
 export const NodeHeader = reactExports.memo(NodeHeaderInner);

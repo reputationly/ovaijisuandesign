@@ -10,24 +10,14 @@ import {
   getPluginAgentEditSession,
 } from "./input.jsx";
 import { accountScopedMessage } from "../assets/preview-media.jsx";
-
-const SESSION_CREATE_TIMEOUT_MS$1 = 1e4;
-
+const SESSION_CREATE_TIMEOUT_MS = 1e4;
 const MAX_PENDING_SESSION_CREATE_REQUESTS = 5;
-
-const MESSAGE_DELIVERY_TIMEOUT_MS$1 = 1e4;
-
+const MESSAGE_DELIVERY_TIMEOUT_MS = 1e4;
 const TIMED_OUT_PLUGIN_DELIVERY_LIMIT = 50;
-
-const DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS$1 = 300 * 6e4;
-
-const MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS$1 =
-  DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS$1;
-
+const DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS = 300 * 6e4;
+const MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS = DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS;
 const MESSAGE_DELIVERY_TIMEOUT_ERROR = "Message delivery timed out.";
-
 const SKILL_CACHE_TTL_MS = 3e4;
-
 const FORWARDED_MESSAGE_TYPES = new Set([
   "text_chunk",
   "thinking",
@@ -40,7 +30,6 @@ const FORWARDED_MESSAGE_TYPES = new Set([
   "interact_request",
   "confirm_request",
 ]);
-
 function mapSkillBrief(s2) {
   return {
     name: s2.name,
@@ -56,7 +45,6 @@ function mapSkillBrief(s2) {
     source: s2.source,
   };
 }
-
 function extractText(msg) {
   switch (msg.type) {
     case "text_chunk":
@@ -68,7 +56,6 @@ function extractText(msg) {
       return void 0;
   }
 }
-
 function extractMedia(msg) {
   if (msg.type === "image" || msg.type === "video" || msg.type === "audio") {
     const m3 = msg;
@@ -79,27 +66,23 @@ function extractMedia(msg) {
   }
   return {};
 }
-
 function frameSessionId(msg) {
   return "session_id" in msg && typeof msg.session_id === "string"
     ? msg.session_id
     : "";
 }
-
-function withCode$1(err, code2) {
+function withCode(err, code2) {
   err.code = code2;
   return err;
 }
-
 function assertPluginChatSubmissionAllowed() {
   const decision = guardAccountSubmission("chat");
   if (decision.allowed) return;
-  throw withCode$1(
+  throw withCode(
     new Error(`hub.chat: account submission blocked (${decision.reasonCode})`),
     "not_available",
   );
 }
-
 function recordPluginMessageDeliveryTimeoutBreadcrumb(
   sessionId,
   clientMessageId,
@@ -117,7 +100,6 @@ function recordPluginMessageDeliveryTimeoutBreadcrumb(
     ),
   ).catch(() => {});
 }
-
 function recordLatePluginFrameAfterTimeout(
   delivery,
   frameType,
@@ -148,7 +130,6 @@ function recordLatePluginFrameAfterTimeout(
     ),
   ).catch(() => {});
 }
-
 export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
   const wsRef = reactExports.useRef(ws2);
   wsRef.current = ws2;
@@ -250,7 +231,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
     pendingSessionCreatesRef.current.clear();
     for (const request of pending2) {
       clearTimeout(request.timer);
-      request.reject(withCode$1(new Error(message2), "not_available"));
+      request.reject(withCode(new Error(message2), "not_available"));
     }
   }, []);
   const schedulePluginMessageDeliveryTimeout = reactExports.useCallback(
@@ -310,7 +291,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         sessionId,
         clientMessageId,
         "sent",
-        MESSAGE_DELIVERY_TIMEOUT_MS$1,
+        MESSAGE_DELIVERY_TIMEOUT_MS,
       );
     },
     [schedulePluginMessageDeliveryTimeout],
@@ -321,7 +302,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         sessionId,
         clientMessageId,
         "received",
-        MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS$1,
+        MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS,
       );
     },
     [schedulePluginMessageDeliveryTimeout],
@@ -332,7 +313,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         sessionId,
         clientMessageId,
         "accepted",
-        MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS$1,
+        MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS,
       );
     },
     [schedulePluginMessageDeliveryTimeout],
@@ -566,7 +547,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       MAX_PENDING_SESSION_CREATE_REQUESTS
     ) {
       return Promise.reject(
-        withCode$1(
+        withCode(
           new Error(
             `hub.chat: too many pending create_session requests (${MAX_PENDING_SESSION_CREATE_REQUESTS})`,
           ),
@@ -579,12 +560,12 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       const timer2 = setTimeout(() => {
         pendingSessionCreatesRef.current.delete(requestId);
         reject(
-          withCode$1(
+          withCode(
             new Error("hub.chat: create_session timed out"),
             "not_available",
           ),
         );
-      }, SESSION_CREATE_TIMEOUT_MS$1);
+      }, SESSION_CREATE_TIMEOUT_MS);
       pendingSessionCreatesRef.current.set(requestId, {
         resolve,
         reject,
@@ -604,7 +585,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         clearTimeout(timer2);
         pendingSessionCreatesRef.current.delete(requestId);
         reject(
-          withCode$1(new Error("hub.chat: WS not connected"), "not_available"),
+          withCode(new Error("hub.chat: WS not connected"), "not_available"),
         );
       }
     });
@@ -615,7 +596,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       const attachments = args.attachments ?? [];
       const canvasNodeAttachments = args.canvasNodeAttachments ?? [];
       if (!content2.trim() && attachments.length === 0) {
-        throw withCode$1(
+        throw withCode(
           new Error("hub.chat: content or attachments required"),
           "invalid_args",
         );
@@ -695,7 +676,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       });
       if (!ok2) {
         sessionStoreRef.current.removeMessageById(sessionId, messageId);
-        throw withCode$1(
+        throw withCode(
           new Error("hub.chat: submission blocked or WS not connected"),
           "not_available",
         );
@@ -763,7 +744,7 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       try {
         const resp = await gatewayFetchRef.current("/api/skills");
         if (!resp.ok) {
-          throw withCode$1(
+          throw withCode(
             new Error(`hub.skill.list: gateway returned ${resp.status}`),
             "not_available",
           );

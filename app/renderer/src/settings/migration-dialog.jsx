@@ -9,7 +9,7 @@ import {
 import { MpIcon } from "../assets/gateway-scope-provider.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -25,9 +25,7 @@ import {
   useMigrateDeadline,
   useMpWallet,
 } from "../team/hailuo-credit-row.jsx";
-
 const MIN_AMOUNT = 10;
-
 function renderBoldPrefix(text2) {
   const match2 = text2.match(/^\*\*(.+?)\*\*(.*)$/s);
   if (!match2) return text2;
@@ -39,7 +37,6 @@ function renderBoldPrefix(text2) {
     </>
   );
 }
-
 function NoteItem({ text: text2 }) {
   return (
     <li className="relative pl-2.5 before:absolute before:left-0 before:top-[7px] before:size-[3px] before:rounded-full before:bg-muted-foreground before:content-['']">
@@ -47,7 +44,6 @@ function NoteItem({ text: text2 }) {
     </li>
   );
 }
-
 function ExchangeSide({ tone, icon, label, value, hint }) {
   return (
     <div className="flex flex-1 flex-col items-center gap-0.5 text-center">
@@ -62,7 +58,6 @@ function ExchangeSide({ tone, icon, label, value, hint }) {
     </div>
   );
 }
-
 export function MigrationDialog({ open, onOpenChange, onSuccess }) {
   const { t: t2 } = useTranslation();
   const mpWallet = useMpWallet();
@@ -190,13 +185,13 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
                 data-action-ui-id="migration.amount-input"
                 className="flex-1"
               />
-              <Button$1
+              <Button
                 variant="outline"
                 onClick={() => setAmount(hailuoCredits)}
                 data-action-ui-id="migration.amount-max"
               >
                 {t2("mediaplan.migration.amountMax")}
-              </Button$1>
+              </Button>
             </div>
             <p className="text-[10px] text-muted-foreground tabular-nums">
               {t2("mediaplan.migration.willReceive", {
@@ -229,21 +224,21 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
           </span>
         </label>
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             data-action-ui-id="migration.cancel"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             onClick={handleConfirm}
             disabled={!confirmed || effectiveAmount <= 0 || migrate.isPending}
             loading={migrate.isPending}
             data-action-ui-id="migration.confirm"
           >
             {t2("mediaplan.migration.confirmCta")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

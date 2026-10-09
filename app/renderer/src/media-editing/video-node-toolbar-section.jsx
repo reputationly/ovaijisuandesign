@@ -11,12 +11,11 @@ import { useVideoToolbarCustomizationStore } from "../canvas/read-persisted.js";
 import { VIDEO_TOOLBAR_TOOLS } from "../canvas/use-video-starter-preset-store.js";
 import {
   AddToClipNodeIcon,
-  MoreVerticalIcon$1,
+  MoreVerticalIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { NodeToolbar } from "./toolbar-item.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { classifyToolInteraction } from "./node-tool-interaction.js";
-
 function resolveVideoEditRate(pricingConfig, tool2) {
   const pricing = VIDEO_TOOL_PRICING[tool2];
   if (!pricingConfig?.tool || pricing?.kind !== "tool" || !pricing.resolution)
@@ -32,7 +31,6 @@ function resolveVideoEditRate(pricingConfig, tool2) {
     ? cost.costPerSecond
     : void 0;
 }
-
 function useVideoEditRate(tool2) {
   const { pricingConfig } = useCanvasBridge();
   return reactExports.useMemo(
@@ -40,11 +38,9 @@ function useVideoEditRate(tool2) {
     [pricingConfig, tool2],
   );
 }
-
 function CustomizeIcon() {
   return <Settings2 size={20} strokeWidth={1.5} aria-hidden="true" />;
 }
-
 export const VideoNodeToolbarSection = reactExports.memo(
   function VideoNodeToolbarSectionImpl({
     hasVideo,
@@ -237,7 +233,7 @@ export const VideoNodeToolbarSection = reactExports.memo(
       const moreItem = {
         id: "more",
         label: t2("common.more", "更多"),
-        icon: <MoreVerticalIcon$1 size={16} />,
+        icon: <MoreVerticalIcon size={16} />,
         hideDropdownArrow: true,
         dropdownItems: overflowDropdown,
         onDropdownOpen: onToolClick

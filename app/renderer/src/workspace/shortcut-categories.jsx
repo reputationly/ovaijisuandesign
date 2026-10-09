@@ -14,11 +14,10 @@ import {
   reactDomExports,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
-
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 function fromDef(def) {
   return {
     labelKey: def.labelKey,
@@ -30,7 +29,6 @@ function fromDef(def) {
     ),
   };
 }
-
 const SHORTCUT_CATEGORIES = [
   {
     id: "global",
@@ -177,9 +175,7 @@ const SHORTCUT_CATEGORIES = [
     ],
   },
 ];
-
 const ITEMS_PER_COLUMN = 5;
-
 function chunkIntoColumns(items, perColumn) {
   const columns = [];
   for (let i2 = 0; i2 < items.length; i2 += perColumn) {
@@ -187,8 +183,7 @@ function chunkIntoColumns(items, perColumn) {
   }
   return columns;
 }
-
-function ShortcutRow$1({ item, isMac: isMac2 }) {
+function ShortcutRow({ item, isMac: isMac2 }) {
   const { t: t2 } = useTranslation();
   const keys2 = isMac2 ? item.mac : item.win;
   return (
@@ -203,7 +198,6 @@ function ShortcutRow$1({ item, isMac: isMac2 }) {
     </div>
   );
 }
-
 export function ShortcutsPanel({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const isMac2 = isMacPlatform();
@@ -226,7 +220,7 @@ export function ShortcutsPanel({ open, onOpenChange }) {
     // 完全不拦截底层画布的鼠标 / 键盘事件（非模态）。面板固定在画布底部
     // 工具栏上方，宽度和高度都受视口约束，不再覆盖整条底边。
     <div
-      className={cn$2(
+      className={cn(
         "elevated-surface-border fixed bottom-16 left-1/2 z-30 flex h-[min(320px,calc(100vh-96px))] w-[min(680px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg transition-transform duration-200 ease-out",
         open
           ? "translate-y-0"
@@ -254,7 +248,7 @@ export function ShortcutsPanel({ open, onOpenChange }) {
               </TabsTrigger>
             ))}
           </TabsList>
-          <Button$1
+          <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => onOpenChange(false)}
@@ -262,8 +256,8 @@ export function ShortcutsPanel({ open, onOpenChange }) {
             data-action-ui-id="shortcuts.panel.close"
             className="absolute inset-y-0 right-3 my-auto"
           >
-            <X$7 />
-          </Button$1>
+            <X />
+          </Button>
         </div>
         {SHORTCUT_CATEGORIES.map((cat) => (
           <TabsContent
@@ -278,7 +272,7 @@ export function ShortcutsPanel({ open, onOpenChange }) {
                   className="w-52 shrink-0 px-3"
                 >
                   {column.map((item) => (
-                    <ShortcutRow$1
+                    <ShortcutRow
                       key={item.labelKey}
                       item={item}
                       isMac={isMac2}

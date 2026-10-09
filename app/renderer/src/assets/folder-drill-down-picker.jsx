@@ -3,17 +3,16 @@ import { ROOT_KEY } from "./list-all-cloud-folders.js";
 import {
   Check,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   reactExports,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder } from "../media-editing/package.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Popover } from "./credit-query-keys.jsx";
 import { PopoverTrigger } from "./gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-
 function findBySegments(options, segments) {
   if (segments.length === 0)
     return options.find((option2) => option2.key === ROOT_KEY);
@@ -24,7 +23,6 @@ function findBySegments(options, segments) {
       option2.segments.every((segment, index2) => segment === segments[index2]),
   );
 }
-
 function childrenOf(options, path2) {
   return options.filter(
     (option2) =>
@@ -33,8 +31,7 @@ function childrenOf(options, path2) {
       path2.every((segment, index2) => option2.segments[index2] === segment),
   );
 }
-
-function FolderRow$1({
+function FolderRow({
   label,
   isSelected,
   canDrill = false,
@@ -44,7 +41,7 @@ function FolderRow$1({
 }) {
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex w-full items-center gap-1 rounded-lg pr-1.5 transition-colors focus-within:bg-popup-item-hover focus-within:text-foreground hover:bg-popup-item-hover hover:text-foreground",
         isSelected ? "text-foreground" : "text-foreground/70",
       )}
@@ -74,13 +71,12 @@ function FolderRow$1({
           className="flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
           onClick={onDrill}
         >
-          <ChevronRight$1 size={14} strokeWidth={1.5} />
+          <ChevronRight size={14} strokeWidth={1.5} />
         </button>
       ) : null}
     </div>
   );
 }
-
 export function FolderDrillDownPicker({
   options,
   value,
@@ -136,7 +132,7 @@ export function FolderDrillDownPicker({
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
-        className={cn$2(
+        className={cn(
           "flex h-8 min-w-0 cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-xs transition-colors outline-none select-none hover:bg-muted/60 hover:text-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50",
           className,
         )}
@@ -184,7 +180,7 @@ export function FolderDrillDownPicker({
           <button
             type="button"
             onClick={() => setBrowsePath([])}
-            className={cn$2(
+            className={cn(
               "min-w-6 max-w-28 truncate rounded-md px-1 py-0.5 transition-colors",
               browsePath.length === 0
                 ? "font-medium text-foreground"
@@ -201,7 +197,7 @@ export function FolderDrillDownPicker({
                 key={prefixPath}
                 className="flex min-w-0 items-center gap-0.5"
               >
-                <ChevronRight$1
+                <ChevronRight
                   size={12}
                   strokeWidth={1}
                   className="shrink-0 text-muted-foreground/60"
@@ -209,7 +205,7 @@ export function FolderDrillDownPicker({
                 <button
                   type="button"
                   onClick={() => setBrowsePath(browsePath.slice(0, index2 + 1))}
-                  className={cn$2(
+                  className={cn(
                     "min-w-6 max-w-28 truncate rounded-md px-1 py-0.5 transition-colors",
                     isLast
                       ? "font-medium text-foreground"
@@ -223,7 +219,7 @@ export function FolderDrillDownPicker({
           })}
         </div>
         <div className="mb-1 h-px shrink-0 bg-foreground/5" />
-        <FolderRow$1
+        <FolderRow
           label={currentLevelLabel}
           isSelected={browseOption !== void 0 && browseOption.key === value}
           onPick={() => pick(browseOption?.key)}
@@ -231,7 +227,7 @@ export function FolderDrillDownPicker({
         {children2.length > 0 ? (
           <div className="flex max-h-56 flex-col overflow-y-auto">
             {children2.map((child) => (
-              <FolderRow$1
+              <FolderRow
                 key={child.key}
                 label={child.segments[child.segments.length - 1] ?? ""}
                 isSelected={child.key === value}

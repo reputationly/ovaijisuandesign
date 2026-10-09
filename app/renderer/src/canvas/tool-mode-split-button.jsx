@@ -10,10 +10,9 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { ToolbarTooltipContent } from "./canvas-toolbar-extension-button.jsx";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { MousePointer2 } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
 import { CANVAS_TOOL_DOCK_CONTROL_SIZE_PX } from "./cursor-icon.jsx";
-
 export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
   const [open, setOpen] = reactExports.useState(false);
   const containerRef = reactExports.useRef(null);
@@ -124,7 +123,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <Tooltip$1
+      <Tooltip
         content={
           <ToolbarTooltipContent
             label={mode2 === "hand" ? labels.hand : labels.move}
@@ -157,8 +156,8 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
             aria-hidden="true"
           />
         </button>
-      </Tooltip$1>
-      <Tooltip$1
+      </Tooltip>
+      <Tooltip
         content={
           <ToolbarTooltipContent
             label={`${labels.move} / ${labels.hand}`}
@@ -185,7 +184,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
             <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" />
           </MonochromeIcon>
         </button>
-      </Tooltip$1>
+      </Tooltip>
       <QuickZoomPresence value={open ? true : null} elementRef={menuRef}>
         {(_2, motionProps) => (
           <div

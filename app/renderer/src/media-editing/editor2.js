@@ -12,7 +12,7 @@ import { MosaicTool } from "./mosaic-tool.js";
 import {
   cloneShapeData,
   DEFAULT_STYLE,
-  HistoryManager$1,
+  HistoryManager$1 as HistoryManager,
 } from "./history-manager.js";
 import { Renderer } from "./renderer.js";
 import { MosaicShape } from "./mosaic-shape.js";
@@ -20,7 +20,7 @@ import { createShape } from "./arrow-shape.js";
 import {
   BrushTool,
   keepTagInCanvas,
-  loadImage$4,
+  loadImage as loadImage$4,
   pickContrastColor,
   TAG_DEFAULT_FONT_SIZE,
   TAG_PADDING_X,
@@ -29,7 +29,6 @@ import {
 import { TextShape } from "./text-shape.js";
 import { TagShape } from "./tag-shape.js";
 import { DrawShapeTool } from "./draw-shape-tool.js";
-
 function autoResizeTextarea(ta2, fontSize, lineHeight, maxWidth) {
   const lines = ta2.value.split("\n");
   const measure = document.createElement("span");
@@ -46,12 +45,11 @@ function autoResizeTextarea(ta2, fontSize, lineHeight, maxWidth) {
   ta2.style.width = `${Math.min(cap2, Math.max(8, Math.ceil(maxW) + 2))}px`;
   ta2.style.height = `${Math.max(1, lines.length) * fontSize * lineHeight}px`;
 }
-
 export class Editor2 {
   container;
   renderer;
   bus = new EventBus();
-  history = new HistoryManager$1(50);
+  history = new HistoryManager(50);
   shapes = [];
   shapeMap = new Map();
   selectedId = null;

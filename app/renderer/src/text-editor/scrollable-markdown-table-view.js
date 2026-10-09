@@ -7,29 +7,22 @@ import {
   StepMap,
   StepResult,
   TableView2,
-  undo$1,
-  undoDepth$1,
+  undo$1 as undo,
+  undoDepth$1 as undoDepth,
 } from "../vendor.js";
 import { HorizontalRuleWidget } from "../vendor-inline/codemirror/line2.js";
-
 export const hiddenMark = Decoration2.replace({});
-
 export const horizontalRule = Decoration2.replace({
   widget: new HorizontalRuleWidget(),
 });
-
 export const blankLine = Decoration2.line({
   class: "cm-md-blank",
 });
-
 export const blankLineExtra = Decoration2.line({
   class: "cm-md-blank cm-md-blank-extra",
 });
-
 export const LEAF_PLACEHOLDER = "￼";
-
 export const DIFF_REVIEW_SYNC_META = "canvasDiffReviewSync";
-
 function cloneSession(session) {
   return {
     ...session,
@@ -38,7 +31,6 @@ function cloneSession(session) {
     })),
   };
 }
-
 class DiffReviewBoundaryStep extends Step {
   apply(doc2) {
     return StepResult.ok(doc2);
@@ -58,7 +50,6 @@ class DiffReviewBoundaryStep extends Step {
     };
   }
 }
-
 export class DiffReviewHistoryStep extends Step {
   before;
   after;
@@ -87,7 +78,6 @@ export class DiffReviewHistoryStep extends Step {
     };
   }
 }
-
 export function getDiffReviewHistorySnapshot(transaction) {
   for (let index2 = transaction.steps.length - 1; index2 >= 0; index2 -= 1) {
     const step = transaction.steps[index2];
@@ -95,13 +85,11 @@ export function getDiffReviewHistorySnapshot(transaction) {
   }
   return null;
 }
-
 export function selectionNearPosition(doc2, position2) {
   return Selection.near(
     doc2.resolve(Math.max(0, Math.min(position2, doc2.content.size))),
   );
 }
-
 export function selectionFromSnapshot(doc2, snapshot2, fallbackPosition) {
   try {
     return Selection.fromJSON(doc2, snapshot2);
@@ -109,7 +97,6 @@ export function selectionFromSnapshot(doc2, snapshot2, fallbackPosition) {
     return selectionNearPosition(doc2, fallbackPosition);
   }
 }
-
 export function closeDiffReviewHistoryGroup(editor) {
   if (editor.isDestroyed) return;
   const transaction = closeHistory(editor.state.tr);
@@ -117,7 +104,6 @@ export function closeDiffReviewHistoryGroup(editor) {
   transaction.setMeta(DIFF_REVIEW_SYNC_META, true);
   editor.view.dispatch(transaction);
 }
-
 export function recordFinalizedBoundary(editor) {
   const transaction = closeHistory(editor.state.tr).step(
     new DiffReviewBoundaryStep(),
@@ -125,22 +111,20 @@ export function recordFinalizedBoundary(editor) {
   transaction.setMeta(DIFF_REVIEW_SYNC_META, true);
   editor.view.dispatch(transaction);
 }
-
 export function rewindReviewHistory(editor, targetDepth) {
   let state2 = editor.state;
-  let currentDepth = undoDepth$1(state2);
+  let currentDepth = undoDepth(state2);
   while (currentDepth > targetDepth) {
     let nextState = null;
-    const handled = undo$1(state2, (transaction) => {
+    const handled = undo(state2, (transaction) => {
       nextState = state2.apply(transaction);
     });
     if (!handled || !nextState) break;
     state2 = nextState;
-    currentDepth = undoDepth$1(state2);
+    currentDepth = undoDepth(state2);
   }
   if (state2 !== editor.state) editor.view.updateState(state2);
 }
-
 export function restoreEditorSelection(editor, selection2, fallbackPosition) {
   const transaction = editor.state.tr.setSelection(
     selectionFromSnapshot(editor.state.doc, selection2, fallbackPosition),
@@ -149,7 +133,6 @@ export function restoreEditorSelection(editor, selection2, fallbackPosition) {
   transaction.setMeta(DIFF_REVIEW_SYNC_META, true);
   editor.view.dispatch(transaction);
 }
-
 export function replaceEditorMarkdown(
   editor,
   markdown2,
@@ -178,11 +161,8 @@ export function replaceEditorMarkdown(
   }
   chain.run();
 }
-
 export const MARKDOWN_TABLE_CELL_MAX_WIDTH = 200;
-
 const OVERLAY_SCROLLBAR_TRACK_SELECTOR = ".hilo-overlay-scrollbar-track";
-
 function isOverlayScrollbarChrome(node2) {
   return (
     node2 instanceof Element &&
@@ -190,7 +170,6 @@ function isOverlayScrollbarChrome(node2) {
       node2.closest(OVERLAY_SCROLLBAR_TRACK_SELECTOR) !== null)
   );
 }
-
 export class ScrollableMarkdownTableView extends TableView2 {
   constructor(
     node2,

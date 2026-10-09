@@ -4,13 +4,9 @@ const TRUSTED_STARTER_ASSET_HOSTS = new Set([
   "cdn.hailuoai.com",
   "cdn.hailuoai.video",
 ]);
-
 const STARTER_REF_DOWNLOAD_TIMEOUT_MS = 3e4;
-
 const MAX_STARTER_REF_FILE_BYTES = 100 * 1024 * 1024;
-
 const MAX_STARTER_REFS_TOTAL_BYTES = 200 * 1024 * 1024;
-
 function trustedStarterAssetUrl(value) {
   try {
     const url2 = new URL(value);
@@ -28,8 +24,7 @@ function trustedStarterAssetUrl(value) {
     return void 0;
   }
 }
-
-function mimeFromName$1(name2) {
+function mimeFromName(name2) {
   const extension2 = name2.toLowerCase().split(".").pop() ?? "";
   switch (extension2) {
     case "jpg":
@@ -57,18 +52,16 @@ function mimeFromName$1(name2) {
       return "application/octet-stream";
   }
 }
-
-function responseMime$1(response, name2) {
+function responseMime(response, name2) {
   const contentType = response.headers
     .get("content-type")
     ?.split(";", 1)[0]
     ?.trim();
   return contentType && contentType !== "application/octet-stream"
     ? contentType
-    : mimeFromName$1(name2);
+    : mimeFromName(name2);
 }
-
-function createDownloadBudget$1(maxTotalBytes) {
+function createDownloadBudget(maxTotalBytes) {
   let reservedBytes = 0;
   const ensureCapacity = (bytes2) => {
     if (bytes2 > maxTotalBytes - reservedBytes) {
@@ -85,8 +78,7 @@ function createDownloadBudget$1(maxTotalBytes) {
     },
   };
 }
-
-async function readBoundedBlob$1(response, name2, budget, maxFileBytes) {
+async function readBoundedBlob(response, name2, budget, maxFileBytes) {
   const rawLength = response.headers.get("content-length");
   const declaredBytes = rawLength ? Number(rawLength) : void 0;
   if (
@@ -130,10 +122,9 @@ async function readBoundedBlob$1(response, name2, budget, maxFileBytes) {
     reader.releaseLock();
   }
   return new Blob(chunks, {
-    type: responseMime$1(response, name2),
+    type: responseMime(response, name2),
   });
 }
-
 async function downloadStarterRef(
   ref,
   budget,
@@ -159,24 +150,18 @@ async function downloadStarterRef(
   if (response.url && !trustedStarterAssetUrl(response.url)) {
     throw new Error("starter ref redirected outside the trusted CDN allowlist");
   }
-  const blob = await readBoundedBlob$1(
-    response,
-    ref.name,
-    budget,
-    maxFileBytes,
-  );
+  const blob = await readBoundedBlob(response, ref.name, budget, maxFileBytes);
   return new File([blob], ref.name, {
     type: blob.type,
   });
 }
-
 export async function fetchVideoStarterRefs(refs, options = {}) {
   if (refs.length === 0)
     return {
       files: [],
       failed: [],
     };
-  const budget = createDownloadBudget$1(
+  const budget = createDownloadBudget(
     options.maxTotalBytes ?? MAX_STARTER_REFS_TOTAL_BYTES,
   );
   const results = await Promise.allSettled(

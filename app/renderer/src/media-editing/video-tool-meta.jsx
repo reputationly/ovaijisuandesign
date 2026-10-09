@@ -5,7 +5,7 @@ import {
   AddToChatIcon,
   AddToClipNodeIcon,
   areNodePropsEqual,
-  FullscreenIcon$1,
+  FullscreenIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { useEmitDerivedFromBlob } from "../canvas/use-start-crop-from-node.js";
 import {
@@ -30,11 +30,9 @@ import {
 } from "../canvas/use-video-starter-preset-store.js";
 import { useVideoToolbarCustomizationStore } from "../canvas/read-persisted.js";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
-import { CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
+import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
-
 export const TextNode3 = reactExports.memo(TextNodeInner, areNodePropsEqual);
-
 export function useVideoColorAdjust({
   id: id2,
   meta: meta2,
@@ -76,13 +74,9 @@ export function useVideoColorAdjust({
     },
   };
 }
-
 export const DEFAULT_ASR_LANGUAGE = "en";
-
 const VIDEO_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED;
-
 const VIDEO_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS;
-
 export const VIDEO_TOOL_META = {
   "enhance-video": {
     id: "enhance-video",
@@ -139,12 +133,10 @@ export const VIDEO_TOOL_META = {
     icon: <ColorAdjustIcon />,
   },
 };
-
-const DEFAULTS$1 = {
+const DEFAULTS = {
   pinned: VIDEO_TOOLBAR_DEFAULT_PINNED,
   showLabels: VIDEO_TOOLBAR_DEFAULT_SHOW_LABELS,
 };
-
 export function CustomizeToolbarDialog({
   open,
   onOpenChange,
@@ -177,7 +169,7 @@ export function CustomizeToolbarDialog({
   });
   fixedRightChips.push({
     id: "fullscreen",
-    icon: <FullscreenIcon$1 />,
+    icon: <FullscreenIcon />,
     label: t2("canvas.fullscreen"),
     showLabel: false,
   });
@@ -188,20 +180,16 @@ export function CustomizeToolbarDialog({
       allToolIds={VIDEO_TOOLBAR_TOOLS}
       toolMeta={VIDEO_TOOL_META}
       store={store}
-      defaults={DEFAULTS$1}
+      defaults={DEFAULTS}
       fixedRightChips={fixedRightChips}
       onApply={onApply}
       onAbandon={onAbandon}
     />
   );
 }
-
 export const ENHANCE_VIDEO_RESOLUTIONS = ["720p", "1080p", "2k", "4k"];
-
 export const ENHANCE_VIDEO_FPS_OPTIONS = [30, 60];
-
 export const DEFAULT_ENHANCE_VIDEO_RESOLUTION = "1080p";
-
 export function suggestNextResolution(currentHeight) {
   if (!currentHeight || currentHeight <= 0)
     return DEFAULT_ENHANCE_VIDEO_RESOLUTION;
@@ -215,42 +203,32 @@ export function suggestNextResolution(currentHeight) {
   }
   return "4k";
 }
-
 export function parseEnhanceResolution(value) {
   if (typeof value !== "string") return void 0;
   const normalized = value.toLowerCase();
   return ENHANCE_VIDEO_RESOLUTIONS.includes(normalized) ? normalized : void 0;
 }
-
 export function parseEnhanceFps(value) {
   const n2 = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n2)) return void 0;
   return ENHANCE_VIDEO_FPS_OPTIONS.includes(n2) ? n2 : void 0;
 }
-
 const HAILUO03_BACKEND = "minimax_v3";
-
 const HAILUO03_GENERATED_768P = "768P";
-
 const HAILUO03_MODEL_ID = "MiniMax-H3";
-
 function modelField(value, key2) {
   return value && typeof value === "object" ? value[key2] : void 0;
 }
-
 function isHailuo03ModelValue(value) {
   return typeof value === "string" && value === HAILUO03_MODEL_ID;
 }
-
 function isGenerated768P(meta2) {
   return meta2.params?.resolution === HAILUO03_GENERATED_768P;
 }
-
 export function resolveHailuo03SuperResolutionDuration(meta2) {
   const duration = Number(meta2?.params?.duration);
   return Number.isFinite(duration) && duration > 0 ? duration : void 0;
 }
-
 export function isHailuo03SuperResolutionEligible(meta2, modelInfo) {
   if (
     !meta2?.path ||
@@ -269,7 +247,6 @@ export function isHailuo03SuperResolutionEligible(meta2, modelInfo) {
     modelField(modelInfo, "name"),
   ].some(isHailuo03ModelValue);
 }
-
 export const VIDEO_TOOL_PRICING = {
   "enhance-video": {
     kind: "video",
@@ -281,7 +258,6 @@ export const VIDEO_TOOL_PRICING = {
     resolution: "2K",
   },
 };
-
 function resolveVideoEditCost(pricingConfig, tool2, sourceDurationSec) {
   const pricing = VIDEO_TOOL_PRICING[tool2];
   if (!pricing) return void 0;
@@ -296,7 +272,6 @@ function resolveVideoEditCost(pricingConfig, tool2, sourceDurationSec) {
   }
   return getModelBaseCost(pricingConfig, pricing.modelId);
 }
-
 export function useVideoEditCost(tool2, sourceDurationSec) {
   const { pricingConfig } = useCanvasBridge();
   return reactExports.useMemo(
@@ -304,14 +279,12 @@ export function useVideoEditCost(tool2, sourceDurationSec) {
     [pricingConfig, sourceDurationSec, tool2],
   );
 }
-
 function resolveAsrSourcePath(submitAsr, meta2) {
   if (!submitAsr) return null;
   const path2 = meta2?.path;
   if (!path2) return null;
   return path2;
 }
-
 export function useAsrSubmit({ id: id2, meta: meta2, submitAsr }) {
   const { focusNextDerivedFrom } = useCanvasActions();
   const submit = reactExports.useCallback(
@@ -327,14 +300,12 @@ export function useAsrSubmit({ id: id2, meta: meta2, submitAsr }) {
     submit,
   };
 }
-
 function resolveEnhanceVideoSourcePath(submitEnhanceVideo, meta2) {
   if (!submitEnhanceVideo) return null;
   const path2 = meta2?.path;
   if (!path2) return null;
   return path2;
 }
-
 export function useEnhanceVideoSubmit({
   id: id2,
   meta: meta2,
@@ -355,14 +326,12 @@ export function useEnhanceVideoSubmit({
     submit,
   };
 }
-
 function resolveEraseSubtitleSourcePath(submitEraseSubtitle, meta2) {
   if (!submitEraseSubtitle) return null;
   const path2 = meta2?.path;
   if (!path2) return null;
   return path2;
 }
-
 export function useEraseSubtitleSubmit({
   id: id2,
   meta: meta2,

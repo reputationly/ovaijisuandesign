@@ -7,7 +7,6 @@ import {
   ROOT_KEY,
 } from "./list-all-cloud-folders.js";
 import { listProjectMembers } from "../workspace/asset-lineage-query-key.js";
-
 async function listCloudReviewNodes(projectId, cursor) {
   const params = new URLSearchParams({
     project_id: projectId,
@@ -23,9 +22,7 @@ async function listCloudReviewNodes(projectId, cursor) {
     hasMore: data2.has_more === true,
   };
 }
-
 const REVIEW_NODES_MAX_PAGES = 10;
-
 export function useCloudReviewNodes(projectId) {
   const [nodes, setNodes] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
@@ -69,7 +66,6 @@ export function useCloudReviewNodes(projectId) {
     refresh,
   };
 }
-
 export function useProjectMemberNames(projectId) {
   const [names, setNames] = reactExports.useState(new Map());
   reactExports.useEffect(() => {
@@ -92,7 +88,6 @@ export function useProjectMemberNames(projectId) {
   }, [projectId]);
   return names;
 }
-
 export function useDownloadingNodeIds(transfers, cloudProjectId) {
   return reactExports.useMemo(() => {
     const ids2 = new Set();
@@ -109,12 +104,10 @@ export function useDownloadingNodeIds(transfers, cloudProjectId) {
     return ids2;
   }, [transfers, cloudProjectId]);
 }
-
 export function normalizeCloudParentId(parentId) {
   return parentId === "0" ? "" : parentId;
 }
-
-export function formatBytes$1(bytes2) {
+export function formatBytes(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 <= 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
   const i2 = Math.min(
@@ -123,7 +116,6 @@ export function formatBytes$1(bytes2) {
   );
   return `${(bytes2 / 1024 ** i2).toFixed(1)} ${units[i2]}`;
 }
-
 export function isCloudFileDownloadEnabled(node2, syncState) {
   return (
     node2.kind === "file" &&
@@ -132,7 +124,6 @@ export function isCloudFileDownloadEnabled(node2, syncState) {
     syncState !== "downloading"
   );
 }
-
 export function resolveSyncState(node2, syncMap, downloadingIds) {
   if (node2.kind !== "file" || node2.review !== "pass") return void 0;
   if (downloadingIds.has(node2.id)) return "downloading";
@@ -140,7 +131,6 @@ export function resolveSyncState(node2, syncMap, downloadingIds) {
   if (snapshot2 === void 0) return "notDownloaded";
   return snapshot2 < node2.updatedAt ? "stale" : "synced";
 }
-
 export function filterMoveOptions(options, movedFolderSegments) {
   if (!movedFolderSegments || movedFolderSegments.length === 0) return options;
   return options.filter((option2) => {
@@ -151,7 +141,6 @@ export function filterMoveOptions(options, movedFolderSegments) {
     );
   });
 }
-
 export function localFolderOptions(relPaths) {
   return [
     {
@@ -164,7 +153,6 @@ export function localFolderOptions(relPaths) {
     })),
   ];
 }
-
 export function useCloudMoveOptions(projectId, active2) {
   const [options, setOptions] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
@@ -207,7 +195,6 @@ export function useCloudMoveOptions(projectId, active2) {
     loading,
   };
 }
-
 export function useStableCallback(fn2) {
   const ref = reactExports.useRef(fn2);
   reactExports.useInsertionEffect(() => {

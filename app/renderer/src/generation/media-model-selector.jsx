@@ -20,7 +20,7 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageOutlineIcon, PencilLine } from "../media-editing/package.jsx";
 import {
-  ClockIcon$1,
+  ClockIcon,
   formatResolutionRange,
   GeneralImageIcon,
   GptImageDomesticIcon,
@@ -44,7 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { isPromotionActive } from "./param-label-fallbacks.js";
 import {
   isVisibleMediaModelSelected,
@@ -76,8 +76,7 @@ import { useAgentModelMembershipAccess } from "./use-astra-send-gate.js";
 import { CapabilityPopoverHeader } from "../workspace/text-editor-skill-categories.jsx";
 import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import { Switch } from "./select-content.jsx";
-
-const GLYPHS$1 = {
+const GLYPHS = {
   "alpha/alpha": {
     name: "alpha-domestic",
     viewBox: "0 0 584 584",
@@ -99,10 +98,9 @@ const GLYPHS$1 = {
     path: "M268.771 0.0284664C273.036 -0.0460568 277.057 -0.00143729 281.296 0.49624C315.522 4.5124 355.012 38.0917 375.421 64.4347C414.384 64.2492 472.242 75.4933 494.308 110.906C513.042 140.977 511.261 191.905 503.587 225.26C513.84 236.828 522.639 252.782 529.523 266.497C541.579 290.51 550.533 320.677 541.295 347.048C529.397 381.004 488.837 410.43 457.733 425.593C453.97 443.851 446.679 461.722 438.33 478.294C427.023 500.732 409.495 523.64 384.714 531.575C359.339 539.699 331.006 534.708 305.97 527.547C293.973 524.116 285.944 521.467 274.947 515.97L272.796 514.811C237.628 531.151 181.406 546.805 145.922 524.972C114.83 505.839 95.4245 459.811 87.1303 425.626C70.6576 418.517 49.0017 402.963 35.6771 391.102C17.3736 374.673 1.50509 354.29 0.135153 328.823C-1.3815 300.63 10.0835 275.122 23.6176 251.132C28.6708 242.174 34.3816 232.924 41.3588 225.255C37.0272 208.887 36.1254 189.481 36.1361 172.59C36.1324 146.891 41.2908 117.16 60.6322 98.4162C84.7247 75.0674 123.516 67.7411 155.811 64.5587C159.86 64.1595 165.259 64.4345 169.352 64.4611C171.5 61.7828 173.68 59.13 175.892 56.5041C181.41 50.0446 188.084 43.6545 194.454 38.0431C215.918 19.1378 239.399 2.32515 268.771 0.0284664ZM282.268 48.9396C279.773 46.538 274.559 44.9031 270.993 45.2648C253.68 49.0341 241.693 81.822 234.071 95.7912C247.963 97.77 261.683 100.464 275.737 101.407C278.559 101.597 281.405 101.788 284.227 102.01C286.159 105.163 287.753 109.304 289.503 112.616C294.145 121.416 298.527 132.485 303.245 141.03C281.216 149.649 262.758 152.495 238.796 151.069C224.155 150.197 210.792 146.809 196.527 143.56L156.335 134.4C140.661 130.837 125.269 126.359 109.079 126.545C100.726 126.641 93.1587 126.743 89.1156 135.872C85.422 144.213 91.3857 157.842 93.9945 166.116C97.0712 174.845 103.464 185.21 106.79 193.665C118.133 183.482 129.506 173.172 139.781 161.894C140.784 160.792 141.785 159.687 142.626 158.455C156.336 161.487 171.77 165.449 185.348 168.069C179.188 189.286 168.069 208.744 152.902 224.846C143.334 235.107 133.385 242.771 122.443 251.504L90.5785 276.84C76.0332 288.38 57.0682 301.668 47.4564 318.254C45.0842 322.347 45.7968 327.796 47.9242 331.862C51.9558 339.563 71.0385 346.011 79.1215 348.102C85.3641 349.718 97.9346 352.719 104.237 353.659C103.56 341.367 102.655 328.834 101.116 316.618C100.714 313.432 99.8202 306.886 98.9809 303.931L133.017 276.82C146.057 293.806 154.445 317.387 157.497 338.448C159.478 352.112 159.342 364.252 159.341 377.959L159.324 413.74C159.315 433.677 157.575 459.141 164.931 477.97C166.477 481.927 172.632 485.935 176.721 486.189C187.875 486.888 206.425 473.178 214.554 466.736L228.361 455.764C224.657 453.571 220.184 450.279 216.545 447.779C209.609 442.931 202.507 438.328 195.25 433.971C193.057 432.678 188.051 429.729 185.761 428.806C185.658 414.842 185.415 399.272 185.761 385.397C205.857 386.633 221.871 390.785 240.026 399.72C265.599 412.757 284.336 430.91 306.857 448.04C319.112 457.364 355.155 490.608 370.755 485.648C374.835 484.378 378.216 481.502 380.119 477.687C386.494 464.742 385.485 437.219 385.458 422.869C369.875 427.276 352.525 432.401 337.743 439.01C326.503 429.914 315.204 420.893 303.846 411.945C318.629 394.334 340.555 380.917 362.028 373.144C373.283 369.067 385.803 366.423 397.492 363.777L438.59 354.444C454.084 350.935 480.315 346.117 492.801 336.618C496.947 333.465 499.425 328.317 498.906 323.103C497.503 309.056 468.212 288.558 457.767 279.251C451.348 295.497 445.267 309.943 440.628 326.908C431.791 328.818 422.97 330.807 414.166 332.871C409.174 334.016 403.09 335.573 398.114 336.295C394.09 315.425 396.741 289.983 403.169 269.759C407.143 257.264 413.472 244.395 419.212 232.584L435.206 199.558C438.866 192.006 442.69 184.246 446.273 176.668C465.985 135.004 460.1 118.882 411.212 129.282C404.281 130.767 397.393 132.442 390.554 134.306C397.754 147.442 407.785 165.125 416.864 176.76C410.379 189.784 404.029 202.875 397.823 216.031C359.357 193.083 346.788 170.788 328.058 131.619L310.98 96.2931C303.238 80.2534 295.525 61.6899 282.268 48.9396Z",
   },
 };
-
 function LocalAgentModelIcon({ model, size: size2 }) {
   const modelId = model === "gamma/gpt-6-astra" ? "gamma/gamma-6-astra" : model;
-  const glyph = Object.hasOwn(GLYPHS$1, modelId) ? GLYPHS$1[modelId] : void 0;
+  const glyph = Object.hasOwn(GLYPHS, modelId) ? GLYPHS[modelId] : void 0;
   if (!glyph) return <Bot size={size2} strokeWidth={1.5} aria-hidden="true" />;
   return (
     <svg
@@ -118,7 +116,6 @@ function LocalAgentModelIcon({ model, size: size2 }) {
     </svg>
   );
 }
-
 function RemoteAgentModelIcon({ url: url2, model, size: size2 }) {
   const [failed, setFailed] = reactExports.useState(false);
   if (failed) return <LocalAgentModelIcon model={model} size={size2} />;
@@ -139,7 +136,6 @@ function RemoteAgentModelIcon({ url: url2, model, size: size2 }) {
     />
   );
 }
-
 function AgentModelIcon({ icon, model, size: size2 }) {
   const url2 = normalizeAgentModelDisplay({
     icon,
@@ -150,9 +146,7 @@ function AgentModelIcon({ icon, model, size: size2 }) {
     <LocalAgentModelIcon model={model} size={size2} />
   );
 }
-
 const AGENT_MODEL_TOOLTIP_SIDE_OFFSET = -8;
-
 const AgentModelRow = reactExports.memo(function AgentModelRow2({
   model,
   displayName: displayName2,
@@ -272,7 +266,6 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
     </TooltipProvider>
   );
 });
-
 function AgentReasoningSelector({ model, selectedId, onSelect }) {
   const { t: t2 } = useTranslation();
   const choices = [
@@ -289,7 +282,7 @@ function AgentReasoningSelector({ model, selectedId, onSelect }) {
       </legend>
       <div className="flex flex-wrap gap-1">
         {choices.map((choice) => (
-          <Button$1
+          <Button
             key={choice.modelId}
             type="button"
             size="sm"
@@ -299,13 +292,12 @@ function AgentReasoningSelector({ model, selectedId, onSelect }) {
             onClick={() => onSelect(choice.modelId)}
           >
             {choice.level}
-          </Button$1>
+          </Button>
         ))}
       </div>
     </fieldset>
   );
 }
-
 const SELECTABLE_AGENT_MODEL_ORDER = new Map([
   ["gamma/gamma_high", 0],
   ["alpha/alpha", 1],
@@ -313,7 +305,6 @@ const SELECTABLE_AGENT_MODEL_ORDER = new Map([
   ["gamma/gamma-6-astra", 2],
   ["gamma/gpt-6-astra", 2],
 ]);
-
 function normalizeAgentModels(value, custom) {
   if (
     !value ||
@@ -387,7 +378,6 @@ function normalizeAgentModels(value, custom) {
       : {}),
   };
 }
-
 function useAgentModels(enabled = true) {
   const activeCustomModel = useActiveCustomModel();
   const queryClient2 = useQueryClient();
@@ -445,11 +435,8 @@ function useAgentModels(enabled = true) {
     retryDelay: 300,
   });
 }
-
 const MEDIA_MODEL_POPOVER_WIDTH = 408;
-
 const MEDIA_MODEL_POPOVER_VIEWPORT_GAP = 8;
-
 function getMediaModelPopoverHorizontalLayout(
   anchor,
   viewportWidth,
@@ -491,7 +478,6 @@ function getMediaModelPopoverHorizontalLayout(
     width,
   };
 }
-
 function areSelectedMediaModelsEqual(left, right) {
   return MEDIA_CATEGORIES.every((category) => {
     const leftIds = left?.[category];
@@ -502,7 +488,6 @@ function areSelectedMediaModelsEqual(left, right) {
     return leftIds.every((id2) => rightIdSet.has(id2));
   });
 }
-
 function isMiniMaxH3Model(model) {
   const values3 = [
     model.id,
@@ -519,7 +504,6 @@ function isMiniMaxH3Model(model) {
       value === "minimax_v3",
   );
 }
-
 function isMiniMaxH3MaxModel(model) {
   const values3 = [model.id, model.display_name, model.series_id].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
@@ -529,11 +513,9 @@ function isMiniMaxH3MaxModel(model) {
       value.includes("minimax-h3-max") || value.includes("minimax h3 max"),
   );
 }
-
 function isStandardMiniMaxH3Model(model) {
   return isMiniMaxH3Model(model) && !isMiniMaxH3MaxModel(model);
 }
-
 function orderVideoModelsWithMiniMaxH3First(models) {
   const h3Index = models.findIndex((model) => isStandardMiniMaxH3Model(model));
   const h3MaxIndexes = models
@@ -549,7 +531,6 @@ function orderVideoModelsWithMiniMaxH3First(models) {
     ...models.filter((_2, index2) => !priorityIndexSet.has(index2)),
   ];
 }
-
 function buildMinimumVisibleMediaModelSelection(models) {
   const selection2 = {};
   for (const category of MEDIA_CATEGORIES) {
@@ -566,7 +547,6 @@ function buildMinimumVisibleMediaModelSelection(models) {
   }
   return selection2;
 }
-
 function selectMinimumVisibleMediaModelForCategory(
   selected2,
   category,
@@ -579,7 +559,6 @@ function selectMinimumVisibleMediaModelForCategory(
     [category]: minimum,
   };
 }
-
 function countVisibleSelectedMediaModelsForCategory(
   selected2,
   category,
@@ -592,14 +571,12 @@ function countVisibleSelectedMediaModelsForCategory(
       isVisibleMediaModelSelected(selected2, model),
   ).length;
 }
-
 function selectAllVisibleModelsForCategory(selected2, category) {
   return {
     ...selected2,
     [category]: void 0,
   };
 }
-
 function isAllVisibleMediaModelsSelectedForCategory(
   selected2,
   category,
@@ -615,11 +592,8 @@ function isAllVisibleMediaModelsSelectedForCategory(
     )
   );
 }
-
 const MEDIA_MODEL_TABS = ["agent", "video", "image", "audio"];
-
 const DEFAULT_MEDIA_MODEL_TAB = "agent";
-
 function pickBrandIcon(model, region = "overseas") {
   const id2 = model.id.toLowerCase();
   const series = model.series_id.toLowerCase();
@@ -678,11 +652,9 @@ function pickBrandIcon(model, region = "overseas") {
     return MinimaxIcon;
   return null;
 }
-
 function getModelResolutionOptions(model) {
   return model.params?.resolution?.options ?? [];
 }
-
 function lookupRegistryEntry(model) {
   const type2 = model.type;
   if (type2 !== "image" && type2 !== "video" && type2 !== "audio")
@@ -694,7 +666,6 @@ function lookupRegistryEntry(model) {
     byType.get(model.display_name)
   );
 }
-
 function isMiniMaxH3RegistryEntry(entry) {
   const values3 = [entry.id, entry.name, entry.model_name, entry.backend].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
@@ -707,7 +678,6 @@ function isMiniMaxH3RegistryEntry(entry) {
       value === "minimax_v3",
   );
 }
-
 function formatDurationRange(options) {
   if (!options || options.length === 0) return void 0;
   if (options.length === 1) return `${options[0]}s`;
@@ -719,7 +689,6 @@ function formatDurationRange(options) {
   const max2 = Math.max(...numbers);
   return min2 === max2 ? `${min2}s` : `${min2}-${max2}s`;
 }
-
 function buildModelSubtitle(model) {
   const resolutionOptions = getModelResolutionOptions(model);
   if (model.type === "audio")
@@ -748,11 +717,8 @@ function buildModelSubtitle(model) {
     return null;
   return subtitle;
 }
-
 const HOME_POPOVER_GAP = 4;
-
 const POPOVER_HEIGHT = 400;
-
 function getInitialDraft(current2) {
   const draft = {};
   if (current2?.image !== void 0) draft.image = [...current2.image];
@@ -760,12 +726,10 @@ function getInitialDraft(current2) {
   if (current2?.audio !== void 0) draft.audio = [...current2.audio];
   return draft;
 }
-
 function localizedCategoryLabel(cat, t2) {
   if (cat === "agent") return t2("chat.mediaModels.tabs.agent");
   return t2(`chat.mediaModels.tabs.${cat}`);
 }
-
 const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
   subtitle,
   fallback,
@@ -786,7 +750,7 @@ const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
       )}
       {subtitle.duration && (
         <span className="flex items-center gap-0.5">
-          <ClockIcon$1 />
+          <ClockIcon />
           <span>{subtitle.duration}</span>
         </span>
       )}
@@ -797,9 +761,7 @@ const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
     </span>
   );
 });
-
 ModelSubtitleRow.displayName = "ModelSubtitleRow";
-
 function FallbackIcon({ type: type2, size: size2 = 16 }) {
   switch (type2) {
     case "image":
@@ -812,7 +774,6 @@ function FallbackIcon({ type: type2, size: size2 = 16 }) {
       return <ImageOutlineIcon size={size2} strokeWidth={1.5} />;
   }
 }
-
 const ModelIcon = reactExports.memo(function ModelIcon22({
   model,
   size: size2 = 16,
@@ -841,9 +802,7 @@ const ModelIcon = reactExports.memo(function ModelIcon22({
   }
   return <FallbackIcon type={model.type} size={size2} />;
 });
-
 ModelIcon.displayName = "ModelIcon";
-
 const ModelRow = reactExports.memo(function ModelRow2({
   model,
   category,
@@ -938,9 +897,7 @@ const ModelRow = reactExports.memo(function ModelRow2({
     </Tooltip>
   );
 });
-
 ModelRow.displayName = "ModelRow";
-
 export function MediaModelSelector({
   open,
   placement = "above",
@@ -1320,7 +1277,7 @@ export function MediaModelSelector({
               title={t2("chat.mediaModels.title")}
               description={t2("chat.mediaModels.selectionDescription")}
               trailing={
-                <Button$1
+                <Button
                   type="button"
                   variant="ghost"
                   size="xs"
@@ -1330,7 +1287,7 @@ export function MediaModelSelector({
                 >
                   <Icon icon={PencilLine} size="sm" strokeWidth={1.5} />
                   {t2("chat.mediaModels.custom.configure")}
-                </Button$1>
+                </Button>
               }
             />
             <SegmentedSwitch

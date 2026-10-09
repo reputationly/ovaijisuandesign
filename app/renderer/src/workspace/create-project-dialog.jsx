@@ -7,7 +7,7 @@ import {
   usePlatform,
   useTranslation,
   workspaceLog,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useFolderPermissionGate } from "./use-folder-permission-gate.jsx";
@@ -22,7 +22,7 @@ import {
   truncateProjectName,
 } from "../generation/normalize-skill-detail-metadata.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -31,7 +31,6 @@ import {
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 function ProjectOutputLocation({ disabled: disabled2 }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -128,7 +127,7 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
               data-action-ui-id="create-project-folder-clear"
               aria-label={t2("common.clear", "清除")}
             >
-              <X$7 size={14} strokeWidth={1.5} />
+              <X size={14} strokeWidth={1.5} />
             </button>
           ) : null}
         </div>
@@ -137,7 +136,6 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
     </>
   );
 }
-
 export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const [name2, setName] = reactExports.useState("");
@@ -236,22 +234,22 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
           </div>
         </div>
         <DialogFooter className="shrink-0 flex-row justify-end gap-2 px-4 pb-4 sm:px-5 sm:pb-5">
-          <Button$1
+          <Button
             variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={pending2}
             className="creation-dialog-action-button min-w-20 font-medium"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             onClick={() => void handleConfirm()}
             disabled={!trimmed || pending2}
             className="creation-dialog-action-button min-w-22 font-medium"
             data-action-ui-id="create-project-submit"
           >
             {t2("project.create.submit")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

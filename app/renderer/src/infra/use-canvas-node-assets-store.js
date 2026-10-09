@@ -1,13 +1,10 @@
 // use-canvas-node-assets-store.js
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
-import { create$2 } from "../vendor.js";
-
+import { create$2 as create } from "../vendor.js";
 const DEFAULT_WORKSPACE_SCOPE = "__default__";
-
 function workspaceScope(workspaceId2) {
   return workspaceId2 || DEFAULT_WORKSPACE_SCOPE;
 }
-
 function buildByAssetFromRefs(refs) {
   const next2 = new Map();
   for (const { nodeId, assetId } of refs) {
@@ -18,7 +15,6 @@ function buildByAssetFromRefs(refs) {
   }
   return next2;
 }
-
 function buildByAsset(nodeIds) {
   const next2 = new Map();
   for (const id2 of nodeIds) {
@@ -29,7 +25,6 @@ function buildByAsset(nodeIds) {
   }
   return next2;
 }
-
 function isSameAssetNodeIndex(current2, next2) {
   if (!current2 || current2.size !== next2.size) return false;
   for (const [assetId, nextNodeIds] of next2) {
@@ -41,8 +36,7 @@ function isSameAssetNodeIndex(current2, next2) {
   }
   return true;
 }
-
-export const useCanvasNodeAssetsStore = create$2((set2) => ({
+export const useCanvasNodeAssetsStore = create((set2) => ({
   byWorkspace: new Map(),
   setFromNodes: (workspaceId2, refs) =>
     set2((state2) => {
@@ -81,7 +75,6 @@ export const useCanvasNodeAssetsStore = create$2((set2) => ({
       byWorkspace: new Map(),
     }),
 }));
-
 export function getNodeIdsForAsset(assetId, workspaceId2) {
   return (
     useCanvasNodeAssetsStore
@@ -90,9 +83,7 @@ export function getNodeIdsForAsset(assetId, workspaceId2) {
       ?.get(assetId) ?? []
   );
 }
-
 const EMPTY_ASSET_NODE_IDS = new Map();
-
 export function useCanvasAssetNodeIds(workspaceId2) {
   return useCanvasNodeAssetsStore(
     (state2) =>
@@ -100,7 +91,6 @@ export function useCanvasAssetNodeIds(workspaceId2) {
       EMPTY_ASSET_NODE_IDS,
   );
 }
-
 export function useHasAssetOnCanvas(assetId, workspaceId2) {
   return useCanvasNodeAssetsStore((state2) =>
     assetId
@@ -109,13 +99,10 @@ export function useHasAssetOnCanvas(assetId, workspaceId2) {
       : false,
   );
 }
-
 const ELECTRON_BRIDGE_KEY = "__HILO_PLATFORM__";
-
 export function isElectron() {
   return typeof window !== "undefined" && ELECTRON_BRIDGE_KEY in window;
 }
-
 export function getElectronPlatform() {
   if (!isElectron()) return void 0;
   return window[ELECTRON_BRIDGE_KEY];

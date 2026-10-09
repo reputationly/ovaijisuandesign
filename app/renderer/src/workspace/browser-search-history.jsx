@@ -1,9 +1,8 @@
 // browser-search-history.jsx
-import { reactExports, Search, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, Search, useTranslation, X$7 as X } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { setBuiltinBrowserChatContext } from "./resolve-retry-message-payload.jsx";
-
 const errorMessages = {
   cancelled: (t2) => t2("workspace.browser.importError.cancelled"),
   chrome_profile_unavailable: (t2) =>
@@ -46,13 +45,11 @@ const errorMessages = {
   unexpected_error: (t2) =>
     t2("workspace.browser.importError.unexpected_error"),
 };
-
 export function browserProfileImportErrorMessage(t2, code2) {
   const knownCode =
     code2 && Object.hasOwn(errorMessages, code2) ? code2 : "unexpected_error";
   return errorMessages[knownCode](t2);
 }
-
 export function browserBookmarkImportNotice(t2, result, addedCount) {
   const count2 = addedCount;
   if (result.limitReached) {
@@ -83,7 +80,6 @@ export function browserBookmarkImportNotice(t2, result, addedCount) {
     }),
   };
 }
-
 export function browserProfileImportFailureTrackProps(result) {
   return {
     error_code: result.errorCode ?? "unknown",
@@ -105,7 +101,6 @@ export function browserProfileImportFailureTrackProps(result) {
       : {}),
   };
 }
-
 export function BrowserSearchHistory({
   items,
   onSelect,
@@ -159,14 +154,13 @@ export function BrowserSearchHistory({
               onRemove2(item);
             }}
           >
-            <Icon icon={X$7} size="sm" />
+            <Icon icon={X} size="sm" />
           </button>
         </div>
       ))}
     </div>
   );
 }
-
 export function useBrowserChatContext(activeTab, connectorEnabled) {
   reactExports.useEffect(() => {
     setBuiltinBrowserChatContext({
@@ -194,7 +188,6 @@ export function useBrowserChatContext(activeTab, connectorEnabled) {
     [],
   );
 }
-
 export function useBrowserTabPresence(tabs, activeTabId = null) {
   const [previous2, setPrevious] = reactExports.useState({
     tabs,

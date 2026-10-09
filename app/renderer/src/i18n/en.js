@@ -1,19 +1,18 @@
 // en.js
 import {
-  canvas_lyrics$1,
-  error_auth_unauthorized$1,
-  error_input_audio_blocked$1,
-  error_input_image_blocked$1,
-  error_input_text_blocked$1,
-  error_input_video_blocked$1,
-  error_network_reconnecting$1,
-  error_safety_image_output_blocked$1,
-  error_seedance_free_quota_exhausted$1,
-  error_seedance_member_locked$1,
-  model_input_error_general$1,
+  canvas_lyrics as canvas_lyrics$1,
+  error_auth_unauthorized as error_auth_unauthorized$1,
+  error_input_audio_blocked as error_input_audio_blocked$1,
+  error_input_image_blocked as error_input_image_blocked$1,
+  error_input_text_blocked as error_input_text_blocked$1,
+  error_input_video_blocked as error_input_video_blocked$1,
+  error_network_reconnecting as error_network_reconnecting$1,
+  error_safety_image_output_blocked as error_safety_image_output_blocked$1,
+  error_seedance_free_quota_exhausted as error_seedance_free_quota_exhausted$1,
+  error_seedance_member_locked as error_seedance_member_locked$1,
+  model_input_error_general as model_input_error_general$1,
 } from "./canvas-node-tools.jsx";
-
-export const en$2 = {
+export const en = {
   "assetPicker.source.local": "Local upload",
   "assetPicker.source.task": "Choose from current task files",
   "assetPicker.source.error": "Resources temporarily unavailable",

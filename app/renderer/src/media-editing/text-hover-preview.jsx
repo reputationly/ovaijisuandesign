@@ -3,13 +3,10 @@ import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TextPreviewContent, usePreviewText } from "./use-preview-text.jsx";
 import { useCanvasBridge } from "./package.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { useHoverPreview } from "./use-hover-preview.js";
-
-const PREVIEW_W$1 = 320;
-
+const PREVIEW_W = 320;
 const PREVIEW_MAX_H = 240;
-
 export function TextHoverPreview({
   path: path2,
   metadataOnly = false,
@@ -41,7 +38,7 @@ export function TextHoverPreview({
     anchorElement,
     anchorRect,
     size: {
-      width: PREVIEW_W$1,
+      width: PREVIEW_W,
       height: previewHeight,
     },
     fit: "independent",
@@ -105,7 +102,7 @@ export function TextHoverPreview({
         {!metadataOnly && <TextPreviewContent state={state2} summary={true} />}
       </div>
       {!metadataOnly && onReadFull && loader2 && (
-        <Button$2
+        <Button
           variant="ghost"
           size="sm"
           className="mx-2.5 mb-2 shrink-0 self-start"
@@ -117,7 +114,7 @@ export function TextHoverPreview({
           }}
         >
           {t2("attachment.text.readFull", "Read full text")}
-        </Button$2>
+        </Button>
       )}
     </div>,
     document.body,

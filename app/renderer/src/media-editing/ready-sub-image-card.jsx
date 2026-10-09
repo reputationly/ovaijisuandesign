@@ -1,7 +1,7 @@
 // ready-sub-image-card.jsx
-import { reactExports, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { ImageSlotBody } from "./image-slot-body.jsx";
 import {
   computeMultiImageGridPositions,
@@ -20,8 +20,7 @@ import {
 } from "../canvas/node-shell-inner.jsx";
 import { MediaDownloadButton } from "./base-backend.jsx";
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
-
-function computeExpandedFrameRect$1(positions, cardWidth, cardHeight) {
+function computeExpandedFrameRect(positions, cardWidth, cardHeight) {
   let minX = 0;
   let minY = 0;
   let maxX = cardWidth;
@@ -39,8 +38,7 @@ function computeExpandedFrameRect$1(positions, cardWidth, cardHeight) {
     height: maxY - minY + MULTI_IMAGE_FRAME_INSET * 2,
   };
 }
-
-function CardWrapper$1({
+function CardWrapper({
   cardWidth,
   cardHeight,
   position: position2,
@@ -63,8 +61,7 @@ function CardWrapper$1({
     </div>
   );
 }
-
-function DeleteButton$1({ onDelete, label, className }) {
+function DeleteButton({ onDelete, label, className }) {
   return (
     <button
       type="button"
@@ -72,17 +69,16 @@ function DeleteButton$1({ onDelete, label, className }) {
       onClick={onDelete}
       aria-label={label}
       title={label}
-      className={cn$5(
+      className={cn(
         "pointer-events-auto absolute right-1 top-1 z-20 flex size-6 cursor-pointer items-center justify-center rounded-[8px] bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-[background-color,color,transform] duration-150 ease-out hover:bg-destructive hover:text-destructive-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
         className,
       )}
     >
-      <X$7 size={14} strokeWidth={1.5} aria-hidden={true} />
+      <X size={14} strokeWidth={1.5} aria-hidden={true} />
     </button>
   );
 }
-
-function DownloadButton$1({ onDownload, label }) {
+function DownloadButton({ onDownload, label }) {
   return (
     <MediaDownloadButton
       onClick={onDownload}
@@ -93,7 +89,6 @@ function DownloadButton$1({ onDownload, label }) {
     />
   );
 }
-
 function ReadySubImageCard({
   nodeId,
   slot,
@@ -151,7 +146,7 @@ function ReadySubImageCard({
   const splitLabel = t2("canvas.multiImage.splitToNode", "独立展示");
   const previewLabel = t2("canvas.fullscreenPreview", "全屏预览");
   return (
-    <CardWrapper$1
+    <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
       position={position2}
@@ -206,7 +201,7 @@ function ReadySubImageCard({
         </div>
       )}
       {!readonly && (
-        <DeleteButton$1
+        <DeleteButton
           onDelete={handleDelete2}
           label={
             slot.status === "status_unknown"
@@ -217,15 +212,14 @@ function ReadySubImageCard({
         />
       )}
       {slot.url && (
-        <DownloadButton$1
+        <DownloadButton
           onDownload={handleDownload}
           label={t2("canvas.multiImage.downloadImage", "下载该图")}
         />
       )}
-    </CardWrapper$1>
+    </CardWrapper>
   );
 }
-
 function LoadingSubImageCard({
   nodeId,
   slot,
@@ -255,7 +249,7 @@ function LoadingSubImageCard({
     slot.generationStartedAt,
   );
   return (
-    <CardWrapper$1
+    <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
       position={position2}
@@ -303,10 +297,9 @@ function LoadingSubImageCard({
           }
         />
       </div>
-    </CardWrapper$1>
+    </CardWrapper>
   );
 }
-
 function ErrorSubImageCard({
   nodeId,
   slot,
@@ -323,7 +316,7 @@ function ErrorSubImageCard({
     onDeleteSub(position2.originalIndex);
   };
   return (
-    <CardWrapper$1
+    <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
       position={position2}
@@ -337,7 +330,7 @@ function ErrorSubImageCard({
         errorVariant="compact"
       />
       {!readonly && slot.status !== "recoverable_error" && (
-        <DeleteButton$1
+        <DeleteButton
           onDelete={handleDelete2}
           label={
             slot.status === "status_unknown"
@@ -346,10 +339,9 @@ function ErrorSubImageCard({
           }
         />
       )}
-    </CardWrapper$1>
+    </CardWrapper>
   );
 }
-
 export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
   nodeId,
   view: view2,
@@ -375,11 +367,7 @@ export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
     imageStatuses,
   );
   if (positions.length === 0) return null;
-  const frameRect = computeExpandedFrameRect$1(
-    positions,
-    cardWidth,
-    cardHeight,
-  );
+  const frameRect = computeExpandedFrameRect(positions, cardWidth, cardHeight);
   return (
     <div
       data-action-ui-id="canvas.image-node.multi-image-overlay"

@@ -7,7 +7,7 @@ import {
   reactDomExports,
   reactExports,
   useAssetMetadataApi,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -42,7 +42,7 @@ import {
 } from "../canvas/file-missing-icon.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { NodeToolbar } from "./toolbar-item.jsx";
-import { AudioLightbox$1 } from "./audio-lightbox.jsx";
+import { AudioLightbox } from "./audio-lightbox.jsx";
 import {
   resolveReferenceTexts,
   usePopoverCloseWithDeselect,
@@ -53,7 +53,6 @@ import {
   useUpstreamTextContent,
 } from "../assets/parse-prompt-to-tiptap.js";
 import { AudioClipPanel } from "./audio-preview.jsx";
-
 function resolveEffectiveAudioDraft(draft, meta2, hostStatus) {
   const activeDraft = resolveActiveNodeDraft(draft, hostStatus);
   if (!activeDraft) return void 0;
@@ -68,7 +67,6 @@ function resolveEffectiveAudioDraft(draft, meta2, hostStatus) {
     activeDraft.textPaths !== void 0;
   return hasEditedPrompt || hasReferenceDraft ? activeDraft : void 0;
 }
-
 function normalizeAudioDraftForPersistence(draft, baseline) {
   if (!draft) return void 0;
   const isDirty = popoverDraftIsDirty(
@@ -96,21 +94,13 @@ function normalizeAudioDraftForPersistence(draft, baseline) {
       }
     : void 0;
 }
-
 const AUDIO_GENERATED_WAVEFORM_HEIGHT = 64;
-
 const AUDIO_GENERATED_WAVEFORM_PADDING_Y = 8;
-
 const AUDIO_GENERATED_CARD_PADDING_TOP = 6;
-
 const AUDIO_GENERATED_CARD_PADDING_BOTTOM = 12;
-
 const AUDIO_GENERATED_CONTROLS_MARGIN_TOP = 8;
-
 const AUDIO_GENERATED_CONTROLS_HEIGHT = 20;
-
 const AUDIO_GENERATED_SELECTED_BORDER_WIDTH = 2;
-
 const AUDIO_GENERATED_SELECTED_BODY_HEIGHT =
   AUDIO_GENERATED_CARD_PADDING_TOP +
   AUDIO_GENERATED_WAVEFORM_HEIGHT +
@@ -119,7 +109,6 @@ const AUDIO_GENERATED_SELECTED_BODY_HEIGHT =
   AUDIO_GENERATED_CONTROLS_HEIGHT +
   AUDIO_GENERATED_CARD_PADDING_BOTTOM +
   AUDIO_GENERATED_SELECTED_BORDER_WIDTH * 2;
-
 function resolveAudioPromptPopoverState({
   isUserEmpty,
   isGenerating,
@@ -129,7 +118,6 @@ function resolveAudioPromptPopoverState({
   if (isUserEmpty || !hasAudioContent) return "empty";
   return "content";
 }
-
 function resolveAudioPromptPopoverGapOffset(input) {
   const state2 = resolveAudioPromptPopoverState(input);
   if (state2 !== "content") return AUDIO_FULL_BODY_POPOVER_GAP_OFFSET;
@@ -137,7 +125,6 @@ function resolveAudioPromptPopoverGapOffset(input) {
     (AUDIO_GENERATED_SELECTED_BODY_HEIGHT - AUDIO_CARD_SIZE.height) * input.zoom
   );
 }
-
 function CopyIcon$1() {
   return (
     <CompositedSvg
@@ -155,8 +142,7 @@ function CopyIcon$1() {
     </CompositedSvg>
   );
 }
-
-function CheckIcon$3() {
+function CheckIcon() {
   return (
     <CompositedSvg
       width="12"
@@ -172,7 +158,6 @@ function CheckIcon$3() {
     </CompositedSvg>
   );
 }
-
 function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
   const { t: t2 } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
@@ -225,7 +210,7 @@ function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
               className="flex h-6 shrink-0 items-center gap-1 rounded-sm px-2 text-[11px] text-[var(--fg-muted,#525252)] hover:bg-[var(--bg-surface,#fff)] hover:text-[var(--fg-default,#141414)]"
               title={t2("canvas.voiceClone.copy", "复制 voice_id")}
             >
-              {copied ? <CheckIcon$3 /> : <CopyIcon$1 />}
+              {copied ? <CheckIcon /> : <CopyIcon$1 />}
               {copied
                 ? t2("canvas.voiceClone.copied", "已复制")
                 : t2("canvas.voiceClone.copy", "复制")}
@@ -259,7 +244,6 @@ function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
     </PopoverShell>
   );
 }
-
 function CopyIcon() {
   return (
     <CompositedSvg
@@ -277,7 +261,6 @@ function CopyIcon() {
     </CompositedSvg>
   );
 }
-
 function CheckIcon$2() {
   return (
     <CompositedSvg
@@ -294,7 +277,6 @@ function CheckIcon$2() {
     </CompositedSvg>
   );
 }
-
 function VoiceDesignInfoCard({
   voiceId,
   voiceDescription,
@@ -443,29 +425,17 @@ function VoiceDesignInfoCard({
     </PopoverShell>
   );
 }
-
-const PORTAL_POPOVER_Z$1 = 9998;
-
-const PORTAL_TOOLBAR_Z$1 = 9999;
-
-const TOOLBAR_HEIGHT$1 = 40;
-
-const TOOLBAR_GAP$4 = 6;
-
-const VIEWPORT_MARGIN$2 = 8;
-
+const PORTAL_POPOVER_Z = 9998;
+const PORTAL_TOOLBAR_Z = 9999;
+const TOOLBAR_HEIGHT = 40;
+const TOOLBAR_GAP = 6;
+const VIEWPORT_MARGIN = 8;
 const T2A_POPOVER_WIDTH = 580;
-
 const T2A_POPOVER_HEIGHT_COMPACT = 254;
-
 const T2A_POPOVER_HEIGHT_EXPANDED = 500;
-
-const zoomSelector$7 = (s2) => s2.transform[2];
-
+const zoomSelector = (s2) => s2.transform[2];
 const SECONDS_PER_MINUTE = 60;
-
 const MIN_MUSIC_DURATION_SECONDS = 3;
-
 function formatActualMusicLength(durationSec) {
   if (durationSec === void 0 || !Number.isFinite(durationSec)) return void 0;
   const totalSeconds = Math.round(durationSec);
@@ -474,7 +444,6 @@ function formatActualMusicLength(durationSec) {
   const seconds = totalSeconds % SECONDS_PER_MINUTE;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
-
 function buildMetaAudioParams(meta2, isElevenLabsInstrumental) {
   let params = meta2?.lyrics
     ? {
@@ -493,7 +462,6 @@ function buildMetaAudioParams(meta2, isElevenLabsInstrumental) {
   }
   return params;
 }
-
 function resolveDefaultAudioParams(draft, metaParams, upstreamParams, meta2) {
   let base2 = draft?.params ?? metaParams ?? upstreamParams;
   if (base2 && !base2.lyrics && meta2?.lyrics) {
@@ -510,14 +478,13 @@ function resolveDefaultAudioParams(draft, metaParams, upstreamParams, meta2) {
   }
   return base2;
 }
-
 function AudioPromptPopoverPlacement({
   isUserEmpty,
   isGenerating,
   hasAudioContent,
   children: children2,
 }) {
-  const zoom2 = useStore$3(zoomSelector$7);
+  const zoom2 = useStore(zoomSelector);
   const popoverGapOffset = resolveAudioPromptPopoverGapOffset({
     isUserEmpty,
     isGenerating,
@@ -526,25 +493,23 @@ function AudioPromptPopoverPlacement({
   });
   return <>{children2(popoverGapOffset)}</>;
 }
-
-function buildPopoverPosition$1(rect, width, height) {
+function buildPopoverPosition(rect, width, height) {
   const placeBelow = window.innerHeight - rect.bottom > height + 24;
   const desiredLeft = rect.left + rect.width / 2 - width / 2;
   const clampedLeft = Math.max(
-    VIEWPORT_MARGIN$2,
-    Math.min(window.innerWidth - width - VIEWPORT_MARGIN$2, desiredLeft),
+    VIEWPORT_MARGIN,
+    Math.min(window.innerWidth - width - VIEWPORT_MARGIN, desiredLeft),
   );
   const top2 = placeBelow
     ? rect.bottom + NODE_POPOVER_SAFE_GAP
-    : Math.max(VIEWPORT_MARGIN$2, rect.top - height - NODE_POPOVER_SAFE_GAP);
+    : Math.max(VIEWPORT_MARGIN, rect.top - height - NODE_POPOVER_SAFE_GAP);
   return {
     top: top2,
     left: clampedLeft,
     height,
   };
 }
-
-function FixedPortalCard$1({
+function FixedPortalCard({
   top: top2,
   left,
   width,
@@ -566,7 +531,7 @@ function FixedPortalCard$1({
         left,
         width,
         height,
-        zIndex: PORTAL_POPOVER_Z$1,
+        zIndex: PORTAL_POPOVER_Z,
         background: "var(--canvas-controls-bg)",
         border: "1.5px solid rgba(0,0,0,0.1)",
         borderRadius: 8,
@@ -585,7 +550,6 @@ function FixedPortalCard$1({
     document.body,
   );
 }
-
 export function AudioActionSurface({
   nodeId,
   meta: meta2,
@@ -989,10 +953,10 @@ export function AudioActionSurface({
     anchor.kind === "rect"
       ? (children2) => {
           const rect = anchor.rect;
-          const placeAbove = rect.top > TOOLBAR_HEIGHT$1 + 16;
+          const placeAbove = rect.top > TOOLBAR_HEIGHT + 16;
           const top2 = placeAbove
-            ? rect.top - TOOLBAR_HEIGHT$1 - TOOLBAR_GAP$4
-            : rect.bottom + TOOLBAR_GAP$4;
+            ? rect.top - TOOLBAR_HEIGHT - TOOLBAR_GAP
+            : rect.bottom + TOOLBAR_GAP;
           const left = rect.left + rect.width / 2;
           return reactDomExports.createPortal(
             // biome-ignore lint/a11y/noStaticElementInteractions: anchor wrapper; child palette owns all interactive surfaces
@@ -1005,7 +969,7 @@ export function AudioActionSurface({
                 top: top2,
                 left,
                 transform: "translateX(-50%)",
-                zIndex: PORTAL_TOOLBAR_Z$1,
+                zIndex: PORTAL_TOOLBAR_Z,
               }}
               onMouseDown={(e2) => e2.stopPropagation()}
               onClick={(e2) => e2.stopPropagation()}
@@ -1022,13 +986,13 @@ export function AudioActionSurface({
           const baseHeight = props.expanded
             ? T2A_POPOVER_HEIGHT_EXPANDED
             : T2A_POPOVER_HEIGHT_COMPACT;
-          const pos = buildPopoverPosition$1(
+          const pos = buildPopoverPosition(
             anchor.rect,
             T2A_POPOVER_WIDTH,
             baseHeight + props.extraHeight,
           );
           return (
-            <FixedPortalCard$1
+            <FixedPortalCard
               top={pos.top}
               left={pos.left}
               width={T2A_POPOVER_WIDTH}
@@ -1037,7 +1001,7 @@ export function AudioActionSurface({
               promptLayout={true}
             >
               {props.children}
-            </FixedPortalCard$1>
+            </FixedPortalCard>
           );
         }
       : void 0;
@@ -1057,7 +1021,7 @@ export function AudioActionSurface({
         />
       )}
       {showLightbox && meta2?.url && (
-        <AudioLightbox$1
+        <AudioLightbox
           item={lightboxItemFromAssetMeta("audio", meta2)}
           name={meta2.name}
           lyrics={displayLyrics}

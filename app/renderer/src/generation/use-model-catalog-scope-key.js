@@ -13,15 +13,12 @@ import {
   useOptionalTeamAccount,
 } from "../assets/credit-query-keys.jsx";
 import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
-
 export function useGatewayScopeKey() {
   return useGatewayScope().scopeKey;
 }
-
-export function useGatewayReady$1() {
+export function useGatewayReady() {
   return useGatewayScope().gatewayReady;
 }
-
 export function useGatewayUrl() {
   const { baseUrl, gatewayBinding, workspaceClaim, workspaceClient } =
     useGatewayScope();
@@ -32,7 +29,6 @@ export function useGatewayUrl() {
     [baseUrl, gatewayBinding, workspaceClaim, workspaceClient],
   );
 }
-
 export function useGatewayFetch() {
   const {
     baseUrl,
@@ -59,11 +55,8 @@ export function useGatewayFetch() {
     ],
   );
 }
-
 const authSessionKeys = new WeakMap();
-
 let nextAuthSessionKey = 1;
-
 function getAuthSessionKey(user) {
   if (!user) return "anonymous";
   const existing = authSessionKeys.get(user);
@@ -73,7 +66,6 @@ function getAuthSessionKey(user) {
   authSessionKeys.set(user, created);
   return `session:${created}`;
 }
-
 export function useModelCatalogScopeKey() {
   const auth = reactExports.useContext(AuthContext);
   const teamAccount = useOptionalTeamAccount();
@@ -99,7 +91,6 @@ export function useModelCatalogScopeKey() {
     ],
   );
 }
-
 export function useProgressRootContext() {
   const context = reactExports.useContext(ProgressRootContext);
   if (context === void 0) {
@@ -107,70 +98,55 @@ export function useProgressRootContext() {
   }
   return context;
 }
-
 export function folderNameFromPath(fullPath) {
   return fullPath.split(/[/\\]/).filter(Boolean).pop() || fullPath;
 }
-
 export function workspaceDisplayName(workspace) {
   const custom = workspace.displayName?.trim();
   return custom ? custom : folderNameFromPath(workspace.path);
 }
-
 export function formatTimestampDot(ts2) {
   const d2 = new Date(ts2);
   return `${d2.getFullYear()}.${d2.getMonth() + 1}.${d2.getDate()}`;
 }
-
 export const ACTIVE_CUSTOM_MODEL_QUERY_KEY = ["active-custom-model"];
-
 export function resolveActiveModelId(selected2, _active) {
   return selected2 ?? null;
 }
-
 export function useRuntimeConfig() {
   const ctx = reactExports.useContext(RuntimeConfigContext);
   if (!ctx)
     throw new Error("useRuntimeConfig must be used within AppProviders");
   return ctx;
 }
-
 export const ThemeCtx = reactExports.createContext(null);
-
 export function getSystemTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
 }
-
 export function resolveTheme(theme2) {
   return theme2 === "system" ? getSystemTheme() : theme2;
 }
-
 export function applyClass(resolved) {
   document.documentElement.classList.toggle("dark", resolved === "dark");
 }
-
 export function useTheme() {
   const ctx = reactExports.useContext(ThemeCtx);
   if (!ctx) throw new Error("useTheme must be used within AppProviders");
   return ctx;
 }
-
 export const UPDATER_DEV_PREVIEW_EVENT = "hub:updater-dev-preview-change";
-
-export const STORAGE_KEY$5 = "hilo-updater-preview";
-
+export const STORAGE_KEY = "hilo-updater-preview";
 export function canUseUpdaterDevPreview() {
   return canUseDebugTooling();
 }
-
 export function setUpdaterDevPreviewMode(mode2) {
   if (!canUseUpdaterDevPreview()) return;
   if (mode2 === "off") {
-    globalThis.sessionStorage?.removeItem(STORAGE_KEY$5);
+    globalThis.sessionStorage?.removeItem(STORAGE_KEY);
   } else {
-    globalThis.sessionStorage?.setItem(STORAGE_KEY$5, mode2);
+    globalThis.sessionStorage?.setItem(STORAGE_KEY, mode2);
   }
   globalThis.window?.dispatchEvent(
     new CustomEvent(UPDATER_DEV_PREVIEW_EVENT, {

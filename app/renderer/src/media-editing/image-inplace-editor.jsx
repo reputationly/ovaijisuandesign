@@ -2,43 +2,31 @@
 import {
   MOSAIC_BRUSH_SIZES,
   strengthPercentToPx,
-  STROKE_WIDTHS$1,
+  STROKE_WIDTHS,
   useEditorState,
 } from "./use-editor-state.js";
 import { DEFAULT_STYLE } from "./history-manager.js";
-import { reactExports, useStore$3 } from "../vendor.js";
+import { reactExports, useStore$3 as useStore } from "../vendor.js";
 import { ImageInplaceEditToolbarInner } from "./image-inplace-edit-toolbar-inner.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageEditor } from "./image-editor.jsx";
 import { useCanvasActive } from "./package.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-
 const ImageInplaceEditToolbar = reactExports.memo(ImageInplaceEditToolbarInner);
-
 DEFAULT_STYLE.stroke;
-
-const IMAGE_INPLACE_DEFAULT_STROKE_WIDTH = STROKE_WIDTHS$1[0]?.value ?? 2;
-
+const IMAGE_INPLACE_DEFAULT_STROKE_WIDTH = STROKE_WIDTHS[0]?.value ?? 2;
 const IMAGE_INPLACE_DEFAULT_TEXT_VARIANT = DEFAULT_STYLE.textVariant ?? "plain";
-
 const IMAGE_INPLACE_DEFAULT_FONT_SIZE = 12;
-
 const IMAGE_INPLACE_DEFAULT_MOSAIC_MODE = DEFAULT_STYLE.mosaicMode ?? "mosaic";
-
 const IMAGE_INPLACE_DEFAULT_MOSAIC_SHAPE =
   DEFAULT_STYLE.mosaicShape ?? "rectangle";
-
 const IMAGE_INPLACE_DEFAULT_MOSAIC_BRUSH_SIZE =
   MOSAIC_BRUSH_SIZES[0]?.value ?? DEFAULT_STYLE.mosaicBrushSize ?? 6;
-
 const IMAGE_INPLACE_DEFAULT_MOSAIC_STRENGTH = 45;
-
 function mosaicStrengthPercentToPx(percent2, mode2) {
   return strengthPercentToPx(percent2, mode2);
 }
-
-const zoomSelector$4 = (s2) => s2.transform[2];
-
+const zoomSelector = (s2) => s2.transform[2];
 export function ImageInplaceEditor({
   src,
   srcSet,
@@ -52,7 +40,7 @@ export function ImageInplaceEditor({
 }) {
   useSuspendCanvasInteractions(true);
   const active2 = useCanvasActive();
-  const viewportZoom = useStore$3(zoomSelector$4);
+  const viewportZoom = useStore(zoomSelector);
   const editorRef = reactExports.useRef(null);
   const state2 = useEditorState(editorRef);
   const [uiActiveTool, setUiActiveTool] = reactExports.useState("select");

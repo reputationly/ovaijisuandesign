@@ -5,7 +5,7 @@ import {
   AccordionPanel,
   AccordionRoot,
   AccordionTrigger$1,
-  ChevronDownIcon$1,
+  ChevronDownIcon$1 as ChevronDownIcon,
   ChevronUpIcon,
   RadioGroup$1,
   RadioIndicator,
@@ -14,11 +14,10 @@ import {
   useCurrentWorkspace,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { MessageListImpl } from "../chat/message-list-impl.jsx";
 import { useGatewayScopeKey } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceChatSelector } from "../assets/use-canvas-model-registry-hydration.js";
-
 function messageListPropsEqual(prev, next2) {
   if (
     prev.busy !== next2.busy ||
@@ -46,14 +45,11 @@ function messageListPropsEqual(prev, next2) {
   }
   return true;
 }
-
 export const MessageList = reactExports.memo(
   MessageListImpl,
   messageListPropsEqual,
 );
-
 MessageList.displayName = "MessageList";
-
 export function MessageListContainer(props) {
   const workspaceDir = useCurrentWorkspace();
   const workspaceId2 = useGatewayScopeKey();
@@ -72,22 +68,20 @@ export function MessageListContainer(props) {
     />
   );
 }
-
 export function Accordion({ className, ...props }) {
   return (
     <AccordionRoot
       data-slot="accordion"
-      className={cn$2("flex w-full flex-col", className)}
+      className={cn("flex w-full flex-col", className)}
       {...props}
     />
   );
 }
-
 export function AccordionItem({ className, ...props }) {
   return (
     <AccordionItem$1
       data-slot="accordion-item"
-      className={cn$2(
+      className={cn(
         "not-last:[border-bottom-width:var(--divider-width)]",
         className,
       )}
@@ -95,20 +89,19 @@ export function AccordionItem({ className, ...props }) {
     />
   );
 }
-
 export function AccordionTrigger({ className, children: children2, ...props }) {
   return (
     <AccordionHeader className="flex">
       <AccordionTrigger$1
         data-slot="accordion-trigger"
-        className={cn$2(
+        className={cn(
           "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left text-xs font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
           className,
         )}
         {...props}
       >
         {children2}
-        <ChevronDownIcon$1
+        <ChevronDownIcon
           data-slot="accordion-trigger-icon"
           className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden"
         />
@@ -120,7 +113,6 @@ export function AccordionTrigger({ className, children: children2, ...props }) {
     </AccordionHeader>
   );
 }
-
 export function AccordionContent({ className, children: children2, ...props }) {
   return (
     <AccordionPanel
@@ -129,7 +121,7 @@ export function AccordionContent({ className, children: children2, ...props }) {
       {...props}
     >
       <div
-        className={cn$2(
+        className={cn(
           "h-(--accordion-panel-height) pt-0 pb-2.5 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
           className,
         )}
@@ -139,7 +131,6 @@ export function AccordionContent({ className, children: children2, ...props }) {
     </AccordionPanel>
   );
 }
-
 function isEditableTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
@@ -151,7 +142,6 @@ function isEditableTarget(target) {
     Boolean(target.closest('[contenteditable="true"]'))
   );
 }
-
 function isIndependentInteractiveTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
   return Boolean(
@@ -160,7 +150,6 @@ function isIndependentInteractiveTarget(target) {
     ),
   );
 }
-
 export function shouldIgnoreChatGlobalShortcut(event) {
   return (
     event.defaultPrevented ||
@@ -168,22 +157,20 @@ export function shouldIgnoreChatGlobalShortcut(event) {
     isIndependentInteractiveTarget(event.target)
   );
 }
-
 export function RadioGroup({ className, ...props }) {
   return (
     <RadioGroup$1
       data-slot="radio-group"
-      className={cn$2("grid w-full gap-2", className)}
+      className={cn("grid w-full gap-2", className)}
       {...props}
     />
   );
 }
-
 export function RadioGroupItem({ className, ...props }) {
   return (
     <RadioRoot
       data-slot="radio-group-item"
-      className={cn$2(
+      className={cn(
         "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
         className,
       )}

@@ -55,7 +55,7 @@ import {
   resolveLegacyInteractionReply,
   useAstraSendGate,
 } from "../generation/use-astra-send-gate.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
 import {
   shallowEqualObject,
@@ -129,7 +129,6 @@ import {
   takeLatestPromptReviews,
 } from "../workspace/has-confirmed-prompt-review.js";
 import { useProductionBoard } from "../workspace/use-production-board.js";
-
 export function ChatPanel({
   onCollapse: _onCollapse,
   headerActions,
@@ -1984,7 +1983,7 @@ export function ChatPanel({
                   "The current view was preserved, but the complete history could not be verified. Retry to reload it.",
                 )}
               </div>
-              <Button$1
+              <Button
                 variant="outline"
                 size="sm"
                 className="mt-1.5 h-6 px-2 text-xs"
@@ -1995,7 +1994,7 @@ export function ChatPanel({
                 {historyReloading
                   ? t2("common.loading", "Loading...")
                   : t2("chat.retry", "Retry")}
-              </Button$1>
+              </Button>
             </div>
           )}
           {providersUnavailable && (
@@ -2012,7 +2011,7 @@ export function ChatPanel({
                   "Model providers could not be loaded. Canvas and assets still work; chat resumes automatically once the connection recovers.",
                 )}
               </div>
-              <Button$1
+              <Button
                 variant="outline"
                 size="sm"
                 className="mt-1.5 h-6 px-2 text-xs"
@@ -2022,7 +2021,7 @@ export function ChatPanel({
                 {retryingProviders
                   ? t2("chat.providersUnavailable.retrying", "Retrying...")
                   : t2("chat.retry", "Retry")}
-              </Button$1>
+              </Button>
             </div>
           )}
           {sessionListStalled &&

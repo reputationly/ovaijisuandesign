@@ -1,10 +1,7 @@
 // diagnostic-history-tools.js
 import { MEDIA_EXTENSIONS, Ungroup$1, withIconCompositing } from "../vendor.js";
-
 export const Ungroup = withIconCompositing(Ungroup$1);
-
 export const TOOL_ABORTED_BY_USER_TEXT = "Tool execution aborted";
-
 export function chatDiagnosticHash(value) {
   let first2 = 2166136261;
   let second = 2654435761;
@@ -15,20 +12,17 @@ export function chatDiagnosticHash(value) {
   }
   return `${(first2 >>> 0).toString(16).padStart(8, "0")}${(second >>> 0).toString(16).padStart(8, "0")}`;
 }
-
 export function chatToolIdentity(tool2) {
   return chatDiagnosticHash(
     tool2.callID ? `call:${tool2.callID}` : `part:${tool2.partId ?? ""}`,
   );
 }
-
-export function normalizeToolStatus$1(status) {
+export function normalizeToolStatus(status) {
   if (status === "ok") return "completed";
   return ["pending", "running", "completed", "error"].includes(status ?? "")
     ? (status ?? "unknown")
     : "unknown";
 }
-
 export function diagnosticHistoryTools(messages2) {
   return messages2.flatMap((message2) => {
     if (message2.type === "tool_call")
@@ -51,9 +45,7 @@ export function diagnosticHistoryTools(messages2) {
     return [];
   });
 }
-
 const CONNECTOR_LABEL_RE = /^[\p{Script=Han}a-zA-Z0-9_. -]{1,80}$/u;
-
 export function formatConnectorMention(serverName, displayName2) {
   const label =
     displayName2 &&
@@ -63,7 +55,6 @@ export function formatConnectorMention(serverName, displayName2) {
       : "";
   return `@connector:${serverName}${label}`;
 }
-
 export function detectFileType(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0) return "file";

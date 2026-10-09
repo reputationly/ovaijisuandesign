@@ -4,26 +4,21 @@ import {
   HILO_WORKSPACE_IDENTITY_QUERY,
   HILO_WORKSPACE_INSTANCE_QUERY,
   Maximize,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   Volume2,
 } from "../vendor.js";
 import { appendWidth } from "./append-width.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeX } from "./package.jsx";
-
 const VIDEO_AUX_ICON_SIZE = 20;
-
 const VIDEO_AUX_ICON_STROKE_WIDTH = 1.25;
-
 export function PlayIcon({ size: size2 = 14 }) {
-  return <PlaybackPlayIcon$1 size={size2} />;
+  return <PlaybackPlayIcon size={size2} />;
 }
-
 export function PauseIcon({ size: size2 = 14 }) {
-  return <PlaybackPauseIcon$1 size={size2} />;
+  return <PlaybackPauseIcon size={size2} />;
 }
-
 export function VolumeIcon() {
   return (
     <Volume2
@@ -33,7 +28,6 @@ export function VolumeIcon() {
     />
   );
 }
-
 export function VolumeMuteIcon() {
   return (
     <VolumeX
@@ -43,7 +37,6 @@ export function VolumeMuteIcon() {
     />
   );
 }
-
 export function VolumeOnTablerIcon() {
   return (
     <Volume2
@@ -53,7 +46,6 @@ export function VolumeOnTablerIcon() {
     />
   );
 }
-
 export function VolumeOffTablerIcon() {
   return (
     <VolumeX
@@ -63,7 +55,6 @@ export function VolumeOffTablerIcon() {
     />
   );
 }
-
 export function FullscreenIcon() {
   return (
     <Maximize
@@ -73,18 +64,14 @@ export function FullscreenIcon() {
     />
   );
 }
-
 const MAX_SERVER_WIDTH = 2048;
-
 function physicalWidth(displayWidth) {
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   return Math.round(displayWidth * dpr);
 }
-
 export function buildThumbnailUrl(url2, displayWidth) {
   return appendWidth(url2, physicalWidth(displayWidth));
 }
-
 function buildSrcSet(baseUrl, displayWidth) {
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   const candidates2 = [
@@ -103,11 +90,9 @@ function buildSrcSet(baseUrl, displayWidth) {
     .map((width) => `${appendWidth(baseUrl, width)} ${width}w`)
     .join(", ");
 }
-
 export function buildThumbnailSrcSet(url2, displayWidth) {
   return buildSrcSet(url2, displayWidth);
 }
-
 export function buildVideoThumbBase(baseUrl, filePath) {
   try {
     const sourceUrl = new URL(baseUrl);
@@ -132,7 +117,6 @@ export function buildVideoThumbBase(baseUrl, filePath) {
     return void 0;
   }
 }
-
 export function buildVideoThumbnailUrl(baseUrl, filePath, displayWidth) {
   const base2 = buildVideoThumbBase(baseUrl, filePath);
   return base2 ? appendWidth(base2, physicalWidth(displayWidth)) : void 0;

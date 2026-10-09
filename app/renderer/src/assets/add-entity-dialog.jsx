@@ -7,8 +7,8 @@ import {
 } from "../infra/use-online.jsx";
 import {
   BASE,
-  readEnvelope$1,
-  ROOT_KEY$1,
+  readEnvelope,
+  ROOT_KEY,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
 import {
@@ -32,7 +32,7 @@ import {
   DialogTitle,
 } from "../infra/badge-variants.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -45,12 +45,10 @@ import {
   useCreateEntityFromPaths,
   useMaterializeEntity,
 } from "./use-materialize-entity.js";
-
 async function createEntity(fetcher, input) {
   const res = await fetcher(`${BASE}/entities`, jsonInit("POST", input));
-  return readEnvelope$1(res, "entity", "created entity");
+  return readEnvelope(res, "entity", "created entity");
 }
-
 function useCreateEntity() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -58,14 +56,12 @@ function useCreateEntity() {
     mutationFn: ({ input }) => createEntity(fetcher, input),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
-const TYPE_OPTIONS$3 = ENTITY_TYPES;
-
+const TYPE_OPTIONS = ENTITY_TYPES;
 const TYPE_RULES = {
   character: {
     descriptionRequired: false,
@@ -88,7 +84,6 @@ const TYPE_RULES = {
     maxAttachments: Number.POSITIVE_INFINITY,
   },
 };
-
 export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
   const { t: t2 } = useTranslation();
   const [type2, setType] = reactExports.useState(initialType ?? "character");
@@ -337,7 +332,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                {TYPE_OPTIONS$3.map((opt) => (
+                {TYPE_OPTIONS.map((opt) => (
                   <DropdownMenuItem
                     key={opt}
                     onClick={() => {
@@ -406,7 +401,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
           )}
         </div>
         <DialogFooter>
-          <Button$1
+          <Button
             size="sm"
             className="h-8 gap-1.5 rounded-[4px]"
             onClick={() => void handleSubmit()}
@@ -415,7 +410,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             {t2("assetCenter.create.submitAsset", "创建资产")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

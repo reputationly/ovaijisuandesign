@@ -29,7 +29,7 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useVideoStarterPresetStore } from "../canvas/use-video-starter-preset-store.js";
 import {
-  formatTime$2,
+  formatTime,
   MEDIA_NODE_RADIUS,
   useAssetMeta,
   useCanvasActive,
@@ -116,7 +116,6 @@ import {
   ROUND_DOTS_POPOVER_GAP_OFFSET,
   RoundDots,
 } from "./round-dots-inner.jsx";
-
 function useVideoNodeView(nodeId, data2) {
   const assetsMap = useAssetMetadataStore((s2) => s2.assets);
   const subImages = useSubImages(nodeId);
@@ -205,7 +204,6 @@ function useVideoNodeView(nodeId, data2) {
     [view2, selectRound, selectSlot],
   );
 }
-
 function VideoStarterIcon({ presetId }) {
   const firstLastFrame =
     presetId === "first-last-frame" || presetId === "h3-max-first-last-frame";
@@ -243,13 +241,9 @@ function VideoStarterIcon({ presetId }) {
     </CompositedSvg>
   );
 }
-
 const VIDEO_EMPTY_STARTER_SIZE = VIDEO_EMPTY_CARD_SIZE;
-
 const H3_MAX_MODEL_IDS = new Set(["MiniMax-H3-Max", "MiniMax-H3-Max-Turbo"]);
-
 const H3_MAX_STARTER_MODES = new Set(["text-to-video", "first-last-frame"]);
-
 function VideoEmptyStarter({ nodeId, modelId, modelName }) {
   const { t: t2 } = useTranslation();
   const { videoStarterPresets, applyVideoStarterPreset } = useCanvasBridge();
@@ -355,9 +349,7 @@ function VideoEmptyStarter({ nodeId, modelId, modelName }) {
     />
   );
 }
-
 const PENDING_PRESENTATION_DELAY_MS = 500;
-
 function shouldDelayVideoPendingPresentation(
   liveGenerating,
   persistedGenerating,
@@ -367,7 +359,6 @@ function shouldDelayVideoPendingPresentation(
     persistedGenerating?.phase === "pending"
   );
 }
-
 function resolveVideoGeneratingPresentation(
   liveGenerating,
   persistedGenerating,
@@ -384,30 +375,24 @@ function resolveVideoGeneratingPresentation(
   }
   return liveGenerating ?? persistedGenerating;
 }
-
 function resolveVideoLightboxIndexForSlot(items, slot, fallbackIndex) {
   return resolveLightboxIndexForSlot(items, slot, fallbackIndex);
 }
-
 function initialVideoThumbnailState(hasThumbnailBase) {
   return hasThumbnailBase ? "cached" : "fallback";
 }
-
 function advanceVideoThumbnailState(state2) {
   return state2 === "cached" ? "forced" : "fallback";
 }
-
 function resolveVideoThumbnailUrl(thumbnailBase, state2) {
   if (!thumbnailBase || state2 === "fallback") return void 0;
   if (state2 === "cached") return thumbnailBase;
   return `${thumbnailBase}${thumbnailBase.includes("?") ? "&" : "?"}force=1`;
 }
-
 function shouldShowVideoThumbnailFallback(options) {
   if (options.isEmpty) return false;
   return options.thumbnailState === "fallback";
 }
-
 function pickVideoMimeType() {
   if (typeof MediaRecorder === "undefined") return null;
   const candidates2 = [
@@ -430,12 +415,10 @@ function pickVideoMimeType() {
   }
   return null;
 }
-
 function estimateWatermarkVideoBitrate(width, height) {
   const bitsPerSecond = Math.round(width * height * 30 * 0.22);
   return Math.max(4e6, Math.min(6e7, bitsPerSecond));
 }
-
 function waitForMetadata(video) {
   return new Promise((resolve, reject) => {
     const cleanup = () => {
@@ -454,7 +437,6 @@ function waitForMetadata(video) {
     video.addEventListener("error", handleError);
   });
 }
-
 async function renderWatermarkedVideoSource(sourceUrl, settings) {
   const mime = pickVideoMimeType();
   if (
@@ -571,7 +553,6 @@ async function renderWatermarkedVideoSource(sourceUrl, settings) {
     video.load();
   }
 }
-
 async function renderWatermarkedVideoBlob(sourceUrl, settings) {
   try {
     return await renderWatermarkedVideoSource(sourceUrl, settings);
@@ -584,11 +565,8 @@ async function renderWatermarkedVideoBlob(sourceUrl, settings) {
     return renderWatermarkedVideoSource(fallbackUrl, settings);
   }
 }
-
 const MEDIA_OVERLAY_EXIT_ANIMATION_MS = 160;
-
 const VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS = 80;
-
 export function VideoNodeInner({
   id: id2,
   data: data2,
@@ -1130,7 +1108,7 @@ export function VideoNodeInner({
     typeof meta2?.durationSec === "number" &&
     Number.isFinite(meta2.durationSec) &&
     meta2.durationSec > 0
-      ? formatTime$2(meta2.durationSec, true)
+      ? formatTime(meta2.durationSec, true)
       : void 0;
   const [keepExpandedMediaOverlayMounted, setKeepExpandedMediaOverlayMounted] =
     reactExports.useState(false);

@@ -4,7 +4,6 @@ import {
   hasValidViewportSize,
   isFiniteNumber,
 } from "./resolve-canvas-focus-targets.js";
-
 function parseCanvasViewportSnapshot(serialized) {
   let value;
   try {
@@ -30,7 +29,6 @@ function parseCanvasViewportSnapshot(serialized) {
     zoom: candidate.zoom,
   };
 }
-
 function serializeCanvasViewport(viewport, size2) {
   if (
     !hasValidViewportSize(size2) ||
@@ -52,7 +50,6 @@ function serializeCanvasViewport(viewport, size2) {
   };
   return JSON.stringify(snapshot2);
 }
-
 function resolveStoredCanvasViewport(
   serialized,
   { width, height, minZoom, maxZoom },
@@ -82,7 +79,6 @@ function resolveStoredCanvasViewport(
     zoom: zoom2,
   };
 }
-
 export function readCanvasViewport(storage, key2, options) {
   try {
     return resolveStoredCanvasViewport(storage.getItem(key2), options);
@@ -90,7 +86,6 @@ export function readCanvasViewport(storage, key2, options) {
     return void 0;
   }
 }
-
 export function writeCanvasViewport(storage, key2, viewport, size2) {
   const serialized = serializeCanvasViewport(viewport, size2);
   if (!serialized) return;
@@ -98,8 +93,7 @@ export function writeCanvasViewport(storage, key2, viewport, size2) {
     storage.setItem(key2, serialized);
   } catch {}
 }
-
-function intersects$1(first2, second) {
+function intersects(first2, second) {
   return (
     first2.x < second.x + second.width &&
     first2.x + first2.width > second.x &&
@@ -107,14 +101,13 @@ function intersects$1(first2, second) {
     first2.y + first2.height > second.y
   );
 }
-
 export function resolveVisibilityPriorityFocus({
   fitAllZoom,
   minReadableZoom,
   nodeRects,
   viewportRect,
 }) {
-  if (nodeRects.some((rect) => intersects$1(rect, viewportRect)))
+  if (nodeRects.some((rect) => intersects(rect, viewportRect)))
     return {
       type: "keep",
     };

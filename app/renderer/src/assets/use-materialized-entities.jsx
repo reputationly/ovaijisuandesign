@@ -15,13 +15,12 @@ import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";
 import { useCoachMark } from "../workspace/use-coach-mark.js";
 import {
   BASE,
-  readEnvelope$1,
+  readEnvelope,
   readObject,
-  ROOT_KEY$1,
+  ROOT_KEY,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
 import { jsonInit } from "../infra/use-online.jsx";
-
 export function CoachMark({
   markId,
   enabled = true,
@@ -46,9 +45,7 @@ export function CoachMark({
     />
   );
 }
-
 export const ASSET_CENTER_RELOCATION_SPOTLIGHT = false;
-
 async function dropEntityToCanvas(fetcher, entityId, input) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}/drop-to-canvas`,
@@ -56,15 +53,13 @@ async function dropEntityToCanvas(fetcher, entityId, input) {
   );
   return readObject(res, "drop-to-canvas result");
 }
-
 async function appendAttachmentFromWorkspace(fetcher, entityId, input) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}/attachments-from-workspace`,
     jsonInit("POST", input),
   );
-  return readEnvelope$1(res, "attachment", "appended attachment");
+  return readEnvelope(res, "attachment", "appended attachment");
 }
-
 export function useMaterializedEntities() {
   const platform2 = usePlatform();
   const workspacePath = useCurrentWorkspace();
@@ -98,15 +93,12 @@ export function useMaterializedEntities() {
     staleTime: 3e4,
   });
 }
-
 export function trackAssetPromoteValidationFailed(props) {
   trackEvent(TRACK_EVENTS.ASSET_PROMOTE_VALIDATION_FAILED, props);
 }
-
 export function trackAssetUse(props) {
   trackEvent(TRACK_EVENTS.ASSET_USE, props);
 }
-
 export function useDropEntityToCanvas() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -115,12 +107,11 @@ export function useDropEntityToCanvas() {
       dropEntityToCanvas(fetcher, entityId, input),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
 export function useAppendAttachmentFromWorkspace() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -129,7 +120,7 @@ export function useAppendAttachmentFromWorkspace() {
       appendAttachmentFromWorkspace(fetcher, entityId, input),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
       queryClient2.invalidateQueries({
         queryKey: ["materialized-entities"],

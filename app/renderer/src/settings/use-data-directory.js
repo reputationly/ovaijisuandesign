@@ -1,6 +1,6 @@
 // use-data-directory.js
 import { instantiation } from "../workspace/home-service.jsx";
-import { hilo$1 } from "./parse-custom-mcp-arguments.js";
+import { hilo as hilo$1 } from "./parse-custom-mcp-arguments.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import {
@@ -20,11 +20,9 @@ import {
   hideVisiblePreviewTabs,
   toastWorkspaceCloseBlocked,
 } from "../assets/credit-query-keys.jsx";
-
 function notifyDataDirectoryStatusChanged() {
   window.dispatchEvent(new Event(DATA_DIRECTORY_STATUS_CHANGED_EVENT));
 }
-
 const UNKNOWN_FAILURE = {
   code: "unknown",
   phase: "preflight",
@@ -32,7 +30,6 @@ const UNKNOWN_FAILURE = {
   diagnosticId: "",
   sourcePreserved: true,
 };
-
 const ACTIVE_WORKSPACES_FAILURE = {
   code: "active_workspaces",
   phase: "preflight",
@@ -40,18 +37,14 @@ const ACTIVE_WORKSPACES_FAILURE = {
   diagnosticId: "",
   sourcePreserved: true,
 };
-
 const PREFLIGHT_IPC_TIMEOUT_MS = 3e4;
-
 const ESTIMATE_IPC_TIMEOUT_MS = 6e4;
-
 class DataDirectoryTimeoutError extends Error {
   constructor(operation, timeoutMs) {
     super(`Data directory ${operation} did not respond within ${timeoutMs}ms`);
     this.name = "DataDirectoryTimeoutError";
   }
 }
-
 function withIpcTimeout(work, operation, timeoutMs) {
   return new Promise((resolve, reject) => {
     const timer2 = window.setTimeout(() => {
@@ -73,7 +66,6 @@ function withIpcTimeout(work, operation, timeoutMs) {
     );
   });
 }
-
 function isDirValidationError(error) {
   return (
     error === "drive_root" ||
@@ -83,7 +75,6 @@ function isDirValidationError(error) {
     error === "app_install_dir"
   );
 }
-
 function dataDirectoryRecoveryErrorCode(failure, legacyError) {
   const code2 = failure?.code ?? legacyError;
   if (
@@ -95,13 +86,11 @@ function dataDirectoryRecoveryErrorCode(failure, legacyError) {
   }
   return "migration_failed";
 }
-
 function recoveryModeForPending(mode2) {
   if (mode2 === "recover") return "recovery_merge";
   if (mode2 === "residue") return "default_residue_merge";
   return void 0;
 }
-
 function trackRecovery(mode2, outcome, result, errorCode) {
   trackEvent(TRACK_EVENTS.DATA_DIRECTORY_RECOVERY, {
     outcome,
@@ -120,14 +109,12 @@ function trackRecovery(mode2, outcome, result, errorCode) {
       true,
   });
 }
-
 function trackMigrationBlocked(gate, openWorkspaceCount) {
   trackEvent(TRACK_EVENTS.DATA_DIRECTORY_MIGRATION_BLOCKED, {
     gate,
     open_workspace_count: openWorkspaceCount,
   });
 }
-
 async function hiloApp() {
   const [
     { instantiationService: instantiationService2 },
@@ -140,19 +127,16 @@ async function hiloApp() {
     accessor.get(IHiloApp2),
   );
 }
-
 async function closeOpenWorkspaceViaHiloApp(folderPath) {
   return (await hiloApp()).closeWorkspace(folderPath, {
     source: "settings-storage",
   });
 }
-
 async function closeIdleWorkspacesViaHiloApp() {
   return (await hiloApp()).closeIdleWorkspaces({
     source: "settings-storage",
   });
 }
-
 function normalizeDataDirectoryFailure(failure, legacyError) {
   if (!failure && isDirValidationError(legacyError)) {
     return {
@@ -165,7 +149,6 @@ function normalizeDataDirectoryFailure(failure, legacyError) {
     failure: failure ?? UNKNOWN_FAILURE,
   };
 }
-
 function isSameDataDirectoryPath(left, right, os2) {
   const normalize2 = (value) => {
     const normalized = value.replace(/\\/g, "/").replace(/\/+$/, "");
@@ -175,7 +158,6 @@ function isSameDataDirectoryPath(left, right, os2) {
   };
   return normalize2(left) === normalize2(right);
 }
-
 export function useDataDirectory() {
   const { t: t2 } = useTranslation();
   const { config: config2 } = useSettings();

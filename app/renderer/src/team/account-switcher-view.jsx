@@ -29,10 +29,9 @@ import {
   useIsScrolling,
   useTeamAccount,
 } from "../assets/credit-query-keys.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { isRecoverableTeamAccountStatus } from "../workspace/home-service.jsx";
 import { AccountSwitcherRowSurface } from "./account-switcher-row-surface.jsx";
-
 function useUserTeamCapabilitiesQuery(identityKey, enabled = true) {
   return useQuery({
     queryKey: teamQueryKeys.userCapabilities(identityKey ?? "NO_IDENTITY"),
@@ -51,31 +50,26 @@ function useUserTeamCapabilitiesQuery(identityKey, enabled = true) {
     refetchOnWindowFocus: true,
   });
 }
-
 function contextSection(item) {
   if (item.accountType === "PERSONAL") return "personal";
   return item.lifecycle === "DISSOLVED" ? "dissolved" : "teams";
 }
-
 const CONTEXT_SECTION_ORDER = {
   personal: 0,
   teams: 1,
   dissolved: 2,
 };
-
 const TEAM_ROLE_DATA_ATTRIBUTE = {
   OWNER: "owner",
   ADMIN: "admin",
   MEMBER: "member",
 };
-
 function compareTimestampDescending(left, right) {
   const normalizedLeft = left ?? 0;
   const normalizedRight = right ?? 0;
   if (normalizedLeft === normalizedRight) return 0;
   return normalizedLeft > normalizedRight ? -1 : 1;
 }
-
 function compareContexts(left, right) {
   const leftSection = contextSection(left);
   const rightSection = contextSection(right);
@@ -93,7 +87,6 @@ function compareContexts(left, right) {
   }
   return 0;
 }
-
 export function AccountSwitcherView({
   embedded = false,
   onBack,
@@ -221,7 +214,7 @@ export function AccountSwitcherView({
       {!embedded ? (
         <div className="flex h-10 shrink-0 items-center gap-1 border-b border-border px-2">
           {onBack ? (
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -233,7 +226,7 @@ export function AccountSwitcherView({
               data-action-ui-id="team.account-switcher-back"
             >
               <Icon icon={ChevronLeft} size="sm" aria-hidden={true} />
-            </Button$1>
+            </Button>
           ) : null}
           <p className="min-w-0 flex-1 truncate whitespace-nowrap font-medium text-body-14 text-foreground">
             {t2("team.switcher.title", {
@@ -279,7 +272,7 @@ export function AccountSwitcherView({
                 defaultValue: "账号列表加载失败",
               })}
             </p>
-            <Button$1
+            <Button
               type="button"
               variant="outline"
               size="sm"
@@ -296,7 +289,7 @@ export function AccountSwitcherView({
               {t2("common.retry", {
                 defaultValue: "重试",
               })}
-            </Button$1>
+            </Button>
           </div>
         ) : null}
         {contextsStale ? (
@@ -395,7 +388,7 @@ export function AccountSwitcherView({
             }
           />
         ) : (
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             className="h-auto min-h-9 w-full min-w-0 justify-start whitespace-normal rounded-sm px-3 py-2 text-left !text-body-14 font-normal leading-relaxed text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground"
@@ -412,7 +405,7 @@ export function AccountSwitcherView({
               aria-hidden={true}
             />
             <span className="min-w-0 break-words">{createLabel}</span>
-          </Button$1>
+          </Button>
         )}
       </div>
     </div>

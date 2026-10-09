@@ -12,7 +12,7 @@ import {
 } from "../vendor.js";
 import { CanvasReleaseRegionContext } from "../canvas/separator.jsx";
 import {
-  ClockIcon$1,
+  ClockIcon,
   formatResolutionRange,
   GeneralImageIcon,
   GptImageDomesticIcon,
@@ -32,18 +32,15 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { svgBase } from "./expand-arrow-icon.jsx";
 import { ImageOutlineIcon, Mic } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 import {
   hasPromotionToastCopy,
   isPromotionActive,
 } from "./param-label-fallbacks.js";
-
 function useCanvasReleaseRegion() {
   return reactExports.useContext(CanvasReleaseRegionContext);
 }
-
 const GeminiOverseasIcon = VeoDomesticIcon;
-
 function ClaudeIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -55,7 +52,6 @@ function ClaudeIcon(props) {
     </svg>
   );
 }
-
 function GeminiIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -67,7 +63,6 @@ function GeminiIcon(props) {
     </svg>
   );
 }
-
 function ClaudeOverseasIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -79,18 +74,15 @@ function ClaudeOverseasIcon(props) {
     </svg>
   );
 }
-
 const MIDJOURNEY_RESOLUTION_FALLBACK = {
   "midjourney-8.2": "2K",
 };
-
 function lastNonAutoOption(options) {
   const explicit = options.filter(
     (option2) => option2.toLowerCase() !== "auto",
   );
   return explicit.at(-1) ?? options.at(-1);
 }
-
 function clarityModeToResolution(mode2) {
   switch (mode2) {
     case "4k":
@@ -103,29 +95,22 @@ function clarityModeToResolution(mode2) {
       return void 0;
   }
 }
-
 function resolveCanvasImageResolution(modelId, resolutionOptions) {
   return (
     formatResolutionRange(resolutionOptions) ??
     MIDJOURNEY_RESOLUTION_FALLBACK[modelId]
   );
 }
-
 function resolveCanvasVideoResolution(resolutionOptions, modeOptions) {
   return (
     formatResolutionRange(resolutionOptions) ??
     clarityModeToResolution(lastNonAutoOption(modeOptions))
   );
 }
-
-const PANEL_MIN_HEIGHT$2 = 120;
-
-const PANEL_MAX_HEIGHT$2 = 320;
-
+const PANEL_MIN_HEIGHT = 120;
+const PANEL_MAX_HEIGHT = 320;
 const PANEL_MIN_WIDTH = 280;
-
 const PANEL_MAX_WIDTH = 360;
-
 const TEXT_MODEL_ICONS = {
   minimax: {
     domestic: MinimaxIcon,
@@ -143,7 +128,6 @@ const TEXT_MODEL_ICONS = {
     overseas: GeminiOverseasIcon,
   },
 };
-
 function pickTextModelIcon(model) {
   const id2 = (model.id ?? "").toLowerCase();
   for (const [token2, icons] of Object.entries(TEXT_MODEL_ICONS)) {
@@ -154,8 +138,7 @@ function pickTextModelIcon(model) {
   }
   return void 0;
 }
-
-function isMiniMaxH3Model$1(model) {
+function isMiniMaxH3Model(model) {
   const values3 = [model.id, model.name, model.model_name, model.backend].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
   );
@@ -167,8 +150,7 @@ function isMiniMaxH3Model$1(model) {
       value === "minimax_v3",
   );
 }
-
-function isMiniMaxH3MaxModel$1(model) {
+function isMiniMaxH3MaxModel(model) {
   const values3 = [model.id, model.name, model.model_name].map((value) =>
     typeof value === "string" ? value.toLowerCase() : "",
   );
@@ -177,7 +159,6 @@ function isMiniMaxH3MaxModel$1(model) {
       value.includes("minimax-h3-max") || value.includes("minimax h3 max"),
   );
 }
-
 function pickModelIcon(model, mediaType, region = "overseas") {
   const id2 = (model.id ?? "").toLowerCase();
   const backend = (model.backend ?? "").toLowerCase();
@@ -239,7 +220,6 @@ function pickModelIcon(model, mediaType, region = "overseas") {
   if (mediaType === "text-llm") return ScrollText;
   return ImageOutlineIcon;
 }
-
 function inferMediaType(model) {
   if (!model) return "unknown";
   if (model.subtitle) return "text-llm";
@@ -260,8 +240,7 @@ function inferMediaType(model) {
   if ("aspect_ratio" in params || "resolution" in params) return "image";
   return "unknown";
 }
-
-function formatDurationRange$1(opts) {
+function formatDurationRange(opts) {
   if (!opts || opts.length === 0) return void 0;
   if (opts.length === 1) return `${opts[0]}s`;
   const nums = opts
@@ -272,8 +251,7 @@ function formatDurationRange$1(opts) {
   const max2 = Math.max(...nums);
   return min2 === max2 ? `${min2}s` : `${min2}-${max2}s`;
 }
-
-function CheckIcon$4({ size: size2 = 16, className }) {
+function CheckIcon({ size: size2 = 16, className }) {
   return (
     <CompositedSvg
       width={size2}
@@ -295,19 +273,17 @@ function CheckIcon$4({ size: size2 = 16, className }) {
     </CompositedSvg>
   );
 }
-
 function resolveVideoModelAudioCapability(model) {
   const params = model.params ?? {};
   if (
     "generate_audio" in params ||
     "sound" in params ||
-    isMiniMaxH3Model$1(model)
+    isMiniMaxH3Model(model)
   ) {
     return "with-audio";
   }
   return (model.max_audio_refs ?? 0) > 0 ? "audio-driven" : void 0;
 }
-
 function buildSubtitleData(model, mediaType, t2) {
   const params = model.params ?? {};
   const out = {};
@@ -321,7 +297,7 @@ function buildSubtitleData(model, mediaType, t2) {
       params.resolution?.options ?? [],
       params.mode?.options ?? [],
     );
-    out.duration = formatDurationRange$1(params.duration?.options);
+    out.duration = formatDurationRange(params.duration?.options);
     out.audio = resolveVideoModelAudioCapability(model);
     if (model.audioExtension) {
       out.capability = t2("canvas.modelSubtitle.audioExtension", {
@@ -350,13 +326,11 @@ function buildSubtitleData(model, mediaType, t2) {
   }
   return out;
 }
-
 function hasAnySubtitle(d2) {
   return Boolean(
     d2.resolution || d2.duration || d2.audio || d2.capability || d2.latency,
   );
 }
-
 export function ModelChip({
   models,
   selectedModelId,
@@ -384,7 +358,7 @@ export function ModelChip({
   );
   const displayModels = reactExports.useMemo(() => {
     if (mediaType !== "video") return models;
-    const h3Index = models.findIndex((model) => isMiniMaxH3Model$1(model));
+    const h3Index = models.findIndex((model) => isMiniMaxH3Model(model));
     if (h3Index <= 0) return models;
     return [
       models[h3Index],
@@ -416,8 +390,8 @@ export function ModelChip({
   }, [open]);
   const placement = usePortalAnchorPlacement(triggerRef, {
     open,
-    minHeight: PANEL_MIN_HEIGHT$2,
-    maxHeight: PANEL_MAX_HEIGHT$2,
+    minHeight: PANEL_MIN_HEIGHT,
+    maxHeight: PANEL_MAX_HEIGHT,
   });
   const handleSelect = reactExports.useCallback(
     (modelId) => {
@@ -506,7 +480,7 @@ export function ModelChip({
                 const RowIcon = pickModelIcon(m3, mediaType, releaseRegion);
                 const isNewModel = m3.name === "MiniMax-H3 Audio";
                 const promotionTagLabel = m3.promotion?.toastTitle?.trim();
-                const modelHoverDescription = isMiniMaxH3MaxModel$1(m3)
+                const modelHoverDescription = isMiniMaxH3MaxModel(m3)
                   ? m3.id.toLowerCase().includes("h3-max-turbo")
                     ? t2("canvas.minimaxH3MaxTurbo.hoverDescription", {
                         defaultValue:
@@ -578,7 +552,7 @@ export function ModelChip({
                               )}
                               {sub.duration && (
                                 <span className="flex items-center gap-0.5">
-                                  <ClockIcon$1 />
+                                  <ClockIcon />
                                   <span>{sub.duration}</span>
                                 </span>
                               )}
@@ -603,7 +577,7 @@ export function ModelChip({
                               )}
                               {sub.latency && (
                                 <span className="flex items-center gap-0.5">
-                                  <ClockIcon$1 />
+                                  <ClockIcon />
                                   <span>{sub.latency}</span>
                                 </span>
                               )}
@@ -614,7 +588,7 @@ export function ModelChip({
                     </span>
                     {active2 && (
                       <span className="shrink-0 ml-auto self-center size-4 flex items-center justify-center text-foreground">
-                        <CheckIcon$4 size={16} />
+                        <CheckIcon size={16} />
                       </span>
                     )}
                   </button>
@@ -625,14 +599,14 @@ export function ModelChip({
                     : modelHoverDescription;
                 if (hoverDescription) {
                   return (
-                    <Tooltip$1
+                    <Tooltip
                       key={`tip-${m3.id}`}
                       content={hoverDescription}
                       side="right"
                       className="max-w-[320px] whitespace-normal leading-5"
                     >
                       {row}
-                    </Tooltip$1>
+                    </Tooltip>
                   );
                 }
                 return row;

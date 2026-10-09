@@ -7,17 +7,16 @@ import {
   TooltipPortal,
   TooltipPositioner,
   TooltipRoot,
-  TooltipTrigger$1,
+  TooltipTrigger$1 as TooltipTrigger,
   useReactFlow,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { ImageOffOutlineIcon, Trash2 } from "../media-editing/package.jsx";
 import { ModelRegistryStoreContext } from "../infra/create-recently-added-store.js";
-
 const PLACEHOLDER_MODEL_I18N_KEYS = {
   "Super Resolution": {
     key: "canvas.superResolution.label",
@@ -64,7 +63,6 @@ const PLACEHOLDER_MODEL_I18N_KEYS = {
     fallback: "字幕生成",
   },
 };
-
 export function translateModelName(model, t2) {
   if (!model) return model;
   const entry = PLACEHOLDER_MODEL_I18N_KEYS[model];
@@ -73,7 +71,6 @@ export function translateModelName(model, t2) {
     defaultValue: entry.fallback ?? model,
   });
 }
-
 export function ModelRegistryStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     ModelRegistryStoreContext.Provider,
@@ -83,8 +80,7 @@ export function ModelRegistryStoreProvider({ store, children: children2 }) {
     children2,
   );
 }
-
-export function Tooltip$1({
+export function Tooltip({
   content: content2,
   children: children2,
   side = "top",
@@ -102,7 +98,7 @@ export function Tooltip$1({
       triggerId={open === void 0 ? void 0 : triggerId}
       disableHoverablePopup={true}
     >
-      <TooltipTrigger$1
+      <TooltipTrigger
         id={open === void 0 ? void 0 : triggerId}
         closeOnClick={closeOnClick}
         render={children2}
@@ -115,7 +111,7 @@ export function Tooltip$1({
         >
           <TooltipPopup
             role="tooltip"
-            className={cn$5(
+            className={cn(
               "inline-flex w-fit max-w-xs items-center gap-1.5 rounded-sm bg-foreground text-background px-3 py-1.5 text-xs outline-none dp-motion-quick-zoom",
               className,
               "pointer-events-none select-none",
@@ -128,8 +124,7 @@ export function Tooltip$1({
     </TooltipRoot>
   );
 }
-
-export function TokenIcon$2({ size: size2 = 14 }) {
+export function TokenIcon({ size: size2 = 14 }) {
   return (
     <CompositedSvg
       width={size2}
@@ -146,7 +141,6 @@ export function TokenIcon$2({ size: size2 = 14 }) {
     </CompositedSvg>
   );
 }
-
 export function CreditCostBadge({ cost, className, compact = false }) {
   if (cost == null) return null;
   return (
@@ -154,7 +148,7 @@ export function CreditCostBadge({ cost, className, compact = false }) {
       data-slot="credit-cost-badge"
       className={`inline-flex items-center gap-1 whitespace-nowrap text-sm tracking-tight${compact ? " h-8 shrink-0 text-[13px] text-[var(--canvas-controls-text,#fff)]/70" : ""}${className ? ` ${className}` : ""}`}
     >
-      <TokenIcon$2 />
+      <TokenIcon />
       <span
         className={compact ? "pointer-events-none tabular-nums" : void 0}
         data-action-ui-id="image-edit.credit-cost"
@@ -164,7 +158,6 @@ export function CreditCostBadge({ cost, className, compact = false }) {
     </span>
   );
 }
-
 export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
   const { t: t2 } = useTranslation();
   if (!isGenerationRefundStatus(refundStatus)) return null;
@@ -177,7 +170,7 @@ export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
       }
       data-action-ui-id="canvas.media-error.refund-hint"
     >
-      <TokenIcon$2 size={compact ? 11 : 13} />
+      <TokenIcon size={compact ? 11 : 13} />
       <span className="truncate">
         {refundStatus === "refunded"
           ? refundedCredits && refundedCredits > 0
@@ -199,12 +192,10 @@ export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
     </span>
   );
 }
-
 export const MEDIA_FALLBACK_NODE_SIZE = {
   width: 350,
   height: 250,
 };
-
 export function MediaUnpreviewableFallback({
   extension: extension2,
   displayName: displayName2,
@@ -245,10 +236,8 @@ export function MediaUnpreviewableFallback({
     </div>
   );
 }
-
 const ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-
 export function MissingAssetCard({ nodeId, name: name2 }) {
   const { t: t2 } = useTranslation();
   const { deleteElements } = useReactFlow();
@@ -311,9 +300,7 @@ export function MissingAssetCard({ nodeId, name: name2 }) {
     </div>
   );
 }
-
 export function isMissingAssetNodeData(data2) {
   return data2?.assetMissing === true;
 }
-
-export const trackers$1 = new WeakMap();
+export const trackers = new WeakMap();

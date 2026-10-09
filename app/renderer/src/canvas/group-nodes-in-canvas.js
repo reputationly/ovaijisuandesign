@@ -1,20 +1,19 @@
 // group-nodes-in-canvas.js
-import { CanvasNodeType, normalizeLabel$1 } from "../vendor.js";
+import {
+  CanvasNodeType,
+  normalizeLabel$1 as normalizeLabel,
+} from "../vendor.js";
 import {
   computeGroupBoundsFromChildren,
   defaultNodeSizeForType,
   readGroupSize,
   withParentId,
 } from "./compute-group-bounds-from-children.js";
-
 const GROUP_NODE_PREFIX = "group-";
-
 function createGroupNodeId() {
   return `${GROUP_NODE_PREFIX}${crypto.randomUUID()}`;
 }
-
 const GROUP_Z_INDEX = -100;
-
 export function groupNodesInCanvas(canvas, nodeIds, options) {
   const mode2 = canvas.mode;
   const nodeById = new Map(canvas.nodes.map((n2) => [n2.id, n2]));
@@ -110,7 +109,7 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
       positionsRecord[m3] = b3.position;
       sizesRecord[m3] = b3.size;
     }
-    const normalizedLabel = normalizeLabel$1(options?.label);
+    const normalizedLabel = normalizeLabel(options?.label);
     const groupData = normalizedLabel
       ? {
           label: normalizedLabel,

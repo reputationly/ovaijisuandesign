@@ -8,34 +8,32 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ColorAdjustSlider } from "./color-adjust-slider.jsx";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, Upload } from "./package.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import {
-  DialogContent$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./use-preview-text.jsx";
 import {
-  Select$2,
-  SelectContent$1,
+  Select,
+  SelectContent,
   SelectGroup,
-  SelectItem$1,
+  SelectItem,
   SelectLabel,
   SelectSeparator,
-  SelectTrigger$1,
-  SelectValue$1,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
 import { defaultSettings } from "./default-settings.js";
 import { ImageColorGrading } from "./image-color-grading.js";
-
-const LUT_NONE$1 = "__none__";
-
-const SLIDER_GROUPS$1 = [
+const LUT_NONE = "__none__";
+const SLIDER_GROUPS = [
   {
     i18nKey: "colorAdjust.groupColor",
     text: "Color",
@@ -208,7 +206,6 @@ const SLIDER_GROUPS$1 = [
     ],
   },
 ];
-
 export function ColorAdjustDialog({
   open,
   onOpenChange,
@@ -431,7 +428,7 @@ export function ColorAdjustDialog({
     [lut, selectedLut, t2],
   );
   const handleLutSelectChange = reactExports.useCallback((value) => {
-    if (value === null || value === LUT_NONE$1) {
+    if (value === null || value === LUT_NONE) {
       setSelectedLut(null);
     } else {
       setSelectedLut(value);
@@ -454,7 +451,7 @@ export function ColorAdjustDialog({
   );
   const lutItems = reactExports.useMemo(() => {
     const map3 = {
-      [LUT_NONE$1]: t2("colorAdjust.lut.none", "None"),
+      [LUT_NONE]: t2("colorAdjust.lut.none", "None"),
     };
     for (const entry of presetLuts)
       map3[entry.name] = presetDisplayName(entry.name);
@@ -462,19 +459,19 @@ export function ColorAdjustDialog({
     return map3;
   }, [presetLuts, userLuts, presetDisplayName, t2]);
   return (
-    <Dialog$1 open={open} onOpenChange={onOpenChange}>
-      <DialogContent$1
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
         showCloseButton={false}
-        className={cn$5(
+        className={cn(
           "grid h-[min(660px,78vh)] gap-0 overflow-hidden rounded-lg border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] p-0 text-[var(--canvas-controls-text)] ring-0",
           "sm:!max-w-[min(960px,90vw)]",
           "grid-rows-[auto_minmax(0,1fr)_auto]",
         )}
       >
-        <DialogHeader$1 className="flex-row items-center gap-2 border-b border-[var(--canvas-controls-border)] px-3 py-2">
-          <DialogTitle$1 className="font-heading text-[13px] font-medium">
+        <DialogHeader className="flex-row items-center gap-2 border-b border-[var(--canvas-controls-border)] px-3 py-2">
+          <DialogTitle className="font-heading text-[13px] font-medium">
             {t2("canvas.colorAdjust")}
-          </DialogTitle$1>
+          </DialogTitle>
           {fileName && (
             <span className="truncate text-[11px] text-muted-foreground">
               {"— "}
@@ -489,9 +486,9 @@ export function ColorAdjustDialog({
             title={t2("common.cancel")}
             className="ml-auto flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] disabled:pointer-events-none disabled:opacity-50"
           >
-            <CloseIcon$1 />
+            <CloseIcon />
           </button>
-        </DialogHeader$1>
+        </DialogHeader>
         <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_280px]">
           <div className="relative flex min-h-0 items-center justify-center bg-[var(--canvas-controls-hover)] p-3">
             <div
@@ -517,29 +514,29 @@ export function ColorAdjustDialog({
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <div className="min-w-0 flex-1">
-                        <Select$2
-                          value={selectedLut ?? LUT_NONE$1}
+                        <Select
+                          value={selectedLut ?? LUT_NONE}
                           items={lutItems}
                           onValueChange={handleLutSelectChange}
                           disabled={lutBusy || submitting}
                         >
-                          <SelectTrigger$1
+                          <SelectTrigger
                             data-action-ui-id="image-color-adjust.lut-select"
                             className="w-full"
                           >
-                            <SelectValue$1
+                            <SelectValue
                               placeholder={t2(
                                 "colorAdjust.lut.placeholder",
                                 "Select a LUT",
                               )}
                             />
-                          </SelectTrigger$1>
-                          <SelectContent$1>
-                            <SelectItem$1 value={LUT_NONE$1}>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={LUT_NONE}>
                               <span className="text-muted-foreground">
                                 {t2("colorAdjust.lut.none", "None")}
                               </span>
-                            </SelectItem$1>
+                            </SelectItem>
                             {presetLuts.length > 0 && (
                               <>
                                 <SelectSeparator />
@@ -551,14 +548,14 @@ export function ColorAdjustDialog({
                                     )}
                                   </SelectLabel>
                                   {presetLuts.map((entry) => (
-                                    <SelectItem$1
+                                    <SelectItem
                                       key={entry.name}
                                       value={entry.name}
                                     >
                                       <span className="min-w-0 flex-1 truncate">
                                         {presetDisplayName(entry.name)}
                                       </span>
-                                    </SelectItem$1>
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </>
@@ -574,7 +571,7 @@ export function ColorAdjustDialog({
                                     const isSelected =
                                       selectedLut === entry.name;
                                     return (
-                                      <SelectItem$1
+                                      <SelectItem
                                         key={entry.name}
                                         value={entry.name}
                                         className="group pr-2"
@@ -612,16 +609,16 @@ export function ColorAdjustDialog({
                                             </button>
                                           )}
                                         </span>
-                                      </SelectItem$1>
+                                      </SelectItem>
                                     );
                                   })}
                                 </SelectGroup>
                               </>
                             )}
-                          </SelectContent$1>
-                        </Select$2>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <Button$2
+                      <Button
                         variant="outline"
                         size="sm"
                         onClick={handleImportClick}
@@ -630,7 +627,7 @@ export function ColorAdjustDialog({
                       >
                         <Upload className="size-3.5" />
                         {t2("colorAdjust.lut.import", "Import...")}
-                      </Button$2>
+                      </Button>
                     </div>
                     <input
                       ref={fileInputRef}
@@ -651,7 +648,7 @@ export function ColorAdjustDialog({
                   </div>
                 </div>
               )}
-              {SLIDER_GROUPS$1.map((group) => (
+              {SLIDER_GROUPS.map((group) => (
                 <div key={group.i18nKey} className="mb-5 last:mb-0">
                   <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     {t2(group.i18nKey, group.text)}
@@ -675,17 +672,17 @@ export function ColorAdjustDialog({
             </div>
           </div>
         </div>
-        <DialogFooter$1 className="flex-row items-center justify-between gap-3 px-3 pb-3 pt-3">
-          <Button$2
+        <DialogFooter className="flex-row items-center justify-between gap-3 px-3 pb-3 pt-3">
+          <Button
             variant="ghost"
             size="sm"
             onClick={handleReset}
             disabled={submitting}
           >
             {t2("colorAdjust.reset")}
-          </Button$2>
+          </Button>
           <div className="flex items-center gap-1.5">
-            <Button$2
+            <Button
               size="icon"
               onClick={handleConfirm}
               disabled={loading || submitting}
@@ -695,10 +692,10 @@ export function ColorAdjustDialog({
               className="bg-[var(--canvas-primary-btn-bg)] text-[var(--canvas-primary-btn-icon)] hover:bg-[var(--canvas-primary-btn-bg-hover)]"
             >
               <SendArrowIcon />
-            </Button$2>
+            </Button>
           </div>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

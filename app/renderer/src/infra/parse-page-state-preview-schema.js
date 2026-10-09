@@ -1,9 +1,8 @@
 // parse-page-state-preview-schema.js
-import { reactExports, X$7 } from "../vendor.js";
+import { reactExports, X$7 as X } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { FeedbackIcon } from "../workspace/home-service.jsx";
-
 const ACTION_VARIANTS = [
   "default",
   "outline",
@@ -12,34 +11,26 @@ const ACTION_VARIANTS = [
   "destructive",
   "link",
 ];
-
 const ACTION_PLACEMENTS = ["inline", "separate"];
-
 const ACTION_ICONS = {
-  x: X$7,
+  x: X,
 };
-
 const ACTION_ICON_KEYS = ["feedback", "message-square-text", "refresh-cw", "x"];
-
 function isRecord(value) {
   return typeof value === "object" && value != null && !Array.isArray(value);
 }
-
 function isActionVariant(value) {
   return ACTION_VARIANTS.some((variant) => variant === value);
 }
-
 function isActionIcon(value) {
   return typeof value === "string" && ACTION_ICON_KEYS.includes(value);
 }
-
 function invalid(error) {
   return {
     state: null,
     error,
   };
 }
-
 export function parsePageStatePreviewSchema(source) {
   let parsed;
   try {

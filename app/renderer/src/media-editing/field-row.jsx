@@ -7,15 +7,11 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DragHandleIcon, TrashIcon } from "./canvas-sticker-assets.jsx";
-import { MoreVerticalIcon$1 } from "../canvas/fullscreen-icon.jsx";
-
+import { MoreVerticalIcon } from "../canvas/fullscreen-icon.jsx";
 const COLUMN_DRAG_MIME = "application/x-table-column-id";
-
 const MENU_WIDTH = 140;
-
 const MENU_GAP = 4;
-
-function MenuItem$2({ icon, label, onClick }) {
+function MenuItem({ icon, label, onClick }) {
   return (
     <button
       type="button"
@@ -37,8 +33,7 @@ function MenuItem$2({ icon, label, onClick }) {
     </button>
   );
 }
-
-function FieldTypeIcon$1({ type: type2 }) {
+function FieldTypeIcon({ type: type2 }) {
   if (type2 === "number") {
     return (
       <CompositedSvg
@@ -86,7 +81,6 @@ function FieldTypeIcon$1({ type: type2 }) {
     </CompositedSvg>
   );
 }
-
 function EditIcon() {
   return (
     <CompositedSvg
@@ -106,7 +100,6 @@ function EditIcon() {
     </CompositedSvg>
   );
 }
-
 function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
   const { t: t2 } = useTranslation();
   const menuRef = reactExports.useRef(null);
@@ -158,12 +151,12 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
         animation: "context-menu-in 0.12s ease-out",
       }}
     >
-      <MenuItem$2
+      <MenuItem
         icon={<EditIcon />}
         label={t2("canvas.table.field.edit", "Edit")}
         onClick={onEdit}
       />
-      <MenuItem$2
+      <MenuItem
         icon={<TrashIcon />}
         label={t2("canvas.table.field.delete", "Delete")}
         onClick={onDelete}
@@ -172,7 +165,6 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
     document.body,
   );
 }
-
 function EyeIcon() {
   return (
     <CompositedSvg
@@ -190,7 +182,6 @@ function EyeIcon() {
     </CompositedSvg>
   );
 }
-
 function EyeOffIcon() {
   return (
     <CompositedSvg
@@ -208,7 +199,6 @@ function EyeOffIcon() {
     </CompositedSvg>
   );
 }
-
 export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
   const { t: t2 } = useTranslation();
   const visible = column.visible !== false;
@@ -308,7 +298,7 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
           color: "var(--fg-muted,#525252)",
         }}
       >
-        <FieldTypeIcon$1 type={column.type} />
+        <FieldTypeIcon type={column.type} />
       </span>
       {editing ? (
         <input
@@ -371,7 +361,7 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
             background: menuOpen ? "var(--bg-subtle,#eee)" : void 0,
           }}
         >
-          <MoreVerticalIcon$1 size={14} />
+          <MoreVerticalIcon size={14} />
         </button>
         {menuOpen && (
           <FieldRowMenu

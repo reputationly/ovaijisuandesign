@@ -1,8 +1,7 @@
 // assets-dropzone-empty.jsx
 import { FolderUp, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 function useDragDepth() {
   const [count2, setCount] = reactExports.useState(0);
   return {
@@ -12,7 +11,6 @@ function useDragDepth() {
     reset: () => setCount(0),
   };
 }
-
 export function AssetsDropzoneEmpty({
   disabled: disabled2,
   onPickFiles,
@@ -58,7 +56,7 @@ export function AssetsDropzoneEmpty({
         const files = [...event.dataTransfer.files];
         if (files.length > 0) onPickFiles(files);
       }}
-      className={cn$2(
+      className={cn(
         "flex flex-1 min-h-0 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border/70 bg-card/40 py-8 text-center transition-colors",
         !disabled2 &&
           "cursor-pointer hover:border-foreground/25 hover:bg-muted/40",
@@ -69,7 +67,7 @@ export function AssetsDropzoneEmpty({
       aria-disabled={disabled2}
     >
       <span
-        className={cn$2(
+        className={cn(
           "flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors",
           dragActive && "bg-brand-accent/10 text-brand-accent",
         )}

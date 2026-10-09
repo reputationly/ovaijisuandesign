@@ -16,7 +16,6 @@ import {
   normalizeProjectEntries,
   projectWorkspaceKey,
 } from "./normalize-project-entries.js";
-
 function withUrlSearchParams(url2, params) {
   const hashIndex = url2.indexOf("#");
   const hash2 = hashIndex >= 0 ? url2.slice(hashIndex) : "";
@@ -35,13 +34,9 @@ function withUrlSearchParams(url2, params) {
   const query = searchParams.toString();
   return `${path2}${query ? `?${query}` : ""}${hash2}`;
 }
-
 const THUMBNAIL_WIDTH_BUCKETS = [64, 128, 256, 512, 1024, 2048];
-
 const MAX_THUMBNAIL_DPR = 2;
-
 const MAX_THUMBNAIL_WIDTH = 2048;
-
 export function useResolveMediaUrl() {
   const scopedGatewayUrl = useGatewayUrl();
   return reactExports.useCallback(
@@ -53,7 +48,6 @@ export function useResolveMediaUrl() {
     [scopedGatewayUrl],
   );
 }
-
 function thumbnailWidth(displayWidth) {
   const deviceDpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
   const dpr = Math.min(
@@ -68,7 +62,6 @@ function thumbnailWidth(displayWidth) {
     MAX_THUMBNAIL_WIDTH
   );
 }
-
 export function withThumbnailWidth(url2, pixelWidth, options) {
   if (!url2) return url2;
   return withUrlSearchParams(url2, {
@@ -77,15 +70,12 @@ export function withThumbnailWidth(url2, pixelWidth, options) {
     thumbnail_fallback: options?.fallback,
   });
 }
-
 export function withThumbnail(url2, displayWidth, options) {
   return withThumbnailWidth(url2, thumbnailWidth(displayWidth), options);
 }
-
 function isThumbnailMediaType(type2) {
   return type2 === "image" || type2 === "video" || type2 === "audio";
 }
-
 export async function fetchWorkspaceThumbnails(workspacePath) {
   let data2;
   try {
@@ -113,17 +103,12 @@ export async function fetchWorkspaceThumbnails(workspacePath) {
     })
     .filter((t2) => t2 !== null);
 }
-
 export const WORKSPACE_THUMBNAILS_QUERY_ROOT = ["workspace-thumbnails"];
-
 export function workspaceThumbnailsQueryKey(workspacePath) {
   return [...WORKSPACE_THUMBNAILS_QUERY_ROOT, workspacePath];
 }
-
 export const WORKSPACE_THUMBNAILS_STALE_TIME = 5 * 60 * 1e3;
-
 export const UNGROUPED_RECENT_GROUP_KEY = "__ungrouped__";
-
 export function groupRecentWorkspacesByProject(
   inventory,
   projects,
@@ -161,7 +146,6 @@ export function groupRecentWorkspacesByProject(
   }
   return groups;
 }
-
 export function selectProjectWorkspaces(inventory, project2, caseInsensitive) {
   const safeProject = normalizeProjectEntries(project2 ? [project2] : [])[0];
   if (!safeProject) return [];
@@ -194,11 +178,8 @@ export function selectProjectWorkspaces(inventory, project2, caseInsensitive) {
   }
   return [...matched, ...synthesized];
 }
-
 export const OPEN_NEW_WORKSPACE_DIALOG_EVENT = "hilo:open-new-workspace-dialog";
-
 export const NewWorkspaceDialogContext = reactExports.createContext(null);
-
 export function useIsKnownWorkspacePath() {
   const platform2 = usePlatform();
   return reactExports.useCallback(
@@ -216,12 +197,10 @@ export function useIsKnownWorkspacePath() {
     [platform2.storage],
   );
 }
-
 function hasCustomDisplayName(workspaces, folderPath) {
   const entry = workspaces.find((w3) => w3.path === folderPath);
   return Boolean(entry?.displayName?.trim());
 }
-
 export function usePersistPickedWorkspaceName() {
   const [, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
   const platform2 = usePlatform();
@@ -256,11 +235,9 @@ export function usePersistPickedWorkspaceName() {
     [platform2.storage, setRecentWorkspacesAsync],
   );
 }
-
 export function mapSkillSource(raw2) {
   return raw2 === "user" ? "local" : "market";
 }
-
 export function classifySkillError(err) {
   let type2 = "unknown";
   let message2 = "unknown error";
@@ -282,7 +259,6 @@ export function classifySkillError(err) {
     error_message: message2,
   };
 }
-
 export function detectSkillImportFileExt(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0) return "other";
@@ -291,13 +267,11 @@ export function detectSkillImportFileExt(filename) {
   if (ext === "md") return "md";
   return "other";
 }
-
 export const DEFAULT_HOME_WIDGET_CONFIG = {
   enabled: true,
   survey: null,
 };
-
-export const TOOL_LABEL_DEFINITIONS$1 = {
+export const TOOL_LABEL_DEFINITIONS = {
   mediaGen: {
     i18nKey: "chat.toolLabel.mediaGen",
   },

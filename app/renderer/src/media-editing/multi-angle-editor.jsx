@@ -4,22 +4,19 @@ import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
 import {
   CompositedSvg,
   dedupedToast,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
-import {
-  CreditCostBadge,
-  Tooltip$1,
-} from "../generation/missing-asset-card.jsx";
+import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   LeftPanel,
   readableGenerationError,
-  SegmentedControl$1,
+  SegmentedControl,
 } from "./segmented-control.jsx";
 import { ToolSlider } from "./tool-slider.jsx";
 import {
@@ -31,7 +28,6 @@ import {
 import { BACKEND_VIBE_MULTI_SHOT } from "../generation/to-workspace-browser-url.js";
 import { CameraBall } from "./camera-ball.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-
 const DarkLoadingIcon = ({ className = "" }) => (
   <CompositedSvg
     aria-hidden="true"
@@ -49,8 +45,7 @@ const DarkLoadingIcon = ({ className = "" }) => (
     />
   </CompositedSvg>
 );
-
-function StudioPreview$1({ children: children2 }) {
+function StudioPreview({ children: children2 }) {
   return (
     <section className="flex size-full items-center justify-center">
       <div className="flex aspect-square h-full max-w-full items-center justify-center">
@@ -67,8 +62,7 @@ function StudioPreview$1({ children: children2 }) {
     </section>
   );
 }
-
-const messages$2 = {
+const messages = {
   en: {
     title: "Adjust camera angle",
     preset_section: "Angle presets",
@@ -131,38 +125,29 @@ const messages$2 = {
     error_generate: "调整角度生成失败",
   },
 };
-
 const H_RANGE = {
   min: -180,
   max: 180,
 };
-
 const V_RANGE = {
   min: -30,
   max: 60,
 };
-
-const ANGLE_STEP$1 = 5;
-
+const ANGLE_STEP = 5;
 const PER_IMAGE_CREDIT = 60;
-
 function wrapHAngle(value) {
   return ((value % 360) + 360) % 360;
 }
-
 function clampHAngle(value) {
   return Math.max(H_RANGE.min, Math.min(H_RANGE.max, value));
 }
-
 function clampVAngle(value) {
   return Math.max(V_RANGE.min, Math.min(V_RANGE.max, value));
 }
-
-const formatDegree$1 = (v2) => {
+const formatDegree = (v2) => {
   const rounded = Math.round(v2);
   return `${rounded > 0 ? "+" : ""}${rounded}°`;
 };
-
 function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
   const zoomOptions = [
     {
@@ -192,8 +177,8 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
           value={horizontalSliderValue}
           min={H_RANGE.min}
           max={H_RANGE.max}
-          step={ANGLE_STEP$1}
-          formatValue={formatDegree$1}
+          step={ANGLE_STEP}
+          formatValue={formatDegree}
           onChange={(v2) =>
             onUpdateCamera({
               horizontalAngle: v2,
@@ -207,8 +192,8 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
           value={camera.verticalAngle}
           min={V_RANGE.min}
           max={V_RANGE.max}
-          step={ANGLE_STEP$1}
-          formatValue={formatDegree$1}
+          step={ANGLE_STEP}
+          formatValue={formatDegree}
           onChange={(v2) =>
             onUpdateCamera({
               verticalAngle: v2,
@@ -220,7 +205,7 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
           {t2.zoom}
         </span>
-        <SegmentedControl$1
+        <SegmentedControl
           options={zoomOptions}
           value={String(camera.zoom)}
           dataActionUiIdPrefix="canvas.multi-angle.zoom"
@@ -234,7 +219,6 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
     </div>
   );
 }
-
 function MultiAngleGenerateBar({
   totalCreditCost,
   isDisabled,
@@ -252,14 +236,14 @@ function MultiAngleGenerateBar({
     <div className="bg-hl_bg_01 flex shrink-0 items-center justify-end px-4 py-2">
       <div className="flex shrink-0 items-center gap-2">
         {!isSubmitting && (
-          <Tooltip$1 content={estimatedCostLabel} side="top">
+          <Tooltip content={estimatedCostLabel} side="top">
             <span
               className="inline-flex h-8 shrink-0 items-center rounded-md px-2 transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
               data-action-ui-id="popover.credit-cost"
             >
               <CreditCostBadge cost={totalCreditCost} compact={true} />
             </span>
-          </Tooltip$1>
+          </Tooltip>
         )}
         <button
           type="button"
@@ -281,11 +265,8 @@ function MultiAngleGenerateBar({
     </div>
   );
 }
-
 const HOVER_ENTER_DELAY = 150;
-
 const OPACITY_TRANSITION_MS = 300;
-
 function CoverSkeleton() {
   return (
     <div
@@ -294,8 +275,7 @@ function CoverSkeleton() {
     />
   );
 }
-
-function PresetMediaCover$1({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
+function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
   const [isHovering, setIsHovering] = reactExports.useState(false);
   const [loadedCoverUrl, setLoadedCoverUrl] = reactExports.useState(null);
   const videoRef = reactExports.useRef(null);
@@ -380,7 +360,6 @@ function PresetMediaCover$1({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
     </div>
   );
 }
-
 function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
   return (
     <button
@@ -393,7 +372,7 @@ function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
       <div
         className={`ring-hl_text_00 relative size-[90px] overflow-hidden rounded-md transition-all duration-200 ${isSelected ? "ring-[1.5px]" : "ring-0"}`}
       >
-        <PresetMediaCover$1
+        <PresetMediaCover
           coverUrl={preset2.thumbUrl}
           videoUrl={preset2.videoUrl}
           alt={label}
@@ -409,7 +388,6 @@ function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
     </button>
   );
 }
-
 function MultiAnglePresetsPanel({
   presets: presets2,
   selectedPresetId,
@@ -433,11 +411,8 @@ function MultiAnglePresetsPanel({
     </div>
   );
 }
-
 const CDN_BASE = "https://cdn.hailuoai.com/asset/2026-04-03-17/multiview";
-
 const THUMB_SUFFIX = "?x-oss-process=image/resize,w_540/format,webp";
-
 function preset(id2, asset, titleKey, horizontalAngle, verticalAngle, zoom2) {
   return {
     id: id2,
@@ -449,7 +424,6 @@ function preset(id2, asset, titleKey, horizontalAngle, verticalAngle, zoom2) {
     videoUrl: `${CDN_BASE}/${asset}.mp4`,
   };
 }
-
 const ANGLE_PRESETS = [
   preset("eye-level", "eye_level", "preset_eye_level", 0, 0, 5),
   preset("close-up", "extreme_closeup", "preset_close_up", 0, 0, 10),
@@ -461,7 +435,6 @@ const ANGLE_PRESETS = [
   preset("back", "back_view", "preset_back", 180, 0, 0),
   preset("dutch", "dutch_angle", "preset_dutch", 45, -30, 0),
 ];
-
 function buildDefaultCamera() {
   const preset2 = ANGLE_PRESETS[0];
   return {
@@ -471,12 +444,10 @@ function buildDefaultCamera() {
     presetId: preset2.id,
   };
 }
-
 function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
   const { i18n } = useTranslation();
   const t2 = reactExports.useMemo(
-    () =>
-      i18n.resolvedLanguage?.startsWith("zh") ? messages$2.zh : messages$2.en,
+    () => (i18n.resolvedLanguage?.startsWith("zh") ? messages.zh : messages.en),
     [i18n.resolvedLanguage],
   );
   const { pickAsset, submitImg2Image } = useCanvasBridge();
@@ -615,7 +586,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                   <span>{t2.reset}</span>
                 </button>
                 <div className="h-[212px] shrink-0">
-                  <StudioPreview$1>
+                  <StudioPreview>
                     <CameraBall
                       camera={camera}
                       imageUrl={source.url}
@@ -624,7 +595,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                       onUpload={handlePickImage}
                       t={t2}
                     />
-                  </StudioPreview$1>
+                  </StudioPreview>
                 </div>
                 <section className="pt-3">
                   <MultiAngleCustomPanel
@@ -664,15 +635,10 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
     </div>
   );
 }
-
 const MULTI_ANGLE_POPOVER_WIDTH = 658;
-
 const MULTI_ANGLE_POPOVER_MAX_HEIGHT = 490;
-
 const MULTI_ANGLE_POPOVER_MIN_HEIGHT = 360;
-
 const MULTI_ANGLE_POPOVER_VIEWPORT_MARGIN = 16;
-
 export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
   const { t: t2 } = useTranslation();
   const nodeId = useNodeId() ?? "";
@@ -682,8 +648,8 @@ export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
     (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
     [nodeId],
   );
-  const selected2 = useStore$3(selectedSelector);
-  const sourceScreenBottom = useStore$3((state2) => {
+  const selected2 = useStore(selectedSelector);
+  const sourceScreenBottom = useStore((state2) => {
     const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
     const sourcePosition = sourceNode?.internals.positionAbsolute;
     const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
@@ -708,7 +674,7 @@ export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
     Math.min(MULTI_ANGLE_POPOVER_MAX_HEIGHT, availableHeight),
   );
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={true}
       position={Position.Bottom}
       offset={NODE_POPOVER_SAFE_GAP}
@@ -739,7 +705,7 @@ export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
           aria-label={t2("common.close", "Close")}
           data-action-ui-id="canvas.multi-angle.close"
         >
-          <X$7 size={20} strokeWidth={1.5} aria-hidden="true" />
+          <X size={20} strokeWidth={1.5} aria-hidden="true" />
         </button>
         <MultiAngleEditor
           nodeId={nodeId}
@@ -748,6 +714,6 @@ export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
           onClose={onClose}
         />
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 }

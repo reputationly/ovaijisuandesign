@@ -2,20 +2,18 @@
 import { MonochromeIcon, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloudOff } from "../media-editing/package.jsx";
-import { Button$2 } from "./node-shell-inner.jsx";
-import { RetryIcon$1 } from "./fullscreen-icon.jsx";
-
+import { Button } from "./node-shell-inner.jsx";
+import { RetryIcon } from "./fullscreen-icon.jsx";
 const INITIAL_DESCRIPTION_KEYS = {
   unavailable: "canvas.loadError.unavailableDescription",
   access: "canvas.loadError.accessDescription",
   "invalid-response": "canvas.loadError.invalidResponseDescription",
   unknown: "canvas.loadError.unknownDescription",
 };
-
 export function CanvasLoadError({ failure, retrying, onRetry }) {
   const { t: t2 } = useTranslation();
   const retryButton = (
-    <Button$2
+    <Button
       type="button"
       size="sm"
       variant={failure.phase === "initial" ? "default" : "outline"}
@@ -25,11 +23,11 @@ export function CanvasLoadError({ failure, retrying, onRetry }) {
       data-action-ui-id="canvas.load-error-retry"
       className="rounded-md"
     >
-      {!retrying && <RetryIcon$1 size={16} />}
+      {!retrying && <RetryIcon size={16} />}
       {retrying
         ? t2("canvas.loadError.retrying")
         : t2("canvas.loadError.retry")}
-    </Button$2>
+    </Button>
   );
   if (failure.phase === "refresh") {
     return (

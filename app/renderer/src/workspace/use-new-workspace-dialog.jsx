@@ -14,7 +14,7 @@ import {
   useStorage,
   useTranslation,
   workspaceLog,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { instantiationService, IProjectMainService } from "./home-service.jsx";
@@ -26,13 +26,10 @@ import {
 } from "../generation/use-model-catalog-scope-key.js";
 import { applyWorkspaceDisplayNameRename } from "./record-recent-workspace-opened.js";
 import { checkTextSafety } from "./asset-lineage-query-key.js";
-
-const TOAST_ID$1 = "low-memory-warning";
-
+const TOAST_ID = "low-memory-warning";
 function useNewWorkspaceDialogContext() {
   return reactExports.useContext(NewWorkspaceDialogContext);
 }
-
 function hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName) {
   const folderName = folderNameFromPath(workspacePath);
   const trimmed = truncateProjectName(newName);
@@ -44,7 +41,6 @@ function hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName) {
       workspaceDisplayName(workspace).toLowerCase() === candidate,
   );
 }
-
 export function useWorkspaceDisplayNameRename(workspacePath) {
   const [, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
   const platform2 = usePlatform();
@@ -103,7 +99,6 @@ export function useWorkspaceDisplayNameRename(workspacePath) {
     [workspacePath, setRecentWorkspacesAsync, platform2.storage, t2],
   );
 }
-
 export function useNewWorkspaceDialog(onConfirm) {
   const { t: t2 } = useTranslation();
   const shared = useNewWorkspaceDialogContext();
@@ -167,7 +162,6 @@ export function useNewWorkspaceDialog(onConfirm) {
     dialog,
   };
 }
-
 export function trackSkillInstallEvent(props) {
   const payload = {
     skill_name: props.name,
@@ -179,7 +173,6 @@ export function trackSkillInstallEvent(props) {
   if (props.via) payload.via = props.via;
   trackEvent(TRACK_EVENTS.SKILL_INSTALL, payload);
 }
-
 export function trackSkillInstallFailed(opts) {
   const err = classifySkillError(opts.error);
   const payload = {
@@ -193,14 +186,12 @@ export function trackSkillInstallFailed(opts) {
   if (opts.via) payload.via = opts.via;
   trackEvent(TRACK_EVENTS.SKILL_INSTALL_FAILED, payload);
 }
-
 export function trackSkillUninstall(name2, source) {
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL, {
     skill_name: name2,
     source,
   });
 }
-
 export function trackSkillUninstallFailed(opts) {
   const err = classifySkillError(opts.error);
   const payload = {
@@ -210,7 +201,6 @@ export function trackSkillUninstallFailed(opts) {
   };
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL_FAILED, payload);
 }
-
 export function trackSkillToggle(name2, enabled, source) {
   trackEvent(TRACK_EVENTS.SKILL_TOGGLE, {
     skill_name: name2,
@@ -218,13 +208,11 @@ export function trackSkillToggle(name2, enabled, source) {
     source,
   });
 }
-
 export function trackSkillDetailView(props) {
   trackEvent(TRACK_EVENTS.SKILL_DETAIL_VIEW, {
     ...props,
   });
 }
-
 export function trackSkillTry(props) {
   const payload = {
     skill_name: props.skill_name,
@@ -235,13 +223,11 @@ export function trackSkillTry(props) {
   if (props.via) payload.via = props.via;
   trackEvent(TRACK_EVENTS.SKILL_TRY, payload);
 }
-
 export function trackSkillExport(props) {
   trackEvent(TRACK_EVENTS.SKILL_EXPORT, {
     ...props,
   });
 }
-
 export function trackSkillImport(props) {
   const payload = {
     file_ext: props.file_ext,
@@ -251,7 +237,6 @@ export function trackSkillImport(props) {
   if (props.auto_fixed) payload.auto_fixed = true;
   trackEvent(TRACK_EVENTS.SKILL_IMPORT, payload);
 }
-
 export function trackSkillImportFailed(opts) {
   const baseErr = classifySkillError(opts.error);
   const payload = {
@@ -263,7 +248,6 @@ export function trackSkillImportFailed(opts) {
   if (opts.errorCode !== void 0) payload.error_code = opts.errorCode;
   trackEvent(TRACK_EVENTS.SKILL_IMPORT_FAILED, payload);
 }
-
 export function trackSkillSearch(props) {
   const payload = {
     tab: props.tab,
@@ -272,54 +256,46 @@ export function trackSkillSearch(props) {
   if (props.result_count !== void 0) payload.result_count = props.result_count;
   trackEvent(TRACK_EVENTS.SKILL_SEARCH, payload);
 }
-
 export function trackSkillFilter(props) {
   trackEvent(TRACK_EVENTS.SKILL_FILTER, {
     tab: props.tab,
     tag: props.tag,
   });
 }
-
 export function trackSkillLoadMore(props) {
   trackEvent(TRACK_EVENTS.SKILL_LOAD_MORE, {
     page: props.page,
     query_length: props.query_length,
   });
 }
-
 export function trackSkillTabSwitch(props) {
   trackEvent(TRACK_EVENTS.SKILL_TAB_SWITCH, {
     from: props.from,
     to: props.to,
   });
 }
-
 export function trackSkillMarketOpen(source) {
   trackEvent(TRACK_EVENTS.SKILL_MARKET_OPEN, {
     source,
   });
 }
-
 export function trackSkillInvoke(props) {
   trackEvent(TRACK_EVENTS.SKILL_INVOKE, {
     skill_name: props.name,
     source: props.source,
   });
 }
-
 export function trackSkillCreatorInvoke(source) {
   trackEvent(TRACK_EVENTS.SKILL_CREATOR_INVOKE, {
     source,
   });
 }
-
 function trackSkillDebugOpen(props) {
   trackEvent(TRACK_EVENTS.SKILL_DEBUG_OPEN, {
     skill_name: props.skill_name,
     source: props.source,
   });
 }
-
 export function showSkillInstallSuccessToast(skillName, opts = {}) {
   const messageKey = opts.isUpdate
     ? "skills.market.updateSuccess"
@@ -352,7 +328,6 @@ export function showSkillInstallSuccessToast(skillName, opts = {}) {
     },
   });
 }
-
 function LowMemoryToastContent({ payload, toastId }) {
   const { t: t2 } = useTranslation();
   return (
@@ -378,18 +353,17 @@ function LowMemoryToastContent({ payload, toastId }) {
         className="shrink-0 text-muted-foreground hover:text-foreground"
         onClick={() => dedupedToast.dismiss(toastId)}
       >
-        <X$7 className="size-4" />
+        <X className="size-4" />
       </button>
     </div>
   );
 }
-
 export function showLowMemoryToast(payload) {
   dedupedToast.custom(
     (id2) => <LowMemoryToastContent payload={payload} toastId={id2} />,
     {
       duration: 15e3,
-      id: TOAST_ID$1,
+      id: TOAST_ID,
     },
   );
 }

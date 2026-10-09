@@ -5,7 +5,7 @@ import {
   stringifyParamValue,
 } from "./domestic-param-labels.jsx";
 import { Clock } from "../media-editing/package.jsx";
-import { Info$1, reactExports, useTranslation } from "../vendor.js";
+import { Info$1 as Info, reactExports, useTranslation } from "../vendor.js";
 import {
   Icon,
   Tooltip,
@@ -19,14 +19,11 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-
 const HIDE_DESC_KEYS = new Set(["model_name", "model_id"]);
-
-const TAG_ICON$1 = {
+const TAG_ICON = {
   duration: Clock,
   durations: Clock,
 };
-
 function displayParamValue(value, t2, displayMap, formatBoolean) {
   if (Array.isArray(value)) {
     const values3 = value
@@ -47,7 +44,6 @@ function displayParamValue(value, t2, displayMap, formatBoolean) {
     "—"
   );
 }
-
 export function EditableParamChip({
   paramKey,
   value,
@@ -64,7 +60,7 @@ export function EditableParamChip({
   const label = getParamLabel(paramKey);
   const ParamIcon = MODEL_NAME_KEYS.has(paramKey)
     ? categoryIcon
-    : TAG_ICON$1[paramKey];
+    : TAG_ICON[paramKey];
   const pagedArray =
     batchPageIndex !== void 0 &&
     batchPageCount > 1 &&
@@ -118,7 +114,7 @@ export function EditableParamChip({
               <Tooltip>
                 <TooltipTrigger className="cursor-pointer">
                   <Icon
-                    icon={Info$1}
+                    icon={Info}
                     size="xs"
                     className="shrink-0 text-brand-accent"
                   />

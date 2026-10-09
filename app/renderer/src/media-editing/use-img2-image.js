@@ -34,7 +34,6 @@ import {
   visibleCanvasModels,
 } from "../generation/use-mention-models.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
 function logReferenceSubmission(paths, context, assets) {
   try {
     for (const [referenceIndex, path2] of paths
@@ -65,9 +64,7 @@ function logReferenceSubmission(paths, context, assets) {
       });
   } catch {}
 }
-
-const GENERATE_ERROR_CODE_QUEUE_PAUSED$2 = "queue_paused";
-
+const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
 export function useImg2Image({ httpClient, catalogScopeKey }) {
   const generatingStateStore = useGeneratingStateApi();
   const assetMetadataStore = useAssetMetadataApi();
@@ -192,7 +189,7 @@ export function useImg2Image({ httpClient, catalogScopeKey }) {
         if (!resp.ok) {
           if (
             resp.error_code === GENERATE_ERROR_CODE_SHUTDOWN ||
-            resp.error_code === GENERATE_ERROR_CODE_QUEUE_PAUSED$2
+            resp.error_code === GENERATE_ERROR_CODE_QUEUE_PAUSED
           ) {
             return {
               success: true,

@@ -15,8 +15,11 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Spinner } from "./use-team-transactions-feed-query.jsx";
 import { Users } from "../media-editing/package.jsx";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
-
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 export function AccountSwitcherRowSurface({
   accountType,
   active: active2 = false,
@@ -88,7 +91,7 @@ export function AccountSwitcherRowSurface({
       ) : null}
     </>
   );
-  const buttonClassName = cn$2(
+  const buttonClassName = cn(
     "h-auto min-h-10 w-full min-w-0 justify-start gap-2 rounded-md px-2 py-1.5 leading-tight whitespace-normal text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground",
     active2 &&
       "bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.05] disabled:opacity-100",
@@ -101,7 +104,7 @@ export function AccountSwitcherRowSurface({
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button$1
+                <Button
                   type="button"
                   variant="ghost"
                   className={buttonClassName}
@@ -127,7 +130,7 @@ export function AccountSwitcherRowSurface({
     );
   }
   return (
-    <Button$1
+    <Button
       type="button"
       variant="ghost"
       className={buttonClassName}
@@ -142,6 +145,6 @@ export function AccountSwitcherRowSurface({
       data-team-role={dataTeamRole}
     >
       {content2}
-    </Button$1>
+    </Button>
   );
 }

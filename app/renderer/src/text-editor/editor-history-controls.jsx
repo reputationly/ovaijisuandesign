@@ -2,18 +2,17 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   jsxRuntimeExports,
-  redo$1,
+  redo$1 as redo,
   Redo2,
-  redoDepth$1,
-  undo$1,
+  redoDepth$1 as redoDepth,
+  undo$1 as undo,
   Undo2,
   undoDepth$1,
-  useEditorState$1,
+  useEditorState$1 as useEditorState,
   useTranslation,
 } from "../vendor.js";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
-
-export function ToolbarSeparator$1({ contextToolbar = false }) {
+export function ToolbarSeparator({ contextToolbar = false }) {
   if (contextToolbar)
     return <div className="canvas-toolbar-separator" aria-hidden="true" />;
   return (
@@ -25,11 +24,10 @@ export function ToolbarSeparator$1({ contextToolbar = false }) {
     />
   );
 }
-
 export function ToolbarBtn({ item, contextToolbar = false }) {
   return (
     <>
-      {item.separator && <ToolbarSeparator$1 contextToolbar={contextToolbar} />}
+      {item.separator && <ToolbarSeparator contextToolbar={contextToolbar} />}
       <button
         type="button"
         title={typeof item.label === "string" ? item.label : void 0}
@@ -56,19 +54,17 @@ export function ToolbarBtn({ item, contextToolbar = false }) {
     </>
   );
 }
-
 function getEditorHistoryAvailability(state2) {
   return {
     canUndo: undoDepth$1(state2) > 0,
-    canRedo: redoDepth$1(state2) > 0,
+    canRedo: redoDepth(state2) > 0,
   };
 }
-
 export function EditorHistoryControls({ editor, nodeId }) {
   const { t: t2 } = useTranslation();
   const reviewReverting = useDiffReviewStore((state2) => state2.reverting);
   const reviewSession = useDiffReviewStore((state2) => state2.session);
-  const availability = useEditorState$1({
+  const availability = useEditorState({
     editor,
     selector: ({ editor: currentEditor }) =>
       currentEditor
@@ -103,7 +99,7 @@ export function EditorHistoryControls({ editor, nodeId }) {
             reviewReverting || reviewUndoBlocked || !availability.canUndo,
           onClick: () => {
             editor.commands.focus();
-            undo$1(editor.state, editor.view.dispatch);
+            undo(editor.state, editor.view.dispatch);
           },
           dataActionUiId: "canvas-text-undo",
         }}
@@ -116,7 +112,7 @@ export function EditorHistoryControls({ editor, nodeId }) {
           disabled: reviewReverting || !availability.canRedo,
           onClick: () => {
             editor.commands.focus();
-            redo$1(editor.state, editor.view.dispatch);
+            redo(editor.state, editor.view.dispatch);
           },
           dataActionUiId: "canvas-text-redo",
         }}

@@ -10,11 +10,11 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   creditQueryKeys,
-  Select$1,
+  Select,
   useTeamAccount,
 } from "../assets/credit-query-keys.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogAction,
   AlertDialogContent,
@@ -48,17 +48,13 @@ import {
 } from "./page-content.jsx";
 import { teamApi } from "./team-api.js";
 import { accountScopeEquals } from "./account-scope-equals.js";
-
 function assignableRolesForTarget(targetRole, canChangeRole) {
   if (!canChangeRole) return [];
   if (targetRole === "OWNER") return [];
   return ["MEMBER", "ADMIN"];
 }
-
 const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
-
 class ScopeChangedError3 extends Error {}
-
 export function TeamMemberSettingsPage({
   scope,
   member,
@@ -270,7 +266,7 @@ export function TeamMemberSettingsPage({
                   })}
                 </div>
                 {canChangeRole && roles.length > 0 && role !== null ? (
-                  <Select$1
+                  <Select
                     value={role}
                     disabled={busy}
                     onValueChange={(value) => {
@@ -322,7 +318,7 @@ export function TeamMemberSettingsPage({
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select$1>
+                  </Select>
                 ) : (
                   <p className="text-xs font-medium text-foreground">
                     {t2(`team.role.${member.role.toLowerCase()}`, {
@@ -468,7 +464,7 @@ export function TeamMemberSettingsPage({
           {canChangeRole || canChangeQuota || canRemove ? (
             <PageFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6">
               {canRemove ? (
-                <Button$1
+                <Button
                   type="button"
                   variant="destructive"
                   size="sm"
@@ -479,10 +475,10 @@ export function TeamMemberSettingsPage({
                   {t2("team.management.removeMember", {
                     defaultValue: "移除成员",
                   })}
-                </Button$1>
+                </Button>
               ) : null}
               {canChangeRole || canChangeQuota ? (
-                <Button$1
+                <Button
                   type="button"
                   size="sm"
                   disabled={!canSave || busy}
@@ -493,7 +489,7 @@ export function TeamMemberSettingsPage({
                   {t2("team.management.saveSettings", {
                     defaultValue: "保存修改",
                   })}
-                </Button$1>
+                </Button>
               ) : null}
             </PageFooter>
           ) : null}
@@ -526,7 +522,7 @@ export function TeamMemberSettingsPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button$1
+            <Button
               type="button"
               variant="outline"
               disabled={removeMutation.isPending}
@@ -536,7 +532,7 @@ export function TeamMemberSettingsPage({
               {t2("common.cancel", {
                 defaultValue: "取消",
               })}
-            </Button$1>
+            </Button>
             <AlertDialogAction
               variant="destructive"
               loading={removeMutation.isPending}

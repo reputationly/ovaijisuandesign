@@ -1,14 +1,12 @@
 // credit-ledger-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-
 function formatTime(ms) {
   const date2 = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
   return `${date2.getFullYear()}-${pad(date2.getMonth() + 1)}-${pad(date2.getDate())} ${pad(date2.getHours())}:${pad(date2.getMinutes())}`;
 }
-
 export function CreditLedgerTable({
   rows,
   loading,
@@ -37,7 +35,7 @@ export function CreditLedgerTable({
       : "grid-cols-[minmax(0,1.5fr)_minmax(8rem,1fr)_minmax(5rem,0.8fr)]";
   return (
     <div
-      className={cn$2(
+      className={cn(
         "rounded-lg border border-border",
         scrollable
           ? "flex h-[22rem] min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden"
@@ -45,7 +43,7 @@ export function CreditLedgerTable({
       )}
     >
       <div
-        className={cn$2(
+        className={cn(
           modelLabel
             ? operatorLabel
               ? descriptionLabel
@@ -57,7 +55,7 @@ export function CreditLedgerTable({
         )}
       >
         <div
-          className={cn$2(
+          className={cn(
             "grid shrink-0 border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground",
             scrollable ? "bg-muted/50" : "sticky top-0 z-10 bg-muted",
             gridColumns,
@@ -75,7 +73,7 @@ export function CreditLedgerTable({
           <span className="min-w-0 break-words">{timeLabel}</span>
           <span className="min-w-0 break-words text-right">{amountLabel}</span>
         </div>
-        <div className={cn$2(scrollable && "min-h-0 flex-1 overflow-y-auto")}>
+        <div className={cn(scrollable && "min-h-0 flex-1 overflow-y-auto")}>
           {loading ? (
             <div>
               {Array.from({
@@ -83,7 +81,7 @@ export function CreditLedgerTable({
               }).map((_2, index2) => (
                 <div
                   key={index2}
-                  className={cn$2(
+                  className={cn(
                     "grid min-h-9 items-center border-b border-border/70 px-4 py-2 last:border-b-0",
                     gridColumns,
                   )}
@@ -104,13 +102,13 @@ export function CreditLedgerTable({
             </div>
           ) : error ? (
             <div
-              className={cn$2(
+              className={cn(
                 "flex flex-col items-center justify-center gap-3 px-4 text-center text-xs text-muted-foreground",
                 scrollable ? "h-full min-h-40" : "min-h-24",
               )}
             >
               <span className="break-words">{errorLabel}</span>
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -118,11 +116,11 @@ export function CreditLedgerTable({
                 onClick={onRetry}
               >
                 {retryLabel}
-              </Button$1>
+              </Button>
             </div>
           ) : rows.length === 0 ? (
             <div
-              className={cn$2(
+              className={cn(
                 "flex items-center justify-center px-4 py-8 text-center text-xs text-muted-foreground",
                 scrollable ? "h-full min-h-40" : "min-h-24",
               )}
@@ -133,7 +131,7 @@ export function CreditLedgerTable({
             rows.map((row) => (
               <div
                 key={row.id}
-                className={cn$2(
+                className={cn(
                   "grid items-center border-b border-border/70 px-4 py-2 last:border-b-0",
                   gridColumns,
                 )}
@@ -157,7 +155,7 @@ export function CreditLedgerTable({
                   {formatTime(row.createdAtMs)}
                 </div>
                 <div
-                  className={cn$2(
+                  className={cn(
                     "min-w-0 truncate text-right text-xs font-medium tabular-nums",
                     row.tone === "credit" && "text-success",
                     row.tone === "debit" && "text-destructive",

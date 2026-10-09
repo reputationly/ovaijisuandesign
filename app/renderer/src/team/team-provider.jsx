@@ -1,6 +1,6 @@
 // team-provider.jsx
 import {
-  MINUTE_MS$1,
+  MINUTE_MS,
   useTeamContextsQuery,
   useTeamCreditSummaryQuery,
   useTeamDetailQuery,
@@ -30,7 +30,6 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { TeamAccountContext } from "../assets/credit-query-keys.jsx";
-
 function isQueryOwnedByIdentity(queryKey, identityKey) {
   return (
     queryKey.includes(identityKey) &&
@@ -39,7 +38,6 @@ function isQueryOwnedByIdentity(queryKey, identityKey) {
       queryKey[0] === "account")
   );
 }
-
 function isQueryOwnedByScope(queryKey, scope) {
   const scopeIdentity = queryKey.indexOf(scope.identityKey);
   if (scopeIdentity < 0) return false;
@@ -49,11 +47,8 @@ function isQueryOwnedByScope(queryKey, scope) {
     queryKey[scopeIdentity + 3] === (scope.membershipRevision ?? "PERSONAL")
   );
 }
-
-const TEAM_CONTRACT_STALE_MS = 5 * MINUTE_MS$1;
-
-const TEAM_CONTRACT_GC_MS = 30 * MINUTE_MS$1;
-
+const TEAM_CONTRACT_STALE_MS = 5 * MINUTE_MS;
+const TEAM_CONTRACT_GC_MS = 30 * MINUTE_MS;
 function useTeamContractQuery(clientVersion, enabled) {
   return useQuery({
     queryKey: teamQueryKeys.contract(clientVersion),
@@ -67,7 +62,6 @@ function useTeamContractQuery(clientVersion, enabled) {
     gcTime: TEAM_CONTRACT_GC_MS,
   });
 }
-
 function isNewerSnapshot(current2, incoming) {
   try {
     const incomingSequence = BigInt(incoming.sequence);
@@ -76,11 +70,9 @@ function isNewerSnapshot(current2, incoming) {
     return false;
   }
 }
-
 function mergeTeamSnapshot(current2, incoming) {
   return isNewerSnapshot(current2, incoming) ? incoming : current2;
 }
-
 function deriveTeamAccountViewModel({
   snapshot: snapshot2,
   contract,
@@ -180,7 +172,6 @@ function deriveTeamAccountViewModel({
     billingAvailable: contract.gates.teamBilling,
   };
 }
-
 async function clearIdentityQueries(queryClient2, identityKey) {
   const predicate = (query) =>
     isQueryOwnedByIdentity(query.queryKey, identityKey);
@@ -191,7 +182,6 @@ async function clearIdentityQueries(queryClient2, identityKey) {
     predicate,
   });
 }
-
 async function clearAccountScopeQueries(queryClient2, scope) {
   const predicate = (query) => isQueryOwnedByScope(query.queryKey, scope);
   await queryClient2.cancelQueries({
@@ -201,25 +191,21 @@ async function clearAccountScopeQueries(queryClient2, scope) {
     predicate,
   });
 }
-
 function createRequestId() {
   return crypto.randomUUID();
 }
-
 function rejectedResult(code2) {
   return {
     status: "rejected",
     code: code2,
   };
 }
-
 function isDeterministicCompositeCommandResult(result) {
   return (
     result.status === "completed" ||
     (result.status === "rejected" && result.code !== "temporarily_unavailable")
   );
 }
-
 function isRetryableRevalidationResult(result) {
   return (
     result.status === "busy" ||
@@ -227,7 +213,6 @@ function isRetryableRevalidationResult(result) {
     (result.status === "rejected" && result.code === "temporarily_unavailable")
   );
 }
-
 function contextConfirmsCanonical(item, snapshot2) {
   const membershipConfirmed =
     item.accountType === "PERSONAL" ||
@@ -240,7 +225,6 @@ function contextConfirmsCanonical(item, snapshot2) {
     membershipConfirmed
   );
 }
-
 function snapshotReachedSequence(snapshot2, sequence) {
   if (!snapshot2) return false;
   try {
@@ -249,7 +233,6 @@ function snapshotReachedSequence(snapshot2, sequence) {
     return false;
   }
 }
-
 function contextsObservationKey(
   refreshKey,
   dataUpdatedAt,
@@ -258,14 +241,12 @@ function contextsObservationKey(
 ) {
   return `${refreshKey}:${dataUpdatedAt}:${contextsRevision}:${serverTimeMs}`;
 }
-
 function invitationIntentKey(invitationId, expectedInvitationVersion) {
   return JSON.stringify([
     invitationId.trim(),
     expectedInvitationVersion.trim(),
   ]);
 }
-
 function contextsSyncingSnapshot(snapshot2) {
   if (snapshot2?.status !== "ready") return snapshot2;
   return {
@@ -276,7 +257,6 @@ function contextsSyncingSnapshot(snapshot2) {
     activeContext: null,
   };
 }
-
 function resolveService(override) {
   if (override) return override;
   try {
@@ -287,7 +267,6 @@ function resolveService(override) {
     return null;
   }
 }
-
 export function TeamProvider({
   children: children2,
   service: serviceOverride,

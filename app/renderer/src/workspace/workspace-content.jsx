@@ -25,7 +25,7 @@ import {
   useWorkspacePaneReorder,
 } from "../chat/use-browser-chat-media.jsx";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -37,7 +37,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuRadioGroup,
 } from "../vendor-inline/vscode-base/graph.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useHasBlockingModal } from "../infra/schedule.js";
 import { getPlatform } from "../infra/web-storage.js";
 import { resolveShortcutDisplay } from "./other-modifiers.js";
@@ -45,7 +45,7 @@ import {
   ShortcutHint,
   WORKSPACE_DISPLAY_MODE_SHORTCUT,
 } from "./shortcut-hint.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { useWorkspaceChatSelector } from "../assets/use-canvas-model-registry-hydration.js";
 import { CanvasSidebarOverlay } from "./canvas-sidebar-overlay.jsx";
@@ -56,11 +56,9 @@ import { WorkspaceBrowser } from "./workspace-browser.jsx";
 import { WorkspaceViewSwitch } from "./workspace-view-switch.jsx";
 import { WorkspaceDisplayModeSwitcher } from "./workspace-display-mode-switcher.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
-
 function useAccountSubmissionAllowed(kind) {
   return useAccountSubmissionDecision(kind).allowed;
 }
-
 function useWorkspaceRemoteTool() {
   const ctx = useWorkspaceRemoteToolOptional();
   if (!ctx)
@@ -69,7 +67,6 @@ function useWorkspaceRemoteTool() {
     );
   return ctx;
 }
-
 function useBrowserVideoDownload(isActive2) {
   const gatewayFetch2 = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -166,23 +163,16 @@ function useBrowserVideoDownload(isActive2) {
     };
   }, [browser2]);
 }
-
 const WORKSPACE_VIEW_MODE_CONTROL_WIDTH = 104;
-
 const WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH = 120;
-
 const WORKSPACE_VIEW_MODE_CONTROL_GAP = 6;
-
 const WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH = 32;
-
-function isWorkspaceMode$1(value) {
+function isWorkspaceMode(value) {
   return value === "chatOnly" || value === "split" || value === "canvasOnly";
 }
-
 function isWorkspacePaneOrder(value) {
   return value === "chat-canvas" || value === "canvas-chat";
 }
-
 function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
   const chatOnLeft = paneOrder === "chat-canvas";
   const leftActive =
@@ -193,7 +183,7 @@ function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
     <svg
       viewBox="0 0 18 18"
       aria-hidden="true"
-      className={cn$2("size-4 shrink-0", className)}
+      className={cn("size-4 shrink-0", className)}
       data-workspace-view-mode-icon="true"
       data-left-active={leftActive ? "true" : "false"}
       data-right-active={rightActive ? "true" : "false"}
@@ -233,7 +223,6 @@ function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
     </svg>
   );
 }
-
 function WorkspaceViewModeMenu({
   mode: mode2,
   paneOrder,
@@ -297,9 +286,9 @@ function WorkspaceViewModeMenu({
   }, [onControlWidthChange, reportControlWidth, triggerRef]);
   return (
     <>
-      <TooltipProvider$1 delay={150} closeDelay={0}>
+      <TooltipProvider delay={150} closeDelay={0}>
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-          <Tooltip$1 content={label} closeOnClick={true}>
+          <Tooltip content={label} closeOnClick={true}>
             <DropdownMenuTrigger
               ref={triggerRef}
               type="button"
@@ -313,13 +302,13 @@ function WorkspaceViewModeMenu({
                   ? WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH
                   : void 0,
               }}
-              className={cn$2(
+              className={cn(
                 "flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50",
                 compact
                   ? // Keep the compact Chat-header variant icon-only; the shortcut
                     // hint lives inside the opened display-mode menu.
                     "-mt-0.5 h-7 rounded-md px-2 text-foreground/65 hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
-                  : cn$2(
+                  : cn(
                       "px-2",
                       variant === "chat-header"
                         ? "h-7 rounded-md text-foreground/65 hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
@@ -338,7 +327,7 @@ function WorkspaceViewModeMenu({
                 />
               )}
             </DropdownMenuTrigger>
-          </Tooltip$1>
+          </Tooltip>
           <DropdownMenuContent
             align={align}
             side="bottom"
@@ -360,7 +349,7 @@ function WorkspaceViewModeMenu({
                 value={mode2}
                 aria-label={t2("workspace.layout.mode", "Layout mode")}
                 onValueChange={(value) => {
-                  if (isWorkspaceMode$1(value)) onModeChange(value);
+                  if (isWorkspaceMode(value)) onModeChange(value);
                 }}
               >
                 <DropdownMenuRadioItem
@@ -439,7 +428,7 @@ function WorkspaceViewModeMenu({
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-      </TooltipProvider$1>
+      </TooltipProvider>
       {coachMarkEnabled && !hasBlockingModal ? (
         <CoachMark
           markId="workspace-display-mode-shortcut-intro"
@@ -463,7 +452,6 @@ function WorkspaceViewModeMenu({
     </>
   );
 }
-
 function useChatReferenceReveal(isActive2, reveal) {
   reactExports.useEffect(() => {
     if (isActive2 === false) return;
@@ -475,7 +463,6 @@ function useChatReferenceReveal(isActive2, reveal) {
     };
   }, [isActive2, reveal]);
 }
-
 function toRevertEdit(hunk) {
   return {
     annotationId: hunk.id,
@@ -498,7 +485,6 @@ function toRevertEdit(hunk) {
     replacement: hunk.originalText,
   };
 }
-
 function mapRevertResponse(raw2) {
   if (!raw2 || typeof raw2 !== "object") return null;
   const record2 = raw2;
@@ -531,7 +517,6 @@ function mapRevertResponse(raw2) {
     results,
   };
 }
-
 function useDocumentEditReviewHost(enabled) {
   const gatewayFetch2 = useGatewayFetch();
   const { t: t2 } = useTranslation();
@@ -604,7 +589,6 @@ function useDocumentEditReviewHost(enabled) {
     };
   }, [enabled, gatewayFetch2, t2]);
 }
-
 function selectWorkspaceStageLayout(state2) {
   const chatVisible = state2.workspaceMode !== "canvasOnly";
   const canvasVisible = state2.workspaceMode !== "chatOnly";
@@ -635,7 +619,6 @@ function selectWorkspaceStageLayout(state2) {
     visiblePanes: structuralPanes(true),
   };
 }
-
 const MemoizedCanvasArea = reactExports.memo(
   CanvasArea,
   (prev, next2) =>
@@ -654,7 +637,6 @@ const MemoizedCanvasArea = reactExports.memo(
     prev.toolbarPlacement === next2.toolbarPlacement &&
     prev.layoutRelocationKey === next2.layoutRelocationKey,
 );
-
 function RemoteToolHost() {
   const {
     remoteToolRequest,
@@ -707,7 +689,6 @@ function RemoteToolHost() {
     />
   );
 }
-
 export function WorkspaceContent({
   assetPanel,
   stageState,

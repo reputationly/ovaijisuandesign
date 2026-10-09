@@ -1,8 +1,7 @@
 // ot.js
 
 var Ie = 65535;
-
-function Dn$1(e2, n2 = Ie) {
+function Dn(e2, n2 = Ie) {
   let t2 = [];
   for (let r2 = 0; r2 < e2.length; r2 += n2) {
     let o2 = e2.slice(r2, r2 + n2);
@@ -10,19 +9,16 @@ function Dn$1(e2, n2 = Ie) {
   }
   return t2;
 }
-
-export function L$4(e2, n2) {
+export function L(e2, n2) {
   if (n2.length > Ie) {
-    let t2 = Dn$1(n2);
+    let t2 = Dn(n2);
     return e2(...t2.map((r2) => e2(...r2)));
   } else return e2(...n2);
 }
-
 function Re(e2, n2) {
   return e2.reduce((t2, r2, o2) => ((t2[r2] = n2[o2]), t2), {});
 }
-
-export function dt$2(e2, n2, t2, r2) {
+export function dt(e2, n2, t2, r2) {
   let o2 = [],
     i2 = [],
     s2 = Math.min(n2[t2].low, n2[r2].low),
@@ -39,21 +35,17 @@ export function dt$2(e2, n2, t2, r2) {
     lca: l2,
   };
 }
-
-export function en$3(e2) {
+export function en(e2) {
   let n2 = e2.width;
   ((e2.width = e2.height), (e2.height = n2));
 }
-
-export function ne$2(e2) {
+export function ne(e2) {
   e2.y = -e2.y;
 }
-
-export function te$2(e2) {
+export function te(e2) {
   let n2 = e2.x;
   ((e2.x = e2.y), (e2.y = n2));
 }
-
 export function mt(e2, n2, t2) {
   let r2 = Re(
       t2,
@@ -90,8 +82,7 @@ export function mt(e2, n2, t2) {
     d2
   );
 }
-
-export function le$1(e2, n2, t2) {
+export function le(e2, n2, t2) {
   let r2 = {},
     o2;
   t2.forEach((i2) => {
@@ -111,15 +102,13 @@ export function le$1(e2, n2, t2) {
     }
   });
 }
-
-function xt$1(e2, n2) {
+function xt(e2, n2) {
   if (e2.node(n2).dummy) {
     let t2 = e2.predecessors(n2);
     if (t2) return t2.find((r2) => e2.node(r2).dummy);
   }
 }
-
-export function dn$2(e2, n2, t2) {
+export function dn(e2, n2, t2) {
   if (n2 > t2) {
     let o2 = n2;
     ((n2 = t2), (t2 = o2));
@@ -127,7 +116,6 @@ export function dn$2(e2, n2, t2) {
   let r2 = e2[n2];
   (r2 || (e2[n2] = r2 = {}), (r2[t2] = true));
 }
-
 export function vt(e2, n2) {
   let t2 = {};
   function r2(o2, i2) {
@@ -137,7 +125,7 @@ export function vt(e2, n2) {
       l2 = i2[i2.length - 1];
     return (
       i2.forEach((u4, c3) => {
-        let h2 = xt$1(e2, u4),
+        let h2 = xt(e2, u4),
           f2 = h2 ? e2.node(h2).order : d2;
         (h2 || u4 === l2) &&
           (i2.slice(a2, c3 + 1).forEach((g2) => {
@@ -148,7 +136,7 @@ export function vt(e2, n2) {
                   y4 = E3.order;
                 (y4 < s2 || f2 < y4) &&
                   !(E3.dummy && e2.node(g2).dummy) &&
-                  dn$2(t2, m3, g2);
+                  dn(t2, m3, g2);
               });
           }),
           (a2 = c3 + 1),
@@ -159,7 +147,6 @@ export function vt(e2, n2) {
   }
   return (n2.length && n2.reduce(r2), t2);
 }
-
 function Tt(e2, n2, t2) {
   if (n2 > t2) {
     let o2 = n2;
@@ -168,7 +155,6 @@ function Tt(e2, n2, t2) {
   let r2 = e2[n2];
   return r2 !== void 0 && Object.hasOwn(r2, t2);
 }
-
 export function Ot(e2, n2, t2, r2) {
   let o2 = {},
     i2 = {},
@@ -209,18 +195,16 @@ export function Ot(e2, n2, t2, r2) {
     }
   );
 }
-
-function St$1(e2, n2) {
+function St(e2, n2) {
   return e2.node(n2).width;
 }
-
-export function Rt$1(e2, n2) {
+export function Rt(e2, n2) {
   return Object.values(n2).reduce(
     (t2, r2) => {
       let o2 = Number.NEGATIVE_INFINITY,
         i2 = Number.POSITIVE_INFINITY;
       Object.entries(r2).forEach(([a2, d2]) => {
-        let l2 = St$1(e2, a2) / 2;
+        let l2 = St(e2, a2) / 2;
         ((o2 = Math.max(d2 + l2, o2)), (i2 = Math.min(d2 - l2, i2)));
       });
       let s2 = o2 - i2;

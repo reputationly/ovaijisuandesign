@@ -1,24 +1,19 @@
 // aggregate-snapshots.js
 import {
   CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT,
-  createState$1,
+  createState,
   getOrCreateState,
   HEAVY_FILE_VIEWER_KINDS,
   statesByWorkspace,
 } from "./use-plugin-metadata-store.js";
-
 const CONTENT_BUDGET_CANVAS_NODE_WARN_COUNT = 200;
-
 const CONTENT_BUDGET_MOUNTED_FILE_VIEWER_WARN_COUNT = 20;
-
 function getExistingStates() {
   return [...statesByWorkspace.values()];
 }
-
 function incrementKindCount(byKind, kind) {
   byKind[kind] = (byKind[kind] ?? 0) + 1;
 }
-
 function buildWarnings(input) {
   const warnings = [];
   if (input.canvasNodeCount > CONTENT_BUDGET_CANVAS_NODE_WARN_COUNT) {
@@ -50,7 +45,6 @@ function buildWarnings(input) {
   }
   return warnings;
 }
-
 function snapshotFromState(state2) {
   const byKind = {};
   const uniquePaths = new Set();
@@ -93,11 +87,9 @@ function snapshotFromState(state2) {
     updatedAtMs: state2.updatedAtMs,
   };
 }
-
 function emptySnapshot() {
-  return snapshotFromState(createState$1());
+  return snapshotFromState(createState());
 }
-
 function aggregateSnapshots(snapshots2) {
   if (snapshots2.length === 0) {
     return {
@@ -162,7 +154,6 @@ function aggregateSnapshots(snapshots2) {
     },
   };
 }
-
 export function getWorkspaceContentBudgetSnapshot(workspaceId2) {
   if (workspaceId2 !== void 0)
     return snapshotFromState(getOrCreateState(workspaceId2));

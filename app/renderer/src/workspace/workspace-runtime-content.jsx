@@ -12,7 +12,7 @@ import { buildWorkspaceSearch } from "./use-deep-link-router.js";
 import { useTopbarActions, workspaceEvents } from "./topbar-state-context.jsx";
 import {
   useGatewayFetch,
-  useGatewayReady$1,
+  useGatewayReady,
 } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceChatSelector } from "../assets/use-canvas-model-registry-hydration.js";
 import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
@@ -55,7 +55,6 @@ import { RecentlyAddedStoreProvider } from "../canvas/use-inline-rename.jsx";
 import { useAdoptInitialAttachments } from "./use-adopt-initial-attachments.js";
 import { WorkspaceCanvasFocusCoordinator } from "./workspace-canvas-focus-coordinator.js";
 import { WorkspaceContent } from "./workspace-content.jsx";
-
 function trackComfyUiWorkflowOpen(workflowSource, target, startedAt) {
   trackComfyUiEvent(TRACK_EVENTS.COMFYUI_WORKFLOW_OPEN, {
     entry_point: "workspace_pending",
@@ -64,7 +63,6 @@ function trackComfyUiWorkflowOpen(workflowSource, target, startedAt) {
     duration_ms: Math.max(0, Date.now() - startedAt),
   });
 }
-
 function trackComfyUiWorkflowOpenFailed(workflowSource, target, startedAt) {
   trackComfyUiEvent(TRACK_EVENTS.COMFYUI_WORKFLOW_OPEN_FAILED, {
     entry_point: "workspace_pending",
@@ -76,7 +74,6 @@ function trackComfyUiWorkflowOpenFailed(workflowSource, target, startedAt) {
     duration_ms: Math.max(0, Date.now() - startedAt),
   });
 }
-
 function parseOpenWorkflowResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid ComfyUI response");
@@ -92,7 +89,6 @@ function parseOpenWorkflowResult(value) {
       : {}),
   };
 }
-
 function PendingComfyUiWorkflowOpener({
   workflowId,
   target = "new",
@@ -167,7 +163,6 @@ function PendingComfyUiWorkflowOpener({
   ]);
   return null;
 }
-
 function PluginInstantiator({
   pluginId,
   workspaceId: workspaceId2,
@@ -175,7 +170,7 @@ function PluginInstantiator({
 }) {
   const navigate = useNavigate();
   const scopedFetch = useGatewayFetch();
-  const gatewayReady = useGatewayReady$1();
+  const gatewayReady = useGatewayReady();
   const { t: t2 } = useTranslation();
   const applied = reactExports.useRef(false);
   reactExports.useEffect(() => {
@@ -210,11 +205,9 @@ function PluginInstantiator({
   ]);
   return null;
 }
-
 function RetainedHeavyContent({ isActive: isActive2, children: children2 }) {
   return <div className={isActive2 ? "contents" : "hidden"}>{children2}</div>;
 }
-
 function shouldAutoRevealCanvas({
   isActive: isActive2,
   hasRenderableContent,
@@ -228,7 +221,6 @@ function shouldAutoRevealCanvas({
     !projectRunning
   );
 }
-
 function WorkspaceCanvasAutoRevealBridge({
   isActive: isActive2,
   hasRenderableContent,
@@ -274,11 +266,9 @@ function WorkspaceCanvasAutoRevealBridge({
   ]);
   return null;
 }
-
 function isInitialAttachmentAdoptionReady(status, runtimeUnavailable) {
   return !runtimeUnavailable && isGatewayReady(status.state);
 }
-
 function SkillPromptInjector({
   skillPrompt,
   skillName,
@@ -342,7 +332,6 @@ function SkillPromptInjector({
   ]);
   return null;
 }
-
 function MenuActionInjector({
   skillPrompt,
   menuAction,
@@ -394,9 +383,7 @@ function MenuActionInjector({
   ]);
   return null;
 }
-
 const TASK_PROMPT_PREVIEW_MAX_LENGTH = 36;
-
 function normalizeTaskPromptPreview(content2) {
   const normalized = content2.replace(/\s+/g, " ").trim();
   if (!normalized) return void 0;
@@ -404,7 +391,6 @@ function normalizeTaskPromptPreview(content2) {
     ? `${normalized.slice(0, TASK_PROMPT_PREVIEW_MAX_LENGTH)}...`
     : normalized;
 }
-
 function getLatestUserPromptPreview(messages2) {
   if (!messages2) return void 0;
   for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
@@ -415,7 +401,6 @@ function getLatestUserPromptPreview(messages2) {
   }
   return void 0;
 }
-
 function patchCanvasTasks(prev, update2) {
   const next2 = new Map(prev.map((task) => [task.id, task]));
   for (const id2 of update2.removedNodeIds ?? []) {
@@ -435,7 +420,6 @@ function patchCanvasTasks(prev, update2) {
   }
   return Array.from(next2.values());
 }
-
 function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
   const { reportWorkspaceSnapshot, reportTaskCompleted } = useTopbarActions();
   const sessions = useWorkspaceChatSelector((chat) => chat.sessions);
@@ -633,7 +617,6 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
   }, [runtime.workspaceId, sendWsMessage, sessionStore]);
   return null;
 }
-
 export function WorkspaceRuntimeContent({
   runtime,
   status,

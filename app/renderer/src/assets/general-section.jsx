@@ -5,13 +5,13 @@ import {
   ArrowUpRight,
   Bell,
   Bot,
-  Brain$2,
+  Brain$2 as Brain,
   ChevronLeftIcon,
   CircleArrowUp,
   CurrentWorkspaceContext,
   dedupedToast,
   DialogBackdrop,
-  DialogClose$1,
+  DialogClose$1 as DialogClose,
   DialogDescription$2,
   DialogPopup,
   DialogTitle$2,
@@ -49,8 +49,8 @@ import {
   Sparkles,
 } from "../media-editing/package.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   dialogChromeButtonClassName,
   DialogContent,
@@ -87,10 +87,10 @@ import { splitShortcutKeys } from "./split-shortcut-keys.js";
 import { Switch } from "../generation/select-content.jsx";
 import { useSettings } from "../settings/use-settings.js";
 import {
-  listeners$7,
+  listeners,
   normalizeWorkspaceId,
   SettingsPanelHeaderContext,
-  snapshot$2,
+  snapshot as snapshot$2,
   useActiveRuntime,
   useOptionalUpdaterContext,
 } from "../settings/use-active-runtime.js";
@@ -139,20 +139,16 @@ import { CustomProviderForm } from "../settings/custom-provider-form.jsx";
 import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import { DataDirectorySettings } from "../settings/data-directory-settings.jsx";
 import { DialogPortal } from "../infra/gateway-http-error.jsx";
-
 function useSettingsPanelHeader() {
   return reactExports.useContext(SettingsPanelHeaderContext);
 }
-
 function getTopbarActiveWorkspaceSnapshot() {
   return snapshot$2;
 }
-
 function subscribeTopbarActiveWorkspaceSnapshot(listener) {
-  listeners$7.add(listener);
-  return () => listeners$7.delete(listener);
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
-
 function useTopbarActiveWorkspaceSnapshot() {
   return reactExports.useSyncExternalStore(
     subscribeTopbarActiveWorkspaceSnapshot,
@@ -160,7 +156,6 @@ function useTopbarActiveWorkspaceSnapshot() {
     getTopbarActiveWorkspaceSnapshot,
   );
 }
-
 function SummaryBlock({ title, children: children2 }) {
   return (
     <div className="rounded-lg bg-secondary p-1.5">
@@ -171,7 +166,6 @@ function SummaryBlock({ title, children: children2 }) {
     </div>
   );
 }
-
 function DeleteAccountDialog({
   open,
   onOpenChange,
@@ -327,21 +321,21 @@ function DeleteAccountDialog({
           )}
         </div>
         <DialogFooter>
-          <Button$1
+          <Button
             variant="secondary"
             onClick={() => onOpenChange(false)}
             data-action-ui-id="account-delete-dialog.cancel"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="destructive"
             disabled={blocked}
             onClick={() => setConfirmOpen(true)}
             data-action-ui-id="account-delete-dialog.confirm"
           >
             {t2("account.delete.confirmButton")}
-          </Button$1>
+          </Button>
         </DialogFooter>
         <DeleteAccountConfirmDialog
           open={confirmOpen}
@@ -355,7 +349,6 @@ function DeleteAccountDialog({
     </Dialog>
   );
 }
-
 function InfoRow({ label, value, copyActionId }) {
   const { t: t2 } = useTranslation();
   return (
@@ -376,11 +369,8 @@ function InfoRow({ label, value, copyActionId }) {
     </div>
   );
 }
-
 const ACCOUNT_NAME_MIN_LENGTH = 2;
-
 const ACCOUNT_NAME_MAX_LENGTH = 20;
-
 function AccountNameRow({ savedName }) {
   const { t: t2 } = useTranslation();
   const [draft, setDraft] = reactExports.useState(null);
@@ -421,7 +411,7 @@ function AccountNameRow({ savedName }) {
             <span className="min-w-0 flex-1 truncate text-right text-sm text-foreground">
               {savedName || "--"}
             </span>
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon-xs"
@@ -432,7 +422,7 @@ function AccountNameRow({ savedName }) {
               className="text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             >
               <Pencil size={13} strokeWidth={1.5} aria-hidden={true} />
-            </Button$1>
+            </Button>
           </>
         ) : (
           <>
@@ -460,7 +450,6 @@ function AccountNameRow({ savedName }) {
     </div>
   );
 }
-
 function TeamRow({ team }) {
   const { t: t2 } = useTranslation();
   return (
@@ -474,7 +463,6 @@ function TeamRow({ team }) {
     </div>
   );
 }
-
 function AccountSection() {
   const { t: t2 } = useTranslation();
   const { user } = useAuth();
@@ -546,14 +534,14 @@ function AccountSection() {
           label={t2("settings.account.deleteLabel")}
           description={t2("settings.account.deleteDescription")}
         >
-          <Button$1
+          <Button
             variant="destructive"
             size="sm"
             data-action-ui-id="settings-account.delete-account"
             onClick={() => setDeleteDialogOpen(true)}
           >
             {t2("settings.account.deleteButton")}
-          </Button$1>
+          </Button>
         </SettingRow>
       </SettingGroup>
       <DeleteAccountDialog
@@ -565,9 +553,7 @@ function AccountSection() {
     </div>
   );
 }
-
-const PROXY_MODES$1 = ["auto", "direct", "system"];
-
+const PROXY_MODES = ["auto", "direct", "system"];
 function NetworkSection() {
   const { t: t2 } = useTranslation();
   const [mode2, setMode] = reactExports.useState("auto");
@@ -618,7 +604,7 @@ function NetworkSection() {
           <SettingsSelect
             value={mode2}
             onValueChange={(v2) => void handleChange(v2)}
-            options={PROXY_MODES$1.map((m3) => ({
+            options={PROXY_MODES.map((m3) => ({
               value: m3,
               label: t2(`settings.network.proxyMode.${m3}`),
             }))}
@@ -628,7 +614,6 @@ function NetworkSection() {
     </div>
   );
 }
-
 function SettingsPanelHeaderProvider({
   children: children2,
   setHeaderOverride,
@@ -643,7 +628,6 @@ function SettingsPanelHeaderProvider({
     </SettingsPanelHeaderContext.Provider>
   );
 }
-
 function ImBridgeSection() {
   const { setHeaderOverride } = useSettingsPanelHeader();
   const { accounts } = useImAccounts();
@@ -665,7 +649,6 @@ function ImBridgeSection() {
     </div>
   );
 }
-
 function getUpdateSettingsBadgeLabel(phase, t2) {
   switch (phase) {
     case "available":
@@ -677,9 +660,7 @@ function getUpdateSettingsBadgeLabel(phase, t2) {
       return null;
   }
 }
-
 const bootSettingValues = new Map();
-
 function useBootSettingValue(key2, currentValue) {
   const [bootValue] = reactExports.useState(() => {
     if (!bootSettingValues.has(key2)) {
@@ -689,7 +670,6 @@ function useBootSettingValue(key2, currentValue) {
   });
   return bootValue;
 }
-
 function AdvancedSection() {
   const { t: t2 } = useTranslation();
   const { config: config2, setMany } = useSettings();
@@ -722,7 +702,6 @@ function AdvancedSection() {
     </div>
   );
 }
-
 function MemorySection() {
   const routerSearch = useRouterState({
     select: (s2) => s2.location.search,
@@ -776,7 +755,6 @@ function MemorySection() {
     </GatewayScopeProvider>
   );
 }
-
 function SoftwareUpdateUnavailableSection() {
   const { t: t2 } = useTranslation();
   const runtimeConfig = useRuntimeConfig();
@@ -807,7 +785,7 @@ function SoftwareUpdateUnavailableSection() {
                 version: `v${runtimeConfig.appVersion}`,
               })}
             </span>
-            <Button$1
+            <Button
               type="button"
               variant="outline"
               size="sm"
@@ -817,20 +795,18 @@ function SoftwareUpdateUnavailableSection() {
             >
               <RetryIcon size={14} />
               {t2("update.version.checkCta")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 function SoftwareUpdateSection() {
   const updater = useOptionalUpdaterContext();
   if (!updater) return <SoftwareUpdateUnavailableSection />;
   return <SoftwareUpdateSectionContent />;
 }
-
 const SECTIONS = [
   {
     id: "general",
@@ -859,7 +835,7 @@ const SECTIONS = [
   },
   {
     id: "memory",
-    icon: Brain$2,
+    icon: Brain,
     labelKey: "settings.memory",
   },
   {
@@ -888,7 +864,6 @@ const SECTIONS = [
     labelKey: "settings.softwareUpdate.title",
   },
 ];
-
 function AssetCenterSection() {
   const { t: t2 } = useTranslation();
   const {
@@ -924,7 +899,7 @@ function AssetCenterSection() {
           }
         >
           <div className="flex items-center gap-2">
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               className="h-8 gap-1.5 text-xs font-normal"
@@ -940,9 +915,9 @@ function AssetCenterSection() {
                 <LocalFolderIcon />
               )}
               {t2("settings.assetCenter.browse")}
-            </Button$1>
+            </Button>
             {status.isCustomDirectory && (
-              <Button$1
+              <Button
                 variant="ghost"
                 size="sm"
                 className="h-8 text-xs font-normal text-muted-foreground"
@@ -953,7 +928,7 @@ function AssetCenterSection() {
                 data-action-ui-id="settings-asset-center-reset"
               >
                 {t2("settings.assetCenter.reset")}
-              </Button$1>
+              </Button>
             )}
           </div>
         </SettingRow>
@@ -1011,16 +986,13 @@ function AssetCenterSection() {
     </div>
   );
 }
-
 const LAUNCH_ARGS_PATH = "/api/comfyui/launch-args";
-
-function parseArgs$1(text2) {
+function parseArgs(text2) {
   return text2
     .split(/\s+/)
     .map((token2) => token2.trim())
     .filter(Boolean);
 }
-
 function ComfyUiSection() {
   const { t: t2 } = useTranslation();
   const [text2, setText] = reactExports.useState("");
@@ -1053,7 +1025,7 @@ function ComfyUiSection() {
   const handleSave = reactExports.useCallback(async () => {
     setSaving(true);
     try {
-      const args = parseArgs$1(text2);
+      const args = parseArgs(text2);
       const res = await gatewayFetch(LAUNCH_ARGS_PATH, {
         method: "PUT",
         headers: {
@@ -1107,7 +1079,7 @@ function ComfyUiSection() {
           <p className="text-xs text-muted-foreground">
             {t2("settings.comfyui.restartHint")}
           </p>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             className="h-8 text-xs font-normal"
@@ -1115,19 +1087,17 @@ function ComfyUiSection() {
             onClick={() => void handleSave()}
           >
             {t2("settings.comfyui.save")}
-          </Button$1>
+          </Button>
         </div>
       </SettingGroup>
     </div>
   );
 }
-
 function ShortcutList({ children: children2 }) {
   return (
     <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">{children2}</div>
   );
 }
-
 function ShortcutRow({ label, keys: keys2 }) {
   const keyParts = splitShortcutKeys(keys2);
   const keyCounts = new Map();
@@ -1154,7 +1124,6 @@ function ShortcutRow({ label, keys: keys2 }) {
     </div>
   );
 }
-
 function GeneralSection() {
   const { t: t2 } = useTranslation();
   const {
@@ -1341,7 +1310,7 @@ function GeneralSection() {
             label={t2("settings.notifications")}
             description={t2("settings.notificationsDesc")}
           >
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               className="h-8 gap-1.5 text-xs font-normal"
@@ -1349,7 +1318,7 @@ function GeneralSection() {
             >
               <Bell size={14} strokeWidth={1.5} />
               {t2("settings.openSystemPrefs")}
-            </Button$1>
+            </Button>
           </SettingRow>
         </SettingGroup>
       )}
@@ -1367,7 +1336,6 @@ function GeneralSection() {
     </div>
   );
 }
-
 function InstallLocationSettings() {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -1395,7 +1363,7 @@ function InstallLocationSettings() {
             : info2.installDir
         }
       >
-        <Button$1
+        <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs font-normal"
@@ -1404,7 +1372,7 @@ function InstallLocationSettings() {
         >
           <HardDrive size={14} strokeWidth={1.5} />
           {t2("settings.storage.changeInstallLocation")}
-        </Button$1>
+        </Button>
       </SettingRow>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent
@@ -1425,27 +1393,26 @@ function InstallLocationSettings() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button$1
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setDialogOpen(false)}
             >
               {t2("common.cancel")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               size="sm"
               onClick={handleDownload}
               data-action-ui-id="settings-install-location-download"
             >
               {t2("settings.storage.goToDownload")}
-            </Button$1>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
 }
-
 function StorageSection() {
   if (!isElectron()) return null;
   return (
@@ -1455,18 +1422,14 @@ function StorageSection() {
     </>
   );
 }
-
 function getCustomModelProviders(config2) {
   const providers = config2.customModels ?? {};
   if (Object.keys(providers).some((id2) => !isCustomModelProvider(id2)))
     throw new Error("Invalid custom provider identity");
   return providers;
 }
-
 const DREAMINA_SKILL_NAME = "dreamina-cli";
-
 const LIBTV_CONNECTOR_ID = "libtv";
-
 function CustomModelSection() {
   const { t: t2 } = useTranslation();
   const navigate = useNavigate();
@@ -1520,24 +1483,24 @@ function CustomModelSection() {
             : "settings.models.description.domestic",
         )}{" "}
         {!isOverseas ? (
-          <Button$1
+          <Button
             variant="link"
             className="h-auto p-0 text-xs"
             onClick={() => setCommunityOpen(true)}
             data-action-ui-id="settings-models.open-community-generation"
           >
             {t2("settings.models.community.entry")}
-          </Button$1>
+          </Button>
         ) : null}
       </p>
-      <Button$1
+      <Button
         variant="outline"
         onClick={() => setEditing(void 0)}
         data-action-ui-id="settings-models.add-provider"
       >
         <Plus className="size-4" strokeWidth={1.5} />
         {t2("settings.models.addProvider")}
-      </Button$1>
+      </Button>
       <div className="space-y-2">
         {Object.entries(providers).map(([id2, provider]) => (
           <div
@@ -1557,7 +1520,7 @@ function CustomModelSection() {
                 })}
               </p>
             </div>
-            <Button$1
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setEditing(id2)}
@@ -1569,7 +1532,7 @@ function CustomModelSection() {
               data-provider-id={id2}
             >
               {t2("settings.models.editProvider")}
-            </Button$1>
+            </Button>
           </div>
         ))}
       </div>
@@ -1598,7 +1561,7 @@ function CustomModelSection() {
                     {t2("settings.models.community.dreamina.description")}
                   </p>
                 </div>
-                <Button$1
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleOpenDreaminaSkill}
@@ -1606,7 +1569,7 @@ function CustomModelSection() {
                 >
                   {t2("settings.models.community.dreamina.action")}
                   <ArrowUpRight className="size-3.5" strokeWidth={1.5} />
-                </Button$1>
+                </Button>
               </div>
               <div className="flex items-center gap-3 py-3">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -1623,7 +1586,7 @@ function CustomModelSection() {
                     {t2("settings.models.community.libtv.description")}
                   </p>
                 </div>
-                <Button$1
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleOpenLibtvConnector}
@@ -1631,7 +1594,7 @@ function CustomModelSection() {
                 >
                   {t2("settings.models.community.libtv.action")}
                   <ArrowUpRight className="size-3.5" strokeWidth={1.5} />
-                </Button$1>
+                </Button>
               </div>
             </div>
           </DialogContent>
@@ -1640,7 +1603,6 @@ function CustomModelSection() {
     </div>
   );
 }
-
 const SECTION_COMPONENTS = {
   general: GeneralSection,
   account: AccountSection,
@@ -1654,13 +1616,11 @@ const SECTION_COMPONENTS = {
   advanced: AdvancedSection,
   softwareUpdate: SoftwareUpdateSection,
 };
-
 function resolveSectionLabelKey(section, region) {
   return typeof section.labelKey === "function"
     ? section.labelKey(region)
     : section.labelKey;
 }
-
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -1748,7 +1708,7 @@ export function SettingsDialog({
                       setHeaderOverride(null);
                       setActiveSection(section.id);
                     }}
-                    className={cn$2(
+                    className={cn(
                       "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 flex h-9 w-full items-center gap-2 rounded-md px-2 text-left text-sm font-normal transition-colors",
                       isActive2
                         ? "bg-foreground/[0.06] text-foreground"
@@ -1779,7 +1739,7 @@ export function SettingsDialog({
           <section className="ml-2 flex min-w-0 flex-1 flex-col rounded-lg bg-modal-content">
             <div className="relative h-16 shrink-0 px-5">
               {headerOverride?.onBack && (
-                <Button$1
+                <Button
                   type="button"
                   variant="ghost"
                   size="icon-lg"
@@ -1792,19 +1752,19 @@ export function SettingsDialog({
                   <span className="sr-only">
                     {headerOverride.backLabel ?? t2("common.back")}
                   </span>
-                </Button$1>
+                </Button>
               )}
               <h2
-                className={cn$2(
+                className={cn(
                   "min-w-0 truncate pt-6 pr-16 font-heading text-lg font-medium text-foreground",
                   headerOverride?.onBack && "pl-10",
                 )}
               >
                 {headerOverride?.title ?? activeSectionLabel}
               </h2>
-              <DialogClose$1
+              <DialogClose
                 render={
-                  <Button$1
+                  <Button
                     variant="ghost"
                     size="icon-lg"
                     className={`absolute top-1 right-1 size-11 ${dialogChromeButtonClassName}`}
@@ -1814,7 +1774,7 @@ export function SettingsDialog({
               >
                 <StrokeIcon icon={XIcon} size={24} />
                 <span className="sr-only">{t2("common.close")}</span>
-              </DialogClose$1>
+              </DialogClose>
             </div>
             <div
               ref={contentScrollRef}
@@ -1823,7 +1783,7 @@ export function SettingsDialog({
               className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain pr-1.5 mr-0.5 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-1! [&::-webkit-scrollbar-track]:bg-transparent! [&::-webkit-scrollbar-thumb]:rounded-full! [&::-webkit-scrollbar-thumb]:bg-foreground/0! [&::-webkit-scrollbar-thumb]:transition-colors [&::-webkit-scrollbar-thumb]:duration-300! [&::-webkit-scrollbar-thumb]:ease-in-out! [&[data-scrolling=true]::-webkit-scrollbar-thumb]:bg-foreground/20! [&::-webkit-scrollbar-thumb:hover]:bg-foreground/35!"
             >
               <div
-                className={cn$2(
+                className={cn(
                   "px-5 pt-1 pb-5",
                   contentMotion !== "none" &&
                     "duration-150 animate-in fade-in-0",

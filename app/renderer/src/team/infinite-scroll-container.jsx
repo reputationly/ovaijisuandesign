@@ -1,13 +1,10 @@
 // infinite-scroll-container.jsx
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Spinner } from "./use-team-transactions-feed-query.jsx";
-
 const INFINITE_SCROLL_PRELOAD_BATCHES = 3;
-
 const LOAD_AHEAD_PX = 160;
-
 export function InfiniteScrollContainer({
   children: children2,
   loadedBatchCount,
@@ -83,7 +80,7 @@ export function InfiniteScrollContainer({
   return (
     <div
       ref={viewportRef}
-      className={cn$2("scrollbar-fade overflow-y-auto", className)}
+      className={cn("scrollbar-fade overflow-y-auto", className)}
       onScroll={handleScroll}
       aria-busy={isLoadingMore || void 0}
       data-action-ui-id={actionUiId}

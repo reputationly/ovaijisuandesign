@@ -5,11 +5,11 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   CANVAS_TOOL_DOCK_CONTROL_SIZE_PX,
   CANVAS_TOOL_DOCK_HEIGHT_PX,
@@ -18,12 +18,10 @@ import {
   ToolbarSeparator,
   ToolbarTooltipContent,
 } from "./canvas-toolbar-extension-button.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
 import { ToolModeSplitButton } from "./tool-mode-split-button.jsx";
-
 const CANVAS_TOOL_DOCK_ICON_SIZE_PX = 18;
-
 const StickerIcon = reactExports.forwardRef(function StickerIcon2(
   { size: size2 = 22, ...props },
   ref,
@@ -70,7 +68,6 @@ const StickerIcon = reactExports.forwardRef(function StickerIcon2(
     </CompositedSvg>
   );
 });
-
 function handleCanvasCommandPanelEscape(event, options) {
   if (event.key !== "Escape") return false;
   event.preventDefault();
@@ -81,7 +78,6 @@ function handleCanvasCommandPanelEscape(event, options) {
   options.closePanel();
   return true;
 }
-
 const TOOL_COMMANDS = [
   {
     id: CANVAS_COMMAND_IDS.addNode,
@@ -89,7 +85,6 @@ const TOOL_COMMANDS = [
     primary: true,
   },
 ];
-
 function ToolDockButton({
   definition: definition2,
   icon: Icon2,
@@ -110,7 +105,7 @@ function ToolDockButton({
     (kind === "panel" && expanded) ||
     Boolean(expanded);
   return (
-    <Tooltip$1
+    <Tooltip
       content={
         <ToolbarTooltipContent label={label} shortcut={definition2.shortcut} />
       }
@@ -151,10 +146,9 @@ function ToolDockButton({
           </MonochromeIcon>
         )}
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 export function CanvasToolbar({
   commandRegistry,
   addNodeButtonRef,
@@ -220,7 +214,7 @@ export function CanvasToolbar({
     stickerMode,
   ]);
   return (
-    <TooltipProvider$1 delay={150} closeDelay={0}>
+    <TooltipProvider delay={150} closeDelay={0}>
       <div className="relative">
         <QuickZoomPresence
           value={
@@ -262,7 +256,7 @@ export function CanvasToolbar({
                   onClick={closeCommandPanel}
                 >
                   <MonochromeIcon tone="control">
-                    <X$7 size={14} strokeWidth={1.5} aria-hidden="true" />
+                    <X size={14} strokeWidth={1.5} aria-hidden="true" />
                   </MonochromeIcon>
                 </button>
               </div>
@@ -346,6 +340,6 @@ export function CanvasToolbar({
           )}
         </div>
       </div>
-    </TooltipProvider$1>
+    </TooltipProvider>
   );
 }

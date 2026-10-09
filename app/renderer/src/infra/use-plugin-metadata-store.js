@@ -6,13 +6,12 @@ import {
 import { createHtmlFullscreenStore } from "./create-html-fullscreen-store.js";
 import {
   CanvasNodeType,
-  create$2,
-  createStore$1,
+  create$2 as create,
+  createStore$1 as createStore,
   reactExports,
-  useStore$2,
+  useStore$2 as useStore,
 } from "../vendor.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
-
 export const DEFAULT_CANVAS_RENDER_POLICY = Object.freeze({
   contentVisibility: "auto",
   recoverAfterResume: false,
@@ -20,7 +19,6 @@ export const DEFAULT_CANVAS_RENDER_POLICY = Object.freeze({
   recoveryFrameBudgetMs: DEFAULT_RECOVERY_FRAME_BUDGET_MS,
   recoveryMaxPerFrame: DEFAULT_MAX_RECOVERIES_PER_FRAME,
 });
-
 function createInitialSnapshot() {
   return {
     profile: DEFAULT_CANVAS_RENDER_POLICY.reason,
@@ -31,12 +29,10 @@ function createInitialSnapshot() {
     resumeEpoch: 0,
   };
 }
-
-export let snapshot$3 = createInitialSnapshot();
-
+export let snapshot = createInitialSnapshot();
 export function recordCanvasRenderPolicy(policy) {
-  snapshot$3 = {
-    ...snapshot$3,
+  snapshot = {
+    ...snapshot,
     profile: policy.reason,
     contentVisibility: policy.contentVisibility,
     resumeRecovery: policy.recoverAfterResume,
@@ -44,24 +40,21 @@ export function recordCanvasRenderPolicy(policy) {
     recoveryMaxPerFrame: policy.recoveryMaxPerFrame,
   };
 }
-
 export function recordCanvasResumeEpoch(resumeEpoch) {
-  snapshot$3 = {
-    ...snapshot$3,
-    resumeEpoch: Math.max(snapshot$3.resumeEpoch, resumeEpoch),
+  snapshot = {
+    ...snapshot,
+    resumeEpoch: Math.max(snapshot.resumeEpoch, resumeEpoch),
   };
 }
-
 export function recordCanvasSurfaceRecovery(result) {
-  snapshot$3 = {
-    ...snapshot$3,
-    resumeEpoch: Math.max(snapshot$3.resumeEpoch, result.resumeEpoch),
+  snapshot = {
+    ...snapshot,
+    resumeEpoch: Math.max(snapshot.resumeEpoch, result.resumeEpoch),
     lastRecovery: {
       ...result,
     },
   };
 }
-
 const DEFAULT_CONTEXT = {
   policy: DEFAULT_CANVAS_RENDER_POLICY,
   registerSurface: () => ({
@@ -69,14 +62,10 @@ const DEFAULT_CONTEXT = {
     notifyEligibilityChanged: () => void 0,
   }),
 };
-
 export const CanvasRenderRuntimeContext =
   reactExports.createContext(DEFAULT_CONTEXT);
-
 const defaultHtmlFullscreenStore = createHtmlFullscreenStore();
-
 export const HtmlFullscreenStoreContext = reactExports.createContext(null);
-
 export function HtmlFullscreenStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     HtmlFullscreenStoreContext.Provider,
@@ -86,41 +75,32 @@ export function HtmlFullscreenStoreProvider({ store, children: children2 }) {
     children2,
   );
 }
-
 export function useHtmlFullscreenApi() {
   return (
     reactExports.useContext(HtmlFullscreenStoreContext) ??
     defaultHtmlFullscreenStore
   );
 }
-
 export const useHtmlFullscreenStore = (selector2) =>
-  useStore$2(useHtmlFullscreenApi(), selector2);
-
+  useStore(useHtmlFullscreenApi(), selector2);
 useHtmlFullscreenStore.getState = defaultHtmlFullscreenStore.getState;
-
 useHtmlFullscreenStore.setState = defaultHtmlFullscreenStore.setState;
-
 useHtmlFullscreenStore.subscribe = defaultHtmlFullscreenStore.subscribe;
-
 export function useIsHtmlFullscreen(nodeId) {
   return useHtmlFullscreenStore(
     (s2) => s2.nodeId === nodeId && s2.presentation === "fullscreen",
   );
 }
-
 export function useHtmlViewerPresentation(nodeId) {
   return useHtmlFullscreenStore((s2) =>
     s2.nodeId === nodeId ? s2.presentation : null,
   );
 }
-
 export function useFullscreenContainerEl() {
   return useHtmlFullscreenStore((s2) => s2.containerEl);
 }
-
 function createHtmlViewerHandleStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     byNode: new Map(),
     set: (nodeId, handle2) =>
       set2((state2) => {
@@ -141,32 +121,23 @@ function createHtmlViewerHandleStore() {
       }),
   }));
 }
-
 const defaultHtmlViewerHandleStore = createHtmlViewerHandleStore();
-
 const HtmlViewerHandleStoreContext = reactExports.createContext(null);
-
 export function useHtmlViewerHandleApi() {
   return (
     reactExports.useContext(HtmlViewerHandleStoreContext) ??
     defaultHtmlViewerHandleStore
   );
 }
-
 const useHtmlViewerHandleStore = (selector2) =>
-  useStore$2(useHtmlViewerHandleApi(), selector2);
-
+  useStore(useHtmlViewerHandleApi(), selector2);
 useHtmlViewerHandleStore.getState = defaultHtmlViewerHandleStore.getState;
-
 useHtmlViewerHandleStore.setState = defaultHtmlViewerHandleStore.setState;
-
 useHtmlViewerHandleStore.subscribe = defaultHtmlViewerHandleStore.subscribe;
-
 export function useHtmlViewerHandle(nodeId) {
   return useHtmlViewerHandleStore((s2) => s2.byNode.get(nodeId));
 }
-
-export const usePluginMetadataStore = create$2((set2, get3) => ({
+export const usePluginMetadataStore = create((set2, get3) => ({
   plugins: new Map(),
   setPluginMetas: (entries2) => {
     const next2 = new Map();
@@ -209,23 +180,19 @@ export const usePluginMetadataStore = create$2((set2, get3) => ({
       plugins: new Map(),
     }),
 }));
-
 export function usePluginMeta(pluginId) {
   return usePluginMetadataStore((s2) =>
     pluginId ? s2.plugins.get(pluginId) : void 0,
   );
 }
-
 export function setPluginMetas(entries2) {
   usePluginMetadataStore.getState().setPluginMetas(entries2);
 }
-
 export function getPluginMeta(id2) {
   return usePluginMetadataStore.getState().get(id2);
 }
-
 function createPluginRunStateStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     byNode: new Map(),
     set: (nodeId, info2) =>
       set2((state2) => {
@@ -246,34 +213,24 @@ function createPluginRunStateStore() {
       }),
   }));
 }
-
 const defaultPluginRunStateStore = createPluginRunStateStore();
-
 const PluginRunStateStoreContext = reactExports.createContext(null);
-
 export function usePluginRunStateApi() {
   return (
     reactExports.useContext(PluginRunStateStoreContext) ??
     defaultPluginRunStateStore
   );
 }
-
 const usePluginRunStateStore = (selector2) =>
-  useStore$2(usePluginRunStateApi(), selector2);
-
+  useStore(usePluginRunStateApi(), selector2);
 usePluginRunStateStore.getState = defaultPluginRunStateStore.getState;
-
 usePluginRunStateStore.setState = defaultPluginRunStateStore.setState;
-
 usePluginRunStateStore.subscribe = defaultPluginRunStateStore.subscribe;
-
 export function usePluginRunInfo(nodeId) {
   return usePluginRunStateStore((s2) => s2.byNode.get(nodeId));
 }
-
 const MAX_PATH_VERSION_ENTRIES = 1e3;
-
-const fileVersionStore = createStore$1((set2) => ({
+const fileVersionStore = createStore((set2) => ({
   globalVersion: 0,
   pathVersions: new Map(),
   bump: (paths) =>
@@ -305,33 +262,27 @@ const fileVersionStore = createStore$1((set2) => ({
       pathVersions: new Map(),
     }),
 }));
-
 export function useFileVersion(path2, scope = "all") {
-  return useStore$2(
+  return useStore(
     fileVersionStore,
     (s2) =>
       (scope === "all" ? s2.globalVersion : 0) +
       (path2 ? (s2.pathVersions.get(path2) ?? 0) : 0),
   );
 }
-
 export function usePathFileVersion(path2) {
-  return useStore$2(fileVersionStore, (s2) =>
+  return useStore(fileVersionStore, (s2) =>
     path2 ? (s2.pathVersions.get(path2) ?? 0) : 0,
   );
 }
-
 export function bumpFileVersion(paths) {
   fileVersionStore.getState().bump(typeof paths === "string" ? [paths] : paths);
 }
-
 export const CANVAS_FILE_VERSION_QUERY_KEY = "_canvas_v";
-
 export function appendCanvasFileVersion(url2, version2) {
   const separator = url2.includes("?") ? "&" : "?";
   return `${url2}${separator}${CANVAS_FILE_VERSION_QUERY_KEY}=${version2}`;
 }
-
 export function useFileUrl(filePath, options) {
   const cacheBust = options?.cacheBust ?? true;
   const { resolveFileUrl } = useCanvasBridge();
@@ -347,15 +298,10 @@ export function useFileUrl(filePath, options) {
     }
   }, [filePath, resolveFileUrl, version2, cacheBust]);
 }
-
 export const CANVAS_MIN_ZOOM = 0.1;
-
 export const CANVAS_MAX_ZOOM = 4;
-
 export const CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT = 20;
-
-const DEFAULT_WORKSPACE_SCOPE$1 = "__default__";
-
+const DEFAULT_WORKSPACE_SCOPE = "__default__";
 export const HEAVY_FILE_VIEWER_KINDS = new Set([
   "pdf",
   "code",
@@ -363,8 +309,7 @@ export const HEAVY_FILE_VIEWER_KINDS = new Set([
   "zip",
   "html",
 ]);
-
-export function createState$1() {
+export function createState() {
   return {
     canvasNodeCount: 0,
     canvasEdgeCount: 0,
@@ -374,34 +319,27 @@ export function createState$1() {
     updatedAtMs: Date.now(),
   };
 }
-
 export const statesByWorkspace = new Map();
-
-export function workspaceScope$1(workspaceId2) {
-  return workspaceId2?.trim() || DEFAULT_WORKSPACE_SCOPE$1;
+export function workspaceScope(workspaceId2) {
+  return workspaceId2?.trim() || DEFAULT_WORKSPACE_SCOPE;
 }
-
 export function getOrCreateState(workspaceId2) {
-  const scope = workspaceScope$1(workspaceId2);
+  const scope = workspaceScope(workspaceId2);
   let state2 = statesByWorkspace.get(scope);
   if (!state2) {
-    state2 = createState$1();
+    state2 = createState();
     statesByWorkspace.set(scope, state2);
   }
   return state2;
 }
-
 export function touch(state2) {
   state2.updatedAtMs = Date.now();
 }
-
 export const WorkspaceContentBudgetScopeContext =
   reactExports.createContext(void 0);
-
 export function useWorkspaceContentBudgetScope() {
   return reactExports.useContext(WorkspaceContentBudgetScopeContext);
 }
-
 export function recordCanvasGraphMetrics(input, workspaceId2) {
   const state2 = getOrCreateState(workspaceId2);
   state2.canvasNodeCount = input.nodes.length;
@@ -411,7 +349,6 @@ export function recordCanvasGraphMetrics(input, workspaceId2) {
   ).length;
   touch(state2);
 }
-
 export function resetWorkspaceCanvasGraphMetrics(workspaceId2) {
   const state2 = getOrCreateState(workspaceId2);
   state2.canvasNodeCount = 0;

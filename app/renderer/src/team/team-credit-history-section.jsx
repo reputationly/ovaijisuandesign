@@ -3,7 +3,12 @@ import {
   DEFAULT_CREDIT_REMINDER_THRESHOLD,
   normalizeCreditReminderConfig,
 } from "../generation/to-workspace-browser-url.js";
-import { Info$1, reactExports, useStorage, useTranslation } from "../vendor.js";
+import {
+  Info$1 as Info,
+  reactExports,
+  useStorage,
+  useTranslation,
+} from "../vendor.js";
 import {
   useAuth,
   useOptionalTeamAccount,
@@ -17,20 +22,16 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-
 const LEGACY_PERSONAL_GROUP_ID = "default";
-
 function creditReminderScopeKey(scope) {
   return `${scope.uid}:${scope.scopeType}:${scope.groupId}`;
 }
-
 function defaultCreditReminderConfig() {
   return {
     enabled: true,
     threshold: DEFAULT_CREDIT_REMINDER_THRESHOLD,
   };
 }
-
 function resolveCreditReminderScope(uid2, teamAccount) {
   if (!uid2) return null;
   if (teamAccount?.integrationEnabled) {
@@ -57,7 +58,6 @@ function resolveCreditReminderScope(uid2, teamAccount) {
     groupId: LEGACY_PERSONAL_GROUP_ID,
   };
 }
-
 function assertValidConfig(config2) {
   const normalized = normalizeCreditReminderConfig(config2);
   if (
@@ -68,7 +68,6 @@ function assertValidConfig(config2) {
   }
   return normalized;
 }
-
 export function useCreditReminderConfig() {
   const { user } = useAuth();
   const teamAccount = useOptionalTeamAccount();
@@ -102,16 +101,13 @@ export function useCreditReminderConfig() {
     saveConfig,
   };
 }
-
 const ANNUAL_CYCLE_TYPE = 3;
-
 export function isAnnualMember(wallet) {
   return (
     wallet?.subscription_state_known === true &&
     wallet.cycle_type === ANNUAL_CYCLE_TYPE
   );
 }
-
 export function TeamCreditHistorySection({
   children: children2,
   showInfo = true,
@@ -142,7 +138,7 @@ export function TeamCreditHistorySection({
                     />
                   }
                 >
-                  <Icon icon={Info$1} size="sm" aria-hidden={true} />
+                  <Icon icon={Info} size="sm" aria-hidden={true} />
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
@@ -163,7 +159,6 @@ export function TeamCreditHistorySection({
     </section>
   );
 }
-
 export function TeamCreditSummaryLoading() {
   const { t: t2 } = useTranslation();
   return (

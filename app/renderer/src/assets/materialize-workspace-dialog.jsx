@@ -15,7 +15,7 @@ import { FolderOpen } from "../media-editing/package.jsx";
 import { sortRecentWorkspaces } from "../workspace/normalize-project-entries.js";
 import { formatAssetCenterError } from "./key-entries.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -24,9 +24,7 @@ import {
 import { Checkbox } from "../infra/checkbox.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { useMaterializeEntity } from "./use-materialize-entity.js";
-
 const MATERIALIZED_SUBPATH = ".hilo/materialized-entities";
-
 function joinMaterializedDir(workspacePath) {
   const usesBackslash =
     workspacePath.includes("\\") && !workspacePath.includes("/");
@@ -36,7 +34,6 @@ function joinMaterializedDir(workspacePath) {
     : MATERIALIZED_SUBPATH;
   return `${trimmed}${usesBackslash ? "\\" : "/"}${subpath}`;
 }
-
 export function MaterializeWorkspaceDialog({ entity, onClose }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -265,7 +262,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {success.targets.map((target) => (
-                    <Button$1
+                    <Button
                       key={target.revealPath}
                       variant="outline"
                       size="sm"
@@ -277,7 +274,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
                       {success.targets.length === 1
                         ? revealLabel
                         : target.label}
-                    </Button$1>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -297,7 +294,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
           )}
         </div>
         <DialogFooter>
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="h-8"
@@ -306,8 +303,8 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
             data-action-ui-id="asset-center-materialize-close"
           >
             {success ? t2("common.close") : t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             className="h-8 gap-1.5"
             onClick={() => void handleSubmit()}
@@ -320,7 +317,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
             {success
               ? t2("assetCenter.materialize.submitAgain")
               : t2("assetCenter.materialize.submit")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

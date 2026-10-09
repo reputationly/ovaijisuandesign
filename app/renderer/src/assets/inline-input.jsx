@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   isCanvasColorTag,
   MAX_VISIBLE_CANVAS_TAG_COLORS,
@@ -21,7 +21,6 @@ import {
   FileTypeThumbnail,
   splitFilename,
 } from "../canvas/uploading-assets.jsx";
-
 const CANVAS_TAG_THEME_COLOR_BY_PRESET = {
   "#0A84FF": "var(--canvas-node-tag-blue-surface, #54A9FF)",
   "#BF5AF2": "var(--canvas-node-tag-purple-surface, #D28CF6)",
@@ -31,7 +30,6 @@ const CANVAS_TAG_THEME_COLOR_BY_PRESET = {
   "#30D158": "var(--canvas-node-tag-green-surface, #6EDF8A)",
   "#FFD60A": "var(--canvas-node-tag-yellow-surface, #FFE254)",
 };
-
 export function getCanvasTagPresentationColor(color2) {
   if (!color2) return void 0;
   return (
@@ -39,14 +37,12 @@ export function getCanvasTagPresentationColor(color2) {
     `color-mix(in srgb, ${color2} var(--canvas-tag-presentation-strength, 70%), var(--canvas-tag-presentation-base, #ffffff))`
   );
 }
-
 export function getCanvasTagSelectedForegroundColor(color2) {
   if (color2.toUpperCase() === "#FFD60A") {
     return "var(--canvas-node-tag-yellow-selected-foreground, #A87E00)";
   }
   return getCanvasTagPresentationColor(color2) ?? color2;
 }
-
 export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
   const registry2 = useTagRegistry();
   const { t: t2 } = useTranslation();
@@ -66,7 +62,7 @@ export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
         <TooltipTrigger
           render={
             <span
-              className={cn$2("inline-flex shrink-0 items-center", className)}
+              className={cn("inline-flex shrink-0 items-center", className)}
               onPointerEnter={(e2) => e2.stopPropagation()}
               onPointerMove={(e2) => e2.stopPropagation()}
               onPointerLeave={(e2) => e2.stopPropagation()}
@@ -94,7 +90,6 @@ export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
     </TooltipProvider>
   );
 }
-
 export function arePropsRefEqualExcept(prev, next2, except) {
   for (const key2 in prev) {
     if (!Object.hasOwn(prev, key2)) continue;
@@ -103,7 +98,6 @@ export function arePropsRefEqualExcept(prev, next2, except) {
   }
   return true;
 }
-
 export function FileTypeBadge({ fileName, variant }) {
   return variant === "inline" ? (
     <FileTypeThumbnail filename={fileName} />
@@ -119,7 +113,6 @@ export function FileTypeBadge({ fileName, variant }) {
     </div>
   );
 }
-
 export function InlineInput({
   initialName,
   isDirectory,
@@ -158,7 +151,7 @@ export function InlineInput({
     <AssetRenameInput
       ref={inputRef}
       extension={extension2}
-      className={cn$2(
+      className={cn(
         "h-auto flex-1 rounded-lg border-primary bg-background px-1 py-0 text-sm text-foreground outline-none focus-within:border-primary",
         className,
       )}
@@ -186,10 +179,8 @@ export function InlineInput({
     />
   );
 }
-
-const SPECIAL_PROPS$1 = ["renamingPath", "asset"];
-
-export function arePropsEqual$1(prev, next2) {
+const SPECIAL_PROPS = ["renamingPath", "asset"];
+export function arePropsEqual(prev, next2) {
   const prevIsRenaming = prev.renamingPath === prev.absolutePath;
   const nextIsRenaming = next2.renamingPath === next2.absolutePath;
   if (prevIsRenaming !== nextIsRenaming) return false;
@@ -205,5 +196,5 @@ export function arePropsEqual$1(prev, next2) {
     if (prev.asset.candidate?.path !== next2.asset.candidate?.path)
       return false;
   }
-  return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS$1);
+  return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS);
 }

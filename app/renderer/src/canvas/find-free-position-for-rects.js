@@ -1,14 +1,12 @@
 // find-free-position-for-rects.js
-import { DEFAULT_PLACEMENT_GAP, rectsOverlap$1 } from "./ungroup-in-canvas.js";
-
-const DEFAULTS$3 = {
+import { DEFAULT_PLACEMENT_GAP, rectsOverlap } from "./ungroup-in-canvas.js";
+const DEFAULTS = {
   gap: DEFAULT_PLACEMENT_GAP,
   rowTolerance: 10,
   collisionMargin: 5,
   maxCols: 8,
   maxShiftAttempts: 50,
 };
-
 function verticalClearanceViolation(rect, above, gap, margin) {
   const horizontalOverlap =
     rect.x < above.x + above.w + margin && rect.x + rect.w + margin > above.x;
@@ -17,7 +15,6 @@ function verticalClearanceViolation(rect, above, gap, margin) {
   if (aboveBottom > rect.y) return false;
   return rect.y - aboveBottom < gap;
 }
-
 function groupRectsByRows(rects, tolerance) {
   if (rects.length === 0) return [];
   const sorted = [...rects].sort((a2, b3) => a2.y - b3.y);
@@ -38,7 +35,6 @@ function groupRectsByRows(rects, tolerance) {
   for (const row of rows) row.rects.sort((a2, b3) => a2.x - b3.x);
   return rows;
 }
-
 function rowFirstCandidate(occupied, newSize, gap, maxCols, rowTolerance) {
   const referenceWidth = newSize.width;
   const maxRowWidth = referenceWidth * maxCols + gap * (maxCols - 1);
@@ -81,15 +77,13 @@ function rowFirstCandidate(occupied, newSize, gap, maxCols, rowTolerance) {
     maxRowWidth,
   };
 }
-
 export function findFreePositionForRects(occupied, newSize, options) {
-  const gap = options?.gap ?? DEFAULTS$3.gap;
-  const rowTolerance = options?.rowTolerance ?? DEFAULTS$3.rowTolerance;
-  const collisionMargin =
-    options?.collisionMargin ?? DEFAULTS$3.collisionMargin;
-  const maxCols = options?.maxCols ?? DEFAULTS$3.maxCols;
+  const gap = options?.gap ?? DEFAULTS.gap;
+  const rowTolerance = options?.rowTolerance ?? DEFAULTS.rowTolerance;
+  const collisionMargin = options?.collisionMargin ?? DEFAULTS.collisionMargin;
+  const maxCols = options?.maxCols ?? DEFAULTS.maxCols;
   const maxShiftAttempts =
-    options?.maxShiftAttempts ?? DEFAULTS$3.maxShiftAttempts;
+    options?.maxShiftAttempts ?? DEFAULTS.maxShiftAttempts;
   const {
     position: candidate,
     rowStartX,
@@ -103,7 +97,7 @@ export function findFreePositionForRects(occupied, newSize, options) {
   };
   for (let attempt = 0; attempt < maxShiftAttempts; attempt++) {
     const blocker = occupied.find((occ) =>
-      rectsOverlap$1(rect, occ, collisionMargin),
+      rectsOverlap(rect, occ, collisionMargin),
     );
     if (blocker) {
       const nextX = blocker.x + blocker.w + gap;

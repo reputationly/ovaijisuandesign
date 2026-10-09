@@ -12,7 +12,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { IPC_CHANNELS } from "../infra/gateway-http-error.jsx";
 import { CircleHelp, Download, LogOut } from "../media-editing/package.jsx";
 import { useUpdaterContext } from "./use-active-runtime.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { useFeedback } from "./use-direct-feedback.jsx";
 import {
@@ -29,7 +29,6 @@ import {
   openManualInstallerDownload,
   progressPercent,
 } from "./diagnostics-group.jsx";
-
 export const ForcedUpdateDialog = () => {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -233,7 +232,7 @@ export const ForcedUpdateDialog = () => {
           )}
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
           {!canManualDownload && (
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon-xs"
@@ -246,12 +245,12 @@ export const ForcedUpdateDialog = () => {
                 className="size-4"
                 strokeWidth={1.7}
               />
-            </Button$1>
+            </Button>
           )}
           <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
             {isManualRecovery && (
               <>
-                <Button$1
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -265,9 +264,9 @@ export const ForcedUpdateDialog = () => {
                     strokeWidth={1.7}
                   />
                   {exitLabel}
-                </Button$1>
+                </Button>
                 {canRetryUpdateCheck && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="rounded-md"
@@ -280,10 +279,10 @@ export const ForcedUpdateDialog = () => {
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
                     {t2("update.forced.btn.retry")}
-                  </Button$1>
+                  </Button>
                 )}
                 {canRetryLocalInstall && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="rounded-md"
@@ -296,10 +295,10 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {t2("update.btn.retryInstall")}
-                  </Button$1>
+                  </Button>
                 )}
                 {state2.manualDownloadUrl && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="rounded-md"
@@ -312,13 +311,13 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {t2("update.forced.btn.manualDownload")}
-                  </Button$1>
+                  </Button>
                 )}
               </>
             )}
             {!isManualRecovery && canManualDownload && (
               <>
-                <Button$1
+                <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -332,8 +331,8 @@ export const ForcedUpdateDialog = () => {
                     strokeWidth={1.7}
                   />
                   {exitLabel}
-                </Button$1>
-                <Button$1
+                </Button>
+                <Button
                   type="button"
                   size="sm"
                   className="rounded-md"
@@ -346,14 +345,14 @@ export const ForcedUpdateDialog = () => {
                     strokeWidth={1.7}
                   />
                   {t2("update.forced.btn.manualDownload")}
-                </Button$1>
+                </Button>
               </>
             )}
             {!isManualRecovery &&
               !canManualDownload &&
               state2.phase === "available" && (
                 <>
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -367,8 +366,8 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {exitLabel}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     type="button"
                     size="sm"
                     className="rounded-md"
@@ -381,14 +380,14 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {t2("update.forced.btn.download")}
-                  </Button$1>
+                  </Button>
                 </>
               )}
             {!isManualRecovery &&
               !canManualDownload &&
               state2.phase === "downloaded" && (
                 <>
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -402,8 +401,8 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {exitLabel}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     type="button"
                     size="sm"
                     className="rounded-md"
@@ -416,14 +415,14 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {t2("update.forced.btn.restart")}
-                  </Button$1>
+                  </Button>
                 </>
               )}
             {!isManualRecovery &&
               !canManualDownload &&
               state2.phase === "error" && (
                 <>
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -437,9 +436,9 @@ export const ForcedUpdateDialog = () => {
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
                     {t2("update.forced.btn.retry")}
-                  </Button$1>
+                  </Button>
                   {state2.manualDownloadUrl && (
-                    <Button$1
+                    <Button
                       type="button"
                       size="sm"
                       className="rounded-md"
@@ -452,9 +451,9 @@ export const ForcedUpdateDialog = () => {
                         strokeWidth={1.7}
                       />
                       {t2("update.forced.btn.manualDownload")}
-                    </Button$1>
+                    </Button>
                   )}
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -468,7 +467,7 @@ export const ForcedUpdateDialog = () => {
                       strokeWidth={1.7}
                     />
                     {exitLabel}
-                  </Button$1>
+                  </Button>
                 </>
               )}
           </div>

@@ -7,16 +7,15 @@ import {
   usePlatform,
   useStorage,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { isPathInWhitelist } from "./diagnostics-group.jsx";
 import { isCaseInsensitiveOs } from "./use-active-runtime.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FolderKey, Trash2 } from "../media-editing/package.jsx";
 import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
-
 function useFolderWhitelist() {
   const platform2 = usePlatform();
   const { t: t2 } = useTranslation();
@@ -77,7 +76,6 @@ function useFolderWhitelist() {
     error,
   };
 }
-
 export function FolderWhitelistSection() {
   const { t: t2 } = useTranslation();
   const { whitelist, addFolder, removeFolder, saving, error } =
@@ -134,7 +132,7 @@ export function FolderWhitelistSection() {
               )}
             </p>
           </div>
-          <Button$1
+          <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => setManageOpen(false)}
@@ -142,8 +140,8 @@ export function FolderWhitelistSection() {
             data-action-ui-id="folder-whitelist-dialog-close"
             className="shrink-0"
           >
-            <X$7 size={14} strokeWidth={1.5} />
-          </Button$1>
+            <X size={14} strokeWidth={1.5} />
+          </Button>
         </div>
         {whitelist.length === 0 ? (
           <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-border py-8 text-center">
@@ -183,7 +181,7 @@ export function FolderWhitelistSection() {
                     {folderPath}
                   </span>
                 </div>
-                <Button$1
+                <Button
                   variant="ghost"
                   size="icon-sm"
                   className="shrink-0 text-muted-foreground hover:text-destructive"
@@ -193,13 +191,13 @@ export function FolderWhitelistSection() {
                   aria-label={t2("common.delete", "删除")}
                 >
                   <Trash2 size={14} strokeWidth={1.5} />
-                </Button$1>
+                </Button>
               </div>
             ))}
           </div>
         )}
         <div>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             className="h-8 gap-1.5 text-xs font-normal"
@@ -209,7 +207,7 @@ export function FolderWhitelistSection() {
           >
             <FolderPlus size={14} strokeWidth={1.5} />
             {t2("settings.folderWhitelist.add", "添加文件夹")}
-          </Button$1>
+          </Button>
           {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         </div>
       </div>
@@ -224,7 +222,7 @@ export function FolderWhitelistSection() {
           "在新建项目时选择这些文件夹，将不再重复询问是否允许。此设置仅记住你的选择，不会扩大系统权限。",
         )}
       >
-        <Button$1
+        <Button
           variant="outline"
           size="sm"
           className="h-8 text-xs font-normal"
@@ -232,7 +230,7 @@ export function FolderWhitelistSection() {
           data-action-ui-id="settings-folder-whitelist-manage"
         >
           {t2("settings.folderWhitelist.manage", "管理")}
-        </Button$1>
+        </Button>
       </SettingRow>
       {overlay && container
         ? reactDomExports.createPortal(overlay, container)

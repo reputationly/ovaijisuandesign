@@ -5,11 +5,10 @@ import { useUpdaterContext } from "./use-active-runtime.js";
 import { BLOCKING_MODAL_IDS } from "../infra/schedule.js";
 import { useBlockingModalPresence } from "../workspace/topbar-state-context.jsx";
 import { CircleArrowUp, reactExports, useTranslation } from "../vendor.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { useSettingsDialog } from "./persist-visible-workspace-manual-order.js";
 import { useUpdateActions } from "./use-update-actions.js";
-
 export const UpdaterRouterInner = () => {
   const { notification } = useUpdaterContext();
   useBlockingModalPresence(
@@ -25,9 +24,7 @@ export const UpdaterRouterInner = () => {
       return null;
   }
 };
-
 const STALE_CHECK_MS = 10 * 60 * 1e3;
-
 export const VersionRow = ({ menuOpen }) => {
   const { t: t2 } = useTranslation();
   const { openSettings } = useSettingsDialog();
@@ -72,7 +69,7 @@ export const VersionRow = ({ menuOpen }) => {
         disabled={update2.primaryActionDisabled}
         data-action-ui-id="update.versionRow.action"
         aria-label={buttonLabel}
-        className={cn$2(
+        className={cn(
           "ml-auto inline-flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-md px-2.5 text-[11px] font-medium leading-none transition-colors disabled:cursor-default",
           update2.pendingUpdate || update2.downloading
             ? "bg-transparent text-brand-accent hover:text-brand-accent/80 disabled:text-brand-accent/60"
@@ -83,7 +80,7 @@ export const VersionRow = ({ menuOpen }) => {
           <RetryIcon
             size={12}
             strokeWidth={1.5}
-            className={cn$2(update2.checking && "animate-spin")}
+            className={cn(update2.checking && "animate-spin")}
           />
         )}
         {update2.ctaLabel}

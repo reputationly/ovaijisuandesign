@@ -3,7 +3,7 @@ import {
   API_PATHS,
   AudioLines,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Loader2,
   useTranslation,
 } from "../vendor.js";
@@ -16,13 +16,11 @@ import {
   mediaValues,
 } from "./domestic-param-labels.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
-
 function resolveMediaPath(path2, resolveUrl) {
   if (/^(https?:|blob:|data:)/.test(path2)) return path2;
   if (path2.startsWith("asset://")) return void 0;
   return resolveUrl(API_PATHS.serveFile(path2));
 }
-
 export function parseParamValueLikeOriginal(originalValue, value) {
   if (typeof originalValue === "number") {
     const n2 = Number(value);
@@ -38,7 +36,6 @@ export function parseParamValueLikeOriginal(originalValue, value) {
   }
   return value;
 }
-
 export function BatchPager({ pageIndex, pageCount, onChange }) {
   const { t: t2 } = useTranslation();
   if (pageCount <= 1) return null;
@@ -74,12 +71,11 @@ export function BatchPager({ pageIndex, pageCount, onChange }) {
         }}
         onClick={() => onChange(Math.min(pageCount - 1, pageIndex + 1))}
       >
-        <Icon icon={ChevronRight$1} size="xs" strokeWidth={1.5} />
+        <Icon icon={ChevronRight} size="xs" strokeWidth={1.5} />
       </button>
     </div>
   );
 }
-
 export function EditablePromptBlock({ paramKey, value, pageIndex, onChange }) {
   const items = Array.isArray(value)
     ? value.map((item) => String(item ?? ""))
@@ -125,7 +121,6 @@ export function EditablePromptBlock({ paramKey, value, pageIndex, onChange }) {
     </div>
   );
 }
-
 export function ReferenceMediaStrip({
   paramKey,
   value,
@@ -207,7 +202,6 @@ export function ReferenceMediaStrip({
     </div>
   );
 }
-
 export function displayName(src, label, assetName) {
   if (assetName) return assetName;
   const clean = src.split(/[?#]/)[0] ?? src;

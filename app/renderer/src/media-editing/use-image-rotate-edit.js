@@ -9,19 +9,17 @@ import {
 } from "./node-tool-interaction.js";
 import { getAdjacentNodePosition } from "../canvas/node-shell-inner.jsx";
 import {
-  clamp$5,
+  clamp,
   normalizeAngle,
   ROTATE_ANGLE_MAX,
   ROTATE_ANGLE_MIN,
   ROTATE_STEP_DEG,
 } from "./use-editor-state.js";
-
 const DEFAULT_ROTATE_STATE = {
   angle: 0,
   flipH: false,
   flipV: false,
 };
-
 function rotatedAabb(w3, h2, angleDeg) {
   const rad = (Math.abs(angleDeg) * Math.PI) / 180;
   const cos = Math.abs(Math.cos(rad));
@@ -31,8 +29,7 @@ function rotatedAabb(w3, h2, angleDeg) {
     height: w3 * sin + h2 * cos,
   };
 }
-
-function loadImage$3(src) {
+function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -41,9 +38,8 @@ function loadImage$3(src) {
     img.src = src;
   });
 }
-
 async function renderRotatedBlob(src, state2, originalWidth, originalHeight) {
-  const img = await loadImage$3(src);
+  const img = await loadImage(src);
   const sw = originalWidth || img.naturalWidth;
   const sh = originalHeight || img.naturalHeight;
   const { width, height } = rotatedAabb(sw, sh, state2.angle);
@@ -68,11 +64,9 @@ async function renderRotatedBlob(src, state2, originalWidth, originalHeight) {
     }, "image/png");
   });
 }
-
 function isIdentityRotate(state2) {
   return state2.angle === 0 && !state2.flipH && !state2.flipV;
 }
-
 export function useImageRotateEdit({
   nodeId,
   selected: selected2,
@@ -179,7 +173,7 @@ export function useImageRotateEdit({
   const setAngle = reactExports.useCallback((next2) => {
     setState((prev) => ({
       ...prev,
-      angle: clamp$5(next2, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
+      angle: clamp(next2, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
     }));
   }, []);
   const step90 = reactExports.useCallback(() => {

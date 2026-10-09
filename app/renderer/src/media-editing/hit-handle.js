@@ -1,10 +1,8 @@
 // hit-handle.js
 import { Tool, uid } from "./keep-tag-in-canvas.js";
-
-export const HANDLE_SIZE$1 = 8;
-
+export const HANDLE_SIZE = 8;
 export function hitHandle(p3, b3, uiScale = 1) {
-  const half = uiScale > 0 ? HANDLE_SIZE$1 / uiScale : HANDLE_SIZE$1;
+  const half = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
   const corners = [
     {
       c: "nw",
@@ -32,11 +30,9 @@ export function hitHandle(p3, b3, uiScale = 1) {
   }
   return null;
 }
-
 export function cornerCursor(c3) {
   return c3 === "nw" || c3 === "se" ? "nwse-resize" : "nesw-resize";
 }
-
 export class TextTool extends Tool {
   cursor = "text";
   onPointerDown(e2) {
@@ -44,7 +40,6 @@ export class TextTool extends Tool {
     this.editor.openTextEditor(e2.point);
   }
 }
-
 export function buildTextShapeData(point2, text2, style2) {
   return {
     id: uid("text"),
@@ -59,7 +54,6 @@ export function buildTextShapeData(point2, text2, style2) {
     },
   };
 }
-
 export class EventBus {
   listeners = new Map();
   on(type2, handler) {

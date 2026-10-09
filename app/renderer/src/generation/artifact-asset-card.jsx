@@ -3,7 +3,7 @@ import {
   classifyFileType,
   Copy,
   jsxRuntimeExports,
-  PlaybackPlayIcon$1,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   PopoverPopup,
   PopoverPortal,
   PopoverPositioner,
@@ -19,7 +19,7 @@ import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import { artifactAssetTypeFromPath } from "../chat/has-structured-success-payload.js";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { splitFilename } from "../canvas/uploading-assets.jsx";
 import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.js";
 import { buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
@@ -46,13 +46,11 @@ import {
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MediaLightbox } from "../assets/text-preview.jsx";
 import { inferArtifactMime } from "../workspace/use-project-delete.js";
-
 function artifactDisplayName(path2, url2) {
   const raw2 = path2 || url2;
   const clean = raw2.split("?")[0]?.split("#")[0] ?? raw2;
   return clean.split("/").filter(Boolean).pop() ?? clean;
 }
-
 function safeDecodeURIComponent(value) {
   try {
     return decodeURIComponent(value);
@@ -60,7 +58,6 @@ function safeDecodeURIComponent(value) {
     return value;
   }
 }
-
 function cleanPath(raw2) {
   try {
     const url2 = new URL(raw2);
@@ -69,11 +66,9 @@ function cleanPath(raw2) {
     return safeDecodeURIComponent(raw2.split(/[?#]/)[0] ?? raw2);
   }
 }
-
 function stripLeadingSlash(path2) {
   return path2.replace(/^\/+/, "");
 }
-
 function toWorkspaceRelativePath(raw2) {
   if (!raw2) return void 0;
   const clean = cleanPath(raw2).replace(/\\/g, "/");
@@ -87,14 +82,12 @@ function toWorkspaceRelativePath(raw2) {
   if (clean.startsWith("/")) return void 0;
   return stripLeadingSlash(clean.replace(/^\.\//, "")) || void 0;
 }
-
 function artifactRelativePath(artifact) {
   const fromUrl = toWorkspaceRelativePath(artifact.url);
   if (fromUrl) return fromUrl;
   if (/^https?:\/\//i.test(artifact.url)) return void 0;
   return toWorkspaceRelativePath(artifact.path);
 }
-
 function artifactVideoThumbnailUrl(artifact, resolvedSrc, displayWidth) {
   if (artifact.type !== "video") return void 0;
   const relativePath = artifactRelativePath(artifact);
@@ -102,17 +95,14 @@ function artifactVideoThumbnailUrl(artifact, resolvedSrc, displayWidth) {
     ? buildVideoThumbnailUrl(resolvedSrc, relativePath, displayWidth)
     : void 0;
 }
-
 function normalizePath(path2) {
   return stripLeadingSlash(path2.replace(/\\/g, "/"));
 }
-
 function findAssetForRelativePath(assets, relativePath) {
   if (!relativePath) return void 0;
   const target = normalizePath(relativePath);
   return assets.find((asset) => normalizePath(asset.path) === target);
 }
-
 function artifactDragSource({
   relativePath,
   workspacePath,
@@ -126,7 +116,6 @@ function artifactDragSource({
     assetId,
   };
 }
-
 function artifactCanvasItem({ relativePath, absolutePath, filename, assetId }) {
   if (!relativePath || !absolutePath || !filename) return void 0;
   return buildResourceDragItem(
@@ -137,7 +126,6 @@ function artifactCanvasItem({ relativePath, absolutePath, filename, assetId }) {
     assetId,
   );
 }
-
 function ArtifactIcon({ filename, compact = false }) {
   const type2 = artifactAssetTypeFromPath(filename);
   const className = compact ? "size-3.5" : "size-4";
@@ -156,7 +144,6 @@ function ArtifactIcon({ filename, compact = false }) {
     />
   );
 }
-
 function previewUnavailableLabel(type2, t2) {
   if (type2 === "image")
     return t2("assetPreview.imageUnavailable", "Preview unavailable");
@@ -166,13 +153,12 @@ function previewUnavailableLabel(type2, t2) {
     return t2("assetPreview.audioUnavailable", "Preview unavailable");
   return t2("assetPreview.unsupportedText", "Preview not supported");
 }
-
 function ArtifactPreviewFailed({ type: type2, filename, compact }) {
   const { t: t2 } = useTranslation();
   const label = previewUnavailableLabel(type2, t2);
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex h-full w-full flex-col items-center justify-center gap-1 bg-muted text-muted-foreground",
         compact ? "p-0" : "p-2",
       )}
@@ -192,7 +178,6 @@ function ArtifactPreviewFailed({ type: type2, filename, compact }) {
     </div>
   );
 }
-
 function ArtifactThumbnail({ type: type2, src, filename, onFailure }) {
   const [loaded, setLoaded] = reactExports.useState(false);
   return (
@@ -208,7 +193,7 @@ function ArtifactThumbnail({ type: type2, src, filename, onFailure }) {
       <DeferredThumbnailImage
         src={src}
         alt={filename}
-        className={cn$2(
+        className={cn(
           "absolute inset-0 h-full w-full object-cover",
           loaded ? "opacity-100" : "opacity-0",
         )}
@@ -217,13 +202,12 @@ function ArtifactThumbnail({ type: type2, src, filename, onFailure }) {
       />
       {type2 === "video" && loaded && (
         <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white pointer-events-none">
-          <PlaybackPlayIcon$1 size={12} strokeWidth={2} fill="currentColor" />
+          <PlaybackPlayIcon size={12} strokeWidth={2} fill="currentColor" />
         </span>
       )}
     </span>
   );
 }
-
 function ArtifactChipBody({
   artifact,
   filename,
@@ -239,7 +223,7 @@ function ArtifactChipBody({
   return (
     <>
       <span
-        className={cn$2(
+        className={cn(
           "shrink-0 relative h-7 w-7 overflow-hidden rounded-sm flex items-center justify-center",
           artifact.type === "audio"
             ? "bg-[var(--chat-audio-artifact-icon-bg)]"
@@ -276,7 +260,6 @@ function ArtifactChipBody({
     </>
   );
 }
-
 export function ArtifactAssetCard({
   artifact,
   assetId,
@@ -455,7 +438,7 @@ export function ArtifactAssetCard({
     size2 === "lg"
       ? "h-20 w-36 rounded-sm"
       : size2 === "md"
-        ? cn$2("h-16 rounded-sm", isCompactFailure ? "w-16" : "min-w-16")
+        ? cn("h-16 rounded-sm", isCompactFailure ? "w-16" : "min-w-16")
         : size2 === "chip"
           ? "flex h-8 w-full items-center gap-1.5 rounded-md bg-foreground/[0.05] pr-2 pl-0.5 hover:bg-foreground/[0.08]"
           : "h-8 w-8 rounded-sm";
@@ -480,7 +463,7 @@ export function ArtifactAssetCard({
                 : inferArtifactMime(src, artifact.type)
             }
             aria-label={filename}
-            className={cn$2(
+            className={cn(
               "group relative text-left transition-opacity cursor-pointer",
               isChip
                 ? "overflow-hidden"
@@ -536,7 +519,7 @@ export function ArtifactAssetCard({
                   )}
                 {showLabel && !isSmall && (
                   <div
-                    className={cn$2(
+                    className={cn(
                       "absolute inset-x-0 bottom-0 flex items-center bg-gradient-to-t from-background/95 via-background/70 to-background/0 font-medium text-foreground",
                       size2 === "lg"
                         ? "gap-1.5 px-2 pb-1 pt-2 text-caption-11"
@@ -587,7 +570,7 @@ export function ArtifactAssetCard({
             >
               <PopoverPopup
                 data-slot="chat-turn-artifact-locate-missing-popover"
-                className={cn$2(
+                className={cn(
                   "elevated-surface-border z-50 flex w-64 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-xs text-popover-foreground shadow-lg outline-hidden",
                   "dp-motion-quick-zoom",
                 )}
@@ -601,21 +584,21 @@ export function ArtifactAssetCard({
                   </span>
                 </div>
                 <div className="flex justify-end gap-1">
-                  <Button$1
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setInsertPromptOpen(false)}
                     data-action-ui-id="chat-turn-artifact-locate-missing-cancel"
                   >
                     {t2("common.cancel")}
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     size="sm"
                     onClick={handleInsertToCanvas}
                     data-action-ui-id="chat-turn-artifact-locate-missing-confirm"
                   >
                     {t2("fileExplorer.locateMissing.confirm")}
-                  </Button$1>
+                  </Button>
                 </div>
               </PopoverPopup>
             </PopoverPositioner>

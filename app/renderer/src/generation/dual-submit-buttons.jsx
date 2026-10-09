@@ -8,8 +8,7 @@ import {
 } from "./expand-arrow-icon.jsx";
 import { renderCostDisclosure } from "./render-cost-disclosure.jsx";
 import { renderCostBadgeWithTooltip } from "./render-cost-badge-with-tooltip.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-
+import { Tooltip } from "./missing-asset-card.jsx";
 export function DualSubmitButtons({
   submitting,
   canSubmit,
@@ -42,9 +41,9 @@ export function DualSubmitButtons({
   const disabled2 = submitting || !canSubmit;
   const withDisabledTooltip = (button) =>
     disabled2 && disabledTitle ? (
-      <Tooltip$1 content={disabledTitle}>
+      <Tooltip content={disabledTitle}>
         <span className="inline-flex">{button}</span>
-      </Tooltip$1>
+      </Tooltip>
     ) : (
       button
     );

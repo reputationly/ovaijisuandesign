@@ -3,7 +3,6 @@ import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { dedupedToast } from "../vendor.js";
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
-
 export function isSessionCachePolicyEnabled(storageKey2) {
   try {
     return localStorage.getItem(storageKey2) === "1";
@@ -11,7 +10,6 @@ export function isSessionCachePolicyEnabled(storageKey2) {
     return false;
   }
 }
-
 export function restoreRejectedAttachments(attachments) {
   return attachments.map(
     ({
@@ -21,30 +19,22 @@ export function restoreRejectedAttachments(attachments) {
     }) => attachment,
   );
 }
-
 const MESSAGE_DELIVERY_ERROR_MAX_LENGTH = 200;
-
 const DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS = 300 * 6e4;
-
 export const TECHNICAL_MESSAGE_DELIVERY_ERROR_PATTERN =
   /(?:AbortError|TimeoutError|TypeError|FetchError|AI_APICallError|OpenCode responded|fetch failed|operation was aborted|was there a typo in the url or port|unable to connect\. is the computer able to access the url|ECONNRESET|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|UND_ERR|Cannot read properties|Cannot destructure|database or disk is full|\bat\s+\S+\()/i;
-
 export const MESSAGE_DELIVERY_TIMEOUT_MS = 5e3;
-
 export const MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS =
   DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS;
-
 export const ACTIVE_MESSAGE_DELIVERY_STATUSES = new Set([
   "sent",
   "received",
   "accepted",
   "started",
 ]);
-
 export function isMessagePreflight(state2) {
   return state2?.status === "sent" && state2.phase !== void 0;
 }
-
 const MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES = new Set([
   "part_updated",
   "part_delta",
@@ -65,33 +55,27 @@ const MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES = new Set([
   "session_idle",
   "session_error",
 ]);
-
 const MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES = new Set([
   "done",
   "error",
   "session_idle",
   "session_error",
 ]);
-
 export function messageDeliveryErrorMessageId(clientMessageId) {
   return `message-delivery-error-${clientMessageId}`;
 }
-
 export function messageDeliveryTimeoutToastId(clientMessageId) {
   return `message-delivery-timeout-${clientMessageId}`;
 }
-
 export function isBridgeDeliveryTimeout(state2) {
   return state2?.status === "timeout" && state2.stage === "bridge_error";
 }
-
 export function sanitizeMessageDeliveryError(error) {
   return error
     .replace(/\/Users\/[^/\s]+\/[^\s]*/g, "<local-path>")
     .replace(/[A-Za-z]:\\[^\s]*/g, "<local-path>")
     .slice(0, MESSAGE_DELIVERY_ERROR_MAX_LENGTH);
 }
-
 export function recordMessageDeliveryFailureBreadcrumb(
   sessionId,
   clientMessageId,
@@ -111,7 +95,6 @@ export function recordMessageDeliveryFailureBreadcrumb(
     ),
   ).catch(() => {});
 }
-
 export function recordMessageDeliveryTimeoutBreadcrumb(
   sessionId,
   clientMessageId,
@@ -129,7 +112,6 @@ export function recordMessageDeliveryTimeoutBreadcrumb(
     ),
   ).catch(() => {});
 }
-
 export function errorCodeForMessageDeliveryStage(stage) {
   switch (stage) {
     case "gateway_validation":
@@ -142,14 +124,12 @@ export function errorCodeForMessageDeliveryStage(stage) {
       return ErrorCodes.RUNTIME_CONNECTION_LOST;
   }
 }
-
 export function messageDeliveryRuntimeProgressSessionId(msg) {
   if (!MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type)) return null;
   return "session_id" in msg && typeof msg.session_id === "string"
     ? msg.session_id
     : null;
 }
-
 export function rootRuntimeTerminalSessionId(msg) {
   if (!MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)) return null;
   if (!("session_id" in msg) || typeof msg.session_id !== "string") return null;
@@ -158,14 +138,12 @@ export function rootRuntimeTerminalSessionId(msg) {
   }
   return msg.session_id;
 }
-
 export function isRuntimeBusyProgress(msg) {
   return (
     MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type) &&
     !MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)
   );
 }
-
 export function clearBridgeTimeoutPresentation(
   sessionStore,
   state2,
@@ -182,7 +160,6 @@ export function clearBridgeTimeoutPresentation(
   }
   return true;
 }
-
 export function recordMessageDeliveryTimeoutRecovered(
   state2,
   recoveredBy,
@@ -205,7 +182,6 @@ export function recordMessageDeliveryTimeoutRecovered(
         }),
   });
 }
-
 export function settleCreatedComposerDraft(message2, payload, drafts, editor) {
   if (payload.preserveComposer) {
     drafts.setNow(message2.session_id, payload.draft);
@@ -230,7 +206,6 @@ export function settleCreatedComposerDraft(message2, payload, drafts, editor) {
     editor.setPendingComposerReset((value) => value + 1);
   }
 }
-
 export function handleSessionCreatedResponse({
   message: message2,
   refs,
@@ -285,9 +260,7 @@ export function handleSessionCreatedResponse({
     }
   }
 }
-
 export const TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX = "text-agent-intro:";
-
 export function nodeEditSessionName(kind, t2, agentName) {
   if (kind === "plugin") {
     return (
@@ -297,7 +270,6 @@ export function nodeEditSessionName(kind, t2, agentName) {
   }
   return t2("chat.textEditAgent.sessionName", "Text Assistant");
 }
-
 function addTextAgentIntro(messages2, sessionId, content2) {
   if (messages2.length > 0) return messages2;
   return [
@@ -309,7 +281,6 @@ function addTextAgentIntro(messages2, sessionId, content2) {
     },
   ];
 }
-
 export function createTextAgentIntroEnsurer(sessionStore, kindRef, t2) {
   return (sessionId) => {
     if (kindRef.current !== "text") return;
@@ -322,17 +293,13 @@ export function createTextAgentIntroEnsurer(sessionStore, kindRef, t2) {
     );
   };
 }
-
-export const STORAGE_KEY$3 = "workspaceTextEditSessions";
-
-export const LOCAL_CACHE_KEY$1 = `hilo:storage:global.${STORAGE_KEY$3}`;
-
-function isRecord$7(value) {
+export const STORAGE_KEY = "workspaceTextEditSessions";
+export const LOCAL_CACHE_KEY = `hilo:storage:global.${STORAGE_KEY}`;
+function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-
 function normalizeEntry(value) {
-  if (!isRecord$7(value)) return null;
+  if (!isRecord(value)) return null;
   const uiSessionId =
     typeof value.uiSessionId === "string" && value.uiSessionId.length > 0
       ? value.uiSessionId
@@ -353,7 +320,6 @@ function normalizeEntry(value) {
     updatedAt,
   };
 }
-
 export function sameTextEditSessionEntry(a2, b3) {
   if (a2.runtimeSessionId && b3.runtimeSessionId)
     return a2.runtimeSessionId === b3.runtimeSessionId;
@@ -373,7 +339,6 @@ export function sameTextEditSessionEntry(a2, b3) {
     return true;
   return false;
 }
-
 export function mergeEntry(a2, b3) {
   const newer = a2.updatedAt >= b3.updatedAt ? a2 : b3;
   const older = newer === a2 ? b3 : a2;
@@ -401,7 +366,6 @@ export function mergeEntry(a2, b3) {
     updatedAt: Math.max(older.updatedAt, newer.updatedAt),
   };
 }
-
 export function normalizeEntryList(values3) {
   const entries2 = [];
   for (const value of values3) {
@@ -415,9 +379,8 @@ export function normalizeEntryList(values3) {
   }
   return entries2.sort((a2, b3) => b3.updatedAt - a2.updatedAt);
 }
-
 function normalizeBinding(value) {
-  if (!isRecord$7(value)) return null;
+  if (!isRecord(value)) return null;
   const active2 = normalizeEntry(value);
   const rawSessions = Array.isArray(value.sessions) ? value.sessions : [];
   const sessions = normalizeEntryList(
@@ -440,7 +403,6 @@ function normalizeBinding(value) {
     sessions,
   };
 }
-
 export function listTextEditSessionEntries(binding) {
   if (!binding) return [];
   const active2 = normalizeEntry(binding);
@@ -448,7 +410,6 @@ export function listTextEditSessionEntries(binding) {
     active2 ? [...(binding.sessions ?? []), active2] : (binding.sessions ?? []),
   );
 }
-
 export function upsertTextEditSessionEntry(binding, entry, options) {
   const sessions = normalizeEntryList([
     entry,
@@ -475,16 +436,14 @@ export function upsertTextEditSessionEntry(binding, entry, options) {
     sessions,
   };
 }
-
 export function clearActiveTextEditSession(binding, updatedAt) {
   return {
     updatedAt,
     sessions: [...listTextEditSessionEntries(binding)],
   };
 }
-
 function normalizeWorkspaceBindings(value) {
-  if (!isRecord$7(value)) return {};
+  if (!isRecord(value)) return {};
   const bindings = {};
   for (const [nodeId, rawBinding] of Object.entries(value)) {
     if (!nodeId) continue;
@@ -493,9 +452,8 @@ function normalizeWorkspaceBindings(value) {
   }
   return bindings;
 }
-
 export function normalizeTextEditSessionRecord(value) {
-  if (!isRecord$7(value)) return {};
+  if (!isRecord(value)) return {};
   const record2 = {};
   for (const [workspaceKey, rawBindings] of Object.entries(value)) {
     if (!workspaceKey) continue;

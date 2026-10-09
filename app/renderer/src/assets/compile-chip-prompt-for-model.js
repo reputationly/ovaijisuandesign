@@ -4,19 +4,16 @@ import {
   isCanvasSubjectReference,
   parseCanvasReference,
 } from "../text-editor/table-document-to-llm-content.js";
-
 const KIND_LABEL = {
   image: "图片",
   video: "视频",
   audio: "音频",
 };
-
 function basename$b(p3) {
   const idx = p3.lastIndexOf("/");
   return idx < 0 ? p3 : p3.slice(idx + 1);
 }
-
-function findIndex$1(paths, ref) {
+function findIndex(paths, ref) {
   if (paths.length === 0) return -1;
   const exact = paths.indexOf(ref);
   if (exact >= 0) return exact;
@@ -26,7 +23,6 @@ function findIndex$1(paths, ref) {
   }
   return -1;
 }
-
 function resolveAcrossArrays(ref, inputs) {
   const order2 = [
     ["image", inputs.imagePaths],
@@ -34,7 +30,7 @@ function resolveAcrossArrays(ref, inputs) {
     ["audio", inputs.audioPaths],
   ];
   for (const [kind, arr] of order2) {
-    const idx = findIndex$1(arr, ref);
+    const idx = findIndex(arr, ref);
     if (idx >= 0)
       return {
         kind,
@@ -43,7 +39,6 @@ function resolveAcrossArrays(ref, inputs) {
   }
   return null;
 }
-
 export function compileChipPromptForModel(rawText, inputs, options = {}) {
   if (
     !options.forCharacterCount &&

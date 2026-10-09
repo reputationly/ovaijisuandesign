@@ -16,7 +16,6 @@ import {
 } from "../vendor.js";
 import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 export function SummaryRow({ label, value }) {
   return (
     <div className="flex min-h-8 items-center justify-between gap-4 rounded-md px-2.5 py-1">
@@ -27,7 +26,6 @@ export function SummaryRow({ label, value }) {
     </div>
   );
 }
-
 export function BlockGroup({ title, items }) {
   return (
     <div
@@ -50,7 +48,6 @@ export function BlockGroup({ title, items }) {
     </div>
   );
 }
-
 export function roleLabelKey(role) {
   switch (role) {
     case "OWNER":
@@ -61,7 +58,6 @@ export function roleLabelKey(role) {
       return "team.role.member";
   }
 }
-
 export function CopyIconButton({ value, label, actionId }) {
   const { t: t2 } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
@@ -89,29 +85,23 @@ export function CopyIconButton({ value, label, actionId }) {
     </button>
   );
 }
-
 export function countChars(value) {
   return Array.from(value).length;
 }
-
 let service = null;
-
 export function getNetworkDiagnosticsMainService() {
   if (!service) {
     service = services.get(INetworkDiagnosticsMainService);
   }
   return service;
 }
-
-let _service$4 = null;
-
+let _service = null;
 export function getDesktopSettingsMainService() {
-  if (!_service$4) {
-    _service$4 = services.get(IDesktopSettingsMainService);
+  if (!_service) {
+    _service = services.get(IDesktopSettingsMainService);
   }
-  return _service$4;
+  return _service;
 }
-
 const desktopSettingsMainService = Object.freeze(
   Object.defineProperty(
     {
@@ -124,7 +114,6 @@ const desktopSettingsMainService = Object.freeze(
     },
   ),
 );
-
 export async function readActiveCustomModel() {
   if (!isElectron()) return null;
   let timer2;
@@ -152,7 +141,6 @@ export async function readActiveCustomModel() {
     clearTimeout(timer2);
   }
 }
-
 export function useActiveCustomModel() {
   return useQuery({
     queryKey: ACTIVE_CUSTOM_MODEL_QUERY_KEY,

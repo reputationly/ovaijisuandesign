@@ -10,7 +10,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder } from "../media-editing/package.jsx";
 import {
   AlertDialog,
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -34,9 +34,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { PanelVisibilityIcon } from "./home-service.jsx";
 import { useGlobalSidebar } from "../media-editing/derive-session-task-snapshot.jsx";
-
 export const OPEN_GLOBAL_SEARCH_EVENT = "hilo:open-global-search";
-
 export function MoveWorkspaceDialog({
   move,
   submitting,
@@ -105,7 +103,7 @@ export function MoveWorkspaceDialog({
           )}
         </div>
         <DialogFooter className="flex-row justify-end gap-2">
-          <Button$1
+          <Button
             variant="secondary"
             disabled={submitting}
             onClick={onCancel}
@@ -113,8 +111,8 @@ export function MoveWorkspaceDialog({
             data-action-ui-id="sidebar.move-cancel"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             disabled={submitting}
             onClick={onConfirm}
             className="creation-dialog-action-button min-w-20 font-normal"
@@ -123,13 +121,12 @@ export function MoveWorkspaceDialog({
             {t2(
               submitting ? "project.move.submitting" : "project.move.continue",
             )}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
 export function pinnedWorkspaceKeySet(pinnedPaths, caseInsensitive) {
   return new Set(
     pinnedPaths.map((path2) =>
@@ -137,14 +134,12 @@ export function pinnedWorkspaceKeySet(pinnedPaths, caseInsensitive) {
     ),
   );
 }
-
 export function isInventoryItemPinned(item, pinnedKeys, caseInsensitive) {
   if (pinnedKeys.size === 0) return false;
   return pinnedWorkspaceAliases(item).some((path2) =>
     pinnedKeys.has(workspaceInventoryPathKey(path2, caseInsensitive)),
   );
 }
-
 export function togglePinnedWorkspacePath(pinnedPaths, item, caseInsensitive) {
   const without = removePinnedWorkspacePaths(
     pinnedPaths,
@@ -154,17 +149,14 @@ export function togglePinnedWorkspacePath(pinnedPaths, item, caseInsensitive) {
   if (without.length !== pinnedPaths.length) return without;
   return [item.workspace.path, ...without];
 }
-
 export function isProjectPinned(projectId, pinnedProjectIds) {
   return pinnedProjectIds.includes(projectId);
 }
-
 export function togglePinnedProjectId(pinnedProjectIds, projectId) {
   const without = pinnedProjectIds.filter((id2) => id2 !== projectId);
   if (without.length !== pinnedProjectIds.length) return without;
   return [projectId, ...without];
 }
-
 export function splitPinnedProjects(projects, pinnedProjectIds) {
   if (pinnedProjectIds.length === 0)
     return {
@@ -184,7 +176,6 @@ export function splitPinnedProjects(projects, pinnedProjectIds) {
     unpinned,
   };
 }
-
 export function reorderPinnedProjectIds(
   pinnedProjectIds,
   sourceId,
@@ -200,7 +191,6 @@ export function reorderPinnedProjectIds(
   without.splice(targetIndex + (dropPosition === "after" ? 1 : 0), 0, sourceId);
   return without;
 }
-
 export function reorderPinnedWorkspacePaths(
   pinnedPaths,
   visiblePinned,
@@ -235,23 +225,17 @@ export function reorderPinnedWorkspacePaths(
   );
   return [...ordered.map((item) => item.workspace.path), ...tail];
 }
-
 export function subscribeRecentProjectDismissals(listener) {
   recentProjectDismissalListeners.add(listener);
   return () => recentProjectDismissalListeners.delete(listener);
 }
-
 const SIDEBAR_COLLAPSE_STORAGE_KEY = "hilo.home.sidebar-collapse.v1";
-
 const SIDEBAR_COLLAPSE_VERSION = 1;
-
 const MAX_COLLAPSED_GROUP_KEYS = 200;
-
 const FALLBACK_STATE = {
   collapsedGroupKeys: [],
   projectsSectionCollapsed: false,
 };
-
 export function readSidebarCollapseState() {
   try {
     const raw2 = window.localStorage.getItem(SIDEBAR_COLLAPSE_STORAGE_KEY);
@@ -278,7 +262,6 @@ export function readSidebarCollapseState() {
     };
   }
 }
-
 export function persistSidebarCollapseState(state2) {
   const value = {
     version: SIDEBAR_COLLAPSE_VERSION,
@@ -294,7 +277,6 @@ export function persistSidebarCollapseState(state2) {
     );
   } catch {}
 }
-
 export function GlobalSidebarToggle() {
   const { t: t2 } = useTranslation();
   const { collapsed, togglePinned } = useGlobalSidebar();
@@ -340,7 +322,6 @@ export function GlobalSidebarToggle() {
     </Tooltip>
   );
 }
-
 export function DeleteConfirmDialog({
   open,
   name: name2,

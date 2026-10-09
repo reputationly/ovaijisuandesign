@@ -3,14 +3,13 @@ import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cloudErrorDisplayMessage } from "../workspace/asset-lineage-query-key.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "./dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
-
 export function DeleteNodeDialog({
   node: node2,
   batchNodes,
@@ -74,7 +73,7 @@ export function DeleteNodeDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             disabled={pending2}
@@ -82,8 +81,8 @@ export function DeleteNodeDialog({
             data-action-ui-id="cloud-assets.delete-cancel"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="destructive"
             size="sm"
             disabled={pending2}
@@ -91,7 +90,7 @@ export function DeleteNodeDialog({
             data-action-ui-id="cloud-assets.delete-confirm"
           >
             {t2("cloudAssets.delete")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

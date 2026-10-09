@@ -2,24 +2,17 @@
 
 const INTERRUPTED_PATTERN =
   /(?:AbortError|operation was aborted|\babort(?:ed)?\b|\binterrupted\b|\bcancell?ed\b|用户中断|用户取消)/i;
-
 const TIMEOUT_PATTERN =
   /(?:TimeoutError|\btimeout\b|timed out|ETIMEDOUT|UND_ERR_(?:CONNECT|HEADERS|BODY)_TIMEOUT)/i;
-
 const NETWORK_PATTERN =
   /(?:fetch failed|network error|was there a typo in the url or port|unable to connect\. is the computer able to access the url|socket hang up|ECONNRESET|ECONNREFUSED|EHOSTUNREACH|ENETUNREACH|ENOTFOUND|EAI_AGAIN|EPIPE|UND_ERR)/i;
-
 const STORAGE_PATTERN = /(?:database or disk is full|ENOSPC)/i;
-
 const MODEL_CONCURRENCY_PATTERN =
   /(?:model[_ -]?rate[_ -]?limit|concurrency[_ -]?limit|超出该模型并发限制|模型并发|并发上限)/i;
-
 const AGENT_DIRECTIVE_OR_API_STATUS_PATTERN =
   /(?:Do NOT use|Stop and ask the user|API error \d{3}|API \d{3}\b|\bHTTP \d{3}\b|Http Exception|\bstatus=\d{3}\b|\binvalid request\b)/i;
-
 const TECHNICAL_NOISE_PATTERN =
   /(?:TypeError|FetchError|AI_APICallError|OpenCode responded|Cannot read properties|Cannot destructure|stack trace|\bat\s+\S+\(|InvalidParameter)/i;
-
 export function classifyRawErrorText(raw2) {
   const text2 = (raw2 ?? "").trim();
   if (!text2) return null;
@@ -32,7 +25,6 @@ export function classifyRawErrorText(raw2) {
   if (TECHNICAL_NOISE_PATTERN.test(text2)) return "technical";
   return null;
 }
-
 export const FEEDBACK_CONSTRAINTS = {
   DESCRIPTION_MIN_LENGTH: 1,
   DESCRIPTION_MAX_LENGTH: 500,
@@ -41,7 +33,6 @@ export const FEEDBACK_CONSTRAINTS = {
   /** Max size per attached file (5 MB). */
   ATTACHMENT_MAX_BYTES: 5 * 1024 * 1024,
 };
-
 export var PopupType = ((PopupType2) => {
   PopupType2[(PopupType2["POPUP_TYPE_NONE"] = 0)] = "POPUP_TYPE_NONE";
   PopupType2[(PopupType2["POPUP_TYPE_GENERAL"] = 1)] = "POPUP_TYPE_GENERAL";
@@ -50,7 +41,6 @@ export var PopupType = ((PopupType2) => {
   PopupType2[(PopupType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
   return PopupType2;
 })(PopupType || {});
-
 export var MemberRole = ((MemberRole2) => {
   MemberRole2[(MemberRole2["MEMBER_ROLE_UNSPECIFIED"] = 0)] =
     "MEMBER_ROLE_UNSPECIFIED";
@@ -59,7 +49,6 @@ export var MemberRole = ((MemberRole2) => {
   MemberRole2[(MemberRole2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
   return MemberRole2;
 })(MemberRole || {});
-
 export var CloudNodeType = ((CloudNodeType2) => {
   CloudNodeType2[(CloudNodeType2["CLOUD_NODE_TYPE_UNSPECIFIED"] = 0)] =
     "CLOUD_NODE_TYPE_UNSPECIFIED";
@@ -70,7 +59,6 @@ export var CloudNodeType = ((CloudNodeType2) => {
   CloudNodeType2[(CloudNodeType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
   return CloudNodeType2;
 })(CloudNodeType || {});
-
 export function pickLocalized(field, lang, empty2 = "") {
   if (!field) return empty2;
   if (Object.hasOwn(field, lang)) return field[lang];
@@ -81,7 +69,6 @@ export function pickLocalized(field, lang, empty2 = "") {
   }
   return empty2;
 }
-
 export const ErrorCodes = {
   // Network
   NETWORK_TIMEOUT: "NETWORK_TIMEOUT",
@@ -133,36 +120,22 @@ export const ErrorCodes = {
   CLIENT_WS_RECONNECT_FAILED: "CLIENT_WS_RECONNECT_FAILED",
   CLIENT_UPLOAD_FAILED: "CLIENT_UPLOAD_FAILED",
 };
-
 export const BACKEND_MIDJOURNEY = "midjourney";
-
 export const BACKEND_MINIMAX_V3 = "minimax_v3";
-
 export const BACKEND_MINIMAX_TTS = "minimax_tts";
-
 export const BACKEND_SEEDAUDIO = "seedaudio";
-
 export const BACKEND_MINIMAX_MUSIC = "minimax_music";
-
 export const BACKEND_ELEVENLABS_MUSIC = "elevenlabs_music";
-
 export const BACKEND_KLING_AVATAR = "kling_avatar";
-
 export const GENERATE_ERROR_CODE_SHUTDOWN = "shutdown";
-
 export const GENERATE_ERROR_CODE_CONCURRENCY_LIMIT = "concurrency_limit";
-
 export const GENERATE_ERROR_CODE_NETWORK_CONNECT_TIMEOUT =
   "network_connect_timeout";
-
 export const GENERATE_ERROR_CODE_CONTENT_POLICY_VIOLATION =
   "content_policy_violation";
-
 export const GENERATE_ERROR_CODE_NETWORK_ERROR = "network_error";
-
 export const GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE =
   "billing_insufficient_balance";
-
 const NON_FAILURE_ERROR_TOKENS = new Set([
   "success",
   "succeeded",
@@ -171,17 +144,14 @@ const NON_FAILURE_ERROR_TOKENS = new Set([
   "null",
   "0",
 ]);
-
 function isInformativeFailureMessage(message2) {
   return !NON_FAILURE_ERROR_TOKENS.has(message2.trim().toLowerCase());
 }
-
 export function pickUserMessage(resp, fallback) {
   if (resp.user_message) return resp.user_message;
   if (resp.error && isInformativeFailureMessage(resp.error)) return resp.error;
   return fallback;
 }
-
 export function registrySelectionRowIds(entry) {
   return Array.from(
     new Set(
@@ -195,16 +165,13 @@ export function registrySelectionRowIds(entry) {
     ),
   );
 }
-
 const LEGACY_MODEL_ID_MAP = {
   midjourney: "midjourney-8.2",
 };
-
 export function normalizeLegacyModelId(id2) {
   if (!id2) return id2;
   return LEGACY_MODEL_ID_MAP[id2] ?? id2;
 }
-
 export const LEGACY_HAILUO_MODEL_ALIASES = [
   {
     publicModels: ["MiniMax-Hailuo-2.3-Fast", "Hailuo 2.3 Fast"],
@@ -225,13 +192,9 @@ export const LEGACY_HAILUO_MODEL_ALIASES = [
     displayName: "Hailuo 2.0",
   },
 ];
-
 export const MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO = "16:9";
-
 export const HILO_SOURCE_HEADER = "x-hilo-source";
-
 export const PROJECT_NAME_MAX_CHARS = 50;
-
 export function truncateProjectName(name2, maxChars = PROJECT_NAME_MAX_CHARS) {
   const trimmed = name2?.trim() ?? "";
   if (!trimmed) return "";
@@ -240,13 +203,11 @@ export function truncateProjectName(name2, maxChars = PROJECT_NAME_MAX_CHARS) {
     ? chars2.slice(0, maxChars).join("").trim()
     : trimmed;
 }
-
 export function normalizeSkillContentLocale(value) {
   return typeof value === "string" && value.toLowerCase().startsWith("en")
     ? "en-US"
     : "zh-CN";
 }
-
 export function selectSkillStructuredInfo(info2, preferredLocale) {
   const preferred = normalizeSkillContentLocale(preferredLocale);
   const locale = info2?.[preferred]
@@ -266,13 +227,10 @@ export function selectSkillStructuredInfo(info2, preferredLocale) {
     },
   };
 }
-
 const SKILL_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
-
-export function isValidSkillName$1(name2) {
+export function isValidSkillName(name2) {
   return SKILL_NAME_RE.test(name2);
 }
-
 export function skillVerticals(skill) {
   if (skill.completeTagsEn?.length)
     return skill.completeTagsEn.map((tag) => tag.split(" / ")[0].trim());
@@ -280,19 +238,14 @@ export function skillVerticals(skill) {
   if (skill.tags?.length) return skill.tags;
   return [];
 }
-
 export function skillCategoryCodes(skill) {
   return skill.categoryCodes ?? [];
 }
-
 const SKILL_MEDIA_HOSTS = new Set(["cdn.hailuoai.com", "cdn.hailuoai.video"]);
-
 const SKILL_SUBMISSION_MEDIA_HOST =
   /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.oss-[a-z0-9-]+\.aliyuncs\.com$/;
-
 const SKILL_SUBMISSION_SHOWCASE_PATH =
   /^\/creator-plan\/[1-9]\d*\/[A-Za-z0-9._-]+\/showcase-\d+\.(mp4|webm|mov)$/;
-
 export function isSkillShowcaseUrl(value) {
   if (typeof value !== "string") return false;
   try {
@@ -315,7 +268,6 @@ export function isSkillShowcaseUrl(value) {
     return false;
   }
 }
-
 export function normalizePublicSkillShowcaseUrl(value) {
   if (!isSkillShowcaseUrl(value)) return void 0;
   const url2 = new URL(value);
@@ -327,13 +279,11 @@ export function normalizePublicSkillShowcaseUrl(value) {
   url2.hash = "";
   return url2.href;
 }
-
 export function skillMetadataRecord(value) {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value
     : void 0;
 }
-
 export function normalizeSkillDetailMetadata(raw2) {
   const result = {};
   if (Array.isArray(raw2.showcase)) {

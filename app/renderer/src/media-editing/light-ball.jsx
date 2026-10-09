@@ -10,10 +10,8 @@ import {
   pointsAttribute,
 } from "./layer-decompose-prompt.jsx";
 import { Upload } from "./package.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-
+import { Button } from "../canvas/node-shell-inner.jsx";
 const HEX_COLOR_REGEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
-
 const normalizeHexColor = (hex2) => {
   if (!HEX_COLOR_REGEX.test(hex2)) return null;
   const lower2 = hex2.toLowerCase();
@@ -21,39 +19,22 @@ const normalizeHexColor = (hex2) => {
   const [, r2, g2, b3] = lower2;
   return `#${r2}${r2}${g2}${g2}${b3}${b3}`;
 };
-
 const DEFAULT_COLOR_TEMP = 6500;
-
 const RADIUS = 88;
-
 const MERIDIANS = 6;
-
 const PARALLELS = 4;
-
 const WIRE_FRONT_OPACITY = 0.72;
-
 const WIRE_BACK_OPACITY = 0.28;
-
 const EQUATOR_FRONT_OPACITY = 0.6;
-
 const EQUATOR_BACK_OPACITY = 0.22;
-
 const MARKER_HIT_SIZE = 32;
-
 const PHOTO_WIDTH = 56;
-
 const PHOTO_HEIGHT = 56;
-
 const INTENSITY_MIN = 10;
-
 const INTENSITY_MAX = 100;
-
 const OPACITY_MIN = 0.1;
-
 const OPACITY_MAX = 0.6;
-
 const CONE_LENGTH_RATIO = 0.85;
-
 const CONE_SHAPE = {
   spotlight: {
     radiusInner: 0.12,
@@ -68,7 +49,6 @@ const CONE_SHAPE = {
     radiusOuter: 0.09,
   },
 };
-
 const BACKDROP_GRADIENT_STOPS = {
   black: [
     {
@@ -128,30 +108,24 @@ const BACKDROP_GRADIENT_STOPS = {
     },
   ],
 };
-
 const BACKDROP_SVG_WIDTH = 280;
-
 const BACKDROP_PATH =
   "M40 0H240V133.52C240 146.369 243.095 159.029 249.023 170.428L280 230H0L30.9774 170.428C36.9052 159.028 40 146.369 40 133.52V0Z";
-
-const clamp$4 = (value, min2, max2) => Math.min(Math.max(value, min2), max2);
-
+const clamp = (value, min2, max2) => Math.min(Math.max(value, min2), max2);
 const intensityToOpacity = (intensity) => {
-  const t2 = clamp$4(
+  const t2 = clamp(
     (intensity - INTENSITY_MIN) / (INTENSITY_MAX - INTENSITY_MIN),
     0,
     1,
   );
-  return clamp$4(OPACITY_MIN + t2 * (OPACITY_MAX - OPACITY_MIN), 0, 1);
+  return clamp(OPACITY_MIN + t2 * (OPACITY_MAX - OPACITY_MIN), 0, 1);
 };
-
 const resolveDisplayColor = (input) => {
   const rawColor =
     input.colorMode === "hex" ? input.color : kelvinToHex(input.colorTemp);
   const fallbackHex = kelvinToHex(DEFAULT_COLOR_TEMP);
   return normalizeHexColor(rawColor) ?? fallbackHex;
 };
-
 const computeConeVisualStyle = (input) => {
   const displayColor = resolveDisplayColor(input);
   const opacity = intensityToOpacity(input.intensity);
@@ -161,11 +135,8 @@ const computeConeVisualStyle = (input) => {
     opacity,
   };
 };
-
 const IDENTITY = [0, 0, 0, 1];
-
 const DEG = Math.PI / 180;
-
 function sphericalPoint(horizontal, vertical, radius = RADIUS) {
   const h2 = horizontal * DEG;
   const v2 = vertical * DEG;
@@ -175,7 +146,6 @@ function sphericalPoint(horizontal, vertical, radius = RADIUS) {
     z: radius * Math.cos(v2) * Math.cos(h2),
   };
 }
-
 function pointAngles(p3) {
   const r2 = Math.hypot(p3.x, p3.y, p3.z);
   return {
@@ -185,7 +155,6 @@ function pointAngles(p3) {
       : 0,
   };
 }
-
 function multiply(a2, b3) {
   const [x2, y4, z3, w3] = a2;
   const [u4, v2, t2, s2] = b3;
@@ -198,14 +167,12 @@ function multiply(a2, b3) {
   const length2 = Math.hypot(...q2) || 1;
   return [q2[0] / length2, q2[1] / length2, q2[2] / length2, q2[3] / length2];
 }
-
 function dragRotation(q2, dx, dy, size2) {
   const factor = Math.PI / Math.max(1, size2) / 2;
   const yaw = [0, Math.sin(dx * factor), 0, Math.cos(dx * factor)];
   const pitch = [Math.sin(dy * factor), 0, 0, Math.cos(dy * factor)];
   return multiply(pitch, multiply(yaw, q2));
 }
-
 function rotate(p3, q2) {
   const [x2, y4, z3, w3] = q2;
   const tx = 2 * (y4 * p3.z - z3 * p3.y);
@@ -217,9 +184,7 @@ function rotate(p3, q2) {
     z: p3.z + w3 * tz + x2 * ty - y4 * tx,
   };
 }
-
 const LIGHT_DRAG_DEG_PER_PX = 180 / (Math.PI * RADIUS);
-
 function dragLightAngles(angles, dx, dy) {
   const horizontal = angles.horizontalAngle + dx * LIGHT_DRAG_DEG_PER_PX;
   return {
@@ -232,12 +197,10 @@ function dragLightAngles(angles, dx, dy) {
     ),
   };
 }
-
 const positionsKey = (items) =>
   items
     .map((l2) => `${l2.id}:${l2.horizontalAngle}:${l2.verticalAngle}`)
     .join("|");
-
 const bakeRotation = (items, q2) =>
   items.map((l2) => ({
     id: l2.id,
@@ -245,7 +208,6 @@ const bakeRotation = (items, q2) =>
       rotate(sphericalPoint(l2.horizontalAngle, l2.verticalAngle), q2),
     ),
   }));
-
 const GRID = [
   ...Array.from(
     {
@@ -280,7 +242,6 @@ const GRID = [
     }),
   ),
 ];
-
 function gridPaths(q2, front, equator) {
   let path2 = "";
   for (const line of GRID) {
@@ -295,7 +256,6 @@ function gridPaths(q2, front, equator) {
   }
   return path2;
 }
-
 const LampModel3D = reactExports.memo(function LampModel3D2({
   horizontalAngle,
   verticalAngle,
@@ -460,7 +420,6 @@ const LampModel3D = reactExports.memo(function LampModel3D2({
     </svg>
   );
 });
-
 function coneOutline(position2, light) {
   const n2 = {
     x: position2.x / RADIUS,
@@ -528,7 +487,6 @@ function coneOutline(position2, light) {
     .map((p3) => `${p3.x},${p3.y}`)
     .join(" ");
 }
-
 const positionEchoKeys = (items) => [
   positionsKey(items),
   positionsKey(
@@ -539,7 +497,6 @@ const positionEchoKeys = (items) => [
     })),
   ),
 ];
-
 export const LightBall = (props) => {
   const {
     lights,
@@ -940,14 +897,14 @@ export const LightBall = (props) => {
               className="flex flex-col items-center gap-2"
               onPointerDown={(event) => event.stopPropagation()}
             >
-              <Button$2
+              <Button
                 variant="outline"
                 className="h-14 w-14 border-dashed bg-muted text-muted-foreground"
                 onClick={onUploadClick}
                 aria-label={translate2("upload_image_caption")}
               >
                 <Upload className="h-5 w-5" strokeWidth={1.5} />
-              </Button$2>
+              </Button>
               <p className="whitespace-nowrap text-xs text-muted-foreground">
                 {translate2("upload_image_caption")}
               </p>

@@ -16,16 +16,14 @@ import {
   useSettledCollapse,
 } from "./streaming-label.jsx";
 import { useOptionalTeamAccount } from "../assets/credit-query-keys.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   useMpSubscribeUrl,
   useMpSubscriptionWalletQuery,
 } from "./hailuo-credit-row.jsx";
-
-function formatCredits$1(value) {
+function formatCredits(value) {
   return value?.toLocaleString();
 }
-
 export function BillingInsufficientCard({
   estimate,
   onRetry,
@@ -47,11 +45,11 @@ export function BillingInsufficientCard({
     !isLoading &&
     !isError &&
     !isRefetchError;
-  const estimatedCredits = formatCredits$1(estimate?.estimatedCredits);
-  const currentCredits = formatCredits$1(
+  const estimatedCredits = formatCredits(estimate?.estimatedCredits);
+  const currentCredits = formatCredits(
     estimate?.currentCredits ?? (walletReady ? mpWallet.total_credit : void 0),
   );
-  const shortfallCredits = formatCredits$1(estimate?.shortfallCredits);
+  const shortfallCredits = formatCredits(estimate?.shortfallCredits);
   const [retryState, setRetryState] = reactExports.useState("idle");
   reactExports.useEffect(() => {
     if (retryState !== "submitted" || retryResetMs === void 0) return;
@@ -200,7 +198,7 @@ export function BillingInsufficientCard({
           >
             {t2("chat.billingInsufficient.waitingCollapsed")}
           </p>
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -209,7 +207,7 @@ export function BillingInsufficientCard({
             data-action-ui-id="chat.billing-insufficient.recheck-again"
           >
             {t2("chat.billingInsufficient.recheckAgain")}
-          </Button$1>
+          </Button>
         </div>
       ) : (
         <>
@@ -220,7 +218,7 @@ export function BillingInsufficientCard({
           )}
           {!isTeamContext && (
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <Button$1
+              <Button
                 type="button"
                 size="lg"
                 className="w-full"
@@ -228,8 +226,8 @@ export function BillingInsufficientCard({
                 data-action-ui-id="chat.billing-insufficient.top-up"
               >
                 {t2("chat.billingInsufficient.topUp")}
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 variant="outline"
                 size="lg"
@@ -238,7 +236,7 @@ export function BillingInsufficientCard({
                 data-action-ui-id="chat.billing-insufficient.upgrade"
               >
                 {t2("chat.billingInsufficient.upgrade")}
-              </Button$1>
+              </Button>
             </div>
           )}
           {onRetry && (
@@ -248,11 +246,11 @@ export function BillingInsufficientCard({
                   {t2("chat.billingInsufficient.retryFailed")}
                 </p>
               )}
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className={cn$2(
+                className={cn(
                   "w-full text-foreground/70",
                   isTeamContext ? "mt-4" : "mt-2",
                 )}
@@ -260,7 +258,7 @@ export function BillingInsufficientCard({
                 data-action-ui-id="chat.billing-insufficient.retry-after-purchase"
               >
                 {t2("chat.billingInsufficient.retryAfterPurchase")}
-              </Button$1>
+              </Button>
             </>
           )}
         </>

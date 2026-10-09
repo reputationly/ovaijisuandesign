@@ -1,33 +1,24 @@
 // page-state-view.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
-
 const emptyDarkUrl =
   "" + new URL("../empty-dark-BE6TzTYo.svg", import.meta.url).href;
-
 const emptyLightUrl =
   "" + new URL("../empty-light-BIA_9y_3.svg", import.meta.url).href;
-
 const emptyProjectDarkUrl =
   "" + new URL("../empty-project-dark-DfthmI8z.svg", import.meta.url).href;
-
 const emptyProjectLightUrl =
   "" + new URL("../empty-project-light-VIJs1g6w.svg", import.meta.url).href;
-
 const errorDarkUrl =
   "" + new URL("../error-dark-DDp36kGq.svg", import.meta.url).href;
-
 const errorLightUrl =
   "" + new URL("../error-light-WSZvGPdq.svg", import.meta.url).href;
-
 const networkErrorDarkUrl =
   "" + new URL("../network-error-dark-DyHxJMnZ.svg", import.meta.url).href;
-
 const networkErrorLightUrl =
   "" + new URL("../network-error-light-brwv6dty.svg", import.meta.url).href;
-
 const ILLUSTRATION_URLS = {
   empty: {
     light: emptyLightUrl,
@@ -46,7 +37,6 @@ const ILLUSTRATION_URLS = {
     dark: networkErrorDarkUrl,
   },
 };
-
 function PageStateIllustration({
   type: type2,
   emptyReason,
@@ -64,7 +54,7 @@ function PageStateIllustration({
     <img
       src={ILLUSTRATION_URLS[illustration][resolved]}
       alt=""
-      className={cn$2("size-40 max-w-full object-contain", className)}
+      className={cn("size-40 max-w-full object-contain", className)}
       aria-hidden="true"
       draggable={false}
       data-page-state-illustration={illustration}
@@ -72,7 +62,6 @@ function PageStateIllustration({
     />
   );
 }
-
 export function PageStateView({
   state: state2,
   children: children2,
@@ -115,13 +104,13 @@ export function PageStateView({
   const renderAction = (action) => {
     const isSeparate = action.placement === "separate";
     return (
-      <Button$1
+      <Button
         key={action.key}
         variant={isSeparate ? "link" : action.variant}
         disabled={action.disabled}
         loading={action.loading}
         onClick={action.onClick}
-        className={cn$2(
+        className={cn(
           isSeparate
             ? "min-w-0 max-w-full h-auto min-h-0 rounded-none px-0 py-0 whitespace-normal text-muted-foreground"
             : "min-w-24 max-w-60 rounded-md px-3 h-auto min-h-8 whitespace-normal break-words text-center leading-4",
@@ -144,12 +133,12 @@ export function PageStateView({
           </span>
         ) : null}
         <span data-slot="page-state-action-label">{action.label}</span>
-      </Button$1>
+      </Button>
     );
   };
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex min-h-0 w-full flex-1 flex-col items-center justify-center text-center",
         isCompact ? "px-3 py-3" : isPanel ? "px-3 py-4" : "px-4 py-8",
         className,
@@ -176,7 +165,7 @@ export function PageStateView({
         )}
       </div>
       <div
-        className={cn$2(
+        className={cn(
           "mt-2 flex w-full flex-col items-center gap-1",
           isSmall ? "max-w-xs" : "max-w-md",
         )}
@@ -186,7 +175,7 @@ export function PageStateView({
           <>
             {state2.title != null ? (
               <div
-                className={cn$2(
+                className={cn(
                   isCompact
                     ? "text-xs font-normal text-muted-foreground"
                     : "font-heading font-medium text-card-foreground",
@@ -198,7 +187,7 @@ export function PageStateView({
             ) : null}
             {state2.description != null ? (
               <div
-                className={cn$2(
+                className={cn(
                   "text-muted-foreground",
                   isSmall ? "text-xs" : "text-sm",
                 )}
@@ -209,7 +198,7 @@ export function PageStateView({
           </>
         ) : (
           <div
-            className={cn$2(
+            className={cn(
               "text-muted-foreground",
               isCompact ? "text-xs font-normal" : "text-sm",
             )}
@@ -220,7 +209,7 @@ export function PageStateView({
       </div>
       {inlineActions.length > 0 ? (
         <div
-          className={cn$2(
+          className={cn(
             "flex flex-row flex-wrap items-center justify-center gap-2",
             isSmall ? "mt-3" : "mt-4",
             useEqualWidthActions ? "w-fit max-w-full" : void 0,
@@ -232,7 +221,7 @@ export function PageStateView({
       ) : null}
       {separateActions.length > 0 ? (
         <div
-          className={cn$2(
+          className={cn(
             "flex flex-row flex-wrap items-center justify-center gap-2",
             isSmall ? "mt-3" : "mt-4",
           )}

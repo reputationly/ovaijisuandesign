@@ -1,10 +1,10 @@
 // asr-popover.jsx
 import {
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -14,24 +14,20 @@ import {
   useCanvasIsDragging,
   useCanvasIsMultiSelect,
 } from "./package.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-
+import { Button } from "../canvas/node-shell-inner.jsx";
 const ASR_LANGUAGES = ["zh", "en", "other"];
-
 const ASR_LANGUAGE_LABEL_KEYS = {
   zh: "canvas.asr.language.zh",
   en: "canvas.asr.language.en",
   other: "canvas.asr.language.other",
 };
-
 const ASR_LANGUAGE_LABEL_FALLBACKS = {
   zh: "中文",
   en: "英文",
   other: "其他",
 };
-
 function LanguageToggle({ value, onChange }) {
   const { t: t2 } = useTranslation();
   return (
@@ -72,7 +68,6 @@ function LanguageToggle({ value, onChange }) {
     </div>
   );
 }
-
 export const AsrPopover = reactExports.memo(function AsrPopover2({
   onSubmit,
   onClose,
@@ -87,7 +82,7 @@ export const AsrPopover = reactExports.memo(function AsrPopover2({
     (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
     [nodeId],
   );
-  const selected2 = useStore$3(selectedSelector);
+  const selected2 = useStore(selectedSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -101,7 +96,7 @@ export const AsrPopover = reactExports.memo(function AsrPopover2({
     });
   }, [onSubmit, language2]);
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={true}
       position={Position.Bottom}
       offset={NODE_POPOVER_SAFE_GAP}
@@ -139,9 +134,9 @@ export const AsrPopover = reactExports.memo(function AsrPopover2({
             title={t2("canvas.asr.cancel", "取消")}
             className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
           >
-            <CloseIcon$1 />
+            <CloseIcon />
           </button>
-          <Button$2
+          <Button
             variant="default"
             size="icon"
             onClick={handleSubmit}
@@ -149,9 +144,9 @@ export const AsrPopover = reactExports.memo(function AsrPopover2({
             aria-label={t2("canvas.asr.submit", "开始")}
           >
             <SendArrowIcon />
-          </Button$2>
+          </Button>
         </div>
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 });

@@ -9,7 +9,6 @@ import {
 } from "../infra/create-recently-added-store.js";
 import { MEDIA_NODE_RADIUS } from "../media-editing/package.jsx";
 import { useNodeTagColors } from "./use-inline-rename.jsx";
-
 function resolveNodeTagHighlight(selected2, tags2) {
   const activeTagColor = tags2.find((tag) => tag.active)?.color;
   return {
@@ -19,9 +18,7 @@ function resolveNodeTagHighlight(selected2, tags2) {
       : "transparent",
   };
 }
-
-const DRAG_THRESHOLD_PX$1 = 4;
-
+const DRAG_THRESHOLD_PX = 4;
 function preservePanelContentInset(padding) {
   if (typeof padding === "number") return padding + 1;
   const values3 = [];
@@ -40,7 +37,6 @@ function preservePanelContentInset(padding) {
   }
   return values3.join(" ");
 }
-
 function NodeBodyInner({
   width,
   height,
@@ -84,7 +80,7 @@ function NodeBodyInner({
     if (!start2 || draggedRef.current) return;
     if (
       Math.hypot(e2.clientX - start2.x, e2.clientY - start2.y) >
-      DRAG_THRESHOLD_PX$1
+      DRAG_THRESHOLD_PX
     ) {
       draggedRef.current = true;
     }
@@ -135,5 +131,4 @@ function NodeBodyInner({
     </div>
   );
 }
-
 export const NodeBody = reactExports.memo(NodeBodyInner);

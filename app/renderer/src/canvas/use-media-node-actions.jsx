@@ -2,7 +2,7 @@
 import { reactExports, useReactFlow, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getAdjacentNodePosition, useAddToChat } from "./node-shell-inner.jsx";
-import { AddToChatIcon, FullscreenIcon$1 } from "./fullscreen-icon.jsx";
+import { AddToChatIcon, FullscreenIcon } from "./fullscreen-icon.jsx";
 import {
   ClipIcon,
   ColorAdjustIcon,
@@ -11,9 +11,7 @@ import {
   ToolbarSpinnerIcon,
 } from "./file-missing-icon.jsx";
 import { PromoteToAssetIcon } from "./generating-media-area.jsx";
-
 const EMPTY_TOOLBAR_ITEMS = [];
-
 export function useMediaNodeActions({
   nodeId,
   toolbarActive = true,
@@ -148,7 +146,7 @@ export function useMediaNodeActions({
     items.push({
       id: "fullscreen",
       label: t2("canvas.fullscreen"),
-      icon: <FullscreenIcon$1 />,
+      icon: <FullscreenIcon />,
       onClick: handleFullscreen,
     });
     if (onPromoteToAsset && meta2?.url) {

@@ -2,14 +2,14 @@
 import {
   classifyFileType,
   dedupedToast,
-  File$3,
-  FolderInput$2,
+  File$3 as File,
+  FolderInput$2 as FolderInput,
   jsxRuntimeExports,
-  Music$2,
+  Music$2 as Music,
   Plus,
   reactExports,
   useTranslation,
-  Video$2,
+  Video$2 as Video,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -31,7 +31,7 @@ import {
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -48,32 +48,28 @@ import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { writeEntityDragData } from "../infra/use-online.jsx";
 import { useMaterializeEntity } from "./use-materialize-entity.js";
 import { trackAssetUse } from "./use-materialized-entities.jsx";
-
-const THUMB_PX$1 = 32;
-
+const THUMB_PX = 32;
 const COMPACT_MENU_ITEM_CLASS =
   "gap-2 px-2.5 py-1.5 text-[11px] [&_svg:not([class*=size-])]:size-3.5";
-
 function EntityTypeIcon({ type: type2 }) {
   if (type2 === "character")
     return <ImageOutlineIcon size={16} strokeWidth={1.67} />;
-  if (type2 === "scene") return <Video$2 size={16} />;
-  if (type2 === "style_pack") return <Music$2 size={16} />;
-  return <File$3 size={16} />;
+  if (type2 === "scene") return <Video size={16} />;
+  if (type2 === "style_pack") return <Music size={16} />;
+  return <File size={16} />;
 }
-
 function EntityThumb({ entity }) {
   const gatewayUrl2 = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden text-muted-foreground rounded-[4px]";
   const wrapperStyle2 = {
-    width: THUMB_PX$1,
-    height: THUMB_PX$1,
+    width: THUMB_PX,
+    height: THUMB_PX,
   };
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
   const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX$1)
+    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX)
     : void 0;
   const fallbackKind = entity.primaryAttachmentKind;
   if (!resolvedUrl || errored) {
@@ -113,7 +109,6 @@ function EntityThumb({ entity }) {
     </span>
   );
 }
-
 function EntityGridCover({ entity }) {
   const gatewayUrl2 = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
@@ -157,7 +152,6 @@ function EntityGridCover({ entity }) {
     />
   );
 }
-
 export const EntityRow = reactExports.memo(function EntityRow2({
   entity,
   workspacePath,
@@ -333,7 +327,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
             disabled={materializeMutation.isPending}
             data-action-ui-id="canvas-sidebar-asset-center.more.materialize"
           >
-            <StrokeIcon icon={FolderInput$2} size={14} className="mr-1.5" />
+            <StrokeIcon icon={FolderInput} size={14} className="mr-1.5" />
             {t2("assetSidebarPanel.materialize")}
           </DropdownMenuItem>
         )}
@@ -408,7 +402,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
           layout === "grid" ? (
             <li
               {...commonLiProps}
-              className={cn$2(
+              className={cn(
                 "group relative flex flex-col select-none cursor-grab active:cursor-grabbing rounded-md p-1 transition-colors",
                 isHighlighted
                   ? "bg-foreground/[0.12]"
@@ -418,7 +412,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
           ) : (
             <li
               {...commonLiProps}
-              className={cn$2(
+              className={cn(
                 "list-row-hit-area group relative mx-2 flex h-12 w-[calc(100%-1rem)] items-center gap-2 rounded-md py-2 pl-2 pr-14 transition-colors select-none cursor-grab active:cursor-grabbing",
                 isHighlighted
                   ? "bg-foreground/[0.12]"
@@ -464,7 +458,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
             onClick={handleMaterialize}
             disabled={materializeMutation.isPending}
           >
-            <StrokeIcon icon={FolderInput$2} size={14} className="mr-1.5" />
+            <StrokeIcon icon={FolderInput} size={14} className="mr-1.5" />
             {t2("assetSidebarPanel.materialize")}
           </ContextMenuItem>
         )}

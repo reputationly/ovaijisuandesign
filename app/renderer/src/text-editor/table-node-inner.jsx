@@ -20,7 +20,7 @@ import {
   operatorsForFieldType,
   OPS_REQUIRING_VALUE,
   PaperclipIcon,
-  PlusIcon$1,
+  PlusIcon,
   pruneFilterColumn,
   removeFilterCondition,
   renameColumn,
@@ -30,29 +30,29 @@ import {
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   applyFilter,
-  CheckIcon$1,
+  CheckIcon,
   MATCH_LABELS,
   ROW_HEIGHT_LABELS,
   visibleColumns,
 } from "../media-editing/create-column.jsx";
-import { Tt$1 } from "./is-diff-review-session-ready.js";
+import { Tt } from "./is-diff-review-session-ready.js";
 import {
-  addColumn$1,
+  addColumn,
   createEmptyDocument,
   newConditionId,
   ROW_HEIGHT_ORDER,
 } from "../canvas/is-reexecutable-generation-node.js";
 import { ConditionRow } from "../media-editing/condition-row.jsx";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
 import { AddColumnDialog } from "../media-editing/add-column-dialog-inner.jsx";
 import { FieldRow } from "../media-editing/field-row.jsx";
-import { CloseIcon$1 } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon } from "../canvas/file-missing-icon.jsx";
 import { TableEditorInner } from "./table-editor-inner.jsx";
 import { useDevicePixelRatio } from "../infra/shallow-copy.js";
 import {
@@ -68,7 +68,7 @@ import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 import {
   AddToChatIcon,
   areNodePropsEqual,
-  FullscreenIcon$1,
+  FullscreenIcon,
   useCanvasNodeIsDragging,
 } from "../canvas/fullscreen-icon.jsx";
 import { NodeHeader } from "../canvas/node-header-inner.jsx";
@@ -78,8 +78,7 @@ import { NodeShell } from "../canvas/node-shell-inner.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { parseTableDocument } from "./parse-table-document.js";
 import { serializeTableDocument } from "./table-document-to-llm-content.js";
-
-function removeColumn$1(doc2, columnId) {
+function removeColumn(doc2, columnId) {
   const columns = doc2.columns.filter((c3) => c3.id !== columnId);
   const rows = doc2.rows.map((r2) => {
     if (!(columnId in r2.cells)) return r2;
@@ -97,7 +96,6 @@ function removeColumn$1(doc2, columnId) {
     filter: filter2,
   };
 }
-
 function toggleColumnVisibility(doc2, columnId, visible) {
   return {
     ...doc2,
@@ -111,7 +109,6 @@ function toggleColumnVisibility(doc2, columnId, visible) {
     ),
   };
 }
-
 function moveColumn(doc2, fromId, toId, position2 = "before") {
   const columns = moveItem(doc2.columns, fromId, toId, position2);
   if (columns === doc2.columns) return doc2;
@@ -120,14 +117,12 @@ function moveColumn(doc2, fromId, toId, position2 = "before") {
     columns,
   };
 }
-
-function removeRow$1(doc2, rowId) {
+function removeRow(doc2, rowId) {
   return {
     ...doc2,
     rows: doc2.rows.filter((r2) => r2.id !== rowId),
   };
 }
-
 function setFilterMatch(doc2, match2) {
   if (!doc2.filter) return doc2;
   if (doc2.filter.match === match2) return doc2;
@@ -139,7 +134,6 @@ function setFilterMatch(doc2, match2) {
     },
   };
 }
-
 function addFilterCondition(doc2, condition) {
   const existing = doc2.filter?.conditions ?? [];
   return {
@@ -150,7 +144,6 @@ function addFilterCondition(doc2, condition) {
     },
   };
 }
-
 function updateFilterCondition(doc2, conditionId, patch2) {
   if (!doc2.filter) return doc2;
   const conditions = doc2.filter.conditions.map((c3) =>
@@ -169,7 +162,6 @@ function updateFilterCondition(doc2, conditionId, patch2) {
     },
   };
 }
-
 function FieldConfigPanelInner({
   history: history2,
   onClose,
@@ -198,7 +190,7 @@ function FieldConfigPanelInner({
     apply2((prev) => renameColumn(prev, columnId, title));
   };
   const handleDelete2 = (columnId) => {
-    apply2((prev) => removeColumn$1(prev, columnId));
+    apply2((prev) => removeColumn(prev, columnId));
   };
   const handleMoveColumn = reactExports.useCallback(
     (fromId, toId, position2) => {
@@ -209,7 +201,7 @@ function FieldConfigPanelInner({
   const handleCommitColumn = reactExports.useCallback(
     ({ title, type: type2 }) => {
       apply2((prev) =>
-        addColumn$1(prev, {
+        addColumn(prev, {
           title,
           type: type2,
         }),
@@ -277,7 +269,7 @@ function FieldConfigPanelInner({
           color: "var(--fg-muted,#525252)",
         }}
       >
-        <PlusIcon$1 />
+        <PlusIcon />
         <span>{t2("canvas.table.addField", "Add field")}</span>
       </button>
       {showAddColumn && (
@@ -289,9 +281,7 @@ function FieldConfigPanelInner({
     </div>
   );
 }
-
 const FieldConfigPanel = reactExports.memo(FieldConfigPanelInner);
-
 function createCondition(column) {
   return {
     id: newConditionId(),
@@ -300,7 +290,6 @@ function createCondition(column) {
     value: void 0,
   };
 }
-
 function FilterPanelInner({ history: history2, onClose, align = "right" }) {
   const { t: t2 } = useTranslation();
   const { doc: doc2, apply: apply2 } = history2;
@@ -402,24 +391,24 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
         {showMatchSelector ? (
           <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
             <span>{t2("canvas.table.filter.match.prefix", "Match")}</span>
-            <Select$2
+            <Select
               value={match2}
               items={matchLabels}
               onValueChange={(v2) => {
                 if (v2 != null) handleMatchChange(v2);
               }}
             >
-              <SelectTrigger$1 className="h-7 w-[80px] px-2 text-[12px]">
-                <SelectValue$1 />
-              </SelectTrigger$1>
-              <SelectContent$1>
+              <SelectTrigger className="h-7 w-[80px] px-2 text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {["all", "any"].map((m3) => (
-                  <SelectItem$1 key={m3} value={m3}>
+                  <SelectItem key={m3} value={m3}>
                     {t2(MATCH_LABELS[m3].key, MATCH_LABELS[m3].defaultLabel)}
-                  </SelectItem$1>
+                  </SelectItem>
                 ))}
-              </SelectContent$1>
-            </Select$2>
+              </SelectContent>
+            </Select>
             <span>
               {t2("canvas.table.filter.match.suffix", "condition(s)")}
             </span>
@@ -460,15 +449,13 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
         disabled={!hasColumns}
         className="flex h-7 w-fit items-center gap-1 rounded-md text-[12px] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground"
       >
-        <PlusIcon$1 />
+        <PlusIcon />
         <span>{t2("canvas.table.filter.addCondition", "Add condition")}</span>
       </button>
     </div>
   );
 }
-
 const FilterPanel = reactExports.memo(FilterPanelInner);
-
 function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
   const { t: t2 } = useTranslation();
   const { doc: doc2, apply: apply2 } = history2;
@@ -533,7 +520,7 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
                   ROW_HEIGHT_LABELS[opt].defaultLabel,
                 )}
               </span>
-              {active2 && <CheckIcon$1 />}
+              {active2 && <CheckIcon />}
             </button>
           );
         })}
@@ -541,18 +528,14 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
     </div>
   );
 }
-
 const RowHeightPanel = reactExports.memo(RowHeightPanelInner);
-
 const MAX_HISTORY = 100;
-
-function createHistory$1(initial) {
-  return Tt$1(initial, {
+function createHistory(initial) {
+  return Tt(initial, {
     maxHistory: MAX_HISTORY,
     autoArchive: false,
   });
 }
-
 function mergeOptionalField(draft, key2, next2, prev) {
   if (next2 === void 0) {
     if (prev !== void 0) delete draft[key2];
@@ -560,7 +543,6 @@ function mergeOptionalField(draft, key2, next2, prev) {
   }
   draft[key2] = next2;
 }
-
 function mergeColumnInto(draft, next2, prev) {
   if (next2 === prev) return;
   if (next2.id !== prev.id) draft.id = next2.id;
@@ -569,7 +551,6 @@ function mergeColumnInto(draft, next2, prev) {
   if (next2.visible !== prev.visible) draft.visible = next2.visible;
   if (next2.width !== prev.width) draft.width = next2.width;
 }
-
 function mergeCellsInto(draft, next2, prev) {
   for (const key2 of Object.keys(prev)) {
     if (!(key2 in next2)) delete draft[key2];
@@ -578,7 +559,6 @@ function mergeCellsInto(draft, next2, prev) {
     if (next2[key2] !== prev[key2]) draft[key2] = next2[key2];
   }
 }
-
 function mergeRowInto(draft, next2, prev) {
   if (next2 === prev) return;
   if (next2.id !== prev.id) draft.id = next2.id;
@@ -590,7 +570,6 @@ function mergeRowInto(draft, next2, prev) {
     else draft.height = next2.height;
   }
 }
-
 function tryMergeArrayById(draft, next2, prev, mergeItem) {
   if (next2 === prev) return true;
   if (next2.length === prev.length) {
@@ -636,7 +615,6 @@ function tryMergeArrayById(draft, next2, prev, mergeItem) {
   }
   return false;
 }
-
 function mergeDocIntoDraft(draft, next2, prev) {
   if (next2 === prev) return;
   if (next2.version !== prev.version) draft.version = next2.version;
@@ -664,14 +642,12 @@ function mergeDocIntoDraft(draft, next2, prev) {
     mergeOptionalField(draft, "rowHeight", next2.rowHeight, prev.rowHeight);
   }
 }
-
 function useTableHistory(initial) {
   const travelsRef = reactExports.useRef(null);
-  if (travelsRef.current === null)
-    travelsRef.current = createHistory$1(initial);
+  if (travelsRef.current === null) travelsRef.current = createHistory(initial);
   const [doc2, setDoc] = reactExports.useState(initial);
   reactExports.useEffect(() => {
-    travelsRef.current = createHistory$1(initial);
+    travelsRef.current = createHistory(initial);
     setDoc(initial);
   }, [initial]);
   const apply2 = reactExports.useCallback((transform2) => {
@@ -687,7 +663,7 @@ function useTableHistory(initial) {
     setDoc(travels2.getState());
   }, []);
   const reset2 = reactExports.useCallback((next2) => {
-    travelsRef.current = createHistory$1(next2);
+    travelsRef.current = createHistory(next2);
     setDoc(next2);
   }, []);
   const undo2 = reactExports.useCallback(() => {
@@ -713,9 +689,7 @@ function useTableHistory(initial) {
     canRedo: travels?.canForward() ?? false,
   };
 }
-
 const TableEditor = reactExports.memo(TableEditorInner);
-
 function useBackdropDismiss(onDismiss) {
   const downOnBackdropRef = reactExports.useRef(false);
   const onMouseDown = reactExports.useCallback((e2) => {
@@ -734,8 +708,7 @@ function useBackdropDismiss(onDismiss) {
     onClick,
   };
 }
-
-function ToolbarButton$2({
+function ToolbarButton({
   title,
   label,
   onClick,
@@ -773,7 +746,6 @@ function ToolbarButton$2({
     </button>
   );
 }
-
 function RowHeightIcon() {
   return (
     <CompositedSvg
@@ -790,7 +762,6 @@ function RowHeightIcon() {
     </CompositedSvg>
   );
 }
-
 function SettingsIcon() {
   return (
     <CompositedSvg
@@ -810,7 +781,6 @@ function SettingsIcon() {
     </CompositedSvg>
   );
 }
-
 function FilterIcon() {
   return (
     <CompositedSvg
@@ -831,7 +801,6 @@ function FilterIcon() {
     </CompositedSvg>
   );
 }
-
 function UndoIcon() {
   return (
     <CompositedSvg
@@ -848,7 +817,6 @@ function UndoIcon() {
     </CompositedSvg>
   );
 }
-
 function RedoIcon() {
   return (
     <CompositedSvg
@@ -865,9 +833,7 @@ function RedoIcon() {
     </CompositedSvg>
   );
 }
-
 Object.prototype.constructor.toString();
-
 function TableToolbarInner({
   title,
   onTitleChange,
@@ -952,7 +918,7 @@ function TableToolbarInner({
           </>
         )}
         <div className="relative">
-          <ToolbarButton$2
+          <ToolbarButton
             title={t2("canvas.table.fieldConfig", "Field configuration")}
             label={t2("canvas.table.fieldConfig", "Field configuration")}
             onClick={() =>
@@ -961,7 +927,7 @@ function TableToolbarInner({
             active={openPanel === "fields"}
           >
             <SettingsIcon />
-          </ToolbarButton$2>
+          </ToolbarButton>
           {openPanel === "fields" && (
             <FieldConfigPanel
               history={history2}
@@ -971,7 +937,7 @@ function TableToolbarInner({
           )}
         </div>
         <div className="relative">
-          <ToolbarButton$2
+          <ToolbarButton
             title={t2("canvas.table.filter", "Filter")}
             label={t2("canvas.table.filter", "Filter")}
             onClick={() =>
@@ -981,7 +947,7 @@ function TableToolbarInner({
             dot={filterActive}
           >
             <FilterIcon />
-          </ToolbarButton$2>
+          </ToolbarButton>
           {openPanel === "filter" && (
             <FilterPanel
               history={history2}
@@ -991,7 +957,7 @@ function TableToolbarInner({
           )}
         </div>
         <div className="relative">
-          <ToolbarButton$2
+          <ToolbarButton
             title={t2("canvas.table.rowHeight", "Row height")}
             label={t2("canvas.table.rowHeight", "Row height")}
             onClick={() =>
@@ -1000,7 +966,7 @@ function TableToolbarInner({
             active={openPanel === "rowHeight"}
           >
             <RowHeightIcon />
-          </ToolbarButton$2>
+          </ToolbarButton>
           {openPanel === "rowHeight" && (
             <RowHeightPanel
               history={history2}
@@ -1015,38 +981,35 @@ function TableToolbarInner({
             background: "var(--canvas-node-border, #e0e0e0)",
           }}
         />
-        <ToolbarButton$2
+        <ToolbarButton
           title={t2("canvas.undo", "Undo")}
           onClick={history2.undo}
           disabled={!history2.canUndo}
         >
           <UndoIcon />
-        </ToolbarButton$2>
-        <ToolbarButton$2
+        </ToolbarButton>
+        <ToolbarButton
           title={t2("canvas.redo", "Redo")}
           onClick={history2.redo}
           disabled={!history2.canRedo}
         >
           <RedoIcon />
-        </ToolbarButton$2>
+        </ToolbarButton>
         <div
           className="mx-1 h-4 w-px"
           style={{
             background: "var(--canvas-node-border, #e0e0e0)",
           }}
         />
-        <ToolbarButton$2 title={t2("canvas.close", "Close")} onClick={onClose}>
-          <CloseIcon$1 />
-        </ToolbarButton$2>
+        <ToolbarButton title={t2("canvas.close", "Close")} onClick={onClose}>
+          <CloseIcon />
+        </ToolbarButton>
       </div>
     </div>
   );
 }
-
 const TableToolbar = reactExports.memo(TableToolbarInner);
-
 const NOOP_TITLE_CHANGE = () => {};
-
 function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
   const { t: t2 } = useTranslation();
   const active2 = useCanvasActive();
@@ -1072,7 +1035,7 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     history2.apply((prev) => {
       let next2 = prev;
       for (const id2 of validSelectedRowIds) {
-        next2 = removeRow$1(next2, id2);
+        next2 = removeRow(next2, id2);
       }
       return next2;
     });
@@ -1199,21 +1162,13 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     document.body,
   );
 }
-
 const TableFullscreen = reactExports.memo(TableFullscreenInner);
-
 const HEADER_HEIGHT = 32;
-
 const FALLBACK_ROW_HEIGHT = 32;
-
 const FALLBACK_COL_WIDTH = 200;
-
 const ATTACHMENT_VERTICAL_PADDING = 4;
-
 const MIN_ATTACHMENT_CHIP_SIZE = 18;
-
 const MAX_PREVIEW_CHIPS = 2;
-
 function AttachmentPreviewChip({ attachment, size: size2 }) {
   const { t: t2 } = useTranslation();
   const meta2 = useAssetMetadataStore((s2) =>
@@ -1270,7 +1225,6 @@ function AttachmentPreviewChip({ attachment, size: size2 }) {
     </span>
   );
 }
-
 function AttachmentPreviewList({ attachments, rowHeightPx }) {
   if (attachments.length === 0) {
     return (
@@ -1324,7 +1278,6 @@ function AttachmentPreviewList({ attachments, rowHeightPx }) {
     </div>
   );
 }
-
 function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
   if (type2 === "attachment") {
     const list2 = Array.isArray(value) ? value : [];
@@ -1382,7 +1335,6 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
     </div>
   );
 }
-
 function TextFieldIcon() {
   return (
     <CompositedSvg
@@ -1399,7 +1351,6 @@ function TextFieldIcon() {
     </CompositedSvg>
   );
 }
-
 function NumberIcon() {
   return (
     <CompositedSvg
@@ -1416,13 +1367,11 @@ function NumberIcon() {
     </CompositedSvg>
   );
 }
-
 function FieldIcon({ type: type2 }) {
   if (type2 === "number") return <NumberIcon />;
   if (type2 === "attachment") return <PaperclipIcon />;
   return <TextFieldIcon />;
 }
-
 function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
   const { t: t2 } = useTranslation();
   const allColumns = reactExports.useMemo(
@@ -1583,9 +1532,7 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
     </div>
   );
 }
-
 const TablePreview = reactExports.memo(TablePreviewInner);
-
 function TableNodeInner({
   id: id2,
   selected: selected2,
@@ -1713,7 +1660,7 @@ function TableNodeInner({
       {
         id: "fullscreen",
         label: t2("canvas.fullscreenEdit"),
-        icon: <FullscreenIcon$1 />,
+        icon: <FullscreenIcon />,
         onClick: () => {
           if (loaded) setFullscreen(true);
         },
@@ -1773,5 +1720,4 @@ function TableNodeInner({
     </NodeShell>
   );
 }
-
 export const TableNode = reactExports.memo(TableNodeInner, areNodePropsEqual);

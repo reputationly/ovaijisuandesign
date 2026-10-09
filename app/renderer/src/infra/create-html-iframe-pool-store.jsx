@@ -1,31 +1,27 @@
 // create-html-iframe-pool-store.jsx
 import {
   classifyFileType,
-  createStore$1,
-  PlaybackPlayIcon$1,
+  createStore$1 as createStore,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
   useNodeId,
-  useStore$2,
+  useStore$2 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "./file-type-icon.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { ViewerLoading } from "../media-editing/input.jsx";
 import { HtmlViewerInner } from "../media-editing/html-viewer-inner.jsx";
 import { useHtmlViewerHandleApi } from "./use-plugin-metadata-store.js";
-
 const DEFAULT_MAX_ACTIVE = 6;
-
 const DEFAULT_HOLDER = "__default__";
-
 function withHolder(holders, holderId2) {
   if (holders.has(holderId2)) return holders;
   const next2 = new Set(holders);
   next2.add(holderId2);
   return next2;
 }
-
 function oldestNonStickyId(active2) {
   let oldestId2 = null;
   let oldestTs = Number.POSITIVE_INFINITY;
@@ -38,7 +34,6 @@ function oldestNonStickyId(active2) {
   }
   return oldestId2;
 }
-
 function oldestId(active2) {
   let id2 = null;
   let ts2 = Number.POSITIVE_INFINITY;
@@ -50,10 +45,9 @@ function oldestId(active2) {
   }
   return id2;
 }
-
 function createHtmlIframePoolStore(opts = {}) {
   const maxActive = opts.maxActive ?? DEFAULT_MAX_ACTIVE;
-  return createStore$1((set2, get3) => ({
+  return createStore((set2, get3) => ({
     active: new Map(),
     maxActive,
     requestAuto: (nodeId, holderId2 = DEFAULT_HOLDER) => {
@@ -149,31 +143,22 @@ function createHtmlIframePoolStore(opts = {}) {
     },
   }));
 }
-
 const defaultHtmlIframePoolStore = createHtmlIframePoolStore();
-
 const HtmlIframePoolStoreContext = reactExports.createContext(null);
-
 function useHtmlIframePoolApi() {
   return (
     reactExports.useContext(HtmlIframePoolStoreContext) ??
     defaultHtmlIframePoolStore
   );
 }
-
 const useHtmlIframePoolStore = (selector2) =>
-  useStore$2(useHtmlIframePoolApi(), selector2);
-
+  useStore(useHtmlIframePoolApi(), selector2);
 useHtmlIframePoolStore.getState = defaultHtmlIframePoolStore.getState;
-
 useHtmlIframePoolStore.setState = defaultHtmlIframePoolStore.setState;
-
 useHtmlIframePoolStore.subscribe = defaultHtmlIframePoolStore.subscribe;
-
 function useIsHtmlIframeActive(nodeId) {
   return useHtmlIframePoolStore((s2) => s2.active.has(nodeId));
 }
-
 function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
   const { t: t2 } = useTranslation();
   const label = displayName2?.trim() || t2("canvas.file.untitled");
@@ -192,7 +177,7 @@ function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
       >
         {label}
       </div>
-      <Button$2
+      <Button
         size="sm"
         onClick={(e2) => {
           e2.stopPropagation();
@@ -201,15 +186,13 @@ function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
         onMouseDown={(e2) => e2.stopPropagation()}
         data-action-ui-id="canvas.file-node.html-activate"
       >
-        <PlaybackPlayIcon$1 />
+        <PlaybackPlayIcon />
         {t2("canvas.file.html.activatePreview")}
-      </Button$2>
+      </Button>
     </div>
   );
 }
-
 let htmlViewerHolderCounter = 0;
-
 export function HtmlViewer({
   filePath,
   interactive,

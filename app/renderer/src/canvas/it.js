@@ -1,7 +1,6 @@
 // it.js
-import { p$4 } from "../vendor.js";
-
-function jt$1(e2, n2, t2) {
+import { p$4 as p } from "../vendor.js";
+function jt(e2, n2, t2) {
   return (r2, o2, i2) => {
     let s2 = r2.node(o2),
       a2 = r2.node(i2),
@@ -35,11 +34,10 @@ function jt$1(e2, n2, t2) {
     return (l2 && (d2 += t2 ? l2 : -l2), d2);
   };
 }
-
-function Ct$1(e2, n2, t2, r2) {
-  let o2 = new p$4(),
+function Ct(e2, n2, t2, r2) {
+  let o2 = new p(),
     i2 = e2.graph(),
-    s2 = jt$1(i2.nodesep, i2.edgesep, r2);
+    s2 = jt(i2.nodesep, i2.edgesep, r2);
   return (
     n2.forEach((a2) => {
       let d2;
@@ -60,10 +58,9 @@ function Ct$1(e2, n2, t2, r2) {
     o2
   );
 }
-
 export function It(e2, n2, t2, r2, o2 = false) {
   let i2 = {},
-    s2 = Ct$1(e2, n2, t2, o2),
+    s2 = Ct(e2, n2, t2, o2),
     a2 = o2 ? "borderLeft" : "borderRight";
   function d2(f2, g2) {
     let b3 = s2.nodes().slice(),

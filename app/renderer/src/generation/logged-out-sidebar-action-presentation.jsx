@@ -2,11 +2,10 @@
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CircleUserRound } from "../media-editing/package.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { useTranslation } from "../vendor.js";
 import { UserAvatarMenu } from "../workspace/user-avatar-menu.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
-
 function LoggedOutSidebarActionPresentation({
   showUsername = false,
   label,
@@ -19,7 +18,7 @@ function LoggedOutSidebarActionPresentation({
         className="flex h-8 items-center gap-1.5 px-2"
         data-action-ui-id="sidebar.logged-out-actions"
       >
-        <Button$1
+        <Button
           type="button"
           variant="default"
           title={label}
@@ -29,7 +28,7 @@ function LoggedOutSidebarActionPresentation({
           className="h-8 min-w-0 flex-1 justify-center rounded-md border-0 px-3 text-[13px] font-normal leading-[13px]"
         >
           <span className="min-w-0 truncate">{label}</span>
-        </Button$1>
+        </Button>
         {companionAction ? (
           <span
             className="flex size-8 shrink-0 items-center justify-center"
@@ -54,7 +53,7 @@ function LoggedOutSidebarActionPresentation({
           {companionAction}
         </span>
       ) : null}
-      <Button$1
+      <Button
         type="button"
         variant="ghost"
         size="icon"
@@ -70,11 +69,10 @@ function LoggedOutSidebarActionPresentation({
           className="size-[18px]"
           aria-hidden={true}
         />
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 export function SidebarUserMenu({
   popupPosition = "right",
   showUsername = false,

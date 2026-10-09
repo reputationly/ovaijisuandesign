@@ -1,7 +1,7 @@
 // use-preview-text.jsx
 import {
   DialogBackdrop,
-  DialogClose$1,
+  DialogClose$1 as DialogClose,
   DialogDescription$2,
   DialogPopup,
   DialogPortal$2,
@@ -12,11 +12,10 @@ import {
   XIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { cn } from "../infra/dialog-content.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import { useCanvasBridge } from "./package.jsx";
-
 export function TextPreviewContent({ state: state2, summary = false }) {
   const { t: t2 } = useTranslation();
   if (state2.status === "ready") {
@@ -62,7 +61,6 @@ export function TextPreviewContent({ state: state2, summary = false }) {
     </p>
   );
 }
-
 function isTooLarge(error) {
   if (!error || typeof error !== "object") return false;
   return (
@@ -70,7 +68,6 @@ function isTooLarge(error) {
     ("status" in error && error.status === 413)
   );
 }
-
 export function usePreviewText(path2, loader2, active2 = true) {
   const [result, setResult] = reactExports.useState();
   reactExports.useEffect(() => {
@@ -123,16 +120,14 @@ export function usePreviewText(path2, loader2, active2 = true) {
         status: "loading",
       };
 }
-
-function DialogPortal$1({ ...props }) {
+function DialogPortal({ ...props }) {
   return <DialogPortal$2 data-slot="dialog-portal" {...props} />;
 }
-
-function DialogOverlay$1({ className, ...props }) {
+function DialogOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
       data-slot="dialog-overlay"
-      className={cn$5(
+      className={cn(
         "fixed inset-0 isolate z-[10000] bg-black/50 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className,
       )}
@@ -140,8 +135,7 @@ function DialogOverlay$1({ className, ...props }) {
     />
   );
 }
-
-export function DialogContent$1({
+export function DialogContent({
   className,
   children: children2,
   showCloseButton = true,
@@ -150,11 +144,11 @@ export function DialogContent$1({
 }) {
   const { t: t2 } = useTranslation();
   return (
-    <DialogPortal$1 container={portalContainer}>
-      <DialogOverlay$1 />
+    <DialogPortal container={portalContainer}>
+      <DialogOverlay />
       <DialogPopup
         data-slot="dialog-content"
-        className={cn$5(
+        className={cn(
           "fixed top-1/2 left-1/2 z-[10001] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg bg-popover p-4 text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
@@ -162,10 +156,10 @@ export function DialogContent$1({
       >
         {children2}
         {showCloseButton && (
-          <DialogClose$1
+          <DialogClose
             data-slot="dialog-close"
             render={
-              <Button$2
+              <Button
                 variant="ghost"
                 className="absolute top-2 right-2"
                 size="icon-sm"
@@ -174,28 +168,26 @@ export function DialogContent$1({
           >
             <XIcon />
             <span className="sr-only">{t2("common.close", "Close")}</span>
-          </DialogClose$1>
+          </DialogClose>
         )}
       </DialogPopup>
-    </DialogPortal$1>
+    </DialogPortal>
   );
 }
-
-export function DialogHeader$1({ className, ...props }) {
+export function DialogHeader({ className, ...props }) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn$5("flex flex-col gap-1 text-left", className)}
+      className={cn("flex flex-col gap-1 text-left", className)}
       {...props}
     />
   );
 }
-
-export function DialogFooter$1({ className, children: children2, ...props }) {
+export function DialogFooter({ className, children: children2, ...props }) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn$5(
+      className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         className,
       )}
@@ -205,27 +197,24 @@ export function DialogFooter$1({ className, children: children2, ...props }) {
     </div>
   );
 }
-
-export function DialogTitle$1({ className, ...props }) {
+export function DialogTitle({ className, ...props }) {
   return (
     <DialogTitle$2
       data-slot="dialog-title"
-      className={cn$5("text-sm font-medium", className)}
+      className={cn("text-sm font-medium", className)}
       {...props}
     />
   );
 }
-
-export function DialogDescription$1({ className, ...props }) {
+export function DialogDescription({ className, ...props }) {
   return (
     <DialogDescription$2
       data-slot="dialog-description"
-      className={cn$5("text-xs/relaxed text-muted-foreground", className)}
+      className={cn("text-xs/relaxed text-muted-foreground", className)}
       {...props}
     />
   );
 }
-
 export function TextReadDialog({
   open,
   onOpenChange,
@@ -244,8 +233,8 @@ export function TextReadDialog({
     if (!effectiveActive && open) onOpenChange(false);
   }, [effectiveActive, open, onOpenChange]);
   return (
-    <Dialog$1 open={open && effectiveActive} onOpenChange={onOpenChange}>
-      <DialogContent$1
+    <Dialog open={open && effectiveActive} onOpenChange={onOpenChange}>
+      <DialogContent
         className="flex max-h-[80vh] flex-col sm:max-w-2xl"
         data-action-ui-id="attachment-text.reader"
         onKeyDown={(event) => {
@@ -253,14 +242,14 @@ export function TextReadDialog({
           if (event.key === "Escape") onOpenChange(false);
         }}
       >
-        <DialogHeader$1 className="min-w-0 pr-8">
-          <DialogTitle$1 className="max-h-20 overflow-y-auto break-words [overflow-wrap:anywhere]">
+        <DialogHeader className="min-w-0 pr-8">
+          <DialogTitle className="max-h-20 overflow-y-auto break-words [overflow-wrap:anywhere]">
             {name2}
-          </DialogTitle$1>
-          <DialogDescription$1>
+          </DialogTitle>
+          <DialogDescription>
             {t2("attachment.text.readOnly", "Read-only preview")}
-          </DialogDescription$1>
-        </DialogHeader$1>
+          </DialogDescription>
+        </DialogHeader>
         <div
           className="min-h-0 overflow-y-auto overscroll-contain select-text text-[var(--canvas-controls-text)]"
           data-testid="text-reader-content"
@@ -268,13 +257,11 @@ export function TextReadDialog({
         >
           <TextPreviewContent state={state2} />
         </div>
-      </DialogContent$1>
-    </Dialog$1>
+      </DialogContent>
+    </Dialog>
   );
 }
-
 export const THUMB_SIZE = 48;
-
 function calculateMediaDurationExcesses(items, kind, limitSec) {
   const excesses = new Map();
   if (limitSec == null || limitSec <= 0) return excesses;
@@ -287,11 +274,9 @@ function calculateMediaDurationExcesses(items, kind, limitSec) {
   }
   return excesses;
 }
-
 export function calculateVideoDurationExcesses(items, limitSec) {
   return calculateMediaDurationExcesses(items, "video", limitSec);
 }
-
 export function calculateAudioDurationExcesses(items, limitSec) {
   return calculateMediaDurationExcesses(items, "audio", limitSec);
 }

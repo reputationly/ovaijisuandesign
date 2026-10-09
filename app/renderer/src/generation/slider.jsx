@@ -1,16 +1,15 @@
 // slider.jsx
 import {
   reactExports,
-  SliderControl$1,
+  SliderControl$1 as SliderControl,
   SliderIndicator,
   SliderRoot,
   SliderThumb,
   SliderTrack,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-
+import { cn } from "../infra/dialog-content.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 function useSliderBoundaryHint(enabled, boundaryKey) {
   const [open, setOpen] = reactExports.useState(false);
   const cleanupRef = reactExports.useRef(null);
@@ -76,8 +75,7 @@ function useSliderBoundaryHint(enabled, boundaryKey) {
     start: start2,
   };
 }
-
-export function Slider$1({
+export function Slider({
   className,
   variant = "standard",
   size: size2 = "default",
@@ -170,13 +168,13 @@ export function Slider$1({
         props.onTouchStartCapture?.(event);
       }}
       className={(state2) =>
-        cn$5(
+        cn(
           "hilo-slider w-full min-w-0",
           typeof className === "function" ? className(state2) : className,
         )
       }
     >
-      <SliderControl$1
+      <SliderControl
         className="hilo-slider__control"
         data-slot="slider-control"
         style={
@@ -264,7 +262,7 @@ export function Slider$1({
               "data-action-ui-id":
                 otherThumbProps["data-action-ui-id"] ?? "slider.thumb",
               className: (state2) =>
-                cn$5(
+                cn(
                   "hilo-slider__thumb",
                   typeof thumbClassName === "function"
                     ? thumbClassName(state2)
@@ -282,11 +280,11 @@ export function Slider$1({
               }),
             }),
         )}
-      </SliderControl$1>
+      </SliderControl>
     </SliderRoot>
   );
   return minBoundaryMessage ? (
-    <Tooltip$1
+    <Tooltip
       content={minBoundaryMessage}
       open={boundaryHint.open}
       closeOnClick={false}
@@ -294,7 +292,7 @@ export function Slider$1({
       className="duration-150 data-open:zoom-in-95 data-closed:zoom-out-95 motion-reduce:animate-none"
     >
       {slider}
-    </Tooltip$1>
+    </Tooltip>
   ) : (
     slider
   );

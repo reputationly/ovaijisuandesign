@@ -4,23 +4,18 @@ import {
   DEFAULT_SHOW_LABELS,
   VIDEO_TOOLBAR_TOOLS,
 } from "./use-video-starter-preset-store.js";
-import { create$2 } from "../vendor.js";
-
-const STORAGE_KEY$7 = "hilo:canvas:video-toolbar:customization";
-
+import { create$2 as create } from "../vendor.js";
+const STORAGE_KEY = "hilo:canvas:video-toolbar:customization";
 const TOOLBAR_ORDER_MIGRATION_KEY =
   "hilo:canvas:video-toolbar:h3-first-migrated-v2";
-
 const PRE_WATERMARK_DEFAULT_PINNED = [
   "hailuo03-super-resolution",
   "clip",
   "extract-audio",
 ];
-
 function isVideoToolbarToolId(v2) {
   return VIDEO_TOOLBAR_TOOLS.includes(v2);
 }
-
 function migrateToolbarOrder(pinned) {
   if (typeof window === "undefined") return pinned;
   try {
@@ -34,8 +29,7 @@ function migrateToolbarOrder(pinned) {
   );
   return ["hailuo03-super-resolution", ...rest];
 }
-
-function readPersisted$1() {
+function readPersisted() {
   if (typeof window === "undefined") {
     return {
       pinned: DEFAULT_PINNED,
@@ -43,7 +37,7 @@ function readPersisted$1() {
     };
   }
   try {
-    const raw2 = window.localStorage.getItem(STORAGE_KEY$7);
+    const raw2 = window.localStorage.getItem(STORAGE_KEY);
     if (!raw2)
       return {
         pinned: DEFAULT_PINNED,
@@ -81,16 +75,14 @@ function readPersisted$1() {
     };
   }
 }
-
 function persist(state2) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY$7, JSON.stringify(state2));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state2));
   } catch {}
 }
-
-export const useVideoToolbarCustomizationStore = create$2((set2) => ({
-  ...readPersisted$1(),
+export const useVideoToolbarCustomizationStore = create((set2) => ({
+  ...readPersisted(),
   setCustomization(next2) {
     const pinned = next2.pinned.filter(isVideoToolbarToolId);
     const state2 = {

@@ -10,10 +10,9 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
-
 export function TeamMemberCombobox({
   id: id2,
   value,
@@ -85,7 +84,7 @@ export function TeamMemberCombobox({
         data-action-ui-id={dataActionUiId}
         data-successor-user-id={value ?? void 0}
         data-selected={value ? "true" : "false"}
-        className={cn$2(
+        className={cn(
           "flex h-auto min-h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-xs outline-none transition-colors",
           "hover:bg-muted/60 focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50",
           "disabled:cursor-not-allowed disabled:opacity-50",
@@ -102,10 +101,7 @@ export function TeamMemberCombobox({
         align="start"
         sideOffset={4}
         positionerClassName={popupZClassName}
-        className={cn$2(
-          "w-(--anchor-width) min-w-64 gap-0 p-0",
-          popupZClassName,
-        )}
+        className={cn("w-(--anchor-width) min-w-64 gap-0 p-0", popupZClassName)}
       >
         <div className="border-b border-border p-1.5">
           <Input3
@@ -149,7 +145,7 @@ export function TeamMemberCombobox({
                 })}
               </p>
               {onRetry ? (
-                <Button$1
+                <Button
                   type="button"
                   size="sm"
                   variant="outline"
@@ -158,7 +154,7 @@ export function TeamMemberCombobox({
                   {t2("common.retry", {
                     defaultValue: "重试",
                   })}
-                </Button$1>
+                </Button>
               ) : null}
             </div>
           ) : null}
@@ -191,7 +187,7 @@ export function TeamMemberCombobox({
                 type="button"
                 role="option"
                 aria-selected={isSelected}
-                className={cn$2(
+                className={cn(
                   "flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left text-xs transition-colors",
                   "hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
                   isSelected && "bg-muted",
@@ -226,7 +222,7 @@ export function TeamMemberCombobox({
           })}
           {hasMore ? (
             <div className="border-t border-border p-1">
-              <Button$1
+              <Button
                 type="button"
                 size="sm"
                 variant="ghost"
@@ -242,7 +238,7 @@ export function TeamMemberCombobox({
                   : t2("team.management.loadMoreMembers", {
                       defaultValue: "加载更多成员",
                     })}
-              </Button$1>
+              </Button>
             </div>
           ) : null}
         </div>

@@ -13,13 +13,11 @@ import {
   useCreditCountdown,
   useSettledCollapse,
 } from "./streaming-label.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-
 function formatCredits(value) {
   return value?.toLocaleString();
 }
-
 function registryHintForMediaType(mediaType) {
   if (mediaType === "image" || mediaType === "video" || mediaType === "audio")
     return mediaType;
@@ -33,7 +31,6 @@ function registryHintForMediaType(mediaType) {
   }
   return void 0;
 }
-
 function batchItemLabel(item) {
   return item.model
     ? resolveModelNameForCurrentRegion(
@@ -42,7 +39,6 @@ function batchItemLabel(item) {
       )
     : item.mediaType;
 }
-
 export function CreditThresholdReminderCard({
   estimate,
   onCancel,
@@ -299,7 +295,7 @@ export function CreditThresholdReminderCard({
         </p>
       ) : (
         <div className="mt-4 flex justify-end gap-2">
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -311,8 +307,8 @@ export function CreditThresholdReminderCard({
             data-action-ui-id="chat.credit-threshold.cancel"
           >
             {t2("chat.creditReminder.cancelGeneration", "Cancel generation")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             size="sm"
             loading={state2 === "continuing"}
@@ -335,7 +331,7 @@ export function CreditThresholdReminderCard({
               "chat.creditReminder.continueGeneration",
               "Continue generation",
             )}
-          </Button$1>
+          </Button>
         </div>
       )}
     </section>

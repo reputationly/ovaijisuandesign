@@ -1,9 +1,7 @@
 // parse-custom-mcp-arguments.js
 import { isWorkspaceFolderMissingError } from "../vendor.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
-
 export var _util;
-
 ((_util2) => {
   _util2.serviceIds = new Map();
   _util2.DI_TARGET = "$di$target";
@@ -13,7 +11,6 @@ export var _util;
   }
   _util2.getServiceDependencies = getServiceDependencies;
 })(_util || (_util = {}));
-
 function storeServiceDependency(id2, target, index2) {
   if (target[_util.DI_TARGET] === target) {
     target[_util.DI_DEPENDENCIES].push({
@@ -30,7 +27,6 @@ function storeServiceDependency(id2, target, index2) {
     target[_util.DI_TARGET] = target;
   }
 }
-
 export function createDecorator(serviceId) {
   if (_util.serviceIds.has(serviceId)) {
     return _util.serviceIds.get(serviceId);
@@ -47,13 +43,10 @@ export function createDecorator(serviceId) {
   _util.serviceIds.set(serviceId, id2);
   return id2;
 }
-
 export const IComfyUiModelDownloadService = createDecorator(
   "comfyUiModelDownloadService",
 );
-
 export const ILogService = createDecorator("logService");
-
 export class CustomMcpCommandSyntaxError extends Error {
   constructor(issue) {
     super(issue);
@@ -61,7 +54,6 @@ export class CustomMcpCommandSyntaxError extends Error {
   }
   name = "CustomMcpCommandSyntaxError";
 }
-
 export function parseCustomMcpArguments(value, commandLine = false) {
   const result = [];
   let current2 = "";
@@ -124,11 +116,8 @@ export function parseCustomMcpArguments(value, commandLine = false) {
   if (tokenStarted) result.push(current2);
   return result;
 }
-
 export const ICustomMcpService = createDecorator("customMcpService");
-
 export const CUSTOM_MCP_NAME_MAX_LENGTH = 24;
-
 export class CustomMcpValidationError extends Error {
   constructor(message2, field, commandIssue) {
     super(message2);
@@ -137,7 +126,6 @@ export class CustomMcpValidationError extends Error {
   }
   name = "CustomMcpValidationError";
 }
-
 export function isReservedCustomMcpName(name2) {
   const normalized = name2.trim().replace(/\./gu, "_").toLowerCase();
   return (
@@ -146,7 +134,6 @@ export function isReservedCustomMcpName(name2) {
     ["__proto__", "constructor", "prototype"].includes(normalized)
   );
 }
-
 export function requireBoundedString(value, maxLength, field) {
   if (typeof value !== "string")
     throw new CustomMcpValidationError("Invalid MCP string", field);
@@ -156,23 +143,18 @@ export function requireBoundedString(value, maxLength, field) {
   }
   return trimmed;
 }
-
 export const IGenericConnectorService = createDecorator(
   "genericConnectorService",
 );
-
 export const IHcpCliService = createDecorator("hcpCliService");
-
 export const IHiloApp = createDecorator("hiloApp");
-
 class WorkspaceFolderMissingError extends Error {
   constructor(folderPath) {
     super(`Workspace parent folder does not exist: ${folderPath}`);
     this.name = "WorkspaceFolderMissingError";
   }
 }
-
-export const hilo$1 = Object.freeze(
+export const hilo = Object.freeze(
   Object.defineProperty(
     {
       __proto__: null,
@@ -187,7 +169,6 @@ export const hilo$1 = Object.freeze(
     },
   ),
 );
-
 const FILE_PUBLISH_FAILURE_REASONS = new Set([
   "invalid_destination",
   "parent_not_directory",
@@ -198,7 +179,6 @@ const FILE_PUBLISH_FAILURE_REASONS = new Set([
   "verification_failed",
   "publish_failed",
 ]);
-
 function getFilePublishFailureReason(error) {
   if (!error || typeof error !== "object") return void 0;
   const prefix = "FilePublishError:";
@@ -207,7 +187,6 @@ function getFilePublishFailureReason(error) {
   const reason = name2.slice(prefix.length);
   return FILE_PUBLISH_FAILURE_REASONS.has(reason) ? reason : void 0;
 }
-
 export function getProjectExportFailureReason(error) {
   const publishReason = getFilePublishFailureReason(error);
   if (publishReason) return publishReason;
@@ -220,12 +199,9 @@ export function getProjectExportFailureReason(error) {
     ? "activity_unavailable"
     : void 0;
 }
-
 export const IProjectArchiveService = createDecorator("projectArchiveService");
-
 export const ISkillExportService = createDecorator("skillExportService");
-
-export function getErrorMessage$1(error) {
+export function getErrorMessage(error) {
   if (error instanceof Error) {
     return error.message;
   }
@@ -234,9 +210,7 @@ export function getErrorMessage$1(error) {
   }
   return String(error);
 }
-
 const PATH_ACCESS_DENIED_PREFIX = "Access denied:";
-
 export function isPathAccessError(err) {
   return (
     err instanceof Error && err.message.startsWith(PATH_ACCESS_DENIED_PREFIX)

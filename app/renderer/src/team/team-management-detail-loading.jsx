@@ -1,7 +1,7 @@
 // team-management-detail-loading.jsx
 import {
   Inbox,
-  Info$1,
+  Info$1 as Info,
   jsxRuntimeExports,
   ProgressRoot,
   progressStateAttributesMapping,
@@ -12,7 +12,7 @@ import {
 } from "../vendor.js";
 import { useProgressRootContext } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { TeamApiError } from "./map-team-credit-summary.js";
 import {
   Icon,
@@ -21,7 +21,6 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-
 const ProgressTrack$1 = reactExports.forwardRef(
   function ProgressTrack2(componentProps, forwardedRef) {
     const { render: render2, className, ...elementProps } = componentProps;
@@ -35,7 +34,6 @@ const ProgressTrack$1 = reactExports.forwardRef(
     return element2;
   },
 );
-
 const ProgressIndicator$1 = reactExports.forwardRef(
   function ProgressIndicator2(componentProps, forwardedRef) {
     const { render: render2, className, ...elementProps } = componentProps;
@@ -73,7 +71,6 @@ const ProgressIndicator$1 = reactExports.forwardRef(
     return element2;
   },
 );
-
 export function TeamHelpTip({
   content: content2,
   label,
@@ -95,7 +92,7 @@ export function TeamHelpTip({
             />
           }
         >
-          <Info$1 size={12} strokeWidth={1.5} aria-hidden={true} />
+          <Info size={12} strokeWidth={1.5} aria-hidden={true} />
         </TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs leading-relaxed">
           {content2}
@@ -104,11 +101,8 @@ export function TeamHelpTip({
     </TooltipProvider>
   );
 }
-
 const DETAIL_MEMBER_ROW_IDS = ["first", "second", "third"];
-
 const DETAIL_QUOTA_CELL_IDS = ["default", "remaining", "members"];
-
 export function TeamManagementDetailLoading() {
   const { t: t2 } = useTranslation();
   return (
@@ -187,9 +181,7 @@ export function TeamManagementDetailLoading() {
     </div>
   );
 }
-
 const MEMBER_ROW_IDS = ["first", "second", "third", "fourth"];
-
 export function TeamManagementMemberLoading() {
   const { t: t2 } = useTranslation();
   return (
@@ -227,7 +219,6 @@ export function TeamManagementMemberLoading() {
     </div>
   );
 }
-
 export function TeamManagementQuotaMetrics({ metrics }) {
   return (
     <div className="grid overflow-hidden rounded-lg border border-border text-xs sm:grid-flow-col sm:auto-cols-fr sm:divide-x sm:divide-border">
@@ -244,7 +235,7 @@ export function TeamManagementQuotaMetrics({ metrics }) {
               ) : null}
             </div>
             <p
-              className={cn$2(
+              className={cn(
                 "mt-2 min-w-0 break-words font-heading text-xl font-semibold text-foreground",
                 metric.tabular && "break-all tabular-nums",
               )}
@@ -288,11 +279,10 @@ export function TeamManagementQuotaMetrics({ metrics }) {
     </div>
   );
 }
-
 export function ProgressTrack({ className, ...props }) {
   return (
     <ProgressTrack$1
-      className={cn$2(
+      className={cn(
         "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
         className,
       )}
@@ -301,23 +291,21 @@ export function ProgressTrack({ className, ...props }) {
     />
   );
 }
-
 export function ProgressIndicator({ className, ...props }) {
   return (
     <ProgressIndicator$1
       data-slot="progress-indicator"
-      className={cn$2("h-full bg-primary transition-all", className)}
+      className={cn("h-full bg-primary transition-all", className)}
       {...props}
     />
   );
 }
-
 export function Progress({ className, children: children2, value, ...props }) {
   return (
     <ProgressRoot
       value={value}
       data-slot="progress"
-      className={cn$2("flex flex-wrap gap-3", className)}
+      className={cn("flex flex-wrap gap-3", className)}
       {...props}
     >
       {children2}
@@ -327,7 +315,6 @@ export function Progress({ className, children: children2, value, ...props }) {
     </ProgressRoot>
   );
 }
-
 export function TeamPanelEmpty({ title, description }) {
   return (
     <div className="flex min-h-40 flex-col items-center justify-center px-6 py-8 text-center">
@@ -350,7 +337,6 @@ export function TeamPanelEmpty({ title, description }) {
     </div>
   );
 }
-
 function firstString(details, keys2) {
   if (!details) return void 0;
   for (const key2 of keys2) {
@@ -360,7 +346,6 @@ function firstString(details, keys2) {
   }
   return void 0;
 }
-
 export function describeTeamMutationError(error) {
   if (error instanceof TeamApiError) {
     const details = error.payload.details;
@@ -403,7 +388,6 @@ export function describeTeamMutationError(error) {
     code: "temporarily_unavailable",
   };
 }
-
 export function formatTeamMutationErrorSuffix(detail) {
   const parts = [];
   if (detail.reason) parts.push(detail.reason);
@@ -426,7 +410,6 @@ export function formatTeamMutationErrorSuffix(detail) {
   }
   return parts.join(" · ");
 }
-
 export function isUpstreamContractFailure(detail) {
   return (
     detail.reason === "upstream_params_error" ||
@@ -438,7 +421,6 @@ export function isUpstreamContractFailure(detail) {
     detail.upstreamStatusCode === "1000"
   );
 }
-
 export function teamMutationReasonCode(detail) {
   return detail.reason || detail.code || "temporarily_unavailable";
 }

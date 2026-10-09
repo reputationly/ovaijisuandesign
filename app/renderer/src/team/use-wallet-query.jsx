@@ -1,6 +1,6 @@
 // use-wallet-query.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { creditLog } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { getLastGatewayTraceId } from "../infra/gateway-http-error.jsx";
@@ -11,12 +11,11 @@ import {
   useAuth,
   useCreditAccountState,
 } from "../assets/credit-query-keys.jsx";
-
 export function Label({ className, ...props }) {
   return (
     <label
       data-slot="label"
-      className={cn$2(
+      className={cn(
         "flex items-center gap-2 text-xs leading-none select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
         className,
       )}
@@ -24,17 +23,15 @@ export function Label({ className, ...props }) {
     />
   );
 }
-
 export function Skeleton({ className, ...props }) {
   return (
     <div
       data-slot="skeleton"
-      className={cn$2("animate-pulse rounded-full bg-muted", className)}
+      className={cn("animate-pulse rounded-full bg-muted", className)}
       {...props}
     />
   );
 }
-
 function sanitizeWalletInfo(raw2) {
   const toNum = (v2) => {
     if (typeof v2 === "number") return v2;
@@ -73,7 +70,6 @@ function sanitizeWalletInfo(raw2) {
     })),
   };
 }
-
 export async function fetchWalletInfo(signal) {
   try {
     const res = await gatewayFetch("/api/v1/credit/wallet", {
@@ -101,9 +97,7 @@ export async function fetchWalletInfo(signal) {
     throw err;
   }
 }
-
-export const CREDIT_CACHE_GC_MS$1 = 5 * 6e4;
-
+export const CREDIT_CACHE_GC_MS = 5 * 6e4;
 export function useWalletQuery(options = {}) {
   const { isLoggedIn, isLoading } = useAuth();
   const { queryScope, canReadPersonalCredit } = useCreditAccountState();
@@ -123,7 +117,7 @@ export function useWalletQuery(options = {}) {
     },
     enabled,
     staleTime: 2e3,
-    gcTime: CREDIT_CACHE_GC_MS$1,
+    gcTime: CREDIT_CACHE_GC_MS,
     retry: false,
     refetchInterval: options.refetchInterval,
   });

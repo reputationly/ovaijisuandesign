@@ -5,13 +5,12 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useBlockingModalPresence } from "../workspace/topbar-state-context.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-
 export function WindowCloseDialogContent({ onChoose }) {
   const { t: t2 } = useTranslation();
   const [remember, setRemember] = reactExports.useState(false);
@@ -92,7 +91,7 @@ export function WindowCloseDialogContent({ onChoose }) {
           )}
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4">
-          <Button$1
+          <Button
             ref={cancelRef}
             variant="ghost"
             size="lg"
@@ -102,8 +101,8 @@ export function WindowCloseDialogContent({ onChoose }) {
             data-action-ui-id="window-close-cancel"
           >
             {t2("windowClose.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             size="lg"
             className="min-w-20 px-4"
@@ -112,8 +111,8 @@ export function WindowCloseDialogContent({ onChoose }) {
             data-action-ui-id="window-close-quit"
           >
             {t2("windowClose.quit")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="lg"
             className="px-4"
             disabled={busy}
@@ -121,7 +120,7 @@ export function WindowCloseDialogContent({ onChoose }) {
             data-action-ui-id="window-close-tray"
           >
             {t2("windowClose.tray")}
-          </Button$1>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

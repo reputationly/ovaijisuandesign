@@ -2,24 +2,23 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   jsxRuntimeExports,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
   useTranslation,
 } from "../vendor.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { cn } from "../infra/dialog-content.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, useCanvasActive } from "./package.jsx";
 import {
-  DialogContent$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./use-preview-text.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 import { ProgressBar } from "./progress-bar-inner.jsx";
-
 function normToPxRect(box2, vr) {
   return {
     x: vr.x + box2.tlx * vr.w,
@@ -28,9 +27,7 @@ function normToPxRect(box2, vr) {
     h: (box2.bry - box2.tly) * vr.h,
   };
 }
-
 const HANDLE_SIZE = 10;
-
 function handlePositionStyle(handle2) {
   const offset2 = -HANDLE_SIZE / 2;
   switch (handle2) {
@@ -80,7 +77,6 @@ function handlePositionStyle(handle2) {
       };
   }
 }
-
 function handleCursor(handle2) {
   switch (handle2) {
     case "tl":
@@ -97,7 +93,6 @@ function handleCursor(handle2) {
       return "ew-resize";
   }
 }
-
 function ResizeHandle({ handle: handle2, onPointerDown: onPointerDown2 }) {
   const style2 = handlePositionStyle(handle2);
   return (
@@ -114,15 +109,12 @@ function ResizeHandle({ handle: handle2, onPointerDown: onPointerDown2 }) {
     />
   );
 }
-
 const MIN_BOX_SIZE = 0.02;
-
-function clamp$3(v2, lo, hi) {
+function clamp(v2, lo, hi) {
   if (v2 < lo) return lo;
   if (v2 > hi) return hi;
   return v2;
 }
-
 function getVideoLetterboxRect(
   videoWidth,
   videoHeight,
@@ -165,7 +157,6 @@ function getVideoLetterboxRect(
     h: h2,
   };
 }
-
 function pxToNorm(px, py, vr) {
   if (vr.w <= 0 || vr.h <= 0)
     return {
@@ -173,11 +164,10 @@ function pxToNorm(px, py, vr) {
       y: 0,
     };
   return {
-    x: clamp$3((px - vr.x) / vr.w, 0, 1),
-    y: clamp$3((py - vr.y) / vr.h, 0, 1),
+    x: clamp((px - vr.x) / vr.w, 0, 1),
+    y: clamp((py - vr.y) / vr.h, 0, 1),
   };
 }
-
 function createBoxFromDrag(anchor, current2) {
   return {
     tlx: Math.min(anchor.x, current2.x),
@@ -186,18 +176,16 @@ function createBoxFromDrag(anchor, current2) {
     bry: Math.max(anchor.y, current2.y),
   };
 }
-
 function isBoxBigEnough(box2) {
   return (
     box2.brx - box2.tlx >= MIN_BOX_SIZE && box2.bry - box2.tly >= MIN_BOX_SIZE
   );
 }
-
 function moveBox(initial, dxNorm, dyNorm) {
   const w3 = initial.brx - initial.tlx;
   const h2 = initial.bry - initial.tly;
-  const tlx = clamp$3(initial.tlx + dxNorm, 0, 1 - w3);
-  const tly = clamp$3(initial.tly + dyNorm, 0, 1 - h2);
+  const tlx = clamp(initial.tlx + dxNorm, 0, 1 - w3);
+  const tly = clamp(initial.tly + dyNorm, 0, 1 - h2);
   return {
     tlx,
     tly,
@@ -205,21 +193,16 @@ function moveBox(initial, dxNorm, dyNorm) {
     bry: tly + h2,
   };
 }
-
 function resizeBoxByHandle(initial, handle2, dxNorm, dyNorm) {
   let { tlx, tly, brx, bry } = initial;
   const movesL = handle2 === "tl" || handle2 === "bl" || handle2 === "l";
   const movesR = handle2 === "tr" || handle2 === "br" || handle2 === "r";
   const movesT = handle2 === "tl" || handle2 === "tr" || handle2 === "t";
   const movesB = handle2 === "bl" || handle2 === "br" || handle2 === "b";
-  if (movesL)
-    tlx = clamp$3(initial.tlx + dxNorm, 0, initial.brx - MIN_BOX_SIZE);
-  if (movesR)
-    brx = clamp$3(initial.brx + dxNorm, initial.tlx + MIN_BOX_SIZE, 1);
-  if (movesT)
-    tly = clamp$3(initial.tly + dyNorm, 0, initial.bry - MIN_BOX_SIZE);
-  if (movesB)
-    bry = clamp$3(initial.bry + dyNorm, initial.tly + MIN_BOX_SIZE, 1);
+  if (movesL) tlx = clamp(initial.tlx + dxNorm, 0, initial.brx - MIN_BOX_SIZE);
+  if (movesR) brx = clamp(initial.brx + dxNorm, initial.tlx + MIN_BOX_SIZE, 1);
+  if (movesT) tly = clamp(initial.tly + dyNorm, 0, initial.bry - MIN_BOX_SIZE);
+  if (movesB) bry = clamp(initial.bry + dyNorm, initial.tly + MIN_BOX_SIZE, 1);
   return {
     tlx,
     tly,
@@ -227,7 +210,6 @@ function resizeBoxByHandle(initial, handle2, dxNorm, dyNorm) {
     bry,
   };
 }
-
 function toEraseBox(box2) {
   return {
     top_left_x: box2.tlx,
@@ -236,7 +218,6 @@ function toEraseBox(box2) {
     bottom_right_y: box2.bry,
   };
 }
-
 function fromEraseBox(box2) {
   return {
     tlx: box2.top_left_x,
@@ -245,7 +226,6 @@ function fromEraseBox(box2) {
     bry: box2.bottom_right_y,
   };
 }
-
 function isValidBox(box2) {
   return (
     box2.tlx >= 0 &&
@@ -256,14 +236,11 @@ function isValidBox(box2) {
     box2.bry - box2.tly >= MIN_BOX_SIZE
   );
 }
-
 let __idSeq = 0;
-
 function nextRegionId() {
   __idSeq += 1;
   return `region-${Date.now().toString(36)}-${__idSeq}`;
 }
-
 function RegionView({
   box: box2,
   videoRect,
@@ -281,7 +258,7 @@ function RegionView({
       onKeyDown={(e2) => {
         if (e2.key === "Enter" || e2.key === " ") e2.preventDefault();
       }}
-      className={cn$5(
+      className={cn(
         "absolute box-border cursor-move border-2 transition-colors",
         selected2
           ? "border-primary bg-primary/15 shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
@@ -321,7 +298,6 @@ function RegionView({
     </div>
   );
 }
-
 function DraftBoxView({ box: box2, videoRect }) {
   const px = normToPxRect(box2, videoRect);
   return (
@@ -336,7 +312,6 @@ function DraftBoxView({ box: box2, videoRect }) {
     />
   );
 }
-
 function isValidBoxFromWire(b3) {
   return (
     b3.top_left_x >= 0 &&
@@ -347,7 +322,6 @@ function isValidBoxFromWire(b3) {
     b3.bottom_right_y - b3.top_left_y >= MIN_BOX_SIZE
   );
 }
-
 export const EraseSubtitleEditor = reactExports.memo(
   function EraseSubtitleEditorImpl({
     videoSrc,
@@ -670,21 +644,21 @@ export const EraseSubtitleEditor = reactExports.memo(
     const showDraftBox =
       interaction.kind === "creating" && draftBox && isBoxBigEnough(draftBox);
     return (
-      <Dialog$1
+      <Dialog
         open={true}
         onOpenChange={(o2) => {
           if (!o2) onCancel();
         }}
       >
-        <DialogContent$1
-          className={cn$5(
+        <DialogContent
+          className={cn(
             "grid h-[80vh] gap-0 overflow-hidden p-0",
             "sm:!max-w-[min(1280px,90vw)]",
             "grid-rows-[auto_minmax(0,1fr)_auto]",
           )}
         >
-          <DialogHeader$1 className="gap-1 border-b border-border/40 px-5 py-3 pr-12">
-            <DialogTitle$1 className="text-sm font-medium">
+          <DialogHeader className="gap-1 border-b border-border/40 px-5 py-3 pr-12">
+            <DialogTitle className="text-sm font-medium">
               {t2("canvas.eraseSubtitle.editor.title", "框选要消除的文字区域")}
               {videoName && (
                 <span className="ml-2 truncate text-xs font-normal text-muted-foreground">
@@ -692,14 +666,14 @@ export const EraseSubtitleEditor = reactExports.memo(
                   {videoName}
                 </span>
               )}
-            </DialogTitle$1>
+            </DialogTitle>
             <span className="text-xs text-muted-foreground">
               {t2(
                 "canvas.eraseSubtitle.editor.hint",
                 "在视频上拖拽创建框；选中后可拖动 / 缩放，按 Delete 删除",
               )}
             </span>
-          </DialogHeader$1>
+          </DialogHeader>
           <div className="relative flex min-h-0 flex-col bg-black">
             <div
               ref={stageRef}
@@ -751,9 +725,9 @@ export const EraseSubtitleEditor = reactExports.memo(
                 onPointerDown={(e2) => e2.stopPropagation()}
               >
                 {isPlaying ? (
-                  <PlaybackPauseIcon$1 size={16} className="drop-shadow-sm" />
+                  <PlaybackPauseIcon size={16} className="drop-shadow-sm" />
                 ) : (
-                  <PlaybackPlayIcon$1 size={16} className="drop-shadow-sm" />
+                  <PlaybackPlayIcon size={16} className="drop-shadow-sm" />
                 )}
               </button>
             </div>
@@ -765,7 +739,7 @@ export const EraseSubtitleEditor = reactExports.memo(
               />
             </div>
           </div>
-          <DialogFooter$1 className="flex-row items-center justify-between gap-3 border-t border-border/40 px-5 py-3">
+          <DialogFooter className="flex-row items-center justify-between gap-3 border-t border-border/40 px-5 py-3">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>
                 {t2(
@@ -777,7 +751,7 @@ export const EraseSubtitleEditor = reactExports.memo(
                 )}
               </span>
               {regions.length > 0 && (
-                <Button$2
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleClearAll}
@@ -787,19 +761,19 @@ export const EraseSubtitleEditor = reactExports.memo(
                   <span className="ml-1">
                     {t2("canvas.eraseSubtitle.editor.clearAll", "清空")}
                   </span>
-                </Button$2>
+                </Button>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button$2
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={onCancel}
                 data-action-ui-id="canvas.erase-subtitle.editor.cancel"
               >
                 {t2("canvas.eraseSubtitle.editor.cancel", "取消")}
-              </Button$2>
-              <Button$2
+              </Button>
+              <Button
                 variant="default"
                 size="sm"
                 disabled={!canSubmit}
@@ -807,11 +781,11 @@ export const EraseSubtitleEditor = reactExports.memo(
                 data-action-ui-id="canvas.erase-subtitle.editor.submit"
               >
                 {t2("canvas.eraseSubtitle.editor.submit", "开始消除")}
-              </Button$2>
+              </Button>
             </div>
-          </DialogFooter$1>
-        </DialogContent$1>
-      </Dialog$1>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     );
   },
 );

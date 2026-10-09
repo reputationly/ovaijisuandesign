@@ -16,7 +16,7 @@ import {
   logProjectOperationFailure,
   logProjectOperationSuccess,
   mapCloudProject,
-  requestJson$1,
+  requestJson,
 } from "../workspace/asset-lineage-query-key.js";
 import {
   reactExports,
@@ -30,9 +30,8 @@ import {
   instantiationService,
   IProjectMainService,
 } from "../workspace/home-service.jsx";
-
 async function createCloudProject(name2) {
-  const data2 = await requestJson$1("/api/v1/projects", {
+  const data2 = await requestJson("/api/v1/projects", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -47,9 +46,8 @@ async function createCloudProject(name2) {
   }
   return project2;
 }
-
 async function renameCloudProject(projectId, name2) {
-  await requestJson$1(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
+  await requestJson(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -59,15 +57,13 @@ async function renameCloudProject(projectId, name2) {
     }),
   });
 }
-
 async function deleteCloudProject(projectId) {
-  await requestJson$1(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
+  await requestJson(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
     method: "DELETE",
   });
 }
-
 async function acceptProjectInvite(token2) {
-  const data2 = await requestJson$1("/api/v1/project-invites/accept", {
+  const data2 = await requestJson("/api/v1/project-invites/accept", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -82,17 +78,14 @@ async function acceptProjectInvite(token2) {
   }
   return project2;
 }
-
 function hideProjectId(hiddenProjectIds, projectId) {
   return normalizeHiddenProjectIds([...hiddenProjectIds, projectId]);
 }
-
 function restoreProjectId(hiddenProjectIds, projectId) {
   return normalizeHiddenProjectIds(hiddenProjectIds).filter(
     (id2) => id2 !== projectId,
   );
 }
-
 function dedupeProjectName(projects, name2) {
   const base2 = normalizeProjectName(name2);
   if (!base2) return base2;
@@ -104,7 +97,6 @@ function dedupeProjectName(projects, name2) {
   while (taken.has(`${base2}-${suffix}`.toLowerCase())) suffix++;
   return `${base2}-${suffix}`;
 }
-
 function hasProjectNameConflict(projects, projectId, name2) {
   const normalized = normalizeProjectName(name2);
   if (!normalized) return false;
@@ -114,11 +106,9 @@ function hasProjectNameConflict(projects, projectId, name2) {
       project2.id !== projectId && project2.name.toLowerCase() === candidate,
   );
 }
-
 function cloudStatus(err) {
   return err instanceof CloudProjectRequestError ? err.status : void 0;
 }
-
 export function useProjectActions(options = {}) {
   const [parentFolderPath] = useNewProjectFolder();
   const {

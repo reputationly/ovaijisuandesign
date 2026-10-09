@@ -9,7 +9,7 @@ import {
 import {
   canUseUpdaterDevPreview,
   setUpdaterDevPreviewMode,
-  STORAGE_KEY$5,
+  STORAGE_KEY,
   UPDATER_DEV_PREVIEW_EVENT,
 } from "../generation/use-model-catalog-scope-key.js";
 import {
@@ -27,9 +27,7 @@ import {
   IUpdaterMainService,
 } from "../workspace/home-service.jsx";
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
-
 const UPDATE_DISMISS_REMINDER_MS = 2 * 60 * 60 * 1e3;
-
 function resolveNotification(input) {
   const { state: state2, userTriggered } = input;
   const dismissed = input.dismissed ?? state2.dismissed;
@@ -125,10 +123,9 @@ function resolveNotification(input) {
     type: "silent",
   };
 }
-
 function getUpdaterDevPreviewMode() {
   if (!canUseUpdaterDevPreview()) return null;
-  const value = globalThis.sessionStorage?.getItem(STORAGE_KEY$5);
+  const value = globalThis.sessionStorage?.getItem(STORAGE_KEY);
   return value === "forced" ||
     value === "normal" ||
     value === "downloading" ||
@@ -137,13 +134,11 @@ function getUpdaterDevPreviewMode() {
     ? value
     : null;
 }
-
 function subscribeUpdaterDevPreview(listener) {
   if (typeof window === "undefined") return () => {};
   window.addEventListener(UPDATER_DEV_PREVIEW_EVENT, listener);
   return () => window.removeEventListener(UPDATER_DEV_PREVIEW_EVENT, listener);
 }
-
 function useUpdaterDevPreviewMode() {
   return reactExports.useSyncExternalStore(
     subscribeUpdaterDevPreview,
@@ -151,7 +146,6 @@ function useUpdaterDevPreviewMode() {
     () => null,
   );
 }
-
 function createUpdaterDevPreviewState(mode2) {
   const phase =
     mode2 === "downloading"
@@ -219,9 +213,7 @@ function createUpdaterDevPreviewState(mode2) {
     dismissedAt: 0,
   };
 }
-
 const UPDATE_CHECK_RESULT_TIMEOUT_MS = 3e4;
-
 function hasResolvedUpdateFlow(state2) {
   return (
     state2.phase === "available" ||
@@ -229,11 +221,9 @@ function hasResolvedUpdateFlow(state2) {
     state2.phase === "downloaded"
   );
 }
-
 function hasActiveUpdateFlow(state2) {
   return state2.phase === "checking" || hasResolvedUpdateFlow(state2);
 }
-
 function waitForUpdateCheckResult(service2) {
   let timeout2;
   let disposable;
@@ -266,7 +256,6 @@ function waitForUpdateCheckResult(service2) {
     },
   };
 }
-
 async function runManualUpdateCheck(service2) {
   try {
     const { state: state2 } = await service2.getState();
@@ -360,7 +349,6 @@ async function runManualUpdateCheck(service2) {
     };
   }
 }
-
 function createInitialState() {
   const bootstrap = window.__HILO_UPDATER_BOOTSTRAP__;
   if (bootstrap && typeof bootstrap === "object" && "phase" in bootstrap) {
@@ -394,9 +382,7 @@ function createInitialState() {
     dismissedAt: 0,
   };
 }
-
 const MANUAL_UPDATE_CHECK_TOAST_ID = "manual-update-check";
-
 function showManualUpdateCheckFeedback(result, t2) {
   if (!result.accepted) {
     if (isUpdateCheckAlreadyInProgress(result.error)) {
@@ -464,7 +450,6 @@ function showManualUpdateCheckFeedback(result, t2) {
     });
   }
 }
-
 export const UpdaterProvider = ({ children: children2 }) => {
   const { t: t2 } = useTranslation();
   const devPreviewMode = useUpdaterDevPreviewMode();
@@ -744,7 +729,6 @@ export const UpdaterProvider = ({ children: children2 }) => {
     <UpdaterContext.Provider value={value}>{children2}</UpdaterContext.Provider>
   );
 };
-
 ({
   en: BUNDLED_CHANGELOG.en,
   zh: BUNDLED_CHANGELOG.zh,

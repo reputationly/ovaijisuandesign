@@ -8,7 +8,7 @@ import {
   reactExports,
   usePromptFontSizeStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useModelRegistryStore } from "../infra/create-recently-added-store.js";
@@ -25,11 +25,8 @@ import {
 } from "../generation/resolution-tabs.jsx";
 import { ParamQualitySlider } from "./param-quality-slider.jsx";
 import { PopoverShell } from "../generation/attachment-bar.jsx";
-
 const DEFAULT_PANORAMA_MODEL_ID = "g-image-2";
-
 const DEFAULT_PANORAMA_PRICING_ID = "gpt-image-2";
-
 function resolvePanoramaPricingId(imageModels, generationModelId) {
   const model = findModelByStoredId(imageModels, generationModelId);
   if (model) return resolvePricingId(model);
@@ -41,7 +38,6 @@ function resolvePanoramaPricingId(imageModels, generationModelId) {
   }
   return void 0;
 }
-
 function calcPanoramaGenerationCost(
   pricingConfig,
   imageModels,
@@ -65,13 +61,9 @@ function calcPanoramaGenerationCost(
   );
   return perImage == null ? void 0 : perImage * Math.max(1, count2);
 }
-
 const PANORAMA_PROMPT_MAX_LENGTH = 7500;
-
 const PANORAMA_GENERATION_COUNT = 1;
-
 const PANORAMA_QUALITY_OPTIONS = ["low", "medium", "high"];
-
 export function PanoramaGenerationPanel({
   upstreamGenerateReferences = [],
   onPickGenerateReferences,
@@ -168,7 +160,7 @@ export function PanoramaGenerationPanel({
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-lg text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:opacity-50"
           aria-label={t2("common.cancel", "取消")}
         >
-          <X$7 size={16} strokeWidth={1.5} />
+          <X size={16} strokeWidth={1.5} />
         </button>
       )}
       <div
@@ -197,7 +189,7 @@ export function PanoramaGenerationPanel({
                 className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-background opacity-0 transition-opacity group-hover/reference:opacity-100"
                 aria-label={t2("common.remove", "移除")}
               >
-                <X$7 size={10} strokeWidth={2} />
+                <X size={10} strokeWidth={2} />
               </button>
             </div>
           ))}

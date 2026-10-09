@@ -22,7 +22,7 @@ import {
   isVideoExtensionInputDurationValid,
   isVideoExtensionOutputDurationValid,
   LEGACY_SEEDANCE_25_TASK_TYPE_PARAM,
-  MAX_VIDEOS_PER_SUBMIT$1,
+  MAX_VIDEOS_PER_SUBMIT,
   MINIMAX_H3_PRICING_ID,
   MINIMAX_H3_REFERENCE_MEDIA_MAX_SEC,
   MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS,
@@ -77,7 +77,7 @@ import {
   submitWithPersistedPopoverDraft,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
 import { getAdjacentNodePosition } from "../canvas/node-shell-inner.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 import {
   calculateAudioDurationExcesses,
   calculateVideoDurationExcesses,
@@ -168,7 +168,6 @@ import {
   resolveSeedance25VideoExtendDefaultDuration,
   shouldSwitchHailuo03TrialClaimResolution,
 } from "./resolve-seedance25-image-mode-change-params.js";
-
 export function I2VPopoverInner({
   onSubmit,
   onClose,
@@ -563,7 +562,7 @@ export function I2VPopoverInner({
     [t2, selectedModel, effectiveModelParams],
   );
   const effectiveCount = showCountChip
-    ? Math.max(1, Math.min(MAX_VIDEOS_PER_SUBMIT$1, Math.floor(count2)))
+    ? Math.max(1, Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count2)))
     : 1;
   const assets = attachmentState.metadataAssets;
   const sourceVideoPath = attachmentState.videoPaths.find(Boolean);
@@ -2613,7 +2612,7 @@ export function I2VPopoverInner({
               />
               <CountChip
                 value={effectiveCount}
-                maxCount={MAX_VIDEOS_PER_SUBMIT$1}
+                maxCount={MAX_VIDEOS_PER_SUBMIT}
                 options={VIDEO_COUNT_OPTIONS}
                 onChange={setCount}
                 disabled={formDisabled}
@@ -2626,7 +2625,7 @@ export function I2VPopoverInner({
                 aria-hidden={true}
                 className="w-px h-3 bg-foreground/15 shrink-0"
               />
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.popover.restoreOriginalDraft")}
                 side="top"
               >
@@ -2640,13 +2639,13 @@ export function I2VPopoverInner({
                 >
                   <FileClock size={16} strokeWidth={1} />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
             </>
           )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {canClaimHailuo03VideoTrial && (
-            <Tooltip$1 content={hailuo03VideoTrialClaimHint} side="top">
+            <Tooltip content={hailuo03VideoTrialClaimHint} side="top">
               <button
                 type="button"
                 className="h-8 rounded-md border border-[var(--canvas-controls-border)] px-2.5 text-[13px] font-medium text-[var(--canvas-controls-text)] transition-colors duration-150 hover:enabled:bg-[var(--canvas-controls-hover)] disabled:cursor-default disabled:opacity-50"
@@ -2662,7 +2661,7 @@ export function I2VPopoverInner({
                       defaultValue: "领取免费机会",
                     })}
               </button>
-            </Tooltip$1>
+            </Tooltip>
           )}
           {inGeneratingState ? (
             <GeneratingButton label={t2("canvas.generating")} />

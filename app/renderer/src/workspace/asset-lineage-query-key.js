@@ -7,11 +7,8 @@ import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
 import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
 import { reactExports } from "../vendor.js";
-
 const ASSET_LINEAGE_QUERY_PREFIX = ["asset-lineage"];
-
 const DEFAULT_GATEWAY_SCOPE_KEY = "app";
-
 export const assetLineageQueryKey = {
   /** Top-level prefix; matches every lineage / descendants / inputs query. */
   all: () => [...ASSET_LINEAGE_QUERY_PREFIX],
@@ -42,15 +39,11 @@ export const assetLineageQueryKey = {
     "inputs",
   ],
 };
-
 const TAG_REGISTRY_QUERY_KEY = ["canvas", "tag-registry"];
-
 export function canvasTagRegistryQueryKey(gatewayScopeKey) {
   return [...TAG_REGISTRY_QUERY_KEY, gatewayScopeKey];
 }
-
 export const WSConnectionContext = reactExports.createContext(null);
-
 export function useWSConnection() {
   const ctx = reactExports.useContext(WSConnectionContext);
   if (!ctx) {
@@ -60,13 +53,9 @@ export function useWSConnection() {
   }
   return ctx;
 }
-
 export const SettingsDialogCtx = reactExports.createContext(null);
-
 const TEXT_SAFETY_PATH = "/api/safety/check-text";
-
 const TEXT_SAFETY_TIMEOUT_MS = 5e3;
-
 function mapTextSafetyCheckResult(value) {
   if (!value || typeof value !== "object") {
     throw new TypeError("Text safety response must be an object");
@@ -80,7 +69,6 @@ function mapTextSafetyCheckResult(value) {
     decision: result.decision,
   };
 }
-
 export async function checkTextSafety(content2) {
   if (!content2.trim())
     return {
@@ -113,7 +101,6 @@ export async function checkTextSafety(content2) {
     };
   }
 }
-
 function mapMemberRole(raw2) {
   const value = Number(raw2 ?? 0);
   return value === MemberRole.MEMBER_ROLE_CREATOR ||
@@ -121,7 +108,6 @@ function mapMemberRole(raw2) {
     ? value
     : MemberRole.MEMBER_ROLE_UNSPECIFIED;
 }
-
 export function mapCloudProject(raw2) {
   if (!raw2 || typeof raw2.id !== "string" || !raw2.id) return null;
   return {
@@ -136,7 +122,6 @@ export function mapCloudProject(raw2) {
     totalBytes: Number(raw2.total_bytes ?? 0),
   };
 }
-
 export class CloudProjectRequestError extends Error {
   constructor(status, userMessage) {
     super(userMessage || `cloud project request failed (${status})`);
@@ -145,7 +130,6 @@ export class CloudProjectRequestError extends Error {
     this.name = "CloudProjectRequestError";
   }
 }
-
 export function cloudErrorDisplayMessage(err) {
   if (err instanceof CloudProjectRequestError) return err.userMessage;
   if (err instanceof GatewayHttpError) return err.userMessage;
@@ -156,8 +140,7 @@ export function cloudErrorDisplayMessage(err) {
   }
   return void 0;
 }
-
-export async function requestJson$1(path2, init2) {
+export async function requestJson(path2, init2) {
   let resp;
   try {
     resp = await gatewayFetch(path2, init2);
@@ -169,13 +152,11 @@ export async function requestJson$1(path2, init2) {
   }
   return await resp.json().catch(() => ({}));
 }
-
 export async function listCloudProjects() {
-  const data2 = await requestJson$1("/api/v1/projects");
+  const data2 = await requestJson("/api/v1/projects");
   const projects = Array.isArray(data2.projects) ? data2.projects : [];
   return projects.map(mapCloudProject).filter((project2) => project2 !== null);
 }
-
 function mapProjectMember(raw2) {
   if (!raw2 || typeof raw2.user_id !== "string" || !raw2.user_id) return null;
   return {
@@ -186,26 +167,23 @@ function mapProjectMember(raw2) {
     joinedAt: Number(raw2.joined_at ?? 0),
   };
 }
-
 export async function listProjectMembers(projectId) {
-  const data2 = await requestJson$1(
+  const data2 = await requestJson(
     `/api/v1/projects/${encodeURIComponent(projectId)}/members`,
   );
   const members = Array.isArray(data2.members) ? data2.members : [];
   return members.map(mapProjectMember).filter((member) => member !== null);
 }
-
 export async function removeProjectMember(projectId, userId) {
-  await requestJson$1(
+  await requestJson(
     `/api/v1/projects/${encodeURIComponent(projectId)}/members/${encodeURIComponent(userId)}`,
     {
       method: "DELETE",
     },
   );
 }
-
 export async function createProjectInviteLink(projectId) {
-  const data2 = await requestJson$1(
+  const data2 = await requestJson(
     `/api/v1/projects/${encodeURIComponent(projectId)}/invites`,
     {
       method: "POST",
@@ -220,16 +198,13 @@ export async function createProjectInviteLink(projectId) {
     expireAt: Number(data2.expire_at ?? 0),
   };
 }
-
 let fallbackSequence = 0;
-
 export function createProjectOperationId(action) {
   const randomId = globalThis.crypto?.randomUUID?.();
   if (randomId) return `${action}:${randomId}`;
   fallbackSequence += 1;
   return `${action}:${Date.now().toString(36)}:${fallbackSequence.toString(36)}`;
 }
-
 export function logProjectOperationAttempt(action, operationId, meta2) {
   projectLog.info(`${action} attempt`, {
     operationId,
@@ -237,7 +212,6 @@ export function logProjectOperationAttempt(action, operationId, meta2) {
   });
   return Date.now();
 }
-
 export function logProjectOperationSuccess(
   action,
   operationId,
@@ -250,7 +224,6 @@ export function logProjectOperationSuccess(
     ...meta2,
   });
 }
-
 export function logProjectOperationBlocked(
   action,
   operationId,
@@ -267,7 +240,6 @@ export function logProjectOperationBlocked(
     ...meta2,
   });
 }
-
 function readErrorCode(error) {
   if (typeof error !== "object" || error === null) return void 0;
   const code2 = Reflect.get(error, "code");
@@ -278,7 +250,6 @@ function readErrorCode(error) {
     return `http_${status}`;
   return void 0;
 }
-
 function projectOperationError(error) {
   const errorCode = readErrorCode(error);
   return {
@@ -286,7 +257,6 @@ function projectOperationError(error) {
     errorCode: errorCode ?? "unknown",
   };
 }
-
 export function logProjectOperationFailure(
   action,
   operationId,
@@ -303,18 +273,15 @@ export function logProjectOperationFailure(
     ...meta2,
   });
 }
-
 export function retainCompleteWorkspaceCatalog(entries2) {
   return [...entries2];
 }
-
 function finiteManualOrder(workspace) {
   return typeof workspace.manualOrder === "number" &&
     Number.isFinite(workspace.manualOrder)
     ? workspace.manualOrder
     : void 0;
 }
-
 export function sortRecentWorkspacesByStableOrder(workspaces) {
   return workspaces
     .map((workspace, sourceIndex) => ({

@@ -1,21 +1,14 @@
 // banana-resolution-picker.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { reactExports, useTranslation } from "../vendor.js";
-import {
-  CloseIcon$1,
-  RedoIcon$1,
-  UndoIcon$1,
-} from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, RedoIcon, UndoIcon } from "../canvas/file-missing-icon.jsx";
 import { selectionToNormalizedBBox } from "./selection-to-normalized-b-box.js";
-
 export function selectionsToNormalizedBBoxes(rects) {
   return rects
     .map(selectionToNormalizedBBox)
     .filter((bbox) => bbox.x1 < bbox.x2 && bbox.y1 < bbox.y2);
 }
-
 const DEFAULT_OPTIONS = ["1K", "2K", "4K"];
-
 export const BananaResolutionPicker = reactExports.memo(
   function BananaResolutionPicker2({
     value,
@@ -75,8 +68,7 @@ export const BananaResolutionPicker = reactExports.memo(
     );
   },
 );
-
-function IconButton$2({
+function IconButton({
   disabled: disabled2,
   onClick,
   title,
@@ -95,11 +87,9 @@ function IconButton$2({
     </button>
   );
 }
-
-function Divider$1() {
+function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-
 export const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
   tool: _tool,
   onToolChange: _onToolChange,
@@ -122,34 +112,27 @@ export const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
       data-canvas-toolbar="true"
       data-density="compact"
     >
-      <IconButton$2
-        disabled={false}
-        onClick={onClose}
-        title={t2("canvas.close")}
-      >
-        <CloseIcon$1 />
-      </IconButton$2>
-      <Divider$1 />
-      <IconButton$2
+      <IconButton disabled={false} onClick={onClose} title={t2("canvas.close")}>
+        <CloseIcon />
+      </IconButton>
+      <Divider />
+      <IconButton
         disabled={!hasStrokes}
         onClick={onUndo}
         title={t2("canvas.eraseUndo")}
       >
-        <UndoIcon$1 />
-      </IconButton$2>
-      <IconButton$2
+        <UndoIcon />
+      </IconButton>
+      <IconButton
         disabled={!canRedo}
         onClick={onRedo}
         title={t2("canvas.eraseRedo")}
       >
-        <RedoIcon$1 />
-      </IconButton$2>
+        <RedoIcon />
+      </IconButton>
     </div>
   );
 });
-
-export const BAR_GAP$2 = 16;
-
-export const BAR_HEIGHT$1 = 40;
-
+export const BAR_GAP = 16;
+export const BAR_HEIGHT = 40;
 export const BAR_MIN_WIDTH = 360;

@@ -1,24 +1,18 @@
 // use-auto-announcement.js
 import { PopupType } from "../generation/normalize-skill-detail-metadata.js";
 import { reactExports } from "../vendor.js";
-
 const SHOWN_KEY_PREFIX = "hilo:popup:trial-granted-shown:";
-
 export const PENDING_KEY = "hilo:popup:trial-granted-pending";
-
 export const CHANGE_EVENT = "hilo:trial-granted-changed";
-
 export function buildShownKey(userID) {
   return `${SHOWN_KEY_PREFIX}${userID}`;
 }
-
 export function clearPendingTrialGranted() {
   try {
     window.sessionStorage.removeItem(PENDING_KEY);
   } catch {}
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
-
 export function normalizePopup(raw2) {
   if (!raw2) return null;
   const isKnownType =
@@ -44,7 +38,6 @@ export function normalizePopup(raw2) {
   }
   return raw2;
 }
-
 export function normalizeAnnouncements(raw2) {
   const seen2 = new Set();
   return (raw2?.announcements?.length ? raw2.announcements : raw2 ? [raw2] : [])
@@ -62,23 +55,16 @@ export function normalizeAnnouncements(raw2) {
     })
     .sort((a2, b3) => (b3.priority ?? 0) - (a2.priority ?? 0));
 }
-
 function canAutoShowAnnouncement(popup) {
   return popup.auto_show !== false && popup.trial_active !== false;
 }
-
-const KEY_PREFIX$2 = "hilo:popup:muted-until:";
-
+const KEY_PREFIX = "hilo:popup:muted-until:";
 export const MUTE_FOREVER = Number.MAX_SAFE_INTEGER;
-
 const DEAD_ID_AFTER_MS = 90 * 24 * 60 * 60 * 1e3;
-
 const PRUNE_INTERVAL_MS = 60 * 1e3;
-
 function buildKey(userID, popupId) {
-  return `${KEY_PREFIX$2}${userID}:${popupId}`;
+  return `${KEY_PREFIX}${userID}:${popupId}`;
 }
-
 function parseRecord(raw2) {
   try {
     const obj = JSON.parse(raw2);
@@ -98,13 +84,11 @@ function parseRecord(raw2) {
     return null;
   }
 }
-
 function writeRecord(key2, record2) {
   try {
     window.localStorage.setItem(key2, JSON.stringify(record2));
   } catch {}
 }
-
 export function readMutedUntil(userID, popupId) {
   if (!userID || !popupId) return null;
   try {
@@ -119,7 +103,6 @@ export function readMutedUntil(userID, popupId) {
     return null;
   }
 }
-
 export function touchSeen(userID, popupId) {
   if (!userID || !popupId) return;
   try {
@@ -136,10 +119,9 @@ export function touchSeen(userID, popupId) {
     });
   } catch {}
 }
-
 function pruneExpiredAndDead(userID, now2) {
   try {
-    const userPrefix = `${KEY_PREFIX$2}${userID}:`;
+    const userPrefix = `${KEY_PREFIX}${userID}:`;
     const deadBefore = now2 - DEAD_ID_AFTER_MS;
     const toRemove = [];
     for (let i2 = 0; i2 < window.localStorage.length; i2++) {
@@ -155,15 +137,12 @@ function pruneExpiredAndDead(userID, now2) {
     for (const key2 of toRemove) window.localStorage.removeItem(key2);
   } catch {}
 }
-
 let lastPrunedAt = 0;
-
 function maybePrune(userID, now2) {
   if (now2 - lastPrunedAt < PRUNE_INTERVAL_MS) return;
   lastPrunedAt = now2;
   pruneExpiredAndDead(userID, now2);
 }
-
 export function setMutedUntil(userID, popupId, mutedUntilMs) {
   if (!userID || !popupId) return;
   const now2 = Date.now();
@@ -173,11 +152,10 @@ export function setMutedUntil(userID, popupId, mutedUntilMs) {
   });
   maybePrune(userID, now2);
 }
-
 export function clearMutesForUser(userID) {
   if (!userID) return;
   try {
-    const userPrefix = `${KEY_PREFIX$2}${userID}:`;
+    const userPrefix = `${KEY_PREFIX}${userID}:`;
     const toRemove = [];
     for (let i2 = 0; i2 < window.localStorage.length; i2++) {
       const key2 = window.localStorage.key(i2);
@@ -186,7 +164,6 @@ export function clearMutesForUser(userID) {
     for (const key2 of toRemove) window.localStorage.removeItem(key2);
   } catch {}
 }
-
 export function useAutoAnnouncement(raw2, userID) {
   const [selection2, setSelection] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -229,7 +206,6 @@ export function useAutoAnnouncement(raw2, userID) {
     ready: true,
   };
 }
-
 export function trackTypeOf(popupType) {
   switch (popupType) {
     case PopupType.POPUP_TYPE_GENERAL:

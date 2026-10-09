@@ -10,14 +10,14 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-  DropdownMenuSubTrigger$1,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSubTrigger,
 } from "./audio-lightbox.jsx";
 import {
-  DropdownMenu$1,
-  DropdownMenuSub$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu,
+  DropdownMenuSub,
+  DropdownMenuTrigger,
 } from "./use-warn-missing-asset-meta.jsx";
 import { SplitGridIcon } from "../canvas/file-missing-icon.jsx";
 import { RotateIcon, Settings2 } from "./package.jsx";
@@ -29,8 +29,8 @@ import {
 import {
   AddToChatIcon,
   AnnotationIcon,
-  FullscreenIcon$1,
-  MoreVerticalIcon$1,
+  FullscreenIcon,
+  MoreVerticalIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
 import { NodeToolbar } from "./toolbar-item.jsx";
@@ -38,7 +38,6 @@ import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "./image-edit-pricing.js";
 import { IMAGE_TOOL_META } from "./image-tool-meta.jsx";
 import { classifyToolInteraction } from "./node-tool-interaction.js";
-
 const SPLIT_PRESETS = [
   {
     rows: 2,
@@ -57,13 +56,10 @@ const SPLIT_PRESETS = [
     cols: 5,
   },
 ];
-
 function resolveSplitGridMenuOptions(sourceGrid) {
   return sourceGrid ? [sourceGrid] : SPLIT_PRESETS;
 }
-
 const SPLIT_MAX = 5;
-
 function CustomGridPicker({ onPick }) {
   const { t: t2 } = useTranslation();
   const [hover, setHover] = reactExports.useState({
@@ -129,7 +125,6 @@ function CustomGridPicker({ onPick }) {
     </div>
   );
 }
-
 function ChevronRight() {
   return (
     <CompositedSvg
@@ -149,7 +144,6 @@ function ChevronRight() {
     </CompositedSvg>
   );
 }
-
 function ImageSplitMenuItems({ onPick, sourceGrid }) {
   const { t: t2 } = useTranslation();
   const menuOptions = resolveSplitGridMenuOptions(sourceGrid);
@@ -158,7 +152,7 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
       {menuOptions.map(({ rows, cols }) => (
         <ActionListItem
           key={`${rows}x${cols}`}
-          render={<DropdownMenuItem$1 />}
+          render={<DropdownMenuItem />}
           onClick={() => onPick(rows, cols)}
           data-action-ui-id={`canvas.node-split-grid-${cols}x${rows}`}
         >
@@ -179,8 +173,8 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
         </ActionListItem>
       ))}
       <ActionListSeparator />
-      <DropdownMenuSub$1>
-        <ActionListItem render={<DropdownMenuSubTrigger$1 />}>
+      <DropdownMenuSub>
+        <ActionListItem render={<DropdownMenuSubTrigger />}>
           <span className="whitespace-nowrap">
             {t2("canvas.splitGrid.custom", "自定义")}
           </span>
@@ -188,7 +182,7 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
             <ChevronRight />
           </span>
         </ActionListItem>
-        <DropdownMenuContent$1
+        <DropdownMenuContent
           side="right"
           align="start"
           sideOffset={8}
@@ -196,24 +190,20 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
           variant="toolbar"
         >
           <CustomGridPicker onPick={onPick} />
-        </DropdownMenuContent$1>
-      </DropdownMenuSub$1>
+        </DropdownMenuContent>
+      </DropdownMenuSub>
     </>
   );
 }
-
 const IMAGE_TOOLBAR_NEW_FEATURE_STORAGE_KEY =
   "hilo:canvas:image-toolbar:seen-features:v1";
-
 const IMAGE_TOOLBAR_NEW_FEATURE_IDS = [
   "relight",
   "storyboard-grid",
   "watermark",
   "layer-decompose",
 ];
-
 const IMAGE_TOOLBAR_NEW_FEATURE_ID_SET = new Set(IMAGE_TOOLBAR_NEW_FEATURE_IDS);
-
 function readSeenImageToolbarFeatures() {
   if (typeof window === "undefined") return new Set();
   try {
@@ -233,15 +223,12 @@ function readSeenImageToolbarFeatures() {
     return new Set();
   }
 }
-
 function isImageToolbarNewFeatureId(value) {
   return IMAGE_TOOLBAR_NEW_FEATURE_ID_SET.has(value);
 }
-
-function CustomizeIcon$1() {
+function CustomizeIcon() {
   return <Settings2 size={20} strokeWidth={1.5} aria-hidden="true" />;
 }
-
 function SplitGridDisclosureIcon({ open }) {
   return (
     <CompositedSvg
@@ -260,7 +247,6 @@ function SplitGridDisclosureIcon({ open }) {
     </CompositedSvg>
   );
 }
-
 function PinnedSplitGridToolbarItem({
   disabled: disabled2,
   onPick,
@@ -270,8 +256,8 @@ function PinnedSplitGridToolbarItem({
   const [open, setOpen] = reactExports.useState(false);
   return (
     <>
-      <DropdownMenu$1 open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger$1
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger
           disabled={disabled2}
           className="canvas-toolbar-action"
           data-action-ui-id="canvas.node-split-grid"
@@ -281,11 +267,11 @@ function PinnedSplitGridToolbarItem({
             {t2("canvas.splitGrid.label", "Split Grid")}
           </span>
           <SplitGridDisclosureIcon open={open} />
-        </DropdownMenuTrigger$1>
+        </DropdownMenuTrigger>
         <ActionListPanel
           className="w-max"
           render={
-            <DropdownMenuContent$1
+            <DropdownMenuContent
               side="bottom"
               sideOffset={8}
               align="start"
@@ -296,7 +282,7 @@ function PinnedSplitGridToolbarItem({
         >
           <ImageSplitMenuItems onPick={onPick} sourceGrid={sourceGrid} />
         </ActionListPanel>
-      </DropdownMenu$1>
+      </DropdownMenu>
       <div
         aria-hidden="true"
         style={{
@@ -310,7 +296,6 @@ function PinnedSplitGridToolbarItem({
     </>
   );
 }
-
 export const ImageNodeToolbarSection = reactExports.memo(
   function ImageNodeToolbarSectionImpl({
     hasDimensions,
@@ -516,7 +501,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
       overflowDropdown.push({
         id: "customize-toolbar",
         label: t2("canvas.customizeToolbar.menu", "编辑工具栏"),
-        icon: <CustomizeIcon$1 />,
+        icon: <CustomizeIcon />,
         onSelect: wrap2(
           "customize-toolbar",
           handleCustomizeToolbar,
@@ -527,7 +512,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
       const moreItem = {
         id: "more",
         label: t2("common.more", "更多"),
-        icon: <MoreVerticalIcon$1 size={16} />,
+        icon: <MoreVerticalIcon size={16} />,
         hideDropdownArrow: true,
         dropdownItems: overflowDropdown,
         onDropdownOpen: onToolClick
@@ -591,7 +576,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
         {
           id: "fullscreen",
           label: t2("canvas.fullscreen"),
-          icon: <FullscreenIcon$1 />,
+          icon: <FullscreenIcon />,
           onClick: wrap2("fullscreen", handleFullscreen, "primary_bar"),
         },
       ];

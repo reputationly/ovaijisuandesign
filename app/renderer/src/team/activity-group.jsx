@@ -1,6 +1,6 @@
 // activity-group.jsx
 import {
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Globe,
   reactExports,
   useTranslation,
@@ -12,7 +12,7 @@ import {
   CATEGORY_RUNNING_I18N,
   getStreamingAction,
 } from "../media-editing/turn-artifact-strip.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Spinner } from "./use-team-transactions-feed-query.jsx";
 import { isTransientTool } from "../generation/use-tool-confirm-edit-state.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
@@ -25,7 +25,6 @@ import { mergeIntoTimelineEntries } from "../media-editing/merge-into-timeline-e
 import { parseJsonRecord } from "../media-editing/unwrap-mcp-json-record.js";
 import { categorizeToolAction } from "../chat/has-structured-success-payload.js";
 import { TimelineItem } from "../media-editing/timeline-item.jsx";
-
 function BrowserOpenCard({ onContinue }) {
   const { t: t2 } = useTranslation();
   const [opening2, setOpening] = reactExports.useState(false);
@@ -64,7 +63,7 @@ function BrowserOpenCard({ onContinue }) {
           )}
         </div>
       </div>
-      <Button$1
+      <Button
         type="button"
         size="sm"
         disabled={opening2 || opened}
@@ -75,11 +74,10 @@ function BrowserOpenCard({ onContinue }) {
           : opened
             ? t2("chat.browser.opened", "已开启")
             : t2("chat.browser.open", "开启浏览器")}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 const GROUPABLE_CATEGORIES = new Set([
   "read",
   "analyseMedia",
@@ -90,7 +88,6 @@ const GROUPABLE_CATEGORIES = new Set([
   "connector",
   "other",
 ]);
-
 function groupTimelineEntries(entries2) {
   const units = [];
   let pending2 = [];
@@ -131,7 +128,6 @@ function groupTimelineEntries(entries2) {
   flush2();
   return units;
 }
-
 function summarizeTimelineEntries(entries2) {
   const counts = new Map();
   for (const entry of entries2) {
@@ -147,7 +143,6 @@ function summarizeTimelineEntries(entries2) {
     count: count2,
   }));
 }
-
 function ToolActivityDisclosure({
   entries: entries2,
   isActive: isActive2,
@@ -179,7 +174,7 @@ function ToolActivityDisclosure({
       className="flex min-w-0 flex-col gap-2"
       data-action-ui-id="chat-tool-activity-group"
     >
-      <Button$1
+      <Button
         variant="ghost"
         size="sm"
         className="h-auto w-fit max-w-full justify-start gap-1.5 px-0 py-0 font-normal text-muted-foreground hover:bg-transparent aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
@@ -197,18 +192,17 @@ function ToolActivityDisclosure({
           <Wrench className="size-4" strokeWidth={1.5} />
         )}
         <span className="min-w-0 truncate text-body-14">{summary}</span>
-        <ChevronRight$1
+        <ChevronRight
           className={`size-3.5 transition-transform ${expanded ? "rotate-90" : ""}`}
           strokeWidth={1.5}
         />
-      </Button$1>
+      </Button>
       <div id={contentId} hidden={!expanded}>
         <div className="flex min-w-0 flex-col gap-2 pl-5">{children2}</div>
       </div>
     </div>
   );
 }
-
 const CATEGORIES_WITH_INLINE_PROGRESS = new Set([
   "analyseMedia",
   "canvas",
@@ -220,7 +214,6 @@ const CATEGORIES_WITH_INLINE_PROGRESS = new Set([
   "audioGen",
   "musicGen",
 ]);
-
 function isTimelineEntryActive(entry, latestEntry, isStreaming) {
   if (!isStreaming) return false;
   if (
@@ -234,7 +227,6 @@ function isTimelineEntryActive(entry, latestEntry, isStreaming) {
     (entry.type === "thinking" || isTransientTool(entry.toolName))
   );
 }
-
 export function ActivityGroup({
   data: data2,
   isStreaming,

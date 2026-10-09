@@ -9,7 +9,7 @@ import {
   useAssetMetadataApi,
   useNodesInitialized,
   useReactFlow,
-  useStore$3,
+  useStore$3 as useStore,
   useStoreApi,
   useTranslation,
 } from "../vendor.js";
@@ -158,7 +158,6 @@ import { EmptyViewportToast } from "./empty-viewport-toast.jsx";
 import { CanvasViewControls } from "./canvas-view-controls.jsx";
 import { SelectionToolbar } from "./selection-toolbar.js";
 import { MultiSelectPlusHandle } from "./multi-select-plus-handle-inner.jsx";
-
 export function CanvasViewInner({
   dataSource,
   plugins,
@@ -1950,8 +1949,8 @@ export function CanvasViewInner({
   const { handleFitView, handleFocusSelection, handleMinimapNodeSelect } =
     useCanvasViewportFocus(instance2);
   const nodesInitialized = useNodesInitialized();
-  const flowViewportWidth = useStore$3((state2) => state2.width);
-  const flowViewportHeight = useStore$3((state2) => state2.height);
+  const flowViewportWidth = useStore((state2) => state2.width);
+  const flowViewportHeight = useStore((state2) => state2.height);
   const didInitialFitRef = reactExports.useRef(false);
   const [initialFitDone, setInitialFitDone] = reactExports.useState(false);
   const initialFitOwnerRef = reactExports.useRef(initialViewportOwner);

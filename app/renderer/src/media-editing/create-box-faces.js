@@ -1,6 +1,5 @@
 // create-box-faces.js
-import { add$1, localToWorld, project$1 } from "./layer-decompose-prompt.jsx";
-
+import { add, localToWorld, project } from "./layer-decompose-prompt.jsx";
 export function createBoxFaces({
   key: key2,
   center,
@@ -53,7 +52,7 @@ export function createBoxFaces({
       y: y4,
       z: z3,
     },
-  ].map((point2) => add$1(point2, center));
+  ].map((point2) => add(point2, center));
   const definitions = [
     {
       name: "back",
@@ -114,7 +113,7 @@ export function createBoxFaces({
     const visibility = localToWorld(definition2.normal, basis).z;
     if (visibility <= 1e-3) return [];
     const points = definition2.indices.map((index2) =>
-      project$1(vertices[index2], basis),
+      project(vertices[index2], basis),
     );
     return [
       {

@@ -1,5 +1,5 @@
 // team-credit-summary-surface.jsx
-import { Info$1, useTranslation } from "../vendor.js";
+import { Info$1 as Info, useTranslation } from "../vendor.js";
 import {
   Icon,
   Tooltip,
@@ -9,7 +9,6 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
 import { formatCreditAmount } from "./team-panel-stale.jsx";
-
 export function TeamCreditSummarySurface(props) {
   const { t: t2 } = useTranslation();
   if (props.visibility === "team") {
@@ -182,7 +181,7 @@ export function TeamCreditSummarySurface(props) {
                   />
                 }
               >
-                <Icon icon={Info$1} size="sm" aria-hidden={true} />
+                <Icon icon={Info} size="sm" aria-hidden={true} />
               </TooltipTrigger>
               <TooltipContent
                 side="top"

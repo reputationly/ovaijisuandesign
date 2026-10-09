@@ -7,9 +7,8 @@ import {
   Volume2,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { formatTime$2, useMediaPlayback, VolumeX } from "./package.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-
+import { formatTime, useMediaPlayback, VolumeX } from "./package.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 export function AudioPreviewPlayer({
   url: url2,
   fileName: _fileName = url2,
@@ -162,7 +161,7 @@ export function AudioPreviewPlayer({
         data-testid="audio-preview-controls"
       >
         <div className="flex h-7 items-center gap-2">
-          <Button$2
+          <Button
             variant="ghost"
             size="icon"
             disabled={!active2 || !url2}
@@ -185,7 +184,7 @@ export function AudioPreviewPlayer({
                 className="size-full"
               />
             )}
-          </Button$2>
+          </Button>
           <input
             type="range"
             min="0"
@@ -199,7 +198,7 @@ export function AudioPreviewPlayer({
             onChange={handleSeek}
             onClick={(event) => event.stopPropagation()}
           />
-          <Button$2
+          <Button
             variant="ghost"
             size="icon"
             aria-label={
@@ -218,11 +217,11 @@ export function AudioPreviewPlayer({
             ) : (
               <Volume2 size={16} strokeWidth={1.5} />
             )}
-          </Button$2>
+          </Button>
         </div>
         <div className="flex items-center justify-between text-[11px] leading-4 tabular-nums text-[var(--canvas-controls-text-muted)]">
-          <span>{formatTime$2(time, true)}</span>
-          <span>{formatTime$2(validDuration, true)}</span>
+          <span>{formatTime(time, true)}</span>
+          <span>{formatTime(validDuration, true)}</span>
         </div>
       </div>
       {pending2 && (

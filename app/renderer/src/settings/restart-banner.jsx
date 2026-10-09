@@ -1,9 +1,8 @@
 // restart-banner.jsx
 import { AlertCircle, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { getDesktopSettingsMainService } from "../team/copy-icon-button.jsx";
-
 export function RestartBanner({ message: message2 }) {
   const { t: t2 } = useTranslation();
   const handleRelaunch = reactExports.useCallback(() => {
@@ -19,20 +18,18 @@ export function RestartBanner({ message: message2 }) {
       <p className="flex-1 text-xs text-muted-foreground">
         {message2 ?? t2("settings.requiresRestart")}
       </p>
-      <Button$1
+      <Button
         variant="outline"
         size="sm"
         className="h-6 text-xs font-normal"
         onClick={handleRelaunch}
       >
         {t2("settings.restartNow")}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 const WINDOWS_DRIVE_ABSOLUTE_PATH_RE = /^[a-z]:[\\/]/i;
-
 export function isAbsoluteLocalFilePath(value) {
   return (
     value.startsWith("/") ||

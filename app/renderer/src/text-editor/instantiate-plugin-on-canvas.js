@@ -1,11 +1,8 @@
 // instantiate-plugin-on-canvas.js
 import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
 import { dedupedToast } from "../vendor.js";
-
-const STORAGE_KEY$1 = "canvasSidebar.recentPlugins";
-
+const STORAGE_KEY = "canvasSidebar.recentPlugins";
 const MAX_STORED = 50;
-
 class PluginRecentsStore {
   _onChange = new Emitter();
   snapshotRaw;
@@ -19,7 +16,7 @@ class PluginRecentsStore {
   get() {
     let raw2;
     try {
-      raw2 = localStorage.getItem(STORAGE_KEY$1);
+      raw2 = localStorage.getItem(STORAGE_KEY);
     } catch {
       return this.snapshot;
     }
@@ -51,16 +48,14 @@ class PluginRecentsStore {
     );
     const serialized = JSON.stringify(next2);
     try {
-      localStorage.setItem(STORAGE_KEY$1, serialized);
+      localStorage.setItem(STORAGE_KEY, serialized);
       this.snapshotRaw = serialized;
       this.snapshot = next2;
     } catch {}
     this._onChange.fire();
   }
 }
-
 const pluginRecents = new PluginRecentsStore();
-
 export async function instantiatePluginOnCanvas(
   { pluginId, position: position2, sourceNodeIds, initialData },
   { currentWorkspace, gatewayFetch: gatewayFetch2, t: t2 },

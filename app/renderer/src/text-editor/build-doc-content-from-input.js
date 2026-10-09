@@ -1,5 +1,5 @@
 // build-doc-content-from-input.js
-import { basename$7, mentionKindFromPath$1 } from "./file-drop-feedback.jsx";
+import { basename, mentionKindFromPath } from "./file-drop-feedback.jsx";
 import { connectorReferenceFromServerName } from "../generation/use-mention-models.jsx";
 import { parseConnectorMentionAt } from "./build-asr-gateway-request.js";
 import { findAllMentions } from "./table-document-to-llm-content.js";
@@ -7,9 +7,8 @@ import {
   buildMentionMediaUrl,
   buildMentionPlayableUrl,
   MENTION_PREVIEW_PX,
-  MENTION_THUMB_PX$1,
+  MENTION_THUMB_PX,
 } from "../chat/create-expanded-composer-actions-measurer.jsx";
-
 export function buildDocContentFromInput(text2, ctx) {
   const modelCandidates2 = ctx.mentionModels
     .flatMap((model) => [
@@ -159,10 +158,10 @@ export function buildDocContentFromInput(text2, ctx) {
         lastIdx = idx + 1;
         continue;
       }
-      const kind = cachedFile?.kind ?? mentionKindFromPath$1(token2);
+      const kind = cachedFile?.kind ?? mentionKindFromPath(token2);
       attrs = {
         path: token2,
-        name: cachedFile?.name ?? basename$7(token2),
+        name: cachedFile?.name ?? basename(token2),
         modelName: null,
         kind,
         mediaType: null,
@@ -171,7 +170,7 @@ export function buildDocContentFromInput(text2, ctx) {
             ctx.scopedGatewayUrl,
             kind,
             token2,
-            MENTION_THUMB_PX$1,
+            MENTION_THUMB_PX,
           ) ?? null,
         previewUrl:
           buildMentionMediaUrl(

@@ -3,9 +3,8 @@ import { FieldRoot, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ComponentSection, VariantGrid } from "./scroll-bar.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
-import { Slider$1 } from "../generation/slider.jsx";
-
+import { Button } from "../infra/dialog-content.jsx";
+import { Slider } from "../generation/slider.jsx";
 export function SliderSection() {
   const { t: t2 } = useTranslation();
   const { theme: theme2, setTheme } = useTheme();
@@ -42,7 +41,7 @@ export function SliderSection() {
     >
       <div className="flex flex-wrap gap-1">
         {["light", "dark", "system"].map((next2) => (
-          <Button$1
+          <Button
             key={next2}
             size="xs"
             variant={theme2 === next2 ? "default" : "outline"}
@@ -51,7 +50,7 @@ export function SliderSection() {
             onClick={() => setTheme(next2)}
           >
             {t2(`uiSpec.slider.theme.${next2}`)}
-          </Button$1>
+          </Button>
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
@@ -103,7 +102,7 @@ export function SliderSection() {
                   {sample.value}%
                 </output>
               </div>
-              <Slider$1
+              <Slider
                 variant={variant}
                 size={variant === "rounded" ? "compact" : "default"}
                 markerValue={variant === "rounded" ? 50 : void 0}
@@ -156,7 +155,7 @@ export function SliderSection() {
               </p>
               <div className="flex flex-wrap gap-1">
                 {[0, 100].map((value) => (
-                  <Button$1
+                  <Button
                     key={value}
                     variant="outline"
                     size="xs"
@@ -174,13 +173,13 @@ export function SliderSection() {
                     {t2("uiSpec.slider.setValue", {
                       value,
                     })}
-                  </Button$1>
+                  </Button>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
                 {t2("uiSpec.slider.disabled")}
               </p>
-              <Slider$1
+              <Slider
                 variant={variant}
                 defaultValue={[40]}
                 disabled={true}
@@ -191,7 +190,7 @@ export function SliderSection() {
         );
       })}
       <VariantGrid label={t2("uiSpec.slider.temperature")}>
-        <Slider$1
+        <Slider
           variant="rounded"
           size="compact"
           trackAppearance="temperature"
@@ -209,7 +208,7 @@ export function SliderSection() {
           <output className="hilo-slider-field__header block text-right text-xs tabular-nums">
             {duration}s
           </output>
-          <Slider$1
+          <Slider
             variant="filled"
             size="compact"
             visualMin={0}
@@ -242,7 +241,7 @@ export function SliderSection() {
       </VariantGrid>
       <VariantGrid label={t2("canvas.prompt.fontSize")}>
         <div className="flex h-8 w-[170px] items-center gap-1.5 rounded-lg border bg-card pr-2.5 pl-2">
-          <Slider$1
+          <Slider
             size="compact"
             min={8}
             max={36}
@@ -265,7 +264,7 @@ export function SliderSection() {
       <VariantGrid label={t2("uiSpec.slider.range")}>
         <div className="w-full min-w-0">
           <output className="text-xs tabular-nums">{range2.join(" – ")}</output>
-          <Slider$1
+          <Slider
             variant="filled"
             value={range2}
             onValueChange={(value) =>
@@ -280,7 +279,7 @@ export function SliderSection() {
       </VariantGrid>
       <VariantGrid label={t2("uiSpec.slider.vertical")}>
         <div className="flex h-40 items-center gap-3">
-          <Slider$1
+          <Slider
             variant="filled"
             orientation="vertical"
             value={[vertical]}
@@ -300,7 +299,7 @@ export function SliderSection() {
       </p>
       <VariantGrid label={t2("uiSpec.slider.error")}>
         <FieldRoot invalid={true} className="w-full min-w-0">
-          <Slider$1
+          <Slider
             defaultValue={[40]}
             aria-label={t2("uiSpec.slider.error")}
             thumbProps={{

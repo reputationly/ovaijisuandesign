@@ -13,10 +13,13 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Clock3 } from "../media-editing/package.jsx";
-
 export function deriveAccountPresentation(account, personalAccountLabel) {
   if (account.accountType === "PERSONAL") {
     return {
@@ -30,7 +33,6 @@ export function deriveAccountPresentation(account, personalAccountLabel) {
     showsTeamMetadata: true,
   };
 }
-
 export function TeamPanelStale({
   onRetry,
   isFetching = false,
@@ -81,7 +83,7 @@ export function TeamPanelStale({
             })}
         </p>
       </div>
-      <Button$1
+      <Button
         type="button"
         variant="outline"
         size="sm"
@@ -97,11 +99,10 @@ export function TeamPanelStale({
           : t2("common.retry", {
               defaultValue: "重试",
             })}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 export const BLOCKING_REASON_KEYS = {
   ACTIVE_RUN: "team.blockingReason.ACTIVE_RUN",
   QUEUED_OR_FLUSHING_INPUT: "team.blockingReason.QUEUED_OR_FLUSHING_INPUT",
@@ -109,7 +110,6 @@ export const BLOCKING_REASON_KEYS = {
   ASSET_OR_UPLOAD_OPERATION: "team.blockingReason.ASSET_OR_UPLOAD_OPERATION",
   GATEWAY_SYNC: "team.blockingReason.GATEWAY_SYNC",
 };
-
 export const BLOCKING_REASON_FALLBACKS = {
   ACTIVE_RUN: "A generation task is running. Stop it to switch Group.",
   QUEUED_OR_FLUSHING_INPUT: "A queued message is still being sent.",
@@ -117,7 +117,6 @@ export const BLOCKING_REASON_FALLBACKS = {
   ASSET_OR_UPLOAD_OPERATION: "An asset or upload operation is still running.",
   GATEWAY_SYNC: "Account information is still syncing. Please wait.",
 };
-
 export function TeamTransitionFeedback({ attempt }) {
   const { t: t2 } = useTranslation();
   if (!attempt) return null;
@@ -183,7 +182,6 @@ export function TeamTransitionFeedback({ attempt }) {
     </div>
   );
 }
-
 export function TeamUnavailableAction({
   label,
   reason,
@@ -201,11 +199,11 @@ export function TeamUnavailableAction({
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button$1
+              <Button
                 type="button"
                 variant={variant}
                 size={size2}
-                className={cn$2(
+                className={cn(
                   "h-auto min-h-8 max-w-full min-w-0 shrink cursor-not-allowed whitespace-normal text-center leading-relaxed opacity-50",
                   className,
                 )}
@@ -232,7 +230,6 @@ export function TeamUnavailableAction({
     </>
   );
 }
-
 export function getTeamReasonText(t2, reasonCode, fallback) {
   const defaultValue2 = t2("team.reason.default", {
     defaultValue: "请稍后重试或升级客户端。",
@@ -242,17 +239,14 @@ export function getTeamReasonText(t2, reasonCode, fallback) {
     defaultValue: defaultValue2,
   });
 }
-
 export function deriveMemberCreditDisplay(display) {
   const { teamRemaining: _teamRemaining, ...memberDisplay } = display;
   return memberDisplay;
 }
-
 export function formatCreditAmount(value) {
   if (!/^-?(0|[1-9]\d*)$/.test(value)) return "—";
   return BigInt(value).toLocaleString();
 }
-
 export function formatSignedCreditAmount(value) {
   const formatted = formatCreditAmount(value);
   if (formatted === "—") return formatted;

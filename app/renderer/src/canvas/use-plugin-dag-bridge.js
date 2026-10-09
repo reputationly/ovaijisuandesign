@@ -1,25 +1,16 @@
 // use-plugin-dag-bridge.js
 import { guardAccountSubmission, reactExports } from "../vendor.js";
-
-const POLL_INTERVAL_MS$2 = 15e3;
-
+const POLL_INTERVAL_MS = 15e3;
 const WATCH_TIMEOUT_MS = 30 * 60 * 1e3;
-
 const ESTIMATED_SECONDS = 60;
-
 const MAX_CONSECUTIVE_FAILURES = 5;
-
 const MAX_CONCURRENCY = 5;
-
 const MAX_ACTIVE_DAG_RUNS_TOTAL = 50;
-
 const MAX_ACTIVE_DAG_RUNS_PER_NODE = 10;
-
 function withCode(err, code2) {
   err.code = code2;
   return err;
 }
-
 function assertPluginDagSubmissionAllowed() {
   const decision = guardAccountSubmission("plugin_dag");
   if (decision.allowed) return;
@@ -30,17 +21,14 @@ function assertPluginDagSubmissionAllowed() {
     "not_available",
   );
 }
-
 function toAgentStatus(status) {
   if (status === "finished") return "succeeded";
   if (status === "timeout") return "timeout";
   return "failed";
 }
-
 function isTerminal(status) {
   return status === "finished" || status === "failed";
 }
-
 export function usePluginDagBridge(gatewayFetch2) {
   const gatewayFetchRef = reactExports.useRef(gatewayFetch2);
   gatewayFetchRef.current = gatewayFetch2;
@@ -185,7 +173,7 @@ export function usePluginDagBridge(gatewayFetch2) {
       if (runsRef.current.has(runId)) return;
       const timer2 = setInterval(() => {
         void tick(runId);
-      }, POLL_INTERVAL_MS$2);
+      }, POLL_INTERVAL_MS);
       runsRef.current.set(runId, {
         runId,
         groupId: groupId2,

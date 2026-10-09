@@ -6,15 +6,12 @@ import {
   reactExports,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import { homeService } from "./home-service.jsx";
 import { createDecorator } from "../settings/parse-custom-mcp-arguments.js";
-
 const IHomeService = createDecorator("homeService");
-
 services.set(IHomeService, homeService);
-
 export const RetryIcon = reactExports.forwardRef(function RetryIcon22(
   { size: size2 = 24, style: style2, ...props },
   ref,
@@ -49,9 +46,7 @@ export const RetryIcon = reactExports.forwardRef(function RetryIcon22(
     </CompositedSvg>
   );
 });
-
 RetryIcon.displayName = "RetryIcon";
-
 export function SkillIcon({
   size: size2 = 24,
   strokeWidth = 2,
@@ -79,9 +74,7 @@ export function SkillIcon({
     </CompositedSvg>
   );
 }
-
 SkillIcon.displayName = "SkillIcon";
-
 const TagXIcon = reactExports.forwardRef(function TagXIcon2(
   { size: size2 = 24, strokeWidth = 2, className, ...props },
   ref,
@@ -111,9 +104,7 @@ const TagXIcon = reactExports.forwardRef(function TagXIcon2(
     </CompositedSvg>
   );
 });
-
 TagXIcon.displayName = "TagXIcon";
-
 export function UsePromptIcon({ size: size2 = 24, className, ...rest }) {
   return (
     <CompositedSvg
@@ -150,9 +141,7 @@ export function UsePromptIcon({ size: size2 = 24, className, ...rest }) {
     </CompositedSvg>
   );
 }
-
 UsePromptIcon.displayName = "UsePromptIcon";
-
 export const ICON_TEXT_SPEC = {
   compact: {
     textClassName: "text-xs font-normal",
@@ -167,7 +156,6 @@ export const ICON_TEXT_SPEC = {
     iconSize: 16,
   },
 };
-
 export function StrokeIcon({
   icon: Glyph,
   size: size2,
@@ -180,7 +168,7 @@ export function StrokeIcon({
     <Glyph
       size={size2}
       strokeWidth={getIconStrokeWidth(size2, viewBoxSize)}
-      className={cn$2(className, spec.className, "shrink-0")}
+      className={cn(className, spec.className, "shrink-0")}
       aria-hidden={true}
     />
   );

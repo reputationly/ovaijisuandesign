@@ -12,17 +12,12 @@ import {
   visit,
 } from "../vendor.js";
 import { rehypeRaw } from "../workspace/build-inspiration-media-showcase-collections.js";
-
 export var et = reactExports.createContext(false);
-
 export var tt = () => reactExports.useContext(et);
-
 export var nt = reactExports.createContext({
   code: "",
 });
-
 export var He = () => reactExports.useContext(nt);
-
 export var De = {
   copyCode: "Copy Code",
   downloadFile: "Download file",
@@ -54,27 +49,20 @@ export var De = {
   copied: "Copied",
   openLink: "Open link",
 };
-
 export var Be = reactExports.createContext(De);
-
 export var D3 = () => reactExports.useContext(Be);
-
 export var Ve = reactExports.createContext(null);
-
 export var ct2 = () => reactExports.useContext(Ve);
-
 export var Li = () => {
   var t2;
   let e2 = ct2();
   return (t2 = e2 == null ? void 0 : e2.code) != null ? t2 : null;
 };
-
 export var de = () => {
   var t2;
   let e2 = ct2();
   return (t2 = e2 == null ? void 0 : e2.mermaid) != null ? t2 : null;
 };
-
 var Go = () => (e2) => {
   visit(e2, "html", (t2, o2, n2) => {
     !n2 ||
@@ -85,15 +73,11 @@ var Go = () => (e2) => {
       });
   });
 };
-
 var Qo = [];
-
 var en = {
   allowDangerousHtml: true,
 };
-
 var We = new WeakMap();
-
 export var wt = class {
   constructor() {
     this.cache = new Map();
@@ -152,10 +136,8 @@ export var wt = class {
     this.cache.clear();
   }
 };
-
 var Cs = (e2) =>
   e2.some((t2) => (Array.isArray(t2) ? t2[0] === rehypeRaw : t2 === rehypeRaw));
-
 export var ks = (e2) => {
   let t2 = e2.rehypePlugins || Qo,
     o2 = e2.remarkPlugins || Qo,
@@ -168,9 +150,7 @@ export var ks = (e2) => {
       : en;
   return unified().use(remarkParse).use(n2).use(remarkRehype, r2).use(t2);
 };
-
 export var on = (e2) => e2;
-
 export var vs = (e2, t2, o2, n2) => {
   o2
     ? e2.children.splice(t2, 1)
@@ -179,7 +159,6 @@ export var vs = (e2, t2, o2, n2) => {
         value: n2,
       });
 };
-
 export var xs = (e2, t2) => {
   var o2;
   for (let n2 in urlAttributes)
@@ -191,7 +170,6 @@ export var xs = (e2, t2) => {
           (o2 = t2(String(r2 || ""), n2, e2)) != null ? o2 : void 0);
     }
 };
-
 export var Ts = (e2, t2, o2, n2, r2, s2) => {
   let a2 = false;
   return (
@@ -200,27 +178,23 @@ export var Ts = (e2, t2, o2, n2, r2, s2) => {
     a2
   );
 };
-
-function safeDecodeURIComponent$1(value) {
+function safeDecodeURIComponent(value) {
   try {
     return decodeURIComponent(value);
   } catch {
     return value;
   }
 }
-
-export function cleanPath$1(src) {
+export function cleanPath(src) {
   if (!src) return "";
   try {
     const url2 = new URL(src);
-    return safeDecodeURIComponent$1(url2.pathname);
+    return safeDecodeURIComponent(url2.pathname);
   } catch {
-    return safeDecodeURIComponent$1(src.split(/[?#]/)[0] ?? src);
+    return safeDecodeURIComponent(src.split(/[?#]/)[0] ?? src);
   }
 }
-
 export const MEDIA_CATEGORIES = ["image", "video", "audio"];
-
 function buildSelectionAliasIndex(entries2) {
   const mutable = new Map();
   for (const entry of entries2) {
@@ -241,24 +215,20 @@ function buildSelectionAliasIndex(entries2) {
   }
   return mutable;
 }
-
 const SELECTION_ALIASES_BY_CATEGORY = {
   image: buildSelectionAliasIndex(IMAGE_MODELS),
   video: buildSelectionAliasIndex(VIDEO_MODELS),
   audio: buildSelectionAliasIndex(AUDIO_MODELS),
 };
-
 function isMediaCategory(value) {
   return MEDIA_CATEGORIES.includes(value);
 }
-
 function selectionIdMatchesVisibleModel(selectionId, model, category) {
   if (selectionId === model.id || selectionId === model.series_id) return true;
   const aliases = SELECTION_ALIASES_BY_CATEGORY[category].get(selectionId);
   if (!aliases) return false;
   return aliases.rowIds.has(model.id);
 }
-
 export function isVisibleMediaModelSelected(selected2, model) {
   if (!isMediaCategory(model.type)) return false;
   const category = model.type;
@@ -268,7 +238,6 @@ export function isVisibleMediaModelSelected(selected2, model) {
     selectionIdMatchesVisibleModel(id2, model, category),
   );
 }
-
 export function countVisibleSelectedMediaModels(selected2, models) {
   return models.filter(
     (model) =>
@@ -277,7 +246,6 @@ export function countVisibleSelectedMediaModels(selected2, models) {
       isVisibleMediaModelSelected(selected2, model),
   ).length;
 }
-
 export function isAllVisibleMediaModelsSelected(selected2, models) {
   for (const category of MEDIA_CATEGORIES) {
     const visibleModels = models.filter(

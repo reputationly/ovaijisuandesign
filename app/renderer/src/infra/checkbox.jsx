@@ -1,8 +1,7 @@
 // checkbox.jsx
 import { CheckboxRoot, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "./dialog-content.jsx";
-
+import { cn } from "./dialog-content.jsx";
 export function Checkbox({
   className,
   shape = "square",
@@ -63,7 +62,7 @@ export function Checkbox({
       aria-invalid={error ? true : props["aria-invalid"]}
       aria-describedby={describedBy}
       className={(state2) =>
-        cn$5(
+        cn(
           "peer hilo-checkbox",
           typeof className === "function" ? className(state2) : className,
         )

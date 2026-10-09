@@ -52,11 +52,8 @@ import { Pe } from "./pe.jsx";
 import { twMerge } from "../infra/dialog-content.jsx";
 import { $e$1, be } from "../vendor-inline/minified/s2.js";
 import { vn, xn } from "./xn.js";
-
 var as = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
-
 var is = new RegExp("\\p{L}", "u");
-
 function $e(e2) {
   let t2 = e2
     .replace(/^#{1,6}\s+/gm, "")
@@ -70,11 +67,8 @@ function $e(e2) {
   }
   return "ltr";
 }
-
 var ls = /^[ \t]{0,3}(`{3,}|~{3,})/;
-
 var cs = /^\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)*\|?$/;
-
 var ht = (e2) => {
   let t2 = e2.split(`
 `),
@@ -96,7 +90,6 @@ var ht = (e2) => {
   }
   return o2 !== null;
 };
-
 var Uo = (e2) => {
   let t2 = e2.split(`
 `);
@@ -106,16 +99,13 @@ var Uo = (e2) => {
   }
   return false;
 };
-
 var tn = new wt();
-
 var ws = (e2) => {
   let t2 = tn.get(e2);
   if (t2) return t2;
   let o2 = ks(e2);
   return (tn.set(e2, o2), o2);
 };
-
 var Ps = (e2, t2) => {
   let {
     allowElement: o2,
@@ -152,14 +142,12 @@ var Ps = (e2, t2) => {
     passNode: true,
   });
 };
-
 var Ct2 = (e2) => {
   let t2 = ws(e2),
     o2 = e2.children || "",
     n2 = t2.runSync(t2.parse(o2), o2);
   return Ps(n2, e2);
 };
-
 function harden({
   defaultOrigin = "",
   allowedLinkPrefixes = [],
@@ -198,7 +186,6 @@ function harden({
     visit(tree, visitor);
   };
 }
-
 var Gn = (e2, t2) => {
   if (!e2 || !t2) return t2;
   let o2 = `${e2}:`;
@@ -208,9 +195,7 @@ var Gn = (e2, t2) => {
     .map((n2) => (n2.startsWith(o2) ? n2 : `${e2}:${n2}`))
     .join(" ");
 };
-
 var Dt = (e2) => (e2 ? (...t2) => Gn(e2, twMerge(clsx(t2))) : he);
-
 var it = ({
   onDownload: e2,
   onError: t2,
@@ -252,9 +237,7 @@ var it = ({
     </button>
   );
 };
-
 var Mr = /\.[^/.]+$/;
-
 var oo = ({
   node: e2,
   className: t2,
@@ -368,7 +351,6 @@ var oo = ({
     </div>
   ) : null;
 };
-
 var so = ({ url: e2, isOpen: t2, onClose: o2, onConfirm: n2 }) => {
   let { CheckIcon: r2, CopyIcon: s2, ExternalLinkIcon: a2, XIcon: l2 } = L(),
     i2 = y3(),
@@ -495,7 +477,6 @@ var so = ({ url: e2, isOpen: t2, onClose: o2, onConfirm: n2 }) => {
     ) : null
   );
 };
-
 var Co = ({
   children: e2,
   className: t2,
@@ -604,7 +585,6 @@ var Co = ({
     )
   );
 };
-
 var vo = ({
   children: e2,
   className: t2,
@@ -653,21 +633,15 @@ var vo = ({
     </div>
   );
 };
-
 var es = /startLine=(\d+)/;
-
 var ts = /\bnoLineNumbers\b/;
-
-var os$1 = reactExports.lazy(() =>
+var os = reactExports.lazy(() =>
   (() => Promise.resolve().then(() => mermaidGHXKKRXX))().then((e2) => ({
     default: e2.Mermaid,
   })),
 );
-
 var ns = /language-([^\s]+)/;
-
 var ft = (e2, t2) => (typeof e2 == "boolean" ? e2 : e2[t2] !== false);
-
 var pt = (e2, t2) => {
   if (typeof e2 == "boolean") return e2;
   let o2 = e2.table;
@@ -677,7 +651,6 @@ var pt = (e2, t2) => {
       ? true
       : o2[t2] !== false;
 };
-
 var bt = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -696,9 +669,7 @@ var bt = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 bt.displayName = "MarkdownOl";
-
 var Po = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -714,9 +685,7 @@ var Po = reactExports.memo(
   },
   (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
 );
-
 Po.displayName = "MarkdownLi";
-
 var Mo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -735,9 +704,7 @@ var Mo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Mo.displayName = "MarkdownUl";
-
 var Io = reactExports.memo(
   ({ className: e2, node: t2, ...o2 }) => {
     let n2 = y3();
@@ -751,9 +718,7 @@ var Io = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Io.displayName = "MarkdownHr";
-
 var No = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -769,9 +734,7 @@ var No = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 No.displayName = "MarkdownStrong";
-
 var rs = ({ children: e2, className: t2, href: o2, node: n2, ...r2 }) => {
   let s2 = y3(),
     { linkSafety: a2 } = reactExports.useContext(R),
@@ -837,11 +800,8 @@ var rs = ({ children: e2, className: t2, href: o2, node: n2, ...r2 }) => {
     </a>
   );
 };
-
 var Lo = reactExports.memo(rs, (e2, t2) => E2(e2, t2) && e2.href === t2.href);
-
 Lo.displayName = "MarkdownA";
-
 var Ro = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -857,9 +817,7 @@ var Ro = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Ro.displayName = "MarkdownH1";
-
 var So = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -875,9 +833,7 @@ var So = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 So.displayName = "MarkdownH2";
-
 var Eo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -893,9 +849,7 @@ var Eo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Eo.displayName = "MarkdownH3";
-
 var Ho = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -911,9 +865,7 @@ var Ho = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Ho.displayName = "MarkdownH4";
-
 var Do = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -929,9 +881,7 @@ var Do = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Do.displayName = "MarkdownH5";
-
 var Bo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -947,9 +897,7 @@ var Bo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Bo.displayName = "MarkdownH6";
-
 var Ao = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let { controls: r2 } = reactExports.useContext(R),
@@ -969,9 +917,7 @@ var Ao = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Ao.displayName = "MarkdownTable";
-
 var Oo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -987,9 +933,7 @@ var Oo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Oo.displayName = "MarkdownThead";
-
 var Vo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1005,9 +949,7 @@ var Vo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Vo.displayName = "MarkdownTbody";
-
 var jo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1023,9 +965,7 @@ var jo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 jo.displayName = "MarkdownTr";
-
 var Fo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1044,9 +984,7 @@ var Fo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Fo.displayName = "MarkdownTh";
-
 var zo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1062,9 +1000,7 @@ var zo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 zo.displayName = "MarkdownTd";
-
 var _o = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1083,9 +1019,7 @@ var _o = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 _o.displayName = "MarkdownBlockquote";
-
 var qo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1097,9 +1031,7 @@ var qo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 qo.displayName = "MarkdownSup";
-
 var $o = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     let r2 = y3();
@@ -1111,9 +1043,7 @@ var $o = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 $o.displayName = "MarkdownSub";
-
 var Wo = reactExports.memo(
   ({ children: e2, className: t2, node: o2, ...n2 }) => {
     if ("data-footnotes" in n2) {
@@ -1196,9 +1126,7 @@ var Wo = reactExports.memo(
   },
   (e2, t2) => E2(e2, t2),
 );
-
 Wo.displayName = "MarkdownSection";
-
 var ss = ({ node: e2, className: t2, children: o2, ...n2 }) => {
   var S3, F2;
   let r2 = y3(),
@@ -1302,7 +1230,7 @@ var ss = ({ node: e2, className: t2, children: o2, ...n2 }) => {
             </div>
           ) : null}
           <div className={r2("rounded-md border border-border bg-background")}>
-            {jsxRuntimeExports.jsx(os$1, {
+            {jsxRuntimeExports.jsx(os, {
               chart: w3,
               config: a2 == null ? void 0 : a2.config,
               showControls: Q2,
@@ -1335,21 +1263,16 @@ var ss = ({ node: e2, className: t2, children: o2, ...n2 }) => {
     ) : null,
   });
 };
-
 var Zo = reactExports.memo(
   ss,
   (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
 );
-
 Zo.displayName = "MarkdownCode";
-
 var Xo = reactExports.memo(
   oo,
   (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
 );
-
 Xo.displayName = "MarkdownImg";
-
 var Ko = {
   ol: bt,
   li: Po,
@@ -1383,24 +1306,16 @@ var Ko = {
   p: Jo,
   section: Wo,
 };
-
 var Zs = /^[ \t]*<[\w!/?-]/;
-
 var Xs = /(^|\n)[ \t]{4,}(?=<[\w!/?-])/g;
-
 var Js = (e2) =>
   typeof e2 != "string" || e2.length === 0 || !Zs.test(e2)
     ? e2
     : e2.replace(Xs, "$1");
-
 var bn;
-
 var hn;
-
 var yn;
-
 var wn;
-
 var Ze = {
   ...defaultSchema,
   protocols: {
@@ -1424,7 +1339,6 @@ var Ze = {
     ],
   },
 };
-
 var xt = {
   raw: rehypeRaw,
   sanitize: [rehypeSanitize, Ze],
@@ -1439,21 +1353,16 @@ var xt = {
     },
   ],
 };
-
 var Ks = {
   gfm: [remarkGfm, {}],
   codeMeta: un,
 };
-
 var gn = Object.values(xt);
-
 var Us = Object.values(Ks);
-
 var Gs = {
   block: " ▋",
   circle: " ●",
 };
-
 var Tn = reactExports.memo(
   ({
     content: e2,
@@ -1518,9 +1427,7 @@ var Tn = reactExports.memo(
     );
   },
 );
-
 Tn.displayName = "Block";
-
 export var Qs = reactExports.memo(
   ({
     children: e2,
@@ -1801,5 +1708,4 @@ export var Qs = reactExports.memo(
     e2.prefix === t2.prefix &&
     e2.dir === t2.dir,
 );
-
 Qs.displayName = "Streamdown";

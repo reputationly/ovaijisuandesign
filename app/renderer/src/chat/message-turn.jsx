@@ -44,7 +44,7 @@ import {
 } from "./use-copy.jsx";
 import { RichUserPromptContent } from "./rich-user-prompt-content.jsx";
 import { SentAnnotationCards } from "./sent-annotation-cards.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { BusyTipIndicator } from "./busy-tip-indicator.jsx";
 import { groupIntoActivityGroups } from "../media-editing/group-into-activity-groups.js";
@@ -53,9 +53,7 @@ import { MessageBubble } from "./sub-agent-group.jsx";
 import { collectFallbackTurnArtifacts } from "./collect-fallback-turn-artifacts.js";
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { TurnArtifactStrip } from "../media-editing/turn-artifact-strip.jsx";
-
 const ATTACHMENT_COLLAPSE_THRESHOLD = 6;
-
 function attachToolConfirmsToSubAgents(messages2) {
   const result = [];
   for (const msg of messages2) {
@@ -79,7 +77,6 @@ function attachToolConfirmsToSubAgents(messages2) {
   }
   return result;
 }
-
 function attachQuestionsToSubAgents(messages2) {
   const result = [];
   for (const msg of messages2) {
@@ -110,7 +107,6 @@ function attachQuestionsToSubAgents(messages2) {
   }
   return result;
 }
-
 function prepareMainAgentActivityMessages(messages2, showHiddenTools) {
   if (showHiddenTools) return [...messages2];
   const getMessageToolName = (message2) => {
@@ -163,7 +159,6 @@ function prepareMainAgentActivityMessages(messages2, showHiddenTools) {
   }
   return visible;
 }
-
 function subMessagesHaveCanvasContinuation(messages2) {
   return messages2.some(
     (message2) =>
@@ -173,7 +168,6 @@ function subMessagesHaveCanvasContinuation(messages2) {
         : false),
   );
 }
-
 function messageHasCanvasContinuation(message2) {
   if (message2.type === "tool")
     return message2.interruption === "canvas_continuation";
@@ -185,7 +179,6 @@ function messageHasCanvasContinuation(message2) {
     message2.generationContinuesOnCanvas === true
   );
 }
-
 function collectCanvasContinuationTargets(messages2) {
   const targets = new Map();
   const collect = (message2) => {
@@ -211,7 +204,6 @@ function collectCanvasContinuationTargets(messages2) {
   for (const message2 of messages2) collect(message2);
   return [...targets.values()];
 }
-
 function isMainAgentProgressMessage(message2) {
   if (!message2) return false;
   if (message2.type === "thinking") return true;
@@ -223,7 +215,6 @@ function isMainAgentProgressMessage(message2) {
     isTransientTool(toolName2) || categorizeToolAction(toolName2) === "search"
   );
 }
-
 function isCompletedRetryOutput(message2) {
   switch (message2.type) {
     case "text":
@@ -252,7 +243,6 @@ function isCompletedRetryOutput(message2) {
       return false;
   }
 }
-
 function filterResolvedRetryErrors(messages2) {
   const retained = [];
   let hasLaterError = false;
@@ -272,7 +262,6 @@ function filterResolvedRetryErrors(messages2) {
   }
   return retained.reverse();
 }
-
 function isPendingSubAgentDispatch(msg, showHiddenTools = false) {
   if (msg.type !== "sub_agent" || msg.resolved || msg.cancelled) return false;
   if (showHiddenTools) return (msg.subMessages?.length ?? 0) === 0;
@@ -284,7 +273,6 @@ function isPendingSubAgentDispatch(msg, showHiddenTools = false) {
     ).length === 0
   );
 }
-
 function findPendingTaskDispatch(messages2, showHiddenTools = false) {
   for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
     const task = messages2[index2];
@@ -309,7 +297,6 @@ function findPendingTaskDispatch(messages2, showHiddenTools = false) {
   }
   return void 0;
 }
-
 function TaskDispatchIndicator() {
   const { t: t2 } = useTranslation();
   return (
@@ -325,7 +312,6 @@ function TaskDispatchIndicator() {
     </div>
   );
 }
-
 function AttachmentChip({ att }) {
   const resolveMediaUrl2 = useResolveMediaUrl();
   const workspacePath = useCurrentWorkspace();
@@ -387,7 +373,6 @@ function AttachmentChip({ att }) {
     </div>
   );
 }
-
 function UserAttachmentStrip({ attachments }) {
   const { t: t2 } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
@@ -432,7 +417,6 @@ function UserAttachmentStrip({ attachments }) {
     </div>
   );
 }
-
 function UserPluginNodeAttachmentStrip({ pluginNodes }) {
   const { t: t2 } = useTranslation();
   if (pluginNodes.length === 0) return null;
@@ -466,7 +450,6 @@ function UserPluginNodeAttachmentStrip({ pluginNodes }) {
     </div>
   );
 }
-
 const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
   user,
   busy,
@@ -544,7 +527,7 @@ const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
                   <p className="text-caption-11 text-muted-foreground whitespace-normal leading-snug">
                     {t2("chat.forkConversation")}
                   </p>
-                  <Button$1
+                  <Button
                     size="sm"
                     data-action-ui-id="chat-fork-confirm"
                     className="self-end px-3"
@@ -554,7 +537,7 @@ const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
                     }}
                   >
                     {t2("chat.forkAction")}
-                  </Button$1>
+                  </Button>
                 </PopoverContent>
               </Popover>
             )}
@@ -589,9 +572,7 @@ const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
     </div>
   );
 });
-
 UserPromptBubble.displayName = "UserPromptBubble";
-
 function turnMessagesRefEqual(a2, b3) {
   if (a2.user !== b3.user) return false;
   if (a2.responses.length !== b3.responses.length) return false;
@@ -605,7 +586,6 @@ function turnMessagesRefEqual(a2, b3) {
   }
   return true;
 }
-
 function messageTurnPropsEqual(prev, next2) {
   return (
     prev.turnIndex === next2.turnIndex &&
@@ -628,7 +608,6 @@ function messageTurnPropsEqual(prev, next2) {
     turnMessagesRefEqual(prev.turn, next2.turn)
   );
 }
-
 export const MessageTurn = reactExports.memo(function MessageTurn2({
   turn,
   turnIndex,

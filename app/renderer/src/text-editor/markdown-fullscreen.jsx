@@ -24,7 +24,7 @@ import {
 } from "./paragraph-line-placement.js";
 import {
   beginDiffReviewWriteAckEpoch,
-  buildDecorations$1,
+  buildDecorations,
   DIFF_REVIEW_WRITE_ACK_TTL_MS,
   FIND_MATCH_ACTIVE_CLASS,
   findPluginKey,
@@ -38,7 +38,7 @@ import {
   ActionListSeparator,
   BubbleMenu,
   commands_exports,
-  Decoration$1,
+  Decoration$1 as Decoration,
   DecorationSet,
   dedupedToast,
   EditorContent,
@@ -49,15 +49,15 @@ import {
   PluginKey,
   reactDomExports,
   reactExports,
-  redo$1,
+  redo$1 as redo,
   src_default$1,
-  Table$2,
-  TableCell$1,
-  TableHeader$1,
-  TableRow$1,
+  Table$2 as Table,
+  TableCell$1 as TableCell,
+  TableHeader$1 as TableHeader,
+  TableRow$1 as TableRow,
   TextSelection,
-  undo$1,
-  undoDepth$1,
+  undo$1 as undo,
+  undoDepth$1 as undoDepth,
   useEditor,
   useTranslation,
 } from "../vendor.js";
@@ -66,7 +66,7 @@ import { AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import {
   EditorHistoryControls,
   ToolbarBtn,
-  ToolbarSeparator$1,
+  ToolbarSeparator,
 } from "./editor-history-controls.jsx";
 import {
   defaultColumnWidth,
@@ -77,7 +77,7 @@ import {
 import {
   getManager,
   MarkdownTableScrollbarsInner,
-  MenuItem$1,
+  MenuItem,
   patchBlankLinePadding,
   patchEntityEscaping,
   TABLE_OPS,
@@ -130,12 +130,10 @@ import { useFindController } from "./use-find-controller.js";
 import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
 import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
 import { useTextVersionPanel } from "./use-text-version-panel.jsx";
-
 function assumeContentType(content2, contentType) {
   if (typeof content2 !== "string") return "json";
   return contentType;
 }
-
 const Markdown = Extension.create({
   name: "markdown",
   addOptions() {
@@ -268,11 +266,8 @@ const Markdown = Extension.create({
       this.editor.options.content = json2;
   },
 });
-
 const ANNOTATION_CLASS = "canvas-annotation-mark";
-
 const ANNOTATION_ACTIVE_CLASS = "canvas-annotation-mark-active";
-
 const AnnotationHighlight = Extension.create({
   name: "canvasAnnotation",
   addProseMirrorPlugins() {
@@ -349,7 +344,7 @@ const AnnotationHighlight = Extension.create({
                 (m3) => m3.from < m3.to && m3.to <= state2.doc.content.size,
               )
               .map((m3) =>
-                Decoration$1.inline(m3.from, m3.to, {
+                Decoration.inline(m3.from, m3.to, {
                   class:
                     m3.id === pluginState.activeId
                       ? `${ANNOTATION_CLASS} ${ANNOTATION_ACTIVE_CLASS}`
@@ -364,11 +359,8 @@ const AnnotationHighlight = Extension.create({
     ];
   },
 });
-
 const BLUR_SELECTION_CLASS = "canvas-blur-selection";
-
 const blurSelectionPluginKey = new PluginKey("canvasBlurSelectionHighlight");
-
 const BlurSelectionHighlight = Extension.create({
   name: "canvasBlurSelectionHighlight",
   addProseMirrorPlugins() {
@@ -417,7 +409,7 @@ const BlurSelectionHighlight = Extension.create({
             return DecorationSet.create(
               state2.doc,
               ranges.map(({ from: from2, to }) =>
-                Decoration$1.inline(from2, to, {
+                Decoration.inline(from2, to, {
                   class: BLUR_SELECTION_CLASS,
                 }),
               ),
@@ -428,7 +420,6 @@ const BlurSelectionHighlight = Extension.create({
     ];
   },
 });
-
 function buildFormatItems(editor, t2) {
   return [
     {
@@ -516,16 +507,13 @@ function buildFormatItems(editor, t2) {
     },
   ];
 }
-
 function preserveMarkdownFidelity(editor) {
   const manager = getManager(editor);
   if (!manager) return;
   patchEntityEscaping(manager);
   patchBlankLinePadding(manager);
 }
-
 const MarkdownTableScrollbars = reactExports.memo(MarkdownTableScrollbarsInner);
-
 function extractTableGridAtSelection(editor) {
   const { $from } = editor.state.selection;
   let tableNode = null;
@@ -561,7 +549,6 @@ function extractTableGridAtSelection(editor) {
     rows,
   };
 }
-
 function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
   const columns = grid.headers.map((title) => ({
     id: newColumnId(),
@@ -586,7 +573,6 @@ function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
     rows,
   };
 }
-
 function TableContextMenu({
   editor,
   position: position2,
@@ -645,7 +631,7 @@ function TableContextMenu({
           {
             children: [
               op.groupStart && <ActionListSeparator />,
-              <MenuItem$1
+              <MenuItem
                 actionId={op.id}
                 destructive={op.destructive}
                 icon={<op.Icon size={16} strokeWidth={1.5} />}
@@ -663,7 +649,7 @@ function TableContextMenu({
       {onConvertToNode && (
         <>
           <ActionListSeparator />
-          <MenuItem$1
+          <MenuItem
             actionId="convert-to-node"
             icon={<Grid2x2Plus size={16} strokeWidth={1.5} />}
             label={t2("canvas.mdTable.toNode")}
@@ -678,7 +664,6 @@ function TableContextMenu({
     document.body,
   );
 }
-
 function useEditorHistoryShortcuts(editor, nodeId) {
   const active2 = useCanvasActive();
   const editorRef = reactExports.useRef(editor);
@@ -699,7 +684,7 @@ function useEditorHistoryShortcuts(editor, nodeId) {
         reviewSession !== null &&
         reviewSession.nodeId === nodeId &&
         (reviewSession.baselineMarkdown === void 0 ||
-          undoDepth$1(current2.state) <=
+          undoDepth(current2.state) <=
             (reviewSession.historyDepthAtStart ?? 0) + 1);
       if (reviewState.reverting || reviewUndoBlocked) {
         event.preventDefault();
@@ -708,8 +693,8 @@ function useEditorHistoryShortcuts(editor, nodeId) {
         return;
       }
       const handled = redo2
-        ? redo$1(current2.state, current2.view.dispatch)
-        : undo$1(current2.state, current2.view.dispatch);
+        ? redo(current2.state, current2.view.dispatch)
+        : undo(current2.state, current2.view.dispatch);
       if (!handled) return;
       event.preventDefault();
       event.stopPropagation();
@@ -736,7 +721,6 @@ function useEditorHistoryShortcuts(editor, nodeId) {
     };
   }, [active2, nodeId]);
 }
-
 function splitCompletedReviewFromUserEdit(
   editor,
   baselineMarkdown,
@@ -763,10 +747,8 @@ function splitCompletedReviewFromUserEdit(
   }
   restoreEditorSelection(editor, selection2, selectionPosition);
 }
-
 const MARKDOWN_TABLE_CELL_MIN_WIDTH = 60;
-
-const ScrollableMarkdownTable = Table$2.extend({
+const ScrollableMarkdownTable = Table.extend({
   addNodeView() {
     const cellMinWidth = this.options.cellMinWidth;
     return ({ node: node2 }) =>
@@ -780,7 +762,6 @@ const ScrollableMarkdownTable = Table$2.extend({
   resizable: false,
   cellMinWidth: MARKDOWN_TABLE_CELL_MIN_WIDTH,
 });
-
 function buildControlsRow(ids2, config2) {
   const row = document.createElement("div");
   row.className = `${DIFF_CONTROLS_CLASS}-row`;
@@ -788,7 +769,6 @@ function buildControlsRow(ids2, config2) {
   row.appendChild(buildControls(ids2, config2));
   return row;
 }
-
 const DiffReviewHighlight = Extension.create({
   name: "canvasDiffReview",
   addProseMirrorPlugins() {
@@ -855,7 +835,7 @@ const DiffReviewHighlight = Extension.create({
               if (!hunk.zeroWidth && hunk.from === hunk.to) continue;
               if (hunk.from < hunk.to) {
                 decorations2.push(
-                  Decoration$1.inline(hunk.from, hunk.to, {
+                  Decoration.inline(hunk.from, hunk.to, {
                     class: DIFF_ADD_CLASS,
                     "data-diff-hunk-id": hunk.id,
                   }),
@@ -878,7 +858,7 @@ const DiffReviewHighlight = Extension.create({
                 tableGroups.set(groupKey, group);
                 if (hunk.deletedMarkdown) {
                   decorations2.push(
-                    Decoration$1.widget(
+                    Decoration.widget(
                       hunk.from,
                       () => buildDeletedInline(hunk, config2),
                       {
@@ -894,7 +874,7 @@ const DiffReviewHighlight = Extension.create({
               const inlineDeleted = isInlineTextReplacement(state2.doc, hunk);
               if (inlineDeleted) {
                 decorations2.push(
-                  Decoration$1.widget(
+                  Decoration.widget(
                     hunk.from,
                     () => buildDeletedInline(hunk, config2),
                     {
@@ -923,7 +903,7 @@ const DiffReviewHighlight = Extension.create({
               }
               if (hunk.deletedMarkdown && !inlineDeleted) {
                 decorations2.push(
-                  Decoration$1.widget(
+                  Decoration.widget(
                     delPos,
                     () => buildDeletedBlock(hunk, config2),
                     {
@@ -935,7 +915,7 @@ const DiffReviewHighlight = Extension.create({
                 );
               }
               decorations2.push(
-                Decoration$1.widget(
+                Decoration.widget(
                   ctlPos,
                   () => buildControlsRow([controlIdOf(hunk)], config2),
                   {
@@ -954,7 +934,7 @@ const DiffReviewHighlight = Extension.create({
             for (const group of tableGroups.values()) {
               const ids2 = group.controlIds;
               decorations2.push(
-                Decoration$1.widget(
+                Decoration.widget(
                   group.to,
                   () => buildControlsRow(ids2, config2),
                   {
@@ -972,7 +952,6 @@ const DiffReviewHighlight = Extension.create({
     ];
   },
 });
-
 const FindHighlight = Extension.create({
   name: "canvasFindHighlight",
   addProseMirrorPlugins() {
@@ -985,7 +964,7 @@ const FindHighlight = Extension.create({
           },
           apply(tr2, prev) {
             const meta2 = tr2.getMeta(findPluginKey);
-            if (meta2) return buildDecorations$1(tr2.doc, meta2);
+            if (meta2) return buildDecorations(tr2.doc, meta2);
             if (tr2.docChanged) return prev.map(tr2.mapping, tr2.doc);
             return prev;
           },
@@ -999,7 +978,6 @@ const FindHighlight = Extension.create({
     ];
   },
 });
-
 function searchPmDoc(doc2, query, options, maxMatches) {
   const pattern = compileFindPattern(query, options);
   if (!pattern)
@@ -1036,7 +1014,6 @@ function searchPmDoc(doc2, query, options, maxMatches) {
     limited,
   };
 }
-
 function resetProseMirrorHistory(editor) {
   const plugins = editor.state.plugins;
   const withoutHistory = plugins.filter(
@@ -1052,14 +1029,12 @@ function resetProseMirrorHistory(editor) {
     }),
   );
 }
-
 function createDiffReviewWriteAckTracker() {
   return {
     epoch: null,
     pending: [],
   };
 }
-
 function enqueueDiffReviewWriteAck(
   tracker2,
   markdown2,
@@ -1079,7 +1054,6 @@ function enqueueDiffReviewWriteAck(
     );
   }
 }
-
 function consumeDiffReviewWriteAck(tracker2, markdown2, now2 = Date.now()) {
   pruneExpiredDiffReviewWriteAcks(tracker2, now2);
   const index2 = tracker2.pending.findIndex(
@@ -1089,16 +1063,13 @@ function consumeDiffReviewWriteAck(tracker2, markdown2, now2 = Date.now()) {
   tracker2.pending.splice(index2, 1);
   return true;
 }
-
 function pendingDiffReviewWriteAckCount(tracker2, now2 = Date.now()) {
   pruneExpiredDiffReviewWriteAcks(tracker2, now2);
   return tracker2.pending.length;
 }
-
 function clearDiffReviewWriteAcks(tracker2) {
   tracker2.pending = [];
 }
-
 function serializeMarkdownDocument(editor, document2) {
   const manager = editor.storage.markdown?.manager;
   if (!manager) return null;
@@ -1108,7 +1079,6 @@ function serializeMarkdownDocument(editor, document2) {
     return null;
   }
 }
-
 function startTextAnnotation(getCloseBlockReason, onStart, onAgentRunning) {
   if (getCloseBlockReason?.() === "agent-running") {
     onAgentRunning();
@@ -1117,7 +1087,6 @@ function startTextAnnotation(getCloseBlockReason, onStart, onAgentRunning) {
   onStart();
   return true;
 }
-
 function SelectionFormatToolbar({ editor, formatItems, annotate }) {
   return (
     <BubbleMenu
@@ -1140,7 +1109,7 @@ function SelectionFormatToolbar({ editor, formatItems, annotate }) {
       ))}
       {annotate && (
         <>
-          <ToolbarSeparator$1 contextToolbar={true} />
+          <ToolbarSeparator contextToolbar={true} />
           <button
             type="button"
             title={annotate.label}
@@ -1157,7 +1126,6 @@ function SelectionFormatToolbar({ editor, formatItems, annotate }) {
     </BubbleMenu>
   );
 }
-
 export function MarkdownFullscreen({
   initialMarkdown,
   onClose,
@@ -1223,9 +1191,9 @@ export function MarkdownFullscreen({
     extensions: [
       src_default,
       ScrollableMarkdownTable,
-      TableRow$1,
-      TableHeader$1,
-      TableCell$1,
+      TableRow,
+      TableHeader,
+      TableCell,
       Markdown,
       src_default$1.configure({
         placeholder: t2("canvas.editorPlaceholder"),
@@ -1788,7 +1756,7 @@ export function MarkdownFullscreen({
         ) : fsEditor ? (
           <>
             <EditorHistoryControls editor={fsEditor} nodeId={sourceNodeId} />
-            <ToolbarSeparator$1 />
+            <ToolbarSeparator />
             {versionPanel.toolbarButtons}
           </>
         ) : (

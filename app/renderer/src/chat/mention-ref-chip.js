@@ -5,7 +5,7 @@ import {
   NodeViewWrapper,
   reactExports,
   Workflow,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   FileKindIcon,
@@ -15,13 +15,12 @@ import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { Folder } from "../media-editing/package.jsx";
 import { splitMentionFilename } from "../infra/dialog-content.jsx";
 import {
-  PreviewCard$1,
+  PreviewCard,
   PreviewCardContent,
   PreviewCardTrigger,
 } from "../text-editor/use-placeholder-asset-source.jsx";
 import { EntityHoverCardBody } from "../assets/attachment-row.jsx";
 import { ConnectorIcon } from "../settings/connector-relationship-graphic.jsx";
-
 export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
   const attrs = node2.attrs;
   const className =
@@ -241,7 +240,7 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
           deleteNode2();
         },
       },
-      reactExports.createElement(X$7, {
+      reactExports.createElement(X, {
         size: 9,
         strokeWidth: 2.2,
         "aria-hidden": true,
@@ -251,7 +250,7 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
   const body2 =
     isAsset && assetEntityId
       ? reactExports.createElement(
-          PreviewCard$1,
+          PreviewCard,
           null,
           reactExports.createElement(PreviewCardTrigger, {
             render: chipBody,

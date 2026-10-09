@@ -8,7 +8,6 @@ import { isWebGPUSupported } from "./base-backend.jsx";
 import { defaultLUTParams, defaultSettings } from "./default-settings.js";
 import { WebGLBackend } from "./web-gl-backend.js";
 import { WebGPUBackend } from "./web-gpu-backend.js";
-
 function analyzeImageLevels(imageData) {
   const { data: data2, width, height } = imageData;
   const histogram = new Array(256).fill(0);
@@ -39,7 +38,6 @@ function analyzeImageLevels(imageData) {
     white,
   };
 }
-
 function analyzeImageVibrance(imageData) {
   const { data: data2, width, height } = imageData;
   let saturationSum = 1;
@@ -59,15 +57,13 @@ function analyzeImageVibrance(imageData) {
   const pixelCount = width * height;
   return (saturationSum + brightnessSum) / (pixelCount * 2);
 }
-
 function analyzeImage(imageData) {
   return {
     levels: analyzeImageLevels(imageData),
     vibrance: analyzeImageVibrance(imageData),
   };
 }
-
-const presets$1 = {
+const presets = {
   auto: {},
   blackAndWhite: {
     saturation: -100,
@@ -104,11 +100,9 @@ const presets$1 = {
     vignette: 30,
   },
 };
-
-function looksLikeUrl$1(input) {
+function looksLikeUrl(input) {
   return /^(?:https?:|blob:|data:|file:|\/|\.\.?\/)/.test(input.trim());
 }
-
 export class ImageColorGrading {
   canvas;
   backend = null;
@@ -324,7 +318,7 @@ export class ImageColorGrading {
     await this.ensureBackend();
     let lut;
     if (typeof input === "string") {
-      if (looksLikeUrl$1(input)) {
+      if (looksLikeUrl(input)) {
         const text2 = await fetch(input).then((r2) => r2.text());
         lut = parseCubeLUT(text2);
       } else {
@@ -513,7 +507,7 @@ export class ImageColorGrading {
     if (preset2 === "auto") {
       return this.autoFix();
     }
-    const presetSettings = presets$1[preset2];
+    const presetSettings = presets[preset2];
     const newSettings = {
       ...defaultSettings,
       ...presetSettings,

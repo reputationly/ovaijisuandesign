@@ -4,15 +4,14 @@ import {
   useCanvasOverlayStore,
 } from "../canvas/use-start-crop-from-node.js";
 import {
-  createStore$1,
+  createStore$1 as createStore,
   reactExports,
   useAssetMetadataStore,
-  useStore$2,
+  useStore$2 as useStore,
 } from "../vendor.js";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { buildImageNodeView } from "../canvas/build-slot-from-node.js";
 import { useNodeIsEmpty } from "../infra/create-recently-added-store.js";
-
 export function useEraseState() {
   const erasingNodeId = useCanvasOverlayStore((s2) =>
     s2.active?.kind === "erase" ? s2.active.nodeId : null,
@@ -29,7 +28,6 @@ export function useEraseState() {
     cancelErase,
   };
 }
-
 function useStartCloudEditFromNode({
   id: id2,
   meta: meta2,
@@ -76,7 +74,6 @@ function useStartCloudEditFromNode({
     handleStart,
   };
 }
-
 export function useStartEraseFromNode({ submitErase, ...rest }) {
   const { startErase } = useEraseState();
   const { handleStart } = useStartCloudEditFromNode({
@@ -88,7 +85,6 @@ export function useStartEraseFromNode({ submitErase, ...rest }) {
     handleErase: handleStart,
   };
 }
-
 export function useMoveObjectState() {
   const movingObjectNodeId = useCanvasOverlayStore((s2) =>
     s2.active?.kind === "move-object" ? s2.active.nodeId : null,
@@ -105,7 +101,6 @@ export function useMoveObjectState() {
     cancelMoveObject,
   };
 }
-
 export function useOutpaintState() {
   const outpaintingNodeId = useCanvasOverlayStore((s2) =>
     s2.active?.kind === "outpaint" ? s2.active.nodeId : null,
@@ -122,7 +117,6 @@ export function useOutpaintState() {
     cancelOutpaint,
   };
 }
-
 export function useStartOutpaintFromNode({ submitOutpaint, ...rest }) {
   const { startOutpaint } = useOutpaintState();
   const { handleStart } = useStartCloudEditFromNode({
@@ -134,7 +128,6 @@ export function useStartOutpaintFromNode({ submitOutpaint, ...rest }) {
     handleOutpaint: handleStart,
   };
 }
-
 export function useRedrawState() {
   const redrawingNodeId = useCanvasOverlayStore((s2) =>
     s2.active?.kind === "redraw" ? s2.active.nodeId : null,
@@ -151,7 +144,6 @@ export function useRedrawState() {
     cancelRedraw,
   };
 }
-
 export function useStartRedrawFromNode({ submitRedraw, ...rest }) {
   const { startRedraw } = useRedrawState();
   const { handleStart } = useStartCloudEditFromNode({
@@ -163,7 +155,6 @@ export function useStartRedrawFromNode({ submitRedraw, ...rest }) {
     handleRedraw: handleStart,
   };
 }
-
 export const LEGACY_IMAGE_TOOLBAR_TOOLS = [
   "erase",
   "redraw",
@@ -180,7 +171,6 @@ export const LEGACY_IMAGE_TOOLBAR_TOOLS = [
   "relight",
   "layer-decompose",
 ];
-
 export const IMAGE_TOOLBAR_TOOLS = [
   "crop",
   "super-resolution",
@@ -197,8 +187,7 @@ export const IMAGE_TOOLBAR_TOOLS = [
   "rotate",
   "layer-decompose",
 ];
-
-export const DEFAULT_PINNED$1 = [
+export const DEFAULT_PINNED = [
   "crop",
   "super-resolution",
   "redraw",
@@ -207,9 +196,7 @@ export const DEFAULT_PINNED$1 = [
   "relight",
   "storyboard-grid",
 ];
-
-export const DEFAULT_SHOW_LABELS$1 = true;
-
+export const DEFAULT_SHOW_LABELS = true;
 export function useSubImages(mainId) {
   const { getSubImages, subscribeGraphChange } = useCanvasActions();
   const getSnapshot2 = reactExports.useCallback(
@@ -222,7 +209,6 @@ export function useSubImages(mainId) {
     getSnapshot2,
   );
 }
-
 export function useImageNodeView(nodeId, data2) {
   const assetsMap = useAssetMetadataStore((s2) => s2.assets);
   const subImages = useSubImages(nodeId);
@@ -260,9 +246,8 @@ export function useImageNodeView(nodeId, data2) {
     [nodeId, data2, subImages, assetsMap, isUserEmpty, mainRound, nodeAssetId],
   );
 }
-
 export function createMultiImageOverlayStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     openNodeId: null,
     open: (nodeId) =>
       set2((state2) => {
@@ -287,27 +272,19 @@ export function createMultiImageOverlayStore() {
       }),
   }));
 }
-
 const defaultMultiImageOverlayStore = createMultiImageOverlayStore();
-
 export const MultiImageOverlayStoreContext = reactExports.createContext(null);
-
 export function useMultiImageOverlayApi() {
   return (
     reactExports.useContext(MultiImageOverlayStoreContext) ??
     defaultMultiImageOverlayStore
   );
 }
-
 export const useMultiImageOverlayStore = (selector2) =>
-  useStore$2(useMultiImageOverlayApi(), selector2);
-
+  useStore(useMultiImageOverlayApi(), selector2);
 useMultiImageOverlayStore.getState = defaultMultiImageOverlayStore.getState;
-
 useMultiImageOverlayStore.setState = defaultMultiImageOverlayStore.setState;
-
 useMultiImageOverlayStore.subscribe = defaultMultiImageOverlayStore.subscribe;
-
 export function useIsOverlayOpen(nodeId) {
   return useMultiImageOverlayStore((s2) => s2.openNodeId === nodeId);
 }

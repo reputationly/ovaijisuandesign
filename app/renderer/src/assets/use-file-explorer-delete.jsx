@@ -1,7 +1,7 @@
 // use-file-explorer-delete.jsx
 import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import {
   DELETE_UNDO_TTL_MS,
   OPERATIONS_UNDO_PATH,
@@ -9,7 +9,6 @@ import {
 import { activeToastIds } from "./post-check-conflicts.js";
 import { refreshAssetIndex } from "./gateway-scope-provider.jsx";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-
 function DeleteUndoToast({
   toastId,
   count: count2,
@@ -73,7 +72,7 @@ function DeleteUndoToast({
         })}
       </span>
       <span className="text-muted-foreground">·</span>
-      <Button$1
+      <Button
         variant="ghost"
         size="xs"
         onClick={handleUndoClick}
@@ -83,16 +82,14 @@ function DeleteUndoToast({
         {t2("fileExplorer.deleteUndoToastUndo")}
         {" ("}
         {remaining})
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 function removeFromActiveToasts(id2) {
   const idx = activeToastIds.indexOf(id2);
   if (idx !== -1) activeToastIds.splice(idx, 1);
 }
-
 function showDeleteUndoToast(opts) {
   const id2 = dedupedToast.custom(
     (id22) => (
@@ -118,7 +115,6 @@ function showDeleteUndoToast(opts) {
   activeToastIds.push(id2);
   return id2;
 }
-
 export function useFileExplorerDelete({
   remove: remove2,
   toRelativePath,

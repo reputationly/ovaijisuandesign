@@ -76,7 +76,7 @@ import {
 } from "../generation/param-label-fallbacks.js";
 import { I2VPopover } from "./free-path-shape.js";
 import { I2IPopover } from "../generation/model-param-select.jsx";
-import { ImageLightbox$2 } from "./image-lightbox.jsx";
+import { ImageLightbox } from "./image-lightbox.jsx";
 import { VideoLightbox } from "./video-lightbox.jsx";
 import { isMiniMaxH3MaxModelValue } from "../generation/i2-v-aspect-ratio-field.jsx";
 import {
@@ -97,7 +97,6 @@ import {
   StoryboardGridPopover,
   useImageLightbox,
 } from "./use-image-inplace-edit.jsx";
-
 function buildPlaceholderImageNodeView(
   nodeId,
   data2,
@@ -116,7 +115,6 @@ function buildPlaceholderImageNodeView(
     nodeAssetId,
   );
 }
-
 function resolvePlaceholderReferencePaths({
   incomingSourceIds,
   referenceImageIds,
@@ -144,7 +142,6 @@ function resolvePlaceholderReferencePaths({
     ),
   };
 }
-
 function imageViewPrimaryPrompt(data2) {
   const d2 = data2;
   const prompt = d2?.prompt;
@@ -154,13 +151,11 @@ function imageViewPrimaryPrompt(data2) {
     ? description
     : void 0;
 }
-
 function toNonEmptyString(value) {
   if (typeof value !== "string") return void 0;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : void 0;
 }
-
 function normalizePlaceholderDefaultModelId(
   draftModelId,
   registryModelId,
@@ -179,7 +174,6 @@ function normalizePlaceholderDefaultModelId(
   }
   return draft ?? registryModelId ?? persistedModelId;
 }
-
 export function PlaceholderNodeInner({
   id: id2,
   data: data2,
@@ -1107,7 +1101,7 @@ export function PlaceholderNodeInner({
         />
       )}
       {mediaType === "image" && mediaLightbox.lightboxProps && (
-        <ImageLightbox$2
+        <ImageLightbox
           {...mediaLightbox.lightboxProps}
           alt={
             mediaLightbox.lightboxProps.items[mediaLightbox.lightboxProps.index]

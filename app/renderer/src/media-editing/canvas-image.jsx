@@ -1,5 +1,5 @@
 // canvas-image.jsx
-import { currentBucket, subscribers$2 } from "../canvas/separator.jsx";
+import { currentBucket, subscribers } from "../canvas/separator.jsx";
 import { reactExports } from "../vendor.js";
 import { CanvasRenderRuntimeContext } from "../infra/use-plugin-metadata-store.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -9,26 +9,18 @@ import {
   useCanvasActiveDeferred,
   useViewportStatus,
 } from "../canvas/fullscreen-icon.jsx";
-
-function subscribe$4(cb) {
-  subscribers$2.add(cb);
+function subscribe(cb) {
+  subscribers.add(cb);
   return () => {
-    subscribers$2.delete(cb);
+    subscribers.delete(cb);
   };
 }
-
-function getSnapshot$3() {
+function getSnapshot() {
   return currentBucket;
 }
-
 function useStableZoomBucket() {
-  return reactExports.useSyncExternalStore(
-    subscribe$4,
-    getSnapshot$3,
-    getSnapshot$3,
-  );
+  return reactExports.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
-
 class BitmapLru {
   constructor(opts) {
     this.opts = opts;
@@ -181,7 +173,6 @@ class BitmapLru {
     }
   }
 }
-
 class DecodeFailureError extends Error {
   kind;
   /** HTTP status code — only set when `kind === 'http'`. */
@@ -193,9 +184,7 @@ class DecodeFailureError extends Error {
     this.status = status;
   }
 }
-
 const TRANSIENT_HTTP_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
-
 function isTransientDecodeFailure(err) {
   if (!(err instanceof DecodeFailureError)) return false;
   if (err.kind === "network") return true;
@@ -204,7 +193,6 @@ function isTransientDecodeFailure(err) {
   }
   return false;
 }
-
 function classifyPermanentDecodeFailure(err) {
   if (
     err instanceof DecodeFailureError &&
@@ -216,7 +204,6 @@ function classifyPermanentDecodeFailure(err) {
   }
   return "unsupported";
 }
-
 function defaultWorkerFactory() {
   return new Worker(
     new URL(
@@ -230,7 +217,6 @@ function defaultWorkerFactory() {
     },
   );
 }
-
 function recommendedPoolSize() {
   const hwc =
     typeof navigator !== "undefined" &&
@@ -239,7 +225,6 @@ function recommendedPoolSize() {
       : 2;
   return Math.max(2, Math.min(4, hwc - 1));
 }
-
 function makeAbortError$1() {
   if (typeof DOMException !== "undefined") {
     return new DOMException("aborted", "AbortError");
@@ -248,7 +233,6 @@ function makeAbortError$1() {
   err.name = "AbortError";
   return err;
 }
-
 class DecodeWorkerPool {
   slots = [];
   queue = [];
@@ -420,15 +404,11 @@ class DecodeWorkerPool {
     task.reject(makeAbortError$1());
   }
 }
-
 const SIZE_TIERS = [64, 128, 256, 512, 1024, 2048];
-
 const DPR_CAP = 2;
-
 function bucketDpr(dpr) {
   return dpr >= 1.5 ? "2x" : "1x";
 }
-
 function pickTier(displayWidth, dpr) {
   if (!Number.isFinite(displayWidth) || displayWidth <= 0) return SIZE_TIERS[0];
   const cappedDpr = Math.min(Math.max(dpr || 1, 1), DPR_CAP);
@@ -438,13 +418,10 @@ function pickTier(displayWidth, dpr) {
   }
   return SIZE_TIERS[SIZE_TIERS.length - 1];
 }
-
 function bitmapCacheKey(url2, tier, dprBucket) {
   return `${url2}@${tier}@${dprBucket}`;
 }
-
 const DEFAULT_BYTE_BUDGET = 512 * 1024 * 1024;
-
 function defaultDpr() {
   if (
     typeof window !== "undefined" &&
@@ -454,7 +431,6 @@ function defaultDpr() {
   }
   return 1;
 }
-
 function makeAbortError() {
   if (typeof DOMException !== "undefined") {
     return new DOMException("aborted", "AbortError");
@@ -463,7 +439,6 @@ function makeAbortError() {
   err.name = "AbortError";
   return err;
 }
-
 class BitmapManager {
   lru;
   pool;
@@ -613,67 +588,52 @@ class BitmapManager {
     };
   }
 }
-
 let singleton = null;
-
 function getBitmapManager() {
   if (!singleton || singleton.isDisposed()) {
     singleton = new BitmapManager();
   }
   return singleton;
 }
-
 function resolveCanvasContentVisibilityStyle(policy) {
   return policy.contentVisibility;
 }
-
 function useCanvasRenderPolicy() {
   return reactExports.useContext(CanvasRenderRuntimeContext).policy;
 }
-
 const TRANSIENT_RETRY_DELAYS_MS = [1e3, 3e3, 8e3];
-
 const GIF_HOVER_DELAY_MS = 200;
-
 function isEffectivelyFar(status, canvasActive) {
   return status === "far" || !canvasActive;
 }
-
-function readDpr$1() {
+function readDpr() {
   if (typeof window === "undefined") return 1;
   return Math.max(1, window.devicePixelRatio || 1);
 }
-
 function releaseHandle(ref) {
   const h2 = ref.current;
   if (!h2) return;
   ref.current = null;
   h2.release();
 }
-
 function getDrawSig(canvas) {
   return canvas.__drawSig;
 }
-
 function setDrawSig(canvas, sig) {
   canvas.__drawSig = sig;
 }
-
 let bitmapIdCounter = 0;
-
 function bitmapId(bitmap) {
   const tagged = bitmap;
   tagged.__hiloId ??= ++bitmapIdCounter;
   return tagged.__hiloId;
 }
-
 function resetCanvasBackingStore(canvas) {
   if (!canvas) return;
   if (canvas.width !== 1) canvas.width = 1;
   if (canvas.height !== 1) canvas.height = 1;
   setDrawSig(canvas, void 0);
 }
-
 function computeCanvasBackingSize(
   displayWidth,
   displayHeight,
@@ -689,7 +649,6 @@ function computeCanvasBackingSize(
     height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale2))),
   };
 }
-
 function drawBitmap(
   canvas,
   bitmap,
@@ -719,7 +678,6 @@ function drawBitmap(
   setDrawSig(canvas, sig);
   return true;
 }
-
 export function CanvasImage(props) {
   const {
     src,
@@ -736,7 +694,7 @@ export function CanvasImage(props) {
   const handleRef = reactExports.useRef(null);
   const [loadState, setLoadState] = reactExports.useState("pending");
   const status = useViewportStatus(nodeId, width, height);
-  const dpr = reactExports.useMemo(() => readDpr$1(), []);
+  const dpr = reactExports.useMemo(() => readDpr(), []);
   const zoomBucket = useStableZoomBucket();
   const effectiveWidth = Math.max(1, Math.round(width * zoomBucket));
   const effectiveHeight = Math.max(1, Math.round(height * zoomBucket));

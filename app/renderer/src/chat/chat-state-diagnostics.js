@@ -3,11 +3,10 @@ import { ChatDiagnostics } from "../canvas/chat-diagnostic-error.js";
 import {
   chatToolIdentity,
   diagnosticHistoryTools,
-  normalizeToolStatus$1,
+  normalizeToolStatus,
 } from "../canvas/diagnostic-history-tools.js";
 import { diagnosticChatTools } from "../text-editor/build-asr-gateway-request.js";
 import { deriveBusy } from "../canvas/fullscreen-icon.jsx";
-
 function emptyDeltaCounts() {
   return {
     received: 0,
@@ -18,7 +17,6 @@ function emptyDeltaCounts() {
     ignored: 0,
   };
 }
-
 export class ChatStateDiagnostics {
   constructor(write) {
     this.write = write;
@@ -204,8 +202,8 @@ export class ChatStateDiagnostics {
             },
           ];
         if (
-          normalizeToolStatus$1(tool2.status) !==
-          normalizeToolStatus$1(fresh.status)
+          normalizeToolStatus(tool2.status) !==
+          normalizeToolStatus(fresh.status)
         )
           return [
             {

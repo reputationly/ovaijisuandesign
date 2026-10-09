@@ -1,7 +1,6 @@
 // close-button.jsx
-import { reactExports, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 export const CloseButton = reactExports.memo(function CloseButton2({
   onClose,
 }) {
@@ -21,7 +20,7 @@ export const CloseButton = reactExports.memo(function CloseButton2({
       className="absolute right-8 top-8 z-10 flex size-9 cursor-pointer items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--media-overlay-foreground)_10%,transparent)] text-[color-mix(in_srgb,var(--media-overlay-foreground)_80%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--media-overlay-foreground)_20%,transparent)] hover:text-(--media-overlay-foreground) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={handleClick2}
     >
-      <X$7 size={16} strokeWidth={1.5} />
+      <X size={16} strokeWidth={1.5} />
     </button>
   );
 });

@@ -1,10 +1,8 @@
 // tool-slider.jsx
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Slider$1 } from "../generation/slider.jsx";
-
+import { Slider } from "../generation/slider.jsx";
 const DEFAULT_THUMB_SIZE = 16;
-
 export function ToolSlider({
   label,
   value,
@@ -127,7 +125,7 @@ export function ToolSlider({
         </div>
       )}
       <div ref={trackRef}>
-        <Slider$1
+        <Slider
           variant="rounded"
           size="compact"
           value={value}

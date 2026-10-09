@@ -11,7 +11,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  Button$1,
+  Button,
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
@@ -32,7 +32,6 @@ import {
   useGatewayFetch,
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
-
 async function previewRewrite(fetcher, selectedNames) {
   const body2 = {
     scope: "user",
@@ -48,7 +47,6 @@ async function previewRewrite(fetcher, selectedNames) {
   await expectOk(res);
   return await res.json();
 }
-
 async function executeRewrite(fetcher, proposalId) {
   const body2 = {
     scope: "user",
@@ -64,14 +62,12 @@ async function executeRewrite(fetcher, proposalId) {
   await expectOk(res);
   return await res.json();
 }
-
 function useRewritePreview() {
   const fetcher = useGatewayFetch();
   return useMutation({
     mutationFn: ({ selectedNames }) => previewRewrite(fetcher, selectedNames),
   });
 }
-
 function useRewriteExecute() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -85,13 +81,11 @@ function useRewriteExecute() {
     },
   });
 }
-
 function getMergeOp(plan) {
   if (!plan || plan.operations.length === 0) return null;
   const merge2 = plan.operations.find((op) => op.type === "merge");
   return merge2 ?? null;
 }
-
 function PreviewPhase({ originalEntries, upserts }) {
   const { t: t2 } = useTranslation();
   return (
@@ -168,7 +162,6 @@ function PreviewPhase({ originalEntries, upserts }) {
     </div>
   );
 }
-
 function PhaseSpinner({ label }) {
   return (
     <div className="flex flex-col items-center gap-2 py-10 text-xs text-muted-foreground">
@@ -177,7 +170,6 @@ function PhaseSpinner({ label }) {
     </div>
   );
 }
-
 function SelectPhase({
   entries: entries2,
   assetPinCount,
@@ -229,7 +221,7 @@ function SelectPhase({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <Button$1
+        <Button
           variant="link"
           size="sm"
           className="h-auto px-0 text-xs"
@@ -239,7 +231,7 @@ function SelectPhase({
           {allSelected
             ? t2("memory.compaction.rewrite.selectNone", "Clear selection")
             : t2("memory.compaction.rewrite.selectAll", "Select all")}
-        </Button$1>
+        </Button>
         {assetPinCount > 0 && (
           <span className="text-[11px] text-muted-foreground">
             {t2("memory.compaction.rewrite.assetPinExcluded", {
@@ -286,20 +278,19 @@ function SelectPhase({
     </div>
   );
 }
-
 function SelectFooter({ selectedCount, cancelDisabled, onCancel, onGenerate }) {
   const { t: t2 } = useTranslation();
   return (
     <>
-      <Button$1
+      <Button
         variant="outline"
         onClick={onCancel}
         disabled={cancelDisabled}
         data-action-ui-id="settings.memory.compaction.cancel"
       >
         {t2("memory.compaction.cancel", "Cancel")}
-      </Button$1>
-      <Button$1
+      </Button>
+      <Button
         onClick={onGenerate}
         disabled={selectedCount === 0}
         data-action-ui-id="settings.memory.compaction.generate"
@@ -310,16 +301,15 @@ function SelectFooter({ selectedCount, cancelDisabled, onCancel, onGenerate }) {
               defaultValue: "Generate rewrite ({{n}})",
             })
           : t2("memory.compaction.rewrite.generateButton", "Generate rewrite")}
-      </Button$1>
+      </Button>
     </>
   );
 }
-
 function PreviewFooter({ executing, onBack, onApply }) {
   const { t: t2 } = useTranslation();
   return (
     <>
-      <Button$1
+      <Button
         variant="outline"
         onClick={onBack}
         disabled={executing}
@@ -327,8 +317,8 @@ function PreviewFooter({ executing, onBack, onApply }) {
       >
         <ChevronLeft size={14} strokeWidth={1} />
         {t2("memory.compaction.rewrite.backButton", "Back")}
-      </Button$1>
-      <Button$1
+      </Button>
+      <Button
         onClick={onApply}
         disabled={executing}
         data-action-ui-id="settings.memory.compaction.execute"
@@ -336,11 +326,10 @@ function PreviewFooter({ executing, onBack, onApply }) {
         {executing
           ? t2("memory.compaction.rewrite.executing", "Applying rewrite…")
           : t2("memory.compaction.rewrite.applyButton", "Apply rewrite")}
-      </Button$1>
+      </Button>
     </>
   );
 }
-
 export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
   const { t: t2 } = useTranslation();
   const memoryList = useMemoryList("user");

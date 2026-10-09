@@ -13,7 +13,7 @@ import {
   RowExpanding,
   RowPagination,
 } from "./column-filtering.js";
-import { createColumn, functionalUpdate$2, getMemoOptions, isFunction$1, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
+import { createColumn, functionalUpdate as functionalUpdate$2, getMemoOptions, isFunction as isFunction$1, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
 import { RowPinning, RowSelection } from "./row-selection.js";
 const reSplitAlphaNumeric = /([0-9]+)/gm;
 const alphanumeric = (rowA, rowB, columnId) => {

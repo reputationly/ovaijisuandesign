@@ -1,20 +1,20 @@
 // schedule.js
-import { activeIds, listeners$5 } from "../workspace/topbar-state-context.jsx";
+import {
+  activeIds,
+  listeners as listeners$5,
+} from "../workspace/topbar-state-context.jsx";
 import { reactExports } from "../vendor.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { HUB_WEB_INVITE_DOMAINS } from "../vendor-inline/vscode-base/graph.jsx";
-
 function subscribeModalPresence(listener) {
   listeners$5.add(listener);
   return () => {
     listeners$5.delete(listener);
   };
 }
-
 function getModalPresenceSnapshot() {
   return activeIds.size;
 }
-
 export function useHasBlockingModal() {
   const count2 = reactExports.useSyncExternalStore(
     subscribeModalPresence,
@@ -22,7 +22,6 @@ export function useHasBlockingModal() {
   );
   return count2 > 0;
 }
-
 export const BLOCKING_MODAL_IDS = {
   watermarkOnboarding: "watermark-onboarding",
   serverDrivenPopup: "server-driven-popup",
@@ -31,7 +30,6 @@ export const BLOCKING_MODAL_IDS = {
   promotion: "promotion-dialog",
   forcedUpdate: "forced-update",
 };
-
 export const STARTUP_MODAL_IDS = {
   /** 服务端编排弹窗（GENERAL / MIGRATION / FEATURE，即 H3 上新弹窗）。 */
   serverDrivenPopup: "server-driven-popup",
@@ -44,7 +42,6 @@ export const STARTUP_MODAL_IDS = {
   /** 首页输入框 coach mark 引导（锁定式 popover，队列尾部，等所有弹窗弹完）。 */
   homeCoachMarks: "home-coach-marks",
 };
-
 export const DEFAULT_MODAL_SCHEDULE_CONFIG = {
   order: [
     STARTUP_MODAL_IDS.serverDrivenPopup,
@@ -58,46 +55,30 @@ export const DEFAULT_MODAL_SCHEDULE_CONFIG = {
   minGapMs: 400,
   firstGrantDelayMs: 1500,
 };
-
 const candidates = new Map();
-
 const DEFAULT_MODAL_LOADING_TIMEOUT_MS = 5e3;
-
 const MAX_MODAL_LOADING_TIMEOUT_MS = 1e4;
-
 const loadingReservations = new Map();
-
 const suspenders = new Set();
-
-const listeners$4 = new Set();
-
-function emit$2() {
-  for (const listener of listeners$4) listener();
+const listeners = new Set();
+function emit() {
+  for (const listener of listeners) listener();
 }
-
 let config = DEFAULT_MODAL_SCHEDULE_CONFIG;
-
 let holderId = null;
-
 let grantCount = 0;
-
 let lastReleaseAt = 0;
-
 let firstEnqueueAt = null;
-
 let timer = null;
-
 function priorityOf(id2) {
   const index2 = config.order.indexOf(id2);
   return index2 === -1 ? config.order.length : index2;
 }
-
 function clearTimer() {
   if (timer === null) return;
   clearTimeout(timer);
   timer = null;
 }
-
 function schedule() {
   clearTimer();
   if (suspenders.size > 0) return;
@@ -137,33 +118,29 @@ function schedule() {
   }
   holderId = eligible[0];
   grantCount++;
-  emit$2();
+  emit();
 }
-
 function enqueueModalCandidate(id2) {
   if (candidates.has(id2)) return;
   candidates.set(id2, Date.now());
   if (firstEnqueueAt === null) firstEnqueueAt = Date.now();
   schedule();
 }
-
 function withdrawModalCandidate(id2) {
   const existed = candidates.delete(id2);
   if (holderId === id2) {
     holderId = null;
     lastReleaseAt = Date.now();
-    emit$2();
+    emit();
     schedule();
     return;
   }
   if (existed) schedule();
 }
-
 export function setModalScheduleConfig(next2) {
   config = next2;
   schedule();
 }
-
 function beginModalLoadingWait(
   id2,
   timeoutMs = DEFAULT_MODAL_LOADING_TIMEOUT_MS,
@@ -182,35 +159,29 @@ function beginModalLoadingWait(
   }
   schedule();
 }
-
 function endModalLoadingWait(id2) {
   const reservation = loadingReservations.get(id2);
   if (!reservation?.active) return;
   reservation.active = false;
   schedule();
 }
-
 function suspendModalScheduler(id2) {
   suspenders.add(id2);
   clearTimer();
 }
-
 function resumeModalScheduler(id2) {
   if (!suspenders.delete(id2)) return;
   if (suspenders.size === 0) schedule();
 }
-
 function subscribeModalScheduler(listener) {
-  listeners$4.add(listener);
+  listeners.add(listener);
   return () => {
-    listeners$4.delete(listener);
+    listeners.delete(listener);
   };
 }
-
 function getModalSlotHolderSnapshot() {
   return holderId;
 }
-
 export function useModalSlot(id2, options) {
   const { candidate } = options;
   reactExports.useEffect(() => {
@@ -224,7 +195,6 @@ export function useModalSlot(id2, options) {
   );
   return candidate && holderId2 === id2;
 }
-
 export function useModalSlotWithLoading(id2, options) {
   const {
     candidate,
@@ -250,7 +220,6 @@ export function useModalSlotWithLoading(id2, options) {
   );
   return candidate && holderId2 === id2;
 }
-
 export function useModalSchedulerSuspension(id2, active2) {
   reactExports.useEffect(() => {
     if (!active2) return;
@@ -258,11 +227,8 @@ export function useModalSchedulerSuspension(id2, active2) {
     return () => resumeModalScheduler(id2);
   }, [id2, active2]);
 }
-
 export const SESSION_DISMISS_KEY = "__hilo_login_gate_dismissed";
-
 export const LoginGateContext = reactExports.createContext(null);
-
 export function readSessionDismissed() {
   try {
     return sessionStorage.getItem(SESSION_DISMISS_KEY) === "1";
@@ -270,14 +236,12 @@ export function readSessionDismissed() {
     return false;
   }
 }
-
 export function useLoginGate() {
   const ctx = reactExports.useContext(LoginGateContext);
   if (!ctx)
     throw new Error("useLoginGate must be used within <LoginGateProvider>");
   return ctx;
 }
-
 export function useLoginGuard() {
   const { isLoggedIn } = useAuth();
   const loginGate = useLoginGate();
@@ -305,7 +269,6 @@ export function useLoginGuard() {
     LoginDialog,
   };
 }
-
 function buildProjectInviteQuery(input) {
   const params = new URLSearchParams({
     token: input.token,
@@ -317,7 +280,6 @@ function buildProjectInviteQuery(input) {
   }
   return params.toString();
 }
-
 export function buildProjectInviteWebLink(input) {
   const environment = input.channel === "prod" ? "prod" : "test";
   const url2 = new URL(

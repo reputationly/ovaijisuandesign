@@ -2,26 +2,25 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CompositedSvg,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import {
-  clamp$5,
+  clamp,
   normalizeAngle,
   ROTATE_ANGLE_MAX,
   ROTATE_ANGLE_MIN,
   ROTATE_STEP_DEG,
 } from "./use-editor-state.js";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import {
   FlipHorizontalIcon,
   FlipVerticalIcon,
   Rotate90Icon,
 } from "./package.jsx";
-
 function AngleGlyph() {
   return (
     <CompositedSvg
@@ -46,8 +45,7 @@ function AngleGlyph() {
     </CompositedSvg>
   );
 }
-
-function IconButton$3({
+function IconButton({
   active: active2 = false,
   disabled: disabled2 = false,
   onClick,
@@ -68,13 +66,10 @@ function IconButton$3({
     </button>
   );
 }
-
-function Divider$4() {
+function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-
 const ROTATE_SNAP_DEG = 1;
-
 function maybeSnapAngle(deg) {
   const n2 = normalizeAngle(deg);
   for (const step of [-180, -90, 0, 90, 180]) {
@@ -82,13 +77,9 @@ function maybeSnapAngle(deg) {
   }
   return n2;
 }
-
-const HEADER_FLOW_HEIGHT$1 = 28;
-
-const TOOLBAR_GAP$2 = 8;
-
-const zoomSelector$3 = (s2) => s2.transform[2];
-
+const HEADER_FLOW_HEIGHT = 28;
+const TOOLBAR_GAP = 8;
+const zoomSelector = (s2) => s2.transform[2];
 function CancelChip({ onClick, label }) {
   return (
     <button
@@ -98,11 +89,10 @@ function CancelChip({ onClick, label }) {
       className="canvas-toolbar-action"
       aria-label={label}
     >
-      <CloseIcon$1 />
+      <CloseIcon />
     </button>
   );
 }
-
 function AngleScrubber({ value, onChange }) {
   const { t: t2 } = useTranslation();
   const buttonRef = reactExports.useRef(null);
@@ -141,7 +131,7 @@ function AngleScrubber({ value, onChange }) {
       if (!draggingRef.current) return;
       const deltaX = e2.clientX - startXRef.current;
       const sensitivity = e2.shiftKey ? 2 : 0.5;
-      const next2 = clamp$5(
+      const next2 = clamp(
         startAngleRef.current + deltaX * sensitivity,
         ROTATE_ANGLE_MIN,
         ROTATE_ANGLE_MAX,
@@ -182,7 +172,6 @@ function AngleScrubber({ value, onChange }) {
     </button>
   );
 }
-
 function AngleInput({ value, onChange }) {
   const [draft, setDraft] = reactExports.useState(String(Math.round(value)));
   const focusedRef = reactExports.useRef(false);
@@ -199,7 +188,7 @@ function AngleInput({ value, onChange }) {
         return;
       }
       const snapped = maybeSnapAngle(
-        clamp$5(parsed, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
+        clamp(parsed, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
       );
       onChange(snapped);
       setDraft(String(Math.round(snapped)));
@@ -226,7 +215,7 @@ function AngleInput({ value, onChange }) {
             e2.currentTarget.blur();
           } else if (e2.key === "ArrowUp") {
             e2.preventDefault();
-            const next2 = clamp$5(
+            const next2 = clamp(
               normalizeAngle(value + 1),
               ROTATE_ANGLE_MIN,
               ROTATE_ANGLE_MAX,
@@ -235,7 +224,7 @@ function AngleInput({ value, onChange }) {
             setDraft(String(Math.round(next2)));
           } else if (e2.key === "ArrowDown") {
             e2.preventDefault();
-            const next2 = clamp$5(
+            const next2 = clamp(
               normalizeAngle(value - 1),
               ROTATE_ANGLE_MIN,
               ROTATE_ANGLE_MAX,
@@ -262,7 +251,6 @@ function AngleInput({ value, onChange }) {
     </div>
   );
 }
-
 function ImageRotateEditToolbarInner({
   angle,
   onAngleChange,
@@ -278,10 +266,10 @@ function ImageRotateEditToolbarInner({
   visible,
 }) {
   const { t: t2 } = useTranslation();
-  const zoom2 = useStore$3(zoomSelector$3);
-  const offset2 = HEADER_FLOW_HEIGHT$1 * zoom2 + TOOLBAR_GAP$2;
+  const zoom2 = useStore(zoomSelector);
+  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={visible}
       position={Position.Top}
       offset={offset2}
@@ -296,32 +284,32 @@ function ImageRotateEditToolbarInner({
         data-density="compact"
       >
         <CancelChip onClick={onCancel} label={t2("canvas.rotate.title")} />
-        <Divider$4 />
+        <Divider />
         <AngleInput value={angle} onChange={onAngleChange} />
-        <Divider$4 />
-        <IconButton$3
+        <Divider />
+        <IconButton
           onClick={onRotate90}
           title={t2("canvas.rotate.step90", {
             degrees: ROTATE_STEP_DEG,
           })}
         >
           <Rotate90Icon />
-        </IconButton$3>
-        <IconButton$3
+        </IconButton>
+        <IconButton
           active={flipH}
           onClick={onFlipHorizontal}
           title={t2("canvas.rotate.flipH")}
         >
           <FlipHorizontalIcon />
-        </IconButton$3>
-        <IconButton$3
+        </IconButton>
+        <IconButton
           active={flipV}
           onClick={onFlipVertical}
           title={t2("canvas.rotate.flipV")}
         >
           <FlipVerticalIcon />
-        </IconButton$3>
-        <Divider$4 />
+        </IconButton>
+        <Divider />
         <button
           type="button"
           disabled={!canSave || saving}
@@ -336,10 +324,9 @@ function ImageRotateEditToolbarInner({
           <SendArrowIcon />
         </button>
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 }
-
 export const ImageRotateEditToolbar = reactExports.memo(
   ImageRotateEditToolbarInner,
 );

@@ -1,14 +1,12 @@
 // select-startup-visible-preview-workspace.js
 import { visiblePreviewTabsStore } from "../workspace/create-visible-preview-tabs-store.js";
-
-function nonEmptyOpaqueText$1(value) {
+function nonEmptyOpaqueText(value) {
   if (typeof value !== "string") return void 0;
   return value.trim().length > 0 ? value : void 0;
 }
-
-function normalizeReference$2(value) {
+function normalizeReference(value) {
   if (typeof value === "string") {
-    const workspaceId22 = nonEmptyOpaqueText$1(value);
+    const workspaceId22 = nonEmptyOpaqueText(value);
     return workspaceId22
       ? {
           workspaceId: workspaceId22,
@@ -17,9 +15,9 @@ function normalizeReference$2(value) {
   }
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const candidate = value;
-  const workspaceId2 = nonEmptyOpaqueText$1(candidate.workspaceId);
+  const workspaceId2 = nonEmptyOpaqueText(candidate.workspaceId);
   if (!workspaceId2) return null;
-  const folderPath = nonEmptyOpaqueText$1(candidate.folderPath);
+  const folderPath = nonEmptyOpaqueText(candidate.folderPath);
   return folderPath
     ? {
         workspaceId: workspaceId2,
@@ -29,13 +27,12 @@ function normalizeReference$2(value) {
         workspaceId: workspaceId2,
       };
 }
-
 function normalizeVisiblePreviewTabReferences(values3) {
   const seenWorkspaceIds = new Set();
   const seenFolderPaths = new Set();
   const result = [];
   for (const value of values3) {
-    const reference = normalizeReference$2(value);
+    const reference = normalizeReference(value);
     if (!reference || seenWorkspaceIds.has(reference.workspaceId)) continue;
     if (reference.folderPath && seenFolderPaths.has(reference.folderPath))
       continue;
@@ -45,7 +42,6 @@ function normalizeVisiblePreviewTabReferences(values3) {
   }
   return result;
 }
-
 function selectStartupVisiblePreviewWorkspace$1(
   snapshot2,
   restoredWorkspaceIds,
@@ -78,7 +74,6 @@ function selectStartupVisiblePreviewWorkspace$1(
   }
   return visibleRestored[0] ?? null;
 }
-
 function selectStartupVisiblePreviewWorkspace(
   snapshot2,
   restoredWorkspaceIds,
@@ -90,7 +85,6 @@ function selectStartupVisiblePreviewWorkspace(
     preferredWorkspaceId,
   );
 }
-
 export function getStartupVisiblePreviewWorkspace(
   restoredWorkspaceIds,
   preferredWorkspaceId,

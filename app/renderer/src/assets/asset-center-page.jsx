@@ -18,7 +18,7 @@ import {
   useQueryClient,
   useSearch,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
@@ -36,8 +36,8 @@ import {
 } from "../infra/use-online.jsx";
 import {
   AlertDialog,
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -56,9 +56,9 @@ import {
 import {
   assetCenterKeys,
   BASE,
-  readEnvelope$1,
+  readEnvelope,
   readObject,
-  ROOT_KEY$1,
+  ROOT_KEY,
   useAssetCenterFetcher,
   useEntities,
 } from "./wrap-as-asset-center-error.js";
@@ -81,19 +81,16 @@ import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
 import { EntityEditDialog } from "./entity-edit-dialog.jsx";
 import { ImportEntityConflictError } from "./import-entity-conflict-error.js";
 import { useDeleteEntity } from "./use-materialize-entity.js";
-
 function exportEntitiesBatchUrl(buildUrl, entityIds) {
   if (entityIds.length === 0) return void 0;
   const ids2 = entityIds.map((id2) => encodeURIComponent(id2)).join(",");
   return buildUrl(`${BASE}/entities-export?ids=${ids2}`);
 }
-
 async function listPendingSuggestions(fetcher, limit) {
   const qs = `?limit=${encodeURIComponent(String(limit))}`;
   const res = await fetcher(`${BASE}/suggestions${qs}`);
-  return readEnvelope$1(res, "suggestions", "suggestions", "array");
+  return readEnvelope(res, "suggestions", "suggestions", "array");
 }
-
 async function approveSuggestion(fetcher, suggestionId, request = {}) {
   const res = await fetcher(
     `${BASE}/suggestions/${encodeURIComponent(suggestionId)}/approve`,
@@ -101,7 +98,6 @@ async function approveSuggestion(fetcher, suggestionId, request = {}) {
   );
   return readObject(res, "approve suggestion result");
 }
-
 async function rejectSuggestion(fetcher, suggestionId) {
   const res = await fetcher(
     `${BASE}/suggestions/${encodeURIComponent(suggestionId)}/reject`,
@@ -109,9 +105,8 @@ async function rejectSuggestion(fetcher, suggestionId) {
       method: "POST",
     },
   );
-  return readEnvelope$1(res, "suggestion", "rejected suggestion");
+  return readEnvelope(res, "suggestion", "rejected suggestion");
 }
-
 function usePendingSuggestions(limit) {
   const fetcher = useAssetCenterFetcher();
   return useQuery({
@@ -119,12 +114,10 @@ function usePendingSuggestions(limit) {
     queryFn: () => listPendingSuggestions(fetcher, limit),
   });
 }
-
 function useExportEntitiesBatchUrl() {
   const buildUrl = useGatewayUrl();
   return (entityIds) => exportEntitiesBatchUrl(buildUrl, entityIds);
 }
-
 function useApproveSuggestion() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -133,12 +126,11 @@ function useApproveSuggestion() {
       approveSuggestion(fetcher, suggestionId, request),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
 function useRejectSuggestion() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -146,16 +138,13 @@ function useRejectSuggestion() {
     mutationFn: ({ suggestionId }) => rejectSuggestion(fetcher, suggestionId),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
-const TYPE_CHIPS$1 = ["all", ...ENTITY_TYPES];
-
+const TYPE_CHIPS = ["all", ...ENTITY_TYPES];
 const SORT_MODES = ["updated_at", "use_count"];
-
 function AssetCenterToolbar({
   onBack,
   search: search2,
@@ -180,7 +169,7 @@ function AssetCenterToolbar({
       <div className="relative z-10 border-b border-border-soft pb-6">
         <div className="mt-3 flex min-w-0 items-start gap-2">
           {onBack ? (
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon"
@@ -191,7 +180,7 @@ function AssetCenterToolbar({
               data-action-ui-id="asset-center-back-to-workspace"
             >
               <Icon icon={ArrowLeft} size="md" aria-hidden={true} />
-            </Button$1>
+            </Button>
           ) : null}
           <CatalogPageHeading
             title={t2("assetCenter.title")}
@@ -199,7 +188,7 @@ function AssetCenterToolbar({
           />
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-2">
-          <Button$1
+          <Button
             size="default"
             className="h-9 gap-1.5 rounded-lg px-4 text-[13px] font-medium"
             onClick={onAddClick}
@@ -207,8 +196,8 @@ function AssetCenterToolbar({
           >
             <Plus size={16} strokeWidth={1.5} />
             {t2("assetCenter.add")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             variant="outline"
             size="default"
@@ -219,7 +208,7 @@ function AssetCenterToolbar({
           >
             <Upload size={16} strokeWidth={1.5} />
             {t2("assetCenter.import.action")}
-          </Button$1>
+          </Button>
           <input
             ref={importInputRef}
             type="file"
@@ -244,7 +233,7 @@ function AssetCenterToolbar({
           className="gap-1"
           aria-label={t2("assetCenter.typeFilter.label")}
         >
-          {TYPE_CHIPS$1.map((chip) => (
+          {TYPE_CHIPS.map((chip) => (
             <ToggleGroupItem
               key={chip}
               value={chip}
@@ -279,7 +268,7 @@ function AssetCenterToolbar({
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 data-action-ui-id="asset-center-search-clear"
               >
-                <X$7 size={13} strokeWidth={1.5} />
+                <X size={13} strokeWidth={1.5} />
               </button>
             ) : null}
           </div>
@@ -317,7 +306,7 @@ function AssetCenterToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="flex items-center gap-0.5">
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -325,15 +314,15 @@ function AssetCenterToolbar({
               aria-pressed={viewMode === "grid"}
               title={t2("assetCenter.viewMode.grid")}
               data-action-ui-id="asset-center-toolbar-view-grid"
-              className={cn$2(
+              className={cn(
                 viewMode === "grid"
                   ? "bg-muted text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
               <LayoutGrid size={16} />
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               type="button"
               variant="ghost"
               size="icon-sm"
@@ -341,21 +330,20 @@ function AssetCenterToolbar({
               aria-pressed={viewMode === "list"}
               title={t2("assetCenter.viewMode.list")}
               data-action-ui-id="asset-center-toolbar-view-list"
-              className={cn$2(
+              className={cn(
                 viewMode === "list"
                   ? "bg-muted text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
               <List size={16} />
-            </Button$1>
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 function assetCenterSearchWithoutAction(returnWorkspaceId) {
   return returnWorkspaceId
     ? {
@@ -363,7 +351,6 @@ function assetCenterSearchWithoutAction(returnWorkspaceId) {
       }
     : {};
 }
-
 function buildAssetCenterWorkspaceReturn(returnWorkspaceId) {
   return {
     to: "/workspace",
@@ -371,9 +358,7 @@ function buildAssetCenterWorkspaceReturn(returnWorkspaceId) {
     replace: true,
   };
 }
-
 const VIEW_MODE_STORAGE_KEY = "assetCenter.viewMode";
-
 function readInitialViewMode() {
   try {
     const raw2 = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
@@ -381,7 +366,6 @@ function readInitialViewMode() {
   } catch {}
   return "grid";
 }
-
 function useAssetCenterPage() {
   const [typeFilter, setTypeFilter] = reactExports.useState("all");
   const [search2, setSearch] = reactExports.useState("");
@@ -431,7 +415,6 @@ function useAssetCenterPage() {
     setViewMode,
   };
 }
-
 function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
   const { t: t2 } = useTranslation();
   return (
@@ -459,7 +442,6 @@ function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
     />
   );
 }
-
 function EntityGrid({
   entities,
   onCardClick,
@@ -500,7 +482,6 @@ function EntityGrid({
     </div>
   );
 }
-
 function EntityList({
   entities,
   onCardClick,
@@ -563,7 +544,6 @@ function EntityList({
     </div>
   );
 }
-
 function ImportConflictDialog({
   open,
   existingEntity,
@@ -654,7 +634,6 @@ function ImportConflictDialog({
     </AlertDialog>
   );
 }
-
 function SuggestionCard({ suggestion }) {
   const { t: t2 } = useTranslation();
   const approve = useApproveSuggestion();
@@ -734,7 +713,7 @@ function SuggestionCard({ suggestion }) {
       )}
       {error && <p className="text-[10px] text-destructive">{error}</p>}
       <div className="flex items-center gap-1.5 mt-1">
-        <Button$1
+        <Button
           size="sm"
           className="h-7 gap-1.5 text-xs flex-1"
           onClick={() => void handleApprove()}
@@ -747,8 +726,8 @@ function SuggestionCard({ suggestion }) {
             <Check size={12} />
           )}
           {t2("assetCenter.suggestions.approve")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           variant="ghost"
           size="sm"
           className="h-7 gap-1.5 text-xs text-muted-foreground"
@@ -759,15 +738,14 @@ function SuggestionCard({ suggestion }) {
           {reject.isPending ? (
             <Loader2 size={12} className="animate-spin" />
           ) : (
-            <X$7 size={12} />
+            <X size={12} />
           )}
           {t2("assetCenter.suggestions.reject")}
-        </Button$1>
+        </Button>
       </div>
     </article>
   );
 }
-
 function SuggestionPanel() {
   const { t: t2 } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
@@ -801,7 +779,7 @@ function SuggestionPanel() {
             })}
           </h2>
         </div>
-        <Button$1
+        <Button
           variant="ghost"
           size="sm"
           className="h-7 gap-1.5 text-xs text-muted-foreground"
@@ -812,7 +790,7 @@ function SuggestionPanel() {
           {collapsed
             ? t2("assetCenter.suggestions.expand")
             : t2("assetCenter.suggestions.collapse")}
-        </Button$1>
+        </Button>
       </div>
       {!collapsed && (
         <div
@@ -829,7 +807,6 @@ function SuggestionPanel() {
     </section>
   );
 }
-
 export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   const { t: t2 } = useTranslation();
   const page = useAssetCenterPage();
@@ -1104,7 +1081,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             })}
           </span>
           <span className="flex-1" />
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="h-7"
@@ -1113,8 +1090,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             data-action-ui-id="asset-center-batch-clear"
           >
             {t2("assetCenter.batch.clear")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="secondary"
             size="sm"
             className="h-7 gap-1.5"
@@ -1126,8 +1103,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             {t2("assetCenter.batch.export", {
               count: selectedEntityIds.size,
             })}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="destructive"
             size="sm"
             className="h-7 gap-1.5"
@@ -1139,7 +1116,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             {t2("assetCenter.batch.delete", {
               count: selectedEntityIds.size,
             })}
-          </Button$1>
+          </Button>
         </div>
       )}
       {batchDeleteError && (
@@ -1199,7 +1176,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               </ul>
             )}
           </div>
-          <Button$1
+          <Button
             variant="ghost"
             size="icon-xs"
             className="shrink-0 -mt-0.5 -mr-1 text-muted-foreground hover:text-foreground"
@@ -1207,8 +1184,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             aria-label={t2("common.close")}
             data-action-ui-id="asset-center-batch-import-summary-close"
           >
-            <X$7 size={12} />
-          </Button$1>
+            <X size={12} />
+          </Button>
         </div>
       )}
       <div className="flex-1 min-h-0 overflow-y-auto px-8 md:px-12 pt-3 pb-6 space-y-3 [scrollbar-gutter:stable]">
@@ -1250,7 +1227,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
                 </ul>
               )}
             </div>
-            <Button$1
+            <Button
               variant="ghost"
               size="icon-xs"
               className="shrink-0 -mt-0.5 -mr-1 text-muted-foreground hover:text-foreground"
@@ -1258,8 +1235,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               aria-label={t2("common.close")}
               data-action-ui-id="asset-center-import-success-close"
             >
-              <X$7 size={12} />
-            </Button$1>
+              <X size={12} />
+            </Button>
           </div>
         )}
         {importError && (
@@ -1273,7 +1250,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
                 message: importError,
               })}
             </p>
-            <Button$1
+            <Button
               variant="ghost"
               size="icon-xs"
               className="shrink-0 -mr-1 text-destructive/70 hover:text-destructive"
@@ -1281,8 +1258,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               aria-label={t2("common.close")}
               data-action-ui-id="asset-center-import-error-close"
             >
-              <X$7 size={12} />
-            </Button$1>
+              <X size={12} />
+            </Button>
           </div>
         )}
         {page.loadError ? (

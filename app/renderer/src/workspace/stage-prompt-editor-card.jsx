@@ -10,7 +10,7 @@ import {
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -23,15 +23,12 @@ import {
   Textarea,
 } from "../infra/badge-variants.jsx";
 import { StaleProductionPlanSaveError } from "../text-editor/skill-reload-dock.jsx";
-
 function itemDisplayName(item) {
   return (
     item.display_name || item.name || item.title || item.role || item.id || ""
   );
 }
-
 const PROMPT_PREVIEW_LIMIT = 5;
-
 const GENERATION_FIELD_ALIASES = {
   model: ["model", "model_name", "model_id", "generation_model"],
   resolution: [
@@ -51,7 +48,6 @@ const GENERATION_FIELD_ALIASES = {
   quality: ["quality"],
   frameRate: ["fps", "frame_rate"],
 };
-
 function friendlyItemName(name2) {
   return name2
     .replace(/^(?:cg|shot|clip)[_-]?(\d+)\s*/i, "$1 ")
@@ -59,13 +55,11 @@ function friendlyItemName(name2) {
     .replace(/\s{2,}/g, " ")
     .trim();
 }
-
 function userFacingContentName(name2) {
   return friendlyItemName(name2)
     .replace(/^\d+\s*/, "")
     .trim();
 }
-
 function firstField(fields, aliases) {
   for (const alias of aliases) {
     const value = fields[alias]?.trim();
@@ -73,7 +67,6 @@ function firstField(fields, aliases) {
   }
   return void 0;
 }
-
 function itemGenerationFields(stage, item) {
   const itemId = item.id || item.item_id;
   const runtimeItem = stage.runtime_refs.find(
@@ -87,7 +80,6 @@ function itemGenerationFields(stage, item) {
     runtimeItem,
   );
 }
-
 function generationKind(fields, prompt) {
   const raw2 = (
     fields.modality ||
@@ -106,7 +98,6 @@ function generationKind(fields, prompt) {
   if (/音频|声音|旁白|配音/.test(prompt)) return "audio";
   return "unknown";
 }
-
 function generationParameters(fields, prompt, kind) {
   const parameters = [];
   for (const key2 of Object.keys(GENERATION_FIELD_ALIASES)) {
@@ -136,14 +127,12 @@ function generationParameters(fields, prompt, kind) {
   }
   return parameters;
 }
-
 function itemSequence(item, index2) {
   const fromName = friendlyItemName(item.name).match(/^(\d+)\b/)?.[1];
   if (fromName) return fromName.padStart(2, "0");
   const fromId = item.id.match(/(?:^|[_-])(\d+)(?:$|[_-])/i)?.[1];
   return (fromId ?? String(index2 + 1)).padStart(2, "0");
 }
-
 function parseRefs(item) {
   const value = item.refs || item.ref_ids || "";
   if (value.startsWith("[")) {
@@ -164,7 +153,6 @@ function parseRefs(item) {
     .map((ref) => ref.trim().replace(/^['"]|['"]$/g, ""))
     .filter(Boolean);
 }
-
 function sourceLabels(stage, item) {
   const labels = parseRefs(item).map(
     (ref) => stage.reference_labels[ref] || ref,
@@ -183,7 +171,6 @@ function sourceLabels(stage, item) {
   }
   return [...new Set(labels.map((label) => label.trim()).filter(Boolean))];
 }
-
 function displayedReferenceValues(stage, refs) {
   const labels = refs.map((ref) => stage.reference_labels[ref]?.trim() || ref);
   const labelCounts = new Map();
@@ -195,7 +182,6 @@ function displayedReferenceValues(stage, refs) {
     return `${label} [${ref}]`;
   });
 }
-
 function parseDisplayedReferences(stage, currentRefs, value) {
   const currentDisplayToId = new Map(
     displayedReferenceValues(stage, currentRefs).map((label, index2) => [
@@ -220,7 +206,6 @@ function parseDisplayedReferences(stage, currentRefs, value) {
       return ids2?.length === 1 ? ids2[0] : entry;
     });
 }
-
 function editableItems(stage) {
   return stage.work_items.flatMap((item) => {
     const id2 = item.id?.trim();
@@ -241,7 +226,6 @@ function editableItems(stage) {
     ];
   });
 }
-
 export const StagePromptEditorCard = reactExports.forwardRef(
   function StagePromptEditorCard2(
     {
@@ -693,7 +677,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
               className={`flex items-center border-t border-border/70 px-3 py-2.5 ${hasMorePreviews ? "justify-between" : "justify-end"}`}
             >
               {hasMorePreviews && (
-                <Button$1
+                <Button
                   type="button"
                   variant="ghost"
                   size="sm"
@@ -710,9 +694,9 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                           count: items.length - PROMPT_PREVIEW_LIMIT,
                         },
                       )}
-                </Button$1>
+                </Button>
               )}
-              <Button$1
+              <Button
                 type="button"
                 variant="secondary"
                 size="sm"
@@ -720,7 +704,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                 data-action-ui-id="production-plan.prompt-toggle"
               >
                 {t2("productionPlan.prompt.viewEditAll", "检查修改提示词")}
-              </Button$1>
+              </Button>
             </div>
           </section>
         )}
@@ -837,7 +821,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                         )}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
-                    <Button$1
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -880,9 +864,9 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                       {selectedConflict.removed
                         ? t2("productionPlan.prompt.acceptRemoval", "接受删除")
                         : t2("productionPlan.prompt.useLatest", "使用新版")}
-                    </Button$1>
+                    </Button>
                     {!selectedConflict.removed && (
-                      <Button$1
+                      <Button
                         type="button"
                         variant="secondary"
                         size="sm"
@@ -893,7 +877,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                         data-action-ui-id="production-plan.prompt.keepDraft"
                       >
                         {t2("productionPlan.prompt.keepDraft", "保留草稿")}
-                      </Button$1>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -949,7 +933,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
           </div>
           {!readOnly2 && (
             <DialogFooter className="border-t border-border px-4 py-3">
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -978,8 +962,8 @@ export const StagePromptEditorCard = reactExports.forwardRef(
               >
                 <Icon icon={RotateCcw} size="sm" strokeWidth={1} />
                 {t2("productionPlan.prompt.restore", "恢复原文")}
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 size="sm"
                 disabled={
@@ -998,7 +982,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   className={saving ? "animate-spin" : void 0}
                 />
                 {t2("productionPlan.prompt.save", "保存修改")}
-              </Button$1>
+              </Button>
             </DialogFooter>
           )}
         </DialogContent>

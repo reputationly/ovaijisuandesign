@@ -1,7 +1,7 @@
 // sortable-queued-row.jsx
 import {
   closestCenter,
-  CSS$1,
+  CSS$1 as CSS,
   DndContext,
   jsxRuntimeExports,
   KeyboardSensor,
@@ -27,16 +27,14 @@ import {
   Paperclip,
   Trash2,
 } from "../media-editing/package.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { PencilIcon } from "../workspace/home-service.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 import { applyQueuedMessageScrollRequest } from "../workspace/resolve-retry-message-payload.jsx";
-
 const restrictToVerticalAxis = ({ transform: transform2 }) => ({
   ...transform2,
   x: 0,
 });
-
 const restrictToParentElement = ({
   transform: transform2,
   draggingNodeRect,
@@ -54,7 +52,6 @@ const restrictToParentElement = ({
   }
   return next2;
 };
-
 function SortableQueuedRow({
   id: id2,
   message: message2,
@@ -76,7 +73,7 @@ function SortableQueuedRow({
     id: id2,
   });
   const style2 = {
-    transform: CSS$1.Transform.toString(transform2),
+    transform: CSS.Transform.toString(transform2),
     transition: transition2,
     opacity: isDragging ? 0.9 : 1,
     // 提高拖拽时的层级,避免被相邻行覆盖
@@ -138,7 +135,7 @@ function SortableQueuedRow({
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Button$1
+                  <Button
                     type="button"
                     variant="ghost"
                     size="xs"
@@ -151,7 +148,7 @@ function SortableQueuedRow({
                     {message2.reviewPaused
                       ? t2("common.retry")
                       : t2("chat.queue.sendNow")}
-                  </Button$1>
+                  </Button>
                 }
               />
               <TooltipContent side="top">
@@ -164,7 +161,7 @@ function SortableQueuedRow({
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Button$1
+                  <Button
                     type="button"
                     variant="ghost"
                     size="icon-xs"
@@ -174,7 +171,7 @@ function SortableQueuedRow({
                     onClick={() => onEdit(message2)}
                   >
                     <PencilIcon className="size-3" />
-                  </Button$1>
+                  </Button>
                 }
               />
               <TooltipContent side="top">
@@ -184,7 +181,7 @@ function SortableQueuedRow({
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Button$1
+                  <Button
                     type="button"
                     variant="ghost"
                     size="icon-xs"
@@ -194,7 +191,7 @@ function SortableQueuedRow({
                     onClick={() => onDelete(message2)}
                   >
                     <Trash2 className="size-3.5" strokeWidth={1.5} />
-                  </Button$1>
+                  </Button>
                 }
               />
               <TooltipContent side="top">
@@ -207,7 +204,6 @@ function SortableQueuedRow({
     </div>
   );
 }
-
 export function QueuedUserMessageList({
   messages: messages2,
   scrollRequest,

@@ -2,7 +2,7 @@
 import {
   ArrowUp,
   dedupedToast,
-  DOMParser$1,
+  DOMParser$1 as DOMParser,
   EditorContent,
   jsxRuntimeExports,
   reactExports,
@@ -51,11 +51,11 @@ import { useLocalComfyUiWorkflows } from "./use-local-comfy-ui-workflows.js";
 import { findMentionTrigger } from "./find-trailing-trigger.js";
 import { useMention } from "./use-mention.js";
 import {
-  basename$7,
+  basename,
   FileDropFeedback,
   MENTION_POPOVER_ID,
   mentionKindFromFileType,
-  mentionKindFromPath$1,
+  mentionKindFromPath,
   MESSAGE_ACTION_BUTTON_CLASS,
   MESSAGE_ACTION_LABEL_BUTTON_CLASS,
   POPOVER_ID,
@@ -95,7 +95,6 @@ import {
 import { SlashCommandPopover } from "../workspace/slash-command-popover.jsx";
 import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-
 export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   {
     onSend,
@@ -518,7 +517,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           const parser2 = parseInputRef.current;
           if (!parser2) return false;
           const doc2 = ownChips
-            ? DOMParser$1.fromSchema(view2.state.schema)
+            ? DOMParser.fromSchema(view2.state.schema)
                 .parse(container, {
                   preserveWhitespace: "full",
                 })
@@ -560,7 +559,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
                   continue;
                 if (!attrs.path || seen2.has(attrs.path)) continue;
                 seen2.add(attrs.path);
-                add2(attrs.path, attrs.name || basename$7(attrs.path));
+                add2(attrs.path, attrs.name || basename(attrs.path));
               }
             });
             return true;
@@ -1861,7 +1860,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         mentionFileRef.current.set(att.path, {
           name: att.filename,
           path: att.path,
-          kind: mentionKindFromPath$1(att.path),
+          kind: mentionKindFromPath(att.path),
         });
       }
       editor?.commands.setContent(parseInputRef.current(msg.content), {

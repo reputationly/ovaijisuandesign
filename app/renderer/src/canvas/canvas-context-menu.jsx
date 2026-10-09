@@ -1,7 +1,7 @@
 // canvas-context-menu.jsx
 import {
   CanvasNodeType,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   CompositedSvg,
   getBezierPath,
   jsxRuntimeExports,
@@ -10,7 +10,7 @@ import {
   reactDomExports,
   reactExports,
   useReactFlow,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
   Workflow,
 } from "../vendor.js";
@@ -25,15 +25,13 @@ import {
 } from "./canvas-high-blast-delete-dialog.jsx";
 import {
   CLIP_STUDIO_PLUGIN_ID,
-  COMFYUI_PLUGIN_ID$1,
+  COMFYUI_PLUGIN_ID,
   DIRECTOR_STAGE_PLUGIN_ID,
   formatPluginAddNodeType,
   PANORAMA_VIEWER_PLUGIN_ID,
 } from "../media-editing/resolve-panorama-generation-presentation.js";
 import { useClampedMenuPosition } from "../text-editor/table-ops.jsx";
-
 const CONNECT_NODE_MENU_WIDTH_PX = 240;
-
 function DirectorStageMenuIcon() {
   return (
     <CompositedSvg
@@ -49,7 +47,6 @@ function DirectorStageMenuIcon() {
     </CompositedSvg>
   );
 }
-
 function VideoEditingMenuIcon() {
   return (
     <CompositedSvg
@@ -72,7 +69,6 @@ function VideoEditingMenuIcon() {
     </CompositedSvg>
   );
 }
-
 const ALLOWED_TARGET_TYPES = {
   // Drag-release creates a connected target; prefill lives in useConnectToAddNode.
   [CanvasNodeType.Text]: [
@@ -94,32 +90,22 @@ const ALLOWED_TARGET_TYPES = {
     CanvasNodeType.Audio,
   ],
 };
-
 function completeAddNodeMenuBadge(onComplete, target) {
   try {
     onComplete?.(target);
   } catch {}
 }
-
 const MENU_WIDTH_PX = CONNECT_NODE_MENU_WIDTH_PX;
-
 const MENU_ITEM_HEIGHT_PX = 48;
-
 const MENU_HEADER_HEIGHT_PX = 32;
-
 const MENU_CHROME_HEIGHT_PX = 18;
-
 const MENU_ROW_GAP_PX = 0;
-
 const MENU_MAX_ROW_COUNT = 8;
-
 const SUBMENU_WIDTH_PX = MENU_WIDTH_PX;
-
 const MENU_ESTIMATED_HEIGHT_PX =
   MENU_CHROME_HEIGHT_PX +
   MENU_HEADER_HEIGHT_PX +
   MENU_MAX_ROW_COUNT * (MENU_ITEM_HEIGHT_PX + MENU_ROW_GAP_PX);
-
 function oppositeHandlePosition(p3) {
   switch (p3) {
     case Position.Left:
@@ -136,7 +122,6 @@ function oppositeHandlePosition(p3) {
     }
   }
 }
-
 function TextIcon() {
   return (
     <CompositedSvg
@@ -156,12 +141,10 @@ function TextIcon() {
     </CompositedSvg>
   );
 }
-
 function ImageIcon() {
   return <ImageOutlineIcon size={20} strokeWidth={1.8} aria-hidden="true" />;
 }
-
-function VideoIcon$1() {
+function VideoIcon() {
   return (
     <CompositedSvg
       width="20"
@@ -191,7 +174,6 @@ function VideoIcon$1() {
     </CompositedSvg>
   );
 }
-
 function AudioIcon() {
   return (
     <CompositedSvg
@@ -210,7 +192,6 @@ function AudioIcon() {
     </CompositedSvg>
   );
 }
-
 function TableIcon() {
   return (
     <CompositedSvg
@@ -229,7 +210,6 @@ function TableIcon() {
     </CompositedSvg>
   );
 }
-
 function MenuItem({
   icon,
   label,
@@ -313,7 +293,6 @@ function MenuItem({
     </button>
   );
 }
-
 function ComfyUiSubmenu({
   open,
   onOpen,
@@ -409,7 +388,7 @@ function ComfyUiSubmenu({
         description={t2("canvas.comfyuiDesc")}
         badge={addNodeMenuBadges?.comfyUi}
         trailingIcon={
-          <ChevronRight$1 size={16} strokeWidth={1.5} aria-hidden="true" />
+          <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
         }
         dataActionUiId="canvas.menu-add-comfyui"
         onMouseEnter={handleMouseEnter}
@@ -504,10 +483,9 @@ function ComfyUiSubmenu({
     </div>
   );
 }
-
 function ConnectionLineOverlay({ source }) {
   const { flowToScreenPosition } = useReactFlow();
-  useStore$3((s2) => s2.transform);
+  useStore((s2) => s2.transform);
   const paths = source.points.map((p3) => {
     const screenSource = flowToScreenPosition({
       x: p3.sourceFlowX,
@@ -595,9 +573,7 @@ function ConnectionLineOverlay({ source }) {
     </>
   );
 }
-
 const VIDEO_MODEL_BADGE = "MiniMax H3";
-
 export function CanvasContextMenu({
   motionProps,
   position: position2,
@@ -763,7 +739,7 @@ export function CanvasContextMenu({
         )}
         {show.video && (
           <MenuItem
-            icon={<VideoIcon$1 />}
+            icon={<VideoIcon />}
             label={t2("canvas.video")}
             description={t2("canvas.videoDesc")}
             badge={VIDEO_MODEL_BADGE}
@@ -821,7 +797,7 @@ export function CanvasContextMenu({
           flowPosition={flowPosition}
           onCreateNode={() =>
             handleClick2(() =>
-              onAddNode(formatPluginAddNodeType(COMFYUI_PLUGIN_ID$1)),
+              onAddNode(formatPluginAddNodeType(COMFYUI_PLUGIN_ID)),
             )
           }
         />

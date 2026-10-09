@@ -16,7 +16,7 @@ import {
   Search,
   useAssetMetadataStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ScrollableAssetView } from "./scrollable-asset-view.jsx";
@@ -34,8 +34,8 @@ import {
 import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderOpen, Upload } from "../media-editing/package.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -72,7 +72,6 @@ import { SegmentedSwitch } from "../canvas/popover-title.jsx";
 import { getImageConstraintReason } from "../generation/attachment-bar.jsx";
 import { loadAssetFpsBatch } from "../canvas/load-asset-fps-batch.js";
 import { selectionSummary } from "../canvas/selection-summary.js";
-
 function createAssetPickerPerfSession({
   openedAt = performance.now(),
   now: now2 = () => performance.now(),
@@ -118,7 +117,6 @@ function createAssetPickerPerfSession({
     snapshot: snapshot2,
   };
 }
-
 function getAssetSourceAvailability(status, reasons) {
   if (reasons.some((reason) => reason === void 0)) return "available";
   if (status === "error") return "error";
@@ -132,7 +130,6 @@ function getAssetSourceAvailability(status, reasons) {
     return "pending";
   return "empty";
 }
-
 function AssetSourceMenu({
   anchor,
   preferredSide = "bottom",
@@ -183,7 +180,7 @@ function AssetSourceMenu({
             className={`w-60 max-w-[calc(100vw-1rem)] [--action-list-item-height:38px] [--action-list-item-padding:9px_12px] [--action-list-item-radius:8px] [--action-list-row-gap:4px] ${preferredSide === "top" ? "data-[side=top]:origin-bottom data-[side=bottom]:origin-top" : ""}`}
             render={
               <MenuPopup
-                className={cn$2(
+                className={cn(
                   "origin-(--transform-origin) outline-none",
                   "dp-motion-quick-zoom",
                 )}
@@ -227,7 +224,6 @@ function AssetSourceMenu({
     </DropdownMenu>
   );
 }
-
 function AssetList({
   rows,
   view: view2,
@@ -292,19 +288,12 @@ function AssetList({
     />
   );
 }
-
 const VIDEO_BUDGET_REASON_PREFIX = "video-budget:";
-
 const VIDEO_FPS_REASON_PREFIX = "video-fps:";
-
 const VIDEO_FPS_PENDING_REASON = "video-fps-pending";
-
 const MEDIA_METADATA_PENDING_REASON = "media-metadata-pending";
-
 const DEFAULT_TABS = ["canvas", "upload"];
-
 const EMPTY_SELECTION = new Map();
-
 const ALL_TYPE_FILTERS = [
   "image",
   "video",
@@ -313,7 +302,6 @@ const ALL_TYPE_FILTERS = [
   "subtitle",
   "file",
 ];
-
 function computeSelectionTotals(selection2) {
   const counts = {
     image: 0,
@@ -340,7 +328,6 @@ function computeSelectionTotals(selection2) {
     sec,
   };
 }
-
 function TagFilterMark({ tag }) {
   return isCanvasColorTag(tag) ? (
     <span
@@ -358,7 +345,6 @@ function TagFilterMark({ tag }) {
     />
   );
 }
-
 function SidebarFilterButton({
   active: active2,
   onClick,
@@ -375,7 +361,7 @@ function SidebarFilterButton({
       aria-label={typeof children2 === "string" ? children2 : void 0}
       aria-pressed={active2}
       data-action-ui-id={actionId}
-      className={cn$2(
+      className={cn(
         "flex h-8 w-full items-center justify-between gap-2 rounded-md px-2.5 text-left text-xs transition-colors",
         active2
           ? "bg-accent font-medium text-foreground"
@@ -396,11 +382,9 @@ function SidebarFilterButton({
     </button>
   );
 }
-
 function mediaLightboxKindForAsset(type2) {
   return type2 === "subtitle" ? "text" : type2;
 }
-
 function UploadEntry({ view: view2, busy, error, onClick }) {
   const { t: t2 } = useTranslation();
   return (
@@ -411,7 +395,7 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
       data-action-ui-id="asset-picker.upload.pick"
       aria-label={t2("assetPicker.upload.action", "本地上传")}
       aria-busy={busy}
-      className={cn$2(
+      className={cn(
         "relative flex w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-foreground/30 bg-muted/30 text-xs text-foreground hover:border-foreground/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait",
         view2 === "grid" ? "h-full flex-col" : "h-14 px-3",
       )}
@@ -426,7 +410,7 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
         <span aria-hidden={true} className="invisible block h-12 shrink-0" />
       )}
       <span
-        className={cn$2(
+        className={cn(
           "flex items-center justify-center gap-2",
           view2 === "grid" && "absolute inset-0 flex-col",
         )}
@@ -454,7 +438,6 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
     </button>
   );
 }
-
 function disabledReasonLabel(reason, t2, constraints2) {
   if (reason.startsWith(VIDEO_BUDGET_REASON_PREFIX)) {
     const excessSec = Number(reason.slice(VIDEO_BUDGET_REASON_PREFIX.length));
@@ -544,7 +527,6 @@ function disabledReasonLabel(reason, t2, constraints2) {
       return "";
   }
 }
-
 function buildRows(
   assets,
   allowedTypes,
@@ -611,7 +593,6 @@ function buildRows(
   out.sort((a2, b3) => a2.name.localeCompare(b3.name));
   return out;
 }
-
 function arrangeRowsWithSessionUploads(canvasRows, uploadedRows, allowedTypes) {
   if (uploadedRows.length === 0) return canvasRows;
   const allowed = new Set(allowedTypes);
@@ -647,7 +628,6 @@ function arrangeRowsWithSessionUploads(canvasRows, uploadedRows, allowedTypes) {
   );
   return [...uploadsFirst, ...remainingCanvasRows];
 }
-
 function applyFilters(rows, query, typeFilter, tagFilter) {
   const q2 = query.trim().toLowerCase();
   if (
@@ -669,12 +649,10 @@ function applyFilters(rows, query, typeFilter, tagFilter) {
     return true;
   });
 }
-
 function normaliseTypeFilter(raw2) {
   if (!raw2) return [];
   return Array.isArray(raw2) ? raw2 : [raw2];
 }
-
 function stripRowKey(row) {
   const {
     rowKey: _rowKey,
@@ -685,14 +663,12 @@ function stripRowKey(row) {
   } = row;
   return rest;
 }
-
 function resourceToRow(resource, rowKey = resource.assetId) {
   return {
     ...resource,
     rowKey,
   };
 }
-
 function deriveAccept(types2) {
   if (types2.length === 0) return ALL_MEDIA_FILE_ACCEPT;
   const parts = [];
@@ -703,7 +679,6 @@ function deriveAccept(types2) {
   }
   return parts.join(",");
 }
-
 function inferType(file) {
   if (isSubtitleFileName(file.name)) return "subtitle";
   const dot2 = file.name.lastIndexOf(".");
@@ -711,7 +686,6 @@ function inferType(file) {
   const detected = inferMediaKind(file.type, ext);
   return detected;
 }
-
 function useResourceUpload({
   requestKey,
   allowedTypes,
@@ -796,7 +770,6 @@ function useResourceUpload({
     handleChange,
   };
 }
-
 function readStoredView() {
   if (typeof window === "undefined") return "grid";
   try {
@@ -806,14 +779,12 @@ function readStoredView() {
     return "grid";
   }
 }
-
 function writeStoredView(next2) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(VIEW_STORAGE_KEY, next2);
   } catch {}
 }
-
 export function AssetPickerDialog({
   request,
   onUploadAndInsert,
@@ -1529,7 +1500,7 @@ export function AssetPickerDialog({
                 >
                   <span>{t2("assetFilter.tagSection", "标签")}</span>
                   <ChevronDown
-                    className={cn$2(
+                    className={cn(
                       "size-3.5 shrink-0 transition-transform",
                       !tagsExpanded && "-rotate-90",
                     )}
@@ -1616,7 +1587,7 @@ export function AssetPickerDialog({
                     <span className="truncate">
                       {activeTag ? tagLabel(activeTag, t2) : tagFilter}
                     </span>
-                    <Button$1
+                    <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -1625,12 +1596,12 @@ export function AssetPickerDialog({
                       onClick={handleExitTagView}
                       data-action-ui-id="asset-picker.tag-view.clear"
                     >
-                      <X$7 className="size-3.5" strokeWidth={1.5} />
-                    </Button$1>
+                      <X className="size-3.5" strokeWidth={1.5} />
+                    </Button>
                   </Badge>
                 )}
               </div>
-              <Button$1
+              <Button
                 variant="ghost"
                 size="icon"
                 className="size-8 shrink-0"
@@ -1638,8 +1609,8 @@ export function AssetPickerDialog({
                 aria-label={t2("common.close")}
                 data-action-ui-id="asset-picker.close"
               >
-                <X$7 className="size-[18px]" strokeWidth={1.5} />
-              </Button$1>
+                <X className="size-[18px]" strokeWidth={1.5} />
+              </Button>
             </div>
             <div className="flex min-h-0 flex-1 flex-col pl-4 pr-3">
               {view2 === "list" && uploadAction && (
@@ -1707,22 +1678,22 @@ export function AssetPickerDialog({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Button$1
+            <Button
               variant="outline"
               className="min-w-22 rounded-[calc(var(--radius-sm)+2px)]"
               onClick={cancel}
               data-action-ui-id="asset-picker.cancel"
             >
               {t2("common.cancel", "取消")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               className="min-w-26 rounded-[calc(var(--radius-sm)+2px)]"
               onClick={confirm}
               disabled={!meetsMin}
               data-action-ui-id="asset-picker.confirm"
             >
               {t2("common.confirm", "确认")}
-            </Button$1>
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>
@@ -1780,13 +1751,13 @@ export function AssetPickerDialog({
             {t2("assetPicker.upload.uploading", "上传中…")}
           </DialogTitle>
           <DialogFooter>
-            <Button$1
+            <Button
               variant="outline"
               onClick={cancel}
               data-action-ui-id="asset-source.upload-cancel"
             >
               {t2("common.cancel", "取消")}
-            </Button$1>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

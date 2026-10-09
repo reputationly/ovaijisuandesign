@@ -20,21 +20,17 @@ import {
 import {
   closeHistory,
   DOMSerializer,
-  Node$4,
+  Node$4 as Node,
   reactExports,
   useTranslation,
 } from "../vendor.js";
 import { recordProvisionalDiffReviewHistory } from "./record-provisional-diff-review-history.js";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 import { selectPendingHunksForNode } from "./annotation-gutter.jsx";
-
 const FENCE_RE = /^(\s*)(```|~~~)/;
-
 const TABLE_DELIM_RE = /^\s*\|?[\s:|-]+\|?\s*$/;
-
 const BLOCK_PREFIX_RE =
   /^(\s*)((?:>\s*)*)((?:[-*+]|\d{1,9}[.)])\s+(?:\[[ xX]\]\s+)?|#{1,6}\s+)?/;
-
 function pushChar(b3, ch, rawOffset, isSynthetic) {
   if (ch === " ") {
     const last2 = b3.normalized.length - 1;
@@ -46,7 +42,6 @@ function pushChar(b3, ch, rawOffset, isSynthetic) {
   b3.normToRaw.push(rawOffset);
   b3.synthetic.push(isSynthetic);
 }
-
 function findStrippableDelimiters(line) {
   const strip = new Array(line.length).fill(false);
   const openByToken = new Map();
@@ -80,7 +75,6 @@ function findStrippableDelimiters(line) {
   }
   return strip;
 }
-
 function findBracketClose(line, open) {
   let depth2 = 0;
   for (let i2 = open; i2 < line.length; i2++) {
@@ -92,7 +86,6 @@ function findBracketClose(line, open) {
   }
   return -1;
 }
-
 function matchParen(line, at2) {
   if (line[at2] !== "(") return -1;
   let depth2 = 0;
@@ -105,7 +98,6 @@ function matchParen(line, at2) {
   }
   return -1;
 }
-
 function pushInline(b3, line, lineStart, from2, strippable) {
   const strip = strippable ?? findStrippableDelimiters(line);
   let i2 = from2;
@@ -160,7 +152,6 @@ function pushInline(b3, line, lineStart, from2, strippable) {
     i2 += 1;
   }
 }
-
 function buildMarkdownNormalizeMap(raw2) {
   const b3 = {
     normalized: [],
@@ -213,13 +204,10 @@ function buildMarkdownNormalizeMap(raw2) {
     synthetic: b3.synthetic,
   };
 }
-
 function collapseRenderedText(text2) {
   return text2.replace(/\s+/g, " ");
 }
-
 const INLINE_MARK_CHARS = new Set(["*", "~", "`"]);
-
 function stripInlineMarkChars(text2) {
   let out = "";
   for (const ch of text2) {
@@ -227,7 +215,6 @@ function stripInlineMarkChars(text2) {
   }
   return out;
 }
-
 function stripInlineMarkCharsWithMap(text2) {
   const chars2 = [];
   const map3 = [];
@@ -242,26 +229,21 @@ function stripInlineMarkCharsWithMap(text2) {
     map: map3,
   };
 }
-
 const DIFF_CONTEXT_START = "";
-
 const DIFF_CONTEXT_END = "";
-
 const EXPLICIT_BLOCK_PREFIX_RE = /^(#{1,6}\s|>|[-*+]\s|\d+[.)]\s|```|~~~)/;
-
 function parseMarkdownDocument(editor, markdown2) {
   try {
     const manager = editor.storage.markdown?.manager;
     if (!manager) return null;
     const json2 = manager.parse(markdown2);
     if (!json2 || typeof json2 !== "object") return null;
-    return Node$4.fromJSON(editor.schema, json2);
+    return Node.fromJSON(editor.schema, json2);
   } catch {
     return null;
   }
 }
-
-function serializeMarkdownDocument$1(editor, doc2) {
+function serializeMarkdownDocument(editor, doc2) {
   try {
     const container = document.createElement("div");
     container.appendChild(
@@ -272,7 +254,6 @@ function serializeMarkdownDocument$1(editor, doc2) {
     return null;
   }
 }
-
 function serializeMarkdownNode(editor, node2) {
   try {
     const container = document.createElement("div");
@@ -284,7 +265,6 @@ function serializeMarkdownNode(editor, node2) {
     return null;
   }
 }
-
 function findMarkerPosition(doc2, marker) {
   let found2 = null;
   doc2.descendants((node2, pos) => {
@@ -294,7 +274,6 @@ function findMarkerPosition(doc2, marker) {
   });
   return found2;
 }
-
 function extractContextualTextblock(editor, context) {
   if (EXPLICIT_BLOCK_PREFIX_RE.test(context.sourceMarkdown.trimStart()))
     return null;
@@ -323,7 +302,6 @@ function extractContextualTextblock(editor, context) {
     content: contextualDoc.slice(from2, end2).content,
   };
 }
-
 function rebuildSoleTextblock(node2, content2) {
   try {
     if (node2.isTextblock)
@@ -335,7 +313,6 @@ function rebuildSoleTextblock(node2, content2) {
     return null;
   }
 }
-
 function renderDeletedMarkdown(editor, markdown2, context) {
   if (editor.isDestroyed) return null;
   const standaloneDoc = parseMarkdownDocument(editor, markdown2);
@@ -359,10 +336,9 @@ function renderDeletedMarkdown(editor, markdown2, context) {
     }
   }
   return standaloneDoc
-    ? serializeMarkdownDocument$1(editor, standaloneDoc)
+    ? serializeMarkdownDocument(editor, standaloneDoc)
     : null;
 }
-
 function isInsideTableCell(doc2, pos) {
   try {
     const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
@@ -373,7 +349,6 @@ function isInsideTableCell(doc2, pos) {
   } catch {}
   return false;
 }
-
 function buildDocTextIndex(doc2) {
   const segments = [];
   const parts = [];
@@ -401,7 +376,6 @@ function buildDocTextIndex(doc2) {
     segments,
   };
 }
-
 function toPmPos(index2, offset2, bias) {
   const { segments } = index2;
   if (segments.length === 0) return null;
@@ -420,7 +394,6 @@ function toPmPos(index2, offset2, bias) {
   const last2 = segments[segments.length - 1];
   return last2.pmStart + last2.length;
 }
-
 function collapseWithMap(text2) {
   const chars2 = [];
   const map3 = [];
@@ -450,16 +423,13 @@ function collapseWithMap(text2) {
     map: map3,
   };
 }
-
 function normalizeMarkdownSnippet(markdown2) {
   if (!markdown2) return "";
   return collapseRenderedText(
     buildMarkdownNormalizeMap(markdown2).normalized,
   ).trim();
 }
-
 const TABLE_DELIM_LINE = /^[|\s:-]+$/;
-
 function parseTableRowCells(markdown2) {
   const lines = markdown2
     .split("\n")
@@ -478,7 +448,6 @@ function parseTableRowCells(markdown2) {
   }
   return cells2.length > 0 ? cells2 : null;
 }
-
 function splitTableHunkCells(index2, hunk, textFrom, textTo) {
   const overlaps = (seg) =>
     Math.max(seg.textStart, textFrom) <
@@ -529,7 +498,6 @@ function splitTableHunkCells(index2, hunk, textFrom, textTo) {
   }
   return cells2.length > 0 ? cells2 : null;
 }
-
 function collectOccurrences(haystack, needle, cap2 = 50) {
   const out = [];
   let cursor = 0;
@@ -541,9 +509,7 @@ function collectOccurrences(haystack, needle, cap2 = 50) {
   }
   return out;
 }
-
 const CONTEXT_PROBE_CHARS = 14;
-
 function locateDeletionPoint(
   index2,
   collapsed,
@@ -596,7 +562,6 @@ function locateDeletionPoint(
   }
   return null;
 }
-
 function locateHunksInDoc(doc2, hunks) {
   const result = new Map();
   if (hunks.length === 0) return result;
@@ -715,12 +680,10 @@ function locateHunksInDoc(doc2, hunks) {
   }
   return result;
 }
-
 function locateHunkPosition(doc2, hunk) {
   const range2 = locateHunksInDoc(doc2, [hunk]).get(hunk.id);
   return range2 ? (range2.cells?.[0]?.from ?? range2.from) : null;
 }
-
 function locateTransitionAnchor(editor, transition2) {
   if (transition2.kind !== "revert" || !transition2.focusHunkId) return null;
   const hunk = transition2.before.hunks.find(
@@ -738,7 +701,6 @@ function locateTransitionAnchor(editor, transition2) {
         position: position2,
       };
 }
-
 function recordDiffReviewTransition(editor, transition2) {
   if (
     editor.isDestroyed ||
@@ -792,14 +754,12 @@ function recordDiffReviewTransition(editor, transition2) {
   if (recorded) closeDiffReviewHistoryGroup(editor);
   return recorded;
 }
-
 function diffReviewScroller(editor) {
   if (editor.isDestroyed) return null;
   const dom = editor.view.dom;
   const scroller = dom.closest("[data-diff-scroll-root]") ?? dom.parentElement;
   return scroller instanceof HTMLElement ? scroller : null;
 }
-
 function captureScrollTop(editor) {
   const el = diffReviewScroller(editor);
   return el
@@ -809,7 +769,6 @@ function captureScrollTop(editor) {
       }
     : null;
 }
-
 function restoreScrollTop(snapshot2) {
   if (!snapshot2) return;
   const { el, top: top2 } = snapshot2;
@@ -820,7 +779,6 @@ function restoreScrollTop(snapshot2) {
     });
   }
 }
-
 function collapseDiffReviewHistory(
   editor,
   baselineMarkdown,
@@ -851,7 +809,6 @@ function collapseDiffReviewHistory(
   restoreEditorSelection(editor, selection2, selectionPosition);
   restoreScrollTop(scrollSnapshot);
 }
-
 function setDiffReviewHunks(editor, hunks, config2) {
   editor.view.dispatch(
     editor.state.tr.setMeta(diffReviewPluginKey, {
@@ -861,7 +818,6 @@ function setDiffReviewHunks(editor, hunks, config2) {
     }),
   );
 }
-
 function clearDiffReviewHunks(editor) {
   const state2 = diffReviewPluginKey.getState(editor.state);
   if (!state2 || (state2.hunks.length === 0 && !state2.config)) return;
@@ -871,11 +827,9 @@ function clearDiffReviewHunks(editor) {
     }),
   );
 }
-
 function getDiffReviewHunks(editor) {
   return diffReviewPluginKey.getState(editor.state)?.hunks ?? [];
 }
-
 function scrollToDiffHunk(editor, hunkId) {
   const hunk = getDiffReviewHunks(editor).find(
     (candidate) => candidate.id === hunkId,
@@ -910,7 +864,6 @@ function scrollToDiffHunk(editor, hunkId) {
     }
   } catch {}
 }
-
 async function reconstructVerifiedDiffReviewBaseline(
   postApplyMarkdown,
   session,
@@ -919,19 +872,16 @@ async function reconstructVerifiedDiffReviewBaseline(
   if (contentHash !== session.contentHash) return null;
   return reconstructDiffReviewBaseline(postApplyMarkdown, session);
 }
-
 function containsMarkdownTableRow(markdown2) {
   return markdown2.split("\n").some((line) => /^\s*\|.*\|\s*$/.test(line));
 }
-
-function countNewlines$1(text2) {
+function countNewlines(text2) {
   let count2 = 0;
   for (let index2 = 0; index2 < text2.length; index2 += 1) {
     if (text2.charCodeAt(index2) === 10) count2 += 1;
   }
   return count2;
 }
-
 const MARKDOWN_DELIMITER_POINTS = new Set([
   "#",
   "*",
@@ -943,10 +893,8 @@ const MARKDOWN_DELIMITER_POINTS = new Set([
   ">",
   "|",
 ]);
-
 const MARKDOWN_BLOCK_PREFIX =
   /^(?: {0,3})(?:#{1,6}(?:[ \t]+|$)|[-+*>][ \t]+|\d{1,9}[.)][ \t]+|`{3,}|~{3,})/;
-
 function locatableRenderedText(markdown2) {
   const normalized = collapseRenderedText(
     buildMarkdownNormalizeMap(markdown2).normalized,
@@ -955,14 +903,12 @@ function locatableRenderedText(markdown2) {
     normalized.replace(MARKDOWN_BLOCK_PREFIX, ""),
   ).trim();
 }
-
 function commonPrefixLength(left, right) {
   const limit = Math.min(left.length, right.length);
   let length2 = 0;
   while (length2 < limit && left[length2] === right[length2]) length2 += 1;
   return length2;
 }
-
 function commonSuffixLength(left, right, prefixLength) {
   let length2 = 0;
   while (
@@ -974,14 +920,12 @@ function commonSuffixLength(left, right, prefixLength) {
   }
   return length2;
 }
-
 function containsNewline(points, from2, to) {
   for (let index2 = from2; index2 < to; index2 += 1) {
     if (points[index2] === "\n") return true;
   }
   return false;
 }
-
 function alignMultilineBoundaries(left, right, prefixLength, suffixLength) {
   const changeHasNewline =
     containsNewline(left, prefixLength, left.length - suffixLength) ||
@@ -1026,7 +970,6 @@ function alignMultilineBoundaries(left, right, prefixLength, suffixLength) {
     suffixLength: alignedSuffix,
   };
 }
-
 function markerRunStart(points, boundary) {
   const previousNewline = points.lastIndexOf("\n", boundary - 1);
   const lineStart = previousNewline + 1;
@@ -1052,7 +995,6 @@ function markerRunStart(points, boundary) {
     start2 -= 1;
   return start2;
 }
-
 function markerRunEnd(points, boundary) {
   if (
     boundary <= 0 ||
@@ -1067,7 +1009,6 @@ function markerRunEnd(points, boundary) {
     end2 += 1;
   return end2;
 }
-
 function alignMarkdownDelimiterBoundaries(
   left,
   right,
@@ -1096,7 +1037,6 @@ function alignMarkdownDelimiterBoundaries(
     suffixLength: alignedSuffix,
   };
 }
-
 function minimizeDiffReviewHunk(hunk) {
   const { originalText, replacement } = hunk;
   if (
@@ -1160,10 +1100,9 @@ function minimizeDiffReviewHunk(hunk) {
     newEnd: hunk.newEnd - commonSuffix.length,
     reversePrefix: `${hunk.reversePrefix}${commonPrefix}`,
     reverseSuffix: `${commonSuffix}${hunk.reverseSuffix}`,
-    startLine: hunk.startLine + countNewlines$1(commonPrefix),
+    startLine: hunk.startLine + countNewlines(commonPrefix),
   };
 }
-
 function enclosingTableKey(doc2, pos) {
   try {
     const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
@@ -1175,7 +1114,6 @@ function enclosingTableKey(doc2, pos) {
     return null;
   }
 }
-
 function enclosingHeadingLevel(doc2, pos) {
   try {
     const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
@@ -1187,7 +1125,6 @@ function enclosingHeadingLevel(doc2, pos) {
   } catch {}
   return null;
 }
-
 function withEnclosingBlockPrefix(markdown2, doc2, pos) {
   if (markdown2.includes("\n")) return markdown2;
   const trimmed = markdown2.trimStart();
@@ -1196,7 +1133,6 @@ function withEnclosingBlockPrefix(markdown2, doc2, pos) {
   const level = enclosingHeadingLevel(doc2, pos);
   return level ? `${"#".repeat(level)} ${markdown2}` : markdown2;
 }
-
 export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
   const { sourceMarkdown, onReviewDocumentApplied } = options;
   const { t: t2 } = useTranslation();

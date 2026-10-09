@@ -1,25 +1,19 @@
 // file-drop-feedback.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Upload } from "../media-editing/package.jsx";
-
 export const POPOVER_ID = "message-input-slash-listbox";
-
 export const MENTION_POPOVER_ID = "message-input-mention-listbox";
-
 export const MESSAGE_ACTION_BUTTON_CLASS =
   "flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-foreground text-background transition-colors hover:bg-foreground/90";
-
 export const MESSAGE_ACTION_LABEL_BUTTON_CLASS =
   "flex h-[var(--btn-height-sm)] w-auto cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-foreground px-[var(--btn-padding-x-md)] text-xs font-medium text-background transition-colors hover:bg-foreground/90 group-data-[actions-compact=true]/composer:size-[var(--btn-height-sm)] group-data-[actions-compact=true]/composer:px-0";
-
 export function workflowAttachmentName(workflow) {
   const base2 =
     workflow.name.trim() || workflow.title.trim() || "comfyui-workflow";
   const safe = base2.replaceAll("/", "_").replaceAll("\\", "_");
   return safe.toLocaleLowerCase().endsWith(".json") ? safe : `${safe}.json`;
 }
-
-export function mentionKindFromPath$1(path2) {
+export function mentionKindFromPath(path2) {
   const ext =
     path2.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
   if (["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "avif"].includes(ext))
@@ -29,11 +23,9 @@ export function mentionKindFromPath$1(path2) {
   if (["txt", "md", "json"].includes(ext)) return "text";
   return "other";
 }
-
-export function basename$7(path2) {
+export function basename(path2) {
   return path2.split("/").pop() || path2;
 }
-
 export function mentionKindFromFileType(fileType, path2) {
   if (
     fileType === "image" ||
@@ -43,9 +35,8 @@ export function mentionKindFromFileType(fileType, path2) {
   ) {
     return fileType;
   }
-  return mentionKindFromPath$1(path2);
+  return mentionKindFromPath(path2);
 }
-
 export function FileDropFeedback({ label }) {
   return (
     <div

@@ -17,7 +17,6 @@ import {
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
 import { API_PATHS, measurePerf } from "../vendor.js";
 import { PERF_DERIVE_MESSAGES } from "../generation/to-workspace-browser-url.js";
-
 function extractErrorString(err) {
   if (typeof err === "string") return err;
   if (err && typeof err === "object") {
@@ -33,31 +32,25 @@ function extractErrorString(err) {
   }
   return String(err ?? "Unknown error");
 }
-
 function normalizeFileUrl(rawUrl, filename) {
   if (rawUrl.startsWith("/files/") || rawUrl.startsWith("http")) return rawUrl;
   const name2 = filename ?? rawUrl.split("/").pop() ?? rawUrl;
   return API_PATHS.serveFile(name2);
 }
-
 function serializeToolInput(input) {
   return typeof input === "string" ? input : JSON.stringify(input);
 }
-
 function deriveToolResult(state2) {
   if (state2.status === "completed") return String(state2.output ?? "");
   if (state2.status === "error") return extractErrorString(state2.error);
   return void 0;
 }
-
 const BILLING_GENERATION_ERROR_CODE = "billing_insufficient_balance";
-
 function toBillingCredits(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0
     ? value
     : void 0;
 }
-
 function deriveBillingMetadata(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
@@ -85,7 +78,6 @@ function deriveBillingMetadata(value) {
       : {}),
   };
 }
-
 function deriveActionRequiredMessage(toolResult, partId, nextId2) {
   if (!toolResult) return void 0;
   if (!toolResult.includes(BILLING_GENERATION_ERROR_CODE)) return void 0;
@@ -117,25 +109,21 @@ function deriveActionRequiredMessage(toolResult, partId, nextId2) {
     },
   };
 }
-
-function mapToolStatus$1(status) {
+function mapToolStatus(status) {
   if (status === "completed") return "ok";
   if (status === "error") return "error";
   if (status === "running") return "running";
   return "pending";
 }
-
 function isToolOutputCancelledError(output) {
   if (output == null) return false;
   return /^Error:/i.test(String(output));
 }
-
 function applyCancelledOverride(status, output) {
   if (status === "pending" || status === "running") return "error";
   if (status === "ok" && isToolOutputCancelledError(output)) return "error";
   return status;
 }
-
 function cancelledToolInterruption(
   statusChanged,
   runtimeAborted,
@@ -145,16 +133,13 @@ function cancelledToolInterruption(
     return "canvas_continuation";
   return statusChanged ? "aborted" : void 0;
 }
-
 function isRuntimeAbortedResult(toolResult) {
   return !!toolResult && toolResult.includes(TOOL_ABORTED_BY_USER_TEXT);
 }
-
 function isCancelMarkerPart(part) {
   if (part.type !== "text") return false;
   return isCancelMarkerText(stripContextPrefix(part.text).trim());
 }
-
 function markerCanvasGenerationHandoffTargets(part) {
   if (part.type !== "text") return [];
   const fromMetadata = parseCanvasGenerationHandoffTargetsFromMetadata(
@@ -165,7 +150,6 @@ function markerCanvasGenerationHandoffTargets(part) {
     stripContextPrefix(part.text).trim(),
   );
 }
-
 function isCanvasContinuationMarkerPart(part) {
   if (part.type !== "text") return false;
   if (markerCanvasGenerationHandoffTargets(part).length > 0) return true;
@@ -173,7 +157,6 @@ function isCanvasContinuationMarkerPart(part) {
     stripContextPrefix(part.text).trim(),
   );
 }
-
 function targetsForTool(targets, callId, childSessionId) {
   const exact = targets.filter((target) => target.tool_use_id === callId);
   if (exact.length > 0) return exact;
@@ -186,19 +169,16 @@ function targetsForTool(targets, callId, childSessionId) {
     (target) => !target.tool_use_id && !target.child_session_id,
   );
 }
-
 function mimeToMediaType(mime) {
   if (mime.startsWith("image/")) return "image";
   if (mime.startsWith("video/")) return "video";
   if (mime.startsWith("audio/")) return "audio";
   return "file_added";
 }
-
 function normalizeChatMessageResult(result) {
   if (!result) return [];
   return Array.isArray(result) ? result : [result];
 }
-
 function cloneSubMessages(messages2) {
   return messages2.map((message2) => ({
     ...message2,
@@ -209,7 +189,6 @@ function cloneSubMessages(messages2) {
       : {}),
   }));
 }
-
 function cloneChatMessages(messages2) {
   return messages2.map((message2) => ({
     ...message2,
@@ -220,7 +199,6 @@ function cloneChatMessages(messages2) {
       : {}),
   }));
 }
-
 function subMessagesReplayEqual(left, right) {
   return (
     left.length === right.length &&
@@ -238,18 +216,15 @@ function subMessagesReplayEqual(left, right) {
     )
   );
 }
-
 function childSeedKey(childSessionId, agentName) {
   return agentName ? `${childSessionId}\0${agentName}` : childSessionId;
 }
-
 function subMessageReplayKey(message2) {
   return {
     callID: message2.type === "tool" ? message2.callID : void 0,
     semantic: subMessageSemanticKey(message2),
   };
 }
-
 function rangesMatch(left, right, offset2) {
   if (offset2 + left.length > right.length) return false;
   return left.every((key2, index2) => {
@@ -259,7 +234,6 @@ function rangesMatch(left, right, offset2) {
       : key2.semantic === other.semantic;
   });
 }
-
 function hasSubMessageToolResult(message2) {
   return (
     message2.hasToolResult ??
@@ -267,7 +241,6 @@ function hasSubMessageToolResult(message2) {
       (message2.toolStatus === "ok" && message2.content.includes(": ")))
   );
 }
-
 function reconcileSeededTool(seed, live) {
   if (
     hasSubMessageToolResult(seed) &&
@@ -279,7 +252,6 @@ function reconcileSeededTool(seed, live) {
     id: seed.id,
   };
 }
-
 function reconcileSeededSubMessages(seeded, live) {
   if (seeded.length === 0 || live.length === 0) {
     return [...cloneSubMessages(seeded), ...cloneSubMessages(live)];
@@ -342,7 +314,6 @@ function reconcileSeededSubMessages(seeded, live) {
   }
   return combined;
 }
-
 function completeResolvedQuestionPart(part, result) {
   const now2 = Date.now();
   const start2 = part.state.status === "pending" ? now2 : part.state.time.start;
@@ -367,7 +338,6 @@ function completeResolvedQuestionPart(part, result) {
     },
   };
 }
-
 function isSameToolCall(existing, incoming) {
   return (
     existing.type === "tool" &&
@@ -378,7 +348,6 @@ function isSameToolCall(existing, incoming) {
     existing.callID === incoming.callID
   );
 }
-
 function hasQuestionInput(input) {
   try {
     const parsed = typeof input === "string" ? JSON.parse(input) : input;
@@ -402,7 +371,6 @@ function hasQuestionInput(input) {
     return false;
   }
 }
-
 function reconcileToolPart(existing, incoming, fromHistory2) {
   if (
     !existing ||
@@ -473,7 +441,6 @@ function reconcileToolPart(existing, incoming, fromHistory2) {
     state: merged,
   };
 }
-
 function canCarryToolInterruption(part) {
   if (part.state.status === "completed")
     return isToolOutputCancelledError(part.state.output);
@@ -483,7 +450,6 @@ function canCarryToolInterruption(part) {
     );
   return true;
 }
-
 function extractAgentNameFromPart(part) {
   try {
     const input =
@@ -496,7 +462,6 @@ function extractAgentNameFromPart(part) {
     return void 0;
   }
 }
-
 export class PartStore {
   constructor(isMessageWithdrawn = () => false) {
     this.isMessageWithdrawn = isMessageWithdrawn;
@@ -756,7 +721,7 @@ export class PartStore {
     for (const part of this.getSessionParts(sessionId)) {
       if (part.type !== "tool") continue;
       if (this.cancelledToolPartIds.has(part.id)) continue;
-      const status = mapToolStatus$1(part.state.status);
+      const status = mapToolStatus(part.state.status);
       if (status !== "pending" && status !== "running") continue;
       this.cancelledToolPartIds.add(part.id);
       newlyCancelledPartIds.add(part.id);
@@ -1150,7 +1115,7 @@ export class PartStore {
           return null;
         const isTask = part.tool === "task";
         const childSessionId = isTask ? extractChildSessionId(part) : void 0;
-        let toolStatus = mapToolStatus$1(part.state.status);
+        let toolStatus = mapToolStatus(part.state.status);
         const toolResult = deriveToolResult(part.state);
         let interruption = this.historyToolInterruptions.get(part.id);
         if (sessionCancelled) {
@@ -1406,7 +1371,7 @@ export class PartStore {
           });
           break;
         case "tool": {
-          let toolStatus = mapToolStatus$1(part.state.status);
+          let toolStatus = mapToolStatus(part.state.status);
           const toolResult = deriveToolResult(part.state);
           let interruption;
           if (childSessionCancelled || this.cancelledToolPartIds.has(part.id)) {

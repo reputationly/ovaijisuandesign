@@ -1,7 +1,7 @@
 // map-handler.js
 import { Operation } from "../../vendor.js";
 import { cloneIfNeeded, isDraft } from "../../infra/deep-freeze.js";
-import { dataTypes, ensureShallowCopy, escapePath, get$1, getPath$1, getProxyDraft, getValue, has, internal, isDraftable, isEqual, iteratorSymbol, latest, markChanged, set } from "../../infra/shallow-copy.js";
+import { dataTypes, ensureShallowCopy, escapePath, get$1, getPath as getPath$1, getProxyDraft, getValue, has, internal, isDraftable, isEqual, iteratorSymbol, latest, markChanged, set } from "../../infra/shallow-copy.js";
 import { getType } from "../../infra/get-type.js";
 export function forEach2(target, iter) {
   const type2 = getType(target);

@@ -3,17 +3,14 @@ import {
   chatDiagnosticHash,
   chatToolIdentity,
   diagnosticHistoryTools,
-  normalizeToolStatus$1,
+  normalizeToolStatus,
 } from "./diagnostic-history-tools.js";
-
 const MAX_ANOMALY_DETAILS = 8;
-
 function safeToken(value) {
   return /^[\w.:/-]{1,128}$/.test(value)
     ? value
     : `hash:${chatDiagnosticHash(value)}`;
 }
-
 function chatDiagnosticError(error) {
   const value = error && typeof error === "object" ? error : {};
   const cause =
@@ -83,9 +80,8 @@ function chatDiagnosticError(error) {
     httpStatus,
   };
 }
-
 function describe(tool2) {
-  const status = normalizeToolStatus$1(tool2.status);
+  const status = normalizeToolStatus(tool2.status);
   return {
     identity: chatToolIdentity(tool2),
     part: tool2.partId ? chatDiagnosticHash(`part:${tool2.partId}`) : void 0,
@@ -96,7 +92,6 @@ function describe(tool2) {
     reason: tool2.reason ? safeToken(tool2.reason) : void 0,
   };
 }
-
 function traceChatTools(
   write,
   stage,
@@ -133,7 +128,7 @@ function traceChatTools(
           tools
             .map(
               (tool2) =>
-                `${chatToolIdentity(tool2)}:${normalizeToolStatus$1(tool2.status)}`,
+                `${chatToolIdentity(tool2)}:${normalizeToolStatus(tool2.status)}`,
             )
             .sort()
             .join(","),
@@ -148,7 +143,6 @@ function traceChatTools(
     );
   } catch {}
 }
-
 function traceChatServerMessage(write, stage, message2, context = {}) {
   if (
     ![
@@ -209,7 +203,6 @@ function traceChatServerMessage(write, stage, message2, context = {}) {
     );
   }
 }
-
 function traceChatClientOperation(write, stage, message2, outcome) {
   if (
     ![
@@ -234,7 +227,6 @@ function traceChatClientOperation(write, stage, message2, outcome) {
           : void 0,
   });
 }
-
 export class ChatDiagnostics {
   constructor(write) {
     this.write = write;

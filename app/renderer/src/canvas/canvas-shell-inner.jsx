@@ -5,12 +5,12 @@ import {
   jsxRuntimeExports,
   Panel,
   reactExports,
-  ReactFlow$1,
+  ReactFlow$1 as ReactFlow,
   SelectionMode,
   useConnection,
   useNodesInitialized,
   useReactFlow,
-  useStore$3,
+  useStore$3 as useStore,
   useStoreApi,
   useTranslation,
 } from "../vendor.js";
@@ -24,7 +24,7 @@ import {
   setAttribute,
 } from "./cursor-icon.jsx";
 import {
-  arePropsEqual$2,
+  arePropsEqual,
   DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
 } from "./use-video-starter-preset-store.js";
 import {
@@ -42,7 +42,7 @@ import {
 } from "./get-alignment-reference-ids.js";
 import { resolveNodeAlignmentSnap } from "./resolve-node-alignment-snap.js";
 import {
-  isEditableTarget$3,
+  isEditableTarget,
   selectionToNormalizedBBox,
 } from "../media-editing/selection-to-normalized-b-box.js";
 import {
@@ -100,8 +100,8 @@ import {
   useRedrawState,
 } from "../media-editing/use-start-cloud-edit-from-node.js";
 import {
-  BAR_GAP$2,
-  BAR_HEIGHT$1,
+  BAR_GAP as BAR_GAP$2,
+  BAR_HEIGHT,
   BAR_MIN_WIDTH,
   CanvasEraseTopBar,
   selectionsToNormalizedBBoxes,
@@ -123,7 +123,6 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { EdgesCanvas } from "./edges-canvas.jsx";
 import { EdgeInteractionLayer } from "./edge-interaction-layer.jsx";
-
 function CanvasActiveProvider({ active: active2, children: children2 }) {
   const deferredActive = useDelayedFalse(
     active2,
@@ -137,11 +136,10 @@ function CanvasActiveProvider({ active: active2, children: children2 }) {
     </CanvasActiveContext.Provider>
   );
 }
-
 function CanvasInteractionProvider({ children: children2 }) {
-  const isDragging = useStore$3(isDraggingSelector);
-  const isMultiSelect = useStore$3(isMultiSelectSelector);
-  const isBoxSelecting = useStore$3(isBoxSelectingSelector);
+  const isDragging = useStore(isDraggingSelector);
+  const isMultiSelect = useStore(isMultiSelectSelector);
+  const isBoxSelecting = useStore(isBoxSelectingSelector);
   return (
     <IsDraggingContext.Provider value={isDragging}>
       <IsMultiSelectContext.Provider value={isMultiSelect}>
@@ -152,7 +150,6 @@ function CanvasInteractionProvider({ children: children2 }) {
     </IsDraggingContext.Provider>
   );
 }
-
 function computeClickPanViewport(flowPoint, canvasSize, currentZoom) {
   return {
     x: canvasSize.width / 2 - flowPoint.x * currentZoom,
@@ -160,21 +157,16 @@ function computeClickPanViewport(flowPoint, canvasSize, currentZoom) {
     zoom: currentZoom,
   };
 }
-
 function getMinimapViewportColor(viewportAreaRatio) {
   return isMinimapViewportIndicatorVisible(viewportAreaRatio)
     ? "var(--canvas-minimap-viewport-fill)"
     : void 0;
 }
-
 const HEADER_HIDE_ZOOM_THRESHOLD = 0.15;
-
 const NODE_HEADERS_HIDDEN_CLASS = "canvas-node-headers-hidden";
-
 function isNodeHeaderHidden(zoom2) {
   return zoom2 < HEADER_HIDE_ZOOM_THRESHOLD;
 }
-
 function NodeTagRingsCanvas({ active: active2 = true }) {
   const storeApi = useStoreApi();
   const tagColorStore = useNodeTagColorApi();
@@ -318,27 +310,18 @@ function NodeTagRingsCanvas({ active: active2 = true }) {
     />
   ) : null;
 }
-
 const defaultCanvasStyle = {
   cursor: "var(--canvas-cursor-default)",
 };
-
 const grabCanvasStyle = {
   cursor: "grab",
 };
-
 const PAN_ON_DRAG = [1, 2];
-
 const PAN_ON_DRAG_WITH_LEFT = [0, 1, 2];
-
 const DELETE_KEY_CODE = ["Backspace", "Delete"];
-
 const EMPTY_DELETE_KEY_CODE = [];
-
 const PAN_OFF_DEBOUNCE_MS = 200;
-
 const ZOOM_COMMIT_DEBOUNCE_MS = 220;
-
 function ConnectingDisabledMarker({ edges }) {
   const fromNodeId = useConnection((c3) => c3.fromNode?.id ?? null);
   const disabledTargets = reactExports.useMemo(() => {
@@ -366,14 +349,13 @@ function ConnectingDisabledMarker({ edges }) {
   }, [disabledTargets]);
   return null;
 }
-
 function useSpacePan(active2 = true) {
   const [isSpacePressed, setIsSpacePressed] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (!active2) return;
     const onKeyDown = (e2) => {
       if (e2.code !== "Space" || e2.repeat) return;
-      if (isEditableTarget$3(e2.target)) return;
+      if (isEditableTarget(e2.target)) return;
       e2.preventDefault();
       setIsSpacePressed(true);
     };
@@ -394,7 +376,6 @@ function useSpacePan(active2 = true) {
   }, [active2]);
   return isSpacePressed;
 }
-
 function useStableViewportOnContainerShift(
   containerRef,
   active2 = true,
@@ -422,12 +403,10 @@ function useStableViewportOnContainerShift(
     return () => ro.disconnect();
   }, [active2, containerRef, layoutRelocationKey, reactFlow]);
 }
-
 const CanvasE2EMarkers = reactExports.memo(
   CanvasE2EMarkersInner,
-  arePropsEqual$2,
+  arePropsEqual,
 );
-
 function EmptyCanvasHint() {
   const { t: t2 } = useTranslation();
   return (
@@ -494,7 +473,6 @@ function EmptyCanvasHint() {
     </Panel>
   );
 }
-
 const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
   store,
 }) {
@@ -597,7 +575,6 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
     />
   );
 });
-
 const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
   const { meta: meta2, cancelErase, erasingNodeId } = useEraseState();
   const { onNodeAction } = useCanvasBridge();
@@ -610,7 +587,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     }
   }, [erasingNodeId]);
   useCropViewportZoom(meta2);
-  const transform2 = useStore$3((s2) => s2.transform);
+  const transform2 = useStore((s2) => s2.transform);
   const [vpX, vpY, vpZoom] = transform2;
   const [confirming, setConfirming] = reactExports.useState(false);
   const [resolution, setResolution] = reactExports.useState("2K");
@@ -748,9 +725,9 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
       <div
         className="absolute pointer-events-auto flex justify-center"
         style={{
-          transform: `translate3d(${barContainerLeft}px, ${imagePos.y - BAR_HEIGHT$1 - BAR_GAP$2}px, 0)`,
+          transform: `translate3d(${barContainerLeft}px, ${imagePos.y - BAR_HEIGHT - BAR_GAP$2}px, 0)`,
           width: barContainerWidth,
-          height: BAR_HEIGHT$1,
+          height: BAR_HEIGHT,
           top: 0,
           left: 0,
           willChange: "transform",
@@ -773,7 +750,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
         style={{
           transform: `translate3d(${barContainerLeft}px, ${imagePos.y + imagePos.h + BAR_GAP$2}px, 0)`,
           width: barContainerWidth,
-          height: BAR_HEIGHT$1,
+          height: BAR_HEIGHT,
           top: 0,
           left: 0,
           willChange: "transform",
@@ -791,7 +768,6 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     </div>
   );
 });
-
 const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
   const { meta: meta2, cancelRedraw, redrawingNodeId } = useRedrawState();
   const { onNodeAction } = useCanvasBridge();
@@ -815,7 +791,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
     composerMeasured ? meta2 : null,
     composerMeasured ? bottomBarHeight + BAR_GAP : 0,
   );
-  const transform2 = useStore$3((s2) => s2.transform);
+  const transform2 = useStore((s2) => s2.transform);
   const [vpX, vpY, vpZoom] = transform2;
   const [resolution, setResolution] = reactExports.useState("2K");
   const sentRef = reactExports.useRef(false);
@@ -1005,26 +981,20 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
     </div>
   );
 });
-
 function getCanvasMinimapPositionStyle(placement) {
   return MINIMAP_POSITION_STYLES[placement];
 }
-
 const DOT_RADIUS = 1;
-
 const MIN_VISIBLE_GRID_ZOOM = 0.5;
-
 function getVisibleGridStart(visibleMin) {
   return Math.floor(visibleMin / VISIBLE_GRID_GAP) * VISIBLE_GRID_GAP;
 }
-
 function readDotColor(host) {
   const raw2 = getComputedStyle(host)
     .getPropertyValue("--canvas-bg-dot")
     .trim();
   return raw2 || COLOR_FALLBACK;
 }
-
 function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
   const storeApi = useStoreApi();
   const canvasRef = reactExports.useRef(null);
@@ -1145,7 +1115,6 @@ function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
     />
   ) : null;
 }
-
 function useEdgeCulling(edges, options) {
   const bufferRatio = options?.bufferRatio ?? DEFAULT_BUFFER_RATIO;
   const minEdges = options?.minEdges ?? MIN_EDGES_TO_CULL;
@@ -1220,7 +1189,6 @@ function useEdgeCulling(edges, options) {
     [edges, hiddenIds],
   );
 }
-
 function useMiddleButtonPanCursor(active2 = true) {
   reactExports.useEffect(() => {
     if (!active2) return;
@@ -1258,7 +1226,6 @@ function useMiddleButtonPanCursor(active2 = true) {
     };
   }, [active2]);
 }
-
 function useNodeAlignmentSnap(enabled) {
   const flowStore = useStoreApi();
   const guidesStore = reactExports.useMemo(createAlignmentGuidesStore, []);
@@ -1381,7 +1348,6 @@ function useNodeAlignmentSnap(enabled) {
     guidesStore,
   };
 }
-
 function CanvasModeLayers() {
   const mode2 = useActiveMode();
   return (
@@ -1394,7 +1360,6 @@ function CanvasModeLayers() {
     </>
   );
 }
-
 export function CanvasShellInner({
   nodes,
   edges,
@@ -1427,7 +1392,7 @@ export function CanvasShellInner({
   const storeApi = useStoreApi();
   const activeMode = useActiveMode();
   const isModalOpen = useIsCanvasModalOpen();
-  const showBackgroundGrid = useStore$3((s2) => s2.transform[2] > 0.5);
+  const showBackgroundGrid = useStore((s2) => s2.transform[2] > 0.5);
   const culledEdges = useEdgeCulling(edges, {
     active: active2,
   });
@@ -1661,7 +1626,7 @@ export function CanvasShellInner({
             height: "100%",
           }}
         >
-          <ReactFlow$1
+          <ReactFlow
             nodes={nodes}
             edges={culledEdges}
             nodeTypes={nodeTypes2}
@@ -1751,7 +1716,7 @@ export function CanvasShellInner({
             {active2 ? <ConnectingDisabledMarker edges={edges} /> : null}
             {active2 ? <ConnectionTargetMarker edges={edges} /> : null}
             {children2}
-          </ReactFlow$1>
+          </ReactFlow>
         </div>
       </CanvasInteractionProvider>
       {active2 ? <CanvasModeLayers /> : null}

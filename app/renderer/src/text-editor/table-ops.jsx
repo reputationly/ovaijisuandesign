@@ -12,11 +12,9 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Trash2 } from "../media-editing/package.jsx";
 import { OverlayScrollbar } from "./overlay-scrollbar-inner.jsx";
-
 export function getManager(editor) {
   return editor.storage.markdown?.manager;
 }
-
 function normalizeSerializedMarkdown(markdown2) {
   const lines = markdown2.split("\n");
   const out = [];
@@ -51,7 +49,6 @@ function normalizeSerializedMarkdown(markdown2) {
     : `${out.join("\n")}
 `;
 }
-
 export function patchEntityEscaping(manager) {
   const original = manager.encodeTextForMarkdown;
   if (typeof original !== "function") return;
@@ -61,23 +58,19 @@ export function patchEntityEscaping(manager) {
     return text2.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   };
 }
-
 export function patchBlankLinePadding(manager) {
   const original = manager.serialize;
   if (typeof original !== "function") return;
   manager.serialize = (document2) =>
     normalizeSerializedMarkdown(original.call(manager, document2));
 }
-
 const TABLE_SCROLL_VIEWPORT_SELECTOR = ".canvas-markdown-table-scroll-viewport";
-
 function sameTargets(left, right) {
   return (
     left.length === right.length &&
     left.every((target, index2) => target === right[index2])
   );
 }
-
 function MarkdownTableScrollbarPortal({ target }) {
   const targetRef = reactExports.useMemo(
     () => ({
@@ -96,7 +89,6 @@ function MarkdownTableScrollbarPortal({ target }) {
     shell,
   );
 }
-
 export function MarkdownTableScrollbarsInner({ editorRoot }) {
   const [targets, setTargets] = reactExports.useState([]);
   const targetIdsRef = reactExports.useRef(new WeakMap());
@@ -137,7 +129,6 @@ export function MarkdownTableScrollbarsInner({ editorRoot }) {
     </>
   );
 }
-
 function clampToViewport(
   position2,
   menuRef,
@@ -158,7 +149,6 @@ function clampToViewport(
     y: Math.max(VIEWPORT_MARGIN2, Math.min(y4, maxY)),
   };
 }
-
 export function useClampedMenuPosition({
   position: position2,
   estimatedWidth,
@@ -223,7 +213,6 @@ export function useClampedMenuPosition({
     clampedPosition,
   };
 }
-
 export const TABLE_OPS = [
   {
     id: "add-row-above",
@@ -273,8 +262,7 @@ export const TABLE_OPS = [
     run: (editor) => editor.chain().focus().deleteTable().run(),
   },
 ];
-
-export function MenuItem$1({ icon, label, onClick, destructive, actionId }) {
+export function MenuItem({ icon, label, onClick, destructive, actionId }) {
   return (
     <ActionListItem
       onClick={onClick}

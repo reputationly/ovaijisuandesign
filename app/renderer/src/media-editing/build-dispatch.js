@@ -11,7 +11,6 @@ import {
   CANVAS_MIN_ZOOM,
 } from "../infra/use-plugin-metadata-store.js";
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
-
 const HUB_METHODS = {
   CanvasGetIncomingResources: "canvas.getIncomingResources",
   CanvasGetWorkspaceResources: "canvas.getWorkspaceResources",
@@ -63,20 +62,13 @@ const HUB_METHODS = {
   PythonEnsureEnv: "python.ensureEnv",
   PythonRun: "python.run",
 };
-
 const PLUGIN_STORAGE_MAX_VALUE_BYTES = 256 * 1024;
-
 const PLUGIN_STORAGE_MAX_TOTAL_BYTES = 1024 * 1024;
-
 const PLUGIN_STORAGE_MAX_KEYS = 256;
-
 const COMFYUI_WORKFLOW_DRAFT_STORAGE_KEY = "comfyui.workflow-draft.v1";
-
 const COMFYUI_WORKFLOW_DRAFT_MAX_BYTES = 5 * 1024 * 1024;
-
 const COMFYUI_PLUGIN_STORAGE_MAX_TOTAL_BYTES =
   COMFYUI_WORKFLOW_DRAFT_MAX_BYTES + PLUGIN_STORAGE_MAX_TOTAL_BYTES;
-
 function pluginStorageByteSize(value) {
   try {
     const json2 = JSON.stringify(value ?? null);
@@ -86,7 +78,6 @@ function pluginStorageByteSize(value) {
     return Number.POSITIVE_INFINITY;
   }
 }
-
 const HUB_BILLING_NODE_TYPES = [
   "Banana2Node",
   "BananaProNode",
@@ -97,9 +88,7 @@ const HUB_BILLING_NODE_TYPES = [
   "MinimaxHailuo03FirstLastFrameNode",
   "MinimaxHailuo03ReferenceNode",
 ];
-
 const PLUGIN_AGENT_EDITOR_STATE_MAX_CHARS = 6e3;
-
 function setPluginAgentEditorState(nodeId, state2) {
   const bounded =
     typeof state2 === "string"
@@ -109,7 +98,6 @@ function setPluginAgentEditorState(nodeId, state2) {
     editorState: bounded,
   });
 }
-
 function emitPluginConfigChange(pluginId) {
   const set2 = configChangeListeners.get(pluginId);
   if (!set2) return;
@@ -121,14 +109,11 @@ function emitPluginConfigChange(pluginId) {
     }
   }
 }
-
 const HIDDEN_NODE_DATA_KEYS = new Set([PLUGIN_STORAGE_KEY, "popoverDraft"]);
-
 const IMMUTABLE_PLUGIN_NODE_DATA_KEYS = new Set([
   ...HIDDEN_NODE_DATA_KEYS,
   "pluginId",
 ]);
-
 function sanitiseNodeData(data2) {
   const out = {};
   for (const [k2, v2] of Object.entries(data2)) {
@@ -137,13 +122,11 @@ function sanitiseNodeData(data2) {
   }
   return out;
 }
-
 function pluginStorageHttpStatus(err) {
   if (!err || typeof err !== "object") return void 0;
   const status = err.status;
   return typeof status === "number" ? status : void 0;
 }
-
 async function runInstalledPluginStorageRequest(actions, request) {
   try {
     return await request();
@@ -153,16 +136,13 @@ async function runInstalledPluginStorageRequest(actions, request) {
     return request();
   }
 }
-
 const BILLING_NODE_TYPES = new Set(HUB_BILLING_NODE_TYPES);
-
 function readStorage(actions, nodeId) {
   const snap = actions.getNodeById(nodeId);
   if (!snap) return {};
   const bucket = snap.data[PLUGIN_STORAGE_KEY];
   return bucket && typeof bucket === "object" ? bucket : {};
 }
-
 function writeStoragePatch(actions, nodeId, next2) {
   const snap = actions.getNodeById(nodeId);
   const base2 = snap?.data ?? {};
@@ -171,7 +151,6 @@ function writeStoragePatch(actions, nodeId, next2) {
     [PLUGIN_STORAGE_KEY]: next2,
   };
 }
-
 async function writeThroughPluginData(pluginHost, args) {
   if (!pluginHost) return;
   try {
@@ -180,7 +159,6 @@ async function writeThroughPluginData(pluginHost, args) {
     console.warn("[plugin-host] pluginStorage write-through failed:", err);
   }
 }
-
 function buildResource(nodeId, assetId, meta2, type2) {
   const resource = {
     nodeId,
@@ -196,8 +174,7 @@ function buildResource(nodeId, assetId, meta2, type2) {
   if (meta2.fileSize !== void 0) resource.fileSize = meta2.fileSize;
   return resource;
 }
-
-function normaliseAssetType$1(raw2, fileName) {
+function normaliseAssetType(raw2, fileName) {
   if (fileName && isSubtitleFileName(fileName)) return "subtitle";
   switch (raw2) {
     case "image":
@@ -209,7 +186,6 @@ function normaliseAssetType$1(raw2, fileName) {
       return "file";
   }
 }
-
 function nodeTypeToAssetType(raw2) {
   switch (raw2) {
     case "image":
@@ -224,18 +200,15 @@ function nodeTypeToAssetType(raw2) {
       return "file";
   }
 }
-
 function matchesFilter(type2, filter2) {
   if (!filter2?.type) return true;
   const allowed = Array.isArray(filter2.type) ? filter2.type : [filter2.type];
   return allowed.includes(type2);
 }
-
-function withCode$2(err, code2) {
+function withCode(err, code2) {
   err.code = code2;
   return err;
 }
-
 export function buildDispatch(deps) {
   const {
     nodeId,
@@ -247,7 +220,7 @@ export function buildDispatch(deps) {
   } = deps;
   const requirePluginHost = () => {
     if (!bridge.pluginHost) {
-      throw withCode$2(
+      throw withCode(
         new Error("plugin host bridge not configured by renderer"),
         "not_available",
       );
@@ -258,7 +231,7 @@ export function buildDispatch(deps) {
     const snap = actions.getNodeById(nodeId);
     const pluginId = snap?.data?.pluginId;
     if (typeof pluginId !== "string" || !pluginId) {
-      throw withCode$2(
+      throw withCode(
         new Error("this API is only available to installed plugin nodes"),
         "not_available",
       );
@@ -303,10 +276,7 @@ export function buildDispatch(deps) {
             : parseNodeId(id2).assetId);
         const meta2 = store.assets.get(assetId) ?? store.assets.get(id2);
         if (!meta2) continue;
-        const type2 = normaliseAssetType$1(
-          meta2.type,
-          meta2.path || meta2.name,
-        );
+        const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
         if (!matchesFilter(type2, filter2)) continue;
         out.push(buildResource(id2, assetId, meta2, type2));
       }
@@ -318,10 +288,7 @@ export function buildDispatch(deps) {
       const byPath = new Map();
       for (const [assetId, meta2] of store.assets) {
         if (!meta2.path || byPath.has(meta2.path)) continue;
-        const type2 = normaliseAssetType$1(
-          meta2.type,
-          meta2.path || meta2.name,
-        );
+        const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
         if (!matchesFilter(type2, filter2)) continue;
         byPath.set(meta2.path, buildResource(assetId, assetId, meta2, type2));
       }
@@ -356,7 +323,7 @@ export function buildDispatch(deps) {
         rawOptions !== null &&
         (typeof rawOptions !== "object" || Array.isArray(rawOptions))
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("focusNode: options must be an object"),
           "invalid_args",
         );
@@ -366,7 +333,7 @@ export function buildDispatch(deps) {
         options.preserveZoom !== void 0 &&
         typeof options.preserveZoom !== "boolean"
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("focusNode: preserveZoom must be a boolean"),
           "invalid_args",
         );
@@ -378,7 +345,7 @@ export function buildDispatch(deps) {
           options.zoom < CANVAS_MIN_ZOOM ||
           options.zoom > CANVAS_MAX_ZOOM)
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             `focusNode: zoom must be a finite number in [${CANVAS_MIN_ZOOM}, ${CANVAS_MAX_ZOOM}]`,
           ),
@@ -462,7 +429,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.CanvasUpdateNodeData]: async (args) => {
       const targetId = String(args[0] ?? "");
       if (!targetId)
-        throw withCode$2(
+        throw withCode(
           new Error("updateNodeData: missing nodeId"),
           "invalid_args",
         );
@@ -472,7 +439,7 @@ export function buildDispatch(deps) {
         typeof rawPatch !== "object" ||
         Array.isArray(rawPatch)
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("updateNodeData: patch must be an object"),
           "invalid_args",
         );
@@ -480,7 +447,7 @@ export function buildDispatch(deps) {
       const patch2 = rawPatch;
       for (const key2 of Object.keys(patch2)) {
         if (IMMUTABLE_PLUGIN_NODE_DATA_KEYS.has(key2)) {
-          throw withCode$2(
+          throw withCode(
             new Error(
               `updateNodeData: reserved data key "${key2}" cannot be changed`,
             ),
@@ -526,19 +493,19 @@ export function buildDispatch(deps) {
         typeof payload.sourceNodeId !== "string" ||
         !payload.sourceNodeId
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("addPlaceholder: missing sourceNodeId"),
           "invalid_args",
         );
       }
       if (typeof payload.prompt !== "string" || !payload.prompt) {
-        throw withCode$2(
+        throw withCode(
           new Error("addPlaceholder: prompt must be non-empty"),
           "invalid_args",
         );
       }
       if (typeof payload.model !== "string" || !payload.model) {
-        throw withCode$2(
+        throw withCode(
           new Error("addPlaceholder: model must be non-empty"),
           "invalid_args",
         );
@@ -549,12 +516,12 @@ export function buildDispatch(deps) {
       const id2 = String(args[0] ?? "");
       const msg = String(args[1] ?? "");
       if (!id2)
-        throw withCode$2(
+        throw withCode(
           new Error("failPlaceholder: missing id"),
           "invalid_args",
         );
       if (!msg)
-        throw withCode$2(
+        throw withCode(
           new Error("failPlaceholder: errorMessage must be non-empty"),
           "invalid_args",
         );
@@ -564,7 +531,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.CanvasCleanupPlaceholder]: async (args) => {
       const id2 = String(args[0] ?? "");
       if (!id2)
-        throw withCode$2(
+        throw withCode(
           new Error("cleanupPlaceholder: missing id"),
           "invalid_args",
         );
@@ -594,7 +561,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.StorageSet]: async (args) => {
       const key2 = String(args[0] ?? "");
       if (!key2)
-        throw withCode$2(new Error("storage.set: empty key"), "invalid_args");
+        throw withCode(new Error("storage.set: empty key"), "invalid_args");
       const value = args[1];
       const valueSize = pluginStorageByteSize(value);
       const pluginId = installedPluginId(actions, nodeId);
@@ -603,7 +570,7 @@ export function buildDispatch(deps) {
           ? COMFYUI_WORKFLOW_DRAFT_MAX_BYTES
           : PLUGIN_STORAGE_MAX_VALUE_BYTES;
       if (valueSize > maxValueBytes) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             `storage.set: value for "${key2}" is ${valueSize} bytes (limit ${maxValueBytes})`,
           ),
@@ -623,7 +590,7 @@ export function buildDispatch(deps) {
       const cur = readStorage(actions, nodeId);
       const isNewKey = !(key2 in cur);
       if (isNewKey && Object.keys(cur).length >= PLUGIN_STORAGE_MAX_KEYS) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             `storage.set: too many keys (limit ${PLUGIN_STORAGE_MAX_KEYS}). Delete entries before adding new ones.`,
           ),
@@ -640,7 +607,7 @@ export function buildDispatch(deps) {
           ? COMFYUI_PLUGIN_STORAGE_MAX_TOTAL_BYTES
           : PLUGIN_STORAGE_MAX_TOTAL_BYTES;
       if (totalSize > maxTotalBytes) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             `storage.set: total storage ${totalSize} bytes would exceed limit ${maxTotalBytes}`,
           ),
@@ -698,13 +665,10 @@ export function buildDispatch(deps) {
       const level = args[1] ?? "info";
       const options = args[2] ?? void 0;
       if (!["info", "success", "warning", "error"].includes(level)) {
-        throw withCode$2(new Error("ui.notify: invalid level"), "invalid_args");
+        throw withCode(new Error("ui.notify: invalid level"), "invalid_args");
       }
       if (message2.length === 0 || message2.length > 500) {
-        throw withCode$2(
-          new Error("ui.notify: invalid message"),
-          "invalid_args",
-        );
+        throw withCode(new Error("ui.notify: invalid message"), "invalid_args");
       }
       if (
         options &&
@@ -723,10 +687,7 @@ export function buildDispatch(deps) {
               options.action.revealPath.length === 0 ||
               options.action.revealPath.length > 4096)))
       ) {
-        throw withCode$2(
-          new Error("ui.notify: invalid options"),
-          "invalid_args",
-        );
+        throw withCode(new Error("ui.notify: invalid options"), "invalid_args");
       }
       requirePluginHost().notify(message2, level, options);
       return void 0;
@@ -735,10 +696,7 @@ export function buildDispatch(deps) {
       requirePluginId();
       const payload = args[0] ?? null;
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-        throw withCode$2(
-          new Error("ui.saveFile: missing args"),
-          "invalid_args",
-        );
+        throw withCode(new Error("ui.saveFile: missing args"), "invalid_args");
       }
       const source = payload.source;
       const validSource =
@@ -764,17 +722,14 @@ export function buildDispatch(deps) {
         (payload.title !== void 0 &&
           (typeof payload.title !== "string" || payload.title.length > 200))
       ) {
-        throw withCode$2(
-          new Error("ui.saveFile: invalid args"),
-          "invalid_args",
-        );
+        throw withCode(new Error("ui.saveFile: invalid args"), "invalid_args");
       }
       return requirePluginHost().saveFile(payload);
     },
     [HUB_METHODS.ComfyUiDownloadModel]: async (args) => {
       const pluginId = requirePluginId();
       if (pluginId !== "comfyui") {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "comfyui.downloadModel is only available to the bundled ComfyUI plugin",
           ),
@@ -783,7 +738,7 @@ export function buildDispatch(deps) {
       }
       const payload = args[0] ?? null;
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-        throw withCode$2(
+        throw withCode(
           new Error("comfyui.downloadModel: missing args"),
           "invalid_args",
         );
@@ -799,7 +754,7 @@ export function buildDispatch(deps) {
         payload.directory.length === 0 ||
         payload.directory.length > 64
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "comfyui.downloadModel: invalid url, filename, or directory",
           ),
@@ -812,19 +767,19 @@ export function buildDispatch(deps) {
       requirePluginId();
       const options = args[0] ?? {};
       if (typeof options !== "object" || Array.isArray(options)) {
-        throw withCode$2(
+        throw withCode(
           new Error("ui.pickDirectory: options must be an object"),
           "invalid_args",
         );
       }
       if (options.title !== void 0 && typeof options.title !== "string") {
-        throw withCode$2(
+        throw withCode(
           new Error("ui.pickDirectory: title must be a string"),
           "invalid_args",
         );
       }
       if ((options.title?.length ?? 0) > 200) {
-        throw withCode$2(
+        throw withCode(
           new Error("ui.pickDirectory: title is too long"),
           "invalid_args",
         );
@@ -839,14 +794,14 @@ export function buildDispatch(deps) {
         level !== "warn" &&
         level !== "error"
       ) {
-        throw withCode$2(new Error("log.write: invalid level"), "invalid_args");
+        throw withCode(new Error("log.write: invalid level"), "invalid_args");
       }
       if (
         typeof args[1] !== "string" ||
         args[1].length === 0 ||
         new TextEncoder().encode(args[1]).byteLength > 8192
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "log.write: message must be a non-empty UTF-8 string up to 8192 bytes",
           ),
@@ -859,7 +814,7 @@ export function buildDispatch(deps) {
         try {
           encoded = JSON.stringify(details);
         } catch {
-          throw withCode$2(
+          throw withCode(
             new Error("log.write: details must be JSON-serialisable"),
             "invalid_args",
           );
@@ -868,7 +823,7 @@ export function buildDispatch(deps) {
           encoded === void 0 ||
           new TextEncoder().encode(encoded).byteLength > 16384
         ) {
-          throw withCode$2(
+          throw withCode(
             new Error(
               "log.write: details must be JSON-serialisable and at most 16384 bytes",
             ),
@@ -893,7 +848,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.AppNavigate]: async (args) => {
       const raw2 = args[0];
       if (!raw2 || typeof raw2 !== "object" || typeof raw2.to !== "string") {
-        throw withCode$2(
+        throw withCode(
           new Error("app.navigate: missing route path"),
           "invalid_args",
         );
@@ -902,7 +857,7 @@ export function buildDispatch(deps) {
         raw2.params != null &&
         (typeof raw2.params !== "object" || Array.isArray(raw2.params))
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("app.navigate: params must be an object"),
           "invalid_args",
         );
@@ -911,7 +866,7 @@ export function buildDispatch(deps) {
         raw2.search != null &&
         (typeof raw2.search !== "object" || Array.isArray(raw2.search))
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("app.navigate: search must be an object"),
           "invalid_args",
         );
@@ -953,10 +908,7 @@ export function buildDispatch(deps) {
         typeof payload !== "object" ||
         typeof payload.content !== "string"
       ) {
-        throw withCode$2(
-          new Error("chat.send: missing content"),
-          "invalid_args",
-        );
+        throw withCode(new Error("chat.send: missing content"), "invalid_args");
       }
       return requirePluginHost().sendChatMessage(payload, {
         callerNodeId: nodeId,
@@ -965,7 +917,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.ChatCancel]: async (args) => {
       const sessionId = String(args[0] ?? "");
       if (!sessionId)
-        throw withCode$2(
+        throw withCode(
           new Error("chat.cancel: missing sessionId"),
           "invalid_args",
         );
@@ -982,7 +934,7 @@ export function buildDispatch(deps) {
         typeof payload !== "object" ||
         typeof payload.invokeId !== "string"
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("agent.result: missing invokeId"),
           "invalid_args",
         );
@@ -1004,7 +956,7 @@ export function buildDispatch(deps) {
     [HUB_METHODS.AgentSetEditorState]: async (args) => {
       const state2 = args[0];
       if (state2 !== null && typeof state2 !== "string") {
-        throw withCode$2(
+        throw withCode(
           new Error("agent.setEditorState: state must be string|null"),
           "invalid_args",
         );
@@ -1018,24 +970,24 @@ export function buildDispatch(deps) {
     [HUB_METHODS.SkillGet]: async (args) => {
       const name2 = String(args[0] ?? "");
       if (!name2)
-        throw withCode$2(new Error("skill.get: missing name"), "invalid_args");
+        throw withCode(new Error("skill.get: missing name"), "invalid_args");
       return requirePluginHost().getSkill(name2);
     },
     [HUB_METHODS.SkillRun]: async (args) => {
       const name2 = String(args[0] ?? "");
       if (!name2)
-        throw withCode$2(new Error("skill.run: missing name"), "invalid_args");
+        throw withCode(new Error("skill.run: missing name"), "invalid_args");
       const runArgs = args[1] ?? {};
       const host = requirePluginHost();
       const info2 = await host.getSkill(name2);
       if (!info2) {
-        throw withCode$2(
+        throw withCode(
           new Error(`skill.run: unknown skill "${name2}"`),
           "not_available",
         );
       }
       if (!info2.enabled) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             `skill.run: skill "${name2}" is disabled — enable it in Settings first`,
           ),
@@ -1082,19 +1034,16 @@ ${runArgs.content}`
         typeof payload !== "object" ||
         typeof payload.dag_id !== "string"
       ) {
-        throw withCode$2(
-          new Error("dag.submit: missing dag_id"),
-          "invalid_args",
-        );
+        throw withCode(new Error("dag.submit: missing dag_id"), "invalid_args");
       }
       if (!payload.inputs || typeof payload.inputs !== "object") {
-        throw withCode$2(
+        throw withCode(
           new Error("dag.submit: inputs must be an object"),
           "invalid_args",
         );
       }
       if (!Array.isArray(payload.asset_keys)) {
-        throw withCode$2(
+        throw withCode(
           new Error("dag.submit: asset_keys must be an array"),
           "invalid_args",
         );
@@ -1105,7 +1054,7 @@ ${runArgs.content}`
           payload.concurrency < 1 ||
           payload.concurrency > 5)
       ) {
-        throw withCode$2(
+        throw withCode(
           new Error("dag.submit: concurrency must be an integer in [1, 5]"),
           "invalid_args",
         );
@@ -1117,7 +1066,7 @@ ${runArgs.content}`
     [HUB_METHODS.DagQuery]: async (args) => {
       const id2 = String(args[0] ?? "");
       if (!id2)
-        throw withCode$2(new Error("dag.query: missing runId"), "invalid_args");
+        throw withCode(new Error("dag.query: missing runId"), "invalid_args");
       return requirePluginHost().queryDagRun(id2);
     },
     // ── Files: CDN upload. Only the string-source branch hits the host —
@@ -1129,13 +1078,13 @@ ${runArgs.content}`
     [HUB_METHODS.FilesUploadToCdn]: async (args) => {
       const payload = args[0] ?? null;
       if (!payload || typeof payload !== "object") {
-        throw withCode$2(
+        throw withCode(
           new Error("files.uploadToCdn: missing args"),
           "invalid_args",
         );
       }
       if (typeof payload.source !== "string") {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "files.uploadToCdn: host RPC only accepts string source (workspace path); Blob sources go through the shim directly",
           ),
@@ -1143,7 +1092,7 @@ ${runArgs.content}`
         );
       }
       if (payload.source.length === 0) {
-        throw withCode$2(
+        throw withCode(
           new Error("files.uploadToCdn: empty source"),
           "invalid_args",
         );
@@ -1157,13 +1106,13 @@ ${runArgs.content}`
       const pluginId = requirePluginId();
       const payload = args[0] ?? null;
       if (!payload || typeof payload !== "object") {
-        throw withCode$2(
+        throw withCode(
           new Error("files.readFromPluginDir: missing args"),
           "invalid_args",
         );
       }
       if (typeof payload.path !== "string" || payload.path.length === 0) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "files.readFromPluginDir: `path` must be a non-empty string",
           ),
@@ -1178,13 +1127,13 @@ ${runArgs.content}`
       const pluginId = requirePluginId();
       const payload = args[0] ?? null;
       if (!payload || typeof payload !== "object") {
-        throw withCode$2(
+        throw withCode(
           new Error("files.writeToPluginDir: missing args"),
           "invalid_args",
         );
       }
       if (typeof payload.path !== "string" || payload.path.length === 0) {
-        throw withCode$2(
+        throw withCode(
           new Error(
             "files.writeToPluginDir: `path` must be a non-empty string",
           ),
@@ -1192,7 +1141,7 @@ ${runArgs.content}`
         );
       }
       if (!(payload.source instanceof Blob)) {
-        throw withCode$2(
+        throw withCode(
           new Error("files.writeToPluginDir: `source` must be a Blob"),
           "invalid_args",
         );
@@ -1217,10 +1166,7 @@ ${runArgs.content}`
       const pluginId = requirePluginId();
       const payload = args[0] ?? null;
       if (!payload || typeof payload.script !== "string" || !payload.script) {
-        throw withCode$2(
-          new Error("python.run: missing script"),
-          "invalid_args",
-        );
+        throw withCode(new Error("python.run: missing script"), "invalid_args");
       }
       return requirePluginHost().pythonRun(pluginId, payload);
     },
@@ -1235,14 +1181,14 @@ ${runArgs.content}`
       const pluginId = requirePluginId();
       const key2 = String(args[0] ?? "");
       if (!key2)
-        throw withCode$2(new Error("config.get: empty key"), "invalid_args");
+        throw withCode(new Error("config.get: empty key"), "invalid_args");
       return requirePluginHost().configGet(pluginId, key2);
     },
     [HUB_METHODS.ConfigSet]: async (args) => {
       const pluginId = requirePluginId();
       const key2 = String(args[0] ?? "");
       if (!key2)
-        throw withCode$2(new Error("config.set: empty key"), "invalid_args");
+        throw withCode(new Error("config.set: empty key"), "invalid_args");
       const result = await requirePluginHost().configSet(
         pluginId,
         key2,
@@ -1255,7 +1201,7 @@ ${runArgs.content}`
       const pluginId = requirePluginId();
       const key2 = String(args[0] ?? "");
       if (!key2)
-        throw withCode$2(new Error("config.delete: empty key"), "invalid_args");
+        throw withCode(new Error("config.delete: empty key"), "invalid_args");
       const result = await requirePluginHost().configDelete(pluginId, key2);
       emitPluginConfigChange(pluginId);
       return result;
@@ -1267,7 +1213,7 @@ ${runArgs.content}`
     [HUB_METHODS.BillingGetNodePriceDescription]: async (args) => {
       const nodeType = args[0];
       if (typeof nodeType !== "string" || !BILLING_NODE_TYPES.has(nodeType)) {
-        throw withCode$2(
+        throw withCode(
           new Error("billing.getNodePriceDescription: unsupported node type"),
           "invalid_args",
         );

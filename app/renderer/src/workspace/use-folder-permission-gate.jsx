@@ -10,7 +10,7 @@ import {
   workspaceLog,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -21,7 +21,6 @@ import {
 import { isCaseInsensitiveOs } from "../settings/use-active-runtime.js";
 import { useOptionalSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import { isPathInWhitelist } from "../settings/diagnostics-group.jsx";
-
 function FolderPermissionDialog({
   open,
   folderPath,
@@ -58,32 +57,31 @@ function FolderPermissionDialog({
           </p>
         </div>
         <AlertDialogFooter>
-          <Button$1
+          <Button
             variant="ghost"
             onClick={onCancel}
             data-action-ui-id="folder-permission-cancel"
           >
             {t2("common.cancel", "取消")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="outline"
             onClick={onAllow}
             data-action-ui-id="folder-permission-allow"
           >
             {t2("workspace.folderPermission.allow", "允许")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             onClick={onAlwaysAllow}
             data-action-ui-id="folder-permission-always-allow"
           >
             {t2("workspace.folderPermission.alwaysAllow", "始终允许")}
-          </Button$1>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 }
-
 export function useFolderPermissionGate() {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();

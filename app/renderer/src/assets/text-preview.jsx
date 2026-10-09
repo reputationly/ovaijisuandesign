@@ -3,17 +3,15 @@ import { DialogPopup, Loader2, Music2, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Paperclip } from "../media-editing/package.jsx";
 import { CloseButton } from "./close-button.jsx";
-import { ImageLightbox$1 } from "./image-lightbox.jsx";
+import { ImageLightbox } from "./image-lightbox.jsx";
 import { DialogPortal } from "../infra/gateway-http-error.jsx";
 import { useNativeViewOcclusion } from "../canvas/separator.jsx";
 import { useFullscreenContainerEl } from "../infra/use-plugin-metadata-store.js";
 import { Dialog } from "../infra/dialog-content.jsx";
-
 function getWindowBridge() {
   const platform2 = window.__HILO_PLATFORM__;
   return platform2?.window;
 }
-
 function useHideWindowButtons() {
   reactExports.useEffect(() => {
     const bridge = getWindowBridge();
@@ -23,8 +21,7 @@ function useHideWindowButtons() {
     };
   }, []);
 }
-
-function AudioPreview$1({ src, alt }) {
+function AudioPreview({ src, alt }) {
   return (
     <div className="flex w-[min(30rem,80vw)] flex-col items-center gap-4 rounded-lg border border-[color-mix(in_srgb,var(--media-overlay-foreground)_12%,transparent)] bg-[color-mix(in_srgb,var(--media-overlay-foreground)_8%,transparent)] p-6 shadow-2xl backdrop-blur-sm">
       <Music2
@@ -44,8 +41,7 @@ function AudioPreview$1({ src, alt }) {
     </div>
   );
 }
-
-function TextPreview$1({ src, alt }) {
+function TextPreview({ src, alt }) {
   const [content2, setContent2] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -96,7 +92,6 @@ function TextPreview$1({ src, alt }) {
     </div>
   );
 }
-
 function FilePreview({ alt }) {
   return (
     <div className="flex max-w-[70vw] flex-col items-center gap-3 rounded-lg border border-[color-mix(in_srgb,var(--media-overlay-foreground)_12%,transparent)] bg-[color-mix(in_srgb,var(--media-overlay-foreground)_8%,transparent)] px-10 py-8 shadow-2xl backdrop-blur-sm">
@@ -110,7 +105,6 @@ function FilePreview({ alt }) {
     </div>
   );
 }
-
 function NonImageLightbox({ kind, src, alt, onClose }) {
   return (
     <DialogPopup
@@ -138,16 +132,15 @@ function NonImageLightbox({ kind, src, alt, onClose }) {
           aria-label={alt}
         />
       ) : kind === "audio" ? (
-        <AudioPreview$1 src={src} alt={alt} />
+        <AudioPreview src={src} alt={alt} />
       ) : kind === "text" ? (
-        <TextPreview$1 src={src} alt={alt} />
+        <TextPreview src={src} alt={alt} />
       ) : (
         <FilePreview alt={alt} />
       )}
     </DialogPopup>
   );
 }
-
 export const MediaLightbox = reactExports.memo(function MediaLightbox22({
   kind,
   src,
@@ -167,7 +160,7 @@ export const MediaLightbox = reactExports.memo(function MediaLightbox22({
     >
       <DialogPortal container={fullscreenContainerEl ?? void 0}>
         {kind === "image" ? (
-          <ImageLightbox$1 src={src} alt={alt} onClose={onClose} />
+          <ImageLightbox src={src} alt={alt} onClose={onClose} />
         ) : (
           <NonImageLightbox kind={kind} src={src} alt={alt} onClose={onClose} />
         )}

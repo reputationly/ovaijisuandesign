@@ -1,9 +1,8 @@
 // round-dots-inner.jsx
 import { isStoryboardGridValid } from "./grid-validity-map.js";
-import { reactExports, useStore$3 } from "../vendor.js";
+import { reactExports, useStore$3 as useStore } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-
+import { cn } from "../infra/dialog-content.jsx";
 export function resolveImageNodeDisplayName(candidates2, fallbackLabel) {
   const ordered = [
     candidates2.dataName,
@@ -18,20 +17,16 @@ export function resolveImageNodeDisplayName(candidates2, fallbackLabel) {
   }
   return fallbackLabel;
 }
-
 const ROUND_DOTS_MIN_ZOOM = 0.3;
-
 export const ROUND_DOTS_POPOVER_GAP_OFFSET = 25;
-
-const zoomSelector$1 = (s2) => s2.transform[2];
-
+const zoomSelector = (s2) => s2.transform[2];
 function RoundDotsInner({
   count: count2,
   activeIdx,
   onSelect,
   placement = "below-center",
 }) {
-  const zoom2 = useStore$3(zoomSelector$1);
+  const zoom2 = useStore(zoomSelector);
   if (count2 <= 1) return null;
   if (zoom2 < ROUND_DOTS_MIN_ZOOM) return null;
   return (
@@ -40,7 +35,7 @@ function RoundDotsInner({
       data-action-ui-id="canvas.image-node.round-dots"
       onPointerDown={(e2) => e2.stopPropagation()}
       onMouseDown={(e2) => e2.stopPropagation()}
-      className={cn$5(
+      className={cn(
         // 绝对定位。z-30 高于 loading overlay / image body / 任何装饰层
         // （loading 时也要可见可点）。
         "pointer-events-auto absolute z-30",
@@ -76,7 +71,7 @@ function RoundDotsInner({
             >
               <span
                 aria-hidden="true"
-                className={cn$5(
+                className={cn(
                   "pointer-events-none block h-1.5 rounded-full transition-[width,height,background-color] duration-150",
                   selected2
                     ? "w-11 bg-foreground/45 group-hover/round-dot:h-2 group-hover/round-dot:bg-foreground/55"
@@ -90,11 +85,8 @@ function RoundDotsInner({
     </div>
   );
 }
-
 export const RoundDots = reactExports.memo(RoundDotsInner);
-
 export const STORYBOARD_RATIOS = ["16:9", "4:3", "1:1", "3:4", "9:16"];
-
 export function nearestValidStoryboardGrid(
   ratio,
   preferredRows,
@@ -128,7 +120,6 @@ export function nearestValidStoryboardGrid(
     }
   );
 }
-
 export function resolveStoryboardGridSelection(params) {
   let ratio = "16:9";
   if (STORYBOARD_RATIOS.some((candidate) => candidate === params?.cell_ratio)) {

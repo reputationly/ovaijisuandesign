@@ -2,7 +2,7 @@
 import {
   CompositedSvg,
   Pencil,
-  PlaybackPlayIcon$1,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   Speech,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -10,7 +10,6 @@ import {
   PLACEHOLDER_ICON_CLASS,
   PLACEHOLDER_ICON_SIZE,
 } from "./fullscreen-icon.jsx";
-
 export function VisibleIcon() {
   return (
     <CompositedSvg
@@ -27,8 +26,7 @@ export function VisibleIcon() {
     </CompositedSvg>
   );
 }
-
-export function PluginIcon$1() {
+export function PluginIcon() {
   return (
     <CompositedSvg
       width="20"
@@ -48,7 +46,6 @@ export function PluginIcon$1() {
     </CompositedSvg>
   );
 }
-
 export function CardViewIcon() {
   return (
     <CompositedSvg
@@ -65,7 +62,6 @@ export function CardViewIcon() {
     </CompositedSvg>
   );
 }
-
 export function PreviewViewIcon() {
   return (
     <CompositedSvg
@@ -82,7 +78,6 @@ export function PreviewViewIcon() {
     </CompositedSvg>
   );
 }
-
 export function FileMissingIcon() {
   return (
     <svg
@@ -111,7 +106,6 @@ export function FileMissingIcon() {
     </svg>
   );
 }
-
 export function CropIcon() {
   return (
     <CompositedSvg
@@ -134,7 +128,6 @@ export function CropIcon() {
     </CompositedSvg>
   );
 }
-
 export function OutpaintIcon() {
   return (
     <CompositedSvg
@@ -151,7 +144,6 @@ export function OutpaintIcon() {
     </CompositedSvg>
   );
 }
-
 export function EraseIcon() {
   return (
     <CompositedSvg
@@ -168,7 +160,6 @@ export function EraseIcon() {
     </CompositedSvg>
   );
 }
-
 export function RedrawIcon() {
   return (
     <CompositedSvg
@@ -187,7 +178,6 @@ export function RedrawIcon() {
     </CompositedSvg>
   );
 }
-
 export function SuperResolutionIcon({ size: size2 = 16 } = {}) {
   return (
     <CompositedSvg
@@ -204,7 +194,6 @@ export function SuperResolutionIcon({ size: size2 = 16 } = {}) {
     </CompositedSvg>
   );
 }
-
 export function EraseSubtitleIcon() {
   return (
     <CompositedSvg
@@ -229,7 +218,6 @@ export function EraseSubtitleIcon() {
     </CompositedSvg>
   );
 }
-
 export function AsrIcon() {
   return (
     <CompositedSvg
@@ -264,7 +252,6 @@ export function AsrIcon() {
     </CompositedSvg>
   );
 }
-
 export function RemoveBgIcon() {
   return (
     <CompositedSvg
@@ -281,7 +268,6 @@ export function RemoveBgIcon() {
     </CompositedSvg>
   );
 }
-
 export function SplitGridIcon() {
   return (
     <CompositedSvg
@@ -303,7 +289,6 @@ export function SplitGridIcon() {
     </CompositedSvg>
   );
 }
-
 export function SendArrowIcon() {
   return (
     <CompositedSvg
@@ -323,8 +308,7 @@ export function SendArrowIcon() {
     </CompositedSvg>
   );
 }
-
-export function PaperclipIcon$1() {
+export function PaperclipIcon() {
   return (
     <CompositedSvg
       width="16"
@@ -343,8 +327,7 @@ export function PaperclipIcon$1() {
     </CompositedSvg>
   );
 }
-
-export function UndoIcon$1() {
+export function UndoIcon() {
   return (
     <CompositedSvg
       width="20"
@@ -360,8 +343,7 @@ export function UndoIcon$1() {
     </CompositedSvg>
   );
 }
-
-export function RedoIcon$1() {
+export function RedoIcon() {
   return (
     <CompositedSvg
       width="20"
@@ -377,7 +359,6 @@ export function RedoIcon$1() {
     </CompositedSvg>
   );
 }
-
 export function SelectRectIcon() {
   return (
     <CompositedSvg
@@ -394,7 +375,6 @@ export function SelectRectIcon() {
     </CompositedSvg>
   );
 }
-
 export function ColorAdjustIcon() {
   return (
     <CompositedSvg
@@ -414,7 +394,6 @@ export function ColorAdjustIcon() {
     </CompositedSvg>
   );
 }
-
 export function ClipIcon() {
   return (
     <CompositedSvg
@@ -431,7 +410,6 @@ export function ClipIcon() {
     </CompositedSvg>
   );
 }
-
 export function ExtractFrameIcon() {
   return (
     <CompositedSvg
@@ -465,7 +443,6 @@ export function ExtractFrameIcon() {
     </CompositedSvg>
   );
 }
-
 export function ExtractAudioIcon() {
   return (
     <CompositedSvg
@@ -482,11 +459,9 @@ export function ExtractAudioIcon() {
     </CompositedSvg>
   );
 }
-
 export function VoiceIsolateIcon() {
   return <Speech size={20} strokeWidth={1.5} aria-hidden="true" />;
 }
-
 export function GroupIcon({ size: size2 = 14 }) {
   return (
     <CompositedSvg
@@ -504,7 +479,6 @@ export function GroupIcon({ size: size2 = 14 }) {
     </CompositedSvg>
   );
 }
-
 export function UngroupIcon({ size: size2 = 14 }) {
   return (
     <CompositedSvg
@@ -522,8 +496,7 @@ export function UngroupIcon({ size: size2 = 14 }) {
     </CompositedSvg>
   );
 }
-
-export function CloseIcon$1() {
+export function CloseIcon() {
   return (
     <CompositedSvg
       width="16"
@@ -536,7 +509,6 @@ export function CloseIcon$1() {
     </CompositedSvg>
   );
 }
-
 export function ToolbarSpinnerIcon() {
   return (
     <span
@@ -545,11 +517,9 @@ export function ToolbarSpinnerIcon() {
     />
   );
 }
-
 export function RenameIcon({ size: size2 = 14 }) {
   return <Pencil size={size2} strokeWidth={1.75} aria-hidden="true" />;
 }
-
 export function ImagePlaceholderIcon({
   size: size2 = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
@@ -567,7 +537,6 @@ export function ImagePlaceholderIcon({
     </CompositedSvg>
   );
 }
-
 export function ParagraphIcon() {
   return (
     <CompositedSvg
@@ -581,7 +550,6 @@ export function ParagraphIcon() {
     </CompositedSvg>
   );
 }
-
 export function RunIcon() {
-  return <PlaybackPlayIcon$1 size={20} />;
+  return <PlaybackPlayIcon size={20} />;
 }

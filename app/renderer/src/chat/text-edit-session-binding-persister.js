@@ -2,35 +2,31 @@
 import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
 import {
   clearActiveTextEditSession,
-  LOCAL_CACHE_KEY$1,
+  LOCAL_CACHE_KEY,
   mergeEntry,
   normalizeTextEditSessionRecord,
   sameTextEditSessionEntry,
-  STORAGE_KEY$3,
+  STORAGE_KEY,
   upsertTextEditSessionEntry,
 } from "./handle-session-created-response.js";
 import {
   cachedTextEditSessionBindings,
-  readLocalCache$1,
+  readLocalCache,
 } from "./use-model-defaults.js";
-
 const CROSS_CONTEXT_WRITE_LOCK = "hilo:workspace-text-edit-sessions";
-
-function writeLocalCache$1(record2) {
+function writeLocalCache(record2) {
   if (typeof localStorage === "undefined") return;
   try {
-    localStorage.setItem(LOCAL_CACHE_KEY$1, JSON.stringify(record2));
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(record2));
   } catch {}
 }
-
-function getPlatformStorage$1() {
+function getPlatformStorage() {
   try {
     return getElectronPlatform()?.storage;
   } catch {
     return void 0;
   }
 }
-
 async function withCrossContextStorageLock(task) {
   if (typeof navigator !== "undefined" && navigator.locks) {
     let taskStarted = false;
@@ -48,21 +44,19 @@ async function withCrossContextStorageLock(task) {
   }
   return task();
 }
-
 let bindingWriteQueue = Promise.resolve();
-
 export class TextEditSessionBindingPersister {
   async load(workspaceKey) {
     if (!workspaceKey) return {};
     await bindingWriteQueue.catch(() => void 0);
     return withCrossContextStorageLock(async () => {
-      const storage = getPlatformStorage$1();
+      const storage = getPlatformStorage();
       if (storage) {
         try {
           const record2 = normalizeTextEditSessionRecord(
-            await storage.globalGet(STORAGE_KEY$3),
+            await storage.globalGet(STORAGE_KEY),
           );
-          writeLocalCache$1(record2);
+          writeLocalCache(record2);
           return record2[workspaceKey] ?? {};
         } catch {}
       }
@@ -81,12 +75,12 @@ export class TextEditSessionBindingPersister {
       .catch(() => {})
       .then(() =>
         withCrossContextStorageLock(async () => {
-          const storage = getPlatformStorage$1();
-          let record2 = readLocalCache$1();
+          const storage = getPlatformStorage();
+          let record2 = readLocalCache();
           if (storage) {
             try {
               record2 = normalizeTextEditSessionRecord(
-                await storage.globalGet(STORAGE_KEY$3),
+                await storage.globalGet(STORAGE_KEY),
               );
             } catch {}
           }
@@ -100,8 +94,8 @@ export class TextEditSessionBindingPersister {
             ...record2,
             [workspaceKey]: workspaceBindings,
           };
-          writeLocalCache$1(next2);
-          if (storage) await storage.globalSet(STORAGE_KEY$3, next2);
+          writeLocalCache(next2);
+          if (storage) await storage.globalSet(STORAGE_KEY, next2);
         }),
       );
     return bindingWriteQueue;

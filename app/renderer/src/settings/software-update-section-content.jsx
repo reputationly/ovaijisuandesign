@@ -4,7 +4,7 @@ import { useChangelog } from "./use-active-runtime.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ChangelogDetailDialog } from "./changelog-detail-dialog.jsx";
 import { FileText } from "../media-editing/package.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Switch } from "../generation/select-content.jsx";
@@ -14,7 +14,6 @@ import {
 } from "./installer-failure-code-keys.js";
 import { useSettings } from "./use-settings.js";
 import { useUpdateActions } from "./use-update-actions.js";
-
 function useUpdateChangelogItem(state2, options) {
   const { i18n } = useTranslation();
   const { manifest } = useChangelog();
@@ -53,7 +52,6 @@ function useUpdateChangelogItem(state2, options) {
     options?.fallbackToLatest,
   ]);
 }
-
 function SoftwareUpdateStatusIcon({ className }) {
   return (
     <svg
@@ -88,7 +86,6 @@ function SoftwareUpdateStatusIcon({ className }) {
     </svg>
   );
 }
-
 export function SoftwareUpdateSectionContent() {
   const { t: t2 } = useTranslation();
   const { config: config2, set: set2 } = useSettings();
@@ -197,7 +194,7 @@ export function SoftwareUpdateSectionContent() {
             data-action-ui-id="settings.software-update.status-icon-bg"
           >
             <StatusIcon
-              className={cn$2("size-7", status.iconClassName)}
+              className={cn("size-7", status.iconClassName)}
               strokeWidth={1.5}
             />
           </span>
@@ -225,11 +222,11 @@ export function SoftwareUpdateSectionContent() {
               })}
             </span>
             {showPrimaryAction && (
-              <Button$1
+              <Button
                 type="button"
                 variant={showFilledAction ? "default" : "outline"}
                 size="sm"
-                className={cn$2(
+                className={cn(
                   "h-8 shrink-0 gap-1.5",
                   !showFilledAction && "font-normal",
                   showFilledAction &&
@@ -243,11 +240,11 @@ export function SoftwareUpdateSectionContent() {
                   <RetryIcon
                     size={14}
                     strokeWidth={1.5}
-                    className={cn$2(update2.checking && "animate-spin")}
+                    className={cn(update2.checking && "animate-spin")}
                   />
                 )}
                 {update2.primaryActionLabel}
-              </Button$1>
+              </Button>
             )}
           </div>
         </div>
@@ -327,7 +324,7 @@ export function SoftwareUpdateSectionContent() {
           </div>
         </button>
         <div
-          className={cn$2(
+          className={cn(
             "flex items-center gap-3 rounded-sm px-3 py-2",
             autoInstallDisabled && "opacity-60",
           )}
@@ -336,7 +333,7 @@ export function SoftwareUpdateSectionContent() {
           <div className="min-w-0 flex-1">
             <Label
               htmlFor={autoInstallId}
-              className={cn$2(
+              className={cn(
                 "block text-sm leading-5 font-normal text-foreground",
                 autoInstallDisabled ? "cursor-not-allowed" : "cursor-pointer",
               )}

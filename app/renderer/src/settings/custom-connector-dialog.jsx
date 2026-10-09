@@ -11,9 +11,9 @@ import { normalizeCustomMcpLaunch } from "./normalize-custom-mcp-launch.js";
 import { ChevronDown, reactExports, useTranslation } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Select$1 } from "../assets/credit-query-keys.jsx";
+import { Select } from "../assets/credit-query-keys.jsx";
 import {
-  Button$1,
+  Button,
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
@@ -38,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../infra/select-content.jsx";
-
 const VALIDATION_FIELDS = {
   name: {
     field: "name",
@@ -73,13 +72,11 @@ const VALIDATION_FIELDS = {
     messageKey: "connectors.customDialog.timeoutError",
   },
 };
-
 const COMMAND_ISSUE_KEYS = {
   unclosed_quote: "connectors.customDialog.unclosedQuoteError",
   shell_syntax: "connectors.customDialog.shellSyntaxError",
   ambiguous_executable: "connectors.customDialog.commandPathError",
 };
-
 function editorValidationError(error, name2) {
   if (error instanceof CustomMcpCommandSyntaxError) {
     return {
@@ -106,7 +103,6 @@ function editorValidationError(error, name2) {
     messageKey: "connectors.customDialog.error.invalid_config",
   };
 }
-
 const INITIAL_FORM_STATE = {
   name: "",
   transport: "stdio",
@@ -118,7 +114,6 @@ const INITIAL_FORM_STATE = {
   keyValuesText: "",
   timeoutText: "",
 };
-
 const INITIAL_JSON = JSON.stringify(
   {
     "my-server": {
@@ -131,7 +126,6 @@ const INITIAL_JSON = JSON.stringify(
   null,
   2,
 );
-
 function parseEditorKeyValues(value) {
   if (!value.trim()) return {};
   try {
@@ -145,11 +139,9 @@ function parseEditorKeyValues(value) {
     return void 0;
   }
 }
-
 function normalizeEditorName(value) {
   return value.trim().replace(/\s+/gu, "-");
 }
-
 function validateEditorForm(state2, existingName) {
   const keyValues = parseEditorKeyValues(state2.keyValuesText);
   if (keyValues === void 0)
@@ -223,11 +215,9 @@ function validateEditorForm(state2, existingName) {
     };
   }
 }
-
 function editorFormToInput(state2) {
   return validateEditorForm(state2).input;
 }
-
 function serializeDraftArguments(value) {
   try {
     return parseCustomMcpArguments(value);
@@ -235,7 +225,6 @@ function serializeDraftArguments(value) {
     return value;
   }
 }
-
 function serializeEditorInput(input) {
   return JSON.stringify(
     {
@@ -248,7 +237,6 @@ function serializeEditorInput(input) {
     2,
   );
 }
-
 function serializeEditorForm(state2) {
   const input = editorFormToInput(state2);
   if (input) return serializeEditorInput(input);
@@ -299,7 +287,6 @@ function serializeEditorForm(state2) {
     2,
   );
 }
-
 function formatEditorArguments(args) {
   return args
     .map((argument) =>
@@ -309,7 +296,6 @@ function formatEditorArguments(args) {
     )
     .join(" ");
 }
-
 function normalizeEditorLaunchFields(state2) {
   if (state2.transport !== "stdio") return void 0;
   try {
@@ -328,13 +314,11 @@ function normalizeEditorLaunchFields(state2) {
     return void 0;
   }
 }
-
 function formatKeyValues(value) {
   return value && Object.keys(value).length
     ? JSON.stringify(value, null, 2)
     : "";
 }
-
 function editorInputToForm(input) {
   const { config: config2 } = input;
   return {
@@ -354,11 +338,9 @@ function editorInputToForm(input) {
     timeoutText: config2.timeoutMs ? String(config2.timeoutMs) : "",
   };
 }
-
-function isRecord$3(value) {
+function isRecord(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
-
 function validateEditorJson(value, existingName) {
   const invalidJson = {
     error: {
@@ -369,19 +351,19 @@ function validateEditorJson(value, existingName) {
   let serverName = "";
   try {
     const parsed = JSON.parse(value);
-    if (!isRecord$3(parsed)) return invalidJson;
+    if (!isRecord(parsed)) return invalidJson;
     const source =
-      Object.keys(parsed).length === 1 && isRecord$3(parsed.mcpServers)
+      Object.keys(parsed).length === 1 && isRecord(parsed.mcpServers)
         ? parsed.mcpServers
         : parsed;
-    if (!isRecord$3(source)) return invalidJson;
+    if (!isRecord(source)) return invalidJson;
     const entries2 = Object.entries(source);
     if (entries2.length !== 1) return invalidJson;
     const entry = entries2[0];
     if (!entry) return invalidJson;
     const [name2, config2] = entry;
     serverName = name2;
-    if (!isRecord$3(config2)) return invalidJson;
+    if (!isRecord(config2)) return invalidJson;
     return {
       input: normalizeCustomMcpServerInput(
         {
@@ -407,31 +389,23 @@ function validateEditorJson(value, existingName) {
       : invalidJson;
   }
 }
-
 function parseEditorJson(value, existingName) {
   return validateEditorJson(value, existingName).input;
 }
-
 const MCP_TRANSPORT_LABELS = {
   stdio: "stdio",
   http: "HTTP",
   "streamable-http": "Streamable HTTP",
   sse: "SSE",
 };
-
 const FORM_OUTLINE_CLASS_NAME =
   "border border-input focus-visible:border-foreground focus-visible:ring-0";
-
 const FORM_CONTROL_CLASS_NAME = `h-10 ${FORM_OUTLINE_CLASS_NAME}`;
-
 const FORM_LABEL_CLASS_NAME = "text-sm font-medium text-foreground";
-
 const HELPER_TEXT_CLASS_NAME =
   "text-[13px] leading-relaxed text-muted-foreground";
-
 const SELECT_ITEM_CLASS_NAME =
   "h-8 rounded-sm py-2 pr-8 pl-3 text-sm font-normal text-foreground/70 focus:bg-popup-item-hover focus:text-foreground data-[highlighted]:bg-popup-item-hover data-[highlighted]:text-foreground";
-
 export function CustomConnectorDialog({
   open,
   onOpenChange,
@@ -714,7 +688,7 @@ export function CustomConnectorDialog({
                       >
                         {t2("connectors.customDialog.transport")}
                       </Label>
-                      <Select$1
+                      <Select
                         value={formState.transport}
                         onValueChange={handleTransportChange}
                       >
@@ -740,7 +714,7 @@ export function CustomConnectorDialog({
                             ),
                           )}
                         </SelectContent>
-                      </Select$1>
+                      </Select>
                     </div>
                   </div>
                   {remote ? (
@@ -1001,7 +975,7 @@ export function CustomConnectorDialog({
             {submitError ?? (validationError && t2(validationError.messageKey))}
           </p>
         ) : null}
-        <Button$1
+        <Button
           type="button"
           variant="secondary"
           className="h-9 min-w-22 rounded-[10px] px-4"
@@ -1010,8 +984,8 @@ export function CustomConnectorDialog({
           data-action-ui-id="custom-connector-cancel"
         >
           {t2("common.cancel")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="button"
           className="h-9 min-w-26 rounded-[10px] px-4"
           disabled={submitting}
@@ -1024,7 +998,7 @@ export function CustomConnectorDialog({
               ? "connectors.customDialog.save"
               : "connectors.customDialog.add",
           )}
-        </Button$1>
+        </Button>
       </DialogFooter>
     </ConnectorDialogFrame>
   );

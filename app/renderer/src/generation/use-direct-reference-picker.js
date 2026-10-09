@@ -9,7 +9,6 @@ import {
   encodeCanvasReference,
   existingCanvasReferencePath,
 } from "../text-editor/table-document-to-llm-content.js";
-
 function reasonForDisabledBatch(items, constraints2) {
   if (!constraints2) return void 0;
   const remaining = {
@@ -42,11 +41,8 @@ function reasonForDisabledBatch(items, constraints2) {
   }
   return void 0;
 }
-
 const SEARCH_DELAY_MS = 150;
-
-const THUMB_PX$6 = 28;
-
+const THUMB_PX = 28;
 export function useDirectReferencePicker({
   query,
   kindFilter,
@@ -169,7 +165,7 @@ export function useDirectReferencePicker({
           kind,
           thumbUrl:
             firstSupportedReference && kind === "image"
-              ? (resolveThumbUrl?.(path2, THUMB_PX$6, "image") ?? "")
+              ? (resolveThumbUrl?.(path2, THUMB_PX, "image") ?? "")
               : "",
           alreadyAdded: false,
           disabledReason,

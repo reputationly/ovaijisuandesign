@@ -1,7 +1,7 @@
 // team-assets-sidebar-panel.jsx
 import {
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   FolderInput,
   FolderPlus,
@@ -13,7 +13,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   AssetRowThumb,
   useAnchorProjectAssets,
@@ -91,7 +91,6 @@ import { useProjectActions } from "../settings/use-project-actions.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
-
 function flattenCloudTree(childrenByFolder, expanded) {
   const rows = [];
   const visit2 = (folderId, depth2, segments, parentIds) => {
@@ -124,7 +123,6 @@ function flattenCloudTree(childrenByFolder, expanded) {
   visit2("", 0, [], []);
   return rows;
 }
-
 function waitForTransferDone(service2, transferId) {
   return new Promise((resolve, reject) => {
     const settle2 = (status, error) => {
@@ -145,7 +143,6 @@ function waitForTransferDone(service2, transferId) {
     });
   });
 }
-
 function mediaKind(node2) {
   if (node2.mimeType.startsWith("image/")) return "image";
   if (node2.mimeType.startsWith("video/")) return "video";
@@ -154,19 +151,17 @@ function mediaKind(node2) {
   if (["mp4", "webm", "mov"].includes(ext)) return "video";
   return void 0;
 }
-
 function cloudThumbSrc(node2) {
   return node2.review === "pass" && node2.cdnUrl && mediaKind(node2) === "image"
     ? node2.cdnUrl
     : void 0;
 }
-
 function ReviewBadge({ node: node2 }) {
   const { t: t2 } = useTranslation();
   if (node2.kind === "folder" || node2.review === "pass") return null;
   return (
     <span
-      className={cn$2(
+      className={cn(
         "shrink-0 rounded-full px-1.5 py-px text-[10px] font-medium",
         node2.review === "reviewing"
           ? "bg-muted text-muted-foreground"
@@ -179,7 +174,6 @@ function ReviewBadge({ node: node2 }) {
     </span>
   );
 }
-
 function CloudAssetGridCard({
   row,
   expanded,
@@ -207,7 +201,7 @@ function CloudAssetGridCard({
     name: node2.name,
     mime: node2.mimeType,
   });
-  const Chevron2 = expanded ? ChevronDown : ChevronRight$1;
+  const Chevron2 = expanded ? ChevronDown : ChevronRight;
   const canFetch2 = node2.review === "pass" && !!node2.cdnUrl;
   const canDownload = isCloudFileDownloadEnabled(node2, syncState);
   const canUse = downloaded || canFetch2;
@@ -220,7 +214,7 @@ function CloudAssetGridCard({
             aria-expanded={isFolder ? expanded : void 0}
             onClick={() => (isFolder ? onToggle(node2) : onClick(node2))}
             {...dndProps}
-            className={cn$2(
+            className={cn(
               "group relative flex min-w-0 flex-col rounded-lg p-1 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-1 focus-visible:ring-ring/50",
               !isFolder && "cursor-grab active:cursor-grabbing",
               node2.review === "block" && "opacity-60",
@@ -340,7 +334,6 @@ function CloudAssetGridCard({
     </ContextMenu>
   );
 }
-
 function CloudFolderRow({
   row,
   expanded,
@@ -355,7 +348,7 @@ function CloudFolderRow({
   dropActive,
 }) {
   const { t: t2 } = useTranslation();
-  const Chevron2 = expanded ? ChevronDown : ChevronRight$1;
+  const Chevron2 = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -364,7 +357,7 @@ function CloudFolderRow({
             type="button"
             onClick={() => onToggle(row.node)}
             {...dndProps}
-            className={cn$2(
+            className={cn(
               "list-row-hit-area group flex h-7 w-full items-center gap-1.5 rounded-md px-2 text-left transition-colors hover:bg-foreground/5",
               dropActive && "bg-primary/10",
             )}
@@ -420,7 +413,6 @@ function CloudFolderRow({
     </ContextMenu>
   );
 }
-
 function CloudFileRow({
   row,
   downloaded,
@@ -451,7 +443,7 @@ function CloudFileRow({
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") onClick(row.node);
             }}
-            className={cn$2(
+            className={cn(
               "list-row-hit-area group flex h-8 w-full cursor-grab items-center gap-2 rounded-md px-2 transition-colors hover:bg-foreground/5 active:cursor-grabbing",
               row.node.review === "block" && "opacity-60",
             )}
@@ -526,7 +518,6 @@ function CloudFileRow({
     </ContextMenu>
   );
 }
-
 export function TeamAssetsSidebarPanel({
   project: project2,
   cloudProjectId,
@@ -1323,7 +1314,7 @@ export function TeamAssetsSidebarPanel({
         {...externalDropProps}
         aria-label={t2("projectAssets.title")}
         data-action-ui-id="project-assets-sidebar.drop-area"
-        className={cn$2(
+        className={cn(
           "min-h-0 flex-1 overflow-y-auto py-1",
           moveDnd.overKey === "" && "bg-primary/5",
         )}
@@ -1396,7 +1387,7 @@ export function TeamAssetsSidebarPanel({
         )}
       </section>
       <div className="flex shrink-0 items-center gap-1 border-t border-border p-2">
-        <Button$1
+        <Button
           type="button"
           size="sm"
           onClick={() => setNewFolderOpen(true)}
@@ -1405,8 +1396,8 @@ export function TeamAssetsSidebarPanel({
         >
           <FolderPlus size={14} strokeWidth={1.5} />
           {t2("cloudAssets.newFolder")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="button"
           variant="outline"
           size="sm"
@@ -1417,7 +1408,7 @@ export function TeamAssetsSidebarPanel({
         >
           <Upload size={14} strokeWidth={1.5} />
           {t2("cloudAssets.upload")}
-        </Button$1>
+        </Button>
         <input
           ref={fileInputRef}
           type="file"

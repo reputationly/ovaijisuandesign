@@ -94,19 +94,16 @@ const DOMESTIC_MODEL_DISPLAY_ALIASES = [
   ["doubao-seedream-5-0-pro-260628", "Seedream 5.0 Pro"],
   ["doubao-seedream-4-5-251128", "Seedream 4.5"],
 ];
-
 const SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES =
   DOMESTIC_MODEL_DISPLAY_ALIASES.slice().sort(
     ([a2], [b3]) => b3.length - a2.length,
   );
-
 const DOMESTIC_MODEL_DISPLAY_ALIAS_BY_LOWERCASE = new Map(
   SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal2, display]) => [
     internal2.toLowerCase(),
     display,
   ]),
 );
-
 const DOMESTIC_MODEL_CONTEXT_ALIAS_PATTERNS = [
   [/\bbanana(?=\s*(?:模型|model\b))/gi, "General Image"],
   [
@@ -114,7 +111,6 @@ const DOMESTIC_MODEL_CONTEXT_ALIAS_PATTERNS = [
     "$1General Image",
   ],
 ];
-
 function shouldRedactModelAliases(region) {
   return (
     region === "domestic" ||
@@ -123,18 +119,15 @@ function shouldRedactModelAliases(region) {
     region === ""
   );
 }
-
-function escapeRegExp$3(value) {
+function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
 const DOMESTIC_MODEL_DISPLAY_ALIAS_PATTERN = new RegExp(
   SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal2]) =>
-    escapeRegExp$3(internal2),
+    escapeRegExp(internal2),
   ).join("|"),
   "gi",
 );
-
 export function redactModelAliasesForDisplay(text2, region) {
   if (!text2 || !shouldRedactModelAliases(region)) return text2;
   let redacted = text2.replace(

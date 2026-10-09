@@ -2,9 +2,9 @@
 import {
   ArrowUpRight,
   dedupedToast,
-  getDefaultExportFromCjs$1,
+  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
   getRuntimeConfig,
-  Info$1,
+  Info$1 as Info,
   jsxRuntimeExports,
   reactExports,
   requireLib,
@@ -30,7 +30,11 @@ import {
 } from "./tutorial-button.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AddFlowFrame } from "./step-indicator.jsx";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 import { QrCard } from "./qr-card.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
@@ -48,7 +52,6 @@ import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { Switch } from "../generation/select-content.jsx";
 import { useSettings } from "./use-settings.js";
-
 function useAvailablePlatforms() {
   const [available, setAvailable] = reactExports.useState({
     feishu: false,
@@ -82,7 +85,6 @@ function useAvailablePlatforms() {
   }, []);
   return available;
 }
-
 function useWechatQrLogin() {
   const [state2, setState] = reactExports.useState({
     sessionId: null,
@@ -161,7 +163,6 @@ function useWechatQrLogin() {
     cancel,
   };
 }
-
 function useFeishuQrLogin() {
   const [state2, setState] = reactExports.useState({
     sessionId: null,
@@ -287,11 +288,8 @@ function useFeishuQrLogin() {
     cancel,
   };
 }
-
 var libExports = requireLib();
-
-const QRCode = getDefaultExportFromCjs$1(libExports);
-
+const QRCode = getDefaultExportFromCjs(libExports);
 const DEFAULT_ALIAS = {
   feishu: "Feishu",
   telegram: "Telegram",
@@ -299,7 +297,6 @@ const DEFAULT_ALIAS = {
   discord: "Discord",
   dingtalk: "DingTalk",
 };
-
 function localizeImDisplayName(displayName2, locale) {
   if (isZhLocale(locale)) return displayName2;
   return displayName2
@@ -310,7 +307,6 @@ function localizeImDisplayName(displayName2, locale) {
     .replace(/飞书/g, "Lark")
     .replace(/微信/g, "WeChat");
 }
-
 function getAccountDisplayName(account, status, locale) {
   const platformName = status?.botDisplayName?.trim();
   if (platformName) return localizeImDisplayName(platformName, locale);
@@ -319,9 +315,7 @@ function getAccountDisplayName(account, status, locale) {
     return void 0;
   return localizeImDisplayName(alias, locale);
 }
-
 const AUTH_HANDOFF_MIN_MS = 900;
-
 function trackConnectionFailure(action, platform2, layout, error) {
   trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
     action,
@@ -334,7 +328,6 @@ function trackConnectionFailure(action, platform2, layout, error) {
     ).slice(0, 200),
   });
 }
-
 function QrConnectView({
   platform: platform2,
   step = "scan",
@@ -375,13 +368,13 @@ function QrConnectView({
       transitionLabel={transitionLabel}
     >
       <div
-        className={cn$2(
+        className={cn(
           "mx-auto flex w-full max-w-[520px] flex-col items-center text-center",
           layout === "settings" ? "flex-none pt-10" : "flex-1 justify-center",
         )}
       >
         <div
-          className={cn$2(
+          className={cn(
             "flex max-w-full items-center justify-center gap-2",
             isChineseLocale2 ? "flex-wrap" : "flex-col",
           )}
@@ -414,7 +407,6 @@ function QrConnectView({
     </AddFlowFrame>
   );
 }
-
 function QrSuccessView({
   platform: platform2,
   layout = "dialog",
@@ -441,7 +433,7 @@ function QrSuccessView({
       onDialogHeaderChange={onDialogHeaderChange}
     >
       <div
-        className={cn$2(
+        className={cn(
           "mx-auto flex w-full max-w-[560px] flex-none flex-col text-center",
           layout === "settings" ? "pt-3" : "pt-2",
         )}
@@ -500,7 +492,7 @@ function QrSuccessView({
               size="default"
               className="w-28"
             />
-            <Button$1
+            <Button
               type="button"
               size="default"
               className="w-28"
@@ -508,14 +500,13 @@ function QrSuccessView({
               data-action-ui-id={`im-bridge.${platform2}.qr.done`}
             >
               {t2("settings.imBridge.addFlow.done")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       </div>
     </AddFlowFrame>
   );
 }
-
 function FeishuQrSection({
   alias,
   layout = "dialog",
@@ -662,7 +653,6 @@ function FeishuQrSection({
     />
   );
 }
-
 function FeishuUserAuthFlow({
   accountId,
   layout = "dialog",
@@ -749,7 +739,6 @@ function FeishuUserAuthFlow({
     />
   );
 }
-
 function FeishuSection({
   alias,
   layout = "dialog",
@@ -769,7 +758,6 @@ function FeishuSection({
     />
   );
 }
-
 function WechatQrSection({
   alias,
   layout = "dialog",
@@ -850,7 +838,6 @@ function WechatQrSection({
     />
   );
 }
-
 function AddAccountForm({
   platform: platform2,
   onClose,
@@ -930,24 +917,23 @@ function AddAccountForm({
             </p>
           )}
           <div className="flex justify-end gap-2 pt-1">
-            <Button$1
+            <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
               disabled={submitting}
             >
               {t2("common.cancel")}
-            </Button$1>
-            <Button$1 size="sm" onClick={handleSubmit} loading={submitting}>
+            </Button>
+            <Button size="sm" onClick={handleSubmit} loading={submitting}>
               {t2("settings.imBridge.add.submit")}
-            </Button$1>
+            </Button>
           </div>
         </>
       )}
     </div>
   );
 }
-
 function getAccountStatusHint(status) {
   const state2 = status?.state ?? "disconnected";
   if (status?.errorKind === "credential_corrupt") {
@@ -979,12 +965,10 @@ function getAccountStatusHint(status) {
       };
   }
 }
-
 const TUTORIAL_URL = {
   wechat: "https://my.feishu.cn/wiki/UqkAwo1tMi050hkDlnic4a1Tntf",
   feishu: "https://my.feishu.cn/wiki/OAmLwbUOsiGOfSk8sB8c3klinPd",
 };
-
 const DOMESTIC_PLATFORM_ORDER = [
   "feishu",
   "wechat",
@@ -992,7 +976,6 @@ const DOMESTIC_PLATFORM_ORDER = [
   "discord",
   "dingtalk",
 ];
-
 const OVERSEAS_PLATFORM_ORDER = [
   "feishu",
   "telegram",
@@ -1000,23 +983,19 @@ const OVERSEAS_PLATFORM_ORDER = [
   "discord",
   "dingtalk",
 ];
-
 function regionKeySuffix() {
   return getRuntimeConfig().region === "overseas" ? "overseas" : "domestic";
 }
-
 function getConnectionPlatformOrder() {
   return getRuntimeConfig().region === "overseas"
     ? OVERSEAS_PLATFORM_ORDER
     : DOMESTIC_PLATFORM_ORDER;
 }
-
 function getAddablePlatformOrder() {
   return getRuntimeConfig().region === "overseas"
     ? ["feishu", "telegram"]
     : ["feishu", "wechat"];
 }
-
 function AccountMoreMenu({ accountId, onRemove: onRemove2 }) {
   const { t: t2 } = useTranslation();
   return (
@@ -1034,7 +1013,6 @@ function AccountMoreMenu({ accountId, onRemove: onRemove2 }) {
     />
   );
 }
-
 function PlatformIconFrame({ platform: platform2, label }) {
   return (
     <IntegrationIconFrame>
@@ -1046,7 +1024,6 @@ function PlatformIconFrame({ platform: platform2, label }) {
     </IntegrationIconFrame>
   );
 }
-
 function getPlatformStatusDisplay(status) {
   return {
     key: `settings.imBridge.channel.status.${status}`,
@@ -1055,7 +1032,6 @@ function getPlatformStatusDisplay(status) {
     tone: "muted",
   };
 }
-
 function getAccountRowStatusDisplay({
   account,
   status,
@@ -1118,7 +1094,6 @@ function getAccountRowStatusDisplay({
       };
   }
 }
-
 function ConnectionStatusIndicator({
   display,
   className,
@@ -1146,7 +1121,6 @@ function ConnectionStatusIndicator({
     />
   );
 }
-
 function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
   const { t: t2 } = useTranslation();
   const status = getPlatformStatusDisplay("notConnected");
@@ -1165,7 +1139,7 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
         </p>
       </div>
       <div className="shrink-0">
-        <Button$1
+        <Button
           type="button"
           size="lg"
           className="h-8 min-w-20 px-3 text-sm font-medium"
@@ -1175,23 +1149,22 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
           {t2("settings.imBridge.channel.action.connectPlatform", {
             platform: option2.label,
           })}
-        </Button$1>
+        </Button>
       </div>
     </IntegrationCard>
   );
 }
-
 function TutorialLink({ platform: platform2, actionId, className }) {
   const { t: t2 } = useTranslation();
   const shellPlatform = usePlatform();
   const tutorialUrl = TUTORIAL_URL[platform2];
   if (!tutorialUrl) return null;
   return (
-    <Button$1
+    <Button
       type="button"
       variant="ghost"
       size="sm"
-      className={cn$2(
+      className={cn(
         "gap-1 text-brand-accent hover:text-brand-accent",
         className,
       )}
@@ -1204,20 +1177,17 @@ function TutorialLink({ platform: platform2, actionId, className }) {
     >
       {t2("settings.imBridge.tutorialLink")}
       <Icon icon={ArrowUpRight} size="sm" strokeWidth={2} />
-    </Button$1>
+    </Button>
   );
 }
-
 function getFallbackTutorialPlatform() {
   return "feishu";
 }
-
 const ACCOUNT_STATUS_HINT_TONE_CLASS = {
   muted: "text-muted-foreground",
   warning: "text-warning",
   destructive: "text-destructive",
 };
-
 function AccountRow({
   account,
   status,
@@ -1302,7 +1272,7 @@ function AccountRow({
           </div>
           <div className="mt-1.5 flex items-center">
             <p
-              className={cn$2(
+              className={cn(
                 "line-clamp-2 whitespace-normal break-words text-xs leading-snug",
                 subtitleToneClass,
               )}
@@ -1339,7 +1309,6 @@ function AccountRow({
     </IntegrationCard>
   );
 }
-
 function ConnectionList({
   platformOrder,
   accounts,
@@ -1397,7 +1366,6 @@ function ConnectionList({
     </div>
   );
 }
-
 export function ImBridgeManager({
   onDialogHeaderChange,
   layout = "dialog",
@@ -1554,7 +1522,7 @@ export function ImBridgeManager({
                     />
                   }
                 >
-                  <Icon icon={Info$1} size="xs" strokeWidth={2} />
+                  <Icon icon={Info} size="xs" strokeWidth={2} />
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
@@ -1591,7 +1559,7 @@ export function ImBridgeManager({
             <p className="text-[13px] leading-relaxed text-foreground">
               {t2("settings.imBridge.credentialUpdate.banner")}
             </p>
-            <Button$1
+            <Button
               size="sm"
               disabled={updatingCredentials}
               onClick={async () => {
@@ -1620,7 +1588,7 @@ export function ImBridgeManager({
               data-action-ui-id="im-bridge.credential-update"
             >
               {t2("settings.imBridge.credentialUpdate.action")}
-            </Button$1>
+            </Button>
           </div>
         )}
         {!loading && !error && (

@@ -2,8 +2,7 @@
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ParamSectionLabel } from "../generation/resolution-tabs.jsx";
-import { Slider$1 } from "../generation/slider.jsx";
-
+import { Slider } from "../generation/slider.jsx";
 export function ParamQualitySlider({
   label,
   options,
@@ -92,7 +91,7 @@ export function ParamQualitySlider({
           {optionLabel(preview === null ? value : (options[preview] ?? value))}
         </output>
       </div>
-      <Slider$1
+      <Slider
         variant="filled"
         size="compact"
         value={preview ?? selected2}

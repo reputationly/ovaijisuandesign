@@ -10,7 +10,6 @@ import {
   parseNodeId,
   sanitizeCanvasPositions,
 } from "./find-free-position-from-anchor.js";
-
 function mediaTypeToNodeType(fileType) {
   switch (fileType) {
     case "image":
@@ -27,7 +26,6 @@ function mediaTypeToNodeType(fileType) {
       return CanvasNodeType.File;
   }
 }
-
 function carryIsEmptyField(saved) {
   return saved?.isEmpty && !saved.assetId
     ? {
@@ -35,7 +33,6 @@ function carryIsEmptyField(saved) {
       }
     : {};
 }
-
 function displaySizeFromData(type2, data2) {
   if (type2 !== "image") return void 0;
   const value = data2?.displaySize;
@@ -54,12 +51,10 @@ function displaySizeFromData(type2, data2) {
     height: Math.round(height),
   };
 }
-
 function sizeFromItem(item) {
   return computeNodeSize(item.meta.width, item.meta.height);
 }
-
-function resolveNodeSize$1(type2, savedSize, item, data2) {
+function resolveNodeSize(type2, savedSize, item, data2) {
   return (
     displaySizeFromData(type2, data2) ??
     savedSize ??
@@ -67,7 +62,6 @@ function resolveNodeSize$1(type2, savedSize, item, data2) {
     defaultNodeSizeForType(type2)
   );
 }
-
 function metaToData(meta2) {
   const out = {};
   if (meta2.name !== void 0) out.name = meta2.name;
@@ -96,9 +90,7 @@ function metaToData(meta2) {
     out.referenceTextIds = meta2.referenceTextIds;
   return out;
 }
-
 const warnedRecoveredNodeIds = new Set();
-
 function anchorOrder(nodes, existingOrder) {
   const byId = new Map();
   for (const n2 of nodes) byId.set(n2.id, n2);
@@ -129,7 +121,6 @@ function anchorOrder(nodes, existingOrder) {
   }
   return result;
 }
-
 function carryGroupFields(saved) {
   if (!saved) return {};
   const out = {};
@@ -137,7 +128,6 @@ function carryGroupFields(saved) {
   if (Number.isInteger(saved.round)) out.round = saved.round;
   return out;
 }
-
 function carryAssetIdField(saved) {
   return typeof saved?.assetId === "string" && saved.assetId.length > 0
     ? {
@@ -145,7 +135,6 @@ function carryAssetIdField(saved) {
       }
     : {};
 }
-
 export function buildCanvasNodes(input) {
   const {
     visibleItems,
@@ -177,7 +166,7 @@ export function buildCanvasNodes(input) {
       // entries (node never placed in a particular mode) are filled in by
       // `layoutUnsavedNodes` downstream.
       positions: sanitizeCanvasPositions(saved?.positions ?? {}).positions,
-      size: resolveNodeSize$1(type2, saved?.size, item, saved?.data),
+      size: resolveNodeSize(type2, saved?.size, item, saved?.data),
       data: {
         ...(saved ? mirrorImageFieldsIntoData(saved) : {}),
         assetId: item.id,
@@ -211,7 +200,7 @@ export function buildCanvasNodes(input) {
             type: clone2.type,
             positions: sanitizeCanvasPositions(clone2.positions ?? {})
               .positions,
-            size: resolveNodeSize$1(
+            size: resolveNodeSize(
               clone2.type,
               clone2.size,
               void 0,
@@ -264,7 +253,7 @@ export function buildCanvasNodes(input) {
         id: clone2.id,
         type: type2,
         positions: sanitizeCanvasPositions(clone2.positions ?? {}).positions,
-        size: resolveNodeSize$1(type2, clone2.size, primaryItem, inheritedData),
+        size: resolveNodeSize(type2, clone2.size, primaryItem, inheritedData),
         data: inheritedData,
         ...carryAssetIdField(clone2),
         ...carryIsEmptyField(clone2),
@@ -284,7 +273,7 @@ export function buildCanvasNodes(input) {
         id: sn2.id,
         type: sn2.type,
         positions: sanitizeCanvasPositions(sn2.positions ?? {}).positions,
-        size: resolveNodeSize$1(sn2.type, sn2.size, void 0, sn2.data),
+        size: resolveNodeSize(sn2.type, sn2.size, void 0, sn2.data),
         data: mirrorImageFieldsIntoData(sn2),
         ...carryAssetIdField(sn2),
         ...carryIsEmptyField(sn2),
@@ -317,7 +306,7 @@ export function buildCanvasNodes(input) {
         id: nodeId,
         type: saved.type,
         positions: sanitizeCanvasPositions(saved.positions ?? {}).positions,
-        size: resolveNodeSize$1(saved.type, saved.size, item, saved.data),
+        size: resolveNodeSize(saved.type, saved.size, item, saved.data),
         // Mirrors the primary branch exactly: asset-projected fields come from
         // the AssetMetadataStore at render time (keyed by assetId / node-id
         // alias), NOT from a metaToData spread here. Adding one would give a

@@ -3,26 +3,22 @@ import { CompositedSvg, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaceholderNodeInner } from "./placeholder-node-inner.jsx";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
-
 export const PlaceholderNode = reactExports.memo(
   PlaceholderNodeInner,
   areNodePropsEqual,
 );
-
 function isConditionInactive(cond) {
   if (cond.op === "empty" || cond.op === "notEmpty") return false;
   if (cond.value === void 0) return true;
   if (typeof cond.value === "string" && cond.value.length === 0) return true;
   return false;
 }
-
 function isEmptyCell(cell) {
   if (cell == null) return true;
   if (typeof cell === "string") return cell.length === 0;
   if (Array.isArray(cell)) return cell.length === 0;
   return false;
 }
-
 function matchesCondition(cell, fieldType, op, value) {
   if (op === "empty") return isEmptyCell(cell);
   if (op === "notEmpty") return !isEmptyCell(cell);
@@ -66,7 +62,6 @@ function matchesCondition(cell, fieldType, op, value) {
   }
   return false;
 }
-
 export function applyFilter(doc2) {
   const f2 = doc2.filter;
   if (!f2 || f2.conditions.length === 0) return doc2.rows;
@@ -87,11 +82,9 @@ export function applyFilter(doc2) {
   }
   return doc2.rows.filter((row) => predicates.some((p3) => p3(row)));
 }
-
 export function visibleColumns(doc2) {
   return doc2.columns.filter((c3) => c3.visible !== false);
 }
-
 export const MATCH_LABELS = {
   all: {
     key: "canvas.table.filter.match.all",
@@ -102,7 +95,6 @@ export const MATCH_LABELS = {
     defaultLabel: "any",
   },
 };
-
 export const ROW_HEIGHT_LABELS = {
   low: {
     key: "canvas.table.rowHeight.low",
@@ -121,8 +113,7 @@ export const ROW_HEIGHT_LABELS = {
     defaultLabel: "Extra tall",
   },
 };
-
-export function CheckIcon$1() {
+export function CheckIcon() {
   return (
     <CompositedSvg
       width="12"
@@ -141,30 +132,25 @@ export function CheckIcon$1() {
     </CompositedSvg>
   );
 }
-
-export function functionalUpdate$2(updater, input) {
+export function functionalUpdate(updater, input) {
   return typeof updater === "function" ? updater(input) : updater;
 }
-
 export function makeStateUpdater(key2, instance2) {
   return (updater) => {
     instance2.setState((old) => {
       return {
         ...old,
-        [key2]: functionalUpdate$2(updater, old[key2]),
+        [key2]: functionalUpdate(updater, old[key2]),
       };
     });
   };
 }
-
-export function isFunction$1(d2) {
+export function isFunction(d2) {
   return d2 instanceof Function;
 }
-
 export function isNumberArray(d2) {
   return Array.isArray(d2) && d2.every((val) => typeof val === "number");
 }
-
 export function flattenBy(arr, getChildren2) {
   const flat = [];
   const recurse = (subArr) => {
@@ -179,7 +165,6 @@ export function flattenBy(arr, getChildren2) {
   recurse(arr);
   return flat;
 }
-
 export function memo$1(getDeps, fn2, opts) {
   let deps = [];
   let result;
@@ -223,7 +208,6 @@ export function memo$1(getDeps, fn2, opts) {
     return result;
   };
 }
-
 export function getMemoOptions(tableOptions, debugLevel, key2, onChange) {
   return {
     debug: () => {
@@ -237,7 +221,6 @@ export function getMemoOptions(tableOptions, debugLevel, key2, onChange) {
     onChange,
   };
 }
-
 export function createCell$1(table2, row, column, columnId) {
   const getRenderValue = () => {
     var _cell$getValue;
@@ -269,7 +252,6 @@ export function createCell$1(table2, row, column, columnId) {
   }, {});
   return cell;
 }
-
 export function createColumn(table2, columnDef, depth2, parent) {
   var _ref, _resolvedColumnDef$id;
   const defaultColumn = table2._getDefaultColumnDef();

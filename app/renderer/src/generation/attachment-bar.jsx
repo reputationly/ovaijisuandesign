@@ -1,13 +1,13 @@
 // attachment-bar.jsx
 import {
-  NodeToolbar$1,
-  PlaybackPlayIcon$1,
+  NodeToolbar$1 as NodeToolbar,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   Plus,
   Position,
   reactExports,
   StarterKit,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -23,9 +23,8 @@ import {
   THUMB_SIZE,
 } from "../media-editing/use-preview-text.jsx";
 import { ThumbChip } from "../media-editing/thumb-chip.jsx";
-import { SegmentedSwitch$1 } from "./segmented-switch.jsx";
+import { SegmentedSwitch } from "./segmented-switch.jsx";
 import { ExpandToggleButton } from "./expand-arrow-icon.jsx";
-
 export function AttachmentBar({
   items,
   disabled: disabled2,
@@ -89,7 +88,6 @@ export function AttachmentBar({
     </div>
   );
 }
-
 export function TextPopoverReferenceSection({
   mode: mode2,
   audioMode,
@@ -107,7 +105,7 @@ export function TextPopoverReferenceSection({
       {mode2 === "audio" ? (
         <div className="relative flex items-center gap-2">
           <div role="presentation" onClick={(event) => event.stopPropagation()}>
-            <SegmentedSwitch$1
+            <SegmentedSwitch
               variant="label"
               value={audioMode}
               itemClassName="px-[22px] font-normal"
@@ -145,11 +143,8 @@ export function TextPopoverReferenceSection({
     </div>
   );
 }
-
 const HEIGHT_COMPACT = 208;
-
 const HEIGHT_EXPANDED = 500;
-
 function nextDeselectGate(armed, selected2) {
   return selected2
     ? {
@@ -161,12 +156,10 @@ function nextDeselectGate(armed, selected2) {
         close: armed,
       };
 }
-
 function blockPopoverContextMenu(event) {
   event.preventDefault();
   event.stopPropagation();
 }
-
 export function PopoverShell({
   onClose,
   children: children2,
@@ -184,7 +177,7 @@ export function PopoverShell({
       nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true,
     [nodeId],
   );
-  const selected2 = useStore$3(selectedSelector);
+  const selected2 = useStore(selectedSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -196,7 +189,7 @@ export function PopoverShell({
   }, [selected2]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={true}
       position={Position.Bottom}
       offset={NODE_POPOVER_SAFE_GAP + gapOffset}
@@ -219,19 +212,17 @@ export function PopoverShell({
       >
         {children2}
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 }
-
 export var src_default = StarterKit;
-
-export function VideoPlayIndicator$1({ size: size2 = 14 }) {
+export function VideoPlayIndicator({ size: size2 = 14 }) {
   return (
     <span
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 flex items-center justify-center"
     >
-      <PlaybackPlayIcon$1
+      <PlaybackPlayIcon
         size={size2}
         style={{
           color: "var(--canvas-media-play-icon)",
@@ -241,17 +232,15 @@ export function VideoPlayIndicator$1({ size: size2 = 14 }) {
     </span>
   );
 }
-
-function finitePositive$2(value) {
+function finitePositive(value) {
   return typeof value === "number" && Number.isFinite(value) && value > 0
     ? value
     : void 0;
 }
-
 export function getImageConstraintReason(dimensions2, constraints2) {
   if (!dimensions2 || !constraints2) return void 0;
-  const width = finitePositive$2(dimensions2.width);
-  const height = finitePositive$2(dimensions2.height);
+  const width = finitePositive(dimensions2.width);
+  const height = finitePositive(dimensions2.height);
   if (width === void 0 || height === void 0) return void 0;
   if (
     constraints2.imageMinWidth !== void 0 &&
@@ -280,7 +269,6 @@ export function getImageConstraintReason(dimensions2, constraints2) {
   }
   return void 0;
 }
-
 export function mapKind(type2) {
   if (
     type2 === "image" ||
@@ -291,7 +279,6 @@ export function mapKind(type2) {
     return type2;
   return void 0;
 }
-
 export var ReferenceDisabledReason = ((ReferenceDisabledReason2) => {
   ReferenceDisabledReason2["Empty"] = "empty";
   ReferenceDisabledReason2["Unsupported"] = "unsupported";
@@ -304,14 +291,12 @@ export var ReferenceDisabledReason = ((ReferenceDisabledReason2) => {
   ReferenceDisabledReason2["VideoBudget"] = "video-budget";
   return ReferenceDisabledReason2;
 })(ReferenceDisabledReason || {});
-
 export function passesBudgetGate(kind, isReference, remainingByKind) {
   if (isReference) return true;
   if (kind === "text" && remainingByKind?.text === void 0) return true;
   if (!remainingByKind) return true;
   return (remainingByKind[kind] ?? 0) > 0;
 }
-
 export function reasonForDisabled(kind, meta2, constraints2) {
   if (!constraints2) return void 0;
   if (kind === "text") {

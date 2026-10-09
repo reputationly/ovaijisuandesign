@@ -6,7 +6,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  PreviewCard$1,
+  PreviewCard,
   PreviewCardContent,
   PreviewCardTrigger,
 } from "./use-placeholder-asset-source.jsx";
@@ -21,7 +21,6 @@ import {
   mapCanvasReferenceCandidates,
 } from "./table-document-to-llm-content.js";
 import { mapCanvasReferenceResolutions } from "./map-canvas-reference-resolutions.js";
-
 function useProjectAssetReferences(workspace) {
   const projectId = useWorkspaceProject(workspace || void 0)?.id;
   const { ensureProjectFolderName } = useProjectActions();
@@ -73,12 +72,11 @@ function useProjectAssetReferences(workspace) {
     searchProjectAssets,
   };
 }
-
 function CanvasReferencePreview({ reference, trigger, status }) {
   const { t: t2 } = useTranslation();
   const missing = status === "deleted" || status === "missing";
   return (
-    <PreviewCard$1>
+    <PreviewCard>
       <PreviewCardTrigger render={trigger} />
       <PreviewCardContent side="top" sideOffset={8}>
         {missing ? (
@@ -91,13 +89,11 @@ function CanvasReferencePreview({ reference, trigger, status }) {
           <EntityHoverCardBody entityId={reference.id} />
         ) : null}
       </PreviewCardContent>
-    </PreviewCard$1>
+    </PreviewCard>
   );
 }
-
 const renderPreview = (props) =>
   reactExports.createElement(CanvasReferencePreview, props);
-
 export function useCanvasReferenceBridge() {
   const workspace = useCurrentWorkspace();
   const { searchProjectAssets } = useProjectAssetReferences(workspace);

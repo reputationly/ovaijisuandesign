@@ -1,28 +1,20 @@
 // hub-logo.jsx
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "./dialog-content.jsx";
-
+import { cn$2 as cn } from "./dialog-content.jsx";
 const WINK_DURATION_MS = 560;
-
 const BLINK_DURATION_MS = 240;
-
 const BLINK_DELAY_MIN_MS = 2600;
-
 const BLINK_DELAY_RANGE_MS = 1300;
-
 const BLINK_COUNT = 2;
-
 const MOTION_ATTRIBUTE = "data-hub-logo-motion";
-
-function prefersReducedMotion$1() {
+function prefersReducedMotion() {
   return (
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }
-
 function setMotion(elements, motion) {
   for (const element2 of elements) {
     if (!element2) continue;
@@ -31,13 +23,11 @@ function setMotion(elements, motion) {
     element2.setAttribute(MOTION_ATTRIBUTE, motion);
   }
 }
-
 function clearMotion(elements) {
   for (const element2 of elements) {
     element2?.removeAttribute(MOTION_ATTRIBUTE);
   }
 }
-
 function useHubLogoHoverAnimation({ enabled, leftEyeRef, rightEyeRef }) {
   const activeRef = reactExports.useRef(false);
   const timersRef = reactExports.useRef(new Set());
@@ -76,7 +66,7 @@ function useHubLogoHoverAnimation({ enabled, leftEyeRef, rightEyeRef }) {
     };
   }, [enabled, reset2]);
   return reactExports.useCallback(() => {
-    if (!enabled || activeRef.current || prefersReducedMotion$1()) return;
+    if (!enabled || activeRef.current || prefersReducedMotion()) return;
     activeRef.current = true;
     setMotion([leftEyeRef.current], "wink");
     schedule2(() => clearMotion([leftEyeRef.current]), WINK_DURATION_MS);
@@ -100,27 +90,16 @@ function useHubLogoHoverAnimation({ enabled, leftEyeRef, rightEyeRef }) {
     scheduleBlink();
   }, [enabled, leftEyeRef, rightEyeRef, schedule2]);
 }
-
 const EYE_ROTATION = (28.8202 * Math.PI) / 180;
-
 const EYE_COS = Math.cos(EYE_ROTATION);
-
 const EYE_SIN = Math.sin(EYE_ROTATION);
-
 const EYE_TRAVEL_SCALE = 1.3;
-
 const EYE_TRAVEL_A = (5.58216 - 4.25085) * EYE_TRAVEL_SCALE;
-
 const EYE_TRAVEL_B = (7.06529 - 5.6272) * EYE_TRAVEL_SCALE;
-
 const EYE_RIM_REACH = 0.88;
-
 const EYE_FALLOFF = 26;
-
 const ACTIVE_EASING = 0.1;
-
 const IDLE_EASING = 0.08;
-
 const EYES = [
   {
     centerX: 10.789,
@@ -135,11 +114,9 @@ const EYES = [
     restY: 46.7917 - 46.6895,
   },
 ];
-
 function mix(currentValue, targetValue, factor) {
   return currentValue + (targetValue - currentValue) * factor;
 }
-
 function pupilTargetFor(eye, svgX, svgY) {
   const dx = svgX - eye.centerX;
   const dy = svgY - eye.centerY;
@@ -161,7 +138,6 @@ function pupilTargetFor(eye, svgX, svgY) {
     y: travelX * EYE_SIN + travelY * EYE_COS - eye.restY,
   };
 }
-
 export function HubLogo({
   size: size2 = 20,
   className,
@@ -315,7 +291,7 @@ export function HubLogo({
       ref={wrapRef}
       role="img"
       aria-label={alt}
-      className={cn$2("inline-flex shrink-0 text-foreground", className)}
+      className={cn("inline-flex shrink-0 text-foreground", className)}
       style={{
         width: size2,
         height: size2,

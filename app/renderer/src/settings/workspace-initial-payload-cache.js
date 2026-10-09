@@ -1,6 +1,5 @@
 // workspace-initial-payload-cache.js
 import { workspaceInitialPayloadSignature } from "./use-asset-lineage.js";
-
 function hasPayload(payload) {
   return Boolean(
     payload.initialMessage ||
@@ -10,14 +9,12 @@ function hasPayload(payload) {
     payload.initialSelectedMediaModels,
   );
 }
-
 function workspaceInitialPayloadKey(payload) {
   return payload.initialPayloadId
     ? `operation:${payload.initialPayloadId}`
     : `legacy:${workspaceInitialPayloadSignature(payload)}`;
 }
-
-function cloneSelectedMediaModels$1(selectedMediaModels) {
+function cloneSelectedMediaModels(selectedMediaModels) {
   if (!selectedMediaModels) return void 0;
   return {
     ...(selectedMediaModels.image
@@ -37,7 +34,6 @@ function cloneSelectedMediaModels$1(selectedMediaModels) {
       : {}),
   };
 }
-
 export class WorkspaceInitialPayloadCache {
   payloads = new Map();
   consumedPayloadKeys = new Map();
@@ -53,7 +49,7 @@ export class WorkspaceInitialPayloadCache {
         ? [...payload.initialEntityRefs]
         : void 0,
       initialModelId: payload.initialModelId,
-      initialSelectedMediaModels: cloneSelectedMediaModels$1(
+      initialSelectedMediaModels: cloneSelectedMediaModels(
         payload.initialSelectedMediaModels,
       ),
     };

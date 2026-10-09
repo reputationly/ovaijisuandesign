@@ -2,8 +2,8 @@
 import {
   Crosshair,
   jsxRuntimeExports,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
   useCurrentWorkspace,
   useTranslation,
@@ -11,53 +11,41 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   findAssetForPath,
-  toWorkspaceRelativePath$1,
+  toWorkspaceRelativePath,
 } from "./parse-workspace-path.js";
 import {
   getNodeIdsForAsset,
   useHasAssetOnCanvas,
 } from "../infra/use-canvas-node-assets-store.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import {
   canWriteResourceDragData,
   writeResourceDragData,
 } from "../generation/use-astra-send-gate.js";
-
 const WAVEFORM_BAR_WIDTH = 3;
-
 const WAVEFORM_BAR_GAP = 2;
-
 const WAVEFORM_BAR_RADIUS = 1.5;
-
 const WAVEFORM_HEIGHT = 48;
-
 const WAVEFORM_H_PAD = 16;
-
 const WAVEFORM_SVG_WIDTH = 320 - WAVEFORM_H_PAD * 2;
-
 const BAR_COUNT = Math.floor(
   WAVEFORM_SVG_WIDTH / (WAVEFORM_BAR_WIDTH + WAVEFORM_BAR_GAP),
 );
-
 const PLAYHEAD_COLOR = "var(--destructive)";
-
 let activeMarkdownAudio = null;
-
 function startExclusiveMarkdownAudio(next2) {
   if (activeMarkdownAudio && activeMarkdownAudio !== next2) {
     activeMarkdownAudio.pause();
   }
   activeMarkdownAudio = next2;
 }
-
 function clearExclusiveMarkdownAudio(current2) {
   if (activeMarkdownAudio === current2) {
     activeMarkdownAudio = null;
   }
 }
-
 function waveformHash(str2) {
   let h2 = 5381;
   for (let i2 = 0; i2 < str2.length; i2++) {
@@ -65,7 +53,6 @@ function waveformHash(str2) {
   }
   return Math.abs(h2);
 }
-
 function seededRandom(seed) {
   let s2 = seed;
   return () => {
@@ -73,7 +60,6 @@ function seededRandom(seed) {
     return s2 / 2147483647;
   };
 }
-
 function generateBars(name2, count2) {
   const rng = seededRandom(waveformHash(name2));
   const bars2 = [];
@@ -82,7 +68,6 @@ function generateBars(name2, count2) {
   }
   return bars2;
 }
-
 function formatAudioTime(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const total = Math.floor(seconds);
@@ -90,7 +75,6 @@ function formatAudioTime(seconds) {
   const s2 = total % 60;
   return `${m3}:${s2.toString().padStart(2, "0")}`;
 }
-
 const WaveformBars = reactExports.memo(function WaveformBars2({
   bars: bars2,
   playedIndex,
@@ -121,7 +105,6 @@ const WaveformBars = reactExports.memo(function WaveformBars2({
     </>
   );
 });
-
 export function MarkdownAudio({
   src,
   originalSrc,
@@ -143,7 +126,7 @@ export function MarkdownAudio({
     [alt, src],
   );
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath$1(originalSrc, src),
+    () => toWorkspaceRelativePath(originalSrc, src),
     [originalSrc, src],
   );
   const { assets } = useAssets({
@@ -306,7 +289,7 @@ export function MarkdownAudio({
     <span
       data-slot={dataSlot}
       data-artifact-type="audio"
-      className={cn$2(
+      className={cn(
         "group/markdown-media relative my-2 block rounded-lg border border-border bg-card p-2.5",
         canDrag && "cursor-grab active:cursor-grabbing",
       )}
@@ -398,9 +381,9 @@ export function MarkdownAudio({
           title={playTitle}
         >
           {playing ? (
-            <PlaybackPauseIcon$1 size={12} />
+            <PlaybackPauseIcon size={12} />
           ) : (
-            <PlaybackPlayIcon$1 size={12} />
+            <PlaybackPlayIcon size={12} />
           )}
         </button>
         <span className="ml-auto w-10" />

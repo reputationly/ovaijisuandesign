@@ -7,7 +7,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { GLOBAL_SIDEBAR_RAIL_WIDTH } from "./set-home-widget-dev-preview-mode.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { SidebarReleaseBadge } from "./sidebar-release-badge.jsx";
 import {
   HOME_NAV_ACTIVE_CLASS,
@@ -19,9 +19,7 @@ import {
   HOME_NAV_PILL_CLASS,
   HOME_RAIL_PILL_CLASS,
 } from "../settings/search-button.jsx";
-
 const HOME_RAIL_TOOLTIP_DELAY_MS = 150;
-
 export function SidebarNavButton({
   item,
   active: active2,
@@ -50,7 +48,7 @@ export function SidebarNavButton({
       data-icon-disabled={disabled2 || void 0}
       data-action-ui-id={`home-sidebar-nav-${to.replace(/^\//, "") || "home"}`}
       onClick={disabled2 ? void 0 : () => onClick(to)}
-      className={cn$2(
+      className={cn(
         HOME_NAV_BUTTON_CLASS,
         to !== "/" && "icon-sidebar-nav-control",
         disabled2
@@ -61,7 +59,7 @@ export function SidebarNavButton({
       )}
     >
       <span
-        className={cn$2(
+        className={cn(
           HOME_NAV_PILL_CLASS,
           compact && HOME_RAIL_PILL_CLASS,
           !disabled2 &&
@@ -80,7 +78,7 @@ export function SidebarNavButton({
           />
         ) : null}
         <span
-          className={cn$2(HOME_NAV_ICON_SLOT_CLASS, "relative", iconClassName)}
+          className={cn(HOME_NAV_ICON_SLOT_CLASS, "relative", iconClassName)}
           data-action-ui-id="home-sidebar.nav-icon-slot"
         >
           {to === "/" ? (

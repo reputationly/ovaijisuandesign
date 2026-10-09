@@ -23,13 +23,12 @@ import { INSUFFICIENT_BALANCE_TEXT_PATTERN } from "../generation/to-workspace-br
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { BillingInsufficientCard } from "./billing-insufficient-card.jsx";
 import { useMpSubscribeUrl } from "./hailuo-credit-row.jsx";
 import { FeedbackButton } from "../settings/use-direct-feedback.jsx";
 import { ErrorBlock } from "../text-editor/error-block.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-
 function ChatErrorActionButton({ action, label }) {
   const platform2 = usePlatform();
   const checkoutDecision = useAccountSubmissionDecision("personal_checkout");
@@ -43,7 +42,7 @@ function ChatErrorActionButton({ action, label }) {
     }
   };
   return (
-    <Button$1
+    <Button
       variant="outline"
       size="xs"
       disabled={!checkoutDecision.allowed}
@@ -52,10 +51,9 @@ function ChatErrorActionButton({ action, label }) {
     >
       {label}
       <ExternalLink data-icon="inline-end" />
-    </Button$1>
+    </Button>
   );
 }
-
 function isInsufficientBalanceError(msg) {
   if (
     msg.error?.error_code === ErrorCodes.MODEL_PROVIDER_ERROR ||
@@ -67,11 +65,9 @@ function isInsufficientBalanceError(msg) {
   const errorText = `${msg.error?.user_message ?? ""} ${msg.content ?? ""}`;
   return INSUFFICIENT_BALANCE_TEXT_PATTERN.test(errorText);
 }
-
 function isAuthExpiredError(msg) {
   return msg.error?.error_code === ErrorCodes.AUTH_EXPIRED;
 }
-
 const errorActionRules = [
   {
     match: isInsufficientBalanceError,
@@ -105,7 +101,6 @@ const errorActionRules = [
     }),
   },
 ];
-
 function getChatErrorActions(msg, options) {
   const rule = errorActionRules.find((r2) => r2.match(msg));
   if (rule) return rule.derive(msg, options);
@@ -114,7 +109,6 @@ function getChatErrorActions(msg, options) {
     showFeedback: !(msg.error?.retryable ?? false),
   };
 }
-
 const ERROR_CODE_I18N = {
   [ErrorCodes.NETWORK_TIMEOUT]: "chat.errors.networkTimeout",
   [ErrorCodes.NETWORK_UNREACHABLE]: "chat.errors.networkUnavailable",
@@ -139,18 +133,13 @@ const ERROR_CODE_I18N = {
   [ErrorCodes.GATEWAY_UPSTREAM_ERROR]: "chat.errors.genericDetail",
   [ErrorCodes.GATEWAY_UPSTREAM_TRUNCATED]: "chat.errors.runtimeStream",
 };
-
 const MESSAGE_DELIVERY_STAGE_DETAIL_PREFIX = "message_delivery_stage:";
-
 const RAW_AGENT_STALLED_ERROR =
   "Agent turn stalled with no progress; aborted by watchdog.";
-
 const RUNTIME_ERROR_CODE_PREFIX = "RUNTIME_";
-
 function isRuntimeErrorCode(code2) {
   return code2?.startsWith(RUNTIME_ERROR_CODE_PREFIX) ?? false;
 }
-
 const RAW_ERROR_CLASS_I18N = {
   concurrency: "canvas.errors.concurrency",
   interrupted: "chat.errors.interrupted",
@@ -159,7 +148,6 @@ const RAW_ERROR_CLASS_I18N = {
   storage: "chat.errors.storageFull",
   technical: "chat.errors.genericDetail",
 };
-
 function messageDeliveryStageFromDetails(details) {
   if (!details?.startsWith(MESSAGE_DELIVERY_STAGE_DETAIL_PREFIX)) return void 0;
   const stage = details
@@ -175,7 +163,6 @@ function messageDeliveryStageFromDetails(details) {
       return void 0;
   }
 }
-
 function presentationFor(code2, isGenerationStalled) {
   if (isGenerationStalled) {
     return {
@@ -285,7 +272,6 @@ function presentationFor(code2, isGenerationStalled) {
       };
   }
 }
-
 function suffixFor(retryable, code2) {
   if (code2 === ErrorCodes.RUNTIME_CANCELLED)
     return "chat.errors.suffix.cancelled";
@@ -300,14 +286,12 @@ function suffixFor(retryable, code2) {
   if (retryable) return "chat.errors.suffix.retry";
   return "chat.errors.suffix.failed";
 }
-
 function fallbackDetailFor(rawDetail, t2) {
   if (!rawDetail) return t2("chat.errors.serverError");
   const rawClass = classifyRawErrorText(rawDetail);
   if (rawClass) return t2(RAW_ERROR_CLASS_I18N[rawClass]);
   return rawDetail;
 }
-
 function localizeModelProviderDetail(rawDetail, language2, t2) {
   if (!language2.toLowerCase().startsWith("zh")) return rawDetail;
   return rawDetail
@@ -324,7 +308,6 @@ function localizeModelProviderDetail(rawDetail, language2, t2) {
     })
     .join("\n");
 }
-
 export function ErrorMessage({ msg, onRetry, retrying = false }) {
   const { t: t2, i18n } = useTranslation();
   const errorCode = msg.error?.error_code;
@@ -411,7 +394,7 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
           />
         ))}
         {retryable && onRetry && (
-          <Button$1
+          <Button
             variant={isRuntimeConnectionError ? "outline" : void 0}
             size={isRuntimeConnectionError ? "default" : "xs"}
             className={
@@ -429,7 +412,7 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
             }}
           >
             {t2(isRetrying ? "chat.retrying" : "chat.retry")}
-          </Button$1>
+          </Button>
         )}
         {showFeedback && (
           <FeedbackButton

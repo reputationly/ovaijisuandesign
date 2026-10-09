@@ -6,14 +6,14 @@ import {
   RotateCw,
   usePlatform,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download } from "../media-editing/package.jsx";
 import { useChangelog, useUpdaterContext } from "./use-active-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { ChangelogDetailDialog } from "./changelog-detail-dialog.jsx";
 import {
@@ -29,7 +29,6 @@ import {
   openManualInstallerDownload,
   progressPercent,
 } from "./diagnostics-group.jsx";
-
 export const UpdateBanner = ({
   embedded = false,
   imageUrl = null,
@@ -152,7 +151,7 @@ export const UpdateBanner = ({
   const renderCloseButton = (overlay = false) => (
     <button
       type="button"
-      className={cn$2(
+      className={cn(
         "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
         overlay
           ? "text-white hover:bg-black/60 hover:text-white"
@@ -162,11 +161,11 @@ export const UpdateBanner = ({
       data-action-ui-id="update.banner.close"
       aria-label={t2("update.btn.later")}
     >
-      <X$7 className="size-3" strokeWidth={1.5} />
+      <X className="size-3" strokeWidth={1.5} />
     </button>
   );
   const detailsAction = changelogItem && (
-    <Button$1
+    <Button
       type="button"
       variant="link"
       size="sm"
@@ -176,15 +175,15 @@ export const UpdateBanner = ({
       data-action-ui-id="update.btn.viewDetails"
     >
       {t2("update.btn.viewDetails")}
-    </Button$1>
+    </Button>
   );
-  const actionRowClass = cn$2(
+  const actionRowClass = cn(
     "flex items-center gap-3",
     embedded ? "justify-end" : "mt-3",
   );
   return (
     <div
-      className={cn$2(
+      className={cn(
         "elevated-surface-border rounded-lg bg-popover text-popover-foreground shadow-lg",
         embedded ? "p-1" : "p-2",
         embedded ? "relative w-full" : "fixed right-4 bottom-4 z-50 w-[380px]",
@@ -230,7 +229,7 @@ export const UpdateBanner = ({
         {!embedded || !hasMedia ? renderCloseButton() : null}
       </div>
       <div
-        className={cn$2(
+        className={cn(
           "rounded-md",
           embedded ? "px-2 pb-1" : "bg-secondary/60 p-2",
         )}
@@ -243,10 +242,10 @@ export const UpdateBanner = ({
             ) : null}
             <div className={actionRowClass}>
               {detailsAction}
-              <Button$1
+              <Button
                 type="button"
                 size="sm"
-                className={cn$2(
+                className={cn(
                   "h-8 min-w-0 rounded-md",
                   embedded && (detailsAction ? "flex-1" : "w-full"),
                 )}
@@ -267,7 +266,7 @@ export const UpdateBanner = ({
                 {canManualDownload
                   ? t2("update.btn.manualDownload")
                   : t2("update.btn.download")}
-              </Button$1>
+              </Button>
             </div>
           </>
         )}
@@ -301,10 +300,10 @@ export const UpdateBanner = ({
         {state2.phase === "downloaded" && !showConfirm && (
           <div className={actionRowClass}>
             {embedded ? detailsAction : null}
-            <Button$1
+            <Button
               type="button"
               size="sm"
-              className={cn$2(
+              className={cn(
                 "h-8 rounded-md",
                 embedded && (detailsAction ? "flex-1" : "w-full"),
               )}
@@ -324,9 +323,9 @@ export const UpdateBanner = ({
                   ? t2("update.btn.restarting")
                   : t2("update.btn.restartUpgrade")
                 : t2("update.btn.restartNow")}
-            </Button$1>
+            </Button>
             {!embedded ? (
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -335,7 +334,7 @@ export const UpdateBanner = ({
                 data-action-ui-id="update.btn.restartLater"
               >
                 {t2("update.btn.restartLater")}
-              </Button$1>
+              </Button>
             ) : null}
           </div>
         )}
@@ -345,7 +344,7 @@ export const UpdateBanner = ({
               {t2("update.confirm.body")}
             </p>
             <div className="flex items-center gap-2">
-              <Button$1
+              <Button
                 type="button"
                 size="sm"
                 className="h-8 rounded-md"
@@ -361,8 +360,8 @@ export const UpdateBanner = ({
                 {isInstalling
                   ? t2("update.btn.restarting")
                   : t2("update.btn.restartNow")}
-              </Button$1>
-              <Button$1
+              </Button>
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -374,7 +373,7 @@ export const UpdateBanner = ({
                 data-action-ui-id="update.confirm.later"
               >
                 {t2("update.btn.restartLater")}
-              </Button$1>
+              </Button>
               <button
                 type="button"
                 className="cursor-pointer rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.04] hover:text-foreground"
@@ -408,7 +407,7 @@ export const UpdateBanner = ({
             {(isManualRecovery || canManualDownload) && (
               <div className="mt-2 flex items-center gap-2">
                 {canRetryUpdateCheck && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="h-8 rounded-md"
@@ -421,10 +420,10 @@ export const UpdateBanner = ({
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
                     {t2("update.btn.retry")}
-                  </Button$1>
+                  </Button>
                 )}
                 {canRetryLocalInstall && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="h-8 rounded-md"
@@ -437,10 +436,10 @@ export const UpdateBanner = ({
                       strokeWidth={1.7}
                     />
                     {t2("update.btn.retryInstall")}
-                  </Button$1>
+                  </Button>
                 )}
                 {canManualDownload && (
-                  <Button$1
+                  <Button
                     type="button"
                     size="sm"
                     className="h-8 rounded-md"
@@ -453,7 +452,7 @@ export const UpdateBanner = ({
                       strokeWidth={1.7}
                     />
                     {t2("update.btn.manualDownload")}
-                  </Button$1>
+                  </Button>
                 )}
               </div>
             )}
@@ -462,7 +461,7 @@ export const UpdateBanner = ({
               state2.error?.canRetry &&
               !state2.manualOnly && (
                 <div className="mt-2 flex items-center gap-2">
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -476,7 +475,7 @@ export const UpdateBanner = ({
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
                     {t2("update.btn.retry")}
-                  </Button$1>
+                  </Button>
                 </div>
               )}
           </>

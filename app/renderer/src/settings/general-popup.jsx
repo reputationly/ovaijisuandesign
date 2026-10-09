@@ -1,7 +1,7 @@
 // general-popup.jsx
 import {
   dedupedToast,
-  Markdown$1,
+  Markdown$1 as Markdown,
   remarkGfm,
   usePlatform,
   useTranslation,
@@ -11,7 +11,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { rehypeSanitize } from "./request-prompt-prefill.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -19,9 +19,7 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
-const POPUP_TYPE$1 = "general";
-
+const POPUP_TYPE = "general";
 export function GeneralPopup({ popup, onClose }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -30,7 +28,7 @@ export function GeneralPopup({ popup, onClose }) {
   const trackedUrl = url2;
   const handleAction = async () => {
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_CLICK, {
-      popup_type: POPUP_TYPE$1,
+      popup_type: POPUP_TYPE,
       url: trackedUrl,
     });
     if (!url2) {
@@ -44,7 +42,7 @@ export function GeneralPopup({ popup, onClose }) {
       if (!opened) throw new Error("open_external_failed");
     } catch (err) {
       trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_FAILED, {
-        popup_type: POPUP_TYPE$1,
+        popup_type: POPUP_TYPE,
         url: trackedUrl,
         error_type: "unknown",
         error_message: String(err),
@@ -56,7 +54,7 @@ export function GeneralPopup({ popup, onClose }) {
   };
   const handleCancel = () => {
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_DISMISS, {
-      popup_type: POPUP_TYPE$1,
+      popup_type: POPUP_TYPE,
       url: trackedUrl,
       method: "cancel_button",
     });
@@ -78,7 +76,7 @@ export function GeneralPopup({ popup, onClose }) {
     const method =
       eventDetails.reason === "escape-key" ? "escape" : "cancel_button";
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_DISMISS, {
-      popup_type: POPUP_TYPE$1,
+      popup_type: POPUP_TYPE,
       url: trackedUrl,
       method,
     });
@@ -114,30 +112,30 @@ export function GeneralPopup({ popup, onClose }) {
                 </h2>
               )}
               <div className="chat-markdown text-sm text-foreground [&_ol]:list-decimal [&_ul]:list-disc">
-                <Markdown$1
+                <Markdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeSanitize]}
                 >
                   {popup.description}
-                </Markdown$1>
+                </Markdown>
               </div>
             </div>
             <DialogFooter className="px-8 pb-6 sm:justify-end gap-2">
               {popup.can_close && (
-                <Button$1
+                <Button
                   variant="outline"
                   onClick={handleCancel}
                   data-action-ui-id="server-popup.general.cancel"
                 >
                   {t2("common.cancel")}
-                </Button$1>
+                </Button>
               )}
-              <Button$1
+              <Button
                 onClick={handleAction}
                 data-action-ui-id="server-popup.general.confirm"
               >
                 {label}
-              </Button$1>
+              </Button>
             </DialogFooter>
           </div>
         </DialogContent>
@@ -163,30 +161,30 @@ export function GeneralPopup({ popup, onClose }) {
             render={<div />}
             className="chat-markdown text-left text-sm text-foreground [&_ol]:list-decimal [&_ul]:list-disc"
           >
-            <Markdown$1
+            <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSanitize]}
             >
               {popup.description}
-            </Markdown$1>
+            </Markdown>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="px-8 pt-6 pb-6 sm:justify-end gap-2">
           {popup.can_close && (
-            <Button$1
+            <Button
               variant="outline"
               onClick={handleCancel}
               data-action-ui-id="server-popup.general.cancel"
             >
               {t2("common.cancel")}
-            </Button$1>
+            </Button>
           )}
-          <Button$1
+          <Button
             onClick={handleAction}
             data-action-ui-id="server-popup.general.confirm"
           >
             {label}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

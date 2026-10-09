@@ -8,13 +8,13 @@ import {
   GRID_COLUMN_COUNT_WIDE,
   jsxRuntimeExports,
   reactExports,
-  Tag$1,
+  Tag$1 as Tag,
   useTranslation,
   useVirtualizer,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Maximize2, Paperclip } from "../media-editing/package.jsx";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   describeMeta,
   DurationBadge,
@@ -34,24 +34,16 @@ import {
 import { getCanvasTagPresentationColor } from "./inline-input.jsx";
 import { FileNameLabel } from "./audio-play-button.jsx";
 import { useMarqueeSelection } from "../canvas/use-marquee-selection.js";
-
 const ASSET_VIRTUALIZATION_MIN_ITEMS = 40;
-
 const GRID_OVERSCAN_ROWS = 3;
-
 const ASSET_VIEW_INITIAL_RECT = {
   width: 480,
   height: 384,
 };
-
 const GRID_THUMBNAIL_DISPLAY_PX = 110;
-
 const GRID_MEDIA_THUMBNAIL_WIDTH_PX = 200;
-
 const LIST_THUMBNAIL_DISPLAY_PX = 40;
-
 const LIST_MEDIA_THUMBNAIL_WIDTH_PX = 80;
-
 function AssetTypeBadge({ resource, compact = false, className }) {
   const iconClass = compact ? "size-2.5" : "size-3";
   const icon =
@@ -68,7 +60,7 @@ function AssetTypeBadge({ resource, compact = false, className }) {
     );
   return (
     <span
-      className={cn$2(
+      className={cn(
         "pointer-events-none absolute flex items-center justify-center rounded-sm bg-black/75 text-white shadow-sm",
         compact ? "size-4" : "size-5",
         className,
@@ -80,7 +72,6 @@ function AssetTypeBadge({ resource, compact = false, className }) {
     </span>
   );
 }
-
 function Thumbnail({ resource, size: size2 }) {
   const dim = size2 === "grid" ? "h-full w-full" : "h-10 w-10 shrink-0";
   const thumbnailDisplayWidth =
@@ -95,7 +86,7 @@ function Thumbnail({ resource, size: size2 }) {
       <DeferredThumbnailImage
         src={withStrictThumbnail(resource.url, thumbnailDisplayWidth)}
         alt=""
-        className={cn$2(dim, "object-cover")}
+        className={cn(dim, "object-cover")}
         onFailure={() => setThumbFailed(true)}
         priority="interactive"
         maxRetries={STRICT_THUMBNAIL_MAX_RETRIES}
@@ -117,7 +108,7 @@ function Thumbnail({ resource, size: size2 }) {
         <DeferredThumbnailImage
           src={thumbUrl}
           alt=""
-          className={cn$2(dim, "object-cover")}
+          className={cn(dim, "object-cover")}
           onFailure={() => setThumbFailed(true)}
           priority="interactive"
         />
@@ -126,7 +117,7 @@ function Thumbnail({ resource, size: size2 }) {
   }
   return (
     <div
-      className={cn$2(
+      className={cn(
         dim,
         "flex items-center justify-center bg-muted text-[10px] uppercase text-muted-foreground",
       )}
@@ -141,19 +132,12 @@ function Thumbnail({ resource, size: size2 }) {
     </div>
   );
 }
-
 const GRID_COLUMN_COUNT_NARROW = 4;
-
 const GRID_FIVE_COLUMN_MIN_WIDTH_PX = 700;
-
 const GRID_KEYBOARD_PAGE_ROWS = 3;
-
 const LIST_ROW_ESTIMATE_PX = 56;
-
 const LIST_OVERSCAN_ROWS = 6;
-
 const LIST_KEYBOARD_PAGE_SIZE = 7;
-
 function AssetTagMark({
   tag,
   size: size2,
@@ -168,7 +152,7 @@ function AssetTagMark({
         <TooltipTrigger
           render={
             <span
-              className={cn$2(
+              className={cn(
                 "shrink-0 rounded-full",
                 overlay &&
                   "flex items-center justify-center bg-black/75 text-white shadow-sm",
@@ -188,7 +172,7 @@ function AssetTagMark({
                 boxShadow: ringColor ? `0 0 0 0.7px ${ringColor}` : void 0,
               }}
             >
-              {overlay ? <Tag$1 className="size-2" strokeWidth={2} /> : null}
+              {overlay ? <Tag className="size-2" strokeWidth={2} /> : null}
             </span>
           }
         />
@@ -199,12 +183,11 @@ function AssetTagMark({
     </TooltipProvider>
   );
 }
-
 function ResourceMeta({ row, compact = false }) {
   const description = describeMeta(row);
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex flex-wrap items-center overflow-hidden",
         compact
           ? "h-3.5 gap-x-0.5 text-[10px] leading-3.5 text-muted-foreground/70"
@@ -226,7 +209,6 @@ function ResourceMeta({ row, compact = false }) {
     </div>
   );
 }
-
 function assetNavigationIndex(
   key2,
   currentIndex,
@@ -271,16 +253,14 @@ function assetNavigationIndex(
   if (nextIndex === void 0) return void 0;
   return Math.max(0, Math.min(nextIndex, itemCount - 1));
 }
-
 function assetOptionId(prefix, rowKey) {
   const safeRowKey = rowKey.replace(/[^a-zA-Z0-9_-]/g, "-");
   return `${prefix}-asset-${safeRowKey}`;
 }
-
 function ExistingStatusTag({ label, overlay = false, className }) {
   return (
     <span
-      className={cn$2(
+      className={cn(
         "inline-flex h-[18px] max-w-28 items-center truncate rounded-full border-0 px-1.5 text-[10px] font-medium leading-none",
         overlay ? "bg-black/55 text-white" : "bg-muted text-muted-foreground",
         className,
@@ -291,7 +271,6 @@ function ExistingStatusTag({ label, overlay = false, className }) {
     </span>
   );
 }
-
 function ProblemStatusTag({ label }) {
   return (
     <span
@@ -306,14 +285,13 @@ function ProblemStatusTag({ label }) {
     </span>
   );
 }
-
 function SelectionOrderBadge({ order: order2, className }) {
   const { t: t2 } = useTranslation();
   if (order2 === void 0) return null;
   return (
     <span
       role="img"
-      className={cn$2(
+      className={cn(
         "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border-2 border-white bg-black px-1 text-[10px] font-semibold leading-none text-white shadow-sm tabular-nums",
         className,
       )}
@@ -325,7 +303,6 @@ function SelectionOrderBadge({ order: order2, className }) {
     </span>
   );
 }
-
 function RowBadge({ existing, reason, labelForReason, t: t2, selectionOrder }) {
   return (
     <>
@@ -349,21 +326,19 @@ function RowBadge({ existing, reason, labelForReason, t: t2, selectionOrder }) {
     </>
   );
 }
-
 function SelectionOutline({ selected: selected2, className }) {
   if (!selected2) return null;
   return (
     <span
       aria-hidden="true"
       data-action-ui-id="asset-picker.selection-outline"
-      className={cn$2(
+      className={cn(
         "pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-foreground",
         className,
       )}
     />
   );
 }
-
 function VideoPlayIndicator() {
   return (
     <span
@@ -378,7 +353,6 @@ function VideoPlayIndicator() {
     </span>
   );
 }
-
 function AssetPreviewButton({ row, onPreview, className }) {
   const { t: t2 } = useTranslation();
   return (
@@ -386,7 +360,7 @@ function AssetPreviewButton({ row, onPreview, className }) {
       type="button"
       aria-label={t2("assetPicker.preview", "预览")}
       data-action-ui-id={`asset-picker.preview.${row.type}`}
-      className={cn$2(
+      className={cn(
         "flex cursor-pointer items-center justify-center rounded-full bg-black/20 text-white opacity-0 shadow-sm backdrop-blur-md transition-[opacity,background-color] hover:bg-black/30 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white [@media(hover:none)]:opacity-100",
         className,
       )}
@@ -396,7 +370,6 @@ function AssetPreviewButton({ row, onPreview, className }) {
     </button>
   );
 }
-
 function GridTile({
   row,
   assetIndex,
@@ -430,7 +403,7 @@ function GridTile({
       tabIndex={-1}
       id={assetOptionId(optionIdPrefix, row.rowKey)}
       data-asset-row-key={row.rowKey}
-      className={cn$2(
+      className={cn(
         "group relative h-full overflow-hidden rounded-lg border bg-transparent text-left transition-colors",
         isFocused &&
           "group-focus-visible/asset-view:ring-2 group-focus-visible/asset-view:ring-ring group-focus-visible/asset-view:ring-offset-1",
@@ -452,7 +425,7 @@ function GridTile({
         data-asset-index={assetIndex}
         data-marquee-start="true"
         aria-label={existing ? t2("assetPicker.existing", "已添加") : row.name}
-        className={cn$2(
+        className={cn(
           "flex h-full w-full cursor-pointer flex-col items-stretch text-left outline-none",
           isFocused &&
             "group-focus-visible/asset-view:ring-2 group-focus-visible/asset-view:ring-ring",
@@ -491,7 +464,7 @@ function GridTile({
       <AssetTagMark
         tag={row.tag}
         size={12}
-        className={cn$2(
+        className={cn(
           "absolute left-2",
           existing || selectionOrder !== void 0 || (reason && reason !== "full")
             ? "top-10"
@@ -516,7 +489,6 @@ function GridTile({
     </div>
   );
 }
-
 function GridView({
   rows,
   leadingAction,
@@ -595,7 +567,7 @@ function GridView({
   if (!shouldVirtualize) {
     return (
       <div
-        className={cn$2(
+        className={cn(
           "grid gap-2 py-2 pl-2 pr-3",
           gridColumnCount === GRID_COLUMN_COUNT_WIDE
             ? "grid-cols-5"
@@ -641,7 +613,7 @@ function GridView({
             key={virtualRow.key}
             ref={gridVirtualizer.measureElement}
             data-index={virtualRow.index}
-            className={cn$2(
+            className={cn(
               "absolute left-0 top-0 grid w-full gap-x-2 pb-2 pl-2 pr-3",
               gridColumnCount === GRID_COLUMN_COUNT_WIDE
                 ? "grid-cols-5"
@@ -688,7 +660,6 @@ function GridView({
     </div>
   );
 }
-
 function ListRow({
   row,
   assetIndex,
@@ -727,7 +698,7 @@ function ListRow({
     >
       <div
         data-action-ui-id="asset-picker.list-cell"
-        className={cn$2(
+        className={cn(
           "relative flex h-14 items-center rounded-md border border-transparent",
           !sel && !disabled2 && "hover:bg-muted/60",
           isFocused &&
@@ -748,7 +719,7 @@ function ListRow({
           aria-label={
             existing ? t2("assetPicker.existing", "已添加") : row.name
           }
-          className={cn$2(
+          className={cn(
             "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 text-left outline-none",
             disabled2 && "cursor-not-allowed opacity-45",
           )}
@@ -814,7 +785,6 @@ function ListRow({
     </div>
   );
 }
-
 function ListView({
   rows,
   leadingAction,
@@ -940,7 +910,6 @@ function ListView({
     </ul>
   );
 }
-
 export function ScrollableAssetView({
   rows,
   view: view2,
@@ -1098,7 +1067,7 @@ export function ScrollableAssetView({
   return (
     <div
       ref={setScrollEl}
-      className={cn$2(
+      className={cn(
         className,
         "group/asset-view relative isolate overscroll-contain outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       )}

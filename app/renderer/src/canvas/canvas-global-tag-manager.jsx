@@ -6,7 +6,7 @@ import {
 import {
   API_PATHS,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   CircleX,
   dedupedToast,
   Ellipsis,
@@ -15,7 +15,7 @@ import {
   reactExports,
   useTranslation,
   Video,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -47,11 +47,10 @@ import { CanvasLabelIcon } from "./use-inline-rename.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { CANVAS_TOOL_DOCK_SAFE_BOTTOM_PX } from "./cursor-icon.jsx";
 import {
-  PreviewCard$1,
+  PreviewCard,
   PreviewCardContent,
   PreviewCardTrigger,
 } from "../text-editor/use-placeholder-asset-source.jsx";
-
 function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags2) {
   const knownTagIds = new Set(tags2.map(({ id: id2 }) => id2));
   const assetCountsByTag = new Map();
@@ -70,11 +69,9 @@ function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags2) {
     taggedAssetCount,
   };
 }
-
 function getAssetLabel(asset) {
   return asset.name?.trim() || asset.path.split(/[\\/]/).pop() || asset.id;
 }
-
 function AssetTypeThumbnail({ item }) {
   const [failed, setFailed] = reactExports.useState(false);
   if (item.thumbnailUrl && !failed) {
@@ -102,7 +99,6 @@ function AssetTypeThumbnail({ item }) {
     </span>
   );
 }
-
 export function CanvasGlobalTagManager({
   workspaceId: workspaceId2,
   workspaceAssets,
@@ -429,7 +425,7 @@ export function CanvasGlobalTagManager({
                 const downloading = downloadingTagId === tag.id;
                 const clearing = clearingTagId === tag.id;
                 return (
-                  <PreviewCard$1
+                  <PreviewCard
                     key={tag.id}
                     open={!open && previewedTagId === tag.id}
                     onOpenChange={(nextOpen) => {
@@ -565,7 +561,7 @@ export function CanvasGlobalTagManager({
                           data-action-ui-id="canvas.tag-hover-assets-scroll"
                         >
                           {items.map((item) => (
-                            <PreviewCard$1 key={item.nodeId}>
+                            <PreviewCard key={item.nodeId}>
                               <PreviewCardTrigger
                                 delay={120}
                                 closeDelay={120}
@@ -591,7 +587,7 @@ export function CanvasGlobalTagManager({
                                 resource={item.previewResource}
                                 side="left"
                               />
-                            </PreviewCard$1>
+                            </PreviewCard>
                           ))}
                         </div>
                         <div className="mt-1 border-t border-border pt-1">
@@ -642,7 +638,7 @@ export function CanvasGlobalTagManager({
                         </div>
                       </div>
                     </PreviewCardContent>
-                  </PreviewCard$1>
+                  </PreviewCard>
                 );
               })}
               {activeTag && matchedNodeCount > 1 && (
@@ -667,7 +663,7 @@ export function CanvasGlobalTagManager({
                     dataActionUiId="canvas.tag-filter-next"
                     className="!min-w-6 !px-1"
                   >
-                    <Icon icon={ChevronRight$1} size="xs" aria-hidden={true} />
+                    <Icon icon={ChevronRight} size="xs" aria-hidden={true} />
                   </CanvasToolbarExtensionButton>
                 </div>
               )}
@@ -679,7 +675,7 @@ export function CanvasGlobalTagManager({
                   dataActionUiId="canvas.tag-filter-clear"
                   className="canvas-global-tag-manager__palette-action"
                 >
-                  <Icon icon={X$7} size="md" aria-hidden={true} />
+                  <Icon icon={X} size="md" aria-hidden={true} />
                 </CanvasToolbarExtensionButton>
               ) : (
                 <CanvasToolbarExtensionButton

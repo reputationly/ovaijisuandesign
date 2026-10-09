@@ -2,12 +2,12 @@
 import { classifyFileType, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileViewerRouter } from "./pdf-viewer.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   AddToChatIcon,
   formatFileSize,
-  FullscreenIcon$1,
+  FullscreenIcon,
   getFileExtension,
   MinimizeIcon,
   useCanvasNodeIsDragging,
@@ -24,7 +24,7 @@ import {
   NodeQuickTagTrigger,
   useInlineRename,
 } from "../canvas/use-inline-rename.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import {
   useHtmlFullscreenApi,
@@ -50,8 +50,7 @@ import { NodeToolbar } from "./toolbar-item.jsx";
 import { isCloneData } from "./use-warn-missing-asset-meta.jsx";
 import { NodeShell, useAddToChat } from "../canvas/node-shell-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
-
-function FilePreview$1({
+function FilePreview({
   selected: selected2,
   interactive,
   filePath,
@@ -119,9 +118,9 @@ function FilePreview$1({
                 {rename.displayValue}
               </div>
             )}
-            <TooltipProvider$1 delay={300} closeDelay={0}>
+            <TooltipProvider delay={300} closeDelay={0}>
               {onRename && !rename.editing ? (
-                <Tooltip$1 content={t2("canvas.file.rename", "重命名")}>
+                <Tooltip content={t2("canvas.file.rename", "重命名")}>
                   <button
                     type="button"
                     aria-label={t2("canvas.file.rename", "重命名")}
@@ -136,13 +135,13 @@ function FilePreview$1({
                   >
                     <RenameIcon />
                   </button>
-                </Tooltip$1>
+                </Tooltip>
               ) : null}
-            </TooltipProvider$1>
+            </TooltipProvider>
           </div>
-          <TooltipProvider$1 delay={300} closeDelay={0}>
+          <TooltipProvider delay={300} closeDelay={0}>
             <div className="flex shrink-0 items-center">
-              <Tooltip$1 content={t2("canvas.file.cardView", "卡片视图")}>
+              <Tooltip content={t2("canvas.file.cardView", "卡片视图")}>
                 <button
                   type="button"
                   aria-label={t2("canvas.file.cardView", "卡片视图")}
@@ -157,9 +156,9 @@ function FilePreview$1({
                 >
                   <MinimizeIcon />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
             </div>
-          </TooltipProvider$1>
+          </TooltipProvider>
         </div>
         <div className="flex-1 overflow-hidden">
           <FileViewerRouter
@@ -175,11 +174,9 @@ function FilePreview$1({
     </NodeBody>
   );
 }
-
 function resolveDisplayFileOnly(data2) {
   return data2?.displayFileOnly === true;
 }
-
 export function FileNodeImpl({
   id: id2,
   data: data2,
@@ -310,7 +307,7 @@ export function FileNodeImpl({
             label: isHtmlFullscreen
               ? t2("canvas.file.exitFullscreen", "退出全屏")
               : t2("canvas.file.enterFullscreen", "全屏预览"),
-            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon$1 />,
+            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon />,
             onClick: isHtmlFullscreen
               ? exitHtmlFullscreen
               : enterHtmlFullscreen,
@@ -343,7 +340,7 @@ export function FileNodeImpl({
   return (
     <NodeShell tagIds={meta2?.tagIds} width={shellWidth}>
       {isPreview ? (
-        <FilePreview$1
+        <FilePreview
           selected={selected2}
           interactive={isPreviewInteractive}
           filePath={filePath}
@@ -390,8 +387,8 @@ export function FileNodeImpl({
                 </span>
               ) : null}
             </div>
-            <TooltipProvider$1 delay={300} closeDelay={0}>
-              <Tooltip$1 content={t2("canvas.preview", "预览")}>
+            <TooltipProvider delay={300} closeDelay={0}>
+              <Tooltip content={t2("canvas.preview", "预览")}>
                 <button
                   type="button"
                   aria-label={t2("canvas.preview", "预览")}
@@ -403,8 +400,8 @@ export function FileNodeImpl({
                 >
                   <VisibleIcon />
                 </button>
-              </Tooltip$1>
-            </TooltipProvider$1>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </NodeBody>
       )}

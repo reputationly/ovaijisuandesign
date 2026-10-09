@@ -8,7 +8,6 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamInviteDeepLinkDialog } from "./team-invite-deep-link-dialog.jsx";
 import { useDeepLinkRouter } from "../workspace/use-deep-link-router.js";
-
 export function TeamInviteDeepLinkHost() {
   const { pendingTeamInvite, dismissTeamInvite } = useDeepLinkRouter();
   const [accepting, setAccepting] = reactExports.useState(false);
@@ -28,7 +27,6 @@ export function TeamInviteDeepLinkHost() {
     />
   );
 }
-
 export function AccountSubmissionBlockedHost() {
   const { t: t2 } = useTranslation();
   reactExports.useEffect(() => {
@@ -56,21 +54,17 @@ export function AccountSubmissionBlockedHost() {
   }, [t2]);
   return null;
 }
-
-export function asRecord$3(value) {
+export function asRecord(value) {
   return typeof value === "object" && value !== null ? value : null;
 }
-
 export function asString(value) {
   return typeof value === "string" ? value : "";
 }
-
 export function asNullableString(value) {
   return typeof value === "string" && value !== "" ? value : null;
 }
-
 export function mapAccountProfile(value) {
-  const raw2 = asRecord$3(value);
+  const raw2 = asRecord(value);
   return {
     account: asString(raw2?.account),
     uid: asString(raw2?.uid),

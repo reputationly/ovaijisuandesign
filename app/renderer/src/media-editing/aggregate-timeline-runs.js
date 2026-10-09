@@ -6,7 +6,7 @@ import {
 import {
   collectMediaResultRecords,
   getFileActivityKind,
-  isRecord$2,
+  isRecord$2 as isRecord,
   tryParseJson$1,
 } from "../vendor.js";
 import {
@@ -14,30 +14,26 @@ import {
   timelineOperationTargetKey,
 } from "./unwrap-mcp-json-record.js";
 import { parseTimelineOperations } from "./parse-timeline-operations.js";
-
 function isKnowledgePath(path2) {
   if (!path2) return false;
   return KNOWLEDGE_PATH_RE.test(path2);
 }
-
-function basename$2(path2) {
+function basename(path2) {
   if (!path2) return path2;
   const normalized = path2.replace(/\\/g, "/");
   const parts = normalized.split("/").filter(Boolean);
   return parts[parts.length - 1] ?? normalized;
 }
-
 function extractPathFromArgs(toolArgs) {
   if (!toolArgs) return void 0;
   const parsed = tryParseJson$1(toolArgs);
-  if (!isRecord$2(parsed)) return void 0;
+  if (!isRecord(parsed)) return void 0;
   const obj = parsed;
   const candidate = obj.path ?? obj.file_path ?? obj.filePath;
   return typeof candidate === "string" && candidate.length > 0
     ? candidate
     : void 0;
 }
-
 function collectStrings(value) {
   if (typeof value === "string") return value.trim() ? [value.trim()] : [];
   if (!Array.isArray(value)) return [];
@@ -45,22 +41,19 @@ function collectStrings(value) {
     (item) => typeof item === "string" && item.trim().length > 0,
   );
 }
-
 function toItem(path2, kind) {
   return {
-    name: basename$2(path2),
+    name: basename(path2),
     path: path2,
     kind: kind ?? inferFileKind(path2),
   };
 }
-
 function mediaTypeToKind(value) {
   if (value === "image" || value === "video" || value === "audio") return value;
   return void 0;
 }
-
 function extractMediaKindFromRecord(record2) {
-  const metadata = isRecord$2(record2.metadata) ? record2.metadata : void 0;
+  const metadata = isRecord(record2.metadata) ? record2.metadata : void 0;
   return mediaTypeToKind(
     record2.media_type ??
       record2.type ??
@@ -68,10 +61,9 @@ function extractMediaKindFromRecord(record2) {
       metadata?.type,
   );
 }
-
 function extractMediaPathFromRecord(record2) {
-  const metadata = isRecord$2(record2.metadata) ? record2.metadata : void 0;
-  const semantic = isRecord$2(record2.semantic) ? record2.semantic : void 0;
+  const metadata = isRecord(record2.metadata) ? record2.metadata : void 0;
+  const semantic = isRecord(record2.semantic) ? record2.semantic : void 0;
   const candidate =
     record2.file_path ??
     record2.filePath ??
@@ -89,7 +81,6 @@ function extractMediaPathFromRecord(record2) {
     ? candidate.trim()
     : void 0;
 }
-
 function dedupePaths(paths) {
   const seen2 = new Set();
   const result = [];
@@ -100,11 +91,10 @@ function dedupePaths(paths) {
   }
   return result;
 }
-
 function extractMediaPathsFromArgs(toolArgs) {
   if (!toolArgs) return [];
   const parsed = tryParseJson$1(toolArgs);
-  if (!isRecord$2(parsed)) return [];
+  if (!isRecord(parsed)) return [];
   return dedupePaths([
     ...collectStrings(parsed.file_paths),
     ...collectStrings(parsed.filePaths),
@@ -114,7 +104,6 @@ function extractMediaPathsFromArgs(toolArgs) {
     ...collectStrings(parsed.path),
   ]);
 }
-
 function dedupe$1(items) {
   const seen2 = new Set();
   const result = [];
@@ -125,7 +114,6 @@ function dedupe$1(items) {
   }
   return result;
 }
-
 function extractMediaItemsFromResult(toolResult) {
   if (!toolResult) return [];
   const parsed = tryParseJson$1(toolResult.trim());
@@ -142,7 +130,6 @@ function extractMediaItemsFromResult(toolResult) {
       .filter((item) => !!item),
   );
 }
-
 function extractMediaAnalysisItems(toolArgs, toolResult) {
   const resultItems = extractMediaItemsFromResult(toolResult);
   const resultItemByPath = new Map(
@@ -154,7 +141,6 @@ function extractMediaAnalysisItems(toolArgs, toolResult) {
   );
   return dedupe$1([...orderedItems, ...resultItems]);
 }
-
 function extractFileChipItems(toolName2, toolArgs, toolResult) {
   if (!toolName2) return [];
   const activityKind = getFileActivityKind(toolName2);
@@ -167,7 +153,6 @@ function extractFileChipItems(toolName2, toolArgs, toolResult) {
   }
   return [];
 }
-
 function tryParseJson(raw2) {
   try {
     return JSON.parse(raw2);
@@ -175,9 +160,7 @@ function tryParseJson(raw2) {
     return void 0;
   }
 }
-
 const SINGLE_TERM_FIELDS = ["pattern", "query", "keyword", "q"];
-
 function dedupe(values3) {
   const seen2 = new Set();
   const result = [];
@@ -188,7 +171,6 @@ function dedupe(values3) {
   }
   return result;
 }
-
 function extractSearchChips(toolName2, toolArgs, _toolResult) {
   if (!toolName2 || !toolArgs) return [];
   const parsed = tryParseJson(toolArgs);
@@ -212,7 +194,6 @@ function extractSearchChips(toolName2, toolArgs, _toolResult) {
   }
   return dedupe(chips);
 }
-
 function mergeTimelineOperations(operations) {
   const merged = [];
   for (const operation of operations) {
@@ -235,7 +216,6 @@ function mergeTimelineOperations(operations) {
   }
   return merged;
 }
-
 export function aggregateTimelineRuns(entries2) {
   const result = [];
   let i2 = 0;

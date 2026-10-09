@@ -7,21 +7,18 @@ import {
   stringValue,
 } from "../generation/use-mention-models.jsx";
 import { CanvasNodeType, dedupedToast, reactExports } from "../vendor.js";
-
-function recordField$1(value) {
+function recordField(value) {
   return value && typeof value === "object" ? value : void 0;
 }
-
 function isHailuo03VideoTrialModelValue(value, eligibility) {
   const model = stringValue(value);
   return model !== "" && includesString(eligibility?.models, model);
 }
-
 function isHailuo03OrdinaryVideoTrialGeneratingPlaceholder(node2, eligibility) {
   if (node2.type !== CanvasNodeType.Placeholder) return false;
-  const data2 = recordField$1(node2.data);
-  const params = recordField$1(data2?.params);
-  const draft = recordField$1(recordField$1(data2?.popoverDraft)?.i2v);
+  const data2 = recordField(node2.data);
+  const params = recordField(data2?.params);
+  const draft = recordField(recordField(data2?.popoverDraft)?.i2v);
   const imageMode = params?.image_mode;
   const subType = imageModeSubType(imageMode);
   const videoPaths = [
@@ -75,17 +72,13 @@ function isHailuo03OrdinaryVideoTrialGeneratingPlaceholder(node2, eligibility) {
     })
   );
 }
-
 const HAILUO03_VIDEO_TRIAL_REFRESH_DELAYS_MS = [
   0, 200, 300, 500, 1e3, 3e3, 5e3, 1e4, 3e4, 6e4,
 ];
-
 const HAILUO03_VIDEO_TRIAL_BATCH_MAX_WAIT_MS = 2e3;
-
 function wait(ms) {
   return new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 }
-
 export function useHailuo03VideoTrialConsumptionRefresh({
   sessionStore,
   status,

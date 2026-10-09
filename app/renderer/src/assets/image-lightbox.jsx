@@ -2,18 +2,12 @@
 import { DialogPopup, Minus, Plus, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloseButton } from "./close-button.jsx";
-
 const MIN_SCALE = 0.5;
-
 const MAX_SCALE = 10;
-
 const WHEEL_STEP = 2e-3;
-
 const BUTTON_ZOOM_FACTOR = 1.3;
-
 const DRAG_THRESHOLD = 3;
-
-export function ImageLightbox$1({ src, alt, onClose }) {
+export function ImageLightbox({ src, alt, onClose }) {
   const [scale2, setScale] = reactExports.useState(1);
   const [translate2, setTranslate] = reactExports.useState({
     x: 0,

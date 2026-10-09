@@ -1,5 +1,5 @@
 // text-editor-skill-categories.jsx
-import { Info$1 } from "../vendor.js";
+import { Info$1 as Info } from "../vendor.js";
 import {
   Icon,
   Tooltip,
@@ -8,7 +8,6 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-
 function adaptPluginToMarketSkill(p3) {
   const displayNameZh = p3.name?.["zh-CN"] || p3.id;
   const summaryEn = p3.description?.["en-US"] || "";
@@ -34,7 +33,6 @@ function adaptPluginToMarketSkill(p3) {
     downloads: p3.downloads,
   };
 }
-
 export function CapabilityPopoverHeader({ title, description, trailing }) {
   return (
     <div className="flex h-8 min-w-0 items-center justify-between px-2">
@@ -54,12 +52,7 @@ export function CapabilityPopoverHeader({ title, description, trailing }) {
                 />
               }
             >
-              <Icon
-                icon={Info$1}
-                size="xs"
-                strokeWidth={2}
-                aria-hidden={true}
-              />
+              <Icon icon={Info} size="xs" strokeWidth={2} aria-hidden={true} />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-72">
               {description}
@@ -71,9 +64,7 @@ export function CapabilityPopoverHeader({ title, description, trailing }) {
     </div>
   );
 }
-
 export const MY_SKILLS_TAG = "__my_skills__";
-
 export const DIRECTOR_STAGE_SKILL_CATEGORIES = [
   {
     value: "director-scene-character",
@@ -90,7 +81,6 @@ export const DIRECTOR_STAGE_SKILL_CATEGORIES = [
     keywords: [],
   },
 ];
-
 export const TEXT_EDITOR_SKILL_CATEGORIES = [
   {
     value: "text-writing",

@@ -5,20 +5,19 @@ import {
   reactExports,
   Scissors,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { FileText, formatTime$2, ImageOutlineIcon } from "./package.jsx";
+import { FileText, formatTime, ImageOutlineIcon } from "./package.jsx";
 import { TextHoverPreview } from "./text-hover-preview.jsx";
 import { TextReadDialog, THUMB_SIZE } from "./use-preview-text.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { MediaHoverPreview } from "./media-hover-preview.jsx";
 import {
   ReferenceMediaLightbox,
   ReferenceThumbnailOverlay,
   ReferenceThumbnailVideoInfo,
 } from "./reference-thumbnail-overlay.jsx";
-
 function formatReferenceVideoDuration(durationSec) {
   if (
     durationSec === void 0 ||
@@ -29,15 +28,12 @@ function formatReferenceVideoDuration(durationSec) {
   }
   return `${durationSec.toFixed(2)}s`;
 }
-
 function ReferenceImagePlaceholderIcon() {
   return <ImageOutlineIcon size={16} strokeWidth={1.8} aria-hidden="true" />;
 }
-
 function ReferenceTextIcon() {
   return <FileText size={16} aria-hidden={true} />;
 }
-
 function ReferenceAudioIcon() {
   return (
     <CompositedSvg
@@ -61,7 +57,6 @@ function ReferenceAudioIcon() {
     </CompositedSvg>
   );
 }
-
 export function ThumbChip({
   item,
   disabled: disabled2,
@@ -158,7 +153,7 @@ export function ThumbChip({
     item.kind === "video"
       ? formatReferenceVideoDuration(item.durationSec)
       : item.kind !== "image" && item.durationSec && item.durationSec > 0
-        ? formatTime$2(item.durationSec, true)
+        ? formatTime(item.durationSec, true)
         : void 0;
   return (
     // ThumbChip 外层用 div + role="button" 而不是 <button>,因为内部 remove
@@ -296,10 +291,7 @@ export function ThumbChip({
         onClipVideo &&
         !disabled2 &&
         !readOnly2 && (
-          <Tooltip$1
-            content={t2("canvas.videoSlot.durationTooLong")}
-            side="top"
-          >
+          <Tooltip content={t2("canvas.videoSlot.durationTooLong")} side="top">
             <button
               type="button"
               aria-label={t2("canvas.clip", {
@@ -311,16 +303,13 @@ export function ThumbChip({
             >
               <Scissors size={16} strokeWidth={1.5} />
             </button>
-          </Tooltip$1>
+          </Tooltip>
         )}
       {audioDurationExcessSec != null &&
         onClipAudio &&
         !disabled2 &&
         !readOnly2 && (
-          <Tooltip$1
-            content={t2("canvas.audioSlot.durationTooLong")}
-            side="top"
-          >
+          <Tooltip content={t2("canvas.audioSlot.durationTooLong")} side="top">
             <button
               type="button"
               aria-label={t2("canvas.clip", {
@@ -332,7 +321,7 @@ export function ThumbChip({
             >
               <Scissors size={16} strokeWidth={1.5} />
             </button>
-          </Tooltip$1>
+          </Tooltip>
         )}
       {!disabled2 && !readOnly2 && (
         <div
@@ -345,7 +334,7 @@ export function ThumbChip({
             className="flex size-4 cursor-pointer items-center justify-center rounded-full bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-colors hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
             onClick={handleRemove}
           >
-            <X$7 size={9} strokeWidth={2.2} className="scale-[1.15]" />
+            <X size={9} strokeWidth={2.2} className="scale-[1.15]" />
           </button>
         </div>
       )}

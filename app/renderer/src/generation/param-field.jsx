@@ -9,7 +9,7 @@ import {
   Check,
   ChevronDown,
   reactExports,
-  SliderControl$1,
+  SliderControl$1 as SliderControl,
   SliderIndicator,
   SliderRoot,
   SliderThumb,
@@ -18,7 +18,7 @@ import {
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { isHiddenVideoGenerationMode } from "../chat/use-tool-confirm-settlement.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
@@ -26,7 +26,6 @@ import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
 import { Switch } from "./select-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 function Slider({
   className,
   defaultValue: defaultValue2,
@@ -46,7 +45,7 @@ function Slider({
   );
   return (
     <SliderRoot
-      className={cn$2("data-horizontal:w-full data-vertical:h-full", className)}
+      className={cn("data-horizontal:w-full data-vertical:h-full", className)}
       data-slot="slider"
       defaultValue={defaultValue2}
       value={value}
@@ -55,7 +54,7 @@ function Slider({
       thumbAlignment="edge"
       {...props}
     >
-      <SliderControl$1 className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
+      <SliderControl className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
         <SliderTrack
           data-slot="slider-track"
           className="relative grow overflow-hidden rounded-full bg-muted select-none data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
@@ -77,11 +76,10 @@ function Slider({
             />
           ),
         )}
-      </SliderControl$1>
+      </SliderControl>
     </SliderRoot>
   );
 }
-
 function ParamEnumPopover({
   paramKey,
   paramLabel,
@@ -105,7 +103,7 @@ function ParamEnumPopover({
       <PopoverTrigger
         disabled={disabled2}
         data-action-ui-id={`tool-confirm-param-${paramKey}`}
-        className={cn$2(
+        className={cn(
           "inline-flex min-w-[7rem] max-w-[16rem] items-center justify-between gap-1 px-2 py-1 rounded-sm",
           "text-body-12 border border-border bg-background hover:bg-muted transition-colors cursor-pointer",
           "disabled:opacity-50 disabled:cursor-default",
@@ -143,7 +141,7 @@ function ParamEnumPopover({
                 <button
                   type="button"
                   data-action-ui-id={`tool-confirm-param-${paramKey}-option-${opt}`}
-                  className={cn$2(
+                  className={cn(
                     "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-body-12 cursor-pointer transition-colors",
                     active2
                       ? "bg-foreground text-background"
@@ -167,17 +165,14 @@ function ParamEnumPopover({
     </Popover>
   );
 }
-
 function isModelParamKey(paramKey) {
   const baseKey = paramKey.split("[")[0] ?? paramKey;
   return MODEL_NAME_KEYS.has(baseKey);
 }
-
 function filterModeHiddenValues(paramKey, values3) {
   if (paramKey !== "mode") return values3;
   return values3.filter((value) => !isHiddenVideoGenerationMode(value));
 }
-
 function displayEnumValue(paramKey, value, t2, displayMap) {
   const optionLabel = t2(`canvas.param.option.${value}`, {
     defaultValue: value,
@@ -190,7 +185,6 @@ function displayEnumValue(paramKey, value, t2, displayMap) {
       : value)
   );
 }
-
 function InlineEnumOptions({
   paramKey,
   values: values3,
@@ -214,7 +208,7 @@ function InlineEnumOptions({
             type="button"
             disabled={disabled2}
             data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option2}`}
-            className={cn$2(
+            className={cn(
               "inline-flex min-w-0 max-w-full items-center gap-1 rounded-sm border px-2.5 py-1 text-left text-body-12 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
               active2
                 ? "border-foreground bg-foreground text-background"
@@ -235,7 +229,6 @@ function InlineEnumOptions({
     </div>
   );
 }
-
 export function ParamField({
   paramKey,
   value,

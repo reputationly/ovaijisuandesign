@@ -10,16 +10,14 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import {
-  Button$1,
+  Button,
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { ConnectorRelationshipGraphic } from "./connector-relationship-graphic.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
-
 const TASK_TRACE_ID = "6a2579bb000000006cca619fd3c07aff";
-
 function makeAsyncImageTask(
   taskId,
   status,
@@ -41,7 +39,6 @@ function makeAsyncImageTask(
     extra,
   };
 }
-
 makeAsyncImageTask("520029720819908618", "TASK_STATUS_COMPLETED", {
   trace_id: TASK_TRACE_ID,
   prompt: "a cute cat in cyberpunk style --ar 1:1",
@@ -55,7 +52,6 @@ makeAsyncImageTask("520029720819908618", "TASK_STATUS_COMPLETED", {
     "https://cdn.hailuoai.com/prod/2026-06-07-22/image/1780840934315166921-520029720819908618-3.png",
   ]),
 });
-
 makeAsyncImageTask("520029720819908617", "TASK_STATUS_COMPLETED", {
   trace_id: TASK_TRACE_ID,
   prompt: "a cute cat in cyberpunk style --ar 1:1",
@@ -69,14 +65,12 @@ makeAsyncImageTask("520029720819908617", "TASK_STATUS_COMPLETED", {
     "",
   ]),
 });
-
 export function connectorTitle(t2, language2, connectorId, displayName2) {
   return t2(
     `connectors.catalog.${connectorId}.title`,
     localizedI18nText(displayName2, language2),
   );
 }
-
 export function useConnectorCopy(connectorId, displayName2, namespace2) {
   const { t: t2, i18n } = useTranslation();
   const language2 = i18n?.language ?? "en";
@@ -98,7 +92,6 @@ export function useConnectorCopy(connectorId, displayName2, namespace2) {
     copy: copy2,
   };
 }
-
 export function ConnectorDialogShell({
   connectorId,
   embedded,
@@ -124,7 +117,6 @@ export function ConnectorDialogShell({
     </ConnectorDialogFrame>
   );
 }
-
 export function ConnectorDialogIntro({
   iconUrl,
   title,
@@ -158,7 +150,6 @@ export function ConnectorDialogIntro({
     </div>
   );
 }
-
 export function ConnectorConsentNote({ text: text2, className }) {
   return (
     <div
@@ -176,7 +167,6 @@ export function ConnectorConsentNote({ text: text2, className }) {
     </div>
   );
 }
-
 export function ConnectorDialogError({ message: message2 }) {
   return (
     <p role="alert" className="mt-3 text-xs text-destructive">
@@ -184,7 +174,6 @@ export function ConnectorDialogError({ message: message2 }) {
     </p>
   );
 }
-
 export function ConnectorDialogActions({
   connectorId,
   cancelLabel,
@@ -195,7 +184,7 @@ export function ConnectorDialogActions({
 }) {
   return (
     <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5">
-      <Button$1
+      <Button
         type="button"
         variant="secondary"
         className="h-9 min-w-22 rounded-lg px-4"
@@ -206,12 +195,11 @@ export function ConnectorDialogActions({
         }
       >
         {cancelLabel}
-      </Button$1>
+      </Button>
       {children2}
     </DialogFooter>
   );
 }
-
 export function ConnectorDialogStep({
   ordinal,
   first: first2 = false,

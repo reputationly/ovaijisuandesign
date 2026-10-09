@@ -10,7 +10,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  MEDIA_OVERLAY_EXIT_ANIMATION_MS$1,
+  MEDIA_OVERLAY_EXIT_ANIMATION_MS,
   SEEDREAM_LAYER_DECOMPOSE_SMALL_PRICING_MODEL,
   STORYBOARD_RESIZE_MAX_EDGE,
   STORYBOARD_RESIZE_MIN_EDGE,
@@ -128,10 +128,10 @@ import {
 } from "./build-video-thumb-base.jsx";
 import { I2VPopover, shouldShowImageBottomPopover } from "./free-path-shape.js";
 import { ImageNodeToolbarSection } from "./image-node-toolbar-section.jsx";
-import { CustomizeToolbarDialog$1 } from "./customize-toolbar-dialog-2.jsx";
+import { CustomizeToolbarDialog } from "./customize-toolbar-dialog-2.jsx";
 import { EnhanceImagePopover } from "./enhance-image-popover.jsx";
 import { I2IPopover } from "../generation/model-param-select.jsx";
-import { ImageLightbox$2 } from "./image-lightbox.jsx";
+import { ImageLightbox } from "./image-lightbox.jsx";
 import { ColorAdjustDialog } from "./color-adjust-dialog.jsx";
 import {
   DEFAULT_WATERMARK_SETTINGS,
@@ -162,7 +162,6 @@ import { useImageRotateEdit } from "./use-image-rotate-edit.js";
 import { ImageRotatePreview } from "./image-rotate-preview-inner.jsx";
 import { ImageSplitEditToolbar } from "./image-split-edit-toolbar-inner.jsx";
 import { useImageSplitMode } from "./use-image-split-mode.js";
-
 export function ImageNodeInner({
   id: id2,
   data: data2,
@@ -1264,7 +1263,7 @@ export function ImageNodeInner({
     if (!keepExpandedMediaOverlayMounted) return;
     const timeoutId = setTimeout(() => {
       setKeepExpandedMediaOverlayMounted(false);
-    }, MEDIA_OVERLAY_EXIT_ANIMATION_MS$1);
+    }, MEDIA_OVERLAY_EXIT_ANIMATION_MS);
     return () => clearTimeout(timeoutId);
   }, [expandedMediaOverlay, keepExpandedMediaOverlayMounted]);
   const isExpandedMediaOverlayVisible =
@@ -1625,7 +1624,7 @@ export function ImageNodeInner({
         />
       )}
       {showCustomizeToolbar && (
-        <CustomizeToolbarDialog$1
+        <CustomizeToolbarDialog
           open={showCustomizeToolbar}
           onOpenChange={setShowCustomizeToolbar}
         />
@@ -2005,7 +2004,7 @@ export function ImageNodeInner({
         )}
       <NodeHandles nodeId={id2} selected={!!selected2} />
       {lightbox.lightboxProps && (
-        <ImageLightbox$2
+        <ImageLightbox
           {...lightbox.lightboxProps}
           alt={meta2?.name ?? ""}
           onSetAsPrimary={

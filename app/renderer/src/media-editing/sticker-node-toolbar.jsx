@@ -8,7 +8,7 @@ import {
   reactExports,
   useTranslation,
 } from "../vendor.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   CANVAS_EMOJI_STICKERS,
   CANVAS_STICKER_PICKER_ASSETS,
@@ -21,13 +21,10 @@ import { useCanvasNodeIsDragging } from "../canvas/fullscreen-icon.jsx";
 import { NodeToolbar } from "./toolbar-item.jsx";
 import { useRegisterZoomCounter } from "../infra/create-recently-added-store.js";
 import { NodeFrameStroke } from "../canvas/node-shell-inner.jsx";
-
 function useCanvasToolMode() {
   return reactExports.useContext(CanvasToolModeContext);
 }
-
 const COMPACT_STICKER_COUNT = 7;
-
 const ALL_STICKER_CHOICES = [
   ...CANVAS_STICKER_PICKER_ASSETS.map((asset) => ({
     id: asset.id,
@@ -41,7 +38,6 @@ const ALL_STICKER_CHOICES = [
     index: index2,
   })),
 ];
-
 function choiceActionUiId(choice, expanded) {
   const prefix = expanded
     ? "canvas.sticker-selection-panel"
@@ -50,11 +46,9 @@ function choiceActionUiId(choice, expanded) {
     ? `${prefix}-${choice.asset.id}`
     : `${prefix}-emoji-${choice.index}`;
 }
-
 function choiceLabel(choice, t2) {
   return choice.kind === "asset" ? t2(choice.asset.labelKey) : choice.emoji;
 }
-
 function StickerChoiceIcon({ choice }) {
   if (choice.kind === "asset") {
     return (
@@ -75,7 +69,6 @@ function StickerChoiceIcon({ choice }) {
     </span>
   );
 }
-
 function StickerToolbarButton({
   label,
   icon,
@@ -86,7 +79,7 @@ function StickerToolbarButton({
   destructive = false,
 }) {
   return (
-    <Tooltip$1 content={label}>
+    <Tooltip content={label}>
       <button
         type="button"
         aria-label={label}
@@ -100,10 +93,9 @@ function StickerToolbarButton({
       >
         {icon}
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 function StickerPickerControl({
   choices,
   activeChoiceId,
@@ -122,7 +114,7 @@ function StickerPickerControl({
   };
   return (
     <div className="relative flex items-center">
-      <Tooltip$1 content={label}>
+      <Tooltip content={label}>
         <button
           type="button"
           aria-label={label}
@@ -146,7 +138,7 @@ function StickerPickerControl({
             />
           )}
         </button>
-      </Tooltip$1>
+      </Tooltip>
       {expanded && (
         <div
           role="dialog"
@@ -178,7 +170,6 @@ function StickerPickerControl({
     </div>
   );
 }
-
 function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
   const { t: t2 } = useTranslation();
   const toolMode = useCanvasToolMode();
@@ -350,7 +341,6 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
     <NodeToolbar items={toolbarItems} visible={visible} density="compact" />
   );
 }
-
 export const StickerNode = reactExports.memo(function StickerNode2({
   id: id2,
   data: data2,

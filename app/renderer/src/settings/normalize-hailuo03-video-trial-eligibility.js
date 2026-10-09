@@ -3,14 +3,11 @@ import { API_PATHS, cdnPublicAsset, reactExports } from "../vendor.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { buildShownKey } from "./use-auto-announcement.js";
 import { useHubClientConfig } from "./parse-home-survey.js";
-
 const CDN_UPDATE_POSTER = cdnPublicAsset({
   domestic: "home-widget/update/20260904/hilo-update-zh.jpg",
   overseas: "home-widget/update/20260904/hilo-update-en.jpg",
 });
-
 export const H3_LAUNCH_POPUP_ID = "h3_playground_launch_2026";
-
 export const EMPTY_HAILUO03_VIDEO_TRIAL_STATUS = {
   claimed: false,
   claimable: false,
@@ -19,17 +16,13 @@ export const EMPTY_HAILUO03_VIDEO_TRIAL_STATUS = {
   claimHint: "",
   activityActive: false,
 };
-
 export const HAILUO03_VIDEO_TRIAL_QUERY_KEY = ["hailuo03-video-trial"];
-
 function numberField(value) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
-
-function stringField$1(value) {
+function stringField(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-
 function stringListField(value, options) {
   if (!Array.isArray(value)) return [];
   const result = [];
@@ -41,11 +34,9 @@ function stringListField(value, options) {
   }
   return result;
 }
-
 function boolField(value) {
   return value === true;
 }
-
 function normalizeHailuo03VideoTrialEligibility(raw2) {
   if (!raw2 || typeof raw2 !== "object") return void 0;
   const obj = raw2;
@@ -81,7 +72,6 @@ function normalizeHailuo03VideoTrialEligibility(raw2) {
     allowOmniVideos: boolField(obj.allowOmniVideos ?? obj.allow_omni_videos),
   };
 }
-
 function normalizeHailuo03VideoTrialStatus(raw2) {
   if (!raw2 || typeof raw2 !== "object")
     return EMPTY_HAILUO03_VIDEO_TRIAL_STATUS;
@@ -91,12 +81,11 @@ function normalizeHailuo03VideoTrialStatus(raw2) {
     claimable: obj.claimable === true,
     freeCount: numberField(obj.freeCount ?? obj.free_count),
     remainingCount: numberField(obj.remainingCount ?? obj.remaining_count),
-    claimHint: stringField$1(obj.claimHint ?? obj.claim_hint),
+    claimHint: stringField(obj.claimHint ?? obj.claim_hint),
     activityActive: boolField(obj.activityActive ?? obj.activity_active),
     eligibility: normalizeHailuo03VideoTrialEligibility(obj.eligibility),
   };
 }
-
 export async function fetchHailuo03VideoTrialStatus() {
   const resp = await gatewayFetch(API_PATHS.hailuo03VideoTrialStatus);
   if (!resp.ok) {
@@ -106,7 +95,6 @@ export async function fetchHailuo03VideoTrialStatus() {
   }
   return normalizeHailuo03VideoTrialStatus(await resp.json());
 }
-
 export async function claimHailuo03VideoTrial() {
   try {
     const resp = await gatewayFetch(API_PATHS.hailuo03VideoTrialClaim, {
@@ -118,7 +106,6 @@ export async function claimHailuo03VideoTrial() {
     return EMPTY_HAILUO03_VIDEO_TRIAL_STATUS;
   }
 }
-
 export function hasShownTrialGranted(userID) {
   if (!userID) return false;
   try {
@@ -127,7 +114,6 @@ export function hasShownTrialGranted(userID) {
     return false;
   }
 }
-
 export function useUpdatePoster() {
   const { updateWidget } = useHubClientConfig();
   const sourceUrl =

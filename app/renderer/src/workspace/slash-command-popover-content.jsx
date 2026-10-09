@@ -9,12 +9,12 @@ import {
 } from "./text-editor-skill-categories.jsx";
 import {
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   jsxRuntimeExports,
-  Plus$2,
+  Plus$2 as Plus,
   reactDomExports,
   reactExports,
-  Search$2,
+  Search$2 as Search,
   Trans,
   useTranslation,
 } from "../vendor.js";
@@ -34,16 +34,13 @@ import { useSkillCategories } from "../generation/use-skill-categories.js";
 import { beginSkillApplyingToast } from "../generation/settle-operation.js";
 import { homeService } from "./home-service.jsx";
 import { SkillIcon } from "./use-prompt-icon.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { showSkillInstallSuccessToast } from "./use-new-workspace-dialog.jsx";
 import { useMarketSkills } from "./use-market-skills.js";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
-
 const MESSAGE_INPUT_POPOVER_WIDTH = 384;
-
 const SKILL_RESTART_QUEUE_TIMEOUT_MS = 3e4;
-
 async function waitForSkillRestart(
   restart,
   timeoutMs = SKILL_RESTART_QUEUE_TIMEOUT_MS,
@@ -60,11 +57,8 @@ async function waitForSkillRestart(
     if (timer2) clearTimeout(timer2);
   }
 }
-
 const COVER_PREVIEW_GAP = 8;
-
 const VIEWPORT_GAP = 8;
-
 function getSkillCoverPreviewSide(anchorRect, previewWidth, viewportWidth) {
   const rightSpace =
     viewportWidth - anchorRect.right - COVER_PREVIEW_GAP - VIEWPORT_GAP;
@@ -73,32 +67,24 @@ function getSkillCoverPreviewSide(anchorRect, previewWidth, viewportWidth) {
   if (leftSpace >= previewWidth) return "left";
   return rightSpace >= leftSpace ? "right" : "left";
 }
-
 const MIN_BROAD_LATIN_QUERY_LENGTH = 3;
-
 const CJK_QUERY_PATTERN = /[\u3400-\u9fff]/u;
-
 const TOKEN_SEPARATOR_PATTERN = /[^\p{L}\p{N}]+/u;
-
 const UNSCORED_RANK = Number.MAX_SAFE_INTEGER;
-
-function normalize$1(value) {
+function normalize(value) {
   return value?.trim().toLocaleLowerCase() ?? "";
 }
-
 function stringList(value) {
   if (!Array.isArray(value)) return [];
   return value.filter((item) => typeof item === "string");
 }
-
 function tokens(value) {
-  return normalize$1(value).split(TOKEN_SEPARATOR_PATTERN).filter(Boolean);
+  return normalize(value).split(TOKEN_SEPARATOR_PATTERN).filter(Boolean);
 }
-
 function bestPrimaryScore(values3, query, broadMatch) {
   let score = null;
   for (const value of values3) {
-    const normalizedValue = normalize$1(value);
+    const normalizedValue = normalize(value);
     if (!normalizedValue) continue;
     if (normalizedValue === query) score = Math.min(score ?? 0, 0);
     else if (tokens(normalizedValue).some((token2) => token2 === query)) {
@@ -113,11 +99,9 @@ function bestPrimaryScore(values3, query, broadMatch) {
   }
   return score;
 }
-
 function includesQuery(values3, query) {
-  return values3.some((value) => normalize$1(value).includes(query));
+  return values3.some((value) => normalize(value).includes(query));
 }
-
 function getSearchScore(skill, query) {
   const broadMatch =
     CJK_QUERY_PATTERN.test(query) ||
@@ -161,9 +145,8 @@ function getSearchScore(skill, query) {
     return 30;
   return null;
 }
-
 function rankSkillsBySearchRelevance(skills, rawQuery, options = {}) {
-  const query = normalize$1(rawQuery);
+  const query = normalize(rawQuery);
   if (!query) return skills;
   const keepUnscored = options.keepUnscored ?? false;
   return skills
@@ -180,23 +163,14 @@ function rankSkillsBySearchRelevance(skills, rawQuery, options = {}) {
     )
     .map(({ skill }) => skill);
 }
-
 const UPPERCASE_WORDS = new Set(["mv", "ai", "api", "id"]);
-
-const HOME_POPOVER_GAP$1 = 4;
-
+const HOME_POPOVER_GAP = 4;
 const GLOBAL_SKILL_SEARCH_PAGE_SIZE = 100;
-
 const INLINE_SKILL_POPOVER_WIDTH = 320;
-
 const INLINE_SKILL_POPOVER_MAX_HEIGHT = 288;
-
 const SKILL_TAG_SCROLL_STEP_PX = 120;
-
 const SKILL_POPOVER_SKELETON_ROWS = 5;
-
 const SKILL_SEARCH_DEBOUNCE_MS = 300;
-
 function getAgentSkillCategories(mode2) {
   if (mode2 === "clip-editor") {
     return [
@@ -226,22 +200,18 @@ function getAgentSkillCategories(mode2) {
     ? DIRECTOR_STAGE_SKILL_CATEGORIES
     : TEXT_EDITOR_SKILL_CATEGORIES;
 }
-
 function getAgentSkillTitle(mode2) {
   if (mode2 === "clip-editor") return "剪辑";
   return mode2 === "director-stage" ? "导演台" : "文本";
 }
-
 function isLocalSkill(skill) {
   return "enabled" in skill;
 }
-
 async function restartOpenCode() {
   const restart = window.hilo?.opencode?.restart;
   if (!restart) throw new Error("OpenCode restart IPC is unavailable");
   await restart();
 }
-
 function toDisplayName(name2) {
   return name2
     .split("-")
@@ -252,7 +222,6 @@ function toDisplayName(name2) {
     )
     .join(" ");
 }
-
 function getSkillDisplay(skill, lang) {
   const isZh = lang.startsWith("zh");
   return {
@@ -269,7 +238,6 @@ function getSkillDisplay(skill, lang) {
       : skill.descEn || skill.description,
   };
 }
-
 function SkillItem({
   skill,
   index: index2,
@@ -322,7 +290,6 @@ function SkillItem({
     </button>
   );
 }
-
 function SkillPopoverSkeleton() {
   return (
     <div
@@ -350,7 +317,6 @@ function SkillPopoverSkeleton() {
     </div>
   );
 }
-
 export function SlashCommandPopoverContent({
   motionProps,
   id: id2,
@@ -875,7 +841,7 @@ export function SlashCommandPopoverContent({
         popover.style.top = "";
         popover.style.maxHeight = `${Math.min(INLINE_SKILL_POPOVER_MAX_HEIGHT, availableInlineHeight)}px`;
       } else if (position2 === "down") {
-        const topY = inputRect.bottom + HOME_POPOVER_GAP$1;
+        const topY = inputRect.bottom + HOME_POPOVER_GAP;
         popover.style.top = `${topY}px`;
         popover.style.bottom = "";
         popover.style.maxHeight = `${Math.max(MIN_HEIGHT, window.innerHeight - topY - BOTTOM_GAP)}px`;
@@ -1023,7 +989,7 @@ export function SlashCommandPopoverContent({
         trailing={
           searchable && onSearchChange ? (
             <div className="relative w-40 shrink-0">
-              <Search$2
+              <Search
                 size={14}
                 strokeWidth={1.5}
                 className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
@@ -1152,7 +1118,7 @@ export function SlashCommandPopoverContent({
             onKeyDown={(event) => handleTagScrollKeyDown(event, "right")}
             className="mx-0.5 flex h-7 w-6 shrink-0 items-center justify-center rounded-[4px] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
           >
-            <ChevronRight$1 aria-hidden="true" size={14} strokeWidth={1.5} />
+            <ChevronRight aria-hidden="true" size={14} strokeWidth={1.5} />
           </button>
         )}
       </div>
@@ -1289,7 +1255,7 @@ export function SlashCommandPopoverContent({
       {(onCreate || onExplore) && (
         <div className="mt-1 flex shrink-0 gap-2 border-t border-border/40 px-2 pt-2">
           {onExplore && (
-            <Button$1
+            <Button
               type="button"
               variant="outline"
               data-action-ui-id="skill-explore-trigger"
@@ -1301,12 +1267,12 @@ export function SlashCommandPopoverContent({
                 onExplore();
               }}
             >
-              <Search$2 size={13} strokeWidth={1.5} />
+              <Search size={13} strokeWidth={1.5} />
               {t2("skills.popover.exploreMore", "探索更多")}
-            </Button$1>
+            </Button>
           )}
           {onCreate && (
-            <Button$1
+            <Button
               type="button"
               data-action-ui-id="skill-create-btn"
               className="flex-1 rounded-md border-transparent"
@@ -1315,9 +1281,9 @@ export function SlashCommandPopoverContent({
                 onCreate();
               }}
             >
-              <Plus$2 size={13} strokeWidth={1.8} />
+              <Plus size={13} strokeWidth={1.8} />
               {t2("skills.popover.create")}
-            </Button$1>
+            </Button>
           )}
         </div>
       )}

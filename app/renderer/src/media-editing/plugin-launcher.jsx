@@ -13,7 +13,7 @@ import {
   useCanvasRootElement,
   VideoEditorHeaderIcon,
 } from "./director-stage-header-icon.jsx";
-import { useCanvasShortcutGuard$1 } from "./use-canvas-shortcut-guard.js";
+import { useCanvasShortcutGuard } from "./use-canvas-shortcut-guard.js";
 import {
   useHtmlFullscreenApi,
   useIsHtmlFullscreen,
@@ -27,32 +27,26 @@ import {
   DIRECTOR_STAGE_PLUGIN_ID,
 } from "./resolve-panorama-generation-presentation.js";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
-
 function setPluginAgentEditSession(nodeId, editSessionId) {
   upsert(nodeId, {
     editSessionId,
   });
 }
-
 const PLUGIN_EDITOR_OVERLAY_MESSAGE = "hilo:plugin-editor-overlay";
-
 const PLUGIN_EDITOR_OVERLAY_ACTION_MESSAGE =
   "hilo:plugin-editor-overlay-action";
-
-function isFiniteNumber$1(value) {
+function isFiniteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
 }
-
 function isOverlayItem(value) {
   if (!value || typeof value !== "object") return false;
   const item = value;
   if (item.separator === true) return true;
   return typeof item.type === "string" && typeof item.label === "string";
 }
-
-function resolveCssColor$1(value, fallback) {
+function resolveCssColor(value, fallback) {
   if (typeof value !== "string" || value.length > 128) return fallback;
   return /^(?:#[\da-f]{3,8}|(?:rgb|rgba|hsl|hsla|oklab|oklch)\([^;{}]*\))$/i.test(
     value,
@@ -60,7 +54,6 @@ function resolveCssColor$1(value, fallback) {
     ? value
     : fallback;
 }
-
 function resolvePluginEditorOverlayModel(data2) {
   if (!data2 || typeof data2 !== "object") return null;
   const message2 = data2;
@@ -68,8 +61,8 @@ function resolvePluginEditorOverlayModel(data2) {
     return null;
   if (
     typeof message2.destination !== "string" ||
-    !isFiniteNumber$1(message2.left) ||
-    !isFiniteNumber$1(message2.top) ||
+    !isFiniteNumber(message2.left) ||
+    !isFiniteNumber(message2.top) ||
     !Array.isArray(message2.items) ||
     !message2.items.every(isOverlayItem)
   ) {
@@ -84,22 +77,21 @@ function resolvePluginEditorOverlayModel(data2) {
     customDescription: message2.customDescription ?? "Full export settings",
     bestMatchLabel: message2.bestMatchLabel ?? "Best match",
     palette: {
-      rowBackground: resolveCssColor$1(
+      rowBackground: resolveCssColor(
         message2.palette?.rowBackground,
         "var(--muted)",
       ),
-      iconBackground: resolveCssColor$1(
+      iconBackground: resolveCssColor(
         message2.palette?.iconBackground,
         "var(--muted)",
       ),
-      iconColor: resolveCssColor$1(
+      iconColor: resolveCssColor(
         message2.palette?.iconColor,
         "var(--foreground)",
       ),
     },
   };
 }
-
 function PluginEditorSurface({
   children: children2,
   visible,
@@ -123,7 +115,7 @@ function PluginEditorSurface({
     },
     [onContainerChange],
   );
-  useCanvasShortcutGuard$1(visible, containerRef);
+  useCanvasShortcutGuard(visible, containerRef);
   reactExports.useEffect(() => {
     if (!visible) {
       setOverlayModel(null);
@@ -277,9 +269,7 @@ function PluginEditorSurface({
     portalTarget,
   );
 }
-
 const LAUNCHER_UNMOUNT_GRACE_MS = 1500;
-
 export function PluginLauncher({
   nodeId,
   pluginId,
@@ -479,7 +469,7 @@ export function PluginLauncher({
             {description}
           </div>
         </div>
-        <Button$2
+        <Button
           type="button"
           variant="secondary"
           onClick={(e2) => {
@@ -492,7 +482,7 @@ export function PluginLauncher({
           className="nodrag mt-4 h-9 cursor-pointer rounded-lg border-0 bg-[var(--button-subtle-bg)] px-4 text-[14px] font-normal tracking-wide text-[var(--canvas-controls-text)] hover:bg-[var(--button-subtle-bg-hover)]"
         >
           {openLabel}
-        </Button$2>
+        </Button>
         {open &&
           (editorSurface ? (
             // Canvas-pane editing surface. The container is pinned for the

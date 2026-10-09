@@ -2,7 +2,7 @@
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -23,7 +23,6 @@ import {
 } from "./shortcut-hint.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { Switch } from "../generation/select-content.jsx";
-
 function isWorkspaceDisplayModeShortcut(event, os2) {
   if (
     event.isComposing ||
@@ -37,7 +36,6 @@ function isWorkspaceDisplayModeShortcut(event, os2) {
     ? event.metaKey && !event.ctrlKey
     : event.ctrlKey && !event.metaKey;
 }
-
 const DISPLAY_MODE_OPTIONS = [
   {
     id: "chatCanvas",
@@ -78,21 +76,18 @@ const DISPLAY_MODE_OPTIONS = [
     previewImage: CDN_WORKSPACE_DISPLAY_MODE_CHAT,
   },
 ];
-
 const DISPLAY_MODE_ORDER = DISPLAY_MODE_OPTIONS.map((option2) => option2.id);
-
 function getDisplayModeOptionId(mode2, paneOrder) {
   if (mode2 === "canvasOnly") return "canvasOnly";
   if (mode2 === "chatOnly") return "chatOnly";
   return paneOrder === "chat-canvas" ? "chatCanvas" : "canvasChat";
 }
-
 function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
   const pane = mode2 === "chatOnly" ? "chat" : "canvas";
   const [status, setStatus] = reactExports.useState("loading");
   return (
     <div
-      className={cn$2(
+      className={cn(
         "relative h-full w-full overflow-hidden rounded-md bg-card",
         status !== "ready" && "workspace-display-mode-preview-fallback",
       )}
@@ -101,7 +96,7 @@ function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
       <img
         alt=""
         aria-hidden="true"
-        className={cn$2(
+        className={cn(
           "workspace-display-preview absolute inset-0 size-full object-cover transition-opacity duration-200",
           status === "ready" ? "opacity-100" : "opacity-0",
         )}
@@ -114,7 +109,6 @@ function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
     </div>
   );
 }
-
 export function WorkspaceDisplayModeSwitcher({
   mode: mode2,
   paneOrder,
@@ -353,7 +347,7 @@ export function WorkspaceDisplayModeSwitcher({
               return (
                 <div
                   key={option2.id}
-                  className={cn$2(
+                  className={cn(
                     "workspace-display-mode-card flex min-w-0 flex-col rounded-xl border border-border bg-card p-1.5",
                     selected2 && "workspace-display-mode-card-selected",
                   )}

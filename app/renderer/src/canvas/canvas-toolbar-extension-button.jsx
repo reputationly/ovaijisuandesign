@@ -1,20 +1,18 @@
 // canvas-toolbar-extension-button.jsx
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-import { cn$5 } from "../infra/dialog-content.jsx";
-
+import { Tooltip } from "../generation/missing-asset-card.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 export function ToolbarSeparator({ large = false, className }) {
   return (
     <div
-      className={cn$5(
+      className={cn(
         `w-px shrink-0 bg-[var(--canvas-controls-border)] ${large ? "mx-[2px] h-5" : "mx-px h-4"}`,
         className,
       )}
     />
   );
 }
-
 export function ToolbarTooltipContent({ label, shortcut }) {
   return (
     <span className="inline-flex items-center gap-2">
@@ -27,7 +25,6 @@ export function ToolbarTooltipContent({ label, shortcut }) {
     </span>
   );
 }
-
 export const CanvasToolbarExtensionButton = reactExports.forwardRef(
   function CanvasToolbarExtensionButton2(
     {
@@ -49,11 +46,7 @@ export const CanvasToolbarExtensionButton = reactExports.forwardRef(
   ) {
     const selected2 = kind !== "action" && active2;
     return (
-      <Tooltip$1
-        content={tooltipContent}
-        side={tooltipSide}
-        closeOnClick={true}
-      >
+      <Tooltip content={tooltipContent} side={tooltipSide} closeOnClick={true}>
         <button
           {...triggerProps}
           ref={ref}
@@ -71,7 +64,7 @@ export const CanvasToolbarExtensionButton = reactExports.forwardRef(
         >
           {children2}
         </button>
-      </Tooltip$1>
+      </Tooltip>
     );
   },
 );

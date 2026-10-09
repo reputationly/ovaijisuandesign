@@ -5,14 +5,14 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useCanvasBridge } from "./package.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { StoryboardGridIcon } from "../canvas/fullscreen-icon.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { PopoverShell } from "../generation/attachment-bar.jsx";
 import { SubmitButton } from "../generation/submit-button.jsx";
 import {
@@ -21,7 +21,7 @@ import {
 } from "../generation/expand-arrow-icon.jsx";
 import { ParamSectionLabel } from "../generation/resolution-tabs.jsx";
 import { AspectRatioGrid } from "../generation/aspect-ratio-grid.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { PromptTextarea } from "../generation/time-intervals.jsx";
 import { ParamsChip } from "../generation/params-chip.jsx";
 import { ParamsPopup } from "../generation/params-popup.jsx";
@@ -32,11 +32,8 @@ import {
   STORYBOARD_RATIOS,
 } from "./round-dots-inner.jsx";
 import { isStoryboardGridValid } from "./grid-validity-map.js";
-
 const MAX_STORYBOARD_REFERENCES = 4;
-
 const MAX_STORYBOARD_PROMPT_LENGTH = 5e3;
-
 const messages = {
   en: {
     title: "Storyboard",
@@ -78,7 +75,6 @@ const messages = {
     invalidLayout: "此比例下无法使用此布局",
   },
 };
-
 function sourceReference(imageUrl, imagePath) {
   if (!imageUrl) return void 0;
   const sourcePath =
@@ -96,7 +92,6 @@ function sourceReference(imageUrl, imagePath) {
       }
     : void 0;
 }
-
 function restoredReferences(paths, resolveFileUrl) {
   const seen2 = new Set();
   return paths
@@ -110,7 +105,6 @@ function restoredReferences(paths, resolveFileUrl) {
       locked: index2 === 0,
     }));
 }
-
 export function StoryboardGridEditor({
   nodeId,
   replaceNodeId,
@@ -312,7 +306,7 @@ export function StoryboardGridEditor({
                   draggable={false}
                 />
                 {!reference.locked && !isSubmitting && (
-                  <Button$2
+                  <Button
                     type="button"
                     variant="default"
                     size="icon-xs"
@@ -326,13 +320,13 @@ export function StoryboardGridEditor({
                     }
                     className="absolute right-0.5 top-0.5 size-4 rounded-full bg-foreground p-0 text-background opacity-0 transition-opacity hover:bg-foreground/80 focus-visible:opacity-100 group-hover/reference:opacity-100"
                   >
-                    <X$7 size={10} strokeWidth={2} />
-                  </Button$2>
+                    <X size={10} strokeWidth={2} />
+                  </Button>
                 )}
               </div>
             ))}
             {references.length < MAX_STORYBOARD_REFERENCES && (
-              <Button$2
+              <Button
                 type="button"
                 variant="outline"
                 size="icon-lg"
@@ -343,7 +337,7 @@ export function StoryboardGridEditor({
                 data-action-ui-id="canvas.storyboard-grid.add-reference"
               >
                 <Plus size={18} strokeWidth={1.5} />
-              </Button$2>
+              </Button>
             )}
           </div>
           <ExpandToggleButton
@@ -441,7 +435,7 @@ export function StoryboardGridEditor({
                   {rows}
                 </span>
               </div>
-              <TooltipProvider$1 delay={180} closeDelay={0}>
+              <TooltipProvider delay={180} closeDelay={0}>
                 <fieldset
                   aria-label={t2.gridLayout}
                   className="grid grid-cols-5 gap-2"
@@ -464,13 +458,13 @@ export function StoryboardGridEditor({
                         optionCols <= previewGrid.cols;
                       const optionLabel = `${optionCols} × ${optionRows}`;
                       return (
-                        <Tooltip$1
+                        <Tooltip
                           key={`${optionRows}-${optionCols}`}
                           content={valid2 ? optionLabel : t2.invalidLayout}
                           side="top"
                           sideOffset={8}
                         >
-                          <Button$2
+                          <Button
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -505,12 +499,12 @@ export function StoryboardGridEditor({
                             className={`aspect-square h-auto w-full rounded-[10px] p-0 transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-brand-accent/35 ${filled ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)] hover:bg-[var(--canvas-controls-active)] dark:hover:bg-[var(--canvas-controls-active)]"} ${valid2 && !isSubmitting ? "cursor-pointer" : filled ? "cursor-not-allowed" : "cursor-not-allowed opacity-45"}`}
                             data-action-ui-id={`canvas.storyboard-grid.layout-${optionCols}x${optionRows}`}
                           />
-                        </Tooltip$1>
+                        </Tooltip>
                       );
                     },
                   )}
                 </fieldset>
-              </TooltipProvider$1>
+              </TooltipProvider>
             </div>
           </ParamsPopup>
         )}

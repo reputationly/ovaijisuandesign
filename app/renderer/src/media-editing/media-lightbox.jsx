@@ -6,10 +6,9 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { useCanvasShortcutGuard$1 } from "./use-canvas-shortcut-guard.js";
+import { useCanvasShortcutGuard } from "./use-canvas-shortcut-guard.js";
 import { useNativeViewOcclusion } from "../canvas/separator.jsx";
 import { useCanvasActive } from "./package.jsx";
-
 const LIGHTBOX_FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -20,7 +19,6 @@ const LIGHTBOX_FOCUSABLE_SELECTOR = [
   "video[controls]",
   "audio[controls]",
 ].join(",");
-
 function getFocusableElements(root2) {
   return Array.from(root2.querySelectorAll(LIGHTBOX_FOCUSABLE_SELECTOR)).filter(
     (element2) => {
@@ -31,13 +29,11 @@ function getFocusableElements(root2) {
     },
   );
 }
-
-function getWindowBridge$2() {
+function getWindowBridge() {
   const platform2 = window.__HILO_PLATFORM__;
   return platform2?.window;
 }
-
-export const MediaLightbox$1 = reactExports.memo(function MediaLightbox2({
+export const MediaLightbox = reactExports.memo(function MediaLightbox2({
   onClose,
   children: children2,
   onContextMenu,
@@ -48,7 +44,7 @@ export const MediaLightbox$1 = reactExports.memo(function MediaLightbox2({
   const active2 = useCanvasActive();
   useNativeViewOcclusion(active2);
   const rootRef = reactExports.useRef(null);
-  useCanvasShortcutGuard$1(true, rootRef, allowHorizontalArrowKeys);
+  useCanvasShortcutGuard(true, rootRef, allowHorizontalArrowKeys);
   const handleKeyDown2 = reactExports.useCallback(
     (e2) => {
       if (e2.key === "Escape") {
@@ -105,7 +101,7 @@ export const MediaLightbox$1 = reactExports.memo(function MediaLightbox2({
   }, [active2]);
   reactExports.useEffect(() => {
     if (!active2) return;
-    const bridge = getWindowBridge$2();
+    const bridge = getWindowBridge();
     bridge?.setWindowButtonVisibility?.(false);
     return () => {
       bridge?.setWindowButtonVisibility?.(true);

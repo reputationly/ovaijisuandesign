@@ -2,18 +2,15 @@
 import { QueryClient, reactExports, useQuery, useStorage } from "../vendor.js";
 import {
   useGatewayFetch,
-  useGatewayReady$1,
+  useGatewayReady,
   useGatewayUrl,
 } from "../generation/use-model-catalog-scope-key.js";
 import { assetCenterLog } from "../vendor-inline/vscode-base/graph.jsx";
-
 export const CANVAS_SURFACE_RECOVERY_MEASURE = "hilo:canvas:surface-recovery";
-
 export const FALLBACK_LOG_SERVICE = {
   info: (message2) => console.info(message2),
   warn: (message2) => console.warn(message2),
 };
-
 export function safeInfo(logService2, message2) {
   try {
     logService2.info(message2);
@@ -21,7 +18,6 @@ export function safeInfo(logService2, message2) {
     FALLBACK_LOG_SERVICE.info(message2);
   }
 }
-
 export function safeWarn(logService2, message2) {
   try {
     logService2.warn(message2);
@@ -29,7 +25,6 @@ export function safeWarn(logService2, message2) {
     FALLBACK_LOG_SERVICE.warn(message2);
   }
 }
-
 export function safeTrack(services2, eventName, properties2) {
   try {
     services2.trackEvent(eventName, properties2);
@@ -40,9 +35,7 @@ export function safeTrack(services2, eventName, properties2) {
     );
   }
 }
-
 export const ImBridgeDialogCtx = reactExports.createContext(null);
-
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -58,7 +51,6 @@ export const queryClient = new QueryClient({
     },
   },
 });
-
 export function resolveSeenRevision(dismissed, markId) {
   if (!Array.isArray(dismissed)) return 0;
   const prefix = `${markId}@`;
@@ -74,40 +66,32 @@ export function resolveSeenRevision(dismissed, markId) {
   }
   return seen2;
 }
-
 export const HOME_INPUT_COACH_MARK_ID = "home-input-intro";
-
 export const HOME_INPUT_TOUR_REVISION = 3;
-
 export const ASSET_CENTER_RELOCATION_REVISION = HOME_INPUT_TOUR_REVISION;
-
 export const BASE = "/api/asset-center";
-
-export function isRecord$9(value) {
+export function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
-
 export async function readObject(res, label) {
   const value = await res.json();
-  if (!isRecord$9(value)) {
+  if (!isRecord(value)) {
     throw new Error(`Invalid asset-center response shape: ${label}`);
   }
   return value;
 }
-
-export async function readEnvelope$1(res, key2, label, expected = "object") {
+export async function readEnvelope(res, key2, label, expected = "object") {
   const data2 = await readObject(res, label);
   const value = data2[key2];
   if (
     value === void 0 ||
     (expected === "array" && !Array.isArray(value)) ||
-    (expected === "object" && !isRecord$9(value))
+    (expected === "object" && !isRecord(value))
   ) {
     throw new Error(`Invalid asset-center response shape: ${label}.${key2}`);
   }
   return value;
 }
-
 export class AssetCenterApiError extends Error {
   code;
   httpStatus;
@@ -118,9 +102,8 @@ export class AssetCenterApiError extends Error {
     this.httpStatus = opts.httpStatus;
   }
 }
-
 function parseAssetCenterErrorBody(body2) {
-  if (!isRecord$9(body2)) return null;
+  if (!isRecord(body2)) return null;
   const code2 = body2.code;
   const message2 = body2.message;
   const httpStatus = body2.httpStatus;
@@ -133,7 +116,6 @@ function parseAssetCenterErrorBody(body2) {
   }
   return body2;
 }
-
 export async function wrapAsAssetCenterError(res) {
   const httpStatus = res.status;
   let code2;
@@ -146,7 +128,7 @@ export async function wrapAsAssetCenterError(res) {
       message2 = parsed.message;
     } else {
       const data2 = body2;
-      if (isRecord$9(data2)) {
+      if (isRecord(data2)) {
         if (typeof data2.message === "string") message2 = data2.message;
         else if (Array.isArray(data2.message))
           message2 = data2.message.join("; ");
@@ -164,7 +146,6 @@ export async function wrapAsAssetCenterError(res) {
     httpStatus,
   });
 }
-
 async function reissueAsAssetCenterError(path2, options, buildUrl) {
   const url2 = buildUrl(path2);
   if (!url2) return null;
@@ -178,7 +159,6 @@ async function reissueAsAssetCenterError(path2, options, buildUrl) {
   if (res.ok) return null;
   return wrapAsAssetCenterError(res);
 }
-
 function wrapFetcherForAssetCenterErrors(fetcher, buildUrl) {
   return async (path2, options) => {
     try {
@@ -196,7 +176,6 @@ function wrapFetcherForAssetCenterErrors(fetcher, buildUrl) {
     }
   };
 }
-
 async function listEntities(fetcher, opts = {}) {
   const params = new URLSearchParams();
   if (opts.type) params.set("type", opts.type);
@@ -205,9 +184,8 @@ async function listEntities(fetcher, opts = {}) {
   if (opts.sort) params.set("sort", opts.sort);
   const qs = params.toString();
   const res = await fetcher(`${BASE}/entities${qs ? `?${qs}` : ""}`);
-  return readEnvelope$1(res, "entities", "entities", "array");
+  return readEnvelope(res, "entities", "entities", "array");
 }
-
 async function getAssetCenterLibraryStatus(fetcher) {
   const res = await fetcher(`${BASE}/library-status`);
   const data2 = await readObject(res, "library-status");
@@ -220,9 +198,7 @@ async function getAssetCenterLibraryStatus(fetcher) {
     initialized: data2.initialized,
   };
 }
-
-export const ROOT_KEY$1 = ["asset-center"];
-
+export const ROOT_KEY = ["asset-center"];
 export function useAssetCenterFetcher() {
   const fetcher = useGatewayFetch();
   const buildUrl = useGatewayUrl();
@@ -231,21 +207,19 @@ export function useAssetCenterFetcher() {
     [fetcher, buildUrl],
   );
 }
-
 export const assetCenterKeys = {
-  entities: (opts) => [...ROOT_KEY$1, "entities", opts ?? {}],
-  libraryStatus: () => [...ROOT_KEY$1, "library-status"],
-  entity: (entityId) => [...ROOT_KEY$1, "entity", entityId],
-  entityCanvas: (entityId) => [...ROOT_KEY$1, "entity", entityId, "canvas"],
-  attachment: (attachmentId) => [...ROOT_KEY$1, "attachment", attachmentId],
-  search: (q2, opts) => [...ROOT_KEY$1, "search", q2, opts ?? {}],
-  autoInjected: () => [...ROOT_KEY$1, "auto-injected"],
-  suggestions: (limit) => [...ROOT_KEY$1, "suggestions", limit ?? null],
+  entities: (opts) => [...ROOT_KEY, "entities", opts ?? {}],
+  libraryStatus: () => [...ROOT_KEY, "library-status"],
+  entity: (entityId) => [...ROOT_KEY, "entity", entityId],
+  entityCanvas: (entityId) => [...ROOT_KEY, "entity", entityId, "canvas"],
+  attachment: (attachmentId) => [...ROOT_KEY, "attachment", attachmentId],
+  search: (q2, opts) => [...ROOT_KEY, "search", q2, opts ?? {}],
+  autoInjected: () => [...ROOT_KEY, "auto-injected"],
+  suggestions: (limit) => [...ROOT_KEY, "suggestions", limit ?? null],
 };
-
 export function useEntities(opts = {}) {
   const fetcher = useAssetCenterFetcher();
-  const gatewayReady = useGatewayReady$1();
+  const gatewayReady = useGatewayReady();
   return useQuery({
     queryKey: assetCenterKeys.entities(opts),
     queryFn: async () => {
@@ -272,10 +246,9 @@ export function useEntities(opts = {}) {
     staleTime: 3e4,
   });
 }
-
 function useAssetCenterLibraryStatus() {
   const fetcher = useAssetCenterFetcher();
-  const gatewayReady = useGatewayReady$1();
+  const gatewayReady = useGatewayReady();
   return useQuery({
     queryKey: assetCenterKeys.libraryStatus(),
     queryFn: () => getAssetCenterLibraryStatus(fetcher),
@@ -283,7 +256,6 @@ function useAssetCenterLibraryStatus() {
     staleTime: 3e4,
   });
 }
-
 function resolveAssetCenterRelocationState({
   dismissedCoachMarks,
   dismissedHydrated,
@@ -310,7 +282,6 @@ function resolveAssetCenterRelocationState({
         ASSET_CENTER_RELOCATION_REVISION,
   };
 }
-
 export function useAssetCenterRelocation() {
   const [dismissedCoachMarks, , , dismissedHydrated] = useStorage(
     "global.dismissedCoachMarks",
@@ -318,7 +289,7 @@ export function useAssetCenterRelocation() {
   const [globalConfig, , , configHydrated] = useStorage("global.config");
   const entitiesQuery = useEntities();
   const libraryStatusQuery = useAssetCenterLibraryStatus();
-  const gatewayReady = useGatewayReady$1();
+  const gatewayReady = useGatewayReady();
   const entitiesReady =
     gatewayReady && entitiesQuery.isSuccess && !entitiesQuery.isFetching;
   const libraryInitialized =
@@ -336,21 +307,16 @@ export function useAssetCenterRelocation() {
     libraryInitialized,
   });
 }
-
 export const PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS = 4;
-
 const PROJECT_ASSET_MAX_FOLDER_DEPTH =
   PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS - 1;
-
 const PROJECT_ASSET_MAX_FILE_DEPTH = PROJECT_ASSET_MAX_FOLDER_DEPTH + 1;
-
 export function getProjectAssetWritePolicy(currentFolderDepth) {
   return {
     canCreateFolder: currentFolderDepth < PROJECT_ASSET_MAX_FOLDER_DEPTH,
     canCreateFile: currentFolderDepth < PROJECT_ASSET_MAX_FILE_DEPTH,
   };
 }
-
 const CLOUD_ASSET_EXTENSIONS = {
   text: ["txt", "md", "json", "yaml", "csv", "pdf", "doc", "docx"],
   image: ["png", "jpg", "jpeg", "webp", "gif"],
@@ -359,7 +325,6 @@ const CLOUD_ASSET_EXTENSIONS = {
   archive: [],
   table: ["htable"],
 };
-
 const CLOUD_ASSET_MIME_TYPES = {
   // text
   txt: "text/plain",
@@ -389,17 +354,14 @@ const CLOUD_ASSET_MIME_TYPES = {
   // sync-review path.
   htable: "text/plain",
 };
-
 export const EXTENSION_TO_CATEGORY = new Map(
   Object.entries(CLOUD_ASSET_EXTENSIONS).flatMap(([category, exts]) =>
     exts.map((ext) => [ext, category]),
   ),
 );
-
 export const CLOUD_ASSET_ACCEPT = [...EXTENSION_TO_CATEGORY.keys()]
   .map((ext) => `.${ext}`)
   .join(",");
-
 export function cloudAssetExtension(fileName) {
   const base2 = fileName.slice(
     Math.max(fileName.lastIndexOf("/"), fileName.lastIndexOf("\\")) + 1,
@@ -408,7 +370,6 @@ export function cloudAssetExtension(fileName) {
   if (idx <= 0 || idx === base2.length - 1) return "";
   return base2.slice(idx + 1).toLowerCase();
 }
-
 export function cloudAssetMimeType(fileName) {
   return CLOUD_ASSET_MIME_TYPES[cloudAssetExtension(fileName)];
 }

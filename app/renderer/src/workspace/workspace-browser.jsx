@@ -12,7 +12,7 @@ import {
   RotateCw,
   usePlatform,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   Icon,
@@ -58,7 +58,7 @@ import { useSettings } from "../settings/use-settings.js";
 import { useBrowserHoverSnapshot } from "../chat/prepare-browser-hover-snapshot.js";
 import { blobToPng } from "../text-editor/use-placeholder-asset-source.jsx";
 import { resolveTrackingDomain } from "../i18n/canvas-node-tools.jsx";
-import { AnnotationIcon$1 } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { BrowserAnnotationEditor } from "../text-editor/browser-annotation-editor.jsx";
 import {
   browserBookmarkImportNotice,
@@ -75,7 +75,6 @@ import { BrowserTabOverview } from "./browser-tab-overview.jsx";
 import { mergeBrowserBookmarks } from "../media-editing/merge-browser-bookmarks.js";
 import { BrowserStartPage } from "./browser-bookmarks.jsx";
 import { BrowserTabIcon, IconButton } from "./icon-button.jsx";
-
 export function WorkspaceBrowser({
   onBackToCanvas,
   backLabel,
@@ -1523,7 +1522,7 @@ export function WorkspaceBrowser({
                     defaultValue: "关闭标签页",
                   })}
                 >
-                  <Icon icon={X$7} size="sm" className="relative" />
+                  <Icon icon={X} size="sm" className="relative" />
                 </button>
               </BrowserTabMotion>
             ),
@@ -1705,7 +1704,7 @@ export function WorkspaceBrowser({
               disabled={!canUsePageTools || Boolean(annotationSession)}
               onClick={() => void startAnnotation()}
             >
-              <AnnotationIcon$1 size={16} />
+              <AnnotationIcon size={16} />
             </IconButton>
             <BrowserDownloads activeTabId={activeTabId} />
             <Tooltip>

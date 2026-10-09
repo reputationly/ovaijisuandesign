@@ -2,7 +2,6 @@
 import { BaseBackend } from "./base-backend.jsx";
 import { isWebGLSupported } from "./parse-cube-lut.js";
 import { defaultLUTParams } from "./default-settings.js";
-
 function lutToFlat2D(lut) {
   const { size: size2, data: data2, domainMin, domainMax } = lut;
   const width = size2 * size2;
@@ -34,7 +33,6 @@ function lutToFlat2D(lut) {
     data: out,
   };
 }
-
 const vertexSource = `
 precision highp float;
 attribute vec2 aPosition;
@@ -46,7 +44,6 @@ void main() {
   gl_Position = vec4(aPosition, 0.0, 1.0);
 }
 `;
-
 const blackVertexSource = `
 precision highp float;
 attribute vec2 apos;
@@ -64,8 +61,7 @@ void main(void) {
   );
 }
 `;
-
-const passFragment$1 = `
+const passFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -73,8 +69,7 @@ void main() {
   gl_FragColor = texture2D(uTexture, vUv);
 }
 `;
-
-const vibranceFragment$1 = `
+const vibranceFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -94,8 +89,7 @@ void main() {
   );
 }
 `;
-
-const saturationFragment$1 = `
+const saturationFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -108,8 +102,7 @@ void main(void) {
   gl_FragColor.a = uMatrix[15] * c.r + uMatrix[16] * c.g + uMatrix[17] * c.b + uMatrix[18] * c.a + uMatrix[19];
 }
 `;
-
-const temperatureFragment$1 = `
+const temperatureFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -121,8 +114,7 @@ void main() {
   gl_FragColor = color;
 }
 `;
-
-const tintFragment$1 = `
+const tintFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -133,8 +125,7 @@ void main() {
   gl_FragColor = color;
 }
 `;
-
-const hueFragment$1 = `
+const hueFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -159,8 +150,7 @@ void main() {
   gl_FragColor = vec4(hsv2rgb(hsv), base.a);
 }
 `;
-
-const brightnessFragment$1 = `
+const brightnessFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -180,8 +170,7 @@ void main() {
   gl_FragColor = color;
 }
 `;
-
-const exposureFragment$1 = `
+const exposureFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -238,8 +227,7 @@ void main() {
   gl_FragColor = vec4(res, col.a);
 }
 `;
-
-const contrastFragment$1 = `
+const contrastFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -252,8 +240,7 @@ void main(void) {
   gl_FragColor.a = uMatrix[15] * c.r + uMatrix[16] * c.g + uMatrix[17] * c.b + uMatrix[18] * c.a + uMatrix[19];
 }
 `;
-
-const whitesFragment$1 = `
+const whitesFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -268,7 +255,6 @@ void main() {
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), base.a);
 }
 `;
-
 const blackPaletteFragment = `
 precision highp float;
 varying vec2 uv;
@@ -282,8 +268,7 @@ void main() {
   gl_FragColor = vec4(r, g, b, base.a);
 }
 `;
-
-const highlightsFragment$1 = `
+const highlightsFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -345,8 +330,7 @@ void main() {
   gl_FragColor = vec4(res, col.a);
 }
 `;
-
-const shadowsFragment$1 = `
+const shadowsFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -410,7 +394,7 @@ void main() {
 `;
 
 // grain-fragment.js
-const dehazeFragment$1 = `
+const dehazeFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -442,8 +426,7 @@ void main() {
   gl_FragColor = vec4(J, base.a);
 }
 `;
-
-const bloomFragment$1 = `
+const bloomFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -471,8 +454,7 @@ void main() {
   gl_FragColor = base;
 }
 `;
-
-const glamourFragment$1 = `
+const glamourFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -521,8 +503,7 @@ void main() {
   gl_FragColor = mix(base, vec4(color, base.a), uAmount);
 }
 `;
-
-const clarityFragment$1 = `
+const clarityFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -584,8 +565,7 @@ void main() {
   gl_FragColor = vec4(BlendOverlay(base, mix(vec3(0.5), inverse, mask)), base4.a);
 }
 `;
-
-const kernelFragment$1 = `
+const kernelFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -608,8 +588,7 @@ void main(void) {
   gl_FragColor = color * uAmount + (c22 * (1.0 - uAmount));
 }
 `;
-
-const blurFragment$1 = `
+const blurFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -633,8 +612,7 @@ void main() {
   gl_FragColor.rgb /= gl_FragColor.a + 0.00001;
 }
 `;
-
-const vignetteFragment$1 = `
+const vignetteFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -655,8 +633,7 @@ void main() {
   gl_FragColor = color;
 }
 `;
-
-const grainFragment$1 = `
+const grainFragment = `
 precision highp float;
 uniform sampler2D uTexture;
 varying vec2 vUv;
@@ -730,8 +707,7 @@ void main() {
   gl_FragColor = vec4(col, tex.a);
 }
 `;
-
-const lutFragment$1 = `
+const lutFragment = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
@@ -767,7 +743,6 @@ void main() {
   gl_FragColor = vec4(finalColor, base.a);
 }
 `;
-
 function createShader(gl, type2, source) {
   const shader = gl.createShader(type2);
   if (!shader) return null;
@@ -780,7 +755,6 @@ function createShader(gl, type2, source) {
   }
   return shader;
 }
-
 function createProgram(gl, vs2, fs) {
   const program = gl.createProgram();
   if (!program) return null;
@@ -794,7 +768,6 @@ function createProgram(gl, vs2, fs) {
   }
   return program;
 }
-
 function buildProgram(gl, vertex, fragment2, uniforms) {
   const vs2 = createShader(gl, gl.VERTEX_SHADER, vertex);
   const fs = createShader(gl, gl.FRAGMENT_SHADER, fragment2);
@@ -821,7 +794,6 @@ function buildProgram(gl, vertex, fragment2, uniforms) {
     uniforms: uniformMap,
   };
 }
-
 function createRenderTarget(gl, width, height) {
   const texture = gl.createTexture();
   if (!texture) {
@@ -860,12 +832,9 @@ function createRenderTarget(gl, width, height) {
     texture,
   };
 }
-
-const PALETTE_SIZE$1 = 256;
-
+const PALETTE_SIZE = 256;
 const clamp01$1 = (value) => Math.min(1, Math.max(0, value));
-
-const cubicBezier$1 = (t2, p0, p1, p22, p3) => {
+const cubicBezier = (t2, p0, p1, p22, p3) => {
   const u4 = 1 - t2;
   return (
     u4 * u4 * u4 * p0 +
@@ -874,12 +843,11 @@ const cubicBezier$1 = (t2, p0, p1, p22, p3) => {
     t2 * t2 * t2 * p3
   );
 };
-
-const buildCurvePalette$1 = (lowControl, highControl) => {
-  const data2 = new Uint8Array(PALETTE_SIZE$1 * 3);
-  for (let i2 = 0; i2 < PALETTE_SIZE$1; i2 += 1) {
-    const t2 = i2 / (PALETTE_SIZE$1 - 1);
-    const y4 = cubicBezier$1(t2, 0, lowControl, highControl, 1);
+const buildCurvePalette = (lowControl, highControl) => {
+  const data2 = new Uint8Array(PALETTE_SIZE * 3);
+  for (let i2 = 0; i2 < PALETTE_SIZE; i2 += 1) {
+    const t2 = i2 / (PALETTE_SIZE - 1);
+    const y4 = cubicBezier(t2, 0, lowControl, highControl, 1);
     const v2 = Math.round(clamp01$1(y4) * 255);
     const idx = i2 * 3;
     data2[idx] = v2;
@@ -888,15 +856,13 @@ const buildCurvePalette$1 = (lowControl, highControl) => {
   }
   return data2;
 };
-
-const buildBlackPalette$1 = (amount) => {
+const buildBlackPalette = (amount) => {
   const amt = Math.max(-100, Math.min(100, amount)) / 100;
   const strength = 0.35;
   const lowControl = clamp01$1(0.33 - amt * strength);
   const highControl = 0.66;
-  return buildCurvePalette$1(lowControl, highControl);
+  return buildCurvePalette(lowControl, highControl);
 };
-
 const createPaletteTexture = (gl, data2) => {
   const texture = gl.createTexture();
   if (!texture) {
@@ -907,7 +873,7 @@ const createPaletteTexture = (gl, data2) => {
     gl.TEXTURE_2D,
     0,
     gl.RGB,
-    PALETTE_SIZE$1,
+    PALETTE_SIZE,
     1,
     0,
     gl.RGB,
@@ -920,7 +886,6 @@ const createPaletteTexture = (gl, data2) => {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   return texture;
 };
-
 const updatePaletteTexture = (gl, texture, data2) => {
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texSubImage2D(
@@ -928,15 +893,14 @@ const updatePaletteTexture = (gl, texture, data2) => {
     0,
     0,
     0,
-    PALETTE_SIZE$1,
+    PALETTE_SIZE,
     1,
     gl.RGB,
     gl.UNSIGNED_BYTE,
     data2,
   );
 };
-
-const buildContrastMatrix$1 = (amount) => {
+const buildContrastMatrix = (amount) => {
   const t2 = Math.max(-100, Math.min(100, amount)) / 100;
   const scale2 = 1 + t2;
   const offset2 = 0.5 * (1 - scale2);
@@ -963,8 +927,7 @@ const buildContrastMatrix$1 = (amount) => {
     0,
   ]);
 };
-
-const buildSaturationMatrix$1 = (amount) => {
+const buildSaturationMatrix = (amount) => {
   const t2 = Math.max(-100, Math.min(100, amount)) / 100;
   const scale2 = 1 + t2;
   const lumR = 0.299;
@@ -994,10 +957,8 @@ const buildSaturationMatrix$1 = (amount) => {
     0,
   ]);
 };
-
-const SHARPEN_KERNEL$1 = new Float32Array([0, -1, 0, -1, 5, -1, 0, -1, 0]);
-
-const SMOOTH_KERNEL$1 = new Float32Array([
+const SHARPEN_KERNEL = new Float32Array([0, -1, 0, -1, 5, -1, 0, -1, 0]);
+const SMOOTH_KERNEL = new Float32Array([
   1 / 9,
   1 / 9,
   1 / 9,
@@ -1008,7 +969,6 @@ const SMOOTH_KERNEL$1 = new Float32Array([
   1 / 9,
   1 / 9,
 ]);
-
 export class WebGLBackend extends BaseBackend {
   gl = null;
   resources = null;
@@ -1214,7 +1174,7 @@ export class WebGLBackend extends BaseBackend {
     this.initialized = false;
   }
   initResources(gl, width, height, sourceTexture) {
-    const blackPalette = createPaletteTexture(gl, buildBlackPalette$1(0));
+    const blackPalette = createPaletteTexture(gl, buildBlackPalette(0));
     this.lastBlacksPalette = 0;
     const positionBuffer = gl.createBuffer();
     const texCoordBuffer = gl.createBuffer();
@@ -1236,30 +1196,30 @@ export class WebGLBackend extends BaseBackend {
     const vs2 = vertexSource;
     const blackVs = blackVertexSource;
     const programs = {
-      pass: buildProgram(gl, vs2, passFragment$1, ["uTexture"]),
-      vibrance: buildProgram(gl, vs2, vibranceFragment$1, [
+      pass: buildProgram(gl, vs2, passFragment, ["uTexture"]),
+      vibrance: buildProgram(gl, vs2, vibranceFragment, [
         "uTexture",
         "uAmount",
       ]),
-      saturation: buildProgram(gl, vs2, saturationFragment$1, [
+      saturation: buildProgram(gl, vs2, saturationFragment, [
         "uTexture",
         "uMatrix[0]",
       ]),
-      temperature: buildProgram(gl, vs2, temperatureFragment$1, [
+      temperature: buildProgram(gl, vs2, temperatureFragment, [
         "uTexture",
         "uAmount",
       ]),
-      tint: buildProgram(gl, vs2, tintFragment$1, ["uTexture", "uAmount"]),
-      hue: buildProgram(gl, vs2, hueFragment$1, ["uTexture", "uRotation"]),
-      brightness: buildProgram(gl, vs2, brightnessFragment$1, [
+      tint: buildProgram(gl, vs2, tintFragment, ["uTexture", "uAmount"]),
+      hue: buildProgram(gl, vs2, hueFragment, ["uTexture", "uRotation"]),
+      brightness: buildProgram(gl, vs2, brightnessFragment, [
         "uTexture",
         "uAmount",
       ]),
-      exposure: buildProgram(gl, vs2, exposureFragment$1, [
+      exposure: buildProgram(gl, vs2, exposureFragment, [
         "uTexture",
         "uAmount",
       ]),
-      contrast: buildProgram(gl, vs2, contrastFragment$1, [
+      contrast: buildProgram(gl, vs2, contrastFragment, [
         "uTexture",
         "uMatrix[0]",
       ]),
@@ -1268,61 +1228,58 @@ export class WebGLBackend extends BaseBackend {
         "uPaletteMap",
         "transform",
       ]),
-      whites: buildProgram(gl, vs2, whitesFragment$1, ["uTexture", "uAmount"]),
-      highlights: buildProgram(gl, vs2, highlightsFragment$1, [
+      whites: buildProgram(gl, vs2, whitesFragment, ["uTexture", "uAmount"]),
+      highlights: buildProgram(gl, vs2, highlightsFragment, [
         "uTexture",
         "uAmount",
       ]),
-      shadows: buildProgram(gl, vs2, shadowsFragment$1, [
-        "uTexture",
-        "uAmount",
-      ]),
-      dehaze: buildProgram(gl, vs2, dehazeFragment$1, [
+      shadows: buildProgram(gl, vs2, shadowsFragment, ["uTexture", "uAmount"]),
+      dehaze: buildProgram(gl, vs2, dehazeFragment, [
         "uTexture",
         "uAmount",
         "uSize",
       ]),
-      bloom: buildProgram(gl, vs2, bloomFragment$1, [
+      bloom: buildProgram(gl, vs2, bloomFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
         "uThreshold",
       ]),
-      glamour: buildProgram(gl, vs2, glamourFragment$1, [
+      glamour: buildProgram(gl, vs2, glamourFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
       ]),
-      clarity: buildProgram(gl, vs2, clarityFragment$1, [
+      clarity: buildProgram(gl, vs2, clarityFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
       ]),
-      sharpen: buildProgram(gl, vs2, kernelFragment$1, [
-        "uTexture",
-        "uTexel",
-        "uKernel[0]",
-        "uAmount",
-      ]),
-      smooth: buildProgram(gl, vs2, kernelFragment$1, [
+      sharpen: buildProgram(gl, vs2, kernelFragment, [
         "uTexture",
         "uTexel",
         "uKernel[0]",
         "uAmount",
       ]),
-      blur: buildProgram(gl, vs2, blurFragment$1, ["uTexture", "uSize"]),
-      vignette: buildProgram(gl, vs2, vignetteFragment$1, [
+      smooth: buildProgram(gl, vs2, kernelFragment, [
+        "uTexture",
+        "uTexel",
+        "uKernel[0]",
+        "uAmount",
+      ]),
+      blur: buildProgram(gl, vs2, blurFragment, ["uTexture", "uSize"]),
+      vignette: buildProgram(gl, vs2, vignetteFragment, [
         "uTexture",
         "uAmount",
         "uSize",
       ]),
-      grain: buildProgram(gl, vs2, grainFragment$1, [
+      grain: buildProgram(gl, vs2, grainFragment, [
         "uTexture",
         "uResolution",
         "uAmount",
         "uTime",
       ]),
-      lut: buildProgram(gl, vs2, lutFragment$1, [
+      lut: buildProgram(gl, vs2, lutFragment, [
         "uTexture",
         "uLUT",
         "uLUTSize",
@@ -1465,7 +1422,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.saturation,
         () => {
-          const matrix = buildSaturationMatrix$1(settings.saturation);
+          const matrix = buildSaturationMatrix(settings.saturation);
           gl.uniform1fv(programs.saturation.uniforms["uMatrix[0]"], matrix);
         },
         swapTarget(),
@@ -1529,7 +1486,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.contrast,
         () => {
-          const matrix = buildContrastMatrix$1(settings.contrast);
+          const matrix = buildContrastMatrix(settings.contrast);
           gl.uniform1fv(programs.contrast.uniforms["uMatrix[0]"], matrix);
         },
         swapTarget(),
@@ -1540,7 +1497,7 @@ export class WebGLBackend extends BaseBackend {
         updatePaletteTexture(
           gl,
           blackPalette,
-          buildBlackPalette$1(settings.blacks),
+          buildBlackPalette(settings.blacks),
         );
         this.lastBlacksPalette = settings.blacks;
       }
@@ -1647,7 +1604,7 @@ export class WebGLBackend extends BaseBackend {
           );
           gl.uniform1fv(
             programs.sharpen.uniforms["uKernel[0]"],
-            SHARPEN_KERNEL$1,
+            SHARPEN_KERNEL,
           );
         },
         swapTarget(),
@@ -1659,10 +1616,7 @@ export class WebGLBackend extends BaseBackend {
         () => {
           gl.uniform2f(programs.smooth.uniforms.uTexel, texel[0], texel[1]);
           gl.uniform1f(programs.smooth.uniforms.uAmount, settings.smooth / 100);
-          gl.uniform1fv(
-            programs.smooth.uniforms["uKernel[0]"],
-            SMOOTH_KERNEL$1,
-          );
+          gl.uniform1fv(programs.smooth.uniforms["uKernel[0]"], SMOOTH_KERNEL);
         },
         swapTarget(),
       );

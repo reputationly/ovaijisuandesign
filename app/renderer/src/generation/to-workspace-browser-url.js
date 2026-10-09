@@ -14,28 +14,21 @@ import {
   registrySelectionRowIds,
 } from "./normalize-skill-detail-metadata.js";
 import { IMAGE_MODELS } from "./image-models.js";
-
 const ENHANCE_IMAGE_INPUT_SHORT_MIN = 256;
-
 const ENHANCE_IMAGE_INPUT_LONG_MAX = 2048;
-
 const ENHANCE_IMAGE_INPUT_LONG_HARD_MAX = 3072;
-
 const ENHANCE_IMAGE_INPUT_MAX_ASPECT =
   ENHANCE_IMAGE_INPUT_LONG_MAX / ENHANCE_IMAGE_INPUT_SHORT_MIN;
-
-function longEdge$1(width, height) {
+function longEdge(width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   return Math.max(width, height);
 }
-
 function shortEdge(width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   return Math.min(width, height);
 }
-
 function computeEnhanceImageInputPrep(width, height) {
-  const long = longEdge$1(width, height);
+  const long = longEdge(width, height);
   const short = shortEdge(width, height);
   if (long === void 0 || short === void 0) return null;
   const w3 = width;
@@ -54,11 +47,9 @@ function computeEnhanceImageInputPrep(width, height) {
     scale: scale2,
   };
 }
-
 export function isEnhanceImageInputEligible(width, height) {
   return computeEnhanceImageInputPrep(width, height) !== null;
 }
-
 export var WalletSource = ((WalletSource2) => {
   WalletSource2[(WalletSource2["WALLET_SOURCE_HILO"] = 0)] =
     "WALLET_SOURCE_HILO";
@@ -66,7 +57,6 @@ export var WalletSource = ((WalletSource2) => {
   WalletSource2[(WalletSource2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
   return WalletSource2;
 })(WalletSource || {});
-
 export var CreditType = ((CreditType2) => {
   CreditType2[(CreditType2["CREDIT_TYPE_TOP_UP"] = 0)] = "CREDIT_TYPE_TOP_UP";
   CreditType2[(CreditType2["CREDIT_TYPE_MEMBERSHIP"] = 1)] =
@@ -82,12 +72,9 @@ export var CreditType = ((CreditType2) => {
   CreditType2[(CreditType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
   return CreditType2;
 })(CreditType || {});
-
 new URL(LIBTV_CONNECTOR.url).origin;
-
 export const INSUFFICIENT_BALANCE_TEXT_PATTERN =
   /余额不足|贝壳不足|积分不足|请充值|充值后|未支付.{0,20}费用|insufficient (balance|credit|credits)|not enough (balance|credit|credits)|out of credits/i;
-
 export const MEMORY_TYPES = [
   "user",
   "feedback",
@@ -96,34 +83,23 @@ export const MEMORY_TYPES = [
   "media-style",
   "asset-pin",
 ];
-
 export const ASSET_MODALITIES = ["image", "video", "audio"];
-
 export const MAX_MEMORY_BODY_BYTES = 30 * 1024;
-
 export const MAX_MEMORY_DESCRIPTION_LENGTH = 200;
-
 const WORKSPACE_IDENTITY_HEX_PATTERN = /^[a-f0-9]{64}$/;
-
 const WORKSPACE_INSTANCE_ID_PATTERN =
   /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
-
 const WORKSPACE_IDENTITY_HOST_SUFFIX = ".hilo.localhost";
-
 const WORKSPACE_IDENTITY_HOST_TOKEN_LENGTH = 50;
-
 const BROWSER_LOOPBACK_HOSTS = new Set([
   "127.0.0.1",
   "localhost",
   "[::1]",
   "::1",
 ]);
-
 export const CANVAS_DESTRUCTIVE_SAVE_REJECTED_CODE =
   "CANVAS_DESTRUCTIVE_SAVE_REJECTED";
-
 export const CANVAS_INVALID_SAVE_REJECTED_CODE = "CANVAS_INVALID_SAVE_REJECTED";
-
 function workspaceIdentityHostname(workspaceClaim) {
   const claim = workspaceClaim.trim();
   if (!WORKSPACE_IDENTITY_HEX_PATTERN.test(claim)) return void 0;
@@ -132,7 +108,6 @@ function workspaceIdentityHostname(workspaceClaim) {
     .padStart(WORKSPACE_IDENTITY_HOST_TOKEN_LENGTH, "0");
   return `w-${token2}${WORKSPACE_IDENTITY_HOST_SUFFIX}`;
 }
-
 function workspaceInstanceHostname(instanceId, generation) {
   const normalized = instanceId.trim().toLowerCase();
   if (!WORKSPACE_INSTANCE_ID_PATTERN.test(normalized)) return void 0;
@@ -145,7 +120,6 @@ function workspaceInstanceHostname(instanceId, generation) {
   const generationToken = generation === void 0 ? "" : `-g${generation}`;
   return `wi-${normalized.replaceAll("-", "")}${generationToken}${WORKSPACE_IDENTITY_HOST_SUFFIX}`;
 }
-
 export function toWorkspaceBrowserUrl(rawUrl) {
   try {
     const parsed = new URL(rawUrl);
@@ -183,9 +157,7 @@ export function toWorkspaceBrowserUrl(rawUrl) {
     return rawUrl;
   }
 }
-
 const LOCAL_GATEWAY_HOSTNAMES = new Set(["127.0.0.1", "localhost", "[::1]"]);
-
 export function resolveVideoPlaybackUrl(
   sourceUrl,
   maxHeight = DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT,
@@ -207,7 +179,6 @@ export function resolveVideoPlaybackUrl(
     return sourceUrl;
   }
 }
-
 const TEAM_GROUP_LOAD_REASONS = [
   /** Upstream certificate chain is not trusted — terminal, retrying cannot fix it. */
   "tls_trust" /** Hostname resolution failed — terminal (usually DNS/proxy configuration). */,
@@ -222,24 +193,15 @@ const TEAM_GROUP_LOAD_REASONS = [
   "config_missing",
   "unknown",
 ];
-
 new Set(TEAM_GROUP_LOAD_REASONS);
-
 export const BACKEND_VIBE_MULTI_SHOT = "vibe_multi_shot";
-
 export const BACKEND_VIBE_RELIGHT = "vibe_relight";
-
 export const FILE_ADOPTION_IDEMPOTENCY_HEADER = "idempotency-key";
-
 export const UPLOAD_COMMIT_SAFE_PUBLISH_UNSUPPORTED =
   "UPLOAD_COMMIT_SAFE_PUBLISH_UNSUPPORTED";
-
 export const DEFAULT_CREDIT_REMINDER_THRESHOLD = 2e3;
-
 export const MIN_CREDIT_REMINDER_THRESHOLD = 100;
-
 export const MAX_CREDIT_REMINDER_THRESHOLD = 1e6;
-
 export function normalizeCreditReminderConfig(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {
@@ -267,9 +229,7 @@ export function normalizeCreditReminderConfig(value) {
     threshold,
   };
 }
-
 export const SESSION_ID_HEADER = "x-session-id";
-
 export function resolveImageGenerationEstimateSeconds(backend, modelIdRaw) {
   if (!backend || !modelIdRaw) return void 0;
   const modelId = normalizeLegacyModelId(modelIdRaw);
@@ -280,9 +240,7 @@ export function resolveImageGenerationEstimateSeconds(backend, modelIdRaw) {
         model.pricingId === modelId),
   )?.estimatedGenerationSeconds;
 }
-
 const OPENCODE_RUNTIME_HOME_ENV = "OPENCODE_TEST_HOME";
-
 const OPENCODE_RUNTIME_SWITCHES = [
   {
     key: "OPENCODE_DISABLE_PROJECT_CONFIG",
@@ -305,42 +263,26 @@ const OPENCODE_RUNTIME_SWITCHES = [
     why: "Without an explicit level OpenCode writes a ZERO-BYTE log file, so its own diagnostics — including `background dependency install failed`, which names the exact directory and cause — are discarded. That gap is why the four-hour freeze had to be root-caused by disassembling the binary instead of reading a log. Verbose debugging is unaffected: the `--log-level` CLI flag is applied by OpenCode after the env var and still wins.",
   },
 ];
-
 [
   ...OPENCODE_RUNTIME_SWITCHES.map(({ key: key2 }) => key2),
   OPENCODE_RUNTIME_HOME_ENV,
 ];
-
 export const DELETE_UNDO_TTL_MS = 1e4;
-
 export const OPERATIONS_UNDO_PATH = "/api/operations/undo";
-
 export const PERF_PATCH_DELTA = "hilo:chat:patch-delta";
-
 export const PERF_REDERIVE = "hilo:chat:rederive";
-
 export const PERF_DERIVE_MESSAGES = "hilo:chat:derive-messages";
-
 export const PERF_STORE_NOTIFY = "hilo:chat:store-notify";
-
 export const PERF_CHAT_FIRST_PROGRESS = "hilo:chat:first-progress";
-
 export const PERF_ASSET_PICKER_OPEN_FIRST_PAINT =
   "hilo:asset-picker:open-first-paint";
-
 export const PERF_ASSET_PICKER_OPEN_INTERACTIVE =
   "hilo:asset-picker:open-interactive";
-
 export const PERF_CANVAS_PERSIST_BUILD = "hilo:canvas:persist-build";
-
 export const PERF_CANVAS_PERSIST_QUEUE = "hilo:canvas:persist-save-queue";
-
 export const PERF_CANVAS_PERSIST_SAVE = "hilo:canvas:persist-save";
-
 export const PERF_PATCH_DELTA_SAMPLE_RATE = 10;
-
 export const PERF_PREFIX = "hilo:";
-
 export const PERF_SLOW_THRESHOLDS = {
   [PERF_PATCH_DELTA]: 5,
   [PERF_REDERIVE]: 10,
@@ -357,24 +299,17 @@ export const PERF_SLOW_THRESHOLDS = {
   [PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP]: 3e3,
   [PERF_CANVAS_PERSIST_SAVE]: 3e3,
 };
-
 export const PERF_SLOW_DEFAULT_MS = 16;
-
 export const PROJECT_EXPORT_ACTIVITY_HEARTBEAT_INTERVAL_MS = 1e4;
-
 export const CHAT_ARTIFACT_UI_ID = {
   image: "chat-generated-image",
   audio: "chat-artifact-audio",
   video: "chat-artifact-video",
   file: "chat-artifact-file",
 };
-
 export const TEXT_VERSION_TIER_S_MAX_BYTES = 1024 * 1024;
-
 export const TEXT_VERSION_TITLE_MAX_CHARS = 120;
-
 export const TEXT_VERSION_NOTE_MAX_CHARS = 2e3;
-
 export function textVersionNumbers(versionsNewestFirst) {
   const total = versionsNewestFirst.length;
   const numbers = new Map();

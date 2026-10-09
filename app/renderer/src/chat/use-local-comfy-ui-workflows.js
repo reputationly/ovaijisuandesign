@@ -3,11 +3,9 @@ import { API_PATHS, reactExports } from "../vendor.js";
 import { currentCanvasWorkflowNodeKey } from "./find-trailing-trigger.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { mapLocalComfyUiWorkflows } from "../text-editor/canvas-host-toolbar-button.jsx";
-
 function isWorkflowIdentity(value) {
   return /^(?:user|template):/i.test(value);
 }
-
 function assignFallbackCopyOrdinals(bindings) {
   const usedOrdinalsByWorkflow = new Map();
   for (const { workflow } of bindings) {
@@ -36,30 +34,26 @@ function assignFallbackCopyOrdinals(bindings) {
     };
   });
 }
-
-function asRecord$1(value) {
+function asRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? value
     : null;
 }
-
 function requiredString(record2, key2) {
   const value = record2[key2];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
-
 function positiveInteger(record2, key2) {
   const value = record2[key2];
   return typeof value === "number" && Number.isInteger(value) && value > 0
     ? value
     : void 0;
 }
-
 function mapCurrentCanvasComfyUiWorkflowBindings(value) {
-  const nodes = asRecord$1(value)?.nodes;
+  const nodes = asRecord(value)?.nodes;
   if (!Array.isArray(nodes)) return [];
   const bindings = nodes.flatMap((candidate) => {
-    const record2 = asRecord$1(candidate);
+    const record2 = asRecord(candidate);
     if (!record2 || record2.pluginId !== "comfyui") return [];
     const nodeId = requiredString(record2, "id");
     const id2 = requiredString(record2, "currentWorkflowId");
@@ -86,15 +80,13 @@ function mapCurrentCanvasComfyUiWorkflowBindings(value) {
   });
   return assignFallbackCopyOrdinals(bindings);
 }
-
 function mapComfyUiWorkflowGraph(value) {
-  const graph = asRecord$1(asRecord$1(value)?.graph);
+  const graph = asRecord(asRecord(value)?.graph);
   if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.links)) {
     throw new Error("Invalid ComfyUI workflow graph");
   }
   return graph;
 }
-
 export function useLocalComfyUiWorkflows() {
   const gatewayFetch2 = useGatewayFetch();
   const [workflows, setWorkflows] = reactExports.useState([]);

@@ -1,5 +1,5 @@
 // build-inspiration-media-showcase-collections.js
-import { b2, d, H, M, N, R$1, raw, w2, y$1 } from "../vendor.js";
+import { b2, d, H, M, N, R$1 as R, raw, w2, y$1 as y } from "../vendor.js";
 import {
   buildFeaturedItems,
   FEATURED_SHOWCASE_COLLECTION_ID,
@@ -10,7 +10,6 @@ import {
   uniqueItemsByVideoUrl,
 } from "./parse-project-archive-item.js";
 import { sceneItems } from "./output-item.js";
-
 export function buildInspirationMediaShowcaseCollections({
   categories,
   featuredLabel,
@@ -86,12 +85,10 @@ export function buildInspirationMediaShowcaseCollections({
       : [];
   });
 }
-
 export function resolveHomeFeaturedSkillPrompt(skill, preset2, isZh) {
   if (isZh) return preset2?.prompt || skill.guidePrompt || skill.guidePromptEn;
   return preset2?.promptEn || skill.guidePromptEn || skill.guidePrompt;
 }
-
 export function rehypeRaw(options) {
   return function (tree, file) {
     const result =
@@ -103,7 +100,6 @@ export function rehypeRaw(options) {
     return result;
   };
 }
-
 export var c2 = (n2, r2) => {
   let e2 = false,
     i2 = false;
@@ -120,26 +116,23 @@ export var c2 = (n2, r2) => {
   }
   return e2 || i2;
 };
-
-var hn$1 = (n2, r2) => {
+var hn = (n2, r2) => {
   let e2 = n2.substring(r2, r2 + 3) === "```",
     i2 = r2 > 0 && n2.substring(r2 - 1, r2 + 2) === "```",
     s2 = r2 > 1 && n2.substring(r2 - 2, r2 + 1) === "```";
   return e2 || i2 || s2;
 };
-
-export var L$1 = (n2) => {
+export var L = (n2) => {
   let r2 = 0;
   for (let e2 = 0; e2 < n2.length; e2 += 1) {
     if (n2[e2] === "\\" && e2 + 1 < n2.length && n2[e2 + 1] === "`") {
       e2 += 1;
       continue;
     }
-    n2[e2] === "`" && !hn$1(n2, e2) && (r2 += 1);
+    n2[e2] === "`" && !hn(n2, e2) && (r2 += 1);
   }
   return r2;
 };
-
 export var f = (n2, r2) => {
   let e2 = false,
     i2 = false,
@@ -161,20 +154,14 @@ export var f = (n2, r2) => {
   }
   return false;
 };
-
-var mn$1 = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
-
-export var E$1 = (n2) =>
+var mn = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
+export var E = (n2) =>
   !n2 || typeof n2 != "string" || !n2.includes(">")
     ? n2
-    : n2.replace(mn$1, (r2, e2, i2, s2) => (c2(n2, s2) ? r2 : `${e2}\\>${i2}`));
-
+    : n2.replace(mn, (r2, e2, i2, s2) => (c2(n2, s2) ? r2 : `${e2}\\>${i2}`));
 var G = /(__)([^_]+)_$/;
-
 export var F = /(~~)([^~]+)~$/;
-
 export var T = /~~/g;
-
 export var g = (n2) => {
   if (!n2) return false;
   let r2 = n2.charCodeAt(0);
@@ -185,7 +172,6 @@ export var g = (n2) => {
     ? true
     : H.test(n2);
 };
-
 export var X = (n2, r2) => {
   let e2 = 1;
   for (let i2 = r2 - 1; i2 >= 0; i2 -= 1)
@@ -193,7 +179,6 @@ export var X = (n2, r2) => {
     else if (n2[i2] === "[" && ((e2 -= 1), e2 === 0)) return i2;
   return -1;
 };
-
 export var C2 = (n2, r2) => {
   let e2 = 1;
   for (let i2 = r2 + 1; i2 < n2.length; i2 += 1)
@@ -201,7 +186,6 @@ export var C2 = (n2, r2) => {
     else if (n2[i2] === "]" && ((e2 -= 1), e2 === 0)) return i2;
   return -1;
 };
-
 export var h = (n2, r2) => {
   let e2 = false,
     i2 = false;
@@ -217,7 +201,6 @@ export var h = (n2, r2) => {
   }
   return e2 || i2;
 };
-
 var p2 = (n2, r2, e2) => {
   let i2 = 0;
   for (let l2 = r2 - 1; l2 >= 0; l2 -= 1)
@@ -250,7 +233,6 @@ var p2 = (n2, r2, e2) => {
     }
   return t2 >= 3 && !a2;
 };
-
 var kn = (n2, r2, e2, i2) =>
   e2 === "\\" || (n2.includes("$") && h(n2, r2))
     ? true
@@ -272,7 +254,6 @@ var kn = (n2, r2, e2, i2) =>
                 `
 `))
         );
-
 var Y = (n2) => {
   let r2 = 0,
     e2 = false,
@@ -294,7 +275,6 @@ var Y = (n2) => {
   }
   return r2;
 };
-
 var Cn = (n2) => {
   let r2 = 0,
     e2 = 0,
@@ -316,7 +296,6 @@ var Cn = (n2) => {
   }
   return (e2 >= 3 && (r2 += Math.floor(e2 / 3)), r2);
 };
-
 export var A = (n2) => {
   let r2 = 0,
     e2 = false;
@@ -338,7 +317,6 @@ export var A = (n2) => {
   }
   return r2;
 };
-
 var v = (n2) => {
   let r2 = 0,
     e2 = false;
@@ -360,8 +338,7 @@ var v = (n2) => {
   }
   return r2;
 };
-
-var An$1 = (n2, r2, e2) => {
+var An = (n2, r2, e2) => {
   if (!r2 || d.test(r2)) return true;
   let s2 = n2.substring(0, e2).lastIndexOf(`
 `),
@@ -373,13 +350,12 @@ var An$1 = (n2, r2, e2) => {
     ? true
     : p2(n2, e2, "*");
 };
-
 export var j = (n2) => {
   let r2 = n2.match(M);
   if (!r2) return n2;
   let e2 = r2[2],
     i2 = n2.lastIndexOf(r2[1]);
-  return c2(n2, i2) || f(n2, i2) || An$1(n2, e2, i2)
+  return c2(n2, i2) || f(n2, i2) || An(n2, e2, i2)
     ? n2
     : A(n2) % 2 === 1
       ? e2.endsWith("*")
@@ -387,8 +363,7 @@ export var j = (n2) => {
         : `${n2}**`
       : n2;
 };
-
-var Bn$1 = (n2, r2, e2) => {
+var Bn = (n2, r2, e2) => {
   if (!r2 || d.test(r2)) return true;
   let s2 = n2.substring(0, e2).lastIndexOf(`
 `),
@@ -400,7 +375,6 @@ var Bn$1 = (n2, r2, e2) => {
     ? true
     : p2(n2, e2, "_");
 };
-
 export var Q = (n2) => {
   let r2 = n2.match(N);
   if (!r2) {
@@ -413,13 +387,12 @@ export var Q = (n2) => {
   }
   let e2 = r2[2],
     i2 = n2.lastIndexOf(r2[1]);
-  return c2(n2, i2) || f(n2, i2) || Bn$1(n2, e2, i2)
+  return c2(n2, i2) || f(n2, i2) || Bn(n2, e2, i2)
     ? n2
     : v(n2) % 2 === 1
       ? `${n2}__`
       : n2;
 };
-
 var Sn = (n2) => {
   let r2 = false;
   for (let e2 = 0; e2 < n2.length; e2 += 1) {
@@ -463,34 +436,30 @@ var Sn = (n2) => {
   }
   return -1;
 };
-
 export var Z = (n2) => {
-  if (!n2.match(R$1)) return n2;
+  if (!n2.match(R)) return n2;
   let e2 = Sn(n2);
   if (e2 === -1 || c2(n2, e2) || f(n2, e2)) return n2;
   let i2 = n2.substring(e2 + 1);
   return !i2 || d.test(i2) ? n2 : Y(n2) % 2 === 1 ? `${n2}*` : n2;
 };
-
-var $n$1 = (n2) => {
+var $n = (n2) => {
   let r2 = A(n2),
     e2 = Y(n2);
   return r2 % 2 === 0 && e2 % 2 === 0;
 };
-
-var On$1 = (n2, r2, e2) =>
+var On = (n2, r2, e2) =>
   !r2 || d.test(r2) || c2(n2, e2) || f(n2, e2) ? true : p2(n2, e2, "*");
-
 export var V2 = (n2) => {
   if (w2.test(n2)) return n2;
-  let r2 = n2.match(y$1);
+  let r2 = n2.match(y);
   if (!r2) return n2;
   let e2 = r2[2],
     i2 = n2.lastIndexOf(r2[1]);
-  return On$1(n2, e2, i2)
+  return On(n2, e2, i2)
     ? n2
     : Cn(n2) % 2 === 1
-      ? $n$1(n2)
+      ? $n(n2)
         ? n2
         : `${n2}***`
       : n2;

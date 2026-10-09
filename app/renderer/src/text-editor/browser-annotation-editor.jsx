@@ -5,31 +5,23 @@ import {
   reactExports,
   Send,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { ImageEditor } from "../media-editing/image-editor.jsx";
-
 const ANNOTATION_STROKE = "#6D6CFF";
-
 const ANNOTATION_FILL = "transparent";
-
 const TAG_BACKGROUND = "#E9E8FF";
-
 const TAG_TEXT_COLOR = "#4542B8";
-
 const MIN_RECTANGLE_SIZE = 8;
-
 const ANNOTATION_STROKE_WIDTH = 5;
-
 const DEFAULT_IMAGE_SIZE = {
   width: 1200,
   height: 800,
 };
-
 function sameBounds(a2, b3) {
   return (
     a2.x === b3.x &&
@@ -38,7 +30,6 @@ function sameBounds(a2, b3) {
     a2.height === b3.height
   );
 }
-
 function resolveDisplaySize(imageSize, stageSize) {
   const source = imageSize ?? DEFAULT_IMAGE_SIZE;
   const availableWidth =
@@ -56,7 +47,6 @@ function resolveDisplaySize(imageSize, stageSize) {
     scale: scale2,
   };
 }
-
 function buildTagData(id2, text2, bounds, imageSize) {
   const fontSize = 18;
   const longestLine = Math.max(
@@ -115,7 +105,6 @@ function buildTagData(id2, text2, bounds, imageSize) {
     },
   };
 }
-
 const DRAFT_RECTANGLE_STYLE = {
   // Keep the outline visible without tinting the underlying website content.
   stroke: ANNOTATION_STROKE,
@@ -126,7 +115,6 @@ const DRAFT_RECTANGLE_STYLE = {
   selectionHandleStroke: "#FFFFFF",
   selectionHandleFill: ANNOTATION_STROKE,
 };
-
 const COMMITTED_RECTANGLE_STYLE = {
   stroke: ANNOTATION_STROKE,
   fill: ANNOTATION_FILL,
@@ -136,13 +124,11 @@ const COMMITTED_RECTANGLE_STYLE = {
   selectionHandleStroke: "#FFFFFF",
   selectionHandleFill: ANNOTATION_STROKE,
 };
-
 function commentLengthBucket(length2) {
   if (length2 <= 20) return "1_20";
   if (length2 <= 100) return "21_100";
   return "101_plus";
 }
-
 function AnnotationHeaderButton({
   actionId,
   label,
@@ -164,7 +150,6 @@ function AnnotationHeaderButton({
     </button>
   );
 }
-
 function DraftCommentInput({
   bounds,
   scale: scale2,
@@ -265,7 +250,6 @@ function DraftCommentInput({
     </form>
   );
 }
-
 function boundsForShape(shape) {
   if (shape.type !== "rectangle") return null;
   const rectangle = shape;
@@ -276,7 +260,6 @@ function boundsForShape(shape) {
     height: Math.abs(rectangle.height),
   };
 }
-
 export function BrowserAnnotationEditor({
   src,
   viewportSize,
@@ -629,7 +612,7 @@ export function BrowserAnnotationEditor({
             })}
             onClick={() => void closeEditor()}
           >
-            <Icon icon={X$7} size="md" />
+            <Icon icon={X} size="md" />
           </AnnotationHeaderButton>
         </div>
         <div className="min-w-0 flex-1 truncate text-center text-sm font-medium">

@@ -2,7 +2,7 @@
 import {
   ArrowUpRight,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   jsxRuntimeExports,
   Library,
@@ -60,7 +60,7 @@ import {
 } from "./normalize-project-entries.js";
 import { mergeWorkspaceInventory } from "./merge-workspace-inventory.js";
 import {
-  cn$2,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   TooltipContent,
@@ -132,7 +132,6 @@ import {
 } from "../settings/search-button.jsx";
 import { RecentProjectGroupHeader } from "../settings/recent-project-group-header.jsx";
 import { SidebarUserMenu } from "../generation/logged-out-sidebar-action-presentation.jsx";
-
 export function HomeSidebar({
   width: controlledWidth,
   minWidth = HOME_SIDEBAR_MIN_WIDTH,
@@ -1203,7 +1202,7 @@ export function HomeSidebar({
               >
                 <span>{t2("homeSidebar.pinned", "置顶")}</span>
                 {pinnedSectionCollapsed ? (
-                  <ChevronRight$1
+                  <ChevronRight
                     size={14}
                     strokeWidth={1.75}
                     aria-hidden="true"
@@ -1251,7 +1250,7 @@ export function HomeSidebar({
             >
               <span>{t2("project.sidebarTitle")}</span>
               {recentSectionCollapsed ? (
-                <ChevronRight$1
+                <ChevronRight
                   size={14}
                   strokeWidth={1.75}
                   aria-hidden="true"
@@ -1344,7 +1343,7 @@ export function HomeSidebar({
                       ? "group"
                       : void 0
                   }
-                  className={cn$2(
+                  className={cn(
                     "flex flex-col gap-0.5",
                     isUngrouped && "mt-4 [&:not(:first-child)]:mt-3",
                     projectDrag.groupTarget?.projectId ===
@@ -1519,7 +1518,7 @@ export function HomeSidebar({
       data-icon-axis={HOME_SIDEBAR_ICON_AXIS}
     >
       <div
-        className={cn$2(
+        className={cn(
           "relative flex h-10 items-center justify-end",
           topChromeInset
             ? "mac-window-drag-region shrink-0"
@@ -1544,7 +1543,7 @@ export function HomeSidebar({
       >
         <div
           aria-hidden={compactRail}
-          className={cn$2(
+          className={cn(
             "home-sidebar-chrome-controls home-sidebar-detail no-drag pointer-events-auto relative z-50 flex h-8 shrink-0 items-center gap-0.5",
             topChromeInset ? "mr-0.5" : "mr-[70px]",
           )}
@@ -1575,7 +1574,7 @@ export function HomeSidebar({
         </div>
       </div>
       <div
-        className={cn$2(
+        className={cn(
           "home-sidebar-brand-row relative flex h-10 shrink-0 items-center gap-1 pr-0.5",
           topChromeInset && "mac-window-drag-region",
           !topChromeInset && "mt-2",
@@ -1624,7 +1623,7 @@ export function HomeSidebar({
         {!topChromeInset && (
           <div
             aria-hidden={compactRail}
-            className={cn$2(
+            className={cn(
               "home-sidebar-detail ml-auto flex shrink-0 items-center gap-0.5",
               compactRail ? "pointer-events-none absolute right-0" : "no-drag",
             )}
@@ -1678,7 +1677,7 @@ export function HomeSidebar({
           ref={sidebarScrollRef}
           aria-label={t2("homeSidebar.navigation", "Sidebar navigation")}
           data-action-ui-id="home-sidebar.scroll"
-          className={cn$2(
+          className={cn(
             "home-sidebar-scroll flex h-full min-h-0 flex-col overflow-y-auto scrollbar-none",
             hasSidebarOverflow && "home-sidebar-scroll-mask-active",
             canScrollUp && "home-sidebar-scroll-mask-top",
@@ -1688,7 +1687,7 @@ export function HomeSidebar({
           <div
             ref={sidebarContentRef}
             data-action-ui-id="home-sidebar.scroll-content"
-            className={cn$2(
+            className={cn(
               "flex shrink-0 flex-col",
               hasSidebarOverflow && HOME_RECENT_SCROLL_BOTTOM_SAFE_AREA_CLASS,
             )}
@@ -1705,7 +1704,7 @@ export function HomeSidebar({
                 aria-current={isActive2("/projects") ? "page" : void 0}
                 data-action-ui-id="home-sidebar-nav-projects"
                 onClick={() => handleNavClick("/projects")}
-                className={cn$2(
+                className={cn(
                   HOME_NAV_BUTTON_CLASS,
                   "icon-sidebar-nav-control min-w-0 flex-1",
                   isActive2("/projects")
@@ -1714,7 +1713,7 @@ export function HomeSidebar({
                 )}
               >
                 <span
-                  className={cn$2(
+                  className={cn(
                     HOME_NAV_PILL_CLASS,
                     compactRail && HOME_RAIL_PILL_CLASS,
                     isActive2("/projects")
@@ -1732,7 +1731,7 @@ export function HomeSidebar({
                     }}
                   />
                   <span
-                    className={cn$2(HOME_NAV_ICON_SLOT_CLASS, "relative")}
+                    className={cn(HOME_NAV_ICON_SLOT_CLASS, "relative")}
                     data-action-ui-id="home-sidebar.nav-icon-slot"
                   >
                     <MonochromeIcon tone="control">

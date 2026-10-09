@@ -5,7 +5,7 @@ import {
   Globe,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -16,7 +16,6 @@ import { useBrowserHoverPreview } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { PopoverTitle } from "../canvas/popover-title.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
 export function BrowserTabOverview({
   tabs,
   activeTabId,
@@ -161,7 +160,7 @@ export function BrowserTabOverview({
                   onClick={() => onClose(tab2.id)}
                   className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <X$7 className="size-3.5" />
+                  <X className="size-3.5" />
                 </button>
               </div>
             );

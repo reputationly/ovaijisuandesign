@@ -9,9 +9,9 @@ import {
   Scan,
   useTranslation,
   Video,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
-import { Select$1 } from "./credit-query-keys.jsx";
+import { Select } from "./credit-query-keys.jsx";
 import {
   SelectContent,
   SelectItem,
@@ -19,8 +19,8 @@ import {
   SelectValue,
 } from "../infra/select-content.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -36,7 +36,6 @@ import { AssetCenterApiError } from "./wrap-as-asset-center-error.js";
 import { Upload } from "../media-editing/package.jsx";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
 import { resolveAssetCenterErrorKey } from "./key-entries.js";
-
 const ATTACHMENT_EXTENSIONS = {
   image: ["png", "jpg", "jpeg", "webp", "gif", "heic", "heif"],
   video: ["mp4", "webm"],
@@ -79,7 +78,6 @@ const ATTACHMENT_EXTENSIONS = {
     "pdf",
   ],
 };
-
 const CROP_ASPECT_RATIOS = {
   free: null,
   "1:1": 1,
@@ -88,41 +86,33 @@ const CROP_ASPECT_RATIOS = {
   "16:9": 16 / 9,
   "9:16": 9 / 16,
 };
-
 const DEFAULT_CROP_RECT = {
   x: 0.1,
   y: 0.1,
   width: 0.8,
   height: 0.8,
 };
-
 const MIN_CROP_RATIO = 0.05;
-
 const MIN_CROP_SIZE = 48;
-
 const MAX_CROP_OUTPUT_DIMENSION = 2048;
-
-function clamp$1(value, min2, max2) {
+function clamp(value, min2, max2) {
   return Math.min(Math.max(value, min2), max2);
 }
-
 function minCropFraction(containerSize) {
   return containerSize && containerSize > 0
     ? Math.max(MIN_CROP_RATIO, MIN_CROP_SIZE / containerSize)
     : MIN_CROP_RATIO;
 }
-
 function clampCropRect(rect, containerWidth, containerHeight) {
-  const width = clamp$1(rect.width, minCropFraction(containerWidth), 1);
-  const height = clamp$1(rect.height, minCropFraction(containerHeight), 1);
+  const width = clamp(rect.width, minCropFraction(containerWidth), 1);
+  const height = clamp(rect.height, minCropFraction(containerHeight), 1);
   return {
-    x: clamp$1(rect.x, 0, 1 - width),
-    y: clamp$1(rect.y, 0, 1 - height),
+    x: clamp(rect.x, 0, 1 - width),
+    y: clamp(rect.y, 0, 1 - height),
     width,
     height,
   };
 }
-
 function cropRectForAspectRatio(ratio, containerWidth, containerHeight) {
   if (ratio === null || containerWidth <= 0 || containerHeight <= 0)
     return DEFAULT_CROP_RECT;
@@ -140,7 +130,6 @@ function cropRectForAspectRatio(ratio, containerWidth, containerHeight) {
     height,
   };
 }
-
 function calculateCropRect({
   initialRect,
   deltaX,
@@ -173,10 +162,10 @@ function calculateCropRect({
   if (handle2.includes("b")) nextBottom += deltaY;
   const minWidth = minCropFraction(containerWidth);
   const minHeight = minCropFraction(containerHeight);
-  left = clamp$1(left, 0, nextRight - minWidth);
-  nextRight = clamp$1(nextRight, left + minWidth, 1);
-  top2 = clamp$1(top2, 0, nextBottom - minHeight);
-  nextBottom = clamp$1(nextBottom, top2 + minHeight, 1);
+  left = clamp(left, 0, nextRight - minWidth);
+  nextRight = clamp(nextRight, left + minWidth, 1);
+  top2 = clamp(top2, 0, nextBottom - minHeight);
+  nextBottom = clamp(nextBottom, top2 + minHeight, 1);
   let width = nextRight - left;
   let height = nextBottom - top2;
   if (aspectRatio !== null) {
@@ -209,7 +198,6 @@ function calculateCropRect({
     containerHeight,
   );
 }
-
 function fitCropOutputSize(sourceWidth, sourceHeight) {
   const scale2 = Math.min(
     1,
@@ -221,7 +209,6 @@ function fitCropOutputSize(sourceWidth, sourceHeight) {
     height: Math.max(1, Math.round(sourceHeight * scale2)),
   };
 }
-
 function cropImageToBlob(imageSource, cropRect, originalWidth, originalHeight) {
   return new Promise((resolve, reject) => {
     const image2 = new Image();
@@ -269,9 +256,7 @@ function cropImageToBlob(imageSource, cropRect, originalWidth, originalHeight) {
     image2.src = imageSource;
   });
 }
-
 const DEFAULT_ASPECT_RATIO = "4:3";
-
 function useImageCrop(containerWidth, containerHeight) {
   const [cropRect, setCropRect] = reactExports.useState(DEFAULT_CROP_RECT);
   const [aspectRatio, setAspectRatioState] =
@@ -391,11 +376,8 @@ function useImageCrop(containerWidth, containerHeight) {
     setAspectRatio,
   };
 }
-
 const ASPECT_OPTIONS = ["1:1", "4:3", "3:4", "16:9", "9:16", "free"];
-
 const EDGE_HANDLE_THRESHOLD = 80;
-
 const HANDLE_CONTAINER_CLASSES = {
   tl: "absolute -left-0.5 -top-0.5 size-6 cursor-nw-resize z-10",
   tr: "absolute -right-0.5 -top-0.5 size-6 cursor-ne-resize z-10",
@@ -406,7 +388,6 @@ const HANDLE_CONTAINER_CLASSES = {
   l: "absolute -left-1.5 inset-y-6 w-3 cursor-w-resize z-10 flex items-center",
   r: "absolute -right-1.5 inset-y-6 w-3 cursor-e-resize z-10 flex items-center justify-end",
 };
-
 function CropHandleView({
   position: position2,
   onPointerDown: onPointerDown2,
@@ -433,7 +414,6 @@ function CropHandleView({
     </div>
   );
 }
-
 function ImageCropper({
   src,
   alt = "",
@@ -626,7 +606,7 @@ function ImageCropper({
         </div>
       </div>
       <div className="flex items-center justify-between gap-3">
-        <Select$1
+        <Select
           value={aspectRatio}
           onValueChange={(value) => setAspectRatio(value)}
         >
@@ -649,24 +629,23 @@ function ImageCropper({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select$1>
+        </Select>
         <div className="flex items-center gap-2">
-          <Button$1 variant="secondary" onClick={onCancel} disabled={busy}>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             onClick={() => void handleConfirm()}
             loading={busy}
             data-action-ui-id="image-cropper-confirm"
           >
             {confirmLabel ?? t2("common.confirm")}
-          </Button$1>
+          </Button>
         </div>
       </div>
     </div>
   );
 }
-
 function moveStagedEntryToFront(entries2, entryId) {
   const index2 = entries2.findIndex((entry2) => entry2.id === entryId);
   if (index2 <= 0) return entries2;
@@ -674,7 +653,6 @@ function moveStagedEntryToFront(entries2, entryId) {
   if (!entry) return entries2;
   return [entry, ...entries2.slice(0, index2), ...entries2.slice(index2 + 1)];
 }
-
 function ExistingRow({
   entry,
   onRemove: onRemove2,
@@ -773,10 +751,10 @@ function ExistingRow({
           />
         )}
         {isImage2 && imageSrc && onSetCover ? (
-          <Button$1
+          <Button
             variant="secondary"
             size="xs"
-            className={cn$2(
+            className={cn(
               "absolute bottom-1 left-1 gap-0.5 pl-1 pr-1.5 transition-opacity",
               !isCover &&
                 "opacity-0 group-hover/audio:opacity-100 focus-visible:opacity-100",
@@ -786,9 +764,9 @@ function ExistingRow({
           >
             <Icon icon={Scan} size="xs" strokeWidth={2} />
             {t2(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
-          </Button$1>
+          </Button>
         ) : null}
-        <Button$1
+        <Button
           variant="ghost"
           size="icon-xs"
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
@@ -796,8 +774,8 @@ function ExistingRow({
           data-action-ui-id="asset-center-add-entity-staged-remove"
           aria-label={t2("common.remove")}
         >
-          <X$7 size={10} />
-        </Button$1>
+          <X size={10} />
+        </Button>
       </div>
       <div className="flex flex-col gap-1 p-2">
         <div className="flex items-center gap-1">
@@ -834,7 +812,6 @@ function ExistingRow({
     </li>
   );
 }
-
 function CoverCropDialog({
   target,
   error,
@@ -870,7 +847,6 @@ function CoverCropDialog({
     </Dialog>
   );
 }
-
 function buildAcceptListFromExtensions(exts) {
   const all2 = [];
   for (const list2 of Object.values(exts)) {
@@ -878,7 +854,6 @@ function buildAcceptListFromExtensions(exts) {
   }
   return all2.join(",");
 }
-
 function collectAllowedExtensions(exts) {
   const set2 = new Set();
   for (const list2 of Object.values(exts)) {
@@ -886,14 +861,12 @@ function collectAllowedExtensions(exts) {
   }
   return set2;
 }
-
 function isFilenameAllowed(filename, allowed) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0 || dot2 === filename.length - 1) return false;
   const ext = filename.slice(dot2 + 1).toLowerCase();
   return allowed.has(ext);
 }
-
 export function AttachmentUploadZone({
   staged,
   onStagedChange,
@@ -1249,7 +1222,7 @@ export function AttachmentUploadZone({
         ) : (
           <ul
             ref={gridRef}
-            className={cn$2(
+            className={cn(
               "grid grid-cols-3 gap-2 -mx-4 px-4",
               totalItems > 6 &&
                 "max-h-[328px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-muted-foreground [&::-webkit-scrollbar-thumb]:rounded-full",
@@ -1305,7 +1278,7 @@ export function AttachmentUploadZone({
             onDrop={handleDrop2}
             disabled={atMax}
             data-action-ui-id="asset-center-add-entity-upload-zone"
-            className={cn$2(
+            className={cn(
               "w-full flex flex-col items-center justify-center gap-1 border border-dashed rounded-lg py-6 transition-colors",
               atMax
                 ? "border-border bg-muted/20 text-muted-foreground/40 cursor-not-allowed"

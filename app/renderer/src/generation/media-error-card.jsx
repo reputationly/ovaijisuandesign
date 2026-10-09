@@ -7,21 +7,20 @@ import {
   reactExports,
   TriangleAlert,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   looksLikeHtml,
   stripErrorHtml,
-  TooltipProvider$1,
+  TooltipProvider,
 } from "../infra/create-recently-added-store.js";
-import { RefundHint, Tooltip$1 } from "./missing-asset-card.jsx";
+import { RefundHint, Tooltip } from "./missing-asset-card.jsx";
 import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { Trash2 } from "../media-editing/package.jsx";
 import { classifyRawErrorText } from "./normalize-skill-detail-metadata.js";
-import { RetryIcon$1 } from "../canvas/fullscreen-icon.jsx";
-
-const FeedbackIcon$1 = reactExports.forwardRef(function FeedbackIcon2(
+import { RetryIcon } from "../canvas/fullscreen-icon.jsx";
+const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
   { size: size2 = 24, ...props },
   ref,
 ) {
@@ -43,14 +42,12 @@ const FeedbackIcon$1 = reactExports.forwardRef(function FeedbackIcon2(
     </CompositedSvg>
   );
 });
-
 function handleAnchorClick(e2) {
   const target = e2.target;
   if (target?.tagName === "A") {
     e2.stopPropagation();
   }
 }
-
 function ErrorHtmlContent({ html: html2 }) {
   if (!html2) return null;
   if (!looksLikeHtml(html2)) {
@@ -65,8 +62,7 @@ function ErrorHtmlContent({ html: html2 }) {
     />
   );
 }
-
-const RAW_ERROR_CLASS_I18N$2 = {
+const RAW_ERROR_CLASS_I18N = {
   concurrency: "canvas.errors.concurrency",
   interrupted: "canvas.errors.interrupted",
   timeout: "canvas.errors.timeout",
@@ -74,7 +70,6 @@ const RAW_ERROR_CLASS_I18N$2 = {
   storage: "canvas.errors.storage",
   technical: "canvas.errors.technical",
 };
-
 const UNCERTAIN_REASON_I18N = {
   concurrency: "canvas.generationStatusUnknown.reason.concurrency",
   interrupted: "canvas.generationStatusUnknown.reason.interrupted",
@@ -83,12 +78,9 @@ const UNCERTAIN_REASON_I18N = {
   storage: "canvas.generationStatusUnknown.reason.storage",
   technical: "canvas.generationStatusUnknown.reason.technical",
 };
-
 const ERROR_ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
-
 const ERROR_ACTION_ICON_CLASS = "size-3.5 shrink-0";
-
 export function MediaErrorCard({
   errorMessage: errorMessage2,
   displayModel,
@@ -131,7 +123,7 @@ export function MediaErrorCard({
       : void 0;
   const displayError =
     stateDescription ??
-    (rawClass ? t2(RAW_ERROR_CLASS_I18N$2[rawClass]) : errorMessage2);
+    (rawClass ? t2(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage2);
   const plainDisplayError = stripErrorHtml(displayError);
   const uncertainReason =
     isUncertain && rawClass ? t2(UNCERTAIN_REASON_I18N[rawClass]) : void 0;
@@ -148,7 +140,7 @@ ${uncertainReason}`
     <div className="relative w-full h-full min-h-[216px] flex flex-col overflow-hidden rounded-lg bg-[var(--canvas-node-bg)]">
       <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center gap-3 px-6 py-6 text-center">
         {isRecoverable ? (
-          <RetryIcon$1
+          <RetryIcon
             size={32}
             className="text-muted-foreground"
             role="img"
@@ -178,16 +170,16 @@ ${uncertainReason}`
             {title}
           </span>
           {plainDisplayError ? (
-            <TooltipProvider$1 delay={300} closeDelay={0}>
-              <Tooltip$1
+            <TooltipProvider delay={300} closeDelay={0}>
+              <Tooltip
                 content={tooltipText}
                 className="max-w-[360px] whitespace-pre-wrap break-words leading-[1.5]"
               >
                 <span className="max-w-full cursor-default line-clamp-2 whitespace-pre-wrap break-words text-center text-xs leading-5 text-muted-foreground">
                   <ErrorHtmlContent html={displayError} />
                 </span>
-              </Tooltip$1>
-            </TooltipProvider$1>
+              </Tooltip>
+            </TooltipProvider>
           ) : null}
           {uncertainReason ? (
             <span className="max-w-full whitespace-pre-wrap break-words text-center text-xs leading-5 text-muted-foreground/70">
@@ -212,7 +204,7 @@ ${uncertainReason}`
                   className={`${ERROR_ACTION_ICON_CLASS} animate-spin`}
                 />
               ) : onDismissUnknown ? (
-                <X$7
+                <X
                   size={14}
                   strokeWidth={1.5}
                   className={ERROR_ACTION_ICON_CLASS}
@@ -276,7 +268,7 @@ ${uncertainReason}`
               aria-busy={retrying}
               data-action-ui-id="canvas.media-error.retry"
             >
-              <RetryIcon$1
+              <RetryIcon
                 size={14}
                 className={`${ERROR_ACTION_ICON_CLASS}${retrying ? " animate-spin" : ""}`}
               />
@@ -311,7 +303,7 @@ ${uncertainReason}`
                   className={`${ERROR_ACTION_ICON_CLASS} animate-spin`}
                 />
               ) : (
-                <FeedbackIcon$1 size={14} className={ERROR_ACTION_ICON_CLASS} />
+                <FeedbackIcon size={14} className={ERROR_ACTION_ICON_CLASS} />
               )}
               {reportStatus === "submitted"
                 ? t2("feedback.reported")

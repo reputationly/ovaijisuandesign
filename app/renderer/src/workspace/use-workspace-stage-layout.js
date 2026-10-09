@@ -1,61 +1,48 @@
 // use-workspace-stage-layout.js
 import { reactExports, useStorage } from "../vendor.js";
 import { useCanvasSidebarController } from "./use-canvas-sidebar-controller.js";
-
 function oppositeWorkspacePaneOrder(order2) {
   return order2 === "chat-canvas" ? "canvas-chat" : "chat-canvas";
 }
-
 function queueWorkspacePaneOrderSet(paneOrder) {
   return {
     kind: "set",
     paneOrder,
   };
 }
-
 function resolveWorkspacePaneOrderIntent(hydratedOrder, pending2) {
   if (!pending2) return hydratedOrder;
   return pending2.kind === "set"
     ? pending2.paneOrder
     : oppositeWorkspacePaneOrder(hydratedOrder);
 }
-
 const DEFAULT_WORKSPACE_PANE_ORDER = "canvas-chat";
-
 const DEFAULT_WORKSPACE_CHAT_RATIO = 0.3;
-
 const DEFAULT_WORKSPACE_STAGE_STATE = {
   paneOrder: DEFAULT_WORKSPACE_PANE_ORDER,
   canvasVisibility: "open",
   filesMode: "closed",
 };
-
-function isRecord$1(value) {
+function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
-
 function isPaneOrder(value) {
   return value === "chat-canvas" || value === "canvas-chat";
 }
-
 function isCanvasVisibility(value) {
   return value === "closed" || value === "open";
 }
-
 function isWorkspaceMode(value) {
   return value === "chatOnly" || value === "split" || value === "canvasOnly";
 }
-
 function isFilesMode(value) {
   return value === "closed" || value === "peek" || value === "docked";
 }
-
 function isAutoReveal(value) {
   return value === "eligible" || value === "consumed" || value === "suppressed";
 }
-
 function normalizeWorkspaceStageState(input) {
-  const candidate = isRecord$1(input) ? input : {};
+  const candidate = isRecord(input) ? input : {};
   const paneOrder = isPaneOrder(candidate.paneOrder)
     ? candidate.paneOrder
     : DEFAULT_WORKSPACE_STAGE_STATE.paneOrder;
@@ -87,15 +74,12 @@ function normalizeWorkspaceStageState(input) {
     autoReveal,
   };
 }
-
 function createWorkspaceStageState(input = {}) {
   return normalizeWorkspaceStageState(input);
 }
-
 function consumeAutoReveal(autoReveal) {
   return autoReveal === "eligible" ? "consumed" : autoReveal;
 }
-
 function statesEqual(left, right) {
   return (
     left.paneOrder === right.paneOrder &&
@@ -105,7 +89,6 @@ function statesEqual(left, right) {
     left.autoReveal === right.autoReveal
   );
 }
-
 function transition(state2, patch2) {
   const next2 = normalizeWorkspaceStageState({
     ...state2,
@@ -113,7 +96,6 @@ function transition(state2, patch2) {
   });
   return statesEqual(state2, next2) ? state2 : next2;
 }
-
 function workspaceStageReducer(state2, action) {
   switch (action.type) {
     case "state/restore": {
@@ -208,23 +190,19 @@ function workspaceStageReducer(state2, action) {
       });
   }
 }
-
 function rebaseWorkspaceStageActions(state2, actions) {
   return actions.reduce(workspaceStageReducer, state2);
 }
-
 function normalizeWorkspaceChatRatio(value) {
   return typeof value === "number" && Number.isFinite(value)
     ? Math.min(0.72, Math.max(0, value))
     : DEFAULT_WORKSPACE_CHAT_RATIO;
 }
-
 function normalizeWorkspacePaneOrder(value) {
   return value === "chat-canvas" || value === "canvas-chat"
     ? value
     : DEFAULT_WORKSPACE_PANE_ORDER;
 }
-
 export function useWorkspaceStageLayout(workspaceId2, isActive2) {
   const [layoutConfig, setLayoutConfig, setLayoutConfigAsync, layoutHydrated] =
     useStorage("global.config");

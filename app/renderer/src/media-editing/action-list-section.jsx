@@ -3,20 +3,20 @@ import {
   ActionListItem,
   ActionListPanel,
   ActionListSeparator,
-  Bold$1,
+  Bold$1 as Bold,
   CircleAlert,
   classifyFileType,
   Copy,
   DialogTrigger$1,
   FILE_TYPE_EXTENSIONS,
-  Info$1,
-  Italic$1,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
+  Info$1 as Info,
+  Italic$1 as Italic,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
   Search,
   Trash2Icon,
-  Underline$1,
+  Underline$1 as Underline,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -32,8 +32,8 @@ import {
 import { Label, Skeleton } from "../team/use-wallet-query.jsx";
 import {
   AlertDialog,
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -48,8 +48,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../settings/changelog-table.jsx";
-import { Separator$1 } from "../canvas/separator.jsx";
-import { Popover, Select$1 } from "../assets/credit-query-keys.jsx";
+import { Separator as Separator$1 } from "../canvas/separator.jsx";
+import { Popover, Select } from "../assets/credit-query-keys.jsx";
 import {
   Input3,
   SelectContent,
@@ -149,19 +149,15 @@ import { Toggle } from "../assets/rename-local-node-dialog.jsx";
 import { Switch } from "../generation/select-content.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
 import { SliderSection } from "./slider-section.jsx";
-
 function DialogTrigger({ ...props }) {
   return <DialogTrigger$1 data-slot="dialog-trigger" {...props} />;
 }
-
 function AlertDialogTrigger({ ...props }) {
   return <DialogTrigger$1 data-slot="alert-dialog-trigger" {...props} />;
 }
-
 function SheetTrigger({ ...props }) {
   return <DialogTrigger$1 data-slot="sheet-trigger" {...props} />;
 }
-
 function AccordionSection() {
   return (
     <ComponentSection name="Accordion" importPath="@/components/ui/accordion">
@@ -184,7 +180,6 @@ function AccordionSection() {
     </ComponentSection>
   );
 }
-
 function ActionListSection() {
   const { t: t2 } = useTranslation();
   const [lastAction, setLastAction] = reactExports.useState();
@@ -251,7 +246,7 @@ function ActionListSection() {
       <VariantGrid label={t2("uiSpec.actionList.interactive")}>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button$1 size="sm" variant="outline" />}
+            render={<Button size="sm" variant="outline" />}
             data-action-ui-id="ui-spec-list-dropdown-trigger"
           >
             {t2("uiSpec.actionList.dropdown")}
@@ -394,13 +389,12 @@ import { ActionDropdownMenuContent, ActionDropdownMenuItem } from '@/modules/bas
     </ComponentSection>
   );
 }
-
 function AlertSection() {
   return (
     <ComponentSection name="Alert" importPath="@/components/ui/alert">
       <VariantGrid label="Default">
         <Alert className="w-full">
-          <Info$1 />
+          <Info />
           <AlertTitle>提示</AlertTitle>
           <AlertDescription>这是一段提示文字。</AlertDescription>
         </Alert>
@@ -415,7 +409,6 @@ function AlertSection() {
     </ComponentSection>
   );
 }
-
 function AlertDialogSection() {
   return (
     <ComponentSection
@@ -427,9 +420,9 @@ function AlertDialogSection() {
         <AlertDialog>
           <AlertDialogTrigger
             render={
-              <Button$1 size="xs" variant="destructive">
+              <Button size="xs" variant="destructive">
                 删除
-              </Button$1>
+              </Button>
             }
           />
           <AlertDialogContent>
@@ -447,7 +440,6 @@ function AlertDialogSection() {
     </ComponentSection>
   );
 }
-
 function AvatarSection() {
   return (
     <ComponentSection
@@ -482,7 +474,6 @@ function AvatarSection() {
     </ComponentSection>
   );
 }
-
 function BadgeSection() {
   return (
     <ComponentSection
@@ -501,7 +492,6 @@ function BadgeSection() {
     </ComponentSection>
   );
 }
-
 function ButtonSection() {
   return (
     <ComponentSection
@@ -510,46 +500,45 @@ function ButtonSection() {
       description="6 variants × 4 sizes，含 loading/disabled。"
     >
       <VariantGrid label="Variants">
-        <Button$1>Default</Button$1>
-        <Button$1 variant="outline">Outline</Button$1>
-        <Button$1 variant="secondary">Secondary</Button$1>
-        <Button$1 variant="ghost">Ghost</Button$1>
-        <Button$1 variant="destructive">Destructive</Button$1>
-        <Button$1 variant="link">Link</Button$1>
+        <Button>Default</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="link">Link</Button>
       </VariantGrid>
       <VariantGrid label="Sizes">
-        <Button$1 size="xs">xs</Button$1>
-        <Button$1 size="sm">sm</Button$1>
-        <Button$1 size="default">default</Button$1>
-        <Button$1 size="lg">lg</Button$1>
+        <Button size="xs">xs</Button>
+        <Button size="sm">sm</Button>
+        <Button size="default">default</Button>
+        <Button size="lg">lg</Button>
       </VariantGrid>
       <VariantGrid label="Icon Sizes">
-        <Button$1 size="icon-xs" aria-label="icon-xs">
+        <Button size="icon-xs" aria-label="icon-xs">
           +
-        </Button$1>
-        <Button$1 size="icon-sm" aria-label="icon-sm">
+        </Button>
+        <Button size="icon-sm" aria-label="icon-sm">
           +
-        </Button$1>
-        <Button$1 size="icon" aria-label="icon">
+        </Button>
+        <Button size="icon" aria-label="icon">
           +
-        </Button$1>
-        <Button$1 size="icon-lg" aria-label="icon-lg">
+        </Button>
+        <Button size="icon-lg" aria-label="icon-lg">
           +
-        </Button$1>
+        </Button>
       </VariantGrid>
       <VariantGrid label="States">
-        <Button$1 disabled={true}>Disabled</Button$1>
-        <Button$1 loading={true}>Loading</Button$1>
+        <Button disabled={true}>Disabled</Button>
+        <Button loading={true}>Loading</Button>
       </VariantGrid>
     </ComponentSection>
   );
 }
-
 function CardAction({ className, ...props }) {
   return (
     <div
       data-slot="card-action"
-      className={cn$2(
+      className={cn(
         "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
         className,
       )}
@@ -557,12 +546,11 @@ function CardAction({ className, ...props }) {
     />
   );
 }
-
 function CardFooter({ className, ...props }) {
   return (
     <div
       data-slot="card-footer"
-      className={cn$2(
+      className={cn(
         "flex items-center border-t p-4 group-data-[size=sm]/card:p-3",
         className,
       )}
@@ -570,7 +558,6 @@ function CardFooter({ className, ...props }) {
     />
   );
 }
-
 function CardSection() {
   return (
     <ComponentSection
@@ -584,14 +571,14 @@ function CardSection() {
             <CardTitle>卡片标题</CardTitle>
             <CardDescription>卡片描述文字。</CardDescription>
             <CardAction>
-              <Button$1 size="xs" variant="ghost">
+              <Button size="xs" variant="ghost">
                 Action
-              </Button$1>
+              </Button>
             </CardAction>
           </CardHeader>
           <CardContent>正文内容</CardContent>
           <CardFooter>
-            <Button$1 size="xs">确认</Button$1>
+            <Button size="xs">确认</Button>
           </CardFooter>
         </Card>
       </VariantGrid>
@@ -606,7 +593,6 @@ function CardSection() {
     </ComponentSection>
   );
 }
-
 function CheckboxSection() {
   const { t: t2 } = useTranslation();
   return (
@@ -719,7 +705,6 @@ function CheckboxSection() {
     </ComponentSection>
   );
 }
-
 function ContextMenuSection() {
   const { t: t2 } = useTranslation();
   return (
@@ -755,13 +740,12 @@ function ContextMenuSection() {
     </ComponentSection>
   );
 }
-
 function DialogSection() {
   return (
     <ComponentSection name="Dialog" importPath="@/components/ui/dialog">
       <VariantGrid label="Default">
         <Dialog>
-          <DialogTrigger render={<Button$1 size="xs">打开 Dialog</Button$1>} />
+          <DialogTrigger render={<Button size="xs">打开 Dialog</Button>} />
           <DialogContent>
             <DialogHeader>
               <DialogTitle>对话框标题</DialogTitle>
@@ -769,10 +753,10 @@ function DialogSection() {
             </DialogHeader>
             <p className="text-xs">主体内容区。</p>
             <DialogFooter>
-              <Button$1 size="sm" variant="ghost">
+              <Button size="sm" variant="ghost">
                 取消
-              </Button$1>
-              <Button$1 size="sm">确认</Button$1>
+              </Button>
+              <Button size="sm">确认</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -780,7 +764,6 @@ function DialogSection() {
     </ComponentSection>
   );
 }
-
 function DropdownMenuSection() {
   const { t: t2 } = useTranslation();
   return (
@@ -791,7 +774,7 @@ function DropdownMenuSection() {
       <VariantGrid label={t2("uiSpec.actionList.dropdown")}>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button$1 size="xs" />}
+            render={<Button size="xs" />}
             data-action-ui-id="ui-spec-dropdown-trigger"
           >
             {t2("common.more")}
@@ -816,7 +799,6 @@ function DropdownMenuSection() {
     </ComponentSection>
   );
 }
-
 function FileTypeIconSection() {
   const { t: t2 } = useTranslation();
   const psd = classifyFileType({
@@ -927,7 +909,6 @@ const type = classifyFileType({ filename });
     </ComponentSection>
   );
 }
-
 function InputSection() {
   return (
     <ComponentSection
@@ -954,7 +935,6 @@ function InputSection() {
     </ComponentSection>
   );
 }
-
 function IntegrationRowSection() {
   return (
     <ComponentSection
@@ -991,7 +971,7 @@ function IntegrationRowSection() {
               <IntegrationActionButton
                 variant="outline"
                 leadingIcon={
-                  <PlaybackPauseIcon$1 className="size-3.5 text-foreground/70" />
+                  <PlaybackPauseIcon className="size-3.5 text-foreground/70" />
                 }
               >
                 Pause
@@ -1032,7 +1012,7 @@ function IntegrationRowSection() {
           tone="warning"
           markerTone="warning"
           markerIcon={
-            <PlaybackPauseIcon$1 className="size-2.5 text-warning/80" />
+            <PlaybackPauseIcon className="size-2.5 text-warning/80" />
           }
           markerLabel="status:paused"
         />
@@ -1056,7 +1036,7 @@ function IntegrationRowSection() {
       <VariantGrid label="Actions">
         <IntegrationActionButton
           variant="outline"
-          leadingIcon={<PlaybackPlayIcon$1 className="size-3.5" />}
+          leadingIcon={<PlaybackPlayIcon className="size-3.5" />}
         >
           Resume
         </IntegrationActionButton>
@@ -1067,7 +1047,6 @@ function IntegrationRowSection() {
     </ComponentSection>
   );
 }
-
 function KbdSection() {
   return (
     <ComponentSection name="Kbd" importPath="@/components/ui/kbd">
@@ -1090,7 +1069,6 @@ function KbdSection() {
     </ComponentSection>
   );
 }
-
 function LabelSection() {
   return (
     <ComponentSection name="Label" importPath="@/components/ui/label">
@@ -1103,15 +1081,12 @@ function LabelSection() {
     </ComponentSection>
   );
 }
-
 function PopoverSection() {
   return (
     <ComponentSection name="Popover" importPath="@/components/ui/popover">
       <VariantGrid label="Default">
         <Popover>
-          <PopoverTrigger
-            render={<Button$1 size="xs">打开 Popover</Button$1>}
-          />
+          <PopoverTrigger render={<Button size="xs">打开 Popover</Button>} />
           <PopoverContent>
             <PopoverHeader>
               <PopoverTitle>标题</PopoverTitle>
@@ -1124,7 +1099,6 @@ function PopoverSection() {
     </ComponentSection>
   );
 }
-
 function ProgressSection() {
   return (
     <ComponentSection name="Progress" importPath="@/components/ui/progress">
@@ -1149,7 +1123,6 @@ function ProgressSection() {
     </ComponentSection>
   );
 }
-
 function RadioGroupSection() {
   return (
     <ComponentSection
@@ -1175,13 +1148,9 @@ function RadioGroupSection() {
     </ComponentSection>
   );
 }
-
 const PREVIEW_DEFAULT_WIDTH = 160;
-
 const PREVIEW_MIN_WIDTH = 96;
-
 const PREVIEW_MAX_WIDTH = 280;
-
 function ResizeColHandleSection() {
   const {
     width,
@@ -1235,7 +1204,6 @@ function ResizeColHandleSection() {
     </ComponentSection>
   );
 }
-
 function SelectSection() {
   return (
     <ComponentSection
@@ -1244,7 +1212,7 @@ function SelectSection() {
       description="带 Trigger / Content / Item 子组件。"
     >
       <VariantGrid label="Default">
-        <Select$1>
+        <Select>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="请选择..." />
           </SelectTrigger>
@@ -1253,18 +1221,17 @@ function SelectSection() {
             <SelectItem value="banana">香蕉</SelectItem>
             <SelectItem value="cherry">樱桃</SelectItem>
           </SelectContent>
-        </Select$1>
+        </Select>
       </VariantGrid>
     </ComponentSection>
   );
 }
-
 function Separator({ className, orientation = "horizontal", ...props }) {
   return (
     <Separator$1
       data-slot="separator"
       orientation={orientation}
-      className={cn$2(
+      className={cn(
         "shrink-0 bg-border data-horizontal:h-[var(--divider-width)] data-horizontal:w-full data-vertical:w-[var(--divider-width)] data-vertical:self-stretch",
         className,
       )}
@@ -1272,7 +1239,6 @@ function Separator({ className, orientation = "horizontal", ...props }) {
     />
   );
 }
-
 function SeparatorSection() {
   return (
     <ComponentSection name="Separator" importPath="@/components/ui/separator">
@@ -1293,7 +1259,6 @@ function SeparatorSection() {
     </ComponentSection>
   );
 }
-
 function SheetSection() {
   return (
     <ComponentSection
@@ -1303,7 +1268,7 @@ function SheetSection() {
     >
       <VariantGrid label="Side Right">
         <Sheet>
-          <SheetTrigger render={<Button$1 size="xs">右侧打开</Button$1>} />
+          <SheetTrigger render={<Button size="xs">右侧打开</Button>} />
           <SheetContent side="right">
             <SheetHeader>
               <SheetTitle>侧滑面板</SheetTitle>
@@ -1315,7 +1280,7 @@ function SheetSection() {
       </VariantGrid>
       <VariantGrid label="Side Left">
         <Sheet>
-          <SheetTrigger render={<Button$1 size="xs">左侧打开</Button$1>} />
+          <SheetTrigger render={<Button size="xs">左侧打开</Button>} />
           <SheetContent side="left">
             <SheetHeader>
               <SheetTitle>左侧面板</SheetTitle>
@@ -1326,7 +1291,6 @@ function SheetSection() {
     </ComponentSection>
   );
 }
-
 function SkeletonSection() {
   return (
     <ComponentSection name="Skeleton" importPath="@/components/ui/skeleton">
@@ -1340,7 +1304,6 @@ function SkeletonSection() {
     </ComponentSection>
   );
 }
-
 function SpinnerSection() {
   return (
     <ComponentSection name="Spinner" importPath="@/components/ui/spinner">
@@ -1353,7 +1316,6 @@ function SpinnerSection() {
     </ComponentSection>
   );
 }
-
 function SwitchSection() {
   return (
     <ComponentSection name="Switch" importPath="@/components/ui/switch">
@@ -1370,7 +1332,6 @@ function SwitchSection() {
     </ComponentSection>
   );
 }
-
 function TabsSection() {
   return (
     <ComponentSection name="Tabs" importPath="@/components/ui/tabs">
@@ -1395,7 +1356,6 @@ function TabsSection() {
     </ComponentSection>
   );
 }
-
 function TextareaSection() {
   return (
     <ComponentSection name="Textarea" importPath="@/components/ui/textarea">
@@ -1413,19 +1373,18 @@ function TextareaSection() {
     </ComponentSection>
   );
 }
-
 function ToggleSection() {
   return (
     <ComponentSection name="Toggle" importPath="@/components/ui/toggle">
       <VariantGrid label="Default">
         <Toggle aria-label="bold">
-          <Bold$1 className="size-3.5" />
+          <Bold className="size-3.5" />
         </Toggle>
         <Toggle defaultPressed={true} aria-label="italic">
-          <Italic$1 className="size-3.5" />
+          <Italic className="size-3.5" />
         </Toggle>
         <Toggle disabled={true} aria-label="underline">
-          <Underline$1 className="size-3.5" />
+          <Underline className="size-3.5" />
         </Toggle>
       </VariantGrid>
       <VariantGrid label="With Text">
@@ -1435,7 +1394,6 @@ function ToggleSection() {
     </ComponentSection>
   );
 }
-
 function ToggleGroupSection() {
   return (
     <ComponentSection
@@ -1458,7 +1416,6 @@ function ToggleGroupSection() {
     </ComponentSection>
   );
 }
-
 function TooltipSection() {
   return (
     <ComponentSection
@@ -1469,7 +1426,7 @@ function TooltipSection() {
       <VariantGrid label="Default">
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger render={<Button$1 size="xs">悬停</Button$1>} />
+            <TooltipTrigger render={<Button size="xs">悬停</Button>} />
             <TooltipContent>这是 tooltip 内容</TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -1477,7 +1434,6 @@ function TooltipSection() {
     </ComponentSection>
   );
 }
-
 export const SECTION_REGISTRY = [
   {
     id: "button",

@@ -5,12 +5,12 @@ import {
   jsxRuntimeExports,
   Position,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useStoreApi,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { createTracker } from "../generation/create-tracker.js";
-import { trackers$1 } from "../generation/missing-asset-card.jsx";
+import { trackers } from "../generation/missing-asset-card.jsx";
 import { useRegisterZoomCounter } from "../infra/create-recently-added-store.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 import {
@@ -18,16 +18,14 @@ import {
   useCanvasIsMultiSelect,
 } from "../media-editing/package.jsx";
 import { useCanvasNodeIsDragging } from "./fullscreen-icon.jsx";
-
 function registerHandleProximity(element2) {
   const root2 = element2.closest(".react-flow");
   const node2 = element2.closest(".react-flow__node");
   if (!root2 || !node2) return null;
-  const tracker2 = trackers$1.get(root2) ?? createTracker(root2);
-  trackers$1.set(root2, tracker2);
+  const tracker2 = trackers.get(root2) ?? createTracker(root2);
+  trackers.set(root2, tracker2);
   return tracker2.register(element2, node2);
 }
-
 const HANDLE_BASE = {
   width: 0,
   height: 0,
@@ -40,7 +38,6 @@ const HANDLE_BASE = {
   overflow: "visible",
   zIndex: 20,
 };
-
 const HANDLE_TARGET = {
   width: 0,
   height: 0,
@@ -54,7 +51,6 @@ const HANDLE_TARGET = {
   zIndex: 20,
   pointerEvents: "none",
 };
-
 function HandleIcon() {
   return (
     <CompositedSvg
@@ -72,7 +68,6 @@ function HandleIcon() {
     </CompositedSvg>
   );
 }
-
 function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasNodeIsDragging(nodeId);
@@ -143,16 +138,14 @@ function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
     </div>
   );
 }
-
 const ProximityHandle = reactExports.memo(ProximityHandleInner);
-
 function NodeHandlesInner({
   nodeId,
   selected: selected2,
   showSourceAffordance = true,
   sourcePosition = Position.Right,
 }) {
-  const connectable = useStore$3((s2) => s2.nodesConnectable);
+  const connectable = useStore((s2) => s2.nodesConnectable);
   const targetPosition =
     sourcePosition === Position.Left ? Position.Right : Position.Left;
   if (!nodeId) {
@@ -175,5 +168,4 @@ function NodeHandlesInner({
     </>
   );
 }
-
 export const NodeHandles = reactExports.memo(NodeHandlesInner);

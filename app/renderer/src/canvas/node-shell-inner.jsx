@@ -7,12 +7,12 @@ import {
   Loader2Icon,
   reactDomExports,
   reactExports,
-  useStore$2,
+  useStore$2 as useStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import {
   defaultRecentlyAddedStore,
   getDerivedNodePosition,
@@ -21,21 +21,15 @@ import {
   useRecentlyAddedApi,
 } from "../infra/create-recently-added-store.js";
 import { useNodeTagColors } from "./use-inline-rename.jsx";
-import { RetryIcon$1 } from "./fullscreen-icon.jsx";
-
+import { RetryIcon } from "./fullscreen-icon.jsx";
 const useRecentlyAddedStore = (selector2) =>
-  useStore$2(useRecentlyAddedApi(), selector2);
-
+  useStore(useRecentlyAddedApi(), selector2);
 useRecentlyAddedStore.getState = defaultRecentlyAddedStore.getState;
-
 useRecentlyAddedStore.setState = defaultRecentlyAddedStore.setState;
-
 useRecentlyAddedStore.subscribe = defaultRecentlyAddedStore.subscribe;
-
 function useIsRecentlyAdded(nodeId) {
   return useRecentlyAddedStore((s2) => Boolean(nodeId && s2.ids.has(nodeId)));
 }
-
 function UploadIcon({ size: size2 = 16 }) {
   return (
     <CompositedSvg
@@ -62,7 +56,6 @@ function UploadIcon({ size: size2 = 16 }) {
     </CompositedSvg>
   );
 }
-
 function NodeShellInner({
   id: id2,
   tagIds,
@@ -122,14 +115,11 @@ function NodeShellInner({
     </div>
   );
 }
-
 export const NodeShell = reactExports.memo(NodeShellInner);
-
 export function NodeFrameStroke() {
   return <span className="canvas-node-stroke" aria-hidden="true" />;
 }
-
-const buttonVariants$1 = cva(
+const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
@@ -169,8 +159,7 @@ const buttonVariants$1 = cva(
     },
   },
 );
-
-export function Button$2({
+export function Button({
   className,
   variant = "default",
   size: size2 = "default",
@@ -183,8 +172,8 @@ export function Button$2({
     <Button$3
       data-slot="button"
       disabled={disabled2 || loading}
-      className={cn$5(
-        buttonVariants$1({
+      className={cn(
+        buttonVariants({
           variant,
           size: size2,
           className,
@@ -197,7 +186,6 @@ export function Button$2({
     </Button$3>
   );
 }
-
 export function NodeEmptyState({
   icon,
   guidance,
@@ -224,7 +212,7 @@ export function NodeEmptyState({
           )}
           <div className="flex flex-col gap-1">
             {suggestions.map((suggestion) => (
-              <Button$2
+              <Button
                 key={suggestion.id}
                 type="button"
                 variant="ghost"
@@ -242,7 +230,7 @@ export function NodeEmptyState({
                   {suggestion.icon}
                 </span>
                 <span className="min-w-0 truncate">{suggestion.label}</span>
-              </Button$2>
+              </Button>
             ))}
           </div>
         </div>
@@ -250,7 +238,6 @@ export function NodeEmptyState({
     </div>
   );
 }
-
 export function PlaceholderUploadButton({
   icon,
   children: children2,
@@ -295,16 +282,12 @@ export function PlaceholderUploadButton({
     </>
   );
 }
-
-function stopEvent$1(event) {
+function stopEvent(event) {
   event.stopPropagation();
 }
-
 const QUEUE_ACTION_BUTTON_CLASS =
   "nodrag nopan inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
-
 const QUEUE_ACTION_ICON_CLASS = "size-3.5 shrink-0";
-
 export function normalizeEstimatedWaitSeconds(seconds, legacyMinutes) {
   if (typeof seconds === "number" && Number.isFinite(seconds) && seconds > 0) {
     return Math.ceil(seconds);
@@ -318,7 +301,6 @@ export function normalizeEstimatedWaitSeconds(seconds, legacyMinutes) {
   }
   return void 0;
 }
-
 function resolveGenerationWaitEstimate(seconds) {
   if (seconds == null || !Number.isFinite(seconds) || seconds <= 0)
     return void 0;
@@ -333,7 +315,6 @@ function resolveGenerationWaitEstimate(seconds) {
         count: Math.ceil(displaySeconds / 60),
       };
 }
-
 export function GenerationWaitEstimate({ seconds, actionUiId }) {
   const { t: t2 } = useTranslation();
   const estimate = resolveGenerationWaitEstimate(seconds);
@@ -350,13 +331,12 @@ export function GenerationWaitEstimate({ seconds, actionUiId }) {
     <span
       className="nodrag nopan max-w-full whitespace-normal break-words px-2 text-center text-xs font-medium leading-5 text-muted-foreground"
       data-action-ui-id={`${actionUiId}.wait-estimate`}
-      onPointerDown={stopEvent$1}
+      onPointerDown={stopEvent}
     >
       {label}
     </span>
   );
 }
-
 export function QueueGenerationControl({
   state: state2,
   onCancel,
@@ -381,7 +361,7 @@ export function QueueGenerationControl({
       role="status"
       aria-live="polite"
       data-action-ui-id={`${actionUiId}.status`}
-      onPointerDown={stopEvent$1}
+      onPointerDown={stopEvent}
     >
       <span className="max-w-full truncate text-xs font-medium leading-5 text-muted-foreground">
         {isQueued ? t2("canvas.pending") : t2("canvas.queuePaused")}
@@ -396,13 +376,13 @@ export function QueueGenerationControl({
           data-action-ui-id={`${actionUiId}.${isQueued ? "cancel" : "resume"}`}
         >
           {isQueued ? (
-            <X$7
+            <X
               size={14}
               strokeWidth={1.5}
               className={QUEUE_ACTION_ICON_CLASS}
             />
           ) : (
-            <RetryIcon$1
+            <RetryIcon
               size={14}
               strokeWidth={1.5}
               className={`${QUEUE_ACTION_ICON_CLASS}${resuming ? " animate-spin" : ""}`}
@@ -416,7 +396,6 @@ export function QueueGenerationControl({
     </div>
   );
 }
-
 export function useMediaFallbackRetry(options) {
   const retries = 2;
   const delayMs = 2e3;
@@ -456,7 +435,6 @@ export function useMediaFallbackRetry(options) {
     reset: reset2,
   };
 }
-
 export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
   return getDerivedNodePosition(
     reactFlow,
@@ -465,11 +443,9 @@ export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
     fallbackSize,
   );
 }
-
 function resolveAddToChatPath(metaPath, fallbackPath) {
   return metaPath || fallbackPath;
 }
-
 export function useAddToChat(nodeId, meta2, onAddToChat, fallbackPath) {
   return reactExports.useCallback(() => {
     const filePath = resolveAddToChatPath(meta2?.path, fallbackPath);

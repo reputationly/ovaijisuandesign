@@ -2,7 +2,6 @@
 import { reactExports, useQuery } from "../vendor.js";
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-
 function isRenderableAssetType(type2) {
   return (
     type2 === "image" ||
@@ -12,11 +11,8 @@ function isRenderableAssetType(type2) {
     type2 === "file"
   );
 }
-
 export const UPDATE_CHECK_TIMED_OUT = "Update check timed out";
-
 export const UpdaterContext = reactExports.createContext(null);
-
 export function useUpdaterContext() {
   const ctx = reactExports.useContext(UpdaterContext);
   if (!ctx) {
@@ -24,20 +20,15 @@ export function useUpdaterContext() {
   }
   return ctx;
 }
-
 export function useOptionalUpdaterContext() {
   return reactExports.useContext(UpdaterContext);
 }
-
 const FETCH_TIMEOUT_MS = 1500;
-
-const STALE_TIME_MS$3 = 5 * 60 * 1e3;
-
+const STALE_TIME_MS = 5 * 60 * 1e3;
 const UPDATE_CDN = {
   domestic: "https://filecdn.minimax.chat",
   overseas: "https://file.cdn.minimax.io",
 };
-
 function changelogUrl(region, channel) {
   const base2 = UPDATE_CDN[region];
   const effectiveChannel = channel === "dev" ? "prod" : channel;
@@ -47,7 +38,6 @@ function changelogUrl(region, channel) {
       : `minimax-hub-${effectiveChannel}`;
   return `${base2}/public/${appName}/release/${region}/changelog.json`;
 }
-
 async function fetchChangelog(url2, signal) {
   const resp = await fetch(url2, {
     signal,
@@ -64,7 +54,6 @@ async function fetchChangelog(url2, signal) {
   }
   return data2;
 }
-
 export function useChangelog() {
   const { region, channel } = useRuntimeConfig();
   const url2 = changelogUrl(region, channel);
@@ -79,7 +68,7 @@ export function useChangelog() {
         clearTimeout(timer2);
       }
     },
-    staleTime: STALE_TIME_MS$3,
+    staleTime: STALE_TIME_MS,
     retry: 1,
     // Network failure must not block the UI — the bundle always wins as fallback.
     throwOnError: false,
@@ -92,40 +81,32 @@ export function useChangelog() {
     isLoading,
   };
 }
-
 export function isCaseInsensitiveOs(os2) {
   return os2 === "darwin" || os2 === "win32";
 }
-
 export const SettingsPanelHeaderContext = reactExports.createContext({
   setHeaderOverride: () => {},
 });
-
 const EMPTY_SNAPSHOT = {
   currentWorkspaceId: null,
   activeRuntime: null,
 };
-
-export const listeners$7 = new Set();
-
-function emit$4() {
-  for (const listener of listeners$7) listener();
+export const listeners = new Set();
+function emit() {
+  for (const listener of listeners) listener();
 }
-
-export let snapshot$2 = EMPTY_SNAPSHOT;
-
+export let snapshot = EMPTY_SNAPSHOT;
 export function setTopbarActiveWorkspaceSnapshot(next2) {
   if (
-    snapshot$2.currentWorkspaceId === next2.currentWorkspaceId &&
-    snapshot$2.activeRuntime === next2.activeRuntime
+    snapshot.currentWorkspaceId === next2.currentWorkspaceId &&
+    snapshot.activeRuntime === next2.activeRuntime
   ) {
     return;
   }
-  snapshot$2 =
+  snapshot =
     next2.currentWorkspaceId || next2.activeRuntime ? next2 : EMPTY_SNAPSHOT;
-  emit$4();
+  emit();
 }
-
 export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
   const [runtime, setRuntime] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -167,11 +148,9 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
   }, [currentWorkspaceId, hiloApp2]);
   return runtime;
 }
-
 export function normalizeWorkspaceId(value) {
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-
 export function assetInfoToAssetMeta(asset, fileUrlById) {
   if (!asset.id) return void 0;
   if (!isRenderableAssetType(asset.type)) return void 0;

@@ -15,11 +15,10 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { PauseIcon, PlayIcon } from "./build-video-thumb-base.jsx";
 import { useCanvasActive } from "./package.jsx";
 import { calcInitialScale } from "./duration-tiers.js";
-import { CloseIcon$1 } from "../canvas/file-missing-icon.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { CloseIcon } from "../canvas/file-missing-icon.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { MediaClipEngine } from "./media-clip-engine.js";
-
-function formatTime$1(seconds, showMs = false) {
+function formatTime(seconds, showMs = false) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   const ms = Math.floor((seconds % 1) * 100);
@@ -31,9 +30,7 @@ function formatTime$1(seconds, showMs = false) {
   }
   return `${minsStr}:${secsStr}`;
 }
-
 const MIN_MEDIA_CLIP_DURATION = 0.1;
-
 function splitMediaClipRange(
   range2,
   playhead,
@@ -62,7 +59,6 @@ function splitMediaClipRange(
     },
   ];
 }
-
 function splitMediaClipSegments(
   ranges,
   playhead,
@@ -84,7 +80,6 @@ function splitMediaClipSegments(
     ...ranges.slice(targetIndex + 1),
   ];
 }
-
 function undoMediaClipSegmentSplit(ranges, splitPoint) {
   const rightSegmentIndex = ranges.findIndex(
     (range2, index2) =>
@@ -104,8 +99,7 @@ function undoMediaClipSegmentSplit(ranges, splitPoint) {
     ...ranges.slice(rightSegmentIndex + 1),
   ];
 }
-
-const EMPTY_STATE$1 = {
+const EMPTY_STATE = {
   clips: [],
   totalDuration: 0,
   currentTime: 0,
@@ -118,12 +112,10 @@ const EMPTY_STATE$1 = {
   segmentRanges: [],
   previewFrame: null,
 };
-
 const TIMELINE_CANVAS_HEIGHT =
   TIMELINE_CONFIG.RULER_HEIGHT +
   TIMELINE_CONFIG.VIDEO_TRACK_HEIGHT +
   TIMELINE_CONFIG.CLIP_PADDING * 2;
-
 export function MediaClipPanelInner({
   mediaUrl,
   mediaName,
@@ -187,7 +179,7 @@ export function MediaClipPanelInner({
     [engine],
   );
   const getSnapshot2 = reactExports.useCallback(
-    () => engine?.getState() ?? EMPTY_STATE$1,
+    () => engine?.getState() ?? EMPTY_STATE,
     [engine],
   );
   const state2 = reactExports.useSyncExternalStore(subscribe2, getSnapshot2);
@@ -252,7 +244,7 @@ export function MediaClipPanelInner({
     const tick = () => {
       const s2 = engine.getState();
       if (timeDisplayRef.current) {
-        timeDisplayRef.current.textContent = `${formatTime$1(s2.currentTime)} / ${formatTime$1(s2.totalDuration, true)}`;
+        timeDisplayRef.current.textContent = `${formatTime(s2.currentTime)} / ${formatTime(s2.totalDuration, true)}`;
       }
       rafId2 = requestAnimationFrame(tick);
     };
@@ -440,7 +432,7 @@ export function MediaClipPanelInner({
             onClick={onClose}
             className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
           >
-            <CloseIcon$1 />
+            <CloseIcon />
           </button>
         </div>
         {renderPreview2({
@@ -461,15 +453,15 @@ export function MediaClipPanelInner({
             ref={timeDisplayRef}
             className="min-w-[70px] font-mono text-xs tabular-nums text-[var(--canvas-controls-text-muted)]"
           >
-            {formatTime$1(state2.currentTime)}
+            {formatTime(state2.currentTime)}
             {" / "}
-            {formatTime$1(state2.totalDuration, true)}
+            {formatTime(state2.totalDuration, true)}
           </span>
           {cropEnabled && state2.cropRange && (
             <span className="font-mono text-xs tabular-nums text-[var(--canvas-controls-text-muted)]">
-              [{formatTime$1(state2.cropRange.start)}
+              [{formatTime(state2.cropRange.start)}
               {" - "}
-              {formatTime$1(state2.cropRange.end)}] ({cropDuration}s)
+              {formatTime(state2.cropRange.end)}] ({cropDuration}s)
             </span>
           )}
           <div className="flex-1" />
@@ -513,7 +505,7 @@ export function MediaClipPanelInner({
               >
                 <Undo2 size={14} strokeWidth={1.5} />
               </button>
-              <Button$2
+              <Button
                 variant="outline"
                 size="sm"
                 data-action-ui-id="canvas.media-clip.split"
@@ -522,10 +514,10 @@ export function MediaClipPanelInner({
                 className="border-[var(--canvas-controls-border)] bg-transparent text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
               >
                 {t2("canvas.split", "切分")}
-              </Button$2>
+              </Button>
             </>
           )}
-          <Button$2
+          <Button
             size="sm"
             onClick={handleExport}
             disabled={
@@ -537,7 +529,7 @@ export function MediaClipPanelInner({
             {exporting
               ? `${Math.round(exportProgress * 100)}%`
               : t2(exportLabelKey)}
-          </Button$2>
+          </Button>
         </div>
       </div>
     </div>,

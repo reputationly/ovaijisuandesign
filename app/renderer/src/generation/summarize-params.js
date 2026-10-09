@@ -5,7 +5,6 @@ import {
 } from "../media-editing/get-reference-navigation-defaults.jsx";
 import { translateOptionValue } from "./param-label-fallbacks.js";
 import { formatSecondsOption } from "./expand-arrow-icon.jsx";
-
 function formatMusicLengthSummary(t2, value) {
   if (!value || value === "auto") {
     return t2("canvas.param.option.auto", {
@@ -16,8 +15,7 @@ function formatMusicLengthSummary(t2, value) {
   if (preset2) return musicLengthPresetLabel(t2, preset2);
   return value;
 }
-
-export function summarizeParams$1(t2, model, modelParams) {
+export function summarizeParams(t2, model, modelParams) {
   if (!model) return "";
   const parts = [];
   let hasAuto = false;

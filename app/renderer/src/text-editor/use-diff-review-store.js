@@ -1,11 +1,9 @@
 // use-diff-review-store.js
-import { create$2 } from "../vendor.js";
+import { create$2 as create } from "../vendor.js";
 import { isDiffReviewSessionReady } from "./is-diff-review-session-ready.js";
-
 function diffReviewHunkId(edit) {
   return `${edit.annotationId}:${edit.targetIndex ?? 0}`;
 }
-
 function toHunk(edit) {
   return {
     id: diffReviewHunkId(edit),
@@ -30,7 +28,6 @@ function toHunk(edit) {
     status: "pending",
   };
 }
-
 function toSession(input, contentReady = input.contentReady ?? false) {
   const hunks = input.appliedEdits
     .map(toHunk)
@@ -43,15 +40,13 @@ function toSession(input, contentReady = input.contentReady ?? false) {
     hunks,
   };
 }
-
 function withResolvedCleanup(session) {
   if (!session) return null;
   return session.hunks.some((hunk) => hunk.status === "pending")
     ? session
     : null;
 }
-
-export const useDiffReviewStore = create$2((set2, get3) => ({
+export const useDiffReviewStore = create((set2, get3) => ({
   session: null,
   reverting: false,
   undoHandler: null,

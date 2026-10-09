@@ -1,8 +1,6 @@
 // segmented-control.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-
 const SCROLL_EDGE_EPSILON = 1;
-
 function shouldConsumePanelWheel(element2, deltaY) {
   if (deltaY === 0) return false;
   const maxScrollTop = element2.scrollHeight - element2.clientHeight;
@@ -11,13 +9,11 @@ function shouldConsumePanelWheel(element2, deltaY) {
     ? element2.scrollTop > SCROLL_EDGE_EPSILON
     : element2.scrollTop < maxScrollTop - SCROLL_EDGE_EPSILON;
 }
-
 function handleScrollablePanelWheel(event) {
   if (shouldConsumePanelWheel(event.currentTarget, event.deltaY)) {
     event.stopPropagation();
   }
 }
-
 export function LeftPanel({
   leftContent,
   leftFooter,
@@ -49,8 +45,7 @@ export function LeftPanel({
     </aside>
   );
 }
-
-export function SegmentedControl$1({
+export function SegmentedControl({
   options,
   value,
   onChange,
@@ -89,7 +84,6 @@ export function SegmentedControl$1({
     </div>
   );
 }
-
 export function readableGenerationError(error) {
   const raw2 = error instanceof Error ? error.message : String(error);
   if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) {

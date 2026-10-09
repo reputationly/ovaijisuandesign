@@ -1,11 +1,11 @@
 // sortable-tag-row.jsx
 import {
-  CSS$1,
+  CSS$1 as CSS,
   dedupedToast,
   reactExports,
   useSortable,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   Icon,
@@ -21,10 +21,13 @@ import {
   isTagNameTaken,
   validateCanvasTagName,
 } from "../infra/parse-connector-selection.js";
-import { Button$1, cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  Button,
+  cn$2 as cn,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 export function SortableTagRow({
   tag,
   label,
@@ -82,11 +85,11 @@ export function SortableTagRow({
     <div
       ref={setNodeRef}
       style={{
-        transform: CSS$1.Transform.toString(transform2),
+        transform: CSS.Transform.toString(transform2),
         transition: transition2,
         opacity: isDragging ? 0.92 : 1,
       }}
-      className={cn$2(
+      className={cn(
         "group/row w-full rounded-md px-1 py-0.5 transition-[background-color,box-shadow,opacity]",
         isDragging &&
           "relative z-10 bg-popup-item-hover shadow-sm ring-1 ring-border",
@@ -101,7 +104,7 @@ export function SortableTagRow({
           data-action-ui-id="canvas.tag-manager-delete-zone"
         >
           <div
-            className={cn$2(
+            className={cn(
               "-m-2.5 flex size-9 items-center justify-center rounded-md",
               !keywordTag &&
                 "cursor-grab touch-none select-none active:cursor-grabbing",
@@ -127,7 +130,7 @@ export function SortableTagRow({
                       type="button"
                       aria-label={t2("canvasTags.delete")}
                       data-action-ui-id="canvas.tag-manager-keyword-indicator"
-                      className={cn$2(
+                      className={cn(
                         "group/keyword-delete flex size-4 shrink-0 items-center justify-center rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.3)] outline-hidden transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-ring/50 dark:border-[rgba(255,255,255,0.4)]",
                         !editing &&
                           "group-hover/delete-zone:border-foreground group-hover/delete-zone:bg-foreground group-hover/delete-zone:opacity-100 focus-visible:border-foreground focus-visible:bg-foreground focus-visible:opacity-100",
@@ -135,10 +138,10 @@ export function SortableTagRow({
                       onClick={() => onDelete(tag)}
                     >
                       <Icon
-                        icon={X$7}
+                        icon={X}
                         size="xs"
                         strokeWidth={3}
-                        className={cn$2(
+                        className={cn(
                           "text-background opacity-0 transition-opacity",
                           !editing &&
                             "group-hover/delete-zone:opacity-100 group-focus-visible/keyword-delete:opacity-100",
@@ -158,7 +161,7 @@ export function SortableTagRow({
             <Input3
               value={draft}
               disabled={saving}
-              className={cn$2(
+              className={cn(
                 "h-8 min-w-0 w-full rounded-md border-transparent bg-transparent! py-0 pr-1.5 pl-2 text-[13px] font-normal shadow-none focus-visible:border-border! focus-visible:bg-transparent! dark:bg-transparent! dark:focus-visible:bg-transparent!",
                 !editing
                   ? "text-transparent caret-transparent group-hover/name:border-black/[0.12]! dark:group-hover/name:border-white/[0.12]!"
@@ -229,7 +232,7 @@ export function SortableTagRow({
             data-action-ui-id="canvas.tag-manager-actions"
           >
             {onDownload ? (
-              <Button$1
+              <Button
                 variant="ghost"
                 size="icon-xs"
                 aria-label={t2("canvasTags.downloadTag", {
@@ -248,7 +251,7 @@ export function SortableTagRow({
                   className="scale-[1.15]"
                   aria-hidden={true}
                 />
-              </Button$1>
+              </Button>
             ) : (
               <span className="size-6" aria-hidden={true} />
             )}

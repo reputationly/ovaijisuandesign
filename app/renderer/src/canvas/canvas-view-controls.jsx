@@ -1,30 +1,30 @@
 // canvas-view-controls.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import {
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   CompositedSvg,
   Grid2X2,
   LayoutTemplate,
   Library,
-  Map$1,
+  Map$1 as Map,
   MonochromeIcon,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
   Workflow,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-  DropdownMenuSeparator$1,
-  DropdownMenuSubTrigger$1,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSubTrigger,
 } from "../media-editing/audio-lightbox.jsx";
 import {
-  DropdownMenu$1,
-  DropdownMenuSub$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu,
+  DropdownMenuSub,
+  DropdownMenuTrigger,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
 import {
   QuickZoomPresence,
@@ -33,21 +33,18 @@ import {
 import { TidyLayoutMenuItems } from "./tidy-layout-menu-items.jsx";
 import { ToolbarSeparator } from "./canvas-toolbar-extension-button.jsx";
 import { ZoomMenu } from "./zoom-menu.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "./use-video-starter-preset-store.js";
 import { useAlignmentSnapPreferenceStore } from "./use-active-mode.js";
 import { CanvasToggleIcon } from "./canvas-toggle-icon.jsx";
-
 const APPEARANCE_PANEL_POSITION_CLASSES = {
   "bottom-left": "bottom-full left-0 mb-2",
   "top-left": "top-full left-0 mt-2",
   "top-right": "top-full right-0 mt-2",
 };
-
 function getCanvasAppearancePanelPositionClass(placement) {
   return APPEARANCE_PANEL_POSITION_CLASSES[placement];
 }
-
 function TidyCategoryIcon(props) {
   return (
     <CompositedSvg
@@ -69,7 +66,6 @@ function TidyCategoryIcon(props) {
     </CompositedSvg>
   );
 }
-
 function TidyLayoutIcon(props) {
   return (
     <CompositedSvg
@@ -90,10 +86,8 @@ function TidyLayoutIcon(props) {
     </CompositedSvg>
   );
 }
-
 const MENU_CONTENT_CLASS =
   "min-w-[200px] border border-[var(--canvas-controls-border)] [border-width:var(--divider-width)]";
-
 function CanvasTidyControlInner({
   onSortByConnections,
   onSortByMediaType,
@@ -132,9 +126,9 @@ function CanvasTidyControlInner({
   );
   return (
     <div className="relative h-full">
-      <DropdownMenu$1 open={menuOpen} onOpenChange={setMenuOpen}>
-        <Tooltip$1 content={label} closeOnClick={true}>
-          <DropdownMenuTrigger$1
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <Tooltip content={label} closeOnClick={true}>
+          <DropdownMenuTrigger
             type="button"
             aria-label={label}
             data-action-ui-id="canvas.toolbar-tidy"
@@ -142,17 +136,17 @@ function CanvasTidyControlInner({
             className="flex aspect-square h-full shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-[var(--canvas-controls-text-muted)] transition-colors hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] data-popup-open:bg-[var(--canvas-controls-active)] data-popup-open:text-[var(--canvas-controls-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
             <LayoutTemplate size={15} strokeWidth={1.5} aria-hidden="true" />
-          </DropdownMenuTrigger$1>
-        </Tooltip$1>
-        <DropdownMenuContent$1
+          </DropdownMenuTrigger>
+        </Tooltip>
+        <DropdownMenuContent
           data-action-ui-id="canvas.toolbar-tidy-menu"
           side={menuSide}
           sideOffset={8}
           align={menuAlign}
           className={MENU_CONTENT_CLASS}
         >
-          <DropdownMenuSub$1>
-            <DropdownMenuSubTrigger$1
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger
               data-action-ui-id="canvas.toolbar-tidy-sort"
               className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
             >
@@ -163,21 +157,21 @@ function CanvasTidyControlInner({
               <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
                 {t2("canvas.tidy.sort", "分类整理")}
               </span>
-              <ChevronRight$1
+              <ChevronRight
                 className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
                 size={14}
                 strokeWidth={1.5}
                 aria-hidden="true"
               />
-            </DropdownMenuSubTrigger$1>
-            <DropdownMenuContent$1
+            </DropdownMenuSubTrigger>
+            <DropdownMenuContent
               data-action-ui-id="canvas.toolbar-tidy-sort-menu"
               side="right"
               sideOffset={8}
               align="start"
               className={MENU_CONTENT_CLASS}
             >
-              <DropdownMenuItem$1
+              <DropdownMenuItem
                 data-action-ui-id="canvas.toolbar-tidy-sort-connections"
                 onClick={() => void handleSortByConnections()}
                 aria-describedby={connectionsHintId}
@@ -193,8 +187,8 @@ function CanvasTidyControlInner({
                   {t2("canvas.tidy.sort.connections", "按连线关系")}
                 </span>
                 <TidyHint hint={connectionsHint} hintId={connectionsHintId} />
-              </DropdownMenuItem$1>
-              <DropdownMenuItem$1
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 data-action-ui-id="canvas.toolbar-tidy-sort-media-type"
                 onClick={() => void handleSortByMediaType()}
                 aria-describedby={mediaTypeHintId}
@@ -210,12 +204,12 @@ function CanvasTidyControlInner({
                   {t2("canvas.tidy.sort.mediaType", "按素材类型")}
                 </span>
                 <TidyHint hint={mediaTypeHint} hintId={mediaTypeHintId} />
-              </DropdownMenuItem$1>
-            </DropdownMenuContent$1>
-          </DropdownMenuSub$1>
-          <DropdownMenuSeparator$1 />
-          <DropdownMenuSub$1>
-            <DropdownMenuSubTrigger$1
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenuSub>
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger
               data-action-ui-id="canvas.toolbar-tidy-layouts"
               className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
             >
@@ -226,14 +220,14 @@ function CanvasTidyControlInner({
               <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
                 {t2("canvas.tidy.layouts", "布局整理")}
               </span>
-              <ChevronRight$1
+              <ChevronRight
                 className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
                 size={14}
                 strokeWidth={1.5}
                 aria-hidden="true"
               />
-            </DropdownMenuSubTrigger$1>
-            <DropdownMenuContent$1
+            </DropdownMenuSubTrigger>
+            <DropdownMenuContent
               data-action-ui-id="canvas.toolbar-tidy-layout-menu"
               side="right"
               sideOffset={8}
@@ -245,18 +239,15 @@ function CanvasTidyControlInner({
                 showIncludeDeps={true}
                 uiIdPrefix="canvas.toolbar-tidy"
               />
-            </DropdownMenuContent$1>
-          </DropdownMenuSub$1>
-        </DropdownMenuContent$1>
-      </DropdownMenu$1>
+            </DropdownMenuContent>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
-
 const CanvasTidyControl = reactExports.memo(CanvasTidyControlInner);
-
 const zoomSelector = (s2) => s2.transform[2];
-
 function ToolbarButton({
   children: children2,
   onClick,
@@ -272,7 +263,7 @@ function ToolbarButton({
 }) {
   const active2 = kind === "toggle" && pressed && highlightPressed;
   return (
-    <Tooltip$1 content={tooltip} closeOnClick={true}>
+    <Tooltip content={tooltip} closeOnClick={true}>
       <button
         type="button"
         data-action-ui-id={dataActionUiId}
@@ -285,10 +276,9 @@ function ToolbarButton({
       >
         {children2}
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 export function CanvasViewControls({
   onSortByConnections,
   onSortByMediaType,
@@ -315,7 +305,7 @@ export function CanvasViewControls({
   const toggleAlignmentSnap = useAlignmentSnapPreferenceStore(
     (state2) => state2.toggle,
   );
-  const zoomLevel = useStore$3(zoomSelector);
+  const zoomLevel = useStore(zoomSelector);
   const zoomPercent = `${Math.round(zoomLevel * 100)}%`;
   const atMinZoom = zoomLevel <= minZoom + 0.01;
   const atMaxZoom = zoomLevel >= maxZoom - 0.01;
@@ -363,7 +353,7 @@ export function CanvasViewControls({
     });
   };
   return (
-    <TooltipProvider$1 delay={150} closeDelay={0}>
+    <TooltipProvider delay={150} closeDelay={0}>
       <div className="relative flex items-center gap-[6px]">
         {leading && (
           <div
@@ -415,7 +405,7 @@ export function CanvasViewControls({
             className="flex h-full items-center gap-px"
             data-canvas-toolbar-group="view"
           >
-            <Tooltip$1
+            <Tooltip
               content={t2("canvas.toolbar.canvasSettings")}
               closeOnClick={true}
             >
@@ -435,7 +425,7 @@ export function CanvasViewControls({
                   <Grid2X2 size={15} strokeWidth={1.5} aria-hidden="true" />
                 </MonochromeIcon>
               </button>
-            </Tooltip$1>
+            </Tooltip>
             <ToolbarButton
               dataActionUiId="canvas.toolbar-edges"
               kind="toggle"
@@ -481,7 +471,7 @@ export function CanvasViewControls({
               ariaLabel={t2("canvas.minimap")}
             >
               <MonochromeIcon tone="control">
-                <Map$1 size={15} strokeWidth={1.5} aria-hidden="true" />
+                <Map size={15} strokeWidth={1.5} aria-hidden="true" />
               </MonochromeIcon>
               <span className="@max-[640px]/canvas-shell:hidden">
                 {t2("canvas.minimap")}
@@ -526,7 +516,7 @@ export function CanvasViewControls({
                     }}
                   >
                     <MonochromeIcon tone="control">
-                      <X$7 size={14} strokeWidth={1.5} aria-hidden="true" />
+                      <X size={14} strokeWidth={1.5} aria-hidden="true" />
                     </MonochromeIcon>
                   </button>
                 </div>
@@ -536,6 +526,6 @@ export function CanvasViewControls({
           </QuickZoomPresence>
         </div>
       </div>
-    </TooltipProvider$1>
+    </TooltipProvider>
   );
 }

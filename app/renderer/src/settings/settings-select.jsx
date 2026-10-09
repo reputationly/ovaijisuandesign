@@ -1,9 +1,9 @@
 // settings-select.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   buildRendererDiagnosticsSnapshot,
-  Select$1,
+  Select,
 } from "../assets/credit-query-keys.jsx";
 import {
   SelectContent,
@@ -11,9 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../infra/select-content.jsx";
-
 const DEFAULT_REPORT_INTERVAL_MS = 1e4;
-
 export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
   const intervalMs = options.intervalMs ?? DEFAULT_REPORT_INTERVAL_MS;
   const schedule2 = options.schedule ?? setInterval;
@@ -46,13 +44,9 @@ export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
     clear(timer2);
   };
 }
-
 const DISABLED_GPU_ATTRIBUTE = "data-hilo-gpu";
-
 const DISABLED_GPU_REASON_ATTRIBUTE = "data-hilo-gpu-reason";
-
 const TRANSPARENT_WINDOW_ATTRIBUTE = "data-window-transparent";
-
 export function applyRenderingModeAttributes(
   config2,
   root2 = document.documentElement,
@@ -73,7 +67,6 @@ export function applyRenderingModeAttributes(
   root2.removeAttribute(DISABLED_GPU_ATTRIBUTE);
   root2.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
 }
-
 export function SettingGroup({ title, children: children2 }) {
   return (
     <div className="space-y-1.5">
@@ -88,7 +81,6 @@ export function SettingGroup({ title, children: children2 }) {
     </div>
   );
 }
-
 export function SettingRow({
   label,
   description,
@@ -97,7 +89,7 @@ export function SettingRow({
 }) {
   return (
     <div
-      className={cn$2(
+      className={cn(
         "flex items-center justify-between gap-6 py-2.5",
         className,
       )}
@@ -112,7 +104,6 @@ export function SettingRow({
     </div>
   );
 }
-
 export function SettingsSelect({
   value,
   onValueChange,
@@ -140,7 +131,7 @@ export function SettingsSelect({
     );
   };
   return (
-    <Select$1
+    <Select
       value={value}
       onValueChange={(v2) => {
         if (v2 != null) onValueChange(v2);
@@ -149,7 +140,7 @@ export function SettingsSelect({
       <SelectTrigger
         data-action-ui-id={actionUiId}
         aria-label={ariaLabel}
-        className={cn$2(
+        className={cn(
           "h-8 min-w-28 rounded-md border-border! bg-muted/30! px-2.5 text-xs font-normal text-foreground/70 hover:bg-foreground/[0.03]! hover:text-foreground",
           className,
         )}
@@ -167,18 +158,14 @@ export function SettingsSelect({
           </SelectItem>
         ))}
       </SelectContent>
-    </Select$1>
+    </Select>
   );
 }
-
 const LEGACY_PERSISTENCE_LIFETIME = "legacy";
-
 export const entriesByWorkspace = new Map();
-
 function lifetimeKey(instanceId) {
   return instanceId || LEGACY_PERSISTENCE_LIFETIME;
 }
-
 function getOrCreateWorkspaceEntries(workspaceId2) {
   const existing = entriesByWorkspace.get(workspaceId2);
   if (existing) return existing;
@@ -186,21 +173,18 @@ function getOrCreateWorkspaceEntries(workspaceId2) {
   entriesByWorkspace.set(workspaceId2, created);
   return created;
 }
-
 class WorkspaceCanvasPersistenceUnavailableError extends Error {
   constructor() {
     super("Canvas persistence controller is unavailable");
     this.name = "WorkspaceCanvasPersistenceUnavailableError";
   }
 }
-
 class WorkspaceCanvasPersistenceChangedError extends Error {
   constructor() {
     super("Canvas changed while waiting for the durability barrier");
     this.name = "WorkspaceCanvasPersistenceChangedError";
   }
 }
-
 function publishPersistenceStatus(entry) {
   if (!entry.reportStatus) return;
   entry.reportVersion += 1;
@@ -208,7 +192,6 @@ function publishPersistenceStatus(entry) {
   void promise.catch(() => {});
   entry.reportPromise = promise;
 }
-
 export function registerWorkspaceCanvasPersistence(
   workspaceId2,
   instanceId,
@@ -242,7 +225,6 @@ export function registerWorkspaceCanvasPersistence(
     if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
   };
 }
-
 export function reportWorkspaceCanvasPersistence(
   workspaceId2,
   instanceId,
@@ -266,7 +248,6 @@ export function reportWorkspaceCanvasPersistence(
   }
   if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
 }
-
 export async function flushWorkspaceCanvasPersistence(workspaceId2) {
   const entries2 = entriesByWorkspace.get(workspaceId2);
   if (!entries2) return [];

@@ -34,7 +34,7 @@ import {
   DialogTitle,
 } from "../infra/badge-variants.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -44,7 +44,6 @@ import {
   DropdownMenuTrigger,
 } from "../infra/dialog-content.jsx";
 import { useEntityCanvas, useUpdateEntity } from "./use-materialize-entity.js";
-
 async function uploadBlob(fetcher, file, kindOverride) {
   const form = new FormData();
   form.append("file", file);
@@ -58,16 +57,13 @@ async function uploadBlob(fetcher, file, kindOverride) {
   });
   return readObject(res, "blob upload result");
 }
-
 function useUploadBlob() {
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ file, kind }) => uploadBlob(fetcher, file, kind),
   });
 }
-
-const TYPE_OPTIONS$2 = ENTITY_TYPES;
-
+const TYPE_OPTIONS = ENTITY_TYPES;
 export function EntityEditDialog({
   entityId,
   viewMode,
@@ -414,7 +410,7 @@ export function EntityEditDialog({
                     </Badge>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    {TYPE_OPTIONS$2.map((opt) => (
+                    {TYPE_OPTIONS.map((opt) => (
                       <DropdownMenuItem
                         key={opt}
                         onClick={() => setType(opt)}
@@ -475,7 +471,7 @@ export function EntityEditDialog({
           {canvasQuery.data && (
             <>
               {onDelete && (
-                <Button$1
+                <Button
                   variant="destructive"
                   size="sm"
                   className="h-8 gap-1.5 mr-auto"
@@ -495,9 +491,9 @@ export function EntityEditDialog({
                 >
                   <Trash2 size={14} />
                   {t2("common.delete")}
-                </Button$1>
+                </Button>
               )}
-              <Button$1
+              <Button
                 variant="outline"
                 size="sm"
                 className="h-8 gap-1.5"
@@ -508,9 +504,9 @@ export function EntityEditDialog({
               >
                 <Download size={14} />
                 {t2("assetCenter.detail.export")}
-              </Button$1>
+              </Button>
               {onMaterialize && (
-                <Button$1
+                <Button
                   variant="outline"
                   size="sm"
                   className="h-8 gap-1.5"
@@ -527,11 +523,11 @@ export function EntityEditDialog({
                 >
                   <FolderInput size={14} />
                   {t2("assetCenter.materialize.action")}
-                </Button$1>
+                </Button>
               )}
             </>
           )}
-          <Button$1
+          <Button
             size="sm"
             className="h-8 gap-1.5"
             onClick={() => void handleSave()}
@@ -540,7 +536,7 @@ export function EntityEditDialog({
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             {t2("common.save")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

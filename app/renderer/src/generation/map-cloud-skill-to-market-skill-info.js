@@ -3,12 +3,10 @@ import {
   normalizeSkillDetailMetadata,
   skillMetadataRecord,
 } from "./normalize-skill-detail-metadata.js";
-
 const SKILL_GUIDE_PROMPT_DEFAULTS = {
   zh: "为我解释一下这个技能的最佳使用方式。",
   en: "Show me the best way to use this skill with a few examples.",
 };
-
 function normalizeToolsByAgent(raw2) {
   if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return void 0;
   const out = {};
@@ -19,15 +17,13 @@ function normalizeToolsByAgent(raw2) {
   }
   return Object.keys(out).length > 0 ? out : void 0;
 }
-
 function toStringArray(v2) {
   if (Array.isArray(v2))
     return v2.filter((x2) => typeof x2 === "string" && x2 !== "");
   if (typeof v2 === "string" && v2) return [v2];
   return [];
 }
-
-function firstString$1(v2) {
+function firstString(v2) {
   if (Array.isArray(v2)) {
     const first2 = v2.find((x2) => typeof x2 === "string" && x2 !== "");
     return first2 ?? "";
@@ -35,10 +31,9 @@ function firstString$1(v2) {
   if (typeof v2 === "string") return v2;
   return "";
 }
-
 function reconcileTag(tagRaw, completeRaw) {
   const complete = toStringArray(completeRaw);
-  const single = firstString$1(tagRaw) || complete[0] || "";
+  const single = firstString(tagRaw) || complete[0] || "";
   if (complete.length > 0) {
     return {
       single,
@@ -51,7 +46,6 @@ function reconcileTag(tagRaw, completeRaw) {
     list: list2,
   };
 }
-
 function mapCloudSkillToMarketSkillInfo(raw2) {
   const en2 = reconcileTag(
     raw2.tagEn ?? raw2.tag_en ?? raw2["tag-en"],
@@ -110,7 +104,6 @@ function mapCloudSkillToMarketSkillInfo(raw2) {
     source: raw2.source || void 0,
   };
 }
-
 export function mapCloudSkillDetail(raw2) {
   const record2 = skillMetadataRecord(raw2);
   if (!record2) throw new Error("Invalid skill detail response");

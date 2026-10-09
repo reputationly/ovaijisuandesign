@@ -1,7 +1,7 @@
 // normalize-model-info.js
 import {
   API_PATHS,
-  QUERY_KEY$1,
+  QUERY_KEY$1 as QUERY_KEY,
   useGatewayScope,
   useQuery,
 } from "../vendor.js";
@@ -9,13 +9,9 @@ import {
   useGatewayFetch,
   useModelCatalogScopeKey,
 } from "./use-model-catalog-scope-key.js";
-
-const STALE_24H$1 = 24 * 60 * 60 * 1e3;
-
+const STALE_24H = 24 * 60 * 60 * 1e3;
 const REGISTRY_RETRY_COUNT = 5;
-
 const REGISTRY_RETRY_DELAY_MS = 300;
-
 function normalizeMediaModelParams(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
@@ -35,7 +31,6 @@ function normalizeMediaModelParams(value) {
     },
   };
 }
-
 function normalizePromotion(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
@@ -70,7 +65,6 @@ function normalizePromotion(value) {
       : {}),
   };
 }
-
 function normalizeModelInfo(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const model = value;
@@ -112,7 +106,6 @@ function normalizeModelInfo(value) {
       : {}),
   };
 }
-
 function normalizeMediaModelsResponse(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error("media model registry returned an invalid response");
@@ -130,7 +123,6 @@ function normalizeMediaModelsResponse(value) {
   }
   return normalized;
 }
-
 export function useMediaModels() {
   const gatewayFetch2 = useGatewayFetch();
   const catalogScopeKey = useModelCatalogScopeKey();
@@ -141,7 +133,7 @@ export function useMediaModels() {
     gatewayBinding?.generation ?? 0,
   ].join(":");
   return useQuery({
-    queryKey: [...QUERY_KEY$1, catalogScopeKey, registryScopeKey],
+    queryKey: [...QUERY_KEY, catalogScopeKey, registryScopeKey],
     queryFn: async ({ signal }) => {
       const resp = await gatewayFetch2(API_PATHS.modelsConfig, {
         signal,
@@ -162,7 +154,7 @@ export function useMediaModels() {
       }
       return normalizeMediaModelsResponse(payload);
     },
-    staleTime: STALE_24H$1,
+    staleTime: STALE_24H,
     retry: REGISTRY_RETRY_COUNT,
     retryDelay: REGISTRY_RETRY_DELAY_MS,
     enabled: gatewayReady,

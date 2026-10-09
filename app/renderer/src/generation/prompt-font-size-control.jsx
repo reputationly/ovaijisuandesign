@@ -8,7 +8,7 @@ import {
   PopoverPortal,
   PopoverPositioner,
   PopoverRoot,
-  PopoverTrigger$1,
+  PopoverTrigger$1 as PopoverTrigger,
   PROMPT_FONT_SIZE_DEFAULT,
   PROMPT_FONT_SIZE_MAX,
   PROMPT_FONT_SIZE_MIN,
@@ -18,13 +18,11 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Type$1 } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-import { Slider$1 } from "./slider.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
-
+import { Type } from "../media-editing/package.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
+import { Slider } from "./slider.jsx";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 const PROMPT_FONT_SIZE_STEP = 1;
-
 function PromptLengthHint({ currentLength, maxLength, className }) {
   const { t: t2 } = useTranslation();
   if (!maxLength || maxLength <= 0) return null;
@@ -56,9 +54,7 @@ function PromptLengthHint({ currentLength, maxLength, className }) {
     </div>
   );
 }
-
-const COPY_FEEDBACK_DURATION_MS$1 = 1500;
-
+const COPY_FEEDBACK_DURATION_MS = 1500;
 async function copyPromptText(
   text2,
   clipboard2 = typeof navigator === "undefined" ? void 0 : navigator.clipboard,
@@ -71,7 +67,6 @@ async function copyPromptText(
     return false;
   }
 }
-
 function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
   const { t: t2 } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
@@ -109,12 +104,12 @@ function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
       feedbackTimerRef.current = setTimeout(() => {
         feedbackTimerRef.current = null;
         setCopied(false);
-      }, COPY_FEEDBACK_DURATION_MS$1);
+      }, COPY_FEEDBACK_DURATION_MS);
     },
     [getPromptText, t2],
   );
   return (
-    <Tooltip$1 content={feedbackLabel} side="top" closeOnClick={false}>
+    <Tooltip content={feedbackLabel} side="top" closeOnClick={false}>
       <button
         type="button"
         aria-label={feedbackLabel}
@@ -130,10 +125,9 @@ function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
           <Copy size={14} strokeWidth={1.8} aria-hidden="true" />
         )}
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 function PromptFontSizeControl() {
   const { t: t2 } = useTranslation();
   const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
@@ -149,8 +143,8 @@ function PromptFontSizeControl() {
   });
   return (
     <PopoverRoot>
-      <Tooltip$1 content={label} side="top">
-        <PopoverTrigger$1
+      <Tooltip content={label} side="top">
+        <PopoverTrigger
           render={
             <button
               type="button"
@@ -162,9 +156,9 @@ function PromptFontSizeControl() {
             />
           }
         >
-          <Type$1 size={14} strokeWidth={1.8} aria-hidden="true" />
-        </PopoverTrigger$1>
-      </Tooltip$1>
+          <Type size={14} strokeWidth={1.8} aria-hidden="true" />
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverPortal>
         <PopoverPositioner
           align="end"
@@ -180,7 +174,7 @@ function PromptFontSizeControl() {
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           >
-            <Slider$1
+            <Slider
               size="compact"
               aria-label={label}
               value={fontSize}
@@ -202,7 +196,7 @@ function PromptFontSizeControl() {
             >
               {fontSize}px
             </output>
-            <Tooltip$1 content={resetLabel} side="top">
+            <Tooltip content={resetLabel} side="top">
               <button
                 type="button"
                 aria-label={resetLabel}
@@ -217,14 +211,13 @@ function PromptFontSizeControl() {
               >
                 <RotateCcw size={14} strokeWidth={1.75} aria-hidden="true" />
               </button>
-            </Tooltip$1>
+            </Tooltip>
           </PopoverPopup>
         </PopoverPositioner>
       </PopoverPortal>
     </PopoverRoot>
   );
 }
-
 export function PromptInputMetaRow({
   getPromptText,
   copyDisabled,
@@ -244,7 +237,7 @@ export function PromptInputMetaRow({
       ) : null}
       <div className="flex shrink-0 items-center gap-0">
         {showUtilityControls ? (
-          <TooltipProvider$1 delay={100} closeDelay={0}>
+          <TooltipProvider delay={100} closeDelay={0}>
             <div className="flex shrink-0 items-center gap-0.5">
               <PromptCopyControl
                 getPromptText={getPromptText}
@@ -252,7 +245,7 @@ export function PromptInputMetaRow({
               />
               <PromptFontSizeControl />
             </div>
-          </TooltipProvider$1>
+          </TooltipProvider>
         ) : null}
         {showLengthHint ? (
           <>

@@ -4,13 +4,12 @@ import {
   dynamicFacetSlot,
   flatten,
   PluginKey,
-  sameArray$1,
+  sameArray$1 as sameArray,
   StateField,
   Step,
   StepMap,
   StepResult,
 } from "../vendor.js";
-
 function cloneSnapshot(snapshot2) {
   return {
     marks: snapshot2.marks.map((mark2) => ({
@@ -21,7 +20,6 @@ function cloneSnapshot(snapshot2) {
     },
   };
 }
-
 export class AnnotationHistoryStep extends Step {
   before;
   after;
@@ -50,7 +48,6 @@ export class AnnotationHistoryStep extends Step {
     };
   }
 }
-
 export function getAnnotationHistorySnapshot(transaction) {
   for (let index2 = transaction.steps.length - 1; index2 >= 0; index2 -= 1) {
     const step = transaction.steps[index2];
@@ -58,13 +55,10 @@ export function getAnnotationHistorySnapshot(transaction) {
   }
   return null;
 }
-
 export const annotationPluginKey = new PluginKey("canvasAnnotation");
-
 export function getAnnotationMarks(editor) {
   return annotationPluginKey.getState(editor.state)?.marks ?? [];
 }
-
 export function getAnnotationSelectionRanges(selection2) {
   return selection2.ranges
     .map((range2) => ({
@@ -74,7 +68,6 @@ export function getAnnotationSelectionRanges(selection2) {
     .filter((range2) => range2.from < range2.to)
     .sort((a2, b3) => a2.from - b3.from || a2.to - b3.to);
 }
-
 export class Configuration2 {
   constructor(
     base2,
@@ -131,7 +124,7 @@ export class Configuration2 {
         )
       ) {
         address[facet.id] = (staticValues.length << 1) | 1;
-        if (sameArray$1(oldProviders, providers)) {
+        if (sameArray(oldProviders, providers)) {
           staticValues.push(oldState.facet(facet));
         } else {
           let value = facet.combine(providers.map((p3) => p3.value));
@@ -166,7 +159,6 @@ export class Configuration2 {
     );
   }
 }
-
 export function updateAttrs(dom, prev, attrs) {
   let changed = false;
   if (prev) {
@@ -187,11 +179,8 @@ export function updateAttrs(dom, prev, attrs) {
   }
   return changed;
 }
-
 export const BidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac\ufb50-\ufdff]/;
-
 export const types = [];
-
 export function computeCharTypes(line, rFrom, rTo, isolates, outerType) {
   for (let iI = 0; iI <= isolates.length; iI++) {
     let from2 = iI ? isolates[iI - 1].to : rFrom,

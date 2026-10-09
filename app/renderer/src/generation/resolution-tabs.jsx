@@ -1,11 +1,10 @@
 // resolution-tabs.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CompositedSvg, useTranslation } from "../vendor.js";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { BACKEND_ELEVENLABS_MUSIC } from "./normalize-skill-detail-metadata.js";
 import { MIN_MUSIC_BILLING_SECONDS } from "./select-content.jsx";
-
 function musicLengthValueToMs(value) {
   const trimmed = value?.trim();
   if (!trimmed || trimmed === "auto" || trimmed === "custom") return void 0;
@@ -21,7 +20,6 @@ function musicLengthValueToMs(value) {
   }
   return void 0;
 }
-
 function resolveElevenLabsMusicPerMinute(music, model) {
   const perMinute =
     model.model_name === "music_v1"
@@ -29,7 +27,6 @@ function resolveElevenLabsMusicPerMinute(music, model) {
       : music.elevenLabsMusicV2PerMinute;
   return perMinute && perMinute > 0 ? perMinute : void 0;
 }
-
 export function calcMusicCostDisplay(pricing, model, params) {
   const music = pricing?.music;
   if (!music) return void 0;
@@ -53,7 +50,6 @@ export function calcMusicCostDisplay(pricing, model, params) {
   if (music.oncePrice <= 0) return void 0;
   return music.oncePrice;
 }
-
 export function getModelBaseCost(pricing, modelId, mediaType) {
   if (!pricing) return void 0;
   {
@@ -65,7 +61,6 @@ export function getModelBaseCost(pricing, modelId, mediaType) {
     return void 0;
   }
 }
-
 export function calcToolCost(pricing, modelId, resolution, sourceDurationSec) {
   if (!pricing?.tool) return void 0;
   const model = pricing.tool.find((m3) => m3.modelID === modelId);
@@ -88,7 +83,6 @@ export function calcToolCost(pricing, modelId, resolution, sourceDurationSec) {
   }
   return model.defaultCost > 0 ? model.defaultCost : void 0;
 }
-
 export function calcTextCost(pricing, modelId) {
   if (!pricing?.text) return void 0;
   const bare = modelId.includes("/")
@@ -97,11 +91,9 @@ export function calcTextCost(pricing, modelId) {
   const entry = pricing.text.find((t2) => t2.modelID === bare);
   return entry?.defaultCost;
 }
-
 function isFinitePositive(value) {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
-
 export function mediaExtensionDurationOptions(capability) {
   if (!capability) return [];
   const firstDuration = Math.ceil(capability.outputMinDurationSec);
@@ -114,7 +106,6 @@ export function mediaExtensionDurationOptions(capability) {
     (_2, index2) => String(firstDuration + index2),
   );
 }
-
 export function mediaExtensionDisabledDurationOptions(
   sourceDurationSec,
   capability,
@@ -130,7 +121,6 @@ export function mediaExtensionDisabledDurationOptions(
     ),
   );
 }
-
 export function isMediaExtensionInputDurationValid(
   sourceDurationSec,
   capability,
@@ -141,7 +131,6 @@ export function isMediaExtensionInputDurationValid(
     sourceDurationSec <= capability.inputMaxDurationSec
   );
 }
-
 export function isMediaExtensionOutputDurationValid(
   sourceDurationSec,
   outputDuration,
@@ -164,15 +153,13 @@ export function isMediaExtensionOutputDurationValid(
     parsedOutput <= capability.outputMaxDurationSec
   );
 }
-
-const BUTTON_CLASS$1 = [
+const BUTTON_CLASS = [
   "flex items-center justify-center size-5 rounded-md border text-[13px] leading-none",
   "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]",
   "text-[var(--canvas-controls-text-muted)] transition-colors duration-150",
   "hover:enabled:text-[var(--canvas-controls-text)] hover:enabled:border-[var(--canvas-node-border-selected)]",
   "disabled:opacity-40 disabled:cursor-default cursor-pointer",
 ].join(" ");
-
 export function ParamStepper({
   children: children2,
   onDecrease,
@@ -184,7 +171,7 @@ export function ParamStepper({
 }) {
   const { t: t2 } = useTranslation();
   return (
-    <div className={cn$5("flex items-center gap-1.5", className)}>
+    <div className={cn("flex items-center gap-1.5", className)}>
       <button
         type="button"
         disabled={decreaseDisabled}
@@ -196,7 +183,7 @@ export function ParamStepper({
           defaultValue: "Decrease",
         })}
         data-action-ui-id={`${actionPrefix}-decrease`}
-        className={BUTTON_CLASS$1}
+        className={BUTTON_CLASS}
       >
         <span className="-translate-y-px">−</span>
       </button>
@@ -212,14 +199,13 @@ export function ParamStepper({
           defaultValue: "Increase",
         })}
         data-action-ui-id={`${actionPrefix}-increase`}
-        className={BUTTON_CLASS$1}
+        className={BUTTON_CLASS}
       >
         <span className="-translate-y-px">+</span>
       </button>
     </div>
   );
 }
-
 export function ParamSectionLabel({ children: children2 }) {
   return (
     <div className="text-xs font-medium text-muted-foreground mb-2.5">
@@ -227,7 +213,6 @@ export function ParamSectionLabel({ children: children2 }) {
     </div>
   );
 }
-
 export function parseRatio(value) {
   const m3 = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
   if (!m3) return null;
@@ -236,7 +221,6 @@ export function parseRatio(value) {
   if (!w3 || !h2) return null;
   return [w3, h2];
 }
-
 export function AspectRatioIcon({ ratio }) {
   const parsed = parseRatio(ratio);
   const maxSize = 14;
@@ -269,18 +253,13 @@ export function AspectRatioIcon({ ratio }) {
     </CompositedSvg>
   );
 }
-
 const OPT_BASE =
   "border rounded-sm transition-colors duration-150 cursor-pointer disabled:cursor-default";
-
 const OPT_DEFAULT =
   "border-border bg-transparent text-foreground/70 hover:enabled:bg-[var(--canvas-controls-hover)] hover:enabled:text-foreground";
-
 export const PARAM_OPTION_SELECTED_CLASS =
   "border-[var(--canvas-param-selected-border)] bg-[var(--canvas-param-selected-bg)] text-foreground";
-
 const OPT_DISABLED = "opacity-40";
-
 export function optClass(selected2, optDisabled) {
   return [
     OPT_BASE,
@@ -290,7 +269,6 @@ export function optClass(selected2, optDisabled) {
     .filter(Boolean)
     .join(" ");
 }
-
 export function ResolutionTabs({
   options,
   value,
@@ -328,9 +306,9 @@ export function ResolutionTabs({
           </button>
         );
         return tooltip ? (
-          <Tooltip$1 key={opt} content={tooltip}>
+          <Tooltip key={opt} content={tooltip}>
             <span className={`flex min-w-0 ${widthClass}`}>{button}</span>
-          </Tooltip$1>
+          </Tooltip>
         ) : (
           button
         );

@@ -7,32 +7,29 @@ import { API_PATHS, useMutation, useQuery, useQueryClient } from "../vendor.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import {
   asNullableString,
-  asRecord$3,
+  asRecord,
   asString,
   mapAccountProfile,
 } from "./account-submission-blocked-host.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { mapTeamCreditSummary } from "./map-team-credit-summary.js";
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
-
 function mapHailuoWebSummary(value) {
-  const raw2 = asRecord$3(value);
+  const raw2 = asRecord(value);
   return {
     subscriptionPlan: asNullableString(raw2?.subscription_plan),
     remainingCredits: asNullableString(raw2?.remaining_credits),
   };
 }
-
 function mapHailuoCancelCheck(value) {
-  const raw2 = asRecord$3(value);
+  const raw2 = asRecord(value);
   return {
     canCancel: raw2?.can_cancel === true,
     reason: asNullableString(raw2?.reason),
   };
 }
-
 function mapBlockingTeam(value) {
-  const raw2 = asRecord$3(value);
+  const raw2 = asRecord(value);
   if (!raw2) return null;
   const groupId2 = asString(raw2.group_id);
   if (!groupId2) return null;
@@ -44,9 +41,8 @@ function mapBlockingTeam(value) {
     role,
   };
 }
-
 function mapHubCancelCheck(value) {
-  const raw2 = asRecord$3(value);
+  const raw2 = asRecord(value);
   if (!raw2) {
     return {
       canDelete: false,
@@ -67,14 +63,12 @@ function mapHubCancelCheck(value) {
     personalCredits: asNullableString(raw2.personal_credits),
   };
 }
-
 async function fetchAccountProfile(signal) {
   const res = await gatewayFetch(API_PATHS.accountProfile, {
     signal,
   });
   return mapAccountProfile(await res.json());
 }
-
 async function updateAccountProfile(userName) {
   const body2 = {
     user_name: userName,
@@ -88,28 +82,24 @@ async function updateAccountProfile(userName) {
   });
   return mapAccountProfile(await res.json());
 }
-
 async function fetchHailuoWebSummary(signal) {
   const res = await gatewayFetch(API_PATHS.accountHailuoWeb, {
     signal,
   });
   return mapHailuoWebSummary(await res.json());
 }
-
 async function fetchHailuoCancelCheck(signal) {
   const res = await gatewayFetch(API_PATHS.accountHailuoCancelCheck, {
     signal,
   });
   return mapHailuoCancelCheck(await res.json());
 }
-
 async function fetchHubCancelCheck(signal) {
   const res = await gatewayFetch(API_PATHS.accountHubCancelCheck, {
     signal,
   });
   return mapHubCancelCheck(await res.json());
 }
-
 export async function sendCancelCode() {
   await gatewayFetch(API_PATHS.accountCancelSendCode, {
     method: "POST",
@@ -119,7 +109,6 @@ export async function sendCancelCode() {
     body: JSON.stringify({}),
   });
 }
-
 export async function deleteAccount(verifyCode) {
   const body2 = {
     acknowledgements: ["data_erased", "self_initiated"],
@@ -134,14 +123,12 @@ export async function deleteAccount(verifyCode) {
     timeoutMs: 8e4,
   });
 }
-
 export async function fetchTeamCreditSummaryByGroupId(groupId2, signal) {
   const res = await gatewayFetch(API_PATHS.teamCreditSummary(groupId2), {
     signal,
   });
   return mapTeamCreditSummary(await res.json());
 }
-
 export const ACCOUNT_QUERY_KEYS = {
   profile: (identityKey) => ["account", identityKey, "profile"],
   hailuoWeb: (identityKey) => ["account", identityKey, "hailuo-web"],
@@ -159,9 +146,7 @@ export const ACCOUNT_QUERY_KEYS = {
     groupId2,
   ],
 };
-
 const PROFILE_STALE_TIME = 5 * 60 * 1e3;
-
 function useAccountQueryIdentity(enabled) {
   const { isLoggedIn } = useAuth();
   const identityKey = useOptionalTeamAccount()?.snapshot?.identityKey ?? null;
@@ -170,7 +155,6 @@ function useAccountQueryIdentity(enabled) {
     ready: enabled && isLoggedIn && identityKey !== null,
   };
 }
-
 export function useAccountProfile(enabled = true) {
   const { identityKey, ready } = useAccountQueryIdentity(enabled);
   return useQuery({
@@ -181,7 +165,6 @@ export function useAccountProfile(enabled = true) {
     retry: false,
   });
 }
-
 export function useUpdateAccountProfile() {
   const queryClient2 = useQueryClient();
   const { updateUsername } = useAuth();
@@ -202,7 +185,6 @@ export function useUpdateAccountProfile() {
     },
   });
 }
-
 export function useHailuoWebSummary(enabled = true) {
   const { identityKey, ready } = useAccountQueryIdentity(enabled);
   return useQuery({
@@ -214,7 +196,6 @@ export function useHailuoWebSummary(enabled = true) {
     retry: false,
   });
 }
-
 export function useHailuoCancelCheck(enabled = true) {
   const { identityKey, ready } = useAccountQueryIdentity(enabled);
   return useQuery({
@@ -226,7 +207,6 @@ export function useHailuoCancelCheck(enabled = true) {
     retry: false,
   });
 }
-
 export function useHubCancelCheck(enabled = true) {
   const { identityKey, ready } = useAccountQueryIdentity(enabled);
   return useQuery({
@@ -238,7 +218,6 @@ export function useHubCancelCheck(enabled = true) {
     retry: false,
   });
 }
-
 export function groupTeamContexts(items) {
   const teams = (items ?? []).filter(
     (item) => item.accountType === "TEAM" && item.lifecycle === "ACTIVE",
@@ -248,11 +227,9 @@ export function groupTeamContexts(items) {
     joined: teams.filter((item) => item.role !== "OWNER"),
   };
 }
-
 export function isVerifyCodeError(error) {
   return error instanceof GatewayHttpError && error.status === 400;
 }
-
 export function backendUserMessage(error) {
   if (
     error instanceof GatewayHttpError &&
@@ -263,7 +240,6 @@ export function backendUserMessage(error) {
   }
   return null;
 }
-
 export const WARNING_KEYS = [
   "account.delete.warning.irreversible",
   "account.delete.warning.contentErased",
@@ -272,7 +248,5 @@ export const WARNING_KEYS = [
   "account.delete.warning.subscriptionTerminated",
   "account.delete.warning.noNewUserBonus",
 ];
-
 export const RESEND_COOLDOWN_SEC = 60;
-
 export const SUBMIT_LOCK_AFTER_SEND_MS = 2500;

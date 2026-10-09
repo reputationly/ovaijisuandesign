@@ -8,8 +8,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Settings2 } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-
+import { Tooltip } from "./missing-asset-card.jsx";
 function ClockIcon({ size: size2 = 12, className }) {
   return (
     <CompositedSvg
@@ -42,10 +41,8 @@ function ClockIcon({ size: size2 = 12, className }) {
     </CompositedSvg>
   );
 }
-
 const DURATION_REGEX =
   /^\d+(?:[.-]\d+)*\s*(?:s|sec|secs|seconds?|m|min|mins|minutes?|秒|分钟)$/i;
-
 function splitSummary(summary) {
   if (!summary) return [];
   const tokens2 = summary
@@ -69,7 +66,6 @@ function splitSummary(summary) {
     };
   });
 }
-
 export function ParamsChip({
   anchorRef,
   summary,
@@ -84,7 +80,7 @@ export function ParamsChip({
   const hasSegments = segments.length > 0;
   const tooltipContent = summary || t2("canvas.param.chip.placeholder");
   return (
-    <Tooltip$1 content={tooltipContent} side="top">
+    <Tooltip content={tooltipContent} side="top">
       <button
         ref={anchorRef}
         type="button"
@@ -147,6 +143,6 @@ export function ParamsChip({
           </span>
         )}
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }

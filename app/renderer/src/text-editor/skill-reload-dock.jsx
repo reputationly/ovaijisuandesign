@@ -5,15 +5,14 @@ import {
   Crosshair,
   useCurrentWorkspace,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { Flag } from "../media-editing/package.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-
 export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
   const { t: t2 } = useTranslation();
   const hasNames = skillNames && skillNames.length > 0;
@@ -53,7 +52,7 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Button$1
+          <Button
             data-action-ui-id="chat-skill-reload-confirm"
             variant="secondary"
             size="sm"
@@ -63,22 +62,21 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
             {t2("skills.reloadDock.reload", {
               defaultValue: "重新加载",
             })}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             size="icon"
             data-action-ui-id="chat-skill-reload-dismiss"
             className="h-7 w-7 rounded-md text-muted-foreground hover:text-foreground"
             onClick={onDismiss}
           >
-            <X$7 size={14} strokeWidth={1.5} />
-          </Button$1>
+            <X size={14} strokeWidth={1.5} />
+          </Button>
         </div>
       </div>
     </div>
   );
 }
-
 function ApprovalIcon({ className }) {
   return (
     <CompositedSvg
@@ -100,7 +98,6 @@ function ApprovalIcon({ className }) {
     </CompositedSvg>
   );
 }
-
 export function ToolConfirmMiniBar({
   pendingCount,
   approvalState = "ready",
@@ -159,23 +156,19 @@ export function ToolConfirmMiniBar({
     </div>
   );
 }
-
 const DIRECTOR_STAGE_PLACEHOLDER = {
   key: "chat.directorStageAgent.inputPlaceholder",
   fallback: "想生成或修改人物站位或运镜？告诉我你的需求",
 };
-
 const CLIP_EDITOR_PLACEHOLDER = {
   key: "chat.clipEditAgent.inputPlaceholder",
   fallback: "想用 AI 做简单剪辑或生成字幕？告诉我视频和处理需求",
 };
-
 export function nodeAgentInputPlaceholder(mode2) {
   return mode2 === "director-stage"
     ? DIRECTOR_STAGE_PLACEHOLDER
     : CLIP_EDITOR_PLACEHOLDER;
 }
-
 export function findPendingQuestionState(messages2) {
   let pendingQuestion = null;
   for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
@@ -205,7 +198,6 @@ export function findPendingQuestionState(messages2) {
     pendingQuestion,
   };
 }
-
 export function shouldRouteMessageToStageRevision(input) {
   return (
     !input.hasAttachments &&
@@ -215,14 +207,12 @@ export function shouldRouteMessageToStageRevision(input) {
     input.text.trim().length > 0
   );
 }
-
 export function nextFeedbackSentStageKey(input) {
   if (!input.sent || !input.sentAsStageFeedback || !input.waitingStageKey) {
     return input.currentKey;
   }
   return input.waitingStageKey;
 }
-
 export function canCompleteProductionPlanConfirmation(input) {
   const expectedRevision = input.savedRevision ?? input.captured.revision;
   return (
@@ -235,15 +225,12 @@ export function canCompleteProductionPlanConfirmation(input) {
     input.current.revision === expectedRevision
   );
 }
-
 export function getStageDisplayName(stage) {
   return stage.name;
 }
-
 export function getCurrentProductionStage(model) {
   return model?.next_stage;
 }
-
 export function getStageConfirmationCopy(stage, finalStage) {
   if (stage.waiting_reason === "plan_review") {
     return {
@@ -268,17 +255,14 @@ export function getStageConfirmationCopy(stage, finalStage) {
     messageFallback: "确认“{{stage}}”的产物，请继续下一阶段。",
   };
 }
-
 function runtimeNodeId(item) {
   return item.group_node_id || item.group_id || item.node_id;
 }
-
 function getStageRuntimeNodeIds(stage) {
   return [
     ...new Set(stage.runtime_refs.map(runtimeNodeId).filter((id2) => !!id2)),
   ];
 }
-
 function getStageOutputPaths(stage) {
   return [
     ...new Set(
@@ -289,7 +273,6 @@ function getStageOutputPaths(stage) {
     ),
   ];
 }
-
 function getStageFocusNodeIds(stage) {
   const runtimeNodeIds = getStageRuntimeNodeIds(stage);
   if (runtimeNodeIds.length > 0) return runtimeNodeIds;
@@ -306,14 +289,12 @@ function getStageFocusNodeIds(stage) {
     ),
   ];
 }
-
 export function canFocusStageOutputs(stage) {
   return (
     getStageFocusNodeIds(stage).length > 0 ||
     getStageOutputPaths(stage).length > 0
   );
 }
-
 export function focusStageOutputs(workspaceId2, stage) {
   const nodeIds = getStageFocusNodeIds(stage);
   const outputPaths = getStageOutputPaths(stage);
@@ -325,7 +306,6 @@ export function focusStageOutputs(workspaceId2, stage) {
   });
   return true;
 }
-
 export function StageConfirmationBar({
   stage,
   finalStage,
@@ -348,7 +328,7 @@ export function StageConfirmationBar({
       data-action-ui-id="production-plan.confirmation"
     >
       {canLocate && (
-        <Button$1
+        <Button
           type="button"
           variant="secondary"
           size="sm"
@@ -366,9 +346,9 @@ export function StageConfirmationBar({
           <span className="pointer-events-none">
             {t2("productionPlan.actions.viewOutput", "查看产物")}
           </span>
-        </Button$1>
+        </Button>
       )}
-      <Button$1
+      <Button
         type="button"
         size="sm"
         className="relative rounded-md"
@@ -385,11 +365,10 @@ export function StageConfirmationBar({
         <span className="pointer-events-none">
           {t2(confirmationCopy.actionKey, confirmationCopy.actionFallback)}
         </span>
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 export class StaleProductionPlanSaveError extends Error {
   code = "STALE_PRODUCTION_PLAN_SAVE";
   constructor() {
@@ -397,7 +376,6 @@ export class StaleProductionPlanSaveError extends Error {
     this.name = "StaleProductionPlanSaveError";
   }
 }
-
 export function parseJsonObject(value) {
   if (!value) return void 0;
   try {
@@ -419,7 +397,6 @@ export function parseJsonObject(value) {
     }
   }
 }
-
 export function toolName(message2) {
   return (
     ("toolName" in message2 ? message2.toolName : void 0) || message2.content

@@ -1,14 +1,14 @@
 // asset-mention-list.jsx
 import {
-  Check$2,
-  File$3,
-  Music$2,
-  Package$2,
+  Check$2 as Check,
+  File$3 as File,
+  Music$2 as Music,
+  Package$2 as Package,
   reactExports,
-  Search$2,
-  Square$2,
+  Search$2 as Search,
+  Square$2 as Square,
   useTranslation,
-  Video$2,
+  Video$2 as Video,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
@@ -19,34 +19,29 @@ import { useEntities } from "./wrap-as-asset-center-error.js";
 import { Badge } from "../infra/badge-variants.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
-
 const DEFAULT_MAX_HEIGHT = 280;
-
-const SEARCH_LIMIT$1 = 50;
-
-const THUMB_PX$2 = 32;
-
+const SEARCH_LIMIT = 50;
+const THUMB_PX = 32;
 function TypeIcon({ type: type2 }) {
   if (type2 === "character")
     return <ImageOutlineIcon size={16} strokeWidth={1.67} />;
-  if (type2 === "scene") return <Video$2 size={16} />;
-  if (type2 === "style_pack") return <Music$2 size={16} />;
-  if (type2 === "prop") return <Package$2 size={16} />;
-  return <File$3 size={16} />;
+  if (type2 === "scene") return <Video size={16} />;
+  if (type2 === "style_pack") return <Music size={16} />;
+  if (type2 === "prop") return <Package size={16} />;
+  return <File size={16} />;
 }
-
 function AssetThumb({ entity }) {
   const gatewayUrl2 = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden text-muted-foreground";
   const wrapperStyle2 = {
-    width: THUMB_PX$2,
-    height: THUMB_PX$2,
+    width: THUMB_PX,
+    height: THUMB_PX,
   };
   const previewUrl = entity.thumbnailUrl ?? entity.coverUrl;
   const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX$2)
+    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX)
     : void 0;
   if (!resolvedUrl || errored) {
     return (
@@ -69,7 +64,6 @@ function AssetThumb({ entity }) {
     </span>
   );
 }
-
 export function AssetMentionList(props) {
   const {
     query: externalQuery,
@@ -90,7 +84,7 @@ export function AssetMentionList(props) {
   const effectiveQuery = externalQuery ?? internalQuery;
   const entitiesQuery = useEntities({
     q: effectiveQuery.trim() || void 0,
-    limit: SEARCH_LIMIT$1,
+    limit: SEARCH_LIMIT,
     ...(typeFilter
       ? {
           type: typeFilter,
@@ -205,7 +199,7 @@ export function AssetMentionList(props) {
             type="search"
             value={internalQuery}
             placeholder={t2("assetMentionList.placeholder")}
-            startIcon={<Search$2 />}
+            startIcon={<Search />}
             onChange={(e2) => setInternalQuery(e2.target.value)}
             className="[&_input]:rounded-md"
             data-action-ui-id="asset-mention-list.search"
@@ -268,9 +262,9 @@ export function AssetMentionList(props) {
               >
                 {showSelectionIndicator &&
                   (isSelected ? (
-                    <Check$2 size={14} className="shrink-0 text-foreground" />
+                    <Check size={14} className="shrink-0 text-foreground" />
                   ) : (
-                    <Square$2
+                    <Square
                       size={14}
                       className="shrink-0 text-muted-foreground/40"
                     />

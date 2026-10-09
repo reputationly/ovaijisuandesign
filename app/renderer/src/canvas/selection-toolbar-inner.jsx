@@ -4,21 +4,21 @@ import {
   CompositedSvg,
   jsxRuntimeExports,
   LayoutTemplate,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactDomExports,
   reactExports,
   useAssetMetadataStore,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  DropdownMenu$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu,
+  DropdownMenuTrigger,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
 import {
-  DropdownMenuContent$1,
+  DropdownMenuContent,
   ToolbarSurface,
 } from "../media-editing/audio-lightbox.jsx";
 import { TidyLayoutMenuItems } from "./tidy-layout-menu-items.jsx";
@@ -31,7 +31,7 @@ import {
 } from "./is-reexecutable-generation-node.js";
 import { GROUP_COLOR_PRESETS } from "../media-editing/group-color-presets.jsx";
 import { useHtmlFullscreenApi } from "../infra/use-plugin-metadata-store.js";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 import {
   Download,
@@ -42,8 +42,7 @@ import { CLIP_STUDIO_PLUGIN_ID } from "../media-editing/resolve-panorama-generat
 import { GroupIcon, UngroupIcon } from "./file-missing-icon.jsx";
 import { PromoteToAssetIcon } from "./generating-media-area.jsx";
 import { AddToChatIcon, AddToClipNodeIcon } from "./fullscreen-icon.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
   const { t: t2 } = useTranslation();
   const label = t2("canvas.tidy");
@@ -57,8 +56,8 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
   );
   return (
     <div className="relative">
-      <DropdownMenu$1 open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger$1
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger
           type="button"
           title={label}
           aria-label={label}
@@ -69,8 +68,8 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
           <span className="canvas-toolbar-label whitespace-nowrap">
             {label}
           </span>
-        </DropdownMenuTrigger$1>
-        <DropdownMenuContent$1
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
           data-action-ui-id="canvas.selection-tidy-menu"
           side="bottom"
           sideOffset={8}
@@ -83,18 +82,14 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
             showIncludeDeps={showIncludeDeps}
             uiIdPrefix="canvas.selection-tidy"
           />
-        </DropdownMenuContent$1>
-      </DropdownMenu$1>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
-
 const SelectionTidyControl = reactExports.memo(SelectionTidyControlInner);
-
 const SWATCH_SIZE = 20;
-
 const TRIGGER_SIZE = 18;
-
 function ResetSwatch({ size: size2 = SWATCH_SIZE }) {
   return (
     <span
@@ -110,7 +105,6 @@ function ResetSwatch({ size: size2 = SWATCH_SIZE }) {
     />
   );
 }
-
 function SwatchButton({
   selected: selected2,
   onClick,
@@ -143,7 +137,6 @@ function SwatchButton({
     </button>
   );
 }
-
 function GroupColorPicker({ value, onChange, title }) {
   const { t: t2 } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
@@ -292,16 +285,13 @@ function GroupColorPicker({ value, onChange, title }) {
     </>
   );
 }
-
 function getFilename(path2) {
   return path2.split("/").pop() ?? path2;
 }
-
 function readStringField(source, key2) {
   const value = source?.[key2];
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-
 function selectionToolbarAttachmentsEqual(a2, b3) {
   if (a2 === b3) return true;
   if (a2.length !== b3.length) return false;
@@ -316,7 +306,6 @@ function selectionToolbarAttachmentsEqual(a2, b3) {
   }
   return true;
 }
-
 function collectSelectionToolbarChatAttachments(allNodes, selectedIds, assets) {
   const nodeById = Array.isArray(allNodes)
     ? new Map(allNodes.map((node2) => [node2.id, node2]))
@@ -383,12 +372,10 @@ function collectSelectionToolbarChatAttachments(allNodes, selectedIds, assets) {
   }
   return result;
 }
-
 const NO_TIDY_CHANGE = {
   changed: false,
   checkpoint: null,
 };
-
 export function SelectionToolbarInner({
   selectedIds,
   onAddToChat,
@@ -413,7 +400,7 @@ export function SelectionToolbarInner({
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const assets = useAssetMetadataStore((state2) => state2.assets);
   const { mergeNodeData } = useCanvasActions();
-  const attachments = useStore$3(
+  const attachments = useStore(
     (s2) =>
       collectSelectionToolbarChatAttachments(
         s2.nodeLookup,
@@ -459,7 +446,7 @@ export function SelectionToolbarInner({
     });
     if (nodeId) fullscreenApi.getState().enter(nodeId);
   }, [clipSourceNodeIds, fullscreenApi, onInstantiatePlugin]);
-  const groupAnalysis = useStore$3(
+  const groupAnalysis = useStore(
     (s2) => {
       const lookup = s2.nodeLookup;
       if (selectedIds.length === 0) {
@@ -505,7 +492,7 @@ export function SelectionToolbarInner({
     (a2, b3) =>
       a2.canGroup === b3.canGroup && a2.ungroupTarget === b3.ungroupTarget,
   );
-  const childSubsetAnalysis = useStore$3(
+  const childSubsetAnalysis = useStore(
     (s2) => {
       const lookup = s2.nodeLookup;
       if (selectedIds.length < 2)
@@ -548,7 +535,7 @@ export function SelectionToolbarInner({
     },
     (a2, b3) => a2.sameGroupId === b3.sameGroupId && a2.mixed === b3.mixed,
   );
-  const groupBackgroundColor = useStore$3((s2) => {
+  const groupBackgroundColor = useStore((s2) => {
     const target = groupAnalysis.ungroupTarget;
     if (!target) return void 0;
     const node2 = s2.nodeLookup.get(target);
@@ -642,7 +629,7 @@ export function SelectionToolbarInner({
     },
     [selectedIds, onPromoteToAsset],
   );
-  const hasTableSelected = useStore$3((s2) => {
+  const hasTableSelected = useStore((s2) => {
     const nodeLookup = s2.nodeLookup;
     return selectedIds.some(
       (nodeId) => nodeLookup.get(nodeId)?.type === CanvasNodeType.Table,
@@ -681,14 +668,14 @@ export function SelectionToolbarInner({
   const visible = !isDragging && !isBoxSelecting;
   const toolbarOffset = groupAnalysis.ungroupTarget != null ? 34 : 12;
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       nodeId={selectedIds}
       isVisible={visible}
       position={Position.Top}
       offset={toolbarOffset}
       align="center"
     >
-      <TooltipProvider$1 delay={150} closeDelay={0}>
+      <TooltipProvider delay={150} closeDelay={0}>
         <ToolbarSurface className="animate-[toolbar-fade-in_0.15s_ease-out]">
           {showTidyEntry && (
             <SelectionTidyControl
@@ -799,7 +786,7 @@ export function SelectionToolbarInner({
             </button>
           )}
           {showAddToClipNode && (
-            <Tooltip$1
+            <Tooltip
               content={t2("canvas.addToClipNode", {
                 defaultValue: "添加到剪辑节点",
               })}
@@ -816,10 +803,10 @@ export function SelectionToolbarInner({
               >
                 <AddToClipNodeIcon size={20} />
               </button>
-            </Tooltip$1>
+            </Tooltip>
           )}
           {showAnyAddToChat && (
-            <Tooltip$1 content={t2("canvas.addToChat")} side="top">
+            <Tooltip content={t2("canvas.addToChat")} side="top">
               <button
                 type="button"
                 aria-label={t2("canvas.addToChat")}
@@ -829,10 +816,10 @@ export function SelectionToolbarInner({
               >
                 <AddToChatIcon />
               </button>
-            </Tooltip$1>
+            </Tooltip>
           )}
           {showDownloadAllFiles && (
-            <Tooltip$1 content={t2("canvas.downloadAllFiles")} side="top">
+            <Tooltip content={t2("canvas.downloadAllFiles")} side="top">
               <button
                 type="button"
                 aria-label={t2("canvas.downloadAllFiles")}
@@ -842,10 +829,10 @@ export function SelectionToolbarInner({
               >
                 <Download size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
-            </Tooltip$1>
+            </Tooltip>
           )}
         </ToolbarSurface>
-      </TooltipProvider$1>
-    </NodeToolbar$1>
+      </TooltipProvider>
+    </NodeToolbar>
   );
 }

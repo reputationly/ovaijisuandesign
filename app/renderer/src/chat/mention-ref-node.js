@@ -1,8 +1,11 @@
 // mention-ref-node.js
-import { mergeAttributes, Node$3, ReactNodeViewRenderer } from "../vendor.js";
+import {
+  mergeAttributes,
+  Node$3 as Node,
+  ReactNodeViewRenderer,
+} from "../vendor.js";
 import { MentionRefChip } from "./mention-ref-chip.js";
-
-export const MentionRefNode = Node$3.create({
+export const MentionRefNode = Node.create({
   name: "mentionRef",
   group: "inline",
   inline: true,

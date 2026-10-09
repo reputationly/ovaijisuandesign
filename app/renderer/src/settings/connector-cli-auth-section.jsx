@@ -16,11 +16,10 @@ import {
   ConnectorDialogStep,
   useConnectorCopy,
 } from "./make-async-image-task.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 function formatCapacity(bytes2) {
   const units = ["B", "KB", "MB", "GB", "TB", "PB"];
   let value = bytes2;
@@ -31,7 +30,6 @@ function formatCapacity(bytes2) {
   }
   return `${value >= 10 || Number.isInteger(value) ? Math.round(value) : value.toFixed(1)} ${units[unit]}`;
 }
-
 export function ConnectorCliAuthSection({
   manifest,
   iconUrl,
@@ -231,7 +229,7 @@ export function ConnectorCliAuthSection({
                   {copy2("installDescription")}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     className="h-8 gap-1 rounded-lg bg-card px-3 hover:bg-card/80"
@@ -241,7 +239,7 @@ export function ConnectorCliAuthSection({
                     data-action-ui-id={`connectors-${connectorId}-install`}
                   >
                     {copy2(installed ? "installed" : "install")}
-                  </Button$1>
+                  </Button>
                 </div>
               </ConnectorDialogStep>
               <ConnectorDialogStep ordinal={2} last={true}>
@@ -252,7 +250,7 @@ export function ConnectorCliAuthSection({
                   {copy2("authDescription")}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Button$1
+                  <Button
                     type="button"
                     variant="outline"
                     className="h-8 gap-1 rounded-lg bg-card px-3 hover:bg-card/80"
@@ -263,9 +261,9 @@ export function ConnectorCliAuthSection({
                   >
                     {copy2(authorizing ? "authorizing" : "authorize")}
                     <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
-                  </Button$1>
+                  </Button>
                   {authUrl ? (
-                    <Button$1
+                    <Button
                       type="button"
                       variant="ghost"
                       className="h-8 gap-1 rounded-lg px-3 text-muted-foreground hover:text-foreground"
@@ -279,7 +277,7 @@ export function ConnectorCliAuthSection({
                     >
                       {copy2("openAuthPage")}
                       <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
-                    </Button$1>
+                    </Button>
                   ) : null}
                 </div>
                 {authUrl ? (
@@ -306,7 +304,7 @@ export function ConnectorCliAuthSection({
                         className="h-9 rounded-lg bg-card"
                         data-action-ui-id={`connectors-${connectorId}-code`}
                       />
-                      <Button$1
+                      <Button
                         type="button"
                         className="h-9 shrink-0 rounded-lg px-4"
                         disabled={!authCode.trim() || working}
@@ -315,7 +313,7 @@ export function ConnectorCliAuthSection({
                         data-action-ui-id={`connectors-${connectorId}-code-submit`}
                       >
                         {copy2("codeSubmit")}
-                      </Button$1>
+                      </Button>
                     </div>
                     <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
                       {copy2("codeHint")}

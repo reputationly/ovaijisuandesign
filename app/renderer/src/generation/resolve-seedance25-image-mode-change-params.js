@@ -2,13 +2,12 @@
 import {
   isSeedance25InheritedVideoMode,
   isSeedance25Model,
-  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1,
+  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM,
   resolveHailuo03TrialClaimResolution,
   SEEDANCE_25_INHERITED_VIDEO_MODES,
   SEEDANCE_25_VIDEO_EDIT_MODE,
   SEEDANCE_25_VIDEO_EXTEND_MODE,
 } from "./model-param-select.jsx";
-
 export function shouldSwitchHailuo03TrialClaimResolution({
   model,
   selectedModelId,
@@ -24,11 +23,8 @@ export function shouldSwitchHailuo03TrialClaimResolution({
     }) != null
   );
 }
-
 const SEEDANCE_25_VIDEO_EXTEND_OFFSET_SEC = 5;
-
 const SEEDANCE_25_MAX_DURATION_SEC = 30;
-
 export function resolveSeedance25ImageModeOptions(
   model,
   options,
@@ -39,7 +35,6 @@ export function resolveSeedance25ImageModeOptions(
     (option2) => !SEEDANCE_25_INHERITED_VIDEO_MODES.has(option2),
   );
 }
-
 export function resolveSeedance25AvailableImageMode(
   model,
   imageMode,
@@ -49,7 +44,6 @@ export function resolveSeedance25AvailableImageMode(
     ? "reference"
     : imageMode;
 }
-
 export function resolveSeedance25VideoExtendDefaultDuration(
   sourceVideoDurationSec,
 ) {
@@ -67,7 +61,6 @@ export function resolveSeedance25VideoExtendDefaultDuration(
     ),
   );
 }
-
 export function resolveSeedance25ImageModeChangeParams(
   model,
   currentParams,
@@ -88,13 +81,12 @@ export function resolveSeedance25ImageModeChangeParams(
   if (defaultDuration !== void 0) nextParams.duration = defaultDuration;
   return nextParams;
 }
-
 export function migrateLegacySeedance25GenerationModeParams(model, params) {
   const next2 = {
     ...(params ?? {}),
   };
-  const legacyTaskType = next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1];
-  delete next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1];
+  const legacyTaskType = next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM];
+  delete next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM];
   if (!isSeedance25Model(model) || !legacyTaskType) return next2;
   const imageMode = next2.image_mode;
   if (imageMode && imageMode !== "reference") return next2;

@@ -4,7 +4,6 @@ import { getAssetMetaByNodeIdFromStore } from "./fullscreen-icon.jsx";
 import { getNodePosition, sizeOf } from "./use-active-mode.js";
 import { STICKER_NODE_SIZE } from "./resolve-canvas-focus-targets.js";
 import { resolveVisibilityPriorityFocus } from "./resolve-visibility-priority-focus.js";
-
 export function applyVisibilityPriorityFocus({
   duration,
   getViewport,
@@ -80,7 +79,6 @@ export function applyVisibilityPriorityFocus({
     }),
   );
 }
-
 export function resolveInitialFitGateAction({
   presented,
   loading,
@@ -95,7 +93,6 @@ export function resolveInitialFitGateAction({
   if (nodeCount === 0) return "wait";
   return nodesInitialized ? "fit-measured" : "schedule-fallback";
 }
-
 export function shouldAcquireCanvasResources({
   presented,
   loading,
@@ -103,11 +100,9 @@ export function shouldAcquireCanvasResources({
 }) {
   return presented && !loading && initialFitDone;
 }
-
 export function filterInitialFitFallbackNodes(nodes) {
   return nodes.filter((node2) => !("hidden" in node2) || node2.hidden !== true);
 }
-
 export function resolveInitialFitFallbackViewport({
   bounds,
   viewportWidth,
@@ -133,46 +128,36 @@ export function resolveInitialFitFallbackViewport({
     padding,
   );
 }
-
 export function resolveNewNodesToastAction(input) {
   return input.projectActive && input.canvasPresented
     ? "focus-presented-canvas"
     : "navigate";
 }
-
 export function shouldRecenterFirstNodes(input) {
   return input.canvasPresented && input.nodeCount > 0;
 }
-
 const URL_PATH_PARAM_KEYS = ["path", "file", "file_path", "local_path"];
-
 const FILES_ROUTE_PREFIX = "/files/";
-
 const THUMBNAIL_ROUTE_PREFIX = "/api/thumbnail/";
-
-function decodePath$1(value) {
+function decodePath(value) {
   try {
     return decodeURIComponent(value);
   } catch {
     return value;
   }
 }
-
-function stripQueryAndHash$2(value) {
+function stripQueryAndHash(value) {
   return value.split("?")[0]?.split("#")[0] ?? value;
 }
-
-function normalizePath$2(value) {
-  return decodePath$1(stripQueryAndHash$2(value.trim())).replace(/\\/g, "/");
+function normalizePath(value) {
+  return decodePath(stripQueryAndHash(value.trim())).replace(/\\/g, "/");
 }
-
 function pushUnique(values3, value) {
   if (!value) return;
-  const normalized = normalizePath$2(value);
+  const normalized = normalizePath(value);
   if (!normalized || values3.includes(normalized)) return;
   values3.push(normalized);
 }
-
 function pathQueries(rawPath) {
   const values3 = [];
   pushUnique(values3, rawPath);
@@ -181,7 +166,7 @@ function pathQueries(rawPath) {
     for (const key2 of URL_PATH_PARAM_KEYS) {
       pushUnique(values3, url2.searchParams.get(key2) ?? void 0);
     }
-    const pathname = normalizePath$2(url2.pathname);
+    const pathname = normalizePath(url2.pathname);
     pushUnique(values3, pathname);
     if (pathname.startsWith(FILES_ROUTE_PREFIX)) {
       pushUnique(values3, pathname.slice(FILES_ROUTE_PREFIX.length));
@@ -192,15 +177,12 @@ function pathQueries(rawPath) {
   } catch {}
   return values3;
 }
-
-function basename$9(value) {
+function basename(value) {
   return value.split("/").pop() ?? value;
 }
-
 function hasDirectorySegment(value) {
   return value.includes("/");
 }
-
 function isExactOrSegmentSuffix(candidate, query) {
   if (candidate === query) return true;
   if (hasDirectorySegment(candidate) && query.endsWith(`/${candidate}`))
@@ -209,7 +191,6 @@ function isExactOrSegmentSuffix(candidate, query) {
     return true;
   return false;
 }
-
 export function resolveFileNodeIdByPath(rawPath, candidates2) {
   if (!rawPath) return null;
   const queries = pathQueries(rawPath);
@@ -217,31 +198,30 @@ export function resolveFileNodeIdByPath(rawPath, candidates2) {
   for (const query of queries) {
     for (const candidate of candidates2) {
       if (!candidate.path) continue;
-      if (isExactOrSegmentSuffix(normalizePath$2(candidate.path), query)) {
+      if (isExactOrSegmentSuffix(normalizePath(candidate.path), query)) {
         return candidate.nodeId;
       }
     }
   }
   const queryBases = new Set(
-    queries.map((query) => basename$9(query)).filter(Boolean),
+    queries.map((query) => basename(query)).filter(Boolean),
   );
   const basenameMatches = new Set();
   for (const candidate of candidates2) {
     if (!candidate.path) continue;
-    if (queryBases.has(basename$9(normalizePath$2(candidate.path)))) {
+    if (queryBases.has(basename(normalizePath(candidate.path)))) {
       basenameMatches.add(candidate.nodeId);
     }
   }
   return basenameMatches.size === 1 ? ([...basenameMatches][0] ?? null) : null;
 }
-
 export function resolveFirstFileNodeIdByPartialName(rawName, candidates2) {
-  const query = decodePath$1(rawName).trim().toLowerCase();
+  const query = decodePath(rawName).trim().toLowerCase();
   if (!query) return null;
   for (const candidate of candidates2) {
     const names = [
       candidate.name,
-      candidate.path ? basename$9(normalizePath$2(candidate.path)) : null,
+      candidate.path ? basename(normalizePath(candidate.path)) : null,
     ];
     if (
       names.some(
@@ -254,7 +234,6 @@ export function resolveFirstFileNodeIdByPartialName(rawName, candidates2) {
   }
   return null;
 }
-
 export function applyReactFlowSelectionWriteback({
   ids: ids2,
   syncing,
@@ -268,23 +247,15 @@ export function applyReactFlowSelectionWriteback({
   closeMenus();
   return "applied";
 }
-
 export const INITIAL_FIT_FALLBACK_MS = 2500;
-
 export const EMPTY_SHELL_NODES = [];
-
 export const EMPTY_SHELL_EDGES = [];
-
 const STICKER_MAX_ROTATION_DEG = 30;
-
 export const STICKER_BINDING_DELAY_MS = 120;
-
 export function randomStickerRotation() {
   return Math.round((Math.random() * 2 - 1) * STICKER_MAX_ROTATION_DEG);
 }
-
 export const DEFAULT_STICKER_EMOJI = "⭐";
-
 export function getAbsoluteNodePosition(node2, nodesById, mode2) {
   let position2 = getNodePosition(node2, mode2);
   let parentId = node2.parentId;
@@ -303,7 +274,6 @@ export function getAbsoluteNodePosition(node2, nodesById, mode2) {
   }
   return position2;
 }
-
 export function findStickerTarget(nodes, stickerPosition, mode2) {
   let best;
   const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
@@ -340,7 +310,6 @@ export function findStickerTarget(nodes, stickerPosition, mode2) {
   }
   return best?.target;
 }
-
 export function getTextNodeBackingPath(node2, assetMetadataStore) {
   if (node2.type !== CanvasNodeType.Text) return null;
   const metaPath = getAssetMetaByNodeIdFromStore(
@@ -352,7 +321,6 @@ export function getTextNodeBackingPath(node2, assetMetadataStore) {
   const dataPath = data2?.path;
   return typeof dataPath === "string" && dataPath.length > 0 ? dataPath : null;
 }
-
 export function hasOtherTextNodeWithBackingPath(
   nodes,
   removedNodeId,

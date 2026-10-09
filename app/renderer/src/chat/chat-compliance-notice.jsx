@@ -11,18 +11,15 @@ import { MessageInputBase } from "./message-input-base.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { getMediaUsageGuidelinesUrl } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 import { PENDING_AUTO_UPDATE_KEY } from "../generation/use-mention-models.jsx";
 import { useWorkspaceWSConnection } from "../settings/changelog-table.jsx";
-
 export const MessageInput = reactExports.memo(MessageInputBase);
-
 MessageInput.displayName = "MessageInput";
-
 export function isBillingPromotionActive(promotion, nowMs = Date.now()) {
   if (!promotion) return false;
   return (
@@ -32,12 +29,10 @@ export function isBillingPromotionActive(promotion, nowMs = Date.now()) {
     nowMs <= promotion.endTime
   );
 }
-
 const EMPTY = {
   promotion: null,
   models: [],
 };
-
 function normalize(raw2) {
   if (!raw2 || typeof raw2 !== "object") return EMPTY;
   const obj = raw2;
@@ -46,7 +41,6 @@ function normalize(raw2) {
     models: Array.isArray(obj.models) ? obj.models : [],
   };
 }
-
 export function useBillingPromotion() {
   const gatewayReady = useGatewayReady();
   const { user, isLoggedIn, isLoading } = useAuth();
@@ -67,30 +61,23 @@ export function useBillingPromotion() {
   });
   return data2?.promotion ?? null;
 }
-
 export function useActiveBillingPromotion() {
   const promotion = useBillingPromotion();
   return isBillingPromotionActive(promotion) ? promotion : null;
 }
-
 export function resolveChatReadiness(status, runtimeUnavailable) {
   if (runtimeUnavailable) return "runtime_unavailable";
   if (status.state !== "bound") return "starting";
   return status.readiness?.chat ?? "ready";
 }
-
 export function chatReadinessBlocksInput(readiness) {
   return readiness !== "ready";
 }
-
 const ChatReadinessContext = reactExports.createContext("ready");
-
 export const ChatReadinessProvider = ChatReadinessContext.Provider;
-
 export function useChatReadiness() {
   return reactExports.useContext(ChatReadinessContext);
 }
-
 export function useSkillReloadNotification(hasActiveSession) {
   const { subscribe: subscribe2 } = useWorkspaceWSConnection();
   const [pendingSkills, setPendingSkills] = reactExports.useState(null);
@@ -136,7 +123,6 @@ export function useSkillReloadNotification(hasActiveSession) {
     dismiss,
   };
 }
-
 export function ChatComplianceNotice() {
   const { i18n, t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -154,7 +140,7 @@ export function ChatComplianceNotice() {
   return (
     <p
       data-action-ui-id="chat-compliance-notice"
-      className={cn$2(
+      className={cn(
         "mt-px min-w-0 translate-y-1 px-2 text-center text-[10px] leading-4 text-muted-foreground/40 [overflow-wrap:anywhere] dark:text-muted-foreground/30",
         i18n.language.startsWith("zh")
           ? "tracking-[0.6px]"

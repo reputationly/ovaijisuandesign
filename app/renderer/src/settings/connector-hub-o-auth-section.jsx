@@ -6,7 +6,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import {
   ConnectorConsentNote,
@@ -25,7 +25,6 @@ import {
 import { ConnectorApiKeySection } from "./connector-api-key-section.jsx";
 import { ConnectorCliAuthSection } from "./connector-cli-auth-section.jsx";
 import { ConnectorManualCredentialSection } from "./connector-manual-credential-section.jsx";
-
 function buildPlainConnectorInput(manifest, description) {
   const mcp = manifest.capabilities.mcp;
   if (mcp?.kind !== "remote")
@@ -59,7 +58,6 @@ function buildPlainConnectorInput(manifest, description) {
     },
   };
 }
-
 function ConnectorHubOAuthSection({
   manifest,
   iconUrl,
@@ -243,7 +241,7 @@ function ConnectorHubOAuthSection({
           cancelDisabled={cancelling}
           onCancel={() => void close2()}
         >
-          <Button$1
+          <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
             disabled={pending2 || cancelling || !inputsReady}
@@ -256,13 +254,12 @@ function ConnectorHubOAuthSection({
                 ? "connectors.detail.connecting"
                 : "connectors.oauth.connect",
             )}
-          </Button$1>
+          </Button>
         </ConnectorDialogActions>
       </div>
     </ConnectorDialogShell>
   );
 }
-
 function ConnectorPlainSection({
   manifest,
   iconUrl,
@@ -342,7 +339,7 @@ function ConnectorPlainSection({
           cancelDisabled={submitting}
           onCancel={handleClose}
         >
-          <Button$1
+          <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
             disabled={submitting}
@@ -351,13 +348,12 @@ function ConnectorPlainSection({
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
             {submitting ? t2("connectors.detail.connecting") : copy2("connect")}
-          </Button$1>
+          </Button>
         </ConnectorDialogActions>
       </div>
     </ConnectorDialogShell>
   );
 }
-
 function ConnectorServerOAuthSection({
   manifest,
   iconUrl,
@@ -456,7 +452,7 @@ function ConnectorServerOAuthSection({
           cancelDisabled={phase === "saving"}
           onCancel={handleClose}
         >
-          <Button$1
+          <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
             disabled={submitting}
@@ -465,13 +461,12 @@ function ConnectorServerOAuthSection({
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
             {phase === "authorizing" ? copy2("authorizing") : copy2("connect")}
-          </Button$1>
+          </Button>
         </ConnectorDialogActions>
       </div>
     </ConnectorDialogShell>
   );
 }
-
 function ConnectorSkillOnlySection({
   manifest,
   iconUrl,
@@ -538,7 +533,7 @@ function ConnectorSkillOnlySection({
           onCancel={onClose}
         >
           {installed ? null : (
-            <Button$1
+            <Button
               type="button"
               className="h-9 min-w-22 rounded-lg px-4"
               loading={installing}
@@ -546,14 +541,13 @@ function ConnectorSkillOnlySection({
               data-action-ui-id={`connectors-${connectorId}-install`}
             >
               {copy2("install")}
-            </Button$1>
+            </Button>
           )}
         </ConnectorDialogActions>
       </div>
     </ConnectorDialogShell>
   );
 }
-
 export function ConnectorDialog({ manifest, ...props }) {
   const section = {
     ...props,

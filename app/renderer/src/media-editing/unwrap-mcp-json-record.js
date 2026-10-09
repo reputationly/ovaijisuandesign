@@ -3,15 +3,13 @@ import {
   categorizeToolAction,
   hasSuccessfulMediaOutput,
 } from "../chat/has-structured-success-payload.js";
-
-export const MEDIA_GEN_CATEGORIES$2 = new Set([
+export const MEDIA_GEN_CATEGORIES = new Set([
   "imageGen",
   "videoGen",
   "videoEdit",
   "audioGen",
   "musicGen",
 ]);
-
 function parseJsonRecordCandidate(text2) {
   try {
     const parsed = JSON.parse(text2);
@@ -22,7 +20,6 @@ function parseJsonRecordCandidate(text2) {
     return void 0;
   }
 }
-
 export function parseJsonRecord(text2) {
   if (!text2) return void 0;
   const trimmed = text2.trim();
@@ -39,7 +36,6 @@ export function parseJsonRecord(text2) {
   }
   return void 0;
 }
-
 function unwrapMcpJsonRecord(record2) {
   const structured = record2.structuredContent;
   if (
@@ -61,34 +57,30 @@ function unwrapMcpJsonRecord(record2) {
   }
   return record2;
 }
-
 export function timelineOperationTargetKey(operation) {
   if (operation.targetPlanId) return `plan:${operation.targetPlanId}`;
   if (operation.targetGroupId) return `group:${operation.targetGroupId}`;
   const firstNodeId = operation.targetNodeIds[0];
   return firstNodeId ? `node:${firstNodeId}` : void 0;
 }
-
 function isUnidentifiedInFlightMediaTool(message2) {
   return (
     message2.type === "tool" &&
     !message2.partId &&
     !message2.callID &&
     (message2.toolStatus === "pending" || message2.toolStatus === "running") &&
-    MEDIA_GEN_CATEGORIES$2.has(categorizeToolAction(message2.content))
+    MEDIA_GEN_CATEGORIES.has(categorizeToolAction(message2.content))
   );
 }
-
 function isIdentifiedSuccessfulMediaTool(message2) {
   return (
     message2.type === "tool" &&
     Boolean(message2.partId || message2.callID) &&
     message2.toolStatus === "ok" &&
     hasSuccessfulMediaOutput(message2.toolResult) &&
-    MEDIA_GEN_CATEGORIES$2.has(categorizeToolAction(message2.content))
+    MEDIA_GEN_CATEGORIES.has(categorizeToolAction(message2.content))
   );
 }
-
 function sortJsonValue(value) {
   if (Array.isArray(value)) return value.map(sortJsonValue);
   if (!value || typeof value !== "object") return value;
@@ -99,7 +91,6 @@ function sortJsonValue(value) {
       .map((key2) => [key2, sortJsonValue(record2[key2])]),
   );
 }
-
 function canonicalToolArgs(toolArgs) {
   const trimmed = toolArgs?.trim();
   if (!trimmed) return void 0;
@@ -109,14 +100,12 @@ function canonicalToolArgs(toolArgs) {
     return trimmed;
   }
 }
-
 function mediaReconciliationKey(message2) {
   const argsIdentity = canonicalToolArgs(message2.toolArgs);
   return argsIdentity
     ? JSON.stringify([message2.content, argsIdentity])
     : void 0;
 }
-
 export function dropSupersededLegacyInFlightMediaMessages(items) {
   const pendingLegacyIndexes = new Map();
   const supersededIndexes = new Set();
@@ -138,7 +127,6 @@ export function dropSupersededLegacyInFlightMediaMessages(items) {
   });
   return items.filter((_2, index2) => !supersededIndexes.has(index2));
 }
-
 function firstNonEmptyString(...values3) {
   for (const value of values3) {
     if (typeof value !== "string") continue;
@@ -147,7 +135,6 @@ function firstNonEmptyString(...values3) {
   }
   return void 0;
 }
-
 function extractRetryPrompt(toolArgs) {
   if (!toolArgs) return void 0;
   try {
@@ -179,25 +166,21 @@ function extractRetryPrompt(toolArgs) {
   } catch {}
   return void 0;
 }
-
 export function mediaRetryIdentityFromParts(category, toolName2, toolArgs) {
-  if (!MEDIA_GEN_CATEGORIES$2.has(category)) return void 0;
+  if (!MEDIA_GEN_CATEGORIES.has(category)) return void 0;
   const prompt = extractRetryPrompt(toolArgs);
   if (prompt) return `${category}:prompt:${prompt}`;
   if (toolArgs?.trim()) return `${category}:args:${toolArgs.trim()}`;
   return toolName2 ? `${category}:tool:${toolName2}` : void 0;
 }
-
 export function workflowSourceFromId(workflowId) {
   if (workflowId.startsWith("template:")) return "template";
   if (workflowId.startsWith("user:")) return "user";
   return "unknown";
 }
-
 export function WorkspacePage() {
   return null;
 }
-
 export const DEFAULT_PAGE_STATE_PREVIEW_SCHEMA = JSON.stringify(
   {
     type: "error",

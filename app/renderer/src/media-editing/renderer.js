@@ -1,7 +1,6 @@
 // renderer.js
-import { HANDLE_SIZE$1 } from "./hit-handle.js";
+import { HANDLE_SIZE } from "./hit-handle.js";
 import { createOffscreen } from "./keep-tag-in-canvas.js";
-
 function clearCanvas(ctx) {
   const c3 = ctx.canvas;
   ctx.save();
@@ -9,7 +8,6 @@ function clearCanvas(ctx) {
   ctx.clearRect(0, 0, c3.width, c3.height);
   ctx.restore();
 }
-
 function drawSelectionHandles(ctx, b3, uiScale = 1, style2) {
   const positions = [
     {
@@ -29,7 +27,7 @@ function drawSelectionHandles(ctx, b3, uiScale = 1, style2) {
       y: b3.y + b3.height,
     },
   ];
-  const size2 = uiScale > 0 ? HANDLE_SIZE$1 / uiScale : HANDLE_SIZE$1;
+  const size2 = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
   const stroke = uiScale > 0 ? 1.5 / uiScale : 1.5;
   ctx.save();
   ctx.fillStyle = style2?.selectionHandleFill ?? "#FFFFFF";
@@ -44,7 +42,6 @@ function drawSelectionHandles(ctx, b3, uiScale = 1, style2) {
   }
   ctx.restore();
 }
-
 function generateBlur(source, radius) {
   const w3 = source.width;
   const h2 = source.height;
@@ -68,7 +65,6 @@ function generateBlur(source, radius) {
   outCtx.filter = "none";
   return out;
 }
-
 function generateMosaic(source, blockSize) {
   const w3 = source.width;
   const h2 = source.height;
@@ -86,9 +82,7 @@ function generateMosaic(source, blockSize) {
   outCtx.drawImage(small, 0, 0, w3, h2);
   return out;
 }
-
 const PROCESSED_CACHE_LIMIT = 8;
-
 export class Renderer {
   main;
   bgLayer;

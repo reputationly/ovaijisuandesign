@@ -2,7 +2,6 @@
 import { CompositedSvg, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { svgBase } from "./expand-arrow-icon.jsx";
-
 export function GptImageDomesticIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -14,7 +13,6 @@ export function GptImageDomesticIcon(props) {
     </svg>
   );
 }
-
 export function GptImageOverseasIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -26,7 +24,6 @@ export function GptImageOverseasIcon(props) {
     </svg>
   );
 }
-
 export function GeneralImageIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -42,7 +39,6 @@ export function GeneralImageIcon(props) {
     </svg>
   );
 }
-
 export function NanoBananaIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -58,7 +54,6 @@ export function NanoBananaIcon(props) {
     </svg>
   );
 }
-
 export function MidjourneyIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -70,7 +65,6 @@ export function MidjourneyIcon(props) {
     </svg>
   );
 }
-
 export function SeedreamIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -82,7 +76,6 @@ export function SeedreamIcon(props) {
     </svg>
   );
 }
-
 export function KlingIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -94,7 +87,6 @@ export function KlingIcon(props) {
     </svg>
   );
 }
-
 export function HailuoIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -106,7 +98,6 @@ export function HailuoIcon(props) {
     </svg>
   );
 }
-
 export function WanIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -118,7 +109,6 @@ export function WanIcon(props) {
     </svg>
   );
 }
-
 export function VeoOverseasIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -130,7 +120,6 @@ export function VeoOverseasIcon(props) {
     </svg>
   );
 }
-
 export function VeoDomesticIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -142,7 +131,6 @@ export function VeoDomesticIcon(props) {
     </svg>
   );
 }
-
 export function MinimaxIcon(props) {
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative brand glyph
@@ -154,8 +142,7 @@ export function MinimaxIcon(props) {
     </svg>
   );
 }
-
-export function ClockIcon$1({ size: size2 = 12, className }) {
+export function ClockIcon({ size: size2 = 12, className }) {
   return (
     <CompositedSvg
       width={size2}
@@ -176,7 +163,6 @@ export function ClockIcon$1({ size: size2 = 12, className }) {
     </CompositedSvg>
   );
 }
-
 export function SpeakerIcon({ size: size2 = 12, className }) {
   return (
     <CompositedSvg
@@ -210,14 +196,12 @@ export function SpeakerIcon({ size: size2 = 12, className }) {
     </CompositedSvg>
   );
 }
-
 export function formatResolutionRange(options) {
   const first2 = options[0];
   if (first2 === void 0) return void 0;
   const last2 = options.at(-1);
   return last2 === void 0 || first2 === last2 ? first2 : `${first2}-${last2}`;
 }
-
 function resolvePortalAnchorLeft({
   rect,
   viewportWidth,
@@ -233,11 +217,9 @@ function resolvePortalAnchorLeft({
   );
   return Math.min(Math.max(desiredLeft, viewportPad), maxLeft);
 }
-
 function resolvePortalPanelSide(openUp) {
   return openUp ? "top" : "bottom";
 }
-
 export function usePortalAnchorPlacement(
   anchorRef,
   {

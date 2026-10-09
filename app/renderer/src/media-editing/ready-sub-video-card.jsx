@@ -1,5 +1,9 @@
 // ready-sub-video-card.jsx
-import { Download$2, reactExports, useTranslation } from "../vendor.js";
+import {
+  Download$2 as Download,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VideoPlayer } from "./video-player-inner.jsx";
 import { CardWrapper, DeleteButton } from "./canvas-sticker-assets.jsx";
@@ -9,18 +13,16 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { useRegisterZoomCounter } from "../infra/create-recently-added-store.js";
 import {
-  formatTime$2,
+  formatTime,
   MEDIA_NODE_RADIUS,
   useAssetMeta,
   useMediaPlayback,
 } from "./package.jsx";
 import { resolveVideoPlaybackUrl } from "../generation/to-workspace-browser-url.js";
 import { NodeFrameStroke } from "../canvas/node-shell-inner.jsx";
-
 function shouldPreviewReadySubVideo({ hasUrl }) {
   return hasUrl;
 }
-
 function DownloadButton({ onDownload, label }) {
   return (
     <button
@@ -31,11 +33,10 @@ function DownloadButton({ onDownload, label }) {
       title={label}
       className="pointer-events-auto absolute right-1 top-1 z-20 flex size-6 cursor-pointer items-center justify-center rounded-[8px] bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] opacity-100 transition-[background-color,transform] duration-150 ease-out hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
     >
-      <Download$2 size={14} />
+      <Download size={14} />
     </button>
   );
 }
-
 export function ReadySubVideoCard({
   slot,
   position: position2,
@@ -79,7 +80,7 @@ export function ReadySubVideoCard({
     const durationSec = meta2?.durationSec;
     setDurationLabel(
       durationSec != null && Number.isFinite(durationSec) && durationSec > 0
-        ? formatTime$2(durationSec, true)
+        ? formatTime(durationSec, true)
         : void 0,
     );
   }, [meta2?.durationSec]);
@@ -158,7 +159,7 @@ export function ReadySubVideoCard({
   const handleLoadedMetadata = reactExports.useCallback((e2) => {
     const durationSec = e2.currentTarget.duration;
     if (Number.isFinite(durationSec) && durationSec > 0) {
-      setDurationLabel(formatTime$2(durationSec, true));
+      setDurationLabel(formatTime(durationSec, true));
     }
   }, []);
   return (

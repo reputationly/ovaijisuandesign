@@ -11,7 +11,7 @@ import {
   PlaybackCircleToggleIcon,
   reactExports,
   Search,
-  Tag$1,
+  Tag$1 as Tag,
   useTranslation,
   Volume2,
 } from "../vendor.js";
@@ -32,10 +32,9 @@ import {
   PlaybackStopIcon,
 } from "../workspace/home-service.jsx";
 import { Trash2, VolumeX } from "../media-editing/package.jsx";
-import { Button$1 } from "./dialog-content.jsx";
+import { Button } from "./dialog-content.jsx";
 import { Input3 } from "./select-content.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
-
 const ENTRIES = [
   {
     name: "PlaybackCirclePlayIcon",
@@ -111,7 +110,6 @@ const ENTRIES = [
     locations: "media cover Skill action",
   },
 ];
-
 function FilledCatalog({ size: size2 }) {
   const { t: t2 } = useTranslation();
   const [query, setQuery] = reactExports.useState("");
@@ -174,7 +172,6 @@ function FilledCatalog({ size: size2 }) {
     </section>
   );
 }
-
 const ROWS = [
   {
     key: "copy",
@@ -189,10 +186,9 @@ const ROWS = [
   {
     key: "tags",
     label: "assetCenter.create.tagsLabel",
-    icon: Tag$1,
+    icon: Tag,
   },
 ];
-
 function ListPairingPreview({ disabled: disabled2 }) {
   const { t: t2 } = useTranslation();
   const [textSize, setTextSize] = reactExports.useState(14);
@@ -218,7 +214,7 @@ function ListPairingPreview({ disabled: disabled2 }) {
           {t2("uiSpec.icons.listPairing.textSize")}
         </span>
         {[12, 14, 16].map((value) => (
-          <Button$1
+          <Button
             key={value}
             size="xs"
             variant={textSize === value ? "default" : "outline"}
@@ -227,10 +223,10 @@ function ListPairingPreview({ disabled: disabled2 }) {
             data-action-ui-id={`ui-spec-icons-list-text-${value}`}
           >
             {value}px
-          </Button$1>
+          </Button>
         ))}
         {[400, 500].map((value) => (
-          <Button$1
+          <Button
             key={value}
             size="xs"
             variant={weight === value ? "default" : "outline"}
@@ -243,7 +239,7 @@ function ListPairingPreview({ disabled: disabled2 }) {
                 ? "uiSpec.icons.listPairing.regular"
                 : "uiSpec.icons.listPairing.medium",
             )}
-          </Button$1>
+          </Button>
         ))}
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -305,7 +301,6 @@ function ListPairingPreview({ disabled: disabled2 }) {
     </section>
   );
 }
-
 const GLYPHS = {
   previous: PlaybackPreviousIcon,
   play: PlaybackPlayIcon,
@@ -313,7 +308,6 @@ const GLYPHS = {
   stop: PlaybackStopIcon,
   next: PlaybackNextIcon,
 };
-
 function MediaGlyph({ action, size: size2 }) {
   const Glyph = GLYPHS[action];
   return (
@@ -326,9 +320,7 @@ function MediaGlyph({ action, size: size2 }) {
     />
   );
 }
-
 const ACTIONS = ["previous", "play", "pause", "stop", "next"];
-
 function MediaPreview({ size: size2, disabled: disabled2 }) {
   const { t: t2 } = useTranslation();
   const [playing, setPlaying] = reactExports.useState(false);
@@ -364,7 +356,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
                   {t2(`uiSpec.icons.action.${item}`)}
                 </th>
                 <td className="p-2">
-                  <Button$1
+                  <Button
                     variant="ghost"
                     size="icon"
                     className="rounded-full"
@@ -373,7 +365,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
                     data-action-ui-id={`ui-spec-icons-sample-${item}-filled`}
                   >
                     <MediaGlyph action={item} size={size2} />
-                  </Button$1>
+                  </Button>
                 </td>
                 <td className="max-w-64 p-2 text-muted-foreground">
                   {t2("uiSpec.icons.existingMedia")}
@@ -391,7 +383,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
           className="flex flex-wrap items-center gap-2"
           data-action-ui-id="ui-spec-icons-player"
         >
-          <Button$1
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2 || episode === 1}
@@ -403,8 +395,8 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             data-action-ui-id="ui-spec-icons-previous"
           >
             <MediaGlyph action="previous" size={size2} />
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2}
@@ -414,8 +406,8 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             data-action-ui-id="ui-spec-icons-play-toggle"
           >
             <MediaGlyph action={action} size={size2} />
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2 || episode === 3}
@@ -427,13 +419,13 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             data-action-ui-id="ui-spec-icons-next"
           >
             <MediaGlyph action="next" size={size2} />
-          </Button$1>
+          </Button>
           <span className="mr-auto text-xs tabular-nums" role="status">
             {t2("uiSpec.icons.episode", {
               episode,
             })}
           </span>
-          <Button$1
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2}
@@ -443,7 +435,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             data-action-ui-id="ui-spec-icons-mute"
           >
             <Volume size={size2} strokeWidth={1.5} aria-hidden={true} />
-          </Button$1>
+          </Button>
           <span
             className="flex size-8 items-center justify-center"
             title={t2("uiSpec.icons.auxiliary")}
@@ -458,7 +450,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             {t2("uiSpec.icons.thumbnailScene")}
           </p>
           <div className="flex h-24 items-center justify-center rounded-md bg-[var(--modal-mask-bg)]">
-            <Button$1
+            <Button
               size="icon-lg"
               disabled={disabled2}
               aria-label={t2(`uiSpec.icons.action.${action}`)}
@@ -469,7 +461,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
               <span className="text-[var(--media-overlay-foreground)] drop-shadow-sm">
                 <MediaGlyph action={action} size={20} />
               </span>
-            </Button$1>
+            </Button>
           </div>
         </div>
         <div className="space-y-2 rounded-lg border border-border p-3">
@@ -477,7 +469,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             {t2("uiSpec.icons.audioScene")}
           </p>
           <div className="flex h-24 items-center gap-3 rounded-md bg-muted px-3">
-            <Button$1
+            <Button
               size="icon-sm"
               disabled={disabled2}
               aria-label={t2(`uiSpec.icons.action.${action}`)}
@@ -490,7 +482,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
                 size={28}
                 className="size-full"
               />
-            </Button$1>
+            </Button>
             <div
               className="h-1 flex-1 rounded-full bg-foreground/10"
               aria-hidden={true}
@@ -509,7 +501,6 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
     </section>
   );
 }
-
 function StrokeSpec() {
   const { t: t2 } = useTranslation();
   return (
@@ -594,19 +585,16 @@ function StrokeSpec() {
     </section>
   );
 }
-
 const LibraryCatalog = reactExports.lazy(() =>
   (() => import("../project-icon-catalog-CdFVT0Lu.js"))().then((module) => ({
     default: module.ProjectIconCatalog,
   })),
 );
-
 const OpacityPreview = reactExports.lazy(() =>
   (() => import("../index-BaJMuy1j.js"))().then((module) => ({
     default: module.IconOpacityPreviewSection,
   })),
 );
-
 const RULES = [
   "sizes",
   "stroke",
@@ -616,9 +604,7 @@ const RULES = [
   "hitArea",
   "interaction",
 ];
-
 const DECISIONS = ["transport", "auxiliary", "state", "special"];
-
 export function IconPreview() {
   const { t: t2 } = useTranslation();
   const { theme: theme2, resolved, setTheme } = useTheme();
@@ -648,7 +634,7 @@ export function IconPreview() {
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
         <span className="text-xs">{t2("uiSpec.icons.size")}</span>
         {[12, 14, 16, 20].map((value) => (
-          <Button$1
+          <Button
             key={value}
             size="xs"
             variant={size2 === value ? "default" : "outline"}
@@ -657,11 +643,11 @@ export function IconPreview() {
             data-action-ui-id={`ui-spec-icons-size-${value}`}
           >
             {value}px
-          </Button$1>
+          </Button>
         ))}
         <span className="ml-2 text-xs">{t2("uiSpec.icons.theme")}</span>
         {["light", "dark"].map((value) => (
-          <Button$1
+          <Button
             key={value}
             size="xs"
             variant={resolved === value ? "default" : "outline"}
@@ -670,9 +656,9 @@ export function IconPreview() {
             data-action-ui-id={`ui-spec-icons-theme-${value}`}
           >
             {t2(`uiSpec.icons.${value}`)}
-          </Button$1>
+          </Button>
         ))}
-        <Button$1
+        <Button
           size="xs"
           variant={disabled2 ? "default" : "outline"}
           aria-pressed={disabled2}
@@ -680,7 +666,7 @@ export function IconPreview() {
           data-action-ui-id="ui-spec-icons-disabled"
         >
           {t2("uiSpec.icons.disabled")}
-        </Button$1>
+        </Button>
       </div>
       <ListPairingPreview disabled={disabled2} />
       <section className="space-y-3">

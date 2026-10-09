@@ -5,8 +5,7 @@ import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { IntegrationActionButton } from "./use-im-accounts.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 export function ConnectorDetailNotice({
   description,
   tone = "neutral",
@@ -15,7 +14,7 @@ export function ConnectorDetailNotice({
   return (
     <div
       role={tone === "error" ? "alert" : void 0}
-      className={cn$2(
+      className={cn(
         "rounded-md bg-secondary px-2.5 py-1.5",
         tone === "warning" && "bg-warning/10",
         tone === "error" ? "text-left" : "text-center",
@@ -25,7 +24,7 @@ export function ConnectorDetailNotice({
       data-notice-tone={tone}
     >
       <p
-        className={cn$2(
+        className={cn(
           "min-w-0 text-[13px] leading-relaxed text-foreground/70",
           tone === "warning" && "text-warning-foreground",
           tone === "error" && "text-destructive",
@@ -36,7 +35,6 @@ export function ConnectorDetailNotice({
     </div>
   );
 }
-
 export function ConnectorSetupSection({
   title,
   headerAction,
@@ -46,7 +44,7 @@ export function ConnectorSetupSection({
 }) {
   return (
     <section
-      className={cn$2("w-full text-left", className)}
+      className={cn("w-full text-left", className)}
       data-action-ui-id={actionUiId}
       data-layout-slot="connector-detail-setup-section"
     >
@@ -60,7 +58,6 @@ export function ConnectorSetupSection({
     </section>
   );
 }
-
 const connectorSummaryActionVisual = {
   authorize: {
     icon: KeyRound,
@@ -87,7 +84,6 @@ const connectorSummaryActionVisual = {
     variant: "outline",
   },
 };
-
 export function ConnectorSummaryAction({
   mode: mode2,
   label,

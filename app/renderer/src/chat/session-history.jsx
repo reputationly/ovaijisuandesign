@@ -3,8 +3,8 @@ import {
   API_PATHS,
   dedupedToast,
   DownloadIcon,
-  EyeIcon$1,
-  EyeOffIcon$1,
+  EyeIcon$1 as EyeIcon,
+  EyeOffIcon$1 as EyeOffIcon,
   HistoryIcon,
   PinIcon,
   reactExports,
@@ -22,7 +22,7 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import {
   ContextMenuContent,
@@ -31,11 +31,9 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
 import { sessionDisplayName } from "./chat-empty-state.jsx";
-
 function sessionPreferenceId(session) {
   return session.runtime_session_id ?? session.id;
 }
-
 function migrateSessionPreferenceIds(storedIds, sessions) {
   const runtimeByUiId = new Map();
   for (const session of sessions) {
@@ -53,21 +51,17 @@ function migrateSessionPreferenceIds(storedIds, sessions) {
   }
   return migrated;
 }
-
 function sessionPreferenceIdsEqual(left, right) {
   return (
     left.length === right.length &&
     left.every((value, index2) => value === right[index2])
   );
 }
-
 const SESSION_EVICTION_TOAST_LIMIT = 3;
-
 function normalizeEvictionToastCount(value) {
   if (!Number.isFinite(value) || value == null) return 0;
   return Math.max(0, Math.floor(value));
 }
-
 export function SessionHistory({
   sessions,
   openedTabIds,
@@ -249,7 +243,7 @@ export function SessionHistory({
           <TooltipTrigger
             render={
               <PopoverTrigger
-                className={cn$2(
+                className={cn(
                   "relative flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer transition-colors",
                   "hover:bg-foreground/[0.06] hover:text-foreground",
                   "text-foreground/55",
@@ -349,10 +343,7 @@ export function SessionHistory({
                         }}
                       >
                         <PinIcon
-                          className={cn$2(
-                            "size-3.5",
-                            isPinned && "fill-current",
-                          )}
+                          className={cn("size-3.5", isPinned && "fill-current")}
                           strokeWidth={1.5}
                         />
                       </button>
@@ -366,7 +357,7 @@ export function SessionHistory({
                           handleHide(preferenceId);
                         }}
                       >
-                        <EyeOffIcon$1 className="size-3.5" strokeWidth={1.5} />
+                        <EyeOffIcon className="size-3.5" strokeWidth={1.5} />
                       </button>
                     </div>
                   </ContextMenuTrigger>
@@ -374,7 +365,7 @@ export function SessionHistory({
                     <ContextMenuItem
                       onClick={() => handleTogglePin(preferenceId)}
                     >
-                      <PinIcon className={cn$2(isPinned && "fill-current")} />
+                      <PinIcon className={cn(isPinned && "fill-current")} />
                       {t2(isPinned ? "session.unpin" : "session.pin")}
                     </ContextMenuItem>
                     <ContextMenuItem
@@ -392,7 +383,7 @@ export function SessionHistory({
                         : t2("session.export.menuItem", "Export Chat")}
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => handleHide(preferenceId)}>
-                      <EyeOffIcon$1 />
+                      <EyeOffIcon />
                       {t2("session.hideFromHistory")}
                     </ContextMenuItem>
                   </ContextMenuContent>
@@ -407,7 +398,7 @@ export function SessionHistory({
                   className="flex w-full items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
                   data-action-ui-id="session-history-hidden-toggle"
                 >
-                  <EyeOffIcon$1 className="size-3.5" strokeWidth={1.5} />
+                  <EyeOffIcon className="size-3.5" strokeWidth={1.5} />
                   <span className="flex-1 text-left">
                     {t2("session.hiddenSessions", {
                       count: filteredHiddenSessions.length,
@@ -433,7 +424,7 @@ export function SessionHistory({
                           aria-label={t2("session.restoreToHistory")}
                           data-action-ui-id={`session-history-restore-${session.id}`}
                         >
-                          <EyeIcon$1 className="size-3.5" strokeWidth={1.5} />
+                          <EyeIcon className="size-3.5" strokeWidth={1.5} />
                         </button>
                       </div>
                     );

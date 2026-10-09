@@ -1,7 +1,7 @@
 // asset-grid-item-impl.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { formatDuration$3 } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { formatDuration } from "../workspace/set-home-widget-dev-preview-mode.js";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import {
   AlertTriangle,
@@ -14,18 +14,17 @@ import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
-import { getFileName$1, splitFilename } from "../canvas/uploading-assets.jsx";
+import { getFileName, splitFilename } from "../canvas/uploading-assets.jsx";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { ContextMenuTrigger } from "../workspace/context-menu-content.jsx";
 import { AssetContextMenuContent } from "./asset-context-menu-content.jsx";
-
-function DurationBadge$1({ seconds, className }) {
-  const text2 = formatDuration$3(seconds);
+function DurationBadge({ seconds, className }) {
+  const text2 = formatDuration(seconds);
   if (!text2) return null;
   return (
     <span
       data-slot="duration-badge"
-      className={cn$2(
+      className={cn(
         "absolute bottom-1 left-1 px-1 py-0.5 rounded bg-foreground/60 text-background text-[10px] font-medium tabular-nums leading-none pointer-events-none",
         className,
       )}
@@ -34,19 +33,16 @@ function DurationBadge$1({ seconds, className }) {
     </span>
   );
 }
-
 const CATEGORY_CLASS = {
   pdf: "bg-destructive text-destructive-foreground",
   doc: "bg-primary text-primary-foreground",
   neutral: "bg-muted text-muted-foreground",
 };
-
 function categoryFor(ext) {
   if (ext === "pdf") return "pdf";
   if (ext === "doc" || ext === "docx") return "doc";
   return "neutral";
 }
-
 function FormatBadge({ ext, className }) {
   if (!ext) return null;
   const normalized = ext.replace(/^\./, "").toLowerCase().trim();
@@ -56,7 +52,7 @@ function FormatBadge({ ext, className }) {
     <span
       data-slot="format-badge"
       data-format-category={category}
-      className={cn$2(
+      className={cn(
         "absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase leading-none tracking-wide pointer-events-none",
         CATEGORY_CLASS[category],
         className,
@@ -66,7 +62,6 @@ function FormatBadge({ ext, className }) {
     </span>
   );
 }
-
 function MissingPlaceholder() {
   const { t: t2 } = useTranslation();
   return (
@@ -82,7 +77,6 @@ function MissingPlaceholder() {
     </div>
   );
 }
-
 function VideoIndicator() {
   return (
     <div
@@ -96,7 +90,6 @@ function VideoIndicator() {
     </div>
   );
 }
-
 export function AssetGridItemImpl({
   asset,
   absolutePath,
@@ -136,7 +129,7 @@ export function AssetGridItemImpl({
   const [imgRetried, setImgRetried] = reactExports.useState(false);
   const gatewayUrl2 = useGatewayUrl();
   const isMissing = asset.status === "missing";
-  const fileName = asset.name || getFileName$1(asset.path) || asset.path;
+  const fileName = asset.name || getFileName(asset.path) || asset.path;
   const target = reactExports.useMemo(
     () => ({
       path: absolutePath,
@@ -291,7 +284,7 @@ export function AssetGridItemImpl({
             data-coach-anchor="file-item"
             onPointerEnter={handlePointerEnter}
             onPointerLeave={handlePointerLeave}
-            className={cn$2(
+            className={cn(
               "flex flex-col gap-1 p-1 cursor-pointer select-none transition-colors outline-none rounded-lg",
               isSelected || contextOpen
                 ? "bg-foreground/[0.12]"
@@ -323,7 +316,7 @@ export function AssetGridItemImpl({
             resolvedThumbnailUrl &&
             !imgError && <VideoIndicator />}
           {!isMissing && (asset.type === "video" || asset.type === "audio") && (
-            <DurationBadge$1 seconds={asset.duration} />
+            <DurationBadge seconds={asset.duration} />
           )}
           {!isMissing &&
             asset.type !== "image" &&
@@ -352,7 +345,7 @@ export function AssetGridItemImpl({
               const { head: stem, tail: ext2 } = splitFilename(fileName);
               return (
                 <span
-                  className={cn$2(
+                  className={cn(
                     "text-[12px] w-full leading-tight flex items-baseline min-w-0",
                     isMissing ? "text-foreground/30" : "text-foreground/70",
                   )}

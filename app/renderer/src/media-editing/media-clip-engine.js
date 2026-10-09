@@ -2,7 +2,7 @@
 import { BlobSource, CanvasSink } from "../vendor.js";
 import {
   ALL_FORMATS,
-  Input$3,
+  Input$3 as Input,
 } from "../vendor-inline/mediabunny/hls-segmented-input.js";
 import {
   DEFAULT_CROP_CONFIG,
@@ -17,7 +17,6 @@ import {
 import { TimelineEventHandler } from "./timeline-event-handler.js";
 import { getDurationTier } from "./duration-tiers.js";
 import { TimelineRenderer } from "./timeline-renderer.js";
-
 class VideoFrameCache {
   decoderMap = new Map();
   canvasesMap = new Map();
@@ -111,7 +110,7 @@ class VideoFrameCache {
     const promise = (async () => {
       const asset = this.getAsset(assetId);
       if (!asset) throw new Error(`asset 不存在: ${assetId}`);
-      const input = new Input$3({
+      const input = new Input({
         formats: ALL_FORMATS,
         source: new BlobSource(asset.file),
       });
@@ -201,7 +200,6 @@ class VideoFrameCache {
     this.decoderMap.clear();
   }
 }
-
 const PEAK_WORKER_CODE =
   /* javascript */
   `
@@ -227,7 +225,6 @@ self.onmessage = function (e) {
   self.postMessage({ jobId: jobId, peaks: peaks }, [peaks.buffer]);
 };
 `;
-
 class WaveformService {
   cache = new Map();
   /**
@@ -378,7 +375,6 @@ class WaveformService {
     this.workerPending.clear();
   }
 }
-
 const defaultState = {
   clips: [],
   totalDuration: TIMELINE_CONFIG.MIN_TOTAL_DURATION,
@@ -392,7 +388,6 @@ const defaultState = {
   segmentRanges: [],
   previewFrame: null,
 };
-
 class TimelineStore {
   state;
   listeners = new Set();
@@ -581,7 +576,6 @@ class TimelineStore {
     };
   }
 }
-
 export class MediaClipEngine {
   // 子模块实例
   store;

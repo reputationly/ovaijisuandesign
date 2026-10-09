@@ -13,7 +13,7 @@ import {
   useQuery,
   useStorage,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FourCornerLoading, sessionDisplayName } from "./chat-empty-state.jsx";
@@ -30,7 +30,7 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import {
   ContextMenuContent,
@@ -43,7 +43,6 @@ import { Clapperboard, MessageSquareQuote } from "../media-editing/package.jsx";
 import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { useWorkspacePaneReorder } from "./use-browser-chat-media.jsx";
 import { SessionHistory } from "./session-history.jsx";
-
 function useSessionCostVisible(session) {
   const { data: data2 } = usePricingConfig();
   const statsSince = data2?.sessionStatsSinceMs;
@@ -52,7 +51,6 @@ function useSessionCostVisible(session) {
   if (!Number.isFinite(createdAt)) return false;
   return createdAt >= statsSince;
 }
-
 function ChatTabLoadingIndicator() {
   const { t: t2 } = useTranslation();
   return (
@@ -64,15 +62,10 @@ function ChatTabLoadingIndicator() {
     />
   );
 }
-
 const IMAGE_TYPES = new Set(["image"]);
-
 const VIDEO_TYPES = new Set(["video"]);
-
 const AUDIO_TYPES = new Set(["audio", "music"]);
-
 const AGENT_TYPES = new Set(["agent"]);
-
 function bucketSessionCost(cost) {
   let image2 = 0;
   let video = 0;
@@ -94,11 +87,8 @@ function bucketSessionCost(cost) {
     total: cost.totalAmount,
   };
 }
-
 const ALWAYS_VISIBLE = ["image", "video", "audio"];
-
 const CONDITIONAL = ["agent", "other"];
-
 function visibleCostCategories(buckets2) {
   const rows = ALWAYS_VISIBLE.map((key2) => ({
     key: key2,
@@ -113,7 +103,6 @@ function visibleCostCategories(buckets2) {
   }
   return rows;
 }
-
 function toNumber(value) {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
   if (typeof value === "string") {
@@ -122,7 +111,6 @@ function toNumber(value) {
   }
   return 0;
 }
-
 function mapResult(raw2) {
   if (typeof raw2 !== "object" || raw2 === null)
     return {
@@ -148,16 +136,13 @@ function mapResult(raw2) {
     }),
   };
 }
-
 const SESSION_COST_CHUNK_SIZE = 500;
-
 function chunk(items, size2) {
   const out = [];
   for (let i2 = 0; i2 < items.length; i2 += size2)
     out.push(items.slice(i2, i2 + size2));
   return out;
 }
-
 function mergeSessionCosts(parts) {
   const amountByMedia = new Map();
   let totalAmount = 0;
@@ -178,7 +163,6 @@ function mergeSessionCosts(parts) {
     })),
   };
 }
-
 async function fetchSessionCostChunk(sessionIds, signal) {
   const res = await gatewayFetch("/api/v1/billing/session-cost", {
     method: "POST",
@@ -194,7 +178,6 @@ async function fetchSessionCostChunk(sessionIds, signal) {
   signal?.throwIfAborted();
   return mapResult(raw2);
 }
-
 async function fetchSessionCost(sessionIds, options) {
   if (sessionIds.length === 0)
     return {
@@ -207,11 +190,8 @@ async function fetchSessionCost(sessionIds, options) {
   );
   return mergeSessionCosts(parts);
 }
-
 const SESSION_TREE_TIMEOUT_MS = 3e3;
-
 let requestSeq = 0;
-
 function requestSessionTree(ws2, sessionId, signal) {
   return new Promise((resolve, reject) => {
     if (!sessionId) {
@@ -258,9 +238,7 @@ function requestSessionTree(ws2, sessionId, signal) {
     }
   });
 }
-
 const STALE_TIME_MS = 1e3;
-
 function useSessionCost(session, enabled) {
   const ws2 = useWSConnection();
   const runtimeSessionId = session.runtime_session_id ?? session.id;
@@ -294,11 +272,8 @@ function useSessionCost(session, enabled) {
     status: "loading",
   };
 }
-
 const OPEN_DELAY_MS = 400;
-
 const CLOSE_DELAY_MS = 120;
-
 function CostBreakdown({ buckets: buckets2 }) {
   const { t: t2 } = useTranslation();
   const labels = {
@@ -331,7 +306,6 @@ function CostBreakdown({ buckets: buckets2 }) {
     </div>
   );
 }
-
 function SessionCostPopover({ session, children: children2 }) {
   const { t: t2 } = useTranslation();
   const [hovering, setHovering] = reactExports.useState(false);
@@ -401,7 +375,6 @@ function SessionCostPopover({ session, children: children2 }) {
     </Popover>
   );
 }
-
 function TabStatusBadge({ status, active: active2 }) {
   const { t: t2 } = useTranslation();
   if (active2) return null;
@@ -458,7 +431,6 @@ function TabStatusBadge({ status, active: active2 }) {
       return null;
   }
 }
-
 const SessionTab = reactExports.memo(function SessionTab2({
   session,
   active: active2,
@@ -498,7 +470,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
         <ContextMenuTrigger
           data-action-ui-id={`session-tab-${session.id}`}
           data-window-drag-region="no-drag"
-          className={cn$2(
+          className={cn(
             "no-drag group/tab relative flex h-7 w-full cursor-pointer select-none items-center rounded-md px-2 transition-colors duration-150 ease-out",
             active2
               ? "bg-foreground/[0.08] text-foreground"
@@ -527,7 +499,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
                 event.stopPropagation();
                 setRenaming(true);
               }}
-              className={cn$2(
+              className={cn(
                 "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left transition-colors",
                 hideClose
                   ? "pr-0"
@@ -545,7 +517,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
               </span>
               {!active2 && status.kind !== "idle" && (
                 <span
-                  className={cn$2(
+                  className={cn(
                     "flex shrink-0 items-center",
                     "group-hover/tab:hidden",
                   )}
@@ -565,7 +537,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
                     onDoubleClick={(event) => event.stopPropagation()}
                     aria-label={t2("session.tabs.close.tooltip", "Close tab")}
                     data-action-ui-id={`session-tab-close-${session.id}`}
-                    className={cn$2(
+                    className={cn(
                       "absolute right-1 top-1/2 z-20 size-5 -translate-y-1/2 items-center justify-center rounded-sm transition-opacity",
                       "text-foreground/40 hover:bg-foreground/10 hover:text-foreground",
                       hideClose && "hidden",
@@ -577,7 +549,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
                   />
                 }
               >
-                <Icon icon={X$7} size="xs" />
+                <Icon icon={X} size="xs" />
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 {t2("session.tabs.close.tooltip", "Close tab")}
@@ -598,15 +570,11 @@ const SessionTab = reactExports.memo(function SessionTab2({
     </ContextMenu>
   );
 });
-
 const MARK_ID = "session-cost-intro";
-
 const COMPLETION_SETTLE_MS = 1e3;
-
 function isDocumentForeground() {
   return document.visibilityState === "visible" && document.hasFocus();
 }
-
 function SessionCostCoachMark({
   session,
   running: running2,
@@ -713,7 +681,6 @@ function SessionCostCoachMark({
     />
   ) : null;
 }
-
 function deriveTabStatus(input) {
   const status = deriveSessionTaskStatus(input);
   if (status === "needs-answer")
@@ -736,7 +703,6 @@ function deriveTabStatus(input) {
     kind: "idle",
   };
 }
-
 function nodeEditSessionTitle(session, t2, agentTitle) {
   const genericDefaults = new Set([
     t2("chat.textEditAgent.sessionName", "Text Assistant"),
@@ -747,7 +713,6 @@ function nodeEditSessionTitle(session, t2, agentTitle) {
   if (genericDefaults.has(session.name)) return agentTitle;
   return sessionDisplayName(session, t2);
 }
-
 function nodeEditTitleIcon(agentTitle) {
   const identity2 = agentTitle.toLocaleLowerCase();
   if (identity2.includes("director") || identity2.includes("导演"))
@@ -775,7 +740,6 @@ function nodeEditTitleIcon(agentTitle) {
   }
   return PencilRuler;
 }
-
 function snapshotStatuses(store, openedTabOrder) {
   const state2 = store.getState();
   const out = new Map();
@@ -793,7 +757,6 @@ function snapshotStatuses(store, openedTabOrder) {
   }
   return out;
 }
-
 function equalTabStatusMaps(left, right) {
   if (left.size !== right.size) return false;
   for (const [id2, leftStatus] of left) {
@@ -809,7 +772,6 @@ function equalTabStatusMaps(left, right) {
   }
   return true;
 }
-
 export function SessionTabStrip({
   sessions,
   openedTabOrder,
@@ -1088,7 +1050,7 @@ export function SessionTabStrip({
     <div
       data-action-ui-id="session-tabs"
       data-chat-header-mode={multiChat ? "multi" : "single"}
-      className={cn$2(
+      className={cn(
         "mac-window-drag-region relative flex h-11 min-w-0 shrink-0 items-center overflow-hidden bg-card",
         multiChat && "border-b-[0.5px] border-border",
       )}
@@ -1112,7 +1074,7 @@ export function SessionTabStrip({
                 onPointerDown={paneReorder.onHandlePointerDown}
                 onPointerMove={paneReorder.onHandlePointerMove}
                 onPointerUp={paneReorder.onHandlePointerUp}
-                className={cn$2(
+                className={cn(
                   "ml-2 flex size-7 shrink-0 touch-none items-center justify-center rounded-md border-0 bg-transparent p-0 text-foreground/35 transition-colors hover:bg-foreground/[0.06] hover:text-foreground/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                   paneReorder.phase === "dragging" ||
                     paneReorder.phase === "targeted"

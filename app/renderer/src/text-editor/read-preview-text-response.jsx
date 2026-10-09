@@ -9,21 +9,18 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import {
   CANVAS_REFERENCE_API,
   isCanvasReferenceUri,
 } from "./table-document-to-llm-content.js";
-
 const MAX_PREVIEW_TEXT_BYTES = 512 * 1024;
-
 function tooLarge() {
   return Object.assign(new Error("Text exceeds the preview size limit"), {
     code: "FILE_TOO_LARGE",
   });
 }
-
 async function readPreviewTextResponse(response, signal) {
   signal?.throwIfAborted();
   if (response.status === 413) throw tooLarge();
@@ -71,7 +68,6 @@ async function readPreviewTextResponse(response, signal) {
     reader.releaseLock();
   }
 }
-
 export function usePreviewTextLoader() {
   const gatewayFetch2 = useGatewayFetch();
   return reactExports.useCallback(
@@ -90,7 +86,6 @@ export function usePreviewTextLoader() {
     [gatewayFetch2],
   );
 }
-
 export async function uploadCanvasReferenceFile(file, fetch2) {
   const data2 = await observeClientMediaUpload(
     file,
@@ -115,7 +110,6 @@ export async function uploadCanvasReferenceFile(file, fetch2) {
     throw new Error("Upload failed: missing relative path in response");
   return data2.relative;
 }
-
 export async function uploadCanvasFileToCdn(file, fetch2) {
   const form = new FormData();
   form.append("file", file, file.name);
@@ -128,15 +122,11 @@ export async function uploadCanvasFileToCdn(file, fetch2) {
     throw new Error(data2.error || "CDN upload failed");
   return data2.url;
 }
-
 const AssetSourcePickerContext = reactExports.createContext(null);
-
 const AttachmentLocatorContext = reactExports.createContext(null);
-
 export function useAttachmentLocator() {
   return reactExports.useContext(AttachmentLocatorContext);
 }
-
 export function AssetSourcePickerProvider({ children: children2 }) {
   const picker = reactExports.useRef(null);
   const locator = reactExports.useRef(null);
@@ -148,11 +138,9 @@ export function AssetSourcePickerProvider({ children: children2 }) {
     </AssetSourcePickerContext.Provider>
   );
 }
-
 export function useAssetSourcePicker() {
   return reactExports.useContext(AssetSourcePickerContext);
 }
-
 async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
   try {
     const nodeIds = await addFiles();
@@ -167,7 +155,7 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
       {
         duration: 8e3,
         action: (
-          <Button$1
+          <Button
             variant="default"
             size="default"
             className="ml-auto min-w-14 shrink-0 px-3"
@@ -181,7 +169,7 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
             }}
           >
             {t2("workspace.browser.viewOnCanvas", "查看")}
-          </Button$1>
+          </Button>
         ),
       },
     );
@@ -194,7 +182,6 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
     );
   }
 }
-
 export function useBrowserCanvasImport(
   currentWorkspace,
   isActive2,
@@ -216,14 +203,11 @@ export function useBrowserCanvasImport(
     return () => subscription.dispose();
   }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t2]);
 }
-
 const ANIMATED_IMAGE_EXTENSIONS = new Set(["gif"]);
-
 export function filenameExtension(filename) {
   const dot2 = filename.lastIndexOf(".");
   return dot2 > -1 ? filename.slice(dot2 + 1).toLocaleLowerCase() : "";
 }
-
 export function isAnnotatableImage(attachment) {
   return (
     (attachment.kind ?? "file") === "file" &&
@@ -233,7 +217,6 @@ export function isAnnotatableImage(attachment) {
     !ANIMATED_IMAGE_EXTENSIONS.has(filenameExtension(attachment.filename))
   );
 }
-
 export function isSameImageAnnotationTarget(current2, snapshot2) {
   return (
     current2.id === snapshot2.id &&

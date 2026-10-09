@@ -1,11 +1,9 @@
 // pending-annotation-list.jsx
-import { reactExports, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { shouldIgnoreChatGlobalShortcut } from "../media-editing/message-list-props-equal.jsx";
-
 const MAX_VISIBLE_CARDS = 4;
-
 export function PendingAnnotationList({
   annotations,
   activeId,
@@ -83,7 +81,7 @@ export function PendingAnnotationList({
           >
             {t2("chat.pendingAnnotations.clear", "清空")}
           </button>
-          <Button$1
+          <Button
             type="button"
             size="xs"
             onClick={onSend}
@@ -94,7 +92,7 @@ export function PendingAnnotationList({
             submission?.status === "failed"
               ? t2("common.retry", "Retry")
               : t2("chat.send", "发送")}
-          </Button$1>
+          </Button>
         </div>
       </div>
       {submissionStatus && (
@@ -157,7 +155,7 @@ export function PendingAnnotationList({
                   title={t2("common.delete", "删除")}
                   aria-label={t2("common.delete", "删除")}
                 >
-                  <X$7 size={13} />
+                  <X size={13} />
                 </button>
               </div>
             </div>

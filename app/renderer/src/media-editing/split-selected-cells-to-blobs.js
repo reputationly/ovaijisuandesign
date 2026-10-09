@@ -1,7 +1,6 @@
 // split-selected-cells-to-blobs.js
 
 const DEFAULT_SPLIT_GUTTER_RATIO = 0.01;
-
 function computeGridCells(
   width,
   height,
@@ -35,8 +34,7 @@ function computeGridCells(
   }
   return cells2;
 }
-
-function loadImage$5(src) {
+function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -45,7 +43,6 @@ function loadImage$5(src) {
     img.src = src;
   });
 }
-
 function cellToBlob(img, cell) {
   const canvas = document.createElement("canvas");
   canvas.width = cell.sw;
@@ -75,7 +72,6 @@ function cellToBlob(img, cell) {
     }, "image/png");
   });
 }
-
 export async function splitSelectedCellsToBlobs(
   src,
   rows,
@@ -86,7 +82,7 @@ export async function splitSelectedCellsToBlobs(
   gutterRatio = 0,
 ) {
   if (selected2.size === 0) return [];
-  const img = await loadImage$5(src);
+  const img = await loadImage(src);
   const sw = originalWidth || img.naturalWidth;
   const sh = originalHeight || img.naturalHeight;
   const cells2 = computeGridCells(sw, sh, rows, cols, gutterRatio);

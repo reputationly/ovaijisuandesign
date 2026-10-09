@@ -1,7 +1,7 @@
 // merge-into-timeline-entries.js
 import {
   dropSupersededLegacyInFlightMediaMessages,
-  MEDIA_GEN_CATEGORIES$2,
+  MEDIA_GEN_CATEGORIES,
   mediaRetryIdentityFromParts,
   timelineOperationTargetKey,
 } from "./unwrap-mcp-json-record.js";
@@ -13,7 +13,6 @@ import {
 } from "../chat/has-structured-success-payload.js";
 import { hasMediaAnalysisFailure } from "../vendor.js";
 import { aggregateTimelineRuns } from "./aggregate-timeline-runs.js";
-
 function mergeAdjacentThinkingEntries(entries2) {
   const merged = [];
   for (const entry of entries2) {
@@ -36,7 +35,6 @@ function mergeAdjacentThinkingEntries(entries2) {
   }
   return merged;
 }
-
 function normalizeTimelineOperationEntries(entries2) {
   const displayNames = new Map();
   for (const entry of entries2) {
@@ -88,18 +86,16 @@ function normalizeTimelineOperationEntries(entries2) {
       !!entry.aggregatedTimelineOperations?.length,
   );
 }
-
 function isCoveredMediaFailure(entry) {
   return (
     entry.type === "tool" &&
-    MEDIA_GEN_CATEGORIES$2.has(entry.category) &&
+    MEDIA_GEN_CATEGORIES.has(entry.category) &&
     entry.toolStatus === "error" &&
     !entry.rejectedConfirm &&
     !isToolRecoveredInterrupted(entry.toolResult) &&
     !hasSuccessfulMediaOutput(entry.toolResult)
   );
 }
-
 function hasLaterSuccessfulMediaRetryEntry(entries2, index2) {
   const current2 = entries2[index2];
   if (!current2 || current2.type !== "tool") return false;
@@ -125,14 +121,12 @@ function hasLaterSuccessfulMediaRetryEntry(entries2, index2) {
   }
   return false;
 }
-
 function dropCoveredMediaFailureEntries(entries2) {
   return entries2.filter((entry, index2) => {
     if (!isCoveredMediaFailure(entry)) return true;
     return !hasLaterSuccessfulMediaRetryEntry(entries2, index2);
   });
 }
-
 export function mergeIntoTimelineEntries(items, options = {}) {
   const { raw: raw2 = false, legacyMediaReconciliationApplied = false } =
     options;

@@ -1,26 +1,21 @@
 // zoom-menu.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { reactExports, useTranslation } from "../vendor.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-import { CANVAS_ZOOM_PRESETS, Input$1 } from "../media-editing/input.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
+import { CANVAS_ZOOM_PRESETS, Input } from "../media-editing/input.jsx";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
-
 const ZOOM_MENU_POSITION_CLASSES = {
   "bottom-left": "bottom-full left-0 mb-2",
   "top-left": "top-full left-0 mt-2",
   "top-right": "top-full right-0 mt-2",
 };
-
 function getCanvasZoomMenuPositionClass(placement) {
   return ZOOM_MENU_POSITION_CLASSES[placement];
 }
-
 const isMac =
   typeof navigator !== "undefined" &&
   /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
-
 const modKey = isMac ? "⌘" : "Ctrl";
-
 function ZoomMenuItem({
   dataActionUiId,
   label,
@@ -47,7 +42,6 @@ function ZoomMenuItem({
     </button>
   );
 }
-
 export function ZoomMenu({
   zoomPercent,
   onZoomIn,
@@ -159,7 +153,7 @@ export function ZoomMenu({
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <Tooltip$1 content={t2("canvas.zoom.adjust")} closeOnClick={true}>
+      <Tooltip content={t2("canvas.zoom.adjust")} closeOnClick={true}>
         <button
           ref={triggerRef}
           type="button"
@@ -176,7 +170,7 @@ export function ZoomMenu({
             {zoomPercent}
           </span>
         </button>
-      </Tooltip$1>
+      </Tooltip>
       <QuickZoomPresence value={open ? true : null} elementRef={menuRef}>
         {(_2, motionProps) => (
           <div
@@ -199,7 +193,7 @@ export function ZoomMenu({
             }}
           >
             <div className="mx-1 mb-1 flex h-8 items-center gap-1 rounded-md bg-[var(--canvas-controls-hover)] px-2 text-[var(--canvas-controls-text)]">
-              <Input$1
+              <Input
                 data-action-ui-id="canvas.zoom-menu-input"
                 aria-label={t2("canvas.zoomControls")}
                 type="text"

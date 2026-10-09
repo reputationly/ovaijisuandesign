@@ -2,11 +2,9 @@
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Label } from "./use-wallet-query.jsx";
-import { Button$1, DialogFooter } from "../infra/dialog-content.jsx";
+import { Button, DialogFooter } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-
 const MAX_TEAM_NAME_LENGTH = 64;
-
 export function CreateTeamFormSurface({
   inputId,
   inputActionId,
@@ -61,7 +59,7 @@ export function CreateTeamFormSurface({
         ) : null}
       </div>
       <DialogFooter className="sticky bottom-0 border-t border-border bg-popover px-4 py-3 sm:px-6 sm:py-4">
-        <Button$1
+        <Button
           type="button"
           variant="outline"
           className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
@@ -72,8 +70,8 @@ export function CreateTeamFormSurface({
           {t2("common.cancel", {
             defaultValue: "取消",
           })}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="submit"
           className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
           loading={submitting}
@@ -84,7 +82,7 @@ export function CreateTeamFormSurface({
             t2("team.create.submit", {
               defaultValue: "创建并切换",
             })}
-        </Button$1>
+        </Button>
       </DialogFooter>
     </>
   );

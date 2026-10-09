@@ -3,10 +3,10 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   getIconStrokeWidth,
-  Info$1,
+  Info$1 as Info,
   LayoutGrid,
   LayoutList,
   Library,
@@ -27,7 +27,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Upload } from "../media-editing/package.jsx";
 import {
-  Button$1,
+  Button,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -50,7 +50,6 @@ import { AssetCenterPage } from "../assets/asset-center-page.jsx";
 import { AddEntityDialog } from "../assets/add-entity-dialog.jsx";
 import { AssetCenterPanel } from "../assets/asset-center-panel.jsx";
 import { FileExplorerSearchBar } from "../assets/file-explorer-search-bar.jsx";
-
 function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
   const workspacePath = useCurrentWorkspace();
   const project2 = useWorkspaceProject(workspacePath || void 0);
@@ -73,7 +72,6 @@ function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
     />
   );
 }
-
 export function AssetsTabPanel({ onManageActiveChange } = {}) {
   const { t: t2 } = useTranslation();
   const [view2, setView] = reactExports.useState("default");
@@ -219,7 +217,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   />
                 }
               >
-                <Info$1 size={13} strokeWidth={1.5} aria-hidden="true" />
+                <Info size={13} strokeWidth={1.5} aria-hidden="true" />
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-64">
                 {t2("canvasAssets.libraryEntryTooltip")}{" "}
@@ -366,7 +364,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
           />
         </div>
         <div className="flex shrink-0 items-center gap-1 border-t border-border p-2">
-          <Button$1
+          <Button
             type="button"
             size="sm"
             onClick={() => setAddEntityOpen(true)}
@@ -375,8 +373,8 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
           >
             <StrokeIcon icon={Plus} size={14} />
             {t2("assetCenter.add")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -387,7 +385,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
           >
             <StrokeIcon icon={Upload} size={14} />
             {t2("assetCenter.import.action")}
-          </Button$1>
+          </Button>
           <input
             ref={importInputRef}
             type="file"
@@ -463,7 +461,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                     >
                       {t2("canvasAssets.libraryEntry")}
                     </span>
-                    <Info$1
+                    <Info
                       size={13}
                       strokeWidth={1.5}
                       aria-hidden="true"
@@ -472,7 +470,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   </span>
                   {libraryEntryDisabled ? null : (
                     <StrokeIcon
-                      icon={ChevronRight$1}
+                      icon={ChevronRight}
                       size={14}
                       className="shrink-0 text-muted-foreground/70 transition-colors group-hover:text-foreground"
                     />

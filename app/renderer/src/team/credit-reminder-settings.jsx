@@ -6,16 +6,14 @@ import {
   MAX_CREDIT_REMINDER_THRESHOLD,
   MIN_CREDIT_REMINDER_THRESHOLD,
 } from "../generation/to-workspace-browser-url.js";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { Switch } from "../generation/select-content.jsx";
-
 function parseThreshold(value) {
   if (!/^\d+$/.test(value.trim())) return void 0;
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) ? parsed : void 0;
 }
-
 export function CreditReminderSettings({ config: config2, onBack, onSave }) {
   const { t: t2 } = useTranslation();
   const [enabled, setEnabled] = reactExports.useState(config2.enabled);
@@ -52,7 +50,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
       data-action-ui-id="chat-credit-reminder-settings"
     >
       <div className="flex items-center gap-1">
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           size="icon-xs"
@@ -61,7 +59,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           data-action-ui-id="chat-credit-reminder-settings.back"
         >
           <Icon icon={ArrowLeft} size="sm" />
-        </Button$1>
+        </Button>
         <h3
           id="chat-credit-reminder-settings-title"
           className="font-heading text-sm font-medium text-foreground"
@@ -145,7 +143,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
         )}
       </div>
       <div className="flex justify-end gap-2 pt-1">
-        <Button$1
+        <Button
           type="button"
           variant="outline"
           size="sm"
@@ -153,8 +151,8 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           data-action-ui-id="chat-credit-reminder-settings.cancel"
         >
           {t2("common.cancel", "Cancel")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="button"
           size="sm"
           loading={saving}
@@ -163,7 +161,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           data-action-ui-id="chat-credit-reminder-settings.save"
         >
           {t2("common.save", "Save")}
-        </Button$1>
+        </Button>
       </div>
     </div>
   );

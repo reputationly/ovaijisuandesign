@@ -31,7 +31,7 @@ import {
   DialogTitle,
 } from "../infra/badge-variants.jsx";
 import { AssetGridItemImpl } from "../assets/asset-grid-item-impl.jsx";
-import { arePropsEqual$1 } from "../assets/inline-input.jsx";
+import { arePropsEqual } from "../assets/inline-input.jsx";
 import { TreeItem } from "../assets/tree-item.jsx";
 import {
   categorizeByExtension,
@@ -107,7 +107,6 @@ import {
   useFlattenTree,
 } from "../assets/asset-empty-area-menu-content.jsx";
 import { useFileExplorerWorkspaceDirs } from "../assets/build-asset-tree.js";
-
 function useFileExplorerOverlayBridge({
   rootPath,
   assetByAbsPath,
@@ -183,7 +182,6 @@ function useFileExplorerOverlayBridge({
     handleLocateMissingConfirmInsert,
   };
 }
-
 function useConflictResolver() {
   const [batch2, setBatch] = reactExports.useState(null);
   const pendingRef = reactExports.useRef(null);
@@ -278,18 +276,15 @@ function useConflictResolver() {
     resolve,
   };
 }
-
 function matchesTypeFilters(fileName, types2) {
   if (types2.length === 0) return true;
   return types2.includes(categorizeByExtension(fileName));
 }
-
 function retainKnownTagFilters(tagFilters, knownTagIds) {
   const known = new Set(knownTagIds);
   const retained = tagFilters.filter((id2) => known.has(id2));
   return retained.length === tagFilters.length ? tagFilters : retained;
 }
-
 function buildTreeFileComparator(sortOrder, getAsset2) {
   return (a2, b3) =>
     compareByTimeOrName(
@@ -300,7 +295,6 @@ function buildTreeFileComparator(sortOrder, getAsset2) {
       sortOrder,
     );
 }
-
 function filterAndSortAssets(assets, options) {
   const q2 = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
@@ -320,7 +314,6 @@ function filterAndSortAssets(assets, options) {
     compareByTimeOrName(a2.time, b3.time, a2.path, b3.path, options.sortOrder),
   );
 }
-
 function filterTreeByPredicate(tree, options) {
   const q2 = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
@@ -367,7 +360,6 @@ function filterTreeByPredicate(tree, options) {
   }
   return walk(tree);
 }
-
 function useAssetPanelPreferences() {
   const [stored, setAssetPanel] = useStorage("workspace.assetPanel");
   const value = reactExports.useMemo(
@@ -421,7 +413,6 @@ function useAssetPanelPreferences() {
     isAnyActive,
   };
 }
-
 function expandSelectionForDelete(anchor, selectedPaths, filteredTree) {
   if (selectedPaths.size > 1 && selectedPaths.has(anchor.path)) {
     const entries2 = [];
@@ -433,7 +424,6 @@ function expandSelectionForDelete(anchor, selectedPaths, filteredTree) {
   }
   return [anchor];
 }
-
 function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
   const handlePanelKeyDownCapture = reactExports.useCallback(
     (event) => {
@@ -458,8 +448,7 @@ function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
     handlePanelKeyDownCapture,
   };
 }
-
-function DeleteConfirmDialog$1({ entries: entries2, onCancel, onConfirm }) {
+function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
   const { t: t2 } = useTranslation();
   const head2 = entries2[0];
   return (
@@ -502,7 +491,6 @@ function DeleteConfirmDialog$1({ entries: entries2, onCancel, onConfirm }) {
     </AlertDialog>
   );
 }
-
 function DropOverlay() {
   const { t: t2 } = useTranslation();
   return (
@@ -513,19 +501,12 @@ function DropOverlay() {
     </div>
   );
 }
-
-const AssetGridItem = reactExports.memo(AssetGridItemImpl, arePropsEqual$1);
-
+const AssetGridItem = reactExports.memo(AssetGridItemImpl, arePropsEqual);
 const GRID_ITEM_PADDING = 8;
-
 const GRID_ITEM_GAP = 4;
-
 const GRID_NAME_AREA = 24;
-
 const GRID_ROW_GAP = 4;
-
 const GRID_ROW_FALLBACK_HEIGHT = 120;
-
 const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
   sortedFilteredAssets,
   containerWidth,
@@ -632,9 +613,7 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
     </div>
   );
 });
-
 const TREE_ROW_HEIGHT = 32;
-
 const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   flatRows,
   expanded,
@@ -734,7 +713,6 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
     </div>
   );
 });
-
 function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
   const { t: t2 } = useTranslation();
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
@@ -773,7 +751,6 @@ function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
     </Dialog>
   );
 }
-
 function ToolbarFilters({
   typeFilters,
   dateFilter,
@@ -805,7 +782,6 @@ function ToolbarFilters({
     </div>
   );
 }
-
 function resolveTreePaths(entries2, rootPath) {
   return entries2.map((entry) => ({
     ...entry,
@@ -815,7 +791,6 @@ function resolveTreePaths(entries2, rootPath) {
       : void 0,
   }));
 }
-
 export function FileExplorer({
   onFileOpen,
   onRootPathChange,
@@ -1719,7 +1694,7 @@ export function FileExplorer({
         onLocateOnCanvas={handleHoverLocateOnCanvas}
         onLocateMissingConfirmInsert={handleLocateMissingConfirmInsert}
       />
-      <DeleteConfirmDialog$1
+      <DeleteConfirmDialog
         entries={deletingEntries}
         onCancel={cancelDelete}
         onConfirm={handleDeleteConfirm}

@@ -6,16 +6,14 @@ import {
   decodeHtmlEntities,
   encodeHtmlEntities,
   flattenExtensions,
-  g$2,
+  g$2 as g,
   generateJSON,
   getExtensionField,
   getSchema,
   marksEqual,
   sortExtensions,
 } from "../vendor.js";
-
 const TRAILING_BLANK_LINES = /\n[^\S\n]*(?:\n[^\S\n]*)+$/;
-
 function extractAbsorbedBlankLines(tokens2) {
   return tokens2.flatMap((token2, index2) => {
     var _tokens;
@@ -40,7 +38,6 @@ function extractAbsorbedBlankLines(tokens2) {
     ];
   });
 }
-
 function wrapInMarkdownBlock(prefix, content2) {
   const output = content2
     .split("\n")
@@ -49,7 +46,6 @@ function wrapInMarkdownBlock(prefix, content2) {
     .join("\n");
   return output.slice(0, output.length - 1);
 }
-
 function findMarksToClose(currentMarks, nextNode) {
   const marksToClose = [];
   Array.from(currentMarks.entries()).forEach(([markType, currentMark]) => {
@@ -67,7 +63,6 @@ function findMarksToClose(currentMarks, nextNode) {
   });
   return marksToClose;
 }
-
 function findMarksToOpen(activeMarks, currentMarks) {
   const marksToOpen = [];
   Array.from(currentMarks.entries()).forEach(([markType, mark2]) => {
@@ -80,7 +75,6 @@ function findMarksToOpen(activeMarks, currentMarks) {
   });
   return marksToOpen;
 }
-
 function findMarksToCloseAtEnd(
   activeMarks,
   currentMarks,
@@ -116,7 +110,6 @@ function findMarksToCloseAtEnd(
   }
   return marksToCloseAtEnd;
 }
-
 function closeMarksBeforeNode(activeMarks, getMarkClosing) {
   let beforeMarkdown = "";
   Array.from(activeMarks.keys())
@@ -128,7 +121,6 @@ function closeMarksBeforeNode(activeMarks, getMarkClosing) {
   activeMarks.clear();
   return beforeMarkdown;
 }
-
 function reopenMarksAfterNode(marksToReopen, activeMarks, getMarkOpening) {
   let afterMarkdown = "";
   Array.from(marksToReopen.entries()).forEach(([markType, mark2]) => {
@@ -138,7 +130,6 @@ function reopenMarksAfterNode(marksToReopen, activeMarks, getMarkOpening) {
   });
   return afterMarkdown;
 }
-
 function isTaskItem(item) {
   const match2 = (item.raw || item.text || "").match(
     /^(\s*)[-+*]\s+\[([ xX])\]\s+/,
@@ -154,9 +145,7 @@ function isTaskItem(item) {
     indentLevel: 0,
   };
 }
-
 const HTML_TAG_NAME_PATTERN = /<\/?([a-zA-Z][\w-]*)/g;
-
 function extractHtmlTagNames(html2) {
   const tagNames = [];
   let match2;
@@ -164,20 +153,17 @@ function extractHtmlTagNames(html2) {
     tagNames.push(match2[1].toLowerCase());
   return tagNames;
 }
-
 function isHtmlUnknownTagName(tagName) {
   const lower2 = tagName.toLowerCase();
   if (lower2.includes("-")) return false;
   return !STANDARD_HTML_TAGS.has(lower2);
 }
-
 function htmlContainsUnrecognizedTag(html2, schemaTags) {
   return extractHtmlTagNames(html2).some((tagName) => {
     if (!isHtmlUnknownTagName(tagName)) return false;
     return !schemaTags.has(tagName);
   });
 }
-
 export var MarkdownManager = class {
   /**
    * Create a MarkdownManager.
@@ -205,7 +191,7 @@ export var MarkdownManager = class {
         options === null || options === void 0 ? void 0 : options.marked) !==
         null && _options$marked !== void 0
         ? _options$marked
-        : g$2;
+        : g;
     this.indentStyle =
       (_options$indentation$ =
         options === null ||
@@ -1553,16 +1539,16 @@ export var MarkdownManager = class {
         (m3) => m3.type === markType && attrsEqual(m3.attrs, attrs),
       );
     const byRankInnerFirst = (a2, b3) => {
-      var _this$extensionRanks$, _this$extensionRanks$2;
+      var _this$extensionRanks$, _this$extensionRanks;
       const rankA =
         (_this$extensionRanks$ = this.extensionRanks.get(a2.type)) !== null &&
         _this$extensionRanks$ !== void 0
           ? _this$extensionRanks$
           : Number.MAX_SAFE_INTEGER;
       const rankB =
-        (_this$extensionRanks$2 = this.extensionRanks.get(b3.type)) !== null &&
-        _this$extensionRanks$2 !== void 0
-          ? _this$extensionRanks$2
+        (_this$extensionRanks = this.extensionRanks.get(b3.type)) !== null &&
+        _this$extensionRanks !== void 0
+          ? _this$extensionRanks
           : Number.MAX_SAFE_INTEGER;
       if (rankA !== rankB) return rankB - rankA;
       return a2.type.localeCompare(b3.type);

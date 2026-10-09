@@ -1,7 +1,6 @@
 // color-adjust-slider.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Slider$1 } from "../generation/slider.jsx";
-
+import { Slider } from "../generation/slider.jsx";
 export function ColorAdjustSlider({
   label,
   value,
@@ -19,7 +18,7 @@ export function ColorAdjustSlider({
           {value}
         </span>
       </div>
-      <Slider$1
+      <Slider
         variant="rounded"
         size="compact"
         value={value}

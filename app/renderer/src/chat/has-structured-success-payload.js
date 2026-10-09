@@ -15,26 +15,20 @@ import {
   GENERATE_ERROR_CODE_NETWORK_ERROR,
   GENERATE_ERROR_CODE_SHUTDOWN,
 } from "../generation/normalize-skill-detail-metadata.js";
-
 const GENERATE_ERROR_CODE_PRE_SUBMIT_SHUTDOWN = "pre_submit_shutdown";
-
 const GENERATE_ERROR_CODE_STORAGE_FULL = "storage_full";
-
-const GENERATE_ERROR_CODE_QUEUE_PAUSED$3 = "queue_paused";
-
+const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
 function getConfiguredToolLabelId(toolName2) {
   return configuredLabelIds.find(({ patterns }) =>
     patterns.some((pattern) => pattern.test(toolName2)),
   )?.label;
 }
-
 export function getToolLabelId(toolName2) {
   if (!toolName2) return "silent";
   const builtIn = getBuiltInToolLabelId(toolName2);
   if (builtIn) return builtIn;
   return getConfiguredToolLabelId(toolName2) ?? "silent";
 }
-
 export function resolveMediaTaskCategory(tool2) {
   if (
     tool2 === "hub_generate_image" ||
@@ -62,7 +56,6 @@ export function resolveMediaTaskCategory(tool2) {
   }
   return "other";
 }
-
 function stripDisplayOnlyToolResultNotes(text2) {
   return text2
     .split(/\r?\n/)
@@ -71,7 +64,6 @@ function stripDisplayOnlyToolResultNotes(text2) {
     .join("\n")
     .trim();
 }
-
 function hasStructuredSuccessPayload(candidate) {
   try {
     const parsed = JSON.parse(candidate);
@@ -111,7 +103,6 @@ function hasStructuredSuccessPayload(candidate) {
     return false;
   }
 }
-
 export function normalizeJsonToolResult(text2) {
   const trimmed = text2.trim();
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return trimmed;
@@ -126,7 +117,6 @@ export function normalizeJsonToolResult(text2) {
   if (suffix.startsWith("{") || suffix.startsWith("[")) return suffix;
   return trimmed;
 }
-
 export function extractMediaCount(toolResult) {
   if (!toolResult) return 0;
   const displayResult = normalizeJsonToolResult(
@@ -162,25 +152,21 @@ export function extractMediaCount(toolResult) {
   } catch {}
   return 0;
 }
-
 export function hasSuccessfulMediaOutput(toolResult) {
   return extractMediaCount(toolResult) > 0;
 }
-
 const GENERATION_FAILURE_PRESENTATIONS = new Set([
   "terminal",
   "recoverable",
   "status_unknown",
   "cancelled",
 ]);
-
 function asGenerationFailurePresentation(value) {
   return typeof value === "string" &&
     GENERATION_FAILURE_PRESENTATIONS.has(value)
     ? value
     : void 0;
 }
-
 export function generationFailurePresentation(toolResult) {
   if (!toolResult) return void 0;
   const displayResult = normalizeJsonToolResult(
@@ -218,26 +204,21 @@ export function generationFailurePresentation(toolResult) {
   } catch {}
   return void 0;
 }
-
 export function isGenerationFailureNonTerminal(toolResult) {
   const presentation = generationFailurePresentation(toolResult);
   return presentation === "recoverable";
 }
-
 export function isToolCancelInterrupted(toolResult) {
   return !!toolResult && toolResult.includes("interrupted before completion");
 }
-
 export function isToolRecoveredInterrupted(toolResult) {
   if (!toolResult || !isToolCancelInterrupted(toolResult)) return false;
   return /\brecovered\b/i.test(toolResult);
 }
-
 export function resolveToolInterruption(toolResult, interruption) {
   if (interruption) return interruption;
   return toolResult?.includes(TOOL_ABORTED_BY_USER_TEXT) ? "aborted" : void 0;
 }
-
 export const GENERATION_ERROR_CODE_I18N = {
   [GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE]:
     "chat.billingInsufficient.title",
@@ -253,15 +234,13 @@ export const GENERATION_ERROR_CODE_I18N = {
     "chat.generationFailure.requestNotSubmitted",
   [GENERATE_ERROR_CODE_NETWORK_ERROR]: "chat.errors.networkUnavailable",
   [GENERATE_ERROR_CODE_STORAGE_FULL]: "chat.errors.storageFull",
-  [GENERATE_ERROR_CODE_QUEUE_PAUSED$3]: "chat.generationFailure.queuePaused",
+  [GENERATE_ERROR_CODE_QUEUE_PAUSED]: "chat.generationFailure.queuePaused",
   [ErrorCodes.WORKSPACE_CONCURRENCY_LIMIT_REACHED.toLowerCase()]:
     "chat.errors.workspaceConcurrencyLimit",
 };
-
 export const GENERATION_FAILURE_ERROR_CODES = Object.freeze(
   Object.keys(GENERATION_ERROR_CODE_I18N),
 );
-
 export function artifactAssetTypeFromPath(path2, fallback = "file") {
   const clean = path2.split(/[?#]/)[0] ?? path2;
   if (/\.(png|jpe?g|gif|webp|bmp|svg|ico|tiff?)$/i.test(clean)) return "image";
@@ -270,15 +249,10 @@ export function artifactAssetTypeFromPath(path2, fallback = "file") {
   if (/\.[^/.?#]+$/.test(clean)) return "file";
   return fallback;
 }
-
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|svg|ico|tiff?)$/i;
-
 const VIDEO_EXT = /\.(mp4|mov|webm|avi|mkv|m4v)$/i;
-
 const AUDIO_EXT = /\.(mp3|wav|m4a|aac|ogg|flac|aiff?)$/i;
-
 const TEXT_EXT = /\.(md|markdown|json|ya?ml|toml|txt|log|csv|tsv)$/i;
-
 export function inferFileKind(nameOrPath) {
   if (IMAGE_EXT.test(nameOrPath)) return "image";
   if (VIDEO_EXT.test(nameOrPath)) return "video";
@@ -286,10 +260,8 @@ export function inferFileKind(nameOrPath) {
   if (TEXT_EXT.test(nameOrPath)) return "text";
   return "file";
 }
-
 export const KNOWLEDGE_PATH_RE =
   /[/\\]\.(?:opencode-v2|config-v2)[/\\]((?:knowledge|contracts|workflows)[/\\].+)/;
-
 const LABEL_TO_CATEGORY = {
   fileOp: "read",
   searchInfo: "search",
@@ -306,7 +278,6 @@ const LABEL_TO_CATEGORY = {
   transient: "other",
   silent: "other",
 };
-
 function refineCategory(toolName2, base2) {
   if (base2 === "imageGen") {
     const media = resolveMediaTaskCategory(toolName2);
@@ -316,7 +287,6 @@ function refineCategory(toolName2, base2) {
   if (toolName2 === "bash") return "execute";
   return getFileActivityKind(toolName2) ?? "read";
 }
-
 export function categorizeToolAction(toolName2) {
   const labelId = getToolLabelId(toolName2);
   return refineCategory(toolName2, LABEL_TO_CATEGORY[labelId]);

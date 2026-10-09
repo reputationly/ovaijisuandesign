@@ -7,7 +7,7 @@ import {
   Scan,
   useTranslation,
   Video,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -15,8 +15,7 @@ import { AudioPlayButton, FileNameLabel } from "./audio-play-button.jsx";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
-
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 function useFilePreviewUrl(file) {
   const [preview, setPreview] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -40,7 +39,6 @@ function useFilePreviewUrl(file) {
   }, [file]);
   return preview;
 }
-
 export function StagedRow({
   entry,
   onRemove: onRemove2,
@@ -178,10 +176,10 @@ export function StagedRow({
           </div>
         )}
         {entry.status === "uploaded" && isImage2 && imageSrc && onSetCover ? (
-          <Button$1
+          <Button
             variant="secondary"
             size="xs"
-            className={cn$2(
+            className={cn(
               "absolute bottom-1 left-1 gap-0.5 pl-1 pr-1.5 transition-opacity",
               !isCover &&
                 "opacity-0 group-hover/audio:opacity-100 focus-visible:opacity-100",
@@ -191,9 +189,9 @@ export function StagedRow({
           >
             <Icon icon={Scan} size="xs" strokeWidth={2} />
             {t2(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
-          </Button$1>
+          </Button>
         ) : null}
-        <Button$1
+        <Button
           variant="ghost"
           size="icon-xs"
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
@@ -202,14 +200,14 @@ export function StagedRow({
           data-action-ui-id="asset-center-add-entity-staged-remove"
           aria-label={t2("common.remove")}
         >
-          <X$7 size={10} />
-        </Button$1>
+          <X size={10} />
+        </Button>
       </div>
       <div className="flex flex-col gap-1 p-2">
         <div className="flex items-center gap-1">
           <FileNameLabel name={entry.file.name} className="flex-1 text-xs" />
           <span
-            className={cn$2(
+            className={cn(
               "text-[10px] uppercase tracking-wide shrink-0",
               entry.status === "uploaded" && "text-foreground",
               entry.status === "staged" && "text-foreground",

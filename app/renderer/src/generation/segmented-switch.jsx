@@ -1,13 +1,11 @@
 // segmented-switch.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-
+import { cn } from "../infra/dialog-content.jsx";
 const GRID_CLASS_BY_COUNT = {
   2: "grid-cols-2",
   3: "grid-cols-3",
 };
-
-export function SegmentedSwitch$1({
+export function SegmentedSwitch({
   value,
   options,
   onValueChange,
@@ -53,7 +51,7 @@ export function SegmentedSwitch$1({
     <fieldset
       aria-label={ariaLabel}
       data-action-ui-id={dataActionUiId}
-      className={cn$5(
+      className={cn(
         "relative m-0 grid min-w-0 rounded-[8px] border-0 bg-foreground/[0.025] p-0.5 dark:bg-foreground/[0.05]",
         gap === "xs" && "gap-0.5",
         stretch ? "w-full" : "w-max",
@@ -65,7 +63,7 @@ export function SegmentedSwitch$1({
       <span
         aria-hidden={true}
         data-slot={thumbDataSlot}
-        className={cn$5(
+        className={cn(
           "pointer-events-none absolute top-0.5 left-0.5 rounded-[6px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] transition-transform duration-200 ease-out dark:bg-white/[0.08] dark:shadow-none",
           size2 === "sm" ? "h-6" : "h-7",
           thumbClassName,
@@ -85,13 +83,13 @@ export function SegmentedSwitch$1({
             aria-label={option2.ariaLabel ?? labelText}
             disabled={option2.disabled}
             data-action-ui-id={option2.dataActionUiId}
-            className={cn$5(
+            className={cn(
               "relative z-10 inline-flex items-center justify-center rounded-[6px] transition-colors disabled:cursor-not-allowed disabled:opacity-50",
               variant === "icon"
                 ? size2 === "sm"
                   ? "size-6"
                   : "size-7"
-                : cn$5(
+                : cn(
                     "min-w-0 gap-1 whitespace-nowrap",
                     size2 === "sm"
                       ? "h-6 px-2 text-[11px]"

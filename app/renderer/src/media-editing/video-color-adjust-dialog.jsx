@@ -6,8 +6,8 @@ import {
   jsxRuntimeExports,
   Mp4OutputFormat,
   Output,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
+  PlaybackPauseIcon$1 as PlaybackPauseIcon,
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
   UrlSource,
   useTranslation,
@@ -18,44 +18,43 @@ import { VolumeIcon, VolumeMuteIcon } from "./build-video-thumb-base.jsx";
 import {
   ALL_FORMATS,
   Conversion,
-  Input$3,
+  Input$3 as Input,
 } from "../vendor-inline/mediabunny/hls-segmented-input.js";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, Upload } from "./package.jsx";
 import { SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import {
-  DialogContent$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./use-preview-text.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 import { ColorAdjustSlider } from "./color-adjust-slider.jsx";
 import {
-  Select$2,
-  SelectContent$1,
+  Select,
+  SelectContent,
   SelectGroup,
-  SelectItem$1,
+  SelectItem,
   SelectLabel,
   SelectSeparator,
-  SelectTrigger$1,
-  SelectValue$1,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { ProgressBar } from "./progress-bar-inner.jsx";
 import { defaultSettings } from "./default-settings.js";
 import { VideoColorGrading } from "./video-color-grading.js";
-
 async function openInput(source) {
   if (source instanceof Blob) {
-    return new Input$3({
+    return new Input({
       formats: ALL_FORMATS,
       source: new BlobSource(source),
     });
   }
   if (typeof source === "string") {
-    return new Input$3({
+    return new Input({
       formats: ALL_FORMATS,
       source: new UrlSource(source),
     });
@@ -64,21 +63,19 @@ async function openInput(source) {
   if (!url2) throw new Error("Video element has no src to export from");
   if (url2.startsWith("blob:")) {
     const blob = await fetch(url2).then((r2) => r2.blob());
-    return new Input$3({
+    return new Input({
       formats: ALL_FORMATS,
       source: new BlobSource(blob),
     });
   }
-  return new Input$3({
+  return new Input({
     formats: ALL_FORMATS,
     source: new UrlSource(url2),
   });
 }
-
 function makeEven(n2) {
   return n2 - (n2 % 2);
 }
-
 async function exportVideo(processor, source, opts = {}) {
   const format2 = opts.format ?? "mp4";
   const codec = opts.codec ?? (format2 === "webm" ? "vp9" : "avc");
@@ -166,7 +163,6 @@ async function exportVideo(processor, source, opts = {}) {
     type: mime,
   });
 }
-
 function useDelayedHover(delay = 100) {
   const [isOpen, setIsOpen] = reactExports.useState(false);
   const timerRef = reactExports.useRef(null);
@@ -194,7 +190,6 @@ function useDelayedHover(delay = 100) {
     dismiss,
   };
 }
-
 function VolumeControlInner({ videoRef, tone = "dark" }) {
   const trackRef = reactExports.useRef(null);
   const [volume, setVolume] = reactExports.useState(100);
@@ -351,11 +346,8 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
     </div>
   );
 }
-
 const VolumeControl = reactExports.memo(VolumeControlInner);
-
 const LUT_NONE = "__none__";
-
 const SLIDER_GROUPS = [
   {
     i18nKey: "colorAdjust.groupColor",
@@ -529,7 +521,6 @@ const SLIDER_GROUPS = [
     ],
   },
 ];
-
 export function VideoColorAdjustDialog({
   open,
   onOpenChange,
@@ -830,25 +821,25 @@ export function VideoColorAdjustDialog({
   }, [presetLuts, userLuts, presetDisplayName, t2]);
   const progressPct = Math.round(progress * 100);
   return (
-    <Dialog$1 open={open} onOpenChange={onOpenChange}>
-      <DialogContent$1
-        className={cn$5(
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={cn(
           "grid h-[min(700px,80vh)] gap-0 overflow-hidden p-0",
           "sm:!max-w-[min(1040px,92vw)]",
           "grid-rows-[auto_minmax(0,1fr)_auto]",
         )}
       >
-        <DialogHeader$1 className="flex-row items-center gap-2 border-b border-border/40 px-4 py-2.5">
-          <DialogTitle$1 className="text-sm font-medium">
+        <DialogHeader className="flex-row items-center gap-2 border-b border-border/40 px-4 py-2.5">
+          <DialogTitle className="text-sm font-medium">
             {t2("canvas.colorAdjust")}
-          </DialogTitle$1>
+          </DialogTitle>
           {videoName && (
             <span className="truncate text-xs text-muted-foreground">
               {"— "}
               {videoName}
             </span>
           )}
-        </DialogHeader$1>
+        </DialogHeader>
         <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_280px]">
           <div className="relative flex min-h-0 flex-col bg-muted/30">
             <div
@@ -888,9 +879,9 @@ export function VideoColorAdjustDialog({
                 }}
               >
                 {playing ? (
-                  <PlaybackPauseIcon$1 className="size-4" />
+                  <PlaybackPauseIcon className="size-4" />
                 ) : (
-                  <PlaybackPlayIcon$1 className="size-4" />
+                  <PlaybackPlayIcon className="size-4" />
                 )}
               </button>
               {videoEl && (
@@ -938,29 +929,29 @@ export function VideoColorAdjustDialog({
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <div className="min-w-0 flex-1">
-                        <Select$2
+                        <Select
                           value={selectedLut ?? LUT_NONE}
                           items={lutItems}
                           onValueChange={handleLutSelectChange}
                           disabled={lutBusy || submitting}
                         >
-                          <SelectTrigger$1
+                          <SelectTrigger
                             data-action-ui-id="video-color-adjust.lut-select"
                             className="w-full"
                           >
-                            <SelectValue$1
+                            <SelectValue
                               placeholder={t2(
                                 "colorAdjust.lut.placeholder",
                                 "Select a LUT",
                               )}
                             />
-                          </SelectTrigger$1>
-                          <SelectContent$1>
-                            <SelectItem$1 value={LUT_NONE}>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={LUT_NONE}>
                               <span className="text-muted-foreground">
                                 {t2("colorAdjust.lut.none", "None")}
                               </span>
-                            </SelectItem$1>
+                            </SelectItem>
                             {presetLuts.length > 0 && (
                               <>
                                 <SelectSeparator />
@@ -972,14 +963,14 @@ export function VideoColorAdjustDialog({
                                     )}
                                   </SelectLabel>
                                   {presetLuts.map((entry) => (
-                                    <SelectItem$1
+                                    <SelectItem
                                       key={entry.name}
                                       value={entry.name}
                                     >
                                       <span className="min-w-0 flex-1 truncate">
                                         {presetDisplayName(entry.name)}
                                       </span>
-                                    </SelectItem$1>
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </>
@@ -995,7 +986,7 @@ export function VideoColorAdjustDialog({
                                     const isSelected =
                                       selectedLut === entry.name;
                                     return (
-                                      <SelectItem$1
+                                      <SelectItem
                                         key={entry.name}
                                         value={entry.name}
                                         className="group pr-2"
@@ -1033,16 +1024,16 @@ export function VideoColorAdjustDialog({
                                             </button>
                                           )}
                                         </span>
-                                      </SelectItem$1>
+                                      </SelectItem>
                                     );
                                   })}
                                 </SelectGroup>
                               </>
                             )}
-                          </SelectContent$1>
-                        </Select$2>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <Button$2
+                      <Button
                         variant="outline"
                         onClick={handleImportClick}
                         disabled={lutBusy || submitting}
@@ -1050,7 +1041,7 @@ export function VideoColorAdjustDialog({
                       >
                         <Upload className="size-3.5" />
                         {t2("colorAdjust.lut.import", "Import...")}
-                      </Button$2>
+                      </Button>
                     </div>
                     <input
                       ref={fileInputRef}
@@ -1098,17 +1089,17 @@ export function VideoColorAdjustDialog({
             </div>
           </div>
         </div>
-        <DialogFooter$1 className="flex-row items-center justify-between gap-3 border-t border-[var(--canvas-controls-border)] px-3 pb-3 pt-3">
-          <Button$2
+        <DialogFooter className="flex-row items-center justify-between gap-3 border-t border-[var(--canvas-controls-border)] px-3 pb-3 pt-3">
+          <Button
             variant="ghost"
             size="sm"
             onClick={handleReset}
             disabled={submitting}
           >
             {t2("colorAdjust.reset")}
-          </Button$2>
+          </Button>
           <div className="flex items-center gap-1.5">
-            <Button$2
+            <Button
               variant="outline"
               size="sm"
               onClick={() => onOpenChange(false)}
@@ -1116,8 +1107,8 @@ export function VideoColorAdjustDialog({
               className="border-[var(--canvas-controls-border)] bg-transparent text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
             >
               {t2("common.cancel")}
-            </Button$2>
-            <Button$2
+            </Button>
+            <Button
               size="icon"
               onClick={handleConfirm}
               disabled={loading || submitting}
@@ -1127,10 +1118,10 @@ export function VideoColorAdjustDialog({
               className="border-transparent bg-[var(--canvas-primary-btn-bg)] text-[var(--canvas-primary-btn-icon)] hover:bg-[var(--canvas-primary-btn-bg-hover)]"
             >
               <SendArrowIcon />
-            </Button$2>
+            </Button>
           </div>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

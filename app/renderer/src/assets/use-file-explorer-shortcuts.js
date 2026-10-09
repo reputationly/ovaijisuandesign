@@ -3,15 +3,13 @@ import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
 import { activeToastIds } from "./post-check-conflicts.js";
 import { refreshAssetIndex } from "./gateway-scope-provider.jsx";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-import { getFileName$1 } from "../canvas/uploading-assets.jsx";
+import { getFileName } from "../canvas/uploading-assets.jsx";
 import { OPERATIONS_UNDO_PATH } from "../generation/to-workspace-browser-url.js";
-
 function dismissNewestDeleteUndoToast() {
   const id2 = activeToastIds.pop();
   if (id2 === void 0) return;
   dedupedToast.dismiss(id2);
 }
-
 export function useFileExplorerShortcuts({
   setSelectedPaths,
   setLastSelectedPath,
@@ -62,7 +60,7 @@ export function useFileExplorerShortcuts({
     if (targets.length > 1) {
       dedupedToast.info(
         t2("fileExplorer.copyMultiSelectFirst", {
-          name: getFileName$1(first2),
+          name: getFileName(first2),
         }),
       );
     }

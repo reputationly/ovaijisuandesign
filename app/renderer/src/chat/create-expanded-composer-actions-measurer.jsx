@@ -3,7 +3,6 @@ import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getDocText } from "../text-editor/get-wire-content-text.jsx";
-
 export function computeComposerActions({ agentRunning, canSend, hasCancel }) {
   const showStopButton = agentRunning && !canSend && hasCancel;
   const showSendButton = !showStopButton;
@@ -12,7 +11,6 @@ export function computeComposerActions({ agentRunning, canSend, hasCancel }) {
     showStopButton,
   };
 }
-
 export function restoreMentionDraft(schema2, draft, text2, refreshMention) {
   if (!draft) return null;
   try {
@@ -43,11 +41,8 @@ export function restoreMentionDraft(schema2, draft, text2, refreshMention) {
     return null;
   }
 }
-
-export const MENTION_THUMB_PX$1 = 18;
-
+export const MENTION_THUMB_PX = 18;
 export const MENTION_PREVIEW_PX = 180;
-
 export function buildMentionMediaUrl(
   gatewayUrl2,
   kind,
@@ -63,7 +58,6 @@ export function buildMentionMediaUrl(
   const base2 = gatewayUrl2(`${prefix}${encoded}`);
   return withThumbnail(base2, displayWidth);
 }
-
 export function buildMentionPlayableUrl(
   gatewayUrl2,
   kind,
@@ -76,7 +70,6 @@ export function buildMentionPlayableUrl(
     .join("/");
   return gatewayUrl2(`/files/${encoded}`);
 }
-
 export function buildFileMentionAttrs(file, scopedGatewayUrl) {
   return {
     path: file.path,
@@ -89,7 +82,7 @@ export function buildFileMentionAttrs(file, scopedGatewayUrl) {
         scopedGatewayUrl,
         file.kind,
         file.path,
-        MENTION_THUMB_PX$1,
+        MENTION_THUMB_PX,
       ) ?? null,
     previewUrl:
       buildMentionMediaUrl(
@@ -102,7 +95,6 @@ export function buildFileMentionAttrs(file, scopedGatewayUrl) {
       buildMentionPlayableUrl(scopedGatewayUrl, file.kind, file.path) ?? null,
   };
 }
-
 export function remapCommittedMentionPaths(
   editor,
   committed,
@@ -131,7 +123,7 @@ export function remapCommittedMentionPaths(
           scopedGatewayUrl,
           kind,
           nextPath,
-          MENTION_THUMB_PX$1,
+          MENTION_THUMB_PX,
         ) ?? null,
       previewUrl:
         buildMentionMediaUrl(
@@ -148,9 +140,7 @@ export function remapCommittedMentionPaths(
   editor.view.dispatch(tr2);
   return true;
 }
-
 const COMPOSER_ACTIONS_RELEASE_BUFFER_PX = 8;
-
 export function resolveComposerActionsCompact({
   availableWidth,
   expandedRequiredWidth,
@@ -162,13 +152,9 @@ export function resolveComposerActionsCompact({
     : expandedRequiredWidth;
   return availableWidth < requiredWidth;
 }
-
 const LEFT_ACTIONS_SELECTOR = '[data-composer-actions-left="true"]';
-
 const RIGHT_ACTIONS_SELECTOR = '[data-composer-actions-right="true"]';
-
 const TEST_DRIVER_SELECTOR = "[data-action-ui-id]";
-
 function forceIntrinsicWidth(element2) {
   element2.style.flex = "0 0 auto";
   element2.style.width = "max-content";
@@ -176,7 +162,6 @@ function forceIntrinsicWidth(element2) {
   element2.style.maxWidth = "none";
   element2.style.overflow = "visible";
 }
-
 function stripCloneMetadata(clone2) {
   for (const element2 of [clone2, ...clone2.querySelectorAll("[id]")]) {
     element2.removeAttribute("id");
@@ -195,7 +180,6 @@ function stripCloneMetadata(clone2) {
     .querySelector(RIGHT_ACTIONS_SELECTOR)
     ?.removeAttribute("data-composer-actions-right");
 }
-
 function createIntrinsicClone(row) {
   const clone2 = row.cloneNode(true);
   const left = clone2.querySelector(LEFT_ACTIONS_SELECTOR);
@@ -210,7 +194,6 @@ function createIntrinsicClone(row) {
   stripCloneMetadata(clone2);
   return clone2;
 }
-
 export function createExpandedComposerActionsMeasurer(row) {
   const ownerDocument2 = row.ownerDocument;
   const host = ownerDocument2.createElement("div");
@@ -249,9 +232,7 @@ export function createExpandedComposerActionsMeasurer(row) {
     dispose: dispose2,
   };
 }
-
 const ComposerActionsCompactContext = reactExports.createContext(false);
-
 export function ComposerActionsCompactProvider({
   compact,
   children: children2,
@@ -262,7 +243,6 @@ export function ComposerActionsCompactProvider({
     </ComposerActionsCompactContext.Provider>
   );
 }
-
 export function useComposerActionsCompact() {
   return reactExports.useContext(ComposerActionsCompactContext);
 }

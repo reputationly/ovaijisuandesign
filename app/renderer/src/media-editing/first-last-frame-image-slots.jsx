@@ -1,14 +1,13 @@
 // first-last-frame-image-slots.jsx
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { ImageSlotList } from "./image-slot-list.jsx";
 import { AttachmentBar } from "../generation/attachment-bar.jsx";
 import { basename$c } from "../generation/param-label-fallbacks.js";
 import { ExpandToggleButton } from "../generation/expand-arrow-icon.jsx";
 import { AudioClipPanel } from "./audio-preview.jsx";
 import { VideoClipPanel } from "./video-preview.jsx";
-
 const SWAP_SLOT_ANIMATION_CLASSES = {
   a: [
     "canvas-frame-slot-swap-from-right-a",
@@ -19,9 +18,7 @@ const SWAP_SLOT_ANIMATION_CLASSES = {
     "canvas-frame-slot-swap-from-left-b",
   ],
 };
-
 const SWAP_ANIMATION_DURATION_MS = 260;
-
 function FirstLastFrameImageSlots({
   imagePaths,
   contextKey,
@@ -83,7 +80,7 @@ function FirstLastFrameImageSlots({
       onReference={onReference}
       onEditImage={onEditImage}
       renderSlotSeparator={() => (
-        <Tooltip$1 content={swapLabel} side="top">
+        <Tooltip content={swapLabel} side="top">
           <button
             type="button"
             onClick={(event) => {
@@ -118,14 +115,13 @@ function FirstLastFrameImageSlots({
               />
             </svg>
           </button>
-        </Tooltip$1>
+        </Tooltip>
       )}
       onUpdatePaths={onUpdatePaths}
       onReplacePath={onReplacePath}
     />
   );
 }
-
 export function VideoPopoverReferenceSection({
   isTextToVideo,
   isFirstLastFrame,

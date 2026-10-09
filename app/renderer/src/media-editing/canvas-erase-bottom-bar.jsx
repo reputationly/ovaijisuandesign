@@ -2,14 +2,11 @@
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { BananaResolutionPicker } from "./banana-resolution-picker.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "./image-edit-pricing.js";
-
 const ERASE_RESOLUTIONS = ["1K", "2K"];
-
 const ERASE_REF_COUNT = 1;
-
 export const CanvasEraseBottomBar = reactExports.memo(
   function CanvasEraseBottomBar2({
     onCancel,
@@ -58,7 +55,7 @@ export const CanvasEraseBottomBar = reactExports.memo(
               e2.currentTarget.style.opacity = "0.7";
             }}
           >
-            <CloseIcon$1 />
+            <CloseIcon />
           </button>
           <BananaResolutionPicker
             value={resolution}

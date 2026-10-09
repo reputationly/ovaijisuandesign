@@ -2,7 +2,7 @@
 import {
   configIdentifier,
   HOME_QUICK_START_MAX_ITEMS_PER_SECTION,
-  isRecord$5,
+  isRecord,
   nonEmptyString,
   normalizeConfiguredAssetUrl,
   parseLocalizedText,
@@ -10,12 +10,11 @@ import {
   uniqueBy,
 } from "./parse-localized-text.js";
 import { FolderOpen } from "../media-editing/package.jsx";
-
 function parseProjectArchiveItem(value) {
-  if (!isRecord$5(value)) return void 0;
+  if (!isRecord(value)) return void 0;
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
-  const action = isRecord$5(value.action) ? value.action : null;
+  const action = isRecord(value.action) ? value.action : null;
   const actionType = action && nonEmptyString(action.type);
   const archiveUrl = action && normalizeConfiguredAssetUrl(action.archive_url);
   const label = action && parseLocalizedText(action.cta);
@@ -64,7 +63,6 @@ function parseProjectArchiveItem(value) {
     },
   };
 }
-
 export function parseProjectArchiveSection(value) {
   const id2 = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
@@ -93,23 +91,15 @@ export function parseProjectArchiveSection(value) {
     items,
   };
 }
-
 const SHOWCASE_MINIMUM_ITEM_COUNT = 9;
-
 export const HOME_SHOWCASE_MAX_ITEMS_PER_COLLECTION = 64;
-
 export const HOME_SHOWCASE_MAX_TOTAL_ITEMS = 256;
-
 export const DEFAULT_SHOWCASE_ATTRIBUTION = "MiniMax Design官方";
-
 export const DEFAULT_SHOWCASE_ATTRIBUTION_EN = "MiniMax Design Official";
-
 export const DEFAULT_SHOWCASE_DESCRIPTION =
   "展现 H3 在镜头运动、主体一致性与音画协同上的高质量生成能力。";
-
 export const DEFAULT_SHOWCASE_DESCRIPTION_EN =
   "Showcasing H3’s high-quality generation across camera motion, subject consistency, and audiovisual coherence.";
-
 const OFFICIAL_SHOWCASE_ATTRIBUTIONS = new Set([
   DEFAULT_SHOWCASE_ATTRIBUTION,
   DEFAULT_SHOWCASE_ATTRIBUTION_EN,
@@ -117,21 +107,16 @@ const OFFICIAL_SHOWCASE_ATTRIBUTIONS = new Set([
   "MiniMax Hub官方",
   "MiniMax Hub Official",
 ]);
-
 export const BRAND_ADVERTISING_COLLECTION_ID = "brand-advertising";
-
 export const BRAND_ADVERTISING_SCENE_IDS = new Set([
   "brand-design",
   "advertising-design",
   "text-preservation",
 ]);
-
 export const FEATURED_SHOWCASE_COLLECTION_ID = "featured";
-
 export function showcaseOrientation(showcase, tabId) {
   return showcase?.tabs[tabId]?.videoOrientation ?? "landscape";
 }
-
 export function showcaseBadgeProps(showcase, tabId) {
   const badge = showcase?.tabs[tabId]?.badge;
   return badge
@@ -140,19 +125,15 @@ export function showcaseBadgeProps(showcase, tabId) {
       }
     : {};
 }
-
 function normalizeAttribution(value) {
   return value.trim().replace(/^@+/, "").trim();
 }
-
 export function isOfficialAttribution(value) {
   return OFFICIAL_SHOWCASE_ATTRIBUTIONS.has(normalizeAttribution(value));
 }
-
 export function normalizeOfficialAttributionForDisplay(value, brandedValue) {
   return isOfficialAttribution(value) ? brandedValue : value;
 }
-
 export function uniqueItemsByVideoUrl(items) {
   const seenVideoUrls = new Set();
   return items.filter((item) => {
@@ -162,7 +143,6 @@ export function uniqueItemsByVideoUrl(items) {
     return true;
   });
 }
-
 export function buildFeaturedItems(scenes) {
   const hasExplicitBrandAdvertisingScene = scenes.some(
     ({ scene }) => scene.id === BRAND_ADVERTISING_COLLECTION_ID,

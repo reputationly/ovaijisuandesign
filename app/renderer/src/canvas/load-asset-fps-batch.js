@@ -1,21 +1,16 @@
 // load-asset-fps-batch.js
 import { API_PATHS } from "../vendor.js";
-
 const FPS_BATCH_CONCURRENCY = 4;
-
 const FPS_BATCH_TIMEOUT_MS = 15e3;
-
-function isRecord$8(value) {
+function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
-
 function mapAssetFpsResponse(value) {
-  if (!isRecord$8(value) || value.ok !== true || !isRecord$8(value.metadata))
+  if (!isRecord(value) || value.ok !== true || !isRecord(value.metadata))
     return 0;
   const fps = value.metadata.fps;
   return typeof fps === "number" && Number.isFinite(fps) && fps > 0 ? fps : 0;
 }
-
 function raceWithAbort(promise, signal) {
   if (signal.aborted) return Promise.reject(signal.reason);
   return new Promise((resolve, reject) => {
@@ -35,7 +30,6 @@ function raceWithAbort(promise, signal) {
     );
   });
 }
-
 async function loadAssetFps(assetId, gatewayFetch2, signal) {
   try {
     return await raceWithAbort(
@@ -48,7 +42,6 @@ async function loadAssetFps(assetId, gatewayFetch2, signal) {
     return 0;
   }
 }
-
 export async function loadAssetFpsBatch(assetIds, gatewayFetch2, signal) {
   const uniqueIds = [...new Set(assetIds.filter(Boolean))];
   if (signal.aborted || uniqueIds.length === 0) return new Map();

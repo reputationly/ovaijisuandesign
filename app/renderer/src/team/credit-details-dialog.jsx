@@ -9,11 +9,11 @@ import {
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import {
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   getRuntimeConfig,
   guardAccountSubmission,
-  Info$1,
+  Info$1 as Info,
   reactExports,
   Trans,
   usePlatform,
@@ -24,7 +24,7 @@ import {
 import {
   creditQueryKeys,
   Popover,
-  Select$1,
+  Select,
   useCreditAccountState,
   useOptionalTeamAccount,
 } from "../assets/credit-query-keys.jsx";
@@ -45,7 +45,7 @@ import { CreditType } from "../generation/to-workspace-browser-url.js";
 import { Skeleton, useWalletQuery } from "./use-wallet-query.jsx";
 import { useSubscriptionRenewalNotice } from "./derive-subscription-status.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -71,12 +71,9 @@ import { trackEvent } from "../infra/sanitize-track-props.js";
 import { formatSignedCreditAmount } from "./team-panel-stale.jsx";
 import { InfiniteScrollContainer } from "./infinite-scroll-container.jsx";
 import { useTeamTransfersFeedQuery } from "./use-team-transactions-feed-query.jsx";
-
 const UNSIGNED_DECIMAL_RE = /^(0|[1-9]\d*)$/;
-
 const SIGNED_DECIMAL_RE = /^-?(0|[1-9]\d*)$/;
-
-function asRecord$4(value, field) {
+function asRecord(value, field) {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     throw new TypeError(
       `Invalid billing response at ${field}: expected object`,
@@ -84,8 +81,7 @@ function asRecord$4(value, field) {
   }
   return value;
 }
-
-function asString$1(value, field) {
+function asString(value, field) {
   if (typeof value !== "string") {
     throw new TypeError(
       `Invalid billing response at ${field}: expected string`,
@@ -93,14 +89,12 @@ function asString$1(value, field) {
   }
   return value;
 }
-
 function asOptionalString(value, field) {
   if (value === void 0 || value === null) return void 0;
-  return asString$1(value, field);
+  return asString(value, field);
 }
-
 function asDecimal(value, field, signed = false) {
-  const decimal = asString$1(value, field);
+  const decimal = asString(value, field);
   if (!(signed ? SIGNED_DECIMAL_RE : UNSIGNED_DECIMAL_RE).test(decimal)) {
     throw new TypeError(
       `Invalid billing response at ${field}: expected decimal string`,
@@ -108,9 +102,8 @@ function asDecimal(value, field, signed = false) {
   }
   return decimal;
 }
-
 function asPositiveDecimal(value, field) {
-  const decimal = asString$1(value, field);
+  const decimal = asString(value, field);
   if (!UNSIGNED_DECIMAL_RE.test(decimal) || decimal === "0") {
     throw new TypeError(
       `Invalid billing response at ${field}: expected positive decimal string`,
@@ -118,7 +111,6 @@ function asPositiveDecimal(value, field) {
   }
   return decimal;
 }
-
 function asSafeInteger(value, field) {
   if (typeof value !== "number" || !Number.isSafeInteger(value)) {
     throw new TypeError(
@@ -127,7 +119,6 @@ function asSafeInteger(value, field) {
   }
   return value;
 }
-
 function asBoolean(value, field) {
   if (typeof value !== "boolean") {
     throw new TypeError(
@@ -136,7 +127,6 @@ function asBoolean(value, field) {
   }
   return value;
 }
-
 function asTimestamp(value, field) {
   const decimal = asDecimal(value, field);
   const timestamp2 = Number(decimal);
@@ -147,11 +137,10 @@ function asTimestamp(value, field) {
   }
   return timestamp2;
 }
-
 function mapBillingTransaction(value, index2) {
   const field = `$.items[${index2}]`;
-  const source = asRecord$4(value, field);
-  const type2 = asString$1(source.type, `${field}.type`);
+  const source = asRecord(value, field);
+  const type2 = asString(source.type, `${field}.type`);
   if (
     type2 !== "consume" &&
     type2 !== "refund" &&
@@ -170,16 +159,16 @@ function mapBillingTransaction(value, index2) {
   return {
     id: asDecimal(source.id, `${field}.id`),
     type: type2,
-    source: asString$1(source.source, `${field}.source`),
-    billing_type: asString$1(source.billing_type, `${field}.billing_type`),
+    source: asString(source.source, `${field}.source`),
+    billing_type: asString(source.billing_type, `${field}.billing_type`),
     amount: asPositiveDecimal(source.amount, `${field}.amount`),
     create_time: asTimestamp(source.create_time, `${field}.create_time`),
-    model_key: asString$1(source.model_key, `${field}.model_key`),
-    model_display_name: asString$1(
+    model_key: asString(source.model_key, `${field}.model_key`),
+    model_display_name: asString(
       source.model_display_name,
       `${field}.model_display_name`,
     ),
-    media_type: asString$1(source.media_type, `${field}.media_type`),
+    media_type: asString(source.media_type, `${field}.media_type`),
     ...(reason === void 0
       ? {}
       : {
@@ -192,9 +181,8 @@ function mapBillingTransaction(value, index2) {
         }),
   };
 }
-
 function mapCreditSummary(value) {
-  const source = asRecord$4(value, "$.credit_summary");
+  const source = asRecord(value, "$.credit_summary");
   return {
     total: asDecimal(source.total, "$.credit_summary.total"),
     membership: asDecimal(source.membership, "$.credit_summary.membership"),
@@ -202,9 +190,8 @@ function mapCreditSummary(value) {
     bonus: asDecimal(source.bonus, "$.credit_summary.bonus"),
   };
 }
-
 function mapBillingTransactionsResponse(value) {
-  const source = asRecord$4(value, "$");
+  const source = asRecord(value, "$");
   if (!Array.isArray(source.items)) {
     throw new TypeError("Invalid billing response at $.items: expected array");
   }
@@ -225,7 +212,6 @@ function mapBillingTransactionsResponse(value) {
         }),
   };
 }
-
 async function fetchTransactions(params, options) {
   const searchParams = new URLSearchParams();
   if (params.pageSize) searchParams.set("page_size", String(params.pageSize));
@@ -256,29 +242,22 @@ async function fetchTransactions(params, options) {
     balance: data2.balance,
   };
 }
-
 function useMpCreditSummary() {
   return deriveMpCreditSummary(useMpWallet());
 }
-
 const TRANSACTION_TYPE = {
   ALL: "all",
   CONSUMED: "consumed",
   REFUNDED: "refunded",
 };
-
-const DEFAULT_PAGE_SIZE$1 = 25;
-
+const DEFAULT_PAGE_SIZE = 25;
 const CREDIT_CACHE_GC_MS = 5 * 6e4;
-
 const CREDIT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-
 function useCreditDetails(open) {
   const [activeTab, setActiveTabState] = reactExports.useState(
     TRANSACTION_TYPE.ALL,
   );
-  const [pageSize, setPageSizeState] =
-    reactExports.useState(DEFAULT_PAGE_SIZE$1);
+  const [pageSize, setPageSizeState] = reactExports.useState(DEFAULT_PAGE_SIZE);
   const [cursorStack, setCursorStack] = reactExports.useState([]);
   const queryClient2 = useQueryClient();
   const { queryScope, canReadPersonalCredit } = useCreditAccountState();
@@ -383,7 +362,6 @@ function useCreditDetails(open) {
     goNext,
   };
 }
-
 function getModelDisplayName(item, t2, models) {
   return getBillingModelDisplayName(
     {
@@ -396,23 +374,19 @@ function getModelDisplayName(item, t2, models) {
     models,
   );
 }
-
-function formatNumber$2(value) {
+function formatNumber(value) {
   return BigInt(value).toLocaleString();
 }
-
 function getBillingTransactionCategory(item, t2) {
   if (item.type !== "grant" && item.type !== "expired") return void 0;
   return getPackageCreditCategoryLabel(item.credit_category, t2);
 }
-
 function getBillingTransactionReason(item) {
   if (item.type !== "grant" && item.type !== "expired") return void 0;
   const reason = item.reason;
   if (!reason || reason.trim() === "") return void 0;
   return reason;
 }
-
 function getBillingTransactionPresentation(item, t2) {
   const isCredit = item.type === "refund" || item.type === "grant";
   const category = getBillingTransactionCategory(item, t2);
@@ -443,21 +417,18 @@ function getBillingTransactionPresentation(item, t2) {
           reason,
         }
       : {}),
-    amount: `${isCredit ? "+" : "-"}${formatNumber$2(item.amount)}`,
+    amount: `${isCredit ? "+" : "-"}${formatNumber(item.amount)}`,
     tone: isCredit ? "credit" : "debit",
   };
 }
-
 function isBillingTransactionVisibleOnTab(item, activeTab) {
   if (activeTab === TRANSACTION_TYPE.ALL) return true;
   if (activeTab === TRANSACTION_TYPE.CONSUMED) return item.type === "consume";
   return item.type === "refund";
 }
-
 function isLegacyMedia(item) {
   return !item.model_display_name && item.billing_type !== "token";
 }
-
 function CreditPagination({
   pageSize,
   setPageSize,
@@ -474,7 +445,7 @@ function CreditPagination({
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>{t2("credits.show")}</span>
-        <Select$1
+        <Select
           value={String(pageSize)}
           onValueChange={(value) => setPageSize(Number(value))}
         >
@@ -488,7 +459,7 @@ function CreditPagination({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select$1>
+        </Select>
         <span>{t2("credits.entries")}</span>
       </div>
       <div className="flex items-center gap-3">
@@ -498,7 +469,7 @@ function CreditPagination({
             page: currentPage,
           })}
         </span>
-        <Button$1
+        <Button
           type="button"
           variant="outline"
           size="icon-sm"
@@ -508,8 +479,8 @@ function CreditPagination({
           data-action-ui-id="credits.pagination-prev"
         >
           <ChevronLeft />
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="button"
           variant="outline"
           size="icon-sm"
@@ -518,13 +489,12 @@ function CreditPagination({
           aria-label={t2("credits.next")}
           data-action-ui-id="credits.pagination-next"
         >
-          <ChevronRight$1 />
-        </Button$1>
+          <ChevronRight />
+        </Button>
       </div>
     </div>
   );
 }
-
 function BillingModelDescription({ item, models }) {
   const { t: t2 } = useTranslation();
   const modelName = getModelDisplayName(item, t2, models);
@@ -545,7 +515,6 @@ function BillingModelDescription({ item, models }) {
     <span className="truncate">{modelName}</span>
   );
 }
-
 function CreditModelTable({
   items,
   models,
@@ -599,15 +568,12 @@ function CreditModelTable({
     />
   );
 }
-
-const FREE_PRIVILEGE_TYPE$1 = 0;
-
+const FREE_PRIVILEGE_TYPE = 0;
 const CYCLE_LABEL_KEYS = {
   1: "credits.billingCycle.monthly",
   2: "credits.billingCycle.quarterly",
   3: "credits.billingCycle.yearly",
 };
-
 function SubscriptionInfoPanel() {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -635,7 +601,7 @@ function SubscriptionInfoPanel() {
       </div>
     );
   }
-  const isFree = !mpWallet || mpWallet.privilege_type === FREE_PRIVILEGE_TYPE$1;
+  const isFree = !mpWallet || mpWallet.privilege_type === FREE_PRIVILEGE_TYPE;
   const planName = mpWallet?.plan_name?.trim() || t2("credits.freePlan");
   const cta = isFree
     ? t2("credits.upgradeSubscription")
@@ -690,7 +656,7 @@ function SubscriptionInfoPanel() {
           </p>
         )}
       </div>
-      <Button$1
+      <Button
         type="button"
         variant="outline"
         className="shrink-0"
@@ -700,13 +666,11 @@ function SubscriptionInfoPanel() {
         data-action-ui-id="credits.subscription-cta"
       >
         {cta}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 const TRANSFER_TAB = "transfer";
-
 const TAB_VALUES = [
   {
     value: TRANSACTION_TYPE.ALL,
@@ -721,12 +685,10 @@ const TAB_VALUES = [
     labelKey: "credits.tabRefunded",
   },
 ];
-
 function formatNumber$1(n2) {
   return n2.toLocaleString();
 }
-
-function formatTransferCounterparty$1(transfer) {
+function formatTransferCounterparty(transfer) {
   const name2 = transfer.counterpartyGroupName;
   const id2 = transfer.counterpartyGroupId;
   if (!name2 && !id2) return "—";
@@ -744,18 +706,15 @@ function formatTransferCounterparty$1(transfer) {
     </span>
   );
 }
-
 function transferAmountTone(amount) {
   const value = BigInt(amount);
   if (value > 0n) return "credit";
   if (value < 0n) return "debit";
   return "neutral";
 }
-
 function findCreditInfo(wallet, creditType) {
   return wallet?.sub_credits?.find((item) => item?.credit_type === creditType);
 }
-
 function creditExpiryBatches(creditInfo, fallbackCredit) {
   const now2 = Date.now();
   const creditByEndTime = new Map();
@@ -797,7 +756,6 @@ function creditExpiryBatches(creditInfo, fallbackCredit) {
   }
   return [];
 }
-
 function formatCreditExpiry(timestamp2) {
   if (!Number.isFinite(timestamp2) || timestamp2 <= 0) return "";
   return new Intl.DateTimeFormat(void 0, {
@@ -810,7 +768,6 @@ function formatCreditExpiry(timestamp2) {
     hourCycle: "h23",
   }).format(new Date(timestamp2));
 }
-
 function Operator({ symbol }) {
   return (
     <span className="hidden pb-1 text-xl text-muted-foreground/60 select-none sm:block">
@@ -818,7 +775,6 @@ function Operator({ symbol }) {
     </span>
   );
 }
-
 function SummaryCard({ label, value, tooltipKey, creditInfo }) {
   const { t: t2 } = useTranslation();
   const expiryBatches = creditExpiryBatches(creditInfo, value);
@@ -845,7 +801,7 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
           />
         }
       >
-        <Icon icon={Info$1} size="sm" aria-hidden={true} />
+        <Icon icon={Info} size="sm" aria-hidden={true} />
       </PopoverTrigger>
       <PopoverContent
         side="top"
@@ -893,7 +849,6 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
     </div>
   );
 }
-
 function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
   const { t: t2 } = useTranslation();
   if (loading) {
@@ -959,7 +914,6 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
     </div>
   );
 }
-
 export function CreditDetailsDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -1107,7 +1061,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                 rows={transfers.map((transfer) => ({
                   id: transfer.transferId,
                   description: formatTransferDirection(transfer.direction),
-                  model: formatTransferCounterparty$1(transfer),
+                  model: formatTransferCounterparty(transfer),
                   createdAtMs: transfer.createdAtMs,
                   amount: formatSignedCreditAmount(transfer.amount),
                   tone: transferAmountTone(transfer.amount),
@@ -1188,7 +1142,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-border bg-background px-5 py-3 sm:px-6 sm:py-4">
           <div className="flex min-w-0 flex-1 items-start gap-2 text-xs text-muted-foreground">
             <Icon
-              icon={Info$1}
+              icon={Info}
               size="md"
               className="mt-0.5 shrink-0"
               aria-hidden={true}
@@ -1241,7 +1195,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Button$1
+            <Button
               type="button"
               className="px-4 sm:px-6"
               disabled={!checkoutDecision.allowed}
@@ -1252,7 +1206,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
               data-action-ui-id="credits.purchase-more"
             >
               {t2("credits.purchaseMore")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       </DialogContent>

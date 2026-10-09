@@ -2,11 +2,10 @@
 import {
   cleanRaw,
   hasLocalFileLinkProtocol,
-  isAbsoluteLocalPath$2,
+  isAbsoluteLocalPath,
   isHttpUrl,
   looksLikeFileReference,
 } from "./replace-configured-model-names-for-current-region.js";
-
 const INTERNAL_WORKSPACE_SEGMENTS = new Set([
   ".git",
   ".hilo",
@@ -16,7 +15,6 @@ const INTERNAL_WORKSPACE_SEGMENTS = new Set([
   "logs",
   "client_logs",
 ]);
-
 function safeDecode(value) {
   try {
     return decodeURIComponent(value);
@@ -24,41 +22,33 @@ function safeDecode(value) {
     return value;
   }
 }
-
-function stripQueryAndHash$1(value) {
+function stripQueryAndHash(value) {
   return value.split("?")[0]?.split("#")[0] ?? value;
 }
-
-function stripLeadingSlash$2(value) {
+function stripLeadingSlash(value) {
   return value.replace(/^\/+/, "");
 }
-
 function normalizeWorkspacePath(value) {
-  return stripLeadingSlash$2(
-    safeDecode(stripQueryAndHash$1(value.trim())).replace(/\\/g, "/"),
+  return stripLeadingSlash(
+    safeDecode(stripQueryAndHash(value.trim())).replace(/\\/g, "/"),
   );
 }
-
 function localBasename(value) {
   const clean = value.replace(/\\/g, "/");
   return clean.split("/").filter(Boolean).pop() ?? clean;
 }
-
-function basename$5(value) {
-  return localBasename(safeDecode(stripQueryAndHash$1(value)));
+function basename(value) {
+  return localBasename(safeDecode(stripQueryAndHash(value)));
 }
-
 function hasUrlScheme(value) {
   if (/^[a-zA-Z]:(?![\\/])/.test(value)) return false;
   return /^[a-z][a-z0-9+.-]*:/i.test(value);
 }
-
 function fileUrlPath(value) {
   let raw2 = value;
   if (/^sandbox:/i.test(raw2)) {
     raw2 = raw2.replace(/^sandbox:/i, "");
-    if (isAbsoluteLocalPath$2(raw2))
-      return safeDecode(stripQueryAndHash$1(raw2));
+    if (isAbsoluteLocalPath(raw2)) return safeDecode(stripQueryAndHash(raw2));
   }
   if (!/^file:\/\//i.test(raw2)) return void 0;
   try {
@@ -74,7 +64,6 @@ function fileUrlPath(value) {
     return void 0;
   }
 }
-
 function maybeWorkspaceRelativeFromRoute(raw2) {
   const candidates2 = [raw2];
   try {
@@ -82,10 +71,7 @@ function maybeWorkspaceRelativeFromRoute(raw2) {
     candidates2.unshift(url2.pathname);
   } catch {}
   for (const candidate of candidates2) {
-    const clean = safeDecode(stripQueryAndHash$1(candidate)).replace(
-      /\\/g,
-      "/",
-    );
+    const clean = safeDecode(stripQueryAndHash(candidate)).replace(/\\/g, "/");
     const filesIdx = clean.indexOf("/files/");
     if (filesIdx >= 0)
       return normalizeWorkspacePath(clean.slice(filesIdx + "/files/".length));
@@ -96,32 +82,28 @@ function maybeWorkspaceRelativeFromRoute(raw2) {
   }
   return void 0;
 }
-
 function isWorkspaceInternal(relativePath) {
   const first2 = normalizeWorkspacePath(relativePath)
     .split("/")[0]
     ?.toLowerCase();
   return !!first2 && INTERNAL_WORKSPACE_SEGMENTS.has(first2);
 }
-
 function findExactAsset(assets, relativePath) {
   if (!relativePath) return void 0;
   const target = normalizeWorkspacePath(relativePath);
   return assets.find((asset) => normalizeWorkspacePath(asset.path) === target);
 }
-
 function findUniqueBasenameAsset(assets, name2) {
-  const target = basename$5(name2);
+  const target = basename(name2);
   if (!target || target !== name2) return void 0;
   const matches2 = assets.filter(
-    (asset) => basename$5(asset.path) === target || asset.name === target,
+    (asset) => basename(asset.path) === target || asset.name === target,
   );
   return matches2.length === 1 ? matches2[0] : void 0;
 }
-
 function workspaceRelativeFromAbsolute(absolutePath, currentWorkspace) {
   if (!currentWorkspace) return void 0;
-  const candidate = safeDecode(stripQueryAndHash$1(absolutePath)).replace(
+  const candidate = safeDecode(stripQueryAndHash(absolutePath)).replace(
     /\\/g,
     "/",
   );
@@ -136,7 +118,6 @@ function workspaceRelativeFromAbsolute(absolutePath, currentWorkspace) {
   if (!compareCandidate.startsWith(`${compareRoot}/`)) return void 0;
   return normalizeWorkspacePath(candidate.slice(root2.length + 1));
 }
-
 function isUnsafeRelativePath(value) {
   return (
     value.startsWith("..") ||
@@ -148,7 +129,6 @@ function isUnsafeRelativePath(value) {
     /^[a-zA-Z]:(?![\\/])/.test(value)
   );
 }
-
 function joinWorkspacePath(workspace, relativePath) {
   const sep = workspace.includes("\\") && !workspace.includes("/") ? "\\" : "/";
   const child = sep === "\\" ? relativePath.replace(/\//g, "\\") : relativePath;
@@ -156,10 +136,9 @@ function joinWorkspacePath(workspace, relativePath) {
     ? `${workspace}${child}`
     : `${workspace}${sep}${child}`;
 }
-
 export function resolveChatFileReference(raw2, context) {
   const rawPath = cleanRaw(raw2);
-  const displayName2 = basename$5(rawPath) || rawPath;
+  const displayName2 = basename(rawPath) || rawPath;
   if (!looksLikeFileReference(rawPath))
     return {
       kind: "none",
@@ -170,7 +149,7 @@ export function resolveChatFileReference(raw2, context) {
   const localPath = decodedFilePath ?? rawPath;
   const localDisplayName =
     localBasename(decodedFilePath ?? safeDecode(rawPath)) || displayName2;
-  if (hasLocalFileLinkProtocol(rawPath) && !isAbsoluteLocalPath$2(localPath)) {
+  if (hasLocalFileLinkProtocol(rawPath) && !isAbsoluteLocalPath(localPath)) {
     return {
       kind: "none",
       rawPath,
@@ -178,7 +157,7 @@ export function resolveChatFileReference(raw2, context) {
     };
   }
   const routeRelativePath =
-    isAbsoluteLocalPath$2(localPath) && !rawPath.startsWith("/files/")
+    isAbsoluteLocalPath(localPath) && !rawPath.startsWith("/files/")
       ? void 0
       : maybeWorkspaceRelativeFromRoute(rawPath);
   if (routeRelativePath) {
@@ -187,7 +166,7 @@ export function resolveChatFileReference(raw2, context) {
       return {
         kind: "workspace-file",
         rawPath,
-        displayName: asset.name || basename$5(asset.path),
+        displayName: asset.name || basename(asset.path),
         workspaceRelativePath: asset.path,
         absolutePath: context.currentWorkspace
           ? joinWorkspacePath(context.currentWorkspace, asset.path)
@@ -209,7 +188,7 @@ export function resolveChatFileReference(raw2, context) {
       displayName: displayName2,
       url: rawPath,
     };
-  if (isAbsoluteLocalPath$2(localPath)) {
+  if (isAbsoluteLocalPath(localPath)) {
     const relativePath2 = workspaceRelativeFromAbsolute(
       localPath,
       context.currentWorkspace,
@@ -229,7 +208,7 @@ export function resolveChatFileReference(raw2, context) {
         return {
           kind: "workspace-file",
           rawPath,
-          displayName: asset.name || basename$5(asset.path),
+          displayName: asset.name || basename(asset.path),
           workspaceRelativePath: asset.path,
           absolutePath: localPath,
           assetId: asset.id,
@@ -276,7 +255,7 @@ export function resolveChatFileReference(raw2, context) {
     return {
       kind: "workspace-file",
       rawPath,
-      displayName: exactAsset.name || basename$5(exactAsset.path),
+      displayName: exactAsset.name || basename(exactAsset.path),
       workspaceRelativePath: exactAsset.path,
       absolutePath: context.currentWorkspace
         ? joinWorkspacePath(context.currentWorkspace, exactAsset.path)
@@ -289,7 +268,7 @@ export function resolveChatFileReference(raw2, context) {
     return {
       kind: "workspace-file",
       rawPath,
-      displayName: basenameAsset.name || basename$5(basenameAsset.path),
+      displayName: basenameAsset.name || basename(basenameAsset.path),
       workspaceRelativePath: basenameAsset.path,
       absolutePath: context.currentWorkspace
         ? joinWorkspacePath(context.currentWorkspace, basenameAsset.path)

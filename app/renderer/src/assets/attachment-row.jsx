@@ -20,8 +20,7 @@ import { TooltipContent } from "../infra/dialog-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { useEntityCanvas } from "./use-materialize-entity.js";
-
-function formatRelativeTime$1(ts2, locale) {
+function formatRelativeTime(ts2, locale) {
   const diff = Date.now() - ts2;
   if (Number.isNaN(diff) || diff < 0) {
     return new Date(ts2).toLocaleDateString(locale, {
@@ -44,19 +43,16 @@ function formatRelativeTime$1(ts2, locale) {
     day: "numeric",
   });
 }
-
 function isPreviewableKind(kind) {
   return (
     kind === "image" || kind === "video" || kind === "audio" || kind === "text"
   );
 }
-
-function formatBytes$2(bytes2) {
+function formatBytes(bytes2) {
   if (bytes2 < 1024) return `${bytes2} B`;
   if (bytes2 < 1024 * 1024) return `${(bytes2 / 1024).toFixed(1)} KB`;
   return `${(bytes2 / (1024 * 1024)).toFixed(1)} MB`;
 }
-
 function AttachmentPreviewThumb({ attachment }) {
   const gatewayUrl2 = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
@@ -97,13 +93,7 @@ function AttachmentPreviewThumb({ attachment }) {
     </span>
   );
 }
-
-function AttachmentRow$1({
-  attachment,
-  onPreview,
-  onAddToCanvas,
-  onAddToChat,
-}) {
+function AttachmentRow({ attachment, onPreview, onAddToCanvas, onAddToChat }) {
   const { t: t2 } = useTranslation();
   if (!onPreview) {
     return (
@@ -114,7 +104,7 @@ function AttachmentRow$1({
             {attachment.originalFilename}
           </span>
           <span className="text-[10px] text-muted-foreground">
-            {formatBytes$2(attachment.byteSize)}
+            {formatBytes(attachment.byteSize)}
           </span>
         </div>
       </li>
@@ -151,7 +141,7 @@ function AttachmentRow$1({
           {attachment.originalFilename}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          {formatBytes$2(attachment.byteSize)}
+          {formatBytes(attachment.byteSize)}
         </span>
       </div>
       {(onAddToCanvas || onAddToChat) && (
@@ -195,7 +185,6 @@ function AttachmentRow$1({
     </li>
   );
 }
-
 export function EntityHoverCardBody({
   entityId,
   onPreview,
@@ -238,7 +227,7 @@ export function EntityHoverCardBody({
       {attachments.length > 0 && (
         <ul className="flex flex-col gap-1 max-h-[12rem] overflow-y-auto">
           {attachments.map((att) => (
-            <AttachmentRow$1
+            <AttachmentRow
               key={att.id}
               attachment={att}
               onPreview={onPreview}
@@ -255,7 +244,7 @@ export function EntityHoverCardBody({
       )}
       <p className="flex items-center text-[10px] text-muted-foreground -mb-1">
         {t2("assetCenter.entityList.updatedAt", {
-          when: formatRelativeTime$1(entity.updatedAt, i18n.language),
+          when: formatRelativeTime(entity.updatedAt, i18n.language),
         })}
         {" · "}
         {t2("assetCenter.useCount", {

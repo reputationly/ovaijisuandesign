@@ -14,7 +14,7 @@ import {
   CalendarDays$1,
   Camera$1,
   CaseSensitive$1,
-  Check$1,
+  Check$1 as Check,
   Chrome$1,
   Circle$1,
   CircleHelp$1,
@@ -26,9 +26,9 @@ import {
   CloudOff$1,
   CompositedSvg,
   CornerDownRight$1,
-  create$2,
+  create$2 as create,
   createLucideIcon,
-  createStore$1,
+  createStore$1 as createStore,
   Download$1,
   Droplet$1,
   Expand$1,
@@ -81,13 +81,12 @@ import {
   Upload$1,
   useAssetMetadataStore,
   Users$1,
-  useStore$2,
+  useStore$2 as useStore,
   VolumeX$1,
   withArtworkOpacity,
   withIconCompositing,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 export function hasMessagePayload(
   content2,
   attachments,
@@ -103,7 +102,6 @@ export function hasMessagePayload(
     !!pluginNodeAttachments?.length
   );
 }
-
 export function useDelayedFalse(flag, delayMs) {
   const [value, setValue] = reactExports.useState(flag);
   if (flag && !value) {
@@ -116,49 +114,35 @@ export function useDelayedFalse(flag, delayMs) {
   }, [flag, delayMs]);
   return flag || value;
 }
-
 export const INACTIVE_NODE_UNMOUNT_GRACE_MS = 2e3;
-
 export const CanvasActiveContext = reactExports.createContext(null);
-
 export const CanvasActiveDeferredContext = reactExports.createContext(null);
-
 export function useCanvasActive() {
   const ctx = reactExports.useContext(CanvasActiveContext);
   return ctx ?? true;
 }
-
 export const CanvasBridgeContext = reactExports.createContext({});
-
 export function useCanvasBridge() {
   return reactExports.useContext(CanvasBridgeContext);
 }
-
 export const IsDraggingContext = reactExports.createContext(false);
-
 export const IsMultiSelectContext = reactExports.createContext(false);
-
 export const IsBoxSelectingContext = reactExports.createContext(false);
-
 export function useCanvasIsDragging() {
   return reactExports.useContext(IsDraggingContext);
 }
-
 export function useCanvasIsMultiSelect() {
   return reactExports.useContext(IsMultiSelectContext);
 }
-
 export function useCanvasIsBoxSelecting() {
   return reactExports.useContext(IsBoxSelectingContext);
 }
-
 export function isDraggingSelector(s2) {
   for (const [, node2] of s2.nodeLookup) {
     if (node2.dragging) return true;
   }
   return false;
 }
-
 export function isMultiSelectSelector(s2) {
   let count2 = 0;
   for (const n2 of s2.nodes) {
@@ -166,17 +150,14 @@ export function isMultiSelectSelector(s2) {
   }
   return false;
 }
-
 export function isBoxSelectingSelector(s2) {
   return s2.userSelectionActive;
 }
-
 export function useAssetMeta(key2) {
   return useAssetMetadataStore((s2) => s2.assets.get(key2));
 }
-
 export function createGeneratingStateStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     byNode: new Map(),
     mark: (nodeId, info2) =>
       set2((state2) => {
@@ -197,32 +178,23 @@ export function createGeneratingStateStore() {
       }),
   }));
 }
-
 const defaultGeneratingStateStore = createGeneratingStateStore();
-
 export const GeneratingStateStoreContext = reactExports.createContext(null);
-
 export function useGeneratingStateApi() {
   return (
     reactExports.useContext(GeneratingStateStoreContext) ??
     defaultGeneratingStateStore
   );
 }
-
 export const useGeneratingStateStore = (selector2) =>
-  useStore$2(useGeneratingStateApi(), selector2);
-
+  useStore(useGeneratingStateApi(), selector2);
 useGeneratingStateStore.getState = defaultGeneratingStateStore.getState;
-
 useGeneratingStateStore.setState = defaultGeneratingStateStore.setState;
-
 useGeneratingStateStore.subscribe = defaultGeneratingStateStore.subscribe;
-
 export function useGenerating(nodeId) {
   return useGeneratingStateStore((s2) => s2.byNode.get(nodeId));
 }
-
-export const useMediaPlayback = create$2((set2) => ({
+export const useMediaPlayback = create((set2) => ({
   playingId: null,
   play: (id2) =>
     set2({
@@ -233,16 +205,14 @@ export const useMediaPlayback = create$2((set2) => ({
       playingId: null,
     }),
 }));
-
-export function formatTime$2(seconds, roundUp = false) {
+export function formatTime(seconds, roundUp = false) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const total = roundUp ? Math.ceil(seconds) : Math.floor(seconds);
   const m3 = Math.floor(total / 60);
   const s2 = total % 60;
   return `${m3}:${s2.toString().padStart(2, "0")}`;
 }
-
-const File$2 = createLucideIcon("File", [
+const File = createLucideIcon("File", [
   [
     "path",
     {
@@ -258,7 +228,6 @@ const File$2 = createLucideIcon("File", [
     },
   ],
 ]);
-
 const Package$1 = createLucideIcon("Package", [
   [
     "path",
@@ -289,7 +258,6 @@ const Package$1 = createLucideIcon("Package", [
     },
   ],
 ]);
-
 const Square$1 = createLucideIcon("Square", [
   [
     "rect",
@@ -303,7 +271,6 @@ const Square$1 = createLucideIcon("Square", [
     },
   ],
 ]);
-
 const picture = [
   [
     "path",
@@ -324,7 +291,6 @@ const picture = [
     },
   ],
 ];
-
 const frame = [
   [
     "rect",
@@ -338,11 +304,9 @@ const frame = [
     },
   ],
 ];
-
 export const ImageOutlineIcon = withIconCompositing(
   createLucideIcon("ImageOutline", [...frame, ...picture]),
 );
-
 export const ImageOffOutlineIcon = withIconCompositing(
   createLucideIcon("ImageOffOutline", [
     ...frame,
@@ -356,7 +320,6 @@ export const ImageOffOutlineIcon = withIconCompositing(
     ],
   ]),
 );
-
 export const ImagePlusOutlineIcon = withIconCompositing(
   createLucideIcon("ImagePlusOutline", [
     [
@@ -376,165 +339,85 @@ export const ImagePlusOutlineIcon = withIconCompositing(
     ],
   ]),
 );
-
 export const AlignCenter = withIconCompositing(AlignCenter$1);
-
 export const AlignLeft = withIconCompositing(AlignLeft$1);
-
 export const AlignRight = withIconCompositing(AlignRight$1);
-
 export const Ban = withIconCompositing(Ban$1);
-
 export const Blocks = withIconCompositing(Blocks$1);
-
 export const BookOpen = withIconCompositing(BookOpen$1);
-
 export const Bookmark = withIconCompositing(Bookmark$1);
-
 export const Brain = withIconCompositing(Brain$1);
-
 export const Brush = withIconCompositing(Brush$1);
-
 export const Building2 = withIconCompositing(Building2$1);
-
 export const Cable = withIconCompositing(Cable$1);
-
 export const CalendarDays = withIconCompositing(CalendarDays$1);
-
 export const Camera = withIconCompositing(Camera$1);
-
 export const CaseSensitive = withIconCompositing(CaseSensitive$1);
-
-export const CheckIcon$5 = withIconCompositing(Check$1);
-
+export const CheckIcon = withIconCompositing(Check);
 export const Chrome = withIconCompositing(Chrome$1);
-
 export const Circle = withIconCompositing(Circle$1);
-
 export const CircleHelp = withIconCompositing(CircleHelp$1);
-
 export const CircleUserRound = withIconCompositing(CircleUserRound$1);
-
 export const Clapperboard = withIconCompositing(Clapperboard$1);
-
 export const ClipboardPaste = withIconCompositing(ClipboardPaste$1);
-
 export const Clock = withIconCompositing(Clock$1);
-
 export const Clock3 = withIconCompositing(Clock3$1);
-
 export const CloudOff = withIconCompositing(CloudOff$1);
-
 export const CornerDownRight = withIconCompositing(CornerDownRight$1);
-
 export const Download = withIconCompositing(Download$1);
-
 export const Droplet = withIconCompositing(Droplet$1);
-
 export const Expand = withIconCompositing(Expand$1);
-
-export const File$1 = withIconCompositing(File$2);
-
+export const File$1 = withIconCompositing(File);
 export const FileArchive = withIconCompositing(FileArchive$1);
-
 export const FileAudio = withIconCompositing(FileAudio$1);
-
 export const FileClock = withIconCompositing(FileClock$1);
-
 export const FileCode = withIconCompositing(FileCode$1);
-
 export const FileDiff = withIconCompositing(FileDiff$1);
-
 export const FileInput = withIconCompositing(FileInput$1);
-
 export const FileJson2 = withIconCompositing(FileJson2$1);
-
 export const FileText = withIconCompositing(FileText$1);
-
 export const FileVideo = withIconCompositing(FileVideo$1);
-
 export const FileWarning = withIconCompositing(FileWarning$1);
-
 export const Files = withIconCompositing(Files$1);
-
 export const Flag = withIconCompositing(Flag$1);
-
 export const Folder = withIconCompositing(Folder$1);
-
 export const FolderKey = withIconCompositing(FolderKey$1);
-
 export const FolderOpen = withIconCompositing(FolderOpen$1);
-
 export const HardDrive = withIconCompositing(HardDrive$1);
-
 export const History = withIconCompositing(History$1);
-
 export const List = withIconCompositing(List$1);
-
 export const LogOut = withIconCompositing(LogOut$1);
-
 export const Maximize2 = withIconCompositing(Maximize2$1);
-
 export const Megaphone = withIconCompositing(Megaphone$1);
-
 export const MessageSquare = withIconCompositing(MessageSquare$1);
-
 export const MessageSquarePlus = withIconCompositing(MessageSquarePlus$1);
-
 export const MessageSquareQuote = withIconCompositing(MessageSquareQuote$1);
-
 export const Mic = withIconCompositing(Mic$1);
-
 export const Minimize2 = withIconCompositing(Minimize2$1);
-
 export const Moon = withIconCompositing(Moon$1);
-
 export const MousePointer2 = withIconCompositing(MousePointer2$1);
-
 export const Package = withIconCompositing(Package$1);
-
 export const Paperclip = withIconCompositing(Paperclip$1);
-
 export const PenLine = withIconCompositing(PenLine$1);
-
 export const PencilLine = withIconCompositing(PencilLine$1);
-
 export const Plug = withIconCompositing(Plug$1);
-
 export const Puzzle = withIconCompositing(Puzzle$1);
-
 export const ReceiptText = withIconCompositing(ReceiptText$1);
-
 export const Replace = withIconCompositing(Replace$1);
-
 export const ReplaceAll = withIconCompositing(ReplaceAll$1);
-
 export const Settings = withIconCompositing(Settings$1);
-
 export const Settings2 = withIconCompositing(Settings2$1);
-
 export const ShoppingBag = withIconCompositing(ShoppingBag$1);
-
 export const SlidersHorizontal = withIconCompositing(SlidersHorizontal$1);
-
 export const Sparkles = withIconCompositing(Sparkles$1);
-
 export const Sprout = withIconCompositing(Sprout$1);
-
 export const Square = withIconCompositing(Square$1);
-
 export const Stamp = withIconCompositing(Stamp$1);
-
 export const Trash2 = withIconCompositing(Trash2$1);
-
-export const Type$1 = withIconCompositing(Type$2);
-
+export const Type = withIconCompositing(Type$2);
 export const Upload = withIconCompositing(Upload$1);
-
 export const Users = withIconCompositing(Users$1);
-
 export const VolumeX = withIconCompositing(VolumeX$1);
-
 export function RotateIcon({ size: size2 = 20, ...props }) {
   return (
     <CompositedSvg
@@ -552,7 +435,6 @@ export function RotateIcon({ size: size2 = 20, ...props }) {
     </CompositedSvg>
   );
 }
-
 export function Rotate90Icon(props) {
   return (
     <CompositedSvg
@@ -571,7 +453,6 @@ export function Rotate90Icon(props) {
     </CompositedSvg>
   );
 }
-
 export function FlipHorizontalIcon(props) {
   return (
     <CompositedSvg
@@ -590,7 +471,6 @@ export function FlipHorizontalIcon(props) {
     </CompositedSvg>
   );
 }
-
 export function FlipVerticalIcon(props) {
   return (
     <CompositedSvg
@@ -609,5 +489,4 @@ export function FlipVerticalIcon(props) {
     </CompositedSvg>
   );
 }
-
 export const MEDIA_NODE_RADIUS = 10;

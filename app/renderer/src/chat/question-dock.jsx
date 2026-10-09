@@ -17,7 +17,7 @@ import {
 import { PencilLine } from "../media-editing/package.jsx";
 import { useMentionModels } from "../generation/use-mention-models.jsx";
 import { ChatToolbar } from "../generation/chat-toolbar.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
 import { resolveShortcutDisplay } from "../workspace/other-modifiers.js";
@@ -31,7 +31,6 @@ import { localizeRecommendedQuestionOptionLabel } from "../text-editor/capabilit
 import { Label } from "../team/use-wallet-query.jsx";
 import { MessageInput } from "./chat-compliance-notice.jsx";
 import { MEDIA_FILE_ACCEPT } from "../text-editor/build-asr-gateway-request.js";
-
 function QuestionSelectionCheck({ selected: selected2 }) {
   return (
     <CompositedSvg
@@ -51,15 +50,11 @@ function QuestionSelectionCheck({ selected: selected2 }) {
     </CompositedSvg>
   );
 }
-
 const QUESTION_ATTACHMENT_MAX_COUNT = 4;
-
 const OPTION_SHORTCUT_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 function getOptionShortcutKey(optionIndex) {
   return OPTION_SHORTCUT_KEYS[optionIndex] ?? null;
 }
-
 function getQuestionSubmitBlockReason(
   questionIndex,
   answers,
@@ -91,7 +86,6 @@ function getQuestionSubmitBlockReason(
   }
   return "unanswered";
 }
-
 function findFirstQuestionSubmitBlocker(
   questionCount,
   answers,
@@ -113,7 +107,6 @@ function findFirstQuestionSubmitBlocker(
   }
   return null;
 }
-
 function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
   const attachmentContexts = [];
   const answers = selectedAnswers.map((selected2, questionIndex) => {
@@ -144,7 +137,6 @@ function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
       : {}),
   };
 }
-
 export function QuestionDock({
   question: question2,
   submissionFailureId,
@@ -832,7 +824,7 @@ export function QuestionDock({
           )}
         </div>
       </div>
-      <Button$1
+      <Button
         type="button"
         variant="ghost"
         size="icon-xs"
@@ -862,7 +854,7 @@ export function QuestionDock({
           strokeWidth={1.5}
           className={`transition-transform ${collapsed ? "-rotate-90" : ""}`}
         />
-      </Button$1>
+      </Button>
     </div>
   );
   return (
@@ -1229,7 +1221,7 @@ export function QuestionDock({
               </p>
             )}
             <div className="flex items-center justify-end gap-2">
-              <Button$1
+              <Button
                 type="button"
                 variant="secondary"
                 className="h-[34px] rounded-md text-muted-foreground hover:text-foreground"
@@ -1237,9 +1229,9 @@ export function QuestionDock({
                 disabled={submitting}
               >
                 {t2("chat.question.dismiss")}
-              </Button$1>
+              </Button>
               {currentIndex > 0 && (
-                <Button$1
+                <Button
                   type="button"
                   variant="secondary"
                   className="h-[34px] rounded-md"
@@ -1247,10 +1239,10 @@ export function QuestionDock({
                   disabled={submitting}
                 >
                   {t2("chat.question.back")}
-                </Button$1>
+                </Button>
               )}
               {isLastQuestion ? (
-                <Button$1
+                <Button
                   type="button"
                   data-action-ui-id="chat-question-submit"
                   className="h-[34px] rounded-md"
@@ -1259,9 +1251,9 @@ export function QuestionDock({
                 >
                   <Icon icon={Check} size="sm" aria-hidden={true} />
                   {t2("chat.question.submit")}
-                </Button$1>
+                </Button>
               ) : (
-                <Button$1
+                <Button
                   type="button"
                   data-action-ui-id="chat-question-next"
                   className="h-[34px] rounded-md"
@@ -1269,7 +1261,7 @@ export function QuestionDock({
                   disabled={submitting}
                 >
                   {t2("chat.question.next")}
-                </Button$1>
+                </Button>
               )}
             </div>
           </div>

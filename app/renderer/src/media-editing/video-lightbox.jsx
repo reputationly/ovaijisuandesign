@@ -2,7 +2,7 @@
 import {
   Archive,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   jsxRuntimeExports,
   reactExports,
   useTranslation,
@@ -15,26 +15,19 @@ import {
   normalizeLegacyLightboxItems,
 } from "./use-warn-missing-asset-meta.jsx";
 import { useLightboxMediaActions } from "./use-lightbox-media-actions.jsx";
-import { MediaLightbox$1 } from "./media-lightbox.jsx";
+import { MediaLightbox } from "./media-lightbox.jsx";
 import { resolveVideoPlaybackUrl } from "../generation/to-workspace-browser-url.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
-
+import { cn } from "../infra/dialog-content.jsx";
 const VIDEO_LIGHTBOX_MAX_WIDTH_RATIO = 0.8;
-
 const VIDEO_LIGHTBOX_MAX_HEIGHT_RATIO = 0.8;
-
 const VIDEO_LIGHTBOX_VERTICAL_RESERVED_PX = 176;
-
 const VIDEO_LIGHTBOX_MIN_HEIGHT_PX = 240;
-
 const DEFAULT_VIDEO_ASPECT_RATIO = 16 / 9;
-
-function clampIndex$1(value, length2) {
+function clampIndex(value, length2) {
   if (length2 <= 0) return 0;
   if (!Number.isFinite(value)) return 0;
   return Math.min(Math.max(Math.floor(value), 0), length2 - 1);
 }
-
 function getViewportSize() {
   if (typeof window === "undefined") {
     return {
@@ -47,7 +40,6 @@ function getViewportSize() {
     height: window.innerHeight,
   };
 }
-
 function getVideoDisplaySize(viewport, naturalSize) {
   const naturalAspect =
     naturalSize && naturalSize.width > 0 && naturalSize.height > 0
@@ -67,7 +59,6 @@ function getVideoDisplaySize(viewport, naturalSize) {
     height: width / naturalAspect,
   };
 }
-
 function normalizePlaybackTime(currentTime, duration) {
   if (
     currentTime === void 0 ||
@@ -80,7 +71,6 @@ function normalizePlaybackTime(currentTime, duration) {
   }
   return currentTime;
 }
-
 export const VideoLightbox = reactExports.memo(function VideoLightbox2({
   src,
   sources,
@@ -101,7 +91,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
     [items, item, sources, src],
   );
   const [index2, setIndex] = reactExports.useState(() =>
-    clampIndex$1(initialIndex, videoItems.length),
+    clampIndex(initialIndex, videoItems.length),
   );
   const [loadedVideoSize, setLoadedVideoSize] = reactExports.useState(null);
   const [viewport, setViewport] = reactExports.useState(getViewportSize);
@@ -190,7 +180,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
     }
   }, [activeSrc, onClose, onPlaybackTimeCommit]);
   reactExports.useEffect(() => {
-    setIndex(clampIndex$1(initialIndex, videoItems.length));
+    setIndex(clampIndex(initialIndex, videoItems.length));
   }, [initialIndex, videoItems.length]);
   reactExports.useEffect(() => {
     const handleResize = () => {
@@ -215,7 +205,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
   }, [isMulti, active2, goPrev, goNext]);
   if (!activeSrc) return null;
   return (
-    <MediaLightbox$1
+    <MediaLightbox
       onClose={handleClose}
       onContextMenu={handleContextMenu}
       ariaLabel={ariaLabel}
@@ -230,7 +220,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
             key={activeSrc}
             ref={videoRef}
             src={activeSrc}
-            className={cn$5(
+            className={cn(
               "block rounded-lg bg-black",
               showShadow && "shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
             )}
@@ -347,10 +337,10 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
             className="absolute right-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/55 hover:bg-black/70 text-white/80 hover:text-white transition-colors cursor-pointer pointer-events-auto"
             onClick={handleNextClick}
           >
-            <ChevronRight$1 size={18} strokeWidth={1.5} aria-hidden={true} />
+            <ChevronRight size={18} strokeWidth={1.5} aria-hidden={true} />
           </button>
         </>
       )}
-    </MediaLightbox$1>
+    </MediaLightbox>
   );
 });

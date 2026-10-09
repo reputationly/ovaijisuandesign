@@ -3,12 +3,12 @@ import {
   CompositedSvg,
   reactExports,
   useReactFlow,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { clamp$6 } from "./use-start-crop-from-node.js";
-import { CloseIcon$1, SendArrowIcon } from "./file-missing-icon.jsx";
+import { clamp } from "./use-start-crop-from-node.js";
+import { CloseIcon, SendArrowIcon } from "./file-missing-icon.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "../media-editing/image-edit-pricing.js";
 import {
@@ -17,8 +17,7 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { useOutpaintState } from "../media-editing/use-start-cloud-edit-from-node.js";
-
-function ImageIcon$1({ size: size2 = 14 }) {
+function ImageIcon({ size: size2 = 14 }) {
   return (
     <CompositedSvg
       width={size2}
@@ -32,14 +31,12 @@ function ImageIcon$1({ size: size2 = 14 }) {
     </CompositedSvg>
   );
 }
-
 const CORNER_CLASSES = {
   tl: "absolute -left-[2px] -top-[2px] h-6 w-6 cursor-nw-resize z-10",
   tr: "absolute -right-[2px] -top-[2px] h-6 w-6 cursor-ne-resize z-10",
   bl: "absolute -bottom-[2px] -left-[2px] h-6 w-6 cursor-sw-resize z-10",
   br: "absolute -bottom-[2px] -right-[2px] h-6 w-6 cursor-se-resize z-10",
 };
-
 const CORNER_LINES = {
   tl: [
     "absolute left-0 top-0 h-[3px] w-full",
@@ -58,7 +55,6 @@ const CORNER_LINES = {
     "absolute bottom-0 right-0 h-full w-[3px]",
   ],
 };
-
 function CornerHandle({ position: position2, onPointerDown: onPointerDown2 }) {
   const [lineA, lineB] = CORNER_LINES[position2];
   const lineStyle = {
@@ -74,21 +70,18 @@ function CornerHandle({ position: position2, onPointerDown: onPointerDown2 }) {
     </div>
   );
 }
-
 const EDGE_CLASSES = {
   t: "absolute -top-[2px] left-6 right-6 h-[12px] -mt-[5px] cursor-n-resize z-10 flex items-center justify-center",
   b: "absolute -bottom-[2px] left-6 right-6 h-[12px] -mb-[5px] cursor-s-resize z-10 flex items-center justify-center",
   l: "absolute -left-[2px] top-6 bottom-6 w-[12px] -ml-[5px] cursor-w-resize z-10 flex items-center justify-center",
   r: "absolute -right-[2px] top-6 bottom-6 w-[12px] -mr-[5px] cursor-e-resize z-10 flex items-center justify-center",
 };
-
 const EDGE_BAR_CLASSES = {
   t: "h-[3px] w-8 rounded-full",
   b: "h-[3px] w-8 rounded-full",
   l: "h-8 w-[3px] rounded-full",
   r: "h-8 w-[3px] rounded-full",
 };
-
 function EdgeHandle({ position: position2, onPointerDown: onPointerDown2 }) {
   return (
     <div
@@ -104,21 +97,16 @@ function EdgeHandle({ position: position2, onPointerDown: onPointerDown2 }) {
     </div>
   );
 }
-
 const DEFAULT_IMAGE_OFFSET = {
   x: 0,
   y: 0,
 };
-
 const OUTPAINT_SCALE_OPTIONS = [1, 1.5, 2, 3, 4];
-
 const MAX_OUTPAINT_OUTPUT_LONGEST = 8e3;
-
 function isOutpaintScaleAllowed(longestPx, scale2) {
   if (scale2 === 1) return true;
   return longestPx * scale2 <= MAX_OUTPAINT_OUTPUT_LONGEST;
 }
-
 const OUTPAINT_STYLE_PRESETS = [
   "general",
   "instagram",
@@ -127,7 +115,6 @@ const OUTPAINT_STYLE_PRESETS = [
   "linkedin",
   "twitter",
 ];
-
 const OUTPAINT_PRESET_ITEMS = {
   general: [
     {
@@ -291,23 +278,19 @@ const OUTPAINT_PRESET_ITEMS = {
     },
   ],
 };
-
 const DEFAULT_OUTPAINT_ITEM_ID = "general:original";
-
 const MAX_OUTPAINT_HALF = 1.5;
-
 const DEFAULT_OUTPAINT = {
   x: 0,
   y: 0,
   width: 1,
   height: 1,
 };
-
 function clampOutpaintRect(r2) {
-  const x2 = clamp$6(r2.x, -MAX_OUTPAINT_HALF, 0);
-  const y4 = clamp$6(r2.y, -MAX_OUTPAINT_HALF, 0);
-  const right = clamp$6(r2.x + r2.width, 1, 1 + MAX_OUTPAINT_HALF);
-  const bottom = clamp$6(r2.y + r2.height, 1, 1 + MAX_OUTPAINT_HALF);
+  const x2 = clamp(r2.x, -MAX_OUTPAINT_HALF, 0);
+  const y4 = clamp(r2.y, -MAX_OUTPAINT_HALF, 0);
+  const right = clamp(r2.x + r2.width, 1, 1 + MAX_OUTPAINT_HALF);
+  const bottom = clamp(r2.y + r2.height, 1, 1 + MAX_OUTPAINT_HALF);
   return {
     x: x2,
     y: y4,
@@ -315,7 +298,6 @@ function clampOutpaintRect(r2) {
     height: bottom - y4,
   };
 }
-
 function scaleRectAroundCenter(rect, scale2) {
   if (scale2 === 1) return rect;
   const cx2 = rect.x + rect.width / 2;
@@ -329,18 +311,16 @@ function scaleRectAroundCenter(rect, scale2) {
     height,
   });
 }
-
 function clampImageOffset(rect, offset2) {
   const xMin = rect.x;
   const xMax = rect.x + rect.width - 1;
   const yMin = rect.y;
   const yMax = rect.y + rect.height - 1;
   return {
-    x: clamp$6(offset2.x, xMin, xMax),
-    y: clamp$6(offset2.y, yMin, yMax),
+    x: clamp(offset2.x, xMin, xMax),
+    y: clamp(offset2.y, yMin, yMax),
   };
 }
-
 function calcOutpaintRect({ initialRect, deltaX, deltaY, handle: handle2 }) {
   if (handle2 === null) return initialRect;
   const { x: ix, y: iy, width: iw, height: ih } = initialRect;
@@ -363,20 +343,18 @@ function calcOutpaintRect({ initialRect, deltaX, deltaY, handle: handle2 }) {
     height: bottom - top2,
   });
 }
-
 function calcOutpaintRectMove({ initialRect, deltaX, deltaY }) {
   const xMin = Math.max(-MAX_OUTPAINT_HALF, 1 - initialRect.width);
   const xMax = Math.min(0, 1 + MAX_OUTPAINT_HALF - initialRect.width);
   const yMin = Math.max(-MAX_OUTPAINT_HALF, 1 - initialRect.height);
   const yMax = Math.min(0, 1 + MAX_OUTPAINT_HALF - initialRect.height);
   return {
-    x: clamp$6(initialRect.x + deltaX, xMin, xMax),
-    y: clamp$6(initialRect.y + deltaY, yMin, yMax),
+    x: clamp(initialRect.x + deltaX, xMin, xMax),
+    y: clamp(initialRect.y + deltaY, yMin, yMax),
     width: initialRect.width,
     height: initialRect.height,
   };
 }
-
 function outpaintRectForAspectRatio(ratio, imageAspect) {
   if (ratio == null) return DEFAULT_OUTPAINT;
   const normRatio = ratio / imageAspect;
@@ -398,7 +376,6 @@ function outpaintRectForAspectRatio(ratio, imageAspect) {
     height,
   });
 }
-
 function rectToPixelParams(rect, offset2, originalWidth, originalHeight) {
   const targetWidth = Math.round(rect.width * originalWidth);
   const targetHeight = Math.round(rect.height * originalHeight);
@@ -411,11 +388,8 @@ function rectToPixelParams(rect, offset2, originalWidth, originalHeight) {
     offsetY,
   };
 }
-
 const RESOLUTION_OPTIONS = ["1K", "2K", "4K"];
-
 const RATIO_ICON_MAX = 14;
-
 function defaultPresetLabel(p3) {
   switch (p3) {
     case "general":
@@ -432,7 +406,6 @@ function defaultPresetLabel(p3) {
       return "Twitter";
   }
 }
-
 function CheckIcon({ className }) {
   return (
     <CompositedSvg
@@ -449,7 +422,6 @@ function CheckIcon({ className }) {
     </CompositedSvg>
   );
 }
-
 function DropdownItem({
   label,
   selected: selected2,
@@ -488,7 +460,6 @@ function DropdownItem({
     </button>
   );
 }
-
 function ChevronDownIcon({ className }) {
   return (
     <CompositedSvg
@@ -508,8 +479,7 @@ function ChevronDownIcon({ className }) {
     </CompositedSvg>
   );
 }
-
-function Dropdown$1({ value, options, onChange }) {
+function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
   const popoverRef = reactExports.useRef(null);
@@ -583,7 +553,6 @@ function Dropdown$1({ value, options, onChange }) {
     </div>
   );
 }
-
 function FrameCornersIcon() {
   const corner = {
     width: 4,
@@ -611,7 +580,6 @@ function FrameCornersIcon() {
     </span>
   );
 }
-
 function RatioGlyph({ ratio }) {
   if (ratio == null) {
     return <FrameCornersIcon />;
@@ -629,7 +597,6 @@ function RatioGlyph({ ratio }) {
     />
   );
 }
-
 function RatioRow({ item, selected: selected2, onClick }) {
   const { t: t2 } = useTranslation();
   const ratioLabel = item.ratioLabelKey
@@ -682,7 +649,6 @@ function RatioRow({ item, selected: selected2, onClick }) {
     </button>
   );
 }
-
 const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
   preset: preset2,
   onPresetChange,
@@ -732,7 +698,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
         >
           {t2("canvas.outpaintScale")}
         </div>
-        <Dropdown$1
+        <Dropdown
           value={`${scale2}x`}
           options={OUTPAINT_SCALE_OPTIONS.map((s2) => ({
             label: `${s2}x`,
@@ -752,7 +718,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
           {t2("canvas.outpaintResolution")}
         </span>
         <div className="w-[120px]">
-          <Dropdown$1
+          <Dropdown
             value={resolution}
             options={RESOLUTION_OPTIONS.map((r2) => ({
               label: r2,
@@ -772,7 +738,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
           {t2("canvas.outpaintPreset")}
         </span>
         <div className="w-[120px]">
-          <Dropdown$1
+          <Dropdown
             value={t2(
               `canvas.outpaintStylePreset.${preset2}`,
               defaultPresetLabel(preset2),
@@ -817,7 +783,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
             e2.currentTarget.style.background = "transparent";
           }}
         >
-          <CloseIcon$1 />
+          <CloseIcon />
         </button>
         <div className="flex items-center gap-1.5">
           {!confirming && <CreditCostBadge cost={creditCost} compact={true} />}
@@ -856,12 +822,10 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
     </div>
   );
 });
-
 const DEFAULT_RATIO_ITEM =
   OUTPAINT_PRESET_ITEMS.general.find(
     (it2) => it2.id === DEFAULT_OUTPAINT_ITEM_ID,
   ) ?? null;
-
 function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
   const [outpaintRect, setOutpaintRect] =
     reactExports.useState(DEFAULT_OUTPAINT);
@@ -1023,13 +987,9 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     reset: reset2,
   };
 }
-
 const PANEL_GAP = 16;
-
 const PANEL_WIDTH = 260;
-
 const PANEL_MIN_HEIGHT = 480;
-
 export const CanvasOutpaintOverlay = reactExports.memo(
   function CanvasOutpaintOverlay2() {
     const {
@@ -1040,8 +1000,8 @@ export const CanvasOutpaintOverlay = reactExports.memo(
     const { onNodeAction } = useCanvasBridge();
     const enterTimeRef = reactExports.useRef(Date.now());
     const appliedRef = reactExports.useRef(false);
-    const transform2 = useStore$3((s2) => s2.transform);
-    const flowDomNode = useStore$3((s2) => s2.domNode);
+    const transform2 = useStore((s2) => s2.transform);
+    const flowDomNode = useStore((s2) => s2.domNode);
     const reactFlow = useReactFlow();
     const [vpX, vpY, vpZoom] = transform2;
     const [confirming, setConfirming] = reactExports.useState(false);
@@ -1376,7 +1336,7 @@ export const CanvasOutpaintOverlay = reactExports.memo(
                 gap: 4 * vpZoom,
               }}
             >
-              <ImageIcon$1 size={14 * vpZoom} />
+              <ImageIcon size={14 * vpZoom} />
               {meta2.name && <span className="truncate">{meta2.name}</span>}
             </div>
             <span

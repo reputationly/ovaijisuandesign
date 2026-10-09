@@ -2,10 +2,9 @@
 import { Loader2 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
-
 export function ChatHistoryLoadingState({
   label,
   includeChrome = false,
@@ -13,7 +12,7 @@ export function ChatHistoryLoadingState({
 }) {
   return (
     <div
-      className={cn$2(
+      className={cn(
         "chat-history-skeleton-stage flex min-h-0 flex-1 flex-col overflow-hidden bg-card",
         className,
       )}

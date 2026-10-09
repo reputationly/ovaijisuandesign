@@ -11,14 +11,12 @@ import {
   TidySortContext,
 } from "./canvas-high-blast-delete-dialog.jsx";
 import {
-  DropdownMenuItem$1,
-  DropdownMenuSeparator$1,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "../media-editing/audio-lightbox.jsx";
-import { SegmentedSwitch$1 } from "../generation/segmented-switch.jsx";
+import { SegmentedSwitch } from "../generation/segmented-switch.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-
 const useTidySort = () => reactExports.useContext(TidySortContext);
-
 function TidyGridIcon(props) {
   return (
     <CompositedSvg
@@ -35,7 +33,6 @@ function TidyGridIcon(props) {
     </CompositedSvg>
   );
 }
-
 function TidyHorizontalIcon(props) {
   return (
     <CompositedSvg
@@ -56,7 +53,6 @@ function TidyHorizontalIcon(props) {
     </CompositedSvg>
   );
 }
-
 function TidyVerticalIcon(props) {
   return (
     <CompositedSvg
@@ -77,11 +73,8 @@ function TidyVerticalIcon(props) {
     </CompositedSvg>
   );
 }
-
 const INCLUDE_DEPS_STORAGE_KEY = "hilo:canvas:tidy:includeDeps";
-
 const autoAlignListeners = new Set();
-
 function readAutoAlignPreference() {
   try {
     return (
@@ -92,19 +85,15 @@ function readAutoAlignPreference() {
     return false;
   }
 }
-
 function emitAutoAlignChange() {
   for (const listener of autoAlignListeners) listener();
 }
-
 let autoAlignSnapshot;
-
 function getAutoAlignSnapshot() {
   if (autoAlignSnapshot === void 0)
     autoAlignSnapshot = readAutoAlignPreference();
   return autoAlignSnapshot;
 }
-
 function handleStorageChange(event) {
   if (event.key !== INCLUDE_DEPS_STORAGE_KEY) return;
   const next2 = event.newValue === "1";
@@ -112,7 +101,6 @@ function handleStorageChange(event) {
   autoAlignSnapshot = next2;
   emitAutoAlignChange();
 }
-
 function setAutoAlignPreference(next2) {
   if (next2 === getAutoAlignSnapshot()) return;
   autoAlignSnapshot = next2;
@@ -121,7 +109,6 @@ function setAutoAlignPreference(next2) {
   } catch {}
   emitAutoAlignChange();
 }
-
 function subscribeAutoAlign(listener) {
   autoAlignListeners.add(listener);
   if (autoAlignListeners.size === 1 && typeof window !== "undefined") {
@@ -134,7 +121,6 @@ function subscribeAutoAlign(listener) {
     }
   };
 }
-
 const LAYOUT_OPTIONS = [
   {
     kind: "grid",
@@ -155,10 +141,8 @@ const LAYOUT_OPTIONS = [
     icon: TidyVerticalIcon,
   },
 ];
-
 const MENU_LEADING_CLASS =
   "flex size-4 shrink-0 items-center justify-center pointer-coarse:size-11";
-
 export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
   const { t: t2 } = useTranslation();
   const { sortBy, setSortBy } = useTidySort();
@@ -175,7 +159,7 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
   const includeDepsId = reactExports.useId();
   return (
     <>
-      <SegmentedSwitch$1
+      <SegmentedSwitch
         value={sortBy}
         onValueChange={setSortBy}
         ariaLabel={t2("canvas.tidy.orderBy", "排序依据")}
@@ -205,7 +189,7 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
       {LAYOUT_OPTIONS.map((option2) => {
         const Icon2 = option2.icon;
         return (
-          <DropdownMenuItem$1
+          <DropdownMenuItem
             key={option2.kind}
             data-action-ui-id={`${uiIdPrefix}-${option2.kind}`}
             onClick={() => void onTidy(option2.kind, includeDeps)}
@@ -220,12 +204,12 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
             <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
               {t2(option2.labelKey, option2.defaultLabel)}
             </span>
-          </DropdownMenuItem$1>
+          </DropdownMenuItem>
         );
       })}
       {showIncludeDeps && (
         <>
-          <DropdownMenuSeparator$1 />
+          <DropdownMenuSeparator />
           <div
             className={
               uiIdPrefix === "canvas.selection-tidy"

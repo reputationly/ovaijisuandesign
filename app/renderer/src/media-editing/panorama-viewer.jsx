@@ -6,15 +6,14 @@ import {
   reactExports,
   RotateCw,
   useTranslation,
-  X$7,
+  X$7 as X,
   ZoomIn,
   ZoomOut,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { Camera } from "./package.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 const VERTEX_SHADER = `
 attribute vec2 aPos;
 varying vec2 vUv;
@@ -22,7 +21,6 @@ void main() {
   vUv = aPos;
   gl_Position = vec4(aPos, 0.0, 1.0);
 }`;
-
 const FRAGMENT_SHADER = `
 precision highp float;
 varying vec2 vUv;
@@ -43,18 +41,13 @@ void main() {
   float v = asin(clamp(dir.y, -1.0, 1.0)) / PI + 0.5;
   gl_FragColor = texture2D(uTex, vec2(u, 1.0 - v));
 }`;
-
 const FOV_MIN = 30;
-
 const FOV_MAX = 110;
-
 const MAX_TEXTURE_WIDTH = 4096;
-
 function getWindowButtonBridge() {
   const platform2 = window.__HILO_PLATFORM__;
   return platform2?.window;
 }
-
 function snapshotCanvasAsPng(source) {
   const snapshot2 = document.createElement("canvas");
   snapshot2.width = source.width;
@@ -70,7 +63,6 @@ function snapshotCanvasAsPng(source) {
     );
   });
 }
-
 function PanoramaResetIcon() {
   return (
     <CompositedSvg
@@ -87,7 +79,6 @@ function PanoramaResetIcon() {
     </CompositedSvg>
   );
 }
-
 function CompositionGuidesIcon() {
   return (
     <CompositedSvg
@@ -104,7 +95,6 @@ function CompositionGuidesIcon() {
     </CompositedSvg>
   );
 }
-
 function compileShader(gl, type2, source) {
   const shader = gl.createShader(type2);
   if (!shader) throw new Error("Unable to create WebGL shader");
@@ -118,7 +108,6 @@ function compileShader(gl, type2, source) {
   }
   return shader;
 }
-
 function initializeWebGl(canvas) {
   const gl = canvas.getContext("webgl", {
     antialias: true,
@@ -183,13 +172,11 @@ function initializeWebGl(canvas) {
     if (fragment2) gl.deleteShader(fragment2);
   }
 }
-
 function disposeWebGl(state2) {
   state2.gl.deleteTexture(state2.texture);
   state2.gl.deleteBuffer(state2.buffer);
   state2.gl.deleteProgram(state2.program);
 }
-
 function uploadTexture(state2, image2) {
   const { gl, texture } = state2;
   const textureWidth = Math.min(
@@ -216,7 +203,6 @@ function uploadTexture(state2, image2) {
   if (gl.getError() !== gl.NO_ERROR)
     throw new Error("Unable to upload panorama texture");
 }
-
 function drawPanoramaFrame(state2, canvas, camera) {
   const { gl, program, texture } = state2;
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -230,7 +216,6 @@ function drawPanoramaFrame(state2, canvas, camera) {
   gl.uniform1f(state2.aspect, canvas.width / Math.max(1, canvas.height));
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
-
 export function PanoramaViewer({
   src,
   interactive,
@@ -592,9 +577,9 @@ export function PanoramaViewer({
         </div>
       )}
       {fullscreen && status === "ready" && (
-        <TooltipProvider$1 delay={150} closeDelay={0}>
+        <TooltipProvider delay={150} closeDelay={0}>
           <div className="nodrag nowheel absolute left-1/2 top-6 z-[6] -translate-x-1/2 rounded-lg border border-transparent bg-black/65 p-1 shadow-[var(--canvas-shadow-panel)] backdrop-blur-xl transition-colors hover:border-white/35">
-            <Tooltip$1
+            <Tooltip
               content={t2("canvas.panorama.capture", "截取当前画面")}
               side="bottom"
               sideOffset={8}
@@ -609,10 +594,10 @@ export function PanoramaViewer({
                 <Camera size={19} strokeWidth={1.8} />
                 <span>{t2("canvas.panorama.capture", "截取当前画面")}</span>
               </button>
-            </Tooltip$1>
+            </Tooltip>
           </div>
           <div className="nodrag nowheel absolute right-6 top-6 z-[6] rounded-lg border border-transparent bg-black/65 p-1 shadow-[var(--canvas-shadow-panel)] backdrop-blur-xl transition-colors hover:border-white/35">
-            <Tooltip$1
+            <Tooltip
               content={t2("canvas.panorama.exitFullscreen", "退出全屏模式")}
               side="bottom"
               sideOffset={8}
@@ -626,19 +611,19 @@ export function PanoramaViewer({
                   "退出全屏模式",
                 )}
               >
-                <X$7 size={19} strokeWidth={2.2} className="scale-[1.2]" />
+                <X size={19} strokeWidth={2.2} className="scale-[1.2]" />
               </button>
-            </Tooltip$1>
+            </Tooltip>
           </div>
-        </TooltipProvider$1>
+        </TooltipProvider>
       )}
       {status === "ready" && interactive && (
-        <TooltipProvider$1 delay={150} closeDelay={0}>
+        <TooltipProvider delay={150} closeDelay={0}>
           <div
             className={`nodrag nowheel absolute bottom-[22px] left-1/2 z-[5] flex max-w-[calc(100%-2rem)] -translate-x-1/2 origin-bottom items-center gap-2 ${fullscreen ? "" : "scale-90"}`}
           >
             <div className={controlSurfaceClass}>
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.panorama.autoRotate", "自动旋转")}
                 side="top"
                 sideOffset={8}
@@ -652,10 +637,10 @@ export function PanoramaViewer({
                 >
                   <RotateCw size={19} strokeWidth={1.8} />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
             </div>
             <div className={controlSurfaceClass}>
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.panorama.zoomOut", "缩小")}
                 side="top"
                 sideOffset={8}
@@ -668,11 +653,11 @@ export function PanoramaViewer({
                 >
                   <ZoomOut size={19} strokeWidth={1.8} />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
               <span className="min-w-[42px] select-none px-0.5 text-center text-[12px] font-medium tabular-nums text-white">
                 {fov}°
               </span>
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.panorama.zoomIn", "放大")}
                 side="top"
                 sideOffset={8}
@@ -685,12 +670,12 @@ export function PanoramaViewer({
                 >
                   <ZoomIn size={19} strokeWidth={1.8} />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
               <div
                 className="mx-1 h-5 w-px bg-[var(--canvas-controls-border)]"
                 aria-hidden="true"
               />
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.panorama.reset", "重置视角")}
                 side="top"
                 sideOffset={8}
@@ -703,9 +688,9 @@ export function PanoramaViewer({
                 >
                   <PanoramaResetIcon />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
               {!fullscreen && (
-                <Tooltip$1
+                <Tooltip
                   content={t2("canvas.panorama.fullscreen", "进入全屏模式")}
                   side="top"
                   sideOffset={8}
@@ -721,11 +706,11 @@ export function PanoramaViewer({
                   >
                     <Maximize size={19} strokeWidth={1.8} />
                   </button>
-                </Tooltip$1>
+                </Tooltip>
               )}
             </div>
             <div className={controlSurfaceClass}>
-              <Tooltip$1
+              <Tooltip
                 content={t2("canvas.panorama.guides", "构图参考线")}
                 side="top"
                 sideOffset={8}
@@ -739,10 +724,10 @@ export function PanoramaViewer({
                 >
                   <CompositionGuidesIcon />
                 </button>
-              </Tooltip$1>
+              </Tooltip>
             </div>
           </div>
-        </TooltipProvider$1>
+        </TooltipProvider>
       )}
     </div>
   );

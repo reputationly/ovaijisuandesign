@@ -2,17 +2,17 @@
 import {
   getSnapshot,
   HOME_WIDGET_DEV_PREVIEW_EVENT,
-  snapshot$1,
+  snapshot,
 } from "./set-home-widget-dev-preview-mode.js";
 import {
   dedupedToast,
   reactExports,
   usePlatform,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
@@ -20,33 +20,27 @@ import { DEFAULT_HOME_WIDGET_CONFIG } from "./tool-label-definitions.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useHubClientConfig } from "../settings/parse-home-survey.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
-const listeners$1 = new Set();
-
+const listeners = new Set();
 function subscribeHomeWidgetDevPreview(listener) {
-  listeners$1.add(listener);
-  if (typeof window === "undefined") return () => listeners$1.delete(listener);
+  listeners.add(listener);
+  if (typeof window === "undefined") return () => listeners.delete(listener);
   window.addEventListener(HOME_WIDGET_DEV_PREVIEW_EVENT, listener);
   return () => {
-    listeners$1.delete(listener);
+    listeners.delete(listener);
     window.removeEventListener(HOME_WIDGET_DEV_PREVIEW_EVENT, listener);
   };
 }
-
 function useHomeWidgetDevPreviewMode() {
   return reactExports.useSyncExternalStore(
     subscribeHomeWidgetDevPreview,
     getSnapshot,
-    () => snapshot$1,
+    () => snapshot,
   );
 }
-
 const HOME_WIDGET_DISMISSAL_PREFIX = "hilo.home-widget.dismissed";
-
 function getHomeSurveyDismissalKey(accountScope, surveyId) {
   return `${HOME_WIDGET_DISMISSAL_PREFIX}.${JSON.stringify([accountScope, surveyId])}`;
 }
-
 function isHomeSurveyDismissed(
   accountScope,
   surveyId,
@@ -65,7 +59,6 @@ function isHomeSurveyDismissed(
     return false;
   }
 }
-
 function dismissHomeSurvey(
   accountScope,
   surveyId,
@@ -81,7 +74,6 @@ function dismissHomeSurvey(
     );
   } catch {}
 }
-
 const HomeSurveyCard = ({ survey, onCta, onDismiss }) => {
   const { t: t2 } = useTranslation();
   const [imageVisible, setImageVisible] = reactExports.useState(true);
@@ -123,25 +115,24 @@ const HomeSurveyCard = ({ survey, onCta, onDismiss }) => {
             aria-label={t2("common.close")}
             data-action-ui-id="home-widget.survey.close"
           >
-            <X$7 className="size-2.5" strokeWidth={1.8} />
+            <X className="size-2.5" strokeWidth={1.8} />
           </button>
         ) : null}
       </div>
       <div className="px-2 pt-1 pb-2">
-        <Button$1
+        <Button
           type="button"
           size="sm"
-          className={cn$2("h-8 w-full min-w-0 rounded-[7px]")}
+          className={cn("h-8 w-full min-w-0 rounded-[7px]")}
           onClick={onCta}
           data-action-ui-id="home-widget.survey.cta"
         >
           {survey.ctaLabel}
-        </Button$1>
+        </Button>
       </div>
     </article>
   );
 };
-
 export const HomeWidgetHost = () => {
   const pathname = useRouterState({
     select: (state2) => state2.location.pathname,
@@ -256,7 +247,7 @@ export const HomeWidgetHost = () => {
   if (!surveyAvailable || !survey) return null;
   return (
     <div
-      className={cn$2(
+      className={cn(
         "pointer-events-none absolute right-4 bottom-4 z-40 w-[min(256px,calc(100%-2rem))]",
       )}
       data-action-ui-id="home-widget"

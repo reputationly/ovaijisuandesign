@@ -3,7 +3,7 @@ import { ENTITY_TYPES } from "./audio-play-button.jsx";
 import {
   AtSign,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   jsxRuntimeExports,
   Loader2,
@@ -21,8 +21,8 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useEntities } from "./wrap-as-asset-center-error.js";
 import { FileText } from "../media-editing/package.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -46,16 +46,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "../workspace/shortcut-hint.jsx";
-
 function emptyPerFileMeta() {
   return {
     user_desc: "",
     expanded: false,
   };
 }
-
-const TYPE_OPTIONS$1 = ENTITY_TYPES;
-
+const TYPE_OPTIONS = ENTITY_TYPES;
 export function PromoteToAssetForm({
   files,
   workspaceRoot,
@@ -368,7 +365,7 @@ export function PromoteToAssetForm({
         <TabsContent value="append" className="space-y-3 mt-3">
           <div className="space-y-1.5">
             <span
-              className={cn$2(
+              className={cn(
                 "text-sm font-medium block",
                 showAppendTargetError
                   ? "text-destructive"
@@ -378,7 +375,7 @@ export function PromoteToAssetForm({
               {t2("assetCenter.promote.targetEntityLabel")}
             </span>
             <div
-              className={cn$2(
+              className={cn(
                 "rounded-md",
                 showAppendTargetError && "ring-1 ring-destructive/30",
               )}
@@ -421,14 +418,14 @@ export function PromoteToAssetForm({
         >
           <div className="space-y-1.5">
             <div
-              className={cn$2(
+              className={cn(
                 "flex items-center gap-2 -mx-2 rounded-md border border-transparent px-2 py-1.5 transition-colors",
                 showNameError && "border-destructive/50 bg-destructive/10",
               )}
             >
               <AtSign
                 size={12}
-                className={cn$2(
+                className={cn(
                   "shrink-0",
                   showNameError ? "text-destructive" : "text-muted-foreground",
                 )}
@@ -448,7 +445,7 @@ export function PromoteToAssetForm({
                 aria-describedby={
                   showNameError ? "promote-new-name-error" : void 0
                 }
-                className={cn$2(
+                className={cn(
                   "flex-1 min-w-0 bg-transparent font-heading text-sm font-medium outline-none",
                   showNameError
                     ? "text-destructive placeholder:text-destructive/65"
@@ -485,7 +482,7 @@ export function PromoteToAssetForm({
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                {TYPE_OPTIONS$1.map((opt) => (
+                {TYPE_OPTIONS.map((opt) => (
                   <DropdownMenuItem key={opt} onClick={() => setNewType(opt)}>
                     {t2(`assetCenter.types.${opt}`)}
                   </DropdownMenuItem>
@@ -508,7 +505,7 @@ export function PromoteToAssetForm({
       <div>
         <TooltipProvider delay={300}>
           <ul
-            className={cn$2(
+            className={cn(
               "overflow-y-auto border border-border rounded-md divide-y divide-border",
               isPopover ? "max-h-40" : "max-h-56",
             )}
@@ -536,7 +533,7 @@ export function PromoteToAssetForm({
                       className="shrink-0 text-muted-foreground opacity-50"
                     />
                   ) : (
-                    <ChevronRight$1
+                    <ChevronRight
                       size={12}
                       className="shrink-0 text-muted-foreground opacity-50"
                     />
@@ -595,7 +592,7 @@ export function PromoteToAssetForm({
       )}
       <div className="mt-1 flex items-center justify-end gap-2">
         <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button$1
+          <Button
             variant="ghost"
             size="sm"
             className="h-8 rounded-md"
@@ -604,8 +601,8 @@ export function PromoteToAssetForm({
             data-action-ui-id="asset-panel.promote-close"
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             className="h-8 gap-1.5 rounded-md"
             onClick={() => void handleSubmit()}
@@ -616,7 +613,7 @@ export function PromoteToAssetForm({
             {mode2 === "append"
               ? t2("assetCenter.promote.submitAppend")
               : t2("assetCenter.promote.submitNew")}
-          </Button$1>
+          </Button>
         </div>
       </div>
     </>

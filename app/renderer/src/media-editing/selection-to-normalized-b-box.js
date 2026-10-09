@@ -1,11 +1,10 @@
 // selection-to-normalized-b-box.js
 
-export function isEditableTarget$3(target) {
+export function isEditableTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
   return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
 }
-
 export function selectionToNormalizedBBox(rect) {
   const n2 = (value) => Math.max(0, Math.min(999, Math.round(value * 999)));
   return {

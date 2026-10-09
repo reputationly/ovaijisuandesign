@@ -22,7 +22,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  BASE$1,
+  BASE,
   COMPACTION_BASE,
   deleteMemory,
   expectOk,
@@ -33,8 +33,8 @@ import {
 } from "./changelog-table.jsx";
 import {
   AlertDialog,
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import {
@@ -66,7 +66,7 @@ import { PencilIcon } from "../workspace/home-service.jsx";
 import { CompactRewriteFlow } from "./compact-rewrite-flow.jsx";
 import { useWSConnection } from "../workspace/asset-lineage-query-key.js";
 import { MemoryEditDialog } from "./memory-edit-dialog.jsx";
-import { Select$1 } from "../assets/credit-query-keys.jsx";
+import { Select } from "../assets/credit-query-keys.jsx";
 import {
   Input3,
   SelectContent,
@@ -79,18 +79,16 @@ import { Switch } from "../generation/select-content.jsx";
 import { MEMORY_TYPES } from "../generation/to-workspace-browser-url.js";
 import { Alert, AlertDescription } from "../team/alert-variants.jsx";
 import { useSettings } from "./use-settings.js";
-
 async function searchMemory(fetcher, q2, scope = "all", type2) {
   const params = new URLSearchParams({
     q: q2,
     scope,
   });
-  const res = await fetcher(`${BASE$1}/search?${params.toString()}`);
+  const res = await fetcher(`${BASE}/search?${params.toString()}`);
   await expectOk(res);
   const data2 = await res.json();
   return data2.entries;
 }
-
 async function listRecentAutoFeedback(fetcher, q2 = {}) {
   const params = new URLSearchParams();
   if (q2.lookbackMs !== void 0)
@@ -98,13 +96,12 @@ async function listRecentAutoFeedback(fetcher, q2 = {}) {
   if (q2.limit !== void 0) params.set("limit", String(q2.limit));
   const suffix = params.toString();
   const res = await fetcher(
-    suffix ? `${BASE$1}/recent-auto?${suffix}` : `${BASE$1}/recent-auto`,
+    suffix ? `${BASE}/recent-auto?${suffix}` : `${BASE}/recent-auto`,
   );
   await expectOk(res);
   const data2 = await res.json();
   return data2.entries ?? [];
 }
-
 async function listSnapshots(fetcher) {
   const params = new URLSearchParams({
     scope: "user",
@@ -116,7 +113,6 @@ async function listSnapshots(fetcher) {
   const data2 = await res.json();
   return data2.snapshots ?? [];
 }
-
 function useMemoryWSInvalidation() {
   const { subscribe: subscribe2 } = useWSConnection();
   const queryClient2 = useQueryClient();
@@ -134,7 +130,6 @@ function useMemoryWSInvalidation() {
     });
   }, [subscribe2, queryClient2, scopeKey]);
 }
-
 function useMemorySearch(q2, scope, type2) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
@@ -146,7 +141,6 @@ function useMemorySearch(q2, scope, type2) {
     enabled: Boolean(baseUrl) && trimmed.length > 0,
   });
 }
-
 function useMemoryDelete() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -160,7 +154,6 @@ function useMemoryDelete() {
     },
   });
 }
-
 function useRecentAutoFeedback(q2 = {}) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
@@ -175,7 +168,6 @@ function useRecentAutoFeedback(q2 = {}) {
     enabled: Boolean(baseUrl),
   });
 }
-
 function useSnapshotsList() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -185,7 +177,6 @@ function useSnapshotsList() {
     refetchOnMount: "always",
   });
 }
-
 function CompactRewritePage({ onClose, onBusyChange }) {
   return (
     <CompactRewriteFlow
@@ -196,7 +187,6 @@ function CompactRewritePage({ onClose, onBusyChange }) {
     />
   );
 }
-
 function MemoryDeleteConfirm({
   open,
   onOpenChange,
@@ -258,15 +248,12 @@ function MemoryDeleteConfirm({
     </AlertDialog>
   );
 }
-
 const ASSET_URI_RE = /^hilo:\/\/asset\/([a-zA-Z0-9_-]+)$/;
-
 function parseAssetUri(uri) {
   if (!uri) return void 0;
   const match2 = uri.match(ASSET_URI_RE);
   return match2 ? match2[1] : void 0;
 }
-
 function AssetPinPreview({ scope, name: name2 }) {
   const { t: t2 } = useTranslation();
   const entry = useMemoryEntry(scope, name2);
@@ -332,7 +319,6 @@ function AssetPinPreview({ scope, name: name2 }) {
     />
   );
 }
-
 const TYPE_VARIANT = {
   user: "secondary",
   feedback: "secondary",
@@ -341,7 +327,6 @@ const TYPE_VARIANT = {
   "media-style": "secondary",
   "asset-pin": "secondary",
 };
-
 function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
   const { t: t2 } = useTranslation();
   return (
@@ -395,7 +380,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     )}
                   </div>
                   <p
-                    className={cn$2(
+                    className={cn(
                       "line-clamp-2 text-xs text-muted-foreground",
                       !entry.description && "italic",
                     )}
@@ -405,7 +390,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-0.5">
-                  <Button$1
+                  <Button
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onEdit(entry)}
@@ -413,8 +398,8 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     data-action-ui-id={`settings.memory.edit.${entry.scope}.${entry.name}`}
                   >
                     <PencilIcon size={12} strokeWidth={1.5} />
-                  </Button$1>
-                  <Button$1
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onDelete(entry)}
@@ -422,7 +407,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     data-action-ui-id={`settings.memory.delete.${entry.scope}.${entry.name}`}
                   >
                     <Trash2 size={12} strokeWidth={1.5} />
-                  </Button$1>
+                  </Button>
                 </div>
               </div>
               {entry.type === "asset-pin" && (
@@ -435,7 +420,6 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
     </section>
   );
 }
-
 function relativeFromNow$1(iso, nowMs = Date.now()) {
   const t2 = Date.parse(iso);
   if (Number.isNaN(t2)) return iso;
@@ -448,7 +432,6 @@ function relativeFromNow$1(iso, nowMs = Date.now()) {
   const diffDay = Math.round(diffHr / 24);
   return `${diffDay}d`;
 }
-
 function RecentAutoFeedbackList({ lookbackMs }) {
   const { t: t2 } = useTranslation();
   const query = useRecentAutoFeedback({
@@ -541,7 +524,7 @@ function RecentAutoFeedbackList({ lookbackMs }) {
                     t2("memory.noDescription", "(no description)")}
                 </p>
               </div>
-              <Button$1
+              <Button
                 variant="ghost"
                 size="xs"
                 onClick={() => void handleUndo(entry)}
@@ -550,7 +533,7 @@ function RecentAutoFeedbackList({ lookbackMs }) {
               >
                 <Undo2 size={12} strokeWidth={1.5} />
                 {t2("memory.autoPanel.undo", "Undo")}
-              </Button$1>
+              </Button>
             </li>
           ))}
         </ul>
@@ -558,14 +541,12 @@ function RecentAutoFeedbackList({ lookbackMs }) {
     </section>
   );
 }
-
-function formatBytes$3(bytes2) {
+function formatBytes(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 <= 0) return "0 B";
   if (bytes2 < 1024) return `${bytes2} B`;
   if (bytes2 < 1024 * 1024) return `${(bytes2 / 1024).toFixed(1)} KB`;
   return `${(bytes2 / (1024 * 1024)).toFixed(2)} MB`;
 }
-
 function relativeFromNow(iso, nowMs = Date.now()) {
   const ts2 = Date.parse(iso);
   if (Number.isNaN(ts2)) return iso;
@@ -578,7 +559,6 @@ function relativeFromNow(iso, nowMs = Date.now()) {
   const diffDay = Math.round(diffHr / 24);
   return `${diffDay}d`;
 }
-
 function SnapshotList({ onRequestRestore }) {
   const { t: t2 } = useTranslation();
   const query = useSnapshotsList();
@@ -646,7 +626,7 @@ function SnapshotList({ onRequestRestore }) {
               <p className="text-[11px] text-muted-foreground">
                 {t2("memory.snapshots.entryCount", {
                   count: snap.entryCount,
-                  bytes: formatBytes$3(snap.bytes),
+                  bytes: formatBytes(snap.bytes),
                   defaultValue: "{{count}} 条 · {{bytes}}",
                 })}
               </p>
@@ -655,14 +635,14 @@ function SnapshotList({ onRequestRestore }) {
                   {t2("memory.snapshots.summary", {
                     deleted: snap.summary.deleted,
                     merged: snap.summary.merged,
-                    freed: formatBytes$3(snap.summary.freedBytes),
+                    freed: formatBytes(snap.summary.freedBytes),
                     defaultValue:
                       "触发整理: 删除 {{deleted}} · 合并 {{merged}} · 释放 {{freed}}",
                   })}
                 </p>
               )}
             </div>
-            <Button$1
+            <Button
               variant="ghost"
               size="xs"
               onClick={() => onRequestRestore(snap)}
@@ -670,14 +650,13 @@ function SnapshotList({ onRequestRestore }) {
             >
               <RotateCcw size={12} strokeWidth={1.5} />
               {t2("memory.snapshots.restore", "恢复")}
-            </Button$1>
+            </Button>
           </div>
         </li>
       ))}
     </ul>
   );
 }
-
 function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
   const { t: t2 } = useTranslation();
   const restore = useSnapshotRestore();
@@ -727,7 +706,7 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
             </span>{" "}
             {snapshot2.entryCount}
             {" ("}
-            {formatBytes$3(snapshot2.bytes)})
+            {formatBytes(snapshot2.bytes)})
           </p>
         </div>
         <AlertDialogFooter>
@@ -754,7 +733,6 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
     </AlertDialog>
   );
 }
-
 function SnapshotsContent({ onRestored }) {
   const [pendingRestore, setPendingRestore] = reactExports.useState(null);
   return (
@@ -775,7 +753,6 @@ function SnapshotsContent({ onRestored }) {
     </>
   );
 }
-
 function SnapshotsPage({ onRestored }) {
   const { t: t2 } = useTranslation();
   return (
@@ -793,29 +770,22 @@ function SnapshotsPage({ onRestored }) {
     </div>
   );
 }
-
-const TYPE_FILTER_ALL$1 = "__all__";
-
+const TYPE_FILTER_ALL = "__all__";
 const FILTER_SELECT_TRIGGER_CLASS =
   "h-8 rounded-md border-border! bg-muted/30! px-2.5 text-xs font-normal text-foreground/70 hover:bg-foreground/[0.03]! hover:text-foreground";
-
 const FILTER_SELECT_CONTENT_CLASS = "bg-popover! p-1";
-
 const FILTER_SELECT_ITEM_CLASS =
   "h-7 rounded-md py-1.5 pr-8 pl-2.5 text-xs font-normal text-foreground/70 focus:bg-popup-item-hover! focus:text-foreground! data-[highlighted]:bg-popup-item-hover! data-[highlighted]:text-foreground!";
-
 function scopeFilterLabel(v2, t2) {
   if (v2 === "all") return t2("memory.scopeAll", "All scopes");
   if (v2 === "project") return t2("memory.scopeProject", "Project");
   return t2("memory.scopeUser", "User");
 }
-
 function typeFilterLabel(v2, t2) {
-  if (v2 === TYPE_FILTER_ALL$1) return t2("memory.typeAll", "All types");
+  if (v2 === TYPE_FILTER_ALL) return t2("memory.typeAll", "All types");
   return t2(`memory.type.${v2}`, v2);
 }
-
-function EmptyState$2({ searching }) {
+function EmptyState({ searching }) {
   const { t: t2 } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center gap-1 py-10 text-center">
@@ -838,7 +808,6 @@ function EmptyState$2({ searching }) {
     </div>
   );
 }
-
 export function MemoryManager({ onHeaderChange } = {}) {
   const { t: t2 } = useTranslation();
   const scopeBaseUrl = useGatewayBaseUrl();
@@ -865,7 +834,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
   );
   const loadUserMemory = workspacePreferences.loadUserMemory ?? true;
   const [scopeFilter, setScopeFilter] = reactExports.useState("all");
-  const [typeFilter, setTypeFilter] = reactExports.useState(TYPE_FILTER_ALL$1);
+  const [typeFilter, setTypeFilter] = reactExports.useState(TYPE_FILTER_ALL);
   const [query, setQuery] = reactExports.useState("");
   const [debouncedQuery, setDebouncedQuery] = reactExports.useState("");
   const [editorState, setEditorState] = reactExports.useState(null);
@@ -909,7 +878,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
     : (listQuery.data ?? []);
   const visibleEntries = reactExports.useMemo(() => {
     return baseEntries.filter((entry) => {
-      if (typeFilter !== TYPE_FILTER_ALL$1 && entry.type !== typeFilter)
+      if (typeFilter !== TYPE_FILTER_ALL && entry.type !== typeFilter)
         return false;
       return true;
     });
@@ -966,7 +935,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
       >
         {!onHeaderChange && (
           <div className="mb-3 flex items-center gap-2">
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="sm"
@@ -976,7 +945,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
               data-action-ui-id="settings.memory.secondary.back"
             >
               {t2("common.back", "Back")}
-            </Button$1>
+            </Button>
             <h3 className="font-heading text-lg font-medium text-foreground">
               {secondaryPage === "compaction"
                 ? t2(
@@ -1021,7 +990,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
               className="rounded-md border-border! bg-muted/30! pl-7 text-xs"
             />
           </div>
-          <Select$1
+          <Select
             value={scopeFilter}
             onValueChange={(v2) => setScopeFilter(v2)}
           >
@@ -1044,18 +1013,15 @@ export function MemoryManager({ onHeaderChange } = {}) {
                 {t2("memory.scopeUser", "User")}
               </SelectItem>
             </SelectContent>
-          </Select$1>
-          <Select$1
-            value={typeFilter}
-            onValueChange={(v2) => setTypeFilter(v2)}
-          >
+          </Select>
+          <Select value={typeFilter} onValueChange={(v2) => setTypeFilter(v2)}>
             <SelectTrigger className={`${FILTER_SELECT_TRIGGER_CLASS} w-36`}>
               <SelectValue>{(v2) => typeFilterLabel(v2, t2)}</SelectValue>
             </SelectTrigger>
             <SelectContent className={FILTER_SELECT_CONTENT_CLASS}>
               <SelectItem
                 className={FILTER_SELECT_ITEM_CLASS}
-                value={TYPE_FILTER_ALL$1}
+                value={TYPE_FILTER_ALL}
               >
                 {t2("memory.typeAll", "All types")}
               </SelectItem>
@@ -1069,10 +1035,10 @@ export function MemoryManager({ onHeaderChange } = {}) {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select$1>
+          </Select>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <Button$1
+          <Button
             size="sm"
             className="h-8 rounded-md px-3"
             onClick={() =>
@@ -1084,9 +1050,9 @@ export function MemoryManager({ onHeaderChange } = {}) {
           >
             <Plus size={14} strokeWidth={1.5} />
             {t2("memory.new", "New")}
-          </Button$1>
+          </Button>
           <div className="flex items-center gap-1">
-            <Button$1
+            <Button
               variant="ghost"
               size="icon-sm"
               className="rounded-md"
@@ -1103,8 +1069,8 @@ export function MemoryManager({ onHeaderChange } = {}) {
                 strokeWidth={1.5}
                 className={`transition-transform duration-300 ${refreshFlipped ? "rotate-180" : "rotate-0"}`}
               />
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               className="rounded-md"
@@ -1116,8 +1082,8 @@ export function MemoryManager({ onHeaderChange } = {}) {
             >
               <WandSparkles size={14} strokeWidth={1.5} />
               {t2("memory.compaction.openButton", "整理")}
-            </Button$1>
-            <Button$1
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               className="rounded-md"
@@ -1130,7 +1096,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
             >
               <History size={14} strokeWidth={1.5} />
               {t2("memory.snapshots.openButton", "快照")}
-            </Button$1>
+            </Button>
           </div>
         </div>
       </div>
@@ -1221,7 +1187,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
           {t2("common.loading", "Loading…")}
         </p>
       ) : visibleEntries.length === 0 ? (
-        <EmptyState$2 searching={isSearching} />
+        <EmptyState searching={isSearching} />
       ) : (
         <div className="flex flex-col gap-4">
           {project2.length > 0 && (

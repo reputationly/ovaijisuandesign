@@ -1,6 +1,6 @@
 // column-filtering.js
 import { testFalsey, equals } from "../../infra/shallow-copy.js";
-import { createCell$1, flattenBy, functionalUpdate$2, getMemoOptions, isFunction$1, isNumberArray, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
+import { createCell$1, flattenBy, functionalUpdate as functionalUpdate$2, getMemoOptions, isFunction as isFunction$1, isNumberArray, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
 const debug = "debugHeaders";
 function createHeader(table2, column, options) {
   var _options$id;

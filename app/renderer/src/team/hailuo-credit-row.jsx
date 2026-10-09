@@ -1,10 +1,10 @@
 // hailuo-credit-row.jsx
 import {
   ArrowRight,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   evaluateAccountSubmission,
   guardAccountSubmission,
-  Info$1,
+  Info$1 as Info,
   PopoverArrow$1,
   PopoverPopup,
   PopoverPortal,
@@ -16,7 +16,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   canonicalCreditScope,
   creditQueryKeys,
@@ -26,7 +26,7 @@ import {
   useOptionalTeamAccount,
 } from "../assets/credit-query-keys.jsx";
 import {
-  CREDIT_CACHE_GC_MS$1,
+  CREDIT_CACHE_GC_MS,
   fetchWalletInfo,
   Skeleton,
   useWalletQuery,
@@ -48,7 +48,6 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { MpIcon } from "../assets/gateway-scope-provider.jsx";
-
 async function migrateCredit(req) {
   const res = await gatewayFetch("/api/v1/credit/migrate", {
     method: "POST",
@@ -59,7 +58,6 @@ async function migrateCredit(req) {
   });
   return await res.json();
 }
-
 function creditScopeMatchesCurrentDecision(scope) {
   const decision = evaluateAccountSubmission("personal_credit_mutation");
   if (!decision.allowed) return false;
@@ -70,7 +68,6 @@ function creditScopeMatchesCurrentDecision(scope) {
     accountScopeEquals(decision.scope, scope.accountScope)
   );
 }
-
 function useSubscriptionWalletQuery() {
   const { user, isLoggedIn, isLoading } = useAuth();
   const teamAccount = useOptionalTeamAccount();
@@ -118,7 +115,7 @@ function useSubscriptionWalletQuery() {
     },
     enabled,
     staleTime: 2e3,
-    gcTime: CREDIT_CACHE_GC_MS$1,
+    gcTime: CREDIT_CACHE_GC_MS,
     retry: false,
   });
   return enabled
@@ -132,7 +129,6 @@ function useSubscriptionWalletQuery() {
         subscriptionContext,
       };
 }
-
 export function useMpSubscriptionWalletQuery() {
   const query = useSubscriptionWalletQuery();
   const mpWallet = query.data?.wallets?.find(
@@ -143,14 +139,12 @@ export function useMpSubscriptionWalletQuery() {
     mpWallet,
   };
 }
-
 export function useMpWallet() {
   const { data: data2 } = useWalletQuery();
   return data2?.wallets?.find(
     (w3) => w3.source === WalletSource.WALLET_SOURCE_OP,
   );
 }
-
 export function useMpSubscribeUrl() {
   const { mpWallet, subscriptionContext } = useMpSubscriptionWalletQuery();
   return appendOpenPlatformTrackingParams(
@@ -159,7 +153,6 @@ export function useMpSubscribeUrl() {
     subscriptionContext,
   );
 }
-
 export function deriveMpCreditSummary(mpWallet) {
   if (!mpWallet) {
     return {
@@ -184,14 +177,12 @@ export function deriveMpCreditSummary(mpWallet) {
     hasBreakdown: true,
   };
 }
-
 export function useHailuoWallet() {
   const { data: data2 } = useWalletQuery();
   return data2?.wallets?.find(
     (w3) => w3.source === WalletSource.WALLET_SOURCE_HILO,
   );
 }
-
 export function useCanMigrate() {
   const { data: data2, isError, isRefetchError } = useWalletQuery();
   if (isError || isRefetchError) return false;
@@ -199,11 +190,9 @@ export function useCanMigrate() {
   const endTime = data2.migrate_end_time ?? 0;
   return endTime > 0 && Date.now() < endTime;
 }
-
 export function useHiloToMpRatio() {
   return 10;
 }
-
 export function useMigrateDeadline() {
   const { data: data2 } = useWalletQuery();
   const endTime = data2?.migrate_end_time ?? 0;
@@ -216,7 +205,6 @@ export function useMigrateDeadline() {
     date: `${yyyy}/${mm}/${dd2}`,
   };
 }
-
 export function useMigrateCredit() {
   const queryClient2 = useQueryClient();
   const { queryScope, canMutatePersonalCredit } = useCreditAccountState();
@@ -275,7 +263,6 @@ export function useMigrateCredit() {
     retry: false,
   });
 }
-
 export function ShellIcon({ size: size2 = 14, className }) {
   return (
     <svg
@@ -291,13 +278,12 @@ export function ShellIcon({ size: size2 = 14, className }) {
     </svg>
   );
 }
-
 export function SubscriptionRenewalBadge({ placement = "corner" }) {
   return (
     <span
       aria-hidden={true}
       data-slot="subscription-renewal-badge"
-      className={cn$2(
+      className={cn(
         "pointer-events-none rounded-full bg-destructive",
         placement === "inline"
           ? "size-1.5 shrink-0"
@@ -306,7 +292,6 @@ export function SubscriptionRenewalBadge({ placement = "corner" }) {
     />
   );
 }
-
 export function MpCreditRow({ onClick, showRenewalBadge = false }) {
   const { t: t2 } = useTranslation();
   const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
@@ -356,7 +341,7 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
             <span>{mpCredits.toLocaleString()}</span>
           </span>
         )}
-        <ChevronRight$1
+        <ChevronRight
           size={14}
           strokeWidth={1.5}
           className="text-muted-foreground"
@@ -365,7 +350,6 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
     </button>
   );
 }
-
 export function HailuoCreditRow({ onExchange }) {
   const { t: t2 } = useTranslation();
   const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
@@ -400,7 +384,7 @@ export function HailuoCreditRow({ onExchange }) {
         <TooltipProvider delay={200}>
           <Tooltip>
             <TooltipTrigger render={<span className="inline-flex" />}>
-              <Info$1
+              <Info
                 size={12}
                 className="shrink-0 cursor-help text-muted-foreground/60"
               />
@@ -440,17 +424,15 @@ export function HailuoCreditRow({ onExchange }) {
     </div>
   );
 }
-
 export function PopoverArrow({ className, ...props }) {
   return (
     <PopoverArrow$1
       data-slot="popover-arrow"
-      className={cn$2("fill-popover stroke-border", className)}
+      className={cn("fill-popover stroke-border", className)}
       {...props}
     />
   );
 }
-
 export function PopoverContent({
   className,
   align = "center",
@@ -474,11 +456,11 @@ export function PopoverContent({
         anchor={anchor}
         collisionAvoidance={collisionAvoidance}
         collisionPadding={collisionPadding}
-        className={cn$2("isolate z-50", positionerClassName)}
+        className={cn("isolate z-50", positionerClassName)}
       >
         <PopoverPopup
           data-slot="popover-content"
-          className={cn$2(
+          className={cn(
             "elevated-surface-border z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-xs text-popover-foreground shadow-lg outline-hidden",
             motion === "quick-zoom" && "dp-motion-quick-zoom",
             // Explicit compatibility exception for the hover-only canvas tag palette.
@@ -492,12 +474,11 @@ export function PopoverContent({
     </PopoverPortal>
   );
 }
-
 export function PopoverHeader({ className, ...props }) {
   return (
     <div
       data-slot="popover-header"
-      className={cn$2("flex flex-col gap-1 text-xs", className)}
+      className={cn("flex flex-col gap-1 text-xs", className)}
       {...props}
     />
   );

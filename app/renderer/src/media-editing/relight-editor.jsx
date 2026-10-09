@@ -10,19 +10,13 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { ToolSlider } from "./tool-slider.jsx";
-import { LeftPanel, SegmentedControl$1 } from "./segmented-control.jsx";
+import { LeftPanel, SegmentedControl } from "./segmented-control.jsx";
 import { Ban, useCanvasBridge } from "./package.jsx";
 import { presets } from "./presets.js";
-import {
-  CreditCostBadge,
-  Tooltip$1,
-} from "../generation/missing-asset-card.jsx";
+import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import { BACKEND_VIBE_RELIGHT } from "../generation/to-workspace-browser-url.js";
-
-const DEFAULT_COLOR_TEMP$1 = 6500;
-
+const DEFAULT_COLOR_TEMP = 6500;
 const MAX_LIGHTS = 1;
-
 const LIGHT_TYPE_OPTIONS = [
   {
     value: "spotlight",
@@ -37,33 +31,25 @@ const LIGHT_TYPE_OPTIONS = [
     labelKey: "light_type_skylight",
   },
 ];
-
 const AZIMUTH_RANGE = {
   min: -180,
   max: 180,
 };
-
 const ELEVATION_RANGE = {
   min: -90,
   max: 90,
 };
-
 const ANGLE_STEP = 5;
-
 const POWER_RANGE = {
   min: 10,
   max: 100,
 };
-
 const POWER_STEP = 10;
-
 const COLOR_TEMP_RANGE = {
   min: 1e3,
   max: 1e4,
 };
-
 const COLOR_TEMP_STEP = 100;
-
 const BACKGROUND_OPTIONS = [
   {
     value: "default",
@@ -78,11 +64,8 @@ const BACKGROUND_OPTIONS = [
     labelKey: "background_white",
   },
 ];
-
 const NO_EFFECT_ID = "default";
-
 const DEFAULT_LIGHT_COLOR = "#ffdf99";
-
 const DEFAULT_LIGHTS = [
   {
     id: "light1",
@@ -92,17 +75,14 @@ const DEFAULT_LIGHTS = [
     verticalAngle: 90,
     colorMode: "kelvin",
     color: DEFAULT_LIGHT_COLOR,
-    colorTemp: DEFAULT_COLOR_TEMP$1,
+    colorTemp: DEFAULT_COLOR_TEMP,
   },
 ];
-
 const LIGHT_INPUT_IDS = ["light1", "light2", "light3"];
-
 function normalizeEffectType(raw2) {
   if (!raw2) return "default";
   return raw2.trim();
 }
-
 function parsePresetPrompt(rawPrompt) {
   let inputs;
   try {
@@ -135,8 +115,8 @@ function parsePresetPrompt(rawPrompt) {
         intensity: Math.round(parseFloat(raw2.lightness || "1") * 10),
         color: raw2.color || "#ffffff",
         colorTemp: hasKelvin
-          ? Number.parseInt(raw2.kelvin ?? "", 10) || DEFAULT_COLOR_TEMP$1
-          : DEFAULT_COLOR_TEMP$1,
+          ? Number.parseInt(raw2.kelvin ?? "", 10) || DEFAULT_COLOR_TEMP
+          : DEFAULT_COLOR_TEMP,
         colorMode: hasKelvin ? "kelvin" : "hex",
       });
     } catch {}
@@ -147,7 +127,6 @@ function parsePresetPrompt(rawPrompt) {
     effectType,
   };
 }
-
 const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
   return (
     <button
@@ -169,7 +148,6 @@ const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
     </button>
   );
 };
-
 const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive: isActive2 }) => {
   const videoRef = reactExports.useRef(null);
   const [hovered, setHovered] = reactExports.useState(false);
@@ -212,7 +190,6 @@ const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive: isActive2 }) => {
     </div>
   );
 };
-
 const CATEGORY_TABS = [
   {
     key: "all",
@@ -227,7 +204,6 @@ const CATEGORY_TABS = [
     labelKey: "preset_tab_product",
   },
 ];
-
 const NO_EFFECT_PRESET = {
   id: NO_EFFECT_ID,
   title: "原图",
@@ -243,7 +219,6 @@ const NO_EFFECT_PRESET = {
   },
   effectType: "default",
 };
-
 const PresetsPanel = ({
   translate: translate2,
   selectedPresetId,
@@ -331,7 +306,6 @@ const PresetsPanel = ({
     </div>
   );
 };
-
 const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
   const options = BACKGROUND_OPTIONS.map(({ value, labelKey }) => ({
     value,
@@ -342,7 +316,7 @@ const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
       <span className="text-hl_text_02 text-[13px] font-medium leading-5">
         {translate2("background_label")}
       </span>
-      <SegmentedControl$1
+      <SegmentedControl
         options={options}
         value={studioMode}
         dataActionUiIdPrefix="canvas.relight.background"
@@ -351,7 +325,6 @@ const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
     </div>
   );
 };
-
 const ColorSection = ({
   translate: translate2,
   colorMode,
@@ -375,7 +348,7 @@ const ColorSection = ({
       min={COLOR_TEMP_RANGE.min}
       max={COLOR_TEMP_RANGE.max}
       step={COLOR_TEMP_STEP}
-      markerValue={DEFAULT_COLOR_TEMP$1}
+      markerValue={DEFAULT_COLOR_TEMP}
       thumbSize={18}
       trackAppearance="temperature"
       formatValue={(kelvin) => `${kelvin}K`}
@@ -383,11 +356,8 @@ const ColorSection = ({
     />
   );
 };
-
 const formatDegree = (v2) => `${roundAngle(v2)}°`;
-
 const formatIntensity = (v2) => String(v2);
-
 const LightingPanel = ({
   translate: translate2,
   lights,
@@ -481,7 +451,7 @@ const LightingPanel = ({
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
           {translate2("light_type_label")}
         </span>
-        <SegmentedControl$1
+        <SegmentedControl
           options={lightTypeOpts}
           value={activeLight.type}
           dataActionUiIdPrefix="canvas.relight.light-type"
@@ -495,7 +465,6 @@ const LightingPanel = ({
     </div>
   );
 };
-
 const RelightControlsPanel = ({
   translate: translate2,
   state: state2,
@@ -528,7 +497,6 @@ const RelightControlsPanel = ({
     </div>
   );
 };
-
 const StudioPreview = (props) => {
   return (
     <section className="flex size-full items-center justify-center">
@@ -556,8 +524,7 @@ const StudioPreview = (props) => {
     </section>
   );
 };
-
-const messages$1 = {
+const messages = {
   en: {
     // 工具标题 / 引导
     tool_title: "Lighting Studio",
@@ -668,8 +635,7 @@ const messages$1 = {
     error_generic: "出错了，请重试",
   },
 };
-
-const INITIAL_STATE$1 = {
+const INITIAL_STATE = {
   lights: DEFAULT_LIGHTS,
   activeLightId: DEFAULT_LIGHTS[0].id,
   studioMode: "default",
@@ -679,7 +645,6 @@ const INITIAL_STATE$1 = {
   selectedPresetId: null,
   imageInfo: null,
 };
-
 const NEW_LIGHT_PRESET_ANGLES = [
   {
     h: 0,
@@ -697,7 +662,6 @@ const NEW_LIGHT_PRESET_ANGLES = [
   },
   // 第 3 盏:左上
 ];
-
 function makeNewLight(id2, slotIndex) {
   const preset2 =
     NEW_LIGHT_PRESET_ANGLES[slotIndex] ?? NEW_LIGHT_PRESET_ANGLES[0];
@@ -709,12 +673,10 @@ function makeNewLight(id2, slotIndex) {
     verticalAngle: preset2.v,
     colorMode: "kelvin",
     color: "#ffffff",
-    colorTemp: DEFAULT_COLOR_TEMP$1,
+    colorTemp: DEFAULT_COLOR_TEMP,
   };
 }
-
 let nextLightId = 2;
-
 function relightReducer(state2, action) {
   switch (action.type) {
     case "SET_PANEL_MODE":
@@ -844,9 +806,7 @@ function relightReducer(state2, action) {
       return state2;
   }
 }
-
 const MAX_RELIGHT_LIGHTS = 1;
-
 function toLightRawJson(light) {
   const raw2 = {
     lightType: light.type,
@@ -861,7 +821,6 @@ function toLightRawJson(light) {
   }
   return JSON.stringify(raw2);
 }
-
 function buildRelightControlParams(args) {
   const limited = args.lights.slice(0, MAX_RELIGHT_LIGHTS);
   const serializeAt = (index2) => {
@@ -876,20 +835,14 @@ function buildRelightControlParams(args) {
     effect: args.effectType?.trim() || "default",
   };
 }
-
 const MAX_EDGE = 1024;
-
 const REFERENCE_FALLBACK_INPUT_SIZE = {
   width: MAX_EDGE,
   height: 512,
 };
-
 const CAMERA_Z = 5.6;
-
 const TAN_HALF_FOV = Math.tan((21 * Math.PI) / 180);
-
 const LIGHT_DISTANCE = 4;
-
 function getReferenceSize(userImageWidth, userImageHeight) {
   if (
     !Number.isFinite(userImageWidth) ||
@@ -917,11 +870,9 @@ function getReferenceSize(userImageWidth, userImageHeight) {
         height: MAX_EDGE,
       };
 }
-
 function toLinear(value) {
   return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 }
-
 function toSRGB(value) {
   const clamped = Math.max(0, Math.min(1, value));
   return Math.round(
@@ -931,7 +882,6 @@ function toSRGB(value) {
         : 1.055 * clamped ** (1 / 2.4) - 0.055),
   );
 }
-
 function colorRGB(hex2) {
   const expanded = /^#[0-9a-f]{3}$/i.test(hex2)
     ? `#${hex2[1]}${hex2[1]}${hex2[2]}${hex2[2]}${hex2[3]}${hex2[3]}`
@@ -945,7 +895,6 @@ function colorRGB(hex2) {
     toLinear((value & 255) / 255),
   ];
 }
-
 const STUDIOS = {
   default: {
     ambient: 0.4,
@@ -963,9 +912,7 @@ const STUDIOS = {
     ground: colorRGB("#eceef3"),
   },
 };
-
 const finite = (value, fallback) => (Number.isFinite(value) ? value : fallback);
-
 function prepareLight(light) {
   const az = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
   const el = (finite(light.verticalAngle, 0) * Math.PI) / 180;
@@ -990,7 +937,6 @@ function prepareLight(light) {
     innerCone: Math.cos(angle * (1 - (soft ? 0.75 : 0.22))),
   };
 }
-
 function renderRelightPixels(params) {
   const { width, height } = getReferenceSize(
     params.userImageWidth,
@@ -1135,7 +1081,6 @@ function renderRelightPixels(params) {
     data: data2,
   };
 }
-
 function renderInWorker(params) {
   return new Promise((resolve, reject) => {
     const worker = new Worker(
@@ -1184,7 +1129,6 @@ function renderInWorker(params) {
     }
   });
 }
-
 async function renderOnMainThread(params) {
   await new Promise((resolve) => setTimeout(resolve, 0));
   const { width, height, data: data2 } = renderRelightPixels(params);
@@ -1203,7 +1147,6 @@ async function renderOnMainThread(params) {
     canvas.height = 0;
   }
 }
-
 async function renderRelightReference(params) {
   try {
     if (
@@ -1226,17 +1169,13 @@ async function renderRelightReference(params) {
     return null;
   }
 }
-
 const RELIGHT_GENERATE_COUNT = 1;
-
 const RELIGHT_CREDIT_COST = 60;
-
 function readableError(error, serviceErrorMessage) {
   const raw2 = error instanceof Error ? error.message : String(error);
   if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) return serviceErrorMessage;
   return raw2.length > 240 ? `${raw2.slice(0, 240)}…` : raw2;
 }
-
 function loadImageDimensions(url2) {
   return new Promise((resolve) => {
     const image2 = new Image();
@@ -1253,7 +1192,6 @@ function loadImageDimensions(url2) {
     image2.src = url2;
   });
 }
-
 export function RelightEditor({
   nodeId,
   imageUrl,
@@ -1266,13 +1204,13 @@ export function RelightEditor({
   const translate2 = reactExports.useMemo(
     () => (key2) => {
       const locale = i18n.resolvedLanguage?.startsWith("zh") ? "zh" : "en";
-      return messages$1[locale][key2] ?? key2;
+      return messages[locale][key2] ?? key2;
     },
     [i18n.resolvedLanguage],
   );
   const { pickAsset, submitImg2Image, uploadFileToCdn } = useCanvasBridge();
   const [state2, dispatch2] = reactExports.useReducer(relightReducer, {
-    ...INITIAL_STATE$1,
+    ...INITIAL_STATE,
     imageInfo: imageUrl
       ? {
           url: imageUrl,
@@ -1502,14 +1440,14 @@ export function RelightEditor({
           rightFooter={
             <div className="flex shrink-0 items-center justify-end gap-2 bg-hl_bg_01 px-4 py-2">
               {!isSubmitting && (
-                <Tooltip$1 content={estimatedCostLabel} side="top">
+                <Tooltip content={estimatedCostLabel} side="top">
                   <span
                     className="inline-flex h-8 shrink-0 items-center rounded-md px-2 transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
                     data-action-ui-id="popover.credit-cost"
                   >
                     <CreditCostBadge cost={totalCreditCost} compact={true} />
                   </span>
-                </Tooltip$1>
+                </Tooltip>
               )}
               <button
                 type="button"

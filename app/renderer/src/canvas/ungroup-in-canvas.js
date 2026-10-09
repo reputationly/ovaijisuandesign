@@ -1,7 +1,6 @@
 // ungroup-in-canvas.js
 import { CanvasNodeType } from "../vendor.js";
 import { withParentId } from "./compute-group-bounds-from-children.js";
-
 export function ungroupInCanvas(canvas, groupId2) {
   const mode2 = canvas.mode;
   const groupNode = canvas.nodes.find((n2) => n2.id === groupId2);
@@ -77,11 +76,9 @@ export function ungroupInCanvas(canvas, groupId2) {
     removed: true,
   };
 }
-
 export function isGroupedNode(node2) {
   return typeof node2.groupId === "string" && node2.groupId.length > 0;
 }
-
 export function collectGroupMembers(nodes, groupId2) {
   const members = [];
   for (let i2 = 0; i2 < nodes.length; i2 += 1) {
@@ -103,19 +100,16 @@ export function collectGroupMembers(nodes, groupId2) {
   });
   return members.map((x2) => x2.node);
 }
-
 export function resolveMainNode(members) {
   if (members.length === 0) return void 0;
   return members.find((m3) => m3.meta?.hidden !== true) ?? members[0];
 }
-
 export function resolveGroupMainId(nodes, nodeId) {
   const node2 = nodes.find((n2) => n2.id === nodeId);
   if (!node2 || !isGroupedNode(node2)) return nodeId;
   const main2 = resolveMainNode(collectGroupMembers(nodes, node2.groupId));
   return main2?.id ?? nodeId;
 }
-
 export function pickSuccessorMain(remaining, removedSortedIndex) {
   if (remaining.length === 0) return void 0;
   const sorted = remaining
@@ -137,7 +131,6 @@ export function pickSuccessorMain(remaining, removedSortedIndex) {
   const idx = Math.max(0, removedSortedIndex);
   return (sorted[idx] ?? sorted[sorted.length - 1])?.id;
 }
-
 export function removeGroup(nodes, groupId2) {
   const removed = new Set();
   for (const n2 of nodes) if (n2.groupId === groupId2) removed.add(n2.id);
@@ -154,7 +147,6 @@ export function removeGroup(nodes, groupId2) {
     updatedIds: [],
   };
 }
-
 export function imageNodeAssetId(node2) {
   if (typeof node2.assetId === "string" && node2.assetId.length > 0)
     return node2.assetId;
@@ -162,7 +154,6 @@ export function imageNodeAssetId(node2) {
   if (typeof da === "string" && da.length > 0) return da;
   return node2.id;
 }
-
 export function mirrorAssetIdIntoData(node2) {
   const assetId = imageNodeAssetId(node2);
   if (!assetId || assetId === node2.id) return node2;
@@ -176,7 +167,6 @@ export function mirrorAssetIdIntoData(node2) {
     },
   };
 }
-
 export function promoteToMain(nodes, nodeId) {
   const target = nodes.find((n2) => n2.id === nodeId);
   if (!target || !isGroupedNode(target)) {
@@ -245,14 +235,10 @@ export function promoteToMain(nodes, nodeId) {
     },
   };
 }
-
 export const DEFAULT_WORKFLOW_NODE_SPACING = 100;
-
 export const DEFAULT_PLACEMENT_GAP = DEFAULT_WORKFLOW_NODE_SPACING;
-
 export const DEFAULT_WORKFLOW_LAYER_SPACING = 100;
-
-export function rectsOverlap$1(a2, b3, margin = 0) {
+export function rectsOverlap(a2, b3, margin = 0) {
   return (
     a2.x < b3.x + b3.w + margin &&
     a2.x + a2.w + margin > b3.x &&

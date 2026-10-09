@@ -12,7 +12,7 @@ import {
   reactDomExports,
   reactExports,
   Save,
-  Tag$1,
+  Tag$1 as Tag,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -32,11 +32,9 @@ import { Trash2 } from "../media-editing/package.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { GroupIcon, UngroupIcon } from "../canvas/file-missing-icon.jsx";
 import { LocalFolderIcon, PencilIcon } from "../workspace/home-service.jsx";
-
 function NodeContextMenuIcon({ icon, viewBoxSize = 24 }) {
   return <StrokeIcon icon={icon} size={16} viewBoxSize={viewBoxSize} />;
 }
-
 function TagMenuItem({ assets }) {
   const { t: t2 } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
@@ -49,7 +47,7 @@ function TagMenuItem({ assets }) {
       aria-controls={panelId}
       data-action-ui-id="canvas.node-tag-submenu"
     >
-      <NodeContextMenuIcon icon={Tag$1} />
+      <NodeContextMenuIcon icon={Tag} />
       <span className="flex-1 text-left">{label}</span>
       {assets.length > 1 ? (
         <span className="text-xs text-muted-foreground">{assets.length}</span>
@@ -79,15 +77,12 @@ function TagMenuItem({ assets }) {
     </Popover>
   );
 }
-
-const ESTIMATED_MENU_SIZE$1 = {
+const ESTIMATED_MENU_SIZE = {
   width: 192,
   height: 440,
 };
-
 const SHOW_CANCEL_GENERATION_IN_CONTEXT_MENU = false;
-
-function MenuButton$1({ icon, label, onClick, testId, destructive }) {
+function MenuButton({ icon, label, onClick, testId, destructive }) {
   return (
     <ActionListItem
       data-action-ui-id={testId}
@@ -106,7 +101,6 @@ function MenuButton$1({ icon, label, onClick, testId, destructive }) {
     </ActionListItem>
   );
 }
-
 export function NodeContextMenu({
   position: position2,
   targets,
@@ -128,7 +122,7 @@ export function NodeContextMenu({
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
     resolveNodeContextMenuPosition({
       anchor: position2,
-      menuSize: ESTIMATED_MENU_SIZE$1,
+      menuSize: ESTIMATED_MENU_SIZE,
       viewportSize:
         typeof window === "undefined"
           ? {
@@ -154,7 +148,7 @@ export function NodeContextMenu({
             width: menu2.offsetWidth,
             height: menu2.offsetHeight,
           }
-        : ESTIMATED_MENU_SIZE$1,
+        : ESTIMATED_MENU_SIZE,
       viewportSize: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -317,7 +311,7 @@ export function NodeContextMenu({
       }}
     >
       {showAddToChat && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-add-to-chat"
           icon={<NodeContextMenuIcon icon={AddToChatIcon} viewBoxSize={20} />}
           label={t2("canvas.addToChat")}
@@ -326,13 +320,13 @@ export function NodeContextMenu({
       )}
       {showOsClipboardActions && (
         <>
-          <MenuButton$1
+          <MenuButton
             testId="canvas-copy-from-menu"
             icon={<NodeContextMenuIcon icon={Copy} />}
             label={t2("common.copy")}
             onClick={handleCopy}
           />
-          <MenuButton$1
+          <MenuButton
             icon={<NodeContextMenuIcon icon={Save} />}
             label={t2("common.saveAs")}
             onClick={handleSaveAs}
@@ -340,7 +334,7 @@ export function NodeContextMenu({
         </>
       )}
       {showRename && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-rename-from-menu"
           icon={<NodeContextMenuIcon icon={PencilIcon} />}
           label={t2("common.rename")}
@@ -350,14 +344,14 @@ export function NodeContextMenu({
       {tagAssets && tagAssets.length > 0 && <TagMenuItem assets={tagAssets} />}
       {(showAddToChat || showOsClipboardActions || showRename) &&
         showCopyCanvas && <ActionListSeparator />}
-      <MenuButton$1
+      <MenuButton
         testId="canvas-copy-canvas"
         icon={<NodeContextMenuIcon icon={CopyPlus} />}
         label={t2("canvas.copyCanvasNode")}
         onClick={handleCopyCanvas}
       />
       {showGroup && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-group-from-menu"
           icon={<GroupIcon size={16} />}
           label={t2("canvas.group")}
@@ -365,7 +359,7 @@ export function NodeContextMenu({
         />
       )}
       {showUngroup && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-ungroup-from-menu"
           icon={<UngroupIcon size={16} />}
           label={t2("canvas.ungroup")}
@@ -373,7 +367,7 @@ export function NodeContextMenu({
         />
       )}
       {showPromoteToAsset && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-promote-to-asset-from-menu"
           icon={<NodeContextMenuIcon icon={Library} />}
           label={t2("canvas.addToLibrary")}
@@ -381,7 +375,7 @@ export function NodeContextMenu({
         />
       )}
       {showSaveToProjectAssets && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-save-to-project-assets-from-menu"
           icon={<NodeContextMenuIcon icon={FolderInput} />}
           label={t2("canvas.saveToProjectAssets")}
@@ -391,7 +385,7 @@ export function NodeContextMenu({
       {showShowInFolder && (
         <>
           <ActionListSeparator />
-          <MenuButton$1
+          <MenuButton
             icon={<LocalFolderIcon className="size-4" />}
             label={<PlatformFileManagerLabel />}
             onClick={handleShowInFolder}
@@ -401,7 +395,7 @@ export function NodeContextMenu({
       {showDelete && <ActionListSeparator />}
       {showCancelGeneration}
       {showDelete && (
-        <MenuButton$1
+        <MenuButton
           testId="canvas-delete-from-menu"
           destructive={true}
           icon={<NodeContextMenuIcon icon={Trash2} />}

@@ -28,7 +28,7 @@ import {
 } from "../assets/list-all-cloud-folders.js";
 import { useWorkspaceProject } from "./normalize-project-entries.js";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -40,7 +40,6 @@ import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { createCloudFolder } from "../assets/read-entity-drag-data.js";
 import { FolderDrillDownPicker } from "../assets/folder-drill-down-picker.jsx";
-
 function preserveExtension(customName, sourceName) {
   const trimmed = customName.trim();
   if (!trimmed) return trimmed;
@@ -48,7 +47,6 @@ function preserveExtension(customName, sourceName) {
   if (!sourceExt || cloudAssetExtension(trimmed) === sourceExt) return trimmed;
   return `${trimmed}.${sourceExt}`;
 }
-
 export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const workspacePath = useCurrentWorkspace();
@@ -441,7 +439,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
                   loading={loadingFolders}
                   actionUiId="canvas.save-to-project-assets-location"
                 />
-                <Button$1
+                <Button
                   variant="outline"
                   size="icon-sm"
                   aria-label={t2("localAssets.newFolder")}
@@ -451,7 +449,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
                   data-action-ui-id="canvas.save-to-project-assets-new-folder"
                 >
                   <FolderPlus size={14} strokeWidth={1.5} />
-                </Button$1>
+                </Button>
               </div>
               {creatingFolder && selectedWritePolicy.canCreateFolder ? (
                 <div className="mt-1 flex items-center gap-1.5">
@@ -466,27 +464,27 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
                       void handleCreateFolder();
                     }}
                   />
-                  <Button$1
+                  <Button
                     size="sm"
                     disabled={!newFolderName.trim()}
                     onClick={() => void handleCreateFolder()}
                   >
                     {t2("common.confirm")}
-                  </Button$1>
+                  </Button>
                 </div>
               ) : null}
             </div>
           </div>
         )}
         <DialogFooter>
-          <Button$1
+          <Button
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
           >
             {t2("common.cancel")}
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             size="sm"
             disabled={
               !project2 ||
@@ -507,7 +505,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
               />
             ) : null}
             {t2("localAssets.save")}
-          </Button$1>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -3,7 +3,6 @@ import { CompositedSvg, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CameraModel3D } from "./camera-model3-d.jsx";
 import { CANVAS_SIZE } from "./plane-quad.jsx";
-
 const ToolUploadIcon = ({ className = "" }) => (
   <CompositedSvg
     aria-hidden="true"
@@ -34,27 +33,16 @@ const ToolUploadIcon = ({ className = "" }) => (
     />
   </CompositedSvg>
 );
-
-const RADIUS$1 = 88;
-
-const MERIDIANS$1 = 6;
-
-const PARALLELS$1 = 4;
-
+const RADIUS = 88;
+const MERIDIANS = 6;
+const PARALLELS = 4;
 const PHOTO_SIZE_MIN = 44;
-
 const PHOTO_SIZE_MEDIUM = 56;
-
 const PHOTO_SIZE_MAX = 68;
-
 const UPLOAD_BTN_SIZE = 56;
-
 const MARKER_SIZE = 32;
-
 const CAMERA_GRID_FOLLOW = 0.2;
-
-const DEG$1 = Math.PI / 180;
-
+const DEG = Math.PI / 180;
 function getPhotoSize(zoom2) {
   const clampedZoom = Math.max(0, Math.min(10, zoom2));
   if (clampedZoom <= 5) {
@@ -67,7 +55,6 @@ function getPhotoSize(zoom2) {
     (PHOTO_SIZE_MAX - PHOTO_SIZE_MEDIUM) * ((clampedZoom - 5) / 5)
   );
 }
-
 function CenterImage({ imageUrl, size: size2 }) {
   const [loadedUrl, setLoadedUrl] = reactExports.useState(null);
   const imgRef = reactExports.useRef(null);
@@ -102,7 +89,6 @@ function CenterImage({ imageUrl, size: size2 }) {
     </div>
   );
 }
-
 function project(lx, ly, lz, yaw, pitch, cx2, cy, r2) {
   const cP = Math.cos(pitch);
   const sP = Math.sin(pitch);
@@ -118,7 +104,6 @@ function project(lx, ly, lz, yaw, pitch, cx2, cy, r2) {
     z: z22,
   };
 }
-
 function strokeWithDepth(ctx, pts, frontAlpha, backAlpha) {
   const flush2 = (start2, end2, isFront) => {
     if (end2 - start2 < 2) return;
@@ -141,17 +126,15 @@ function strokeWithDepth(ctx, pts, frontAlpha, backAlpha) {
   flush2(runStart, pts.length, runFront);
   ctx.globalAlpha = 1;
 }
-
 function cameraScreenPos(h2, v2, cx2, cy, r2) {
-  const hr = h2 * DEG$1;
-  const vr = v2 * DEG$1;
+  const hr = h2 * DEG;
+  const vr = v2 * DEG;
   return {
     x: cx2 + r2 * Math.cos(vr) * Math.sin(hr),
     y: cy - r2 * Math.sin(vr),
     z: Math.cos(vr) * Math.cos(hr),
   };
 }
-
 export function CameraBall({
   camera,
   imageUrl,
@@ -202,13 +185,13 @@ export function CameraBall({
       "rgba(192,192,208,0.8)";
     const rayColor =
       rootStyle.getPropertyValue("--hl_text_02").trim() || "rgba(20,22,31,0.7)";
-    const yaw = ballYaw * DEG$1;
-    const pitch = ballPitch * DEG$1;
+    const yaw = ballYaw * DEG;
+    const pitch = ballPitch * DEG;
     const STEPS = 64;
     ctx.lineWidth = 0.8;
     ctx.strokeStyle = wireColor;
-    for (let i2 = 0; i2 < MERIDIANS$1; i2++) {
-      const phase = (i2 / MERIDIANS$1) * Math.PI;
+    for (let i2 = 0; i2 < MERIDIANS; i2++) {
+      const phase = (i2 / MERIDIANS) * Math.PI;
       const sPh = Math.sin(phase);
       const cPh = Math.cos(phase);
       const pts = [];
@@ -216,15 +199,13 @@ export function CameraBall({
         const theta = -Math.PI + (s2 / STEPS) * 2 * Math.PI;
         const cT = Math.cos(theta);
         const sT = Math.sin(theta);
-        pts.push(
-          project(sPh * cT, sT, cPh * cT, yaw, pitch, cx2, cy, RADIUS$1),
-        );
+        pts.push(project(sPh * cT, sT, cPh * cT, yaw, pitch, cx2, cy, RADIUS));
       }
       strokeWithDepth(ctx, pts, 0.72, 0.28);
     }
-    for (let i2 = 1; i2 <= PARALLELS$1; i2++) {
+    for (let i2 = 1; i2 <= PARALLELS; i2++) {
       for (const sign of [1, -1]) {
-        const lat = sign * (i2 / (PARALLELS$1 + 1)) * (Math.PI / 2);
+        const lat = sign * (i2 / (PARALLELS + 1)) * (Math.PI / 2);
         const sL = Math.sin(lat);
         const cL = Math.cos(lat);
         const pts = [];
@@ -239,7 +220,7 @@ export function CameraBall({
               pitch,
               cx2,
               cy,
-              RADIUS$1,
+              RADIUS,
             ),
           );
         }
@@ -252,16 +233,7 @@ export function CameraBall({
       for (let s2 = 0; s2 <= STEPS; s2++) {
         const lon = (s2 / STEPS) * 2 * Math.PI;
         pts.push(
-          project(
-            Math.sin(lon),
-            0,
-            Math.cos(lon),
-            yaw,
-            pitch,
-            cx2,
-            cy,
-            RADIUS$1,
-          ),
+          project(Math.sin(lon), 0, Math.cos(lon), yaw, pitch, cx2, cy, RADIUS),
         );
       }
       strokeWithDepth(ctx, pts, 0.6, 0.22);
@@ -271,7 +243,7 @@ export function CameraBall({
       camera.verticalAngle,
       cx2,
       cy,
-      RADIUS$1,
+      RADIUS,
     );
     if (pos.z < 0) {
       ctx.strokeStyle = rayColor;
@@ -290,8 +262,8 @@ export function CameraBall({
       if (!drag2 || disabled2) return;
       const dx = e2.clientX - drag2.x;
       const dy = e2.clientY - drag2.y;
-      const dh = (dx / (Math.PI * RADIUS$1)) * 180;
-      const dv = (-dy / (Math.PI * RADIUS$1)) * 180;
+      const dh = (dx / (Math.PI * RADIUS)) * 180;
+      const dv = (-dy / (Math.PI * RADIUS)) * 180;
       if (Math.abs(dh) < 0.5 && Math.abs(dv) < 0.5) return;
       drag2.x = e2.clientX;
       drag2.y = e2.clientY;
@@ -334,7 +306,7 @@ export function CameraBall({
     camera.verticalAngle,
     cx2,
     cy,
-    RADIUS$1,
+    RADIUS,
   );
   return (
     <div

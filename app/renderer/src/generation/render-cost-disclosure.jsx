@@ -1,20 +1,17 @@
 // render-cost-disclosure.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  Info$1,
+  Info$1 as Info,
   PreviewCardPopup,
   PreviewCardPortal,
   PreviewCardPositioner,
   PreviewCardRoot,
-  PreviewCardTrigger$1,
+  PreviewCardTrigger$1 as PreviewCardTrigger,
 } from "../vendor.js";
-import { TokenIcon$1 } from "./expand-arrow-icon.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-
+import { TokenIcon } from "./expand-arrow-icon.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 const FULL_EMPHASIS_PATTERN = /^\*\*(.+)\*\*$/;
-
 const INLINE_EMPHASIS_PATTERN = /\*\*(.+?)\*\*/g;
-
 function splitBillingTooltipDetail(line) {
   const chineseColonIndex = line.indexOf("：");
   const asciiColonIndex = line.indexOf(":");
@@ -37,7 +34,6 @@ function splitBillingTooltipDetail(line) {
     description,
   };
 }
-
 function splitCompoundBillingDetails(line) {
   const segments = line
     .split(/[；;]/)
@@ -62,7 +58,6 @@ function splitCompoundBillingDetails(line) {
   });
   return details.every((detail) => detail != null) ? details : void 0;
 }
-
 function renderBillingText(text2) {
   const nodes = [];
   let cursor = 0;
@@ -82,7 +77,6 @@ function renderBillingText(text2) {
   if (cursor < text2.length) nodes.push(text2.slice(cursor));
   return nodes.length > 0 ? nodes : text2;
 }
-
 function expandBillingTableLine(line) {
   if (line.endsWith("：") || line.endsWith(":")) {
     return [
@@ -109,7 +103,6 @@ function expandBillingTableLine(line) {
     },
   ];
 }
-
 function renderBillingDetailRows(rows) {
   return rows.map((row) =>
     row.kind === "section" ? (
@@ -141,7 +134,6 @@ function renderBillingDetailRows(rows) {
     ),
   );
 }
-
 function parseBillingTooltip(content2) {
   const [headingLine, ...detailLines] = content2
     .split(/\r?\n/)
@@ -156,9 +148,7 @@ function parseBillingTooltip(content2) {
     summaryLine,
   };
 }
-
 const BILLING_ESTIMATE_PATTERN = /^\*\*(.+?)[（(]\*\*(.+)[）)]$/;
-
 function parseBillingEstimateCopy(summaryLine, fallbackTitle) {
   const match2 = summaryLine?.match(BILLING_ESTIMATE_PATTERN);
   if (match2) {
@@ -172,7 +162,6 @@ function parseBillingEstimateCopy(summaryLine, fallbackTitle) {
     title: summaryTitle || fallbackTitle || "",
   };
 }
-
 function BillingTooltipContent({
   content: content2,
   details,
@@ -244,7 +233,6 @@ function BillingTooltipContent({
     </div>
   );
 }
-
 export function renderCostDisclosure({
   billingTooltip,
   billingDetails,
@@ -278,14 +266,14 @@ export function renderCostDisclosure({
   if (!content2 && !billingDetails) {
     return (
       <span className="mr-1 inline-flex shrink-0 items-center">
-        <Tooltip$1 content={estimatedCostLabel}>{priceTrigger}</Tooltip$1>
+        <Tooltip content={estimatedCostLabel}>{priceTrigger}</Tooltip>
       </span>
     );
   }
   return (
     <span className="mr-1 inline-flex shrink-0 items-center">
       <PreviewCardRoot>
-        <PreviewCardTrigger$1
+        <PreviewCardTrigger
           delay={180}
           closeDelay={220}
           render={priceTrigger}
@@ -305,7 +293,7 @@ export function renderCostDisclosure({
             >
               <div className="block max-w-[256px] rounded-[12px] px-2.5 py-2 text-left">
                 <PreviewCardRoot>
-                  <PreviewCardTrigger$1
+                  <PreviewCardTrigger
                     delay={220}
                     closeDelay={240}
                     render={
@@ -321,7 +309,7 @@ export function renderCostDisclosure({
                       className="shrink-0 text-popover-foreground/70"
                       aria-hidden="true"
                     >
-                      <TokenIcon$1 />
+                      <TokenIcon />
                     </span>
                     <span
                       className="min-w-0 flex-1 whitespace-nowrap text-[13px] font-medium leading-5 text-popover-foreground"
@@ -329,12 +317,12 @@ export function renderCostDisclosure({
                     >
                       {estimateCopy.title}
                     </span>
-                    <Info$1
+                    <Info
                       className="size-3.5 shrink-0 text-popover-foreground/70"
                       strokeWidth={1.5}
                       aria-hidden="true"
                     />
-                  </PreviewCardTrigger$1>
+                  </PreviewCardTrigger>
                   <PreviewCardPortal>
                     <PreviewCardPositioner
                       align="start"

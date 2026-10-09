@@ -12,11 +12,11 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   creditQueryKeys,
-  Select$1,
+  Select,
   useTeamAccount,
 } from "../assets/credit-query-keys.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import {
   Input3,
   SelectContent,
@@ -34,11 +34,8 @@ import { Label } from "./use-wallet-query.jsx";
 import { Alert, AlertDescription } from "./alert-variants.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { useTeamContextsQuery } from "./use-team-transactions-feed-query.jsx";
-
 const INTEGER_RE = /^\d+$/;
-
 const MAX_SAFE_TRANSFER_CREDIT = BigInt(Number.MAX_SAFE_INTEGER);
-
 function validateTransferAmount(raw2, teamRemaining) {
   const value = raw2.trim();
   if (value.length === 0) return "empty";
@@ -58,23 +55,19 @@ function validateTransferAmount(raw2, teamRemaining) {
   if (amount > MAX_SAFE_TRANSFER_CREDIT) return "exceeds_safe_integer";
   return null;
 }
-
 class TeamScopeChangedError3 extends Error {}
-
 class TeamCreditTransferResultUnknownError extends Error {
   constructor(intent) {
     super("team_credit_transfer_result_unknown");
     this.intent = intent;
   }
 }
-
 class TeamCreditTransferRejectedError extends Error {
   constructor(code2) {
     super(code2);
     this.code = code2;
   }
 }
-
 export function TransferCreditForm({
   active: active2,
   scope,
@@ -263,7 +256,7 @@ export function TransferCreditForm({
             defaultValue: "转入账号",
           })}
         </Label>
-        <Select$1
+        <Select
           value={targetGroupId}
           onValueChange={(value) => {
             setTargetGroupId(value ?? "");
@@ -306,7 +299,7 @@ export function TransferCreditForm({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select$1>
+        </Select>
         {targetsUnavailable ? (
           <p className="text-xs text-muted-foreground">
             {t2("team.transferCredit.noTarget", {
@@ -372,7 +365,7 @@ export function TransferCreditForm({
       ) : null}
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         {onCancel ? (
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             disabled={mutation.isPending}
@@ -381,9 +374,9 @@ export function TransferCreditForm({
             {t2("common.cancel", {
               defaultValue: "取消",
             })}
-          </Button$1>
+          </Button>
         ) : null}
-        <Button$1
+        <Button
           type="button"
           loading={mutation.isPending}
           disabled={!canSubmit}
@@ -397,7 +390,7 @@ export function TransferCreditForm({
             t2("team.transferCredit.confirm", {
               defaultValue: "确认转移",
             })}
-        </Button$1>
+        </Button>
       </div>
     </div>
   );

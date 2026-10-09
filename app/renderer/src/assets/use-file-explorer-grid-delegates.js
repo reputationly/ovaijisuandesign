@@ -2,10 +2,9 @@
 import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
 import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-import { getFileName$1 } from "../canvas/uploading-assets.jsx";
+import { getFileName } from "../canvas/uploading-assets.jsx";
 import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.js";
 import { joinFilePath } from "./use-file-explorer-canvas-integration.js";
-
 export function useFileExplorerDrag({
   selectedPaths,
   toRelativePath,
@@ -21,7 +20,7 @@ export function useFileExplorerDrag({
       : [anchorAbsPath];
     const items = pathsToDrag.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName$1(absPath);
+      const name2 = getFileName(absPath);
       const treeEntry = findEntryByPath(treeRef.current, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);
@@ -51,7 +50,6 @@ export function useFileExplorerDrag({
     handleMove,
   };
 }
-
 export function useFileExplorerGridDelegates({
   rootPath,
   sortedFilteredAssets,
@@ -77,12 +75,12 @@ export function useFileExplorerGridDelegates({
   });
   const handleGridDoubleClick = useStableCallback((relativePath) => {
     const absPath = resolveAssetPath(relativePath);
-    const name2 = getFileName$1(relativePath);
+    const name2 = getFileName(relativePath);
     onFileOpen?.(absPath, name2);
   });
   const handleGridDelete = useStableCallback((absolutePath) => {
     const entry = findEntryByPath(filteredTree, absolutePath) ?? {
-      name: getFileName$1(absolutePath),
+      name: getFileName(absolutePath),
       path: absolutePath,
       isDirectory: false,
     };

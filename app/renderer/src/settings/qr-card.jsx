@@ -2,9 +2,8 @@
 import { LoaderCircle, useTranslation } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-
 function qrStatusLabel(t2, platform2, status, errorReason) {
   const ns2 = `settings.imBridge.${platform2}.qr.status`;
   if (status === "pending_approval") {
@@ -20,7 +19,6 @@ function qrStatusLabel(t2, platform2, status, errorReason) {
   }
   return t2(`${ns2}.${status}`);
 }
-
 export function QrCard({
   platform: platform2,
   status,
@@ -65,7 +63,7 @@ export function QrCard({
               />
             )}
             <span
-              className={cn$2(
+              className={cn(
                 "text-center text-xs leading-relaxed",
                 status === "error" && "text-destructive",
                 status === "pending_approval" && "text-warning",
@@ -78,7 +76,7 @@ export function QrCard({
               {label}
             </span>
             {canRetry && (
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -87,7 +85,7 @@ export function QrCard({
               >
                 <RetryIcon size={14} />
                 {t2(`settings.imBridge.${platform2}.qr.retry`)}
-              </Button$1>
+              </Button>
             )}
           </div>
         )}
@@ -108,7 +106,7 @@ export function QrCard({
               {label}
             </span>
             {canRetry && (
-              <Button$1
+              <Button
                 type="button"
                 variant="outline"
                 size="sm"
@@ -118,14 +116,14 @@ export function QrCard({
               >
                 <RetryIcon size={14} />
                 {t2(`settings.imBridge.${platform2}.qr.retry`)}
-              </Button$1>
+              </Button>
             )}
           </div>
         )}
       </div>
       {showStatusBelowQr && (
         <p
-          className={cn$2(
+          className={cn(
             "mt-4 max-w-[480px] text-center text-xs leading-relaxed",
             status === "error" && "text-destructive",
             status === "pending_approval" && "text-warning",

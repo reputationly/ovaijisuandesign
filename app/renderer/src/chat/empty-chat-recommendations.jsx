@@ -3,12 +3,16 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import {
   resolveSkillCoverUrl,
   SkillCoverMedia,
-  toDisplayName$1,
+  toDisplayName,
 } from "../generation/use-mention-models.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
-import { PlaybackPlayIcon$1, reactExports, useTranslation } from "../vendor.js";
+import {
+  PlaybackPlayIcon$1 as PlaybackPlayIcon,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { MarkdownContent } from "../generation/markdown-link.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { resolveHomeFeaturedSkillPrompt } from "../workspace/build-inspiration-media-showcase-collections.js";
@@ -23,7 +27,6 @@ import { DEFAULT_HOME_QUICK_START_CONFIG } from "../workspace/scene-categories.j
 import { useEnsureSkillReady } from "../workspace/use-ensure-skill-ready.js";
 import { useHomeQuickStartConfig } from "../workspace/use-home-quick-start-config.js";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
-
 function shuffle(items, random) {
   const next2 = [...items];
   for (let index2 = next2.length - 1; index2 > 0; index2 -= 1) {
@@ -32,9 +35,7 @@ function shuffle(items, random) {
   }
   return next2;
 }
-
 const EMPTY_CHAT_RECOMMENDATION_BATCH_SIZE = 4;
-
 function pickRecommendationBatch(
   items,
   previousIds = [],
@@ -52,33 +53,26 @@ function pickRecommendationBatch(
   const pool = [...shuffle(preferred, random), ...shuffle(fallback, random)];
   return pool.slice(0, EMPTY_CHAT_RECOMMENDATION_BATCH_SIZE);
 }
-
 const HOME_FEATURED_SKILL_SOURCE = "official-featured";
-
 const NODE_AGENT_SKILL_PAGE_SIZE = 100;
-
 const EMPTY_RECOMMENDATIONS_SUBTITLE_KEYS = {
   "clip-editor": "chat.emptyRecommendations.subtitle.clipAgent",
   "director-stage": "chat.emptyRecommendations.subtitle.directorAgent",
   "text-editor": "chat.emptyRecommendations.subtitle.textAgent",
 };
-
 const NODE_AGENT_SKILL_TAB_KEYS = {
   "clip-editor": "chat.emptyRecommendations.skillTab.clipAgent",
   "director-stage": "chat.emptyRecommendations.skillTab.directorAgent",
   "text-editor": "chat.emptyRecommendations.skillTab.textAgent",
 };
-
 const NODE_AGENT_INTRO_KEYS = {
   "clip-editor": "chat.clipEditAgent.intro",
   "director-stage": "chat.directorStageAgent.intro",
   "text-editor": "chat.textEditAgent.intro",
 };
-
 function getFeaturedCategory(categories) {
   return categories.find((category) => category.kind === "featured-skills");
 }
-
 function ShowcaseCard({
   item,
   isZh,
@@ -154,7 +148,7 @@ function ShowcaseCard({
           </span>
         )}
         {item.videoUrl ? (
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             size="icon-sm"
@@ -163,11 +157,11 @@ function ShowcaseCard({
             onClick={handlePreview}
             data-action-ui-id="chat-showcase-card-preview"
           >
-            <PlaybackPlayIcon$1
+            <PlaybackPlayIcon
               size={16}
               className="text-[var(--media-overlay-foreground)] drop-shadow-sm"
             />
-          </Button$1>
+          </Button>
         ) : null}
       </div>
       <h3 className="line-clamp-2 min-w-0 flex-1 whitespace-normal px-1 text-xs font-medium leading-4 text-foreground [overflow-wrap:anywhere]">
@@ -176,7 +170,6 @@ function ShowcaseCard({
     </article>
   );
 }
-
 function SkillCard({
   skill,
   isZh,
@@ -189,8 +182,8 @@ function SkillCard({
   onClick,
 }) {
   const title = isZh
-    ? skill.displayNameZh || toDisplayName$1(skill.name)
-    : toDisplayName$1(skill.name);
+    ? skill.displayNameZh || toDisplayName(skill.name)
+    : toDisplayName(skill.name);
   const normalizedProgress = Math.min(1, Math.max(0, installProgress ?? 0.08));
   return (
     <article
@@ -254,7 +247,6 @@ function SkillCard({
     </article>
   );
 }
-
 export function EmptyChatRecommendations({
   onSelectShowcase,
   onSelectSkill,
@@ -447,7 +439,7 @@ export function EmptyChatRecommendations({
               </button>
             ))}
           </div>
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -461,7 +453,7 @@ export function EmptyChatRecommendations({
             <span className="hidden @min-[400px]/empty-recommendations:inline">
               {t2("chat.emptyRecommendations.refresh")}
             </span>
-          </Button$1>
+          </Button>
         </div>
         <div
           className="@container/recommendations min-h-[128px]"

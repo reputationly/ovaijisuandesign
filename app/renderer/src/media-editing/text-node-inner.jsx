@@ -3,7 +3,7 @@ import {
   ClipboardList,
   dedupedToast,
   jsxRuntimeExports,
-  Markdown$1,
+  Markdown$1 as Markdown,
   reactExports,
   remarkGfm,
   useAssetMetadataApi,
@@ -58,7 +58,7 @@ import { useCanvasActions } from "./use-canvas-actions.js";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import {
   AddToChatIcon,
-  CopyIcon$2,
+  CopyIcon,
   TextEditIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import {
@@ -84,7 +84,6 @@ import {
 import { restoreDirectReferencePaths } from "../generation/param-label-fallbacks.js";
 import { useAttachmentState } from "../assets/use-attachment-state.js";
 import { TxtPopover } from "./audio-full-body-popover-gap-offset.js";
-
 function TextFullscreenInner({
   initialMarkdown,
   onClose,
@@ -137,9 +136,7 @@ function TextFullscreenInner({
     />
   );
 }
-
 const TextFullscreen = reactExports.memo(TextFullscreenInner);
-
 function pickTextGenerationDefaults(draft, asset) {
   const draftPrompt =
     typeof draft?.prompt === "string" ? draft.prompt.trim() : "";
@@ -160,7 +157,6 @@ function pickTextGenerationDefaults(draft, asset) {
     params: asset.params,
   };
 }
-
 const QUICK_PROMPTS = [
   {
     key: "script",
@@ -190,7 +186,6 @@ const QUICK_PROMPTS = [
       "根据以下创意需求，生成一组适用于[目标工具]的高质量提示词。\n创意需求：[描述你想要的画面/音乐/视频]\n风格偏好：[写实/插画/3D/动漫/其他]",
   },
 ];
-
 function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
   const { t: t2 } = useTranslation();
   return (
@@ -230,16 +225,13 @@ function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
     />
   );
 }
-
 const LEGACY_AGENT_DESCRIPTION_LIMIT = 100;
-
 function hasAgentTextProvenance({ sourceTool, promptSeedSource }) {
   return (
     sourceTool === AGENT_CANVAS_TEXT_SOURCE_TOOL ||
     promptSeedSource === CANVAS_TEXT_AGENT_PROMPT_SOURCE
   );
 }
-
 function resolveTextPromptSeed({
   quickPrompt,
   draftPrompt,
@@ -298,7 +290,6 @@ function resolveTextPromptSeed({
     source: "none",
   };
 }
-
 function shouldAutoOpenTextPopover({
   selected: selected2,
   canSubmit,
@@ -325,19 +316,12 @@ function shouldAutoOpenTextPopover({
     !isFullscreen
   );
 }
-
 const TEXT_REF_MAX_IMAGES = 6;
-
 const TEXT_REF_MAX_VIDEOS = 2;
-
 const TEXT_REF_MAX_AUDIOS = 2;
-
 const TEXT_REF_MAX_TEXTS = 5;
-
 const PREVIEW_CHAR_LIMIT = 2e3;
-
 const PREVIEW_MIN_CUT_RATIO = 0.7;
-
 function truncateForPreview(md) {
   if (md.length <= PREVIEW_CHAR_LIMIT)
     return {
@@ -363,7 +347,6 @@ function truncateForPreview(md) {
     truncated: true,
   };
 }
-
 function TextPreviewInner({
   markdown: markdown2,
   loaded,
@@ -428,13 +411,13 @@ function TextPreviewInner({
           color: "var(--fg-default, #141414)",
         }}
       >
-        <Markdown$1
+        <Markdown
           remarkPlugins={[remarkGfm]}
           urlTransform={urlTransform2}
           components={components2}
         >
           {previewText}
-        </Markdown$1>
+        </Markdown>
       </div>
     ),
     [previewText, urlTransform2, components2],
@@ -484,9 +467,7 @@ function TextPreviewInner({
     </div>
   );
 }
-
-const TextPreview$2 = reactExports.memo(TextPreviewInner);
-
+const TextPreview = reactExports.memo(TextPreviewInner);
 function mapTextModelInfoToModelInfo(m3) {
   return {
     id: m3.id,
@@ -499,7 +480,6 @@ function mapTextModelInfoToModelInfo(m3) {
     subtitle: m3.subtitle,
   };
 }
-
 export function TextNodeInner({
   id: id2,
   selected: selected2,
@@ -1001,7 +981,7 @@ export function TextNodeInner({
     items.push({
       id: "copy",
       label: t2("canvas.copyContent"),
-      icon: <CopyIcon$2 />,
+      icon: <CopyIcon />,
       dataActionUiId: "canvas-text-copy",
       onClick: () => {
         navigator.clipboard.writeText(markdownRef.current);
@@ -1190,7 +1170,7 @@ export function TextNodeInner({
             }}
           />
         ) : (
-          <TextPreview$2
+          <TextPreview
             markdown={markdown2}
             loaded={loaded}
             plain={isPlainText}

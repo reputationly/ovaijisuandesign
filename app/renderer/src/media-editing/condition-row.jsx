@@ -6,13 +6,12 @@ import {
   OPS_REQUIRING_VALUE,
 } from "./canvas-sticker-assets.jsx";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
-
 const OP_LABELS = {
   equals: {
     key: "canvas.table.filter.equals",
@@ -55,7 +54,6 @@ const OP_LABELS = {
     defaultLabel: "not empty",
   },
 };
-
 function CloseSmallIcon() {
   return (
     <CompositedSvg
@@ -71,7 +69,6 @@ function CloseSmallIcon() {
     </CompositedSvg>
   );
 }
-
 export function ConditionRow({
   condition,
   columns,
@@ -101,44 +98,42 @@ export function ConditionRow({
   );
   return (
     <div className="flex items-center gap-2">
-      <Select$2
+      <Select
         value={condition.columnId}
         items={columnLabels}
         onValueChange={(v2) => {
           if (v2 != null) onColumnChange(v2);
         }}
       >
-        <SelectTrigger$1 className="h-8 w-[110px] text-[12px]">
-          <SelectValue$1
-            placeholder={t2("canvas.table.filter.field", "Field")}
-          />
-        </SelectTrigger$1>
-        <SelectContent$1>
+        <SelectTrigger className="h-8 w-[110px] text-[12px]">
+          <SelectValue placeholder={t2("canvas.table.filter.field", "Field")} />
+        </SelectTrigger>
+        <SelectContent>
           {columns.map((c3) => (
-            <SelectItem$1 key={c3.id} value={c3.id}>
+            <SelectItem key={c3.id} value={c3.id}>
               {c3.title}
-            </SelectItem$1>
+            </SelectItem>
           ))}
-        </SelectContent$1>
-      </Select$2>
-      <Select$2
+        </SelectContent>
+      </Select>
+      <Select
         value={condition.op}
         items={opLabels}
         onValueChange={(v2) => {
           if (v2 != null) onOpChange(v2);
         }}
       >
-        <SelectTrigger$1 className="h-8 w-[120px] text-[12px]">
-          <SelectValue$1 />
-        </SelectTrigger$1>
-        <SelectContent$1>
+        <SelectTrigger className="h-8 w-[120px] text-[12px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {availableOps.map((op) => (
-            <SelectItem$1 key={op} value={op}>
+            <SelectItem key={op} value={op}>
               {t2(OP_LABELS[op].key, OP_LABELS[op].defaultLabel)}
-            </SelectItem$1>
+            </SelectItem>
           ))}
-        </SelectContent$1>
-      </Select$2>
+        </SelectContent>
+      </Select>
       {needsValue ? (
         <input
           type={column?.type === "number" ? "number" : "text"}

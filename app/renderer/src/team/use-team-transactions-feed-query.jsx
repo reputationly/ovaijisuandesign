@@ -1,7 +1,7 @@
 // use-team-transactions-feed-query.jsx
 import { Loader2Icon, useQuery, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { teamApi } from "./team-api.js";
 import {
@@ -10,23 +10,14 @@ import {
 } from "../assets/credit-query-keys.jsx";
 import { useInfiniteQuery } from "./map-team-credit-summary.js";
 import { TEAM_LEDGER_PAGE_SIZE } from "./team-ledger-page-size.js";
-
-export const MINUTE_MS$1 = 6e4;
-
+export const MINUTE_MS = 6e4;
 export const TEAM_INFO_REFRESH_MS = 3e4;
-
 export const IDENTITY_STALE_MS = 3e4;
-
-export const IDENTITY_GC_MS = 10 * MINUTE_MS$1;
-
+export const IDENTITY_GC_MS = 10 * MINUTE_MS;
 export const MEMBERSHIP_STALE_MS = 2e4;
-
-export const MEMBERSHIP_GC_MS = 10 * MINUTE_MS$1;
-
+export const MEMBERSHIP_GC_MS = 10 * MINUTE_MS;
 const CREDIT_STALE_MS = 15e3;
-
-const CREDIT_GC_MS = 5 * MINUTE_MS$1;
-
+const CREDIT_GC_MS = 5 * MINUTE_MS;
 function keepPreviousDataForMembershipRevision(
   scope,
   currentQueryKey,
@@ -60,7 +51,6 @@ function keepPreviousDataForMembershipRevision(
   }
   return previousData;
 }
-
 export function useTeamContextsQuery(identityKey, enabled = true) {
   return useQuery({
     queryKey: teamQueryKeys.contexts(identityKey ?? "NO_IDENTITY"),
@@ -76,7 +66,6 @@ export function useTeamContextsQuery(identityKey, enabled = true) {
     refetchOnWindowFocus: true,
   });
 }
-
 export function useTeamDetailQuery(scope, enabled = true) {
   const queryKey = scope
     ? teamQueryKeys.detail(scope)
@@ -105,7 +94,6 @@ export function useTeamDetailQuery(scope, enabled = true) {
     refetchOnWindowFocus: true,
   });
 }
-
 export function useInGroupMembersQuery({ scope, enabled = true }) {
   const queryKey = scope
     ? teamQueryKeys.inGroupMembers(scope)
@@ -133,7 +121,6 @@ export function useInGroupMembersQuery({ scope, enabled = true }) {
     refetchInterval: TEAM_INFO_REFRESH_MS,
   });
 }
-
 export function useTeamMembersFeedQuery({
   scope,
   keyword: keyword2,
@@ -178,7 +165,6 @@ export function useTeamMembersFeedQuery({
     refetchInterval: TEAM_INFO_REFRESH_MS,
   });
 }
-
 export function useTeamInviteLinksFeedQuery({ scope, enabled = true }) {
   return useInfiniteQuery({
     queryKey: scope
@@ -201,7 +187,6 @@ export function useTeamInviteLinksFeedQuery({ scope, enabled = true }) {
     refetchInterval: TEAM_INFO_REFRESH_MS,
   });
 }
-
 export function useTeamQuotaQuery(scope, enabled = true) {
   return useQuery({
     queryKey: scope
@@ -221,7 +206,6 @@ export function useTeamQuotaQuery(scope, enabled = true) {
     refetchInterval: TEAM_INFO_REFRESH_MS,
   });
 }
-
 export function useTeamCreditSummaryQuery(scope, enabled = true) {
   const queryKey = scope
     ? creditQueryKeys.summary(scope)
@@ -250,7 +234,6 @@ export function useTeamCreditSummaryQuery(scope, enabled = true) {
     refetchOnWindowFocus: true,
   });
 }
-
 export function useTeamTransactionsQuery({
   scope,
   cursor,
@@ -281,7 +264,6 @@ export function useTeamTransactionsQuery({
     gcTime: CREDIT_GC_MS,
   });
 }
-
 export function useTeamTransfersFeedQuery({
   scope,
   enabled = true,
@@ -325,7 +307,6 @@ export function useTeamTransfersFeedQuery({
     gcTime: CREDIT_GC_MS,
   });
 }
-
 export function useTeamTransactionsFeedQuery({
   scope,
   memberId,
@@ -400,14 +381,13 @@ export function useTeamTransactionsFeedQuery({
     gcTime: CREDIT_GC_MS,
   });
 }
-
 export function Spinner({ className, ...props }) {
   const { t: t2 } = useTranslation();
   return (
     <Loader2Icon
       role="status"
       aria-label={t2("a11y.loading")}
-      className={cn$2("size-4 animate-spin", className)}
+      className={cn("size-4 animate-spin", className)}
       {...props}
     />
   );

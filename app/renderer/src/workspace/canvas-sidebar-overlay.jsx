@@ -6,7 +6,7 @@ import {
   usePlatform,
   useStorage,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { useWorkspaceProject } from "./normalize-project-entries.js";
 import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
@@ -19,7 +19,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
-import { cn$2, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { LocalFolderIcon } from "./home-service.jsx";
 import { Maximize2, Minimize2, Upload } from "../media-editing/package.jsx";
 import {
@@ -45,7 +45,6 @@ import {
   CONTENT_PANEL_MIN_WIDTH,
 } from "./workspace-asset-center-relocation-coach-mark.jsx";
 import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
-
 function useProjectAssetsDir() {
   const platform2 = usePlatform();
   const workspacePath = useCurrentWorkspace();
@@ -78,10 +77,8 @@ function useProjectAssetsDir() {
   }, [ensureProjectFolderName, platform2.fs, projectId, service2]);
   return dir;
 }
-
 const BUTTON_CLASS =
   "inline-flex items-center justify-center overflow-hidden rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-default disabled:opacity-50";
-
 function CanvasAssetsFinderMenu({
   projectFolderPath,
   outputFolderPath,
@@ -117,7 +114,7 @@ function CanvasAssetsFinderMenu({
           render={
             <button
               type="button"
-              className={cn$2(BUTTON_CLASS, compact ? "size-6" : "size-7")}
+              className={cn(BUTTON_CLASS, compact ? "size-6" : "size-7")}
               aria-label={openLabel}
               disabled={!primaryPath}
               onClick={() => void openDirectory(primaryPath)}
@@ -128,7 +125,7 @@ function CanvasAssetsFinderMenu({
         >
           <LocalFolderIcon
             os={platform2.app.os}
-            className={cn$2("shrink-0", compact ? "size-4" : "size-5")}
+            className={cn("shrink-0", compact ? "size-4" : "size-5")}
             aria-hidden="true"
           />
         </TooltipTrigger>
@@ -137,10 +134,8 @@ function CanvasAssetsFinderMenu({
     </TooltipProvider>
   );
 }
-
 const PRESENTATION_BUTTON_CLASS =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50";
-
 function CanvasSidebarPresentationButton({ mode: mode2, onToggleDock }) {
   const { t: t2 } = useTranslation();
   const label =
@@ -170,10 +165,8 @@ function CanvasSidebarPresentationButton({ mode: mode2, onToggleDock }) {
     </Tooltip>
   );
 }
-
 const HEADER_ACTION_BUTTON_CLASS =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50";
-
 function CanvasSidebarHeader({
   activeTab,
   onActiveTabChange,
@@ -261,7 +254,7 @@ function CanvasSidebarHeader({
                   />
                 }
               >
-                <Icon icon={X$7} size="sm" aria-hidden={true} />
+                <Icon icon={X} size="sm" aria-hidden={true} />
               </TooltipTrigger>
               <TooltipContent side="bottom">{closeLabel}</TooltipContent>
             </Tooltip>
@@ -285,15 +278,11 @@ function CanvasSidebarHeader({
     </div>
   );
 }
-
-const MARK_ID$2 = "file-panel-intro";
-
+const MARK_ID = "file-panel-intro";
 const STEP_MEDIA_URLS = [CDN_COACHMARK_FILE_LOCATE, CDN_COACHMARK_FILE_VIEW];
-
 function queryAnchor(root2, actionUiId) {
   return root2?.querySelector(`[data-action-ui-id="${actionUiId}"]`) ?? null;
 }
-
 function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -326,7 +315,7 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
     () => queryAnchor(containerRef.current, "file-view-mode-toggle"),
   ];
   const seq2 = useCoachMarkSequence(
-    MARK_ID$2,
+    MARK_ID,
     // The sequence only needs the step count; anchor resolution is driven by the
     // effect below (so it also re-resolves on route changes).
     resolvers.map(() => ({})),
@@ -417,11 +406,10 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
       stepCurrent={seq2.stepCurrent}
       stepTotal={seq2.stepTotal}
       showClose={true}
-      actionUiId={`coach-mark-${MARK_ID$2}`}
+      actionUiId={`coach-mark-${MARK_ID}`}
     />
   );
 }
-
 function LeftSidebar({
   initialFolderPath,
   isActive: isActive2 = true,
@@ -465,7 +453,6 @@ function LeftSidebar({
     </div>
   );
 }
-
 function UploadFilesFooter() {
   const { t: t2 } = useTranslation();
   const gatewayFetch2 = useGatewayFetch();
@@ -552,7 +539,6 @@ function UploadFilesFooter() {
     </div>
   );
 }
-
 function FilePanel({
   initialFolderPath,
   isActive: isActive2 = true,
@@ -573,7 +559,6 @@ function FilePanel({
     </div>
   );
 }
-
 function ContentPanel({
   activeTab,
   initialFolderPath,
@@ -591,7 +576,7 @@ function ContentPanel({
     >
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
-          className={cn$2(
+          className={cn(
             "absolute inset-0 overflow-hidden",
             canvasActive ? "visible z-10" : "invisible z-0 pointer-events-none",
           )}
@@ -618,9 +603,7 @@ function ContentPanel({
     </div>
   );
 }
-
 const MIN_CANVAS_WIDTH_BESIDE_DOCKED_FILES = 220;
-
 export const CanvasSidebarOverlay = reactExports.memo(
   function CanvasSidebarOverlay2({
     id: id2,

@@ -1,18 +1,14 @@
 // split-shortcut-keys.js
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import { IAssetCenterMainService } from "../workspace/home-service.jsx";
-
-let _service$2 = null;
-
+let _service = null;
 export function getAssetCenterMainService() {
-  if (!_service$2) {
-    _service$2 = services.get(IAssetCenterMainService);
+  if (!_service) {
+    _service = services.get(IAssetCenterMainService);
   }
-  return _service$2;
+  return _service;
 }
-
 const COMPACT_SHORTCUT_MODIFIERS = new Set(["⌘", "⌃", "⌥", "⇧"]);
-
 export function splitShortcutKeys(keys2) {
   if (keys2.includes("+")) {
     return keys2

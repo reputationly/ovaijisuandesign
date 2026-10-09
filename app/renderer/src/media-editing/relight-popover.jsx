@@ -1,12 +1,12 @@
 // relight-popover.jsx
 import {
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { RelightEditor } from "./relight-editor.jsx";
@@ -16,15 +16,10 @@ import {
   useCanvasIsMultiSelect,
 } from "./package.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-
 const RELIGHT_POPOVER_WIDTH = 658;
-
 const RELIGHT_POPOVER_MAX_HEIGHT = 536;
-
 const RELIGHT_POPOVER_MIN_HEIGHT = 360;
-
 const RELIGHT_POPOVER_VIEWPORT_MARGIN = 16;
-
 export function RelightPopover({
   onClose,
   imageUrl,
@@ -36,13 +31,13 @@ export function RelightPopover({
   const nodeId = useNodeId() ?? "";
   const onCloseRef = reactExports.useRef(onClose);
   onCloseRef.current = onClose;
-  const selected2 = useStore$3(
+  const selected2 = useStore(
     reactExports.useCallback(
       (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     ),
   );
-  const sourceScreenBottom = useStore$3((state2) => {
+  const sourceScreenBottom = useStore((state2) => {
     const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
     const sourcePosition = sourceNode?.internals.positionAbsolute;
     const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
@@ -67,7 +62,7 @@ export function RelightPopover({
     Math.min(RELIGHT_POPOVER_MAX_HEIGHT, availableHeight),
   );
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={true}
       position={Position.Bottom}
       offset={NODE_POPOVER_SAFE_GAP}
@@ -99,7 +94,7 @@ export function RelightPopover({
           aria-label={t2("common.close", "Close")}
           data-action-ui-id="canvas.relight.close"
         >
-          <X$7 size={20} strokeWidth={1.5} aria-hidden="true" />
+          <X size={20} strokeWidth={1.5} aria-hidden="true" />
         </button>
         <RelightEditor
           nodeId={nodeId}
@@ -110,6 +105,6 @@ export function RelightPopover({
           onClose={onClose}
         />
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 }

@@ -5,12 +5,12 @@ import {
 } from "../workspace/asset-lineage-query-key.js";
 import {
   DialogBackdrop,
-  DialogClose$1,
-  DialogDescription$2,
+  DialogClose$1 as DialogClose,
+  DialogDescription$2 as DialogDescription,
   DialogPopup,
-  DialogPortal$2,
+  DialogPortal$2 as DialogPortal,
   DialogRoot,
-  DialogTitle$2,
+  DialogTitle$2 as DialogTitle,
   reactExports,
   useGatewayBaseUrl,
   useMutation,
@@ -25,13 +25,12 @@ import {
 } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   useBrowserOverlayDialogProps,
 } from "../infra/dialog-content.jsx";
 import { buildWSUrl } from "../infra/gateway-http-error.jsx";
 import { WSConnectionProviderCore } from "./ws-connection-provider-core.jsx";
-
 export function WorkspaceWSConnectionProvider({
   children: children2,
   wsUrl,
@@ -48,11 +47,9 @@ export function WorkspaceWSConnectionProvider({
     </WSConnectionProviderCore>
   );
 }
-
 export function useOptionalWSConnection() {
   return reactExports.useContext(WSConnectionContext);
 }
-
 export function useWorkspaceWSConnection() {
   const ctx = useWSConnection();
   if (ctx.scope !== "workspace") {
@@ -62,11 +59,8 @@ export function useWorkspaceWSConnection() {
   }
   return ctx;
 }
-
-export const BASE$1 = "/api/memory";
-
+export const BASE = "/api/memory";
 export const COMPACTION_BASE = "/api/memory-compaction";
-
 async function readError(res) {
   try {
     const data2 = await res.json();
@@ -76,33 +70,28 @@ async function readError(res) {
   } catch {}
   return `${res.status} ${res.statusText}`;
 }
-
 export async function expectOk(res) {
   if (res.ok) return;
   throw new Error(await readError(res));
 }
-
 async function listMemory(fetcher, scope = "all") {
-  const res = await fetcher(`${BASE$1}?scope=${encodeURIComponent(scope)}`);
+  const res = await fetcher(`${BASE}?scope=${encodeURIComponent(scope)}`);
   await expectOk(res);
   const data2 = await res.json();
   return data2.entries;
 }
-
 async function readMemory(fetcher, scope, name2) {
-  const res = await fetcher(`${BASE$1}/${scope}/${encodeURIComponent(name2)}`);
+  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(name2)}`);
   await expectOk(res);
   return await res.json();
 }
-
 export async function deleteMemory(fetcher, scope, name2) {
-  const res = await fetcher(`${BASE$1}/${scope}/${encodeURIComponent(name2)}`, {
+  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(name2)}`, {
     method: "DELETE",
   });
   await expectOk(res);
   return await res.json();
 }
-
 async function restoreSnapshot(fetcher, snapshotId) {
   const res = await fetcher(
     `${COMPACTION_BASE}/snapshots/${encodeURIComponent(snapshotId)}/restore`,
@@ -119,13 +108,11 @@ async function restoreSnapshot(fetcher, snapshotId) {
   await expectOk(res);
   return await res.json();
 }
-
-const ROOT_KEY$2 = ["memory"];
-
+const ROOT_KEY = ["memory"];
 export const memoryQueryKeys = {
-  list: (scopeKey, scope) => [...ROOT_KEY$2, scopeKey, "list", scope],
+  list: (scopeKey, scope) => [...ROOT_KEY, scopeKey, "list", scope],
   search: (scopeKey, q2, scope, type2) => [
-    ...ROOT_KEY$2,
+    ...ROOT_KEY,
     scopeKey,
     "search",
     q2,
@@ -133,14 +120,14 @@ export const memoryQueryKeys = {
     type2 ?? "",
   ],
   entry: (scopeKey, scope, name2) => [
-    ...ROOT_KEY$2,
+    ...ROOT_KEY,
     scopeKey,
     "entry",
     scope,
     name2,
   ],
   recentAuto: (scopeKey, q2) => [
-    ...ROOT_KEY$2,
+    ...ROOT_KEY,
     scopeKey,
     "recent-auto",
     q2.lookbackMs ?? null,
@@ -157,24 +144,18 @@ export const memoryQueryKeys = {
    */
   compaction: {
     preview: (scopeKey, force) => [
-      ...ROOT_KEY$2,
+      ...ROOT_KEY,
       scopeKey,
       "compaction",
       "preview",
       force,
     ],
-    snapshots: (scopeKey) => [
-      ...ROOT_KEY$2,
-      scopeKey,
-      "compaction",
-      "snapshots",
-    ],
-    config: (scopeKey) => [...ROOT_KEY$2, scopeKey, "compaction", "config"],
+    snapshots: (scopeKey) => [...ROOT_KEY, scopeKey, "compaction", "snapshots"],
+    config: (scopeKey) => [...ROOT_KEY, scopeKey, "compaction", "config"],
   },
   /** Invalidation root for the *current* scope -- mutations stay scope-local. */
-  scopeRoot: (scopeKey) => [...ROOT_KEY$2, scopeKey],
+  scopeRoot: (scopeKey) => [...ROOT_KEY, scopeKey],
 };
-
 export function useMemoryList(scope) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
@@ -190,7 +171,6 @@ export function useMemoryList(scope) {
     refetchOnMount: "always",
   });
 }
-
 export function useMemoryEntry(scope, name2) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
@@ -204,7 +184,6 @@ export function useMemoryEntry(scope, name2) {
     enabled: Boolean(baseUrl && scope && name2),
   });
 }
-
 export function useSnapshotRestore() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
@@ -218,22 +197,19 @@ export function useSnapshotRestore() {
     },
   });
 }
-
 export function Sheet({ ...props }) {
   return (
     <DialogRoot data-slot="sheet" {...useBrowserOverlayDialogProps(props)} />
   );
 }
-
 function SheetPortal({ ...props }) {
-  return <DialogPortal$2 data-slot="sheet-portal" {...props} />;
+  return <DialogPortal data-slot="sheet-portal" {...props} />;
 }
-
 function SheetOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
       data-slot="sheet-overlay"
-      className={cn$2(
+      className={cn(
         "modal-mask fixed inset-0 z-50 text-xs/relaxed transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0",
         className,
       )}
@@ -241,7 +217,6 @@ function SheetOverlay({ className, ...props }) {
     />
   );
 }
-
 export function SheetContent({
   className,
   children: children2,
@@ -256,7 +231,7 @@ export function SheetContent({
       <DialogPopup
         data-slot="sheet-content"
         data-side={side}
-        className={cn$2(
+        className={cn(
           "elevated-sheet-border fixed z-50 flex flex-col bg-popover bg-clip-padding text-xs/relaxed text-popover-foreground shadow-lg transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
           className,
         )}
@@ -264,10 +239,10 @@ export function SheetContent({
       >
         {children2}
         {showCloseButton && (
-          <DialogClose$1
+          <DialogClose
             data-slot="sheet-close"
             render={
-              <Button$1
+              <Button
                 variant="ghost"
                 className="absolute top-3 right-3"
                 size="icon-sm"
@@ -276,28 +251,26 @@ export function SheetContent({
           >
             <XIcon />
             <span className="sr-only">{t2("common.close")}</span>
-          </DialogClose$1>
+          </DialogClose>
         )}
       </DialogPopup>
     </SheetPortal>
   );
 }
-
 export function SheetHeader({ className, ...props }) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn$2("flex flex-col gap-0.5 p-4", className)}
+      className={cn("flex flex-col gap-0.5 p-4", className)}
       {...props}
     />
   );
 }
-
 export function SheetTitle({ className, ...props }) {
   return (
-    <DialogTitle$2
+    <DialogTitle
       data-slot="sheet-title"
-      className={cn$2(
+      className={cn(
         "font-heading text-sm font-medium text-foreground",
         className,
       )}
@@ -305,17 +278,15 @@ export function SheetTitle({ className, ...props }) {
     />
   );
 }
-
 export function SheetDescription({ className, ...props }) {
   return (
-    <DialogDescription$2
+    <DialogDescription
       data-slot="sheet-description"
-      className={cn$2("text-xs/relaxed text-muted-foreground", className)}
+      className={cn("text-xs/relaxed text-muted-foreground", className)}
       {...props}
     />
   );
 }
-
 export function ChangelogTable({
   rows,
   limit,

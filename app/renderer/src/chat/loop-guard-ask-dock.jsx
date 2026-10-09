@@ -15,11 +15,10 @@ import {
   AccordionTrigger,
   shouldIgnoreChatGlobalShortcut,
 } from "../media-editing/message-list-props-equal.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
 import { Kbd } from "../workspace/shortcut-hint.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-
 export function LoopGuardAskDock({
   message: message2,
   onSend,
@@ -125,7 +124,7 @@ export function LoopGuardAskDock({
           </div>
         </div>
         <div className="flex flex-col gap-1.5 px-3 pb-3">
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             data-action-ui-id="chat-loop-guard-allow-once"
@@ -145,8 +144,8 @@ export function LoopGuardAskDock({
               </span>
             </span>
             <Kbd className="ml-auto shrink-0 self-center">Enter</Kbd>
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             variant="outline"
             data-action-ui-id="chat-loop-guard-allow-session"
@@ -165,8 +164,8 @@ export function LoopGuardAskDock({
                 {t2("chat.loopGuard.allowSessionDesc")}
               </span>
             </span>
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             type="button"
             variant="outline"
             data-action-ui-id="chat-loop-guard-reject"
@@ -186,7 +185,7 @@ export function LoopGuardAskDock({
               </span>
             </span>
             <Kbd className="ml-auto shrink-0 self-center">Esc</Kbd>
-          </Button$1>
+          </Button>
         </div>
         <Accordion className="border-t border-border">
           <AccordionItem value="technical-details" className="border-0">

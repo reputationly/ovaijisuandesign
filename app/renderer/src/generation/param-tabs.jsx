@@ -2,16 +2,14 @@
 import { useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatSecondsOption } from "./expand-arrow-icon.jsx";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
+import { Tooltip } from "./missing-asset-card.jsx";
 import {
   PARAM_OPTION_SELECTED_CLASS,
   ParamSectionLabel,
 } from "./resolution-tabs.jsx";
-
 function shouldRenderParamTabs(optionCount, variant) {
   return variant !== "track" || optionCount > 1;
 }
-
 export function ParamTabs({
   label,
   options,
@@ -124,7 +122,7 @@ export function ParamTabs({
               ? getDisabledOptionTooltip?.(opt)
               : void 0;
           return disabledOptionTooltip ? (
-            <Tooltip$1 key={opt} content={disabledOptionTooltip}>
+            <Tooltip key={opt} content={disabledOptionTooltip}>
               <span
                 className={
                   variant === "track"
@@ -136,7 +134,7 @@ export function ParamTabs({
               >
                 {button}
               </span>
-            </Tooltip$1>
+            </Tooltip>
           ) : (
             button
           );

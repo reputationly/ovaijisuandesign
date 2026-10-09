@@ -10,8 +10,8 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AnnotationIcon$1 } from "../canvas/fullscreen-icon.jsx";
-import { formatTime$2, ImageOutlineIcon, useCanvasBridge } from "./package.jsx";
+import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
+import { formatTime, ImageOutlineIcon, useCanvasBridge } from "./package.jsx";
 import {
   ReferenceMediaLightbox,
   ReferenceThumbnailOverlay,
@@ -26,7 +26,6 @@ import { basename$c } from "../generation/param-label-fallbacks.js";
 import { MediaHoverPreview } from "./media-hover-preview.jsx";
 import { canAnnotateCanvasImage } from "./append-width.js";
 import { buildVideoThumbnailUrl } from "./build-video-thumb-base.jsx";
-
 function ReferenceImageEditButton({ visible, onClick }) {
   const { t: t2 } = useTranslation();
   return (
@@ -44,19 +43,14 @@ function ReferenceImageEditButton({ visible, onClick }) {
         onClick();
       }}
     >
-      <AnnotationIcon$1 size={12} aria-hidden={true} />
+      <AnnotationIcon size={12} aria-hidden={true} />
     </button>
   );
 }
-
 const CHIP_W = 80;
-
 const CHIP_H = 72;
-
 const FRAME_CHIP_W = 85;
-
 const FRAME_CHIP_H = 48;
-
 function fillImageSlotsFromIndex(
   imagePaths,
   startIndex,
@@ -78,11 +72,9 @@ function fillImageSlotsFromIndex(
     newlyWritten,
   };
 }
-
 function ReferenceImageIcon() {
   return <ImageOutlineIcon size={16} strokeWidth={2.25} aria-hidden="true" />;
 }
-
 function ReferenceVideoIcon() {
   return (
     <CompositedSvg
@@ -101,8 +93,7 @@ function ReferenceVideoIcon() {
     </CompositedSvg>
   );
 }
-
-function ReferenceAudioIcon$1() {
+function ReferenceAudioIcon() {
   return (
     <CompositedSvg
       width="16"
@@ -125,7 +116,6 @@ function ReferenceAudioIcon$1() {
     </CompositedSvg>
   );
 }
-
 export function ImageSlotList({
   imagePaths,
   contextKey,
@@ -485,7 +475,7 @@ export function ImageSlotList({
             ? (videoDurationByPath?.get(path2) ?? 0)
             : 0;
         const durationLabel =
-          durationSec > 0 ? formatTime$2(durationSec, true) : "";
+          durationSec > 0 ? formatTime(durationSec, true) : "";
         const wrapSlot = (slot) =>
           // biome-ignore lint/suspicious/noArrayIndexKey: slots are fixed-position by index
           jsxRuntimeExports.jsxs(
@@ -520,7 +510,7 @@ export function ImageSlotList({
                   {mediaKind2 === "video" ? (
                     <ReferenceVideoIcon />
                   ) : mediaKind2 === "audio" ? (
-                    <ReferenceAudioIcon$1 />
+                    <ReferenceAudioIcon />
                   ) : (
                     <ReferenceImageIcon />
                   )}
@@ -629,7 +619,7 @@ export function ImageSlotList({
               <span
                 className={`flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-[var(--canvas-controls-text)] ${audioOutOfRange ? "opacity-50" : ""}`}
               >
-                <ReferenceAudioIcon$1 />
+                <ReferenceAudioIcon />
                 <span className="truncate max-w-full text-[10px] leading-none">
                   {basename$c(path2)}
                 </span>

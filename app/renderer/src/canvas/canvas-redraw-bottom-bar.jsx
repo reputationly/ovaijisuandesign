@@ -2,16 +2,16 @@
 import {
   jsxRuntimeExports,
   mergeAttributes,
-  Node$3,
+  Node$3 as Node,
   reactExports,
   useAssetMetadataStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  CloseIcon$1,
+  CloseIcon,
   ImagePlaceholderIcon,
-  PaperclipIcon$1,
+  PaperclipIcon,
   SendArrowIcon,
 } from "./file-missing-icon.jsx";
 import { buildThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
@@ -24,8 +24,7 @@ import {
 } from "../media-editing/image-edit-pricing.js";
 import { RichPromptInput } from "../chat/rich-prompt-input.jsx";
 import { BananaResolutionPicker } from "../media-editing/banana-resolution-picker.jsx";
-
-const CanvasRedrawRegionNode = Node$3.create({
+const CanvasRedrawRegionNode = Node.create({
   name: "canvasRedrawRegion",
   group: "inline",
   inline: true,
@@ -68,7 +67,6 @@ const CanvasRedrawRegionNode = Node$3.create({
     ];
   },
 });
-
 function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
   const { t: t2 } = useTranslation();
   const url2 = useAssetMetadataStore(
@@ -107,12 +105,11 @@ function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
         className="absolute right-0 top-0 rounded-bl-md bg-black/50 p-0.5 text-white transition-colors hover:bg-red-500/80 [&>svg]:size-3"
         aria-label={t2("a11y.removeAttachment", "Remove attachment")}
       >
-        <CloseIcon$1 />
+        <CloseIcon />
       </button>
     </div>
   );
 }
-
 export const CanvasRedrawBottomBar = reactExports.memo(
   function CanvasRedrawBottomBar2({
     hasRegions,
@@ -241,7 +238,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
                     e2.currentTarget.style.background = "transparent";
                   }}
                 >
-                  <PaperclipIcon$1 />
+                  <PaperclipIcon />
                 </button>
               )}
             </div>

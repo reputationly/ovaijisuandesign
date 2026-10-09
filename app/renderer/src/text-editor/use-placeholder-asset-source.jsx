@@ -14,7 +14,7 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   CANVAS_REFERENCE_API,
   isCanvasReferenceUri,
@@ -28,11 +28,9 @@ import {
   useGatewayUrl,
 } from "../generation/use-model-catalog-scope-key.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-
-export function PreviewCard$1(props) {
+export function PreviewCard(props) {
   return <PreviewCardRoot data-slot="preview-card" {...props} />;
 }
-
 export function PreviewCardTrigger({
   delay = 300,
   closeDelay = 150,
@@ -47,7 +45,6 @@ export function PreviewCardTrigger({
     />
   );
 }
-
 export function PreviewCardContent({
   className,
   side = "right",
@@ -68,11 +65,11 @@ export function PreviewCardContent({
         align={align}
         alignOffset={alignOffset}
         collisionPadding={collisionPadding}
-        className={cn$2("isolate z-50", positionerClassName)}
+        className={cn("isolate z-50", positionerClassName)}
       >
         <PreviewCardPopup
           data-slot="preview-card-content"
-          className={cn$2(
+          className={cn(
             // Layout: fixed-width card. Height is content-driven and
             // uncapped — asset previews already constrain media to
             // 320×320 max, and metadata tables are short, so a hard
@@ -94,7 +91,6 @@ export function PreviewCardContent({
     </PreviewCardPortal>
   );
 }
-
 export function useCanvasResourceResolvers(httpClient) {
   const gatewayFetch2 = useGatewayFetch();
   const gatewayUrl2 = useGatewayUrl();
@@ -153,7 +149,6 @@ export function useCanvasResourceResolvers(httpClient) {
     handleResolveThumbUrl,
   };
 }
-
 export function usePlaceholderAssetSource({
   active: active2,
   scope,
@@ -219,7 +214,6 @@ export function usePlaceholderAssetSource({
     [active2, captureTarget, fill, onError, pick],
   );
 }
-
 export function uploadResponseMediaResourceFields(res, meta2) {
   const width = meta2?.width ?? res.width;
   const height = meta2?.height ?? res.height;
@@ -246,7 +240,6 @@ export function uploadResponseMediaResourceFields(res, meta2) {
       : {}),
   };
 }
-
 export function useAssetMutator(httpClient) {
   const assetMetadataStore = useAssetMetadataApi();
   return reactExports.useMemo(
@@ -263,7 +256,6 @@ export function useAssetMutator(httpClient) {
     [httpClient, assetMetadataStore],
   );
 }
-
 export async function blobToPng(blob) {
   if (blob.type === "image/png") return blob;
   try {
@@ -285,7 +277,6 @@ export async function blobToPng(blob) {
     return null;
   }
 }
-
 async function importExternalFiles(absolutePaths, fetcher = gatewayFetch) {
   if (absolutePaths.length === 0) return [];
   const res = await fetcher(API_PATHS.importExternal, {
@@ -301,7 +292,6 @@ async function importExternalFiles(absolutePaths, fetcher = gatewayFetch) {
   const data2 = await res.json();
   return (data2.imported ?? []).filter((row) => Boolean(row?.id && row?.path));
 }
-
 export function useImportExternalFiles() {
   const scopedFetch = useGatewayFetch();
   return reactExports.useCallback(
@@ -309,27 +299,22 @@ export function useImportExternalFiles() {
     [scopedFetch],
   );
 }
-
 const HTABLE_SUFFIX = `.${CLOUD_ASSET_TABLE_EXTENSION}`;
-
 export function isHtableFileName(name2) {
   return name2.toLowerCase().endsWith(HTABLE_SUFFIX);
 }
-
 function htableTitleFromFileName(fileName) {
   const base2 = fileName.split(/[\\/]/).pop() ?? fileName;
   return isHtableFileName(base2)
     ? base2.slice(0, base2.length - HTABLE_SUFFIX.length)
     : base2;
 }
-
 export class HtableParseError extends Error {
   constructor(cause) {
     super(cause instanceof Error ? cause.message : String(cause));
     this.name = "HtableParseError";
   }
 }
-
 function htableContentToWriteRequest(raw2, opts = {}) {
   let llm;
   try {
@@ -369,7 +354,6 @@ function htableContentToWriteRequest(raw2, opts = {}) {
       : {}),
   };
 }
-
 export async function importHtableToCanvas(file, fetcher, position2) {
   const readRes = await fetcher(API_PATHS.serveLocal(file.absolutePath));
   if (!readRes.ok) throw new Error(`Read .htable failed: ${readRes.status}`);

@@ -11,7 +11,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useHoverPreview } from "../media-editing/use-hover-preview.js";
 import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
 import { TextHoverPreview } from "../media-editing/text-hover-preview.jsx";
-import { formatTime$2 } from "../media-editing/package.jsx";
+import { formatTime } from "../media-editing/package.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   canWriteResourceDragData,
@@ -20,28 +20,21 @@ import {
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { formatFileSizeCompact } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { TextReadDialog } from "../media-editing/use-preview-text.jsx";
 import { buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
 import { MediaLightbox } from "../assets/text-preview.jsx";
-import { VideoPlayIndicator$1 } from "./attachment-bar.jsx";
+import { VideoPlayIndicator } from "./attachment-bar.jsx";
 import { FileNameLabel } from "../assets/audio-play-button.jsx";
-
 const VIDEO_GRADIENT_ID = "file-chip-video-gradient";
-
 const PREVIEW_W = 320;
-
 const INTERACTIVE_PREVIEW_CLOSE_DELAY_MS = 120;
-
 const mediaDurationCache = new Map();
-
 const mediaDimensionsCache = new Map();
-
-function formatDuration$1(seconds) {
+function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "";
-  return formatTime$2(seconds, true);
+  return formatTime(seconds, true);
 }
-
 function VideoIcon({ size: size2 = 17 }) {
   const { t: t2 } = useTranslation();
   const height = Math.round((size2 * 19) / 17);
@@ -75,8 +68,7 @@ function VideoIcon({ size: size2 = 17 }) {
     </svg>
   );
 }
-
-function AudioWaveIcon$1({ size: size2 = 16 }) {
+function AudioWaveIcon({ size: size2 = 16 }) {
   const { t: t2 } = useTranslation();
   return (
     <CompositedSvg
@@ -101,7 +93,6 @@ function AudioWaveIcon$1({ size: size2 = 16 }) {
     </CompositedSvg>
   );
 }
-
 const MEDIA_GRADIENTS = [
   "linear-gradient(135deg, #F5A06A 0%, #D4845C 45%, #A07DB8 100%)",
   "linear-gradient(180deg, #1A2744 0%, #2E4A6A 50%, #A08B6B 100%)",
@@ -124,7 +115,6 @@ const MEDIA_GRADIENTS = [
   "linear-gradient(135deg, #5A1A1A 0%, #A03A2A 50%, #D87040 100%)",
   "linear-gradient(145deg, #7A6BB0 0%, #B888C8 45%, #E8ABD0 100%)",
 ];
-
 function getGradientIndex(filename) {
   let hash2 = 0;
   for (let i2 = 0; i2 < filename.length; i2++) {
@@ -132,7 +122,6 @@ function getGradientIndex(filename) {
   }
   return Math.abs(hash2) % MEDIA_GRADIENTS.length;
 }
-
 function FileMetadataHoverPreview({
   filename,
   anchorElement,
@@ -215,7 +204,6 @@ function FileMetadataHoverPreview({
     document.body,
   );
 }
-
 function FileHoverPreview({
   filename,
   textPath,
@@ -288,13 +276,11 @@ function FileHoverPreview({
     />
   );
 }
-
 function fileTypeLabel(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0 || dot2 === filename.length - 1) return "FILE";
   return filename.slice(dot2 + 1).toUpperCase();
 }
-
 export function FileChip({
   filename,
   textPath,
@@ -529,11 +515,11 @@ export function FileChip({
     };
   }, [hoverPreviewOpen, chipEl]);
   const imageLoadFailed = imageUrl === failedImageUrl;
-  const duration = durationSec ? formatDuration$1(durationSec) : "";
+  const duration = durationSec ? formatDuration(durationSec) : "";
   const badge = duration ? (
     <span
       data-slot-duration="true"
-      className={cn$2(
+      className={cn(
         "absolute bottom-[2px] right-[2px] rounded-[4px] px-1 text-[10px] leading-normal bg-black/65 text-white tabular-nums pointer-events-none transition-[visibility] duration-0 delay-150",
         onAnchorClick &&
           "group-hover/file-chip:invisible group-hover/file-chip:delay-0 group-focus-within/file-chip:invisible group-focus-within/file-chip:delay-0",
@@ -542,7 +528,7 @@ export function FileChip({
       {duration}
     </span>
   ) : null;
-  const tileClass = cn$2(
+  const tileClass = cn(
     "group/file-chip relative flex items-center justify-center w-16 h-16 shrink-0 overflow-hidden rounded-md border border-border bg-muted/40 text-muted-foreground transition-colors duration-150",
     canDrag && "cursor-grab active:cursor-grabbing",
     className,
@@ -589,7 +575,7 @@ export function FileChip({
           e2.stopPropagation();
           onAnchorClick();
         }}
-        className={cn$2(
+        className={cn(
           "size-6 inline-flex items-center justify-center rounded text-tertiary opacity-0 group-hover/file-chip:opacity-100 focus-visible:opacity-100 hover:text-foreground transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           buttonClassName,
         )}
@@ -745,7 +731,7 @@ export function FileChip({
           <VideoIcon size={17} />
         )}
         {showVideoPoster || showLocalVideoFrame ? (
-          <VideoPlayIndicator$1 size={18} />
+          <VideoPlayIndicator size={18} />
         ) : null}
         {showVideoPoster &&
         mediaUrl &&
@@ -828,7 +814,7 @@ export function FileChip({
           />
         )}
         <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-1 text-muted-foreground">
-          <AudioWaveIcon$1 size={18} />
+          <AudioWaveIcon size={18} />
           <span className="max-w-full truncate text-[10px] leading-none">
             {filename}
           </span>
@@ -925,7 +911,7 @@ export function FileChip({
       onBlur={scheduleHoverPreviewClose}
       draggable={canDrag}
       onDragStart={handleDragStart}
-      className={cn$2(
+      className={cn(
         "group/file-chip relative flex items-center gap-1.5 p-1.5 rounded-md border border-border w-full min-w-0",
         canDrag && "cursor-grab active:cursor-grabbing",
         className,

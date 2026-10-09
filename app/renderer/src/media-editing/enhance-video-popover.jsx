@@ -7,11 +7,11 @@ import {
 } from "./video-tool-meta.jsx";
 import {
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import {
@@ -20,39 +20,34 @@ import {
   useCanvasIsDragging,
   useCanvasIsMultiSelect,
 } from "./package.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import { calcVideoCost } from "../generation/calc-video-cost.js";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
-
 const DEFAULT_ENHANCE_VIDEO_FPS = 60;
-
 const RESOLUTION_LABELS = {
   "720p": "720p",
   "1080p": "1080p",
   "2k": "2K",
   "4k": "4K",
 };
-
 function formatEnhanceVideoResolution(value) {
   return RESOLUTION_LABELS[value];
 }
-
 const RESOLUTION_RANK = {
   "720p": 0,
   "1080p": 1,
   "2k": 2,
   "4k": 3,
 };
-
 function isEnhanceVideoNoop(
   currentResolution,
   currentFps,
@@ -65,19 +60,15 @@ function isEnhanceVideoNoop(
     currentFps === nextFps
   );
 }
-
 function isResolutionBelowCurrent(option2, current2) {
   if (!current2) return false;
   return RESOLUTION_RANK[option2] < RESOLUTION_RANK[current2];
 }
-
 function isFpsBelowCurrent(option2, current2) {
   if (!current2) return false;
   return option2 < current2;
 }
-
 const ENHANCE_VIDEO_PRICING_MODEL_ID = "mediakit-enhance-video";
-
 function FpsToggle({ value, currentFps, onChange }) {
   return (
     <div
@@ -118,7 +109,6 @@ function FpsToggle({ value, currentFps, onChange }) {
     </div>
   );
 }
-
 export const EnhanceVideoPopover = reactExports.memo(
   function EnhanceVideoPopover2({
     onSubmit,
@@ -141,7 +131,7 @@ export const EnhanceVideoPopover = reactExports.memo(
       (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore$3(selectedSelector);
+    const selected2 = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -201,20 +191,17 @@ export const EnhanceVideoPopover = reactExports.memo(
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
             {t2("canvas.enhanceVideo.resolutionLabel", "分辨率")}
           </span>
-          <Select$2
-            value={resolution}
-            onValueChange={(v2) => setResolution(v2)}
-          >
-            <SelectTrigger$1
+          <Select value={resolution} onValueChange={(v2) => setResolution(v2)}>
+            <SelectTrigger
               size="sm"
               data-action-ui-id="canvas.enhance-video.resolution-select"
               className="w-full"
             >
-              <SelectValue$1 />
-            </SelectTrigger$1>
-            <SelectContent$1>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {ENHANCE_VIDEO_RESOLUTIONS.map((option2) => (
-                <SelectItem$1
+                <SelectItem
                   key={option2}
                   value={option2}
                   disabled={isResolutionBelowCurrent(
@@ -223,10 +210,10 @@ export const EnhanceVideoPopover = reactExports.memo(
                   )}
                 >
                   {formatEnhanceVideoResolution(option2)}
-                </SelectItem$1>
+                </SelectItem>
               ))}
-            </SelectContent$1>
-          </Select$2>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
@@ -243,11 +230,11 @@ export const EnhanceVideoPopover = reactExports.memo(
             title={t2("canvas.enhanceVideo.cancel", "取消")}
             className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
           >
-            <CloseIcon$1 />
+            <CloseIcon />
           </button>
           <div className="flex items-center gap-1.5">
             <CreditCostBadge cost={computedCreditCost} compact={true} />
-            <Button$2
+            <Button
               variant="default"
               size="icon"
               disabled={isNoop || !accountSubmissionAllowed}
@@ -264,7 +251,7 @@ export const EnhanceVideoPopover = reactExports.memo(
               }
             >
               <SendArrowIcon />
-            </Button$2>
+            </Button>
           </div>
         </div>
       </div>
@@ -279,14 +266,14 @@ export const EnhanceVideoPopover = reactExports.memo(
         </>
       );
     return (
-      <NodeToolbar$1
+      <NodeToolbar
         isVisible={true}
         position={Position.Bottom}
         offset={NODE_POPOVER_SAFE_GAP}
         align="center"
       >
         {body2}
-      </NodeToolbar$1>
+      </NodeToolbar>
     );
   },
 );

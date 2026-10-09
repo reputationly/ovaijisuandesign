@@ -1,14 +1,14 @@
 // attach-native-toast-surface.jsx
 import {
   CircleCheckIcon,
-  InfoIcon$1,
+  InfoIcon$1 as InfoIcon,
   Loader2Icon,
   OctagonXIcon,
   reactDomExports,
   reactExports,
-  Toaster$1,
+  Toaster$1 as Toaster,
   TriangleAlertIcon,
-  z$3,
+  z$3 as z,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isElectron } from "../infra/use-canvas-node-assets-store.js";
@@ -16,11 +16,8 @@ import {
   instantiation,
   IWindowMainService,
 } from "../workspace/home-service.jsx";
-
 const NATIVE_TOAST_WINDOW_PREFIX = "hilo-native-toast-";
-
 const NATIVE_TOAST_WINDOW_FEATURE = "hiloNativeToast";
-
 function bindNativeToastInput(
   mount,
   child,
@@ -114,7 +111,6 @@ function bindNativeToastInput(
     },
   };
 }
-
 function mirrorToastDocument(source, target) {
   const base2 = target.createElement("base");
   base2.href = source.baseURI;
@@ -205,7 +201,6 @@ function mirrorToastDocument(source, target) {
     overrides2.remove();
   };
 }
-
 function measureNativeToasts(mount, view2) {
   const rects = [];
   for (const toast2 of mount.querySelectorAll("[data-sonner-toast]")) {
@@ -235,7 +230,6 @@ function measureNativeToasts(mount, view2) {
     viewportHeight: view2.innerHeight,
   };
 }
-
 function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
   const token2 = crypto.randomUUID();
   const child = window.open(
@@ -358,7 +352,6 @@ function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
   }
   return cleanup;
 }
-
 const CENTERED_TOASTER_PLACEMENT = {
   position: "top-center",
   offset: {
@@ -370,13 +363,10 @@ const CENTERED_TOASTER_PLACEMENT = {
     left: "calc(16px + env(safe-area-inset-left))",
   },
 };
-
 const GLOBAL_TOASTER_Z_INDEX = 10100;
-
 function resolveToasterPlacement() {
   return CENTERED_TOASTER_PLACEMENT;
 }
-
 function NativeToastHost({ children: children2, hotkey }) {
   const fallbackRef = reactExports.useRef(null);
   const [mount] = reactExports.useState(() => document.createElement("div"));
@@ -429,13 +419,12 @@ function NativeToastHost({ children: children2, hotkey }) {
     </div>
   );
 }
-
 export const Toaster2 = ({ style: style2, ...props }) => {
-  const { theme: theme2 = "system" } = z$3();
+  const { theme: theme2 = "system" } = z();
   const placement = resolveToasterPlacement();
   return (
     <NativeToastHost hotkey={props.hotkey}>
-      <Toaster$1
+      <Toaster
         theme={theme2}
         className="toaster group"
         position={placement.position}
@@ -443,7 +432,7 @@ export const Toaster2 = ({ style: style2, ...props }) => {
         mobileOffset={placement.mobileOffset}
         icons={{
           success: <CircleCheckIcon className="size-4" />,
-          info: <InfoIcon$1 className="size-4" />,
+          info: <InfoIcon className="size-4" />,
           warning: <TriangleAlertIcon className="size-4" />,
           error: <OctagonXIcon className="size-4" />,
           loading: <Loader2Icon className="size-4 animate-spin" />,

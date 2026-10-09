@@ -1,7 +1,7 @@
 // team-account-summary.jsx
 import {
   ArrowLeftRight,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   deriveTeamCreditDisplay,
   UserRound,
   useTranslation,
@@ -20,12 +20,11 @@ import {
 } from "./team-panel-stale.jsx";
 import { useTeamAccount } from "../assets/credit-query-keys.jsx";
 import { Users } from "../media-editing/package.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   useTeamContextsQuery,
   useTeamCreditSummaryQuery,
 } from "./use-team-transactions-feed-query.jsx";
-
 export function TeamAccountSummary({
   compact = false,
   onOpenSwitcher,
@@ -195,7 +194,7 @@ export function TeamAccountSummary({
   if (!integrationEnabled) return null;
   if (compact) {
     return (
-      <Button$1
+      <Button
         type="button"
         variant="ghost"
         size="icon"
@@ -213,7 +212,7 @@ export function TeamAccountSummary({
           className="text-foreground opacity-50"
           aria-hidden={true}
         />
-      </Button$1>
+      </Button>
     );
   }
   return (
@@ -221,7 +220,7 @@ export function TeamAccountSummary({
       className="flex flex-col gap-0.5"
       data-action-ui-id="team.account-summary-content"
     >
-      <Button$1
+      <Button
         type="button"
         variant="ghost"
         className="h-10 w-full items-center justify-start gap-2 rounded-sm px-2 text-left text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground"
@@ -276,9 +275,9 @@ export function TeamAccountSummary({
             <TooltipContent side="right">{switchTeamLabel}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      </Button$1>
+      </Button>
       {isTeam && billingAvailable && creditPresentation ? (
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           className="mt-0.5 h-9 w-full items-center justify-start gap-1 rounded-sm px-2 text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground"
@@ -304,12 +303,12 @@ export function TeamAccountSummary({
             {creditPresentation.value}
           </span>
           <Icon
-            icon={ChevronRight$1}
+            icon={ChevronRight}
             size="sm"
             className="shrink-0 text-muted-foreground"
             aria-hidden={true}
           />
-        </Button$1>
+        </Button>
       ) : null}
       {isTeam &&
       accountDataVisible &&
@@ -319,7 +318,7 @@ export function TeamAccountSummary({
       activeItem.lifecycle === "ACTIVE" &&
       activeItem.role === "OWNER" &&
       onOpenSubscription ? (
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           className="h-9 w-full items-center justify-start gap-1 rounded-sm px-2 text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground"
@@ -332,12 +331,12 @@ export function TeamAccountSummary({
             })}
           </span>
           <Icon
-            icon={ChevronRight$1}
+            icon={ChevronRight}
             size="sm"
             className="shrink-0 text-muted-foreground"
             aria-hidden={true}
           />
-        </Button$1>
+        </Button>
       ) : null}
     </div>
   );

@@ -7,11 +7,11 @@ import {
   reactExports,
   RotateCcw,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Trash2 } from "../media-editing/package.jsx";
-import { AlertDialog, Button$1 } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import {
   Input3,
@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../infra/select-content.jsx";
-import { Popover, Select$1 } from "../assets/credit-query-keys.jsx";
+import { Popover, Select } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 import {
@@ -34,12 +34,10 @@ import {
   Badge,
 } from "../infra/badge-variants.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-
 const DEFAULT_CUSTOM_MODEL_LIMITS = {
   contextWindow: 256e3,
   maxOutputTokens: 128e3,
 };
-
 function getCustomModelValidationErrors(value, stored) {
   const errors = {};
   if (!value)
@@ -176,7 +174,6 @@ function getCustomModelValidationErrors(value, stored) {
   }
   return errors;
 }
-
 function CustomModelFieldError({ id: id2, error }) {
   const { t: t2 } = useTranslation();
   if (!error) return null;
@@ -186,9 +183,7 @@ function CustomModelFieldError({ id: id2, error }) {
     </p>
   );
 }
-
 const PRESET_LEVELS = ["low", "medium", "high", "xhigh", "max"];
-
 function CustomReasoningSelect({
   id: id2,
   index: index2,
@@ -223,7 +218,7 @@ function CustomReasoningSelect({
               className="h-6 max-w-full gap-1 rounded-full"
             >
               <span className="truncate">{level}</span>
-              <Button$1
+              <Button
                 type="button"
                 variant="ghost"
                 size="icon"
@@ -240,8 +235,8 @@ function CustomReasoningSelect({
                   )
                 }
               >
-                <X$7 className="size-3" strokeWidth={1.5} />
-              </Button$1>
+                <X className="size-3" strokeWidth={1.5} />
+              </Button>
             </Badge>
           ))}
           <Input3
@@ -274,7 +269,7 @@ function CustomReasoningSelect({
         </div>
         <PopoverTrigger
           render={
-            <Button$1
+            <Button
               type="button"
               variant="ghost"
               size="icon"
@@ -319,7 +314,6 @@ function CustomReasoningSelect({
     </Popover>
   );
 }
-
 function CustomModelCard({
   model,
   errors = {},
@@ -345,7 +339,7 @@ function CustomModelCard({
           })}
         </h3>
         <div className="flex gap-1">
-          <Button$1
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2}
@@ -361,8 +355,8 @@ function CustomModelCard({
             }}
           >
             <RotateCcw className="size-4" strokeWidth={1.5} />
-          </Button$1>
-          <Button$1
+          </Button>
+          <Button
             variant="ghost"
             size="icon"
             disabled={disabled2 || !canRemove}
@@ -371,7 +365,7 @@ function CustomModelCard({
             onClick={onRemove2}
           >
             <Trash2 className="size-4" strokeWidth={1.5} />
-          </Button$1>
+          </Button>
         </div>
       </div>
       <div className="space-y-4 rounded-lg border border-border p-4">
@@ -505,7 +499,6 @@ function CustomModelCard({
     </section>
   );
 }
-
 function CustomModelHeaders({
   headers,
   errors = {},
@@ -619,7 +612,7 @@ function CustomModelHeaders({
               error={errors[`headers.${index2}.value`]}
             />
           </div>
-          <Button$1
+          <Button
             variant="ghost"
             size="icon"
             className="mt-6"
@@ -631,10 +624,10 @@ function CustomModelHeaders({
             }
           >
             <Trash2 className="size-4" strokeWidth={1.5} />
-          </Button$1>
+          </Button>
         </div>
       ))}
-      <Button$1
+      <Button
         variant="outline"
         disabled={disabled2}
         onClick={() =>
@@ -651,7 +644,7 @@ function CustomModelHeaders({
       >
         <Plus className="size-4" strokeWidth={1.5} />
         {t2("settings.models.addHeader")}
-      </Button$1>
+      </Button>
       {headers.length > 0 && (
         <p className="text-xs text-muted-foreground">
           {t2("settings.models.headersHelp")}
@@ -660,7 +653,6 @@ function CustomModelHeaders({
     </section>
   );
 }
-
 const newModel = () => ({
   id: "",
   ...DEFAULT_CUSTOM_MODEL_LIMITS,
@@ -668,7 +660,6 @@ const newModel = () => ({
   reasoningDraft: "",
   rowKey: crypto.randomUUID(),
 });
-
 const emptyInput = () => ({
   protocol: "anthropic",
   baseUrl: "",
@@ -676,7 +667,6 @@ const emptyInput = () => ({
   models: [newModel()],
   headers: [],
 });
-
 function formValue(stored) {
   if (!stored) return emptyInput();
   return {
@@ -696,7 +686,6 @@ function formValue(stored) {
     })),
   };
 }
-
 export function CustomProviderForm({ stored, onSave, onCancel }) {
   const { t: t2 } = useTranslation();
   const [value, setValue] = reactExports.useState(() => formValue(stored));
@@ -830,7 +819,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             >
               {t2("settings.models.protocol")}
             </Label>
-            <Select$1
+            <Select
               value={value.protocol}
               disabled={pending2}
               onValueChange={(protocol) => {
@@ -885,7 +874,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
                   {t2("settings.models.protocolResponses")}
                 </SelectItem>
               </SelectContent>
-            </Select$1>
+            </Select>
             <CustomModelFieldError
               id="custom-model-protocol"
               error={fieldErrors.protocol}
@@ -962,7 +951,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               }
               data-action-ui-id="settings-models.api-key"
             />
-            <Button$1
+            <Button
               variant="ghost"
               size="icon"
               className="absolute right-0 top-0"
@@ -978,7 +967,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               ) : (
                 <Eye className="size-4" strokeWidth={1.5} />
               )}
-            </Button$1>
+            </Button>
           </div>
           <CustomModelFieldError
             id="custom-model-api-key"
@@ -1034,7 +1023,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             }
           />
         ))}
-        <Button$1
+        <Button
           variant="outline"
           disabled={pending2 || (value.models?.length ?? 0) >= 50}
           onClick={() =>
@@ -1046,7 +1035,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
         >
           <Plus className="size-4" strokeWidth={1.5} />
           {t2("settings.models.addModel")}
-        </Button$1>
+        </Button>
       </div>
       <p className="text-xs text-muted-foreground">
         {t2("settings.models.applyHint")}
@@ -1062,23 +1051,23 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
         </p>
       )}
       <div className="flex flex-wrap gap-2">
-        <Button$1
+        <Button
           variant="outline"
           disabled={pending2}
           onClick={onCancel}
           data-action-ui-id="settings-models.cancel-provider"
         >
           {t2("common.cancel")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           disabled={pending2}
           onClick={() => void handleSave()}
           data-action-ui-id="settings-models.save"
         >
           {t2(pending2 ? "common.saving" : "common.save")}
-        </Button$1>
+        </Button>
         {stored && (
-          <Button$1
+          <Button
             variant="outline"
             disabled={pending2}
             onClick={() => {
@@ -1088,7 +1077,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             data-action-ui-id="settings-models.clear"
           >
             {t2("settings.models.clear")}
-          </Button$1>
+          </Button>
         )}
       </div>
       <AlertDialog

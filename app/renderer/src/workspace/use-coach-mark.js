@@ -2,16 +2,13 @@
 import { reactExports, useStorage } from "../vendor.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
 const DEFAULT_AUTO_DISMISS_MS = 8e3;
-
-const DEFAULT_OPEN_DELAY_MS$1 = 500;
-
+const DEFAULT_OPEN_DELAY_MS = 500;
 export function useCoachMark(markId, enabled = true, options = {}) {
   const {
     autoClose = true,
     autoCloseMs = DEFAULT_AUTO_DISMISS_MS,
-    openDelayMs = DEFAULT_OPEN_DELAY_MS$1,
+    openDelayMs = DEFAULT_OPEN_DELAY_MS,
     pauseOnHover = true,
     persistOnOpen = false,
   } = options;

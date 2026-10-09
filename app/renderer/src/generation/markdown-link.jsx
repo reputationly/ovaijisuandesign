@@ -8,7 +8,7 @@ import {
   dedupedToast,
   defaultSchema,
   ExternalLink,
-  G$1,
+  G$1 as G,
   Globe,
   jsxRuntimeExports,
   reactExports,
@@ -21,7 +21,7 @@ import {
 import {
   cleanRaw,
   hasLocalFileLinkProtocol,
-  isAbsoluteLocalPath$2,
+  isAbsoluteLocalPath,
   isFileUrl,
   isHttpUrl,
   LOCAL_FILE_LINK_PROTOCOLS,
@@ -36,7 +36,7 @@ import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatFileReferenceAction } from "./use-chat-file-reference-action.jsx";
 import {
-  File$1,
+  File$1 as File,
   FileAudio,
   ImageOffOutlineIcon,
   ImageOutlineIcon,
@@ -46,7 +46,7 @@ import {
   ContextMenu,
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payload.jsx";
 import { resolveTrackingDomain } from "../i18n/canvas-node-tools.jsx";
 import {
@@ -61,7 +61,7 @@ import { Ae, ot, rt } from "../chat/ae.jsx";
 import { st } from "../chat/st.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-import { cleanPath$1, tt } from "../media-editing/wt.js";
+import { cleanPath, tt } from "../media-editing/wt.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   useResolveMediaUrl,
@@ -73,7 +73,7 @@ import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 import { MediaLightbox } from "../assets/text-preview.jsx";
 import {
   findAssetForPath,
-  toWorkspaceRelativePath$1,
+  toWorkspaceRelativePath,
 } from "../media-editing/parse-workspace-path.js";
 import {
   getNodeIdsForAsset,
@@ -88,33 +88,27 @@ import {
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MarkdownAudio } from "../media-editing/markdown-audio.jsx";
 import { Qs } from "../chat/qs.jsx";
-
 function resolveMediaUrl(relativeUrl) {
   if (!relativeUrl) return void 0;
   if (/^https?:\/\//.test(relativeUrl)) return relativeUrl;
   return gatewayUrl(relativeUrl);
 }
-
 function joinMetadata(parts) {
   return parts.filter(Boolean).join(" · ");
 }
-
-function basename$3(src) {
-  const path2 = cleanPath$1(src);
+function basename(src) {
+  const path2 = cleanPath(src);
   return path2.split(/[\\/]/).pop() || "";
 }
-
 function getMediaExtension(src) {
-  const name2 = basename$3(src);
+  const name2 = basename(src);
   const dot2 = name2.lastIndexOf(".");
   return dot2 > 0 ? name2.slice(dot2 + 1).toUpperCase() : "";
 }
-
 function getDisplayName(originalSrc, resolvedSrc, alt, asset) {
   if (asset?.name) return asset.name;
-  return basename$3(originalSrc) || basename$3(resolvedSrc) || alt || "media";
+  return basename(originalSrc) || basename(resolvedSrc) || alt || "media";
 }
-
 function extractFilePath(src) {
   let filePath = src;
   if (/^file:\/\//i.test(filePath)) {
@@ -126,7 +120,6 @@ function extractFilePath(src) {
   }
   return filePath;
 }
-
 function rewriteImgSrc(src, workspaceDir, resolveUrl = resolveMediaUrl) {
   if (!src) return src;
   if (/^https?:\/\//.test(src)) return src;
@@ -149,16 +142,13 @@ function rewriteImgSrc(src, workspaceDir, resolveUrl = resolveMediaUrl) {
   const cleaned = filePath.replace(/^\.\//, "");
   return resolveUrl(`/files/${cleaned}`);
 }
-
 const FILE_REFERENCE_CODE_BLOCK_LANGUAGES = new Set([
   "",
   "text",
   "plaintext",
   "txt",
 ]);
-
 const CODE_BLOCK_LANGUAGE_PATTERN = /language-([^\s]+)/;
-
 function MarkdownSpan(props) {
   const {
     children: children2,
@@ -176,68 +166,51 @@ function MarkdownSpan(props) {
   }
   return <span {...domProps}>{children2}</span>;
 }
-
 function codeBlockLanguage(className) {
   return (
     className?.match(CODE_BLOCK_LANGUAGE_PATTERN)?.[1]?.toLowerCase() ?? ""
   );
 }
-
 function hasStringChildren(value) {
   if (!reactExports.isValidElement(value)) return false;
   const props = value.props;
   return typeof props.children === "string";
 }
-
 function codeBlockContent(children2) {
   if (typeof children2 === "string") return children2;
   if (typeof children2 === "number") return String(children2);
   if (hasStringChildren(children2)) return children2.props.children;
   return "";
 }
-
 const stablePlugins = {
-  code: G$1,
+  code: G,
 };
-
 const CANVAS_NODE_ID_PATTERN = "[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
 const CANVAS_NODE_REFERENCE_PATTERN =
   /(?:画布节点|canvas\s+node)\s*ID\s*[：:]\s*`([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})`/gi;
-
 const TITLED_CANVAS_NODE_REFERENCE_PATTERN = new RegExp(
   `(?:\\*\\*)?(《[^\\r\\n\`]+》)(?:\\*\\*)?[\\t ]*(?:\\r?\\n|<br\\s*\\/?>)+[\\t ]*(?:画布节点|canvas\\s+node)\\s*ID\\s*[：:]\\s*\`(${CANVAS_NODE_ID_PATTERN})\``,
   "gi",
 );
-
 const LIST_CANVAS_NODE_REFERENCE_PATTERN = new RegExp(
   `^([\\t ]*(?:[-+*]|\\d+[.)])[\\t ]+)(?:\\*\\*)?([^\\r\\n\`]+?)[：:](?:\\*\\*)?[\\t ]*(?:\\r?\\n[\\t ]+)?\`(${CANVAS_NODE_ID_PATTERN})\`[\\t ]*$`,
   "gim",
 );
-
 const LIST_NAMED_CANVAS_NODE_REFERENCE_PATTERN = new RegExp(
   `^([\\t ]*(?:[-+*]|\\d+[.)])[\\t ]+)((?:\\*\\*)?[^\\r\\n\`]{0,40}?(?:节点|node)(?:\\*\\*)?[\\t ]*[：:][\\t ]*)\`([^\\r\\n\`]+)\`[\\t ]*[（(][\\t ]*node[\\t ]*id[\\t ]*[：:][\\t ]*\`(${CANVAS_NODE_ID_PATTERN})\`[\\t ]*[）)][\\t ]*$`,
   "gimu",
 );
-
 const NAMED_INLINE_CANVAS_NODE_REFERENCE_PATTERN = new RegExp(
   `(?:\\*\\*)?([^，。；;：:\\r\\n\`]{1,40}?(?:节点|node))(?:\\*\\*)?[\\t ]*[：:][\\t ]*\`(${CANVAS_NODE_ID_PATTERN})\``,
   "giu",
 );
-
 const MARKDOWN_LINE_PATTERN = /.*(?:\r\n|\n|\r|$)/g;
-
 const FENCE_OPEN_PATTERN = /^[\t ]{0,3}(`{3,}|~{3,})/;
-
 const INDENTED_CODE_LINE_PATTERN = /^(?: {4}|\t)/;
-
 const NON_ARTIFACT_IDENTIFIER_LABEL_PATTERN =
   /(?:(?:^|[\s_：:-])(?:id|uuid|identifier)|(?:ID|UUID|Id)|(?:标识|标识符))$/u;
-
 const INTERNAL_TOKEN_PREFIX = "canvas-node-reference:";
-
 const INTERNAL_TOKEN_SUFFIX = "";
-
 const TECHNICAL_CANVAS_NODE_LABELS = new Set([
   "canvasnode",
   "canvasnodeid",
@@ -248,13 +221,10 @@ const TECHNICAL_CANVAS_NODE_LABELS = new Set([
   "节点",
   "节点id",
 ]);
-
 const EMPTY_CANVAS_NODE_REFERENCES = new Map();
-
 function withoutLineEnding(line) {
   return line.replace(/(?:\r\n|\n|\r)$/, "");
 }
-
 function openingFence(line) {
   const marker = withoutLineEnding(line).match(FENCE_OPEN_PATTERN)?.[1];
   if (!marker) return void 0;
@@ -265,7 +235,6 @@ function openingFence(line) {
     length: marker.length,
   };
 }
-
 function closesFence(line, fence) {
   const content2 = withoutLineEnding(line);
   const indentLength = content2.match(/^[\t ]{0,3}/)?.[0].length ?? 0;
@@ -275,15 +244,12 @@ function closesFence(line, fence) {
     [...marker].every((character) => character === fence.character)
   );
 }
-
 function isIndentedCodeLine(line) {
   return INDENTED_CODE_LINE_PATTERN.test(withoutLineEnding(line));
 }
-
 function isBlankLine(line) {
   return withoutLineEnding(line).trim().length === 0;
 }
-
 function canvasNodeDisplayName(candidate) {
   const displayName2 = candidate?.trim();
   if (!displayName2) return void 0;
@@ -298,7 +264,6 @@ function canvasNodeDisplayName(candidate) {
     return void 0;
   return plainDisplayName;
 }
-
 function isStandaloneMatch(source, offset2, matchLength) {
   const lineStart = source.lastIndexOf("\n", offset2 - 1) + 1;
   const nextLineBreak = source.indexOf("\n", offset2 + matchLength);
@@ -308,17 +273,14 @@ function isStandaloneMatch(source, offset2, matchLength) {
     source.slice(offset2 + matchLength, lineEnd2).trim().length === 0
   );
 }
-
-function escapeRegExp$1(value) {
+function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
 function internalTokenPrefix(content2) {
   let prefix = INTERNAL_TOKEN_PREFIX;
   while (content2.includes(prefix)) prefix += ":";
   return prefix;
 }
-
 function registerCanvasNodeReference(references, nodeId, candidateDisplayName) {
   const fallbackDisplayName = canvasNodeDisplayName(candidateDisplayName);
   const current2 = references.get(nodeId);
@@ -333,7 +295,6 @@ function registerCanvasNodeReference(references, nodeId, candidateDisplayName) {
       : {},
   );
 }
-
 function transformOutsideCodeBlocks(content2, transform2) {
   const lines = content2.match(MARKDOWN_LINE_PATTERN) ?? [];
   if (lines.at(-1) === "") lines.pop();
@@ -373,14 +334,13 @@ function transformOutsideCodeBlocks(content2, transform2) {
   }
   return output + transform2(textSegment);
 }
-
 function prepareCanvasNodeReferences(content2) {
   const references = new Map();
   const tokens2 = [];
   const renderedStandaloneNodeIds = new Set();
   const tokenPrefix = internalTokenPrefix(content2);
   const tokenPattern = new RegExp(
-    `${escapeRegExp$1(tokenPrefix)}(\\d+)${escapeRegExp$1(INTERNAL_TOKEN_SUFFIX)}`,
+    `${escapeRegExp(tokenPrefix)}(\\d+)${escapeRegExp(INTERNAL_TOKEN_SUFFIX)}`,
     "gu",
   );
   const createToken = (
@@ -470,16 +430,13 @@ function prepareCanvasNodeReferences(content2) {
     references: references.size > 0 ? references : EMPTY_CANVAS_NODE_REFERENCES,
   };
 }
-
 const CODE_FRAGMENT_PATTERN = /[`"={}<>;|]/;
-
 const CODE_KEYWORD_PATTERN =
   /^(?:const|let|var|import|export|return|if|for|while|function|class|type|interface|enum|await|async)\b/;
-
 function isStandaloneChatFileReferenceText(raw2) {
   const value = cleanRaw(raw2);
   if (!looksLikeFileReference(value)) return false;
-  if (isHttpUrl(value) || isFileUrl(value) || isAbsoluteLocalPath$2(value))
+  if (isHttpUrl(value) || isFileUrl(value) || isAbsoluteLocalPath(value))
     return true;
   if (value.startsWith("/files/") || value.includes("output_files/"))
     return true;
@@ -487,7 +444,6 @@ function isStandaloneChatFileReferenceText(raw2) {
   if (CODE_FRAGMENT_PATTERN.test(value)) return false;
   return true;
 }
-
 function MarkdownMediaCard({
   kind,
   originalSrc,
@@ -501,7 +457,7 @@ function MarkdownMediaCard({
   const { t: t2 } = useTranslation();
   const workspaceId2 = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath$1(originalSrc, resolvedSrc),
+    () => toWorkspaceRelativePath(originalSrc, resolvedSrc),
     [originalSrc, resolvedSrc],
   );
   const { assets } = useAssets({
@@ -578,7 +534,7 @@ function MarkdownMediaCard({
     <span
       data-slot="markdown-media-card"
       data-media-kind={kind}
-      className={cn$2(
+      className={cn(
         "group/markdown-media relative my-2 grid min-h-[88px] grid-cols-[96px_minmax(0,1fr)] items-center gap-3 rounded-lg border border-border bg-card p-2.5 align-middle",
         canDrag && "cursor-grab active:cursor-grabbing",
       )}
@@ -644,7 +600,6 @@ function MarkdownMediaCard({
     </span>
   );
 }
-
 function MediaUnavailable({ kind }) {
   const { t: t2 } = useTranslation();
   const label =
@@ -663,7 +618,6 @@ function MediaUnavailable({ kind }) {
     </span>
   );
 }
-
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds == null || seconds < 0) return "";
   const total = Math.floor(seconds);
@@ -674,18 +628,14 @@ function formatDuration(seconds) {
     return `${h2}:${m3.toString().padStart(2, "0")}:${s2.toString().padStart(2, "0")}`;
   return `${m3}:${s2.toString().padStart(2, "0")}`;
 }
-
 function videoThumbnailUrl(relativePath, resolveUrl) {
   if (!relativePath) return void 0;
   return withThumbnail(resolveUrl(API_PATHS.thumbnail(relativePath)), 112);
 }
-
 function ImageLightbox({ src, alt, onClose }) {
   return <MediaLightbox kind="image" src={src} alt={alt} onClose={onClose} />;
 }
-
 const { src: _srcProto, ...restProtocols } = defaultSchema.protocols ?? {};
-
 const sanitizeSchema = {
   ...defaultSchema,
   protocols: {
@@ -703,19 +653,16 @@ const sanitizeSchema = {
     ],
   },
 };
-
 function urlTransform(url2) {
   if (/^javascript:/i.test(url2.trim())) return "";
   return url2;
 }
-
 function encodeMarkdownUrlSpaces(markdown2) {
   return markdown2.replace(
     /(!?\[[^\]]*\]\()([^)]*\s[^)]*)\)/g,
     (_match, prefix, url2) => `${prefix}${url2.replace(/ /g, "%20")})`,
   );
 }
-
 function MarkdownImage({ src, alt, ...rest }) {
   const workspace = useCurrentWorkspace();
   const resolveMediaUrl2 = useResolveMediaUrl();
@@ -772,7 +719,6 @@ function MarkdownImage({ src, alt, ...rest }) {
     </>
   );
 }
-
 function FileReferenceVisual({ filename, workspacePath }) {
   const resolveMediaUrl2 = useResolveMediaUrl();
   const type2 = detectFileType(filename);
@@ -840,7 +786,6 @@ function FileReferenceVisual({ filename, workspacePath }) {
     </span>
   );
 }
-
 function tryParseSkillCard(raw2) {
   try {
     const data2 = JSON.parse(raw2);
@@ -854,7 +799,6 @@ function tryParseSkillCard(raw2) {
     return null;
   }
 }
-
 function InlineSkillCard({ content: content2 }) {
   const { t: t2 } = useTranslation();
   const data2 = reactExports.useMemo(
@@ -883,41 +827,30 @@ function InlineSkillCard({ content: content2 }) {
           {t2("skills.skillLabel", "Skill")}
         </span>
       </div>
-      <Button$1
+      <Button
         size="sm"
         data-action-ui-id="inline-skill-card-try"
         className="shrink-0 text-xs h-7"
         onClick={handleTry}
       >
         {t2("skills.trySkill", "开始使用")}
-      </Button$1>
+      </Button>
     </div>
   );
 }
-
 const MARKDOWN_LINK_RE = /\[([^\]\n]*)\]\(([^)\n]+)\)/g;
-
 const INLINE_CODE_RE = /`([^`\n]+)`/g;
-
 const AUTOLINK_RE = /<([^>\n]+)>/g;
-
 const REFERENCE_DEFINITION_RE = /^\s*\[([^\]\n]+)\]:\s*(\S+).*$/gim;
-
 const PATH_TOKEN_RE = /[^\s`<>(){}"']+/g;
-
 const INTERNAL_ROOT_RE =
   /(?:^|\/)\.(?:opencode-v2|config-v2)\/(?:knowledge|contracts|workflows)\//i;
-
 const INTERNAL_DIR_PLACEHOLDER_RE =
   /^<(?:knowledge|contracts|workflows)Dir>\//i;
-
 const INTERNAL_RELATIVE_ROOT_RE = /^(?:knowledge|contracts|workflows)\//i;
-
 const INTERNAL_VENDOR_CARD_RE =
   /^vendors\/[a-z0-9][a-z0-9._-]*\.md(?:[?#][^\s]*)?(?:[.,;:!?，。；：！？])?$/i;
-
 const WORKFLOW_ENTRY_RE = /^[^/]+\/workflow\.md(?:[?#].*)?$/i;
-
 function normalizeReference(value) {
   const trimmed = value.trim().replace(/^['"]+|['"]+$/g, "");
   try {
@@ -926,7 +859,6 @@ function normalizeReference(value) {
     return trimmed.replace(/\\/g, "/");
   }
 }
-
 function isInternalKnowledgeReference(value) {
   const normalized = normalizeReference(value);
   return (
@@ -937,13 +869,11 @@ function isInternalKnowledgeReference(value) {
     WORKFLOW_ENTRY_RE.test(normalized)
   );
 }
-
 function neutralLabel(value, labels) {
   return /(?:^|\/)workflow\.md(?:[?#].*)?$/i.test(normalizeReference(value))
     ? labels.workflow
     : labels.material;
 }
-
 function redactInternalKnowledgeReferences(content2, labels) {
   const internalDefinitions = new Map();
   const withoutDefinitions = content2.replace(
@@ -989,7 +919,6 @@ function redactInternalKnowledgeReferences(content2, labels) {
       : token2,
   );
 }
-
 function isWebLink(href) {
   if (!href) return false;
   try {
@@ -999,13 +928,11 @@ function isWebLink(href) {
     return false;
   }
 }
-
 function trackChatLinkAction(properties2) {
   trackEvent(TRACK_EVENTS.CHAT_LINK_ACTION, {
     ...properties2,
   });
 }
-
 function MarkdownLink({
   href,
   children: children2,
@@ -1133,7 +1060,7 @@ function MarkdownLink({
     <a
       {...rest}
       href={href}
-      className={cn$2(
+      className={cn(
         className,
         isBrowserLink && "chat-browser-link",
         isLocalFile && "chat-local-file-reference",
@@ -1152,7 +1079,7 @@ function MarkdownLink({
     >
       {isLocalFile ? (
         <code className="chat-inline-code chat-inline-code-file-ref inline-flex items-center gap-1 align-baseline">
-          <File$1
+          <File
             className="size-3.5 shrink-0 text-muted-foreground"
             strokeWidth={1.5}
             aria-hidden={true}
@@ -1206,7 +1133,6 @@ function MarkdownLink({
     </>
   );
 }
-
 function MarkdownVideo({ src, originalSrc, alt }) {
   const resolveMediaUrl2 = useResolveMediaUrl();
   const [error, setError] = reactExports.useState(false);
@@ -1214,7 +1140,7 @@ function MarkdownVideo({ src, originalSrc, alt }) {
   const [thumbError, setThumbError] = reactExports.useState(false);
   const [duration, setDuration] = reactExports.useState();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath$1(originalSrc, src),
+    () => toWorkspaceRelativePath(originalSrc, src),
     [originalSrc, src],
   );
   const thumbSrc = reactExports.useMemo(
@@ -1286,7 +1212,6 @@ function MarkdownVideo({ src, originalSrc, alt }) {
     </>
   );
 }
-
 function MarkdownMedia(props) {
   const workspace = useCurrentWorkspace();
   const resolveMediaUrl2 = useResolveMediaUrl();
@@ -1312,7 +1237,6 @@ function MarkdownMedia(props) {
   }
   return <MarkdownImage {...props} />;
 }
-
 const EXCLUDED_TAGS = new Set([
   "a",
   "code",
@@ -1322,7 +1246,6 @@ const EXCLUDED_TAGS = new Set([
   "script",
   "style",
 ]);
-
 function colorTokenNode(value, raw2) {
   return {
     type: "element",
@@ -1339,7 +1262,6 @@ function colorTokenNode(value, raw2) {
     ],
   };
 }
-
 function splitTextNode(text2, allowEnd) {
   const tokens2 = findInlineVisualTokens(text2, {
     allowEnd,
@@ -1370,7 +1292,6 @@ function splitTextNode(text2, allowEnd) {
     });
   return nodes;
 }
-
 function transformNode(node2, allowEnd, excluded = false) {
   if (!node2.children) return;
   const childExcluded =
@@ -1390,19 +1311,14 @@ function transformNode(node2, allowEnd, excluded = false) {
   }
   node2.children = nextChildren;
 }
-
 function rehypeInlineVisuals({ allowEnd = true } = {}) {
   return (tree) => transformNode(tree, allowEnd);
 }
-
 const INLINE_CODE_CHIP_MAX = 40;
-
 const FILE_REFERENCE_CODE_BLOCK_MAX_LINES = 80;
-
 const CanvasNodeReferencesContext = reactExports.createContext(
   EMPTY_CANVAS_NODE_REFERENCES,
 );
-
 function fileExtension(nameOrPath) {
   if (!nameOrPath) return void 0;
   const clean = nameOrPath.split(/[?#]/)[0]?.replace(/\\/g, "/") ?? nameOrPath;
@@ -1414,7 +1330,6 @@ function fileExtension(nameOrPath) {
     ? extension2.toLowerCase()
     : void 0;
 }
-
 function CanvasNodeReference({
   nodeId,
   displayName: displayName2,
@@ -1448,7 +1363,7 @@ function CanvasNodeReference({
     >
       <code
         {...props}
-        className={cn$2(
+        className={cn(
           variantClass,
           "chat-inline-code-file-ref inline-flex items-center gap-1 align-baseline",
           className,
@@ -1460,7 +1375,6 @@ function CanvasNodeReference({
     </button>
   );
 }
-
 function MarkdownInlineCode({
   children: children2,
   className,
@@ -1501,7 +1415,7 @@ function MarkdownInlineCode({
       return (
         <code
           {...props}
-          className={cn$2(
+          className={cn(
             variantClass,
             "inline-flex items-center gap-1 align-baseline",
             className,
@@ -1513,7 +1427,7 @@ function MarkdownInlineCode({
       );
     }
     return (
-      <code {...props} className={cn$2(variantClass, className)}>
+      <code {...props} className={cn(variantClass, className)}>
         {children2}
       </code>
     );
@@ -1524,7 +1438,7 @@ function MarkdownInlineCode({
         type="button"
         aria-label={text2}
         data-action-ui-id="chat-file-reference-inline-code"
-        className={cn$2(
+        className={cn(
           "chat-inline-code-button",
           isLocalFile && "chat-local-file-reference",
         )}
@@ -1532,7 +1446,7 @@ function MarkdownInlineCode({
       >
         <code
           {...props}
-          className={cn$2(
+          className={cn(
             isLocalFile ? "chat-inline-code" : variantClass,
             "chat-inline-code-file-ref inline-flex items-center gap-1 align-baseline",
             className,
@@ -1558,11 +1472,9 @@ function MarkdownInlineCode({
     </>
   );
 }
-
 function trimTrailingCodeBlockNewlines(codeText2) {
   return codeText2.replace(/\r?\n+$/, "");
 }
-
 function fileReferenceCodeBlockLines(codeText2) {
   const lines = trimTrailingCodeBlockNewlines(codeText2)
     .split(/\r?\n/)
@@ -1580,7 +1492,6 @@ function fileReferenceCodeBlockLines(codeText2) {
     };
   });
 }
-
 function DefaultCodeBlock({
   className,
   code: codeText2,
@@ -1596,7 +1507,6 @@ function DefaultCodeBlock({
     children: <Ae />,
   });
 }
-
 function FileReferenceCodeBlockLine({ line }) {
   const {
     ref,
@@ -1634,7 +1544,6 @@ function FileReferenceCodeBlockLine({ line }) {
     </>
   );
 }
-
 function FileReferenceCodeBlock({
   className,
   code: codeText2,
@@ -1701,7 +1610,6 @@ function FileReferenceCodeBlock({
     ],
   });
 }
-
 function MarkdownCodeBlock({
   children: children2,
   className,
@@ -1740,7 +1648,6 @@ function MarkdownCodeBlock({
     />
   );
 }
-
 const markdownComponents = {
   code: MarkdownCodeBlock,
   inlineCode: MarkdownInlineCode,
@@ -1748,12 +1655,10 @@ const markdownComponents = {
   a: (props) => <MarkdownLink {...props} />,
   span: MarkdownSpan,
 };
-
 const staticRehypePlugins = [
   rehypeInlineVisuals,
   [rehypeSanitize, sanitizeSchema],
 ];
-
 const streamingRehypePlugins = [
   [
     rehypeInlineVisuals,
@@ -1763,9 +1668,7 @@ const streamingRehypePlugins = [
   ],
   [rehypeSanitize, sanitizeSchema],
 ];
-
 const STREAMING_PLAINTEXT_THRESHOLD = 6e3;
-
 export function MarkdownContent({
   content: content2,
   className,

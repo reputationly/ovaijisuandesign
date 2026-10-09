@@ -4,9 +4,8 @@ import { MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-
 export function IntegrationMoreMenu({
   triggerLabel,
   actionLabel,
@@ -55,12 +54,12 @@ export function IntegrationMoreMenu({
     >
       <PopoverTrigger
         render={
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             size="icon-lg"
             disabled={disabled2}
-            className={cn$2(
+            className={cn(
               "size-8 rounded-[10px] bg-card p-0 text-muted-foreground hover:bg-muted hover:text-foreground",
               triggerClassName,
             )}
@@ -88,7 +87,7 @@ export function IntegrationMoreMenu({
           data-action-ui-id={actionUiIds.bridge}
         />
         {additionalActions.map((action) => (
-          <Button$1
+          <Button
             key={action.actionUiId}
             type="button"
             variant="ghost"
@@ -102,7 +101,7 @@ export function IntegrationMoreMenu({
           >
             {action.icon}
             {action.label}
-          </Button$1>
+          </Button>
         ))}
         <button
           type="button"

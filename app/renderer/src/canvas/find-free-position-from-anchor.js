@@ -1,7 +1,6 @@
 // find-free-position-from-anchor.js
 import { CanvasMode } from "./compute-group-bounds-from-children.js";
-import { DEFAULT_PLACEMENT_GAP, rectsOverlap$1 } from "./ungroup-in-canvas.js";
-
+import { DEFAULT_PLACEMENT_GAP, rectsOverlap } from "./ungroup-in-canvas.js";
 export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
   const gap = options?.gap ?? DEFAULT_PLACEMENT_GAP;
   const maxIterations = options?.maxIterations ?? 200;
@@ -14,7 +13,7 @@ export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
     h: size2.height,
   };
   for (let i2 = 0; i2 < maxIterations; i2++) {
-    const blocker = occupied.find((o2) => rectsOverlap$1(candidate, o2));
+    const blocker = occupied.find((o2) => rectsOverlap(candidate, o2));
     if (!blocker) break;
     if (shiftAxis === "x") {
       const nextX = blocker.x + blocker.w + gap;
@@ -51,7 +50,6 @@ export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
     y: candidate.y,
   };
 }
-
 export const DRAFT_PROTECTED_GENERATION_STATUSES = new Set([
   "pending",
   "generating",
@@ -61,11 +59,9 @@ export const DRAFT_PROTECTED_GENERATION_STATUSES = new Set([
   "status_unknown",
   "queue_paused",
 ]);
-
 export function deriveEdgeId(sourceId, targetId) {
   return `${sourceId}->${targetId}`;
 }
-
 export function parseNodeId(id2) {
   const sep = id2.lastIndexOf("~");
   if (sep === -1)
@@ -77,11 +73,9 @@ export function parseNodeId(id2) {
     cloneId: id2.slice(sep + 1),
   };
 }
-
 export function isEmptyNode(node2) {
   return node2.isEmpty === true;
 }
-
 export function isUnmaterialisedGenerationNode(node2) {
   const status = node2.data?.status;
   return (
@@ -89,13 +83,11 @@ export function isUnmaterialisedGenerationNode(node2) {
     DRAFT_PROTECTED_GENERATION_STATUSES.has(status)
   );
 }
-
 export const TRANSIENT_DATA_KEYS = [
   "textRevision",
   "tableRevision",
   "assetMissing",
 ];
-
 export const ASSET_PROJECTED_DATA_KEYS = [
   "prompt",
   "description",
@@ -118,16 +110,13 @@ export const ASSET_PROJECTED_DATA_KEYS = [
   "voiceId",
   "lyrics",
 ];
-
 const VALID_CANVAS_MODES = new Set(Object.values(CanvasMode));
-
 export function isFiniteCanvasPosition(value) {
   if (value === null || typeof value !== "object" || Array.isArray(value))
     return false;
   const candidate = value;
   return Number.isFinite(candidate.x) && Number.isFinite(candidate.y);
 }
-
 export function sanitizeCanvasPositions(value) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return {
@@ -168,7 +157,6 @@ export function sanitizeCanvasPositions(value) {
     repairedPositionCount,
   };
 }
-
 export function sanitizeCanvasFileNodePositions(nodes) {
   let changed = false;
   let repairedNodeCount = 0;

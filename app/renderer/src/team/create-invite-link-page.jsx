@@ -19,7 +19,7 @@ import {
   PageHeader,
   PageTitle,
 } from "./page-content.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {
   describeTeamMutationError,
@@ -28,7 +28,6 @@ import {
 } from "./team-management-detail-loading.jsx";
 import { teamApi } from "./team-api.js";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
-
 function buildTeamInviteWebLink({ region, channel, token: token2 }) {
   const environment = channel === "prod" ? "prod" : "test";
   const url2 = new URL(
@@ -38,25 +37,17 @@ function buildTeamInviteWebLink({ region, channel, token: token2 }) {
   url2.searchParams.set("token", token2);
   return url2.toString();
 }
-
 const EXPIRY_OPTIONS = [1, 7, 14, 30, 0];
-
 const MAX_USE_OPTIONS = [1, 5, 10, 20, -1, 0];
-
 const MAX_CUSTOM_USES = 2147483647;
-
 const MAX_QUOTA_LIMIT = 9007199254740991;
-
 const DAY_SECONDS = 24 * 60 * 60;
-
-const UNSIGNED_DECIMAL$1 = /^(0|[1-9]\d*)$/;
-
+const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
 function optionClass(selected2) {
   return selected2
     ? "border-foreground bg-foreground text-background"
     : "border-border bg-background text-muted-foreground hover:text-foreground";
 }
-
 export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
   const { t: t2 } = useTranslation();
   const [expiryDays, setExpiryDays] = reactExports.useState(7);
@@ -86,10 +77,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
         valid: true,
         value: void 0,
       };
-    if (
-      !UNSIGNED_DECIMAL$1.test(trimmed) ||
-      Number(trimmed) > MAX_QUOTA_LIMIT
-    ) {
+    if (!UNSIGNED_DECIMAL.test(trimmed) || Number(trimmed) > MAX_QUOTA_LIMIT) {
       return {
         valid: false,
         value: void 0,
@@ -216,7 +204,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
           </div>
         ) : null}
         <div
-          className={cn$2(
+          className={cn(
             "min-h-0 min-w-0 flex-1 space-y-6 overflow-x-hidden overflow-y-auto px-4 py-4 sm:px-6",
             !showLinkTab && "hidden",
           )}
@@ -351,7 +339,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                 <p className="min-w-0 flex-1 truncate text-xs text-foreground">
                   {createdLink}
                 </p>
-                <Button$1
+                <Button
                   type="button"
                   size="sm"
                   variant="outline"
@@ -365,7 +353,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                   {t2("common.copy", {
                     defaultValue: "复制",
                   })}
-                </Button$1>
+                </Button>
               </div>
               <p
                 className="text-xs text-muted-foreground"
@@ -380,7 +368,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
         </div>
         {pastTabMounted ? (
           <div
-            className={cn$2(
+            className={cn(
               "flex min-h-0 min-w-0 flex-1 flex-col",
               showLinkTab && "hidden",
             )}
@@ -389,12 +377,12 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
           </div>
         ) : null}
         <PageFooter
-          className={cn$2(
+          className={cn(
             "shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6",
             !showLinkTab && "hidden",
           )}
         >
-          <Button$1
+          <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -406,9 +394,9 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
               : t2("common.cancel", {
                   defaultValue: "取消",
                 })}
-          </Button$1>
+          </Button>
           {!createdLink ? (
-            <Button$1
+            <Button
               type="button"
               loading={creating}
               disabled={maxUses === null || !quotaLimitValue.valid}
@@ -418,7 +406,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
               {t2("team.inviteLink.generate", {
                 defaultValue: "生成邀请链接",
               })}
-            </Button$1>
+            </Button>
           ) : null}
         </PageFooter>
       </PageContent>

@@ -1,16 +1,14 @@
 // preset-tags.jsx
 import {
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Plus,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
-
 const PRESET_TAGS = ["写实", "二次元", "赛博朋克", "水墨", "像素风"];
-
 function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
   const { t: t2 } = useTranslation();
   const [customDraft, setCustomDraft] = reactExports.useState("");
@@ -111,7 +109,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
               tabIndex={-1}
               className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected2 ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
             >
-              <X$7 size={10} />
+              <X size={10} />
             </button>
           </div>
         );
@@ -152,7 +150,6 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
     </div>
   );
 }
-
 export function CollapsibleTags({
   tags: tags2,
   onChange,
@@ -177,7 +174,7 @@ export function CollapsibleTags({
         className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         data-action-ui-id="asset-center-add-entity-tags-toggle"
       >
-        <ChevronRight$1
+        <ChevronRight
           size={12}
           className={`transition-transform ${open ? "rotate-90" : ""}`}
         />

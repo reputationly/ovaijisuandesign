@@ -2,14 +2,12 @@
 import { reactExports } from "../vendor.js";
 import { useCanvasActive } from "./package.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-
 const CANVAS_DIRECTIONAL_KEYS = new Set([
   "ArrowUp",
   "ArrowDown",
   "ArrowLeft",
   "ArrowRight",
 ]);
-
 function decideCanvasShortcutGuardKeydown(event, targetEditable) {
   if (
     (event.key === "Delete" || event.key === "Backspace") &&
@@ -32,7 +30,6 @@ function decideCanvasShortcutGuardKeydown(event, targetEditable) {
   }
   return "allow";
 }
-
 function shouldCaptureCanvasShortcutKeydown(
   decision,
   directionalKey,
@@ -44,12 +41,10 @@ function shouldCaptureCanvasShortcutKeydown(
   if (decision === "stop-immediate") return true;
   return directionalKey && insideGuardRoot;
 }
-
 function shouldStopCanvasShortcutClipboard(targetEditable) {
   return !targetEditable;
 }
-
-function isEditableTarget$4(target) {
+function isEditableTarget(target) {
   return (
     target instanceof HTMLElement &&
     (target.tagName === "INPUT" ||
@@ -57,13 +52,11 @@ function isEditableTarget$4(target) {
       target.isContentEditable)
   );
 }
-
 function isInsideGuardRoot(target, rootRef) {
   const root2 = rootRef?.current;
   return !!root2 && target instanceof Node && root2.contains(target);
 }
-
-export function useCanvasShortcutGuard$1(
+export function useCanvasShortcutGuard(
   enabled = true,
   rootRef,
   allowHorizontalArrowKeys = false,
@@ -75,7 +68,7 @@ export function useCanvasShortcutGuard$1(
     const deleteKeyCapture = (event) => {
       const decision = decideCanvasShortcutGuardKeydown(
         event,
-        isEditableTarget$4(event.target),
+        isEditableTarget(event.target),
       );
       const directionalKey = CANVAS_DIRECTIONAL_KEYS.has(event.key);
       const ownedDirectionalKey =
@@ -102,13 +95,13 @@ export function useCanvasShortcutGuard$1(
     const shortcutBubble = (event) => {
       const decision = decideCanvasShortcutGuardKeydown(
         event,
-        isEditableTarget$4(event.target),
+        isEditableTarget(event.target),
       );
       if (decision !== "stop") return;
       event.stopPropagation();
     };
     const clipboardCapture = (event) => {
-      if (!shouldStopCanvasShortcutClipboard(isEditableTarget$4(event.target)))
+      if (!shouldStopCanvasShortcutClipboard(isEditableTarget(event.target)))
         return;
       event.stopPropagation();
     };

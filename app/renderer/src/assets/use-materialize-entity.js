@@ -3,30 +3,27 @@ import { classifyAssetError, jsonInit } from "../infra/use-online.jsx";
 import {
   assetCenterKeys,
   BASE,
-  readEnvelope$1,
+  readEnvelope,
   readObject,
-  ROOT_KEY$1,
+  ROOT_KEY,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
 import { useMutation, useQuery, useQueryClient } from "../vendor.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
 async function getEntityCanvas(fetcher, entityId) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}?fields=canvas`,
   );
-  return readEnvelope$1(res, "entity", "entity canvas");
+  return readEnvelope(res, "entity", "entity canvas");
 }
-
 async function updateEntity(fetcher, entityId, input) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}`,
     jsonInit("PATCH", input),
   );
-  return readEnvelope$1(res, "entity", "updated entity");
+  return readEnvelope(res, "entity", "updated entity");
 }
-
 async function deleteEntityGlobal(fetcher, entityId) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}`,
@@ -36,7 +33,6 @@ async function deleteEntityGlobal(fetcher, entityId) {
   );
   return readObject(res, "delete entity result");
 }
-
 async function materializeEntity(fetcher, entityId, input) {
   const res = await fetcher(
     `${BASE}/entities/${encodeURIComponent(entityId)}/materialize`,
@@ -44,7 +40,6 @@ async function materializeEntity(fetcher, entityId, input) {
   );
   return readObject(res, "materialize result");
 }
-
 async function createEntityFromPaths(fetcher, input) {
   const res = await fetcher(`${BASE}/entities-from-paths`, {
     ...jsonInit("POST", input),
@@ -52,24 +47,21 @@ async function createEntityFromPaths(fetcher, input) {
     // server-side; 5 minutes is generous and matches the migrate cap.
     timeoutMs: 3e5,
   });
-  return readEnvelope$1(res, "entity", "created entity from paths");
+  return readEnvelope(res, "entity", "created entity from paths");
 }
-
 function trackAssetMaterialize(props) {
   trackEvent(TRACK_EVENTS.ASSET_MATERIALIZE, props);
 }
-
 export function useEntityCanvas(entityId) {
   const fetcher = useAssetCenterFetcher();
   return useQuery({
     queryKey: entityId
       ? assetCenterKeys.entityCanvas(entityId)
-      : [...ROOT_KEY$1, "entity", "canvas", "noop"],
+      : [...ROOT_KEY, "entity", "canvas", "noop"],
     queryFn: () => getEntityCanvas(fetcher, entityId),
     enabled: Boolean(entityId),
   });
 }
-
 export function useCreateEntityFromPaths() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -77,12 +69,11 @@ export function useCreateEntityFromPaths() {
     mutationFn: ({ input }) => createEntityFromPaths(fetcher, input),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
     },
   });
 }
-
 export function useUpdateEntity() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -90,7 +81,7 @@ export function useUpdateEntity() {
     mutationFn: ({ entityId, input }) => updateEntity(fetcher, entityId, input),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
       queryClient2.invalidateQueries({
         queryKey: ["materialized-entities"],
@@ -98,7 +89,6 @@ export function useUpdateEntity() {
     },
   });
 }
-
 export function useDeleteEntity() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -106,7 +96,7 @@ export function useDeleteEntity() {
     mutationFn: ({ entityId }) => deleteEntityGlobal(fetcher, entityId),
     onSuccess: () => {
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
       queryClient2.invalidateQueries({
         queryKey: ["materialized-entities"],
@@ -114,7 +104,6 @@ export function useDeleteEntity() {
     },
   });
 }
-
 export function useMaterializeEntity() {
   const queryClient2 = useQueryClient();
   const fetcher = useAssetCenterFetcher();
@@ -129,7 +118,7 @@ export function useMaterializeEntity() {
         queryKey: ["materialized-entities"],
       });
       queryClient2.invalidateQueries({
-        queryKey: ROOT_KEY$1,
+        queryKey: ROOT_KEY,
       });
       if (variables._track) {
         trackAssetMaterialize({

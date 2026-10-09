@@ -8,7 +8,7 @@ import {
   useQueryClient,
   UserRoundPlus,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   MEMBERSHIP_GC_MS,
@@ -19,7 +19,7 @@ import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { normalizeTeamKeyword } from "../assets/credit-query-keys.jsx";
 import { teamApi } from "./team-api.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, DialogFooter } from "../infra/dialog-content.jsx";
+import { Button, DialogFooter } from "../infra/dialog-content.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 import { Input3 } from "../infra/select-content.jsx";
@@ -27,7 +27,6 @@ import {
   describeTeamMutationError,
   formatTeamMutationErrorSuffix,
 } from "./team-management-detail-loading.jsx";
-
 function usePastTeamMembersQuery({ scope, keyword: keyword2, enabled = true }) {
   const normalizedKeyword = normalizeTeamKeyword(keyword2);
   return useQuery({
@@ -59,19 +58,12 @@ function usePastTeamMembersQuery({ scope, keyword: keyword2, enabled = true }) {
     gcTime: MEMBERSHIP_GC_MS,
   });
 }
-
 const MAX_PAST_TEAM_SELECTION = 100;
-
-const MAX_QUOTA_LIMIT$1 = 9007199254740991;
-
-const UNSIGNED_DECIMAL$2 = /^(0|[1-9]\d*)$/;
-
-const MEMBER_SEARCH_DEBOUNCE_MS$1 = 250;
-
+const MAX_QUOTA_LIMIT = 9007199254740991;
+const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
+const MEMBER_SEARCH_DEBOUNCE_MS = 250;
 const MEMBER_ALREADY_EXISTS_CODE = "member_already_exists";
-
 const EMPTY_MEMBERS = [];
-
 export function PastTeamMembersPanel({ scope, active: active2 }) {
   const { t: t2 } = useTranslation();
   const [searchInput, setSearchInput] = reactExports.useState("");
@@ -84,7 +76,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
     if (searchInput === keyword2) return;
     const timer2 = window.setTimeout(() => {
       setKeyword(searchInput);
-    }, MEMBER_SEARCH_DEBOUNCE_MS$1);
+    }, MEMBER_SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer2);
   }, [keyword2, searchInput]);
   const feed = usePastTeamMembersQuery({
@@ -101,10 +93,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
         valid: true,
         value: void 0,
       };
-    if (
-      !UNSIGNED_DECIMAL$2.test(trimmed) ||
-      Number(trimmed) > MAX_QUOTA_LIMIT$1
-    ) {
+    if (!UNSIGNED_DECIMAL.test(trimmed) || Number(trimmed) > MAX_QUOTA_LIMIT) {
       return {
         valid: false,
         value: void 0,
@@ -301,11 +290,11 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                   })}
                   onClick={() => handleRemoveSelected(member.userId)}
                 >
-                  <X$7 className="size-3.5" aria-hidden={true} />
+                  <X className="size-3.5" aria-hidden={true} />
                 </button>
               </Badge>
             ))}
-            <Button$1
+            <Button
               type="button"
               size="sm"
               variant="ghost"
@@ -316,7 +305,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
               {t2("team.pastTeams.clearAll", {
                 defaultValue: "清空",
               })}
-            </Button$1>
+            </Button>
           </div>
         ) : null}
         <div className="max-h-80 overflow-y-auto overflow-x-hidden rounded-lg border border-border">
@@ -331,7 +320,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                   defaultValue: "过往团队成员加载失败",
                 })}
               </p>
-              <Button$1
+              <Button
                 type="button"
                 size="sm"
                 variant="outline"
@@ -340,7 +329,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 {t2("common.retry", {
                   defaultValue: "重试",
                 })}
-              </Button$1>
+              </Button>
             </div>
           ) : isEmpty2 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
@@ -432,7 +421,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
         </section>
       </div>
       <DialogFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6">
-        <Button$1
+        <Button
           type="button"
           disabled={selected2.size === 0 || !quotaLimitValue.valid}
           loading={submitting}
@@ -447,7 +436,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
           {t2("team.pastTeams.addSelected", {
             defaultValue: "添加所选成员",
           })}
-        </Button$1>
+        </Button>
       </DialogFooter>
     </>
   );

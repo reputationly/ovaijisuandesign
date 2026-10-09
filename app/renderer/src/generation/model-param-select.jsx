@@ -11,7 +11,6 @@ import { paramI18nKey, paramLabelFallback } from "./param-label-fallbacks.js";
 import { CanvasSwitch } from "./select-content.jsx";
 import { ParamTabs } from "./param-tabs.jsx";
 import { BACKEND_KLING_AVATAR } from "./normalize-skill-detail-metadata.js";
-
 export const I2IPopover = reactExports.memo(function I2IPopover2(props) {
   const { snapshot: snapshot2 } = useReferenceNavigationSnapshot(
     props.nodeId ?? props.replaceNodeId,
@@ -25,7 +24,6 @@ export const I2IPopover = reactExports.memo(function I2IPopover2(props) {
     />
   );
 });
-
 export function ModelParamSelect({
   paramKey,
   definition: definition2,
@@ -88,7 +86,6 @@ export function ModelParamSelect({
     />
   );
 }
-
 export function hasContinuousDurationOptions(options) {
   return (
     options.length > 8 &&
@@ -103,7 +100,6 @@ export function hasContinuousDurationOptions(options) {
     })
   );
 }
-
 export function nearestDuration(value, options) {
   if (!Number.isFinite(value)) return void 0;
   return options.reduce(
@@ -115,12 +111,10 @@ export function nearestDuration(value, options) {
     void 0,
   );
 }
-
 function formatProviderTaskIdPreview(value) {
   if (value.length <= 18) return value;
   return `${value.slice(0, 7)}...${value.slice(-6)}`;
 }
-
 export function ProviderTaskIdChip({
   value,
   display = "label",
@@ -182,7 +176,6 @@ export function ProviderTaskIdChip({
     </button>
   );
 }
-
 export function referenceVideoCombinedBudgetSec(model) {
   if (!model) return void 0;
   const declared =
@@ -196,7 +189,6 @@ export function referenceVideoCombinedBudgetSec(model) {
   return registryModel?.referenceMediaLimits?.video
     ?.combinedWithOutputMaxDurationSec;
 }
-
 export function referenceVideoBudgetDisabledDurationOptions(
   options,
   referenceVideoTotalSec,
@@ -207,7 +199,6 @@ export function referenceVideoBudgetDisabledDurationOptions(
   const maxOutputSec = combinedMaxSec - Math.ceil(referenceVideoTotalSec);
   return new Set(options.filter((option2) => Number(option2) > maxOutputSec));
 }
-
 export function buildHailuo03BillingDetails(breakdown, copy2) {
   if (breakdown.costPerSecond <= 0) return void 0;
   const inputRows = [
@@ -246,7 +237,6 @@ export function buildHailuo03BillingDetails(breakdown, copy2) {
     },
   };
 }
-
 export function buildVideoCostFormula(breakdown, outputCount, copy2) {
   const parts = [];
   if (breakdown.fixedCost > 0) {
@@ -284,22 +274,17 @@ export function buildVideoCostFormula(breakdown, outputCount, copy2) {
     ? copy2.multipleOutputs(formula, outputCount)
     : formula;
 }
-
-const HAILUO03_VIDEO_CONTINUATION_SUB_TYPE$1 = "hailuo03_video_continuation";
-
-function hasPath$1(paths) {
+const HAILUO03_VIDEO_CONTINUATION_SUB_TYPE = "hailuo03_video_continuation";
+function hasPath(paths) {
   return paths.some((path2) => path2.trim().length > 0);
 }
-
 function normalizedString(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-
-function includesString$2(values3, value) {
+function includesString(values3, value) {
   return values3.includes(value);
 }
-
-function modelValues$1(model, selectedModelId) {
+function modelValues(model, selectedModelId) {
   return [
     selectedModelId,
     model?.id,
@@ -308,29 +293,25 @@ function modelValues$1(model, selectedModelId) {
     model?.name,
   ].filter((value) => typeof value === "string");
 }
-
-function isHailuo03VideoTrialModel$1(model, selectedModelId, eligibility) {
+function isHailuo03VideoTrialModel(model, selectedModelId, eligibility) {
   if (!eligibility) return false;
-  return modelValues$1(model, selectedModelId).some((value) =>
-    includesString$2(eligibility.models, value),
+  return modelValues(model, selectedModelId).some((value) =>
+    includesString(eligibility.models, value),
   );
 }
-
 function subTypeForImageMode(imageMode) {
   return imageMode === "video-extension"
-    ? HAILUO03_VIDEO_CONTINUATION_SUB_TYPE$1
+    ? HAILUO03_VIDEO_CONTINUATION_SUB_TYPE
     : "";
 }
-
-function isHailuo03VideoTrialEligibleResolution$1(eligibility, modelParams) {
+function isHailuo03VideoTrialEligibleResolution(eligibility, modelParams) {
   if (!eligibility) return false;
-  return includesString$2(
+  return includesString(
     eligibility.resolutions,
     normalizedString(modelParams.resolution),
   );
 }
-
-function areHailuo03VideoTrialReferencesEligible$1({
+function areHailuo03VideoTrialReferencesEligible({
   eligibility,
   imageMode,
   imagePaths,
@@ -338,31 +319,29 @@ function areHailuo03VideoTrialReferencesEligible$1({
   audioPaths,
 }) {
   if (!eligibility) return false;
-  if (!eligibility.allowReferenceImages && hasPath$1(imagePaths)) return false;
-  if (!eligibility.allowReferenceAudios && hasPath$1(audioPaths)) return false;
+  if (!eligibility.allowReferenceImages && hasPath(imagePaths)) return false;
+  if (!eligibility.allowReferenceAudios && hasPath(audioPaths)) return false;
   if (
     imageMode !== "video-extension" &&
     !eligibility.allowReferenceVideos &&
-    hasPath$1(videoPaths)
+    hasPath(videoPaths)
   ) {
     return false;
   }
   return true;
 }
-
 export function resolveHailuo03TrialClaimResolution({
   model,
   selectedModelId,
   modelParams,
   eligibility,
 }) {
-  if (!isHailuo03VideoTrialModel$1(model, selectedModelId, eligibility))
+  if (!isHailuo03VideoTrialModel(model, selectedModelId, eligibility))
     return void 0;
-  if (isHailuo03VideoTrialEligibleResolution$1(eligibility, modelParams))
+  if (isHailuo03VideoTrialEligibleResolution(eligibility, modelParams))
     return void 0;
   return eligibility?.resolutions[0];
 }
-
 export function isHailuo03VideoTrialClaimAvailable({
   model,
   selectedModelId,
@@ -374,10 +353,10 @@ export function isHailuo03VideoTrialClaimAvailable({
 }) {
   const subType = subTypeForImageMode(imageMode);
   return (
-    isHailuo03VideoTrialModel$1(model, selectedModelId, eligibility) &&
+    isHailuo03VideoTrialModel(model, selectedModelId, eligibility) &&
     (eligibility?.resolutions.length ?? 0) > 0 &&
-    includesString$2(eligibility?.subTypes ?? [], subType) &&
-    areHailuo03VideoTrialReferencesEligible$1({
+    includesString(eligibility?.subTypes ?? [], subType) &&
+    areHailuo03VideoTrialReferencesEligible({
       eligibility,
       imageMode,
       imagePaths,
@@ -386,7 +365,6 @@ export function isHailuo03VideoTrialClaimAvailable({
     })
   );
 }
-
 export function isHailuo03FreeGenerationEligible({
   model,
   selectedModelId,
@@ -399,10 +377,10 @@ export function isHailuo03FreeGenerationEligible({
 }) {
   const subType = subTypeForImageMode(imageMode);
   return (
-    isHailuo03VideoTrialModel$1(model, selectedModelId, eligibility) &&
-    includesString$2(eligibility?.subTypes ?? [], subType) &&
-    isHailuo03VideoTrialEligibleResolution$1(eligibility, modelParams) &&
-    areHailuo03VideoTrialReferencesEligible$1({
+    isHailuo03VideoTrialModel(model, selectedModelId, eligibility) &&
+    includesString(eligibility?.subTypes ?? [], subType) &&
+    isHailuo03VideoTrialEligibleResolution(eligibility, modelParams) &&
+    areHailuo03VideoTrialReferencesEligible({
       eligibility,
       imageMode,
       imagePaths,
@@ -411,14 +389,11 @@ export function isHailuo03FreeGenerationEligible({
     })
   );
 }
-
 export const ADAPTIVE_RATIO_VALUES = new Set(["adaptive", "auto"]);
-
 export const KLING_AVATAR_MODEL_NAMES = new Set([
   "kling-avatar",
   "Kling Avatar",
 ]);
-
 const SEEDANCE_MODEL_NAMES = new Set([
   "seedance2.0",
   "seedance2.0-fast",
@@ -429,32 +404,25 @@ const SEEDANCE_MODEL_NAMES = new Set([
   "Seedance 2.0 Mini",
   "Seedance 2.5",
 ]);
-
 const SEEDANCE_25_MODEL_IDENTIFIERS = new Set([
   "seedance2.5",
   "seedance-2.5",
   "sd-2.5",
 ]);
-
 export const SEEDANCE_25_VIDEO_EDIT_MODE = "video-edit";
-
 export const SEEDANCE_25_VIDEO_EXTEND_MODE = "video-extend";
-
 export const SEEDANCE_25_INHERITED_VIDEO_MODES = new Set([
   SEEDANCE_25_VIDEO_EDIT_MODE,
   SEEDANCE_25_VIDEO_EXTEND_MODE,
 ]);
-
-export const LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1 = "omni_reference_task_type";
-
+export const LEGACY_SEEDANCE_25_TASK_TYPE_PARAM = "omni_reference_task_type";
 export function hasModelName(model, names) {
   if (!model) return false;
   return [model.id, model.model_name, model.pricingId, model.name].some(
     (value) => typeof value === "string" && names.has(value),
   );
 }
-
-export function normalizeIdentifier$1(value) {
+export function normalizeIdentifier(value) {
   return typeof value === "string"
     ? value
         .trim()
@@ -462,7 +430,6 @@ export function normalizeIdentifier$1(value) {
         .replace(/[\s_]+/g, "-")
     : "";
 }
-
 export function resolveSpecialI2VRouteKind(model) {
   if (!model) return void 0;
   if (
@@ -473,28 +440,23 @@ export function resolveSpecialI2VRouteKind(model) {
   }
   return void 0;
 }
-
 export function isSeedanceModel(model) {
   return hasModelName(model, SEEDANCE_MODEL_NAMES);
 }
-
 export function isSeedance25Model(model) {
   if (!model) return false;
   return [model.id, model.model_name, model.pricingId, model.name].some(
-    (value) => SEEDANCE_25_MODEL_IDENTIFIERS.has(normalizeIdentifier$1(value)),
+    (value) => SEEDANCE_25_MODEL_IDENTIFIERS.has(normalizeIdentifier(value)),
   );
 }
-
 export function isSeedance25InheritedVideoMode(model, imageMode) {
   return (
     isSeedance25Model(model) && SEEDANCE_25_INHERITED_VIDEO_MODES.has(imageMode)
   );
 }
-
 export function isSeedance25VideoEditMode(model, imageMode) {
   return isSeedance25Model(model) && imageMode === SEEDANCE_25_VIDEO_EDIT_MODE;
 }
-
 export function hasAnyVideoInput(videoPaths) {
   return videoPaths.some((path2) => path2.trim().length > 0);
 }

@@ -1,19 +1,14 @@
 // collect-video-rows.js
 
-const MINIMAX_H3_MODEL_ID$1 = "MiniMax-H3";
-
+const MINIMAX_H3_MODEL_ID = "MiniMax-H3";
 const H3_VIDEO_UPSCALE_MODEL_ID = "h3_video_super_resolution";
-
 const DEFAULT_H3_FREE_IMAGE_COUNT = 5;
-
 const DISPLAY_RESOLUTIONS = new Set(["1k", "2k", "4k"]);
-
 const IMAGE_MODEL_BY_NODE = {
   Banana2Node: "nano_banana_2_flash",
   BananaProNode: "nano_banana_2",
   GImage2Node: "gpt-image-2",
 };
-
 function equalModelId(left, right) {
   return (
     left.localeCompare(right, void 0, {
@@ -21,23 +16,19 @@ function equalModelId(left, right) {
     }) === 0
   );
 }
-
 function displayResolution(value) {
   return value.toUpperCase();
 }
-
 function displayQuality(value) {
   return value.length === 0
     ? value
     : `${value[0]?.toUpperCase()}${value.slice(1).toLowerCase()}`;
 }
-
 function formatNumber(value, locale) {
   return new Intl.NumberFormat(locale, {
     maximumFractionDigits: 4,
   }).format(value);
 }
-
 function withQualifier(label, resolution, quality, mode2) {
   const qualifier = [
     resolution && displayResolution(resolution),
@@ -48,7 +39,6 @@ function withQualifier(label, resolution, quality, mode2) {
     .join(" · ");
   return qualifier ? `${label} (${qualifier})` : label;
 }
-
 function render(rows, copy2, locale) {
   if (rows.length === 0) return null;
   const separator = locale.toLowerCase().startsWith("zh") ? "：" : ": ";
@@ -56,7 +46,6 @@ function render(rows, copy2, locale) {
 
 ${rows.map((row) => `- ${row.label}${separator}${row.value}`).join("\n")}`;
 }
-
 function uniqueReferenceRules(costs) {
   const seen2 = new Set();
   const rules = [];
@@ -73,7 +62,6 @@ function uniqueReferenceRules(costs) {
   }
   return rules;
 }
-
 function collectImageRows(pricing, modelId, copy2, locale) {
   const model = pricing.image.find((item) =>
     equalModelId(item.modelID, modelId),
@@ -122,17 +110,15 @@ function collectImageRows(pricing, modelId, copy2, locale) {
   }
   return rows;
 }
-
 function matchesReferenceMode(cost, hasReferenceVideo) {
   return (
     cost.hasReferenceVideo == null ||
     cost.hasReferenceVideo === hasReferenceVideo
   );
 }
-
 function collectVideoRates(pricing, hasReferenceVideo) {
   const model = pricing.video.find((item) =>
-    equalModelId(item.modelID, MINIMAX_H3_MODEL_ID$1),
+    equalModelId(item.modelID, MINIMAX_H3_MODEL_ID),
   );
   if (!model) return [];
   return model.videoCosts.filter(
@@ -143,13 +129,11 @@ function collectVideoRates(pricing, hasReferenceVideo) {
       (cost.hasSound == null || cost.hasSound),
   );
 }
-
 function referenceModeLabel(cost, copy2) {
   if (cost.hasReferenceVideo === true) return copy2.withReferenceVideo;
   if (cost.hasReferenceVideo === false) return copy2.withoutReferenceVideo;
   return void 0;
 }
-
 function collectVideoImageRules(costs, copy2, distinguishReferenceMode) {
   const grouped = new Map();
   for (const cost of costs) {
@@ -197,7 +181,6 @@ function collectVideoImageRules(costs, copy2, distinguishReferenceMode) {
   }
   return rules;
 }
-
 function collectVideoRows(pricing, nodeType, copy2, locale) {
   const isReference = nodeType === "MinimaxHailuo03ReferenceNode";
   const isFirstLast = nodeType === "MinimaxHailuo03FirstLastFrameNode";
@@ -261,7 +244,6 @@ function collectVideoRows(pricing, nodeType, copy2, locale) {
   }
   return rows;
 }
-
 function collectContextIrRows(pricing, copy2, locale) {
   const contextIr = pricing.h3ContextIr;
   if (!contextIr) return [];
@@ -280,7 +262,6 @@ function collectContextIrRows(pricing, copy2, locale) {
     },
   ];
 }
-
 function collectUpscaleRows(pricing, copy2, locale) {
   const model = pricing.tool?.find((item) =>
     equalModelId(item.modelID, H3_VIDEO_UPSCALE_MODEL_ID),
@@ -306,7 +287,6 @@ function collectUpscaleRows(pricing, copy2, locale) {
   }
   return rows;
 }
-
 export function buildComfyUiNodePriceDescription(
   pricing,
   nodeType,

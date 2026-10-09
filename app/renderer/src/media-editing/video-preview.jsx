@@ -3,10 +3,8 @@ import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
 import { MediaClipPanel } from "./media-clip-panel.js";
-
 const getVideoExt = (mime) => getExtFromMime(mime, "mp4");
-
-function VideoPreview$1({ engine, state: state2, loading, previewSize }) {
+function VideoPreview({ engine, state: state2, loading, previewSize }) {
   const previewCanvasRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const canvas = previewCanvasRef.current;
@@ -75,7 +73,6 @@ function VideoPreview$1({ engine, state: state2, loading, previewSize }) {
     </div>
   );
 }
-
 function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
   const [previewSize, setPreviewSize] = reactExports.useState({
     w: 640,
@@ -91,7 +88,7 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
     }
   }, []);
   const renderPreview2 = reactExports.useCallback(
-    (ctx) => <VideoPreview$1 {...ctx} previewSize={previewSize} />,
+    (ctx) => <VideoPreview {...ctx} previewSize={previewSize} />,
     [previewSize],
   );
   return (
@@ -108,5 +105,4 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
     />
   );
 }
-
 export const VideoClipPanel = reactExports.memo(VideoClipPanelInner);

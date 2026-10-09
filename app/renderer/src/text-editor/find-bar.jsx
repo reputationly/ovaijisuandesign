@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   ChevronUp,
   reactDomExports,
   reactExports,
@@ -10,7 +10,7 @@ import {
   Search,
   useTranslation,
   WholeWord,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   CaseSensitive,
@@ -20,10 +20,9 @@ import {
 } from "../media-editing/package.jsx";
 import { compileFindPattern } from "./paragraph-line-placement.js";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-import { CloseIcon$1 } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon } from "../canvas/file-missing-icon.jsx";
 import { useCanvasRootElement } from "../media-editing/director-stage-header-icon.jsx";
 import { ToolbarBtn } from "./editor-history-controls.jsx";
-
 function FindBtn({
   icon,
   title,
@@ -66,7 +65,6 @@ function FindBtn({
     </button>
   );
 }
-
 function FindBar({ controller }) {
   const { t: t2 } = useTranslation();
   const {
@@ -138,7 +136,7 @@ function FindBar({ controller }) {
         {replaceOpen ? (
           <ChevronDown size={14} strokeWidth={1.5} />
         ) : (
-          <ChevronRight$1 size={14} strokeWidth={1.5} />
+          <ChevronRight size={14} strokeWidth={1.5} />
         )}
       </button>
       <div className="flex flex-col gap-1">
@@ -217,7 +215,7 @@ function FindBar({ controller }) {
           />
           <FindBtn
             variant="nav"
-            icon={<X$7 size={14} strokeWidth={1.5} />}
+            icon={<X size={14} strokeWidth={1.5} />}
             title={t2("canvas.close")}
             onClick={controller.close}
             dataActionUiId="canvas-text-find-close"
@@ -265,7 +263,6 @@ function FindBar({ controller }) {
     </div>
   );
 }
-
 function useCanvasShortcutGuard() {
   const active2 = useCanvasActive();
   useSuspendCanvasInteractions(true);
@@ -310,7 +307,6 @@ function useCanvasShortcutGuard() {
     };
   }, [active2]);
 }
-
 export function FullscreenShell({
   toolbarActions,
   saveStatus,
@@ -393,7 +389,7 @@ export function FullscreenShell({
                 color: "var(--fg-muted, #666)",
               }}
             >
-              <CloseIcon$1 />
+              <CloseIcon />
             </button>
           )}
         </div>

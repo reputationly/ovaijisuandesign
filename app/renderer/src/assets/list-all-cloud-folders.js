@@ -3,7 +3,6 @@ import { CloudNodeType } from "../generation/normalize-skill-detail-metadata.js"
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { CloudProjectRequestError } from "../workspace/asset-lineage-query-key.js";
-
 var CloudNodeReviewStatus = ((CloudNodeReviewStatus2) => {
   CloudNodeReviewStatus2[
     (CloudNodeReviewStatus2["CLOUD_NODE_REVIEW_STATUS_UNSPECIFIED"] = 0)
@@ -21,22 +20,17 @@ var CloudNodeReviewStatus = ((CloudNodeReviewStatus2) => {
     "UNRECOGNIZED";
   return CloudNodeReviewStatus2;
 })(CloudNodeReviewStatus || {});
-
 export const ROOT_KEY = "__root__";
-
 export function isCloudProjectMembershipError(err) {
   return err instanceof CloudProjectRequestError && err.status === 403;
 }
-
 export const cloudAssetsChangedListeners = new Set();
-
 export function onDidChangeCloudAssets(listener) {
   cloudAssetsChangedListeners.add(listener);
   return {
     dispose: () => cloudAssetsChangedListeners.delete(listener),
   };
 }
-
 function mapReview(raw2) {
   const value = Number(raw2 ?? 0);
   if (value === CloudNodeReviewStatus.CLOUD_NODE_REVIEW_STATUS_BLOCK)
@@ -45,7 +39,6 @@ function mapReview(raw2) {
     return "reviewing";
   return "pass";
 }
-
 export function mapCloudNode(raw2) {
   if (!raw2 || typeof raw2.id !== "string" || !raw2.id) return null;
   const isFolder = Number(raw2.type) === CloudNodeType.CLOUD_NODE_TYPE_FOLDER;
@@ -66,14 +59,12 @@ export function mapCloudNode(raw2) {
     updatedAt: Number(raw2.updated_at ?? 0),
   };
 }
-
 export function mapNodes(raw2) {
   if (!Array.isArray(raw2)) return [];
   return raw2
     .map((node2) => mapCloudNode(node2))
     .filter((node2) => node2 !== null);
 }
-
 export async function requestJson(path2, init2) {
   let resp;
   try {
@@ -86,7 +77,6 @@ export async function requestJson(path2, init2) {
   }
   return await resp.json().catch(() => ({}));
 }
-
 export async function listCloudFolderChildren(
   projectId,
   nodeId,
@@ -106,7 +96,6 @@ export async function listCloudFolderChildren(
     hasMore: data2.has_more === true,
   };
 }
-
 export async function getCloudStorageUsage(projectId) {
   const params = new URLSearchParams({
     project_id: projectId,
@@ -117,7 +106,6 @@ export async function getCloudStorageUsage(projectId) {
     usedBytes: Number(data2.used_bytes ?? 0),
   };
 }
-
 export async function moveCloudNode(nodeId, newParentId) {
   await requestJson(
     `/api/v1/cloud-folder/nodes/${encodeURIComponent(nodeId)}/move`,
@@ -132,7 +120,6 @@ export async function moveCloudNode(nodeId, newParentId) {
     },
   );
 }
-
 export async function deleteCloudNode(nodeId) {
   await requestJson(
     `/api/v1/cloud-folder/nodes/${encodeURIComponent(nodeId)}`,
@@ -141,7 +128,6 @@ export async function deleteCloudNode(nodeId) {
     },
   );
 }
-
 export async function listAllCloudFolders(projectId) {
   const result = [];
   const queue = [
@@ -178,8 +164,7 @@ export async function listAllCloudFolders(projectId) {
   }
   return result;
 }
-
-const IMAGE_EXT$1 = new Set([
+const IMAGE_EXT = new Set([
   "png",
   "jpg",
   "jpeg",
@@ -191,21 +176,9 @@ const IMAGE_EXT$1 = new Set([
   "avif",
   "tiff",
 ]);
-
-const VIDEO_EXT$1 = new Set(["mp4", "mov", "webm", "mkv", "avi", "m4v"]);
-
-const AUDIO_EXT$1 = new Set([
-  "mp3",
-  "wav",
-  "flac",
-  "aac",
-  "m4a",
-  "ogg",
-  "opus",
-]);
-
+const VIDEO_EXT = new Set(["mp4", "mov", "webm", "mkv", "avi", "m4v"]);
+const AUDIO_EXT = new Set(["mp3", "wav", "flac", "aac", "m4a", "ogg", "opus"]);
 const ARCHIVE_EXT = new Set(["zip", "7z", "rar", "tar", "gz", "tgz", "bz2"]);
-
 const DOC_EXT = new Set([
   "txt",
   "md",
@@ -223,7 +196,6 @@ const DOC_EXT = new Set([
   "htable",
   "rtf",
 ]);
-
 const CODE_EXT = new Set([
   "ts",
   "tsx",
@@ -253,7 +225,6 @@ const CODE_EXT = new Set([
   "scss",
   "sql",
 ]);
-
 export function resolveTypeBucket(input) {
   if (input.kind === "folder") return "folder";
   const mime = input.mime ?? "";
@@ -262,9 +233,9 @@ export function resolveTypeBucket(input) {
   if (mime.startsWith("audio/")) return "audio";
   const ext = input.name.split(".").pop()?.toLowerCase() ?? "";
   if (!ext) return "other";
-  if (IMAGE_EXT$1.has(ext)) return "image";
-  if (VIDEO_EXT$1.has(ext)) return "video";
-  if (AUDIO_EXT$1.has(ext)) return "audio";
+  if (IMAGE_EXT.has(ext)) return "image";
+  if (VIDEO_EXT.has(ext)) return "video";
+  if (AUDIO_EXT.has(ext)) return "audio";
   if (ARCHIVE_EXT.has(ext)) return "archive";
   if (CODE_EXT.has(ext)) return "code";
   if (DOC_EXT.has(ext)) return "document";

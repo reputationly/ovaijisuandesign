@@ -36,7 +36,7 @@ import { getAssetMetaByNodeIdFromStore } from "./fullscreen-icon.jsx";
 import { useGeneratingStateApi } from "../media-editing/package.jsx";
 import {
   resolveCanvasPlatform,
-  resolveCanvasShortcut$1,
+  resolveCanvasShortcut,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
 import {
   injectDerivedChildCounts,
@@ -51,7 +51,6 @@ import {
   partitionDeletableIds,
 } from "./partition-user-removal-elements.js";
 import { useCanvasData } from "./use-canvas-data.js";
-
 function collectMeasuredSizes(storeApi) {
   const measured = new Map();
   const { nodeLookup } = storeApi.getState();
@@ -66,7 +65,6 @@ function collectMeasuredSizes(storeApi) {
   }
   return measured.size > 0 ? measured : void 0;
 }
-
 function toHistoryActionResult(checkpoint, instance2) {
   const current2 =
     checkpoint && instance2.history.isCheckpointCurrent(checkpoint)
@@ -77,13 +75,10 @@ function toHistoryActionResult(checkpoint, instance2) {
     checkpoint: current2,
   };
 }
-
 const KEYBOARD_MOVE_COMMIT_DELAY_MS = 200;
-
 function generateNodeId() {
   return crypto.randomUUID();
 }
-
 function isBoxFullyVisible(box2, rect) {
   return (
     box2.x >= rect.x &&
@@ -92,7 +87,6 @@ function isBoxFullyVisible(box2, rect) {
     box2.y + box2.height <= rect.y + rect.height
   );
 }
-
 const COMMAND_DEFINITIONS = [
   {
     id: CANVAS_COMMAND_IDS.addNode,
@@ -173,11 +167,9 @@ const COMMAND_DEFINITIONS = [
     ariaKeyshortcuts: "Shift+2",
   },
 ];
-
 const DEFINITIONS_BY_ID = new Map(
   COMMAND_DEFINITIONS.map((definition2) => [definition2.id, definition2]),
 );
-
 function createCanvasCommandRegistry(resolveHandlers) {
   return {
     definitions: COMMAND_DEFINITIONS,
@@ -197,7 +189,6 @@ function createCanvasCommandRegistry(resolveHandlers) {
     },
   };
 }
-
 function selectMouseAnchor(opts) {
   const { mouseScreen, containerRect, screenToFlow } = opts;
   if (!mouseScreen || !containerRect) return null;
@@ -212,11 +203,9 @@ function selectMouseAnchor(opts) {
   }
   return screenToFlow(mouseScreen);
 }
-
 function selectDropAnchor(opts) {
   return selectMouseAnchor(opts) ?? opts.viewportCenter();
 }
-
 function collectCommittablePositionChanges(changes) {
   const moves = [];
   for (const change of changes) {
@@ -234,12 +223,10 @@ function collectCommittablePositionChanges(changes) {
   }
   return moves;
 }
-
 const COLLAPSED_GROUP_FLOW_SIZE = {
   width: 1,
   height: 1,
 };
-
 function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
   const selected2 = selectedNodeIds ? selectedNodeIds.has(node2.id) : void 0;
   const rawSize = isIdleEmptyVideoNode(node2)
@@ -322,7 +309,6 @@ function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
       : {}),
   };
 }
-
 function toFlowNodes(nodes, mode2, selectedNodeIds, hiddenNodeIds) {
   return nodes.map((node2) =>
     toFlowNode(
@@ -333,7 +319,6 @@ function toFlowNodes(nodes, mode2, selectedNodeIds, hiddenNodeIds) {
     ),
   );
 }
-
 function toFlowNodesMemo(cache2, nodes, mode2, selectedNodeIds, hiddenNodeIds) {
   const result = new Array(nodes.length);
   const next2 = new Map();
@@ -375,7 +360,6 @@ function toFlowNodesMemo(cache2, nodes, mode2, selectedNodeIds, hiddenNodeIds) {
   for (const [k2, v2] of next2) cache2.set(k2, v2);
   return result;
 }
-
 function toFlowEdges(edges, selectedNodeIds, hiddenNodeIds) {
   return edges.map((edge) =>
     toFlowEdge(
@@ -391,7 +375,6 @@ function toFlowEdges(edges, selectedNodeIds, hiddenNodeIds) {
     ),
   );
 }
-
 function collectHiddenChildIds(nodes) {
   let collapsedGroups = null;
   let hidden = null;
@@ -416,13 +399,11 @@ function collectHiddenChildIds(nodes) {
   }
   return hidden && hidden.size > 0 ? hidden : void 0;
 }
-
 function prepareNodesForFlow(nodes, childCountByParent) {
   return reorderParentsBeforeChildren(
     injectDerivedChildCounts(nodes, childCountByParent),
   );
 }
-
 function mergeHiddenSets(a2, b3) {
   if (!a2) return b3;
   if (!b3) return a2;
@@ -430,15 +411,12 @@ function mergeHiddenSets(a2, b3) {
   for (const id2 of b3) out.add(id2);
   return out;
 }
-
 function buildIndexById(items) {
   return new Map(items.map((item, index2) => [item.id, index2]));
 }
-
 function selectionKey(ids2) {
   return Array.from(ids2).sort().join("|");
 }
-
 function buildEdgeIdsByNode(edges) {
   const edgeIdsByNode = new Map();
   for (const edge of edges) {
@@ -457,7 +435,6 @@ function buildEdgeIdsByNode(edges) {
   }
   return edgeIdsByNode;
 }
-
 function collectMetaHiddenIds(nodes) {
   const ids2 = new Set();
   for (const node2 of nodes) {
@@ -465,7 +442,6 @@ function collectMetaHiddenIds(nodes) {
   }
   return ids2.size > 0 ? ids2 : void 0;
 }
-
 function syncFlowGraph(
   instance2,
   graph,
@@ -494,7 +470,6 @@ function syncFlowGraph(
     }
   }
 }
-
 function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
   const [selectedIds, setSelectedIds] = reactExports.useState([]);
   const selectedIdsRef = reactExports.useRef(new Set());
@@ -671,7 +646,6 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
     syncingRef,
   };
 }
-
 function shortenPrompt(prompt) {
   if (!prompt) return void 0;
   const trimmed = prompt.trim();
@@ -680,13 +654,11 @@ function shortenPrompt(prompt) {
     ? `${trimmed.slice(0, PROMPT_PREVIEW_MAX)}…`
     : trimmed;
 }
-
 function readStr(data2, key2) {
   if (!data2) return void 0;
   const v2 = data2[key2];
   return typeof v2 === "string" && v2.length > 0 ? v2 : void 0;
 }
-
 function buildDebugInfo(node2, ctx = {}) {
   const data2 = node2.data ?? {};
   let status = "unknown";
@@ -777,12 +749,10 @@ function buildDebugInfo(node2, ctx = {}) {
       : {}),
   };
 }
-
 function shortTraceId(traceId) {
   if (!traceId) return void 0;
   return traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
 }
-
 function collectPayloads(instance2, assetStore, generatingStore, nodeIds) {
   const graph = instance2.getGraph();
   const lookup = new Map(graph.nodes.map((n2) => [n2.id, n2]));
@@ -800,12 +770,11 @@ function collectPayloads(instance2, assetStore, generatingStore, nodeIds) {
   }
   return payloads;
 }
-
 function useCopyDebugInfo(instance2) {
   const { t: t2 } = useTranslation();
   const assetStore = useAssetMetadataApi();
   const generatingStore = useGeneratingStateApi();
-  const copyDebugShortcut = resolveCanvasShortcut$1("copyDebug").join(
+  const copyDebugShortcut = resolveCanvasShortcut("copyDebug").join(
     resolveCanvasPlatform() === "mac" ? "" : "+",
   );
   return reactExports.useCallback(
@@ -880,7 +849,6 @@ function useCopyDebugInfo(instance2) {
     [instance2, assetStore, generatingStore, t2, copyDebugShortcut],
   );
 }
-
 function useCanvasInstance(mode2, plugins) {
   const pluginsRef = reactExports.useRef(plugins);
   pluginsRef.current = plugins;
@@ -903,7 +871,6 @@ function useCanvasInstance(mode2, plugins) {
   }, [mode2, instance2]);
   return instance2;
 }
-
 export function useCanvas(options) {
   const {
     mode: mode2,

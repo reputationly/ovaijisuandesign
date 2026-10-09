@@ -1,7 +1,7 @@
 // asset-center-panel.jsx
 import {
   API_PATHS,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   jsxRuntimeExports,
   Loader2,
@@ -14,11 +14,11 @@ import {
   Search,
   useCurrentWorkspace,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon, StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 import { EntityHoverCardBody } from "./attachment-row.jsx";
 import { TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
@@ -37,11 +37,8 @@ import {
 } from "./use-materialized-entities.jsx";
 import { EntityEditDialog } from "./entity-edit-dialog.jsx";
 import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
-
-const HOVER_OPEN_DELAY_MS$1 = 300;
-
-const HOVER_CLOSE_DELAY_MS$1 = 150;
-
+const HOVER_OPEN_DELAY_MS = 300;
+const HOVER_CLOSE_DELAY_MS = 150;
 function useEntityHoverPreview() {
   const [state2, setState] = reactExports.useState({
     kind: "idle",
@@ -83,7 +80,7 @@ function useEntityHoverPreview() {
           kind: "hover",
           target,
         });
-      }, HOVER_OPEN_DELAY_MS$1);
+      }, HOVER_OPEN_DELAY_MS);
     },
     [cancelClose, cancelOpen2, setBoth],
   );
@@ -97,7 +94,7 @@ function useEntityHoverPreview() {
         setBoth({
           kind: "idle",
         });
-    }, HOVER_CLOSE_DELAY_MS$1);
+    }, HOVER_CLOSE_DELAY_MS);
   }, [cancelOpen2, cancelClose, setBoth]);
   const onPopupPointerEnter = reactExports.useCallback(() => {
     cancelOpen2();
@@ -112,7 +109,7 @@ function useEntityHoverPreview() {
         setBoth({
           kind: "idle",
         });
-    }, HOVER_CLOSE_DELAY_MS$1);
+    }, HOVER_CLOSE_DELAY_MS);
   }, [cancelOpen2, cancelClose, setBoth]);
   const dismiss = reactExports.useCallback(() => {
     cancelOpen2();
@@ -163,7 +160,6 @@ function useEntityHoverPreview() {
     dismiss,
   };
 }
-
 function EntityHoverPreviewPopup({
   anchor,
   entityId,
@@ -187,7 +183,7 @@ function EntityHoverPreviewPopup({
           sideOffset={8}
           align="start"
           alignOffset={0}
-          className={cn$2(
+          className={cn(
             "isolate z-50",
             positioned &&
               "transition-transform duration-200 ease-out motion-reduce:transition-none",
@@ -197,7 +193,7 @@ function EntityHoverPreviewPopup({
             data-slot="preview-card-content"
             onPointerEnter={onPopupPointerEnter}
             onPointerLeave={onPopupPointerLeave}
-            className={cn$2(
+            className={cn(
               "elevated-surface-border z-50 w-[260px] origin-(--transform-origin) rounded-lg bg-popover text-popover-foreground shadow-lg outline-none",
               "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             )}
@@ -214,7 +210,6 @@ function EntityHoverPreviewPopup({
     </PreviewCardRoot>
   );
 }
-
 const EntityHoverPreviewHost = reactExports.memo(
   reactExports.forwardRef(function EntityHoverPreviewHost2(
     { onPreviewAttachment, onAddToCanvas, onAddToChat },
@@ -266,7 +261,6 @@ const EntityHoverPreviewHost = reactExports.memo(
     );
   }),
 );
-
 function ProjectSidebarCategoryChips({
   options,
   value,
@@ -275,7 +269,7 @@ function ProjectSidebarCategoryChips({
   className,
 }) {
   return (
-    <div className={cn$2("shrink-0 px-2 pb-1", className)}>
+    <div className={cn("shrink-0 px-2 pb-1", className)}>
       <div
         className="scrollbar-none flex h-8 flex-nowrap items-center gap-1 overflow-x-auto"
         data-action-ui-id={rowActionId}
@@ -289,7 +283,7 @@ function ProjectSidebarCategoryChips({
               onClick={() => onChange(option2.value)}
               data-action-ui-id={option2.actionId}
               aria-pressed={active2}
-              className={cn$2(
+              className={cn(
                 "group inline-flex h-[26px] max-w-[112px] shrink-0 items-center justify-center rounded-full border px-[9px] text-xs font-normal shadow-none transition-colors duration-150 select-none focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none",
                 active2
                   ? "border-foreground bg-transparent text-foreground"
@@ -304,9 +298,7 @@ function ProjectSidebarCategoryChips({
     </div>
   );
 }
-
 const TYPE_CHIPS = ["all", "character", "scene", "style_pack", "custom"];
-
 function useLightboxEscape(onClose) {
   reactExports.useEffect(() => {
     const handler = (e2) => {
@@ -316,7 +308,6 @@ function useLightboxEscape(onClose) {
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 }
-
 function LightboxCloseButton({ onClose }) {
   const { t: t2 } = useTranslation();
   return (
@@ -329,11 +320,10 @@ function LightboxCloseButton({ onClose }) {
         onClose();
       }}
     >
-      <StrokeIcon icon={X$7} size={16} />
+      <StrokeIcon icon={X} size={16} />
     </button>
   );
 }
-
 function AudioLightbox({ src, alt, onClose }) {
   useLightboxEscape(onClose);
   return reactDomExports.createPortal(
@@ -360,7 +350,6 @@ function AudioLightbox({ src, alt, onClose }) {
     document.body,
   );
 }
-
 function TextLightbox({ src, alt, onClose }) {
   const [content2, setContent2] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
@@ -410,7 +399,6 @@ function TextLightbox({ src, alt, onClose }) {
     document.body,
   );
 }
-
 const SearchInput = reactExports.memo(function SearchInput2({
   onDebouncedChange,
 }) {
@@ -462,19 +450,18 @@ const SearchInput = reactExports.memo(function SearchInput2({
           })}
           onClick={handleClear}
           tabIndex={hasValue ? 0 : -1}
-          className={cn$2(
+          className={cn(
             "inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-opacity hover:bg-foreground/[0.05] hover:text-foreground",
             hasValue ? "opacity-100" : "opacity-0 pointer-events-none",
           )}
           data-action-ui-id="canvas-sidebar-asset-center.search-clear"
         >
-          <StrokeIcon icon={X$7} size={12} />
+          <StrokeIcon icon={X} size={12} />
         </button>
       </div>
     </div>
   );
 });
-
 export function AssetCenterPanel({
   viewMode = "tree",
   onRegisterRefresh,
@@ -767,7 +754,7 @@ export function AssetCenterPanel({
                     }}
                   >
                     <StrokeIcon
-                      icon={ChevronRight$1}
+                      icon={ChevronRight}
                       size={12}
                       className={`transition-transform ${pinnedOpen ? "rotate-90" : ""}`}
                     />
@@ -823,7 +810,7 @@ export function AssetCenterPanel({
                     }}
                   >
                     <StrokeIcon
-                      icon={ChevronRight$1}
+                      icon={ChevronRight}
                       size={12}
                       className={`transition-transform ${allOpen ? "rotate-90" : ""}`}
                     />

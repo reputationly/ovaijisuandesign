@@ -2,10 +2,9 @@
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { nearestDuration } from "./model-param-select.jsx";
-import { Slider$1 } from "./slider.jsx";
+import { Slider } from "./slider.jsx";
 import { ParamSectionLabel, ParamStepper } from "./resolution-tabs.jsx";
-import { Input$1 } from "../media-editing/input.jsx";
-
+import { Input } from "../media-editing/input.jsx";
 export function ParamDurationSlider({
   label,
   options,
@@ -71,7 +70,7 @@ export function ParamDurationSlider({
           onIncrease={() => handleStep(next2)}
         >
           <div className="relative w-12 shrink-0">
-            <Input$1
+            <Input
               type="number"
               aria-label={label}
               data-action-ui-id="canvas.params.duration-input"
@@ -106,7 +105,7 @@ export function ParamDurationSlider({
           </div>
         </ParamStepper>
       </div>
-      <Slider$1
+      <Slider
         variant="filled"
         size="compact"
         visualMin={0}

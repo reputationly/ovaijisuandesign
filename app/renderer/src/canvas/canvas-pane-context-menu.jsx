@@ -10,12 +10,11 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   resolveCanvasPlatform,
-  resolveCanvasShortcut$1,
+  resolveCanvasShortcut,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
 import { useDismissMenu } from "./canvas-high-blast-delete-dialog.jsx";
 import { getClipboard } from "./partition-user-removal-elements.js";
 import { useClampedMenuPosition } from "../text-editor/table-ops.jsx";
-
 function PaneMenuItem({
   label,
   shortcut,
@@ -75,7 +74,6 @@ function PaneMenuItem({
     </ActionListItem>
   );
 }
-
 export function CanvasPaneContextMenu({
   motionProps,
   position: position2,
@@ -134,14 +132,14 @@ export function CanvasPaneContextMenu({
       <ActionListSeparator />
       <PaneMenuItem
         label={t2("canvas.undo")}
-        shortcut={resolveCanvasShortcut$1("undo")}
+        shortcut={resolveCanvasShortcut("undo")}
         disabled={!canUndo}
         dataActionUiId="canvas.pane-menu-undo"
         onClick={() => handleAction(onUndo)}
       />
       <PaneMenuItem
         label={t2("canvas.redo")}
-        shortcut={resolveCanvasShortcut$1("redo")}
+        shortcut={resolveCanvasShortcut("redo")}
         disabled={!canRedo}
         dataActionUiId="canvas.pane-menu-redo"
         onClick={() => handleAction(onRedo)}
@@ -149,7 +147,7 @@ export function CanvasPaneContextMenu({
       <ActionListSeparator />
       <PaneMenuItem
         label={t2("canvas.paste")}
-        shortcut={resolveCanvasShortcut$1("paste")}
+        shortcut={resolveCanvasShortcut("paste")}
         disabled={!hasClipboard}
         testId="canvas-pane-context-menu-paste-item"
         dataActionUiId="canvas.pane-menu-paste"

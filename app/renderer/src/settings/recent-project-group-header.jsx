@@ -3,7 +3,7 @@ import {
   ArrowUpDown,
   ArrowUpRight,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   MonochromeIcon,
   Pin,
   Plus,
@@ -20,7 +20,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -41,14 +41,11 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "../workspace/context-menu-content.jsx";
-
 function isRecentProjectsSortMode(value) {
   return value === "manual" || value === "recent" || value === "priority";
 }
-
 const UNGROUPED_SORT_PREVIEW_HOLD =
   "home-sidebar.recent-group-ungrouped-sort-menu";
-
 function UngroupedSortMenu({
   sortMode,
   onSortModeChange,
@@ -148,10 +145,8 @@ function UngroupedSortMenu({
     </DropdownMenu>
   );
 }
-
 const HOME_RECENT_GROUP_ACTION_CLASS =
   "icon-sidebar-action-control flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none";
-
 export function RecentProjectGroupHeader({
   project: project2,
   expanded,
@@ -184,7 +179,7 @@ export function RecentProjectGroupHeader({
   const projectId = project2?.id;
   const FolderIcon =
     project2?.kind === "team" ? Users : expanded ? FolderOpen : Folder;
-  const ChevronToggle = expanded ? ChevronDown : ChevronRight$1;
+  const ChevronToggle = expanded ? ChevronDown : ChevronRight;
   const indentPx = 20 + depth2 * 16;
   reactExports.useEffect(() => {
     if (
@@ -209,7 +204,7 @@ export function RecentProjectGroupHeader({
     if (projectId) onToggle(projectId);
     else if (ungroupedToggleKey) onToggle(ungroupedToggleKey);
   }, [onToggle, projectId, ungroupedToggleKey]);
-  const headerClass = cn$2(
+  const headerClass = cn(
     "group relative isolate flex h-[32px] items-center gap-1 pr-1",
     dragging && "sidebar-drag-source",
     dragOver &&
@@ -352,7 +347,7 @@ export function RecentProjectGroupHeader({
       ) : null}
       {project2 ? (
         <span
-          className={cn$2(
+          className={cn(
             "pointer-events-none absolute inset-y-0 right-0.5 z-10 flex items-center gap-0.5 rounded-r-md px-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100",
           )}
           data-action-ui-id="home-sidebar.recent-group-actions"

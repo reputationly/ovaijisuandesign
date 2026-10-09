@@ -9,11 +9,9 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download, FolderOpen, useCanvasBridge } from "./package.jsx";
 import { getCanvasFileManagerLabelKey } from "./use-warn-missing-asset-meta.jsx";
-
 function getLightboxDownloadSource(item) {
   return item?.filePath || item?.url || void 0;
 }
-
 function getLightboxDownloadFileName(item) {
   if (item?.fileName) return item.fileName;
   const source = getLightboxDownloadSource(item);
@@ -21,22 +19,18 @@ function getLightboxDownloadFileName(item) {
   const clean = source.split(/[?#]/)[0] ?? source;
   return clean.split("/").pop() || void 0;
 }
-
 function getLightboxCopySource(item) {
   if (item?.kind !== "image") return void 0;
   return item.filePath || item.url || void 0;
 }
-
 function isLightboxItemCopyable(item, onCopyImage) {
   return !!getLightboxCopySource(item) && !!onCopyImage;
 }
-
 function isLightboxItemDownloadable(item, onSaveAs, onSaveUrlAs) {
   if (!item?.url) return false;
   if (item.filePath && onSaveAs) return true;
   return !!onSaveUrlAs;
 }
-
 function getBatchDownloadableLightboxItems(items) {
   if (!items || items.length === 0) return [];
   const seen2 = new Set();
@@ -53,15 +47,10 @@ function getBatchDownloadableLightboxItems(items) {
   }
   return downloadable;
 }
-
 const CONTEXT_MENU_WIDTH = 176;
-
 const CONTEXT_MENU_ROW_HEIGHT = 32;
-
 const CONTEXT_MENU_PADDING = 8;
-
-const VIEWPORT_MARGIN$5 = 8;
-
+const VIEWPORT_MARGIN = 8;
 function LightboxMediaContextMenu({
   x: x2,
   y: y4,
@@ -142,7 +131,6 @@ function LightboxMediaContextMenu({
     document.body,
   );
 }
-
 function clampMenuPoint(x2, y4, rowCount) {
   const viewportWidth =
     typeof window === "undefined" ? 1024 : window.innerWidth;
@@ -151,19 +139,18 @@ function clampMenuPoint(x2, y4, rowCount) {
   const width = CONTEXT_MENU_WIDTH;
   const height = rowCount * CONTEXT_MENU_ROW_HEIGHT + CONTEXT_MENU_PADDING;
   const maxX = Math.max(
-    VIEWPORT_MARGIN$5,
-    viewportWidth - width - VIEWPORT_MARGIN$5,
+    VIEWPORT_MARGIN,
+    viewportWidth - width - VIEWPORT_MARGIN,
   );
   const maxY = Math.max(
-    VIEWPORT_MARGIN$5,
-    viewportHeight - height - VIEWPORT_MARGIN$5,
+    VIEWPORT_MARGIN,
+    viewportHeight - height - VIEWPORT_MARGIN,
   );
   return {
-    x: Math.min(Math.max(x2, VIEWPORT_MARGIN$5), maxX),
-    y: Math.min(Math.max(y4, VIEWPORT_MARGIN$5), maxY),
+    x: Math.min(Math.max(x2, VIEWPORT_MARGIN), maxX),
+    y: Math.min(Math.max(y4, VIEWPORT_MARGIN), maxY),
   };
 }
-
 export function useLightboxMediaActions({ item, items }) {
   const { t: t2 } = useTranslation();
   const { onCopyImage, onSaveAs, onSaveManyAs, onSaveUrlAs, onShowInFolder } =

@@ -6,9 +6,8 @@ import { ImagePlaceholderIcon } from "./file-missing-icon.jsx";
 import {
   PLACEHOLDER_ICON_CLASS,
   PLACEHOLDER_ICON_SIZE,
-  RetryIcon$1,
+  RetryIcon,
 } from "./fullscreen-icon.jsx";
-
 export function BoldIcon() {
   return (
     <CompositedSvg
@@ -22,7 +21,6 @@ export function BoldIcon() {
     </CompositedSvg>
   );
 }
-
 export function ItalicIcon() {
   return (
     <CompositedSvg
@@ -36,7 +34,6 @@ export function ItalicIcon() {
     </CompositedSvg>
   );
 }
-
 export function BulletListIcon() {
   return (
     <CompositedSvg
@@ -50,7 +47,6 @@ export function BulletListIcon() {
     </CompositedSvg>
   );
 }
-
 export function OrderedListIcon() {
   return (
     <CompositedSvg
@@ -64,7 +60,6 @@ export function OrderedListIcon() {
     </CompositedSvg>
   );
 }
-
 export function DropdownArrowIcon() {
   return (
     <CompositedSvg
@@ -80,11 +75,9 @@ export function DropdownArrowIcon() {
     </CompositedSvg>
   );
 }
-
 export function RefreshIcon() {
-  return <RetryIcon$1 size={18} />;
+  return <RetryIcon size={18} />;
 }
-
 export function VideoPlaceholderIcon({
   size: size2 = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
@@ -102,7 +95,6 @@ export function VideoPlaceholderIcon({
     </CompositedSvg>
   );
 }
-
 export function PromoteToAssetIcon({ size: size2 = 16 } = {}) {
   return (
     <CompositedSvg
@@ -143,7 +135,6 @@ export function PromoteToAssetIcon({ size: size2 = 16 } = {}) {
     </CompositedSvg>
   );
 }
-
 export function TextPlaceholderIcon({
   size: size2 = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
@@ -161,7 +152,6 @@ export function TextPlaceholderIcon({
     </CompositedSvg>
   );
 }
-
 export function AudioPlaceholderIcon({
   size: size2 = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
@@ -182,9 +172,7 @@ export function AudioPlaceholderIcon({
     </CompositedSvg>
   );
 }
-
 const MEDIA_NODE_INNER_RADIUS = MEDIA_NODE_RADIUS - 2;
-
 export function GeneratingMediaArea({
   width,
   height,
@@ -238,7 +226,6 @@ export function GeneratingMediaArea({
     </div>
   );
 }
-
 export function shouldRenderMediaActionSurface({
   selected: selected2,
   showLightbox,

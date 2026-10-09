@@ -74,7 +74,7 @@ import {
 } from "./use-new-workspace-dialog.jsx";
 import { GROUPS } from "./groups.js";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -114,11 +114,9 @@ import {
   getVisiblePreviewTabIds,
 } from "../infra/error-boundary.jsx";
 import { Toaster2 } from "../settings/attach-native-toast-surface.jsx";
-
 function recordNavigation(path2, data2) {
   actionTrailLog.info(`navigate: ${path2}`, data2);
 }
-
 function reportRendererReady(hiloApp2) {
   return Promise.resolve(
     hiloApp2.updateRendererDiagnosticsSnapshot({
@@ -127,9 +125,7 @@ function reportRendererReady(hiloApp2) {
     }),
   );
 }
-
 const IDLE_MS = 600;
-
 function installScrollbarVisibility(doc2 = document) {
   const timers = new Map();
   doc2.documentElement.setAttribute("data-auto-hide-scrollbars", "");
@@ -160,34 +156,25 @@ function installScrollbarVisibility(doc2 = document) {
     timers.clear();
   };
 }
-
 var createRouter = (options) => {
   return new Router(options);
 };
-
 const $$splitComponentImporter$c = () =>
   (() => import("../_home-COqe4OG7.js"))();
-
 const Route$d = createFileRoute("/_home")({
   component: lazyRouteComponent($$splitComponentImporter$c, "component"),
 });
-
 const $$splitComponentImporter$b = () =>
   (() => import("../_app-BYKdG-ns.js"))();
-
 const Route$c = createFileRoute("/_app")({
   component: lazyRouteComponent($$splitComponentImporter$b, "component"),
 });
-
 const $$splitComponentImporter$a = () => (() => import("../home/index.jsx"))();
-
 const Route$b = createFileRoute("/_home/")({
   component: lazyRouteComponent($$splitComponentImporter$a, "component"),
 });
-
 const $$splitComponentImporter$9 = () =>
   (() => import("../workflows/index.jsx"))();
-
 const Route$a = createFileRoute("/_home/workflows/")({
   component: lazyRouteComponent($$splitComponentImporter$9, "component"),
   validateSearch: (search2) => ({
@@ -199,8 +186,7 @@ const Route$a = createFileRoute("/_home/workflows/")({
           : void 0,
   }),
 });
-
-const Route$9 = createFileRoute("/_home/skill-community/")({
+const Route = createFileRoute("/_home/skill-community/")({
   validateSearch: (search2) => ({
     ...(search2.capability === "skills" || search2.capability === "connectors"
       ? {
@@ -232,31 +218,24 @@ const Route$9 = createFileRoute("/_home/skill-community/")({
     });
   },
 });
-
 function parseProjectListSearch(search2) {
   return {
     kind: search2.kind === "team" ? "team" : "local",
   };
 }
-
 const $$splitComponentImporter$8 = () =>
   (() => import("../projects/index.jsx"))();
-
 const Route$8 = createFileRoute("/_home/projects/")({
   validateSearch: parseProjectListSearch,
   component: lazyRouteComponent($$splitComponentImporter$8, "component"),
 });
-
 const $$splitComponentImporter$7 = () =>
   (() => import("../creations/index.jsx"))();
-
 const Route$7 = createFileRoute("/_home/creations/")({
   component: lazyRouteComponent($$splitComponentImporter$7, "component"),
 });
-
 const $$splitComponentImporter$6 = () =>
   (() => import("../changelog/index.jsx"))();
-
 const Route$6 = createFileRoute("/_home/changelog/")({
   component: lazyRouteComponent($$splitComponentImporter$6, "component"),
   validateSearch: (search2) => ({
@@ -265,10 +244,8 @@ const Route$6 = createFileRoute("/_home/changelog/")({
       search2.source === "home_top_whats_new" ? "home_top_whats_new" : void 0,
   }),
 });
-
 const $$splitComponentImporter$5 = () =>
   (() => import("../index-DRApim0M.js"))();
-
 function validateAssetCenterSearch(search2) {
   const result = {};
   if (search2.action === "create") result.action = "create";
@@ -276,15 +253,12 @@ function validateAssetCenterSearch(search2) {
   if (returnWorkspaceId) result.returnWorkspaceId = returnWorkspaceId;
   return result;
 }
-
 const Route$5 = createFileRoute("/_home/asset-center/")({
   component: lazyRouteComponent($$splitComponentImporter$5, "component"),
   validateSearch: validateAssetCenterSearch,
 });
-
 const $$splitComponentImporter$4 = () =>
   (() => import("../index-HL7p23h1.js"))();
-
 function parseInitialAttachments(value) {
   if (Array.isArray(value) && value.every((v2) => typeof v2 === "string")) {
     return value;
@@ -297,7 +271,6 @@ function parseInitialAttachments(value) {
   } catch {}
   return void 0;
 }
-
 function parseInitialSelectedMediaModels(value) {
   let raw2 = value;
   if (typeof value === "string") {
@@ -325,7 +298,6 @@ function parseInitialSelectedMediaModels(value) {
   if (audio !== void 0) result.audio = audio;
   return result;
 }
-
 const Route$4 = createFileRoute("/_app/workspace/")({
   validateSearch: (search2) => ({
     workspaceId: normalizeWorkspaceId(search2.workspaceId),
@@ -378,10 +350,8 @@ const Route$4 = createFileRoute("/_app/workspace/")({
   },
   component: lazyRouteComponent($$splitComponentImporter$4, "component"),
 });
-
 const $$splitComponentImporter$3 = () =>
   (() => import("../skills/index.jsx"))();
-
 function validateSkillsSearch(search2) {
   const out = {};
   const capability = search2.capability;
@@ -407,7 +377,6 @@ function validateSkillsSearch(search2) {
   if (connectorId) out.connectorId = connectorId;
   return out;
 }
-
 const Route$3 = createFileRoute("/_app/skills/")({
   component: lazyRouteComponent($$splitComponentImporter$3, "component"),
   // Accept capability and detail identifiers so external entries can deep-link
@@ -417,20 +386,16 @@ const Route$3 = createFileRoute("/_app/skills/")({
   // we still validate it independently so the schema stays self-describing.
   validateSearch: validateSkillsSearch,
 });
-
 const $$splitComponentImporter$2 = () =>
   (() => import("../project-detail/index.jsx"))();
-
 const Route$2 = createFileRoute("/_home/projects/$projectId")({
   validateSearch: (search2) => ({
     tab: typeof search2.tab === "string" ? search2.tab : void 0,
   }),
   component: lazyRouteComponent($$splitComponentImporter$2, "component"),
 });
-
 const $$splitComponentImporter$1 = () =>
   (() => import("../remote-tool-DZYmJVoR.js"))();
-
 const Route$1 = createFileRoute("/_app/debug/remote-tool")({
   validateSearch: (search2) => ({
     url: typeof search2.url === "string" ? search2.url : void 0,
@@ -439,7 +404,6 @@ const Route$1 = createFileRoute("/_app/debug/remote-tool")({
   }),
   component: lazyRouteComponent($$splitComponentImporter$1, "component"),
 });
-
 function requireChatCaseDebugAccess(canUseDebug = canUseDebugTooling) {
   if (!canUseDebug()) {
     throw redirect({
@@ -447,10 +411,8 @@ function requireChatCaseDebugAccess(canUseDebug = canUseDebugTooling) {
     });
   }
 }
-
 const $$splitComponentImporter = () =>
   (() => import("../chat-case-_htrAxBf.js"))();
-
 const Route2 = createFileRoute("/_app/debug/chat-case")({
   beforeLoad: () => requireChatCaseDebugAccess(),
   validateSearch: (search2) => ({
@@ -464,11 +426,8 @@ const Route2 = createFileRoute("/_app/debug/chat-case")({
   }),
   component: lazyRouteComponent($$splitComponentImporter, "component"),
 });
-
 const root = document.getElementById("root");
-
 if (!root) throw new Error("Root element not found");
-
 const FALLBACK_LABELS = {
   zh: {
     menu: "菜单",
@@ -515,7 +474,6 @@ const FALLBACK_LABELS = {
     documentation: "Documentation",
   },
 };
-
 function HomeMenuButton() {
   const { t: t2, i18n } = useTranslation();
   const { isWindowsTitlebarOverlay } = useWindowChrome();
@@ -585,15 +543,12 @@ function HomeMenuButton() {
     </nav>
   );
 }
-
 const WINDOW_APP_CONTROLS_MIN_INSET = 0;
-
 const LazyGlobalSearchDialog = reactExports.lazy(() =>
   (() => import("../global-search/index.jsx"))().then((m3) => ({
     default: m3.GlobalSearchDialog,
   })),
 );
-
 function TopbarSearchDialogLazy({ open, onOpenChange }) {
   const navigate = useNavigate();
   const { t: t2 } = useTranslation();
@@ -762,7 +717,6 @@ function TopbarSearchDialogLazy({ open, onOpenChange }) {
     </reactExports.Suspense>
   );
 }
-
 function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
   const platform2 = usePlatform();
   const {
@@ -888,7 +842,6 @@ function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
     </>
   );
 }
-
 function Topbar({ onFullScreenChange, onAppControlsInsetChange } = {}) {
   return (
     <TopbarContent
@@ -897,7 +850,6 @@ function Topbar({ onFullScreenChange, onAppControlsInsetChange } = {}) {
     />
   );
 }
-
 function DataDirectoryStatusBanner() {
   const { t: t2 } = useTranslation();
   const settingsDialog = useOptionalSettingsDialog();
@@ -946,7 +898,6 @@ function DataDirectoryStatusBanner() {
     </div>
   );
 }
-
 function GatewayReadinessBanner() {
   const { t: t2 } = useTranslation();
   const readiness = useGatewayReadiness();
@@ -980,7 +931,6 @@ function GatewayReadinessBanner() {
     </div>
   );
 }
-
 function parseInitialAttachments$1(value) {
   if (Array.isArray(value) && value.every((v2) => typeof v2 === "string")) {
     return value;
@@ -993,7 +943,6 @@ function parseInitialAttachments$1(value) {
   } catch {}
   return void 0;
 }
-
 function parseInitialSelectedMediaModels$1(value) {
   let raw2 = value;
   if (typeof value === "string") {
@@ -1021,7 +970,6 @@ function parseInitialSelectedMediaModels$1(value) {
   if (audio !== void 0) result.audio = audio;
   return result;
 }
-
 function useWorkspaceRouteState() {
   return useRouterState({
     select: (state2) => {
@@ -1081,7 +1029,6 @@ function useWorkspaceRouteState() {
     },
   });
 }
-
 function RetainedWorkspaceRuntimeLayer() {
   const {
     active: active2,
@@ -1220,11 +1167,9 @@ function RetainedWorkspaceRuntimeLayer() {
     </div>
   );
 }
-
 const MemoizedRetainedWorkspaceRuntimeLayer = reactExports.memo(
   RetainedWorkspaceRuntimeLayer,
 );
-
 function ModelCatalogLoginWarmup() {
   const auth = reactExports.useContext(AuthContext);
   const gatewayFetch2 = useGatewayFetch();
@@ -1298,7 +1243,6 @@ function ModelCatalogLoginWarmup() {
   ]);
   return null;
 }
-
 function GlobalSidebarStateRoot({ children: children2, ...props }) {
   const { collapsed, previewOpen } = useGlobalSidebar();
   const previewInteractionActive = collapsed && previewOpen;
@@ -1314,7 +1258,6 @@ function GlobalSidebarStateRoot({ children: children2, ...props }) {
     </div>
   );
 }
-
 function WorkbenchShellContent({ children: children2 }) {
   const hasAuthContext = reactExports.useContext(AuthContext) !== null;
   const settings = useSettings();
@@ -1343,7 +1286,7 @@ function WorkbenchShellContent({ children: children2 }) {
     <GatewayScopeProvider gatewayReady={appGatewayReady}>
       {hasAuthContext ? <ModelCatalogLoginWarmup /> : null}
       <GlobalSidebarStateRoot
-        className={cn$2(
+        className={cn(
           "transparent-window-root transparent-window-shell-material relative flex h-screen w-screen flex-col overflow-hidden bg-[var(--window-shell-fallback-bg)]",
           !settings.config.islandLayout && "no-islands",
         )}
@@ -1387,7 +1330,7 @@ function WorkbenchShellContent({ children: children2 }) {
               <>
                 <div
                   aria-hidden="true"
-                  className={cn$2(
+                  className={cn(
                     "drag-region absolute inset-x-2 top-0 z-20",
                     topBottomDragHotZoneClassName,
                   )}
@@ -1395,7 +1338,7 @@ function WorkbenchShellContent({ children: children2 }) {
                 />
                 <div
                   aria-hidden="true"
-                  className={cn$2(
+                  className={cn(
                     "drag-region absolute inset-x-2 bottom-0 z-20",
                     topBottomDragHotZoneClassName,
                   )}
@@ -1404,7 +1347,7 @@ function WorkbenchShellContent({ children: children2 }) {
                 {!collapsed ? (
                   <div
                     aria-hidden="true"
-                    className={cn$2(
+                    className={cn(
                       "drag-region absolute left-0 z-20 w-2",
                       sideDragHotZoneInsetClassName,
                     )}
@@ -1413,7 +1356,7 @@ function WorkbenchShellContent({ children: children2 }) {
                 ) : null}
                 <div
                   aria-hidden="true"
-                  className={cn$2(
+                  className={cn(
                     "drag-region absolute right-0 z-20 w-2",
                     sideDragHotZoneInsetClassName,
                   )}
@@ -1422,7 +1365,7 @@ function WorkbenchShellContent({ children: children2 }) {
               </>
             ) : null}
             <section
-              className={cn$2(
+              className={cn(
                 "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl",
                 !isWorkspaceRoute &&
                   "elevated-surface-border bg-[var(--home-content-surface)]",
@@ -1451,7 +1394,6 @@ function WorkbenchShellContent({ children: children2 }) {
     </GatewayScopeProvider>
   );
 }
-
 function WorkbenchShell({ children: children2 }) {
   return (
     <GlobalSidebarProvider>
@@ -1459,7 +1401,6 @@ function WorkbenchShell({ children: children2 }) {
     </GlobalSidebarProvider>
   );
 }
-
 function RootLayout() {
   const { pathname } = useLocation();
   useTrackPageView(pathname);
@@ -1476,102 +1417,84 @@ function RootLayout() {
     </AppProviders>
   );
 }
-
 const Route$e = createRootRoute({
   component: RootLayout,
 });
-
 const HomeRoute = Route$d.update({
   id: "/_home",
   getParentRoute: () => Route$e,
 });
-
 const AppRoute = Route$c.update({
   id: "/_app",
   getParentRoute: () => Route$e,
 });
-
 const HomeIndexRoute = Route$b.update({
   id: "/",
   path: "/",
   getParentRoute: () => HomeRoute,
 });
-
 const HomeWorkflowsIndexRoute = Route$a.update({
   id: "/workflows/",
   path: "/workflows/",
   getParentRoute: () => HomeRoute,
 });
-
-const HomeSkillCommunityIndexRoute = Route$9.update({
+const HomeSkillCommunityIndexRoute = Route.update({
   id: "/skill-community/",
   path: "/skill-community/",
   getParentRoute: () => HomeRoute,
 });
-
 const HomeProjectsIndexRoute = Route$8.update({
   id: "/projects/",
   path: "/projects/",
   getParentRoute: () => HomeRoute,
 });
-
 const HomeCreationsIndexRoute = Route$7.update({
   id: "/creations/",
   path: "/creations/",
   getParentRoute: () => HomeRoute,
 });
-
 const HomeChangelogIndexRoute = Route$6.update({
   id: "/changelog/",
   path: "/changelog/",
   getParentRoute: () => HomeRoute,
 });
-
 const HomeAssetCenterIndexRoute = Route$5.update({
   id: "/asset-center/",
   path: "/asset-center/",
   getParentRoute: () => HomeRoute,
 });
-
 const AppWorkspaceIndexRoute = Route$4.update({
   id: "/workspace/",
   path: "/workspace/",
   getParentRoute: () => AppRoute,
 });
-
 const AppSkillsIndexRoute = Route$3.update({
   id: "/skills/",
   path: "/skills/",
   getParentRoute: () => AppRoute,
 });
-
 const HomeProjectsProjectIdRoute = Route$2.update({
   id: "/projects/$projectId",
   path: "/projects/$projectId",
   getParentRoute: () => HomeRoute,
 });
-
 const AppDebugRemoteToolRoute = Route$1.update({
   id: "/debug/remote-tool",
   path: "/debug/remote-tool",
   getParentRoute: () => AppRoute,
 });
-
 const AppDebugChatCaseRoute = Route2.update({
   id: "/debug/chat-case",
   path: "/debug/chat-case",
   getParentRoute: () => AppRoute,
 });
-
 const AppRouteChildren = {
   AppDebugChatCaseRoute,
   AppDebugRemoteToolRoute,
   AppSkillsIndexRoute,
   AppWorkspaceIndexRoute,
 };
-
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren);
-
 const HomeRouteChildren = {
   HomeIndexRoute,
   HomeProjectsProjectIdRoute,
@@ -1582,16 +1505,12 @@ const HomeRouteChildren = {
   HomeSkillCommunityIndexRoute,
   HomeWorkflowsIndexRoute,
 };
-
 const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren);
-
 const rootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   HomeRoute: HomeRouteWithChildren,
 };
-
 const routeTree = Route$e._addFileChildren(rootRouteChildren)._addFileTypes();
-
 function isStartupSessionRestorePayload(value) {
   if (!value || typeof value !== "object") return false;
   const candidate = value;
@@ -1600,13 +1519,10 @@ function isStartupSessionRestorePayload(value) {
     Array.isArray(candidate.restoredWorkspaceIds)
   );
 }
-
 const router = createRouter({
   routeTree,
 });
-
 const TrackingRecorder = null;
-
 function AppRoot() {
   const { t: t2 } = useTranslation();
   useDebugFlag(DEBUG_FLAGS.trackingRecorder);
@@ -1778,7 +1694,6 @@ function AppRoot() {
     </TooltipProvider>
   );
 }
-
 function AppRootWithRendererReady() {
   reactExports.useEffect(() => installScrollbarVisibility(), []);
   reactExports.useEffect(() => {
@@ -1786,7 +1701,6 @@ function AppRootWithRendererReady() {
   }, []);
   return <AppRoot />;
 }
-
 clientExports.createRoot(root).render(
   <reactExports.StrictMode>
     <ErrorBoundary>

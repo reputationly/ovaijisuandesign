@@ -1,17 +1,13 @@
 // create-visible-preview-tabs-store.js
 import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
 import { resolveVisiblePreviewEntries } from "./use-deep-link-router.js";
-
 const VISIBLE_PREVIEW_TABS_STORAGE_KEY = "hilo.topbar.visible-preview-tabs.v1";
-
 const VISIBLE_PREVIEW_TABS_VERSION = 1;
-
 function nonEmptyOpaqueText(value) {
   if (typeof value !== "string") return void 0;
   return value.trim().length > 0 ? value : void 0;
 }
-
-function normalizeReference$1(value) {
+function normalizeReference(value) {
   if (typeof value === "string") {
     const workspaceId22 = nonEmptyOpaqueText(value);
     return workspaceId22
@@ -34,13 +30,12 @@ function normalizeReference$1(value) {
         workspaceId: workspaceId2,
       };
 }
-
 function dedupeReferences(values3) {
   const seenWorkspaceIds = new Set();
   const seenFolderPaths = new Set();
   const result = [];
   for (const value of values3) {
-    const reference = normalizeReference$1(value);
+    const reference = normalizeReference(value);
     if (!reference || seenWorkspaceIds.has(reference.workspaceId)) continue;
     if (reference.folderPath && seenFolderPaths.has(reference.folderPath))
       continue;
@@ -50,7 +45,6 @@ function dedupeReferences(values3) {
   }
   return result;
 }
-
 function referencesEqual(left, right) {
   return (
     left.length === right.length &&
@@ -61,7 +55,6 @@ function referencesEqual(left, right) {
     )
   );
 }
-
 function readSnapshot(storage) {
   if (!storage)
     return {
@@ -100,7 +93,6 @@ function readSnapshot(storage) {
     };
   }
 }
-
 function browserStorage() {
   try {
     return typeof window === "undefined" ? null : window.localStorage;
@@ -108,9 +100,7 @@ function browserStorage() {
     return null;
   }
 }
-
 let durablePreviewWriteQueue = Promise.resolve();
-
 function mainReadablePreviewTabsMirror() {
   return {
     set: (value) => {
@@ -123,14 +113,12 @@ function mainReadablePreviewTabsMirror() {
     },
   };
 }
-
 function entryReference(entry) {
   return {
     workspaceId: entry.workspaceId,
     folderPath: entry.folderPath,
   };
 }
-
 function createVisiblePreviewTabsStore(
   storage = browserStorage(),
   durableMirror = mainReadablePreviewTabsMirror(),
@@ -213,7 +201,7 @@ function createVisiblePreviewTabsStore(
       publish(reconciled, true);
     },
     show: (entry) => {
-      const reference = normalizeReference$1(entry);
+      const reference = normalizeReference(entry);
       if (!reference) return;
       hiddenBeforeInitialization.delete(reference.workspaceId);
       const existingIndex = snapshot2.tabs.findIndex(
@@ -245,7 +233,7 @@ function createVisiblePreviewTabsStore(
       publish(updated, snapshot2.initialized);
     },
     replace: (workspaceId2, entry) => {
-      const canonical = normalizeReference$1(entry);
+      const canonical = normalizeReference(entry);
       const previousId = nonEmptyOpaqueText(workspaceId2);
       if (!canonical || !previousId) return;
       hiddenBeforeInitialization.delete(canonical.workspaceId);
@@ -291,5 +279,4 @@ function createVisiblePreviewTabsStore(
     },
   };
 }
-
 export const visiblePreviewTabsStore = createVisiblePreviewTabsStore();

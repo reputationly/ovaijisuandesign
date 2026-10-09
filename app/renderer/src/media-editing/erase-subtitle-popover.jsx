@@ -1,10 +1,10 @@
 // erase-subtitle-popover.jsx
 import {
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -13,32 +13,26 @@ import {
   useCanvasIsDragging,
   useCanvasIsMultiSelect,
 } from "./package.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-
+import { Button } from "../canvas/node-shell-inner.jsx";
 const MODES = ["auto", "manual"];
-
 const MODE_LABEL_KEYS = {
   auto: "canvas.eraseSubtitle.mode.auto",
   manual: "canvas.eraseSubtitle.mode.manual",
 };
-
 const MODE_LABEL_FALLBACKS = {
   auto: "自动识别字幕",
   manual: "手动框选",
 };
-
 const MODE_DESC_KEYS = {
   auto: "canvas.eraseSubtitle.mode.auto.desc",
   manual: "canvas.eraseSubtitle.mode.manual.desc",
 };
-
 const MODE_DESC_FALLBACKS = {
   auto: "自动识别并去除视频底部字幕条文字（OCR + AIGC 修复）。处理耗时与视频时长相关，约为原视频时长的 6～10 倍（1 分钟以内的短视频相对更久），请耐心等待。",
   manual: "点击下方「开始」后，在视频上手动框选要消除的文字区域。",
 };
-
 function ModeToggle({ value, onChange }) {
   const { t: t2 } = useTranslation();
   return (
@@ -79,7 +73,6 @@ function ModeToggle({ value, onChange }) {
     </div>
   );
 }
-
 export const EraseSubtitlePopover = reactExports.memo(
   function EraseSubtitlePopover2({
     mode: mode2,
@@ -95,7 +88,7 @@ export const EraseSubtitlePopover = reactExports.memo(
       (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore$3(selectedSelector);
+    const selected2 = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -111,7 +104,7 @@ export const EraseSubtitlePopover = reactExports.memo(
         ? t2("canvas.eraseSubtitle.submitManual", "下一步")
         : t2("canvas.eraseSubtitle.submit", "开始");
     return (
-      <NodeToolbar$1
+      <NodeToolbar
         isVisible={true}
         position={Position.Bottom}
         offset={NODE_POPOVER_SAFE_GAP}
@@ -146,9 +139,9 @@ export const EraseSubtitlePopover = reactExports.memo(
               title={t2("canvas.eraseSubtitle.cancel", "取消")}
               className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
             >
-              <CloseIcon$1 />
+              <CloseIcon />
             </button>
-            <Button$2
+            <Button
               variant="default"
               size="icon"
               onClick={handleSubmit}
@@ -156,10 +149,10 @@ export const EraseSubtitlePopover = reactExports.memo(
               aria-label={submitLabel}
             >
               <SendArrowIcon />
-            </Button$2>
+            </Button>
           </div>
         </div>
-      </NodeToolbar$1>
+      </NodeToolbar>
     );
   },
 );

@@ -1,13 +1,13 @@
 // reference-switch-popover.jsx
 import {
   Check,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   jsxRuntimeExports,
   Music,
   reactDomExports,
   reactExports,
   useAssetMetadataStore,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
   Video,
 } from "../vendor.js";
@@ -18,31 +18,22 @@ import {
 } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
-import { Tooltip$1 } from "./missing-asset-card.jsx";
-import { disabledReasonLabel$1 } from "./disabled-reason-label.js";
+import { Tooltip } from "./missing-asset-card.jsx";
+import { disabledReasonLabel } from "./disabled-reason-label.js";
 import { isMentionCandidate } from "./is-mention-candidate.js";
 import {
   mapKind,
   passesBudgetGate,
   reasonForDisabled,
 } from "./attachment-bar.jsx";
-
-const PANEL_WIDTH$1 = 288;
-
-const PANEL_MAX_HEIGHT$1 = 360;
-
+const PANEL_WIDTH = 288;
+const PANEL_MAX_HEIGHT = 360;
 const FLYOUT_GAP = 4;
-
 const FLYOUT_CLOSE_DELAY_MS = 120;
-
 const FLYOUT_SCROLL_INSET = 8;
-
-const VIEWPORT_MARGIN$3 = 8;
-
-const ANCHOR_GAP$1 = 4;
-
-const THUMB_PX$4 = 28;
-
+const VIEWPORT_MARGIN = 8;
+const ANCHOR_GAP = 4;
+const THUMB_PX = 28;
 const KIND_ROWS = [
   {
     kind: "image",
@@ -69,7 +60,6 @@ const KIND_ROWS = [
     Icon: FileText,
   },
 ];
-
 export function ReferenceSwitchPopover({
   anchorRect,
   getAnchorRect,
@@ -83,7 +73,7 @@ export function ReferenceSwitchPopover({
   const { getNodeById, getNodeIdByPath } = useCanvasActions();
   const { resolveThumbUrl } = useCanvasBridge();
   const assets = useAssetMetadataStore((state2) => state2.assets);
-  const viewportTransform = useStore$3((state2) => state2.transform);
+  const viewportTransform = useStore((state2) => state2.transform);
   const panelRef = reactExports.useRef(null);
   const flyoutRef = reactExports.useRef(null);
   const activeCategoryRowRef = reactExports.useRef(null);
@@ -147,9 +137,9 @@ export function ReferenceSwitchPopover({
         alreadyAdded,
         thumbUrl:
           definedKind === "video"
-            ? (resolveThumbUrl?.(meta2.path, THUMB_PX$4, "video") ?? "")
+            ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "video") ?? "")
             : definedKind === "image"
-              ? (resolveThumbUrl?.(meta2.path, THUMB_PX$4, "image") ??
+              ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "image") ??
                 resolveFileUrl?.(meta2.path) ??
                 "")
               : (resolveFileUrl?.(meta2.path) ?? ""),
@@ -220,25 +210,25 @@ export function ReferenceSwitchPopover({
     };
   }, [onClose]);
   const computePosition2 = reactExports.useCallback((rect) => {
-    const expandedWidth = PANEL_WIDTH$1 * 2 + FLYOUT_GAP;
+    const expandedWidth = PANEL_WIDTH * 2 + FLYOUT_GAP;
     const left = Math.min(
-      Math.max(rect.left, VIEWPORT_MARGIN$3),
+      Math.max(rect.left, VIEWPORT_MARGIN),
       Math.max(
-        VIEWPORT_MARGIN$3,
-        window.innerWidth - expandedWidth - VIEWPORT_MARGIN$3,
+        VIEWPORT_MARGIN,
+        window.innerWidth - expandedWidth - VIEWPORT_MARGIN,
       ),
     );
     const spaceBelow =
-      window.innerHeight - rect.bottom - ANCHOR_GAP$1 - VIEWPORT_MARGIN$3;
-    const spaceAbove = rect.top - ANCHOR_GAP$1 - VIEWPORT_MARGIN$3;
+      window.innerHeight - rect.bottom - ANCHOR_GAP - VIEWPORT_MARGIN;
+    const spaceAbove = rect.top - ANCHOR_GAP - VIEWPORT_MARGIN;
     if (spaceBelow < 220 && spaceAbove > spaceBelow) {
       return {
-        bottom: window.innerHeight - rect.top + ANCHOR_GAP$1,
+        bottom: window.innerHeight - rect.top + ANCHOR_GAP,
         left,
       };
     }
     return {
-      top: rect.bottom + ANCHOR_GAP$1,
+      top: rect.bottom + ANCHOR_GAP,
       left,
     };
   }, []);
@@ -267,7 +257,7 @@ export function ReferenceSwitchPopover({
     const flyoutHeight = flyout.getBoundingClientRect().height;
     const maxOffset2 = Math.max(
       0,
-      window.innerHeight - VIEWPORT_MARGIN$3 - containerTop - flyoutHeight,
+      window.innerHeight - VIEWPORT_MARGIN - containerTop - flyoutHeight,
     );
     setFlyoutOffset(Math.max(0, Math.min(desiredOffset, maxOffset2)));
   }, []);
@@ -306,8 +296,8 @@ export function ReferenceSwitchPopover({
             : "flex shrink-0 items-center justify-center overflow-hidden rounded-[6px] border-[0.5px] border-border bg-secondary text-[#555555] dark:text-[#c2c2c2]"
         }
         style={{
-          width: THUMB_PX$4,
-          height: THUMB_PX$4,
+          width: THUMB_PX,
+          height: THUMB_PX,
         }}
       >
         {hasVisualThumbnail ? (
@@ -332,15 +322,11 @@ export function ReferenceSwitchPopover({
   const renderItem = (item) => {
     const selected2 = item.meta.path === currentPath;
     return (
-      <Tooltip$1
+      <Tooltip
         key={item.meta.path}
         content={
           item.disabledReason
-            ? disabledReasonLabel$1(
-                item.disabledReason,
-                config2.constraints,
-                t2,
-              )
+            ? disabledReasonLabel(item.disabledReason, config2.constraints, t2)
             : void 0
         }
       >
@@ -371,7 +357,7 @@ export function ReferenceSwitchPopover({
             )}
           </button>
         </span>
-      </Tooltip$1>
+      </Tooltip>
     );
   };
   return reactDomExports.createPortal(
@@ -381,7 +367,7 @@ export function ReferenceSwitchPopover({
       className="fixed z-[10002]"
       style={{
         ...position2,
-        width: PANEL_WIDTH$1,
+        width: PANEL_WIDTH,
       }}
       onMouseDown={(event) => event.preventDefault()}
       onMouseEnter={cancelFlyoutClose}
@@ -392,8 +378,8 @@ export function ReferenceSwitchPopover({
         aria-label={t2("mention.switch.title", "Switch reference")}
         className="elevated-surface-border flex flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
         style={{
-          width: PANEL_WIDTH$1,
-          maxHeight: PANEL_MAX_HEIGHT$1,
+          width: PANEL_WIDTH,
+          maxHeight: PANEL_MAX_HEIGHT,
         }}
       >
         <div
@@ -444,8 +430,8 @@ export function ReferenceSwitchPopover({
                 <span
                   className="flex shrink-0 items-center justify-center rounded-[6px] border-[0.5px] border-border bg-secondary text-[#555555] dark:text-[#c2c2c2]"
                   style={{
-                    width: THUMB_PX$4,
-                    height: THUMB_PX$4,
+                    width: THUMB_PX,
+                    height: THUMB_PX,
                   }}
                 >
                   <Icon2 size={16} aria-hidden={true} />
@@ -454,7 +440,7 @@ export function ReferenceSwitchPopover({
                   {t2(labelKey, fallback)}
                 </span>
                 <span className="text-xs text-muted-foreground">{count2}</span>
-                <ChevronRight$1
+                <ChevronRight
                   size={14}
                   className="text-muted-foreground"
                   aria-hidden={true}
@@ -468,7 +454,7 @@ export function ReferenceSwitchPopover({
         <div
           className="absolute left-full"
           style={{
-            width: PANEL_WIDTH$1 + FLYOUT_GAP,
+            width: PANEL_WIDTH + FLYOUT_GAP,
             top: flyoutOffset,
             paddingLeft: FLYOUT_GAP,
           }}
@@ -481,14 +467,14 @@ export function ReferenceSwitchPopover({
             )}
             className="elevated-surface-border flex min-h-11 flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
             style={{
-              width: PANEL_WIDTH$1,
-              maxHeight: PANEL_MAX_HEIGHT$1,
+              width: PANEL_WIDTH,
+              maxHeight: PANEL_MAX_HEIGHT,
             }}
           >
             <div
               className="my-2 min-h-11 overflow-y-auto overscroll-contain"
               style={{
-                maxHeight: PANEL_MAX_HEIGHT$1 - FLYOUT_SCROLL_INSET * 2,
+                maxHeight: PANEL_MAX_HEIGHT - FLYOUT_SCROLL_INSET * 2,
               }}
             >
               {categoryItems.length > 0 ? (

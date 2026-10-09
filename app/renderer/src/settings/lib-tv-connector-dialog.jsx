@@ -5,13 +5,12 @@ import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
 import { ConnectorRelationshipGraphic } from "./connector-relationship-graphic.jsx";
 import { OFFICIAL_CONNECTORS } from "./request-prompt-prefill.jsx";
 import {
-  Button$1,
+  Button,
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { homeService } from "../workspace/home-service.jsx";
-
 function preparationErrorKey(code2) {
   return code2 === "runtime_unavailable"
     ? "connectors.libtv.runtimeRequired"
@@ -21,7 +20,6 @@ function preparationErrorKey(code2) {
         ? "connectors.libtv.conflict"
         : "connectors.libtv.failed";
 }
-
 export function LibTvConnectorDialog({
   onClose,
   onPrepared,
@@ -107,15 +105,15 @@ export function LibTvConnectorDialog({
         </p>
       ) : null}
       <DialogFooter>
-        <Button$1
+        <Button
           variant="outline"
           className="h-9 min-w-22 rounded-lg px-4"
           onClick={handleClose}
           data-action-ui-id="connectors-libtv-dismiss"
         >
           {t2("connectors.libtv.dismiss")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           className="h-9 min-w-26 rounded-lg px-4"
           onClick={() => void handleAuthorize()}
           disabled={pending2}
@@ -123,7 +121,7 @@ export function LibTvConnectorDialog({
           data-action-ui-id="connectors-libtv-authorize"
         >
           {t2("connectors.libtv.authorize")}
-        </Button$1>
+        </Button>
       </DialogFooter>
     </div>
   );

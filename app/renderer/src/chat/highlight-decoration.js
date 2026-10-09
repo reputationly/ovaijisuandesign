@@ -1,8 +1,12 @@
 // highlight-decoration.js
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
-import { Decoration$1, DecorationSet, Extension, Plugin } from "../vendor.js";
+import {
+  Decoration$1 as Decoration,
+  DecorationSet,
+  Extension,
+  Plugin,
+} from "../vendor.js";
 import { highlightPluginKey } from "./use-composer-placeholder-actions.jsx";
-
 function textOffsetToPmPos(doc2, textOffset) {
   if (textOffset <= 0) return 1;
   let lo = 1;
@@ -18,11 +22,9 @@ function textOffsetToPmPos(doc2, textOffset) {
   }
   return lo;
 }
-
 const HIGHLIGHT_CLASS = {
   skill: "hl-skill",
 };
-
 function buildDecorations(doc2, ranges) {
   if (ranges.length === 0) return DecorationSet.empty;
   const decorations2 = [];
@@ -31,7 +33,7 @@ function buildDecorations(doc2, ranges) {
     const to = textOffsetToPmPos(doc2, end2);
     if (from2 >= to || to > doc2.content.size + 1) continue;
     decorations2.push(
-      Decoration$1.inline(
+      Decoration.inline(
         from2,
         to,
         {
@@ -48,7 +50,6 @@ function buildDecorations(doc2, ranges) {
   }
   return DecorationSet.create(doc2, decorations2);
 }
-
 export const HighlightDecoration = Extension.create({
   name: "chatHighlight",
   addProseMirrorPlugins() {

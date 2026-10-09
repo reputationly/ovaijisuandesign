@@ -1,36 +1,26 @@
 // image-split-edit-toolbar-inner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { CloseIcon$1, GroupIcon } from "../canvas/file-missing-icon.jsx";
+import { CloseIcon, GroupIcon } from "../canvas/file-missing-icon.jsx";
 import {
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { SPLIT_MAGNIFICATIONS } from "./image-rotate-preview-inner.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
+import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import {
-  CreditCostBadge,
-  Tooltip$1,
-} from "../generation/missing-asset-card.jsx";
-import {
-  DropdownMenu$1,
-  DropdownMenuTrigger$1,
+  DropdownMenu,
+  DropdownMenuTrigger,
 } from "./use-warn-missing-asset-meta.jsx";
-import {
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-} from "./audio-lightbox.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
-
+import { DropdownMenuContent, DropdownMenuItem } from "./audio-lightbox.jsx";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 const HEADER_FLOW_HEIGHT = 28;
-
-const TOOLBAR_GAP$1 = 16;
-
-const zoomSelector$2 = (s2) => s2.transform[2];
-
+const TOOLBAR_GAP = 16;
+const zoomSelector = (s2) => s2.transform[2];
 function MagnificationGenerateControl({
   magnification,
   onSelect,
@@ -43,8 +33,8 @@ function MagnificationGenerateControl({
   const [open, setOpen] = reactExports.useState(false);
   return (
     <div className="ml-1 flex h-8 items-center gap-0.5">
-      <DropdownMenu$1 open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger$1
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger
           disabled={processing}
           aria-label={t2("canvas.splitGrid.magnification", "选择高清倍率")}
           className="canvas-toolbar-action"
@@ -56,8 +46,8 @@ function MagnificationGenerateControl({
             })}
           </span>
           <DropdownArrowIcon />
-        </DropdownMenuTrigger$1>
-        <DropdownMenuContent$1
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
           side="bottom"
           sideOffset={8}
           align="start"
@@ -65,7 +55,7 @@ function MagnificationGenerateControl({
           variant="toolbar"
         >
           {SPLIT_MAGNIFICATIONS.map((m3) => (
-            <DropdownMenuItem$1
+            <DropdownMenuItem
               key={m3.id}
               onClick={() => onSelect(m3.id)}
               className="canvas-toolbar-menu-item px-3 py-2"
@@ -75,11 +65,11 @@ function MagnificationGenerateControl({
                   magnification: m3.multiplier,
                 })}
               </span>
-            </DropdownMenuItem$1>
+            </DropdownMenuItem>
           ))}
-        </DropdownMenuContent$1>
-      </DropdownMenu$1>
-      <Tooltip$1
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Tooltip
         content={t2(
           "canvas.splitGrid.generateHdTooltip",
           "将选中的宫格图片高清放大后创建分镜组。",
@@ -105,11 +95,10 @@ function MagnificationGenerateControl({
             />
           )}
         </button>
-      </Tooltip$1>
+      </Tooltip>
     </div>
   );
 }
-
 function ExitChip({ onClick, label }) {
   return (
     <button
@@ -119,15 +108,13 @@ function ExitChip({ onClick, label }) {
       aria-label={label}
       className="canvas-toolbar-action"
     >
-      <CloseIcon$1 />
+      <CloseIcon />
     </button>
   );
 }
-
-function Divider$3() {
+function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-
 function ImageSplitEditToolbarInner({
   visible,
   selectedCount,
@@ -140,19 +127,19 @@ function ImageSplitEditToolbarInner({
   perCellCost,
 }) {
   const { t: t2 } = useTranslation();
-  const zoom2 = useStore$3(zoomSelector$2);
-  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP$1;
+  const zoom2 = useStore(zoomSelector);
+  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
   const hasSelection2 = selectedCount > 0;
   const totalCost =
     perCellCost != null && hasSelection2 ? perCellCost * selectedCount : void 0;
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={visible}
       position={Position.Top}
       offset={offset2}
       align="center"
     >
-      <TooltipProvider$1 delay={150} closeDelay={0}>
+      <TooltipProvider delay={150} closeDelay={0}>
         <div
           className="canvas-toolbar-surface animate-[toolbar-fade-in_0.15s_ease-out]"
           onPointerDown={(e2) => e2.stopPropagation()}
@@ -179,7 +166,7 @@ function ImageSplitEditToolbarInner({
           </span>
           {onSplitLocal && (
             <>
-              <Tooltip$1
+              <Tooltip
                 content={t2(
                   "canvas.splitGrid.createGroupTooltip",
                   "将选中的宫格拆分为图片并创建分镜组，不消耗积分。",
@@ -198,8 +185,8 @@ function ImageSplitEditToolbarInner({
                     {t2("canvas.splitGrid.createGroup", "创建分镜组")}
                   </span>
                 </button>
-              </Tooltip$1>
-              <Divider$3 />
+              </Tooltip>
+              <Divider />
             </>
           )}
           <MagnificationGenerateControl
@@ -211,11 +198,10 @@ function ImageSplitEditToolbarInner({
             processing={processing}
           />
         </div>
-      </TooltipProvider$1>
-    </NodeToolbar$1>
+      </TooltipProvider>
+    </NodeToolbar>
   );
 }
-
 export const ImageSplitEditToolbar = reactExports.memo(
   ImageSplitEditToolbarInner,
 );

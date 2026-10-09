@@ -3,11 +3,11 @@ import { TEXT_VERSION_TIER_S_MAX_BYTES } from "../generation/to-workspace-browse
 import {
   ArrowLeft,
   ChevronLeft,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   Copy,
   dedupedToast,
   GitCompare,
-  Markdown$1,
+  Markdown$1 as Markdown,
   reactExports,
   remarkGfm,
   RotateCcw,
@@ -18,17 +18,11 @@ import { bumpFileVersion } from "../infra/use-plugin-metadata-store.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { CanvasActionsContext } from "../media-editing/use-canvas-actions.js";
 import { TextDiffHunkView } from "./text-diff-hunk-view.jsx";
-
 const COPY_NODE_GAP = 48;
-
 const CONTENT_PAGE_BYTES = 256 * 1024;
-
 const SCROLL_LOAD_THRESHOLD_PX = 400;
-
 const MARKDOWN_RENDER_MAX_BYTES = TEXT_VERSION_TIER_S_MAX_BYTES;
-
 const DIFF_PREF_KEY = "hilo:canvas:text-version:diff-enabled";
-
 function readDiffPreference() {
   try {
     return window.localStorage.getItem(DIFF_PREF_KEY) !== "0";
@@ -36,13 +30,11 @@ function readDiffPreference() {
     return true;
   }
 }
-
 function writeDiffPreference(enabled) {
   try {
     window.localStorage.setItem(DIFF_PREF_KEY, enabled ? "1" : "0");
   } catch {}
 }
-
 export function useTextVersionPreview({
   version: version2,
   label,
@@ -252,7 +244,7 @@ export function useTextVersionPreview({
     () =>
       renderAsMarkdown ? (
         <div className="ProseMirror cv-skip text-sm">
-          <Markdown$1 remarkPlugins={[remarkGfm]}>{content2}</Markdown$1>
+          <Markdown remarkPlugins={[remarkGfm]}>{content2}</Markdown>
         </div>
       ) : (
         <pre className="whitespace-pre-wrap break-words font-sans text-sm text-foreground">
@@ -311,7 +303,7 @@ export function useTextVersionPreview({
             data-action-ui-id="canvas-text-version-next"
           >
             {t2("canvas.textVersion.next", "下一个版本")}
-            <ChevronRight$1 size={14} strokeWidth={1.5} aria-hidden="true" />
+            <ChevronRight size={14} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
       </div>

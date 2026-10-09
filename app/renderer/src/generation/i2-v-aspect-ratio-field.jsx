@@ -5,8 +5,8 @@ import {
   isSeedance25InheritedVideoMode,
   isSeedance25Model,
   KLING_AVATAR_MODEL_NAMES,
-  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1,
-  normalizeIdentifier$1,
+  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM as LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1,
+  normalizeIdentifier,
   resolveSpecialI2VRouteKind,
   SEEDANCE_25_INHERITED_VIDEO_MODES,
   SEEDANCE_25_VIDEO_EDIT_MODE,
@@ -30,23 +30,18 @@ import { useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AspectRatioGrid } from "./aspect-ratio-grid.jsx";
 import { MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO } from "./normalize-skill-detail-metadata.js";
-
 const HAILUO_23_MODEL_NAMES = new Set([
   "MiniMax-Hailuo-2.3",
   "MiniMax-Hailuo-2.3-Fast",
   "Hailuo 2.3",
   "Hailuo 2.3 Fast",
 ]);
-
-const MINIMAX_H3_MODEL_ID$2 = "minimax-h3";
-
+const MINIMAX_H3_MODEL_ID = "minimax-h3";
 const MINIMAX_H3_BACKEND_ID = "minimax-v3";
-
 const REQUIRED_REFERENCE_IMAGE_MODEL_NAMES = new Set([
   ...HAILUO_23_MODEL_NAMES,
   ...KLING_AVATAR_MODEL_NAMES,
 ]);
-
 function requiresReferenceImageForI2V(model) {
   if (!model) return false;
   if (model.referenceImageRequired === true) return true;
@@ -55,7 +50,6 @@ function requiresReferenceImageForI2V(model) {
     hasModelName(model, REQUIRED_REFERENCE_IMAGE_MODEL_NAMES)
   );
 }
-
 function resolveSeedance25VideoInputTotalDuration(sourceVideoDurationsSec) {
   if (sourceVideoDurationsSec.length === 0) return void 0;
   let totalDurationSec = 0;
@@ -71,26 +65,21 @@ function resolveSeedance25VideoInputTotalDuration(sourceVideoDurationsSec) {
   }
   return Number.isFinite(totalDurationSec) ? totalDurationSec : void 0;
 }
-
 export function requiresPromptForI2V(model) {
   if (!model) return false;
-  if (normalizeIdentifier$1(model.backend) === MINIMAX_H3_BACKEND_ID)
-    return true;
+  if (normalizeIdentifier(model.backend) === MINIMAX_H3_BACKEND_ID) return true;
   return [model.id, model.model_name, model.pricingId, model.name].some(
-    (value) => normalizeIdentifier$1(value) === MINIMAX_H3_MODEL_ID$2,
+    (value) => normalizeIdentifier(value) === MINIMAX_H3_MODEL_ID,
   );
 }
-
 function hasReferenceMedia(imagePaths, videoPaths, audioPaths) {
   return [...imagePaths, ...videoPaths, ...audioPaths].some(
     (path2) => path2.trim().length > 0,
   );
 }
-
 function isAdaptiveRatio(value) {
   return value !== void 0 && ADAPTIVE_RATIO_VALUES.has(value.toLowerCase());
 }
-
 function resolveVideoRatioParam(model, params) {
   const key2 = ["aspect_ratio", "ratio"].find(
     (candidate) =>
@@ -106,7 +95,6 @@ function resolveVideoRatioParam(model, params) {
       MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO,
   };
 }
-
 function shouldDisableH3AdaptiveRatio(
   model,
   imageMode,
@@ -121,7 +109,6 @@ function shouldDisableH3AdaptiveRatio(
     return false;
   return !hasReferenceMedia(imagePaths, videoPaths, audioPaths);
 }
-
 function shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths) {
   return (
     isSeedance25Model(model) &&
@@ -130,7 +117,6 @@ function shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths) {
       SEEDANCE_25_INHERITED_VIDEO_MODES.has(imageMode))
   );
 }
-
 function resolveI2VAspectRatioOptions(
   options,
   constraintDisabledOptions,
@@ -152,7 +138,6 @@ function resolveI2VAspectRatioOptions(
     disabledOptions,
   };
 }
-
 function resolveEffectiveH3VideoParams(
   model,
   params,
@@ -179,7 +164,6 @@ function resolveEffectiveH3VideoParams(
     [ratioParam.key]: ratioParam.fixedValue,
   };
 }
-
 function resolveEffectiveSeedance25VideoParams(
   model,
   params,
@@ -200,7 +184,6 @@ function resolveEffectiveSeedance25VideoParams(
     [ratioParam.key]: "adaptive",
   };
 }
-
 export function resolveSeedance25SubmitParams(model, params, imageMode) {
   const next2 = {
     ...params,
@@ -217,7 +200,6 @@ export function resolveSeedance25SubmitParams(model, params, imageMode) {
   if (imageMode === SEEDANCE_25_VIDEO_EDIT_MODE) next2.duration = "-1";
   return next2;
 }
-
 export function resolveEffectiveI2VVideoParams(
   model,
   params,
@@ -240,7 +222,6 @@ export function resolveEffectiveI2VVideoParams(
     imagePaths,
   );
 }
-
 export function isMissingH3FirstLastFrameImage(
   model,
   imageMode,
@@ -254,7 +235,6 @@ export function isMissingH3FirstLastFrameImage(
     !imagePaths.some((path2) => path2.trim().length > 0)
   );
 }
-
 export function isUnsupportedTailOnlyFirstLastFrameI2V(
   model,
   imageMode,
@@ -267,11 +247,9 @@ export function isUnsupportedTailOnlyFirstLastFrameI2V(
     !!imagePaths[1]?.trim()
   );
 }
-
 function isMissingRequiredReferenceImageForI2V(model, imagePaths) {
   return requiresReferenceImageForI2V(model) && !imagePaths.some(Boolean);
 }
-
 export function getMissingRequiredAttachmentForI2V(
   model,
   imagePaths,
@@ -283,13 +261,11 @@ export function getMissingRequiredAttachmentForI2V(
   if (routeKind === "kling-avatar" && !audioPaths.some(Boolean)) return "audio";
   return void 0;
 }
-
 export function getSpecialI2VCostDurationAttachmentKind(model) {
   const routeKind = resolveSpecialI2VRouteKind(model);
   if (routeKind === "kling-avatar") return "audio";
   return void 0;
 }
-
 export function isMissingSpecialI2VCostDurationForPreview(
   model,
   _videoPaths,
@@ -301,7 +277,6 @@ export function isMissingSpecialI2VCostDurationForPreview(
   const hasRequiredAttachment = audioPaths.some(Boolean);
   return !hasRequiredAttachment || durationSec == null || durationSec <= 0;
 }
-
 export function buildSpecialI2VSubmitParams(
   model,
   params,
@@ -320,7 +295,6 @@ export function buildSpecialI2VSubmitParams(
   }
   return next2;
 }
-
 export function I2VAspectRatioField({
   model,
   imageMode,
@@ -382,42 +356,34 @@ export function I2VAspectRatioField({
     </div>
   );
 }
-
 export const VIDEO_EXTENSION_MODE = "video-extension";
-
 const VIDEO_EXTENSION_AUDIO_PARAM = "generate_audio";
-
 const VIDEO_EXTENSION_DROPPED_PARAM_KEYS = [
   "ratio",
   "aspect_ratio",
   VIDEO_EXTENSION_AUDIO_PARAM,
 ];
-
 export const DEFAULT_VIDEO_EXTENSION_CAPABILITY = {
   inputMinDurationSec: 1,
   inputMaxDurationSec: 20,
   outputMinDurationSec: 5,
   outputMaxDurationSec: 20,
 };
-
 export function videoExtensionDurationOptions(capability) {
   return mediaExtensionDurationOptions(capability);
 }
-
 export function videoExtensionDisabledDurationOptions(
   sourceDurationSec,
   capability,
 ) {
   return mediaExtensionDisabledDurationOptions(sourceDurationSec, capability);
 }
-
 export function isVideoExtensionInputDurationValid(
   sourceDurationSec,
   capability,
 ) {
   return isMediaExtensionInputDurationValid(sourceDurationSec, capability);
 }
-
 export function isVideoExtensionOutputDurationValid(
   sourceDurationSec,
   outputDuration,
@@ -429,11 +395,9 @@ export function isVideoExtensionOutputDurationValid(
     capability,
   );
 }
-
 export function shouldHideVideoExtensionParam(paramKey) {
   return paramKey === VIDEO_EXTENSION_AUDIO_PARAM;
 }
-
 export function sanitizeVideoExtensionSubmitParams(params) {
   const next2 = {
     ...params,
@@ -443,7 +407,6 @@ export function sanitizeVideoExtensionSubmitParams(params) {
   }
   return next2;
 }
-
 export function resolveI2VDefaultImagePaths({
   liveImagePaths,
   draftImagePaths,
@@ -460,7 +423,6 @@ export function resolveI2VDefaultImagePaths({
     preserveDraftSlots: imageMode === "first-last-frame",
   });
 }
-
 export function imageModeOptionLabel(t2, opt) {
   if (opt === "first-last-frame") {
     return t2("canvas.imageMode.firstLastFrame");
@@ -490,7 +452,6 @@ export function imageModeOptionLabel(t2, opt) {
   }
   return opt;
 }
-
 export function resolveI2VPrefillOverride({ models, prompt, modelId, params }) {
   const override = {};
   const nextPrompt = typeof prompt === "string" ? prompt : "";
@@ -510,7 +471,6 @@ export function resolveI2VPrefillOverride({ models, prompt, modelId, params }) {
   }
   return override;
 }
-
 export function resolveSeedance25VideoInputDurationSummary(videoPaths, assets) {
   const filledPaths = videoPaths.filter((path2) => path2.trim().length > 0);
   const pathToDuration = new Map();
@@ -532,14 +492,12 @@ export function resolveSeedance25VideoInputDurationSummary(videoPaths, assets) {
     ),
   };
 }
-
 const MINIMAX_H3_MAX_MODEL_ALIASES = new Set([
   "minimax-h3-max",
   "minimax-h3-max-turbo",
   "h3-max",
   "h3-max-turbo",
 ]);
-
 export function isMiniMaxH3MaxModelValue(value) {
   if (typeof value !== "string") return false;
   const normalized = value
@@ -548,23 +506,14 @@ export function isMiniMaxH3MaxModelValue(value) {
     .replace(/[\s_]+/g, "-");
   return MINIMAX_H3_MAX_MODEL_ALIASES.has(normalized);
 }
-
-export const MAX_VIDEOS_PER_SUBMIT$1 = 4;
-
+export const MAX_VIDEOS_PER_SUBMIT = 4;
 export const VIDEO_COUNT_OPTIONS = [1, 2, 3, 4];
-
 export const MINIMAX_H3_REFERENCE_MEDIA_MAX_SEC = 15;
-
 export const MINIMAX_H3_REFERENCE_VIDEO_MIN_FPS = 23.5;
-
 export const MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS = 60.5;
-
 export const MINIMAX_H3_PRICING_ID = "MiniMax-H3";
-
 export const SEEDANCE_25_EDIT_INPUT_MIN_SEC = 4;
-
 export const LEGACY_SEEDANCE_25_TASK_TYPE_PARAM = "omni_reference_task_type";
-
 export function devLogI2V(event, payload) {
   return;
 }

@@ -6,34 +6,29 @@ import {
 import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Upload } from "../media-editing/package.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
-
 function formatSpeed(bytesPerSecond) {
   if (bytesPerSecond < 1024) return `${Math.round(bytesPerSecond)} B/s`;
   if (bytesPerSecond < 1024 * 1024)
     return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
   return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
 }
-
 export function progressPercent(progress) {
   if (!progress) return 0;
   return Math.min(100, Math.max(0, Math.round(progress.percent)));
 }
-
 export function formatProgressDisplay(progress) {
   if (!progress) return "";
   const percent2 = progressPercent(progress);
   const speed = formatSpeed(progress.bytesPerSecond);
   return `${percent2}% · ${speed}`;
 }
-
 const WINDOWS_UPDATER_INSTALL_OPTIONS = {
   isSilent: false,
   isForceRunAfter: true,
 };
-
 export function installUpdateForPlatform(install, os2) {
   if (os2 === "win32") {
     return install({
@@ -42,7 +37,6 @@ export function installUpdateForPlatform(install, os2) {
   }
   return install();
 }
-
 export async function openManualInstallerDownload(
   shell,
   url2,
@@ -69,12 +63,10 @@ export async function openManualInstallerDownload(
     }
   }
 }
-
 function normalizeForCompare(p3, caseInsensitive) {
   const unified2 = p3.replace(/\\/g, "/").replace(/\/+$/, "");
   return caseInsensitive ? unified2.toLowerCase() : unified2;
 }
-
 export function isPathInWhitelist(target, whitelist, caseInsensitive) {
   if (!target) return false;
   const t2 = normalizeForCompare(target, caseInsensitive);
@@ -84,7 +76,6 @@ export function isPathInWhitelist(target, whitelist, caseInsensitive) {
     return t2 === d2 || t2.startsWith(`${d2}/`);
   });
 }
-
 export function DiagnosticsGroup() {
   const { t: t2 } = useTranslation();
   const [uploading, setUploading] = reactExports.useState(false);
@@ -113,7 +104,7 @@ export function DiagnosticsGroup() {
         label={t2("settings.logDirectory")}
         description={t2("settings.logDirectoryDesc")}
       >
-        <Button$1
+        <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs font-normal"
@@ -121,13 +112,13 @@ export function DiagnosticsGroup() {
         >
           <LocalFolderIcon />
           {t2("settings.openLogDir")}
-        </Button$1>
+        </Button>
       </SettingRow>
       <SettingRow
         label={t2("settings.uploadLogs")}
         description={t2("settings.uploadLogsDesc")}
       >
-        <Button$1
+        <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs font-normal"
@@ -142,7 +133,7 @@ export function DiagnosticsGroup() {
           {uploading
             ? t2("settings.uploadLogsUploading")
             : t2("settings.uploadLogs")}
-        </Button$1>
+        </Button>
       </SettingRow>
     </SettingGroup>
   );

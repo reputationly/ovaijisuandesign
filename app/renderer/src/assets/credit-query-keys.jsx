@@ -2,13 +2,13 @@
 import { visiblePreviewTabsStore } from "../workspace/create-visible-preview-tabs-store.js";
 import {
   DEFAULT_CANVAS_RENDER_POLICY,
-  snapshot$3,
+  snapshot,
 } from "../infra/use-plugin-metadata-store.js";
 import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
 import { getWorkspaceContentBudgetSnapshot } from "../infra/aggregate-snapshots.js";
 import {
   dedupedToast,
-  DialogPortal$2,
+  DialogPortal$2 as DialogPortal,
   instance,
   PopoverRoot,
   reactExports,
@@ -17,7 +17,6 @@ import {
 } from "../vendor.js";
 import { showVisiblePreviewTab } from "../workspace/show-visible-preview-tab.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 function resolveCanvasRenderPolicy(platform2, override = {}) {
   const isMacX64Canary =
     platform2?.os === "darwin" &&
@@ -48,35 +47,29 @@ function resolveCanvasRenderPolicy(platform2, override = {}) {
     reason,
   };
 }
-
 function getCanvasRenderDiagnosticsSnapshot() {
   return {
-    ...snapshot$3,
-    ...(snapshot$3.lastRecovery
+    ...snapshot,
+    ...(snapshot.lastRecovery
       ? {
           lastRecovery: {
-            ...snapshot$3.lastRecovery,
+            ...snapshot.lastRecovery,
           },
         }
       : {}),
   };
 }
-
 export function hideVisiblePreviewTabs(workspaceIds) {
   visiblePreviewTabsStore.hide(workspaceIds);
 }
-
 export function resolveDesktopCanvasRenderPolicy(platform2, runtimeConfig) {
   return resolveCanvasRenderPolicy(platform2, {
     contentVisibility: runtimeConfig.canvasContentVisibilityOverride,
     recoverAfterResume: runtimeConfig.canvasResumeRecoveryEnabled,
   });
 }
-
-const READY_TIMEOUT_MS$1 = 5e3;
-
+const READY_TIMEOUT_MS = 5e3;
 const READY_POLL_MS = 50;
-
 function whenReactScanReady() {
   if (window.reactScan) return Promise.resolve(window.reactScan);
   return new Promise((resolve) => {
@@ -88,14 +81,13 @@ function whenReactScanReady() {
         return;
       }
       waited += READY_POLL_MS;
-      if (waited >= READY_TIMEOUT_MS$1) {
+      if (waited >= READY_TIMEOUT_MS) {
         clearInterval(timer2);
         resolve(null);
       }
     }, READY_POLL_MS);
   });
 }
-
 export async function applyReactScan(enabled) {
   if (!canUseDebugTooling()) return;
   if (!enabled && !window.reactScan) return;
@@ -115,49 +107,35 @@ export async function applyReactScan(enabled) {
     });
   } catch {}
 }
-
 export const recentSlowMeasures = [];
-
 export const recentLongTasks = [];
-
 function getRecentSlowMeasures() {
   return [...recentSlowMeasures];
 }
-
 function getRecentLongTasks() {
   return recentLongTasks.map((entry) => ({
     ...entry,
   }));
 }
-
 export const ASSETS_QUERY_KEY = ["assets"];
-
 export const FILE_CONTENT_QUERY_KEY = ["file-content"];
-
 export const assetEventStateByWorkspace = new Map();
-
 export function getAssetEventStateSnapshot() {
   return Object.fromEntries(assetEventStateByWorkspace.entries());
 }
-
 export function scopedAssetsQueryKey(gatewayScopeKey) {
   return [...ASSETS_QUERY_KEY, gatewayScopeKey];
 }
-
 function scopedFileContentQueryKey(gatewayScopeKey, path2) {
   return [...FILE_CONTENT_QUERY_KEY, gatewayScopeKey, path2];
 }
-
 export async function refreshFileContent({ qc, gatewayScopeKey, path: path2 }) {
   await qc.invalidateQueries({
     queryKey: scopedFileContentQueryKey(gatewayScopeKey, path2),
   });
 }
-
 export const MAX_RECENT_TRACES = 50;
-
 export const tracesByClientId = new Map();
-
 function getMessageDeliveryTracesSnapshot() {
   const recent = [...tracesByClientId.values()].sort(
     (a2, b3) => a2.updatedAt - b3.updatedAt,
@@ -170,9 +148,7 @@ function getMessageDeliveryTracesSnapshot() {
     failed,
   };
 }
-
 export const entries = new Map();
-
 function getWorkspaceRetentionDiagnosticsSnapshot() {
   const rows = [...entries.values()];
   const statusCounts = {};
@@ -194,7 +170,6 @@ function getWorkspaceRetentionDiagnosticsSnapshot() {
     statusCounts,
   };
 }
-
 export function buildRendererDiagnosticsSnapshot() {
   return {
     assetEventState: getAssetEventStateSnapshot(),
@@ -206,35 +181,29 @@ export function buildRendererDiagnosticsSnapshot() {
     canvasRender: getCanvasRenderDiagnosticsSnapshot(),
   };
 }
-
-function isChineseLocale$1() {
+function isChineseLocale() {
   return (instance.resolvedLanguage ?? instance.language).startsWith("zh");
 }
-
 function blockedUnsavedFallback() {
-  return isChineseLocale$1()
+  return isChineseLocale()
     ? "项目还有内容未保存完成，暂时无法关闭，已恢复标签页。"
     : "This project still has unsaved changes and cannot be closed yet. Its tab has been restored.";
 }
-
 function blockedActiveFallback() {
-  return isChineseLocale$1()
+  return isChineseLocale()
     ? "项目仍有任务在运行，暂时无法关闭，已恢复标签页。"
     : "This project still has tasks running and cannot be closed yet. Its tab has been restored.";
 }
-
 function blockedGenericFallback() {
-  return isChineseLocale$1()
+  return isChineseLocale()
     ? "项目暂时无法关闭，已恢复标签页，请稍后重试。"
     : "This project could not be closed. Its tab has been restored — please try again shortly.";
 }
-
 function blockedStorageFallback() {
-  return isChineseLocale$1()
+  return isChineseLocale()
     ? "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或上传日志联系支持。"
     : "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or upload logs and contact support.";
 }
-
 export function toastWorkspaceCloseBlocked(workspaceId2, result) {
   const key2 =
     result.reason === "storage"
@@ -261,7 +230,6 @@ export function toastWorkspaceCloseBlocked(workspaceId2, result) {
     },
   );
 }
-
 export async function requestWorkspaceRuntimeClose(
   hiloApp2,
   workspaceId2,
@@ -288,9 +256,7 @@ export async function requestWorkspaceRuntimeClose(
     return void 0;
   }
 }
-
 const SCROLL_IDLE_MS = 600;
-
 export function useIsScrolling({
   scrollRef,
   idleMs = SCROLL_IDLE_MS,
@@ -323,38 +289,28 @@ export function useIsScrolling({
   }, [scrollRef, idleMs, enabled]);
   return enabled && isScrolling;
 }
-
-export const Select$1 = SelectRoot;
-
+export const Select = SelectRoot;
 export function AlertDialogPortal({ ...props }) {
-  return <DialogPortal$2 data-slot="alert-dialog-portal" {...props} />;
+  return <DialogPortal data-slot="alert-dialog-portal" {...props} />;
 }
-
 export const AuthContext = reactExports.createContext(null);
-
 export function useAuth() {
   const ctx = reactExports.useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-
 export const TeamAccountContext = reactExports.createContext(null);
-
 export function useTeamAccount() {
   const value = reactExports.useContext(TeamAccountContext);
   if (!value)
     throw new Error("useTeamAccount must be used within TeamProvider");
   return value;
 }
-
 export function useOptionalTeamAccount() {
   return reactExports.useContext(TeamAccountContext);
 }
-
 const PERSONAL_MEMBERSHIP = "PERSONAL";
-
 const NO_CREDIT_SCOPE = "NO_SCOPE";
-
 function canonicalScopeParts(scope) {
   return [
     scope.identityKey,
@@ -363,13 +319,11 @@ function canonicalScopeParts(scope) {
     scope.membershipRevision ?? PERSONAL_MEMBERSHIP,
   ];
 }
-
 function accountRoot(scope) {
   return scope.kind === "canonical"
     ? creditQueryKeys.scope(scope.accountScope)
     : creditQueryKeys.legacyPersonal(scope.identityKey);
 }
-
 export const creditQueryKeys = {
   root: ["credit"],
   unavailable: (resource) => ["credit", NO_CREDIT_SCOPE, resource],
@@ -448,21 +402,18 @@ export const creditQueryKeys = {
     "feed",
   ],
 };
-
 export function canonicalCreditScope(scope) {
   return {
     kind: "canonical",
     accountScope: scope,
   };
 }
-
 export function legacyPersonalCreditScope(identityKey) {
   return {
     kind: "legacyPersonal",
     identityKey,
   };
 }
-
 export function scopeParts(scope) {
   return [
     scope.identityKey,
@@ -471,16 +422,13 @@ export function scopeParts(scope) {
     scope.membershipRevision ?? "PERSONAL",
   ];
 }
-
 export function normalizeTeamKeyword(value) {
   return value.trim().replace(/\s+/g, " ");
 }
-
 export function accountScopeKey(scope) {
   if (!scope) return null;
   return scopeParts(scope).join(":");
 }
-
 function resolveCreditAccountState(teamAccount, legacyIdentityKey) {
   if (!teamAccount?.integrationEnabled) {
     const queryScope2 = legacyIdentityKey
@@ -506,13 +454,11 @@ function resolveCreditAccountState(teamAccount, legacyIdentityKey) {
     canMutatePersonalCredit: readyPersonal,
   };
 }
-
 export function useCreditAccountState() {
   const teamAccount = useOptionalTeamAccount();
   const { user } = useAuth();
   return resolveCreditAccountState(teamAccount, user?.userID);
 }
-
 export function Popover({ ...props }) {
   return <PopoverRoot data-slot="popover" {...props} />;
 }

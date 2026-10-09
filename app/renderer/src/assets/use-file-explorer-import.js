@@ -6,11 +6,10 @@ import {
   useTranslation,
 } from "../vendor.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-import { getFileName$1 } from "../canvas/uploading-assets.jsx";
+import { getFileName } from "../canvas/uploading-assets.jsx";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { joinFilePath } from "./use-file-explorer-canvas-integration.js";
 import { postCheckConflicts } from "./post-check-conflicts.js";
-
 export function useFileExplorerImport({
   gatewayFetch: gatewayFetch2,
   platform: platform2,
@@ -46,7 +45,7 @@ export function useFileExplorerImport({
     }
     if (!picked || picked.length === 0) return;
     const probeItems = picked.map((p3) => ({
-      name: getFileName$1(p3),
+      name: getFileName(p3),
       sourcePath: p3,
       kind: "file",
     }));

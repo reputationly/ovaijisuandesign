@@ -3,10 +3,8 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
 import { reactExports } from "../vendor.js";
 import { MediaClipPanel } from "./media-clip-panel.js";
-
 const getAudioExt = (mime) => getExtFromMime(mime, "mp3");
-
-function AudioPreview$2({ loading, state: state2 }) {
+function AudioPreview({ loading, state: state2 }) {
   return (
     <div className="flex items-center justify-center h-[400px]">
       {loading ? (
@@ -103,10 +101,9 @@ function AudioPreview$2({ loading, state: state2 }) {
     </div>
   );
 }
-
 function AudioClipPanelInner({ audioUrl, audioName, onClose, onExport }) {
   const renderPreview2 = reactExports.useCallback(
-    (ctx) => <AudioPreview$2 {...ctx} />,
+    (ctx) => <AudioPreview {...ctx} />,
     [],
   );
   return (
@@ -121,5 +118,4 @@ function AudioClipPanelInner({ audioUrl, audioName, onClose, onExport }) {
     />
   );
 }
-
 export const AudioClipPanel = reactExports.memo(AudioClipPanelInner);

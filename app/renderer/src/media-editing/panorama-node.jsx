@@ -12,7 +12,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import {
   Camera,
   useAssetMeta,
@@ -25,7 +25,7 @@ import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
 import { findFreePositionFromAnchor } from "../canvas/find-free-position-from-anchor.js";
 import {
   AddToChatIcon,
-  FullscreenIcon$1,
+  FullscreenIcon,
   PanoramaIcon,
   useCanvasNodeIsDragging,
 } from "../canvas/fullscreen-icon.jsx";
@@ -52,10 +52,9 @@ import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { NodeHeader } from "../canvas/node-header-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
 import { MediaGenerationErrorOverlay } from "../generation/media-generation-error-overlay.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { PanoramaViewer } from "./panorama-viewer.jsx";
 import { PanoramaGenerationPanel } from "./panorama-generation-panel.jsx";
-
 export function PanoramaNode({
   id: id2,
   data: data2,
@@ -669,7 +668,7 @@ export function PanoramaNode({
       {
         id: "fullscreen",
         label: t2("canvas.fullscreen"),
-        icon: <FullscreenIcon$1 />,
+        icon: <FullscreenIcon />,
         onClick: requestFullscreen,
       },
     ],
@@ -816,12 +815,8 @@ export function PanoramaNode({
             <div
               className={`absolute right-3 top-3 z-[8] origin-top-right scale-[1.125] transition-opacity duration-150 ${panoramaPreview || selected2 ? "opacity-100" : "opacity-0 group-hover/panorama:opacity-100"}`}
             >
-              <TooltipProvider$1 delay={150} closeDelay={0}>
-                <Tooltip$1
-                  content={previewToggleLabel}
-                  side="top"
-                  sideOffset={8}
-                >
+              <TooltipProvider delay={150} closeDelay={0}>
+                <Tooltip content={previewToggleLabel} side="top" sideOffset={8}>
                   <button
                     type="button"
                     className="nodrag nopan nowheel flex size-9 items-center justify-center rounded-[10px] bg-black/65 text-white shadow-md backdrop-blur-md transition-[background-color,transform] duration-150 hover:scale-[1.03] hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
@@ -841,8 +836,8 @@ export function PanoramaNode({
                       <PanoramaIcon size={20} />
                     )}
                   </button>
-                </Tooltip$1>
-              </TooltipProvider$1>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         ) : (

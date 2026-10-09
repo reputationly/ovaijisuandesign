@@ -4,7 +4,7 @@ import {
   reactExports,
   usePlatform,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import {
   isBillingPromotionActive,
@@ -18,7 +18,6 @@ import { isAnnualMember } from "../team/team-credit-history-section.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Sparkles } from "../media-editing/package.jsx";
-
 function readDismissedUntil(key2) {
   try {
     const raw2 = window.localStorage.getItem(key2);
@@ -29,13 +28,11 @@ function readDismissedUntil(key2) {
     return 0;
   }
 }
-
 function writeDismissedUntil(key2, untilMs) {
   try {
     window.localStorage.setItem(key2, String(untilMs));
   } catch {}
 }
-
 function usePromotionGate(keyPrefix) {
   const promotion = useBillingPromotion();
   const [, setDismissTick] = reactExports.useState(0);
@@ -72,9 +69,7 @@ function usePromotionGate(keyPrefix) {
     dismiss,
   };
 }
-
 const BANNER_KEY_PREFIX = "hilo:promo-banner:dismissed-until:";
-
 function usePromoBanner() {
   const gate = usePromotionGate(BANNER_KEY_PREFIX);
   const { mpWallet, isLoading, isError, isRefetchError } =
@@ -92,7 +87,6 @@ function usePromoBanner() {
   }
   return gate;
 }
-
 export function PromoBanner() {
   const { t: t2 } = useTranslation();
   const platform2 = usePlatform();
@@ -147,7 +141,7 @@ export function PromoBanner() {
         aria-label={t2("promoBanner.close", "Dismiss")}
         className="shrink-0 cursor-pointer rounded-sm p-0.5 text-muted-foreground transition-colors duration-150 hover:bg-foreground/10 hover:text-foreground"
       >
-        <X$7 size={16} strokeWidth={1} />
+        <X size={16} strokeWidth={1} />
       </button>
     </div>
   );

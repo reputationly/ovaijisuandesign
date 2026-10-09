@@ -2,11 +2,9 @@
 import { getRuntimeConfig } from "../vendor.js";
 import { redactModelAliasesForDisplay } from "./domestic-model-display-aliases.js";
 import { resolveModelDisplayName } from "./text-models.js";
-
 export function redactForCurrentRegion(text2) {
   return redactModelAliasesForDisplay(text2, getRuntimeConfig().region);
 }
-
 export function resolveModelNameForCurrentRegion(modelName, preferType) {
   const region = getRuntimeConfig().region || "domestic";
   const baseTypes = ["image", "video", "audio"];
@@ -23,24 +21,19 @@ export function resolveModelNameForCurrentRegion(modelName, preferType) {
   }
   return redactModelAliasesForDisplay(resolved, region);
 }
-
 function normalizedModelToken(value) {
   return value.toLocaleLowerCase().replace(/[\s._-]+/g, "");
 }
-
 function isSafeConfiguredAlias(value) {
   return /[\d_.-]/u.test(value);
 }
-
-function escapeRegExp$2(value) {
+function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
 function mentionModelMediaType(type2) {
   if (type2 === "image" || type2 === "video" || type2 === "audio") return type2;
   return type2 === "music" ? "audio" : void 0;
 }
-
 export function replaceConfiguredModelNamesForCurrentRegion(text2, models) {
   const region = getRuntimeConfig().region;
   if (
@@ -80,35 +73,29 @@ export function replaceConfiguredModelNamesForCurrentRegion(text2, models) {
   );
   for (const alias of aliases) {
     const pattern = new RegExp(
-      `(?<![A-Za-z0-9_-])${escapeRegExp$2(alias)}(?![A-Za-z0-9_-])`,
+      `(?<![A-Za-z0-9_-])${escapeRegExp(alias)}(?![A-Za-z0-9_-])`,
       "giu",
     );
     result = result.replace(pattern, replacements.get(alias) ?? alias);
   }
   return result;
 }
-
 export const LOCAL_FILE_LINK_PROTOCOLS = ["file", "sandbox"];
-
 export function hasLocalFileLinkProtocol(raw2) {
   const value = raw2.toLowerCase();
   return LOCAL_FILE_LINK_PROTOCOLS.some((protocol) =>
     value.startsWith(`${protocol}:`),
   );
 }
-
 export function cleanRaw(raw2) {
   return raw2.trim().replace(/^[`'"]+|[`'"]+$/g, "");
 }
-
 export function isHttpUrl(value) {
   return /^https?:\/\//i.test(value);
 }
-
 export function isFileUrl(value) {
   return /^(sandbox:)?file:\/\//i.test(value);
 }
-
 function isWindowsAbsolutePath(value) {
   return (
     /^[a-zA-Z]:[\\/]/.test(value) ||
@@ -117,14 +104,12 @@ function isWindowsAbsolutePath(value) {
     /^\\\\\?\\UNC\\/i.test(value)
   );
 }
-
-export function isAbsoluteLocalPath$2(value) {
+export function isAbsoluteLocalPath(value) {
   return value.startsWith("/") || isWindowsAbsolutePath(value);
 }
-
 export function looksLikeFileReference(value) {
   if (!value) return false;
-  if (isHttpUrl(value) || isFileUrl(value) || isAbsoluteLocalPath$2(value))
+  if (isHttpUrl(value) || isFileUrl(value) || isAbsoluteLocalPath(value))
     return true;
   if (value.startsWith("/files/") || value.includes("output_files/"))
     return true;

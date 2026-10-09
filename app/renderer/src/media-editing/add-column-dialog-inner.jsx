@@ -1,24 +1,23 @@
 // add-column-dialog-inner.jsx
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Dialog$1 } from "../canvas/separator.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Dialog } from "../canvas/separator.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
 import {
-  DialogContent$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./use-preview-text.jsx";
-import { Input$1, Label$1 } from "./input.jsx";
-
-const TYPE_OPTIONS$4 = [
+import { Input, Label } from "./input.jsx";
+const TYPE_OPTIONS = [
   {
     value: "text",
     labelKey: "canvas.table.field.text",
@@ -35,7 +34,6 @@ const TYPE_OPTIONS$4 = [
     defaultLabel: "Attachment",
   },
 ];
-
 function AddColumnDialogInner({ onCommit, onClose }) {
   const { t: t2 } = useTranslation();
   const [title, setTitle] = reactExports.useState("");
@@ -44,7 +42,7 @@ function AddColumnDialogInner({ onCommit, onClose }) {
   const typeLabels = reactExports.useMemo(
     () =>
       Object.fromEntries(
-        TYPE_OPTIONS$4.map((opt) => [
+        TYPE_OPTIONS.map((opt) => [
           opt.value,
           t2(opt.labelKey, opt.defaultLabel),
         ]),
@@ -69,21 +67,21 @@ function AddColumnDialogInner({ onCommit, onClose }) {
     [onClose],
   );
   return (
-    <Dialog$1 open={true} onOpenChange={handleOpenChange}>
-      <DialogContent$1
+    <Dialog open={true} onOpenChange={handleOpenChange}>
+      <DialogContent
         className="gap-4 sm:max-w-[360px]"
         onKeyDown={(e2) => e2.stopPropagation()}
       >
-        <DialogHeader$1>
-          <DialogTitle$1>
+        <DialogHeader>
+          <DialogTitle>
             {t2("canvas.table.addColumn", "Add column")}
-          </DialogTitle$1>
-        </DialogHeader$1>
+          </DialogTitle>
+        </DialogHeader>
         <div className="flex flex-col gap-1.5">
-          <Label$1 htmlFor="add-col-title" className="text-muted-foreground">
+          <Label htmlFor="add-col-title" className="text-muted-foreground">
             {t2("canvas.table.fieldName", "Title")}
-          </Label$1>
-          <Input$1
+          </Label>
+          <Input
             id="add-col-title"
             ref={inputRef}
             type="text"
@@ -102,39 +100,36 @@ function AddColumnDialogInner({ onCommit, onClose }) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label$1 className="text-muted-foreground">
+          <Label className="text-muted-foreground">
             {t2("canvas.table.fieldType", "Type")}
-          </Label$1>
-          <Select$2
+          </Label>
+          <Select
             value={type2}
             items={typeLabels}
             onValueChange={(value) => {
               if (value != null) setType(value);
             }}
           >
-            <SelectTrigger$1>
-              <SelectValue$1 />
-            </SelectTrigger$1>
-            <SelectContent$1>
-              {TYPE_OPTIONS$4.map((opt) => (
-                <SelectItem$1 key={opt.value} value={opt.value}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TYPE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
                   {t2(opt.labelKey, opt.defaultLabel)}
-                </SelectItem$1>
+                </SelectItem>
               ))}
-            </SelectContent$1>
-          </Select$2>
+            </SelectContent>
+          </Select>
         </div>
-        <DialogFooter$1>
-          <Button$2 variant="ghost" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>
             {t2("common.cancel", "Cancel")}
-          </Button$2>
-          <Button$2 onClick={handleSubmit}>
-            {t2("common.confirm", "Add")}
-          </Button$2>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
+          </Button>
+          <Button onClick={handleSubmit}>{t2("common.confirm", "Add")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
-
 export const AddColumnDialog = reactExports.memo(AddColumnDialogInner);

@@ -1,13 +1,12 @@
 // remote-tool-host.jsx
 import {
   jsxRuntimeExports,
-  m$4,
+  m$4 as m,
   reactExports,
   useTranslation,
 } from "../vendor.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-
 async function loadRemoteToolModule(url2) {
   const res = await fetch(url2);
   if (!res.ok) throw new Error(`Failed to fetch remote tool: ${res.status}`);
@@ -23,8 +22,7 @@ async function loadRemoteToolModule(url2) {
     URL.revokeObjectURL(blobUrl);
   }
 }
-
-export function RemoteToolHost$1({
+export function RemoteToolHost({
   toolUrl,
   toolId,
   sdk,
@@ -193,7 +191,7 @@ export function RemoteToolHost$1({
           </div>
         </div>
       )}
-      {jsxRuntimeExports.jsx(m$4, {
+      {jsxRuntimeExports.jsx(m, {
         onError: (boundaryError, info2) => {
           logger.error("host render error", {
             tool_id: toolId,

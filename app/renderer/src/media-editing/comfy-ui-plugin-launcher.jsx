@@ -18,32 +18,30 @@ import {
   Workflow,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import { useViewerActive } from "../infra/use-viewer-active.js";
 import { MEDIA_NODE_RADIUS, useCanvasBridge } from "./package.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { pickLocalized } from "../generation/normalize-skill-detail-metadata.js";
-import { AddToChatIcon, FullscreenIcon$1 } from "../canvas/fullscreen-icon.jsx";
+import { AddToChatIcon, FullscreenIcon } from "../canvas/fullscreen-icon.jsx";
 import { RunIcon } from "../canvas/file-missing-icon.jsx";
 import { resolvePluginEditorPresentation } from "./resolve-panorama-generation-presentation.js";
 import { NodeToolbar } from "./toolbar-item.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
+import { Button } from "../canvas/node-shell-inner.jsx";
 import {
-  DialogContent$1,
-  DialogDescription$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "./use-preview-text.jsx";
 import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
-import { Input$1 } from "./input.jsx";
-
+import { Input } from "./input.jsx";
 function usePluginOpenRequest(nodeId) {
   return useHtmlFullscreenStore((s2) =>
     s2.nodeId === nodeId ? s2.pluginOpenRequest : null,
   );
 }
-
 function shouldShowComfyUiTemplateAction({
   currentWorkflowId,
   hasWorkflowContent,
@@ -55,19 +53,15 @@ function shouldShowComfyUiTemplateAction({
     hasWorkflowContent !== true
   );
 }
-
 function shouldCreateComfyUiOpenRequest(isPreviewActive) {
   return !isPreviewActive;
 }
-
 function shouldAllowComfyUiPreviewInteraction(backendReady) {
   return backendReady !== true;
 }
-
 function createComfyUiWorkflowRequestId(nodeId, workflowId, workflowRevision) {
   return `${nodeId}:${workflowId}:${workflowRevision ?? 0}`;
 }
-
 function publishComfyUiRetryRequest({
   activeRequest,
   retryRequest,
@@ -81,7 +75,6 @@ function publishComfyUiRetryRequest({
   }
   setLocalRequest(retryRequest);
 }
-
 function filterComfyUiWorkflows(workflows, query) {
   const normalized = query.trim().toLocaleLowerCase();
   if (!normalized) return [...workflows];
@@ -97,18 +90,13 @@ function filterComfyUiWorkflows(workflows, query) {
       .includes(normalized),
   );
 }
-
 const COMFYUI_PREVIEW_UNLOAD_AFTER_MS = 6e3;
-
 const COMFYUI_PREVIEW_SCALE = 0.6;
-
 const COMFYUI_PREVIEW_UNSCALED_PERCENT = `${100 / COMFYUI_PREVIEW_SCALE}%`;
-
 function resolveWorkflowDisplayName(workflowName) {
   const trimmed = workflowName?.trim();
   return trimmed && !/^(?:user|template):/i.test(trimmed) ? trimmed : void 0;
 }
-
 export function ComfyUiPluginLauncher({
   nodeId,
   pluginId,
@@ -450,7 +438,7 @@ export function ComfyUiPluginLauncher({
     {
       id: "fullscreen",
       label: openLabel,
-      icon: <FullscreenIcon$1 />,
+      icon: <FullscreenIcon />,
       onClick: openStage,
       dataActionUiId: "canvas.plugin-node.open-launcher",
     },
@@ -552,7 +540,7 @@ export function ComfyUiPluginLauncher({
                   </p>
                 </div>
                 {currentWorkflowId && (
-                  <Button$2
+                  <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -561,7 +549,7 @@ export function ComfyUiPluginLauncher({
                     onClick={handleRetryWorkflowLoad}
                   >
                     {t2("common.retry", "重试")}
-                  </Button$2>
+                  </Button>
                 )}
               </div>
             ) : hasActiveRuns ? (
@@ -603,7 +591,7 @@ export function ComfyUiPluginLauncher({
               </div>
             </div>
             {showTemplateAction && (
-              <Button$2
+              <Button
                 size="sm"
                 variant="ghost"
                 className="comfyui-template-action shrink-0"
@@ -615,31 +603,31 @@ export function ComfyUiPluginLauncher({
                 data-action-ui-id="canvas.plugin-node.use-template"
               >
                 {t2("canvas.comfyui.useTemplate", "使用模板")}
-              </Button$2>
+              </Button>
             )}
           </div>
         </div>
       </NodeBody>
       <NodeToolbar items={nodeToolbarActions} visible={!!selected2} />
-      <Dialog$1 open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
-        <DialogContent$1
+      <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+        <DialogContent
           className="max-w-2xl"
           data-action-ui-id="canvas.comfyui.workflow-dialog"
         >
-          <DialogHeader$1>
-            <DialogTitle$1>
+          <DialogHeader>
+            <DialogTitle>
               {t2("canvas.comfyui.chooseWorkflow", "选择 ComfyUI 模板")}
-            </DialogTitle$1>
-            <DialogDescription$1>
+            </DialogTitle>
+            <DialogDescription>
               {t2(
                 "canvas.comfyui.chooseWorkflowDesc",
                 "选择后将在当前节点的编辑器中打开。",
               )}
-            </DialogDescription$1>
-          </DialogHeader$1>
+            </DialogDescription>
+          </DialogHeader>
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input$1
+            <Input
               value={workflowSearch}
               onChange={(event) => setWorkflowSearch(event.target.value)}
               placeholder={t2("canvas.comfyui.searchWorkflow", "搜索模板")}
@@ -710,8 +698,8 @@ export function ComfyUiPluginLauncher({
                 );
               })}
           </div>
-        </DialogContent$1>
-      </Dialog$1>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

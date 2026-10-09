@@ -10,7 +10,7 @@ import {
   invariant,
   isNotFound,
   isRedirect,
-  isServer$1,
+  isServer$1 as isServer,
   jsxRuntimeExports,
   matchContext,
   reactExports,
@@ -20,11 +20,9 @@ import {
   useStore,
 } from "../vendor.js";
 import { SafeFragment, useLayoutEffect } from "./create-guard-reporter.jsx";
-
 function DefaultGlobalNotFound() {
   return <p>Not Found</p>;
 }
-
 function renderRouteNotFound(router2, route, data2) {
   if (!route.options.notFoundComponent) {
     if (router2.options.defaultNotFoundComponent)
@@ -33,7 +31,6 @@ function renderRouteNotFound(router2, route, data2) {
   }
   return <route.options.notFoundComponent {...data2} />;
 }
-
 function OnRendered({ resetKey }) {
   const router2 = useRouter();
   const prevHrefRef = reactExports.useRef(void 0);
@@ -52,7 +49,6 @@ function OnRendered({ resetKey }) {
   }, [router2.latestLocation.state.__TSR_key, resetKey, router2]);
   return null;
 }
-
 export var Match = reactExports.memo(function MatchImpl({ matchId }) {
   const router2 = useRouter();
   const matchStore = router2.stores.activeMatchStoresById.get(matchId);
@@ -84,7 +80,6 @@ export var Match = reactExports.memo(function MatchImpl({ matchId }) {
     />
   );
 });
-
 function MatchView({ router: router2, matchId, resetKey, matchState }) {
   const route = router2.routesById[matchState.routeId];
   const PendingComponent =
@@ -160,7 +155,7 @@ function MatchView({ router: router2, matchId, resetKey, matchState }) {
         matchState.parentRouteId === rootRouteId ? (
           <>
             <OnRendered resetKey={resetKey} />
-            {router2.options.scrollRestoration && isServer$1 ? (
+            {router2.options.scrollRestoration && isServer ? (
               <ScrollRestoration />
             ) : null}
           </>
@@ -169,7 +164,6 @@ function MatchView({ router: router2, matchId, resetKey, matchState }) {
     },
   );
 }
-
 var MatchInner = reactExports.memo(function MatchInnerImpl({ matchId }) {
   const router2 = useRouter();
   const matchStore = router2.stores.activeMatchStoresById.get(matchId);
@@ -242,7 +236,6 @@ var MatchInner = reactExports.memo(function MatchInnerImpl({ matchId }) {
   }
   return out;
 });
-
 export var Outlet = reactExports.memo(function OutletImpl() {
   const router2 = useRouter();
   const matchId = reactExports.useContext(matchContext);

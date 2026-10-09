@@ -9,12 +9,11 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { CalendarDays } from "../media-editing/package.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Calendar } from "./calendar.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
-
-const DATE_PRESETS$1 = [
+const DATE_PRESETS = [
   {
     value: "today",
     days: 1,
@@ -32,11 +31,9 @@ const DATE_PRESETS$1 = [
     days: 30,
   },
 ];
-
 function startOfLocalDay(value) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
-
 function presetRange(days) {
   const today = startOfLocalDay(new Date());
   const from2 = new Date(today);
@@ -46,7 +43,6 @@ function presetRange(days) {
     to: today,
   };
 }
-
 function toStartOfDayMs(date2) {
   return new Date(
     date2.getFullYear(),
@@ -54,7 +50,6 @@ function toStartOfDayMs(date2) {
     date2.getDate(),
   ).getTime();
 }
-
 function toEndOfDayMs(date2) {
   return new Date(
     date2.getFullYear(),
@@ -66,7 +61,6 @@ function toEndOfDayMs(date2) {
     999,
   ).getTime();
 }
-
 function ledgerFilterRange(range2) {
   return {
     startTime: range2.from ? toStartOfDayMs(range2.from) : null,
@@ -77,7 +71,6 @@ function ledgerFilterRange(range2) {
         : null,
   };
 }
-
 export function TeamLedgerFilters({
   members,
   memberSearchQuery,
@@ -235,11 +228,11 @@ export function TeamLedgerFilters({
           positionerClassName="z-[70]"
         >
           <div className="flex w-28 shrink-0 flex-col gap-1 border-r border-border p-1.5">
-            {DATE_PRESETS$1.map(({ value, days }) => (
+            {DATE_PRESETS.map(({ value, days }) => (
               <button
                 key={value}
                 type="button"
-                className={cn$2(
+                className={cn(
                   "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 rounded-md px-2.5 py-2 text-left text-xs text-foreground/70 transition-colors hover:bg-popup-item-hover hover:text-foreground",
                   datePreset === value && "bg-muted text-foreground",
                 )}
@@ -260,7 +253,7 @@ export function TeamLedgerFilters({
             ))}
             <button
               type="button"
-              className={cn$2(
+              className={cn(
                 "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 rounded-md px-2.5 py-2 text-left text-xs text-foreground/70 transition-colors hover:bg-popup-item-hover hover:text-foreground",
                 datePreset === "custom" && "bg-muted text-foreground",
               )}

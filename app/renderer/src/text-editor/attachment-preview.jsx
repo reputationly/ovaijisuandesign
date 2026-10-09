@@ -5,17 +5,16 @@ import {
   Loader2,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Puzzle } from "../media-editing/package.jsx";
-import { AnnotationIcon$1 } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { isAnnotatableImage } from "./read-preview-text-response.jsx";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { getAttachmentSlotActions } from "../i18n/canvas-node-tools.jsx";
 import { FileChip } from "../generation/file-chip.jsx";
 import { isFileAttachment } from "../assets/classify-upload-error.js";
-
 export function AttachmentPreview({
   active: active2 = true,
   loadTextContent,
@@ -165,7 +164,7 @@ export function AttachmentPreview({
                   if (element2) chipRefs.current.set(att.id, element2);
                   else chipRefs.current.delete(att.id);
                 }}
-                className={cn$2(
+                className={cn(
                   "group relative h-16 min-w-0 max-w-[min(280px,100%)] shrink-0",
                   (selectable || annotatable || !readOnly2) &&
                     "[&:hover_[data-slot-duration]]:invisible [&:hover_[data-slot-duration]]:delay-0 [&:focus-within_[data-slot-duration]]:invisible [&:focus-within_[data-slot-duration]]:delay-0",
@@ -174,7 +173,7 @@ export function AttachmentPreview({
                 {isPluginNode2 ? (
                   <div
                     data-testid="plugin-node-chip"
-                    className={cn$2(
+                    className={cn(
                       "flex items-center gap-2.5 w-[200px] h-16 px-2.5 rounded-md bg-muted-foreground/10 border-0",
                     )}
                     title={att.filename}
@@ -228,7 +227,7 @@ export function AttachmentPreview({
                       previewFocused={focusedId === att.id}
                       onHoverLocate={actions.locate ? locate : void 0}
                       suppressHoverPreview={Boolean(choosingId) || locked}
-                      className={cn$2(
+                      className={cn(
                         "h-16",
                         isFileCard && "pr-7",
                         att.fileType === "video"
@@ -254,7 +253,7 @@ export function AttachmentPreview({
                     previewFocused={focusedId === att.id}
                     onHoverLocate={actions.locate ? locate : void 0}
                     suppressHoverPreview={Boolean(choosingId) || locked}
-                    className={cn$2(
+                    className={cn(
                       "h-16",
                       isFileCard && "pr-7",
                       att.status === "error"
@@ -285,7 +284,7 @@ export function AttachmentPreview({
                 {selectable && (
                   <button
                     type="button"
-                    className={cn$2(
+                    className={cn(
                       "absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground",
                       isImage2 || att.fileType === "video"
                         ? "text-[var(--canvas-media-control-fg)]"
@@ -319,7 +318,7 @@ export function AttachmentPreview({
                     data-action-ui-id="chat-image-annotation-open"
                     onClick={() => onAnnotate?.(att)}
                   >
-                    <AnnotationIcon$1 size={14} aria-hidden={true} />
+                    <AnnotationIcon size={14} aria-hidden={true} />
                   </button>
                 ) : null}
                 {!readOnly2 ? (
@@ -330,7 +329,7 @@ export function AttachmentPreview({
                     disabled={disabled2}
                     onClick={() => onRemove2(att.id)}
                   >
-                    <X$7 size={10} />
+                    <X size={10} />
                   </button>
                 ) : null}
               </div>

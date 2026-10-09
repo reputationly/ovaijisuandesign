@@ -38,10 +38,8 @@ import {
   errorListeners,
 } from "../vendor-inline/vscode-base/linked-list.js";
 import { InstantiationService } from "../settings/instantiation-service.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 const IQuarkDriveAuthService = createDecorator("quarkDriveAuthService");
-
 function errorHandler(listener) {
   errorListeners.push(listener);
   return () => {
@@ -51,112 +49,84 @@ function errorHandler(listener) {
     }
   };
 }
-
 export const IAssetCenterMainService = createDecorator(
   "assetCenterMainService",
 );
-
 services.set(
   IAssetCenterMainService,
   ProxyChannel.toService(client.getChannel("assetCenter")),
 );
-
 export const IBundleHandle = createDecorator("bundleHandle");
-
 export const IClipboardService = createDecorator("clipboardService");
-
 services.set(
   IClipboardService,
   ProxyChannel.toService(client.getChannel("clipboard")),
 );
-
 export const IDataDirectoryMainService = createDecorator(
   "dataDirectoryMainService",
 );
-
 services.set(
   IDataDirectoryMainService,
   ProxyChannel.toService(client.getChannel("dataDirectory")),
 );
-
 const IFileHandlersMainService = createDecorator("fileHandlersMainService");
-
 services.set(
   IFileHandlersMainService,
   ProxyChannel.toService(client.getChannel("fileHandlers")),
 );
-
 export const IGatewayReadiness = createDecorator("gatewayReadiness");
-
 services.set(
   IGatewayReadiness,
   ProxyChannel.toService(client.getChannel("gateway-readiness")),
 );
-
 export const IImBridgeMainService = createDecorator("imBridgeMainService");
-
 services.set(
   IImBridgeMainService,
   ProxyChannel.toService(client.getChannel("imBridge")),
 );
-
 export const INetworkDiagnosticsMainService = createDecorator(
   "networkDiagnosticsMainService",
 );
-
 services.set(
   INetworkDiagnosticsMainService,
   ProxyChannel.toService(client.getChannel("networkDiagnostics")),
 );
-
 export const INotificationMainService = createDecorator(
   "notificationMainService",
 );
-
 services.set(
   INotificationMainService,
   ProxyChannel.toService(client.getChannel("notification")),
 );
-
 export const IProjectMainService = createDecorator("projectMainService");
-
 services.set(
   IProjectMainService,
   ProxyChannel.toService(client.getChannel("project")),
 );
-
 export const IProjectAssetsService = createDecorator("projectAssetsService");
-
 services.set(
   IProjectAssetsService,
   ProxyChannel.toService(client.getChannel("projectAssets")),
 );
-
 export const IRendererPowerStateMainService = createDecorator(
   "rendererPowerStateMainService",
 );
-
 services.set(
   IRendererPowerStateMainService,
   ProxyChannel.toService(client.getChannel("rendererPowerState")),
 );
-
 export const IDesktopSettingsMainService = createDecorator(
   "desktopSettingsMainService",
 );
-
 services.set(
   IDesktopSettingsMainService,
   ProxyChannel.toService(client.getChannel("desktopSettings")),
 );
-
 export const ITeamAccountService = createDecorator("teamAccountService");
-
 services.set(
   ITeamAccountService,
   ProxyChannel.toService(client.getChannel("team-account")),
 );
-
 export function isRecoverableTeamAccountStatus(status) {
   return (
     status === "temporarily_unavailable" ||
@@ -164,43 +134,31 @@ export function isRecoverableTeamAccountStatus(status) {
     status === "recovering"
   );
 }
-
 export const ITeamDataInvalidationService = createDecorator(
   "teamDataInvalidationService",
 );
-
 services.set(
   ITeamDataInvalidationService,
   ProxyChannel.toService(client.getChannel("team-data-invalidation")),
 );
-
 export const ITeamOperationService = createDecorator("teamOperationService");
-
 services.set(
   ITeamOperationService,
   ProxyChannel.toService(client.getChannel("team-operation")),
 );
-
 const ITrashService = createDecorator("trashService");
-
 services.set(ITrashService, ProxyChannel.toService(client.getChannel("trash")));
-
 export const IUpdaterMainService = createDecorator("updaterMainService");
-
 services.set(
   IUpdaterMainService,
   ProxyChannel.toService(client.getChannel("updater")),
 );
-
 export const IWindowMainService = createDecorator("windowMainService");
-
 services.set(
   IWindowMainService,
   ProxyChannel.toService(client.getChannel("window")),
 );
-
 export const IWorkspaceService = createDecorator("workspaceService");
-
 if (workspaceId) {
   services.set(
     IWorkspaceService,
@@ -213,20 +171,15 @@ if (workspaceId) {
     ),
   );
 }
-
 export const instantiationService = new InstantiationService(services);
-
 disposables.add(instantiationService);
-
 const logService = services.get(ILogService);
-
 disposables.add({
   dispose: errorHandler((e2) => {
     const msg = e2 instanceof Error ? (e2.stack ?? e2.message) : String(e2);
     logService.error(`[UnexpectedError] ${msg}`);
   }),
 });
-
 export const instantiation = Object.freeze(
   Object.defineProperty(
     {
@@ -243,9 +196,7 @@ export const instantiation = Object.freeze(
     },
   ),
 );
-
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-
 var __decorateClass = (decorators, target, key2, kind) => {
   var result =
     kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key2) : target;
@@ -253,10 +204,8 @@ var __decorateClass = (decorators, target, key2, kind) => {
     if ((decorator = decorators[i2])) result = decorator(result) || result;
   return result;
 };
-
 var __decorateParam = (index2, decorator) => (target, key2) =>
   decorator(target, key2, index2);
-
 let HomeService = class extends Disposable {
   constructor(
     hiloApp2,
@@ -281,7 +230,6 @@ let HomeService = class extends Disposable {
     this.quarkDriveAuth = quarkDriveAuth;
   }
 };
-
 HomeService = __decorateClass(
   [
     __decorateParam(0, IHiloApp),
@@ -296,13 +244,9 @@ HomeService = __decorateClass(
   ],
   HomeService,
 );
-
 export const homeService = instantiationService.createInstance(HomeService);
-
 disposables.add(homeService);
-
 homeService.logService.info("HomeService initialized");
-
 export function EnterIcon({ size: size2 = 24, ...props }) {
   return (
     <CompositedSvg
@@ -322,7 +266,6 @@ export function EnterIcon({ size: size2 = 24, ...props }) {
     </CompositedSvg>
   );
 }
-
 export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon22(
   { size: size2 = 24, ...props },
   ref,
@@ -345,9 +288,7 @@ export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon22(
     </CompositedSvg>
   );
 });
-
 FeedbackIcon.displayName = "FeedbackIcon";
-
 export function FilledSkillIcon({
   size: size2 = 24,
   strokeWidth = 2,
@@ -378,9 +319,7 @@ export function FilledSkillIcon({
     </CompositedSvg>
   );
 }
-
 FilledSkillIcon.displayName = "FilledSkillIcon";
-
 export function LocalFolderIcon({
   className,
   os: os2,
@@ -395,7 +334,7 @@ export function LocalFolderIcon({
       alt={alt}
       aria-hidden={ariaHidden ?? (alt === "" ? true : void 0)}
       draggable={draggable ?? false}
-      className={cn$2(
+      className={cn(
         "pointer-events-none size-4 shrink-0 object-contain",
         className,
       )}
@@ -403,7 +342,6 @@ export function LocalFolderIcon({
     />
   );
 }
-
 export function MoreHorizontalIcon({ size: size2 = 24, className, ...rest }) {
   return (
     <CompositedSvg
@@ -423,7 +361,6 @@ export function MoreHorizontalIcon({ size: size2 = 24, className, ...rest }) {
     </CompositedSvg>
   );
 }
-
 export function PanelVisibilityIcon({
   active: active2,
   side = "left",
@@ -463,9 +400,7 @@ export function PanelVisibilityIcon({
     </svg>
   );
 }
-
 PanelVisibilityIcon.displayName = "PanelVisibilityIcon";
-
 export function PencilIcon({
   size: size2 = 24,
   strokeWidth = 2,
@@ -494,25 +429,17 @@ export function PencilIcon({
     </CompositedSvg>
   );
 }
-
 PencilIcon.displayName = "PencilIcon";
-
 export const PlaybackPlayIcon = desktopMediaIcon(PlaybackPlayIcon$1);
-
 export const PlaybackStopIcon = desktopMediaIcon(PlaybackStopIcon$1);
-
 export const PlaybackNextIcon = desktopMediaIcon(PlaybackNextIcon$1);
-
 export const PlaybackPreviousIcon = desktopMediaIcon(PlaybackPreviousIcon$1);
-
 export const PlaybackCirclePlayIcon = desktopMediaIcon(
   PlaybackCirclePlayIcon$1,
 );
-
 export const PlaybackCirclePauseIcon = desktopMediaIcon(
   PlaybackCirclePauseIcon$1,
 );
-
 export const PluginIcon = reactExports.forwardRef(function PluginIcon2(
   { size: size2 = 24, strokeWidth = 2, ...props },
   ref,
@@ -538,9 +465,7 @@ export const PluginIcon = reactExports.forwardRef(function PluginIcon2(
     </CompositedSvg>
   );
 });
-
 PluginIcon.displayName = "PluginIcon";
-
 export function ProjectImportIcon({ size: size2 = 24, className, ...rest }) {
   return (
     <CompositedSvg
@@ -565,9 +490,7 @@ export function ProjectImportIcon({ size: size2 = 24, className, ...rest }) {
     </CompositedSvg>
   );
 }
-
 ProjectImportIcon.displayName = "ProjectImportIcon";
-
 export function QuestionPromptIcon({ className, animated = false, actionId }) {
   return (
     <CompositedSvg
@@ -575,7 +498,7 @@ export function QuestionPromptIcon({ className, animated = false, actionId }) {
       viewBox="0 0 16 16"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={cn$2(
+      className={cn(
         "size-4 shrink-0 text-muted-foreground",
         animated && "motion-safe:animate-pulse",
         className,

@@ -1,26 +1,21 @@
 // calc-crop-rect.js
-import { clamp$6 } from "../canvas/use-start-crop-from-node.js";
-
-const MIN_CROP_RATIO$1 = 0.05;
-
+import { clamp } from "../canvas/use-start-crop-from-node.js";
+const MIN_CROP_RATIO = 0.05;
 const HANDLE_SIZE_PX = 24;
-
 const MIN_CROP_PX = HANDLE_SIZE_PX * 2;
-
-function minCropFraction$1(containerPx) {
+function minCropFraction(containerPx) {
   if (containerPx && containerPx > 0) {
-    return Math.max(MIN_CROP_RATIO$1, MIN_CROP_PX / containerPx);
+    return Math.max(MIN_CROP_RATIO, MIN_CROP_PX / containerPx);
   }
-  return MIN_CROP_RATIO$1;
+  return MIN_CROP_RATIO;
 }
-
-function clampCropRect$1(r2, containerWidth, containerHeight) {
-  const minW = minCropFraction$1(containerWidth);
-  const minH = minCropFraction$1(containerHeight);
-  const w3 = clamp$6(r2.width, minW, 1);
-  const h2 = clamp$6(r2.height, minH, 1);
-  const x2 = clamp$6(r2.x, 0, 1 - w3);
-  const y4 = clamp$6(r2.y, 0, 1 - h2);
+function clampCropRect(r2, containerWidth, containerHeight) {
+  const minW = minCropFraction(containerWidth);
+  const minH = minCropFraction(containerHeight);
+  const w3 = clamp(r2.width, minW, 1);
+  const h2 = clamp(r2.height, minH, 1);
+  const x2 = clamp(r2.x, 0, 1 - w3);
+  const y4 = clamp(r2.y, 0, 1 - h2);
   return {
     x: x2,
     y: y4,
@@ -28,7 +23,6 @@ function clampCropRect$1(r2, containerWidth, containerHeight) {
     height: h2,
   };
 }
-
 function fitAspectRectToBounds({
   rect,
   handle: handle2,
@@ -47,7 +41,7 @@ function fitAspectRectToBounds({
       Math.min(maxWidthFromEdge, maxWidthFromCenter),
       minW,
     );
-    width = clamp$6(width, minW, maxWidth);
+    width = clamp(width, minW, maxWidth);
     height = width / normRatio;
     y4 = centerY - height / 2;
     if (handle2 === "l") x2 = right - width;
@@ -61,7 +55,7 @@ function fitAspectRectToBounds({
       Math.min(maxHeightFromEdge, maxHeightFromCenter),
       minH,
     );
-    height = clamp$6(height, minH, maxHeight);
+    height = clamp(height, minH, maxHeight);
     width = height * normRatio;
     x2 = centerX - width / 2;
     if (handle2 === "t") y4 = bottom - height;
@@ -78,21 +72,20 @@ function fitAspectRectToBounds({
       Math.min(maxWidthFromEdge, maxHeightFromEdge * normRatio),
       minW,
     );
-    width = clamp$6(width, minW, maxWidth);
+    width = clamp(width, minW, maxWidth);
     height = width / normRatio;
     if (handle2 === "tl" || handle2 === "bl") x2 = anchorX - width;
     else x2 = anchorX;
     if (handle2 === "tl" || handle2 === "tr") y4 = anchorY - height;
     else y4 = anchorY;
   }
-  return clampCropRect$1({
+  return clampCropRect({
     x: x2,
     y: y4,
     width,
     height,
   });
 }
-
 export function calcCropRect({
   initialRect,
   deltaX,
@@ -102,8 +95,8 @@ export function calcCropRect({
   containerWidth,
   containerHeight,
 }) {
-  let minW = minCropFraction$1(containerWidth);
-  let minH = minCropFraction$1(containerHeight);
+  let minW = minCropFraction(containerWidth);
+  let minH = minCropFraction(containerHeight);
   if (
     aspectRatio != null &&
     aspectRatio > 0 &&
@@ -116,7 +109,7 @@ export function calcCropRect({
     minH = Math.max(minH, minHFromW);
   }
   if (handle2 === null) {
-    return clampCropRect$1(
+    return clampCropRect(
       {
         ...initialRect,
         x: initialRect.x + deltaX,
@@ -154,17 +147,17 @@ export function calcCropRect({
       if (rawH < minH && Math.abs(dh) > 1e-6) {
         fY = (ih - minH) / -dh;
       }
-      const f2 = clamp$6(Math.min(fX, fY), 0, 1);
+      const f2 = clamp(Math.min(fX, fY), 0, 1);
       left = movesLeft ? ix + deltaX * f2 : ix;
       top2 = movesTop ? iy + deltaY * f2 : iy;
       right = movesRight ? ix + iw + deltaX * f2 : ix + iw;
       bottom = movesBottom ? iy + ih + deltaY * f2 : iy + ih;
     }
   }
-  if (movesLeft) left = clamp$6(left, 0, right - minW);
-  if (movesRight) right = clamp$6(right, left + minW, 1);
-  if (movesTop) top2 = clamp$6(top2, 0, bottom - minH);
-  if (movesBottom) bottom = clamp$6(bottom, top2 + minH, 1);
+  if (movesLeft) left = clamp(left, 0, right - minW);
+  if (movesRight) right = clamp(right, left + minW, 1);
+  if (movesTop) top2 = clamp(top2, 0, bottom - minH);
+  if (movesBottom) bottom = clamp(bottom, top2 + minH, 1);
   let width = right - left;
   let height = bottom - top2;
   let x2 = left;
@@ -205,8 +198,8 @@ export function calcCropRect({
       minH,
     }));
   }
-  x2 = clamp$6(x2, 0, 1 - width);
-  y4 = clamp$6(y4, 0, 1 - height);
+  x2 = clamp(x2, 0, 1 - width);
+  y4 = clamp(y4, 0, 1 - height);
   return {
     x: x2,
     y: y4,

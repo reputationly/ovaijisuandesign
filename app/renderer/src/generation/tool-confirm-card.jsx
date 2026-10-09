@@ -2,7 +2,7 @@
 import {
   acceptForMediaKind,
   batchPageCountForArgs,
-  CATEGORY_ICON$1,
+  CATEGORY_ICON,
   comfyUiDraftParameters,
   comfyUiInputBindings,
   comfyUiRunInputValues,
@@ -56,7 +56,7 @@ import { Clock } from "../media-editing/package.jsx";
 import { useMentionModels } from "./use-mention-models.jsx";
 import { useGatewayFetch } from "./use-model-catalog-scope-key.js";
 import { useMediaModels } from "./normalize-model-info.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import {
   redactForCurrentRegion,
@@ -70,7 +70,6 @@ import {
   VIDEO_DISPATCHER_TOOL,
   VIDEO_QUALITY_VALUE_DISPLAY_MAP,
 } from "../chat/use-tool-confirm-settlement.js";
-
 function ToolConfirmBranchIcon() {
   return (
     <CompositedSvg
@@ -85,15 +84,12 @@ function ToolConfirmBranchIcon() {
     </CompositedSvg>
   );
 }
-
 function useToolConfirmEdits() {
   return reactExports.useContext(ToolConfirmEditsContext);
 }
-
 function isInternalKey(key2) {
   return key2.startsWith("_") || INTERNAL_KEYS.has(key2);
 }
-
 const PROMPT_KEYS = new Set([
   "prompt",
   "prompts",
@@ -103,7 +99,6 @@ const PROMPT_KEYS = new Set([
   "positive_prompt",
   "negative_prompt",
 ]);
-
 const TIMELINE_VISIBLE_TAG_KEYS = new Set([
   "model_name",
   "model",
@@ -142,26 +137,20 @@ const TIMELINE_VISIBLE_TAG_KEYS = new Set([
   "scheduler",
   "denoise",
 ]);
-
 const COMFYUI_RUN_TOOL = "hub_run_comfyui_workflow";
-
 const COMFYUI_DRAFT_EDIT_TOOL = "hub_edit_comfyui_workflow";
-
 function comfyUiReviewMode(value) {
   return value === "detailed" ? "detailed" : "summary";
 }
-
 function comfyUiInputValueKey(entry) {
   return `${entry.node_id}:${entry.parameter}`;
 }
-
 function isLockedComfyUiDraftParameter(entry) {
   return (
     typeof entry.value === "string" &&
     entry.value.trim().toLowerCase() === LOCKED_COMFYUI_DRAFT_VALUE
   );
 }
-
 const COMFYUI_OVERRIDE_KEYS = new Set([
   "positive_prompt",
   "negative_prompt",
@@ -172,7 +161,6 @@ const COMFYUI_OVERRIDE_KEYS = new Set([
   "scheduler",
   "denoise",
 ]);
-
 function asComfyUiPreflightResponse(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error("Invalid ComfyUI preflight response");
@@ -192,7 +180,6 @@ function asComfyUiPreflightResponse(value) {
   }
   return response;
 }
-
 function asComfyUiDraftParametersResponse(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error("Invalid ComfyUI Draft parameter response");
@@ -212,7 +199,6 @@ function asComfyUiDraftParametersResponse(value) {
     draft_parameters: comfyUiDraftParameters(response.draft_parameters),
   };
 }
-
 function comfyUiRepairOperations(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -225,7 +211,6 @@ function comfyUiRepairOperations(value) {
       : [];
   });
 }
-
 function comfyUiStructuralEditOperations(value) {
   if (!Array.isArray(value)) return [];
   const structuralTypes = new Set([
@@ -243,7 +228,6 @@ function comfyUiStructuralEditOperations(value) {
       : [];
   });
 }
-
 function sanitizeComfyUiRunArgs(args) {
   if (!Array.isArray(args.input_values)) return args;
   return {
@@ -251,7 +235,6 @@ function sanitizeComfyUiRunArgs(args) {
     input_values: comfyUiRunInputValues(args.input_values),
   };
 }
-
 function comfyUiInputMediaKind(entry) {
   if (entry.media_kind) return entry.media_kind;
   const parameter = entry.parameter.toLowerCase();
@@ -260,13 +243,11 @@ function comfyUiInputMediaKind(entry) {
   if (/^video(?:_\d+)?$/.test(parameter)) return "video";
   return void 0;
 }
-
 function getComfyUiInputLabel(parameter) {
   return isComfyUiPromptParameter(parameter)
     ? getParamLabel("text")
     : getParamLabel(parameter);
 }
-
 export function ToolConfirmCard({
   message: message2,
   onSend,
@@ -615,7 +596,7 @@ export function ToolConfirmCard({
     liftedEdits,
     requestId,
   ]);
-  const CategoryIcon = CATEGORY_ICON$1[taskCategory];
+  const CategoryIcon = CATEGORY_ICON[taskCategory];
   const modelPreferType = reactExports.useMemo(
     () => registryMediaTypeForCategory(taskCategory),
     [taskCategory],
@@ -1805,10 +1786,7 @@ export function ToolConfirmCard({
       <div
         data-action-ui-id="chat-tool-confirm-card"
         data-tool-confirm-request-id={requestId}
-        className={cn$2(
-          "min-w-0 flex flex-col gap-2",
-          isExpired && "opacity-70",
-        )}
+        className={cn("min-w-0 flex flex-col gap-2", isExpired && "opacity-70")}
       >
         {content2}
       </div>
@@ -1818,7 +1796,7 @@ export function ToolConfirmCard({
     <div
       data-action-ui-id="chat-tool-confirm-card"
       data-tool-confirm-request-id={requestId}
-      className={cn$2(
+      className={cn(
         "flex items-start gap-1 w-full min-w-0",
         isExpired && "opacity-70",
       )}

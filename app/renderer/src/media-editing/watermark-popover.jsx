@@ -1,25 +1,25 @@
 // watermark-popover.jsx
 import { drawWatermark } from "./single-position.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$5 } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import { ToolSlider } from "./tool-slider.jsx";
 import {
-  Select$2,
-  SelectContent$1,
-  SelectItem$1,
-  SelectTrigger$1,
-  SelectValue$1,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../generation/select-content.jsx";
 import {
   dedupedToast,
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactExports,
   useNodeId,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { WATERMARK_PANEL_WIDTH } from "./storyboard-resize-max-edge.js";
 import {
@@ -28,9 +28,8 @@ import {
   useCanvasIsMultiSelect,
 } from "./package.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
-import { Button$2 } from "../canvas/node-shell-inner.jsx";
-
-function loadImage$2(src) {
+import { Button } from "../canvas/node-shell-inner.jsx";
+function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image2 = new Image();
     image2.crossOrigin = "anonymous";
@@ -39,9 +38,8 @@ function loadImage$2(src) {
     image2.src = src;
   });
 }
-
 async function renderWatermarkedBlob(src, settings) {
-  const image2 = await loadImage$2(src);
+  const image2 = await loadImage(src);
   const canvas = document.createElement("canvas");
   canvas.width = image2.naturalWidth || image2.width;
   canvas.height = image2.naturalHeight || image2.height;
@@ -58,13 +56,9 @@ async function renderWatermarkedBlob(src, settings) {
     }, "image/png");
   });
 }
-
 const PANEL_MAX_HEIGHT = 480;
-
-const PANEL_MIN_HEIGHT$1 = 360;
-
-const VIEWPORT_MARGIN$1 = 16;
-
+const PANEL_MIN_HEIGHT = 360;
+const VIEWPORT_MARGIN = 16;
 const FONT_OPTIONS = [
   {
     value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -99,11 +93,9 @@ const FONT_OPTIONS = [
     label: "Kai",
   },
 ];
-
 const FONT_ITEMS = Object.fromEntries(
   FONT_OPTIONS.map((option2) => [option2.value, option2.label]),
 );
-
 const WEIGHT_OPTIONS = [
   {
     value: 300,
@@ -122,17 +114,13 @@ const WEIGHT_OPTIONS = [
     label: "Extrabold",
   },
 ];
-
 const WEIGHT_ITEMS = Object.fromEntries(
   WEIGHT_OPTIONS.map((option2) => [String(option2.value), option2.label]),
 );
-
 const FONT_SIZE_OPTIONS = [
   10, 12, 14, 16, 18, 20, 24, 32, 36, 48, 64, 72, 96, 120,
 ];
-
 const POSITIONS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
-
 function ColorOpacityControl({
   color: color2,
   opacity,
@@ -223,7 +211,6 @@ function ColorOpacityControl({
     </div>
   );
 }
-
 function FontSizeSelect({ value, label, onChange }) {
   const options = FONT_SIZE_OPTIONS.includes(value)
     ? FONT_SIZE_OPTIONS
@@ -232,18 +219,18 @@ function FontSizeSelect({ value, label, onChange }) {
     options.map((size2) => [String(size2), `${size2}px`]),
   );
   return (
-    <Select$2
+    <Select
       value={String(value)}
       items={items}
       onValueChange={(nextValue) => nextValue && onChange(Number(nextValue))}
     >
-      <SelectTrigger$1
+      <SelectTrigger
         aria-label={label}
         data-action-ui-id="canvas.watermark.size-select"
       >
-        <SelectValue$1 />
-      </SelectTrigger$1>
-      <SelectContent$1
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent
         className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
         style={{
           background:
@@ -251,15 +238,14 @@ function FontSizeSelect({ value, label, onChange }) {
         }}
       >
         {options.map((size2) => (
-          <SelectItem$1 key={size2} value={String(size2)}>
+          <SelectItem key={size2} value={String(size2)}>
             {size2}px
-          </SelectItem$1>
+          </SelectItem>
         ))}
-      </SelectContent$1>
-    </Select$2>
+      </SelectContent>
+    </Select>
   );
 }
-
 function ControlSection({
   label,
   className,
@@ -267,7 +253,7 @@ function ControlSection({
   children: children2,
 }) {
   return (
-    <section className={cn$5("space-y-2.5", className)}>
+    <section className={cn("space-y-2.5", className)}>
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-hl_text_02 text-[13px] font-medium leading-5">
           {label}
@@ -278,7 +264,6 @@ function ControlSection({
     </section>
   );
 }
-
 function SliderControl({
   label,
   value,
@@ -312,7 +297,6 @@ function SliderControl({
     />
   );
 }
-
 function SegmentedControl({
   className,
   label,
@@ -322,7 +306,7 @@ function SegmentedControl({
   onChange,
 }) {
   return (
-    <div className={cn$5("flex items-center justify-between gap-3", className)}>
+    <div className={cn("flex items-center justify-between gap-3", className)}>
       {label && (
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
           {label}
@@ -337,7 +321,7 @@ function SegmentedControl({
               type="button"
               onClick={() => onChange(item)}
               aria-pressed={active2}
-              className={cn$5(
+              className={cn(
                 "relative flex h-7 flex-1 items-center justify-center rounded-full px-2 text-[11px] text-muted-foreground transition-colors hover:text-[var(--canvas-controls-text)]",
                 active2 && "bg-background text-foreground shadow-sm",
               )}
@@ -350,7 +334,6 @@ function SegmentedControl({
     </div>
   );
 }
-
 export function WatermarkPopover({
   sourceUrl,
   settings,
@@ -370,7 +353,7 @@ export function WatermarkPopover({
     (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
     [nodeId],
   );
-  const selected2 = useStore$3(selectedSelector);
+  const selected2 = useStore(selectedSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -428,13 +411,13 @@ export function WatermarkPopover({
     }
   }, [onClose, onConfirm, renderOutput, saving, settings, sourceUrl, t2]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
-  const availableHeight = window.innerHeight - VIEWPORT_MARGIN$1 * 2;
+  const availableHeight = window.innerHeight - VIEWPORT_MARGIN * 2;
   const panelHeight = Math.max(
-    PANEL_MIN_HEIGHT$1,
+    PANEL_MIN_HEIGHT,
     Math.min(PANEL_MAX_HEIGHT, availableHeight),
   );
   return (
-    <NodeToolbar$1
+    <NodeToolbar
       isVisible={true}
       position={Position.Right}
       offset={NODE_POPOVER_SAFE_GAP}
@@ -470,7 +453,7 @@ export function WatermarkPopover({
             aria-label={t2("common.close", "Close")}
             data-action-ui-id="canvas.watermark.close"
           >
-            <X$7 size={18} strokeWidth={1.5} aria-hidden="true" />
+            <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
         <div
@@ -497,17 +480,17 @@ export function WatermarkPopover({
             />
           </ControlSection>
           <ControlSection label={t2("canvas.watermark.style", "Style")}>
-            <Select$2
+            <Select
               value={settings.fontFamily}
               items={FONT_ITEMS}
               onValueChange={(value) =>
                 value && setSetting("fontFamily", value)
               }
             >
-              <SelectTrigger$1 data-action-ui-id="canvas.watermark.font-select">
-                <SelectValue$1 />
-              </SelectTrigger$1>
-              <SelectContent$1
+              <SelectTrigger data-action-ui-id="canvas.watermark.font-select">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
                 className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
                 style={{
                   background:
@@ -515,27 +498,27 @@ export function WatermarkPopover({
                 }}
               >
                 {FONT_OPTIONS.map((option2) => (
-                  <SelectItem$1 key={option2.value} value={option2.value}>
+                  <SelectItem key={option2.value} value={option2.value}>
                     {option2.label}
-                  </SelectItem$1>
+                  </SelectItem>
                 ))}
-              </SelectContent$1>
-            </Select$2>
+              </SelectContent>
+            </Select>
             <div className="grid grid-cols-2 gap-2">
-              <Select$2
+              <Select
                 value={String(settings.fontWeight)}
                 items={WEIGHT_ITEMS}
                 onValueChange={(value) =>
                   value && setSetting("fontWeight", Number(value))
                 }
               >
-                <SelectTrigger$1
+                <SelectTrigger
                   aria-label={t2("canvas.watermark.weight", "Weight")}
                   data-action-ui-id="canvas.watermark.weight-select"
                 >
-                  <SelectValue$1 />
-                </SelectTrigger$1>
-                <SelectContent$1
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent
                   className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
                   style={{
                     background:
@@ -543,15 +526,15 @@ export function WatermarkPopover({
                   }}
                 >
                   {WEIGHT_OPTIONS.map((option2) => (
-                    <SelectItem$1
+                    <SelectItem
                       key={option2.value}
                       value={String(option2.value)}
                     >
                       {option2.label}
-                    </SelectItem$1>
+                    </SelectItem>
                   ))}
-                </SelectContent$1>
-              </Select$2>
+                </SelectContent>
+              </Select>
               <FontSizeSelect
                 value={settings.fontSize}
                 label={t2("canvas.watermark.size", "Size")}
@@ -604,7 +587,7 @@ export function WatermarkPopover({
                       onClick={() => setSetting("position", position2)}
                       aria-label={`${t2("canvas.watermark.position", "Position")} ${position2}`}
                       aria-pressed={settings.position === position2}
-                      className={cn$5(
+                      className={cn(
                         "flex h-7 items-center justify-center rounded-md border border-input transition-colors hover:bg-[var(--canvas-controls-hover)]",
                         settings.position === position2 &&
                           "bg-foreground text-background",
@@ -661,15 +644,15 @@ export function WatermarkPopover({
           </ControlSection>
         </div>
         <footer className="flex shrink-0 justify-end gap-2 border-t border-[var(--canvas-controls-border)] p-3">
-          <Button$2
+          <Button
             variant="outline"
             size="sm"
             onClick={onClose}
             disabled={saving}
           >
             {t2("common.cancel", "Cancel")}
-          </Button$2>
-          <Button$2
+          </Button>
+          <Button
             size="sm"
             onClick={() => void handleSave()}
             loading={saving}
@@ -679,9 +662,9 @@ export function WatermarkPopover({
             {saving
               ? t2("canvas.watermark.processing", "Processing…")
               : t2("canvas.watermark.apply", "Apply")}
-          </Button$2>
+          </Button>
         </footer>
       </div>
-    </NodeToolbar$1>
+    </NodeToolbar>
   );
 }

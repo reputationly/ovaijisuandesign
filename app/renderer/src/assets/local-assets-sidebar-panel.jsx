@@ -2,7 +2,7 @@
 import {
   API_PATHS,
   ChevronDown,
-  ChevronRight$1,
+  ChevronRight$1 as ChevronRight,
   dedupedToast,
   FolderInput,
   FolderPlus,
@@ -37,7 +37,7 @@ import {
   ContextMenuTrigger,
 } from "../workspace/context-menu-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {
   FolderTileGlyph,
   useProjectAssetsService,
@@ -63,11 +63,8 @@ import { MoveNodeDialog } from "../infra/move-node-dialog.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 import { AssetsDropzoneEmpty } from "./assets-dropzone-empty.jsx";
-
 const GRID_THUMBNAIL_DISPLAY_WIDTH = 128;
-
 const LIST_THUMBNAIL_DISPLAY_WIDTH = 20;
-
 function assetTreeRowToLocalNode(row) {
   return {
     kind: row.kind,
@@ -75,12 +72,10 @@ function assetTreeRowToLocalNode(row) {
     record: row.record,
   };
 }
-
 function relParent(relPath) {
   const idx = relPath.lastIndexOf("/");
   return idx === -1 ? "" : relPath.slice(0, idx);
 }
-
 function flattenAssetTree(records, folders, expanded) {
   const rows = [];
   const visit2 = (parentRel, depth2) => {
@@ -115,7 +110,6 @@ function flattenAssetTree(records, folders, expanded) {
   visit2("", 0);
   return rows;
 }
-
 function LocalAssetGridCard({
   row,
   expanded,
@@ -138,8 +132,8 @@ function LocalAssetGridCard({
     name: row.name,
     mime: record2?.mime,
   });
-  const Chevron2 = expanded ? ChevronDown : ChevronRight$1;
-  const cardClassName = cn$2(
+  const Chevron2 = expanded ? ChevronDown : ChevronRight;
+  const cardClassName = cn(
     "group relative flex min-w-0 flex-col rounded-lg p-1 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-1 focus-visible:ring-ring/50",
     row.kind === "file" && "cursor-grab active:cursor-grabbing",
     dropActive && "bg-foreground/[0.12]",
@@ -249,7 +243,6 @@ function LocalAssetGridCard({
     </ContextMenu>
   );
 }
-
 function FolderRow({
   row,
   expanded,
@@ -262,7 +255,7 @@ function FolderRow({
   dropActive,
 }) {
   const { t: t2 } = useTranslation();
-  const Chevron2 = expanded ? ChevronDown : ChevronRight$1;
+  const Chevron2 = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -271,7 +264,7 @@ function FolderRow({
             type="button"
             onClick={() => onToggle(row.rel)}
             {...dndProps}
-            className={cn$2(
+            className={cn(
               "list-row-hit-area flex h-7 w-full items-center gap-0.5 rounded-md px-2 text-left transition-colors hover:bg-foreground/5",
               dropActive && "bg-primary/10",
             )}
@@ -315,7 +308,6 @@ function FolderRow({
     </ContextMenu>
   );
 }
-
 function FileRow({
   record: record2,
   depth: depth2,
@@ -387,7 +379,6 @@ function FileRow({
     </ContextMenu>
   );
 }
-
 export function LocalAssetsSidebarPanel({
   project: project2,
   onToolbarStateChange,
@@ -809,7 +800,7 @@ export function LocalAssetsSidebarPanel({
         {...externalDropProps}
         aria-label={t2("projectAssets.title")}
         data-action-ui-id="project-assets-sidebar.drop-area"
-        className={cn$2(
+        className={cn(
           "min-h-0 flex-1 overflow-y-auto pb-1",
           moveDnd.overKey === "" && "bg-primary/5",
         )}
@@ -905,7 +896,7 @@ export function LocalAssetsSidebarPanel({
         )}
       </section>
       <div className="flex shrink-0 items-center gap-1 border-t border-border p-2">
-        <Button$1
+        <Button
           type="button"
           size="sm"
           disabled={!folderName}
@@ -915,8 +906,8 @@ export function LocalAssetsSidebarPanel({
         >
           <FolderPlus size={14} strokeWidth={1.5} />
           {t2("localAssets.newFolder")}
-        </Button$1>
-        <Button$1
+        </Button>
+        <Button
           type="button"
           variant="outline"
           size="sm"
@@ -927,7 +918,7 @@ export function LocalAssetsSidebarPanel({
         >
           <Upload size={14} strokeWidth={1.5} />
           {t2("localAssets.upload")}
-        </Button$1>
+        </Button>
         <input
           ref={fileInputRef}
           type="file"

@@ -3,22 +3,21 @@ import {
   CompositedSvg,
   jsxRuntimeExports,
   reactExports,
-  useStore$3,
+  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  CloseIcon$1,
+  CloseIcon,
   SelectRectIcon,
   SendArrowIcon,
-  UndoIcon$1,
+  UndoIcon,
 } from "./file-missing-icon.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "../media-editing/image-edit-pricing.js";
 import { BananaResolutionPicker } from "../media-editing/banana-resolution-picker.jsx";
 import { useCropViewportZoom } from "./use-crop-viewport-zoom.js";
 import { useMoveObjectState } from "../media-editing/use-start-cloud-edit-from-node.js";
-
 const CanvasMoveObjectPanel = reactExports.memo(
   function CanvasMoveObjectPanel2({
     croppedUrl,
@@ -72,7 +71,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
                 e2.currentTarget.style.opacity = "0.7";
               }}
             >
-              <UndoIcon$1 />
+              <UndoIcon />
             </button>
             <button
               type="button"
@@ -94,7 +93,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
                 e2.currentTarget.style.opacity = "0.7";
               }}
             >
-              <CloseIcon$1 />
+              <CloseIcon />
             </button>
           </div>
         </div>
@@ -181,7 +180,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
                 e2.currentTarget.style.opacity = "0.7";
               }}
             >
-              <CloseIcon$1 />
+              <CloseIcon />
             </button>
             <div className="flex items-center gap-2">
               {!running2 && (
@@ -216,7 +215,6 @@ const CanvasMoveObjectPanel = reactExports.memo(
     );
   },
 );
-
 function LassoIcon() {
   return (
     <CompositedSvg
@@ -248,7 +246,6 @@ function LassoIcon() {
     </CompositedSvg>
   );
 }
-
 function ToolButton({
   active: active2,
   onClick,
@@ -269,8 +266,7 @@ function ToolButton({
     </button>
   );
 }
-
-function IconButton$1({
+function IconButton({
   disabled: disabled2,
   onClick,
   title,
@@ -292,11 +288,9 @@ function IconButton$1({
     </button>
   );
 }
-
 function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-
 const CanvasMoveObjectTopBar = reactExports.memo(
   function CanvasMoveObjectTopBar2({
     tool: tool2,
@@ -316,15 +310,15 @@ const CanvasMoveObjectTopBar = reactExports.memo(
         data-canvas-toolbar="true"
         data-density="compact"
       >
-        <IconButton$1
+        <IconButton
           disabled={false}
           onClick={onClose}
           title={t2("canvas.close")}
           ariaLabel={t2("canvas.close")}
           e2eId="move-object.close"
         >
-          <CloseIcon$1 />
-        </IconButton$1>
+          <CloseIcon />
+        </IconButton>
         <Divider />
         <ToolButton
           active={tool2 === "rect"}
@@ -343,29 +337,24 @@ const CanvasMoveObjectTopBar = reactExports.memo(
           <LassoIcon />
         </ToolButton>
         <Divider />
-        <IconButton$1
+        <IconButton
           disabled={!hasSelection2}
           onClick={onUndo}
           title={t2("canvas.moveObject.undo")}
           ariaLabel={t2("canvas.moveObject.undo")}
           e2eId="move-object.undo"
         >
-          <UndoIcon$1 />
-        </IconButton$1>
+          <UndoIcon />
+        </IconButton>
       </div>
     );
   },
 );
-
 const MOVE_OBJECT_SOURCE_COLOR = "#FF3B30";
-
 const MOVE_OBJECT_TARGET_COLOR = "#34C759";
-
 const MOVE_OBJECT_ARROW_COLOR = "#FFFFFF";
-
 const MOVE_OBJECT_ARROW_SHADOW = "rgba(0, 0, 0, 0.45)";
-
-function loadImage$1(url2) {
+function loadImage(url2) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -374,8 +363,7 @@ function loadImage$1(url2) {
     img.src = url2;
   });
 }
-
-function canvasToPngBlob$1(canvas) {
+function canvasToPngBlob(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -387,7 +375,6 @@ function canvasToPngBlob$1(canvas) {
     );
   });
 }
-
 function clampBboxToImage(bbox, imageWidth, imageHeight) {
   let [x2, y4, w3, h2] = bbox;
   w3 = Math.max(1, Math.min(Math.round(w3), imageWidth));
@@ -396,7 +383,6 @@ function clampBboxToImage(bbox, imageWidth, imageHeight) {
   y4 = Math.max(0, Math.min(Math.round(y4), imageHeight - h2));
   return [x2, y4, w3, h2];
 }
-
 function bboxFromPath(path2) {
   if (path2.length === 0) return [0, 0, 0, 0];
   let minX = Number.POSITIVE_INFINITY;
@@ -416,9 +402,8 @@ function bboxFromPath(path2) {
     Math.max(1, Math.ceil(maxY - minY)),
   ];
 }
-
 async function cropObjectByRect(srcImageUrl, bbox) {
-  const img = await loadImage$1(srcImageUrl);
+  const img = await loadImage(srcImageUrl);
   const [sx, sy, sw, sh] = bbox;
   const canvas = document.createElement("canvas");
   canvas.width = sw;
@@ -426,11 +411,10 @@ async function cropObjectByRect(srcImageUrl, bbox) {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("cropObjectByRect: 2d context unavailable");
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-  return canvasToPngBlob$1(canvas);
+  return canvasToPngBlob(canvas);
 }
-
 async function cropObjectByLasso(srcImageUrl, path2) {
-  const img = await loadImage$1(srcImageUrl);
+  const img = await loadImage(srcImageUrl);
   const [bx, by, bw, bh] = bboxFromPath(path2);
   const canvas = document.createElement("canvas");
   canvas.width = bw;
@@ -450,17 +434,15 @@ async function cropObjectByLasso(srcImageUrl, path2) {
   ctx.clip();
   ctx.drawImage(img, -bx, -by);
   ctx.restore();
-  return canvasToPngBlob$1(canvas);
+  return canvasToPngBlob(canvas);
 }
-
 function strokeWidthForImage(imageWidth, imageHeight) {
   const longest = Math.max(imageWidth, imageHeight);
   return Math.max(2, Math.round(longest / 400));
 }
-
 async function renderSchematic(params) {
   const { srcImageUrl, imageWidth, imageHeight, source, target } = params;
-  const img = await loadImage$1(srcImageUrl);
+  const img = await loadImage(srcImageUrl);
   const canvas = document.createElement("canvas");
   canvas.width = imageWidth;
   canvas.height = imageHeight;
@@ -533,9 +515,8 @@ async function renderSchematic(params) {
     ctx.closePath();
     ctx.fill();
   }
-  return canvasToPngBlob$1(canvas);
+  return canvasToPngBlob(canvas);
 }
-
 function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
   const [tool2, setTool] = reactExports.useState("rect");
   const [status, setStatus] = reactExports.useState("selecting");
@@ -665,19 +646,12 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
     hasMoved,
   };
 }
-
-const BAR_GAP$1 = 16;
-
+const BAR_GAP = 16;
 const BAR_HEIGHT = 40;
-
-const TOP_BAR_MIN_WIDTH$1 = 220;
-
-const BOTTOM_BAR_MIN_WIDTH$1 = 480;
-
-const BOTTOM_BAR_MAX_WIDTH$1 = 720;
-
+const TOP_BAR_MIN_WIDTH = 220;
+const BOTTOM_BAR_MIN_WIDTH = 480;
+const BOTTOM_BAR_MAX_WIDTH = 720;
 const BOTTOM_PANEL_RESERVE = 260;
-
 function toDisplayRect(bbox, scaleX, scaleY) {
   return [
     Math.round(bbox[0] * scaleX),
@@ -686,7 +660,6 @@ function toDisplayRect(bbox, scaleX, scaleY) {
     Math.round(bbox[3] * scaleY),
   ];
 }
-
 function SelectionPreview({
   imageWidth,
   imageHeight,
@@ -820,12 +793,11 @@ function SelectionPreview({
     </>
   );
 }
-
 export const CanvasMoveObjectOverlay = reactExports.memo(
   function CanvasMoveObjectOverlay2() {
     const { meta: meta2, cancelMoveObject } = useMoveObjectState();
-    useCropViewportZoom(meta2, BOTTOM_PANEL_RESERVE + BAR_GAP$1);
-    const transform2 = useStore$3((s2) => s2.transform);
+    useCropViewportZoom(meta2, BOTTOM_PANEL_RESERVE + BAR_GAP);
+    const transform2 = useStore((s2) => s2.transform);
     const [vpX, vpY, vpZoom] = transform2;
     const [confirming, setConfirming] = reactExports.useState(false);
     const [resolution, setResolution] = reactExports.useState("2K");
@@ -1061,11 +1033,11 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
     const canRun =
       (status === "positioning" || status === "error") && hasMoved();
     const hasSelection2 = source !== null;
-    const topBarWidth = Math.max(imagePos.w, TOP_BAR_MIN_WIDTH$1);
+    const topBarWidth = Math.max(imagePos.w, TOP_BAR_MIN_WIDTH);
     const topBarLeft = imagePos.x + (imagePos.w - topBarWidth) / 2;
     const bottomBarWidth = Math.max(
-      BOTTOM_BAR_MIN_WIDTH$1,
-      Math.min(BOTTOM_BAR_MAX_WIDTH$1, imagePos.w),
+      BOTTOM_BAR_MIN_WIDTH,
+      Math.min(BOTTOM_BAR_MAX_WIDTH, imagePos.w),
     );
     const bottomBarLeft = imagePos.x + (imagePos.w - bottomBarWidth) / 2;
     return (
@@ -1109,7 +1081,7 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
         <div
           className="absolute pointer-events-auto flex justify-center"
           style={{
-            transform: `translate3d(${topBarLeft}px, ${imagePos.y - BAR_HEIGHT - BAR_GAP$1}px, 0)`,
+            transform: `translate3d(${topBarLeft}px, ${imagePos.y - BAR_HEIGHT - BAR_GAP}px, 0)`,
             width: topBarWidth,
             height: BAR_HEIGHT,
             top: 0,
@@ -1128,7 +1100,7 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
         <div
           className="absolute pointer-events-auto flex justify-center"
           style={{
-            transform: `translate3d(${bottomBarLeft}px, ${imagePos.y + imagePos.h + BAR_GAP$1}px, 0)`,
+            transform: `translate3d(${bottomBarLeft}px, ${imagePos.y + imagePos.h + BAR_GAP}px, 0)`,
             width: bottomBarWidth,
             top: 0,
             left: 0,

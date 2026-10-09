@@ -3,7 +3,7 @@ import {
   arrayMove,
   closestCenter,
   CompositedSvg,
-  CSS$1,
+  CSS$1 as CSS,
   DndContext,
   DragOverlay,
   horizontalListSortingStrategy,
@@ -21,16 +21,15 @@ import {
   useSensors,
   useSortable,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Dialog$1 } from "../canvas/separator.jsx";
+import { Dialog } from "../canvas/separator.jsx";
 import {
-  DialogContent$1,
-  DialogDescription$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
 } from "./use-preview-text.jsx";
-
 function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
   const { t: t2 } = useTranslation();
   const label = t2(meta2.labelKey, meta2.defaultLabel);
@@ -49,7 +48,7 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
     },
   });
   const style2 = {
-    transform: CSS$1.Transform.toString(transform2),
+    transform: CSS.Transform.toString(transform2),
     transition: transition2,
   };
   return (
@@ -92,13 +91,12 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
           aria-label={t2("canvas.customizeToolbar.unpin", "Unpin")}
           title={t2("canvas.customizeToolbar.unpin", "Unpin")}
         >
-          <X$7 size={10} strokeWidth={2} />
+          <X size={10} strokeWidth={2} />
         </button>
       )}
     </div>
   );
 }
-
 function DragGhost({ meta: meta2, showLabel }) {
   const { t: t2 } = useTranslation();
   const label = t2(meta2.labelKey, meta2.defaultLabel);
@@ -124,7 +122,6 @@ function DragGhost({ meta: meta2, showLabel }) {
     </div>
   );
 }
-
 function FixedDivider() {
   return (
     <div
@@ -139,7 +136,6 @@ function FixedDivider() {
     />
   );
 }
-
 function FixedChip({ icon, label, showLabel }) {
   return (
     <div
@@ -158,7 +154,6 @@ function FixedChip({ icon, label, showLabel }) {
     </div>
   );
 }
-
 function ToolTile({ id: _id, meta: meta2, pinned, onTogglePin }) {
   const { t: t2 } = useTranslation();
   const label = t2(meta2.labelKey, meta2.defaultLabel);
@@ -187,7 +182,6 @@ function ToolTile({ id: _id, meta: meta2, pinned, onTogglePin }) {
     </button>
   );
 }
-
 function MorePreviewIcon() {
   return (
     <CompositedSvg
@@ -203,7 +197,6 @@ function MorePreviewIcon() {
     </CompositedSvg>
   );
 }
-
 function PreviewMoreChip() {
   return (
     <div
@@ -216,7 +209,6 @@ function PreviewMoreChip() {
     </div>
   );
 }
-
 function PreviewBar({
   pinned,
   showLabels,
@@ -259,8 +251,7 @@ function PreviewBar({
     </div>
   );
 }
-
-export function CustomizeToolbarDialog$2({
+export function CustomizeToolbarDialog({
   open,
   onOpenChange,
   allToolIds,
@@ -350,8 +341,8 @@ export function CustomizeToolbarDialog$2({
   const onDragCancel = () => setActiveDragId(null);
   const activeMeta = activeDragId ? toolMeta[activeDragId] : void 0;
   return (
-    <Dialog$1 open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent$1
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+      <DialogContent
         className="!max-w-[760px] gap-0 p-0"
         onClick={(e2) => e2.stopPropagation()}
       >
@@ -363,15 +354,15 @@ export function CustomizeToolbarDialog$2({
           onDragCancel={onDragCancel}
         >
           <div className="flex flex-col gap-1 px-6 pt-6">
-            <DialogTitle$1 className="text-lg font-medium">
+            <DialogTitle className="text-lg font-medium">
               {t2("canvas.customizeToolbar.title", "Customize Toolbar")}
-            </DialogTitle$1>
-            <DialogDescription$1 className="text-sm text-muted-foreground">
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
               {t2(
                 "canvas.customizeToolbar.subtitle",
                 "Choose the tools you want in your edit bar",
               )}
-            </DialogDescription$1>
+            </DialogDescription>
           </div>
           <div
             className="relative mx-6 mt-5 mb-4 h-[140px] rounded-lg overflow-hidden border border-border"
@@ -466,7 +457,7 @@ export function CustomizeToolbarDialog$2({
               document.body,
             )}
         </DndContext>
-      </DialogContent$1>
-    </Dialog$1>
+      </DialogContent>
+    </Dialog>
   );
 }

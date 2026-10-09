@@ -35,7 +35,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { FourCornerLoading } from "../chat/chat-empty-state.jsx";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -52,7 +52,6 @@ import { AddToProjectSubMenu } from "./add-to-project-sub-menu.jsx";
 import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
 import { DeleteConfirmDialog } from "./move-workspace-dialog.jsx";
-
 function isWorkspaceMediaSummary(value) {
   if (value === null || typeof value !== "object" || !("counts" in value))
     return false;
@@ -64,7 +63,6 @@ function isWorkspaceMediaSummary(value) {
       typeof candidate[key2] === "number" && Number.isFinite(candidate[key2]),
   );
 }
-
 async function fetchWorkspaceSummary(workspacePath) {
   const response = await gatewayFetch(
     API_PATHS.workspaceSummary(workspacePath),
@@ -78,7 +76,6 @@ async function fetchWorkspaceSummary(workspacePath) {
   }
   return value;
 }
-
 function useWorkspaceSummary(workspacePath, enabled) {
   return useQuery({
     queryKey: ["workspace-media-summary", workspacePath],
@@ -89,19 +86,14 @@ function useWorkspaceSummary(workspacePath, enabled) {
     refetchOnWindowFocus: false,
   });
 }
-
 const MINUTE_MS = 6e4;
-
 const HOUR_MS = 60 * MINUTE_MS;
-
 const DAY_MS = 24 * HOUR_MS;
-
 function localCalendarDay(date2) {
   return (
     Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate()) / DAY_MS
   );
 }
-
 function formatWorkspaceOpenedAt(timestamp2, locale, now2 = Date.now()) {
   if (!Number.isFinite(timestamp2) || !Number.isFinite(now2)) return "";
   const openedAt = new Date(timestamp2);
@@ -133,16 +125,11 @@ function formatWorkspaceOpenedAt(timestamp2, locale, now2 = Date.now()) {
     day: "numeric",
   }).format(openedAt);
 }
-
 const HOME_RECENT_DETAILS_SIDE_OFFSET = 0;
-
 const HOME_RECENT_CLICK_RESOLUTION_DELAY = 240;
-
-const HOME_NAV_PILL_CLASS$1 =
+const HOME_NAV_PILL_CLASS =
   "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-2 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
-
-const HOME_NAV_ACTIVE_CLASS$1 = "after:bg-[var(--home-sidebar-nav-active)]";
-
+const HOME_NAV_ACTIVE_CLASS = "after:bg-[var(--home-sidebar-nav-active)]";
 function RecentProjectStatusContent({
   variant,
   userAction,
@@ -201,7 +188,6 @@ function RecentProjectStatusContent({
     </div>
   );
 }
-
 function WorkspaceStatusBadge({ status, className }) {
   const { t: t2 } = useTranslation();
   if (!status || (!status.running && !status.unread && !status.needsUserAction))
@@ -219,7 +205,7 @@ function WorkspaceStatusBadge({ status, className }) {
         role="status"
         aria-label={label}
         title={label}
-        className={cn$2(
+        className={cn(
           "flex size-4 shrink-0 items-center justify-center text-foreground/70",
           className,
         )}
@@ -249,14 +235,13 @@ function WorkspaceStatusBadge({ status, className }) {
         "session.tabs.status.completedUnread",
         "Completed, unread",
       )}
-      className={cn$2(
+      className={cn(
         "size-[5px] shrink-0 rounded-full bg-brand-accent",
         className,
       )}
     />
   );
 }
-
 function RecentProjectTrailingStatus({
   status,
   hovered,
@@ -266,7 +251,7 @@ function RecentProjectTrailingStatus({
   return (
     <span
       data-action-ui-id="home-sidebar.recent-trailing-slot"
-      className={cn$2(
+      className={cn(
         "relative flex h-4 shrink-0 items-center justify-center overflow-hidden transition-[width] duration-150 ease-out group-hover:w-5 group-focus-within:w-5",
         hasTrailingStatus ? "w-5" : "w-0",
       )}
@@ -283,7 +268,6 @@ function RecentProjectTrailingStatus({
     </span>
   );
 }
-
 function WorkspaceThumbnailFallback() {
   return (
     <span
@@ -306,11 +290,8 @@ function WorkspaceThumbnailFallback() {
     </span>
   );
 }
-
 const HOME_RECENT_THUMBNAIL_ROOT_MARGIN = "96px 0px";
-
 const HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS = 240;
-
 function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
   const hostRef = reactExports.useRef(null);
   const [loadEnabled, setLoadEnabled] = reactExports.useState(
@@ -394,7 +375,6 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
     </span>
   );
 }
-
 const THEME_TOKENS = [
   "--popover",
   "--foreground",
@@ -408,7 +388,6 @@ const THEME_TOKENS = [
   "--ring",
   "--brand-accent",
 ];
-
 function useNativeProjectPreview(options) {
   const browser2 = window.hilo?.browser;
   const supported =
@@ -520,9 +499,7 @@ function useNativeProjectPreview(options) {
   });
   return open && supported && !domFallback;
 }
-
 const COPY_FEEDBACK_DURATION_MS = 1500;
-
 export function RecentProjectRow({
   workspace,
   renamePath,
@@ -600,8 +577,8 @@ export function RecentProjectRow({
       : t2("homeSidebar.recentProjectAwaitingAnswer", "Awaiting reply");
   const visibleDetailsOpen = detailsEnabled && detailsOpen;
   const recentPillStateClass = active2
-    ? HOME_NAV_ACTIVE_CLASS$1
-    : cn$2(
+    ? HOME_NAV_ACTIVE_CLASS
+    : cn(
         "group-hover/recent-row:after:bg-[var(--home-sidebar-nav-hover)] group-has-[:focus-visible]/recent-row:after:bg-[var(--home-sidebar-nav-hover)]",
         (visibleDetailsOpen || menuOpen) &&
           "after:bg-[var(--home-sidebar-nav-hover)]",
@@ -871,7 +848,7 @@ ${openedAtLabel}`
           setDetailsOpen(false);
           onDragEnd();
         }}
-        className={cn$2(
+        className={cn(
           "group group/recent-row relative flex h-[32px] shrink-0 cursor-pointer items-center text-left text-sm text-[var(--home-sidebar-secondary-text)] transition-colors hover:text-foreground",
           active2 && "text-foreground",
           dragging && "sidebar-drag-source",
@@ -885,8 +862,8 @@ ${openedAtLabel}`
       >
         {renameSurface === "row" ? (
           <div
-            className={cn$2(
-              HOME_NAV_PILL_CLASS$1,
+            className={cn(
+              HOME_NAV_PILL_CLASS,
               recentPillStateClass,
               "pr-2 group-hover/recent-row:pr-16 group-has-[:focus-visible]/recent-row:pr-16",
               menuOpen && "pr-16",
@@ -913,8 +890,8 @@ ${openedAtLabel}`
             tabIndex={0}
             aria-current={active2 ? "page" : void 0}
             onClick={handleProjectClick}
-            className={cn$2(
-              HOME_NAV_PILL_CLASS$1,
+            className={cn(
+              HOME_NAV_PILL_CLASS,
               recentPillStateClass,
               "list-row-hit-area [--list-row-gap:1px] group-first/recent-row:before:top-0 group-last/recent-row:before:bottom-0 pr-2 text-left group-hover/recent-row:pr-16 group-has-[:focus-visible]/recent-row:pr-16",
               menuOpen && "pr-16",
@@ -943,7 +920,7 @@ ${openedAtLabel}`
           </button>
         )}
         <div
-          className={cn$2(
+          className={cn(
             "pointer-events-none absolute right-0.5 top-0 bottom-0 flex items-center gap-0.5 px-2 rounded-r-md opacity-0 transition-opacity duration-150 group-hover/recent-row:opacity-100 group-hover/recent-row:pointer-events-auto group-has-[:focus-visible]/recent-row:opacity-100 group-has-[:focus-visible]/recent-row:pointer-events-auto",
             menuOpen && "pointer-events-auto opacity-100",
           )}
@@ -963,7 +940,7 @@ ${openedAtLabel}`
                       event.stopPropagation();
                       onTogglePin();
                     }}
-                    className={cn$2(
+                    className={cn(
                       "icon-sidebar-action-control flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none",
                       pinned && "text-foreground",
                     )}
@@ -973,7 +950,7 @@ ${openedAtLabel}`
                         size={14}
                         strokeWidth={1.5}
                         aria-hidden="true"
-                        className={cn$2(pinned && "fill-current")}
+                        className={cn(pinned && "fill-current")}
                       />
                     </MonochromeIcon>
                   </button>
@@ -991,7 +968,7 @@ ${openedAtLabel}`
               disabled={renaming}
               aria-label={t2("homeSidebar.recentProjectActions")}
               data-action-ui-id="home-sidebar-recent-more"
-              className={cn$2(
+              className={cn(
                 "icon-sidebar-action-control flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none",
                 menuOpen &&
                   "bg-[var(--home-sidebar-nav-active)] hover:bg-[var(--home-sidebar-nav-active)]",

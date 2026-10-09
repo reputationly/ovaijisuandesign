@@ -1,14 +1,9 @@
 // create-tracker.js
-import { trackers$1 } from "./missing-asset-card.jsx";
-
+import { trackers } from "./missing-asset-card.jsx";
 const ENTER_RADIUS = 32;
-
 const EXIT_RADIUS = 40;
-
 const CENTER_OFFSET = 14;
-
 const MENU_SELECTOR = '[data-action-ui-id="canvas.add-node-menu"]';
-
 export function createTracker(root2) {
   const doc2 = root2.ownerDocument;
   const view2 = doc2.defaultView;
@@ -225,7 +220,7 @@ export function createTracker(root2) {
           win2.removeEventListener("blur", handleBlur);
           doc2.removeEventListener("pointercancel", reset2);
           viewportObserver.disconnect();
-          trackers$1.delete(root2);
+          trackers.delete(root2);
         },
       };
     },

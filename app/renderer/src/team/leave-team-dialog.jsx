@@ -25,16 +25,13 @@ import { Label } from "./use-wallet-query.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { useInGroupMembersQuery } from "./use-team-transactions-feed-query.jsx";
-
-let TeamScopeChangedError$1 = class TeamScopeChangedError2 extends Error {};
-
+let TeamScopeChangedError = class TeamScopeChangedError2 extends Error {};
 class TeamExitResultError2 extends Error {
   constructor(result) {
     super(result.status);
     this.result = result;
   }
 }
-
 function toSuccessorOption(member) {
   return {
     userId: member.userId,
@@ -42,7 +39,6 @@ function toSuccessorOption(member) {
     description: `UID ${member.userId}`,
   };
 }
-
 export function LeaveTeamDialog({
   open,
   scope,
@@ -108,7 +104,7 @@ export function LeaveTeamDialog({
         !scope.membershipRevision ||
         !accountScopeEquals(activeScope, scope)
       ) {
-        throw new TeamScopeChangedError$1();
+        throw new TeamScopeChangedError();
       }
       if (effectiveDissolveOnly) {
         throw new Error("sole_owner_must_dissolve");
@@ -156,7 +152,7 @@ export function LeaveTeamDialog({
       onLeft();
     },
     onError: (error) => {
-      if (error instanceof TeamScopeChangedError$1) {
+      if (error instanceof TeamScopeChangedError) {
         dedupedToast.error(
           t2("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",

@@ -1,9 +1,8 @@
 // file-explorer-search-bar.jsx
-import { reactExports, Search, useTranslation, X$7 } from "../vendor.js";
+import { reactExports, Search, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";
-
 export function FileExplorerSearchBar({
   value,
   onChange,
@@ -45,7 +44,7 @@ export function FileExplorerSearchBar({
   }, [open, collapsible, effectiveInputRef]);
   if (collapsible && !open) {
     return (
-      <div className={cn$2("flex shrink-0", className)}>
+      <div className={cn("flex shrink-0", className)}>
         <button
           type="button"
           aria-label={openLabel}
@@ -65,7 +64,7 @@ export function FileExplorerSearchBar({
   }
   return (
     <div
-      className={cn$2(
+      className={cn(
         "group flex shrink-0 px-2 pb-2",
         !expandedFillsRow && className,
         expandedFillsRow &&
@@ -98,16 +97,16 @@ export function FileExplorerSearchBar({
           aria-label={resolvedClearLabel}
           onClick={() => onChange("")}
           tabIndex={value ? 0 : -1}
-          className={cn$2(
+          className={cn(
             "inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-opacity hover:bg-foreground/[0.05] hover:text-foreground",
             value ? "opacity-100" : "opacity-0 pointer-events-none",
           )}
           data-action-ui-id={clearActionId}
         >
           {useStrokeSpec ? (
-            <StrokeIcon icon={X$7} size={12} />
+            <StrokeIcon icon={X} size={12} />
           ) : (
-            <X$7 size={12} strokeWidth={1.5} />
+            <X size={12} strokeWidth={1.5} />
           )}
         </button>
       </div>

@@ -3,83 +3,83 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
 import {
   __webpack_exports__getDocument,
-  _$5,
-  _t$2,
+  _$5 as _,
+  _t$2 as _t,
   $$8,
-  $t$2,
-  at$3,
-  At$3,
-  B$7,
-  Bt$1,
-  bt$3,
+  $t$2 as $t,
+  at$3 as at,
+  At$3 as At,
+  B$7 as B,
+  Bt$1 as Bt,
+  bt$3 as bt,
   classifyFileType,
   CompositedSvg,
-  ct$3,
-  Ct$3,
-  D$7,
-  Dt$2,
-  dt$4,
-  Et$2,
-  et$4,
-  f$4,
-  F$6,
-  Ft$2,
-  ft$3,
-  G$5,
-  getDefaultExportFromCjs$1,
-  Gt$1,
-  gt$2,
-  H$5,
-  Ht$1,
-  ht$2,
-  It$1,
-  it$3,
-  j$5,
-  J$6,
+  ct$3 as ct,
+  Ct$3 as Ct,
+  D$7 as D,
+  Dt$2 as Dt,
+  dt$4 as dt,
+  Et$2 as Et,
+  et$4 as et,
+  f$4 as f,
+  F$6 as F,
+  Ft$2 as Ft,
+  ft$3 as ft,
+  G$5 as G,
+  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
+  Gt$1 as Gt,
+  gt$2 as gt,
+  H$5 as H,
+  Ht$1 as Ht,
+  ht$2 as ht,
+  It$1 as It,
+  it$3 as it,
+  j$5 as j,
+  J$6 as J,
   jsxRuntimeExports,
-  k$6,
-  K$6,
-  kt$2,
-  L$7,
-  Lt$1,
-  lt$3,
-  Mt$1,
-  mt$2,
-  N$4,
-  Nt$1,
-  nt$4,
-  Ot$2,
-  ot$3,
-  P$7,
-  pt$2,
-  Pt$2,
-  q$5,
-  R$6,
+  k$6 as k,
+  K$6 as K,
+  kt$2 as kt,
+  L$7 as L,
+  Lt$1 as Lt,
+  lt$3 as lt,
+  Mt$1 as Mt,
+  mt$2 as mt,
+  N$4 as N,
+  Nt$1 as Nt,
+  nt$4 as nt,
+  Ot$2 as Ot,
+  ot$3 as ot,
+  P$7 as P,
+  pt$2 as pt,
+  Pt$2 as Pt,
+  q$5 as q,
+  R$6 as R,
   reactExports,
   requireJszip_min,
-  Rt$2,
-  rt$3,
-  S$7,
-  St$2,
-  st$3,
-  Tt$2,
-  tt$4,
+  Rt$2 as Rt,
+  rt$3 as rt,
+  S$7 as S,
+  St$2 as St,
+  st$3 as st,
+  Tt$2 as Tt,
+  tt$4 as tt,
   useTranslation,
-  ut$2,
-  Ut$2,
-  V$6,
-  v$7,
-  vt$2,
-  W$7,
-  wt$3,
-  X$6,
-  xt$2,
-  Y$4,
-  yt$2,
-  Yt$2,
-  Z$4,
-  z$7,
-  zt$2,
+  ut$2 as ut,
+  Ut$2 as Ut,
+  V$6 as V,
+  v$7 as v,
+  vt$2 as vt,
+  W$7 as W,
+  wt$3 as wt,
+  X$6 as X,
+  xt$2 as xt,
+  Y$4 as Y,
+  yt$2 as yt,
+  Yt$2 as Yt,
+  Z$4 as Z,
+  z$7 as z,
+  zt$2 as zt,
 } from "../vendor.js";
 import { ViewerLoading, ViewerStateShell } from "./input.jsx";
 import {
@@ -90,14 +90,13 @@ import {
   touch,
   useFileUrl,
   useWorkspaceContentBudgetScope,
-  workspaceScope$1,
+  workspaceScope,
 } from "../infra/use-plugin-metadata-store.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { useCanvasBridge } from "./package.jsx";
 import { renderAsync } from "docx-preview";
 import { useViewerActive } from "../infra/use-viewer-active.js";
 import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
-
 function isWorkspaceFileViewerAdmissionAvailable(kind, state2) {
   if (!HEAVY_FILE_VIEWER_KINDS.has(kind)) return true;
   let heavyMountedCount = 0;
@@ -107,7 +106,6 @@ function isWorkspaceFileViewerAdmissionAvailable(kind, state2) {
   }
   return heavyMountedCount < CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT;
 }
-
 function registerWorkspaceFileViewerWithAdmission(input) {
   const state2 = getOrCreateState(input.workspaceId);
   const admitted = isWorkspaceFileViewerAdmissionAvailable(input.kind, state2);
@@ -141,11 +139,9 @@ function registerWorkspaceFileViewerWithAdmission(input) {
     },
   };
 }
-
 function workspaceFileViewerAdmissionKey(input) {
-  return `${workspaceScope$1(input.workspaceId)}\0${input.kind}\0${input.filePath ?? ""}\0${input.active === false ? "idle" : "active"}`;
+  return `${workspaceScope(input.workspaceId)}\0${input.kind}\0${input.filePath ?? ""}\0${input.active === false ? "idle" : "active"}`;
 }
-
 function defaultWorkspaceFileViewerAdmission(input, admissionKey) {
   const requiresAdmission =
     input.active !== false &&
@@ -158,7 +154,6 @@ function defaultWorkspaceFileViewerAdmission(input, admissionKey) {
     overLimit: false,
   };
 }
-
 function useWorkspaceFileViewerAdmission(input) {
   const admissionKey = workspaceFileViewerAdmissionKey(input);
   const [admission, setAdmission] = reactExports.useState(() =>
@@ -199,57 +194,52 @@ function useWorkspaceFileViewerAdmission(input) {
     overLimit: admission.overLimit,
   };
 }
-
-var w$6 = (t2) => (e2) => {
+var w = (t2) => (e2) => {
   var p3 = t2[e2];
   if (p3) return p3();
   throw new Error("Module not found in bundle: " + e2);
 };
-
-var Se$2 = w$6({
-  "./languages/asm.js": () => Promise.resolve().then(() => (F$6(), P$7)),
-  "./languages/bash.js": () => Promise.resolve().then(() => (f$4(), $$8)),
-  "./languages/bf.js": () => Promise.resolve().then(() => (B$7(), v$7)),
-  "./languages/c.js": () => Promise.resolve().then(() => (H$5(), G$5)),
-  "./languages/css.js": () => Promise.resolve().then(() => (k$6(), _$5)),
-  "./languages/csv.js": () => Promise.resolve().then(() => (Y$4(), z$7)),
-  "./languages/diff.js": () => Promise.resolve().then(() => (N$4(), Z$4)),
-  "./languages/docker.js": () => Promise.resolve().then(() => (W$7(), X$6)),
-  "./languages/git.js": () => Promise.resolve().then(() => (K$6(), j$5)),
-  "./languages/go.js": () => Promise.resolve().then(() => (q$5(), V$6)),
-  "./languages/html.js": () => Promise.resolve().then(() => (et$4(), tt$4)),
-  "./languages/http.js": () => Promise.resolve().then(() => (st$3(), at$3)),
-  "./languages/ini.js": () => Promise.resolve().then(() => (nt$4(), pt$2)),
-  "./languages/java.js": () => Promise.resolve().then(() => (mt$2(), ct$3)),
-  "./languages/js.js": () => Promise.resolve().then(() => (L$7(), rt$3)),
+var Se = w({
+  "./languages/asm.js": () => Promise.resolve().then(() => (F(), P)),
+  "./languages/bash.js": () => Promise.resolve().then(() => (f(), $$8)),
+  "./languages/bf.js": () => Promise.resolve().then(() => (B(), v)),
+  "./languages/c.js": () => Promise.resolve().then(() => (H(), G)),
+  "./languages/css.js": () => Promise.resolve().then(() => (k(), _)),
+  "./languages/csv.js": () => Promise.resolve().then(() => (Y(), z)),
+  "./languages/diff.js": () => Promise.resolve().then(() => (N(), Z)),
+  "./languages/docker.js": () => Promise.resolve().then(() => (W(), X)),
+  "./languages/git.js": () => Promise.resolve().then(() => (K(), j)),
+  "./languages/go.js": () => Promise.resolve().then(() => (q(), V)),
+  "./languages/html.js": () => Promise.resolve().then(() => (et(), tt)),
+  "./languages/http.js": () => Promise.resolve().then(() => (st(), at)),
+  "./languages/ini.js": () => Promise.resolve().then(() => (nt(), pt)),
+  "./languages/java.js": () => Promise.resolve().then(() => (mt(), ct)),
+  "./languages/js.js": () => Promise.resolve().then(() => (L(), rt)),
   "./languages/js_template_literals.js": () =>
-    Promise.resolve().then(() => (ut$2(), ot$3)),
-  "./languages/jsdoc.js": () => Promise.resolve().then(() => (ht$2(), Et$2)),
-  "./languages/json.js": () => Promise.resolve().then(() => (gt$2(), it$3)),
-  "./languages/leanpub-md.js": () =>
-    Promise.resolve().then(() => (yt$2(), bt$3)),
-  "./languages/log.js": () => Promise.resolve().then(() => (ft$3(), Tt$2)),
-  "./languages/lua.js": () => Promise.resolve().then(() => (Nt$1(), It$1)),
-  "./languages/make.js": () => Promise.resolve().then(() => (Rt$2(), At$3)),
-  "./languages/md.js": () => Promise.resolve().then(() => (D$7(), dt$4)),
-  "./languages/pl.js": () => Promise.resolve().then(() => (Lt$1(), Ot$2)),
-  "./languages/plain.js": () => Promise.resolve().then(() => (St$2(), xt$2)),
-  "./languages/py.js": () => Promise.resolve().then(() => (Dt$2(), Ct$3)),
-  "./languages/regex.js": () => Promise.resolve().then(() => (Ut$2(), wt$3)),
-  "./languages/rs.js": () => Promise.resolve().then(() => (Ft$2(), Pt$2)),
-  "./languages/sql.js": () => Promise.resolve().then(() => ($t$2(), Mt$1)),
-  "./languages/todo.js": () => Promise.resolve().then(() => (S$7(), lt$3)),
-  "./languages/toml.js": () => Promise.resolve().then(() => (Bt$1(), vt$2)),
-  "./languages/ts.js": () => Promise.resolve().then(() => (Ht$1(), Gt$1)),
-  "./languages/uri.js": () => Promise.resolve().then(() => (kt$2(), _t$2)),
-  "./languages/xml.js": () => Promise.resolve().then(() => (R$6(), J$6)),
-  "./languages/yaml.js": () => Promise.resolve().then(() => (Yt$2(), zt$2)),
+    Promise.resolve().then(() => (ut(), ot)),
+  "./languages/jsdoc.js": () => Promise.resolve().then(() => (ht(), Et)),
+  "./languages/json.js": () => Promise.resolve().then(() => (gt(), it)),
+  "./languages/leanpub-md.js": () => Promise.resolve().then(() => (yt(), bt)),
+  "./languages/log.js": () => Promise.resolve().then(() => (ft(), Tt)),
+  "./languages/lua.js": () => Promise.resolve().then(() => (Nt(), It)),
+  "./languages/make.js": () => Promise.resolve().then(() => (Rt(), At)),
+  "./languages/md.js": () => Promise.resolve().then(() => (D(), dt)),
+  "./languages/pl.js": () => Promise.resolve().then(() => (Lt(), Ot)),
+  "./languages/plain.js": () => Promise.resolve().then(() => (St(), xt)),
+  "./languages/py.js": () => Promise.resolve().then(() => (Dt(), Ct)),
+  "./languages/regex.js": () => Promise.resolve().then(() => (Ut(), wt)),
+  "./languages/rs.js": () => Promise.resolve().then(() => (Ft(), Pt)),
+  "./languages/sql.js": () => Promise.resolve().then(() => ($t(), Mt)),
+  "./languages/todo.js": () => Promise.resolve().then(() => (S(), lt)),
+  "./languages/toml.js": () => Promise.resolve().then(() => (Bt(), vt)),
+  "./languages/ts.js": () => Promise.resolve().then(() => (Ht(), Gt)),
+  "./languages/uri.js": () => Promise.resolve().then(() => (kt(), _t)),
+  "./languages/xml.js": () => Promise.resolve().then(() => (R(), J)),
+  "./languages/yaml.js": () => Promise.resolve().then(() => (Yt(), zt)),
 });
-
-const INITIAL$1 = {
+const INITIAL = {
   status: "loading",
 };
-
 async function equalBytes(left, right, signal) {
   if (left.byteLength !== right.byteLength) return false;
   const a2 = new Uint8Array(left);
@@ -266,10 +256,9 @@ async function equalBytes(left, right, signal) {
   }
   return true;
 }
-
 function useFileBytes(filePath, maxBytes, options) {
   const url2 = useFileUrl(filePath);
-  const [state2, setState] = reactExports.useState(INITIAL$1);
+  const [state2, setState] = reactExports.useState(INITIAL);
   const revalidate = options?.revalidate ?? false;
   const previous2 = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -283,7 +272,7 @@ function useFileBytes(filePath, maxBytes, options) {
     }
     if (!url2) {
       previous2.current = null;
-      setState(INITIAL$1);
+      setState(INITIAL);
       return;
     }
     let cancelled = false;
@@ -302,7 +291,7 @@ function useFileBytes(filePath, maxBytes, options) {
         : null;
     if (!cached) {
       previous2.current = null;
-      setState(INITIAL$1);
+      setState(INITIAL);
     }
     fetch(requestUrl, {
       signal: controller.signal,
@@ -362,7 +351,6 @@ function useFileBytes(filePath, maxBytes, options) {
   }, [filePath, url2, maxBytes, revalidate]);
   return state2;
 }
-
 const CODE_EXTS = new Set([
   ".ts",
   ".tsx",
@@ -418,8 +406,7 @@ const CODE_EXTS = new Set([
   ".txt",
   ".log",
 ]);
-
-const IMAGE_EXTS$1 = new Set([
+const IMAGE_EXTS = new Set([
   ".png",
   ".jpg",
   ".jpeg",
@@ -430,7 +417,6 @@ const IMAGE_EXTS$1 = new Set([
   ".avif",
   ".ico",
 ]);
-
 const ZIP_EXTS = new Set([
   ".zip",
   ".jar",
@@ -440,11 +426,10 @@ const ZIP_EXTS = new Set([
   ".xpi",
   ".epub",
 ]);
-
 function pickViewerKind(extension2) {
   if (!extension2) return "none";
   const ext = extension2.toLowerCase();
-  if (IMAGE_EXTS$1.has(ext)) return "image";
+  if (IMAGE_EXTS.has(ext)) return "image";
   if (ext === ".pdf") return "pdf";
   if (ext === ".docx") return "docx";
   if (ext === ".srt" || ext === ".ass") return "srt";
@@ -453,9 +438,7 @@ function pickViewerKind(extension2) {
   if (CODE_EXTS.has(ext)) return "code";
   return "none";
 }
-
 const HTML_VIEWER_UNLOAD_AFTER_MS = 6e3;
-
 const ACTIVE_GATED_VIEWER_KINDS = new Set([
   "image",
   "pdf",
@@ -464,7 +447,6 @@ const ACTIVE_GATED_VIEWER_KINDS = new Set([
   "zip",
   "html",
 ]);
-
 function ViewerError({ messageKey }) {
   const { t: t2 } = useTranslation();
   return (
@@ -475,8 +457,7 @@ function ViewerError({ messageKey }) {
     </ViewerStateShell>
   );
 }
-
-var U$6 = {
+var U = {
   num: {
     type: "num",
     match: /(\.e?|\b)\d(e-|[\d.oxa-fA-F_])*(\.|\b)/g,
@@ -490,18 +471,14 @@ var U$6 = {
     match: /"((?!")[^\r\n\\]|\\[^])*"?/g,
   },
 };
-
-var b$6 = {};
-
-var Ce$2 = (t2 = "") =>
+var b = {};
+var Ce = (t2 = "") =>
   t2
     .replaceAll("&", "&#38;")
     .replaceAll?.("<", "&lt;")
     .replaceAll?.(">", "&gt;");
-
-var De$3 = (t2, e2) => (e2 ? `<span class="shj-syn-${e2}">${t2}</span>` : t2);
-
-async function Zt$2(t2, e2, p3) {
+var De = (t2, e2) => (e2 ? `<span class="shj-syn-${e2}">${t2}</span>` : t2);
+async function Zt(t2, e2, p3) {
   try {
     let n2,
       m3,
@@ -511,13 +488,13 @@ async function Zt$2(t2, e2, p3) {
       h2 = 0,
       y4 =
         typeof e2 == "string"
-          ? await (b$6[e2] ?? (b$6[e2] = Se$2(`./languages/${e2}.js`)))
+          ? await (b[e2] ?? (b[e2] = Se(`./languages/${e2}.js`)))
           : e2,
       g2 = [...(typeof e2 == "string" ? y4.default : e2.sub)];
     for (; h2 < t2.length;) {
       for (c3.index = null, n2 = g2.length; n2-- > 0;) {
         if (
-          ((m3 = g2[n2].expand ? U$6[g2[n2].expand] : g2[n2]),
+          ((m3 = g2[n2].expand ? U[g2[n2].expand] : g2[n2]),
           r2[n2] === void 0 || r2[n2].match.index < h2)
         ) {
           if (
@@ -544,7 +521,7 @@ async function Zt$2(t2, e2, p3) {
       (p3(t2.slice(h2, c3.index), y4.type),
         (h2 = c3.end),
         c3.part.sub
-          ? await Zt$2(
+          ? await Zt(
               c3.match,
               typeof c3.part.sub == "string"
                 ? c3.part.sub
@@ -560,11 +537,10 @@ async function Zt$2(t2, e2, p3) {
     p3(t2);
   }
 }
-
-async function we$3(t2, e2, p3 = true, n2 = {}) {
+async function we(t2, e2, p3 = true, n2 = {}) {
   let m3 = "";
   return (
-    await Zt$2(t2, e2, (c3, i2) => (m3 += De$3(Ce$2(c3), i2))),
+    await Zt(t2, e2, (c3, i2) => (m3 += De(Ce(c3), i2))),
     p3
       ? `<div><div class="shj-numbers">${"<div></div>".repeat(
           !n2.hideLineNumbers &&
@@ -574,7 +550,6 @@ async function we$3(t2, e2, p3 = true, n2 = {}) {
       : m3
   );
 }
-
 function UnpreviewableViewer({
   extension: extension2,
   displayName: displayName2,
@@ -590,7 +565,6 @@ function UnpreviewableViewer({
     />
   );
 }
-
 const VIEWER_SIZE_LIMITS = {
   // 128 MB — rendered by the browser from a URL, not buffered by JS; cap kept for budget/admission symmetry
   pdf: 50 * 1024 * 1024,
@@ -601,7 +575,6 @@ const VIEWER_SIZE_LIMITS = {
   // 20 MB — docx-preview unzips fully into memory
   zip: 256 * 1024 * 1024,
 };
-
 function pickLanguage(ext) {
   switch (ext) {
     case ".ts":
@@ -676,19 +649,15 @@ function pickLanguage(ext) {
       return "plain";
   }
 }
-
 const MAX_HIGHLIGHTED_HTML_CHARS = 4 * 1024 * 1024;
-
-function escapeHtml$1(s2) {
+function escapeHtml(s2) {
   return s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-
 function plainTextHtml(text2) {
   const lineCount = text2.split("\n").length;
   const numbers = "<div></div>".repeat(lineCount);
-  return `<div><div class="shj-numbers">${numbers}</div><div>${escapeHtml$1(text2)}</div></div>`;
+  return `<div><div class="shj-numbers">${numbers}</div><div>${escapeHtml(text2)}</div></div>`;
 }
-
 async function yieldToMain() {
   const scheduler2 = globalThis.scheduler;
   if (scheduler2?.yield) return scheduler2.yield();
@@ -696,7 +665,6 @@ async function yieldToMain() {
     setTimeout(resolve, 0);
   });
 }
-
 function CodeViewer({
   filePath,
   extension: extension2,
@@ -728,7 +696,7 @@ function CodeViewer({
       if (cancelled) return;
       let rendered;
       try {
-        rendered = await we$3(text2, chosen /* multiline */, true);
+        rendered = await we(text2, chosen /* multiline */, true);
       } catch {
         rendered = plainTextHtml(text2);
       }
@@ -761,11 +729,8 @@ function CodeViewer({
     />
   );
 }
-
 var jszip_minExports = requireJszip_min();
-
-const JSZip = getDefaultExportFromCjs$1(jszip_minExports);
-
+const JSZip = getDefaultExportFromCjs(jszip_minExports);
 function DocxViewer({
   filePath,
   interactive,
@@ -836,7 +801,6 @@ function DocxViewer({
     </div>
   );
 }
-
 function ImageViewer({ filePath, displayName: displayName2 }) {
   const url2 = useFileUrl(filePath, {
     versionScope: "path",
@@ -875,7 +839,6 @@ function ImageViewer({ filePath, displayName: displayName2 }) {
     </div>
   );
 }
-
 function PdfViewer({
   filePath,
   paneWidth,
@@ -1031,9 +994,7 @@ function PdfViewer({
     </div>
   );
 }
-
 const SAVE_DEBOUNCE_MS = 500;
-
 function SrtEditor({
   filePath,
   interactive,
@@ -1145,7 +1106,6 @@ function SrtEditor({
     />
   );
 }
-
 function formatSize(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 < 0) return "";
   if (bytes2 < 1024) return `${bytes2} B`;
@@ -1155,8 +1115,7 @@ function formatSize(bytes2) {
   if (mb < 1024) return `${mb.toFixed(2)} MB`;
   return `${(mb / 1024).toFixed(2)} GB`;
 }
-
-function buildTree$1(entries2) {
+function buildTree(entries2) {
   const root2 = {
     children: [],
   };
@@ -1203,7 +1162,6 @@ function buildTree$1(entries2) {
   sortNodes(root2.children);
   return root2.children;
 }
-
 function FolderGlyph() {
   return (
     <CompositedSvg
@@ -1222,7 +1180,6 @@ function FolderGlyph() {
     </CompositedSvg>
   );
 }
-
 function ChevronGlyph({ open }) {
   return (
     <CompositedSvg
@@ -1241,7 +1198,6 @@ function ChevronGlyph({ open }) {
     </CompositedSvg>
   );
 }
-
 function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
   const sizeLabel = node2.isFolder ? "" : formatSize(node2.size);
   const handleClick2 = reactExports.useCallback(() => {
@@ -1291,7 +1247,6 @@ function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
     </Wrapper2>
   );
 }
-
 function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
   return (
     <>
@@ -1318,7 +1273,6 @@ function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
     </>
   );
 }
-
 function countLeaves(nodes) {
   let n2 = 0;
   for (const node2 of nodes) {
@@ -1327,7 +1281,6 @@ function countLeaves(nodes) {
   }
   return n2;
 }
-
 function ZipViewer({
   filePath,
   interactive,
@@ -1359,7 +1312,7 @@ function ZipViewer({
             size: size2,
           });
         });
-        const built = buildTree$1(raw2);
+        const built = buildTree(raw2);
         setTree(built);
         const initial = new Set();
         for (const node2 of built) if (node2.isFolder) initial.add(node2.path);
@@ -1426,7 +1379,6 @@ function ZipViewer({
     </div>
   );
 }
-
 export function FileViewerRouter({
   filePath,
   extension: extension2,

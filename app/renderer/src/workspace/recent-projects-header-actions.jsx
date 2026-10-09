@@ -16,7 +16,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2,
+  cn$2 as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -25,20 +25,15 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DropdownMenuSeparator } from "./shortcut-hint.jsx";
 import { CreateProjectMenuContent } from "../infra/inline-rename-input.jsx";
-
-function isRecentProjectsSortMode$1(value) {
+function isRecentProjectsSortMode(value) {
   return value === "manual" || value === "recent" || value === "priority";
 }
-
 function isRecentProjectsGroupMode(value) {
   return value === "none" || value === "project";
 }
-
 const RECENT_HEADER_PREVIEW_HOLD = "home-sidebar.recent-header-menu";
-
 const CREATE_TRIGGER_CLASS =
   "icon-muted-control pointer-events-none flex size-6 items-center justify-center rounded-sm text-muted-foreground opacity-0 transition-[opacity,background-color,color] duration-[80ms] hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100";
-
 export function RecentProjectsHeaderActions({
   sortMode,
   onSortModeChange,
@@ -147,7 +142,7 @@ export function RecentProjectsHeaderActions({
               value={sortMode}
               aria-label={t2("homeSidebar.recentProjectsSortLabel")}
               onValueChange={(value) => {
-                if (isRecentProjectsSortMode$1(value)) onSortModeChange(value);
+                if (isRecentProjectsSortMode(value)) onSortModeChange(value);
               }}
             >
               <DropdownMenuRadioItem
@@ -196,7 +191,7 @@ export function RecentProjectsHeaderActions({
                     aria-label={createLabel}
                     data-action-ui-id="home-sidebar.recent-create-project"
                     onClick={() => setSortMenuOpen(false)}
-                    className={cn$2(
+                    className={cn(
                       CREATE_TRIGGER_CLASS,
                       "data-[popup-open]:pointer-events-auto data-[popup-open]:bg-[var(--home-sidebar-nav-active)] data-[popup-open]:text-foreground data-[popup-open]:opacity-100",
                       sortMenuOpen && "pointer-events-auto opacity-100",
@@ -233,7 +228,7 @@ export function RecentProjectsHeaderActions({
                     setSortMenuOpen(false);
                     onCreateProject?.();
                   }}
-                  className={cn$2(
+                  className={cn(
                     CREATE_TRIGGER_CLASS,
                     sortMenuOpen && "pointer-events-auto opacity-100",
                   )}

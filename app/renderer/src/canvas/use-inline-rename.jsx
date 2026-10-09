@@ -19,17 +19,14 @@ import {
   useCanvasBridge,
   useCanvasIsMultiSelect,
 } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 export function useNodeTagColors(tagIds) {
   const resolve = reactExports.useContext(CanvasTagColorsContext);
   return resolve(tagIds);
 }
-
 export function requestNodeRename(nodeId) {
   renameRequestStore.getState().requestRename(nodeId);
 }
-
 export const CanvasLabelIcon = reactExports.forwardRef(
   function CanvasLabelIcon2(
     { size: size2 = 20, strokeWidth = 1.25, ...props },
@@ -53,15 +50,11 @@ export const CanvasLabelIcon = reactExports.forwardRef(
     );
   },
 );
-
 CanvasLabelIcon.displayName = "CanvasLabelIcon";
-
 const NODE_QUICK_TAG_SCALE =
   "scale(clamp(1, calc(1 / var(--canvas-zoom, 1)), calc(1 / 0.7)))";
-
 const NODE_QUICK_TAG_BORDER_WIDTH =
   "min(calc(1px / var(--canvas-zoom, 1)), max(1px, calc(0.7px / var(--canvas-zoom, 1))))";
-
 export function NodeQuickTagTrigger({
   visible,
   className,
@@ -93,7 +86,7 @@ export function NodeQuickTagTrigger({
     return null;
   }
   return (
-    <Tooltip$1 content={t2("canvasTags.entry")}>
+    <Tooltip content={t2("canvasTags.entry")}>
       <button
         ref={buttonRef}
         type="button"
@@ -117,10 +110,9 @@ export function NodeQuickTagTrigger({
           aria-hidden={true}
         />
       </button>
-    </Tooltip$1>
+    </Tooltip>
   );
 }
-
 export function useInlineRename({
   currentValue,
   onCommit,
@@ -198,7 +190,6 @@ export function useInlineRename({
     onKeyDown,
   };
 }
-
 export function CanvasModalGuardProvider({ children: children2 }) {
   const [count2, setCount] = reactExports.useState(0);
   const push2 = reactExports.useCallback(() => setCount((c3) => c3 + 1), []);
@@ -220,7 +211,6 @@ export function CanvasModalGuardProvider({ children: children2 }) {
     </CanvasModalGuardContext.Provider>
   );
 }
-
 export function useSuspendCanvasInteractions(active2) {
   const ctx = reactExports.useContext(CanvasModalGuardContext);
   const push2 = ctx?.push;
@@ -231,7 +221,6 @@ export function useSuspendCanvasInteractions(active2) {
     return () => pop();
   }, [active2, push2, pop]);
 }
-
 export function RecentlyAddedStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(
     RecentlyAddedStoreContext.Provider,

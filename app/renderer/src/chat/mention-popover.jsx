@@ -16,28 +16,19 @@ import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { AssetMentionList } from "../assets/asset-mention-list.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
-
 const POPOVER_FALLBACK_WIDTH = 380;
-
-const HOME_POPOVER_GAP$2 = 4;
-
+const HOME_POPOVER_GAP = 4;
 const THUMB_PX = 24;
-
 const BODY_MAX_H = 336;
-
 const BODY_MIN_H = 160;
-
-const VIEWPORT_GAP$1 = 12;
-
+const VIEWPORT_GAP = 12;
 const POPOVER_CHROME_H = 70;
-
 const ASSET_LIST_MAX_H = 280;
-
-const TABS$1 = [
+const TABS = [
   {
     key: "references",
     labelKey: "mention.popover.tabReferences",
@@ -74,7 +65,6 @@ const TABS$1 = [
     fallback: "Models",
   },
 ];
-
 const FILE_KIND_FILTERS = [
   {
     kind: "image",
@@ -102,7 +92,6 @@ const FILE_KIND_FILTERS = [
     fallback: "Other",
   },
 ];
-
 function buildMentionThumbUrl(
   gatewayUrl2,
   kind,
@@ -118,7 +107,6 @@ function buildMentionThumbUrl(
   const base2 = gatewayUrl2(`${prefix}${encoded}`);
   return withThumbnail(base2, displayWidth);
 }
-
 const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
   const gatewayUrl2 = useGatewayUrl();
   const url2 = buildMentionThumbUrl(
@@ -173,10 +161,8 @@ const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
     </span>
   );
 });
-
 MentionThumb.displayName = "MentionThumb";
-
-const ModelIcon$1 = reactExports.memo(function ModelIcon2({ model }) {
+const ModelIcon = reactExports.memo(function ModelIcon2({ model }) {
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center rounded-sm bg-muted/40 overflow-hidden";
@@ -205,9 +191,7 @@ const ModelIcon$1 = reactExports.memo(function ModelIcon2({ model }) {
     </span>
   );
 });
-
-ModelIcon$1.displayName = "ModelIcon";
-
+ModelIcon.displayName = "ModelIcon";
 function EmptyState({ text: text2 }) {
   return (
     <PageStateBoundary
@@ -219,7 +203,6 @@ function EmptyState({ text: text2 }) {
     />
   );
 }
-
 const MentionFileRow = reactExports.memo(function MentionFileRow2({
   item,
   gi,
@@ -253,9 +236,7 @@ const MentionFileRow = reactExports.memo(function MentionFileRow2({
     </button>
   );
 });
-
 MentionFileRow.displayName = "MentionFileRow";
-
 const MentionModelRow = reactExports.memo(function MentionModelRow2({
   item,
   gi,
@@ -283,7 +264,7 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
       onClick={handleClick2}
       onMouseEnter={handleHover}
     >
-      <ModelIcon$1 model={item.model} />
+      <ModelIcon model={item.model} />
       <span className="text-sm text-foreground font-medium truncate min-w-0 flex-1">
         {item.model.displayName}
       </span>
@@ -295,9 +276,7 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
     </button>
   );
 });
-
 MentionModelRow.displayName = "MentionModelRow";
-
 const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
   item,
   gi,
@@ -331,9 +310,7 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
     </button>
   );
 });
-
 MentionConnectorRow.displayName = "MentionConnectorRow";
-
 const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
   item,
   gi,
@@ -396,9 +373,7 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
     </button>
   );
 });
-
 MentionWorkflowRow.displayName = "MentionWorkflowRow";
-
 export function MentionPopover({
   id: id2,
   items,
@@ -634,28 +609,28 @@ export function MentionPopover({
       const inputRect = inputRoot?.getBoundingClientRect() ?? anchorRect;
       const width = Math.min(
         inputRoot ? inputRect.width : POPOVER_FALLBACK_WIDTH,
-        window.innerWidth - VIEWPORT_GAP$1 * 2,
+        window.innerWidth - VIEWPORT_GAP * 2,
       );
       let left = inputRect.left;
-      if (left + width > window.innerWidth - VIEWPORT_GAP$1) {
+      if (left + width > window.innerWidth - VIEWPORT_GAP) {
         left = inputRect.right - width;
       }
-      left = Math.max(VIEWPORT_GAP$1, left);
+      left = Math.max(VIEWPORT_GAP, left);
       popover.style.position = "fixed";
       popover.style.width = `${width}px`;
       popover.style.zIndex = String(MESSAGE_INPUT_POPOVER_Z_INDEX);
       popover.style.left = `${left}px`;
       let availableHeight;
       if (position2 === "down") {
-        const top2 = inputRect.bottom + HOME_POPOVER_GAP$2;
+        const top2 = inputRect.bottom + HOME_POPOVER_GAP;
         popover.style.top = `${top2}px`;
         popover.style.bottom = "";
-        availableHeight = window.innerHeight - top2 - VIEWPORT_GAP$1;
+        availableHeight = window.innerHeight - top2 - VIEWPORT_GAP;
       } else {
         const bottom = window.innerHeight - anchorRect.top + 4;
         popover.style.bottom = `${bottom}px`;
         popover.style.top = "";
-        availableHeight = anchorRect.top - VIEWPORT_GAP$1;
+        availableHeight = anchorRect.top - VIEWPORT_GAP;
       }
       if (bodyRef.current) {
         const bodyHeight = Math.max(
@@ -712,7 +687,7 @@ export function MentionPopover({
         )}
       </div>
       <div className="flex overflow-x-auto border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TABS$1.filter(
+        {TABS.filter(
           (tab2) =>
             !(
               hideAssetMention &&
@@ -791,12 +766,12 @@ export function MentionPopover({
           <div className="flex-1 flex flex-col min-h-0">
             {!isSearching && (
               <div className="shrink-0 px-3 py-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <Button$1
+                <Button
                   type="button"
                   variant={fileKindFilter === "all" ? "default" : "ghost"}
                   size="xs"
                   data-action-ui-id="mention-file-filter-all"
-                  className={cn$2(
+                  className={cn(
                     "shrink-0 whitespace-nowrap rounded-sm",
                     fileKindFilter === "all"
                       ? ""
@@ -805,15 +780,15 @@ export function MentionPopover({
                   onClick={() => onFileKindFilterChange("all")}
                 >
                   {t2("assetFilter.typeAll", "All")}
-                </Button$1>
+                </Button>
                 {FILE_KIND_FILTERS.map(({ kind, labelKey, fallback }) => (
-                  <Button$1
+                  <Button
                     key={kind}
                     type="button"
                     variant={fileKindFilter === kind ? "default" : "ghost"}
                     size="xs"
                     data-action-ui-id={`mention-file-filter-${kind}`}
-                    className={cn$2(
+                    className={cn(
                       "shrink-0 whitespace-nowrap rounded-sm",
                       fileKindFilter === kind
                         ? ""
@@ -826,7 +801,7 @@ export function MentionPopover({
                     }
                   >
                     {t2(labelKey, fallback)}
-                  </Button$1>
+                  </Button>
                 ))}
               </div>
             )}
@@ -888,13 +863,13 @@ export function MentionPopover({
             {!isSearching && availableTabs.length > 0 && (
               <div className="shrink-0 px-3 py-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {availableTabs.map((tab2) => (
-                  <Button$1
+                  <Button
                     key={tab2}
                     type="button"
                     variant={modelTab === tab2 ? "default" : "ghost"}
                     size="xs"
                     data-action-ui-id={`mention-model-tab-${tab2}`}
-                    className={cn$2(
+                    className={cn(
                       "shrink-0 whitespace-nowrap rounded-sm",
                       modelTab === tab2
                         ? ""
@@ -903,7 +878,7 @@ export function MentionPopover({
                     onClick={() => setModelTab(tab2)}
                   >
                     {t2(`mention.popover.${tab2}`, tab2)}
-                  </Button$1>
+                  </Button>
                 ))}
               </div>
             )}

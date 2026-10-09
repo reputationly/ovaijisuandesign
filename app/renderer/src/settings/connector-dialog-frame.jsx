@@ -3,13 +3,12 @@ import { reactExports, XIcon } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
 import {
-  Button$1,
-  cn$2,
+  Button,
+  cn$2 as cn,
   Dialog,
   dialogChromeButtonClassName,
   DialogContent,
 } from "../infra/dialog-content.jsx";
-
 export function ConnectorDialogFrame({
   open,
   onOpenChange,
@@ -138,7 +137,7 @@ export function ConnectorDialogFrame({
         ref={dialogRef}
         size={size2}
         showCloseButton={false}
-        className={cn$2(
+        className={cn(
           "flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden rounded-xl p-0 motion-safe:transition-[height] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none [&_[data-slot=dialog-close]]:size-8! [&_[data-slot=dialog-close]_svg]:size-[18px]!",
           stableHeight ? "h-[calc(100vh-2rem)] max-h-[700px]" : "h-auto",
           className,
@@ -150,7 +149,7 @@ export function ConnectorDialogFrame({
         {showCloseButton ? (
           <DialogClose
             render={
-              <Button$1
+              <Button
                 variant="ghost"
                 className={`no-drag absolute top-2 right-2 size-8 ${dialogChromeButtonClassName}`}
                 data-action-ui-id={closeActionUiId}

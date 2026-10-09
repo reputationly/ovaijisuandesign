@@ -4,7 +4,7 @@ import {
   useConnection,
   useNodeId,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileMissingIcon } from "../canvas/file-missing-icon.jsx";
@@ -24,7 +24,6 @@ import {
 } from "./package.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { toWorkspaceBrowserUrl } from "../generation/to-workspace-browser-url.js";
-
 function ViewerNotFound({ messageKey, detail }) {
   const { t: t2 } = useTranslation();
   return (
@@ -44,9 +43,7 @@ function ViewerNotFound({ messageKey, detail }) {
     </div>
   );
 }
-
 const CANVAS_PRESENTATION_LAYOUT_SETTLE_MS = 250;
-
 function useUrlAvailability(url2, reloadKey) {
   const [state2, setState] = reactExports.useState("checking");
   const probeInput = reactExports.useMemo(
@@ -83,12 +80,10 @@ function useUrlAvailability(url2, reloadKey) {
   }, [probeInput]);
   return state2;
 }
-
-function getWindowBridge$1() {
+function getWindowBridge() {
   const platform2 = window.__HILO_PLATFORM__;
   return platform2?.window;
 }
-
 export function HtmlViewerInner({
   filePath,
   interactive,
@@ -249,7 +244,7 @@ export function HtmlViewerInner({
   }, [active2, isFullscreen, nodeId, exitFullscreen]);
   reactExports.useEffect(() => {
     if (!isFullscreen || inlineSurface) return;
-    const bridge = getWindowBridge$1();
+    const bridge = getWindowBridge();
     bridge?.setWindowButtonVisibility?.(false);
     return () => {
       bridge?.setWindowButtonVisibility?.(true);
@@ -349,7 +344,7 @@ export function HtmlViewerInner({
             aria-label={t2("shortcuts.action.deleteNode", "删除节点")}
             data-action-ui-id="canvas.file-node.remove-plugin"
           >
-            <X$7 size={18} strokeWidth={1.5} aria-hidden="true" />
+            <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         )}
         {inlineSurface && (

@@ -6,21 +6,19 @@ import {
   reactExports,
   ShieldAlert,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { cdnRegionalImage } from "../workspace/topbar-state-context.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { HubLogo } from "../infra/hub-logo.jsx";
 import { HubWordmark } from "../infra/inline-rename-input.jsx";
 import { TOAST_DURATION_MS, TOAST_ID } from "./request-prompt-prefill.jsx";
-
 const CDN_CONNECTOR_HUB = cdnRegionalImage({
   domestic: "connector-hub-512-283b2f4fd24a.png",
   overseas: "connector-hub-512-283b2f4fd24a.png",
 });
-
 function ProxyToastContent({ onDismiss }) {
   const { t: t2 } = useTranslation();
   return (
@@ -42,40 +40,35 @@ function ProxyToastContent({ onDismiss }) {
         className="shrink-0 text-muted-foreground hover:text-foreground"
         onClick={onDismiss}
       >
-        <X$7 className="size-4" />
+        <X className="size-4" />
       </button>
     </div>
   );
 }
-
 export function showProxyToast(onDismiss) {
   dedupedToast.custom(() => <ProxyToastContent onDismiss={onDismiss} />, {
     duration: TOAST_DURATION_MS,
     id: TOAST_ID,
   });
 }
-
 const FRAME_CLASS = {
   inline: "size-4 rounded-sm bg-transparent",
   list: "size-6 rounded-sm bg-muted/40",
   card: "size-10 rounded-lg bg-muted",
   detail: "size-12 rounded-lg bg-muted p-0.5",
 };
-
 const IMAGE_CLASS = {
   inline: "size-full rounded-sm",
   list: "size-5 rounded-sm",
   card: "size-8 rounded-sm",
   detail: "size-full rounded-sm",
 };
-
 const FALLBACK_SIZE = {
   inline: 12,
   list: 14,
   card: 20,
   detail: 24,
 };
-
 export function ConnectorIcon({
   iconUrl,
   size: size2 = "list",
@@ -88,7 +81,7 @@ export function ConnectorIcon({
     <span
       data-slot="connector-icon"
       data-connector-icon-size={size2}
-      className={cn$2(
+      className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden text-muted-foreground",
         FRAME_CLASS[size2],
         className,
@@ -103,7 +96,7 @@ export function ConnectorIcon({
           loading="lazy"
           decoding="async"
           draggable={false}
-          className={cn$2("object-contain", IMAGE_CLASS[size2])}
+          className={cn("object-contain", IMAGE_CLASS[size2])}
           onError={() => setFailedUrl(iconUrl ?? null)}
         />
       ) : (
@@ -112,11 +105,10 @@ export function ConnectorIcon({
     </span>
   );
 }
-
 export function ConnectorRelationshipGraphic({ targetIconUrl, className }) {
   return (
     <div
-      className={cn$2("flex shrink-0 items-center gap-1.5", className)}
+      className={cn("flex shrink-0 items-center gap-1.5", className)}
       aria-hidden="true"
       data-layout-slot="connector-relationship"
     >
@@ -151,7 +143,6 @@ export function ConnectorRelationshipGraphic({ targetIconUrl, className }) {
     </div>
   );
 }
-
 export function HubBrandLine({
   logoSize = 28,
   showSubtitle = true,
@@ -159,7 +150,7 @@ export function HubBrandLine({
 }) {
   const { t: t2 } = useTranslation();
   return (
-    <div className={cn$2("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       <HubLogo size={logoSize} className="shrink-0" />
       <h1 className="flex items-center gap-2 font-heading text-xl font-medium leading-none text-foreground">
         <HubWordmark width={158} height={24} />

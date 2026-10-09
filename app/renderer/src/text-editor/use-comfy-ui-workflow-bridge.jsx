@@ -11,13 +11,11 @@ import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { useReleaseBadges } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CanvasBridgeProvider } from "../canvas/fullscreen-icon.jsx";
-
 const CANVAS_ADD_NODE_BADGE_IDS = {
   directorStage: "canvas-add-director-stage-new-v1",
   videoEditing: "canvas-add-video-editing-new-v1",
   comfyUi: "canvas-add-comfyui-new-v1",
 };
-
 function useCanvasAddNodeMenuBadges() {
   const { t: t2 } = useTranslation();
   const configs = reactExports.useMemo(() => {
@@ -52,14 +50,12 @@ function useCanvasAddNodeMenuBadges() {
     onAddNodeMenuBadgeComplete: markReleaseBadgeComplete,
   };
 }
-
 async function fetchLocalComfyUiWorkflows(gatewayFetch2) {
   const response = await gatewayFetch2(API_PATHS.comfyUiWorkflows);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return mapLocalComfyUiWorkflows(await response.json());
 }
-
-function parseOpenWorkflowResult$1(value) {
+function parseOpenWorkflowResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid ComfyUI response");
   const record2 = value;
@@ -74,7 +70,6 @@ function parseOpenWorkflowResult$1(value) {
       : {}),
   };
 }
-
 function useComfyUiWorkflowBridge() {
   const { t: t2 } = useTranslation();
   const gatewayFetch$1 = useGatewayFetch();
@@ -104,7 +99,7 @@ function useComfyUiWorkflowBridge() {
           },
         );
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const result = parseOpenWorkflowResult$1(await response.json());
+        const result = parseOpenWorkflowResult(await response.json());
         if (result.status !== "opened")
           throw new Error(result.error || result.status);
       } catch (error) {
@@ -122,7 +117,6 @@ function useComfyUiWorkflowBridge() {
     openComfyUiWorkflow,
   };
 }
-
 export function CanvasWorkflowBridge({
   children: children2,
   ...canvasBridgeState

@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import {
-  File$1,
+  File$1 as File,
   FileArchive,
   FileAudio,
   FileCode,
@@ -16,8 +16,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderTileGlyph } from "./new-folder-dialog.jsx";
 import { FileTypeIcon } from "./file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { cn$2 } from "./dialog-content.jsx";
-
+import { cn$2 as cn } from "./dialog-content.jsx";
 function VideoThumbnailPlayIndicator({ size: size2 = 14 }) {
   return (
     <span
@@ -35,7 +34,6 @@ function VideoThumbnailPlayIndicator({ size: size2 = 14 }) {
     </span>
   );
 }
-
 function typeBucketMeta(bucket) {
   switch (bucket) {
     case "folder":
@@ -90,13 +88,12 @@ function typeBucketMeta(bucket) {
     default:
       return {
         bucket,
-        Icon: File$1,
+        Icon: File,
         colorClass: "text-muted-foreground",
         containerClass: "bg-muted",
       };
   }
 }
-
 function ProjectAssetThumbnailGeneration({
   name: name2,
   kind,
@@ -115,11 +112,9 @@ function ProjectAssetThumbnailGeneration({
       typeBucket === "video" ||
       typeBucket === "audio");
   if (!isGrid && kind === "folder") {
-    return (
-      <FolderTileGlyph className={cn$2(muted && "opacity-50", className)} />
-    );
+    return <FolderTileGlyph className={cn(muted && "opacity-50", className)} />;
   }
-  const containerClassName = cn$2(
+  const containerClassName = cn(
     "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted",
     isGrid ? "aspect-[4/3] w-full border-b border-border" : "size-8 rounded-sm",
     className,
@@ -148,7 +143,7 @@ function ProjectAssetThumbnailGeneration({
             icon={FallbackIcon2}
             size={isGrid ? "lg" : "sm"}
             strokeWidth={isGrid ? 2 : 1.5}
-            className={cn$2(
+            className={cn(
               "text-foreground opacity-50",
               isGrid && "size-8",
               kind === "folder" && "opacity-70",
@@ -167,10 +162,7 @@ function ProjectAssetThumbnailGeneration({
         alt={isGrid ? name2 : ""}
         draggable={false}
         onFailure={() => setFailed(true)}
-        className={cn$2(
-          "size-full",
-          isGrid ? "object-cover" : "object-contain",
-        )}
+        className={cn("size-full", isGrid ? "object-cover" : "object-contain")}
       />
       {typeBucket === "video" ? (
         <VideoThumbnailPlayIndicator size={isGrid ? 24 : 12} />
@@ -178,7 +170,6 @@ function ProjectAssetThumbnailGeneration({
     </span>
   );
 }
-
 export function ProjectAssetThumbnail(props) {
   return (
     <ProjectAssetThumbnailGeneration

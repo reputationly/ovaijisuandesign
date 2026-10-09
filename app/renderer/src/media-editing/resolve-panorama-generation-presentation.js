@@ -4,41 +4,29 @@ import { CanvasRenderRuntimeContext } from "../infra/use-plugin-metadata-store.j
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
 import { AudioNodeInner } from "./audio-node-inner.jsx";
-
 export const AudioNode = reactExports.memo(AudioNodeInner, areNodePropsEqual);
-
 const PLUGIN_ADD_NODE_TYPE_PREFIX = "plugin:";
-
 export const DIRECTOR_STAGE_PLUGIN_ID = "3d-director-stage";
-
-export const COMFYUI_PLUGIN_ID$1 = "comfyui";
-
+export const COMFYUI_PLUGIN_ID = "comfyui";
 export const PANORAMA_VIEWER_PLUGIN_ID = "panorama-viewer";
-
 export function shouldShowPluginNodeSourceAffordance(pluginId) {
-  return pluginId !== COMFYUI_PLUGIN_ID$1;
+  return pluginId !== COMFYUI_PLUGIN_ID;
 }
-
 export function resolvePluginEditorPresentation(pluginId) {
   return "fullscreen";
 }
-
 export const CLIP_STUDIO_PLUGIN_ID = "clip-studio";
-
 export function formatPluginAddNodeType(pluginId) {
   return `${PLUGIN_ADD_NODE_TYPE_PREFIX}${pluginId}`;
 }
-
 export function parsePluginAddNodeType(type2) {
   if (!type2.startsWith(PLUGIN_ADD_NODE_TYPE_PREFIX)) return null;
   const pluginId = type2.slice(PLUGIN_ADD_NODE_TYPE_PREFIX.length);
   return pluginId.length > 0 ? pluginId : null;
 }
-
 export function isPluginEditorSurface(agent2) {
   return agent2?.editorSurface === true;
 }
-
 export function useCanvasSurfaceRecovery(registration, eligible) {
   const { registerSurface } = reactExports.useContext(
     CanvasRenderRuntimeContext,
@@ -62,7 +50,6 @@ export function useCanvasSurfaceRecovery(registration, eligible) {
     if (eligible) handleRef.current?.notifyEligibilityChanged();
   }, [eligible]);
 }
-
 export function resolvePanoramaGenerationPresentation(node2) {
   const data2 = node2?.data;
   if (node2?.type !== "placeholder" || data2?.mediaType !== "image") {
@@ -89,7 +76,6 @@ export function resolvePanoramaGenerationPresentation(node2) {
     retryPayload,
   };
 }
-
 export function panoramaGenerationPresentationKey(node2) {
   const presentation = resolvePanoramaGenerationPresentation(node2);
   if (presentation.status !== "error") return presentation.status;
@@ -101,23 +87,19 @@ export function panoramaGenerationPresentationKey(node2) {
     presentation.retryPayload ? JSON.stringify(presentation.retryPayload) : "",
   ].join("\0");
 }
-
 export const PANORAMA_EMPTY_NODE_SIZE = {
   width: 410,
   height: 231,
 };
-
 export const PANORAMA_VIEWER_NODE_SIZE = {
   width: 820,
   height: 410,
 };
-
 export function panoramaCleanPreviewUrl(sourceUrl) {
   if (!sourceUrl) return sourceUrl;
   const separator = sourceUrl.includes("?") ? "&" : "?";
   return `${sourceUrl}${separator}panorama_preview=clean`;
 }
-
 export function panoramaViewerNodeSize(
   sourceWidth,
   sourceHeight,

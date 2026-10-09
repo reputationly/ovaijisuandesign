@@ -3,16 +3,14 @@ import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { EmptyChatRecommendations } from "./empty-chat-recommendations.jsx";
 import {
   usePendingFirstMessage,
   useWorkspaceChatSelector,
 } from "../assets/use-canvas-model-registry-hydration.js";
 import { useChatReadiness } from "./chat-compliance-notice.jsx";
-
 const BRAILLE_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-
 const WAVE_FRAMES = [
   "⠁⠂⠄⡀",
   "⠂⠄⡀⢀",
@@ -23,7 +21,6 @@ const WAVE_FRAMES = [
   "⠐⠈⠁⠂",
   "⠈⠁⠂⠄",
 ];
-
 const DNA_FRAMES = [
   "⠋⠉⠙⠚",
   "⠉⠙⠚⠒",
@@ -38,7 +35,6 @@ const DNA_FRAMES = [
   "⠤⠄⠋⠉",
   "⠄⠋⠉⠙",
 ];
-
 const SPINNERS = {
   braille: {
     frames: BRAILLE_FRAMES,
@@ -53,7 +49,6 @@ const SPINNERS = {
     interval: 80,
   },
 };
-
 export function BrailleSpinner({ type: type2 = "braille", className = "" }) {
   const [frame2, setFrame2] = reactExports.useState(0);
   const spinner = SPINNERS[type2];
@@ -69,7 +64,6 @@ export function BrailleSpinner({ type: type2 = "braille", className = "" }) {
     </span>
   );
 }
-
 export function ChatEmptyState(props) {
   const { t: t2 } = useTranslation();
   const pendingFirstMessage = usePendingFirstMessage();
@@ -106,7 +100,6 @@ export function ChatEmptyState(props) {
     </div>
   );
 }
-
 export function sessionDisplayName(session, t2) {
   if (session.name === DEFAULT_SESSION_NAME)
     return t2("chat.newChat", {
@@ -117,14 +110,13 @@ export function sessionDisplayName(session, t2) {
     id: session.id.slice(0, 6),
   });
 }
-
 export function FourCornerLoading({
   variant,
   size: size2 = "md",
   label,
   className,
 }) {
-  const classes = cn$2(
+  const classes = cn(
     "four-corner-loading",
     `is-${variant}`,
     `is-${size2}`,

@@ -2,21 +2,20 @@
 import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CircleHelp } from "../media-editing/package.jsx";
-import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
-import { Dialog$1 } from "./separator.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
+import { Dialog } from "./separator.jsx";
 import {
-  DialogContent$1,
-  DialogDescription$1,
-  DialogFooter$1,
-  DialogHeader$1,
-  DialogTitle$1,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "../media-editing/use-preview-text.jsx";
-import { Button$2 } from "./node-shell-inner.jsx";
+import { Button } from "./node-shell-inner.jsx";
 import {
   readCanvasPreference,
   writeCanvasPreference,
 } from "./use-active-mode.js";
-
 export function CanvasConfirmationDialog({
   open,
   title,
@@ -27,28 +26,27 @@ export function CanvasConfirmationDialog({
   onConfirm,
 }) {
   return (
-    <Dialog$1 open={open} onOpenChange={(nextOpen) => !nextOpen && onCancel()}>
-      <DialogContent$1
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onCancel()}>
+      <DialogContent
         className="gap-4 sm:max-w-[420px]"
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <DialogHeader$1>
-          <DialogTitle$1>{title}</DialogTitle$1>
-          <DialogDescription$1>{description}</DialogDescription$1>
-        </DialogHeader$1>
-        <DialogFooter$1>
-          <Button$2 variant="ghost" onClick={onCancel}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onCancel}>
             {cancelLabel}
-          </Button$2>
-          <Button$2 variant="destructive" onClick={onConfirm}>
+          </Button>
+          <Button variant="destructive" onClick={onConfirm}>
             {confirmLabel}
-          </Button$2>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
-
 export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
   const { t: t2 } = useTranslation();
   const [pendingRequest, setPendingRequest] = reactExports.useState(null);
@@ -97,7 +95,6 @@ export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
     />
   );
 }
-
 export function useDismissMenu(
   menuRef,
   onClose,
@@ -136,7 +133,6 @@ export function useDismissMenu(
     };
   }, [menuRef, onClose, captureEscape, trigger, enabled]);
 }
-
 export function QuickZoomPresence({ value, elementRef, children: children2 }) {
   const [retained, setRetained] = reactExports.useState(value);
   const internalRef = reactExports.useRef(null);
@@ -169,14 +165,11 @@ export function QuickZoomPresence({ value, elementRef, children: children2 }) {
         inert: !open,
       });
 }
-
 const SORT_OPTIONS = ["name", "addedAt"];
-
 export const TidySortContext = reactExports.createContext({
   sortBy: "name",
   setSortBy: () => {},
 });
-
 export function useTidySortPreference(scope) {
   const key2 = `hilo:canvas:tidy:sortBy:${scope}`;
   const [choice, setChoice] = reactExports.useState(() => ({
@@ -215,7 +208,6 @@ export function useTidySortPreference(scope) {
     [context, sortBy, finish],
   );
 }
-
 export function TidyHint({ hint, hintId }) {
   const swallow = reactExports.useCallback((event) => {
     event.preventDefault();
@@ -223,7 +215,7 @@ export function TidyHint({ hint, hintId }) {
   }, []);
   return (
     <>
-      <Tooltip$1
+      <Tooltip
         content={hint}
         side="right"
         sideOffset={10}
@@ -238,7 +230,7 @@ export function TidyHint({ hint, hintId }) {
         >
           <CircleHelp size={14} strokeWidth={1.5} />
         </span>
-      </Tooltip$1>
+      </Tooltip>
       <span id={hintId} className="sr-only">
         {hint}
       </span>

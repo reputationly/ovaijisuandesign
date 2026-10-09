@@ -16,7 +16,7 @@ import {
 } from "../vendor.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2, DialogHeader } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn, DialogHeader } from "../infra/dialog-content.jsx";
 import { queryClient } from "../assets/wrap-as-asset-center-error.js";
 import { homeService } from "../workspace/home-service.jsx";
 import {
@@ -38,17 +38,12 @@ import { ConnectorRelationshipGraphic } from "./connector-relationship-graphic.j
 import { IntegrationStatusPill } from "./integration-status-pill.jsx";
 import { connectorTitle } from "./make-async-image-task.jsx";
 import { ConnectorStatusPill } from "./connector-prompt-action.jsx";
-
-const POLL_INTERVAL_MS$1 = 3e4;
-
+const POLL_INTERVAL_MS = 3e4;
 const QUERY_KEY = ["local-connector-host-status"];
-
 const hostQueryKey = (name2) => [...QUERY_KEY, name2];
-
 function requiresLiveHostStatus(connectorId) {
   return connectorId === "nuke";
 }
-
 function createLocalConnectorHostStatusTracker(
   service2,
   client2 = queryClient,
@@ -61,13 +56,13 @@ function createLocalConnectorHostStatusTracker(
       queryFn: async () => ({
         status: await service2.status(name2),
       }),
-      staleTime: POLL_INTERVAL_MS$1,
+      staleTime: POLL_INTERVAL_MS,
       gcTime: Number.POSITIVE_INFINITY,
       retry: false,
       networkMode: "always",
       enabled: () => !installations.has(name2) && focusManager.isFocused(),
       refetchInterval: () =>
-        installations.has(name2) ? false : POLL_INTERVAL_MS$1,
+        installations.has(name2) ? false : POLL_INTERVAL_MS,
       refetchIntervalInBackground: false,
       refetchOnWindowFocus: true,
       refetchOnReconnect: false,
@@ -91,7 +86,7 @@ function createLocalConnectorHostStatusTracker(
     try {
       const result = await client2.fetchQuery({
         ...options(name2),
-        staleTime: force ? 0 : POLL_INTERVAL_MS$1,
+        staleTime: force ? 0 : POLL_INTERVAL_MS,
       });
       return result.status;
     } catch {
@@ -228,12 +223,10 @@ function createLocalConnectorHostStatusTracker(
     },
   };
 }
-
 const localConnectorHostStatus = createLocalConnectorHostStatusTracker({
   status: (name2) => homeService.connector.status(name2),
   preflight: (name2) => homeService.connector.preflight(name2),
 });
-
 function useLocalConnectorHostStatus(
   names,
   tracker2 = localConnectorHostStatus,
@@ -258,7 +251,6 @@ function useLocalConnectorHostStatus(
     ]),
   );
 }
-
 function localConnectorHostDisplayState(snapshot2) {
   if (snapshot2?.status?.state === "installing") return "installing";
   if (snapshot2?.queryFailed) return "saved";
@@ -272,12 +264,9 @@ function localConnectorHostDisplayState(snapshot2) {
   if (snapshot2.status.state === "connected") return "connected";
   return "notConnected";
 }
-
 const PROBE_INTERVAL_MS = 3e3;
-
 const connectorStepLineClassName =
   "absolute left-1/2 w-[1px] -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,var(--muted-foreground)_0,var(--muted-foreground)_1px,transparent_1px,transparent_3px)]";
-
 function LocalConnectorPreparationStatus({
   state: state2,
   connectorName,
@@ -291,7 +280,7 @@ function LocalConnectorPreparationStatus({
   return (
     <div
       role={isUnsupported ? "alert" : "status"}
-      className={cn$2(
+      className={cn(
         "mt-2 flex min-h-7 items-start justify-between gap-2 rounded-md bg-secondary px-2.5 py-1 text-xs leading-5 text-foreground/70",
         isUnsupported && "text-destructive",
       )}
@@ -303,7 +292,7 @@ function LocalConnectorPreparationStatus({
           icon={icon}
           size="sm"
           strokeWidth={1.5}
-          className={cn$2(
+          className={cn(
             "mt-0.5 shrink-0",
             state2 === "checking" && "animate-spin",
           )}
@@ -316,7 +305,7 @@ function LocalConnectorPreparationStatus({
         </span>
       </div>
       {state2 === "error" ? (
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           size="xs"
@@ -325,12 +314,11 @@ function LocalConnectorPreparationStatus({
           data-action-ui-id="connector-local-preparation-retry"
         >
           {t2("connectors.connector.prepare.retry")}
-        </Button$1>
+        </Button>
       ) : null}
     </div>
   );
 }
-
 function LocalConnectorStep({
   ordinal,
   title,
@@ -352,7 +340,7 @@ function LocalConnectorStep({
         {!first2 ? (
           <span
             aria-hidden={true}
-            className={cn$2(connectorStepLineClassName, "top-0 h-4")}
+            className={cn(connectorStepLineClassName, "top-0 h-4")}
             data-layout-slot="connector-local-step-line"
           />
         ) : null}
@@ -366,14 +354,12 @@ function LocalConnectorStep({
         {!last2 ? (
           <span
             aria-hidden={true}
-            className={cn$2(connectorStepLineClassName, "top-10 bottom-0")}
+            className={cn(connectorStepLineClassName, "top-10 bottom-0")}
             data-layout-slot="connector-local-step-line"
           />
         ) : null}
       </div>
-      <div
-        className={cn$2("min-w-0 py-4", completed && !children2 && "py-3.5")}
-      >
+      <div className={cn("min-w-0 py-4", completed && !children2 && "py-3.5")}>
         <div className="flex min-w-0 items-center justify-between gap-3">
           <h3 className="min-w-0 text-sm font-medium text-foreground">
             {title}
@@ -402,7 +388,6 @@ function LocalConnectorStep({
     </section>
   );
 }
-
 export function LocalConnectorSetupContent({
   connectorId,
   displayName: displayName2,
@@ -669,7 +654,7 @@ export function LocalConnectorSetupContent({
                       onRetry={() => void checkPreparation()}
                     />
                     {connectorId === "blender" && blenderInstallerUrl ? (
-                      <Button$1
+                      <Button
                         type="button"
                         variant="ghost"
                         size="xs"
@@ -683,7 +668,7 @@ export function LocalConnectorSetupContent({
                       >
                         <Icon icon={Download} size="xs" aria-hidden={true} />
                         {t2("connectors.connector.downloadHostApp.blender")}
-                      </Button$1>
+                      </Button>
                     ) : null}
                   </div>
                 ) : null}

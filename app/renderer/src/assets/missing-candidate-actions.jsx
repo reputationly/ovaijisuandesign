@@ -1,9 +1,8 @@
 // missing-candidate-actions.jsx
-import { Check, useTranslation, X$7 } from "../vendor.js";
+import { Check, useTranslation, X$7 as X } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button$1, cn$2 } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
-
 export function MissingCandidateActions({
   candidate,
   onMerge,
@@ -38,7 +37,7 @@ export function MissingCandidateActions({
         )}
         <div className="flex gap-1 items-center justify-center">
           {candidate ? (
-            <Button$1
+            <Button
               size="icon-xs"
               variant="outline"
               data-action-ui-id="missing-merge"
@@ -48,9 +47,9 @@ export function MissingCandidateActions({
               aria-label={t2("missing.merge")}
             >
               <Check />
-            </Button$1>
+            </Button>
           ) : (
-            <Button$1
+            <Button
               size="icon-xs"
               variant="outline"
               data-action-ui-id="missing-locate"
@@ -60,9 +59,9 @@ export function MissingCandidateActions({
               aria-label={t2("missing.locate")}
             >
               <LocalFolderIcon className="size-3.5" />
-            </Button$1>
+            </Button>
           )}
-          <Button$1
+          <Button
             size="icon-xs"
             variant="destructive"
             data-action-ui-id="missing-remove"
@@ -71,8 +70,8 @@ export function MissingCandidateActions({
             title={t2("missing.remove")}
             aria-label={t2("missing.remove")}
           >
-            <X$7 />
-          </Button$1>
+            <X />
+          </Button>
         </div>
       </div>
     );
@@ -81,11 +80,11 @@ export function MissingCandidateActions({
     // biome-ignore lint/a11y/noStaticElementInteractions: action strip swallows clicks for parent select
     // biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation is event-isolating, not interactive; buttons inside handle their own keyboard events
     <div
-      className={cn$2("flex gap-0.5 items-center shrink-0 ml-auto")}
+      className={cn("flex gap-0.5 items-center shrink-0 ml-auto")}
       onClick={(e2) => e2.stopPropagation()}
     >
       {candidate ? (
-        <Button$1
+        <Button
           size="icon-xs"
           variant="ghost"
           data-action-ui-id="missing-merge"
@@ -97,9 +96,9 @@ export function MissingCandidateActions({
           aria-label={t2("missing.merge")}
         >
           <Check />
-        </Button$1>
+        </Button>
       ) : (
-        <Button$1
+        <Button
           size="icon-xs"
           variant="ghost"
           data-action-ui-id="missing-locate"
@@ -109,9 +108,9 @@ export function MissingCandidateActions({
           aria-label={t2("missing.locate")}
         >
           <LocalFolderIcon className="size-3.5" />
-        </Button$1>
+        </Button>
       )}
-      <Button$1
+      <Button
         size="icon-xs"
         variant="ghost"
         data-action-ui-id="missing-remove"
@@ -120,8 +119,8 @@ export function MissingCandidateActions({
         title={t2("missing.remove")}
         aria-label={t2("missing.remove")}
       >
-        <X$7 />
-      </Button$1>
+        <X />
+      </Button>
     </div>
   );
 }

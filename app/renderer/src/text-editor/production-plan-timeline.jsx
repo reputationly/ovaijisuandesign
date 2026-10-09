@@ -18,16 +18,13 @@ import {
   getCurrentProductionStage,
 } from "./skill-reload-dock.jsx";
 import { Circle, Clock3 } from "../media-editing/package.jsx";
-import { Button$1 } from "../infra/dialog-content.jsx";
-
+import { Button } from "../infra/dialog-content.jsx";
 function getStageActionLabel(stage) {
   return stage.name;
 }
-
 function getPendingStageActionLabel(stage) {
   return stage.name;
 }
-
 function getProductionPlanProgress(model) {
   const visibleStages = [...model.stages, ...model.pending_stages].sort(
     (left, right) => left.order - right.order,
@@ -43,7 +40,6 @@ function getProductionPlanProgress(model) {
   );
   return `${currentIndex >= 0 ? currentIndex + 1 : 1}/${total}`;
 }
-
 function statusLabel(status, t2) {
   if (status === "waiting_user")
     return t2("productionPlan.status.review", "待确认");
@@ -52,7 +48,6 @@ function statusLabel(status, t2) {
   if (status === "pending") return t2("productionPlan.status.todo", "待规划");
   return t2("productionPlan.status.done", "已完成");
 }
-
 function PendingStageRow({ stage, current: current2, displayOrder }) {
   const { t: t2 } = useTranslation();
   return (
@@ -82,7 +77,6 @@ function PendingStageRow({ stage, current: current2, displayOrder }) {
     </div>
   );
 }
-
 function StageRow({ stage, current: current2, onLocate }) {
   const { t: t2 } = useTranslation();
   const canLocate = canFocusStageOutputs(stage);
@@ -129,7 +123,7 @@ function StageRow({ stage, current: current2, onLocate }) {
         )}
       </div>
       {canLocate && (
-        <Button$1
+        <Button
           type="button"
           variant="ghost"
           size="icon-sm"
@@ -139,12 +133,11 @@ function StageRow({ stage, current: current2, onLocate }) {
           data-action-ui-id={`production-plan.locate-stage-${stage.id}`}
         >
           <Icon icon={Crosshair} size="sm" strokeWidth={1.5} />
-        </Button$1>
+        </Button>
       )}
     </div>
   );
 }
-
 export function ProductionPlanTimeline({
   model,
   loading,
@@ -269,7 +262,7 @@ export function ProductionPlanTimeline({
                   {t2("productionPlan.loadFailed", "暂时无法读取")}
                 </p>
                 {onRetry && (
-                  <Button$1
+                  <Button
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -277,7 +270,7 @@ export function ProductionPlanTimeline({
                     data-action-ui-id="production-plan.retry"
                   >
                     {t2("productionPlan.retry", "重试")}
-                  </Button$1>
+                  </Button>
                 )}
               </div>
             ) : (
@@ -308,7 +301,7 @@ export function ProductionPlanTimeline({
               </div>
             )}
           </div>
-          <Button$1
+          <Button
             type="button"
             variant="ghost"
             size="sm"
@@ -327,7 +320,7 @@ export function ProductionPlanTimeline({
               strokeWidth={1.5}
               className="rotate-180"
             />
-          </Button$1>
+          </Button>
         </div>
       )}
     </section>

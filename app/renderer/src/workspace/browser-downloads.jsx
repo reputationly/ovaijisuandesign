@@ -16,11 +16,10 @@ import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { Download } from "../media-editing/package.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { workspaceEvents } from "./topbar-state-context.jsx";
-import { Button$1, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.js";
 import { dispatchBrowserPickedFileToChat } from "./resolve-retry-message-payload.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-
 function useBrowserDownloadPanel({
   browser: browser2,
   activeTabId,
@@ -144,7 +143,6 @@ function useBrowserDownloadPanel({
     close: close2,
   };
 }
-
 export function BrowserDownloads({ activeTabId }) {
   const { t: t2, i18n } = useTranslation();
   const platform2 = usePlatform();
@@ -287,7 +285,7 @@ export function BrowserDownloads({ activeTabId }) {
   return (
     <Tooltip>
       <TooltipTrigger render={<span className="inline-flex shrink-0" />}>
-        <Button$1
+        <Button
           ref={triggerRef}
           variant="ghost"
           size="icon"
@@ -311,7 +309,7 @@ export function BrowserDownloads({ activeTabId }) {
               {count2}
             </span>
           )}
-        </Button$1>
+        </Button>
       </TooltipTrigger>
       <TooltipContent side="top">{triggerLabel}</TooltipContent>
     </Tooltip>

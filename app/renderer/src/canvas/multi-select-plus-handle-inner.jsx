@@ -4,12 +4,12 @@ import {
   findHitTarget,
   getBezierPath,
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbar,
   Position,
   reactDomExports,
   reactExports,
   useReactFlow,
-  useStore$3,
+  useStore$3 as useStore,
   useStoreApi,
   useTranslation,
 } from "../vendor.js";
@@ -20,7 +20,6 @@ import {
   useCanvasIsMultiSelect,
 } from "../media-editing/package.jsx";
 import { CLICK_VS_DRAG_THRESHOLD_SQ_PX } from "./click-vs-drag-threshold-sq-px.js";
-
 function targetsFullyConnectedFromAll(sources, edges) {
   if (sources.length === 0) return new Set();
   const sourceSet = new Set(sources);
@@ -37,7 +36,6 @@ function targetsFullyConnectedFromAll(sources, edges) {
   }
   return fullyConnected;
 }
-
 function resolveSelectionConnectionSources(nodes, selectedIds) {
   const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
   const childIdsByParent = new Map();
@@ -68,9 +66,7 @@ function resolveSelectionConnectionSources(nodes, selectedIds) {
       nodesById.get(selectedIds[0])?.type === "group",
   };
 }
-
 const ICON_SIZE = 24;
-
 const ICON_BUTTON_STYLE = {
   width: ICON_SIZE,
   height: ICON_SIZE,
@@ -89,7 +85,6 @@ const ICON_BUTTON_STYLE = {
   // Reset any inherited line-height that would offset the SVG.
   lineHeight: 0,
 };
-
 function PlusIcon() {
   return (
     <CompositedSvg
@@ -116,10 +111,9 @@ function PlusIcon() {
     </CompositedSvg>
   );
 }
-
 function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
   const { flowToScreenPosition } = useReactFlow();
-  useStore$3(
+  useStore(
     (s2) => ({
       x: s2.transform[0],
       y: s2.transform[1],
@@ -195,7 +189,6 @@ function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
     ? preview
     : reactDomExports.createPortal(preview, document.body);
 }
-
 function MultiSelectPlusHandleInner({
   selectedIds,
   onOpenAddNodeMenu,
@@ -206,8 +199,8 @@ function MultiSelectPlusHandleInner({
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasIsDragging();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const connectable = useStore$3((s2) => s2.nodesConnectable);
-  const { sourceNodeIds, isSingleGroupSelection } = useStore$3(
+  const connectable = useStore((s2) => s2.nodesConnectable);
+  const { sourceNodeIds, isSingleGroupSelection } = useStore(
     reactExports.useCallback(
       (s2) => resolveSelectionConnectionSources(s2.nodes, selectedIds),
       [selectedIds],
@@ -354,7 +347,7 @@ function MultiSelectPlusHandleInner({
   if (!visible) return null;
   return (
     <>
-      <NodeToolbar$1
+      <NodeToolbar
         nodeId={selectedIds}
         isVisible={true}
         position={Position.Right}
@@ -383,7 +376,7 @@ function MultiSelectPlusHandleInner({
         >
           <PlusIcon />
         </button>
-      </NodeToolbar$1>
+      </NodeToolbar>
       {drag2?.isDragging && (
         <DragPreview
           cursorScreenX={drag2.cursorScreenX}
@@ -394,7 +387,6 @@ function MultiSelectPlusHandleInner({
     </>
   );
 }
-
 export const MultiSelectPlusHandle = reactExports.memo(
   MultiSelectPlusHandleInner,
 );

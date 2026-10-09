@@ -12,7 +12,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useTeamAccount } from "../assets/credit-query-keys.jsx";
 import { CalendarDays, Users } from "../media-editing/package.jsx";
 import {
-  Button$1,
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -20,11 +20,8 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { teamApi } from "./team-api.js";
-
 const INVITATION_STATUS_ACCEPTED = 2;
-
 const INVITATION_STATUS_ALREADY_MEMBER = 8;
-
 const INVITATION_STATUS_ERROR_COPY = {
   1: {
     i18nKey: "team.invitation.status.pending",
@@ -59,36 +56,29 @@ const INVITATION_STATUS_ERROR_COPY = {
     defaultValue: "团队成员已满，暂时无法加入，请联系团队管理员",
   },
 };
-
 const INVITATION_STATUS_FALLBACK_COPY = {
   i18nKey: "team.invitation.acceptFailed",
   defaultValue: "邀请失败，请稍后重试或联系团队管理员。",
 };
-
 function isInvitationAcceptSuccessStatus(status) {
   return (
     status === INVITATION_STATUS_ACCEPTED ||
     status === INVITATION_STATUS_ALREADY_MEMBER
   );
 }
-
 function getInvitationStatusErrorCopy(status) {
   return (
     INVITATION_STATUS_ERROR_COPY[status] ?? INVITATION_STATUS_FALLBACK_COPY
   );
 }
-
 const ACCEPTED_TEAM_SWITCH_RETRY_DELAYS_MS = [300, 700, 1500];
-
 function formatExpiry(expiresAtMs, neverExpiresLabel) {
   if (expiresAtMs === null || expiresAtMs === 0) return neverExpiresLabel;
   return new Date(expiresAtMs).toLocaleDateString();
 }
-
 async function waitForAcceptedTeamPropagation(delayMs) {
   await new Promise((resolve) => window.setTimeout(resolve, delayMs));
 }
-
 export function TeamInviteDeepLinkDialog({
   request,
   open,
@@ -339,7 +329,7 @@ export function TeamInviteDeepLinkDialog({
         ) : null}
         {!hideAcceptButton ? (
           <DialogFooter>
-            <Button$1
+            <Button
               type="button"
               loading={accepting}
               disabled={actionDisabled}
@@ -349,7 +339,7 @@ export function TeamInviteDeepLinkDialog({
               {t2("team.invitation.accept", {
                 defaultValue: "接受",
               })}
-            </Button$1>
+            </Button>
           </DialogFooter>
         ) : null}
       </DialogContent>

@@ -2,15 +2,15 @@
 import {
   classifyFileType,
   jsxRuntimeExports,
-  PlaybackCirclePauseIcon$1,
-  PlaybackCirclePlayIcon$1,
+  PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon,
+  PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon,
   reactExports,
   useTranslation,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
-  cn$2,
+  cn$2 as cn,
   splitMentionFilename,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
@@ -19,7 +19,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
-
 export const ENTITY_TYPES = [
   "character",
   "scene",
@@ -27,7 +26,6 @@ export const ENTITY_TYPES = [
   "prop",
   "custom",
 ];
-
 export function FileNameLabel({
   name: name2,
   className,
@@ -39,7 +37,7 @@ export function FileNameLabel({
   const label = (
     // biome-ignore lint/a11y/useSemanticElements: Inline filename parts form a labelled group, not a form fieldset.
     <span
-      className={cn$2(
+      className={cn(
         "inline-flex w-fit max-w-full min-w-0 items-baseline overflow-hidden",
         className,
       )}
@@ -77,7 +75,6 @@ export function FileNameLabel({
     </TooltipProvider>
   );
 }
-
 export function AudioPlayButton({ src, filename }) {
   const { t: t2 } = useTranslation();
   const audioRef = reactExports.useRef(null);
@@ -122,7 +119,7 @@ export function AudioPlayButton({ src, filename }) {
       <button
         type="button"
         onClick={toggle}
-        className={cn$2(
+        className={cn(
           "relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-transparent p-0 hover:opacity-90 transition-opacity",
           playing ? "opacity-100" : "opacity-0 group-hover/audio:opacity-100",
         )}
@@ -130,9 +127,9 @@ export function AudioPlayButton({ src, filename }) {
         data-action-ui-id="asset-center-attachment-audio-play"
       >
         {playing ? (
-          <PlaybackCirclePauseIcon$1 size={32} />
+          <PlaybackCirclePauseIcon size={32} />
         ) : (
-          <PlaybackCirclePlayIcon$1 size={32} />
+          <PlaybackCirclePlayIcon size={32} />
         )}
       </button>
     </>

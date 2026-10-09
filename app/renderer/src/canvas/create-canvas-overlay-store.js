@@ -1,8 +1,7 @@
 // create-canvas-overlay-store.js
-import { createStore$1 } from "../vendor.js";
-
+import { createStore$1 as createStore } from "../vendor.js";
 export function createCanvasOverlayStore() {
-  return createStore$1((set2) => ({
+  return createStore((set2) => ({
     active: null,
     startCrop: (nodeId, meta2) =>
       set2({

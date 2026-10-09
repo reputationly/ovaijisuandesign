@@ -9,11 +9,10 @@ import {
   reactDomExports,
   reactExports,
   useTranslation,
-  X$7,
+  X$7 as X,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 } from "../infra/dialog-content.jsx";
-
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 function extractDominantColor(img) {
   try {
     const w3 = img.naturalWidth || img.width;
@@ -60,11 +59,8 @@ function extractDominantColor(img) {
     return null;
   }
 }
-
 const ARROW_SIZE = 12;
-
 const ARROW_INSET = 16;
-
 function getArrowStyle(side, anchorRect, popupRect) {
   const anchorCenterX = anchorRect.left + anchorRect.width / 2;
   const anchorCenterY = anchorRect.top + anchorRect.height / 2;
@@ -92,7 +88,6 @@ function getArrowStyle(side, anchorRect, popupRect) {
     top: top2,
   };
 }
-
 const ARROW_CLASS = {
   // side = where the bubble sits relative to the anchor → arrow points back at anchor.
   bottom: "cm-arrow cm-arrow--up",
@@ -100,7 +95,6 @@ const ARROW_CLASS = {
   right: "cm-arrow cm-arrow--left",
   left: "cm-arrow cm-arrow--right",
 };
-
 function SpotlightMask({ anchorRef, padding, onClickOutside }) {
   const [rect, setRect] = reactExports.useState(null);
   const measure = reactExports.useCallback(() => {
@@ -154,7 +148,6 @@ function SpotlightMask({ anchorRef, padding, onClickOutside }) {
     document.body,
   );
 }
-
 export function CoachMarkPopup({
   open,
   onDismiss,
@@ -261,7 +254,7 @@ export function CoachMarkPopup({
               data-action-ui-id={actionUiId}
               onPointerEnter={onPointerEnter}
               onPointerLeave={onPointerLeave}
-              className={cn$2(
+              className={cn(
                 "cm overflow-visible",
                 hasMedia && "cm--with-media",
                 // Enter (`data-open`) is snappy at 200ms; exit (`data-closed`)
@@ -281,7 +274,7 @@ export function CoachMarkPopup({
             >
               {hasMedia && (
                 <div
-                  className={cn$2(
+                  className={cn(
                     "cm-media",
                     (!media?.url || mediaError) && "cm-media--placeholder",
                   )}
@@ -335,7 +328,7 @@ export function CoachMarkPopup({
                   aria-label={t2("common.close")}
                   onClick={() => onDismiss("close")}
                 >
-                  <X$7 size={14} strokeWidth={1.75} />
+                  <X size={14} strokeWidth={1.75} />
                 </button>
               )}
               <div className="cm-content">
@@ -343,7 +336,7 @@ export function CoachMarkPopup({
                 <p className="cm-desc">{description}</p>
                 {children2}
                 <div
-                  className={cn$2(
+                  className={cn(
                     "cm-footer",
                     hasSteps ? "cm-footer--steps" : "cm-footer--no-steps",
                   )}
@@ -357,7 +350,7 @@ export function CoachMarkPopup({
                         (_2, i2) => (
                           <span
                             key={i2}
-                            className={cn$2(
+                            className={cn(
                               "cm-step",
                               i2 < stepCurrent && "is-active",
                             )}
@@ -378,7 +371,7 @@ export function CoachMarkPopup({
                         disabled={ctaLoading}
                         onClick={() => onDismiss("close")}
                       >
-                        <X$7 size={16} strokeWidth={2} />
+                        <X size={16} strokeWidth={2} />
                       </button>
                     )}
                     <button
