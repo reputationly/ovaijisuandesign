@@ -103,6 +103,14 @@ export const norm = (text) =>
       .replace(/exportdefault(function|class)(?=[({])/g, "$1_")
       .replace(/exportdefault(?=[A-Za-z_$])/g, "")
       .replace(/(?:let|const|var)_=(class|function)_/g, "$1_")
+      // 匿名类表达式 `var X = class extends Y {}`（dist 里的写法）与具名 `class X extends Y {}` 归一
+      .replace(/(?:let|const|var)_=class(?=extends|\{)/g, "class_")
+      // 打包器会把相邻的 let/var 声明合并成 const、把 x += 1 缩成 x++、把 === 缩成 ==，两边写法不同
+      .replace(/(?<![.\w$])(?:let|var)(?=[_{[])/g, "const")
+      .replace(/_\+=1(?![\d.])/g, "_++")
+      .replace(/_-=1(?![\d.])/g, "_--")
+      .replace(/!==/g, "!=")
+      .replace(/===/g, "==")
       .replace(/;/g, ""),
   );
 
@@ -201,7 +209,18 @@ const dropRedundantParens = (text) => {
               break;
             }
           }
-          if (topLevel && inner.length > 0 && AFTER.test(text.slice(j + 1, j + 13))) {
+          // 展开 `...(a ? b : {})`：Babel 重打印会给展开的条件表达式加括号，dist 里没有。
+          // 组内带花括号也安全，只要顶层（括号、花括号之外）没有逗号。
+          let spreadOk = false;
+          if (!topLevel && result.endsWith("...")) {
+            let p2 = 0, b2 = 0, hasComma = false;
+            for (const ch of inner) {
+              if (ch === "(") p2++; else if (ch === ")") p2--; else if (ch === "{") b2++; else if (ch === "}") b2--;
+              else if (ch === "," && p2 === 0 && b2 === 0) { hasComma = true; break; }
+            }
+            spreadOk = !hasComma;
+          }
+          if ((topLevel || spreadOk) && inner.length > 0 && AFTER.test(text.slice(j + 1, j + 13))) {
             result += inner;
             i = j + 1;
             changed = true;
