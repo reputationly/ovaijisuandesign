@@ -237699,7 +237699,7 @@ const $$splitComponentImporter$b = () => (() => import("./_app-BYKdG-ns.js"))();
 const Route$c = createFileRoute("/_app")({
   component: lazyRouteComponent($$splitComponentImporter$b, "component")
 });
-const $$splitComponentImporter$a = () => (() => import("./index-CHLulaMq.jsx"))();
+const $$splitComponentImporter$a = () => (() => import("./home/index.jsx"))();
 const Route$b = createFileRoute("/_home/")({
   component: lazyRouteComponent($$splitComponentImporter$a, "component")
 });

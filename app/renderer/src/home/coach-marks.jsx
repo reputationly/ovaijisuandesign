@@ -1,0 +1,94 @@
+// 首页输入框的新手引导（coach mark）。
+import { h as useTranslation, v as useStorage, r as reactExports, j as jsxRuntimeExports, li as useAssetCenterRelocation, lj as useHasBlockingModal, lk as CDN_COACHMARK_HOME_AT, ll as CDN_COACHMARK_HOME_SLASH, kk as resolveSeenRevision, kI as HOME_INPUT_COACH_MARK_ID, g6 as getRuntimeConfig, lm as useModalSlot, ln as STARTUP_MODAL_IDS, lo as useCoachMarkSequence, lp as CoachMarkPopup } from "../main.jsx";
+import { __jsx } from "./jsx-runtime.js";
+import { useSampleProject } from "./sample-project.js";
+const MARK_ID = HOME_INPUT_COACH_MARK_ID;
+const PROJECT_LIBRARY_REVISION = 2;
+const PROJECTS_NAV_SELECTOR = '[data-action-ui-id="home-sidebar-nav-projects-coachmark-anchor"]';
+export function HomeInputCoachMarks({
+  modelButtonRef,
+  skillButtonRef,
+  workspaceButtonRef
+}) {
+  const {
+    t
+  } = useTranslation();
+  const [config,,, configHydrated] = useStorage("global.config");
+  const [dismissedMarks,,, dismissedHydrated] = useStorage("global.dismissedCoachMarks");
+  const relocation = useAssetCenterRelocation();
+  const {
+    openSampleProject
+  } = useSampleProject();
+  const hasBlockingModal = useHasBlockingModal();
+  const projectsNavRef = reactExports.useRef(null);
+  const [ctaLoading, setCtaLoading] = reactExports.useState(false);
+  const steps = [{
+    kind: "onboarding",
+    revision: 1,
+    anchorRef: modelButtonRef,
+    titleKey: "coachMark.home.atKey.title",
+    titleFallback: "使用「@」键",
+    descKey: "coachMark.home.atKey.desc",
+    descFallback: "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
+    ctaKey: "coachMark.next",
+    ctaFallback: "下一步",
+    mediaUrl: CDN_COACHMARK_HOME_AT
+  }, {
+    kind: "onboarding",
+    revision: 1,
+    anchorRef: skillButtonRef,
+    titleKey: "coachMark.home.slashKey.title",
+    titleFallback: "使用「/」键",
+    descKey: "coachMark.home.slashKey.desc",
+    descFallback: "需要专属 Skill 帮忙",
+    ctaKey: "coachMark.next",
+    ctaFallback: "下一步",
+    mediaUrl: CDN_COACHMARK_HOME_SLASH
+  }, ...[], {
+    kind: "project-library",
+    revision: PROJECT_LIBRARY_REVISION,
+    anchorRef: projectsNavRef,
+    titleKey: "coachMark.home.projectLibrary.title",
+    titleFallback: "项目库",
+    descKey: "coachMark.home.projectLibrary.desc",
+    descFallback: "所有项目都在这里集中管理。点击下一步，为你创建一个示例项目，快速上手工作区。",
+    ctaKey: "coachMark.next",
+    ctaFallback: "下一步",
+    side: "right",
+    align: "center"
+  }];
+  const maxRevision = Math.max(...steps.map(step => step.revision ?? 1));
+  const tourPending = relocation.ready && !relocation.hasAssetData && dismissedHydrated && resolveSeenRevision(dismissedMarks, MARK_ID) < maxRevision;
+  const configReady = configHydrated && (getRuntimeConfig().region !== "domestic" || config.watermarkOnboardingShown === true);
+  const granted = useModalSlot(STARTUP_MODAL_IDS.homeCoachMarks, {
+    candidate: configReady && tourPending
+  });
+  const sequence = useCoachMarkSequence(MARK_ID, steps, granted && !hasBlockingModal);
+  const step = sequence.isOpen ? sequence.visibleSteps[sequence.index] : void 0;
+  const [anchorEl, setAnchorEl] = reactExports.useState(null);
+  reactExports.useLayoutEffect(() => {
+    projectsNavRef.current = document.querySelector(PROJECTS_NAV_SELECTOR);
+    setAnchorEl(step?.anchorRef.current ?? null);
+  });
+  if (!step) return null;
+  const handleDismiss = method => {
+    if (method !== "button") {
+      if (!ctaLoading) sequence.dismiss(method);
+      return;
+    }
+    if (step.kind !== "project-library") {
+      sequence.next();
+      return;
+    }
+    if (ctaLoading) return;
+    setCtaLoading(true);
+    void sequence.persistSeen(step.revision ?? PROJECT_LIBRARY_REVISION).then(() => openSampleProject()).finally(() => {
+      setCtaLoading(false);
+      sequence.next();
+    });
+  };
+  return <CoachMarkPopup open={sequence.isOpen} onDismiss={handleDismiss} anchorRef={step.anchorRef} anchorEl={anchorEl} side={step.side ?? "bottom"} align={step.align ?? "start"} title={t(step.titleKey, step.titleFallback)} description={t(step.descKey, step.descFallback)} ctaLabel={t(step.ctaKey, step.ctaFallback)} ctaLoading={ctaLoading} media={step.mediaUrl ? {
+    url: step.mediaUrl,
+    type: "image"
+  } : void 0} preloadUrls={sequence.visibleSteps.map(visibleStep => visibleStep.mediaUrl).filter(url => Boolean(url))} stepCurrent={sequence.stepCurrent} stepTotal={sequence.stepTotal} showClose={true} actionUiId={`coach-mark-${MARK_ID}`} />;
+}
