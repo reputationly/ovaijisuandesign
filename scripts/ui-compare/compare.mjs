@@ -164,7 +164,8 @@ async function cdp(port) {
         ws.onmessage = (ev) => {
           const m = JSON.parse(ev.data);
           if (m.id) pending.get(m.id)?.(m);
-          else if (m.method === "Runtime.exceptionThrown") errors.push("EXC " + (m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text).split("\n")[0]);
+          else if (m.method === "Runtime.exceptionThrown") { const desc = m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text; errors.push("EXC " + desc.split("\n")[0]); if (process.env.STACK) console.log("STACK", desc.split("\n").slice(0, 8).join(" | ")); }
+          else if (process.env.STACK && m.method === "Runtime.consoleAPICalled" && ["warning", "error", "log"].includes(m.params.type) && /rror|fail|catch|boundary/i.test(m.params.args.map((a) => a.value ?? a.description ?? "").join(" "))) { console.log("CONSOLE", m.params.type, m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 700)); if (m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300)); }
           else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300));
         };
         // 页面卡死时不要无限等：每个调用 60 秒超时
