@@ -1,6 +1,6 @@
 // 首页工具栏。
 import { h as useTranslation, r as reactExports, ld as useMediaModels, t as trackEvent, T as TRACK_EVENTS, le as useAttachmentFaceNoticeGate, lf as isAllVisibleMediaModelsSelected, lg as countVisibleSelectedMediaModels, j as jsxRuntimeExports, Q as Plus, e as Icon, bn as Box, lh as MediaModelSelector, aA as SkillIcon, X, em as RotateCcw } from "../main.jsx";
-import { __jsx } from "./jsx-runtime.js";
+import { __jsx } from "../shared/jsx-runtime.js";
 import { HomeInputCoachMarks } from "./coach-marks.jsx";
 function ToolbarDivider() {
   return <div className="mx-1 h-3 w-[var(--home-input-toolbar-divider-width)] shrink-0 bg-foreground/15" />;

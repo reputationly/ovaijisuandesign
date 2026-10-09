@@ -1,6 +1,6 @@
 // 首页促销气泡与弹窗，以及每日展示次数的本地记录。
 import { h as useTranslation, r as reactExports, j as jsxRuntimeExports, lm as useModalSlot, ln as STARTUP_MODAL_IDS, au as cn, as as Dialog, at as DialogContent, lq as CDN_PROMOTION_SEEDANCE, gj as DialogHeader, g8 as DialogTitle, g9 as DialogDescription, kS as DialogFooter, fM as Button, b3 as ArrowRight, u as useGatewayReady, k as useQuery, l as gatewayFetch } from "../main.jsx";
-import { __jsx } from "./jsx-runtime.js";
+import { __jsx } from "../shared/jsx-runtime.js";
 const BASE_CLASS = "inline-flex items-center px-3 py-1.5 rounded-sm bg-brand-accent text-white text-xs font-medium";
 export function PromotionBadge({
   onClick,

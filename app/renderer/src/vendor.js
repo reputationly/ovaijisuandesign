@@ -237747,7 +237747,7 @@ function projectListLocation(kind) {
     }
   };
 }
-const $$splitComponentImporter$8 = () => (() => import("./index-B62F6Dfs.js"))();
+const $$splitComponentImporter$8 = () => (() => import("./projects/index.jsx"))();
 const Route$8 = createFileRoute("/_home/projects/")({
   validateSearch: parseProjectListSearch,
   component: lazyRouteComponent($$splitComponentImporter$8, "component")

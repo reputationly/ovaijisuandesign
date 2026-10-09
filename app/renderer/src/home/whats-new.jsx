@@ -1,6 +1,6 @@
 // 首页「有什么新变化」入口与 logo 动效。
 import { r as reactExports, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, bI as ChevronRight, hv as useAuth, lE as usePopup, lF as useOptionalUpdaterContext, lG as normalizeAnnouncements, lH as useBlockingModalPresence, lI as BLOCKING_MODAL_IDS, lJ as FeaturePopup, lK as HubLogo } from "../main.jsx";
-import { __jsx } from "./jsx-runtime.js";
+import { __jsx } from "../shared/jsx-runtime.js";
 const HOME_WHATS_NEW_ITEM_DURATION_MS = 3e3;
 function HomeWhatsNewGiftIcon() {
   return <svg aria-hidden="true" width="16" height="16" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.125 2.20833C3.125 1.54099 3.66599 1 4.33333 1C5.0215 1 5.63015 1.34046 6 1.86214C6.36985 1.34046 6.9785 1 7.66665 1C8.334 1 8.875 1.54099 8.875 2.20833C8.875 2.69838 8.70235 3.14811 8.41455 3.5H9.625C10.1082 3.5 10.5 3.89175 10.5 4.375V4.75C10.5 5.23325 10.1082 5.625 9.625 5.625H6.375V3.5H6.83335C7.5467 3.5 8.125 2.9217 8.125 2.20833C8.125 1.9552 7.9198 1.75 7.66665 1.75C6.9533 1.75 6.375 2.3283 6.375 3.04167V3.5H5.625V3.04167C5.625 2.3283 5.0467 1.75 4.33333 1.75C4.0802 1.75 3.875 1.9552 3.875 2.20833C3.875 2.9217 4.4533 3.5 5.16665 3.5H5.625V5.625H2.375C1.89175 5.625 1.5 5.23325 1.5 4.75V4.375C1.5 3.89175 1.89175 3.5 2.375 3.5H3.58545C3.29765 3.14811 3.125 2.69838 3.125 2.20833Z" fill="currentColor" /><path d="M6.375 6.375H10V9.625C10 10.1082 9.60825 10.5 9.125 10.5H6.375V6.375Z" fill="currentColor" /><path d="M5.625 6.375H2V9.625C2 10.1082 2.39175 10.5 2.875 10.5H5.625V6.375Z" fill="currentColor" /></svg>;

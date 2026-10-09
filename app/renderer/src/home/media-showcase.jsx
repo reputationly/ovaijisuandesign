@@ -1,6 +1,6 @@
 // 展示区的卡片、技能卡片、以及视频预览（含预览的状态与生命周期）。
 import { h as useTranslation, r as reactExports, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, e as Icon, aA as SkillIcon, fM as Button, F as workspaceLog, dn as LoaderCircle, lP as ProjectImportIcon, lQ as UsePromptIcon, fa as VolumeX, f8 as Volume2, dw as Maximize2, bd as BadgeCheck, lR as formatTime, lS as resolveSkillCoverUrl, lT as toDisplayName, lU as SkillCoverMedia, lV as FilledSkillIcon, o as usePlatform, lW as getCreationGuideUrlsByLocale, lX as buildInspirationMediaShowcaseCollections, lY as buildMediaShowcaseCollections, lZ as skillVerticals, gB as openExternalUrl, gE as Tabs, gF as TabsList, gG as TabsTrigger, l_ as TabsIndicator, l$ as StableTabLabel, kf as TabsContent, gk as RetryIcon, m0 as VideoLightbox } from "../main.jsx";
-import { __jsx } from "./jsx-runtime.js";
+import { __jsx } from "../shared/jsx-runtime.js";
 import { homeShowcasePosterThumbnailUrl } from "./media-urls.js";
 import { prefersReducedMotion } from "./motion-utils.js";
 import { HomeRandomInspirationBridge } from "./prompt-picker.jsx";

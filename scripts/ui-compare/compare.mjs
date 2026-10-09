@@ -31,6 +31,7 @@ const PAGES = [
   { id: "home-skill", url: "/", tabs: ["Skill"] },
   { id: "home-skill-inspiration", url: "/", tabs: ["Skill", "创作灵感"] },
   { id: "projects", url: "/projects" },
+  { id: "projects-team", url: "/projects", tabs: ["共创项目"] },
   { id: "creations", url: "/creations" },
   { id: "skills", url: "/skills" },
   { id: "skill-community", url: "/skill-community" },
@@ -69,9 +70,12 @@ const SEEDED_RANDOM = `(() => {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 })();`;
-// 点一个标签：找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数。
+// 点一个标签：先找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数；
+// 找不到再找文字一致的 [role=tab]（标签里带图标时文字不在叶子节点上）。
 const clickByText = (text) => `(() => {
-  const el = [...document.querySelectorAll("button, [role=tab], div, span")].find((e) => e.childElementCount === 0 && e.textContent.trim() === ${JSON.stringify(text)} && e.getBoundingClientRect().width > 0);
+  const visible = (e) => e.getBoundingClientRect().width > 0;
+  const el = [...document.querySelectorAll("button, [role=tab], div, span")].find((e) => e.childElementCount === 0 && e.textContent.trim() === ${JSON.stringify(text)} && visible(e))
+    ?? [...document.querySelectorAll("[role=tab]")].find((e) => e.textContent.trim() === ${JSON.stringify(text)} && visible(e));
   if (!el) return false;
   el.click();
   return true;
@@ -149,7 +153,9 @@ async function cdp(port) {
         await send("Network.enable");
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
         await send("Page.addScriptToEvaluateOnNewDocument", { source: SEEDED_RANDOM });
-        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e));
+        // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
+        const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e)).map((e) => e.replace(UUID, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
         return { send, errors: visible, clearErrors: () => (errors.length = 0), close: () => ws.close() };
       }
     } catch {}

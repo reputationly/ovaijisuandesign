@@ -1,6 +1,6 @@
 // 首页输入框的新手引导（coach mark）。
 import { h as useTranslation, v as useStorage, r as reactExports, j as jsxRuntimeExports, li as useAssetCenterRelocation, lj as useHasBlockingModal, lk as CDN_COACHMARK_HOME_AT, ll as CDN_COACHMARK_HOME_SLASH, kk as resolveSeenRevision, kI as HOME_INPUT_COACH_MARK_ID, g6 as getRuntimeConfig, lm as useModalSlot, ln as STARTUP_MODAL_IDS, lo as useCoachMarkSequence, lp as CoachMarkPopup } from "../main.jsx";
-import { __jsx } from "./jsx-runtime.js";
+import { __jsx } from "../shared/jsx-runtime.js";
 import { useSampleProject } from "./sample-project.js";
 const MARK_ID = HOME_INPUT_COACH_MARK_ID;
 const PROJECT_LIBRARY_REVISION = 2;
