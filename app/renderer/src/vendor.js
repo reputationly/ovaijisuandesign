@@ -237703,7 +237703,7 @@ const $$splitComponentImporter$a = () => (() => import("./home/index.jsx"))();
 const Route$b = createFileRoute("/_home/")({
   component: lazyRouteComponent($$splitComponentImporter$a, "component")
 });
-const $$splitComponentImporter$9 = () => (() => import("./index-DHMjfyXi.js"))();
+const $$splitComponentImporter$9 = () => (() => import("./workflows/index.jsx"))();
 const Route$a = createFileRoute("/_home/workflows/")({
   component: lazyRouteComponent($$splitComponentImporter$9, "component"),
   validateSearch: search2 => ({
@@ -237872,7 +237872,7 @@ const Route$3 = createFileRoute("/_app/skills/")({
   // we still validate it independently so the schema stays self-describing.
   validateSearch: validateSkillsSearch
 });
-const $$splitComponentImporter$2 = () => (() => import("./_projectId-5reobyH_.js"))();
+const $$splitComponentImporter$2 = () => (() => import("./project-detail/index.jsx"))();
 const Route$2 = createFileRoute("/_home/projects/$projectId")({
   validateSearch: search2 => ({
     tab: typeof search2.tab === "string" ? search2.tab : void 0

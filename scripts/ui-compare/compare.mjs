@@ -32,7 +32,12 @@ const ALL_PAGES = [
   { id: "home-skill-inspiration", url: "/", tabs: ["Skill", "创作灵感"] },
   { id: "projects", url: "/projects" },
   { id: "projects-team", url: "/projects", tabs: ["共创项目"] },
+  { id: "projects-new", url: "/projects", tabs: ["新建项目"] },
+  { id: "projects-new-local", url: "/projects", tabs: ["新建项目", "新建本地项目"] },
   { id: "creations", url: "/creations" },
+  { id: "workflows", url: "/workflows" },
+  { id: "workflows-mine", url: "/workflows", tabs: ["我的工作流"] },
+  { id: "workflows-import", url: "/workflows", tabs: ["导入/新建工作流"] },
   { id: "skills", url: "/skills" },
   // 技能页的其它标签（地址参数会被页面忽略，只能点）
   { id: "skills-connectors", url: "/skills", tabs: ["插件"] },
@@ -41,6 +46,9 @@ const ALL_PAGES = [
   { id: "changelog", url: "/changelog" },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
   { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+  // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
+  { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
+  { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { wait: 2000 }] },
 ];
 // 只跑指定几屏：ONLY=home,skills-mine node scripts/ui-compare/compare.mjs
 const ONLY = process.env.ONLY?.split(",").filter(Boolean);
@@ -78,14 +86,24 @@ const SEEDED_RANDOM = `(() => {
   };
 })();`;
 // 点一个标签：先找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数；
-// 找不到再找文字一致的 [role=tab]（标签里带图标时文字不在叶子节点上），最后允许以该文字开头（标签后面带角标或数量）。
+// 找不到再找文字一致的 [role=tab] 或按钮（带图标时文字不在叶子节点上），最后允许以该文字开头（标签后面带角标或数量）。
 const clickByText = (text) => `(() => {
   const visible = (e) => e.getBoundingClientRect().width > 0;
   const el = [...document.querySelectorAll("button, [role=tab], div, span")].find((e) => e.childElementCount === 0 && e.textContent.trim() === ${JSON.stringify(text)} && visible(e))
-    ?? [...document.querySelectorAll("[role=tab]")].find((e) => e.textContent.trim() === ${JSON.stringify(text)} && visible(e))
+    ?? [...document.querySelectorAll("[role=tab], [role=menuitem], button")].find((e) => e.textContent.trim() === ${JSON.stringify(text)} && visible(e))
     ?? [...document.querySelectorAll("[role=tab]")].find((e) => e.textContent.trim().startsWith(${JSON.stringify(text)}) && visible(e));
   if (!el) return false;
   el.click();
+  return true;
+})()`;
+
+// 往弹窗里第一个可见输入框填字（走原生 setter 再发 input 事件，React 才认）
+const typeIntoDialog = (value) => `(() => {
+  const input = [...document.querySelectorAll("[role=dialog] input, [role=dialog] textarea")].find((e) => e.getBoundingClientRect().width > 0);
+  if (!input) return false;
+  const proto = input.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+  Object.getOwnPropertyDescriptor(proto, "value").set.call(input, ${JSON.stringify(value)});
+  input.dispatchEvent(new Event("input", { bubbles: true }));
   return true;
 })()`;
 
@@ -226,8 +244,11 @@ async function runMode(mode) {
       }
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
       for (const label of p.tabs ?? []) {
-        const r = await c.send("Runtime.evaluate", { expression: clickByText(label), returnByValue: true });
-        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${label}」标签，页面没切过去`);
+        // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ wait: ms } = 多等一会儿
+        if (typeof label === "object" && label.wait) { await sleep(label.wait); continue; }
+        const expression = typeof label === "object" ? typeIntoDialog(label.type) : clickByText(label);
+        const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
+        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${typeof label === "object" ? "输入框" : label}」，页面没切过去`);
         await sleep(1500);
       }
       const buf = await stableShot(c);
