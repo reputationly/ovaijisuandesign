@@ -237840,7 +237840,7 @@ const Route$4 = createFileRoute("/_app/workspace/")({
   },
   component: lazyRouteComponent($$splitComponentImporter$4, "component")
 });
-const $$splitComponentImporter$3 = () => (() => import("./index-Dx8Gl-xx.js"))();
+const $$splitComponentImporter$3 = () => (() => import("./skills/index.jsx"))();
 function validateSkillsSearch(search2) {
   const out = {};
   const capability = search2.capability;
