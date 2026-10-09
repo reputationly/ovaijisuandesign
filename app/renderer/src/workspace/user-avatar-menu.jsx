@@ -1,193 +1,868 @@
 // user-avatar-menu.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, Check, Copy, dedupedToast, guardAccountSubmission, usePlatform, getRuntimeConfig, Plus, Smartphone, useQueryClient, User, GraduationCap, SwatchBook, Wrench } from "../vendor.js";
-import { useAuth, useOptionalTeamAccount, accountScopeKey, teamQueryKeys, creditQueryKeys } from "../assets/apply-asset-change.jsx";
-import { canUseDebugTooling } from "./create-visible-preview-tabs-store.js";
-import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
-import { DEBUG_PANEL_OPEN_EVENT } from "../settings/interest-selection-provider.jsx";
-import { FileText, Users, Settings, LogOut } from "../media-editing/parse-item.jsx";
-import { DEFAULT_PAGE_STATE_PREVIEW_SCHEMA } from "../media-editing/parse-timeline-operations.js";
-import { TRACK_EVENTS } from "../infra/track-events.js";
+import {
+  Check,
+  ChevronRight$1,
+  Copy,
+  dedupedToast,
+  getRuntimeConfig,
+  GraduationCap,
+  guardAccountSubmission,
+  jsxRuntimeExports,
+  Monitor,
+  Palette,
+  reactDomExports,
+  reactExports,
+  Smartphone,
+  Sun,
+  SwatchBook,
+  usePlatform,
+  useQueryClient,
+  User,
+  useTranslation,
+  Wrench,
+} from "../vendor.js";
+import {
+  Icon,
+  openExternalUrl,
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   cn$2,
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  Textarea,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
+  TooltipContent,
+  useBrowserHoverPreview,
+} from "../infra/dialog-content.jsx";
 import {
-  useCanMigrate,
-  useMpSubscribeUrl,
-  SubscriptionRenewalBadge,
-  MpCreditRow,
-  HailuoCreditRow,
-} from "../team/use-credit-details.jsx";
+  BookOpen,
+  Brain,
+  FileText,
+  LogOut,
+  Moon,
+  Settings,
+  Users,
+} from "../media-editing/package.jsx";
+import { useTheme } from "../generation/use-model-catalog-scope-key.js";
+import { SegmentedSwitch } from "../canvas/popover-title.jsx";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import {
+  accountScopeKey,
+  creditQueryKeys,
+  useIsScrolling,
+  useOptionalTeamAccount,
+} from "../assets/credit-query-keys.jsx";
+import { QuickZoomPresence } from "../canvas/canvas-high-blast-delete-dialog.jsx";
+import {
+  getTutorialUrl,
+  getUserProtocolUrl,
   Tabs,
+  TabsContent,
   TabsList,
   TabsTrigger,
-  TabsContent,
-  getTutorialUrl,
-} from "./shortcut-categories.jsx";
-import { RetryIcon, FeedbackIcon } from "./browser-inspiration-urls.jsx";
-import { trackEvent } from "../infra/init-track.js";
-import { PageStateView } from "../assets/page-state-boundary.jsx";
-import { useImBridgeDialog } from "./use-coach-mark.jsx";
-import { useSettingsDialog } from "../settings/custom-provider-form.jsx";
-import { useImAccounts } from "../settings/use-feishu-qr-login.jsx";
+  USER_PROTOCOL_KEYS_BY_REGION,
+} from "./shortcut-hint.jsx";
 import {
-  useSubscriptionRenewalNotice,
-  CreditDetailsDialog,
-} from "../team/billing-model-display-labels.jsx";
-import { AccountSwitcherView, TeamAccountSummary } from "../team/account-switcher-view.jsx";
-import { VersionRow } from "../settings/update-banner.jsx";
-import { MigrationDialog } from "../settings/migration-popup.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
+  teamQueryKeys,
+  useAccountSubmissionDecision,
+} from "../assets/gateway-scope-provider.jsx";
 import {
-  ComponentsLibrary,
-  IconPreview,
-  parsePageStatePreviewSchema,
-} from "../infra/parse-page-state-preview-schema.jsx";
+  HailuoCreditRow,
+  MpCreditRow,
+  SubscriptionRenewalBadge,
+  useCanMigrate,
+  useMpSubscribeUrl,
+  useMpWallet,
+} from "../team/hailuo-credit-row.jsx";
+import { Skeleton, useWalletQuery } from "../team/use-wallet-query.jsx";
+import { useActiveBillingPromotion } from "../chat/chat-compliance-notice.jsx";
+import { SECTION_REGISTRY } from "../media-editing/action-list-section.jsx";
 import {
-  ColorTokens,
-  ScrollArea,
-  useResizedAvatar,
-  useUserMenuController,
-} from "../media-editing/slider-section.jsx";
+  INITIAL_CUSTOM_STATE,
+  ROUNDED_TOKENS,
+  SPACING_SCALE,
+} from "./rounded-tokens.js";
+import { SCENARIOS } from "./scenarios.jsx";
+import { DEFAULT_PAGE_STATE_PREVIEW_SCHEMA } from "../media-editing/unwrap-mcp-json-record.js";
+import { DialogTitle, Textarea } from "../infra/badge-variants.jsx";
+import { PageStateView } from "../assets/page-state-view.jsx";
+import { parsePageStatePreviewSchema } from "../infra/parse-page-state-preview-schema.js";
+import { TypographyTokens } from "./typography-tokens.jsx";
+import { IconPreview } from "../infra/media-preview.jsx";
+import { ColorTokens } from "../media-editing/color-tokens.jsx";
+import { ScrollArea } from "../media-editing/scroll-bar.jsx";
+import { canUseDebugTooling } from "./use-deep-link-router.js";
+import { DEBUG_PANEL_OPEN_EVENT } from "../settings/request-prompt-prefill.jsx";
+import { useImBridgeDialog } from "./offline-banner.jsx";
+import { useImAccounts } from "../settings/use-im-accounts.jsx";
+import { useSubscriptionRenewalNotice } from "../team/derive-subscription-status.js";
+import { CreditDetailsDialog } from "../team/credit-details-dialog.jsx";
+import { AccountSwitcherView } from "../team/account-switcher-view.jsx";
+import { TeamAccountSummary } from "../team/team-account-summary.jsx";
+import { VersionRow } from "../settings/version-row.jsx";
+import { MigrationDialog } from "../settings/migration-dialog.jsx";
 import {
-  IM_BRIDGE_SHORTCUT_SEEN_KEY,
-  ImBridgeConnectionStatus,
-  ImBridgeShortcutWithTooltip,
-  LoggedOutSidebarActionPresentation,
-  MemoryManagementMenuButton,
-  MenuButton,
-  MenuSection,
-  NewBadge,
-  SidebarBottomActionStack,
-  SubscriptionSummaryRow,
-  ThemeSwitcher,
   UserMenuAccountSummary,
-  UserMenuPopoverShell,
   UserMenuRootView,
-  UserProtocolFlyout,
-  UserProtocolMenuRow,
-  hasSeenImBridgeShortcut,
-  useUserProtocolSubmenu,
-} from "../generation/user-menu-popover-content.jsx";
-const handlePreviewAction = () => void 0;
-const SCENARIOS = [
-  {
-    value: "empty",
-    label: "Empty",
-    state: {
-      type: "empty",
-      actions: [],
+} from "../generation/user-menu-account-summary.jsx";
+
+const AVATAR_DECODE_SIZE = 128;
+
+function useResizedAvatar(src) {
+  const [resized, setResized] = reactExports.useState();
+  const blobUrl = reactExports.useRef(void 0);
+  reactExports.useEffect(() => {
+    if (!src) return;
+    let cancelled = false;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = new OffscreenCanvas(
+        AVATAR_DECODE_SIZE,
+        AVATAR_DECODE_SIZE,
+      );
+      canvas
+        .getContext("2d")
+        ?.drawImage(img, 0, 0, AVATAR_DECODE_SIZE, AVATAR_DECODE_SIZE);
+      canvas
+        .convertToBlob({
+          type: "image/png",
+        })
+        .then((blob) => {
+          if (cancelled) return;
+          if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
+          const url2 = URL.createObjectURL(blob);
+          blobUrl.current = url2;
+          setResized(url2);
+        })
+        .catch(() => {
+          if (!cancelled) setResized(src);
+        });
+    };
+    img.onerror = () => {
+      if (!cancelled) setResized(src);
+    };
+    img.src = src;
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+  reactExports.useEffect(() => {
+    return () => {
+      if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
+    };
+  }, []);
+  return resized;
+}
+
+function useUserMenuController() {
+  const [open, setOpen] = reactExports.useState(false);
+  const menuRef = reactExports.useRef(null);
+  const popoverRef = reactExports.useRef(null);
+  const triggerRef = reactExports.useRef(null);
+  const openMenu = reactExports.useCallback(() => {
+    setOpen(true);
+  }, []);
+  const closeMenu = reactExports.useCallback(() => {
+    setOpen(false);
+  }, []);
+  const closeMenuAndRestoreFocus = reactExports.useCallback(() => {
+    closeMenu();
+    triggerRef.current?.focus();
+  }, [closeMenu]);
+  const handleTriggerClick = reactExports.useCallback(() => {
+    setOpen((current2) => !current2);
+  }, []);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    const handleKeyDown2 = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      closeMenuAndRestoreFocus();
+    };
+    window.addEventListener("keydown", handleKeyDown2);
+    return () => window.removeEventListener("keydown", handleKeyDown2);
+  }, [closeMenuAndRestoreFocus, open]);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (menuRef.current?.contains(target)) return;
+      if (popoverRef.current?.contains(target)) return;
+      if (triggerRef.current?.contains(target)) return;
+      closeMenu();
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [closeMenu, open]);
+  return {
+    open,
+    menuRef,
+    popoverRef,
+    triggerRef,
+    openMenu,
+    closeMenu,
+    handleTriggerClick,
+  };
+}
+
+const IM_BRIDGE_SHORTCUT_SEEN_KEY = "hilo:im-bridge-shortcut-seen";
+
+function hasSeenImBridgeShortcut() {
+  try {
+    return localStorage.getItem(IM_BRIDGE_SHORTCUT_SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function ImBridgeShortcutWithTooltip({
+  className,
+  onClick,
+  side,
+  showUnreadDot = false,
+}) {
+  const { t: t2 } = useTranslation();
+  const isOverseas = getRuntimeConfig().region === "overseas";
+  const label = t2(`imBridge.title.${isOverseas ? "overseas" : "domestic"}`);
+  const tooltip = isOverseas ? t2("common.comingSoon") : label;
+  const [tooltipOpen, setTooltipOpen] = reactExports.useState(false);
+  const handleClick2 = reactExports.useCallback(
+    (event) => {
+      event.stopPropagation();
+      setTooltipOpen(false);
+      if (isOverseas) return;
+      onClick(event);
     },
+    [isOverseas, onClick],
+  );
+  const compact = side === "right";
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip open={tooltipOpen}>
+        <TooltipTrigger
+          render={
+            <button
+              type="button"
+              data-action-ui-id="user-menu.im-bridge-shortcut"
+              aria-label={label}
+              aria-disabled={isOverseas}
+              onClick={handleClick2}
+              onMouseEnter={() => setTooltipOpen(true)}
+              onMouseLeave={() => setTooltipOpen(false)}
+              onFocus={() => setTooltipOpen(true)}
+              onBlur={() => setTooltipOpen(false)}
+              className={cn$2(
+                "relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent text-muted-foreground transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
+                compact ? "size-8" : "size-7",
+                isOverseas &&
+                  "cursor-not-allowed bg-muted text-muted-foreground opacity-60",
+                className,
+              )}
+            >
+              {showUnreadDot && (
+                <span
+                  data-action-ui-id="user-menu.im-bridge-shortcut-unread"
+                  className="absolute top-0 right-0 size-2 rounded-full border border-card bg-brand-accent"
+                />
+              )}
+              <Icon
+                icon={Smartphone}
+                size="md"
+                className="text-foreground opacity-50"
+                aria-hidden={true}
+              />
+            </button>
+          }
+        />
+        <TooltipContent side={side}>{tooltip}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function SidebarBottomActionStack({ children: children2, className }) {
+  return (
+    <div
+      data-action-ui-id="sidebar.bottom-action-stack"
+      className={cn$2("flex flex-col items-center gap-1.5", className)}
+    >
+      {children2}
+    </div>
+  );
+}
+
+function MenuSection({ title, children: children2 }) {
+  return (
+    <section className="px-1 py-1">
+      {title && (
+        <div className="px-3 pt-2 pb-1 text-[11px] font-normal leading-4 text-muted-foreground/70">
+          {title}
+        </div>
+      )}
+      <div className="flex flex-col gap-0.5 [--user-menu-row-gap:2px] [&>.list-row-hit-area:first-child]:before:top-0 [&>.list-row-hit-area:last-child]:before:bottom-0 [&>:first-child>.list-row-hit-area]:before:top-0 [&>:last-child>.list-row-hit-area]:before:bottom-0">
+        {children2}
+      </div>
+    </section>
+  );
+}
+
+function NewBadge() {
+  const { t: t2 } = useTranslation();
+  return (
+    <span className="inline-flex h-4 max-w-16 shrink-0 items-center truncate rounded-full bg-foreground px-1.5 text-[10px] font-medium leading-none text-background">
+      {t2("userMenu.newBadge")}
+    </span>
+  );
+}
+
+function ImBridgeConnectionStatus({ connected }) {
+  const { t: t2 } = useTranslation();
+  return (
+    <span className="max-w-24 min-w-0 truncate text-[11px] leading-none text-muted-foreground">
+      {t2(
+        `imBridge.connectionStatus.${connected ? "connected" : "notConnected"}`,
+      )}
+    </span>
+  );
+}
+
+const THEME_OPTIONS = [
+  {
+    value: "dark",
+    icon: Moon,
   },
   {
-    value: "project-empty",
-    label: "Project Empty",
-    state: {
-      type: "empty",
-      reason: "project",
-      title: "No projects yet",
-      description: "Create a project to get started.",
-      actions: [
-        {
-          key: "create",
-          icon: <Icon icon={Plus} size="sm" strokeWidth={2} aria-hidden={true} />,
-          label: "Create Project",
-          variant: "default",
-          onClick: handlePreviewAction,
-        },
-      ],
-    },
+    value: "light",
+    icon: Sun,
   },
   {
-    value: "error",
-    label: "Error",
-    state: {
-      type: "error",
-      actions: [
-        {
-          key: "retry",
-          icon: <RetryIcon size={14} aria-hidden={true} />,
-          label: "Retry",
-          variant: "default",
-          onClick: handlePreviewAction,
-        },
-      ],
-    },
-  },
-  {
-    value: "network",
-    label: "Network",
-    state: {
-      type: "error",
-      reason: "network",
-      actions: [
-        {
-          key: "retry",
-          icon: <RetryIcon size={14} aria-hidden={true} />,
-          label: "Retry",
-          variant: "default",
-          onClick: handlePreviewAction,
-        },
-        {
-          key: "feedback",
-          icon: <FeedbackIcon size={14} aria-hidden={true} />,
-          label: "Feedback",
-          variant: "outline",
-          onClick: handlePreviewAction,
-        },
-      ],
-    },
-  },
-  {
-    value: "structured",
-    label: "Structured",
-    state: {
-      type: "empty",
-      title: "No projects yet",
-      description: "Create a project to get started.",
-      actions: [
-        {
-          key: "create",
-          icon: <Icon icon={Plus} size="sm" strokeWidth={2} aria-hidden={true} />,
-          label: "Create Project",
-          variant: "default",
-          onClick: handlePreviewAction,
-        },
-      ],
-    },
-  },
-  {
-    value: "action-states",
-    label: "Action States",
-    state: {
-      type: "error",
-      title: "Unable to load projects",
-      description: "Button states are controlled by the business layer.",
-      actions: [
-        {
-          key: "retry",
-          label: "Retrying",
-          variant: "default",
-          onClick: handlePreviewAction,
-          loading: true,
-        },
-        {
-          key: "feedback",
-          icon: <FeedbackIcon size={14} aria-hidden={true} />,
-          label: "Feedback",
-          variant: "outline",
-          onClick: handlePreviewAction,
-          disabled: true,
-        },
-      ],
-    },
+    value: "system",
+    icon: Monitor,
   },
 ];
+
+function ThemeSwitcher() {
+  const { t: t2 } = useTranslation();
+  const { theme: theme2, setTheme } = useTheme();
+  return (
+    <div className="flex h-9 items-center justify-between gap-2 rounded-sm px-3 text-[14px] leading-5 text-foreground/70">
+      <Palette size={18} strokeWidth={1.5} className="shrink-0" />
+      <span className="min-w-0 flex-1 truncate">{t2("settings.theme")}</span>
+      <SegmentedSwitch
+        value={theme2}
+        onValueChange={setTheme}
+        itemClassName="cursor-pointer"
+        options={THEME_OPTIONS.map(({ value, icon }) => ({
+          value,
+          icon,
+          label: t2(`settings.theme${value[0].toUpperCase()}${value.slice(1)}`),
+          ariaLabel: t2(
+            `settings.theme${value[0].toUpperCase()}${value.slice(1)}`,
+          ),
+          dataActionUiId: `user-menu.theme-${value}`,
+        }))}
+      />
+    </div>
+  );
+}
+
+function MenuButton({
+  icon: Icon2,
+  label,
+  labelSuffix,
+  onClick,
+  dataActionUiId,
+  ariaExpanded,
+  trailing,
+  disabled: disabled2,
+  showChevron = true,
+  destructive = false,
+}) {
+  const shouldShowChevron = showChevron && !disabled2;
+  return (
+    <button
+      type="button"
+      disabled={disabled2}
+      aria-expanded={ariaExpanded}
+      onClick={() => {
+        if (disabled2) return;
+        if (dataActionUiId) {
+          const action = dataActionUiId.startsWith("user-menu.")
+            ? dataActionUiId.slice("user-menu.".length)
+            : dataActionUiId;
+          trackEvent(TRACK_EVENTS.USER_MENU_ACTION, {
+            action,
+          });
+        }
+        onClick();
+      }}
+      data-action-ui-id={dataActionUiId}
+      className={cn$2(
+        "list-row-hit-area [--list-row-gap:var(--user-menu-row-gap,0px)] flex h-9 w-full items-center gap-2 rounded-sm px-3 text-[14px] leading-5 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+        destructive
+          ? "text-destructive hover:bg-destructive/10"
+          : "text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground",
+      )}
+    >
+      <Icon2 size={18} strokeWidth={1.5} />
+      <span className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+        <span className="min-w-0 truncate">{label}</span>
+        {labelSuffix}
+      </span>
+      {(trailing || shouldShowChevron) && (
+        <span className="ml-auto flex shrink-0 items-center gap-1">
+          {trailing}
+          {shouldShowChevron && (
+            <ChevronRight$1
+              size={14}
+              strokeWidth={1.5}
+              className="shrink-0 text-muted-foreground"
+            />
+          )}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function MemoryManagementMenuButton() {
+  const { t: t2 } = useTranslation();
+  const { openSettings } = useSettingsDialog();
+  return (
+    <MenuButton
+      icon={Brain}
+      label={t2("userMenu.memoryManagement")}
+      dataActionUiId="user-menu.memory-management"
+      onClick={() => openSettings("memory")}
+    />
+  );
+}
+
+const POSITION_CLASS = {
+  "top-left": "right-0 bottom-full mb-1 [--dp-quick-zoom-origin:bottom_right]",
+  "top-right": "left-2 bottom-full mb-1 [--dp-quick-zoom-origin:bottom_left]",
+  bottom: "left-0 top-full mt-2 [--dp-quick-zoom-origin:top_left]",
+  "right-bottom": "left-full top-0 ml-2 [--dp-quick-zoom-origin:top_left]",
+  right: "left-full bottom-2 ml-2 [--dp-quick-zoom-origin:bottom_left]",
+};
+
+const VIEWPORT_INSET = 8;
+
+const TOP_POSITION_GAP = 4;
+
+const BOTTOM_POSITION_GAP = 8;
+
+const RIGHT_POSITION_BOTTOM_OFFSET = 8;
+
+function getAvailableHeight(rect, position2) {
+  let availableHeight;
+  switch (position2) {
+    case "top-left":
+    case "top-right":
+      availableHeight = rect.top - TOP_POSITION_GAP - VIEWPORT_INSET;
+      break;
+    case "bottom":
+      availableHeight =
+        window.innerHeight - rect.bottom - BOTTOM_POSITION_GAP - VIEWPORT_INSET;
+      break;
+    case "right-bottom":
+      availableHeight = window.innerHeight - rect.top - VIEWPORT_INSET;
+      break;
+    case "right":
+      availableHeight =
+        rect.bottom - RIGHT_POSITION_BOTTOM_OFFSET - VIEWPORT_INSET;
+      break;
+  }
+  return Math.max(0, Math.floor(availableHeight));
+}
+
+function UserMenuPopoverContent({
+  motionProps,
+  open,
+  position: position2,
+  /** Trigger root whose viewport rect anchors the portaled popover. */
+  anchorRef,
+  /**
+   * Exposed so the interaction controller can treat the portaled popover as
+   * "inside" the menu for outside-pointer close and focus restoration.
+   */
+  popoverRef,
+  id: id2,
+  ariaLabel,
+  /**
+   * `auto` (default): whole popover scrolls — good for flat menu lists.
+   * `hidden`: pin outer shell, let nested views manage their own list scroll
+   * (account switcher header/footer stay visible).
+   */
+  overflow = "auto",
+  /** Render floating content beside the scroll panel without clipping it. */
+  overlay,
+  children: children2,
+}) {
+  const browserPreviewReady = useBrowserHoverPreview(open);
+  const fallbackPopoverRef = reactExports.useRef(null);
+  const frameRef = popoverRef ?? fallbackPopoverRef;
+  const scrollRef = reactExports.useRef(null);
+  const isScrolling = useIsScrolling({
+    scrollRef,
+  });
+  const [anchor, setAnchor] = reactExports.useState(null);
+  reactExports.useLayoutEffect(() => {
+    if (!open) {
+      setAnchor(null);
+      return;
+    }
+    const syncAnchor = () => {
+      const triggerRoot = anchorRef.current;
+      if (!triggerRoot) return;
+      const host =
+        triggerRoot.closest('[data-action-ui-id="global-sidebar-surface"]') ??
+        document.body;
+      const rect = triggerRoot.getBoundingClientRect();
+      const availableHeight = getAvailableHeight(rect, position2);
+      setAnchor((previous2) => {
+        if (
+          previous2?.host === host &&
+          previous2.left === rect.left &&
+          previous2.top === rect.top &&
+          previous2.width === rect.width &&
+          previous2.height === rect.height &&
+          previous2.availableHeight === availableHeight
+        ) {
+          return previous2;
+        }
+        return {
+          host,
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          availableHeight,
+        };
+      });
+    };
+    syncAnchor();
+    window.addEventListener("resize", syncAnchor);
+    window.addEventListener("scroll", syncAnchor, true);
+    const observer2 =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => syncAnchor());
+    if (anchorRef.current) observer2?.observe(anchorRef.current);
+    return () => {
+      window.removeEventListener("resize", syncAnchor);
+      window.removeEventListener("scroll", syncAnchor, true);
+      observer2?.disconnect();
+    };
+  }, [anchorRef, open, position2]);
+  if (!open || !anchor || !browserPreviewReady) return null;
+  return reactDomExports.createPortal(
+    <div
+      className="pointer-events-none fixed z-50"
+      style={{
+        left: anchor.left,
+        top: anchor.top,
+        width: anchor.width,
+        height: anchor.height,
+        "--user-menu-available-height": `${anchor.availableHeight}px`,
+      }}
+      data-action-ui-id="user-menu.portal-anchor"
+      data-global-sidebar-hover-region="true"
+    >
+      <div
+        ref={(element2) => {
+          frameRef.current = element2;
+          motionProps.ref.current = element2;
+        }}
+        data-ending-style={motionProps["data-ending-style"]}
+        inert={motionProps["data-ending-style"] !== void 0}
+        aria-hidden={motionProps["data-ending-style"] !== void 0 || void 0}
+        data-action-ui-id="user-menu.popover"
+        className={cn$2(
+          "pointer-events-auto absolute z-50 w-[280px]",
+          "dp-motion-quick-zoom",
+          POSITION_CLASS[position2],
+        )}
+      >
+        <div
+          ref={scrollRef}
+          id={id2}
+          role="dialog"
+          aria-label={ariaLabel}
+          data-scrolling={isScrolling || void 0}
+          className={cn$2(
+            "elevated-surface-border max-h-[min(32rem,var(--user-menu-available-height))] w-full rounded-lg bg-popover shadow-lg",
+            overflow === "auto"
+              ? "scrollbar-fade overflow-y-auto"
+              : overflow === "hidden"
+                ? "flex flex-col overflow-hidden"
+                : "overflow-visible",
+          )}
+        >
+          {children2}
+        </div>
+        {overlay}
+      </div>
+    </div>,
+    anchor.host,
+  );
+}
+
+function UserMenuPopoverShell(props) {
+  return (
+    <QuickZoomPresence value={props.open ? props : null}>
+      {(retainedProps, motionProps) => (
+        <UserMenuPopoverContent {...retainedProps} motionProps={motionProps} />
+      )}
+    </QuickZoomPresence>
+  );
+}
+
+const PROTOCOL_LABEL_KEYS = {
+  userAgreement: "userMenu.protocol.userAgreement",
+  privacyPolicy: "userMenu.protocol.privacyPolicy",
+  paidAgreement: "userMenu.protocol.paidAgreement",
+  autoRenewal: "userMenu.protocol.autoRenewal",
+  pointsRules: "userMenu.protocol.pointsRules",
+};
+
+const HIDE_DELAY_MS = 200;
+
+const FLYOUT_PADDING = 4;
+
+function useUserProtocolSubmenu(anchorRef) {
+  const [open, setOpen] = reactExports.useState(false);
+  const [offsetTop, setOffsetTop] = reactExports.useState(0);
+  const rowRef = reactExports.useRef(null);
+  const hideTimer = reactExports.useRef(null);
+  const syncOffset = reactExports.useCallback(() => {
+    const row = rowRef.current;
+    const frame2 = anchorRef.current;
+    if (!row || !frame2) return;
+    setOffsetTop(
+      row.getBoundingClientRect().top - frame2.getBoundingClientRect().top,
+    );
+  }, [anchorRef]);
+  const show = reactExports.useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    syncOffset();
+    setOpen(true);
+  }, [syncOffset]);
+  const scheduleHide = reactExports.useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setOpen(false), HIDE_DELAY_MS);
+  }, []);
+  const hide2 = reactExports.useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setOpen(false);
+  }, []);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    window.addEventListener("resize", syncOffset);
+    window.addEventListener("scroll", syncOffset, true);
+    return () => {
+      window.removeEventListener("resize", syncOffset);
+      window.removeEventListener("scroll", syncOffset, true);
+    };
+  }, [open, syncOffset]);
+  reactExports.useEffect(
+    () => () => (hideTimer.current ? clearTimeout(hideTimer.current) : void 0),
+    [],
+  );
+  return {
+    open,
+    rowRef,
+    offsetTop,
+    show,
+    scheduleHide,
+    hide: hide2,
+  };
+}
+
+function protocolKeysForRegion() {
+  return USER_PROTOCOL_KEYS_BY_REGION[getRuntimeConfig().region];
+}
+
+function UserProtocolMenuRow({ submenu }) {
+  const { t: t2 } = useTranslation();
+  const protocolKeys = protocolKeysForRegion();
+  if (protocolKeys.length === 0) return null;
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: hover menu trigger row
+    <div
+      ref={submenu.rowRef}
+      onMouseEnter={submenu.show}
+      onMouseLeave={submenu.scheduleHide}
+    >
+      <MenuButton
+        icon={BookOpen}
+        label={t2("userMenu.protocol")}
+        ariaExpanded={submenu.open}
+        onClick={submenu.show}
+        dataActionUiId="user-menu.protocol"
+      />
+    </div>
+  );
+}
+
+function UserProtocolFlyout({ submenu, onClose }) {
+  const { t: t2 } = useTranslation();
+  const platform2 = usePlatform();
+  const { region, channel } = getRuntimeConfig();
+  const protocolKeys = protocolKeysForRegion();
+  if (!submenu.open || protocolKeys.length === 0) return null;
+  return (
+    <div
+      role="menu"
+      className="absolute left-full z-20 ml-2 w-48 rounded-lg border border-border bg-popover p-1 shadow-lg"
+      style={{
+        top: submenu.offsetTop - FLYOUT_PADDING,
+      }}
+      data-action-ui-id="user-menu.protocol-submenu"
+      onMouseEnter={submenu.show}
+      onMouseLeave={submenu.scheduleHide}
+    >
+      {protocolKeys.map((key2) => (
+        <MenuButton
+          key={key2}
+          icon={FileText}
+          label={t2(PROTOCOL_LABEL_KEYS[key2])}
+          showChevron={false}
+          dataActionUiId={`user-menu.protocol-${key2}`}
+          onClick={() => {
+            submenu.hide();
+            onClose();
+            void openExternalUrl(
+              platform2,
+              getUserProtocolUrl(region, channel, key2),
+              {
+                source: `sidebar.protocol.${key2}`,
+              },
+            );
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+const FREE_PRIVILEGE_TYPE = 0;
+
+function SubscriptionSummaryRow({ onClick }) {
+  const { t: t2 } = useTranslation();
+  const { isLoading, isError, isRefetchError } = useWalletQuery();
+  const mpWallet = useMpWallet();
+  const annualPromotionActive = useActiveBillingPromotion() !== null;
+  const walletFailed = isError || isRefetchError;
+  const checkoutDecision = useAccountSubmissionDecision("personal_checkout");
+  const blockedReasonId = reactExports.useId();
+  const planName = mpWallet?.plan_name?.trim();
+  const subscriptionStateKnown = mpWallet?.subscription_state_known === true;
+  const isFree = mpWallet?.privilege_type === FREE_PRIVILEGE_TYPE;
+  const status = (() => {
+    if (isLoading) return <Skeleton className="h-5 w-14 rounded-full" />;
+    if (walletFailed) return null;
+    if (!subscriptionStateKnown) return null;
+    if (isFree) {
+      return (
+        <span className="inline-flex h-5 min-w-0 max-w-full items-center overflow-hidden text-ellipsis whitespace-nowrap rounded-full bg-brand-accent px-2 font-medium leading-none text-brand-accent-foreground text-caption-11">
+          {annualPromotionActive
+            ? t2("userMenu.subscriptionStatus.annualPromotion")
+            : t2("credits.upgradeSubscription")}
+        </span>
+      );
+    }
+    if (!planName) return null;
+    return (
+      <span className="inline-flex h-5 min-w-0 max-w-full items-center truncate rounded-full bg-foreground/[0.08] px-2 font-medium leading-none text-muted-foreground text-caption-11">
+        {planName}
+      </span>
+    );
+  })();
+  const renderContent = (showChevron) => (
+    <>
+      <span className="min-w-0 truncate text-left text-body-13 text-muted-foreground">
+        {t2("userMenu.manageSubscription")}
+      </span>
+      <span className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1">
+        {status}
+        {showChevron ? (
+          <Icon
+            icon={ChevronRight$1}
+            size="sm"
+            className="shrink-0 text-muted-foreground"
+            aria-hidden={true}
+          />
+        ) : null}
+      </span>
+    </>
+  );
+  if (!checkoutDecision.allowed) {
+    const reason = t2(`team.submission.reason.${checkoutDecision.reasonCode}`, {
+      defaultValue: t2("team.common.temporarilyUnavailable", {
+        defaultValue: "团队功能暂不可用",
+      }),
+    });
+    return (
+      <>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  aria-disabled="true"
+                  aria-describedby={blockedReasonId}
+                  data-action-ui-id="user-menu.manage-subscription"
+                  className="flex h-9 w-full cursor-not-allowed items-center gap-2 rounded-sm px-2 leading-5 text-foreground opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
+                />
+              }
+            >
+              {renderContent(false)}
+            </TooltipTrigger>
+            <TooltipContent>{reason}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <span id={blockedReasonId} className="sr-only">
+          {reason}
+        </span>
+      </>
+    );
+  }
+  return (
+    <button
+      type="button"
+      data-action-ui-id="user-menu.manage-subscription"
+      onClick={onClick}
+      className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-sm px-2 leading-5 text-foreground transition-colors hover:bg-foreground/[0.03] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
+    >
+      {renderContent(true)}
+    </button>
+  );
+}
+
+function ComponentsLibrary() {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[11px] text-muted-foreground">
+        {"全部 "}
+        {SECTION_REGISTRY.length}
+        {" 个基础组件 + 主要 variant。"}
+      </p>
+      {SECTION_REGISTRY.map(({ id: id2, Component }) => (
+        <Component key={id2} />
+      ))}
+    </div>
+  );
+}
+
 const PREVIEW_FRAMES = [
   {
     key: "page",
@@ -200,15 +875,14 @@ const PREVIEW_FRAMES = [
     className: "w-full max-w-md self-center",
   },
 ];
-const INITIAL_CUSTOM_STATE = parsePageStatePreviewSchema(DEFAULT_PAGE_STATE_PREVIEW_SCHEMA)
-  .state ?? {
-  type: "empty",
-  actions: [],
-};
+
 function PageStatePreview() {
   const { t: t2 } = useTranslation();
-  const [schemaSource, setSchemaSource] = reactExports.useState(DEFAULT_PAGE_STATE_PREVIEW_SCHEMA);
-  const [customState, setCustomState] = reactExports.useState(INITIAL_CUSTOM_STATE);
+  const [schemaSource, setSchemaSource] = reactExports.useState(
+    DEFAULT_PAGE_STATE_PREVIEW_SCHEMA,
+  );
+  const [customState, setCustomState] =
+    reactExports.useState(INITIAL_CUSTOM_STATE);
   const [schemaError, setSchemaError] = reactExports.useState(null);
   const scenarios = [
     ...SCENARIOS,
@@ -228,12 +902,19 @@ function PageStatePreview() {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-[11px] text-muted-foreground">
-        Compare the same state in page and panel widths. Default illustrations follow the current
-        app theme.
+        Compare the same state in page and panel widths. Default illustrations
+        follow the current app theme.
       </p>
-      <section className="space-y-2" data-action-ui-id="ui-spec-page-state-compact">
-        <h3 className="text-sm font-medium">{t2("uiSpec.pageState.compact.title")}</h3>
-        <p className="text-xs text-muted-foreground">{t2("uiSpec.pageState.compact.note")}</p>
+      <section
+        className="space-y-2"
+        data-action-ui-id="ui-spec-page-state-compact"
+      >
+        <h3 className="text-sm font-medium">
+          {t2("uiSpec.pageState.compact.title")}
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {t2("uiSpec.pageState.compact.note")}
+        </p>
         <div className="flex h-40 max-w-sm overflow-auto rounded-lg border border-border bg-popover">
           <PageStateView
             density="compact"
@@ -296,7 +977,10 @@ function PageStatePreview() {
                   </p>
                 </section>
               ) : null}
-              <div className="flex flex-col gap-3" data-slot="page-state-preview-frames">
+              <div
+                className="flex flex-col gap-3"
+                data-slot="page-state-preview-frames"
+              >
                 {PREVIEW_FRAMES.map((frame2) => (
                   <section
                     key={frame2.key}
@@ -309,9 +993,13 @@ function PageStatePreview() {
                       className="flex min-h-96 overflow-hidden rounded-lg border border-border bg-background"
                       data-action-ui-id={`ui-spec-page-state-${frame2.key}-preview`}
                     >
-                      <PageStateView state={scenario.state} density={frame2.key}>
+                      <PageStateView
+                        state={scenario.state}
+                        density={frame2.key}
+                      >
                         <div className="flex flex-1 items-center justify-center p-4 text-center text-sm text-foreground/70">
-                          Normal content renders without an additional state container.
+                          Normal content renders without an additional state
+                          container.
                         </div>
                       </PageStateView>
                     </div>
@@ -325,70 +1013,7 @@ function PageStatePreview() {
     </div>
   );
 }
-const SPACING_SCALE = [
-  {
-    name: "gap-1",
-    px: 4,
-  },
-  {
-    name: "gap-1.5",
-    px: 6,
-  },
-  {
-    name: "gap-2",
-    px: 8,
-  },
-  {
-    name: "gap-3",
-    px: 12,
-  },
-  {
-    name: "gap-4",
-    px: 16,
-  },
-  {
-    name: "gap-6",
-    px: 24,
-  },
-  {
-    name: "gap-10",
-    px: 40,
-  },
-];
-const ROUNDED_TOKENS = [
-  {
-    name: "scrollbar",
-    px: 3,
-  },
-  {
-    name: "inline-code",
-    px: 4,
-  },
-  {
-    name: "code-block",
-    px: 6,
-  },
-  {
-    name: "rounded-sm",
-    px: 7.2,
-  },
-  {
-    name: "rounded-md",
-    px: 9.6,
-  },
-  {
-    name: "rounded-lg / default",
-    px: 12,
-  },
-  {
-    name: "rounded-xl",
-    px: 16.8,
-  },
-  {
-    name: "rounded-full",
-    px: 999,
-  },
-];
+
 function SpacingTokens() {
   return (
     <div className="flex flex-col gap-4">
@@ -396,7 +1021,9 @@ function SpacingTokens() {
         <h3 className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
           Spacing Scale
         </h3>
-        <p className="text-[10px] text-muted-foreground">Tailwind 默认 scale，禁止内联 px。</p>
+        <p className="text-[10px] text-muted-foreground">
+          Tailwind 默认 scale，禁止内联 px。
+        </p>
         <div className="flex flex-col gap-1">
           {SPACING_SCALE.map((s2) => (
             <div
@@ -409,8 +1036,12 @@ function SpacingTokens() {
                   width: `${s2.px}px`,
                 }}
               />
-              <div className="text-[10px] font-mono text-foreground flex-1">{s2.name}</div>
-              <div className="text-[9px] font-mono text-muted-foreground">{s2.px}px</div>
+              <div className="text-[10px] font-mono text-foreground flex-1">
+                {s2.name}
+              </div>
+              <div className="text-[9px] font-mono text-muted-foreground">
+                {s2.px}px
+              </div>
             </div>
           ))}
         </div>
@@ -434,98 +1065,11 @@ function SpacingTokens() {
                   borderRadius: `${r2.px}px`,
                 }}
               />
-              <div className="text-[10px] font-mono text-foreground flex-1">{r2.name}</div>
-              <div className="text-[9px] font-mono text-muted-foreground">{r2.px}px</div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
-const TYPOGRAPHY_LEVELS = [
-  {
-    name: "display-hero",
-    className: "text-[64px] leading-[72px] font-light",
-    sample: "Hero",
-  },
-  {
-    name: "display-section",
-    className: "text-[28px] font-light",
-    sample: "章节标题",
-  },
-  {
-    name: "feature",
-    className: "text-[22px]",
-    sample: "特色内容",
-  },
-  {
-    name: "card-title",
-    className: "text-sm font-heading font-medium",
-    sample: "卡片标题 Card Title",
-  },
-  {
-    name: "body (text-xs)",
-    className: "text-xs",
-    sample: "正文 Body Text 12px",
-  },
-  {
-    name: "label (text-[11px])",
-    className: "text-[11px] font-medium",
-    sample: "Label / Badge 11px",
-  },
-];
-const FONT_FAMILIES = [
-  {
-    token: "--font-sans",
-    className: "font-sans",
-    display: "Inter Variable Aa Bb 中文",
-  },
-  {
-    token: "--font-heading",
-    className: "font-heading",
-    display: "Outfit Aa Bb 中文",
-  },
-  {
-    token: "--font-pixel",
-    className: "font-pixel",
-    display: "Pixelify Aa Bb",
-  },
-];
-function TypographyTokens() {
-  return (
-    <div className="flex flex-col gap-4">
-      <section className="flex flex-col gap-2">
-        <h3 className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-          字号层级
-        </h3>
-        <div className="flex flex-col gap-3">
-          {TYPOGRAPHY_LEVELS.map((level) => (
-            <div
-              key={level.name}
-              className="flex flex-col gap-1 overflow-hidden rounded-lg border border-border p-2"
-            >
-              <div className="text-[10px] font-mono text-muted-foreground">{level.name}</div>
-              <div className={`${level.className} truncate text-foreground`} title={level.sample}>
-                {level.sample}
+              <div className="text-[10px] font-mono text-foreground flex-1">
+                {r2.name}
               </div>
-              <div className="text-[9px] font-mono text-muted-foreground truncate">
-                {level.className}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className="flex flex-col gap-2">
-        <h3 className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-          字体族
-        </h3>
-        <div className="flex flex-col gap-2">
-          {FONT_FAMILIES.map((ff) => (
-            <div key={ff.token} className="flex flex-col gap-1 rounded-lg border border-border p-2">
-              <div className="text-[10px] font-mono text-muted-foreground">{ff.token}</div>
-              <div className={`${ff.className} text-base text-foreground truncate`}>
-                {ff.display}
+              <div className="text-[9px] font-mono text-muted-foreground">
+                {r2.px}px
               </div>
             </div>
           ))}
@@ -534,6 +1078,7 @@ function TypographyTokens() {
     </div>
   );
 }
+
 const TABS = [
   {
     value: "colors",
@@ -566,6 +1111,7 @@ const TABS = [
     Component: PageStatePreview,
   },
 ];
+
 function UISpecContent() {
   return (
     <Tabs defaultValue="colors" className="flex h-full flex-col">
@@ -585,7 +1131,11 @@ function UISpecContent() {
         ))}
       </TabsList>
       {TABS.map((tab2) => (
-        <TabsContent key={tab2.value} value={tab2.value} className="flex-1 overflow-hidden mt-3">
+        <TabsContent
+          key={tab2.value}
+          value={tab2.value}
+          className="flex-1 overflow-hidden mt-3"
+        >
           <ScrollArea className="h-full">
             <div className="px-4 pb-4">
               <tab2.Component />
@@ -596,6 +1146,7 @@ function UISpecContent() {
     </Tabs>
   );
 }
+
 function UISpecDialog({ open, onOpenChange }) {
   const { t: t2 } = useTranslation();
   return (
@@ -614,51 +1165,8 @@ function UISpecDialog({ open, onOpenChange }) {
     </Dialog>
   );
 }
-export function SidebarUserMenu({
-  popupPosition = "right",
-  showUsername = false,
-  onChangelog,
-  onOverlayOpenChange,
-  trailingAction,
-} = {}) {
-  const { t: t2 } = useTranslation();
-  const { user, isLoggedIn, isLoading, login, logout } = useAuth();
-  if (isLoading) {
-    return (
-      <div className={showUsername ? "flex h-10 w-full items-center" : "pb-2"}>
-        <span className={showUsername ? "flex h-9 w-full items-center rounded-md px-2" : ""}>
-          <div className="flex size-7 shrink-0 items-center justify-center">
-            <div className="size-5 animate-spin rounded-full border-2 border-border border-t-muted-foreground" />
-          </div>
-        </span>
-      </div>
-    );
-  }
-  if (!isLoggedIn) {
-    return (
-      <LoggedOutSidebarActionPresentation
-        showUsername={showUsername}
-        label={t2("sidebar.loginOrRegister")}
-        onLogin={login}
-        companionAction={trailingAction}
-      />
-    );
-  }
-  return (
-    <div>
-      <UserAvatarMenu
-        user={user ?? {}}
-        onLogout={logout}
-        popupPosition={popupPosition}
-        showUsername={showUsername}
-        onChangelog={onChangelog}
-        onOverlayOpenChange={onOverlayOpenChange}
-        trailingAction={trailingAction}
-      />
-    </div>
-  );
-}
-function UserAvatarMenu({
+
+export function UserAvatarMenu({
   user,
   onLogout,
   popupPosition = "right",
@@ -672,24 +1180,35 @@ function UserAvatarMenu({
   const queryClient2 = useQueryClient();
   const { openSettings } = useSettingsDialog();
   const { openImBridge } = useImBridgeDialog();
-  const { open, menuRef, popoverRef, triggerRef, openMenu, closeMenu, handleTriggerClick } =
-    useUserMenuController();
+  const {
+    open,
+    menuRef,
+    popoverRef,
+    triggerRef,
+    openMenu,
+    closeMenu,
+    handleTriggerClick,
+  } = useUserMenuController();
   const menuId = reactExports.useId();
   const protocolSubmenu = useUserProtocolSubmenu(popoverRef);
   const teamAccount = useOptionalTeamAccount();
   const teamIntegrationEnabled = teamAccount?.integrationEnabled ?? false;
   const accountDataVisible = teamAccount?.accountDataVisible === true;
-  const teamReady = teamAccount?.viewModel.kind === "ready_team" && accountDataVisible;
+  const teamReady =
+    teamAccount?.viewModel.kind === "ready_team" && accountDataVisible;
   const [copied, setCopied] = reactExports.useState(false);
-  const [accountSwitcherExpanded, setAccountSwitcherExpanded] = reactExports.useState(false);
-  const [showCreditsDetails, setShowCreditsDetails] = reactExports.useState(false);
+  const [accountSwitcherExpanded, setAccountSwitcherExpanded] =
+    reactExports.useState(false);
+  const [showCreditsDetails, setShowCreditsDetails] =
+    reactExports.useState(false);
   const { showBadge: showRenewalBadge } = useSubscriptionRenewalNotice();
   const [showMigration, setShowMigration] = reactExports.useState(false);
   const creditDialogScopeRef = reactExports.useRef(null);
   const migrationDialogScopeRef = reactExports.useRef(null);
   const [showUISpec, setShowUISpec] = reactExports.useState(false);
   const [showImBridgeReminder, setShowImBridgeReminder] = reactExports.useState(
-    () => getRuntimeConfig().region !== "overseas" && !hasSeenImBridgeShortcut(),
+    () =>
+      getRuntimeConfig().region !== "overseas" && !hasSeenImBridgeShortcut(),
   );
   const { accounts: imBridgeAccounts } = useImAccounts();
   const hasImBridgeAccount = imBridgeAccounts.length > 0;
@@ -698,7 +1217,9 @@ function UserAvatarMenu({
     (teamAccount?.viewModel.kind === "ready_personal" &&
       accountDataVisible &&
       teamAccount.billingAvailable);
-  const activeAccountScopeKey = accountScopeKey(teamAccount?.activeScope ?? null);
+  const activeAccountScopeKey = accountScopeKey(
+    teamAccount?.activeScope ?? null,
+  );
   reactExports.useEffect(() => {
     if (!teamIntegrationEnabled) return;
     const personalReady = showPersonalCreditSummary;
@@ -711,7 +1232,8 @@ function UserAvatarMenu({
     }
     if (
       showMigration &&
-      (!personalReady || migrationDialogScopeRef.current !== activeAccountScopeKey)
+      (!personalReady ||
+        migrationDialogScopeRef.current !== activeAccountScopeKey)
     ) {
       migrationDialogScopeRef.current = null;
       setShowMigration(false);
@@ -821,7 +1343,11 @@ function UserAvatarMenu({
   ) => (
     <span className={cn$2("relative shrink-0 rounded-full", sizeClassName)}>
       {avatarSrc ? (
-        <img src={avatarSrc} alt="" className="h-full w-full rounded-full object-cover" />
+        <img
+          src={avatarSrc}
+          alt=""
+          className="h-full w-full rounded-full object-cover"
+        />
       ) : (
         <span
           className={cn$2(
@@ -938,7 +1464,10 @@ function UserAvatarMenu({
                   />
                 </div>
               ) : null}
-              <UserProtocolFlyout submenu={protocolSubmenu} onClose={closeMenu} />
+              <UserProtocolFlyout
+                submenu={protocolSubmenu}
+                onClose={closeMenu}
+              />
             </>
           }
         >
@@ -988,13 +1517,17 @@ function UserAvatarMenu({
                       if (
                         !decision.allowed ||
                         decision.mode !== "CANONICAL" ||
-                        accountScopeKey(decision.scope) !== activeAccountScopeKey
+                        accountScopeKey(decision.scope) !==
+                          activeAccountScopeKey
                       ) {
                         return;
                       }
                       if (!subscribeUrl) {
                         dedupedToast.error(
-                          t2("credits.walletUrlNotReady", "Wallet info loading, please try again"),
+                          t2(
+                            "credits.walletUrlNotReady",
+                            "Wallet info loading, please try again",
+                          ),
                         );
                         return;
                       }
@@ -1022,16 +1555,18 @@ function UserAvatarMenu({
                       <HailuoCreditRow
                         onExchange={() => {
                           closeMenu();
-                          migrationDialogScopeRef.current = teamIntegrationEnabled
-                            ? activeAccountScopeKey
-                            : "LEGACY_PERSONAL";
+                          migrationDialogScopeRef.current =
+                            teamIntegrationEnabled
+                              ? activeAccountScopeKey
+                              : "LEGACY_PERSONAL";
                           setShowMigration(true);
                         }}
                       />
                     )}
                     <SubscriptionSummaryRow
                       onClick={() => {
-                        const decision = guardAccountSubmission("personal_checkout");
+                        const decision =
+                          guardAccountSubmission("personal_checkout");
                         if (!decision.allowed) return;
                         if (!subscribeUrl) {
                           dedupedToast.error(
@@ -1097,7 +1632,9 @@ function UserAvatarMenu({
                         {t2("common.comingSoon")}
                       </span>
                     ) : (
-                      <ImBridgeConnectionStatus connected={hasImBridgeAccount} />
+                      <ImBridgeConnectionStatus
+                        connected={hasImBridgeAccount}
+                      />
                     )
                   }
                   dataActionUiId="user-menu.im-bridge"
@@ -1118,9 +1655,13 @@ function UserAvatarMenu({
                   label={t2("userMenu.tutorial")}
                   onClick={() => {
                     closeMenu();
-                    void openExternalUrl(platform2, getTutorialUrl(getRuntimeConfig().region), {
-                      source: "sidebar.tutorial",
-                    });
+                    void openExternalUrl(
+                      platform2,
+                      getTutorialUrl(getRuntimeConfig().region),
+                      {
+                        source: "sidebar.tutorial",
+                      },
+                    );
                   }}
                   dataActionUiId="user-menu.tutorial"
                 />
@@ -1195,7 +1736,9 @@ function UserAvatarMenu({
           setShowMigration(nextOpen);
         }}
       />
-      {showUISpecEntry && <UISpecDialog open={showUISpec} onOpenChange={setShowUISpec} />}
+      {showUISpecEntry && (
+        <UISpecDialog open={showUISpec} onOpenChange={setShowUISpec} />
+      )}
     </>
   );
 }

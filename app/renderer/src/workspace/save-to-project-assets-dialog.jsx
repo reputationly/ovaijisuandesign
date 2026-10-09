@@ -1,121 +1,46 @@
 // save-to-project-assets-dialog.jsx
-import { useTranslation, reactExports, dedupedToast, API_PATHS, FolderPlus, useCurrentWorkspace, Loader2 } from "../vendor.js";
-import { gatewayUrl } from "../infra/agent-ws-client.jsx";
-import { cloudAssetMimeType, PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS, cloudAssetExtension, getProjectAssetWritePolicy, checkCloudAssetUpload } from "../assets/check-cloud-asset-upload.js";
-import { withThumbnailWidth } from "./deferred-thumbnail-image-generation.jsx";
-import { checkTextSafety, cloudErrorDisplayMessage } from "./record-recent-workspace-opened.jsx";
-import { detectFileType } from "../canvas/relayout-group-children.js";
-import { ROOT_KEY, listAllCloudFolders } from "../assets/use-cloud-search.js";
-import { useWorkspaceProject } from "./workspace-events.js";
 import {
+  cloudAssetExtension,
+  cloudAssetMimeType,
+  getProjectAssetWritePolicy,
+  PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
+} from "../assets/wrap-as-asset-center-error.js";
+import {
+  API_PATHS,
+  dedupedToast,
+  FolderPlus,
+  Loader2,
+  reactExports,
+  useCurrentWorkspace,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { gatewayUrl } from "../infra/gateway-http-error.jsx";
+import { checkCloudAssetUpload } from "../assets/check-cloud-asset-upload.js";
+import { withThumbnailWidth } from "./tool-label-definitions.js";
+import {
+  checkTextSafety,
+  cloudErrorDisplayMessage,
+} from "./asset-lineage-query-key.js";
+import {
+  listAllCloudFolders,
+  ROOT_KEY,
+} from "../assets/list-all-cloud-folders.js";
+import { useWorkspaceProject } from "./normalize-project-entries.js";
+import {
+  Button$1,
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
   DialogFooter,
-  Button$1,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
+  DialogHeader,
+} from "../infra/dialog-content.jsx";
+import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-import { useProjectAssetsService } from "../infra/use-move-dnd.jsx";
-import { useProjectActions } from "../settings/custom-provider-form.jsx";
-import {
-  createCloudFolder,
-  FolderDrillDownPicker,
-} from "../assets/asset-center-relocation-coach-mark.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-export function useConflictResolver() {
-  const [batch2, setBatch] = reactExports.useState(null);
-  const pendingRef = reactExports.useRef(null);
-  const finishBatch = reactExports.useCallback((value) => {
-    const resolver2 = pendingRef.current;
-    pendingRef.current = null;
-    setBatch(null);
-    resolver2?.(value);
-  }, []);
-  const resolve = reactExports.useCallback(
-    async (conflicts) => {
-      if (conflicts.length === 0)
-        return {
-          outcome: "completed",
-          decisions: [],
-        };
-      if (pendingRef.current) {
-        finishBatch({
-          outcome: "preempted",
-        });
-      }
-      return new Promise((resolvePromise) => {
-        pendingRef.current = resolvePromise;
-        setBatch({
-          conflicts,
-          cursor: 0,
-          decisions: [],
-        });
-      });
-    },
-    [finishBatch],
-  );
-  const handleDecision = reactExports.useCallback(
-    (decision, applyToAll) => {
-      setBatch((prev) => {
-        if (!prev) return prev;
-        if (applyToAll) {
-          const filled = [
-            ...prev.decisions,
-            ...new Array(prev.conflicts.length - prev.cursor).fill(decision),
-          ];
-          queueMicrotask(() =>
-            finishBatch({
-              outcome: "completed",
-              decisions: filled,
-            }),
-          );
-          return prev;
-        }
-        const nextDecisions = [...prev.decisions, decision];
-        const nextCursor = prev.cursor + 1;
-        if (nextCursor >= prev.conflicts.length) {
-          queueMicrotask(() =>
-            finishBatch({
-              outcome: "completed",
-              decisions: nextDecisions,
-            }),
-          );
-          return prev;
-        }
-        return {
-          ...prev,
-          cursor: nextCursor,
-          decisions: nextDecisions,
-        };
-      });
-    },
-    [finishBatch],
-  );
-  const handleDismiss = reactExports.useCallback(
-    () =>
-      finishBatch({
-        outcome: "dismissed",
-      }),
-    [finishBatch],
-  );
-  const dialogProps = reactExports.useMemo(() => {
-    const conflict = batch2 ? (batch2.conflicts[batch2.cursor] ?? null) : null;
-    const remainingCount = batch2 ? Math.max(0, batch2.conflicts.length - batch2.cursor - 1) : 0;
-    return {
-      open: !!batch2,
-      conflict,
-      remainingCount,
-      onDecision: handleDecision,
-      onDismiss: handleDismiss,
-    };
-  }, [batch2, handleDecision, handleDismiss]);
-  return {
-    dialogProps,
-    resolve,
-  };
-}
+import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
+import { useProjectActions } from "../settings/use-project-actions.js";
+import { createCloudFolder } from "../assets/read-entity-drag-data.js";
+import { FolderDrillDownPicker } from "../assets/folder-drill-down-picker.jsx";
+
 function preserveExtension(customName, sourceName) {
   const trimmed = customName.trim();
   if (!trimmed) return trimmed;
@@ -123,6 +48,7 @@ function preserveExtension(customName, sourceName) {
   if (!sourceExt || cloudAssetExtension(trimmed) === sourceExt) return trimmed;
   return `${trimmed}.${sourceExt}`;
 }
+
 export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
   const { t: t2 } = useTranslation();
   const workspacePath = useCurrentWorkspace();
@@ -200,7 +126,8 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         ]);
       }
     } catch (err) {
-      const isCloudProject = project2.kind === "team" && Boolean(project2.remoteId);
+      const isCloudProject =
+        project2.kind === "team" && Boolean(project2.remoteId);
       dedupedToast.error(
         (isCloudProject ? cloudErrorDisplayMessage(err) : void 0) ??
           (isCloudProject
@@ -243,7 +170,13 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
   }, [selectedWritePolicy.canCreateFolder]);
   const handleCreateFolder = reactExports.useCallback(async () => {
     const trimmed = newFolderName.trim();
-    if (!project2 || !selected2 || !selectedWritePolicy.canCreateFolder || !trimmed) return;
+    if (
+      !project2 ||
+      !selected2 ||
+      !selectedWritePolicy.canCreateFolder ||
+      !trimmed
+    )
+      return;
     try {
       const safety = await checkTextSafety(trimmed);
       if (!safety.pass) {
@@ -308,14 +241,22 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
     t2,
   ]);
   const handleSave = reactExports.useCallback(async () => {
-    if (!project2 || !state2 || !selected2 || !selectedWritePolicy.canCreateFile || pending2)
+    if (
+      !project2 ||
+      !state2 ||
+      !selected2 ||
+      !selectedWritePolicy.canCreateFile ||
+      pending2
+    )
       return;
     setPending(true);
     try {
       const folderName = await ensureProjectFolderName(project2.id);
       if (!folderName) throw new Error("project folder unresolved");
       if (project2.kind === "team" && project2.remoteId) {
-        const customName = single ? preserveExtension(name2, single.displayName) : "";
+        const customName = single
+          ? preserveExtension(name2, single.displayName)
+          : "";
         const uploadCandidates = [];
         for (const file of files) {
           const uploadName = customName || file.displayName;
@@ -385,7 +326,8 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
       for (const result of results) {
         if (result.record) imported.push(result.record);
         else {
-          const fileName = result.sourcePath.split(/[/\\]/).pop() ?? result.sourcePath;
+          const fileName =
+            result.sourcePath.split(/[/\\]/).pop() ?? result.sourcePath;
           dedupedToast.error(
             t2("localAssets.importFailed", {
               name: fileName,
@@ -398,7 +340,11 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         const trimmed = preserveExtension(name2, single.displayName);
         if (trimmed && trimmed !== imported[0].name) {
           try {
-            const renamed = await service2.renameLocalAsset(folderName, imported[0].id, trimmed);
+            const renamed = await service2.renameLocalAsset(
+              folderName,
+              imported[0].id,
+              trimmed,
+            );
             if (renamed) imported[0] = renamed;
           } catch {}
         }
@@ -425,12 +371,20 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
     t2,
   ]);
   const previewSrc = single
-    ? withThumbnailWidth(gatewayUrl(API_PATHS.serveLocal(single.absolutePath)), 480)
+    ? withThumbnailWidth(
+        gatewayUrl(API_PATHS.serveLocal(single.absolutePath)),
+        480,
+      )
     : void 0;
-  const isImage2 = single ? /\.(png|jpe?g|gif|webp)$/i.test(single.displayName) : false;
+  const isImage2 = single
+    ? /\.(png|jpe?g|gif|webp)$/i.test(single.displayName)
+    : false;
   return (
     <Dialog open={state2 !== null} onOpenChange={onOpenChange}>
-      <DialogContent size="sm" data-action-ui-id="canvas.save-to-project-assets-dialog">
+      <DialogContent
+        size="sm"
+        data-action-ui-id="canvas.save-to-project-assets-dialog"
+      >
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
             {t2("localAssets.saveDialogTitle")}
@@ -525,7 +479,11 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           </div>
         )}
         <DialogFooter>
-          <Button$1 variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+          <Button$1
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+          >
             {t2("common.cancel")}
           </Button$1>
           <Button$1
@@ -542,7 +500,11 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
             data-action-ui-id="canvas.save-to-project-assets-save"
           >
             {pending2 ? (
-              <Loader2 size={14} className="animate-spin" data-icon="inline-start" />
+              <Loader2
+                size={14}
+                className="animate-spin"
+                data-icon="inline-start"
+              />
             ) : null}
             {t2("localAssets.save")}
           </Button$1>
@@ -550,78 +512,4 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
       </DialogContent>
     </Dialog>
   );
-}
-export function categorizeByExtension(fileName) {
-  if (!fileName) return "other";
-  const mediaType = detectFileType(fileName);
-  if (mediaType === void 0 || mediaType === "file") return "other";
-  return mediaType;
-}
-const DAY_MS$1 = 24 * 60 * 60 * 1e3;
-function startOfDayMs(ms) {
-  const d2 = new Date(ms);
-  d2.setHours(0, 0, 0, 0);
-  return d2.getTime();
-}
-function endOfDayMs(ms) {
-  const d2 = new Date(ms);
-  d2.setHours(23, 59, 59, 999);
-  return d2.getTime();
-}
-function parseCustomEndpoint(value, end2) {
-  if (!value) return null;
-  const ms = Date.parse(value);
-  if (Number.isNaN(ms)) return null;
-  return end2 === "start" ? startOfDayMs(ms) : endOfDayMs(ms);
-}
-export function computeDateBounds(filter2, now2) {
-  const nowMs = Date.now();
-  switch (filter2.kind) {
-    case "all":
-      return null;
-    case "today":
-      return {
-        fromMs: startOfDayMs(nowMs),
-        toMs: nowMs,
-      };
-    case "last7days":
-      return {
-        fromMs: nowMs - 7 * DAY_MS$1,
-        toMs: nowMs,
-      };
-    case "last30days":
-      return {
-        fromMs: nowMs - 30 * DAY_MS$1,
-        toMs: nowMs,
-      };
-    case "custom": {
-      const from2 = parseCustomEndpoint(filter2.from, "start");
-      const to = parseCustomEndpoint(filter2.to, "end");
-      if (from2 == null && to == null) return null;
-      const fromMs = from2 ?? Number.NEGATIVE_INFINITY;
-      const toMs = to ?? Number.POSITIVE_INFINITY;
-      if (fromMs > toMs) {
-        console.warn("[asset-filter] custom range from > to, ignoring filter:", filter2);
-        return null;
-      }
-      return {
-        fromMs,
-        toMs,
-      };
-    }
-    default: {
-      console.warn('[asset-filter] unknown dateFilter.kind, treating as "all":', filter2);
-      return null;
-    }
-  }
-}
-export function matchesDateFilter(timeIso, bounds) {
-  if (bounds === null) return true;
-  if (!timeIso) return false;
-  const ms = Date.parse(timeIso);
-  if (Number.isNaN(ms)) {
-    if (timeIso) console.warn("[asset-filter] unparseable AssetInfo.time:", timeIso);
-    return false;
-  }
-  return ms >= bounds.fromMs && ms <= bounds.toMs;
 }

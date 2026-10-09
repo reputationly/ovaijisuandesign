@@ -1,11 +1,21 @@
 // exposure-fragment.js
-const clamp01 = (value) => Math.min(1, Math.max(0, value));
+
+// exposure-fragment.js
+export const clamp01 = (value) => Math.min(1, Math.max(0, value));
+
 const cubicBezier = (t2, p0, p1, p22, p3) => {
   const u4 = 1 - t2;
-  return u4 * u4 * u4 * p0 + 3 * u4 * u4 * t2 * p1 + 3 * u4 * t2 * t2 * p22 + t2 * t2 * t2 * p3;
+  return (
+    u4 * u4 * u4 * p0 +
+    3 * u4 * u4 * t2 * p1 +
+    3 * u4 * t2 * t2 * p22 +
+    t2 * t2 * t2 * p3
+  );
 };
+
 const PALETTE_SIZE = 256;
-const buildCurvePalette = (lowControl, highControl) => {
+
+export const buildCurvePalette = (lowControl, highControl) => {
   const data2 = new Uint8Array(PALETTE_SIZE * 3);
   for (let i2 = 0; i2 < PALETTE_SIZE; i2 += 1) {
     const t2 = i2 / (PALETTE_SIZE - 1);
@@ -18,70 +28,7 @@ const buildCurvePalette = (lowControl, highControl) => {
   }
   return data2;
 };
-export const buildBlackPalette = (amount) => {
-  const amt = Math.max(-100, Math.min(100, amount)) / 100;
-  const strength = 0.35;
-  const lowControl = clamp01(0.33 - amt * strength);
-  const highControl = 0.66;
-  return buildCurvePalette(lowControl, highControl);
-};
-export const buildContrastMatrix = (amount) => {
-  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + t2;
-  const offset2 = 0.5 * (1 - scale2);
-  return new Float32Array([
-    scale2,
-    0,
-    0,
-    0,
-    offset2,
-    0,
-    scale2,
-    0,
-    0,
-    offset2,
-    0,
-    0,
-    scale2,
-    0,
-    offset2,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ]);
-};
-export const buildSaturationMatrix = (amount) => {
-  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + t2;
-  const lumR = 0.299;
-  const lumG = 0.587;
-  const lumB = 0.114;
-  const inv = 1 - scale2;
-  return new Float32Array([
-    inv * lumR + scale2,
-    inv * lumG,
-    inv * lumB,
-    0,
-    0,
-    inv * lumR,
-    inv * lumG + scale2,
-    inv * lumB,
-    0,
-    0,
-    inv * lumR,
-    inv * lumG,
-    inv * lumB + scale2,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ]);
-};
+
 export const vertexShader = `
 struct VertexOutput {
   @builtin(position) position: vec4<f32>,
@@ -96,15 +43,7 @@ fn main(@location(0) position: vec2<f32>, @location(1) uv: vec2<f32>) -> VertexO
   return output;
 }
 `;
-export const passFragment = `
-@group(0) @binding(0) var uTexture: texture_2d<f32>;
-@group(0) @binding(1) var uSampler: sampler;
 
-@fragment
-fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
-  return textureSample(uTexture, uSampler, uv);
-}
-`;
 export const vibranceFragment = `
 struct Params {
   amount: f32,
@@ -130,6 +69,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   );
 }
 `;
+
 export const saturationFragment = `
 struct Params {
   matrix: array<vec4<f32>, 5>,
@@ -150,6 +90,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return result;
 }
 `;
+
 export const temperatureFragment = `
 struct Params {
   amount: f32,
@@ -167,6 +108,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return color;
 }
 `;
+
 export const tintFragment = `
 struct Params {
   amount: f32,
@@ -183,6 +125,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return color;
 }
 `;
+
 export const hueFragment = `
 struct Params {
   rotation: f32,
@@ -215,32 +158,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(hsv2rgb(hsv), base.a);
 }
 `;
-export const brightnessFragment = `
-struct Params {
-  amount: f32,
-}
 
-@group(0) @binding(0) var uTexture: texture_2d<f32>;
-@group(0) @binding(1) var uSampler: sampler;
-@group(0) @binding(2) var<uniform> params: Params;
-
-const PI: f32 = 3.1415926535897932384626433832795;
-
-@fragment
-fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
-  var color = textureSample(uTexture, uSampler, uv);
-  if (params.amount >= 0.0) {
-    color.r = color.r + params.amount * sin(color.r * PI);
-    color.g = color.g + params.amount * sin(color.g * PI);
-    color.b = color.b + params.amount * sin(color.b * PI);
-  } else {
-    color.r = (1.0 + params.amount) * color.r;
-    color.g = (1.0 + params.amount) * color.g;
-    color.b = (1.0 + params.amount) * color.b;
-  }
-  return color;
-}
-`;
 export const exposureFragment = `
 struct Params {
   amount: f32,
@@ -317,7 +235,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(res, col.a);
 }
 `;
-export const contrastFragment = saturationFragment;
+
 export const whitesFragment = `
 struct Params {
   amount: f32,
@@ -339,21 +257,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(clamp(color, vec3<f32>(0.0), vec3<f32>(1.0)), base.a);
 }
 `;
-export const blacksFragment = `
-@group(0) @binding(0) var uTexture: texture_2d<f32>;
-@group(0) @binding(1) var uSampler: sampler;
-@group(0) @binding(2) var uPaletteMap: texture_2d<f32>;
-@group(0) @binding(3) var uPaletteSampler: sampler;
 
-@fragment
-fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
-  let base = textureSample(uTexture, uSampler, uv);
-  let r = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.r, 0.0)).r;
-  let g = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.g, 0.0)).g;
-  let b = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.b, 0.0)).b;
-  return vec4<f32>(r, g, b, base.a);
-}
-`;
 export const highlightsFragment = `
 struct Params {
   amount: f32,
@@ -425,6 +329,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(res, col.a);
 }
 `;
+
 export const shadowsFragment = `
 struct Params {
   amount: f32,

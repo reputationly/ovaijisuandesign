@@ -1,17 +1,196 @@
 // use-img2-video.js
-import { reactExports, dedupedToast, instance, canvasLog, workspaceLog } from "../vendor.js";
-import { recordAction } from "../infra/agent-ws-client.jsx";
-import { stripErrorHtml } from "../infra/create-recently-added-store.jsx";
-import { useGeneratingStateApi } from "./parse-item.jsx";
-import { pickUserMessage, HILO_SOURCE_HEADER, GENERATE_ERROR_CODE_SHUTDOWN, GENERATE_ERROR_CODE_CONCURRENCY_LIMIT, BACKEND_MINIMAX_MUSIC, BACKEND_MINIMAX_MUSIC_COVER, BACKEND_ELEVENLABS_MUSIC } from "../generation/push-inline.js";
+import {
+  dedupedToast,
+  instance,
+  reactExports,
+  workspaceLog,
+} from "../vendor.js";
+import {
+  areHailuo03VideoTrialReferencesEligible,
+  findCanvasModel,
+  generationErrorStatusFromResponse,
+  generationErrorStatusFromThrown,
+  imageModeSubType,
+  includesString,
+  isHailuo03VideoTrialEligibleResolution,
+  persistedGenerateErrorReason,
+  RESUBMIT_BLOCKED_I18N,
+  retainedGenerationBlocksResubmit,
+  ScopedAsyncCache,
+  semanticGenerationErrorCopy,
+  visibleCanvasModels,
+} from "../generation/use-mention-models.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
-import { ScopedAsyncCache, retainedGenerationBlocksResubmit, RESUBMIT_BLOCKED_I18N, findCanvasModel, semanticGenerationErrorCopy, generationErrorStatusFromResponse, persistedGenerateErrorReason, generationErrorStatusFromThrown, buildCanvasVideoSubmitTracking, MODEL_LIST_TIMEOUT_MS, visibleCanvasVideoModels, MAX_VIDEOS_PER_SUBMIT, isMiniMaxH3VideoPromptMissing, isHailuo03OrdinaryVideoTrialSubmit, GENERATE_ERROR_CODE_QUEUE_PAUSED$1, formatGenerateError, GENERATE_ERROR_CODE_QUEUE_PAUSED } from "../generation/use-mention-models.jsx";
-import { trackEvent } from "../infra/init-track.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { recordAction } from "../infra/gateway-http-error.jsx";
+import { stripErrorHtml } from "../infra/create-recently-added-store.js";
+import { useGeneratingStateApi } from "./package.jsx";
+import {
+  GENERATE_ERROR_CODE_CONCURRENCY_LIMIT,
+  GENERATE_ERROR_CODE_SHUTDOWN,
+  HILO_SOURCE_HEADER,
+  pickUserMessage,
+} from "../generation/normalize-skill-detail-metadata.js";
+
+function isEnoentErrorMessage(message2) {
+  return /ENOENT|no such file or directory/i.test(message2);
+}
+
+function classifyVideoGenerationMode(input) {
+  const kinds = [
+    input.imageRefCount > 0,
+    input.videoRefCount > 0,
+    input.audioRefCount > 0,
+  ].filter(Boolean).length;
+  if (kinds > 1) return "multimodal";
+  if (input.videoRefCount > 0) return "v2v";
+  if (input.imageRefCount > 0) return "i2v";
+  if (input.audioRefCount > 0) return "a2v";
+  return "t2v";
+}
+
+function modelValues(model, modelId) {
+  return [
+    modelId,
+    model?.id,
+    model?.model_name,
+    model?.pricingId,
+    model?.name,
+  ].filter((value) => typeof value === "string");
+}
+
+function isHailuo03VideoTrialModel(model, modelId, eligibility) {
+  if (!eligibility) return false;
+  return modelValues(model, modelId).some((value) =>
+    includesString(eligibility.models, value),
+  );
+}
+
+function isHailuo03OrdinaryVideoTrialSubmit(
+  model,
+  modelId,
+  params,
+  eligibility,
+  imagePaths = [],
+  videoPaths = [],
+  audioPaths = [],
+) {
+  const imageMode = params.image_mode;
+  const subType = imageModeSubType(imageMode);
+  return (
+    isHailuo03VideoTrialModel(model, modelId, eligibility) &&
+    includesString(eligibility?.subTypes, subType) &&
+    isHailuo03VideoTrialEligibleResolution(params.resolution, eligibility) &&
+    areHailuo03VideoTrialReferencesEligible({
+      eligibility,
+      imageMode,
+      imagePaths,
+      videoPaths,
+      audioPaths,
+    })
+  );
+}
+
+const CANVAS_VIDEO_MODEL_DISPLAY_ORDER = {
+  "MiniMax-H3": 0,
+  "MiniMax-H3-Max": 1,
+  "MiniMax-H3-Max-Turbo": 2,
+};
+
+function visibleCanvasVideoModels(models) {
+  return visibleCanvasModels(models)
+    .map((model, index2) => ({
+      model,
+      index: index2,
+    }))
+    .sort((left, right) => {
+      const leftOrder = CANVAS_VIDEO_MODEL_DISPLAY_ORDER[left.model.id] ?? 100;
+      const rightOrder =
+        CANVAS_VIDEO_MODEL_DISPLAY_ORDER[right.model.id] ?? 100;
+      return leftOrder - rightOrder || left.index - right.index;
+    })
+    .map(({ model }) => model);
+}
+
+const MINIMAX_H3_NORMALIZED_MODEL_ID = "minimax-h3";
+
+const MINIMAX_H3_NORMALIZED_BACKEND_ID = "minimax-v3";
+
+function normalizeModelValue(value) {
+  return typeof value === "string"
+    ? value
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_]+/g, "-")
+    : "";
+}
+
+function isMiniMaxH3ModelValue$1(value) {
+  return normalizeModelValue(value) === MINIMAX_H3_NORMALIZED_MODEL_ID;
+}
+
+function isMiniMaxH3VideoPromptRequired(args) {
+  const { backend, modelId, model } = args;
+  return (
+    normalizeModelValue(backend) === MINIMAX_H3_NORMALIZED_BACKEND_ID ||
+    [modelId, model?.id, model?.model_name, model?.pricingId, model?.name].some(
+      isMiniMaxH3ModelValue$1,
+    )
+  );
+}
+
+function isMiniMaxH3VideoPromptMissing(args) {
+  const prompt = typeof args.prompt === "string" ? args.prompt : "";
+  return isMiniMaxH3VideoPromptRequired(args) && prompt.trim().length === 0;
+}
+
+function buildCanvasVideoSubmitTracking(input) {
+  return {
+    popover_type: "i2v",
+    node_id: input.nodeId,
+    submit_mode: input.submitMode,
+    model_id: input.modelId,
+    backend: input.backend,
+    series_id: input.seriesId,
+    generation_mode: classifyVideoGenerationMode({
+      imageRefCount: input.imageRefCount,
+      videoRefCount: input.videoRefCount,
+      audioRefCount: input.audioRefCount,
+    }),
+    prompt_length: input.promptLength,
+    ref_count: input.imageRefCount,
+    image_ref_count: input.imageRefCount,
+    video_ref_count: input.videoRefCount,
+    audio_ref_count: input.audioRefCount,
+    count: input.outputCount,
+    output_count: input.outputCount,
+    aspect_ratio: input.aspectRatio,
+    resolution: input.resolution,
+    duration: input.duration,
+  };
+}
+
+const GENERATE_ERROR_CODE_QUEUE_PAUSED$1 = "queue_paused";
+
+const MODEL_LIST_TIMEOUT_MS = 1e4;
+
+const MAX_VIDEOS_PER_SUBMIT = 9;
+
+function formatGenerateError(message2) {
+  if (isEnoentErrorMessage(message2)) {
+    return instance.t("canvas.generateRefFileMissing", {
+      defaultValue: "参考素材文件不存在或路径已失效，请确认文件仍在工作区内",
+    });
+  }
+  return message2;
+}
+
 function trackCanvasVideoSubmit(input) {
   trackEvent(TRACK_EVENTS.CANVAS_GENERATE_SUBMIT, {
     ...buildCanvasVideoSubmitTracking(input),
   });
 }
+
 export function useImg2Video({
   httpClient,
   catalogScopeKey,
@@ -53,7 +232,8 @@ export function useImg2Video({
       textPaths,
       submission,
     ) => {
-      const dedupeReplaceTarget = !!replaceNodeId && submission?.intent !== "resume";
+      const dedupeReplaceTarget =
+        !!replaceNodeId && submission?.intent !== "resume";
       if (replaceNodeId && dedupeReplaceTarget) {
         if (
           retainedGenerationBlocksResubmit(
@@ -80,7 +260,8 @@ export function useImg2Video({
           Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count2 ?? 1)),
         );
         const models =
-          videoModelsCache.peek(catalogScopeKey) ?? (await loadVideoModels().catch(() => []));
+          videoModelsCache.peek(catalogScopeKey) ??
+          (await loadVideoModels().catch(() => []));
         const model = findCanvasModel(models, modelId);
         const backend = backendOverride ?? model?.backend ?? "minimax";
         const submitModelId = model?.id ?? modelId;
@@ -113,7 +294,11 @@ export function useImg2Video({
         });
         trackCanvasVideoSubmit({
           nodeId,
-          submitMode: !replaceNodeId ? "new_node" : newRound ? "new_round" : "replace",
+          submitMode: !replaceNodeId
+            ? "new_node"
+            : newRound
+              ? "new_round"
+              : "replace",
           modelId: submitModelId,
           backend,
           seriesId: model?.series_id,
@@ -181,8 +366,12 @@ export function useImg2Video({
               }),
             ),
           );
-          const toastErrorMsg = semanticGenerationErrorCopy(stripErrorHtml(rawErrorMsg));
-          const errorStatus = generationErrorStatusFromResponse(resp.failure_presentation);
+          const toastErrorMsg = semanticGenerationErrorCopy(
+            stripErrorHtml(rawErrorMsg),
+          );
+          const errorStatus = generationErrorStatusFromResponse(
+            resp.failure_presentation,
+          );
           const userMessage =
             errorStatus === "recoverable_error"
               ? instance.t("canvas.generationRecovery.description", {
@@ -242,7 +431,8 @@ export function useImg2Video({
               traceId: resp.cloud_trace_id,
             });
           }
-          if (errorStatus === "recoverable_error") dedupedToast.warning(userMessage);
+          if (errorStatus === "recoverable_error")
+            dedupedToast.warning(userMessage);
           else dedupedToast.error(userMessage);
           return {
             success: false,
@@ -259,11 +449,16 @@ export function useImg2Video({
           success: true,
         };
       } catch (err) {
-        const rawErrorMsg = formatGenerateError(err?.message || "No gateway response");
+        const rawErrorMsg = formatGenerateError(
+          err?.message || "No gateway response",
+        );
         const errorStatus = generationErrorStatusFromThrown(err);
-        const statusUnknownMessage = instance.t("canvas.generationStatusUnknown.description", {
-          defaultValue: "生成请求未能完成，系统不会自动重试。",
-        });
+        const statusUnknownMessage = instance.t(
+          "canvas.generationStatusUnknown.description",
+          {
+            defaultValue: "生成请求未能完成，系统不会自动重试。",
+          },
+        );
         const userMessage =
           errorStatus === "status_unknown"
             ? statusUnknownMessage
@@ -291,7 +486,8 @@ export function useImg2Video({
           errorStatus,
         };
       } finally {
-        if (replaceNodeId && dedupeReplaceTarget) replaceTargets.current.delete(replaceNodeId);
+        if (replaceNodeId && dedupeReplaceTarget)
+          replaceTargets.current.delete(replaceNodeId);
       }
     },
     [
@@ -307,281 +503,5 @@ export function useImg2Video({
   return {
     handleImg2Video,
     listVideoModels,
-  };
-}
-export function useTxt2Audio({ httpClient, catalogScopeKey }) {
-  const generatingStateStore = useGeneratingStateApi();
-  const replaceTargets = reactExports.useRef(new Set());
-  const audioModelsCache = reactExports.useRef(new ScopedAsyncCache()).current;
-  const voicesCache = reactExports.useRef(new ScopedAsyncCache()).current;
-  audioModelsCache.setScope(catalogScopeKey);
-  voicesCache.setScope(catalogScopeKey);
-  const fetchAudioModels = reactExports.useCallback(
-    () =>
-      audioModelsCache.load(catalogScopeKey, async () => {
-        const { audioModels } = await httpClient.listModels();
-        return audioModels.filter(
-          (model) => model.visibility !== "hidden" && model.id !== "MiniMax-H3 Audio",
-        );
-      }),
-    [audioModelsCache, catalogScopeKey, httpClient],
-  );
-  const fetchTtsVoices = reactExports.useCallback(
-    () => voicesCache.load(catalogScopeKey, () => httpClient.listSpeechVoices()),
-    [catalogScopeKey, httpClient, voicesCache],
-  );
-  const handleTxt2Audio = reactExports.useCallback(
-    async (
-      nodeId,
-      prompt,
-      modelId,
-      params,
-      replaceNodeId,
-      replaceTargetIsEmpty,
-      backendOverride,
-      imagePaths,
-      audioPaths,
-      textPaths,
-    ) => {
-      if (replaceNodeId) {
-        if (
-          retainedGenerationBlocksResubmit(
-            generatingStateStore.getState().byNode.get(replaceNodeId),
-          )
-        ) {
-          dedupedToast.warning(instance.t(...RESUBMIT_BLOCKED_I18N));
-          return {
-            success: false,
-            error: "resubmit blocked: retained generation task",
-          };
-        }
-        if (replaceTargets.current.has(replaceNodeId)) {
-          return {
-            success: true,
-          };
-        }
-        replaceTargets.current.add(replaceNodeId);
-      }
-      try {
-        const models = audioModelsCache.peek(catalogScopeKey) ?? [];
-        const model = models.find(
-          (m3) => m3.id === modelId || m3.model_name === modelId || m3.name === modelId,
-        );
-        const backend = backendOverride ?? model?.backend ?? "minimax_tts";
-        const refImagePaths = imagePaths ?? [];
-        const refAudioPaths = audioPaths ?? [];
-        const refCount = refImagePaths.length + refAudioPaths.length;
-        recordAction("generate:audio", {
-          type: backend,
-        });
-        trackEvent(TRACK_EVENTS.CANVAS_GENERATE_SUBMIT, {
-          popover_type: "t2a",
-          node_id: nodeId,
-          submit_mode: !replaceNodeId ? "new_node" : replaceTargetIsEmpty ? "single" : "replace",
-          model_id: modelId,
-          backend,
-          prompt_length: prompt.length,
-          ref_count: refCount,
-          has_lyrics: !!params.lyrics?.trim(),
-          is_instrumental: params.is_instrumental === "instrumental",
-        });
-        const isMusic =
-          backend === BACKEND_MINIMAX_MUSIC ||
-          backend === BACKEND_MINIMAX_MUSIC_COVER ||
-          backend === BACKEND_ELEVENLABS_MUSIC;
-        const submit = isMusic
-          ? httpClient.generateMusic.bind(httpClient)
-          : httpClient.generateSpeech.bind(httpClient);
-        const resp = await submit(
-          {
-            backend,
-            model_id: modelId,
-            prompt,
-            params: model?.model_name
-              ? {
-                  ...params,
-                  model_name: model.model_name,
-                }
-              : params,
-            source_node_id: nodeId,
-            replace_node_id: replaceNodeId,
-            filename: `txt2audio-${nodeId}`,
-            // Reference files (seed-audio-1.0). Only attach when present so
-            // the plain TTS / music payload shape stays unchanged. `@图片N` /
-            // `@音频N` in the prompt refer to these by 1-based upload order.
-            ...(refImagePaths.length > 0
-              ? {
-                  image_paths: refImagePaths,
-                }
-              : {}),
-            ...(refAudioPaths.length > 0
-              ? {
-                  audio_paths: refAudioPaths,
-                }
-              : {}),
-            ...(textPaths?.length
-              ? {
-                  text_paths: textPaths,
-                }
-              : {}),
-          },
-          {
-            headers: {
-              [HILO_SOURCE_HEADER]: "canvas",
-            },
-          },
-        );
-        if (!resp.ok) {
-          if (
-            resp.error_code === GENERATE_ERROR_CODE_SHUTDOWN ||
-            resp.error_code === GENERATE_ERROR_CODE_QUEUE_PAUSED
-          ) {
-            return {
-              success: true,
-            };
-          }
-          const rawErrorMsg = pickUserMessage(
-            resp,
-            instance.t("canvas.generateFailed", {
-              defaultValue: "生成失败，请稍后重试",
-            }),
-          );
-          const toastErrorMsg = semanticGenerationErrorCopy(stripErrorHtml(rawErrorMsg));
-          const errorStatus = generationErrorStatusFromResponse(resp.failure_presentation);
-          const userMessage =
-            errorStatus === "recoverable_error"
-              ? instance.t("canvas.generationRecovery.description", {
-                  defaultValue: "原任务已保留，结果将在恢复后自动回填。",
-                })
-              : errorStatus === "status_unknown"
-                ? instance.t("canvas.generationStatusUnknown.description", {
-                    defaultValue: "生成请求未能完成，系统不会自动重试。",
-                  })
-                : toastErrorMsg;
-          if (replaceNodeId) {
-            const store = generatingStateStore.getState();
-            const prev = store.byNode.get(replaceNodeId);
-            const retryPayload =
-              resp.error_code === GENERATE_ERROR_CODE_CONCURRENCY_LIMIT
-                ? {
-                    kind: "audio",
-                    sourceNodeId: nodeId,
-                    prompt,
-                    modelId,
-                    backend,
-                    params,
-                    // Preserve seed-audio references so the retry re-uploads the
-                    // same clips the `@音频N` / `@图片N` prompt tokens point at.
-                    ...(refImagePaths.length > 0
-                      ? {
-                          imagePaths: refImagePaths,
-                        }
-                      : {}),
-                    ...(refAudioPaths.length > 0
-                      ? {
-                          audioPaths: refAudioPaths,
-                        }
-                      : {}),
-                    ...(textPaths?.length
-                      ? {
-                          textPaths,
-                        }
-                      : {}),
-                  }
-                : void 0;
-            store.mark(replaceNodeId, {
-              prompt,
-              model: modelId,
-              ...prev,
-              error: rawErrorMsg,
-              errorStatus,
-              errorReason: persistedGenerateErrorReason(resp.error_code),
-              retryPayload,
-              // Unconditional so it overrides any stale traceId from `...prev`.
-              traceId: resp.cloud_trace_id,
-            });
-          }
-          if (errorStatus === "recoverable_error") dedupedToast.warning(userMessage);
-          else dedupedToast.error(userMessage);
-          return {
-            success: false,
-            error: userMessage,
-            errorStatus,
-          };
-        }
-        return {
-          success: true,
-        };
-      } catch (err) {
-        const rawErrorMsg =
-          (err instanceof Error ? err.message : String(err)) || "No gateway response";
-        const errorStatus = generationErrorStatusFromThrown(err);
-        const statusUnknownMessage = instance.t("canvas.generationStatusUnknown.description", {
-          defaultValue: "生成请求未能完成，系统不会自动重试。",
-        });
-        const userMessage =
-          errorStatus === "status_unknown"
-            ? statusUnknownMessage
-            : semanticGenerationErrorCopy(stripErrorHtml(rawErrorMsg));
-        canvasLog.error("txt2audio generation request threw", {
-          error: rawErrorMsg,
-          errorStatus,
-        });
-        if (replaceNodeId) {
-          const store = generatingStateStore.getState();
-          const prev = store.byNode.get(replaceNodeId);
-          store.mark(replaceNodeId, {
-            prompt,
-            model: modelId,
-            ...prev,
-            error: rawErrorMsg,
-            errorStatus,
-          });
-        }
-        dedupedToast.error(userMessage);
-        return {
-          success: false,
-          error: userMessage,
-          errorStatus,
-        };
-      } finally {
-        if (replaceNodeId) replaceTargets.current.delete(replaceNodeId);
-      }
-    },
-    [audioModelsCache, catalogScopeKey, httpClient, generatingStateStore],
-  );
-  const handleDesignVoice = reactExports.useCallback(
-    async (nodeId, prompt, previewText) => {
-      const trimmedPrompt = prompt.trim();
-      const trimmedPreview = previewText.trim();
-      if (!trimmedPrompt || !trimmedPreview) {
-        dedupedToast.warning(
-          instance.t(
-            "canvas.voiceDesign.missingFields",
-            "Both voice description and preview text are required.",
-          ),
-        );
-        return;
-      }
-      try {
-        await httpClient.designVoice({
-          prompt: trimmedPrompt,
-          preview_text: trimmedPreview,
-          source_node_id: nodeId,
-        });
-      } catch (err) {
-        console.error("[useTxt2Audio] designVoice failed:", err);
-        dedupedToast.error(
-          instance.t("canvas.voiceDesign.failedToast", "Voice design failed; please try again."),
-        );
-      }
-    },
-    [httpClient],
-  );
-  return {
-    handleTxt2Audio,
-    handleDesignVoice,
-    fetchAudioModels,
-    fetchTtsVoices,
   };
 }

@@ -1,86 +1,740 @@
 // file-explorer.jsx
-import { useTranslation, reactExports, dedupedToast, usePlatform, ChevronDown, useCurrentWorkspace, X$7, Check, LayoutList, LayoutGrid, useQueryClient } from "../vendor.js";
-import { Popover } from "../assets/apply-asset-change.jsx";
-import { findEntryByPath, FilterMenuTrigger, FilterMenu, useFileExplorerOverlayBridge } from "../workspace/global-sidebar-provider.jsx";
-import { TooltipProvider, Tooltip, TooltipTrigger } from "../vendor-inline/vscode-base/graph.jsx";
-import { FolderOpen } from "../media-editing/parse-item.jsx";
-import { useStableCallback } from "../assets/use-entity-hover-preview.js";
-import { ContextMenu } from "../workspace/use-hub-logo-hover-animation.jsx";
-import { useGatewayFetch, useGatewayScopeKey } from "./use-resizable-width.js";
-import { useWorkspaceProject } from "../workspace/workspace-events.js";
 import {
+  dedupedToast,
+  LayoutGrid,
+  LayoutList,
+  reactExports,
+  useCurrentWorkspace,
+  usePlatform,
+  useQueryClient,
+  useStorage,
+  useTranslation,
+  useVirtualizer,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  AlertDialog,
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  cn$2,
   TooltipContent,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
-import { RetryIcon } from "../workspace/browser-inspiration-urls.jsx";
-import { ContextMenuTrigger } from "../workspace/new-workspace-dialog.jsx";
-import { SegmentedSwitch, PopoverContent } from "../team/use-credit-details.jsx";
+} from "../infra/dialog-content.jsx";
 import {
-  isCanvasColorTag,
-  PRESET_COLOR_NAME_KEYS,
-  isCanvasKeywordTag,
-} from "../infra/normalize-tag-registry.js";
-import { Calendar } from "../team/team-credit-summary-surface.jsx";
-import { useAssets, useMediaActions } from "../settings/use-media-actions.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  DialogDescription,
+  DialogTitle,
+} from "../infra/badge-variants.jsx";
+import { AssetGridItemImpl } from "../assets/asset-grid-item-impl.jsx";
+import { arePropsEqual$1 } from "../assets/inline-input.jsx";
+import { TreeItem } from "../assets/tree-item.jsx";
 import {
-  AssetPanelOverlayHost,
-  DeleteConfirmDialog$1,
-  DropOverlay,
-  FileExplorerGridView,
-  FileExplorerTreeView,
-  PromoteToAssetForm,
-  getCanvasTagPresentationColor,
-} from "../assets/asset-panel-overlay-host.jsx";
+  categorizeByExtension,
+  computeDateBounds,
+  matchesDateFilter,
+} from "../workspace/compute-date-bounds.js";
 import {
-  SaveToProjectAssetsDialog,
-  useConflictResolver,
-} from "../workspace/save-to-project-assets-dialog.jsx";
-import { FileExplorerSearchBar } from "../assets/team-assets-sidebar-panel.jsx";
-import {
-  buildTreeFileComparator,
-  expandSelectionForDelete,
-  filterAndSortAssets,
-  filterTreeByPredicate,
+  compareByTimeOrName,
+  DEFAULTS,
   joinFilePath,
-  retainKnownTagFilters,
+  matchesTagFilter,
+  normalizeAssetPanelPreferences,
   toRelativeFromRoot,
-  useAssetMenuShortcuts,
-  useAssetPanelPreferences,
   useFileExplorerCanvasIntegration,
-} from "../assets/use-asset-menu-shortcuts.js";
-import { ConflictResolutionDialog, useTagRegistry } from "../canvas/use-canvas-tags.jsx";
+} from "../assets/use-file-explorer-canvas-integration.js";
+import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import {
-  useFileExplorerClipboard,
-  useFileExplorerCreate,
-  useFileExplorerDelete,
-} from "../assets/use-file-explorer-clipboard.jsx";
-import {
-  useFileExplorerDrag,
-  useFileExplorerGridDelegates,
-  useFileExplorerImport,
-  useFileExplorerKeyboard,
-  useFileExplorerMissingRecovery,
-} from "../assets/use-file-explorer-import.js";
-import {
-  useFileExplorerPanelClose,
+  shouldClosePanel,
   useFileExplorerRename,
   useFileExplorerRootDrop,
   useFileExplorerScrollContainer,
   useFileExplorerSelection,
-  useFileExplorerShortcuts,
-} from "../assets/use-file-explorer-shortcuts.js";
+} from "../assets/use-file-explorer-root-drop.js";
+import { PromoteToAssetForm } from "../assets/promote-to-asset-form.jsx";
+import { TypeFilterPopover } from "./type-filter-popover.jsx";
+import { DateFilterPopover } from "./date-filter-popover.jsx";
+import { TagFilterPopover } from "./tag-filter-popover.jsx";
+import { getNodeIdsForAsset } from "../infra/use-canvas-node-assets-store.js";
+import { useStableCallback } from "../assets/use-cloud-review-nodes.js";
+import {
+  ContextMenu,
+  workspaceEvents,
+} from "../workspace/topbar-state-context.jsx";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { FolderOpen } from "../media-editing/package.jsx";
+import {
+  useGatewayFetch,
+  useGatewayScopeKey,
+} from "./use-model-catalog-scope-key.js";
+import { useWorkspaceProject } from "../workspace/normalize-project-entries.js";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { ContextMenuTrigger } from "../workspace/context-menu-content.jsx";
+import { SegmentedSwitch } from "../canvas/popover-title.jsx";
+import { PRESET_COLOR_NAME_KEYS } from "../infra/parse-connector-selection.js";
+import { useAssets } from "../settings/use-assets.js";
+import { useMediaActions } from "../settings/use-media-actions.js";
+import { AssetPanelOverlayHost } from "../assets/asset-panel-overlay-host.jsx";
+import { SaveToProjectAssetsDialog } from "../workspace/save-to-project-assets-dialog.jsx";
+import { FileExplorerSearchBar } from "../assets/file-explorer-search-bar.jsx";
+import { useAssetMenuShortcuts } from "../assets/use-asset-menu-shortcuts.js";
+import {
+  ConflictResolutionDialog,
+  useTagRegistry,
+} from "../canvas/conflict-resolution-dialog.jsx";
+import { useFileExplorerClipboard } from "../assets/use-file-explorer-clipboard.js";
+import { useFileExplorerCreate } from "../assets/use-file-explorer-create.js";
+import { useFileExplorerDelete } from "../assets/use-file-explorer-delete.jsx";
+import {
+  useFileExplorerDrag,
+  useFileExplorerGridDelegates,
+} from "../assets/use-file-explorer-grid-delegates.js";
+import { useFileExplorerImport } from "../assets/use-file-explorer-import.js";
+import { useFileExplorerKeyboard } from "../assets/use-file-explorer-keyboard.js";
+import { useFileExplorerMissingRecovery } from "../assets/use-file-explorer-missing-recovery.js";
+import { useFileExplorerShortcuts } from "../assets/use-file-explorer-shortcuts.js";
 import {
   AssetEmptyAreaMenuContent,
-  useFileExplorerWorkspaceDirs,
   useFlattenTree,
-} from "../assets/use-flatten-tree.jsx";
+} from "../assets/asset-empty-area-menu-content.jsx";
+import { useFileExplorerWorkspaceDirs } from "../assets/build-asset-tree.js";
+
+function useFileExplorerOverlayBridge({
+  rootPath,
+  assetByAbsPath,
+  currentWorkspace,
+  filteredTree,
+  handleAddToCanvas,
+}) {
+  const overlayHostRef = reactExports.useRef(null);
+  const rowAnchorsRef = reactExports.useRef(new Map());
+  const registerRowAnchor = useStableCallback((path2, el) => {
+    if (el) {
+      rowAnchorsRef.current.set(path2, el);
+    } else {
+      rowAnchorsRef.current.delete(path2);
+    }
+  });
+  const getRowAnchor = useStableCallback((path2) =>
+    rowAnchorsRef.current.get(path2),
+  );
+  const handleHoverIntent = useStableCallback((target) => {
+    overlayHostRef.current?.notifyHoverIntent(target);
+  });
+  const handleHoverEnd = useStableCallback(() => {
+    overlayHostRef.current?.notifyHoverEnd();
+  });
+  const handleLocateOnCanvas = useStableCallback((target) => {
+    const asset = assetByAbsPath.get(target.path);
+    const showMissing = () => {
+      const anchor = rowAnchorsRef.current.get(target.path);
+      if (!anchor) {
+        return;
+      }
+      overlayHostRef.current?.showLocateMissing(anchor, target.path);
+    };
+    if (!asset?.id) {
+      showMissing();
+      return;
+    }
+    const nodeIds = getNodeIdsForAsset(asset.id, currentWorkspace);
+    if (nodeIds.length === 0) {
+      showMissing();
+      return;
+    }
+    overlayHostRef.current?.hideLocateMissing();
+    workspaceEvents.fireCanvasFocus(currentWorkspace, nodeIds);
+  });
+  const handleHoverLocateOnCanvas = useStableCallback((absolutePath) => {
+    handleLocateOnCanvas({
+      path: absolutePath,
+      name: absolutePath.split(/[/\\]/).pop() ?? absolutePath,
+      isDirectory: false,
+    });
+  });
+  const handleLocateMissingConfirmInsert = useStableCallback((absolutePath) => {
+    const entry = findEntryByPath(filteredTree, absolutePath);
+    handleAddToCanvas({
+      path: absolutePath,
+      name: entry?.name ?? absolutePath.split(/[/\\]/).pop() ?? absolutePath,
+      isDirectory: entry?.isDirectory ?? false,
+    });
+  });
+  reactExports.useEffect(() => {
+    overlayHostRef.current?.hideLocateMissing();
+  }, [rootPath]);
+  return {
+    overlayHostRef,
+    registerRowAnchor,
+    getRowAnchor,
+    handleHoverIntent,
+    handleHoverEnd,
+    handleHoverLocateOnCanvas,
+    handleLocateOnCanvas,
+    handleLocateMissingConfirmInsert,
+  };
+}
+
+function useConflictResolver() {
+  const [batch2, setBatch] = reactExports.useState(null);
+  const pendingRef = reactExports.useRef(null);
+  const finishBatch = reactExports.useCallback((value) => {
+    const resolver2 = pendingRef.current;
+    pendingRef.current = null;
+    setBatch(null);
+    resolver2?.(value);
+  }, []);
+  const resolve = reactExports.useCallback(
+    async (conflicts) => {
+      if (conflicts.length === 0)
+        return {
+          outcome: "completed",
+          decisions: [],
+        };
+      if (pendingRef.current) {
+        finishBatch({
+          outcome: "preempted",
+        });
+      }
+      return new Promise((resolvePromise) => {
+        pendingRef.current = resolvePromise;
+        setBatch({
+          conflicts,
+          cursor: 0,
+          decisions: [],
+        });
+      });
+    },
+    [finishBatch],
+  );
+  const handleDecision = reactExports.useCallback(
+    (decision, applyToAll) => {
+      setBatch((prev) => {
+        if (!prev) return prev;
+        if (applyToAll) {
+          const filled = [
+            ...prev.decisions,
+            ...new Array(prev.conflicts.length - prev.cursor).fill(decision),
+          ];
+          queueMicrotask(() =>
+            finishBatch({
+              outcome: "completed",
+              decisions: filled,
+            }),
+          );
+          return prev;
+        }
+        const nextDecisions = [...prev.decisions, decision];
+        const nextCursor = prev.cursor + 1;
+        if (nextCursor >= prev.conflicts.length) {
+          queueMicrotask(() =>
+            finishBatch({
+              outcome: "completed",
+              decisions: nextDecisions,
+            }),
+          );
+          return prev;
+        }
+        return {
+          ...prev,
+          cursor: nextCursor,
+          decisions: nextDecisions,
+        };
+      });
+    },
+    [finishBatch],
+  );
+  const handleDismiss = reactExports.useCallback(
+    () =>
+      finishBatch({
+        outcome: "dismissed",
+      }),
+    [finishBatch],
+  );
+  const dialogProps = reactExports.useMemo(() => {
+    const conflict = batch2 ? (batch2.conflicts[batch2.cursor] ?? null) : null;
+    const remainingCount = batch2
+      ? Math.max(0, batch2.conflicts.length - batch2.cursor - 1)
+      : 0;
+    return {
+      open: !!batch2,
+      conflict,
+      remainingCount,
+      onDecision: handleDecision,
+      onDismiss: handleDismiss,
+    };
+  }, [batch2, handleDecision, handleDismiss]);
+  return {
+    dialogProps,
+    resolve,
+  };
+}
+
+function matchesTypeFilters(fileName, types2) {
+  if (types2.length === 0) return true;
+  return types2.includes(categorizeByExtension(fileName));
+}
+
+function retainKnownTagFilters(tagFilters, knownTagIds) {
+  const known = new Set(knownTagIds);
+  const retained = tagFilters.filter((id2) => known.has(id2));
+  return retained.length === tagFilters.length ? tagFilters : retained;
+}
+
+function buildTreeFileComparator(sortOrder, getAsset2) {
+  return (a2, b3) =>
+    compareByTimeOrName(
+      getAsset2(a2.path)?.time,
+      getAsset2(b3.path)?.time,
+      a2.name,
+      b3.name,
+      sortOrder,
+    );
+}
+
+function filterAndSortAssets(assets, options) {
+  const q2 = options.query.trim().toLowerCase();
+  const dateBounds = computeDateBounds(options.dateFilter);
+  const filtered = assets.filter((a2) => {
+    const fileName = a2.path.split("/").pop() ?? "";
+    const nameMatch = q2 ? fileName.toLowerCase().includes(q2) : true;
+    const tagNameMatch =
+      q2 && options.tagSearchIds
+        ? (a2.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+        : false;
+    if (!nameMatch && !tagNameMatch) return false;
+    if (!matchesTypeFilters(fileName, options.typeFilters)) return false;
+    if (!matchesTagFilter(a2.tagIds, options.tagFilters)) return false;
+    return matchesDateFilter(a2.time, dateBounds);
+  });
+  return [...filtered].sort((a2, b3) =>
+    compareByTimeOrName(a2.time, b3.time, a2.path, b3.path, options.sortOrder),
+  );
+}
+
+function filterTreeByPredicate(tree, options) {
+  const q2 = options.query.trim().toLowerCase();
+  const dateBounds = computeDateBounds(options.dateFilter);
+  const noActiveFilter =
+    q2 === "" &&
+    options.typeFilters.length === 0 &&
+    dateBounds === null &&
+    (options.tagFilters?.length ?? 0) === 0;
+  function matchesFile(entry) {
+    const asset = options.getAsset(entry.path);
+    const nameMatch = q2 ? entry.name.toLowerCase().includes(q2) : true;
+    const tagNameMatch =
+      q2 && options.tagSearchIds
+        ? (asset?.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+        : false;
+    if (!nameMatch && !tagNameMatch) return false;
+    if (!matchesTypeFilters(entry.name, options.typeFilters)) return false;
+    if (!matchesTagFilter(asset?.tagIds, options.tagFilters)) return false;
+    return matchesDateFilter(asset?.time, dateBounds);
+  }
+  function walk(entries2) {
+    const result = [];
+    for (const entry of entries2) {
+      if (entry.isDirectory) {
+        const dirNameMatch = q2 ? entry.name.toLowerCase().includes(q2) : false;
+        const wasOriginallyEmpty =
+          !entry.children || entry.children.length === 0;
+        const filteredChildren = entry.children ? walk(entry.children) : [];
+        if (
+          dirNameMatch ||
+          filteredChildren.length > 0 ||
+          (wasOriginallyEmpty && noActiveFilter)
+        ) {
+          result.push({
+            ...entry,
+            children: filteredChildren,
+          });
+        }
+      } else if (matchesFile(entry)) {
+        result.push(entry);
+      }
+    }
+    return result;
+  }
+  return walk(tree);
+}
+
+function useAssetPanelPreferences() {
+  const [stored, setAssetPanel] = useStorage("workspace.assetPanel");
+  const value = reactExports.useMemo(
+    () => normalizeAssetPanelPreferences(stored),
+    [stored],
+  );
+  const { typeFilters, dateFilter, sortOrder } = value;
+  const setTypeFilters = reactExports.useCallback(
+    (next2) => {
+      setAssetPanel({
+        typeFilters: next2,
+      });
+    },
+    [setAssetPanel],
+  );
+  const setDateFilter = reactExports.useCallback(
+    (next2) => {
+      setAssetPanel({
+        dateFilter: next2,
+      });
+    },
+    [setAssetPanel],
+  );
+  const setSortOrder = reactExports.useCallback(
+    (next2) => {
+      setAssetPanel({
+        sortOrder: next2,
+      });
+    },
+    [setAssetPanel],
+  );
+  const resetAll = reactExports.useCallback(() => {
+    setAssetPanel(DEFAULTS);
+  }, [setAssetPanel]);
+  const isAnyActive = reactExports.useMemo(() => {
+    if (typeFilters.length > 0) return true;
+    if (sortOrder !== "desc") return true;
+    if (dateFilter.kind === "custom") {
+      return Boolean(dateFilter.from) || Boolean(dateFilter.to);
+    }
+    return dateFilter.kind !== "all";
+  }, [typeFilters, dateFilter, sortOrder]);
+  return {
+    typeFilters,
+    dateFilter,
+    sortOrder,
+    setTypeFilters,
+    setDateFilter,
+    setSortOrder,
+    resetAll,
+    isAnyActive,
+  };
+}
+
+function expandSelectionForDelete(anchor, selectedPaths, filteredTree) {
+  if (selectedPaths.size > 1 && selectedPaths.has(anchor.path)) {
+    const entries2 = [];
+    for (const selectedPath of selectedPaths) {
+      const entry = findEntryByPath(filteredTree, selectedPath);
+      if (entry) entries2.push(entry);
+    }
+    return entries2.length > 0 ? entries2 : [anchor];
+  }
+  return [anchor];
+}
+
+function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
+  const handlePanelKeyDownCapture = reactExports.useCallback(
+    (event) => {
+      if (!isActive2 || !shouldClosePanel(event.nativeEvent)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    },
+    [isActive2, onClose],
+  );
+  reactExports.useEffect(() => {
+    if (!isActive2) return;
+    const handleWindowKeyDown = (event) => {
+      if (!shouldClosePanel(event)) return;
+      event.preventDefault();
+      onClose();
+    };
+    window.addEventListener("keydown", handleWindowKeyDown);
+    return () => window.removeEventListener("keydown", handleWindowKeyDown);
+  }, [isActive2, onClose]);
+  return {
+    handlePanelKeyDownCapture,
+  };
+}
+
+function DeleteConfirmDialog$1({ entries: entries2, onCancel, onConfirm }) {
+  const { t: t2 } = useTranslation();
+  const head2 = entries2[0];
+  return (
+    <AlertDialog
+      open={entries2.length > 0}
+      onOpenChange={(open) => !open && onCancel()}
+    >
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {entries2.length > 1
+              ? t2("fileExplorer.deleteMultiple", {
+                  count: entries2.length,
+                })
+              : head2?.isDirectory
+                ? t2("fileExplorer.deleteFolder")
+                : t2("fileExplorer.deleteFile")}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {entries2.length > 1
+              ? t2("fileExplorer.deleteMultipleConfirm", {
+                  count: entries2.length,
+                })
+              : head2?.isDirectory
+                ? t2("fileExplorer.deleteFolderConfirm", {
+                    name: head2.name,
+                  })
+                : t2("fileExplorer.deleteFileConfirm", {
+                    name: head2?.name,
+                  })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onConfirm}>
+            {t2("common.delete")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function DropOverlay() {
+  const { t: t2 } = useTranslation();
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 border-2 border-dashed border-primary rounded-lg pointer-events-none">
+      <p className="text-sm text-primary font-medium">
+        {t2("fileExplorer.dropToImport")}
+      </p>
+    </div>
+  );
+}
+
+const AssetGridItem = reactExports.memo(AssetGridItemImpl, arePropsEqual$1);
+
+const GRID_ITEM_PADDING = 8;
+
+const GRID_ITEM_GAP = 4;
+
+const GRID_NAME_AREA = 24;
+
+const GRID_ROW_GAP = 4;
+
+const GRID_ROW_FALLBACK_HEIGHT = 120;
+
+const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
+  sortedFilteredAssets,
+  containerWidth,
+  selectedPaths,
+  viewMode,
+  renamingPath,
+  resolveAssetPath,
+  scrollEl,
+  handlers: handlers2,
+}) {
+  const columnsPerRow = 2;
+  const gridRowEstimateHeight = reactExports.useMemo(() => {
+    if (containerWidth === 0) return GRID_ROW_FALLBACK_HEIGHT;
+    const cellWidth = containerWidth / columnsPerRow;
+    const thumbHeight = cellWidth - GRID_ITEM_PADDING;
+    return (
+      thumbHeight +
+      GRID_ITEM_GAP +
+      GRID_NAME_AREA +
+      GRID_ITEM_PADDING +
+      GRID_ROW_GAP
+    );
+  }, [containerWidth]);
+  const assetGridRows = reactExports.useMemo(() => {
+    const rows = [];
+    for (let i2 = 0; i2 < sortedFilteredAssets.length; i2 += columnsPerRow) {
+      rows.push(sortedFilteredAssets.slice(i2, i2 + columnsPerRow));
+    }
+    return rows;
+  }, [sortedFilteredAssets]);
+  const gridVirtualizer = useVirtualizer({
+    count: assetGridRows.length,
+    getScrollElement: () => scrollEl,
+    estimateSize: () => gridRowEstimateHeight,
+    measureElement: (el) => el.getBoundingClientRect().height,
+    overscan: 5,
+  });
+  return (
+    <div
+      style={{
+        height: gridVirtualizer.getTotalSize(),
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      {gridVirtualizer.getVirtualItems().map((virtualRow) => {
+        const row = assetGridRows[virtualRow.index];
+        return (
+          <div
+            key={virtualRow.index}
+            ref={gridVirtualizer.measureElement}
+            data-index={virtualRow.index}
+            className="grid gap-1 px-1 absolute top-0 left-0 w-full"
+            style={{
+              transform: `translateY(${virtualRow.start}px)`,
+              // minmax(0, 1fr) 必需:默认 1fr 实际是 minmax(auto, 1fr),
+              // cell 内长文件名 / 长 stem 会按 max-content 撑大 track,
+              // 表现为同一行内 cell 宽度不一致.
+              gridTemplateColumns: `repeat(${columnsPerRow}, minmax(0, 1fr))`,
+            }}
+          >
+            {row.map((asset) => {
+              const absPath = resolveAssetPath(asset.path);
+              return (
+                <AssetGridItem
+                  key={asset.path}
+                  asset={asset}
+                  absolutePath={absPath}
+                  isSelected={selectedPaths.has(absPath)}
+                  viewMode={viewMode}
+                  buildDragPayload={handlers2.buildDragPayload}
+                  onSelect={handlers2.onSelect}
+                  onDoubleClick={handlers2.onDoubleClick}
+                  onDelete={handlers2.onDelete}
+                  onCopyPath={handlers2.onCopyPath}
+                  onCopyFile={handlers2.onCopyFile}
+                  onDuplicate={handlers2.onDuplicate}
+                  onShowInFolder={handlers2.onShowInFolder}
+                  onStartRename={handlers2.onStartRename}
+                  onRename={handlers2.onRename}
+                  onRenameCancel={handlers2.onRenameCancel}
+                  renamingPath={renamingPath}
+                  onMergeCandidate={handlers2.onMergeCandidate}
+                  onRemoveMissing={handlers2.onRemoveMissing}
+                  onLocateMissing={handlers2.onLocateMissing}
+                  onSwitchViewMode={handlers2.onSwitchViewMode}
+                  onAddToCanvas={handlers2.onAddToCanvas}
+                  onAddToChat={handlers2.onAddToChat}
+                  onPromoteToAsset={handlers2.onPromoteToAsset}
+                  onSaveToProjectAssets={handlers2.onSaveToProjectAssets}
+                  onLocateOnCanvas={handlers2.onLocateOnCanvas}
+                  onAnchorMount={handlers2.onAnchorMount}
+                  onOpenDefault={handlers2.onOpenDefault}
+                  onOpenWith={handlers2.onOpenWith}
+                  onPickAppAndOpen={handlers2.onPickAppAndOpen}
+                  onHoverIntent={handlers2.onHoverIntent}
+                  onHoverEnd={handlers2.onHoverEnd}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+const TREE_ROW_HEIGHT = 32;
+
+const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
+  flatRows,
+  expanded,
+  selectedPaths,
+  rootPath,
+  viewMode,
+  assetByAbsPath,
+  renamingPath,
+  scrollEl,
+  creatingEntry,
+  handlers: handlers2,
+}) {
+  const treeVirtualizer = useVirtualizer({
+    count: flatRows.length,
+    getScrollElement: () => scrollEl,
+    estimateSize: () => TREE_ROW_HEIGHT,
+    overscan: 10,
+  });
+  reactExports.useEffect(() => {
+    if (!creatingEntry) return;
+    const creatingPath = `${creatingEntry.parentPath}/__creating__`;
+    const index2 = flatRows.findIndex((r2) => r2.entry.path === creatingPath);
+    if (index2 >= 0) {
+      treeVirtualizer.scrollToIndex(index2, {
+        align: "auto",
+      });
+    }
+  }, [creatingEntry, flatRows, treeVirtualizer]);
+  return (
+    <div
+      style={{
+        height: treeVirtualizer.getTotalSize(),
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      {treeVirtualizer.getVirtualItems().map((virtualRow) => {
+        const row = flatRows[virtualRow.index];
+        const isCreatingRow = row.entry.path.endsWith("/__creating__");
+        return (
+          <div
+            key={row.entry.path}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: `${virtualRow.size}px`,
+              transform: `translateY(${virtualRow.start}px)`,
+            }}
+          >
+            <TreeItem
+              entry={row.entry}
+              depth={row.depth}
+              isExpanded={expanded.has(row.entry.path)}
+              isSelected={selectedPaths.has(row.entry.path)}
+              isCreating={isCreatingRow}
+              rootPath={rootPath}
+              viewMode={viewMode}
+              asset={assetByAbsPath.get(row.entry.path)}
+              buildDragPayload={handlers2.buildDragPayload}
+              onToggle={handlers2.onToggle}
+              onFileSelect={handlers2.onFileSelect}
+              onFileDoubleClick={handlers2.onFileDoubleClick}
+              onRename={handlers2.onRename}
+              onDelete={handlers2.onDelete}
+              onCopyPath={handlers2.onCopyPath}
+              onCopyFile={handlers2.onCopyFile}
+              onDuplicate={handlers2.onDuplicate}
+              onMove={handlers2.onMove}
+              onStartRename={handlers2.onStartRename}
+              onCreateConfirm={handlers2.onCreateConfirm}
+              onCreateCancel={handlers2.onCreateCancel}
+              onStartCreateInside={handlers2.onStartCreateInside}
+              renamingPath={renamingPath}
+              onRenameCancel={handlers2.onRenameCancel}
+              onShowInFolder={handlers2.onShowInFolder}
+              onMergeCandidate={handlers2.onMergeCandidate}
+              onRemoveMissing={handlers2.onRemoveMissing}
+              onLocateMissing={handlers2.onLocateMissing}
+              onSwitchViewMode={handlers2.onSwitchViewMode}
+              onAddToCanvas={handlers2.onAddToCanvas}
+              onAddToChat={handlers2.onAddToChat}
+              onPromoteToAsset={handlers2.onPromoteToAsset}
+              onSaveToProjectAssets={handlers2.onSaveToProjectAssets}
+              onLocateOnCanvas={handlers2.onLocateOnCanvas}
+              onAnchorMount={handlers2.onAnchorMount}
+              onOpenDefault={handlers2.onOpenDefault}
+              onOpenWith={handlers2.onOpenWith}
+              onPickAppAndOpen={handlers2.onPickAppAndOpen}
+              onHoverIntent={handlers2.onHoverIntent}
+              onHoverEnd={handlers2.onHoverEnd}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
 function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
   const { t: t2 } = useTranslation();
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
@@ -119,521 +773,7 @@ function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
     </Dialog>
   );
 }
-export function FilterMenuContent({
-  className,
-  align = "start",
-  alignOffset = -16,
-  side = "bottom",
-  sideOffset = 6,
-  ...props
-}) {
-  return (
-    <PopoverContent
-      align={align}
-      alignOffset={alignOffset}
-      side={side}
-      sideOffset={sideOffset}
-      className={cn$2("w-auto min-w-36 gap-0.5 overflow-hidden p-1.5", className)}
-      data-filter-menu=""
-      {...props}
-    />
-  );
-}
-export function FilterMenuGroup({ className, separated = false, ...props }) {
-  return (
-    <div
-      data-slot="filter-menu-group"
-      className={cn$2(
-        "flex flex-col gap-0.5",
-        separated && "border-t border-border/60 pt-0.5",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-export function FilterMenuItem({
-  className,
-  children: children2,
-  selected: selected2 = false,
-  ...props
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={selected2}
-      data-slot="filter-menu-item"
-      data-selected={selected2 ? "true" : "false"}
-      className={cn$2(
-        "list-row-hit-area [--list-row-gap:var(--filter-menu-row-gap,2px)] first:before:top-0 last:before:bottom-0 flex h-7 w-full cursor-pointer items-center justify-between rounded-md px-2.5 text-left text-xs text-foreground/70 transition-colors hover:bg-foreground/[0.03] hover:text-foreground focus-visible:bg-foreground/[0.03] focus-visible:text-foreground focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-        selected2 && "text-foreground",
-        className,
-      )}
-      {...props}
-    >
-      <span className="min-w-0 flex-1 truncate">{children2}</span>
-      {selected2 && (
-        <Check aria-hidden="true" size={14} strokeWidth={2} className="ml-3 shrink-0" />
-      )}
-    </button>
-  );
-}
-const TYPE_OPTIONS = [
-  {
-    value: "image",
-    labelKey: "assetFilter.typeImage",
-    fallback: "Image",
-  },
-  {
-    value: "video",
-    labelKey: "assetFilter.typeVideo",
-    fallback: "Video",
-  },
-  {
-    value: "audio",
-    labelKey: "assetFilter.typeAudio",
-    fallback: "Audio",
-  },
-  {
-    value: "text",
-    labelKey: "assetFilter.typeText",
-    fallback: "Text",
-  },
-  {
-    value: "other",
-    labelKey: "assetFilter.typeOther",
-    fallback: "Other",
-  },
-];
-const DATE_PRESETS = [
-  {
-    value: "all",
-    labelKey: "assetFilter.dateAll",
-    fallback: "All time",
-  },
-  {
-    value: "today",
-    labelKey: "assetFilter.dateToday",
-    fallback: "Today",
-  },
-  {
-    value: "last7days",
-    labelKey: "assetFilter.dateLast7Days",
-    fallback: "Last 7 days",
-  },
-  {
-    value: "last30days",
-    labelKey: "assetFilter.dateLast30Days",
-    fallback: "Last 30 days",
-  },
-  {
-    value: "custom",
-    labelKey: "assetFilter.dateCustom",
-    fallback: "Custom",
-  },
-];
-function toIsoDate(date2) {
-  const y4 = date2.getFullYear();
-  const m3 = String(date2.getMonth() + 1).padStart(2, "0");
-  const d2 = String(date2.getDate()).padStart(2, "0");
-  return `${y4}-${m3}-${d2}`;
-}
-function fromIsoDate(value) {
-  if (!value) return void 0;
-  const [y4, m3, d2] = value.split("-").map(Number);
-  if (!y4 || !m3 || !d2) return void 0;
-  return new Date(y4, m3 - 1, d2);
-}
-function formatMonthDay(iso) {
-  const d2 = fromIsoDate(iso);
-  if (!d2) return iso;
-  const m3 = String(d2.getMonth() + 1).padStart(2, "0");
-  const day = String(d2.getDate()).padStart(2, "0");
-  return `${m3}-${day}`;
-}
-const TRIGGER_CLASS = cn$2(
-  "inline-flex h-full min-w-0 flex-1 basis-0 items-stretch overflow-hidden text-xs whitespace-nowrap",
-  "text-muted-foreground",
-);
-const TRIGGER_PILL_CLASS =
-  "inline-flex h-full w-full min-w-0 items-center justify-center gap-0.5 rounded-md border border-foreground/12 bg-transparent transition-colors hover:border-foreground hover:text-foreground";
-const TRIGGER_BUTTON_CLASS =
-  "inline-flex h-full min-w-0 items-center justify-center gap-0.5 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-const TRIGGER_BUTTON_DEFAULT_CLASS = "flex-1 pl-2.5 pr-1.5";
-const TRIGGER_BUTTON_ACTIVE_CLASS = "flex-1 pl-2.5 pr-0 min-w-0";
-const TRIGGER_CLEAR_CLASS =
-  "group/clear inline-flex size-4 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-const TRIGGER_CLEAR_ICON_CLASS =
-  "inline-flex size-3.5 items-center justify-center rounded-full bg-foreground/[0.06] text-muted-foreground transition-colors group-hover/clear:bg-muted-foreground group-hover/clear:text-background";
-function FilterTrigger({
-  label,
-  active: active2,
-  open = false,
-  testId,
-  ariaLabel,
-  clearLabel,
-  onClear,
-}) {
-  const pillActive = active2 || open;
-  return (
-    <span
-      className={TRIGGER_CLASS}
-      data-active={active2 ? "true" : "false"}
-      data-open={open ? "true" : "false"}
-    >
-      <span
-        className={cn$2(
-          TRIGGER_PILL_CLASS,
-          pillActive && "border-foreground text-foreground",
-          active2 && onClear && "gap-1 pr-1",
-        )}
-      >
-        <FilterMenuTrigger
-          render={
-            <button
-              type="button"
-              aria-label={ariaLabel ?? label}
-              data-action-ui-id={testId}
-              data-active={active2 ? "true" : "false"}
-              data-open={open ? "true" : "false"}
-              className={cn$2(
-                TRIGGER_BUTTON_CLASS,
-                active2 && onClear ? TRIGGER_BUTTON_ACTIVE_CLASS : TRIGGER_BUTTON_DEFAULT_CLASS,
-              )}
-            />
-          }
-        >
-          <span className="min-w-0 truncate whitespace-nowrap">{label}</span>
-          {!active2 && <ChevronDown size={16} strokeWidth={1.5} className="shrink-0 opacity-70" />}
-        </FilterMenuTrigger>
-        {active2 && onClear && (
-          <button
-            type="button"
-            aria-label={clearLabel ?? label}
-            onClick={onClear}
-            className={TRIGGER_CLEAR_CLASS}
-            data-action-ui-id={`${testId}-clear`}
-          >
-            <span className={TRIGGER_CLEAR_ICON_CLASS}>
-              <X$7 size={9} strokeWidth={2} />
-            </span>
-          </button>
-        )}
-      </span>
-    </span>
-  );
-}
-function TypeFilterPopover({ typeFilters, onChange }) {
-  const { t: t2 } = useTranslation();
-  const [open, setOpen] = reactExports.useState(false);
-  const allSelected = typeFilters.length === 0;
-  const isPartial = !allSelected;
-  const active2 = isPartial;
-  const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.typeSection");
-    if (typeFilters.length === 0) return base2;
-    if (typeFilters.length === 1) {
-      const opt = TYPE_OPTIONS.find((o2) => o2.value === typeFilters[0]);
-      return opt ? t2(opt.labelKey, opt.fallback) : typeFilters[0];
-    }
-    return `${base2} · ${typeFilters.length}`;
-  }, [t2, typeFilters]);
-  const clearTypeFilter = reactExports.useCallback(() => {
-    onChange([]);
-    setOpen(false);
-  }, [onChange]);
-  const toggleAll = reactExports.useCallback(() => {
-    if (allSelected) return;
-    onChange([]);
-  }, [allSelected, onChange]);
-  const toggle = reactExports.useCallback(
-    (value) => {
-      if (allSelected) {
-        onChange([value]);
-        return;
-      }
-      const set2 = new Set(typeFilters);
-      if (set2.has(value)) {
-        if (set2.size === 1) {
-          onChange([]);
-          return;
-        }
-        set2.delete(value);
-      } else {
-        set2.add(value);
-      }
-      const next2 = Array.from(set2);
-      if (next2.length === TYPE_OPTIONS.length) onChange([]);
-      else onChange(next2);
-    },
-    [typeFilters, allSelected, onChange],
-  );
-  return (
-    <FilterMenu open={open} onOpenChange={setOpen}>
-      <FilterTrigger
-        label={triggerLabel}
-        active={active2}
-        open={open}
-        testId="asset-panel.type-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
-        onClear={active2 ? clearTypeFilter : void 0}
-      />
-      <PopoverContent
-        align="start"
-        className="w-auto min-w-36 gap-0.5 p-1.5 overflow-hidden"
-        data-slot="type-filter-popover"
-      >
-        <FilterMenuItem
-          selected={allSelected}
-          onClick={toggleAll}
-          data-action-ui-id="asset-panel.type-filter-option-all"
-        >
-          {t2("assetFilter.typeAll")}
-        </FilterMenuItem>
-        {TYPE_OPTIONS.map((opt) => {
-          const selected2 = !allSelected && typeFilters.includes(opt.value);
-          const label = t2(opt.labelKey, opt.fallback);
-          return (
-            <FilterMenuItem
-              key={opt.value}
-              selected={selected2}
-              onClick={() => toggle(opt.value)}
-              data-action-ui-id={`asset-panel.type-filter-option-${opt.value}`}
-            >
-              {label}
-            </FilterMenuItem>
-          );
-        })}
-      </PopoverContent>
-    </FilterMenu>
-  );
-}
-function DateFilterPopover({ dateFilter, sortOrder, onDateChange, onSortChange }) {
-  const { t: t2 } = useTranslation();
-  const [open, setOpen] = reactExports.useState(false);
-  const active2 = reactExports.useMemo(() => {
-    if (dateFilter.kind === "all") return false;
-    if (dateFilter.kind === "custom") {
-      return Boolean(dateFilter.from) || Boolean(dateFilter.to);
-    }
-    return true;
-  }, [dateFilter]);
-  const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.dateSection");
-    if (dateFilter.kind === "all") return base2;
-    if (dateFilter.kind === "custom") {
-      const from2 = dateFilter.from ? formatMonthDay(dateFilter.from) : "";
-      const to = dateFilter.to ? formatMonthDay(dateFilter.to) : "";
-      if (!from2 && !to) return base2;
-      return `${from2 || "..."} ~ ${to || "..."}`;
-    }
-    const preset2 = DATE_PRESETS.find((p3) => p3.value === dateFilter.kind);
-    return preset2 ? t2(preset2.labelKey, preset2.fallback) : base2;
-  }, [t2, dateFilter]);
-  const handlePreset = reactExports.useCallback(
-    (kind) => {
-      if (kind === "custom") {
-        if (dateFilter.kind === "custom") return;
-        onDateChange({
-          kind: "custom",
-          from: "",
-          to: "",
-        });
-        return;
-      }
-      onDateChange({
-        kind,
-      });
-    },
-    [dateFilter, onDateChange],
-  );
-  const customRange = reactExports.useMemo(() => {
-    if (dateFilter.kind !== "custom") return void 0;
-    const from2 = fromIsoDate(dateFilter.from);
-    const to = fromIsoDate(dateFilter.to);
-    if (!from2 && !to) return void 0;
-    return {
-      from: from2,
-      to,
-    };
-  }, [dateFilter]);
-  const handleCustomSelect = reactExports.useCallback(
-    (range2) => {
-      onDateChange({
-        kind: "custom",
-        from: range2?.from ? toIsoDate(range2.from) : "",
-        to: range2?.to ? toIsoDate(range2.to) : "",
-      });
-    },
-    [onDateChange],
-  );
-  const clearDateFilter = reactExports.useCallback(() => {
-    onDateChange({
-      kind: "all",
-    });
-    setOpen(false);
-  }, [onDateChange]);
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <FilterTrigger
-        label={triggerLabel}
-        active={active2}
-        open={open}
-        testId="asset-panel.date-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
-        onClear={active2 ? clearDateFilter : void 0}
-      />
-      <FilterMenuContent data-slot="date-filter-popover">
-        <FilterMenuGroup>
-          {["desc", "asc"].map((value) => {
-            const isSelected = sortOrder === value;
-            const label =
-              value === "desc" ? t2("assetFilter.sortNewest") : t2("assetFilter.sortOldest");
-            return (
-              <FilterMenuItem
-                key={value}
-                selected={isSelected}
-                onClick={() => onSortChange(value)}
-                data-action-ui-id={`asset-panel.sort-${value}`}
-              >
-                {label}
-              </FilterMenuItem>
-            );
-          })}
-        </FilterMenuGroup>
-        <FilterMenuGroup separated={true}>
-          {DATE_PRESETS.map((preset2) => {
-            const isSelected = dateFilter.kind === preset2.value;
-            const label = t2(preset2.labelKey, preset2.fallback);
-            return (
-              <FilterMenuItem
-                key={preset2.value}
-                selected={isSelected}
-                onClick={() => handlePreset(preset2.value)}
-                data-action-ui-id={`asset-panel.date-filter-option-${preset2.value}`}
-              >
-                {label}
-              </FilterMenuItem>
-            );
-          })}
-        </FilterMenuGroup>
-        {dateFilter.kind === "custom" && (
-          <div
-            data-slot="custom-date-range"
-            className="overflow-hidden rounded-lg border border-border bg-background"
-          >
-            <Calendar
-              mode="range"
-              selected={customRange}
-              onSelect={handleCustomSelect}
-              numberOfMonths={1}
-            />
-          </div>
-        )}
-      </FilterMenuContent>
-    </Popover>
-  );
-}
-function TagFilterPopover({ tagFilters, onChange }) {
-  const { t: t2 } = useTranslation();
-  const registry2 = useTagRegistry();
-  const [open, setOpen] = reactExports.useState(false);
-  const active2 = tagFilters.length > 0;
-  const displayName2 = reactExports.useCallback(
-    (id2, custom, legacyNameKey) => {
-      if (custom && custom.length > 0) return custom;
-      return t2(legacyNameKey ?? PRESET_COLOR_NAME_KEYS[id2] ?? "") || id2;
-    },
-    [t2],
-  );
-  const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.tagSection");
-    return active2 ? `${base2} · ${tagFilters.length}` : base2;
-  }, [t2, active2, tagFilters.length]);
-  const toggle = reactExports.useCallback(
-    (id2) => {
-      const set2 = new Set(tagFilters);
-      if (set2.has(id2)) set2.delete(id2);
-      else set2.add(id2);
-      onChange(Array.from(set2));
-    },
-    [tagFilters, onChange],
-  );
-  const clear = reactExports.useCallback(() => {
-    onChange([]);
-    setOpen(false);
-  }, [onChange]);
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <FilterTrigger
-        label={triggerLabel}
-        active={active2}
-        open={open}
-        testId="asset-panel.tag-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
-        onClear={active2 ? clear : void 0}
-      />
-      <PopoverContent
-        align="start"
-        className="w-auto min-w-36 gap-0.5 p-1.5"
-        data-slot="tag-filter-popover"
-      >
-        {[
-          {
-            key: "color",
-            label: t2("canvasTags.colorLabels"),
-            tags: registry2.tags.filter(isCanvasColorTag),
-          },
-          {
-            key: "keyword",
-            label: t2("canvasTags.keywords"),
-            tags: registry2.tags.filter(isCanvasKeywordTag),
-          },
-        ].map((group) =>
-          group.tags.length > 0 ? (
-            <div key={group.key} className="not-first:mt-1">
-              <div className="px-2 py-1 text-[11px] font-medium text-muted-foreground">
-                {group.label}
-              </div>
-              {group.tags.map((tag) => {
-                const checked = tagFilters.includes(tag.id);
-                const label = displayName2(tag.id, tag.name, tag.legacyNameKey);
-                return (
-                  <FilterMenuItem
-                    key={tag.id}
-                    selected={checked}
-                    onClick={() => toggle(tag.id)}
-                    className="gap-2.5"
-                    data-action-ui-id={`asset-panel.tag-filter-option-${tag.id}`}
-                  >
-                    <span className="flex min-w-0 items-center gap-2.5">
-                      {isCanvasColorTag(tag) ? (
-                        <span
-                          className="size-2.5 shrink-0 rounded-full"
-                          style={{
-                            backgroundColor: getCanvasTagPresentationColor(tag.color),
-                          }}
-                          aria-hidden={true}
-                        />
-                      ) : (
-                        <span
-                          data-canvas-keyword-mark=""
-                          className="size-2.5 shrink-0 rounded-full border border-muted-foreground"
-                          aria-hidden={true}
-                        />
-                      )}
-                      <span className="min-w-0 truncate text-left">{label}</span>
-                    </span>
-                  </FilterMenuItem>
-                );
-              })}
-            </div>
-          ) : null,
-        )}
-      </PopoverContent>
-    </Popover>
-  );
-}
+
 function ToolbarFilters({
   typeFilters,
   dateFilter,
@@ -647,8 +787,14 @@ function ToolbarFilters({
   return (
     <div className="flex h-full w-full items-stretch">
       <div className="flex min-w-0 flex-1 items-stretch gap-1 overflow-x-auto scrollbar-none">
-        <TypeFilterPopover typeFilters={typeFilters} onChange={onTypeFiltersChange} />
-        <TagFilterPopover tagFilters={tagFilters} onChange={onTagFiltersChange} />
+        <TypeFilterPopover
+          typeFilters={typeFilters}
+          onChange={onTypeFiltersChange}
+        />
+        <TagFilterPopover
+          tagFilters={tagFilters}
+          onChange={onTagFiltersChange}
+        />
         <DateFilterPopover
           dateFilter={dateFilter}
           sortOrder={sortOrder}
@@ -659,13 +805,17 @@ function ToolbarFilters({
     </div>
   );
 }
+
 function resolveTreePaths(entries2, rootPath) {
   return entries2.map((entry) => ({
     ...entry,
     path: joinFilePath(rootPath, entry.path),
-    children: entry.children ? resolveTreePaths(entry.children, rootPath) : void 0,
+    children: entry.children
+      ? resolveTreePaths(entry.children, rootPath)
+      : void 0,
   }));
 }
+
 export function FileExplorer({
   onFileOpen,
   onRootPathChange,
@@ -679,7 +829,9 @@ export function FileExplorer({
   const gatewayScopeKey = useGatewayScopeKey();
   const platform2 = usePlatform();
   const currentWorkspace = useCurrentWorkspace();
-  const [rootPath, setRootPath] = reactExports.useState(initialRootPath ?? null);
+  const [rootPath, setRootPath] = reactExports.useState(
+    initialRootPath ?? null,
+  );
   const [expanded, setExpanded] = reactExports.useState(new Set());
   const [selectedPaths, setSelectedPaths] = reactExports.useState(new Set());
   const [lastSelectedPath, setLastSelectedPath] = reactExports.useState(null);
@@ -695,8 +847,14 @@ export function FileExplorer({
   });
   const searchInputRef = reactExports.useRef(null);
   const selectionAnchorRef = reactExports.useRef(null);
-  const { typeFilters, dateFilter, sortOrder, setTypeFilters, setDateFilter, setSortOrder } =
-    useAssetPanelPreferences();
+  const {
+    typeFilters,
+    dateFilter,
+    sortOrder,
+    setTypeFilters,
+    setDateFilter,
+    setSortOrder,
+  } = useAssetPanelPreferences();
   const [tagFilters, setTagFilters] = reactExports.useState([]);
   const tagRegistry = useTagRegistry();
   reactExports.useEffect(() => {
@@ -709,7 +867,9 @@ export function FileExplorer({
     const ids2 = new Set();
     for (const tag of tagRegistry.tags) {
       const name2 =
-        tag.name || t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") || tag.id;
+        tag.name ||
+        t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
+        tag.id;
       if (name2.toLowerCase().includes(q2)) ids2.add(tag.id);
     }
     return ids2;
@@ -781,27 +941,45 @@ export function FileExplorer({
         tagFilters,
         tagSearchIds,
       }),
-    [tree, deferredSearchQuery, typeFilters, dateFilter, assetByAbsPath, tagFilters, tagSearchIds],
+    [
+      tree,
+      deferredSearchQuery,
+      typeFilters,
+      dateFilter,
+      assetByAbsPath,
+      tagFilters,
+      tagSearchIds,
+    ],
   );
   const treeFileComparator = reactExports.useMemo(
-    () => buildTreeFileComparator(sortOrder, (path2) => assetByAbsPath.get(path2)),
+    () =>
+      buildTreeFileComparator(sortOrder, (path2) => assetByAbsPath.get(path2)),
     [sortOrder, assetByAbsPath],
   );
-  const { creatingEntry, startCreate, handleCreateConfirm, handleCreateCancel } =
-    useFileExplorerCreate({
-      setViewMode,
-      expanded,
-      setExpanded,
-      rootPath,
-      gatewayFetch: gatewayFetch2,
-      conflictResolver,
-      platformFs: platform2.fs,
-      refresh,
-      invalidateDirs,
-      setSelectedPaths,
-      setLastSelectedPath,
-    });
-  const flatRows = useFlattenTree(filteredTree, expanded, creatingEntry, treeFileComparator);
+  const {
+    creatingEntry,
+    startCreate,
+    handleCreateConfirm,
+    handleCreateCancel,
+  } = useFileExplorerCreate({
+    setViewMode,
+    expanded,
+    setExpanded,
+    rootPath,
+    gatewayFetch: gatewayFetch2,
+    conflictResolver,
+    platformFs: platform2.fs,
+    refresh,
+    invalidateDirs,
+    setSelectedPaths,
+    setLastSelectedPath,
+  });
+  const flatRows = useFlattenTree(
+    filteredTree,
+    expanded,
+    creatingEntry,
+    treeFileComparator,
+  );
   const sortedFilteredAssets = reactExports.useMemo(
     () =>
       filterAndSortAssets(assets, {
@@ -812,9 +990,18 @@ export function FileExplorer({
         tagFilters,
         tagSearchIds,
       }),
-    [assets, deferredSearchQuery, typeFilters, dateFilter, sortOrder, tagFilters, tagSearchIds],
+    [
+      assets,
+      deferredSearchQuery,
+      typeFilters,
+      dateFilter,
+      sortOrder,
+      tagFilters,
+      tagSearchIds,
+    ],
   );
-  const { scrollEl, scrollCallbackRef, containerWidth } = useFileExplorerScrollContainer();
+  const { scrollEl, scrollCallbackRef, containerWidth } =
+    useFileExplorerScrollContainer();
   const columnsPerRow = Math.max(2, Math.floor(containerWidth / 100));
   const resetScrollToTop = reactExports.useCallback(
     (_mode2 = viewMode) => {
@@ -860,13 +1047,14 @@ export function FileExplorer({
       return next2;
     });
   }, []);
-  const { updateSelection: updateSelection2, handleFileSelect } = useFileExplorerSelection({
-    lastSelectedPath,
-    flatRows,
-    setSelectedPaths,
-    setLastSelectedPath,
-    selectionAnchorRef,
-  });
+  const { updateSelection: updateSelection2, handleFileSelect } =
+    useFileExplorerSelection({
+      lastSelectedPath,
+      flatRows,
+      setSelectedPaths,
+      setLastSelectedPath,
+      selectionAnchorRef,
+    });
   const { buildDragPayload, handleMove } = useFileExplorerDrag({
     selectedPaths,
     toRelativePath,
@@ -891,11 +1079,12 @@ export function FileExplorer({
       onFileOpen?.(path2, name2);
     }
   });
-  const { renamingPath, startRename, handleRename, handleRenameCancel } = useFileExplorerRename({
-    rename,
-    toRelativePath,
-    invalidateDirs,
-  });
+  const { renamingPath, startRename, handleRename, handleRenameCancel } =
+    useFileExplorerRename({
+      rename,
+      toRelativePath,
+      invalidateDirs,
+    });
   const { deletingEntries, requestDelete, cancelDelete, handleDeleteConfirm } =
     useFileExplorerDelete({
       remove: remove2,
@@ -913,7 +1102,9 @@ export function FileExplorer({
       gatewayScopeKey,
     });
   const requestDeleteFromAnchor = useStableCallback((anchor) => {
-    requestDelete(expandSelectionForDelete(anchor, selectedPaths, filteredTree));
+    requestDelete(
+      expandSelectionForDelete(anchor, selectedPaths, filteredTree),
+    );
   });
   const {
     externalDragOver,
@@ -945,15 +1136,19 @@ export function FileExplorer({
       );
     }
   });
-  const { handleRootDragEnter, handleRootDragOver, handleRootDragLeave, handleRootDrop } =
-    useFileExplorerRootDrop({
-      rootPath,
-      handleMove,
-      handleExternalDragEnter,
-      handleExternalDragOver,
-      handleExternalDragLeave,
-      handleExternalDrop,
-    });
+  const {
+    handleRootDragEnter,
+    handleRootDragOver,
+    handleRootDragLeave,
+    handleRootDrop,
+  } = useFileExplorerRootDrop({
+    rootPath,
+    handleMove,
+    handleExternalDragEnter,
+    handleExternalDragOver,
+    handleExternalDragLeave,
+    handleExternalDrop,
+  });
   const {
     resolveAssetPath,
     handleGridSelect,
@@ -988,29 +1183,40 @@ export function FileExplorer({
     toRelativePath,
     assetMap,
   });
-  const { handleAddToCanvas, handleAddToChat, handleDuplicateForGrid, handleDuplicateForTree } =
-    useFileExplorerCanvasIntegration({
-      selectedPaths,
-      toRelativePath,
-      filteredTree,
-      assetMap,
-      duplicate,
-    });
+  const {
+    handleAddToCanvas,
+    handleAddToChat,
+    handleDuplicateForGrid,
+    handleDuplicateForTree,
+  } = useFileExplorerCanvasIntegration({
+    selectedPaths,
+    toRelativePath,
+    filteredTree,
+    assetMap,
+    duplicate,
+  });
   const [promoteFiles, setPromoteFiles] = reactExports.useState(null);
   const workspaceProject = useWorkspaceProject(currentWorkspace ?? void 0);
   const isTeamProject = workspaceProject?.kind === "team";
-  const [saveToProjectFiles, setSaveToProjectFiles] = reactExports.useState(null);
+  const [saveToProjectFiles, setSaveToProjectFiles] =
+    reactExports.useState(null);
   const collectPromoteFiles = reactExports.useCallback(
     (target) => {
       if (target.isDirectory || target.isMissing) return [];
-      const inSelection = selectedPaths.has(target.path) && selectedPaths.size > 1;
-      const targetPaths = inSelection ? Array.from(selectedPaths) : [target.path];
+      const inSelection =
+        selectedPaths.has(target.path) && selectedPaths.size > 1;
+      const targetPaths = inSelection
+        ? Array.from(selectedPaths)
+        : [target.path];
       const resolved = [];
       for (const p3 of targetPaths) {
         const entry = findEntryByPath(filteredTree, p3);
         if (!entry || entry.isDirectory || entry.status === "missing") continue;
         const asset = assetByAbsPath.get(p3);
-        const vaultPrompt = asset?.prompt && asset.prompt.trim().length > 0 ? asset.prompt : void 0;
+        const vaultPrompt =
+          asset?.prompt && asset.prompt.trim().length > 0
+            ? asset.prompt
+            : void 0;
         resolved.push({
           workspaceRelPath: toRelativePath(p3),
           absolutePath: p3,
@@ -1049,17 +1255,24 @@ export function FileExplorer({
         : void 0,
     [workspaceProject, collectPromoteFiles],
   );
-  const handlePromoteClose = reactExports.useCallback(() => setPromoteFiles(null), []);
-  const { clipboardHasContent, handleNativePaste, handlePasteFromMenu, probeClipboard } =
-    useFileExplorerClipboard({
-      gatewayFetch: gatewayFetch2,
-      platform: platform2,
-      rootPath,
-      refresh,
-      setSelectedPaths,
-      setLastSelectedPath,
-      sectionRef,
-    });
+  const handlePromoteClose = reactExports.useCallback(
+    () => setPromoteFiles(null),
+    [],
+  );
+  const {
+    clipboardHasContent,
+    handleNativePaste,
+    handlePasteFromMenu,
+    probeClipboard,
+  } = useFileExplorerClipboard({
+    gatewayFetch: gatewayFetch2,
+    platform: platform2,
+    rootPath,
+    refresh,
+    setSelectedPaths,
+    setLastSelectedPath,
+    sectionRef,
+  });
   const handleNewFolderFromMenu = useStableCallback(() => {
     if (!rootPath) return;
     startCreate(rootPath, true);
@@ -1085,7 +1298,9 @@ export function FileExplorer({
     handleAddToCanvas,
   });
   const primaryPath =
-    lastSelectedPath && selectedPaths.has(lastSelectedPath) ? lastSelectedPath : null;
+    lastSelectedPath && selectedPaths.has(lastSelectedPath)
+      ? lastSelectedPath
+      : null;
   const primaryRowHandlers = reactExports.useMemo(() => {
     if (!primaryPath) return {};
     const entry = findEntryByPath(filteredTree, primaryPath);
@@ -1102,7 +1317,8 @@ export function FileExplorer({
       onAddToCanvas: () => handleAddToCanvas(target),
       // openWithDefault matches the menu's "Open" item — both files and
       // missing/directory rows hide the entry / disable the shortcut.
-      onOpenDefault: isDirectory || isMissing ? void 0 : () => openWithDefault(entry.path),
+      onOpenDefault:
+        isDirectory || isMissing ? void 0 : () => openWithDefault(entry.path),
       onShowInFolder: () => handleShowInFolder(entry.path),
       onRename: () => startRename(entry.path),
       onDelete: () => requestDeleteFromAnchor(entry),
@@ -1122,7 +1338,9 @@ export function FileExplorer({
         .filter((r2) => !r2.entry.path.endsWith("/__creating__"))
         .map((r2) => r2.entry.path);
     }
-    return sortedFilteredAssets.map((a2) => (rootPath ? joinFilePath(rootPath, a2.path) : a2.path));
+    return sortedFilteredAssets.map((a2) =>
+      rootPath ? joinFilePath(rootPath, a2.path) : a2.path,
+    );
   }, [viewMode, flatRows, sortedFilteredAssets, rootPath]);
   const { panelLevelHandlers } = useFileExplorerShortcuts({
     setSelectedPaths,
@@ -1400,7 +1618,9 @@ export function FileExplorer({
               >
                 <RetryIcon size={14} />
               </TooltipTrigger>
-              <TooltipContent side="bottom">{t2("fileExplorer.refresh")}</TooltipContent>
+              <TooltipContent side="bottom">
+                {t2("fileExplorer.refresh")}
+              </TooltipContent>
             </Tooltip>
           </div>
         </TooltipProvider>
@@ -1442,11 +1662,17 @@ export function FileExplorer({
                 title:
                   searchQuery.trim().length > 0
                     ? t2("fileExplorer.noMatchingFiles")
-                    : t2("fileExplorer.assetsHint", "Generated assets land here"),
+                    : t2(
+                        "fileExplorer.assetsHint",
+                        "Generated assets land here",
+                      ),
                 description:
                   searchQuery.trim().length > 0
                     ? void 0
-                    : t2("fileExplorer.localStorageHint", "Files are stored locally."),
+                    : t2(
+                        "fileExplorer.localStorageHint",
+                        "Files are stored locally.",
+                      ),
               }}
             />
           ) : viewMode === "tree" ? (

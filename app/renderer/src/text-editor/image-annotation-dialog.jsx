@@ -1,235 +1,111 @@
 // image-annotation-dialog.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, API_PATHS, usePlatform, ChevronDown, X$7, observeClientMediaUpload, canvasLog, Undo2, Redo2 } from "../vendor.js";
-import { Icon, DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
-import { Download, Trash2 } from "../media-editing/parse-item.jsx";
-import { TOOLS } from "../canvas/use-canvas-tag-filter.js";
-import { workspaceEvents } from "../workspace/use-hub-logo-hover-animation.jsx";
-import { useGatewayFetch } from "../generation/use-resizable-width.js";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  ArrowUpRight,
+  ChevronDown,
+  dedupedToast,
+  Grid3X3,
+  jsxRuntimeExports,
+  Minus,
+  reactExports,
+  Redo2,
+  Tag$1,
+  Undo2,
+  usePlatform,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
+import {
+  Brush,
+  Circle,
+  Download,
+  MousePointer2,
+  Square,
+  Trash2,
+  Type$1,
+} from "../media-editing/package.jsx";
+import { filenameExtension } from "./read-preview-text-response.jsx";
+import { DropdownMenu, Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  AlertDialog,
   Button$1,
   cn$2,
-  DropdownMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
   DropdownMenuContent,
   DropdownMenuItem,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
+  DropdownMenuTrigger,
+  useBrowserHoverPreview,
+} from "../infra/dialog-content.jsx";
+import {
   AlertDialogAction,
   AlertDialogCancel,
-  useBrowserHoverPreview,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import {
-  isCanvasReferenceUri,
-  CANVAS_REFERENCE_API,
-} from "./table-document-to-llm-content.js";
-import { useEditorState, ImageEditor } from "../media-editing/editor2.jsx";
-import { DEFAULT_STYLE } from "../media-editing/renderer.js";
-import { __jsx } from "../shared/jsx-runtime.js";
-const MAX_PREVIEW_TEXT_BYTES = 512 * 1024;
-function tooLarge() {
-  return Object.assign(new Error("Text exceeds the preview size limit"), {
-    code: "FILE_TOO_LARGE",
-  });
-}
-async function readPreviewTextResponse(response, signal) {
-  signal?.throwIfAborted();
-  if (response.status === 413) throw tooLarge();
-  if (!response.ok)
-    throw Object.assign(new Error("Text preview request failed"), {
-      status: response.status,
-    });
-  const length2 = Number(response.headers.get("content-length"));
-  if (Number.isFinite(length2) && length2 > MAX_PREVIEW_TEXT_BYTES) {
-    await response.body?.cancel();
-    throw tooLarge();
-  }
-  if (!response.body) return "";
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  const chunks = [];
-  let total = 0;
-  const handleAbort = () => {
-    void reader.cancel().catch(() => {});
-  };
-  signal?.addEventListener("abort", handleAbort, {
-    once: true,
-  });
-  try {
-    while (true) {
-      signal?.throwIfAborted();
-      const { done, value } = await reader.read();
-      signal?.throwIfAborted();
-      if (done) break;
-      total += value.byteLength;
-      if (total > MAX_PREVIEW_TEXT_BYTES) {
-        await reader.cancel();
-        throw tooLarge();
-      }
-      chunks.push(
-        decoder.decode(value, {
-          stream: true,
-        }),
-      );
-    }
-    chunks.push(decoder.decode());
-    return chunks.join("");
-  } finally {
-    signal?.removeEventListener("abort", handleAbort);
-    reader.releaseLock();
-  }
-}
-export function usePreviewTextLoader() {
-  const gatewayFetch2 = useGatewayFetch();
-  return reactExports.useCallback(
-    async (path2, signal) => {
-      signal?.throwIfAborted();
-      const endpoint = isCanvasReferenceUri(path2)
-        ? `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path2)}`
-        : API_PATHS.serveFile(path2);
-      return readPreviewTextResponse(
-        await gatewayFetch2(endpoint, {
-          signal,
-        }),
-        signal,
-      );
-    },
-    [gatewayFetch2],
-  );
-}
-export async function uploadCanvasReferenceFile(file, fetch2) {
-  const data2 = await observeClientMediaUpload(file, file.name, "attachment", async (headers) => {
-    const form = new FormData();
-    form.append("file", file, file.name);
-    const response = await fetch2(API_PATHS.upload, {
-      method: "POST",
-      body: form,
-      ...(headers
-        ? {
-            headers,
-          }
-        : {}),
-    });
-    return await response.json();
-  });
-  if (!data2?.ok || !data2.relative)
-    throw new Error("Upload failed: missing relative path in response");
-  return data2.relative;
-}
-export async function uploadCanvasFileToCdn(file, fetch2) {
-  const form = new FormData();
-  form.append("file", file, file.name);
-  const response = await fetch2(API_PATHS.filesUploadCdn, {
-    method: "POST",
-    body: form,
-  });
-  const data2 = await response.json();
-  if (!data2.ok || !data2.url) throw new Error(data2.error || "CDN upload failed");
-  return data2.url;
-}
-const AssetSourcePickerContext = reactExports.createContext(null);
-const AttachmentLocatorContext = reactExports.createContext(null);
-export function useAttachmentLocator() {
-  return reactExports.useContext(AttachmentLocatorContext);
-}
-export function AssetSourcePickerProvider({ children: children2 }) {
-  const picker = reactExports.useRef(null);
-  const locator = reactExports.useRef(null);
-  return (
-    <AssetSourcePickerContext.Provider value={picker}>
-      <AttachmentLocatorContext.Provider value={locator}>
-        {children2}
-      </AttachmentLocatorContext.Provider>
-    </AssetSourcePickerContext.Provider>
-  );
-}
-export function useAssetSourcePicker() {
-  return reactExports.useContext(AssetSourcePickerContext);
-}
-async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
-  try {
-    const nodeIds = await addFiles();
-    if (nodeIds.length === 0) {
-      dedupedToast.error(t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"));
-      return;
-    }
-    const toastId = dedupedToast.success(
-      t2("workspace.browser.pluginAddedToCanvas", "已添加到画布"),
-      {
-        duration: 8e3,
-        action: (
-          <Button$1
-            variant="default"
-            size="default"
-            className="ml-auto min-w-14 shrink-0 px-3"
-            data-action-ui-id="browser-toast-view-on-canvas"
-            onClick={() => {
-              dedupedToast.dismiss(toastId);
-              workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds, {
-                select: true,
-                preferParentGroup: false,
-              });
-            }}
-          >
-            {t2("workspace.browser.viewOnCanvas", "查看")}
-          </Button$1>
-        ),
-      },
-    );
-  } catch (error) {
-    canvasLog.error("Browser file import to canvas failed", {
-      error,
-    });
-    dedupedToast.error(t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"));
-  }
-}
-export function useBrowserCanvasImport(currentWorkspace, isActive2, handleSystemPasteToCanvas) {
-  const { t: t2 } = useTranslation();
-  reactExports.useEffect(() => {
-    if (isActive2 === false || !currentWorkspace) return;
-    const subscription = workspaceEvents.onAddFilesToCanvas(({ files, source }) => {
-      if (files.length === 0) return;
-      void notifyBrowserCanvasImport(
-        currentWorkspace,
-        () => handleSystemPasteToCanvas(files, void 0, source),
-        t2,
-      );
-    });
-    return () => subscription.dispose();
-  }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t2]);
-}
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  DialogDescription,
+  DialogTitle,
+} from "../infra/badge-variants.jsx";
+import { useEditorState } from "../media-editing/use-editor-state.js";
+import { ImageEditor } from "../media-editing/image-editor.jsx";
+import { DEFAULT_STYLE } from "../media-editing/history-manager.js";
+
+const TOOLS = [
+  {
+    tool: "select",
+    icon: MousePointer2,
+    labelKey: "imageEdit.toolSelect",
+  },
+  {
+    tool: "rectangle",
+    icon: Square,
+    labelKey: "imageEdit.toolRectangle",
+  },
+  {
+    tool: "ellipse",
+    icon: Circle,
+    labelKey: "imageEdit.toolEllipse",
+  },
+  {
+    tool: "arrow",
+    icon: ArrowUpRight,
+    labelKey: "imageEdit.toolArrow",
+  },
+  {
+    tool: "line",
+    icon: Minus,
+    labelKey: "imageEdit.toolLine",
+  },
+  {
+    tool: "brush",
+    icon: Brush,
+    labelKey: "imageEdit.toolBrush",
+  },
+  {
+    tool: "text",
+    icon: Type$1,
+    labelKey: "imageEdit.toolText",
+  },
+  {
+    tool: "tag",
+    icon: Tag$1,
+    labelKey: "imageEdit.toolTag",
+  },
+  {
+    tool: "mosaic",
+    icon: Grid3X3,
+    labelKey: "imageEdit.toolMosaic",
+  },
+];
+
 const IMAGE_ANNOTATION_SAVE_TIMEOUT_MS = 12e4;
-const ANIMATED_IMAGE_EXTENSIONS = new Set(["gif"]);
+
 const JPEG_SOURCE_EXTENSIONS = new Set(["jpg", "jpeg", "heic", "heif"]);
-function filenameExtension(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  return dot2 > -1 ? filename.slice(dot2 + 1).toLocaleLowerCase() : "";
-}
-export function isAnnotatableImage(attachment) {
-  return (
-    (attachment.kind ?? "file") === "file" &&
-    attachment.fileType === "image" &&
-    attachment.status === "done" &&
-    Boolean(attachment.previewUrl) &&
-    !ANIMATED_IMAGE_EXTENSIONS.has(filenameExtension(attachment.filename))
-  );
-}
-export function isSameImageAnnotationTarget(current2, snapshot2) {
-  return (
-    current2.id === snapshot2.id &&
-    current2.filename === snapshot2.filename &&
-    current2.previewUrl === snapshot2.previewUrl &&
-    current2.relativePath === snapshot2.relativePath
-  );
-}
+
 function getImageAnnotationOutput(filename) {
   if (JPEG_SOURCE_EXTENSIONS.has(filenameExtension(filename))) {
     return {
@@ -243,12 +119,16 @@ function getImageAnnotationOutput(filename) {
     mimeType: "image/png",
   };
 }
+
 function getAnnotatedFilename(filename, extension2) {
   const dot2 = filename.lastIndexOf(".");
-  const base2 = (dot2 > 0 ? filename.slice(0, dot2) : filename).trim() || "image";
+  const base2 =
+    (dot2 > 0 ? filename.slice(0, dot2) : filename).trim() || "image";
   return `${base2}-annotated.${extension2}`;
 }
+
 const IMAGE_ANNOTATION_VIEWPORT_INSET = 16;
+
 function observeImageAnnotationViewport(element2, onSize) {
   let disposed = false;
   let frame2 = 0;
@@ -273,14 +153,18 @@ function observeImageAnnotationViewport(element2, onSize) {
   measure();
   scheduleMeasure();
   const observer2 =
-    typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleMeasure);
+    typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver(scheduleMeasure);
   observer2?.observe(element2);
   return () => {
     disposed = true;
-    if (frame2 && typeof cancelAnimationFrame !== "undefined") cancelAnimationFrame(frame2);
+    if (frame2 && typeof cancelAnimationFrame !== "undefined")
+      cancelAnimationFrame(frame2);
     observer2?.disconnect();
   };
 }
+
 function isUsableSize(size2) {
   return (
     Number.isFinite(size2.width) &&
@@ -289,6 +173,7 @@ function isUsableSize(size2) {
     size2.height > 0
   );
 }
+
 function calculateImageAnnotationDisplayFrame(
   editorSize,
   viewportSize,
@@ -328,11 +213,23 @@ function calculateImageAnnotationDisplayFrame(
     scale: scale2,
   };
 }
-const COLORS = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#007AFF", "#AF52DE", "#FFFFFF"];
+
+const COLORS = [
+  "#FF3B30",
+  "#FF9500",
+  "#FFCC00",
+  "#34C759",
+  "#007AFF",
+  "#AF52DE",
+  "#FFFFFF",
+];
+
 const STROKE_WIDTHS = [2, 4, 8];
+
 function getErrorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
+
 export function ImageAnnotationDialog({
   attachment,
   canAppend,
@@ -361,7 +258,9 @@ export function ImageAnnotationDialog({
     height: 0,
   });
   const [activeTool, setActiveTool] = reactExports.useState("select");
-  const [activeColor, setActiveColor] = reactExports.useState(DEFAULT_STYLE.stroke);
+  const [activeColor, setActiveColor] = reactExports.useState(
+    DEFAULT_STYLE.stroke,
+  );
   const [activeStrokeWidth, setActiveStrokeWidth] = reactExports.useState(
     DEFAULT_STYLE.strokeWidth,
   );
@@ -417,12 +316,16 @@ export function ImageAnnotationDialog({
     };
     if (next2.width <= 0 || next2.height <= 0) return;
     setViewportSize((current2) =>
-      current2.width === next2.width && current2.height === next2.height ? current2 : next2,
+      current2.width === next2.width && current2.height === next2.height
+        ? current2
+        : next2,
     );
   }, []);
   const handleViewportRef = reactExports.useCallback((element2) => {
     viewportRef.current = element2;
-    setViewportElement((current2) => (current2 === element2 ? current2 : element2));
+    setViewportElement((current2) =>
+      current2 === element2 ? current2 : element2,
+    );
   }, []);
   const handleEditorReady = reactExports.useCallback(() => {
     const nextSize = editorRef.current?.getSize();
@@ -436,7 +339,9 @@ export function ImageAnnotationDialog({
     return observeImageAnnotationViewport(viewportElement, (next2) => {
       if (next2.width <= 0 || next2.height <= 0) return;
       setViewportSize((current2) =>
-        current2.width === next2.width && current2.height === next2.height ? current2 : next2,
+        current2.width === next2.width && current2.height === next2.height
+          ? current2
+          : next2,
       );
     });
   }, [viewportElement]);
@@ -447,7 +352,9 @@ export function ImageAnnotationDialog({
   const handleRetryLoad = reactExports.useCallback(() => {
     setLoadFailed(false);
     setEditorReady(false);
-    void editorRef.current?.loadImage(attachment.previewUrl).catch(() => void 0);
+    void editorRef.current
+      ?.loadImage(attachment.previewUrl)
+      .catch(() => void 0);
   }, [attachment.previewUrl]);
   const selectTool = reactExports.useCallback((tool2) => {
     setActiveTool(tool2);
@@ -504,7 +411,11 @@ export function ImageAnnotationDialog({
         event.preventDefault();
         if (key2 === "y" || event.shiftKey) editorRef.current?.redo();
         else editorRef.current?.undo();
-      } else if (!mod && !event.altKey && (key2 === "delete" || key2 === "backspace")) {
+      } else if (
+        !mod &&
+        !event.altKey &&
+        (key2 === "delete" || key2 === "backspace")
+      ) {
         event.preventDefault();
         editorRef.current?.deleteSelected();
       }
@@ -513,7 +424,8 @@ export function ImageAnnotationDialog({
   );
   const apply2 = reactExports.useCallback(
     async (mode2) => {
-      if (operationRef.current || applyDisabled || !editorReady || !hasChanges) return;
+      if (operationRef.current || applyDisabled || !editorReady || !hasChanges)
+        return;
       const operation = new AbortController();
       operationRef.current = operation;
       setWorking(mode2);
@@ -536,11 +448,19 @@ export function ImageAnnotationDialog({
           lastModified: Date.now(),
         });
         const current2 = applyContextRef.current;
-        if (current2.applyDisabled || (mode2 === "append" && !current2.canAppend)) {
+        if (
+          current2.applyDisabled ||
+          (mode2 === "append" && !current2.canAppend)
+        ) {
           dedupedToast.error(t2("chat.imageAnnotation.targetChanged"));
           return;
         }
-        const accepted = await current2.onApply(attachment, file, mode2, operation.signal);
+        const accepted = await current2.onApply(
+          attachment,
+          file,
+          mode2,
+          operation.signal,
+        );
         if (operation.signal.aborted) return;
         if (!accepted) {
           dedupedToast.error(t2("chat.imageAnnotation.targetChanged"));
@@ -614,7 +534,8 @@ export function ImageAnnotationDialog({
         anchor.click();
         URL.revokeObjectURL(url2);
       }
-      if (!operation.signal.aborted) dedupedToast.success(t2("chat.imageAnnotation.exported"));
+      if (!operation.signal.aborted)
+        dedupedToast.success(t2("chat.imageAnnotation.exported"));
     } catch (error) {
       if (operation.signal.aborted) return;
       void window.hilo?.logger?.error?.(
@@ -628,7 +549,15 @@ export function ImageAnnotationDialog({
         setWorking(null);
       }
     }
-  }, [editorReady, exportBlob, hasChanges, output.extension, outputFilename, platform2, t2]);
+  }, [
+    editorReady,
+    exportBlob,
+    hasChanges,
+    output.extension,
+    outputFilename,
+    platform2,
+    t2,
+  ]);
   const requestClose = reactExports.useCallback(() => {
     if (operationRef.current && working !== "export") {
       operationRef.current.abort();
@@ -699,7 +628,9 @@ export function ImageAnnotationDialog({
             {activeTool !== "select" && activeTool !== "mosaic" ? (
               <>
                 <fieldset className="flex items-center gap-1">
-                  <legend className="sr-only">{t2("chat.imageAnnotation.color")}</legend>
+                  <legend className="sr-only">
+                    {t2("chat.imageAnnotation.color")}
+                  </legend>
                   {COLORS.map((color2) => (
                     <button
                       key={color2}
@@ -720,12 +651,16 @@ export function ImageAnnotationDialog({
                 </fieldset>
                 <div className="mx-1 h-5 w-px bg-border" />
                 <fieldset className="flex items-center gap-1">
-                  <legend className="sr-only">{t2("imageEdit.strokeWidth")}</legend>
+                  <legend className="sr-only">
+                    {t2("imageEdit.strokeWidth")}
+                  </legend>
                   {STROKE_WIDTHS.map((width) => (
                     <Button$1
                       key={width}
                       type="button"
-                      variant={activeStrokeWidth === width ? "secondary" : "ghost"}
+                      variant={
+                        activeStrokeWidth === width ? "secondary" : "ghost"
+                      }
                       size="icon-sm"
                       aria-label={`${t2("imageEdit.strokeWidth")} ${width}`}
                       data-action-ui-id="chat-image-annotation-stroke-width"
@@ -936,7 +871,9 @@ export function ImageAnnotationDialog({
       <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
         <AlertDialogContent layer="nested" onKeyDown={handleKeyDown2}>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t2("chat.imageAnnotation.discardTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t2("chat.imageAnnotation.discardTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t2("chat.imageAnnotation.discardDescription")}
             </AlertDialogDescription>
@@ -952,7 +889,9 @@ export function ImageAnnotationDialog({
       <AlertDialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
         <AlertDialogContent layer="nested" onKeyDown={handleKeyDown2}>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t2("chat.imageAnnotation.privacyTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t2("chat.imageAnnotation.privacyTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t2("chat.imageAnnotation.privacyDescription")}
             </AlertDialogDescription>

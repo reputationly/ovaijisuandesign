@@ -1,167 +1,89 @@
 // i2-i-popover-inner.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useAssetMetadataApi, ArrowUpRight } from "../vendor.js";
-import { useCanvasBridge, useCanvasActions, FileClock } from "../media-editing/parse-item.jsx";
-import { BACKEND_MIDJOURNEY } from "./push-inline.js";
-import {
-  MAX_IMAGES_PER_NODE,
-  composePromptWithReferenceText,
-  pickPersistableModelParams,
-} from "../canvas/prune-persisted-node-data.js";
-import {
-  translateOptionValue,
-  findModelByStoredId,
-  normalizeParamsForModel,
-  getDefaultParams,
-  migrateParamsForModel,
-  enforceConstraints,
-  popoverDraftIsDirty,
-  getDisabledOptions,
-  paramI18nKey,
-  paramPlaceholderI18nKey,
-  paramLabelFallback,
-  paramPlaceholderFallback,
-  attachmentExtraHeight,
-  buildPromotionClickHandler,
-} from "./resolve-reference-texts.js";
-import { ParamQualitySlider } from "../media-editing/canvas-image.jsx";
 import {
   ASPECT_RATIO_PARAM_KEYS,
   IMAGE_MODE_KEY,
   isDraftSubmitFormDisabled,
+  rejectedReferencePaths,
   shouldPersistPopoverDraftOnUnmount,
   submitWithPersistedPopoverDraft,
-  rejectedReferencePaths,
-} from "../media-editing/use-lightbox-media-actions.jsx";
-import { Tooltip$1 } from "./create-tracker.jsx";
+} from "../media-editing/use-warn-missing-asset-meta.jsx";
 import {
-  calcImageCost,
-  resolvePricingId,
-  nextAtPickerState,
-} from "./calc-video-cost-breakdown.jsx";
-import { ParamSectionLabel, AspectRatioGrid, ResolutionTabs, ParamSlider } from "./slider.jsx";
+  attachmentExtraHeight,
+  buildPromotionClickHandler,
+  enforceConstraints,
+  findModelByStoredId,
+  getDefaultParams,
+  migrateParamsForModel,
+  normalizeParamsForModel,
+  paramI18nKey,
+  paramLabelFallback,
+  paramPlaceholderFallback,
+  paramPlaceholderI18nKey,
+  popoverDraftIsDirty,
+  translateOptionValue,
+} from "./param-label-fallbacks.js";
+import {
+  dedupedToast,
+  jsxRuntimeExports,
+  reactExports,
+  useAssetMetadataApi,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  PromptPlaceholder,
+  useAttachmentReplacement,
+  useMediaFileRefSwitch,
+} from "./prompt-placeholder.jsx";
+import { FileClock, useCanvasBridge } from "../media-editing/package.jsx";
+import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
+import { BACKEND_MIDJOURNEY } from "./normalize-skill-detail-metadata.js";
+import {
+  composePromptWithReferenceText,
+  MAX_IMAGES_PER_NODE,
+  pickPersistableModelParams,
+} from "../canvas/is-reexecutable-generation-node.js";
+import { getDisabledOptions } from "./resolve-reference-texts.js";
+import { ParamQualitySlider } from "../media-editing/param-quality-slider.jsx";
+import { Tooltip$1 } from "./missing-asset-card.jsx";
+import { calcImageCost } from "./resolve-video-billing-tooltip.js";
+import { nextAtPickerState, resolvePricingId } from "./select-content.jsx";
+import { ParamSectionLabel, ResolutionTabs } from "./resolution-tabs.jsx";
+import { AspectRatioGrid } from "./aspect-ratio-grid.jsx";
+import { ParamSlider } from "./param-slider.jsx";
 import { ModelChip } from "./model-chip.jsx";
 import {
+  collectTextChipPaths,
+  countCompiledMediaPromptCharacters,
+  countPromptCharacters,
+  extractCanvasEditorSubmitText,
+  extractCanvasEditorText,
+  loadReferenceTextContent,
   parsePromptToTiptap,
   useReferenceTextContent,
-  extractCanvasEditorText,
-  countPromptCharacters,
-  useAssetsRefValidate,
-  extractCanvasEditorSubmitText,
-  collectTextChipPaths,
-  loadReferenceTextContent,
-  compileChipPromptForModel,
-  countCompiledMediaPromptCharacters,
-} from "../assets/use-assets-ref-validate.js";
-import {
-  usePopoverOpenTrack,
-  useReferenceAttachmentNavigation,
-} from "../media-editing/decode-worker-pool.jsx";
-import { useAttachmentState, DEFAULT_TEXT_REFERENCE_MAX } from "../assets/use-attachment-state.js";
+} from "../assets/parse-prompt-to-tiptap.js";
+import { useAssetsRefValidate } from "../assets/use-assets-ref-validate.js";
+import { compileChipPromptForModel } from "../assets/compile-chip-prompt-for-model.js";
+import { usePopoverOpenTrack } from "../media-editing/get-reference-navigation-defaults.jsx";
+import { useReferenceAttachmentNavigation } from "../media-editing/use-reference-attachment-navigation.js";
+import { useAttachmentState } from "../assets/use-attachment-state.js";
+import { DEFAULT_TEXT_REFERENCE_MAX } from "../assets/reconcile-first-last-frame-default-paths.js";
 import { isCanvasReferenceUri } from "../text-editor/table-document-to-llm-content.js";
+import { ParamTabs } from "./param-tabs.jsx";
 import {
-  ParamTabs,
-  ParamTextarea,
   ExpandToggleButton,
   GeneratingButton,
-  DualSubmitButtons,
-  SubmitButton,
-} from "./param-tabs.jsx";
-import { PopoverShell, AttachmentBar } from "./use-direct-reference-picker.jsx";
+  ParamTextarea,
+} from "./expand-arrow-icon.jsx";
+import { DualSubmitButtons } from "./dual-submit-buttons.jsx";
+import { SubmitButton } from "./submit-button.jsx";
+import { AttachmentBar, PopoverShell } from "./attachment-bar.jsx";
 import { RichPromptInput } from "../chat/rich-prompt-input.jsx";
 import { MentionPickerPopover } from "./mention-picker-popover.jsx";
-import { ParamsChip, ParamsPopup } from "./params-popup.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { CountChip } from "../media-editing/image-node-toolbar-section.jsx";
-const textClass =
-  "text-[length:calc(var(--canvas-prompt-font-size,16)*1px)] leading-[1.5] font-normal tracking-normal";
-const defaultTextClass = "text-muted-foreground/50";
-const triggerClass =
-  "pointer-events-auto inline-flex size-[1.5em] shrink-0 cursor-pointer items-center justify-center rounded-sm border-[0.5px] border-border bg-muted/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
-const guideLinkClass =
-  "pointer-events-auto inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap text-muted-foreground/70 underline decoration-current/60 underline-offset-2 transition-colors hover:text-foreground";
-export function PromptPlaceholder({ description, atPrefix, atSuffix, onAtClick, guide }) {
-  return (
-    <div className={`min-w-0 max-w-full whitespace-normal break-words ${textClass}`}>
-      <span className={defaultTextClass}>{description}</span>
-      <span className={defaultTextClass}>{atPrefix}</span>
-      <button
-        type="button"
-        className={triggerClass}
-        data-action-ui-id="canvas-prompt-mention-trigger"
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onAtClick();
-        }}
-      >
-        @
-      </button>
-      <span className={defaultTextClass}>{atSuffix}</span>
-      {guide ? (
-        <>
-          <span className={defaultTextClass}>{guide.prefix}</span>
-          <button
-            type="button"
-            className={guideLinkClass}
-            data-action-ui-id="canvas-prompt-h3-guide"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              guide.onClick();
-            }}
-          >
-            {guide.label}
-            <ArrowUpRight size={11} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </>
-      ) : null}
-    </div>
-  );
-}
-export function useAttachmentReplacement(attachmentState, editorRef) {
-  const replaceAttachment = reactExports.useCallback(
-    async (item) => {
-      const replacement = await attachmentState.replacePath(item);
-      if (!replacement) return;
-      if (replacement.kind === "file") return;
-      editorRef.current?.commands.replaceCanvasFileRefsByPath(item.path, {
-        path: replacement.path,
-        filename: replacement.name,
-        kind: replacement.kind,
-      });
-    },
-    [attachmentState, editorRef],
-  );
-  return {
-    replaceAttachment,
-  };
-}
-export function useMediaFileRefSwitch(attachmentState) {
-  return reactExports.useCallback(
-    (meta2, assetId, sourceNodeId) => {
-      const kind = meta2.type;
-      if (kind !== "image" && kind !== "video" && kind !== "audio") return;
-      attachmentState.addPaths(
-        [
-          {
-            path: meta2.path,
-            sourceNodeId: sourceNodeId ?? assetId,
-          },
-        ],
-        kind,
-      );
-    },
-    [attachmentState],
-  );
-}
+import { ParamsChip } from "./params-chip.jsx";
+import { ParamsPopup } from "./params-popup.jsx";
+import { CountChip } from "../media-editing/count-chip.jsx";
+
 const I2I_STANDARD_PARAMS = [
   {
     id: "aspect_ratio",
@@ -176,11 +98,14 @@ const I2I_STANDARD_PARAMS = [
     aliases: ["resolution"],
   },
 ];
+
 function summarizeI2IParams(t2, model, modelParams) {
   if (!model) return "";
   const parts = [];
   for (const standardParam of I2I_STANDARD_PARAMS) {
-    const matchedKey = standardParam.aliases.find((alias) => model.params[alias]);
+    const matchedKey = standardParam.aliases.find(
+      (alias) => model.params[alias],
+    );
     if (!matchedKey) continue;
     const value = modelParams[matchedKey] ?? model.params[matchedKey].default;
     if (!value) continue;
@@ -188,18 +113,26 @@ function summarizeI2IParams(t2, model, modelParams) {
   }
   for (const [key2, definition2] of Object.entries(model.params)) {
     if (key2 === IMAGE_MODE_KEY) continue;
-    if (I2I_STANDARD_PARAMS.some((standardParam) => standardParam.aliases.includes(key2))) continue;
+    if (
+      I2I_STANDARD_PARAMS.some((standardParam) =>
+        standardParam.aliases.includes(key2),
+      )
+    )
+      continue;
     const value = modelParams[key2] ?? definition2.default;
     if (!value) continue;
     parts.push(translateOptionValue(t2, value));
   }
   return parts.join(" · ");
 }
+
 function appendMidjourneyHdFlag(prompt, clarity) {
   if (clarity !== "2k" || /(^|\s)--hd(?:\s|$)/i.test(prompt)) return prompt;
   return prompt ? `${prompt} --hd` : "--hd";
 }
+
 const IMAGE_MODE_FOR_I2I = "reference";
+
 export function I2IPopoverInner({
   onSubmit,
   onClose,
@@ -232,7 +165,9 @@ export function I2IPopoverInner({
   const { t: t2 } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const paramsAnchorRef = reactExports.useRef(null);
-  const [promptText, setPromptText] = reactExports.useState(defaultPrompt ?? "");
+  const [promptText, setPromptText] = reactExports.useState(
+    defaultPrompt ?? "",
+  );
   const buildPromptContent = reactExports.useCallback(
     (prompt, promptJson) => {
       if (promptJson) {
@@ -256,7 +191,9 @@ export function I2IPopoverInner({
         });
         if (!hit) return null;
         const kind =
-          hit.type === "video" || hit.type === "audio" || hit.type === "text" ? hit.type : "image";
+          hit.type === "video" || hit.type === "audio" || hit.type === "text"
+            ? hit.type
+            : "image";
         return {
           path: hit.path,
           filename: hit.name,
@@ -269,11 +206,17 @@ export function I2IPopoverInner({
   const initialEditorContent = reactExports.useMemo(() => {
     return buildPromptContent(defaultPrompt, defaultPromptJson);
   }, [buildPromptContent, defaultPrompt, defaultPromptJson]);
-  const [editorContentOverride, setEditorContentOverride] = reactExports.useState(null);
-  const [editorContentRevision, setEditorContentRevision] = reactExports.useState(0);
-  const [expanded, setExpanded] = reactExports.useState(navigationSnapshot?.expanded ?? false);
+  const [editorContentOverride, setEditorContentOverride] =
+    reactExports.useState(null);
+  const [editorContentRevision, setEditorContentRevision] =
+    reactExports.useState(0);
+  const [expanded, setExpanded] = reactExports.useState(
+    navigationSnapshot?.expanded ?? false,
+  );
   const [paramsOpen, setParamsOpen] = reactExports.useState(false);
-  const [count2, setCount] = reactExports.useState(navigationSnapshot?.count ?? 1);
+  const [count2, setCount] = reactExports.useState(
+    navigationSnapshot?.count ?? 1,
+  );
   const [isPreparing, setIsPreparing] = reactExports.useState(false);
   const {
     accountSubmissionAllowed = true,
@@ -330,19 +273,26 @@ export function I2IPopoverInner({
     getRect: null,
     triggerRange: null,
   });
-  const [editorHasText, setEditorHasText] = reactExports.useState(!!defaultPrompt);
+  const [editorHasText, setEditorHasText] =
+    reactExports.useState(!!defaultPrompt);
   const [promptLength, setPromptLength] = reactExports.useState(0);
   reactExports.useEffect(() => {
     const nextPrompt = typeof defaultPrompt === "string" ? defaultPrompt : "";
     const shouldHydrate =
-      nextPrompt.trim().length > 0 && !defaultPromptJson && !promptText.trim() && !editorHasText;
+      nextPrompt.trim().length > 0 &&
+      !defaultPromptJson &&
+      !promptText.trim() &&
+      !editorHasText;
     if (!shouldHydrate) return;
     setPromptText(nextPrompt);
     setEditorHasText(true);
     setEditorContentRevision((revision) => revision + 1);
   }, [defaultPrompt, defaultPromptJson, editorHasText, promptText]);
   const formDisabled = isDraftSubmitFormDisabled(modelsLoading, isPreparing);
-  const maxCount = Math.max(1, Math.min(4, MAX_IMAGES_PER_NODE - currentImageCount));
+  const maxCount = Math.max(
+    1,
+    Math.min(4, MAX_IMAGES_PER_NODE - currentImageCount),
+  );
   const paramsSummary = reactExports.useMemo(
     () => summarizeI2IParams(t2, selectedModel, modelParams),
     [t2, selectedModel, modelParams],
@@ -377,7 +327,9 @@ export function I2IPopoverInner({
     if (!selectedModel) return void 0;
     return ["aspect_ratio", "ratio"].find((k2) => selectedModel.params[k2]);
   }, [selectedModel]);
-  const aspectRatioValue = aspectRatioKey ? modelParams[aspectRatioKey] : void 0;
+  const aspectRatioValue = aspectRatioKey
+    ? modelParams[aspectRatioKey]
+    : void 0;
   reactExports.useEffect(() => {
     onAspectRatioChange?.(aspectRatioValue);
   }, [aspectRatioValue, onAspectRatioChange]);
@@ -397,7 +349,9 @@ export function I2IPopoverInner({
             const lastUsedMatch = findModelByStoredId(models, lastUsedModelId);
             if (lastUsedMatch) {
               setSelectedModelId(lastUsedMatch.id);
-              setModelParams(normalizeParamsForModel(lastUsedMatch, lastUsedParams));
+              setModelParams(
+                normalizeParamsForModel(lastUsedMatch, lastUsedParams),
+              );
             } else {
               setSelectedModelId(models[0].id);
               setModelParams(getDefaultParams(models[0]));
@@ -407,13 +361,22 @@ export function I2IPopoverInner({
       })
       .catch(console.error)
       .finally(() => setModelsLoading(false));
-  }, [listImageModels, defaultModelId, defaultParams, lastUsedModelId, lastUsedParams]);
+  }, [
+    listImageModels,
+    defaultModelId,
+    defaultParams,
+    lastUsedModelId,
+    lastUsedParams,
+  ]);
   const handleModelChange = reactExports.useCallback(
     (modelId) => {
       userPickedModelRef.current = true;
       setSelectedModelId(modelId);
       const model = imageModels.find((m3) => m3.id === modelId);
-      if (model) setModelParams(migrateParamsForModel(selectedModel, model, modelParams));
+      if (model)
+        setModelParams(
+          migrateParamsForModel(selectedModel, model, modelParams),
+        );
     },
     [imageModels, selectedModel, modelParams],
   );
@@ -431,18 +394,25 @@ export function I2IPopoverInner({
   );
   const atCapacity = currentImageCount >= MAX_IMAGES_PER_NODE;
   const isPromptOverLimit =
-    !!selectedModel?.promptMaxLength && promptLength > selectedModel.promptMaxLength;
+    !!selectedModel?.promptMaxLength &&
+    promptLength > selectedModel.promptMaxLength;
   const canSubmit =
     accountSubmissionAllowed &&
     !!selectedModelId &&
-    (editorHasText || !!hasUpstreamText || attachmentState.textPaths.length > 0) &&
+    (editorHasText ||
+      !!hasUpstreamText ||
+      attachmentState.textPaths.length > 0) &&
     !isPreparing &&
     !hasLoadingSlots &&
     !atCapacity &&
     !isPromptOverLimit;
   const showDualButtons = !replaceNodeId && !!nodeId;
   const showCountChip = isMidjourney || showDualButtons || !!replaceNodeId;
-  const countChipValue = isMidjourney ? 4 : count2 > maxCount ? maxCount : count2;
+  const countChipValue = isMidjourney
+    ? 4
+    : count2 > maxCount
+      ? maxCount
+      : count2;
   const countChipMaxCount = isMidjourney ? 4 : maxCount;
   const countChipMinCount = isMidjourney ? 4 : 1;
   const onSaveDraftRef = reactExports.useRef(onSaveDraft);
@@ -505,13 +475,18 @@ export function I2IPopoverInner({
     () => () => {
       if (
         navigationSavedRef.current ||
-        !shouldPersistPopoverDraftOnUnmount(submittedRef.current, modelLoadedRef.current)
+        !shouldPersistPopoverDraftOnUnmount(
+          submittedRef.current,
+          modelLoadedRef.current,
+        )
       )
         return;
       const editor = editorRef.current;
       const snapshot2 = draftSnapshotRef.current;
       const editorAlive = editor && !editor.isDestroyed;
-      const livePrompt = editorAlive ? extractCanvasEditorText(editor) : snapshot2.promptText;
+      const livePrompt = editorAlive
+        ? extractCanvasEditorText(editor)
+        : snapshot2.promptText;
       const baseline = draftBaselineRef.current;
       if (baseline) {
         const isDirty = popoverDraftIsDirty(baseline, {
@@ -541,15 +516,21 @@ export function I2IPopoverInner({
       e2.stopPropagation();
       if (!originalGenerationDraft) return;
       const nextPrompt = originalGenerationDraft.prompt ?? "";
-      const targetModel = findModelByStoredId(imageModels, originalGenerationDraft.modelId);
-      const nextModelId = targetModel?.id ?? originalGenerationDraft.modelId ?? selectedModelId;
+      const targetModel = findModelByStoredId(
+        imageModels,
+        originalGenerationDraft.modelId,
+      );
+      const nextModelId =
+        targetModel?.id ?? originalGenerationDraft.modelId ?? selectedModelId;
       const nextParams = targetModel
         ? normalizeParamsForModel(targetModel, originalGenerationDraft.params)
         : {
             ...(originalGenerationDraft.params ?? {}),
           };
-      const nextImagePaths = originalGenerationDraft.imagePaths ?? attachmentState.imagePaths;
-      const nextTextPaths = originalGenerationDraft.textPaths ?? attachmentState.textPaths;
+      const nextImagePaths =
+        originalGenerationDraft.imagePaths ?? attachmentState.imagePaths;
+      const nextTextPaths =
+        originalGenerationDraft.textPaths ?? attachmentState.textPaths;
       const nextPromptJson = originalGenerationDraft.promptJson;
       const nextDraft = {
         prompt: nextPrompt,
@@ -619,16 +600,21 @@ export function I2IPopoverInner({
       const trimmed = attachmentState.imagePaths.filter(Boolean);
       const editor = editorRef.current;
       const rawPrompt = editor ? extractCanvasEditorText(editor) : promptText;
-      const authoredPrompt = editor ? extractCanvasEditorSubmitText(editor) : promptText;
+      const authoredPrompt = editor
+        ? extractCanvasEditorSubmitText(editor)
+        : promptText;
       const chipPromptJson = editor ? JSON.stringify(editor.getJSON()) : void 0;
       const hasPersistentReferences =
         (editor ? collectTextChipPaths(editor).length > 0 : false) ||
-        [...attachmentState.imagePaths, ...attachmentState.textPaths].some(isCanvasReferenceUri);
+        [...attachmentState.imagePaths, ...attachmentState.textPaths].some(
+          isCanvasReferenceUri,
+        );
       setPromptText(rawPrompt);
       const normalizedParams = selectedModel
         ? normalizeParamsForModel(selectedModel, modelParams)
         : modelParams;
-      const { [IMAGE_MODE_KEY]: _imageModeOmitted, ...paramsForSubmit } = normalizedParams;
+      const { [IMAGE_MODE_KEY]: _imageModeOmitted, ...paramsForSubmit } =
+        normalizedParams;
       setIsPreparing(true);
       let selectedReferenceText = "";
       try {
@@ -639,7 +625,10 @@ export function I2IPopoverInner({
         );
       } catch {
         dedupedToast.error(
-          t2("canvas.reference.unavailable", "Reference unavailable. Please select again."),
+          t2(
+            "canvas.reference.unavailable",
+            "Reference unavailable. Please select again.",
+          ),
         );
         return;
       } finally {
@@ -661,7 +650,10 @@ export function I2IPopoverInner({
       const modelPrompt = isMidjourney
         ? appendMidjourneyHdFlag(compiled.text, paramsForSubmit.clarity)
         : compiled.text;
-      const promptForSubmit = composePromptWithReferenceText(selectedReferenceText, modelPrompt);
+      const promptForSubmit = composePromptWithReferenceText(
+        selectedReferenceText,
+        modelPrompt,
+      );
       const finalPromptLength = countCompiledMediaPromptCharacters(
         modelPrompt,
         selectedReferenceText,
@@ -671,7 +663,10 @@ export function I2IPopoverInner({
           audioPaths: [],
         },
       );
-      if (selectedModel?.promptMaxLength && finalPromptLength > selectedModel.promptMaxLength) {
+      if (
+        selectedModel?.promptMaxLength &&
+        finalPromptLength > selectedModel.promptMaxLength
+      ) {
         setPromptLength(finalPromptLength);
         dedupedToast.error(
           t2("canvas.prompt.tooLong", {
@@ -704,7 +699,12 @@ export function I2IPopoverInner({
             submittedRef.current = true;
           },
           submit: () => {
-            if (!replaceId && nodeId && hasPersistentReferences && chipPromptJson) {
+            if (
+              !replaceId &&
+              nodeId &&
+              hasPersistentReferences &&
+              chipPromptJson
+            ) {
               attachDraftOnNextDerived(nodeId, "i2i", submittedDraft);
             }
             return onSubmit(
@@ -794,16 +794,19 @@ export function I2IPopoverInner({
     [attachmentState],
   );
   const replacement = useAttachmentReplacement(attachmentState, editorRef);
-  const handleAtTrigger = reactExports.useCallback((query, rect, getRect2, triggerRange) => {
-    setAtPickerState((state2) =>
-      nextAtPickerState(state2, {
-        query,
-        rect,
-        getRect: getRect2,
-        triggerRange,
-      }),
-    );
-  }, []);
+  const handleAtTrigger = reactExports.useCallback(
+    (query, rect, getRect2, triggerRange) => {
+      setAtPickerState((state2) =>
+        nextAtPickerState(state2, {
+          query,
+          rect,
+          getRect: getRect2,
+          triggerRange,
+        }),
+      );
+    },
+    [],
+  );
   const handleFileRefSwitchSelect = useMediaFileRefSwitch(attachmentState);
   const handleAtSelect = reactExports.useCallback(
     (meta2, assetId, sourceNodeId) => {
@@ -855,12 +858,19 @@ export function I2IPopoverInner({
         open: false,
       }));
     },
-    [atPickerState.triggerRange, attachmentState.addPaths, handleFileRefSwitchSelect],
+    [
+      atPickerState.triggerRange,
+      attachmentState.addPaths,
+      handleFileRefSwitchSelect,
+    ],
   );
-  const handleEditorUpdate = reactExports.useCallback((hasContent2, textLen) => {
-    setEditorHasText(hasContent2);
-    setPromptLength(textLen);
-  }, []);
+  const handleEditorUpdate = reactExports.useCallback(
+    (hasContent2, textLen) => {
+      setEditorHasText(hasContent2);
+      setPromptLength(textLen);
+    },
+    [],
+  );
   const handleFileRefsAdded = reactExports.useCallback(
     (refs) => {
       const imageAdds = [];
@@ -878,7 +888,11 @@ export function I2IPopoverInner({
       if (audioAdds.length > 0) attachmentState.addPaths(audioAdds, "audio");
       if (textAdds.length > 0) {
         const admitted = attachmentState.addPaths(textAdds, "text");
-        for (const path2 of rejectedReferencePaths(textAdds, attachmentState.textPaths, admitted)) {
+        for (const path2 of rejectedReferencePaths(
+          textAdds,
+          attachmentState.textPaths,
+          admitted,
+        )) {
           editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
         }
       }
@@ -886,7 +900,8 @@ export function I2IPopoverInner({
     [attachmentState],
   );
   const existingPathSet = reactExports.useMemo(
-    () => new Set([...attachmentState.imagePaths, ...attachmentState.textPaths]),
+    () =>
+      new Set([...attachmentState.imagePaths, ...attachmentState.textPaths]),
     [attachmentState.imagePaths, attachmentState.textPaths],
   );
   const atPickerKindFilter = attachmentState.modelSupportedKindsForAtPicker;
@@ -954,7 +969,8 @@ export function I2IPopoverInner({
     for (const [key2, def] of Object.entries(selectedModel.params)) {
       if (consumedKeys.has(key2)) continue;
       if (key2 === IMAGE_MODE_KEY) continue;
-      if (def.type === "select" && (!def.options || def.options.length <= 1)) continue;
+      if (def.type === "select" && (!def.options || def.options.length <= 1))
+        continue;
       if (def.type === "textarea") {
         const labelKey2 = paramI18nKey(key2, def.label);
         const placeholderKey = paramPlaceholderI18nKey(key2);
@@ -974,7 +990,10 @@ export function I2IPopoverInner({
             placeholder={
               placeholderKey
                 ? t2(placeholderKey, {
-                    defaultValue: paramPlaceholderFallback(key2, def.placeholder),
+                    defaultValue: paramPlaceholderFallback(
+                      key2,
+                      def.placeholder,
+                    ),
                   })
                 : paramPlaceholderFallback(key2, def.placeholder)
             }
@@ -983,7 +1002,8 @@ export function I2IPopoverInner({
         continue;
       }
       if (def.type === "slider") {
-        if (def.min === void 0 || def.max === void 0 || def.step === void 0) continue;
+        if (def.min === void 0 || def.max === void 0 || def.step === void 0)
+          continue;
         const labelKey2 = paramI18nKey(key2, def.label);
         elements.push(
           <ParamSlider
@@ -1006,7 +1026,11 @@ export function I2IPopoverInner({
         );
         continue;
       }
-      const disabled2 = getDisabledOptions(key2, modelParams, selectedModel.paramConstraints);
+      const disabled2 = getDisabledOptions(
+        key2,
+        modelParams,
+        selectedModel.paramConstraints,
+      );
       const labelKey = paramI18nKey(key2, def.label);
       if (key2 === "quality" && def.type === "select") {
         elements.push(
@@ -1075,7 +1099,10 @@ export function I2IPopoverInner({
           onItemClick={handleAttachmentClick}
           getLocateAction={referenceNavigation.getLocateAction}
         />
-        <ExpandToggleButton expanded={expanded} onToggle={() => setExpanded((v2) => !v2)} />
+        <ExpandToggleButton
+          expanded={expanded}
+          onToggle={() => setExpanded((v2) => !v2)}
+        />
       </div>
       <div className="flex-1 min-h-0">
         <RichPromptInput
@@ -1097,7 +1124,10 @@ export function I2IPopoverInner({
           onUpdate={handleEditorUpdate}
           resolveCharacterCount={(_serializedPrompt, countedText) =>
             countPromptCharacters(
-              composePromptWithReferenceText(currentReferenceTextContent, countedText),
+              composePromptWithReferenceText(
+                currentReferenceTextContent,
+                countedText,
+              ),
             )
           }
           resolveFileUrl={resolveFileUrl}
@@ -1164,7 +1194,10 @@ export function I2IPopoverInner({
           />
           {hasConfigurableParams && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <ParamsChip
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
@@ -1176,7 +1209,10 @@ export function I2IPopoverInner({
           )}
           {showCountChip && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <CountChip
                 value={countChipValue}
                 maxCount={countChipMaxCount}
@@ -1188,8 +1224,14 @@ export function I2IPopoverInner({
           )}
           {originalGenerationDraft && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
-              <Tooltip$1 content={t2("canvas.popover.restoreOriginalDraft")} side="top">
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
+              <Tooltip$1
+                content={t2("canvas.popover.restoreOriginalDraft")}
+                side="top"
+              >
                 <button
                   type="button"
                   data-action-ui-id="popover.restore-original-draft"
@@ -1223,12 +1265,19 @@ export function I2IPopoverInner({
               canSubmit={canSubmit}
               creditCost={computedCreditCost}
               onClick={handleConfirm}
-              title={currentImageCount > 0 ? t2("canvas.addToCurrentNode") : t2("canvas.generate")}
+              title={
+                currentImageCount > 0
+                  ? t2("canvas.addToCurrentNode")
+                  : t2("canvas.generate")
+              }
             />
           )}
         </div>
         {paramsOpen && selectedModel && hasConfigurableParams && (
-          <ParamsPopup anchorRef={paramsAnchorRef} onClose={() => setParamsOpen(false)}>
+          <ParamsPopup
+            anchorRef={paramsAnchorRef}
+            onClose={() => setParamsOpen(false)}
+          >
             {renderedParamElements}
           </ParamsPopup>
         )}

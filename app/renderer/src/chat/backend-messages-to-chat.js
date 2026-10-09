@@ -1,30 +1,101 @@
 // backend-messages-to-chat.js
-import { ErrorCodes } from "../generation/push-inline.js";
-import { findLastIndex } from "../infra/find-last-index.js";
-import {
-  stripContextPrefix,
-  isCancelMarkerText,
-  parseCanvasGenerationHandoffTargets,
-  cancelMarkerHasCanvasContinuation,
-  isRecoveredMessage,
-} from "../text-editor/myers-line-hunks.js";
 import {
   attachHandoffTargetsToSubMessages,
-  subMessageSemanticKey,
   extractTaskDisplayPrompt,
-} from "./part-store.jsx";
+  subMessageSemanticKey,
+} from "./attach-handoff-targets-to-sub-messages.js";
 import {
-  nextMessageId,
-  mapToolStatus,
-  findHistorySubAgentIndex,
   createHistorySubAgentMessage,
-  serverToolName,
-  serverCallID,
-  toolNameFromSubContent,
+  findHistorySubAgentIndex,
   inferToolResultStatus,
+  mapToolStatus,
+  nextMessageId,
   optionalStringField,
+  serverCallID,
+  serverToolName,
   subAgentHistoryPartId,
-} from "./reduce-server-message.js";
+  toolNameFromSubContent,
+} from "./create-history-sub-agent-message.js";
+import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
+import { findLastIndex } from "../infra/find-last-index.js";
+import {
+  cancelMarkerHasCanvasContinuation,
+  isCancelMarkerText,
+  isRecoveredMessage,
+  parseCanvasGenerationHandoffTargets,
+  stripContextPrefix,
+} from "../text-editor/build-asr-gateway-request.js";
+
+function trimRepeatedChildTranscriptPrefixes(messages2) {
+  const previousTranscriptByRenderKey = new Map();
+  const trimmedMessages = [];
+  for (const message2 of messages2) {
+    if (message2.type !== "sub_agent") {
+      trimmedMessages.push(message2);
+      continue;
+    }
+    const renderKey = message2.partId ?? message2.childSessionId;
+    if (!renderKey) {
+      trimmedMessages.push(message2);
+      continue;
+    }
+    const current2 = message2.subMessages ?? [];
+    const previous2 = previousTranscriptByRenderKey.get(renderKey);
+    previousTranscriptByRenderKey.set(renderKey, current2);
+    if (!previous2 || current2.length < previous2.length) {
+      trimmedMessages.push(message2);
+      continue;
+    }
+    const repeatsPrevious = previous2.every(
+      (subMessage, index2) =>
+        subMessageSemanticKey(subMessage) ===
+        subMessageSemanticKey(current2[index2]),
+    );
+    if (!repeatsPrevious) {
+      trimmedMessages.push(message2);
+      continue;
+    }
+    const incrementalSubMessages = current2.slice(previous2.length);
+    if (incrementalSubMessages.length > 0) {
+      trimmedMessages.push({
+        ...message2,
+        subMessages: incrementalSubMessages,
+      });
+    }
+  }
+  return trimmedMessages;
+}
+
+function fillEmptySubAgentTaskDetails(messages2) {
+  const pendingPromptBySubAgentKey = new Map();
+  return messages2.map((message2) => {
+    if (message2.type === "tool" && message2.content === "task") {
+      const key22 = message2.partId
+        ? subAgentHistoryPartId(message2.partId)
+        : message2.childSessionId;
+      const prompt2 = extractTaskDisplayPrompt(message2.toolArgs);
+      if (key22 && prompt2) pendingPromptBySubAgentKey.set(key22, prompt2);
+      return message2;
+    }
+    if (message2.type !== "sub_agent") return message2;
+    const key2 = message2.partId ?? message2.childSessionId;
+    if (!key2) return message2;
+    const prompt = pendingPromptBySubAgentKey.get(key2);
+    pendingPromptBySubAgentKey.delete(key2);
+    if (!prompt || (message2.subMessages?.length ?? 0) > 0) return message2;
+    return {
+      ...message2,
+      subMessages: [
+        {
+          id: nextMessageId(),
+          type: "text",
+          content: prompt,
+        },
+      ],
+    };
+  });
+}
+
 export function backendMessagesToChat(msgs) {
   const result = [];
   for (const m3 of msgs) {
@@ -50,9 +121,11 @@ export function backendMessagesToChat(msgs) {
         const content2 = stripContextPrefix(m3.content);
         if (m3.role === "user" && isCancelMarkerText(content2)) {
           const generationHandoffTargets =
-            m3.generationHandoffTargets ?? parseCanvasGenerationHandoffTargets(content2);
+            m3.generationHandoffTargets ??
+            parseCanvasGenerationHandoffTargets(content2);
           const hasCanvasContinuation =
-            generationHandoffTargets.length > 0 || cancelMarkerHasCanvasContinuation(content2);
+            generationHandoffTargets.length > 0 ||
+            cancelMarkerHasCanvasContinuation(content2);
           for (let i2 = result.length - 1; i2 >= 0; i2--) {
             const r2 = result[i2];
             if (r2.type === "text" && r2.role === "user") break;
@@ -61,7 +134,10 @@ export function backendMessagesToChat(msgs) {
                 ...r2,
                 cancelled: true,
                 subMessages: r2.subMessages
-                  ? attachHandoffTargetsToSubMessages(r2.subMessages, generationHandoffTargets)
+                  ? attachHandoffTargetsToSubMessages(
+                      r2.subMessages,
+                      generationHandoffTargets,
+                    )
                   : r2.subMessages,
               };
             } else if (r2.type === "tool" && r2.callID) {
@@ -125,7 +201,10 @@ export function backendMessagesToChat(msgs) {
         });
         break;
       case "error":
-        if (m3.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION && m3.runtimeMessageId) {
+        if (
+          m3.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION &&
+          m3.runtimeMessageId
+        ) {
           result.push({
             id: nextMessageId(),
             role: "agent",
@@ -201,7 +280,12 @@ export function backendMessagesToChat(msgs) {
         });
         if (idx === -1) {
           result.push({
-            ...createHistorySubAgentMessage(m3.agent, csId, m3.taskPartId, true),
+            ...createHistorySubAgentMessage(
+              m3.agent,
+              csId,
+              m3.taskPartId,
+              true,
+            ),
             ...identity2,
           });
           idx = result.length - 1;
@@ -242,7 +326,10 @@ export function backendMessagesToChat(msgs) {
           csId && !m3.taskPartId
             ? findLastIndex(
                 result,
-                (r2) => r2.type === "tool" && r2.content === "task" && r2.childSessionId === csId,
+                (r2) =>
+                  r2.type === "tool" &&
+                  r2.content === "task" &&
+                  r2.childSessionId === csId,
               )
             : -1;
         const startsNewTaskInvocation =
@@ -291,7 +378,12 @@ export function backendMessagesToChat(msgs) {
         });
         if (idx === -1) {
           result.push({
-            ...createHistorySubAgentMessage(m3.agent, csId, m3.taskPartId, true),
+            ...createHistorySubAgentMessage(
+              m3.agent,
+              csId,
+              m3.taskPartId,
+              true,
+            ),
             ...identity2,
           });
           idx = result.length - 1;
@@ -324,7 +416,12 @@ export function backendMessagesToChat(msgs) {
         });
         if (idx === -1) {
           result.push({
-            ...createHistorySubAgentMessage(m3.agent, csId, m3.taskPartId, true),
+            ...createHistorySubAgentMessage(
+              m3.agent,
+              csId,
+              m3.taskPartId,
+              true,
+            ),
             ...identity2,
           });
           idx = result.length - 1;
@@ -368,16 +465,22 @@ export function backendMessagesToChat(msgs) {
               s2.type === "tool" &&
               (callID
                 ? s2.callID === callID
-                : !eventToolName || toolNameFromSubContent(s2.content) === eventToolName),
+                : !eventToolName ||
+                  toolNameFromSubContent(s2.content) === eventToolName),
           );
-          if (toolIdx < 0) toolIdx = findLastIndex(subs, (s2) => s2.type === "tool");
+          if (toolIdx < 0)
+            toolIdx = findLastIndex(subs, (s2) => s2.type === "tool");
           if (toolIdx >= 0) {
             const sub = subs[toolIdx];
-            const toolName2 = toolNameFromSubContent(sub.content) ?? eventToolName ?? "tool";
+            const toolName2 =
+              toolNameFromSubContent(sub.content) ?? eventToolName ?? "tool";
             subs[toolIdx] = {
               ...sub,
               content: `${toolName2}: ${m3.content}`,
-              toolStatus: inferToolResultStatus(m3.content, optionalStringField(m3, "status")),
+              toolStatus: inferToolResultStatus(
+                m3.content,
+                optionalStringField(m3, "status"),
+              ),
               hasToolResult: true,
             };
             result[idx] = {
@@ -390,87 +493,7 @@ export function backendMessagesToChat(msgs) {
       }
     }
   }
-  return fillEmptySubAgentTaskDetails(trimRepeatedChildTranscriptPrefixes(result));
-}
-function trimRepeatedChildTranscriptPrefixes(messages2) {
-  const previousTranscriptByRenderKey = new Map();
-  const trimmedMessages = [];
-  for (const message2 of messages2) {
-    if (message2.type !== "sub_agent") {
-      trimmedMessages.push(message2);
-      continue;
-    }
-    const renderKey = message2.partId ?? message2.childSessionId;
-    if (!renderKey) {
-      trimmedMessages.push(message2);
-      continue;
-    }
-    const current2 = message2.subMessages ?? [];
-    const previous2 = previousTranscriptByRenderKey.get(renderKey);
-    previousTranscriptByRenderKey.set(renderKey, current2);
-    if (!previous2 || current2.length < previous2.length) {
-      trimmedMessages.push(message2);
-      continue;
-    }
-    const repeatsPrevious = previous2.every(
-      (subMessage, index2) =>
-        subMessageSemanticKey(subMessage) === subMessageSemanticKey(current2[index2]),
-    );
-    if (!repeatsPrevious) {
-      trimmedMessages.push(message2);
-      continue;
-    }
-    const incrementalSubMessages = current2.slice(previous2.length);
-    if (incrementalSubMessages.length > 0) {
-      trimmedMessages.push({
-        ...message2,
-        subMessages: incrementalSubMessages,
-      });
-    }
-  }
-  return trimmedMessages;
-}
-function fillEmptySubAgentTaskDetails(messages2) {
-  const pendingPromptBySubAgentKey = new Map();
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.content === "task") {
-      const key22 = message2.partId
-        ? subAgentHistoryPartId(message2.partId)
-        : message2.childSessionId;
-      const prompt2 = extractTaskDisplayPrompt(message2.toolArgs);
-      if (key22 && prompt2) pendingPromptBySubAgentKey.set(key22, prompt2);
-      return message2;
-    }
-    if (message2.type !== "sub_agent") return message2;
-    const key2 = message2.partId ?? message2.childSessionId;
-    if (!key2) return message2;
-    const prompt = pendingPromptBySubAgentKey.get(key2);
-    pendingPromptBySubAgentKey.delete(key2);
-    if (!prompt || (message2.subMessages?.length ?? 0) > 0) return message2;
-    return {
-      ...message2,
-      subMessages: [
-        {
-          id: nextMessageId(),
-          type: "text",
-          content: prompt,
-        },
-      ],
-    };
-  });
-}
-export function upsertRunningCompactionStatus(messages2) {
-  const hasRunningStatus = messages2.some(
-    (message2) => message2.type === "compaction_status" && message2.content !== "compacted",
+  return fillEmptySubAgentTaskDetails(
+    trimRepeatedChildTranscriptPrefixes(result),
   );
-  if (hasRunningStatus) return messages2;
-  return [
-    ...messages2,
-    {
-      id: nextMessageId(),
-      role: "agent",
-      type: "compaction_status",
-      content: "compacting",
-    },
-  ];
 }

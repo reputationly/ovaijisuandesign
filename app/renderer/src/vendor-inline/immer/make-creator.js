@@ -1,21 +1,8 @@
 // m.js
 import { Operation, f$3, y$6, p$5, d$3, h$5, c$4 } from "../../vendor.js";
-import {
-  RAW_RETURN_SYMBOL,
-  deepClone,
-  get$1,
-  getProxyDraft,
-  getType,
-  isBaseMapInstance,
-  isBaseSetInstance,
-  isDraft,
-  isDraftable,
-  isEqual,
-  revokeProxy,
-  set,
-  shallowCopy,
-  unescapePath,
-} from "../../infra/deep-freeze.js";
+import { RAW_RETURN_SYMBOL, deepClone, get$1, getProxyDraft, isBaseMapInstance, isBaseSetInstance, isDraftable, isEqual, revokeProxy, set, shallowCopy, unescapePath } from "../../infra/shallow-copy.js";
+import { getType } from "../../infra/get-type.js";
+import { isDraft } from "../../infra/deep-freeze.js";
 import { forEach2 } from "./map-handler.js";
 import { draftify, handleReturnValue } from "./proxy-handler.js";
 function getCurrent(target) {

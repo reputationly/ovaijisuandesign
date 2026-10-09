@@ -1,24 +1,54 @@
 // mention-picker-popover.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, ChevronRight$1, useAssetMetadataStore, useStore$3, dedupedToast, Video, Music, Loader2Icon } from "../vendor.js";
-import { useCanvasBridge, ImageOutlineIcon, useCanvasActions, FileText, Folder, Package } from "../media-editing/parse-item.jsx";
-import { Tooltip$1 } from "./create-tracker.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  ReferenceDisabledReason,
+  ChevronRight$1,
+  dedupedToast,
+  jsxRuntimeExports,
+  Loader2Icon,
+  Music,
+  reactDomExports,
+  reactExports,
+  useAssetMetadataStore,
+  useStore$3,
+  useTranslation,
+  Video,
+} from "../vendor.js";
+import {
+  FileText,
+  Folder,
+  ImageOutlineIcon,
+  Package,
+  useCanvasBridge,
+} from "../media-editing/package.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { isMentionCandidate } from "./is-mention-candidate.js";
+import { disabledReasonLabel$1 } from "./disabled-reason-label.js";
+import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
+import { Tooltip$1 } from "./missing-asset-card.jsx";
+import {
   mapKind,
   passesBudgetGate,
   reasonForDisabled,
-  useDirectReferencePicker,
-} from "./use-direct-reference-picker.jsx";
+} from "./attachment-bar.jsx";
+import { useDirectReferencePicker } from "./use-direct-reference-picker.js";
+
 const POPOVER_WIDTH$1 = 288;
+
 const POPOVER_MAX_HEIGHT = 360;
+
 const FLYOUT_GAP$1 = 4;
+
 const FLYOUT_CLOSE_DELAY_MS$1 = 120;
+
 const FLYOUT_SCROLL_INSET$1 = 8;
+
 const POPOVER_MIN_HEIGHT = 160;
+
 const VIEWPORT_MARGIN$4 = 8;
+
 const ANCHOR_GAP$2 = 4;
+
 const THUMB_PX$5 = 28;
+
 const FILE_KIND_FILTERS$1 = [
   {
     kind: "image",
@@ -45,97 +75,7 @@ const FILE_KIND_FILTERS$1 = [
     Icon: FileText,
   },
 ];
-export function isMentionCandidate(id2, kind, allowedKinds, excludeAssetIds) {
-  if (excludeAssetIds?.has(id2)) return false;
-  if (!kind || !allowedKinds.has(kind)) return false;
-  return true;
-}
-function finitePositive$1(value) {
-  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : void 0;
-}
-function formatSeconds$1(value, fallback) {
-  if (value === void 0 || !Number.isFinite(value)) return fallback;
-  return Number.isInteger(value) ? String(value) : String(value);
-}
-function formatImageMinDimensionLimit$1(constraints2, t2) {
-  const minWidth = finitePositive$1(constraints2?.imageMinWidth);
-  const minHeight = finitePositive$1(constraints2?.imageMinHeight);
-  if (minWidth !== void 0 && minHeight !== void 0) return `${minWidth}×${minHeight}`;
-  if (minWidth !== void 0)
-    return t2("canvas.reference.limitWidth", "{{value}}px wide", {
-      value: minWidth,
-    });
-  if (minHeight !== void 0)
-    return t2("canvas.reference.limitHeight", "{{value}}px high", {
-      value: minHeight,
-    });
-  return t2("canvas.reference.requiredDimensions", "the required dimensions");
-}
-export function disabledReasonLabel$1(reason, constraints2, t2) {
-  switch (reason) {
-    case ReferenceDisabledReason.Unsupported:
-      return t2(
-        "canvas.reference.disabledUnsupported",
-        "The current model does not support these attachment types.",
-      );
-    case ReferenceDisabledReason.Empty:
-      return t2("canvas.reference.disabledEmpty", "This subject has no available attachments.");
-    case ReferenceDisabledReason.Full:
-      return t2(
-        "canvas.reference.disabledFull",
-        "Adding this reference would exceed the attachment count limit.",
-      );
-    case "image-size":
-      return t2(
-        "canvas.reference.disabledImageSize",
-        "Image dimensions must be at least {{dimensions}}.",
-        {
-          dimensions: formatImageMinDimensionLimit$1(constraints2, t2),
-        },
-      );
-    case "image-aspect":
-      return t2(
-        "canvas.reference.disabledImageAspect",
-        "The image aspect ratio does not meet the requirements.",
-      );
-    case "audio-range":
-      return t2(
-        "canvas.reference.disabledAudioRange",
-        "Each audio clip must be between {{min}} and {{max}} seconds.",
-        {
-          min: formatSeconds$1(constraints2?.audioPerClipMinSec, "1.8"),
-          max: formatSeconds$1(constraints2?.audioPerClipMaxSec, "15.2"),
-        },
-      );
-    case "audio-budget":
-      return t2(
-        "canvas.reference.disabledAudioBudget",
-        "This audio exceeds the remaining allowance of {{seconds}} seconds.",
-        {
-          seconds: formatSeconds$1(constraints2?.remainingAudioTotalSec, "15.2"),
-        },
-      );
-    case "video-budget":
-      return t2(
-        "canvas.reference.disabledVideoBudget",
-        "This video exceeds the remaining allowance of {{seconds}} seconds.",
-        {
-          seconds: formatSeconds$1(constraints2?.remainingVideoTotalSec, "15.2"),
-        },
-      );
-    case "video-range":
-      return t2(
-        "canvas.reference.disabledVideoRange",
-        "Each video must be between {{min}} and {{max}} seconds.",
-        {
-          min: formatSeconds$1(constraints2?.videoPerClipMinSec, "2"),
-          max: formatSeconds$1(constraints2?.videoPerClipMaxSec, "15"),
-        },
-      );
-    default:
-      return t2("canvas.reference.disabledUnavailable", "This reference is unavailable.");
-  }
-}
+
 export function MentionPickerPopover({
   query,
   anchorRect,
@@ -177,7 +117,10 @@ export function MentionPickerPopover({
     onConstraintViolation: (reason) =>
       dedupedToast.error(disabledReasonLabel$1(reason, constraints2, t2)),
   });
-  const allowedKinds = reactExports.useMemo(() => new Set(kindFilter), [kindFilter]);
+  const allowedKinds = reactExports.useMemo(
+    () => new Set(kindFilter),
+    [kindFilter],
+  );
   const items = reactExports.useMemo(() => {
     const result = [];
     const seenPaths = new Set();
@@ -187,7 +130,14 @@ export function MentionPickerPopover({
       if (!isMentionCandidate(id2, kind, allowedKinds, excludeAssetIds)) return;
       const definedKind = kind;
       const isReference = existingPaths.has(meta2.path);
-      if (!passesBudgetGate(definedKind, isReference, constraints2?.remainingByKind)) return;
+      if (
+        !passesBudgetGate(
+          definedKind,
+          isReference,
+          constraints2?.remainingByKind,
+        )
+      )
+        return;
       if (lowerQuery && !meta2.name.toLowerCase().includes(lowerQuery)) return;
       if (!meta2.path || seenPaths.has(meta2.path)) return;
       seenPaths.add(meta2.path);
@@ -207,7 +157,9 @@ export function MentionPickerPopover({
         // References bypass budget gating — they're already attached, so a
         // remaining-budget of 0 must not gray out the row that lets you
         // remove them.
-        disabledReason: isReference ? void 0 : reasonForDisabled(definedKind, meta2, constraints2),
+        disabledReason: isReference
+          ? void 0
+          : reasonForDisabled(definedKind, meta2, constraints2),
       });
     });
     result.sort((a2, b3) => {
@@ -231,10 +183,14 @@ export function MentionPickerPopover({
   );
   const categoryRows = reactExports.useMemo(
     () => [
-      ...FILE_KIND_FILTERS$1.filter(({ kind }) => allowedKinds.has(kind)).map((row) => ({
-        ...row,
-        count: items.filter((item) => item.kind === row.kind && !item.alreadyAdded).length,
-      })),
+      ...FILE_KIND_FILTERS$1.filter(({ kind }) => allowedKinds.has(kind)).map(
+        (row) => ({
+          ...row,
+          count: items.filter(
+            (item) => item.kind === row.kind && !item.alreadyAdded,
+          ).length,
+        }),
+      ),
       ...(directReferences
         ? [
             {
@@ -242,28 +198,36 @@ export function MentionPickerPopover({
               labelKey: "mention.popover.tabProjectAssets",
               fallback: "Project assets",
               Icon: Folder,
-              count: directItems.filter((item) => item.directReferences?.[0]?.source === "project")
-                .length,
+              count: directItems.filter(
+                (item) => item.directReferences?.[0]?.source === "project",
+              ).length,
             },
             {
               kind: "subject",
               labelKey: "mention.popover.tabAssets",
               fallback: "Subject Library",
               Icon: Package,
-              count: directItems.filter((item) => item.directReferences?.[0]?.source === "subject")
-                .length,
+              count: directItems.filter(
+                (item) => item.directReferences?.[0]?.source === "subject",
+              ).length,
             },
           ]
         : []),
     ],
     [allowedKinds, items, directReferences, directItems],
   );
-  const visibleCategoryRows = categoryRows.filter((row) => !hideSubjects || row.kind !== "subject");
+  const visibleCategoryRows = categoryRows.filter(
+    (row) => !hideSubjects || row.kind !== "subject",
+  );
   const categoryItems = reactExports.useMemo(() => {
     if (activeKind === "project" || activeKind === "subject") {
-      return directItems.filter((item) => item.directReferences?.[0]?.source === activeKind);
+      return directItems.filter(
+        (item) => item.directReferences?.[0]?.source === activeKind,
+      );
     }
-    return activeKind ? items.filter((item) => item.kind === activeKind && !item.alreadyAdded) : [];
+    return activeKind
+      ? items.filter((item) => item.kind === activeKind && !item.alreadyAdded)
+      : [];
   }, [activeKind, items, directItems]);
   const navigableItems = activeKind ? categoryItems : referenceItems;
   const cancelFlyoutClose = reactExports.useCallback(() => {
@@ -289,7 +253,8 @@ export function MentionPickerPopover({
     if (hideSubjects && activeKind === "subject") clearActiveCategory();
   }, [hideSubjects, activeKind, clearActiveCategory]);
   const renderThumb = reactExports.useCallback((item) => {
-    const hasVisualThumbnail = (item.kind === "image" || item.kind === "video") && !!item.thumbUrl;
+    const hasVisualThumbnail =
+      (item.kind === "image" || item.kind === "video") && !!item.thumbUrl;
     return (
       <span
         className={
@@ -325,7 +290,9 @@ export function MentionPickerPopover({
     async (item) => {
       if (await selectDirectReference(item)) return;
       const sourceNodeId =
-        getNodeById(item.assetId)?.id ?? getNodeIdByPath(item.meta.path) ?? void 0;
+        getNodeById(item.assetId)?.id ??
+        getNodeIdByPath(item.meta.path) ??
+        void 0;
       onSelect(item.meta, item.assetId, sourceNodeId);
     },
     [getNodeById, getNodeIdByPath, onSelect, selectDirectReference],
@@ -374,7 +341,9 @@ export function MentionPickerPopover({
   }, [query, activeKind]);
   reactExports.useEffect(() => {
     setFocusIdx((prev) =>
-      prev > navigableItems.length - 1 ? Math.max(0, navigableItems.length - 1) : prev,
+      prev > navigableItems.length - 1
+        ? Math.max(0, navigableItems.length - 1)
+        : prev,
     );
   }, [navigableItems.length]);
   reactExports.useEffect(() => {
@@ -384,7 +353,9 @@ export function MentionPickerPopover({
         e2.stopPropagation();
         pointerActiveRef.current = false;
         setFocusIdx((prev) =>
-          navigableItems.length === 0 ? 0 : Math.min(prev + 1, navigableItems.length - 1),
+          navigableItems.length === 0
+            ? 0
+            : Math.min(prev + 1, navigableItems.length - 1),
         );
       } else if (e2.key === "ArrowUp") {
         e2.preventDefault();
@@ -410,25 +381,37 @@ export function MentionPickerPopover({
     const expandedWidth = POPOVER_WIDTH$1 * 2 + FLYOUT_GAP$1;
     const left = Math.min(
       Math.max(rect.left, VIEWPORT_MARGIN$4),
-      Math.max(VIEWPORT_MARGIN$4, window.innerWidth - expandedWidth - VIEWPORT_MARGIN$4),
+      Math.max(
+        VIEWPORT_MARGIN$4,
+        window.innerWidth - expandedWidth - VIEWPORT_MARGIN$4,
+      ),
     );
-    const spaceBelow = window.innerHeight - rect.bottom - ANCHOR_GAP$2 - VIEWPORT_MARGIN$4;
+    const spaceBelow =
+      window.innerHeight - rect.bottom - ANCHOR_GAP$2 - VIEWPORT_MARGIN$4;
     const spaceAbove = rect.top - ANCHOR_GAP$2 - VIEWPORT_MARGIN$4;
     const flipUp = spaceBelow < POPOVER_MAX_HEIGHT && spaceAbove > spaceBelow;
     if (flipUp) {
       return {
         bottom: window.innerHeight - rect.top + ANCHOR_GAP$2,
         left,
-        maxHeight: Math.max(POPOVER_MIN_HEIGHT, Math.min(POPOVER_MAX_HEIGHT, spaceAbove)),
+        maxHeight: Math.max(
+          POPOVER_MIN_HEIGHT,
+          Math.min(POPOVER_MAX_HEIGHT, spaceAbove),
+        ),
       };
     }
     return {
       top: rect.bottom + ANCHOR_GAP$2,
       left,
-      maxHeight: Math.max(POPOVER_MIN_HEIGHT, Math.min(POPOVER_MAX_HEIGHT, spaceBelow)),
+      maxHeight: Math.max(
+        POPOVER_MIN_HEIGHT,
+        Math.min(POPOVER_MAX_HEIGHT, spaceBelow),
+      ),
     };
   }, []);
-  const [position2, setPosition] = reactExports.useState(() => computePosition2(anchorRect));
+  const [position2, setPosition] = reactExports.useState(() =>
+    computePosition2(anchorRect),
+  );
   const positioningInput = reactExports.useMemo(
     () => ({
       anchorRect,
@@ -549,46 +532,60 @@ export function MentionPickerPopover({
             ) : null}
           </div>
           {directError && (
-            <div role="status" className="px-3 py-1 text-xs text-muted-foreground">
-              {t2("canvas.reference.loadFailed", "References could not be loaded")}
+            <div
+              role="status"
+              className="px-3 py-1 text-xs text-muted-foreground"
+            >
+              {t2(
+                "canvas.reference.loadFailed",
+                "References could not be loaded",
+              )}
             </div>
           )}
-          {visibleCategoryRows.map(({ kind, labelKey, fallback, Icon: Icon2, count: count2 }) => (
-            <button
-              key={kind}
-              type="button"
-              aria-expanded={activeKind === kind}
-              data-action-ui-id={`mention-picker.category-${kind}`}
-              className={[
-                "mx-2 flex h-10 w-[calc(100%_-_1rem)] items-center gap-2 rounded-lg pr-3 pl-1 text-left text-sm font-normal text-foreground transition-colors",
-                activeKind === kind ? "bg-popup-item-hover" : "hover:bg-popup-item-hover",
-              ].join(" ")}
-              onMouseEnter={(event) => {
-                cancelFlyoutClose();
-                activeCategoryRowRef.current = event.currentTarget;
-                setActiveKind(kind);
-              }}
-              onClick={(event) => {
-                activeCategoryRowRef.current = event.currentTarget;
-                setActiveKind(kind);
-              }}
-            >
-              <span
-                className="flex shrink-0 items-center justify-center rounded-[6px] border-[0.5px] border-border bg-secondary text-[#555555] dark:text-[#c2c2c2]"
-                style={{
-                  width: THUMB_PX$5,
-                  height: THUMB_PX$5,
+          {visibleCategoryRows.map(
+            ({ kind, labelKey, fallback, Icon: Icon2, count: count2 }) => (
+              <button
+                key={kind}
+                type="button"
+                aria-expanded={activeKind === kind}
+                data-action-ui-id={`mention-picker.category-${kind}`}
+                className={[
+                  "mx-2 flex h-10 w-[calc(100%_-_1rem)] items-center gap-2 rounded-lg pr-3 pl-1 text-left text-sm font-normal text-foreground transition-colors",
+                  activeKind === kind
+                    ? "bg-popup-item-hover"
+                    : "hover:bg-popup-item-hover",
+                ].join(" ")}
+                onMouseEnter={(event) => {
+                  cancelFlyoutClose();
+                  activeCategoryRowRef.current = event.currentTarget;
+                  setActiveKind(kind);
+                }}
+                onClick={(event) => {
+                  activeCategoryRowRef.current = event.currentTarget;
+                  setActiveKind(kind);
                 }}
               >
-                <Icon2 size={16} aria-hidden={true} />
-              </span>
-              <span className="flex-1 text-sm font-normal text-foreground">
-                {t2(labelKey, fallback)}
-              </span>
-              <span className="text-xs text-muted-foreground">{count2}</span>
-              <ChevronRight$1 size={14} className="text-muted-foreground" aria-hidden={true} />
-            </button>
-          ))}
+                <span
+                  className="flex shrink-0 items-center justify-center rounded-[6px] border-[0.5px] border-border bg-secondary text-[#555555] dark:text-[#c2c2c2]"
+                  style={{
+                    width: THUMB_PX$5,
+                    height: THUMB_PX$5,
+                  }}
+                >
+                  <Icon2 size={16} aria-hidden={true} />
+                </span>
+                <span className="flex-1 text-sm font-normal text-foreground">
+                  {t2(labelKey, fallback)}
+                </span>
+                <span className="text-xs text-muted-foreground">{count2}</span>
+                <ChevronRight$1
+                  size={14}
+                  className="text-muted-foreground"
+                  aria-hidden={true}
+                />
+              </button>
+            ),
+          )}
         </div>
       </div>
       {activeKind && (
@@ -603,8 +600,10 @@ export function MentionPickerPopover({
           <section
             ref={flyoutRef}
             aria-label={t2(
-              categoryRows.find((row) => row.kind === activeKind)?.labelKey ?? "",
-              categoryRows.find((row) => row.kind === activeKind)?.fallback ?? "",
+              categoryRows.find((row) => row.kind === activeKind)?.labelKey ??
+                "",
+              categoryRows.find((row) => row.kind === activeKind)?.fallback ??
+                "",
             )}
             className="elevated-surface-border flex min-h-11 flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
             style={{
@@ -615,7 +614,10 @@ export function MentionPickerPopover({
             <div
               className="my-2 min-h-11 overflow-y-auto overscroll-contain"
               style={{
-                maxHeight: Math.max(44, position2.maxHeight - FLYOUT_SCROLL_INSET$1 * 2),
+                maxHeight: Math.max(
+                  44,
+                  position2.maxHeight - FLYOUT_SCROLL_INSET$1 * 2,
+                ),
               }}
             >
               {categoryItems.length > 0 ? (
@@ -633,37 +635,3 @@ export function MentionPickerPopover({
     document.body,
   );
 }
-export const PANEL_WIDTH$1 = 288;
-export const PANEL_MAX_HEIGHT$1 = 360;
-export const FLYOUT_GAP = 4;
-export const FLYOUT_CLOSE_DELAY_MS = 120;
-export const FLYOUT_SCROLL_INSET = 8;
-export const VIEWPORT_MARGIN$3 = 8;
-export const ANCHOR_GAP$1 = 4;
-export const THUMB_PX$4 = 28;
-export const KIND_ROWS = [
-  {
-    kind: "image",
-    labelKey: "assetFilter.typeImage",
-    fallback: "Image",
-    Icon: ImageOutlineIcon,
-  },
-  {
-    kind: "video",
-    labelKey: "assetFilter.typeVideo",
-    fallback: "Video",
-    Icon: Video,
-  },
-  {
-    kind: "audio",
-    labelKey: "assetFilter.typeAudio",
-    fallback: "Audio",
-    Icon: Music,
-  },
-  {
-    kind: "text",
-    labelKey: "assetFilter.typeText",
-    fallback: "Text",
-    Icon: FileText,
-  },
-];

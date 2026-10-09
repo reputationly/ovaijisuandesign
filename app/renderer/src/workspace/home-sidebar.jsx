@@ -1,54 +1,101 @@
 // home-sidebar.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, ChevronDown, useNavigate, dedupedToast, usePlatform, Plus, ArrowUpRight, useStorage, ChevronRight$1, useQueryClient, MonochromeIcon, storageKeys, Library, Workflow } from "../vendor.js";
-import { useAssetCenterRelocation } from "../assets/check-cloud-asset-upload.js";
-import { buildWorkspaceSearch } from "./create-visible-preview-tabs-store.js";
-import { UNGROUPED_RECENT_GROUP_KEY, groupRecentWorkspacesByProject } from "./deferred-thumbnail-image-generation.jsx";
-import { HOME_SIDEBAR_WIDTH, useRecentWorkspacesRefresh, GLOBAL_SIDEBAR_RAIL_WIDTH } from "./global-sidebar-provider.jsx";
-import { Tooltip, TooltipTrigger, TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
-import { useLocation } from "../vendor-inline/vscode-base/linked-list.js";
-import { FolderOpen } from "../media-editing/parse-item.jsx";
-import { useChangelog } from "../settings/run-manual-update-check.js";
-import { pinnedWorkspaceAliases, removePinnedWorkspacePaths, readRecentProjectDismissals, useSidebarBadges, splitPinnedInventory, upsertRecentProjectDismissal, persistRecentProjectDismissals, removeRecentProjectDismissal } from "../infra/split-pinned-inventory.js";
-import { TRACK_EVENTS } from "../infra/track-events.js";
-import { removeWorkspaceSessionTabs } from "../canvas/use-canvas-tag-filter.js";
-import { useTopbarState, useTopbarActions } from "./use-hub-logo-hover-animation.jsx";
-import { useResizableWidth } from "../generation/use-resizable-width.js";
-import { workspaceInventoryPathKey, projectWorkspaceKey, isWorkspacePathCaseInsensitivePlatform, useProjectStore, resolveRecentProjectsSortMode, mergeWorkspaceInventory } from "./workspace-events.js";
 import {
-  TooltipContent,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronRight$1,
+  dedupedToast,
+  jsxRuntimeExports,
+  Library,
+  MonochromeIcon,
+  Plus,
+  reactExports,
+  storageKeys,
+  useNavigate,
+  usePlatform,
+  useQueryClient,
+  useStorage,
+  useTranslation,
+  Workflow,
+} from "../vendor.js";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { useLocation } from "../vendor-inline/vscode-base/linked-list.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { useAssetCenterRelocation } from "../assets/wrap-as-asset-center-error.js";
+import { buildWorkspaceSearch } from "./use-deep-link-router.js";
+import {
+  groupRecentWorkspacesByProject,
+  UNGROUPED_RECENT_GROUP_KEY,
+} from "./tool-label-definitions.js";
+import {
+  GLOBAL_SIDEBAR_RAIL_WIDTH,
+  HOME_SIDEBAR_WIDTH,
+  useRecentWorkspacesRefresh,
+} from "./set-home-widget-dev-preview-mode.js";
+import { FolderOpen } from "../media-editing/package.jsx";
+import { useChangelog } from "../settings/use-active-runtime.js";
+import {
+  persistRecentProjectDismissals,
+  pinnedWorkspaceAliases,
+  readRecentProjectDismissals,
+  removePinnedWorkspacePaths,
+  removeRecentProjectDismissal,
+  splitPinnedInventory,
+  upsertRecentProjectDismissal,
+  useSidebarBadges,
+} from "../infra/split-pinned-inventory.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { removeWorkspaceSessionTabs } from "../canvas/resolve-workspace-failure-diagnosis.js";
+import { useTopbarActions, useTopbarState } from "./topbar-state-context.jsx";
+import { useResizableWidth } from "../generation/use-resizable-width.js";
+import {
+  isWorkspacePathCaseInsensitivePlatform,
+  projectWorkspaceKey,
+  resolveRecentProjectsSortMode,
+  useProjectStore,
+  workspaceInventoryPathKey,
+} from "./normalize-project-entries.js";
+import { mergeWorkspaceInventory } from "./merge-workspace-inventory.js";
+import {
   cn$2,
   Dialog,
   DialogContent,
-  DialogTitle,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { PluginIcon, homeService } from "./browser-inspiration-urls.jsx";
-import { ChangelogTable, ChangelogDetailDialog } from "../settings/compact-rewrite-flow.jsx";
-import { ResizeColHandle } from "../assets/asset-center-relocation-coach-mark.jsx";
-import { trackEvent } from "../infra/init-track.js";
-import { stageWorkspacePreview, CreateProjectDialog } from "./new-workspace-dialog.jsx";
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
+import { DialogTitle } from "../infra/badge-variants.jsx";
+import { homeService, PluginIcon } from "./home-service.jsx";
+import { ChangelogTable } from "../settings/changelog-table.jsx";
+import { ChangelogDetailDialog } from "../settings/changelog-detail-dialog.jsx";
+import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { stageWorkspacePreview } from "./context-menu-content.jsx";
+import { CreateProjectDialog } from "./create-project-dialog.jsx";
+import { useProjectActions } from "../settings/use-project-actions.js";
 import {
-  useProjectActions,
-  reorderVisibleRecentWorkspaces,
   persistVisibleWorkspaceManualOrder,
-} from "../settings/custom-provider-form.jsx";
-import { HubLogo, HubWordmark, DissolveProjectDialog } from "../infra/hub-logo.jsx";
-import { UpdateSidebarWidget } from "../settings/update-banner.jsx";
-import { useProjectDelete } from "./topbar-provider.jsx";
-import { useNewWorkspaceDialog } from "./use-new-workspace-dialog.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
+  reorderVisibleRecentWorkspaces,
+} from "../settings/persist-visible-workspace-manual-order.js";
+import { HubLogo } from "../infra/hub-logo.jsx";
 import {
-  RecentProjectRow,
-  SidebarReleaseBadge,
-  useSidebarProjectDrag,
-} from "./recent-project-row.jsx";
-import { SidebarNavButton } from "./topbar-search-dialog-lazy.jsx";
+  DissolveProjectDialog,
+  HubWordmark,
+} from "../infra/inline-rename-input.jsx";
+import { UpdateSidebarWidget } from "../settings/update-sidebar-widget-inner.jsx";
+import { useProjectDelete } from "./use-project-delete.js";
+import { useNewWorkspaceDialog } from "./use-new-workspace-dialog.jsx";
+import { RecentProjectRow } from "./recent-project-row.jsx";
+import { SidebarReleaseBadge } from "./sidebar-release-badge.jsx";
+import { useSidebarProjectDrag } from "./use-sidebar-project-drag.js";
+import { SidebarNavButton } from "./sidebar-nav-button.jsx";
 import {
   GlobalSidebarToggle,
-  MoveWorkspaceDialog,
-  OPEN_GLOBAL_SEARCH_EVENT,
-  RecentProjectsHeaderActions,
   isInventoryItemPinned,
   isProjectPinned,
+  MoveWorkspaceDialog,
+  OPEN_GLOBAL_SEARCH_EVENT,
   persistSidebarCollapseState,
   pinnedWorkspaceKeySet,
   readSidebarCollapseState,
@@ -58,9 +105,11 @@ import {
   subscribeRecentProjectDismissals,
   togglePinnedProjectId,
   togglePinnedWorkspacePath,
-} from "./use-native-project-preview.jsx";
+} from "./move-workspace-dialog.jsx";
+import { RecentProjectsHeaderActions } from "./recent-projects-header-actions.jsx";
+import { DiagnosticsStatusButton } from "../settings/diagnostics-status-button.jsx";
 import {
-  DiagnosticsStatusButton,
+  buildChangelogRows,
   HOME_NAV_ACTIVE_CLASS,
   HOME_NAV_BUTTON_CLASS,
   HOME_NAV_HOVER_CLASS,
@@ -74,16 +123,16 @@ import {
   HOME_SIDEBAR_ICON_AXIS,
   HOME_SIDEBAR_MAX_WIDTH,
   HOME_SIDEBAR_MIN_WIDTH,
-  PROJECT_PREVIEW_ITEM_LIMIT,
-  RecentProjectGroupHeader,
-  SIDEBAR_BADGE_TARGET_BY_ROUTE,
-  SearchButton,
-  buildChangelogRows,
   pickLocale,
+  PROJECT_PREVIEW_ITEM_LIMIT,
   recentProjectDropPosition,
   resolveRecentProjectsGroupMode,
-} from "../settings/use-network-diagnostics.jsx";
-import { SidebarUserMenu } from "./user-avatar-menu.jsx";
+  SearchButton,
+  SIDEBAR_BADGE_TARGET_BY_ROUTE,
+} from "../settings/search-button.jsx";
+import { RecentProjectGroupHeader } from "../settings/recent-project-group-header.jsx";
+import { SidebarUserMenu } from "../generation/logged-out-sidebar-action-presentation.jsx";
+
 export function HomeSidebar({
   width: controlledWidth,
   minWidth = HOME_SIDEBAR_MIN_WIDTH,
@@ -102,7 +151,9 @@ export function HomeSidebar({
 } = {}) {
   const { t: t2, i18n } = useTranslation();
   const platform2 = usePlatform();
-  const caseInsensitiveWorkspacePaths = isWorkspacePathCaseInsensitivePlatform(platform2.app.os);
+  const caseInsensitiveWorkspacePaths = isWorkspacePathCaseInsensitivePlatform(
+    platform2.app.os,
+  );
   const { href, pathname } = useLocation();
   const navigate = useNavigate();
   const queryClient2 = useQueryClient();
@@ -119,7 +170,8 @@ export function HomeSidebar({
     requestOpenForProject: requestNewProjectInProject,
     dialog: newProjectDialog,
   } = useNewWorkspaceDialog(createWorkspace);
-  const { projects, caseInsensitive: projectCaseInsensitive } = useProjectStore();
+  const { projects, caseInsensitive: projectCaseInsensitive } =
+    useProjectStore();
   const {
     addWorkspaceToProject,
     createProject,
@@ -137,10 +189,11 @@ export function HomeSidebar({
     return () => releasePreviewHold(token2);
   }, [holdPreviewOpen, pendingDelete, releasePreviewHold]);
   const [createProjectKind, setCreateProjectKind] = reactExports.useState(null);
-  const [recentWorkspaces, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
-  const [recentProjectDismissals, setRecentProjectDismissals] = reactExports.useState(
-    readRecentProjectDismissals,
+  const [recentWorkspaces, , setRecentWorkspacesAsync] = useStorage(
+    "global.recentWorkspaces",
   );
+  const [recentProjectDismissals, setRecentProjectDismissals] =
+    reactExports.useState(readRecentProjectDismissals);
   reactExports.useEffect(
     () =>
       subscribeRecentProjectDismissals((dismissals) => {
@@ -148,7 +201,8 @@ export function HomeSidebar({
       }),
     [],
   );
-  const [recentWorkspacesIntent, setRecentWorkspacesIntent] = reactExports.useState(null);
+  const [recentWorkspacesIntent, setRecentWorkspacesIntent] =
+    reactExports.useState(null);
   const recentWorkspacesIntentRevisionRef = reactExports.useRef(0);
   const effectiveRecentWorkspaces = recentWorkspacesIntent ?? recentWorkspaces;
   const [globalConfig, , setGlobalConfigAsync] = useStorage("global.config");
@@ -162,7 +216,11 @@ export function HomeSidebar({
     [globalConfig.pinnedProjectIds],
   );
   const pinnedWorkspaceKeys = reactExports.useMemo(
-    () => pinnedWorkspaceKeySet(pinnedWorkspacePaths, caseInsensitiveWorkspacePaths),
+    () =>
+      pinnedWorkspaceKeySet(
+        pinnedWorkspacePaths,
+        caseInsensitiveWorkspacePaths,
+      ),
     [caseInsensitiveWorkspacePaths, pinnedWorkspacePaths],
   );
   const handleTogglePinWorkspace = reactExports.useCallback(
@@ -182,7 +240,10 @@ export function HomeSidebar({
     (projectId) => {
       void setGlobalConfigAsync((previous2) => ({
         ...previous2,
-        pinnedProjectIds: togglePinnedProjectId(previous2.pinnedProjectIds ?? [], projectId),
+        pinnedProjectIds: togglePinnedProjectId(
+          previous2.pinnedProjectIds ?? [],
+          projectId,
+        ),
       }));
     },
     [setGlobalConfigAsync],
@@ -195,10 +256,12 @@ export function HomeSidebar({
   );
   const [recentProjectsGroupModeIntent, setRecentProjectsGroupModeIntent] =
     reactExports.useState(null);
-  const recentProjectsGroupMode = recentProjectsGroupModeIntent ?? persistedRecentProjectsGroupMode;
+  const recentProjectsGroupMode =
+    recentProjectsGroupModeIntent ?? persistedRecentProjectsGroupMode;
   const [recentProjectsSortModeIntent, setRecentProjectsSortModeIntent] =
     reactExports.useState(null);
-  const recentProjectsSortMode = recentProjectsSortModeIntent ?? persistedRecentProjectsSortMode;
+  const recentProjectsSortMode =
+    recentProjectsSortModeIntent ?? persistedRecentProjectsSortMode;
   const recentProjectsSortModeRevisionRef = reactExports.useRef(0);
   reactExports.useEffect(() => {
     if (
@@ -229,18 +292,23 @@ export function HomeSidebar({
     minWidth,
     maxWidth,
   });
-  const [activeRecentDetailsPath, setActiveRecentDetailsPath] = reactExports.useState(null);
+  const [activeRecentDetailsPath, setActiveRecentDetailsPath] =
+    reactExports.useState(null);
   const sidebarWidth = controlledWidth ?? fallbackSidebarWidth;
   const compactRail = presentation === "rail";
   const handleResizeMouseDown = onResizeMouseDown ?? fallbackResizeMouseDown;
-  const handleResizeValueChange = onResizeValueChange ?? fallbackResizeValueChange;
+  const handleResizeValueChange =
+    onResizeValueChange ?? fallbackResizeValueChange;
   const resetSidebarWidth = onResetWidth ?? fallbackResetSidebarWidth;
-  const handleRecentDetailsOpenChange = reactExports.useCallback((workspacePath, open) => {
-    setActiveRecentDetailsPath((currentPath) => {
-      if (open) return workspacePath;
-      return currentPath === workspacePath ? null : currentPath;
-    });
-  }, []);
+  const handleRecentDetailsOpenChange = reactExports.useCallback(
+    (workspacePath, open) => {
+      setActiveRecentDetailsPath((currentPath) => {
+        if (open) return workspacePath;
+        return currentPath === workspacePath ? null : currentPath;
+      });
+    },
+    [],
+  );
   useRecentWorkspacesRefresh();
   const prevRouteRef = reactExports.useRef(href);
   reactExports.useEffect(() => {
@@ -253,7 +321,10 @@ export function HomeSidebar({
   }, [href, queryClient2]);
   const syntheticOpenedAtByPathRef = reactExports.useRef(new Map());
   for (const workspace of effectiveRecentWorkspaces) {
-    const key2 = workspaceInventoryPathKey(workspace.path, caseInsensitiveWorkspacePaths);
+    const key2 = workspaceInventoryPathKey(
+      workspace.path,
+      caseInsensitiveWorkspacePaths,
+    );
     const previousOpenedAt = syntheticOpenedAtByPathRef.current.get(key2);
     if (previousOpenedAt === void 0 || workspace.openedAt > previousOpenedAt) {
       syntheticOpenedAtByPathRef.current.set(key2, workspace.openedAt);
@@ -261,7 +332,10 @@ export function HomeSidebar({
   }
   const syntheticOpenedAtForEntry = reactExports.useCallback(
     (entry) => {
-      const key2 = workspaceInventoryPathKey(entry.folderPath, caseInsensitiveWorkspacePaths);
+      const key2 = workspaceInventoryPathKey(
+        entry.folderPath,
+        caseInsensitiveWorkspacePaths,
+      );
       const existing = syntheticOpenedAtByPathRef.current.get(key2);
       if (existing !== void 0) return existing;
       const firstSeenAt = Date.now();
@@ -291,7 +365,9 @@ export function HomeSidebar({
     if (recentProjectsSortMode !== "priority") return baseWorkspaceInventory;
     const priorityRank = (item) => {
       const workspaceId2 = item.authoritativeEntry?.workspaceId;
-      const status = workspaceId2 ? workspaceStatusById.get(workspaceId2) : void 0;
+      const status = workspaceId2
+        ? workspaceStatusById.get(workspaceId2)
+        : void 0;
       if (status?.needsUserAction) return 0;
       if (status?.running) return 1;
       if (status?.unread) return 2;
@@ -322,8 +398,10 @@ export function HomeSidebar({
     return index2;
   }, [projectCaseInsensitive, projects]);
   const [dragOverTarget, setDragOverTarget] = reactExports.useState(null);
-  const [dragInventorySnapshot, setDragInventorySnapshot] = reactExports.useState(null);
-  const displayedWorkspaceInventory = dragInventorySnapshot ?? workspaceInventory;
+  const [dragInventorySnapshot, setDragInventorySnapshot] =
+    reactExports.useState(null);
+  const displayedWorkspaceInventory =
+    dragInventorySnapshot ?? workspaceInventory;
   const { pinned: pinnedInventoryItems, unpinned: unpinnedWorkspaceInventory } =
     reactExports.useMemo(
       () =>
@@ -332,7 +410,11 @@ export function HomeSidebar({
           pinnedWorkspacePaths,
           caseInsensitiveWorkspacePaths,
         ),
-      [caseInsensitiveWorkspacePaths, displayedWorkspaceInventory, pinnedWorkspacePaths],
+      [
+        caseInsensitiveWorkspacePaths,
+        displayedWorkspaceInventory,
+        pinnedWorkspacePaths,
+      ],
     );
   const sidebarScrollRef = reactExports.useRef(null);
   const sidebarContentRef = reactExports.useRef(null);
@@ -455,7 +537,8 @@ export function HomeSidebar({
       const recentPath = item.recentPath;
       if (!recentPath) return;
       const openWorkspaceId = item.authoritativeEntry?.workspaceId;
-      if (openWorkspaceId) closeWorkspace(openWorkspaceId, "home-sidebar-recent-delete");
+      if (openWorkspaceId)
+        closeWorkspace(openWorkspaceId, "home-sidebar-recent-delete");
       const dismissal = {
         paths: Array.from(
           new Set(
@@ -475,11 +558,17 @@ export function HomeSidebar({
         return next2;
       });
       setRecentWorkspacesIntent(null);
-      const targetKey = workspaceInventoryPathKey(recentPath, caseInsensitiveWorkspacePaths);
+      const targetKey = workspaceInventoryPathKey(
+        recentPath,
+        caseInsensitiveWorkspacePaths,
+      );
       void setRecentWorkspacesAsync((previous2) =>
         previous2.filter(
           (entry) =>
-            workspaceInventoryPathKey(entry.path, caseInsensitiveWorkspacePaths) !== targetKey,
+            workspaceInventoryPathKey(
+              entry.path,
+              caseInsensitiveWorkspacePaths,
+            ) !== targetKey,
         ),
       )
         .then((persisted) => {
@@ -500,7 +589,13 @@ export function HomeSidebar({
       if (!item.authoritativeEntry) {
         void removeWorkspaceSessionTabs(recentPath, () => platform2.storage);
       }
-      if (isInventoryItemPinned(item, pinnedWorkspaceKeys, caseInsensitiveWorkspacePaths)) {
+      if (
+        isInventoryItemPinned(
+          item,
+          pinnedWorkspaceKeys,
+          caseInsensitiveWorkspacePaths,
+        )
+      ) {
         void setGlobalConfigAsync((previous2) => ({
           ...previous2,
           pinnedWorkspacePaths: removePinnedWorkspacePaths(
@@ -530,7 +625,10 @@ export function HomeSidebar({
         recentProjectsSortMode: mode2,
       }))
         .then((persisted) => {
-          if (!persisted && recentProjectsSortModeRevisionRef.current === revision) {
+          if (
+            !persisted &&
+            recentProjectsSortModeRevisionRef.current === revision
+          ) {
             setRecentProjectsSortModeIntent(null);
           }
         })
@@ -560,7 +658,8 @@ export function HomeSidebar({
       const result = await createProject(name2, kind);
       if (!result.project) {
         dedupedToast.error(
-          result.errorMessage ?? t2(result.errorMessageKey ?? "project.create.failed"),
+          result.errorMessage ??
+            t2(result.errorMessageKey ?? "project.create.failed"),
         );
         return;
       }
@@ -607,7 +706,10 @@ export function HomeSidebar({
   const rowProjectIdByKey = reactExports.useMemo(() => {
     const index2 = new Map();
     for (const item of displayedWorkspaceInventory) {
-      const ownerKey = projectWorkspaceKey(item.workspace.path, projectCaseInsensitive);
+      const ownerKey = projectWorkspaceKey(
+        item.workspace.path,
+        projectCaseInsensitive,
+      );
       const recentKey = item.recentPath
         ? projectWorkspaceKey(item.recentPath, projectCaseInsensitive)
         : void 0;
@@ -620,10 +722,16 @@ export function HomeSidebar({
       if (recentKey && !index2.has(recentKey)) index2.set(recentKey, projectId);
     }
     return index2;
-  }, [displayedWorkspaceInventory, projectCaseInsensitive, workspaceProjectById]);
+  }, [
+    displayedWorkspaceInventory,
+    projectCaseInsensitive,
+    workspaceProjectById,
+  ]);
   const resolveRowProjectId = reactExports.useCallback(
     (workspacePath) =>
-      rowProjectIdByKey.get(projectWorkspaceKey(workspacePath, projectCaseInsensitive)) ?? null,
+      rowProjectIdByKey.get(
+        projectWorkspaceKey(workspacePath, projectCaseInsensitive),
+      ) ?? null,
     [projectCaseInsensitive, rowProjectIdByKey],
   );
   const handleRecentDragStart = reactExports.useCallback(
@@ -638,7 +746,12 @@ export function HomeSidebar({
     [resolveRowProjectId, workspaceInventory],
   );
   const handleRecentDragOver = reactExports.useCallback(
-    (event, workspacePath, section, position2 = recentProjectDropPosition(event)) => {
+    (
+      event,
+      workspacePath,
+      section,
+      position2 = recentProjectDropPosition(event),
+    ) => {
       if (draggedSection !== section) {
         event.dataTransfer.dropEffect = "none";
         setDragOverTarget(null);
@@ -663,7 +776,8 @@ export function HomeSidebar({
         position: position2,
       };
       setDragOverTarget((previous2) =>
-        previous2?.path === nextTarget.path && previous2.position === nextTarget.position
+        previous2?.path === nextTarget.path &&
+        previous2.position === nextTarget.position
           ? previous2
           : nextTarget,
       );
@@ -678,22 +792,31 @@ export function HomeSidebar({
     setDragOverTarget(null);
     setDragInventorySnapshot(null);
   }, []);
-  const handleProjectHeaderDragStart = reactExports.useCallback((event, projectId) => {
-    setDraggedProjectId(projectId);
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", "");
-  }, []);
+  const handleProjectHeaderDragStart = reactExports.useCallback(
+    (event, projectId) => {
+      setDraggedProjectId(projectId);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", "");
+    },
+    [],
+  );
   const handleProjectHeaderDragEnd = reactExports.useCallback(() => {
     setDraggedProjectId(null);
   }, []);
   const handleRecentDrop = reactExports.useCallback(
-    (event, targetPath, section, position2 = recentProjectDropPosition(event)) => {
+    (
+      event,
+      targetPath,
+      section,
+      position2 = recentProjectDropPosition(event),
+    ) => {
       event.preventDefault();
       if (draggedSection !== section) {
         clearRecentDragState();
         return;
       }
-      const sourcePath = draggedPath ?? event.dataTransfer.getData("text/plain");
+      const sourcePath =
+        draggedPath ?? event.dataTransfer.getData("text/plain");
       if (section === "recent" && groupingEnabled && sourcePath) {
         const targetProjectId = resolveRowProjectId(targetPath);
         if (targetProjectId !== draggedProjectIdRef.current) {
@@ -732,16 +855,21 @@ export function HomeSidebar({
           dropPosition,
         );
         const orderChanged = reordered.some(
-          (workspace, index2) => workspace.path !== visibleWorkspaces[index2]?.path,
+          (workspace, index2) =>
+            workspace.path !== visibleWorkspaces[index2]?.path,
         );
         if (orderChanged) {
           const persistDropOrder = (previous2) => {
-            const latestInventory = mergeWorkspaceInventory(previous2, entries2, {
-              caseInsensitive: caseInsensitiveWorkspacePaths,
-              dismissals: recentProjectDismissals,
-              sortMode: recentProjectsSortMode,
-              syntheticOpenedAtForEntry,
-            });
+            const latestInventory = mergeWorkspaceInventory(
+              previous2,
+              entries2,
+              {
+                caseInsensitive: caseInsensitiveWorkspacePaths,
+                dismissals: recentProjectDismissals,
+                sortMode: recentProjectsSortMode,
+                syntheticOpenedAtForEntry,
+              },
+            );
             return persistVisibleWorkspaceManualOrder(
               latestInventory,
               reordered,
@@ -753,12 +881,16 @@ export function HomeSidebar({
           setRecentWorkspacesIntent(persistDropOrder(recentWorkspaces));
           void setRecentWorkspacesAsync(persistDropOrder)
             .then(() => {
-              if (recentWorkspacesIntentRevisionRef.current === intentRevision) {
+              if (
+                recentWorkspacesIntentRevisionRef.current === intentRevision
+              ) {
                 setRecentWorkspacesIntent(null);
               }
             })
             .catch(() => {
-              if (recentWorkspacesIntentRevisionRef.current === intentRevision) {
+              if (
+                recentWorkspacesIntentRevisionRef.current === intentRevision
+              ) {
                 setRecentWorkspacesIntent(null);
               }
             });
@@ -812,10 +944,8 @@ export function HomeSidebar({
   const newProjectEntryActive = isActive2("/");
   const recentWorkspaceGroups = reactExports.useMemo(() => {
     if (!groupingEnabled) return [];
-    const { pinned: pinnedProjects, unpinned: unpinnedProjects } = splitPinnedProjects(
-      projects,
-      pinnedProjectIds,
-    );
+    const { pinned: pinnedProjects, unpinned: unpinnedProjects } =
+      splitPinnedProjects(projects, pinnedProjectIds);
     return groupRecentWorkspacesByProject(
       unpinnedWorkspaceInventory,
       [...pinnedProjects, ...unpinnedProjects],
@@ -831,7 +961,9 @@ export function HomeSidebar({
   const [collapsedProjectIds, setCollapsedProjectIds] = reactExports.useState(
     () => new Set(readSidebarCollapseState().collapsedGroupKeys),
   );
-  const [showAllProjectIds, setShowAllProjectIds] = reactExports.useState(() => new Set());
+  const [showAllProjectIds, setShowAllProjectIds] = reactExports.useState(
+    () => new Set(),
+  );
   const handleToggleProjectItems = reactExports.useCallback((projectId) => {
     setShowAllProjectIds((previous2) => {
       const next2 = new Set(previous2);
@@ -848,13 +980,15 @@ export function HomeSidebar({
       return next2;
     });
   }, []);
-  const [recentSectionCollapsed, setRecentSectionCollapsed] = reactExports.useState(
-    () => readSidebarCollapseState().projectsSectionCollapsed,
-  );
+  const [recentSectionCollapsed, setRecentSectionCollapsed] =
+    reactExports.useState(
+      () => readSidebarCollapseState().projectsSectionCollapsed,
+    );
   const toggleRecentSectionCollapsed = reactExports.useCallback(() => {
     setRecentSectionCollapsed((prev) => !prev);
   }, []);
-  const [pinnedSectionCollapsed, setPinnedSectionCollapsed] = reactExports.useState(false);
+  const [pinnedSectionCollapsed, setPinnedSectionCollapsed] =
+    reactExports.useState(false);
   const togglePinnedSectionCollapsed = reactExports.useCallback(() => {
     setPinnedSectionCollapsed((prev) => !prev);
   }, []);
@@ -870,7 +1004,8 @@ export function HomeSidebar({
   }, [pathname]);
   const handleRevealMovedWorkspace = reactExports.useCallback((projectId) => {
     setRecentSectionCollapsed(false);
-    if (projectId) setShowAllProjectIds((previous2) => new Set(previous2).add(projectId));
+    if (projectId)
+      setShowAllProjectIds((previous2) => new Set(previous2).add(projectId));
     setCollapsedProjectIds((previous2) => {
       const next2 = new Set(previous2);
       next2.delete(projectId ?? UNGROUPED_RECENT_GROUP_KEY);
@@ -919,7 +1054,10 @@ export function HomeSidebar({
     releasePreviewHold,
   });
   const displayedGroups = reactExports.useMemo(() => {
-    if (projectDrag.temporaryUngrouped && !recentWorkspaceGroups.some((group) => !group.project)) {
+    if (
+      projectDrag.temporaryUngrouped &&
+      !recentWorkspaceGroups.some((group) => !group.project)
+    ) {
       return [
         ...recentWorkspaceGroups,
         {
@@ -935,7 +1073,10 @@ export function HomeSidebar({
       const workspace = item.workspace;
       const dragPath = workspace.path;
       const authoritativeId = item.authoritativeEntry?.workspaceId;
-      const ownerKey = projectWorkspaceKey(workspace.path, projectCaseInsensitive);
+      const ownerKey = projectWorkspaceKey(
+        workspace.path,
+        projectCaseInsensitive,
+      );
       const recentKey = item.recentPath
         ? projectWorkspaceKey(item.recentPath, projectCaseInsensitive)
         : void 0;
@@ -947,11 +1088,17 @@ export function HomeSidebar({
           key={authoritativeId ?? workspace.path}
           workspace={workspace}
           renamePath={item.recentPath}
-          active={Boolean(authoritativeId && authoritativeId === currentWorkspaceId)}
-          status={authoritativeId ? workspaceStatusById.get(authoritativeId) : void 0}
+          active={Boolean(
+            authoritativeId && authoritativeId === currentWorkspaceId,
+          )}
+          status={
+            authoritativeId ? workspaceStatusById.get(authoritativeId) : void 0
+          }
           onOpen={handleRecentClick}
           onDelete={item.recentPath ? () => handleRecentDelete(item) : void 0}
-          onCloseRuntime={authoritativeId ? () => handleRecentCloseRuntime(item) : void 0}
+          onCloseRuntime={
+            authoritativeId ? () => handleRecentCloseRuntime(item) : void 0
+          }
           dragOver={
             groupingEnabled && section === "recent"
               ? projectDrag.rowTarget?.path === dragPath
@@ -964,7 +1111,9 @@ export function HomeSidebar({
           dragging={draggedPath === dragPath}
           moveCompleted={projectDrag.completedPath === dragPath}
           draggable={!projectDrag.pendingMove}
-          onDragStart={(event) => handleRecentDragStart(event, dragPath, section)}
+          onDragStart={(event) =>
+            handleRecentDragStart(event, dragPath, section)
+          }
           onDragOver={(event) => {
             if (!groupingEnabled || section === "pinned")
               handleRecentDragOver(event, dragPath, section);
@@ -980,13 +1129,19 @@ export function HomeSidebar({
           releasePreviewHold={releasePreviewHold}
           loadThumbnail={loadRecentThumbnails}
           detailsEnabled={!compactRail}
-          detailsOpen={!compactRail && activeRecentDetailsPath === workspace.path}
+          detailsOpen={
+            !compactRail && activeRecentDetailsPath === workspace.path
+          }
           onDetailsOpenChange={handleRecentDetailsOpenChange}
           projects={projects}
           currentProject={currentProject}
           onAddToProject={handleAddWorkspaceToProject}
           onRemoveFromProject={handleRemoveWorkspaceFromProject}
-          pinned={isInventoryItemPinned(item, pinnedWorkspaceKeys, caseInsensitiveWorkspacePaths)}
+          pinned={isInventoryItemPinned(
+            item,
+            pinnedWorkspaceKeys,
+            caseInsensitiveWorkspacePaths,
+          )}
           onTogglePin={() => handleTogglePinWorkspace(item)}
         />
       );
@@ -1036,7 +1191,11 @@ export function HomeSidebar({
             >
               <button
                 type="button"
-                aria-label={pinnedSectionCollapsed ? t2("project.expand") : t2("project.collapse")}
+                aria-label={
+                  pinnedSectionCollapsed
+                    ? t2("project.expand")
+                    : t2("project.collapse")
+                }
                 aria-expanded={!pinnedSectionCollapsed}
                 data-action-ui-id="home-sidebar.pinned-section-toggle"
                 onClick={togglePinnedSectionCollapsed}
@@ -1065,7 +1224,9 @@ export function HomeSidebar({
                 className="flex shrink-0 flex-col gap-px"
                 data-action-ui-id="home-sidebar.pinned-items"
               >
-                {pinnedInventoryItems.map((item) => renderRecentRow(item, "pinned"))}
+                {pinnedInventoryItems.map((item) =>
+                  renderRecentRow(item, "pinned"),
+                )}
               </ul>
             ) : null}
           </>
@@ -1078,7 +1239,11 @@ export function HomeSidebar({
           {groupingEnabled ? (
             <button
               type="button"
-              aria-label={recentSectionCollapsed ? t2("project.expand") : t2("project.collapse")}
+              aria-label={
+                recentSectionCollapsed
+                  ? t2("project.expand")
+                  : t2("project.collapse")
+              }
               aria-expanded={!recentSectionCollapsed}
               data-action-ui-id="home-sidebar.recent-section-toggle"
               onClick={toggleRecentSectionCollapsed}
@@ -1093,7 +1258,12 @@ export function HomeSidebar({
                   className="shrink-0"
                 />
               ) : (
-                <ChevronDown size={14} strokeWidth={1.75} aria-hidden="true" className="shrink-0" />
+                <ChevronDown
+                  size={14}
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                  className="shrink-0"
+                />
               )}
             </button>
           ) : (
@@ -1114,7 +1284,11 @@ export function HomeSidebar({
                       className="icon-sidebar-action-control ml-1 flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors duration-[80ms] hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                     >
                       <MonochromeIcon tone="control">
-                        <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" />
+                        <ArrowUpRight
+                          size={16}
+                          strokeWidth={1.5}
+                          aria-hidden="true"
+                        />
                       </MonochromeIcon>
                     </button>
                   }
@@ -1130,7 +1304,11 @@ export function HomeSidebar({
             onGroupModeChange={handleRecentGroupModeChange}
             onCreateProject={groupingEnabled ? void 0 : requestNewProject}
             onSelectCreateKind={groupingEnabled ? setCreateProjectKind : void 0}
-            createLabel={groupingEnabled ? t2("project.create.trigger") : t2("project.newCreation")}
+            createLabel={
+              groupingEnabled
+                ? t2("project.create.trigger")
+                : t2("project.newCreation")
+            }
             holdPreviewOpen={holdPreviewOpen}
             releasePreviewHold={releasePreviewHold}
           />
@@ -1141,9 +1319,12 @@ export function HomeSidebar({
               const projectId = group.project?.id;
               const toggleKey = projectId ?? UNGROUPED_RECENT_GROUP_KEY;
               const expanded = !collapsedProjectIds.has(toggleKey);
-              const selected2 = Boolean(projectId && projectId === selectedProjectId);
+              const selected2 = Boolean(
+                projectId && projectId === selectedProjectId,
+              );
               const isUngrouped = !group.project;
-              const showAllItems = !projectId || showAllProjectIds.has(projectId);
+              const showAllItems =
+                !projectId || showAllProjectIds.has(projectId);
               const visibleItems = showAllItems
                 ? group.items
                 : group.items.slice(0, PROJECT_PREVIEW_ITEM_LIMIT);
@@ -1159,46 +1340,68 @@ export function HomeSidebar({
                   data-action-ui-id="home-sidebar.recent-group"
                   data-project-id={projectId ?? "ungrouped"}
                   data-drop-highlight={
-                    projectDrag.groupTarget?.projectId === (projectId ?? null) ? "group" : void 0
+                    projectDrag.groupTarget?.projectId === (projectId ?? null)
+                      ? "group"
+                      : void 0
                   }
                   className={cn$2(
                     "flex flex-col gap-0.5",
                     isUngrouped && "mt-4 [&:not(:first-child)]:mt-3",
-                    projectDrag.groupTarget?.projectId === (projectId ?? null) &&
-                      "sidebar-drop-group",
+                    projectDrag.groupTarget?.projectId ===
+                      (projectId ?? null) && "sidebar-drop-group",
                   )}
                   onDragOver={(event) =>
                     projectDrag.handleGroupDrag(event, projectId ?? null, false)
                   }
-                  onDrop={(event) => projectDrag.handleGroupDrag(event, projectId ?? null, true)}
+                  onDrop={(event) =>
+                    projectDrag.handleGroupDrag(event, projectId ?? null, true)
+                  }
                 >
                   <RecentProjectGroupHeader
                     project={group.project}
                     expanded={expanded}
                     onToggle={handleToggleProjectExpanded}
-                    ungroupedToggleKey={isUngrouped ? UNGROUPED_RECENT_GROUP_KEY : void 0}
+                    ungroupedToggleKey={
+                      isUngrouped ? UNGROUPED_RECENT_GROUP_KEY : void 0
+                    }
                     selected={selected2}
                     depth={0}
                     onNewCreation={requestNewProjectInProject}
                     onOpenDetail={handleOpenProjectDetail}
                     onRequestDelete={requestDelete}
-                    onNewCreationUngrouped={isUngrouped ? requestNewProject : void 0}
-                    onOpenAllUngrouped={isUngrouped ? handleOpenAllCreations : void 0}
-                    ungroupedSortMode={isUngrouped ? recentProjectsSortMode : void 0}
-                    onUngroupedSortModeChange={isUngrouped ? handleRecentSortModeChange : void 0}
+                    onNewCreationUngrouped={
+                      isUngrouped ? requestNewProject : void 0
+                    }
+                    onOpenAllUngrouped={
+                      isUngrouped ? handleOpenAllCreations : void 0
+                    }
+                    ungroupedSortMode={
+                      isUngrouped ? recentProjectsSortMode : void 0
+                    }
+                    onUngroupedSortModeChange={
+                      isUngrouped ? handleRecentSortModeChange : void 0
+                    }
                     holdPreviewOpen={holdPreviewOpen}
                     releasePreviewHold={releasePreviewHold}
                     pinned={isProjectPinnedFlag}
-                    onTogglePin={projectId ? () => handleTogglePinProject(projectId) : void 0}
+                    onTogglePin={
+                      projectId
+                        ? () => handleTogglePinProject(projectId)
+                        : void 0
+                    }
                     draggable={Boolean(projectId) && !projectDrag.pendingMove}
                     dragging={draggedProjectId === projectId}
                     dragOver={
-                      projectDrag.projectTarget && projectDrag.projectTarget.id === projectId
+                      projectDrag.projectTarget &&
+                      projectDrag.projectTarget.id === projectId
                         ? projectDrag.projectTarget.position
                         : void 0
                     }
                     onDragStart={
-                      projectId ? (event) => handleProjectHeaderDragStart(event, projectId) : void 0
+                      projectId
+                        ? (event) =>
+                            handleProjectHeaderDragStart(event, projectId)
+                        : void 0
                     }
                     onDragEnd={projectId ? handleProjectHeaderDragEnd : void 0}
                   />
@@ -1211,15 +1414,20 @@ export function HomeSidebar({
                         }}
                         data-action-ui-id="home-sidebar.recent-group-items"
                       >
-                        {visibleItems.map((item) => renderRecentRow(item, "recent"))}
-                        {projectId && group.items.length > PROJECT_PREVIEW_ITEM_LIMIT ? (
+                        {visibleItems.map((item) =>
+                          renderRecentRow(item, "recent"),
+                        )}
+                        {projectId &&
+                        group.items.length > PROJECT_PREVIEW_ITEM_LIMIT ? (
                           <li>
                             <button
                               type="button"
                               className="flex h-8 w-full items-center pl-6 text-left text-[13px] font-normal text-[var(--home-sidebar-section-text)] rounded-md hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                               aria-expanded={showAllItems}
                               data-action-ui-id="home-sidebar.project-items-toggle"
-                              onClick={() => handleToggleProjectItems(projectId)}
+                              onClick={() =>
+                                handleToggleProjectItems(projectId)
+                              }
                             >
                               {t2(
                                 showAllItems
@@ -1252,7 +1460,9 @@ export function HomeSidebar({
           </div>
         ) : (
           <ul className="flex shrink-0 flex-col gap-px">
-            {unpinnedWorkspaceInventory.map((item) => renderRecentRow(item, "recent"))}
+            {unpinnedWorkspaceInventory.map((item) =>
+              renderRecentRow(item, "recent"),
+            )}
           </ul>
         )}
       </>
@@ -1348,7 +1558,10 @@ export function HomeSidebar({
           >
             {topChromeInset && (
               <>
-                <div data-layout-slot="window-network-status" data-status-position="left">
+                <div
+                  data-layout-slot="window-network-status"
+                  data-status-position="left"
+                >
                   <DiagnosticsStatusButton />
                 </div>
                 <SearchButton
@@ -1418,7 +1631,10 @@ export function HomeSidebar({
             data-action-ui-id="home-sidebar.brand-actions"
             data-right-inset="2"
           >
-            <div data-layout-slot="window-network-status" data-status-position="left">
+            <div
+              data-layout-slot="window-network-status"
+              data-status-position="left"
+            >
               <DiagnosticsStatusButton />
             </div>
             <GlobalSidebarToggle />
@@ -1436,7 +1652,9 @@ export function HomeSidebar({
             item={{
               to: "/",
               icon: Plus,
-              iconClassName: newProjectEntryActive ? void 0 : "home-new-task-icon rounded-full",
+              iconClassName: newProjectEntryActive
+                ? void 0
+                : "home-new-task-icon rounded-full",
               iconSize: HOME_NEW_TASK_PLUS_SIZE,
               label: t2("home.newProject"),
               badgeTarget: "launchpad",
@@ -1490,14 +1708,18 @@ export function HomeSidebar({
                 className={cn$2(
                   HOME_NAV_BUTTON_CLASS,
                   "icon-sidebar-nav-control min-w-0 flex-1",
-                  isActive2("/projects") ? "text-foreground" : HOME_NAV_INACTIVE_TEXT_CLASS,
+                  isActive2("/projects")
+                    ? "text-foreground"
+                    : HOME_NAV_INACTIVE_TEXT_CLASS,
                 )}
               >
                 <span
                   className={cn$2(
                     HOME_NAV_PILL_CLASS,
                     compactRail && HOME_RAIL_PILL_CLASS,
-                    isActive2("/projects") ? HOME_NAV_ACTIVE_CLASS : HOME_NAV_HOVER_CLASS,
+                    isActive2("/projects")
+                      ? HOME_NAV_ACTIVE_CLASS
+                      : HOME_NAV_HOVER_CLASS,
                   )}
                 >
                   <span
@@ -1535,7 +1757,10 @@ export function HomeSidebar({
                     {t2("project.hubTitle")}
                   </span>
                   {!compactRail ? (
-                    <SidebarReleaseBadge target="projects" releaseBadge={projectsBadge} />
+                    <SidebarReleaseBadge
+                      target="projects"
+                      releaseBadge={projectsBadge}
+                    />
                   ) : null}
                 </span>
               </button>
@@ -1619,7 +1844,10 @@ export function HomeSidebar({
           <ChangelogTable rows={changelogRows} onRowClick={setSelectedRow} />
         </DialogContent>
       </Dialog>
-      <ChangelogDetailDialog item={selectedRow} onClose={() => setSelectedRow(null)} />
+      <ChangelogDetailDialog
+        item={selectedRow}
+        onClose={() => setSelectedRow(null)}
+      />
       {!compactRail ? (
         <ResizeColHandle
           tabIndex={0}

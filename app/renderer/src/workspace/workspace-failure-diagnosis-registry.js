@@ -1,42 +1,10 @@
 // workspace-failure-diagnosis-registry.js
-import { reactExports } from "../vendor.js";
-import { createRemoteToolSdk, defaultUploadFile } from "../assets/draft-controller.js";
-import { MIN_SUPPORTED_WINDOWS_BUILD, MIN_SUPPORTED_WINDOWS_VERSION_LABEL } from "../media-editing/parse-item.jsx";
-export function useRemoteToolSdk(opts) {
-  const optsRef = reactExports.useRef(opts);
-  optsRef.current = opts;
-  const [controller] = reactExports.useState(() =>
-    createRemoteToolSdk({
-      toolId: opts.toolId,
-      locale: opts.locale,
-      onEmit: (e2, d2) => optsRef.current.onEmit?.(e2, d2),
-      onCheckLogin: () =>
-        optsRef.current.onCheckLogin ? optsRef.current.onCheckLogin() : Promise.resolve(true),
-      getInitialParams: () => optsRef.current.getInitialParams?.(),
-      onTrack: (e2, p3) => optsRef.current.onTrack?.(e2, p3),
-      onUploadFile: (f2, o2) => (optsRef.current.onUploadFile ?? defaultUploadFile)(f2, o2),
-      logger: opts.logger,
-    }),
-  );
-  const sdk = reactExports.useMemo(() => {
-    controller.setToolId(opts.toolId);
-    controller.setLocale(opts.locale);
-    return {
-      ...controller.sdk,
-    };
-  }, [opts.toolId, opts.locale, controller]);
-  reactExports.useEffect(() => () => controller.dispose(), [controller]);
-  return reactExports.useMemo(
-    () => ({
-      sdk,
-      dispatchHostEvent: controller.dispatchHostEvent,
-      setToolId: controller.setToolId,
-      setLocale: controller.setLocale,
-      dispose: controller.dispose,
-    }),
-    [sdk, controller],
-  );
-}
+
+const MIN_SUPPORTED_WINDOWS_BUILD = 17763;
+
+const MIN_SUPPORTED_WINDOWS_VERSION_LABEL =
+  "Windows 10 1809 / Windows Server 2019";
+
 export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
   network_proxy_suspected: {
     code: "network_proxy_suspected",

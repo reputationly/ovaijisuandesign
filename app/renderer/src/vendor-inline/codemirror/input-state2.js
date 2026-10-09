@@ -1,6 +1,6 @@
 // input-state2.js
 import { EditorSelection, BidiSpan, LTR, RTL, LineBreakPlaceholder, Tile, isBlockElement, isEmptyToEnd, isAtEnd, domBoundsAround, selectionPoints, selectionFromPoints, contains, browser, firefoxCopyCutHack, eventBelongsToEditor, modifierCodes, PendingKeys, EmacsyPendingKeys, iosVirtualKeyboardOpen, dispatchKey, bindHandler, observers, scrollableParents, atomicRanges, addsSelectionRange, isInPrimarySelection, getClickType, dist, getScrollMargins, dragScrollMargin, dragScrollSpeed, skipAtomsForSelection, textFilter, clipboardInputFilter, basicMouseSelection, focusPreventScroll, clipboardOutputFilter, dropText, brokenClipboardAPI, hasSelection, copiedRange, captureCopy, applyDOMChangeInner } from "../../vendor.js";
-import { types, computeCharTypes, BidiRE } from "../../text-editor/annotation-highlight.js";
+import { types, computeCharTypes, BidiRE } from "../../text-editor/configuration2.js";
 import { processNeutrals, trivialOrder, mouseSelectionStyle } from "./line2.js";
 import { EditorState2, processBracketPairs } from "./editor-state2.js";
 function emitSpans(line, from2, to, level, baseLevel, isolates, order2) {

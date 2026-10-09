@@ -1,11 +1,34 @@
-// shared/select-content.jsx
-import { SelectTrigger$2, SelectIcon, ChevronDownIcon$1, SelectValue$2, SelectPortal, SelectPositioner, SelectPopup, SelectList, SelectItem$2, SelectItemText, SelectItemIndicator, SelectScrollUpArrow, ChevronUpIcon, SelectScrollDownArrow } from "../vendor.js";
-import { CheckIcon$5 } from "../media-editing/parse-item.jsx";
+// select-content.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Input$2, cn$2 } from "./use-browser-overlay-dialog-props.jsx";
+import { cn$2, Input$2 } from "./dialog-content.jsx";
+import {
+  ChevronDownIcon$1,
+  ChevronUpIcon,
+  SelectIcon,
+  SelectItem$2,
+  SelectItemIndicator,
+  SelectItemText,
+  SelectList,
+  SelectPopup,
+  SelectPortal,
+  SelectPositioner,
+  SelectScrollDownArrow,
+  SelectScrollUpArrow,
+  SelectTrigger$2,
+  SelectValue$2,
+} from "../vendor.js";
+import { CheckIcon$5 } from "../media-editing/package.jsx";
+
 const inputBaseClass =
   "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 md:text-xs dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
-export function Input3({ className, type: type2, startIcon, endIcon, ...props }) {
+
+export function Input3({
+  className,
+  type: type2,
+  startIcon,
+  endIcon,
+  ...props
+}) {
   if (!startIcon && !endIcon) {
     return (
       <Input$2
@@ -26,7 +49,12 @@ export function Input3({ className, type: type2, startIcon, endIcon, ...props })
       <Input$2
         type={type2}
         data-slot="input"
-        className={cn$2(inputBaseClass, "w-full", startIcon && "pl-8", endIcon && "pr-8")}
+        className={cn$2(
+          inputBaseClass,
+          "w-full",
+          startIcon && "pl-8",
+          endIcon && "pr-8",
+        )}
         {...props}
       />
       {endIcon && (
@@ -37,6 +65,7 @@ export function Input3({ className, type: type2, startIcon, endIcon, ...props })
     </div>
   );
 }
+
 export function SelectValue({ className, ...props }) {
   return (
     <SelectValue$2
@@ -46,6 +75,7 @@ export function SelectValue({ className, ...props }) {
     />
   );
 }
+
 export function SelectTrigger({
   className,
   size: size2 = "default",
@@ -64,11 +94,68 @@ export function SelectTrigger({
     >
       {children2}
       <SelectIcon
-        render={<ChevronDownIcon$1 className="pointer-events-none size-4 text-muted-foreground" />}
+        render={
+          <ChevronDownIcon$1 className="pointer-events-none size-4 text-muted-foreground" />
+        }
       />
     </SelectTrigger$2>
   );
 }
+
+export function SelectItem({ className, children: children2, ...props }) {
+  return (
+    <SelectItem$2
+      data-slot="select-item"
+      className={cn$2(
+        "list-row-hit-area relative flex w-full cursor-default items-center gap-2 rounded-lg py-2 pr-8 pl-2 text-xs outline-hidden select-none focus:bg-popup-item-hover focus:text-foreground not-data-[variant=destructive]:focus:**:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        className,
+      )}
+      {...props}
+    >
+      <SelectItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
+        {children2}
+      </SelectItemText>
+      <SelectItemIndicator
+        render={
+          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
+        }
+      >
+        <CheckIcon$5 className="pointer-events-none" />
+      </SelectItemIndicator>
+    </SelectItem$2>
+  );
+}
+
+function SelectScrollUpButton({ className, ...props }) {
+  return (
+    <SelectScrollUpArrow
+      data-slot="select-scroll-up-button"
+      className={cn$2(
+        "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+        className,
+      )}
+      {...props}
+    >
+      <ChevronUpIcon />
+    </SelectScrollUpArrow>
+  );
+}
+
+function SelectScrollDownButton({ className, ...props }) {
+  return (
+    <SelectScrollDownArrow
+      data-slot="select-scroll-down-button"
+      className={cn$2(
+        "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+        className,
+      )}
+      {...props}
+    >
+      <ChevronDownIcon$1 />
+    </SelectScrollDownArrow>
+  );
+}
+
 export function SelectContent({
   className,
   children: children2,
@@ -108,56 +195,5 @@ export function SelectContent({
         </SelectPopup>
       </SelectPositioner>
     </SelectPortal>
-  );
-}
-export function SelectItem({ className, children: children2, ...props }) {
-  return (
-    <SelectItem$2
-      data-slot="select-item"
-      className={cn$2(
-        "list-row-hit-area relative flex w-full cursor-default items-center gap-2 rounded-lg py-2 pr-8 pl-2 text-xs outline-hidden select-none focus:bg-popup-item-hover focus:text-foreground not-data-[variant=destructive]:focus:**:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className,
-      )}
-      {...props}
-    >
-      <SelectItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
-        {children2}
-      </SelectItemText>
-      <SelectItemIndicator
-        render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
-        }
-      >
-        <CheckIcon$5 className="pointer-events-none" />
-      </SelectItemIndicator>
-    </SelectItem$2>
-  );
-}
-function SelectScrollUpButton({ className, ...props }) {
-  return (
-    <SelectScrollUpArrow
-      data-slot="select-scroll-up-button"
-      className={cn$2(
-        "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      <ChevronUpIcon />
-    </SelectScrollUpArrow>
-  );
-}
-function SelectScrollDownButton({ className, ...props }) {
-  return (
-    <SelectScrollDownArrow
-      data-slot="select-scroll-down-button"
-      className={cn$2(
-        "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      <ChevronDownIcon$1 />
-    </SelectScrollDownArrow>
   );
 }

@@ -1,88 +1,54 @@
 // workspace-stage.jsx
-import { useTranslation, reactExports, reactDomExports } from "../vendor.js";
-import { resolveWorkspaceFailureDiagnosis } from "../canvas/use-canvas-tag-filter.js";
-import {
-  Button$1,
-  cn$2,
-  useBrowserHoverPreview,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { RetryIcon } from "./browser-inspiration-urls.jsx";
-import { WorkspacePaneReorderProvider } from "../chat/session-tab-strip.jsx";
-import { ResizeColHandle } from "../assets/asset-center-relocation-coach-mark.jsx";
-import { useRetryHintActive } from "../infra/bundle-error-screen.jsx";
+import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-export function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
-  const { i18n, t: t2 } = useTranslation();
-  const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
-  const diagnosis = resolveWorkspaceFailureDiagnosis(status.diagnosis?.code, t2, i18n.language);
-  const errorMessage2 =
-    diagnosis?.message ??
-    status.error ??
-    t2("workspace.runtimeDegraded.description", {
-      defaultValue:
-        "Workspace, canvas, chat history, and assets stay visible. Chat is paused until the local runtime reconnects.",
-    });
-  return (
-    <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex justify-center">
-      <div className="elevated-surface-border pointer-events-auto max-w-2xl rounded-lg bg-popover/95 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur">
-        <div className="font-medium text-foreground">
-          {t2("workspace.runtimeDegraded.title", {
-            defaultValue: "Local runtime is recovering",
-          })}
-        </div>
-        <div className="mt-0.5">{errorMessage2}</div>
-        {retryHintActive ? (
-          <div className="mt-1">
-            {t2("workspace.runtimeDegraded.retryHint", {
-              defaultValue:
-                "The runtime protection circuit is cooling down. Retry remains available and will not clear the current workspace view.",
-            })}
-          </div>
-        ) : null}
-        {onRetry ? (
-          <Button$1
-            variant="outline"
-            size="xs"
-            className="mt-1.5"
-            loading={retrying}
-            onClick={onRetry}
-          >
-            <RetryIcon />
-            {retrying
-              ? t2("workspace.runtimeDegraded.retrying", {
-                  defaultValue: "Retrying...",
-                })
-              : t2("common.retry")}
-          </Button$1>
-        ) : null}
-      </div>
-    </div>
-  );
-}
+import { cn$2, useBrowserHoverPreview } from "../infra/dialog-content.jsx";
+import { WorkspacePaneReorderProvider } from "../chat/use-browser-chat-media.jsx";
+import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
+
 const MIN_CHAT_RATIO = 0;
+
 const MAX_CHAT_RATIO = 0.72;
+
 const TARGET_MIN_CHAT_WIDTH = 220;
+
 const TARGET_MIN_CANVAS_WIDTH = 320;
+
 const PANE_REORDER_ACTIVATION_DISTANCE = 8;
+
 const PANE_REORDER_MIN_SWAP_DISTANCE = 96;
+
 const PANE_REORDER_MAX_SWAP_DISTANCE = 128;
+
 const PANE_REORDER_SWAP_DISTANCE_RATIO = 0.1;
+
 const PANE_REORDER_TARGET_DWELL_MS = 100;
+
 const PANE_REORDER_HYSTERESIS = 28;
+
 const PANE_REORDER_MAX_FOLLOW_DISTANCE = 16;
+
 const PANE_REORDER_TRANSITION_MS = 320;
+
 const PANE_REORDER_LIFT_TRANSITION_MS = 140;
+
 const PANE_REORDER_DOCK_TRANSITION_MS = 140;
+
 const PANE_REORDER_COMMIT_TIMEOUT_MS = 1e3;
+
 const DIVIDER_LAYOUT_WIDTH = 0;
+
 const PANE_REORDER_VISUAL_GAP = 8;
+
 const PANE_REORDER_EASING = "cubic-bezier(0.2, 0.9, 0.25, 1.02)";
+
 function clampChatRatio(value) {
   return Math.min(MAX_CHAT_RATIO, Math.max(MIN_CHAT_RATIO, value));
 }
+
 function clamp(value, min2, max2) {
   return Math.min(max2, Math.max(min2, value));
 }
+
 function resolvePaneReorderSwapDistance(stageWidth) {
   return clamp(
     stageWidth * PANE_REORDER_SWAP_DISTANCE_RATIO,
@@ -90,8 +56,10 @@ function resolvePaneReorderSwapDistance(stageWidth) {
     PANE_REORDER_MAX_SWAP_DISTANCE,
   );
 }
+
 function usePrefersReducedMotion() {
-  const [prefersReducedMotion2, setPrefersReducedMotion] = reactExports.useState(false);
+  const [prefersReducedMotion2, setPrefersReducedMotion] =
+    reactExports.useState(false);
   reactExports.useEffect(() => {
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     if (!mediaQuery) return;
@@ -102,6 +70,7 @@ function usePrefersReducedMotion() {
   }, []);
   return prefersReducedMotion2;
 }
+
 function resolveWorkspaceStagePixelBudget(stageWidth, chatRatio) {
   const availablePaneWidth = Math.max(0, stageWidth - DIVIDER_LAYOUT_WIDTH);
   const ratioMax = stageWidth * MAX_CHAT_RATIO;
@@ -113,19 +82,25 @@ function resolveWorkspaceStagePixelBudget(stageWidth, chatRatio) {
   const maxChatWidth = Math.max(minChatWidth, desiredMaxChatWidth);
   const preferredChatWidth = Math.round(stageWidth * clampChatRatio(chatRatio));
   return {
-    chatWidth: Math.min(maxChatWidth, Math.max(minChatWidth, preferredChatWidth)),
+    chatWidth: Math.min(
+      maxChatWidth,
+      Math.max(minChatWidth, preferredChatWidth),
+    ),
     minChatWidth,
     maxChatWidth,
   };
 }
+
 const IDLE_PANE_REORDER_STATE = {
   phase: "idle",
   targetOrder: null,
   dragOffsetX: 0,
 };
+
 function oppositePaneOrder(paneOrder) {
   return paneOrder === "chat-canvas" ? "canvas-chat" : "chat-canvas";
 }
+
 function dismissWorkspaceFloatingPanels() {
   document.dispatchEvent(
     new globalThis.KeyboardEvent("keydown", {
@@ -136,6 +111,7 @@ function dismissWorkspaceFloatingPanels() {
     }),
   );
 }
+
 export function WorkspaceStage({
   isActive: isActive2 = true,
   paneOrder,
@@ -163,20 +139,22 @@ export function WorkspaceStage({
   const settleTimerRef = reactExports.useRef(null);
   const [stageWidth, setStageWidth] = reactExports.useState(0);
   const [resizeActive, setResizeActive] = reactExports.useState(false);
-  const [paneMotionInterrupted, setPaneMotionInterrupted] = reactExports.useState(false);
-  const [paneReorderState, setPaneReorderState] = reactExports.useState(IDLE_PANE_REORDER_STATE);
+  const [paneMotionInterrupted, setPaneMotionInterrupted] =
+    reactExports.useState(false);
+  const [paneReorderState, setPaneReorderState] = reactExports.useState(
+    IDLE_PANE_REORDER_STATE,
+  );
   const paneReorderStateRef = reactExports.useRef(IDLE_PANE_REORDER_STATE);
   const prefersReducedMotion2 = usePrefersReducedMotion();
   const normalizedChatRatio = clampChatRatio(chatRatio);
   const splitVisible = chatVisible && canvasVisible;
-  const paneReorderEnabled = isActive2 && splitVisible && Boolean(onPaneOrderChange);
+  const paneReorderEnabled =
+    isActive2 && splitVisible && Boolean(onPaneOrderChange);
   const browserPreviewReady = useBrowserHoverPreview(
     paneReorderEnabled && paneReorderState.phase !== "idle",
   );
-  const { chatWidth, minChatWidth, maxChatWidth } = resolveWorkspaceStagePixelBudget(
-    stageWidth,
-    normalizedChatRatio,
-  );
+  const { chatWidth, minChatWidth, maxChatWidth } =
+    resolveWorkspaceStagePixelBudget(stageWidth, normalizedChatRatio);
   const commitPaneReorderState = reactExports.useCallback((nextState) => {
     paneReorderStateRef.current = nextState;
     setPaneReorderState(nextState);
@@ -188,7 +166,9 @@ export function WorkspaceStage({
     if (!root2 || !isActiveRef.current) return;
     const nextWidth = root2.getBoundingClientRect().width || root2.clientWidth;
     if (!Number.isFinite(nextWidth) || nextWidth <= 0) return;
-    setStageWidth((previous2) => (previous2 === nextWidth ? previous2 : nextWidth));
+    setStageWidth((previous2) =>
+      previous2 === nextWidth ? previous2 : nextWidth,
+    );
   }, []);
   reactExports.useLayoutEffect(() => {
     if (isActive2) syncStageWidth();
@@ -241,7 +221,8 @@ export function WorkspaceStage({
       window.clearTimeout(active2.targetDwellTimer);
       active2.targetDwellTimer = null;
     }
-    if (interactionOwnerRef.current === "reorder") interactionOwnerRef.current = "none";
+    if (interactionOwnerRef.current === "reorder")
+      interactionOwnerRef.current = "none";
     document.body.style.cursor = active2.previousCursor;
     document.body.style.userSelect = active2.previousUserSelect;
     try {
@@ -259,7 +240,11 @@ export function WorkspaceStage({
     pendingPaneOrderRef.current = null;
     releaseActivePaneReorder();
     clearSettleTimer();
-    if (prefersReducedMotion2 || previous2.phase === "idle" || previous2.phase === "armed") {
+    if (
+      prefersReducedMotion2 ||
+      previous2.phase === "idle" ||
+      previous2.phase === "armed"
+    ) {
       commitPaneReorderState(IDLE_PANE_REORDER_STATE);
       return;
     }
@@ -293,7 +278,12 @@ export function WorkspaceStage({
         dockPaneSurfaces();
       }, PANE_REORDER_COMMIT_TIMEOUT_MS);
     },
-    [clearSettleTimer, commitPaneReorderState, dockPaneSurfaces, onPaneOrderChange],
+    [
+      clearSettleTimer,
+      commitPaneReorderState,
+      dockPaneSurfaces,
+      onPaneOrderChange,
+    ],
   );
   const requestPaneOrderChange = reactExports.useCallback(
     (targetOrder) => {
@@ -465,7 +455,11 @@ export function WorkspaceStage({
         window.clearTimeout(active2.targetDwellTimer);
         active2.targetDwellTimer = null;
       }
-      if (alreadyTargeted && targetOrder === null && active2.targetDwellTimer !== null) {
+      if (
+        alreadyTargeted &&
+        targetOrder === null &&
+        active2.targetDwellTimer !== null
+      ) {
         window.clearTimeout(active2.targetDwellTimer);
         active2.targetDwellTimer = null;
       }
@@ -483,7 +477,12 @@ export function WorkspaceStage({
         });
       }
     },
-    [browserPreviewReady, cancelPaneReorder, commitPaneReorderState, prefersReducedMotion2],
+    [
+      browserPreviewReady,
+      cancelPaneReorder,
+      commitPaneReorderState,
+      prefersReducedMotion2,
+    ],
   );
   const handlePaneReorderPointerMove = reactExports.useCallback(
     (event) => {
@@ -508,8 +507,13 @@ export function WorkspaceStage({
       releaseActivePaneReorder();
       if (targetOrder && targetOrder !== paneOrder) {
         const elapsedPreviewMs =
-          targetedAt === null ? PANE_REORDER_TRANSITION_MS : Date.now() - targetedAt;
-        const remainingPreviewMs = Math.max(0, PANE_REORDER_TRANSITION_MS - elapsedPreviewMs);
+          targetedAt === null
+            ? PANE_REORDER_TRANSITION_MS
+            : Date.now() - targetedAt;
+        const remainingPreviewMs = Math.max(
+          0,
+          PANE_REORDER_TRANSITION_MS - elapsedPreviewMs,
+        );
         if (prefersReducedMotion2 || remainingPreviewMs === 0) {
           settlePaneReorder(targetOrder);
         } else {
@@ -611,8 +615,13 @@ export function WorkspaceStage({
     prefersReducedMotion2,
   ]);
   reactExports.useLayoutEffect(() => {
-    const browserInterrupted = !browserPreviewReady && paneReorderState.phase !== "armed";
-    if ((paneReorderEnabled && !browserInterrupted) || paneReorderState.phase === "idle") return;
+    const browserInterrupted =
+      !browserPreviewReady && paneReorderState.phase !== "armed";
+    if (
+      (paneReorderEnabled && !browserInterrupted) ||
+      paneReorderState.phase === "idle"
+    )
+      return;
     setPaneMotionInterrupted(true);
     pendingPaneOrderRef.current = null;
     releaseActivePaneReorder();
@@ -668,9 +677,14 @@ export function WorkspaceStage({
       const rect = rootRef.current?.getBoundingClientRect();
       if (!rect || rect.width <= 0) return;
       const pointerChatWidth =
-        (paneOrder === "chat-canvas" ? clientX - rect.left : rect.right - clientX) -
+        (paneOrder === "chat-canvas"
+          ? clientX - rect.left
+          : rect.right - clientX) -
         DIVIDER_LAYOUT_WIDTH / 2;
-      const budget = resolveWorkspaceStagePixelBudget(rect.width, normalizedChatRatio);
+      const budget = resolveWorkspaceStagePixelBudget(
+        rect.width,
+        normalizedChatRatio,
+      );
       const nextChatWidth = Math.min(
         budget.maxChatWidth,
         Math.max(budget.minChatWidth, pointerChatWidth),
@@ -687,16 +701,23 @@ export function WorkspaceStage({
     document.removeEventListener("mousemove", active2.handleMouseMove);
     document.removeEventListener("mouseup", active2.handleMouseUp);
     window.removeEventListener("blur", active2.handleWindowBlur);
-    if (interactionOwnerRef.current === "resize") interactionOwnerRef.current = "none";
+    if (interactionOwnerRef.current === "resize")
+      interactionOwnerRef.current = "none";
     setResizeActive(false);
     document.body.classList.remove("workspace-stage-resizing");
     document.body.style.cursor = active2.previousCursor;
     document.body.style.userSelect = active2.previousUserSelect;
   }, []);
-  reactExports.useEffect(() => () => releaseActiveResize(), [releaseActiveResize]);
+  reactExports.useEffect(
+    () => () => releaseActiveResize(),
+    [releaseActiveResize],
+  );
   const handleResizeMouseDown = reactExports.useCallback(
     (event) => {
-      if (interactionOwnerRef.current !== "none" || paneReorderStateRef.current.phase !== "idle") {
+      if (
+        interactionOwnerRef.current !== "none" ||
+        paneReorderStateRef.current.phase !== "idle"
+      ) {
         return;
       }
       if (!textEditMode) dismissWorkspaceFloatingPanels();
@@ -730,7 +751,10 @@ export function WorkspaceStage({
   const roundedChatWidth = Math.round(chatWidth);
   const roundedMinChatWidth = Math.round(minChatWidth);
   const roundedMaxChatWidth = Math.round(maxChatWidth);
-  const canvasWidth = Math.max(0, stageWidth - DIVIDER_LAYOUT_WIDTH - chatWidth);
+  const canvasWidth = Math.max(
+    0,
+    stageWidth - DIVIDER_LAYOUT_WIDTH - chatWidth,
+  );
   const paneReorderPointerActive =
     paneReorderState.phase === "armed" ||
     paneReorderState.phase === "dragging" ||
@@ -749,7 +773,9 @@ export function WorkspaceStage({
     splitVisible &&
     paneReorderState.targetOrder !== null &&
     paneReorderState.targetOrder !== paneOrder;
-  const physicalPaneOrder = paneSwapPreviewed ? oppositePaneOrder(paneOrder) : paneOrder;
+  const physicalPaneOrder = paneSwapPreviewed
+    ? oppositePaneOrder(paneOrder)
+    : paneOrder;
   const paneSwapDirection = paneOrder === "chat-canvas" ? 1 : -1;
   const chatSwapOffset = paneSwapPreviewed
     ? Math.round(paneSwapDirection * (canvasWidth + DIVIDER_LAYOUT_WIDTH))
@@ -761,7 +787,8 @@ export function WorkspaceStage({
     ? Math.round(paneSwapDirection * (canvasWidth - chatWidth))
     : 0;
   const committedLayoutSettling =
-    paneReorderState.phase === "settling" && paneReorderState.targetOrder === paneOrder;
+    paneReorderState.phase === "settling" &&
+    paneReorderState.targetOrder === paneOrder;
   const paneMotionBlocked = !browserPreviewReady || paneMotionInterrupted;
   const paneMotionDuration =
     resizeActive || paneMotionBlocked
@@ -780,9 +807,13 @@ export function WorkspaceStage({
     willChange: paneReorderAnimating ? "transform" : void 0,
   };
   const chatLifted = paneSurfacesSeparated;
-  const physicalChatSide = physicalPaneOrder === "chat-canvas" ? "left" : "right";
-  const surfaceGapOffset = paneSurfacesSeparated ? PANE_REORDER_VISUAL_GAP / 2 : 0;
-  const chatSurfaceOffset = physicalChatSide === "left" ? -surfaceGapOffset : surfaceGapOffset;
+  const physicalChatSide =
+    physicalPaneOrder === "chat-canvas" ? "left" : "right";
+  const surfaceGapOffset = paneSurfacesSeparated
+    ? PANE_REORDER_VISUAL_GAP / 2
+    : 0;
+  const chatSurfaceOffset =
+    physicalChatSide === "left" ? -surfaceGapOffset : surfaceGapOffset;
   const canvasSurfaceOffset = -chatSurfaceOffset;
   const separatedSurfaceShadow = paneSurfacesSeparated
     ? "0 12px 30px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.08)"
@@ -949,10 +980,16 @@ export function WorkspaceStage({
         indicatorVariant="grip"
         onMouseDown={handleResizeMouseDown}
         onValueChange={(nextWidth) => {
-          if (stageWidth <= 0 || paneReorderStateRef.current.phase !== "idle") return;
+          if (stageWidth <= 0 || paneReorderStateRef.current.phase !== "idle")
+            return;
           if (!textEditMode) dismissWorkspaceFloatingPanels();
-          const dynamicallyClampedWidth = Math.min(maxChatWidth, Math.max(minChatWidth, nextWidth));
-          onChatRatioChange(clampChatRatio(dynamicallyClampedWidth / stageWidth));
+          const dynamicallyClampedWidth = Math.min(
+            maxChatWidth,
+            Math.max(minChatWidth, nextWidth),
+          );
+          onChatRatioChange(
+            clampChatRatio(dynamicallyClampedWidth / stageWidth),
+          );
         }}
         invertKeyboardDirection={paneOrder === "canvas-chat"}
       />
@@ -978,7 +1015,9 @@ export function WorkspaceStage({
         data-pane-reorder-state={paneReorderState.phase}
         data-pane-reorder-preview={paneSwapPreviewed ? "swapped" : "origin"}
         data-pane-reorder-motion={prefersReducedMotion2 ? "reduced" : "full"}
-        data-pane-reorder-threshold={Math.round(resolvePaneReorderSwapDistance(stageWidth))}
+        data-pane-reorder-threshold={Math.round(
+          resolvePaneReorderSwapDistance(stageWidth),
+        )}
         data-pane-reorder-dwell={PANE_REORDER_TARGET_DWELL_MS}
         data-workspace-overlay-open={overlayOpen ? "true" : "false"}
       >

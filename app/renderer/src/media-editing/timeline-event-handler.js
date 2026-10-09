@@ -1,45 +1,9 @@
 // timeline-event-handler.js
-import { DEFAULT_CROP_CONFIG, TIMELINE_CONFIG } from "../generation/params-popup.jsx";
-const DURATION_TIERS = [
-  {
-    maxDuration: 15,
-    sampleInterval: 0.5,
-    widthMultiplier: 1,
-  },
-  {
-    maxDuration: 60,
-    sampleInterval: 1,
-    widthMultiplier: 1,
-  },
-  {
-    maxDuration: 180,
-    sampleInterval: 2,
-    widthMultiplier: 1,
-  },
-  {
-    maxDuration: 600,
-    sampleInterval: 5,
-    widthMultiplier: 2,
-  },
-  {
-    maxDuration: Infinity,
-    sampleInterval: 10,
-    widthMultiplier: 4,
-  },
-];
-export function getDurationTier(totalDuration) {
-  return (
-    DURATION_TIERS.find((tier) => totalDuration <= tier.maxDuration) ??
-    DURATION_TIERS[DURATION_TIERS.length - 1]
-  );
-}
-export function calcInitialScale(totalDuration, containerWidth) {
-  const tier = getDurationTier(totalDuration);
-  const { TRACK_PADDING_H, MIN_SCALE: MIN_SCALE2, MAX_SCALE: MAX_SCALE2 } = TIMELINE_CONFIG;
-  const availableWidth = containerWidth - TRACK_PADDING_H * 2;
-  const scale2 = (availableWidth * tier.widthMultiplier) / totalDuration;
-  return Math.max(MIN_SCALE2, Math.min(MAX_SCALE2, scale2));
-}
+import {
+  DEFAULT_CROP_CONFIG,
+  TIMELINE_CONFIG,
+} from "../generation/time-intervals.jsx";
+
 export class TimelineEventHandler {
   canvas;
   callbacks;
@@ -144,14 +108,18 @@ export class TimelineEventHandler {
   clampScrollX(scrollX, scale2, totalDuration) {
     const viewportWidth = this.getCanvasRect().width;
     const contentWidth = totalDuration * scale2;
-    const innerWidth = Math.max(0, viewportWidth - TIMELINE_CONFIG.TRACK_PADDING_H * 2);
+    const innerWidth = Math.max(
+      0,
+      viewportWidth - TIMELINE_CONFIG.TRACK_PADDING_H * 2,
+    );
     const maxScroll = Math.max(0, contentWidth - innerWidth);
     return Math.max(0, Math.min(scrollX, maxScroll));
   }
   onKeyDown(e2) {
     const target = e2.target;
     const tag = target?.tagName?.toLowerCase();
-    if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+    if (tag === "input" || tag === "textarea" || target?.isContentEditable)
+      return;
     if (e2.key === "Escape" && this.getState().cropRange) {
       e2.preventDefault();
       this.callbacks.onStateChange({
@@ -189,7 +157,9 @@ export class TimelineEventHandler {
       this.cropDragStartStart = cr2.start;
       this.cropDragStartEnd = cr2.end;
       if (cropHit === "crop-body") {
-        const time = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) / state2.scale;
+        const time =
+          (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) /
+          state2.scale;
         this.cropBodyGrabOffset = time - cr2.start;
       }
       this.canvas.style.cursor = cropHit === "crop-body" ? "grab" : "ew-resize";
@@ -198,7 +168,8 @@ export class TimelineEventHandler {
       document.addEventListener("mouseup", this.boundMouseUp);
       return;
     }
-    const clickedTime = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) / state2.scale;
+    const clickedTime =
+      (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) / state2.scale;
     const clickedSegment = state2.segmentRanges.find(
       (range2) => clickedTime > range2.start && clickedTime < range2.end,
     );
@@ -225,7 +196,10 @@ export class TimelineEventHandler {
     document.addEventListener("mouseup", this.boundMouseUp);
   }
   onMouseMove(e2) {
-    const rect = this.isDragging && this.cachedRect ? this.cachedRect : this.getCanvasRect();
+    const rect =
+      this.isDragging && this.cachedRect
+        ? this.cachedRect
+        : this.getCanvasRect();
     const x2 = e2.clientX - rect.left;
     const y4 = e2.clientY - rect.top;
     if (this.isDragging) {
@@ -287,7 +261,11 @@ export class TimelineEventHandler {
       }
       case "scroll": {
         const deltaX = this.dragStartX - x2;
-        const newScrollX = this.clampScrollX(this.dragStartScrollX + deltaX, scale2, totalDuration);
+        const newScrollX = this.clampScrollX(
+          this.dragStartScrollX + deltaX,
+          scale2,
+          totalDuration,
+        );
         this.callbacks.onStateChange({
           scrollX: newScrollX,
         });
@@ -324,13 +302,21 @@ export class TimelineEventHandler {
   onWheel(e2) {
     e2.preventDefault();
     const { scale: scale2, scrollX, totalDuration } = this.getState();
-    const { MIN_SCALE: MIN_SCALE2, MAX_SCALE: MAX_SCALE2, ZOOM_FACTOR } = TIMELINE_CONFIG;
+    const {
+      MIN_SCALE: MIN_SCALE2,
+      MAX_SCALE: MAX_SCALE2,
+      ZOOM_FACTOR,
+    } = TIMELINE_CONFIG;
     if (e2.ctrlKey || e2.metaKey) {
       const rect = this.getCanvasRect();
       const mouseX = e2.clientX - rect.left;
       const delta = e2.deltaY > 0 ? 1 / ZOOM_FACTOR : ZOOM_FACTOR;
-      const newScale = Math.min(MAX_SCALE2, Math.max(MIN_SCALE2, scale2 * delta));
-      const mouseTime = (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
+      const newScale = Math.min(
+        MAX_SCALE2,
+        Math.max(MIN_SCALE2, scale2 * delta),
+      );
+      const mouseTime =
+        (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
       const newScrollX2 = this.clampScrollX(
         mouseTime * newScale - (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H),
         newScale,
@@ -345,7 +331,11 @@ export class TimelineEventHandler {
       return;
     }
     if (e2.deltaX !== 0) {
-      const newScrollX2 = this.clampScrollX(scrollX + e2.deltaX, scale2, totalDuration);
+      const newScrollX2 = this.clampScrollX(
+        scrollX + e2.deltaX,
+        scale2,
+        totalDuration,
+      );
       this.callbacks.onStateChange({
         scrollX: newScrollX2,
       });
@@ -353,7 +343,11 @@ export class TimelineEventHandler {
       this.callbacks.onRequestRender();
       return;
     }
-    const newScrollX = this.clampScrollX(scrollX + e2.deltaY, scale2, totalDuration);
+    const newScrollX = this.clampScrollX(
+      scrollX + e2.deltaY,
+      scale2,
+      totalDuration,
+    );
     this.callbacks.onStateChange({
       scrollX: newScrollX,
     });
@@ -362,7 +356,8 @@ export class TimelineEventHandler {
   }
   updateHoverState(x2, y4) {
     if (y4 < this.rulerHeight) {
-      this.canvas.style.cursor = this.getState().clips.length > 0 ? "col-resize" : "default";
+      this.canvas.style.cursor =
+        this.getState().clips.length > 0 ? "col-resize" : "default";
       return;
     }
     const cropHit = this.hitTestCropHandle(x2, y4);
@@ -390,15 +385,22 @@ export class TimelineEventHandler {
     const state2 = this.getState();
     const { cropRange } = state2;
     if (!cropRange) return null;
-    const { CLIP_PADDING, CROP_HANDLE_WIDTH, CROP_HANDLE_OUTSET, TRACK_PADDING_H } =
-      TIMELINE_CONFIG;
+    const {
+      CLIP_PADDING,
+      CROP_HANDLE_WIDTH,
+      CROP_HANDLE_OUTSET,
+      TRACK_PADDING_H,
+    } = TIMELINE_CONFIG;
     const { scale: scale2, scrollX } = state2;
     const trackY = this.rulerHeight + this.trackGap + CLIP_PADDING;
     const trackH = this.thumbnailHeight - CLIP_PADDING * 2;
     if (y4 < trackY || y4 > trackY + trackH) return null;
     const canvasWidth = this.getCanvasRect().width;
     const contentLeft = Math.max(0, TRACK_PADDING_H - CROP_HANDLE_OUTSET);
-    const contentRight = Math.min(canvasWidth, canvasWidth - TRACK_PADDING_H + CROP_HANDLE_OUTSET);
+    const contentRight = Math.min(
+      canvasWidth,
+      canvasWidth - TRACK_PADDING_H + CROP_HANDLE_OUTSET,
+    );
     if (x2 < contentLeft || x2 > contentRight) return null;
     const cropLeftX = Math.max(
       0,
@@ -409,13 +411,22 @@ export class TimelineEventHandler {
       cropRange.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET,
     );
     const HIT_EXTEND = 2;
-    if (x2 >= cropLeftX - HIT_EXTEND && x2 <= cropLeftX + CROP_HANDLE_WIDTH + HIT_EXTEND) {
+    if (
+      x2 >= cropLeftX - HIT_EXTEND &&
+      x2 <= cropLeftX + CROP_HANDLE_WIDTH + HIT_EXTEND
+    ) {
       return "crop-left";
     }
-    if (x2 >= cropRightX - CROP_HANDLE_WIDTH - HIT_EXTEND && x2 <= cropRightX + HIT_EXTEND) {
+    if (
+      x2 >= cropRightX - CROP_HANDLE_WIDTH - HIT_EXTEND &&
+      x2 <= cropRightX + HIT_EXTEND
+    ) {
       return "crop-right";
     }
-    if (x2 > cropLeftX + CROP_HANDLE_WIDTH && x2 < cropRightX - CROP_HANDLE_WIDTH) {
+    if (
+      x2 > cropLeftX + CROP_HANDLE_WIDTH &&
+      x2 < cropRightX - CROP_HANDLE_WIDTH
+    ) {
       return "crop-body";
     }
     return null;

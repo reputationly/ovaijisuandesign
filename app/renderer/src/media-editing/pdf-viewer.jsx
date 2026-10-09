@@ -1,62 +1,777 @@
 // pdf-viewer.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, Position, classifyFileType, CompositedSvg, __webpack_exports__, __webpack_exports__getDocument } from "../vendor.js";
-import { NodeResizeFrame, useHtmlFullscreenApi, useFileUrl, usePluginMeta, useHtmlViewerHandle, usePluginRunInfo, useViewerActive, useIsHtmlFullscreen, useWorkspaceContentBudgetScope, useWorkspaceFileViewerAdmission } from "../infra/create-html-iframe-pool-store.jsx";
-import { TooltipProvider$1, FileTypeIcon, useNodeRename } from "../infra/create-recently-added-store.jsx";
-import { FILE_CARD_DEFAULT_SIZE } from "../canvas/group-nodes-in-canvas.js";
-import { useCanvasBridge, useCanvasActions, useAssetMeta, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "./parse-item.jsx";
-import { pickLocalized } from "../generation/push-inline.js";
-import { useFileBytes, pickViewerKind, HTML_VIEWER_UNLOAD_AFTER_MS, ACTIVE_GATED_VIEWER_KINDS } from "../canvas/use-file-bytes.js";
-import {
-  useCanvasNodeIsDragging,
-  AddToChatIcon,
-  FullscreenIcon$1,
-  RunIcon,
-  PluginIcon$1,
-  RefreshIcon,
-  MinimizeIcon,
-  RenameIcon,
-  formatFileSize,
-  getFileExtension,
-  CardViewIcon,
-  PreviewViewIcon,
-  VisibleIcon,
-  areNodePropsEqual,
-} from "../canvas/generating-media-area.jsx";
-import { FILE_PREVIEW_SIZE, FILE_PREVIEW_MIN_SIZE } from "../canvas/prune-persisted-node-data.js";
-import {
-  CLIP_STUDIO_PLUGIN_ID,
-  DIRECTOR_STAGE_PLUGIN_ID,
-  COMFYUI_PLUGIN_ID$1,
-  isPluginEditorSurface,
-  shouldShowPluginNodeSourceAffordance,
-  PANORAMA_VIEWER_PLUGIN_ID,
-} from "./canvas-image.jsx";
-import { NodeToolbar, isCloneData } from "./use-lightbox-media-actions.jsx";
-import { useAddToChat, NodeShell, NodeBody } from "../canvas/use-media-node-actions.jsx";
-import {
-  NodeHeader,
-  NodeHandles,
-  useInlineRename,
-  NodeQuickTagTrigger,
-} from "../canvas/use-inline-rename.jsx";
-import { Tooltip$1 } from "../generation/create-tracker.jsx";
-import { renderAsync } from "docx-preview";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
 import {
-  ComfyUiPluginLauncher,
-  DirectorStageHeaderIcon,
-  VideoEditorHeaderIcon,
-} from "./comfy-ui-plugin-launcher.jsx";
-import { PanoramaNode } from "./panorama-node.jsx";
+  __webpack_exports__getDocument,
+  _$5,
+  _t$2,
+  $$8,
+  $t$2,
+  at$3,
+  At$3,
+  B$7,
+  Bt$1,
+  bt$3,
+  classifyFileType,
+  CompositedSvg,
+  ct$3,
+  Ct$3,
+  D$7,
+  Dt$2,
+  dt$4,
+  Et$2,
+  et$4,
+  f$4,
+  F$6,
+  Ft$2,
+  ft$3,
+  G$5,
+  getDefaultExportFromCjs$1,
+  Gt$1,
+  gt$2,
+  H$5,
+  Ht$1,
+  ht$2,
+  It$1,
+  it$3,
+  j$5,
+  J$6,
+  jsxRuntimeExports,
+  k$6,
+  K$6,
+  kt$2,
+  L$7,
+  Lt$1,
+  lt$3,
+  Mt$1,
+  mt$2,
+  N$4,
+  Nt$1,
+  nt$4,
+  Ot$2,
+  ot$3,
+  P$7,
+  pt$2,
+  Pt$2,
+  q$5,
+  R$6,
+  reactExports,
+  requireJszip_min,
+  Rt$2,
+  rt$3,
+  S$7,
+  St$2,
+  st$3,
+  Tt$2,
+  tt$4,
+  useTranslation,
+  ut$2,
+  Ut$2,
+  V$6,
+  v$7,
+  vt$2,
+  W$7,
+  wt$3,
+  X$6,
+  xt$2,
+  Y$4,
+  yt$2,
+  Yt$2,
+  Z$4,
+  z$7,
+  zt$2,
+} from "../vendor.js";
+import { ViewerLoading, ViewerStateShell } from "./input.jsx";
 import {
-  CodeViewer,
-  JSZip,
-  PluginLauncher,
-  UnpreviewableViewer,
-  VIEWER_SIZE_LIMITS,
-} from "./plugin-launcher.jsx";
-import { HtmlViewer, ViewerError, ViewerLoading } from "./use-plugin-host.jsx";
-function DocxViewer({ filePath, interactive, displayName: displayName2, sizeLabel }) {
+  CANVAS_FILE_VERSION_QUERY_KEY,
+  CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT,
+  getOrCreateState,
+  HEAVY_FILE_VIEWER_KINDS,
+  touch,
+  useFileUrl,
+  useWorkspaceContentBudgetScope,
+  workspaceScope$1,
+} from "../infra/use-plugin-metadata-store.js";
+import { FileTypeIcon } from "../infra/file-type-icon.jsx";
+import { useCanvasBridge } from "./package.jsx";
+import { renderAsync } from "docx-preview";
+import { useViewerActive } from "../infra/use-viewer-active.js";
+import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
+
+function isWorkspaceFileViewerAdmissionAvailable(kind, state2) {
+  if (!HEAVY_FILE_VIEWER_KINDS.has(kind)) return true;
+  let heavyMountedCount = 0;
+  for (const viewer of state2.fileViewers.values()) {
+    if (!viewer.admitted) continue;
+    if (HEAVY_FILE_VIEWER_KINDS.has(viewer.kind)) heavyMountedCount += 1;
+  }
+  return heavyMountedCount < CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT;
+}
+
+function registerWorkspaceFileViewerWithAdmission(input) {
+  const state2 = getOrCreateState(input.workspaceId);
+  const admitted = isWorkspaceFileViewerAdmissionAvailable(input.kind, state2);
+  const id2 = state2.nextViewerRegistrationId++;
+  if (!admitted) {
+    state2.fileViewers.set(id2, {
+      kind: input.kind,
+      filePath: input.filePath,
+      admitted: false,
+    });
+    touch(state2);
+    return {
+      admitted: false,
+      unregister: () => {
+        if (!state2.fileViewers.delete(id2)) return;
+        touch(state2);
+      },
+    };
+  }
+  state2.fileViewers.set(id2, {
+    kind: input.kind,
+    filePath: input.filePath,
+    admitted: true,
+  });
+  touch(state2);
+  return {
+    admitted: true,
+    unregister: () => {
+      if (!state2.fileViewers.delete(id2)) return;
+      touch(state2);
+    },
+  };
+}
+
+function workspaceFileViewerAdmissionKey(input) {
+  return `${workspaceScope$1(input.workspaceId)}\0${input.kind}\0${input.filePath ?? ""}\0${input.active === false ? "idle" : "active"}`;
+}
+
+function defaultWorkspaceFileViewerAdmission(input, admissionKey) {
+  const requiresAdmission =
+    input.active !== false &&
+    !!input.filePath &&
+    input.kind !== "none" &&
+    HEAVY_FILE_VIEWER_KINDS.has(input.kind);
+  return {
+    admissionKey,
+    admitted: !requiresAdmission,
+    overLimit: false,
+  };
+}
+
+function useWorkspaceFileViewerAdmission(input) {
+  const admissionKey = workspaceFileViewerAdmissionKey(input);
+  const [admission, setAdmission] = reactExports.useState(() =>
+    defaultWorkspaceFileViewerAdmission(input, admissionKey),
+  );
+  reactExports.useLayoutEffect(() => {
+    if (input.active === false || !input.filePath || input.kind === "none") {
+      setAdmission({
+        admissionKey,
+        admitted: true,
+        overLimit: false,
+      });
+      return;
+    }
+    const registration = registerWorkspaceFileViewerWithAdmission({
+      kind: input.kind,
+      filePath: input.filePath,
+      workspaceId: input.workspaceId,
+    });
+    setAdmission({
+      admissionKey,
+      admitted: registration.admitted,
+      overLimit: !registration.admitted,
+    });
+    return registration.unregister;
+  }, [
+    admissionKey,
+    input.active,
+    input.filePath,
+    input.kind,
+    input.workspaceId,
+  ]);
+  if (admission.admissionKey !== admissionKey) {
+    return defaultWorkspaceFileViewerAdmission(input, admissionKey);
+  }
+  return {
+    admitted: admission.admitted,
+    overLimit: admission.overLimit,
+  };
+}
+
+var w$6 = (t2) => (e2) => {
+  var p3 = t2[e2];
+  if (p3) return p3();
+  throw new Error("Module not found in bundle: " + e2);
+};
+
+var Se$2 = w$6({
+  "./languages/asm.js": () => Promise.resolve().then(() => (F$6(), P$7)),
+  "./languages/bash.js": () => Promise.resolve().then(() => (f$4(), $$8)),
+  "./languages/bf.js": () => Promise.resolve().then(() => (B$7(), v$7)),
+  "./languages/c.js": () => Promise.resolve().then(() => (H$5(), G$5)),
+  "./languages/css.js": () => Promise.resolve().then(() => (k$6(), _$5)),
+  "./languages/csv.js": () => Promise.resolve().then(() => (Y$4(), z$7)),
+  "./languages/diff.js": () => Promise.resolve().then(() => (N$4(), Z$4)),
+  "./languages/docker.js": () => Promise.resolve().then(() => (W$7(), X$6)),
+  "./languages/git.js": () => Promise.resolve().then(() => (K$6(), j$5)),
+  "./languages/go.js": () => Promise.resolve().then(() => (q$5(), V$6)),
+  "./languages/html.js": () => Promise.resolve().then(() => (et$4(), tt$4)),
+  "./languages/http.js": () => Promise.resolve().then(() => (st$3(), at$3)),
+  "./languages/ini.js": () => Promise.resolve().then(() => (nt$4(), pt$2)),
+  "./languages/java.js": () => Promise.resolve().then(() => (mt$2(), ct$3)),
+  "./languages/js.js": () => Promise.resolve().then(() => (L$7(), rt$3)),
+  "./languages/js_template_literals.js": () =>
+    Promise.resolve().then(() => (ut$2(), ot$3)),
+  "./languages/jsdoc.js": () => Promise.resolve().then(() => (ht$2(), Et$2)),
+  "./languages/json.js": () => Promise.resolve().then(() => (gt$2(), it$3)),
+  "./languages/leanpub-md.js": () =>
+    Promise.resolve().then(() => (yt$2(), bt$3)),
+  "./languages/log.js": () => Promise.resolve().then(() => (ft$3(), Tt$2)),
+  "./languages/lua.js": () => Promise.resolve().then(() => (Nt$1(), It$1)),
+  "./languages/make.js": () => Promise.resolve().then(() => (Rt$2(), At$3)),
+  "./languages/md.js": () => Promise.resolve().then(() => (D$7(), dt$4)),
+  "./languages/pl.js": () => Promise.resolve().then(() => (Lt$1(), Ot$2)),
+  "./languages/plain.js": () => Promise.resolve().then(() => (St$2(), xt$2)),
+  "./languages/py.js": () => Promise.resolve().then(() => (Dt$2(), Ct$3)),
+  "./languages/regex.js": () => Promise.resolve().then(() => (Ut$2(), wt$3)),
+  "./languages/rs.js": () => Promise.resolve().then(() => (Ft$2(), Pt$2)),
+  "./languages/sql.js": () => Promise.resolve().then(() => ($t$2(), Mt$1)),
+  "./languages/todo.js": () => Promise.resolve().then(() => (S$7(), lt$3)),
+  "./languages/toml.js": () => Promise.resolve().then(() => (Bt$1(), vt$2)),
+  "./languages/ts.js": () => Promise.resolve().then(() => (Ht$1(), Gt$1)),
+  "./languages/uri.js": () => Promise.resolve().then(() => (kt$2(), _t$2)),
+  "./languages/xml.js": () => Promise.resolve().then(() => (R$6(), J$6)),
+  "./languages/yaml.js": () => Promise.resolve().then(() => (Yt$2(), zt$2)),
+});
+
+const INITIAL$1 = {
+  status: "loading",
+};
+
+async function equalBytes(left, right, signal) {
+  if (left.byteLength !== right.byteLength) return false;
+  const a2 = new Uint8Array(left);
+  const b3 = new Uint8Array(right);
+  const chunkSize = 1024 * 1024;
+  for (let start2 = 0; start2 < a2.length; start2 += chunkSize) {
+    if (signal.aborted) return false;
+    const end2 = Math.min(start2 + chunkSize, a2.length);
+    for (let i2 = start2; i2 < end2; i2++) {
+      if (a2[i2] !== b3[i2]) return false;
+    }
+    if (end2 < a2.length)
+      await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  return true;
+}
+
+function useFileBytes(filePath, maxBytes, options) {
+  const url2 = useFileUrl(filePath);
+  const [state2, setState] = reactExports.useState(INITIAL$1);
+  const revalidate = options?.revalidate ?? false;
+  const previous2 = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (!filePath) {
+      previous2.current = null;
+      setState({
+        status: "error",
+        errorKey: "canvas.file.viewer.loadFailed",
+      });
+      return;
+    }
+    if (!url2) {
+      previous2.current = null;
+      setState(INITIAL$1);
+      return;
+    }
+    let cancelled = false;
+    const controller = new AbortController();
+    let requestUrl = url2;
+    if (revalidate) {
+      const stable = new URL(url2);
+      stable.searchParams.delete(CANVAS_FILE_VERSION_QUERY_KEY);
+      requestUrl = stable.href;
+    }
+    const cached =
+      revalidate &&
+      previous2.current?.url === requestUrl &&
+      previous2.current.bytes.byteLength <= maxBytes
+        ? previous2.current
+        : null;
+    if (!cached) {
+      previous2.current = null;
+      setState(INITIAL$1);
+    }
+    fetch(requestUrl, {
+      signal: controller.signal,
+      ...(revalidate
+        ? {
+            cache: "no-cache",
+          }
+        : {}),
+    })
+      .then(async (resp) => {
+        if (!resp.ok) {
+          throw new Error(`HTTP ${resp.status}`);
+        }
+        const lenHeader = resp.headers.get("content-length");
+        const declared = lenHeader
+          ? Number.parseInt(lenHeader, 10)
+          : Number.NaN;
+        if (Number.isFinite(declared) && declared > maxBytes) {
+          throw new Error("TOO_LARGE");
+        }
+        const buf = await resp.arrayBuffer();
+        if (buf.byteLength > maxBytes) {
+          throw new Error("TOO_LARGE");
+        }
+        if (cancelled) return;
+        if (cached && (await equalBytes(cached.bytes, buf, controller.signal)))
+          return;
+        if (cancelled) return;
+        previous2.current = revalidate
+          ? {
+              url: requestUrl,
+              bytes: buf,
+            }
+          : null;
+        setState({
+          status: "success",
+          bytes: buf,
+        });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (controller.signal.aborted) return;
+        previous2.current = null;
+        const errorKey =
+          err instanceof Error && err.message === "TOO_LARGE"
+            ? "canvas.file.viewer.tooLarge"
+            : "canvas.file.viewer.loadFailed";
+        setState({
+          status: "error",
+          errorKey,
+        });
+      });
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [filePath, url2, maxBytes, revalidate]);
+  return state2;
+}
+
+const CODE_EXTS = new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".json",
+  ".json5",
+  ".yaml",
+  ".yml",
+  ".toml",
+  ".xml",
+  ".css",
+  ".scss",
+  ".sass",
+  ".less",
+  ".vue",
+  ".svelte",
+  ".md",
+  ".markdown",
+  ".mdx",
+  ".py",
+  ".rb",
+  ".go",
+  ".rs",
+  ".java",
+  ".kt",
+  ".kts",
+  ".swift",
+  ".c",
+  ".cc",
+  ".cpp",
+  ".h",
+  ".hpp",
+  ".cs",
+  ".php",
+  ".lua",
+  ".dart",
+  ".scala",
+  ".r",
+  ".proto",
+  ".sh",
+  ".bash",
+  ".zsh",
+  ".fish",
+  ".sql",
+  ".dockerfile",
+  ".makefile",
+  ".gitignore",
+  ".gitattributes",
+  ".env",
+  ".txt",
+  ".log",
+]);
+
+const IMAGE_EXTS$1 = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".bmp",
+  ".svg",
+  ".avif",
+  ".ico",
+]);
+
+const ZIP_EXTS = new Set([
+  ".zip",
+  ".jar",
+  ".war",
+  ".apk",
+  ".ipa",
+  ".xpi",
+  ".epub",
+]);
+
+function pickViewerKind(extension2) {
+  if (!extension2) return "none";
+  const ext = extension2.toLowerCase();
+  if (IMAGE_EXTS$1.has(ext)) return "image";
+  if (ext === ".pdf") return "pdf";
+  if (ext === ".docx") return "docx";
+  if (ext === ".srt" || ext === ".ass") return "srt";
+  if (ext === ".html" || ext === ".htm") return "html";
+  if (ZIP_EXTS.has(ext)) return "zip";
+  if (CODE_EXTS.has(ext)) return "code";
+  return "none";
+}
+
+const HTML_VIEWER_UNLOAD_AFTER_MS = 6e3;
+
+const ACTIVE_GATED_VIEWER_KINDS = new Set([
+  "image",
+  "pdf",
+  "code",
+  "docx",
+  "zip",
+  "html",
+]);
+
+function ViewerError({ messageKey }) {
+  const { t: t2 } = useTranslation();
+  return (
+    <ViewerStateShell>
+      <div className="text-sm font-medium text-foreground">
+        {t2(messageKey ?? "canvas.file.viewer.loadFailed", "预览加载失败")}
+      </div>
+    </ViewerStateShell>
+  );
+}
+
+var U$6 = {
+  num: {
+    type: "num",
+    match: /(\.e?|\b)\d(e-|[\d.oxa-fA-F_])*(\.|\b)/g,
+  },
+  str: {
+    type: "str",
+    match: /(["'])(\\[^]|(?!\1)[^\r\n\\])*\1?/g,
+  },
+  strDouble: {
+    type: "str",
+    match: /"((?!")[^\r\n\\]|\\[^])*"?/g,
+  },
+};
+
+var b$6 = {};
+
+var Ce$2 = (t2 = "") =>
+  t2
+    .replaceAll("&", "&#38;")
+    .replaceAll?.("<", "&lt;")
+    .replaceAll?.(">", "&gt;");
+
+var De$3 = (t2, e2) => (e2 ? `<span class="shj-syn-${e2}">${t2}</span>` : t2);
+
+async function Zt$2(t2, e2, p3) {
+  try {
+    let n2,
+      m3,
+      c3 = {},
+      i2,
+      r2 = [],
+      h2 = 0,
+      y4 =
+        typeof e2 == "string"
+          ? await (b$6[e2] ?? (b$6[e2] = Se$2(`./languages/${e2}.js`)))
+          : e2,
+      g2 = [...(typeof e2 == "string" ? y4.default : e2.sub)];
+    for (; h2 < t2.length;) {
+      for (c3.index = null, n2 = g2.length; n2-- > 0;) {
+        if (
+          ((m3 = g2[n2].expand ? U$6[g2[n2].expand] : g2[n2]),
+          r2[n2] === void 0 || r2[n2].match.index < h2)
+        ) {
+          if (
+            ((m3.match.lastIndex = h2), (i2 = m3.match.exec(t2)), i2 === null)
+          ) {
+            (g2.splice(n2, 1), r2.splice(n2, 1));
+            continue;
+          }
+          r2[n2] = {
+            match: i2,
+            lastIndex: m3.match.lastIndex,
+          };
+        }
+        r2[n2].match[0] &&
+          (r2[n2].match.index <= c3.index || c3.index === null) &&
+          (c3 = {
+            part: m3,
+            index: r2[n2].match.index,
+            match: r2[n2].match[0],
+            end: r2[n2].lastIndex,
+          });
+      }
+      if (c3.index === null) break;
+      (p3(t2.slice(h2, c3.index), y4.type),
+        (h2 = c3.end),
+        c3.part.sub
+          ? await Zt$2(
+              c3.match,
+              typeof c3.part.sub == "string"
+                ? c3.part.sub
+                : typeof c3.part.sub == "function"
+                  ? c3.part.sub(c3.match)
+                  : c3.part,
+              p3,
+            )
+          : p3(c3.match, c3.part.type));
+    }
+    p3(t2.slice(h2, t2.length), y4.type);
+  } catch {
+    p3(t2);
+  }
+}
+
+async function we$3(t2, e2, p3 = true, n2 = {}) {
+  let m3 = "";
+  return (
+    await Zt$2(t2, e2, (c3, i2) => (m3 += De$3(Ce$2(c3), i2))),
+    p3
+      ? `<div><div class="shj-numbers">${"<div></div>".repeat(
+          !n2.hideLineNumbers &&
+            t2.split(`
+`).length,
+        )}</div><div>${m3}</div></div>`
+      : m3
+  );
+}
+
+function UnpreviewableViewer({
+  extension: extension2,
+  displayName: displayName2,
+  sizeLabel,
+  reason = "unsupported",
+}) {
+  return (
+    <MediaUnpreviewableFallback
+      extension={extension2}
+      displayName={displayName2}
+      sizeLabel={sizeLabel}
+      reason={reason}
+    />
+  );
+}
+
+const VIEWER_SIZE_LIMITS = {
+  // 128 MB — rendered by the browser from a URL, not buffered by JS; cap kept for budget/admission symmetry
+  pdf: 50 * 1024 * 1024,
+  // 50 MB — pdf.js streams pages so this is generous
+  code: 512 * 1024,
+  // 512 KB — speed-highlight tokenises in-process on the main thread; tens-of-ms range at this cap
+  docx: 20 * 1024 * 1024,
+  // 20 MB — docx-preview unzips fully into memory
+  zip: 256 * 1024 * 1024,
+};
+
+function pickLanguage(ext) {
+  switch (ext) {
+    case ".ts":
+    case ".tsx":
+      return "ts";
+    case ".js":
+    case ".jsx":
+    case ".mjs":
+    case ".cjs":
+      return "js";
+    case ".json":
+    case ".json5":
+      return "json";
+    case ".yaml":
+    case ".yml":
+      return "yaml";
+    case ".toml":
+      return "toml";
+    case ".xml":
+    case ".vue":
+    case ".svelte":
+      return "xml";
+    case ".html":
+    case ".htm":
+      return "html";
+    case ".css":
+    case ".scss":
+    case ".sass":
+    case ".less":
+      return "css";
+    case ".md":
+    case ".markdown":
+    case ".mdx":
+      return "md";
+    case ".py":
+      return "py";
+    case ".go":
+      return "go";
+    case ".rs":
+      return "rs";
+    case ".java":
+    case ".kt":
+    case ".kts":
+      return "java";
+    case ".c":
+    case ".h":
+    case ".cc":
+    case ".cpp":
+    case ".hpp":
+      return "c";
+    case ".lua":
+      return "lua";
+    case ".pl":
+      return "pl";
+    case ".sh":
+    case ".bash":
+    case ".zsh":
+    case ".fish":
+      return "bash";
+    case ".sql":
+      return "sql";
+    case ".dockerfile":
+      return "docker";
+    case ".makefile":
+      return "make";
+    case ".ini":
+    case ".env":
+      return "ini";
+    case ".log":
+      return "log";
+    default:
+      return "plain";
+  }
+}
+
+const MAX_HIGHLIGHTED_HTML_CHARS = 4 * 1024 * 1024;
+
+function escapeHtml$1(s2) {
+  return s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function plainTextHtml(text2) {
+  const lineCount = text2.split("\n").length;
+  const numbers = "<div></div>".repeat(lineCount);
+  return `<div><div class="shj-numbers">${numbers}</div><div>${escapeHtml$1(text2)}</div></div>`;
+}
+
+async function yieldToMain() {
+  const scheduler2 = globalThis.scheduler;
+  if (scheduler2?.yield) return scheduler2.yield();
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+}
+
+function CodeViewer({
+  filePath,
+  extension: extension2,
+  interactive,
+  displayName: displayName2,
+  sizeLabel,
+}) {
+  const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
+    revalidate: true,
+  });
+  const [html2, setHtml] = reactExports.useState(null);
+  const innerHtml = reactExports.useMemo(
+    () => ({
+      __html: html2 ?? "",
+    }),
+    [html2],
+  );
+  const [lang, setLang] = reactExports.useState(() => pickLanguage(extension2));
+  const errorKey = bytes2.status === "error" ? bytes2.errorKey : null;
+  reactExports.useEffect(() => {
+    if (bytes2.status !== "success" || !bytes2.bytes) return;
+    let cancelled = false;
+    setHtml(null);
+    const chosen = pickLanguage(extension2);
+    setLang(chosen);
+    const text2 = new TextDecoder().decode(bytes2.bytes);
+    void (async () => {
+      await yieldToMain();
+      if (cancelled) return;
+      let rendered;
+      try {
+        rendered = await we$3(text2, chosen /* multiline */, true);
+      } catch {
+        rendered = plainTextHtml(text2);
+      }
+      if (cancelled) return;
+      const final =
+        rendered.length > MAX_HIGHLIGHTED_HTML_CHARS
+          ? plainTextHtml(text2)
+          : rendered;
+      if (!cancelled) setHtml(final);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bytes2.status, bytes2.bytes, extension2]);
+  if (errorKey === "canvas.file.viewer.tooLarge")
+    return (
+      <UnpreviewableViewer
+        reason="tooLarge"
+        extension={extension2}
+        displayName={displayName2 ?? ""}
+        sizeLabel={sizeLabel}
+      />
+    );
+  if (errorKey) return <ViewerError messageKey={errorKey} />;
+  if (bytes2.status === "loading" || !html2) return <ViewerLoading />;
+  return (
+    <div
+      className={`${interactive ? "nowheel " : ""}hilo-code-viewer shj-lang-${lang} h-full w-full overflow-auto bg-background px-4 py-3 text-xs leading-relaxed`}
+      dangerouslySetInnerHTML={innerHtml}
+    />
+  );
+}
+
+var jszip_minExports = requireJszip_min();
+
+const JSZip = getDefaultExportFromCjs$1(jszip_minExports);
+
+function DocxViewer({
+  filePath,
+  interactive,
+  displayName: displayName2,
+  sizeLabel,
+}) {
   const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.docx, {
     revalidate: true,
   });
@@ -114,10 +829,14 @@ function DocxViewer({ filePath, interactive, displayName: displayName2, sizeLabe
       className={`${interactive ? "nowheel " : ""}h-full w-full overflow-auto bg-muted px-4 py-3`}
     >
       <div ref={styleRef} aria-hidden="true" className="hidden" />
-      <div ref={bodyRef} className="hilo-docx-body mx-auto bg-background shadow-sm" />
+      <div
+        ref={bodyRef}
+        className="hilo-docx-body mx-auto bg-background shadow-sm"
+      />
     </div>
   );
 }
+
 function ImageViewer({ filePath, displayName: displayName2 }) {
   const url2 = useFileUrl(filePath, {
     versionScope: "path",
@@ -156,10 +875,14 @@ function ImageViewer({ filePath, displayName: displayName2 }) {
     </div>
   );
 }
-var __webpack_exports__GlobalWorkerOptions = __webpack_exports__.GlobalWorkerOptions;
-const pdfWorkerUrl = "" + new URL("../pdf.worker.min-yatZIOMy.mjs", import.meta.url).href;
-__webpack_exports__GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-function PdfViewer({ filePath, paneWidth, interactive, displayName: displayName2, sizeLabel }) {
+
+function PdfViewer({
+  filePath,
+  paneWidth,
+  interactive,
+  displayName: displayName2,
+  sizeLabel,
+}) {
   const { t: t2 } = useTranslation();
   const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.pdf, {
     revalidate: true,
@@ -192,7 +915,9 @@ function PdfViewer({ filePath, paneWidth, interactive, displayName: displayName2
           return;
         }
         setDoc(doc22);
-        setPageIndex((index2) => Math.min(index2, Math.max(0, doc22.numPages - 1)));
+        setPageIndex((index2) =>
+          Math.min(index2, Math.max(0, doc22.numPages - 1)),
+        );
       })
       .catch(() => {
         if (!cancelled) setRenderError("canvas.file.viewer.loadFailed");
@@ -235,7 +960,12 @@ function PdfViewer({ filePath, paneWidth, interactive, displayName: displayName2
       })
       .catch((err) => {
         if (cancelled) return;
-        if (err && typeof err === "object" && err.name === "RenderingCancelledException") return;
+        if (
+          err &&
+          typeof err === "object" &&
+          err.name === "RenderingCancelledException"
+        )
+          return;
         setRenderError("canvas.file.viewer.loadFailed");
       });
     return () => {
@@ -301,8 +1031,15 @@ function PdfViewer({ filePath, paneWidth, interactive, displayName: displayName2
     </div>
   );
 }
+
 const SAVE_DEBOUNCE_MS = 500;
-function SrtEditor({ filePath, interactive, displayName: displayName2, sizeLabel }) {
+
+function SrtEditor({
+  filePath,
+  interactive,
+  displayName: displayName2,
+  sizeLabel,
+}) {
   const { t: t2 } = useTranslation();
   const { saveTextContent } = useCanvasBridge();
   const bytesState = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
@@ -358,7 +1095,10 @@ function SrtEditor({ filePath, interactive, displayName: displayName2, sizeLabel
     },
     [flushSave],
   );
-  if (bytesState.status === "loading" || (bytesState.status === "success" && content2 === null)) {
+  if (
+    bytesState.status === "loading" ||
+    (bytesState.status === "success" && content2 === null)
+  ) {
     return <ViewerLoading />;
   }
   if (bytesState.status === "error") {
@@ -376,7 +1116,11 @@ function SrtEditor({ filePath, interactive, displayName: displayName2, sizeLabel
   }
   return (
     <textarea
-      className={interactive ? "nowheel h-full w-full resize-none" : "h-full w-full resize-none"}
+      className={
+        interactive
+          ? "nowheel h-full w-full resize-none"
+          : "h-full w-full resize-none"
+      }
       style={{
         background: "var(--canvas-node-bg, #fff)",
         color: "var(--canvas-node-text, currentColor)",
@@ -394,10 +1138,14 @@ function SrtEditor({ filePath, interactive, displayName: displayName2, sizeLabel
       onPointerDown={(e2) => e2.stopPropagation()}
       onKeyDown={(e2) => e2.stopPropagation()}
       spellCheck={false}
-      placeholder={t2("canvas.file.viewer.srt.placeholder", "字幕内容（SRT / ASS 格式）")}
+      placeholder={t2(
+        "canvas.file.viewer.srt.placeholder",
+        "字幕内容（SRT / ASS 格式）",
+      )}
     />
   );
 }
+
 function formatSize(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 < 0) return "";
   if (bytes2 < 1024) return `${bytes2} B`;
@@ -407,12 +1155,15 @@ function formatSize(bytes2) {
   if (mb < 1024) return `${mb.toFixed(2)} MB`;
   return `${(mb / 1024).toFixed(2)} GB`;
 }
+
 function buildTree$1(entries2) {
   const root2 = {
     children: [],
   };
   for (const entry of entries2) {
-    const cleanPath2 = entry.isFolder ? entry.path.replace(/\/$/, "") : entry.path;
+    const cleanPath2 = entry.isFolder
+      ? entry.path.replace(/\/$/, "")
+      : entry.path;
     if (!cleanPath2) continue;
     const parts = cleanPath2.split("/");
     let cursor = root2;
@@ -452,6 +1203,7 @@ function buildTree$1(entries2) {
   sortNodes(root2.children);
   return root2.children;
 }
+
 function FolderGlyph() {
   return (
     <CompositedSvg
@@ -470,6 +1222,7 @@ function FolderGlyph() {
     </CompositedSvg>
   );
 }
+
 function ChevronGlyph({ open }) {
   return (
     <CompositedSvg
@@ -488,6 +1241,7 @@ function ChevronGlyph({ open }) {
     </CompositedSvg>
   );
 }
+
 function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
   const sizeLabel = node2.isFolder ? "" : formatSize(node2.size);
   const handleClick2 = reactExports.useCallback(() => {
@@ -510,7 +1264,11 @@ function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
         paddingLeft: `${12 + depth2 * 16}px`,
       }}
     >
-      {node2.isFolder ? <ChevronGlyph open={isOpen} /> : <span className="w-3 shrink-0" />}
+      {node2.isFolder ? (
+        <ChevronGlyph open={isOpen} />
+      ) : (
+        <span className="w-3 shrink-0" />
+      )}
       {node2.isFolder ? (
         <FolderGlyph />
       ) : (
@@ -526,11 +1284,14 @@ function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
         {node2.name}
       </span>
       {sizeLabel ? (
-        <span className="shrink-0 text-muted-foreground tabular-nums">{sizeLabel}</span>
+        <span className="shrink-0 text-muted-foreground tabular-nums">
+          {sizeLabel}
+        </span>
       ) : null}
     </Wrapper2>
   );
 }
+
 function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
   return (
     <>
@@ -542,7 +1303,9 @@ function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
             isOpen={openSet.has(node2.path)}
             onToggle={onToggle}
           />
-          {node2.isFolder && openSet.has(node2.path) && node2.children.length > 0 ? (
+          {node2.isFolder &&
+          openSet.has(node2.path) &&
+          node2.children.length > 0 ? (
             <TreeBranch
               nodes={node2.children}
               depth={depth2 + 1}
@@ -555,7 +1318,22 @@ function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
     </>
   );
 }
-function ZipViewer({ filePath, interactive, displayName: displayName2, sizeLabel }) {
+
+function countLeaves(nodes) {
+  let n2 = 0;
+  for (const node2 of nodes) {
+    if (node2.isFolder) n2 += countLeaves(node2.children);
+    else n2 += 1;
+  }
+  return n2;
+}
+
+function ZipViewer({
+  filePath,
+  interactive,
+  displayName: displayName2,
+  sizeLabel,
+}) {
   const { t: t2 } = useTranslation();
   const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.zip, {
     revalidate: true,
@@ -616,7 +1394,8 @@ function ZipViewer({ filePath, interactive, displayName: displayName2, sizeLabel
     }
     return <ViewerError messageKey={bytes2.errorKey} />;
   }
-  if (parseError) return <ViewerError messageKey="canvas.file.viewer.loadFailed" />;
+  if (parseError)
+    return <ViewerError messageKey="canvas.file.viewer.loadFailed" />;
   if (!tree) return <ViewerLoading />;
   const totalEntries = countLeaves(tree);
   return (
@@ -632,23 +1411,23 @@ function ZipViewer({ filePath, interactive, displayName: displayName2, sizeLabel
             )
           </span>
         </span>
-        <span className="shrink-0">{t2("canvas.file.viewer.zipSize", "大小")}</span>
+        <span className="shrink-0">
+          {t2("canvas.file.viewer.zipSize", "大小")}
+        </span>
       </div>
       <div className={`${interactive ? "nowheel " : ""}flex-1 overflow-auto`}>
-        <TreeBranch nodes={tree} depth={0} openSet={openSet} onToggle={handleToggle} />
+        <TreeBranch
+          nodes={tree}
+          depth={0}
+          openSet={openSet}
+          onToggle={handleToggle}
+        />
       </div>
     </div>
   );
 }
-function countLeaves(nodes) {
-  let n2 = 0;
-  for (const node2 of nodes) {
-    if (node2.isFolder) n2 += countLeaves(node2.children);
-    else n2 += 1;
-  }
-  return n2;
-}
-function FileViewerRouter({
+
+export function FileViewerRouter({
   filePath,
   extension: extension2,
   displayName: displayName2,
@@ -765,699 +1544,3 @@ function FileViewerRouter({
     </div>
   );
 }
-function PluginPreview({
-  selected: selected2,
-  interactive,
-  filePath,
-  pluginId,
-  displayName: displayName2,
-  extension: extension2,
-  width,
-  height,
-}) {
-  const paneWidth = width - 2;
-  const { i18n } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
-  const rawLang = i18n.language || "en-US";
-  const locale = rawLang.startsWith("zh") ? "zh-CN" : rawLang.startsWith("en") ? "en-US" : rawLang;
-  const localizedName = meta2 ? pickLocalized(meta2.name, locale) : "";
-  const headerName = localizedName || displayName2;
-  const iconUrl = meta2 ? pickLocalized(meta2.iconUrl, locale) : "";
-  const [iconBroken, setIconBroken] = reactExports.useState(false);
-  const showIcon = !!iconUrl && !iconBroken;
-  return (
-    <NodeBody width={width} height={height} selected={selected2} variant="media">
-      <div
-        className="flex h-full flex-col overflow-hidden rounded-lg"
-        style={{
-          background: "var(--canvas-node-bg, #fff)",
-          border: "1px solid transparent",
-        }}
-      >
-        <div className="flex items-center justify-between gap-2 border-[var(--canvas-node-border)] border-b px-4 py-2">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <div className="flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground">
-              {showIcon ? (
-                // Manifest-supplied icon. `referrerPolicy="no-referrer"`
-                // keeps relative `/api/plugins/<id>/static/...` requests
-                // out of the gateway log noise; `draggable=false` prevents
-                // the iframe-host area from receiving an accidental
-                // image-drag while the user pans the canvas.
-                <img
-                  src={iconUrl}
-                  alt=""
-                  className="h-full w-full object-contain"
-                  draggable={false}
-                  referrerPolicy="no-referrer"
-                  onError={() => setIconBroken(true)}
-                />
-              ) : (
-                <PluginIcon$1 />
-              )}
-            </div>
-            <div className="truncate text-xs text-foreground" title={headerName}>
-              {headerName}
-            </div>
-          </div>
-          <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground"
-            aria-hidden="true"
-          >
-            <CompositedSvg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="5" r="1" />
-              <circle cx="19" cy="5" r="1" />
-              <circle cx="5" cy="5" r="1" />
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="19" cy="12" r="1" />
-              <circle cx="5" cy="12" r="1" />
-              <circle cx="12" cy="19" r="1" />
-              <circle cx="19" cy="19" r="1" />
-              <circle cx="5" cy="19" r="1" />
-            </CompositedSvg>
-          </div>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <FileViewerRouter
-            filePath={filePath}
-            extension={extension2}
-            displayName={displayName2}
-            paneWidth={paneWidth}
-            interactive={interactive}
-          />
-        </div>
-      </div>
-    </NodeBody>
-  );
-}
-function PluginNodeInner({ id: id2, data: data2, selected: selected2, width, height }) {
-  const { i18n, t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
-  const persisted = data2;
-  const { onPluginAction } = useCanvasBridge();
-  const isMultiSelect = useCanvasIsMultiSelect();
-  const isDragging = useCanvasNodeIsDragging(id2);
-  const isBoxSelecting = useCanvasIsBoxSelecting();
-  const [previewWidth, setPreviewWidth] = reactExports.useState(
-    typeof width === "number" && width > 0 ? width : FILE_PREVIEW_SIZE.width,
-  );
-  const [previewHeight, setPreviewHeight] = reactExports.useState(
-    typeof height === "number" && height > 0 ? height : FILE_PREVIEW_SIZE.height,
-  );
-  reactExports.useEffect(() => {
-    if (typeof width === "number" && width > 0) setPreviewWidth(width);
-  }, [width]);
-  reactExports.useEffect(() => {
-    if (typeof height === "number" && height > 0) setPreviewHeight(height);
-  }, [height]);
-  const filePath = meta2?.path ?? persisted?.path;
-  const displayName2 =
-    meta2?.name ||
-    persisted?.name ||
-    filePath?.split("/").pop() ||
-    t2("canvas.file.untitled", "Untitled");
-  const extension2 = ".html";
-  const pluginMeta = usePluginMeta(persisted?.pluginId);
-  const rawLang = i18n.language || "en-US";
-  const locale = rawLang.startsWith("zh") ? "zh-CN" : rawLang.startsWith("en") ? "en-US" : rawLang;
-  const savedName = meta2?.name || persisted?.name;
-  const isCustomName =
-    savedName && pluginMeta && !Object.values(pluginMeta.name).includes(savedName);
-  const headerName = (!isCustomName && pickLocalized(pluginMeta?.name, locale)) || displayName2;
-  const displayMode = pluginMeta?.displayMode ?? persisted?.pluginDisplayMode ?? "inline";
-  const isLauncher = displayMode === "launcher";
-  const isComfyUi = persisted?.pluginId === COMFYUI_PLUGIN_ID$1;
-  const isEditorSurface = isLauncher && isPluginEditorSurface(pluginMeta?.agent);
-  const runInfo = usePluginRunInfo(id2);
-  const htmlViewerHandle = useHtmlViewerHandle(id2);
-  const isHtmlFullscreen = useIsHtmlFullscreen(id2);
-  const fullscreenApi = useHtmlFullscreenApi();
-  const reportPluginAction = reactExports.useCallback(
-    (action, state2, runPath) => {
-      if (!persisted.pluginId) return;
-      onPluginAction?.({
-        pluginId: persisted.pluginId,
-        pluginVersion: persisted.pluginVersion,
-        pluginInstanceId: id2,
-        action,
-        ...(state2
-          ? {
-              state: state2,
-            }
-          : {}),
-        ...(runPath
-          ? {
-              runPath,
-            }
-          : {}),
-      });
-    },
-    [id2, onPluginAction, persisted.pluginId, persisted.pluginVersion],
-  );
-  const enterHtmlFullscreen = reactExports.useCallback(() => {
-    if (!htmlViewerHandle) return;
-    fullscreenApi.getState().enter(id2);
-    reportPluginAction("fullscreen", "enter");
-  }, [id2, fullscreenApi, htmlViewerHandle, reportPluginAction]);
-  const exitHtmlFullscreen = reactExports.useCallback(() => {
-    fullscreenApi.getState().exit(id2);
-    reportPluginAction("fullscreen", "exit");
-  }, [id2, fullscreenApi, reportPluginAction]);
-  const refreshPlugin = reactExports.useCallback(() => {
-    if (!htmlViewerHandle) return;
-    htmlViewerHandle.reload();
-    reportPluginAction("refresh");
-  }, [htmlViewerHandle, reportPluginAction]);
-  const runPlugin = reactExports.useCallback(() => {
-    if (!runInfo?.hasMain) return;
-    runInfo.invoke();
-    reportPluginAction("run");
-  }, [reportPluginAction, runInfo]);
-  const toolbarItems = [
-    // Launcher mode has no persistent inline iframe — refresh / fullscreen
-    // toggles would act on a viewer that only exists while the overlay is
-    // open, so they are omitted; the card owns its fullscreen/template
-    // entry points. (htmlViewerHandle is normally absent here anyway; the
-    // explicit gate covers the grace window where the hidden iframe is
-    // still registered.)
-    ...(htmlViewerHandle && !isLauncher
-      ? [
-          {
-            id: "refresh",
-            label: t2("canvas.file.refresh", "刷新"),
-            icon: <RefreshIcon />,
-            onClick: refreshPlugin,
-            dataActionUiId: "canvas.plugin-node.refresh",
-          },
-          {
-            id: "fullscreen",
-            label: isHtmlFullscreen
-              ? t2("canvas.file.exitFullscreen", "退出全屏")
-              : t2("canvas.file.enterFullscreen", "全屏预览"),
-            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon$1 />,
-            onClick: isHtmlFullscreen ? exitHtmlFullscreen : enterHtmlFullscreen,
-            active: isHtmlFullscreen,
-            dataActionUiId: "canvas.plugin-node.fullscreen",
-          },
-        ]
-      : []),
-    ...(runInfo?.hasMain && !isLauncher
-      ? [
-          {
-            id: "run",
-            label: t2("canvas.file.run", "执行"),
-            icon: <RunIcon />,
-            onClick: runPlugin,
-            dataActionUiId: "canvas.plugin-node.run",
-          },
-        ]
-      : []),
-  ];
-  const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
-  const isPreviewInteractive = !!selected2 && isInteractiveSelect;
-  const handlePreviewResize = reactExports.useCallback((newW, newH) => {
-    setPreviewWidth(newW);
-    setPreviewHeight(newH);
-  }, []);
-  const handleDoubleClick2 = reactExports.useCallback(() => {
-    if (isLauncher) {
-      fullscreenApi.getState().enter(id2);
-      reportPluginAction("fullscreen", "enter");
-    }
-  }, [isLauncher, fullscreenApi, id2, reportPluginAction]);
-  return (
-    <NodeShell width={previewWidth} onDoubleClick={isLauncher ? handleDoubleClick2 : void 0}>
-      <NodeHeader
-        nodeType="file"
-        name={headerName}
-        maxWidth={previewWidth}
-        selected={selected2}
-        icon={
-          persisted.pluginId === DIRECTOR_STAGE_PLUGIN_ID ? (
-            <DirectorStageHeaderIcon />
-          ) : persisted.pluginId === CLIP_STUDIO_PLUGIN_ID ? (
-            <VideoEditorHeaderIcon />
-          ) : (
-            void 0
-          )
-        }
-      />
-      {isLauncher ? (
-        isComfyUi ? (
-          <ComfyUiPluginLauncher
-            nodeId={id2}
-            pluginId={persisted.pluginId}
-            filePath={filePath}
-            displayName={displayName2}
-            width={previewWidth}
-            height={previewHeight}
-            selected={!!selected2}
-            currentWorkflowId={persisted.currentWorkflowId}
-            currentWorkflowName={persisted.currentWorkflowName}
-            templateCopyOrdinal={persisted.comfyuiTemplateCopyOrdinal}
-            workflowRevision={persisted.comfyuiWorkflowRevision}
-            hasWorkflowContent={persisted.hasWorkflowContent}
-            comfyuiBackendReady={persisted.comfyuiBackendReady}
-            comfyuiWorkflowError={persisted.comfyuiWorkflowError}
-            comfyuiWorkflowDeleted={persisted.comfyuiWorkflowDeleted}
-            comfyuiDeletedWorkflowName={persisted.comfyuiDeletedWorkflowName}
-            comfyuiRunSummary={persisted.comfyuiRunSummary}
-            onReportAction={reportPluginAction}
-          />
-        ) : (
-          <PluginLauncher
-            nodeId={id2}
-            pluginId={persisted.pluginId}
-            filePath={filePath}
-            displayName={displayName2}
-            width={previewWidth}
-            height={previewHeight}
-            selected={!!selected2}
-            onReportAction={reportPluginAction}
-            editorSurface={isEditorSurface}
-          />
-        )
-      ) : (
-        <PluginPreview
-          selected={selected2}
-          interactive={isPreviewInteractive}
-          filePath={filePath}
-          {...(persisted?.pluginId
-            ? {
-                pluginId: persisted.pluginId,
-              }
-            : {})}
-          displayName={displayName2}
-          extension={extension2}
-          width={previewWidth}
-          height={previewHeight}
-        />
-      )}
-      {selected2 && isInteractiveSelect && toolbarItems.length > 0 && (
-        <NodeToolbar items={toolbarItems} visible={true} />
-      )}
-      {selected2 && (
-        <NodeResizeFrame
-          nodeId={id2}
-          minWidth={FILE_PREVIEW_MIN_SIZE.width}
-          minHeight={FILE_PREVIEW_MIN_SIZE.height}
-          onResize={handlePreviewResize}
-        />
-      )}
-      <NodeHandles
-        nodeId={id2}
-        selected={!!selected2}
-        showSourceAffordance={shouldShowPluginNodeSourceAffordance(persisted?.pluginId)}
-        sourcePosition={Position.Left}
-      />
-    </NodeShell>
-  );
-}
-function FilePreview$1({
-  selected: selected2,
-  interactive,
-  filePath,
-  displayName: displayName2,
-  tagIds,
-  sizeLabel,
-  extension: extension2,
-  displayFileOnly,
-  width,
-  height,
-  onShowCardView,
-  onRename,
-}) {
-  const { t: t2 } = useTranslation();
-  const paneWidth = width - 2;
-  const rename = useInlineRename({
-    currentValue: displayName2,
-    onCommit: onRename,
-    preserveExtension: true,
-  });
-  return (
-    <NodeBody width={width} height={height} selected={selected2} tagIds={tagIds} variant="media">
-      <div
-        className="flex h-full flex-col"
-        style={{
-          background: "var(--canvas-node-bg, #fff)",
-          border: "1px solid transparent",
-        }}
-      >
-        <div
-          hidden={displayFileOnly}
-          className="flex items-center justify-between gap-2 border-[var(--canvas-node-border)] border-b px-4 py-2"
-        >
-          <div className="flex min-w-0 flex-shrink items-center gap-2">
-            <FileTypeIcon
-              {...classifyFileType({
-                filename: displayName2,
-              })}
-              size={24}
-              decorative={true}
-            />
-            {rename.editing ? (
-              <input
-                ref={rename.inputRef}
-                className="nodrag min-w-0 flex-1 truncate border-[var(--canvas-node-border)] [border-bottom-width:var(--control-border-width)] bg-transparent text-xs text-foreground outline-none focus:border-[var(--canvas-node-border-selected,#141414)]"
-                value={rename.editValue}
-                onChange={(e2) => rename.setEditValue(e2.target.value)}
-                onBlur={rename.commit}
-                onKeyDown={rename.onKeyDown}
-                onMouseDown={(e2) => e2.stopPropagation()}
-                onClick={(e2) => e2.stopPropagation()}
-                onDoubleClick={(e2) => e2.stopPropagation()}
-              />
-            ) : (
-              <div className="min-w-0 truncate text-xs text-foreground" title={rename.displayValue}>
-                {rename.displayValue}
-              </div>
-            )}
-            <TooltipProvider$1 delay={300} closeDelay={0}>
-              {onRename && !rename.editing ? (
-                <Tooltip$1 content={t2("canvas.file.rename", "重命名")}>
-                  <button
-                    type="button"
-                    aria-label={t2("canvas.file.rename", "重命名")}
-                    onClick={(e2) => {
-                      e2.stopPropagation();
-                      rename.beginEdit();
-                    }}
-                    onMouseDown={(e2) => e2.stopPropagation()}
-                    onDoubleClick={(e2) => e2.stopPropagation()}
-                    className="flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-                    data-action-ui-id="canvas.file-node.rename-from-preview"
-                  >
-                    <RenameIcon />
-                  </button>
-                </Tooltip$1>
-              ) : null}
-            </TooltipProvider$1>
-          </div>
-          <TooltipProvider$1 delay={300} closeDelay={0}>
-            <div className="flex shrink-0 items-center">
-              <Tooltip$1 content={t2("canvas.file.cardView", "卡片视图")}>
-                <button
-                  type="button"
-                  aria-label={t2("canvas.file.cardView", "卡片视图")}
-                  onClick={(e2) => {
-                    e2.stopPropagation();
-                    onShowCardView();
-                  }}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  onDoubleClick={(e2) => e2.stopPropagation()}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-                  data-action-ui-id="canvas.file-node.view-card-from-preview"
-                >
-                  <MinimizeIcon />
-                </button>
-              </Tooltip$1>
-            </div>
-          </TooltipProvider$1>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <FileViewerRouter
-            filePath={filePath}
-            extension={extension2}
-            displayName={displayName2}
-            sizeLabel={sizeLabel}
-            paneWidth={paneWidth}
-            interactive={interactive}
-          />
-        </div>
-      </div>
-    </NodeBody>
-  );
-}
-function resolveDisplayFileOnly(data2) {
-  return data2?.displayFileOnly === true;
-}
-function FileNodeImpl({ id: id2, data: data2, selected: selected2, width, height }) {
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
-  const persisted = data2;
-  const { onAddToChat } = useCanvasBridge();
-  const { updateNodeDataAndResize } = useCanvasActions();
-  const onRename = useNodeRename(id2, isCloneData(data2));
-  const isMultiSelect = useCanvasIsMultiSelect();
-  const isDragging = useCanvasNodeIsDragging(id2);
-  const isBoxSelecting = useCanvasIsBoxSelecting();
-  const viewMode = persisted?.viewMode === "preview" ? "preview" : "card";
-  const isPreview = viewMode === "preview";
-  const displayFileOnly = resolveDisplayFileOnly(persisted);
-  const [previewWidth, setPreviewWidth] = reactExports.useState(
-    typeof width === "number" && width > 0 ? width : FILE_PREVIEW_SIZE.width,
-  );
-  const [previewHeight, setPreviewHeight] = reactExports.useState(
-    typeof height === "number" && height > 0 ? height : FILE_PREVIEW_SIZE.height,
-  );
-  reactExports.useEffect(() => {
-    if (!isPreview) return;
-    if (typeof width === "number" && width > 0) setPreviewWidth(width);
-  }, [width, isPreview]);
-  reactExports.useEffect(() => {
-    if (!isPreview) return;
-    if (typeof height === "number" && height > 0) setPreviewHeight(height);
-  }, [height, isPreview]);
-  const filePath = meta2?.path ?? persisted?.path;
-  const displayName2 =
-    meta2?.name ||
-    persisted?.name ||
-    filePath?.split("/").pop() ||
-    t2("canvas.file.untitled", "Untitled");
-  const sizeLabel = formatFileSize(meta2?.fileSize ?? persisted?.fileSize);
-  const extension2 = getFileExtension(filePath?.split("/").pop()) ?? getFileExtension(displayName2);
-  const handleAddToChat = useAddToChat(id2, meta2, onAddToChat, filePath);
-  const runInfo = usePluginRunInfo(id2);
-  const htmlViewerHandle = useHtmlViewerHandle(id2);
-  const isHtmlFullscreen = useIsHtmlFullscreen(id2);
-  const fullscreenApi = useHtmlFullscreenApi();
-  const enterHtmlFullscreen = reactExports.useCallback(() => {
-    if (!htmlViewerHandle) return;
-    fullscreenApi.getState().enter(id2);
-  }, [id2, fullscreenApi, htmlViewerHandle]);
-  const exitHtmlFullscreen = reactExports.useCallback(() => {
-    fullscreenApi.getState().exit(id2);
-  }, [id2, fullscreenApi]);
-  const setViewMode = reactExports.useCallback(
-    (next2) => {
-      const nextSize = next2 === "preview" ? FILE_PREVIEW_SIZE : FILE_CARD_DEFAULT_SIZE;
-      if (next2 === "preview") {
-        setPreviewWidth(nextSize.width);
-        setPreviewHeight(nextSize.height);
-      }
-      updateNodeDataAndResize(
-        id2,
-        {
-          ...(persisted ?? {}),
-          viewMode: next2,
-        },
-        nextSize.width,
-        nextSize.height,
-      );
-    },
-    [id2, persisted, updateNodeDataAndResize],
-  );
-  const showCardView = reactExports.useCallback(() => setViewMode("card"), [setViewMode]);
-  const showPreviewView = reactExports.useCallback(() => setViewMode("preview"), [setViewMode]);
-  const handlePreviewClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      showPreviewView();
-    },
-    [showPreviewView],
-  );
-  const toolbarItems = [
-    {
-      id: "add-to-chat",
-      label: t2("canvas.addToChat"),
-      icon: <AddToChatIcon />,
-      onClick: handleAddToChat,
-      dataActionUiId: "canvas.file-node.add-to-chat",
-    },
-    {
-      id: "view-card",
-      label: t2("canvas.file.cardView", "卡片视图"),
-      icon: <CardViewIcon />,
-      onClick: showCardView,
-      active: !isPreview,
-      dataActionUiId: "canvas.file-node.view-card",
-    },
-    {
-      id: "view-preview",
-      label: t2("canvas.file.previewView", "预览视图"),
-      icon: <PreviewViewIcon />,
-      onClick: showPreviewView,
-      active: isPreview,
-      dataActionUiId: "canvas.file-node.view-preview",
-    },
-    ...(isPreview && htmlViewerHandle
-      ? [
-          {
-            id: "refresh",
-            label: t2("canvas.file.refresh", "刷新"),
-            icon: <RefreshIcon />,
-            onClick: htmlViewerHandle.reload,
-            dataActionUiId: "canvas.file-node.refresh",
-          },
-          {
-            id: "fullscreen",
-            label: isHtmlFullscreen
-              ? t2("canvas.file.exitFullscreen", "退出全屏")
-              : t2("canvas.file.enterFullscreen", "全屏预览"),
-            icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon$1 />,
-            onClick: isHtmlFullscreen ? exitHtmlFullscreen : enterHtmlFullscreen,
-            active: isHtmlFullscreen,
-            dataActionUiId: "canvas.file-node.fullscreen",
-          },
-        ]
-      : []),
-    ...(runInfo?.hasMain
-      ? [
-          {
-            id: "run",
-            label: t2("canvas.file.run", "执行"),
-            icon: <RunIcon />,
-            onClick: runInfo.invoke,
-            dataActionUiId: "canvas.file-node.run",
-          },
-        ]
-      : []),
-  ];
-  const iconSourceName = meta2?.name || filePath?.split("/").pop() || persisted?.name;
-  const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
-  const isPreviewInteractive = !!selected2 && isInteractiveSelect;
-  const shellWidth = isPreview ? previewWidth : FILE_CARD_DEFAULT_SIZE.width;
-  const handlePreviewResize = reactExports.useCallback((newW, newH) => {
-    setPreviewWidth(newW);
-    setPreviewHeight(newH);
-  }, []);
-  return (
-    <NodeShell tagIds={meta2?.tagIds} width={shellWidth}>
-      {isPreview ? (
-        <FilePreview$1
-          selected={selected2}
-          interactive={isPreviewInteractive}
-          filePath={filePath}
-          displayName={displayName2}
-          tagIds={meta2?.tagIds}
-          sizeLabel={sizeLabel}
-          extension={extension2}
-          displayFileOnly={displayFileOnly}
-          width={previewWidth}
-          height={previewHeight}
-          onShowCardView={showCardView}
-          {...(onRename
-            ? {
-                onRename,
-              }
-            : {})}
-        />
-      ) : (
-        <NodeBody
-          width={FILE_CARD_DEFAULT_SIZE.width}
-          tagIds={meta2?.tagIds}
-          height={FILE_CARD_DEFAULT_SIZE.height}
-          selected={selected2}
-          variant="panel"
-        >
-          <div className="flex h-full items-center gap-3">
-            <FileTypeIcon
-              {...classifyFileType({
-                filename: iconSourceName,
-              })}
-              size={32}
-              decorative={true}
-            />
-            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <div className="truncate text-sm font-medium text-foreground" title={displayName2}>
-                {displayName2}
-              </div>
-              {sizeLabel ? (
-                <span className="text-xs text-muted-foreground">{sizeLabel}</span>
-              ) : null}
-            </div>
-            <TooltipProvider$1 delay={300} closeDelay={0}>
-              <Tooltip$1 content={t2("canvas.preview", "预览")}>
-                <button
-                  type="button"
-                  aria-label={t2("canvas.preview", "预览")}
-                  onClick={handlePreviewClick}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  onDoubleClick={(e2) => e2.stopPropagation()}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-                  data-action-ui-id="canvas.file-node.preview-eye"
-                >
-                  <VisibleIcon />
-                </button>
-              </Tooltip$1>
-            </TooltipProvider$1>
-          </div>
-        </NodeBody>
-      )}
-      {selected2 && isInteractiveSelect && !displayFileOnly && (
-        <NodeToolbar items={toolbarItems} visible={true} />
-      )}
-      <NodeQuickTagTrigger
-        visible={!!selected2 && isInteractiveSelect && !displayFileOnly}
-        className="node-floating-ui absolute -top-7 left-full z-10 ml-1"
-        counterScaleOrigin="left bottom"
-      />
-      {selected2 && isPreview && (
-        <NodeResizeFrame
-          nodeId={id2}
-          minWidth={FILE_PREVIEW_MIN_SIZE.width}
-          minHeight={FILE_PREVIEW_MIN_SIZE.height}
-          onResize={handlePreviewResize}
-        />
-      )}
-      <NodeHandles nodeId={id2} selected={!!selected2} />
-    </NodeShell>
-  );
-}
-function FileNodeDispatcher(props) {
-  const data2 = props.data;
-  if (data2?.pluginId === PANORAMA_VIEWER_PLUGIN_ID) return <PanoramaNode {...props} />;
-  const isPlugin = typeof data2?.pluginId === "string";
-  return isPlugin ? <PluginNodeInner {...props} /> : <FileNodeImpl {...props} />;
-}
-export const FileNode = reactExports.memo(FileNodeDispatcher, areNodePropsEqual);
-export const GROUP_COLOR_PRESETS = {
-  red: {
-    swatch: "var(--canvas-group-swatch-red)",
-    bg: "var(--canvas-group-fill-red)",
-  },
-  orange: {
-    swatch: "var(--canvas-group-swatch-orange)",
-    bg: "var(--canvas-group-fill-orange)",
-  },
-  yellow: {
-    swatch: "var(--canvas-group-swatch-yellow)",
-    bg: "var(--canvas-group-fill-yellow)",
-  },
-  green: {
-    swatch: "var(--canvas-group-swatch-green)",
-    bg: "var(--canvas-group-fill-green)",
-  },
-  cyan: {
-    swatch: "var(--canvas-group-swatch-cyan)",
-    bg: "var(--canvas-group-fill-cyan)",
-  },
-  blue: {
-    swatch: "var(--canvas-group-swatch-blue)",
-    bg: "var(--canvas-group-fill-blue)",
-  },
-  purple: {
-    swatch: "var(--canvas-group-swatch-purple)",
-    bg: "var(--canvas-group-fill-purple)",
-  },
-};

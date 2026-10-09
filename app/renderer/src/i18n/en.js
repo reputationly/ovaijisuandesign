@@ -1,0 +1,10739 @@
+// en.js
+import {
+  canvas_lyrics$1,
+  error_auth_unauthorized$1,
+  error_input_audio_blocked$1,
+  error_input_image_blocked$1,
+  error_input_text_blocked$1,
+  error_input_video_blocked$1,
+  error_network_reconnecting$1,
+  error_safety_image_output_blocked$1,
+  error_seedance_free_quota_exhausted$1,
+  error_seedance_member_locked$1,
+  model_input_error_general$1,
+} from "./canvas-node-tools.jsx";
+
+export const en$2 = {
+  "assetPicker.source.local": "Local upload",
+  "assetPicker.source.task": "Choose from current task files",
+  "assetPicker.source.error": "Resources temporarily unavailable",
+  "assetPicker.source.loading": "Checking available resources…",
+  "canvas.focusSelection": "Focus selection",
+  "canvas.tidy.orderBy": "Sort by",
+  "canvas.tidy.orderName": "By name",
+  "canvas.tidy.orderAddedAt": "By time",
+  "canvas.minimap.hide": "Hide minimap",
+  "canvas.minimap.show": "Show minimap",
+  "connectors.catalog.libtv.title": "LibTV",
+  "connectors.catalog.libtv.description":
+    "Create images and video with LibTV, then bring the results onto your Design canvas.",
+  "connectors.libtv.title": "Connect LibTV",
+  "connectors.libtv.description":
+    "Sign in to your LibTV account in the browser to connect your projects and creative tools.",
+  "connectors.libtv.hint":
+    "Open a Design task before connecting. Sign-in does not generate media or spend credits.",
+  "connectors.libtv.authorize": "Sign in and connect",
+  "connectors.libtv.waiting":
+    "Complete authorization in the browser within five minutes. You can close this window; browser authorization will continue.",
+  "connectors.libtv.runtimeRequired":
+    "Open a Design task, wait for it to be ready, then connect again.",
+  "connectors.libtv.busy":
+    "LibTV preparation is already in progress. Complete the current browser sign-in, then check the connection.",
+  "connectors.libtv.conflict":
+    "A different plugin already uses the name libtv. Rename or remove that connection before trying again.",
+  "connectors.libtv.failed":
+    "LibTV authorization or connection was not verified. Check your browser sign-in and network, then retry.",
+  "connectors.customDialog.error.server_busy":
+    "Authorization is in progress. Complete or decline it in the browser before changing this connection.",
+  "connectors.removeError.server_busy":
+    "Authorization is in progress. Complete or decline it in the browser before removing this connection.",
+  "canvas.reference.limitWidth": "{{value}}px wide",
+  "canvas.reference.limitHeight": "{{value}}px high",
+  "canvas.reference.requiredDimensions": "the required dimensions",
+  "canvas.reference.disabledUnsupported":
+    "The current model does not support these attachment types.",
+  "canvas.reference.disabledEmpty":
+    "This subject has no available attachments.",
+  "canvas.reference.disabledFull":
+    "Adding this reference would exceed the attachment count limit.",
+  "canvas.reference.disabledImageSize":
+    "Image dimensions must be at least {{dimensions}}.",
+  "canvas.reference.disabledImageAspect":
+    "The image aspect ratio does not meet the requirements.",
+  "canvas.reference.disabledAudioRange":
+    "Each audio clip must be between {{min}} and {{max}} seconds.",
+  "canvas.reference.disabledAudioBudget":
+    "This audio exceeds the remaining allowance of {{seconds}} seconds.",
+  "canvas.reference.disabledVideoBudget":
+    "This video exceeds the remaining allowance of {{seconds}} seconds.",
+  "canvas.reference.disabledVideoRange":
+    "Each video must be between {{min}} and {{max}} seconds.",
+  "canvas.reference.disabledUnavailable": "This reference is unavailable.",
+  "canvas.reference.subjectNotFound": "Subject not found",
+  "canvas.reference.assetNotFound": "Asset not found",
+  "canvas.reference.invalidSubjectRemoved":
+    "Invalid subject detected and automatically removed.",
+  "canvas.reference.invalidAssetRemoved":
+    "Invalid asset detected and automatically removed.",
+  "canvas.reference.invalidReferencesRemoved":
+    "Invalid references detected and automatically removed.",
+  "canvas.reference.addReference": "Add reference",
+  "canvas.reference.deleted": "Deleted",
+  "canvas.reference.missing": "File missing",
+  "canvas.reference.checkFailed": "Unavailable",
+  "canvas.reference.checking": "Checking",
+  "canvas.reference.subject": "Subject",
+  "canvas.reference.unavailable":
+    "Reference unavailable. Please remove or select again.",
+  "canvas.reference.loadFailed":
+    "References could not be loaded. Please retry.",
+  "canvas.reference.contentChanged":
+    "Reference content changed. Review the updated limits and estimated cost, then submit again.",
+  "canvas.referenceNavigation.dismiss": "Dismiss focus notice",
+  "canvas.referenceNavigation.focused": "Focused reference node",
+  "canvas.referenceNavigation.locate": "Focus reference node",
+  "canvas.referenceNavigation.return": "Return to node",
+  "canvas.zoom.adjust": "Adjust zoom level",
+  "chat.astraMembershipOnly": "Members Only",
+  "chat.astraMembershipRequired":
+    "This model requires a membership. Click to subscribe.",
+  "chat.astraMembershipUnavailable":
+    "Unable to verify your membership. Please try again later.",
+  "a11y.audioWaveform": "Audio waveform",
+  "a11y.closeDialog": "Close dialog",
+  "a11y.closeNewChatTab": "Close new chat tab",
+  "a11y.closeSession": "Close session",
+  "a11y.loading": "Loading",
+  "a11y.moveObjectGuides": "Move object selection guides",
+  "a11y.particleLogo": "Interactive particle logo effect",
+  "a11y.projectTabs": "Project tabs",
+  "a11y.removeAttachment": "Remove attachment",
+  "a11y.resizeChatCanvas": "Resize Chat and Canvas",
+  "a11y.resizeGlobalSidebar": "Resize global sidebar",
+  "a11y.resizeProjectAssetsPanel": "Resize project assets panel",
+  "a11y.scrollTabsLeft": "Scroll tabs left",
+  "a11y.scrollTabsRight": "Scroll tabs right",
+  "a11y.search": "Search",
+  "a11y.unreadMessages": "Unread messages",
+  "about.build": "Build",
+  "about.description": "Creative workflow editor for image, video, and audio.",
+  "about.license": "License",
+  "about.runtime": "Runtime",
+  "about.title": "About MiniMax Design",
+  "about.version": "Version",
+  "account.delete.accountName": "Account Name",
+  "account.delete.ackDataErased":
+    "I understand all data will be permanently deleted",
+  "account.delete.ackSelfInitiated":
+    "I confirm this action is initiated and agreed by myself",
+  "account.delete.blockCheckUnavailable":
+    "We couldn't verify your account deletion eligibility right now. Please try again later.",
+  "account.delete.blockGroupDesign": "MiniMax Design",
+  "account.delete.blockGroupHailuo": "Hailuo Video",
+  "account.delete.blockHailuoFallback":
+    "Your account has an active subscription or unsettled order and cannot be deleted yet.",
+  "account.delete.blockHailuoReason": "{{reason}}",
+  "account.delete.blockIapSubscription":
+    "You have a subscription purchased via the App Store / Google Play. Please cancel it in the corresponding store before deleting your account.",
+  "account.delete.blockTeamMember":
+    'You are still a member of team "{{team}}". Please leave it before deleting your account.',
+  "account.delete.blockTeamOwner":
+    'You are the owner of team "{{team}}". Please dissolve it before deleting your account.',
+  "account.delete.codeSendFailed":
+    "Failed to send verification code. Please try again later.",
+  "account.delete.codeSent": "Verification code sent",
+  "account.delete.confirmButton": "Delete Account",
+  "account.delete.confirmIntro":
+    "Please read the following carefully before deleting your account:",
+  "account.delete.confirmTitle": "Are you sure?",
+  "account.delete.failed": "Account deletion failed. Please try again later.",
+  "account.delete.hailuoTitle": "Hailuo Video Account",
+  "account.delete.hubPersonalTitle": "MiniMax Design Personal Account",
+  "account.delete.hubTeamsTitle": "MiniMax Design Team Accounts",
+  "account.delete.remainingCredits": "Remaining top-up credits",
+  "account.delete.resendCodeIn": "Resend in {{seconds}}s",
+  "account.delete.sendCode": "Send Code",
+  "account.delete.submitButton": "Confirm Deletion",
+  "account.delete.subscriptionPlan": "Subscription Plan",
+  "account.delete.subtitle":
+    "After deletion you will no longer be able to log in to Hailuo Video (web and app) or MiniMax Design. Personal data, service records, credits and other related information will be erased and cannot be recovered.",
+  "account.delete.successToast": "Account Winding Down",
+  "account.delete.teamRemainingCredits": "Team Credits",
+  "account.delete.title": "Confirm Account Deletion",
+  "account.delete.verifyCodeError":
+    "The verification code is incorrect. Please check and try again.",
+  "account.delete.verifyCodeLabel": "Verification Code",
+  "account.delete.verifyCodePlaceholder": "Enter verification code",
+  "account.delete.warning.contentErased":
+    "All content from your Hailuo AI web, Hailuo AI app, and MiniMax Design accounts (including cloud videos and personal data) will be permanently deleted and cannot be recovered",
+  "account.delete.warning.creditsCleared":
+    "All credits in your Hailuo AI and MiniMax Design accounts will be cleared",
+  "account.delete.warning.irreversible":
+    "Account deletion is permanent and irreversible",
+  "account.delete.warning.noNewUserBonus":
+    "You will not be eligible for new user bonuses when you register again. Please consider carefully — this action cannot be undone",
+  "account.delete.warning.subscriptionTerminated":
+    "Any active subscriptions will be terminated immediately with no refunds",
+  "account.delete.warning.teamsDissolved":
+    "All teams you created will be dissolved, and team members will lose access to team resources",
+  "assetCenter.add": "Create Subject",
+  "assetCenter.attachmentKind.audio": "Audio",
+  "assetCenter.attachmentKind.document": "Document",
+  "assetCenter.attachmentKind.image": "Image",
+  "assetCenter.attachmentKind.text": "Text",
+  "assetCenter.attachmentKind.video": "Video",
+  "assetCenter.backToWorkspace": "Back to workspace",
+  "assetCenter.batch.clear": "Clear selection",
+  "assetCenter.batch.delete": "Delete {{count}} items",
+  "assetCenter.batch.deletePartial":
+    "Partial deletion failed: {{message}}. {{remaining}} subjects remain undeleted.",
+  "assetCenter.batch.export": "Export {{count}} items",
+  "assetCenter.batch.importPartial":
+    "Partial import failed: {{succeeded}} / {{total}} succeeded. Reason for failure: {{message}}",
+  "assetCenter.batch.imported": "Imported {{count}} subjects",
+  "assetCenter.batch.importing": "Importing ({{current}} / {{total}})…",
+  "assetCenter.batch.selected": "{{count}} items selected",
+  "assetCenter.card.deleteAction": "Delete",
+  "assetCenter.card.exportTooltip": "Export subject as ZIP",
+  "assetCenter.card.materializeTooltip": "Add to project",
+  "assetCenter.card.noDescriptionHint": "Add description",
+  "assetCenter.cover.confirm": "Set as cover",
+  "assetCenter.cover.cropDescription":
+    "Adjust the framing. The cropped result will be used as the subject cover.",
+  "assetCenter.cover.cropError": "Failed to crop the image. Please try again.",
+  "assetCenter.cover.cropTitle": "Crop cover",
+  "assetCenter.cover.edit": "Edit cover",
+  "assetCenter.cover.freeAspect": "Free",
+  "assetCenter.cover.set": "Set as cover",
+  "assetCenter.create.addTagsOptional": "Add Tags (Optional)",
+  "assetCenter.create.attachmentCaptionPlaceholder":
+    "Describe this file (optional)",
+  "assetCenter.create.attachmentCount": "{{count}} files added",
+  "assetCenter.create.attachmentLimit": "{{used}} / {{max}} files",
+  "assetCenter.create.attachmentTagsPlaceholder":
+    "Type a tag and press Enter, e.g., front / side / back (optional)",
+  "assetCenter.create.attachmentsLabel": "Attachments",
+  "assetCenter.create.customTag": "Custom",
+  "assetCenter.create.customTagPlaceholder": "Enter tag",
+  "assetCenter.create.description":
+    "Select the subject type, enter a name, and choose local files, reference images, videos, or audio to create the subject.\nEnter clear descriptions, tags, and file details to help the agent use the subject intelligently.",
+  "assetCenter.create.descriptionLabel": "Description",
+  "assetCenter.create.descriptionPlaceholder":
+    "Enter a clear description to help the agent better search and reuse this subject...",
+  "assetCenter.create.dropZoneMaxed": "Maximum number of attachments reached",
+  "assetCenter.create.dropZonePrompt": "Click or drag files to upload",
+  "assetCenter.create.dropZonePromptAlt": "Drag files here or click to upload",
+  "assetCenter.create.errorNoFilePath":
+    'Cannot read the file "{{filename}}". Please try upload again.',
+  "assetCenter.create.nameLabel": "Name",
+  "assetCenter.create.namePlaceholder": "Subject name",
+  "assetCenter.create.submit": "Create",
+  "assetCenter.create.submitAsset": "Create Subject",
+  "assetCenter.create.tagsHint":
+    "(Optional) Add tags (e.g. anime, cyberpunk) to help the agent understand and search the subject entity",
+  "assetCenter.create.tagsLabel": "Tags",
+  "assetCenter.create.title": "Add Subject",
+  "assetCenter.create.typeLabel": "Type",
+  "assetCenter.create.uploadStatus.error": "Failed",
+  "assetCenter.create.uploadStatus.existing": "Saved",
+  "assetCenter.create.uploadStatus.pending": "Queued",
+  "assetCenter.create.uploadStatus.staged": "Ready",
+  "assetCenter.create.uploadStatus.uploaded": "Uploaded",
+  "assetCenter.create.uploadStatus.uploading": "Uploading…",
+  "assetCenter.deleteEntity.confirmButton": "Delete",
+  "assetCenter.deleteEntity.confirmDescription":
+    '"{{name}}" will be moved to the trash, and cleared from all affiliated projects.',
+  "assetCenter.deleteEntity.confirmTitle":
+    "Delete this subject entity permanently?",
+  "assetCenter.deleteEntity.note":
+    "Deleted subject entity can be restored from the trash.",
+  "assetCenter.deleteEntity.successToast": 'Subject "{{name}}" deleted',
+  "assetCenter.detail.attachments": "{{count}} attachments",
+  "assetCenter.detail.export": "Export",
+  "assetCenter.detail.loadError": "Failed to load subject: {{message}}",
+  "assetCenter.detail.loading": "Loading…",
+  "assetCenter.detail.noAttachments": "This subject has no attachments yet.",
+  "assetCenter.detail.noDescription": "(No description)",
+  "assetCenter.detail.viewLarge": "Full view",
+  "assetCenter.edit.description":
+    "Modify the subject’s name and description. Add, remove, or edit the attachments.",
+  "assetCenter.edit.descriptionLabel": "Description",
+  "assetCenter.edit.descriptionPlaceholder":
+    "Enter a clear description to help the agent find this subject by topic...",
+  "assetCenter.edit.loadError": "Failed to load subject: {{message}}",
+  "assetCenter.edit.nameLabel": "Name",
+  "assetCenter.edit.namePlaceholder": "Subject name",
+  "assetCenter.edit.title": "Edit Subject",
+  "assetCenter.entityEmpty.body":
+    "Add a subject, or save a canvas file to reuse it.",
+  "assetCenter.entityEmpty.title": "No subjects yet",
+  "assetCenter.entityList.rowActions": "Row actions",
+  "assetCenter.entityList.updatedAt": "Updated {{when}}",
+  "assetCenter.errors.assetCenterUnavailable":
+    "Subject Library is temporarily unavailable, please try again later",
+  "assetCenter.errors.attachmentCountExceeded": "Too many attachments",
+  "assetCenter.errors.attachmentFileMissing": "Attachment file not found",
+  "assetCenter.errors.attachmentFilenameInvalid": "Invalid attachment filename",
+  "assetCenter.errors.attachmentFormatUnsupported":
+    "This file format is not supported",
+  "assetCenter.errors.attachmentKindUninferred":
+    "Could not determine file type",
+  "assetCenter.errors.attachmentNotFound": "Attachment not found",
+  "assetCenter.errors.blobPathInvalid": "Invalid file path",
+  "assetCenter.errors.entityNotFound": "Subject not found",
+  "assetCenter.errors.exportNoAttachments":
+    "The selected subjects have no exportable attachments",
+  "assetCenter.errors.fileTooLarge":
+    "File too large. Maximum file size is 200MB",
+  "assetCenter.errors.gatewayNotReady":
+    "Service is starting, please wait a moment",
+  "assetCenter.errors.importEntityConflict": "This subject already exists",
+  "assetCenter.errors.importInvalidZip":
+    "Failed to parse subject. Only files exported from MiniMax Design are supported.",
+  "assetCenter.errors.importManifestInvalid": "Invalid import file format",
+  "assetCenter.errors.importVersionUnsupported":
+    "Unable to parse this zip file. Only subject packages exported from MiniMax Design are supported.",
+  "assetCenter.errors.internalError": "Operation failed, please try again",
+  "assetCenter.errors.invalidRequest": "Invalid request",
+  "assetCenter.errors.network":
+    "Network connection failed, please check your network and try again",
+  "assetCenter.errors.suggestionNotFound": "Suggestion not found",
+  "assetCenter.errors.suggestionNotPending":
+    "This suggestion has already been handled",
+  "assetCenter.errors.timeout": "Operation timed out, please try again",
+  "assetCenter.errors.unknown": "Operation failed, please try again",
+  "assetCenter.import.action": "Import Subject Pack",
+  "assetCenter.import.actionCopy": "Save as Copy",
+  "assetCenter.import.actionOverwrite": "Overwrite Existing",
+  "assetCenter.import.conflictBatchSkipped":
+    'An subject named "{{existingName}}" already exists; skipped during batch import. Import this file individually to choose overwrite or copy.',
+  "assetCenter.import.conflictDescription":
+    'An subject with the same ID already exists: "{{name}}" (Type: {{type}}). Please choose how to proceed:',
+  "assetCenter.import.conflictRenameHint":
+    'The name in the imported file is "{{newName}}", which is different from the existing "{{oldName}}".',
+  "assetCenter.import.conflictTitle": "Import conflict",
+  "assetCenter.import.error": "Import failed: {{message}}",
+  "assetCenter.import.renamedToAvoidConflict":
+    'Subject renamed to "{{name}}" to avoid conflict',
+  "assetCenter.import.success": 'Successfully imported "{{name}}"',
+  "assetCenter.import.successWithWarnings":
+    'Successfully imported "{{name}}" with {{count}} warning(s)',
+  "assetCenter.import.toastSuccess": "Added to Subject Library: {{name}}",
+  "assetCenter.loadError.title": "Failed to load Subject Library",
+  "assetCenter.loading": "Loading subjects...",
+  "assetCenter.manage": "Manage Subjects",
+  "assetCenter.manageShort": "Manage",
+  "assetCenter.materialize.action": "Add to Project",
+  "assetCenter.materialize.actionTooltip": "Add this subject to a project",
+  "assetCenter.materialize.description":
+    'Select projects to add "{{name}}" into.',
+  "assetCenter.materialize.descriptionFallback":
+    "Select projects to add this subject into.",
+  "assetCenter.materialize.noWorkspaces":
+    "No projects found. Please create a new project in the Project Center first.",
+  "assetCenter.materialize.partialError":
+    "Partial success: Added to {{count}} projects, remaining failed: {{message}}",
+  "assetCenter.materialize.selectedCount": "{{count}} selected",
+  "assetCenter.materialize.submit": "Add",
+  "assetCenter.materialize.submitAgain": "Add to more",
+  "assetCenter.materialize.success": "Added to {{workspace}}",
+  "assetCenter.materialize.successPathHint":
+    "Files are placed in a Hub-managed folder inside the project. Use the button below to open it.",
+  "assetCenter.materialize.title": "Add to Project",
+  "assetCenter.materialize.workspaceCount": "{{count}} projects",
+  "assetCenter.materialize.workspaceLabel": "Target projects",
+  "assetCenter.promote.description": 'Add "{{name}}" to this subject.',
+  "assetCenter.promote.descriptionFallback": "Add this file to an subject.",
+  "assetCenter.promote.descriptionMulti":
+    'You have selected {{count}} files. Choose "Create New Subject" for future reuse, or "Add to Existing Subject" to expand your current subject packs.',
+  "assetCenter.promote.fileEdited": "edited",
+  "assetCenter.promote.filesLabel": "{{count}} files",
+  "assetCenter.promote.nameRequired": "Enter an subject name before creating.",
+  "assetCenter.promote.noLibraryError":
+    'No subject library available. Please go to "Subject Library" to create one.',
+  "assetCenter.promote.partialAppendError":
+    "{{done}} / {{total}} files added. Reason for failure: {{message}}",
+  "assetCenter.promote.pickedLabel": "Target Subject: {{name}}",
+  "assetCenter.promote.submit": "Add to Subject",
+  "assetCenter.promote.submitAgain": "Add to More Subjects",
+  "assetCenter.promote.submitAppend": "Add to Subject",
+  "assetCenter.promote.submitNew": "Create Subject",
+  "assetCenter.promote.success": 'Added to subject "{{entity}}"',
+  "assetCenter.promote.tabAppend": "Add To Existing Subject",
+  "assetCenter.promote.tabNew": "Create New Subject",
+  "assetCenter.promote.targetEntityLabel": "Select Target Subject",
+  "assetCenter.promote.targetRequired": "Select a target subject first.",
+  "assetCenter.promote.title": "Save subject",
+  "assetCenter.promote.toastAppended":
+    'Added {{count}} file(s) to "{{entity}}"',
+  "assetCenter.promote.toastCreated":
+    'Created subject "{{entity}}" with {{count}} file(s)',
+  "assetCenter.promote.userDescLabel": "Note (optional)",
+  "assetCenter.promote.userDescPlaceholder":
+    "Tell the agent in one sentence when to use this attachment",
+  "assetCenter.searchPlaceholder":
+    "Search by subject name, description, or filename...",
+  "assetCenter.sort.label": "Sort by",
+  "assetCenter.sort.updated_at": "Recently updated",
+  "assetCenter.sort.use_count": "Most used",
+  "assetCenter.sortTooltip": "Sort",
+  "assetCenter.subtitle":
+    "Save reusable characters, scenes, styles, and props and use them in multiple workspaces.",
+  "assetCenter.suggestions.approve": "Approve",
+  "assetCenter.suggestions.attachmentCount": "{{count}} attachments",
+  "assetCenter.suggestions.collapse": "Collapse",
+  "assetCenter.suggestions.expand": "Expand",
+  "assetCenter.suggestions.loadError":
+    "Could not load suggestions: {{message}}",
+  "assetCenter.suggestions.reject": "Ignore",
+  "assetCenter.suggestions.title": "{{count}} agent suggestions",
+  "assetCenter.title": "Subject Library",
+  "assetCenter.typeFilter.label": "Filter by type",
+  "assetCenter.types.all": "All",
+  "assetCenter.types.character": "Character",
+  "assetCenter.types.custom": "Custom",
+  "assetCenter.types.prop": "Prop",
+  "assetCenter.types.scene": "Scene",
+  "assetCenter.types.style_pack": "Style",
+  "assetCenter.unmaterialize.menuItem": "Remove subject from this project",
+  "assetCenter.unmaterialize.successToast": "Removed from project",
+  "assetCenter.upload.formatUnsupported":
+    "Unsupported file format, please choose a supported format",
+  "assetCenter.useCount": "Used {{count}} times",
+  "assetCenter.useCountTooltip":
+    "The number of times this subject has been loaded into workspaces.",
+  "assetCenter.viewMode.grid": "Grid",
+  "assetCenter.viewMode.list": "List",
+  "assetCenter.warnings.entityRenamed":
+    'Subject renamed to "{{name}}" to avoid conflict',
+  "assetFilter.dateAll": "All time",
+  "assetFilter.dateCustom": "Custom",
+  "assetFilter.dateLast30Days": "Last 30 days",
+  "assetFilter.dateLast7Days": "Last 7 days",
+  "assetFilter.dateSection": "Date",
+  "assetFilter.dateToday": "Today",
+  "assetFilter.openFilters": "Filters",
+  "assetFilter.reset": "Reset",
+  "assetFilter.sortNewest": "Newest first",
+  "assetFilter.sortOldest": "Oldest first",
+  "assetFilter.sortSection": "Sort",
+  "assetFilter.tagSection": "Tags",
+  "assetFilter.title": "Filters & sort",
+  "assetFilter.typeAll": "All",
+  "assetFilter.typeAudio": "Audio",
+  "assetFilter.typeImage": "Image",
+  "assetFilter.typeOther": "Other",
+  "assetFilter.typeSection": "Type",
+  "assetFilter.typeText": "Text",
+  "assetFilter.typeVideo": "Video",
+  "assetMentionList.empty": "No matching assets",
+  "assetMentionList.loadError": "{{message}}",
+  "assetMentionList.loading": "Loading assets…",
+  "assetMentionList.placeholder": "Type to search assets…",
+  "assetMentionList.tabLabel": "Assets",
+  "assetPicker.confirm": "Use selected",
+  "assetPicker.confirmMin": "Select at least {{min}}",
+  "assetPicker.confirmMulti": "Use {{count}} items",
+  "assetPicker.confirmMultiBounded": "Use {{count}}/{{max}} items",
+  "assetPicker.disabledReason.audioBudget": "Total audio > {{max}}s",
+  "assetPicker.disabledReason.audioRange": "Needs {{min}}-{{max}}s",
+  "assetPicker.disabledReason.audioTooLong": "Audio is too long",
+  "assetPicker.disabledReason.audioTooShort": "Audio too short",
+  "assetPicker.disabledReason.full": "Slots full",
+  "assetPicker.disabledReason.imageAspect": "Ratio out of range",
+  "assetPicker.disabledReason.imageSize": "Min {{min}}",
+  "assetPicker.disabledReason.metadataPending": "Metadata unavailable",
+  "assetPicker.disabledReason.typeNotAllowed": "Not supported here",
+  "assetPicker.disabledReason.videoBudget": "Total video > {{max}}s",
+  "assetPicker.disabledReason.videoBudgetExceeded": "Over by {{duration}}",
+  "assetPicker.disabledReason.videoFps": "Needs {{min}}-{{max}} fps",
+  "assetPicker.disabledReason.videoFpsOverMax": "Over {{max}} fps",
+  "assetPicker.disabledReason.videoFpsPending": "Checking frame rate…",
+  "assetPicker.disabledReason.videoFpsUnderMin": "Below {{min}} fps",
+  "assetPicker.disabledReason.videoRange": "Needs 2-15s",
+  "assetPicker.disabledReason.videoTooLong": "Video is too long",
+  "assetPicker.disabledReason.videoTooShort": "Video too short",
+  "assetPicker.empty.canvas": "No resources on the canvas",
+  "assetPicker.empty.filtered": "No matching resources",
+  "assetPicker.empty.filteredHint": "Adjust the search or filters",
+  "assetPicker.empty.upstream": "No resources are wired into this node",
+  "assetPicker.existing": "Added",
+  "assetPicker.existingHelp":
+    "This resource is already used by the current entry. Return there to adjust it.",
+  "assetPicker.filter.availableOnly": "Show available only",
+  "assetPicker.filter.clear": "Clear filters",
+  "assetPicker.limitReached": "Up to {{max}} items can be selected",
+  "assetPicker.preview": "Preview",
+  "assetPicker.searchPlaceholder": "Search resources…",
+  "assetPicker.selected": "Selected",
+  "assetPicker.summary.bounded": "Selected: {{count}} / {{max}}",
+  "assetPicker.summary.full":
+    "Selection limit reached. Deselect some items to add more.",
+  "assetPicker.summary.limits": "Up to {{types}}",
+  "assetPicker.summary.minimum": "; select at least {{min}}",
+  "assetPicker.summary.shared": "; video and audio combined: {{max}} max",
+  "assetPicker.summary.typeFull":
+    "{{types}} selection limit reached. Deselect some items to add more.",
+  "assetPicker.summary.types": "Allowed: {{types}}",
+  "assetPicker.summary.unbounded": "Selected: {{count}}",
+  "assetPicker.tab.canvas": "On Canvas",
+  "assetPicker.tab.upload": "Upload",
+  "assetPicker.tab.upstream": "Wired In",
+  "assetPicker.title": "Select Resource",
+  "assetPicker.typeFilter.all": "All",
+  "assetPicker.typeFilter.audio": "Audio",
+  "assetPicker.typeFilter.image": "Image",
+  "assetPicker.typeFilter.subtitle": "Subtitle",
+  "assetPicker.typeFilter.text": "Text",
+  "assetPicker.typeFilter.video": "Video",
+  "assetPicker.upload.action": "Local upload",
+  "assetPicker.upload.choose": "Choose file",
+  "assetPicker.upload.chooseMulti": "Choose files (multiple allowed)",
+  "assetPicker.upload.continue": "Upload more",
+  "assetPicker.upload.failed": "Upload failed",
+  "assetPicker.upload.hintAttach":
+    "Uploads are stored as attachments. Uploading again replaces the current selection.",
+  "assetPicker.upload.hintAttachMulti":
+    "Uploads are stored as attachments. Continue uploading as needed.",
+  "assetPicker.upload.hintMulti":
+    "Uploads are added to the canvas and listed here. Continue uploading as needed.",
+  "assetPicker.upload.hintSingle":
+    "Upload is added to the canvas. Uploading again replaces the current selection.",
+  "assetPicker.upload.replace": "Replace upload",
+  "assetPicker.upload.typeRejected": "{{name}} is not an allowed type",
+  "assetPicker.upload.uploading": "Uploading…",
+  "assetPicker.view.grid": "Grid",
+  "assetPicker.view.list": "List",
+  "assetPicker.viewToggle": "Toggle view",
+  "assetPreview.audioUnavailable": "Preview unavailable",
+  "assetPreview.emptyText": "(empty file)",
+  "assetPreview.imageUnavailable": "Preview unavailable",
+  "assetPreview.lineageTitle": "Dependencies",
+  "assetPreview.locateOnCanvas": "Locate on canvas",
+  "assetPreview.locateOnCanvasComingSoon": "Canvas locate coming soon",
+  "assetPreview.meta.bitrate": "Bitrate",
+  "assetPreview.meta.channelCount": "{{count}} ch",
+  "assetPreview.meta.channels": "Channels",
+  "assetPreview.meta.codec": "Codec",
+  "assetPreview.meta.dimensions": "Dimensions",
+  "assetPreview.meta.duration": "Duration",
+  "assetPreview.meta.format": "Format",
+  "assetPreview.meta.fps": "Frame rate",
+  "assetPreview.meta.modifiedAt": "Modified",
+  "assetPreview.meta.mono": "Mono",
+  "assetPreview.meta.pageCount": "Pages",
+  "assetPreview.meta.sampleRate": "Sample rate",
+  "assetPreview.meta.size": "Size",
+  "assetPreview.meta.sourceWebsite": "Source website",
+  "assetPreview.meta.stereo": "Stereo",
+  "assetPreview.meta.wordCount": "Words",
+  "assetPreview.mute": "Mute",
+  "assetPreview.unmute": "Unmute",
+  "assetPreview.unsupportedText": "Preview not supported",
+  "assetPreview.videoUnavailable": "Preview unavailable",
+  "assetPreview.viewLineage": "View dependencies",
+  "assetRole.audio_track": "Audio Track",
+  "assetRole.depth": "Depth",
+  "assetRole.frame": "Frame",
+  "assetRole.init_image": "Init Image",
+  "assetRole.mask": "Mask",
+  "assetRole.pose": "Pose",
+  "assetRole.reference": "Reference",
+  "assetRole.source": "Source",
+  "assetRole.style": "Style",
+  "assetRole.subject": "Subject",
+  "assetRole.subtitle": "Subtitle",
+  "assetSidebarPanel.addToCanvas": "Add to canvas",
+  "assetSidebarPanel.addToChat": "Add to chat",
+  "assetSidebarPanel.addToChatError": "Failed to add to chat: {{message}}",
+  "assetSidebarPanel.addToChatErrorAttachmentNotFound": "Attachment not found",
+  "assetSidebarPanel.addToChatErrorNoWorkspace": "No workspace available",
+  "assetSidebarPanel.allSection": "All Subjects",
+  "assetSidebarPanel.alreadyAdded": "Already added",
+  "assetSidebarPanel.attachments": "{{count}} files",
+  "assetSidebarPanel.clearSearch": "Clear search",
+  "assetSidebarPanel.createCta": "Create",
+  "assetSidebarPanel.empty": "No subjects yet",
+  "assetSidebarPanel.emptyBody":
+    "Add a subject here, or save a canvas file to reuse.",
+  "assetSidebarPanel.emptyByType.all": "No subjects yet",
+  "assetSidebarPanel.emptyByType.character": "No characters yet",
+  "assetSidebarPanel.emptyByType.custom": "No custom subjects yet",
+  "assetSidebarPanel.emptyByType.prop": "No props yet",
+  "assetSidebarPanel.emptyByType.scene": "No scenes yet",
+  "assetSidebarPanel.emptyByType.style_pack": "No style packs yet",
+  "assetSidebarPanel.materialize": "Add to current project",
+  "assetSidebarPanel.materializeError": "Failed to add: {{message}}",
+  "assetSidebarPanel.materializeSuccess": '"{{name}}" added to current project',
+  "assetSidebarPanel.materializedSection": "Added to This Creation Page",
+  "assetSidebarPanel.noAttachments": "No files",
+  "assetSidebarPanel.searchPlaceholder": "Search subjects",
+  "assets.uploadEnrollFailed":
+    "File saved to disk but could not be added to the asset index: {{error}}. It will be picked up automatically on the next scan.",
+  "attachmentFaceNotice.cancel": "Cancel",
+  "attachmentFaceNotice.confirm": "Confirm",
+  "attachmentFaceNotice.description": `The “Reference” function (the “Function”) is made available to help you get the most out of Our content generation services (the “Services”). Before using the Function, please read and fully understand this Important Notice regarding Reference (the “Notice”). By clicking “confirm” or proceeding to use the Function, you agree to abide by this Notice as well as the Terms of Service and all applicable terms and conditions(collectively, the “Service Agreements”). Throughout your use of the Function, please continue to review and comply with the requirements of this Notice and the Service Agreements.
+
+I. Your Input Content
+You represent and warrant that all content you input, submit, upload, or publish (including, without limitation, text, images, audio, video, and all other forms of content, together with all textual, musical, audio, graphic, design, or other components contained therein) (collectively, your “Input Content”) while using the Function and the Services is either created by you, fully owned by you, or lawfully licensed to you under sufficient, lawful, and valid authorization. You represent and warrant that you and/or any third parties who have authorized the use of your Input Content in the Function and Services legally own the intellectual property rights, ownership rights, personal rights (including but not limited to rights of portrait or likeness), data rights, and/or other relevant rights in such Input Content, and that the Input Content does not infringe upon any third party’s intellectual property rights, personal rights, data rights, trade secrets, or other lawful rights. You assume sole responsibility for providing any Input Content through the Function and the Services.
+
+1. Personal Attributes
+If your Input Content contains personal information, you must ensure necessary authorization before submitting such information so as to avoid improper use of their data. In particular, if your Input Content includes a person's Portraits, likeness or voices (collectively, "Personal Attributes"), you must ensure that it pertains to you personally or that you have obtained sufficient, lawful, and valid authorization from the rights holder specifically for use in the Services and the Function. In the event that you have not obtained the requisite authorization or only obtained insufficient authorization or uninformed consent for any given Personal Attributes, you shall refrain from incorporating such content into your use of the Services or the Function. Any breach of the foregoing shall render you solely liable for all resulting damages or consequences. We may detect and analyze feature points or vector points in any Portraits you provide in order to deliver the Services, but we will not use such information to identify any specific individual.
+
+2. Prohibited Uses
+When using the Services and the Function, you must ensure all activities while using our Services and the Function, your Input Content, and any content generated or output by the Services (the “Output Content”) are for lawful purposes only. You must not use the Services, the Function, the Input Content, or the Output Content, in ways that violate applicable laws and regulations or infringe third-party rights. Prohibited conducts and/or purposes (“Prohibited Uses”) include but are not limited to:
+- Misrepresenting or impersonating another person;
+- Fabricating or spreading false information;
+- Denigrating, disparaging, or otherwise undermining or damaging another person's character and reputation;
+- Insulting, defaming, or maliciously depicting others in false or negative light;
+- Infringing upon a minors' rights or harming a minor's physical or mental health;
+- Engaging in conduct that is harmful, threatening, abusive, harassing, tortious, excessively violent, vulgar, obscene, pornographic, libelous, invasive of another's privacy, promoting or expressing racial hatred or any form of discrimination, or otherwise offensive;
+- Engaging in any activity prohibited by the Service Agreements;
+- Engaging in any other conduct that violates laws, regulations, or infringes upon lawful rights and interests of others.
+If you engage in any Prohibited Uses or misuse the Services, Input Content, or Output Content in violation of the Service Agreements, you bear sole responsibility for all resulting consequences and liabilities. If your actions cause harm to us, you shall compensate us for any resulting losses.
+
+3. Violations
+If we find any of your Input Content or Output Content unlawful, violates this Notice, or breaches any Service Agreement, we reserve the right—at our sole discretion—to remove, block, or refuse to output the related content. We may also freeze, ban, or close your user account. If you become aware that any Input Content or Output Content is in violation of the foregoing, you must promptly take appropriate measures, including but not limited to deleting or replacing the content, to effectively prevent its generation or dissemination, and report the situation to us in a timely manner.
+
+4. Marking, Watermarks, and Disclaimers
+You acknowledge, understand, and agree that, to comply with applicable laws and regulations and clarify ownership or usage restrictions for the Output Content, we may add labels or watermarks to it. We may also display prominent notifications (e.g., prompt messages) when you view, export, or download the Output Content, reminding you how to use it and what limitations apply. Unless otherwise agreed, you must not alter or remove any labels or watermarks we place on the Output Content. Additionally, whenever you use the Output Content, you must provide any necessary notices or statements indicating that the content was generated by AI to avoid confusion or misunderstanding. You are solely responsible for any consequences or liabilities resulting from failure to provide such notices or statements.
+
+5. Disclaimer of Warranties
+Because the Output Content is generated from a technical model, and despite our efforts to refine our algorithms, technological limitations may prevent us from guaranteeing the applicability, accuracy, reliability, and completeness of the Services or Output Content. You acknowledge, understand, and agree that the Function is merely intended to assist you in using our content generation services and is provided to you in “as-is” condition. We make no warranty, nor do we assume any responsibility, regarding the quality, accuracy, reliability, or completeness of the Function, and you agree not to bring any related claims against us.
+
+6. Updates to Services and This Notice
+We will continue to enhance our Services and the Function and will revise or update this Notice and the Service Agreements as appropriate. If any changes are made to the Function or this Notice, we will notify you through the Function’s interface or through other appropriate channel in our platform. If you do not agree to the changes, please discontinue use of the Function. Your continued use constitutes your acceptance of the revised terms.
+
+7. Feedback and Intellectual Property Protection
+We welcome any feedback or suggestions you have regarding our Services, as it helps us optimize and improve them. We take the protection of intellectual property rights, personal rights, and all other lawful rights very seriously. If you believe that the Services, or any user's use of the Services, infringes upon your lawful rights, please contact us at feedback@hailuoai.com and provide valid proof of ownership rights and evidence of infringement. We will promptly investigate and, if necessary, remove or block the infringing content.
+
+Thank you for reading this Notice.
+By continuing to use the Function, you acknowledge that you have read, understood, and agree to be bound by this Notice and the Service Agreements.`,
+  "attachmentFaceNotice.title": "Omni Reference Guidelines",
+  "auth.confirmBrowserLogin.title": "Confirm sign-in account",
+  "auth.confirmBrowserLogin.description":
+    "Sign in as {{account}}? Confirm this is the account you want to use.",
+  "auth.loginFailed": "Login failed. Please try again.",
+  "auth.loginGate.bullet0":
+    "Understand, break down, and execute multi-scenario content production tasks",
+  "auth.loginGate.bullet1":
+    "Professional workflows and Skills unlock commercial content productivity",
+  "auth.loginGate.bullet2":
+    "Start with a single idea—Design stays with you all the way to delivery",
+  "auth.loginGate.button": "Log in",
+  "auth.loginGate.subtitle":
+    "The Most Powerful Creative Agent + Leading General-Purpose Multimodal Model",
+  "auth.loginGate.title": "MiniMax Design, Now with H3",
+  "auth.loginNetworkError":
+    "Login verification failed. Please check your network and try again.",
+  "auth.loginPageExpired":
+    "This sign-in page is no longer valid. Use the latest sign-in page, or start sign-in again in MiniMax Design.",
+  "auth.loginRequired": "Login Required",
+  "auth.loginRequiredDesc": "Please log in to continue.",
+  "auth.logoutFailed": "Logout failed",
+  "auth.sessionExpired.description":
+    "Your login session has expired. Please log in again to continue.",
+  "auth.sessionExpired.later": "Later",
+  "auth.sessionExpired.relogin": "Log In Again",
+  "auth.sessionExpired.title": "Session Expired",
+  "auth.sessionExpired.toast": "Session expired. Please log in again.",
+  "auth.unsavedLogout.cancel": "Stay and retry",
+  "auth.unsavedLogout.confirm": "Log out without saving",
+  "auth.unsavedLogout.description":
+    "Stay signed in and try again to protect your work. Log out without saving only if you accept losing those changes.",
+  "auth.unsavedLogout.title": "Some canvas changes could not be saved",
+  "bundleError.actionPlanTitle": "What you can do",
+  "bundleError.copy.diagnosisCode": "Diagnosis Type",
+  "bundleError.copy.error": "Error",
+  "bundleError.copy.evidence": "Diagnostic Evidence",
+  "bundleError.copy.revision": "State Revision",
+  "bundleError.copy.state": "Startup State",
+  "bundleError.copyDiagnostics": "Copy diagnostics",
+  "bundleError.copyDiagnosticsFailed": "Copy failed",
+  "bundleError.copyDiagnosticsSuccess": "Diagnostics copied",
+  "bundleError.diagnosis.gatewayStartFailed.message":
+    "The local workspace service did not start correctly.",
+  "bundleError.diagnosis.gatewayStartFailed.primaryAction":
+    "Restart workspace service",
+  "bundleError.diagnosis.gatewayStartFailed.suggestion1":
+    "Click retry to restart the workspace service.",
+  "bundleError.diagnosis.gatewayStartFailed.suggestion2":
+    "If the app was just updated, fully quit and reopen it.",
+  "bundleError.diagnosis.gatewayStartFailed.title":
+    "The local workspace service did not start",
+  "bundleError.diagnosis.macosVersionUnsupported.message":
+    "Your macOS version is too old. Upgrade to macOS 13.0 or later.",
+  "bundleError.diagnosis.macosVersionUnsupported.primaryAction":
+    "Upgrade macOS and reopen",
+  "bundleError.diagnosis.macosVersionUnsupported.suggestion1":
+    "macOS 12 and earlier do not support the current local AI service.",
+  "bundleError.diagnosis.macosVersionUnsupported.suggestion2":
+    "Retrying will not fix this. Upgrade macOS first, then reopen MiniMax Design.",
+  "bundleError.diagnosis.macosVersionUnsupported.title":
+    "macOS version is too old",
+  "bundleError.diagnosis.networkProxy.message":
+    "The local AI service may be affected by network, VPN, or proxy settings.",
+  "bundleError.diagnosis.networkProxy.primaryAction": "Turn off VPN and retry",
+  "bundleError.diagnosis.networkProxy.suggestion1":
+    "Turn off VPN, or switch to a node that can access domestic services, then retry.",
+  "bundleError.diagnosis.networkProxy.suggestion2":
+    "Check whether system proxy, company network policy, or certificate proxy is intercepting local service connections.",
+  "bundleError.diagnosis.networkProxy.suggestion3":
+    "If you just changed networks, wait a few seconds and restart the workspace.",
+  "bundleError.diagnosis.networkProxy.title":
+    "VPN or proxy may be blocking the local AI service",
+  "bundleError.diagnosis.opencodeBinaryBlocked.message":
+    "The local AI runtime may be blocked by security software or permission policy.",
+  "bundleError.diagnosis.opencodeBinaryBlocked.primaryAction":
+    "Trust it and retry",
+  "bundleError.diagnosis.opencodeBinaryBlocked.suggestion1":
+    "Check whether security software, enterprise policy, or antivirus blocked the AI runtime.",
+  "bundleError.diagnosis.opencodeBinaryBlocked.suggestion2":
+    "Restore the quarantined runtime file, add it to trusted items, then retry.",
+  "bundleError.diagnosis.opencodeBinaryBlocked.title":
+    "The local AI runtime may be blocked by security software",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.message":
+    "The local AI runtime file may be corrupted or incompletely downloaded.",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.primaryAction":
+    "Reinstall and retry",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.suggestion1":
+    "Re-download or reinstall the app so the runtime file is regenerated.",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.suggestion2":
+    "If security software scanned or quarantined it recently, trust the file and retry.",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.title":
+    "The local AI runtime file may be corrupted",
+  "bundleError.diagnosis.opencodeBinaryMissing.message":
+    "The local AI runtime file is missing.",
+  "bundleError.diagnosis.opencodeBinaryMissing.primaryAction":
+    "Reinstall and retry",
+  "bundleError.diagnosis.opencodeBinaryMissing.suggestion1":
+    "Re-download or reinstall the app, then open the workspace again.",
+  "bundleError.diagnosis.opencodeBinaryMissing.suggestion2":
+    "If security software quarantined the runtime file, restore it and add it to trusted items.",
+  "bundleError.diagnosis.opencodeBinaryMissing.title":
+    "The local AI runtime file is missing",
+  "bundleError.diagnosis.opencodeConfigBroken.message":
+    "The local AI config file appears to be invalid.",
+  "bundleError.diagnosis.opencodeConfigBroken.primaryAction":
+    "Retry with repaired config",
+  "bundleError.diagnosis.opencodeConfigBroken.suggestion1":
+    "The system has tried to back up the invalid config. Click retry.",
+  "bundleError.diagnosis.opencodeConfigBroken.suggestion2":
+    "If it still fails, report the issue with the diagnosis ID.",
+  "bundleError.diagnosis.opencodeConfigBroken.title":
+    "The local AI config file is invalid",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.message":
+    "The local AI database was incompatible with this version and has been rebuilt.",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.primaryAction":
+    "Restart workspace",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.suggestion1":
+    "Past conversations no longer appear. The original database is kept as a backup, and your project files, canvas and assets are unaffected.",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.suggestion2":
+    "If it still fails, report the issue with the diagnosis ID.",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.title":
+    "The local AI database was rebuilt",
+  "bundleError.diagnosis.opencodePortConflict.message":
+    "The local AI service port may already be in use.",
+  "bundleError.diagnosis.opencodePortConflict.primaryAction":
+    "Retry on another port",
+  "bundleError.diagnosis.opencodePortConflict.suggestion1":
+    "Click retry. The system will try restarting on another port.",
+  "bundleError.diagnosis.opencodePortConflict.suggestion2":
+    "If it keeps failing, fully quit and reopen the app.",
+  "bundleError.diagnosis.opencodePortConflict.title":
+    "The local AI service port may be occupied",
+  "bundleError.diagnosis.runtimeDirPermission.message":
+    "The local runtime cache or data directory has a permission problem.",
+  "bundleError.diagnosis.runtimeDirPermission.primaryAction":
+    "Check permissions and retry",
+  "bundleError.diagnosis.runtimeDirPermission.suggestion1":
+    "Make sure the current user can read and write the local cache and data directories.",
+  "bundleError.diagnosis.runtimeDirPermission.suggestion2":
+    "If the directory is on an external drive, synced folder, or managed location, move it under the local user directory and retry.",
+  "bundleError.diagnosis.runtimeDirPermission.title":
+    "The local runtime directory is not writable",
+  "bundleError.diagnosis.runtimeStartFailed.message":
+    "The local AI service failed to start correctly.",
+  "bundleError.diagnosis.runtimeStartFailed.primaryAction": "Restart workspace",
+  "bundleError.diagnosis.runtimeStartFailed.suggestion1":
+    "Click retry to restart the workspace runtime.",
+  "bundleError.diagnosis.runtimeStartFailed.suggestion2":
+    "If the problem continues, export diagnostics and contact support.",
+  "bundleError.diagnosis.runtimeStartFailed.title":
+    "The local AI service did not start correctly",
+  "bundleError.diagnosis.runtimeStartTimeout.message":
+    "The local AI service did not become ready in time.",
+  "bundleError.diagnosis.runtimeStartTimeout.primaryAction": "Retry",
+  "bundleError.diagnosis.runtimeStartTimeout.suggestion1":
+    "After the first launch or an update, system security scanning may slow startup. Try again once.",
+  "bundleError.diagnosis.runtimeStartTimeout.suggestion2":
+    "If it keeps timing out, check whether security software is blocking the local AI runtime.",
+  "bundleError.diagnosis.runtimeStartTimeout.title":
+    "The local AI service timed out while starting",
+  "bundleError.diagnosis.windowsBinaryIncompatible.message":
+    "An installed file has the wrong architecture or is corrupted.",
+  "bundleError.diagnosis.windowsBinaryIncompatible.primaryAction":
+    "Reinstall the latest version",
+  "bundleError.diagnosis.windowsBinaryIncompatible.suggestion1":
+    "Download the latest installer from the official source and reinstall.",
+  "bundleError.diagnosis.windowsBinaryIncompatible.suggestion2":
+    "If security software quarantined an installed file, restore it before reinstalling.",
+  "bundleError.diagnosis.windowsBinaryIncompatible.title":
+    "The local AI service file is incompatible",
+  "bundleError.diagnosis.windowsCpuUnsupported.message":
+    "The local AI service requires a 64-bit processor with SSE4.2 support.",
+  "bundleError.diagnosis.windowsCpuUnsupported.primaryAction":
+    "Use a supported computer",
+  "bundleError.diagnosis.windowsCpuUnsupported.suggestion1":
+    "Upgrading Windows or reinstalling cannot add a missing CPU instruction set.",
+  "bundleError.diagnosis.windowsCpuUnsupported.suggestion2":
+    "Install MiniMax Design on a newer 64-bit computer.",
+  "bundleError.diagnosis.windowsCpuUnsupported.title":
+    "This processor is not supported",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.message":
+    "Windows could not load a system component required by the local AI service.",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.primaryAction":
+    "Restart, then reinstall",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion1":
+    "Restart first so updates or security software release old files.",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2":
+    "If it still fails, reinstall the latest MiniMax Design.",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.title":
+    "A Windows component failed to load",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.message":
+    "The local AI service could not start because memory, virtual memory, or disk space is low.",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.primaryAction":
+    "Free resources and retry",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion1":
+    "Close memory-heavy apps and free space on the system and project drives.",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2":
+    "After freeing resources, fully quit and reopen MiniMax Design.",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.title":
+    "Not enough system resources",
+  "bundleError.diagnosis.windowsRuntimeTerminated.message":
+    "The local AI service was stopped by Windows, an installer, or another program.",
+  "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction":
+    "Reopen MiniMax Design",
+  "bundleError.diagnosis.windowsRuntimeTerminated.suggestion1":
+    "If an update is installing, wait for it to finish before reopening.",
+  "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2":
+    "Otherwise, fully quit and reopen MiniMax Design.",
+  "bundleError.diagnosis.windowsRuntimeTerminated.title":
+    "The local AI service was terminated",
+  "bundleError.diagnosis.windowsVersionUnsupported.message":
+    "The local AI service requires Windows 10 1809, Windows Server 2019, or later.",
+  "bundleError.diagnosis.windowsVersionUnsupported.primaryAction":
+    "Upgrade Windows and reopen",
+  "bundleError.diagnosis.windowsVersionUnsupported.suggestion1":
+    "Minimum requirement: Windows 10 1809 / Windows Server 2019 (OS build 17763+).",
+  "bundleError.diagnosis.windowsVersionUnsupported.suggestion2":
+    "Retrying or reinstalling will not fix this. Upgrade Windows first.",
+  "bundleError.diagnosis.windowsVersionUnsupported.title":
+    "This Windows version is not supported",
+  "bundleError.diagnosis.windowsVersionUnverified.message":
+    "The Windows version check could not finish, so the local AI service has not started. This does not mean your Windows version is too old.",
+  "bundleError.diagnosis.windowsVersionUnverified.primaryAction":
+    "Retry shortly",
+  "bundleError.diagnosis.windowsVersionUnverified.suggestion1":
+    "Wait a few seconds and retry. There is no need to change system settings or reinstall.",
+  "bundleError.diagnosis.windowsVersionUnverified.suggestion2":
+    "If the check keeps failing, upload diagnostics and contact support to check whether system policy restricts version detection.",
+  "bundleError.diagnosis.windowsVersionUnverified.title":
+    "Unable to verify the Windows version",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.message":
+    "The local project data version cannot be handled safely and automatically. The app will not delete or rewrite the original project data.",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction":
+    "Upload logs and contact support",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion1":
+    "Do not delete, replace, or manually modify the project database.",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion2":
+    "Upload logs and send the user ID and feedback code to support.",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.title":
+    "Project data version is incompatible",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.message":
+    "The local project data upgrade did not finish. The app will not automatically delete your original project data.",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.primaryAction":
+    "Restart the project service",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.suggestion1":
+    "Click retry to let the app check and finish the project data upgrade.",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.suggestion2":
+    "If it keeps failing, do not delete the project data. Export a diagnostic report and contact support.",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.title":
+    "Project data upgrade did not finish",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.message":
+    "This project data was upgraded by a newer app version and cannot be opened by the current version. The app will not modify or delete the original project data.",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.primaryAction":
+    "Update the app to the latest version",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.suggestion1":
+    "Update the app to the latest version, then reopen this project.",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.suggestion2":
+    "Do not delete, replace, or manually modify the project database; it will work as-is after updating.",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.title":
+    "Project data was created by a newer app version",
+  "bundleError.diagnosis.workspaceIndexRecovery.message":
+    "The project asset links could not be safely recovered. Automatic rebuilding has stopped to protect existing content; this does not mean the media files were deleted.",
+  "bundleError.diagnosis.workspaceIndexRecovery.primaryAction":
+    "Upload logs and contact support",
+  "bundleError.diagnosis.workspaceIndexRecovery.suggestion1":
+    "Keep the complete project folder. Do not delete media, overwrite the project, or clear app data.",
+  "bundleError.diagnosis.workspaceIndexRecovery.suggestion2":
+    "Upload logs and contact support to verify and recover asset links in a project copy.",
+  "bundleError.diagnosis.workspaceIndexRecovery.title":
+    "Project asset information needs recovery",
+  "bundleError.diagnosticsDetails": "Diagnostic Details",
+  "bundleError.diagnosticsSummaryTitle": "Detected issue",
+  "bundleError.evidence.health": "Health Check",
+  "bundleError.evidence.health.dns": "DNS resolution error",
+  "bundleError.evidence.health.permission": "Permission error",
+  "bundleError.evidence.health.port_in_use": "Port occupied",
+  "bundleError.evidence.health.proxy": "Proxy/VPN error",
+  "bundleError.evidence.health.refused": "Connection refused",
+  "bundleError.evidence.health.reset": "Connection reset",
+  "bundleError.evidence.health.timeout": "Startup timeout",
+  "bundleError.evidence.health.tls": "TLS/certificate error",
+  "bundleError.evidence.phase": "Phase",
+  "bundleError.evidence.phase.allocate_port": "Allocate port",
+  "bundleError.evidence.phase.gateway_start": "Start workspace service",
+  "bundleError.evidence.phase.notify_gateway": "Bind local AI runtime",
+  "bundleError.evidence.phase.opencode_start": "Start local AI runtime",
+  "bundleError.evidence.phase.runtime_crash": "Local AI runtime crash",
+  "bundleError.evidence.proxy": "Proxy",
+  "bundleError.evidence.proxy.present": "Proxy env detected",
+  "bundleError.evidence.runtimeDir": "Runtime Dir",
+  "bundleError.evidence.runtimeDir.failed": "Not writable",
+  "bundleError.evidence.signature.config_json_error": "Config file error",
+  "bundleError.evidence.signature.connection_refused": "Connection refused",
+  "bundleError.evidence.signature.connection_reset": "Connection reset",
+  "bundleError.evidence.signature.dns": "DNS error",
+  "bundleError.evidence.signature.gateway_start":
+    "Workspace service start error",
+  "bundleError.evidence.signature.macos_version_unsupported":
+    "macOS version too old",
+  "bundleError.evidence.signature.opencode_binary_blocked": "Runtime blocked",
+  "bundleError.evidence.signature.opencode_binary_corrupted":
+    "Runtime file corrupted",
+  "bundleError.evidence.signature.opencode_binary_missing":
+    "Runtime file missing",
+  "bundleError.evidence.signature.opencode_config_broken":
+    "Runtime config error",
+  "bundleError.evidence.signature.permission_mkdir":
+    "Directory permission error",
+  "bundleError.evidence.signature.port_in_use": "Port occupied",
+  "bundleError.evidence.signature.proxy": "Proxy error",
+  "bundleError.evidence.signature.runtime_start": "Runtime start error",
+  "bundleError.evidence.signature.timeout": "Timeout",
+  "bundleError.evidence.signature.tls_certificate": "Certificate error",
+  "bundleError.evidence.signature.windows_binary_incompatible":
+    "Local service file incompatible",
+  "bundleError.evidence.signature.windows_cpu_unsupported":
+    "Processor not supported",
+  "bundleError.evidence.signature.windows_runtime_dependency_failed":
+    "Windows component load failed",
+  "bundleError.evidence.signature.windows_runtime_resource_exhausted":
+    "Not enough system resources",
+  "bundleError.evidence.signature.windows_runtime_terminated":
+    "Local service terminated",
+  "bundleError.evidence.signature.windows_version_unsupported":
+    "Windows version not supported",
+  "bundleError.evidence.signature.windows_version_unverified":
+    "Windows version could not be verified",
+  "bundleError.evidence.signatures": "Error Signatures",
+  "bundleError.evidence.timeout": "Timeout",
+  "bundleError.evidenceTitle": "Check results",
+  "bundleError.exportDiagnostics": "Export diagnostics",
+  "bundleError.exportLogsFailed": "Failed to export diagnostics",
+  "bundleError.exportLogsSuccess": "Diagnostics exported",
+  "bundleError.failureId": "Diagnostic ID: {{failureId}}",
+  "bundleError.fallbackMessage":
+    "Unknown error. Try again. If the problem continues, export logs and contact support.",
+  "bundleError.feedbackCode": "Feedback Code",
+  "bundleError.feedbackCopy.guide": "Location Guide",
+  "bundleError.feedbackCopy.guideText":
+    "Logs uploaded. Support can locate this failure by user ID + feedback code or log path.",
+  "bundleError.feedbackCopy.label": "Copy Feedback Info",
+  "bundleError.feedbackUpload.label": "Upload logs & copy feedback",
+  "bundleError.impactMessage":
+    "The current workspace content is preserved. Only the local AI service is temporarily unavailable.",
+  "bundleError.networkRecovery.checkFailed":
+    "Network check failed. Export logs and contact support.",
+  "bundleError.networkRecovery.checkSuccess": "Network check refreshed",
+  "bundleError.networkRecovery.description":
+    "If you are using a VPN, enterprise proxy, or local proxy, switch connection mode and retry. The current workspace state will be preserved.",
+  "bundleError.networkRecovery.directRetry": "Switch to Direct and retry",
+  "bundleError.networkRecovery.proxySwitchFailed":
+    "Failed to switch network mode. Recheck the network or export logs for support.",
+  "bundleError.networkRecovery.recheck": "Recheck network",
+  "bundleError.networkRecovery.systemRetry": "Switch to System proxy and retry",
+  "bundleError.networkRecovery.title": "Network recovery actions",
+  "bundleError.recommendedNextStep": "Recommended next step",
+  "bundleError.resumeFailed":
+    "Workspace recovery failed. Your workspace data is still safe; retry to restart the local runtime.",
+  "bundleError.retryExhausted.reinstall": "Please reinstall and try again",
+  "bundleError.retryExhausted.restart": "Please quit completely and reopen",
+  "bundleError.retryExhausted.upgradeMacos": "Upgrade macOS and retry",
+  "bundleError.retryExhausted.upgradeWindows": "Upgrade Windows and retry",
+  "bundleError.retryHint":
+    "The local runtime is in a recovery protection window. If retry still fails, the current workspace state is preserved.",
+  "bundleError.retryWorkspace": "Restart workspace",
+  "bundleError.solution.opencodePortConflict":
+    "Click the button below. The system will try restarting on another port automatically.",
+  "bundleError.solutionFallback": "Try restarting once first.",
+  "bundleError.solutionGenericSuggestion":
+    "If retry still fails, upload logs and send the feedback info to support.",
+  "bundleError.solutionTitle": "How to fix it",
+  "bundleError.suggestionsTitle": "Try this first",
+  "bundleError.supportCardDescription":
+    "Send the user ID and feedback code to support. Technical details are hidden by default.",
+  "bundleError.supportCardTitle": "Feedback and logs",
+  "bundleError.supportHint.beforeUpload":
+    "Preparing diagnostics; keep user ID and feedback code visible in screenshots so support can locate it.",
+  "bundleError.supportHint.locator": "Log Location",
+  "bundleError.supportHint.uploadFailed":
+    'Auto-upload failed. Click "Upload Logs & Copy Feedback Info" to retry; keep user ID + feedback code in screenshots.',
+  "bundleError.supportHint.uploaded":
+    "Logs were uploaded automatically. Support can locate this failure by user ID + feedback code or log path.",
+  "bundleError.supportHint.uploading":
+    "Uploading diagnostic logs automatically; keep user ID and feedback code visible in screenshots.",
+  "bundleError.technicalDetails.hide": "Hide diagnostics",
+  "bundleError.technicalDetails.region": "Support diagnostics",
+  "bundleError.technicalDetails.show": "Diagnostics for support",
+  "bundleError.title": "Workspace startup failed",
+  "bundleError.userId": "User ID",
+  "bundleError.userIdUnavailable": "Unavailable",
+  "bundleError.workspaceClosed": "Workspace closed",
+  "bundleLoading.creating": "Initializing workspace...",
+  "bundleLoading.default": "Loading...",
+  "bundleLoading.gatewayReady": "Loading workspace resources...",
+  "bundleLoading.gatewayStarting": "Setting up your canvas…",
+  "bundleLoading.opencodeStarting": "Assembling your AI crew…",
+  "canvas.addNode": "Add Node",
+  "canvas.addToChat": "Add to Chat",
+  "canvas.addToClipNode": "Add to Editing Node",
+  "canvas.addToCurrentNode": "Replace node",
+  "canvas.addToLibrary": "Add to Subject Library",
+  "canvas.alignmentSnap.disable": "Disable Snap Alignment",
+  "canvas.alignmentSnap.enable": "Enable Snap Alignment",
+  "canvas.alignmentSnap.label": "Snap Alignment",
+  "canvas.annotate": "Annotate",
+  "canvas.annotationAgentRunning":
+    "Text Assistant is running. Annotation is unavailable.",
+  "canvas.annotationConfirm": "Done",
+  "canvas.annotationConflict":
+    "This selection overlaps an existing annotation. Please reselect.",
+  "canvas.annotationHint": "Enter to confirm · Shift+Enter for a new line",
+  "canvas.annotationPlaceholder": "Add a comment…",
+  "canvas.aspectRatio": "Aspect ratio",
+  "canvas.asr.cancel": "Cancel",
+  "canvas.asr.description":
+    "Auto-detect speech and generate subtitle file (SRT). Takes a few minutes; the result lands on the canvas as a derived file.",
+  "canvas.asr.error": "Subtitle generation failed, please retry",
+  "canvas.asr.error.whisper": "Failed to transcribe (Whisper). Please retry.",
+  "canvas.asr.label": "Subtitle generation",
+  "canvas.asr.language.auto": "Auto",
+  "canvas.asr.language.en": "English",
+  "canvas.asr.language.other": "Other",
+  "canvas.asr.language.zh": "Chinese",
+  "canvas.asr.languageLabel": "Language",
+  "canvas.asr.submit": "Start",
+  "canvas.asr.title": "Subtitle generation",
+  "canvas.attachment.fileExtensionRejected":
+    "The current model does not support this document format.",
+  "canvas.attachment.imageAspectRejected":
+    "Image aspect ratio does not meet the current model requirements. Connection removed.",
+  "canvas.attachment.imageSizeRejected":
+    "Image is smaller than the current model requires. Connection removed.",
+  "canvas.attachment.replace": "Replace",
+  "canvas.audio": "Audio",
+  "canvas.audioDesc": "Sound effects, voiceover, music",
+  "canvas.audioExtension.durationOptionDisabled":
+    "The final duration must start from the whole second after rounding up the source audio duration.",
+  "canvas.audioExtension.durationUnavailable":
+    "Could not read the source audio duration. Choose another audio file.",
+  "canvas.audioExtension.extendTo": "Extend to",
+  "canvas.audioExtension.inputDurationRange":
+    "The source audio must be between 1 and 20 seconds.",
+  "canvas.audioExtension.outputDurationRange":
+    "The final duration must be longer than the source audio and no more than 20 seconds.",
+  "canvas.audioExtension.referenceRequired": "Choose one reference audio file.",
+  "canvas.audioSlot.clipSourceMissing":
+    "Original audio is unavailable for trimming",
+  "canvas.audioSlot.durationTooLong": "Audio is too long. Trim it before use.",
+  "canvas.audioSlot.formatUnsupported":
+    "Reference audio only supports mp3 / wav. Please use a different file.",
+  "canvas.audioSlot.tooLong": "Longer than {{max}}s unsupported",
+  "canvas.audioSlot.tooShort": "Shorter than {{min}}s unsupported",
+  "canvas.audioSlot.totalTooLong":
+    "Reference audio is longer than {{max}} seconds in total. Use fewer or shorter audio files.",
+  "canvas.backToContent": "Back to nodes",
+  "canvas.billing.details": "View pricing details",
+  "canvas.billing.estimatedCost": "Estimated cost: {{cost}} credits",
+  "canvas.billing.formula.fixedCost": "Base cost: {{cost}} credits",
+  "canvas.billing.formula.generatedVideo":
+    "Generated video {{seconds}} sec × {{rate}} credits/sec",
+  "canvas.billing.formula.inputImages":
+    "Extra images {{count}} × {{rate}} credits/image",
+  "canvas.billing.formula.inputMediaFree": "Input media: 0 credits",
+  "canvas.billing.formula.inputVideo":
+    "Input video {{seconds}} sec × {{rate}} credits/sec",
+  "canvas.billing.formula.multipleOutputs": "({{formula}}) × {{count}}",
+  "canvas.billing.panel.audio": "Audio",
+  "canvas.billing.panel.free": "Free",
+  "canvas.billing.panel.generatedImage": "Generated image",
+  "canvas.billing.panel.generatedVideo": "Generated video",
+  "canvas.billing.panel.heading": "Price details",
+  "canvas.billing.panel.imagePricing":
+    "First {{freeCount}} images free; {{rate}} credits/image starting with image {{firstPaidIndex}}",
+  "canvas.billing.panel.images": "Images",
+  "canvas.billing.panel.inputAudio": "Input audio",
+  "canvas.billing.panel.inputImages": "Input images",
+  "canvas.billing.panel.inputMedia": "Input media",
+  "canvas.billing.panel.inputTokens": "Input tokens",
+  "canvas.billing.panel.inputVideo": "Input video",
+  "canvas.billing.panel.outputTokens": "Output tokens",
+  "canvas.billing.panel.ratePerImage": "{{rate}} credits/image",
+  "canvas.billing.panel.ratePerMillionTokens":
+    "{{rate}} credits/million tokens",
+  "canvas.billing.panel.ratePerSecond": "{{rate}} credits/sec",
+  "canvas.billing.panel.video": "Video",
+  "canvas.billing.panel.videoUpscale": "Video upscale",
+  "canvas.billing.panel.withReferenceVideo": "With reference video",
+  "canvas.billing.panel.withoutReferenceVideo": "Without reference video",
+  "canvas.bold": "Bold",
+  "canvas.bulletList": "Bullet List",
+  "canvas.cancel": "Cancel",
+  "canvas.cancelGeneration": "Stop",
+  "canvas.cancelGenerationFailed":
+    "Failed to stop generation. Please try again.",
+  "canvas.cancellingGeneration": "Stopping...",
+  "canvas.captureFrame": "Capture Frame",
+  "canvas.clip": "Clip",
+  "canvas.clipUpstream.sharedNotice":
+    "This asset is referenced by {{count}} clips. Replacing it will affect all clips.",
+  "canvas.clipUpstream.submitGenerate": "Generate",
+  "canvas.close": "Close",
+  "canvas.colorAdjust": "Color Adjust",
+  "canvas.comfyui": "ComfyUI",
+  "canvas.comfyui.chooseWorkflow": "Choose a ComfyUI template",
+  "canvas.comfyui.chooseWorkflowDesc":
+    "The selected workflow opens in the editor for this node.",
+  "canvas.comfyui.copySuffix": "Copy {{index}}",
+  "canvas.comfyui.localWorkflowDeleted": "Local workflow deleted",
+  "canvas.comfyui.newNode": "New Workflow",
+  "canvas.comfyui.newNodeDesc": "Create an empty ComfyUI workflow",
+  "canvas.comfyui.noWorkflows": "No workflows available",
+  "canvas.comfyui.nodeCount": "{{count}} nodes",
+  "canvas.comfyui.officialTemplate": "Official template",
+  "canvas.comfyui.openEditor": "Fullscreen editor",
+  "canvas.comfyui.run": "Run",
+  "canvas.comfyui.runProgress": "{{running}} running · {{queued}} queued",
+  "canvas.comfyui.searchWorkflow": "Search templates",
+  "canvas.comfyui.untitledWorkflow": "Untitled workflow",
+  "canvas.comfyui.useTemplate": "Use template",
+  "canvas.comfyui.userWorkflow": "My workflow",
+  "canvas.comfyui.workflowLoadErrorTitle": "Could not load this workflow",
+  "canvas.comfyui.workflowLoadFailed": "Could not load ComfyUI templates",
+  "canvas.comfyuiDesc": "Node-based AI image workflow, opens fullscreen",
+  "canvas.concurrencyLimit.title": "Concurrency limit reached",
+  "canvas.connectSelectionToNewNode": "Connect selection to a new node",
+  "canvas.copyAll": "Copy All",
+  "canvas.copyCanvasNode": "Copy Node",
+  "canvas.copyContent": "Copy Content",
+  "canvas.copyProviderTaskId": "Copy ID",
+  "canvas.copySticker": "Copy Sticker",
+  "canvas.credit.perMinuteCompact": "{{cost}}/min",
+  "canvas.credit.perSecondCompact": "{{cost}}/s",
+  "canvas.crop": "Crop",
+  "canvas.cropping": "Cropping...",
+  "canvas.customizeToolbar.menu": "Customize Toolbar",
+  "canvas.customizeToolbar.reset": "Reset to defaults",
+  "canvas.customizeToolbar.showLabels": "Show tool names",
+  "canvas.customizeToolbar.subtitle":
+    "Choose the tools you want in your edit bar",
+  "canvas.customizeToolbar.title": "Customize Toolbar",
+  "canvas.customizeToolbar.unpin": "Unpin",
+  "canvas.debug.clipboardUnavailable": "Clipboard not available",
+  "canvas.debug.copied": "Debug info copied (Trace ID: {{trace}})",
+  "canvas.debug.copiedNoTrace":
+    "Debug info copied (no Trace ID — legacy asset)",
+  "canvas.debug.copyFailed": "Copy failed: {{message}}",
+  "canvas.debug.noSelection": "Select a node first, then press {{shortcut}}",
+  "canvas.delete": "Delete selected clip",
+  "canvas.deleteBlockedByGeneration":
+    "Can't delete an element while it's generating. Please wait until it finishes.",
+  "canvas.deleteBlockedByRetainedTask":
+    "This element's generation task is retained and can't be deleted yet. Resolve the recovery prompt on the card first.",
+  "canvas.diffPendingConfirm": "Go resolve",
+  "canvas.diffPendingDescription":
+    "There are still unresolved AI edits. Please accept or undo all changes before closing the editor.",
+  "canvas.diffPendingTitle": "Unresolved changes",
+  "canvas.diffReview.accept": "Accept",
+  "canvas.diffReview.acceptAll": "Keep all",
+  "canvas.diffReview.counter": "{{current}} / {{total}} changes",
+  "canvas.diffReview.next": "Next change",
+  "canvas.diffReview.prev": "Previous change",
+  "canvas.diffReview.truncated":
+    "This change is too large to render in full. Only the beginning and end of each edit are shown.",
+  "canvas.diffReview.undo": "Undo",
+  "canvas.diffReview.undoAll": "Undo all",
+  "canvas.directorStage": "3D Director Stage",
+  "canvas.directorStageDesc":
+    "Characters, camera positions, and camera movement choreography",
+  "canvas.dismissGenerationStatus": "Keep original and dismiss error",
+  "canvas.dismissGenerationStatusFailed":
+    "Couldn't dismiss this error. Please try again.",
+  "canvas.divider": "Divider",
+  "canvas.downloadAllFiles": "Download all files",
+  "canvas.downloadAudio": "Download audio",
+  "canvas.downloadImage": "Download image",
+  "canvas.downloadVideo": "Download video",
+  "canvas.edge.cut": "Cut connection",
+  "canvas.edges.hide": "Show only connections of selected nodes",
+  "canvas.edges.show": "Show all connections",
+  "canvas.editorPlaceholder": "Type something...",
+  "canvas.elevenLabsMusic.badge": "ElevenLabs Music",
+  "canvas.elevenLabsMusic.editUnsupported": "Editing is not supported yet",
+  "canvas.elevenLabsMusic.generate": "Generate",
+  "canvas.elevenLabsMusic.lyricsLabel": "Lyrics",
+  "canvas.elevenLabsMusic.noPrompt": "(no description)",
+  "canvas.elevenLabsMusic.promptLabel": "Description",
+  "canvas.elevenLabsMusic.regenerate": "Regenerate",
+  "canvas.emptyHint.ariaLabel": "Canvas onboarding",
+  "canvas.emptyHint.kbd.space": "Space",
+  "canvas.emptyHint.primaryAction": "Double-click canvas",
+  "canvas.emptyHint.primaryResult": "to freely create nodes",
+  "canvas.emptyHint.scrollPrefix": "Scroll",
+  "canvas.emptyHint.spacePrefix": "Hold",
+  "canvas.emptyHint.spaceSuffix": "to pan the canvas",
+  "canvas.emptyHint.zoomSuffix": "to zoom the canvas",
+  "canvas.emptyViewport":
+    "No nodes in the viewport. Click the button to recenter to content.",
+  "canvas.enhanceImage.belowSource":
+    "Target resolution is not higher than the source",
+  "canvas.enhanceImage.cancel": "Cancel",
+  "canvas.enhanceImage.inputOutOfRange":
+    "Image must have short edge ≥ 256px and long edge ≤ 2048px",
+  "canvas.enhanceImage.resolutionLabel": "Resolution",
+  "canvas.enhanceImage.submit": "Run",
+  "canvas.enhanceImage.title": "HD Enhance",
+  "canvas.enhanceVideo.cancel": "Cancel",
+  "canvas.enhanceVideo.error": "Enhance failed, please retry",
+  "canvas.enhanceVideo.fpsLabel": "Frame Rate",
+  "canvas.enhanceVideo.label": "HD & FPS",
+  "canvas.enhanceVideo.noChange":
+    "Target resolution and frame rate are unchanged",
+  "canvas.enhanceVideo.resolutionLabel": "Resolution",
+  "canvas.enhanceVideo.submit": "Run",
+  "canvas.enhanceVideo.title": "Enhance Video",
+  "canvas.enhanceVideo.tooltip": "Boost clarity and frame rate for any video",
+  "canvas.entityDrop.error": "Failed to drop asset onto canvas",
+  "canvas.erase": "Erase",
+  "canvas.erase.error": "Erase failed, please retry",
+  "canvas.eraseApply": "Erase",
+  "canvas.eraseRedo": "Redo",
+  "canvas.eraseSubtitle.cancel": "Cancel",
+  "canvas.eraseSubtitle.description":
+    "Automatically detects and removes the caption bar at the bottom of the video. Takes a few minutes; the result appears as a derivation node on the canvas.",
+  "canvas.eraseSubtitle.editor.boxCount": "{{count}} box(es)",
+  "canvas.eraseSubtitle.editor.cancel": "Cancel",
+  "canvas.eraseSubtitle.editor.clearAll": "Clear all",
+  "canvas.eraseSubtitle.editor.hint":
+    "Drag to draw a box; selected boxes can be moved / resized, Delete to remove",
+  "canvas.eraseSubtitle.editor.submit": "Start",
+  "canvas.eraseSubtitle.editor.title": "Select areas to erase",
+  "canvas.eraseSubtitle.error": "Failed to erase subtitles, please retry",
+  "canvas.eraseSubtitle.label": "Erase Subtitles",
+  "canvas.eraseSubtitle.mode.auto": "Auto detect",
+  "canvas.eraseSubtitle.mode.auto.desc":
+    "Automatically detect and remove subtitle text near the bottom of the video (OCR + AIGC repair). Processing time depends on the video length — roughly 6-10x the original duration (longer for clips under 1 minute). Please be patient.",
+  "canvas.eraseSubtitle.mode.manual": "Manual selection",
+  "canvas.eraseSubtitle.mode.manual.desc":
+    "After clicking Start, manually select the text area to remove on the video.",
+  "canvas.eraseSubtitle.modeLabel": "Mode",
+  "canvas.eraseSubtitle.submit": "Run",
+  "canvas.eraseSubtitle.submitManual": "Next",
+  "canvas.eraseSubtitle.title": "Erase Subtitles",
+  "canvas.eraseTool.brush": "Brush",
+  "canvas.eraseTool.eraser": "Eraser",
+  "canvas.eraseTool.lasso": "Lasso",
+  "canvas.eraseTool.rect": "Marquee",
+  "canvas.eraseUndo": "Undo",
+  "canvas.erasing": "Erasing...",
+  "canvas.errorDetail.title": "Error Details",
+  "canvas.errorDetail.viewFull": "Click to view full error",
+  "canvas.errors.concurrency":
+    "This model is at its concurrency limit. Please wait for the previous task to finish and retry.",
+  "canvas.errors.interrupted": "Generation was interrupted. Please retry.",
+  "canvas.errors.network":
+    "Unable to connect to the server. Please check your network connection or try again later.",
+  "canvas.errors.storage":
+    "Local disk space is full. Please free up space and retry.",
+  "canvas.errors.technical":
+    "Generation failed due to a service error. Please retry. If it keeps happening, report the issue.",
+  "canvas.errors.timeout": "The request timed out. Please retry.",
+  "canvas.estimatedRemainingWaitMinutes": "About {{count}} min remaining",
+  "canvas.estimatedRemainingWaitSeconds": "About {{count}} sec remaining",
+  "canvas.execGroup.button": "Run group",
+  "canvas.execGroup.cancel": "Cancel",
+  "canvas.execGroup.complete": "Group execution complete",
+  "canvas.execGroup.empty": "No nodes in group",
+  "canvas.execGroup.failed": "Group execution failed",
+  "canvas.execGroup.incomplete":
+    "Some tasks are still recovering; later steps were paused",
+  "canvas.execGroup.layer": "Executing layer {{current}}/{{total}}",
+  "canvas.execGroup.noExecutable": "No executable nodes in group",
+  "canvas.export": "Export",
+  "canvas.extractAudio": "Extract audio",
+  "canvas.extractAudio.error": "Audio extraction failed",
+  "canvas.extractAudio.silentVideoFailed":
+    "Audio extracted, but silent video copy could not be generated",
+  "canvas.extractFrame": "Capture frame",
+  "canvas.extractingAudio": "Extracting audio…",
+  "canvas.file": "File",
+  "canvas.file.cardView": "Card view",
+  "canvas.file.enterFullscreen": "Enter fullscreen",
+  "canvas.file.exitFullscreen": "Exit fullscreen",
+  "canvas.file.html.activatePreview": "Activate preview",
+  "canvas.file.missing": "File is missing or was moved",
+  "canvas.file.previewView": "Preview view",
+  "canvas.file.refresh": "Refresh",
+  "canvas.file.rename": "Rename",
+  "canvas.file.run": "Run",
+  "canvas.file.showInCanvas": "Show in Canvas",
+  "canvas.file.unknownExt": "Unknown",
+  "canvas.file.unpreviewable": "Cannot preview {{ext}} files",
+  "canvas.file.unpreviewableResourceLimit":
+    "Too many previews open. Inline preview is paused.",
+  "canvas.file.unpreviewableTooLarge": "File too large to preview",
+  "canvas.file.untitled": "Untitled",
+  "canvas.file.viewer.loadFailed": "Preview failed to load",
+  "canvas.file.viewer.loading": "Loading...",
+  "canvas.file.viewer.nextPage": "Next page",
+  "canvas.file.viewer.notFound":
+    "File not found. It may have been deleted or the plugin was uninstalled.",
+  "canvas.file.viewer.prevPage": "Previous page",
+  "canvas.file.viewer.srt.placeholder": "Subtitle content (SRT format)",
+  "canvas.file.viewer.tooLarge": "File is too large to preview",
+  "canvas.file.viewer.zipEntryCount": "{{count}} entries",
+  "canvas.file.viewer.zipName": "Name",
+  "canvas.file.viewer.zipSize": "Size",
+  "canvas.find.matchCase": "Match case",
+  "canvas.find.next": "Next match",
+  "canvas.find.noResults": "No results",
+  "canvas.find.placeholder": "Find",
+  "canvas.find.previous": "Previous match",
+  "canvas.find.regex": "Use regular expression",
+  "canvas.find.replace": "Replace",
+  "canvas.find.replaceAll": "Replace all",
+  "canvas.find.replacePlaceholder": "Replace",
+  "canvas.find.title": "Find",
+  "canvas.find.toggleReplace": "Toggle replace",
+  "canvas.find.wholeWord": "Whole word",
+  "canvas.fit": "Fit",
+  "canvas.fitToView": "Fit to view",
+  "canvas.freeAspect": "Free",
+  "canvas.fullscreen": "Fullscreen",
+  "canvas.fullscreenEdit": "Fullscreen Edit",
+  "canvas.fullscreenPreview": "Fullscreen Preview",
+  "canvas.generate": "Generate",
+  "canvas.generateFailed": "Generation failed. Please try again later.",
+  "canvas.generateNewNode": "Generate New Node",
+  "canvas.generateRefFileMissing":
+    "Reference asset file is missing or the path is invalid. Confirm the file is still in the workspace.",
+  "canvas.generating": "Generating...",
+  "canvas.generatingFinalizing": "Finalizing...",
+  "canvas.generatingTip0": "Preparing generation...",
+  "canvas.generatingTip1": "Analyzing your inputs...",
+  "canvas.generatingTip2": "Building the first draft...",
+  "canvas.generatingTip3": "Refining details...",
+  "canvas.generatingTip4": "Rendering media...",
+  "canvas.generatingTip5": "Checking the result...",
+  "canvas.generatingTip6": "Almost there...",
+  "canvas.generationCancelled": "Generation stopped",
+  "canvas.generationFailed": "Generation failed",
+  "canvas.generationFailedClickToRetry": "Click to edit parameters or retry",
+  "canvas.generationPrompt": "Generation Prompt",
+  "canvas.generationRecovery.description":
+    "The original task is retained. The system will keep checking and fill in the result automatically.",
+  "canvas.generationRecovery.resubmitBlocked":
+    "This content's generation task is retained; it can't be resubmitted yet. Resolve the recovery prompt on the card first.",
+  "canvas.generationRecovery.title": "Result pending recovery",
+  "canvas.generationStatusUnknown.description":
+    'The generation request did not complete. To avoid duplicate generation, the system will not retry automatically. Remove the failed placeholder or click "Report" to help us diagnose the cause.',
+  "canvas.generationStatusUnknown.inPlaceDescription":
+    'The generation request did not complete. Your original content is intact; dismiss this error to keep using it. The system will not retry automatically. Click "Report" to help us diagnose the cause.',
+  "canvas.generationStatusUnknown.reason.concurrency":
+    "Failure reason: the model reached its concurrency limit and this generation could not continue.",
+  "canvas.generationStatusUnknown.reason.interrupted":
+    "Failure reason: the generation was interrupted, for example by an app restart.",
+  "canvas.generationStatusUnknown.reason.network":
+    "Unable to connect to the server. Please check your network connection or try again later.",
+  "canvas.generationStatusUnknown.reason.storage":
+    "Failure reason: local disk space ran out, so the result could not be saved.",
+  "canvas.generationStatusUnknown.reason.technical":
+    "Failure reason: the generation service encountered an error and this generation could not continue.",
+  "canvas.generationStatusUnknown.reason.timeout":
+    "Failure reason: the request timed out and this generation could not continue.",
+  "canvas.generationStatusUnknown.title": "Generation failed",
+  "canvas.group": "Group",
+  "canvas.group.collapse": "Collapse",
+  "canvas.group.expand": "Expand",
+  "canvas.group.layout": "Layout",
+  "canvas.group.layout.grid": "Grid Layout",
+  "canvas.group.layout.horizontal": "Horizontal Layout",
+  "canvas.group.layout.vertical": "Vertical Layout",
+  "canvas.groupBackground": "Background Color",
+  "canvas.groupColor.blue": "Blue",
+  "canvas.groupColor.cyan": "Cyan",
+  "canvas.groupColor.green": "Green",
+  "canvas.groupColor.orange": "Orange",
+  "canvas.groupColor.purple": "Purple",
+  "canvas.groupColor.red": "Red",
+  "canvas.groupColor.reset": "Clear Color",
+  "canvas.groupColor.yellow": "Yellow",
+  "canvas.groupCount": "Group of {{count}} items",
+  "canvas.hailuo03SuperResolution.cancel": "Cancel",
+  "canvas.hailuo03SuperResolution.label": "H3 2K Upscale",
+  "canvas.hailuo03SuperResolution.nativeBadge": "H3 native upscale",
+  "canvas.hailuo03SuperResolution.resolutionLabel": "Resolution",
+  "canvas.hailuo03SuperResolution.submit": "Run",
+  "canvas.hailuo03SuperResolution.title": "H3 2K Upscale",
+  "canvas.hailuo03SuperResolution.tooltip":
+    "Upscale to 2K for higher resolution plus better image quality and detail. {{rate}} credits/sec",
+  "canvas.hailuo03SuperResolution.tooltipEligibility":
+    "Upscale to 2K for higher resolution plus better image quality and detail.",
+  "canvas.hailuo03Trial.claim": "Claim free chances",
+  "canvas.hailuo03Trial.claimFailed":
+    "Unable to claim free chances. Please try again later.",
+  "canvas.hailuo03Trial.claimSuccess": "Claimed {{count}} free chances",
+  "canvas.hailuo03Trial.claiming": "Claiming...",
+  "canvas.hailuo03Trial.freeLabel": "Free",
+  "canvas.hailuo03Trial.freeRemaining": "Free · {{count}} left",
+  "canvas.hailuo03Trial.freeUsed":
+    "This generation was free. {{count}} free chances used.",
+  "canvas.hailuo03Trial.remaining": "{{count}} left",
+  "canvas.heading1": "Heading 1",
+  "canvas.heading2": "Heading 2",
+  "canvas.heading3": "Heading 3",
+  "canvas.help.featureRequest": "Feature Request",
+  "canvas.help.feedback": "Feedback",
+  "canvas.help.shortcuts": "Shortcuts",
+  "canvas.help.shortcutsComingSoon": "Shortcuts coming soon",
+  "canvas.help.tooltip": "Help guide",
+  "canvas.help.trigger": "Help",
+  "canvas.help.tutorial": "Tutorial",
+  "canvas.history.redoBlockedByGeneration":
+    "Can't redo while generating. Please wait until it finishes.",
+  "canvas.history.redoBlockedByRetainedTask":
+    "This content's generation task is retained and can't be redone yet. Resolve the recovery prompt on the card first.",
+  "canvas.history.undoBlockedByGeneration":
+    "Can't undo while generating. Please wait until it finishes.",
+  "canvas.history.undoBlockedByRetainedTask":
+    "This content's generation task is retained and can't be undone yet. Resolve the recovery prompt on the card first.",
+  "canvas.image": "Image",
+  "canvas.imageDesc": "Posters, storyboards, character design",
+  "canvas.imageEdit.label": "Annotate",
+  "canvas.imageEdit.title": "Annotate Image",
+  "canvas.imageLightbox.nextImage": "Next image",
+  "canvas.imageLightbox.previousImage": "Previous image",
+  "canvas.imageMode.firstLastFrame": "First & Last Frame",
+  "canvas.imageMode.omniReference": "Omni Reference",
+  "canvas.imageMode.textToVideo": "Text to Video",
+  "canvas.imageMode.videoExtension": "Extend Video",
+  "canvas.imageNode.generateVariations": "Generate {{count}} variation(s)",
+  "canvas.imageNode.generationCount": "Generation Count",
+  "canvas.imageNode.loadingIndicator": "Generating images",
+  "canvas.imageSlot.entry": "Choose reference image",
+  "canvas.imageSlot.entryAudio": "Select reference audio",
+  "canvas.imageSlot.entryVideo": "Choose reference video",
+  "canvas.imageSlot.firstFrame": "First frame",
+  "canvas.imageSlot.lastFrame": "Last frame",
+  "canvas.imageSlot.refN": "Reference {{n}}",
+  "canvas.imageSlot.remove": "Remove",
+  "canvas.imageSlot.swapFrames": "Swap first and last frames",
+  "canvas.imageToImage": "Image to Image",
+  "canvas.imageToVideo": "Image to Video",
+  "canvas.italic": "Italic",
+  "canvas.lane.emptyClip": "Empty clip - click to generate video",
+  "canvas.lane.insert": "Insert video",
+  "canvas.layerDecompose.costPerImage": "credits/image",
+  "canvas.layerDecompose.error": "Layer splitting failed, please try again",
+  "canvas.layerDecompose.label": "Split Layers",
+  "canvas.layerDecompose.promptLabel": "Layer splitting prompt",
+  "canvas.layerDecompose.promptPlaceholder":
+    "Leave blank to automatically identify and split all major elements; or describe the elements to split in natural language.",
+  "canvas.layerDecompose.start": "Start splitting",
+  "canvas.lightbox.batchSaveCancelled":
+    "Download cancelled. {{count}} files saved.",
+  "canvas.lightbox.batchSavePartial":
+    "Saved {{saved}} files, {{failed}} failed",
+  "canvas.lightbox.batchSaveSuccess": "Saved {{count}} files",
+  "canvas.lightbox.downloadAll": "Download all",
+  "canvas.lightbox.downloadCurrent": "Download",
+  "canvas.lightbox.openInFileExplorer": "Open in File Explorer",
+  "canvas.lightbox.openInFileManager": "Open in File Manager",
+  "canvas.lightbox.openInFinder": "Open in Finder",
+  "canvas.lightbox.selectDownloadFolder": "Choose download folder",
+  "canvas.lightbox.showInFolder": "Show in folder",
+  "canvas.loadError.accessDescription":
+    "This project’s canvas cannot be read right now. Reopen the project, then retry.",
+  "canvas.loadError.initialRetryingTitle": "Reconnecting to Canvas",
+  "canvas.loadError.initialTitle": "Canvas couldn’t be loaded",
+  "canvas.loadError.invalidResponseDescription":
+    "Canvas returned data that could not be read. Your project files were not cleared; retry to load them again.",
+  "canvas.loadError.refreshDescription":
+    "The last successfully loaded content remains available.",
+  "canvas.loadError.refreshRetryingTitle": "Refreshing Canvas…",
+  "canvas.loadError.refreshTitle": "Canvas refresh failed.",
+  "canvas.loadError.retry": "Retry",
+  "canvas.loadError.retrying": "Retrying…",
+  "canvas.loadError.retryingDescription":
+    "Reading the latest canvas content. Existing project data will stay unchanged.",
+  "canvas.loadError.unavailableDescription":
+    "The local Canvas service is not ready yet. It will retry automatically, or you can retry now.",
+  "canvas.loadError.unknownDescription":
+    "Canvas hit an unexpected loading problem. Your project files were not cleared; retry to load them again.",
+  "canvas.loading": "Loading…",
+  "canvas.loadingModels": "Loading...",
+  "canvas.locate.notOnCanvas": "This file is not yet on the canvas",
+  "canvas.lyrics": "Lyrics",
+  "canvas.mdTable.addColLeft": "Insert Column Left",
+  "canvas.mdTable.addColRight": "Insert Column Right",
+  "canvas.mdTable.addRowAbove": "Insert Row Above",
+  "canvas.mdTable.addRowBelow": "Insert Row Below",
+  "canvas.mdTable.delete": "Delete Table",
+  "canvas.mdTable.deleteCol": "Delete Column",
+  "canvas.mdTable.deleteRow": "Delete Row",
+  "canvas.mdTable.insert": "Insert Table",
+  "canvas.mdTable.toNode": "Convert to Table Node",
+  "canvas.mdTable.toNodeDone": "Table node added",
+  "canvas.mdTable.toNodeFailed": "Failed to add table node",
+  "canvas.mediaError.report": "Report",
+  "canvas.mediaSlot.durationOutOfRange":
+    "Reference media must be {{min}}-{{max}} seconds.",
+  "canvas.minimap": "Minimap",
+  "canvas.minimaxH3Max.hoverDescription":
+    "H3 Max is a video generation model post-trained by fal.ai on MiniMax H3 and optimized for high-speed generation. It supports omnireference, text-to-video, and image-to-video.",
+  "canvas.minimaxH3MaxTurbo.hoverDescription":
+    "H3 Max Turbo supports text-to-video and image-to-video, but not omnireference.",
+  "canvas.missingAsset.description":
+    "The asset link is unavailable; the source file may still exist. The node is kept. Deleting it cannot be undone.",
+  "canvas.missingAsset.title": "Asset link unavailable",
+  "canvas.mode.canvas": "Canvas",
+  "canvas.mode.workflow": "Workflow",
+  "canvas.model": "Model",
+  "canvas.modelNew": "New",
+  "canvas.modelSubtitle.accurate": "Accurate",
+  "canvas.modelSubtitle.audioExtension": "Audio Extension",
+  "canvas.modelSubtitle.creative": "Creative",
+  "canvas.modelSubtitle.fullAudioScene": "Full Audio Scene",
+  "canvas.modelSubtitle.lowCost": "Best value",
+  "canvas.modelSubtitle.polishedWriting": "Polished writing",
+  "canvas.modelSubtitle.textToSpeech": "Text to Speech",
+  "canvas.moveObject.empty": "No selection",
+  "canvas.moveObject.error": "Failed to move object. Please retry.",
+  "canvas.moveObject.hint.editObject":
+    "Edit to change the object or add details.",
+  "canvas.moveObject.label": "Move Object",
+  "canvas.moveObject.objectSelection": "Object Selection",
+  "canvas.moveObject.reset": "Clear selection",
+  "canvas.moveObject.run": "Run",
+  "canvas.moveObject.thumbnailAlt": "Selected object",
+  "canvas.moveObject.title": "Move Object",
+  "canvas.moveObject.tool.lasso": "Lasso",
+  "canvas.moveObject.tool.rect": "Rectangle",
+  "canvas.moveObject.undo": "Undo selection",
+  "canvas.multiAngle": "AnyAngle",
+  "canvas.multiImage.countUnit": " images",
+  "canvas.multiImage.deleteImage": "Delete image",
+  "canvas.multiImage.downloadImage": "Download image",
+  "canvas.multiImage.setAsPrimary": "Set as primary",
+  "canvas.multiImage.slotErrorGeneric": "Generation failed",
+  "canvas.multiImage.slotLoading": "Generating...",
+  "canvas.multiImage.splitAll": "Split round",
+  "canvas.multiImage.splitMain": "Split to Node",
+  "canvas.multiImage.splitToNode": "Split to Node",
+  "canvas.multiMedia.collapseView": "Collapse view",
+  "canvas.multiMedia.expandView": "Expand {{count}}",
+  "canvas.multiVideo.countUnit": " clips",
+  "canvas.multiVideo.deleteVideo": "Delete video",
+  "canvas.multiVideo.downloadVideo": "Download video",
+  "canvas.multiVideo.setAsPrimary": "Set as primary video",
+  "canvas.multiVideo.slotFailed": "Generation failed",
+  "canvas.multiVideo.slotLoading": "Generating...",
+  "canvas.musicStyle": "Music Style",
+  "canvas.newNodeReady": "Node ready, take a look",
+  "canvas.newNodeReady.action": "Show me",
+  "canvas.newNodeReady.crossWorkspace": "Node ready in {{workspace}}",
+  "canvas.newNodesReady": "{{count}} nodes ready, take a look",
+  "canvas.newNodesReady.crossWorkspace":
+    "{{count}} nodes ready in {{workspace}}",
+  "canvas.noModels": "No models available",
+  "canvas.orderedList": "Ordered List",
+  "canvas.outpaint": "Outpaint",
+  "canvas.outpaint.error": "Outpaint failed, please retry",
+  "canvas.outpaintGenerate": "Generate",
+  "canvas.outpaintPreset": "Preset",
+  "canvas.outpaintRatio.cover": "Cover Photo",
+  "canvas.outpaintRatio.landscape": "Landscape",
+  "canvas.outpaintRatio.original": "Original",
+  "canvas.outpaintRatio.portrait": "Portrait",
+  "canvas.outpaintRatio.post": "Post",
+  "canvas.outpaintRatio.profile": "Profile",
+  "canvas.outpaintRatio.square": "Square",
+  "canvas.outpaintRatio.story": "Story",
+  "canvas.outpaintRatio.video": "Video",
+  "canvas.outpaintResolution": "Resolution",
+  "canvas.outpaintScale": "Scale",
+  "canvas.outpaintStylePreset.facebook": "Facebook",
+  "canvas.outpaintStylePreset.general": "General",
+  "canvas.outpaintStylePreset.instagram": "Instagram",
+  "canvas.outpaintStylePreset.linkedin": "LinkedIn",
+  "canvas.outpaintStylePreset.tiktok": "TikTok",
+  "canvas.outpaintStylePreset.twitter": "Twitter",
+  "canvas.outpainting": "Generating...",
+  "canvas.panorama.addReference": "Add reference",
+  "canvas.panorama.autoRotate": "Auto rotate",
+  "canvas.panorama.capture": "Capture current view",
+  "canvas.panorama.capture12": "Capture 12 views",
+  "canvas.panorama.capture4": "Capture 4 views",
+  "canvas.panorama.captureCreated": "Image node created",
+  "canvas.panorama.captureCreating":
+    "Uploading the panorama capture and creating an image node...",
+  "canvas.panorama.captureFailed": "Failed to create panorama capture",
+  "canvas.panorama.count": "Count",
+  "canvas.panorama.empty": "Connect a panorama image, then drag to look around",
+  "canvas.panorama.enterPreview": "Enter panorama mode",
+  "canvas.panorama.error": "Failed to load panorama",
+  "canvas.panorama.exitFullscreen": "Exit fullscreen mode",
+  "canvas.panorama.exitPreview": "Exit panorama mode",
+  "canvas.panorama.fullscreen": "Enter fullscreen mode",
+  "canvas.panorama.generate": "Generate panorama with AI",
+  "canvas.panorama.generateAction": "Generate",
+  "canvas.panorama.generatePlaceholder":
+    "Click Generate to instantly turn a scene image into a 720° panorama, or add text and reference images to create the panorama you envision.",
+  "canvas.panorama.generating": "Generating…",
+  "canvas.panorama.guides": "Composition guides",
+  "canvas.panorama.loading": "Loading panorama…",
+  "canvas.panorama.pick": "Change panorama",
+  "canvas.panorama.quality": "Image Quality",
+  "canvas.panorama.quality.high": "High",
+  "canvas.panorama.quality.low": "Low",
+  "canvas.panorama.quality.medium": "Medium",
+  "canvas.panorama.reset": "Reset view",
+  "canvas.panorama.resolution": "Resolution",
+  "canvas.panorama.title": "Panorama",
+  "canvas.panorama.zoomIn": "Zoom in",
+  "canvas.panorama.zoomOut": "Zoom out",
+  "canvas.paragraph": "Paragraph",
+  "canvas.param.adjust": "Adjust parameters",
+  "canvas.param.chip.placeholder": "Parameters",
+  "canvas.param.durationRange":
+    "Duration must be between {{min}} and {{max}} seconds",
+  "canvas.param.option.4k": "4K",
+  "canvas.param.option.adaptive": "Auto",
+  "canvas.param.option.auto": "Auto",
+  "canvas.param.option.balanced": "Balanced",
+  "canvas.param.option.disabled": "Disabled",
+  "canvas.param.option.high": "High",
+  "canvas.param.option.image": "Image",
+  "canvas.param.option.low": "Low",
+  "canvas.param.option.max": "Max",
+  "canvas.param.option.medium": "Medium",
+  "canvas.param.option.no": "No",
+  "canvas.param.option.opaque": "Opaque",
+  "canvas.param.option.pro": "1080P",
+  "canvas.param.option.quality": "High quality",
+  "canvas.param.option.std": "720P",
+  "canvas.param.option.transparent": "Transparent",
+  "canvas.param.option.video": "Video",
+  "canvas.param.option.xhigh": "Extra High",
+  "canvas.param.option.yes": "Yes",
+  "canvas.param.popup.title": "Settings",
+  "canvas.param.resolutionTooltip.h3.2K":
+    "Generate 2K video directly for better quality and detail",
+  "canvas.param.resolutionTooltip.h3.768P":
+    "Lower cost, ideal for multiple attempts; upscale to 2K afterwards for better quality and detail",
+  "canvas.param.seedance25AdaptiveRatioHint":
+    "In first/last-frame mode, the aspect ratio follows the input and only Auto is supported.",
+  "canvas.param.seedance25InheritedVideoRatioHint":
+    "The aspect ratio follows the input video in Edit Video and Extend Video modes. Only Auto is supported.",
+  "canvas.param.slider.decrease": "Decrease",
+  "canvas.param.slider.increase": "Increase",
+  "canvas.param.std.aspectRatio": "Aspect Ratio",
+  "canvas.param.std.duration": "Duration",
+  "canvas.param.std.imageMode": "Generation Mode",
+  "canvas.param.std.resolution": "Resolution",
+  "canvas.params.aspectRatio": "Aspect Ratio",
+  "canvas.params.audioUrl": "Original Audio URL",
+  "canvas.params.background": "Background",
+  "canvas.params.chaos": "Chaos",
+  "canvas.params.characterOrientation": "Character Orientation",
+  "canvas.params.clarity": "Clarity",
+  "canvas.params.coverFeatureId": "Cover Feature ID",
+  "canvas.params.custom": "Custom",
+  "canvas.params.duration": "Duration",
+  "canvas.params.durationMinSeconds": "Minimum duration {{n}}s",
+  "canvas.params.durationMinutes": "Minutes",
+  "canvas.params.durationOption": "{{duration}}s",
+  "canvas.params.durationSeconds": "Seconds",
+  "canvas.params.emotion": "Emotion",
+  "canvas.params.generateAudio": "Sound",
+  "canvas.params.generateAudio.off": "Silent",
+  "canvas.params.generateAudio.on": "With Audio",
+  "canvas.params.generateAudioOff": "Silent",
+  "canvas.params.generateAudioOn": "With Audio",
+  "canvas.params.imageMode": "Generation Mode",
+  "canvas.params.imageQuality": "Image Quality",
+  "canvas.params.keepOriginalSound": "Keep Original Sound",
+  "canvas.params.lyrics": "Lyrics",
+  "canvas.params.musicMode": "Music Mode",
+  "canvas.params.outputFormat": "Output Format",
+  "canvas.params.pitch": "Pitch",
+  "canvas.params.placeholder.audioUrl":
+    "https://... or Hilo workspace relative path",
+  "canvas.params.placeholder.coverFeatureId":
+    "Returned by preprocessing; leave empty for one-step mode",
+  "canvas.params.placeholder.durationMm": "mm",
+  "canvas.params.placeholder.durationMmss": "mm:ss",
+  "canvas.params.placeholder.durationSs": "ss",
+  "canvas.params.placeholder.lyrics": "Optional lyrics",
+  "canvas.params.promptExpansion": "Prompt expansion",
+  "canvas.params.quality": "Quality",
+  "canvas.params.ratio": "Aspect Ratio",
+  "canvas.params.referenceType": "Reference Type",
+  "canvas.params.resolution": "Resolution",
+  "canvas.params.sampleRate": "Sample Rate",
+  "canvas.params.sound": "Sound",
+  "canvas.params.speed": "Speed",
+  "canvas.params.style": "Style",
+  "canvas.params.stylize": "Stylize",
+  "canvas.params.version": "Version",
+  "canvas.params.voiceId": "Voice",
+  "canvas.params.volume": "Volume",
+  "canvas.params.weird": "Weird",
+  "canvas.paste": "Paste",
+  "canvas.pasteFailed": "Paste failed",
+  "canvas.pause": "Pause",
+  "canvas.pending": "Queued...",
+  "canvas.persistence.failed": "Canvas changes haven't been saved",
+  "canvas.persistence.failedDetail":
+    "Keep this workspace open and retry. Closing now could discard your latest changes.",
+  "canvas.persistence.highBlastDeleteAction": "Delete",
+  "canvas.persistence.highBlastDeleteConfirm":
+    "This will remove {{nodeCount}} nodes and {{edgeCount}} connections from the canvas. Continue?",
+  "canvas.persistence.highBlastDeleteStale":
+    "The canvas changed, so this deletion was cancelled. Please try again.",
+  "canvas.persistence.highBlastDeleteTitle": "Confirm large canvas deletion",
+  "canvas.persistence.highBlastDeleteUnavailable":
+    "This large deletion cannot be confirmed right now. Nothing was changed; please try again.",
+  "canvas.play": "Play",
+  "canvas.plugin": "Plugin",
+  "canvas.plugin.openLauncher": "Open {{name}}",
+  "canvas.plugin.openVideoEditor": "Open Video Editor",
+  "canvas.pluginDesc": "Browse and add plugins",
+  "canvas.pluginExploreMore": "Explore more",
+  "canvas.pluginMarketAlreadyOpen": "Plugin marketplace is already open",
+  "canvas.plugins": "Plugins",
+  "canvas.pluginsEmpty": "No plugins installed",
+  "canvas.popover.collapse": "Collapse",
+  "canvas.popover.expand": "Expand",
+  "canvas.popover.restoreOriginalDraft":
+    "Revert to original generation parameters",
+  "canvas.preview": "Preview",
+  "canvas.previewTruncated": "Double-click to view all",
+  "canvas.promoteToAsset": "Save as Asset",
+  "canvas.prompt": "Prompt",
+  "canvas.prompt.copied": "Prompt copied",
+  "canvas.prompt.copy": "Copy prompt",
+  "canvas.prompt.fontSize": "Adjust prompt font size",
+  "canvas.prompt.fontSizeReset": "Reset prompt font size",
+  "canvas.prompt.tooLong":
+    "Prompt is too long ({{current}} characters, maximum {{max}}). Shorten it and try again.",
+  "canvas.prompt.unresolvedRefs":
+    "The following references were not found in attachments and were kept as-is: {{refs}}",
+  "canvas.promptDescribe": "Describe anything you want to generate",
+  "canvas.promptAtPrefix": ", click ",
+  "canvas.promptAtSuffix": " to add reference content.",
+  "canvas.promptDescribeH3": "Describe the content you would like to generate",
+  "canvas.promptDescribeH3Connector": " or ",
+  "canvas.promptDescribeH3Guide": "H3 User Guide",
+  "canvas.promptDescribeH3GuidePrefix": "explore ",
+  "canvas.promptDraftSaveFailed":
+    "Couldn't save your prompt. Your draft is still here—please try again.",
+  "canvas.promptLengthExceeded": "Exceeded",
+  "canvas.promptPlaceholder": "Enter prompt (optional)",
+  "canvas.promptRequired": "Enter prompt",
+  "canvas.providerTaskId": "Task ID",
+  "canvas.queueCancel": "Cancel queue",
+  "canvas.queueCancelFailed": "Failed to cancel queue",
+  "canvas.queueCancelSubmitted": "Queue paused",
+  "canvas.queuePaused": "Queue paused",
+  "canvas.queueResume": "Resume queue",
+  "canvas.quickAction.plan.label": "Generate Proposal",
+  "canvas.quickAction.plan.prompt":
+    "Write a [project type] proposal.\nBackground: [brief]\nCore goal: [what to achieve]\nTarget audience: [description]",
+  "canvas.quickAction.prompt.label": "Generate Prompts",
+  "canvas.quickAction.prompt.prompt":
+    "Based on the following creative brief, generate a set of high-quality prompts for [target tool].\nCreative brief: [describe the image/music/video you want]\nStyle preference: [realistic/illustration/3D/anime/other]",
+  "canvas.quickAction.script.label": "Generate Script",
+  "canvas.quickAction.script.prompt":
+    "Write a [duration] [genre] script.\nTheme: [one-line description]\nTone: [warm/suspense/comedy/thrilling]\nSpecial requirements: [if any]",
+  "canvas.quickAction.try": "Try:",
+  "canvas.quickAction.write.label": "Write it myself",
+  "canvas.redo": "Redo",
+  "canvas.redraw.addAttachment": "Add reference image",
+  "canvas.redraw.attachment.noAssets": "No images on the canvas yet",
+  "canvas.redraw.attachment.pick": "Pick from canvas",
+  "canvas.redraw.attachment.selectedCount": "{{count}} selected",
+  "canvas.redraw.attachment.title": "Add reference image",
+  "canvas.redraw.attachment.upload": "Upload new image",
+  "canvas.redraw.attachment.uploadDesc":
+    "The image will be saved to the current workspace and can be reused.",
+  "canvas.redraw.attachment.uploadHint": "Click to choose an image",
+  "canvas.redraw.attachment.uploading": "Uploading...",
+  "canvas.redraw.disabled.noPrompt": "Enter a prompt describing the change",
+  "canvas.redraw.disabled.noStrokes": "Paint the area you want to redraw first",
+  "canvas.redraw.disabled.noStrokesAndPrompt":
+    "Paint the area to redraw and enter a prompt",
+  "canvas.redraw.disabled.submitting": "Sending, please wait",
+  "canvas.redraw.error": "Redraw failed, please retry",
+  "canvas.redraw.label": "Redraw",
+  "canvas.redraw.placeholder": "Describe what you want to change...",
+  "canvas.redraw.placeholderWithAttachment":
+    "Put the [object] from the reference here",
+  "canvas.redraw.send": "Send",
+  "canvas.redraw.toastPlaceholder": "Redraw is coming soon",
+  "canvas.referenceImages": "Reference Images",
+  "canvas.refundHint.notCharged": "Not charged",
+  "canvas.refundHint.pending": "Credit refund in progress",
+  "canvas.refundHint.refundedNoAmount": "Credits refunded",
+  "canvas.refundHint.refundedWithAmount": "Refunded {{count}} credits",
+  "canvas.releaseBadgeNew": "NEW",
+  "canvas.relight": "Relight",
+  "canvas.removeBg.error": "Remove background failed, please retry",
+  "canvas.removeBg.label": "Remove Background",
+  "canvas.removeLocalPlaceholder": "Delete failed placeholder",
+  "canvas.renameFailed": "Rename failed",
+  "canvas.replaceCurrentNode": "Replace Current",
+  "canvas.reportGenerationFailure": "Report failure",
+  "canvas.reportGenerationFailureTooltip": "Report this generation failure",
+  "canvas.reportGenerationRecoveryTooltip": "Report a result recovery issue",
+  "canvas.reportGenerationTrackingTooltip":
+    "Report a generation tracking issue",
+  "canvas.retryGeneration.failed":
+    "Retry submission failed. Please try again later.",
+  "canvas.retryGeneration.retrying": "Retrying...",
+  "canvas.retryGeneration.submitted": "Generation retry submitted",
+  "canvas.rotate.flipH": "Flip horizontally",
+  "canvas.rotate.flipV": "Flip vertically",
+  "canvas.rotate.label": "Rotate",
+  "canvas.rotate.save": "Save",
+  "canvas.rotate.saving": "Saving",
+  "canvas.rotate.scrub":
+    "Drag left or right to adjust the angle. Hold Shift for faster changes.",
+  "canvas.rotate.step90": "Rotate {{degrees}}°",
+  "canvas.rotate.title": "Rotate & Flip",
+  "canvas.save": "Save",
+  "canvas.saveToProjectAssets": "Save to Project Assets",
+  "canvas.seedAudio.refMutuallyExclusive":
+    "Reference audio and reference image cannot be used together; please keep only one.",
+  "canvas.seedance25.omniMode.durationUnavailable":
+    "Could not read the input video duration. Choose another video.",
+  "canvas.seedance25.omniMode.edit": "Edit Video",
+  "canvas.seedance25.omniMode.editInputDurationRange":
+    "The input video for editing must be between 4 and 30 seconds.",
+  "canvas.seedance25.omniMode.extend": "Extend Video",
+  "canvas.settings": "Settings",
+  "canvas.showInFolder": "Show in Folder",
+  "canvas.split": "Split",
+  "canvas.splitGrid.batchFailed":
+    "HD storyboard group generation failed, please retry",
+  "canvas.splitGrid.batchSelectHint": "Hold Shift to select multiple",
+  "canvas.splitGrid.cropSplit": "Group",
+  "canvas.splitGrid.createGroup": "Create Storyboard Group",
+  "canvas.splitGrid.createGroupTooltip":
+    "Split the selected cells into images and create a storyboard group. This uses no credits.",
+  "canvas.splitGrid.cropSplitGroupLabel": "Storyboard Group",
+  "canvas.splitGrid.custom": "Custom",
+  "canvas.splitGrid.customTitle": "Custom Grid",
+  "canvas.splitGrid.generateHd": "Generate HD",
+  "canvas.splitGrid.generateHdTooltip":
+    "Enhance the selected grid images and create a storyboard group.",
+  "canvas.splitGrid.generating": "Generating…",
+  "canvas.splitGrid.groupFailed": "Grouping failed, generation will continue",
+  "canvas.splitGrid.groupLabel": "HD Storyboard Group",
+  "canvas.splitGrid.hd2x": "2x HD",
+  "canvas.splitGrid.hd4x": "4x HD",
+  "canvas.splitGrid.label": "Split Grid",
+  "canvas.splitGrid.magnification": "Choose HD scale",
+  "canvas.splitGrid.noPlaceholders":
+    "Could not create any placeholder, please retry",
+  "canvas.splitGrid.partialFail": "{{count}} cells failed to generate",
+  "canvas.splitGrid.placeholderFailed":
+    "Failed to create placeholder, please retry",
+  "canvas.splitGrid.preset": "{{n}}-Grid",
+  "canvas.splitGrid.scale": "{{magnification}}x",
+  "canvas.splitGrid.selectHint": "Select cells to split",
+  "canvas.splitGrid.selectedCount": "{{count}} cells selected",
+  "canvas.sticker.asset.approved": "Approved",
+  "canvas.sticker.asset.dot": "Dot",
+  "canvas.sticker.asset.heart": "Heart",
+  "canvas.sticker.asset.question": "Question",
+  "canvas.sticker.asset.rejected": "Rejected",
+  "canvas.sticker.asset.star": "Star",
+  "canvas.sticker.asset.thumbsDown": "Thumbs down",
+  "canvas.sticker.asset.thumbsUp": "Thumbs up",
+  "canvas.sticker.collapse": "Hide stickers",
+  "canvas.sticker.expand": "Show more stickers",
+  "canvas.storyboardGrid": "Storyboard",
+  "canvas.subtitleRowEmptyHint":
+    "Subtitle track — double-click here or tap + Subtitle in the toolbar",
+  "canvas.subtitleStyleColor": "Color",
+  "canvas.subtitleStyleDelete": "Delete",
+  "canvas.subtitleStyleFontSize": "Size",
+  "canvas.subtitleStyleOutline": "Outline",
+  "canvas.subtitleStylePosition": "Position",
+  "canvas.superResolution.error": "Super resolution failed, please retry",
+  "canvas.superResolution.label": "HD",
+  "canvas.superResolution.tier.2k": "2K",
+  "canvas.superResolution.tier.2kDesc": "~2048 px long edge",
+  "canvas.superResolution.tier.4k": "4K",
+  "canvas.superResolution.tier.4kDesc": "~3840 px long edge",
+  "canvas.superResolution.tier.8k": "8K",
+  "canvas.superResolution.tier.8kDesc": "~7680 px long edge",
+  "canvas.superResolution.title": "Choose HD level",
+  "canvas.superResolution.toastError":
+    "HD upscale failed, please try again later",
+  "canvas.superResolution.toastPlaceholder": "HD upscale is coming soon",
+  "canvas.switchTo": "Switch to {{mode}}",
+  "canvas.table": "Table",
+  "canvas.table.addColumn": "Add column",
+  "canvas.table.addField": "Add field",
+  "canvas.table.addRow": "Add row",
+  "canvas.table.attachment.add": "Add attachment",
+  "canvas.table.attachment.noAssets": "No media in this workspace yet",
+  "canvas.table.attachment.pick": "Choose from workspace",
+  "canvas.table.attachment.selectedCount": "{{count}} selected",
+  "canvas.table.attachment.upload": "Upload new",
+  "canvas.table.attachment.uploadDesc":
+    "File will be saved to your workspace and can be reused.",
+  "canvas.table.attachment.uploadHint": "Click to choose a file",
+  "canvas.table.attachment.uploading": "Uploading...",
+  "canvas.table.defaultColumn": "Text",
+  "canvas.table.deselectAll": "Deselect all",
+  "canvas.table.deselectRow": "Deselect",
+  "canvas.table.dragField": "Drag to reorder",
+  "canvas.table.dragRow": "Drag to reorder",
+  "canvas.table.empty": "No visible columns",
+  "canvas.table.field.attachment": "Attachment",
+  "canvas.table.field.delete": "Delete",
+  "canvas.table.field.edit": "Edit",
+  "canvas.table.field.number": "Number",
+  "canvas.table.field.text": "Text",
+  "canvas.table.fieldConfig": "Field configuration",
+  "canvas.table.fieldMore": "More",
+  "canvas.table.fieldName": "Title",
+  "canvas.table.fieldNamePlaceholder": "Enter field title",
+  "canvas.table.fieldType": "Type",
+  "canvas.table.filter": "Filter",
+  "canvas.table.filter.addCondition": "Add condition",
+  "canvas.table.filter.clear": "Clear",
+  "canvas.table.filter.contains": "contains",
+  "canvas.table.filter.empty": "is empty",
+  "canvas.table.filter.equals": "equals",
+  "canvas.table.filter.field": "Field",
+  "canvas.table.filter.gt": "greater than",
+  "canvas.table.filter.gte": "greater or equal",
+  "canvas.table.filter.lt": "less than",
+  "canvas.table.filter.lte": "less or equal",
+  "canvas.table.filter.match.all": "all",
+  "canvas.table.filter.match.any": "any",
+  "canvas.table.filter.match.prefix": "Match",
+  "canvas.table.filter.match.suffix": "of the following",
+  "canvas.table.filter.noColumns": "Add a column first to start filtering.",
+  "canvas.table.filter.none": "— Select field —",
+  "canvas.table.filter.notContains": "not contains",
+  "canvas.table.filter.notEmpty": "is not empty",
+  "canvas.table.filter.notEquals": "not equals",
+  "canvas.table.filter.operator": "Operator",
+  "canvas.table.filter.removeCondition": "Remove condition",
+  "canvas.table.filter.title": "Set filter conditions",
+  "canvas.table.filter.value": "Value",
+  "canvas.table.filter.valuePlaceholder": "Enter value",
+  "canvas.table.hideField": "Hide",
+  "canvas.table.importFailed":
+    "Can't import table file {{name}}: corrupted or unsupported version",
+  "canvas.table.loading": "Loading...",
+  "canvas.table.moreCols": "+{{count}} cols",
+  "canvas.table.moreRows": "+{{count}} rows",
+  "canvas.table.noColumns": "No columns",
+  "canvas.table.noRows": "No rows yet — click + below to add one",
+  "canvas.table.removeSelected": "Remove ({{count}})",
+  "canvas.table.resizeColumn": "Resize column",
+  "canvas.table.resizeRow": "Resize row",
+  "canvas.table.rowHeight": "Row height",
+  "canvas.table.rowHeight.extraTall": "Extra tall",
+  "canvas.table.rowHeight.low": "Low",
+  "canvas.table.rowHeight.medium": "Medium",
+  "canvas.table.rowHeight.tall": "Tall",
+  "canvas.table.saveFailed": "Failed to save table",
+  "canvas.table.selectAll": "Select all",
+  "canvas.table.selectRow": "Select",
+  "canvas.table.showField": "Show",
+  "canvas.table.untitled": "Untitled table",
+  "canvas.table.untitledColumn": "Untitled",
+  "canvas.tableDesc": "Structured data with rows and columns",
+  "canvas.text": "Text",
+  "canvas.text.previewEmpty": "Empty file",
+  "canvas.text.previewLoadFailed": "Failed to load content",
+  "canvas.text.previewTruncated": "Truncated",
+  "canvas.text.previewUnavailable": "Preview unavailable",
+  "canvas.textConflict.banner":
+    "The Agent edited this file while you were editing it. Choose a side for every region — you can only leave once all of them are handled.",
+  "canvas.textConflict.blockedClose": "Resolve every conflict before leaving",
+  "canvas.textConflict.coarseHint":
+    "Too many changes — shown as a single merged region.",
+  "canvas.textConflict.counter": "{{current}} / {{total}}",
+  "canvas.textConflict.done": "Apply merge",
+  "canvas.textConflict.emptySide": "(nothing on this side)",
+  "canvas.textConflict.externalSide": "Agent's version",
+  "canvas.textConflict.hunkLabel": "Conflict {{index}}",
+  "canvas.textConflict.mineSide": "My version",
+  "canvas.textConflict.next": "Next",
+  "canvas.textConflict.prev": "Previous",
+  "canvas.textConflict.remaining": "{{count}} left to handle",
+  "canvas.textConflict.title": "Conflicts to resolve",
+  "canvas.textConflict.unresolvedTag": "Unresolved",
+  "canvas.textConflict.useAllExternal": "Use Agent's for all",
+  "canvas.textConflict.useAllMine": "Use mine for all",
+  "canvas.textConflict.useExternal": "Use Agent's",
+  "canvas.textConflict.useMine": "Use mine",
+  "canvas.textConflictDescription":
+    "The file was modified externally while you were editing. Choose how to handle your local changes.",
+  "canvas.textConflictKeepMine": "Keep mine",
+  "canvas.textConflictTitle": "File modified externally",
+  "canvas.textConflictUseExternal": "Discard mine",
+  "canvas.textDesc": "Scripts, ad copy, branding",
+  "canvas.textDraft.saveFailed": "Save failed",
+  "canvas.textDraft.saved": "Saved",
+  "canvas.textDraft.saving": "Saving…",
+  "canvas.textEdit": "Edit text",
+  "canvas.textNode.placeholder.create":
+    "Answer questions, translate, brainstorm, write or refine copy, analyze material",
+  "canvas.textNode.placeholder.intro": "I'm your creative assistant, I can:",
+  "canvas.textToAudio": "Generate Audio",
+  "canvas.textToText": "Text node",
+  "canvas.textVersion.agentSnapshot": "Auto-saved before Agent edit",
+  "canvas.textVersion.aiNote": "AI fill",
+  "canvas.textVersion.aiNoteFailed":
+    "Could not generate. Please write it yourself.",
+  "canvas.textVersion.aiNoteGenerating": "Generating…",
+  "canvas.textVersion.autoSnapshot": "Content before restore",
+  "canvas.textVersion.autoSnapshotTargetNote":
+    "Automatically saved when restoring “{{name}}”",
+  "canvas.textVersion.autoSnapshotTargetNoteRich":
+    "Automatically saved when restoring <target>“{{name}}”</target>",
+  "canvas.textVersion.back": "Back to editing",
+  "canvas.textVersion.contentMissing": "Content missing",
+  "canvas.textVersion.contentMissingHint":
+    "This version's content was not included in the export; only its title and note remain.",
+  "canvas.textVersion.copiedToCanvas": "Copied to canvas",
+  "canvas.textVersion.copyFailed": "Could not copy to canvas",
+  "canvas.textVersion.copyToCanvas": "Copy to canvas",
+  "canvas.textVersion.current": "Current",
+  "canvas.textVersion.diff": "Compare with current",
+  "canvas.textVersion.diffCoarse":
+    "Too many changes; showing the merged changed region only.",
+  "canvas.textVersion.diffTruncated":
+    "Too many changes; showing the first {{count}}.",
+  "canvas.textVersion.empty": "No versions yet",
+  "canvas.textVersion.historyTitle": "Version history",
+  "canvas.textVersion.initial": "Initial version",
+  "canvas.textVersion.name": "Name",
+  "canvas.textVersion.nameTitle": "Name this version",
+  "canvas.textVersion.next": "Next version",
+  "canvas.textVersion.noChanges":
+    "Identical to the current content — no differences.",
+  "canvas.textVersion.noteLabel": "Note",
+  "canvas.textVersion.notePlaceholder": "What changed in this version?",
+  "canvas.textVersion.previous": "Previous version",
+  "canvas.textVersion.restore": "Restore this version",
+  "canvas.textVersion.restoreFailed": "Restore failed",
+  "canvas.textVersion.restoreNoChanges":
+    "Current content already matches this version",
+  "canvas.textVersion.restored": "Version restored",
+  "canvas.textVersion.restoredWithSnapshot":
+    "Restored. The previous content was saved as a new version.",
+  "canvas.textVersion.saveFailed": "Could not save the version",
+  "canvas.textVersion.saveNoChanges": "No changes to save",
+  "canvas.textVersion.saveTitle": "Save version",
+  "canvas.textVersion.saved": "Version saved",
+  "canvas.textVersion.saving": "Saving…",
+  "canvas.textVersion.savingStatus": "Saving version…",
+  "canvas.textVersion.titleLabel": "Title",
+  "canvas.textVersion.unnamed": "Version {{n}}",
+  "canvas.tidy": "Tidy",
+  "canvas.tidy.grid": "Grid layout",
+  "canvas.tidy.horizontal": "Horizontal layout",
+  "canvas.tidy.includeDeps": "Tidy connected upstream and downstream",
+  "canvas.tidy.includeDeps.hint":
+    "Use node connections to align upstream and downstream structure",
+  "canvas.tidy.layouts": "Layout",
+  "canvas.tidy.mixedSelection":
+    "Can't lay out across groups or mixed inside/outside a group — select items within a single group only",
+  "canvas.tidy.sort": "Sort into groups",
+  "canvas.tidy.sort.connections": "By connections",
+  "canvas.tidy.sort.connections.hint":
+    "Arrange connected nodes by dependency on top, and pack discrete nodes below",
+  "canvas.tidy.sort.mediaType": "By media type",
+  "canvas.tidy.sort.mediaType.hint":
+    "Split into lanes by image / video / audio / text and other media types, ignoring connections",
+  "canvas.tidy.vertical": "Vertical layout",
+  "canvas.tooManyConcurrentGenerations":
+    "You already have {{max}} generations running. Please wait for some to finish before starting more.",
+  "canvas.toolbar.addNode": "Add node",
+  "canvas.toolbar.assets": "Subject Library",
+  "canvas.toolbar.assetsHint":
+    "Subject Library entry is ready for the workspace asset panel.",
+  "canvas.toolbar.background": "Background",
+  "canvas.toolbar.background.dots": "Dots",
+  "canvas.toolbar.background.grid": "Grid",
+  "canvas.toolbar.background.none": "Solid",
+  "canvas.toolbar.backgroundPattern": "Pattern",
+  "canvas.toolbar.backgroundTone": "Background color",
+  "canvas.toolbar.canvasSettings": "Canvas settings",
+  "canvas.toolbar.clearStickers": "Clear",
+  "canvas.toolbar.clearStickersAction": "Clear all",
+  "canvas.toolbar.clearStickersConfirm":
+    "Clear all stickers from this canvas? This can be undone once.",
+  "canvas.toolbar.clearStickersTitle": "Clear all stickers",
+  "canvas.toolbar.comments": "Comments",
+  "canvas.toolbar.commentsHint":
+    "Click the canvas or a node to capture its comment context.",
+  "canvas.toolbar.content": "Canvas content",
+  "canvas.toolbar.contentHint": "{{count}} nodes are currently on this canvas.",
+  "canvas.toolbar.handTool": "Hand tool",
+  "canvas.toolbar.help": "Help",
+  "canvas.toolbar.helpHint":
+    "Use ? to open shortcuts. F1 opens this help panel.",
+  "canvas.toolbar.hideStickers": "Hide all",
+  "canvas.toolbar.label": "Canvas tools",
+  "canvas.toolbar.moreColors": "Other colors",
+  "canvas.toolbar.moreStickers": "More stickers",
+  "canvas.toolbar.move": "Move",
+  "canvas.toolbar.select": "Select",
+  "canvas.toolbar.shortcuts": "Keyboard shortcuts",
+  "canvas.toolbar.showStickers": "Show all",
+  "canvas.toolbar.sticker": "Sticker",
+  "canvas.toolbar.stickerActive":
+    "Sticker mode active — click to stamp repeatedly.",
+  "canvas.toolbar.stickerBound": "follows target",
+  "canvas.toolbar.stickerCount": "{{count}} stickers",
+  "canvas.toolbar.stickerDescription":
+    "Choose a Sticker, turn on stamping, and click the canvas to place it; stickers on nodes follow their movement while free stickers stay in place.",
+  "canvas.toolbar.stickerFree": "free sticker",
+  "canvas.toolbar.stickerHint":
+    "Sticker mode will place world-coordinate marks on the canvas.",
+  "canvas.toolbar.stickerInactive":
+    "Choose a sticker and click the canvas to start stamping.",
+  "canvas.toolbar.stickerMode": "Stamp",
+  "canvas.toolbar.stickerRelationHint":
+    "A sticker that follows a target moves and scales with the selected output; a free sticker stays at its canvas position.",
+  "canvas.toolbar.stickers": "Stickers",
+  "canvas.toolbar.tone.blush": "Blush",
+  "canvas.toolbar.tone.cool-gray": "Cool gray",
+  "canvas.toolbar.tone.default": "Default",
+  "canvas.toolbar.tone.lavender": "Lavender",
+  "canvas.toolbar.tone.mist-blue": "Mist blue",
+  "canvas.toolbar.tone.paper": "Paper",
+  "canvas.toolbar.tone.sage": "Sage",
+  "canvas.toolbar.tone.sand": "Sand",
+  "canvas.toolbar.tone.warm-gray": "Warm gray",
+  "canvas.toolbar.viewControls": "Canvas view controls",
+  "canvas.txt.audioExtension.placeholder":
+    "Describe how you want to continue this audio...",
+  "canvas.txt.audioMode.extension": "Audio Extension",
+  "canvas.txt.audioMode.music": "Music",
+  "canvas.txt.audioMode.tts": "Audio",
+  "canvas.txt.modelNoAudioSupport":
+    "This model does not support the connected audio input",
+  "canvas.txt.modelNoVideoAudioSupport":
+    "This model does not support the connected video/audio input",
+  "canvas.txt.modelNoVideoSupport":
+    "This model does not support the connected video input",
+  "canvas.txt.music.instrumental": "Instrumental",
+  "canvas.txt.music.lyricsPlaceholder":
+    "Please add your lyrics here. If no lyrics are provided, we will auto-generate them based on the style.",
+  "canvas.txt.music.placeholder": "Describe the music style...",
+  "canvas.txt.music.vocal": "Vocal",
+  "canvas.txt.text.placeholder":
+    "Write down your story, scene, or character setup. E.g.: A penniless son-in-law, publicly humiliated by his mother-in-law, reveals his hidden billionaire identity.",
+  "canvas.txt.tts.placeholder": "Enter text to read aloud...",
+  "canvas.undo": "Undo",
+  "canvas.ungroup": "Ungroup",
+  "canvas.upload": "Upload",
+  "canvas.uploadAudio": "Upload audio",
+  "canvas.uploadImage": "Upload image",
+  "canvas.uploadVideo": "Upload video",
+  "canvas.upstreamPreset.audio":
+    "Analyze the genre, mood, rhythm, and instrumentation of this music, and reverse-engineer AI music prompts to generate a similar style.",
+  "canvas.upstreamPreset.imageMulti":
+    "Analyze this set of reference images, extract shared style elements (color, lighting, composition, texture, mood), and summarize them into a unified style description and a reusable prompt template.",
+  "canvas.upstreamPreset.imageSingle":
+    "Analyze this image and reverse-engineer generation prompts for [target tool], with Chinese annotations.",
+  "canvas.upstreamPreset.text":
+    "Polish the uploaded text. Improvement direction: [readability / impact / concision / tone].",
+  "canvas.upstreamPreset.video":
+    "Analyze the content, camera language, and visual style of this video, and reverse-engineer per-shot generation prompts for [target tool].",
+  "canvas.video": "Video",
+  "canvas.video.duration": "Duration",
+  "canvas.video.pause": "Pause",
+  "canvas.video.play": "Play",
+  "canvas.videoDesc": "Creative ads, animation, film",
+  "canvas.videoEditing": "Video Editing",
+  "canvas.videoEditing.open": "Open Video Editing",
+  "canvas.videoEditingDesc": "Multi-track timeline editing, opens fullscreen",
+  "canvas.videoExtension.durationOptionDisabled":
+    "The final duration must start from the whole second after rounding up the source video duration.",
+  "canvas.videoExtension.durationUnavailable":
+    "Could not read the source video duration. Choose another video.",
+  "canvas.videoExtension.inputDurationRange":
+    "The source video must be between 2 and 15 seconds.",
+  "canvas.videoExtension.outputDurationRange":
+    "The final duration must be longer than the source video and no more than 20 seconds.",
+  "canvas.videoLightbox.nextVideo": "Next video",
+  "canvas.videoLightbox.previousVideo": "Previous video",
+  "canvas.videoNode.emptyStarter.audioVideoExtension": "Extend Audio & Video",
+  "canvas.videoNode.emptyStarter.title": "Try {{model}}",
+  "canvas.videoNode.generationCountOption": "{{count}} video(s)",
+  "canvas.videoSlot.clipSourceMissing":
+    "Original video is unavailable for clipping",
+  "canvas.videoSlot.durationTooLong":
+    "The reference video exceeds this model's duration limit.",
+  "canvas.videoSlot.exceedsDuration": "Over by {{duration}}",
+  "canvas.videoSlot.totalTooLong":
+    "Reference videos are longer than {{max}} seconds in total. Use fewer or shorter videos.",
+  "canvas.videoStarter.refApplyFailed": "Failed to add reference {{name}}",
+  "canvas.videoStarter.refDownloadFailed":
+    "{{count}} reference file(s) failed to download",
+  "canvas.voice.empty": "No matching voices",
+  "canvas.voice.filter.accent": "Accent",
+  "canvas.voice.filter.age": "Age",
+  "canvas.voice.filter.gender": "Gender",
+  "canvas.voice.filter.language": "Language",
+  "canvas.voice.placeholder": "Voice",
+  "canvas.voice.searchPlaceholder": "Search voices...",
+  "canvas.voice.title": "Select Voice",
+  "canvas.voice.useCustom": "Use voice ID:",
+  "canvas.voice.useCustomTitle":
+    "Use this string as a custom voice ID (e.g. cloned hub_… or designed ttv_…)",
+  "canvas.voiceClone.badge": "Voice Clone",
+  "canvas.voiceClone.copied": "Copied",
+  "canvas.voiceClone.copy": "Copy",
+  "canvas.voiceClone.nodeName": "Voice Clone",
+  "canvas.voiceClone.sourceLabel": "Cloned from",
+  "canvas.voiceClone.subtitle": "Produced by voice preparation",
+  "canvas.voiceClone.usageHint":
+    "Copy the voice_id and reference it in chat (TTS generation) or in subsequent MCP tool calls to reuse this voice.",
+  "canvas.voiceClone.voiceIdLabel": "voice_id",
+  "canvas.voiceDesign.badge": "Voice Design",
+  "canvas.voiceDesign.copied": "Copied",
+  "canvas.voiceDesign.copy": "Copy",
+  "canvas.voiceDesign.descriptionLabel": "Voice description",
+  "canvas.voiceDesign.descriptionPlaceholder":
+    "E.g. warm baritone male voice, slow pace, slight Beijing accent",
+  "canvas.voiceDesign.editToRedesign":
+    "Edit description or trial text to redesign a new voice",
+  "canvas.voiceDesign.failedToast": "Voice design failed; please try again.",
+  "canvas.voiceDesign.missingFields":
+    "Both voice description and preview text are required.",
+  "canvas.voiceDesign.nodeName": "Voice Design",
+  "canvas.voiceDesign.redesign": "Redesign voice",
+  "canvas.voiceDesign.subtitle": "Produced by design_voice",
+  "canvas.voiceDesign.trialTextLabel": "Trial text",
+  "canvas.voiceDesign.trialTextPlaceholder":
+    "E.g. Hello, the weather is nice today",
+  "canvas.voiceDesign.useVoice": "Use this voice for TTS",
+  "canvas.voiceDesign.voiceIdLabel": "voice_id",
+  "canvas.voiceDesign.willCreateNew":
+    "Will create a new voice-design node (this one stays)",
+  "canvas.voiceDesign.willRedesignSame":
+    "Will redesign with the same description (this node stays)",
+  "canvas.voiceId": "Voice ID",
+  "canvas.voiceIsolate": "Voice Isolator",
+  "canvas.voiceIsolate.error": "Voice isolation failed",
+  "canvas.voiceIsolate.overLimit": "Audio over 300s is not supported",
+  "canvas.voiceIsolating": "Isolating...",
+  "canvas.watermark.apply": "Apply",
+  "canvas.watermark.color": "Color",
+  "canvas.watermark.defaultText": "@ Watermark",
+  "canvas.watermark.label": "Watermark",
+  "canvas.watermark.layout": "Layout",
+  "canvas.watermark.loadError": "Failed to load image",
+  "canvas.watermark.mode": "Mode",
+  "canvas.watermark.off": "Off",
+  "canvas.watermark.on": "On",
+  "canvas.watermark.opacity": "Opacity",
+  "canvas.watermark.padding": "Padding",
+  "canvas.watermark.placeholder": "Enter watermark text",
+  "canvas.watermark.position": "Position",
+  "canvas.watermark.processing": "Processing…",
+  "canvas.watermark.rotation": "Rotation",
+  "canvas.watermark.saveError": "Failed to add watermark",
+  "canvas.watermark.settings": "Watermark Settings",
+  "canvas.watermark.shadow": "Shadow",
+  "canvas.watermark.shadowBlur": "Shadow blur",
+  "canvas.watermark.single": "Single",
+  "canvas.watermark.size": "Size",
+  "canvas.watermark.spacing": "Spacing",
+  "canvas.watermark.style": "Style",
+  "canvas.watermark.text": "Watermark text",
+  "canvas.watermark.tile": "Tile",
+  "canvas.watermark.title": "Watermark",
+  "canvas.watermark.weight": "Weight",
+  "canvas.zoomControls": "Canvas zoom controls",
+  "canvas.zoomIn": "Zoom in",
+  "canvas.zoomOut": "Zoom out",
+  "canvasAssets.assetsTab": "Assets",
+  "canvasAssets.canvasTab": "Canvas",
+  "canvasAssets.drawerAria": "Project Assets Drawer",
+  "canvasAssets.finder": "Files",
+  "canvasAssets.folderMenu": "Choose folder to open",
+  "canvasAssets.libraryBack": "Back",
+  "canvasAssets.libraryEntry": "Subject Library",
+  "canvasAssets.libraryEntryAlias": "(formerly Asset Center)",
+  "canvasAssets.libraryEntryTeamComingSoon":
+    "Team subject library coming soon — subjects added to a team project will sync to all members automatically.",
+  "canvasAssets.libraryEntryTooltip":
+    "Bundle images, audio and other files into one Subject — drop it into the canvas or an agent in a single click, no per-file attaching or referencing.",
+  "canvasAssets.openOutputFolder": "Open output folder",
+  "canvasAssets.openProjectFolder": "Open Project folder",
+  "canvasAssets.panelAria": "Project files and assets",
+  "canvasAssets.tabSwitcherAria": "Project content",
+  "canvasTags.add": "Add",
+  "canvasTags.addTransparent": "Keyword",
+  "canvasTags.cancelDownload": "Cancel download",
+  "canvasTags.canvasAssetCount": "{{count}} items on this canvas",
+  "canvasTags.canvasLabelInfo": "Canvas labels appear directly on the canvas.",
+  "canvasTags.changeColor": "Change tag color",
+  "canvasTags.clearCurrentTag": "Clear tag from all",
+  "canvasTags.clearFilter": "Clear filter",
+  "canvasTags.clearTagFailed": "Could not clear the tag. Try again.",
+  "canvasTags.colorLabels": "Canvas labels",
+  "canvasTags.colorLimit": "Up to {{max}} color tags",
+  "canvasTags.confirmDelete": "Delete tag",
+  "canvasTags.create": "Create keyword",
+  "canvasTags.delete": "Delete",
+  "canvasTags.deleteConfirmDescription":
+    "This tag is used by {{assetCount}} assets and {{nodeCount}} canvas nodes. Deleting the tag will not delete any asset or node.",
+  "canvasTags.deleteConfirmTitle": "Delete “{{name}}”?",
+  "canvasTags.deleteFailed": "Could not delete the tag. Try again.",
+  "canvasTags.deleteKeywordInfo":
+    "Deleting a keyword removes the keyword and its associations. Assets and canvas nodes are not deleted.",
+  "canvasTags.downloadAllFolderName": "Tagged assets",
+  "canvasTags.downloadAllTagged": "Download all tagged assets",
+  "canvasTags.downloadCurrentTag": "Download all",
+  "canvasTags.downloadProgress": "Downloading {{processed}} / {{total}} files",
+  "canvasTags.downloadTag": "Download “{{name}}” assets ({{count}})",
+  "canvasTags.dragToSort": "Drag to reorder",
+  "canvasTags.entry": "Tags",
+  "canvasTags.filterAllCount": "All {{count}}",
+  "canvasTags.filterByTag": "Filter and locate “{{name}}”",
+  "canvasTags.filterPosition": "{{current}} of {{count}}",
+  "canvasTags.hoverAssetCount": "{{count}} items",
+  "canvasTags.impactFailed": "Could not load the tag impact. Try again.",
+  "canvasTags.keywordInfo":
+    "Unlike canvas labels, keywords stay hidden on the canvas and can be used to organize, search, and filter assets.",
+  "canvasTags.keywordPlaceholder": "Type keyword",
+  "canvasTags.keywords": "Keywords",
+  "canvasTags.locateAsset": "Locate “{{name}}”",
+  "canvasTags.manage": "Manage tags",
+  "canvasTags.nameLimitReached":
+    "Limit reached: up to 6 Chinese or 12 English characters",
+  "canvasTags.namePlaceholder": "Tag name",
+  "canvasTags.nameRequired": "Enter a tag name",
+  "canvasTags.nameTaken": "A tag with this name already exists",
+  "canvasTags.nameTooLong": "Use up to 6 Chinese or 12 English characters",
+  "canvasTags.newKeyword": "Add keyword",
+  "canvasTags.newTag": "New tag",
+  "canvasTags.nextMatch": "Next tagged node",
+  "canvasTags.noLabelsCreate": "No labels yet. Click to create one",
+  "canvasTags.noTaggedAssets": "No labeled items in this project yet",
+  "canvasTags.preset.blue": "Prop",
+  "canvasTags.preset.deepPurple": "Costume",
+  "canvasTags.preset.green": "Final",
+  "canvasTags.preset.orange": "Scene",
+  "canvasTags.preset.purple": "Voice",
+  "canvasTags.preset.red": "Character",
+  "canvasTags.preset.yellow": "Draft",
+  "canvasTags.previousMatch": "Previous tagged node",
+  "canvasTags.removeFromAsset": "Remove tag",
+  "canvasTags.saveFailed": "Could not save the tag. Try again.",
+  "canvasTags.selectDownloadFolder": "Choose where to save tagged assets",
+  "canvasTags.sortFailed": "Could not save the tag order. Try again.",
+  "canvasTags.transparentPlaceholder": "Keyword name",
+  "canvasTags.useExisting": "Use “{{name}}”",
+  canvas_lyrics: canvas_lyrics$1,
+  "chat.activity.audioGen": "Generated {{count}} audio clips",
+  "chat.activity.audioGen.running": "Generating audio",
+  "chat.activity.batchSummary": "{{success}} succeeded, {{failed}} failed",
+  "chat.activity.canvas": "{{count}} canvas operations",
+  "chat.activity.confirmationExpired": "Confirmation timed out",
+  "chat.activity.confirmationUnavailable": "Confirmation request failed",
+  "chat.activity.connector": "Ran {{count}} plugin actions",
+  "chat.activity.coverPreprocess": "Parsed song structure",
+  "chat.activity.coverPreprocess.duration": "{{duration}}s",
+  "chat.activity.coverPreprocess.running": "Parsing song structure",
+  "chat.activity.edit": "Edited {{count}} items",
+  "chat.activity.embedAudio": "Merged audio + video",
+  "chat.activity.embedAudio.running": "Merging audio + video",
+  "chat.activity.execute": "Ran {{count}} commands",
+  "chat.activity.failureReasons": "Failure reasons",
+  "chat.activity.failureView": "View failures",
+  "chat.activity.generationCancelled": "Generation cancelled",
+  "chat.activity.imageGen": "Generated {{count}} images",
+  "chat.activity.imageGen.running": "Generating images",
+  "chat.activity.lyricsGen": "Generated lyrics",
+  "chat.activity.lyricsGen.running": "Writing lyrics",
+  "chat.activity.mediaGenAborted": "Interrupted",
+  "chat.activity.mediaGenCancelled": "Generation cancelled",
+  "chat.activity.mediaGenCancelledDescription":
+    "Cancelled at the credit confirmation step; no credits were used.",
+  "chat.activity.mediaGenFailed": "Media generation failed",
+  "chat.activity.mediaGenHandoffCompletedDescription":
+    "{{count}} generation task has completed. View the result on the canvas.",
+  "chat.activity.mediaGenHandoffCompletedDescription_one":
+    "{{count}} generation task has completed. View the result on the canvas.",
+  "chat.activity.mediaGenHandoffCompletedDescription_other":
+    "{{count}} generation tasks have completed. View the results on the canvas.",
+  "chat.activity.mediaGenHandoffGenerating": "Generating",
+  "chat.activity.mediaGenHandoffOpenCanvas": "View generation on canvas",
+  "chat.activity.mediaGenHandoffRunningDescription":
+    "{{count}} submitted generation task is still running. View its progress and result on the canvas.",
+  "chat.activity.mediaGenHandoffRunningDescription_one":
+    "{{count}} submitted generation task is still running. View its progress and result on the canvas.",
+  "chat.activity.mediaGenHandoffRunningDescription_other":
+    "{{count}} submitted generation tasks are still running. View their progress and results on the canvas.",
+  "chat.activity.mediaGenHandoffViewOnCanvas": "View on canvas",
+  "chat.activity.mediaGenInterrupted": "Generation task",
+  "chat.activity.mediaGenInterruptedDescription":
+    "You can still view progress and results on the canvas.",
+  "chat.activity.mediaGenPending": "Result pending recovery",
+  "chat.activity.mediaGenRecoverable": "Result pending recovery",
+  "chat.activity.mediaGenRecoverableDescription":
+    "The original task is preserved and its result will be restored automatically.",
+  "chat.activity.mediaGenUnknown": "Generation failed",
+  "chat.activity.mediaGenUnknownDescription":
+    "The generation request did not complete. The system will not retry automatically.",
+  "chat.activity.musicGen": "Generated {{count}} songs",
+  "chat.activity.musicGen.running": "Generating music",
+  "chat.activity.other": "Processed {{count}} tasks",
+  "chat.activity.plan": "{{count}} production plan operations",
+  "chat.activity.process": "Completed {{count}} processing steps",
+  "chat.activity.processed": "Processed",
+  "chat.activity.analyseMedia": "Analyzed {{count}} files",
+  "chat.activity.analyseMedia.failed": "Failed to analyze files",
+  "chat.activity.analyseMedia.running": "Analyzing file contents",
+  "chat.activity.read": "Read {{count}} files",
+  "chat.activity.search": "Ran {{count}} searches",
+  "chat.activity.search.running": "Searching...",
+  "chat.activity.skillLoaded": "Loaded skill: {{name}}",
+  "chat.activity.skillLoadedFallback": "Loaded skill",
+  "chat.activity.skillLoadedPrefix": "Loaded skill",
+  "chat.activity.thinking": "Thought {{count}} times",
+  "chat.activity.thought": "Thought",
+  "chat.activity.toolRejected": "Tool rejected",
+  "chat.activity.videoEdit": "Edited {{count}} videos",
+  "chat.activity.videoEdit.running": "Editing videos",
+  "chat.activity.videoGen": "Generated {{count}} videos",
+  "chat.activity.videoGen.running": "Generating videos",
+  "chat.activity.voiceClone": "Cloned voice",
+  "chat.activity.voiceClone.id": "Voice ID:",
+  "chat.activity.voiceClone.running": "Cloning voice",
+  "chat.activity.voicePrepare.catalog": "Found {{count}} matching voices",
+  "chat.addFile": "Add file",
+  "chat.agentFallback": "Agent",
+  "chat.agentLabel.audio": "Audio Agent",
+  "chat.agentLabel.director": "Director Stage Agent",
+  "chat.agentLabel.editing": "Editing Agent",
+  "chat.agentLabel.excutor": "Content Creation",
+  "chat.agentLabel.executor": "Content Creation",
+  "chat.agentLabel.image": "Image Agent",
+  "chat.agentLabel.main": "Main Agent",
+  "chat.agentLabel.music": "Music Agent",
+  "chat.agentLabel.planner": "Project Planning",
+  "chat.agentLabel.router": "Requirement Analysis",
+  "chat.agentLabel.speech": "Speech Agent",
+  "chat.agentLabel.summary": "Summary Agent",
+  "chat.agentLabel.video": "Video Agent",
+  "chat.approve": "Approve",
+  "chat.approved": "Approved",
+  "chat.arguments": "Arguments",
+  "chat.audioCount": "{{count}} audio",
+  "chat.audioCount_one": "{{count}} audio",
+  "chat.audioCount_other": "{{count}} audios",
+  "chat.audioUnavailable": "Audio unavailable",
+  "chat.billingInsufficient.currentCredits": "Current credits",
+  "chat.billingInsufficient.description":
+    "After purchasing credits, you can retry this generation immediately.",
+  "chat.billingInsufficient.estimatedCredits": "Estimated use",
+  "chat.billingInsufficient.recheckAgain": "Check again",
+  "chat.billingInsufficient.retryAfterPurchase":
+    "I've purchased credits, retry now",
+  "chat.billingInsufficient.retryFailed":
+    "Could not retry this generation. Check your connection and try again.",
+  "chat.billingInsufficient.retrySubmitted":
+    "Retry submitted. Generation is continuing.",
+  "chat.billingInsufficient.shortfallCredits": "Credits needed",
+  "chat.billingInsufficient.teamDescription":
+    "Not enough team credits to start this generation. Add credits in Team Management, then retry once your available allowance is enough.",
+  "chat.billingInsufficient.title": "Not enough credits to start generation",
+  "chat.billingInsufficient.topUp": "Purchase credits",
+  "chat.billingInsufficient.topupNotArrived":
+    "Top-up not detected yet. Please confirm the purchase completed, then try again.",
+  "chat.billingInsufficient.upgrade": "Upgrade membership",
+  "chat.billingInsufficient.waitingCollapsed":
+    "Recheck submitted. Generation resumes automatically once the top-up arrives; you can keep working meanwhile.",
+  "chat.bottomAnchor.label": "Jump to latest",
+  "chat.bottomAnchor.unread": "{{count}} new messages",
+  "chat.cancelled": "Request interrupted by user",
+  "chat.canvasArtifact": "Canvas artifact",
+  "chat.canvasOperation.addAudio": "Added audio",
+  "chat.canvasOperation.addFile": "Added file",
+  "chat.canvasOperation.addImage": "Added image",
+  "chat.canvasOperation.addMedia": "Added media",
+  "chat.canvasOperation.addTable": "Added table",
+  "chat.canvasOperation.addText": "Added text",
+  "chat.canvasOperation.addText.running": "Adding text",
+  "chat.canvasOperation.addVideo": "Added video",
+  "chat.canvasOperation.organizeCanvas": "Organized canvas",
+  "chat.canvasOperation.status.created": "Created",
+  "chat.canvasOperation.status.grouped": "Grouped",
+  "chat.canvasOperation.status.noChange": "No change",
+  "chat.canvasOperation.status.reused": "Reused",
+  "chat.canvasOperation.status.updated": "Updated",
+  "chat.canvasOperation.updateTable": "Updated table",
+  "chat.canvasOperation.updateText": "Updated text",
+  "chat.chooseFromSession": "Choose from session files",
+  "chat.clipEditAgent.inputPlaceholder":
+    "Want simple AI editing or automatic subtitles? Tell me what to process",
+  "chat.clipEditAgent.intro":
+    "Tell me which video you want to work on and what you want to change about its subtitles, clips, or visual effects.\n\nI can help you:\n- **Edit subtitles**: add or revise subtitle text, timing, position, and style\n- **Adjust clips**: trim, join, or reorder video clips\n- **Add visual effects**: add transitions, filters, and stickers, and adjust aspect ratio and layout\n\nTo get started, tell me:\n- Which video segment or time range to edit\n- What content or effect to change and where to apply it\n- The visual style and presentation you want",
+  "chat.clipRecommend.greeting": "👋 Hi, ready to start editing with chat?",
+  "chat.clipRecommend.title": "Or try these editing Skills",
+  "chat.collapse": "Collapse",
+  "chat.compaction.completed": "Context compacted",
+  "chat.compaction.running": "Compacting context…",
+  "chat.complianceGuidelinesLink": "lawful use",
+  "chat.complianceNotice":
+    "Ensure licensed content and <guidelines>lawful use</guidelines>",
+  "chat.connectingStalled.description":
+    "Loading is taking longer than expected. Your chat history will appear once the connection is ready.",
+  "chat.connectingStalled.title": "Still connecting to the local runtime...",
+  "chat.copied": "Copied",
+  "chat.copy": "Copy",
+  "chat.copyMessage": "Copy message",
+  "chat.copyRequestId": "Copy request ID",
+  "chat.copyUrl": "Copy URL",
+  "chat.link.openBuiltin": "Open in built-in browser",
+  "chat.creditReminder.accountScope":
+    "Applies to all projects in this account.",
+  "chat.creditReminder.actionError":
+    "Could not update this generation. Try again.",
+  "chat.creditReminder.batchDescription":
+    "This generation is estimated to use {{estimated}} credits. Confirm what you want to generate (you can change the reminder threshold under “Agent Mode” in the input box).",
+  "chat.creditReminder.batchSelectionSummary":
+    "Selected {{selected}} credits of {{limit}} available.",
+  "chat.creditReminder.batchTitle": "Choose what to generate",
+  "chat.creditReminder.cancelGeneration": "Cancel generation",
+  "chat.creditReminder.cancelled": "Generation cancelled.",
+  "chat.creditReminder.cardDescription":
+    "This generation is estimated to use {{estimated}} credits, reaching your {{threshold}}-credit reminder.",
+  "chat.creditReminder.cardDescriptionFallback":
+    "This generation has reached your credit usage reminder.",
+  "chat.creditReminder.cardTitle": "Credit usage reminder",
+  "chat.creditReminder.continueGeneration": "Continue generation",
+  "chat.creditReminder.continued": "Confirmed. Generation is continuing.",
+  "chat.creditReminder.currentCredits": "Current credits",
+  "chat.creditReminder.disabled": "Off",
+  "chat.creditReminder.enabled": "On",
+  "chat.creditReminder.enabledLabel": "Credit usage reminder",
+  "chat.creditReminder.expired":
+    "Confirmation timed out; this generation was cancelled.",
+  "chat.creditReminder.remainingCredits": "Estimated remaining",
+  "chat.creditReminder.saveError":
+    "Could not save. Your changes are still here.",
+  "chat.creditReminder.settingsDescription":
+    "Remind me before one generation reaches the selected credit amount.",
+  "chat.creditReminder.settingsTitle": "Credit usage reminder",
+  "chat.creditReminder.thresholdError":
+    "Enter an amount from {{min}} to {{max}}.",
+  "chat.creditReminder.thresholdLabel": "Reminder amount",
+  "chat.creditReminder.topupContinued":
+    "Credits have been added. This generation resumed automatically.",
+  "chat.creditReminder.topupContinuedTitle":
+    "Top-up successful. Generation is continuing.",
+  "chat.creditReminder.topupExpired":
+    "No top-up arrived in time. This generation has stopped.",
+  "chat.diffReview.acceptAll": "Accept all",
+  "chat.diffReview.cancel": "Discard",
+  "chat.diffReview.pendingCount": "{{count}} changes to review",
+  "chat.diffReview.undoAll": "Undo all",
+  "chat.diffReview.undoFailed": "Undo failed, please try again",
+  "chat.diffReview.undoPartial":
+    "{{count}} changes could not be undone (content changed)",
+  "chat.diffReview.view": "Review",
+  "chat.directorStageAgent.inputPlaceholder":
+    "Want to create or adjust staging, camera moves, or scene angles? Tell me what you need",
+  "chat.directorStageAgent.intro":
+    "Tell me about the scene, characters, and camera you want to design, or continue refining an existing concept.\n\nI can help you:\n- **Create static references**: design character staging, scene layouts, and shot composition\n- **Create dynamic references**: plan camera movement, character trajectories, and shot choreography\n- **Refine an existing concept**: adjust characters, camera positions, and motion relationships, and explore different compositions and movement rhythms\n\nTo get started, tell me:\n- The number of characters, their positions, and the image you want\n- How the camera and characters should move, including pace and direction",
+  "chat.draft.attachmentsDropped":
+    "Some attachments could not be restored — please re-add them.",
+  "chat.dropFilesHere": "Drop files here",
+  "chat.dropFoldersUnsupported":
+    "Folder drag is not supported yet. Drop files instead.",
+  "chat.duplicateSkipped": "Duplicate files have been skipped",
+  "chat.durationLabel": "Duration: {{duration}}",
+  "chat.emptyRecommendations.creator": "Creator",
+  "chat.emptyRecommendations.greeting": "Hi, {{name}}",
+  "chat.emptyRecommendations.refresh": "Refresh",
+  "chat.emptyRecommendations.showcaseTab": "Featured",
+  "chat.emptyRecommendations.skillTab": "Skill",
+  "chat.emptyRecommendations.skillTab.clipAgent": "Clip Skill",
+  "chat.emptyRecommendations.skillTab.directorAgent": "Director Stage Skill",
+  "chat.emptyRecommendations.skillTab.textAgent": "Text Skill",
+  "chat.emptyRecommendations.subtitle": "Explore H3 today!",
+  "chat.emptyRecommendations.subtitle.clipAgent":
+    "Edit video clips, subtitles, and visual effects through conversation",
+  "chat.emptyRecommendations.subtitle.directorAgent":
+    "Design character staging, shot composition, and camera movement in 3D",
+  "chat.emptyRecommendations.subtitle.textAgent":
+    "Create, rewrite, and refine text through conversation",
+  "chat.errors.aspectRatioConflict":
+    "The selected aspect ratio does not match the reference image. Adjust the aspect ratio or crop and try again.",
+  "chat.errors.modelProviderAuthFailed":
+    "Custom model authentication failed. Check the API Key, base URL, and custom headers in model settings.",
+  "chat.errors.modelProviderMethodNotAllowed":
+    "Method not allowed. Check the Base URL and API format.",
+  "chat.errors.modelProviderInvocationFailed": "Model invocation failed.",
+  "chat.errors.title.modelProviderError": "Custom model request failed",
+  "chat.errors.title.modelProviderAuthFailed":
+    "Custom model authentication failed",
+  "chat.errors.authExpired": "Your session has expired. Please sign in again.",
+  "chat.errors.billingInsufficientBalance":
+    "Insufficient balance. Please top up and retry.",
+  "chat.errors.contentBlocked":
+    "The content did not pass the safety review. Please adjust references to copyrighted IP, actors, characters, or sensitive details and try again.",
+  "chat.errors.deliveryDisconnected":
+    "Connection lost before the message was acknowledged. Please retry.",
+  "chat.errors.deliveryFailed": "Message failed to send. Please retry.",
+  "chat.errors.deliveryFailedShort": "Message failed to send.",
+  "chat.errors.mediaReviewBlocked":
+    "An attachment did not pass safety review. Please replace it and send again.",
+  "chat.errors.mediaReviewFailed":
+    "Attachment review failed. Your message was not sent. Please retry.",
+  "chat.mediaReviewing": "Reviewing attachments before sending…",
+  "chat.errors.deliveryTimeout": "Message delivery timed out. Please retry.",
+  "chat.errors.deliveryTimeoutShort": "Message delivery timed out.",
+  "chat.errors.generationStalled":
+    "This generation made no progress for a long time and was stopped automatically. Please try again later, or simplify the request and retry.",
+  "chat.errors.genericDetail":
+    "Something went wrong. Please retry. If it keeps happening, report the issue.",
+  "chat.errors.interrupted":
+    "The task was interrupted. Send a message to continue.",
+  "chat.errors.networkTimeout":
+    "The network request timed out. Check your connection or try again later.",
+  "chat.errors.networkUnavailable":
+    "Unable to connect to the server. Check your network connection or try again later.",
+  "chat.errors.providersUnavailable":
+    "AI model providers are unavailable right now. Your login is still valid — this is a connection issue, not an account problem. It usually recovers automatically.",
+  "chat.errors.runtimeConnectionLost":
+    "This conversation connection was interrupted. Please send your message again.",
+  "chat.errors.runtimeNotReady":
+    "The conversation service is starting. Please try again shortly.",
+  "chat.errors.runtimeSession":
+    "This conversation cannot continue right now. Send your message again. If it still fails, close and reopen the project.",
+  "chat.errors.runtimeStream":
+    "The service response was interrupted. Please try again later.",
+  "chat.errors.runtimeToolsUnavailable":
+    "Creation tools are temporarily unavailable. Please try again shortly.",
+  "chat.errors.serverError": "Server error",
+  "chat.errors.storageFull":
+    "Local disk space is full. Free up space and retry.",
+  "chat.errors.suffix.actionRequired": "Action required",
+  "chat.errors.suffix.cancelled": "Cancelled",
+  "chat.errors.suffix.failed": "Failed",
+  "chat.errors.suffix.retry": "Retryable",
+  "chat.errors.title.authExpired": "Session expired",
+  "chat.errors.title.billing": "Insufficient balance",
+  "chat.errors.title.cancelled": "Cancelled",
+  "chat.errors.title.contentBlocked": "Content blocked",
+  "chat.errors.title.generationStalled": "Generation stalled",
+  "chat.errors.title.generic": "Something went wrong",
+  "chat.errors.title.network": "Network issue",
+  "chat.errors.title.networkTimeout": "Network request timed out",
+  "chat.errors.title.networkUnavailable": "Unable to connect",
+  "chat.errors.title.providersUnavailable": "AI service unavailable",
+  "chat.errors.title.question": "Question",
+  "chat.errors.title.runtime": "Runtime connection issue",
+  "chat.errors.title.runtimeConnectionLost":
+    "Conversation connection interrupted",
+  "chat.errors.title.runtimeNotReady": "Conversation service starting",
+  "chat.errors.title.runtimeSession": "Conversation unavailable",
+  "chat.errors.title.runtimeStream": "Service response interrupted",
+  "chat.errors.title.runtimeToolsUnavailable": "Creation tools unavailable",
+  "chat.errors.title.tool": "Tool execution failed",
+  "chat.errors.title.upload": "Upload failed",
+  "chat.errors.workspaceConcurrencyLimit":
+    "The limit for projects generating at the same time has been reached. Wait for one to finish or stop a running task, then try again.",
+  "chat.expand": "Expand",
+  "chat.failedToLoadAudio": "Failed to load audio",
+  "chat.failedToLoadImage": "Failed to load image",
+  "chat.failedToLoadVideo": "Failed to load video",
+  "chat.fileChip.locateOnCanvas": "Locate on canvas",
+  "chat.fileReference.openOnce": "Open once",
+  "chat.fileReference.permissionDescription":
+    "This local path is outside MiniMax Design's trusted folders. You can reveal it once or trust its parent folder for future chat file references.",
+  "chat.fileReference.permissionExpired": "File permission expired. Try again.",
+  "chat.fileReference.permissionTitle": "Reveal local file?",
+  "chat.fileReference.sensitivePath":
+    "This path is protected and cannot be opened from chat.",
+  "chat.fileReference.trustFolder": "Trust folder",
+  "chat.forkAction": "Start new chat",
+  "chat.forkConversation":
+    "Creates a new chat from this point. The current chat stays unchanged.",
+  "chat.forkFromHere": "Start over from here",
+  "chat.generatedBy": "Generated by {{agent}}",
+  "chat.generatedContent": "Generated content",
+  "chat.generatedImage": "Generated image",
+  "chat.generationFailure.queuePaused":
+    "Generation is paused in the queue. Resume it to continue.",
+  "chat.generationFailure.requestNotSubmitted":
+    "The request was not submitted before the generation service shut down. Please retry.",
+  "chat.generationFailure.serviceShuttingDown":
+    "The generation service is shutting down. Check the canvas for an existing result before retrying.",
+  "chat.generationFailure.serviceUnavailable":
+    "The generation service is temporarily unavailable. Please try again later.",
+  "chat.historyLoadFailed.description":
+    "The current view was preserved, but the complete history could not be verified. Retry to reload it.",
+  "chat.historyLoadFailed.title": "Chat history is temporarily unavailable",
+  "chat.historyRail.agentRole.editing": "Editing",
+  "chat.historyRail.agentRole.image": "Image",
+  "chat.historyRail.agentRole.music": "Music",
+  "chat.historyRail.agentRole.speech": "Speech",
+  "chat.historyRail.agentRole.video": "Video",
+  "chat.historyRail.attachmentCount.audio": "{{count}} audio",
+  "chat.historyRail.attachmentCount.file": "{{count}} files",
+  "chat.historyRail.attachmentCount.image": "{{count}} images",
+  "chat.historyRail.attachmentCount.mixed": "{{count}} attachments",
+  "chat.historyRail.attachmentCount.video": "{{count}} videos",
+  "chat.historyRail.label": "Conversation anchors",
+  "chat.historyRail.subAgentProcessing": "{{role}} working",
+  "chat.historyRail.toolCall": "Called {{tool}}",
+  "chat.historyRail.turn": "Conversation turn {{n}}",
+  "chat.imageAnnotation.annotate": "Annotate",
+  "chat.imageAnnotation.append": "Keep original and add annotated copy",
+  "chat.imageAnnotation.appendAnyway": "Add copy anyway",
+  "chat.imageAnnotation.applyFailed":
+    "Couldn't apply the annotation. Try again.",
+  "chat.imageAnnotation.saveTimedOut":
+    "Saving timed out. Your annotations are still here. Try again or export the image.",
+  "chat.imageAnnotation.color": "Annotation color",
+  "chat.imageAnnotation.description":
+    "Add arrows, shapes, text, or privacy masking to {{name}}.",
+  "chat.imageAnnotation.discard": "Discard edits",
+  "chat.imageAnnotation.discardDescription":
+    "Your annotations haven't been applied to the chat attachment.",
+  "chat.imageAnnotation.discardTitle": "Discard these annotations?",
+  "chat.imageAnnotation.export": "Export",
+  "chat.imageAnnotation.exported": "Annotated image exported",
+  "chat.imageAnnotation.exportFailed": "Couldn't export the annotated image.",
+  "chat.imageAnnotation.loadFailed":
+    "Couldn't load this image. Check that the file is available and try again.",
+  "chat.imageAnnotation.loading": "Loading image…",
+  "chat.imageAnnotation.moreActions": "More save options",
+  "chat.imageAnnotation.privacyDescription":
+    "Keeping both images leaves the unmasked original in this chat. Remove it if it contains sensitive information.",
+  "chat.imageAnnotation.privacyTitle": "The original image will remain visible",
+  "chat.imageAnnotation.replace": "Replace attachment",
+  "chat.imageAnnotation.targetChanged":
+    "This attachment changed while you were editing. Reopen it and try again.",
+  "chat.imageAnnotation.title": "Annotate image",
+  "chat.imageCount": "{{count}} images",
+  "chat.imageCount_one": "{{count}} image",
+  "chat.imageCount_other": "{{count}} images",
+  "chat.imageUnavailable": "Image unavailable",
+  "chat.initialPayload.hydrationStalled":
+    "Could not confirm the target conversation, so the first message was not sent. Retry to send it.",
+  "chat.input": "Input",
+  "chat.internalReference.material": "Internal material",
+  "chat.internalReference.workflow": "Project workflow",
+  "chat.loadingModels": "Loading models...",
+  "chat.loopGuard.ackTimeoutNotice":
+    "No confirmation result was received. You can choose again without losing the conversation.",
+  "chat.loopGuard.allowOnce": "Continue current action",
+  "chat.loopGuard.allowOnceDesc":
+    "Confirm this repetition is expected and continue this time only.",
+  "chat.loopGuard.allowSession": "Allow for this chat",
+  "chat.loopGuard.allowSessionDesc":
+    "Do not ask again for the same action in this chat.",
+  "chat.loopGuard.askPrimary":
+    "{{hits}} of the last {{window}} actions were essentially the same.",
+  "chat.loopGuard.askSecondary":
+    "Nothing is wrong with the system. Confirm whether this is expected or let the AI try a different approach.",
+  "chat.loopGuard.conflictingDecisionNotice":
+    "Another choice was already accepted for this confirmation. The earlier choice remains in effect.",
+  "chat.loopGuard.currentTool": "Current tool",
+  "chat.loopGuard.recentTools": "Recent tools",
+  "chat.loopGuard.reject": "Let the AI adjust",
+  "chat.loopGuard.rejectDesc":
+    "Stop the current action and use a different approach.",
+  "chat.loopGuard.runtimeRestartedNotice":
+    "The local service reconnected, so this confirmation was cancelled. Please retry the operation.",
+  "chat.loopGuard.shortcutsHint":
+    "Shortcuts: press 1 or Enter to continue, 2 to allow for this chat, or 3 or Esc to let the AI adjust",
+  "chat.loopGuard.technicalDetails": "Technical details",
+  "chat.loopGuard.timeoutNotice":
+    "The confirmation expired before your choice was accepted. Please retry the operation.",
+  "chat.loopGuard.title": "Repeated actions detected",
+  "chat.loopGuard.transportClosedNotice":
+    "The connection closed, so this confirmation was cancelled. Please retry the operation.",
+  "chat.loopGuard.tripLabel": "Trips",
+  "chat.loopGuard.unavailableNotice":
+    "We could not verify whether this choice took effect. Check the current task state before retrying.",
+  "chat.maxAttachments": "Up to {{max}} attachments allowed",
+  "chat.mediaModels.agent.metricValue": "{{value}} of {{max}}",
+  "chat.mediaModels.agent.membership": "Member",
+  "chat.mediaModels.agent.metrics.cost": "Cost",
+  "chat.mediaModels.agent.metrics.intelligence": "Smart",
+  "chat.mediaModels.agent.metrics.speed": "Speed",
+  "chat.mediaModels.busyTooltip":
+    "Model selection is locked while a task is running. You can adjust it once the task completes.",
+  "chat.mediaModels.clearAll": "Deselect all",
+  "chat.mediaModels.defaultSaveFailed":
+    "Could not save the default models for new chats. Please try again. Your current chat still uses your selected models.",
+  "chat.mediaModels.empty": "No models available in this category",
+  "chat.mediaModels.generationModels": "Generation models",
+  "chat.mediaModels.hint.allSelected":
+    "Agent can use all models in this category",
+  "chat.mediaModels.hint.atLeastOne": "At least one model must stay selected",
+  "chat.mediaModels.hint.escCancel": "Esc to discard",
+  "chat.mediaModels.hint.filtered": "Agent can only use the selected models",
+  "chat.mediaModels.hint.keptFirst": "First model kept selected",
+  "chat.mediaModels.hot": "Hot",
+  "chat.mediaModels.label": "Models",
+  "chat.mediaModels.loadFailed": "Failed to load models",
+  "chat.mediaModels.custom.comingSoon": "Coming soon",
+  "chat.mediaModels.custom.configure": "Custom models",
+  "chat.mediaModels.pricing": "Billing details",
+  "chat.mediaModels.selectAll": "Select all",
+  "chat.mediaModels.selectionDescription":
+    "Choose the Agent model and the generation models it can use during tasks.",
+  "chat.mediaModels.tabs.agent": "Agent",
+  "chat.mediaModels.tabs.audio": "Audio",
+  "chat.mediaModels.tabs.image": "Image",
+  "chat.mediaModels.tabs.selectionCount":
+    "{{category}}, {{count}} models selected",
+  "chat.mediaModels.tabs.video": "Video",
+  "chat.mediaModels.scope.currentAndFuture":
+    "Also set as default for new chats",
+  "chat.mediaModels.title": "Model configuration",
+  "chat.mode.ask": "Ask",
+  "chat.mode.askDesc": "Ask before generation and other key actions.",
+  "chat.mode.auto": "Auto",
+  "chat.mode.autoDesc":
+    "Automatically run generation and other actions with fewer interruptions.",
+  "chat.mode.label": "Agent Mode",
+  "chat.model": "Model",
+  "chat.modelLabel": "Model: {{model}}",
+  "chat.moreActions": "More actions",
+  "chat.newChat": "New Chat",
+  "chat.noContent": "No content",
+  "chat.noFiles": "No files found",
+  "chat.noMessages": "Send a message to start",
+  "chat.noReasoningContent": "No reasoning content",
+  "chat.noSubMessages": "No sub-messages",
+  "chat.nodeSkillGuidePrompt":
+    "Use this Skill to help me make edits within the node",
+  "chat.openRemoteToolUi": "Open {{toolName}} GUI",
+  "chat.openSubscribe": "Subscribe",
+  "chat.output": "Output",
+  "chat.pauseAudio": "Pause audio",
+  "chat.pendingAnnotations.clear": "Clear",
+  "chat.pendingAnnotations.conflict": "Document changed. Review and retry.",
+  "chat.pendingAnnotations.failed":
+    "Agent did not apply these edits. Retry available.",
+  "chat.pendingAnnotations.submitMessage":
+    "Apply {{count}} document annotations",
+  "chat.pendingAnnotations.submitting": "Submitting to Agent…",
+  "chat.pendingAnnotations.title": "Pending annotations",
+  "chat.pendingFirstMessage.preparingRuntime": "Preparing your workspace...",
+  "chat.pendingFirstMessage.sending": "Sending your message...",
+  "chat.placeholder": "Type a message...",
+  "chat.placeholderBusy": "Agent is running...",
+  "chat.planNodeBar.allDone": "All done",
+  "chat.planNodeBar.currentDoing": "Working on: {{task}}",
+  "chat.planNodeBar.progress": "{{done}}/{{total}} tasks done",
+  "chat.playAudio": "Play audio",
+  "chat.pluginEditAgent.newSession": "New {{name}} chat",
+  "chat.pluginEditAgent.prepareFailed":
+    "Editor Agent could not be prepared. Close the editor and try again.",
+  "chat.pluginEditAgent.prepareFailedShort":
+    "Editor Agent session could not be prepared.",
+  "chat.pluginEditAgent.preparing": "Preparing editor Agent...",
+  "chat.pluginEditAgent.preparingPlaceholder":
+    "Editor Agent is getting ready...",
+  "chat.pluginEditAgent.sessionName": "Editor Agent",
+  "chat.pluginEditAgent.title": "Editor Agent",
+  "chat.pluginNodeChipMeta": "Canvas plugin",
+  "chat.productionPlanOperation.create": "Created production plan",
+  "chat.productionPlanOperation.create.running": "Creating production plan",
+  "chat.productionPlanOperation.update": "Updated production plan",
+  "chat.productionPlanOperation.update.running": "Updating production plan",
+  "chat.providersUnavailable.description":
+    "Model providers could not be loaded. Canvas and assets still work; chat resumes automatically once the connection recovers.",
+  "chat.providersUnavailable.placeholder":
+    "AI service unavailable — chat is paused",
+  "chat.providersUnavailable.retrying": "Retrying...",
+  "chat.providersUnavailable.title": "AI service temporarily unavailable",
+  "chat.question.answerRequired": "Answer this question before submitting.",
+  "chat.question.attachmentFailed":
+    "Attachment upload failed. Retry or remove it before submitting.",
+  "chat.question.attachmentUploading":
+    "This attachment is still uploading. Submit after it finishes.",
+  "chat.question.back": "Back",
+  "chat.question.card": "Question confirmation",
+  "chat.question.collapse": "Collapse",
+  "chat.question.customPlaceholder": "Type your answer...",
+  "chat.question.dismiss": "Dismiss",
+  "chat.question.dismissed": "(dismissed)",
+  "chat.question.expand": "Expand",
+  "chat.question.interrupted": "(interrupted)",
+  "chat.question.multiSelect": "select multiple",
+  "chat.question.next": "Next",
+  "chat.question.noAnswer": "(no answer)",
+  "chat.question.other": "Other (type a custom answer)",
+  "chat.question.recommendedLabel": "{{label}} (Recommended)",
+  "chat.question.submit": "Submit",
+  "chat.question.toCancel": "to cancel",
+  "chat.question.toSubmit": "to submit",
+  "chat.question.waiting": "Waiting for answer...",
+  "chat.queue.attachmentOnly": "Attachment only",
+  "chat.queue.delete": "Delete",
+  "chat.queue.dragToReorder": "Drag to reorder",
+  "chat.queue.edit": "Edit",
+  "chat.queue.limitReached": "Queued message limit reached. Please wait.",
+  "chat.queue.placeholder": "Type ahead, your message will be queued...",
+  "chat.queue.sendNow": "Send now",
+  "chat.queue.sendNowTooltip": "Stop the current response and send immediately",
+  "chat.queue.sending": "Sending",
+  "chat.recommend.greeting": "👋 Hi, ready to create?",
+  "chat.recommend.importHint":
+    "You can also drag in a .md file to import your own skill",
+  "chat.recommend.title": "Or try one of these skills",
+  "chat.reconnecting.description":
+    "Messages are paused until the connection is restored.",
+  "chat.reconnecting.memoryDescription":
+    "Recovering automatically. Close some memory-heavy apps or workspaces and try again.",
+  "chat.reconnecting.memoryTitle": "Low system memory — runtime was reclaimed",
+  "chat.reconnecting.placeholder": "Reconnecting...",
+  "chat.reconnecting.stuckDescription":
+    "Auto-reconnect isn't recovering. Close other memory-heavy apps, then restart the app and try again.",
+  "chat.reconnecting.stuckMemoryTitle":
+    "Low memory — still can't reach the runtime",
+  "chat.reconnecting.stuckTitle": "Still can't reach the runtime",
+  "chat.reconnecting.title": "Reconnecting to runtime...",
+  "chat.recovering.placeholder": "Recovering and resuming generation…",
+  "chat.regenerate": "Regenerate",
+  "chat.reject": "Reject",
+  "chat.rejected": "Rejected",
+  "chat.relativeTime.days": "{{count}}d",
+  "chat.relativeTime.hours": "{{count}}h",
+  "chat.relativeTime.justNow": "just now",
+  "chat.relativeTime.minutes": "{{count}}m",
+  "chat.replied": "Replied:",
+  "chat.replyPlaceholder": "Type your reply...",
+  "chat.requestIdCopied": "Request ID copied",
+  "chat.resolveFailedUploadsBeforeSend":
+    "Remove or re-upload failed attachments before sending.",
+  "chat.response": "Response",
+  "chat.result": "Result",
+  "chat.retry": "Retry",
+  "chat.retrying": "Retrying...",
+  "chat.runningTasks.title": "Running tasks",
+  "chat.runningTasks.titleDone": "Tasks completed",
+  "chat.runningTasks.titleError": "Tasks failed",
+  "chat.runningTasks.titleRunning": "Tasks running · {{count}}",
+  "chat.runtimeUnavailable.description":
+    "Workspace, canvas, and assets stay visible. Chat resumes after the local runtime reconnects.",
+  "chat.runtimeUnavailable.placeholder": "Runtime recovering — chat is paused",
+  "chat.runtimeUnavailable.title": "Local runtime is recovering",
+  "chat.selectModel": "Select model...",
+  "chat.send": "Send",
+  "chat.sendFailed": "Failed to send message",
+  "chat.sentAnnotations.showMore": "{{count}} more",
+  "chat.sentAnnotations.title": "Submitted annotations",
+  "chat.sessionFallback": "Session {{id}}",
+  "chat.sessionListUnavailable.description":
+    "The current workspace, canvas, assets, and loaded messages remain available. Retry loading chat sessions.",
+  "chat.sessionListUnavailable.title": "Chat is temporarily unavailable",
+  "chat.sessionSwitch.notConnected":
+    "Not connected to the local runtime yet. Reconnecting — please try again shortly.",
+  "chat.sessionSwitch.timeout": "Session switch timed out. Please try again.",
+  "chat.showLess": "Show less",
+  "chat.showMore": "Show more",
+  "chat.stalled.description":
+    "No new progress for about {{minutes}} min. You can keep waiting or stop this task.",
+  "chat.stalled.hardCapDescription":
+    "This task has been running for about {{minutes}} min. You can keep waiting or stop it.",
+  "chat.stalled.hardCapTitle": "Task has been running for a long time",
+  "chat.stalled.keepWaiting": "Keep waiting",
+  "chat.stalled.stopTask": "Stop task",
+  "chat.stalled.title": "Task is running but hasn't responded for a while",
+  "chat.starting.description":
+    "Chat history is ready. Sending will be available as soon as the local Agent finishes starting.",
+  "chat.starting.placeholder": "Agent is getting ready...",
+  "chat.starting.title": "Preparing your Agent",
+  "chat.statusDone": "done",
+  "chat.statusError": "error",
+  "chat.statusInterrupted": "Interrupted",
+  "chat.statusPending": "pending",
+  "chat.stop": "Stop",
+  "chat.subAgentDetail": "Task Details",
+  "chat.subAgentLabel": "subagent",
+  "chat.subAgentRecovered": "System Recovery",
+  "chat.subAgentStatus.running": "In progress",
+  "chat.submitFeedback": "Submit feedback",
+  "chat.submitted": "(submitted)",
+  "chat.switching": "Switching...",
+  "chat.taskDispatching": "Dispatching task",
+  "chat.textEditAgent.failedPlaceholder": "Close the editor and try again.",
+  "chat.textEditAgent.intro":
+    "Tell me how you want to revise the whole document, or select a passage and add an annotation for a more focused edit.\n\nI can help you:\n- **Create and rewrite**: rewrite scenes or copy to adjust pacing, conflict, dialogue, and selling points\n- **Polish and reorganize**: polish, expand, shorten, or restructure content\n- **Translate and align**: translate text while keeping tone and style consistent throughout\n- **Refine selections**: revise selected passages one annotation at a time\n\nTo get started, tell me:\n- **For a focused edit**: select the text and describe the change in an annotation, such as “add suspense,” “make the tone more restrained,” or “shorten to 100 words”\n- **For a full-document edit**: leave everything unselected and describe the overall goal, such as “make it more conversational” or “use a professional brand voice throughout”",
+  "chat.textEditAgent.newSession": "New Text Assistant chat",
+  "chat.textEditAgent.prepareFailed":
+    "Text Assistant could not be prepared. Close the editor and try again.",
+  "chat.textEditAgent.prepareFailedShort":
+    "Text Assistant session could not be prepared.",
+  "chat.textEditAgent.preparing": "Preparing Text Assistant...",
+  "chat.textEditAgent.preparingPlaceholder":
+    "Text Assistant is getting ready...",
+  "chat.textEditAgent.selectionPlaceholder":
+    "How should I revise this selection? Tell me the tone, focus, or length",
+  "chat.textEditAgent.selectionTooLong":
+    "The selection is too long ({{count}} characters; the limit is {{max}}). Shrink the selection and send again.",
+  "chat.textEditAgent.sessionName": "Text Assistant",
+  "chat.textEditAgent.title": "Text Agent",
+  "chat.textEditAgent.wholeDocumentPlaceholder":
+    "Want to make the whole piece shine? Tell me the goal, tone, or length",
+  "chat.thinking": "Thinking...",
+  "chat.thought": "Thought",
+  "chat.tipLabel": "Tip: {{tip}}",
+  "chat.tips.agent.1":
+    "Tell Agent the goal, assets, constraints, and delivery format for more stable results.",
+  "chat.tips.agent.2":
+    "For complex tasks, ask Agent to break down the steps before you confirm them.",
+  "chat.tips.agent.3":
+    "To keep consistency, tell Agent which characters, styles, or assets must stay unchanged.",
+  "chat.tips.agent.4":
+    "If the result is not right, point out what to change instead of rewriting the whole request.",
+  "chat.tips.asset.5":
+    "Reference assets help keep characters, layout, or style consistent.",
+  "chat.tips.assetCenter.1":
+    "The Subject Library is for saving characters, scenes, style packs, and reusable materials across projects.",
+  "chat.tips.assetCenter.3":
+    "After adding an asset to a project, you can keep referencing it on the canvas or in chat.",
+  "chat.tips.discovery.1":
+    "Drag generated results back into chat to ask MiniMax Design for edits or extensions.",
+  "chat.tips.discovery.10":
+    "Save frequent workflows as Skills so you can reuse them next time.",
+  "chat.tips.discovery.11":
+    "Try a different direction in a new workspace without changing the current project.",
+  "chat.tips.discovery.4":
+    "Select multiple canvas assets and ask MiniMax Design to create from them together.",
+  "chat.tips.discovery.5":
+    "Tell MiniMax Design the model, aspect ratio, duration, or quality you want.",
+  "chat.tips.discovery.6":
+    "After a failed generation, adjust the request using the error reason and retry.",
+  "chat.tips.discovery.8":
+    "Preview edits in the timeline before deciding whether to export.",
+  "chat.tips.discovery.9":
+    "Use search to find past generated files, assets, and canvas nodes faster.",
+  "chat.tips.input.2":
+    "Add reference images or files to make the request more precise.",
+  "chat.tips.input.3":
+    "Mention the target format, size, or duration when you need a specific output.",
+  "chat.tips.plugin.1":
+    "Use plugins from the left sidebar to complete more professional creation workflows.",
+  "chat.tips.skill.1":
+    "Click Skill beside the input box to start with a dedicated workflow.",
+  "chat.tips.skill.3":
+    "Repeated workflows are good candidates to save as Skills for next time.",
+  "chat.tips.skill.4":
+    "Use Agent directly for one-off tasks; use Skills for repeatable workflows.",
+  "chat.tips.system.1":
+    "Enable notifications if you want to know when long tasks finish.",
+  "chat.tips.system.3":
+    "Use settings to switch language, storage, and notification options.",
+  "chat.tips.system.5":
+    "Link Lark or WeChat to command your agent from your phone, anywhere.",
+  "chat.tips.system.6":
+    "Hover over the chat title to view credit usage for that chat.",
+  "chat.title": "Chat",
+  "chat.todoList": "Todo List",
+  "chat.toolConfirm.ackTimeoutNotice":
+    "No confirmation result was received. You can choose again without losing the conversation.",
+  "chat.toolConfirm.alwaysAllow": "Always allow",
+  "chat.toolConfirm.alwaysAllowTodo": "Coming soon",
+  "chat.toolConfirm.batch.next": "Next batch item",
+  "chat.toolConfirm.batch.previous": "Previous batch item",
+  "chat.toolConfirm.batchNext": "Next batch item",
+  "chat.toolConfirm.batchPrev": "Previous batch item",
+  "chat.toolConfirm.booleanOff": "Off",
+  "chat.toolConfirm.booleanOn": "On",
+  "chat.toolConfirm.cancel": "Cancel",
+  "chat.toolConfirm.category.audioGen": "Audio generation",
+  "chat.toolConfirm.category.dagRun": "Workflow run",
+  "chat.toolConfirm.category.imageGen": "Image generation",
+  "chat.toolConfirm.category.musicGen": "Music generation",
+  "chat.toolConfirm.category.videoEdit": "Video editing",
+  "chat.toolConfirm.category.videoGen": "Video generation",
+  "chat.toolConfirm.close": "Close",
+  "chat.toolConfirm.collapse": "Collapse",
+  "chat.toolConfirm.comfyDownloadCompleted": "Model is ready",
+  "chat.toolConfirm.comfyDownloadModel": "Download missing model",
+  "chat.toolConfirm.comfyDownloading": "Preparing model",
+  "chat.toolConfirm.comfyDraftBadge": "Workflow Draft",
+  "chat.toolConfirm.comfyDraftLoading": "Loading workflow parameters",
+  "chat.toolConfirm.comfyDraftNoParameters": "No editable workflow parameters",
+  "chat.toolConfirm.comfyInputImportFailed":
+    "Failed to import ComfyUI input: {{reason}}",
+  "chat.toolConfirm.comfyInputNotSelected": "No file selected",
+  "chat.toolConfirm.comfyMissingInput": "Missing {{kind}} input",
+  "chat.toolConfirm.comfyMissingModel": "Model unavailable",
+  "chat.toolConfirm.comfyModelDownloadFailed":
+    "Failed to download model: {{reason}}",
+  "chat.toolConfirm.comfyPreflightChecking":
+    "Checking workflow inputs and models",
+  "chat.toolConfirm.comfyPreflightNeedsRepair":
+    "Resolve the following issues before running",
+  "chat.toolConfirm.comfyPreflightReady": "Workflow passed execution checks",
+  "chat.toolConfirm.comfyReferencePromptWarning":
+    "Reference media changed. Confirm that the prompt still matches the new media.",
+  "chat.toolConfirm.comfyReplaceExistingInput": "Replace ",
+  "chat.toolConfirm.comfyReplaceInput": "Choose again",
+  "chat.toolConfirm.comfyRunCountUnit": "runs",
+  "chat.toolConfirm.comfySelectInput": "Choose file",
+  "chat.toolConfirm.comfyWorkflowFallback": "ComfyUI workflow",
+  "chat.toolConfirm.confirm": "Confirm",
+  "chat.toolConfirm.expand": "Expand",
+  "chat.toolConfirm.expired": "Request timed out",
+  "chat.toolConfirm.miniBar.blocked": "Complete required inputs",
+  "chat.toolConfirm.miniBar.checking": "Checking workflow",
+  "chat.toolConfirm.miniBar.generate": "Generate",
+  "chat.toolConfirm.miniBar.jumpToTop": "Jump",
+  "chat.toolConfirm.miniBar.needsApproval": "Needs approval to run",
+  "chat.toolConfirm.paramEdited": "(edited)",
+  "chat.toolConfirm.reject": "Reject",
+  "chat.toolConfirm.retry": "Retry",
+  "chat.toolConfirm.title": "Tool Confirm",
+  "chat.toolLabel.askUser": "Awaiting input",
+  "chat.toolLabel.askUser.preview": "Preview",
+  "chat.toolLabel.canvasGetNode": "Getting canvas content",
+  "chat.toolLabel.canvasGrepText": "Searching document",
+  "chat.toolLabel.canvasListNodes": "Viewing canvas nodes",
+  "chat.toolLabel.canvasOp": "Processing canvas content",
+  "chat.toolLabel.canvasReadText": "Reading document section",
+  "chat.toolLabel.canvasSearchNodes": "Searching canvas content",
+  "chat.toolLabel.browser": "Using built-in browser",
+  "chat.browser.openRequired": "Built-in browser required",
+  "chat.browser.openRequiredDescription":
+    "The agent needs the built-in browser to complete this task.",
+  "chat.browser.opening": "Opening…",
+  "chat.browser.opened": "Opened",
+  "chat.browser.open": "Open browser",
+  "chat.browser.continueMessage":
+    "The built-in browser is open now. Please continue the web task from before, still using the built-in browser and without switching sources.",
+  "chat.toolLabel.connector.apify": "Using Apify",
+  "chat.toolLabel.connector.fastmoss": "Querying FastMoss",
+  "chat.toolLabel.connector.shopify": "Publishing to Shopify",
+  "chat.toolLabel.connectorOp": "Using plugin",
+  "chat.toolLabel.contentProcess": "Processing media",
+  "chat.toolLabel.fileOp": "Processing files",
+  "chat.toolLabel.getComfyUiRunStatus": "Checking ComfyUI workflow status",
+  "chat.toolLabel.getComfyUiWorkflow": "Reading ComfyUI workflow",
+  "chat.toolLabel.listCapabilities": "Checking capabilities",
+  "chat.toolLabel.listComfyUiWorkflow": "Reading ComfyUI workflows",
+  "chat.toolLabel.mediaGen": "Generating media",
+  "chat.toolLabel.memory": "Managing memory",
+  "chat.toolLabel.memorySearch": "Searching memory",
+  "chat.toolLabel.memoryWrite": "Updating memory",
+  "chat.toolLabel.planGetStageDetail": "Viewing stage details",
+  "chat.toolLabel.planGetStageStatus": "Viewing plan status",
+  "chat.toolLabel.planGetWorkItems": "Viewing work items",
+  "chat.toolLabel.planOp": "Processing production plan",
+  "chat.toolLabel.planPatchStage": "Updating stage plan",
+  "chat.toolLabel.planUpdateStageState": "Advancing stage",
+  "chat.toolLabel.reportOutcome": "Reporting stage outcome",
+  "chat.toolLabel.runComfyUiWorkflow": "Submitting ComfyUI workflow",
+  "chat.toolLabel.runComfyUiWorkflow.completed":
+    "ComfyUI workflow completed ({{count}} results)",
+  "chat.toolLabel.runComfyUiWorkflow.failed": "ComfyUI workflow failed",
+  "chat.toolLabel.runComfyUiWorkflow.progressCompleted":
+    "Completed {{completed}}/{{total}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressDescription":
+    "Generating. This may take a few minutes.",
+  "chat.toolLabel.runComfyUiWorkflow.progressElapsed": "Elapsed {{elapsed}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressMaterializing":
+    "Adding to canvas {{count}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressQueued": "Queued {{count}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressRunning": "Running {{count}}",
+  "chat.toolLabel.runComfyUiWorkflow.running": "ComfyUI workflow is running",
+  "chat.toolLabel.searchInfo": "Checking",
+  "chat.toolLabel.searchKnowledge": "Consulting knowledge base",
+  "chat.toolLabel.selectImageRecipe": "Selecting image recipe",
+  "chat.toolLabel.skillOp": "Loading skill",
+  "chat.toolLabel.spawnSubtask": "Working on subtask",
+  "chat.toolLabel.transient": "Processing",
+  "chat.toolPhrase.askUser.0": "Waiting for your answer",
+  "chat.toolPhrase.askUser.preview.0": "Waiting for feedback",
+  "chat.toolPhrase.canvasOp.0": "Processing canvas content",
+  "chat.toolPhrase.connectorOp.0": "Using plugin",
+  "chat.toolPhrase.contentProcess.0": "Processing media",
+  "chat.toolPhrase.browser.0": "Using built-in browser",
+  "chat.toolPhrase.contentProcess.1": "Transcoding media",
+  "chat.toolPhrase.fileOp.0": "Processing files",
+  "chat.toolPhrase.mediaGen.0": "Calling the generation model",
+  "chat.toolPhrase.mediaGen.1": "Waiting for the result",
+  "chat.toolPhrase.planOp.0": "Processing production plan",
+  "chat.toolPhrase.searchInfo.0": "Checking information",
+  "chat.toolPhrase.skillOp.0": "Loading skill",
+  "chat.toolPhrase.spawnSubtask.0": "Working on a subtask",
+  "chat.turnArtifacts": "This turn's outputs ({{count}})",
+  "chat.unknownError": "An unknown error occurred",
+  "chat.uploadCommitPending":
+    "Some attachments are still being delivered. Retry sending to finish.",
+  "chat.uploadCommitUnsupportedFilesystem":
+    "This workspace's file system can't safely publish attachments. Move the workspace to a local disk and try again.",
+  "chat.uploadError.empty": "No file was read. Drop or choose the file again.",
+  "chat.uploadError.fileTooLarge":
+    "The file is too large. Compress it or try a smaller file.",
+  "chat.uploadError.generic":
+    "Upload failed. Remove and upload again, or try another file.",
+  "chat.uploadError.missingPath": "Missing file path",
+  "chat.uploadError.network":
+    "Network connection failed. Check your connection and upload again.",
+  "chat.uploadError.serverUnavailable":
+    "Upload service is temporarily unavailable. Try again later.",
+  "chat.uploadError.timeout": "Upload timed out. Upload the file again.",
+  "chat.uploadError.unsupportedType":
+    "This file type is not supported yet. Try another file.",
+  "chat.uploadFailed": "Failed to upload {{name}}: {{reason}}",
+  "chat.uploadFailedCount": "{{count}} files failed to upload",
+  "chat.uploadFailedFile": "{{name}} failed to upload",
+  "chat.uploadFailedHint": "Remove and upload again, or try another file.",
+  "chat.attachmentReplaceFailed":
+    "Replacement failed. Your original attachment was kept. Try again.",
+  "chat.uploadFailedShort": "Upload failed",
+  "chat.uploadFailedWithReason": "Upload failed: {{error}}",
+  "chat.uploadFromComputer": "Upload from computer",
+  "chat.uploadRemoveFailed": "Remove failed",
+  "chat.videoCount": "{{count}} videos",
+  "chat.videoCount_one": "{{count}} video",
+  "chat.videoCount_other": "{{count}} videos",
+  "chat.videoMode.avatar": "Avatar",
+  "chat.videoMode.firstLastFrame": "First & Last Frame",
+  "chat.videoMode.omniReference": "Omni Reference",
+  "chat.videoMode.videoEdit": "Video Edit",
+  "chat.videoMode.videoExtend": "Video Extend",
+  "chat.videoUnavailable": "Video unavailable",
+  "chat.workflow.commandFailed": "Action failed: {{message}}",
+  "chat.workflow.detailFailed": "Could not load workflow details",
+  "chat.workflow.downloadActiveCount": "{{count}} active",
+  "chat.workflow.downloadAlreadyAvailable":
+    "Required models are already downloaded",
+  "chat.workflow.downloadCancel": "Cancel",
+  "chat.workflow.downloadCompleted": "Workflow models are ready",
+  "chat.workflow.downloadCompletedMissingSources":
+    "Downloadable models are ready; {{count}} model(s) have no download source",
+  "chat.workflow.downloadCompletedUnsupportedSources":
+    "{{count}} model(s) come from an unsupported download source and were skipped. Download them manually into the ComfyUI models folder.",
+  "chat.workflow.downloadFailed": "Model download failed",
+  "chat.workflow.downloadOpenFolderFailed":
+    "Could not open the ComfyUI models folder",
+  "chat.workflow.downloadStatus.cancelled": "Cancelled",
+  "chat.workflow.downloadStatus.completed": "Ready",
+  "chat.workflow.downloadStatus.downloading": "Downloading models",
+  "chat.workflow.downloadStatus.failed": "Download failed",
+  "chat.workflow.downloadStatus.queued": "Waiting to download",
+  "chat.workflow.downloadStatus.verifying": "Verifying local models",
+  "chat.workflow.edit": "Add to current canvas and edit",
+  "chat.workflow.empty": "No matching workflows",
+  "chat.workflow.label": "Workflow",
+  "chat.workflow.loadFailed": "Could not load workflows",
+  "chat.workflow.missingSources": "{{count}} model(s) have no download source",
+  "chat.workflow.model": "Model",
+  "chat.workflow.noDescription": "No description",
+  "chat.workflow.noSession": "Open a conversation first",
+  "chat.workflow.nodeCount": "Nodes",
+  "chat.workflow.nodeTypes": "Node types",
+  "chat.workflow.opened": "Opened workflow: {{name}}",
+  "chat.workflow.prepareFailed":
+    "Could not prepare Workflow dependencies: {{message}}",
+  "chat.workflow.queued": "{{name}} started ({{promptId}})",
+  "chat.workflow.run": "Add to current canvas and run",
+  "chat.workflow.search": "Search workflows…",
+  "chat.workflow.selectHint": "Hover a workflow to see details",
+  "chat.workflow.source.template": "Official",
+  "chat.workflow.source.user": "Mine",
+  "chat.workflow.unknown": "Unknown",
+  "chat.workflow.unsupportedSources":
+    "{{count}} model(s) have an unsupported download source",
+  "chat.workflow.verifyingModel": "Verifying: {{name}}",
+  "cloudAssets.blocked": "Blocked",
+  "cloudAssets.breadcrumbRoot": "All files",
+  "cloudAssets.clearFinished": "Clear finished",
+  "cloudAssets.debugDump": "Debug: dump raw cloud data",
+  "cloudAssets.debugDumpCallCount": "{{count}} requests",
+  "cloudAssets.debugDumpFailed": "Failed to fetch cloud data: {{message}}",
+  "cloudAssets.debugDumpTitle": "Raw cloud asset data (debug)",
+  "cloudAssets.delete": "Delete",
+  "cloudAssets.deleteCloudAndLocal": "Delete from cloud and local",
+  "cloudAssets.deleteCloudOnly": "Delete from cloud only",
+  "cloudAssets.deleteFile": "Delete file",
+  "cloudAssets.deleteFileBody":
+    "This permanently deletes the file from the cloud and moves the local copy to the trash.",
+  "cloudAssets.deleteFileTitle": 'Delete "{{name}}"?',
+  "cloudAssets.deleteFolderBody":
+    "This permanently deletes the folder and all its contents from the cloud, and moves the local copy to the trash.",
+  "cloudAssets.deleteFolderTitle": 'Delete folder "{{name}}"?',
+  "cloudAssets.deleteLocalFailed":
+    'Deleted from cloud, but removing the local copy of "{{name}}" failed',
+  "cloudAssets.download": "Download to local",
+  "cloudAssets.emptyDescription": "Upload files to share them with your team.",
+  "cloudAssets.emptyTitle": "No shared assets yet",
+  "cloudAssets.failLocalFile": "Couldn't read or write the local file",
+  "cloudAssets.failNetwork": "Network error. Check your connection and retry",
+  "cloudAssets.failServer": "Server error. Try again later",
+  "cloudAssets.failUnknown": "Transfer failed. Please retry",
+  "cloudAssets.folderDownloadFailed": "Folder download failed: {{message}}",
+  "cloudAssets.folderDownloadNothing": "Nothing to download",
+  "cloudAssets.folderDownloadStarted": "Downloading {{count}} files",
+  "cloudAssets.folderMeta": "{{count}} files",
+  "cloudAssets.loadMore": "Load More",
+  "cloudAssets.moreActions": "More actions",
+  "cloudAssets.moveLocalFailed":
+    "Moved in cloud, but moving the local copy of “{{name}}” failed",
+  "cloudAssets.moveTo": "Move to",
+  "cloudAssets.newFolder": "New folder",
+  "cloudAssets.newFolderPlaceholder": "Folder name",
+  "cloudAssets.newFolderTitle": "New folder",
+  "cloudAssets.noCloudBinding":
+    "This project isn't linked to a cloud project yet.",
+  "cloudAssets.notTeamMemberDescription":
+    "You’re not currently a member of this project’s team. Ask the project owner to add you, then try again.",
+  "cloudAssets.notTeamMemberTitle": "Project assets unavailable",
+  "cloudAssets.redownload": "Re-download",
+  "cloudAssets.refresh": "Refresh",
+  "cloudAssets.rejectNoPath": `"{{name}}" can't be read from disk`,
+  "cloudAssets.rejectTooLarge": '"{{name}}" exceeds the 300MB size limit',
+  "cloudAssets.rejectTooLong": '"{{name}}" exceeds the duration limit',
+  "cloudAssets.rejectUnsupported": '"{{name}}" is not a supported file type',
+  "cloudAssets.removeRecord": "Remove record",
+  "cloudAssets.rename": "Rename",
+  "cloudAssets.renameLocalFailed":
+    "Renamed in cloud, but renaming the local copy of “{{name}}” failed",
+  "cloudAssets.renamePlaceholder": "New name",
+  "cloudAssets.renameTitle": "Rename",
+  "cloudAssets.reviewFailedHint": "Review failed. Please delete this file.",
+  "cloudAssets.reviewing": "In review",
+  "cloudAssets.skipActive": "{{count}} already downloading",
+  "cloudAssets.skipBlocked": "{{count}} blocked",
+  "cloudAssets.skipNoUrl": "{{count}} unavailable",
+  "cloudAssets.skipReviewing": "{{count}} in review",
+  "cloudAssets.skipSynced": "{{count}} up to date",
+  "cloudAssets.skippedPrefix": "Skipped: ",
+  "cloudAssets.statusCanceled": "Canceled",
+  "cloudAssets.statusDone": "Done",
+  "cloudAssets.statusDownloading": "Downloading",
+  "cloudAssets.statusFailed": "Failed",
+  "cloudAssets.statusPending": "Waiting",
+  "cloudAssets.statusReviewFailed": "Review failed",
+  "cloudAssets.statusReviewing": "In review",
+  "cloudAssets.statusUploading": "Uploading",
+  "cloudAssets.syncDownloading": "Downloading",
+  "cloudAssets.syncNotDownloaded": "Cloud",
+  "cloudAssets.syncStale": "Changed in cloud",
+  "cloudAssets.syncSynced": "Downloaded",
+  "cloudAssets.tabDownloads": "Downloading",
+  "cloudAssets.tabUploads": "Uploading",
+  "cloudAssets.transferTitle": "Transfers",
+  "cloudAssets.transfers": "Transfers",
+  "cloudAssets.transfersEmpty": "No transfers",
+  "cloudAssets.updatedAtOnly": "Updated at {{time}}",
+  "cloudAssets.updatedByAt": "Updated by {{name}} at {{time}}",
+  "cloudAssets.upload": "Upload",
+  "cloudAssets.uploadStartFailed":
+    'Failed to start uploading "{{name}}": {{message}}',
+  "cloudAssets.usage": "{{used}} of {{total}} used",
+  "cloudAssets.usagePanelTitle": "Cloud storage",
+  "cloudAssets.usagePanelTooltip":
+    "Assets in shared projects live in the cloud so team members can view them together",
+  "cloudAssets.viewGrid": "Grid view",
+  "cloudAssets.viewList": "List view",
+  "coachMark.canvas.group.desc":
+    'Canvas getting messy? Select multiple nodes, right-click "Group" — vertical / horizontal / grid layouts arrange automatically',
+  "coachMark.canvas.group.title": "Group assets",
+  "coachMark.downloading": "Downloading…",
+  "coachMark.file.locate.desc":
+    'Right-click "Locate on canvas" in the resource panel to quickly find the asset on the canvas',
+  "coachMark.file.locate.title": "Locate on canvas",
+  "coachMark.file.view.desc":
+    "Click here, or press {{treeShortcut}} / {{gridShortcut}} in the resource panel, to switch sorting / view mode",
+  "coachMark.file.view.title": "Two views to switch",
+  "coachMark.gotIt": "Got it",
+  "coachMark.home.assetCenterRelocation.defaultWorkspaceName": "New project",
+  "coachMark.home.assetCenterRelocation.desc":
+    "Asset Center is now called Subject Library and lives on the creation page (canvas), so you can use assets while creating.",
+  "coachMark.home.assetCenterRelocation.title": "Asset Center has moved",
+  "coachMark.home.atKey.desc":
+    "Want to reference a specific image or pick a model? Type @ to choose — files and models are all selectable",
+  "coachMark.home.atKey.title": 'Use the "@" key',
+  "coachMark.home.projectLibrary.desc":
+    "All your projects live here. Click Next and we'll create a sample project so you can explore a ready-made workspace.",
+  "coachMark.home.projectLibrary.title": "Project library",
+  "coachMark.home.sampleProjectName": "Project Onboarding Guide",
+  "coachMark.home.slashKey.desc": "Need a dedicated Skill to help out",
+  "coachMark.home.slashKey.title": 'Use the "/" key',
+  "coachMark.home.workspace.desc":
+    "Pick a local folder to work in. The MiniMax Design agent will read and write files there first, making local tasks like asset organizing and format conversion easier.",
+  "coachMark.home.workspace.title": "New: select a workspace",
+  "coachMark.mediaPlaceholder": "Media placeholder",
+  "coachMark.next": "Next",
+  "coachMark.pluginInstallFailed":
+    "Plugin installation failed. You can install it manually later from the plugin marketplace.",
+  "coachMark.sessionCost.desc":
+    "Hover over the chat title to view credits used for images, videos, audio, and Agent activity in this chat. Usage updates after each task completes. Credit usage is not available for historical chats yet.",
+  "coachMark.sessionCost.title": "View chat credit usage",
+  "coachMark.workspace.assetCenterRelocation.desc":
+    "You can find and use your former Asset Center materials here from now on.",
+  "coachMark.workspace.assetCenterRelocation.title": "This is its new home",
+  "coachMark.workspace.displayMode.desc":
+    "Press {{shortcut}} to open the full-screen display mode switcher. Use arrow keys to preselect and Enter to apply.",
+  "coachMark.workspace.displayMode.title": "Quickly switch display modes",
+  "colorAdjust.blacks": "Blacks",
+  "colorAdjust.bloom": "Bloom",
+  "colorAdjust.blur": "Blur",
+  "colorAdjust.brightness": "Brightness",
+  "colorAdjust.clarity": "Clarity",
+  "colorAdjust.compilingShaders": "Compiling shaders…",
+  "colorAdjust.contrast": "Contrast",
+  "colorAdjust.dehaze": "Dehaze",
+  "colorAdjust.errorAttachFailed": "Failed to load video for color grading",
+  "colorAdjust.errorExportFailed": "Failed to export graded video",
+  "colorAdjust.exportingVideo": "Exporting video...",
+  "colorAdjust.exposure": "Exposure",
+  "colorAdjust.glamour": "Glamour",
+  "colorAdjust.grain": "Grain",
+  "colorAdjust.groupColor": "Color",
+  "colorAdjust.groupDetail": "Detail",
+  "colorAdjust.groupLight": "Light",
+  "colorAdjust.groupLut": "LUT",
+  "colorAdjust.groupScene": "Scene",
+  "colorAdjust.highlights": "Highlights",
+  "colorAdjust.hue": "Hue",
+  "colorAdjust.lut.delete": "Delete",
+  "colorAdjust.lut.deleteConfirm": "Delete this LUT?",
+  "colorAdjust.lut.errorDelete": "Failed to delete LUT",
+  "colorAdjust.lut.errorImport": "Failed to import LUT",
+  "colorAdjust.lut.import": "Import",
+  "colorAdjust.lut.intensity": "Intensity",
+  "colorAdjust.lut.none": "None",
+  "colorAdjust.lut.placeholder": "Select a LUT",
+  "colorAdjust.lutGroupMine": "My LUTs",
+  "colorAdjust.lutGroupPresets": "Presets",
+  "colorAdjust.lutPreset.01_Portrait_Warm": "Portrait · Warm",
+  "colorAdjust.lutPreset.02_Portrait_Soft": "Portrait · Soft",
+  "colorAdjust.lutPreset.03_Landscape_Vivid": "Landscape · Vivid",
+  "colorAdjust.lutPreset.04_Natural_Slide": "Natural · Slide Film",
+  "colorAdjust.lutPreset.05_Travel_Bright": "Travel · Bright",
+  "colorAdjust.lutPreset.06_Classic_BW": "Classic · B&W",
+  "colorAdjust.lutPreset.07_Modern_BW": "Modern · B&W",
+  "colorAdjust.lutPreset.08_Magazine_Look": "Magazine Look",
+  "colorAdjust.lutPreset.09_Smooth_BW": "Smooth · B&W",
+  "colorAdjust.lutPreset.10_Vintage_Instant": "Vintage Instant",
+  "colorAdjust.presetAuto": "Auto",
+  "colorAdjust.presetBlackWhite": "Black & White",
+  "colorAdjust.presetCinematic": "Cinematic",
+  "colorAdjust.presetPop": "Pop",
+  "colorAdjust.presetVintage": "Vintage",
+  "colorAdjust.presetVivid": "Vivid",
+  "colorAdjust.reset": "Reset",
+  "colorAdjust.saturation": "Saturation",
+  "colorAdjust.saveToCanvas": "Save to Canvas",
+  "colorAdjust.shadows": "Shadows",
+  "colorAdjust.sharpen": "Sharpen",
+  "colorAdjust.smooth": "Smooth",
+  "colorAdjust.temperature": "Temperature",
+  "colorAdjust.tint": "Tint",
+  "colorAdjust.vibrance": "Vibrance",
+  "colorAdjust.vignette": "Vignette",
+  "colorAdjust.whites": "Whites",
+  "common.appName": "MiniMax Design",
+  "common.audio": "Audio",
+  "common.back": "Back",
+  "common.cancel": "Cancel",
+  "common.clear": "Clear",
+  "common.close": "Close",
+  "common.collapse": "Collapse",
+  "common.comingSoon": "Coming soon",
+  "common.confirm": "Confirm",
+  "common.copied": "Copied!",
+  "common.copiedShort": "Copied",
+  "common.copy": "Copy",
+  "common.copyFailed": "Failed to copy",
+  "common.create": "Create",
+  "common.delete": "Delete",
+  "common.deleting": "Deleting…",
+  "common.dismiss": "Dismiss",
+  "common.done": "Done",
+  "common.edit": "Edit",
+  "common.error": "Error",
+  "common.expand": "Expand",
+  "common.fileManager.open.darwin": "Open in Finder",
+  "common.fileManager.open.other": "Open in File Manager",
+  "common.fileManager.open.win32": "Open in File Explorer",
+  "common.image": "Image",
+  "common.loadMore": "Load More",
+  "common.loading": "Loading...",
+  "common.more": "More",
+  "common.next": "Next",
+  "common.no": "No",
+  "common.offline":
+    "No internet connection. Some features may be unavailable until you reconnect.",
+  "common.optional": "Optional",
+  "common.pause": "Pause",
+  "common.play": "Play",
+  "common.previous": "Previous",
+  "common.refresh": "Refresh",
+  "common.refreshing": "Refreshing…",
+  "common.remove": "Remove",
+  "common.rename": "Rename",
+  "common.reportIssue": "Report Issue",
+  "common.required": "Required",
+  "common.retry": "Retry",
+  "common.save": "Save",
+  "common.saveAs": "Save As",
+  "common.saveFailed": "Save failed",
+  "common.saved": "Saved",
+  "common.saving": "Saving…",
+  "common.search": "Search",
+  "common.send": "Send",
+  "common.settings": "Settings",
+  "common.submit": "Submit",
+  "common.video": "Video",
+  "common.yes": "Yes",
+  "connectors.addAria": "Add {{name}} plugin",
+  "connectors.apify.connect": "Connect And Enable",
+  "connectors.apify.consent":
+    "Agent can run Actors and access account storage and results, which may incur charges. Collect only data you are authorized to access.",
+  "connectors.apify.description":
+    "Get an API Token and connect Apify for use in Agent chats.",
+  "connectors.apify.invalidKey":
+    "Paste only a valid key, not a URL, full header, Bearer prefix or whitespace.",
+  "connectors.apify.keyHint":
+    "Bearer authentication is added automatically, and the API Token is encrypted on this device.",
+  "connectors.apify.keyLabel": "Enter API Token",
+  "connectors.apify.keyPlaceholder": "Enter Apify API Token",
+  "connectors.apify.login": "Get Apify API Token",
+  "connectors.apify.loginDescription":
+    "Copy your API token from API & Integrations in Apify Console.",
+  "connectors.apify.loginError": "Could not open the browser. Try again.",
+  "connectors.apify.loginTitle": "Get API Token",
+  "connectors.apify.title": "Connect Apify",
+  "connectors.blender.error.addon_install_failed":
+    "Failed to install the Blender add-on. Try again.",
+  "connectors.blender.error.blender_not_found":
+    "Blender was not detected. Install Blender (3.0 or later) first, then try again.",
+  "connectors.blender.error.busy":
+    "An install is already in progress. Please wait.",
+  "connectors.blender.error.connector_config_failed":
+    "Failed to save the plugin configuration. Try again.",
+  "connectors.blender.error.package_download_failed":
+    "Failed to download the Blender MCP components. Check your network and try again.",
+  "connectors.blender.error.python_unavailable":
+    "The local Python runtime is unavailable. Check your network and try again.",
+  "connectors.blender.install": "Install",
+  "connectors.blender.installedConnected":
+    "Blender is connected and ready to use.",
+  "connectors.blender.installedWaiting":
+    "Installed. Now start the MCP server inside Blender.",
+  "connectors.blender.location.auto": "Auto Detect",
+  "connectors.blender.location.choose": "Choose Blender Folder",
+  "connectors.blender.location.detecting": "Detecting install location…",
+  "connectors.blender.location.hint":
+    "For a portable installation, select the application folder. For a custom location, select Blender's user configuration folder. Check that the location above belongs to the Blender you use.",
+  "connectors.blender.location.title": "Addon Install Location",
+  "connectors.blender.location.version": "Choose Blender Version",
+  "connectors.blender.reinstall": "Reinstall",
+  "connectors.blender.state.connected": "Connected",
+  "connectors.blender.state.installing": "Installing…",
+  "connectors.blender.state.not_installed": "Not installed",
+  "connectors.blender.state.waiting_blender": "Waiting for Blender",
+  "connectors.blender.waitingHint.community":
+    "Installation is complete. Open Blender, enable “MCP for Blender” under Preferences → Add-ons, then press N in the 3D viewport and click Start MCP Server. This page detects the connection automatically.",
+  "connectors.blender.waitingHint.official":
+    "Installation is complete. Restart Blender — the official add-on starts the MCP server automatically. This page detects the connection automatically.",
+  "connectors.catalog.after-effects.description":
+    "Turn design comps, product assets, or brand visuals into motion graphics and video, including title sequences, captions, product ads, transitions, and effects, while keeping the animation editable.",
+  "connectors.catalog.after-effects.title": "After Effects",
+  "connectors.catalog.apify.description":
+    "Collect public data from TikTok, TikTok Shop, ad libraries, e-commerce sites, and competitor pages for content ideation, competitor research, viral-content breakdowns, and short-video scripting.",
+  "connectors.catalog.apify.title": "Apify",
+  "connectors.catalog.blender.description":
+    "Turn reference images, sketches, or product ideas into explorable, editable 3D spaces with modeling, materials, lighting, cameras, animation previews, and assets ready for games or real-time engines.",
+  "connectors.catalog.browser.title": "Browser",
+  "connectors.catalog.browser.description":
+    "Let Agent browse, find information, and interact with websites in the built-in browser. You can still browse manually when this is off.",
+  "connectors.browser.enabled": "On",
+  "connectors.browser.disabled": "Off",
+  "connectors.browser.toggle": "Allow Agent to use the browser",
+  "connectors.browser.saveFailed":
+    "Could not update the browser connector. Please try again.",
+  "connectors.catalog.blender.title": "Blender",
+  "connectors.catalog.fastmoss.description":
+    "Analyze TikTok Shop products, shops, creators, and trends to help e-commerce operators choose products, research competitors, spot growth opportunities, and create sales scripts and storyboards.",
+  "connectors.catalog.fastmoss.title": "FastMoss",
+  "connectors.catalog.figma.description":
+    "Connect Figma Desktop to read design context, screenshots, and variables.",
+  "connectors.catalog.figma.title": "Figma",
+  "connectors.catalog.houdini.description":
+    "Build cities, terrain, and product effects as endlessly adjustable 3D scenes, generate smoke, debris, fluids, particles, and environment variations, and output camera previews.",
+  "connectors.catalog.houdini.title": "Houdini",
+  "connectors.catalog.nuke.title": "Nuke",
+  "connectors.catalog.nuke.description":
+    "Build compositing node graphs, adjust color and effects, and inspect your Nuke scripts.",
+  "connectors.detail.nuke.description":
+    "Work with your open Nuke script to create and connect nodes, adjust compositing parameters, and check the setup before rendering.",
+  "connectors.detail.nuke.promptTitle.0": "Build a Product Composite",
+  "connectors.detail.nuke.promptTitle.1": "Match Shot Colors",
+  "connectors.detail.nuke.promptTitle.2": "Check a Render Setup",
+  "connectors.detail.nuke.prompt.0":
+    "Inspect the selected nodes in my open Nuke script, then build a product compositing branch with a background, color adjustment, and Merge node. Keep the original nodes and explain the new connections.",
+  "connectors.detail.nuke.prompt.1":
+    "Inspect the selected footage and its current color settings. Create a separate color adjustment branch to match the reference shot, and explain the parameters I can refine in Nuke.",
+  "connectors.detail.nuke.prompt.2":
+    "Check the current Nuke script for disconnected nodes, missing input files, and Write node settings. Summarize the issues and suggest fixes before starting any render.",
+  "connectors.connector.waitingHint.nuke":
+    "Restart Nuke after installation, then choose NukeMCP > Start Server from its menu. Keep Nuke open while using the plugin.",
+  "connectors.connector.state.checking": "Checking connection",
+  "connectors.runtimeState.checking": "Checking connection",
+  "connectors.runtimeState.installing": "Installing plugin",
+  "connectors.runtimeState.waitingHostApp": "Waiting for application",
+  "connectors.catalog.illustrator.description":
+    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in MiniMax Design.",
+  "connectors.catalog.illustrator.title": "Illustrator",
+  "connectors.catalog.photoshop.description":
+    "Turn product photos, photographs, and design assets into e-commerce hero images, posters, social visuals, and texture maps with masking, retouching, compositing, color correction, multi-size exports, and editable layers.",
+  "connectors.catalog.photoshop.title": "Photoshop",
+  "connectors.catalog.shopify.description":
+    "Publish MiniMax Design output to your Shopify store: create product drafts, upload product images and ad assets, and draft store pages.",
+  "connectors.catalog.shopify.title": "Shopify",
+  "connectors.catalog.touchdesigner.description":
+    "Turn music, cameras, body movement, or live signals into real-time visuals for stages, exhibitions, and interactive installations, with particles, 3D, projection mapping, and live output.",
+  "connectors.catalog.touchdesigner.title": "TouchDesigner",
+  "connectors.catalog.unity.description":
+    "Drive the Unity Editor with AI: build and edit scenes, GameObjects, and components, write and refactor C# scripts, run tests, and read console output right inside your project.",
+  "connectors.catalog.unity.title": "Unity",
+  "connectors.catalog.unreal.description":
+    "Drive the Unreal Editor with AI: spawn and edit actors, build Blueprints, tweak materials and Niagara effects, arrange Sequencer shots, and run editor Python in your project.",
+  "connectors.catalog.unreal.title": "Unreal Engine",
+  "connectors.catalogDescription":
+    "Choose a service to extend what MiniMax Design can access and complete.",
+  "connectors.catalogTitle": "Explore plugins",
+  "connectors.connector.error.addon_install_failed":
+    "Failed to install addon into the application",
+  "connectors.connector.error.busy": "Installation already in progress",
+  "connectors.connector.error.connector_config_failed":
+    "Failed to configure plugin",
+  "connectors.connector.error.host_app_not_found":
+    "{{name}} was not detected. Make sure it is installed and has been opened on this computer, then try again.",
+  "connectors.connector.error.host_app_selection_required":
+    "Multiple Blender versions were found. Choose where to install the addon first.",
+  "connectors.connector.error.invalid_host_directory":
+    "The selected directory could not be recognized or accessed. Select Blender's user configuration directory or its application folder containing a portable directory.",
+  "connectors.connector.error.node_unavailable":
+    "Node.js runtime is not available",
+  "connectors.connector.error.package_download_failed":
+    "Failed to download plugin package",
+  "connectors.connector.error.python_unavailable":
+    "Python runtime is not available",
+  "connectors.connector.error.unknown_connector": "Unknown plugin",
+  "connectors.connector.error.unsupported_platform":
+    "This plugin is not available on your platform",
+  "connectors.connector.install": "Install Plugin",
+  "connectors.connector.installHint":
+    "Install {{name}} and open it once before installing the plugin. Some installation methods or locations may not be detected automatically.",
+  "connectors.connector.prepare.available":
+    "{{name}} was detected. You can continue installing the plugin.",
+  "connectors.connector.prepare.checking":
+    "Checking for {{name}} on this device…",
+  "connectors.connector.prepare.componentPackage":
+    "After installation, download and import the {{name}} component package.",
+  "connectors.connector.prepare.error":
+    "The device check failed. You can still continue setup.",
+  "connectors.connector.prepare.illustrator":
+    "Works with installed stable Illustrator; version 2024 or later is recommended. No extra panel is required. Allow automation access on macOS when prompted. Windows compatibility still requires testing on a real device.",
+  "connectors.connector.prepare.inAppActivation":
+    "After installation, you may still need to enable the plugin inside the application.",
+  "connectors.connector.prepare.locationCaveat":
+    "Some installation methods or locations may not be detected automatically.",
+  "connectors.connector.prepare.missing":
+    "{{name}} was not detected. You can still install the plugin.",
+  "connectors.connector.prepare.missingWithLocation":
+    "{{name}} was not detected. You can still select its installation location manually.",
+  "connectors.connector.prepare.primary":
+    "Install {{name}} and open it once before installing the plugin.",
+  "connectors.connector.prepare.retry": "Check Again",
+  "connectors.connector.prepare.unknown":
+    "The installation status of {{name}} could not be confirmed. You can still continue setup.",
+  "connectors.connector.prepare.unsupported":
+    "The {{name}} plugin is not supported on this system.",
+  "connectors.connector.downloadHostApp.blender":
+    "Don't have Blender yet? Download the installer",
+  "connectors.connector.installedConnected": "Plugin installed and connected",
+  "connectors.connector.installedWaiting":
+    "Plugin installed — open the application to connect",
+  "connectors.connector.reinstall": "Reinstall",
+  "connectors.connector.setupDescription":
+    "Follow the steps below to complete the local connection.",
+  "connectors.connector.setupTitle": "Connect {{name}}",
+  "connectors.connector.step.activate": "Finish setup in {{name}}",
+  "connectors.connector.step.install": "Install the plugin",
+  "connectors.connector.step.installWithAddonLocation": "Install Location",
+  "connectors.connector.step.installWithAppLocation": "Install Location",
+  "connectors.connector.step.prepare": "Prepare {{name}}",
+  "connectors.connector.state.connected": "Connected",
+  "connectors.connector.state.installing": "Installing plugin...",
+  "connectors.connector.state.not_installed": "Plugin not installed",
+  "connectors.connector.state.waiting_host_app": "Waiting for application",
+  "connectors.connector.update": "Update",
+  "connectors.connector.updateAvailable": "Update available",
+  "connectors.connector.updateDeferred":
+    "Setup finished, but the update could not be downloaded — the current version remains in use. Try updating again later.",
+  "connectors.connector.updateRequestFailed":
+    "The update request could not be sent. Try again.",
+  "connectors.connector.updateSuccess": "Plugin updated to the latest version",
+  "connectors.connector.usePrefix": "Use {{name}}:",
+  "connectors.connector.waitingHint.after-effects":
+    "Open Adobe After Effects and enable the MCP Bridge panel in Window > Extensions. Then the plugin will auto-connect.",
+  "connectors.connector.waitingHint.blender":
+    "Open Blender, enable the MCP addon in Preferences > Add-ons, and press Start MCP Server in the N-panel.",
+  "connectors.connector.waitingHint.houdini":
+    "Open Houdini. The MCP plugin auto-starts with Houdini and runs the hwebserver on port 8100.",
+  "connectors.connector.waitingHint.illustrator":
+    "Open Adobe Illustrator and dismiss any blocking dialogs. On macOS, allow control of Illustrator in System Settings → Privacy & Security → Automation. Chats share the same application; avoid editing the same document simultaneously.",
+  "connectors.connector.waitingHint.photoshop":
+    "Open Adobe Photoshop to connect. The MCP server will control Photoshop through automation.",
+  "connectors.connector.waitingHint.touchdesigner":
+    "Download and extract the component package. Drag mcp_webserver_base.tox into your TouchDesigner project under /project1. Keep the modules folder beside the .tox file and leave the WebServer DAT running on port 9981.",
+  "connectors.connector.waitingHint.unity":
+    "Open the Unity project with the plugin installed — or just ask in chat and the agent will create or pick a project and set it up. First time only: in Unity open Window > MCP for Unity and switch the transport to Local (stdio); the bridge then starts automatically on port 6400.",
+  "connectors.connector.waitingHint.unreal":
+    "Open (or restart) a project in Unreal Engine 5.7 or newer — or just ask in chat and the agent will create or pick a project and set it up. Setup enabled Epic's built-in Model Context Protocol and Terminal plugins with auto-start for the engine templates and your recently opened projects, so the MCP server starts with the editor on 127.0.0.1:8000.",
+  "connectors.connector.waitingHint.withSkill":
+    "Open the {{name}} application to start using it, or use the {{name}} Skill directly in chat and let AI help you connect to and control {{name}}.",
+  "connectors.customDialog.error.authorization_busy":
+    "Another authorization is already in progress. Finish or cancel it first.",
+  "connectors.customDialog.error.authorization_cancelled":
+    "Authorization was cancelled. The plugin stays disabled.",
+  "connectors.customDialog.error.authorization_failed":
+    "Browser authorization did not complete. Try connecting again.",
+  "connectors.customDialog.error.authorization_unavailable":
+    "This app build cannot run browser authorization. Update and fully restart the app.",
+  "connectors.customDialog.error.figma_desktop_invalid_response":
+    "The local server did not provide the expected Figma MCP tools. Update Figma and re-enable Desktop MCP server.",
+  "connectors.customDialog.error.figma_desktop_no_file":
+    "No design file is open in Figma Desktop. Open a design file window, keep Desktop MCP server enabled, and try again.",
+  "connectors.customDialog.error.figma_desktop_unavailable":
+    "Could not connect to Figma Desktop. Open a design file, enable Desktop MCP server in Dev Mode, and try again.",
+  "connectors.customDialog.error.oauth_client_unavailable":
+    "The OAuth client for this plugin is not configured on this device. Set the client secret and restart the app.",
+  "connectors.detail.figma.description":
+    "Read design context, screenshots, and variables from files open in Figma Desktop. Analyze layouts and visual hierarchy, and summarize colors, typography, and spacing as a reference for design and development.",
+  "connectors.detail.figma.prompt.0":
+    "Read the poster I have selected in Figma. Use its screenshot to analyze text hierarchy, colors, alignment, and whitespace, and list actionable suggestions in chat.",
+  "connectors.detail.figma.prompt.1":
+    "Read the ad storyboard I have selected in Figma. Use its screenshot to review the panel sequence, shot notes, and on-screen text. Summarize the narrative pacing in chat and identify missing or inconsistent information.",
+  "connectors.detail.figma.prompt.2":
+    "Extract the variables and styles from my selected design in Figma. In chat, list its colors, typography, and spacing with their names and values as a reference for design and development.",
+  "connectors.detail.figma.promptTitle.0": "Poster Design Analysis",
+  "connectors.detail.figma.promptTitle.1": "Ad Storyboard Review",
+  "connectors.detail.figma.promptTitle.2": "Design Specification Extraction",
+  "connectors.detail.illustrator.description":
+    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in MiniMax Design.",
+  "connectors.detail.illustrator.prompt.0":
+    "Use Adobe Illustrator to create a futuristic city vector poster with skyscrapers, hovering trains, neon signs, and the title “NEON CITY”. Use a blue and purple palette, preserve editable paths, text, and layers, and export AI, SVG, and PNG files.",
+  "connectors.detail.illustrator.prompt.1":
+    "Use Adobe Illustrator to turn the coffee brand poster I provide into three color schemes with Chinese and English versions. Consistently replace the headline, prices, and event dates, adapt the design for a square cover, a portrait poster, and a landscape banner, preserve editable text, and export the versions in a batch.",
+  "connectors.detail.illustrator.prompt.2":
+    "Use Adobe Illustrator to create vector assets for a 20-second product introduction animation, including the product outline, feature icons, titles, and decorative graphics. Separate and name layers by animation element, then export a layered AI file that can be imported into After Effects and an SVG asset pack.",
+  "connectors.detail.illustrator.promptTitle.0":
+    "Design a Futuristic City Poster",
+  "connectors.detail.illustrator.promptTitle.1":
+    "Create Coffee Brand Poster Variations",
+  "connectors.detail.illustrator.promptTitle.2":
+    "Prepare Layered Animation Assets",
+  "connectors.detail.shopify.description":
+    "Connect your Shopify store to publish generated product images, listing copy, and page content directly from MiniMax Design. Products are created as drafts and pages stay unpublished until you review them.",
+  "connectors.detail.shopify.prompt.0":
+    'Create a draft product on Shopify with the poster image we just generated, titled "Aurora Ceramic Mug", and write the product description from the design brief',
+  "connectors.detail.shopify.prompt.1":
+    "Upload these three ad creatives to my Shopify files so I can use them in campaigns",
+  "connectors.detail.shopify.prompt.2":
+    "Draft a landing page on my Shopify store for the spring collection using the copy and hero image from this session",
+  "connectors.figma.checking":
+    "Checking the Figma desktop server and available tools...",
+  "connectors.figma.description":
+    "Read design files open in Figma on this computer. No API key is required.",
+  "connectors.figma.guideFailed":
+    "Could not open the setup guide. Please try again.",
+  "connectors.figma.keepOpen":
+    "Keep Figma running while you work. Features depend on your Figma seat, file permissions, and desktop support.",
+  "connectors.figma.stepConnect":
+    "Return here and connect to verify the local server and available tools.",
+  "connectors.figma.stepEnable":
+    "Enter Dev Mode and enable Desktop MCP server in the MCP server panel.",
+  "connectors.figma.stepOpen":
+    "Open the Figma desktop app, sign in, and open a design file.",
+  "connectors.figma.title": "Connect Figma Desktop",
+  "connectors.location.notDetected":
+    "{{name}} was not detected automatically. You can still choose it manually.",
+  "connectors.custom": "Custom Plugin",
+  "connectors.customDialog.add": "Add Plugin",
+  "connectors.customDialog.advanced": "Advanced options",
+  "connectors.customDialog.arguments": "Launch arguments (optional)",
+  "connectors.customDialog.argumentsPlaceholder": "-y @example/mcp-server",
+  "connectors.customDialog.command": "Launch command",
+  "connectors.customDialog.commandError":
+    "Enter a launch command of up to 1,024 characters.",
+  "connectors.customDialog.argumentsError":
+    "Use up to 128 arguments, with no more than 4,096 characters each.",
+  "connectors.customDialog.descriptionError":
+    "Keep the note within 500 characters.",
+  "connectors.customDialog.nameError":
+    "Enter a name of up to 24 characters using Chinese characters, English letters, numbers, and . _ - only.",
+  "connectors.customDialog.urlError":
+    "Enter a valid HTTP or HTTPS URL of up to 8,192 characters.",
+  "connectors.customDialog.commandPlaceholder": "npx",
+  "connectors.customDialog.commandHint":
+    "Paste a full command to split its arguments automatically. Quote paths containing spaces. Separate arguments are appended.",
+  "connectors.customDialog.commandSplitHint":
+    "Command and arguments split automatically. You can continue editing them.",
+  "connectors.customDialog.unclosedQuoteError":
+    "Close the quotation marks and try again.",
+  "connectors.customDialog.commandPathError":
+    "The program name contains spaces or quotes. Enter its full path and enclose the path in quotation marks.",
+  "connectors.customDialog.shellSyntaxError":
+    "Enter a command for one program. Pipes, redirection, and variable expansion are not supported here. Put literal arguments in Launch arguments.",
+  "connectors.customDialog.created.connected":
+    "MCP server connected. It is available in Agent chats now.",
+  "connectors.customDialog.created.disabled":
+    "Plugin saved and disabled. You can enable it from its card.",
+  "connectors.customDialog.created.failed":
+    "Server saved, but it could not connect to an active workspace.",
+  "connectors.editConfiguration": "Edit Configuration",
+  "connectors.customDialog.editTitle": "Edit Custom Connector",
+  "connectors.customDialog.editSubtitle":
+    "Update the existing connector settings. Saving reconnects it if enabled.",
+  "connectors.customDialog.save": "Save Configuration",
+  "connectors.customDialog.nameLocked":
+    "The connector name is referenced by existing conversations and cannot be changed here.",
+  "connectors.customDialog.enabledAfterSave": "Enable After Saving",
+  "connectors.customDialog.updated.saved": "Connector configuration updated.",
+  "connectors.customDialog.updated.failed":
+    "Configuration saved, but the connection still failed. You can edit it again or retry.",
+  "connectors.customDialog.error.server_changed":
+    "Another operation changed this connector. Close and reopen the editor to load the latest settings.",
+  "connectors.customDialog.description": "Note (optional)",
+  "connectors.customDialog.descriptionPlaceholder":
+    "e.g. Query product and market data",
+  "connectors.customDialog.enabled": "Enable after adding",
+  "connectors.customDialog.enabledHint":
+    "Allow MiniMax Design to use this plugin in creative conversations when enabled.",
+  "connectors.customDialog.environment": "Environment variables (JSON)",
+  "connectors.customDialog.error.invalid_config":
+    "Check the server name and connection settings.",
+  "connectors.customDialog.error.loadFailed":
+    "Could not load the connector configuration. Try again.",
+  "connectors.customDialog.error.requestFailed":
+    "Could not save this MCP server. Try again.",
+  "connectors.customDialog.error.reserved_name":
+    "This server name is reserved by MiniMax Design.",
+  "connectors.customDialog.error.server_exists":
+    "An MCP server with this name already exists.",
+  "connectors.customDialog.error.server_not_found":
+    "This plugin no longer exists. Refresh the list and try again.",
+  "connectors.customDialog.error.storage_failed":
+    "The encrypted MCP configuration could not be saved.",
+  "connectors.customDialog.formTab": "Manual Entry",
+  "connectors.customDialog.headers": "Request headers (JSON)",
+  "connectors.customDialog.jsonEditorLabel": "MCP JSON configuration",
+  "connectors.customDialog.jsonError":
+    "Enter a valid JSON object containing exactly one MCP server configuration.",
+  "connectors.customDialog.jsonHint":
+    "Configure one MCP server using the same fields available in the form.",
+  "connectors.customDialog.jsonTab": "JSON Config",
+  "connectors.customDialog.keyValuesError":
+    "Use a JSON object with up to 64 string values. Keys must be unique, non-empty, and at most 256 characters; values must be at most 8,192 characters. Header names are case-insensitive.",
+  "connectors.customDialog.keyValuesPlaceholder": '{\n  "KEY": "value"\n}',
+  "connectors.customDialog.name": "Plugin name",
+  "connectors.customDialog.nameCount": "{{current}}/{{max}}",
+  "connectors.customDialog.nameHint":
+    "Use up to 24 characters: Chinese characters, English letters, numbers, and . _ -. Spaces become -. The name hub and the prefixes hub_ and hub. are reserved.",
+  "connectors.customDialog.namePlaceholder": "my-server",
+  "connectors.customDialog.saveUnavailable":
+    "Saving MCP services will be available after runtime integration.",
+  "connectors.customDialog.stdioRisk":
+    "This command runs on your computer with your current user permissions. Only add MCP services from trusted sources.",
+  "connectors.customDialog.subtitle":
+    "Enter the connection details to add this MCP service to MiniMax Design.",
+  "connectors.customDialog.timeout": "Timeout (ms)",
+  "connectors.customDialog.timeoutError":
+    "Enter a timeout from 1 to 3,600,000 milliseconds using a whole number.",
+  "connectors.customDialog.timeoutPlaceholder": "30000",
+  "connectors.customDialog.title": "Add custom plugin",
+  "connectors.customDialog.transport": "Connection method",
+  "connectors.customDialog.url": "Server URL",
+  "connectors.customDialog.urlPlaceholder": "https://example.com/mcp",
+  "connectors.detail.after-effects.description":
+    "Turn design comps, product assets, or brand visuals into motion graphics and video, including title sequences, captions, product ads, transitions, and effects, while keeping the animation editable.",
+  "connectors.detail.after-effects.prompt.0":
+    "Use Adobe After Effects to create an AI product-launch opener: build the word “Canvas” from lines, color blocks, and particles, place each element in its own composition, use a transparent background, and keep position, color, speed, and opacity editable.",
+  "connectors.detail.after-effects.prompt.1":
+    "Use Adobe After Effects to create a ChatGPT-style interface animation: show an input field, typed text, a streaming response, feature cards, and a CTA button in sequence; output landscape and vertical versions with all text and interface components editable.",
+  "connectors.detail.after-effects.prompt.2":
+    "Use Adobe After Effects to create a liquid-metal logo animation: silver liquid gathers into the logo from the edge of frame, then produces reflections, refractions, and particle splashes before revealing the brand name and subtitle; keep masks, effects, keyframes, and transition parameters editable.",
+  "connectors.detail.after-effects.promptTitle.0":
+    "Animate an AI Product Intro",
+  "connectors.detail.after-effects.promptTitle.1": "Animate a Chat Interface",
+  "connectors.detail.after-effects.promptTitle.2":
+    "Animate a Liquid-Metal Logo",
+  "connectors.detail.apify.description":
+    "Collect public data from TikTok, TikTok Shop, ad libraries, e-commerce sites and competitor pages through Actors, callable via the official MCP — ideal for real-time scraping and content research.",
+  "connectors.detail.apify.prompt.0":
+    "Explore the last 7 days of top 100 TikTok videos for my keywords. Analyze creators, views, likes, comments, shares, captions, hashtags and links to find content angles.",
+  "connectors.detail.apify.prompt.1":
+    "Help me research competitors: compare 5 products and their TikTok content by price, selling points, review pain points, asset formats and engagement to find product and content opportunities.",
+  "connectors.detail.apify.prompt.2":
+    "Analyze competitor content for high-performing Hooks, product demos, shot styles, captions and CTAs, then create 3 short-video scripts with shot-by-shot storyboards.",
+  "connectors.detail.apify.promptTitle.0": "Find content angles",
+  "connectors.detail.apify.promptTitle.1": "Research competitors",
+  "connectors.detail.apify.promptTitle.2": "Turn insights into scripts",
+  "connectors.detail.blender.description":
+    "Turn reference images, sketches, or product ideas into explorable, editable 3D spaces with modeling, materials, lighting, cameras, animation previews, and assets ready for games or real-time engines.",
+  "connectors.detail.blender.prompt.0":
+    "Use Blender to rebuild the Sydney Opera House: create editable shell structures, steps, glass curtain walls, and surrounding water, use Cycles path-traced lighting, and output daytime and dusk architectural showcase animations.",
+  "connectors.detail.blender.prompt.1":
+    "Use Blender to build a 3D greybox scene that can be handed off to a video-generation tool: set it at an abandoned gas station beside a desert road, lock the space, camera, and object proportions, and output greybox, material, and same-camera previews.",
+  "connectors.detail.blender.prompt.2":
+    "Use Blender to create a rainy nighttime city background: add an elevated highway, wet pavement, roadside billboards, moving cars, and distant buildings, push the camera from the street entrance to beneath the overpass, and generate a breakdown preview.",
+  "connectors.detail.blender.promptTitle.0": "Rebuild the Sydney Opera House",
+  "connectors.detail.blender.promptTitle.1":
+    "Build an Abandoned Gas Station Greybox",
+  "connectors.detail.blender.promptTitle.2": "Create a Rainy Night City",
+  "connectors.detail.connect": "Connect",
+  "connectors.detail.connectToUse": "Connect To Use",
+  "connectors.detail.connecting": "Connecting...",
+  "connectors.detail.disconnectDescription":
+    "This removes the saved connection for {{name}} and may interrupt related tool calls in active workspaces.",
+  "connectors.detail.disconnectTitle": "Remove Connection?",
+  "connectors.detail.disconnecting": "Removing Connection...",
+  "connectors.detail.downloadToConnect": "Download to Connect",
+  "connectors.detail.enableToUse": "Enable to Use",
+  "connectors.detail.fastmoss.description":
+    "Access TikTok Shop product, shop, creator and trend data for product-selection analysis, competitor research and content creation, enabling Agent to generate scripts, storyboards and asset recommendations based on real data.",
+  "connectors.detail.fastmoss.prompt.0":
+    "Help me find products: research the top 10 sports-equipment products on TikTok Shop US in the last 30 days, including rank, price, units, GMV, shop, links and category/trend signals.",
+  "connectors.detail.fastmoss.prompt.1":
+    "Help me find growth opportunities: compare the top 3 shops over the last 7 days vs. the prior 21 days by revenue, units, AOV and product mix, then summarize reusable selling points.",
+  "connectors.detail.fastmoss.prompt.2":
+    "Help me plan creator campaigns: find the top 10 US sports-equipment affiliate creators from the last 30 days, then create a 30-second UGC script and 6-shot storyboard for the top 3 products.",
+  "connectors.detail.fastmoss.promptTitle.0": "Find winning products",
+  "connectors.detail.fastmoss.promptTitle.1": "Spot growth opportunities",
+  "connectors.detail.fastmoss.promptTitle.2": "Plan creator campaigns",
+  "connectors.detail.houdini.description":
+    "Build cities, terrain, and product effects as endlessly adjustable 3D scenes, generate smoke, debris, fluids, particles, and environment variations, and output camera previews.",
+  "connectors.detail.houdini.prompt.0":
+    "Use Houdini to procedurally rebuild the Eiffel Tower: generate the lattice, platforms, rivets, and lighting structures, keep height, hierarchy, repeating units, and light color adjustable, and output clay, material, and night renders.",
+  "connectors.detail.houdini.prompt.1":
+    "Use Houdini to create a rocket-launch effect: simulate fire, smoke, shockwaves, and debris, control thrust, smoke density, wind direction, and camera distance, and output a 12-second low-resolution preview.",
+  "connectors.detail.houdini.prompt.2":
+    "Use Houdini to create a city-building collapse VFX shot: make concrete towers fail in sequence, add RBD fragments, dust, flying glass, and a ground impact wave, and keep the simulation parameters adjustable.",
+  "connectors.detail.houdini.promptTitle.0": "Rebuild the Eiffel Tower",
+  "connectors.detail.houdini.promptTitle.1": "Simulate a Rocket Launch",
+  "connectors.detail.houdini.promptTitle.2": "Simulate a Building Collapse",
+  "connectors.detail.libtv.description":
+    "Create images and video with LibTV, then bring the results onto your Design canvas. Image and video generation uses credits from your LibTV account, without consuming Design credits.",
+  "connectors.detail.libtv.prompt.0":
+    "Use LibTV to create one spring perfume visual: a frosted glass perfume bottle on a pale stone plinth, a softly blurred garden behind it, morning backlight, and realistic product photography. Use a 3:4 portrait frame. Choose a currently available compatible model and resolution, then bring the finished image back to the current canvas.",
+  "connectors.detail.libtv.prompt.1":
+    "Use LibTV to turn the product image I provide into one roughly 5-second showcase video. Preserve the product appearance, use a slow camera push-in with soft side lighting and a clean frame, and add no captions or voiceover. Choose a compatible model, aspect ratio, and resolution based on the reference and current capabilities. If this task has no reference image yet, ask me to upload or select one first. Bring the finished video back to the current canvas.",
+  "connectors.detail.libtv.prompt.2":
+    "Use LibTV to turn this short script into one roughly 5-second, 16:9 realistic film: on a city corner after rain, a ginger cat peeks out of a bookshop doorway and walks toward the warm window light as the camera gently pushes in. Use a single continuous shot with no captions or voiceover. Choose a currently available compatible model and resolution, then bring the finished video back to the current canvas.",
+  "connectors.detail.libtv.promptTitle.0":
+    "Create a product visual from a brief",
+  "connectors.detail.libtv.promptTitle.1": "Bring a reference image to life",
+  "connectors.detail.libtv.promptTitle.2": "Turn a short script into a film",
+  "connectors.detail.photoshop.description":
+    "Turn product photos, photographs, and design assets into e-commerce hero images, posters, social visuals, and texture maps with masking, retouching, compositing, color correction, multi-size exports, and editable layers.",
+  "connectors.detail.photoshop.prompt.0":
+    "Use Adobe Photoshop to paint a woman in a red beret from a blank canvas, then output American-comic and Japanese-illustration versions while keeping the figure, clothing, background, and color layers separate.",
+  "connectors.detail.photoshop.prompt.1":
+    "Use Adobe Photoshop to paint a stroke-by-stroke study of Girl with a Pearl Earring: separate the face, headscarf, pearl earring, clothing, and background into editable layers, and preserve the progression from sketch to final painting.",
+  "connectors.detail.photoshop.prompt.2":
+    "Use Adobe Photoshop to create a mechanical-bird poster from a blank canvas: place the bird beside a lunar antenna, add a deep-blue background, silver-metal materials, the title “Signal from the Moon,” and a footer information bar, then export a vertical social-media poster.",
+  "connectors.detail.photoshop.promptTitle.0":
+    "Illustrate a Character Portrait",
+  "connectors.detail.photoshop.promptTitle.1":
+    "Recreate Girl with a Pearl Earring",
+  "connectors.detail.photoshop.promptTitle.2":
+    "Design a Mechanical Bird Poster",
+  "connectors.detail.previewDescription":
+    "Connect this service to start with one of these examples.",
+  "connectors.detail.previewSection": "What You Can Do",
+  "connectors.detail.reconnectToUse": "Reconnect to Use",
+  "connectors.detail.touchdesigner.description":
+    "Turn music, cameras, body movement, or live signals into real-time visuals for stages, exhibitions, and interactive installations, with particles, 3D, projection mapping, and live output.",
+  "connectors.detail.touchdesigner.prompt.0":
+    "Please create a blue stardust particle effect in TouchDesigner: glowing particles continuously drift against a black background, creating a sense of spatial depth. Use microphone volume to control particle brightness and size, making them brighter and larger as the sound grows louder and smoothly returning them to their original state as it fades, avoiding flickering and overexposure.",
+  "connectors.detail.touchdesigner.prompt.1":
+    "Please create a music-driven neon tunnel in TouchDesigner: glowing blue and purple rings continuously advance toward the camera, creating the sensation of traveling through the tunnel. Adjust the rings' size, brightness, and speed with the music's intensity, keeping transitions smooth and retaining adjustable color and glow parameters.",
+  "connectors.detail.touchdesigner.prompt.2":
+    "Please create an automatically playing fairy-tale scene animation in TouchDesigner: forest, castle, and moon scenes fade in and out in sequence, with swaying trees, twinkling window lights, and drifting starlight. Use layered silhouettes and soft glow effects, support looped playback, and make it suitable for wall projection.",
+  "connectors.detail.touchdesigner.promptTitle.0":
+    "Create Blue Stardust Particles",
+  "connectors.detail.touchdesigner.promptTitle.1":
+    "Build a Music-Driven Neon Tunnel",
+  "connectors.detail.touchdesigner.promptTitle.2":
+    "Animate a Fairy-Tale Projection",
+  "connectors.detail.try": "Use In Chat",
+  "connectors.detail.tryDescription": "Choose an example to start a new chat.",
+  "connectors.detail.tryInChat": "Try In Chat",
+  "connectors.detail.trySection": "Try These Examples",
+  "connectors.detail.unbind": "Remove",
+  "connectors.detail.unity.description":
+    "Drive the Unity Editor with AI: build and edit scenes, GameObjects, and components, write and refactor C# scripts, run tests, and read console output right inside your project.",
+  "connectors.detail.unity.prompt.0":
+    "Blockout a third-person playground level in Unity: ground, ramps, stairs, and obstacle prefabs, bake a NavMesh, and place a player spawn point.",
+  "connectors.detail.unity.prompt.1":
+    "Create a day-night cycle in Unity: animate a directional light over a 24-minute loop, tie skybox exposure to the time of day, and switch on street lamps at dusk.",
+  "connectors.detail.unity.prompt.2":
+    "Audit my Unity scene for missing script references and oversized textures, fix what is safe to fix automatically, and summarize the rest in the console.",
+  "connectors.detail.unity.promptTitle.0": "Blockout a Level",
+  "connectors.detail.unity.promptTitle.1": "Build a Day-Night Cycle",
+  "connectors.detail.unity.promptTitle.2": "Audit the Scene",
+  "connectors.detail.unreal.description":
+    "Drive the Unreal Editor with AI: spawn and edit actors, build Blueprints, tweak materials and Niagara effects, arrange Sequencer shots, and run editor Python in your project.",
+  "connectors.detail.unreal.prompt.0":
+    "Greybox a castle courtyard in Unreal: walls, towers, and a gate from basic shapes, plus a directional light setup I can keep iterating on.",
+  "connectors.detail.unreal.prompt.1":
+    "Create a Niagara rain effect in Unreal with splashes on impact, place it in the level, and expose rain intensity as a parameter I can drive from a Blueprint.",
+  "connectors.detail.unreal.prompt.2":
+    "Set up a Sequencer shot in Unreal: a 10-second camera fly-through of the level with two cuts, then render a low-resolution preview.",
+  "connectors.detail.unreal.promptTitle.0": "Greybox a Courtyard",
+  "connectors.detail.unreal.promptTitle.1": "Build Niagara Rain",
+  "connectors.detail.unreal.promptTitle.2": "Render a Fly-Through",
+  "connectors.detail.useAfterInstallation": "Use After Installation",
+  "connectors.emptyDescription": "Try another keyword or clear the search.",
+  "connectors.emptyTitle": "No matching plugins",
+  "connectors.fastmoss.connect": "Connect And Enable",
+  "connectors.fastmoss.consent":
+    "Once connected, Agent can use this key to access FastMoss data services, subject to your FastMoss account permissions and quota.",
+  "connectors.fastmoss.description":
+    "Get an API Key and connect FastMoss for use in Agent chats.",
+  "connectors.fastmoss.invalidKey":
+    "Enter an API key, not a full URL or text containing whitespace.",
+  "connectors.fastmoss.keyHint":
+    "Enter only the API Key, not the server URL. The key is encrypted on this device.",
+  "connectors.fastmoss.keyLabel": "Enter API Key",
+  "connectors.fastmoss.keyPlaceholder": "Enter FastMoss API Key",
+  "connectors.fastmoss.login": "Get FastMoss API Key",
+  "connectors.fastmoss.loginDescription":
+    "Create or copy a key on the FastMoss MCP key management page. If prompted, sign in there, then return here.",
+  "connectors.fastmoss.loginError": "Could not open the browser. Try again.",
+  "connectors.fastmoss.loginTitle": "Get API Key",
+  "connectors.fastmoss.title": "Connect FastMoss",
+  "connectors.loadFailed": "Unable to refresh plugins. Please try again.",
+  "connectors.location.appHint":
+    "Choose the application folder, or its parent folder to list installed versions. The choice is saved after a successful installation.",
+  "connectors.location.auto": "Auto Detect",
+  "connectors.location.choose": "Choose folder",
+  "connectors.location.detecting": "Detecting installed versions…",
+  "connectors.location.houdiniHint":
+    "Choose a Houdini version preferences folder or its parent folder. The choice is saved after a successful installation.",
+  "connectors.location.title": "Installation location",
+  "connectors.location.version": "Select a version",
+  "connectors.manual.title": "Connect {{name}}",
+  "connectors.manual.description":
+    "Paste your {{name}} app credentials to use it in chat",
+  "connectors.manual.connect": "Connect",
+  "connectors.manual.consent":
+    "Credentials are stored only on this device in an app-private folder and are used solely to access your {{name}} account.",
+  "connectors.manual.clientId.label": "Client ID",
+  "connectors.manual.clientId.placeholder": "From your app settings",
+  "connectors.manual.clientSecret.label": "Client secret",
+  "connectors.manual.clientSecret.placeholder": "From your app settings",
+  "connectors.manual.token.label": "Access token",
+  "connectors.manual.token.placeholder": "Paste the access token",
+  "connectors.manual.useAccessToken": "Use an access token instead",
+  "connectors.manual.useClientCredentials":
+    "Use a client ID and secret instead",
+  "connectors.manual.docsLink": "Provider setup guide",
+  "connectors.oauth.cancelFailed":
+    "Could not confirm authorization stopped. Try again.",
+  "connectors.oauth.connect": "Connect and authorize",
+  "connectors.oauth.instructions":
+    "Connect to open the official authorization page in your default browser. Being signed in on the provider website does not grant MiniMax Design access; the authorization site may ask you to sign in again. Review access there, then return to MiniMax Design. Keep this page open while authorizing; cancelling disables this connection.",
+  "connectors.oauth.waiting":
+    "Connecting to the service and waiting for browser authorization. Review access on the official site, then return here…",
+  "connectors.quick.alreadyConnected": "{{name}} is already connected",
+  "connectors.quick.checkAgainAfterInstall": "Check Again",
+  "connectors.quick.checkAgainAfterOpen": "Check Connection",
+  "connectors.quick.checkingAria": "Checking for {{name}} on this device",
+  "connectors.quick.continueInstall": "Continue Installation",
+  "connectors.quick.error.description":
+    "Try again later. Some installation methods or locations may affect detection.",
+  "connectors.quick.error.title": "Device Check Failed",
+  "connectors.quick.hostMissing.description":
+    "The installation method or location may not be detected automatically. You can still continue with the plugin installation or view the setup guide.",
+  "connectors.quick.hostMissing.title": "{{name}} Was Not Detected",
+  "connectors.quick.hostUnknown.description":
+    "The installation status of {{name}} cannot be confirmed automatically. You can still continue with the plugin installation; the actual connection will be checked afterward.",
+  "connectors.quick.hostUnknown.title":
+    "Prepare to Install the {{name}} Plugin",
+  "connectors.quick.install": "Install Plugin",
+  "connectors.quick.installError.description":
+    "The {{name}} plugin could not be installed. Retry or view the setup guide.",
+  "connectors.quick.installError.title": "Installation Failed",
+  "connectors.quick.installing.description":
+    "Keep MiniMax Design open. The connection status will be checked automatically after installation.",
+  "connectors.quick.installing.title": "Installing {{name}} Plugin",
+  "connectors.quick.ready.description":
+    "Installation information for {{name}} was found. Detection is only a hint; the actual connection will be checked after the plugin is installed.",
+  "connectors.quick.ready.title": "{{name}} Installation Information Found",
+  "connectors.quick.unsupported.description":
+    "The {{name}} plugin does not currently support this operating system. View setup to review supported systems.",
+  "connectors.quick.unsupported.title": "This Device Is Not Supported",
+  "connectors.quick.viewSetup": "View Setup",
+  "connectors.quick.waiting.description":
+    "The plugin is installed. Open {{name}}, complete its in-app setup, then check the connection.",
+  "connectors.quick.waiting.title": "Waiting for {{name}} to Connect",
+  "connectors.removeAria": "Remove {{name}} plugin",
+  "connectors.removeConnection": "Remove Connection",
+  "connectors.removeDescription":
+    "This removes the saved connection settings and credentials, and disconnects this plugin in all workspaces. Its running tool calls may be interrupted. Other plugins are not affected.",
+  "connectors.removeError.disconnect_failed":
+    "Some workspaces could not disconnect. The disabled configuration has been kept so you can retry removal.",
+  "connectors.removeError.storage_failed":
+    "Could not save the change. The plugin has been kept; try again.",
+  "connectors.removeTitle": "Remove {{name}} Connection?",
+  "connectors.resultCount": "{{count}} plugins",
+  "connectors.runtimeState.connected": "Connected",
+  "connectors.runtimeState.disabled": "Disabled",
+  "connectors.runtimeState.failed": "Connection failed",
+  "connectors.runtimeState.notConnected": "Not connected",
+  "connectors.searchPlaceholder": "Search plugins",
+  "connectors.setupGuide": "View Official Setup Guide",
+  "connectors.sort.ariaLabel": "Sort Plugins: {{mode}}",
+  "connectors.sort.connected-first": "Connected First",
+  "connectors.sort.default": "Default",
+  "connectors.sort.label": "Sort:",
+  "connectors.start": "Start",
+  "connectors.stepOrdinal.1": "1",
+  "connectors.stepOrdinal.2": "2",
+  "connectors.stepOrdinal.3": "3",
+  "connectors.stop": "Disconnect",
+  "connectors.stopFailed":
+    "The plugin is disabled for future starts, but some current connections could not be disconnected. Retry to disconnect them.",
+  "creationGuide.designGuide": "Design Guide",
+  "creationGuide.h3Guide": "H3 Guide",
+  "creationGuide.placeholderLead": "Describe what you want to create. ",
+  "creationGuide.placeholderAtHint": "to select assets or plugins",
+  "creationGuide.placeholderSlashHint": "to use skills",
+  "credits.agentNotesMP": "input ×3 + output ×10; cache hit −10×",
+  "credits.agentRuleMP": "2,778 weighted tokens = 1 credit",
+  "credits.billingCycle.monthly": "Monthly",
+  "credits.billingCycle.quarterly": "Quarterly",
+  "credits.billingCycle.yearly": "Yearly",
+  "credits.bonus": "Bonus",
+  "credits.bonusTip":
+    "Credits from new user login rewards and events. Free credits for new users are valid for 3 days.",
+  "credits.bonusTipMP":
+    "Credits from new user login rewards and events. Free credits for new users are valid for 3 days.",
+  "credits.colBilling": "Billing",
+  "credits.colCreditAmount": "Credits",
+  "credits.colCredits": "Credits",
+  "credits.colCreditsMP": "Credits",
+  "credits.colDuration": "Duration",
+  "credits.colModel": "Model",
+  "credits.colModelTier": "Model Tier",
+  "credits.colModels": "Models",
+  "credits.colNotes": "Notes",
+  "credits.colResolution": "Resolution",
+  "credits.colRule": "Rule",
+  "credits.colTime": "Time",
+  "credits.costVaryNote":
+    "Due to different generation parameters, the cost may vary. The credits rules are as follows:",
+  "credits.costVaryNoteMP":
+    "Credit cost may vary with generation parameters. See <modelCosts>model costs</modelCosts> and comply with the <rules>Points Rules</rules>.",
+  "credits.creditExpiry.batch": "{{credit}} credits expire on {{date}}",
+  "credits.creditExpiry.empty": "No credits awaiting expiry",
+  "credits.creditExpiry.globalPriority":
+    "Credits expiring earliest are used first. Hover the info icon to see credit expiry details.",
+  "credits.creditExpiry.open": "View {{type}} credit validity",
+  "credits.creditExpiry.title": "{{type}} credit validity",
+  "credits.creditsLeft": "Credits left",
+  "credits.creditsRules": "Credits rules",
+  "credits.creditsRulesMP": "Credits rules",
+  "credits.detailsOnlyHubNote":
+    "This panel only shows MiniMax Design credit consumption records.",
+  "credits.detailsTitle": "Credits Details",
+  "credits.detailsTitleMP": "Credits Details",
+  "credits.entries": "entries",
+  "credits.fetchError": "Unable to fetch credits info",
+  "credits.fetchErrorMP": "Unable to fetch credits info",
+  "credits.freeDesc": "Free plan - basic features",
+  "credits.freePlan": "Free Plan",
+  "credits.hailuoConsumptionNote":
+    "For Hailuo AI's shells consumption, please visit",
+  "credits.hailuoWebLinkLabel": "Hailuo website",
+  "credits.imageEnhance": "Image HD",
+  "credits.layerDecompose": "Split Layers",
+  "credits.legacyMediaTip": "Legacy media credits",
+  "credits.membership": "Membership",
+  "credits.membershipTip": "Credits included with your subscription plan",
+  "credits.membershipTipMP":
+    "Subscription credits from your membership, valid for 1 month and reset monthly.",
+  "credits.minimaxH3Max": "MiniMax H3 Max",
+  "credits.minimaxH3PromptExpansion": "MiniMax H3 Prompt Expansion",
+  "credits.minimaxH3SuperResolution": "MiniMax H3 Super Resolution",
+  "credits.musicTitle": "Music Generation",
+  "credits.next": "Next",
+  "credits.noConsumptionRecords": "No consumption records",
+  "credits.noMoreRecords": "No more records",
+  "credits.noRecords": "No records",
+  "credits.note.credit.consume": "Credits Consumed",
+  "credits.note.credit.refund": "Credits Refunded",
+  "credits.note.token.consume": "Token Consumed",
+  "credits.note.token.refund": "Token Refunded",
+  "credits.pageNumber": "Page {{page}}",
+  "credits.perMinute": "Per minute",
+  "credits.perRefSuffixMP": "+{{n}}/ref",
+  "credits.perSecond": "Per second",
+  "credits.perSong": "Per song",
+  "credits.prev": "Previous",
+  "credits.purchaseMore": "Purchase more",
+  "credits.remaining": "Remaining",
+  "credits.retry": "Retry",
+  "credits.rulePostDeductNote":
+    "Agent conversations use post-deduction: credits are charged after token usage reaches the threshold, without interrupting the conversation.",
+  "credits.rulePreDeductNote":
+    "Generation tasks (image/video/audio) use pre-deduction: credits are deducted before generation starts, and automatically refunded if generation fails.",
+  "credits.rulePreDeductNoteMP":
+    "Generation tasks (image/video/audio) use pre-deduction: credits are deducted before generation starts, and automatically refunded if generation fails.",
+  "credits.rulesTitle": "Credits Rules",
+  "credits.rulesTitleMP": "Credits Rules",
+  "credits.sharedTooltipPrefix": "Credits are shared with your",
+  "credits.sharedTooltipSuffix": "account",
+  "credits.show": "Show",
+  "credits.subscriptionDesc.cancel": "Cancelled, expires {{date}}",
+  "credits.subscriptionDesc.cancelWithCreditRefresh":
+    "Cancelled, expires {{date}} | Next credit refresh: {{refreshDate}}",
+  "credits.subscriptionDesc.renewal": "Auto-renews on {{date}}",
+  "credits.subscriptionDesc.renewalNotice":
+    "Your membership will automatically renew on {{date}}. To make changes to your plan, manage your subscription before renewal.",
+  "credits.subscriptionExpireOn": "Expires on {{date}}",
+  "credits.subscriptionExpiry.currentRemaining": "Remaining this cycle",
+  "credits.subscriptionExpiry.days": "{{count}} days left",
+  "credits.subscriptionExpiry.expiresAt": "Expires {{date}}",
+  "credits.subscriptionExpiry.open": "View subscription credit validity",
+  "credits.subscriptionExpiry.priorityNote":
+    "Credits expiring earliest are used first. Hover the info icon to see credit expiry details.",
+  "credits.subscriptionExpiry.title": "Subscription credit validity",
+  "credits.subscriptionExpiry.today": "Expires today",
+  "credits.subscriptionRenewOn": "Renews on {{date}}",
+  "credits.tabAgent": "Agent",
+  "credits.tabAll": "All",
+  "credits.tabAudio": "Audio",
+  "credits.tabConsumed": "Consumed",
+  "credits.tabImage": "Image Models",
+  "credits.tabRefunded": "Refunded",
+  "credits.tabTransfer": "Transfer",
+  "credits.tabVideo": "Video Models",
+  "credits.topUp": "Top-up",
+  "credits.topUpTip": "Credits purchased separately",
+  "credits.topUpTipMP": "Credits purchased separately, valid for 1 year.",
+  "credits.transfer": "Transfer",
+  "credits.transferTipMP": "Credits transferred in from teams",
+  "credits.transaction.category.gift": "Gift credit",
+  "credits.transaction.category.subscription": "Subscription credit",
+  "credits.transaction.category.topUp": "Top-up credit",
+  "credits.transaction.expired": "Credits expired",
+  "credits.transaction.grant": "Credit issued",
+  "credits.ttsPerKChars": "{{n}} / 1000 chars",
+  "credits.ttsTitle": "TTS (Text-to-Speech)",
+  "credits.upgradeSubscription": "Upgrade",
+  "credits.viewSubscription": "View subscription",
+  "credits.walletPill.switchConfirmTitle": "Switch wallet?",
+  "credits.walletPill.switchDisabled":
+    "Cannot switch right now, please try again later",
+  "credits.walletPill.switchFailed": "Switch failed, please try again later",
+  "credits.walletPill.upgrade": "Upgrade plan",
+  "credits.walletPill.upgradeFailed":
+    "Unable to open subscription page, please try again later",
+  "credits.walletUrlNotReady": "Wallet info loading, please try again",
+  "debug.chatCase.caseLabel": "Case",
+  "debug.chatCase.caseName": "30-second vertical coffee launch video",
+  "debug.chatCase.conversationSubtitle": "Complete conversation case",
+  "debug.chatCase.conversationTitle": "Mountain Mist Coffee launch video",
+  "debug.chatCase.help":
+    "The center stream uses the real MessageList, MessageBubble, ActivityGroup, and SubAgentGroup components. Scroll to inspect the complete case.",
+  "debug.chatCase.includes": "This conversation includes",
+  "debug.chatCase.subtitle": "Real components · one continuous conversation",
+  "debug.chatCase.title": "Complete conversation case",
+  "debug.generationFailureReplay.open": "Generation failure replay",
+  "debug.generationFailureReplay.source.errorCode": "Local error-code mapping",
+  "debug.generationFailureReplay.source.generic": "Generic failure copy",
+  "debug.generationFailureReplay.source.rawError": "Raw error fallback",
+  "debug.generationFailureReplay.source.userMessage": "Server user message",
+  "debug.generationFailureReplay.subtitle":
+    "Each case mocks only the raw tool result, then uses the real parser, localization, and Timeline components.",
+  "debug.generationFailureReplay.summary":
+    "{{count}} cases · current language {{language}}",
+  "debug.generationFailureReplay.title": "Generation failure replay",
+  "debugPanel.action": "Actions",
+  "debugPanel.authBrowser.default": "Default (In-App Browser)",
+  "debugPanel.authBrowser.description":
+    "Local macOS development only. No startup flags needed; API environments stay unchanged.",
+  "debugPanel.authBrowser.inApp": "In-App Browser",
+  "debugPanel.authBrowser.label": "Login Method",
+  "debugPanel.authBrowser.nextLogin":
+    "Saved automatically for the next new login. No restart needed; an open login window stays unchanged. Use the same system-browser profile as the ad landing page.",
+  "debugPanel.authBrowser.saveFailed":
+    "Could not save the login method. Please try again.",
+  "debugPanel.authBrowser.system": "System Browser",
+  "debugPanel.authBrowser.title": "Login Method Debugging",
+  "debugPanel.chatPreview.description":
+    "Visualize chat building blocks without a live gateway. Fixture data shows FileChip / Sub-Agent header / category icons / message types to verify tokens and grayscale.",
+  "debugPanel.chatPreview.title": "Chat Preview",
+  "debugPanel.coachMark.description":
+    "Clear all dismissed coach marks. They will show again next time you enter a workspace.",
+  "debugPanel.coachMark.homeTour.allSeen": "All seen",
+  "debugPanel.coachMark.homeTour.current": "Current: {{revision}}",
+  "debugPanel.coachMark.homeTour.description":
+    "Simulates the home tour audience: new users get the full tour, users who saw an earlier revision only get the steps patched in later, fully caught-up users see nothing. Clicking writes storage and reloads the window so the home page reflects it immediately.",
+  "debugPanel.coachMark.homeTour.label": "Home tour seen revision",
+  "debugPanel.coachMark.homeTour.newUser": "New user",
+  "debugPanel.coachMark.homeTour.seenUpTo": "Seen rev {{revision}}",
+  "debugPanel.coachMark.reset": "Reset All Coach Marks",
+  "debugPanel.coachMark.title": "Coach Mark QA",
+  "debugPanel.connectorPreview.application": "Application",
+  "debugPanel.connectorPreview.cardPreview": "Card Preview",
+  "debugPanel.connectorPreview.content.actual": "Actual Product Fields",
+  "debugPanel.connectorPreview.content.minimal":
+    "Minimal Fields / No Example Titles",
+  "debugPanel.connectorPreview.content.stress": "Long-Text Stress Test",
+  "debugPanel.connectorPreview.contentProfile": "Field Profile",
+  "debugPanel.connectorPreview.custom.description":
+    "A user-defined plugin for checking the saved custom card, fallback icon, and management interactions.",
+  "debugPanel.connectorPreview.custom.title": "Custom Application",
+  "debugPanel.connectorPreview.description":
+    "Combine any application, state, summary action, example action, and field profile. This preview never changes a real connection.",
+  "debugPanel.connectorPreview.entry.local-app": "Local Application",
+  "debugPanel.connectorPreview.entry.web-api": "Web API",
+  "debugPanel.connectorPreview.entryHint.local-app":
+    "The add action runs a read-only local preflight before showing the next step.",
+  "debugPanel.connectorPreview.entryHint.web-api":
+    "The add action opens the plugin's credential or authorization dialog directly.",
+  "debugPanel.connectorPreview.entryType": "Entry Type",
+  "debugPanel.connectorPreview.future.description":
+    "A generic fixture for validating plugins that have not been added to the product catalog yet, including the missing-logo fallback.",
+  "debugPanel.connectorPreview.future.prompt.0":
+    "Inspect the current project and prepare a structured first-pass result.",
+  "debugPanel.connectorPreview.future.prompt.1":
+    "Compare three alternatives and explain the tradeoffs between them.",
+  "debugPanel.connectorPreview.future.prompt.2":
+    "Turn the chosen direction into an editable production handoff.",
+  "debugPanel.connectorPreview.future.promptTitle.0": "Prepare a First Pass",
+  "debugPanel.connectorPreview.future.promptTitle.1": "Compare Alternatives",
+  "debugPanel.connectorPreview.future.promptTitle.2":
+    "Create a Production Handoff",
+  "debugPanel.connectorPreview.future.title": "Future Plugin Fixture",
+  "debugPanel.connectorPreview.installFailed":
+    "The installation could not be completed. Check the selected application and try again.",
+  "debugPanel.connectorPreview.installFailedState": "Installation Failed",
+  "debugPanel.connectorPreview.minimalDescription":
+    "A short plugin description.",
+  "debugPanel.connectorPreview.minimalPrompt":
+    "Create a quick editable result from the current project.",
+  "debugPanel.connectorPreview.open": "Open Preview",
+  "debugPanel.connectorPreview.promptAction": "Example Action",
+  "debugPanel.connectorPreview.quick.checking": "Checking",
+  "debugPanel.connectorPreview.quick.error": "Check Failed",
+  "debugPanel.connectorPreview.quick.hostAppMissing":
+    "Application Not Detected",
+  "debugPanel.connectorPreview.quick.hostAppUnknown":
+    "Application Status Unknown",
+  "debugPanel.connectorPreview.quick.idle": "Idle",
+  "debugPanel.connectorPreview.quick.installError": "Installation Failed",
+  "debugPanel.connectorPreview.quick.installing": "Installing",
+  "debugPanel.connectorPreview.quick.readyToInstall": "Ready to Install",
+  "debugPanel.connectorPreview.quick.unsupported": "Unsupported Platform",
+  "debugPanel.connectorPreview.quick.waitingHostApp": "Waiting for Application",
+  "debugPanel.connectorPreview.quickEntry": "Quick Entry Preview",
+  "debugPanel.connectorPreview.quickError":
+    "Preview of a local setup check failure.",
+  "debugPanel.connectorPreview.quickState": "Quick Entry State",
+  "debugPanel.connectorPreview.status": "Connection State",
+  "debugPanel.connectorPreview.stressDescription":
+    "This deliberately long description verifies that application capabilities, setup requirements, localization, and several lines of supporting context can wrap without moving the centered title, status, or action group out of alignment.",
+  "debugPanel.connectorPreview.stressPrompt":
+    "Use all currently available project materials to prepare variation {{index}}, preserve editable layers and source references, explain the important choices, and return a concise handoff summary for the next collaborator.",
+  "debugPanel.connectorPreview.stressPromptTitle":
+    "Extended Multi-Step Workflow {{index}} With a Deliberately Long Name",
+  "debugPanel.connectorPreview.stressTitle":
+    "{{name}} Enterprise Creative Operations Plugin With an Extra-Long Name",
+  "debugPanel.connectorPreview.summary.connectedManagement":
+    "Disconnect + More",
+  "debugPanel.connectorPreview.summary.connecting": "Connect · Loading",
+  "debugPanel.connectorPreview.summary.disabledManagement": "Start + More",
+  "debugPanel.connectorPreview.summary.failedManagement":
+    "Retry + Disconnect + More",
+  "debugPanel.connectorPreview.summary.installing": "Install · Loading",
+  "debugPanel.connectorPreview.summary.removing": "Disconnect · Loading",
+  "debugPanel.connectorPreview.summaryAction": "Summary Action",
+  "debugPanel.connectorPreview.title": "Plugin Dialog Matrix",
+  "debugPanel.connectorPreview.waitingHint":
+    "The plugin is installed. Open the selected application to finish establishing the connection.",
+  "debugPanel.failureScreens.description":
+    "Preview critical failure pages with mock data only. No real runtime or log upload is triggered.",
+  "debugPanel.failureScreens.errorBoundary": "App error page",
+  "debugPanel.failureScreens.previewHint":
+    "Full-screen preview mode: no real runtime, retry, or log upload is triggered.",
+  "debugPanel.failureScreens.title": "Failure pages",
+  "debugPanel.failureScreens.workspaceStartup":
+    "Workspace startup failure page",
+  "debugPanel.homeWidget.description":
+    "Survey previews use published content and ignore local dismissal records. Missing or disabled surveys stay hidden. Update stages can be simulated using published artwork or the regional default.",
+  "debugPanel.homeWidget.empty": "Preview empty state",
+  "debugPanel.homeWidget.forced": "Preview forced update",
+  "debugPanel.homeWidget.real": "Restore real config",
+  "debugPanel.homeWidget.survey": "Preview survey entry",
+  "debugPanel.homeWidget.title": "Homepage survey & sidebar update",
+  "debugPanel.homeWidget.updateAvailable": "Preview update available",
+  "debugPanel.homeWidget.updateDownloaded": "Preview update downloaded",
+  "debugPanel.homeWidget.updateDownloading": "Preview update downloading",
+  "debugPanel.homeWidget.updateError": "Preview update error",
+  "debugPanel.lane.clearedToast": "Switched back to main pipeline",
+  "debugPanel.lane.current": "Current: {{lane}}",
+  "debugPanel.lane.currentMain": "Current: main pipeline",
+  "debugPanel.lane.description":
+    "Injects bedrock-lane header on cloud requests for staging / lane testing. Empty = main pipeline. Only effective on test/dev channels.",
+  "debugPanel.lane.invalid":
+    "Lane must match ^[a-z0-9][a-z0-9-]{0,31}$ (lowercase, digits, dash; 1-32 chars)",
+  "debugPanel.lane.placeholder": "e.g. jila",
+  "debugPanel.lane.save": "Save",
+  "debugPanel.lane.savedToast": "Routed to lane {{lane}}",
+  "debugPanel.lane.saving": "Saving…",
+  "debugPanel.lane.title": "Cloud swim lane",
+  "debugPanel.newUserFlow.attachmentFaceNotice": "First media face notice",
+  "debugPanel.newUserFlow.attachmentFaceNoticeAccepted":
+    "Confirmed; both + entries skip the notice",
+  "debugPanel.newUserFlow.attachmentFaceNoticePending":
+    "Pending; the next + click shows the notice",
+  "debugPanel.newUserFlow.attachmentFaceNoticeReset": "Reset",
+  "debugPanel.newUserFlow.attachmentFaceNoticeResetFailed":
+    "Failed to reset the media face notice",
+  "debugPanel.newUserFlow.attachmentFaceNoticeResetSuccess":
+    "Media face notice reset. The next + click will show it again.",
+  "debugPanel.newUserFlow.description":
+    "Reproduce the first-launch dialogs new users see in dev/test without manually clearing storage.",
+  "debugPanel.newUserFlow.title": "New user flow",
+  "debugPanel.newUserFlow.triggerInterestSelection":
+    "Trigger interest selection dialog",
+  "debugPanel.newUserFlow.triggerLoginGate": "Trigger login dialog",
+  "debugPanel.preview": "Preview",
+  "debugPanel.reactScan.description":
+    "Highlight component re-renders and show their trigger and timing. Dev-only performance debugging; stops immediately when turned off.",
+  "debugPanel.reactScan.label": "Enable react-scan render highlighting",
+  "debugPanel.reactScan.title": "Render scan (react-scan)",
+  "debugPanel.reliability.copied": "Diagnostics summary copied",
+  "debugPanel.reliability.copy": "Copy summary",
+  "debugPanel.reliability.copyFailed": "Copy failed",
+  "debugPanel.reliability.description":
+    "Inspect local gateway, network, proxy, memory, and logs before waiting for user reports.",
+  "debugPanel.reliability.forceOfflineBanner": "Force offline banner",
+  "debugPanel.reliability.gatewayFailed": "Failed {{duration}}ms: {{error}}",
+  "debugPanel.reliability.gatewayOk": "OK {{status}} / {{duration}}ms",
+  "debugPanel.reliability.localGateway": "Local Gateway",
+  "debugPanel.reliability.memory": "Memory",
+  "debugPanel.reliability.network": "Network",
+  "debugPanel.reliability.offline": "offline",
+  "debugPanel.reliability.online": "online",
+  "debugPanel.reliability.openLogs": "Open logs",
+  "debugPanel.reliability.openLogsFailed": "Failed to open log folder",
+  "debugPanel.reliability.proxy": "Proxy / VPN",
+  "debugPanel.reliability.proxyDetected": "detected",
+  "debugPanel.reliability.proxyNone": "direct",
+  "debugPanel.reliability.refresh": "Refresh",
+  "debugPanel.reliability.runtime": "Runtime",
+  "debugPanel.reliability.title": "Reliability diagnostics",
+  "debugPanel.reliability.unavailable": "Unavailable",
+  "debugPanel.reliability.upload": "Upload logs",
+  "debugPanel.reliability.uploadFailed": "Log upload failed",
+  "debugPanel.reliability.uploaded": "Log upload triggered",
+  "debugPanel.reliability.uploading": "Uploading…",
+  "debugPanel.serverPopup.description":
+    "Simulate a fresh user entering MiniMax Design. The window refreshes once and the popup is re-evaluated against the marketing config, current account identity and frequency rules. If marketing has nothing live or the account does not match a trigger, nothing pops — same as another user seeing MiniMax Design for the first time.",
+  "debugPanel.serverPopup.notLoggedIn": "Please sign in first",
+  "debugPanel.serverPopup.replay": "Replay",
+  "debugPanel.serverPopup.title": "Marketing popup",
+  "debugPanel.shortcutPrefix": "Press",
+  "debugPanel.shortcutSuffix":
+    "to open. Debug tools will appear here as they are added.",
+  "debugPanel.storageVersion.applied":
+    "Set to v{{v}}; restart the app manually to apply",
+  "debugPanel.storageVersion.apply": "Set",
+  "debugPanel.storageVersion.current": "Current version",
+  "debugPanel.storageVersion.currentBadge": "Current",
+  "debugPanel.storageVersion.description":
+    "View / change the local storage schema version to reproduce migrations. After changing, restart the app manually; on startup it runs migrations step by step from the selected version up to the latest.",
+  "debugPanel.storageVersion.initial": "Initial version",
+  "debugPanel.storageVersion.noMigration": "Already latest, no migration",
+  "debugPanel.storageVersion.title": "Storage version",
+  "debugPanel.storageVersion.willRun": "Runs v{{from}}–v{{to}} after restart",
+  "debugPanel.tabs.flows": "Flow Simulation",
+  "debugPanel.tabs.preview": "UI Previews",
+  "debugPanel.tabs.runtime": "Runtime",
+  "debugPanel.tabs.tools": "Debug Tools",
+  "debugPanel.teamPreview.accountTab": "Account & Sidebar",
+  "debugPanel.teamPreview.avatarMenu": "Avatar menu",
+  "debugPanel.teamPreview.badge": "Static data",
+  "debugPanel.teamPreview.case.accountBootstrapLoading.description":
+    "Account identity is still loading; no stale account is rendered before scope is confirmed.",
+  "debugPanel.teamPreview.case.accountBootstrapLoading.title":
+    "Account bootstrap · Loading",
+  "debugPanel.teamPreview.case.accountListRetryFlow.description":
+    "Walk through account-list failure, retry, and recovery without changing the active account.",
+  "debugPanel.teamPreview.case.accountListRetryFlow.title":
+    "Account list · Failure to recovery",
+  "debugPanel.teamPreview.case.accountListStale.description":
+    "Cached accounts remain visible after refresh fails, but switching is disabled until state is confirmed.",
+  "debugPanel.teamPreview.case.accountListStale.title":
+    "Account list · Stale cache",
+  "debugPanel.teamPreview.case.accountSwitchFlow.description":
+    "Walk through ready, switching, restoring, and completed account states.",
+  "debugPanel.teamPreview.case.accountSwitchFlow.title":
+    "Account switching · Full flow",
+  "debugPanel.teamPreview.case.createAvailable.description":
+    "Show the create entry when no team exists or the limit has not been reached; success always means create and switch.",
+  "debugPanel.teamPreview.case.createAvailable.title":
+    "Create team · Available",
+  "debugPanel.teamPreview.case.createCapabilityRetryFlow.description":
+    "Creation permission fails closed, retries, and restores the create entry only after confirmation.",
+  "debugPanel.teamPreview.case.createCapabilityRetryFlow.title":
+    "Create permission · Failure to recovery",
+  "debugPanel.teamPreview.case.createLimit.badge": "Limit reached",
+  "debugPanel.teamPreview.case.createLimit.description":
+    "Personal counts toward the 50-account-space limit. At the limit, show only the blocking state.",
+  "debugPanel.teamPreview.case.createLimit.reason":
+    "You are already using 50 account spaces, including Personal, so another team cannot be created.",
+  "debugPanel.teamPreview.case.createLimit.title":
+    "Create team · 50-account-space limit",
+  "debugPanel.teamPreview.case.createPermissionRetryFlow.description":
+    "Walk through capability loading, failure, stale cache, and restored create permission.",
+  "debugPanel.teamPreview.case.createPermissionRetryFlow.title":
+    "Create-team capability · Retry flow",
+  "debugPanel.teamPreview.case.createSubmitting.description":
+    "The create-and-switch request is being submitted.",
+  "debugPanel.teamPreview.case.createTransitions.blockedTitle":
+    "Create and switch is temporarily unavailable",
+  "debugPanel.teamPreview.case.createTransitions.busy": "Task in progress",
+  "debugPanel.teamPreview.case.createTransitions.description":
+    "Submitting, active-task, and account-restoring states prevent duplicate submission and never switch to the personal account automatically.",
+  "debugPanel.teamPreview.case.createTransitions.recovering":
+    "Restoring account information",
+  "debugPanel.teamPreview.case.createTransitions.submitting":
+    "Creating and switching",
+  "debugPanel.teamPreview.case.createTransitions.title":
+    "Create team · Submission and blocked states",
+  "debugPanel.teamPreview.case.creditCheckout.allowed": "Purchase allowed",
+  "debugPanel.teamPreview.case.creditCheckout.description":
+    "Only the Owner can purchase general team credits, and checkout is bound to the current team.",
+  "debugPanel.teamPreview.case.creditCheckout.memberDescription":
+    "Members can see the empty state but do not get a purchase entry or create a checkout session.",
+  "debugPanel.teamPreview.case.creditCheckout.memberTitle":
+    "Purchase team credits · Member",
+  "debugPanel.teamPreview.case.creditCheckout.noCredits": "No team credits",
+  "debugPanel.teamPreview.case.creditCheckout.ownerDescription":
+    "Only the Owner sees the purchase entry when the team has no credits.",
+  "debugPanel.teamPreview.case.creditCheckout.ownerOnly":
+    "Contact the team Owner to purchase general credits.",
+  "debugPanel.teamPreview.case.creditCheckout.ownerTitle":
+    "Purchase team credits · Owner",
+  "debugPanel.teamPreview.case.creditCheckout.title":
+    "Purchase permission · Owner and Member",
+  "debugPanel.teamPreview.case.creditCheckoutFlow.awaitingDescription":
+    "Checkout opened externally. Credit data will refresh only after MiniMax Design becomes active again.",
+  "debugPanel.teamPreview.case.creditCheckoutFlow.description":
+    "Walk through checkout creation, external return, refresh, and updated balance.",
+  "debugPanel.teamPreview.case.creditCheckoutFlow.title":
+    "Purchase team credits · Full flow",
+  "debugPanel.teamPreview.case.creditExhausted.actualAvailable":
+    "Actually available now",
+  "debugPanel.teamPreview.case.creditExhausted.description":
+    "Consumption is blocked when the team balance is zero even if the member still has remaining quota.",
+  "debugPanel.teamPreview.case.creditExhausted.title": "Team balance exhausted",
+  "debugPanel.teamPreview.case.creditLedger.description":
+    "Team history reuses the Personal table core and covers normal, empty, loading, and error states.",
+  "debugPanel.teamPreview.case.creditLedger.empty": "Empty",
+  "debugPanel.teamPreview.case.creditLedger.emptyDescription":
+    "This team has no credit history.",
+  "debugPanel.teamPreview.case.creditLedger.error": "Error",
+  "debugPanel.teamPreview.case.creditLedger.errorDescription":
+    "Team credit history failed to load.",
+  "debugPanel.teamPreview.case.creditLedger.loading": "Loading",
+  "debugPanel.teamPreview.case.creditLedger.loadingDescription":
+    "Team credit history is loading.",
+  "debugPanel.teamPreview.case.creditLedger.normal": "Normal history",
+  "debugPanel.teamPreview.case.creditLedger.title":
+    "Credit history · All states",
+  "debugPanel.teamPreview.case.creditLedgerStale.description":
+    "Keep cached transactions visible after refresh fails and make the stale state explicit.",
+  "debugPanel.teamPreview.case.creditLedgerStale.title":
+    "Credit history · Stale cache",
+  "debugPanel.teamPreview.case.creditLimited.description":
+    "When the member's remaining credits are lower, they determine available credits.",
+  "debugPanel.teamPreview.case.creditLimited.equalDescription":
+    "When both remaining amounts are equal, available credits stay at that amount.",
+  "debugPanel.teamPreview.case.creditLimited.equalTitle":
+    "Limited · Equal remaining amounts",
+  "debugPanel.teamPreview.case.creditLimited.mode": "Limited",
+  "debugPanel.teamPreview.case.creditLimited.noticeTitle":
+    "Actual availability has two constraints",
+  "debugPanel.teamPreview.case.creditLimited.teamDescription":
+    "Even with more member quota remaining, usage cannot exceed the team's current balance.",
+  "debugPanel.teamPreview.case.creditLimited.teamSmallerDescription":
+    "When the team's remaining credits are lower, they determine available credits.",
+  "debugPanel.teamPreview.case.creditLimited.teamSmallerTitle":
+    "Limited · Team remaining is lower",
+  "debugPanel.teamPreview.case.creditLimited.title":
+    "Limited · Member remaining is lower",
+  "debugPanel.teamPreview.case.creditMemberPrivacy.description":
+    "Members use the same minimum formula, but the UI and tooltip do not reveal the team's exact balance.",
+  "debugPanel.teamPreview.case.creditMemberPrivacy.title":
+    "Member · Private available credits",
+  "debugPanel.teamPreview.case.creditNavigation": "Credits and quota scenarios",
+  "debugPanel.teamPreview.case.creditSummaryErrorFlow.description":
+    "Walk through credit-summary failure, retry, and recovery while purchase remains fail-closed.",
+  "debugPanel.teamPreview.case.creditSummaryErrorFlow.title":
+    "Credit summary · Failure to recovery",
+  "debugPanel.teamPreview.case.creditSummaryLoading.description":
+    "The summary is loading before any balance or purchase decision is shown.",
+  "debugPanel.teamPreview.case.creditSummaryLoading.title":
+    "Credit summary · Loading",
+  "debugPanel.teamPreview.case.creditSummaryStale.description":
+    "Cached balances remain readable, but purchase is disabled until refresh succeeds.",
+  "debugPanel.teamPreview.case.creditSummaryStale.title":
+    "Credit summary · Stale cache",
+  "debugPanel.teamPreview.case.creditUnavailable.description":
+    "Credit information for this team is temporarily unavailable.",
+  "debugPanel.teamPreview.case.creditUnavailable.noFallback":
+    "Hide team amounts, purchase, and history. Never request or show the Personal wallet as a fallback.",
+  "debugPanel.teamPreview.case.creditUnavailable.quotaDescription":
+    "An unavailable quota is not unlimited; available credits are shown as a dash.",
+  "debugPanel.teamPreview.case.creditUnavailable.quotaTitle":
+    "Quota service unavailable",
+  "debugPanel.teamPreview.case.creditUnavailable.title":
+    "Team credits unavailable",
+  "debugPanel.teamPreview.case.creditUnlimited.description":
+    "When no personal limit is set, available credits follow the team's remaining credits.",
+  "debugPanel.teamPreview.case.creditUnlimited.title":
+    "Unlimited · Remaining team balance",
+  "debugPanel.teamPreview.case.invitationAcceptFlow.description":
+    "Walk through pending, accepting, account recovery, and completed invitation states.",
+  "debugPanel.teamPreview.case.invitationAcceptFlow.title":
+    "Accept invitation · Full flow",
+  "debugPanel.teamPreview.case.invitationAccepting.description":
+    "The acceptance request is in progress and actions on this card are locked.",
+  "debugPanel.teamPreview.case.invitationAccepting.title":
+    "Invitation action · Accepting",
+  "debugPanel.teamPreview.case.invitationNavigation":
+    "Create and invitation scenarios",
+  "debugPanel.teamPreview.case.invitationRejecting.description":
+    "The decline request is in progress, so actions on this card are locked.",
+  "debugPanel.teamPreview.case.invitationRejecting.title":
+    "Invitation action · Declining",
+  "debugPanel.teamPreview.case.invitationsAcceptLock.description":
+    "When one invitation is being accepted, every invitation action and pagination control is locked.",
+  "debugPanel.teamPreview.case.invitationsAcceptLock.title":
+    "Invitation acceptance · Global action lock",
+  "debugPanel.teamPreview.case.invitationsCapabilityLoading.description":
+    "Invitation permission is still loading, so no list or empty state is inferred yet.",
+  "debugPanel.teamPreview.case.invitationsCapabilityLoading.title":
+    "Message center capability · Loading",
+  "debugPanel.teamPreview.case.invitationsEmpty.description":
+    "Hide the Sidebar entry when there are no valid invitations and show an explicit empty state in the message center.",
+  "debugPanel.teamPreview.case.invitationsEmpty.title":
+    "Message center · Empty",
+  "debugPanel.teamPreview.case.invitationsError.description":
+    "Offer a retry action after loading fails.",
+  "debugPanel.teamPreview.case.invitationsError.title":
+    "Message center · Error",
+  "debugPanel.teamPreview.case.invitationsExpiry.description":
+    "Keep invitations that are about to expire, and remove expired invitations from both the list and pending count.",
+  "debugPanel.teamPreview.case.invitationsExpiry.hiddenNote":
+    "1 expired invitation is hidden",
+  "debugPanel.teamPreview.case.invitationsExpiry.soonDescription":
+    "Only valid invitations are shown. Expired invitations are not counted or rendered.",
+  "debugPanel.teamPreview.case.invitationsExpiry.soonTitle":
+    "Invitation expiring soon",
+  "debugPanel.teamPreview.case.invitationsExpiry.title":
+    "Invitation lifetime · Expiring and hidden expired items",
+  "debugPanel.teamPreview.case.invitationsLoading.description":
+    "The invitation list is loading.",
+  "debugPanel.teamPreview.case.invitationsLoading.title":
+    "Message center · Loading",
+  "debugPanel.teamPreview.case.invitationsLoadingError.description":
+    "Do not show stale invitations before remote state is confirmed; the error state remains recoverable.",
+  "debugPanel.teamPreview.case.invitationsLoadingError.loadingDescription":
+    "Do not show a stale invitation count or cards while loading.",
+  "debugPanel.teamPreview.case.invitationsLoadingError.title":
+    "Message center · Loading and error",
+  "debugPanel.teamPreview.case.invitationsPending.description":
+    "The pending count exactly matches the cards; each card shows team, inviter, member count, role, and expiry.",
+  "debugPanel.teamPreview.case.invitationsPending.title":
+    "Pending invitations · Member and Admin",
+  "debugPanel.teamPreview.case.invitationsProcessing.description":
+    "Disable both actions on a card while an operation runs. Main performs the automatic switch after acceptance.",
+  "debugPanel.teamPreview.case.invitationsProcessing.title":
+    "Invitation actions · Accepting and rejecting",
+  "debugPanel.teamPreview.case.invitationsStale.description":
+    "Cached invitations remain readable after refresh fails, while all invitation mutations are disabled.",
+  "debugPanel.teamPreview.case.invitationsStale.title":
+    "Message center · Stale cache",
+  "debugPanel.teamPreview.compactHint":
+    "Open the same account switcher from the avatar. Pending invitations stay visible whether you are using a personal account or a team account.",
+  "debugPanel.teamPreview.creditTab": "Credits & Quotas",
+  "debugPanel.teamPreview.description":
+    "Preview account switching, creation, invitations, management, and credits with static data. All actions are for demonstration only.",
+  "debugPanel.teamPreview.dissolvedMeta": "Team dissolved",
+  "debugPanel.teamPreview.dissolvedTeam": "Archive Studio",
+  "debugPanel.teamPreview.flow.next": "Next state",
+  "debugPanel.teamPreview.flow.progress": "Step {{current}} of {{total}}",
+  "debugPanel.teamPreview.flow.reset": "Reset flow",
+  "debugPanel.teamPreview.flow.steps": "Flow states",
+  "debugPanel.teamPreview.flowState.accepting": "Accepting",
+  "debugPanel.teamPreview.flowState.awaitingReturn": "Waiting for return",
+  "debugPanel.teamPreview.flowState.cachedStale": "Cached data is stale",
+  "debugPanel.teamPreview.flowState.completed": "Completed",
+  "debugPanel.teamPreview.flowState.creatingCheckout": "Creating checkout",
+  "debugPanel.teamPreview.flowState.empty": "No results",
+  "debugPanel.teamPreview.flowState.failed": "Failed",
+  "debugPanel.teamPreview.flowState.idle": "Ready for input",
+  "debugPanel.teamPreview.flowState.pending": "Pending",
+  "debugPanel.teamPreview.flowState.permissionChanged": "Permission changed",
+  "debugPanel.teamPreview.flowState.permissionFailed": "Permission unavailable",
+  "debugPanel.teamPreview.flowState.permissionLoading": "Loading permission",
+  "debugPanel.teamPreview.flowState.ready": "Ready",
+  "debugPanel.teamPreview.flowState.recovering": "Restoring account",
+  "debugPanel.teamPreview.flowState.refreshing": "Refreshing",
+  "debugPanel.teamPreview.flowState.results": "Results ready",
+  "debugPanel.teamPreview.flowState.retrying": "Retrying",
+  "debugPanel.teamPreview.flowState.searching": "Searching",
+  "debugPanel.teamPreview.flowState.switching": "Switching",
+  "debugPanel.teamPreview.flowState.typing": "Typing",
+  "debugPanel.teamPreview.homeSidebar": "Home · 240px Sidebar",
+  "debugPanel.teamPreview.homeSidebarDescription":
+    "Account summary and switching live in the avatar menu; the Sidebar itself only shows the user row and shortcuts.",
+  "debugPanel.teamPreview.invitationTab": "Create & Invitations",
+  "debugPanel.teamPreview.inviter": "Alex Chen",
+  "debugPanel.teamPreview.management.creditsEmpty.memberDescription":
+    "This team has no general credits. Contact the team Owner to purchase them.",
+  "debugPanel.teamPreview.management.creditsEmpty.ownerDescription":
+    "This team has no general credits. Credits can be purchased for this team.",
+  "debugPanel.teamPreview.management.creditsEmpty.title": "No team credits",
+  "debugPanel.teamPreview.management.creditsOverview.description":
+    "General team credit usage",
+  "debugPanel.teamPreview.management.creditsOverview.progress":
+    "18.4% of team credits used",
+  "debugPanel.teamPreview.management.creditsOverview.usedTotal": "Used / total",
+  "debugPanel.teamPreview.management.dissolve.confirm": "Dissolve team",
+  "debugPanel.teamPreview.management.dissolve.confirmNameDescription":
+    "Enter “Starlight Studio” to dissolve the team. Every member will lose access after the team is dissolved.",
+  "debugPanel.teamPreview.management.dissolve.confirmNameLabel":
+    "Team name confirmation",
+  "debugPanel.teamPreview.management.dissolve.confirmNameTitle":
+    "Confirm the team name",
+  "debugPanel.teamPreview.management.dissolve.description":
+    "This closes the team and removes every member. It cannot be undone.",
+  "debugPanel.teamPreview.management.dissolve.pendingBadge": "Processing",
+  "debugPanel.teamPreview.management.dissolve.pendingDescription":
+    "Processing. Do not submit again. The team will be removed from the account list when dissolution finishes.",
+  "debugPanel.teamPreview.management.dissolve.pendingTitle":
+    "Dissolving Starlight Studio",
+  "debugPanel.teamPreview.management.generateLink": "Generate link",
+  "debugPanel.teamPreview.management.inviteCreate.expiry": "Link expiry",
+  "debugPanel.teamPreview.management.inviteCreate.role": "Invitee role",
+  "debugPanel.teamPreview.management.inviteCreate.sevenDays": "7 days",
+  "debugPanel.teamPreview.management.inviteCreate.usageLimit": "Usage limit",
+  "debugPanel.teamPreview.management.inviteHistory.active": "Active",
+  "debugPanel.teamPreview.management.inviteHistory.copy":
+    "Copy invitation link",
+  "debugPanel.teamPreview.management.inviteHistory.expired": "Expired",
+  "debugPanel.teamPreview.management.inviteHistory.revoke":
+    "Revoke invitation link",
+  "debugPanel.teamPreview.management.inviteHistory.usage":
+    "{{used}} / {{limit}} uses · {{role}}",
+  "debugPanel.teamPreview.management.inviteHistory.usedUp": "Usage exhausted",
+  "debugPanel.teamPreview.management.leaveMember.confirm": "Leave team",
+  "debugPanel.teamPreview.management.leaveMember.description":
+    "Leave Starlight Studio? You will lose access to team resources and credits.",
+  "debugPanel.teamPreview.management.leaveOwner.confirm": "Transfer and leave",
+  "debugPanel.teamPreview.management.leaveOwner.description":
+    "A team must always have an Owner. Select a successor before continuing.",
+  "debugPanel.teamPreview.management.leaveOwner.newOwner": "New Owner",
+  "debugPanel.teamPreview.management.leaveOwner.summary":
+    "Taylor Wang will become the team Owner",
+  "debugPanel.teamPreview.management.leaveOwner.title":
+    "Transfer ownership and leave",
+  "debugPanel.teamPreview.management.leaveOwner.warningDescription":
+    "You leave the team immediately after ownership is transferred. This action requires confirmation.",
+  "debugPanel.teamPreview.management.memberDetail.confirm": "Confirm changes",
+  "debugPanel.teamPreview.management.memberDetail.limit":
+    "Member general credit limit",
+  "debugPanel.teamPreview.management.memberDetail.limitMeta":
+    "163,200 team credits remaining · No reset this phase",
+  "debugPanel.teamPreview.management.memberDetail.usageMeta":
+    "3,680 used / 10,000 limit",
+  "debugPanel.teamPreview.management.memberDetail.usageTitle":
+    "General credit usage details",
+  "debugPanel.teamPreview.management.members.pageSummary":
+    "Page 2 of 13 · 38 members",
+  "debugPanel.teamPreview.management.members.settings": "Configure {{name}}",
+  "debugPanel.teamPreview.management.quota.allMembers": "All 38 members",
+  "debugPanel.teamPreview.management.quota.confirm": "Confirm configuration",
+  "debugPanel.teamPreview.management.quota.custom": "Custom quota",
+  "debugPanel.teamPreview.management.quota.description":
+    "{{scope}} · 163,200 credits remain in the team pool",
+  "debugPanel.teamPreview.management.quota.limit": "General credit limit",
+  "debugPanel.teamPreview.management.quota.memberLimit":
+    "Per-member general credit limit",
+  "debugPanel.teamPreview.management.quota.noReset":
+    "Indefinite (no reset this phase)",
+  "debugPanel.teamPreview.management.quota.resetTime": "Quota reset time",
+  "debugPanel.teamPreview.management.quota.scope": "Applies to",
+  "debugPanel.teamPreview.management.quota.selectedMembers":
+    "3 selected members",
+  "debugPanel.teamPreview.management.quota.selectedTitle":
+    "Configure selected-member quota",
+  "debugPanel.teamPreview.management.quota.total": "Configured total",
+  "debugPanel.teamPreview.management.quota.validation":
+    "The limit must be greater than or equal to 0.",
+  "debugPanel.teamPreview.management.removeConfirm.confirm": "Remove 3 members",
+  "debugPanel.teamPreview.management.removeConfirm.description":
+    "Remove these 3 members from Starlight Studio?",
+  "debugPanel.teamPreview.management.removeConfirm.warningDescription":
+    "After confirmation, these members can no longer access the team or use team credits.",
+  "debugPanel.teamPreview.management.removeConfirm.warningTitle":
+    "Team access is revoked immediately",
+  "debugPanel.teamPreview.management.removePartial.description":
+    "2 succeeded and 1 failed. Only failed items remain selected.",
+  "debugPanel.teamPreview.management.removePartial.failed": "Failed",
+  "debugPanel.teamPreview.management.removePartial.refresh":
+    "Refresh member list",
+  "debugPanel.teamPreview.management.removePartial.removed": "Removed",
+  "debugPanel.teamPreview.management.removePartial.success": "Succeeded",
+  "debugPanel.teamPreview.management.removePartial.title":
+    "Batch removal complete",
+  "debugPanel.teamPreview.managementCase.credits-empty-member.description":
+    "When the team has no credits, Members see only the empty-state explanation and no purchase entry.",
+  "debugPanel.teamPreview.managementCase.credits-empty-member.title":
+    "No team credits · Member",
+  "debugPanel.teamPreview.managementCase.credits-empty-owner.description":
+    "When the team has no credits, the Owner sees the purchase entry bound to this team.",
+  "debugPanel.teamPreview.managementCase.credits-empty-owner.title":
+    "No team credits · Owner",
+  "debugPanel.teamPreview.managementCase.credits-overview.description":
+    "Show general credits used/total, the remaining team balance, and the default unlimited mode.",
+  "debugPanel.teamPreview.managementCase.credits-overview.title":
+    "Team credit pool overview",
+  "debugPanel.teamPreview.managementCase.dissolve-confirm.description":
+    "Only the Owner can dissolve a team; confirmation names the team and irreversible impact.",
+  "debugPanel.teamPreview.managementCase.dissolve-confirm.title":
+    "Dissolve-team confirmation",
+  "debugPanel.teamPreview.managementCase.dissolve-pending.description":
+    "The action cannot be submitted again while processing; every window removes the team when it finishes.",
+  "debugPanel.teamPreview.managementCase.dissolve-pending.title":
+    "Dissolve pending",
+  "debugPanel.teamPreview.managementCase.invite-create.description":
+    "Owners and Admins can configure role, expiry, and usage count; Members have no entry.",
+  "debugPanel.teamPreview.managementCase.invite-create.title":
+    "Generate invitation link",
+  "debugPanel.teamPreview.managementCase.invite-history.description":
+    "Cover active, usage-exhausted, and expired links plus the revoke entry.",
+  "debugPanel.teamPreview.managementCase.invite-history.title":
+    "Invitation-link history",
+  "debugPanel.teamPreview.managementCase.leave-member.description":
+    "A regular member confirms before leaving; the team is no longer shown afterward.",
+  "debugPanel.teamPreview.managementCase.leave-member.title":
+    "Member leaves team",
+  "debugPanel.teamPreview.managementCase.leave-owner.description":
+    "The Owner must select a successor before confirming transfer and leave.",
+  "debugPanel.teamPreview.managementCase.leave-owner.title":
+    "Owner transfers and leaves",
+  "debugPanel.teamPreview.managementCase.management-detail-error-flow.description":
+    "Walk through team-detail failure, retry, and recovery.",
+  "debugPanel.teamPreview.managementCase.management-detail-error-flow.title":
+    "Team details · Failure to recovery",
+  "debugPanel.teamPreview.managementCase.management-detail-loading.description":
+    "Show only structured loading UI until the team scope is confirmed.",
+  "debugPanel.teamPreview.managementCase.management-detail-loading.title":
+    "Team details · Initial loading",
+  "debugPanel.teamPreview.managementCase.management-detail-stale.description":
+    "Keep cached team data readable while every sensitive mutation stays disabled.",
+  "debugPanel.teamPreview.managementCase.management-detail-stale.title":
+    "Team details · Stale cache",
+  "debugPanel.teamPreview.managementCase.management-members-denied.description":
+    "Keep the team overview visible and gate the member section independently.",
+  "debugPanel.teamPreview.managementCase.management-members-denied.title":
+    "Member list · Permission denied",
+  "debugPanel.teamPreview.managementCase.management-members-error-flow.description":
+    "Keep team details stable while member loading fails, retries, and recovers.",
+  "debugPanel.teamPreview.managementCase.management-members-error-flow.title":
+    "Member list · Failure to recovery",
+  "debugPanel.teamPreview.managementCase.management-members-loading.description":
+    "Team details are ready while the member query loads independently.",
+  "debugPanel.teamPreview.managementCase.management-members-loading.title":
+    "Member list · Initial loading",
+  "debugPanel.teamPreview.managementCase.management-members-stale.description":
+    "Cached members remain readable while selection and editing stay disabled.",
+  "debugPanel.teamPreview.managementCase.management-members-stale.title":
+    "Member list · Stale cache",
+  "debugPanel.teamPreview.managementCase.management-permission-change-flow.description":
+    "Refresh permissions, downgrade immediately to read-only, and fail closed for lost member access.",
+  "debugPanel.teamPreview.managementCase.management-permission-change-flow.title":
+    "Permission change · Owner to Member",
+  "debugPanel.teamPreview.managementCase.management-readonly-owner.description":
+    "Reuse production management components without exposing future edit actions.",
+  "debugPanel.teamPreview.managementCase.management-readonly-owner.title":
+    "Production management view · Owner read-only",
+  "debugPanel.teamPreview.managementCase.management-search-flow.description":
+    "Cover ready for input, typing, searching, results, and no results.",
+  "debugPanel.teamPreview.managementCase.management-search-flow.title":
+    "Member search · Full flow",
+  "debugPanel.teamPreview.managementCase.member-detail.description":
+    "The Owner can change role and individual quota; Owners and Admins can view usage details.",
+  "debugPanel.teamPreview.managementCase.member-detail.title":
+    "Member details and usage",
+  "debugPanel.teamPreview.managementCase.members-list.description":
+    "Search by name or UID; preload three batches and keep loading near the bottom.",
+  "debugPanel.teamPreview.managementCase.members-list.title":
+    "Member search, infinite scrolling, and loaded-member selection",
+  "debugPanel.teamPreview.managementCase.permissions-admin.description":
+    "Admins can invite, configure quota, and manage regular members, but cannot change or remove the Owner.",
+  "debugPanel.teamPreview.managementCase.permissions-admin.title":
+    "Admin management entry",
+  "debugPanel.teamPreview.managementCase.permissions-member.description":
+    "Members can view team information and their visible content, without management actions.",
+  "debugPanel.teamPreview.managementCase.permissions-member.title":
+    "Member management entry",
+  "debugPanel.teamPreview.managementCase.permissions-owner.description":
+    "Owners can invite, configure quota, manage members, transfer ownership, and dissolve the team.",
+  "debugPanel.teamPreview.managementCase.permissions-owner.title":
+    "Owner management entry",
+  "debugPanel.teamPreview.managementCase.quota-all.description":
+    "Configure the all-member limit and show per-member quota × member count before confirmation; there is no reset this phase.",
+  "debugPanel.teamPreview.managementCase.quota-all.title":
+    "Configure all-member quota",
+  "debugPanel.teamPreview.managementCase.quota-selected.description":
+    "Configure only selected loaded members; a failure does not leave partial changes.",
+  "debugPanel.teamPreview.managementCase.quota-selected.title":
+    "Configure selected-member quota",
+  "debugPanel.teamPreview.managementCase.remove-confirm.description":
+    "State the selected scope, irreversible impact, and permission boundary while preventing duplicate submission.",
+  "debugPanel.teamPreview.managementCase.remove-confirm.title":
+    "Batch-removal confirmation",
+  "debugPanel.teamPreview.managementCase.remove-partial.description":
+    "Report batch removal per member; keep failed items so the list can refresh and retry.",
+  "debugPanel.teamPreview.managementCase.remove-partial.title":
+    "Batch removal with partial failure",
+  "debugPanel.teamPreview.managementScenarios": "Team management scenarios",
+  "debugPanel.teamPreview.managementTab": "Team Management",
+  "debugPanel.teamPreview.memberA": "Morgan Lee",
+  "debugPanel.teamPreview.memberB": "Taylor Wang",
+  "debugPanel.teamPreview.memberC": "Riley Zhou",
+  "debugPanel.teamPreview.openLabel": "Open full-screen preview",
+  "debugPanel.teamPreview.personalHint": "Personal account sidebar.",
+  "debugPanel.teamPreview.personalMeta": "Personal account",
+  "debugPanel.teamPreview.previewHint":
+    "These screens use static data, and their actions are for preview only.",
+  "debugPanel.teamPreview.primaryTeam": "Starlight Studio",
+  "debugPanel.teamPreview.secondaryTeam": "Design Lab",
+  "debugPanel.teamPreview.source.actual": "Reuses production component",
+  "debugPanel.teamPreview.source.prdPrototype": "PRD prototype",
+  "debugPanel.teamPreview.switcherOrderDescription":
+    "Personal stays pinned first, teams follow the server order, and dissolved teams stay at the bottom.",
+  "debugPanel.teamPreview.title": "Team Edition frontend preview",
+  "debugPanel.teamPreview.transactionAgent": "Agent usage",
+  "debugPanel.teamPreview.transactionImage": "Image generation",
+  "debugPanel.teamPreview.transactionVideo": "Video generation",
+  "debugPanel.teamPreview.unlimitedQuota":
+    "When the personal quota is unlimited, show the Team's remaining credits.",
+  "debugPanel.teamPreview.workspaceSidebar":
+    "Workspace / Canvas · 48px Sidebar",
+  "debugPanel.teamPreview.workspaceSidebarDescription":
+    "Invitations, updates, and IM each keep a standalone 32px action. Account switching remains in the avatar menu.",
+  "debugPanel.timeline.description":
+    "Expand Input / Output for every tool step, and reveal tool calls hidden by default (todowrite / memory / dag, etc.).",
+  "debugPanel.timeline.detailLabel": "Raw tool view (incl. hidden calls)",
+  "debugPanel.timeline.mockMediaGenLabel": "Prepend mock media-gen messages",
+  "debugPanel.timeline.mockToolConfirmLabel": "Show mock ToolConfirm injector",
+  "debugPanel.timeline.title": "Activity Timeline",
+  "debugPanel.title": "Debug Panel",
+  "debugPanel.trackingRecorder.description":
+    "Show the analytics recorder overlay and subscribe to live events. Disabled by default to avoid background collection while debugging unrelated features.",
+  "debugPanel.trackingRecorder.label": "Enable tracking recorder",
+  "debugPanel.trackingRecorder.title": "Tracking recorder",
+  "debugPanel.updater.description":
+    "Preview the forced-update modal or normal update banner without a real update check.",
+  "debugPanel.updater.forced": "Preview forced update modal",
+  "debugPanel.updater.normal": "Preview normal update banner",
+  "debugPanel.updater.off": "Close preview",
+  "debugPanel.updater.title": "Update Notification",
+  "errorBoundary.copied": "Copied",
+  "errorBoundary.copy": "Copy",
+  "errorBoundary.copyDiagnostics": "Copy info",
+  "errorBoundary.descriptionLine1":
+    "The application encountered an unexpected error.",
+  "errorBoundary.descriptionLine2":
+    "You can try again. If the issue persists, please report it.",
+  "errorBoundary.diagnosticsCode": "Code",
+  "errorBoundary.diagnosticsTime": "Time",
+  "errorBoundary.diagnosticsTitle": "Diagnostics info",
+  "errorBoundary.diagnosticsUid": "UID",
+  "errorBoundary.diagnosticsUnknownUid": "Unknown",
+  "errorBoundary.errorDetails": "Error details",
+  "errorBoundary.feedbackCode": "Feedback code",
+  "errorBoundary.press": "Press",
+  "errorBoundary.reportIssue": "Report Issue",
+  "errorBoundary.title": "Something went wrong",
+  "errorBoundary.toRetry": "to try again",
+  "errorBoundary.tryAgain": "Try Again",
+  error_auth_unauthorized: error_auth_unauthorized$1,
+  error_input_audio_blocked: error_input_audio_blocked$1,
+  error_input_image_blocked: error_input_image_blocked$1,
+  error_input_text_blocked: error_input_text_blocked$1,
+  error_input_video_blocked: error_input_video_blocked$1,
+  error_network_reconnecting: error_network_reconnecting$1,
+  error_safety_image_output_blocked: error_safety_image_output_blocked$1,
+  error_seedance_free_quota_exhausted: error_seedance_free_quota_exhausted$1,
+  error_seedance_member_locked: error_seedance_member_locked$1,
+  "feedback.copied": "Copied",
+  "feedback.dialog.addAttachment": "Add attachment",
+  "feedback.dialog.addAttachmentTooltip": "Add screenshot or file",
+  "feedback.dialog.contextHeading": "Context",
+  "feedback.dialog.contextSummary": "Recent conversation will be included",
+  "feedback.dialog.descriptionPlaceholder":
+    "Describe the issue or suggestion...",
+  "feedback.dialog.privacyNote":
+    "Feedback may include conversation context to help us improve.",
+  "feedback.dialog.removeAttachment": "Remove attachment",
+  "feedback.dialog.submit": "Submit",
+  "feedback.dialog.subtitle": "Help us improve by sharing your feedback",
+  "feedback.dialog.title": "Feedback",
+  "feedback.failed": "Failed",
+  "feedback.featureRequest.addAttachment": "Reference images",
+  "feedback.featureRequest.descriptionPlaceholder":
+    "Describe the feature you'd like to see...",
+  "feedback.featureRequest.module.agent_chat": "Agent Chat",
+  "feedback.featureRequest.module.asset_center": "Subject Library",
+  "feedback.featureRequest.module.canvas": "Canvas",
+  "feedback.featureRequest.module.general": "General",
+  "feedback.featureRequest.module.home": "Home",
+  "feedback.featureRequest.module.other": "Other",
+  "feedback.featureRequest.module.plugin": "Plugin",
+  "feedback.featureRequest.moduleLabel": "Related module",
+  "feedback.featureRequest.title": "Feature Request",
+  "feedback.reportIssue": "Report Issue",
+  "feedback.reported": "Reported",
+  "feedback.toast.attachmentTooLarge": "File is too large (max 5MB)",
+  "feedback.toast.failed": "Failed to submit feedback: {{error}}",
+  "feedback.toast.successWithId": "Feedback submitted ({{id}})",
+  "feedback.toast.tooManyAttachments": "Too many attachments (max 3)",
+  "feedback.uploading": "Uploading...",
+  "fileExplorer.addToCanvas": "Add to canvas",
+  "fileExplorer.addToCanvasComingSoon": "Add to canvas coming soon",
+  "fileExplorer.addToChat": "Add to chat",
+  "fileExplorer.addToLibrary": "Add to Subject Library",
+  "fileExplorer.applyToRemaining": "Apply to remaining {{count}} item(s)",
+  "fileExplorer.assetMissing": "Asset missing",
+  "fileExplorer.assetsHint": "No files yet",
+  "fileExplorer.cannotGenerateCopyName": "Cannot generate a unique copy name",
+  "fileExplorer.cannotOpenFolder": "Cannot open folder",
+  "fileExplorer.clearSearch": "Clear search",
+  "fileExplorer.compactFileExplorer": "Show compact file list",
+  "fileExplorer.conflictDescription":
+    '"{{name}}" already exists in the destination.',
+  "fileExplorer.conflictOverwrite": "Overwrite",
+  "fileExplorer.conflictRename": "Rename",
+  "fileExplorer.copiedToClipboard": "Copied to clipboard",
+  "fileExplorer.copyFailed": "Copy failed",
+  "fileExplorer.copyFile": "Copy file",
+  "fileExplorer.copyMultiSelectFirst":
+    "Clipboard supports a single file only; copied: {{name}}",
+  "fileExplorer.copyPath": "Copy path",
+  "fileExplorer.createFailed": "Failed to create: {{name}}",
+  "fileExplorer.daysAgo": "{{count}} days ago",
+  "fileExplorer.deleteFailed": "Delete failed",
+  "fileExplorer.deleteFile": "Delete File",
+  "fileExplorer.deleteFileConfirm":
+    'Are you sure you want to delete "{{name}}"? You can restore it from the system trash.',
+  "fileExplorer.deleteFolder": "Delete Folder",
+  "fileExplorer.deleteFolderConfirm":
+    'Are you sure you want to delete folder "{{name}}" and all its contents? You can restore it from the system trash.',
+  "fileExplorer.deleteMultiple": "Delete {{count}} items",
+  "fileExplorer.deleteMultipleConfirm":
+    "Are you sure you want to delete {{count}} selected items? You can restore them from the system trash.",
+  "fileExplorer.deleteUndoToast": "{{count}} file(s) deleted",
+  "fileExplorer.deleteUndoToastUndo": "Undo",
+  "fileExplorer.dropToImport": "Drop files to import",
+  "fileExplorer.duplicate": "Duplicate",
+  "fileExplorer.duplicateFailed": "Duplicate failed",
+  "fileExplorer.duplicated": "Duplicated",
+  "fileExplorer.emptyFolder": "No files yet, start creating",
+  "fileExplorer.expandFileExplorer": "Expand file list",
+  "fileExplorer.fileAlreadyExists": "File already exists",
+  "fileExplorer.folderAlreadyExists": "Folder already exists",
+  "fileExplorer.gridView": "Grid View",
+  "fileExplorer.hideFileExplorer": "Hide file explorer",
+  "fileExplorer.hoursAgo": "{{count}} hr ago",
+  "fileExplorer.importComplete": "Import complete",
+  "fileExplorer.importFailed": "Import failed",
+  "fileExplorer.importFailedCount": "{{count}} files failed to import",
+  "fileExplorer.importFiles": "Import Files…",
+  "fileExplorer.importFilesDialogTitle": "Import Files",
+  "fileExplorer.justNow": "Just now",
+  "fileExplorer.loadingHandlers": "Loading...",
+  "fileExplorer.loadingHandlersTimeout":
+    "Loading apps took too long. Try again.",
+  "fileExplorer.localStorageHint": "Generated files will appear here.",
+  "fileExplorer.locateFailed": "Failed to locate",
+  "fileExplorer.locateMissing.confirm": "Add to canvas",
+  "fileExplorer.locateMissing.description": "Add it to the canvas?",
+  "fileExplorer.locateMissing.title": "Not on the canvas",
+  "fileExplorer.locateOnCanvas": "Locate on canvas",
+  "fileExplorer.minutesAgo": "{{count}} min ago",
+  "fileExplorer.moveFailed": "Move failed",
+  "fileExplorer.moveTargetExists":
+    '"{{name}}" already exists at the target location',
+  "fileExplorer.newFile": "New File",
+  "fileExplorer.newFolder": "New Folder",
+  "fileExplorer.noHandlers": "No applications found",
+  "fileExplorer.noMatchingFiles": "No matching files",
+  "fileExplorer.noOpenFolder": "No folder open",
+  "fileExplorer.open": "Open",
+  "fileExplorer.openFailed": "Failed to open",
+  "fileExplorer.openFolder": "Open Folder",
+  "fileExplorer.openOtherFolder": "Open another folder",
+  "fileExplorer.openSearch": "Search",
+  "fileExplorer.openWith": "Open with",
+  "fileExplorer.openWithDefaultLabel": "(default)",
+  "fileExplorer.openWithOther": "Other...",
+  "fileExplorer.openWithSystem": "Open with system",
+  "fileExplorer.overwriteFailedRenamed":
+    "Some files could not be overwritten and were renamed",
+  "fileExplorer.paste": "Paste",
+  "fileExplorer.pasteEmpty": "Clipboard is empty",
+  "fileExplorer.pasteFailed": "Paste failed",
+  "fileExplorer.pathCopied": "Path copied",
+  "fileExplorer.platformNotSupported": "Not supported on this platform",
+  "fileExplorer.promoteToAsset": "Promote to Asset",
+  "fileExplorer.refresh": "Refresh",
+  "fileExplorer.refreshList": "Refresh",
+  "fileExplorer.rename": "Rename",
+  "fileExplorer.renameFailed": "Rename failed",
+  "fileExplorer.restore": "Restore",
+  "fileExplorer.restoreFailed": "Restore failed",
+  "fileExplorer.saveToProjectAssets": "Save to Project Assets",
+  "fileExplorer.searchPlaceholder": "Search files",
+  "fileExplorer.selectFolderHint": "Select a folder to browse files",
+  "fileExplorer.shortcutBackspace": "Backspace",
+  "fileExplorer.shortcutCmdC": "Cmd+C",
+  "fileExplorer.shortcutCmdD": "Cmd+D",
+  "fileExplorer.shortcutCmdO": "Cmd+O",
+  "fileExplorer.shortcutCmdShiftA": "Cmd+Shift+A",
+  "fileExplorer.shortcutCmdShiftR": "Cmd+Shift+R",
+  "fileExplorer.shortcutEnter": "Enter",
+  "fileExplorer.showFileExplorer": "Show file explorer",
+  "fileExplorer.showInFolder": "Show in file manager",
+  "fileExplorer.showRootInFolder": "Open folder in Finder",
+  "fileExplorer.switchViewTo": "Switch to {{view}}",
+  "fileExplorer.treeView": "Tree View",
+  "fileExplorer.undoFailed": "Undo failed",
+  "fileExplorer.undoPathConflict": "Undo failed: target path already exists",
+  "fileExplorer.uploadFailedAll": "Upload failed: {{count}} file(s)",
+  "fileExplorer.uploadFile": "Upload files",
+  "fileExplorer.uploadPartial": "Uploaded {{ok}}, {{failed}} failed",
+  "fileExplorer.uploadSuccess": "Uploaded {{count}} file(s)",
+  "fileExplorer.uploading": "Uploading…",
+  "gen.status.cancelled": "Interrupted",
+  "gen.status.done": "Done",
+  "gen.status.error": "Failed",
+  "gen.status.recovering": "Recovering",
+  "gen.status.running": "Generating",
+  "globalSearch.actions.assetCenter.subtitle":
+    "Browse reusable assets across Projects.",
+  "globalSearch.actions.assetCenter.title": "Open Subject Library",
+  "globalSearch.actions.memory.subtitle":
+    "Review, create, or clean up agent memory.",
+  "globalSearch.actions.memory.title": "Memory Management",
+  "globalSearch.actions.newProject.subtitle": "Start creating.",
+  "globalSearch.actions.newProject.title": "Start Creating",
+  "globalSearch.actions.newSession.subtitle":
+    "Create a chat session in the current creation page.",
+  "globalSearch.actions.newSession.title": "New Session",
+  "globalSearch.actions.openProject.subtitle":
+    "Choose a local folder and open it as a creation page.",
+  "globalSearch.actions.openProject.title": "Open Creation Page Folder",
+  "globalSearch.actions.settings.subtitle":
+    "Manage language, theme, memory, storage, and app options.",
+  "globalSearch.actions.settings.title": "Open Settings",
+  "globalSearch.badge.opened": "Opened",
+  "globalSearch.badge.recent": "Recent",
+  "globalSearch.canvasNodes": "Canvas Nodes",
+  "globalSearch.close": "close",
+  "globalSearch.commands": "Commands",
+  "globalSearch.conversations": "Conversations",
+  "globalSearch.default.recent": "Recent",
+  "globalSearch.default.recommended": "Recommended actions",
+  "globalSearch.empty.filterSubtitle": "Try another category or keyword.",
+  "globalSearch.empty.filterTitle": "No results in {{filter}}",
+  "globalSearch.empty.subtitle": "Try a different keyword or filter.",
+  "globalSearch.empty.title": 'No results for "{{query}}"',
+  "globalSearch.files": "Files",
+  "globalSearch.filter.all": "All",
+  "globalSearch.filter.audio": "Audio",
+  "globalSearch.filter.files": "File assets",
+  "globalSearch.filter.hubProjects": "Projects",
+  "globalSearch.filter.images": "Images",
+  "globalSearch.filter.projects": "Creation pages",
+  "globalSearch.filter.quickActions": "Quick actions",
+  "globalSearch.filter.sessions": "Sessions",
+  "globalSearch.filter.text": "Text",
+  "globalSearch.filter.videos": "Videos",
+  "globalSearch.help": "Help",
+  "globalSearch.help.agentMode.subtitle":
+    "Agent modes are controlled from the chat input run-mode selector.",
+  "globalSearch.help.agentMode.title": "Agent mode help",
+  "globalSearch.help.changelog.subtitle": "Review the latest product updates.",
+  "globalSearch.help.changelog.title": "Open Changelog",
+  "globalSearch.help.createSkill.subtitle":
+    "Skills are the reusable capability layer behind templates.",
+  "globalSearch.help.createSkill.title": "How to create a Skill",
+  "globalSearch.help.export.subtitle":
+    "Download-related searches map to export actions when supported in context.",
+  "globalSearch.help.export.title": "Export and download help",
+  "globalSearch.help.installPlugin.subtitle":
+    "Plugins live under the Skill & Plugin page.",
+  "globalSearch.help.installPlugin.title": "How to install a Plugin",
+  "globalSearch.help.model.subtitle":
+    "Model choices are available from the chat input model selector.",
+  "globalSearch.help.model.title": "Model selection help",
+  "globalSearch.help.sessionHistory.subtitle":
+    "Use creation page history to restore hidden or previous Sessions.",
+  "globalSearch.help.sessionHistory.title": "Find Session history",
+  "globalSearch.help.share.subtitle":
+    "Sharing commands only appear as direct actions when the current context supports them.",
+  "globalSearch.help.share.title": "Sharing and collaboration help",
+  "globalSearch.help.shortcuts.subtitle":
+    "Find common shortcuts such as global search and new chat.",
+  "globalSearch.help.shortcuts.title": "Keyboard Shortcuts",
+  "globalSearch.help.templates.subtitle":
+    "Search Skill, Plugin, and example workflows instead of a separate template center.",
+  "globalSearch.help.templates.title": "Templates map to Skills and Plugins",
+  "globalSearch.hubProjects": "Projects",
+  "globalSearch.inputLabel": "Global search",
+  "globalSearch.loading": "Searching",
+  "globalSearch.navigate": "navigate",
+  "globalSearch.noResults": "No results found",
+  "globalSearch.open": "open",
+  "globalSearch.placeholder":
+    "Search Projects, creation pages, sessions, media, files, or quick actions...",
+  "globalSearch.plugins": "Plugins",
+  "globalSearch.plugins.market.subtitle":
+    "Find installable Plugins and reusable tools.",
+  "globalSearch.plugins.market.title": "Open Plugin Market",
+  "globalSearch.plugins.mine.subtitle": "Review local and installed Plugins.",
+  "globalSearch.plugins.mine.title": "Manage Installed Plugins",
+  "globalSearch.projects": "Creation pages",
+  "globalSearch.resultsLabel": "Search results",
+  "globalSearch.sessions": "Sessions",
+  "globalSearch.skills": "Skills",
+  "globalSearch.skills.mine.subtitle": "View installed and enabled Skills.",
+  "globalSearch.skills.mine.title": "Manage My Skills",
+  "globalSearch.skills.open.subtitle":
+    "Browse, enable, and manage reusable Skills.",
+  "globalSearch.skills.open.title": "Open Skills",
+  "globalSearch.time.days": "{{count}}d",
+  "globalSearch.time.hours": "{{count}}h",
+  "globalSearch.time.minutes": "{{count}}m",
+  "globalSearch.time.now": "now",
+  "globalSearch.type.canvas": "Node",
+  "globalSearch.type.command": "Action",
+  "globalSearch.type.file": "File",
+  "globalSearch.type.help": "Help",
+  "globalSearch.type.hubProject": "Project",
+  "globalSearch.type.plugin": "Plugin",
+  "globalSearch.type.project": "Creation page",
+  "globalSearch.type.session": "Session",
+  "globalSearch.type.skill": "Skill",
+  "home.askMode": "Ask mode",
+  "home.assetLibrary.description":
+    "Select multiple assets and add them to the current task.",
+  "home.assetLibrary.title": "Select Assets",
+  "home.attachment.assetLibrary": "Asset Library",
+  "home.attachment.localUpload": "Local Upload",
+  "home.audioGen": "Audio Generation",
+  "home.canvas": "Canvas",
+  "home.changelog": "Changelog",
+  "home.changelogItem1": "Fixed rendering issues on high-DPI displays",
+  "home.changelogItem2": "Improved startup performance by 30%",
+  "home.changelogItem3": "Added new keyboard shortcuts for common actions",
+  "home.changelogItem4": "Updated dependency packages to latest versions",
+  "home.changelogItem5": "Resolved memory leak in long-running sessions",
+  "home.characterDesign": "Character Design",
+  "home.clearFolder": "Clear selection",
+  "home.comfyWorkflows.agentAccessDescription":
+    "Selected workflows are available to the Agent during tasks. For more accurate selection, choose no more than five.",
+  "home.comfyWorkflows.agentAccessFailed":
+    "Failed to update Agent access: {{message}}",
+  "home.comfyWorkflows.agentAccessLabel": "Allow Agents to use {{name}}",
+  "home.comfyWorkflows.emptyDescription":
+    "Add or import a workflow to get started.",
+  "home.comfyWorkflows.emptyTitle": "No workflows yet",
+  "home.comfyWorkflows.exploreMore": "Explore more",
+  "home.comfyWorkflows.manage": "Manage workflows",
+  "home.comfyWorkflows.menuLabel": "ComfyUI workflow menu",
+  "home.comfyWorkflows.myWorkflows": "Available workflows",
+  "home.comfyWorkflows.triggerLabel": "Workflows",
+  "home.date": "Date",
+  "home.deleteProject": "Delete",
+  "home.deleteProjectConfirm": 'Delete "{{workspace_name}}"?',
+  "home.featuredSkillTag.creator": "Creator",
+  "home.featuredSkillTag.film": "Film & TV",
+  "home.featuredSkillTag.shortDrama": "Short Drama",
+  "home.gatewayFailed":
+    "Local service failed to start. Some features are unavailable — try restarting the app.",
+  "home.gatewayRetry": "Retry",
+  "home.gatewayStarting": "Starting local service…",
+  "home.greeting": "Hello {{name}}",
+  "home.heroSubtitle": "Your Multimodal Agent Team",
+  "home.heroTitle": "MiniMax <brand>Design</brand>",
+  "home.idea2video": "idea2video",
+  "home.ideaToVideo": "Idea to Video",
+  "home.imageGen": "Image Generation",
+  "home.input.reset": "Reset input",
+  "home.inputPlaceholder": "Describe what you want to create...",
+  "home.loginAction": "login",
+  "home.media.audio": "Audio",
+  "home.media.document": "Document",
+  "home.media.image": "Image",
+  "home.media.video": "Video",
+  "home.mediaShowcase.categories": "Showcase categories",
+  "home.mediaShowcase.contentTypes": "Content types",
+  "home.mediaShowcase.featured": "Featured",
+  "home.mediaShowcase.h3OfficialSkill": "Official Skill",
+  "home.mediaShowcase.motionStudy": "H3 Motion Study",
+  "home.mediaShowcase.skill": "Skill",
+  "home.mediaShowcase.skillEmpty": "No featured skills available",
+  "home.mediaShowcase.skillLoadError": "Failed to load featured skills",
+  "home.mediaShowcase.title": "Media Showcase",
+  "home.mediaShowcase.use": "Use Prompt",
+  "home.mediaShowcase.useSkill": "Use Skill",
+  "home.model": "Model",
+  "home.myProjects": "My Projects",
+  "home.newModel": "New Model",
+  "home.newProject": "Start Creating",
+  "home.newSkill": "New Skill",
+  "home.news": "News",
+  "home.placeholderHint1": "What video do you want to create?",
+  "home.placeholderHint2":
+    "Try typing / to generate a high-quality MV with Skill",
+  "home.placeholderHint3": "Try typing / to optimize your prompt with Skill",
+  "home.placeholderHint4":
+    "Try typing / to write a professional script with Skill",
+  "home.placeholderHint5": "Try typing / to analyze video content with Skill",
+  "home.placeholderHint6":
+    "Type / to explore all Skills and boost your workflow",
+  "home.placeholderTutorial":
+    "Tap here to view <tutorial>the tutorial</tutorial>.",
+  "home.pleaseLoginPrefix": "Please",
+  "home.pleaseLoginSuffix": "to get started",
+  "home.project": "/Project",
+  "home.quickStart": "Quick start",
+  "home.recentEmpty": "No recent projects yet — create one to get started",
+  "home.recentProjectDetails.audio": "Audio",
+  "home.recentProjectDetails.empty": "No generated media yet",
+  "home.recentProjectDetails.generated": "Generated content",
+  "home.recentProjectDetails.images": "Images",
+  "home.recentProjectDetails.lastOpened": "Last opened",
+  "home.recentProjectDetails.loadFailed": "Unable to load details",
+  "home.recentProjectDetails.more": "More actions",
+  "home.recentProjectDetails.text": "Text",
+  "home.recentProjectDetails.videos": "Videos",
+  "home.recentProjects": "Recent Creations",
+  "home.recommendation.bananaPro": "Banana Pro",
+  "home.recommendation.featuredSkills": "Featured Skills",
+  "home.recommendation.gptImage": "GPT Image",
+  "home.recommendation.promoVideo": "Promo Video",
+  "home.scene.assetFetchFailed":
+    "Failed to load attachment {{names}}, please upload manually",
+  "home.scene.clearActive": "Clear scene {{scene}}",
+  "home.scene.draftPersistFailed":
+    "Could not safely save this scene; your current input was preserved",
+  "home.scene.modelPresetFailed":
+    "Could not save the model preset. Your input was kept; please select a model again before sending.",
+  "home.scene.ecommerce": "E-commerce",
+  "home.scene.film": "Film",
+  "home.scene.graphic-design": "Graphic Design",
+  "home.scene.loadingAssets": "Loading reference assets...",
+  "home.scene.preparingInput":
+    "Downloading... You can continue once it's ready",
+  "home.scene.short-drama": "Short Drama",
+  "home.scene.tryThese": "Try these",
+  "home.scriptWriting": "Script Writing",
+  "home.scrollMore": "scroll",
+  "home.selectFolder": "Select project folder",
+  "home.selectFolderTitle": "Choose a folder",
+  "home.selectWorkDir": "Click to choose folder",
+  "home.skill": "Skill",
+  "home.skillHint1": "What video do you want to create?",
+  "home.skillHint2": "Try typing / to generate a high-quality MV with Skill",
+  "home.skillHint3": "Try typing / to optimize your prompt with Skill",
+  "home.skillHint4": "Try typing / to write a professional script with Skill",
+  "home.skillHint5": "Try typing / to analyze video content with Skill",
+  "home.skillHint6": "Type / to explore all Skills and boost your workflow",
+  "home.skillKit": "SkillKit",
+  "home.startCreate": "Start Creating",
+  "home.storyboard": "Storyboard",
+  "home.subtitle": "AI-powered creative studio for video, image, and audio",
+  "home.surpriseMe": "Surprise me",
+  "home.textRequired": "Please enter a description",
+  "home.trending": "Trending",
+  "home.trendingSkills": "/Trending Skills",
+  "home.tryIt": "Try it",
+  "home.tutorial": "View tutorial",
+  "home.tutorial.openInBrowser": "Open in browser",
+  "home.type": "Type",
+  "home.update": "/Update",
+  "home.updateBadge": "UPDATE",
+  "home.updateSubtitle1": "Initial release",
+  "home.updateSubtitle2": "Performance improvements",
+  "home.updateSubtitle3": "New features and fixes",
+  "home.updateSubtitle4": "Stability enhancements",
+  "home.updateSubtitle5": "Bug fixes and optimizations",
+  "home.updateTitle": "Update",
+  "home.updateTitle1": "Update 0.0.1",
+  "home.updateTitle2": "Update 0.0.2",
+  "home.updateTitle3": "Update 0.0.3",
+  "home.updateTitle4": "Update 0.0.4",
+  "home.updateTitle5": "Update 0.0.5",
+  "home.videoGen": "Video Generation",
+  "home.viewAll": "View all",
+  "home.whatToDoToday": ", what do you want to do today?",
+  "home.whatsNew.aria": "View latest content: {{title}}",
+  "home.whatsNew.ariaLabel": "View what's new: {{title}}",
+  "home.whatsNew.items.3dDirector.description":
+    "Use the new 3D Director workflow on Canvas for shot design and content creation.",
+  "home.whatsNew.items.3dDirector.title": "The new 3D Director is here",
+  "home.whatsNew.items.characterSkill.description":
+    "Find character concepts and creative inspiration in our featured Skills.",
+  "home.whatsNew.items.characterSkill.title":
+    "Featured character inspiration Skill",
+  "home.whatsNew.items.h3.description":
+    "Explore the latest content generation capabilities powered by H3.",
+  "home.whatsNew.items.h3.title": "The H3 model is now available",
+  "home.workspace.displayNamePlaceholder":
+    "Custom name (leave blank for folder name)",
+  "home.workspace.duplicateName":
+    "This name is already in use. Please choose another.",
+  "home.workspace.selectFolderLabel": "Select Workspace",
+  "home.workspaceOpenFailed":
+    "Failed to create the workspace. Your input was preserved; please try again.",
+  "home.workspaceUnavailable": "Folder has been moved or deleted",
+  "homeSidebar.allCreations": "All creations",
+  "homeSidebar.allProjects": "All Creations",
+  "homeSidebar.assetCenter": "Asset Center",
+  "homeSidebar.changelog": "Changelog",
+  "homeSidebar.closeProject": "Close Project",
+  "homeSidebar.comfyWorkflows": "ComfyUI Workflows",
+  "homeSidebar.home": "Home",
+  "homeSidebar.launchpad": "Launchpad",
+  "homeSidebar.navigation": "Sidebar navigation",
+  "homeSidebar.newTask": "Start Creating",
+  "homeSidebar.pinned": "Pinned",
+  "homeSidebar.projectsOrganize": "Organize",
+  "homeSidebar.projectsOrganizeFlat": "In one list",
+  "homeSidebar.recentProjectActions": "More actions",
+  "homeSidebar.recentProjectAwaitingAnswer": "Awaiting reply",
+  "homeSidebar.recentProjectAwaitingApproval": "Awaiting approval",
+  "homeSidebar.recentProjects": "Recent",
+  "homeSidebar.recentProjectsGroupLabel": "Group by",
+  "homeSidebar.recentProjectsGroupNone": "None",
+  "homeSidebar.recentProjectsGroupProject": "Project",
+  "homeSidebar.recentProjectsMore": "Sort by",
+  "homeSidebar.recentProjectsSortLabel": "Sort order",
+  "homeSidebar.recentProjectsSortManual": "Manual",
+  "homeSidebar.recentProjectsSortPriority": "Priority",
+  "homeSidebar.recentProjectsSortPriorityTooltip":
+    "Prioritize unread tasks needing input",
+  "homeSidebar.recentProjectsSortRecent": "Recently opened",
+  "homeSidebar.skillCommunity": "Skill · Plugin",
+  "homeWidget.actionFailed": "Unable to open the survey. Please try again.",
+  "imBridge.connectionStatus.connected": "Connected",
+  "imBridge.connectionStatus.notConnected": "Not connected",
+  "imBridge.menuLabel": "IM Bridge",
+  "imBridge.menuLabel.domestic": "Connect Lark / WeChat",
+  "imBridge.menuLabel.overseas": "Connect Lark / Telegram",
+  "imBridge.preventSleep.description":
+    "When enabled, MiniMax Design keeps this computer awake to avoid interrupting remote tasks. Your display can still turn off.",
+  "imBridge.preventSleep.title": "Keep computer awake",
+  "imBridge.title": "IM Bridge",
+  "imBridge.title.domestic": "Connect Lark / WeChat",
+  "imBridge.title.overseas": "Connect Lark / Telegram",
+  "imBridge.tutorial": "Tutorial",
+  "imageEdit.clear": "Clear all",
+  "imageEdit.fontSize": "Font size",
+  "imageEdit.mosaicBrushSize": "Brush size",
+  "imageEdit.mosaicModeBlur": "Blur",
+  "imageEdit.mosaicModeMosaic": "Mosaic",
+  "imageEdit.mosaicShapeBrush": "Brush",
+  "imageEdit.mosaicShapeRect": "Rectangle",
+  "imageEdit.mosaicStrength": "Strength",
+  "imageEdit.mosaicStrengthBlur": "Blur strength",
+  "imageEdit.mosaicStrengthMosaic": "Mosaic strength",
+  "imageEdit.redo": "Redo",
+  "imageEdit.saveToCanvas": "Save",
+  "imageEdit.saving": "Saving",
+  "imageEdit.strokeWidth": "Stroke width",
+  "imageEdit.textVariantFilled": "Filled text",
+  "imageEdit.textVariantOutlined": "Outlined text",
+  "imageEdit.textVariantPlain": "Plain text",
+  "imageEdit.toolArrow": "Arrow",
+  "imageEdit.toolBrush": "Brush",
+  "imageEdit.toolEllipse": "Ellipse",
+  "imageEdit.toolLine": "Line",
+  "imageEdit.toolMosaic": "Mosaic",
+  "imageEdit.toolRectangle": "Rectangle",
+  "imageEdit.toolSelect": "Select",
+  "imageEdit.toolTag": "Tag",
+  "imageEdit.toolText": "Text",
+  "imageEdit.undo": "Undo",
+  "interestSelection.counter": "Selected {{count}} / {{max}}",
+  "interestSelection.cta": "Start to Create",
+  "interestSelection.description":
+    "Select up to 3 areas so Agents can better support your creative work.",
+  "interestSelection.heading": "Choose your areas of creation",
+  "interestSelection.option.adsMarketing": "Ads & Brand Campaigns",
+  "interestSelection.option.animation": "Animation & Anime",
+  "interestSelection.option.ecommerce": "E-commerce & Marketing",
+  "interestSelection.option.filmEdit": "Films & Remix Edits",
+  "interestSelection.option.knowledge": "Knowledge & Education",
+  "interestSelection.option.mvMusic": "Music Videos",
+  "interestSelection.option.other": "Other",
+  "interestSelection.option.shortDrama": "Short Dramas & Webcomics",
+  "lineage.attachmentEntityLabel": "{{entityName}} / {{filename}}",
+  "lineage.brokenAttachment": "Asset attachment deleted",
+  "lineage.brokenParent": "Source asset deleted",
+  "lineage.brokenParentWithPath": "Source deleted (path: {{path}})",
+  "lineage.depthLabel": "Depth {{depth}} ({{count}} items)",
+  "lineage.depthTruncated":
+    "Reached max depth {{depth}}; deeper dependencies are hidden",
+  "lineage.downstreamTitle": "Downstream",
+  "lineage.inputsTitle": "Direct inputs",
+  "lineage.loadError": "Failed to load: {{message}}",
+  "lineage.noInputs": "No non-source inputs",
+  "lineage.noSelection": "Select an asset to view its dependencies",
+  "lineage.standaloneDownstream": "Not yet referenced by any descendants",
+  "lineage.standaloneUpstream": "No upstream source",
+  "lineage.upstreamTitle": "Upstream",
+  "localAssets.addToAgent": "Add to agent",
+  "localAssets.addToCanvas": "Add to canvas",
+  "localAssets.breadcrumbRoot": "All files",
+  "localAssets.columnModified": "Last modified",
+  "localAssets.columnName": "Name",
+  "localAssets.columnSize": "Size",
+  "localAssets.delete": "Delete",
+  "localAssets.deleteFileBody":
+    "The file will be removed from this project's assets and can be found in the trash.",
+  "localAssets.deleteFileTitle": 'Delete "{{name}}"?',
+  "localAssets.deleteFolderBody":
+    "The folder and everything inside it will be removed from this project's assets and can be found in the trash.",
+  "localAssets.deleteFolderTitle": 'Delete folder "{{name}}"?',
+  "localAssets.empty": "No project assets yet",
+  "localAssets.emptyFolderTitle": "This folder is empty",
+  "localAssets.folderDepthLimit":
+    "Folders can be nested up to {{count}} levels",
+  "localAssets.folderMeta": "{{count}} files",
+  "localAssets.folderPickerEmpty": "No subfolders",
+  "localAssets.folderPickerEnter": "Open folder",
+  "localAssets.importFailed": 'Failed to import "{{name}}"',
+  "localAssets.importNoPath": `"{{name}}" can't be read from disk`,
+  "localAssets.moreActions": "More actions",
+  "localAssets.move": "Move",
+  "localAssets.moveDialogTitle": "Move “{{name}}” to",
+  "localAssets.moveDialogTitlePrefix": "Move",
+  "localAssets.moveDialogTitleSuffix": "to",
+  "localAssets.moveDuplicate":
+    "A file or folder with the same name already exists at the destination",
+  "localAssets.moveTo": "Move to",
+  "localAssets.newFolder": "New folder",
+  "localAssets.newFolderPlaceholder": "Folder name",
+  "localAssets.newFolderTitle": "New folder",
+  "localAssets.noProject":
+    "This creation is not part of a project yet. Join a project to use project assets.",
+  "localAssets.open": "Open",
+  "localAssets.openFailed": `Can't open "{{name}}" — the file may have been moved or deleted`,
+  "localAssets.refresh": "Refresh",
+  "localAssets.rename": "Rename",
+  "localAssets.renameDuplicate":
+    "A file or folder with this name already exists",
+  "localAssets.renamePlaceholder": "New name",
+  "localAssets.renameTitle": "Rename",
+  "localAssets.save": "Save",
+  "localAssets.saveDialogTitle": "Save as project asset",
+  "localAssets.saveFileCount": "{{count}} files",
+  "localAssets.saveLocation": "Location",
+  "localAssets.saveLocationPlaceholder": "Choose a folder",
+  "localAssets.saveName": "Name",
+  "localAssets.saveRootFolder": "Project assets root",
+  "localAssets.saveSuccess": "Saved to project assets",
+  "localAssets.saveUploadBlocked":
+    '"{{name}}" failed content review and was not saved to project assets',
+  "localAssets.saveUploadFailed":
+    '"{{name}}" failed to upload and was not saved to project assets',
+  "localAssets.saveUploadStarted":
+    "Cloud upload started; it will be saved to project assets once complete",
+  "localAssets.searchPlaceholder": "Search project assets",
+  "localAssets.upload": "Upload files",
+  "localAssets.viewGrid": "Grid view",
+  "localAssets.viewList": "List view",
+  "mediaplan.migration.amountLabel": "Transfer Hailuo Credits",
+  "mediaplan.migration.amountMax": "Max",
+  "mediaplan.migration.amountPlaceholder": "0",
+  "mediaplan.migration.cetaCurrentBalanceHint": "MiniMax Design: {{balance}}",
+  "mediaplan.migration.confirmCheckText":
+    "I understand: these Hailuo credits will be deducted from Hailuo Web and the operation is irreversible.",
+  "mediaplan.migration.confirmCta": "Confirm transfer",
+  "mediaplan.migration.deadline":
+    "**{{days}} days** until MiniMax Design switches to Media Plan · ends **{{date}}**",
+  "mediaplan.migration.failed": "Transfer failed, please try again later",
+  "mediaplan.migration.fromHailuo": "Transfer out",
+  "mediaplan.migration.hailuoBalanceHint": "Hailuo credits {{balance}}",
+  "mediaplan.migration.hubCurrentBalanceHint": "MiniMax Design: {{balance}}",
+  "mediaplan.migration.menuEntry": "Transfer to Media Plan",
+  "mediaplan.migration.noteDeadline":
+    "Available until {{date}}, entry closes after expiration",
+  "mediaplan.migration.noteDirection":
+    "**One-way transfer**: Transferred credits are usable in MiniMax Design only; the Hailuo credits are deducted from Hailuo Web.",
+  "mediaplan.migration.noteIrreversible":
+    "Only subscription credits and purchased credits can be transferred — free credits are not eligible.",
+  "mediaplan.migration.noteRatio":
+    "1 Hailuo credit = {{ratio}} MiniMax Design credits — display-only rescale, actual cost unchanged",
+  "mediaplan.migration.noteValidity":
+    "**Credits valid for 1 year**: Transferred MP credits expire 1 year after transfer.",
+  "mediaplan.migration.noteValue":
+    "**Same cost, new unit**: Your per-action cost stays the same — only the credit unit changes.",
+  "mediaplan.migration.popup.deadline":
+    "MiniMax Design switches to Media Plan in **{{days}} days** · ends **{{date}}**",
+  "mediaplan.migration.popup.deadlineIconAlt": "Countdown",
+  "mediaplan.migration.popup.detailsAriaLabel": "View migration details",
+  "mediaplan.migration.popup.redeemCta": "Transfer Hailuo Credits",
+  "mediaplan.migration.popup.redeemHintLead": "Got Hailuo credits?",
+  "mediaplan.migration.popup.redeemHintTerm":
+    "1 : {{ratio}} ratio, non-refundable",
+  "mediaplan.migration.popup.skip": "Maybe later",
+  "mediaplan.migration.subtitle":
+    "Transfer Hailuo credits to MiniMax Design, ratio 1 : {{ratio}}",
+  "mediaplan.migration.success":
+    "Transfer successful, {{amount}} Hailuo credits transferred",
+  "mediaplan.migration.title": "Transfer to MiniMax Design credits",
+  "mediaplan.migration.toCeta": "MiniMax Design credits",
+  "mediaplan.migration.toHub": "MiniMax Design credits",
+  "mediaplan.migration.willReceive":
+    "You will receive {{credits}} MiniMax Design credits",
+  "mediaplan.userMenu.exchangeTrigger": "Transfer",
+  "mediaplan.userMenu.hailuoBalanceLabel": "Hailuo credits",
+  "mediaplan.userMenu.hailuoTooltip":
+    "Your Hailuo AI credits. Transfer to MiniMax Design as credits, valid for one year.",
+  "mediaplan.userMenu.migrationHint":
+    "MiniMax Design switches to Media Plan in **{{days}} days**. Convert at **1 : {{ratio}}**.",
+  "mediaplan.userMenu.mpCreditLabel": "MiniMax Design Credits",
+  "memory.assetDangling": "Asset no longer exists in vault — pin is stale",
+  "memory.assetMissing": "asset_uri missing or malformed",
+  "memory.assetUriPlaceholder": "hilo://asset/01H...",
+  "memory.autoFeedback.description":
+    "Off only stops auto-extraction; agents can still write memory explicitly.",
+  "memory.autoFeedback.label": "Auto-summarize conversations",
+  "memory.autoPanel.loadFailed": "Could not load recent auto-extractions",
+  "memory.autoPanel.title": "Recently learnt",
+  "memory.autoPanel.undo": "Undo",
+  "memory.autoPanel.undoFailed": "Undo failed",
+  "memory.autoPanel.undoNotFound": "Entry was already removed",
+  "memory.autoPanel.undoSuccess": "Undone — entry removed",
+  "memory.autoToast.description":
+    'Captured "{{name}}". Find it under Settings → Memory.',
+  "memory.autoToast.title": "Agent learnt a preference",
+  "memory.autoToast.undo": "Undo",
+  "memory.autoToast.undoFailed": "Undo failed",
+  "memory.autoToast.undoNotFound": "Entry was already removed",
+  "memory.autoToast.undoSuccess": "Undone — entry removed",
+  "memory.autoToast.view": "View",
+  "memory.bodyPlaceholder": "Markdown body — keywords, defaults, avoid notes…",
+  "memory.clone": "Duplicate",
+  "memory.cloneAutoRename": "Auto-rename if target exists (-copy)",
+  "memory.cloneCopyAction": "Duplicate",
+  "memory.cloneCreated": "Copied as",
+  "memory.cloneDesc":
+    "Copies the entry to a target scope. Use “Move” to atomically delete the source after copy.",
+  "memory.cloneDescAssetPin":
+    "asset-pin entries can only be duplicated within the current project.",
+  "memory.cloneFailed": "Duplicate failed",
+  "memory.cloneMoveAction": "Move",
+  "memory.cloneMoved": "Moved to",
+  "memory.cloneRemoveSource": "Move (delete source after copy succeeds)",
+  "memory.cloneTargetName": "New name (optional)",
+  "memory.cloneTargetScope": "Target scope",
+  "memory.cloneTitle": "Duplicate memory",
+  "memory.compaction.autoDescription":
+    "When entries or vault size exceed the threshold, run compaction in the background. Off keeps it manual.",
+  "memory.compaction.autoLabel": "Periodic auto-compaction",
+  "memory.compaction.cancel": "Cancel",
+  "memory.compaction.compactedFrom": "Compacted from:",
+  "memory.compaction.deleteCount": "Delete {{n}}",
+  "memory.compaction.doneToast":
+    "Compacted {{deleted}} entries · freed {{freed}}",
+  "memory.compaction.empty": "Nothing to compact",
+  "memory.compaction.emptyDesc":
+    "Memory count and size are within thresholds — no deletes or merges will run.",
+  "memory.compaction.errorToast": "Compaction failed",
+  "memory.compaction.execute": "Run compaction",
+  "memory.compaction.executing": "Compacting…",
+  "memory.compaction.keepCount": "Will keep {{kept}} · delete {{planned}}",
+  "memory.compaction.keepLabel": "Keep",
+  "memory.compaction.op.dedup": "Deduplicate",
+  "memory.compaction.op.expire": "Expire",
+  "memory.compaction.op.merge": "Merge",
+  "memory.compaction.op.trim": "Trim",
+  "memory.compaction.openButton": "Compact",
+  "memory.compaction.previewFailed": "Failed to load compaction plan",
+  "memory.compaction.rewrite.applyButton": "Apply rewrite",
+  "memory.compaction.rewrite.assetPinExcluded":
+    "{{n}} asset-pin anchors are excluded automatically.",
+  "memory.compaction.rewrite.backButton": "Back",
+  "memory.compaction.rewrite.doneToast":
+    "Rewrote {{deleted}} entries into {{merged}}",
+  "memory.compaction.rewrite.emptyEligible":
+    "No user memories available to rewrite.",
+  "memory.compaction.rewrite.executeFailed": "Failed to apply rewrite",
+  "memory.compaction.rewrite.executing": "Applying rewrite…",
+  "memory.compaction.rewrite.generateButton": "Generate rewrite",
+  "memory.compaction.rewrite.generateButtonWithCount":
+    "Generate rewrite ({{n}})",
+  "memory.compaction.rewrite.modelLabel": "Model: {{model}}",
+  "memory.compaction.rewrite.newLabel": "New version",
+  "memory.compaction.rewrite.originalLabel": "Original",
+  "memory.compaction.rewrite.previewFailed":
+    "Failed to generate rewrite proposal",
+  "memory.compaction.rewrite.previewSummary": "{{from}} → {{to}}",
+  "memory.compaction.rewrite.previewTitle": "Review rewrite",
+  "memory.compaction.rewrite.previewing":
+    "AI is rewriting {{n}} selected memories…",
+  "memory.compaction.rewrite.proposalExpired":
+    "The rewrite proposal has expired. Please regenerate.",
+  "memory.compaction.rewrite.replacesN": "← replaces {{n}}",
+  "memory.compaction.rewrite.selectAll": "Select all",
+  "memory.compaction.rewrite.selectNone": "Clear selection",
+  "memory.compaction.rewrite.subtitle":
+    "Pick entries to consolidate; the AI rewrites them into fewer, denser notes for review before any change is applied.",
+  "memory.compaction.rewrite.title": "Rewrite memories with AI",
+  "memory.compaction.subtitle":
+    "Preview delete/merge operations and uncheck entries you want to keep. A snapshot is taken automatically before execution.",
+  "memory.compaction.title": "Compact memory",
+  "memory.compaction.triggerBytesExceeded": "Size exceeded",
+  "memory.compaction.triggerCountExceeded": "Count exceeded",
+  "memory.compaction.triggerManual": "Manual trigger",
+  "memory.compaction.triggerScheduled": "Scheduled",
+  "memory.compaction.undo": "Undo",
+  "memory.compaction.undoDone": "Restored to pre-compaction state",
+  "memory.compaction.undoFailed": "Undo failed",
+  "memory.compaction.upsert": "Add",
+  "memory.createDesc": "Stored as a markdown file under the chosen scope.",
+  "memory.createTitle": "New memory",
+  "memory.createdFailed": "Failed to create memory",
+  "memory.createdSuccess": "Memory created",
+  "memory.dangling": "dangling",
+  "memory.deleteDesc":
+    "This permanently removes the markdown file. The agent will lose this memory immediately.",
+  "memory.deleteTitle": "Delete memory?",
+  "memory.deletedFailed": "Failed to delete memory",
+  "memory.deletedNotFound": "Memory was already removed",
+  "memory.deletedSuccess": "Memory deleted",
+  "memory.descPlaceholder": "Single line shown in the index",
+  "memory.editDesc": "Scope, name and type are locked once created.",
+  "memory.editTitle": "Edit memory",
+  "memory.empty": "No memory yet",
+  "memory.emptyBody": "(empty body)",
+  "memory.emptyDesc":
+    "Create a memory, or let the agent save one automatically.",
+  "memory.emptySearch": "No matching memory",
+  "memory.emptySearchDesc": "Try another keyword or clear the filters.",
+  "memory.errAssetPinScope": "asset-pin requires project scope",
+  "memory.errAssetUriFormat": "asset_uri must look like hilo://asset/<id>",
+  "memory.errAssetUriRequired": "asset_uri is required",
+  "memory.errBodyTooLong": "Body exceeds 30 KB",
+  "memory.errDescRequired": "description is required",
+  "memory.errDescSingleLine": "description must be a single line",
+  "memory.errDescTooLong": "description must be ≤ 200 chars",
+  "memory.errNameFormat": "name must be kebab-case (1-64 chars)",
+  "memory.errNameRequired": "name is required",
+  "memory.errNameSame": "pick a different name",
+  "memory.fieldAssetModality": "Modality",
+  "memory.fieldAssetUri": "Asset URI",
+  "memory.fieldBody": "Body (Markdown)",
+  "memory.fieldDescription": "Description",
+  "memory.fieldName": "Name",
+  "memory.fieldNameHint": "kebab-case, 1-64 chars (locked after create)",
+  "memory.fieldScope": "Scope",
+  "memory.fieldType": "Type",
+  "memory.gatewayUnavailable": "Gateway unavailable",
+  "memory.groupProject": "Project scope (current workspace)",
+  "memory.groupUser": "User scope (cross-project)",
+  "memory.loadUserMemory.description":
+    "Include cross-project user memory in this workspace. Project memory still loads.",
+  "memory.loadUserMemory.label": "Load user memory",
+  "memory.lowToast.description":
+    "Available memory ({{available}}MB) has stayed below {{threshold}}MB, which may cause MiniMax Design to stop responding. Please close other large applications or restart your computer.",
+  "memory.lowToast.title": "System memory is running low",
+  "memory.matchBody": "body",
+  "memory.matchBoth": "desc+body",
+  "memory.matchDescription": "desc",
+  "memory.matchTooltip": "Search matched in:",
+  "memory.namePlaceholder": "cyberpunk-hero",
+  "memory.new": "New",
+  "memory.noDescription": "(no description)",
+  "memory.rename": "Rename",
+  "memory.renameDesc":
+    "Changes the frontmatter name and the on-disk filename. Scope and type stay the same.",
+  "memory.renameFailed": "Rename failed",
+  "memory.renameOverwrote": "Renamed (overwrote existing entry)",
+  "memory.renameSuccess": "Renamed",
+  "memory.renameTitle": "Rename memory",
+  "memory.savedFailed": "Failed to save memory",
+  "memory.savedSuccess": "Memory updated",
+  "memory.scopeAll": "All scopes",
+  "memory.scopeProject": "Project",
+  "memory.scopeUser": "User",
+  "memory.searchPlaceholder": "Search description or body…",
+  "memory.snapshots.empty": "No snapshots yet",
+  "memory.snapshots.emptyDesc":
+    "Snapshots appear here after the agent compacts memory the first time, or after you trigger a manual compaction.",
+  "memory.snapshots.entryCount": "{{count}} entries · {{bytes}}",
+  "memory.snapshots.entryCountLabel": "Entries",
+  "memory.snapshots.loadFailed": "Failed to load snapshot list",
+  "memory.snapshots.openButton": "Snapshots",
+  "memory.snapshots.reasonCompaction": "Compaction",
+  "memory.snapshots.reasonManual": "Manual",
+  "memory.snapshots.restore": "Restore",
+  "memory.snapshots.restoreConfirmDesc":
+    "This overwrites all memory in the current scope. The current state will be snapshotted first as a rollback point.",
+  "memory.snapshots.restoreConfirmTitle": "Restore to this snapshot?",
+  "memory.snapshots.restoreDoneToast":
+    "Restored {{count}} entries from snapshot",
+  "memory.snapshots.restoreFailedToast": "Snapshot restore failed",
+  "memory.snapshots.restoring": "Restoring…",
+  "memory.snapshots.snapshotIdLabel": "Snapshot",
+  "memory.snapshots.subtitle":
+    "Review automatic and manual snapshots, and one-click restore the entire scope's memory. Another snapshot of the current state is taken before restoring.",
+  "memory.snapshots.summary":
+    "Trigger: delete {{deleted}} · merge {{merged}} · freed {{freed}}",
+  "memory.snapshots.title": "Snapshots",
+  "memory.type.asset-pin": "Asset pin",
+  "memory.type.feedback": "Feedback",
+  "memory.type.media-style": "Media style",
+  "memory.type.project": "Project fact",
+  "memory.type.reference": "Reference",
+  "memory.type.user": "User preference",
+  "memory.typeAll": "All types",
+  "memory.updatedAt": "Updated:",
+  "mention.popover.audio": "Audio",
+  "mention.popover.connectors": "Plugins",
+  "mention.popover.connectorsEmpty": "No connected plugins",
+  "mention.popover.currentCanvasWorkflow": "Current Canvas",
+  "mention.popover.currentCanvasWorkflowsEmpty":
+    "No workflows on the current canvas",
+  "mention.popover.empty": "No matching files",
+  "mention.popover.files": "Files",
+  "mention.popover.heading": "Mention",
+  "mention.popover.image": "Image",
+  "mention.popover.loading": "Searching...",
+  "mention.popover.localWorkflow": "Local",
+  "mention.popover.models": "Models",
+  "mention.popover.noResults": "No results",
+  "mention.popover.projectAssetsEmpty": "No project assets",
+  "mention.popover.references": "References",
+  "mention.popover.referencesEmpty": "No referenced assets yet",
+  "mention.popover.removeReference": "Remove",
+  "mention.popover.tabAll": "All",
+  "mention.popover.tabAssets": "Subject Library",
+  "mention.popover.tabProjectAssets": "Project Assets",
+  "mention.popover.tabReferences": "References",
+  "mention.popover.title": "Mention a file",
+  "mention.popover.truncated": "Showing partial results -- refine your search.",
+  "mention.popover.video": "Video",
+  "mention.popover.workflowAttachFailed": "Failed to attach the workflow JSON",
+  "mention.popover.workflows": "Workflows",
+  "mention.popover.workflowsEmpty": "No local workflows",
+  "mention.switch.current": "Current references",
+  "mention.switch.currentEmpty": "No current references",
+  "mention.switch.empty": "No available assets",
+  "mention.switch.fromCanvas": "Add from canvas",
+  "mention.switch.title": "Switch reference",
+  "messageInput.mentionAsset.tooltip": "Mention an asset",
+  "missing.candidateFound": "Candidate found: {{path}}",
+  "missing.locate": "Locate manually",
+  "missing.locateDialogTitle": 'Locate "{{name}}"',
+  "missing.locateFailed": "Failed to locate file",
+  "missing.merge": "Merge with candidate",
+  "missing.mergeFailed": "Failed to merge candidate",
+  "missing.mergeWithPath": "Merge with: {{path}}",
+  "missing.remove": "Remove record",
+  "missing.removeFailed": "Failed to remove record",
+  model_input_error_general: model_input_error_general$1,
+  "pageState.emptyText": "No content yet",
+  "pageState.errorText": "Something went wrong. Please try again.",
+  "pageState.networkErrorText":
+    "No network connection. Check your connection and try again.",
+  "productionPlan.actions.collapsePlan": "Collapse",
+  "productionPlan.actions.collapsePlanAria": "Collapse production plan",
+  "productionPlan.actions.confirmPlan": "Continue",
+  "productionPlan.actions.confirmResult": "Continue",
+  "productionPlan.actions.finish": "Finish production",
+  "productionPlan.actions.viewExecutionPlan": "View execution plan",
+  "productionPlan.actions.viewOutput": "View outputs",
+  "productionPlan.actions.viewStage": "View {{stage}}",
+  "productionPlan.feedbackPlaceholder":
+    "Text will be sent as revision feedback for this stage; attachments are sent as a regular message",
+  "productionPlan.loadFailed": "Unable to load right now",
+  "productionPlan.messages.confirmPlan":
+    "Confirm the execution plan for “{{stage}}” and start execution.",
+  "productionPlan.messages.confirmResult":
+    "Confirm the result of “{{stage}}” and continue to the next stage.",
+  "productionPlan.messages.finish":
+    "Confirm the final result of “{{stage}}” and complete the production.",
+  "productionPlan.prompt.acceptRemoval": "Accept removal",
+  "productionPlan.prompt.collapsePreviews": "Collapse",
+  "productionPlan.prompt.confirmedSummary": "{{count}} prompts confirmed",
+  "productionPlan.prompt.conflictCount":
+    "{{count}} conflict(s) still need attention",
+  "productionPlan.prompt.conflictError":
+    "The production plan changed. Choose the latest version or keep your current draft.",
+  "productionPlan.prompt.conflictedItem": "{{item}}, conflict",
+  "productionPlan.prompt.content.item": "{{number}} Item",
+  "productionPlan.prompt.dialogDescription":
+    "Each prompt maps to one output. Changes are synced back to the production plan.",
+  "productionPlan.prompt.dialogTitle": "Review and edit prompts",
+  "productionPlan.prompt.editorLabel": "Prompt",
+  "productionPlan.prompt.emptyError": "Prompt cannot be empty",
+  "productionPlan.prompt.expandPreviews": "Show {{count}} more",
+  "productionPlan.prompt.generatedDescription":
+    "Review the prompts below, then continue generating.",
+  "productionPlan.prompt.generatedTitle": "{{count}} items ready to generate",
+  "productionPlan.prompt.keepDraft": "Keep draft",
+  "productionPlan.prompt.kind.audio": "Audio",
+  "productionPlan.prompt.kind.content": "Content",
+  "productionPlan.prompt.kind.document": "Document",
+  "productionPlan.prompt.kind.image": "Image",
+  "productionPlan.prompt.kind.music": "Music",
+  "productionPlan.prompt.kind.text": "Text",
+  "productionPlan.prompt.kind.video": "Video",
+  "productionPlan.prompt.modified": "Modified",
+  "productionPlan.prompt.parameter.seconds": "{{value}}s",
+  "productionPlan.prompt.references": "References",
+  "productionPlan.prompt.removedConflict":
+    "This item was removed from the latest plan. Accepting the removal will discard your local draft.",
+  "productionPlan.prompt.restore": "Restore original",
+  "productionPlan.prompt.save": "Save changes",
+  "productionPlan.prompt.saveError": "Could not save. Try again.",
+  "productionPlan.prompt.source": "Source",
+  "productionPlan.prompt.staleSaveError":
+    "The production plan changed. Review it again before continuing.",
+  "productionPlan.prompt.table.prompt": "Prompt",
+  "productionPlan.prompt.useLatest": "Use latest",
+  "productionPlan.prompt.view": "View prompts",
+  "productionPlan.prompt.viewDescription":
+    "Confirmed content is available here for reference",
+  "productionPlan.prompt.viewEditAll": "Review and edit prompts",
+  "productionPlan.prompt.viewTitle": "Confirmed prompts",
+  "productionPlan.retry": "Retry",
+  "productionPlan.status.blocked": "Blocked",
+  "productionPlan.status.doing": "In progress",
+  "productionPlan.status.done": "Done",
+  "productionPlan.status.review": "Needs review",
+  "productionPlan.status.todo": "To plan",
+  "productionPlan.title": "Production plan",
+  "project.addToProject": "Move to project",
+  "project.cardActions": "Project actions",
+  "project.cloudDebug.createdAt": "Created {{time}}",
+  "project.cloudDebug.description":
+    "Live response of GET /api/v1/projects, used to verify that local actions reached the cloud. This panel is read-only and never writes local projects.",
+  "project.cloudDebug.empty": "The cloud returned no projects",
+  "project.cloudDebug.failed": "Fetch failed: {{message}}",
+  "project.cloudDebug.loading": "Fetching collaborative projects…",
+  "project.cloudDebug.members": "Members {{count}}",
+  "project.cloudDebug.raw": "Raw JSON",
+  "project.cloudDebug.refresh": "Refetch",
+  "project.cloudDebug.role.creator": "Creator",
+  "project.cloudDebug.role.member": "Member",
+  "project.cloudDebug.role.unknown": "Unknown role",
+  "project.cloudDebug.storage": "Storage {{used}} / {{total}}",
+  "project.cloudDebug.summary":
+    "{{count}} collaborative project(s) · fetched at {{time}}",
+  "project.cloudDebug.title": "Collaborative project API response",
+  "project.cloudDebug.trigger": "Collaborative Projects",
+  "project.cloudDebug.unnamed": "(no name)",
+  "project.cloudDebug.updatedAt": "Updated {{time}}",
+  "project.collapse": "Collapse",
+  "project.comingSoon": "Coming soon",
+  "project.comingSoonBody": "This is coming soon",
+  "project.create.failed": "Failed to create the project. Please try again.",
+  "project.create.local": "Local project",
+  "project.create.localDescription":
+    "Local projects organize creation pages on this device. Create projects by work, theme, or task, then add related pages to view and manage project pages and assets together. Project content is not automatically shared with other devices or users.",
+  "project.create.localTitle": "New local project",
+  "project.create.nameLabel": "Project name",
+  "project.create.namePlaceholder": "e.g. MiniMax promo video",
+  "project.create.submit": "Create Project",
+  "project.create.team": "Collaborative project",
+  "project.create.teamDescription":
+    "Collaborative projects let you invite others to collaborate and share project assets (only subscribers or team accounts can create them)",
+  "project.create.teamTitle": "New collaborative project",
+  "project.create.trigger": "New Project",
+  "project.creationsEmpty": "No creation pages yet",
+  "project.creationsEmptyDescription": "Create a page to get started.",
+  "project.creationsEmptySidebar": "No creations yet",
+  "project.delete": "Delete project",
+  "project.dissolve.confirm": "Dissolve project",
+  "project.dissolve.description":
+    "This dissolves “{{name}}”. Its creation pages are kept and only lose the grouping.",
+  "project.dissolve.failed":
+    "Failed to dissolve the project. Please try again.",
+  "project.dissolve.title": "Dissolve project",
+  "project.dissolve.transferActive":
+    "This project still has active uploads or downloads. Wait for them to finish and try again.",
+  "project.sidebar.showMore": "Show more",
+  "project.sidebar.showLess": "Show less",
+  "project.expand": "Expand",
+  "project.heroBanner.open": "Open Promotion",
+  "project.heroDescription":
+    "Organize creation pages, manage project assets, bring project contents together in one space.",
+  "project.heroLocalLabel": "Local projects",
+  "project.heroTeamLabel": "Collaborative projects",
+  "project.hubTitle": "Project Gallery",
+  "project.invite.acceptFailed": "Failed to join the project, please try again",
+  "project.invite.accessDescription":
+    "Only invited members can access this project and its assets",
+  "project.invite.accessLabel": "Who has access",
+  "project.invite.accessScope": "Invited users only",
+  "project.invite.button": "Invite",
+  "project.invite.card.accept": "Accept",
+  "project.invite.card.decline": "Decline",
+  "project.invite.card.inviteLine": "{{inviter}} invited you to join",
+  "project.invite.card.inviteLineAnonymous":
+    "You are invited to join this project",
+  "project.invite.card.memberCount": "{{count}} members",
+  "project.invite.card.unknownProject": "Project invite",
+  "project.invite.copied": "Copied",
+  "project.invite.copyFailed": "Failed to create invite link, please try again",
+  "project.invite.copyLink": "Copy invitation link",
+  "project.invite.expiryNote":
+    "This invitation link is valid for 24 hours. Please send it to the Design users participating in the project.",
+  "project.invite.membersFailed": "Failed to load members",
+  "project.invite.membersLabel": "Members",
+  "project.invite.membersTitle": "Members of {{name}}",
+  "project.invite.membersTotal": "{{count}}",
+  "project.invite.removeFailed": "Failed to remove member, please try again",
+  "project.invite.removeMember": "Remove member",
+  "project.invite.roleMember": "Member",
+  "project.invite.roleOwner": "Owner",
+  "project.invite.title": "Invite members to collaborate on “{{name}}”",
+  "project.invite.viewMembers": "View or manage project members",
+  "project.invite.viewMembersOnly": "View project members",
+  "project.invite.you": "(you)",
+  "project.kind.team": "Collaborative project",
+  "project.kindTabs.cloud": "Collaborative Projects",
+  "project.kindTabs.local": "Local Projects",
+  "project.kindTabsAria": "Project kinds",
+  "project.listEmptyCloudDescription":
+    "Create a project to collaborate with your team.",
+  "project.listEmptyCloudTitle": "No collaborative projects yet",
+  "project.listEmptyLocalDescription":
+    "Create a project to organize your creations.",
+  "project.listEmptyLocalTitle": "No local projects yet",
+  "project.listTitle": "Project Gallery",
+  "project.myProjects": "My projects",
+  "project.newCreation": "New Creation Page",
+  "project.noProjects": "No projects yet",
+  "project.openDetail": "Open project",
+  "project.removeFromProject": "Remove from project",
+  "project.rename.failed": "Failed to rename the project. Please try again.",
+  "project.restore.failed": "Failed to restore the project. Please try again.",
+  "project.searchEmpty": "No matching projects",
+  "project.searchEmptyDescription": "Try another keyword.",
+  "project.searchPlaceholder": "Search projects",
+  "project.selectRow.change": "Change",
+  "project.selectRow.clear": "Remove from project",
+  "project.selectRow.hint":
+    "Organize creations by project and share project assets",
+  "project.selectRow.label": "Project",
+  "project.selectRow.none": "No project",
+  "project.selectRow.pick": "Select",
+  "project.selectRow.pickLabel": "Select project",
+  "project.sidebarTitle": "Projects",
+  "project.sort.created": "Recently created",
+  "project.sort.name": "Alphabetical",
+  "project.sort.updated": "Recently updated",
+  "project.sortLabel": "Sort order",
+  "project.tabs.activity": "Activity",
+  "project.tabs.cloudAssets": "Project Assets",
+  "project.tabs.cloudAssetsInfo":
+    "Assets live in the cloud and are visible across devices and users",
+  "project.tabs.creations": "Creations",
+  "project.tabs.creationsInfo":
+    "Creation pages live on this device and are not visible across devices or users",
+  "project.tabs.localAssets": "Project Assets",
+  "project.tabs.localAssetsComingSoonInfo":
+    "Project assets are coming soon. You will be able to view and manage project files in one place.",
+  "project.tabs.localAssetsInfo":
+    "Assets of a local project stay on this device",
+  "project.tabsAria": "Project sub pages",
+  "project.tutorial.trigger": "View Tutorial",
+  "project.ungrouped": "Ungrouped",
+  "projectArchive.export.cancelled": "Export cancelled",
+  "projectArchive.export.failed": "Export failed",
+  "projectArchive.export.failure.activityUnavailable":
+    "The export could not start safely. Please try again in a moment",
+  "projectArchive.export.failure.destinationBusy":
+    "The export file is in use. Close it and retry",
+  "projectArchive.export.failure.destinationInsideProject":
+    "The archive cannot be saved inside the current project. Choose a folder outside the project",
+  "projectArchive.export.failure.diskFull": "There is not enough disk space",
+  "projectArchive.export.failure.exportInProgress":
+    "Another project is already being exported. Wait for it to finish and try again",
+  "projectArchive.export.failure.invalidDestination":
+    "Choose a valid export location",
+  "projectArchive.export.failure.parentNotDirectory":
+    "The export location is not a folder",
+  "projectArchive.export.failure.permissionDenied":
+    "Hub does not have permission to write to this location",
+  "projectArchive.export.failure.publishFailed":
+    "The exported archive could not be saved. Please retry",
+  "projectArchive.export.failure.rootUnavailable":
+    "The selected disk is unavailable",
+  "projectArchive.export.failure.unexpected":
+    "The project could not be exported. Please try again",
+  "projectArchive.export.failure.verificationFailed":
+    "The exported archive could not be verified. Please retry",
+  "projectArchive.export.failure.workspaceNotReady":
+    "The workspace is still getting ready. Please try again in a moment",
+  "projectArchive.export.inProgress": "Exporting project",
+  "projectArchive.export.noWorkspace":
+    "No workspace is open, so there is nothing to export",
+  "projectArchive.export.reveal": "Show in Folder",
+  "projectArchive.export.success": "Project exported",
+  "projectArchive.import.failed": "Import failed",
+  "projectArchive.import.failure.archiveInvalid":
+    "This project archive could not be read. Check that the file is complete and was exported from MiniMax Design, then try again.",
+  "projectArchive.import.failure.archiveTooLarge":
+    "This project template is unavailable because its file is too large. Upload logs for troubleshooting.",
+  "projectArchive.import.failure.destinationConflict":
+    "The project destination is already in use. Existing projects have not been overwritten. Please try importing again.",
+  "projectArchive.import.failure.diskFull":
+    "There is not enough space at the project location. Free up disk space and try importing again.",
+  "projectArchive.import.failure.downloadDiskFull":
+    "There is not enough space on the drive used for temporary downloads. Free up space on that drive and try again.",
+  "projectArchive.import.failure.downloadFailed":
+    "The project template could not be downloaded. Check your connection or try again later; if it still fails, upload logs for troubleshooting.",
+  "projectArchive.import.failure.fileAccessBlocked":
+    "The archive or project location could not be accessed. It may be in use or access may be restricted. Close programs using it, check folder permissions, and try again.",
+  "projectArchive.import.failure.importInProgress":
+    "Another import operation is in progress. Finish it or cancel the file selection before trying again.",
+  "projectArchive.import.failure.pathUnavailable":
+    "The archive or project location is no longer available. Check that the file and drive are accessible, then try again.",
+  "projectArchive.import.failure.templateUnavailable":
+    "This project template is temporarily unavailable. Try again later; if it still fails, upload logs for troubleshooting.",
+  "projectArchive.import.failure.unexpected":
+    "The project import did not complete. Existing projects were not changed. Try again; if it still fails, upload logs for troubleshooting.",
+  "projectArchive.import.inProgress": "Importing project",
+  "projectArchive.import.openFailed": "Failed to open imported project",
+  "projectArchive.import.partial":
+    "Project imported; conversations may not be fully restored",
+  "projectArchive.import.partialDetail":
+    "Your project files have been preserved and can be used. Full conversation restoration could not be confirmed. Check again shortly; if conversations are still missing, upload logs for troubleshooting.",
+  "projectArchive.import.success": "Project imported",
+  "projectAssets.batchDelete": "Delete selected",
+  "projectAssets.batchDeleteCloudBody":
+    "This permanently deletes the selected items from the cloud and moves local copies to the trash. Folders are deleted recursively.",
+  "projectAssets.batchDeleteConfirm": "Delete the selected {{count}} items?",
+  "projectAssets.batchDeleteConfirm_one": "Delete the selected item?",
+  "projectAssets.batchDeleteConfirm_other":
+    "Delete the selected {{count}} items?",
+  "projectAssets.batchDeleteInProgress": "Deleting…",
+  "projectAssets.batchDeleteLocalBody":
+    "The selected local files and folders will be removed from this project's assets and can be found in the trash.",
+  "projectAssets.batchDeleteTitle": "Delete {{count}} selected items?",
+  "projectAssets.batchDownload": "Download selected",
+  "projectAssets.batchDownloadSkipped": "Skipped {{count}} unavailable items",
+  "projectAssets.batchMove": "Move selected to",
+  "projectAssets.batchMoveDialogTitle": "Move {{count}} items to",
+  "projectAssets.batchUploadHint": "Supports multiple files",
+  "projectAssets.bucket.archive": "Archive",
+  "projectAssets.bucket.audio": "Audio",
+  "projectAssets.bucket.code": "Code",
+  "projectAssets.bucket.document": "Document",
+  "projectAssets.bucket.folder": "Folder",
+  "projectAssets.bucket.image": "Image",
+  "projectAssets.bucket.other": "Other",
+  "projectAssets.bucket.video": "Video",
+  "projectAssets.clearSelection": "Clear selection",
+  "projectAssets.columns.name": "Name",
+  "projectAssets.columns.owner": "Owner",
+  "projectAssets.columns.size": "Size",
+  "projectAssets.columns.type": "Type",
+  "projectAssets.columns.updated": "Last modified",
+  "projectAssets.countFiles": "{{count}} files",
+  "projectAssets.countFiles_one": "{{count}} file",
+  "projectAssets.countFiles_other": "{{count}} files",
+  "projectAssets.countFolders": "{{count}} folders",
+  "projectAssets.countFolders_one": "{{count}} folder",
+  "projectAssets.countFolders_other": "{{count}} folders",
+  "projectAssets.countMixed": "{{folders}} folders · {{files}} files",
+  "projectAssets.createFolderHint": "Create in the current folder",
+  "projectAssets.depthExceeded": "This folder exceeds the supported depth",
+  "projectAssets.dropzoneDesc": "Upload multiple files at once",
+  "projectAssets.dropzoneTitle": "Drop files here, or click to upload",
+  "projectAssets.emptyCount": "0 items",
+  "projectAssets.emptyStateDesc":
+    "Upload files or create a folder to organize project assets.",
+  "projectAssets.emptyStateSearchDesc":
+    "Try another keyword or clear the filters.",
+  "projectAssets.emptyStateSearchTitle": "No matching assets",
+  "projectAssets.emptyStateTitle": "No project assets yet",
+  "projectAssets.errorTitle": "Failed to load",
+  "projectAssets.filter": "Filter",
+  "projectAssets.filterByType": "Filter by type",
+  "projectAssets.filterClear": "Clear filters",
+  "projectAssets.folderDepthReached": "Folders support up to {{count}} levels",
+  "projectAssets.folderMeta": "{{count}} files",
+  "projectAssets.searchClear": "Clear search",
+  "projectAssets.searchPlaceholder": "Search by name",
+  "projectAssets.selectAll": "Select all",
+  "projectAssets.selectAllFiles": "Select all files",
+  "projectAssets.selectRow": "Select row",
+  "projectAssets.selectedCount": "{{count}} selected",
+  "projectAssets.selectedCount_one": "{{count}} selected",
+  "projectAssets.selectedCount_other": "{{count}} selected",
+  "projectAssets.selectionBar": "Batch actions",
+  "projectAssets.sort": "Sort",
+  "projectAssets.sortBy": "Sort by",
+  "projectAssets.sortBy.name": "Name",
+  "projectAssets.sortBy.size": "Size",
+  "projectAssets.sortBy.type": "Type",
+  "projectAssets.sortBy.updated": "Last modified",
+  "projectAssets.sortDir.asc": "Ascending",
+  "projectAssets.sortDir.desc": "Descending",
+  "projectAssets.title": "Project assets",
+  "projectAssets.viewGrid": "Grid view",
+  "projectAssets.viewList": "List view",
+  "projectAssets.viewSwitch": "View switch",
+  "projects.breadcrumb": "/Project",
+  "projects.create": "Create",
+  "promoBanner.close": "Dismiss",
+  "promoBubble.close": "Dismiss",
+  "promoBubble.cta": "Try on MiniMax Design",
+  "promotion.badge": "Seedance 2.0 — 65% off",
+  "promotion.dialog.bullet1":
+    "All members get a 65% discount on Seedance 2.0 model usage in MiniMax Design",
+  "promotion.dialog.bullet2":
+    "720P from just $0.5/sec — the lowest on the market",
+  "promotion.dialog.bullet3": "Start creating now",
+  "promotion.dialog.cancel": "Cancel",
+  "promotion.dialog.cta": "Try it now",
+  "promotion.dialog.title": "Seedance 2.0 — Limited-time 65% off",
+  "proxy.toastDescription":
+    "A system proxy or VPN is active. This may cause connection issues. For best experience, add MiniMax Design to your proxy bypass list or disable the proxy while using MiniMax Design.",
+  "proxy.toastTitle": "Proxy / VPN detected",
+  "recentAssets.clear": "Clear",
+  "recentAssets.copyPath": "Copy path",
+  "recentAssets.empty": "No recently opened files",
+  "recentAssets.openWithSystem": "Open with system",
+  "recentAssets.remove": "Remove",
+  "recentAssets.showInFolder": "Show in file manager",
+  "recentAssets.title": "Recent",
+  "recentProjects.close": "Close",
+  "recentProjects.empty": "No recent creations yet",
+  "recentProjects.manage": "Manage",
+  "recentProjects.navigate": "Navigate",
+  "recentProjects.noResults": "No matching creations",
+  "recentProjects.open": "Open",
+  "recentProjects.placeholder": "Search by name or path...",
+  "recentProjects.unavailable": "unavailable",
+  "remoteTool.loadFailed": "Failed to load tool",
+  "remoteTool.loading": "Loading tool...",
+  "remoteToolDebug.noBundleUrl":
+    "No bundle URL. Open this page from the builder dashboard Preview button (it passes {{params}}).",
+  "remoteToolDebug.toolReady": "Tool ready",
+  "rename.safetyBlocked":
+    "The name did not pass the safety review. Please revise it and try again.",
+  "serverPopup.a11yTitle": "Announcement",
+  "serverPopup.errorToast": "Operation failed, please try again later",
+  "serverPopup.feature.mute": "Mute",
+  "serverPopup.feature.topTitle": "Global Premiere",
+  "serverPopup.feature.unmute": "Unmute",
+  "serverPopup.purchase.title": "Top-up Reminder",
+  "serverPopup.switchWallet.successToast": "Wallet switched",
+  "serverPopup.switchWallet.title": "Switch Wallet",
+  "serverPopup.trialGranted.action": "Unlock H3 Max Now",
+  "serverPopup.trialGranted.description":
+    "You've claimed your {{count}} free H3 Max trial sessions.",
+  "serverPopup.trialGranted.title": "Congratulations!",
+  "serverPopup.video.mute": "Mute",
+  "serverPopup.video.unmute": "Unmute",
+  "session.agentRunning": "Agent is running -- switching disabled",
+  "session.cost.agent": "Agent",
+  "session.cost.audio": "Audio",
+  "session.cost.empty": "No credits used yet",
+  "session.cost.image": "Image",
+  "session.cost.other": "Other",
+  "session.cost.scopeNote": "Only includes usage generated within this chat",
+  "session.cost.title": "Credits used",
+  "session.cost.total": "Total",
+  "session.cost.unavailable": "Temporarily unavailable",
+  "session.cost.video": "Video",
+  "session.delete": "Delete chat",
+  "session.export.exporting": "Exporting...",
+  "session.export.failed": "Export failed",
+  "session.export.menuItem": "Export Chat",
+  "session.export.success": "Chat exported",
+  "session.hiddenSessions": "{{count}} hidden chats",
+  "session.hiddenSessions_one": "{{count}} hidden chat",
+  "session.hiddenSessions_other": "{{count}} hidden chats",
+  "session.hideFromHistory": "Hide from History",
+  "session.history": "History",
+  "session.loadingSessions": "Loading sessions...",
+  "session.newChat": "+ New Chat",
+  "session.noMatchingSessions": "No matching sessions",
+  "session.noSession": "No session",
+  "session.noSessions": "No sessions",
+  "session.opened": "opened",
+  "session.pin": "Pin",
+  "session.renameFailed": "Failed to rename chat",
+  "session.restoreToHistory": "Restore to History",
+  "session.searchSessions": "Search sessions...",
+  "session.tabs.badge.failed": "Failed",
+  "session.tabs.badge.paused": "Paused",
+  "session.tabs.badge.pending": "Awaiting",
+  "session.tabs.close": "Close",
+  "session.tabs.close.toast": "Tab closed. Reopen from History if needed.",
+  "session.tabs.close.tooltip": "Close tab",
+  "session.tabs.closeAll": "Close All",
+  "session.tabs.closeOthers": "Close Others",
+  "session.tabs.confirmCloseAction": "Close",
+  "session.tabs.confirmCloseDesc":
+    "An agent is running in this session. Closing will interrupt the current task.",
+  "session.tabs.confirmCloseTitle": "Close Session?",
+  "session.tabs.evictedToHistory":
+    "Opened this chat. An earlier chat was moved to History.",
+  "session.tabs.list.label": "Chat sessions",
+  "session.tabs.new.tooltip": "New chat",
+  "session.tabs.status.awaitingAnswer": "Waiting for your answer",
+  "session.tabs.status.awaitingConfirmation": "Waiting for your confirmation",
+  "session.tabs.status.completedUnread": "Completed, unread",
+  "session.tabs.status.generating": "Generating",
+  "session.unpin": "Unpin",
+  "settings.account.accountLabel": "Account",
+  "settings.account.createdTeams": "Teams I Created",
+  "settings.account.deleteButton": "Delete my account",
+  "settings.account.deleteDescription":
+    "Once deleted, your account data will be permanently erased and cannot be recovered",
+  "settings.account.deleteLabel": "Permanently delete account",
+  "settings.account.deleteTitle": "Delete Account",
+  "settings.account.infoTitle": "Account Details",
+  "settings.account.joinedTeams": "Teams I Joined",
+  "settings.account.nameEmptyError": "Name cannot be empty",
+  "settings.account.nameLabel": "Name",
+  "settings.account.nameLengthError": "Name must be 2-20 characters",
+  "settings.account.namePlaceholder": "Enter account name",
+  "settings.account.nameUpdateFailed":
+    "Failed to update name, please try again",
+  "settings.account.noTeams": "No team accounts",
+  "settings.account.teamsTitle": "Team Accounts",
+  "settings.account.title": "Account",
+  "settings.account.uidLabel": "Hailuo UID",
+  "settings.advanced": "Advanced",
+  "settings.appearance": "Appearance",
+  "settings.assetCenter.browse": "Choose Folder",
+  "settings.assetCenter.changeFailed":
+    "The Asset Center location could not be changed. Check folder permissions and the drive connection, then try again.",
+  "settings.assetCenter.currentLocationUnavailable":
+    "The current Asset Center location is unavailable. Reconnect the drive to migrate it. If you switch directly, data in the old location will be kept.",
+  "settings.assetCenter.dataDirectoryChangePending":
+    "Project storage is not stable yet. Finish resolving it in Storage and restart when prompted before changing the Asset Center location, so all processes use the same directory.",
+  "settings.assetCenter.directory": "Storage Directory",
+  "settings.assetCenter.directoryDescCustom":
+    "Custom location — switch back to the default any time",
+  "settings.assetCenter.directoryDescDefault":
+    "Saved to the default location, you can click to change.",
+  "settings.assetCenter.initialise": "Initialise",
+  "settings.assetCenter.initialiseDesc":
+    "Create a global asset library to reuse materials across projects.",
+  "settings.assetCenter.initialised": "Subject Library is ready",
+  "settings.assetCenter.libraryCount": "{{count}} libraries",
+  "settings.assetCenter.loading": "Loading Subject Library status…",
+  "settings.assetCenter.locationGroup": "Subject Library",
+  "settings.assetCenter.migrateBody":
+    "The new folder will become the Subject Library location. You can migrate the existing files there, or start fresh in the empty new folder.",
+  "settings.assetCenter.migrateConfirm": "Migrate existing files",
+  "settings.assetCenter.migrateFailed": "Migration failed",
+  "settings.assetCenter.migrateInProgress": "Migrating files, please wait…",
+  "settings.assetCenter.migrateReason.copyFailed":
+    "Failed while copying files. The migration was rolled back; your original folder is unchanged.",
+  "settings.assetCenter.migrateReason.destinationNotAssetCenter":
+    "To avoid deleting unrelated files, a non-Asset-Center folder cannot be overwritten. Choose an empty folder or an existing Asset Center folder.",
+  "settings.assetCenter.migrateReason.destinationNotDirectory":
+    "The target path is not a folder.",
+  "settings.assetCenter.migrateReason.destinationNotEmpty":
+    "The target folder is not empty. Choose an empty folder or clear it and try again.",
+  "settings.assetCenter.migrateReason.insufficientSpace":
+    "Not enough free space on the target disk to complete the migration.",
+  "settings.assetCenter.migrateReason.invalidPath":
+    "The selected path is invalid. Choose a complete folder path.",
+  "settings.assetCenter.migrateReason.migrationInProgress":
+    "The Asset Center is in use or another migration is running. Try again shortly.",
+  "settings.assetCenter.migrateReason.pathOverlap":
+    "The new location cannot be inside the current Asset Center folder or contain it.",
+  "settings.assetCenter.migrateReason.samePath":
+    "The old and new locations are the same; no migration is needed.",
+  "settings.assetCenter.migrateReason.sourceMismatch":
+    "The Asset Center location changed. Close Settings, reopen it, and try again.",
+  "settings.assetCenter.migrateReason.sourceMissing":
+    "The original asset folder does not exist.",
+  "settings.assetCenter.migrateReason.sourceNotDirectory":
+    "The original asset path is not a folder.",
+  "settings.assetCenter.migrateReason.verificationFailed":
+    "Verification failed after migrating. The migration was rolled back; your original folder is unchanged.",
+  "settings.assetCenter.migrateTitle": "Switch Subject Library folder",
+  "settings.assetCenter.notInitialised": "Not initialised yet",
+  "settings.assetCenter.overwriteConsent":
+    "I understand this will erase and replace the existing contents of {{path}}.",
+  "settings.assetCenter.overwriteWarning":
+    "This folder isn't empty. Migrating will overwrite all files in it.",
+  "settings.assetCenter.reset": "Reset to default",
+  "settings.assetCenter.restartRequired":
+    "The new location is saved, but some running projects have not switched yet. Restart the app so every project uses the same asset directory.",
+  "settings.assetCenter.selectDirectory":
+    "Choose Asset Center storage directory",
+  "settings.assetCenter.sourceUnavailableWarning":
+    "The current Asset Center location cannot be read, so migration is unavailable. Reconnect the drive and retry, or explicitly switch without copying. Data in the old location will not be deleted.",
+  "settings.assetCenter.switchOnly": "Use the empty folder",
+  "settings.assetCenter.targetContainsOtherFiles":
+    "The selected folder contains other files. To avoid overwriting them, choose an empty folder or an existing Asset Center folder.",
+  "settings.assetCenter.targetNotDirectory":
+    "The selected location is not a folder. Choose another location.",
+  "settings.assetCenter.targetUnavailable":
+    "The selected location cannot be accessed. Reconnect the drive and verify read/write permission, then try again.",
+  "settings.assetCenter.title": "Subject Library",
+  "settings.assetCenter.useExisting":
+    "Use the existing assets in the target folder",
+  "settings.autoStart": "Launch at Login",
+  "settings.autoStartDesc": "Automatically start the app when you log in",
+  "settings.checkForUpdates": "Check for Updates",
+  "settings.checkForUpdatesDesc": "Check if a newer version is available",
+  "settings.comfyui.launchArgs": "Launch arguments",
+  "settings.comfyui.launchArgsDesc":
+    "Extra arguments appended to the ComfyUI backend launch command, one per line (e.g. --lowvram). Hub-managed arguments such as port and data directory cannot be overridden.",
+  "settings.comfyui.launchArgsPlaceholder": "--lowvram\n--preview-method auto",
+  "settings.comfyui.restartHint":
+    "Arguments take effect the next time the ComfyUI backend starts.",
+  "settings.comfyui.save": "Save",
+  "settings.comfyui.saveFailed": "Failed to save launch arguments",
+  "settings.comfyui.saved": "Launch arguments saved",
+  "settings.comfyui.title": "ComfyUI",
+  "settings.disableGpu": "Disable GPU Acceleration",
+  "settings.disableGpuDesc":
+    "Turn off hardware acceleration if you experience display issues",
+  "settings.errors.autoFeedbackFailed":
+    "Failed to update auto feedback setting",
+  "settings.errors.autoInstallFailed":
+    "Could not save the automatic update setting. Please try again.",
+  "settings.errors.compactionFailed": "Failed to update compaction setting",
+  "settings.errors.laneFailed": "Failed to update cloud swim lane",
+  "settings.errors.languageFailed": "Failed to update language",
+  "settings.errors.notificationsFailed":
+    "Failed to open system notification settings",
+  "settings.errors.preventSleepFailed":
+    "Failed to update prevent sleep setting",
+  "settings.errors.startupFailed": "Failed to update startup setting",
+  "settings.errors.trayFailed": "Failed to update tray visibility",
+  "settings.errors.watermarkFailed": "Failed to update watermark setting",
+  "settings.folderWhitelist.add": "Add Folder",
+  "settings.folderWhitelist.description":
+    "You will not be asked again when choosing these folders for a new project. This only remembers your choice and does not expand system permissions.",
+  "settings.folderWhitelist.empty": "No remembered folders",
+  "settings.folderWhitelist.listGroup": "Folders that skip confirmation",
+  "settings.folderWhitelist.manage": "Manage",
+  "settings.folderWhitelist.saveFailed":
+    "The change could not be saved. Please try again.",
+  "settings.folderWhitelist.title": "Trusted Folders",
+  "settings.general": "General",
+  "settings.groupDiagnostics": "Diagnostics",
+  "settings.groupSystem": "System",
+  "settings.imBridge.actions.more": "More",
+  "settings.imBridge.actions.pause": "Disconnect",
+  "settings.imBridge.actions.remove": "Remove account",
+  "settings.imBridge.actions.resume": "Start",
+  "settings.imBridge.add.description.feishu":
+    "Scan with Lark to register a personal agent bot. Credentials are encrypted on this device.",
+  "settings.imBridge.add.description.telegram":
+    "Create a bot via BotFather and paste the token. Credentials are encrypted on this device.",
+  "settings.imBridge.add.description.wechat":
+    "WeChat integration is experimental and ships in a later release.",
+  "settings.imBridge.add.submit": "Add",
+  "settings.imBridge.add.title.feishu": "Add Lark",
+  "settings.imBridge.add.title.telegram": "Add Telegram account",
+  "settings.imBridge.add.title.wechat": "Add WeChat account",
+  "settings.imBridge.addAccount": "Add account",
+  "settings.imBridge.addFlow.accountSummary.feishu": "Connected",
+  "settings.imBridge.addFlow.accountSummary.wechat": "Connected",
+  "settings.imBridge.addFlow.authDescription.action":
+    "Open Lark Scan, then tap Enable and authorize on your phone",
+  "settings.imBridge.addFlow.authDescription.connected": "is connected",
+  "settings.imBridge.addFlow.authDescription.feishu":
+    "Open Lark Scan, then tap Enable and authorize on your phone",
+  "settings.imBridge.addFlow.authQrHint.feishu":
+    "MiniMax Design only reads the Lark info needed for tasks. Limit app availability to yourself if possible",
+  "settings.imBridge.addFlow.authTitle.feishu": "Scan again to authorize",
+  "settings.imBridge.addFlow.currentDevice": "Current device: MiniMax Design",
+  "settings.imBridge.addFlow.defaultAgentName.feishu": "Lark agent",
+  "settings.imBridge.addFlow.defaultAgentName.wechat": "WeChat ClawBot",
+  "settings.imBridge.addFlow.done": "I got it",
+  "settings.imBridge.addFlow.help": "Connection failed? View help",
+  "settings.imBridge.addFlow.instructions.confirm": "Confirm on your phone",
+  "settings.imBridge.addFlow.instructions.confirmDescription":
+    "Confirm that this account connects to MiniMax Design on this computer",
+  "settings.imBridge.addFlow.instructions.open.feishu": "Open Lark Scan",
+  "settings.imBridge.addFlow.instructions.open.wechat": "Open WeChat Scan",
+  "settings.imBridge.addFlow.instructions.openDescription":
+    "Scan with the account you want to receive tasks from",
+  "settings.imBridge.addFlow.instructions.return": "Return to this page",
+  "settings.imBridge.addFlow.instructions.returnDescription":
+    "After connecting, you can send tasks in chat",
+  "settings.imBridge.addFlow.notice":
+    "Tasks run in MiniMax Design on this computer. If the app closes, the network disconnects, or the computer sleeps, remote tasks may stop.",
+  "settings.imBridge.addFlow.qrAlt.feishu": "Lark connection QR code",
+  "settings.imBridge.addFlow.qrAlt.feishuAuth": "Lark authorization QR code",
+  "settings.imBridge.addFlow.qrAlt.wechat": "WeChat connection QR code",
+  "settings.imBridge.addFlow.scanDescription":
+    "Scan the code and confirm authorization on your phone. This page will finish connecting automatically",
+  "settings.imBridge.addFlow.scanDescription.feishu":
+    "Scan with Lark and confirm on your phone",
+  "settings.imBridge.addFlow.scanDescription.wechat":
+    "Open WeChat Scan and confirm the connection on your phone",
+  "settings.imBridge.addFlow.scanQrHint.feishu":
+    "Scan to connect a Lark agent CLI, or click Create to get one",
+  "settings.imBridge.addFlow.scanQrHint.wechat":
+    "Confirm to finish, then tap I got it",
+  "settings.imBridge.addFlow.scanTitle.feishu": "Scan with Lark to create",
+  "settings.imBridge.addFlow.scanTitle.wechat": "Scan with WeChat",
+  "settings.imBridge.addFlow.step.auth": "Authorize",
+  "settings.imBridge.addFlow.step.channel": "Choose channel",
+  "settings.imBridge.addFlow.step.done": "Done",
+  "settings.imBridge.addFlow.step.scan": "Connect",
+  "settings.imBridge.addFlow.step.scan.feishu": "Connect",
+  "settings.imBridge.addFlow.step.scan.wechat": "Connect",
+  "settings.imBridge.addFlow.stepDone.auth.feishu": "Authorized",
+  "settings.imBridge.addFlow.stepDone.scan.feishu": "Connected",
+  "settings.imBridge.addFlow.stepDone.scan.wechat": "Connected",
+  "settings.imBridge.addFlow.stepHint.auth.feishu":
+    "Grant Lark permissions. Scan, then tap Enable and authorize.",
+  "settings.imBridge.addFlow.stepHint.done.feishu":
+    "After setup, you can assign tasks to MiniMax Design from Lark.",
+  "settings.imBridge.addFlow.stepHint.done.wechat":
+    "After connection finishes, you can assign tasks to MiniMax Design from WeChat.",
+  "settings.imBridge.addFlow.stepHint.scan.feishu":
+    "Scan with Lark to choose an existing agent CLI, or create one.",
+  "settings.imBridge.addFlow.stepHint.scan.wechat":
+    "Scan with WeChat and confirm the connection on your phone.",
+  "settings.imBridge.addFlow.stepOrdinal.1": "STEP 1",
+  "settings.imBridge.addFlow.stepOrdinal.2": "STEP 2",
+  "settings.imBridge.addFlow.stepOrdinal.3": "STEP 3",
+  "settings.imBridge.addFlow.successDescription.feishu":
+    "Authorized. You can now send tasks, view status, and receive results in Lark.",
+  "settings.imBridge.addFlow.successDescription.wechat":
+    "You can now send tasks, view execution status, and receive result notifications in WeChat.",
+  "settings.imBridge.addFlow.successGuide.feishu.1":
+    "For your first creation task, tap Open App in Lark Developer Assistant",
+  "settings.imBridge.addFlow.successGuide.feishu.2":
+    "Send tasks, check updates, and create from anywhere",
+  "settings.imBridge.addFlow.successGuide.feishu.3":
+    "Keep MiniMax Design open and your computer online",
+  "settings.imBridge.addFlow.successGuide.feishu.4":
+    "After adding the bot to a group chat, group members will have access to local data. Use with caution",
+  "settings.imBridge.addFlow.successGuide.title": "Quick guide",
+  "settings.imBridge.addFlow.successGuide.wechat.1":
+    "Find ClawBot in WeChat and start the chat",
+  "settings.imBridge.addFlow.successGuide.wechat.2":
+    "Send tasks, check updates, and create from anywhere",
+  "settings.imBridge.addFlow.successGuide.wechat.3":
+    "Keep MiniMax Design open and your computer online",
+  "settings.imBridge.addFlow.successGuide.wechat.4":
+    "Do not send passwords, verification codes, or other sensitive information to ClawBot",
+  "settings.imBridge.addFlow.successNextStep.feishu":
+    "For your first creation task, tap Open App in Lark Developer Assistant",
+  "settings.imBridge.addFlow.successTitle.feishu": "Lark connected",
+  "settings.imBridge.addFlow.successTitle.wechat": "WeChat connected",
+  "settings.imBridge.addFlow.title.feishu": "Connect Lark",
+  "settings.imBridge.addFlow.title.wechat": "Connect WeChat",
+  "settings.imBridge.addFlow.transition.auth.feishu":
+    "Loading the authorization QR code…",
+  "settings.imBridge.addFlow.viewGuide": "Guide",
+  "settings.imBridge.addRemaining.description":
+    "You can add another IM entry to use MiniMax Design from different platforms.",
+  "settings.imBridge.addRemaining.title": "Connect another account",
+  "settings.imBridge.advanced.title": "Advanced settings",
+  "settings.imBridge.alreadyBound":
+    "This platform already has an account. Unbind it before adding another.",
+  "settings.imBridge.channel.action.connect": "Connect",
+  "settings.imBridge.channel.action.connectPlatform": "Connect {{platform}}",
+  "settings.imBridge.channel.description.feishu":
+    "Send tasks and get results in Lark",
+  "settings.imBridge.channel.description.telegram":
+    "Send tasks and receive results in Telegram",
+  "settings.imBridge.channel.description.wechat":
+    "Send tasks and receive results in WeChat",
+  "settings.imBridge.channel.status.connected": "Connected",
+  "settings.imBridge.channel.status.connecting": "Connecting",
+  "settings.imBridge.channel.status.disconnected": "Not connected",
+  "settings.imBridge.channel.status.error": "Connection issue",
+  "settings.imBridge.channel.status.needsAuth": "Authorization pending",
+  "settings.imBridge.channel.status.notConnected": "Not connected",
+  "settings.imBridge.channel.status.paused": "Disconnected",
+  "settings.imBridge.channel.subtitle.connected.feishu":
+    "For your first creation task, tap Open App in Lark Developer Assistant",
+  "settings.imBridge.channel.subtitle.connected.wechat":
+    "Find ClawBot in WeChat to send tasks and create anywhere",
+  "settings.imBridge.channel.subtitle.paused":
+    "{{name}} is disconnected. Start to receive tasks",
+  "settings.imBridge.connection.description":
+    "Choose a channel and scan with your phone to connect.",
+  "settings.imBridge.connection.infoLabel": "Remote execution note",
+  "settings.imBridge.connection.title": "Connection channels",
+  "settings.imBridge.credentialUpdate.action": "Update",
+  "settings.imBridge.credentialUpdate.banner":
+    "The current IM connection method needs to be updated. Update it, then scan again to reconnect.",
+  "settings.imBridge.credentialUpdate.failed":
+    "Failed to update IM connection. Please try again.",
+  "settings.imBridge.credentialUpdate.success":
+    "Updated. Please scan again to reconnect.",
+  "settings.imBridge.description":
+    "Control your MiniMax Design from IM by @-mentioning the bot. Messages flow directly to this device — no cloud relay.",
+  "settings.imBridge.description.domestic":
+    "@-mention the bot in Lark / WeChat to control MiniMax Design on this device remotely. Messages flow directly to this device — no cloud relay.",
+  "settings.imBridge.description.overseas":
+    "@-mention the bot in Lark / Telegram to control MiniMax Design on this device remotely. Messages flow directly to this device — no cloud relay.",
+  "settings.imBridge.empty.benefit.receiveResult":
+    "Receive result notifications",
+  "settings.imBridge.empty.benefit.sendTask": "Send tasks remotely",
+  "settings.imBridge.empty.benefit.viewStatus": "View execution status",
+  "settings.imBridge.empty.description":
+    "Connect an account to control MiniMax Design on this computer from IM.",
+  "settings.imBridge.empty.description.domestic":
+    "Connect Lark or WeChat to control MiniMax Design from IM.",
+  "settings.imBridge.empty.description.overseas":
+    "Connect a Lark or Telegram account to control MiniMax Design on this computer from IM.",
+  "settings.imBridge.empty.title": "No IM account connected",
+  "settings.imBridge.errors.listFailed": "Failed to load: {{message}}",
+  "settings.imBridge.errors.removeFailed":
+    "Failed to remove the account. Please try again.",
+  "settings.imBridge.executionNotice":
+    "Before using this, keep MiniMax Design open, keep this computer online, and prevent it from sleeping.",
+  "settings.imBridge.feishu.mode.manual": "Manual",
+  "settings.imBridge.feishu.mode.qr": "QR Code",
+  "settings.imBridge.feishu.qr.cancel": "Cancel",
+  "settings.imBridge.feishu.qr.retry": "Retry",
+  "settings.imBridge.feishu.qr.status.confirmed":
+    "Login successful, account added",
+  "settings.imBridge.feishu.qr.status.error": "Login failed",
+  "settings.imBridge.feishu.qr.status.error.config_conflict":
+    "Local Lark CLI environment conflict; authorization did not complete. Please retry, or contact support if it persists.",
+  "settings.imBridge.feishu.qr.status.error.denied":
+    "Authorization was denied. Please start over.",
+  "settings.imBridge.feishu.qr.status.error.expired":
+    "QR code expired. Please try again.",
+  "settings.imBridge.feishu.qr.status.error.network":
+    "Network error. Check your connection and retry.",
+  "settings.imBridge.feishu.qr.status.error.provider_unavailable":
+    "Login component unavailable. Please retry later.",
+  "settings.imBridge.feishu.qr.status.error.server":
+    "Lark service returned an error. Please retry later.",
+  "settings.imBridge.feishu.qr.status.error.timeout":
+    "QR login timed out. Please try again.",
+  "settings.imBridge.feishu.qr.status.loading": "Fetching QR code…",
+  "settings.imBridge.feishu.qr.status.pendingApproval":
+    "App permissions are under review. Please wait for Lark approval before retrying authorization.",
+  "settings.imBridge.feishu.qr.status.ready": "Scan with Lark",
+  "settings.imBridge.field.alias": "Alias",
+  "settings.imBridge.field.aliasPlaceholder": "e.g. My Lark workspace",
+  "settings.imBridge.field.appId": "App ID",
+  "settings.imBridge.field.appIdPlaceholder": "cli_xxx",
+  "settings.imBridge.field.appSecret": "App Secret",
+  "settings.imBridge.field.appSecretPlaceholder": "Enter App Secret",
+  "settings.imBridge.field.botToken": "Bot Token",
+  "settings.imBridge.field.botTokenPlaceholder": "123456:ABC-DEF…",
+  "settings.imBridge.field.encryptKey": "Encrypt Key",
+  "settings.imBridge.field.optional": "optional",
+  "settings.imBridge.field.verificationToken": "Verification Token",
+  "settings.imBridge.hero.description.domestic":
+    "Send messages in Lark or WeChat to run tasks on this computer.",
+  "settings.imBridge.hero.description.overseas":
+    "After connecting, you can send messages in Lark or Telegram, and tasks will run in MiniMax Design on this computer.",
+  "settings.imBridge.hero.title":
+    "Connect IM tools and assign tasks to MiniMax Design from anywhere",
+  "settings.imBridge.loading": "Loading…",
+  "settings.imBridge.localProcessing":
+    "Messages are processed only on your computer and are not relayed through the cloud.",
+  "settings.imBridge.paused": "Paused",
+  "settings.imBridge.platform.dingtalk": "DingTalk",
+  "settings.imBridge.platform.discord": "Discord",
+  "settings.imBridge.platform.feishu": "Lark",
+  "settings.imBridge.platform.telegram": "Telegram",
+  "settings.imBridge.platform.wechat": "WeChat",
+  "settings.imBridge.platform.wechat.experimental": "WeChat (Experimental)",
+  "settings.imBridge.security.availabilityHint":
+    "For account safety, limit the Lark app availability scope to yourself only.",
+  "settings.imBridge.status.connecting": "Connecting or reconnecting…",
+  "settings.imBridge.status.disconnected": "Not connected.",
+  "settings.imBridge.status.error":
+    "Connection failed. Remove and reconnect the account.",
+  "settings.imBridge.tab": "IM Bridge",
+  "settings.imBridge.title": "IM Bridge",
+  "settings.imBridge.title.domestic": "Lark / WeChat Integration",
+  "settings.imBridge.title.overseas": "Lark / Telegram Integration",
+  "settings.imBridge.tutorialLink": "View setup guide",
+  "settings.imBridge.userAuth.action": "Authorize",
+  "settings.imBridge.userAuth.description":
+    "Once granted, the bot can help you view docs, summarize group discussions, find colleagues, and more. You can revoke it anytime by removing the account here.",
+  "settings.imBridge.userAuth.hint":
+    "Authorization pending — once granted, the bot can read your Lark docs, find colleagues, and more.",
+  "settings.imBridge.userAuth.title": "Grant Lark access",
+  "settings.imBridge.wechat.qr.cancel": "Cancel",
+  "settings.imBridge.wechat.qr.retry": "Retry",
+  "settings.imBridge.wechat.qr.start": "Start QR Login",
+  "settings.imBridge.wechat.qr.status.confirmed":
+    "Login successful, account added",
+  "settings.imBridge.wechat.qr.status.error": "Login failed",
+  "settings.imBridge.wechat.qr.status.error.denied":
+    "Login was rejected. Please scan again.",
+  "settings.imBridge.wechat.qr.status.error.expired":
+    "QR code expired repeatedly. Please start over.",
+  "settings.imBridge.wechat.qr.status.error.network":
+    "Network error. Check your connection and retry.",
+  "settings.imBridge.wechat.qr.status.error.provider_unavailable":
+    "Login component unavailable. Please retry later.",
+  "settings.imBridge.wechat.qr.status.error.server":
+    "WeChat service returned an error. Please retry later.",
+  "settings.imBridge.wechat.qr.status.error.timeout":
+    "QR login timed out. Please try again.",
+  "settings.imBridge.wechat.qr.status.expired": "QR code expired, refreshing…",
+  "settings.imBridge.wechat.qr.status.loading": "Fetching QR code…",
+  "settings.imBridge.wechat.qr.status.ready": "Scan with WeChat",
+  "settings.imBridge.wechat.qr.status.scanned":
+    "Scanned, please confirm on your phone",
+  "settings.islandLayout": "Island Layout",
+  "settings.islandLayoutDesc": "Use floating card layout with glass borders",
+  "settings.language": "Language",
+  "settings.languageDesc": "Choose the display language for the application",
+  "settings.logDirectory": "Log Directory",
+  "settings.logDirectoryDesc": "Open the folder where app logs are stored",
+  "settings.memory": "Memory",
+  "settings.models.addHeader": "Add Header",
+  "settings.models.addModel": "Add Model",
+  "settings.models.chooseReasoning": "Choose Reasoning Levels",
+  "settings.models.apiKey": "API Key",
+  "settings.models.apiKeyHelp":
+    "Keys are stored on this device. Leave blank to keep your saved key.",
+  "settings.models.apiKeyPlaceholder": "Enter your API key",
+  "settings.models.apiKeySavedPlaceholder":
+    "Optional: leave blank to keep the saved key",
+  "settings.models.baseUrl": "Base URL",
+  "settings.models.baseUrlPlaceholder": "https://api.example.com/v1",
+  "settings.models.clear": "Delete this provider",
+  "settings.models.deleteProviderTitle": "Delete provider “{{name}}”?",
+  "settings.models.deleteProviderDescription":
+    "This provider’s models will no longer be available. Conversations using them will need another model selected.",
+  "settings.models.contextWindow": "Context Window",
+  "settings.models.description":
+    "Add your own provider and models to select them in conversations. Custom model requests go directly from this device to your provider.",
+  "settings.models.description.domestic":
+    "Text models can be selected in Agent. Image, video, and other generation capabilities are in development.",
+  "settings.models.description.overseas":
+    "Only text model connections are currently supported. Other multimodal capabilities are in development.",
+  "settings.models.headerName": "Name",
+  "settings.models.headerSavedPlaceholder":
+    "Optional: leave blank to keep the saved value",
+  "settings.models.headerValue": "Value",
+  "settings.models.headers": "Custom Headers",
+  "settings.models.headersHelp":
+    "Header values are encrypted on this device. Keep the name and leave its value blank to retain it for the same URL. Delete a row to remove a header.",
+  "settings.models.hideKey": "Hide API Key",
+  "settings.models.loadFailed":
+    "Could not load model settings. Please try sending again.",
+  "settings.models.maxOutputTokens": "Maximum Output Tokens",
+  "settings.models.modelId": "Model Name",
+  "settings.models.modelIdPlaceholder": "Enter the model ID from your provider",
+  "settings.models.modelNumber": "Model {{number}}",
+  "settings.models.protocol": "API Format",
+  "settings.models.protocolAnthropic": "Anthropic Messages",
+  "settings.models.protocolOpenAI": "Chat Completions",
+  "settings.models.protocolResponses": "Responses",
+  "settings.models.providerName": "Provider",
+  "settings.models.providerNamePlaceholder":
+    "Optional: used to identify the provider",
+  "settings.models.reasoningLevels": "Reasoning Levels",
+  "settings.models.reasoningPlaceholder":
+    "Optional: enter a level and press Enter, e.g. low, high, max",
+  "settings.models.removeHeader": "Remove Header",
+  "settings.models.removeModel": "Remove Model",
+  "settings.models.removeReasoning": "Remove {{level}}",
+  "settings.models.resetModel": "Reset Model Parameters",
+  "settings.models.applyHint":
+    "Saved models appear in conversations without restarting the app. Configuration loads after any running tasks finish. Models must support tool calling.",
+  "settings.models.saveFailed":
+    "Could not save model settings. Please try again.",
+  "settings.models.saved":
+    "Saved. Select the model under Models → Agent in your conversation. Saving does not change the current selection.",
+  "settings.models.applying":
+    "Model configuration is loading. Wait for any running tasks to finish before sending.",
+  "settings.models.applyFailed":
+    "Model configuration could not be loaded. Save it again in model settings to retry.",
+  "settings.models.modelRemoved":
+    "The selected custom model was removed. Choose another model.",
+  "settings.models.showKey": "Show API Key",
+  "settings.models.title": "Model access",
+  "settings.network.proxyGroup": "Proxy",
+  "settings.network.proxyMode": "Connection mode",
+  "settings.network.proxyMode.auto": "Auto",
+  "settings.network.proxyMode.direct": "No proxy",
+  "settings.network.proxyMode.system": "System proxy",
+  "settings.network.proxyModeDesc":
+    "Only affects new or retried workspaces; open workspaces keep their current connection.",
+  "settings.network.proxyModeFailed": "Failed to update proxy mode",
+  "settings.network.proxyModeSaved":
+    "Proxy mode saved. Open workspaces may use it after retry or restart.",
+  "settings.networkSection": "Network",
+  "settings.notifications": "Notifications",
+  "settings.notificationsDesc":
+    "Configure notification preferences in system settings",
+  "settings.openLogDir": "Open Folder",
+  "settings.openSystemPrefs": "System Preferences",
+  "settings.preventSleep": "Prevent Sleep",
+  "settings.preventSleepDesc":
+    "Prevent the system from sleeping while the app is running",
+  "settings.removeWatermark": "Remove Watermark",
+  "settings.removeWatermarkDesc":
+    "Turn off visible watermarks on future AI-generated content. Existing assets stay unchanged.",
+  "settings.requiresRestart":
+    "This change will take effect after restarting the app",
+  "settings.restartNow": "Restart Now",
+  "settings.shortcutCloseTab": "Close Tab",
+  "settings.shortcutNewChat": "Start Creating",
+  "settings.shortcutNewWorkspace": "New Window",
+  "settings.shortcutScreenshot": "Screenshot",
+  "settings.shortcutSettings": "Open Settings",
+  "settings.shortcuts": "Shortcuts",
+  "settings.shortcutsDesc": "Keyboard shortcuts for quick actions",
+  "settings.softwareUpdate.autoInstall": "Automatically install updates",
+  "settings.softwareUpdate.autoInstallDesc":
+    "When enabled, a downloaded update installs automatically as you quit, so the next launch runs the new version.",
+  "settings.softwareUpdate.autoInstallUnavailable":
+    "This version must be updated with a manual installer, so automatic install is unavailable.",
+  "settings.softwareUpdate.badgeDownloading": "Downloading",
+  "settings.softwareUpdate.badgeNew": "New",
+  "settings.softwareUpdate.currentVersion": "Current version {{version}}",
+  "settings.softwareUpdate.description":
+    "Check for new versions, review release notes, and restart to upgrade after download.",
+  "settings.softwareUpdate.releaseNotes": "Update details",
+  "settings.softwareUpdate.releaseNotesEmpty":
+    "Release notes appear here when a new version is available.",
+  "settings.softwareUpdate.statusAvailableDesc":
+    "A new version is available. Download it to prepare the upgrade.",
+  "settings.softwareUpdate.statusAvailableWithVersion": "{{version}} found",
+  "settings.softwareUpdate.statusChecking": "Checking for updates",
+  "settings.softwareUpdate.statusCheckingDesc":
+    "Connecting to the update service. This should only take a moment.",
+  "settings.softwareUpdate.statusDownloadingDesc":
+    "Downloading the update package.",
+  "settings.softwareUpdate.statusLatest": "You're up to date",
+  "settings.softwareUpdate.statusLatestDesc":
+    "MiniMax Design does not need an update right now.",
+  "settings.softwareUpdate.statusReadyDesc":
+    "The update is downloaded. Restart to install the new version.",
+  "settings.softwareUpdate.statusReadyWithVersion": "{{version}} is ready",
+  "settings.softwareUpdate.title": "Software Update",
+  "settings.softwareUpdate.unavailableDesc":
+    "Update controls are temporarily unavailable. You can continue using the app normally.",
+  "settings.softwareUpdate.unavailableTitle": "Update service unavailable",
+  "settings.softwareUpdate.updatePrompt": "Update prompt",
+  "settings.storage.browse": "Change Location",
+  "settings.storage.changeInstallLocation": "Change Install Location",
+  "settings.storage.changeInstallLocationSafety":
+    "Your login state, projects and generated files are stored outside the install directory and are not affected.",
+  "settings.storage.changeInstallLocationSteps":
+    'Changing the install location requires re-running the installer: download the latest installer from the official site, run it, and choose "Change install location" when it detects the existing installation.',
+  "settings.storage.cleanupDeferred":
+    "Migration completed, but a temporary copy could not be removed and may still use disk space. The app will retry on the next launch; the original data and new location are unaffected.",
+  "settings.storage.closeIdleProjects": "Close Idle Projects",
+  "settings.storage.closeIdleProjectsBlocked":
+    "Some projects were kept open. Close them individually, or wait for opening or saving to finish and try again.",
+  "settings.storage.closeIdleProjectsHint":
+    "Only paused or unopened projects with saved changes are closed in bulk. Project files and history are kept.",
+  "settings.storage.idleCloseReasons.active":
+    "The project you are viewing is kept out of bulk close",
+  "settings.storage.idleCloseReasons.closing":
+    "Closing or waiting for shutdown to finish",
+  "settings.storage.idleCloseReasons.failed":
+    "Opening failed. Retry or close this project individually",
+  "settings.storage.idleCloseReasons.opening":
+    "Opening projects are kept out of bulk close",
+  "settings.storage.idleCloseReasons.retrying": "Retrying project startup",
+  "settings.storage.idleCloseReasons.runtime":
+    "This project is still open. Close it individually",
+  "settings.storage.idleCloseReasons.unsaved":
+    "Unsaved changes prevent bulk close",
+  "settings.storage.projectClosing": "Closing",
+  "settings.storage.projectFailed": "Retry Needed",
+  "settings.storage.projectNotStarted": "Not Started",
+  "settings.storage.projectOpening": "Opening",
+  "settings.storage.projectPaused": "Paused",
+  "settings.storage.projectReady": "Open",
+  "settings.storage.projectUnknown": "Status Unknown",
+  "settings.storage.projectUnsaved": "Unsaved",
+  "settings.storage.closeIdleProjectsFailed":
+    "Could not close idle projects. Try again.",
+  "settings.storage.closeProject": "Close",
+  "settings.storage.closeProjectsBeforeRecover":
+    "Close every open project before recovery so running projects cannot keep writing to the previous location.",
+  "settings.storage.configuredLocationUnavailable":
+    "The configured save location is unavailable, so the app is temporarily using the system default. Existing projects can still be opened by explicit path. To prevent accidental writes, implicit project creation is paused until you recover the location, connect another data folder, switch to the system default, or explicitly allow the default for one create.",
+  "settings.storage.confirm.description":
+    "About {{size}} of projects and generated files will be copied. Restart the app afterward to activate the new location.",
+  "settings.storage.confirm.descriptionUnknownSize":
+    "Existing projects and generated files will be copied. Restart the app afterward to activate the new location.",
+  "settings.storage.confirm.recoverAction": "Use System Default",
+  "settings.storage.confirm.recoverDescription":
+    "The previous save location cannot be read, so no files will be moved. New projects will use the system default. Data on the unavailable drive will not be deleted.",
+  "settings.storage.confirm.recoverSafetyNote":
+    "After reconnecting the old drive, you can still open those projects manually. The Asset Center location is not changed.",
+  "settings.storage.confirm.recoverTitle":
+    "Use the system default save location?",
+  "settings.storage.confirm.recoveryAction": "Start Safe Recovery",
+  "settings.storage.confirm.recoveryDescription":
+    "Missing data in built-in storage will be copied back to the original save location. Restart the app afterward to reactivate it.",
+  "settings.storage.confirm.recoverySafetyNote":
+    "Only data missing from the target is copied. Same-name projects or files are not overwritten, and built-in-storage originals are not deleted.",
+  "settings.storage.confirm.recoveryTitle":
+    "Recover to the original save location?",
+  "settings.storage.confirm.relinkAction": "Use This Folder",
+  "settings.storage.confirm.relinkDescription":
+    "No files will be copied. After a restart, the app will use the projects and generated files already in the selected folder.",
+  "settings.storage.confirm.relinkSafetyNote":
+    "Data at the previously configured location is not modified or deleted. Use this when a drive letter or mount path has changed.",
+  "settings.storage.confirm.relinkTitle":
+    "Reconnect to an existing data folder?",
+  "settings.storage.confirm.residueAction": "Merge Built-in Storage Data",
+  "settings.storage.confirm.residueDescription":
+    "Data missing from the current save location will be merged safely from built-in storage. Restart afterward to synchronize project, conversation, and asset references.",
+  "settings.storage.confirm.residueSafetyNote":
+    "Same-name projects or files are not overwritten, and built-in-storage originals are not deleted.",
+  "settings.storage.confirm.residueTitle":
+    "Merge residual built-in-storage data?",
+  "settings.storage.confirm.retry": "Retry Migration",
+  "settings.storage.confirm.safetyNote":
+    "Keep the app open and the drive connected during migration. Data in the original location is kept for now. The Asset Center location is not changed by this operation.",
+  "settings.storage.confirm.startMigration": "Start Migration",
+  "settings.storage.confirm.title": "Move data to the new location?",
+  "settings.storage.currentLocation": "Currently using",
+  "settings.storage.dataDirectory": "Project and Generated File Location",
+  "settings.storage.dataDirectoryDesc":
+    "Controls only projects and generated files such as images and videos. Asset Center has its own location setting. Existing data is copied first; the change activates after restart.",
+  "settings.storage.defaultResidueDescription":
+    "Built-in storage still has {{projects}} project entry or entries and {{outputs}} generated-file entry or entries that can be merged.",
+  "settings.storage.defaultResidueSafety":
+    "The merge copies only data missing from the current save location. Same-name content is not overwritten, and built-in-storage originals are not deleted.",
+  "settings.storage.defaultResidueTitle":
+    "Built-in storage still has unmerged data",
+  "settings.storage.errors.app_install_dir":
+    "Cannot use the app installation folder as the data directory. Choose a separate data folder next to it instead.",
+  "settings.storage.errors.drive_root":
+    "Cannot use a drive root directly. Please select or create a subfolder (e.g. D:\\HubData).",
+  "settings.storage.errors.invalid_path":
+    "This location is invalid. Choose a complete local folder path.",
+  "settings.storage.errors.not_writable":
+    "This directory is not writable. Please check permissions or choose another location.",
+  "settings.storage.errors.protected_dir":
+    "This is a system-protected directory. Please choose a different location.",
+  "settings.storage.globalFallback":
+    "The configured save location is unavailable. Creating in built-in storage now requires explicit confirmation.",
+  "settings.storage.globalPendingRestart":
+    "The storage change is complete and will activate after restart. Project creation is paused until then.",
+  "settings.storage.globalRewriteRepairPending":
+    "Some saved path links still need repair. Projects remain usable; Hub will retry on the next cold start.",
+  "settings.storage.goToDownload": "Go to Download",
+  "settings.storage.installLocation": "App Install Location",
+  "settings.storage.installLocationDefault":
+    "Installed at the system default location",
+  "settings.storage.locationAfterRestart": "After restart",
+  "settings.storage.migrateInProgress":
+    "Migrating data. Do not quit the app or disconnect the drive.",
+  "settings.storage.migrating": "Migrating...",
+  "settings.storage.migrationErrors.active_workspaces":
+    "Close all projects before changing the save location so canvas and generated files can finish saving.",
+  "settings.storage.migrationErrors.app_install_dir":
+    "The app installation folder cannot be used as the save location. Choose a separate folder.",
+  "settings.storage.migrationErrors.configured_location_unavailable":
+    "The configured save location is unavailable. To protect the original data, migration and reset are blocked. Reconnect the drive and restart the app.",
+  "settings.storage.migrationErrors.destination_conflict":
+    "The system default location contains a file with the same name but different contents. Migration stopped without changing the original data. Resolve the conflict and try again.",
+  "settings.storage.migrationErrors.destination_not_directory":
+    "A file in the new location prevents the data folders from being created. Choose another empty folder.",
+  "settings.storage.migrationErrors.destination_not_empty":
+    "The new location already contains projects or generated files. Choose an empty folder to avoid overwriting data.",
+  "settings.storage.migrationErrors.diagnosticId": "Diagnostic ID: {{id}}",
+  "settings.storage.migrationErrors.drive_root":
+    "A drive root cannot be used directly. Choose or create a subfolder.",
+  "settings.storage.migrationErrors.initialization_failed":
+    "The new location could not be initialized. Check the drive connection and folder permissions, then try again.",
+  "settings.storage.migrationErrors.insufficient_space":
+    "The new location does not have enough space. Free up space or choose another location.",
+  "settings.storage.migrationErrors.invalid_path":
+    "This location is invalid. Choose a complete local folder path again.",
+  "settings.storage.migrationErrors.migration_failed":
+    "Migration did not finish. Check the drive connection, available space, and folder permissions, then try again.",
+  "settings.storage.migrationErrors.migration_in_progress":
+    "Another storage migration is already running. Wait for it to finish and try again.",
+  "settings.storage.migrationErrors.not_data_root":
+    "The selected folder is not a data folder of this app. Choose the folder previously used as the save location (containing Projects and generated files), or restore the default location first.",
+  "settings.storage.migrationErrors.not_writable":
+    "Files cannot be created, renamed, or deleted at this location. Check permissions or choose another location.",
+  "settings.storage.migrationErrors.path_overlap":
+    "The new location cannot be inside the current data folder. Choose a separate folder.",
+  "settings.storage.migrationErrors.path_too_long":
+    "Migration incomplete. Some file paths exceed the Windows 260-character limit. Choose a shorter save location or enable Windows long-path support, then retry.",
+  "settings.storage.migrationErrors.protected_dir":
+    "This is a system-protected folder. Choose another location.",
+  "settings.storage.migrationErrors.restart_required":
+    "The save location has changed. Restart the app before starting another migration.",
+  "settings.storage.migrationErrors.sourcePreserved":
+    "Your original data is still there and was not deleted.",
+  "settings.storage.migrationErrors.unknown":
+    "Data could not be migrated. Check the drive connection and folder permissions, then try again.",
+  "settings.storage.migrationErrors.workspace_path_repair_pending":
+    "Saved path links are still being repaired. Your projects remain usable; retry this storage change after the next cold start.",
+  "settings.storage.openProjects":
+    "Projects still open (close them to change the save location)",
+  "settings.storage.openSettings": "Open Storage Settings",
+  "settings.storage.reconnectThenRestart":
+    "Reconnect the storage drive, then restart the app to restore the original save location. If the drive cannot be restored, you can explicitly switch to the system default.",
+  "settings.storage.recover": "Check and Recover Safely",
+  "settings.storage.recoverResidue": "Merge Built-in Storage Data",
+  "settings.storage.recoveryComplete":
+    "Recovery copy completed: {{copied}} project(s) copied and {{conflicts}} same-name entry or entries left untouched. Built-in-storage originals were preserved. Restart to activate the original save location.",
+  "settings.storage.recoveryConflictNames":
+    "Same-name projects left untouched: {{names}}",
+  "settings.storage.reset": "Move Back to System Default",
+  "settings.storage.residueRecoveryComplete":
+    "Residue merge completed: {{copied}} project(s) copied and {{conflicts}} same-name entry or entries left untouched. Built-in-storage originals were preserved. Restart to synchronize project, conversation, and asset references.",
+  "settings.storage.restartRequiredDescription":
+    "Data has been migrated and the new location will be used after restart. New projects are temporarily blocked so files are not saved to the old location.",
+  "settings.storage.selectDirectory": "Select data storage directory",
+  "settings.storage.systemDefaultLocation": "System default location",
+  "settings.storage.temporaryLocation": "Temporarily using",
+  "settings.storage.title": "Storage",
+  "settings.storage.unavailableLocation": "Currently unavailable",
+  "settings.storage.validating": "Checking...",
+  "settings.storage.warnings.cloud_sync":
+    "This directory appears to be inside a cloud-synced folder (OneDrive, Dropbox, etc.). Large generated files may consume sync bandwidth.",
+  "settings.storage.warnings.network_path":
+    "This is a network storage path (NAS/shared folder). Projects and generated files will be stored here; runtimes stay local. Disconnection may affect usage.",
+  "settings.storage.warnings.path_too_long":
+    "This path is very long. Some files may exceed the Windows MAX_PATH limit (260 characters).",
+  "settings.storage.warnings.slow_storage":
+    "High storage latency detected. Large file operations may be slow. Check your network connection or consider using local storage.",
+  "settings.storageSection": "Storage",
+  "settings.theme": "Theme",
+  "settings.themeAuto": "Auto",
+  "settings.themeDark": "Dark",
+  "settings.themeDesc": "Choose between light, dark, or system theme",
+  "settings.themeLight": "Light",
+  "settings.themeSystem": "System",
+  "settings.title": "Settings",
+  "settings.transparentWindowExperiment": "Window transparency",
+  "settings.transparentWindowExperimentDesc":
+    "Enable OS-level window transparency. Takes effect after restarting the app.",
+  "settings.tray": "System Tray",
+  "settings.trayDesc": "Show the app icon in the system tray",
+  "settings.windowCloseBehavior": "When Closing the Window",
+  "settings.windowCloseBehaviorDesc":
+    "Choose what the Windows × button does. Minimizing to the system tray keeps tasks running and enables the tray icon. Double-click the tray icon to restore the window.",
+  "settings.windowCloseAsk": "Ask Every Time",
+  "settings.windowCloseTray": "Minimize to Tray",
+  "settings.windowCloseQuit": "Quit",
+  "team.management.creditsDescription":
+    "Manage team credits, subscriptions, and member allowances.",
+  "team.management.creditsTab": "Credit management",
+  "team.management.ledgerTab": "Credit details",
+  "team.management.memberQuotaTitlePlural": "Member allowances",
+  "team.management.membersTab": "Member information",
+  "windowClose.message": "Close Window",
+  "windowClose.description":
+    "Tasks keep running in the system tray.\nDouble-click the tray icon to return.",
+  "windowClose.settingsHint":
+    "Remember this choice. Change it in Settings → General.",
+  "windowClose.detail":
+    "Minimizing to the system tray keeps the app and tasks running. Double-click the tray icon to restore the window. You can change this behavior in Settings > General.",
+  "windowClose.tray": "Minimize To Tray",
+  "windowClose.quit": "Quit",
+  "windowClose.cancel": "Cancel",
+  "windowClose.dontShowAgain": "Don't Show Again",
+  "windowClose.failed": "Could Not Complete The Window Close Action",
+  "windowClose.failedDetail":
+    "The window has been kept open. Please try again. Minimizing to the tray requires an available tray icon and automatically enables it.",
+  "settings.uploadLogs": "Upload Logs",
+  "settings.uploadLogsDesc":
+    "Upload recent logs to help the team diagnose issues",
+  "settings.uploadLogsFailed": "Failed to upload logs",
+  "settings.uploadLogsSuccess": "Logs uploaded successfully",
+  "settings.uploadLogsUploading": "Uploading...",
+  "settings.watermarkStatusCurrent": "Current: {{status}}",
+  "settings.watermarkStatusOff": "No watermark",
+  "settings.watermarkStatusOn": "With watermark",
+  "shortcuts.action.addToCanvas": "Add to canvas",
+  "shortcuts.action.copy": "Copy",
+  "shortcuts.action.cut": "Cut",
+  "shortcuts.action.deleteNode": "Delete node",
+  "shortcuts.action.duplicate": "Duplicate",
+  "shortcuts.action.fitView": "Fit View",
+  "shortcuts.action.focusSearch": "Focus Search",
+  "shortcuts.action.focusSelection": "Focus selection",
+  "shortcuts.action.globalSearch": "Global Search",
+  "shortcuts.action.gridView": "Grid View",
+  "shortcuts.action.group": "Group",
+  "shortcuts.action.historyNext": "Next History Message",
+  "shortcuts.action.historyPrev": "Previous History Message",
+  "shortcuts.action.multiSelect": "Multi-select (+Click)",
+  "shortcuts.action.newline": "New Line",
+  "shortcuts.action.panCanvas": "Pan Canvas (+Drag)",
+  "shortcuts.action.paste": "Paste",
+  "shortcuts.action.redo": "Redo",
+  "shortcuts.action.rename": "Rename",
+  "shortcuts.action.submitGenerate": "Submit generation",
+  "shortcuts.action.treeView": "Tree view",
+  "shortcuts.action.undo": "Undo",
+  "shortcuts.action.ungroup": "Ungroup",
+  "shortcuts.action.zoomIn": "Zoom in",
+  "shortcuts.action.zoomOut": "Zoom out",
+  "shortcuts.category.canvas": "Canvas",
+  "shortcuts.category.file": "Files",
+  "shortcuts.category.global": "Global",
+  "sidebar.assets": "Asset Center",
+  "sidebar.chats": "Chats",
+  "sidebar.clickToLogin": "Click to log in",
+  "sidebar.home": "Home",
+  "sidebar.login": "Login",
+  "sidebar.loginOrRegister": "Log in / Sign up",
+  "sidebar.logout": "Log out",
+  "sidebar.user": "User",
+  "sidebar.workspace": "Workspace",
+  "skills.addToAgent": "Add to chat",
+  "skills.addedToAgent": "Skill added to chat input",
+  "skills.applying": "Applying skill settings",
+  "skills.autoUpdate": "Auto Update",
+  "skills.autoUpdateBanner.completed": "Skills updated",
+  "skills.autoUpdateBanner.restartNow": "Refresh Now",
+  "skills.autoUpdateBanner.restarting": "Refreshing...",
+  "skills.badge.hot": "Hot",
+  "skills.badge.new": "New",
+  "skills.badge.recommend": "Recommend",
+  "skills.badge.silent-install": "Silent Install",
+  "skills.badge.trending": "Trending",
+  "skills.byCreator": "By {{creator}}",
+  "skills.cancelEdit": "Cancel",
+  "skills.capabilityTab.connectors": "Plugin",
+  "skills.capabilityTab.skills": "Skill",
+  "skills.capabilityTabsAria": "Skill and plugin sections",
+  "skills.clearSearch": "Clear search",
+  "skills.comingSoon": "Coming soon",
+  "skills.communityComingSoon": "Community skill marketplace coming soon",
+  "skills.confirmChanges": "Confirm {{count}} changes",
+  "skills.createViaHub.failed": "Failed to create project",
+  "skills.deepLink.alreadyInstalled":
+    "This skill is already installed. Reinstall to update.",
+  "skills.deepLink.installTitle": "Install Skill",
+  "skills.deepLink.loadError": "Failed to load skill info",
+  "skills.deepLink.notFound": "This skill is no longer available",
+  "skills.deepLink.reinstall": "Reinstall",
+  "skills.deepLink.source": "Source: {{source}}",
+  "skills.delete.confirm": "Delete",
+  "skills.delete.installedDesc":
+    "This installed skill will be removed. You can reinstall it anytime from the market.",
+  "skills.delete.installedTitle": "Remove Skill",
+  "skills.delete.pluginDesc": "This will remove the plugin and all its data.",
+  "skills.delete.pluginTitle": "Delete plugin",
+  "skills.delete.userDesc":
+    "This skill will be moved to trash. You can restore it anytime.",
+  "skills.delete.userTitle": "Delete Skill",
+  "skills.description": "Explore and manage your Skills",
+  "skills.detail.back": "Back",
+  "skills.detail.bestFor": "Best for",
+  "skills.detail.defaultShowcase": "Default skill showcase",
+  "skills.detail.downloadCount": "Downloads",
+  "skills.detail.howToUse": "How to use",
+  "skills.detail.mediaUnavailable": "Showcase unavailable",
+  "skills.detail.nextMedia": "Next showcase",
+  "skills.detail.noStructuredInfo": "No information yet",
+  "skills.detail.outputs": "Outputs",
+  "skills.detail.overview": "Overview",
+  "skills.detail.previousMedia": "Previous showcase",
+  "skills.detail.readyToUse": "Ready to use",
+  "skills.detail.showcaseImage": "Showcase {{index}}",
+  "skills.detail.showcaseVideo": "Skill showcase video",
+  "skills.detail.unknownCreator": "Unknown creator",
+  "skills.detail.version": "Version",
+  "skills.detail.verifiedCreator": "Official creator",
+  "skills.detail.description": "Description",
+  "skills.detail.downloading": "Downloading skill files...",
+  "skills.detail.fileTooLarge": "File is too large to preview",
+  "skills.detail.files": "Files",
+  "skills.detail.info": "Info",
+  "skills.detail.moreActions": "More actions",
+  "skills.detail.networkError": "Network error",
+  "skills.detail.noDescription": "No description available",
+  "skills.detail.noPreview": "Preview not available",
+  "skills.detail.previewFailed": "Preview download failed",
+  "skills.detail.selectFile": "Select a file to preview",
+  "skills.detail.showInFolder": "Show in folder",
+  "skills.detail.source": "Source",
+  "skills.detail.status": "Status",
+  "skills.detail.submitToCommunity": "Submit to community",
+  "skills.detail.submitToCommunityTooltip":
+    "Request official review. If selected, earn credits and get featured in User Picks.",
+  "skills.detail.summary": "Summary",
+  "skills.detail.title": "Skill Details",
+  "skills.detail.triggerWords": "Trigger Words",
+  "skills.disabled": "Disabled",
+  "skills.download": "Download",
+  "skills.dragHint": "Drag",
+  "skills.edit": "Edit",
+  "skills.editing": "Editing",
+  "skills.empty": "No skills available",
+  "skills.empty.description": "Browse the community to add a skill.",
+  "skills.empty.goToCommunity": "Browse Community",
+  "skills.empty.plugin.description": "Browse the Marketplace to add a plugin.",
+  "skills.empty.plugin.goToMarket": "Browse Marketplace",
+  "skills.empty.plugin.title": "No plugins yet",
+  "skills.empty.title": "No skills yet",
+  "skills.enabled": "Enabled",
+  "skills.explore": "Explore",
+  "skills.export": "Download",
+  "skills.exportFailed": 'Failed to export skill "{{name}}"',
+  "skills.exportSuccess": 'Skill "{{name}}" exported',
+  "skills.exporting": "Exporting skill...",
+  "skills.filter.category": "Category",
+  "skills.filter.hideInstalled": "Show only uninstalled",
+  "skills.fork.error": "Failed to copy skill",
+  "skills.fork.success": 'Skill "{{name}}" copied to local skills',
+  "skills.group.fromCommunity": "From Community",
+  "skills.group.localCreated": "Locally Created",
+  "skills.header.createSkill": "Create Skill",
+  "skills.header.createViaHub": "Create via MiniMax Design",
+  "skills.header.install": "Import Skill",
+  "skills.header.submitSkill": "Submit Skill",
+  "skills.heroDescription":
+    "Discover, install, and manage skills to extend MiniMax Design across your creation flows.",
+  "skills.hubDescription":
+    "Discover Skills and connect external tools and data sources for your creation workflows.",
+  "skills.hubTitle": "Skill · Plugin",
+  "skills.import.adaptFailed": "Failed to create adaptation project",
+  "skills.import.adaptPrompt":
+    "/skill-creator Please adapt the third-party skill at {{stagingPath}}/SKILL.md to the current MiniMax Design environment. Read the file content, analyze its dependencies and tools, rewrite it in MiniMax Design-compatible format, and save to the user skills directory.",
+  "skills.import.adaptToHub": "Adapt to MiniMax Design",
+  "skills.import.autoFixHint": "Format auto-optimized",
+  "skills.import.continueAdd": "Import Another",
+  "skills.import.directInstall": "Import Directly",
+  "skills.import.dropzone":
+    "Drag and drop .zip or SKILL.md, or click to select",
+  "skills.import.error.downloadFailed": "Download failed ({{status}})",
+  "skills.import.error.extract_failed": "Extract failed: {{detail}}",
+  "skills.import.error.fileTooLarge": "File too large. Max 50 MB per upload.",
+  "skills.import.error.generic": "Import failed: {{detail}}",
+  "skills.import.error.invalidStagingPath": "Invalid staging path",
+  "skills.import.error.invalid_format.invalidName":
+    'Invalid skill name: "{{name}}"',
+  "skills.import.error.invalid_format.noName":
+    "Cannot determine skill name. Please add a name field to the file.",
+  "skills.import.error.network":
+    "Network error. Please check your connection and retry.",
+  "skills.import.error.no_skill_md": "SKILL.md not found in zip file",
+  "skills.import.error.skillMdNotFound": "SKILL.md not found",
+  "skills.import.error.stagingNotFound":
+    "Staging directory expired. Please re-upload the file.",
+  "skills.import.error.unsupported_type":
+    "Only .zip and .md files are supported",
+  "skills.import.importFailed": "Import failed",
+  "skills.import.install": "Import",
+  "skills.import.installFailed": "Import failed",
+  "skills.import.installing": "Importing...",
+  "skills.import.nameConflict.confirm": "Import with New Name",
+  "skills.import.nameConflict.inputLabel": "New skill name",
+  "skills.import.nameConflict.invalid":
+    "Name can only contain letters, digits, dots, dashes, and underscores (max 64 chars)",
+  "skills.import.nameConflict.official":
+    'An official skill named "{{name}}" already exists. Please choose a different name.',
+  "skills.import.nameConflict.user":
+    'You already have a skill named "{{name}}". Please choose a different name.',
+  "skills.import.networkError": "Network error",
+  "skills.import.reqMd": "Or directly upload SKILL.md file",
+  "skills.import.reqZip": ".zip file containing SKILL.md",
+  "skills.import.requirements": "File requirements",
+  "skills.import.success": "Skill imported successfully",
+  "skills.import.thirdPartyHint":
+    "Third-party skill detected. Adapting to MiniMax Design is recommended for the best experience.",
+  "skills.import.title": "Import Skill",
+  "skills.import.tryInHub": "Try in MiniMax Design",
+  "skills.import.unsupportedType": "Please select a .zip or SKILL.md file",
+  "skills.installSuccess.debugAction": "Debug",
+  "skills.layout.grid": "Grid",
+  "skills.layout.list": "List",
+  "skills.loadError": "Failed to load skills",
+  "skills.loadingToTask": "Loading Skill into task",
+  "skills.manage": "Manage",
+  "skills.manageTooltip": "Install, uninstall, and toggle skills",
+  "skills.market.communityFeatured": "Featured User Skills",
+  "skills.market.communityFeaturedEmpty": "No skills of this type yet",
+  "skills.market.creatorPlanApply": "Apply For Review",
+  "skills.market.creatorPlanBenefitCooperation":
+    "Become our co-creation partner",
+  "skills.market.creatorPlanBenefitCooperationDesc":
+    "Long-term partnership benefits including co-creation rewards, brand exposure, and traffic support. May require additional review.",
+  "skills.market.creatorPlanBenefitCredit": "One-time credit reward",
+  "skills.market.creatorPlanBenefitCreditDescSuffix":
+    ", roughly 2 months of Pro.",
+  "skills.market.creatorPlanBenefitDetailLink": "View full benefits →",
+  "skills.market.creatorPlanBenefitLabel": "Reward plan",
+  "skills.market.creatorPlanComingSoon": "Coming soon",
+  "skills.market.creatorPlanCoverFormats": "PNG / GIF / MP4 · 16:9 · ≤ 10 MB",
+  "skills.market.creatorPlanCoverHint":
+    "Requires 16:9 aspect ratio · Supports PNG / GIF / MP4 · Max 10 MB per file",
+  "skills.market.creatorPlanCoverInvalidType":
+    "Only PNG / GIF / MP4 formats are supported",
+  "skills.market.creatorPlanCoverLabel": "Cover Photo",
+  "skills.market.creatorPlanCoverTooLarge": "Cover file cannot exceed 10 MB",
+  "skills.market.creatorPlanCoverUpload": "Click to upload cover",
+  "skills.market.creatorPlanCreditAmount": "2000 credits",
+  "skills.market.creatorPlanDemoToggleEmpty": "Demo: view empty state",
+  "skills.market.creatorPlanDemoToggleHas": "Demo: switch back to data",
+  "skills.market.creatorPlanDisplayNameHint":
+    "Defaults to your MiniMax Design username, editable.",
+  "skills.market.creatorPlanDisplayNameLabel": "Author Name",
+  "skills.market.creatorPlanDisplayNamePlaceholder":
+    "Defaults to your MiniMax Design username, editable",
+  "skills.market.creatorPlanEmptyDesc":
+    "You don't have any skills available to submit yet",
+  "skills.market.creatorPlanEmptyTitle": "No skills available",
+  "skills.market.creatorPlanFooterNote":
+    "We'll respond within 14 business days",
+  "skills.market.creatorPlanGoCreate": "Create on canvas",
+  "skills.market.creatorPlanInviteDesc":
+    "Submit a Skill — featured ones earn 2000 credits or join the co-creation plan",
+  "skills.market.creatorPlanInviteTitle": "Submit Skill",
+  "skills.market.creatorPlanMissingSkill":
+    "The selected skill is no longer local, please reselect",
+  "skills.market.creatorPlanNoSkills":
+    'No local skills yet, create one under "My Skills" first',
+  "skills.market.creatorPlanSkillNameLabel": "Skill",
+  "skills.market.creatorPlanSkillNamePlaceholder": "Choose from your skills…",
+  "skills.market.creatorPlanSubmitError": "Submit failed, please retry later",
+  "skills.market.creatorPlanSubmitSuccess":
+    "Submitted successfully — we'll respond within 14 business days",
+  "skills.market.creatorPlanSubtitlePrefix":
+    "Tell us about your skill — featured ones earn ",
+  "skills.market.creatorPlanSubtitleSuffix": " rewards",
+  "skills.market.creatorPlanTip":
+    "We feature top skills from active users. After you apply, our team will respond within 14 business days.",
+  "skills.market.creatorPlanTipBody":
+    "Built a useful skill? Apply for official review. Featured ones earn credit rewards or join our creator community.",
+  "skills.market.creatorPlanTipBody1":
+    "Curated picks from top skills built by users.",
+  "skills.market.creatorPlanTipBody2Highlight": "credit rewards",
+  "skills.market.creatorPlanTipBody2Prefix":
+    "Built a useful Skill? Apply for official review — featured ones earn ",
+  "skills.market.creatorPlanTipBody2Suffix":
+    ' or join the co-creation plan, and get showcased under "User Featured".',
+  "skills.market.creatorPlanTipHeading": "What is User Featured",
+  "skills.market.creatorPlanTitle": "Apply for Review",
+  "skills.market.deprecated": "Deprecated",
+  "skills.market.downloadSkill": "Download skill",
+  "skills.market.empty": "No skills yet",
+  "skills.market.error": "Failed to load market skills",
+  "skills.market.install": "Install",
+  "skills.market.installError": 'Failed to install skill "{{name}}"',
+  "skills.market.installSuccess": 'Skill "{{name}}" installed successfully',
+  "skills.market.installed": "Installed",
+  "skills.market.installing": "Installing...",
+  "skills.market.lastSync": "Last sync: {{time}}",
+  "skills.market.loadMore": "Load More",
+  "skills.market.loading": "Loading market skills...",
+  "skills.market.noMatch": "No matching skills",
+  "skills.market.officialFeatured": "Featured Official Skills",
+  "skills.market.officialFeaturedEmpty": "No skills of this type yet",
+  "skills.market.otherEmpty": "No skills match the current filters",
+  "skills.market.otherSkills": "Other Skills",
+  "skills.market.requestToReview": "Apply for review",
+  "skills.market.searchPlaceholder": "Search skills...",
+  "skills.market.searchPluginPlaceholder": "Search plugins...",
+  "skills.market.syncComplete":
+    "Sync complete: installed {{installed}}, updated {{updated}}",
+  "skills.market.syncFailed": "{{failed}} failed",
+  "skills.market.syncProgress": "Syncing skills ({{done}}/{{total}})...",
+  "skills.market.tryInChat": "Try in chat",
+  "skills.market.uninstall": "Remove",
+  "skills.market.uninstallConfirmDesc":
+    'Are you sure you want to remove "{{name}}"? The AI service will be restarted.',
+  "skills.market.uninstallConfirmTitle": "Remove Skill",
+  "skills.market.uninstallError": 'Failed to remove skill "{{name}}"',
+  "skills.market.uninstallPluginError": "Failed to uninstall plugin {{name}}",
+  "skills.market.uninstallPluginSuccess": "Plugin {{name}} uninstalled",
+  "skills.market.uninstallSuccess": 'Skill "{{name}}" removed',
+  "skills.market.uninstalling": "Removing...",
+  "skills.market.unlocked": "Skill Market unlocked",
+  "skills.market.update": "Update",
+  "skills.market.updateAvailable": "Update Available",
+  "skills.market.updateError": 'Failed to update skill "{{name}}"',
+  "skills.market.updateSuccess": 'Skill "{{name}}" updated successfully',
+  "skills.market.useInChat": "Use in chat",
+  "skills.market.verifiedOfficial": "Verified by MiniMax Design",
+  "skills.market.version": "v{{version}}",
+  "skills.marketplaceTabs.plugin": "Plugins",
+  "skills.marketplaceTabs.pluginTooltip":
+    "A plugin is a capability with a UI. It exposes inputs and buttons so you can set parameters yourself and trigger the run.",
+  "skills.marketplaceTabs.skill": "Skills",
+  "skills.marketplaceTabs.skillTooltip":
+    "A skill is a text-only capability. You describe what you want and the AI handles every step end-to-end — no UI to operate.",
+  "skills.mine.applyReview": "Apply for review",
+  "skills.mine.createdByMe": "Created by me",
+  "skills.mine.createdByMeDesc":
+    "Maintain private Skills, review requests, and published versions.",
+  "skills.mine.description":
+    "Manage Skills you created and Skills downloaded from the community.",
+  "skills.mine.downloaded": "Downloaded",
+  "skills.mine.downloadedDesc":
+    "Manage Skills downloaded from the community and their automatic updates.",
+  "skills.mine.editInformation": "Edit information",
+  "skills.mine.filterCategoryAll": "All",
+  "skills.mine.filterCategoryLabel": "Category",
+  "skills.mine.filterSourceAll": "All",
+  "skills.mine.filterSourceCommunity": "From Community",
+  "skills.mine.filterSourceLabel": "Source",
+  "skills.mine.filterSourceLocal": "Local",
+  "skills.mine.filterTypePlugin": "Plugin",
+  "skills.mine.filterTypeSkill": "Skill",
+  "skills.mine.noCreatedSkills": "You haven't created any Skills yet",
+  "skills.mine.noSummary": "No summary provided.",
+  "skills.mine.offline": "Offline",
+  "skills.mine.offlineDesc":
+    "Once offline, this Skill can no longer be discovered, installed, or used. You can edit it and apply again later.",
+  "skills.mine.offlineError": "Failed to take Skill offline",
+  "skills.mine.offlineSuccess": "Skill is offline",
+  "skills.mine.offlineTitle": "Offline this Skill?",
+  "skills.mine.searchPlaceholder": "Search installed skills...",
+  "skills.mine.status.offline": "Offline",
+  "skills.mine.status.pending": "Review pending",
+  "skills.mine.status.private": "Private",
+  "skills.mine.status.published": "Published",
+  "skills.mine.status.rejected": "Rejected",
+  "skills.mine.status.readyToPublish": "Ready to publish",
+  "skills.mine.subTab.plugins": "Plugins",
+  "skills.mine.subTab.skills": "Skills",
+  "skills.mine.uploadFirstSkill": "Upload your first Skill",
+  "skills.mine.uploadSkill": "Upload Skill",
+  "skills.mine.viewApplication": "View application",
+  "skills.mine.applicationReadOnly":
+    "Submission information and review progress.",
+  "skills.mine.autoUpdateHint":
+    "Automatically update installed marketplace Skills. Locally created Skills are not affected.",
+  "skills.mine.autoUpdateInstalled": "Auto-update installed Skills",
+  "skills.mine.clearFilters": "Clear filters",
+  "skills.mine.coverUnavailable": "Cover unavailable",
+  "skills.mine.details": "View details",
+  "skills.mine.editPublished": "Edit and request update",
+  "skills.mine.empty": "No Skills yet",
+  "skills.mine.emptyHint": "Create a Skill or install one from the community.",
+  "skills.mine.enableSkill": "Enable {{name}}",
+  "skills.mine.installed": "Installed",
+  "skills.mine.moreActions": "More actions for {{name}}",
+  "skills.mine.noMatches": "No matching Skills",
+  "skills.mine.noMatchesHint": "Try a different search or clear your filters.",
+  "skills.mine.offlineAndDisableDesc":
+    "This removes the Skill from the community and disables it locally. You can edit it and request review again later.",
+  "skills.mine.prepareReview": "Prepare submission",
+  "skills.mine.reapply": "Edit and resubmit",
+  "skills.mine.resultCount": "{{count}} results",
+  "skills.mine.resultCount_one": "{{count}} result",
+  "skills.mine.resultCount_other": "{{count}} results",
+  "skills.mine.reviewNote": "Review feedback",
+  "skills.mine.saveChanges": "Save changes",
+  "skills.mine.signInForStatus":
+    "Sign in to view submission status. Local Skills remain available.",
+  "skills.mine.status.loading": "Loading submission status",
+  "skills.mine.status.unknown": "Submission status unavailable",
+  "skills.mine.statusUnavailable":
+    "Submission status could not be refreshed. Your Skills remain available.",
+  "skills.mine.totalCount": "{{count}} Skills",
+  "skills.mine.totalCount_one": "{{count}} Skill",
+  "skills.mine.totalCount_other": "{{count}} Skills",
+  "skills.mine.uploadReviewSkill": "Submit Skill",
+  "skills.mine.use": "Use",
+  "skills.mine.viewDetails": "View {{name}} details",
+  "skills.mine.withCover": "With covers",
+  "skills.mine.withoutCover": "Without covers",
+  "skills.noChanges": "No changes",
+  "skills.noMatchTag": "No skills match this tag",
+  "skills.onlineComingSoon": "Online Skill marketplace coming soon",
+  "skills.operation.add": "Add",
+  "skills.operation.addSection": "Add Section",
+  "skills.operation.badges": "Badges",
+  "skills.operation.batchSaveSuccess": "Changes saved",
+  "skills.operation.changesCount": "{{count}} changes",
+  "skills.operation.confirmSaveDesc": "Save {{count}} changed items?",
+  "skills.operation.confirmSaveTitle": "Confirm Save",
+  "skills.operation.conflictDesc":
+    "The following skills were modified by others: {{skills}}. Please reload and try again.",
+  "skills.operation.conflictTitle": "Conflict Detected",
+  "skills.operation.delete": "Delete",
+  "skills.operation.deleteError": "Delete failed",
+  "skills.operation.deleteSuccess": "Deleted",
+  "skills.operation.discardExit": "Discard & Exit",
+  "skills.operation.editButton": "Tag Configuration",
+  "skills.operation.editTooltip": "Edit tag configuration",
+  "skills.operation.exitButton": "Exit",
+  "skills.operation.exitConfirmDesc":
+    "You have unsaved changes. Discard and exit?",
+  "skills.operation.exitConfirmTitle": "Unsaved Changes",
+  "skills.operation.filterReorderHint":
+    "Filtering active — reordering is temporarily disabled",
+  "skills.operation.hidden": "Hidden",
+  "skills.operation.moveDown": "Move Down",
+  "skills.operation.moveUp": "Move Up",
+  "skills.operation.panelTitle": "Marketplace Display Configuration",
+  "skills.operation.title": "Operations",
+  "skills.operation.advancedRoleHint":
+    "Advanced operations: review, configure, and publish skills",
+  "skills.operation.advancedPermissionTitle": "Advanced operator permissions",
+  "skills.operation.advancedPermissionDescription":
+    "Can review submissions, publish approved Skills, and maintain taxonomy and marketplace display configuration.",
+  "skills.operation.fullOperations": "Full operations",
+  "skills.operation.globalSortWeight": "Global sort weight",
+  "skills.operation.reviewerRoleHint":
+    "Operations: inspect, validate in Design, and review submissions",
+  "skills.operation.reviewerPermissionTitle": "Reviewer permissions",
+  "skills.operation.reviewerPermissionDescription":
+    "Can view submissions, validate them in Design, approve, or reject; publishing and configuration are unavailable.",
+  "skills.operation.reviewOnly": "Review only",
+  "skills.operation.reviewTab": "Pending Review",
+  "skills.operation.configurationTab": "Tag Configuration",
+  "skills.operation.loadError": "Failed to load operations data",
+  "skills.operation.categorySortWeight": "Category sort weight",
+  "skills.operation.allPending": "All pending",
+  "skills.operation.newListings": "First submissions",
+  "skills.operation.updates": "Updates",
+  "skills.operation.reviewType": "Review type",
+  "skills.operation.reviewTypeAll": "All review types",
+  "skills.operation.reviewTypeUpdate": "Update published Skill",
+  "skills.operation.reviewTypeNew": "First submission",
+  "skills.operation.skillDisplayName": "Skill display name",
+  "skills.operation.uid": "UID",
+  "skills.operation.submittedAt": "Submitted at",
+  "skills.operation.reviewStatus": "Review status",
+  "skills.operation.submitterUid": "Submitter UID",
+  "skills.operation.submitterNameFilter": "Submitter nickname (partial match)",
+  "skills.operation.resetSubmitter": "Reset",
+  "skills.operation.selectFiltered": "Select filtered",
+  "skills.operation.selectCurrentPage": "Select current page",
+  "skills.operation.approveSelected": "Approve selected ({{count}})",
+  "skills.operation.selectedCount": "{{count}} selected",
+  "skills.operation.pendingReviewList": "Pending review list",
+  "skills.operation.noSubmissions": "No pending submissions",
+  "skills.operation.newListing": "First submission",
+  "skills.operation.update": "Update live skill",
+  "skills.operation.updatedAt": "Updated at",
+  "skills.operation.submitter": "Submitter",
+  "skills.operation.sourceFile": "Source file",
+  "skills.operation.sourceFileError":
+    "Unable to download or reveal the source file",
+  "skills.operation.packageVersion": "Skill package version",
+  "skills.operation.categories": "Categories",
+  "skills.operation.changeItems": "Changes",
+  "skills.operation.changeItem.initialSubmission": "First submission",
+  "skills.operation.changeItem.displayName": "Display name",
+  "skills.operation.changeItem.summary": "Summary",
+  "skills.operation.changeItem.bestFor": "Best for",
+  "skills.operation.changeItem.howToUse": "How to use",
+  "skills.operation.changeItem.outputs": "Outputs",
+  "skills.operation.changeItem.categories": "Categories",
+  "skills.operation.changeItem.stage": "Creation stage",
+  "skills.operation.changeItem.creator": "Creator",
+  "skills.operation.changeItem.cover": "Cover",
+  "skills.operation.changeItem.showcase": "Showcase video",
+  "skills.operation.changeItem.package": "Skill package",
+  "skills.operation.changeItem.metadata": "Listing metadata",
+  "skills.operation.viewDetails": "View details",
+  "skills.operation.testDesign": "Test in Design",
+  "skills.operation.markPassed": "Mark passed",
+  "skills.operation.reject": "Reject",
+  "skills.operation.approveToConfig": "Approve",
+  "skills.operation.acceptanceStatus": "Validation status",
+  "skills.operation.design.untested": "Untested",
+  "skills.operation.design.testing": "Testing",
+  "skills.operation.design.passed": "Passed",
+  "skills.operation.status.pending": "Review pending",
+  "skills.operation.status.approved": "Ready to publish",
+  "skills.operation.status.published": "Published",
+  "skills.operation.status.offline": "Offline",
+  "skills.operation.status.rejected": "Rejected",
+  "skills.operation.designPrompt":
+    "Run one real creation acceptance test with candidate skill {{skillName}}. The candidate package is at {{stagingPath}}. Read SKILL.md first, follow its workflow exactly, then summarize the result and any issues. Do not install it or replace the live version.",
+  "skills.operation.designError": "Failed to start Design validation",
+  "skills.operation.pass_designSuccess": "Design validation marked as passed",
+  "skills.operation.approveSuccess": "Approved and moved to Ready to publish",
+  "skills.operation.rejectSuccess": "Submission rejected",
+  "skills.operation.batchApproveSuccess":
+    "Selected submissions moved to Ready to publish",
+  "skills.operation.batchInvalid":
+    "These Skills cannot be approved yet: {{skills}}",
+  "skills.operation.actionError": "Action failed. Reload and try again.",
+  "skills.operation.actions": "Actions",
+  "skills.operation.detailsSaved": "Submission details saved",
+  "skills.operation.validationError":
+    "Fix the highlighted fields before saving",
+  "skills.operation.reviewer": "Reviewer",
+  "skills.operation.reviewerAll": "All reviewers",
+  "skills.operation.reviewerUnassigned": "Unassigned",
+  "skills.operation.reviewStatusPending": "Pending",
+  "skills.operation.reviewStatusApproved": "Approved",
+  "skills.operation.reviewStatusRejected": "Rejected",
+  "skills.operation.reviewedAt": "Reviewed at",
+  "skills.operation.rejectionReason": "Rejection reason",
+  "skills.operation.lastReviewRecord": "Last review",
+  "skills.operation.noReviewRecord": "No record",
+  "skills.operation.rejectTitle": "Reject submission",
+  "skills.operation.rejectDescription":
+    "Enter a rejection reason visible to the submitter.",
+  "skills.operation.skillDetails": "Skill Details",
+  "skills.operation.detailsHint":
+    "Skill name is immutable. Operations can correct display metadata, categories, and creation stage.",
+  "skills.operation.skillName": "Skill name",
+  "skills.operation.displayName": "Display name",
+  "skills.operation.creator": "Creator",
+  "skills.operation.summary": "Summary",
+  "skills.operation.bestFor": "Best For (one per line)",
+  "skills.operation.howToUse": "How to Use",
+  "skills.operation.outputs": "Outputs",
+  "skills.operation.cover": "Cover",
+  "skills.operation.showcase": "Showcase video",
+  "skills.operation.stage": "Creation stage",
+  "skills.operation.categoryConfig": "Taxonomy Configuration",
+  "skills.operation.categoryOrderHint":
+    "Manage vertical categories and creation stages together. Smaller numbers appear first.",
+  "skills.operation.categorySaved": "Taxonomy configuration saved",
+  "skills.operation.duplicateSortOrder":
+    "Each enabled item must have a unique sort order within its type",
+  "skills.operation.code": "Code",
+  "skills.operation.taxonomyCode": "Code (lower-kebab-case)",
+  "skills.operation.addTaxonomy": "Add",
+  "skills.operation.addTaxonomyTitle": "Add {{type}}",
+  "skills.operation.duplicateCode": "Codes must be unique within each type",
+  "skills.operation.invalidTaxonomy":
+    "Enter a valid code and both localized names",
+  "skills.operation.tagType.category": "Vertical category",
+  "skills.operation.tagType.stage": "Creation stage",
+  "skills.operation.readyTab": "Ready to Publish",
+  "skills.operation.readyToPublish": "Approved · Ready to publish",
+  "skills.operation.readyStatus": "Ready to publish",
+  "skills.operation.publishedStatus": "Published",
+  "skills.operation.noPublishedSubmissions":
+    "No published submissions match the filters",
+  "skills.operation.noReady": "No skills ready to publish",
+  "skills.operation.official": "Official",
+  "skills.operation.user": "User",
+  "skills.operation.allSources": "All sources",
+  "skills.operation.marketSection": "Market section",
+  "skills.operation.allMarketSections": "All sections",
+  "skills.operation.allCategories": "All categories",
+  "skills.operation.allPublicationStatuses": "All publication statuses",
+  "skills.operation.optionalCornerTag": "Optional tag, e.g. NEW / HOT",
+  "skills.operation.batchPublishTitle": "Batch publish",
+  "skills.operation.inheritWeight": "Keep live order",
+  "skills.operation.publishOrderHint":
+    "Existing skills keep their ordering. Adjust it in Published Skills. Newly added categories start with a weight of 0.",
+  "skills.operation.batchPublishDescription":
+    "{{count}} selected. Choose a publication section.",
+  "skills.operation.publishSection": "Publication section",
+  "skills.operation.publishSectionPlaceholder": "Select a publication section",
+  "skills.operation.confirmPublish": "Confirm publication",
+  "skills.operation.publishSelected": "Publish selected ({{count}})",
+  "skills.operation.publishAction": "Publish",
+  "skills.operation.publishSuccess":
+    "Published without changing the existing live order",
+  "skills.operation.publishInvalid":
+    "The batch was not published because these skills changed state: {{skills}}",
+  "skills.operation.publishMissingCategories":
+    "Nothing was published. Add at least one category for: {{skills}}",
+  "skills.operation.publishInvalidCategories":
+    "Nothing was published. Select enabled categories for: {{skills}}",
+  "skills.operation.publishCategoryRequired":
+    "Add at least one category before publishing",
+  "skills.operation.publishCategoryInvalid":
+    "A category is missing or disabled. Refresh and select categories again.",
+  "skills.operation.publishCategoryWeightsInvalid":
+    "Category weights do not match the categories. Check the publication settings.",
+  "skills.operation.publishedConfig": "Online Configuration",
+  "skills.operation.publishedDetails": "Published user skill details",
+  "skills.operation.publishedDisplayName": "Display name",
+  "skills.operation.publishedSearchPlaceholder":
+    "Search Skill ID / display name",
+  "skills.operation.publicationStatus": "Publication status",
+  "skills.operation.editDetails": "Edit full details",
+  "skills.operation.enabled": "Enabled",
+  "skills.operation.displayUploader": "Display uploader",
+  "skills.operation.skill": "Skill",
+  "skills.operation.skillId": "Skill ID",
+  "skills.operation.skillIdOrDisplayName": "Skill ID / display name",
+  "skills.operation.source": "Source",
+  "skills.operation.visibility": "Visibility",
+  "skills.operation.cornerTag": "Corner tag",
+  "skills.operation.visibility.online": "Online",
+  "skills.operation.visibility.hidden": "Hidden",
+  "skills.operation.visibility.offline": "Offline",
+  "skills.operation.reload": "Reload",
+  "skills.operation.save": "Save",
+  "skills.operation.saveAll": "Save All",
+  "skills.operation.saveChanges": "Save Current Page Changes",
+  "skills.operation.saveError": "Save failed",
+  "skills.operation.saveSuccess": "Saved",
+  "skills.operation.section": "Section",
+  "skills.operation.sectionsTab": "Sections",
+  "skills.operation.skillsTab": "Skill Operations",
+  "skills.operation.sortOrder": "Sort Order",
+  "skills.operation.sortWeight": "Sort Weight",
+  "skills.operation.weightHint": "Larger weights appear first",
+  "skills.operation.titleEn": "Title (EN)",
+  "skills.operation.titleZh": "Title (ZH)",
+  "skills.phase.creativeGeneration": "Creative Generation",
+  "skills.phase.fullProduction": "Full Production",
+  "skills.phase.intentBrainstorming": "Intent Brainstorming",
+  "skills.phase.planning": "Planning",
+  "skills.phase.postProduction": "Post-production",
+  "skills.plugin.addFailed": "Failed to add plugin",
+  "skills.plugin.addToCanvas": "Add to canvas",
+  "skills.plugin.detail.description": "Description",
+  "skills.plugin.detail.noDescription": "No description available",
+  "skills.plugin.detail.playPreview": "Play preview",
+  "skills.plugin.detail.summary": "Summary",
+  "skills.plugin.detail.title": "Plugin detail",
+  "skills.plugin.dragToCanvas": "Drag to canvas",
+  "skills.plugin.empty": "No plugins yet",
+  "skills.plugin.explore": "Explore",
+  "skills.plugin.install": "Install",
+  "skills.plugin.installing": "Installing...",
+  "skills.plugin.installingToCanvas": "Installing to canvas...",
+  "skills.plugin.manage": "Manage",
+  "skills.plugin.noHtmlFile": "No HTML file found",
+  "skills.plugin.preview": "Plugin Preview",
+  "skills.plugin.previewError": "Preview failed to load",
+  "skills.plugin.previewLoading": "Loading preview...",
+  "skills.plugin.previewTooLarge": "Preview file is too large",
+  "skills.plugin.publisher": "MiniMax Design",
+  "skills.plugin.searchPlaceholder": "Search plugins",
+  "skills.plugin.section.market": "All plugins",
+  "skills.plugin.section.recent": "Recent",
+  "skills.plugin.uninstall": "Uninstall",
+  "skills.plugin.updateBadge": "What's New",
+  "skills.plugin.updateDialog.camera.desc":
+    "New Camera Move feature: recreate rotations, dolly shots, and tracking moves to bring your characters and scenes to life.",
+  "skills.plugin.updateDialog.camera.title": "Direct your shots, now smoother",
+  "skills.plugin.updateDialog.next": "Continue",
+  "skills.plugin.updateDialog.phone.desc":
+    "Move your phone to control the camera and capture cinematic motion on the fly — more freedom, more feel.",
+  "skills.plugin.updateDialog.phone.title": "Your phone, your movie camera",
+  "skills.plugin.updateDialog.pose.desc":
+    "Adjust the character's skeleton to precisely fine-tune every motion, so your character strikes exactly the pose you want.",
+  "skills.plugin.updateDialog.pose.title": "Pose them like real actors",
+  "skills.plugin.updateDialog.tryIt": "Try it",
+  "skills.plugin.viewDetail": "View detail",
+  "skills.plugin.viewWorkflow": "Workflow",
+  "skills.plugin.workflow": "Workflow",
+  "skills.popover.addCreate": "Create with MiniMax Design",
+  "skills.popover.addImport": "Import Skill",
+  "skills.popover.addSkills": "Add Skills",
+  "skills.popover.buttonLabel": "Skills",
+  "skills.popover.create": "Create",
+  "skills.popover.empty": "No matching skills",
+  "skills.popover.empty.full":
+    "No matching skills found, <create>create one</create>, or browse the <market>Skill Market</market>",
+  "skills.popover.empty.notFound": "No matching skills found",
+  "skills.popover.empty.notFoundInTag":
+    "No matching Skills in {{tag}}. <all>View all</all>",
+  "skills.popover.exploreMore": "Explore more",
+  "skills.popover.heading": "Skill",
+  "skills.popover.hint": "Agent will automatically invoke these skills.",
+  "skills.popover.hintLink": "Manage or explore more skills.",
+  "skills.popover.inlineHeading": "My Skills",
+  "skills.popover.inlineNoMatch": "No matches",
+  "skills.popover.inlineNoMatchWithCreate":
+    "No matches. <create>Create a Skill</create>",
+  "skills.popover.loadingRecommended": "Loading recommended Skills...",
+  "skills.popover.manage": "Explore more",
+  "skills.popover.manageSkills": "Manage Skills",
+  "skills.popover.search": "Search Skill",
+  "skills.popover.search.allResults": "All Skills · {{count}} results",
+  "skills.popover.search.tagResults": "{{tag}} · {{count}} results",
+  "skills.popover.selectionDescription":
+    "Selecting a Skill adds it to the current input, and the Agent follows its instructions to complete the task.",
+  "skills.popover.tabsLabel": "Skill categories",
+  "skills.popover.title": "Enabled Skills",
+  "skills.primaryTabsAria": "Skill sections",
+  "skills.refreshError":
+    "Refresh failed. Your current tools are still available.",
+  "skills.reloadDock.reload": "Reload",
+  "skills.reloadDock.title": "Skills Updated",
+  "skills.reloadDock.titleWithCount": "{{count}} New Skills Ready",
+  "skills.reloadDock.warning":
+    "Reloading will restart the Agent and interrupt the current conversation",
+  "skills.restartCancel": "Cancel",
+  "skills.restartConfirm": "Save & Restart",
+  "skills.restartDescription":
+    "Saving skill configuration changes requires restarting the AI service. Current conversations will be interrupted.",
+  "skills.restartError": "Save failed, please retry",
+  "skills.restartFailed": "Restart failed, please retry",
+  "skills.restartPending":
+    "Skill enabled. It will take effect once the current task finishes",
+  "skills.restartQueued":
+    "Skill queued. It will apply automatically once the current task finishes",
+  "skills.restartSuccess": "Changes applied",
+  "skills.restartTitle": "Restart AI Service Required",
+  "skills.searchPlaceholder": "Search Skills",
+  "skills.section.installed": "Installed",
+  "skills.section.market": "Market",
+  "skills.sectionTitle": "Skills",
+  "skills.share": "Share",
+  "skills.share.copied": "Link copied!",
+  "skills.share.copyFailed": "Failed to copy link",
+  "skills.share.copyLink": "Copy Link",
+  "skills.share.dialogDesc":
+    "Share this link with others to let them install this skill.",
+  "skills.share.dialogTitle": "Share Link",
+  "skills.share.failed": "Failed to copy",
+  "skills.share.validForever": "Valid forever",
+  "skills.skillLabel": "Skill",
+  "skills.sort.asc": "Ascending",
+  "skills.sort.desc": "Descending",
+  "skills.sort.hot": "Hot",
+  "skills.sort.label": "Sort",
+  "skills.sort.name": "Name",
+  "skills.sort.recent": "Recent",
+  "skills.sort.time": "Updated",
+  "skills.source.builtin": "Built-in",
+  "skills.source.installed": "Installed",
+  "skills.source.local": "Local",
+  "skills.source.plugin": "Plugin",
+  "skills.source.user": "User",
+  "skills.submission.applyReview": "Apply for Review",
+  "skills.submission.assetsSection": "Cover image and showcase video",
+  "skills.submission.assetsSectionDesc":
+    "Upload the cover and video used for marketplace review",
+  "skills.submission.assetUploaded": "Uploaded",
+  "skills.submission.bestFor": "Best for",
+  "skills.submission.bestForCountError": "Add 2–3 Best For labels",
+  "skills.submission.bestForHint":
+    "Enter 2–3 short labels; each is 2–24 characters and no more than 3 words",
+  "skills.submission.bestForLengthError":
+    "Each label must be 2–24 characters and no more than 3 words",
+  "skills.submission.bestForPlaceholder": "+ Add a label",
+  "skills.submission.categories": "Vertical category",
+  "skills.submission.categoriesHint":
+    "Choose one primary category and up to two related categories.",
+  "skills.submission.categoryPlaceholder": "Select a primary category",
+  "skills.submission.chooseDesign": "Choose from Design",
+  "skills.submission.chooseDesignDesc":
+    "Read information from a Skill created in MiniMax Design.",
+  "skills.submission.chooseDesignPlaceholder": "Select a Skill you've created",
+  "skills.submission.chooseNewPackage": "Choose a new package",
+  "skills.submission.choosePackage": "Choose ZIP / .tar.gz",
+  "skills.submission.cover": "Cover image",
+  "skills.submission.coverHint":
+    "PNG / JPG / WebP, 16:9, max 10 MB; required for review",
+  "skills.submission.coverRequired":
+    "A cover is required when applying for review",
+  "skills.submission.coverAspectRatioError":
+    "Cover image must use a 16:9 aspect ratio",
+  "skills.submission.coverReadError": "Unable to read the cover image",
+  "skills.submission.showcaseRequired":
+    "A Showcase video is required when applying for review",
+  "skills.submission.coverSizeError": "Cover cannot exceed 10 MB",
+  "skills.submission.coverTypeError": "Cover supports PNG / JPG / WebP only",
+  "skills.submission.clearAsset": "Clear asset",
+  "skills.submission.createNow": "Create one now",
+  "skills.submission.creator": "Creator",
+  "skills.submission.creatorHint": "Use 2–40 characters",
+  "skills.submission.currentPackage": "Current Skill package",
+  "skills.submission.designReadSuccess": "Skill information read",
+  "skills.submission.designReadSuccessDesc":
+    "The fields below were filled from the selected Skill. Review them before saving.",
+  "skills.submission.displayName": "Display name",
+  "skills.submission.displayNameHint": "Use 2–48 characters",
+  "skills.submission.displayNamePlaceholder":
+    "e.g. 3D Animation Short Generator",
+  "skills.submission.editPrivateSuccess": "Skill information updated",
+  "skills.submission.editReviewSuccess": "Changes submitted for review",
+  "skills.submission.editSubtitle":
+    "Update listing information or upload a new package for this Skill.",
+  "skills.submission.editTitle": "Edit Skill information",
+  "skills.submission.howToUse": "How to use",
+  "skills.submission.howToUseHint":
+    "Describe the required input in 40–120 characters",
+  "skills.submission.howToUsePlaceholder":
+    "Describe what users need to provide and how to get started",
+  "skills.submission.incomplete": "Complete all Skill information first",
+  "skills.submission.noDesignSkills": "No Skills created in Design yet.",
+  "skills.submission.outputs": "Outputs",
+  "skills.submission.outputsHint":
+    "Describe the deliverables in 30–100 characters",
+  "skills.submission.outputsPlaceholder":
+    "Describe the main deliverables users will receive",
+  "skills.submission.packageHint":
+    "Max 50 MB; the package must contain SKILL.md",
+  "skills.submission.packageNameMismatch":
+    "The new package name must match the immutable Skill name.",
+  "skills.submission.packageSizeError": "Skill package cannot exceed 50 MB",
+  "skills.submission.packageVersionInvalid": "Version must use x.y.z format",
+  "skills.submission.packageVersionMissing":
+    "The updated package must declare version in meta.yaml",
+  "skills.submission.packageVersionNotNewer":
+    "The updated package version must be greater than {{current}}",
+  "skills.submission.packageTypeError":
+    "Only ZIP / .tar.gz Skill packages are supported",
+  "skills.submission.packageVersion": "Skill package version",
+  "skills.submission.packageVersionPlaceholder": "1.0.0",
+  "skills.submission.packageVersionHint":
+    "Use semantic versioning in x.y.z format",
+  "skills.submission.privateSuccess": "Saved as Private",
+  "skills.submission.removeLabel": "Remove label",
+  "skills.submission.requiredError": "This field is required",
+  "skills.submission.reviewNote":
+    "When a published Skill update is under review, the current live version remains available.",
+  "skills.submission.reviewSuccess": "Submitted for review",
+  "skills.submission.savePrivate": "Save as Private",
+  "skills.submission.showcase": "Showcase video",
+  "skills.submission.showcaseHint": "Choose 1 file, up to 1000 MB",
+  "skills.submission.showcaseSizeError": "Showcase cannot exceed 1000 MB",
+  "skills.submission.showcaseTypeError":
+    "Showcase supports MP4 / MOV / WebM only",
+  "skills.submission.source": "Submission source",
+  "skills.submission.skillName": "Skill name",
+  "skills.submission.skillNamePlaceholder": "short-drama-series-writer",
+  "skills.submission.stage": "Creation stage",
+  "skills.submission.stagePlaceholder": "Select one creation stage",
+  "skills.submission.basicInfoSection": "Basic information",
+  "skills.submission.basicInfoSectionDesc":
+    "Skill name, display name, creator, and package version",
+  "skills.submission.listingInfoSection": "Listing information",
+  "skills.submission.listingInfoSectionDesc":
+    "Summary, best-fit scenarios, usage, and deliverables",
+  "skills.submission.primaryCategory": "Primary category",
+  "skills.submission.relatedCategory": "Related category",
+  "skills.submission.relatedCategoryPlaceholder": "Optional related category",
+  "skills.submission.relatedCategoryNone": "No related category",
+  "skills.submission.taxonomySection": "Category and creation stage",
+  "skills.submission.taxonomySectionDesc":
+    "Choose one primary category, up to two related categories, and one creation stage",
+  "skills.submission.subtitle":
+    "Save a private Skill, or complete its assets and apply for community listing.",
+  "skills.submission.summary": "One-line summary",
+  "skills.submission.summaryHint":
+    "40–120 characters, one sentence describing the core capability and value",
+  "skills.submission.summaryPlaceholder":
+    "Summarize the core capability and main value of this Skill in one sentence",
+  "skills.submission.title": "Submit Skill",
+  "skills.submission.updatePackage": "Update Skill package (optional)",
+  "skills.submission.updatePackageDesc":
+    "Upload a new ZIP / .tar.gz only when the Skill implementation changed. Its name must remain unchanged.",
+  "skills.submission.uploadManualDesc":
+    "The original package is kept unchanged. Uploaded Skills are Private by default.",
+  "skills.submission.uploadManualTitle": "Enter information manually",
+  "skills.submission.uploadPackage": "Upload Skill package",
+  "skills.submission.uploadPackageDesc":
+    "Upload ZIP / .tar.gz, then enter listing information manually.",
+  "skills.tabs.community": "Skill",
+  "skills.tabs.communityBeta": "Beta",
+  "skills.tabs.communityInfo":
+    "Skill is a pure-text capability. Describe what you want, and AI handles every step and returns the result — no UI required.",
+  "skills.tabs.installed": "Installed",
+  "skills.tabs.local": "Local",
+  "skills.tabs.mine": "My Skills",
+  "skills.tabs.online": "Online",
+  "skills.tabs.plugins": "Plugin",
+  "skills.tabs.pluginsInfo":
+    "Plugin is a UI-driven capability. The interface provides inputs, buttons, and other controls so you can fill in parameters and trigger execution yourself.",
+  "skills.tag.advertising": "Advertising",
+  "skills.tag.all": "All",
+  "skills.tag.animation": "Animation",
+  "skills.tag.audio": "Audio",
+  "skills.tag.audioContent": "Audio Content",
+  "skills.tag.commercialAd": "Commercial Ad",
+  "skills.tag.creativeExperimental": "Creative & Experimental",
+  "skills.tag.documentary": "Documentary",
+  "skills.tag.ecommerce": "E-Commerce",
+  "skills.tag.education": "Education",
+  "skills.tag.featured": "Featured",
+  "skills.tag.image": "Image",
+  "skills.tag.mine": "My Skills",
+  "skills.tag.musicVideo": "Music Video",
+  "skills.tag.platformTooling": "Platform Tooling",
+  "skills.tag.professionalFilm": "Professional Film",
+  "skills.tag.shortDrama": "Short Drama",
+  "skills.tag.soundMusic": "Sound & Music",
+  "skills.tag.text": "Text",
+  "skills.tag.tools": "Tools",
+  "skills.tag.video": "Video",
+  "skills.tag.visualProduction": "Visual Production",
+  "skills.tagAds": "Ads",
+  "skills.tagAnalyzer": "Analyzer",
+  "skills.tagFileManager": "File Manager",
+  "skills.tagIdea": "Idea",
+  "skills.tagPrompt": "Prompt",
+  "skills.tagScript": "Script",
+  "skills.tagSearch": "Search",
+  "skills.tagVideo": "Video",
+  "skills.tagYouTube": "YouTube",
+  "skills.tags.all": "All",
+  "skills.title": "Skill",
+  "skills.toggleError": "Operation failed, please retry",
+  "skills.toggleSuccess": "Skill {{name}} {{action}}",
+  "skills.tooltip.toggle": "Enable or disable this skill",
+  "skills.tryItOut": "Try",
+  "skills.tryItOutFailed": "Failed to start skill",
+  "skills.trySkill": "Try it",
+  "skills.use": "Use",
+  "skills.useSkill": "Use Skill",
+  "skills.viewDetail": "View Details",
+  "tagsInput.duplicateWarning": "Duplicate tag",
+  "tagsInput.maxReached": "Maximum tags reached ({{max}})",
+  "tagsInput.placeholder": "Add a tag…",
+  "team.account.autoSwitching":
+    "This team account is no longer available. Switching to another account.",
+  "team.account.personal": "Personal account",
+  "team.account.purchase": "Purchase",
+  "team.account.personalTag": "Personal",
+  "team.account.syncing": "Syncing Group…",
+  "team.account.teamTag": "Team",
+  "team.account.unavailable": "Group unavailable",
+  "team.account.unknown": "Account",
+  "team.blockingReason.ACTIVE_RUN":
+    "A generation task is running. Stop it to switch Group.",
+  "team.blockingReason.ASSET_OR_UPLOAD_OPERATION":
+    "An asset or upload operation is still running.",
+  "team.blockingReason.COMPLETION_OUTBOX": "A completed task is still syncing.",
+  "team.blockingReason.GATEWAY_SYNC":
+    "Account information is still syncing. Please wait.",
+  "team.blockingReason.QUEUED_OR_FLUSHING_INPUT":
+    "A queued message is still being sent.",
+  "team.common.loadFailed": "Failed to load",
+  "team.common.refreshFailedDescription":
+    "The latest data could not be loaded. Retry to confirm the current status.",
+  "team.common.refreshFailedTitle": "Data may be out of date",
+  "team.common.refreshFailedToast": "Refresh failed: {{code}}",
+  "team.common.refreshOk": "Data refreshed",
+  "team.common.temporarilyUnavailable":
+    "Team features are temporarily unavailable",
+  "team.create.capabilityRetry": "Unable to confirm creation permission. Retry",
+  "team.create.creditInfo":
+    "Team account credits must be purchased separately and do not interoperate with Personal.",
+  "team.create.description":
+    "Teams have separate credit accounts. Purchased credits are shared with members, and each member can have an individual allowance.",
+  "team.create.limitHint":
+    "Each team supports up to 500 members. Each account can use up to 50 account spaces, including Personal.",
+  "team.create.nameLabel": "Team name",
+  "team.create.namePlaceholder": "Enter a team name",
+  "team.create.submit": "Create and switch",
+  "team.create.title": "Create team",
+  "team.credit.amount": "Credits",
+  "team.credit.available": "Available credits",
+  "team.credit.availableHelp": "Available credit details",
+  "team.credit.availableUnavailableHelp":
+    "Credit data is temporarily unavailable. Please try again later.",
+  "team.credit.checkoutFailed":
+    "Unable to create a team checkout link. Please try again later.",
+  "team.credit.description":
+    "View your available allowance and credit transactions in this team.",
+  "team.credit.detailDescription":
+    "Shows credit consumption for this account only, not the team’s overall consumption.",
+  "team.credit.detailTitle": "Usage details",
+  "team.credit.direction": "Direction",
+  "team.credit.directionConsume": "Deduction",
+  "team.credit.directionExpired": "Expiry",
+  "team.credit.directionGrant": "Issuance",
+  "team.credit.directionRefund": "Refund",
+  "team.credit.empty": "No credit transactions",
+  "team.credit.emptyDescription":
+    "Transactions will appear here after the team spends credits.",
+  "team.credit.exportCsv": "Export CSV",
+  "team.credit.exportFailed": "Export failed: {{code}}",
+  "team.credit.exportOk": "CSV exported",
+  "team.credit.exporting": "Exporting… {{loaded}}",
+  "team.credit.history": "Credit history",
+  "team.credit.historyHelp": "Credit history details",
+  "team.credit.historyHelpContent":
+    "This history only shows credits used by this account in the current team. It does not include other members’ usage.",
+  "team.credit.historyUnavailable": "Credit history is unavailable",
+  "team.credit.invoice": "Invoice",
+  "team.credit.ledgerFilter.allMembers": "All members",
+  "team.credit.ledgerFilter.clearMember": "Clear member filter",
+  "team.credit.ledgerFilter.custom": "Custom range",
+  "team.credit.ledgerFilter.last30Days": "Last 30 days",
+  "team.credit.ledgerFilter.last3Days": "Last 3 days",
+  "team.credit.ledgerFilter.last7Days": "Last 7 days",
+  "team.credit.ledgerFilter.memberEmpty": "No matching members",
+  "team.credit.ledgerFilter.searchMember": "Search name or UID",
+  "team.credit.ledgerFilter.today": "Today",
+  "team.credit.limitNotice":
+    "Your team assigned this credit allowance to you. Your actual available credits are also limited by the team balance. If the team balance is insufficient, you cannot use credits even when your personal allowance remains. Contact an administrator to change your allowance.",
+  "team.credit.managerLimitedAvailableRule":
+    "Available credits are the smaller of my remaining credits and the team's remaining credits.",
+  "team.credit.managerMemberRemaining": "My remaining credits: {{remaining}}",
+  "team.credit.managerTeamRemaining": "Team credits remaining: {{team}}",
+  "team.credit.managerUnlimitedAvailableRule":
+    "When no personal limit is set, available credits follow the team's remaining credits.",
+  "team.credit.managerUnlimitedMember": "My credit allowance: Unlimited",
+  "team.credit.memberLimitNotice":
+    "This shows the remaining credit allowance assigned to you by the team. If the team does not have enough credits, you cannot use your remaining personal allowance. If no personal allowance is assigned to you, this shows the team’s remaining credits.",
+  "team.credit.memberLimitedAvailableRule":
+    "Available credits are the smaller of my remaining credits and the team's remaining credits.",
+  "team.credit.memberQuotaHelp": "Allowance details",
+  "team.credit.memberQuotaUnavailableNotice":
+    "Your personal allowance is temporarily unavailable. Try again later or contact a team administrator.",
+  "team.credit.memberUnlimitedAvailableRule":
+    "No personal limit is set, so available credits follow the team's remaining credits.",
+  "team.credit.memberUnlimitedHelp":
+    "This shows the remaining credit allowance assigned to you by the team. If the team does not have enough credits, you cannot use your remaining personal allowance. If no personal allowance is assigned to you, this shows the team’s remaining credits.",
+  "team.credit.memberUnlimitedNotice":
+    "Your personal allowance is currently unlimited. Contact a team administrator if it needs to be changed.",
+  "team.credit.memberUid": "UID",
+  "team.credit.model": "Model",
+  "team.credit.operator": "Consumer",
+  "team.credit.personalAvailable": "Personal available credits",
+  "team.credit.personalLimit": "Limit {{limit}}",
+  "team.credit.purchase": "Purchase",
+  "team.credit.quotaMode": "Personal allowance",
+  "team.credit.quotaUnavailable": "Unavailable",
+  "team.credit.quotaUsage": "Allowance usage",
+  "team.credit.quotaUsageValue": "Used {{used}} / personal limit {{limit}}",
+  "team.credit.remaining": "Remaining allowance",
+  "team.credit.remainingHelp": "Remaining quota details",
+  "team.credit.remainingHelpPrimary":
+    "This is the current balance remaining in the team credit pool.",
+  "team.credit.remainingHelpSecondary":
+    "Team members share this balance. Team credits cannot be used when the balance runs out.",
+  "team.credit.sidebarAriaAvailableUnavailable":
+    "Available credits are temporarily unavailable",
+  "team.credit.sidebarAriaManagerLimited":
+    "Personal available credits {{available}}, my remaining credits {{remaining}}, team credits remaining {{team}}",
+  "team.credit.sidebarAriaManagerUnlimited":
+    "Personal available credits {{available}}, my credit allowance is unlimited, team credits remaining {{team}}",
+  "team.credit.sidebarAriaMemberLimited":
+    "Available credits {{available}}, the smaller of my remaining credits and the team's remaining credits",
+  "team.credit.sidebarAriaMemberUnlimited":
+    "Available credits {{available}}, no personal limit is set, so availability follows the team's remaining credits",
+  "team.credit.sidebarAriaPersonalAvailableUnavailable":
+    "Personal available credits are temporarily unavailable",
+  "team.credit.tabInternal": "Internal usage",
+  "team.credit.tabTransfer": "Credit transfers",
+  "team.credit.team": "Team",
+  "team.credit.teamDetailDescription":
+    "View credit consumption across the current team.",
+  "team.credit.teamRemaining": "Team credits remaining",
+  "team.credit.teamUsed": "Team credits used",
+  "team.credit.time": "Time",
+  "team.credit.title": "Team credits",
+  "team.credit.totalUsed": "Total consumed",
+  "team.credit.transaction": "Type",
+  "team.credit.transactionId": "Transaction ID",
+  "team.credit.transferCounterparty": "Team / Account",
+  "team.credit.transferEmpty": "No credit transfers yet",
+  "team.credit.transferIn": "Transfer in",
+  "team.credit.transferOut": "Transfer out",
+  "team.credit.transferType": "Type",
+  "team.credit.unavailable": "Team credits are unavailable",
+  "team.credit.unlimited": "Unlimited",
+  "team.credit.unlimitedNotice":
+    "Your personal allowance is currently unlimited. Available credits are determined by the team's remaining balance; usage stops when the team balance runs out.",
+  "team.credit.unlimitedShort": "Unlimited",
+  "team.credit.usageUnavailableTooltip":
+    "Usage data is temporarily unavailable",
+  "team.credit.usageUnavailableWithAllowance":
+    "{{allowance}}. Usage data is temporarily unavailable",
+  "team.credit.you": "You",
+  "team.gated.createUnavailable": "You cannot create a team right now",
+  "team.gated.informationUnavailable": "Team information is unavailable",
+  "team.gated.invitationUnavailable": "Team invitations are unavailable",
+  "team.gated.managementUnavailable": "Team management is unavailable",
+  "team.gated.permissionDenied": "You do not have access",
+  "team.gated.permissionsSyncing": "Checking team permissions",
+  "team.gated.teamDissolved": "This team has been dissolved",
+  "team.gated.teamLimitReached": "Team limit reached",
+  "team.gated.upgradeRequired": "Update the app to continue",
+  "team.invitation.accept": "Accept",
+  "team.invitation.acceptAndSwitch": "Accept and switch",
+  "team.invitation.acceptFailed":
+    "Invitation failed. Please try again later or contact a team administrator.",
+  "team.invitation.acceptSucceeded":
+    "Invitation accepted. You have joined the team.",
+  "team.invitation.alreadyJoined": "You have already joined this team.",
+  "team.invitation.emailDescription":
+    "You have been invited to join a team. Accept the invitation to continue.",
+  "team.invitation.exhausted":
+    "This invitation link has reached its usage limit.",
+  "team.invitation.expired": "Invitation expired",
+  "team.invitation.expiresIn": "Expires in {{time}}",
+  "team.invitation.invitedBy": "{{name}} invited you to join the team",
+  "team.invitation.invitedByUnknown":
+    "A team administrator invited you to join the team",
+  "team.invitation.memberCount": "{{count}} members",
+  "team.invitation.members": "Team members",
+  "team.invitation.notFound":
+    "This invitation does not exist, has expired, or cannot be loaded right now.",
+  "team.invitation.pendingDescription":
+    "Review the invitation details, then accept the invitation.",
+  "team.invitation.pendingTitle": "Pending team invitation",
+  "team.invitation.processingAnother":
+    "Wait for the current invitation to finish processing.",
+  "team.invitation.reject": "Decline",
+  "team.invitation.role": "Invited role",
+  "team.invitation.status.cancelled":
+    "This invitation was cancelled. Ask a team administrator to send a new one.",
+  "team.invitation.status.expired":
+    "This invitation has expired. Ask a team administrator to send a new one.",
+  "team.invitation.status.groupHasTooManyMembers":
+    "This team is full. Contact a team administrator.",
+  "team.invitation.status.invalidInvitationId":
+    "This invitation link is invalid or does not exist. Check the link and try again.",
+  "team.invitation.status.invitationLinkExhausted":
+    "This invitation link has reached its usage limit. Ask an administrator for a new link.",
+  "team.invitation.status.pending":
+    "Invitation sent. Waiting for the recipient to accept.",
+  "team.invitation.status.userHasTooManyGroup":
+    "You have reached the maximum number of teams. Leave another team and try again.",
+  "team.invitation.status.userIdNotMatch":
+    "The signed-in account does not match the invited account. Switch accounts and try again.",
+  "team.invitation.validity": "Link validity",
+  "team.inviteLink.adminDescription":
+    "Can manage members and view team spending records.",
+  "team.inviteLink.create": "Create invite link",
+  "team.inviteLink.createFailed": "Failed to create invite link",
+  "team.inviteLink.createTitle": "Create invite link",
+  "team.inviteLink.createUpstreamUnavailable":
+    "Invite link creation is unavailable (upstream not ready or rejected). Retry later or contact support.",
+  "team.inviteLink.createdTitle": "Invite link created",
+  "team.inviteLink.custom": "Custom",
+  "team.inviteLink.customMaxUses": "Custom usage limit",
+  "team.inviteLink.days": "{{count}} days",
+  "team.inviteLink.expiry": "Link validity",
+  "team.inviteLink.expiryNote":
+    "Valid until {{date}}. The invite link will expire automatically after that.",
+  "team.inviteLink.foreverNote":
+    "This link never expires and can be revoked from the team management page at any time.",
+  "team.inviteLink.generate": "Generate invite link",
+  "team.inviteLink.maxUses": "Usage limit",
+  "team.inviteLink.memberDescription":
+    "Can use team resources and view their own spending records.",
+  "team.inviteLink.neverExpires": "Never expires",
+  "team.inviteLink.ownerNote":
+    "The team owner role cannot be changed by invitation; invitees will join with the selected role.",
+  "team.inviteLink.quotaLimit": "Credit Quota",
+  "team.inviteLink.quotaLimitPlaceholder":
+    "Set a member credit limit. If no limit is set, members can freely share team credits.",
+  "team.inviteLink.role": "Invitee role",
+  "team.inviteLink.saveLinkNotice":
+    "Copy this link before closing. Once closed, it can no longer be viewed.",
+  "team.inviteLink.securityWarning":
+    "Anyone with this link can request to join the team. Share it only with people you trust.",
+  "team.inviteLink.unlimited": "Unlimited",
+  "team.inviteLinkStatus.active": "Active",
+  "team.inviteLinkStatus.exhausted": "Usage exhausted",
+  "team.inviteLinkStatus.expired": "Expired",
+  "team.inviteLinkStatus.revoked": "Revoked",
+  "team.inviteMembers.continuePlaceholder":
+    "Enter another email and press Enter",
+  "team.inviteMembers.description":
+    "Enter up to {{count}} email addresses. Press Enter to confirm one, then continue with the next.",
+  "team.inviteMembers.emailInput": "Member email addresses",
+  "team.inviteMembers.emptyError": "Enter at least one email address.",
+  "team.inviteMembers.helper":
+    "Press Enter to confirm each email. You can also paste multiple addresses separated by commas, semicolons, or new lines.",
+  "team.inviteMembers.invalidError": "Invalid email address: {{emails}}",
+  "team.inviteMembers.managementDescription":
+    "Invite members by link or from past teams. Set a credit limit as needed.",
+  "team.inviteMembers.noneSent": "No invitations were sent.",
+  "team.inviteMembers.placeholder": "name@example.com",
+  "team.inviteMembers.removeEmail": "Remove {{email}}",
+  "team.inviteMembers.retryFailed": "Fix failed addresses and retry",
+  "team.inviteMembers.send": "Send invitations",
+  "team.inviteMembers.sendFailed": "Failed to send invitations.",
+  "team.inviteMembers.status.accepted": "Already a member",
+  "team.inviteMembers.status.failed": "Failed",
+  "team.inviteMembers.status.pending": "Invitation sent",
+  "team.inviteMembers.status.unknown": "Unknown",
+  "team.inviteMembers.success": "Invitations sent.",
+  "team.inviteMembers.summary": "{{success}} sent, {{failed}} failed",
+  "team.inviteMembers.tabEmail": "Invite by email",
+  "team.inviteMembers.title": "Invite members",
+  "team.inviteMembers.tooManyError":
+    "You can invite up to {{count}} members at a time.",
+  "team.inviteMembers.quotaNote":
+    "Invited members will automatically receive this credit limit.",
+  "team.management.actions": "Settings",
+  "team.management.addQuotaLimit": "Add allowance limit",
+  "team.management.addQuotaLimitHelp": "Add allowance limit details",
+  "team.management.addQuotaLimitHelpContent":
+    "This limit caps the credits this member can use in the current team. It takes effect after you save, and future usage cannot exceed it.",
+  "team.management.addQuotaLimitPlaceholder": "Enter an allowance limit",
+  "team.management.adminRoleDescription":
+    "Can allocate member credits and view member usage details.",
+  "team.management.applyDefaultQuota": "Apply",
+  "team.management.batchRemoveDescription":
+    "Remove {{count}} members from “{{team}}”? This cannot be undone.",
+  "team.management.batchRemoveFailed": "Batch remove failed. Please try again.",
+  "team.management.batchRemovePartial":
+    "{{ok}} succeeded, {{fail}} failed. Failed members stay selected for retry.",
+  "team.management.batchRemoveProtected":
+    "Excluded {{count}} protected members (Owner / self / no permission).",
+  "team.management.batchRemoveSucceeded": "Removed {{count}} members.",
+  "team.management.batchRemoveTitle": "Remove members in bulk",
+  "team.management.configureDefaultQuota": "Set team limit",
+  "team.management.configureQuota": "Set allowance",
+  "team.management.confirmSaveSettings": "Confirm save",
+  "team.management.copyGroupId": "Copy Group ID",
+  "team.management.currentPageSelection":
+    "Select all applies to loaded members only.",
+  "team.management.currentQuota": "Currently available credits",
+  "team.management.currentQuotaHelp": "Currently available credits details",
+  "team.management.currentQuotaHelpContent":
+    "Shows the credits this member can use right now: the lower of their remaining personal allowance and the team's remaining credits. If no personal allowance is set, this shows the team's remaining credits.",
+  "team.management.currentQuotaLimit": "Current allowance limit",
+  "team.management.currentQuotaUnavailable":
+    "Currently available credits are unavailable",
+  "team.management.defaultQuota": "Default personal allowance",
+  "team.management.defaultQuotaDescription":
+    "Set a unified limit for team members to manage credit usage in bulk.",
+  "team.management.defaultQuotaInvalid":
+    "Enter a non-negative integer within the JavaScript safe integer range.",
+  "team.management.defaultQuotaMixedNotice":
+    "Member limits currently differ. Enter the limit to apply to everyone.",
+  "team.management.defaultQuotaPerMember": "Default limit per member",
+  "team.management.defaultQuotaResetNote":
+    "After saving, all current members will use the same credit limit. Setting a limit does not deduct team credits in advance, and the limit does not reset automatically.",
+  "team.management.defaultQuotaSaveFailed":
+    "Could not save the all-member limit. Try again later.",
+  "team.management.defaultQuotaSaved":
+    "Updated the limit for all {{count}} members.",
+  "team.management.defaultQuotaTitle": "Set team limit",
+  "team.management.description":
+    "View team information and manage team members",
+  "team.management.dissolve": "Dissolve team",
+  "team.management.dissolveConfirm": "Confirm dissolve",
+  "team.management.dissolveConfirmPrompt":
+    "Enter the team name “{{name}}” to confirm:",
+  "team.management.dissolveCreditBalanceUnavailable":
+    "The remaining team credit balance is temporarily unavailable. Choose “Do not transfer” or try again later.",
+  "team.management.dissolveCreditDestinationLabel":
+    "Remaining credits destination",
+  "team.management.dissolveCreditDestinationPlaceholder":
+    "Select a remaining credits destination",
+  "team.management.dissolveCreditDestinationSearchEmpty":
+    "No matching account. Adjust your search.",
+  "team.management.dissolveCreditDestinationSearchPlaceholder":
+    "Search by team name or Group ID",
+  "team.management.dissolveCreditDiscard":
+    "Do not transfer; forfeit remaining credits",
+  "team.management.dissolveCreditDiscardDescription":
+    "If no destination account is selected, the team’s remaining credits will expire after dissolution and cannot be recovered.",
+  "team.management.dissolveCreditTransferDescription":
+    "When you confirm dissolution, all remaining team credits will be transferred to “{{target}}”.",
+  "team.management.dissolveDescription":
+    "After dissolving “{{name}}”, the team and member permissions cannot be restored. Confirm how to handle the remaining credits first.",
+  "team.management.dissolveFailed":
+    "Failed to dissolve the team. Try again later.",
+  "team.management.dissolveFailedAfterTransfer":
+    "The remaining credits were transferred, but the team could not be dissolved. Click again to retry dissolution only.",
+  "team.management.dissolveResultUnknown":
+    "The dissolve result is not confirmed. We switched to Personal and paused new requests from the previous team until membership refresh confirms the final state.",
+  "team.management.dissolveSucceeded": "Team dissolved.",
+  "team.management.dissolveTitle": "Dissolve team",
+  "team.management.dissolveTransferSuccessDescription":
+    "Successfully transferred {{amount}} credits to “{{target}}”.",
+  "team.management.dissolveTransferSuccessTitle": "Credits transferred",
+  "team.management.dissolveTransferUnknown":
+    "The credit transfer result is not confirmed. Resubmission is disabled to prevent duplicate charges; check the credit ledger and contact support.",
+  "team.management.dissolveUpstreamUnavailable":
+    "Team dissolve is temporarily unavailable (upstream error). Credits unchanged; the team is still active.",
+  "team.management.eligibleMembers": "Eligible members",
+  "team.management.exitBusy":
+    "A task or queued message is still active. Finish it before leaving the team.",
+  "team.management.groupId": "Group ID",
+  "team.management.invite": "Invite members",
+  "team.management.inviteLinkExpiryAndUsage":
+    "Valid until {{date}} · Used {{used}} / {{limit}}",
+  "team.management.inviteLinkUsage":
+    "{{used}} / {{limit}} uses · {{role}} · {{status}}",
+  "team.management.inviteLinks": "Invitation link history",
+  "team.management.inviteLinksDescription":
+    "View active and inactive team invitation links.",
+  "team.management.inviteLinksHelp": "Invite history help",
+  "team.management.inviteLinksLoadFailed": "Failed to load invitation links",
+  "team.management.inviteLinksNoRevokeOrCopy":
+    "History shows masked links only. Full-link copy and revoke are unavailable. Copy is only possible once at create time.",
+  "team.management.inviteRecords": "Invitation history",
+  "team.management.inviteRecordsForTeam": "Invitation history - {{name}}",
+  "team.management.leave": "Leave team",
+  "team.management.leaveConfirm": "Confirm leave",
+  "team.management.leaveConfirmHelp": "Confirm help",
+  "team.management.leaveConfirmLabel": "Confirm team name",
+  "team.management.leaveConfirmPrompt":
+    "Enter the team name “{{name}}” to confirm:",
+  "team.management.leaveDescription":
+    "Leave “{{name}}”? You will switch back to your personal workspace immediately.",
+  "team.management.leaveFailed": "Failed to leave the team. Try again later.",
+  "team.management.leaveHelp": "Leave help",
+  "team.management.leaveOwnerDescription":
+    "Choose a successor Owner before leaving “{{name}}”. You will switch to Personal after exit.",
+  "team.management.leaveOwnerSoleDescription":
+    "You are the only member of “{{name}}”. Use Dissolve Team to exit; leave is not available. If dissolve fails due to an upstream error, the team and credits stay unchanged — retry later. Leave will not bypass dissolve.",
+  "team.management.leaveOwnerSoleShort":
+    "You are the only member. Use Dissolve team instead.",
+  "team.management.leaveResultUnknown":
+    "The leave result is not confirmed. We switched to Personal and paused new requests from the previous team until membership refresh confirms the final state.",
+  "team.management.leaveSucceeded": "You left the team.",
+  "team.management.leaveTitle": "Leave team",
+  "team.management.loadMoreMembers": "Load More Members",
+  "team.management.lowAllowanceWarning":
+    "This member has few available credits. Increase their allowance limit or purchase more team credits.",
+  "team.management.member": "Member",
+  "team.management.memberCreditUsage": "Member credit overview",
+  "team.management.memberCurrentQuotaTeamRemaining":
+    "Member available credits: team remaining {{amount}}",
+  "team.management.memberDescription":
+    "View your personal allowance in the current team.",
+  "team.management.memberLimit": "{{count}} / {{limit}} members",
+  "team.management.memberQuotaDescription":
+    "Only your personal allowance and usage are shown.",
+  "team.management.memberQuotaLoadFailed":
+    "Failed to load your personal allowance",
+  "team.management.memberQuotaNotConfigured": "Not set",
+  "team.management.memberQuotaTitle": "My allowance",
+  "team.management.memberRemaining": "Member remaining allowance: {{amount}}",
+  "team.management.memberRoleDescription":
+    "Can use team credits but cannot manage other members.",
+  "team.management.memberSettings": "Member settings",
+  "team.management.memberSettingsUnavailable":
+    "No settings are currently available for this member.",
+  "team.management.memberSettingsDescription":
+    "Manage {{name}}'s role and allowance in “{{team}}”.",
+  "team.management.memberTotalUsed": "Total used",
+  "team.management.memberTotalUsedHelp": "About total used credits",
+  "team.management.memberTotalUsedHelpContent":
+    "Shows this member's all-time credit consumption in the current team, consistent with the team total used credits and the transaction ledger.",
+  "team.management.memberTransactions": "Member credit transactions",
+  "team.management.memberUsageDescription": `View {{name}}'s credit usage in "{{team}}".`,
+  "team.management.memberUsageTitle": "Member usage",
+  "team.management.memberUsedCredits": "Cumulative credits used",
+  "team.management.members": "Member details",
+  "team.management.membersLoadFailed": "Failed to load members",
+  "team.management.noInviteLinks": "No invitation links",
+  "team.management.noMembers": "No matching members",
+  "team.management.openTeamUsageTable": "View team transactions",
+  "team.management.quotaAdjustment": "Allowance",
+  "team.management.quotaDescription":
+    "View the team credit pool and your personal allowance.",
+  "team.management.quotaLimit": "Allowance limit",
+  "team.management.quotaLimitInlineLabel": "Allowance limit:",
+  "team.management.quotaLimitInvalid":
+    "Enter a non-negative integer within the JavaScript safe integer range.",
+  "team.management.quotaLoadFailed": "Failed to load team allowances",
+  "team.management.quotaOverview": "Credit overview",
+  "team.management.quotaRemovalPending":
+    "The allowance limit will be removed after saving settings.",
+  "team.management.quotaSaveFailed":
+    "Failed to update the member allowance. Please try again.",
+  "team.management.quotaSaved": "Member allowance updated.",
+  "team.management.quotaUpstreamUnavailable":
+    "Member allowance update is unavailable because the upstream service failed. Try again later.",
+  "team.management.quotaUsedInlineLabel": "Used allowance:",
+  "team.management.removeMember": "Remove member",
+  "team.management.removeMemberConfirm": "Confirm remove",
+  "team.management.removeMemberDescription":
+    "Remove {{name}} (UID {{uid}}) from “{{team}}”? This cannot be undone.",
+  "team.management.removeMemberFailed":
+    "Failed to remove the member. Please try again.",
+  "team.management.removeMemberSucceeded": "Member removed.",
+  "team.management.removeMemberTitle": "Remove member",
+  "team.management.removeQuotaLimit": "Remove limit",
+  "team.management.removeSelected": "Remove members",
+  "team.management.restoreQuotaLimit": "Restore limit",
+  "team.management.role": "Role",
+  "team.management.roleSaveFailed":
+    "Failed to update member role. Please try again.",
+  "team.management.roleSaved": "Member role updated.",
+  "team.management.saveQuota": "Save allowance",
+  "team.management.saveRole": "Save role",
+  "team.management.saveSettings": "Save changes",
+  "team.management.saveSettingsDescription":
+    "Confirm the role and allowance for {{name}}?",
+  "team.management.saveSettingsTitle": "Confirm changes",
+  "team.management.scopeChanged":
+    "The active request and billing Group changed. Reopen team management.",
+  "team.management.searchPlaceholder": "Search by name or UID",
+  "team.management.selectCurrentPage": "Select every loaded member",
+  "team.management.selectMember": "Select {{name}}",
+  "team.management.selectedCount": "{{count}} selected",
+  "team.management.selectionHelp": "Selection help",
+  "team.management.settings": "Settings",
+  "team.management.settingsSaveFailed":
+    "Failed to update member settings. Please try again.",
+  "team.management.settingsSaved": "Member settings updated.",
+  "team.management.settingsUpstreamUnavailable":
+    "Member settings update is unavailable (upstream error). Try again later.",
+  "team.management.successorHelp": "Successor help",
+  "team.management.successorHint":
+    "Search active members by name or UID (same source as the member list), then pick a successor Owner.",
+  "team.management.successorLabel": "Successor Owner",
+  "team.management.successorPlaceholder": "Search and select a successor Owner",
+  "team.management.successorSearchEmpty":
+    "No matching members. Adjust the filter.",
+  "team.management.successorSearchPlaceholder": "Filter by name / UID",
+  "team.management.teamCreditBalance": "Team credit balance: {{amount}}",
+  "team.management.teamInfo": "Team information",
+  "team.management.teamInfoLoadFailed": "Failed to load team information",
+  "team.management.teamRemainingHint": "Team remaining {{amount}}",
+  "team.management.title": "Team management",
+  "team.management.transferLeavePartialFailed":
+    "Ownership transferred, but leave failed. Refresh and retry leave; do not re-transfer.",
+  "team.management.unlimitedQuota": "Unlimited",
+  "team.management.usage": "General credits",
+  "team.management.usageDetail": "Details",
+  "team.management.viewMemberUsage": "View {{name}} usage",
+  "team.pastTeams.addExists": "{{count}} member(s) already in the team",
+  "team.pastTeams.addFailed": "Failed to add {{count}} member(s), please retry",
+  "team.pastTeams.addRequestFailed":
+    "Failed to add members, please try again later",
+  "team.pastTeams.addSelected": "Add selected members",
+  "team.pastTeams.addSuccess": "Added {{count}} member(s)",
+  "team.pastTeams.clearAll": "Clear",
+  "team.pastTeams.empty": "No members from past teams",
+  "team.pastTeams.loadFailed": "Failed to load members from past teams",
+  "team.pastTeams.maxReached": "You can add up to {{count}} members at a time",
+  "team.pastTeams.quotaLimitPlaceholder":
+    "Set a member credit limit. If no limit is set, members can freely share team credits.",
+  "team.pastTeams.removeSelected": "Remove {{name}}",
+  "team.pastTeams.searchPlaceholder": "Search name or UID",
+  "team.pastTeams.selectAll": "Select all",
+  "team.pastTeams.selectedCount": "{{count}}/{{max}} selected",
+  "team.pastTeams.tabLink": "Invite via link",
+  "team.pastTeams.tabPast": "Add from past teams",
+  "team.reason.account_scope_changed":
+    "The request and billing Group changed. Reopen this page and try again.",
+  "team.reason.busy": "The request and billing Group is syncing.",
+  "team.reason.cannot_change_owner_role":
+    "The Owner's role cannot be changed. Use transfer ownership instead.",
+  "team.reason.cannot_remove_admin":
+    "An admin cannot remove another admin. Ask the Owner to do it.",
+  "team.reason.cannot_remove_owner": "The team Owner cannot be removed.",
+  "team.reason.cannot_remove_self":
+    "You cannot remove yourself. Use “Leave team” instead.",
+  "team.reason.cloud_result_unknown":
+    "The result could not be confirmed. Refresh in a moment.",
+  "team.reason.default": "Try again later or update the app.",
+  "team.reason.dismissContractPending":
+    "Removing dissolved records is not available yet.",
+  "team.reason.dissolveMutationPending":
+    "Dissolving teams is not available yet.",
+  "team.reason.feature_disabled": "This feature is temporarily unavailable.",
+  "team.reason.group_limit_reached":
+    "You are already using 50 Groups, including Personal. Delete an unused Group before creating another team.",
+  "team.reason.idempotency_conflict":
+    "This operation conflicts with an earlier request.",
+  "team.reason.invalid_cursor": "The list changed. Reload the first page.",
+  "team.reason.invalid_request": "The request is invalid.",
+  "team.reason.inviteMutationPending":
+    "Invitation link changes are not available yet.",
+  "team.reason.leaveMutationPending": "Leaving teams is not available yet.",
+  "team.reason.memberMutationPending": "Member changes are not available yet.",
+  "team.reason.membership_stale":
+    "Your team membership changed. Refresh and try again.",
+  "team.reason.operation_not_found": "The operation could not be found.",
+  "team.reason.permission_denied":
+    "You do not have permission for this action.",
+  "team.reason.quotaMutationPending":
+    "Allowance changes are not available yet.",
+  "team.reason.quota_insufficient": "Your team allowance is insufficient.",
+  "team.reason.recovering": "Restoring Group information. Please wait.",
+  "team.reason.rejectContractPending":
+    "Declining invitations is not available yet.",
+  "team.reason.rejected": "The request was rejected. Refresh and try again.",
+  "team.reason.resource_closed": "This team has been dissolved.",
+  "team.reason.resource_not_found": "The requested resource no longer exists.",
+  "team.reason.switch_busy":
+    "The request and billing Group cannot be switched yet. Stop the work in progress first.",
+  "team.reason.team_account_dns_failure":
+    "Could not resolve the service address. Check your network or switch networks, then try again.",
+  "team.reason.team_account_gateway_misconfigured":
+    "Local service configuration is invalid. Restart the app and try again.",
+  "team.reason.team_account_network_failure":
+    "Unstable network connection. Check your network and try again.",
+  "team.reason.team_account_switching":
+    "Switching the request and billing Group. Please wait.",
+  "team.reason.team_account_tls_trust_failure":
+    "Network certificate check failed, possibly blocked by a proxy or security tool. Check your network and try again.",
+  "team.reason.team_account_upstream_5xx":
+    "The service is temporarily unavailable. Please try again later.",
+  "team.reason.team_balance_insufficient":
+    "The team credit balance is insufficient.",
+  "team.reason.team_billing_disabled":
+    "Team credits are temporarily unavailable.",
+  "team.reason.team_create_disabled": "You cannot create a team right now.",
+  "team.reason.team_invitation_disabled":
+    "Team invitations are temporarily unavailable.",
+  "team.reason.team_limit_reached":
+    "You are already using 50 Groups, including Personal. Delete an unused Group before creating another team.",
+  "team.reason.team_management_disabled":
+    "Team management is temporarily unavailable.",
+  "team.reason.team_read_disabled":
+    "Team information is temporarily unavailable.",
+  "team.reason.team_switch_disabled": "You cannot switch teams right now.",
+  "team.reason.temporarily_unavailable":
+    "The team service is temporarily unavailable.",
+  "team.reason.upgrade_required": "Update the app and try again.",
+  "team.reason.upstream_transactions_unavailable":
+    "Team credit transaction history is not available yet.",
+  "team.reason.user_capability_unavailable":
+    "Your team permissions are still syncing.",
+  "team.reason.version_conflict": "The data changed. Refresh and try again.",
+  "team.role.admin": "Administrator",
+  "team.role.member": "Member",
+  "team.role.owner": "Owner",
+  "team.submission.blocked":
+    "The account is not ready. Submission is temporarily unavailable.",
+  "team.submission.reason.canonical_context_pending":
+    "Account information is still syncing.",
+  "team.submission.reason.canonical_context_recovering":
+    "Account information is recovering.",
+  "team.submission.reason.canonical_context_signed_out":
+    "Sign in before submitting.",
+  "team.submission.reason.canonical_context_stale":
+    "Account information changed and is being verified.",
+  "team.submission.reason.canonical_context_switching":
+    "Wait for account switching to finish.",
+  "team.submission.reason.canonical_context_syncing":
+    "Account information is still syncing.",
+  "team.submission.reason.canonical_context_temporarily_unavailable":
+    "The team service is temporarily unavailable.",
+  "team.submission.reason.canonical_context_upgrade_required":
+    "Update the app before submitting.",
+  "team.submission.reason.canonical_scope_missing":
+    "The active account could not be confirmed.",
+  "team.submission.reason.personal_checkout_requires_personal_context":
+    "Switch to Personal before opening the personal checkout.",
+  "team.submission.reason.quota_insufficient":
+    "Your member allowance for this team is exhausted. Ask a team administrator to adjust it.",
+  "team.submission.reason.team_balance_insufficient":
+    "The current team does not have enough credits. Ask a team administrator to add credits.",
+  "team.submission.reason.team_billing_disabled":
+    "Team credits are temporarily unavailable.",
+  "team.submission.reason.team_checkout_requires_team_context":
+    "Switch to a team before purchasing team credits.",
+  "team.submission.reason.team_contract_unavailable":
+    "Team features are temporarily unavailable.",
+  "team.submission.reason.team_read_disabled":
+    "Team information is temporarily unavailable.",
+  "team.submission.reason.team_temporarily_unavailable":
+    "The team service is temporarily unavailable.",
+  "team.submission.reason.upgrade_required":
+    "Update the app before submitting.",
+  "team.switchBlocked.confirm": "Got it",
+  "team.switchBlocked.stoppableDescription":
+    "A generation task is running, so Group cannot be switched. Stop the task first, then switch.",
+  "team.switchBlocked.title": "Cannot switch Group",
+  "team.switchBlocked.waitDescription":
+    "An operation is still in progress, so Group cannot be switched. Wait for it to finish and retry.",
+  "team.switcher.loadFailed": "Failed to load Groups",
+  "team.switcher.menuLabel": "Switch account",
+  "team.switcher.section.dissolved": "Dissolved",
+  "team.switcher.section.personal": "Personal",
+  "team.switcher.section.teams": "Teams",
+  "team.switcher.teamCount": "{{count}}",
+  "team.switcher.title": "Switch request and billing Group",
+  "team.switcher.tooltip": "Switch team",
+  "team.transaction.ADJUSTMENT": "Adjustment",
+  "team.transaction.AGENT": "Agent usage",
+  "team.transaction.AUDIO_GENERATION": "Audio generation",
+  "team.transaction.CONSUME": "Consumption",
+  "team.transaction.EXPIRED": "Credits expired",
+  "team.transaction.GENERATION": "Generation",
+  "team.transaction.GRANT": "Credit issued",
+  "team.transaction.IMAGE_GENERATION": "Image generation",
+  "team.transaction.MUSIC_GENERATION": "Music generation",
+  "team.transaction.PURCHASE": "Purchase",
+  "team.transaction.REFUND": "Refund",
+  "team.transaction.TEXT_GENERATION": "Text generation",
+  "team.transaction.TOOL": "Tool",
+  "team.transaction.VIDEO_GENERATION": "Video generation",
+  "team.transferCredit.amountExceedsBalance":
+    "Exceeds the team's available credits.",
+  "team.transferCredit.amountInvalid": "Enter a whole number greater than 0.",
+  "team.transferCredit.amountLabel": "Amount",
+  "team.transferCredit.amountLabelWithBalance":
+    "Amount (team available: {{balance}})",
+  "team.transferCredit.confirm": "Transfer",
+  "team.transferCredit.description":
+    "Move the remaining credits of “{{name}}” to another team you own or your personal space. Credits keep their original expiry; subscription plan allowances are not transferable.",
+  "team.transferCredit.entry": "Transfer credits",
+  "team.transferCredit.failed": "Credit transfer failed. Try again later.",
+  "team.transferCredit.noTarget":
+    "There is no other team or personal space available for this transfer.",
+  "team.transferCredit.resultUnknown":
+    "The transfer result is not confirmed. Resubmission is disabled to prevent duplicate charges; check the credit ledger and contact support.",
+  "team.transferCredit.succeeded":
+    "Transferred {{amount}} credits to “{{target}}”.",
+  "team.transferCredit.targetLabel": "Destination account",
+  "team.transferCredit.targetPlaceholder": "Select an account",
+  "team.transferCredit.terms.confirm": "Agree and continue",
+  "team.transferCredit.terms.description":
+    "By using this feature, you confirm that you are authorized to transfer the current team's points and that the receiving account is owned or lawfully managed by you. You may not sell points, exchange them for cash, transfer them on behalf of others, or use this feature in violation of applicable laws, platform rules, or third-party rights. You are responsible for any consequences arising from unauthorized or improper use. Use of this feature is also subject to the <rules>Points Rules</rules>.",
+  "team.transferCredit.terms.title": "Transfer credits to your other account",
+  "team.transferCredit.title": "Transfer credits",
+  "toolConfirm.nextBatchItem": "Next item",
+  "toolConfirm.previousBatchItem": "Previous item",
+  "topbar.activeTasksTitle": "Active Tasks",
+  "topbar.close": "Close",
+  "topbar.closeBlockedActiveTasks":
+    "{{count}} task(s) still running in this workspace. Stop or wait for them before closing.",
+  "topbar.closeBlockedBusy":
+    "This workspace still has running tasks and can't be closed yet.",
+  "topbar.closeBlockedBusyDetail": "Still running: {{items}}",
+  "topbar.closeBlockedUnsaved": "Canvas changes haven't been saved",
+  "topbar.closeBlockedUnsavedDetail":
+    "Retry saving before closing, or explicitly close without the latest changes.",
+  "topbar.closeOthers": "Close Others",
+  "topbar.closeRight": "Close to the Right",
+  "topbar.closeWindow": "Close Window",
+  "topbar.closeWithoutSaving": "Close without saving",
+  "topbar.completedTasksTitle": "Recently Completed",
+  "topbar.copyPath": "Copy Path",
+  "topbar.diagnostics.boolean.no": "No",
+  "topbar.diagnostics.boolean.unknown": "Unknown",
+  "topbar.diagnostics.boolean.yes": "Yes",
+  "topbar.diagnostics.copy": "Copy diagnostics",
+  "topbar.diagnostics.copyFailed": "Failed to copy diagnostics",
+  "topbar.diagnostics.copySuccess": "Diagnostics copied",
+  "topbar.diagnostics.domain.account.error":
+    "The team account path is unavailable. Group loading, account switching, or submission may be affected.",
+  "topbar.diagnostics.domain.account.notConfigured":
+    "The team account check is not configured, so the current path cannot be verified.",
+  "topbar.diagnostics.domain.account.ok":
+    "The team account network path is reachable.",
+  "topbar.diagnostics.domain.account.title": "Account and team",
+  "topbar.diagnostics.domain.account.warning":
+    "The team account service responded unexpectedly. Group or account actions may be affected.",
+  "topbar.diagnostics.domain.cloud.error":
+    "Cloud API is unreachable. Login, generation, or upload may fail.",
+  "topbar.diagnostics.domain.cloud.ok": "Cloud API is reachable.",
+  "topbar.diagnostics.domain.cloud.title": "Cloud service",
+  "topbar.diagnostics.domain.cloud.warning":
+    "Cloud API responded but needs attention.",
+  "topbar.diagnostics.domain.local.error":
+    "Local service is unavailable. Chat, canvas, or assets may be affected.",
+  "topbar.diagnostics.domain.local.ok": "Local service is responding.",
+  "topbar.diagnostics.domain.local.title": "Local service",
+  "topbar.diagnostics.domain.local.warning":
+    "Local diagnostics are incomplete. Retest if actions feel slow.",
+  "topbar.diagnostics.domain.observability.error":
+    "Issue reporting is blocked. Current work is not stopped.",
+  "topbar.diagnostics.domain.observability.ok": "Issue reporting is reachable.",
+  "topbar.diagnostics.domain.observability.title": "Issue reporting",
+  "topbar.diagnostics.domain.observability.warning":
+    "Issue reporting may be blocked. Upload logs when asking for support.",
+  "topbar.diagnostics.domain.proxy.detected":
+    "System proxy detected. Switch mode only if requests fail.",
+  "topbar.diagnostics.domain.proxy.ok": "No proxy or VPN detected.",
+  "topbar.diagnostics.domain.proxy.title": "Proxy / VPN",
+  "topbar.diagnostics.domain.proxy.tun":
+    "VPN/TUN looks active. Switch proxy mode only if requests fail.",
+  "topbar.diagnostics.domain.updates.error":
+    "Update download is temporarily unavailable. Current work is not affected.",
+  "topbar.diagnostics.domain.updates.ok": "Update download is working.",
+  "topbar.diagnostics.domain.updates.title": "Updates",
+  "topbar.diagnostics.domain.updates.warning":
+    "Update download is temporarily unavailable. Current work is not affected.",
+  "topbar.diagnostics.export": "Export logs",
+  "topbar.diagnostics.exportFailed": "Failed to export logs",
+  "topbar.diagnostics.exportSuccess": "Logs exported",
+  "topbar.diagnostics.failureDetails.duration": "{{duration}} ms",
+  "topbar.diagnostics.failureDetails.httpStatus": "HTTP {{status}}",
+  "topbar.diagnostics.failureDetails.title": "Items needing attention",
+  "topbar.diagnostics.failureKind.dns": "DNS",
+  "topbar.diagnostics.failureKind.http": "Response issue",
+  "topbar.diagnostics.failureKind.network_changed": "Network changed",
+  "topbar.diagnostics.failureKind.offline": "Offline",
+  "topbar.diagnostics.failureKind.proxy": "Proxy",
+  "topbar.diagnostics.failureKind.timeout": "Timeout",
+  "topbar.diagnostics.failureKind.tls": "TLS",
+  "topbar.diagnostics.failureKind.unknown": "Unknown",
+  "topbar.diagnostics.failureKind.unreachable": "Unreachable",
+  "topbar.diagnostics.integrity.error": "Error",
+  "topbar.diagnostics.integrity.ok": "OK",
+  "topbar.diagnostics.integrity.unknown": "Unknown",
+  "topbar.diagnostics.integrity.warning": "Warning",
+  "topbar.diagnostics.marker.absent": "Absent",
+  "topbar.diagnostics.marker.present": "Present",
+  "topbar.diagnostics.marker.unknown": "Unknown",
+  "topbar.diagnostics.memoryPressure.low": "Low available memory",
+  "topbar.diagnostics.memoryPressure.normal": "Normal",
+  "topbar.diagnostics.memoryPressure.unknown": "Not checked yet",
+  "topbar.diagnostics.networkSection": "Network checks",
+  "topbar.diagnostics.openLogs": "Open log folder",
+  "topbar.diagnostics.openLogsFailed": "Failed to open logs",
+  "topbar.diagnostics.overall.error": "Unavailable",
+  "topbar.diagnostics.overall.ok": "Healthy",
+  "topbar.diagnostics.overall.warning": "Needs attention",
+  "topbar.diagnostics.probe.app_api": "App service",
+  "topbar.diagnostics.probe.cloud_gateway_api": "Cloud service",
+  "topbar.diagnostics.probe.gateway_network": "Network checks",
+  "topbar.diagnostics.probe.guance_rum": "Issue reporting",
+  "topbar.diagnostics.probe.hot_update_cdn": "Hot-update channel",
+  "topbar.diagnostics.probe.local_gateway": "Local service",
+  "topbar.diagnostics.probe.sensors": "Issue reporting",
+  "topbar.diagnostics.probe.team_account_api": "Team account service",
+  "topbar.diagnostics.probe.update_cdn": "Update channel",
+  "topbar.diagnostics.probeStatus.failed": "Failed",
+  "topbar.diagnostics.probeStatus.ok": "OK",
+  "topbar.diagnostics.probeStatus.skipped": "Skipped",
+  "topbar.diagnostics.probeStatus.warning": "Warning",
+  "topbar.diagnostics.proxyDirect": "No system proxy detected",
+  "topbar.diagnostics.proxyMode": "Connection mode",
+  "topbar.diagnostics.proxyMode.auto": "Auto",
+  "topbar.diagnostics.proxyMode.direct": "No proxy",
+  "topbar.diagnostics.proxyMode.system": "System proxy",
+  "topbar.diagnostics.proxyModeFailed": "Failed to update proxy mode",
+  "topbar.diagnostics.proxyModeHint":
+    "Only affects new or retried workspaces; chat, canvas, and assets stay visible.",
+  "topbar.diagnostics.proxyModeSaved":
+    "Proxy mode saved. Open workspaces may use it after retry or restart.",
+  "topbar.diagnostics.readiness.degraded": "Degraded",
+  "topbar.diagnostics.readiness.idle": "Not running",
+  "topbar.diagnostics.readiness.not_ready": "Not ready",
+  "topbar.diagnostics.readiness.ready": "Ready",
+  "topbar.diagnostics.readiness.unknown": "Unknown",
+  "topbar.diagnostics.recommendation.action.direct": "Use Direct mode",
+  "topbar.diagnostics.recommendation.action.system": "Use System proxy",
+  "topbar.diagnostics.recommendation.export_diagnostics":
+    "Export or upload diagnostics when asking support for help.",
+  "topbar.diagnostics.recommendation.local_gateway_unhealthy":
+    "Retry the current workspace or restart the app if the local service stays unhealthy.",
+  "topbar.diagnostics.recommendation.network_offline":
+    "Check your system network connection first.",
+  "topbar.diagnostics.recommendation.observability_blocked":
+    "Observability endpoints are blocked; issue tracing may be incomplete.",
+  "topbar.diagnostics.recommendation.try_direct_proxy_mode":
+    "Try Direct mode if a local proxy is breaking MiniMax Design domains.",
+  "topbar.diagnostics.recommendation.try_system_proxy_mode":
+    "Try System proxy mode if your network requires VPN or proxy access.",
+  "topbar.diagnostics.recommendation.tun_detected":
+    "VPN/TUN interface detected; retry after switching proxy mode if requests fail.",
+  "topbar.diagnostics.recommendation.windows_cpu_unsupported":
+    "The local AI service requires a 64-bit processor with SSE4.2 support.",
+  "topbar.diagnostics.recommendation.windows_version_unsupported":
+    "The local AI service requires Windows 10 1809, Windows Server 2019, or later.",
+  "topbar.diagnostics.recommendations": "Suggestions",
+  "topbar.diagnostics.refresh": "Run check",
+  "topbar.diagnostics.serviceUnavailableDetail":
+    "The diagnostics channel is still starting or temporarily unavailable. You can still export logs for support.",
+  "topbar.diagnostics.serviceUnavailableTitle":
+    "Diagnostics service is not ready",
+  "topbar.diagnostics.status.integrity.detail":
+    "Installed resources: {{state}}.",
+  "topbar.diagnostics.status.integrity.detail.error":
+    "Some installed resources are broken. Reinstall or contact support.",
+  "topbar.diagnostics.status.integrity.detail.notApplicable":
+    "No install resource check is required in this environment.",
+  "topbar.diagnostics.status.integrity.detail.ok":
+    "Installed resources look complete.",
+  "topbar.diagnostics.status.integrity.detail.unknown":
+    "Installed resources have not been checked yet.",
+  "topbar.diagnostics.status.integrity.detail.warning":
+    "Some installed resources need checking.",
+  "topbar.diagnostics.status.integrity.title": "Installed resources",
+  "topbar.diagnostics.status.memory.detail": "Memory status: {{pressure}}.",
+  "topbar.diagnostics.status.memory.detail.low":
+    "Available memory is low. Close heavy apps and retry.",
+  "topbar.diagnostics.status.memory.detail.low.withAvailable":
+    "System available memory is only about {{available}} MB. Close heavy apps and retry.",
+  "topbar.diagnostics.status.memory.detail.low.withAvailableAndUsage":
+    "System available memory is only about {{available}} MB. Close heavy apps and retry. This app is using about {{usage}} MB.",
+  "topbar.diagnostics.status.memory.detail.low.withUsage":
+    "Available memory is low. Close heavy apps and retry. App is using about {{usage}} MB.",
+  "topbar.diagnostics.status.memory.detail.normal": "Memory looks normal.",
+  "topbar.diagnostics.status.memory.detail.normal.withUsage":
+    "Memory looks normal. App is using about {{usage}} MB.",
+  "topbar.diagnostics.status.memory.detail.unknown":
+    "Memory status is not available yet.",
+  "topbar.diagnostics.status.memory.detail.unknown.withUsage":
+    "Memory pressure is not available yet. App is using about {{usage}} MB.",
+  "topbar.diagnostics.status.memory.title": "Memory status",
+  "topbar.diagnostics.status.runtime.detail":
+    "Local service {{localService}} · Agent {{agentService}} · Tools {{toolService}}.",
+  "topbar.diagnostics.status.runtime.title": "Service status",
+  "topbar.diagnostics.status.updater.detail":
+    "Update status is not available yet.",
+  "topbar.diagnostics.status.updater.detail.ok":
+    "No unfinished update was found.",
+  "topbar.diagnostics.status.updater.detail.pending":
+    "A previous update did not finish. Current work is not affected.",
+  "topbar.diagnostics.status.updater.detail.recovery":
+    "A previous update did not finish. Follow the recovery prompt if it appears.",
+  "topbar.diagnostics.status.updater.detail.unknown":
+    "Update status is not available yet.",
+  "topbar.diagnostics.status.updater.title": "Update status",
+  "topbar.diagnostics.statusSection": "Status checks",
+  "topbar.diagnostics.summary.errorDetail":
+    "Core connectivity is unavailable. Export diagnostics if retry does not recover.",
+  "topbar.diagnostics.summary.errorTitle": "Connection problem detected",
+  "topbar.diagnostics.summary.okDetail":
+    "Completed checks for local services, cloud paths, updates, and issue reporting look healthy.",
+  "topbar.diagnostics.summary.okTitle": "Connection looks good",
+  "topbar.diagnostics.summary.serviceUnavailableDetail":
+    "Diagnostics is still starting. Your workspace remains usable.",
+  "topbar.diagnostics.summary.serviceUnavailableTitle":
+    "Diagnostics is not ready",
+  "topbar.diagnostics.summary.statusAttentionDetail":
+    "Network connectivity looks good, but some local status checks need attention. See status checks below.",
+  "topbar.diagnostics.summary.statusAttentionTitle":
+    "Some status checks need attention",
+  "topbar.diagnostics.summary.warningDetail":
+    "Some non-core checks need attention. Current work is not affected.",
+  "topbar.diagnostics.summary.warningFailedDetail":
+    "{{count}} core check(s) failed. Try retest, then export logs if it persists.",
+  "topbar.diagnostics.summary.warningTitle": "Some checks need attention",
+  "topbar.diagnostics.summary.windowsCpuUnsupportedDetail":
+    "This processor does not provide the instruction set required by the local AI service. Upgrading Windows or reinstalling will not fix it.",
+  "topbar.diagnostics.summary.windowsCpuUnsupportedTitle":
+    "This processor is not supported",
+  "topbar.diagnostics.summary.windowsVersionUnsupportedDetail":
+    "The local AI service requires Windows 10 1809, Windows Server 2019, or later. Retrying or reinstalling will not fix this.",
+  "topbar.diagnostics.summary.windowsVersionUnsupportedTitle":
+    "This Windows version is not supported",
+  "topbar.diagnostics.summary.windowsVersionUnverifiedDetail":
+    "The Windows version check could not finish. Recheck shortly; if it keeps failing, upload diagnostics and contact support. You do not need to reinstall Windows.",
+  "topbar.diagnostics.summary.windowsVersionUnverifiedTitle":
+    "Unable to verify the Windows version",
+  "topbar.diagnostics.recommendation.windows_version_unverified":
+    "Recheck shortly. If the Windows version still cannot be verified, upload diagnostics and contact support.",
+  "topbar.diagnostics.title": "Status diagnostics",
+  "topbar.diagnostics.trigger.error": "Issue",
+  "topbar.diagnostics.trigger.ok": "OK",
+  "topbar.diagnostics.trigger.pending": "Check",
+  "topbar.diagnostics.trigger.warning": "Check",
+  "topbar.diagnostics.tunDetected": "VPN/TUN likely active",
+  "topbar.diagnostics.upload": "Upload diagnostics",
+  "topbar.diagnostics.uploadFailed": "Failed to upload diagnostics",
+  "topbar.diagnostics.uploadSuccess": "Diagnostics uploaded",
+  "topbar.generationQueueEmpty": "No queued generations",
+  "topbar.generationQueueMedia.audio": "Audio",
+  "topbar.generationQueueMedia.image": "Image",
+  "topbar.generationQueueMedia.video": "Video",
+  "topbar.generationQueueSource.agent": "Agent",
+  "topbar.generationQueueSource.canvas": "Canvas",
+  "topbar.generationQueueSource.canvas_group": "Canvas group",
+  "topbar.generationQueueSource.unknown": "Unknown source",
+  "topbar.generationQueueSummary": "Queued {{queued}} · Running {{running}}",
+  "topbar.generationQueueTitle": "Generation Queue",
+  "topbar.generationQueueTrigger": "Generation queue: {{count}} tasks",
+  "topbar.home": "Home",
+  "topbar.idleTitle": "All Idle",
+  "topbar.maximize": "Maximize",
+  "topbar.minimize": "Minimize",
+  "topbar.new": "New",
+  "topbar.newMenu.moreProjects": "More...",
+  "topbar.newMenu.newProject": "Start Creating",
+  "topbar.newMenu.viewAllProjects": "View all",
+  "topbar.newProject.create": "Create",
+  "topbar.newProject.description": "Name this creation to get started.",
+  "topbar.newProject.loadUserMemory.description": "Use saved memory.",
+  "topbar.newProject.loadUserMemory.label": "Use Memory",
+  "topbar.newProject.nameLabel": "Name",
+  "topbar.newProject.optionsLabel": "Options",
+  "topbar.newProject.placeholder": "Enter a name",
+  "topbar.newProject.settingsTitle": "Settings",
+  "topbar.newProject.title": "Start a New Creation",
+  "topbar.newWorkspace": "New Window",
+  "topbar.noActiveTasks": "No tasks in progress",
+  "topbar.notification.multipleTasksCompletedBody":
+    '{{count}} generation tasks including "{{prompt}}" are complete. Click to view results.',
+  "topbar.notification.multipleTasksCompletedFallbackBody":
+    "{{count}} generation tasks are complete. Click to view results.",
+  "topbar.notification.multipleTasksCompletedTitle":
+    "{{count}} generations complete",
+  "topbar.notification.taskCompletedBody":
+    '"{{prompt}}" has finished generating. Click to view the result.',
+  "topbar.notification.taskCompletedFallbackBody":
+    "Your generation is complete. Click to view the result.",
+  "topbar.notification.taskCompletedTitle": "Generation complete",
+  "topbar.notification.taskNeedsAnswerBody":
+    '"{{prompt}}" is waiting for your answer. Click to continue.',
+  "topbar.notification.taskNeedsAnswerFallbackBody":
+    "The Agent is waiting for your answer. Click to continue.",
+  "topbar.notification.taskNeedsAnswerTitle": "Waiting for your answer",
+  "topbar.notification.taskNeedsConfirmationBody":
+    '"{{prompt}}" is waiting for your confirmation. Click to continue.',
+  "topbar.notification.taskNeedsConfirmationFallbackBody":
+    "The Agent is waiting for your confirmation. Click to continue.",
+  "topbar.notification.taskNeedsConfirmationTitle":
+    "Waiting for your confirmation",
+  "topbar.openWorkspace": "Open Workspace...",
+  "topbar.restore": "Restore",
+  "topbar.revealInFinder": "Reveal in Finder",
+  "topbar.search": "Search",
+  "topbar.tasksInProgress": "{{count}} tasks running",
+  "topbar.toggleAssetPanel": "Project Assets",
+  "topbar.toggleChatPanel": "Chat panel",
+  "topbar.toggleGlobalSidebar": "Global sidebar",
+  "trackingRecorder.batchNamePlaceholder":
+    "Batch name (for example: Asset export)",
+  "trackingRecorder.clear": "Clear markers",
+  "trackingRecorder.closePreview": "Close screenshot preview",
+  "trackingRecorder.copy": "Copy JSON",
+  "trackingRecorder.copyProperties": "Copy full JSON",
+  "trackingRecorder.covered": "Covered: {{events}}",
+  "trackingRecorder.deleteRow": "Delete this record",
+  "trackingRecorder.detecting": "Detecting existing tracking…",
+  "trackingRecorder.empty": "No candidate locations marked yet",
+  "trackingRecorder.exportAndClear": "Export & clear",
+  "trackingRecorder.exportFailed": "Export failed; current records were kept",
+  "trackingRecorder.exportOnly": "Export only",
+  "trackingRecorder.exportRow": "Export this record",
+  "trackingRecorder.exportSuccess": "Tracking records exported",
+  "trackingRecorder.hint": "Hold Option and click a location to inspect",
+  "trackingRecorder.lastRefreshed": "Reloaded: {{time}}",
+  "trackingRecorder.live": "Live events",
+  "trackingRecorder.liveEmpty":
+    "Tracking events will appear here as you use the product",
+  "trackingRecorder.marked": "Marked candidates",
+  "trackingRecorder.minimize": "Minimize panel",
+  "trackingRecorder.missing": "No tracking detected · consider adding one",
+  "trackingRecorder.noteLabel": "Tracking design note",
+  "trackingRecorder.notePlaceholder":
+    "Example: add a click event, or add node_id / source to the existing event",
+  "trackingRecorder.openDirectory": "Open export folder",
+  "trackingRecorder.openDirectoryFailed": "Could not open export folder",
+  "trackingRecorder.previewFailed": "Could not restore this screenshot",
+  "trackingRecorder.refresh": "Reload latest code",
+  "trackingRecorder.refreshConfirm":
+    "There are unexported candidates. They will be restored from the local draft after reload. Continue?",
+  "trackingRecorder.refreshFailed": "Could not reload latest code",
+  "trackingRecorder.screenshotPreview": "Tracking candidate screenshot",
+  "trackingRecorder.startRecording": "Start recording",
+  "trackingRecorder.stopRecording": "Stop recording",
+  "trackingRecorder.title": "Tracking marker",
+  "update.available": "Update available: v{{version}}",
+  "update.btn.cancel": "Cancel",
+  "update.btn.download": "Download",
+  "update.btn.installNow": "Install now",
+  "update.btn.later": "Later",
+  "update.btn.manualDownload": "Download official installer",
+  "update.btn.restartLater": "Restart later",
+  "update.btn.restartNow": "Restart now",
+  "update.btn.restartUpgrade": "Restart and update",
+  "update.btn.restarting": "Restarting...",
+  "update.btn.retry": "Retry",
+  "update.btn.retryInstall": "Retry install",
+  "update.btn.shortLabel": "Update",
+  "update.btn.viewDetails": "View details",
+  "update.checkInProgress": "Checking for updates...",
+  "update.checking": "Checking for updates...",
+  "update.confirm.body":
+    "Restarting will close the current workspace and all agent tasks. Unsaved work is auto-saved, but running generation tasks will be interrupted.",
+  "update.downloaded": "Update ready to install",
+  "update.downloading": "Downloading update... {{percent}}%",
+  "update.error": "Update check failed",
+  "update.errorAdvice":
+    "Retry checking for updates, or upload logs and install the latest version manually.",
+  "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE":
+    "Windows process queries are restricted, so automatic installation cannot continue safely. Download the full installer, exit MiniMax Design, then install it over the current app.",
+  "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE":
+    "Background process state could not be confirmed, so automatic installation was stopped to protect the install folder. Exit MiniMax Design and use the full installer.",
+  "update.failureCode.CHILD_PROCESS_EXIT_GUARD_FAILED":
+    "A MiniMax Design background process is still using the install folder. Restart Windows, then install with the full installer.",
+  "update.failureCode.HANDOFF_STATE_CORRUPTED":
+    "The previous installation status is damaged, so its result cannot be confirmed. Check the current version; if it was not updated, install over the app with a full installer that has a valid signature.",
+  "update.failureCode.INSTALLER_LAUNCH_FAILED":
+    "Windows could not start the installer. Check security software history, or install over the app using a full installer with a valid signature.",
+  "update.failureCode.INSTALLER_TERMINATION_FAILED":
+    "The installer process is still running and could not be stopped safely. Do not reopen another copy yet. Wait for the installer to finish or end its process tree, then retry with a full installer that has a valid signature.",
+  "update.failureCode.INSTALL_CHECKSUM_MISMATCH":
+    "Installer integrity verification failed, so it was not launched. Download the full installer again.",
+  "update.failureCode.INSTALL_CLEANUP_FAILED":
+    "Running tasks could not be stopped safely, so installation was cancelled. Finish those tasks and retry, or exit the app and use the full installer.",
+  "update.failureCode.INSTALL_FAILED":
+    "The installer failed to run. Close MiniMax Design and retry. If it still fails, download the full installer and install over the current app.",
+  "update.failureCode.INSTALL_INCOMPLETE":
+    "Critical files are incomplete after installation. Check Windows Security Protection History, then install over the app using a full installer with a valid publisher signature.",
+  "update.failureCode.INSTALL_MARKER_CORRUPT":
+    "The previous update status was damaged and has been quarantined. Check the current version; if it was not updated, download the full installer again.",
+  "update.failureCode.INSTALL_MARKER_WRITE_FAILED":
+    "Update status could not be saved safely, so installation stopped before changing the install folder. Check user-data folder permissions and retry.",
+  "update.failureCode.INSTALL_METADATA_INVALID":
+    "The downloaded update metadata is invalid, so installation was blocked. Check for updates and download it again.",
+  "update.failureCode.INSTALL_METADATA_MISSING":
+    "The downloaded installer or its update metadata is missing. Check for updates and download it again.",
+  "update.failureCode.INSTALL_STAGING_FAILED":
+    "The full installer could not be staged safely. Check disk space and permissions for your user profile, then retry.",
+  "update.failureCode.INSTDIR_JUNCTION_INVALID":
+    "The app install-path junction is invalid, so automatic installation was stopped. Download the full installer, exit MiniMax Design, then install it over the current app.",
+  "update.failureCode.INSTDIR_MULTI_INSTALL":
+    "Multiple MiniMax Design installations were detected on this device, and this running copy is not the registered install location, so automatic updating stopped before changing any files. Keep only one installation: uninstall or remove the extra copies, then download the latest full installer from the official website and reinstall.",
+  "update.failureCode.INSTDIR_NOT_WRITABLE":
+    "The install folder is not writable. Check permissions and retry.",
+  "update.failureCode.INSTDIR_DATA_OVERLAP":
+    "The installation directory overlaps project or asset storage. Move your data in Settings before updating.",
+  "update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED":
+    "The install location could not be verified, so automatic updating stopped before changing any files. Download the official full installer and follow the installation wizard. Do not uninstall or manually delete the existing folder.",
+  "update.failureCode.INSTDIR_SPACE":
+    "Not enough disk space in the install folder. Free up space and retry.",
+  "update.failureCode.INSTDIR_SPACE_UNKNOWN":
+    "Free space in the install location could not be verified. Check disk access permissions and retry, or use the full installer.",
+  "update.failureCode.INSTDIR_SYSTEM_DIR":
+    "Windows / ProgramData system folders cannot be used as the install folder. Reinstall to C:\\MiniMaxDesign or D:\\MiniMaxDesign.",
+  "update.failureCode.MARKER_STORE_UNAVAILABLE":
+    "The update status folder is not writable, so installation stopped before the app exited. Check user-data folder permissions and retry.",
+  "update.failureCode.PACKAGE_INVALIDATED":
+    "The downloaded update is no longer the pending version. Check for updates and download it again.",
+  "update.failureCode.PACKAGE_SIZE_INVALID":
+    "The downloaded update has invalid size metadata, so installation was blocked. Check for updates and download it again.",
+  "update.failureCode.TEMP_SPACE":
+    "Not enough space in the system temporary folder. Free up space and retry.",
+  "update.failureCode.TEMP_SPACE_UNKNOWN":
+    "Free space in the system temporary folder could not be verified. Check TEMP folder permissions and retry.",
+  "update.failureCode.UPDATER_EXECUTABLE_MISSING":
+    "The automatic update component is missing, so installation cannot continue. Exit MiniMax Design and install over it with the full installer.",
+  "update.failureCode.UPDATE_PROXY_PROTOCOL_UNSUPPORTED":
+    "In-app updates do not support the current SOCKS proxy. Switch to a direct or HTTP proxy connection, or download the full installer.",
+  "update.failureCode.UPDATE_RUNTIME_UNAVAILABLE":
+    "The automatic update component is unavailable. Exit MiniMax Design and reinstall it from the official website.",
+  "update.failureCode.USER_CANCELLED":
+    "You cancelled this installation. Retry when you are ready.",
+  "update.failureCode.USER_DATA_LOCKED":
+    "The update was cancelled to protect your generated assets: they are stored inside the install folder and are currently in use by another program. Close programs that may be using these files (e.g. Explorer, antivirus scans) and retry.",
+  "update.forced.body":
+    "This update includes {{reason}}. The old version can no longer be used. Please update to continue using MiniMax Design.",
+  "update.forced.btn.download": "Download now",
+  "update.forced.btn.exit": "Exit app",
+  "update.forced.btn.manualDownload": "Download official installer",
+  "update.forced.btn.restart": "Restart now",
+  "update.forced.btn.retry": "Retry",
+  "update.forced.changelogHeader": "What's in this update",
+  "update.forced.checking": "Checking for updates...",
+  "update.forced.error":
+    "Unable to download update. Please check your network.",
+  "update.forced.escapeHint": "Press Esc to dismiss",
+  "update.forced.manual.body":
+    "{{reason}} Download the official full installer and follow the installation wizard to update.",
+  "update.forced.manual.defaultReason":
+    "Automatic installation may not complete for this version.",
+  "update.forced.title": "Update required",
+  "update.install": "Restart & Install",
+  "update.later": "Later",
+  "update.manualRecovery.body":
+    "Automatic updating failed. Download the official full installer and follow the installation wizard to update.",
+  "update.manualRecovery.hint.local":
+    "Fix the issue above, then retry installation. If it still fails, download the full installer and install over the current app. Your projects will not be deleted.",
+  "update.manualRecovery.hint.policy":
+    "Download the official full installer and follow the installation wizard. Do not manually delete the existing installation folder or project data.",
+  "update.manualRecovery.hint.proxy":
+    "Switch to a direct connection or an HTTP proxy, then retry the update check. You can also use the full installer.",
+  "update.notAvailable": "You're up to date",
+  "update.shortcut.availableTitleWithVersion":
+    "MiniMax Design {{version}} is available",
+  "update.shortcut.bodyFallback": "Includes fixes and experience improvements.",
+  "update.shortcut.readyTitle": "Update is ready",
+  "update.shortcut.readyTitleWithVersion":
+    "MiniMax Design {{version}} is ready",
+  "update.shortcut.releaseNotes": "Release notes",
+  "update.shortcut.settings": "Settings",
+  "update.shortcut.tooltip": "Update available",
+  "update.shortcut.tooltipWithVersion": "Update available {{version}}",
+  "update.timeout": "Update check timed out",
+  "update.preparationTimeout":
+    "Preparing the update timed out. Please try again.",
+  "update.title.available": "Update available",
+  "update.title.downloaded": "Download complete",
+  "update.title.downloading": "Downloading…",
+  "update.title.error": "Update failed",
+  "update.title.ready": "Update available",
+  "update.toastDescription":
+    "MiniMax Design has a new version ({{version}}) available.",
+  "update.toastTitle": "Update Available",
+  "update.version.checkCta": "Check",
+  "update.version.checking": "Checking...",
+  "update.version.failed": "Check failed",
+  "update.version.latest": "Up to date",
+  "update.version.menuLabel": "Version update",
+  "update.version.updateCta": "Update",
+  "userMenu.community": "Community",
+  "userMenu.creditsHint": "For credits details, please check Hailuo web",
+  "userMenu.creditsTooltipPrefix":
+    "MiniMax Design converts your token usage into Hailuo Credits in real time. Visit",
+  "userMenu.creditsTooltipSuffix": "for details.",
+  "userMenu.feedback": "Feedback",
+  "userMenu.feedbackGroupTitle": "Hailuo AI - Official Group",
+  "userMenu.feedbackLearnMore": "Learn more",
+  "userMenu.feedbackQrTitle": "Official Community",
+  "userMenu.guide": "Guide",
+  "userMenu.hailuoBalanceLabel": "Hailuo balance",
+  "userMenu.hailuoBalanceRedeemCta": "Transfer",
+  "userMenu.hailuoWeb": "Hailuo Web",
+  "userMenu.manageSubscription": "Subscription",
+  "userMenu.memoryManagement": "Memory management",
+  "userMenu.newBadge": "NEW",
+  "userMenu.pro": "Pro",
+  "userMenu.protocol": "User Agreements",
+  "userMenu.protocol.autoRenewal": "Auto-Renewal Terms",
+  "userMenu.protocol.paidAgreement": "Paid Services Agreement",
+  "userMenu.protocol.pointsRules": "Credits Rules",
+  "userMenu.protocol.privacyPolicy": "Privacy Policy",
+  "userMenu.protocol.userAgreement": "User Agreement",
+  "userMenu.redeemCode": "Redeem Code",
+  "userMenu.reportIssue": "Report Issue",
+  "userMenu.sectionAccount": "Account",
+  "userMenu.sectionHelp": "Help",
+  "userMenu.sectionPreferences": "Preferences",
+  "userMenu.sectionSettings": "Settings",
+  "userMenu.sectionTestOnly": "Test only",
+  "userMenu.sectionTools": "Tools",
+  "userMenu.sectionToolsHelp": "Tools & Help",
+  "userMenu.subscriptionStatus.annualPromotion": "Annual plan offer",
+  "userMenu.subscriptionStatus.cancelled": "Renewal cancelled",
+  "userMenu.tutorial": "Tutorial",
+  "userMenu.uiSpec": "UI Component Preview",
+  "workflows.addFailed": "Could not add the ComfyUI workflow: {{message}}",
+  "workflows.addTarget.current": "Add to current workflow",
+  "workflows.addTarget.currentHint":
+    "Keep the current nodes and insert this workflow's nodes.",
+  "workflows.addTarget.description":
+    "Insert the nodes into the current ComfyUI workflow or open them in a new workflow tab.",
+  "workflows.addTarget.new": "Create a new workflow",
+  "workflows.addTarget.newHint":
+    "Open a new ComfyUI workflow tab without changing the current workflow.",
+  "workflows.addTarget.title": "Choose where to add it",
+  "workflows.addedToCanvas": "ComfyUI workflow added to the canvas",
+  "workflows.attribution.communityAdapted":
+    "Adapted from open-source community contributions",
+  "workflows.attribution.licenseAgreement": "License agreement",
+  "workflows.attribution.licenses": "Related licenses",
+  "workflows.attribution.modified": "Adapted",
+  "workflows.attribution.noLicenseNotice":
+    "No additional notice is provided. View the original license for details.",
+  "workflows.attribution.role.base_model": "Base model",
+  "workflows.attribution.role.community_extension": "Community extension",
+  "workflows.attribution.role.component_model": "Model component",
+  "workflows.attribution.role.model_packaging": "Model packaging",
+  "workflows.attribution.role.official_service": "Official service",
+  "workflows.attribution.role.workflow_curation": "Workflow curation",
+  "workflows.attribution.role.workflow_reference": "Workflow reference",
+  "workflows.attribution.sourceKind.hub_curated": "Hub curated",
+  "workflows.attribution.sourceKind.minimax_official": "Official MiniMax",
+  "workflows.attribution.sourceKind.third_party": "Third-party resource",
+  "workflows.attribution.title": "Sources and licenses",
+  "workflows.attribution.viewNamedLicense": "View {{name}}",
+  "workflows.attribution.viewNamedSource": "View {{name}} source",
+  "workflows.create": "Import / New Workflow",
+  "workflows.createCanvas": "New canvas",
+  "workflows.createMenu.canvas": "Create on canvas",
+  "workflows.createMenu.import": "Import local workflow",
+  "workflows.delete": "Delete workflow",
+  "workflows.delete.confirm": "Delete",
+  "workflows.delete.description":
+    '"{{name}}" and its saved executable data will be permanently deleted.',
+  "workflows.delete.failed": "Could not delete the workflow: {{message}}",
+  "workflows.delete.success": "Workflow deleted",
+  "workflows.delete.title": "Delete this workflow?",
+  "workflows.description.empty": "No description",
+  "workflows.detail.approximateSize": "About {{size}}",
+  "workflows.detail.back": "Back to workflows",
+  "workflows.detail.cancelDownload": "Cancel download",
+  "workflows.detail.collapse": "Exit Details",
+  "workflows.detail.compatibility.detecting": "Detecting…",
+  "workflows.detail.compatibility.detectionNote":
+    "Your system configuration is detected automatically. Items that cannot be identified accurately require confirmation.",
+  "workflows.detail.compatibility.gpu.anyRequirement":
+    "Available graphics processor",
+  "workflows.detail.compatibility.gpu.dedicatedRequirement":
+    "{{size}} GB dedicated VRAM",
+  "workflows.detail.compatibility.gpu.dedicatedValue":
+    "{{gpu}} · {{size}} GB dedicated VRAM",
+  "workflows.detail.compatibility.gpu.detectedValue":
+    "{{gpu}} (GPU memory unverified)",
+  "workflows.detail.compatibility.gpu.notRequired": "No GPU required",
+  "workflows.detail.compatibility.gpu.sharedValue":
+    "{{gpu}} · {{size}} GB shared graphics memory",
+  "workflows.detail.compatibility.gpu.unifiedRequirement":
+    "{{size}} GB unified memory",
+  "workflows.detail.compatibility.gpu.unifiedValue":
+    "{{gpu}} · {{size}} GB unified memory",
+  "workflows.detail.compatibility.gpu.vendor.amd": "AMD",
+  "workflows.detail.compatibility.gpu.vendor.apple": "Apple",
+  "workflows.detail.compatibility.gpu.vendor.intel": "Intel",
+  "workflows.detail.compatibility.gpu.vendor.nvidia": "NVIDIA",
+  "workflows.detail.compatibility.gpu.vendorRequirement":
+    "{{vendor}} · {{requirement}}",
+  "workflows.detail.compatibility.item": "Item",
+  "workflows.detail.compatibility.local": "This device",
+  "workflows.detail.compatibility.localOs":
+    "{{os}} · {{arch}} · {{cores}} CPU cores",
+  "workflows.detail.compatibility.localOsVersion":
+    "{{os}} {{version}} · {{arch}} · {{cores}} CPU cores",
+  "workflows.detail.compatibility.memoryValue": "{{size}} GB memory",
+  "workflows.detail.compatibility.minimumOs": "{{os}} ({{architectures}})",
+  "workflows.detail.compatibility.minimumOsVersion":
+    "{{os}} {{version}} or later ({{architectures}})",
+  "workflows.detail.compatibility.notConfigured":
+    "Not provided by the featured catalog",
+  "workflows.detail.compatibility.notDetected": "Not detected",
+  "workflows.detail.compatibility.osName.darwin": "macOS",
+  "workflows.detail.compatibility.osName.linux": "Linux",
+  "workflows.detail.compatibility.osName.other": "Other OS",
+  "workflows.detail.compatibility.osName.win32": "Windows",
+  "workflows.detail.compatibility.platformGpu": "{{os}}: {{requirement}}",
+  "workflows.detail.compatibility.recommended": "Recommended",
+  "workflows.detail.compatibility.result.insufficient.description":
+    "The current system is unsupported, or at least one detected specification does not meet the recommendation, so this workflow may not run correctly after installation.",
+  "workflows.detail.compatibility.result.insufficient.title":
+    "This device is not recommended",
+  "workflows.detail.compatibility.result.likely.description":
+    "All required system, memory, GPU, and disk specifications were detected and meet the recommendation.",
+  "workflows.detail.compatibility.result.likely.title":
+    "Baseline met — generally recommended",
+  "workflows.detail.compatibility.result.review.description":
+    "There is not enough device information to assess compatibility. Confirm each requirement before installing.",
+  "workflows.detail.compatibility.result.review.title":
+    "More information needed",
+  "workflows.detail.compatibility.status.insufficient": "Below recommendation",
+  "workflows.detail.compatibility.status.meets": "Meets requirement",
+  "workflows.detail.compatibility.status.notApplicable": "Not applicable",
+  "workflows.detail.compatibility.status.unknown": "Needs confirmation",
+  "workflows.detail.compatibility.status.unsupported":
+    "Current system unsupported",
+  "workflows.detail.compatibility.storageRequirement": "{{size}} GB free",
+  "workflows.detail.compatibility.storageValue":
+    "{{size}} GB free on the ComfyUI model disk",
+  "workflows.detail.downloadPaused": "Download paused",
+  "workflows.detail.downloaded": "Complete",
+  "workflows.detail.downloading": "Downloading workflow resources",
+  "workflows.detail.fileDownloadProgress":
+    "{{name}} download progress {{progress}}%",
+  "workflows.detail.inputs": "Inputs",
+  "workflows.detail.inputsHint": "What you provide to run this workflow",
+  "workflows.detail.modelDownloadRequired":
+    "Download the model file to run this workflow",
+  "workflows.detail.outputs": "Outputs",
+  "workflows.detail.outputsHint": "Files created after the workflow finishes",
+  "workflows.detail.pauseDownload": "Pause",
+  "workflows.detail.resourceCount": "{{count}} files",
+  "workflows.detail.resources": "Resource files",
+  "workflows.detail.resourcesHint":
+    "Workflow definition and required model files",
+  "workflows.detail.resumeDownload": "Resume",
+  "workflows.detail.startDownload": "Download",
+  "workflows.detail.workflowFile": "Workflow",
+  "workflows.download": "Download",
+  "workflows.downloadDialog.allResourcesFound":
+    "All local models found. Ready to use.",
+  "workflows.downloadDialog.checkingLicenses": "Checking licenses…",
+  "workflows.downloadDialog.confirm": "Confirm and download",
+  "workflows.downloadDialog.description":
+    "User folders and mounted disks are scanned automatically, so matching resources are not downloaded again.",
+  "workflows.downloadDialog.directoryChange": "Change folder",
+  "workflows.downloadDialog.directoryChangeFailed":
+    "Could not change the model download folder. Check its permissions and try again.",
+  "workflows.downloadDialog.directoryLabel": "Model download folder",
+  "workflows.downloadDialog.directoryPickerTitle":
+    "Choose ComfyUI model download folder",
+  "workflows.downloadDialog.directoryPicking": "Choosing…",
+  "workflows.downloadDialog.downloadRequired": "Download required",
+  "workflows.downloadDialog.fileCount": "{{count}} files",
+  "workflows.downloadDialog.fileList": "Resource file list",
+  "workflows.downloadDialog.gpu": "Graphics",
+  "workflows.downloadDialog.hint":
+    "Performance may vary with workflow settings, model versions, and output size.",
+  "workflows.downloadDialog.licenseHint":
+    "Review and accept the relevant licenses before downloading.",
+  "workflows.downloadDialog.licenseRequired":
+    "Select the license agreement above before downloading.",
+  "workflows.downloadDialog.licenseSaveFailed":
+    "The license confirmation could not be saved. Please try again.",
+  "workflows.downloadDialog.licenseTitle": "License confirmation",
+  "workflows.downloadDialog.localResourceFound": "Found locally",
+  "workflows.downloadDialog.memory": "Memory",
+  "workflows.downloadDialog.missingResources":
+    "Local check complete. {{count}} models need downloading.",
+  "workflows.downloadDialog.modelFile": "Model file · {{directory}}",
+  "workflows.downloadDialog.os": "Operating system",
+  "workflows.downloadDialog.partialScan":
+    "Part of the disk was scanned. {{count}} models may still need downloading.",
+  "workflows.downloadDialog.registerOnUse": "Register when used",
+  "workflows.downloadDialog.scanning": "Checking…",
+  "workflows.downloadDialog.scanningDisk": "Scanning disks…",
+  "workflows.downloadDialog.scanningLocalResources":
+    "Scanning user folders and mounted disks for models…",
+  "workflows.downloadDialog.storage": "Free storage",
+  "workflows.downloadDialog.title": "Download “{{name}}”",
+  "workflows.downloadDialog.useLocalResources": "Use local resources",
+  "workflows.downloadDialog.workflowFile": "ComfyUI workflow file",
+  "workflows.downloaded": "Downloaded",
+  "workflows.downloads.title": "Model downloads",
+  "workflows.edit": "Edit workflow",
+  "workflows.edit.description": "Change the name and description shown in Hub.",
+  "workflows.edit.nameLabel": "Workflow name",
+  "workflows.edit.summaryLabel": "Workflow description",
+  "workflows.edit.summaryPlaceholder":
+    "Describe what the workflow does, when to use it, and the expected result so the Agent can decide when to invoke it. Example: Generate multi-angle product images for e-commerce listings.",
+  "workflows.edit.title": "Edit workflow",
+  "workflows.empty.mine": "No workflows yet",
+  "workflows.empty.mineDescription": "Import a workflow to get started.",
+  "workflows.empty.official": "No featured workflows yet",
+  "workflows.empty.officialDescription": "Featured workflows will appear here.",
+  "workflows.groups": "groups",
+  "workflows.import": "Import workflow",
+  "workflows.importCardHint": "Import a ComfyUI JSON file from this device",
+  "workflows.importFailed": "Could not import the workflow: {{message}}",
+  "workflows.importShort": "Import",
+  "workflows.importSuccess": "Workflow imported",
+  "workflows.learning.ariaLabel": "Courses and expert features",
+  "workflows.learning.dialog.description":
+    "A configured destination will later open the matching course, feature video, or article. This dialog only demonstrates the interaction.",
+  "workflows.learning.dialog.eyebrow": "Interaction preview",
+  "workflows.learning.dialog.pending": "Content link to be configured",
+  "workflows.learning.items.article.description":
+    "A practical guide to organizing nodes, parameters, and reusable templates.",
+  "workflows.learning.items.article.eyebrow": "EDITOR'S PICK",
+  "workflows.learning.items.article.meta": "8 min read · Practical guide",
+  "workflows.learning.items.article.title":
+    "A reliable way to reuse node workflows",
+  "workflows.learning.items.article.visualSubtitle": "GUIDE",
+  "workflows.learning.items.article.visualTitle": "NODE",
+  "workflows.learning.items.course.description":
+    "First and last frames, character consistency, ad packaging, and beat-synced creation.",
+  "workflows.learning.items.course.eyebrow": "OPEN SOURCE SPOTLIGHT",
+  "workflows.learning.items.course.meta": "Curated by MiniMax · Updated weekly",
+  "workflows.learning.items.course.title":
+    "This week's picks: 8 creative H3 workflows",
+  "workflows.learning.items.course.visualSubtitle": "WORKFLOW",
+  "workflows.learning.items.course.visualTitle": "H3",
+  "workflows.learning.items.video.description":
+    "A creator walks through the decisions behind a commercial portrait workflow.",
+  "workflows.learning.items.video.eyebrow": "CREATOR SPOTLIGHT",
+  "workflows.learning.items.video.meta": "Expert feature · 18 min",
+  "workflows.learning.items.video.title":
+    "Inside a commercial portrait workflow",
+  "workflows.learning.items.video.visualSubtitle": "STUDIO",
+  "workflows.learning.items.video.visualTitle": "PRO",
+  "workflows.learning.next": "Next feature",
+  "workflows.learning.openItem": "Open {{title}}",
+  "workflows.learning.previous": "Previous feature",
+  "workflows.learning.title": "Courses & expert features",
+  "workflows.learning.types.article": "Article",
+  "workflows.learning.types.course": "Course",
+  "workflows.learning.types.video": "Expert video",
+  "workflows.links": "links",
+  "workflows.loadError": "Unable to load workflows",
+  "workflows.loading": "Loading workflows…",
+  "workflows.models": "models",
+  "workflows.modelsFolder": "Models folder",
+  "workflows.noMatch": "No matching workflows",
+  "workflows.nodeTypes": "node types",
+  "workflows.nodes": "nodes",
+  "workflows.openFolder": "Open Folders",
+  "workflows.openModelsFolderFailed":
+    "Could not open the ComfyUI models folder",
+  "workflows.openWorkflowsFolderFailed":
+    "Could not open the ComfyUI workflows folder",
+  "workflows.search": "Search workflows",
+  "workflows.searchEmptyDescription":
+    "Try a different keyword or clear search.",
+  "workflows.size": "Size",
+  "workflows.subtitle":
+    "Deploy locally, run manually, or let an Agent invoke it",
+  "workflows.tabs.mine": "My Workflows",
+  "workflows.tabs.official": "Featured Workflows",
+  "workflows.tags.api": "API",
+  "workflows.tags.firstLastFrame": "First / Last Frame",
+  "workflows.tags.image": "Image",
+  "workflows.tags.imageToVideo": "Image to Video",
+  "workflows.tags.local": "Local",
+  "workflows.tags.portrait": "Portrait",
+  "workflows.tags.product": "Product",
+  "workflows.tags.referenceToVideo": "Reference to Video",
+  "workflows.tags.textToImage": "Text to Image",
+  "workflows.tags.textToVideo": "Text to Video",
+  "workflows.tags.video": "Video",
+  "workflows.title": "ComfyUI Workflows",
+  "workflows.tutorial": "Explore Open Source",
+  "workflows.tutorialFaq.description":
+    "Official answers about H3 open weights, deployment, hardware, and usage.",
+  "workflows.tutorialFaq.items.acceptableUse.answer":
+    "The Acceptable Use Policy covers weights, derivatives, and outputs. Prohibited uses include illegal activity, infringement of intellectual-property or publicity rights, harm involving minors, and using outputs to harm others.\n\nHosted services must also implement reasonable content-safety controls.",
+  "workflows.tutorialFaq.items.acceptableUse.question":
+    "What content is not allowed?",
+  "workflows.tutorialFaq.items.api.answer":
+    "Sign in to the MiniMax platform and create an API key.\n\nChoose the T2VA, I2VA, or Ref2VA video-generation endpoint for your task. The official model repository includes runnable curl examples for both 768p and 2K paths under scripts/readme/.\n\nUse the video-generation-v2-create endpoint when generating 2K video.",
+  "workflows.tutorialFaq.items.api.question": "How do I call the API?",
+  "workflows.tutorialFaq.items.capabilities.answer":
+    "H3 generates video with synchronized stereo audio in one pass, up to 15 seconds. The API supports up to 2K, while open weights natively target a 768p short edge.\n\nFL2VA supports text-to-video and optional first- and last-frame control.\n\nRef2VA accepts image, video, and audio references for character consistency, editing, motion reference, and shot continuation.",
+  "workflows.tutorialFaq.items.capabilities.question":
+    "What can MiniMax H3 actually do?",
+  "workflows.tutorialFaq.items.commercialUse.answer":
+    "Yes. The community license permits royalty-free commercial use.\n\nProducts or services earning more than USD 20 million annually need separate written authorization. Commercial products must prominently identify MiniMax H3, and all use must follow the Acceptable Use Policy.\n\nYou own your outputs and derivative models, but may not use H3 weights or outputs to train or improve unrelated AI models.",
+  "workflows.tutorialFaq.items.commercialUse.question":
+    "Can I use MiniMax H3 commercially?",
+  "workflows.tutorialFaq.items.deployment.answer":
+    "Choose a local H3 workflow under Featured Workflows, open its details, and select Download.\n\nReview the device comparison, recommended configuration, and required resources in the confirmation dialog, then confirm the download.\n\nHub downloads and places the workflow and model files automatically. When complete, the action changes to Use so you can create a new canvas or add the workflow to an existing project.\n\nUse the official resources below only for manual troubleshooting or advanced deployment.",
+  "workflows.tutorialFaq.items.deployment.question":
+    "How do I download and deploy MiniMax H3?",
+  "workflows.tutorialFaq.items.fineTuning.answer":
+    "Yes. The license covers derivative models, which you own.\n\nAI-Toolkit supports H3, and community character, style, acceleration LoRAs, and full fine-tunes are already available.\n\nRedistributed derivatives must document modifications and remain subject to the community license.",
+  "workflows.tutorialFaq.items.fineTuning.question":
+    "Can I train a LoRA or fine-tune MiniMax H3?",
+  "workflows.tutorialFaq.items.hardware.answer":
+    "Open the H3 workflow you want under Featured Workflows in Hub, then choose Download. The confirmation dialog compares your device with that workflow’s recommended configuration and lists the required resources.\n\nRecommended specs are a reference for a stable experience, not a hard pass-or-fail boundary. A lower-spec device may still run the workflow with shorter clips or lower resolution and quality, but generation will be slower and may stop if video memory runs out.\n\nCommunity reference points show that an RTX 3060-class GPU with 12 GB VRAM can run a pruned int8 build for 480p video with audio. A 16–24 GB GPU is more comfortable; plan for 32–64 GB of system memory.",
+  "workflows.tutorialFaq.items.hardware.question": "What hardware do I need?",
+  "workflows.tutorialFaq.items.openSourceModel.answer":
+    "An open-source model is an AI capability you can download and run on your own computer.\n\nWith MiniMax H3 and its model files installed, you can generate video with synchronized audio from text, images, video, or audio references.\n\nYour media and generation process largely stay on your device, and you can customize parameters, though speed and results depend on your hardware.",
+  "workflows.tutorialFaq.items.openSourceModel.question":
+    "What is an open-source model, and what can MiniMax H3 do locally?",
+  "workflows.tutorialFaq.items.openSourceVsOnline.answer":
+    "Open weights provide free, fully controlled local generation at a 768p short edge.\n\nThe platform and API add H3-Context-IR for refining multimodal instructions and H3-Regenerate-2K for context-aware native 2K regeneration.\n\nA common workflow is to iterate locally, then use the API for a selected 2K master.",
+  "workflows.tutorialFaq.items.openSourceVsOnline.question":
+    "How do the open-weight and online versions differ?",
+  "workflows.tutorialFaq.items.openSourceWorkflow.answer":
+    "A model defines what the AI can generate; a workflow defines the steps used to generate it.\n\nThe H3 model provides video-and-audio generation, while a ComfyUI workflow connects inputs, the H3 model, parameters, and outputs like a reusable production recipe.\n\nYou can use a featured workflow directly or copy it and adjust prompts, dimensions, duration, and references.",
+  "workflows.tutorialFaq.items.openSourceWorkflow.question":
+    "What is an open-source workflow, and how is it different from a model?",
+  "workflows.tutorialFaq.items.pricing.answer":
+    "The open weights are free under the MiniMax H3 Community License for research and royalty-free commercial use, subject to its terms and regional restrictions.\n\nLocal use only costs your own hardware and electricity. Hosted APIs are usage-based, and H3 is also available in the Hailuo AI app.",
+  "workflows.tutorialFaq.items.pricing.question": "Is MiniMax H3 free?",
+  "workflows.tutorialFaq.items.productionServing.answer":
+    "Yes. Recommended serving paths include vLLM-Omni and SGLang Diffusion, with API, CLI, or SDK support across multiple hardware platforms.\n\nIf you provide a hosted service to third parties, you must also satisfy the hosting and content-safety obligations in the community license.",
+  "workflows.tutorialFaq.items.productionServing.question":
+    "Can I deploy MiniMax H3 as a production service?",
+  "workflows.tutorialFaq.items.prompting.answer":
+    "H3 uses a full multimodal language model to read prompts, so structure and reference terminology matter.\n\nStart with the official FL2VA and Ref2VA prompting guides, or install the h3-prompt-writing skill from the official GitHub repository.\n\nWhen using the API, H3-Context-IR performs this refinement for you.",
+  "workflows.tutorialFaq.items.prompting.question":
+    "How do I write a good prompt?",
+  "workflows.tutorialFaq.items.regionalAvailability.answer":
+    "The open-weight license currently excludes the EU, UK, US, and South Korea while generative-video regulations continue to evolve.\n\nThe API remains available globally, and organizations in restricted regions may request formal authorization for compliant deployment.\n\nAny expansion will be announced clearly.",
+  "workflows.tutorialFaq.items.regionalAvailability.question":
+    "Why can’t I download the weights in the EU, UK, US, or South Korea?",
+  "workflows.tutorialFaq.items.support.answer":
+    "Join the official Discord community to connect with other users.\n\nFind code, skills, and deployment scripts in the MiniMax-AI/MiniMax-H3 GitHub repository, and view weights and documentation on Hugging Face or ModelScope.\n\nFollow the official MiniMax AI and Hailuo AI accounts, or check the MiniMax platform for API information. Model questions can be sent to model@minimax.io.",
+  "workflows.tutorialFaq.items.support.question":
+    "Where can I get help or follow updates?",
+  "workflows.tutorialFaq.links.authorization": "Request authorization",
+  "workflows.tutorialFaq.links.baseGuide": "FL2VA prompt guide",
+  "workflows.tutorialFaq.links.comfyRepository": "ComfyUI model repository",
+  "workflows.tutorialFaq.links.comfyTutorial": "ComfyUI tutorial",
+  "workflows.tutorialFaq.links.contextIr": "H3-Context-IR docs",
+  "workflows.tutorialFaq.links.diffusers": "Diffusers model page",
+  "workflows.tutorialFaq.links.discord": "Discord community",
+  "workflows.tutorialFaq.links.github": "Official GitHub repository",
+  "workflows.tutorialFaq.links.hailuo": "Try Hailuo AI",
+  "workflows.tutorialFaq.links.hailuoX": "Hailuo AI updates",
+  "workflows.tutorialFaq.links.huggingFace": "Hugging Face",
+  "workflows.tutorialFaq.links.minimaxX": "MiniMax AI updates",
+  "workflows.tutorialFaq.links.modelScope": "ModelScope",
+  "workflows.tutorialFaq.links.platform": "MiniMax platform",
+  "workflows.tutorialFaq.links.pricing": "View pricing",
+  "workflows.tutorialFaq.links.referenceGuide": "Ref2VA prompt guide",
+  "workflows.tutorialFaq.links.regenerate2k": "H3-Regenerate-2K docs",
+  "workflows.tutorialFaq.links.videoEndpoint": "Video generation API docs",
+  "workflows.tutorialFaq.links.vllmRecipe": "Official vLLM recipe",
+  "workflows.tutorialFaq.source":
+    "Source: the official MiniMax H3 website. Refer to the website for the latest guidance.",
+  "workflows.tutorialFaq.title": "H3 Frequently Asked Questions",
+  "workflows.updated": "Updated",
+  "workflows.use": "Use",
+  "workflows.useMenu.existingCanvas": "Use in a previous project",
+  "workflows.useMenu.newCanvas": "Create a new canvas and use",
+  "workflows.useMenu.newCanvasHint":
+    "Create a canvas and load this workflow automatically",
+  "workflows.useMenu.noRecentCanvas": "No recent projects available",
+  "workflows.useMenu.workspaceName": "{{name}} workflow",
+  "workflows.view": "View",
+  "workflows.workflowsFolder": "Workflows folder",
+  "workspace.browser": "Browser",
+  "workspace.browser.inspiration.randomExplore": "Surprise me",
+  "workspace.browser.inspiration.shuffle": "Shuffle",
+  "workspace.browser.inspiration.open": "Discover today’s inspiration",
+  "workspace.browser.inspiration.close": "Click to close",
+  "workspace.browser.inspiration.title": "Inspiration Box",
+  "workspace.browser.inspiration.category.filmMotion": "Film & Motion",
+  "workspace.browser.inspiration.category.visualDesign": "Visual Design",
+  "workspace.browser.inspiration.category.brandCreative": "Brand & Creative",
+  "workspace.browser.inspiration.category.architectureProduct":
+    "Architecture & Product",
+  "workspace.browser.addBookmark": "Add bookmark",
+  "workspace.browser.backToCanvas": "Back to canvas",
+  "workspace.browser.bookmarkAdded": "Added to bookmarks",
+  "workspace.browser.bookmarkRemoved": "Bookmark removed",
+  "workspace.browser.deleteBookmark": "Delete bookmark",
+  "workspace.browser.bookmarks": "My Bookmarks",
+  "workspace.browser.ungroupedBookmarks": "Default bookmarks",
+  "workspace.browser.canvas": "Canvas",
+  "workspace.browser.closeTab": "Close tab",
+  "workspace.browser.loadError": "Failed to start browser",
+  "workspace.browser.newTab": "New tab",
+  "workspace.browser.address": "Address",
+  "workspace.browser.allSites": "All websites",
+  "workspace.browser.annotation": "Annotate",
+  "workspace.browser.annotationCaptureError":
+    "Could not capture the current page",
+  "workspace.browser.annotationClear": "Clear annotations",
+  "workspace.browser.annotationClose": "Exit annotation",
+  "workspace.browser.annotationComment": "Annotation comment",
+  "workspace.browser.annotationCommentPlaceholder": "Add a comment…",
+  "workspace.browser.annotationConfirm": "Confirm annotation",
+  "workspace.browser.annotationInstruction":
+    "Web annotation ({{url}}): Read the annotations in the attached screenshot and edit this current page directly with the built-in browser. Read the page back to verify the result; do not create a canvas document as a substitute.",
+  "workspace.browser.annotationItem":
+    "{{index}}. [area] Selected area — {{comment}}",
+  "workspace.browser.annotationLoading": "Preparing screenshot…",
+  "workspace.browser.annotationSend": "Send",
+  "workspace.browser.annotationTitle": "Annotating · {{site}}",
+  "workspace.browser.back": "Back",
+  "workspace.browser.chromeBannerDescription":
+    "An importable Chrome profile was detected. Copy its cookies to Browser.",
+  "workspace.browser.chromeBannerTitle": "Import sign-in state from Chrome",
+  "workspace.browser.chromeBookmarkDialogTitle": "Import bookmarks from Chrome",
+  "workspace.browser.chromeBookmarkSyncError":
+    "Unable to read Chrome bookmarks",
+  "workspace.browser.chromeDialogTitle": "Import from Chrome",
+  "workspace.browser.currentSite": "Current website",
+  "workspace.browser.deleteSearchHistory": "Delete this search",
+  "workspace.browser.dismissChromeBanner": "Dismiss Chrome import prompt",
+  "workspace.browser.downloads.actionFailed":
+    "Download action failed. Please try again.",
+  "workspace.browser.downloads.askWhereToSave": "Ask where to save each file",
+  "workspace.browser.downloads.cancel": "Cancel download",
+  "workspace.browser.downloads.cancelled": "Cancelled",
+  "workspace.browser.downloads.captureFailed":
+    "Page preview is unavailable. Downloads still work.",
+  "workspace.browser.downloads.completed": "Completed",
+  "workspace.browser.downloads.copyPath": "Copy file path",
+  "workspace.browser.downloads.sendToChat": "Send to chat",
+  "workspace.browser.downloads.copyUrl": "Copy download address",
+  "workspace.browser.downloads.empty": "No downloads yet",
+  "workspace.browser.downloads.entry": "Downloads ({{count}} in progress)",
+  "workspace.browser.downloads.fileMissing": "File moved or deleted",
+  "workspace.browser.downloads.interrupted": "Interrupted",
+  "workspace.browser.downloads.loadFailed":
+    "Could not load downloads. Reopen the browser to try again.",
+  "workspace.browser.downloads.loading": "Loading downloads…",
+  "workspace.browser.downloads.more": "More download actions",
+  "workspace.browser.downloads.open": "Open file",
+  "workspace.browser.downloads.openFolder": "Open downloads folder",
+  "workspace.browser.downloads.pause": "Pause download",
+  "workspace.browser.downloads.paused": "Paused",
+  "workspace.browser.downloads.progressing": "Downloading",
+  "workspace.browser.downloads.remove": "Remove from list",
+  "workspace.browser.downloads.resume": "Resume download",
+  "workspace.browser.downloads.showInFinder": "Show in Finder",
+  "workspace.browser.downloads.showInFolder": "Show in file manager",
+  "workspace.browser.downloads.speed": "{{speed}}/s",
+  "workspace.browser.downloads.title": "Downloads",
+  "workspace.browser.enterUrl":
+    "Enter a link or search in the address bar above",
+  "workspace.browser.forward": "Forward",
+  "workspace.browser.imageEdit.contextChanged":
+    "The target chat changed. The image is saved in the project. Return to the original chat and try again.",
+  "workspace.browser.imageEdit.notReady":
+    "Chat is not ready or another task is being prepared. Please try again shortly.",
+  "workspace.browser.imageEdit.openProject":
+    "Open a project before using image editing.",
+  "workspace.browser.imageEdit.prepareFailed":
+    "Could not prepare the image. No editing task was sent. Please try again shortly.",
+  "workspace.browser.imageEdit.preparing": "Preparing the image editing task…",
+  "workspace.browser.imageEdit.prompt.describePrompt":
+    "Please extract an image-generation prompt from the image attached to this request.",
+  "workspace.browser.imageEdit.prompt.removeBackground":
+    "Use dedicated background removal on the image attached to this request. Preserve the original subject and fine edges, remove the background, and output a transparent PNG without regenerating the subject.",
+  "workspace.browser.imageEdit.prompt.separateLayers":
+    "Use dedicated layer decomposition on the image attached to this request. Output the base image and separate PNG layers for the subject, background, and main elements. Preserve layer transparency and placement, and report the actual stacking order without generating replacement elements.",
+  "workspace.browser.imageEdit.prompt.upscale":
+    "Use dedicated image enhancement on the image attached to this request. Improve resolution and fine detail while preserving the subject, composition, colors, and original style, without redrawing it. Use the default settings when no output size is specified.",
+  "workspace.browser.imageEdit.sendFailed":
+    "The editing task was not sent. The image is saved in the project. Try again when chat is ready.",
+  "workspace.browser.import": "Import",
+  "workspace.browser.importError.bookmark_file_unavailable":
+    "Could not read all Chrome local or account bookmarks. Existing bookmarks were not changed. Close Chrome and try again.",
+  "workspace.browser.importError.bookmark_file_invalid":
+    "A Chrome bookmark file could not be parsed. Existing bookmarks were not changed. Check your bookmarks in Chrome and try again.",
+  "workspace.browser.importError.bookmark_file_too_large":
+    "A Chrome bookmark file is too large to import. Existing bookmarks were not changed. Reduce the bookmark file size and try again.",
+  "workspace.browser.importError.cancelled":
+    "Import was cancelled. Try again and allow access when prompted by your system.",
+  "workspace.browser.importError.chrome_profile_unavailable":
+    "Chrome profile is unavailable. Open the selected profile in Chrome, then try again.",
+  "workspace.browser.importError.cookie_database_access_denied":
+    "Access to Chrome cookies was denied. Check system or security software access restrictions, or sign in directly in the built-in browser.",
+  "workspace.browser.importError.cookie_database_busy":
+    "Chrome cookie data is in use. Quit Chrome completely, including background processes, then try again.",
+  "workspace.browser.importError.cookie_database_invalid":
+    "Chrome cookie data is unsupported or damaged. Sign in directly in the built-in browser.",
+  "workspace.browser.importError.cookie_database_not_found":
+    "No Chrome cookie data was found. Sign in to the website in the selected Chrome profile, then try again.",
+  "workspace.browser.importError.cookie_database_unavailable":
+    "Chrome cookies could not be read. Quit Chrome completely, including background processes, and try again, or sign in directly in the built-in browser.",
+  "workspace.browser.importError.decryption_failed":
+    "Chrome sign-in data could not be decrypted. Sign in directly in the built-in browser.",
+  "workspace.browser.importError.import_in_progress":
+    "An import is already in progress. Wait for it to finish, then try again.",
+  "workspace.browser.importError.invalid_current_site":
+    "This page does not support site-specific import. Open the website or select All Sites, then try again.",
+  "workspace.browser.importError.invalid_request":
+    "The import request is invalid. Close the import dialog, reopen it and select a Chrome profile to try again.",
+  "workspace.browser.importError.keychain_access_denied":
+    "Keychain access was denied. Try again and allow access to the Chrome key when macOS prompts you.",
+  "workspace.browser.importError.keychain_access_timeout":
+    "Keychain authorization timed out. Try again and respond to the macOS authorization prompt.",
+  "workspace.browser.importError.keychain_item_not_found":
+    "The Chrome encryption key was not found. Open Chrome and try again, or sign in directly in the built-in browser.",
+  "workspace.browser.importError.profile_not_found":
+    "The selected Chrome profile was not found. Close the import dialog and select a profile again.",
+  "workspace.browser.importError.unexpected_error":
+    "Import could not be completed. Try again; if it still fails, sign in directly in the built-in browser.",
+  "workspace.browser.importError.unsupported_platform":
+    "This import method is not supported on your system. Sign in directly in the built-in browser.",
+  "workspace.browser.importError.untrusted_sender":
+    "The import request could not be verified. Restart MiniMax Hub and try again.",
+  "workspace.browser.importFailed": "Import failed: {{code}}",
+  "workspace.browser.importing": "Importing…",
+  "workspace.browser.importSuccess": "Imported {{count}} cookies",
+  "workspace.browser.more": "More",
+  "workspace.browser.noChromeBookmarks":
+    "No Chrome bookmarks are available to import",
+  "workspace.browser.noTabs": "No browser tabs",
+  "workspace.browser.openExternal": "Open in external browser",
+  "workspace.browser.openExternalError": "Failed to open external browser",
+  "workspace.browser.pageLoadFailed": "Page failed to load",
+  "workspace.browser.pluginAddedToCanvas": "Added to canvas",
+  "workspace.browser.pluginCanvasError":
+    "Could not add to canvas. Please try again.",
+  "workspace.browser.pluginImageError": "Failed to add image: {{reason}}",
+  "workspace.browser.pluginVideoError": "Failed to add video: {{reason}}",
+  "workspace.browser.reload": "Reload",
+  "workspace.browser.removeBookmark": "Remove bookmark",
+  "workspace.browser.screenshot": "Screenshot",
+  "workspace.browser.sync": "Sync",
+  "workspace.browser.syncBookmarksFailed": "Import failed: {{code}}",
+  "workspace.browser.syncBookmarksLimited":
+    "Imported {{count}} new bookmarks. The import limit was reached; remaining bookmarks were not imported.",
+  "workspace.browser.syncBookmarksSkipped":
+    "Imported {{count}} new bookmarks. Some unsupported links or folders that are too deeply nested were skipped.",
+  "workspace.browser.syncBookmarksSuccess": "Imported {{count}} new bookmarks",
+  "workspace.browser.screenshotError": "Screenshot failed",
+  "workspace.browser.startBrowsing": "Start browsing",
+  "workspace.browser.unableToLoad": "Unable to load this page",
+  "workspace.browser.unknownError": "Unknown error",
+  "workspace.browser.urlPlaceholder": "Search or enter a URL",
+  "workspace.browser.videoAttachmentFailed":
+    "The video was saved to the project but could not be attached to chat. Add it from the project assets.",
+  "workspace.browser.videoDownloadFailed":
+    "Could not download this video. Check that it is publicly accessible and try again.",
+  "workspace.browser.videoOpenProject":
+    "Open a project before adding a video to chat or canvas.",
+  "workspace.browser.viewOnCanvas": "View",
+  "workspace.close.blockedActive":
+    "This project still has tasks running and cannot be closed yet. Its tab has been restored.",
+  "workspace.close.blockedGeneric":
+    "This project could not be closed. Its tab has been restored — please try again shortly.",
+  "workspace.close.blockedStorage":
+    "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or upload logs and contact support.",
+  "workspace.close.blockedUnsaved":
+    "This project still has unsaved changes and cannot be closed yet. Its tab has been restored.",
+  "workspace.closeCanvas": "Collapse Canvas",
+  "workspace.closeChat": "Collapse Chat",
+  "workspace.displayMode.cancelHint": "Cancel",
+  "workspace.displayMode.canvasFocus": "Canvas only",
+  "workspace.displayMode.canvasLeftChatRight": "Canvas left + Chat right",
+  "workspace.displayMode.chatFocus": "Chat only",
+  "workspace.displayMode.chatLeftCanvasRight": "Chat left + Canvas right",
+  "workspace.displayMode.confirmHint": "Apply",
+  "workspace.displayMode.currentTag": "Current",
+  "workspace.displayMode.description":
+    "Choose the layout for Chat and Canvas in this Project",
+  "workspace.displayMode.focusTag": "Focus mode",
+  "workspace.displayMode.navigateHint": "Select",
+  "workspace.displayMode.primarySidebar": "Primary sidebar",
+  "workspace.displayMode.primarySidebar.collapsed": "Collapsed",
+  "workspace.displayMode.primarySidebar.open": "Expanded",
+  "workspace.displayMode.shortcutLabel": "Switch Chat and Canvas layout mode",
+  "workspace.displayMode.splitTag": "Split layout",
+  "workspace.displayMode.title": "Switch layout mode",
+  "workspace.displayMode.toggleHint": "Close",
+  "workspace.folderPermission.allow": "Allow",
+  "workspace.folderPermission.allowToast": "Permission added",
+  "workspace.folderPermission.allowTooltip":
+    "MiniMax Design can access the selected workspace within this project only.",
+  "workspace.folderPermission.alwaysAllow": "Always Allow",
+  "workspace.folderPermission.alwaysAllowToast":
+    "Permission added. Edit it in <1>Settings / Advanced</1>.",
+  "workspace.folderPermission.alwaysAllowTooltip":
+    "MiniMax Design will keep access to the selected workspace across sessions.",
+  "workspace.folderPermission.body":
+    "Once granted, MiniMax Design can read, write, and delete content inside this folder and its subfolders.",
+  "workspace.folderPermission.title": "Folder Access",
+  "workspace.initialAttachments.failed":
+    "Attachments could not be loaded into this project. Your message has not been sent.",
+  "workspace.layout.canvasOnly": "Canvas only",
+  "workspace.layout.chatAndCanvas": "Chat + Canvas",
+  "workspace.layout.chatLeft": "Chat on left",
+  "workspace.layout.chatOnly": "Chat only",
+  "workspace.layout.chatPosition": "Chat position",
+  "workspace.layout.chatRight": "Chat on right",
+  "workspace.layout.label": "Workspace layout",
+  "workspace.layout.mode": "Layout mode",
+  "workspace.layout.view": "View",
+  "workspace.materializedEntities.empty": "No assets materialized yet",
+  "workspace.materializedEntities.entity.edit": "Edit",
+  "workspace.materializedEntities.loadError":
+    "Could not load materialized entities: {{message}}",
+  "workspace.materializedEntities.title": "Asset Files",
+  "workspace.newCanvasArtifact": "New Canvas artifact",
+  "workspace.newProject.changeFolder": "Change",
+  "workspace.newProject.defaultFolderDisplay": "~/Movies/Hub/Projects",
+  "workspace.newProject.folderLabel": "Workspace Folder (optional)",
+  "workspace.newProject.locationLabel": "Location",
+  "workspace.newProject.locationLoading": "Loading…",
+  "workspace.newProject.selectFolder": "Select Folder",
+  "workspace.newProject.selectFolderTitle": "Select Workspace Folder",
+  "workspace.newProject.selectWorkspace": "Select Workspace",
+  "workspace.newProject.storageFallbackDescription":
+    "The configured location is unavailable. Recover storage first, or explicitly allow built-in storage for this one project.",
+  "workspace.newProject.storageFallbackTitle":
+    "Configured save location is unavailable",
+  "workspace.newProject.storageRestartRequired":
+    "The storage change is waiting for restart. Restart the app before creating a project.",
+  "workspace.newProject.useTemporaryDefault": "Use built-in storage this time",
+  "workspace.newProject.workspace": "Workspace",
+  "workspace.newProject.workspaceTooltip":
+    "Agent prioritizes workspace files for local tasks like asset management and batch processing.",
+  "workspace.open.alreadyOpen":
+    "This folder already has a workspace. Switched to it.",
+  "workspace.open.limitReached":
+    "Up to {{max}} projects can run at once and every slot is currently taken. Try again shortly.",
+  "workspace.open.retryInFlight":
+    "This workspace is restarting. Please try again in a moment.",
+  "workspace.open.storageLocationUnavailable":
+    "The configured save location is unavailable. Reconnect the drive or change it in Settings > Storage, then try again.",
+  "workspace.open.storageMigrationInProgress":
+    "Projects and generated files are being migrated. Wait for migration to finish and restart when prompted.",
+  "workspace.open.storageRestartRequired":
+    "The save location just changed. Restart the app before creating a project so files are saved in the correct location.",
+  "workspace.open.storageStatusUnavailable":
+    "The current save location could not be verified, so the project was not created. Restart the app, then check Settings > Storage if the issue persists.",
+  "workspace.open.storageUnavailable":
+    "The configured save location is unavailable, so the project was not created. Recover it in Settings > Storage, or explicitly allow built-in storage for one create.",
+  "workspace.openCanvas": "Open Canvas",
+  "workspace.openChat": "Open Chat",
+  "workspace.paneReorder.moveLeft": "Move Chat to the left of Canvas",
+  "workspace.paneReorder.moveRight": "Move Chat to the right of Canvas",
+  "workspace.recovery.dbRebuilt.description":
+    "The database was incompatible with this version and has been rebuilt. Past conversations are backed up but no longer shown; your project files, canvas and assets are unaffected.",
+  "workspace.recovery.dbRebuilt.title": "The local AI database was rebuilt",
+  "workspace.runtimeDegraded.description":
+    "Workspace, canvas, chat history, and assets stay visible. Chat is paused until the local runtime reconnects.",
+  "workspace.runtimeDegraded.retryHint":
+    "The runtime protection circuit is cooling down. Retry remains available and will not clear the current workspace view.",
+  "workspace.runtimeDegraded.retrying": "Retrying...",
+  "workspace.runtimeDegraded.title": "Local runtime is recovering",
+  "workspace.swapChatCanvas": "Swap Chat and Canvas",
+  "chat.messageWithdrawn.contentPolicyViolation":
+    "This response was withdrawn because it did not pass the safety review.",
+  "workspace.browser.error.dns.title": "We couldn’t find this website",
+  "workspace.browser.error.dns.description":
+    "The address may be wrong, or your network cannot look it up.",
+  "workspace.browser.error.offline.title": "You’re offline",
+  "workspace.browser.error.offline.description":
+    "The browser has no available network connection.",
+  "workspace.browser.error.timeout.title": "The website took too long",
+  "workspace.browser.error.timeout.description":
+    "Loading stopped because the website did not respond in time.",
+  "workspace.browser.error.proxy.title": "Couldn’t connect to the proxy",
+  "workspace.browser.error.proxy.description":
+    "The proxy connection could not be established.",
+  "workspace.browser.error.certificate.title":
+    "We couldn’t verify this website’s security",
+  "workspace.browser.error.certificate.description":
+    "The website’s certificate failed validation, so the browser stopped loading it.",
+  "workspace.browser.error.secureConnection.title":
+    "Couldn’t establish a secure connection",
+  "workspace.browser.error.secureConnection.description":
+    "The browser could not establish an encrypted connection to this website.",
+  "workspace.browser.error.connection.title":
+    "Couldn’t connect to this website",
+  "workspace.browser.error.connection.description":
+    "The connection failed or was interrupted while loading.",
+  "workspace.browser.error.blocked.title": "Access was blocked",
+  "workspace.browser.error.blocked.description":
+    "This request was blocked; the exact cause is not yet known.",
+  "workspace.browser.error.address.title": "This address can’t be opened",
+  "workspace.browser.error.address.description":
+    "The link is incomplete, incorrectly formatted, or unsupported.",
+  "workspace.browser.error.redirect.title": "Too many redirects",
+  "workspace.browser.error.redirect.description":
+    "The website kept redirecting without reaching the page.",
+  "workspace.browser.error.unknown.title": "This page couldn’t open",
+  "workspace.browser.error.unknown.description":
+    "Loading failed, and the cause is not yet known.",
+  "workspace.browser.error.editAddress": "Check address",
+  "workspace.browser.error.nextStep": "Try this",
+  "workspace.browser.error.details": "View error details",
+  "workspace.browser.error.dns.advice":
+    "If it also fails in your external browser, check the address. If other websites fail too, check your network or proxy settings.",
+  "workspace.browser.error.offline.advice":
+    "Connect to Wi-Fi or check your cable, then use the refresh button at the top.",
+  "workspace.browser.error.proxy.advice":
+    "Make sure your proxy is running and its settings are correct, then refresh once connected.",
+  "workspace.browser.error.timeout.advice":
+    "If other websites are slow too, check your network or proxy. If only this site is slow, try again later.",
+  "workspace.browser.error.connection.advice":
+    "If other websites fail too, check your network or proxy. If only this site fails, try again later.",
+  "workspace.browser.error.certificate.advice":
+    "Check the address and your computer’s date and time. If the error persists, contact the website administrator.",
+  "workspace.browser.error.secureConnection.advice":
+    "Check your network or proxy. If the problem persists, try again later or contact the website administrator.",
+  "workspace.browser.error.blocked.advice":
+    "Check the address. On a work or school network, ask the administrator about access restrictions.",
+  "workspace.browser.error.address.advice":
+    "Enter a complete http:// or https:// address in the address bar, then press Enter.",
+  "workspace.browser.error.redirect.advice":
+    "Try entering from the website’s home page. If redirects continue, try again later or contact the website administrator.",
+  "workspace.browser.error.unknown.advice":
+    "Check the address, then use the refresh button at the top. If it still fails, include the error details when reporting the problem.",
+  "workspace.browser.error.visitExternal": "Visit using an external browser",
+  "workspace.browser.allTabs": "All tabs",
+  "workspace.browser.closeTabNamed": "Close tab: {{title}}",
+  "connectors.connector.downloadComponents": "Download Components",
+  "connectors.connector.downloadComponentsError":
+    "Could not open the component download.",
+  "chat.rating.like": "Like",
+  "chat.rating.removeLike": "Remove like",
+  "chat.rating.dislike": "Dislike",
+  "chat.rating.title": "What Could Be Better?",
+  "chat.rating.close": "Close",
+  "chat.rating.reasons": "Reasons (Select All That Apply)",
+  "chat.rating.category": "Task Category (Required)",
+  "chat.rating.comment": "Tell Us More (Optional)",
+  "chat.rating.contextHint":
+    "This response will be included to help us improve.",
+  "chat.rating.submit": "Submit",
+  "chat.rating.withdraw": "Remove dislike",
+  "chat.rating.saved": "Feedback saved",
+  "chat.rating.failed": "Could not submit feedback. Please try again.",
+  "chat.rating.retryLoad": "Could not load feedback. Click to retry.",
+  "chat.rating.reason.misunderstood_request": "Request Misunderstood",
+  "chat.rating.reason.forgot_requirements": "Forgot or missed my requirements",
+  "chat.rating.reason.misused_materials": "Materials Used Incorrectly",
+  "chat.rating.reason.poor_quality": "Poor Result",
+  "chat.rating.reason.incomplete_result": "Incomplete Result",
+  "chat.rating.reason.slow_or_repeated_failures": "Slow or Failed",
+  "chat.rating.reason.vague_or_unprofessional":
+    "Vague or unprofessional response",
+  "chat.rating.reason.other": "Other",
+  "chat.rating.category.shortDrama": "Film & Video",
+  "chat.rating.category.ecommerce": "Commercial Content",
+  "chat.rating.category.mvMusic": "Music Video",
+  "chat.rating.category.animation": "Animation",
+  "chat.rating.category.knowledge": "Knowledge Content",
+  "chat.rating.category.other": "Other",
+  "connectors.catalog.google-drive.description":
+    "Upload the Agent's results to your Google Drive and keep working on the files it has saved there — images, videos, and documents stay synced to the cloud.",
+  "connectors.catalog.google-drive.title": "Google Drive",
+  "connectors.catalog.quark-drive.description":
+    "Connect Quark Drive to store, search and share your cloud files in one sentence",
+  "connectors.catalog.quark-drive.title": "Quark Drive",
+  "connectors.detail.google-drive.description":
+    "Connect your Google Drive through a locally installed plugin. The Agent can upload finished images, videos, and documents to your Drive, then find, read, and re-download the files it has uploaded — scoped to files created through this app, as shown on the Google consent screen.",
+  "connectors.detail.google-drive.prompt.0":
+    "Generate a set of social banner images from our brand guidelines and upload them to my Google Drive.",
+  "connectors.detail.google-drive.prompt.1":
+    "Render this video edit and save the final cut to my Google Drive.",
+  "connectors.detail.google-drive.prompt.2":
+    "Download the poster you uploaded to my Drive yesterday, brighten the colors, and upload the new version.",
+  "connectors.detail.google-drive.promptTitle.0": "Upload results",
+  "connectors.detail.google-drive.promptTitle.1": "Save renders to Drive",
+  "connectors.detail.google-drive.promptTitle.2": "Iterate on saved files",
+  "connectors.detail.quark-drive.description":
+    "After binding your Quark Drive account, the agent can search your drive, save chat outputs to the cloud, and create share links.",
+  "connectors.detail.quark-drive.prompt.0":
+    "Save this report to my Quark Drive",
+  "connectors.detail.quark-drive.prompt.1":
+    "Find last month's contract documents in my drive",
+  "connectors.detail.quark-drive.prompt.2":
+    "Create a share link for this folder",
+  "connectors.google-drive.consent":
+    "Authorization runs on Google's official page in your browser. MiniMax Design only stores the resulting credentials locally on this device and requests just the Drive file scopes shown on the consent screen; your Google password never touches MiniMax Design.",
+  "connectors.google-drive.description":
+    "Authorize with your Google account to let the Agent save its results to your Drive and keep working on the files it uploads.",
+  "connectors.google-drive.title": "Connect Google Drive",
+  "workspace.browser.guide.annotationTitle":
+    "Annotate a page and let the agent take action",
+  "workspace.browser.guide.annotationDescription":
+    "Click Annotate, select an area, and describe what you want done. Send it to chat so the agent can act on the page.",
+  "workspace.browser.guide.intro":
+    "Hover over media and click the MiniMax icon to add it to canvas or chat. Select and annotate page content to ask the agent to take action.",
+  "workspace.browser.guide.annotationLink": "Annotation guide",
+  "workspace.browser.guide.entryTitle": "Browse and collect inspiration",
+  "workspace.browser.guide.entryDescription":
+    "Open Browser to find media and add it to canvas or chat. Select and annotate page content so the agent can act on your instructions.",
+  "connectors.quark-drive.accountCapacity": "Storage",
+  "connectors.quark-drive.accountMember": "Membership",
+  "connectors.quark-drive.accountNickname": "Nickname",
+  "connectors.quark-drive.accountReady":
+    "Your drive is ready — just say what you need in chat.",
+  "connectors.quark-drive.accountTitle": "Bound account",
+  "connectors.quark-drive.authDescription":
+    "Authorizing opens your browser; complete login and authorization on the Quark page",
+  "connectors.quark-drive.authFailed":
+    "Authorization did not complete, please try again",
+  "connectors.quark-drive.authTitle": "Authorize your account",
+  "connectors.quark-drive.authorize": "Authorize",
+  "connectors.quark-drive.authorizing": "Waiting for authorization…",
+  "connectors.quark-drive.codeHint":
+    "If the browser flow does not finish automatically, copy the code parameter from the redirected URL and paste it here",
+  "connectors.quark-drive.codeLabel": "Authorization code",
+  "connectors.quark-drive.codePlaceholder":
+    "Paste the authorization code from your browser",
+  "connectors.quark-drive.codeSubmit": "Submit",
+  "connectors.quark-drive.consent":
+    "Authorization only lets this device access your Quark Drive; you can revoke it anytime in the Quark Drive app under login authorization management.",
+  "connectors.quark-drive.description":
+    "Install the plugin and authorize your account to use your drive in chat",
+  "connectors.quark-drive.install": "Install",
+  "connectors.quark-drive.installDescription":
+    "Download and install the Quark Drive plugin component (about 2 MB)",
+  "connectors.quark-drive.installFailed":
+    "Installation failed, please try again later",
+  "connectors.quark-drive.installTitle": "Install the drive plugin",
+  "connectors.quark-drive.installed": "Installed",
+  "connectors.quark-drive.memberType.NORMAL": "Free user",
+  "connectors.quark-drive.memberType.SVIP": "Super member",
+  "connectors.quark-drive.memberType.VIP": "Member",
+  "connectors.quark-drive.openAuthPage": "Open authorization page",
+  "connectors.quark-drive.title": "Connect Quark Drive",
+  "chat.capabilitySearch.title": "Available capabilities",
+  "chat.capabilitySearch.empty": "No matching official capability found.",
+  "chat.capabilitySearch.use": "Use",
+  "chat.capabilitySearch.installAndUse": "Install and use",
+  "chat.capabilitySearch.preparing": "Preparing…",
+  "chat.capabilitySearch.sent": "Sent to chat",
+  "chat.capabilitySearch.errors.unavailable":
+    "This capability is unavailable. Please try again.",
+  "chat.capabilitySearch.errors.installFailed":
+    "Installation failed. Click the button to retry.",
+  "chat.capabilitySearch.errors.sessionChanged":
+    "Return to the original conversation and retry. No message was sent to another conversation.",
+  "chat.capabilitySearch.errors.persistFailed":
+    "Message sent, but the usage state could not be saved. The button may become available again after restarting.",
+  "chat.capabilitySearch.errors.sendFailed":
+    "The connector is ready, but the message was not sent. Please retry.",
+  "chat.connector.kind": "Connector",
+  "chat.connector.check": "Check connection",
+  "chat.connector.connect": "Connect and use",
+  "chat.connector.enable": "Enable and use",
+  "chat.connector.progress": "Connector setup progress",
+  "chat.connector.waitingHost":
+    "The connector is ready. Start the host app and enable its add-on, then check the connection again.",
+  "chat.connector.continuePrompt":
+    "I selected {{name}} (connector: {{runtimeName}}) to continue the original task in this session. Use its available tools and preserve existing inputs and requirements. Do not create a child session. [connector-selection:{{selectionId}}]",
+  "chat.connector.phase.runtime": "Preparing runtime…",
+  "chat.connector.phase.download": "Downloading connector…",
+  "chat.connector.phase.addon": "Configuring add-on…",
+  "chat.connector.phase.connecting": "Checking connection and tools…",
+  "chat.connector.phase.complete": "Connector prepared",
+  "chat.connector.phase.failed": "Setup failed. Please retry.",
+  "chat.capabilitySearch.connectorsUnavailable":
+    "The connector catalog is unavailable. Please retry.",
+  "chat.connector.cancel": "Cancel use",
+  "chat.connector.cancelled":
+    "Task continuation cancelled. Connector downloads already started will be kept.",
+  "chat.connector.cancelledLabel": "Cancelled",
+  "chat.connector.cancelledResult":
+    "This use was cancelled. The current task will not resume automatically.",
+  "chat.connector.cancelling": "Cancelling…",
+  "chat.connector.retryInstall": "Retry installation",
+  "chat.connector.waitingRuntime":
+    "The app is responding. Waiting for the connector to finish connecting.",
+  "chat.connector.autoContinue":
+    "Checking automatically. Your task will resume once connected. Cancel to stop automatic continuation.",
+  "connectors.catalog.baidu-drive.title": "Baidu Netdisk",
+  "connectors.catalog.baidu-drive.description":
+    "Upload, download, and share files in your application folder",
+  "connectors.detail.baidu-drive.description":
+    "Connect Baidu Netdisk to read and analyze documents, images, videos, and other assets you authorize. Turn them into MiniMax Design creative briefs, scripts, storyboards, and visual references, then save the results back to your drive. Access is limited to My Application Data/bdpan, with support for uploading, downloading, searching, and sharing files. Assets from other folders can be saved into this directory through shared links.",
+  "connectors.detail.baidu-drive.prompt.0":
+    "Organize the product information and brand guidelines in a specified Baidu Netdisk folder. Extract selling points, target audiences, brand voice, visual guidelines, and prohibited elements to create a MiniMax Design creative brief, with source filenames and paths.",
+  "connectors.detail.baidu-drive.prompt.1":
+    "Organize the text, images, and videos in a specified folder. Analyze image composition and colors, as well as video subjects, shots, subtitles, audio, and reusable segments, to provide visual references.",
+  "connectors.detail.baidu-drive.prompt.2":
+    "Combine product information, user reviews, and past assets from the drive to create three short-video or advertising concepts, including titles, selling points, visual prompts, voiceover scripts, and storyboards. Save or export them back to the specified folder.",
+  "chat.connector.phase.host_download": "Downloading Blender…",
+  "chat.connector.phase.host_install": "Installing and initializing Blender…",
+  "chat.connector.phase.host_start": "Starting Blender and connecting MCP…",
+  "connectors.connector.error.host_install_failed":
+    "Automatic Blender installation failed. Retry or select an existing installation.",
+  "connectors.connector.error.host_start_failed":
+    "Blender and its connector are installed, but startup failed. Open Blender, enable the MCP addon, then check the connection.",
+  "chat.connector.alreadyReady": "Ready — continuing your task",
+  "chat.connector.queued": "Queued for the original conversation",
+  "chat.connector.deliveryPending":
+    "Waiting for delivery confirmation. You can switch conversations safely.",
+  "chat.connector.deliveryUnknown":
+    "Delivery has not been confirmed. Checking the receipt before sending again.",
+  "chat.connector.configure": "Connection settings",
+  "chat.capabilitySearch.errors.taskUnavailable":
+    "The original task is no longer available. Send the task again.",
+  "chat.capabilitySearch.errors.inputMissing":
+    "An original input is unavailable. Restore it and retry.",
+  "chat.capabilitySearch.errors.alreadyStarted":
+    "The task has started. Stop it in the original conversation.",
+  "chat.connector.setupInProgress":
+    "Preparing {{name}}. Your task will continue when it is ready.",
+  "chat.connector.needsHost":
+    "Finish starting or setting up {{name}} to continue your task.",
+  "chat.connector.needsInstallation":
+    "Install the {{name}} connector to continue your task.",
+  "chat.connector.needsConnection": "Connect {{name}} to continue your task.",
+  "chat.connector.needsEnable":
+    "{{name}} is disabled. Enable it to continue your task.",
+  "chat.connector.needsRecovery":
+    "{{name}} is unavailable. Reconnect or check its connection settings.",
+  "chat.connector.useForTask": "Use {{name}} to continue this task.",
+  "chat.connector.retryConnection": "Reconnect",
+  "settings.models.addProvider": "Add provider",
+  "settings.models.community.entry": "View setup options",
+  "settings.models.community.title": "Community options",
+  "settings.models.community.description":
+    "After installing or adding one of these capabilities, describe what you want to generate in Agent chat and Agent will invoke it automatically. These capabilities do not appear in the model picker.",
+  "settings.models.community.dreamina.title": "Dreamina Skill",
+  "settings.models.community.dreamina.meta": "Community",
+  "settings.models.community.dreamina.description":
+    "Once installed, ask Agent to generate an image or video with Dreamina. Agent will invoke Dreamina through its CLI.",
+  "settings.models.community.dreamina.action": "View Skill",
+  "settings.models.community.libtv.title": "LibTV MCP",
+  "settings.models.community.libtv.meta": "Community",
+  "settings.models.community.libtv.description":
+    "Once added, ask Agent to create something with LibTV. Agent will invoke LibTV through MCP.",
+  "settings.models.community.libtv.action": "View MCP",
+  "settings.models.editProvider": "Edit",
+  "settings.models.editProviderNamed": "Edit {{name}}",
+  "settings.models.customProvider": "Custom provider",
+  "settings.models.modelCount": "{{count}} models",
+  "settings.models.validation.required": "This field is required.",
+  "settings.models.validation.protocol": "Select an API format.",
+  "settings.models.validation.url":
+    "Enter a valid HTTP or HTTPS URL without credentials, query parameters or fragments.",
+  "settings.models.validation.apiKey": "API Key must not contain line breaks.",
+  "settings.models.validation.modelId":
+    "Enter a model name without whitespace or a reserved internal prefix.",
+  "settings.models.validation.duplicateModel":
+    "Model names must be unique within this provider.",
+  "settings.models.validation.positiveInteger":
+    "Enter a positive whole number.",
+  "settings.models.validation.outputLimit":
+    "Maximum output tokens must not exceed the context window.",
+  "settings.models.validation.reasoning":
+    "Add up to 16 unique levels using letters, numbers, underscores or hyphens.",
+  "settings.models.validation.anthropicReasoning":
+    "Anthropic levels: low, medium, high, xhigh, max.",
+  "settings.models.validation.headerName":
+    "Enter a valid header name; reserved names such as Host are not allowed.",
+  "settings.models.validation.duplicateHeader":
+    "Header names must be unique (case-insensitive).",
+  "settings.models.validation.headerValue":
+    "Header values must not contain line breaks or null characters.",
+  "settings.models.validation.modelCount": "Add between 1 and 50 models.",
+  "chat.mediaModels.agent.reasoning": "Reasoning level",
+  "chat.mediaModels.agent.reasoningDefault": "Default",
+  "workspace.open.limitReachedNamed":
+    "Up to {{max}} projects can run at once, and {{projects}} are still generating. Open this one once that finishes.",
+  "debugPanel.iconOpacity.after": "After (shared component)",
+  "debugPanel.iconOpacity.ancestors":
+    "Ancestor opacity (up to sample container)",
+  "debugPanel.iconOpacity.background": "Background",
+  "debugPanel.iconOpacity.background.canvas": "Canvas toolbar",
+  "debugPanel.iconOpacity.background.card": "Card",
+  "debugPanel.iconOpacity.background.page": "Page",
+  "debugPanel.iconOpacity.background.topbar": "Top bar",
+  "debugPanel.iconOpacity.before": "Before (debug baseline)",
+  "debugPanel.iconOpacity.buttonFixture":
+    "Shared Button composition diagnostic for copy-action color inheritance. The actual copy control is a native button; this sample is not that business component.",
+  "debugPanel.iconOpacity.category.all": "All samples",
+  "debugPanel.iconOpacity.category.reconnect": "Canvas reconnect / retry",
+  "debugPanel.iconOpacity.category.sidebar": "Sidebar / Project",
+  "debugPanel.iconOpacity.colorAlpha": "Color / alpha",
+  "debugPanel.iconOpacity.control": "Business control",
+  "debugPanel.iconOpacity.dark": "Dark",
+  "debugPanel.iconOpacity.description":
+    "Compare actual icon compositing, ancestor opacity and business combinations.",
+  "debugPanel.iconOpacity.diagnostics": "Opacity diagnostics",
+  "debugPanel.iconOpacity.disabled": "Disabled",
+  "debugPanel.iconOpacity.hint":
+    "Uses the real application theme and restores it on exit. Hover the actual controls; expand diagnostics for computed styles.",
+  "debugPanel.iconOpacity.light": "Light",
+  "debugPanel.iconOpacity.location": "Business location",
+  "debugPanel.iconOpacity.normal": "Normal / hover",
+  "debugPanel.iconOpacity.opacity": "Diagnostic whole-sample opacity",
+  "debugPanel.iconOpacity.owner": "Opacity owner",
+  "debugPanel.iconOpacity.owner.control":
+    "Control owns state; root SVG composites color alpha",
+  "debugPanel.iconOpacity.owner.legacy":
+    "Legacy implementation: inspect color, primitive and ancestor values",
+  "debugPanel.iconOpacity.owner.parent": "Params chip owns the muted state",
+  "debugPanel.iconOpacity.owner.root":
+    "Root SVG composites color alpha; sample container adds diagnostic opacity",
+  "debugPanel.iconOpacity.pageEmpty":
+    "No measurable integrated icons or alpha candidates on the current page. Change the business scene and inspect again.",
+  "debugPanel.iconOpacity.pageHint":
+    "Read-only scan of visible SVGs: integrated icons plus candidates with alpha in color, stroke, fill or internal primitives; debug surfaces are excluded. Unintegrated candidates are not automatically wrong: brands, multicolor and layered artwork require review. Unopened pages/states are excluded; computed values are not visual acceptance.",
+  "debugPanel.iconOpacity.pageTitle":
+    "Current business page: {{count}} integrated / review candidates",
+  "debugPanel.iconOpacity.primitives": "Internal stroke / fill / opacity",
+  "debugPanel.iconOpacity.reconnect.initial.idle":
+    "Canvas initial load failure",
+  "debugPanel.iconOpacity.reconnect.initial.retrying": "Canvas reconnecting",
+  "debugPanel.iconOpacity.reconnect.refresh.idle":
+    "Canvas refresh failure banner",
+  "debugPanel.iconOpacity.reconnect.refresh.retrying":
+    "Canvas refresh retry banner",
+  "debugPanel.iconOpacity.reconnectHint":
+    "Renders the actual CanvasLoadError with its CloudOff, copy and retry button. Debug callbacks do not connect to services; retrying uses the actual component prop.",
+  "debugPanel.iconOpacity.refresh": "Refresh page snapshot",
+  "debugPanel.iconOpacity.root": "Root SVG opacity / filter",
+  "debugPanel.iconOpacity.scope":
+    "Legacy rendering is debug-only; fixed samples call real shared components. Individual glyphs diagnose color compositing; combinations retain their original sizes. Disabled applies to controls only. Diagnostic opacity adds a sample-container layer; it is not a business state standard or proof of business acceptance.",
+  "debugPanel.iconOpacity.sidebarGroups":
+    "Project groups: local, collaborative, expanded / collapsed",
+  "debugPanel.iconOpacity.sidebarNav":
+    "Sidebar: projects, plugins and ComfyUI workflows",
+  "debugPanel.iconOpacity.sidebarNavHint":
+    "Uses the real SidebarNavButton. Projects renders FolderOpen through the same renderer; the production projects trigger also has a menu. Library is the transitional asset-center entry. Clicks do not navigate or write data.",
+  "debugPanel.iconOpacity.sidebarRowActions":
+    "Project actions: pin, pinned and more",
+  "debugPanel.iconOpacity.sidebarRowFixture":
+    "Icon control composition using the shared opacity mechanism; not the complete RecentProjectRow. No project or storage operations.",
+  "debugPanel.iconOpacity.sidebarSelected": "Sidebar: selected state",
+  "debugPanel.iconOpacity.source": "Source",
+  "debugPanel.iconOpacity.state": "Control state",
+  "debugPanel.iconOpacity.theme": "Theme",
+  "debugPanel.iconOpacity.title": "Icon opacity acceptance",
+  "debugPanel.iconOpacity.unmapped": "Review / not integrated",
+  "debugPanel.iconOpacity.category.catalog": "All project icons",
+  "debugPanel.iconOpacity.category.inherited":
+    "Settings / inspiration / models / browser",
+  "debugPanel.iconOpacity.catalog.scope":
+    "Generated from actual production imports: every icon used from Lucide and the existing icon library. Custom SVGs and special assets are covered by composition samples, page diagnostics and source inventory. These real public glyphs use muted color and disabled states; this does not certify every business page.",
+  "debugPanel.iconOpacity.catalog.search":
+    "Search icon name, source or business file",
+  "debugPanel.iconOpacity.catalog.count":
+    "{{count}} / {{total}} icons · Page {{page}} / {{pages}}",
+  "debugPanel.iconOpacity.catalog.previous": "Previous",
+  "debugPanel.iconOpacity.catalog.next": "Next",
+  "debugPanel.iconOpacity.catalog.locations":
+    "All business locations ({{count}})",
+  "debugPanel.iconOpacity.catalog.loading": "Loading project icons…",
+  "debugPanel.iconOpacity.inherited.settings":
+    "Settings navigation color inheritance",
+  "debugPanel.iconOpacity.inherited.inspiration":
+    "Inspiration category and fallback site icon",
+  "debugPanel.iconOpacity.inherited.customModel":
+    "Disabled custom model action",
+  "debugPanel.iconOpacity.inherited.browser":
+    "Browser tabs and navigation controls",
+  "debugPanel.iconOpacity.inherited.fixture":
+    "Color-chain composition fixture using real public glyphs and the same color, size and state classes as the business call sites, not the complete business component. Verify on the listed page as well; hover is interactive.",
+  "debugPanel.iconOpacity.inherited.customModelHint":
+    "Fixed disabled composition fixture: inherited text-muted-foreground/50 gives alpha 0.25 in light mode. Uses the real public Icon; the normal/disabled switch does not change this fixed state.",
+  "debugPanel.iconOpacity.inherited.geometry":
+    "Horizontal / vertical / multiple paths / solid fill",
+  "debugPanel.iconOpacity.inherited.geometryHint":
+    "Geometry diagnostic fixture: verify horizontal and vertical paths survive zero-width or zero-height bounds; Pin keeps fill-current. Uses real public project glyphs, not complete business controls.",
+  "chat.connector.host.choose":
+    "The installation location of {{name}} could not be confirmed. Select an existing installation or confirm it is not installed.",
+  "chat.connector.host.manual":
+    "Install and launch {{name}}, then select Check again. Connector installation has not started.",
+  "chat.connector.host.existing":
+    "Already installed: select location / continue",
+  "chat.connector.host.autoInstall": "Not installed: install automatically",
+  "chat.connector.host.notInstalled": "Not installed",
+  "chat.connector.host.download": "Open official download page",
+  "chat.connector.host.recheck": "Check again",
+  "chat.connector.host.stillMissing":
+    "{{name}} still could not be detected. Install and launch it, then try again.",
+  "chat.connector.resumeHint":
+    "Check the connection again to continue the current task.",
+  "uiSpec.checkbox.description":
+    "Use this shared component for forms, bulk selection and multi-select cards. Circle is still a checkbox, not a radio button.",
+  "uiSpec.checkbox.usage": "Integration guide and examples",
+  "uiSpec.checkbox.api":
+    "Choose shape (square/circle), size (sm/md/lg) and appearance (default/card). Desktop visual/target sizes: 16/28, 20/32 and 24/44 px; coarse pointers use a 44 px target. Keep label or aria-label meaningful. The visible gap between the checkbox graphic and its label is 6 px.",
+  "uiSpec.checkbox.card":
+    "Card: fixed 24% black mask, 2 px white bleed and dark fill with a white mark in both themes. The host controls placement. All 19 color roles use project tokens; the gradient is currently monochrome because no warm endpoint token exists.",
+  "uiSpec.checkbox.behavior":
+    "Use onCheckedChange(boolean, details); derive mixed state and selection scope in the host. Preserve pagination, permissions and events. No pressed scaling or bounce; reduced motion and keyboard focus are supported. Disabled samples cannot be toggled.",
+  "uiSpec.checkbox.states":
+    "Each row: unchecked, checked, mixed, disabled, disabled checked, disabled mixed, invalid. Activate enabled samples with a click or Space; mixed samples stay mixed here because this matrix fixes that prop.",
+  "uiSpec.checkbox.label":
+    "A long checkbox label wraps while keeping the control aligned with the first line",
+  "uiSpec.checkbox.help":
+    "Click the label to toggle. Descriptions and errors are associated with the control.",
+  "project.move.title": "Move “<name/>”?",
+  "project.move.description": "Move creation to",
+  "project.move.before": "Before “{{name}}”",
+  "project.move.after": "After “{{name}}”",
+  "project.move.end": "At the end",
+  "project.move.manualNotice":
+    "Sidebar creations will switch to manual order after this move.",
+  "project.move.submitting": "Moving…",
+  "project.move.continue": "Move",
+  "project.move.failed":
+    "The move did not complete. Try again, or cancel and drag again if the source or destination has changed.",
+  "project.move.invalid":
+    "The source, destination, or insertion position has changed. Cancel and drag again.",
+  "project.move.success": "Moved to “{{target}}”",
+  "project.move.emptyUngrouped": "Drop here to remove from project",
+  "workspace.newProject.projectFolderMissing":
+    "The project folder no longer exists. It may have been moved or deleted. Restore the folder and try again.",
+  "workspace.newProject.projectFolderCheckFailed":
+    "Unable to check the project folder. Please try again later.",
+  "uiSpec.actionList.description":
+    "Shared action menus. New action-list scenarios must reuse these components.",
+  "uiSpec.actionList.open": "Open",
+  "uiSpec.actionList.unavailable": "Unavailable",
+  "uiSpec.actionList.states":
+    "Includes icons, text-only rows, separators, disabled items and destructive actions. Hover or use Tab to inspect the highlight.",
+  "uiSpec.actionList.inline": "List panel",
+  "uiSpec.actionList.interactive": "Popup menus",
+  "uiSpec.actionList.dropdown": "Open dropdown menu",
+  "uiSpec.actionList.context": "Right-click here",
+  "uiSpec.actionList.result":
+    "Preview action: {{action}}. No project data was changed.",
+  "uiSpec.actionList.hint":
+    "Try the menu actions. Examples only update this preview; they do not open, copy or delete project files.",
+  "uiSpec.actionList.usage": "Usage and shared styling",
+  "uiSpec.actionList.tokens":
+    "ActionListPanel / ActionListItem / ActionListSeparator share the --action-list-* tokens in app/packages/canvas/src/react/ui/action-list.css. Change radius, shadow, border, typography and spacing there so every consumer updates together.",
+  "uiSpec.actionList.behavior":
+    'Use ActionContextMenu* / ActionDropdownMenu* from @/modules/base/action-list for Desktop popup menus; keep their existing Root and Trigger. Base UI owns positioning, keyboard navigation and disabled behavior. Use variant="destructive" for destructive actions.',
+  "uiSpec.icons.action.next": "Next episode",
+  "uiSpec.icons.action.pause": "Pause",
+  "uiSpec.icons.action.play": "Play",
+  "uiSpec.icons.action.previous": "Previous episode",
+  "uiSpec.icons.action.stop": "Stop",
+  "uiSpec.icons.audioScene":
+    "Neutral-card audio control · circle-fill · 28px circle and hit area",
+  "uiSpec.icons.auxiliary": "Fullscreen auxiliary glyph sample",
+  "uiSpec.icons.currentRules": "Current rules",
+  "uiSpec.icons.dark": "Dark",
+  "uiSpec.icons.decision": "Source & decision",
+  "uiSpec.icons.decision.auxiliary.body":
+    "Keep volume, mute, fullscreen, captions and settings outlined. They may coexist with Filled transport controls when size, weight and color hierarchy are coordinated.",
+  "uiSpec.icons.decision.auxiliary.title": "Auxiliary actions → Outline",
+  "uiSpec.icons.decision.special.body":
+    "Reuse existing solid menu dots and the media-cover Skill glyph. Brands, multicolor artwork and illustrations keep their own semantics.",
+  "uiSpec.icons.decision.special.title": "Small glyphs & special assets",
+  "uiSpec.icons.decision.state.body":
+    "Specify Filled states for favorites and pins individually. A connector paused status is not a media pause action.",
+  "uiSpec.icons.decision.state.title": "State changes → Specify individually",
+  "uiSpec.icons.decision.transport.body":
+    "Use bare Filled glyphs over media, circle-fill for standalone audio controls on neutral cards, and bare Filled glyphs for compact toolbars, inline chat audio and status indicators.",
+  "uiSpec.icons.decision.transport.title": "Media transport → Filled",
+  "uiSpec.icons.diagnostics": "Alpha diagnostics & existing scene samples",
+  "uiSpec.icons.disabled": "Disabled preview",
+  "uiSpec.icons.episode": "Episode {{episode}} / 3",
+  "uiSpec.icons.existingMedia": "Shared Filled component; no outline variant.",
+  "uiSpec.icons.filled": "Filled",
+  "uiSpec.icons.filledScope":
+    "Shared media controls, menu dots and media-cover Skill glyphs. Media geometry uses one entry point; scene, theme and state checks remain required. This is not an exhaustive custom SVG inventory.",
+  "uiSpec.icons.filledTitle": "Existing Filled & solid glyphs",
+  "uiSpec.icons.intro":
+    "Playback, pause, stop and track controls use Filled glyphs. A filled glyph does not imply a circle background: choose the background by surface and control role. Examples use shared components.",
+  "uiSpec.icons.library": "Registered library icons · Lucide / MX",
+  "uiSpec.icons.light": "Light",
+  "uiSpec.icons.loading": "Loading preview…",
+  "uiSpec.icons.meaning": "Meaning",
+  "uiSpec.icons.mediaHint":
+    "No outlined media controls. Desktop and Canvas share the same geometry; legacy Play / Pause / CirclePlay / CircleStop imports resolve to Filled.",
+  "uiSpec.icons.mediaTitle": "Media controls · Filled",
+  "uiSpec.icons.mute": "Mute",
+  "uiSpec.icons.noResults": "No matching icons",
+  "uiSpec.icons.pending.geometry":
+    "Use shared Filled transport glyphs instead of drawing new variants or adding fill at call sites. Circular buttons must not stretch glyphs or change existing hit areas.",
+  "uiSpec.icons.pending.migration":
+    "Verify players, audio cards and asset thumbnails in context: themes, applicable states, proportions and color beside adjacent icons. UI previews do not replace product acceptance.",
+  "uiSpec.icons.pending.semantics":
+    "Define episode switching, frame stepping and time seeking separately; do not reuse an ambiguous arrow for all three.",
+  "uiSpec.icons.pendingTitle": "Usage boundaries & acceptance",
+  "uiSpec.icons.proposedRules": "Media icon usage rules",
+  "uiSpec.icons.rule.color":
+    "Use semantic color and currentColor; the shared layer composites alpha across the whole icon. Do not dim the glyph again when its disabled button is already dimmed.",
+  "uiSpec.icons.rule.interaction":
+    "Define glyph size and hit area separately and label icon-only controls. No press movement, scale or bounce. Circle audio toggles use PlaybackCircleToggleIcon’s 150ms inner-glyph transition with a fixed circle and hit area; reduced motion switches immediately.",
+  "uiSpec.icons.rule.sizes":
+    "xs 12px / sm 14px (default) / md 16px / lg 20px. Media describes purpose; md only describes size.",
+  "uiSpec.icons.rule.stroke":
+    "New or migrated outline icons target rendered stroke widths: 16px → 1.25px, 20px → 1.5px, 24px → 1.75px. SVG strokeWidth is not the rendered width. Migrate existing scenes individually; Filled icons are excluded.",
+  "uiSpec.icons.rule.weight":
+    "Equal boxes do not ensure equal visual size. Compare silhouette, whitespace, optical center and weight; Filled geometry cannot be calibrated by strokeWidth alone.",
+  "uiSpec.icons.sceneBoundary":
+    "Try play / pause, episode switching and mute; previous / next disable at the sequence boundaries. This composition preview does not define product playback behavior or replace real-page acceptance.",
+  "uiSpec.icons.sceneHint":
+    "Compact toolbar · bare Filled · 32px hit area, simulated interaction",
+  "uiSpec.icons.search": "Search name, purpose or usage location",
+  "uiSpec.icons.size": "Icon size",
+  "uiSpec.icons.theme": "Theme",
+  "uiSpec.icons.thumbnailScene":
+    "Media overlay · bare Filled · 20px glyph / 36px hit area",
+  "uiSpec.icons.title": "Icon guidelines & preview",
+  "uiSpec.icons.usage.legacyMore":
+    "Legacy horizontal dots; new menu triggers use MoreVerticalIcon.",
+  "uiSpec.icons.usage.more":
+    "Use solid vertical menu dots to preserve legibility at small sizes.",
+  "uiSpec.icons.usage.next":
+    "Switch to the next episode or track; not frame stepping or seeking.",
+  "uiSpec.icons.usage.pause":
+    "Shared Filled pause glyph for media controls and paused statuses; callers distinguish actions from status indicators.",
+  "uiSpec.icons.usage.play":
+    "Media playback and thumbnail entry; also used by some integration run actions, whose semantics need separate review.",
+  "uiSpec.icons.usage.previous":
+    "Switch to the previous episode or track; not frame stepping or seeking.",
+  "uiSpec.icons.usage.skill":
+    "Only for Skill actions on media covers; not a replacement for every Skill icon.",
+  "uiSpec.icons.usage.stop":
+    "Stop playback, recording or execution. Rectangle drawing tools keep outlined Square; they do not mean stop.",
+  "uiSpec.slider.api":
+    "Public import: @hilo/canvas/controls. variant: standard / rounded / filled; size: default / compact. Rounded supports markerValue, trackAppearance=temperature and thumbSize=18. Filled supports visualMin, ticks and minBoundaryMessage. Values, forms and change/commit retain the Base UI contract.",
+  "uiSpec.slider.boundaries":
+    "Use for numeric axes and confirmed ordered levels, not unordered categories. Handle media seeking, trimming, pagination and loading progress separately. Connect onValueChange to existing live updates and onValueCommitted to existing submission; preserve permissions, tracking, undo and rollback.",
+  "uiSpec.slider.compactDuration": "Model settings · 28px duration slider",
+  "uiSpec.slider.visualMinimumHelp":
+    "The axis starts at 0. The filled 0–4 second prefix is locked; only 4–15 seconds are selectable. Drag past the minimum to show a range hint that starts fading after 1 second, once per gesture. Labels retain seconds; internal ticks do not change allowed values.",
+  "uiSpec.slider.variant.rounded": "Rounded · Tool parameters",
+  "uiSpec.slider.temperature": "Temperature · Semantic warm-to-cool gradient",
+  "uiSpec.slider.description":
+    "Production Slider: thin, rounded and filled appearances with external labels and values.",
+  "uiSpec.slider.disabled": "Disabled · 40%",
+  "uiSpec.slider.error": "Invalid Value",
+  "uiSpec.slider.errorHelp":
+    "Example validation message, associated with the slider thumb.",
+  "uiSpec.slider.events":
+    "Changes: {{changes}} · Commits: {{commits}} · Last committed: {{value}}%",
+  "uiSpec.slider.fallback":
+    "Range and vertical samples request filled and use the standard appearance to preserve their existing behavior.",
+  "uiSpec.slider.keyboard":
+    "Tab to focus. Arrow keys adjust by step; Home/End reach the bounds. Disabled controls cannot be adjusted. Mouse, touch and keyboard follow Base UI semantics.",
+  "uiSpec.slider.longLabel":
+    "A longer numeric adjustment label wraps without covering the value or track",
+  "uiSpec.slider.range": "Range · Two Thumbs",
+  "uiSpec.slider.rulesTitle": "Slider Usage Rules",
+  "uiSpec.slider.rules.selection.title": "When To Use",
+  "uiSpec.slider.rules.selection.body":
+    "Use for one axis with a clear direction, range and unit, or confirmed ordered levels. Keep unordered categories, switches and multiple selection in their own controls. Pair precise values with an input or stepper.",
+  "uiSpec.slider.rules.sizes.title": "Appearance And Size",
+  "uiSpec.slider.rules.sizes.body":
+    "Model settings: filled compact, 28px track / 44px control. Color, lighting and angles: rounded compact, 16px pill track / 16px round thumb / 24px control; temperature thumb 18px. Font size: standard compact, 4px track / 24px control / 32px container.",
+  "uiSpec.slider.rules.layout.title": "Labels And Spacing",
+  "uiSpec.slider.rules.layout.body":
+    "Place the label left, value or stepper right, and marks below. Filled compact provides 8px above and below the track; add no extra margins. Internal spacing stays below the 16px setting gap. Font size uses a 170×32px horizontal strip.",
+  "uiSpec.slider.rules.ticks.title": "Ticks And Units",
+  "uiSpec.slider.rules.ticks.body":
+    "Use sparse labels with endpoints and units, such as 0s / 5s / 10s / 15s. Internal ticks are 1×6px using the foreground at 20%. Position numeric marks proportionally; preserve original mappings for ordered levels.",
+  "uiSpec.slider.rules.feedback.title": "Color And Boundaries",
+  "uiSpec.slider.rules.feedback.body":
+    "Hover keeps the track unchanged: thin and filled highlight progress; rounded highlights the thumb and does not imply cumulative progress. Preserve the temperature gradient. Dragging into a filled locked prefix shows one hint, exiting after 1 second with 150ms entry/exit; disabled controls do not trigger it.",
+  "uiSpec.slider.rules.contract.title": "Business Contract",
+  "uiSpec.slider.rules.contract.body":
+    "Read ranges, steps, defaults and disabled values from the business model. Preserve live updates, release commits, event counts and cancellation. Demo data is not a production dependency. Preview checks do not replace business or user acceptance.",
+  "uiSpec.slider.setValue": "Set To {{value}}%",
+  "uiSpec.slider.theme.dark": "Dark",
+  "uiSpec.slider.theme.light": "Light",
+  "uiSpec.slider.theme.system": "System",
+  "uiSpec.slider.themeHelp":
+    "These buttons change the actual application theme preference.",
+  "uiSpec.slider.usage": "Integration Guide And Examples",
+  "uiSpec.slider.variant.filled": "Filled",
+  "uiSpec.slider.variant.standard": "Standard",
+  "uiSpec.slider.vertical": "Vertical",
+  "uiSpec.fileTypeIcon.accessible": "{{type}} file type icon",
+  "uiSpec.fileTypeIcon.api":
+    "Use classifyFileType to normalize display metadata, then pass it to FileTypeIcon. Use decorative beside a filename; standalone icons require a localized accessibleLabel. For compact 14 / 16px icons, retain the filename beside the icon or in its tooltip; standalone icons require accessibleLabel.",
+  "uiSpec.fileTypeIcon.boundary":
+    "Icons do not change preview support, permissions, loading, retries or click behavior. Known unsupported files retain their type. Use readFailure only for confirmed file read failures. Keep working image, video and audio previews. Use file artwork only when no preview is available or it fails; preserve existing PDF viewers.",
+  "uiSpec.fileTypeIcon.colors":
+    "File categories retain their hues: indigo Photoshop, orange vector, red PDF, blue documents, green spreadsheets, coral presentations, teal images, purple video/design, pink audio, blue archives and slate code. Archives include a light zipper, while project theme tokens adapt light and dark mode.",
+  "uiSpec.fileTypeIcon.coverage": "55 reference extensions",
+  "uiSpec.fileTypeIcon.description":
+    "Shared file type artwork for lists, cards and unavailable previews.",
+  "uiSpec.fileTypeIcon.readFailure": "Confirmed file read failure",
+  "uiSpec.fileTypeIcon.scenes": "List / card / unavailable preview",
+  "uiSpec.fileTypeIcon.sizes": "Width presets (99:117 aspect ratio)",
+  "uiSpec.fileTypeIcon.states":
+    "Unknown / no extension / long label / confirmed read failure",
+  "uiSpec.fileTypeIcon.usage": "Integration guide and examples",
+  "connectors.browser.details": "View browser details",
+  "connectors.browser.enable": "Enable",
+  "connectors.browser.enableToUse": "Enable to use",
+  "connectors.detail.browser.promptTitle.0": "Find brand visual references",
+  "connectors.detail.browser.prompt.0":
+    "Use the built-in browser to find 6 packaging and website references for a nature-inspired coffee brand. Visit the original pages, summarize their colors, typography, layouts and useful design details, and include source links.",
+  "connectors.detail.browser.promptTitle.1": "Compare competitor landing pages",
+  "connectors.detail.browser.prompt.1":
+    "Use the built-in browser to find and visit the landing pages of 3 AI video products. Compare their hero copy, feature presentation, pricing and calls to action in a table, and suggest improvements for my product page.",
+  "connectors.detail.browser.promptTitle.2":
+    "Turn web research into a creative brief",
+  "connectors.detail.browser.prompt.2":
+    "Use the built-in browser to research filmmaking references for a city-at-night short film. Open and read relevant pages, summarize composition, lighting, color and practical shooting tips, and create a storyboard-ready brief with source links.",
+  "connectors.detail.appSection": "Application",
+  "connectors.detail.skillsSection": "Skills",
+  "connectors.category.all": "All",
+  "connectors.detail.needsAuthNotice":
+    "This plugin requires authorization to access your account.",
+  "connectors.market.saveFailed":
+    "Could not update visibility. Please try again.",
+  "connectors.market.publicVisible": "Visible to users",
+  "connectors.market.visibilityGroup": "Market visibility for {{name}}",
+  "connectors.oauth.invalidInput": "Invalid input",
+  "connectors.category.design-3d": "3D Design",
+  "connectors.category.design-2d": "2D Design",
+  "connectors.category.video-audio": "Video & Audio",
+  "connectors.category.cloud-storage": "Cloud Storage",
+  "connectors.category.office-docs": "Office & Docs",
+  "connectors.category.ecommerce": "E-commerce",
+  "connectors.category.data-research": "Data & Research",
+  "connectors.category.enterprise": "Enterprise",
+  "connectors.category.other": "Other",
+  "connectors.origin.hub": "MiniMax Design",
+  "connectors.origin.workbuddy": "WorkBuddy",
+  "connectors.origin.kimi-desktop": "Kimi",
+  "connectors.origin.minimax-code": "MiniMax Code",
+  "connectors.origin.mcp-registry": "MCP Registry",
+  "connectors.origin.community": "Community",
+  "canvas.tidy.confirmKeep": "Keep tidy result?",
+  "canvas.tidy.keep": "Keep",
+  "canvas.tidy.revert": "Revert",
+  "connectors.cli-auth.accountCapacity": "Storage",
+  "connectors.cli-auth.accountMember": "Membership",
+  "connectors.cli-auth.accountNickname": "Nickname",
+  "connectors.cli-auth.accountReady": "Ready — just say what you need in chat.",
+  "connectors.cli-auth.accountTitle": "Bound account",
+  "connectors.cli-auth.authDescription":
+    "Authorizing opens your browser; complete login and authorization there",
+  "connectors.cli-auth.authFailed":
+    "Authorization did not complete, please try again",
+  "connectors.cli-auth.authorize": "Authorize",
+  "connectors.cli-auth.authorizing": "Waiting for authorization…",
+  "connectors.cli-auth.authTitle": "Authorize your account",
+  "connectors.cli-auth.codeHint":
+    "If the browser flow does not finish automatically, copy the code parameter from the redirected URL and paste it here",
+  "connectors.cli-auth.codeLabel": "Authorization code",
+  "connectors.cli-auth.codePlaceholder":
+    "Paste the authorization code from your browser",
+  "connectors.cli-auth.codeSubmit": "Submit",
+  "connectors.cli-auth.consent":
+    "Authorization only lets this device access your account; you can revoke it anytime in the provider’s authorization management.",
+  "connectors.cli-auth.description":
+    "Install the plugin and authorize your account to use it in chat",
+  "connectors.cli-auth.install": "Install",
+  "connectors.cli-auth.installDescription":
+    "Download and install the plugin component",
+  "connectors.cli-auth.installed": "Installed",
+  "connectors.cli-auth.installFailed":
+    "Installation failed, please try again later",
+  "connectors.cli-auth.installTitle": "Install the plugin",
+  "connectors.cli-auth.openAuthPage": "Open authorization page",
+  "connectors.cli-auth.title": "Connect {{name}}",
+  "connectors.customDialog.created.needs_auth":
+    "Plugin saved, but it still needs authorization in your browser.",
+  "connectors.customDialog.created.saved":
+    "Plugin saved. It is verified once a workspace is running.",
+  "connectors.detail.authorize": "Authorize",
+  "connectors.generic.connect": "Connect",
+  "connectors.generic.consent":
+    "The key is stored on this machine, used only to connect {{name}}, and can be removed here at any time.",
+  "connectors.generic.description":
+    "Paste your {{name}} API key to start using it in chat",
+  "connectors.generic.invalidKey":
+    "That key format looks wrong. Check it and try again.",
+  "connectors.generic.keyHint":
+    "The key stays on this machine and is only used for Hub to reach {{name}}.",
+  "connectors.generic.keyLabel": "Enter API key",
+  "connectors.generic.keyPlaceholder": "Enter {{name}} API key",
+  "connectors.generic.login": "Get {{name}} API key",
+  "connectors.generic.loginDescription":
+    "Sign in to {{name}} and copy the API key from its console.",
+  "connectors.generic.loginError": "Could not open the browser. Try again.",
+  "connectors.generic.loginTitle": "Get an API key",
+  "connectors.generic.title": "Connect {{name}}",
+  "connectors.local-app.description":
+    "Install the local bridge, then drive {{name}} from chat",
+  "connectors.local-app.title": "Connect {{name}}",
+  "connectors.oauth.consent":
+    "Connecting authorizes this service to access data within the scope you grant",
+  "connectors.oauth.description":
+    "Authorize {{name}} in your browser to use it in chat",
+  "connectors.oauth.title": "Connect {{name}}",
+  "connectors.origin.label": "Source",
+  "connectors.plain.connect": "Connect",
+  "connectors.plain.description":
+    "{{name}} needs no credentials — connect and use it in chat",
+  "connectors.plain.hint":
+    "Connecting stores the {{name}} service address on this machine and attaches it when a workspace starts. You can disconnect here at any time.",
+  "connectors.plain.title": "Connect {{name}}",
+  "connectors.runtimeState.needs_auth": "Authorization needed",
+  "connectors.runtimeState.saved": "Installed",
+  "connectors.server-oauth.authorizing": "Waiting for authorization…",
+  "connectors.server-oauth.authorizingHint":
+    "Your browser is open on the {{name}} authorization page. Finish signing in there and come back; keep this window open.",
+  "connectors.server-oauth.connect": "Connect and authorize",
+  "connectors.server-oauth.consent":
+    "The token is stored and refreshed by the local runtime, never written into the plugin config, and revoked when you disconnect.",
+  "connectors.server-oauth.description":
+    "{{name}} runs its own sign-in — connecting opens your browser",
+  "connectors.server-oauth.hint":
+    "Connecting saves the service address, then opens your browser to sign in and authorize on {{name}}. A workspace must be open: the local runtime performs the grant.",
+  "connectors.server-oauth.noWorkspaceError":
+    "A workspace must be open before this service can be authorized. Open one, then retry from the plugin detail page.",
+  "connectors.server-oauth.title": "Connect {{name}}",
+  "connectors.skill-only.description":
+    "Install the official skill package to use it in chat",
+  "connectors.skill-only.install": "Install",
+  "connectors.skill-only.installedHint":
+    "Installed. Restart the workspace to use it in chat.",
+  "connectors.skill-only.installFailed":
+    "Installation failed, please try again later",
+  "connectors.skill-only.installHint":
+    "Downloads the official skill package into your skill library; the source is integrity-checked.",
+  "connectors.skill-only.title": "Install {{name}}",
+  "canvas.imageSlot.annotatedImageRejected":
+    "The edited image does not meet the current model requirements.",
+  "attachment.audio.seek": "Playback Position",
+  "attachment.audio.loadFailed": "Audio could not be played. Try again.",
+  "attachment.text.readFull": "Read Full Text",
+  "attachment.text.readOnly": "Read-only preview",
+  "connectors.libtv.dismiss": "Close For Now",
+  "cloudAssets.statusWaitingUpload": "Waiting to upload",
+  "cloudAssets.transferFailuresHint":
+    "Some uploads or reviews failed. Check the transfer list.",
+  "home.workspaceFolderMissing":
+    "The local project folder no longer exists. It may have been moved or deleted. Please select a folder again. Your input has been preserved.",
+  "uiSpec.icons.rule.surface":
+    "Circle boundary: no background over video or thumbnails; a circle for standalone audio controls on neutral cards; usually no circle for compact 12–16px glyphs. Decide by surface and role, not hit-area size alone.",
+  "uiSpec.icons.usage.circlePlay":
+    "Standalone audio play control on a neutral card; not for media overlays or compact status icons.",
+  "uiSpec.icons.usage.circlePause":
+    "Standalone audio pause control on a neutral card; use PlaybackCircleToggleIcon for animated state changes.",
+  "uiSpec.icons.rule.hitArea":
+    "Desktop icon-only buttons use a 32×32px hit area by default, at least 24×24px for compact controls. Inline chat audio uses a bare 12px glyph in a 24px hit area. Targets must not overlap and keyboard focus must remain visible.",
+  "uiSpec.icons.stroke.title":
+    "Size and rendered stroke · targets for new or migrated icons",
+  "uiSpec.icons.stroke.note":
+    "Values are CSS px at 100% page zoom, for outline icons only. Existing wrappers and named scene specifications remain compatible; this does not indicate a completed site-wide migration.",
+  "uiSpec.icons.stroke.size": "Icon bounds",
+  "uiSpec.icons.stroke.target": "Rendered stroke",
+  "uiSpec.icons.stroke.source": "24-unit SVG strokeWidth",
+  "uiSpec.icons.stroke.formula":
+    "Uniform SVG scaling: strokeWidth = target stroke × viewBox size ÷ display size. Lucide absoluteStrokeWidth takes the target stroke without additional compensation. CSS size must match size; Filled, two-tone and internally transformed artwork require separate calibration.",
+  "uiSpec.icons.stroke.sample": "Component sample",
+  "uiSpec.icons.stroke.scene": "Real scene / entry",
+  "uiSpec.icons.stroke.scene12":
+    "Canvas Project assets → Library sort: 12px Regular text + 12px / 1px chevron and check",
+  "uiSpec.icons.stroke.scene14":
+    "Sidebar project / recent chat → …: rename, copy and actions",
+  "uiSpec.icons.stroke.scene16": "Canvas node → context menu",
+  "uiSpec.icons.stroke.scene20":
+    "Skills & Plugins → installed Skill details → Close",
+  "uiSpec.icons.stroke.scene24": "Avatar → Settings → Close / subpage Back",
+  "uiSpec.icons.stroke.scene32":
+    "Reserved for special uses; excluded from this trial. Empty states use Page State.",
+  "assetCenter.searchEmpty": "No matching subjects",
+  "uiSpec.icons.pairing.title": "Icon and text proportions · Trial rules",
+  "uiSpec.icons.pairing.note":
+    "Supporting symbols match or are smaller than text size; action icons may be larger. Regular and Medium can share a stroke weight. Validate optical alignment and actual artwork.",
+  "uiSpec.icons.pairing.compact":
+    "Compact sort / filter: 12px Regular + 12px / 1px",
+  "uiSpec.icons.pairing.menu": "Standard menu: 14px Regular + 16px / 1.25px",
+  "uiSpec.icons.pairing.button": "Standard button: 14px Medium + 16px / 1.25px",
+  "uiSpec.pageState.compact.title": "Compact picker empty state",
+  "uiSpec.pageState.compact.note":
+    "For empty @ picker results: 64px shared illustration, 12px Regular text and an 8px gap. Keep the picker height; loading remains owned by the caller.",
+  "uiSpec.icons.listPairing.title":
+    "Icon + text list comparison · Awaiting review",
+  "uiSpec.icons.listPairing.note":
+    "Compare five icon tiers with identical menu content and text. Adjust text size and weight to inspect balance, alignment, hover and disabled states. Preview only; 32px is excluded from ordinary menus.",
+  "uiSpec.icons.listPairing.textSize": "Text size",
+  "uiSpec.icons.listPairing.regular": "Regular · 400",
+  "uiSpec.icons.listPairing.medium": "Medium · 500",
+  "uiSpec.icons.listPairing.tier": "Icon {{size}}px · Stroke {{stroke}}px",
+  "uiSpec.icons.listPairing.disabledRow": "Copy (unavailable)",
+  "uiSpec.icons.listPairing.feedback":
+    "Demo action: {{action}}. No project data was changed.",
+  "uiSpec.icons.listPairing.hint":
+    "Hover, focus with Tab or click a row. Actions are demonstrations only.",
+};

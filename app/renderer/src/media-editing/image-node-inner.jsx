@@ -1,691 +1,187 @@
 // image-node-inner.jsx
-import { jsxRuntimeExports, reactExports, useTranslation, useStore$3, NodeToolbar$1, Position, dedupedToast, useNodeId, X$7, BACKEND_VIBE_STORYBOARD, useAssetMetadataApi, useReactFlow, useUpdateNodeInternals } from "../vendor.js";
-import { useStableZoomTier } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { usePathFileVersion, appendCanvasFileVersion, NodeResizeFrame } from "../infra/create-html-iframe-pool-store.jsx";
-import { useNodeRename, useModelForAsset } from "../infra/create-recently-added-store.jsx";
-import { computeNodeSize } from "../canvas/group-nodes-in-canvas.js";
-import { useCanvasBridge, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useAssetMeta, MEDIA_NODE_RADIUS, useCanvasActions } from "./parse-item.jsx";
-import { useEmitDerivedFromBlob, useCropViewportZoom, getNodeFlowRect, useCropState, useStartCropFromNode } from "../canvas/use-file-bytes.js";
-import { useImageNodeView, useSubImages, useOutpaintState, useEraseState, useRedrawState, useMoveObjectState, useStartOutpaintFromNode, useStartEraseFromNode, useStartRedrawFromNode, useMultiImageActions } from "./use-multi-image-actions.js";
 import {
-  ImagePlaceholderIcon,
-  getFileExtension,
+  BACKEND_VIBE_STORYBOARD,
+  dedupedToast,
+  reactExports,
+  useAssetMetadataApi,
+  useReactFlow,
+  useTranslation,
+  useUpdateNodeInternals,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  MEDIA_OVERLAY_EXIT_ANIMATION_MS$1,
+  SEEDREAM_LAYER_DECOMPOSE_SMALL_PRICING_MODEL,
+  STORYBOARD_RESIZE_MAX_EDGE,
+  STORYBOARD_RESIZE_MIN_EDGE,
+  WATERMARK_PANEL_WIDTH,
+} from "./storyboard-resize-max-edge.js";
+import { WatermarkPopover } from "./watermark-popover.jsx";
+import { useStableZoomTier } from "../canvas/separator.jsx";
+import {
+  appendCanvasFileVersion,
+  usePathFileVersion,
+} from "../infra/use-plugin-metadata-store.js";
+import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
+import { useNodeRename } from "../infra/use-node-rename.js";
+import { useModelForAsset } from "../infra/create-recently-added-store.js";
+import { computeNodeSize } from "../canvas/compute-group-bounds-from-children.js";
+import {
+  MEDIA_NODE_RADIUS,
+  useAssetMeta,
+  useCanvasBridge,
+  useCanvasIsBoxSelecting,
+  useCanvasIsMultiSelect,
+} from "./package.jsx";
+import { useCanvasActions } from "./use-canvas-actions.js";
+import {
+  getNodeFlowRect,
+  useCropState,
+  useEmitDerivedFromBlob,
+  useStartCropFromNode,
+} from "../canvas/use-start-crop-from-node.js";
+import { useCropViewportZoom } from "../canvas/use-crop-viewport-zoom.js";
+import {
+  useEraseState,
+  useImageNodeView,
+  useMoveObjectState,
+  useOutpaintState,
+  useRedrawState,
+  useStartEraseFromNode,
+  useStartOutpaintFromNode,
+  useStartRedrawFromNode,
+  useSubImages,
+} from "./use-start-cloud-edit-from-node.js";
+import { useMultiImageActions } from "./use-multi-image-actions.js";
+import { ImagePlaceholderIcon } from "../canvas/file-missing-icon.jsx";
+import {
   formatFileSize,
-} from "../canvas/generating-media-area.jsx";
-import { NodeHeader, NodeHandles } from "../canvas/use-inline-rename.jsx";
+  getFileExtension,
+} from "../canvas/fullscreen-icon.jsx";
+import { NodeHeader } from "../canvas/node-header-inner.jsx";
+import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
 import {
   isMissingAssetNodeData,
-  MissingAssetCard,
   MEDIA_FALLBACK_NODE_SIZE,
   MediaUnpreviewableFallback,
-} from "../generation/create-tracker.jsx";
+  MissingAssetCard,
+} from "../generation/missing-asset-card.jsx";
 import {
-  NODE_POPOVER_SAFE_GAP,
+  getLightboxSlotKey,
   isCloneData,
   lightboxItemFromAssetMeta,
   lightboxItemsFromSlots,
+  NODE_POPOVER_SAFE_GAP,
   resolveLightboxIndexForSlot,
-  getLightboxSlotKey,
   submitAfterOptionalDraftFlush,
   useWarnMissingAssetMeta,
-} from "./use-lightbox-media-actions.jsx";
-import { isEnhanceImageInputEligible } from "../generation/text-models.js";
+} from "./use-warn-missing-asset-meta.jsx";
+import { isEnhanceImageInputEligible } from "../generation/to-workspace-browser-url.js";
+import { CanvasImage } from "./canvas-image.jsx";
 import {
-  CanvasImage,
-  PANORAMA_VIEWER_PLUGIN_ID,
   PANORAMA_EMPTY_NODE_SIZE,
-} from "./canvas-image.jsx";
+  PANORAMA_VIEWER_PLUGIN_ID,
+} from "./resolve-panorama-generation-presentation.js";
 import {
-  resolveGifAnimationSrc,
+  canOpenAssetGenerationPopover,
+  emptySizeFromRatio,
   MediaDownloadButton,
   mergeReferenceImageIds,
-  useEmptyAspectRatio,
-  emptySizeFromRatio,
-  useLutBundle,
-  canOpenAssetGenerationPopover,
+  resolveGifAnimationSrc,
   resolveReferenceImages,
   resolveReferenceVideos,
+  useEmptyAspectRatio,
+  useLutBundle,
 } from "./base-backend.jsx";
-import { cn$5 } from "../infra/use-browser-overlay-dialog-props.jsx";
 import {
-  Button$2,
-  useAddToChat,
-  useMediaFallbackSize,
   NodeShell,
-  NodeBody,
   PlaceholderUploadButton,
-} from "../canvas/use-media-node-actions.jsx";
+  useAddToChat,
+} from "../canvas/node-shell-inner.jsx";
+import { useMediaFallbackSize } from "../canvas/reconcile-media-fallback-style.js";
+import { NodeBody } from "../canvas/node-body-inner.jsx";
 import {
-  Select$2,
-  SelectTrigger$1,
-  SelectValue$1,
-  SelectContent$1,
-  SelectItem$1,
-} from "../generation/calc-video-cost-breakdown.jsx";
-import { IMAGE_CARD_MAX_WIDTH, reconcileNodeSize } from "../canvas/prune-persisted-node-data.js";
-import { useReferenceNavigationSnapshot } from "./decode-worker-pool.jsx";
-import { useUpstreamTextContent, useUpstreamSameTypeMeta } from "../assets/use-assets-ref-validate.js";
+  IMAGE_CARD_MAX_WIDTH,
+  reconcileNodeSize,
+} from "../canvas/is-reexecutable-generation-node.js";
+import { useReferenceNavigationSnapshot } from "./get-reference-navigation-defaults.jsx";
 import {
-  resolveActivePopoverDraft,
+  useUpstreamSameTypeMeta,
+  useUpstreamTextContent,
+} from "../assets/parse-prompt-to-tiptap.js";
+import {
   buildOriginalGenerationDraft,
   draftOverridesOriginalGeneration,
-  usePopoverCloseWithDeselect,
+  resolveActivePopoverDraft,
+  resolveDefaultReferencePaths,
+  resolveEditableTextReferencePaths,
+} from "../generation/param-label-fallbacks.js";
+import {
   resolveReferenceAudios,
   resolveReferenceTexts,
-  resolveEditableTextReferencePaths,
-  resolveDefaultReferencePaths,
+  usePopoverCloseWithDeselect,
 } from "../generation/resolve-reference-texts.js";
-import { useImageEditCost } from "./calc-crop-rect.jsx";
-import { buildThumbnailUrl, buildThumbnailSrcSet } from "./media-clip-panel-inner.jsx";
-import { shouldShowImageBottomPopover, I2VPopover } from "./arrow-shape.js";
+import { useImageEditCost } from "./image-edit-pricing.js";
 import {
-  ImageNodeToolbarSection,
-  CustomizeToolbarDialog$1,
-  EnhanceImagePopover,
-} from "./image-node-toolbar-section.jsx";
-import { I2IPopover } from "../generation/param-duration-slider.jsx";
+  buildThumbnailSrcSet,
+  buildThumbnailUrl,
+} from "./build-video-thumb-base.jsx";
+import { I2VPopover, shouldShowImageBottomPopover } from "./free-path-shape.js";
+import { ImageNodeToolbarSection } from "./image-node-toolbar-section.jsx";
+import { CustomizeToolbarDialog$1 } from "./customize-toolbar-dialog-2.jsx";
+import { EnhanceImagePopover } from "./enhance-image-popover.jsx";
+import { I2IPopover } from "../generation/model-param-select.jsx";
 import { ImageLightbox$2 } from "./image-lightbox.jsx";
 import { ColorAdjustDialog } from "./color-adjust-dialog.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DEFAULT_WATERMARK_SETTINGS,
   ImageSplitOverlay,
   ImageWatermarkPreview,
   LayerDecomposePrompt,
-  renderWatermarkedBlob,
-} from "./create-box-faces.jsx";
-import { ImageInplaceEditor, ImageRotateEditToolbar } from "./editor2.jsx";
-import { ToolSlider } from "./multi-angle-editor.jsx";
-import { MultiAnglePopover, MultiImageChrome, MultiImageOverlay } from "./ready-sub-image-card.jsx";
+} from "./layer-decompose-prompt.jsx";
+import { ImageInplaceEditor } from "./image-inplace-editor.jsx";
+import { ImageRotateEditToolbar } from "./angle-scrubber.jsx";
+import { MultiAnglePopover } from "./multi-angle-editor.jsx";
+import { MultiImageChrome } from "./multi-image-chrome.jsx";
+import { MultiImageOverlay } from "./ready-sub-image-card.jsx";
 import {
-  ROUND_DOTS_POPOVER_GAP_OFFSET,
-  RelightPopover,
-  RoundDots,
   resolveImageNodeDisplayName,
   resolveStoryboardGridSelection,
-} from "./relight-editor.jsx";
+  ROUND_DOTS_POPOVER_GAP_OFFSET,
+  RoundDots,
+} from "./round-dots-inner.jsx";
+import { RelightPopover } from "./relight-popover.jsx";
 import {
   StoryboardGridPopover,
   useDirectImageActions,
   useImageColorAdjust,
   useImageInplaceEdit,
   useImageLightbox,
-  useImageRotateEdit,
-} from "./storyboard-grid-editor.jsx";
-import {
-  ImageRotatePreview,
-  ImageSplitEditToolbar,
-  useImageSplitMode,
-} from "./use-image-split-mode.jsx";
-export const WATERMARK_PANEL_WIDTH = 340;
-const PANEL_MAX_HEIGHT = 480;
-const PANEL_MIN_HEIGHT$1 = 360;
-const VIEWPORT_MARGIN$1 = 16;
-const FONT_OPTIONS = [
-  {
-    value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    label: "Inter",
-  },
-  {
-    value: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-    label: "Helvetica",
-  },
-  {
-    value: "'Times New Roman', serif",
-    label: "Times New Roman",
-  },
-  {
-    value: "Georgia, serif",
-    label: "Georgia",
-  },
-  {
-    value: "'Courier New', monospace",
-    label: "Courier New",
-  },
-  {
-    value: "'PingFang SC', 'Microsoft YaHei', sans-serif",
-    label: "PingFang / YaHei",
-  },
-  {
-    value: "'STSong', 'SimSun', serif",
-    label: "Song",
-  },
-  {
-    value: "'STKaiti', 'KaiTi', serif",
-    label: "Kai",
-  },
-];
-const FONT_ITEMS = Object.fromEntries(
-  FONT_OPTIONS.map((option2) => [option2.value, option2.label]),
-);
-const WEIGHT_OPTIONS = [
-  {
-    value: 300,
-    label: "Light",
-  },
-  {
-    value: 400,
-    label: "Regular",
-  },
-  {
-    value: 600,
-    label: "Semibold",
-  },
-  {
-    value: 800,
-    label: "Extrabold",
-  },
-];
-const WEIGHT_ITEMS = Object.fromEntries(
-  WEIGHT_OPTIONS.map((option2) => [String(option2.value), option2.label]),
-);
-const FONT_SIZE_OPTIONS = [10, 12, 14, 16, 18, 20, 24, 32, 36, 48, 64, 72, 96, 120];
-const POSITIONS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
-export function WatermarkPopover({
-  sourceUrl,
-  settings,
-  renderOutput = renderWatermarkedBlob,
-  onSettingsChange,
-  onClose,
-  onConfirm,
+} from "./use-image-inplace-edit.jsx";
+import { useImageRotateEdit } from "./use-image-rotate-edit.js";
+import { ImageRotatePreview } from "./image-rotate-preview-inner.jsx";
+import { ImageSplitEditToolbar } from "./image-split-edit-toolbar-inner.jsx";
+import { useImageSplitMode } from "./use-image-split-mode.js";
+
+export function ImageNodeInner({
+  id: id2,
+  data: data2,
+  selected: selected2,
+  width,
+  height,
 }) {
-  const { t: t2 } = useTranslation();
-  const nodeId = useNodeId() ?? "";
-  const [saving, setSaving] = reactExports.useState(false);
-  const [panelScrolling, setPanelScrolling] = reactExports.useState(false);
-  const scrollAreaRef = reactExports.useRef(null);
-  const shadowWasEnabledRef = reactExports.useRef(settings.shadow);
-  const scrollIdleTimerRef = reactExports.useRef(null);
-  const selectedSelector = reactExports.useCallback(
-    (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
-    [nodeId],
-  );
-  const selected2 = useStore$3(selectedSelector);
-  const isDragging = useCanvasIsDragging();
-  const isMultiSelect = useCanvasIsMultiSelect();
-  const isBoxSelecting = useCanvasIsBoxSelecting();
-  reactExports.useEffect(() => {
-    if (!selected2) onClose();
-  }, [onClose, selected2]);
-  reactExports.useEffect(
-    () => () => {
-      if (scrollIdleTimerRef.current) clearTimeout(scrollIdleTimerRef.current);
-    },
-    [],
-  );
-  reactExports.useEffect(() => {
-    const wasEnabled = shadowWasEnabledRef.current;
-    shadowWasEnabledRef.current = settings.shadow;
-    if (!settings.shadow || wasEnabled) return;
-    const frame2 = requestAnimationFrame(() => {
-      const scrollArea = scrollAreaRef.current;
-      scrollArea?.scrollTo({
-        top: scrollArea.scrollHeight,
-        behavior: "smooth",
-      });
-    });
-    return () => cancelAnimationFrame(frame2);
-  }, [settings.shadow]);
-  const handlePanelScroll = reactExports.useCallback(() => {
-    setPanelScrolling(true);
-    if (scrollIdleTimerRef.current) clearTimeout(scrollIdleTimerRef.current);
-    scrollIdleTimerRef.current = setTimeout(() => setPanelScrolling(false), 700);
-  }, []);
-  const setSetting = reactExports.useCallback(
-    (key2, value) => {
-      onSettingsChange({
-        ...settings,
-        [key2]: value,
-      });
-    },
-    [onSettingsChange, settings],
-  );
-  const handleSave = reactExports.useCallback(async () => {
-    if (saving || !settings.text.trim()) return;
-    setSaving(true);
-    try {
-      const blob = await renderOutput(sourceUrl, settings);
-      await onConfirm(blob);
-      onClose();
-    } catch {
-      dedupedToast.error(t2("canvas.watermark.saveError", "Failed to add watermark"));
-      setSaving(false);
-    }
-  }, [onClose, onConfirm, renderOutput, saving, settings, sourceUrl, t2]);
-  const hidden = isDragging || isMultiSelect || isBoxSelecting;
-  const availableHeight = window.innerHeight - VIEWPORT_MARGIN$1 * 2;
-  const panelHeight = Math.max(PANEL_MIN_HEIGHT$1, Math.min(PANEL_MAX_HEIGHT, availableHeight));
-  return (
-    <NodeToolbar$1
-      isVisible={true}
-      position={Position.Right}
-      offset={NODE_POPOVER_SAFE_GAP}
-      align="center"
-      style={{
-        zIndex: 1100,
-      }}
-    >
-      <div
-        className="flex max-w-[calc(100vw-4rem)] flex-col overflow-hidden rounded-lg border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
-        style={{
-          width: WATERMARK_PANEL_WIDTH,
-          height: panelHeight,
-          display: hidden ? "none" : void 0,
-        }}
-        data-action-ui-id="canvas.watermark.popover"
-        onPointerDown={(event) => event.stopPropagation()}
-        onDoubleClick={(event) => event.stopPropagation()}
-        onContextMenu={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-      >
-        <header className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--canvas-controls-border)] px-3">
-          <h3 className="text-hl_text_00 text-sm font-semibold leading-5">
-            {t2("canvas.watermark.title", "Watermark")}
-          </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="ml-auto flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:opacity-50"
-            aria-label={t2("common.close", "Close")}
-            data-action-ui-id="canvas.watermark.close"
-          >
-            <X$7 size={18} strokeWidth={1.5} aria-hidden="true" />
-          </button>
-        </header>
-        <div
-          ref={scrollAreaRef}
-          className="nowheel scrollbar-fade min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-3"
-          data-action-ui-id="canvas.watermark.scroll-area"
-          data-scrolling={panelScrolling ? "true" : void 0}
-          onScroll={handlePanelScroll}
-          onWheel={(event) => event.stopPropagation()}
-        >
-          <ControlSection label={t2("canvas.watermark.text", "Watermark text")}>
-            <textarea
-              value={settings.text}
-              onChange={(event) => setSetting("text", event.currentTarget.value)}
-              placeholder={t2("canvas.watermark.placeholder", "Enter watermark text")}
-              rows={2}
-              className="min-h-14 w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-              data-action-ui-id="canvas.watermark.text-input"
-            />
-          </ControlSection>
-          <ControlSection label={t2("canvas.watermark.style", "Style")}>
-            <Select$2
-              value={settings.fontFamily}
-              items={FONT_ITEMS}
-              onValueChange={(value) => value && setSetting("fontFamily", value)}
-            >
-              <SelectTrigger$1 data-action-ui-id="canvas.watermark.font-select">
-                <SelectValue$1 />
-              </SelectTrigger$1>
-              <SelectContent$1
-                className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
-                style={{
-                  background:
-                    "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
-                }}
-              >
-                {FONT_OPTIONS.map((option2) => (
-                  <SelectItem$1 key={option2.value} value={option2.value}>
-                    {option2.label}
-                  </SelectItem$1>
-                ))}
-              </SelectContent$1>
-            </Select$2>
-            <div className="grid grid-cols-2 gap-2">
-              <Select$2
-                value={String(settings.fontWeight)}
-                items={WEIGHT_ITEMS}
-                onValueChange={(value) => value && setSetting("fontWeight", Number(value))}
-              >
-                <SelectTrigger$1
-                  aria-label={t2("canvas.watermark.weight", "Weight")}
-                  data-action-ui-id="canvas.watermark.weight-select"
-                >
-                  <SelectValue$1 />
-                </SelectTrigger$1>
-                <SelectContent$1
-                  className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
-                  style={{
-                    background:
-                      "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
-                  }}
-                >
-                  {WEIGHT_OPTIONS.map((option2) => (
-                    <SelectItem$1 key={option2.value} value={String(option2.value)}>
-                      {option2.label}
-                    </SelectItem$1>
-                  ))}
-                </SelectContent$1>
-              </Select$2>
-              <FontSizeSelect
-                value={settings.fontSize}
-                label={t2("canvas.watermark.size", "Size")}
-                onChange={(value) => setSetting("fontSize", value)}
-              />
-            </div>
-            <ColorOpacityControl
-              color={settings.color}
-              opacity={settings.opacity}
-              colorLabel={t2("canvas.watermark.color", "Color")}
-              opacityLabel={t2("canvas.watermark.opacity", "Opacity")}
-              onColorChange={(value) => setSetting("color", value)}
-              onOpacityChange={(value) => setSetting("opacity", value)}
-            />
-            <SliderControl
-              label={t2("canvas.watermark.rotation", "Rotation")}
-              value={settings.rotation}
-              min={-180}
-              max={180}
-              suffix="°"
-              onChange={(value) => setSetting("rotation", value)}
-            />
-          </ControlSection>
-          <ControlSection
-            label={t2("canvas.watermark.layout", "Layout")}
-            className="pt-2"
-            headerAction={
-              <SegmentedControl
-                values={["single", "tile"]}
-                value={settings.mode}
-                format={(value) =>
-                  value === "single"
-                    ? t2("canvas.watermark.single", "Single")
-                    : t2("canvas.watermark.tile", "Tile")
-                }
-                onChange={(value) => setSetting("mode", value)}
-              />
-            }
-          >
-            {settings.mode === "single" ? (
-              <>
-                <fieldset
-                  className="grid grid-cols-3 gap-1"
-                  aria-label={t2("canvas.watermark.position", "Position")}
-                >
-                  {POSITIONS.map((position2) => (
-                    <button
-                      key={position2}
-                      type="button"
-                      onClick={() => setSetting("position", position2)}
-                      aria-label={`${t2("canvas.watermark.position", "Position")} ${position2}`}
-                      aria-pressed={settings.position === position2}
-                      className={cn$5(
-                        "flex h-7 items-center justify-center rounded-md border border-input transition-colors hover:bg-[var(--canvas-controls-hover)]",
-                        settings.position === position2 && "bg-foreground text-background",
-                      )}
-                    >
-                      <span className="size-1.5 rounded-full bg-current" />
-                    </button>
-                  ))}
-                </fieldset>
-                <SliderControl
-                  label={t2("canvas.watermark.padding", "Padding")}
-                  value={settings.padding}
-                  min={0}
-                  max={200}
-                  suffix="px"
-                  onChange={(value) => setSetting("padding", value)}
-                />
-              </>
-            ) : (
-              <SliderControl
-                label={t2("canvas.watermark.spacing", "Spacing")}
-                value={settings.spacing}
-                min={40}
-                max={400}
-                suffix="px"
-                showValue={false}
-                onChange={(value) => setSetting("spacing", value)}
-              />
-            )}
-            <SegmentedControl
-              className="pt-2"
-              label={t2("canvas.watermark.shadow", "Shadow")}
-              values={[false, true]}
-              value={settings.shadow}
-              format={(value) =>
-                value ? t2("canvas.watermark.on", "On") : t2("canvas.watermark.off", "Off")
-              }
-              onChange={(value) => setSetting("shadow", value)}
-            />
-            {settings.shadow && (
-              <div className="animate-in fade-in-0 slide-in-from-top-1 duration-200">
-                <SliderControl
-                  label={t2("canvas.watermark.shadowBlur", "Shadow blur")}
-                  value={settings.shadowBlur}
-                  min={0}
-                  max={20}
-                  showValue={false}
-                  onChange={(value) => setSetting("shadowBlur", value)}
-                />
-              </div>
-            )}
-          </ControlSection>
-        </div>
-        <footer className="flex shrink-0 justify-end gap-2 border-t border-[var(--canvas-controls-border)] p-3">
-          <Button$2 variant="outline" size="sm" onClick={onClose} disabled={saving}>
-            {t2("common.cancel", "Cancel")}
-          </Button$2>
-          <Button$2
-            size="sm"
-            onClick={() => void handleSave()}
-            loading={saving}
-            disabled={!settings.text.trim()}
-            data-action-ui-id="canvas.watermark.apply"
-          >
-            {saving
-              ? t2("canvas.watermark.processing", "Processing…")
-              : t2("canvas.watermark.apply", "Apply")}
-          </Button$2>
-        </footer>
-      </div>
-    </NodeToolbar$1>
-  );
-}
-function ColorOpacityControl({
-  color: color2,
-  opacity,
-  colorLabel,
-  opacityLabel,
-  onColorChange,
-  onOpacityChange,
-}) {
-  const [hexDraft, setHexDraft] = reactExports.useState(color2.replace(/^#/, "").toUpperCase());
-  reactExports.useEffect(() => {
-    setHexDraft(color2.replace(/^#/, "").toUpperCase());
-  }, [color2]);
-  const commitHex = reactExports.useCallback(() => {
-    const compact = hexDraft.trim().replace(/^#/, "");
-    const expanded =
-      compact.length === 3
-        ? compact
-            .split("")
-            .map((character) => character.repeat(2))
-            .join("")
-        : compact;
-    if (/^[0-9a-f]{6}$/i.test(expanded)) {
-      onColorChange(`#${expanded.toLowerCase()}`);
-      setHexDraft(expanded.toUpperCase());
-      return;
-    }
-    setHexDraft(color2.replace(/^#/, "").toUpperCase());
-  }, [color2, hexDraft, onColorChange]);
-  return (
-    <div className="flex h-8 overflow-hidden rounded-md border border-input bg-transparent transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/50">
-      <label className="relative my-auto ml-2 size-5 shrink-0 overflow-hidden rounded border border-input">
-        <span className="sr-only">{colorLabel}</span>
-        <span
-          className="absolute inset-0"
-          style={{
-            backgroundColor: color2,
-          }}
-        />
-        <input
-          type="color"
-          value={color2}
-          onChange={(event) => onColorChange(event.currentTarget.value)}
-          className="absolute -inset-2 size-10 cursor-pointer opacity-0"
-          data-action-ui-id="canvas.watermark.color"
-        />
-      </label>
-      <input
-        type="text"
-        value={hexDraft}
-        maxLength={7}
-        spellCheck={false}
-        aria-label={colorLabel}
-        onChange={(event) => {
-          const nextValue = event.currentTarget.value.toUpperCase();
-          setHexDraft(nextValue);
-          const compact = nextValue.replace(/^#/, "");
-          if (/^[0-9A-F]{6}$/.test(compact)) onColorChange(`#${compact.toLowerCase()}`);
-        }}
-        onBlur={commitHex}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") event.currentTarget.blur();
-        }}
-        className="min-w-0 flex-1 bg-transparent px-2 text-xs font-medium uppercase tabular-nums outline-none"
-        data-action-ui-id="canvas.watermark.color-hex"
-      />
-      <div className="flex w-[72px] shrink-0 items-center border-l border-input px-2">
-        <input
-          type="number"
-          min={0}
-          max={100}
-          value={opacity}
-          aria-label={opacityLabel}
-          onFocus={(event) => event.currentTarget.select()}
-          onChange={(event) => {
-            if (event.currentTarget.value === "") return;
-            onOpacityChange(Math.min(100, Math.max(0, Number(event.currentTarget.value))));
-          }}
-          className="min-w-0 flex-1 bg-transparent text-right text-xs font-medium tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          data-action-ui-id="canvas.watermark.opacity-input"
-        />
-        <span className="ml-1 text-xs text-muted-foreground">%</span>
-      </div>
-    </div>
-  );
-}
-function FontSizeSelect({ value, label, onChange }) {
-  const options = FONT_SIZE_OPTIONS.includes(value)
-    ? FONT_SIZE_OPTIONS
-    : [...FONT_SIZE_OPTIONS, value].sort((a2, b3) => a2 - b3);
-  const items = Object.fromEntries(options.map((size2) => [String(size2), `${size2}px`]));
-  return (
-    <Select$2
-      value={String(value)}
-      items={items}
-      onValueChange={(nextValue) => nextValue && onChange(Number(nextValue))}
-    >
-      <SelectTrigger$1 aria-label={label} data-action-ui-id="canvas.watermark.size-select">
-        <SelectValue$1 />
-      </SelectTrigger$1>
-      <SelectContent$1
-        className="border border-[var(--canvas-controls-border)] shadow-[var(--canvas-shadow-dropdown)]"
-        style={{
-          background:
-            "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
-        }}
-      >
-        {options.map((size2) => (
-          <SelectItem$1 key={size2} value={String(size2)}>
-            {size2}px
-          </SelectItem$1>
-        ))}
-      </SelectContent$1>
-    </Select$2>
-  );
-}
-function ControlSection({ label, className, headerAction, children: children2 }) {
-  return (
-    <section className={cn$5("space-y-2.5", className)}>
-      <div className="flex items-center justify-between gap-3">
-        <h4 className="text-hl_text_02 text-[13px] font-medium leading-5">{label}</h4>
-        {headerAction}
-      </div>
-      <div className="space-y-2.5">{children2}</div>
-    </section>
-  );
-}
-function SliderControl({
-  label,
-  value,
-  min: min2,
-  max: max2,
-  suffix = "",
-  showValue = true,
-  onChange,
-}) {
-  return (
-    <ToolSlider
-      label={label}
-      value={value}
-      min={min2}
-      max={max2}
-      step={1}
-      formatValue={(nextValue) => `${nextValue}${suffix}`}
-      showValue={showValue}
-      labelClassName="text-[12px] font-medium text-muted-foreground"
-      valueClassName="text-hl_text_01 text-[12px] font-medium"
-      trackStyle={{
-        background:
-          "color-mix(in srgb, var(--canvas-controls-bg) 96%, var(--canvas-controls-text) 4%)",
-      }}
-      thumbStyle={{
-        background: "#fff",
-        borderColor:
-          "color-mix(in srgb, var(--canvas-controls-border) 70%, var(--canvas-controls-text) 30%)",
-      }}
-      onChange={onChange}
-    />
-  );
-}
-function SegmentedControl({ className, label, values: values3, value, format: format2, onChange }) {
-  return (
-    <div className={cn$5("flex items-center justify-between gap-3", className)}>
-      {label && <span className="text-hl_text_02 text-[13px] font-medium leading-5">{label}</span>}
-      <div className="flex w-[148px] shrink-0 rounded-full bg-foreground/[0.06] p-0.5">
-        {values3.map((item) => {
-          const active2 = item === value;
-          return (
-            <button
-              key={String(item)}
-              type="button"
-              onClick={() => onChange(item)}
-              aria-pressed={active2}
-              className={cn$5(
-                "relative flex h-7 flex-1 items-center justify-center rounded-full px-2 text-[11px] text-muted-foreground transition-colors hover:text-[var(--canvas-controls-text)]",
-                active2 && "bg-background text-foreground shadow-sm",
-              )}
-            >
-              {format2(item)}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-const MEDIA_OVERLAY_EXIT_ANIMATION_MS$1 = 160;
-const SEEDREAM_LAYER_DECOMPOSE_SMALL_PRICING_MODEL = "seedream-layer-decompose-small";
-const STORYBOARD_RESIZE_MIN_EDGE = 100;
-const STORYBOARD_RESIZE_MAX_EDGE = 1200;
-export function ImageNodeInner({ id: id2, data: data2, selected: selected2, width, height }) {
   const trackedActionStartRef = reactExports.useRef(new Map());
   const { t: t2 } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const nodeData = data2;
   const view2 = useImageNodeView(id2, data2);
   const subImages = useSubImages(id2);
-  const meta2 = useAssetMeta(view2.primary?.id ?? (view2.isUserEmpty ? "" : id2));
+  const meta2 = useAssetMeta(
+    view2.primary?.id ?? (view2.isUserEmpty ? "" : id2),
+  );
   const isStoryboardProduct =
-    nodeData.backend === BACKEND_VIBE_STORYBOARD || meta2?.backend === BACKEND_VIBE_STORYBOARD;
+    nodeData.backend === BACKEND_VIBE_STORYBOARD ||
+    meta2?.backend === BACKEND_VIBE_STORYBOARD;
   const storyboardSplitGrid = reactExports.useMemo(() => {
     if (!isStoryboardProduct) return void 0;
     const { rows, cols } = resolveStoryboardGridSelection(meta2?.params);
@@ -695,7 +191,11 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     };
   }, [isStoryboardProduct, meta2?.params]);
   const persistedReferenceImageIds = reactExports.useMemo(
-    () => mergeReferenceImageIds(nodeData.referenceImageIds, meta2?.referenceImageIds),
+    () =>
+      mergeReferenceImageIds(
+        nodeData.referenceImageIds,
+        meta2?.referenceImageIds,
+      ),
     [nodeData.referenceImageIds, meta2?.referenceImageIds],
   );
   const primaryPrompt = view2.primary?.prompt ?? meta2?.prompt;
@@ -741,24 +241,42 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   const nodeHeight = height;
   const imageData = data2;
   const displaySize =
-    imageData?.displaySize && imageData.displaySize.width > 0 && imageData.displaySize.height > 0
+    imageData?.displaySize &&
+    imageData.displaySize.width > 0 &&
+    imageData.displaySize.height > 0
       ? imageData.displaySize
       : void 0;
   const displayImageOnly = imageData?.displayImageOnly === true;
-  const { snapshot: referenceReturnI2V } = useReferenceNavigationSnapshot(id2, "i2v");
-  const { snapshot: referenceReturnI2I } = useReferenceNavigationSnapshot(id2, "i2i");
-  const [showI2VPopover, setShowI2VPopover] = reactExports.useState(!!referenceReturnI2V);
-  const [showI2IPopover, setShowI2IPopover] = reactExports.useState(!!referenceReturnI2I);
-  const [showEnhancePopover, setShowEnhancePopover] = reactExports.useState(false);
-  const [showMultiAnglePopover, setShowMultiAnglePopover] = reactExports.useState(false);
-  const [showStoryboardGridPopover, setShowStoryboardGridPopover] = reactExports.useState(false);
-  const [showRelightPopover, setShowRelightPopover] = reactExports.useState(false);
-  const [showWatermarkPopover, setShowWatermarkPopover] = reactExports.useState(false);
-  const [watermarkSettings, setWatermarkSettings] = reactExports.useState(() => ({
-    ...DEFAULT_WATERMARK_SETTINGS,
-    text: t2("canvas.watermark.defaultText", "@ 水印文案"),
-  }));
-  const [watermarkFocusTarget, setWatermarkFocusTarget] = reactExports.useState(null);
+  const { snapshot: referenceReturnI2V } = useReferenceNavigationSnapshot(
+    id2,
+    "i2v",
+  );
+  const { snapshot: referenceReturnI2I } = useReferenceNavigationSnapshot(
+    id2,
+    "i2i",
+  );
+  const [showI2VPopover, setShowI2VPopover] =
+    reactExports.useState(!!referenceReturnI2V);
+  const [showI2IPopover, setShowI2IPopover] =
+    reactExports.useState(!!referenceReturnI2I);
+  const [showEnhancePopover, setShowEnhancePopover] =
+    reactExports.useState(false);
+  const [showMultiAnglePopover, setShowMultiAnglePopover] =
+    reactExports.useState(false);
+  const [showStoryboardGridPopover, setShowStoryboardGridPopover] =
+    reactExports.useState(false);
+  const [showRelightPopover, setShowRelightPopover] =
+    reactExports.useState(false);
+  const [showWatermarkPopover, setShowWatermarkPopover] =
+    reactExports.useState(false);
+  const [watermarkSettings, setWatermarkSettings] = reactExports.useState(
+    () => ({
+      ...DEFAULT_WATERMARK_SETTINGS,
+      text: t2("canvas.watermark.defaultText", "@ 水印文案"),
+    }),
+  );
+  const [watermarkFocusTarget, setWatermarkFocusTarget] =
+    reactExports.useState(null);
   useCropViewportZoom(
     watermarkFocusTarget,
     0,
@@ -766,14 +284,19 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     0,
     1.25,
   );
-  const [showCustomizeToolbar, setShowCustomizeToolbar] = reactExports.useState(false);
-  const [showLayerDecomposePrompt, setShowLayerDecomposePrompt] = reactExports.useState(false);
-  const [layerDecomposePrompt, setLayerDecomposePrompt] = reactExports.useState("");
-  const [layerDecomposeSubmitting, setLayerDecomposeSubmitting] = reactExports.useState(false);
+  const [showCustomizeToolbar, setShowCustomizeToolbar] =
+    reactExports.useState(false);
+  const [showLayerDecomposePrompt, setShowLayerDecomposePrompt] =
+    reactExports.useState(false);
+  const [layerDecomposePrompt, setLayerDecomposePrompt] =
+    reactExports.useState("");
+  const [layerDecomposeSubmitting, setLayerDecomposeSubmitting] =
+    reactExports.useState(false);
   const layerDecomposeCost = reactExports.useMemo(
     () =>
       pricingConfig?.image.find(
-        (pricing) => pricing.modelID === SEEDREAM_LAYER_DECOMPOSE_SMALL_PRICING_MODEL,
+        (pricing) =>
+          pricing.modelID === SEEDREAM_LAYER_DECOMPOSE_SMALL_PRICING_MODEL,
       )?.defaultCost,
     [pricingConfig],
   );
@@ -810,7 +333,16 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       nodeHeight: rect.height,
     });
     setShowWatermarkPopover(true);
-  }, [cropImage, id2, meta2?.url, nodeHeight, nodeWidth, reactFlow, t2, view2.primary?.url]);
+  }, [
+    cropImage,
+    id2,
+    meta2?.url,
+    nodeHeight,
+    nodeWidth,
+    reactFlow,
+    t2,
+    view2.primary?.url,
+  ]);
   const handleStoryboardGrid = reactExports.useCallback(() => {
     setShowI2IPopover(false);
     setShowI2VPopover(false);
@@ -842,9 +374,15 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           },
     );
   }, []);
-  const [referenceImagePaths, setReferenceImagePaths] = reactExports.useState([]);
-  const [referenceVideoPaths, setReferenceVideoPaths] = reactExports.useState([]);
-  const [referenceAudioPaths, setReferenceAudioPaths] = reactExports.useState([]);
+  const [referenceImagePaths, setReferenceImagePaths] = reactExports.useState(
+    [],
+  );
+  const [referenceVideoPaths, setReferenceVideoPaths] = reactExports.useState(
+    [],
+  );
+  const [referenceAudioPaths, setReferenceAudioPaths] = reactExports.useState(
+    [],
+  );
   const [referenceTextPaths, setReferenceTextPaths] = reactExports.useState([]);
   const { upstreamTextContent, refreshUpstreamText } = useUpstreamTextContent();
   const modelInfo = useModelForAsset(meta2?.backend, meta2?.model_id, "image");
@@ -883,7 +421,11 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       finished = true;
       unsubscribe();
       window.clearTimeout(timeout2);
-      resizeNode(panoramaNodeId, PANORAMA_EMPTY_NODE_SIZE.width, PANORAMA_EMPTY_NODE_SIZE.height);
+      resizeNode(
+        panoramaNodeId,
+        PANORAMA_EMPTY_NODE_SIZE.width,
+        PANORAMA_EMPTY_NODE_SIZE.height,
+      );
       focusDerivedNode(panoramaNodeId);
       return true;
     };
@@ -915,14 +457,26 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         },
       };
       if (isStoryboardProduct && persistedNode?.groupId) {
-        moveAndResizeImageGroupMembers(nodeId, x2, y4, nextWidth, nextHeight, nextData);
+        moveAndResizeImageGroupMembers(
+          nodeId,
+          x2,
+          y4,
+          nextWidth,
+          nextHeight,
+          nextData,
+        );
         return;
       }
       moveAndResizeNode(nodeId, x2, y4, nextWidth, nextHeight, {
         ...nextData,
       });
     },
-    [getNodeById, isStoryboardProduct, moveAndResizeImageGroupMembers, moveAndResizeNode],
+    [
+      getNodeById,
+      isStoryboardProduct,
+      moveAndResizeImageGroupMembers,
+      moveAndResizeNode,
+    ],
   );
   const i2iDraft = resolveActivePopoverDraft(data2, "i2i");
   const i2vDraft = resolveActivePopoverDraft(data2, "i2v");
@@ -951,7 +505,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     setImgErrorReason(null);
     setNaturalSize(null);
   }, [decodeSrc]);
-  const isUnfilled = view2.isUserEmpty && view2.status === "empty" && view2.slots.length === 0;
+  const isUnfilled =
+    view2.isUserEmpty && view2.status === "empty" && view2.slots.length === 0;
   const isUserEmpty = isUnfilled;
   const i2iDefaultModelId = isUserEmpty
     ? (i2iDraft?.modelId ?? upstreamImageMeta?.modelId)
@@ -959,8 +514,12 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   const i2iDefaultParams = isUserEmpty
     ? (i2iDraft?.params ?? upstreamImageMeta?.params)
     : (i2iDraft?.params ?? meta2?.params);
-  const i2vDefaultModelId = isUserEmpty ? i2vDraft?.modelId : (i2vDraft?.modelId ?? modelInfo?.id);
-  const i2vDefaultParams = isUserEmpty ? i2vDraft?.params : (i2vDraft?.params ?? meta2?.params);
+  const i2vDefaultModelId = isUserEmpty
+    ? i2vDraft?.modelId
+    : (i2vDraft?.modelId ?? modelInfo?.id);
+  const i2vDefaultParams = isUserEmpty
+    ? i2vDraft?.params
+    : (i2vDraft?.params ?? meta2?.params);
   const i2iLastUsedModelId = isUserEmpty ? lastUsedI2I?.modelId : void 0;
   const i2iLastUsedParams = isUserEmpty ? lastUsedI2I?.params : void 0;
   const i2vLastUsedModelId = isUserEmpty ? lastUsedI2V?.modelId : void 0;
@@ -983,7 +542,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     ],
   );
   const i2iRestoreOriginalDraft =
-    !isUserEmpty && draftOverridesOriginalGeneration(i2iDraft, i2iOriginalGenerationDraft)
+    !isUserEmpty &&
+    draftOverridesOriginalGeneration(i2iDraft, i2iOriginalGenerationDraft)
       ? i2iOriginalGenerationDraft
       : void 0;
   const { emptyAspectRatio, setEmptyAspectRatio } = useEmptyAspectRatio({
@@ -994,7 +554,9 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   });
   const isEmptyForSync = (isUnfilled || !meta2) && !view2.primary;
   const targetEmptySize =
-    isEmptyForSync && emptyAspectRatio ? emptySizeFromRatio(emptyAspectRatio) : void 0;
+    isEmptyForSync && emptyAspectRatio
+      ? emptySizeFromRatio(emptyAspectRatio)
+      : void 0;
   const targetEmptyWidth = targetEmptySize?.width;
   const targetEmptyHeight = targetEmptySize?.height;
   const lastSyncActionRef = reactExports.useRef("none");
@@ -1082,11 +644,15 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     submitRemoveBg,
   });
   const handleLayerDecompose = reactExports.useCallback(() => {
-    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting) return;
+    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting)
+      return;
     setLayerDecomposePrompt("");
     setShowLayerDecomposePrompt(true);
   }, [layerDecomposeSubmitting, meta2?.path, submitLayerDecompose]);
-  const dismissLayerDecomposePrompt = usePopoverCloseWithDeselect(id2, setShowLayerDecomposePrompt);
+  const dismissLayerDecomposePrompt = usePopoverCloseWithDeselect(
+    id2,
+    setShowLayerDecomposePrompt,
+  );
   const closeLayerDecomposePrompt = reactExports.useCallback(() => {
     if (layerDecomposeSubmitting) return;
     const enteredAt = trackedActionStartRef.current.get("layer-decompose");
@@ -1103,9 +669,15 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     }
     dismissLayerDecomposePrompt();
     setLayerDecomposePrompt("");
-  }, [dismissLayerDecomposePrompt, id2, layerDecomposeSubmitting, onNodeAction]);
+  }, [
+    dismissLayerDecomposePrompt,
+    id2,
+    layerDecomposeSubmitting,
+    onNodeAction,
+  ]);
   const submitLayerDecomposePrompt = reactExports.useCallback(async () => {
-    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting) return;
+    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting)
+      return;
     const enteredAt = trackedActionStartRef.current.get("layer-decompose");
     trackedActionStartRef.current.delete("layer-decompose");
     onNodeAction?.({
@@ -1164,7 +736,10 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     naturalSize,
     t2,
   ]);
-  const allImageSlots = reactExports.useMemo(() => view2.rounds.flat(), [view2.rounds]);
+  const allImageSlots = reactExports.useMemo(
+    () => view2.rounds.flat(),
+    [view2.rounds],
+  );
   const lightboxItems = reactExports.useMemo(() => {
     if (allImageSlots.length === 0) {
       const item = lightboxItemFromAssetMeta("image", meta2);
@@ -1186,11 +761,14 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     items: lightboxItems,
     initialIndex: lightboxInitialIndex,
   });
-  const currentLightboxItem = lightbox.lightboxProps?.items[lightbox.lightboxProps.index];
+  const currentLightboxItem =
+    lightbox.lightboxProps?.items[lightbox.lightboxProps.index];
   const currentLightboxSlot = reactExports.useMemo(
     () =>
       currentLightboxItem?.slotKey
-        ? allImageSlots.find((slot) => getLightboxSlotKey(slot) === currentLightboxItem.slotKey)
+        ? allImageSlots.find(
+            (slot) => getLightboxSlotKey(slot) === currentLightboxItem.slotKey,
+          )
         : void 0,
     [allImageSlots, currentLightboxItem?.slotKey],
   );
@@ -1268,10 +846,13 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     },
   });
   const imageEditing = inplaceEdit.editing;
-  const primaryWidth = view2.primary?.width ?? meta2?.width ?? naturalSize?.width;
-  const primaryHeight = view2.primary?.height ?? meta2?.height ?? naturalSize?.height;
+  const primaryWidth =
+    view2.primary?.width ?? meta2?.width ?? naturalSize?.width;
+  const primaryHeight =
+    view2.primary?.height ?? meta2?.height ?? naturalSize?.height;
   const bodyHeight = reactExports.useMemo(() => {
-    if ((displayImageOnly || isStoryboardProduct) && nodeHeight) return nodeHeight;
+    if ((displayImageOnly || isStoryboardProduct) && nodeHeight)
+      return nodeHeight;
     if (displaySize) return Math.round(displaySize.height);
     const w3 = primaryWidth;
     const h2 = primaryHeight;
@@ -1297,7 +878,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         }
       : void 0;
     if (!dataDisplaySize && (!primaryWidth || !primaryHeight)) return;
-    const synced = dataDisplaySize ?? computeNodeSize(primaryWidth, primaryHeight);
+    const synced =
+      dataDisplaySize ?? computeNodeSize(primaryWidth, primaryHeight);
     if (!synced) return;
     const targetW = synced.width;
     const targetH = synced.height;
@@ -1421,10 +1003,22 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   }, [id2, updateNodeInternals2, rotate2.displayWidth, rotate2.displayHeight]);
   const handleI2VClose = usePopoverCloseWithDeselect(id2, setShowI2VPopover);
   const handleI2IClose = usePopoverCloseWithDeselect(id2, setShowI2IPopover);
-  const closeEnhancePopover = usePopoverCloseWithDeselect(id2, setShowEnhancePopover);
-  const closeMultiAnglePopover = usePopoverCloseWithDeselect(id2, setShowMultiAnglePopover);
-  const closeStoryboardGridPopover = usePopoverCloseWithDeselect(id2, setShowStoryboardGridPopover);
-  const closeRelightPopover = usePopoverCloseWithDeselect(id2, setShowRelightPopover);
+  const closeEnhancePopover = usePopoverCloseWithDeselect(
+    id2,
+    setShowEnhancePopover,
+  );
+  const closeMultiAnglePopover = usePopoverCloseWithDeselect(
+    id2,
+    setShowMultiAnglePopover,
+  );
+  const closeStoryboardGridPopover = usePopoverCloseWithDeselect(
+    id2,
+    setShowStoryboardGridPopover,
+  );
+  const closeRelightPopover = usePopoverCloseWithDeselect(
+    id2,
+    setShowRelightPopover,
+  );
   const closeWatermarkPopover = reactExports.useCallback(() => {
     const enteredAt = trackedActionStartRef.current.get("watermark");
     trackedActionStartRef.current.delete("watermark");
@@ -1482,7 +1076,13 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       }
       closeEnhancePopover();
     },
-    [submitSuperResolution, meta2?.path, id2, closeEnhancePopover, onNodeAction],
+    [
+      submitSuperResolution,
+      meta2?.path,
+      id2,
+      closeEnhancePopover,
+      onNodeAction,
+    ],
   );
   const handleI2VSubmit = reactExports.useCallback(
     (
@@ -1532,7 +1132,16 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     [id2, submitImg2Video, view2.status, mergeNodeDataSilent, flushPersist, t2],
   );
   const handleI2ISubmit = reactExports.useCallback(
-    (prompt, modelId, params, imagePaths, replaceNodeId, count2, displayPrompt, textPaths) => {
+    (
+      prompt,
+      modelId,
+      params,
+      imagePaths,
+      replaceNodeId,
+      count2,
+      displayPrompt,
+      textPaths,
+    ) => {
       const ratio = params.aspect_ratio ?? params.ratio;
       if (ratio && view2.status === "empty") {
         mergeNodeDataSilent(id2, {
@@ -1558,7 +1167,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         shouldFlush: !!replaceNodeId,
         flushDraft: flushPersist,
         submit,
-        onFlushError: () => dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
+        onFlushError: () =>
+          dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
       });
     },
     [id2, submitImg2Image, view2.status, mergeNodeDataSilent, flushPersist, t2],
@@ -1602,7 +1212,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     allImageSlots.length > 1 &&
     !!currentLightboxSlot &&
     currentLightboxSlot.id !== view2.primary?.id;
-  const canSplitLightboxImage = allImageSlots.length > 1 && !!currentLightboxSlot;
+  const canSplitLightboxImage =
+    allImageSlots.length > 1 && !!currentLightboxSlot;
   const handleSetLightboxPrimary = reactExports.useCallback(() => {
     if (!currentLightboxSlot) return;
     handleSetPrimarySlot(currentLightboxSlot);
@@ -1638,7 +1249,11 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   }, [view2.slots, meta2, id2]);
   const showOverlay = isOverlayOpen;
   const expandedMediaOverlay =
-    view2.isMulti && showOverlay && !imageEditing && !rotate2.editing && !splitMode.editing;
+    view2.isMulti &&
+    showOverlay &&
+    !imageEditing &&
+    !rotate2.editing &&
+    !splitMode.editing;
   const [keepExpandedMediaOverlayMounted, setKeepExpandedMediaOverlayMounted] =
     reactExports.useState(false);
   reactExports.useEffect(() => {
@@ -1652,8 +1267,10 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     }, MEDIA_OVERLAY_EXIT_ANIMATION_MS$1);
     return () => clearTimeout(timeoutId);
   }, [expandedMediaOverlay, keepExpandedMediaOverlayMounted]);
-  const isExpandedMediaOverlayVisible = expandedMediaOverlay || keepExpandedMediaOverlayMounted;
-  const isExpandedMediaOverlayClosing = keepExpandedMediaOverlayMounted && !expandedMediaOverlay;
+  const isExpandedMediaOverlayVisible =
+    expandedMediaOverlay || keepExpandedMediaOverlayMounted;
+  const isExpandedMediaOverlayClosing =
+    keepExpandedMediaOverlayMounted && !expandedMediaOverlay;
   reactExports.useEffect(() => {
     if (!selected2) return;
     if (!canOpenPopover) return;
@@ -1670,18 +1287,33 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       return;
     const sources = getIncomingSourceIds(id2);
     setReferenceImagePaths(
-      resolveReferenceImages(sources, persistedReferenceImageIds, assetMetadataStore, getNodeById),
+      resolveReferenceImages(
+        sources,
+        persistedReferenceImageIds,
+        assetMetadataStore,
+        getNodeById,
+      ),
     );
     setReferenceVideoPaths(
-      resolveReferenceVideos(sources, meta2?.referenceVideoIds, assetMetadataStore),
+      resolveReferenceVideos(
+        sources,
+        meta2?.referenceVideoIds,
+        assetMetadataStore,
+      ),
     );
     setReferenceAudioPaths(
-      resolveReferenceAudios(sources, meta2?.referenceAudioIds, assetMetadataStore),
+      resolveReferenceAudios(
+        sources,
+        meta2?.referenceAudioIds,
+        assetMetadataStore,
+      ),
     );
     setReferenceTextPaths(
       resolveReferenceTexts(
         sources,
-        Array.isArray(data2.referenceTextIds) ? data2.referenceTextIds : meta2?.referenceTextIds,
+        Array.isArray(data2.referenceTextIds)
+          ? data2.referenceTextIds
+          : meta2?.referenceTextIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -1723,12 +1355,21 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       sources,
       imagePaths,
     });
-  }, [id2, persistedReferenceImageIds, assetMetadataStore, getIncomingSourceIds, getNodeById]);
-  const [incomingSourceKey, setIncomingSourceKey] =
-    reactExports.useState(buildIncomingReferenceKey);
+  }, [
+    id2,
+    persistedReferenceImageIds,
+    assetMetadataStore,
+    getIncomingSourceIds,
+    getNodeById,
+  ]);
+  const [incomingSourceKey, setIncomingSourceKey] = reactExports.useState(
+    buildIncomingReferenceKey,
+  );
   reactExports.useEffect(() => {
     const currentKey = buildIncomingReferenceKey();
-    setIncomingSourceKey((previousKey) => (previousKey === currentKey ? previousKey : currentKey));
+    setIncomingSourceKey((previousKey) =>
+      previousKey === currentKey ? previousKey : currentKey,
+    );
     const unsubscribe = subscribeGraphChange(() => {
       const key2 = buildIncomingReferenceKey();
       setIncomingSourceKey((prev) => (prev === key2 ? prev : key2));
@@ -1763,9 +1404,15 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         getNodeById,
       ),
     );
-    setReferenceVideoPaths(resolveReferenceVideos(sources, void 0, assetMetadataStore));
-    setReferenceAudioPaths(resolveReferenceAudios(sources, void 0, assetMetadataStore));
-    setReferenceTextPaths(resolveReferenceTexts(sources, void 0, assetMetadataStore, getNodeById));
+    setReferenceVideoPaths(
+      resolveReferenceVideos(sources, void 0, assetMetadataStore),
+    );
+    setReferenceAudioPaths(
+      resolveReferenceAudios(sources, void 0, assetMetadataStore),
+    );
+    setReferenceTextPaths(
+      resolveReferenceTexts(sources, void 0, assetMetadataStore, getNodeById),
+    );
     refreshUpstreamText(sources);
   }, [
     incomingSourceKey,
@@ -1785,7 +1432,13 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       assetMetadataStore,
       getNodeById,
     );
-  }, [incomingSourceKey, id2, assetMetadataStore, getIncomingSourceIds, getNodeById]);
+  }, [
+    incomingSourceKey,
+    id2,
+    assetMetadataStore,
+    getIncomingSourceIds,
+    getNodeById,
+  ]);
   const defaultI2ITextPaths = resolveEditableTextReferencePaths(
     referenceTextPaths,
     liveReferenceTextPaths,
@@ -1823,11 +1476,17 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   const isEmpty2 = view2.status === "empty" && !view2.primary;
   useMediaFallbackSize(
     id2,
-    imgError && !isEmpty2 && !!(meta2 || view2.primary) && !isMissingAssetNodeData(data2),
+    imgError &&
+      !isEmpty2 &&
+      !!(meta2 || view2.primary) &&
+      !isMissingAssetNodeData(data2),
   );
   if (isMissingAssetNodeData(data2)) {
     return (
-      <MissingAssetCard nodeId={id2} name={typeof data2?.name === "string" ? data2.name : void 0} />
+      <MissingAssetCard
+        nodeId={id2}
+        name={typeof data2?.name === "string" ? data2.name : void 0}
+      />
     );
   }
   if (!meta2 && !isUserEmpty && !view2.primary) return null;
@@ -1836,7 +1495,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
   const isErasing = erasingNodeId !== null;
   const isRedrawing = redrawingNodeId !== null;
   const isMovingObject = movingObjectNodeId !== null;
-  const isModalActive = isCropping || isOutpainting || isErasing || isRedrawing || isMovingObject;
+  const isModalActive =
+    isCropping || isOutpainting || isErasing || isRedrawing || isMovingObject;
   const isInteractiveSelect = !isMultiSelect && !isBoxSelecting;
   const showStandardToolbar =
     !displayImageOnly &&
@@ -1871,7 +1531,9 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
     showWatermarkPopover,
     showLayerDecomposePrompt,
   });
-  const shellWidth = imgError ? MEDIA_FALLBACK_NODE_SIZE.width : rotate2.displayWidth;
+  const shellWidth = imgError
+    ? MEDIA_FALLBACK_NODE_SIZE.width
+    : rotate2.displayWidth;
   return (
     <NodeShell
       id={id2}
@@ -1888,24 +1550,26 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
       dataAspectRatio={emptyAspectRatio}
       generating={false}
     >
-      {!displayImageOnly && !isOutpaintingThis && !isExpandedMediaOverlayVisible && (
-        <NodeHeader
-          nodeType="image"
-          tagIds={meta2?.tagIds}
-          name={resolveImageNodeDisplayName(
-            {
-              dataName: data2?.name,
-              primaryName: view2.primary?.name,
-              metaName: meta2?.name,
-            },
-            t2("canvas.image"),
-          )}
-          selected={selected2}
-          dimensions={dimensions2}
-          maxWidth={shellWidth}
-          onRename={onRename}
-        />
-      )}
+      {!displayImageOnly &&
+        !isOutpaintingThis &&
+        !isExpandedMediaOverlayVisible && (
+          <NodeHeader
+            nodeType="image"
+            tagIds={meta2?.tagIds}
+            name={resolveImageNodeDisplayName(
+              {
+                dataName: data2?.name,
+                primaryName: view2.primary?.name,
+                metaName: meta2?.name,
+              },
+              t2("canvas.image"),
+            )}
+            selected={selected2}
+            dimensions={dimensions2}
+            maxWidth={shellWidth}
+            onRename={onRename}
+          />
+        )}
       {showStandardToolbar && (
         <ImageNodeToolbarSection
           hasDimensions={hasDimensions}
@@ -1921,10 +1585,14 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           handleImageEdit={inplaceEdit.enter}
           handleMultiAngle={handleMultiAngle}
           handlePanoramaReference={
-            onInstantiatePlugin && view2.primary?.url ? handlePanoramaReference : void 0
+            onInstantiatePlugin && view2.primary?.url
+              ? handlePanoramaReference
+              : void 0
           }
           handleWatermark={primaryUrl && cropImage ? handleWatermark : void 0}
-          handleStoryboardGrid={isStoryboardProduct ? void 0 : handleStoryboardGrid}
+          handleStoryboardGrid={
+            isStoryboardProduct ? void 0 : handleStoryboardGrid
+          }
           handleRelight={handleRelight}
           handleRotate={rotate2.enter}
           handleSplitEnter={splitMode.enter}
@@ -2007,7 +1675,10 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         selected={selected2}
         variant={isEmpty2 ? "panel" : "media"}
         className={
-          view2.isMulti && !isExpandedMediaOverlayVisible && !imageEditing && !rotate2.editing
+          view2.isMulti &&
+          !isExpandedMediaOverlayVisible &&
+          !imageEditing &&
+          !rotate2.editing
             ? "canvas-media-stack"
             : void 0
         }
@@ -2145,13 +1816,16 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           onClose={closeLayerDecomposePrompt}
         />
       )}
-      {view2.rounds.length > 1 && !imageEditing && !rotate2.editing && !showWatermarkPopover && (
-        <RoundDots
-          count={view2.rounds.length}
-          activeIdx={view2.activeRoundIndex}
-          onSelect={handleSelectRound}
-        />
-      )}
+      {view2.rounds.length > 1 &&
+        !imageEditing &&
+        !rotate2.editing &&
+        !showWatermarkPopover && (
+          <RoundDots
+            count={view2.rounds.length}
+            activeIdx={view2.activeRoundIndex}
+            onSelect={handleSelectRound}
+          />
+        )}
       {isExpandedMediaOverlayVisible && (
         <MultiImageOverlay
           nodeId={id2}
@@ -2173,7 +1847,9 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           onSubmit={handleI2VSubmit}
           onClose={handleI2VClose}
           listVideoModels={fetchVideoModels}
-          defaultImagePath={typeof meta2?.path === "string" ? meta2.path : void 0}
+          defaultImagePath={
+            typeof meta2?.path === "string" ? meta2.path : void 0
+          }
           selfAssetIds={selfAssetIds}
           defaultImagePaths={referenceImagePaths}
           defaultImageDraftPaths={i2vDraft?.imagePaths}
@@ -2201,7 +1877,9 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           defaultTextPaths={defaultI2VTextPaths}
           hasUpstreamText={!!upstreamTextContent}
           referenceTextContent={upstreamTextContent}
-          popoverGapOffset={view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0}
+          popoverGapOffset={
+            view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
+          }
         />
       )}
       {showPopover && showI2IPopover && (
@@ -2232,7 +1910,9 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           defaultTextPaths={defaultI2ITextPaths}
           hasUpstreamText={!!upstreamTextContent}
           referenceTextContent={upstreamTextContent}
-          popoverGapOffset={view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0}
+          popoverGapOffset={
+            view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
+          }
         />
       )}
       {showEnhancePopover && (
@@ -2312,9 +1992,13 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           <NodeResizeFrame
             nodeId={id2}
             minWidth={isStoryboardProduct ? STORYBOARD_RESIZE_MIN_EDGE : void 0}
-            minHeight={isStoryboardProduct ? STORYBOARD_RESIZE_MIN_EDGE : void 0}
+            minHeight={
+              isStoryboardProduct ? STORYBOARD_RESIZE_MIN_EDGE : void 0
+            }
             maxWidth={isStoryboardProduct ? STORYBOARD_RESIZE_MAX_EDGE : void 0}
-            maxHeight={isStoryboardProduct ? STORYBOARD_RESIZE_MAX_EDGE : void 0}
+            maxHeight={
+              isStoryboardProduct ? STORYBOARD_RESIZE_MAX_EDGE : void 0
+            }
             keepAspectRatio={isStoryboardProduct}
             onCommit={handleImageResizeCommit}
           />
@@ -2324,8 +2008,12 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
         <ImageLightbox$2
           {...lightbox.lightboxProps}
           alt={meta2?.name ?? ""}
-          onSetAsPrimary={canSetLightboxPrimary ? handleSetLightboxPrimary : void 0}
-          onSplitToNode={canSplitLightboxImage ? handleSplitLightboxImage : void 0}
+          onSetAsPrimary={
+            canSetLightboxPrimary ? handleSetLightboxPrimary : void 0
+          }
+          onSplitToNode={
+            canSplitLightboxImage ? handleSplitLightboxImage : void 0
+          }
         />
       )}
       {colorAdjust.open && meta2?.url && (
@@ -2333,7 +2021,8 @@ export function ImageNodeInner({ id: id2, data: data2, selected: selected2, widt
           {...colorAdjust.dialogProps}
           onOpenChange={(nextOpen) => {
             if (!nextOpen) {
-              const enteredAt = trackedActionStartRef.current.get("color-adjust");
+              const enteredAt =
+                trackedActionStartRef.current.get("color-adjust");
               trackedActionStartRef.current.delete("color-adjust");
               if (enteredAt != null) {
                 onNodeAction?.({

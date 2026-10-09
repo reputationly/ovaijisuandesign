@@ -1,202 +1,81 @@
 // workspace-browser.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, ArrowRight, X$7, dedupedToast, usePlatform, Globe, PanelsTopLeft, getRuntimeConfig, Plus, ArrowLeft, RotateCw, ArrowUpRight, MoreHorizontal } from "../vendor.js";
-import { useNativeViewOcclusion } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { Tooltip, TooltipTrigger, Icon } from "../vendor-inline/vscode-base/graph.jsx";
-import { Bookmark, Camera, Chrome } from "../media-editing/parse-item.jsx";
-import { useHasBlockingModal } from "../infra/thumbnail-load-scheduler.jsx";
-import { TRACK_EVENTS } from "../infra/track-events.js";
-import { OPEN_BROWSER_EVENT } from "../canvas/use-canvas-tag-filter.js";
-import { workspaceEvents } from "./use-hub-logo-hover-animation.jsx";
-import { dispatchBrowserImageEditToChat } from "../generation/media-model-selector.jsx";
-import { TooltipContent } from "../infra/use-browser-overlay-dialog-props.jsx";
 import {
-  dispatchBrowserPickedFileToChat,
-  takePendingBuiltinBrowserUrl,
-  dispatchBrowserAnnotationToChat,
-  dispatchBrowserScreenshotToChat,
-} from "./use-workspace-canvas-persistence.jsx";
-import { trackEvent } from "../infra/init-track.js";
-import { useCoachMark, CoachMarkPopup } from "./use-coach-mark.jsx";
-import { useSettings } from "../settings/use-data-directory.js";
-import { useBrowserHoverSnapshot } from "../chat/part-store.jsx";
-import { blobToPng } from "../text-editor/use-canvas-image-annotation-host.jsx";
-import { resolveTrackingDomain } from "../i18n/init-rum.jsx";
-import { AnnotationIcon$1 } from "../canvas/generating-media-area.jsx";
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  dedupedToast,
+  Globe,
+  jsxRuntimeExports,
+  MoreHorizontal,
+  Plus,
+  reactExports,
+  RotateCw,
+  usePlatform,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
+import {
+  Icon,
+  Tooltip,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  annotationSiteName,
+  BOOKMARKS_STORAGE_KEY,
+  BROWSER_MENU_HEIGHT,
+  BROWSER_MENU_MARGIN,
+  BROWSER_MENU_OFFSET,
+  BROWSER_MENU_WIDTH,
+  DEFAULT_URL,
+  destinationForInput,
+  DEVICE_CANVASES,
+  isSafeBookmarkFaviconUrl,
+  readBookmarks,
+  readSearchHistory,
+  SEARCH_HISTORY_KEY,
+  SEARCH_HISTORY_LIMIT,
+  WorkspaceViewSwitch,
+} from "./workspace-view-switch.jsx";
+import { useNativeViewOcclusion } from "../canvas/separator.jsx";
+import { Bookmark, Camera, Chrome } from "../media-editing/package.jsx";
+import { useHasBlockingModal } from "../infra/schedule.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { OPEN_BROWSER_EVENT } from "../canvas/resolve-workspace-failure-diagnosis.js";
+import { workspaceEvents } from "./topbar-state-context.jsx";
+import { dispatchBrowserImageEditToChat } from "../generation/use-tool-confirm-edit-state.js";
+import { TooltipContent } from "../infra/dialog-content.jsx";
+import {
+  dispatchBrowserAnnotationToChat,
+  dispatchBrowserPickedFileToChat,
+  dispatchBrowserScreenshotToChat,
+  takePendingBuiltinBrowserUrl,
+} from "./resolve-retry-message-payload.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { useCoachMark } from "./use-coach-mark.js";
+import { CoachMarkPopup } from "./coach-mark-popup.jsx";
+import { useSettings } from "../settings/use-settings.js";
+import { useBrowserHoverSnapshot } from "../chat/prepare-browser-hover-snapshot.js";
+import { blobToPng } from "../text-editor/use-placeholder-asset-source.jsx";
+import { resolveTrackingDomain } from "../i18n/canvas-node-tools.jsx";
+import { AnnotationIcon$1 } from "../canvas/fullscreen-icon.jsx";
 import { BrowserAnnotationEditor } from "../text-editor/browser-annotation-editor.jsx";
 import {
-  BrowserSearchHistory,
   browserBookmarkImportNotice,
   browserProfileImportErrorMessage,
   browserProfileImportFailureTrackProps,
+  BrowserSearchHistory,
   useBrowserChatContext,
   useBrowserTabPresence,
-} from "./browser-inspiration-favicon-files.jsx";
-import { BrowserErrorCard } from "./browser-inspiration-sites.jsx";
-import { BrowserDownloads, BrowserTabMotion, BrowserTabOverview } from "./browser-tab-motion.jsx";
-import { mergeBrowserBookmarks } from "../media-editing/use-browser-video-download.jsx";
-import {
-  BrowserStartPage,
-  BrowserTabIcon,
-  IconButton,
-} from "./workspace-canvas-focus-coordinator.jsx";
-function BrowserEntryCoachMark({ anchorRef, enabled }) {
-  const { t: t2 } = useTranslation();
-  const blocked = useHasBlockingModal();
-  const coach = useCoachMark("canvas-browser-entry-intro", enabled && !blocked, {
-    autoClose: false,
-    persistOnOpen: true,
-  });
-  return (
-    <CoachMarkPopup
-      open={enabled && !blocked && coach.isOpen}
-      anchorRef={anchorRef}
-      title={t2("workspace.browser.guide.entryTitle", "浏览网页，收集灵感")}
-      description={t2(
-        "workspace.browser.guide.entryDescription",
-        "点击「浏览器」查找素材，添加到画布或对话；也可圈选网页内容并批注，让 Agent 按你的要求操作网页。",
-      )}
-      onDismiss={coach.dismiss}
-      side="bottom"
-      align="start"
-      showClose={true}
-      actionUiId="canvas.browser-entry-guide"
-    />
-  );
-}
-export function WorkspaceViewSwitch({ target, onClick, label }) {
-  const { t: t2 } = useTranslation();
-  const browserAnchor = reactExports.useRef(null);
-  return (
-    <div
-      data-window-drag-region="no-drag"
-      className="no-drag relative inline-flex h-8 shrink-0 items-center gap-0.5 rounded-lg border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] p-0.5 shadow-xs [border-width:var(--divider-width)]"
-    >
-      <BrowserEntryCoachMark anchorRef={browserAnchor} enabled={target === "browser"} />
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute bottom-0.5 left-0.5 top-0.5 w-7 rounded-md bg-[var(--canvas-controls-active)] transition-transform duration-200 ease-out motion-reduce:transition-none ${target === "canvas" ? "translate-x-20" : "translate-x-0"}`}
-      />
-      {["canvas", "browser"].map((mode2) => {
-        const active2 = mode2 !== target;
-        const title =
-          mode2 === "canvas" ? (label ?? t2("workspace.browser.canvas")) : t2("workspace.browser");
-        return (
-          <button
-            key={mode2}
-            ref={mode2 === "browser" ? browserAnchor : void 0}
-            type="button"
-            onClick={active2 ? void 0 : onClick}
-            aria-pressed={active2}
-            aria-label={title}
-            title={active2 ? title : void 0}
-            data-action-ui-id={`workspace.switch-to-${mode2}`}
-            className={`relative inline-flex h-full min-w-0 shrink-0 cursor-pointer items-center justify-center rounded-md px-1 text-xs transition-[width,color] duration-200 ease-out motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${active2 ? "w-7 font-medium text-[var(--canvas-controls-text)]" : "w-[78px] font-normal text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
-          >
-            <Icon icon={mode2 === "canvas" ? PanelsTopLeft : Globe} size="sm" />
-            <span
-              aria-hidden="true"
-              className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-200 ease-out motion-reduce:transition-none ${active2 ? "ml-0 max-w-0 opacity-0" : "ml-1 max-w-16 opacity-100"}`}
-            >
-              {title}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-const DEFAULT_URL = "";
-const SEARCH_HISTORY_KEY = "hilo:browser-search-history";
-const SEARCH_HISTORY_LIMIT = 7;
-const BOOKMARKS_STORAGE_KEY = "hilo:browser-bookmarks:v1";
-const MAX_STORED_FAVICON_DATA_URL_LENGTH = 9e4;
-function isSafeBookmarkFaviconUrl(value) {
-  if (typeof value !== "string") return false;
-  if (
-    value.length <= MAX_STORED_FAVICON_DATA_URL_LENGTH &&
-    /^data:image\/(?:png|jpe?g|gif|webp|x-icon|vnd\.microsoft\.icon);base64,[A-Za-z0-9+/]+={0,2}$/iu.test(
-      value,
-    )
-  )
-    return true;
-  if (value.length > 2048) return false;
-  try {
-    const url2 = new URL(value);
-    return url2.protocol === "https:" || url2.protocol === "http:";
-  } catch {
-    return false;
-  }
-}
-function readBookmarks() {
-  try {
-    const value = JSON.parse(localStorage.getItem(BOOKMARKS_STORAGE_KEY) ?? "[]");
-    if (!Array.isArray(value)) return [];
-    return value.filter(
-      (item) =>
-        item &&
-        typeof item.id === "string" &&
-        typeof item.title === "string" &&
-        typeof item.url === "string" &&
-        Array.isArray(item.folders) &&
-        (item.faviconDataUrl === void 0 || isSafeBookmarkFaviconUrl(item.faviconDataUrl)),
-    );
-  } catch {
-    return [];
-  }
-}
-function readSearchHistory() {
-  try {
-    const value = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) ?? "[]");
-    return Array.isArray(value)
-      ? value.filter((item) => typeof item === "string").slice(0, SEARCH_HISTORY_LIMIT)
-      : [];
-  } catch {
-    return [];
-  }
-}
-function isUrl(value) {
-  return /^(?:https?:\/\/|file:\/\/|about:|mailto:)/i.test(value.trim());
-}
-function destinationForInput(value) {
-  const input = value.trim();
-  if (isUrl(input))
-    return {
-      destination: input,
-      search: false,
-    };
-  const engine = getRuntimeConfig().region === "domestic" ? "www.bing.com" : "www.google.com";
-  return {
-    destination: `https://${engine}/search?q=${encodeURIComponent(input)}`,
-    search: true,
-  };
-}
-function annotationSiteName(url2, fallback = "当前网页") {
-  try {
-    const hostname = new URL(url2).hostname;
-    return hostname || fallback;
-  } catch {
-    return fallback;
-  }
-}
-const BROWSER_MENU_WIDTH = 790;
-const BROWSER_MENU_HEIGHT = 520;
-const BROWSER_MENU_MARGIN = 8;
-const BROWSER_MENU_OFFSET = 4;
-const DEVICE_CANVASES = {
-  "iphone-xr": {
-    width: 414,
-    height: 896,
-  },
-  mobile: {
-    width: 375,
-    height: 812,
-  },
-  tablet: {
-    width: 768,
-    height: 1024,
-  },
-};
+} from "./browser-search-history.jsx";
+import { BrowserErrorCard } from "./browser-error-card.jsx";
+import { BrowserDownloads } from "./browser-downloads.jsx";
+import { BrowserTabMotion } from "./browser-tab-motion.jsx";
+import { BrowserTabOverview } from "./browser-tab-overview.jsx";
+import { mergeBrowserBookmarks } from "../media-editing/merge-browser-bookmarks.js";
+import { BrowserStartPage } from "./browser-bookmarks.jsx";
+import { BrowserTabIcon, IconButton } from "./icon-button.jsx";
+
 export function WorkspaceBrowser({
   onBackToCanvas,
   backLabel,
@@ -213,7 +92,8 @@ export function WorkspaceBrowser({
   });
   const browserStateRef = reactExports.useRef(browserState);
   const [inputValue, setInputValue] = reactExports.useState(DEFAULT_URL);
-  const [searchHistory, setSearchHistory] = reactExports.useState(readSearchHistory);
+  const [searchHistory, setSearchHistory] =
+    reactExports.useState(readSearchHistory);
   const [bookmarks, setBookmarks] = reactExports.useState(readBookmarks);
   const bookmarksRef = reactExports.useRef(bookmarks);
   const [searchFocused, setSearchFocused] = reactExports.useState(false);
@@ -245,11 +125,15 @@ export function WorkspaceBrowser({
   const chromeBannerTrackedRef = reactExports.useRef(false);
   const [showChromeDialog, setShowChromeDialog] = reactExports.useState(false);
   useNativeViewOcclusion(showChromeDialog);
-  const [chromeImportKind, setChromeImportKind] = reactExports.useState("cookies");
-  const [selectedChromeProfile, setSelectedChromeProfile] = reactExports.useState("");
-  const [chromeImportScope, setChromeImportScope] = reactExports.useState("all");
+  const [chromeImportKind, setChromeImportKind] =
+    reactExports.useState("cookies");
+  const [selectedChromeProfile, setSelectedChromeProfile] =
+    reactExports.useState("");
+  const [chromeImportScope, setChromeImportScope] =
+    reactExports.useState("all");
   const [chromeImporting, setChromeImporting] = reactExports.useState(false);
-  const [chromeImportResult, setChromeImportResult] = reactExports.useState(null);
+  const [chromeImportResult, setChromeImportResult] =
+    reactExports.useState(null);
   const [chromeImportError, setChromeImportError] = reactExports.useState("");
   const [annotationSession, setAnnotationSession] = reactExports.useState(null);
   const annotationSessionRef = reactExports.useRef(null);
@@ -265,7 +149,10 @@ export function WorkspaceBrowser({
   const canUsePageTools = Boolean(activeTab && activeTabUrl?.trim());
   const hasBlockingModal = useHasBlockingModal();
   const annotationGuideEligible =
-    canUsePageTools && !activeTab?.isLoading && !activeTab?.lastLoadError && !annotationSession;
+    canUsePageTools &&
+    !activeTab?.isLoading &&
+    !activeTab?.lastLoadError &&
+    !annotationSession;
   const annotationCoach = useCoachMark(
     "browser-annotation-intro",
     annotationGuideEligible && !hasBlockingModal,
@@ -276,12 +163,15 @@ export function WorkspaceBrowser({
   const showAnnotationGuide =
     !hasBlockingModal && annotationGuideEligible && annotationCoach.isOpen;
   useNativeViewOcclusion(showAnnotationGuide);
-  const canBookmarkPage = Boolean(activeTabUrl && /^https?:\/\//u.test(activeTabUrl));
+  const canBookmarkPage = Boolean(
+    activeTabUrl && /^https?:\/\//u.test(activeTabUrl),
+  );
   const activeBookmark = activeTabUrl
     ? bookmarks.find((bookmark) => bookmark.url === activeTabUrl)
     : void 0;
   const previewMode = activeTab?.devicePreviewMode ?? "responsive";
-  const deviceCanvas = previewMode === "responsive" ? null : DEVICE_CANVASES[previewMode];
+  const deviceCanvas =
+    previewMode === "responsive" ? null : DEVICE_CANVASES[previewMode];
   const deviceScale = deviceCanvas
     ? Math.min(
         1,
@@ -301,7 +191,9 @@ export function WorkspaceBrowser({
     bridge: platform2.window,
     viewportRef,
     tabId:
-      !annotationSession && canUsePageTools && !(activeTab?.lastLoadError && !activeTab.isLoading)
+      !annotationSession &&
+      canUsePageTools &&
+      !(activeTab?.lastLoadError && !activeTab.isLoading)
         ? activeTabId
         : null,
     // Size changes keep the same DOM viewport and aspect-preserving bitmap,
@@ -316,8 +208,12 @@ export function WorkspaceBrowser({
     const triggerRect = trigger.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
     if (stageRect.width <= 0 || stageRect.height <= 0) return null;
-    const viewportWidth = Math.round(window.innerWidth || document.documentElement.clientWidth);
-    const viewportHeight = Math.round(window.innerHeight || document.documentElement.clientHeight);
+    const viewportWidth = Math.round(
+      window.innerWidth || document.documentElement.clientWidth,
+    );
+    const viewportHeight = Math.round(
+      window.innerHeight || document.documentElement.clientHeight,
+    );
     if (viewportWidth <= 0 || viewportHeight <= 0) return null;
     const hostLeft = Math.max(0, Math.round(stageRect.left));
     const hostTop = Math.max(0, Math.round(stageRect.top));
@@ -326,12 +222,24 @@ export function WorkspaceBrowser({
     if (hostRight <= hostLeft || hostBottom <= hostTop) return null;
     const hostWidth = hostRight - hostLeft;
     const hostHeight = Math.max(1, hostBottom - hostTop);
-    const width = Math.min(BROWSER_MENU_WIDTH, Math.max(1, hostWidth - BROWSER_MENU_MARGIN * 2));
-    const height = Math.min(BROWSER_MENU_HEIGHT, Math.max(1, hostHeight - BROWSER_MENU_MARGIN * 2));
-    const maxX = Math.max(hostLeft + BROWSER_MENU_MARGIN, hostRight - width - BROWSER_MENU_MARGIN);
+    const width = Math.min(
+      BROWSER_MENU_WIDTH,
+      Math.max(1, hostWidth - BROWSER_MENU_MARGIN * 2),
+    );
+    const height = Math.min(
+      BROWSER_MENU_HEIGHT,
+      Math.max(1, hostHeight - BROWSER_MENU_MARGIN * 2),
+    );
+    const maxX = Math.max(
+      hostLeft + BROWSER_MENU_MARGIN,
+      hostRight - width - BROWSER_MENU_MARGIN,
+    );
     const x2 = Math.min(
       maxX,
-      Math.max(hostLeft + BROWSER_MENU_MARGIN, Math.round(triggerRect.right - width)),
+      Math.max(
+        hostLeft + BROWSER_MENU_MARGIN,
+        Math.round(triggerRect.right - width),
+      ),
     );
     const belowY = Math.round(triggerRect.bottom + BROWSER_MENU_OFFSET);
     const aboveY = Math.round(triggerRect.top - height - BROWSER_MENU_OFFSET);
@@ -366,7 +274,10 @@ export function WorkspaceBrowser({
         const next2 = current2.filter((bookmark) => bookmark.id !== bookmarkId);
         if (next2.length === current2.length) return current2;
         try {
-          window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(next2));
+          window.localStorage.setItem(
+            BOOKMARKS_STORAGE_KEY,
+            JSON.stringify(next2),
+          );
         } catch {}
         return next2;
       });
@@ -376,7 +287,8 @@ export function WorkspaceBrowser({
     async (file) => {
       const png = await blobToPng(file);
       if (!png) throw new Error("Image could not be decoded");
-      if (!platform2.clipboard.writeImageData) throw new Error("Clipboard bridge unavailable");
+      if (!platform2.clipboard.writeImageData)
+        throw new Error("Clipboard bridge unavailable");
       await platform2.clipboard.writeImageData(await png.arrayBuffer());
     },
     [platform2],
@@ -439,7 +351,10 @@ export function WorkspaceBrowser({
             })
           ) {
             dedupedToast.warning(
-              t2("workspace.browser.imageEdit.openProject", "请先打开项目，再使用图像编辑"),
+              t2(
+                "workspace.browser.imageEdit.openProject",
+                "请先打开项目，再使用图像编辑",
+              ),
             );
           }
           return;
@@ -456,7 +371,9 @@ export function WorkspaceBrowser({
           });
           return;
         case "clipboard":
-          void copyPickedImage(file).catch(() => dedupedToast.error(t2("common.copyFailed")));
+          void copyPickedImage(file).catch(() =>
+            dedupedToast.error(t2("common.copyFailed")),
+          );
           return;
         default:
           return;
@@ -482,7 +399,10 @@ export function WorkspaceBrowser({
           : item,
       );
       try {
-        window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(next2));
+        window.localStorage.setItem(
+          BOOKMARKS_STORAGE_KEY,
+          JSON.stringify(next2),
+        );
       } catch {}
       return next2;
     });
@@ -496,7 +416,9 @@ export function WorkspaceBrowser({
       right: tabs.scrollLeft < maxScrollLeft - 1,
     };
     setTabOverflow((current2) =>
-      current2.left === next2.left && current2.right === next2.right ? current2 : next2,
+      current2.left === next2.left && current2.right === next2.right
+        ? current2
+        : next2,
     );
   }, []);
   reactExports.useEffect(() => {
@@ -514,7 +436,9 @@ export function WorkspaceBrowser({
       passive: true,
     });
     const resizeObserver =
-      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateTabOverflow);
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateTabOverflow);
     resizeObserver?.observe(tabs);
     for (const tab2 of tabs.children) resizeObserver?.observe(tab2);
     return () => {
@@ -528,7 +452,9 @@ export function WorkspaceBrowser({
     const previousTabCount = previousTabCountRef.current;
     previousTabCountRef.current = tabCount;
     if (tabCount <= previousTabCount) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const started = performance.now();
     let frameId = 0;
     const followEnd = () => {
@@ -712,12 +638,16 @@ export function WorkspaceBrowser({
         });
     };
     window.addEventListener(OPEN_BROWSER_EVENT, handleOpenBrowser);
-    return () => window.removeEventListener(OPEN_BROWSER_EVENT, handleOpenBrowser);
+    return () =>
+      window.removeEventListener(OPEN_BROWSER_EVENT, handleOpenBrowser);
   }, [browser2, t2]);
   reactExports.useEffect(() => {
     const profileImport = window.hilo?.browser?.browserProfileImport;
     if (!profileImport || !activeTabId) return;
-    if (window.localStorage.getItem("hilo:browser-profile-import-nux:v1") === "1") return;
+    if (
+      window.localStorage.getItem("hilo:browser-profile-import-nux:v1") === "1"
+    )
+      return;
     let cancelled = false;
     void profileImport
       .listProfiles()
@@ -731,7 +661,8 @@ export function WorkspaceBrowser({
           return;
         setChromeProfiles(result.profiles);
         setSelectedChromeProfile(
-          result.profiles.find((profile) => profile.isDefault)?.id ?? result.profiles[0].id,
+          result.profiles.find((profile) => profile.isDefault)?.id ??
+            result.profiles[0].id,
         );
         setShowChromeBanner(true);
       })
@@ -760,7 +691,8 @@ export function WorkspaceBrowser({
           if (!result?.success || !result.profiles?.length) return;
           setChromeProfiles(result.profiles);
           setSelectedChromeProfile(
-            result.profiles.find((profile) => profile.isDefault)?.id ?? result.profiles[0].id,
+            result.profiles.find((profile) => profile.isDefault)?.id ??
+              result.profiles[0].id,
           );
           setChromeImportKind("cookies");
           setChromeImportResult(null);
@@ -793,7 +725,8 @@ export function WorkspaceBrowser({
           }
           setChromeProfiles(result.profiles);
           setSelectedChromeProfile(
-            result.profiles.find((profile) => profile.isDefault)?.id ?? result.profiles[0].id,
+            result.profiles.find((profile) => profile.isDefault)?.id ??
+              result.profiles[0].id,
           );
           setChromeImportKind("bookmarks");
           setChromeImportResult(null);
@@ -839,7 +772,9 @@ export function WorkspaceBrowser({
     window.addEventListener("resize", updateMenu);
     const stage = stageRef.current;
     const observer2 =
-      stage && typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateMenu) : null;
+      stage && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(updateMenu)
+        : null;
     if (observer2 && stage) observer2.observe(stage);
     return () => {
       window.removeEventListener("resize", updateMenu);
@@ -874,7 +809,9 @@ export function WorkspaceBrowser({
           return;
         }
         lastBounds = nextBounds;
-        void browser2.setBounds(browserState.activeTabId, nextBounds).catch(() => {});
+        void browser2
+          .setBounds(browserState.activeTabId, nextBounds)
+          .catch(() => {});
       });
     };
     updateBounds();
@@ -887,7 +824,10 @@ export function WorkspaceBrowser({
       if (frameId !== null) window.cancelAnimationFrame(frameId);
     };
   }, [browser2, browserState.activeTabId, viewportLayoutKey]);
-  const applyState = reactExports.useCallback((nextState) => setBrowserState(nextState), []);
+  const applyState = reactExports.useCallback(
+    (nextState) => setBrowserState(nextState),
+    [],
+  );
   const selectTab = (tabId, source = "tab_strip") => {
     if (!browser2) return;
     const before = browserState.tabs.length;
@@ -991,12 +931,15 @@ export function WorkspaceBrowser({
         }
       : null;
     const navigationSource =
-      source ?? (trackAddressSubmit ? (search2 ? "search" : "address") : "unknown");
+      source ??
+      (trackAddressSubmit ? (search2 ? "search" : "address") : "unknown");
     void browser2
       .navigate(activeTabId, destination, navigationSource)
       .then((nextState) => {
         applyState(nextState);
-        const nextTab = nextState.tabs.find((tab2) => tab2.id === nextState.activeTabId);
+        const nextTab = nextState.tabs.find(
+          (tab2) => tab2.id === nextState.activeTabId,
+        );
         if (nextTab) setInputValue(nextTab.url);
         if (addressProps) {
           trackEvent(TRACK_EVENTS.BROWSER_ADDRESS_SUBMIT, {
@@ -1059,13 +1002,15 @@ export function WorkspaceBrowser({
       .openMenu(
         activeTabId,
         bounds,
-        bookmarks.map(({ id: id2, title, url: url2, folders, faviconDataUrl }) => ({
-          id: id2,
-          title,
-          url: url2,
-          folders,
-          faviconDataUrl,
-        })),
+        bookmarks.map(
+          ({ id: id2, title, url: url2, folders, faviconDataUrl }) => ({
+            id: id2,
+            title,
+            url: url2,
+            folders,
+            faviconDataUrl,
+          }),
+        ),
       )
       .then(() => {
         trackEvent(TRACK_EVENTS.BROWSER_TOOLBAR_ACTION, {
@@ -1103,7 +1048,13 @@ export function WorkspaceBrowser({
     }
   }, [applyState, browser2]);
   const startAnnotation = async () => {
-    if (!browser2 || !activeTabId || !canUsePageTools || annotationSessionRef.current) return;
+    if (
+      !browser2 ||
+      !activeTabId ||
+      !canUsePageTools ||
+      annotationSessionRef.current
+    )
+      return;
     const tabId = activeTabId;
     const startedAt = performance.now();
     try {
@@ -1186,7 +1137,9 @@ export function WorkspaceBrowser({
             ...current2,
             {
               id: `manual-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-              title: activeTab.title || annotationSiteName(activeTabUrl, activeTabUrl),
+              title:
+                activeTab.title ||
+                annotationSiteName(activeTabUrl, activeTabUrl),
               url: activeTabUrl,
               folders: [],
               ...(isSafeBookmarkFaviconUrl(activeTab.faviconUrl)
@@ -1197,7 +1150,10 @@ export function WorkspaceBrowser({
             },
           ];
       try {
-        window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(next2));
+        window.localStorage.setItem(
+          BOOKMARKS_STORAGE_KEY,
+          JSON.stringify(next2),
+        );
       } catch {}
       return next2;
     });
@@ -1220,7 +1176,10 @@ export function WorkspaceBrowser({
     setBookmarks((current2) => {
       const next2 = current2.filter((bookmark) => bookmark.id !== bookmarkId);
       try {
-        window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(next2));
+        window.localStorage.setItem(
+          BOOKMARKS_STORAGE_KEY,
+          JSON.stringify(next2),
+        );
       } catch {}
       return next2;
     });
@@ -1394,11 +1353,19 @@ export function WorkspaceBrowser({
             result: "failed",
             error_code: result2.errorCode ?? "unknown",
           });
-          setChromeImportError(browserProfileImportErrorMessage(t2, result2.errorCode));
+          setChromeImportError(
+            browserProfileImportErrorMessage(t2, result2.errorCode),
+          );
           return;
         }
-        const merged = mergeBrowserBookmarks(bookmarksRef.current, result2.bookmarks);
-        window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(merged.bookmarks));
+        const merged = mergeBrowserBookmarks(
+          bookmarksRef.current,
+          result2.bookmarks,
+        );
+        window.localStorage.setItem(
+          BOOKMARKS_STORAGE_KEY,
+          JSON.stringify(merged.bookmarks),
+        );
         bookmarksRef.current = merged.bookmarks;
         setBookmarks(merged.bookmarks);
         trackEvent(TRACK_EVENTS.BROWSER_PROFILE_IMPORT_ACTION, {
@@ -1407,7 +1374,11 @@ export function WorkspaceBrowser({
           result: "success",
           imported_count: merged.addedCount,
         });
-        const notice = browserBookmarkImportNotice(t2, result2, merged.addedCount);
+        const notice = browserBookmarkImportNotice(
+          t2,
+          result2,
+          merged.addedCount,
+        );
         if (notice.warning) dedupedToast.warning(notice.message);
         else dedupedToast.success(notice.message);
         setShowChromeDialog(false);
@@ -1467,7 +1438,10 @@ export function WorkspaceBrowser({
       <CoachMarkPopup
         open={showAnnotationGuide}
         anchorRef={annotationGuideAnchor}
-        title={t2("workspace.browser.guide.annotationTitle", "批注网页，让 Agent 帮你操作")}
+        title={t2(
+          "workspace.browser.guide.annotationTitle",
+          "批注网页，让 Agent 帮你操作",
+        )}
         description={t2(
           "workspace.browser.guide.annotationDescription",
           "点击「批注」，圈选网页内容并写下操作要求，发送到对话，让 Agent 帮你操作网页。",
@@ -1484,7 +1458,8 @@ export function WorkspaceBrowser({
         data-action-ui-id="browser.tab-bar"
         className="flex h-12 w-full min-w-0 shrink-0 items-center gap-1 bg-card px-2"
         style={{
-          paddingRight: "calc(0.5rem + var(--canvas-top-right-overlay-inset, 0px))",
+          paddingRight:
+            "calc(0.5rem + var(--canvas-top-right-overlay-inset, 0px))",
         }}
       >
         {!annotationSession &&
@@ -1494,10 +1469,17 @@ export function WorkspaceBrowser({
               aria-hidden="true"
             />
           ) : (
-            <WorkspaceViewSwitch target="canvas" onClick={handleBackToCanvas} label={backLabel} />
+            <WorkspaceViewSwitch
+              target="canvas"
+              onClick={handleBackToCanvas}
+              label={backLabel}
+            />
           ))}
         {!annotationSession && (
-          <span aria-hidden="true" className="mr-2 h-4 w-px shrink-0 bg-border" />
+          <span
+            aria-hidden="true"
+            className="mr-2 h-4 w-px shrink-0 bg-border"
+          />
         )}
         <div
           ref={browserTabsRef}
@@ -1506,44 +1488,46 @@ export function WorkspaceBrowser({
           data-overflow-left={tabOverflow.left}
           data-overflow-right={tabOverflow.right}
         >
-          {visibleTabs.map(({ tab: tab2, active: active2, entering, exiting }) => (
-            <BrowserTabMotion
-              key={tab2.id}
-              id={tab2.id}
-              entering={entering}
-              exiting={exiting}
-              onExit={finishExit}
-              className={`workspace-browser-tab group relative mr-1 flex h-8 w-[220px] min-w-[72px] max-w-[220px] shrink basis-[220px] items-center gap-1.5 rounded-md border-y-2 border-transparent bg-clip-padding pl-1 pr-2 text-[13px] font-normal leading-normal transition-colors duration-150 motion-reduce:transition-none ${active2 ? "bg-foreground/[0.08] text-foreground" : hasClosingTab ? "text-foreground/55" : "text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground"}`}
-            >
-              <button
-                type="button"
-                className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-left"
-                onClick={() => selectTab(tab2.id)}
-                disabled={Boolean(annotationSession)}
-                aria-label={tab2.title}
+          {visibleTabs.map(
+            ({ tab: tab2, active: active2, entering, exiting }) => (
+              <BrowserTabMotion
+                key={tab2.id}
+                id={tab2.id}
+                entering={entering}
+                exiting={exiting}
+                onExit={finishExit}
+                className={`workspace-browser-tab group relative mr-1 flex h-8 w-[220px] min-w-[72px] max-w-[220px] shrink basis-[220px] items-center gap-1.5 rounded-md border-y-2 border-transparent bg-clip-padding pl-1 pr-2 text-[13px] font-normal leading-normal transition-colors duration-150 motion-reduce:transition-none ${active2 ? "bg-foreground/[0.08] text-foreground" : hasClosingTab ? "text-foreground/55" : "text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground"}`}
               >
-                <BrowserTabIcon tab={tab2} />
-                <span className="workspace-browser-tab-title min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-                  {tab2.title ||
-                    t2("workspace.browser.newTab", {
-                      defaultValue: "新标签页",
-                    })}
-                </span>
-              </button>
-              <button
-                type="button"
-                data-browser-tab-close={true}
-                className="pointer-events-none absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center text-muted-foreground opacity-0 transition-opacity before:pointer-events-none before:absolute before:-inset-y-1 before:-right-1.5 before:w-10 before:rounded-r-md before:bg-gradient-to-l before:from-secondary before:via-secondary/95 before:to-transparent before:content-[''] group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 hover:text-foreground"
-                onClick={() => closeTab(tab2.id)}
-                disabled={Boolean(annotationSession)}
-                aria-label={t2("workspace.browser.closeTab", {
-                  defaultValue: "关闭标签页",
-                })}
-              >
-                <Icon icon={X$7} size="sm" className="relative" />
-              </button>
-            </BrowserTabMotion>
-          ))}
+                <button
+                  type="button"
+                  className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-left"
+                  onClick={() => selectTab(tab2.id)}
+                  disabled={Boolean(annotationSession)}
+                  aria-label={tab2.title}
+                >
+                  <BrowserTabIcon tab={tab2} />
+                  <span className="workspace-browser-tab-title min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+                    {tab2.title ||
+                      t2("workspace.browser.newTab", {
+                        defaultValue: "新标签页",
+                      })}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  data-browser-tab-close={true}
+                  className="pointer-events-none absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center text-muted-foreground opacity-0 transition-opacity before:pointer-events-none before:absolute before:-inset-y-1 before:-right-1.5 before:w-10 before:rounded-r-md before:bg-gradient-to-l before:from-secondary before:via-secondary/95 before:to-transparent before:content-[''] group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 hover:text-foreground"
+                  onClick={() => closeTab(tab2.id)}
+                  disabled={Boolean(annotationSession)}
+                  aria-label={t2("workspace.browser.closeTab", {
+                    defaultValue: "关闭标签页",
+                  })}
+                >
+                  <Icon icon={X$7} size="sm" className="relative" />
+                </button>
+              </BrowserTabMotion>
+            ),
+          )}
         </div>
         <button
           type="button"
@@ -1574,7 +1558,10 @@ export function WorkspaceBrowser({
               })}
               disabled={!activeTab?.canGoBack}
               onClick={() =>
-                runStateAction("back", (id2) => browser2?.back(id2) ?? Promise.reject())
+                runStateAction(
+                  "back",
+                  (id2) => browser2?.back(id2) ?? Promise.reject(),
+                )
               }
             >
               <Icon icon={ArrowLeft} size="md" />
@@ -1585,7 +1572,10 @@ export function WorkspaceBrowser({
               })}
               disabled={!activeTab?.canGoForward}
               onClick={() =>
-                runStateAction("forward", (id2) => browser2?.forward(id2) ?? Promise.reject())
+                runStateAction(
+                  "forward",
+                  (id2) => browser2?.forward(id2) ?? Promise.reject(),
+                )
               }
             >
               <Icon icon={ArrowRight} size="md" />
@@ -1596,7 +1586,10 @@ export function WorkspaceBrowser({
               })}
               disabled={!activeTab}
               onClick={() =>
-                runStateAction("reload", (id2) => browser2?.reload(id2) ?? Promise.reject())
+                runStateAction(
+                  "reload",
+                  (id2) => browser2?.reload(id2) ?? Promise.reject(),
+                )
               }
             >
               <Icon
@@ -1609,7 +1602,8 @@ export function WorkspaceBrowser({
               className={`relative flex min-w-0 flex-1 items-center border px-2.5 transition-[border-color,background-color,border-radius] ${searchFocused ? "rounded-full border-input bg-muted" : "rounded-none border-transparent bg-transparent"}`}
               onSubmit={navigate}
               onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setSearchFocused(false);
+                if (!event.currentTarget.contains(event.relatedTarget))
+                  setSearchFocused(false);
               }}
               onKeyDown={(event) => {
                 if (event.key === "Escape") setSearchFocused(false);
@@ -1637,7 +1631,9 @@ export function WorkspaceBrowser({
                 searchHistory.length > 0 && (
                   <BrowserSearchHistory
                     items={searchHistory}
-                    onSelect={(item) => navigateToInput(item, false, "search_history")}
+                    onSelect={(item) =>
+                      navigateToInput(item, false, "search_history")
+                    }
                     onRemove={removeSearchHistoryItem}
                   />
                 )}
@@ -1684,7 +1680,9 @@ export function WorkspaceBrowser({
               <Icon
                 icon={Bookmark}
                 size="md"
-                className={activeBookmark ? "fill-foreground text-foreground" : void 0}
+                className={
+                  activeBookmark ? "fill-foreground text-foreground" : void 0
+                }
               />
             </IconButton>
             <IconButton
@@ -1738,7 +1736,11 @@ export function WorkspaceBrowser({
           </div>
           {showChromeBanner && (
             <div className="flex min-h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-8 py-2">
-              <Icon icon={Chrome} size="lg" className="shrink-0 text-foreground" />
+              <Icon
+                icon={Chrome}
+                size="lg"
+                className="shrink-0 text-foreground"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-foreground">
                   {t2("workspace.browser.chromeBannerTitle", {
@@ -1747,7 +1749,8 @@ export function WorkspaceBrowser({
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {t2("workspace.browser.chromeBannerDescription", {
-                    defaultValue: "检测到可导入的 Chrome Profile，可将 Cookie 复制到 Browser。",
+                    defaultValue:
+                      "检测到可导入的 Chrome Profile，可将 Cookie 复制到 Browser。",
                   })}
                 </div>
               </div>
@@ -1836,11 +1839,16 @@ export function WorkspaceBrowser({
                           defaultValue: "已导入 {{count}} 个 Cookie",
                           count: chromeImportResult.importedCount,
                         })
-                      : browserProfileImportErrorMessage(t2, chromeImportResult.errorCode)}
+                      : browserProfileImportErrorMessage(
+                          t2,
+                          chromeImportResult.errorCode,
+                        )}
                   </div>
                 )}
                 {chromeImportError && (
-                  <div className="mt-4 text-xs text-destructive">{chromeImportError}</div>
+                  <div className="mt-4 text-xs text-destructive">
+                    {chromeImportError}
+                  </div>
                 )}
                 <div className="mt-5 flex justify-end gap-2">
                   <button
@@ -1872,7 +1880,10 @@ export function WorkspaceBrowser({
             </div>
           )}
           <div className="relative min-h-0 flex-1 overflow-hidden bg-muted/30">
-            <div ref={stageRef} className="absolute inset-0 overflow-hidden bg-muted/30">
+            <div
+              ref={stageRef}
+              className="absolute inset-0 overflow-hidden bg-muted/30"
+            >
               <div className="absolute inset-0">
                 {deviceCanvas && viewportSize ? (
                   <div
@@ -1895,17 +1906,24 @@ export function WorkspaceBrowser({
                   />
                 )}
                 {showError && loadError && (
-                  <BrowserErrorCard error={loadError} onOpenExternal={openExternal} />
+                  <BrowserErrorCard
+                    error={loadError}
+                    onOpenExternal={openExternal}
+                  />
                 )}
                 {activeTab && !activeTabUrl && !showError && (
                   <BrowserStartPage
                     key={activeTab.id}
                     bookmarks={bookmarks}
                     searchHistory={searchHistory}
-                    onSelectHistory={(value) => navigateToInput(value, false, "search_history")}
+                    onSelectHistory={(value) =>
+                      navigateToInput(value, false, "search_history")
+                    }
                     onRemoveHistory={removeSearchHistoryItem}
                     onSearch={(value) => navigateToInput(value, true)}
-                    onNavigate={(value) => navigateToInput(value, false, "inspiration")}
+                    onNavigate={(value) =>
+                      navigateToInput(value, false, "inspiration")
+                    }
                     onRemoveBookmark={removeBookmark}
                   />
                 )}

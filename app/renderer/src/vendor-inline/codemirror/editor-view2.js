@@ -1,6 +1,6 @@
 // editor-view2.js
 import { browser, editable, dispatchKey, applyDOMChange, getRoot, ViewState, scrollIntoView, viewPlugin, PluginInstance, DocView, Transaction2, isFocusChange, focusChangeTransaction, ViewUpdate, ScrollTarget, EditorSelection, CachedOrder, styleModule, logException, isScrolledToBottom, attrsFromFacet, editorAttributes, contentAttributes, StyleModule, skipAtoms, moveByChar, byGroup, moveToLineBoundary, moveVertically, posAtCoords, BidiSpan, Direction, isolatesEq, getIsolatedRanges, focusPreventScroll, ViewPlugin, Prec, Tile, inputHandler, clipboardInputFilter, clipboardOutputFilter, scrollHandler, focusChangeEffect, exceptionSink, dragMovesSelection$1, clickAddsSelectionRange, decorations$1, blockWrappers, outerDecorations, atomicRanges, bidiIsolatedRanges, Facet, scrollMargins, StateEffect } from "../../vendor.js";
-import { updateAttrs } from "../../text-editor/annotation-highlight.js";
+import { updateAttrs } from "../../text-editor/configuration2.js";
 import { buildTheme, baseThemeID, lightDarkIDs, theme, updateListener, BadMeasure, darkTheme, baseDarkID, baseLightID, perLineTextDirection, MaxBidiLine, trivialOrder, mouseSelectionStyle } from "./line2.js";
 import { InputState2, computeOrder } from "./input-state2.js";
 import { EditorState2 } from "./editor-state2.js";

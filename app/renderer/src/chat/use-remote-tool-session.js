@@ -1,133 +1,37 @@
 // use-remote-tool-session.js
-import { reactExports, guardAccountSubmission } from "../vendor.js";
+import { guardAccountSubmission, reactExports } from "../vendor.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
-const QUEUED_USER_MESSAGE_CANCEL_TIMEOUT_MS = 5e3;
-export function useQueuedUserMessageCancellation({ sessionStore, send: send2 }) {
-  const pendingRef = reactExports.useRef(new Map());
-  const settleMatching = reactExports.useCallback((sessionId, ids2, cancelled) => {
-    const queueIds = new Set(ids2.queueIds ?? []);
-    const clientMessageIds = new Set(ids2.clientMessageIds ?? []);
-    for (const [key2, pending2] of pendingRef.current) {
-      if (pending2.sessionId !== sessionId) continue;
-      if (!clientMessageIds.has(pending2.clientMessageId)) continue;
-      if (pending2.queueId && !queueIds.has(pending2.queueId)) continue;
-      pendingRef.current.delete(key2);
-      clearTimeout(pending2.timeout);
-      pending2.resolve(cancelled);
-    }
-  }, []);
-  const settleQueuedUserMessageCancellation = reactExports.useCallback(
-    (message2) => {
-      if (message2.type === "queued_user_message") {
-        settleMatching(
-          message2.session_id,
-          {
-            queueIds: [message2.queue_id],
-            clientMessageIds: [message2.client_message_id],
-          },
-          false,
-        );
-      } else if (message2.type === "queued_user_messages_delivered") {
-        settleMatching(
-          message2.session_id,
-          {
-            queueIds: message2.queue_ids,
-            clientMessageIds: message2.client_message_ids,
-          },
-          false,
-        );
-      } else if (message2.type === "queued_user_messages_started") {
-        settleMatching(
-          message2.session_id,
-          {
-            queueIds: message2.messages.map((item) => item.queue_id),
-            clientMessageIds: message2.messages.map((item) => item.client_message_id),
-          },
-          false,
-        );
-      } else if (message2.type === "queued_user_messages_cancelled") {
-        settleMatching(
-          message2.session_id,
-          {
-            queueIds: message2.queue_ids,
-            clientMessageIds: message2.client_message_ids,
-          },
-          true,
-        );
-      }
-    },
-    [settleMatching],
-  );
-  const rejectQueuedUserMessageCancellations = reactExports.useCallback(() => {
-    for (const pending2 of pendingRef.current.values()) {
-      clearTimeout(pending2.timeout);
-      pending2.resolve(false);
-    }
-    pendingRef.current.clear();
-  }, []);
-  const cancelQueuedUserMessage = reactExports.useCallback(
-    (message2) => {
-      const sessionId = sessionStore.getState().focusedSessionId;
-      if (!sessionId) return Promise.resolve(false);
-      const pendingKey = `${sessionId}\0${message2.clientMessageId}`;
-      if (pendingRef.current.has(pendingKey)) return Promise.resolve(false);
-      let resolveCancellation;
-      const cancellation = new Promise((resolve) => {
-        resolveCancellation = resolve;
-      });
-      const timeout2 = setTimeout(() => {
-        const pending2 = pendingRef.current.get(pendingKey);
-        if (!pending2) return;
-        pendingRef.current.delete(pendingKey);
-        pending2.resolve(false);
-      }, QUEUED_USER_MESSAGE_CANCEL_TIMEOUT_MS);
-      pendingRef.current.set(pendingKey, {
-        sessionId,
-        clientMessageId: message2.clientMessageId,
-        queueId: message2.queueId,
-        resolve: resolveCancellation,
-        timeout: timeout2,
-      });
-      if (
-        !send2({
-          type: "cancel_queued_user_message",
-          session_id: sessionId,
-          queue_id: message2.queueId,
-          client_message_id: message2.clientMessageId,
-        })
-      ) {
-        const pending2 = pendingRef.current.get(pendingKey);
-        if (pending2) {
-          pendingRef.current.delete(pendingKey);
-          clearTimeout(pending2.timeout);
-          pending2.resolve(false);
-        }
-      }
-      return cancellation;
-    },
-    [send2, sessionStore],
-  );
-  reactExports.useEffect(
-    () => rejectQueuedUserMessageCancellations,
-    [rejectQueuedUserMessageCancellations],
-  );
-  return {
-    cancelQueuedUserMessage,
-    settleQueuedUserMessageCancellation,
-    rejectQueuedUserMessageCancellations,
-  };
-}
+
 const DIALOG_MARKER_TTL_MS = 3e4;
-export function useRemoteToolSession({ sessionStore, focusedSessionId, send: send2 }) {
-  const [pendingRemoteToolBySession, setPendingRemoteToolBySession] = reactExports.useState(
-    () => new Map(),
+
+function pruneSessionMap(setter, liveSessionIds) {
+  setter((prev) => {
+    let next2 = null;
+    for (const sid of prev.keys()) {
+      if (liveSessionIds.has(sid)) continue;
+      if (!next2) next2 = new Map(prev);
+      next2.delete(sid);
+    }
+    return next2 ?? prev;
+  });
+}
+
+export function useRemoteToolSession({
+  sessionStore,
+  focusedSessionId,
+  send: send2,
+}) {
+  const [pendingRemoteToolBySession, setPendingRemoteToolBySession] =
+    reactExports.useState(() => new Map());
+  const [remoteToolRequestBySession, setRemoteToolRequestBySession] =
+    reactExports.useState(() => new Map());
+  const pendingRemoteToolBySessionRef = reactExports.useRef(
+    pendingRemoteToolBySession,
   );
-  const [remoteToolRequestBySession, setRemoteToolRequestBySession] = reactExports.useState(
-    () => new Map(),
-  );
-  const pendingRemoteToolBySessionRef = reactExports.useRef(pendingRemoteToolBySession);
   pendingRemoteToolBySessionRef.current = pendingRemoteToolBySession;
-  const remoteToolRequestBySessionRef = reactExports.useRef(remoteToolRequestBySession);
+  const remoteToolRequestBySessionRef = reactExports.useRef(
+    remoteToolRequestBySession,
+  );
   remoteToolRequestBySessionRef.current = remoteToolRequestBySession;
   const [lastSkillGuiEvent, setLastSkillGuiEvent] = reactExports.useState(null);
   const pendingDialogsByDialogIdRef = reactExports.useRef(new Map());
@@ -136,10 +40,12 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
   const markerTimersRef = reactExports.useRef(new Map());
   reactExports.useEffect(
     () => () => {
-      for (const timer2 of dialogIdTimersRef.current.values()) clearTimeout(timer2);
+      for (const timer2 of dialogIdTimersRef.current.values())
+        clearTimeout(timer2);
       dialogIdTimersRef.current.clear();
       pendingDialogsByDialogIdRef.current.clear();
-      for (const timer2 of markerTimersRef.current.values()) clearTimeout(timer2);
+      for (const timer2 of markerTimersRef.current.values())
+        clearTimeout(timer2);
       markerTimersRef.current.clear();
       pendingMarkersByDialogIdRef.current.clear();
     },
@@ -183,10 +89,9 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
     }
     const pending2 = pendingRemoteToolBySession.get(sid);
     if (pending2) {
-      remoteToolRequestBySessionRef.current = new Map(remoteToolRequestBySessionRef.current).set(
-        sid,
-        pending2,
-      );
+      remoteToolRequestBySessionRef.current = new Map(
+        remoteToolRequestBySessionRef.current,
+      ).set(sid, pending2);
       remoteToolLog.info("open-pending dialog", {
         ui_session_id: sid,
         tool_name: pending2.toolName,
@@ -206,7 +111,10 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
   }, [pendingRemoteToolBySession, sessionStore]);
   const sendSkillGuiEvent = reactExports.useCallback(
     (toolId, eventType, data2, sessionId) => {
-      if (eventType === "generate:submit" && !guardAccountSubmission("remote_tool").allowed) {
+      if (
+        eventType === "generate:submit" &&
+        !guardAccountSubmission("remote_tool").allowed
+      ) {
         return false;
       }
       const fields = data2 ? Object.keys(data2) : [];
@@ -256,10 +164,9 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
           dialog_id: dialogId,
           session_id: targetSid,
         });
-        pendingRemoteToolBySessionRef.current = new Map(pendingRemoteToolBySessionRef.current).set(
-          targetSid,
-          request,
-        );
+        pendingRemoteToolBySessionRef.current = new Map(
+          pendingRemoteToolBySessionRef.current,
+        ).set(targetSid, request);
         setPendingRemoteToolBySession((prev) => {
           const next2 = new Map(prev);
           next2.set(targetSid, request);
@@ -313,7 +220,10 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
         dialogIdTimersRef.current.set(dialogId, timer2);
         return true;
       }
-      if (msg.type === "task_notification" && msg.metadata?.hub_dialog_marker === true) {
+      if (
+        msg.type === "task_notification" &&
+        msg.metadata?.hub_dialog_marker === true
+      ) {
         const dialogId = msg.metadata.dialog_id;
         const targetSid = msg.session_id;
         const toolName2 = msg.metadata.tool_name ?? "";
@@ -358,14 +268,22 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
           target_session_id: targetSid,
           tool_name: matchTool ?? null,
         });
-        const pendingExisting = pendingRemoteToolBySessionRef.current.get(targetSid);
-        if (pendingExisting && (!matchTool || pendingExisting.toolName === matchTool)) {
+        const pendingExisting =
+          pendingRemoteToolBySessionRef.current.get(targetSid);
+        if (
+          pendingExisting &&
+          (!matchTool || pendingExisting.toolName === matchTool)
+        ) {
           const next2 = new Map(pendingRemoteToolBySessionRef.current);
           next2.delete(targetSid);
           pendingRemoteToolBySessionRef.current = next2;
         }
-        const activeExisting = remoteToolRequestBySessionRef.current.get(targetSid);
-        if (activeExisting && (!matchTool || activeExisting.toolName === matchTool)) {
+        const activeExisting =
+          remoteToolRequestBySessionRef.current.get(targetSid);
+        if (
+          activeExisting &&
+          (!matchTool || activeExisting.toolName === matchTool)
+        ) {
           const next2 = new Map(remoteToolRequestBySessionRef.current);
           next2.delete(targetSid);
           remoteToolRequestBySessionRef.current = next2;
@@ -430,7 +348,9 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
     ? (remoteToolRequestBySession.get(focusedSessionId) ?? null)
     : null;
   const remoteToolDialogSessionId =
-    focusedSessionId && remoteToolRequestBySession.has(focusedSessionId) ? focusedSessionId : null;
+    focusedSessionId && remoteToolRequestBySession.has(focusedSessionId)
+      ? focusedSessionId
+      : null;
   return {
     pendingRemoteToolRequest,
     remoteToolRequest,
@@ -444,15 +364,4 @@ export function useRemoteToolSession({ sessionStore, focusedSessionId, send: sen
     pruneForLiveSessions,
     hasPendingRemoteToolForSession,
   };
-}
-function pruneSessionMap(setter, liveSessionIds) {
-  setter((prev) => {
-    let next2 = null;
-    for (const sid of prev.keys()) {
-      if (liveSessionIds.has(sid)) continue;
-      if (!next2) next2 = new Map(prev);
-      next2.delete(sid);
-    }
-    return next2 ?? prev;
-  });
 }

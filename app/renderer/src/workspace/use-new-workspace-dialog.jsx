@@ -1,83 +1,38 @@
 // use-new-workspace-dialog.jsx
-import { useTranslation, reactExports, dedupedToast, AlertTriangle, useQuery, useStorage, usePlatform, API_PATHS, X$7, workspaceLog, instance } from "../vendor.js";
-import { gatewayFetch } from "../infra/agent-ws-client.jsx";
-import { OPEN_NEW_WORKSPACE_DIALOG_EVENT, NewWorkspaceDialogContext, applyWorkspaceDisplayNameRename, classifySkillError, TOAST_ID$1 } from "./deferred-thumbnail-image-generation.jsx";
-import { compileToolDisplayPatterns, EMPTY_TOOL_CALL_DISPLAY_CONFIG, refreshToolCallDisplayConfig, mapHubClientConfig, HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS, DEFAULT_HUB_CLIENT_CONFIG } from "../settings/interest-selection-provider.jsx";
-import { truncateProjectName } from "../generation/push-inline.js";
-import { checkTextSafety } from "./record-recent-workspace-opened.jsx";
-import { setModalScheduleConfig } from "../infra/thumbnail-load-scheduler.jsx";
+import {
+  classifySkillError,
+  NewWorkspaceDialogContext,
+} from "./tool-label-definitions.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
-import { useTopbarActions } from "./use-hub-logo-hover-animation.jsx";
-import { folderNameFromPath, useRuntimeConfig, workspaceDisplayName } from "../generation/use-resizable-width.js";
-import { instantiationService, IProjectMainService } from "./browser-inspiration-urls.jsx";
-import { trackEvent } from "../infra/init-track.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import {
+  AlertTriangle,
+  dedupedToast,
+  instance,
+  reactExports,
+  usePlatform,
+  useStorage,
+  useTranslation,
+  workspaceLog,
+  X$7,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { useGatewayReady } from "../infra/hub-logo.jsx";
+import { instantiationService, IProjectMainService } from "./home-service.jsx";
 import { NewWorkspaceDialog } from "./new-workspace-dialog.jsx";
-export function NewWorkspaceDialogProvider({ children: children2 }) {
-  const { createWorkspace } = useTopbarActions();
-  const [open, setOpen] = reactExports.useState(false);
-  const [presetProjectId, setPresetProjectId] = reactExports.useState(void 0);
-  const confirmHandlerRef = reactExports.useRef(null);
-  const defaultConfirm = reactExports.useCallback(
-    (name2, options) => {
-      return createWorkspace(name2, options);
-    },
-    [createWorkspace],
-  );
-  const requestOpen = reactExports.useCallback((onConfirm, nextPresetProjectId) => {
-    confirmHandlerRef.current = onConfirm ?? null;
-    setPresetProjectId(nextPresetProjectId);
-    setOpen(true);
-  }, []);
-  const close2 = reactExports.useCallback(() => {
-    confirmHandlerRef.current = null;
-    setPresetProjectId(void 0);
-    setOpen(false);
-  }, []);
-  reactExports.useEffect(() => {
-    const handleOpen = () => requestOpen();
-    window.addEventListener(OPEN_NEW_WORKSPACE_DIALOG_EVENT, handleOpen);
-    return () => window.removeEventListener(OPEN_NEW_WORKSPACE_DIALOG_EVENT, handleOpen);
-  }, [requestOpen]);
-  const handleConfirm = reactExports.useCallback(
-    (name2, options) => {
-      const handler = confirmHandlerRef.current ?? defaultConfirm;
-      confirmHandlerRef.current = null;
-      return handler(name2, options);
-    },
-    [defaultConfirm],
-  );
-  const handleOpenChange = reactExports.useCallback((nextOpen) => {
-    if (!nextOpen) {
-      confirmHandlerRef.current = null;
-      setPresetProjectId(void 0);
-    }
-    setOpen(nextOpen);
-  }, []);
-  const value = reactExports.useMemo(
-    () => ({
-      open,
-      requestOpen,
-      close: close2,
-    }),
-    [close2, open, requestOpen],
-  );
-  return (
-    <NewWorkspaceDialogContext value={value}>
-      {children2}
-      <NewWorkspaceDialog
-        open={open}
-        onOpenChange={handleOpenChange}
-        onConfirm={handleConfirm}
-        defaultProjectId={presetProjectId}
-      />
-    </NewWorkspaceDialogContext>
-  );
-}
+import { truncateProjectName } from "../generation/normalize-skill-detail-metadata.js";
+import {
+  folderNameFromPath,
+  workspaceDisplayName,
+} from "../generation/use-model-catalog-scope-key.js";
+import { applyWorkspaceDisplayNameRename } from "./record-recent-workspace-opened.js";
+import { checkTextSafety } from "./asset-lineage-query-key.js";
+
+const TOAST_ID$1 = "low-memory-warning";
+
 function useNewWorkspaceDialogContext() {
   return reactExports.useContext(NewWorkspaceDialogContext);
 }
+
 function hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName) {
   const folderName = folderNameFromPath(workspacePath);
   const trimmed = truncateProjectName(newName);
@@ -89,6 +44,7 @@ function hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName) {
       workspaceDisplayName(workspace).toLowerCase() === candidate,
   );
 }
+
 export function useWorkspaceDisplayNameRename(workspacePath) {
   const [, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
   const platform2 = usePlatform();
@@ -108,18 +64,30 @@ export function useWorkspaceDisplayNameRename(workspacePath) {
             .catch(() => void 0);
           let conflicted = false;
           const renameUnlessConflict = (workspaces) => {
-            if (hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName)) {
+            if (
+              hasWorkspaceDisplayNameConflict(
+                workspaces,
+                workspacePath,
+                newName,
+              )
+            ) {
               conflicted = true;
               return workspaces;
             }
-            return applyWorkspaceDisplayNameRename(workspaces, workspacePath, newName);
+            return applyWorkspaceDisplayNameRename(
+              workspaces,
+              workspacePath,
+              newName,
+            );
           };
           let ok2 = true;
           if (Array.isArray(persisted)) {
             const next2 = renameUnlessConflict(persisted);
             if (!conflicted) ok2 = await setRecentWorkspacesAsync(next2);
           } else {
-            ok2 = await setRecentWorkspacesAsync((prev) => renameUnlessConflict(prev));
+            ok2 = await setRecentWorkspacesAsync((prev) =>
+              renameUnlessConflict(prev),
+            );
           }
           if (conflicted) {
             dedupedToast.error(t2("home.workspace.duplicateName"));
@@ -135,6 +103,7 @@ export function useWorkspaceDisplayNameRename(workspacePath) {
     [workspacePath, setRecentWorkspacesAsync, platform2.storage, t2],
   );
 }
+
 export function useNewWorkspaceDialog(onConfirm) {
   const { t: t2 } = useTranslation();
   const shared = useNewWorkspaceDialogContext();
@@ -156,7 +125,9 @@ export function useNewWorkspaceDialog(onConfirm) {
             projectId,
             error,
           });
-          dedupedToast.error(t2("workspace.newProject.projectFolderCheckFailed"));
+          dedupedToast.error(
+            t2("workspace.newProject.projectFolderCheckFailed"),
+          );
           return;
         }
       }
@@ -196,6 +167,7 @@ export function useNewWorkspaceDialog(onConfirm) {
     dialog,
   };
 }
+
 export function trackSkillInstallEvent(props) {
   const payload = {
     skill_name: props.name,
@@ -207,6 +179,7 @@ export function trackSkillInstallEvent(props) {
   if (props.via) payload.via = props.via;
   trackEvent(TRACK_EVENTS.SKILL_INSTALL, payload);
 }
+
 export function trackSkillInstallFailed(opts) {
   const err = classifySkillError(opts.error);
   const payload = {
@@ -220,12 +193,14 @@ export function trackSkillInstallFailed(opts) {
   if (opts.via) payload.via = opts.via;
   trackEvent(TRACK_EVENTS.SKILL_INSTALL_FAILED, payload);
 }
+
 export function trackSkillUninstall(name2, source) {
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL, {
     skill_name: name2,
     source,
   });
 }
+
 export function trackSkillUninstallFailed(opts) {
   const err = classifySkillError(opts.error);
   const payload = {
@@ -235,6 +210,7 @@ export function trackSkillUninstallFailed(opts) {
   };
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL_FAILED, payload);
 }
+
 export function trackSkillToggle(name2, enabled, source) {
   trackEvent(TRACK_EVENTS.SKILL_TOGGLE, {
     skill_name: name2,
@@ -242,11 +218,13 @@ export function trackSkillToggle(name2, enabled, source) {
     source,
   });
 }
+
 export function trackSkillDetailView(props) {
   trackEvent(TRACK_EVENTS.SKILL_DETAIL_VIEW, {
     ...props,
   });
 }
+
 export function trackSkillTry(props) {
   const payload = {
     skill_name: props.skill_name,
@@ -257,11 +235,13 @@ export function trackSkillTry(props) {
   if (props.via) payload.via = props.via;
   trackEvent(TRACK_EVENTS.SKILL_TRY, payload);
 }
+
 export function trackSkillExport(props) {
   trackEvent(TRACK_EVENTS.SKILL_EXPORT, {
     ...props,
   });
 }
+
 export function trackSkillImport(props) {
   const payload = {
     file_ext: props.file_ext,
@@ -271,6 +251,7 @@ export function trackSkillImport(props) {
   if (props.auto_fixed) payload.auto_fixed = true;
   trackEvent(TRACK_EVENTS.SKILL_IMPORT, payload);
 }
+
 export function trackSkillImportFailed(opts) {
   const baseErr = classifySkillError(opts.error);
   const payload = {
@@ -282,6 +263,7 @@ export function trackSkillImportFailed(opts) {
   if (opts.errorCode !== void 0) payload.error_code = opts.errorCode;
   trackEvent(TRACK_EVENTS.SKILL_IMPORT_FAILED, payload);
 }
+
 export function trackSkillSearch(props) {
   const payload = {
     tab: props.tab,
@@ -290,48 +272,58 @@ export function trackSkillSearch(props) {
   if (props.result_count !== void 0) payload.result_count = props.result_count;
   trackEvent(TRACK_EVENTS.SKILL_SEARCH, payload);
 }
+
 export function trackSkillFilter(props) {
   trackEvent(TRACK_EVENTS.SKILL_FILTER, {
     tab: props.tab,
     tag: props.tag,
   });
 }
+
 export function trackSkillLoadMore(props) {
   trackEvent(TRACK_EVENTS.SKILL_LOAD_MORE, {
     page: props.page,
     query_length: props.query_length,
   });
 }
+
 export function trackSkillTabSwitch(props) {
   trackEvent(TRACK_EVENTS.SKILL_TAB_SWITCH, {
     from: props.from,
     to: props.to,
   });
 }
+
 export function trackSkillMarketOpen(source) {
   trackEvent(TRACK_EVENTS.SKILL_MARKET_OPEN, {
     source,
   });
 }
+
 export function trackSkillInvoke(props) {
   trackEvent(TRACK_EVENTS.SKILL_INVOKE, {
     skill_name: props.name,
     source: props.source,
   });
 }
+
 export function trackSkillCreatorInvoke(source) {
   trackEvent(TRACK_EVENTS.SKILL_CREATOR_INVOKE, {
     source,
   });
 }
+
 function trackSkillDebugOpen(props) {
   trackEvent(TRACK_EVENTS.SKILL_DEBUG_OPEN, {
     skill_name: props.skill_name,
     source: props.source,
   });
 }
+
 export function showSkillInstallSuccessToast(skillName, opts = {}) {
-  const messageKey = opts.isUpdate ? "skills.market.updateSuccess" : "skills.market.installSuccess";
+  const messageKey = opts.isUpdate
+    ? "skills.market.updateSuccess"
+    : "skills.market.installSuccess";
   const message2 = instance.t(messageKey, {
     name: skillName,
   });
@@ -360,6 +352,7 @@ export function showSkillInstallSuccessToast(skillName, opts = {}) {
     },
   });
 }
+
 function LowMemoryToastContent({ payload, toastId }) {
   const { t: t2 } = useTranslation();
   return (
@@ -390,71 +383,13 @@ function LowMemoryToastContent({ payload, toastId }) {
     </div>
   );
 }
-function showLowMemoryToast(payload) {
-  dedupedToast.custom((id2) => <LowMemoryToastContent payload={payload} toastId={id2} />, {
-    duration: 15e3,
-    id: TOAST_ID$1,
-  });
-}
-export function LowMemoryToast() {
-  const pendingPayloadRef = reactExports.useRef(null);
-  const showOrDefer = reactExports.useCallback((payload) => {
-    if (document.visibilityState === "visible" && document.hasFocus()) {
-      showLowMemoryToast(payload);
-      return;
-    }
-    pendingPayloadRef.current = payload;
-  }, []);
-  const flushPending = reactExports.useCallback(() => {
-    if (document.visibilityState !== "visible" || !document.hasFocus()) return;
-    const payload = pendingPayloadRef.current;
-    if (!payload) return;
-    pendingPayloadRef.current = null;
-    showLowMemoryToast(payload);
-  }, []);
-  reactExports.useEffect(() => {
-    if (typeof hilo === "undefined") return;
-    return hilo.diagnostics.onLowMemory((payload) => {
-      showOrDefer(payload);
-    });
-  }, [showOrDefer]);
-  reactExports.useEffect(() => {
-    document.addEventListener("visibilitychange", flushPending);
-    window.addEventListener("focus", flushPending);
-    return () => {
-      document.removeEventListener("visibilitychange", flushPending);
-      window.removeEventListener("focus", flushPending);
-    };
-  }, [flushPending]);
-  return null;
-}
-export function useHubClientConfig() {
-  const gatewayReady = useGatewayReady();
-  const { region, channel } = useRuntimeConfig();
-  const { i18n } = useTranslation();
-  const locale = i18n.language?.startsWith("zh") ? "zh" : "en";
-  const { data: data2, error } = useQuery({
-    queryKey: ["hub-client-config", region, channel, locale],
-    queryFn: async () => {
-      void refreshToolCallDisplayConfig();
-      const response = await gatewayFetch(API_PATHS.hubClientConfig);
-      if (!response.ok) throw new Error(`hub_client_config HTTP ${response.status}`);
-      return mapHubClientConfig(await response.json(), locale);
+
+export function showLowMemoryToast(payload) {
+  dedupedToast.custom(
+    (id2) => <LowMemoryToastContent payload={payload} toastId={id2} />,
+    {
+      duration: 15e3,
+      id: TOAST_ID$1,
     },
-    enabled: gatewayReady,
-    staleTime: HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS,
-    refetchInterval: HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS,
-    refetchOnMount: "always",
-    refetchOnReconnect: true,
-    retry: false,
-    throwOnError: false,
-  });
-  return !gatewayReady || error ? DEFAULT_HUB_CLIENT_CONFIG : (data2 ?? DEFAULT_HUB_CLIENT_CONFIG);
-}
-export function ModalSchedulerBridge() {
-  const { startupModalSchedule } = useHubClientConfig();
-  reactExports.useEffect(() => {
-    setModalScheduleConfig(startupModalSchedule);
-  }, [startupModalSchedule]);
-  return null;
+  );
 }

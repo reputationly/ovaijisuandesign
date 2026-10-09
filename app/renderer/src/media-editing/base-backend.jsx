@@ -1,15 +1,31 @@
 // base-backend.jsx
-import { reactExports, CanvasNodeType, isUserProvidedAssetModel } from "../vendor.js";
-import { IMAGE_CARD_DEFAULT_SIZE, computeNodeSize, defaultNodeSizeForType, VIDEO_EMPTY_CARD_SIZE } from "../canvas/group-nodes-in-canvas.js";
-import { useCanvasActions, Download } from "./parse-item.jsx";
-import { getAssetMetaByNodeIdFromStore } from "../canvas/generating-media-area.jsx";
-import { getPopoverDraftMap } from "../canvas/prune-persisted-node-data.js";
-import { cn$5 } from "../infra/use-browser-overlay-dialog-props.jsx";
-import { parseRatio } from "../generation/slider.jsx";
-import { isEditResultSourceTool } from "../infra/normalize-tag-registry.js";
+import {
+  computeNodeSize,
+  defaultNodeSizeForType,
+  IMAGE_CARD_DEFAULT_SIZE,
+  VIDEO_EMPTY_CARD_SIZE,
+} from "../canvas/compute-group-bounds-from-children.js";
+import { parseRatio } from "../generation/resolution-tabs.jsx";
+import {
+  CanvasNodeType,
+  isUserProvidedAssetModel,
+  reactExports,
+} from "../vendor.js";
+import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";
+import { DEFAULT_CROP } from "./image-edit-pricing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { DEFAULT_CROP } from "./calc-crop-rect.jsx";
-export function cropImageToBlob$1(imageSrc, cropRect, originalWidth, originalHeight) {
+import { Download } from "./package.jsx";
+import { cn$5 } from "../infra/dialog-content.jsx";
+import { isEditResultSourceTool } from "../infra/parse-connector-selection.js";
+import { useCanvasActions } from "./use-canvas-actions.js";
+import { getPopoverDraftMap } from "../canvas/is-reexecutable-generation-node.js";
+
+export function cropImageToBlob$1(
+  imageSrc,
+  cropRect,
+  originalWidth,
+  originalHeight,
+) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -40,9 +56,15 @@ export function cropImageToBlob$1(imageSrc, cropRect, originalWidth, originalHei
     img.src = imageSrc;
   });
 }
-export function cropRectForAspectRatio$1(ratio, containerWidth, containerHeight) {
+
+export function cropRectForAspectRatio$1(
+  ratio,
+  containerWidth,
+  containerHeight,
+) {
   if (ratio == null) return DEFAULT_CROP;
-  const imageAspect = containerWidth && containerHeight ? containerWidth / containerHeight : 1;
+  const imageAspect =
+    containerWidth && containerHeight ? containerWidth / containerHeight : 1;
   const normRatio = ratio / imageAspect;
   let w3;
   let h2;
@@ -68,19 +90,23 @@ export function cropRectForAspectRatio$1(ratio, containerWidth, containerHeight)
     height: h2,
   };
 }
+
 export function resolveGifAnimationSrc(src, path2, name2) {
   if (!src) return void 0;
   if (path2) return /\.gif$/i.test(path2) ? src : void 0;
   if (name2 && /\.gif$/i.test(name2)) return src;
   if (/^data:image\/gif[;,]/i.test(src)) return src;
   try {
-    return /\.gif$/i.test(decodeURIComponent(new URL(src, "http://canvas.local").pathname))
+    return /\.gif$/i.test(
+      decodeURIComponent(new URL(src, "http://canvas.local").pathname),
+    )
       ? src
       : void 0;
   } catch {
     return void 0;
   }
 }
+
 export function emptySizeFromRatio(ratio) {
   if (!ratio || ratio.toLowerCase() === "auto") return IMAGE_CARD_DEFAULT_SIZE;
   const parsed = parseRatio(ratio);
@@ -88,12 +114,22 @@ export function emptySizeFromRatio(ratio) {
   const [w3, h2] = parsed;
   return computeNodeSize(w3, h2) ?? IMAGE_CARD_DEFAULT_SIZE;
 }
+
 function draftRatioFromParams(params) {
   return params?.aspect_ratio ?? params?.ratio;
 }
-export function emptyMediaNodeInit(type2, getLastUsedModelParams, overrideRatio) {
+
+export function emptyMediaNodeInit(
+  type2,
+  getLastUsedModelParams,
+  overrideRatio,
+) {
   const lastUsedKey =
-    type2 === CanvasNodeType.Image ? "i2i" : type2 === CanvasNodeType.Video ? "i2v" : null;
+    type2 === CanvasNodeType.Image
+      ? "i2i"
+      : type2 === CanvasNodeType.Video
+        ? "i2v"
+        : null;
   if (!lastUsedKey)
     return {
       size: defaultNodeSizeForType(type2),
@@ -107,23 +143,36 @@ export function emptyMediaNodeInit(type2, getLastUsedModelParams, overrideRatio)
         // entry that only adds the ratio without changing the visible card.
         (type2 === CanvasNodeType.Image ? "1:1" : void 0));
   return {
-    size: type2 === CanvasNodeType.Video ? VIDEO_EMPTY_CARD_SIZE : emptySizeFromRatio(aspectRatio),
+    size:
+      type2 === CanvasNodeType.Video
+        ? VIDEO_EMPTY_CARD_SIZE
+        : emptySizeFromRatio(aspectRatio),
     aspectRatio,
   };
 }
+
 function hasNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
+
 export function canOpenAssetGenerationPopover(opts) {
   if (opts.isUserEmpty) return true;
   if (isEditResultSourceTool(opts.sourceTool)) return false;
-  if (hasNonEmptyString(opts.model) && isUserProvidedAssetModel(opts.model)) return false;
+  if (hasNonEmptyString(opts.model) && isUserProvidedAssetModel(opts.model))
+    return false;
   if (hasNonEmptyString(opts.sourceTool)) return true;
   if (hasNonEmptyString(opts.modelId)) return true;
   if (hasNonEmptyString(opts.backend)) return true;
   return hasNonEmptyString(opts.model);
 }
-export function MediaDownloadButton({ onClick, label, dataActionUiId, className, title = label }) {
+
+export function MediaDownloadButton({
+  onClick,
+  label,
+  dataActionUiId,
+  className,
+  title = label,
+}) {
   return (
     <button
       type="button"
@@ -140,13 +189,18 @@ export function MediaDownloadButton({ onClick, label, dataActionUiId, className,
     </button>
   );
 }
-export function mergeReferenceImageIds(nodeReferenceImageIds, assetReferenceImageIds) {
+
+export function mergeReferenceImageIds(
+  nodeReferenceImageIds,
+  assetReferenceImageIds,
+) {
   const merged = [];
   const seen2 = new Set();
   const append2 = (values3) => {
     if (!Array.isArray(values3)) return;
     for (const value of values3) {
-      if (typeof value !== "string" || value.length === 0 || seen2.has(value)) continue;
+      if (typeof value !== "string" || value.length === 0 || seen2.has(value))
+        continue;
       seen2.add(value);
       merged.push(value);
     }
@@ -155,6 +209,7 @@ export function mergeReferenceImageIds(nodeReferenceImageIds, assetReferenceImag
   append2(assetReferenceImageIds);
   return merged.length > 0 ? merged : void 0;
 }
+
 export function resolveReferenceImages(
   incomingSourceIds,
   referenceImageIds,
@@ -176,7 +231,9 @@ export function resolveReferenceImages(
       if (node2?.type === CanvasNodeType.Image) {
         const nodeData = node2.data;
         const directPath =
-          typeof nodeData.path === "string" && nodeData.path.length > 0 ? nodeData.path : void 0;
+          typeof nodeData.path === "string" && nodeData.path.length > 0
+            ? nodeData.path
+            : void 0;
         const nodeAssetId =
           typeof nodeData.assetId === "string" && nodeData.assetId.length > 0
             ? nodeData.assetId
@@ -187,7 +244,10 @@ export function resolveReferenceImages(
       }
     }
     if (!resolvedPath) {
-      const sourceMeta = getAssetMetaByNodeIdFromStore(assetMetadataStore, sourceId);
+      const sourceMeta = getAssetMetaByNodeIdFromStore(
+        assetMetadataStore,
+        sourceId,
+      );
       if (sourceMeta?.path && sourceMeta.type === "image") {
         resolvedPath = sourceMeta.path;
       }
@@ -202,16 +262,23 @@ export function resolveReferenceImages(
     for (const refId of referenceImageIds) {
       if (!refId) continue;
       const refMeta = store.assets.get(refId);
-      if (refMeta?.path && refMeta.type === "image" && !seen2.has(refMeta.path)) {
+      if (
+        refMeta?.path &&
+        refMeta.type === "image" &&
+        !seen2.has(refMeta.path)
+      ) {
         seen2.add(refMeta.path);
         paths.push(refMeta.path);
       }
     }
     const hasInteriorGap = referenceImageIds.some(
-      (assetId, index2) => !assetId && referenceImageIds.slice(index2 + 1).some(Boolean),
+      (assetId, index2) =>
+        !assetId && referenceImageIds.slice(index2 + 1).some(Boolean),
     );
     if (hasInteriorGap) {
-      const positionalPaths = referenceImageIds.map((assetId) => imagePathForAsset(assetId) ?? "");
+      const positionalPaths = referenceImageIds.map(
+        (assetId) => imagePathForAsset(assetId) ?? "",
+      );
       const persistedPaths = positionalPaths.filter(Boolean);
       const everyPersistedIdResolved =
         persistedPaths.length === referenceImageIds.filter(Boolean).length;
@@ -229,12 +296,24 @@ export function resolveReferenceImages(
   }
   return paths;
 }
-export function resolveReferenceVideos(incomingSourceIds, referenceVideoIds, assetMetadataStore) {
+
+export function resolveReferenceVideos(
+  incomingSourceIds,
+  referenceVideoIds,
+  assetMetadataStore,
+) {
   const paths = [];
   const seen2 = new Set();
   for (const sourceId of incomingSourceIds) {
-    const sourceMeta = getAssetMetaByNodeIdFromStore(assetMetadataStore, sourceId);
-    if (sourceMeta?.path && sourceMeta.type === "video" && !seen2.has(sourceMeta.path)) {
+    const sourceMeta = getAssetMetaByNodeIdFromStore(
+      assetMetadataStore,
+      sourceId,
+    );
+    if (
+      sourceMeta?.path &&
+      sourceMeta.type === "video" &&
+      !seen2.has(sourceMeta.path)
+    ) {
       seen2.add(sourceMeta.path);
       paths.push(sourceMeta.path);
     }
@@ -252,17 +331,26 @@ export function resolveReferenceVideos(incomingSourceIds, referenceVideoIds, ass
   }
   return paths;
 }
-export function useEmptyAspectRatio({ id: id2, data: data2, isEmptyForWrite, draftKeys }) {
-  const [emptyAspectRatioLive, setEmptyAspectRatioLive] = reactExports.useState(void 0);
+
+export function useEmptyAspectRatio({
+  id: id2,
+  data: data2,
+  isEmptyForWrite,
+  draftKeys,
+}) {
+  const [emptyAspectRatioLive, setEmptyAspectRatioLive] =
+    reactExports.useState(void 0);
   const rawPersisted = data2?.aspectRatio;
-  const persistedAspectRatio = typeof rawPersisted === "string" ? rawPersisted : void 0;
+  const persistedAspectRatio =
+    typeof rawPersisted === "string" ? rawPersisted : void 0;
   const draftMap = getPopoverDraftMap(data2);
   let draftAspectRatio;
   for (const key2 of draftKeys) {
     draftAspectRatio = draftRatioFromParams(draftMap?.[key2]?.params);
     if (draftAspectRatio) break;
   }
-  const emptyAspectRatio = emptyAspectRatioLive ?? persistedAspectRatio ?? draftAspectRatio;
+  const emptyAspectRatio =
+    emptyAspectRatioLive ?? persistedAspectRatio ?? draftAspectRatio;
   const { getNodeById, updateNodeDataAndResize } = useCanvasActions();
   const isEmptyForWriteRef = reactExports.useRef(false);
   isEmptyForWriteRef.current = isEmptyForWrite;
@@ -273,7 +361,8 @@ export function useEmptyAspectRatio({ id: id2, data: data2, isEmptyForWrite, dra
       const size2 = emptySizeFromRatio(ratio);
       const node2 = getNodeById(id2);
       const sizeMatches =
-        node2?.size?.width === size2.width && node2?.size?.height === size2.height;
+        node2?.size?.width === size2.width &&
+        node2?.size?.height === size2.height;
       const ratioMatches = node2?.data?.aspectRatio === ratio;
       if (sizeMatches && ratioMatches) return;
       updateNodeDataAndResize(
@@ -293,6 +382,7 @@ export function useEmptyAspectRatio({ id: id2, data: data2, isEmptyForWrite, dra
     setEmptyAspectRatio,
   };
 }
+
 export function useLutBundle(
   listLuts,
   importLut,
@@ -321,6 +411,7 @@ export function useLutBundle(
     [listLuts, importLut, loadLutContent, deleteLut, nodeType, onLutImport],
   );
 }
+
 export class BaseBackend {
   canvas;
   width = 0;
@@ -343,7 +434,9 @@ export class BaseBackend {
    * 默认实现 throw，要求子类覆盖
    */
   loadFromVideo(_video) {
-    throw new Error(`${this.getType()} backend does not implement loadFromVideo`);
+    throw new Error(
+      `${this.getType()} backend does not implement loadFromVideo`,
+    );
   }
   /**
    * 用最新视频帧像素更新源纹理（不重建管线/资源）
@@ -351,7 +444,9 @@ export class BaseBackend {
    * 默认实现 throw，要求子类覆盖
    */
   updateFromVideo(_video) {
-    throw new Error(`${this.getType()} backend does not implement updateFromVideo`);
+    throw new Error(
+      `${this.getType()} backend does not implement updateFromVideo`,
+    );
   }
   /**
    * 通用纹理来源，离线导出场景用：可传 VideoFrame、HTMLCanvasElement、OffscreenCanvas、HTMLVideoElement、ImageBitmap。
@@ -360,7 +455,9 @@ export class BaseBackend {
    * 默认实现 throw，要求子类覆盖
    */
   loadFromSource(_source, _width, _height) {
-    throw new Error(`${this.getType()} backend does not implement loadFromSource`);
+    throw new Error(
+      `${this.getType()} backend does not implement loadFromSource`,
+    );
   }
   /**
    * 通用纹理来源更新，复用已有管线。
@@ -368,7 +465,9 @@ export class BaseBackend {
    * 默认实现 throw，要求子类覆盖
    */
   updateFromSource(_source) {
-    throw new Error(`${this.getType()} backend does not implement updateFromSource`);
+    throw new Error(
+      `${this.getType()} backend does not implement updateFromSource`,
+    );
   }
   /**
    * 设置当前 LUT 数据，传 null 清除
@@ -398,110 +497,12 @@ export class BaseBackend {
     return this.initialized;
   }
 }
+
 let _webgpuSupported = null;
+
 export function isWebGPUSupported() {
   if (_webgpuSupported === null) {
     _webgpuSupported = typeof navigator !== "undefined" && "gpu" in navigator;
   }
   return _webgpuSupported;
-}
-let _webglSupported = null;
-export function isWebGLSupported() {
-  if (_webglSupported !== null) return _webglSupported;
-  if (typeof document === "undefined") {
-    _webglSupported = false;
-    return false;
-  }
-  try {
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    _webglSupported = !!gl;
-    if (gl) {
-      const lose = gl.getExtension("WEBGL_lose_context");
-      lose?.loseContext();
-    }
-  } catch {
-    _webglSupported = false;
-  }
-  return _webglSupported;
-}
-export function selectBestBackend(preferred) {
-  if (preferred === "webgpu" && isWebGPUSupported()) {
-    return "webgpu";
-  }
-  if (preferred === "webgl" && isWebGLSupported()) {
-    return "webgl";
-  }
-  if (preferred === "auto" || preferred === void 0) {
-    if (isWebGPUSupported()) return "webgpu";
-    if (isWebGLSupported()) return "webgl";
-  }
-  throw new Error("No supported graphics backend available");
-}
-export function parseCubeLUT(text2) {
-  const lines = text2.split(/\r?\n/);
-  let size2 = 0;
-  let title;
-  const domainMin = [0, 0, 0];
-  const domainMax = [1, 1, 1];
-  const triplets = [];
-  for (let i2 = 0; i2 < lines.length; i2++) {
-    const raw2 = lines[i2];
-    const line = raw2.trim();
-    if (!line || line.startsWith("#")) continue;
-    const tokens2 = line.split(/\s+/);
-    const head2 = tokens2[0].toUpperCase();
-    if (head2 === "TITLE") {
-      const m3 = line.match(/"([^"]*)"/);
-      title = m3?.[1] ?? tokens2.slice(1).join(" ");
-      continue;
-    }
-    if (head2 === "LUT_3D_SIZE") {
-      size2 = parseInt(tokens2[1], 10);
-      if (!Number.isFinite(size2) || size2 < 2 || size2 > 256) {
-        throw new Error(`Invalid LUT_3D_SIZE: ${tokens2[1]}`);
-      }
-      continue;
-    }
-    if (head2 === "LUT_1D_SIZE") {
-      throw new Error("1D LUTs are not supported, only LUT_3D_SIZE is allowed");
-    }
-    if (head2 === "DOMAIN_MIN") {
-      domainMin[0] = parseFloat(tokens2[1]);
-      domainMin[1] = parseFloat(tokens2[2]);
-      domainMin[2] = parseFloat(tokens2[3]);
-      continue;
-    }
-    if (head2 === "DOMAIN_MAX") {
-      domainMax[0] = parseFloat(tokens2[1]);
-      domainMax[1] = parseFloat(tokens2[2]);
-      domainMax[2] = parseFloat(tokens2[3]);
-      continue;
-    }
-    if (tokens2.length >= 3) {
-      const r2 = parseFloat(tokens2[0]);
-      const g2 = parseFloat(tokens2[1]);
-      const b3 = parseFloat(tokens2[2]);
-      if (!Number.isFinite(r2) || !Number.isFinite(g2) || !Number.isFinite(b3)) {
-        throw new Error(`Invalid sample at line ${i2 + 1}: ${line}`);
-      }
-      triplets.push(r2, g2, b3);
-    }
-  }
-  if (size2 === 0) {
-    throw new Error("Missing LUT_3D_SIZE directive");
-  }
-  const expectedTriplets = size2 * size2 * size2;
-  if (triplets.length / 3 !== expectedTriplets) {
-    throw new Error(
-      `Sample count mismatch: expected ${expectedTriplets}, got ${triplets.length / 3}`,
-    );
-  }
-  return {
-    size: size2,
-    data: new Float32Array(triplets),
-    domainMin,
-    domainMax,
-    title,
-  };
 }

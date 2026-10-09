@@ -1,37 +1,48 @@
 // team-credit-page.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, usePlatform, deriveTeamCreditDisplay, useQueryClient, ChevronDown, formatDate, AlertCircle, LockKeyhole } from "../vendor.js";
-import { teamQueryKeys, creditQueryKeys, useTeamAccount, useIsScrolling, Popover, PopoverTrigger } from "../assets/apply-asset-change.jsx";
-import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
-import { CalendarDays, Download } from "../media-editing/parse-item.jsx";
-import { useMediaModels } from "../generation/use-resizable-width.js";
-import { Button$1, cn$2 } from "../infra/use-browser-overlay-dialog-props.jsx";
-import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-categories.jsx";
+import {
+  dedupedToast,
+  deriveTeamCreditDisplay,
+  jsxRuntimeExports,
+  reactExports,
+  usePlatform,
+  useQuery,
+  useQueryClient,
+  useTranslation,
+} from "../vendor.js";
+import { deriveMpCreditSummary } from "./hailuo-credit-row.jsx";
+import {
+  canonicalCreditScope,
+  creditQueryKeys,
+  useIsScrolling,
+  useTeamAccount,
+} from "../assets/credit-query-keys.jsx";
+import { WalletSource } from "../generation/to-workspace-browser-url.js";
+import { CREDIT_CACHE_GC_MS$1, fetchWalletInfo } from "./use-wallet-query.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  TeamPanelStale,
   deriveMemberCreditDisplay,
-  formatConsumerLabel,
   formatCreditAmount,
   formatSignedCreditAmount,
-  getTeamReasonText,
-} from "./account-switcher-view.jsx";
-import {
-  CreditLedgerTable,
-  getBillingModelDisplayName,
-  getPackageCreditCategoryLabel,
-} from "./billing-model-display-labels.jsx";
-import { InfiniteScrollContainer } from "./infinite-scroll-container.jsx";
-import { TeamApiError } from "./map-hub-group-list-response.js";
+  TeamPanelStale,
+} from "./team-panel-stale.jsx";
 import { teamApi } from "./team-api.js";
+import { TeamLedgerFilters } from "./team-ledger-filters.jsx";
+import { TeamPanelError, TeamPanelGated } from "./team-panel-error.jsx";
+import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
+import { Download } from "../media-editing/package.jsx";
+import { useMediaModels } from "../generation/normalize-model-info.js";
+import { Button$1 } from "../infra/dialog-content.jsx";
+import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { CreditLedgerTable } from "./credit-ledger-table.jsx";
+import { getBillingModelDisplayName } from "./billing-model-display-labels.js";
+import { getPackageCreditCategoryLabel } from "./package-credit-category-labels.js";
+import { InfiniteScrollContainer } from "./infinite-scroll-container.jsx";
+import { TeamApiError } from "./map-team-credit-summary.js";
 import {
-  Calendar,
-  TeamCreditBreakdownRow,
   TeamCreditHistorySection,
   TeamCreditSummaryLoading,
-  TeamCreditSummarySurface,
-  TeamMemberCombobox,
-} from "./team-credit-summary-surface.jsx";
-import { PopoverContent, useTeamWalletCreditSummary } from "./use-credit-details.jsx";
+} from "./team-credit-history-section.jsx";
+import { TeamCreditSummarySurface } from "./team-credit-summary-surface.jsx";
 import {
   useInGroupMembersQuery,
   useTeamCreditSummaryQuery,
@@ -39,346 +50,125 @@ import {
   useTeamTransactionsFeedQuery,
   useTeamTransfersFeedQuery,
 } from "./use-team-transactions-feed-query.jsx";
-const DATE_PRESETS$1 = [
-  {
-    value: "today",
-    days: 1,
-  },
-  {
-    value: "last3Days",
-    days: 3,
-  },
-  {
-    value: "last7Days",
-    days: 7,
-  },
-  {
-    value: "last30Days",
-    days: 30,
-  },
-];
-function startOfLocalDay(value) {
-  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+
+const CONSUMER_LABEL_SEPARATOR = " · ";
+
+function formatConsumerLabel(userName, memberUid) {
+  const name2 = (userName ?? "").trim();
+  const uid2 = (memberUid ?? "").trim();
+  if (name2 && uid2) return `${name2}${CONSUMER_LABEL_SEPARATOR}${uid2}`;
+  return name2 || uid2 || null;
 }
-function presetRange(days) {
-  const today = startOfLocalDay(new Date());
-  const from2 = new Date(today);
-  from2.setDate(today.getDate() - (days - 1));
-  return {
-    from: from2,
-    to: today,
-  };
-}
-function toStartOfDayMs(date2) {
-  return new Date(date2.getFullYear(), date2.getMonth(), date2.getDate()).getTime();
-}
-function toEndOfDayMs(date2) {
-  return new Date(
-    date2.getFullYear(),
-    date2.getMonth(),
-    date2.getDate(),
-    23,
-    59,
-    59,
-    999,
-  ).getTime();
-}
-function ledgerFilterRange(range2) {
-  return {
-    startTime: range2.from ? toStartOfDayMs(range2.from) : null,
-    endTime: range2.to ? toEndOfDayMs(range2.to) : range2.from ? toEndOfDayMs(range2.from) : null,
-  };
-}
-function TeamLedgerFilters({
-  members,
-  memberSearchQuery,
-  onMemberSearchChange,
-  membersLoading = false,
-  membersError = false,
-  onRetryMembers,
-  hasMoreMembers = false,
-  loadingMoreMembers = false,
-  onLoadMoreMembers,
-  onFilterChange,
-  trailing,
-}) {
-  const { t: t2 } = useTranslation();
-  const [memberId, setMemberId] = reactExports.useState(null);
-  const [datePreset, setDatePreset] = reactExports.useState("last7Days");
-  const [dateRange, setDateRange] = reactExports.useState(() => presetRange(7));
-  const [dateOpen, setDateOpen] = reactExports.useState(false);
-  function emitFilter(mid, range2) {
-    if (!onFilterChange) return;
-    onFilterChange({
-      memberId: mid,
-      ...ledgerFilterRange(range2),
-    });
-  }
-  const emittedInitialFilter = reactExports.useRef(false);
-  reactExports.useEffect(() => {
-    if (emittedInitialFilter.current) return;
-    emittedInitialFilter.current = true;
-    emitFilter(memberId, dateRange);
+
+function useTeamWalletCreditSummary(scope, enabled = true) {
+  const queryScope = scope ? canonicalCreditScope(scope) : null;
+  const query = useQuery({
+    queryKey: queryScope
+      ? creditQueryKeys.wallet(queryScope)
+      : creditQueryKeys.unavailable("team-wallet"),
+    queryFn: ({ signal }) => {
+      if (!queryScope)
+        throw new Error("Team wallet queried without an account scope");
+      return fetchWalletInfo(signal);
+    },
+    enabled: enabled && queryScope !== null,
+    staleTime: 2e3,
+    gcTime: CREDIT_CACHE_GC_MS$1,
+    retry: false,
   });
-  const selectedMember = members.find((member) => member.userId === memberId) ?? null;
-  const memberOptions = reactExports.useMemo(
-    () =>
-      members.map((member) => ({
-        userId: member.userId,
-        displayName: member.userName,
-        description: `UID ${member.userId}`,
-      })),
-    [members],
+  const mpWallet = query.data?.wallets?.find(
+    (w3) => w3.source === WalletSource.WALLET_SOURCE_OP,
   );
-  const presetLabel = t2(`team.credit.ledgerFilter.${datePreset}`, {
-    defaultValue:
-      datePreset === "today"
-        ? "今天"
-        : datePreset === "last3Days"
-          ? "近3天"
-          : datePreset === "last7Days"
-            ? "近7天"
-            : datePreset === "last30Days"
-              ? "近30天"
-              : "自定义日期",
-  });
-  const dateLabel =
-    datePreset === "custom" && dateRange.from
-      ? dateRange.to
-        ? `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}`
-        : formatDate(dateRange.from)
-      : presetLabel;
-  const handlePresetSelect = (preset2, days) => {
-    const newRange = presetRange(days);
-    setDatePreset(preset2);
-    setDateRange(newRange);
-    setDateOpen(false);
-    emitFilter(memberId, newRange);
+  const summary = deriveMpCreditSummary(mpWallet);
+  const trusted =
+    !query.isError && !query.isRefetchError && summary.hasBreakdown;
+  return {
+    ...query,
+    summary,
+    trusted,
   };
-  const handleCustomRangeSelect = (range2) => {
-    const newRange = range2 ?? {
-      from: void 0,
-    };
-    setDatePreset("custom");
-    setDateRange(newRange);
-  };
-  const handleDateOpenChange = (nextOpen) => {
-    setDateOpen(nextOpen);
-    if (!nextOpen && datePreset === "custom") {
-      emitFilter(memberId, dateRange);
-    }
-  };
-  const handleMemberChange = (id2) => {
-    setMemberId(id2);
-    emitFilter(id2, dateRange);
-  };
+}
+
+function BreakdownOperator({ symbol }) {
+  return (
+    <span className="hidden pb-1 text-xl text-muted-foreground/60 select-none sm:block">
+      {symbol}
+    </span>
+  );
+}
+
+function TeamCreditBreakdownRow({ teamRemaining, summary }) {
+  const { t: t2 } = useTranslation();
+  const parts = [
+    {
+      key: "membership",
+      label: t2("credits.membership", {
+        defaultValue: "订阅",
+      }),
+      value: summary.membership,
+    },
+    {
+      key: "topUp",
+      label: t2("credits.topUp", {
+        defaultValue: "充值",
+      }),
+      value: summary.topUp,
+    },
+    {
+      key: "transfer",
+      label: t2("credits.transfer", {
+        defaultValue: "转移",
+      }),
+      value: summary.transfer,
+    },
+  ];
   return (
     <div
-      className="flex flex-wrap gap-2"
-      data-action-ui-id="team.credit-ledger-filters"
-      data-selected-member-id={memberId ?? void 0}
-      data-date-start={dateRange.from?.toISOString()}
-      data-date-end={dateRange.to?.toISOString()}
+      className="grid grid-cols-2 items-end gap-3 overflow-hidden rounded-lg border border-border bg-muted/40 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]"
+      data-action-ui-id="team.credit-breakdown"
     >
-      <div className="min-w-56 flex-1">
-        <TeamMemberCombobox
-          value={memberId}
-          onValueChange={handleMemberChange}
-          options={memberOptions}
-          searchQuery={memberSearchQuery}
-          onSearchChange={onMemberSearchChange}
-          loading={membersLoading}
-          error={membersError}
-          onRetry={onRetryMembers}
-          hasMore={hasMoreMembers}
-          loadingMore={loadingMoreMembers}
-          onLoadMore={onLoadMoreMembers}
-          placeholder={t2("team.credit.ledgerFilter.allMembers", {
-            defaultValue: "全部成员",
+      <div className="min-w-0" data-action-ui-id="team.credit-team-remaining">
+        <div className="mb-1.5 truncate text-xs text-muted-foreground">
+          {t2("credits.remaining", {
+            defaultValue: "剩余",
           })}
-          searchPlaceholder={t2("team.credit.ledgerFilter.searchMember", {
-            defaultValue: "搜索名称或 UID",
-          })}
-          emptyText={t2("team.credit.ledgerFilter.memberEmpty", {
-            defaultValue: "没有匹配的成员",
-          })}
-          data-action-ui-id="team.credit-ledger-member-filter"
-        />
+        </div>
+        <div className="truncate text-xl font-medium tabular-nums text-foreground">
+          {teamRemaining === null ? "—" : formatCreditAmount(teamRemaining)}
+        </div>
       </div>
-      {selectedMember ? (
-        <button
-          type="button"
-          className="rounded-lg border border-input px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          onClick={() => handleMemberChange(null)}
-          aria-label={t2("team.credit.ledgerFilter.clearMember", {
-            defaultValue: "清除成员筛选",
-          })}
-          data-action-ui-id="team.credit-ledger-member-clear"
-        >
-          {t2("common.clear", {
-            defaultValue: "清除",
-          })}
-        </button>
-      ) : null}
-      <Popover open={dateOpen} onOpenChange={handleDateOpenChange}>
-        <PopoverTrigger
-          type="button"
-          className="flex h-9 min-w-44 items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 text-left text-xs transition-colors hover:bg-muted/60 focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-          data-action-ui-id="team.credit-ledger-date-filter"
-        >
-          <span className="flex min-w-0 items-center gap-2 truncate">
-            <CalendarDays className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-            <span className="truncate">{dateLabel}</span>
-          </span>
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          className="flex w-auto flex-row gap-0 p-0"
-          sideOffset={4}
-          positionerClassName="z-[70]"
-        >
-          <div className="flex w-28 shrink-0 flex-col gap-1 border-r border-border p-1.5">
-            {DATE_PRESETS$1.map(({ value, days }) => (
-              <button
-                key={value}
-                type="button"
-                className={cn$2(
-                  "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 rounded-md px-2.5 py-2 text-left text-xs text-foreground/70 transition-colors hover:bg-popup-item-hover hover:text-foreground",
-                  datePreset === value && "bg-muted text-foreground",
-                )}
-                onClick={() => handlePresetSelect(value, days)}
-                data-action-ui-id={`team.credit-ledger-date-${value}`}
-              >
-                {t2(`team.credit.ledgerFilter.${value}`, {
-                  defaultValue:
-                    value === "today"
-                      ? "今天"
-                      : value === "last3Days"
-                        ? "近3天"
-                        : value === "last7Days"
-                          ? "近7天"
-                          : "近30天",
-                })}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={cn$2(
-                "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 rounded-md px-2.5 py-2 text-left text-xs text-foreground/70 transition-colors hover:bg-popup-item-hover hover:text-foreground",
-                datePreset === "custom" && "bg-muted text-foreground",
-              )}
-              onClick={() => setDatePreset("custom")}
-              data-action-ui-id="team.credit-ledger-date-custom"
+      {parts.map((part, index2) => (
+        <span key={part.key} className="contents">
+          <BreakdownOperator symbol={index2 === 0 ? "=" : "+"} />
+          <div className="min-w-0">
+            <div className="mb-1.5 truncate text-xs text-muted-foreground">
+              {part.label}
+            </div>
+            <div
+              className="truncate text-xl font-medium tabular-nums text-foreground"
+              data-action-ui-id={`team.credit-breakdown-${part.key}`}
             >
-              {t2("team.credit.ledgerFilter.custom", {
-                defaultValue: "自定义日期",
-              })}
-            </button>
+              {formatCreditAmount(String(part.value))}
+            </div>
           </div>
-          <div className="p-2">
-            <Calendar
-              mode="range"
-              selected={dateRange}
-              onSelect={handleCustomRangeSelect}
-              numberOfMonths={2}
-              max={365}
-              showOutsideDays={false}
-              defaultMonth={dateRange.from}
-            />
-          </div>
-        </PopoverContent>
-      </Popover>
-      {trailing ? <div className="flex shrink-0 items-center">{trailing}</div> : null}
+        </span>
+      ))}
     </div>
   );
 }
-export function TeamPanelError({ title, description, onRetry }) {
-  const { t: t2 } = useTranslation();
-  return (
-    <div
-      role="alert"
-      className="flex min-h-40 flex-col items-center justify-center px-6 py-8 text-center"
-    >
-      <span className="mb-3 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
-        <Icon icon={AlertCircle} size="lg" aria-hidden={true} />
-      </span>
-      <div>
-        <p className="break-words font-heading text-sm font-medium text-foreground">
-          {title ??
-            t2("team.common.loadFailed", {
-              defaultValue: "加载失败",
-            })}
-        </p>
-        {description ? (
-          <p className="mt-1 max-w-sm break-words text-xs/relaxed text-muted-foreground">
-            {description}
-          </p>
-        ) : null}
-      </div>
-      {onRetry ? (
-        <Button$1
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-3 h-auto min-h-7 max-w-full whitespace-normal text-center leading-relaxed"
-          onClick={onRetry}
-          data-action-ui-id="team.panel-retry"
-        >
-          {t2("common.retry", {
-            defaultValue: "重试",
-          })}
-        </Button$1>
-      ) : null}
-    </div>
-  );
-}
-const TITLE_KEY_BY_REASON = {
-  permission_denied: "team.gated.permissionDenied",
-  resource_closed: "team.gated.teamDissolved",
-  team_billing_disabled: "team.credit.unavailable",
-  team_create_disabled: "team.gated.createUnavailable",
-  team_invitation_disabled: "team.gated.invitationUnavailable",
-  team_limit_reached: "team.gated.teamLimitReached",
-  team_management_disabled: "team.gated.managementUnavailable",
-  team_read_disabled: "team.gated.informationUnavailable",
-  upgrade_required: "team.gated.upgradeRequired",
-  // Credit ledger is stubbed upstream — do not present as "whole team is broken"
-  // or as an authoritative empty history ("暂无积分流水").
-  upstream_transactions_unavailable: "team.credit.historyUnavailable",
-  feature_disabled: "team.credit.historyUnavailable",
-  upstream_contract_not_ready: "team.credit.historyUnavailable",
-  user_capability_unavailable: "team.gated.permissionsSyncing",
-};
-export function TeamPanelGated({ reasonCode }) {
-  const { t: t2 } = useTranslation();
-  const titleKey = TITLE_KEY_BY_REASON[reasonCode] ?? "team.common.temporarilyUnavailable";
-  const title = t2(titleKey, {
-    defaultValue: "团队功能暂不可用",
-  });
-  const reason = getTeamReasonText(t2, reasonCode);
-  return (
-    <div
-      className="flex min-h-40 flex-col items-center justify-center px-6 py-8 text-center"
-      data-team-reason-code={reasonCode}
-    >
-      <span className="mb-3 flex size-10 items-center justify-center rounded-lg bg-foreground/[0.04] text-foreground">
-        <Icon icon={LockKeyhole} size="lg" className="opacity-60" aria-hidden={true} />
-      </span>
-      <p className="break-words font-heading text-sm font-medium text-foreground">{title}</p>
-      {reason !== title ? (
-        <p className="mt-1 max-w-sm break-words text-xs/relaxed text-muted-foreground">{reason}</p>
-      ) : null}
-    </div>
-  );
-}
+
 const UTF8_BOM = "\uFEFF";
+
 const FORMULA_TRIGGERS = ["=", "+", "-", "@", "	", "\r"];
+
 const PLAIN_NUMBER_RE = /^-?\d+(?:\.\d+)?$/;
+
 function isPlainNumber(value) {
   return PLAIN_NUMBER_RE.test(value);
 }
+
 const LEDGER_DIRECTIONS = new Set(["consume", "refund", "grant", "expired"]);
+
 function parseTransactionId(transactionId) {
   const separator = transactionId.lastIndexOf(":");
   if (separator < 0)
@@ -394,34 +184,45 @@ function parseTransactionId(transactionId) {
     direction,
   };
 }
+
 function formatCsvTime(ms) {
   const date2 = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
   return `${date2.getFullYear()}-${pad(date2.getMonth() + 1)}-${pad(date2.getDate())} ${pad(date2.getHours())}:${pad(date2.getMinutes())}:${pad(date2.getSeconds())}`;
 }
-function escapeCsvCell(value) {
-  const neutralized =
-    !isPlainNumber(value) && FORMULA_TRIGGERS.some((trigger) => value.startsWith(trigger))
-      ? `'${value}`
-      : value;
-  return quoteCsvCell(neutralized);
-}
+
 function quoteCsvCell(value) {
   if (/[",\r\n]/.test(value)) {
     return `"${value.replaceAll('"', '""')}"`;
   }
   return value;
 }
-function escapeCsvIdentifier(value) {
-  return /^\d+$/.test(value) ? quoteCsvCell(`="${value}"`) : escapeCsvCell(value);
+
+function escapeCsvCell(value) {
+  const neutralized =
+    !isPlainNumber(value) &&
+    FORMULA_TRIGGERS.some((trigger) => value.startsWith(trigger))
+      ? `'${value}`
+      : value;
+  return quoteCsvCell(neutralized);
 }
+
+function escapeCsvIdentifier(value) {
+  return /^\d+$/.test(value)
+    ? quoteCsvCell(`="${value}"`)
+    : escapeCsvCell(value);
+}
+
 function toRow(cells2) {
   return cells2
     .map((cell) =>
-      typeof cell === "string" ? escapeCsvCell(cell) : escapeCsvIdentifier(cell.identifier),
+      typeof cell === "string"
+        ? escapeCsvCell(cell)
+        : escapeCsvIdentifier(cell.identifier),
     )
     .join(",");
 }
+
 function buildCreditLedgerCsv(transactions, options) {
   const { labels, formatDescription, formatModel, formatDirection } = options;
   const lines = [
@@ -436,7 +237,9 @@ function buildCreditLedgerCsv(transactions, options) {
       labels.transactionId,
     ]),
     ...transactions.map((transaction) => {
-      const { recordId, direction } = parseTransactionId(transaction.transactionId);
+      const { recordId, direction } = parseTransactionId(
+        transaction.transactionId,
+      );
       return toRow([
         formatCsvTime(transaction.createdAtMs),
         transaction.userName.trim(),
@@ -457,21 +260,27 @@ function buildCreditLedgerCsv(transactions, options) {
   return `${UTF8_BOM}${lines.join("\r\n")}\r
 `;
 }
+
 function formatFileDate(ms) {
   const date2 = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
   return `${date2.getFullYear()}${pad(date2.getMonth() + 1)}${pad(date2.getDate())}`;
 }
+
 function buildTeamUsageFileName(options) {
   const now2 = options.now ?? new Date();
-  const teamName = options.teamName.replace(/[\\/:*?"<>|]/g, "").trim() || "team";
+  const teamName =
+    options.teamName.replace(/[\\/:*?"<>|]/g, "").trim() || "team";
   const start2 = formatFileDate(options.startTimeMs ?? now2.getTime());
   const end2 = formatFileDate(options.endTimeMs ?? now2.getTime());
   const memberPart = options.memberId ? `-${options.memberId}` : "";
   return `${teamName}${memberPart}-usage-${start2}-${end2}.csv`;
 }
+
 const EXPORT_PAGE_SIZE = 100;
+
 const MAX_PAGES = 200;
+
 async function fetchAllTransactions(request, signal, onProgress) {
   const all2 = [];
   let cursor = null;
@@ -496,6 +305,7 @@ async function fetchAllTransactions(request, signal, onProgress) {
   }
   throw new Error(`ledger export exceeded ${MAX_PAGES} pages`);
 }
+
 function useTeamLedgerExport() {
   const platform2 = usePlatform();
   const [state2, setState] = reactExports.useState({
@@ -513,12 +323,16 @@ function useTeamLedgerExport() {
         loadedCount: 0,
       });
       try {
-        const transactions = await fetchAllTransactions(request, controller.signal, (count2) => {
-          setState({
-            exporting: true,
-            loadedCount: count2,
-          });
-        });
+        const transactions = await fetchAllTransactions(
+          request,
+          controller.signal,
+          (count2) => {
+            setState({
+              exporting: true,
+              loadedCount: count2,
+            });
+          },
+        );
         if (transactions.length === 0) return "empty";
         const targetPath = await platform2.fs.showSaveDialog?.({
           defaultPath: fileName,
@@ -555,10 +369,12 @@ function useTeamLedgerExport() {
     cancel,
   };
 }
+
 const LEDGER_TAB = {
   INTERNAL: "INTERNAL",
   TRANSFER: "TRANSFER",
 };
+
 function formatTransferCounterparty(transfer) {
   const name2 = transfer.counterpartyGroupName;
   const id2 = transfer.counterpartyGroupId;
@@ -566,19 +382,25 @@ function formatTransferCounterparty(transfer) {
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-x-1">
       {name2 ? <span className="min-w-0 break-words">{name2}</span> : null}
-      {name2 && id2 ? <span className="shrink-0 text-muted-foreground">/</span> : null}
+      {name2 && id2 ? (
+        <span className="shrink-0 text-muted-foreground">/</span>
+      ) : null}
       {id2 ? (
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{id2}</span>
+        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+          {id2}
+        </span>
       ) : null}
     </span>
   );
 }
+
 function amountTone$1(amount) {
   const value = BigInt(amount);
   if (value > 0n) return "credit";
   if (value < 0n) return "debit";
   return "neutral";
 }
+
 export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   const { t: t2 } = useTranslation();
   const { data: mediaModels } = useMediaModels();
@@ -592,7 +414,8 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   const [memberSearchQuery, setMemberSearchQuery] = reactExports.useState("");
   const [ledgerTab, setLedgerTab] = reactExports.useState(LEDGER_TAB.INTERNAL);
   const transferTabVisible = ledgerScope === "GROUP";
-  const transferTabActive = transferTabVisible && ledgerTab === LEDGER_TAB.TRANSFER;
+  const transferTabActive =
+    transferTabVisible && ledgerTab === LEDGER_TAB.TRANSFER;
   const gateOpen = Boolean(
     accountDataVisible &&
     contract?.compatibility === "SUPPORTED" &&
@@ -612,7 +435,8 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     !detailQuery.isRefetchError &&
     detailQuery.data?.groupId === scope.groupId &&
     detailQuery.data.permissions.groupId === scope.groupId &&
-    detailQuery.data.permissions.membershipRevision === detailQuery.data.membershipRevision,
+    detailQuery.data.permissions.membershipRevision ===
+      detailQuery.data.membershipRevision,
   );
   const detailRoleTrusted = detailDataMatchesScope && !detailQuery.isFetching;
   const cachedTransactionsPermission = detailDataMatchesScope
@@ -623,15 +447,20 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     : void 0;
   const transactionsAllowed = Boolean(transactionsPermission?.allowed);
   const transactionsPermissionPending = Boolean(
-    gateOpen && !detailDataMatchesScope && (detailQuery.isPending || detailQuery.isFetching),
+    gateOpen &&
+    !detailDataMatchesScope &&
+    (detailQuery.isPending || detailQuery.isFetching),
   );
   const transactionsDisplayAllowed = Boolean(
     transactionsAllowed ||
-    (detailQuery.isFetching && detailDataMatchesScope && cachedTransactionsPermission?.allowed),
+    (detailQuery.isFetching &&
+      detailDataMatchesScope &&
+      cachedTransactionsPermission?.allowed),
   );
   const transactionsUpstreamUnavailable =
     !transactionsAllowed &&
-    (transactionsPermission?.reasonCode === "upstream_transactions_unavailable" ||
+    (transactionsPermission?.reasonCode ===
+      "upstream_transactions_unavailable" ||
       transactionsPermission?.reasonCode === "feature_disabled" ||
       transactionsPermission?.reasonCode === "upstream_contract_not_ready");
   const transactionsQuery = useTeamTransactionsFeedQuery({
@@ -646,7 +475,8 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     scope,
     enabled: open && gateOpen && transactionsAllowed && transferTabActive,
   });
-  const transfers = transfersQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const transfers =
+    transfersQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const membersQuery = useInGroupMembersQuery({
     scope,
     enabled: open && gateOpen && transactionsAllowed && ledgerScope === "GROUP",
@@ -656,7 +486,9 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   const memberRows = normalizedMemberSearch
     ? memberDetails.filter(
         (member) =>
-          member.userName.toLocaleLowerCase().includes(normalizedMemberSearch) ||
+          member.userName
+            .toLocaleLowerCase()
+            .includes(normalizedMemberSearch) ||
           member.userId.includes(normalizedMemberSearch),
       )
     : memberDetails;
@@ -668,14 +500,19 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     summaryQuery.data?.groupId === scope.groupId
       ? deriveTeamCreditDisplay(summaryQuery.data)
       : null;
-  const memberDisplay = teamDisplay ? deriveMemberCreditDisplay(teamDisplay) : null;
+  const memberDisplay = teamDisplay
+    ? deriveMemberCreditDisplay(teamDisplay)
+    : null;
   const isManager =
     detailRoleTrusted &&
-    (detailQuery.data?.currentRole === "OWNER" || detailQuery.data?.currentRole === "ADMIN");
+    (detailQuery.data?.currentRole === "OWNER" ||
+      detailQuery.data?.currentRole === "ADMIN");
   const cachedIsManager =
     detailDataMatchesScope &&
-    (detailQuery.data?.currentRole === "OWNER" || detailQuery.data?.currentRole === "ADMIN");
-  const exportPermissionRefreshing = detailQuery.isFetching && detailDataMatchesScope;
+    (detailQuery.data?.currentRole === "OWNER" ||
+      detailQuery.data?.currentRole === "ADMIN");
+  const exportPermissionRefreshing =
+    detailQuery.isFetching && detailDataMatchesScope;
   const cachedCreditVisibility =
     ledgerScope === "GROUP"
       ? cachedIsManager
@@ -699,10 +536,12 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     summaryQuery.data && (summaryQuery.isRefetchError || summaryQuery.isError),
   );
   const transactionsStale = Boolean(
-    transactionsQuery.data && (transactionsQuery.isRefetchError || transactionsQuery.isError),
+    transactionsQuery.data &&
+    (transactionsQuery.isRefetchError || transactionsQuery.isError),
   );
   const creditDataStale = detailStale || summaryStale;
-  const transactions = transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const transactions =
+    transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const ledgerTotalUsed =
     transactionsQuery.data?.pages.reduce(
       (latest2, page) => page.groupUsed ?? page.totalAmount ?? latest2,
@@ -764,7 +603,8 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   };
   const ledgerExport = useTeamLedgerExport();
   const exportAllowed =
-    ledgerScope === "GROUP" && (isManager || (exportPermissionRefreshing && cachedIsManager));
+    ledgerScope === "GROUP" &&
+    (isManager || (exportPermissionRefreshing && cachedIsManager));
   const handleExportCsv = async () => {
     if (!exportAllowed) return;
     const request = {
@@ -907,8 +747,13 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         data-scrolling={isScrolling || void 0}
         className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-4 py-4 sm:px-6 sm:py-5"
       >
-        {!gateOpen ? <TeamPanelGated reasonCode="team_billing_disabled" /> : null}
-        {gateOpen && detailQuery.isPending && !summaryQuery.isPending && !summaryQuery.data ? (
+        {!gateOpen ? (
+          <TeamPanelGated reasonCode="team_billing_disabled" />
+        ) : null}
+        {gateOpen &&
+        detailQuery.isPending &&
+        !summaryQuery.isPending &&
+        !summaryQuery.data ? (
           <div data-action-ui-id="team.credit-detail-loading">
             <TeamCreditSummaryLoading />
           </div>
@@ -918,7 +763,9 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
             <TeamPanelError onRetry={() => void detailQuery.refetch()} />
           </div>
         ) : null}
-        {gateOpen && summaryQuery.isPending ? <TeamCreditSummaryLoading /> : null}
+        {gateOpen && summaryQuery.isPending ? (
+          <TeamCreditSummaryLoading />
+        ) : null}
         {gateOpen && summaryQuery.isError && !summaryQuery.data ? (
           <TeamPanelError onRetry={() => void summaryQuery.refetch()} />
         ) : null}
@@ -926,7 +773,10 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
           <TeamPanelStale
             isFetching={detailQuery.isFetching || summaryQuery.isFetching}
             onRetry={async () => {
-              const results = await Promise.all([detailQuery.refetch(), summaryQuery.refetch()]);
+              const results = await Promise.all([
+                detailQuery.refetch(),
+                summaryQuery.refetch(),
+              ]);
               const failed = results.filter((result) => result.isError);
               if (failed.length === 0) {
                 dedupedToast.success(
@@ -984,7 +834,9 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
             data-action-ui-id="team.credit-summary"
             data-credit-visibility="team"
             data-credit-mode={
-              teamDisplay.status === "READY" ? teamDisplay.mode : teamDisplay.status
+              teamDisplay.status === "READY"
+                ? teamDisplay.mode
+                : teamDisplay.status
             }
             data-credit-status={teamDisplay.status}
           >
@@ -1016,7 +868,8 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
             </div>
           </section>
         ) : null}
-        {transactionsPermissionPending && !cachedTransactionsPermission?.allowed ? (
+        {transactionsPermissionPending &&
+        !cachedTransactionsPermission?.allowed ? (
           <TeamCreditHistorySection showInfo={ledgerScope !== "GROUP"}>
             <div data-action-ui-id="team.credit-permission-loading">
               <CreditLedgerTable
@@ -1068,7 +921,9 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         detailQuery.isSuccess ? (
           <TeamCreditHistorySection showInfo={ledgerScope !== "GROUP"}>
             <TeamPanelGated
-              reasonCode={transactionsPermission?.reasonCode ?? "permission_denied"}
+              reasonCode={
+                transactionsPermission?.reasonCode ?? "permission_denied"
+              }
             />
           </TeamCreditHistorySection>
         ) : null}
@@ -1079,14 +934,20 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         detailQuery.isSuccess ? (
           <TeamCreditHistorySection showInfo={ledgerScope !== "GROUP"}>
             <TeamPanelGated
-              reasonCode={transactionsPermission?.reasonCode ?? "upstream_transactions_unavailable"}
+              reasonCode={
+                transactionsPermission?.reasonCode ??
+                "upstream_transactions_unavailable"
+              }
             />
           </TeamCreditHistorySection>
         ) : null}
         {transactionsDisplayAllowed ? (
           <TeamCreditHistorySection showInfo={ledgerScope !== "GROUP"}>
             {transferTabVisible ? (
-              <Tabs value={ledgerTab} onValueChange={(value) => setLedgerTab(value)}>
+              <Tabs
+                value={ledgerTab}
+                onValueChange={(value) => setLedgerTab(value)}
+              >
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger
                     value={LEDGER_TAB.INTERNAL}
@@ -1134,7 +995,9 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     <CreditLedgerTable
                       rows={transfers.map((transfer) => ({
                         id: transfer.transferId,
-                        description: formatTransferDirection(transfer.direction),
+                        description: formatTransferDirection(
+                          transfer.direction,
+                        ),
                         model: formatTransferCounterparty(transfer),
                         createdAtMs: transfer.createdAtMs,
                         amount: formatSignedCreditAmount(transfer.amount),
@@ -1216,8 +1079,12 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                         amount: formatAmount(transaction),
                         tone: amountTone$1(transaction.amount),
                       }))}
-                      loading={transactionsQuery.isPending && !transactionsQuery.data}
-                      error={transactionsQuery.isError && !transactionsQuery.data}
+                      loading={
+                        transactionsQuery.isPending && !transactionsQuery.data
+                      }
+                      error={
+                        transactionsQuery.isError && !transactionsQuery.data
+                      }
                       scrollable={false}
                       descriptionLabel={
                         ledgerScope === "GROUP"

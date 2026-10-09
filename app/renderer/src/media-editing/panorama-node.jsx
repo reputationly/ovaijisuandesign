@@ -1,40 +1,78 @@
 // panorama-node.jsx
-import { useTranslation, useReactFlow, reactExports, useAssetMetadataStore, dedupedToast, Grid2X2, Grid3X3, Power, Position } from "../vendor.js";
-import { NodeResizeFrame } from "../infra/create-html-iframe-pool-store.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.jsx";
-import { useCanvasBridge, useCanvasActions, useAssetMeta, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, Camera } from "./parse-item.jsx";
-import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/reconcile-group-geometry-for-mode.js";
-import { findFreePositionFromAnchor } from "../canvas/resolve-derived-collision.js";
 import {
-  useCanvasNodeIsDragging,
+  dedupedToast,
+  Grid2X2,
+  Grid3X3,
+  Position,
+  Power,
+  reactExports,
+  useAssetMetadataStore,
+  useReactFlow,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
+import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import {
+  Camera,
+  useAssetMeta,
+  useCanvasBridge,
+  useCanvasIsBoxSelecting,
+  useCanvasIsMultiSelect,
+} from "./package.jsx";
+import { useCanvasActions } from "./use-canvas-actions.js";
+import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
+import { findFreePositionFromAnchor } from "../canvas/find-free-position-from-anchor.js";
+import {
   AddToChatIcon,
   FullscreenIcon$1,
   PanoramaIcon,
-  GeneratingMediaArea,
-} from "../canvas/generating-media-area.jsx";
-import { FILE_PREVIEW_SIZE, FILE_PREVIEW_MIN_SIZE } from "../canvas/prune-persisted-node-data.js";
+  useCanvasNodeIsDragging,
+} from "../canvas/fullscreen-icon.jsx";
+import { GeneratingMediaArea } from "../canvas/generating-media-area.jsx";
+import {
+  FILE_PREVIEW_MIN_SIZE,
+  FILE_PREVIEW_SIZE,
+} from "../canvas/is-reexecutable-generation-node.js";
 import { usePopoverCloseWithDeselect } from "../generation/resolve-reference-texts.js";
 import {
-  panoramaGenerationPresentationKey,
-  resolvePanoramaGenerationPresentation,
-  panoramaCleanPreviewUrl,
-  PANORAMA_VIEWER_NODE_SIZE,
   PANORAMA_EMPTY_NODE_SIZE,
+  PANORAMA_VIEWER_NODE_SIZE,
+  panoramaCleanPreviewUrl,
+  panoramaGenerationPresentationKey,
   panoramaViewerNodeSize,
-  CanvasImage,
-} from "./canvas-image.jsx";
-import { useSimulatedProgress, NodeToolbar } from "./use-lightbox-media-actions.jsx";
+  resolvePanoramaGenerationPresentation,
+} from "./resolve-panorama-generation-presentation.js";
+import { CanvasImage } from "./canvas-image.jsx";
+import { useSimulatedProgress } from "./use-warn-missing-asset-meta.jsx";
+import { NodeToolbar } from "./toolbar-item.jsx";
 import { CAPTURE_PLACEMENT_RESERVATION_MS } from "../infra/capture-placement-reservation-ms.js";
-import { useAddToChat, NodeShell, NodeBody } from "../canvas/use-media-node-actions.jsx";
-import { NodeHeader, NodeHandles } from "../canvas/use-inline-rename.jsx";
-import { MediaGenerationErrorOverlay, Tooltip$1 } from "../generation/create-tracker.jsx";
-import { PanoramaViewer, PanoramaGenerationPanel } from "./panorama-viewer.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-export function PanoramaNode({ id: id2, data: data2, selected: selected2, width, height }) {
+import { NodeShell, useAddToChat } from "../canvas/node-shell-inner.jsx";
+import { NodeBody } from "../canvas/node-body-inner.jsx";
+import { NodeHeader } from "../canvas/node-header-inner.jsx";
+import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
+import { MediaGenerationErrorOverlay } from "../generation/media-generation-error-overlay.jsx";
+import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { PanoramaViewer } from "./panorama-viewer.jsx";
+import { PanoramaGenerationPanel } from "./panorama-generation-panel.jsx";
+
+export function PanoramaNode({
+  id: id2,
+  data: data2,
+  selected: selected2,
+  width,
+  height,
+}) {
   const { t: t2 } = useTranslation();
   const reactFlow = useReactFlow();
-  const { pickAsset, cropImage, cropSplit, submitImg2Image, getLastUsedModelParams, onAddToChat } =
-    useCanvasBridge();
+  const {
+    pickAsset,
+    cropImage,
+    cropSplit,
+    submitImg2Image,
+    getLastUsedModelParams,
+    onAddToChat,
+  } = useCanvasBridge();
   const {
     getIncomingSourceIds,
     getOutgoingTargetIds,
@@ -49,7 +87,8 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
   } = useCanvasActions();
   const panoramaData = data2;
   const generationPending = panoramaData?.panoramaGenerationPending === true;
-  const persistedGenerationActive = panoramaData?.panoramaGenerationActive === true;
+  const persistedGenerationActive =
+    panoramaData?.panoramaGenerationActive === true;
   const panoramaGenerationStartedAt =
     typeof panoramaData?.panoramaGenerationStartedAt === "string"
       ? panoramaData.panoramaGenerationStartedAt
@@ -58,9 +97,8 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     typeof panoramaData?.panoramaGeneratedSourceNodeId === "string"
       ? panoramaData.panoramaGeneratedSourceNodeId
       : "";
-  const [generatedSourceNodeId, setGeneratedSourceNodeId] = reactExports.useState(
-    persistedGeneratedSourceNodeId,
-  );
+  const [generatedSourceNodeId, setGeneratedSourceNodeId] =
+    reactExports.useState(persistedGeneratedSourceNodeId);
   const generatedSourceMeta = useAssetMeta(generatedSourceNodeId);
   const [incomingSourceIds, setIncomingSourceIds] = reactExports.useState(() =>
     getIncomingSourceIds(id2),
@@ -74,7 +112,9 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
       return generatedSourceNodeId;
     }
     return (
-      incomingSourceIds.find((sourceId) => state2.assets.get(sourceId)?.type === "image") ?? ""
+      incomingSourceIds.find(
+        (sourceId) => state2.assets.get(sourceId)?.type === "image",
+      ) ?? ""
     );
   });
   const sourceMeta = useAssetMeta(sourceNodeId);
@@ -107,19 +147,29 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     typeof width === "number" && width > 0 ? width : FILE_PREVIEW_SIZE.width,
   );
   const [previewHeight, setPreviewHeight] = reactExports.useState(
-    typeof height === "number" && height > 0 ? height : FILE_PREVIEW_SIZE.height,
+    typeof height === "number" && height > 0
+      ? height
+      : FILE_PREVIEW_SIZE.height,
   );
   const [captureRequest, setCaptureRequest] = reactExports.useState();
-  const [fullscreenRequestId, setFullscreenRequestId] = reactExports.useState(0);
-  const [showGenerationPanel, setShowGenerationPanel] = reactExports.useState(false);
-  const [generationActive, setGenerationActive] = reactExports.useState(persistedGenerationActive);
+  const [fullscreenRequestId, setFullscreenRequestId] =
+    reactExports.useState(0);
+  const [showGenerationPanel, setShowGenerationPanel] =
+    reactExports.useState(false);
+  const [generationActive, setGenerationActive] = reactExports.useState(
+    persistedGenerationActive,
+  );
   const [panoramaPreview, setPanoramaPreview] = reactExports.useState(false);
-  const [staticCaptureActive, setStaticCaptureActive] = reactExports.useState(false);
+  const [staticCaptureActive, setStaticCaptureActive] =
+    reactExports.useState(false);
   const [naturalSourceSize, setNaturalSourceSize] = reactExports.useState(null);
   const lastAspectSyncKeyRef = reactExports.useRef("");
   const captureRequestSequenceRef = reactExports.useRef(0);
   const capturePlacementReservationsRef = reactExports.useRef([]);
-  const handleGenerationPanelClose = usePopoverCloseWithDeselect(id2, setShowGenerationPanel);
+  const handleGenerationPanelClose = usePopoverCloseWithDeselect(
+    id2,
+    setShowGenerationPanel,
+  );
   const getGeneratedSourcePresentationKey = reactExports.useCallback(
     () =>
       panoramaGenerationPresentationKey(
@@ -132,8 +182,11 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     getGeneratedSourcePresentationKey,
     getGeneratedSourcePresentationKey,
   );
-  const generatedSourceNode = generatedSourceNodeId ? getNodeById(generatedSourceNodeId) : void 0;
-  const generationPresentation = resolvePanoramaGenerationPresentation(generatedSourceNode);
+  const generatedSourceNode = generatedSourceNodeId
+    ? getNodeById(generatedSourceNodeId)
+    : void 0;
+  const generationPresentation =
+    resolvePanoramaGenerationPresentation(generatedSourceNode);
   const generationError =
     generationPresentation.status === "error" ? generationPresentation : void 0;
   const hasGenerationError = generationError !== void 0;
@@ -177,7 +230,9 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     };
   }, [previewHeight, previewWidth, sourceAspectRatio]);
   const discardPendingCurrentCapture = reactExports.useCallback(() => {
-    setCaptureRequest((current2) => (current2?.count === 1 ? void 0 : current2));
+    setCaptureRequest((current2) =>
+      current2?.count === 1 ? void 0 : current2,
+    );
   }, []);
   const enterPanoramaPreview = reactExports.useCallback(() => {
     discardPendingCurrentCapture();
@@ -229,15 +284,21 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
         previewHeight === PANORAMA_EMPTY_NODE_SIZE.height)
     )
       return;
-    resizeNode(id2, PANORAMA_EMPTY_NODE_SIZE.width, PANORAMA_EMPTY_NODE_SIZE.height);
+    resizeNode(
+      id2,
+      PANORAMA_EMPTY_NODE_SIZE.width,
+      PANORAMA_EMPTY_NODE_SIZE.height,
+    );
   }, [generationPending, id2, previewHeight, previewWidth, resizeNode]);
   reactExports.useEffect(() => {
-    const canOpenGenerationPanel = !hasGenerationError && !showGenerationState && generationPending;
+    const canOpenGenerationPanel =
+      !hasGenerationError && !showGenerationState && generationPending;
     if (!canOpenGenerationPanel) {
       setShowGenerationPanel(false);
       return;
     }
-    if (!selected2 || isMultiSelect || isBoxSelecting || showGenerationPanel) return;
+    if (!selected2 || isMultiSelect || isBoxSelecting || showGenerationPanel)
+      return;
     setShowGenerationPanel(true);
   }, [
     generationPending,
@@ -251,10 +312,14 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
   reactExports.useLayoutEffect(() => {
     const generationCompleted =
       generationActive && !!generatedSourceNodeId && !!generatedSourceMeta?.url;
-    if (!sourceMeta?.url || ((generationPending || generationActive) && !generationCompleted))
+    if (
+      !sourceMeta?.url ||
+      ((generationPending || generationActive) && !generationCompleted)
+    )
       return;
     const aspectSyncKey = `${sourceNodeId}:${sourceMeta.url}:${sourceWidth ?? "default"}x${sourceHeight ?? "default"}`;
-    if (!generationCompleted && lastAspectSyncKeyRef.current === aspectSyncKey) return;
+    if (!generationCompleted && lastAspectSyncKeyRef.current === aspectSyncKey)
+      return;
     lastAspectSyncKeyRef.current = aspectSyncKey;
     const target = panoramaViewerNodeSize(
       sourceWidth,
@@ -337,7 +402,9 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
         (nodeId, index2, all2) => all2.indexOf(nodeId) === index2,
       );
       const beforeTargets = new Set(
-        generationAnchorIds.flatMap((anchorId) => getOutgoingTargetIds(anchorId)),
+        generationAnchorIds.flatMap((anchorId) =>
+          getOutgoingTargetIds(anchorId),
+        ),
       );
       let finished = false;
       let unsubscribe = () => {};
@@ -352,7 +419,8 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
         const targetData = targetNode?.data;
         const isImageGenerationTarget =
           targetNode?.type === "image" ||
-          (targetNode?.type === "placeholder" && targetData?.mediaType === "image");
+          (targetNode?.type === "placeholder" &&
+            targetData?.mediaType === "image");
         if (!isImageGenerationTarget) return;
         finished = true;
         unsubscribe();
@@ -429,28 +497,36 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
         const nodes = reactFlow.getNodes();
         const nodeIds = new Set(nodes.map((node2) => node2.id));
         const now2 = Date.now();
-        const pendingReservations = capturePlacementReservationsRef.current.filter(
-          (reservation) =>
-            !nodeIds.has(reservation.nodeId) &&
-            now2 - reservation.createdAt < CAPTURE_PLACEMENT_RESERVATION_MS,
-        );
+        const pendingReservations =
+          capturePlacementReservationsRef.current.filter(
+            (reservation) =>
+              !nodeIds.has(reservation.nodeId) &&
+              now2 - reservation.createdAt < CAPTURE_PLACEMENT_RESERVATION_MS,
+          );
         capturePlacementReservationsRef.current = pendingReservations;
         const edges = reactFlow.getEdges();
         const captureTargetIds = new Set(
           edges
-            .filter((edge) => edge.source === id2 && (edge.type ?? "derivation") === "derivation")
+            .filter(
+              (edge) =>
+                edge.source === id2 &&
+                (edge.type ?? "derivation") === "derivation",
+            )
             .map((edge) => edge.target),
         );
-        const occupied = pendingReservations.map(({ x: x2, y: y4, w: w3, h: h2 }) => ({
-          x: x2,
-          y: y4,
-          w: w3,
-          h: h2,
-        }));
+        const occupied = pendingReservations.map(
+          ({ x: x2, y: y4, w: w3, h: h2 }) => ({
+            x: x2,
+            y: y4,
+            w: w3,
+            h: h2,
+          }),
+        );
         for (const node2 of nodes) {
           if (!captureTargetIds.has(node2.id) || node2.parentId) continue;
           const internal2 = reactFlow.getInternalNode(node2.id);
-          const absolute = internal2?.internals.positionAbsolute ?? node2.position;
+          const absolute =
+            internal2?.internals.positionAbsolute ?? node2.position;
           occupied.push({
             x: absolute.x,
             y: absolute.y,
@@ -481,7 +557,12 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
             shiftAxis: "y",
           },
         );
-        const outputNodeId = await cropImage(id2, items[0].blob, items[0].filename, position2);
+        const outputNodeId = await cropImage(
+          id2,
+          items[0].blob,
+          items[0].filename,
+          position2,
+        );
         if (outputNodeId) {
           capturePlacementReservationsRef.current.push({
             nodeId: outputNodeId,
@@ -494,19 +575,25 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
         }
         if (!options?.fullscreen) focusDerivedNode(outputNodeId);
         if (options?.fullscreen) {
-          dedupedToast.success(t2("canvas.panorama.captureCreated", "生图节点创建完成"), {
-            duration: 3e3,
-            closeButton: false,
-            position: "top-center",
-          });
+          dedupedToast.success(
+            t2("canvas.panorama.captureCreated", "生图节点创建完成"),
+            {
+              duration: 3e3,
+              closeButton: false,
+              position: "top-center",
+            },
+          );
         }
       } catch (error) {
         if (options?.fullscreen) {
-          dedupedToast.error(t2("canvas.panorama.captureFailed", "全景截图创建失败"), {
-            duration: 4e3,
-            closeButton: false,
-            position: "top-center",
-          });
+          dedupedToast.error(
+            t2("canvas.panorama.captureFailed", "全景截图创建失败"),
+            {
+              duration: 4e3,
+              closeButton: false,
+              position: "top-center",
+            },
+          );
         }
         throw error;
       }
@@ -535,7 +622,10 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     },
     [panoramaPreview],
   );
-  const requestCurrentCapture = reactExports.useCallback(() => requestCapture(1), [requestCapture]);
+  const requestCurrentCapture = reactExports.useCallback(
+    () => requestCapture(1),
+    [requestCapture],
+  );
   const handleCaptureRequestSettled = reactExports.useCallback((sequence) => {
     if (captureRequestSequenceRef.current !== sequence) return;
     setCaptureRequest(void 0);
@@ -597,8 +687,10 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
     () => panoramaToolbarItems.filter((item) => item.id !== "panorama-capture"),
     [panoramaToolbarItems],
   );
-  const interactive = !!selected2 && !isMultiSelect && !isDragging && !isBoxSelecting;
-  const previewInteractive = panoramaPreview && !isMultiSelect && !isDragging && !isBoxSelecting;
+  const interactive =
+    !!selected2 && !isMultiSelect && !isDragging && !isBoxSelecting;
+  const previewInteractive =
+    panoramaPreview && !isMultiSelect && !isDragging && !isBoxSelecting;
   const previewToggleLabel = panoramaPreview
     ? t2("canvas.panorama.exitPreview", "退出全景模式")
     : t2("canvas.panorama.enterPreview", "进入全景模式");
@@ -663,14 +755,22 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
             {(panoramaPreview || staticCaptureActive) && (
               <div
                 className={
-                  panoramaPreview ? "size-full" : "pointer-events-none invisible absolute inset-0"
+                  panoramaPreview
+                    ? "size-full"
+                    : "pointer-events-none invisible absolute inset-0"
                 }
               >
                 <PanoramaViewer
                   src={displaySourceUrl}
                   interactive={previewInteractive}
-                  emptyLabel={t2("canvas.panorama.empty", "连接一张全景图片后即可拖拽查看")}
-                  loadingLabel={t2("canvas.panorama.loading", "正在加载全景图…")}
+                  emptyLabel={t2(
+                    "canvas.panorama.empty",
+                    "连接一张全景图片后即可拖拽查看",
+                  )}
+                  loadingLabel={t2(
+                    "canvas.panorama.loading",
+                    "正在加载全景图…",
+                  )}
                   errorLabel={t2("canvas.panorama.error", "全景图加载失败")}
                   captureName={sourceMeta.name}
                   captureRequest={captureRequest}
@@ -717,7 +817,11 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
               className={`absolute right-3 top-3 z-[8] origin-top-right scale-[1.125] transition-opacity duration-150 ${panoramaPreview || selected2 ? "opacity-100" : "opacity-0 group-hover/panorama:opacity-100"}`}
             >
               <TooltipProvider$1 delay={150} closeDelay={0}>
-                <Tooltip$1 content={previewToggleLabel} side="top" sideOffset={8}>
+                <Tooltip$1
+                  content={previewToggleLabel}
+                  side="top"
+                  sideOffset={8}
+                >
                   <button
                     type="button"
                     className="nodrag nopan nowheel flex size-9 items-center justify-center rounded-[10px] bg-black/65 text-white shadow-md backdrop-blur-md transition-[background-color,transform] duration-150 hover:scale-[1.03] hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
@@ -775,7 +879,11 @@ export function PanoramaNode({ id: id2, data: data2, selected: selected2, width,
           onResize={handleResize}
         />
       )}
-      <NodeHandles nodeId={id2} selected={!!selected2} sourcePosition={Position.Left} />
+      <NodeHandles
+        nodeId={id2}
+        selected={!!selected2}
+        sourcePosition={Position.Left}
+      />
     </NodeShell>
   );
 }

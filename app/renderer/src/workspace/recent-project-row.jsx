@@ -1,40 +1,528 @@
 // recent-project-row.jsx
-import { useTranslation, reactExports, Check, Copy, dedupedToast, usePlatform, MonochromeIcon, Pin, FolderX, CircleX } from "../vendor.js";
-import { Popover } from "../assets/apply-asset-change.jsx";
-import { UNGROUPED_RECENT_GROUP_KEY } from "./deferred-thumbnail-image-generation.jsx";
-import { Tooltip, TooltipTrigger, DropdownMenu, TooltipProvider, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
-import { PlatformFileManagerLabel } from "../settings/interest-selection-provider.jsx";
-import { Trash2 } from "../media-editing/parse-item.jsx";
-import { workspaceDisplayName } from "../generation/use-resizable-width.js";
-import { projectWorkspaceKey } from "./workspace-events.js";
 import {
-  TooltipContent,
+  API_PATHS,
+  Check,
+  CircleAlert,
+  CircleX,
+  CompositedSvg,
+  Copy,
+  dedupedToast,
+  FolderX,
+  MonochromeIcon,
+  Pin,
+  reactExports,
+  usePlatform,
+  useQuery,
+  useTranslation,
+} from "../vendor.js";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { DeferredThumbnailImage } from "./deferred-thumbnail-image-generation.jsx";
+import {
+  LocalFolderIcon,
+  PencilIcon,
+  PlaybackPlayIcon,
+  QuestionPromptIcon,
+} from "./home-service.jsx";
+import { useWorkspaceThumbnails } from "./use-project-delete.js";
+import {
+  DropdownMenu,
+  Icon,
+  MoreVerticalIcon,
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { FourCornerLoading } from "../chat/chat-empty-state.jsx";
+import {
   cn$2,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { PopoverContent } from "../team/use-credit-details.jsx";
-import { PencilIcon, StrokeIcon, LocalFolderIcon } from "./browser-inspiration-urls.jsx";
-import { AddToProjectSubMenu } from "./new-workspace-dialog.jsx";
-import { InlineRenameInput } from "../infra/hub-logo.jsx";
+  DropdownMenuTrigger,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
+import { Badge } from "../infra/badge-variants.jsx";
+import { Popover } from "../assets/credit-query-keys.jsx";
+import { PlatformFileManagerLabel } from "../settings/request-prompt-prefill.jsx";
+import { Trash2 } from "../media-editing/package.jsx";
+import { workspaceDisplayName } from "../generation/use-model-catalog-scope-key.js";
+import { PopoverContent } from "../team/hailuo-credit-row.jsx";
+import { StrokeIcon } from "./use-prompt-icon.jsx";
+import { AddToProjectSubMenu } from "./add-to-project-sub-menu.jsx";
+import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  DeleteConfirmDialog,
-  HOME_NAV_ACTIVE_CLASS$1,
-  HOME_NAV_PILL_CLASS$1,
-  HOME_RECENT_CLICK_RESOLUTION_DELAY,
-  HOME_RECENT_DETAILS_SIDE_OFFSET,
-  RecentProjectStatusContent,
-  RecentProjectTrailingStatus,
-  RecentWorkspaceThumbnail,
-  formatWorkspaceOpenedAt,
-  isProjectPinned,
-  useNativeProjectPreview,
-  useWorkspaceSummary,
-} from "./use-native-project-preview.jsx";
+import { DeleteConfirmDialog } from "./move-workspace-dialog.jsx";
+
+function isWorkspaceMediaSummary(value) {
+  if (value === null || typeof value !== "object" || !("counts" in value))
+    return false;
+  const counts = value.counts;
+  if (counts === null || typeof counts !== "object") return false;
+  const candidate = counts;
+  return ["image", "video", "audio", "text"].every(
+    (key2) =>
+      typeof candidate[key2] === "number" && Number.isFinite(candidate[key2]),
+  );
+}
+
+async function fetchWorkspaceSummary(workspacePath) {
+  const response = await gatewayFetch(
+    API_PATHS.workspaceSummary(workspacePath),
+  );
+  if (!response.ok) {
+    throw new Error(`Workspace summary request failed: ${response.status}`);
+  }
+  const value = await response.json();
+  if (!isWorkspaceMediaSummary(value)) {
+    throw new Error("Invalid workspace summary response");
+  }
+  return value;
+}
+
+function useWorkspaceSummary(workspacePath, enabled) {
+  return useQuery({
+    queryKey: ["workspace-media-summary", workspacePath],
+    queryFn: () => fetchWorkspaceSummary(workspacePath),
+    enabled: enabled && workspacePath.length > 0,
+    staleTime: 3e4,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+const MINUTE_MS = 6e4;
+
+const HOUR_MS = 60 * MINUTE_MS;
+
+const DAY_MS = 24 * HOUR_MS;
+
+function localCalendarDay(date2) {
+  return (
+    Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate()) / DAY_MS
+  );
+}
+
+function formatWorkspaceOpenedAt(timestamp2, locale, now2 = Date.now()) {
+  if (!Number.isFinite(timestamp2) || !Number.isFinite(now2)) return "";
+  const openedAt = new Date(timestamp2);
+  const current2 = new Date(now2);
+  if (Number.isNaN(openedAt.getTime()) || Number.isNaN(current2.getTime()))
+    return "";
+  const dayDifference = localCalendarDay(current2) - localCalendarDay(openedAt);
+  const relativeTime = new Intl.RelativeTimeFormat(locale, {
+    numeric: "auto",
+  });
+  if (dayDifference === 0) {
+    const elapsed = Math.max(0, now2 - timestamp2);
+    if (elapsed < MINUTE_MS) return relativeTime.format(0, "second");
+    if (elapsed < HOUR_MS) {
+      return relativeTime.format(
+        -Math.max(1, Math.floor(elapsed / MINUTE_MS)),
+        "minute",
+      );
+    }
+    return relativeTime.format(
+      -Math.max(1, Math.floor(elapsed / HOUR_MS)),
+      "hour",
+    );
+  }
+  if (dayDifference === 1) return relativeTime.format(-1, "day");
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).format(openedAt);
+}
+
+const HOME_RECENT_DETAILS_SIDE_OFFSET = 0;
+
+const HOME_RECENT_CLICK_RESOLUTION_DELAY = 240;
+
+const HOME_NAV_PILL_CLASS$1 =
+  "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-2 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
+
+const HOME_NAV_ACTIVE_CLASS$1 = "after:bg-[var(--home-sidebar-nav-active)]";
+
+function RecentProjectStatusContent({
+  variant,
+  userAction,
+  userActionLabel,
+  displayName: displayName2,
+  openedAtLabel,
+}) {
+  const rowActionId =
+    userAction === "confirmation"
+      ? "home-sidebar.recent-confirmation-tag"
+      : "home-sidebar.recent-question-tag";
+  const detailsActionId =
+    userAction === "confirmation"
+      ? "home-sidebar.recent-details-confirmation-tag"
+      : "home-sidebar.recent-details-question-tag";
+  if (variant === "row") {
+    return (
+      <span className="flex min-w-0 flex-1 items-center gap-1.5">
+        <span
+          className="min-w-0 flex-1 truncate"
+          data-recent-project-name="true"
+        >
+          {displayName2}
+        </span>
+        {userAction ? (
+          <Badge
+            role="status"
+            aria-label={userActionLabel}
+            data-action-ui-id={rowActionId}
+            className="h-4 rounded-sm bg-brand-accent/10 px-1.5 py-0 text-[10px] font-medium leading-none text-brand-accent group-focus-within:hidden"
+          >
+            {userActionLabel}
+          </Badge>
+        ) : null}
+      </span>
+    );
+  }
+  return (
+    <div className="flex shrink-0 flex-col items-end gap-1">
+      {userAction ? (
+        <Badge
+          role="status"
+          aria-label={userActionLabel}
+          data-action-ui-id={detailsActionId}
+          className="h-4 rounded-sm bg-brand-accent/10 px-1.5 py-0 text-[10px] font-medium leading-none text-brand-accent"
+        >
+          {userActionLabel}
+        </Badge>
+      ) : null}
+      <span
+        data-action-ui-id="home-sidebar.recent-details-time"
+        className="text-right text-[10px] tabular-nums whitespace-nowrap text-muted-foreground"
+      >
+        {openedAtLabel}
+      </span>
+    </div>
+  );
+}
+
+function WorkspaceStatusBadge({ status, className }) {
+  const { t: t2 } = useTranslation();
+  if (!status || (!status.running && !status.unread && !status.needsUserAction))
+    return null;
+  if (status.needsUserAction) {
+    const needsAnswer = status.needsUserAction === "answer";
+    const label = needsAnswer
+      ? t2("session.tabs.status.awaitingAnswer", "Waiting for your answer")
+      : t2(
+          "session.tabs.status.awaitingConfirmation",
+          "Waiting for your confirmation",
+        );
+    return (
+      <span
+        role="status"
+        aria-label={label}
+        title={label}
+        className={cn$2(
+          "flex size-4 shrink-0 items-center justify-center text-foreground/70",
+          className,
+        )}
+      >
+        {needsAnswer ? (
+          <QuestionPromptIcon className="size-3.5 text-foreground/70" />
+        ) : (
+          <Icon icon={CircleAlert} size="sm" />
+        )}
+      </span>
+    );
+  }
+  if (status.running) {
+    return (
+      <FourCornerLoading
+        variant="tab"
+        size="sm"
+        label={t2("session.tabs.status.generating", "Generating")}
+        className={className}
+      />
+    );
+  }
+  return (
+    <span
+      role="img"
+      aria-label={t2(
+        "session.tabs.status.completedUnread",
+        "Completed, unread",
+      )}
+      className={cn$2(
+        "size-[5px] shrink-0 rounded-full bg-brand-accent",
+        className,
+      )}
+    />
+  );
+}
+
+function RecentProjectTrailingStatus({
+  status,
+  hovered,
+  hasTrailingStatus,
+  completedUnreadLabel,
+}) {
+  return (
+    <span
+      data-action-ui-id="home-sidebar.recent-trailing-slot"
+      className={cn$2(
+        "relative flex h-4 shrink-0 items-center justify-center overflow-hidden transition-[width] duration-150 ease-out group-hover:w-5 group-focus-within:w-5",
+        hasTrailingStatus ? "w-5" : "w-0",
+      )}
+    >
+      {!hovered && hasTrailingStatus && status?.running ? (
+        <WorkspaceStatusBadge status={status} />
+      ) : !hovered && hasTrailingStatus ? (
+        <span
+          role="img"
+          aria-label={completedUnreadLabel}
+          className="size-[5px] shrink-0 rounded-full bg-brand-accent"
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function WorkspaceThumbnailFallback() {
+  return (
+    <span
+      aria-hidden="true"
+      className="home-sidebar-recent-thumbnail-fallback flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-foreground/[0.04] text-sidebar-foreground"
+    >
+      <CompositedSvg
+        className="size-3"
+        opacity="0.16"
+        role="presentation"
+        viewBox="0 0 145 137"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M116 6.31573e-05C123.69 6.31573e-05 131.069 3.04111 136.515 8.44623C141.939 13.8621 145 21.1907 145 28.8417V86.5356C145 94.1866 141.95 101.515 136.515 106.931C131.066 112.355 123.687 115.393 116 115.377H81.7478L47.227 135.977C46.1888 136.595 45.0131 136.944 43.806 136.994C42.5988 137.043 41.3984 136.791 40.3132 136.26C39.228 135.729 38.2922 134.936 37.5902 133.952C36.8883 132.968 36.4425 131.825 36.293 130.625L36.25 129.798V115.377H29C21.5683 115.386 14.4171 112.539 9.02222 107.425C3.63642 102.34 0.41663 95.3744 0.0322224 87.9755L0 86.5356V28.8417C0 21.1907 3.05037 13.8621 8.48518 8.44623C13.9343 3.02195 21.3131 -0.0159719 29 6.31573e-05H116ZM87 64.9044H43.5C41.5882 64.91 39.7554 65.6686 38.3985 67.0161C37.0416 68.3635 36.2698 70.1914 36.25 72.1041C36.2471 73.0559 36.4329 73.9988 36.7967 74.8783C37.1604 75.7578 37.6948 76.5565 38.3691 77.228C39.0433 77.8995 39.8439 78.4307 40.7246 78.7906C41.6053 79.1506 42.5487 79.3323 43.5 79.3252H87C88.9137 79.3196 90.748 78.5595 92.1052 77.2097C93.4624 75.86 94.233 74.0293 94.25 72.1148C94.2514 71.1639 94.0646 70.2221 93.7002 69.3439C93.3359 68.4656 92.8012 67.6682 92.1271 66.9978C91.453 66.3274 90.6529 65.7973 89.7729 65.438C88.8929 65.0787 87.9504 64.8973 87 64.9044ZM101.5 36.0521H43.5C41.5863 36.0576 39.752 36.8177 38.3948 38.1675C37.0376 39.5177 36.267 41.348 36.25 43.2625C36.2486 44.2134 36.4354 45.1552 36.7998 46.0334C37.1641 46.9117 37.6988 47.709 38.3729 48.3794C39.047 49.0498 39.847 49.58 40.7271 49.9393C41.6071 50.2986 42.5496 50.48 43.5 50.4729H101.5C103.412 50.4673 105.245 49.7087 106.601 48.3612C107.958 47.0137 108.73 45.1858 108.75 43.2732C108.753 42.3214 108.567 41.3785 108.203 40.4989C107.84 39.6194 107.305 38.8208 106.631 38.1493C105.957 37.4777 105.156 36.9466 104.275 36.5866C103.395 36.2267 102.451 36.045 101.5 36.0521Z"
+          fill="currentColor"
+        />
+      </CompositedSvg>
+    </span>
+  );
+}
+
+const HOME_RECENT_THUMBNAIL_ROOT_MARGIN = "96px 0px";
+
+const HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS = 240;
+
+function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
+  const hostRef = reactExports.useRef(null);
+  const [loadEnabled, setLoadEnabled] = reactExports.useState(
+    () => typeof IntersectionObserver === "undefined",
+  );
+  const { data: thumbnails } = useWorkspaceThumbnails(
+    workspacePath,
+    scanAllowed && loadEnabled,
+  );
+  const [failedSource, setFailedSource] = reactExports.useState(null);
+  const thumbnail = thumbnails?.[0];
+  const thumbnailFailed = thumbnail ? failedSource === thumbnail.src : false;
+  reactExports.useEffect(() => {
+    if (
+      !scanAllowed ||
+      loadEnabled ||
+      typeof IntersectionObserver === "undefined"
+    )
+      return;
+    const host = hostRef.current;
+    if (!host) return;
+    let visibilityTimer = null;
+    const observer2 = new IntersectionObserver(
+      (entries2) => {
+        if (!entries2.some((entry) => entry.isIntersecting)) {
+          if (visibilityTimer !== null) {
+            window.clearTimeout(visibilityTimer);
+            visibilityTimer = null;
+          }
+          return;
+        }
+        if (visibilityTimer !== null) return;
+        visibilityTimer = window.setTimeout(() => {
+          visibilityTimer = null;
+          setLoadEnabled(true);
+          observer2.disconnect();
+        }, HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS);
+      },
+      {
+        rootMargin: HOME_RECENT_THUMBNAIL_ROOT_MARGIN,
+      },
+    );
+    observer2.observe(host);
+    return () => {
+      observer2.disconnect();
+      if (visibilityTimer !== null) window.clearTimeout(visibilityTimer);
+    };
+  }, [loadEnabled, scanAllowed]);
+  return (
+    <span
+      ref={hostRef}
+      data-action-ui-id="home-sidebar.recent-thumbnail"
+      className="relative flex size-6 shrink-0 overflow-hidden rounded-sm"
+    >
+      {!thumbnail || thumbnailFailed ? (
+        <WorkspaceThumbnailFallback />
+      ) : (
+        <span className="relative size-6 shrink-0 overflow-hidden rounded-sm bg-muted">
+          <DeferredThumbnailImage
+            src={thumbnail.src}
+            alt=""
+            draggable={false}
+            className="h-full w-full object-cover"
+            onFailure={() => {
+              setFailedSource(thumbnail.src);
+            }}
+          />
+          {thumbnail.mediaType === "video" && (
+            <span
+              className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--media-overlay-surface)] text-[var(--media-overlay-foreground)]"
+              data-home-video-play="true"
+            >
+              <PlaybackPlayIcon
+                size={9}
+                className="text-[var(--media-overlay-foreground)]"
+              />
+            </span>
+          )}
+        </span>
+      )}
+    </span>
+  );
+}
+
+const THEME_TOKENS = [
+  "--popover",
+  "--foreground",
+  "--muted",
+  "--muted-foreground",
+  "--elevated-border-width",
+  "--elevated-border-color",
+  "--radius",
+  "--radius-md",
+  "--font-sans",
+  "--ring",
+  "--brand-accent",
+];
+
+function useNativeProjectPreview(options) {
+  const browser2 = window.hilo?.browser;
+  const supported =
+    typeof browser2?.showProjectPreview === "function" &&
+    typeof browser2?.hideProjectPreview === "function" &&
+    typeof browser2?.onProjectPreviewEvent === "function";
+  const [domFallback, setDomFallback] = reactExports.useState(false);
+  const latest2 = reactExports.useRef(options);
+  latest2.current = options;
+  const publishRef = reactExports.useRef(null);
+  const { open, anchor } = options;
+  reactExports.useLayoutEffect(() => {
+    if (!open || !supported || !browser2) return;
+    const element2 = anchor.current;
+    if (!element2) return;
+    setDomFallback(false);
+    const token2 = `project-preview:${crypto.randomUUID()}`;
+    let disposed = false;
+    let held = false;
+    let lastPayload = "";
+    let revision = 0;
+    let nativeActive = true;
+    const hold = latest2.current.holdPreviewOpen;
+    const release = latest2.current.releasePreviewHold;
+    const hide2 = () => {
+      void browser2.hideProjectPreview(token2).catch(() => {});
+    };
+    const unsubscribe = browser2.onProjectPreviewEvent((event) => {
+      if (!disposed && event.token === token2) latest2.current.onEvent(event);
+    });
+    const publish = () => {
+      if (disposed) return;
+      const rect = element2.getBoundingClientRect();
+      const computed = getComputedStyle(element2);
+      const request = {
+        token: token2,
+        anchor: {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        },
+        content: latest2.current.content,
+        theme: Object.fromEntries(
+          THEME_TOKENS.map((key2) => [
+            key2,
+            computed.getPropertyValue(key2).trim(),
+          ]),
+        ),
+      };
+      const payload = JSON.stringify(request);
+      if (payload === lastPayload) return;
+      lastPayload = payload;
+      const currentRevision = ++revision;
+      void browser2.showProjectPreview(request).then(
+        (shown) => {
+          if (disposed || currentRevision !== revision) return;
+          nativeActive = shown;
+          setDomFallback(!shown);
+          if (shown && !held) {
+            held = true;
+            hold?.(token2);
+          }
+        },
+        () => {
+          if (disposed || currentRevision !== revision) return;
+          nativeActive = false;
+          hide2();
+          setDomFallback(true);
+        },
+      );
+    };
+    publishRef.current = publish;
+    publish();
+    const close2 = () => {
+      if (nativeActive)
+        latest2.current.onEvent({
+          token: token2,
+          type: "close",
+        });
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") close2();
+    };
+    document.addEventListener("scroll", close2, true);
+    document.addEventListener("pointerdown", close2, true);
+    document.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("resize", close2);
+    const themeObserver = new MutationObserver(publish);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "style"],
+    });
+    return () => {
+      disposed = true;
+      publishRef.current = null;
+      unsubscribe();
+      themeObserver.disconnect();
+      document.removeEventListener("scroll", close2, true);
+      document.removeEventListener("pointerdown", close2, true);
+      document.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("resize", close2);
+      hide2();
+      if (held) release?.(token2);
+    };
+  }, [anchor, browser2, open, supported]);
+  reactExports.useEffect(() => {
+    publishRef.current?.();
+  });
+  return open && supported && !domFallback;
+}
+
 const COPY_FEEDBACK_DURATION_MS = 1500;
+
 export function RecentProjectRow({
   workspace,
   renamePath,
@@ -70,7 +558,8 @@ export function RecentProjectRow({
   const platform2 = usePlatform();
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
   const [renameSurface, setRenameSurface] = reactExports.useState(null);
-  const [renameMenuHandoff, setRenameMenuHandoff] = reactExports.useState(false);
+  const [renameMenuHandoff, setRenameMenuHandoff] =
+    reactExports.useState(false);
   const [deleting, setDeleting] = reactExports.useState(false);
   const [hovered, setHovered] = reactExports.useState(false);
   const [pathCopied, setPathCopied] = reactExports.useState(false);
@@ -83,9 +572,11 @@ export function RecentProjectRow({
   const draggingRef = reactExports.useRef(false);
   const displayName2 = workspaceDisplayName(workspace);
   const pendingUserAction = status?.needsUserAction;
-  const hasTrailingStatus = Boolean(status?.running || status?.unread) && !pendingUserAction;
+  const hasTrailingStatus =
+    Boolean(status?.running || status?.unread) && !pendingUserAction;
   const renaming = renameSurface !== null;
-  const previewHoldActive = menuOpen || renaming || renameMenuHandoff || deleting;
+  const previewHoldActive =
+    menuOpen || renaming || renameMenuHandoff || deleting;
   reactExports.useEffect(() => {
     if (!previewHoldActive || !holdPreviewOpen || !releasePreviewHold) return;
     const token2 = `home-sidebar.recent-row:${workspace.path}`;
@@ -96,8 +587,13 @@ export function RecentProjectRow({
     (open) => onDetailsOpenChange(workspace.path, open),
     [onDetailsOpenChange, workspace.path],
   );
-  const renameDisplayName = useWorkspaceDisplayNameRename(renamePath ?? workspace.path);
-  const openedAtLabel = formatWorkspaceOpenedAt(workspace.openedAt, i18n.language);
+  const renameDisplayName = useWorkspaceDisplayNameRename(
+    renamePath ?? workspace.path,
+  );
+  const openedAtLabel = formatWorkspaceOpenedAt(
+    workspace.openedAt,
+    i18n.language,
+  );
   const pendingUserActionLabel =
     pendingUserAction === "confirmation"
       ? t2("homeSidebar.recentProjectAwaitingApproval", "Awaiting approval")
@@ -107,9 +603,13 @@ export function RecentProjectRow({
     ? HOME_NAV_ACTIVE_CLASS$1
     : cn$2(
         "group-hover/recent-row:after:bg-[var(--home-sidebar-nav-hover)] group-has-[:focus-visible]/recent-row:after:bg-[var(--home-sidebar-nav-hover)]",
-        (visibleDetailsOpen || menuOpen) && "after:bg-[var(--home-sidebar-nav-hover)]",
+        (visibleDetailsOpen || menuOpen) &&
+          "after:bg-[var(--home-sidebar-nav-hover)]",
       );
-  const summaryQuery = useWorkspaceSummary(workspace.path, visibleDetailsOpen && !menuOpen);
+  const summaryQuery = useWorkspaceSummary(
+    workspace.path,
+    visibleDetailsOpen && !menuOpen,
+  );
   const counts = summaryQuery.data?.counts;
   const assetSummaryItems = counts
     ? [
@@ -143,14 +643,16 @@ export function RecentProjectRow({
           dedupedToast.success(t2("fileExplorer.pathCopied"));
           return;
         }
-        if (copyFeedbackTimerRef.current) clearTimeout(copyFeedbackTimerRef.current);
+        if (copyFeedbackTimerRef.current)
+          clearTimeout(copyFeedbackTimerRef.current);
         setPathCopied(true);
         copyFeedbackTimerRef.current = setTimeout(() => {
           copyFeedbackTimerRef.current = null;
           setPathCopied(false);
         }, COPY_FEEDBACK_DURATION_MS);
       } catch {
-        if (copyFeedbackTimerRef.current) clearTimeout(copyFeedbackTimerRef.current);
+        if (copyFeedbackTimerRef.current)
+          clearTimeout(copyFeedbackTimerRef.current);
         copyFeedbackTimerRef.current = null;
         setPathCopied(false);
         dedupedToast.error(t2("fileExplorer.copyFailed"));
@@ -160,7 +662,8 @@ export function RecentProjectRow({
   );
   reactExports.useEffect(
     () => () => {
-      if (copyFeedbackTimerRef.current) clearTimeout(copyFeedbackTimerRef.current);
+      if (copyFeedbackTimerRef.current)
+        clearTimeout(copyFeedbackTimerRef.current);
     },
     [],
   );
@@ -277,7 +780,15 @@ export function RecentProjectRow({
       setMenuOpen(false);
       setRenameSurface("row");
     },
-    [clearDetailsTimer, clearOpenTimer, menuOpen, onOpen, renaming, setDetailsOpen, workspace],
+    [
+      clearDetailsTimer,
+      clearOpenTimer,
+      menuOpen,
+      onOpen,
+      renaming,
+      setDetailsOpen,
+      workspace,
+    ],
   );
   const nativeDetails = useNativeProjectPreview({
     open: visibleDetailsOpen && !menuOpen && !deleting,
@@ -289,7 +800,9 @@ export function RecentProjectRow({
         ? `${pendingUserActionLabel}
 ${openedAtLabel}`
         : openedAtLabel,
-      summary: assetSummaryItems.map((item) => `${item.label} · ${item.count}`).join(" ｜ "),
+      summary: assetSummaryItems
+        .map((item) => `${item.label} · ${item.count}`)
+        .join(" ｜ "),
       loading: summaryQuery.isPending,
       copyLabel: t2("fileExplorer.copyPath"),
       copiedLabel: t2("common.copiedShort"),
@@ -380,7 +893,10 @@ ${openedAtLabel}`
             )}
             data-action-ui-id="home-sidebar.recent-pill"
           >
-            <RecentWorkspaceThumbnail workspacePath={workspace.path} scanAllowed={loadThumbnail} />
+            <RecentWorkspaceThumbnail
+              workspacePath={workspace.path}
+              scanAllowed={loadThumbnail}
+            />
             <InlineRenameInput
               initialName={displayName2}
               placeholder={t2("home.workspace.displayNamePlaceholder")}
@@ -405,7 +921,10 @@ ${openedAtLabel}`
             )}
             data-action-ui-id="home-sidebar.recent-pill"
           >
-            <RecentWorkspaceThumbnail workspacePath={workspace.path} scanAllowed={loadThumbnail} />
+            <RecentWorkspaceThumbnail
+              workspacePath={workspace.path}
+              scanAllowed={loadThumbnail}
+            />
             <RecentProjectStatusContent
               variant="row"
               userAction={hovered ? void 0 : pendingUserAction}
@@ -416,7 +935,10 @@ ${openedAtLabel}`
               status={status}
               hovered={hovered}
               hasTrailingStatus={hasTrailingStatus}
-              completedUnreadLabel={t2("session.tabs.status.completedUnread", "Completed, unread")}
+              completedUnreadLabel={t2(
+                "session.tabs.status.completedUnread",
+                "Completed, unread",
+              )}
             />
           </button>
         )}
@@ -432,7 +954,9 @@ ${openedAtLabel}`
                 render={
                   <button
                     type="button"
-                    aria-label={pinned ? t2("session.unpin") : t2("session.pin")}
+                    aria-label={
+                      pinned ? t2("session.unpin") : t2("session.pin")
+                    }
                     data-action-ui-id="home-sidebar-recent-pin"
                     data-icon-active={pinned || void 0}
                     onClick={(event) => {
@@ -652,7 +1176,9 @@ ${openedAtLabel}`
                       type="button"
                       className="icon-sidebar-action-control relative z-10 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                       aria-label={
-                        pathCopied ? t2("common.copiedShort") : t2("fileExplorer.copyPath")
+                        pathCopied
+                          ? t2("common.copiedShort")
+                          : t2("fileExplorer.copyPath")
                       }
                       onClick={(event) => {
                         event.stopPropagation();
@@ -673,7 +1199,9 @@ ${openedAtLabel}`
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  {pathCopied ? t2("common.copiedShort") : t2("fileExplorer.copyPath")}
+                  {pathCopied
+                    ? t2("common.copiedShort")
+                    : t2("fileExplorer.copyPath")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -692,7 +1220,10 @@ ${openedAtLabel}`
               {assetSummaryItems.map((item, index2) => (
                 <span key={item.key}>
                   {index2 > 0 && (
-                    <span aria-hidden="true" className="mx-1 text-foreground/25">
+                    <span
+                      aria-hidden="true"
+                      className="mx-1 text-foreground/25"
+                    >
                       ｜
                     </span>
                   )}
@@ -716,404 +1247,4 @@ ${openedAtLabel}`
       />
     </Popover>
   );
-}
-export function SidebarReleaseBadge({ compact = false, target, releaseBadge }) {
-  if (!target || !releaseBadge) return null;
-  if (compact) {
-    return releaseBadge.tone === "brand" ? (
-      <span
-        aria-hidden="true"
-        className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-brand-accent ring-1 ring-[var(--topbar-transparent-bg)]"
-        data-action-ui-id={`home-sidebar.${target}-release-badge`}
-        data-variant="new"
-      />
-    ) : null;
-  }
-  if (target === "connectors" && releaseBadge.tone === "brand") {
-    return (
-      <span
-        aria-hidden="true"
-        className="home-sidebar-detail size-1.5 shrink-0 rounded-full bg-brand-accent"
-        data-action-ui-id="home-sidebar.connectors-release-badge"
-        data-variant="new"
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden="true"
-      className={cn$2(
-        "home-sidebar-detail shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none",
-        releaseBadge.tone === "brand"
-          ? "bg-brand-accent text-brand-accent-foreground"
-          : "bg-muted text-muted-foreground",
-      )}
-      data-action-ui-id={`home-sidebar.${target}-release-badge`}
-      data-variant={releaseBadge.tone === "brand" ? "new" : "beta"}
-    >
-      {releaseBadge.label}
-    </span>
-  );
-}
-function resolveGroupDropPlacement(clientY, headerBottom, rows) {
-  if (clientY < headerBottom || rows.length === 0)
-    return {
-      kind: "end",
-    };
-  for (const row of rows) {
-    if (clientY < row.top + row.height / 2) {
-      return {
-        kind: "relative",
-        anchorPath: row.path,
-        position: "before",
-      };
-    }
-    if (clientY <= row.top + row.height) {
-      return {
-        kind: "relative",
-        anchorPath: row.path,
-        position: "after",
-      };
-    }
-  }
-  return {
-    kind: "relative",
-    anchorPath: rows[rows.length - 1].path,
-    position: "after",
-  };
-}
-function isUnchangedSidebarPosition(paths, sourcePath, anchorPath, position2) {
-  const sourceIndex = paths.indexOf(sourcePath);
-  const anchorIndex = paths.indexOf(anchorPath);
-  if (sourceIndex < 0 || anchorIndex < 0) return true;
-  return (
-    sourceIndex === anchorIndex ||
-    (position2 === "before" && sourceIndex === anchorIndex - 1) ||
-    (position2 === "after" && sourceIndex === anchorIndex + 1)
-  );
-}
-export function useSidebarProjectDrag({
-  draggedPath,
-  draggedProjectId,
-  sourceSection,
-  sourceProjectId,
-  inventory,
-  currentInventory,
-  projects,
-  pinnedProjectIds,
-  sortMode,
-  caseInsensitive,
-  scrollRef,
-  onClearDrag,
-  onRowOver,
-  onRowDrop,
-  onProjectReorder,
-  onMove,
-  onReveal,
-  holdPreviewOpen,
-  releasePreviewHold,
-}) {
-  const { t: t2 } = useTranslation();
-  const [groupTarget, setGroupTarget] = reactExports.useState(null);
-  const [rowTarget, setRowTarget] = reactExports.useState(null);
-  const [projectTarget, setProjectTarget] = reactExports.useState(null);
-  const [pendingMove, setPendingMove] = reactExports.useState(null);
-  const [submitting, setSubmitting] = reactExports.useState(false);
-  const [error, setError] = reactExports.useState(null);
-  const [completedPath, setCompletedPath] = reactExports.useState(null);
-  const submittingRef = reactExports.useRef(false);
-  const dragActive = Boolean(draggedPath || draggedProjectId);
-  const clearPreview = reactExports.useCallback(() => {
-    setGroupTarget(null);
-    setRowTarget(null);
-    setProjectTarget(null);
-  }, []);
-  reactExports.useEffect(() => {
-    if (!dragActive) clearPreview();
-  }, [dragActive, clearPreview]);
-  reactExports.useEffect(() => {
-    if (!dragActive && !pendingMove) return;
-    const token2 = "home-sidebar.project-drag";
-    holdPreviewOpen?.(token2);
-    return () => releasePreviewHold?.(token2);
-  }, [dragActive, pendingMove, holdPreviewOpen, releasePreviewHold]);
-  reactExports.useEffect(() => {
-    if (!dragActive) return;
-    let frame2 = 0;
-    let speed = 0;
-    const tick = () => {
-      if (scrollRef.current && speed) scrollRef.current.scrollTop += speed;
-      frame2 = requestAnimationFrame(tick);
-    };
-    const handleOver = (event) => {
-      const scroll = scrollRef.current;
-      const rect = scroll?.getBoundingClientRect();
-      const target = event.target instanceof Element ? event.target : null;
-      if (!rect || !target || !scroll?.contains(target)) {
-        speed = 0;
-        clearPreview();
-        return;
-      }
-      speed = event.clientY < rect.top + 32 ? -8 : event.clientY > rect.bottom - 32 ? 8 : 0;
-      if (!target.closest('[data-action-ui-id="home-sidebar.recent-group"]')) clearPreview();
-    };
-    document.addEventListener("dragover", handleOver, true);
-    frame2 = requestAnimationFrame(tick);
-    return () => {
-      document.removeEventListener("dragover", handleOver, true);
-      cancelAnimationFrame(frame2);
-    };
-  }, [dragActive, scrollRef, clearPreview]);
-  reactExports.useEffect(() => {
-    if (!completedPath) return;
-    const row = [...(scrollRef.current?.querySelectorAll("[data-workspace-path]") ?? [])].find(
-      (element2) => element2.dataset.workspacePath === completedPath,
-    );
-    row?.scrollIntoView?.({
-      block: "nearest",
-      behavior: "auto",
-    });
-    const timeout2 = setTimeout(() => setCompletedPath(null), 1800);
-    return () => clearTimeout(timeout2);
-  }, [completedPath, scrollRef]);
-  const resolveOwner = reactExports.useCallback(
-    (path2) => {
-      const key2 = projectWorkspaceKey(path2, caseInsensitive);
-      const item = currentInventory.find(
-        (entry) => projectWorkspaceKey(entry.workspace.path, caseInsensitive) === key2,
-      );
-      const alias = item?.recentPath && projectWorkspaceKey(item.recentPath, caseInsensitive);
-      return (
-        projects.find((project2) =>
-          project2.workspacePaths.some((candidate) => {
-            const candidateKey = projectWorkspaceKey(candidate, caseInsensitive);
-            return candidateKey === key2 || candidateKey === alias;
-          }),
-        )?.id ?? null
-      );
-    },
-    [caseInsensitive, currentInventory, projects],
-  );
-  const handleGroupDrag = reactExports.useCallback(
-    (event, targetId, drop) => {
-      event.stopPropagation();
-      if (pendingMove || (!draggedPath && !draggedProjectId)) return;
-      const group = event.currentTarget;
-      const header = group.querySelector('[data-action-ui-id="home-sidebar.recent-group-header"]');
-      if (draggedProjectId) {
-        clearPreview();
-        const headerRect = header?.getBoundingClientRect();
-        const sourcePinned = isProjectPinned(draggedProjectId, pinnedProjectIds);
-        if (
-          !targetId ||
-          !headerRect ||
-          event.clientY > headerRect.bottom ||
-          targetId === draggedProjectId ||
-          isProjectPinned(targetId, pinnedProjectIds) !== sourcePinned
-        ) {
-          event.dataTransfer.dropEffect = "none";
-          if (drop) onClearDrag();
-          return;
-        }
-        const position2 =
-          event.clientY < headerRect.top + headerRect.height / 2 ? "before" : "after";
-        const projectOrder = sourcePinned
-          ? pinnedProjectIds.filter((id2) => projects.some((project2) => project2.id === id2))
-          : projects
-              .filter((project2) => !isProjectPinned(project2.id, pinnedProjectIds))
-              .map((project2) => project2.id);
-        if (isUnchangedSidebarPosition(projectOrder, draggedProjectId, targetId, position2)) {
-          event.dataTransfer.dropEffect = "none";
-          if (drop) onClearDrag();
-          return;
-        }
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-        setProjectTarget({
-          id: targetId,
-          position: position2,
-        });
-        if (drop) {
-          onProjectReorder(draggedProjectId, targetId, position2);
-          clearPreview();
-          onClearDrag();
-        }
-        return;
-      }
-      if (!draggedPath) return;
-      if (sourceSection !== "recent") {
-        clearPreview();
-        event.dataTransfer.dropEffect = "none";
-        if (drop) onClearDrag();
-        return;
-      }
-      const rows = [...group.querySelectorAll("[data-workspace-path]")].map((element2) => ({
-        path: element2.dataset.workspacePath ?? "",
-        top: element2.getBoundingClientRect().top,
-        height: element2.getBoundingClientRect().height,
-      }));
-      const placement = resolveGroupDropPlacement(
-        event.clientY,
-        header?.getBoundingClientRect().bottom ?? 0,
-        rows,
-      );
-      clearPreview();
-      if (sourceProjectId === targetId) {
-        if (
-          placement.kind === "end" ||
-          isUnchangedSidebarPosition(
-            rows.map((row) => row.path),
-            draggedPath,
-            placement.anchorPath,
-            placement.position,
-          )
-        ) {
-          event.dataTransfer.dropEffect = "none";
-          if (drop) onClearDrag();
-          return;
-        }
-        setRowTarget({
-          path: placement.anchorPath,
-          position: placement.position,
-        });
-        if (drop) onRowDrop(event, placement.anchorPath, "recent", placement.position);
-        else onRowOver(event, placement.anchorPath, "recent", placement.position);
-        return;
-      }
-      event.preventDefault();
-      event.dataTransfer.dropEffect = "move";
-      if (placement.kind === "end")
-        setGroupTarget({
-          projectId: targetId,
-        });
-      else
-        setRowTarget({
-          path: placement.anchorPath,
-          position: placement.position,
-        });
-      if (!drop) return;
-      const item = inventory.find((entry) => entry.workspace.path === draggedPath);
-      if (!item) {
-        onClearDrag();
-        return;
-      }
-      const anchor =
-        placement.kind === "relative"
-          ? inventory.find((entry) => entry.workspace.path === placement.anchorPath)
-          : void 0;
-      const sourceName =
-        projects.find((p3) => p3.id === sourceProjectId)?.name ?? t2("project.ungrouped");
-      const targetName = projects.find((p3) => p3.id === targetId)?.name ?? t2("project.ungrouped");
-      setError(null);
-      setPendingMove({
-        input: {
-          workspacePath: draggedPath,
-          expectedSourceProjectId: sourceProjectId,
-          targetProjectId: targetId,
-          placement,
-          visibleWorkspaces: inventory.map((entry) => entry.workspace),
-          caseInsensitive,
-        },
-        summary: {
-          workspaceName: workspaceDisplayName(item.workspace),
-          sourceName,
-          targetName,
-          anchorName: anchor ? workspaceDisplayName(anchor.workspace) : void 0,
-          position: placement.kind === "relative" ? placement.position : void 0,
-          switchToManual: sortMode !== "manual",
-        },
-      });
-      clearPreview();
-      onClearDrag();
-    },
-    [
-      pendingMove,
-      draggedPath,
-      draggedProjectId,
-      sourceSection,
-      sourceProjectId,
-      pinnedProjectIds,
-      inventory,
-      projects,
-      sortMode,
-      caseInsensitive,
-      t2,
-      clearPreview,
-      onClearDrag,
-      onRowOver,
-      onRowDrop,
-      onProjectReorder,
-    ],
-  );
-  const handleCancel = reactExports.useCallback(() => {
-    if (submittingRef.current) return;
-    setPendingMove(null);
-    setError(null);
-  }, []);
-  const handleConfirm = reactExports.useCallback(async () => {
-    if (!pendingMove || submittingRef.current) return;
-    const { input, summary } = pendingMove;
-    const placement = input.placement;
-    const hasPath2 = (path2) =>
-      currentInventory.some(
-        (item) =>
-          projectWorkspaceKey(item.workspace.path, caseInsensitive) ===
-          projectWorkspaceKey(path2, caseInsensitive),
-      );
-    if (
-      !hasPath2(input.workspacePath) ||
-      resolveOwner(input.workspacePath) !== input.expectedSourceProjectId ||
-      (input.targetProjectId !== null && !projects.some((p3) => p3.id === input.targetProjectId)) ||
-      (placement.kind === "relative" &&
-        (!hasPath2(placement.anchorPath) ||
-          resolveOwner(placement.anchorPath) !== input.targetProjectId))
-    ) {
-      setError(t2("project.move.invalid"));
-      return;
-    }
-    submittingRef.current = true;
-    setSubmitting(true);
-    setError(null);
-    try {
-      await onMove(input);
-      onReveal(input.targetProjectId);
-      setCompletedPath(input.workspacePath);
-      setPendingMove(null);
-      dedupedToast.success(
-        t2("project.move.success", {
-          target: summary.targetName,
-        }),
-      );
-    } catch {
-      setError(t2("project.move.failed"));
-    } finally {
-      submittingRef.current = false;
-      setSubmitting(false);
-    }
-  }, [
-    pendingMove,
-    currentInventory,
-    caseInsensitive,
-    resolveOwner,
-    projects,
-    onMove,
-    onReveal,
-    t2,
-  ]);
-  return {
-    groupTarget,
-    rowTarget,
-    projectTarget,
-    pendingMove,
-    submitting,
-    error,
-    completedPath,
-    handleGroupDrag,
-    handleCancel,
-    handleConfirm,
-    clearPreview,
-    temporaryUngrouped:
-      sourceSection === "recent" && draggedPath !== null && sourceProjectId !== null,
-    ungroupedKey: UNGROUPED_RECENT_GROUP_KEY,
-  };
 }

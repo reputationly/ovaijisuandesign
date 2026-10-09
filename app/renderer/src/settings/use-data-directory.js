@@ -1,156 +1,30 @@
 // use-data-directory.js
-import { useTranslation, reactExports, dedupedToast, useQueryClient, useStorage, storageKeys, usePlatform } from "../vendor.js";
-import { hideVisiblePreviewTabs, toastWorkspaceCloseBlocked } from "../assets/apply-asset-change.jsx";
-import { services } from "../vendor-inline/vscode-base/graph.jsx";
+import { instantiation } from "../workspace/home-service.jsx";
+import { hilo$1 } from "./parse-custom-mcp-arguments.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
-import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-resizable-width.js";
-import { IDataDirectoryMainService, instantiation } from "../workspace/browser-inspiration-urls.jsx";
-import { trackEvent } from "../infra/init-track.js";
-import { hilo$1 } from "./instantiation-service.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
 import {
-  getDesktopSettingsMainService,
-  sideEffectErrorKeys,
-  sideEffects,
-} from "../team/delete-account-confirm-dialog.jsx";
-export function useSettings() {
-  const queryClient2 = useQueryClient();
-  const [config2, , setConfigAsync] = useStorage("global.config");
-  const { t: t2 } = useTranslation();
-  const configRef = reactExports.useRef(config2);
-  const requestSeqRef = reactExports.useRef({});
-  const desktopSettingsServiceRef = reactExports.useRef(null);
-  const getDesktopSettingsService = reactExports.useCallback(() => {
-    if (!desktopSettingsServiceRef.current) {
-      desktopSettingsServiceRef.current = getDesktopSettingsMainService();
-    }
-    return desktopSettingsServiceRef.current;
-  }, []);
-  configRef.current = config2;
-  const notifySideEffectError = reactExports.useCallback(
-    (key2) => {
-      const errorKey = sideEffectErrorKeys[key2];
-      if (!errorKey) return;
-      dedupedToast.error(t2(errorKey));
-    },
-    [t2],
-  );
-  const set2 = reactExports.useCallback(
-    async (key2, value) => {
-      const requestId = (requestSeqRef.current[key2] ?? 0) + 1;
-      requestSeqRef.current[key2] = requestId;
-      const prev = configRef.current[key2];
-      const persisted = await setConfigAsync((cfg) => ({
-        ...cfg,
-        [key2]: value,
-      }));
-      if (!persisted) {
-        if (requestSeqRef.current[key2] === requestId) {
-          notifySideEffectError(key2);
-        }
-        return false;
-      }
-      const effect2 = sideEffects[key2];
-      if (!effect2) {
-        trackEvent(TRACK_EVENTS.SETTINGS_CHANGE, {
-          key: key2,
-          value_type: typeof value,
-        });
-        return true;
-      }
-      try {
-        const ok2 = await effect2(getDesktopSettingsService(), value);
-        if (!ok2 && requestSeqRef.current[key2] === requestId) {
-          await setConfigAsync((cfg) => ({
-            ...cfg,
-            [key2]: prev,
-          }));
-          notifySideEffectError(key2);
-        }
-        if (ok2) {
-          trackEvent(TRACK_EVENTS.SETTINGS_CHANGE, {
-            key: key2,
-            value_type: typeof value,
-          });
-        }
-        return ok2;
-      } catch {
-        if (requestSeqRef.current[key2] === requestId) {
-          await setConfigAsync((cfg) => ({
-            ...cfg,
-            [key2]: prev,
-          }));
-          notifySideEffectError(key2);
-        }
-        return false;
-      }
-    },
-    [setConfigAsync, notifySideEffectError, getDesktopSettingsService],
-  );
-  const setMany = reactExports.useCallback(
-    async (patch2) => {
-      const persisted = await setConfigAsync((cfg) => ({
-        ...cfg,
-        ...patch2,
-      }));
-      if (!persisted) return false;
-      for (const key2 of Object.keys(patch2)) {
-        trackEvent(TRACK_EVENTS.SETTINGS_CHANGE, {
-          key: key2,
-          value_type: typeof patch2[key2],
-        });
-      }
-      return true;
-    },
-    [setConfigAsync],
-  );
-  const openNotificationSettings = reactExports.useCallback(async () => {
-    try {
-      const result = await getDesktopSettingsService().openNotificationSettings();
-      if (!result.success) {
-        dedupedToast.error(result.error ?? t2("settings.errors.notificationsFailed"));
-        return false;
-      }
-      return true;
-    } catch {
-      dedupedToast.error(t2("settings.errors.notificationsFailed"));
-      return false;
-    }
-  }, [t2, getDesktopSettingsService]);
-  return {
-    config: config2,
-    set: set2,
-    setMany,
-    saveCustomModel: async (value, providerId) => {
-      try {
-        const { success } = await getDesktopSettingsService().saveCustomModel(value, providerId);
-        if (success)
-          await Promise.all([
-            queryClient2.invalidateQueries({
-              queryKey: storageKeys.global("config"),
-            }),
-            queryClient2.invalidateQueries({
-              queryKey: ACTIVE_CUSTOM_MODEL_QUERY_KEY,
-            }),
-          ]);
-        return success;
-      } catch {
-        return false;
-      }
-    },
-    openNotificationSettings,
-  };
-}
-let _service$3 = null;
-export const DATA_DIRECTORY_STATUS_CHANGED_EVENT = "hilo:data-directory-status-changed";
+  DATA_DIRECTORY_STATUS_CHANGED_EVENT,
+  getDataDirectoryMainService,
+} from "./get-data-directory-main-service.js";
+import {
+  dedupedToast,
+  reactExports,
+  storageKeys,
+  usePlatform,
+  useQueryClient,
+  useTranslation,
+} from "../vendor.js";
+import { useSettings } from "./use-settings.js";
+import {
+  hideVisiblePreviewTabs,
+  toastWorkspaceCloseBlocked,
+} from "../assets/credit-query-keys.jsx";
+
 function notifyDataDirectoryStatusChanged() {
   window.dispatchEvent(new Event(DATA_DIRECTORY_STATUS_CHANGED_EVENT));
 }
-export function getDataDirectoryMainService() {
-  if (!_service$3) {
-    _service$3 = services.get(IDataDirectoryMainService);
-  }
-  return _service$3;
-}
+
 const UNKNOWN_FAILURE = {
   code: "unknown",
   phase: "preflight",
@@ -158,6 +32,7 @@ const UNKNOWN_FAILURE = {
   diagnosticId: "",
   sourcePreserved: true,
 };
+
 const ACTIVE_WORKSPACES_FAILURE = {
   code: "active_workspaces",
   phase: "preflight",
@@ -165,14 +40,18 @@ const ACTIVE_WORKSPACES_FAILURE = {
   diagnosticId: "",
   sourcePreserved: true,
 };
+
 const PREFLIGHT_IPC_TIMEOUT_MS = 3e4;
+
 const ESTIMATE_IPC_TIMEOUT_MS = 6e4;
+
 class DataDirectoryTimeoutError extends Error {
   constructor(operation, timeoutMs) {
     super(`Data directory ${operation} did not respond within ${timeoutMs}ms`);
     this.name = "DataDirectoryTimeoutError";
   }
 }
+
 function withIpcTimeout(work, operation, timeoutMs) {
   return new Promise((resolve, reject) => {
     const timer2 = window.setTimeout(() => {
@@ -194,6 +73,7 @@ function withIpcTimeout(work, operation, timeoutMs) {
     );
   });
 }
+
 function isDirValidationError(error) {
   return (
     error === "drive_root" ||
@@ -203,6 +83,7 @@ function isDirValidationError(error) {
     error === "app_install_dir"
   );
 }
+
 function dataDirectoryRecoveryErrorCode(failure, legacyError) {
   const code2 = failure?.code ?? legacyError;
   if (
@@ -214,11 +95,13 @@ function dataDirectoryRecoveryErrorCode(failure, legacyError) {
   }
   return "migration_failed";
 }
+
 function recoveryModeForPending(mode2) {
   if (mode2 === "recover") return "recovery_merge";
   if (mode2 === "residue") return "default_residue_merge";
   return void 0;
 }
+
 function trackRecovery(mode2, outcome, result, errorCode) {
   trackEvent(TRACK_EVENTS.DATA_DIRECTORY_RECOVERY, {
     outcome,
@@ -231,33 +114,45 @@ function trackRecovery(mode2, outcome, result, errorCode) {
     copied_workspace_count: result?.recovery?.copiedWorkspaceCount ?? 0,
     copied_output_entry_count: result?.recovery?.copiedOutputEntryCount ?? 0,
     conflict_count: result?.recovery?.conflictCount ?? 0,
-    source_preserved: result?.recovery?.sourcePreserved ?? result?.failure?.sourcePreserved ?? true,
+    source_preserved:
+      result?.recovery?.sourcePreserved ??
+      result?.failure?.sourcePreserved ??
+      true,
   });
 }
+
 function trackMigrationBlocked(gate, openWorkspaceCount) {
   trackEvent(TRACK_EVENTS.DATA_DIRECTORY_MIGRATION_BLOCKED, {
     gate,
     open_workspace_count: openWorkspaceCount,
   });
 }
+
 async function hiloApp() {
-  const [{ instantiationService: instantiationService2 }, { IHiloApp: IHiloApp2 }] =
-    await Promise.all([
-      (() => Promise.resolve().then(() => instantiation))(),
-      (() => Promise.resolve().then(() => hilo$1))(),
-    ]);
-  return instantiationService2.invokeFunction((accessor) => accessor.get(IHiloApp2));
+  const [
+    { instantiationService: instantiationService2 },
+    { IHiloApp: IHiloApp2 },
+  ] = await Promise.all([
+    (() => Promise.resolve().then(() => instantiation))(),
+    (() => Promise.resolve().then(() => hilo$1))(),
+  ]);
+  return instantiationService2.invokeFunction((accessor) =>
+    accessor.get(IHiloApp2),
+  );
 }
+
 async function closeOpenWorkspaceViaHiloApp(folderPath) {
   return (await hiloApp()).closeWorkspace(folderPath, {
     source: "settings-storage",
   });
 }
+
 async function closeIdleWorkspacesViaHiloApp() {
   return (await hiloApp()).closeIdleWorkspaces({
     source: "settings-storage",
   });
 }
+
 function normalizeDataDirectoryFailure(failure, legacyError) {
   if (!failure && isDirValidationError(legacyError)) {
     return {
@@ -270,19 +165,17 @@ function normalizeDataDirectoryFailure(failure, legacyError) {
     failure: failure ?? UNKNOWN_FAILURE,
   };
 }
-export function formatBytes$4(bytes2) {
-  if (bytes2 === 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  const unitIndex = Math.floor(Math.log(bytes2) / Math.log(1024));
-  return `${(bytes2 / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
-}
+
 function isSameDataDirectoryPath(left, right, os2) {
   const normalize2 = (value) => {
     const normalized = value.replace(/\\/g, "/").replace(/\/+$/, "");
-    return os2 === "win32" || os2 === "darwin" ? normalized.toLowerCase() : normalized;
+    return os2 === "win32" || os2 === "darwin"
+      ? normalized.toLowerCase()
+      : normalized;
   };
   return normalize2(left) === normalize2(right);
 }
+
 export function useDataDirectory() {
   const { t: t2 } = useTranslation();
   const { config: config2 } = useSettings();
@@ -290,7 +183,8 @@ export function useDataDirectory() {
   const queryClient2 = useQueryClient();
   const [appliedDataDir, setAppliedDataDir] = reactExports.useState(null);
   const [status, setStatus] = reactExports.useState(null);
-  const dataDir = appliedDataDir ?? status?.dataDirectory ?? config2.dataDirectory ?? "";
+  const dataDir =
+    appliedDataDir ?? status?.dataDirectory ?? config2.dataDirectory ?? "";
   const [residue, setResidue] = reactExports.useState(null);
   const [recoverySummary, setRecoverySummary] = reactExports.useState(null);
   const [needsRestart, setNeedsRestart] = reactExports.useState(false);
@@ -309,18 +203,25 @@ export function useDataDirectory() {
     const sequence = ++refreshSequenceRef.current;
     const service2 = getDataDirectoryMainService();
     const [nextStatus, entries2] = await Promise.all([
-      withIpcTimeout(service2.getStatus(), "getStatus", PREFLIGHT_IPC_TIMEOUT_MS),
+      withIpcTimeout(
+        service2.getStatus(),
+        "getStatus",
+        PREFLIGHT_IPC_TIMEOUT_MS,
+      ),
       withIpcTimeout(
         hiloApp().then((app) => app.listWorkspaceEntryStatuses()),
         "listWorkspaceEntryStatuses",
         PREFLIGHT_IPC_TIMEOUT_MS,
       ).catch(() => []),
     ]);
-    if (!mountedRef.current || sequence !== refreshSequenceRef.current) return nextStatus;
+    if (!mountedRef.current || sequence !== refreshSequenceRef.current)
+      return nextStatus;
     setStatus(nextStatus);
     setWorkspaceStatuses(entries2);
     setNeedsRestart(nextStatus.state === "pending_restart");
-    setConfiguredLocationUnavailable(nextStatus.state === "configured_location_unavailable");
+    setConfiguredLocationUnavailable(
+      nextStatus.state === "configured_location_unavailable",
+    );
     setCleanupDeferred(nextStatus.deferredCleanupPaths.length > 0);
     const activeCustom =
       nextStatus.state === "active" &&
@@ -341,7 +242,8 @@ export function useDataDirectory() {
         }
       })
       .catch(() => {
-        if (mountedRef.current && sequence === refreshSequenceRef.current) setResidue(null);
+        if (mountedRef.current && sequence === refreshSequenceRef.current)
+          setResidue(null);
       });
     return nextStatus;
   }, [platform2.app.os]);
@@ -370,12 +272,18 @@ export function useDataDirectory() {
   const configuredDirectory = status?.configuredDirectory ?? dataDir;
   const activeDirectory = status?.activeDirectory ?? configuredDirectory;
   const activeDirectoryIsDefault = status
-    ? isSameDataDirectoryPath(status.activeDirectory, status.defaultDirectory, platform2.app.os)
+    ? isSameDataDirectoryPath(
+        status.activeDirectory,
+        status.defaultDirectory,
+        platform2.app.os,
+      )
     : !dataDir;
   const openWorkspaceCount = status?.openWorkspaceCount ?? 0;
   const openWorkspacePaths = status?.openWorkspacePaths ?? [];
-  const [closingWorkspacePath, setClosingWorkspacePath] = reactExports.useState(null);
-  const [closingIdleWorkspaces, setClosingIdleWorkspaces] = reactExports.useState(false);
+  const [closingWorkspacePath, setClosingWorkspacePath] =
+    reactExports.useState(null);
+  const [closingIdleWorkspaces, setClosingIdleWorkspaces] =
+    reactExports.useState(false);
   const refreshGlobalStorageCache = reactExports.useCallback(async () => {
     try {
       await Promise.all([
@@ -402,7 +310,10 @@ export function useDataDirectory() {
         }),
       ]);
     } catch (refreshError) {
-      const message2 = refreshError instanceof Error ? refreshError.message : String(refreshError);
+      const message2 =
+        refreshError instanceof Error
+          ? refreshError.message
+          : String(refreshError);
       void window.hilo?.logger?.error?.(
         `[storage] Failed to refresh global storage cache after migration: ${message2}`,
         "storage",
@@ -425,7 +336,10 @@ export function useDataDirectory() {
     try {
       await refreshStatus();
     } catch (refreshError) {
-      const message2 = refreshError instanceof Error ? refreshError.message : String(refreshError);
+      const message2 =
+        refreshError instanceof Error
+          ? refreshError.message
+          : String(refreshError);
       void window.hilo?.logger?.error?.(
         `[storage] Failed to refresh data-directory status after migration: ${message2}`,
         "storage",
@@ -455,7 +369,8 @@ export function useDataDirectory() {
         toastWorkspaceCloseBlocked(folderPath, result);
         await refreshStatus();
       } catch (closeError) {
-        const message2 = closeError instanceof Error ? closeError.message : String(closeError);
+        const message2 =
+          closeError instanceof Error ? closeError.message : String(closeError);
         void window.hilo?.logger?.error?.(
           `[storage] Failed to close open workspace from settings: ${message2}`,
           "storage",
@@ -478,7 +393,9 @@ export function useDataDirectory() {
       );
       if (closedPaths.length > 0) hideVisiblePreviewTabs(closedPaths);
       if (nextStatus.openWorkspaceCount === 0) {
-        setMigrationFailure((failure) => (failure?.code === "active_workspaces" ? null : failure));
+        setMigrationFailure((failure) =>
+          failure?.code === "active_workspaces" ? null : failure,
+        );
       }
       notifyDataDirectoryStatusChanged();
       await refreshGlobalStorageCache();
@@ -486,7 +403,8 @@ export function useDataDirectory() {
         dedupedToast.warning(t2("settings.storage.closeIdleProjectsBlocked"));
       }
     } catch (closeError) {
-      const message2 = closeError instanceof Error ? closeError.message : String(closeError);
+      const message2 =
+        closeError instanceof Error ? closeError.message : String(closeError);
       void window.hilo?.logger?.error?.(
         `[storage] Failed to close idle workspaces from settings: ${message2}`,
         "storage",
@@ -495,7 +413,13 @@ export function useDataDirectory() {
     } finally {
       setClosingIdleWorkspaces(false);
     }
-  }, [closingIdleWorkspaces, closingWorkspacePath, refreshGlobalStorageCache, refreshStatus, t2]);
+  }, [
+    closingIdleWorkspaces,
+    closingWorkspacePath,
+    refreshGlobalStorageCache,
+    refreshStatus,
+    t2,
+  ]);
   const applyPendingMigration = reactExports.useCallback(async () => {
     if (!pendingMigration) return;
     setMigrating(true);
@@ -528,7 +452,8 @@ export function useDataDirectory() {
         return;
       }
       if (pendingMigration.mode !== "residue") {
-        const nextCustomRoot = pendingMigration.mode === "reset" ? "" : pendingMigration.targetPath;
+        const nextCustomRoot =
+          pendingMigration.mode === "reset" ? "" : pendingMigration.targetPath;
         setAppliedDataDir(nextCustomRoot);
       }
       setNeedsRestart(result.needsRestart);
@@ -539,18 +464,29 @@ export function useDataDirectory() {
         if (result.recovery) {
           trackRecovery(recoveryMode, "success", result);
         } else {
-          trackRecovery(recoveryMode, "failed", result, "missing_recovery_summary");
+          trackRecovery(
+            recoveryMode,
+            "failed",
+            result,
+            "missing_recovery_summary",
+          );
         }
       }
       setPendingMigration(null);
       await refreshAfterOperation();
     } catch {
       setMigrationFailure(UNKNOWN_FAILURE);
-      if (recoveryMode) trackRecovery(recoveryMode, "failed", void 0, "ipc_error");
+      if (recoveryMode)
+        trackRecovery(recoveryMode, "failed", void 0, "ipc_error");
     } finally {
       setMigrating(false);
     }
-  }, [openWorkspaceCount, pendingMigration, recordFailure, refreshAfterOperation]);
+  }, [
+    openWorkspaceCount,
+    pendingMigration,
+    recordFailure,
+    refreshAfterOperation,
+  ]);
   const handleBrowse = reactExports.useCallback(async () => {
     clearOperationState();
     try {
@@ -587,13 +523,20 @@ export function useDataDirectory() {
         currentStatus.configuredDirectory,
         platform2.app.os,
       );
-      const recoveringUnavailable = currentStatus.state === "configured_location_unavailable";
+      const recoveringUnavailable =
+        currentStatus.state === "configured_location_unavailable";
       if (recoveringUnavailable) {
-        const mode2 = targetIsDefault ? "reset" : targetIsConfigured ? "recover" : "relink";
+        const mode2 = targetIsDefault
+          ? "reset"
+          : targetIsConfigured
+            ? "recover"
+            : "relink";
         setPendingMigration({
           mode: mode2,
           sourcePath:
-            mode2 === "recover" ? currentStatus.activeDirectory : currentStatus.configuredDirectory,
+            mode2 === "recover"
+              ? currentStatus.activeDirectory
+              : currentStatus.configuredDirectory,
           targetPath: selected2,
           warning: validation.warning,
           sourceIsDefault:
@@ -639,7 +582,8 @@ export function useDataDirectory() {
     try {
       setValidating(true);
       const currentStatus = await refreshStatus();
-      const recoveringUnavailable = currentStatus.state === "configured_location_unavailable";
+      const recoveringUnavailable =
+        currentStatus.state === "configured_location_unavailable";
       if (!recoveringUnavailable && currentStatus.openWorkspaceCount > 0) {
         trackMigrationBlocked("reset", currentStatus.openWorkspaceCount);
         setMigrationFailure(ACTIVE_WORKSPACES_FAILURE);
@@ -740,7 +684,12 @@ export function useDataDirectory() {
     } finally {
       setValidating(false);
     }
-  }, [clearOperationState, platform2.app.os, refreshStatus, residue?.available]);
+  }, [
+    clearOperationState,
+    platform2.app.os,
+    refreshStatus,
+    residue?.available,
+  ]);
   const handleConfirmMigration = reactExports.useCallback(() => {
     void applyPendingMigration();
   }, [applyPendingMigration]);

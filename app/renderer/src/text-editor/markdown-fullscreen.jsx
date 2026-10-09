@@ -1,556 +1,1163 @@
 // markdown-fullscreen.jsx
-import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, Undo2, Redo2, useEditor, TableRow$1, TableHeader$1, TableCell$1, src_default$1, TextSelection, EditorContent } from "../vendor.js";
-import { Markdown, AnnotationHighlight, BlurSelectionHighlight, getAnnotationHistorySnapshot } from "./annotation-highlight.js";
-import { Dialog$1 } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { useEditorHistoryShortcuts } from "../canvas/handle-position-style.jsx";
-import { LEAF_PLACEHOLDER, recordProvisionalDiffReviewHistory, getDiffReviewHistorySnapshot, ScrollableMarkdownTable, DIFF_REVIEW_SYNC_META, splitCompletedReviewFromUserEdit, useAnnotations } from "./locate-hunks-in-doc.js";
-import { CanvasActionsContext } from "../media-editing/parse-item.jsx";
-import { useDiffReviewStore } from "./use-diff-review-store.js";
 import {
-  DialogContent$1,
-  DialogHeader$1,
-  DialogTitle$1,
-  DialogFooter$1,
-  DialogDescription$1,
-} from "../media-editing/thumb-chip.jsx";
-import { Button$2 } from "../canvas/use-media-node-actions.jsx";
+  closeDiffReviewHistoryGroup,
+  DIFF_REVIEW_SYNC_META,
+  getDiffReviewHistorySnapshot,
+  LEAF_PLACEHOLDER,
+  MARKDOWN_TABLE_CELL_MAX_WIDTH,
+  recordFinalizedBoundary,
+  replaceEditorMarkdown,
+  restoreEditorSelection,
+  rewindReviewHistory,
+  ScrollableMarkdownTableView,
+} from "./scrollable-markdown-table-view.js";
 import {
-  selectHasPendingHunksForNode,
-  AnnotationGutter,
-  AnnotationInput,
-} from "./table-node-inner.jsx";
-import { useCanvasRootElement } from "../media-editing/comfy-ui-plugin-launcher.jsx";
-import { src_default } from "../generation/use-direct-reference-picker.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { CodeMirrorSourceEditor } from "./code-mirror-source-editor.jsx";
-import { buildPmSelectionState, buildTextareaSelectionState } from "../vendor-inline/codemirror/delete-markup-backward.js";
-import {
-  DiffReviewHighlight,
-  MAX_FIND_MATCHES,
+  buildDeletedBlock,
+  buildDeletedInline,
+  compileFindPattern,
   computeReplacement,
   findMatchesInText,
-  replaceAllInText,
-} from "./diff-review-highlight.js";
+  isInlineTextReplacement,
+  MAX_FIND_MATCHES,
+  paragraphLinePlacement,
+  topLevelBlockAt,
+} from "./paragraph-line-placement.js";
 import {
-  MarkdownTableScrollbars,
-  TableContextMenu,
-  buildFormatItems,
-  extractTableGridAtSelection,
-  preserveMarkdownFidelity,
-  resolveLineHeight,
-  scrollTextareaToOffset,
-  tableDocumentFromGrid,
-} from "./table-context-menu.jsx";
-import {
-  FullscreenShell,
-  SelectionFormatToolbar,
-  TextSaveStatus,
-  decideFullscreenCloseAction,
-  startTextAnnotation,
-  useDebouncedDraftSave,
-  useEditingSelectionReporter,
-  useExternalRevisionSync,
-  useFindEscapeClose,
-} from "../canvas/use-debounced-draft-save.jsx";
-import { useDiffReview } from "./use-diff-review.js";
-import {
-  FIND_MATCH_ACTIVE_CLASS,
-  FindHighlight,
   beginDiffReviewWriteAckEpoch,
-  clearDiffReviewWriteAcks,
-  consumeDiffReviewWriteAck,
-  createDiffReviewWriteAckTracker,
-  enqueueDiffReviewWriteAck,
+  buildDecorations$1,
+  DIFF_REVIEW_WRITE_ACK_TTL_MS,
+  FIND_MATCH_ACTIVE_CLASS,
   findPluginKey,
   hashDiffReviewMarkdown,
-  pendingDiffReviewWriteAckCount,
+  MAX_PENDING_DIFF_REVIEW_WRITE_ACKS,
+  pruneExpiredDiffReviewWriteAcks,
   reconstructDiffReviewBaseline,
-  resetProseMirrorHistory,
-  searchPmDoc,
-  useFindController,
-} from "./use-find-controller.jsx";
+} from "./build-decorations.js";
+import {
+  ActionListPanel,
+  ActionListSeparator,
+  BubbleMenu,
+  commands_exports,
+  Decoration$1,
+  DecorationSet,
+  dedupedToast,
+  EditorContent,
+  Extension,
+  Grid2x2Plus,
+  jsxRuntimeExports,
+  Plugin,
+  PluginKey,
+  reactDomExports,
+  reactExports,
+  redo$1,
+  src_default$1,
+  Table$2,
+  TableCell$1,
+  TableHeader$1,
+  TableRow$1,
+  TextSelection,
+  undo$1,
+  undoDepth$1,
+  useEditor,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import {
   EditorHistoryControls,
   ToolbarBtn,
   ToolbarSeparator$1,
-  serializeMarkdownDocument,
-  useSourceDiffReview,
-} from "./use-source-diff-review.jsx";
-import { useTextConflictResolver, useTextDocumentDirty } from "./use-text-conflict-resolver.jsx";
-import { useTextVersionPanel } from "./use-text-version-preview.jsx";
-function DiffPendingDialog({ open, onDismiss }) {
-  const { t: t2 } = useTranslation();
-  return (
-    <Dialog$1
-      open={open}
-      onOpenChange={(next2) => {
-        if (!next2) onDismiss();
-      }}
-    >
-      <DialogContent$1 showCloseButton={false}>
-        <DialogHeader$1>
-          <DialogTitle$1>{t2("canvas.diffPendingTitle", "还有未处理的修改")}</DialogTitle$1>
-          <DialogDescription$1>
-            {t2(
-              "canvas.diffPendingDescription",
-              "当前还有 AI 修改未处理，请先接受或撤销所有修改后再关闭编辑。",
-            )}
-          </DialogDescription$1>
-        </DialogHeader$1>
-        <DialogFooter$1>
-          <Button$2 variant="default" onClick={onDismiss}>
-            {t2("canvas.diffPendingConfirm", "去处理")}
-          </Button$2>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
-  );
+} from "./editor-history-controls.jsx";
+import {
+  defaultColumnWidth,
+  newColumnId,
+  newRowId,
+  TABLE_DOCUMENT_VERSION,
+} from "../canvas/is-reexecutable-generation-node.js";
+import {
+  getManager,
+  MarkdownTableScrollbarsInner,
+  MenuItem$1,
+  patchBlankLinePadding,
+  patchEntityEscaping,
+  TABLE_OPS,
+  useClampedMenuPosition,
+} from "./table-ops.jsx";
+import { ParagraphIcon } from "../canvas/file-missing-icon.jsx";
+import {
+  BoldIcon,
+  BulletListIcon,
+  ItalicIcon,
+  OrderedListIcon,
+} from "../canvas/generating-media-area.jsx";
+import {
+  buildControls,
+  DIFF_ADD_CLASS,
+  DIFF_CONTROLS_CLASS,
+  diffReviewPluginKey,
+} from "./build-controls.js";
+import { useCanvasActive } from "../media-editing/package.jsx";
+import { useDiffReviewStore } from "./use-diff-review-store.js";
+import {
+  annotationPluginKey,
+  getAnnotationHistorySnapshot,
+  getAnnotationSelectionRanges,
+} from "./configuration2.js";
+import { MarkdownManager } from "./markdown-manager.js";
+import { buildPmSelectionState } from "../vendor-inline/codemirror/delete-markup-backward.js";
+import { DiffPendingDialog } from "./diff-pending-dialog.jsx";
+import { recordProvisionalDiffReviewHistory } from "./record-provisional-diff-review-history.js";
+import { useAnnotations } from "./use-annotations.js";
+import { CanvasActionsContext } from "../media-editing/use-canvas-actions.js";
+import {
+  AnnotationGutter,
+  selectHasPendingHunksForNode,
+} from "./annotation-gutter.jsx";
+import { AnnotationInput } from "./annotation-input.jsx";
+import { useCanvasRootElement } from "../media-editing/director-stage-header-icon.jsx";
+import { src_default } from "../generation/attachment-bar.jsx";
+import { FullscreenShell } from "./find-bar.jsx";
+import {
+  decideFullscreenCloseAction,
+  TextSaveStatus,
+  useEditingSelectionReporter,
+  useFindEscapeClose,
+} from "../canvas/text-save-status.jsx";
+import { useDebouncedDraftSave } from "../canvas/use-debounced-draft-save.js";
+import { useExternalRevisionSync } from "../canvas/use-external-revision-sync.js";
+import { useDiffReview } from "./use-diff-review.js";
+import { useFindController } from "./use-find-controller.js";
+import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
+import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
+import { useTextVersionPanel } from "./use-text-version-panel.jsx";
+
+function assumeContentType(content2, contentType) {
+  if (typeof content2 !== "string") return "json";
+  return contentType;
 }
-function SourceEditorHistoryControls({ editorRef, availability }) {
-  const { t: t2 } = useTranslation();
-  return (
-    <>
-      <ToolbarBtn
-        item={{
-          id: "undo",
-          label: t2("canvas.undo", "Undo"),
-          icon: <Undo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
-          disabled: !availability.canUndo,
-          onClick: () => {
-            editorRef.current?.focus();
-            editorRef.current?.undo();
+
+const Markdown = Extension.create({
+  name: "markdown",
+  addOptions() {
+    return {
+      indentation: {
+        style: "space",
+        size: 2,
+      },
+      marked: void 0,
+      markedOptions: {},
+    };
+  },
+  addCommands() {
+    return {
+      setContent: (content2, options) => {
+        if (
+          !(options === null || options === void 0
+            ? void 0
+            : options.contentType)
+        )
+          return commands_exports.setContent(content2, options);
+        if (
+          assumeContentType(
+            content2,
+            options === null || options === void 0
+              ? void 0
+              : options.contentType,
+          ) !== "markdown" ||
+          !this.editor.markdown
+        )
+          return commands_exports.setContent(content2, options);
+        const mdContent = this.editor.markdown.parse(content2);
+        return commands_exports.setContent(mdContent, options);
+      },
+      insertContent: (value, options) => {
+        if (
+          !(options === null || options === void 0
+            ? void 0
+            : options.contentType)
+        )
+          return commands_exports.insertContent(value, options);
+        if (
+          assumeContentType(
+            value,
+            options === null || options === void 0
+              ? void 0
+              : options.contentType,
+          ) !== "markdown" ||
+          !this.editor.markdown
+        )
+          return commands_exports.insertContent(value, options);
+        const mdContent = this.editor.markdown.parse(value);
+        return commands_exports.insertContent(mdContent, options);
+      },
+      insertContentAt: (position2, value, options) => {
+        if (
+          !(options === null || options === void 0
+            ? void 0
+            : options.contentType)
+        )
+          return commands_exports.insertContentAt(position2, value, options);
+        if (
+          assumeContentType(
+            value,
+            options === null || options === void 0
+              ? void 0
+              : options.contentType,
+          ) !== "markdown" ||
+          !this.editor.markdown
+        )
+          return commands_exports.insertContentAt(position2, value, options);
+        const mdContent = this.editor.markdown.parse(value);
+        return commands_exports.insertContentAt(position2, mdContent, options);
+      },
+    };
+  },
+  addStorage() {
+    return {
+      manager: new MarkdownManager({
+        indentation: this.options.indentation,
+        marked: this.options.marked,
+        markedOptions: this.options.markedOptions,
+        extensions: [],
+      }),
+    };
+  },
+  onBeforeCreate() {
+    var _json$content;
+    if (this.editor.markdown) {
+      console.error(
+        "[tiptap][markdown]: There is already a `markdown` property on the editor instance. This might lead to unexpected behavior.",
+      );
+      return;
+    }
+    this.storage.manager = new MarkdownManager({
+      indentation: this.options.indentation,
+      marked: this.options.marked,
+      markedOptions: this.options.markedOptions,
+      extensions: this.editor.extensionManager.baseExtensions,
+    });
+    this.editor.markdown = this.storage.manager;
+    this.editor.getMarkdown = () => {
+      return this.storage.manager.serialize(this.editor.getJSON());
+    };
+    if (!this.editor.options.contentType) return;
+    if (
+      assumeContentType(
+        this.editor.options.content,
+        this.editor.options.contentType,
+      ) !== "markdown"
+    )
+      return;
+    if (!this.editor.markdown)
+      throw new Error(
+        '[tiptap][markdown]: The `contentType` option is set to "markdown", but the Markdown extension is not added to the editor. Please add the Markdown extension to use this feature.',
+      );
+    if (
+      this.editor.options.content === void 0 ||
+      typeof this.editor.options.content !== "string"
+    )
+      throw new Error(
+        '[tiptap][markdown]: The `contentType` option is set to "markdown", but the initial content is not a string. Please provide the initial content as a markdown string.',
+      );
+    const json2 = this.editor.markdown.parse(this.editor.options.content);
+    if (
+      (_json$content = json2.content) === null || _json$content === void 0
+        ? void 0
+        : _json$content.length
+    )
+      this.editor.options.content = json2;
+  },
+});
+
+const ANNOTATION_CLASS = "canvas-annotation-mark";
+
+const ANNOTATION_ACTIVE_CLASS = "canvas-annotation-mark-active";
+
+const AnnotationHighlight = Extension.create({
+  name: "canvasAnnotation",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: annotationPluginKey,
+        state: {
+          init() {
+            return {
+              marks: [],
+              activeId: null,
+            };
           },
-          dataActionUiId: "canvas-text-undo",
-        }}
-      />
-      <ToolbarBtn
-        item={{
-          id: "redo",
-          label: t2("canvas.redo", "Redo"),
-          icon: <Redo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
-          disabled: !availability.canRedo,
-          onClick: () => {
-            editorRef.current?.focus();
-            editorRef.current?.redo();
+          apply(tr2, prev) {
+            const meta2 = tr2.getMeta(annotationPluginKey);
+            const historySnapshot = getAnnotationHistorySnapshot(tr2);
+            let next2 = historySnapshot
+              ? {
+                  marks: historySnapshot.marks.map((mark2) => ({
+                    ...mark2,
+                  })),
+                  activeId: null,
+                }
+              : prev;
+            if (!historySnapshot && meta2) {
+              switch (meta2.kind) {
+                case "add":
+                  next2 = {
+                    ...next2,
+                    marks: [...next2.marks, meta2.mark],
+                  };
+                  break;
+                case "remove":
+                  next2 = {
+                    marks: next2.marks.filter((m3) => m3.id !== meta2.id),
+                    activeId:
+                      next2.activeId === meta2.id ? null : next2.activeId,
+                  };
+                  break;
+                case "clear":
+                  next2 = {
+                    marks: [],
+                    activeId: null,
+                  };
+                  break;
+                case "setActive":
+                  next2 = {
+                    ...next2,
+                    activeId: meta2.id,
+                  };
+                  break;
+              }
+            }
+            if (tr2.docChanged && !historySnapshot) {
+              const mapped = next2.marks.map((m3) => ({
+                id: m3.id,
+                from: tr2.mapping.map(m3.from, -1),
+                to: tr2.mapping.map(m3.to, 1),
+              }));
+              next2 = {
+                ...next2,
+                marks: mapped,
+              };
+            }
+            return next2;
           },
-          dataActionUiId: "canvas-text-redo",
-        }}
-      />
-    </>
-  );
+        },
+        props: {
+          decorations(state2) {
+            const pluginState = annotationPluginKey.getState(state2);
+            if (!pluginState) return DecorationSet.empty;
+            const decorations2 = pluginState.marks
+              .filter(
+                (m3) => m3.from < m3.to && m3.to <= state2.doc.content.size,
+              )
+              .map((m3) =>
+                Decoration$1.inline(m3.from, m3.to, {
+                  class:
+                    m3.id === pluginState.activeId
+                      ? `${ANNOTATION_CLASS} ${ANNOTATION_ACTIVE_CLASS}`
+                      : ANNOTATION_CLASS,
+                  "data-annotation-id": m3.id,
+                }),
+              );
+            return DecorationSet.create(state2.doc, decorations2);
+          },
+        },
+      }),
+    ];
+  },
+});
+
+const BLUR_SELECTION_CLASS = "canvas-blur-selection";
+
+const blurSelectionPluginKey = new PluginKey("canvasBlurSelectionHighlight");
+
+const BlurSelectionHighlight = Extension.create({
+  name: "canvasBlurSelectionHighlight",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: blurSelectionPluginKey,
+        state: {
+          init() {
+            return false;
+          },
+          apply(tr2, prev) {
+            const meta2 = tr2.getMeta(blurSelectionPluginKey);
+            return meta2 ?? prev;
+          },
+        },
+        props: {
+          handleDOMEvents: {
+            focus(view2) {
+              if (blurSelectionPluginKey.getState(view2.state)) {
+                const tr2 = view2.state.tr.setMeta(
+                  blurSelectionPluginKey,
+                  false,
+                );
+                if (!view2.state.selection.empty) {
+                  tr2.setSelection(
+                    TextSelection.near(view2.state.selection.$head),
+                  );
+                }
+                view2.dispatch(tr2);
+              }
+              return false;
+            },
+            blur(view2) {
+              if (!blurSelectionPluginKey.getState(view2.state)) {
+                view2.dispatch(
+                  view2.state.tr.setMeta(blurSelectionPluginKey, true),
+                );
+              }
+              return false;
+            },
+          },
+          decorations(state2) {
+            if (!blurSelectionPluginKey.getState(state2)) return null;
+            const ranges = getAnnotationSelectionRanges(state2.selection);
+            if (ranges.length === 0) return null;
+            return DecorationSet.create(
+              state2.doc,
+              ranges.map(({ from: from2, to }) =>
+                Decoration$1.inline(from2, to, {
+                  class: BLUR_SELECTION_CLASS,
+                }),
+              ),
+            );
+          },
+        },
+      }),
+    ];
+  },
+});
+
+function buildFormatItems(editor, t2) {
+  return [
+    {
+      id: "h1",
+      label: t2("canvas.heading1"),
+      icon: (
+        <span className="text-[13px] font-semibold leading-none">
+          H<sub className="text-[9px]">1</sub>
+        </span>
+      ),
+      onClick: () =>
+        editor
+          .chain()
+          .focus()
+          .toggleHeading({
+            level: 1,
+          })
+          .run(),
+    },
+    {
+      id: "h2",
+      label: t2("canvas.heading2"),
+      icon: (
+        <span className="text-[13px] font-semibold leading-none">
+          H<sub className="text-[9px]">2</sub>
+        </span>
+      ),
+      onClick: () =>
+        editor
+          .chain()
+          .focus()
+          .toggleHeading({
+            level: 2,
+          })
+          .run(),
+    },
+    {
+      id: "h3",
+      label: t2("canvas.heading3"),
+      icon: (
+        <span className="text-[13px] font-semibold leading-none">
+          H<sub className="text-[9px]">3</sub>
+        </span>
+      ),
+      onClick: () =>
+        editor
+          .chain()
+          .focus()
+          .toggleHeading({
+            level: 3,
+          })
+          .run(),
+    },
+    {
+      id: "paragraph",
+      label: t2("canvas.paragraph"),
+      icon: <ParagraphIcon />,
+      onClick: () => editor.chain().focus().setParagraph().run(),
+    },
+    {
+      id: "bold",
+      label: t2("canvas.bold"),
+      icon: <BoldIcon />,
+      separator: true,
+      onClick: () => editor.chain().focus().toggleBold().run(),
+    },
+    {
+      id: "italic",
+      label: t2("canvas.italic"),
+      icon: <ItalicIcon />,
+      onClick: () => editor.chain().focus().toggleItalic().run(),
+    },
+    {
+      id: "bullet-list",
+      label: t2("canvas.bulletList"),
+      icon: <BulletListIcon />,
+      separator: true,
+      onClick: () => editor.chain().focus().toggleBulletList().run(),
+    },
+    {
+      id: "ordered-list",
+      label: t2("canvas.orderedList"),
+      icon: <OrderedListIcon />,
+      onClick: () => editor.chain().focus().toggleOrderedList().run(),
+    },
+  ];
 }
-export function SourceTextFullscreen({
-  initialMarkdown,
+
+function preserveMarkdownFidelity(editor) {
+  const manager = getManager(editor);
+  if (!manager) return;
+  patchEntityEscaping(manager);
+  patchBlankLinePadding(manager);
+}
+
+const MarkdownTableScrollbars = reactExports.memo(MarkdownTableScrollbarsInner);
+
+function extractTableGridAtSelection(editor) {
+  const { $from } = editor.state.selection;
+  let tableNode = null;
+  for (let depth2 = $from.depth; depth2 > 0; depth2--) {
+    const node2 = $from.node(depth2);
+    if (node2.type.name === "table") {
+      tableNode = node2;
+      break;
+    }
+  }
+  if (!tableNode) return null;
+  let headers = null;
+  const rows = [];
+  tableNode.forEach((row) => {
+    if (row.type.name !== "tableRow") return;
+    const cells2 = [];
+    let isHeaderRow = false;
+    row.forEach((cell) => {
+      if (cell.type.name === "tableHeader") isHeaderRow = true;
+      cells2.push(cell.textContent.trim());
+    });
+    if (isHeaderRow && headers === null) headers = cells2;
+    else rows.push(cells2);
+  });
+  if (headers === null) {
+    const first2 = rows.shift();
+    if (!first2) return null;
+    headers = first2;
+  }
+  if (headers.length === 0) return null;
+  return {
+    headers,
+    rows,
+  };
+}
+
+function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
+  const columns = grid.headers.map((title) => ({
+    id: newColumnId(),
+    title: title.trim() || untitledColumn,
+    type: "text",
+    visible: true,
+    width: defaultColumnWidth("text"),
+  }));
+  const rows = grid.rows.map((cells2) => {
+    const row = {
+      id: newRowId(),
+      cells: {},
+    };
+    columns.forEach((col, i2) => {
+      row.cells[col.id] = cells2[i2] ?? "";
+    });
+    return row;
+  });
+  return {
+    version: TABLE_DOCUMENT_VERSION,
+    columns,
+    rows,
+  };
+}
+
+function TableContextMenu({
+  editor,
+  position: position2,
   onClose,
-  onDraftChange,
-  externalRevision,
-  onEditingSelectionChange,
-  subscribeAnnotationCommand,
-  documentPath,
-  sourceNodeId,
-  editorKind,
+  onConvertToNode,
 }) {
   const { t: t2 } = useTranslation();
-  const textareaRef = reactExports.useRef(null);
-  const codeMirrorRef = reactExports.useRef(null);
-  const isCodeMirror = editorKind === "codemirror";
-  const closedRef = reactExports.useRef(false);
-  const userEditedRef = reactExports.useRef(false);
-  const externalUpdatedWhileEditingRef = reactExports.useRef(false);
-  const externalMarkdownRef = reactExports.useRef(initialMarkdown);
-  externalMarkdownRef.current = initialMarkdown;
-  const dirtyState = useTextDocumentDirty();
-  const markDirty = dirtyState.markDirty;
-  const [diffPendingOpen, setDiffPendingOpen] = reactExports.useState(false);
-  const {
-    status: draftSaveStatus,
-    setLatestDraft,
-    scheduleDraftSaveFrom,
-    pauseDraftSave,
-    resumeDraftSave,
-    forceDraftSave,
-    flushDraftSave,
-    flushDraftSaveAsync,
-    resetBaseline,
-  } = useDebouncedDraftSave(initialMarkdown, onDraftChange);
-  const getCurrentValue = reactExports.useCallback(
-    () =>
-      isCodeMirror
-        ? (codeMirrorRef.current?.getValue() ?? initialMarkdown)
-        : (textareaRef.current?.value ?? initialMarkdown),
-    [initialMarkdown, isCodeMirror],
-  );
-  const setCurrentValue = reactExports.useCallback(
-    (value) => {
-      if (isCodeMirror) codeMirrorRef.current?.setValue(value);
-      else if (textareaRef.current) textareaRef.current.value = value;
-    },
-    [isCodeMirror],
-  );
-  const getCurrentSelectionState = reactExports.useCallback(() => {
-    if (isCodeMirror)
-      return (
-        codeMirrorRef.current?.getSelectionState() ?? {
-          anchor: null,
-        }
-      );
-    const el = textareaRef.current;
-    return el
-      ? buildTextareaSelectionState(el.value, el.selectionStart, el.selectionEnd)
-      : {
-          anchor: null,
-        };
-  }, [isCodeMirror]);
-  const focusCurrentEditor = reactExports.useCallback(() => {
-    if (isCodeMirror) codeMirrorRef.current?.focus();
-    else textareaRef.current?.focus();
-  }, [isCodeMirror]);
-  const applySync = reactExports.useCallback(
-    (md) => {
-      const current2 = getCurrentValue();
-      if (current2 !== md) markDirty();
-      setCurrentValue(md);
-      return true;
-    },
-    [getCurrentValue, markDirty, setCurrentValue],
-  );
-  const handleSourceReviewDocumentApplied = reactExports.useCallback(
-    (markdown2) => {
-      if (getCurrentValue() !== markdown2) applySync(markdown2);
-      resetBaseline(markdown2);
-    },
-    [applySync, getCurrentValue, resetBaseline],
-  );
-  const sourceDiffReview = useSourceDiffReview(sourceNodeId, {
-    sourceMarkdown: initialMarkdown,
-    readCurrentMarkdown: getCurrentValue,
-    onReviewDocumentApplied: handleSourceReviewDocumentApplied,
+  const { menuRef, clampedPosition } = useClampedMenuPosition({
+    position: position2,
+    estimatedWidth: 208,
+    estimatedHeight: 360,
   });
-  const sourceDiffReviewActiveRef = reactExports.useRef(sourceDiffReview.active);
-  sourceDiffReviewActiveRef.current = sourceDiffReview.active;
-  const getMineMarkdown = reactExports.useCallback(() => getCurrentValue(), [getCurrentValue]);
-  const handleConflictResolved = reactExports.useCallback(
-    (merged) => {
-      externalUpdatedWhileEditingRef.current = false;
-      if (getCurrentValue() !== merged) applySync(merged);
-      const activeReview = useDiffReviewStore.getState().session;
-      if (activeReview && activeReview.nodeId === sourceNodeId) {
-        useDiffReviewStore.getState().finishSessionForUserEdit(activeReview.requestId);
-      }
-      userEditedRef.current = true;
-      forceDraftSave(merged);
-    },
-    [applySync, forceDraftSave, getCurrentValue, sourceNodeId],
-  );
-  const conflict = useTextConflictResolver({
-    getMineMarkdown,
-    onResolved: handleConflictResolved,
-  });
-  const openConflict = conflict.open;
-  const handleExternalConflict = reactExports.useCallback(
-    (external) => {
-      if (openConflict(external)) return;
-      const current2 = getCurrentValue();
-      externalUpdatedWhileEditingRef.current = false;
-      resetBaseline(external);
-      resumeDraftSave();
-      if (current2 !== external) scheduleDraftSaveFrom(getCurrentValue);
-    },
-    [getCurrentValue, openConflict, resetBaseline, resumeDraftSave, scheduleDraftSaveFrom],
-  );
-  useExternalRevisionSync({
-    externalRevision,
-    externalMarkdown: initialMarkdown,
-    userEditedRef,
-    externalUpdatedWhileEditingRef,
-    applySync,
-    resetBaseline,
-    onConflictLatch: pauseDraftSave,
-    onConflict: handleExternalConflict,
-  });
-  const finalizeClose = reactExports.useCallback(
-    (md) => {
-      if (closedRef.current) return;
-      closedRef.current = true;
-      onClose(md);
-    },
-    [onClose],
-  );
-  const handleClose = reactExports.useCallback(() => {
-    if (closedRef.current) return;
-    if (conflict.active) {
-      dedupedToast.error(t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"));
-      return;
-    }
-    if (sourceDiffReviewActiveRef.current) {
-      setDiffPendingOpen(true);
-      return;
-    }
-    const action = decideFullscreenCloseAction({
-      userEdited: userEditedRef.current,
-      externalUpdatedWhileEditing: externalUpdatedWhileEditingRef.current,
-    });
-    if (action === "close-without-save") {
-      finalizeClose();
-      return;
-    }
-    setLatestDraft(getCurrentValue());
-    if (action === "show-conflict") {
-      openConflict(externalMarkdownRef.current);
-      return;
-    }
-    const markdown2 = flushDraftSave();
-    finalizeClose(onDraftChange ? void 0 : markdown2);
-  }, [
-    conflict.active,
-    finalizeClose,
-    flushDraftSave,
-    getCurrentValue,
-    onDraftChange,
-    openConflict,
-    setLatestDraft,
-    t2,
-  ]);
-  const scheduleSelectionReport = useEditingSelectionReporter(onEditingSelectionChange);
-  const reportSourceSelection = reactExports.useCallback(() => {
-    scheduleSelectionReport(getCurrentSelectionState);
-  }, [getCurrentSelectionState, scheduleSelectionReport]);
   reactExports.useEffect(() => {
-    if (!subscribeAnnotationCommand) return;
-    return subscribeAnnotationCommand((cmd2) => {
-      if (cmd2.type !== "clearSelection") return;
-      if (isCodeMirror) {
-        codeMirrorRef.current?.clearSelection();
-      } else {
-        const el = textareaRef.current;
-        if (el && el.selectionStart !== el.selectionEnd) {
-          el.setSelectionRange(el.selectionEnd, el.selectionEnd);
-        }
+    const handleMouseDown2 = (e2) => {
+      if (menuRef.current && !menuRef.current.contains(e2.target)) {
+        onClose();
       }
-      reportSourceSelection();
-    });
-  }, [subscribeAnnotationCommand, isCodeMirror, reportSourceSelection]);
-  const findRef = reactExports.useRef(null);
-  const handleDocumentChange = reactExports.useCallback(
-    (readValue) => {
-      userEditedRef.current = true;
-      markDirty();
-      scheduleDraftSaveFrom(readValue);
-      findRef.current?.refresh();
-      reportSourceSelection();
-    },
-    [markDirty, reportSourceSelection, scheduleDraftSaveFrom],
-  );
-  const [sourceHistory, setSourceHistory] = reactExports.useState({
-    canUndo: false,
-    canRedo: false,
-  });
-  const handleHistoryAvailabilityChange = reactExports.useCallback((next2) => {
-    setSourceHistory((current2) =>
-      current2.canUndo === next2.canUndo && current2.canRedo === next2.canRedo ? current2 : next2,
-    );
-  }, []);
-  const lineHeightRef = reactExports.useRef(null);
-  const findAdapter = reactExports.useMemo(
-    () => ({
-      search(query, options) {
-        if (isCodeMirror) {
-          const result = codeMirrorRef.current?.findMatches(query, options, MAX_FIND_MATCHES);
-          return {
-            matches: result?.matches ?? [],
-            limited: result?.limited ?? false,
-            caretPos: codeMirrorRef.current?.getCaretPosition() ?? 0,
-          };
-        }
-        const value = getCurrentValue();
-        const { matches: matches2, limited } = findMatchesInText(value, query, options, {
-          maxMatches: MAX_FIND_MATCHES,
-        });
-        return {
-          matches: matches2,
-          limited,
-          caretPos: textareaRef.current?.selectionStart ?? 0,
-        };
-      },
-      activate(matches2, index2) {
-        const match2 = matches2[index2];
-        if (!match2) return;
-        if (isCodeMirror) {
-          codeMirrorRef.current?.setFindMatches(matches2, index2);
-          return;
-        }
-        const el = textareaRef.current;
-        if (!el) return;
-        el.setSelectionRange(match2.from, match2.to);
-        lineHeightRef.current ??= resolveLineHeight(el);
-        scrollTextareaToOffset(el, match2.from, lineHeightRef.current);
-      },
-      clear() {
-        if (isCodeMirror) codeMirrorRef.current?.clearFindMatches();
-      },
-      getSelectedText() {
-        if (isCodeMirror) return codeMirrorRef.current?.getSelectedText() ?? "";
-        const el = textareaRef.current;
-        if (!el || el.selectionStart == null || el.selectionEnd == null) return "";
-        return el.value.slice(el.selectionStart, el.selectionEnd);
-      },
-      focusEditor: focusCurrentEditor,
-      replaceOne(match2, query, options, replacement) {
-        const matchedText = isCodeMirror
-          ? (codeMirrorRef.current?.getText(match2.from, match2.to) ?? "")
-          : getCurrentValue().slice(match2.from, match2.to);
-        const expanded = computeReplacement(matchedText, query, options, replacement);
-        if (isCodeMirror) {
-          codeMirrorRef.current?.replaceRange(match2.from, match2.to, expanded);
-          return;
-        }
-        const el = textareaRef.current;
-        if (!el) return;
-        el.setRangeText(expanded, match2.from, match2.to, "end");
-        handleDocumentChange(() => el.value);
-      },
-      replaceAll(query, options, replacement) {
-        if (isCodeMirror) {
-          codeMirrorRef.current?.replaceAll(query, options, replacement);
-          return;
-        }
-        const { text: text2, count: count2 } = replaceAllInText(
-          getCurrentValue(),
-          query,
-          options,
-          replacement,
-        );
-        if (count2 === 0) return;
-        const el = textareaRef.current;
-        if (!el) return;
-        el.value = text2;
-        handleDocumentChange(() => el.value);
-      },
-    }),
-    [focusCurrentEditor, getCurrentValue, handleDocumentChange, isCodeMirror],
-  );
-  const find2 = useFindController(findAdapter);
-  findRef.current = find2;
-  useFindEscapeClose(find2, handleClose);
-  const handleInput = reactExports.useCallback(
-    (e2) => {
-      const el = e2.currentTarget;
-      handleDocumentChange(() => el.value);
-    },
-    [handleDocumentChange],
-  );
-  const flushForVersionSave = reactExports.useCallback(async () => {
-    setLatestDraft(getCurrentValue());
-    await flushDraftSaveAsync();
-  }, [flushDraftSaveAsync, getCurrentValue, setLatestDraft]);
-  const prepareForVersionReplace = reactExports.useCallback(async () => {
-    await flushForVersionSave();
-    userEditedRef.current = false;
-    externalUpdatedWhileEditingRef.current = false;
-  }, [flushForVersionSave]);
-  const versionPanel = useTextVersionPanel({
-    path: documentPath,
-    ...(sourceNodeId
-      ? {
-          nodeId: sourceNodeId,
-        }
-      : {}),
-    flushBeforeSave: flushForVersionSave,
-    prepareForReplace: prepareForVersionReplace,
-    // Snapshotting mid-review/conflict would checkpoint a document the user
-    // has not finished resolving — same reason closing is blocked.
-    disabled: sourceDiffReview.active || conflict.active,
-    dirty: dirtyState,
-    getContent: getCurrentValue,
-  });
-  const sourceEditorBlocked = sourceDiffReview.active || conflict.active || versionPanel.previewing;
-  reactExports.useEffect(() => {
-    if (sourceEditorBlocked) return;
-    requestAnimationFrame(focusCurrentEditor);
-  }, [focusCurrentEditor, sourceEditorBlocked]);
-  reactExports.useEffect(() => {
-    if (!sourceEditorBlocked) return;
-    const activeElement2 = document.activeElement;
-    if (!(activeElement2 instanceof HTMLElement)) return;
-    const belongsToSourceEditor =
-      activeElement2 === textareaRef.current ||
-      activeElement2.closest('[data-action-ui-id="canvas-text-large-markdown-editor"]') !== null;
-    if (belongsToSourceEditor) activeElement2.blur();
-  }, [sourceEditorBlocked]);
-  return (
-    <FullscreenShell
-      find={find2}
-      onClose={handleClose}
-      saveStatus={
-        <TextSaveStatus draftStatus={draftSaveStatus} versionSaving={versionPanel.versionSaving} />
+    };
+    const handleKeyDown2 = (e2) => {
+      if (e2.key === "Escape") {
+        e2.stopPropagation();
+        onClose();
       }
-      hideFind={sourceEditorBlocked}
-      hideClose={versionPanel.previewing}
-      headerLeft={
-        conflict.active
-          ? conflict.headerLeft
-          : sourceDiffReview.active
-            ? sourceDiffReview.headerLeft
-            : versionPanel.previewHeaderLeft
-      }
-      toolbarActions={
-        conflict.active ? (
-          conflict.toolbarActions
-        ) : sourceDiffReview.active ? (
-          sourceDiffReview.toolbarActions
-        ) : versionPanel.previewing ? (
-          versionPanel.previewToolbar
-        ) : isCodeMirror ? (
-          <>
-            <SourceEditorHistoryControls editorRef={codeMirrorRef} availability={sourceHistory} />
-            <ToolbarSeparator$1 />
-            {versionPanel.toolbarButtons}
-          </>
-        ) : (
-          versionPanel.toolbarButtons
-        )
-      }
-      overlay={
-        conflict.active
-          ? conflict.body
-          : sourceDiffReview.active
-            ? sourceDiffReview.body
-            : versionPanel.preview
-      }
-      editorOwnsScroll={true}
+    };
+    const timer2 = setTimeout(() => {
+      document.addEventListener("mousedown", handleMouseDown2);
+      document.addEventListener("keydown", handleKeyDown2, {
+        capture: true,
+      });
+    }, 0);
+    return () => {
+      clearTimeout(timer2);
+      document.removeEventListener("mousedown", handleMouseDown2);
+      document.removeEventListener("keydown", handleKeyDown2, {
+        capture: true,
+      });
+    };
+  }, [menuRef, onClose]);
+  return reactDomExports.createPortal(
+    <ActionListPanel
+      ref={menuRef}
+      data-testid="canvas-table-context-menu"
+      className="min-w-52 max-h-[calc(100vh-16px)] overflow-y-auto"
+      style={{
+        position: "fixed",
+        top: clampedPosition.y,
+        left: clampedPosition.x,
+        // Above the fullscreen modal (z-[9999] in text-fullscreen.tsx).
+        zIndex: 1e4,
+        animation: "context-menu-in 0.12s ease-out",
+      }}
     >
-      <div
-        className="h-full min-h-0 w-full"
-        inert={sourceEditorBlocked ? true : void 0}
-        aria-hidden={sourceEditorBlocked ? true : void 0}
-        data-action-ui-id="canvas-text-source-editor-surface"
-      >
-        {isCodeMirror ? (
-          <CodeMirrorSourceEditor
-            ref={codeMirrorRef}
-            initialValue={initialMarkdown}
-            readOnly={sourceEditorBlocked}
-            onDocumentChange={handleDocumentChange}
-            onSelectionChange={reportSourceSelection}
-            onHistoryAvailabilityChange={handleHistoryAvailabilityChange}
+      {TABLE_OPS.map((op) =>
+        jsxRuntimeExports.jsxs(
+          reactExports.Fragment,
+          {
+            children: [
+              op.groupStart && <ActionListSeparator />,
+              <MenuItem$1
+                actionId={op.id}
+                destructive={op.destructive}
+                icon={<op.Icon size={16} strokeWidth={1.5} />}
+                label={t2(op.labelKey)}
+                onClick={() => {
+                  op.run(editor);
+                  onClose();
+                }}
+              />,
+            ],
+          },
+          op.id,
+        ),
+      )}
+      {onConvertToNode && (
+        <>
+          <ActionListSeparator />
+          <MenuItem$1
+            actionId="convert-to-node"
+            icon={<Grid2x2Plus size={16} strokeWidth={1.5} />}
+            label={t2("canvas.mdTable.toNode")}
+            onClick={() => {
+              onConvertToNode();
+              onClose();
+            }}
           />
-        ) : (
-          <textarea
-            ref={textareaRef}
-            defaultValue={initialMarkdown}
-            readOnly={sourceEditorBlocked}
-            onInput={handleInput}
-            onSelect={reportSourceSelection}
-            spellCheck={false}
-            className="canvas-text-fullscreen-plain-editor h-full w-full resize-none border-0 bg-transparent py-4 pr-8 text-sm text-foreground outline-none whitespace-pre-wrap break-words"
-          />
-        )}
-      </div>
-      {versionPanel.dialog}
-      <DiffPendingDialog open={diffPendingOpen} onDismiss={() => setDiffPendingOpen(false)} />
-    </FullscreenShell>
+        </>
+      )}
+    </ActionListPanel>,
+    document.body,
   );
 }
+
+function useEditorHistoryShortcuts(editor, nodeId) {
+  const active2 = useCanvasActive();
+  const editorRef = reactExports.useRef(editor);
+  editorRef.current = editor;
+  reactExports.useEffect(() => {
+    if (!active2) return;
+    const isNativeTextInput = (target) =>
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" || target.tagName === "TEXTAREA");
+    const run2 = (redo2, event) => {
+      if (isNativeTextInput(event.target)) return;
+      const current2 = editorRef.current;
+      if (!current2) return;
+      const reviewState = useDiffReviewStore.getState();
+      const reviewSession = reviewState.session;
+      const reviewUndoBlocked =
+        !redo2 &&
+        reviewSession !== null &&
+        reviewSession.nodeId === nodeId &&
+        (reviewSession.baselineMarkdown === void 0 ||
+          undoDepth$1(current2.state) <=
+            (reviewSession.historyDepthAtStart ?? 0) + 1);
+      if (reviewState.reverting || reviewUndoBlocked) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        return;
+      }
+      const handled = redo2
+        ? redo$1(current2.state, current2.view.dispatch)
+        : undo$1(current2.state, current2.view.dispatch);
+      if (!handled) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    };
+    const handleKeyDown2 = (event) => {
+      if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+      const key2 = event.key.toLowerCase();
+      if (key2 === "z") {
+        run2(event.shiftKey, event);
+      } else if (key2 === "y" && event.ctrlKey && !event.shiftKey) {
+        run2(true, event);
+      }
+    };
+    const handleBeforeInput = (event) => {
+      if (event.inputType === "historyUndo") run2(false, event);
+      else if (event.inputType === "historyRedo") run2(true, event);
+    };
+    document.addEventListener("keydown", handleKeyDown2, true);
+    document.addEventListener("beforeinput", handleBeforeInput, true);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown2, true);
+      document.removeEventListener("beforeinput", handleBeforeInput, true);
+    };
+  }, [active2, nodeId]);
+}
+
+function splitCompletedReviewFromUserEdit(
+  editor,
+  baselineMarkdown,
+  reviewedMarkdown,
+  userMarkdown,
+  historyDepthAtStart = 0,
+) {
+  if (editor.isDestroyed) return;
+  const selection2 = editor.state.selection.toJSON();
+  const selectionPosition = editor.state.selection.from;
+  rewindReviewHistory(editor, historyDepthAtStart);
+  if (editor.getMarkdown() !== baselineMarkdown) {
+    replaceEditorMarkdown(editor, baselineMarkdown, false);
+  }
+  if (baselineMarkdown !== reviewedMarkdown) {
+    replaceEditorMarkdown(editor, reviewedMarkdown, true);
+    closeDiffReviewHistoryGroup(editor);
+  }
+  if (reviewedMarkdown !== userMarkdown) {
+    replaceEditorMarkdown(editor, userMarkdown, true);
+    closeDiffReviewHistoryGroup(editor);
+  } else if (baselineMarkdown === reviewedMarkdown) {
+    recordFinalizedBoundary(editor);
+  }
+  restoreEditorSelection(editor, selection2, selectionPosition);
+}
+
+const MARKDOWN_TABLE_CELL_MIN_WIDTH = 60;
+
+const ScrollableMarkdownTable = Table$2.extend({
+  addNodeView() {
+    const cellMinWidth = this.options.cellMinWidth;
+    return ({ node: node2 }) =>
+      new ScrollableMarkdownTableView(
+        node2,
+        cellMinWidth,
+        MARKDOWN_TABLE_CELL_MAX_WIDTH,
+      );
+  },
+}).configure({
+  resizable: false,
+  cellMinWidth: MARKDOWN_TABLE_CELL_MIN_WIDTH,
+});
+
+function buildControlsRow(ids2, config2) {
+  const row = document.createElement("div");
+  row.className = `${DIFF_CONTROLS_CLASS}-row`;
+  row.contentEditable = "false";
+  row.appendChild(buildControls(ids2, config2));
+  return row;
+}
+
+const DiffReviewHighlight = Extension.create({
+  name: "canvasDiffReview",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: diffReviewPluginKey,
+        state: {
+          init() {
+            return {
+              hunks: [],
+              config: null,
+            };
+          },
+          apply(tr2, prev) {
+            const meta2 = tr2.getMeta(diffReviewPluginKey);
+            let next2 = prev;
+            if (meta2) {
+              next2 =
+                meta2.kind === "clear"
+                  ? {
+                      hunks: [],
+                      config: null,
+                    }
+                  : {
+                      hunks: meta2.hunks,
+                      config: meta2.config,
+                    };
+            }
+            if (tr2.docChanged && next2.hunks.length > 0) {
+              next2 = {
+                ...next2,
+                hunks: next2.hunks.map((hunk) => ({
+                  ...hunk,
+                  from: tr2.mapping.map(hunk.from, -1),
+                  to: tr2.mapping.map(hunk.to, 1),
+                })),
+              };
+            }
+            return next2;
+          },
+        },
+        props: {
+          decorations(state2) {
+            const pluginState = diffReviewPluginKey.getState(state2);
+            if (
+              !pluginState ||
+              pluginState.hunks.length === 0 ||
+              !pluginState.config
+            ) {
+              return DecorationSet.empty;
+            }
+            const config2 = pluginState.config;
+            const docSize = state2.doc.content.size;
+            const decorations2 = [];
+            const tableGroups = new Map();
+            const controlIdOf = (hunk) => hunk.controlId ?? hunk.id;
+            for (const hunk of pluginState.hunks) {
+              if (
+                hunk.from > docSize ||
+                hunk.to > docSize ||
+                hunk.from > hunk.to
+              )
+                continue;
+              if (!hunk.zeroWidth && hunk.from === hunk.to) continue;
+              if (hunk.from < hunk.to) {
+                decorations2.push(
+                  Decoration$1.inline(hunk.from, hunk.to, {
+                    class: DIFF_ADD_CLASS,
+                    "data-diff-hunk-id": hunk.id,
+                  }),
+                );
+              }
+              const topLevel = topLevelBlockAt(state2.doc, hunk.from);
+              const belongsToTable =
+                topLevel?.node.type.name === "table" &&
+                hunk.from >= topLevel.from &&
+                hunk.to <= topLevel.to;
+              if (topLevel && belongsToTable) {
+                const groupKey = `${topLevel.from}:${topLevel.to}`;
+                const group = tableGroups.get(groupKey) ?? {
+                  to: topLevel.to,
+                  controlIds: [],
+                };
+                const controlId = controlIdOf(hunk);
+                if (!group.controlIds.includes(controlId))
+                  group.controlIds.push(controlId);
+                tableGroups.set(groupKey, group);
+                if (hunk.deletedMarkdown) {
+                  decorations2.push(
+                    Decoration$1.widget(
+                      hunk.from,
+                      () => buildDeletedInline(hunk, config2),
+                      {
+                        side: -1,
+                        key: `diff-del-inline-${hunk.id}`,
+                        stopEvent: () => true,
+                      },
+                    ),
+                  );
+                }
+                continue;
+              }
+              const inlineDeleted = isInlineTextReplacement(state2.doc, hunk);
+              if (inlineDeleted) {
+                decorations2.push(
+                  Decoration$1.widget(
+                    hunk.from,
+                    () => buildDeletedInline(hunk, config2),
+                    {
+                      side: -1,
+                      key: `diff-del-inline-${hunk.id}`,
+                      stopEvent: () => true,
+                    },
+                  ),
+                );
+              }
+              let delPos = hunk.from;
+              let ctlPos = hunk.to;
+              const linePlacement = paragraphLinePlacement(state2.doc, hunk);
+              if (linePlacement) {
+                delPos = linePlacement.delPos;
+                ctlPos = linePlacement.ctlPos;
+              } else {
+                try {
+                  const $from = state2.doc.resolve(hunk.from);
+                  if ($from.depth > 0) delPos = $from.before(1);
+                  const $to = state2.doc.resolve(hunk.to);
+                  if ($to.depth > 0) ctlPos = $to.after(1);
+                } catch {
+                  continue;
+                }
+              }
+              if (hunk.deletedMarkdown && !inlineDeleted) {
+                decorations2.push(
+                  Decoration$1.widget(
+                    delPos,
+                    () => buildDeletedBlock(hunk, config2),
+                    {
+                      side: -1,
+                      key: `diff-del-${hunk.id}`,
+                      stopEvent: () => true,
+                    },
+                  ),
+                );
+              }
+              decorations2.push(
+                Decoration$1.widget(
+                  ctlPos,
+                  () => buildControlsRow([controlIdOf(hunk)], config2),
+                  {
+                    // Adjacent line edits can share one PM position: the prior
+                    // replacement ends exactly where the next deletion starts.
+                    // Keep the prior control before that deletion (-2 < -1),
+                    // while a zero-width deletion keeps its own control after
+                    // its red widget (-1 < 1).
+                    side: !hunk.zeroWidth ? -2 : 1,
+                    key: `diff-ctl-${hunk.id}-${config2.disabled ? "off" : "on"}`,
+                    stopEvent: () => true,
+                  },
+                ),
+              );
+            }
+            for (const group of tableGroups.values()) {
+              const ids2 = group.controlIds;
+              decorations2.push(
+                Decoration$1.widget(
+                  group.to,
+                  () => buildControlsRow(ids2, config2),
+                  {
+                    side: 1,
+                    key: `diff-table-ctl-${ids2.join("-")}-${config2.disabled ? "off" : "on"}`,
+                    stopEvent: () => true,
+                  },
+                ),
+              );
+            }
+            return DecorationSet.create(state2.doc, decorations2);
+          },
+        },
+      }),
+    ];
+  },
+});
+
+const FindHighlight = Extension.create({
+  name: "canvasFindHighlight",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: findPluginKey,
+        state: {
+          init() {
+            return DecorationSet.empty;
+          },
+          apply(tr2, prev) {
+            const meta2 = tr2.getMeta(findPluginKey);
+            if (meta2) return buildDecorations$1(tr2.doc, meta2);
+            if (tr2.docChanged) return prev.map(tr2.mapping, tr2.doc);
+            return prev;
+          },
+        },
+        props: {
+          decorations(state2) {
+            return findPluginKey.getState(state2) ?? DecorationSet.empty;
+          },
+        },
+      }),
+    ];
+  },
+});
+
+function searchPmDoc(doc2, query, options, maxMatches) {
+  const pattern = compileFindPattern(query, options);
+  if (!pattern)
+    return {
+      matches: [],
+      limited: false,
+    };
+  const matches2 = [];
+  const cap2 = maxMatches ?? Number.POSITIVE_INFINITY;
+  let limited = false;
+  doc2.descendants((node2, pos) => {
+    if (limited) return false;
+    if (!node2.isTextblock) return true;
+    const text2 = node2.textBetween(
+      0,
+      node2.content.size,
+      void 0,
+      LEAF_PLACEHOLDER,
+    );
+    if (text2) {
+      const remaining = cap2 - matches2.length;
+      const result = findMatchesInText(text2, query, options, {
+        maxMatches: remaining,
+        baseOffset: pos + 1,
+        pattern,
+      });
+      matches2.push(...result.matches);
+      if (result.limited || matches2.length >= cap2) limited = true;
+    }
+    return false;
+  });
+  return {
+    matches: matches2,
+    limited,
+  };
+}
+
+function resetProseMirrorHistory(editor) {
+  const plugins = editor.state.plugins;
+  const withoutHistory = plugins.filter(
+    (plugin) => plugin.spec.key?.key !== "history$",
+  );
+  if (withoutHistory.length === plugins.length) return;
+  const stateWithoutHistory = editor.state.reconfigure({
+    plugins: withoutHistory,
+  });
+  editor.view.updateState(
+    stateWithoutHistory.reconfigure({
+      plugins,
+    }),
+  );
+}
+
+function createDiffReviewWriteAckTracker() {
+  return {
+    epoch: null,
+    pending: [],
+  };
+}
+
+function enqueueDiffReviewWriteAck(
+  tracker2,
+  markdown2,
+  epoch,
+  now2 = Date.now(),
+) {
+  beginDiffReviewWriteAckEpoch(tracker2, epoch);
+  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
+  tracker2.pending.push({
+    markdown: markdown2,
+    expiresAt: now2 + DIFF_REVIEW_WRITE_ACK_TTL_MS,
+  });
+  if (tracker2.pending.length > MAX_PENDING_DIFF_REVIEW_WRITE_ACKS) {
+    tracker2.pending.splice(
+      0,
+      tracker2.pending.length - MAX_PENDING_DIFF_REVIEW_WRITE_ACKS,
+    );
+  }
+}
+
+function consumeDiffReviewWriteAck(tracker2, markdown2, now2 = Date.now()) {
+  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
+  const index2 = tracker2.pending.findIndex(
+    (entry) => entry.markdown === markdown2,
+  );
+  if (index2 < 0) return false;
+  tracker2.pending.splice(index2, 1);
+  return true;
+}
+
+function pendingDiffReviewWriteAckCount(tracker2, now2 = Date.now()) {
+  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
+  return tracker2.pending.length;
+}
+
+function clearDiffReviewWriteAcks(tracker2) {
+  tracker2.pending = [];
+}
+
+function serializeMarkdownDocument(editor, document2) {
+  const manager = editor.storage.markdown?.manager;
+  if (!manager) return null;
+  try {
+    return manager.serialize(document2.toJSON());
+  } catch {
+    return null;
+  }
+}
+
+function startTextAnnotation(getCloseBlockReason, onStart, onAgentRunning) {
+  if (getCloseBlockReason?.() === "agent-running") {
+    onAgentRunning();
+    return false;
+  }
+  onStart();
+  return true;
+}
+
+function SelectionFormatToolbar({ editor, formatItems, annotate }) {
+  return (
+    <BubbleMenu
+      editor={editor}
+      options={{
+        placement: "top",
+        offset: 8,
+      }}
+      shouldShow={({ editor: ed, state: state2 }) => {
+        if (!ed.isEditable) return false;
+        const { from: from2, to } = state2.selection;
+        return from2 !== to;
+      }}
+      className="canvas-toolbar-surface"
+      data-canvas-toolbar="true"
+      data-density="compact"
+    >
+      {formatItems.map((item) => (
+        <ToolbarBtn key={item.id} item={item} contextToolbar={true} />
+      ))}
+      {annotate && (
+        <>
+          <ToolbarSeparator$1 contextToolbar={true} />
+          <button
+            type="button"
+            title={annotate.label}
+            onMouseDown={(e2) => e2.preventDefault()}
+            onClick={annotate.onClick}
+            className="canvas-toolbar-action"
+            data-action-ui-id="canvas-text-annotate"
+          >
+            <AnnotationIcon size={16} />
+            <span className="whitespace-nowrap">{annotate.label}</span>
+          </button>
+        </>
+      )}
+    </BubbleMenu>
+  );
+}
+
 export function MarkdownFullscreen({
   initialMarkdown,
   onClose,
@@ -582,11 +1189,18 @@ export function MarkdownFullscreen({
   hasPendingDiffReviewRef.current = hasPendingDiffReview;
   const [contentRevision, setContentRevision] = reactExports.useState(0);
   const reviewReverting = useDiffReviewStore((state2) => state2.reverting);
-  const reviewRequestId = useDiffReviewStore((state2) => state2.session?.requestId ?? null);
-  const expectedReviewWriteAcksRef = reactExports.useRef(createDiffReviewWriteAckTracker());
+  const reviewRequestId = useDiffReviewStore(
+    (state2) => state2.session?.requestId ?? null,
+  );
+  const expectedReviewWriteAcksRef = reactExports.useRef(
+    createDiffReviewWriteAckTracker(),
+  );
   reactExports.useEffect(() => {
     if (reviewRequestId) {
-      beginDiffReviewWriteAckEpoch(expectedReviewWriteAcksRef.current, reviewRequestId);
+      beginDiffReviewWriteAckEpoch(
+        expectedReviewWriteAcksRef.current,
+        reviewRequestId,
+      );
     }
   }, [reviewRequestId]);
   const deferredReviewMarkdownRef = reactExports.useRef(null);
@@ -602,7 +1216,9 @@ export function MarkdownFullscreen({
     resetBaseline,
   } = useDebouncedDraftSave(initialMarkdown, onDraftChange);
   const findRef = reactExports.useRef(null);
-  const scheduleSelectionReport = useEditingSelectionReporter(onEditingSelectionChange);
+  const scheduleSelectionReport = useEditingSelectionReporter(
+    onEditingSelectionChange,
+  );
   const fsEditor = useEditor({
     extensions: [
       src_default,
@@ -623,7 +1239,8 @@ export function MarkdownFullscreen({
     editorProps: {
       attributes: {
         class: "outline-none min-h-[200px] text-sm",
-        style: "color: var(--fg-default, #141414); caret-color: var(--canvas-text-accent)",
+        style:
+          "color: var(--fg-default, #141414); caret-color: var(--canvas-text-accent)",
       },
     },
     onCreate: ({ editor }) => {
@@ -636,7 +1253,11 @@ export function MarkdownFullscreen({
     onUpdate: ({ editor, transaction }) => {
       if (!initializedRef.current) return;
       scheduleSelectionReport(() => buildPmSelectionState(editor.state));
-      if (programmaticUpdateRef.current || transaction.getMeta(DIFF_REVIEW_SYNC_META)) return;
+      if (
+        programmaticUpdateRef.current ||
+        transaction.getMeta(DIFF_REVIEW_SYNC_META)
+      )
+        return;
       if (getAnnotationHistorySnapshot(transaction)) return;
       const reviewSnapshot = getDiffReviewHistorySnapshot(transaction);
       const markdown2 = editor.getMarkdown();
@@ -654,7 +1275,10 @@ export function MarkdownFullscreen({
       }
       const activeReview = useDiffReviewStore.getState().session;
       if (activeReview && activeReview.nodeId === sourceNodeId) {
-        const reviewedMarkdown = serializeMarkdownDocument(editor, transaction.before);
+        const reviewedMarkdown = serializeMarkdownDocument(
+          editor,
+          transaction.before,
+        );
         if (reviewedMarkdown !== null) {
           const baseline =
             activeReview.baselineMarkdown ??
@@ -668,7 +1292,9 @@ export function MarkdownFullscreen({
             activeReview.historyDepthAtStart,
           );
         }
-        useDiffReviewStore.getState().finishSessionForUserEdit(activeReview.requestId);
+        useDiffReviewStore
+          .getState()
+          .finishSessionForUserEdit(activeReview.requestId);
       }
       userEditedRef.current = true;
       markDirty();
@@ -693,7 +1319,10 @@ export function MarkdownFullscreen({
     resetProseMirrorHistory(fsEditor);
     initializedRef.current = true;
     setContentRevision((rev) => rev + 1);
-    if (useDiffReviewStore.getState().pendingScrollToFirstHunkNodeId !== sourceNodeId) {
+    if (
+      useDiffReviewStore.getState().pendingScrollToFirstHunkNodeId !==
+      sourceNodeId
+    ) {
       const frame2 = requestAnimationFrame(() => {
         if (!fsEditor.isDestroyed) fsEditor.commands.focus("start");
       });
@@ -702,7 +1331,9 @@ export function MarkdownFullscreen({
   }, [fsEditor, initialMarkdown, sourceNodeId]);
   const canvasRootEl = useCanvasRootElement();
   const handleAnnotationConflict = reactExports.useCallback(() => {
-    dedupedToast.error(t2("canvas.annotationConflict", "选区与已有批注重叠，请重新选择"));
+    dedupedToast.error(
+      t2("canvas.annotationConflict", "选区与已有批注重叠，请重新选择"),
+    );
   }, [t2]);
   const annotations = useAnnotations(fsEditor, {
     onSnapshotsChange: onAnnotationsChange,
@@ -724,14 +1355,19 @@ export function MarkdownFullscreen({
   useEditorHistoryShortcuts(fsEditor, sourceNodeId);
   reactExports.useEffect(() => {
     if (!subscribeAnnotationCommand) return;
-    return subscribeAnnotationCommand((cmd2) => editorAnnotationsRef.current.handleCommand(cmd2));
+    return subscribeAnnotationCommand((cmd2) =>
+      editorAnnotationsRef.current.handleCommand(cmd2),
+    );
   }, [subscribeAnnotationCommand]);
   const [editorAreaEl, setEditorAreaEl] = reactExports.useState(null);
   const applySync = reactExports.useCallback(
     (md) => {
       if (!fsEditor) return false;
       const reviewState = useDiffReviewStore.getState();
-      if (reviewState.reverting && reviewState.session?.nodeId === sourceNodeId) {
+      if (
+        reviewState.reverting &&
+        reviewState.session?.nodeId === sourceNodeId
+      ) {
         deferredReviewMarkdownRef.current = md;
         return false;
       }
@@ -739,7 +1375,9 @@ export function MarkdownFullscreen({
         setContentRevision((rev) => rev + 1);
         return fsEditor.getMarkdown() === md;
       }
-      if (pendingDiffReviewWriteAckCount(expectedReviewWriteAcksRef.current) > 0) {
+      if (
+        pendingDiffReviewWriteAckCount(expectedReviewWriteAcksRef.current) > 0
+      ) {
         clearDiffReviewWriteAcks(expectedReviewWriteAcksRef.current);
       }
       const activeReview = reviewState.session;
@@ -754,7 +1392,8 @@ export function MarkdownFullscreen({
         const expectedContentHash = activeReview.contentHash;
         void hashDiffReviewMarkdown(md)
           .then((contentHash) => {
-            if (fsEditor.isDestroyed || contentHash !== expectedContentHash) return;
+            if (fsEditor.isDestroyed || contentHash !== expectedContentHash)
+              return;
             const current2 = useDiffReviewStore.getState().session;
             if (
               !current2 ||
@@ -771,7 +1410,11 @@ export function MarkdownFullscreen({
             );
             useDiffReviewStore
               .getState()
-              .setBaselineMarkdown(requestId, baselineMarkdown, historyDepthAtStart);
+              .setBaselineMarkdown(
+                requestId,
+                baselineMarkdown,
+                historyDepthAtStart,
+              );
             setContentRevision((rev) => rev + 1);
           })
           .catch(() => {});
@@ -807,7 +1450,11 @@ export function MarkdownFullscreen({
   const handleConflictResolved = reactExports.useCallback(
     (merged) => {
       externalUpdatedWhileEditingRef.current = false;
-      if (fsEditor && !fsEditor.isDestroyed && fsEditor.getMarkdown() !== merged) {
+      if (
+        fsEditor &&
+        !fsEditor.isDestroyed &&
+        fsEditor.getMarkdown() !== merged
+      ) {
         applySync(merged);
       }
       userEditedRef.current = true;
@@ -850,7 +1497,9 @@ export function MarkdownFullscreen({
     if (reviewReverting || deferredReviewMarkdownRef.current === null) return;
     const markdown2 = deferredReviewMarkdownRef.current;
     deferredReviewMarkdownRef.current = null;
-    if (consumeDiffReviewWriteAck(expectedReviewWriteAcksRef.current, markdown2)) {
+    if (
+      consumeDiffReviewWriteAck(expectedReviewWriteAcksRef.current, markdown2)
+    ) {
       if (fsEditor?.getMarkdown() === markdown2) resetBaseline(markdown2);
       setContentRevision((rev) => rev + 1);
       return;
@@ -862,7 +1511,11 @@ export function MarkdownFullscreen({
     (markdown2) => {
       const requestId = useDiffReviewStore.getState().session?.requestId;
       if (requestId) {
-        enqueueDiffReviewWriteAck(expectedReviewWriteAcksRef.current, markdown2, requestId);
+        enqueueDiffReviewWriteAck(
+          expectedReviewWriteAcksRef.current,
+          markdown2,
+          requestId,
+        );
       }
       resetBaseline(markdown2);
       setContentRevision((rev) => rev + 1);
@@ -892,7 +1545,9 @@ export function MarkdownFullscreen({
       return;
     }
     if (conflict.active) {
-      dedupedToast.error(t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"));
+      dedupedToast.error(
+        t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
+      );
       return;
     }
     const action = decideFullscreenCloseAction({
@@ -951,9 +1606,11 @@ export function MarkdownFullscreen({
           }),
         );
         requestAnimationFrame(() => {
-          fsEditor.view.dom.querySelector(`.${FIND_MATCH_ACTIVE_CLASS}`)?.scrollIntoView({
-            block: "nearest",
-          });
+          fsEditor.view.dom
+            .querySelector(`.${FIND_MATCH_ACTIVE_CLASS}`)
+            ?.scrollIntoView({
+              block: "nearest",
+            });
         });
       },
       clear() {
@@ -968,7 +1625,9 @@ export function MarkdownFullscreen({
       getSelectedText() {
         if (!fsEditor) return "";
         const { from: from2, to } = fsEditor.state.selection;
-        return from2 === to ? "" : fsEditor.state.doc.textBetween(from2, to, "\n");
+        return from2 === to
+          ? ""
+          : fsEditor.state.doc.textBetween(from2, to, "\n");
       },
       focusEditor() {
         fsEditor?.commands.focus();
@@ -981,20 +1640,44 @@ export function MarkdownFullscreen({
           void 0,
           LEAF_PLACEHOLDER,
         );
-        const expanded = computeReplacement(matched, query, options, replacement);
-        const tr2 = fsEditor.state.tr.insertText(expanded, match2.from, match2.to);
-        tr2.setSelection(TextSelection.create(tr2.doc, match2.from + expanded.length));
+        const expanded = computeReplacement(
+          matched,
+          query,
+          options,
+          replacement,
+        );
+        const tr2 = fsEditor.state.tr.insertText(
+          expanded,
+          match2.from,
+          match2.to,
+        );
+        tr2.setSelection(
+          TextSelection.create(tr2.doc, match2.from + expanded.length),
+        );
         fsEditor.view.dispatch(tr2);
       },
       replaceAll(query, options, replacement) {
         if (!fsEditor) return;
-        const { matches: matches2 } = searchPmDoc(fsEditor.state.doc, query, options);
+        const { matches: matches2 } = searchPmDoc(
+          fsEditor.state.doc,
+          query,
+          options,
+        );
         if (matches2.length === 0) return;
         const tr2 = fsEditor.state.tr;
         for (let i2 = matches2.length - 1; i2 >= 0; i2--) {
           const m3 = matches2[i2];
-          const matched = fsEditor.state.doc.textBetween(m3.from, m3.to, void 0, LEAF_PLACEHOLDER);
-          tr2.insertText(computeReplacement(matched, query, options, replacement), m3.from, m3.to);
+          const matched = fsEditor.state.doc.textBetween(
+            m3.from,
+            m3.to,
+            void 0,
+            LEAF_PLACEHOLDER,
+          );
+          tr2.insertText(
+            computeReplacement(matched, query, options, replacement),
+            m3.from,
+            m3.to,
+          );
         }
         fsEditor.view.dispatch(tr2);
       },
@@ -1005,7 +1688,10 @@ export function MarkdownFullscreen({
   findRef.current = find2;
   useFindEscapeClose(find2, handleClose);
   const [tableCtxPos, setTableCtxPos] = reactExports.useState(null);
-  const closeTableCtxMenu = reactExports.useCallback(() => setTableCtxPos(null), []);
+  const closeTableCtxMenu = reactExports.useCallback(
+    () => setTableCtxPos(null),
+    [],
+  );
   const handleEditorContextMenu = reactExports.useCallback(
     (e2) => {
       if (!fsEditor) return;
@@ -1029,11 +1715,22 @@ export function MarkdownFullscreen({
     return () => {
       const grid = extractTableGridAtSelection(fsEditor);
       if (!grid) return;
-      const doc2 = tableDocumentFromGrid(grid, t2("canvas.table.untitledColumn", "Untitled"));
-      void canvasActions.addTableNodeFromDocument(doc2, sourceNodeId).then((nodeId) => {
-        if (nodeId) dedupedToast.success(t2("canvas.mdTable.toNodeDone", "已插入表格节点"));
-        else dedupedToast.error(t2("canvas.mdTable.toNodeFailed", "插入表格节点失败"));
-      });
+      const doc2 = tableDocumentFromGrid(
+        grid,
+        t2("canvas.table.untitledColumn", "Untitled"),
+      );
+      void canvasActions
+        .addTableNodeFromDocument(doc2, sourceNodeId)
+        .then((nodeId) => {
+          if (nodeId)
+            dedupedToast.success(
+              t2("canvas.mdTable.toNodeDone", "已插入表格节点"),
+            );
+          else
+            dedupedToast.error(
+              t2("canvas.mdTable.toNodeFailed", "插入表格节点失败"),
+            );
+        });
     };
   }, [canvasActions, fsEditor, sourceNodeId, t2]);
   const formatItems = reactExports.useMemo(
@@ -1068,7 +1765,10 @@ export function MarkdownFullscreen({
   return (
     <FullscreenShell
       saveStatus={
-        <TextSaveStatus draftStatus={draftSaveStatus} versionSaving={versionPanel.versionSaving} />
+        <TextSaveStatus
+          draftStatus={draftSaveStatus}
+          versionSaving={versionPanel.versionSaving}
+        />
       }
       headerLeft={
         conflict.active
@@ -1108,7 +1808,11 @@ export function MarkdownFullscreen({
           }}
         />
       )}
-      <div ref={setEditorAreaEl} className="relative" onContextMenu={handleEditorContextMenu}>
+      <div
+        ref={setEditorAreaEl}
+        className="relative"
+        onContextMenu={handleEditorContextMenu}
+      >
         <EditorContent editor={fsEditor} />
         <MarkdownTableScrollbars editorRoot={editorAreaEl} />
         {fsEditor && (
@@ -1130,7 +1834,10 @@ export function MarkdownFullscreen({
         />
       )}
       {versionPanel.dialog}
-      <DiffPendingDialog open={diffPendingOpen} onDismiss={() => setDiffPendingOpen(false)} />
+      <DiffPendingDialog
+        open={diffPendingOpen}
+        onDismiss={() => setDiffPendingOpen(false)}
+      />
       {annotations.pending && (
         <AnnotationInput
           editor={fsEditor}

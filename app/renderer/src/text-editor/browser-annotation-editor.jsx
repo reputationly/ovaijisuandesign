@@ -1,18 +1,121 @@
 // browser-annotation-editor.jsx
-import { useTranslation, reactExports, Check, X$7, LoaderCircle, Send } from "../vendor.js";
-import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
-import { TRACK_EVENTS } from "../infra/track-events.js";
-import { trackEvent } from "../infra/init-track.js";
-import { ImageEditor } from "../media-editing/editor2.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { buildTagData, resolveDisplaySize, sameBounds } from "../workspace/browser-tab-motion.jsx";
 import {
-  ANNOTATION_FILL,
-  ANNOTATION_STROKE,
-  ANNOTATION_STROKE_WIDTH,
-  DEFAULT_IMAGE_SIZE,
-  MIN_RECTANGLE_SIZE,
-} from "../media-editing/use-browser-video-download.jsx";
+  Check,
+  LoaderCircle,
+  reactExports,
+  Send,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { ImageEditor } from "../media-editing/image-editor.jsx";
+
+const ANNOTATION_STROKE = "#6D6CFF";
+
+const ANNOTATION_FILL = "transparent";
+
+const TAG_BACKGROUND = "#E9E8FF";
+
+const TAG_TEXT_COLOR = "#4542B8";
+
+const MIN_RECTANGLE_SIZE = 8;
+
+const ANNOTATION_STROKE_WIDTH = 5;
+
+const DEFAULT_IMAGE_SIZE = {
+  width: 1200,
+  height: 800,
+};
+
+function sameBounds(a2, b3) {
+  return (
+    a2.x === b3.x &&
+    a2.y === b3.y &&
+    a2.width === b3.width &&
+    a2.height === b3.height
+  );
+}
+
+function resolveDisplaySize(imageSize, stageSize) {
+  const source = imageSize ?? DEFAULT_IMAGE_SIZE;
+  const availableWidth =
+    stageSize.width > 0 ? Math.max(1, stageSize.width) : source.width;
+  const availableHeight =
+    stageSize.height > 0 ? Math.max(1, stageSize.height) : source.height;
+  const scale2 = Math.min(
+    1,
+    availableWidth / source.width,
+    availableHeight / source.height,
+  );
+  return {
+    width: Math.max(1, Math.round(source.width * scale2)),
+    height: Math.max(1, Math.round(source.height * scale2)),
+    scale: scale2,
+  };
+}
+
+function buildTagData(id2, text2, bounds, imageSize) {
+  const fontSize = 18;
+  const longestLine = Math.max(
+    ...text2.split("\n").map((line) => line.length),
+    1,
+  );
+  const estimatedWidth = Math.max(
+    96,
+    Math.min(imageSize.width * 0.48, longestLine * fontSize * 0.62 + 28),
+  );
+  const estimatedHeight = Math.max(
+    34,
+    text2.split("\n").length * fontSize * 1.4 + 8,
+  );
+  const gap = 14;
+  const canPlaceRight =
+    bounds.x + bounds.width + gap + estimatedWidth <= imageSize.width - 4;
+  const cardX = canPlaceRight
+    ? bounds.x + bounds.width + gap
+    : Math.max(4, bounds.x - gap - estimatedWidth);
+  const cardY = Math.max(
+    4,
+    Math.min(
+      imageSize.height - estimatedHeight - 4,
+      bounds.y + bounds.height - estimatedHeight,
+    ),
+  );
+  const anchorX = canPlaceRight ? cardX - 8 : cardX + estimatedWidth + 8;
+  const anchorY = Math.max(
+    cardY + 8,
+    Math.min(cardY + estimatedHeight - 8, bounds.y + bounds.height * 0.78),
+  );
+  return {
+    id: id2,
+    type: "tag",
+    anchorX,
+    anchorY,
+    x: cardX,
+    y: cardY,
+    width: estimatedWidth,
+    height: estimatedHeight,
+    // 标签宽度固定上限，长数字/中文由 TagShape 在卡片内换行。
+    maxWidth: Math.max(
+      96,
+      Math.min(imageSize.width * 0.48, imageSize.width - 16),
+    ),
+    text: text2,
+    style: {
+      stroke: ANNOTATION_STROKE,
+      strokeWidth: ANNOTATION_STROKE_WIDTH,
+      tagBackground: TAG_BACKGROUND,
+      tagTextColor: TAG_TEXT_COLOR,
+      tagAnchorRadius: Math.max(3, fontSize * 0.12),
+      fontSize,
+      fontWeight: 600,
+    },
+  };
+}
+
 const DRAFT_RECTANGLE_STYLE = {
   // Keep the outline visible without tinting the underlying website content.
   stroke: ANNOTATION_STROKE,
@@ -23,6 +126,7 @@ const DRAFT_RECTANGLE_STYLE = {
   selectionHandleStroke: "#FFFFFF",
   selectionHandleFill: ANNOTATION_STROKE,
 };
+
 const COMMITTED_RECTANGLE_STYLE = {
   stroke: ANNOTATION_STROKE,
   fill: ANNOTATION_FILL,
@@ -32,12 +136,154 @@ const COMMITTED_RECTANGLE_STYLE = {
   selectionHandleStroke: "#FFFFFF",
   selectionHandleFill: ANNOTATION_STROKE,
 };
+
 function commentLengthBucket(length2) {
   if (length2 <= 20) return "1_20";
   if (length2 <= 100) return "21_100";
   return "101_plus";
 }
-export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onSend }) {
+
+function AnnotationHeaderButton({
+  actionId,
+  label,
+  disabled: disabled2 = false,
+  onClick,
+  children: children2,
+}) {
+  return (
+    <button
+      type="button"
+      data-action-ui-id={actionId}
+      aria-label={label}
+      title={label}
+      disabled={disabled2}
+      onClick={onClick}
+      className="browser-annotation-header-button flex size-8 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-35"
+    >
+      {children2}
+    </button>
+  );
+}
+
+function DraftCommentInput({
+  bounds,
+  scale: scale2,
+  canvasWidth,
+  canvasHeight,
+  value,
+  onChange,
+  onConfirm,
+  onCancel,
+}) {
+  const { t: t2 } = useTranslation();
+  const inputRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const frame2 = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => cancelAnimationFrame(frame2);
+  }, []);
+  const box2 = {
+    left: bounds.x * scale2,
+    top: bounds.y * scale2,
+    width: bounds.width * scale2,
+    height: bounds.height * scale2,
+  };
+  const inputWidth = Math.max(180, Math.min(420, canvasWidth - 16));
+  const inputHeight = 50;
+  const gap = 14;
+  const edgeInset = 8;
+  let left = box2.left + (box2.width - inputWidth) / 2;
+  left = Math.max(
+    edgeInset,
+    Math.min(left, Math.max(edgeInset, canvasWidth - inputWidth - edgeInset)),
+  );
+  let top2 = box2.top + box2.height + gap;
+  if (top2 + inputHeight > canvasHeight - edgeInset) {
+    top2 = box2.top - gap - inputHeight;
+  }
+  top2 = Math.max(
+    edgeInset,
+    Math.min(top2, Math.max(edgeInset, canvasHeight - inputHeight - edgeInset)),
+  );
+  return (
+    <form
+      className="browser-annotation-comment absolute z-20 flex items-center gap-1 rounded-full border border-border bg-card p-1.5 shadow-lg"
+      style={{
+        left,
+        top: top2,
+        width: inputWidth,
+        minHeight: inputHeight,
+      }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onConfirm();
+      }}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
+      <textarea
+        ref={inputRef}
+        value={value}
+        rows={1}
+        data-action-ui-id="browser.annotation-comment"
+        aria-label={t2("workspace.browser.annotationComment", {
+          defaultValue: "批注内容",
+        })}
+        placeholder={t2("workspace.browser.annotationCommentPlaceholder", {
+          defaultValue: "添加批注…",
+        })}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key === "Escape") {
+            event.preventDefault();
+            onCancel();
+          } else if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.nativeEvent.isComposing &&
+            event.keyCode !== 229
+          ) {
+            event.preventDefault();
+            onConfirm();
+          }
+        }}
+        className="min-h-8 min-w-0 flex-1 resize-none overflow-hidden bg-transparent px-2 py-1 text-sm leading-6 text-foreground outline-none placeholder:text-foreground/30"
+      />
+      <button
+        type="submit"
+        data-action-ui-id="browser.annotation-add"
+        aria-label={t2("workspace.browser.annotationConfirm", {
+          defaultValue: "确认批注",
+        })}
+        title={t2("workspace.browser.annotationConfirm", {
+          defaultValue: "确认批注",
+        })}
+        disabled={!value.trim()}
+        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <Icon icon={Check} size="sm" />
+      </button>
+    </form>
+  );
+}
+
+function boundsForShape(shape) {
+  if (shape.type !== "rectangle") return null;
+  const rectangle = shape;
+  return {
+    x: rectangle.width >= 0 ? rectangle.x : rectangle.x + rectangle.width,
+    y: rectangle.height >= 0 ? rectangle.y : rectangle.y + rectangle.height,
+    width: Math.abs(rectangle.width),
+    height: Math.abs(rectangle.height),
+  };
+}
+
+export function BrowserAnnotationEditor({
+  src,
+  viewportSize,
+  title,
+  onClose,
+  onSend,
+}) {
   const { t: t2 } = useTranslation();
   const editorRef = reactExports.useRef(null);
   const stageRef = reactExports.useRef(null);
@@ -117,7 +363,9 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     }
     const currentDraft = draftRef.current;
     if (currentDraft) {
-      const currentShape = nextState.shapes.find((shape) => shape.id === currentDraft.rectangleId);
+      const currentShape = nextState.shapes.find(
+        (shape) => shape.id === currentDraft.rectangleId,
+      );
       const nextBounds = currentShape ? boundsForShape(currentShape) : null;
       if (!nextBounds) {
         draftRef.current = null;
@@ -134,9 +382,14 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     const liveIds = new Set(nextState.shapes.map((shape) => shape.id));
     const currentAnnotations = annotationsRef.current;
     const remaining = currentAnnotations
-      .filter((annotation) => liveIds.has(annotation.rectangleId) && liveIds.has(annotation.tagId))
+      .filter(
+        (annotation) =>
+          liveIds.has(annotation.rectangleId) && liveIds.has(annotation.tagId),
+      )
       .map((annotation) => {
-        const tag = nextState.shapes.find((shape) => shape.id === annotation.tagId);
+        const tag = nextState.shapes.find(
+          (shape) => shape.id === annotation.tagId,
+        );
         return tag?.type === "tag" && tag.text !== annotation.comment
           ? {
               ...annotation,
@@ -147,7 +400,8 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     if (
       remaining.length !== currentAnnotations.length ||
       remaining.some(
-        (annotation, index2) => annotation.comment !== currentAnnotations[index2]?.comment,
+        (annotation, index2) =>
+          annotation.comment !== currentAnnotations[index2]?.comment,
       )
     ) {
       annotationsRef.current = remaining;
@@ -162,7 +416,11 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     shapeAddCleanupRef.current = editor.on("shape:add", (shape) => {
       if (shape.type !== "rectangle" || draftRef.current) return;
       const bounds = boundsForShape(shape);
-      if (!bounds || bounds.width < MIN_RECTANGLE_SIZE || bounds.height < MIN_RECTANGLE_SIZE)
+      if (
+        !bounds ||
+        bounds.width < MIN_RECTANGLE_SIZE ||
+        bounds.height < MIN_RECTANGLE_SIZE
+      )
         return;
       const nextDraft = {
         rectangleId: shape.id,
@@ -181,7 +439,9 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     let frameId = null;
     const syncBounds = () => {
       const editor = editorRef.current?.getEditor();
-      const shape = editor?.getState().shapes.find((item) => item.id === rectangleId);
+      const shape = editor
+        ?.getState()
+        .shapes.find((item) => item.id === rectangleId);
       const nextBounds = shape ? boundsForShape(shape) : null;
       const currentDraft = draftRef.current;
       if (!nextBounds || !currentDraft) return;
@@ -224,7 +484,11 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
   }, []);
   reactExports.useEffect(() => {
     const handleKeyDown2 = (event) => {
-      if (event.isComposing || (event.key !== "Delete" && event.key !== "Backspace")) return;
+      if (
+        event.isComposing ||
+        (event.key !== "Delete" && event.key !== "Backspace")
+      )
+        return;
       const target = event.target;
       if (
         target instanceof HTMLInputElement ||
@@ -246,7 +510,8 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
         return;
       }
       const annotation = annotationsRef.current.find(
-        (item) => item.rectangleId === selected2.id || item.tagId === selected2.id,
+        (item) =>
+          item.rectangleId === selected2.id || item.tagId === selected2.id,
       );
       if (!annotation) return;
       event.preventDefault();
@@ -271,7 +536,12 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
     if (!rectangle || rectangle.type !== "rectangle" || !bounds) return;
     const sequence = ++annotationSequenceRef.current;
     const tagId = `browser-annotation-tag-${Date.now().toString(36)}-${sequence}`;
-    const tag = buildTagData(tagId, comment2, bounds, imageSize ?? DEFAULT_IMAGE_SIZE);
+    const tag = buildTagData(
+      tagId,
+      comment2,
+      bounds,
+      imageSize ?? DEFAULT_IMAGE_SIZE,
+    );
     editor.select(currentDraft.rectangleId);
     editor.setStyle(COMMITTED_RECTANGLE_STYLE);
     draftRef.current = null;
@@ -396,7 +666,10 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
           </button>
         </div>
       </div>
-      <div ref={stageRef} className="relative min-h-0 flex-1 overflow-auto bg-muted/30">
+      <div
+        ref={stageRef}
+        className="relative min-h-0 flex-1 overflow-auto bg-muted/30"
+      >
         {imageSize ? (
           <div className="flex min-h-full min-w-full items-start justify-center">
             <div
@@ -453,135 +726,4 @@ export function BrowserAnnotationEditor({ src, viewportSize, title, onClose, onS
       </div>
     </section>
   );
-}
-function AnnotationHeaderButton({
-  actionId,
-  label,
-  disabled: disabled2 = false,
-  onClick,
-  children: children2,
-}) {
-  return (
-    <button
-      type="button"
-      data-action-ui-id={actionId}
-      aria-label={label}
-      title={label}
-      disabled={disabled2}
-      onClick={onClick}
-      className="browser-annotation-header-button flex size-8 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-35"
-    >
-      {children2}
-    </button>
-  );
-}
-function DraftCommentInput({
-  bounds,
-  scale: scale2,
-  canvasWidth,
-  canvasHeight,
-  value,
-  onChange,
-  onConfirm,
-  onCancel,
-}) {
-  const { t: t2 } = useTranslation();
-  const inputRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
-    const frame2 = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(frame2);
-  }, []);
-  const box2 = {
-    left: bounds.x * scale2,
-    top: bounds.y * scale2,
-    width: bounds.width * scale2,
-    height: bounds.height * scale2,
-  };
-  const inputWidth = Math.max(180, Math.min(420, canvasWidth - 16));
-  const inputHeight = 50;
-  const gap = 14;
-  const edgeInset = 8;
-  let left = box2.left + (box2.width - inputWidth) / 2;
-  left = Math.max(
-    edgeInset,
-    Math.min(left, Math.max(edgeInset, canvasWidth - inputWidth - edgeInset)),
-  );
-  let top2 = box2.top + box2.height + gap;
-  if (top2 + inputHeight > canvasHeight - edgeInset) {
-    top2 = box2.top - gap - inputHeight;
-  }
-  top2 = Math.max(
-    edgeInset,
-    Math.min(top2, Math.max(edgeInset, canvasHeight - inputHeight - edgeInset)),
-  );
-  return (
-    <form
-      className="browser-annotation-comment absolute z-20 flex items-center gap-1 rounded-full border border-border bg-card p-1.5 shadow-lg"
-      style={{
-        left,
-        top: top2,
-        width: inputWidth,
-        minHeight: inputHeight,
-      }}
-      onSubmit={(event) => {
-        event.preventDefault();
-        onConfirm();
-      }}
-      onPointerDown={(event) => event.stopPropagation()}
-    >
-      <textarea
-        ref={inputRef}
-        value={value}
-        rows={1}
-        data-action-ui-id="browser.annotation-comment"
-        aria-label={t2("workspace.browser.annotationComment", {
-          defaultValue: "批注内容",
-        })}
-        placeholder={t2("workspace.browser.annotationCommentPlaceholder", {
-          defaultValue: "添加批注…",
-        })}
-        onChange={(event) => onChange(event.target.value)}
-        onKeyDown={(event) => {
-          event.stopPropagation();
-          if (event.key === "Escape") {
-            event.preventDefault();
-            onCancel();
-          } else if (
-            event.key === "Enter" &&
-            !event.shiftKey &&
-            !event.nativeEvent.isComposing &&
-            event.keyCode !== 229
-          ) {
-            event.preventDefault();
-            onConfirm();
-          }
-        }}
-        className="min-h-8 min-w-0 flex-1 resize-none overflow-hidden bg-transparent px-2 py-1 text-sm leading-6 text-foreground outline-none placeholder:text-foreground/30"
-      />
-      <button
-        type="submit"
-        data-action-ui-id="browser.annotation-add"
-        aria-label={t2("workspace.browser.annotationConfirm", {
-          defaultValue: "确认批注",
-        })}
-        title={t2("workspace.browser.annotationConfirm", {
-          defaultValue: "确认批注",
-        })}
-        disabled={!value.trim()}
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-30"
-      >
-        <Icon icon={Check} size="sm" />
-      </button>
-    </form>
-  );
-}
-function boundsForShape(shape) {
-  if (shape.type !== "rectangle") return null;
-  const rectangle = shape;
-  return {
-    x: rectangle.width >= 0 ? rectangle.x : rectangle.x + rectangle.width,
-    y: rectangle.height >= 0 ? rectangle.y : rectangle.y + rectangle.height,
-    width: Math.abs(rectangle.width),
-    height: Math.abs(rectangle.height),
-  };
 }

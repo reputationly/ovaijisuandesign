@@ -1,13 +1,14 @@
 // image-color-grading.js
 import {
   isWebGLSupported,
-  isWebGPUSupported,
   parseCubeLUT,
   selectBestBackend,
-} from "./base-backend.jsx";
-import { defaultLUTParams, defaultSettings } from "./highlights-fragment.js";
+} from "./parse-cube-lut.js";
+import { isWebGPUSupported } from "./base-backend.jsx";
+import { defaultLUTParams, defaultSettings } from "./default-settings.js";
 import { WebGLBackend } from "./web-gl-backend.js";
 import { WebGPUBackend } from "./web-gpu-backend.js";
+
 function analyzeImageLevels(imageData) {
   const { data: data2, width, height } = imageData;
   const histogram = new Array(256).fill(0);
@@ -38,6 +39,7 @@ function analyzeImageLevels(imageData) {
     white,
   };
 }
+
 function analyzeImageVibrance(imageData) {
   const { data: data2, width, height } = imageData;
   let saturationSum = 1;
@@ -57,12 +59,14 @@ function analyzeImageVibrance(imageData) {
   const pixelCount = width * height;
   return (saturationSum + brightnessSum) / (pixelCount * 2);
 }
+
 function analyzeImage(imageData) {
   return {
     levels: analyzeImageLevels(imageData),
     vibrance: analyzeImageVibrance(imageData),
   };
 }
+
 const presets$1 = {
   auto: {},
   blackAndWhite: {
@@ -100,9 +104,11 @@ const presets$1 = {
     vignette: 30,
   },
 };
+
 function looksLikeUrl$1(input) {
   return /^(?:https?:|blob:|data:|file:|\/|\.\.?\/)/.test(input.trim());
 }
+
 export class ImageColorGrading {
   canvas;
   backend = null;
@@ -168,7 +174,10 @@ export class ImageColorGrading {
       try {
         await this.backend.init();
       } catch (e2) {
-        console.warn("WebGPU initialization failed, falling back to WebGL:", e2);
+        console.warn(
+          "WebGPU initialization failed, falling back to WebGL:",
+          e2,
+        );
         this.backend = new WebGLBackend(this.canvas, backendOptions);
         this.backend.init();
         this.backendType = "webgl";
@@ -204,7 +213,10 @@ export class ImageColorGrading {
    * 大图时卡住 UI。失败时回退到 HTMLImageElement 解码。
    */
   async decodeUrl(url2) {
-    if (typeof createImageBitmap === "function" && typeof fetch === "function") {
+    if (
+      typeof createImageBitmap === "function" &&
+      typeof fetch === "function"
+    ) {
       try {
         const resp = await fetch(url2, {
           mode: "cors",

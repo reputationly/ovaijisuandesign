@@ -1,66 +1,40 @@
 // color-adjust-dialog.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, reactDomExports, Loader2, useSensors, useSensor, PointerSensor, KeyboardSensor, sortableKeyboardCoordinates, arrayMove, DndContext, closestCenter, RotateCcw, DragOverlay } from "../vendor.js";
-import { Dialog$1 } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { Trash2, Upload } from "./parse-item.jsx";
-import { CloseIcon$1, SendArrowIcon } from "../canvas/generating-media-area.jsx";
-import { Button$2 } from "../canvas/use-media-node-actions.jsx";
+import {
+  dedupedToast,
+  jsxRuntimeExports,
+  Loader2,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { ColorAdjustSlider } from "./color-adjust-slider.jsx";
+import { Dialog$1 } from "../canvas/separator.jsx";
+import { Trash2, Upload } from "./package.jsx";
+import { CloseIcon$1, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
+import { Button$2 } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-import { cn$5 } from "../infra/use-browser-overlay-dialog-props.jsx";
+import { cn$5 } from "../infra/dialog-content.jsx";
 import {
   DialogContent$1,
+  DialogFooter$1,
   DialogHeader$1,
   DialogTitle$1,
-  DialogDescription$1,
-  DialogFooter$1,
-} from "./thumb-chip.jsx";
+} from "./use-preview-text.jsx";
 import {
   Select$2,
+  SelectContent$1,
+  SelectGroup,
+  SelectItem$1,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger$1,
   SelectValue$1,
-  SelectContent$1,
-  SelectItem$1,
-  SelectSeparator,
-  SelectGroup,
-  SelectLabel,
-} from "../generation/calc-video-cost-breakdown.jsx";
-import { Slider$1 } from "../generation/slider.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { defaultSettings } from "./highlights-fragment.js";
+} from "../generation/select-content.jsx";
+import { defaultSettings } from "./default-settings.js";
 import { ImageColorGrading } from "./image-color-grading.js";
-import { DragGhost, PreviewBar, ToolTile } from "./image-tool-meta.jsx";
-export function ColorAdjustSlider({
-  label,
-  value,
-  min: min2,
-  max: max2,
-  disabled: disabled2,
-  onChange,
-  dataActionUiId,
-}) {
-  return (
-    <div className="flex flex-col">
-      <div className="hilo-slider-field__header flex items-center justify-between text-[13px]">
-        <span className="text-foreground/70">{label}</span>
-        <span className="font-mono tabular-nums text-muted-foreground">{value}</span>
-      </div>
-      <Slider$1
-        variant="rounded"
-        size="compact"
-        value={value}
-        min={min2}
-        max={max2}
-        step={1}
-        disabled={disabled2}
-        aria-label={label}
-        thumbProps={{
-          "data-action-ui-id": dataActionUiId,
-        }}
-        onValueChange={(next2) => onChange(Array.isArray(next2) ? next2[0] : next2)}
-      />
-    </div>
-  );
-}
+
 const LUT_NONE$1 = "__none__";
+
 const SLIDER_GROUPS$1 = [
   {
     i18nKey: "colorAdjust.groupColor",
@@ -234,7 +208,15 @@ const SLIDER_GROUPS$1 = [
     ],
   },
 ];
-export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onConfirm, lut }) {
+
+export function ColorAdjustDialog({
+  open,
+  onOpenChange,
+  imageSrc,
+  fileName,
+  onConfirm,
+  lut,
+}) {
   const { t: t2 } = useTranslation();
   useSuspendCanvasInteractions(open);
   const [stageEl, setStageEl] = reactExports.useState(null);
@@ -272,7 +254,8 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
           processor.setSettings(settingsRef.current);
         })
         .catch((err) => {
-          if (!cancelled) console.error("[ColorAdjustDialog] loadImage failed:", err);
+          if (!cancelled)
+            console.error("[ColorAdjustDialog] loadImage failed:", err);
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -310,7 +293,9 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
       .then((res) => {
         if (!cancelled) setLuts(res);
       })
-      .catch((err) => console.error("[ColorAdjustDialog] list LUTs failed:", err));
+      .catch((err) =>
+        console.error("[ColorAdjustDialog] list LUTs failed:", err),
+      );
     return () => {
       cancelled = true;
     };
@@ -333,7 +318,8 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
         processor.setLUTIntensity(lutIntensityRef.current);
       })
       .catch((err) => {
-        if (!cancelled) console.error("[ColorAdjustDialog] load LUT failed:", err);
+        if (!cancelled)
+          console.error("[ColorAdjustDialog] load LUT failed:", err);
       })
       .finally(() => {
         if (!cancelled) setLutBusy(false);
@@ -411,7 +397,9 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
           error: err,
         });
         console.error("[ColorAdjustDialog] import LUT failed:", err);
-        dedupedToast.error(t2("colorAdjust.lut.errorImport", "Failed to import LUT"));
+        dedupedToast.error(
+          t2("colorAdjust.lut.errorImport", "Failed to import LUT"),
+        );
       } finally {
         setLutBusy(false);
       }
@@ -421,7 +409,9 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
   const handleDeleteLut = reactExports.useCallback(
     async (name2) => {
       if (!lut) return;
-      const confirmed = window.confirm(t2("colorAdjust.lut.deleteConfirm", "Delete this LUT?"));
+      const confirmed = window.confirm(
+        t2("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
+      );
       if (!confirmed) return;
       setLutBusy(true);
       try {
@@ -431,7 +421,9 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
         if (selectedLut === name2) setSelectedLut(null);
       } catch (err) {
         console.error("[ColorAdjustDialog] delete LUT failed:", err);
-        dedupedToast.error(t2("colorAdjust.lut.errorDelete", "Failed to delete LUT"));
+        dedupedToast.error(
+          t2("colorAdjust.lut.errorDelete", "Failed to delete LUT"),
+        );
       } finally {
         setLutBusy(false);
       }
@@ -452,13 +444,20 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
     },
     [t2],
   );
-  const presetLuts = reactExports.useMemo(() => luts.filter((entry) => entry.isPreset), [luts]);
-  const userLuts = reactExports.useMemo(() => luts.filter((entry) => !entry.isPreset), [luts]);
+  const presetLuts = reactExports.useMemo(
+    () => luts.filter((entry) => entry.isPreset),
+    [luts],
+  );
+  const userLuts = reactExports.useMemo(
+    () => luts.filter((entry) => !entry.isPreset),
+    [luts],
+  );
   const lutItems = reactExports.useMemo(() => {
     const map3 = {
       [LUT_NONE$1]: t2("colorAdjust.lut.none", "None"),
     };
-    for (const entry of presetLuts) map3[entry.name] = presetDisplayName(entry.name);
+    for (const entry of presetLuts)
+      map3[entry.name] = presetDisplayName(entry.name);
     for (const entry of userLuts) map3[entry.name] = entry.name;
     return map3;
   }, [presetLuts, userLuts, presetDisplayName, t2]);
@@ -495,11 +494,16 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
         </DialogHeader$1>
         <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_280px]">
           <div className="relative flex min-h-0 items-center justify-center bg-[var(--canvas-controls-hover)] p-3">
-            <div ref={setStageEl} className="flex h-full w-full items-center justify-center" />
+            <div
+              ref={setStageEl}
+              className="flex h-full w-full items-center justify-center"
+            />
             {loading && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-background/60 text-xs text-muted-foreground">
                 <Loader2 className="size-5 animate-spin" />
-                <span>{t2("colorAdjust.compilingShaders", "正在编译着色器…")}</span>
+                <span>
+                  {t2("colorAdjust.compilingShaders", "正在编译着色器…")}
+                </span>
               </div>
             )}
           </div>
@@ -524,7 +528,10 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
                             className="w-full"
                           >
                             <SelectValue$1
-                              placeholder={t2("colorAdjust.lut.placeholder", "Select a LUT")}
+                              placeholder={t2(
+                                "colorAdjust.lut.placeholder",
+                                "Select a LUT",
+                              )}
                             />
                           </SelectTrigger$1>
                           <SelectContent$1>
@@ -538,10 +545,16 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
                                 <SelectSeparator />
                                 <SelectGroup>
                                   <SelectLabel className="text-[11px] font-medium uppercase tracking-wider">
-                                    {t2("colorAdjust.lutGroupPresets", "Presets")}
+                                    {t2(
+                                      "colorAdjust.lutGroupPresets",
+                                      "Presets",
+                                    )}
                                   </SelectLabel>
                                   {presetLuts.map((entry) => (
-                                    <SelectItem$1 key={entry.name} value={entry.name}>
+                                    <SelectItem$1
+                                      key={entry.name}
+                                      value={entry.name}
+                                    >
                                       <span className="min-w-0 flex-1 truncate">
                                         {presetDisplayName(entry.name)}
                                       </span>
@@ -558,7 +571,8 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
                                     {t2("colorAdjust.lutGroupMine", "My LUTs")}
                                   </SelectLabel>
                                   {userLuts.map((entry) => {
-                                    const isSelected = selectedLut === entry.name;
+                                    const isSelected =
+                                      selectedLut === entry.name;
                                     return (
                                       <SelectItem$1
                                         key={entry.name}
@@ -572,11 +586,16 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
                                           {!isSelected && (
                                             <button
                                               type="button"
-                                              aria-label={t2("colorAdjust.lut.delete", "Delete")}
+                                              aria-label={t2(
+                                                "colorAdjust.lut.delete",
+                                                "Delete",
+                                              )}
                                               onClick={(e2) => {
                                                 e2.preventDefault();
                                                 e2.stopPropagation();
-                                                void handleDeleteLut(entry.name);
+                                                void handleDeleteLut(
+                                                  entry.name,
+                                                );
                                               }}
                                               onPointerDown={(e2) => {
                                                 e2.preventDefault();
@@ -657,7 +676,12 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
           </div>
         </div>
         <DialogFooter$1 className="flex-row items-center justify-between gap-3 px-3 pb-3 pt-3">
-          <Button$2 variant="ghost" size="sm" onClick={handleReset} disabled={submitting}>
+          <Button$2
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+            disabled={submitting}
+          >
             {t2("colorAdjust.reset")}
           </Button$2>
           <div className="flex items-center gap-1.5">
@@ -674,199 +698,6 @@ export function ColorAdjustDialog({ open, onOpenChange, imageSrc, fileName, onCo
             </Button$2>
           </div>
         </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
-  );
-}
-export function CustomizeToolbarDialog$2({
-  open,
-  onOpenChange,
-  allToolIds,
-  toolMeta,
-  store,
-  defaults: defaults2,
-  fixedRightChips,
-  onApply,
-  onAbandon,
-}) {
-  const { t: t2 } = useTranslation();
-  const [draftPinned, setDraftPinned] = reactExports.useState([...store.pinned]);
-  const [draftShowLabels, setDraftShowLabels] = reactExports.useState(store.showLabels);
-  const [activeDragId, setActiveDragId] = reactExports.useState(null);
-  reactExports.useEffect(() => {
-    if (open) {
-      setDraftPinned([...store.pinned]);
-      setDraftShowLabels(store.showLabels);
-    }
-  }, [open, store.pinned, store.showLabels]);
-  const togglePin = (id2) => {
-    setDraftPinned((prev) =>
-      prev.includes(id2) ? prev.filter((x2) => x2 !== id2) : [...prev, id2],
-    );
-  };
-  const unpin = (id2) => {
-    setDraftPinned((prev) => prev.filter((x2) => x2 !== id2));
-  };
-  const reset2 = () => {
-    setDraftPinned([...defaults2.pinned]);
-    setDraftShowLabels(defaults2.showLabels);
-  };
-  const save = () => {
-    onApply?.({
-      pinnedCount: draftPinned.length,
-      showLabels: draftShowLabels,
-    });
-    store.setCustomization({
-      pinned: draftPinned,
-      showLabels: draftShowLabels,
-    });
-    onOpenChange(false);
-  };
-  const abandon = () => {
-    onAbandon?.(
-      draftShowLabels !== store.showLabels ||
-        draftPinned.length !== store.pinned.length ||
-        draftPinned.some((id2, index2) => id2 !== store.pinned[index2]),
-    );
-    onOpenChange(false);
-  };
-  const handleDialogOpenChange = (nextOpen) => {
-    if (!nextOpen) {
-      abandon();
-      return;
-    }
-    onOpenChange(true);
-  };
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-  const onDragStart = (event) => {
-    setActiveDragId(event.active.id);
-  };
-  const onDragEnd = (event) => {
-    setActiveDragId(null);
-    const { active: active2, over } = event;
-    if (!over || active2.id === over.id) return;
-    setDraftPinned((prev) => {
-      const oldIdx = prev.indexOf(active2.id);
-      const newIdx = prev.indexOf(over.id);
-      if (oldIdx === -1 || newIdx === -1) return prev;
-      return arrayMove(prev, oldIdx, newIdx);
-    });
-  };
-  const onDragCancel = () => setActiveDragId(null);
-  const activeMeta = activeDragId ? toolMeta[activeDragId] : void 0;
-  return (
-    <Dialog$1 open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent$1 className="!max-w-[760px] gap-0 p-0" onClick={(e2) => e2.stopPropagation()}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          onDragCancel={onDragCancel}
-        >
-          <div className="flex flex-col gap-1 px-6 pt-6">
-            <DialogTitle$1 className="text-lg font-medium">
-              {t2("canvas.customizeToolbar.title", "Customize Toolbar")}
-            </DialogTitle$1>
-            <DialogDescription$1 className="text-sm text-muted-foreground">
-              {t2("canvas.customizeToolbar.subtitle", "Choose the tools you want in your edit bar")}
-            </DialogDescription$1>
-          </div>
-          <div
-            className="relative mx-6 mt-5 mb-4 h-[140px] rounded-lg overflow-hidden border border-border"
-            style={{
-              background: "var(--canvas-bg)",
-            }}
-          >
-            <div className="h-full overflow-x-auto overflow-y-hidden">
-              <div className="flex h-full min-w-max items-center justify-center px-6">
-                <PreviewBar
-                  pinned={draftPinned}
-                  showLabels={draftShowLabels}
-                  toolMeta={toolMeta}
-                  fixedRightChips={fixedRightChips}
-                  onUnpin={unpin}
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={reset2}
-              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--canvas-controls-bg)] backdrop-blur text-muted-foreground hover:bg-[var(--canvas-controls-hover)] hover:text-foreground border border-[var(--canvas-controls-border)] transition-colors"
-              aria-label={t2("canvas.customizeToolbar.reset", "Reset to defaults")}
-              title={t2("canvas.customizeToolbar.reset", "Reset to defaults")}
-            >
-              <RotateCcw size={14} strokeWidth={1.75} />
-            </button>
-          </div>
-          <div className="px-6">
-            <div className="grid grid-cols-3 gap-2">
-              {allToolIds.map((id2) => (
-                <ToolTile
-                  key={id2}
-                  id={id2}
-                  meta={toolMeta[id2]}
-                  pinned={draftPinned.includes(id2)}
-                  onTogglePin={() => togglePin(id2)}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-6">
-            <label className="flex items-center gap-2 cursor-pointer text-sm">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={draftShowLabels}
-                onClick={() => setDraftShowLabels((v2) => !v2)}
-                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${draftShowLabels ? "bg-foreground" : "bg-muted-foreground/30"}`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full transition-transform ${draftShowLabels ? "bg-background translate-x-[18px]" : "bg-foreground translate-x-0.5"}`}
-                />
-              </button>
-              <span>{t2("canvas.customizeToolbar.showLabels", "Show tool names")}</span>
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={abandon}
-                className="h-9 rounded-md px-4 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
-              >
-                {t2("common.cancel", "Cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={save}
-                className="h-9 rounded-md bg-foreground px-4 text-sm text-background hover:bg-foreground/90 transition-colors"
-              >
-                {t2("common.save", "Save")}
-              </button>
-            </div>
-          </div>
-          {typeof document !== "undefined" &&
-            reactDomExports.createPortal(
-              <DragOverlay
-                dropAnimation={{
-                  duration: 220,
-                  easing: "cubic-bezier(0.18, 0.67, 0.16, 1)",
-                }}
-                zIndex={10010}
-              >
-                {activeMeta ? <DragGhost meta={activeMeta} showLabel={draftShowLabels} /> : null}
-              </DragOverlay>,
-              document.body,
-            )}
-        </DndContext>
       </DialogContent$1>
     </Dialog$1>
   );

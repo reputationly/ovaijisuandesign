@@ -1,120 +1,147 @@
 // i2-v-popover-inner.jsx
-import { jsxRuntimeExports, useTranslation, useReactFlow, reactExports, dedupedToast, useAssetMetadataApi } from "../vendor.js";
-import { useModelRegistryStore } from "../infra/create-recently-added-store.jsx";
-import { useCanvasBridge, useCanvasActions, FileClock } from "../media-editing/parse-item.jsx";
-import { MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO } from "./push-inline.js";
+import {
+  dedupedToast,
+  jsxRuntimeExports,
+  reactExports,
+  useAssetMetadataApi,
+  useReactFlow,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  buildSpecialI2VSubmitParams,
+  DEFAULT_VIDEO_EXTENSION_CAPABILITY,
+  devLogI2V,
+  getMissingRequiredAttachmentForI2V,
+  getSpecialI2VCostDurationAttachmentKind,
+  I2VAspectRatioField,
+  imageModeOptionLabel,
+  isMissingH3FirstLastFrameImage,
+  isMissingSpecialI2VCostDurationForPreview,
+  isUnsupportedTailOnlyFirstLastFrameI2V,
+  isVideoExtensionInputDurationValid,
+  isVideoExtensionOutputDurationValid,
+  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM,
+  MAX_VIDEOS_PER_SUBMIT$1,
+  MINIMAX_H3_PRICING_ID,
+  MINIMAX_H3_REFERENCE_MEDIA_MAX_SEC,
+  MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS,
+  MINIMAX_H3_REFERENCE_VIDEO_MIN_FPS,
+  requiresPromptForI2V,
+  resolveEffectiveI2VVideoParams,
+  resolveI2VDefaultImagePaths,
+  resolveI2VPrefillOverride,
+  resolveSeedance25SubmitParams,
+  resolveSeedance25VideoInputDurationSummary,
+  sanitizeVideoExtensionSubmitParams,
+  SEEDANCE_25_EDIT_INPUT_MIN_SEC,
+  shouldHideVideoExtensionParam,
+  VIDEO_COUNT_OPTIONS,
+  VIDEO_EXTENSION_MODE,
+  videoExtensionDisabledDurationOptions,
+  videoExtensionDurationOptions,
+} from "./i2-v-aspect-ratio-field.jsx";
+import {
+  ensureSeedance25DirectImageModes,
+  resolveImageMode,
+  STANDARD_PARAMS,
+  summarizeParams,
+} from "./summarize-params-2.js";
+import { useModelRegistryStore } from "../infra/create-recently-added-store.js";
+import { FileClock, useCanvasBridge } from "../media-editing/package.jsx";
+import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 import {
   composePromptWithReferenceText,
   pickPersistableModelParams,
-} from "../canvas/prune-persisted-node-data.js";
+} from "../canvas/is-reexecutable-generation-node.js";
 import {
-  translateOptionValue,
-  findModelByStoredId,
-  normalizeParamsForModel,
-  getDefaultParams,
-  migrateParamsForModel,
-  enforceConstraints,
-  popoverDraftIsDirty,
-  getDisabledOptions,
-  paramI18nKey,
-  paramPlaceholderI18nKey,
-  paramLabelFallback,
-  paramPlaceholderFallback,
   attachmentExtraHeight,
   buildPromotionClickHandler,
-  resolveDefaultReferencePaths,
+  enforceConstraints,
+  findModelByStoredId,
+  getDefaultParams,
+  migrateParamsForModel,
+  normalizeParamsForModel,
+  paramI18nKey,
+  paramLabelFallback,
+  paramPlaceholderFallback,
+  paramPlaceholderI18nKey,
+  popoverDraftIsDirty,
   stripDerivedReferenceParams,
-} from "./resolve-reference-texts.js";
+} from "./param-label-fallbacks.js";
+import { getDisabledOptions } from "./resolve-reference-texts.js";
 import {
-  ASPECT_RATIO_PARAM_KEYS,
   IMAGE_MODE_KEY,
   isDraftSubmitFormDisabled,
   shouldPersistPopoverDraftOnUnmount,
   submitWithPersistedPopoverDraft,
-} from "../media-editing/use-lightbox-media-actions.jsx";
-import { getAdjacentNodePosition } from "../canvas/use-media-node-actions.jsx";
-import { Tooltip$1 } from "./create-tracker.jsx";
+} from "../media-editing/use-warn-missing-asset-meta.jsx";
+import { getAdjacentNodePosition } from "../canvas/node-shell-inner.jsx";
+import { Tooltip$1 } from "./missing-asset-card.jsx";
 import {
-  calculateVideoDurationExcesses,
   calculateAudioDurationExcesses,
-} from "../media-editing/thumb-chip.jsx";
+  calculateVideoDurationExcesses,
+} from "../media-editing/use-preview-text.jsx";
 import {
-  nextAtPickerState,
+  HAILUO03_VIDEO_CONTINUATION_PRICING_ID,
   isHailuo03Model,
+  nextAtPickerState,
+  resolveVideoPricingId,
+} from "./select-content.jsx";
+import {
   aggregateReferenceVideoDurations,
   maxReferenceVideoDuration,
-  resolveVideoPricingId,
-  HAILUO03_VIDEO_CONTINUATION_PRICING_ID,
-  calcVideoCostBreakdown,
   resolveVideoBillingTooltip,
-} from "./calc-video-cost-breakdown.jsx";
-import {
-  ParamSectionLabel,
-  AspectRatioGrid,
-  ResolutionTabs,
-  mediaExtensionDurationOptions,
-  mediaExtensionDisabledDurationOptions,
-  isMediaExtensionInputDurationValid,
-  isMediaExtensionOutputDurationValid,
-} from "./slider.jsx";
+} from "./resolve-video-billing-tooltip.js";
+import { calcVideoCostBreakdown } from "./calc-video-cost-breakdown.js";
+import { ParamSectionLabel, ResolutionTabs } from "./resolution-tabs.jsx";
 import { ModelChip } from "./model-chip.jsx";
 import {
-  parsePromptToTiptap,
-  useReferenceTextContent,
-  extractCanvasEditorText,
-  countPromptCharacters,
-  useAssetsRefValidate,
-  extractCanvasEditorSubmitText,
   collectTextChipPaths,
-  loadReferenceTextContent,
-  compileChipPromptForModel,
   countCompiledMediaPromptCharacters,
+  countPromptCharacters,
+  extractCanvasEditorSubmitText,
+  extractCanvasEditorText,
+  loadReferenceTextContent,
+  parsePromptToTiptap,
   removeCanvasSubjectReferences,
-} from "../assets/use-assets-ref-validate.js";
-import { usePopoverOpenTrack, useVideoReferenceNavigation } from "../media-editing/decode-worker-pool.jsx";
+  useReferenceTextContent,
+} from "../assets/parse-prompt-to-tiptap.js";
+import { useAssetsRefValidate } from "../assets/use-assets-ref-validate.js";
+import { compileChipPromptForModel } from "../assets/compile-chip-prompt-for-model.js";
+import { usePopoverOpenTrack } from "../media-editing/get-reference-navigation-defaults.jsx";
+import { useVideoReferenceNavigation } from "../media-editing/use-video-reference-navigation.js";
+import { useAttachmentState } from "../assets/use-attachment-state.js";
 import {
-  useAttachmentState,
-  DEFAULT_TEXT_REFERENCE_MAX,
   AUDIO_TOTAL_MAX_SEC,
+  DEFAULT_TEXT_REFERENCE_MAX,
   VIDEO_TOTAL_MAX_SEC,
-} from "../assets/use-attachment-state.js";
+} from "../assets/reconcile-first-last-frame-default-paths.js";
 import {
   isCanvasReferenceUri,
   isCanvasSubjectReference,
 } from "../text-editor/table-document-to-llm-content.js";
+import { ParamTabs } from "./param-tabs.jsx";
+import { GeneratingButton, ParamTextarea } from "./expand-arrow-icon.jsx";
+import { DualSubmitButtons } from "./dual-submit-buttons.jsx";
+import { SubmitButton } from "./submit-button.jsx";
+import { PopoverShell } from "./attachment-bar.jsx";
+import { VideoPopoverReferenceSection } from "../media-editing/first-last-frame-image-slots.jsx";
+import { RichPromptInput } from "../chat/rich-prompt-input.jsx";
 import {
-  ParamTabs,
-  ParamTextarea,
-  GeneratingButton,
-  DualSubmitButtons,
-  SubmitButton,
-} from "./param-tabs.jsx";
-import { PopoverShell, VideoPopoverReferenceSection } from "./use-direct-reference-picker.jsx";
-import {
-  RichPromptInput,
   getReferenceVideoDurationsMs,
   hasUnsupportedReferenceAudioFormat,
-} from "../chat/rich-prompt-input.jsx";
+} from "../chat/merge-direct-reference-metadata.js";
 import { MentionPickerPopover } from "./mention-picker-popover.jsx";
-import { ParamsChip, ParamsPopup } from "./params-popup.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
+import { ParamsChip } from "./params-chip.jsx";
+import { ParamsPopup } from "./params-popup.jsx";
 import {
   PromptPlaceholder,
   useAttachmentReplacement,
   useMediaFileRefSwitch,
-} from "./i2-i-popover-inner.jsx";
-import { CountChip } from "../media-editing/image-node-toolbar-section.jsx";
+} from "./prompt-placeholder.jsx";
+import { CountChip } from "../media-editing/count-chip.jsx";
 import {
-  ADAPTIVE_RATIO_VALUES,
-  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1,
-  MINIMAX_H3_BACKEND_ID,
-  MINIMAX_H3_MODEL_ID$2,
-  ModelParamSelect,
-  ParamDurationSlider,
-  ProviderTaskIdChip,
-  SEEDANCE_25_INHERITED_VIDEO_MODES,
-  SEEDANCE_25_VIDEO_EDIT_MODE,
-  SEEDANCE_25_VIDEO_EXTEND_MODE,
   buildHailuo03BillingDetails,
   buildVideoCostFormula,
   hasAnyVideoInput,
@@ -125,481 +152,23 @@ import {
   isSeedance25Model,
   isSeedance25VideoEditMode,
   isSeedanceModel,
-  migrateLegacySeedance25GenerationModeParams,
+  ModelParamSelect,
   nearestDuration,
-  normalizeIdentifier$1,
+  ProviderTaskIdChip,
   referenceVideoBudgetDisabledDurationOptions,
   referenceVideoCombinedBudgetSec,
-  requiresReferenceImageForI2V,
   resolveHailuo03TrialClaimResolution,
+} from "./model-param-select.jsx";
+import { ParamDurationSlider } from "./param-duration-slider.jsx";
+import {
+  migrateLegacySeedance25GenerationModeParams,
   resolveSeedance25AvailableImageMode,
   resolveSeedance25ImageModeChangeParams,
   resolveSeedance25ImageModeOptions,
   resolveSeedance25VideoExtendDefaultDuration,
-  resolveSeedance25VideoInputTotalDuration,
-  resolveSpecialI2VRouteKind,
   shouldSwitchHailuo03TrialClaimResolution,
-} from "./param-duration-slider.jsx";
-function requiresPromptForI2V(model) {
-  if (!model) return false;
-  if (normalizeIdentifier$1(model.backend) === MINIMAX_H3_BACKEND_ID) return true;
-  return [model.id, model.model_name, model.pricingId, model.name].some(
-    (value) => normalizeIdentifier$1(value) === MINIMAX_H3_MODEL_ID$2,
-  );
-}
-function hasReferenceMedia(imagePaths, videoPaths, audioPaths) {
-  return [...imagePaths, ...videoPaths, ...audioPaths].some((path2) => path2.trim().length > 0);
-}
-function isAdaptiveRatio(value) {
-  return value !== void 0 && ADAPTIVE_RATIO_VALUES.has(value.toLowerCase());
-}
-function resolveVideoRatioParam(model, params) {
-  const key2 = ["aspect_ratio", "ratio"].find(
-    (candidate) => model?.params?.[candidate] !== void 0 || params[candidate] !== void 0,
-  );
-  if (!key2) return void 0;
-  const definition2 = model?.params?.[key2];
-  return {
-    key: key2,
-    currentValue: params[key2] ?? definition2?.default,
-    fixedValue:
-      definition2?.options?.find((option2) => !isAdaptiveRatio(option2)) ??
-      MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO,
-  };
-}
-function shouldDisableH3AdaptiveRatio(model, imageMode, imagePaths, videoPaths, audioPaths) {
-  if (!requiresPromptForI2V(model)) return false;
-  if (imageMode === "text-to-video") return true;
-  if (imageMode !== "reference") return false;
-  if (model?.params?.image_mode?.options?.includes("text-to-video")) return false;
-  return !hasReferenceMedia(imagePaths, videoPaths, audioPaths);
-}
-function shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths) {
-  return (
-    isSeedance25Model(model) &&
-    ((imageMode === "first-last-frame" &&
-      imagePaths.slice(0, 2).some((path2) => path2.trim().length > 0)) ||
-      SEEDANCE_25_INHERITED_VIDEO_MODES.has(imageMode))
-  );
-}
-function resolveI2VAspectRatioOptions(
-  options,
-  constraintDisabledOptions,
-  disableAdaptive,
-  disableFixed = false,
-) {
-  const disabledOptions = new Set([
-    ...constraintDisabledOptions,
-    ...(disableAdaptive ? ADAPTIVE_RATIO_VALUES : []),
-    ...(disableFixed ? options.filter((option2) => !isAdaptiveRatio(option2)) : []),
-  ]);
-  const visibleOptions = options.filter((option2) => !constraintDisabledOptions.has(option2));
-  return {
-    options: visibleOptions.length > 0 ? visibleOptions : options,
-    disabledOptions,
-  };
-}
-function resolveEffectiveH3VideoParams(model, params, imagePaths, videoPaths, audioPaths) {
-  const imageMode = params.image_mode ?? "reference";
-  if (!shouldDisableH3AdaptiveRatio(model, imageMode, imagePaths, videoPaths, audioPaths)) {
-    return params;
-  }
-  const ratioParam = resolveVideoRatioParam(model, params);
-  if (!ratioParam || !isAdaptiveRatio(ratioParam.currentValue)) return params;
-  return {
-    ...params,
-    [ratioParam.key]: ratioParam.fixedValue,
-  };
-}
-function resolveEffectiveSeedance25VideoParams(model, params, imageMode, imagePaths) {
-  if (!shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths)) {
-    return params;
-  }
-  const ratioParam = resolveVideoRatioParam(model, params);
-  if (!ratioParam || ratioParam.currentValue?.trim().toLowerCase() === "adaptive") return params;
-  return {
-    ...params,
-    [ratioParam.key]: "adaptive",
-  };
-}
-function resolveSeedance25SubmitParams(model, params, imageMode) {
-  const next2 = {
-    ...params,
-  };
-  delete next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1];
-  if (!isSeedance25InheritedVideoMode(model, imageMode)) return next2;
-  if (imageMode === SEEDANCE_25_VIDEO_EDIT_MODE || imageMode === SEEDANCE_25_VIDEO_EXTEND_MODE) {
-    const ratioParam = resolveVideoRatioParam(model, next2);
-    if (ratioParam) next2[ratioParam.key] = "adaptive";
-  }
-  if (imageMode === SEEDANCE_25_VIDEO_EDIT_MODE) next2.duration = "-1";
-  return next2;
-}
-function resolveEffectiveI2VVideoParams(
-  model,
-  params,
-  imageMode,
-  imagePaths,
-  videoPaths,
-  audioPaths,
-) {
-  const h3Params = resolveEffectiveH3VideoParams(model, params, imagePaths, videoPaths, audioPaths);
-  return resolveEffectiveSeedance25VideoParams(model, h3Params, imageMode, imagePaths);
-}
-function isMissingH3FirstLastFrameImage(model, imageMode, imagePaths, hasPrompt = false) {
-  return (
-    requiresPromptForI2V(model) &&
-    imageMode === "first-last-frame" &&
-    !hasPrompt &&
-    !imagePaths.some((path2) => path2.trim().length > 0)
-  );
-}
-function isUnsupportedTailOnlyFirstLastFrameI2V(model, imageMode, imagePaths) {
-  return (
-    model?.supportsLastFrameOnly !== true &&
-    imageMode === "first-last-frame" &&
-    !imagePaths[0]?.trim() &&
-    !!imagePaths[1]?.trim()
-  );
-}
-function isMissingRequiredReferenceImageForI2V(model, imagePaths) {
-  return requiresReferenceImageForI2V(model) && !imagePaths.some(Boolean);
-}
-function getMissingRequiredAttachmentForI2V(model, imagePaths, _videoPaths, audioPaths) {
-  if (isMissingRequiredReferenceImageForI2V(model, imagePaths)) return "image";
-  const routeKind = resolveSpecialI2VRouteKind(model);
-  if (routeKind === "kling-avatar" && !audioPaths.some(Boolean)) return "audio";
-  return void 0;
-}
-function getSpecialI2VCostDurationAttachmentKind(model) {
-  const routeKind = resolveSpecialI2VRouteKind(model);
-  if (routeKind === "kling-avatar") return "audio";
-  return void 0;
-}
-function isMissingSpecialI2VCostDurationForPreview(model, _videoPaths, audioPaths, durationSec) {
-  const durationKind = getSpecialI2VCostDurationAttachmentKind(model);
-  if (!durationKind) return false;
-  const hasRequiredAttachment = audioPaths.some(Boolean);
-  return !hasRequiredAttachment || durationSec == null || durationSec <= 0;
-}
-function buildSpecialI2VSubmitParams(model, params, _videoPaths, audioPaths) {
-  const routeKind = resolveSpecialI2VRouteKind(model);
-  if (!routeKind) return params;
-  const next2 = {
-    ...params,
-  };
-  if (routeKind === "kling-avatar") {
-    next2.type = "avatar";
-    const audioPath = audioPaths.find(Boolean);
-    if (audioPath) next2.sound_file = audioPath;
-  }
-  return next2;
-}
-function I2VAspectRatioField({
-  model,
-  imageMode,
-  imagePaths,
-  videoPaths,
-  audioPaths,
-  options,
-  value,
-  onChange,
-  disabled: disabled2,
-  disabledOptions,
-  label,
-}) {
-  const { t: t2 } = useTranslation();
-  const disableAdaptive = shouldDisableH3AdaptiveRatio(
-    model,
-    imageMode,
-    imagePaths,
-    videoPaths,
-    audioPaths,
-  );
-  const forceAdaptive = shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths);
-  const inheritsSourceVideoRatio = imageMode === "video-edit" || imageMode === "video-extend";
-  const ratioState = resolveI2VAspectRatioOptions(
-    options,
-    disabledOptions,
-    disableAdaptive,
-    forceAdaptive,
-  );
-  return (
-    <div>
-      <ParamSectionLabel>{label}</ParamSectionLabel>
-      {forceAdaptive ? (
-        <p className="mb-2 text-xs leading-4 text-muted-foreground">
-          {t2(
-            inheritsSourceVideoRatio
-              ? "canvas.param.seedance25InheritedVideoRatioHint"
-              : "canvas.param.seedance25AdaptiveRatioHint",
-            {
-              defaultValue: inheritsSourceVideoRatio
-                ? "视频编辑和视频续写的宽高比跟随输入视频，仅支持自适应"
-                : "首尾帧模式下，宽高比跟随素材，仅支持自适应",
-            },
-          )}
-        </p>
-      ) : null}
-      <AspectRatioGrid
-        options={ratioState.options}
-        value={value}
-        onChange={onChange}
-        disabled={disabled2}
-        disabledOptions={ratioState.disabledOptions}
-      />
-    </div>
-  );
-}
-const VIDEO_EXTENSION_MODE = "video-extension";
-const VIDEO_EXTENSION_AUDIO_PARAM = "generate_audio";
-const VIDEO_EXTENSION_DROPPED_PARAM_KEYS = ["ratio", "aspect_ratio", VIDEO_EXTENSION_AUDIO_PARAM];
-const DEFAULT_VIDEO_EXTENSION_CAPABILITY = {
-  inputMinDurationSec: 1,
-  inputMaxDurationSec: 20,
-  outputMinDurationSec: 5,
-  outputMaxDurationSec: 20,
-};
-function videoExtensionDurationOptions(capability) {
-  return mediaExtensionDurationOptions(capability);
-}
-function videoExtensionDisabledDurationOptions(sourceDurationSec, capability) {
-  return mediaExtensionDisabledDurationOptions(sourceDurationSec, capability);
-}
-function isVideoExtensionInputDurationValid(sourceDurationSec, capability) {
-  return isMediaExtensionInputDurationValid(sourceDurationSec, capability);
-}
-function isVideoExtensionOutputDurationValid(sourceDurationSec, outputDuration, capability) {
-  return isMediaExtensionOutputDurationValid(sourceDurationSec, outputDuration, capability);
-}
-function shouldHideVideoExtensionParam(paramKey) {
-  return paramKey === VIDEO_EXTENSION_AUDIO_PARAM;
-}
-function sanitizeVideoExtensionSubmitParams(params) {
-  const next2 = {
-    ...params,
-  };
-  for (const key2 of VIDEO_EXTENSION_DROPPED_PARAM_KEYS) {
-    delete next2[key2];
-  }
-  return next2;
-}
-function resolveI2VImageMode(params, model) {
-  const fromParams = params[IMAGE_MODE_KEY];
-  if (
-    fromParams === "first-last-frame" ||
-    fromParams === "reference" ||
-    fromParams === VIDEO_EXTENSION_MODE
-  ) {
-    return fromParams;
-  }
-  if (model?.imageMode) return model.imageMode;
-  if ((model?.max_refs ?? 0) > 2) return "reference";
-  if (!model) return "reference";
-  return "first-last-frame";
-}
-function resolveI2VDefaultImagePaths({
-  liveImagePaths,
-  draftImagePaths,
-  fallbackImagePath,
-  imageMode,
-}) {
-  const livePaths =
-    liveImagePaths && liveImagePaths.length > 0
-      ? liveImagePaths
-      : fallbackImagePath
-        ? [fallbackImagePath]
-        : [];
-  return resolveDefaultReferencePaths(livePaths, draftImagePaths, {
-    preserveDraftSlots: imageMode === "first-last-frame",
-  });
-}
-function imageModeOptionLabel(t2, opt) {
-  if (opt === "first-last-frame") {
-    return t2("canvas.imageMode.firstLastFrame");
-  }
-  if (opt === "reference") {
-    return t2("canvas.imageMode.omniReference");
-  }
-  if (opt === "text-to-video") {
-    return t2("canvas.imageMode.textToVideo", {
-      defaultValue: "Text to Video",
-    });
-  }
-  if (opt === VIDEO_EXTENSION_MODE) {
-    return t2("canvas.imageMode.videoExtension", {
-      defaultValue: "Extend Video",
-    });
-  }
-  if (opt === SEEDANCE_25_VIDEO_EDIT_MODE) {
-    return t2("canvas.seedance25.omniMode.edit", {
-      defaultValue: "视频编辑",
-    });
-  }
-  if (opt === SEEDANCE_25_VIDEO_EXTEND_MODE) {
-    return t2("canvas.seedance25.omniMode.extend", {
-      defaultValue: "视频续写",
-    });
-  }
-  return opt;
-}
-function resolveI2VPrefillOverride({ models, prompt, modelId, params }) {
-  const override = {};
-  const nextPrompt = typeof prompt === "string" ? prompt : "";
-  if (nextPrompt.trim().length > 0) override.prompt = nextPrompt;
-  const model = findModelByStoredId(models, modelId);
-  if (model) {
-    override.model = {
-      id: model.id,
-      params: normalizeParamsForModel(
-        model,
-        migrateLegacySeedance25GenerationModeParams(model, stripDerivedReferenceParams(params)),
-      ),
-    };
-  }
-  return override;
-}
-function resolveSeedance25VideoInputDurationSummary(videoPaths, assets) {
-  const filledPaths = videoPaths.filter((path2) => path2.trim().length > 0);
-  const pathToDuration = new Map();
-  for (const meta2 of assets) {
-    if (
-      (!meta2.type || meta2.type === "video") &&
-      meta2.path &&
-      typeof meta2.durationSec === "number" &&
-      Number.isFinite(meta2.durationSec) &&
-      meta2.durationSec > 0
-    ) {
-      pathToDuration.set(meta2.path, meta2.durationSec);
-    }
-  }
-  return {
-    pathKey: filledPaths.join("\0"),
-    totalDurationSec: resolveSeedance25VideoInputTotalDuration(
-      filledPaths.map((path2) => pathToDuration.get(path2)),
-    ),
-  };
-}
-const MINIMAX_H3_MAX_MODEL_ALIASES = new Set([
-  "minimax-h3-max",
-  "minimax-h3-max-turbo",
-  "h3-max",
-  "h3-max-turbo",
-]);
-export function isMiniMaxH3MaxModelValue(value) {
-  if (typeof value !== "string") return false;
-  const normalized = value
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_]+/g, "-");
-  return MINIMAX_H3_MAX_MODEL_ALIASES.has(normalized);
-}
-function resolveCanvasImageMode(params, model) {
-  if (params[IMAGE_MODE_KEY] === "text-to-video") return "text-to-video";
-  return resolveI2VImageMode(params, model);
-}
-const MAX_VIDEOS_PER_SUBMIT$1 = 4;
-const VIDEO_COUNT_OPTIONS = [1, 2, 3, 4];
-const MINIMAX_H3_REFERENCE_MEDIA_MAX_SEC = 15;
-const MINIMAX_H3_REFERENCE_VIDEO_MIN_FPS = 23.5;
-const MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS = 60.5;
-const MINIMAX_H3_PRICING_ID = "MiniMax-H3";
-const SEEDANCE_25_EDIT_INPUT_MIN_SEC = 4;
-const SEEDANCE_25_IMAGE_MODES = [
-  "reference",
-  "first-last-frame",
-  SEEDANCE_25_VIDEO_EDIT_MODE,
-  SEEDANCE_25_VIDEO_EXTEND_MODE,
-];
-const LEGACY_SEEDANCE_25_TASK_TYPE_PARAM = "omni_reference_task_type";
-function ensureSeedance25DirectImageModes(model) {
-  if (!isSeedance25Model(model)) return model;
-  const params = {
-    ...model.params,
-  };
-  const imageModeDefinition = params.image_mode;
-  delete params[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM];
-  params.image_mode = {
-    type: "select",
-    label: imageModeDefinition?.label ?? "生成方式",
-    options: [...SEEDANCE_25_IMAGE_MODES],
-    default: "reference",
-  };
-  return {
-    ...model,
-    params,
-  };
-}
-function devLogI2V(event, payload) {
-  return;
-}
-const STANDARD_PARAMS = [
-  {
-    id: "image_mode",
-    i18nKey: "canvas.param.std.imageMode",
-    fallbackLabel: "Generation Mode",
-    aliases: ["image_mode"],
-  },
-  {
-    id: "aspect_ratio",
-    i18nKey: "canvas.param.std.aspectRatio",
-    fallbackLabel: "Aspect Ratio",
-    aliases: ASPECT_RATIO_PARAM_KEYS,
-  },
-  {
-    id: "resolution",
-    i18nKey: "canvas.param.std.resolution",
-    fallbackLabel: "Resolution",
-    aliases: ["resolution"],
-  },
-  {
-    id: "duration",
-    i18nKey: "canvas.param.std.duration",
-    fallbackLabel: "Duration",
-    aliases: ["duration"],
-  },
-];
-function resolveImageMode(params, model) {
-  const fromParams = params[IMAGE_MODE_KEY];
-  if (fromParams === SEEDANCE_25_VIDEO_EDIT_MODE || fromParams === SEEDANCE_25_VIDEO_EXTEND_MODE) {
-    return fromParams;
-  }
-  return resolveCanvasImageMode(params, model);
-}
-function summarizeParams(t2, model, modelParams) {
-  if (!model) return "";
-  const parts = [];
-  let hasAuto = false;
-  const imageMode = resolveImageMode(modelParams, model);
-  const isSeedance25VideoEdit = isSeedance25VideoEditMode(model, imageMode);
-  const hiddenParams = new Set(model.hiddenParamsByImageMode?.[imageMode] ?? []);
-  for (const std of STANDARD_PARAMS) {
-    const matchedKey = std.aliases.find((a2) => model.params[a2]);
-    if (!matchedKey) continue;
-    if (hiddenParams.has(matchedKey)) continue;
-    if (isSeedance25VideoEdit && std.id === "duration") continue;
-    if (modelParams[IMAGE_MODE_KEY] === VIDEO_EXTENSION_MODE && std.id === "aspect_ratio") {
-      continue;
-    }
-    const value = modelParams[matchedKey] ?? model.params[matchedKey].default;
-    if (!value || value === "auto") {
-      if (value === "auto") hasAuto = true;
-      continue;
-    }
-    if (std.id === "image_mode") {
-      parts.push(imageModeOptionLabel(t2, value));
-    } else if (std.id === "duration") {
-      parts.push(`${value}s`);
-    } else {
-      parts.push(translateOptionValue(t2, value));
-    }
-  }
-  if (parts.length === 0 && hasAuto)
-    return t2("canvas.param.option.auto", {
-      defaultValue: "Auto",
-    });
-  return parts.join(" · ");
-}
+} from "./resolve-seedance25-image-mode-change-params.js";
+
 export function I2VPopoverInner({
   onSubmit,
   onClose,
@@ -641,8 +210,12 @@ export function I2VPopoverInner({
   const assetMetadataStore = useAssetMetadataApi();
   const paramsAnchorRef = reactExports.useRef(null);
   const popoverHostId = nodeId ?? replaceNodeId ?? "unknown";
-  const [promptText, setPromptText] = reactExports.useState(defaultPrompt ?? "");
-  const [count2, setCount] = reactExports.useState(navigationSnapshot?.count ?? 1);
+  const [promptText, setPromptText] = reactExports.useState(
+    defaultPrompt ?? "",
+  );
+  const [count2, setCount] = reactExports.useState(
+    navigationSnapshot?.count ?? 1,
+  );
   const buildPromptContent = reactExports.useCallback(
     (prompt, promptJson) => {
       if (promptJson) {
@@ -666,7 +239,9 @@ export function I2VPopoverInner({
         });
         if (!hit) return null;
         const kind =
-          hit.type === "video" || hit.type === "audio" || hit.type === "text" ? hit.type : "image";
+          hit.type === "video" || hit.type === "audio" || hit.type === "text"
+            ? hit.type
+            : "image";
         return {
           path: hit.path,
           filename: hit.name,
@@ -680,13 +255,19 @@ export function I2VPopoverInner({
     () => buildPromptContent(defaultPrompt, defaultPromptJson),
     [buildPromptContent, defaultPrompt, defaultPromptJson],
   );
-  const [editorContentOverride, setEditorContentOverride] = reactExports.useState(null);
-  const [editorContentRevision, setEditorContentRevision] = reactExports.useState(0);
-  const [expanded, setExpanded] = reactExports.useState(navigationSnapshot?.expanded ?? false);
+  const [editorContentOverride, setEditorContentOverride] =
+    reactExports.useState(null);
+  const [editorContentRevision, setEditorContentRevision] =
+    reactExports.useState(0);
+  const [expanded, setExpanded] = reactExports.useState(
+    navigationSnapshot?.expanded ?? false,
+  );
   const [paramsOpen, setParamsOpen] = reactExports.useState(false);
   const [isPreparing, setIsPreparing] = reactExports.useState(false);
-  const [referenceVideoForClip, setReferenceVideoForClip] = reactExports.useState(null);
-  const [referenceAudioForClip, setReferenceAudioForClip] = reactExports.useState(null);
+  const [referenceVideoForClip, setReferenceVideoForClip] =
+    reactExports.useState(null);
+  const [referenceAudioForClip, setReferenceAudioForClip] =
+    reactExports.useState(null);
   const {
     accountSubmissionAllowed = true,
     beforeAccountSubmission = () => true,
@@ -699,7 +280,8 @@ export function I2VPopoverInner({
     onPromotionToast,
     cropImage,
   } = useCanvasBridge();
-  const { attachDraftOnNextDerived, focusDerivedNode, getNodeIdByPath } = useCanvasActions();
+  const { attachDraftOnNextDerived, focusDerivedNode, getNodeIdByPath } =
+    useCanvasActions();
   const reactFlow = useReactFlow();
   usePopoverOpenTrack({
     popoverType: "i2v",
@@ -725,7 +307,8 @@ export function I2VPopoverInner({
     onSelectedModelChange?.(selectedModel?.id, selectedModel?.name);
   }, [onSelectedModelChange, selectedModel?.id, selectedModel?.name]);
   const isPromptRequired =
-    selectedModel?.promptRequired === true || requiresPromptForI2V(selectedModel);
+    selectedModel?.promptRequired === true ||
+    requiresPromptForI2V(selectedModel);
   const maxRefs = selectedModel?.max_refs ?? 0;
   const maxVideoRefs = selectedModel?.max_video_refs ?? 0;
   const maxAudioRefs = selectedModel?.max_audio_refs ?? 0;
@@ -734,9 +317,16 @@ export function I2VPopoverInner({
   const isFirstLastFrame = imageMode === "first-last-frame";
   const isTextToVideo = imageMode === "text-to-video";
   const isVideoExtension = imageMode === VIDEO_EXTENSION_MODE;
-  const isSeedance25VideoEdit = isSeedance25VideoEditMode(selectedModel, imageMode);
-  const isSeedance25InheritedVideo = isSeedance25InheritedVideoMode(selectedModel, imageMode);
-  const isSeedance25VideoExtend = isSeedance25InheritedVideo && !isSeedance25VideoEdit;
+  const isSeedance25VideoEdit = isSeedance25VideoEditMode(
+    selectedModel,
+    imageMode,
+  );
+  const isSeedance25InheritedVideo = isSeedance25InheritedVideoMode(
+    selectedModel,
+    imageMode,
+  );
+  const isSeedance25VideoExtend =
+    isSeedance25InheritedVideo && !isSeedance25VideoEdit;
   const isMiniMaxH3VideoModel =
     selectedModelId === "MiniMax-H3" ||
     isHailuo03Model(selectedModel) ||
@@ -787,21 +377,28 @@ export function I2VPopoverInner({
         }
       : {}),
     audioPerClipMinSec: referenceAudioLimits?.minDurationSec,
-    audioPerClipMaxSec: referenceAudioLimits?.maxDurationSec ?? miniMaxH3ReferenceMediaMaxSec,
+    audioPerClipMaxSec:
+      referenceAudioLimits?.maxDurationSec ?? miniMaxH3ReferenceMediaMaxSec,
     audioTotalMaxSec: referenceAudioTotalMaxSec,
     videoPerClipMinSec: isSeedance25VideoEdit
       ? SEEDANCE_25_EDIT_INPUT_MIN_SEC
-      : (videoExtensionCapability?.inputMinDurationSec ?? referenceVideoLimits?.minDurationSec),
+      : (videoExtensionCapability?.inputMinDurationSec ??
+        referenceVideoLimits?.minDurationSec),
     videoPerClipMaxSec:
-      videoExtensionCapability?.inputMaxDurationSec ?? referenceVideoLimits?.maxDurationSec,
+      videoExtensionCapability?.inputMaxDurationSec ??
+      referenceVideoLimits?.maxDurationSec,
     videoTotalMaxSec: referenceVideoTotalMaxSec,
     // Reference videos (non video-extension) must sit in [24, 60] average fps.
     // Mirrors the gateway hailuo03 pre-submit check; the picker resolves fps
     // on demand since it is not carried in the eager asset store.
     videoMinFps:
-      isMiniMaxH3VideoModel && !isVideoExtension ? MINIMAX_H3_REFERENCE_VIDEO_MIN_FPS : void 0,
+      isMiniMaxH3VideoModel && !isVideoExtension
+        ? MINIMAX_H3_REFERENCE_VIDEO_MIN_FPS
+        : void 0,
     videoMaxFps:
-      isMiniMaxH3VideoModel && !isVideoExtension ? MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS : void 0,
+      isMiniMaxH3VideoModel && !isVideoExtension
+        ? MINIMAX_H3_REFERENCE_VIDEO_MAX_FPS
+        : void 0,
     imageInputLimits: selectedModel?.inputMediaLimits,
     suppressImageAspectRejectedToast,
     imageMode,
@@ -822,7 +419,11 @@ export function I2VPopoverInner({
     );
     if (availableImageMode === imageMode) return;
     setModelParams((current2) =>
-      resolveSeedance25ImageModeChangeParams(selectedModel, current2, availableImageMode),
+      resolveSeedance25ImageModeChangeParams(
+        selectedModel,
+        current2,
+        availableImageMode,
+      ),
     );
   }, [selectedModel, imageMode, hasSeedance25VideoInput]);
   const effectiveModelParams = reactExports.useMemo(
@@ -844,15 +445,16 @@ export function I2VPopoverInner({
       attachmentState.audioPaths,
     ],
   );
-  const isHailuo03VideoTrialClaimAvailableForCurrentContext = isHailuo03VideoTrialClaimAvailable({
-    model: selectedModel,
-    selectedModelId,
-    eligibility: hailuo03VideoTrial?.eligibility,
-    imageMode,
-    imagePaths: attachmentState.imagePaths,
-    videoPaths: attachmentState.videoPaths,
-    audioPaths: attachmentState.audioPaths,
-  });
+  const isHailuo03VideoTrialClaimAvailableForCurrentContext =
+    isHailuo03VideoTrialClaimAvailable({
+      model: selectedModel,
+      selectedModelId,
+      eligibility: hailuo03VideoTrial?.eligibility,
+      imageMode,
+      imagePaths: attachmentState.imagePaths,
+      videoPaths: attachmentState.videoPaths,
+      audioPaths: attachmentState.audioPaths,
+    });
   const isHailuo03VideoTrialEligible = isHailuo03FreeGenerationEligible({
     model: selectedModel,
     selectedModelId,
@@ -890,9 +492,11 @@ export function I2VPopoverInner({
     getRect: null,
     triggerRange: null,
   });
-  const [editorHasText, setEditorHasText] = reactExports.useState(!!defaultPrompt);
+  const [editorHasText, setEditorHasText] =
+    reactExports.useState(!!defaultPrompt);
   const [promptLength, setPromptLength] = reactExports.useState(0);
-  const [isClaimingHailuo03Trial, setIsClaimingHailuo03Trial] = reactExports.useState(false);
+  const [isClaimingHailuo03Trial, setIsClaimingHailuo03Trial] =
+    reactExports.useState(false);
   const showH3GuideLink = isMiniMaxH3VideoModel && !editorHasText;
   const h3GuideUrl = i18n?.language?.startsWith("zh")
     ? "https://vrfi1sk8a0.feishu.cn/wiki/FIWjwgL33ipnkekzk30crmKUnIh"
@@ -944,7 +548,10 @@ export function I2VPopoverInner({
   reactExports.useEffect(() => {
     const nextPrompt = typeof defaultPrompt === "string" ? defaultPrompt : "";
     const shouldHydrate =
-      nextPrompt.trim().length > 0 && !defaultPromptJson && !promptText.trim() && !editorHasText;
+      nextPrompt.trim().length > 0 &&
+      !defaultPromptJson &&
+      !promptText.trim() &&
+      !editorHasText;
     if (!shouldHydrate || removedSubjectReferencesRef.current) return;
     setPromptText(nextPrompt);
     setEditorHasText(true);
@@ -961,9 +568,11 @@ export function I2VPopoverInner({
   const assets = attachmentState.metadataAssets;
   const sourceVideoPath = attachmentState.videoPaths.find(Boolean);
   const sourceVideoMeta = reactExports.useMemo(() => {
-    if ((!isVideoExtension && !isSeedance25InheritedVideo) || !sourceVideoPath) return void 0;
+    if ((!isVideoExtension && !isSeedance25InheritedVideo) || !sourceVideoPath)
+      return void 0;
     for (const meta2 of assets.values()) {
-      if (meta2.path === sourceVideoPath && meta2.type === "video") return meta2;
+      if (meta2.path === sourceVideoPath && meta2.type === "video")
+        return meta2;
     }
     return void 0;
   }, [isVideoExtension, isSeedance25InheritedVideo, sourceVideoPath, assets]);
@@ -973,27 +582,42 @@ export function I2VPopoverInner({
     sourceVideoMeta.durationSec > 0
       ? sourceVideoMeta.durationSec
       : void 0;
-  const extensionSourceDurationSec = isVideoExtension ? sourceVideoDurationSec : void 0;
+  const extensionSourceDurationSec = isVideoExtension
+    ? sourceVideoDurationSec
+    : void 0;
   const seedance25VideoInputDurationSummary = reactExports.useMemo(
-    () => resolveSeedance25VideoInputDurationSummary(attachmentState.videoPaths, assets.values()),
+    () =>
+      resolveSeedance25VideoInputDurationSummary(
+        attachmentState.videoPaths,
+        assets.values(),
+      ),
     [assets, attachmentState.videoPaths],
   );
-  const seedance25VideoInputPathKey = seedance25VideoInputDurationSummary.pathKey;
+  const seedance25VideoInputPathKey =
+    seedance25VideoInputDurationSummary.pathKey;
   const seedance25VideoInputTotalDurationSec = isSeedance25InheritedVideo
     ? seedance25VideoInputDurationSummary.totalDurationSec
     : void 0;
   const seedance25VideoExtendDefaultDuration = isSeedance25VideoExtend
-    ? resolveSeedance25VideoExtendDefaultDuration(seedance25VideoInputTotalDurationSec)
+    ? resolveSeedance25VideoExtendDefaultDuration(
+        seedance25VideoInputTotalDurationSec,
+      )
     : void 0;
   const seedance25VideoExtendDurationUserControlledRef = reactExports.useRef(
     defaultParams?.duration !== void 0,
   );
-  const seedance25VideoExtendSourceKeyRef = reactExports.useRef(seedance25VideoInputPathKey);
+  const seedance25VideoExtendSourceKeyRef = reactExports.useRef(
+    seedance25VideoInputPathKey,
+  );
   const effectiveDurationOptions = reactExports.useMemo(() => {
     const declared = selectedModel?.params.duration?.options ?? [];
     if (!isVideoExtension) return declared;
     return videoExtensionDurationOptions(videoExtensionCapability);
-  }, [isVideoExtension, videoExtensionCapability, selectedModel?.params.duration?.options]);
+  }, [
+    isVideoExtension,
+    videoExtensionCapability,
+    selectedModel?.params.duration?.options,
+  ]);
   const disabledExtensionDurationOptions = reactExports.useMemo(
     () =>
       isVideoExtension
@@ -1005,10 +629,18 @@ export function I2VPopoverInner({
     [isVideoExtension, extensionSourceDurationSec, videoExtensionCapability],
   );
   const referenceVideoRawTotalSec = reactExports.useMemo(() => {
-    if (imageMode === "first-last-frame" || attachmentState.videoPaths.length === 0) return 0;
+    if (
+      imageMode === "first-last-frame" ||
+      attachmentState.videoPaths.length === 0
+    )
+      return 0;
     const pathToDurationSec = new Map();
     assets.forEach((meta2) => {
-      if (meta2.path && typeof meta2.durationSec === "number" && meta2.durationSec > 0) {
+      if (
+        meta2.path &&
+        typeof meta2.durationSec === "number" &&
+        meta2.durationSec > 0
+      ) {
         pathToDurationSec.set(meta2.path, meta2.durationSec);
       }
     });
@@ -1027,10 +659,16 @@ export function I2VPopoverInner({
     [selectedModel, referenceVideoRawTotalSec],
   );
   reactExports.useEffect(() => {
-    if (!selectedModel?.params.duration || effectiveDurationOptions.length === 0) return;
-    const sourceChanged = seedance25VideoExtendSourceKeyRef.current !== seedance25VideoInputPathKey;
+    if (
+      !selectedModel?.params.duration ||
+      effectiveDurationOptions.length === 0
+    )
+      return;
+    const sourceChanged =
+      seedance25VideoExtendSourceKeyRef.current !== seedance25VideoInputPathKey;
     seedance25VideoExtendSourceKeyRef.current = seedance25VideoInputPathKey;
-    if (sourceChanged) seedance25VideoExtendDurationUserControlledRef.current = false;
+    if (sourceChanged)
+      seedance25VideoExtendDurationUserControlledRef.current = false;
     const shouldApplySeedance25VideoExtendDefault =
       !seedance25VideoExtendDurationUserControlledRef.current &&
       seedance25VideoExtendDefaultDuration;
@@ -1065,7 +703,8 @@ export function I2VPopoverInner({
         return current2;
       }
       const fallback =
-        nearestDuration(Number(current2.duration), enabledDurations) ?? firstEnabledDuration;
+        nearestDuration(Number(current2.duration), enabledDurations) ??
+        firstEnabledDuration;
       return current2.duration === fallback
         ? current2
         : {
@@ -1086,7 +725,10 @@ export function I2VPopoverInner({
     seedance25VideoInputPathKey,
   ]);
   const referenceVideoBillingDurations = reactExports.useMemo(() => {
-    if (imageMode === "first-last-frame" || attachmentState.videoPaths.length === 0) {
+    if (
+      imageMode === "first-last-frame" ||
+      attachmentState.videoPaths.length === 0
+    ) {
       return {
         inputSec: 0,
         maxSec: 0,
@@ -1101,7 +743,12 @@ export function I2VPopoverInner({
       inputSec: aggregateReferenceVideoDurations(durationsMs),
       maxSec: maxReferenceVideoDuration(durationsMs),
     };
-  }, [imageMode, attachmentState.videoPaths, attachmentState.referenceResolutions, assets]);
+  }, [
+    imageMode,
+    attachmentState.videoPaths,
+    attachmentState.referenceResolutions,
+    assets,
+  ]);
   const referenceVideoInputSec = referenceVideoBillingDurations.inputSec;
   const referenceVideoMaxSec = referenceVideoBillingDurations.maxSec;
   const specialCostDurationSec = reactExports.useMemo(() => {
@@ -1125,17 +772,25 @@ export function I2VPopoverInner({
       }
     });
     return durationSec;
-  }, [selectedModel, attachmentState.audioPaths, attachmentState.videoPaths, assets]);
+  }, [
+    selectedModel,
+    attachmentState.audioPaths,
+    attachmentState.videoPaths,
+    assets,
+  ]);
   const videoPricingInput = reactExports.useMemo(() => {
     if (!selectedModel) return void 0;
-    const resolutionKey = ["resolution", "mode"].find((k2) => selectedModel.params[k2]);
+    const resolutionKey = ["resolution", "mode"].find(
+      (k2) => selectedModel.params[k2],
+    );
     const soundKey = ["generate_audio", "sound", "enable_sound"].find(
       (k2) => selectedModel.params[k2],
     );
     const resolution = resolutionKey ? modelParams[resolutionKey] : void 0;
     const soundValue = soundKey ? modelParams[soundKey] : void 0;
     const hasSound = soundValue === "true" || soundValue === "on";
-    const usesSpecialCostDuration = !modelParams.duration && specialCostDurationSec != null;
+    const usesSpecialCostDuration =
+      !modelParams.duration && specialCostDurationSec != null;
     const duration = isSeedance25VideoEdit
       ? referenceVideoMaxSec
       : modelParams.duration
@@ -1145,7 +800,10 @@ export function I2VPopoverInner({
       !usesSpecialCostDuration &&
       imageMode !== "first-last-frame" &&
       attachmentState.videoPaths.length > 0;
-    const pricingModelId = resolveVideoPricingId(selectedModel, isVideoExtension);
+    const pricingModelId = resolveVideoPricingId(
+      selectedModel,
+      isVideoExtension,
+    );
     const inputDurationForPricing =
       pricingModelId === HAILUO03_VIDEO_CONTINUATION_PRICING_ID
         ? 0
@@ -1189,11 +847,19 @@ export function I2VPopoverInner({
       specialCostDurationSec,
     );
   const referenceVideoDurationExceeded =
-    calculateVideoDurationExcesses(attachmentState.items, referenceVideoTotalMaxSec).size > 0;
+    calculateVideoDurationExcesses(
+      attachmentState.items,
+      referenceVideoTotalMaxSec,
+    ).size > 0;
   const referenceAudioDurationExceeded =
-    calculateAudioDurationExcesses(attachmentState.items, referenceAudioTotalMaxSec).size > 0;
+    calculateAudioDurationExcesses(
+      attachmentState.items,
+      referenceAudioTotalMaxSec,
+    ).size > 0;
   const referenceClipDurationInvalid = attachmentState.items.some(
-    (item) => (item.kind === "audio" || item.kind === "video") && item.durationOutOfRange,
+    (item) =>
+      (item.kind === "audio" || item.kind === "video") &&
+      item.durationOutOfRange,
   );
   const isBillingEstimateBlockedByInvalidInput =
     referenceVideoDurationExceeded ||
@@ -1226,13 +892,16 @@ export function I2VPopoverInner({
     videoPricingInput,
   ]);
   const calculatedCreditCost =
-    videoCostBreakdown == null ? void 0 : videoCostBreakdown.total * effectiveCount;
+    videoCostBreakdown == null
+      ? void 0
+      : videoCostBreakdown.total * effectiveCount;
   const computedCreditCost = isBillingEstimateBlockedByInvalidInput
     ? void 0
     : (creditCost ?? (isCostPreviewDurationMissing ? 0 : calculatedCreditCost));
   const computedBillingEstimateFormula = reactExports.useMemo(() => {
     if (!videoCostBreakdown) return void 0;
-    if (creditCost != null && creditCost !== calculatedCreditCost) return void 0;
+    if (creditCost != null && creditCost !== calculatedCreditCost)
+      return void 0;
     return buildVideoCostFormula(videoCostBreakdown, effectiveCount, {
       generatedVideo: (seconds, rate) =>
         t2("canvas.billing.formula.generatedVideo", {
@@ -1267,9 +936,18 @@ export function I2VPopoverInner({
           defaultValue: "({{formula}}) × {{count}}",
         }),
     });
-  }, [calculatedCreditCost, creditCost, effectiveCount, t2, videoCostBreakdown]);
+  }, [
+    calculatedCreditCost,
+    creditCost,
+    effectiveCount,
+    t2,
+    videoCostBreakdown,
+  ]);
   const computedBillingDetails = reactExports.useMemo(() => {
-    if (!videoCostBreakdown || videoPricingInput?.pricingModelId !== MINIMAX_H3_PRICING_ID) {
+    if (
+      !videoCostBreakdown ||
+      videoPricingInput?.pricingModelId !== MINIMAX_H3_PRICING_ID
+    ) {
       return void 0;
     }
     return buildHailuo03BillingDetails(videoCostBreakdown, {
@@ -1304,7 +982,8 @@ export function I2VPopoverInner({
           freeCount,
           firstPaidIndex,
           rate,
-          defaultValue: "前 {{freeCount}} 张免费，第 {{firstPaidIndex}} 张起 {{rate}} 积分/张",
+          defaultValue:
+            "前 {{freeCount}} 张免费，第 {{firstPaidIndex}} 张起 {{rate}} 积分/张",
         }),
     });
   }, [t2, videoCostBreakdown, videoPricingInput?.pricingModelId]);
@@ -1344,7 +1023,8 @@ export function I2VPopoverInner({
     void 0
   );
   const aspectRatioKey = reactExports.useMemo(() => {
-    if (!selectedModel || isVideoExtension || isSeedance25InheritedVideo) return void 0;
+    if (!selectedModel || isVideoExtension || isSeedance25InheritedVideo)
+      return void 0;
     return ["aspect_ratio", "ratio"].find((k2) => selectedModel.params[k2]);
   }, [isSeedance25InheritedVideo, isVideoExtension, selectedModel]);
   const sourceAspectRatio =
@@ -1355,11 +1035,18 @@ export function I2VPopoverInner({
     sourceVideoMeta.height > 0
       ? `${sourceVideoMeta.width}:${sourceVideoMeta.height}`
       : void 0;
-  const aspectRatioValue = aspectRatioKey ? effectiveModelParams[aspectRatioKey] : void 0;
+  const aspectRatioValue = aspectRatioKey
+    ? effectiveModelParams[aspectRatioKey]
+    : void 0;
   reactExports.useEffect(() => {
     if (isVideoExtension || isSeedance25InheritedVideo) return;
     onAspectRatioChange?.(aspectRatioValue);
-  }, [aspectRatioValue, isSeedance25InheritedVideo, isVideoExtension, onAspectRatioChange]);
+  }, [
+    aspectRatioValue,
+    isSeedance25InheritedVideo,
+    isVideoExtension,
+    onAspectRatioChange,
+  ]);
   reactExports.useEffect(() => {
     let cancelled = false;
     const applyModels = (models, source) => {
@@ -1386,7 +1073,10 @@ export function I2VPopoverInner({
           setModelParams(
             migrateLegacySeedance25GenerationModeParams(
               preselect,
-              normalizeParamsForModel(preselect, stripDerivedReferenceParams(defaultParams)),
+              normalizeParamsForModel(
+                preselect,
+                stripDerivedReferenceParams(defaultParams),
+              ),
             ),
           );
           devLogI2V("model-seeded-default", {
@@ -1399,7 +1089,10 @@ export function I2VPopoverInner({
             setModelParams(
               migrateLegacySeedance25GenerationModeParams(
                 lastUsedMatch,
-                normalizeParamsForModel(lastUsedMatch, stripDerivedReferenceParams(lastUsedParams)),
+                normalizeParamsForModel(
+                  lastUsedMatch,
+                  stripDerivedReferenceParams(lastUsedParams),
+                ),
               ),
             );
             devLogI2V("model-seeded-last-used", {
@@ -1479,10 +1172,15 @@ export function I2VPopoverInner({
     userPickedModelRef.current = false;
     if (!override.model) return;
     setSelectedModelId(override.model.id);
-    const overrideModel = videoModels.find((model) => model.id === override.model?.id);
+    const overrideModel = videoModels.find(
+      (model) => model.id === override.model?.id,
+    );
     setModelParams(
       overrideModel
-        ? migrateLegacySeedance25GenerationModeParams(overrideModel, override.model.params)
+        ? migrateLegacySeedance25GenerationModeParams(
+            overrideModel,
+            override.model.params,
+          )
         : override.model.params,
     );
     devLogI2V("prefill-token-applied", {
@@ -1536,7 +1234,11 @@ export function I2VPopoverInner({
         return selectedModel ? enforceConstraints(next2, selectedModel) : next2;
       });
     },
-    [isSeedance25VideoExtend, seedance25VideoInputTotalDurationSec, selectedModel],
+    [
+      isSeedance25VideoExtend,
+      seedance25VideoInputTotalDurationSec,
+      selectedModel,
+    ],
   );
   const handleClaimHailuo03VideoTrial = reactExports.useCallback(
     async (e2) => {
@@ -1568,7 +1270,9 @@ export function I2VPopoverInner({
               ...prev,
               resolution,
             };
-            return selectedModel ? enforceConstraints(next2, selectedModel) : next2;
+            return selectedModel
+              ? enforceConstraints(next2, selectedModel)
+              : next2;
           });
           dedupedToast.success(
             t2("canvas.hailuo03Trial.claimSuccess", {
@@ -1649,15 +1353,24 @@ export function I2VPopoverInner({
   let videoExtensionValidationMessage;
   if (isVideoExtension && !missingRequiredAttachment) {
     if (extensionSourceDurationSec === void 0) {
-      videoExtensionValidationMessage = t2("canvas.videoExtension.durationUnavailable", {
-        defaultValue: "无法读取原视频时长，请更换视频",
-      });
+      videoExtensionValidationMessage = t2(
+        "canvas.videoExtension.durationUnavailable",
+        {
+          defaultValue: "无法读取原视频时长，请更换视频",
+        },
+      );
     } else if (
-      !isVideoExtensionInputDurationValid(extensionSourceDurationSec, videoExtensionCapability)
+      !isVideoExtensionInputDurationValid(
+        extensionSourceDurationSec,
+        videoExtensionCapability,
+      )
     ) {
-      videoExtensionValidationMessage = t2("canvas.videoExtension.inputDurationRange", {
-        defaultValue: "上传视频时长需在 2-15 秒之间",
-      });
+      videoExtensionValidationMessage = t2(
+        "canvas.videoExtension.inputDurationRange",
+        {
+          defaultValue: "上传视频时长需在 2-15 秒之间",
+        },
+      );
     } else if (
       !isVideoExtensionOutputDurationValid(
         extensionSourceDurationSec,
@@ -1665,9 +1378,12 @@ export function I2VPopoverInner({
         videoExtensionCapability,
       )
     ) {
-      videoExtensionValidationMessage = t2("canvas.videoExtension.outputDurationRange", {
-        defaultValue: "续写后的总时长必须大于原视频，且最长 20 秒",
-      });
+      videoExtensionValidationMessage = t2(
+        "canvas.videoExtension.outputDurationRange",
+        {
+          defaultValue: "续写后的总时长必须大于原视频，且最长 20 秒",
+        },
+      );
     }
   }
   let seedance25InheritedVideoValidationMessage;
@@ -1682,9 +1398,11 @@ export function I2VPopoverInner({
     }
   }
   const isPromptOverLimit =
-    !!selectedModel?.promptMaxLength && promptLength > selectedModel.promptMaxLength;
+    !!selectedModel?.promptMaxLength &&
+    promptLength > selectedModel.promptMaxLength;
   const promptRequiredForSubmit = isPromptRequired || isVideoExtension;
-  const effectiveHasUpstreamText = hasUpstreamText || attachmentState.textPaths.length > 0;
+  const effectiveHasUpstreamText =
+    hasUpstreamText || attachmentState.textPaths.length > 0;
   const isMissingRequiredPrompt =
     promptRequiredForSubmit && !editorHasText && !effectiveHasUpstreamText;
   const submitTitle =
@@ -1692,12 +1410,14 @@ export function I2VPopoverInner({
     seedance25InheritedVideoValidationMessage ??
     (referenceVideoDurationExceeded
       ? t2("canvas.videoSlot.totalTooLong", {
-          defaultValue: "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
+          defaultValue:
+            "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
           max: referenceVideoTotalMaxSec,
         })
       : referenceAudioDurationExceeded
         ? t2("canvas.audioSlot.totalTooLong", {
-            defaultValue: "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
+            defaultValue:
+              "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
             max: referenceAudioTotalMaxSec,
           })
         : referenceClipDurationInvalid
@@ -1747,22 +1467,23 @@ export function I2VPopoverInner({
   const modelLoadedRef = reactExports.useRef(false);
   modelLoadedRef.current = !modelsLoading && !!selectedModelId;
   const submittedRef = reactExports.useRef(false);
-  const { navigationSavedRef, ...referenceNavigation } = useVideoReferenceNavigation({
-    nodeId: nodeId ?? replaceNodeId,
-    editorRef,
-    expanded,
-    count: count2,
-    snapshot: navigationSnapshot,
-    defaultImagePaths,
-    defaultVideoPaths,
-    defaultAudioPaths,
-    defaultTextPaths,
-    onSaveDraft,
-    prompt: promptText,
-    modelId: selectedModelId,
-    params: stripDerivedReferenceParams(modelParams),
-    paths: attachmentState,
-  });
+  const { navigationSavedRef, ...referenceNavigation } =
+    useVideoReferenceNavigation({
+      nodeId: nodeId ?? replaceNodeId,
+      editorRef,
+      expanded,
+      count: count2,
+      snapshot: navigationSnapshot,
+      defaultImagePaths,
+      defaultVideoPaths,
+      defaultAudioPaths,
+      defaultTextPaths,
+      onSaveDraft,
+      prompt: promptText,
+      modelId: selectedModelId,
+      params: stripDerivedReferenceParams(modelParams),
+      paths: attachmentState,
+    });
   const draftBaselineRef = reactExports.useRef(null);
   if (modelLoadedRef.current && draftBaselineRef.current === null) {
     draftBaselineRef.current = {
@@ -1803,7 +1524,9 @@ export function I2VPopoverInner({
       const editor = editorRef.current;
       const snapshot2 = draftSnapshotRef.current;
       const editorAlive = editor && !editor.isDestroyed;
-      const livePrompt = editorAlive ? extractCanvasEditorText(editor) : snapshot2.promptText;
+      const livePrompt = editorAlive
+        ? extractCanvasEditorText(editor)
+        : snapshot2.promptText;
       const baseline = draftBaselineRef.current;
       if (baseline) {
         const isDirty = popoverDraftIsDirty(baseline, {
@@ -1846,7 +1569,10 @@ export function I2VPopoverInner({
       });
       const nextPrompt = originalGenerationDraft.prompt ?? "";
       const nextPromptJson = originalGenerationDraft.promptJson;
-      const nextModelId = override.model?.id ?? originalGenerationDraft.modelId ?? selectedModelId;
+      const nextModelId =
+        override.model?.id ??
+        originalGenerationDraft.modelId ??
+        selectedModelId;
       const nextParams = override.model?.params ?? {
         ...(originalGenerationDraft.params ?? {}),
       };
@@ -1978,16 +1704,21 @@ export function I2VPopoverInner({
             typeof meta2.durationSec === "number" &&
             meta2.durationSec > 0
           ) {
-            pathToDuration.set(`${meta2.type}:${meta2.path}`, meta2.durationSec);
+            pathToDuration.set(
+              `${meta2.type}:${meta2.path}`,
+              meta2.durationSec,
+            );
           }
         });
         if (trimmedAudios.length > 0) {
           let totalAudioSec = 0;
-          for (const p3 of trimmedAudios) totalAudioSec += pathToDuration.get(`audio:${p3}`) ?? 0;
+          for (const p3 of trimmedAudios)
+            totalAudioSec += pathToDuration.get(`audio:${p3}`) ?? 0;
           if (totalAudioSec > referenceAudioTotalMaxSec) {
             dedupedToast.error(
               t2("canvas.audioSlot.totalTooLong", {
-                defaultValue: "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
+                defaultValue:
+                  "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
                 max: referenceAudioTotalMaxSec,
               }),
             );
@@ -1996,11 +1727,13 @@ export function I2VPopoverInner({
         }
         if (trimmedVideos.length > 0) {
           let totalVideoSec = 0;
-          for (const p3 of trimmedVideos) totalVideoSec += pathToDuration.get(`video:${p3}`) ?? 0;
+          for (const p3 of trimmedVideos)
+            totalVideoSec += pathToDuration.get(`video:${p3}`) ?? 0;
           if (totalVideoSec > referenceVideoTotalMaxSec) {
             dedupedToast.error(
               t2("canvas.videoSlot.totalTooLong", {
-                defaultValue: "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
+                defaultValue:
+                  "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
                 max: referenceVideoTotalMaxSec,
               }),
             );
@@ -2010,7 +1743,9 @@ export function I2VPopoverInner({
       }
       const editor = editorRef.current;
       const rawPrompt = editor ? extractCanvasEditorText(editor) : promptText;
-      const authoredPrompt = editor ? extractCanvasEditorSubmitText(editor) : promptText;
+      const authoredPrompt = editor
+        ? extractCanvasEditorSubmitText(editor)
+        : promptText;
       const chipPromptJson = editor ? JSON.stringify(editor.getJSON()) : void 0;
       const hasPersistentReferences =
         (editor ? collectTextChipPaths(editor).length > 0 : false) ||
@@ -2031,13 +1766,20 @@ export function I2VPopoverInner({
         );
       } catch {
         dedupedToast.error(
-          t2("canvas.reference.unavailable", "Reference unavailable. Please select again."),
+          t2(
+            "canvas.reference.unavailable",
+            "Reference unavailable. Please select again.",
+          ),
         );
         return;
       } finally {
         setIsPreparing(false);
       }
-      if (promptRequiredForSubmit && !selectedReferenceText && !authoredPrompt.trim()) {
+      if (
+        promptRequiredForSubmit &&
+        !selectedReferenceText &&
+        !authoredPrompt.trim()
+      ) {
         dedupedToast.error(
           t2("canvas.promptRequired", {
             defaultValue: "输入 prompt",
@@ -2064,14 +1806,23 @@ export function I2VPopoverInner({
         videoPaths: trimmedVideos,
         audioPaths: trimmedAudios,
       };
-      const compiled = compileChipPromptForModel(authoredPrompt, referencePaths);
-      const promptForSubmit = composePromptWithReferenceText(selectedReferenceText, compiled.text);
+      const compiled = compileChipPromptForModel(
+        authoredPrompt,
+        referencePaths,
+      );
+      const promptForSubmit = composePromptWithReferenceText(
+        selectedReferenceText,
+        compiled.text,
+      );
       const finalPromptLength = countCompiledMediaPromptCharacters(
         authoredPrompt,
         selectedReferenceText,
         referencePaths,
       );
-      if (selectedModel?.promptMaxLength && finalPromptLength > selectedModel.promptMaxLength) {
+      if (
+        selectedModel?.promptMaxLength &&
+        finalPromptLength > selectedModel.promptMaxLength
+      ) {
         setPromptLength(finalPromptLength);
         dedupedToast.error(
           t2("canvas.prompt.tooLong", {
@@ -2129,7 +1880,8 @@ export function I2VPopoverInner({
           ...cleanModelParams,
         };
         delete lastUsedModelParams[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM];
-        if (isSeedance25InheritedVideo) lastUsedModelParams.image_mode = "reference";
+        if (isSeedance25InheritedVideo)
+          lastUsedModelParams.image_mode = "reference";
         saveLastUsedModelParams(
           "i2v",
           selectedModelId,
@@ -2226,7 +1978,8 @@ export function I2VPopoverInner({
     const syntheticEvent = {
       stopPropagation: () => void 0,
     };
-    if (pending2.kind === "confirm") void doSubmit(syntheticEvent, replaceNodeId);
+    if (pending2.kind === "confirm")
+      void doSubmit(syntheticEvent, replaceNodeId);
     else if (pending2.kind === "new") void doSubmit(syntheticEvent, void 0);
     else void doSubmit(syntheticEvent, pending2.targetNodeId);
   }, [doSubmit, modelsLoading, replaceNodeId, selectedModelId]);
@@ -2295,7 +2048,14 @@ export function I2VPopoverInner({
       focusDerivedNode(clippedNodeId);
       setReferenceVideoForClip(null);
     },
-    [cropImage, focusDerivedNode, getNodeIdByPath, reactFlow, referenceVideoForClip, t2],
+    [
+      cropImage,
+      focusDerivedNode,
+      getNodeIdByPath,
+      reactFlow,
+      referenceVideoForClip,
+      t2,
+    ],
   );
   const handleReferenceAudioClipExport = reactExports.useCallback(
     async (blob, filename) => {
@@ -2318,18 +2078,28 @@ export function I2VPopoverInner({
       focusDerivedNode(clippedNodeId);
       setReferenceAudioForClip(null);
     },
-    [cropImage, focusDerivedNode, getNodeIdByPath, reactFlow, referenceAudioForClip, t2],
+    [
+      cropImage,
+      focusDerivedNode,
+      getNodeIdByPath,
+      reactFlow,
+      referenceAudioForClip,
+      t2,
+    ],
   );
-  const handleAtTrigger = reactExports.useCallback((query, rect, getRect2, triggerRange) => {
-    setAtPickerState((state2) =>
-      nextAtPickerState(state2, {
-        query,
-        rect,
-        getRect: getRect2,
-        triggerRange,
-      }),
-    );
-  }, []);
+  const handleAtTrigger = reactExports.useCallback(
+    (query, rect, getRect2, triggerRange) => {
+      setAtPickerState((state2) =>
+        nextAtPickerState(state2, {
+          query,
+          rect,
+          getRect: getRect2,
+          triggerRange,
+        }),
+      );
+    },
+    [],
+  );
   const handleFileRefSwitchSelect = useMediaFileRefSwitch(attachmentState);
   const handleAtSelect = reactExports.useCallback(
     (meta2, assetId, sourceNodeId) => {
@@ -2383,10 +2153,13 @@ export function I2VPopoverInner({
     },
     [attachmentState, atPickerState.triggerRange, handleFileRefSwitchSelect],
   );
-  const handleEditorUpdate = reactExports.useCallback((hasContent2, textLen) => {
-    setEditorHasText(hasContent2);
-    setPromptLength(textLen);
-  }, []);
+  const handleEditorUpdate = reactExports.useCallback(
+    (hasContent2, textLen) => {
+      setEditorHasText(hasContent2);
+      setPromptLength(textLen);
+    },
+    [],
+  );
   const handleEditorReady = reactExports.useCallback(
     (editor) => {
       if (!isFirstLastFrame) return;
@@ -2398,11 +2171,15 @@ export function I2VPopoverInner({
   );
   const resolveFinalPromptCharacterCount = reactExports.useCallback(
     (serializedPrompt) =>
-      countCompiledMediaPromptCharacters(serializedPrompt, currentReferenceTextContent, {
-        imagePaths: attachmentState.imagePaths,
-        videoPaths: attachmentState.videoPaths,
-        audioPaths: attachmentState.audioPaths,
-      }),
+      countCompiledMediaPromptCharacters(
+        serializedPrompt,
+        currentReferenceTextContent,
+        {
+          imagePaths: attachmentState.imagePaths,
+          videoPaths: attachmentState.videoPaths,
+          audioPaths: attachmentState.audioPaths,
+        },
+      ),
     [
       attachmentState.imagePaths,
       attachmentState.videoPaths,
@@ -2427,13 +2204,17 @@ export function I2VPopoverInner({
         else if (ref.kind === "audio") audioAdds.push(ref.path);
         else if (ref.kind === "text") textAdds.push(ref.path);
       }
-      if (!isTextToVideo && imageAdds.length > 0) attachmentState.addPaths(imageAdds, "image");
-      if (!isTextToVideo && videoAdds.length > 0) attachmentState.addPaths(videoAdds, "video");
-      if (!isTextToVideo && audioAdds.length > 0) attachmentState.addPaths(audioAdds, "audio");
+      if (!isTextToVideo && imageAdds.length > 0)
+        attachmentState.addPaths(imageAdds, "image");
+      if (!isTextToVideo && videoAdds.length > 0)
+        attachmentState.addPaths(videoAdds, "video");
+      if (!isTextToVideo && audioAdds.length > 0)
+        attachmentState.addPaths(audioAdds, "audio");
       if (textAdds.length > 0) {
         const admitted = new Set(attachmentState.addPaths(textAdds, "text"));
         for (const path2 of textAdds) {
-          if (!admitted.has(path2)) editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+          if (!admitted.has(path2))
+            editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
         }
       }
     },
@@ -2461,7 +2242,9 @@ export function I2VPopoverInner({
     if (!selectedModel) return null;
     const elements = [];
     const consumedKeys = new Set();
-    const hiddenParams = new Set(selectedModel.hiddenParamsByImageMode?.[imageMode] ?? []);
+    const hiddenParams = new Set(
+      selectedModel.hiddenParamsByImageMode?.[imageMode] ?? [],
+    );
     for (const std of STANDARD_PARAMS) {
       const matchedKey = std.aliases.find((a2) => selectedModel.params[a2]);
       const def = matchedKey ? selectedModel.params[matchedKey] : void 0;
@@ -2546,7 +2329,8 @@ export function I2VPopoverInner({
             if (!isMiniMaxH3VideoModel || disabled2.has(opt)) return void 0;
             if (opt === "768P") {
               return t2("canvas.param.resolutionTooltip.h3.768P", {
-                defaultValue: "成本低，适合多次抽卡；结果满意后可超分至 2K，提高画质和细节",
+                defaultValue:
+                  "成本低，适合多次抽卡；结果满意后可超分至 2K，提高画质和细节",
               });
             }
             if (opt === "2K") {
@@ -2569,7 +2353,10 @@ export function I2VPopoverInner({
               />
             </div>,
           );
-        } else if (std.id === "duration" && hasContinuousDurationOptions(fieldOptions)) {
+        } else if (
+          std.id === "duration" &&
+          hasContinuousDurationOptions(fieldOptions)
+        ) {
           elements.push(
             <ParamDurationSlider
               key={`std-${std.id}-${selectedModel.id}-${fieldOptions.join(",")}`}
@@ -2602,7 +2389,9 @@ export function I2VPopoverInner({
                   : void 0
               }
               getOptionLabel={
-                isVideoExtension && std.id === "duration" ? (opt) => `${opt}s` : void 0
+                isVideoExtension && std.id === "duration"
+                  ? (opt) => `${opt}s`
+                  : void 0
               }
               grouped={isVideoExtension && std.id === "duration"}
             />,
@@ -2614,7 +2403,8 @@ export function I2VPopoverInner({
       if (consumedKeys.has(key2)) continue;
       if (hiddenParams.has(key2)) continue;
       if (isVideoExtension && shouldHideVideoExtensionParam(key2)) continue;
-      if (def.type === "select" && (!def.options || def.options.length <= 1)) continue;
+      if (def.type === "select" && (!def.options || def.options.length <= 1))
+        continue;
       if (def.type === "textarea") {
         const labelKey = paramI18nKey(key2, def.label);
         const placeholderKey = paramPlaceholderI18nKey(key2);
@@ -2634,7 +2424,10 @@ export function I2VPopoverInner({
             placeholder={
               placeholderKey
                 ? t2(placeholderKey, {
-                    defaultValue: paramPlaceholderFallback(key2, def.placeholder),
+                    defaultValue: paramPlaceholderFallback(
+                      key2,
+                      def.placeholder,
+                    ),
                   })
                 : paramPlaceholderFallback(key2, def.placeholder)
             }
@@ -2650,7 +2443,11 @@ export function I2VPopoverInner({
           value={modelParams[key2] ?? def.default}
           onChange={(v2) => handleParamChange(key2, v2)}
           disabled={formDisabled}
-          disabledOptions={getDisabledOptions(key2, modelParams, selectedModel.paramConstraints)}
+          disabledOptions={getDisabledOptions(
+            key2,
+            modelParams,
+            selectedModel.paramConstraints,
+          )}
         />,
       );
     }
@@ -2755,7 +2552,11 @@ export function I2VPopoverInner({
           maxLength={selectedModel?.promptMaxLength}
           emptyStateAction={promptEmptyState}
           counterLeadingAction={
-            providerTaskId ? <ProviderTaskIdChip value={providerTaskId} compact={true} /> : void 0
+            providerTaskId ? (
+              <ProviderTaskIdChip value={providerTaskId} compact={true} />
+            ) : (
+              void 0
+            )
           }
         />
         {atPickerState.open && atPickerState.rect && (
@@ -2791,7 +2592,10 @@ export function I2VPopoverInner({
           />
           {hasConfigurableParams && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <ParamsChip
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
@@ -2803,7 +2607,10 @@ export function I2VPopoverInner({
           )}
           {showCountChip && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <CountChip
                 value={effectiveCount}
                 maxCount={MAX_VIDEOS_PER_SUBMIT$1}
@@ -2815,8 +2622,14 @@ export function I2VPopoverInner({
           )}
           {originalGenerationDraft && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
-              <Tooltip$1 content={t2("canvas.popover.restoreOriginalDraft")} side="top">
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
+              <Tooltip$1
+                content={t2("canvas.popover.restoreOriginalDraft")}
+                side="top"
+              >
                 <button
                   type="button"
                   data-action-ui-id="popover.restore-original-draft"
@@ -2877,12 +2690,17 @@ export function I2VPopoverInner({
               billingDetails={computedBillingDetails}
               billingEstimateFormula={computedBillingEstimateFormula}
               onClick={handleConfirm}
-              title={typeof submitLabel === "string" ? submitLabel : submitTitle}
+              title={
+                typeof submitLabel === "string" ? submitLabel : submitTitle
+              }
             />
           )}
         </div>
         {paramsOpen && selectedModel && hasConfigurableParams && (
-          <ParamsPopup anchorRef={paramsAnchorRef} onClose={() => setParamsOpen(false)}>
+          <ParamsPopup
+            anchorRef={paramsAnchorRef}
+            onClose={() => setParamsOpen(false)}
+          >
             {renderedParamElements}
           </ParamsPopup>
         )}

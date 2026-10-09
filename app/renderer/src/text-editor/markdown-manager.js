@@ -1,25 +1,29 @@
 // markdown-manager.js
+import { STANDARD_HTML_TAGS } from "./standard-html-tags.js";
 import {
   attrsEqual,
-  g$2,
-  sortExtensions,
-  flattenExtensions,
   callOrReturn,
-  getExtensionField,
   decodeHtmlEntities,
-  marksEqual,
-  generateJSON,
-  getSchema,
   encodeHtmlEntities,
+  flattenExtensions,
+  g$2,
+  generateJSON,
+  getExtensionField,
+  getSchema,
+  marksEqual,
+  sortExtensions,
 } from "../vendor.js";
+
 const TRAILING_BLANK_LINES = /\n[^\S\n]*(?:\n[^\S\n]*)+$/;
+
 function extractAbsorbedBlankLines(tokens2) {
   return tokens2.flatMap((token2, index2) => {
     var _tokens;
     if (
       token2.type === "space" ||
-      ((_tokens = tokens2[index2 + 1]) === null || _tokens === void 0 ? void 0 : _tokens.type) ===
-        "space"
+      ((_tokens = tokens2[index2 + 1]) === null || _tokens === void 0
+        ? void 0
+        : _tokens.type) === "space"
     )
       return [token2];
     const trailingBlankLines = (token2.raw || "").match(TRAILING_BLANK_LINES);
@@ -36,6 +40,7 @@ function extractAbsorbedBlankLines(tokens2) {
     ];
   });
 }
+
 function wrapInMarkdownBlock(prefix, content2) {
   const output = content2
     .split("\n")
@@ -44,6 +49,7 @@ function wrapInMarkdownBlock(prefix, content2) {
     .join("\n");
   return output.slice(0, output.length - 1);
 }
+
 function findMarksToClose(currentMarks, nextNode) {
   const marksToClose = [];
   Array.from(currentMarks.entries()).forEach(([markType, currentMark]) => {
@@ -53,13 +59,15 @@ function findMarksToClose(currentMarks, nextNode) {
     }
     if (
       !(nextNode.marks || []).find(
-        (mark2) => mark2.type === markType && attrsEqual(mark2.attrs, currentMark.attrs),
+        (mark2) =>
+          mark2.type === markType && attrsEqual(mark2.attrs, currentMark.attrs),
       )
     )
       marksToClose.push(markType);
   });
   return marksToClose;
 }
+
 function findMarksToOpen(activeMarks, currentMarks) {
   const marksToOpen = [];
   Array.from(currentMarks.entries()).forEach(([markType, mark2]) => {
@@ -72,13 +80,23 @@ function findMarksToOpen(activeMarks, currentMarks) {
   });
   return marksToOpen;
 }
-function findMarksToCloseAtEnd(activeMarks, currentMarks, nextNode, markSetsEqual) {
+
+function findMarksToCloseAtEnd(
+  activeMarks,
+  currentMarks,
+  nextNode,
+  markSetsEqual,
+) {
   const isLastNode = !nextNode;
-  const nextNodeHasNoMarks = nextNode && (!nextNode.marks || nextNode.marks.length === 0);
+  const nextNodeHasNoMarks =
+    nextNode && (!nextNode.marks || nextNode.marks.length === 0);
   const nextNodeHasDifferentMarks =
     nextNode &&
     nextNode.marks &&
-    !markSetsEqual(currentMarks, new Map(nextNode.marks.map((mark2) => [mark2.type, mark2])));
+    !markSetsEqual(
+      currentMarks,
+      new Map(nextNode.marks.map((mark2) => [mark2.type, mark2])),
+    );
   const marksToCloseAtEnd = [];
   if (isLastNode || nextNodeHasNoMarks || nextNodeHasDifferentMarks) {
     if (nextNode && nextNode.marks)
@@ -87,7 +105,8 @@ function findMarksToCloseAtEnd(activeMarks, currentMarks, nextNode, markSetsEqua
         .forEach(([markType, activeMark]) => {
           if (
             !nextNode.marks.find(
-              (m3) => m3.type === markType && attrsEqual(m3.attrs, activeMark.attrs),
+              (m3) =>
+                m3.type === markType && attrsEqual(m3.attrs, activeMark.attrs),
             )
           )
             marksToCloseAtEnd.push(markType);
@@ -97,6 +116,7 @@ function findMarksToCloseAtEnd(activeMarks, currentMarks, nextNode, markSetsEqua
   }
   return marksToCloseAtEnd;
 }
+
 function closeMarksBeforeNode(activeMarks, getMarkClosing) {
   let beforeMarkdown = "";
   Array.from(activeMarks.keys())
@@ -108,6 +128,7 @@ function closeMarksBeforeNode(activeMarks, getMarkClosing) {
   activeMarks.clear();
   return beforeMarkdown;
 }
+
 function reopenMarksAfterNode(marksToReopen, activeMarks, getMarkOpening) {
   let afterMarkdown = "";
   Array.from(marksToReopen.entries()).forEach(([markType, mark2]) => {
@@ -117,8 +138,11 @@ function reopenMarksAfterNode(marksToReopen, activeMarks, getMarkOpening) {
   });
   return afterMarkdown;
 }
+
 function isTaskItem(item) {
-  const match2 = (item.raw || item.text || "").match(/^(\s*)[-+*]\s+\[([ xX])\]\s+/);
+  const match2 = (item.raw || item.text || "").match(
+    /^(\s*)[-+*]\s+\[([ xX])\]\s+/,
+  );
   if (match2)
     return {
       isTask: true,
@@ -130,148 +154,9 @@ function isTaskItem(item) {
     indentLevel: 0,
   };
 }
-export function assumeContentType(content2, contentType) {
-  if (typeof content2 !== "string") return "json";
-  return contentType;
-}
-const STANDARD_HTML_TAGS = new Set([
-  "a",
-  "abbr",
-  "address",
-  "area",
-  "article",
-  "aside",
-  "audio",
-  "b",
-  "base",
-  "bdi",
-  "bdo",
-  "blockquote",
-  "body",
-  "br",
-  "button",
-  "canvas",
-  "caption",
-  "cite",
-  "code",
-  "col",
-  "colgroup",
-  "data",
-  "datalist",
-  "dd",
-  "del",
-  "details",
-  "dfn",
-  "dialog",
-  "div",
-  "dl",
-  "dt",
-  "em",
-  "embed",
-  "fieldset",
-  "figcaption",
-  "figure",
-  "footer",
-  "form",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "head",
-  "header",
-  "hgroup",
-  "hr",
-  "html",
-  "i",
-  "iframe",
-  "img",
-  "input",
-  "ins",
-  "kbd",
-  "label",
-  "legend",
-  "li",
-  "link",
-  "main",
-  "map",
-  "mark",
-  "menu",
-  "meta",
-  "meter",
-  "nav",
-  "noscript",
-  "object",
-  "ol",
-  "optgroup",
-  "option",
-  "output",
-  "p",
-  "param",
-  "picture",
-  "pre",
-  "progress",
-  "q",
-  "rp",
-  "rt",
-  "ruby",
-  "s",
-  "samp",
-  "script",
-  "search",
-  "section",
-  "select",
-  "slot",
-  "small",
-  "source",
-  "span",
-  "strong",
-  "style",
-  "sub",
-  "summary",
-  "sup",
-  "svg",
-  "circle",
-  "clippath",
-  "defs",
-  "ellipse",
-  "foreignobject",
-  "g",
-  "image",
-  "line",
-  "lineargradient",
-  "mask",
-  "path",
-  "polygon",
-  "polyline",
-  "radialgradient",
-  "rect",
-  "stop",
-  "switch",
-  "symbol",
-  "textpath",
-  "tspan",
-  "use",
-  "table",
-  "tbody",
-  "td",
-  "template",
-  "textarea",
-  "tfoot",
-  "th",
-  "thead",
-  "time",
-  "title",
-  "tr",
-  "track",
-  "u",
-  "ul",
-  "var",
-  "video",
-  "wbr",
-]);
+
 const HTML_TAG_NAME_PATTERN = /<\/?([a-zA-Z][\w-]*)/g;
+
 function extractHtmlTagNames(html2) {
   const tagNames = [];
   let match2;
@@ -279,17 +164,20 @@ function extractHtmlTagNames(html2) {
     tagNames.push(match2[1].toLowerCase());
   return tagNames;
 }
+
 function isHtmlUnknownTagName(tagName) {
   const lower2 = tagName.toLowerCase();
   if (lower2.includes("-")) return false;
   return !STANDARD_HTML_TAGS.has(lower2);
 }
+
 function htmlContainsUnrecognizedTag(html2, schemaTags) {
   return extractHtmlTagNames(html2).some((tagName) => {
     if (!isHtmlUnknownTagName(tagName)) return false;
     return !schemaTags.has(tagName);
   });
 }
+
 export var MarkdownManager = class {
   /**
    * Create a MarkdownManager.
@@ -313,7 +201,8 @@ export var MarkdownManager = class {
     this.inlineNodeTypesCache = null;
     this.lastParseResult = null;
     this.markedInstance =
-      (_options$marked = options === null || options === void 0 ? void 0 : options.marked) !==
+      (_options$marked =
+        options === null || options === void 0 ? void 0 : options.marked) !==
         null && _options$marked !== void 0
         ? _options$marked
         : g$2;
@@ -324,7 +213,8 @@ export var MarkdownManager = class {
         (_options$indentation = options.indentation) === null ||
         _options$indentation === void 0
           ? void 0
-          : _options$indentation.style) !== null && _options$indentation$ !== void 0
+          : _options$indentation.style) !== null &&
+      _options$indentation$ !== void 0
         ? _options$indentation$
         : "space";
     this.indentSize =
@@ -334,13 +224,17 @@ export var MarkdownManager = class {
         (_options$indentation2 = options.indentation) === null ||
         _options$indentation2 === void 0
           ? void 0
-          : _options$indentation2.size) !== null && _options$indentation$2 !== void 0
+          : _options$indentation2.size) !== null &&
+      _options$indentation$2 !== void 0
         ? _options$indentation$2
         : 2;
     this.baseExtensions =
-      (options === null || options === void 0 ? void 0 : options.extensions) || [];
+      (options === null || options === void 0 ? void 0 : options.extensions) ||
+      [];
     if (
-      (options === null || options === void 0 ? void 0 : options.markedOptions) &&
+      (options === null || options === void 0
+        ? void 0
+        : options.markedOptions) &&
       typeof this.markedInstance.setOptions === "function"
     )
       this.markedInstance.setOptions(options.markedOptions);
@@ -380,14 +274,18 @@ export var MarkdownManager = class {
     const isCode = callOrReturn(getExtensionField(extension2, "code"));
     const name2 = extension2.name;
     if (isCode) this.codeTypes.add(name2);
-    if (!this.extensionRanks.has(name2)) this.extensionRanks.set(name2, this.extensionRanks.size);
-    const tokenName = getExtensionField(extension2, "markdownTokenName") || name2;
+    if (!this.extensionRanks.has(name2))
+      this.extensionRanks.set(name2, this.extensionRanks.size);
+    const tokenName =
+      getExtensionField(extension2, "markdownTokenName") || name2;
     const parseMarkdown = getExtensionField(extension2, "parseMarkdown");
     const renderMarkdown = getExtensionField(extension2, "renderMarkdown");
     const tokenizer = getExtensionField(extension2, "markdownTokenizer");
     const markdownCfg =
-      (_getExtensionField = getExtensionField(extension2, "markdownOptions")) !== null &&
-      _getExtensionField !== void 0
+      (_getExtensionField = getExtensionField(
+        extension2,
+        "markdownOptions",
+      )) !== null && _getExtensionField !== void 0
         ? _getExtensionField
         : null;
     const spec = {
@@ -397,11 +295,16 @@ export var MarkdownManager = class {
       renderMarkdown,
       isIndenting:
         (_markdownCfg$indentsC =
-          markdownCfg === null || markdownCfg === void 0 ? void 0 : markdownCfg.indentsContent) !==
-          null && _markdownCfg$indentsC !== void 0
+          markdownCfg === null || markdownCfg === void 0
+            ? void 0
+            : markdownCfg.indentsContent) !== null &&
+        _markdownCfg$indentsC !== void 0
           ? _markdownCfg$indentsC
           : false,
-      htmlReopen: markdownCfg === null || markdownCfg === void 0 ? void 0 : markdownCfg.htmlReopen,
+      htmlReopen:
+        markdownCfg === null || markdownCfg === void 0
+          ? void 0
+          : markdownCfg.htmlReopen,
       tokenizer,
     };
     if (tokenName && parseMarkdown) {
@@ -428,7 +331,8 @@ export var MarkdownManager = class {
   tokenizeInline(src) {
     var _this$activeParseLexe;
     return (
-      (_this$activeParseLexe = this.activeParseLexer) !== null && _this$activeParseLexe !== void 0
+      (_this$activeParseLexe = this.activeParseLexer) !== null &&
+      _this$activeParseLexe !== void 0
         ? _this$activeParseLexe
         : this.createLexer()
     ).inlineTokens(src);
@@ -438,17 +342,28 @@ export var MarkdownManager = class {
    */
   registerTokenizer(tokenizer) {
     if (!this.hasMarked()) return;
-    const { name: name2, start: start2, level = "inline", tokenize: tokenize2 } = tokenizer;
+    const {
+      name: name2,
+      start: start2,
+      level = "inline",
+      tokenize: tokenize2,
+    } = tokenizer;
     const createTokenizerHelpers = this.createTokenizerHelpers.bind(this);
     const createLexer = this.createLexer.bind(this);
     let startCb;
     if (!start2)
       startCb = (src) => {
-        const result = tokenize2(src, [], this.createTokenizerHelpers(this.createLexer()));
+        const result = tokenize2(
+          src,
+          [],
+          this.createTokenizerHelpers(this.createLexer()),
+        );
         if (result && result.raw) return src.indexOf(result.raw);
         return -1;
       };
-    else startCb = typeof start2 === "function" ? start2 : (src) => src.indexOf(start2);
+    else
+      startCb =
+        typeof start2 === "function" ? start2 : (src) => src.indexOf(start2);
     const markedExtension = {
       name: name2,
       level,
@@ -522,7 +437,8 @@ export var MarkdownManager = class {
    * Parse markdown string into Tiptap JSON document using registered extension handlers.
    */
   parse(markdown2) {
-    if (!this.hasMarked()) throw new Error("No marked instance available for parsing");
+    if (!this.hasMarked())
+      throw new Error("No marked instance available for parsing");
     const previousParseLexer = this.activeParseLexer;
     const parseLexer = this.createLexer();
     this.activeParseLexer = parseLexer;
@@ -543,10 +459,13 @@ export var MarkdownManager = class {
     const normalizedTokens = parseImplicitEmptyParagraphs
       ? extractAbsorbedBlankLines(tokens2)
       : tokens2;
-    const nonSpaceTokenIndexes = normalizedTokens.reduce((indexes, token2, index2) => {
-      if (token2.type !== "space") indexes.push(index2);
-      return indexes;
-    }, []);
+    const nonSpaceTokenIndexes = normalizedTokens.reduce(
+      (indexes, token2, index2) => {
+        if (token2.type !== "space") indexes.push(index2);
+        return indexes;
+      },
+      [],
+    );
     let previousNonSpaceTokenIndex = -1;
     let nextNonSpaceTokenPointer = 0;
     return normalizedTokens.flatMap((token2, index2) => {
@@ -554,13 +473,15 @@ export var MarkdownManager = class {
         nextNonSpaceTokenPointer < nonSpaceTokenIndexes.length &&
         nonSpaceTokenIndexes[nextNonSpaceTokenPointer] < index2
       ) {
-        previousNonSpaceTokenIndex = nonSpaceTokenIndexes[nextNonSpaceTokenPointer];
+        previousNonSpaceTokenIndex =
+          nonSpaceTokenIndexes[nextNonSpaceTokenPointer];
         nextNonSpaceTokenPointer += 1;
       }
       if (parseImplicitEmptyParagraphs && token2.type === "space") {
         var _nonSpaceTokenIndexes;
         const nextNonSpaceTokenIndex =
-          (_nonSpaceTokenIndexes = nonSpaceTokenIndexes[nextNonSpaceTokenPointer]) !== null &&
+          (_nonSpaceTokenIndexes =
+            nonSpaceTokenIndexes[nextNonSpaceTokenPointer]) !== null &&
           _nonSpaceTokenIndexes !== void 0
             ? _nonSpaceTokenIndexes
             : -1;
@@ -583,7 +504,10 @@ export var MarkdownManager = class {
     const separatorCount = this.countParagraphSeparators(token2.raw || "");
     if (separatorCount === 0) return [];
     const emptyParagraphCount = Math.max(
-      separatorCount - (previousNonSpaceTokenIndex === -1 || nextNonSpaceTokenIndex === -1 ? 0 : 1),
+      separatorCount -
+        (previousNonSpaceTokenIndex === -1 || nextNonSpaceTokenIndex === -1
+          ? 0
+          : 1),
       0,
     );
     return Array.from(
@@ -612,7 +536,10 @@ export var MarkdownManager = class {
         if (!handler.parseMarkdown) return false;
         const parseResult = handler.parseMarkdown(token2, helpers);
         const normalized = this.normalizeParseResult(parseResult);
-        if (normalized && (!Array.isArray(normalized) || normalized.length > 0)) {
+        if (
+          normalized &&
+          (!Array.isArray(normalized) || normalized.length > 0)
+        ) {
           this.lastParseResult = normalized;
           return true;
         }
@@ -634,10 +561,15 @@ export var MarkdownManager = class {
    * @returns Array of parsed list nodes, or null if parsing fails
    */
   parseListToken(token2) {
-    if (!token2.items || token2.items.length === 0) return this.parseTokenWithHandlers(token2);
+    if (!token2.items || token2.items.length === 0)
+      return this.parseTokenWithHandlers(token2);
     const hasTask = token2.items.some((item) => isTaskItem(item).isTask);
     const hasNonTask = token2.items.some((item) => !isTaskItem(item).isTask);
-    if (!hasTask || !hasNonTask || this.getHandlersForToken("taskList").length === 0)
+    if (
+      !hasTask ||
+      !hasNonTask ||
+      this.getHandlersForToken("taskList").length === 0
+    )
       return this.parseTokenWithHandlers(token2);
     const groups = [];
     let currentGroup = [];
@@ -648,7 +580,9 @@ export var MarkdownManager = class {
       let processedItem = item;
       if (isTask) {
         const lines = (item.raw || item.text || "").split("\n");
-        const firstLineMatch = lines[0].match(/^\s*[-+*]\s+\[([ xX])\]\s+(.*)$/);
+        const firstLineMatch = lines[0].match(
+          /^\s*[-+*]\s+\[([ xX])\]\s+(.*)$/,
+        );
         const mainContent = firstLineMatch ? firstLineMatch[2] : "";
         let nestedTokens = [];
         if (lines.length > 1) {
@@ -657,7 +591,9 @@ export var MarkdownManager = class {
             const nonEmptyLines = nestedLines.filter((line) => line.trim());
             if (nonEmptyLines.length > 0) {
               const minIndent = Math.min(
-                ...nonEmptyLines.map((line) => line.length - line.trimStart().length),
+                ...nonEmptyLines.map(
+                  (line) => line.length - line.trimStart().length,
+                ),
               );
               const nestedContent = nestedLines
                 .map((line) => {
@@ -727,7 +663,10 @@ export var MarkdownManager = class {
         if (!handler.parseMarkdown) return false;
         const parseResult = handler.parseMarkdown(token2, helpers);
         const normalized = this.normalizeParseResult(parseResult);
-        if (normalized && (!Array.isArray(normalized) || normalized.length > 0)) {
+        if (
+          normalized &&
+          (!Array.isArray(normalized) || normalized.length > 0)
+        ) {
           this.lastParseResult = normalized;
           return true;
         }
@@ -820,8 +759,10 @@ export var MarkdownManager = class {
             var _ref2, _t$raw;
             const t2 = tokens2[j2];
             const tRaw = (
-              (_ref2 = (_t$raw = t2.raw) !== null && _t$raw !== void 0 ? _t$raw : t2.text) !==
-                null && _ref2 !== void 0
+              (_ref2 =
+                (_t$raw = t2.raw) !== null && _t$raw !== void 0
+                  ? _t$raw
+                  : t2.text) !== null && _ref2 !== void 0
                 ? _ref2
                 : ""
             ).toString();
@@ -872,7 +813,8 @@ export var MarkdownManager = class {
             if (Array.isArray(normalized)) result.push(...normalized);
             else if (normalized) result.push(normalized);
           }
-        } else if (token2.tokens) result.push(...this.parseInlineTokens(token2.tokens));
+        } else if (token2.tokens)
+          result.push(...this.parseInlineTokens(token2.tokens));
       }
     }
     for (let i2 = result.length - 1; i2 > 0; i2 -= 1) {
@@ -911,7 +853,9 @@ export var MarkdownManager = class {
       }
       return {
         ...node2,
-        content: node2.content ? this.applyMarkToContent(markType, node2.content, attrs) : void 0,
+        content: node2.content
+          ? this.applyMarkToContent(markType, node2.content, attrs)
+          : void 0,
       };
     });
   }
@@ -959,7 +903,8 @@ export var MarkdownManager = class {
       case "space":
         return null;
       default:
-        if (token2.tokens) return this.parseTokens(token2.tokens, parseImplicitEmptyParagraphs);
+        if (token2.tokens)
+          return this.parseTokens(token2.tokens, parseImplicitEmptyParagraphs);
         return null;
     }
   }
@@ -976,8 +921,12 @@ export var MarkdownManager = class {
   parseHTMLToken(token2) {
     const html2 = token2.text || token2.raw || "";
     if (!html2.trim()) return null;
-    if (this.isUnrecognizedHtml(html2)) return this.htmlAsLiteralText(html2, !!token2.block);
-    if (typeof window === "undefined" || typeof window.DOMParser === "undefined")
+    if (this.isUnrecognizedHtml(html2))
+      return this.htmlAsLiteralText(html2, !!token2.block);
+    if (
+      typeof window === "undefined" ||
+      typeof window.DOMParser === "undefined"
+    )
       return this.htmlAsLiteralText(html2, !!token2.block);
     try {
       const parsed = generateJSON(html2, this.baseExtensions);
@@ -1063,10 +1012,14 @@ export var MarkdownManager = class {
     try {
       const schema2 = getSchema(this.baseExtensions);
       const collect = (spec) => {
-        const parseDOM = spec === null || spec === void 0 ? void 0 : spec.parseDOM;
+        const parseDOM =
+          spec === null || spec === void 0 ? void 0 : spec.parseDOM;
         if (!Array.isArray(parseDOM)) return;
         parseDOM.forEach((rule) => {
-          if (typeof (rule === null || rule === void 0 ? void 0 : rule.tag) === "string") {
+          if (
+            typeof (rule === null || rule === void 0 ? void 0 : rule.tag) ===
+            "string"
+          ) {
             const match2 = rule.tag.match(/^[a-zA-Z][\w-]*/);
             if (match2) tags2.add(match2[0].toLowerCase());
           }
@@ -1116,9 +1069,13 @@ export var MarkdownManager = class {
    */
   encodeTextForMarkdown(text2, node2, parentNode2) {
     if (
-      ((parentNode2 === null || parentNode2 === void 0 ? void 0 : parentNode2.type) != null &&
+      ((parentNode2 === null || parentNode2 === void 0
+        ? void 0
+        : parentNode2.type) != null &&
         this.codeTypes.has(parentNode2.type)) ||
-      (node2.marks || []).some((m3) => this.codeTypes.has(typeof m3 === "string" ? m3 : m3.type))
+      (node2.marks || []).some((m3) =>
+        this.codeTypes.has(typeof m3 === "string" ? m3 : m3.type),
+      )
     )
       return text2;
     return this.escapeMarkdownSyntax(encodeHtmlEntities(text2));
@@ -1144,7 +1101,9 @@ export var MarkdownManager = class {
     if (!handler) return "";
     const previousNode =
       Array.isArray(
-        parentNode2 === null || parentNode2 === void 0 ? void 0 : parentNode2.content,
+        parentNode2 === null || parentNode2 === void 0
+          ? void 0
+          : parentNode2.content,
       ) && index2 > 0
         ? parentNode2.content[index2 - 1]
         : void 0;
@@ -1152,12 +1111,29 @@ export var MarkdownManager = class {
       renderChildren: (nodes, separator) => {
         const childLevel = handler.isIndenting ? level + 1 : level;
         if (!Array.isArray(nodes) && nodes.content)
-          return this.renderNodes(nodes.content, node2, separator || "", index2, childLevel);
-        return this.renderNodes(nodes, node2, separator || "", index2, childLevel);
+          return this.renderNodes(
+            nodes.content,
+            node2,
+            separator || "",
+            index2,
+            childLevel,
+          );
+        return this.renderNodes(
+          nodes,
+          node2,
+          separator || "",
+          index2,
+          childLevel,
+        );
       },
       renderChild: (childNode, childIndex) => {
         const childLevel = handler.isIndenting ? level + 1 : level;
-        return this.renderNodeToMarkdown(childNode, node2, childIndex, childLevel);
+        return this.renderNodeToMarkdown(
+          childNode,
+          node2,
+          childIndex,
+          childLevel,
+        );
       },
       indent: (content2) => {
         return this.indentString + content2;
@@ -1167,15 +1143,22 @@ export var MarkdownManager = class {
     const context = {
       index: index2,
       level,
-      parentType: parentNode2 === null || parentNode2 === void 0 ? void 0 : parentNode2.type,
+      parentType:
+        parentNode2 === null || parentNode2 === void 0
+          ? void 0
+          : parentNode2.type,
       previousNode,
       meta: {
-        parentAttrs: parentNode2 === null || parentNode2 === void 0 ? void 0 : parentNode2.attrs,
+        parentAttrs:
+          parentNode2 === null || parentNode2 === void 0
+            ? void 0
+            : parentNode2.attrs,
         ...meta2,
       },
     };
     return (
-      ((_handler$renderMarkdo = handler.renderMarkdown) === null || _handler$renderMarkdo === void 0
+      ((_handler$renderMarkdo = handler.renderMarkdown) === null ||
+      _handler$renderMarkdo === void 0
         ? void 0
         : _handler$renderMarkdo.call(handler, node2, helpers, context)) || ""
     );
@@ -1189,7 +1172,12 @@ export var MarkdownManager = class {
       if (!nodeOrNodes.type) return "";
       return this.renderNodeToMarkdown(nodeOrNodes, parentNode2, index2, level);
     }
-    return this.renderNodesWithMarkBoundaries(nodeOrNodes, parentNode2, separator, level);
+    return this.renderNodesWithMarkBoundaries(
+      nodeOrNodes,
+      parentNode2,
+      separator,
+      level,
+    );
   }
   /**
    * Render an array of nodes while properly tracking mark boundaries.
@@ -1204,30 +1192,56 @@ export var MarkdownManager = class {
       const nextNode = i2 < nodes.length - 1 ? nodes[i2 + 1] : null;
       if (!node2.type) return;
       if (node2.type === "text") {
-        let textContent = this.encodeTextForMarkdown(node2.text || "", node2, parentNode2);
-        let currentMarks = new Map((node2.marks || []).map((mark2) => [mark2.type, mark2]));
-        let marksToOpen = this.getMarksToOpenForSerialization(activeMarks, currentMarks, nextNode);
+        let textContent = this.encodeTextForMarkdown(
+          node2.text || "",
+          node2,
+          parentNode2,
+        );
+        let currentMarks = new Map(
+          (node2.marks || []).map((mark2) => [mark2.type, mark2]),
+        );
+        let marksToOpen = this.getMarksToOpenForSerialization(
+          activeMarks,
+          currentMarks,
+          nextNode,
+        );
         let marksToClose = findMarksToClose(currentMarks, nextNode);
-        if (textContent.length > 0 && textContent.trim().length === 0 && currentMarks.size > 0) {
+        if (
+          textContent.length > 0 &&
+          textContent.trim().length === 0 &&
+          currentMarks.size > 0
+        ) {
           const transientMarks = new Set(
             marksToClose.filter((markType) => !activeMarks.has(markType)),
           );
           if (transientMarks.size > 0) {
             currentMarks = new Map(
-              Array.from(currentMarks).filter(([markType]) => !transientMarks.has(markType)),
+              Array.from(currentMarks).filter(
+                ([markType]) => !transientMarks.has(markType),
+              ),
             );
-            marksToOpen = this.getMarksToOpenForSerialization(activeMarks, currentMarks, nextNode);
+            marksToOpen = this.getMarksToOpenForSerialization(
+              activeMarks,
+              currentMarks,
+              nextNode,
+            );
             marksToClose = findMarksToClose(currentMarks, nextNode);
           }
         }
-        const activeMarksClosingHere = marksToClose.filter((markType) => activeMarks.has(markType));
-        const hasCrossedBoundary = activeMarksClosingHere.length > 0 && marksToOpen.length > 0;
+        const activeMarksClosingHere = marksToClose.filter((markType) =>
+          activeMarks.has(markType),
+        );
+        const hasCrossedBoundary =
+          activeMarksClosingHere.length > 0 && marksToOpen.length > 0;
         let middleTrailingWhitespace = "";
         if (marksToClose.length > 0 && !hasCrossedBoundary) {
           const middleTrailingMatch = textContent.match(/(\s+)$/);
           if (middleTrailingMatch) {
             middleTrailingWhitespace = middleTrailingMatch[1];
-            textContent = textContent.slice(0, -middleTrailingWhitespace.length);
+            textContent = textContent.slice(
+              0,
+              -middleTrailingWhitespace.length,
+            );
           }
         }
         if (!hasCrossedBoundary)
@@ -1257,7 +1271,9 @@ export var MarkdownManager = class {
           }
         }
         marksToOpen.forEach(({ type: type2, mark: mark2 }) => {
-          const openingMode = reopenWithHtmlOnNextOpen.has(type2) ? "html" : "markdown";
+          const openingMode = reopenWithHtmlOnNextOpen.has(type2)
+            ? "html"
+            : "markdown";
           const openMarkdown = this.getMarkOpening(type2, mark2, openingMode);
           if (openMarkdown) textContent = openMarkdown + textContent;
           markOpeningModes.set(type2, openingMode);
@@ -1274,9 +1290,11 @@ export var MarkdownManager = class {
         let marksToCloseAtEnd;
         if (hasCrossedBoundary) {
           const nextMarkTypes = new Set(
-            ((nextNode === null || nextNode === void 0 ? void 0 : nextNode.marks) || []).map(
-              (mark2) => mark2.type,
-            ),
+            (
+              (nextNode === null || nextNode === void 0
+                ? void 0
+                : nextNode.marks) || []
+            ).map((mark2) => mark2.type),
           );
           marksToOpen.forEach(({ type: type2 }) => {
             if (nextMarkTypes.has(type2) && this.getHtmlReopenTags(type2))
@@ -1285,8 +1303,14 @@ export var MarkdownManager = class {
           const activeMarkKeys = Array.from(activeMarks.keys());
           const activeMarksClosingHereLifo = activeMarksClosingHere
             .slice()
-            .sort((a2, b3) => activeMarkKeys.indexOf(b3) - activeMarkKeys.indexOf(a2));
-          marksToCloseAtEnd = [...marksToOpen.map((m3) => m3.type), ...activeMarksClosingHereLifo];
+            .sort(
+              (a2, b3) =>
+                activeMarkKeys.indexOf(b3) - activeMarkKeys.indexOf(a2),
+            );
+          marksToCloseAtEnd = [
+            ...marksToOpen.map((m3) => m3.type),
+            ...activeMarksClosingHereLifo,
+          ];
         } else
           marksToCloseAtEnd = findMarksToCloseAtEnd(
             activeMarks,
@@ -1305,7 +1329,8 @@ export var MarkdownManager = class {
         marksToCloseAtEnd.forEach((markType) => {
           var _activeMarks$get;
           const mark2 =
-            (_activeMarks$get = activeMarks.get(markType)) !== null && _activeMarks$get !== void 0
+            (_activeMarks$get = activeMarks.get(markType)) !== null &&
+            _activeMarks$get !== void 0
               ? _activeMarks$get
               : currentMarks.get(markType);
           const closeMarkdown = this.getMarkClosing(
@@ -1321,7 +1346,9 @@ export var MarkdownManager = class {
         textContent += middleTrailingWhitespace;
         result.push(textContent);
       } else {
-        const nodeMarkTypes = new Set((node2.marks || []).map((mark2) => mark2.type));
+        const nodeMarkTypes = new Set(
+          (node2.marks || []).map((mark2) => mark2.type),
+        );
         const marksToReopen = new Map();
         const openingModesToReopen = new Map();
         activeMarks.forEach((mark2, type2) => {
@@ -1337,24 +1364,41 @@ export var MarkdownManager = class {
             );
           }
         });
-        const beforeMarkdown = closeMarksBeforeNode(activeMarks, (markType, mark2) => {
-          return this.getMarkClosing(markType, mark2, markOpeningModes.get(markType));
-        });
+        const beforeMarkdown = closeMarksBeforeNode(
+          activeMarks,
+          (markType, mark2) => {
+            return this.getMarkClosing(
+              markType,
+              mark2,
+              markOpeningModes.get(markType),
+            );
+          },
+        );
         markOpeningModes.clear();
-        const nodeContent = this.renderNodeToMarkdown(node2, parentNode2, i2, level);
+        const nodeContent = this.renderNodeToMarkdown(
+          node2,
+          parentNode2,
+          i2,
+          level,
+        );
         const afterMarkdown =
           node2.type === "hardBreak"
             ? ""
-            : reopenMarksAfterNode(marksToReopen, activeMarks, (markType, mark2) => {
-                var _openingModesToReopen;
-                const openingMode =
-                  (_openingModesToReopen = openingModesToReopen.get(markType)) !== null &&
-                  _openingModesToReopen !== void 0
-                    ? _openingModesToReopen
-                    : "markdown";
-                markOpeningModes.set(markType, openingMode);
-                return this.getMarkOpening(markType, mark2, openingMode);
-              });
+            : reopenMarksAfterNode(
+                marksToReopen,
+                activeMarks,
+                (markType, mark2) => {
+                  var _openingModesToReopen;
+                  const openingMode =
+                    (_openingModesToReopen =
+                      openingModesToReopen.get(markType)) !== null &&
+                    _openingModesToReopen !== void 0
+                      ? _openingModesToReopen
+                      : "markdown";
+                  markOpeningModes.set(markType, openingMode);
+                  return this.getMarkOpening(markType, mark2, openingMode);
+                },
+              );
         result.push(beforeMarkdown + nodeContent + afterMarkdown);
       }
     });
@@ -1404,7 +1448,9 @@ export var MarkdownManager = class {
         },
       );
       const placeholderIndex = rendered.indexOf(placeholder);
-      return placeholderIndex >= 0 ? rendered.substring(0, placeholderIndex) : "";
+      return placeholderIndex >= 0
+        ? rendered.substring(0, placeholderIndex)
+        : "";
     } catch (err) {
       throw new Error(`Failed to get mark opening for ${markType}: ${err}`);
     }
@@ -1499,9 +1545,13 @@ export var MarkdownManager = class {
   getMarksToOpenForSerialization(activeMarks, currentMarks, nextNode) {
     const marksToOpen = findMarksToOpen(activeMarks, currentMarks);
     if (marksToOpen.length <= 1) return marksToOpen;
-    const nextMarks = (nextNode === null || nextNode === void 0 ? void 0 : nextNode.marks) || [];
+    const nextMarks =
+      (nextNode === null || nextNode === void 0 ? void 0 : nextNode.marks) ||
+      [];
     const continuesInNextNode = (markType, attrs) =>
-      nextMarks.some((m3) => m3.type === markType && attrsEqual(m3.attrs, attrs));
+      nextMarks.some(
+        (m3) => m3.type === markType && attrsEqual(m3.attrs, attrs),
+      );
     const byRankInnerFirst = (a2, b3) => {
       var _this$extensionRanks$, _this$extensionRanks$2;
       const rankA =

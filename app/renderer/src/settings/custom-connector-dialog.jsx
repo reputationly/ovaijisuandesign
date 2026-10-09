@@ -1,142 +1,44 @@
 // custom-connector-dialog.jsx
-import { reactExports, useTranslation, ChevronDown, PlaybackPlayIcon$1, Loader2, resolveConnectorIcon, isSkillsOnly, Link2, MessageCircle, CONNECTOR_STATUS_VISUAL } from "../vendor.js";
-import { Select$1 } from "../assets/apply-asset-change.jsx";
-import { Icon, PlaybackPauseIcon } from "../vendor-inline/vscode-base/graph.jsx";
-import { Download } from "../media-editing/parse-item.jsx";
 import {
-  cn$2,
-  Button$1,
-  Textarea,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { RetryIcon } from "../workspace/browser-inspiration-urls.jsx";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../workspace/shortcut-categories.jsx";
-import { Label } from "../team/infinite-scroll-container.jsx";
-import { Switch } from "../generation/calc-video-cost-breakdown.jsx";
-import { ConnectorDialogFrame } from "./proxy-detected-toast.jsx";
-import {
-  Input3,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../infra/select-content.jsx";
-import { IntegrationStatusPill } from "./use-feishu-qr-login.jsx";
-import {
+  CUSTOM_MCP_NAME_MAX_LENGTH,
   CustomMcpCommandSyntaxError,
   CustomMcpValidationError,
   isReservedCustomMcpName,
   parseCustomMcpArguments,
-  normalizeCustomMcpServerInput,
-  normalizeCustomMcpLaunch,
-  CUSTOM_MCP_NAME_MAX_LENGTH,
-} from "./instantiation-service.js";
+} from "./parse-custom-mcp-arguments.js";
+import { normalizeCustomMcpServerInput } from "./normalize-config.js";
+import { normalizeCustomMcpLaunch } from "./normalize-custom-mcp-launch.js";
+import { ChevronDown, reactExports, useTranslation } from "../vendor.js";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ConnectorApiKeySection, ConnectorCliAuthSection } from "./connector-cli-auth-section.jsx";
+import { Select$1 } from "../assets/credit-query-keys.jsx";
 import {
-  ConnectorHubOAuthSection,
-  ConnectorManualCredentialSection,
-  ConnectorPlainSection,
-  ConnectorServerOAuthSection,
-  ConnectorSkillOnlySection,
-} from "./connector-hub-o-auth-section.jsx";
-export function ConnectorDialog({ manifest, ...props }) {
-  const section = {
-    ...props,
-    manifest,
-    iconUrl: resolveConnectorIcon(manifest.icon),
-    embedded: props.embedded ?? false,
-  };
-  if (manifest.auth.kind === "cliAuth") return <ConnectorCliAuthSection {...section} />;
-  if (isSkillsOnly(manifest)) return <ConnectorSkillOnlySection {...section} />;
-  switch (manifest.auth.kind) {
-    case "apiKey":
-      return <ConnectorApiKeySection {...section} />;
-    case "serverOAuth":
-      return <ConnectorServerOAuthSection {...section} />;
-    case "hubOAuthProfile":
-      return manifest.auth.profile.flow?.manual?.only ? (
-        <ConnectorManualCredentialSection {...section} />
-      ) : (
-        <ConnectorHubOAuthSection {...section} />
-      );
-    case "none":
-      return <ConnectorPlainSection {...section} />;
-  }
-}
-const connectorPromptActionIcon = {
-  requiresInstall: Download,
-  installing: Loader2,
-  requiresConnection: Link2,
-  ready: MessageCircle,
-  requiresEnable: PlaybackPlayIcon$1,
-  requiresRecovery: RetryIcon,
-};
-export function ConnectorPromptAction({
-  mode: mode2,
-  label,
-  checking = false,
-  className,
-  ...props
-}) {
-  const actionIcon = connectorPromptActionIcon[mode2];
-  return (
-    <Button$1
-      type="button"
-      size="sm"
-      variant="default"
-      className={cn$2(
-        "h-[30px] shrink-0 self-center gap-1 rounded-[10px] pl-2.5 pr-3 font-normal",
-        className,
-      )}
-      data-connector-prompt-action-mode={mode2}
-      {...props}
-    >
-      <span
-        aria-hidden="true"
-        className="flex size-3.5 shrink-0 items-center justify-center"
-        data-layout-slot="connector-prompt-action-icon"
-      >
-        <Icon
-          icon={actionIcon}
-          size="sm"
-          strokeWidth={1.5}
-          className={
-            mode2 === "installing" ? "animate-spin" : checking ? "motion-safe:animate-spin" : void 0
-          }
-          aria-hidden={true}
-        />
-      </span>
-      <span>{label}</span>
-    </Button$1>
-  );
-}
-export function ConnectorStatusPill({ state: state2 }) {
-  const { t: t2 } = useTranslation();
-  const visual = CONNECTOR_STATUS_VISUAL[state2];
-  const label = t2(
-    state2 === "removing" ? "connectors.detail.disconnecting" : `connectors.runtimeState.${state2}`,
-  );
-  return (
-    <IntegrationStatusPill
-      label={label}
-      tone={visual.tone}
-      markerTone={visual.markerTone}
-      markerActive={state2 === "removing" || state2 === "checking" || state2 === "installing"}
-      markerIcon={
-        state2 === "disabled" ? (
-          <PlaybackPauseIcon size={10} className="shrink-0 text-warning/80" />
-        ) : (
-          void 0
-        )
-      }
-      markerLabel={label}
-    />
-  );
-}
+  Button$1,
+  DialogFooter,
+  DialogHeader,
+} from "../infra/dialog-content.jsx";
+import {
+  DialogDescription,
+  DialogTitle,
+  Textarea,
+} from "../infra/badge-variants.jsx";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../workspace/shortcut-hint.jsx";
+import { Label } from "../team/use-wallet-query.jsx";
+import { Switch } from "../generation/select-content.jsx";
+import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
+import {
+  Input3,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../infra/select-content.jsx";
+
 const VALIDATION_FIELDS = {
   name: {
     field: "name",
@@ -171,11 +73,13 @@ const VALIDATION_FIELDS = {
     messageKey: "connectors.customDialog.timeoutError",
   },
 };
+
 const COMMAND_ISSUE_KEYS = {
   unclosed_quote: "connectors.customDialog.unclosedQuoteError",
   shell_syntax: "connectors.customDialog.shellSyntaxError",
   ambiguous_executable: "connectors.customDialog.commandPathError",
 };
+
 function editorValidationError(error, name2) {
   if (error instanceof CustomMcpCommandSyntaxError) {
     return {
@@ -202,6 +106,7 @@ function editorValidationError(error, name2) {
     messageKey: "connectors.customDialog.error.invalid_config",
   };
 }
+
 const INITIAL_FORM_STATE = {
   name: "",
   transport: "stdio",
@@ -213,6 +118,7 @@ const INITIAL_FORM_STATE = {
   keyValuesText: "",
   timeoutText: "",
 };
+
 const INITIAL_JSON = JSON.stringify(
   {
     "my-server": {
@@ -225,23 +131,25 @@ const INITIAL_JSON = JSON.stringify(
   null,
   2,
 );
+
 function parseEditorKeyValues(value) {
   if (!value.trim()) return {};
   try {
     const parsed = JSON.parse(value);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return void 0;
-    if (Object.values(parsed).some((entry) => typeof entry !== "string")) return void 0;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return void 0;
+    if (Object.values(parsed).some((entry) => typeof entry !== "string"))
+      return void 0;
     return parsed;
   } catch {
     return void 0;
   }
 }
-function editorFormToInput(state2) {
-  return validateEditorForm(state2).input;
-}
+
 function normalizeEditorName(value) {
   return value.trim().replace(/\s+/gu, "-");
 }
+
 function validateEditorForm(state2, existingName) {
   const keyValues = parseEditorKeyValues(state2.keyValuesText);
   if (keyValues === void 0)
@@ -315,22 +223,11 @@ function validateEditorForm(state2, existingName) {
     };
   }
 }
-function normalizeEditorLaunchFields(state2) {
-  if (state2.transport !== "stdio") return void 0;
-  try {
-    const launch = normalizeCustomMcpLaunch(
-      state2.command,
-      state2.argumentsText.trim() ? parseCustomMcpArguments(state2.argumentsText) : void 0,
-    );
-    if (launch.command === state2.command.trim()) return void 0;
-    return {
-      command: launch.command,
-      argumentsText: formatEditorArguments(launch.args ?? []),
-    };
-  } catch {
-    return void 0;
-  }
+
+function editorFormToInput(state2) {
+  return validateEditorForm(state2).input;
 }
+
 function serializeDraftArguments(value) {
   try {
     return parseCustomMcpArguments(value);
@@ -338,6 +235,20 @@ function serializeDraftArguments(value) {
     return value;
   }
 }
+
+function serializeEditorInput(input) {
+  return JSON.stringify(
+    {
+      [input.name]: {
+        ...input.config,
+        enabled: input.enabled,
+      },
+    },
+    null,
+    2,
+  );
+}
+
 function serializeEditorForm(state2) {
   const input = editorFormToInput(state2);
   if (input) return serializeEditorInput(input);
@@ -388,9 +299,66 @@ function serializeEditorForm(state2) {
     2,
   );
 }
-function parseEditorJson(value, existingName) {
-  return validateEditorJson(value, existingName).input;
+
+function formatEditorArguments(args) {
+  return args
+    .map((argument) =>
+      /^[a-zA-Z0-9_@%+=:,./-]+$/u.test(argument)
+        ? argument
+        : `'${argument.replace(/'/gu, "'\\''")}'`,
+    )
+    .join(" ");
 }
+
+function normalizeEditorLaunchFields(state2) {
+  if (state2.transport !== "stdio") return void 0;
+  try {
+    const launch = normalizeCustomMcpLaunch(
+      state2.command,
+      state2.argumentsText.trim()
+        ? parseCustomMcpArguments(state2.argumentsText)
+        : void 0,
+    );
+    if (launch.command === state2.command.trim()) return void 0;
+    return {
+      command: launch.command,
+      argumentsText: formatEditorArguments(launch.args ?? []),
+    };
+  } catch {
+    return void 0;
+  }
+}
+
+function formatKeyValues(value) {
+  return value && Object.keys(value).length
+    ? JSON.stringify(value, null, 2)
+    : "";
+}
+
+function editorInputToForm(input) {
+  const { config: config2 } = input;
+  return {
+    name: input.name,
+    transport: config2.transport,
+    command: config2.transport === "stdio" ? config2.command : "",
+    argumentsText:
+      config2.transport === "stdio"
+        ? formatEditorArguments(config2.args ?? [])
+        : "",
+    url: config2.transport === "stdio" ? "" : config2.url,
+    description: config2.description ?? "",
+    enabled: input.enabled,
+    keyValuesText: formatKeyValues(
+      config2.transport === "stdio" ? config2.env : config2.headers,
+    ),
+    timeoutText: config2.timeoutMs ? String(config2.timeoutMs) : "",
+  };
+}
+
+function isRecord$3(value) {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
 function validateEditorJson(value, existingName) {
   const invalidJson = {
     error: {
@@ -439,61 +407,38 @@ function validateEditorJson(value, existingName) {
       : invalidJson;
   }
 }
-function editorInputToForm(input) {
-  const { config: config2 } = input;
-  return {
-    name: input.name,
-    transport: config2.transport,
-    command: config2.transport === "stdio" ? config2.command : "",
-    argumentsText: config2.transport === "stdio" ? formatEditorArguments(config2.args ?? []) : "",
-    url: config2.transport === "stdio" ? "" : config2.url,
-    description: config2.description ?? "",
-    enabled: input.enabled,
-    keyValuesText: formatKeyValues(config2.transport === "stdio" ? config2.env : config2.headers),
-    timeoutText: config2.timeoutMs ? String(config2.timeoutMs) : "",
-  };
+
+function parseEditorJson(value, existingName) {
+  return validateEditorJson(value, existingName).input;
 }
-function serializeEditorInput(input) {
-  return JSON.stringify(
-    {
-      [input.name]: {
-        ...input.config,
-        enabled: input.enabled,
-      },
-    },
-    null,
-    2,
-  );
-}
-function formatEditorArguments(args) {
-  return args
-    .map((argument) =>
-      /^[a-zA-Z0-9_@%+=:,./-]+$/u.test(argument)
-        ? argument
-        : `'${argument.replace(/'/gu, "'\\''")}'`,
-    )
-    .join(" ");
-}
-function formatKeyValues(value) {
-  return value && Object.keys(value).length ? JSON.stringify(value, null, 2) : "";
-}
-function isRecord$3(value) {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
+
 const MCP_TRANSPORT_LABELS = {
   stdio: "stdio",
   http: "HTTP",
   "streamable-http": "Streamable HTTP",
   sse: "SSE",
 };
+
 const FORM_OUTLINE_CLASS_NAME =
   "border border-input focus-visible:border-foreground focus-visible:ring-0";
+
 const FORM_CONTROL_CLASS_NAME = `h-10 ${FORM_OUTLINE_CLASS_NAME}`;
+
 const FORM_LABEL_CLASS_NAME = "text-sm font-medium text-foreground";
-const HELPER_TEXT_CLASS_NAME = "text-[13px] leading-relaxed text-muted-foreground";
+
+const HELPER_TEXT_CLASS_NAME =
+  "text-[13px] leading-relaxed text-muted-foreground";
+
 const SELECT_ITEM_CLASS_NAME =
   "h-8 rounded-sm py-2 pr-8 pl-3 text-sm font-normal text-foreground/70 focus:bg-popup-item-hover focus:text-foreground data-[highlighted]:bg-popup-item-hover data-[highlighted]:text-foreground";
-export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated, initialInput }) {
+
+export function CustomConnectorDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  onCreated,
+  initialInput,
+}) {
   const { t: t2 } = useTranslation();
   const [mode2, setMode] = reactExports.useState("form");
   const [formState, setFormState] = reactExports.useState(INITIAL_FORM_STATE);
@@ -501,7 +446,8 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
   const [advancedOpen, setAdvancedOpen] = reactExports.useState(false);
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [submitError, setSubmitError] = reactExports.useState();
-  const [validationAttempted, setValidationAttempted] = reactExports.useState(false);
+  const [validationAttempted, setValidationAttempted] =
+    reactExports.useState(false);
   const [focusTarget, setFocusTarget] = reactExports.useState();
   const [commandWasSplit, setCommandWasSplit] = reactExports.useState(false);
   const contentRef = reactExports.useRef(null);
@@ -512,8 +458,12 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
     busy.current = false;
     if (open) {
       setMode("form");
-      setFormState(initialInput ? editorInputToForm(initialInput) : INITIAL_FORM_STATE);
-      setJsonText(initialInput ? serializeEditorInput(initialInput) : INITIAL_JSON);
+      setFormState(
+        initialInput ? editorInputToForm(initialInput) : INITIAL_FORM_STATE,
+      );
+      setJsonText(
+        initialInput ? serializeEditorInput(initialInput) : INITIAL_JSON,
+      );
       setAdvancedOpen(false);
       setSubmitting(false);
       setSubmitError(void 0);
@@ -540,7 +490,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
   const nameLength = Array.from(normalizeEditorName(formState.name)).length;
   reactExports.useEffect(() => {
     if (!focusTarget) return;
-    contentRef.current?.querySelector(`#custom-connector-${focusTarget}`)?.focus();
+    contentRef.current
+      ?.querySelector(`#custom-connector-${focusTarget}`)
+      ?.focus();
     setFocusTarget(void 0);
   }, [focusTarget]);
   const getFieldValidationProps = (field) => ({
@@ -556,7 +508,11 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
   });
   const renderFieldError = (field) =>
     validationError?.field === field ? (
-      <p id={`custom-connector-${field}-error`} className="text-xs text-destructive" role="alert">
+      <p
+        id={`custom-connector-${field}-error`}
+        className="text-xs text-destructive"
+        role="alert"
+      >
         {t2(validationError.messageKey)}
       </p>
     ) : null;
@@ -699,7 +655,10 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                       data-layout-slot="custom-connector-name-field"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <Label htmlFor="custom-connector-name" className={FORM_LABEL_CLASS_NAME}>
+                        <Label
+                          htmlFor="custom-connector-name"
+                          className={FORM_LABEL_CLASS_NAME}
+                        >
                           {t2("connectors.customDialog.name")}
                         </Label>
                         {!initialInput ? (
@@ -727,7 +686,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                             name: event.target.value,
                           }))
                         }
-                        placeholder={t2("connectors.customDialog.namePlaceholder")}
+                        placeholder={t2(
+                          "connectors.customDialog.namePlaceholder",
+                        )}
                         className={FORM_CONTROL_CLASS_NAME}
                         data-action-ui-id="custom-connector-name"
                       />
@@ -747,10 +708,16 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                       className="flex min-w-0 flex-col gap-2"
                       data-layout-slot="custom-connector-transport-field"
                     >
-                      <Label htmlFor="custom-connector-transport" className={FORM_LABEL_CLASS_NAME}>
+                      <Label
+                        htmlFor="custom-connector-transport"
+                        className={FORM_LABEL_CLASS_NAME}
+                      >
                         {t2("connectors.customDialog.transport")}
                       </Label>
-                      <Select$1 value={formState.transport} onValueChange={handleTransportChange}>
+                      <Select$1
+                        value={formState.transport}
+                        onValueChange={handleTransportChange}
+                      >
                         <SelectTrigger
                           id="custom-connector-transport"
                           className={`${FORM_CONTROL_CLASS_NAME} w-full bg-transparent! text-sm font-normal hover:bg-transparent! data-[size=default]:h-10`}
@@ -761,22 +728,27 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent align="start" className="p-1">
-                          {Object.entries(MCP_TRANSPORT_LABELS).map(([value, label]) => (
-                            <SelectItem
-                              key={value}
-                              value={value}
-                              className={SELECT_ITEM_CLASS_NAME}
-                            >
-                              {label}
-                            </SelectItem>
-                          ))}
+                          {Object.entries(MCP_TRANSPORT_LABELS).map(
+                            ([value, label]) => (
+                              <SelectItem
+                                key={value}
+                                value={value}
+                                className={SELECT_ITEM_CLASS_NAME}
+                              >
+                                {label}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select$1>
                     </div>
                   </div>
                   {remote ? (
                     <div className="flex min-w-0 flex-col gap-2">
-                      <Label htmlFor="custom-connector-url" className={FORM_LABEL_CLASS_NAME}>
+                      <Label
+                        htmlFor="custom-connector-url"
+                        className={FORM_LABEL_CLASS_NAME}
+                      >
                         {t2("connectors.customDialog.url")}
                       </Label>
                       <Input3
@@ -789,7 +761,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                             url: event.target.value,
                           }))
                         }
-                        placeholder={t2("connectors.customDialog.urlPlaceholder")}
+                        placeholder={t2(
+                          "connectors.customDialog.urlPlaceholder",
+                        )}
                         className={FORM_CONTROL_CLASS_NAME}
                         data-action-ui-id="custom-connector-url"
                       />
@@ -798,7 +772,10 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                   ) : (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="flex min-w-0 flex-col gap-2">
-                        <Label htmlFor="custom-connector-command" className={FORM_LABEL_CLASS_NAME}>
+                        <Label
+                          htmlFor="custom-connector-command"
+                          className={FORM_LABEL_CLASS_NAME}
+                        >
                           {t2("connectors.customDialog.command")}
                         </Label>
                         <Input3
@@ -813,7 +790,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                             }));
                           }}
                           onBlur={handleCommandBlur}
-                          placeholder={t2("connectors.customDialog.commandPlaceholder")}
+                          placeholder={t2(
+                            "connectors.customDialog.commandPlaceholder",
+                          )}
                           className={FORM_CONTROL_CLASS_NAME}
                           data-action-ui-id="custom-connector-command"
                         />
@@ -836,7 +815,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                               argumentsText: event.target.value,
                             }))
                           }
-                          placeholder={t2("connectors.customDialog.argumentsPlaceholder")}
+                          placeholder={t2(
+                            "connectors.customDialog.argumentsPlaceholder",
+                          )}
                           className={FORM_CONTROL_CLASS_NAME}
                           data-action-ui-id="custom-connector-arguments"
                         />
@@ -859,7 +840,10 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                     </div>
                   )}
                   <div className="flex min-w-0 flex-col gap-2">
-                    <Label htmlFor="custom-connector-description" className={FORM_LABEL_CLASS_NAME}>
+                    <Label
+                      htmlFor="custom-connector-description"
+                      className={FORM_LABEL_CLASS_NAME}
+                    >
                       {t2("connectors.customDialog.description")}
                     </Label>
                     <Input3
@@ -872,7 +856,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                           description: event.target.value,
                         }))
                       }
-                      placeholder={t2("connectors.customDialog.descriptionPlaceholder")}
+                      placeholder={t2(
+                        "connectors.customDialog.descriptionPlaceholder",
+                      )}
                       className={FORM_CONTROL_CLASS_NAME}
                       data-action-ui-id="custom-connector-description"
                     />
@@ -948,14 +934,19 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                               keyValuesText: event.target.value,
                             }))
                           }
-                          placeholder={t2("connectors.customDialog.keyValuesPlaceholder")}
+                          placeholder={t2(
+                            "connectors.customDialog.keyValuesPlaceholder",
+                          )}
                           className={`min-h-24 font-mono text-xs ${FORM_OUTLINE_CLASS_NAME}`}
                           data-action-ui-id="custom-connector-key-values"
                         />
                         {renderFieldError("key-values")}
                       </div>
                       <div className="flex min-w-0 flex-col gap-2">
-                        <Label htmlFor="custom-connector-timeout" className={FORM_LABEL_CLASS_NAME}>
+                        <Label
+                          htmlFor="custom-connector-timeout"
+                          className={FORM_LABEL_CLASS_NAME}
+                        >
                           {t2("connectors.customDialog.timeout")}
                         </Label>
                         <Input3
@@ -970,7 +961,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
                               timeoutText: event.target.value,
                             }))
                           }
-                          placeholder={t2("connectors.customDialog.timeoutPlaceholder")}
+                          placeholder={t2(
+                            "connectors.customDialog.timeoutPlaceholder",
+                          )}
                           className={FORM_CONTROL_CLASS_NAME}
                           data-action-ui-id="custom-connector-timeout"
                         />
@@ -982,7 +975,9 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
               </TabsContent>
               <TabsContent value="json">
                 <div className="flex flex-col gap-3">
-                  <p className={HELPER_TEXT_CLASS_NAME}>{t2("connectors.customDialog.jsonHint")}</p>
+                  <p className={HELPER_TEXT_CLASS_NAME}>
+                    {t2("connectors.customDialog.jsonHint")}
+                  </p>
                   <Textarea
                     id="custom-connector-json"
                     {...getFieldValidationProps("json")}
@@ -1024,7 +1019,11 @@ export function CustomConnectorDialog({ open, onOpenChange, onSubmit, onCreated,
           onClick={handleSubmit}
           data-action-ui-id="custom-connector-submit"
         >
-          {t2(initialInput ? "connectors.customDialog.save" : "connectors.customDialog.add")}
+          {t2(
+            initialInput
+              ? "connectors.customDialog.save"
+              : "connectors.customDialog.add",
+          )}
         </Button$1>
       </DialogFooter>
     </ConnectorDialogFrame>

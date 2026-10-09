@@ -1,44 +1,20 @@
 // panorama-viewer.jsx
-import { jsxRuntimeExports, Maximize, useTranslation, reactExports, reactDomExports, CompositedSvg, X$7, usePromptFontSizeStore, ArrowUp, RotateCw, ZoomOut, ZoomIn } from "../vendor.js";
-import { useModelRegistryStore, TooltipProvider$1 } from "../infra/create-recently-added-store.jsx";
-import { useCanvasBridge, ImageOutlineIcon, Sparkles, Camera } from "./parse-item.jsx";
-import { PromptTextarea, ParamsChip, ParamsPopup } from "../generation/params-popup.jsx";
-import { PanoramaIcon } from "../canvas/generating-media-area.jsx";
-import { Tooltip$1 } from "../generation/create-tracker.jsx";
-import { findModelByStoredId } from "../generation/resolve-reference-texts.js";
-import { ExpandToggleButton, SubmitButton } from "../generation/param-tabs.jsx";
-import { resolvePricingId, calcImageCost } from "../generation/calc-video-cost-breakdown.jsx";
-import { ParamSectionLabel, ResolutionTabs } from "../generation/slider.jsx";
+import {
+  CompositedSvg,
+  Maximize,
+  reactDomExports,
+  reactExports,
+  RotateCw,
+  useTranslation,
+  X$7,
+  ZoomIn,
+  ZoomOut,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ParamQualitySlider } from "./canvas-image.jsx";
-import { PopoverShell } from "../generation/use-direct-reference-picker.jsx";
-const DEFAULT_PANORAMA_MODEL_ID = "g-image-2";
-const DEFAULT_PANORAMA_PRICING_ID = "gpt-image-2";
-function resolvePanoramaPricingId(imageModels, generationModelId) {
-  const model = findModelByStoredId(imageModels, generationModelId);
-  if (model) return resolvePricingId(model);
-  if (
-    generationModelId === DEFAULT_PANORAMA_MODEL_ID ||
-    generationModelId === DEFAULT_PANORAMA_PRICING_ID
-  ) {
-    return DEFAULT_PANORAMA_PRICING_ID;
-  }
-  return void 0;
-}
-function calcPanoramaGenerationCost(
-  pricingConfig,
-  imageModels,
-  generationModelId,
-  resolution,
-  quality,
-  refCount,
-  count2,
-) {
-  const pricingModelId = resolvePanoramaPricingId(imageModels, generationModelId);
-  if (!pricingModelId) return void 0;
-  const perImage = calcImageCost(pricingConfig, pricingModelId, resolution, quality, refCount);
-  return perImage == null ? void 0 : perImage * Math.max(1, count2);
-}
+import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { Camera } from "./package.jsx";
+import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+
 const VERTEX_SHADER = `
 attribute vec2 aPos;
 varying vec2 vUv;
@@ -46,6 +22,7 @@ void main() {
   vUv = aPos;
   gl_Position = vec4(aPos, 0.0, 1.0);
 }`;
+
 const FRAGMENT_SHADER = `
 precision highp float;
 varying vec2 vUv;
@@ -66,22 +43,25 @@ void main() {
   float v = asin(clamp(dir.y, -1.0, 1.0)) / PI + 0.5;
   gl_FragColor = texture2D(uTex, vec2(u, 1.0 - v));
 }`;
+
 const FOV_MIN = 30;
+
 const FOV_MAX = 110;
+
 const MAX_TEXTURE_WIDTH = 4096;
-const PANORAMA_PROMPT_MAX_LENGTH = 7500;
-const PANORAMA_GENERATION_COUNT = 1;
-const PANORAMA_QUALITY_OPTIONS = ["low", "medium", "high"];
+
 function getWindowButtonBridge() {
   const platform2 = window.__HILO_PLATFORM__;
   return platform2?.window;
 }
+
 function snapshotCanvasAsPng(source) {
   const snapshot2 = document.createElement("canvas");
   snapshot2.width = source.width;
   snapshot2.height = source.height;
   const context = snapshot2.getContext("2d");
-  if (!context) return Promise.reject(new Error("Unable to create capture canvas"));
+  if (!context)
+    return Promise.reject(new Error("Unable to create capture canvas"));
   context.drawImage(source, 0, 0);
   return new Promise((resolve, reject) => {
     snapshot2.toBlob(
@@ -90,290 +70,16 @@ function snapshotCanvasAsPng(source) {
     );
   });
 }
-export function PanoramaGenerationPanel({
-  upstreamGenerateReferences = [],
-  onPickGenerateReferences,
-  onGenerate,
-  onDismiss,
-  onClose,
-  presentation = "dialog",
-  showTypeLabel = false,
-  className = "",
-}) {
-  const { t: t2 } = useTranslation();
-  const { getLastUsedModelParams, pricingConfig } = useCanvasBridge();
-  const imageModels = useModelRegistryStore((state2) => state2.image);
-  const promptFontSize = usePromptFontSizeStore((state2) => state2.fontSize);
-  const [generatePrompt, setGeneratePrompt] = reactExports.useState("");
-  const [generateResolution, setGenerateResolution] = reactExports.useState("2k");
-  const [generateQuality, setGenerateQuality] = reactExports.useState("low");
-  const [generateReferences, setGenerateReferences] = reactExports.useState(() =>
-    upstreamGenerateReferences.slice(0, 4),
-  );
-  const [generateSpecOpen, setGenerateSpecOpen] = reactExports.useState(false);
-  const [generateBusy, setGenerateBusy] = reactExports.useState(false);
-  const [expanded, setExpanded] = reactExports.useState(false);
-  const generateSpecAnchorRef = reactExports.useRef(null);
-  const isComposer = presentation === "composer";
-  const closePanel = onClose ?? onDismiss ?? (() => void 0);
-  const promptOverLimit = generatePrompt.length > PANORAMA_PROMPT_MAX_LENGTH;
-  const canGenerate =
-    !promptOverLimit && (!!generatePrompt.trim() || generateReferences.length > 0) && !!onGenerate;
-  const generationModelId = getLastUsedModelParams?.("i2i")?.modelId ?? DEFAULT_PANORAMA_MODEL_ID;
-  const generationCost = reactExports.useMemo(
-    () =>
-      calcPanoramaGenerationCost(
-        pricingConfig,
-        imageModels,
-        generationModelId,
-        generateResolution,
-        generateQuality,
-        generateReferences.length,
-        PANORAMA_GENERATION_COUNT,
-      ),
-    [
-      generateQuality,
-      generateReferences.length,
-      generateResolution,
-      generationModelId,
-      imageModels,
-      pricingConfig,
-    ],
-  );
-  reactExports.useEffect(() => {
-    setGenerateReferences((current2) => {
-      const currentIds = new Set(current2.map((reference) => reference.nodeId));
-      const additions = upstreamGenerateReferences.filter(
-        (reference) => !currentIds.has(reference.nodeId),
-      );
-      return additions.length > 0 ? [...current2, ...additions].slice(0, 4) : current2;
-    });
-  }, [upstreamGenerateReferences]);
-  const submitGeneration = async () => {
-    if (!onGenerate || !canGenerate) return;
-    setGenerateBusy(true);
-    try {
-      const generationTask = onGenerate({
-        prompt: generatePrompt.trim(),
-        modelId: generationModelId,
-        resolution: generateResolution,
-        quality: generateQuality,
-        count: PANORAMA_GENERATION_COUNT,
-        references: generateReferences,
-      });
-      if (isComposer) closePanel();
-      await generationTask;
-      onDismiss?.();
-    } catch (error) {
-      console.error("[panorama] Generation failed:", error);
-    } finally {
-      setGenerateBusy(false);
-    }
-  };
-  const panelContent = (
-    <>
-      {onDismiss && !isComposer && (
-        <button
-          type="button"
-          disabled={generateBusy}
-          onClick={onDismiss}
-          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-lg text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:opacity-50"
-          aria-label={t2("common.cancel", "取消")}
-        >
-          <X$7 size={16} strokeWidth={1.5} />
-        </button>
-      )}
-      <div
-        className={`flex shrink-0 items-start ${isComposer ? "justify-between gap-3" : "gap-2"} ${onDismiss && !isComposer ? "pr-10" : ""}`}
-      >
-        <div className={`flex flex-wrap items-center ${isComposer ? "gap-1" : "gap-2"}`}>
-          {generateReferences.map((reference) => (
-            <div
-              key={reference.nodeId}
-              className={`group/reference relative shrink-0 overflow-hidden ${isComposer ? "size-12 rounded-[8px] border-[1.5px] border-transparent" : "size-14 rounded-md border border-[var(--canvas-controls-border)]"}`}
-            >
-              <img src={reference.url} alt="" className="size-full object-cover" />
-              <button
-                type="button"
-                onClick={() =>
-                  setGenerateReferences((current2) =>
-                    current2.filter((item) => item.nodeId !== reference.nodeId),
-                  )
-                }
-                className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-background opacity-0 transition-opacity group-hover/reference:opacity-100"
-                aria-label={t2("common.remove", "移除")}
-              >
-                <X$7 size={10} strokeWidth={2} />
-              </button>
-            </div>
-          ))}
-          {generateReferences.length < 4 && (
-            <button
-              type="button"
-              disabled={!onPickGenerateReferences || generateBusy}
-              onClick={async () => {
-                if (!onPickGenerateReferences) return;
-                const additions = await onPickGenerateReferences(4 - generateReferences.length);
-                setGenerateReferences((current2) => {
-                  const seen2 = new Set(current2.map((item) => item.nodeId));
-                  return [
-                    ...current2,
-                    ...additions.filter((item) => !seen2.has(item.nodeId)),
-                  ].slice(0, 4);
-                });
-              }}
-              className={`flex shrink-0 items-center justify-center border-dashed text-lg transition-colors duration-150 disabled:opacity-50 ${isComposer ? "size-12 rounded-[8px] border-[1.5px] border-foreground/10 text-foreground/50 hover:border-foreground/30 hover:text-foreground" : "size-14 rounded-md border border-[var(--canvas-controls-border)] text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
-              aria-label={t2("canvas.panorama.addReference", "添加参考图")}
-            >
-              +
-            </button>
-          )}
-        </div>
-        {isComposer && (
-          <ExpandToggleButton
-            expanded={expanded}
-            onToggle={() => setExpanded((current2) => !current2)}
-          />
-        )}
-      </div>
-      {showTypeLabel && !isComposer && (
-        <div className="flex w-fit items-center gap-1 rounded-md bg-[var(--canvas-controls-active)] px-2 py-1 text-xs font-medium text-[var(--canvas-controls-text)]">
-          <ImageOutlineIcon size={14} strokeWidth={1.7} />
-          {t2("canvas.panorama.title", "全景图")}
-        </div>
-      )}
-      {isComposer ? (
-        <div className="min-h-0 flex-1 pt-3">
-          <PromptTextarea
-            value={generatePrompt}
-            onChange={setGeneratePrompt}
-            placeholder={t2(
-              "canvas.panorama.generatePlaceholder",
-              "Click Generate to turn a scene image into a 720° panorama. Supports text and reference image generation.",
-            )}
-            onClose={closePanel}
-            blockKeyHandlers={generateBusy}
-            maxLength={PANORAMA_PROMPT_MAX_LENGTH}
-          />
-        </div>
-      ) : (
-        <textarea
-          value={generatePrompt}
-          onChange={(event) => setGeneratePrompt(event.target.value)}
-          placeholder={t2(
-            "canvas.panorama.generatePlaceholder",
-            "Click Generate to turn a scene image into a 720° panorama. Supports text and reference image generation.",
-          )}
-          className="canvas-prompt-font-size-textarea nodrag nowheel min-h-28 resize-none rounded-lg border border-[var(--canvas-controls-border)] bg-transparent p-3 text-[var(--canvas-controls-text)] outline-none placeholder:text-muted-foreground/50 focus:border-[var(--canvas-controls-text)]"
-          style={{
-            "--canvas-prompt-font-size": promptFontSize,
-          }}
-        />
-      )}
-      <div
-        className={`flex items-center justify-between gap-3 ${isComposer ? "relative pt-3" : ""}`}
-      >
-        <div className="flex min-w-0 items-center gap-3">
-          {isComposer && (
-            <>
-              <div className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-[var(--canvas-controls-text)]">
-                <PanoramaIcon size={16} />
-                {t2("canvas.panorama.title", "全景图")}
-              </div>
-              <span aria-hidden="true" className="h-3 w-px bg-foreground/15" />
-            </>
-          )}
-          <ParamsChip
-            anchorRef={generateSpecAnchorRef}
-            summary={`2:1 · ${generateResolution} · ${t2(`canvas.panorama.quality.${generateQuality}`, generateQuality)}`}
-            open={generateSpecOpen}
-            onToggle={() => setGenerateSpecOpen((current2) => !current2)}
-            disabled={generateBusy}
-            showSummaryIcons={false}
-          />
-          <span aria-hidden="true" className="h-3 w-px bg-foreground/15" />
-          <span className="flex h-8 min-w-10 items-center justify-center gap-1 rounded-[4px] px-2 text-[13px] font-normal leading-[20px] tracking-[-0.52px] text-foreground opacity-70">
-            <span aria-hidden="true">×</span>
-            <span>{PANORAMA_GENERATION_COUNT}</span>
-          </span>
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          {isComposer ? (
-            <SubmitButton
-              submitting={generateBusy}
-              canSubmit={canGenerate}
-              creditCost={generationCost}
-              onClick={() => void submitGeneration()}
-              title={t2("canvas.panorama.generateAction", "生成")}
-            />
-          ) : (
-            <>
-              {generationCost != null && (
-                <span className="flex items-center gap-1 text-xs text-[var(--canvas-controls-text-muted)]">
-                  <Sparkles size={14} strokeWidth={1.5} />
-                  {generationCost}
-                </span>
-              )}
-              <button
-                type="button"
-                disabled={generateBusy || !canGenerate}
-                onClick={() => void submitGeneration()}
-                className="flex size-8 items-center justify-center rounded-lg bg-[var(--canvas-controls-text)] text-[var(--canvas-controls-bg)] disabled:opacity-50"
-                aria-label={t2("canvas.panorama.generateAction", "生成")}
-              >
-                {generateBusy ? (
-                  <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <ArrowUp size={16} strokeWidth={2} />
-                )}
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-      {generateSpecOpen && (
-        <ParamsPopup anchorRef={generateSpecAnchorRef} onClose={() => setGenerateSpecOpen(false)}>
-          <div>
-            <ParamSectionLabel>{t2("canvas.panorama.resolution", "Resolution")}</ParamSectionLabel>
-            <ResolutionTabs
-              options={["1k", "2k", "4k"]}
-              value={generateResolution}
-              onChange={(value) => setGenerateResolution(value)}
-              getOptionLabel={(value) => (value === "4k" ? "4K" : value)}
-            />
-          </div>
-          <ParamQualitySlider
-            label={t2("canvas.panorama.quality", "Image Quality")}
-            options={PANORAMA_QUALITY_OPTIONS}
-            value={generateQuality}
-            onChange={(value) => setGenerateQuality(value)}
-            getOptionLabel={(value) => t2(`canvas.panorama.quality.${value}`, value)}
-          />
-        </ParamsPopup>
-      )}
-    </>
-  );
-  if (isComposer) {
-    return (
-      <PopoverShell onClose={closePanel} expanded={expanded} extraHeight={expanded ? 40 : 64}>
-        <div className="contents" data-action-ui-id="canvas.panorama-generation-panel">
-          {panelContent}
-        </div>
-      </PopoverShell>
-    );
-  }
-  return (
-    <div
-      className={`nodrag nowheel relative flex w-full flex-col gap-3 rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] p-4 shadow-[var(--canvas-shadow-menu)] ${className}`}
-      data-action-ui-id="canvas.panorama-generation-panel"
-    >
-      {panelContent}
-    </div>
-  );
-}
+
 function PanoramaResetIcon() {
   return (
-    <CompositedSvg width="19" height="19" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <CompositedSvg
+      width="19"
+      height="19"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         fill="currentColor"
         d="M13.897 9.358c.212.212.572.122.632-.172A6.667 6.667 0 0 0 2.757 3.718c-.12.153-.1.371.037.509l.276.276c.18.18.479.148.636-.052a5.467 5.467 0 0 1 9.612 2.127l-1.523.682zm-6.298 5.131c.22.014.4-.167.4-.388v-.4c0-.22-.18-.398-.4-.414A5.47 5.47 0 0 1 2.687 9.12l1.508-.673-2.1-2.093c-.214-.213-.574-.12-.633.175a6.668 6.668 0 0 0 6.138 7.962m3.292.003a.267.267 0 0 0 .5 0l.607-1.642a.27.27 0 0 1 .157-.158l1.643-.608a.267.267 0 0 0 0-.5l-1.643-.607a.27.27 0 0 1-.157-.158l-.607-1.642a.267.267 0 0 0-.5 0l-.609 1.642a.27.27 0 0 1-.157.158l-1.643.607a.267.267 0 0 0 0 .5l1.643.608c.073.027.13.085.157.158z"
@@ -381,6 +87,7 @@ function PanoramaResetIcon() {
     </CompositedSvg>
   );
 }
+
 function CompositionGuidesIcon() {
   return (
     <CompositedSvg
@@ -397,18 +104,21 @@ function CompositionGuidesIcon() {
     </CompositedSvg>
   );
 }
+
 function compileShader(gl, type2, source) {
   const shader = gl.createShader(type2);
   if (!shader) throw new Error("Unable to create WebGL shader");
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const message2 = gl.getShaderInfoLog(shader) || "Unable to compile WebGL shader";
+    const message2 =
+      gl.getShaderInfoLog(shader) || "Unable to compile WebGL shader";
     gl.deleteShader(shader);
     throw new Error(message2);
   }
   return shader;
 }
+
 function initializeWebGl(canvas) {
   const gl = canvas.getContext("webgl", {
     antialias: true,
@@ -429,7 +139,9 @@ function initializeWebGl(canvas) {
     gl.attachShader(program, fragment2);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(program) || "Unable to link WebGL program");
+      throw new Error(
+        gl.getProgramInfoLog(program) || "Unable to link WebGL program",
+      );
     }
     gl.useProgram(program);
     buffer = gl.createBuffer();
@@ -471,14 +183,19 @@ function initializeWebGl(canvas) {
     if (fragment2) gl.deleteShader(fragment2);
   }
 }
+
 function disposeWebGl(state2) {
   state2.gl.deleteTexture(state2.texture);
   state2.gl.deleteBuffer(state2.buffer);
   state2.gl.deleteProgram(state2.program);
 }
+
 function uploadTexture(state2, image2) {
   const { gl, texture } = state2;
-  const textureWidth = Math.min(MAX_TEXTURE_WIDTH, image2.naturalWidth >= 4096 ? 4096 : 2048);
+  const textureWidth = Math.min(
+    MAX_TEXTURE_WIDTH,
+    image2.naturalWidth >= 4096 ? 4096 : 2048,
+  );
   const textureHeight = textureWidth / 2;
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = textureWidth;
@@ -488,9 +205,18 @@ function uploadTexture(state2, image2) {
   context.drawImage(image2, 0, 0, textureWidth, textureHeight);
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureCanvas);
-  if (gl.getError() !== gl.NO_ERROR) throw new Error("Unable to upload panorama texture");
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    textureCanvas,
+  );
+  if (gl.getError() !== gl.NO_ERROR)
+    throw new Error("Unable to upload panorama texture");
 }
+
 function drawPanoramaFrame(state2, canvas, camera) {
   const { gl, program, texture } = state2;
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -504,6 +230,7 @@ function drawPanoramaFrame(state2, canvas, camera) {
   gl.uniform1f(state2.aspect, canvas.width / Math.max(1, canvas.height));
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
+
 export function PanoramaViewer({
   src,
   interactive,
@@ -572,7 +299,8 @@ export function PanoramaViewer({
       textureReadyRef.current = false;
       setStatus("error");
     };
-    const handleContextRestored = () => setContextGeneration((value) => value + 1);
+    const handleContextRestored = () =>
+      setContextGeneration((value) => value + 1);
     canvas.addEventListener("webglcontextlost", handleContextLost);
     canvas.addEventListener("webglcontextrestored", handleContextRestored);
     return () => {
@@ -623,7 +351,8 @@ export function PanoramaViewer({
     let previousTime = performance.now();
     const rotate2 = (time) => {
       if (!captureBusyRef.current) {
-        cameraRef.current.yaw += Math.min((time - previousTime) / 1e3, 0.1) * 0.18;
+        cameraRef.current.yaw +=
+          Math.min((time - previousTime) / 1e3, 0.1) * 0.18;
         drawRef.current();
       }
       previousTime = time;
@@ -634,7 +363,10 @@ export function PanoramaViewer({
   }, [autoRotate, interactive, status]);
   const zoom2 = reactExports.useCallback((delta) => {
     if (captureBusyRef.current) return;
-    const next2 = Math.max(FOV_MIN, Math.min(FOV_MAX, cameraRef.current.fov + delta));
+    const next2 = Math.max(
+      FOV_MIN,
+      Math.min(FOV_MAX, cameraRef.current.fov + delta),
+    );
     cameraRef.current.fov = next2;
     setFov(Math.round(next2));
     drawRef.current();
@@ -672,7 +404,10 @@ export function PanoramaViewer({
     cameraRef.current.yaw += (event.clientX - drag2.x) * scale2;
     cameraRef.current.pitch = Math.max(
       -Math.PI / 2 + 0.01,
-      Math.min(Math.PI / 2 - 0.01, cameraRef.current.pitch + (event.clientY - drag2.y) * scale2),
+      Math.min(
+        Math.PI / 2 - 0.01,
+        cameraRef.current.pitch + (event.clientY - drag2.y) * scale2,
+      ),
     );
     dragRef.current = {
       pointerId: event.pointerId,
@@ -697,7 +432,13 @@ export function PanoramaViewer({
     async (count2) => {
       const canvas = canvasRef.current;
       const sourceImage = sourceImageRef.current;
-      if (!canvas || !sourceImage || status !== "ready" || captureBusyRef.current) return;
+      if (
+        !canvas ||
+        !sourceImage ||
+        status !== "ready" ||
+        captureBusyRef.current
+      )
+        return;
       captureBusyRef.current = true;
       setCaptureBusy(true);
       const original = {
@@ -708,7 +449,8 @@ export function PanoramaViewer({
       captureCanvas.height = Math.max(1, canvas.height);
       let captureState = null;
       const safeName =
-        captureName.replace(/\.[^.]+$/, "").replace(/[^\w一-龥-]+/g, "_") || "panorama";
+        captureName.replace(/\.[^.]+$/, "").replace(/[^\w一-龥-]+/g, "_") ||
+        "panorama";
       try {
         captureState = initializeWebGl(captureCanvas);
         uploadTexture(captureState, sourceImage);
@@ -735,9 +477,13 @@ export function PanoramaViewer({
           });
         }
         if (onCapture) {
-          await onCapture(items, count2 === 1 ? "当前视角" : `${count2} 大视角截图`, {
-            fullscreen,
-          });
+          await onCapture(
+            items,
+            count2 === 1 ? "当前视角" : `${count2} 大视角截图`,
+            {
+              fullscreen,
+            },
+          );
         } else {
           for (const item of items) {
             const url2 = URL.createObjectURL(item.blob);
@@ -759,14 +505,22 @@ export function PanoramaViewer({
     [captureName, fullscreen, onCapture, status],
   );
   reactExports.useEffect(() => {
-    if (!captureRequest || captureRequest.sequence === lastCaptureRequestRef.current) return;
+    if (
+      !captureRequest ||
+      captureRequest.sequence === lastCaptureRequestRef.current
+    )
+      return;
     if (status !== "ready") return;
     lastCaptureRequestRef.current = captureRequest.sequence;
     const { count: count2, sequence } = captureRequest;
     void capture(count2).finally(() => onCaptureRequestSettled?.(sequence));
   }, [capture, captureRequest, onCaptureRequestSettled, status]);
   reactExports.useEffect(() => {
-    if (!fullscreenRequestId || fullscreenRequestId === lastFullscreenRequestRef.current) return;
+    if (
+      !fullscreenRequestId ||
+      fullscreenRequestId === lastFullscreenRequestRef.current
+    )
+      return;
     lastFullscreenRequestRef.current = fullscreenRequestId;
     setFullscreen(true);
   }, [fullscreenRequestId]);
@@ -814,7 +568,11 @@ export function PanoramaViewer({
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <g stroke="currentColor" strokeWidth="0.5" className="text-background/70">
+          <g
+            stroke="currentColor"
+            strokeWidth="0.5"
+            className="text-background/70"
+          >
             <line x1="30" y1="0" x2="30" y2="90" />
             <line x1="60" y1="0" x2="60" y2="90" />
             <line x1="0" y1="30" x2="90" y2="30" />
@@ -826,7 +584,11 @@ export function PanoramaViewer({
         <div
           className={`absolute inset-0 flex items-center justify-center bg-[var(--canvas-node-bg)] px-6 text-center text-[13px] ${status === "empty" ? "text-[var(--canvas-empty-guidance-fg)]" : "text-[var(--canvas-controls-text-muted)]"}`}
         >
-          {status === "loading" ? loadingLabel : status === "error" ? errorLabel : emptyLabel}
+          {status === "loading"
+            ? loadingLabel
+            : status === "error"
+              ? errorLabel
+              : emptyLabel}
         </div>
       )}
       {fullscreen && status === "ready" && (
@@ -859,7 +621,10 @@ export function PanoramaViewer({
                 type="button"
                 className="nodrag nowheel flex size-10 items-center justify-center rounded-[8px] text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
                 onClick={() => setFullscreen(false)}
-                aria-label={t2("canvas.panorama.exitFullscreen", "退出全屏模式")}
+                aria-label={t2(
+                  "canvas.panorama.exitFullscreen",
+                  "退出全屏模式",
+                )}
               >
                 <X$7 size={19} strokeWidth={2.2} className="scale-[1.2]" />
               </button>
@@ -890,7 +655,11 @@ export function PanoramaViewer({
               </Tooltip$1>
             </div>
             <div className={controlSurfaceClass}>
-              <Tooltip$1 content={t2("canvas.panorama.zoomOut", "缩小")} side="top" sideOffset={8}>
+              <Tooltip$1
+                content={t2("canvas.panorama.zoomOut", "缩小")}
+                side="top"
+                sideOffset={8}
+              >
                 <button
                   type="button"
                   className={controlClass}
@@ -903,7 +672,11 @@ export function PanoramaViewer({
               <span className="min-w-[42px] select-none px-0.5 text-center text-[12px] font-medium tabular-nums text-white">
                 {fov}°
               </span>
-              <Tooltip$1 content={t2("canvas.panorama.zoomIn", "放大")} side="top" sideOffset={8}>
+              <Tooltip$1
+                content={t2("canvas.panorama.zoomIn", "放大")}
+                side="top"
+                sideOffset={8}
+              >
                 <button
                   type="button"
                   className={controlClass}
@@ -941,7 +714,10 @@ export function PanoramaViewer({
                     type="button"
                     className={controlClass}
                     onClick={() => setFullscreen(true)}
-                    aria-label={t2("canvas.panorama.fullscreen", "进入全屏模式")}
+                    aria-label={t2(
+                      "canvas.panorama.fullscreen",
+                      "进入全屏模式",
+                    )}
                   >
                     <Maximize size={19} strokeWidth={1.8} />
                   </button>
@@ -970,5 +746,7 @@ export function PanoramaViewer({
       )}
     </div>
   );
-  return fullscreen ? reactDomExports.createPortal(viewer, document.body) : viewer;
+  return fullscreen
+    ? reactDomExports.createPortal(viewer, document.body)
+    : viewer;
 }

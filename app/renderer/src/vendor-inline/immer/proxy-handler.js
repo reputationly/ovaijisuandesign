@@ -1,27 +1,8 @@
 // proxy-handler.js
 import { Operation } from "../../vendor.js";
-import {
-  PROXY_DRAFT,
-  dataTypes,
-  deepFreeze,
-  ensureShallowCopy,
-  get$1,
-  getDescriptor,
-  getProxyDraft,
-  getType,
-  getValue,
-  has,
-  internal,
-  isDraft,
-  isDraftable,
-  isEqual,
-  iteratorSymbol,
-  latest,
-  markChanged,
-  peek,
-  revokeProxy,
-  set,
-} from "../../infra/deep-freeze.js";
+import { PROXY_DRAFT, dataTypes, ensureShallowCopy, get$1, getDescriptor, getProxyDraft, getValue, has, internal, isDraftable, isEqual, iteratorSymbol, latest, markChanged, peek, revokeProxy, set } from "../../infra/shallow-copy.js";
+import { deepFreeze, isDraft } from "../../infra/deep-freeze.js";
+import { getType } from "../../infra/get-type.js";
 import {
   checkReadable,
   finalizePatches,

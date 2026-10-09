@@ -1,78 +1,68 @@
 // image-slot-list.jsx
-import { jsxRuntimeExports, PlaybackPlayIcon$1, useTranslation, reactExports, Loader2, CompositedSvg, Plus, AtSign, useAssetMetadataApi, useAssetMetadataStore } from "../vendor.js";
-import { formatTime$2, useCanvasBridge, ImageOutlineIcon, useCanvasActions } from "./parse-item.jsx";
 import {
-  SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
-  SEEDANCE_REFERENCE_AUDIO_MAX_SEC,
-} from "../text-editor/myers-line-hunks.js";
-import { basename$c } from "../generation/resolve-reference-texts.js";
+  CompositedSvg,
+  jsxRuntimeExports,
+  Loader2,
+  Plus,
+  reactExports,
+  useAssetMetadataApi,
+  useAssetMetadataStore,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { MediaHoverPreview, canAnnotateCanvasImage } from "./audio-preview-player.jsx";
-import { ImageLightbox$2, ReferenceImageEditButton, VideoLightbox } from "./image-lightbox.jsx";
-import { buildVideoThumbnailUrl } from "./media-clip-panel-inner.jsx";
-export function ReferenceMediaLightbox({ item, onClose }) {
-  if (item?.kind === "image") {
-    return (
-      <ImageLightbox$2
-        items={[item]}
-        index={0}
-        onIndexChange={() => {}}
-        alt={item.fileName ?? ""}
-        onClose={onClose}
-      />
-    );
-  }
-  if (item?.kind === "video") return <VideoLightbox item={item} onClose={onClose} />;
-  return null;
-}
-export function ReferenceThumbnailOverlay({ visible, disabled: disabled2, onReference }) {
+import { AnnotationIcon$1 } from "../canvas/fullscreen-icon.jsx";
+import { formatTime$2, ImageOutlineIcon, useCanvasBridge } from "./package.jsx";
+import {
+  ReferenceMediaLightbox,
+  ReferenceThumbnailOverlay,
+  ReferenceThumbnailVideoInfo,
+} from "./reference-thumbnail-overlay.jsx";
+import { useCanvasActions } from "./use-canvas-actions.js";
+import {
+  SEEDANCE_REFERENCE_AUDIO_MAX_SEC,
+  SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
+} from "../text-editor/build-asr-gateway-request.js";
+import { basename$c } from "../generation/param-label-fallbacks.js";
+import { MediaHoverPreview } from "./media-hover-preview.jsx";
+import { canAnnotateCanvasImage } from "./append-width.js";
+import { buildVideoThumbnailUrl } from "./build-video-thumb-base.jsx";
+
+function ReferenceImageEditButton({ visible, onClick }) {
   const { t: t2 } = useTranslation();
   return (
-    <div
-      data-testid="reference-thumbnail-overlay"
-      className={`pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/3 bg-gradient-to-t from-[var(--canvas-reference-thumbnail-gradient)] to-transparent transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-0"}`}
+    <button
+      type="button"
+      aria-label={t2("chat.imageAnnotation.annotate")}
+      data-action-ui-id="popover.attachment-annotate"
+      className={`absolute bottom-0.5 left-0.5 z-[3] flex size-4 cursor-pointer items-center justify-center rounded-[3px] bg-[var(--attachment-annotation-background)] text-[var(--attachment-annotation-foreground)] shadow-sm transition-opacity focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      onMouseDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
     >
-      <button
-        type="button"
-        aria-label={t2("canvas.reference.addReference")}
-        data-action-ui-id="popover.attachment-reference"
-        disabled={disabled2}
-        tabIndex={visible ? 0 : -1}
-        className={`absolute bottom-0.5 right-0.5 flex size-4 items-center justify-center text-[var(--canvas-media-control-fg)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground ${visible ? "pointer-events-auto cursor-pointer" : "pointer-events-none"}`}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={(event) => {
-          event.stopPropagation();
-          onReference();
-        }}
-      >
-        <AtSign
-          size={14}
-          strokeWidth={1.6}
-          style={{
-            filter: "drop-shadow(var(--canvas-media-icon-shadow))",
-          }}
-        />
-      </button>
-    </div>
+      <AnnotationIcon$1 size={12} aria-hidden={true} />
+    </button>
   );
 }
-export function ReferenceThumbnailVideoInfo({ visible, durationLabel }) {
-  return (
-    <span
-      data-testid="reference-thumbnail-video-info"
-      aria-hidden={!visible}
-      className={`pointer-events-none absolute bottom-0.5 left-0.5 flex items-center gap-0.5 rounded-[3px] bg-[var(--canvas-media-control-bg)] px-0.5 py-0.5 text-[8px] leading-none tabular-nums text-[var(--canvas-media-control-fg)] transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-0"}`}
-    >
-      <PlaybackPlayIcon$1 size={8} strokeWidth={1.5} fill="currentColor" />
-      {durationLabel}
-    </span>
-  );
-}
+
 const CHIP_W = 80;
+
 const CHIP_H = 72;
+
 const FRAME_CHIP_W = 85;
+
 const FRAME_CHIP_H = 48;
-function fillImageSlotsFromIndex(imagePaths, startIndex, incomingPaths, maxSlots) {
+
+function fillImageSlotsFromIndex(
+  imagePaths,
+  startIndex,
+  incomingPaths,
+  maxSlots,
+) {
   const nextPaths = [...imagePaths];
   while (nextPaths.length <= startIndex) nextPaths.push("");
   let writeIndex = startIndex;
@@ -88,9 +78,11 @@ function fillImageSlotsFromIndex(imagePaths, startIndex, incomingPaths, maxSlots
     newlyWritten,
   };
 }
+
 function ReferenceImageIcon() {
   return <ImageOutlineIcon size={16} strokeWidth={2.25} aria-hidden="true" />;
 }
+
 function ReferenceVideoIcon() {
   return (
     <CompositedSvg
@@ -109,6 +101,7 @@ function ReferenceVideoIcon() {
     </CompositedSvg>
   );
 }
+
 function ReferenceAudioIcon$1() {
   return (
     <CompositedSvg
@@ -132,6 +125,7 @@ function ReferenceAudioIcon$1() {
     </CompositedSvg>
   );
 }
+
 export function ImageSlotList({
   imagePaths,
   contextKey,
@@ -252,7 +246,9 @@ export function ImageSlotList({
       const startIdx = activeSlotRef.current;
       if (startIdx < 0) return;
       const assets2 = assetMetadataStore.getState().assets;
-      const paths = picks.map((p3) => assets2.get(p3.assetId)?.path).filter((p3) => Boolean(p3));
+      const paths = picks
+        .map((p3) => assets2.get(p3.assetId)?.path)
+        .filter((p3) => Boolean(p3));
       if (paths.length === 0) return;
       const existing = new Set(imagePaths.filter(Boolean));
       const dedupedPaths = paths.filter((p3) => !existing.has(p3));
@@ -295,7 +291,13 @@ export function ImageSlotList({
         if (sourceId) removeDerivationEdge(sourceId, hostNodeId);
       }
     },
-    [imagePaths, onUpdatePaths, hostNodeId, getNodeIdByPath, removeDerivationEdge],
+    [
+      imagePaths,
+      onUpdatePaths,
+      hostNodeId,
+      getNodeIdByPath,
+      removeDerivationEdge,
+    ],
   );
   const clearPreviewCloseTimer = reactExports.useCallback(() => {
     if (previewCloseTimerRef.current === null) return;
@@ -313,27 +315,37 @@ export function ImageSlotList({
     (slotIdx) => {
       clearPreviewCloseTimer();
       const slotHasFocus = () =>
-        filledSlotElementsRef.current.get(slotIdx)?.contains(document.activeElement);
+        filledSlotElementsRef.current
+          .get(slotIdx)
+          ?.contains(document.activeElement);
       if (!enableHoverReplace && mediaKind2 === "audio") {
         if (!slotHasFocus()) {
-          setHoveredSlotIndex((currentIndex) => (currentIndex === slotIdx ? null : currentIndex));
+          setHoveredSlotIndex((currentIndex) =>
+            currentIndex === slotIdx ? null : currentIndex,
+          );
         }
         return;
       }
       previewCloseTimerRef.current = setTimeout(() => {
         if (!slotHasFocus()) {
-          setHoveredSlotIndex((currentIndex) => (currentIndex === slotIdx ? null : currentIndex));
+          setHoveredSlotIndex((currentIndex) =>
+            currentIndex === slotIdx ? null : currentIndex,
+          );
         }
         previewCloseTimerRef.current = null;
       }, 120);
     },
     [clearPreviewCloseTimer, enableHoverReplace, mediaKind2],
   );
-  reactExports.useEffect(() => clearPreviewCloseTimer, [clearPreviewCloseTimer]);
+  reactExports.useEffect(
+    () => clearPreviewCloseTimer,
+    [clearPreviewCloseTimer],
+  );
   const handleReplaceSlot = reactExports.useCallback(
     async (slotIdx) => {
       const currentPath = imagePaths[slotIdx];
-      if (!currentPath || !pickAsset || disabled2 || replacementBusyRef.current) return;
+      if (!currentPath || !pickAsset || disabled2 || replacementBusyRef.current)
+        return;
       replacementBusyRef.current = true;
       setReplacingSlot(slotIdx);
       clearPreviewCloseTimer();
@@ -346,7 +358,9 @@ export function ImageSlotList({
           {
             type: mediaKind2,
             multiple: false,
-            existingAssetIds: existingAttachments.map((attachment) => attachment.assetId),
+            existingAssetIds: existingAttachments.map(
+              (attachment) => attachment.assetId,
+            ),
             uploadMode: "attach",
             tabs: ["canvas", "upload"],
           },
@@ -377,7 +391,8 @@ export function ImageSlotList({
       const resource = resources?.[0];
       if (!resource || resource.type !== mediaKind2) return;
       const nextPath =
-        assetMetadataStore.getState().assets.get(resource.assetId)?.path ?? resource.path;
+        assetMetadataStore.getState().assets.get(resource.assetId)?.path ??
+        resource.path;
       if (!nextPath || nextPath === currentPath) return;
       if (
         latestSlotsRef.current.imagePaths.some(
@@ -392,7 +407,8 @@ export function ImageSlotList({
       onUpdatePaths(nextPaths);
       if (hostNodeId) {
         const previousSourceId = getNodeIdByPath(currentPath);
-        if (previousSourceId) removeDerivationEdge(previousSourceId, hostNodeId);
+        if (previousSourceId)
+          removeDerivationEdge(previousSourceId, hostNodeId);
         const nextSourceId = ensureStandaloneNodeForPath(nextPath);
         if (nextSourceId) ensureDerivationEdge(nextSourceId, hostNodeId);
       }
@@ -421,7 +437,11 @@ export function ImageSlotList({
     if (mediaKind2 !== "video") return null;
     const map3 = new Map();
     assets.forEach((meta2) => {
-      if (meta2.path && typeof meta2.durationSec === "number" && meta2.durationSec > 0) {
+      if (
+        meta2.path &&
+        typeof meta2.durationSec === "number" &&
+        meta2.durationSec > 0
+      ) {
         map3.set(meta2.path, meta2.durationSec);
       }
     });
@@ -431,7 +451,11 @@ export function ImageSlotList({
     if (mediaKind2 !== "audio") return null;
     const map3 = new Map();
     assets.forEach((meta2) => {
-      if (meta2.path && typeof meta2.durationSec === "number" && meta2.durationSec > 0) {
+      if (
+        meta2.path &&
+        typeof meta2.durationSec === "number" &&
+        meta2.durationSec > 0
+      ) {
         map3.set(meta2.path, meta2.durationSec);
       }
     });
@@ -453,10 +477,15 @@ export function ImageSlotList({
             : rawUrl;
         const slotActionUiId = getSlotActionUiId?.(idx);
         const slotClassName = getSlotClassName?.(idx) ?? "";
-        const titleText = path2 ? basename$c(path2) : (slotLabel ?? emptySlotLabel);
+        const titleText = path2
+          ? basename$c(path2)
+          : (slotLabel ?? emptySlotLabel);
         const durationSec =
-          mediaKind2 === "video" && path2 ? (videoDurationByPath?.get(path2) ?? 0) : 0;
-        const durationLabel = durationSec > 0 ? formatTime$2(durationSec, true) : "";
+          mediaKind2 === "video" && path2
+            ? (videoDurationByPath?.get(path2) ?? 0)
+            : 0;
+        const durationLabel =
+          durationSec > 0 ? formatTime$2(durationSec, true) : "";
         const wrapSlot = (slot) =>
           // biome-ignore lint/suspicious/noArrayIndexKey: slots are fixed-position by index
           jsxRuntimeExports.jsxs(
@@ -507,11 +536,14 @@ export function ImageSlotList({
           );
         }
         const isAudio = mediaKind2 === "audio";
-        const audioDuration = isAudio ? (audioDurationByPath?.get(path2) ?? 0) : 0;
+        const audioDuration = isAudio
+          ? (audioDurationByPath?.get(path2) ?? 0)
+          : 0;
         const audioOutOfRange =
           isAudio &&
           audioDuration > 0 &&
-          (audioDuration < audioPerClipMinSec || audioDuration > audioPerClipMaxSec);
+          (audioDuration < audioPerClipMinSec ||
+            audioDuration > audioPerClipMaxSec);
         const audioOutOfRangeLabel = audioOutOfRange
           ? audioDuration < audioPerClipMinSec
             ? t2("canvas.audioSlot.tooShort", {
@@ -541,16 +573,34 @@ export function ImageSlotList({
               width: slotWidth,
               height: slotHeight,
             }}
-            title={rawUrl ? void 0 : [titleText, audioOutOfRangeLabel].filter(Boolean).join(" · ")}
+            title={
+              rawUrl
+                ? void 0
+                : [titleText, audioOutOfRangeLabel].filter(Boolean).join(" · ")
+            }
             onMouseDown={(event) => {
-              if (isAudio || !event.currentTarget.contains(event.target)) return;
-              if (event.target instanceof Element && event.target.closest("button")) return;
+              if (isAudio || !event.currentTarget.contains(event.target))
+                return;
+              if (
+                event.target instanceof Element &&
+                event.target.closest("button")
+              )
+                return;
               event.preventDefault();
             }}
             onClick={(event) => {
               event.stopPropagation();
-              if (isAudio || disabled2 || !event.currentTarget.contains(event.target)) return;
-              if (event.target instanceof Element && event.target.closest("button")) return;
+              if (
+                isAudio ||
+                disabled2 ||
+                !event.currentTarget.contains(event.target)
+              )
+                return;
+              if (
+                event.target instanceof Element &&
+                event.target.closest("button")
+              )
+                return;
               showPreview(idx);
               onReference?.(path2);
             }}
@@ -563,7 +613,9 @@ export function ImageSlotList({
               <button
                 type="button"
                 disabled={disabled2}
-                aria-label={onReference ? t2("canvas.reference.addReference") : titleText}
+                aria-label={
+                  onReference ? t2("canvas.reference.addReference") : titleText
+                }
                 className="absolute inset-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-foreground"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={(event) => {
@@ -650,7 +702,9 @@ export function ImageSlotList({
               }}
               disabled={disabled2}
               aria-label={t2("canvas.imageSlot.remove")}
-              data-action-ui-id={slotActionUiId ? `${slotActionUiId}.remove` : void 0}
+              data-action-ui-id={
+                slotActionUiId ? `${slotActionUiId}.remove` : void 0
+              }
               className={`absolute z-10 flex cursor-pointer items-center justify-center rounded-full bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-opacity duration-150 motion-reduce:transition-none hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:opacity-100 disabled:cursor-default disabled:opacity-40 ${hoveredSlotIndex === idx ? "opacity-100" : "pointer-events-none opacity-0"}`}
               style={{
                 width: 16,
@@ -732,11 +786,10 @@ export function ImageSlotList({
           </span>,
         );
       })}
-      <ReferenceMediaLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
+      <ReferenceMediaLightbox
+        item={lightboxItem}
+        onClose={() => setLightboxItem(null)}
+      />
     </div>
   );
 }
-export const SWAP_SLOT_ANIMATION_CLASSES = {
-  a: ["canvas-frame-slot-swap-from-right-a", "canvas-frame-slot-swap-from-left-a"],
-  b: ["canvas-frame-slot-swap-from-right-b", "canvas-frame-slot-swap-from-left-b"],
-};

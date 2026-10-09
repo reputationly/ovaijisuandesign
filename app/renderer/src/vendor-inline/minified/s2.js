@@ -1,6 +1,7 @@
 // s2.js
 import { d, D$1, W$1, K2, k, I, SKIP, visitParents } from "../../vendor.js";
-import { C2, E$1, F, J2, L$1, Q, T, V2, X, Z, c2, f, j } from "../../workspace/build-inspiration-media-showcase-collections.js";
+import { C2, E$1, F, L$1, Q, T, V2, X, Z, c2, f, j } from "../../workspace/build-inspiration-media-showcase-collections.js";
+import { J2 } from "../../workspace/q.js";
 var Ln = /<[a-zA-Z/][^>]*$/;
 var x = (n2) => {
   let r2 = n2.match(Ln);

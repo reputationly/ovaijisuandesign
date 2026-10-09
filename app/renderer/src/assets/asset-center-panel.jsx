@@ -1,453 +1,419 @@
 // asset-center-panel.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, API_PATHS, ChevronRight$1, useCurrentWorkspace, X$7, Search, classifyFileType, Plus, FolderInput$2 } from "../vendor.js";
-import { useEntities } from "./check-cloud-asset-upload.js";
-import { FileTypeIcon } from "../infra/create-recently-added-store.jsx";
-import { withThumbnail } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { TooltipProvider, Tooltip, TooltipTrigger, DropdownMenu, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
-import { Download, Trash2 } from "../media-editing/parse-item.jsx";
-import { useStableCallback } from "./use-entity-hover-preview.js";
-import { workspaceEvents, ContextMenu } from "../workspace/use-hub-logo-hover-animation.jsx";
-import { useGatewayUrl } from "../generation/use-resizable-width.js";
 import {
-  cn$2,
-  TooltipContent,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import {
-  PageStateBoundary,
-  formatAssetCenterError,
-} from "./page-state-boundary.jsx";
-import { RetryIcon, PencilIcon, StrokeIcon } from "../workspace/browser-inspiration-urls.jsx";
-import { MediaLightbox } from "./image-lightbox.jsx";
-import {
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-} from "../workspace/new-workspace-dialog.jsx";
-import { AddToChatIcon } from "../canvas/generating-media-area.jsx";
-import { writeEntityDragData, useExportEntityUrl } from "../infra/use-online.jsx";
-import { useMaterializeEntity } from "./use-materialize-entity.js";
-import { trackAssetUse, useMaterializedEntities } from "./asset-mention-list.jsx";
-import {
-  EntityEditDialog,
-  EntityDeleteConfirm,
-} from "./entity-edit-dialog.jsx";
+  API_PATHS,
+  ChevronRight$1,
+  dedupedToast,
+  jsxRuntimeExports,
+  Loader2,
+  PreviewCardPopup,
+  PreviewCardPortal,
+  PreviewCardPositioner,
+  PreviewCardRoot,
+  reactDomExports,
+  reactExports,
+  Search,
+  useCurrentWorkspace,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { useStableCallback } from "./use-cloud-review-nodes.js";
+import { cn$2 } from "../infra/dialog-content.jsx";
+import { RetryIcon, StrokeIcon } from "../workspace/use-prompt-icon.jsx";
+import { EntityHoverCardBody } from "./attachment-row.jsx";
+import { TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
+import { EntityRow } from "./entity-row.jsx";
+import { useEntities } from "./wrap-as-asset-center-error.js";
+import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
+import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
+import { PageStateBoundary } from "./page-state-boundary.jsx";
+import { formatAssetCenterError } from "./key-entries.js";
+import { MediaLightbox } from "./text-preview.jsx";
+import { useExportEntityUrl } from "../infra/use-online.jsx";
+import { useMaterializeEntity } from "./use-materialize-entity.js";
 import {
-  AudioLightbox,
-  COMPACT_MENU_ITEM_CLASS,
-  EntityHoverPreviewHost,
-  EntityTypeIcon,
-  ProjectSidebarCategoryChips,
-  THUMB_PX$1,
-  TYPE_CHIPS,
-  TextLightbox,
-} from "./team-assets-sidebar-panel.jsx";
-function EntityThumb({ entity }) {
-  const gatewayUrl2 = useGatewayUrl();
-  const [errored, setErrored] = reactExports.useState(false);
-  const wrapperCls =
-    "flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden text-muted-foreground rounded-[4px]";
-  const wrapperStyle2 = {
-    width: THUMB_PX$1,
-    height: THUMB_PX$1,
-  };
-  const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const resolvedUrl = previewUrl ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX$1) : void 0;
-  const fallbackKind = entity.primaryAttachmentKind;
-  if (!resolvedUrl || errored) {
-    return (
-      <span className={wrapperCls} style={wrapperStyle2}>
-        {fallbackKind ? (
-          <FileTypeIcon
-            {...(fallbackKind === "document"
-              ? {
-                  category: "document",
-                  recognition: "known",
-                  typeLabel: "FILE",
-                }
-              : classifyFileType({
-                  mediaKind: fallbackKind,
-                }))}
-            size={24}
-            decorative={true}
-          />
-        ) : (
-          <EntityTypeIcon type={entity.type} />
-        )}
-      </span>
-    );
-  }
-  return (
-    <span className={wrapperCls} style={wrapperStyle2}>
-      <img
-        src={resolvedUrl}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-contain"
-        onError={() => setErrored(true)}
-      />
-    </span>
-  );
-}
-function EntityGridCover({ entity }) {
-  const gatewayUrl2 = useGatewayUrl();
-  const [errored, setErrored] = reactExports.useState(false);
-  const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const resolvedUrl = previewUrl ? withThumbnail(gatewayUrl2(previewUrl), 240) : void 0;
-  const fallbackKind = entity.primaryAttachmentKind;
-  if (!resolvedUrl || errored) {
-    return (
-      <span className="flex h-full w-full items-center justify-center text-muted-foreground">
-        {fallbackKind ? (
-          <FileTypeIcon
-            {...(fallbackKind === "document"
-              ? {
-                  category: "document",
-                  recognition: "known",
-                  typeLabel: "FILE",
-                }
-              : classifyFileType({
-                  mediaKind: fallbackKind,
-                }))}
-            size={48}
-            decorative={true}
-          />
-        ) : (
-          <EntityTypeIcon type={entity.type} />
-        )}
-      </span>
-    );
-  }
-  return (
-    <img
-      src={resolvedUrl}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      draggable={false}
-      className="h-full w-full object-cover"
-      onError={() => setErrored(true)}
-    />
-  );
-}
-const EntityRow = reactExports.memo(function EntityRow2({
-  entity,
-  workspacePath,
-  isMaterialized,
-  isHighlighted,
-  onHoverIntent,
-  onHoverEnd,
-  onEdit,
-  onDelete,
-  onExport,
-  layout = "row",
-}) {
-  const { t: t2 } = useTranslation();
-  const materializeMutation = useMaterializeEntity();
-  const canMaterialize = workspacePath.length > 0;
-  const handleMaterialize = (e2) => {
-    e2.stopPropagation();
-    e2.preventDefault();
-    if (!canMaterialize || materializeMutation.isPending) return;
-    void materializeMutation
-      .mutateAsync({
-        entityId: entity.id,
-        input: {
-          workspacePath,
-        },
-        _track: {
-          entity_type: entity.type,
-          trigger: "context_menu",
-        },
-      })
-      .then(() => {
-        dedupedToast.success(
-          t2("assetSidebarPanel.materializeSuccess", {
-            name: entity.name,
-          }),
-        );
-      })
-      .catch((err) => {
-        const message2 = err instanceof Error ? err.message : String(err);
-        dedupedToast.error(
-          t2("assetSidebarPanel.materializeError", {
-            message: message2,
-          }),
-        );
-      });
-  };
-  const ensureMaterialized = async () => {
-    if (isMaterialized) return true;
-    if (!canMaterialize) return false;
-    try {
-      await materializeMutation.mutateAsync({
-        entityId: entity.id,
-        input: {
-          workspacePath,
-        },
-        _track: {
-          entity_type: entity.type,
-          trigger: "auto_before_use",
-        },
-      });
-      return true;
-    } catch {
-      return false;
+  trackAssetUse,
+  useMaterializedEntities,
+} from "./use-materialized-entities.jsx";
+import { EntityEditDialog } from "./entity-edit-dialog.jsx";
+import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
+
+const HOVER_OPEN_DELAY_MS$1 = 300;
+
+const HOVER_CLOSE_DELAY_MS$1 = 150;
+
+function useEntityHoverPreview() {
+  const [state2, setState] = reactExports.useState({
+    kind: "idle",
+  });
+  const stateRef = reactExports.useRef(state2);
+  const openTimerRef = reactExports.useRef(null);
+  const closeTimerRef = reactExports.useRef(null);
+  const setBoth = reactExports.useCallback((next2) => {
+    stateRef.current = next2;
+    setState(next2);
+  }, []);
+  const cancelOpen2 = reactExports.useCallback(() => {
+    if (openTimerRef.current) {
+      clearTimeout(openTimerRef.current);
+      openTimerRef.current = null;
     }
-  };
-  const addToCanvas = async () => {
-    if (await ensureMaterialized()) {
-      workspaceEvents.fireAddEntityToCanvas(entity.id);
-      trackAssetUse({
-        entity_id: entity.id,
-        entity_type: entity.type,
-        target: "canvas",
-        via: "context_menu",
-        source_panel: "canvas_sidebar",
-        was_materialized: isMaterialized,
-      });
+  }, []);
+  const cancelClose = reactExports.useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
     }
-  };
-  const addToChat = async () => {
-    if (await ensureMaterialized()) {
-      workspaceEvents.fireAddEntityToChat(entity.id, entity.name, entity.type);
-      trackAssetUse({
-        entity_id: entity.id,
-        entity_type: entity.type,
-        target: "chat",
-        via: "context_menu",
-        source_panel: "canvas_sidebar",
-        was_materialized: isMaterialized,
+  }, []);
+  const notifyHoverIntent = reactExports.useCallback(
+    (target) => {
+      cancelClose();
+      if (stateRef.current.kind === "hover") {
+        cancelOpen2();
+        setBoth({
+          kind: "hover",
+          target,
+        });
+        return;
+      }
+      cancelOpen2();
+      openTimerRef.current = setTimeout(() => {
+        openTimerRef.current = null;
+        setBoth({
+          kind: "hover",
+          target,
+        });
+      }, HOVER_OPEN_DELAY_MS$1);
+    },
+    [cancelClose, cancelOpen2, setBoth],
+  );
+  const notifyHoverEnd = reactExports.useCallback(() => {
+    cancelOpen2();
+    if (stateRef.current.kind !== "hover") return;
+    cancelClose();
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      if (stateRef.current.kind === "hover")
+        setBoth({
+          kind: "idle",
+        });
+    }, HOVER_CLOSE_DELAY_MS$1);
+  }, [cancelOpen2, cancelClose, setBoth]);
+  const onPopupPointerEnter = reactExports.useCallback(() => {
+    cancelOpen2();
+    cancelClose();
+  }, [cancelOpen2, cancelClose]);
+  const onPopupPointerLeave = reactExports.useCallback(() => {
+    cancelOpen2();
+    cancelClose();
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      if (stateRef.current.kind === "hover")
+        setBoth({
+          kind: "idle",
+        });
+    }, HOVER_CLOSE_DELAY_MS$1);
+  }, [cancelOpen2, cancelClose, setBoth]);
+  const dismiss = reactExports.useCallback(() => {
+    cancelOpen2();
+    cancelClose();
+    if (stateRef.current.kind !== "idle")
+      setBoth({
+        kind: "idle",
       });
+  }, [cancelOpen2, cancelClose, setBoth]);
+  const activeAnchor = state2.kind === "hover" ? state2.target.anchor : null;
+  reactExports.useEffect(() => {
+    if (!activeAnchor) return;
+    if (!activeAnchor.isConnected) {
+      setBoth({
+        kind: "idle",
+      });
+      return;
     }
-  };
-  const commonLiProps = {
-    onPointerEnter: (e2) => onHoverIntent(entity.id, e2.currentTarget),
-    onPointerLeave: onHoverEnd,
-    draggable: true,
-    onDragStart: (e2) =>
-      writeEntityDragData(e2, {
-        entityId: entity.id,
-        name: entity.name,
-        type: entity.type,
-        ...(entity.coverUrl || entity.thumbnailUrl
-          ? {
-              thumbnailUrl: entity.coverUrl ?? entity.thumbnailUrl,
-            }
-          : {}),
-      }),
-    "data-action-ui-id": "canvas-sidebar-asset-center.entity",
-    "data-entity-id": entity.id,
-  };
-  const actionButtons = (
-    <>
-      <Tooltip>
-        <TooltipTrigger
-          onClick={(e2) => {
-            e2.stopPropagation();
-            e2.preventDefault();
-            void addToCanvas();
-          }}
-          className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
-          data-action-ui-id="canvas-sidebar-asset-center.addToCanvas"
-        >
-          <StrokeIcon icon={Plus} size={14} />
-        </TooltipTrigger>
-        <TooltipContent>{t2("fileExplorer.addToCanvas")}</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger
-          onClick={(e2) => {
-            e2.stopPropagation();
-            e2.preventDefault();
-            void addToChat();
-          }}
-          className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
-          data-action-ui-id="canvas-sidebar-asset-center.addToChat"
-        >
-          <StrokeIcon icon={AddToChatIcon} size={14} viewBoxSize={20} />
-        </TooltipTrigger>
-        <TooltipContent>{t2("fileExplorer.addToChat")}</TooltipContent>
-      </Tooltip>
-    </>
-  );
-  const moreMenu = (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        onClick={(e2) => {
-          e2.stopPropagation();
-          e2.preventDefault();
-        }}
-        onMouseDown={(e2) => e2.stopPropagation()}
-        className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
-        data-action-ui-id="canvas-sidebar-asset-center.more"
-        aria-label={t2("common.more", "More")}
-      >
-        <MoreVerticalIcon size={14} />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" side="bottom" sideOffset={2}>
-        <DropdownMenuItem
-          onClick={(e2) => {
-            e2.stopPropagation();
-            onEdit(entity.id);
-          }}
-          data-action-ui-id="canvas-sidebar-asset-center.more.edit"
-        >
-          <StrokeIcon icon={PencilIcon} size={14} className="mr-1.5" />
-          {t2("workspace.materializedEntities.entity.edit", "Edit")}
-        </DropdownMenuItem>
-        {canMaterialize && !isMaterialized && (
-          <DropdownMenuItem
-            onClick={(e2) => {
-              e2.stopPropagation();
-              handleMaterialize(e2);
-            }}
-            disabled={materializeMutation.isPending}
-            data-action-ui-id="canvas-sidebar-asset-center.more.materialize"
-          >
-            <StrokeIcon icon={FolderInput$2} size={14} className="mr-1.5" />
-            {t2("assetSidebarPanel.materialize")}
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem
-          onClick={(e2) => {
-            e2.stopPropagation();
-            onExport(entity);
-          }}
-          data-action-ui-id="canvas-sidebar-asset-center.more.export"
-        >
-          <StrokeIcon icon={Download} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.exportTooltip")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={(e2) => {
-            e2.stopPropagation();
-            onDelete(entity);
-          }}
-          data-action-ui-id="canvas-sidebar-asset-center.more.delete"
-        >
-          <StrokeIcon icon={Trash2} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.deleteAction")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-  const rowContent = (
-    <>
-      <EntityThumb entity={entity} />
-      <div className="flex flex-col min-w-0 flex-1">
-        <span className="text-[13px] font-medium truncate text-foreground/70">{entity.name}</span>
-        {entity.description && (
-          <span className="text-[11px] text-muted-foreground truncate">{entity.description}</span>
-        )}
-      </div>
-      <span className="absolute right-1 top-1 bottom-1 flex items-center gap-1 rounded-md px-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {actionButtons}
-        {moreMenu}
-      </span>
-    </>
-  );
-  const gridContent = (
-    <>
-      <div className="relative aspect-square w-full overflow-hidden rounded-md bg-muted">
-        <EntityGridCover entity={entity} />
-        <span className="absolute right-1 top-1 flex items-center gap-1 rounded-md bg-background/70 backdrop-blur px-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-          {actionButtons}
-        </span>
-      </div>
-      <div className="mt-1 flex items-start gap-1">
-        <span
-          className="line-clamp-2 flex-1 min-w-0 text-[12px] font-medium leading-4 text-foreground/80"
-          title={entity.name}
-        >
-          {entity.name}
-        </span>
-        <span className="-my-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
-          {moreMenu}
-        </span>
-      </div>
-    </>
-  );
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        render={
-          layout === "grid" ? (
-            <li
-              {...commonLiProps}
-              className={cn$2(
-                "group relative flex flex-col select-none cursor-grab active:cursor-grabbing rounded-md p-1 transition-colors",
-                isHighlighted ? "bg-foreground/[0.12]" : "hover:bg-foreground/5",
-              )}
-            />
-          ) : (
-            <li
-              {...commonLiProps}
-              className={cn$2(
-                "list-row-hit-area group relative mx-2 flex h-12 w-[calc(100%-1rem)] items-center gap-2 rounded-md py-2 pl-2 pr-14 transition-colors select-none cursor-grab active:cursor-grabbing",
-                isHighlighted ? "bg-foreground/[0.12]" : "hover:bg-foreground/5",
-              )}
-            />
-          )
+    const io2 = new IntersectionObserver(
+      (entries2) => {
+        for (const entry of entries2) {
+          if (!entry.isIntersecting)
+            setBoth({
+              kind: "idle",
+            });
         }
-      >
-        {layout === "grid" ? gridContent : rowContent}
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem
-          className={COMPACT_MENU_ITEM_CLASS}
-          onClick={() => onEdit(entity.id)}
-          data-action-ui-id="canvas-sidebar-asset-center.edit"
+      },
+      {
+        threshold: 0,
+      },
+    );
+    io2.observe(activeAnchor);
+    return () => io2.disconnect();
+  }, [activeAnchor, setBoth]);
+  reactExports.useEffect(() => {
+    return () => {
+      cancelOpen2();
+      cancelClose();
+    };
+  }, [cancelOpen2, cancelClose]);
+  return {
+    state: state2,
+    stateRef,
+    notifyHoverIntent,
+    notifyHoverEnd,
+    onPopupPointerEnter,
+    onPopupPointerLeave,
+    dismiss,
+  };
+}
+
+function EntityHoverPreviewPopup({
+  anchor,
+  entityId,
+  onPreview,
+  onAddToCanvas,
+  onAddToChat,
+  onPopupPointerEnter,
+  onPopupPointerLeave,
+}) {
+  const [positioned, setPositioned] = reactExports.useState(false);
+  reactExports.useLayoutEffect(() => {
+    const id2 = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(id2);
+  }, []);
+  return (
+    <PreviewCardRoot open={true}>
+      <PreviewCardPortal>
+        <PreviewCardPositioner
+          anchor={anchor}
+          side="right"
+          sideOffset={8}
+          align="start"
+          alignOffset={0}
+          className={cn$2(
+            "isolate z-50",
+            positioned &&
+              "transition-transform duration-200 ease-out motion-reduce:transition-none",
+          )}
         >
-          <StrokeIcon icon={PencilIcon} size={14} className="mr-1.5" />
-          {t2("workspace.materializedEntities.entity.edit", "Edit")}
-        </ContextMenuItem>
-        <ContextMenuItem className={COMPACT_MENU_ITEM_CLASS} onClick={() => void addToCanvas()}>
-          <StrokeIcon icon={Plus} size={14} className="mr-1.5" />
-          {t2("fileExplorer.addToCanvas")}
-        </ContextMenuItem>
-        <ContextMenuItem className={COMPACT_MENU_ITEM_CLASS} onClick={() => void addToChat()}>
-          <StrokeIcon icon={AddToChatIcon} size={14} viewBoxSize={20} className="mr-1.5" />
-          {t2("fileExplorer.addToChat")}
-        </ContextMenuItem>
-        {canMaterialize && !isMaterialized && (
-          <ContextMenuItem
-            className={COMPACT_MENU_ITEM_CLASS}
-            onClick={handleMaterialize}
-            disabled={materializeMutation.isPending}
+          <PreviewCardPopup
+            data-slot="preview-card-content"
+            onPointerEnter={onPopupPointerEnter}
+            onPointerLeave={onPopupPointerLeave}
+            className={cn$2(
+              "elevated-surface-border z-50 w-[260px] origin-(--transform-origin) rounded-lg bg-popover text-popover-foreground shadow-lg outline-none",
+              "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            )}
           >
-            <StrokeIcon icon={FolderInput$2} size={14} className="mr-1.5" />
-            {t2("assetSidebarPanel.materialize")}
-          </ContextMenuItem>
-        )}
-        <ContextMenuItem
-          className={COMPACT_MENU_ITEM_CLASS}
-          onClick={() => onExport(entity)}
-          data-action-ui-id="canvas-sidebar-asset-center.export"
-        >
-          <StrokeIcon icon={Download} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.exportTooltip")}
-        </ContextMenuItem>
-        <ContextMenuItem
-          className={COMPACT_MENU_ITEM_CLASS}
-          variant="destructive"
-          onClick={() => onDelete(entity)}
-          data-action-ui-id="canvas-sidebar-asset-center.delete"
-        >
-          <StrokeIcon icon={Trash2} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.deleteAction")}
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+            <EntityHoverCardBody
+              entityId={entityId}
+              onPreview={onPreview}
+              onAddToCanvas={onAddToCanvas}
+              onAddToChat={onAddToChat}
+            />
+          </PreviewCardPopup>
+        </PreviewCardPositioner>
+      </PreviewCardPortal>
+    </PreviewCardRoot>
   );
-});
-const SearchInput = reactExports.memo(function SearchInput2({ onDebouncedChange }) {
+}
+
+const EntityHoverPreviewHost = reactExports.memo(
+  reactExports.forwardRef(function EntityHoverPreviewHost2(
+    { onPreviewAttachment, onAddToCanvas, onAddToChat },
+    ref,
+  ) {
+    const host = useEntityHoverPreview();
+    reactExports.useImperativeHandle(
+      ref,
+      () => ({
+        notifyHoverIntent: (entityId, anchor) => {
+          const target = {
+            entityId,
+            anchor,
+          };
+          host.notifyHoverIntent(target);
+        },
+        notifyHoverEnd: () => host.notifyHoverEnd(),
+      }),
+      [host],
+    );
+    const handleBodyPreview = useStableCallback((att) => {
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
+      const { entityId } = s2.target;
+      host.dismiss();
+      onPreviewAttachment(entityId, att);
+    });
+    const handleAddToCanvas = useStableCallback((att) => {
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
+      onAddToCanvas(att);
+    });
+    const handleAddToChat = useStableCallback((att) => {
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
+      onAddToChat(att);
+    });
+    if (host.state.kind !== "hover") return null;
+    return (
+      <EntityHoverPreviewPopup
+        anchor={host.state.target.anchor}
+        entityId={host.state.target.entityId}
+        onPreview={handleBodyPreview}
+        onAddToCanvas={handleAddToCanvas}
+        onAddToChat={handleAddToChat}
+        onPopupPointerEnter={host.onPopupPointerEnter}
+        onPopupPointerLeave={host.onPopupPointerLeave}
+      />
+    );
+  }),
+);
+
+function ProjectSidebarCategoryChips({
+  options,
+  value,
+  onChange,
+  rowActionId,
+  className,
+}) {
+  return (
+    <div className={cn$2("shrink-0 px-2 pb-1", className)}>
+      <div
+        className="scrollbar-none flex h-8 flex-nowrap items-center gap-1 overflow-x-auto"
+        data-action-ui-id={rowActionId}
+      >
+        {options.map((option2) => {
+          const active2 = option2.value === value;
+          return (
+            <button
+              key={option2.value}
+              type="button"
+              onClick={() => onChange(option2.value)}
+              data-action-ui-id={option2.actionId}
+              aria-pressed={active2}
+              className={cn$2(
+                "group inline-flex h-[26px] max-w-[112px] shrink-0 items-center justify-center rounded-full border px-[9px] text-xs font-normal shadow-none transition-colors duration-150 select-none focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none",
+                active2
+                  ? "border-foreground bg-transparent text-foreground"
+                  : "border-border bg-transparent text-foreground/70 hover:border-foreground hover:bg-transparent",
+              )}
+            >
+              <span className="truncate">{option2.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const TYPE_CHIPS = ["all", "character", "scene", "style_pack", "custom"];
+
+function useLightboxEscape(onClose) {
+  reactExports.useEffect(() => {
+    const handler = (e2) => {
+      if (e2.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+}
+
+function LightboxCloseButton({ onClose }) {
+  const { t: t2 } = useTranslation();
+  return (
+    <button
+      type="button"
+      aria-label={t2("common.close")}
+      className="absolute right-8 top-8 flex size-9 cursor-pointer items-center justify-center bg-white/10 text-white/80 transition-colors hover:text-white"
+      onClick={(e2) => {
+        e2.stopPropagation();
+        onClose();
+      }}
+    >
+      <StrokeIcon icon={X$7} size={16} />
+    </button>
+  );
+}
+
+function AudioLightbox({ src, alt, onClose }) {
+  useLightboxEscape(onClose);
+  return reactDomExports.createPortal(
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key provides keyboard close path.
+    <div
+      role="dialog"
+      aria-label={alt}
+      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
+      onClick={(e2) => {
+        if (e2.target === e2.currentTarget) onClose();
+      }}
+    >
+      <LightboxCloseButton onClose={onClose} />
+      <span className="text-sm text-white/80 truncate max-w-[60vw]">{alt}</span>
+      <audio
+        src={src}
+        controls={true}
+        autoPlay={true}
+        style={{
+          width: "min(480px, 80vw)",
+        }}
+      />
+    </div>,
+    document.body,
+  );
+}
+
+function TextLightbox({ src, alt, onClose }) {
+  const [content2, setContent2] = reactExports.useState(null);
+  const [error, setError] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    const controller = new AbortController();
+    fetch(src, {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`${res.status}`);
+        return res.text();
+      })
+      .then((text2) => setContent2(text2))
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        setError(err instanceof Error ? err.message : String(err));
+      });
+    return () => controller.abort();
+  }, [src]);
+  useLightboxEscape(onClose);
+  return reactDomExports.createPortal(
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key provides keyboard close path.
+    <div
+      role="dialog"
+      aria-label={alt}
+      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
+      onClick={(e2) => {
+        if (e2.target === e2.currentTarget) onClose();
+      }}
+    >
+      <LightboxCloseButton onClose={onClose} />
+      <span className="text-sm text-white/80 truncate max-w-[60vw]">{alt}</span>
+      <div className="max-h-[70vh] w-full max-w-2xl overflow-auto rounded-lg border border-white/10 bg-white/5 p-4">
+        {content2 === null && !error && (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 size={16} className="animate-spin text-white opacity-50" />
+          </div>
+        )}
+        {error && <p className="text-xs text-destructive">{error}</p>}
+        {content2 !== null && (
+          <pre className="text-xs text-white/80 whitespace-pre-wrap break-words font-mono leading-relaxed">
+            {content2}
+          </pre>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+const SearchInput = reactExports.memo(function SearchInput2({
+  onDebouncedChange,
+}) {
   const { t: t2 } = useTranslation();
   const inputRef = reactExports.useRef(null);
   const debounceRef = reactExports.useRef(null);
@@ -508,6 +474,7 @@ const SearchInput = reactExports.memo(function SearchInput2({ onDebouncedChange 
     </div>
   );
 });
+
 export function AssetCenterPanel({
   viewMode = "tree",
   onRegisterRefresh,
@@ -520,8 +487,13 @@ export function AssetCenterPanel({
   const [editingEntityId, setEditingEntityId] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const buildExportUrl = useExportEntityUrl();
-  const openEdit = useStableCallback((entityId) => setEditingEntityId(entityId));
-  const closeEdit = reactExports.useCallback(() => setEditingEntityId(null), []);
+  const openEdit = useStableCallback((entityId) =>
+    setEditingEntityId(entityId),
+  );
+  const closeEdit = reactExports.useCallback(
+    () => setEditingEntityId(null),
+    [],
+  );
   const handleDelete2 = useStableCallback((entity) => setDeleteTarget(entity));
   const closeDelete = reactExports.useCallback(() => setDeleteTarget(null), []);
   const handleExport = useStableCallback((entity) => {
@@ -534,7 +506,8 @@ export function AssetCenterPanel({
     a2.click();
     a2.remove();
   });
-  const [internalDebouncedSearch, setInternalDebouncedSearch] = reactExports.useState("");
+  const [internalDebouncedSearch, setInternalDebouncedSearch] =
+    reactExports.useState("");
   const externalControlled = externalSearchQuery !== void 0;
   reactExports.useEffect(() => {
     if (!externalControlled) return;
@@ -547,14 +520,18 @@ export function AssetCenterPanel({
   const setDebouncedSearch = setInternalDebouncedSearch;
   const [typeFilter, setTypeFilter] = reactExports.useState("all");
   const [lightbox, setLightbox] = reactExports.useState(null);
-  const [highlightedEntityId, setHighlightedEntityId] = reactExports.useState(null);
+  const [highlightedEntityId, setHighlightedEntityId] =
+    reactExports.useState(null);
   const [pinnedOpen, setPinnedOpen] = reactExports.useState(true);
   const [allOpen, setAllOpen] = reactExports.useState(true);
   const highlightTimerRef = reactExports.useRef(null);
   const applyHighlight = useStableCallback((entityId) => {
     if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
     setHighlightedEntityId(entityId);
-    highlightTimerRef.current = setTimeout(() => setHighlightedEntityId(null), 3e4);
+    highlightTimerRef.current = setTimeout(
+      () => setHighlightedEntityId(null),
+      3e4,
+    );
   });
   const clearHighlight = useStableCallback(() => {
     if (highlightTimerRef.current) {
@@ -626,16 +603,24 @@ export function AssetCenterPanel({
       if (!anchored) {
         dedupedToast.error(
           t2("assetSidebarPanel.addToChatError", {
-            message: t2("assetSidebarPanel.addToChatErrorNoWorkspace", "当前没有可用的工作区"),
+            message: t2(
+              "assetSidebarPanel.addToChatErrorNoWorkspace",
+              "当前没有可用的工作区",
+            ),
           }),
         );
         return;
       }
-      const match2 = anchored.agentPayload.attachments.find((a2) => a2.id === att.id);
+      const match2 = anchored.agentPayload.attachments.find(
+        (a2) => a2.id === att.id,
+      );
       if (!match2) {
         dedupedToast.error(
           t2("assetSidebarPanel.addToChatError", {
-            message: t2("assetSidebarPanel.addToChatErrorAttachmentNotFound", "未找到该附件"),
+            message: t2(
+              "assetSidebarPanel.addToChatErrorAttachmentNotFound",
+              "未找到该附件",
+            ),
           }),
         );
         return;
@@ -719,8 +704,14 @@ export function AssetCenterPanel({
       className="flex flex-col h-full overflow-hidden"
       data-action-ui-id="canvas-sidebar-asset-center"
     >
-      {externalControlled ? null : <SearchInput onDebouncedChange={setDebouncedSearch} />}
-      {!(entities.length === 0 && typeFilter === "all" && debouncedSearch === "") && (
+      {externalControlled ? null : (
+        <SearchInput onDebouncedChange={setDebouncedSearch} />
+      )}
+      {!(
+        entities.length === 0 &&
+        typeFilter === "all" &&
+        debouncedSearch === ""
+      ) && (
         <ProjectSidebarCategoryChips
           options={typeChipOptions}
           value={typeFilter}
@@ -771,7 +762,8 @@ export function AssetCenterPanel({
                     className="px-3 pt-1 pb-1 text-[11px] font-medium text-muted-foreground select-none flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
                     onClick={() => setPinnedOpen(!pinnedOpen)}
                     onKeyDown={(e2) => {
-                      if (e2.key === "Enter" || e2.key === " ") setPinnedOpen(!pinnedOpen);
+                      if (e2.key === "Enter" || e2.key === " ")
+                        setPinnedOpen(!pinnedOpen);
                     }}
                   >
                     <StrokeIcon
@@ -779,12 +771,17 @@ export function AssetCenterPanel({
                       size={12}
                       className={`transition-transform ${pinnedOpen ? "rotate-90" : ""}`}
                     />
-                    {t2("assetSidebarPanel.materializedSection", "已添加至此项目的资产")}
+                    {t2(
+                      "assetSidebarPanel.materializedSection",
+                      "已添加至此项目的资产",
+                    )}
                   </li>
                   {pinnedOpen && (
                     <li
                       className={
-                        viewMode === "grid" ? "grid grid-cols-2 gap-2 px-2 pb-2" : "contents"
+                        viewMode === "grid"
+                          ? "grid grid-cols-2 gap-2 px-2 pb-2"
+                          : "contents"
                       }
                     >
                       <ul className="contents">
@@ -798,7 +795,9 @@ export function AssetCenterPanel({
                                 entity={entity}
                                 workspacePath={workspacePath}
                                 isMaterialized={true}
-                                isHighlighted={highlightedEntityId === entity.id}
+                                isHighlighted={
+                                  highlightedEntityId === entity.id
+                                }
                                 onHoverIntent={handleRowHoverIntent}
                                 onHoverEnd={handleRowHoverEnd}
                                 onEdit={openEdit}
@@ -819,7 +818,8 @@ export function AssetCenterPanel({
                     className="px-3 pt-1 pb-1 text-[11px] font-medium text-muted-foreground select-none flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
                     onClick={() => setAllOpen(!allOpen)}
                     onKeyDown={(e2) => {
-                      if (e2.key === "Enter" || e2.key === " ") setAllOpen(!allOpen);
+                      if (e2.key === "Enter" || e2.key === " ")
+                        setAllOpen(!allOpen);
                     }}
                   >
                     <StrokeIcon
@@ -832,7 +832,9 @@ export function AssetCenterPanel({
                   {allOpen && (
                     <li
                       className={
-                        viewMode === "grid" ? "grid grid-cols-2 gap-2 px-2 pb-2" : "contents"
+                        viewMode === "grid"
+                          ? "grid grid-cols-2 gap-2 px-2 pb-2"
+                          : "contents"
                       }
                     >
                       <ul className="contents">
@@ -869,10 +871,18 @@ export function AssetCenterPanel({
         onAddToChat={handleHoverAddToChat}
       />
       {lightbox && lightbox.kind === "audio" && (
-        <AudioLightbox src={lightbox.src} alt={lightbox.alt} onClose={handleLightboxClose} />
+        <AudioLightbox
+          src={lightbox.src}
+          alt={lightbox.alt}
+          onClose={handleLightboxClose}
+        />
       )}
       {lightbox && lightbox.kind === "text" && (
-        <TextLightbox src={lightbox.src} alt={lightbox.alt} onClose={handleLightboxClose} />
+        <TextLightbox
+          src={lightbox.src}
+          alt={lightbox.alt}
+          onClose={handleLightboxClose}
+        />
       )}
       {lightbox && (lightbox.kind === "image" || lightbox.kind === "video") && (
         <MediaLightbox
@@ -883,7 +893,11 @@ export function AssetCenterPanel({
         />
       )}
       <EntityEditDialog entityId={editingEntityId} onClose={closeEdit} />
-      <EntityDeleteConfirm entity={deleteTarget} onClose={closeDelete} surface="canvas_sidebar" />
+      <EntityDeleteConfirm
+        entity={deleteTarget}
+        onClose={closeDelete}
+        surface="canvas_sidebar"
+      />
     </div>
   );
 }

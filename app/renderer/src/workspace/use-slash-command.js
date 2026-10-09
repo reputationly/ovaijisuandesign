@@ -1,114 +1,42 @@
 // use-slash-command.js
-import { reactExports, useTranslation, API_PATHS } from "../vendor.js";
-import { useGatewayFetch } from "../generation/use-resizable-width.js";
-import { trackSkillCreatorInvoke, trackSkillInvoke } from "./use-new-workspace-dialog.jsx";
-import { findSlashTrigger } from "../chat/use-mention.js";
-function extractUserMessages(messages2) {
-  const result = [];
-  for (let i2 = messages2.length - 1; i2 >= 0; i2--) {
-    const m3 = messages2[i2];
-    if (m3.role === "user" && m3.type === "text") {
-      result.push(m3);
-    }
-  }
-  return result;
+import { findTrailingTrigger } from "../chat/find-trailing-trigger.js";
+import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
+import {
+  trackSkillCreatorInvoke,
+  trackSkillInvoke,
+} from "./use-new-workspace-dialog.jsx";
+
+function findSlashTrigger(textBeforeCaret) {
+  return findTrailingTrigger(textBeforeCaret, "/", "\\s/");
 }
-export function useMessageHistory(messages2, resetKey) {
-  const userMessages = reactExports.useMemo(
-    () => extractUserMessages(messages2 ?? []),
-    [messages2],
-  );
-  const [index2, setIndex] = reactExports.useState(-1);
-  const indexRef = reactExports.useRef(-1);
-  const draftRef = reactExports.useRef(null);
-  const resetKeyRef = reactExports.useRef(resetKey);
-  const navigateUp = reactExports.useCallback(
-    (currentText, currentAttachmentPaths) => {
-      if (userMessages.length === 0) return null;
-      const current2 = indexRef.current;
-      const next2 = current2 + 1;
-      if (next2 >= userMessages.length) return null;
-      if (current2 === -1) {
-        draftRef.current = {
-          text: currentText,
-          attachmentPaths: [...currentAttachmentPaths],
-        };
-      }
-      indexRef.current = next2;
-      setIndex(next2);
-      return userMessages[next2];
-    },
-    [userMessages],
-  );
-  const navigateDown = reactExports.useCallback(() => {
-    const current2 = indexRef.current;
-    if (current2 <= -1) return null;
-    const next2 = current2 - 1;
-    indexRef.current = next2;
-    setIndex(next2);
-    if (next2 >= 0) {
-      return {
-        type: "history",
-        message: userMessages[next2],
-      };
-    }
-    const draft = draftRef.current;
-    draftRef.current = null;
-    return {
-      type: "draft",
-      text: draft?.text ?? "",
-      attachmentPaths: draft?.attachmentPaths ?? [],
-    };
-  }, [userMessages]);
-  const reset2 = reactExports.useCallback(() => {
-    if (indexRef.current !== -1) {
-      indexRef.current = -1;
-      setIndex(-1);
-      draftRef.current = null;
-    }
-  }, []);
-  reactExports.useEffect(() => {
-    if (Object.is(resetKeyRef.current, resetKey)) return;
-    resetKeyRef.current = resetKey;
-    reset2();
-  }, [resetKey, reset2]);
-  return {
-    isActive: index2 >= 0,
-    navigateUp,
-    navigateDown,
-    reset: reset2,
-  };
-}
-export function filenameFromPath(path2) {
-  return path2.split("/").pop() ?? path2;
-}
-export function attachmentsFromHistory(attachments) {
-  if (!attachments?.length) return [];
-  return attachments.map((att) => ({
-    path: att.path,
-    filename: filenameFromPath(att.path),
-    ...(att.attachment_source === "asset_vault" && att.attachment_id
-      ? {
-          attachmentId: att.attachment_id,
-        }
-      : {}),
-  }));
-}
+
 const STORAGE_KEY = "messageInput.skillUsageCounts";
+
 const MAX_USAGE_COUNT = Number.MAX_SAFE_INTEGER;
-let snapshotRaw;
-let snapshot = {};
+
 const listeners = new Set();
+
 function normalizeCounts(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const counts = {};
   for (const [name2, count2] of Object.entries(value)) {
-    if (name2 && typeof count2 === "number" && Number.isSafeInteger(count2) && count2 > 0) {
+    if (
+      name2 &&
+      typeof count2 === "number" &&
+      Number.isSafeInteger(count2) &&
+      count2 > 0
+    ) {
       counts[name2] = count2;
     }
   }
   return counts;
 }
+
+let snapshotRaw;
+
+let snapshot = {};
+
 function getSkillUsageCounts() {
   let raw2;
   try {
@@ -125,10 +53,7 @@ function getSkillUsageCounts() {
   }
   return snapshot;
 }
-function subscribeSkillUsage(listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+
 function recordSkillUsage(name2) {
   if (!name2) return;
   const current2 = getSkillUsageCounts();
@@ -144,6 +69,12 @@ function recordSkillUsage(name2) {
   snapshot = next2;
   for (const listener of listeners) listener();
 }
+
+function subscribeSkillUsage(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 function sortSkillsByUsage(skills, counts) {
   return skills
     .map((skill, index2) => ({
@@ -152,10 +83,12 @@ function sortSkillsByUsage(skills, counts) {
     }))
     .sort(
       (a2, b3) =>
-        (counts[b3.skill.name] ?? 0) - (counts[a2.skill.name] ?? 0) || a2.index - b3.index,
+        (counts[b3.skill.name] ?? 0) - (counts[a2.skill.name] ?? 0) ||
+        a2.index - b3.index,
     )
     .map(({ skill }) => skill);
 }
+
 function isSkillInfo(v2) {
   return (
     typeof v2 === "object" &&
@@ -166,7 +99,9 @@ function isSkillInfo(v2) {
     typeof v2.source === "string"
   );
 }
+
 const CACHE_TTL = 3e4;
+
 async function fetchSkills(gatewayFetch2, signal) {
   const resp = await gatewayFetch2(API_PATHS.skills, {
     signal,
@@ -176,7 +111,13 @@ async function fetchSkills(gatewayFetch2, signal) {
   if (!Array.isArray(data2)) return [];
   return data2.filter(isSkillInfo);
 }
-export function useSlashCommand(input, setInput, pageContext = "project", guidePromptOverride) {
+
+export function useSlashCommand(
+  input,
+  setInput,
+  pageContext = "project",
+  guidePromptOverride,
+) {
   const gatewayFetch2 = useGatewayFetch();
   const { i18n } = useTranslation();
   const [allSkills, setAllSkills] = reactExports.useState([]);
@@ -261,13 +202,17 @@ export function useSlashCommand(input, setInput, pageContext = "project", guideP
           const bName = b3.name.toLocaleLowerCase();
           const aDisplayName = a2.displayNameZh?.toLocaleLowerCase() ?? "";
           const bDisplayName = b3.displayNameZh?.toLocaleLowerCase() ?? "";
-          const aPrefix = aName.startsWith(q2) || aDisplayName.startsWith(q2) ? 0 : 1;
-          const bPrefix = bName.startsWith(q2) || bDisplayName.startsWith(q2) ? 0 : 1;
+          const aPrefix =
+            aName.startsWith(q2) || aDisplayName.startsWith(q2) ? 0 : 1;
+          const bPrefix =
+            bName.startsWith(q2) || bDisplayName.startsWith(q2) ? 0 : 1;
           if (aPrefix !== bPrefix) return aPrefix - bPrefix;
           const aNameMatch = aName.includes(q2) ? 0 : 1;
           const bNameMatch = bName.includes(q2) ? 0 : 1;
           if (aNameMatch !== bNameMatch) return aNameMatch - bNameMatch;
-          return (skillUsageCounts[b3.name] ?? 0) - (skillUsageCounts[a2.name] ?? 0);
+          return (
+            (skillUsageCounts[b3.name] ?? 0) - (skillUsageCounts[a2.name] ?? 0)
+          );
         });
     }
     return sortSkillsByUsage(enabledSkills, skillUsageCounts);
@@ -319,10 +264,13 @@ export function useSlashCommand(input, setInput, pageContext = "project", guideP
       if (invokeSource !== "silent") {
         recordSkillUsage(skill.name);
         const resolvedSource =
-          invokeSource ?? (pageContext === "home" ? "home_input_slash" : "project_input_slash");
+          invokeSource ??
+          (pageContext === "home" ? "home_input_slash" : "project_input_slash");
         if (skill.name === "skill-creator") {
           trackSkillCreatorInvoke(
-            resolvedSource === "home_input_slash" ? "home_slash" : "project_slash",
+            resolvedSource === "home_input_slash"
+              ? "home_slash"
+              : "project_slash",
           );
         } else {
           trackSkillInvoke({
@@ -386,7 +334,10 @@ export function useSlashCommand(input, setInput, pageContext = "project", guideP
       selectedSkillRef.current = null;
       selectedSkillPromptRef.current = null;
     }
-    if (pendingInputRef.current !== null && input.includes(`/${selectedSkill.name}`)) {
+    if (
+      pendingInputRef.current !== null &&
+      input.includes(`/${selectedSkill.name}`)
+    ) {
       pendingInputRef.current = null;
     }
   }, [input, selectedSkill]);
@@ -394,7 +345,9 @@ export function useSlashCommand(input, setInput, pageContext = "project", guideP
     (e2) => {
       if (e2.key === "Tab" && !open && ghostText) {
         e2.preventDefault();
-        const prefix = /\s$/.test(inputRef.current) ? inputRef.current : `${inputRef.current} `;
+        const prefix = /\s$/.test(inputRef.current)
+          ? inputRef.current
+          : `${inputRef.current} `;
         setInput(prefix + ghostText);
         setGhostText(null);
         return true;
@@ -404,12 +357,16 @@ export function useSlashCommand(input, setInput, pageContext = "project", guideP
       switch (e2.key) {
         case "ArrowUp": {
           e2.preventDefault();
-          setActiveIndex((prev) => (prev <= 0 ? filtered.length - 1 : prev - 1));
+          setActiveIndex((prev) =>
+            prev <= 0 ? filtered.length - 1 : prev - 1,
+          );
           return true;
         }
         case "ArrowDown": {
           e2.preventDefault();
-          setActiveIndex((prev) => (prev >= filtered.length - 1 ? 0 : prev + 1));
+          setActiveIndex((prev) =>
+            prev >= filtered.length - 1 ? 0 : prev + 1,
+          );
           return true;
         }
         case "Tab":

@@ -1,17 +1,43 @@
 // build-incremental-node-data.js
 import {
-  POPOVER_DRAFT_DATA_KEY,
   isAssetBackedNode,
   isGenerationErrorStatus,
-} from "./group-nodes-in-canvas.js";
-import { mergePopoverDraftMaps } from "./resolve-derived-collision.js";
-export function carryIsEmptyField(saved) {
-  return saved?.isEmpty && !saved.assetId
-    ? {
-        isEmpty: true,
-      }
-    : {};
+  POPOVER_DRAFT_DATA_KEY,
+} from "./compute-group-bounds-from-children.js";
+
+function asDraftMap$1(value) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : void 0;
 }
+
+function mergePopoverDraftMaps(base2, override) {
+  if (override === null) return void 0;
+  const baseMap = asDraftMap$1(base2);
+  const overrideMap = asDraftMap$1(override);
+  if (!baseMap) return overrideMap;
+  if (!overrideMap) return baseMap;
+  const merged = {
+    ...baseMap,
+  };
+  for (const [key2, overrideEntry] of Object.entries(overrideMap)) {
+    if (overrideEntry === null) {
+      delete merged[key2];
+      continue;
+    }
+    const baseEntryMap = asDraftMap$1(baseMap[key2]);
+    const overrideEntryMap = asDraftMap$1(overrideEntry);
+    merged[key2] =
+      baseEntryMap && overrideEntryMap
+        ? {
+            ...baseEntryMap,
+            ...overrideEntryMap,
+          }
+        : overrideEntry;
+  }
+  return Object.keys(merged).length > 0 ? merged : void 0;
+}
+
 export function mirrorImageFieldsIntoData(fileNode) {
   const data2 = {
     ...(fileNode.data ?? {}),
@@ -28,7 +54,12 @@ export function mirrorImageFieldsIntoData(fileNode) {
   }
   return data2;
 }
-export function buildIncrementalNodeData(fileNode, resolveFileUrlById, existingMeta) {
+
+export function buildIncrementalNodeData(
+  fileNode,
+  resolveFileUrlById,
+  existingMeta,
+) {
   const data2 = mirrorImageFieldsIntoData(fileNode);
   if (!isAssetBackedNode(fileNode.type) || !fileNode.assetId) {
     return {
@@ -57,7 +88,8 @@ export function buildIncrementalNodeData(fileNode, resolveFileUrlById, existingM
   const referenceTextIds = data2.referenceTextIds;
   const width = typeof data2.width === "number" ? data2.width : void 0;
   const height = typeof data2.height === "number" ? data2.height : void 0;
-  const durationSec = typeof data2.duration === "number" ? data2.duration : void 0;
+  const durationSec =
+    typeof data2.duration === "number" ? data2.duration : void 0;
   const previewWidth = fileNode.size?.width;
   const previewHeight = fileNode.size?.height;
   const meta2 = {
@@ -94,11 +126,13 @@ export function buildIncrementalNodeData(fileNode, resolveFileUrlById, existingM
     meta: meta2,
   };
 }
+
 const CANVAS_LOAD_RETRY_DELAYS_MS = [200, 400, 800, 1200, 2e3];
-export const CANVAS_UNHYDRATED_RECOVERY_DELAY_MS = 3e3;
+
 export function isSameCanvasLoadOwner(owner, instance2, workspaceId2) {
   return owner.instance === instance2 && owner.workspaceId === workspaceId2;
 }
+
 export function beginCanvasSnapshotLoad(state2) {
   if (state2.inFlight) {
     state2.reloadRequested = true;
@@ -107,15 +141,32 @@ export function beginCanvasSnapshotLoad(state2) {
   state2.inFlight = true;
   return true;
 }
+
 function consumeCanvasSnapshotReload(state2) {
   const shouldReload = state2.reloadRequested;
   state2.reloadRequested = false;
   return shouldReload;
 }
+
 export function finishCanvasSnapshotLoad(state2) {
   state2.inFlight = false;
   return consumeCanvasSnapshotReload(state2);
 }
+
+function isRetryableCanvasLoadError(error) {
+  if (!error || typeof error !== "object") return false;
+  const { type: type2, status } = error;
+  if (type2 === "network" || type2 === "timeout") return true;
+  if (type2 !== "http" || typeof status !== "number") return false;
+  return (
+    status === 404 ||
+    status === 408 ||
+    status === 425 ||
+    status === 429 ||
+    status >= 500
+  );
+}
+
 export function classifyCanvasLoadFailure(error, phase) {
   const autoRecoverable = isRetryableCanvasLoadError(error);
   if (!error || typeof error !== "object") {
@@ -131,7 +182,11 @@ export function classifyCanvasLoadFailure(error, phase) {
     type2 === "timeout" ||
     (type2 === "http" &&
       typeof status === "number" &&
-      (status === 404 || status === 408 || status === 425 || status === 429 || status >= 500))
+      (status === 404 ||
+        status === 408 ||
+        status === 425 ||
+        status === 429 ||
+        status >= 500))
   ) {
     return {
       kind: "unavailable",
@@ -159,22 +214,22 @@ export function classifyCanvasLoadFailure(error, phase) {
     autoRecoverable,
   };
 }
-function isRetryableCanvasLoadError(error) {
-  if (!error || typeof error !== "object") return false;
-  const { type: type2, status } = error;
-  if (type2 === "network" || type2 === "timeout") return true;
-  if (type2 !== "http" || typeof status !== "number") return false;
-  return status === 404 || status === 408 || status === 425 || status === 429 || status >= 500;
-}
+
 export function shouldRecoverUnhydratedCanvas(error, hydratedNodeCount) {
   return hydratedNodeCount === null && isRetryableCanvasLoadError(error);
 }
+
 function abortReason(signal) {
-  return signal.reason ?? new DOMException("Canvas snapshot load aborted", "AbortError");
+  return (
+    signal.reason ??
+    new DOMException("Canvas snapshot load aborted", "AbortError")
+  );
 }
+
 function throwIfAborted(signal) {
   if (signal.aborted) throw abortReason(signal);
 }
+
 function waitForRetry(delayMs, signal) {
   throwIfAborted(signal);
   return new Promise((resolve, reject) => {
@@ -196,8 +251,13 @@ function waitForRetry(delayMs, signal) {
     if (signal.aborted) onAbort();
   });
 }
+
 async function loadCanvasSnapshotWithRetry(options) {
-  const { load: load2, signal, delaysMs = CANVAS_LOAD_RETRY_DELAYS_MS } = options;
+  const {
+    load: load2,
+    signal,
+    delaysMs = CANVAS_LOAD_RETRY_DELAYS_MS,
+  } = options;
   let attempt = 0;
   while (true) {
     throwIfAborted(signal);
@@ -231,6 +291,7 @@ async function loadCanvasSnapshotWithRetry(options) {
     attempt += 1;
   }
 }
+
 export async function loadLatestCanvasSnapshot(options) {
   const { state: state2, ...retryOptions } = options;
   let snapshot2;
@@ -239,13 +300,19 @@ export async function loadLatestCanvasSnapshot(options) {
   } while (consumeCanvasSnapshotReload(state2));
   return snapshot2;
 }
-export function toGenerationStatusRuntimeUpdate(liveNode, snapshot2, data2 = snapshot2.data) {
+
+export function toGenerationStatusRuntimeUpdate(
+  liveNode,
+  snapshot2,
+  data2 = snapshot2.data,
+) {
   if (liveNode.id !== snapshot2.id) return null;
   return {
     id: liveNode.id,
     data: data2,
   };
 }
+
 export function mergeGenerationStatusSavedNode(existing, snapshot2) {
   if (!existing) {
     const { groupId: groupId2, round: round2, ...node2 } = snapshot2;
@@ -292,30 +359,23 @@ export function mergeGenerationStatusSavedNode(existing, snapshot2) {
   }
   return next2;
 }
+
 function asDraftMap(value) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : void 0;
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : void 0;
 }
-export function mergeServerNodeDataPreservingPopoverDraft(serverData, localData) {
-  const serverDraft = serverData[POPOVER_DRAFT_DATA_KEY];
-  const localDraft = localData?.[POPOVER_DRAFT_DATA_KEY];
-  const localDraftMap = asDraftMap(localDraft);
-  if (!localDraftMap) return stripDraftTombstones(serverData);
-  if (serverDraft === null) return serverData;
-  const serverDraftMap = asDraftMap(serverDraft);
-  const tombstonedKeys = serverDraftMap
-    ? Object.keys(serverDraftMap).filter((key2) => serverDraftMap[key2] === null)
-    : [];
-  const mergedDraft = mergePopoverDraftMaps(serverDraft, localDraftMap);
-  const withTombstones = applyTombstones(mergedDraft, tombstonedKeys);
-  if (!withTombstones) {
-    const { [POPOVER_DRAFT_DATA_KEY]: _dropped, ...rest } = serverData;
-    return rest;
-  }
-  return {
-    ...serverData,
-    [POPOVER_DRAFT_DATA_KEY]: withTombstones,
+
+function applyTombstones(draftMap, tombstonedKeys) {
+  if (!draftMap) return void 0;
+  if (tombstonedKeys.length === 0) return draftMap;
+  const next2 = {
+    ...draftMap,
   };
+  for (const key2 of tombstonedKeys) delete next2[key2];
+  return Object.keys(next2).length > 0 ? next2 : void 0;
 }
+
 function stripDraftTombstones(serverData) {
   const serverDraftMap = asDraftMap(serverData[POPOVER_DRAFT_DATA_KEY]);
   if (!serverDraftMap) return serverData;
@@ -333,30 +393,59 @@ function stripDraftTombstones(serverData) {
     [POPOVER_DRAFT_DATA_KEY]: cleaned,
   };
 }
-function applyTombstones(draftMap, tombstonedKeys) {
-  if (!draftMap) return void 0;
-  if (tombstonedKeys.length === 0) return draftMap;
-  const next2 = {
-    ...draftMap,
+
+export function mergeServerNodeDataPreservingPopoverDraft(
+  serverData,
+  localData,
+) {
+  const serverDraft = serverData[POPOVER_DRAFT_DATA_KEY];
+  const localDraft = localData?.[POPOVER_DRAFT_DATA_KEY];
+  const localDraftMap = asDraftMap(localDraft);
+  if (!localDraftMap) return stripDraftTombstones(serverData);
+  if (serverDraft === null) return serverData;
+  const serverDraftMap = asDraftMap(serverDraft);
+  const tombstonedKeys = serverDraftMap
+    ? Object.keys(serverDraftMap).filter(
+        (key2) => serverDraftMap[key2] === null,
+      )
+    : [];
+  const mergedDraft = mergePopoverDraftMaps(serverDraft, localDraftMap);
+  const withTombstones = applyTombstones(mergedDraft, tombstonedKeys);
+  if (!withTombstones) {
+    const { [POPOVER_DRAFT_DATA_KEY]: _dropped, ...rest } = serverData;
+    return rest;
+  }
+  return {
+    ...serverData,
+    [POPOVER_DRAFT_DATA_KEY]: withTombstones,
   };
-  for (const key2 of tombstonedKeys) delete next2[key2];
-  return Object.keys(next2).length > 0 ? next2 : void 0;
 }
-function normalizeStartedAt(value) {
-  return typeof value === "string" && value.length > 0 ? value : void 0;
-}
-function normalizeWaitSeconds(seconds, legacyMinutes) {
+
+export function normalizeWaitSeconds(seconds, legacyMinutes) {
   if (typeof seconds === "number" && Number.isFinite(seconds) && seconds > 0) {
     return Math.ceil(seconds);
   }
-  if (typeof legacyMinutes === "number" && Number.isFinite(legacyMinutes) && legacyMinutes > 0) {
+  if (
+    typeof legacyMinutes === "number" &&
+    Number.isFinite(legacyMinutes) &&
+    legacyMinutes > 0
+  ) {
     return Math.ceil(legacyMinutes * 60);
   }
   return void 0;
 }
-export function shouldMirrorIncomingGeneratingData(current2, incomingData, persistedStatus) {
-  if (incomingData.status === "pending" || incomingData.status === "generating") return true;
-  if (isGenerationErrorStatus(incomingData.status) || incomingData.status === "queue_paused") {
+
+export function shouldMirrorIncomingGeneratingData(
+  current2,
+  incomingData,
+  persistedStatus,
+) {
+  if (incomingData.status === "pending" || incomingData.status === "generating")
+    return true;
+  if (
+    isGenerationErrorStatus(incomingData.status) ||
+    incomingData.status === "queue_paused"
+  ) {
     return false;
   }
   return (
@@ -367,122 +456,11 @@ export function shouldMirrorIncomingGeneratingData(current2, incomingData, persi
     ) !== void 0
   );
 }
+
 export function shouldDeferTransientPending(current2, incomingData) {
   return current2?.phase === "generating" && incomingData.status === "pending";
 }
-export function buildGeneratingInfoFromIncomingData(current2, incomingData) {
-  return {
-    ...(current2 ?? {
-      prompt: incomingData.prompt ?? "",
-      model: incomingData.model ?? incomingData.model_id ?? "",
-    }),
-    prompt: current2?.prompt ?? incomingData.prompt ?? "",
-    model: current2?.model ?? incomingData.model ?? incomingData.model_id ?? "",
-    modelId: current2?.modelId ?? incomingData.model_id,
-    backend: current2?.backend ?? incomingData.backend,
-    params: current2?.params ?? incomingData.params,
-    phase: incomingData.status === "pending" ? "pending" : "generating",
-    // The gateway owns the durable origin, so incoming wins over the local
-    // guess here (unlike prompt/model above, where the local submit value is
-    // the more accurate one). Cleared while pending — a queued node has not
-    // started generating yet.
-    generationStartedAt:
-      incomingData.status === "pending"
-        ? void 0
-        : (normalizeStartedAt(incomingData.generationStartedAt) ?? current2?.generationStartedAt),
-    error: void 0,
-    errorReason: void 0,
-    retryPayload: void 0,
-    estimatedRemainingWaitSeconds:
-      incomingData.status === "pending"
-        ? void 0
-        : normalizeWaitSeconds(
-            incomingData.estimatedRemainingWaitSeconds,
-            incomingData.estimatedRemainingWaitMinutes,
-          ),
-  };
-}
+
 export function isGenerationErrorNode(node2) {
   return isGenerationErrorStatus(node2.data?.status);
-}
-export function mergeRejectedCanvasCandidateAdditions(lastGood, candidate, deletionReplay) {
-  const replayedNodeIds = new Set(deletionReplay?.removedNodeIds ?? []);
-  const replayedEdgeIds = new Set(deletionReplay?.removedEdgeIds ?? []);
-  const durableNodes = lastGood.nodes.filter((node2) => !replayedNodeIds.has(node2.id));
-  const durableNodeIds = new Set(durableNodes.map((node2) => node2.id));
-  const durableEdges = lastGood.edges.filter(
-    (edge) =>
-      !replayedEdgeIds.has(edge.id) &&
-      durableNodeIds.has(edge.source) &&
-      durableNodeIds.has(edge.target),
-  );
-  const candidateNodeById = new Map();
-  for (const node2 of candidate.nodes) {
-    if (
-      !node2.id ||
-      replayedNodeIds.has(node2.id) ||
-      durableNodeIds.has(node2.id) ||
-      candidateNodeById.has(node2.id)
-    ) {
-      continue;
-    }
-    candidateNodeById.set(node2.id, node2);
-  }
-  const validCandidateNodeIds = new Set();
-  const invalidCandidateNodeIds = new Set();
-  for (const startId of candidateNodeById.keys()) {
-    if (validCandidateNodeIds.has(startId) || invalidCandidateNodeIds.has(startId)) continue;
-    const path2 = [];
-    const pathIndexes = new Map();
-    let currentId = startId;
-    let valid2 = false;
-    while (currentId) {
-      if (durableNodeIds.has(currentId) || validCandidateNodeIds.has(currentId)) {
-        valid2 = true;
-        break;
-      }
-      if (invalidCandidateNodeIds.has(currentId) || pathIndexes.has(currentId)) break;
-      const current2 = candidateNodeById.get(currentId);
-      if (!current2) break;
-      pathIndexes.set(currentId, path2.length);
-      path2.push(currentId);
-      if (!current2.parentId) {
-        valid2 = true;
-        break;
-      }
-      currentId = current2.parentId;
-    }
-    const destination = valid2 ? validCandidateNodeIds : invalidCandidateNodeIds;
-    for (const nodeId of path2) destination.add(nodeId);
-  }
-  const candidateAdditions = [...candidateNodeById.values()].filter((node2) =>
-    validCandidateNodeIds.has(node2.id),
-  );
-  const finalNodeIds = new Set([...durableNodeIds, ...validCandidateNodeIds]);
-  const durableEdgeIds = new Set(durableEdges.map((edge) => edge.id));
-  const admittedEdgeIds = new Set(durableEdgeIds);
-  const candidateEdges = candidate.edges.filter((edge) => {
-    if (
-      !edge.id ||
-      replayedEdgeIds.has(edge.id) ||
-      admittedEdgeIds.has(edge.id) ||
-      !finalNodeIds.has(edge.source) ||
-      !finalNodeIds.has(edge.target)
-    ) {
-      return false;
-    }
-    admittedEdgeIds.add(edge.id);
-    return true;
-  });
-  return {
-    canvas: {
-      ...lastGood,
-      nodes: [...durableNodes, ...candidateAdditions],
-      edges: [...durableEdges, ...candidateEdges],
-    },
-    preservedNodeCount: candidateAdditions.length,
-    preservedEdgeCount: candidateEdges.length,
-    replayedNodeCount: lastGood.nodes.length - durableNodes.length,
-    replayedEdgeCount: lastGood.edges.length - durableEdges.length,
-  };
 }

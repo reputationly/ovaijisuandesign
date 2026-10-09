@@ -1,35 +1,16 @@
 // draft-controller.js
 import { API_PATHS, editorDocSnapshot } from "../vendor.js";
-import { gatewayFetch, gatewayUrl } from "../infra/agent-ws-client.jsx";
-import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
-export const KEY_PREFIX = "hilo.chat.draft";
-const SCHEMA_VERSION = 1;
-export const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1e3;
-export const HOME_DRAFT_WORKSPACE = "__home__";
-export const HOME_DRAFT_SESSION_KEY = "__compose__";
-function cloneSelectedMediaModels(models) {
-  if (!models) return void 0;
-  return {
-    ...(models.image
-      ? {
-          image: [...models.image],
-        }
-      : {}),
-    ...(models.video
-      ? {
-          video: [...models.video],
-        }
-      : {}),
-    ...(models.audio
-      ? {
-          audio: [...models.audio],
-        }
-      : {}),
-  };
-}
-function storageKey(workspace, sessionKey) {
-  return `${KEY_PREFIX}:${workspace}:${sessionKey}`;
-}
+import {
+  clearDraft,
+  cloneSelectedMediaModels,
+  DRAFT_TTL_MS,
+  readEnvelope,
+  removeKey,
+  SCHEMA_VERSION,
+  storageKey,
+} from "./read-envelope.js";
+import { gatewayUrl } from "../infra/gateway-http-error.jsx";
+
 function isRecoverableAttachment(attachment) {
   return (
     attachment.status === "done" &&
@@ -37,12 +18,14 @@ function isRecoverableAttachment(attachment) {
     attachment.relativePath.length > 0
   );
 }
+
 function stripForPersist(attachment) {
   return {
     ...attachment,
     previewUrl: "",
   };
 }
+
 function hydrateAttachment(attachment, resolveUrl) {
   if (!attachment.relativePath) {
     return attachment;
@@ -53,54 +36,7 @@ function hydrateAttachment(attachment, resolveUrl) {
     previewUrl: url2 ?? "",
   };
 }
-export function readEnvelope(key2) {
-  let raw2;
-  try {
-    raw2 = localStorage.getItem(key2);
-  } catch {
-    return null;
-  }
-  if (!raw2) return null;
-  try {
-    const parsed = JSON.parse(raw2);
-    if (
-      !parsed ||
-      parsed.v !== SCHEMA_VERSION ||
-      typeof parsed.text !== "string" ||
-      typeof parsed.savedAt !== "number"
-    ) {
-      return null;
-    }
-    return {
-      v: SCHEMA_VERSION,
-      text: parsed.text,
-      ...editorDocSnapshot(parsed.editorDoc),
-      attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
-      savedAt: parsed.savedAt,
-      dropped: typeof parsed.dropped === "number" ? parsed.dropped : 0,
-      ...(parsed.selectedMediaModels && typeof parsed.selectedMediaModels === "object"
-        ? {
-            selectedMediaModels: cloneSelectedMediaModels(parsed.selectedMediaModels),
-          }
-        : {}),
-      ...(parsed.homeFillSource === "home_scene_query"
-        ? {
-            homeFillSource: parsed.homeFillSource,
-          }
-        : {}),
-    };
-  } catch {
-    return null;
-  }
-}
-export function removeKey(key2) {
-  try {
-    localStorage.removeItem(key2);
-    return true;
-  } catch {
-    return false;
-  }
-}
+
 function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
   const key2 = storageKey(workspace, sessionKey);
   const text2 = draft.text;
@@ -118,7 +54,9 @@ function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
     dropped,
     ...(draft.selectedMediaModels
       ? {
-          selectedMediaModels: cloneSelectedMediaModels(draft.selectedMediaModels),
+          selectedMediaModels: cloneSelectedMediaModels(
+            draft.selectedMediaModels,
+          ),
         }
       : {}),
     ...(draft.homeFillSource
@@ -134,7 +72,13 @@ function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
     return false;
   }
 }
-function loadDraft(workspace, sessionKey, now2 = Date.now(), resolveUrl = gatewayUrl) {
+
+function loadDraft(
+  workspace,
+  sessionKey,
+  now2 = Date.now(),
+  resolveUrl = gatewayUrl,
+) {
   const key2 = storageKey(workspace, sessionKey);
   const envelope = readEnvelope(key2);
   if (!envelope) {
@@ -148,10 +92,14 @@ function loadDraft(workspace, sessionKey, now2 = Date.now(), resolveUrl = gatewa
     draft: {
       text: envelope.text,
       ...editorDocSnapshot(envelope.editorDoc),
-      attachments: envelope.attachments.map((a2) => hydrateAttachment(a2, resolveUrl)),
+      attachments: envelope.attachments.map((a2) =>
+        hydrateAttachment(a2, resolveUrl),
+      ),
       ...(envelope.selectedMediaModels
         ? {
-            selectedMediaModels: cloneSelectedMediaModels(envelope.selectedMediaModels),
+            selectedMediaModels: cloneSelectedMediaModels(
+              envelope.selectedMediaModels,
+            ),
           }
         : {}),
       ...(envelope.homeFillSource
@@ -163,10 +111,9 @@ function loadDraft(workspace, sessionKey, now2 = Date.now(), resolveUrl = gatewa
     droppedCount: envelope.dropped,
   };
 }
-export function clearDraft(workspace, sessionKey) {
-  removeKey(storageKey(workspace, sessionKey));
-}
+
 const DRAFT_PERSIST_DEBOUNCE_MS = 400;
+
 function cloneDraft(draft) {
   return {
     text: draft.text,
@@ -176,7 +123,9 @@ function cloneDraft(draft) {
     })),
     ...(draft.selectedMediaModels
       ? {
-          selectedMediaModels: cloneSelectedMediaModels(draft.selectedMediaModels),
+          selectedMediaModels: cloneSelectedMediaModels(
+            draft.selectedMediaModels,
+          ),
         }
       : {}),
     ...(draft.homeFillSource
@@ -186,14 +135,21 @@ function cloneDraft(draft) {
       : {}),
   };
 }
+
 function isEmptyDraft(draft) {
   return !draft.text && draft.attachments.length === 0;
 }
+
 function isDurableEmpty(draft) {
   return !draft.text && !draft.attachments.some(isRecoverableAttachment);
 }
+
 export class DraftController {
-  constructor(workspace, resolveUrl = gatewayUrl, debounceMs = DRAFT_PERSIST_DEBOUNCE_MS) {
+  constructor(
+    workspace,
+    resolveUrl = gatewayUrl,
+    debounceMs = DRAFT_PERSIST_DEBOUNCE_MS,
+  ) {
     this.workspace = workspace;
     this.resolveUrl = resolveUrl;
     this.debounceMs = debounceMs;
@@ -347,153 +303,4 @@ export class DraftController {
       }
     }
   }
-}
-export const PENDING_HOME_HANDOFF_KEY = "hilo.home.pending-handoff";
-export function canApplyHomeComposerMutation(mounted, pendingHandoffOperationId) {
-  return mounted && pendingHandoffOperationId === null;
-}
-export function markHomeDraftPendingHandoff(operationId) {
-  try {
-    localStorage.setItem(
-      PENDING_HOME_HANDOFF_KEY,
-      JSON.stringify({
-        operationId,
-      }),
-    );
-  } catch {}
-}
-export function invalidatePendingHomeHandoff() {
-  try {
-    localStorage.removeItem(PENDING_HOME_HANDOFF_KEY);
-  } catch {}
-}
-export async function defaultUploadFile(file, options, logger = remoteToolLog) {
-  const form = new FormData();
-  form.append("file", file);
-  if (options?.fileType) form.append("fileType", options.fileType);
-  const res = await gatewayFetch(API_PATHS.upload, {
-    method: "POST",
-    body: form,
-  });
-  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-  const json2 = await res.json();
-  const localPath = json2.path ?? json2.relative;
-  if (localPath) {
-    try {
-      const cdnRes = await gatewayFetch("/api/files/upload-cdn", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          file_path: localPath,
-        }),
-      });
-      if (cdnRes.ok) {
-        const cdnJson = await cdnRes.json();
-        if (cdnJson.ok && cdnJson.url) {
-          return {
-            fileId: json2.id ?? "",
-            url: cdnJson.url,
-          };
-        }
-        logger.warn("uploadFile cdn failed", {
-          name: file.name,
-          local_path: localPath,
-          error: cdnJson.error ?? "unknown",
-        });
-      } else {
-        logger.warn("uploadFile cdn http error", {
-          name: file.name,
-          status: cdnRes.status,
-        });
-      }
-    } catch (cdnErr) {
-      logger.warn("uploadFile cdn exception", {
-        name: file.name,
-        error: cdnErr instanceof Error ? cdnErr.message : String(cdnErr),
-      });
-    }
-  }
-  return {
-    fileId: json2.id ?? json2.data?.fileId ?? "",
-    url: json2.url ?? json2.data?.url ?? "",
-  };
-}
-export function createRemoteToolSdk(opts) {
-  const logger = opts.logger ?? remoteToolLog;
-  const handlers2 = new Map();
-  const pending2 = new Map();
-  const sdk = {
-    toolId: opts.toolId,
-    locale: opts.locale,
-    track: (event, props) => {
-      if (opts.onTrack) opts.onTrack(event, props);
-      else console.debug("[RemoteTool] track:", event, props);
-    },
-    emit: (eventType, data2) => {
-      opts.onEmit?.(eventType, data2);
-      if (eventType === "gui:ready") {
-        const params = opts.getInitialParams?.();
-        if (params) deliver("params:inject", params);
-      }
-    },
-    on: (eventType, handler) => {
-      let set2 = handlers2.get(eventType);
-      if (!set2) {
-        set2 = new Set();
-        handlers2.set(eventType, set2);
-      }
-      const erased = handler;
-      set2.add(erased);
-      if (pending2.has(eventType)) {
-        try {
-          erased(pending2.get(eventType));
-        } catch (err) {
-          logger.error("handler error (late delivery)", {
-            tool_id: sdk.toolId,
-            event_type: eventType,
-            error: err instanceof Error ? err.message : String(err),
-          });
-        }
-      }
-      return () => {
-        handlers2.get(eventType)?.delete(erased);
-      };
-    },
-    uploadFile: (file, options) =>
-      (opts.onUploadFile ?? ((f2, o2) => defaultUploadFile(f2, o2, logger)))(file, options),
-    checkLogin: async () => (opts.onCheckLogin ? opts.onCheckLogin() : true),
-  };
-  function deliver(eventType, data2) {
-    pending2.set(eventType, data2);
-    const set2 = handlers2.get(eventType);
-    if (!set2 || set2.size === 0) return;
-    for (const handler of set2) {
-      try {
-        handler(data2);
-      } catch (err) {
-        logger.error("handler error", {
-          tool_id: sdk.toolId,
-          event_type: eventType,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    }
-    pending2.delete(eventType);
-  }
-  return {
-    sdk,
-    dispatchHostEvent: deliver,
-    setToolId: (toolId) => {
-      sdk.toolId = toolId;
-    },
-    setLocale: (locale) => {
-      sdk.locale = locale;
-    },
-    dispose: () => {
-      handlers2.clear();
-      pending2.clear();
-    },
-  };
 }

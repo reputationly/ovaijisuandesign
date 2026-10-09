@@ -1,6 +1,7 @@
 // ct.js
 import { y$6, d$3, h$5, c$4, n$1, o$4, r$5 } from "../../vendor.js";
 import { isDraft } from "../../infra/deep-freeze.js";
+import "../../infra/shallow-copy.js";
 import {
   B$6,
   J$5,

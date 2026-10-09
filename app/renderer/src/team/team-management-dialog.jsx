@@ -1,678 +1,242 @@
 // team-management-dialog.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, usePlatform, AlertTriangle, getRuntimeConfig, Plus, ArrowLeftRight, useQueryClient, useMutation, guardAccountSubmission, useStorage, Trans, Search, minCreditAmount, Copy, dispatchAccountSubmissionBlocked, CreditCard } from "../vendor.js";
-import { Select$1, teamQueryKeys, creditQueryKeys, useTeamAccount, useIsScrolling, useAccountSubmissionDecision } from "../assets/apply-asset-change.jsx";
-import { openExternalUrl, Tooltip, TooltipTrigger, Icon, TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
-import { Users, ReceiptText } from "../media-editing/parse-item.jsx";
-import { useMediaModels } from "../generation/use-resizable-width.js";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  Button$1,
-  TooltipContent,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-  Checkbox,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { getUserProtocolUrl, getTeamInvoiceUrl } from "../workspace/shortcut-categories.jsx";
+  ArrowLeftRight,
+  Copy,
+  CreditCard,
+  dedupedToast,
+  dispatchAccountSubmissionBlocked,
+  getRuntimeConfig,
+  guardAccountSubmission,
+  HILO_HUB_BIZ_LINE,
+  jsxRuntimeExports,
+  Plus,
+  reactExports,
+  Search,
+  Trans,
+  usePlatform,
+  useQuery,
+  useQueryClient,
+  useStorage,
+  useTranslation,
+} from "../vendor.js";
 import {
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Input3,
-} from "../infra/select-content.jsx";
+  MEMBERSHIP_GC_MS,
+  MEMBERSHIP_STALE_MS,
+  TEAM_INFO_REFRESH_MS,
+  useTeamCreditSummaryQuery,
+  useTeamDetailQuery,
+  useTeamInviteLinksFeedQuery,
+  useTeamMembersFeedQuery,
+  useTeamQuotaQuery,
+  useTeamTransactionsQuery,
+} from "./use-team-transactions-feed-query.jsx";
+import {
+  teamQueryKeys,
+  useAccountSubmissionDecision,
+} from "../assets/gateway-scope-provider.jsx";
+import { teamApi } from "./team-api.js";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { Skeleton } from "./use-wallet-query.jsx";
+import { TransferCreditForm } from "./transfer-credit-form.jsx";
 import {
-  TeamPanelStale,
-  TeamUnavailableAction,
-  formatCreditAmount,
-  getTeamReasonText,
-} from "./account-switcher-view.jsx";
-import {
-  BatchRemoveMembersDialog,
-  TeamHelpTip,
-  TeamManagementDetailLoading,
-  TeamManagementMemberLoading,
-  TeamManagementMemberTable,
-  TeamManagementQuotaLoading,
-  TeamManagementQuotaMetrics,
-  TeamMemberQuotaUsageCell,
-  TeamPanelEmpty,
-  creditTransferTermsKey,
-  describeTeamMutationError,
-  formatTeamMutationErrorSuffix,
-  hasMemberGovernanceAction,
-  isBatchRemoveEligible,
-  isCreditTransferTermsAccepted,
-  partitionSelection,
-  selectLoadedEligible,
-  toggleMemberSelection,
-} from "./batch-remove-members-dialog.jsx";
-import { CreditLedgerTable, getBillingModelDisplayName } from "./billing-model-display-labels.jsx";
-import {
-  DissolveTeamDialog,
-  InviteLinkHistoryPage,
-  InviteMembersPage,
-  isCreditTransferTarget,
-} from "./dissolve-team-dialog.jsx";
-import { InfiniteScrollContainer, Label } from "./infinite-scroll-container.jsx";
-import {
-  CreateInviteLinkPage,
   Page,
   PageContent,
   PageDescription,
   PageHeader,
   PageTitle,
   TeamDialogNavigationContext,
-} from "./past-team-members-panel.jsx";
-import { TeamCreditPage, TeamPanelError, TeamPanelGated } from "./team-credit-page.jsx";
+} from "./page-content.jsx";
 import {
-  Alert,
-  AlertDescription,
-  LeaveTeamDialog,
-  TeamDefaultQuotaPage,
-  TeamMemberSettingsPage,
-} from "./team-member-settings-page.jsx";
-import { accountScopeEquals } from "./team-provider.jsx";
-import { useMpSubscribeUrl } from "./use-credit-details.jsx";
+  Icon,
+  openExternalUrl,
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { TeamMemberUsagePage } from "./team-member-usage-page.jsx";
 import {
-  useTeamContextsQuery,
-  useTeamCreditSummaryQuery,
-  useTeamDetailQuery,
-  useTeamInviteLinksFeedQuery,
-  useTeamMemberDetailsQuery,
-  useTeamMembersFeedQuery,
-  useTeamQuotaQuery,
-  useTeamTransactionsFeedQuery,
-  useTeamTransactionsQuery,
-} from "./use-team-transactions-feed-query.jsx";
-const GROUP_CREDIT_TRANSFER_MODEL_KEY = "group_credit_transfer";
-function sumMemberCreditUsage(transactions) {
-  let total = 0n;
-  for (const transaction of transactions) {
-    if (transaction.modelKey === GROUP_CREDIT_TRANSFER_MODEL_KEY) continue;
-    const amount = BigInt(transaction.amount);
-    if (amount < 0n) total -= amount;
-    else if (transaction.category === "REFUND") total -= amount;
-  }
-  return (total > 0n ? total : 0n).toString();
-}
-function amountTone(amount) {
-  const value = BigInt(amount);
-  if (value > 0n) return "credit";
-  if (value < 0n) return "debit";
-  return "neutral";
-}
-function TeamMemberUsagePage({ scope, member, teamName, teamRemaining, onClose }) {
-  const { t: t2 } = useTranslation();
-  const { data: mediaModels } = useMediaModels();
-  const roleLabel = t2(`team.role.${member.role.toLowerCase()}`, {
-    defaultValue: member.role,
-  });
-  const transactionsQuery = useTeamTransactionsFeedQuery({
-    scope,
-    memberId: member.userId,
-    enabled: member.permissions.viewTransactions.allowed,
-  });
-  const transactions = transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-  const loadedPageCount = transactionsQuery.data?.pages.length ?? 0;
-  const lastLoadedPage = transactionsQuery.data?.pages.at(-1);
-  const pageRequestKey = `${member.userId}:${loadedPageCount}`;
-  const lastRequestedPageKeyRef = reactExports.useRef(null);
-  const transactionHistoryComplete =
-    member.permissions.viewTransactions.allowed &&
-    transactionsQuery.data !== void 0 &&
-    !transactionsQuery.isPending &&
-    !transactionsQuery.isError &&
-    !transactionsQuery.isFetchingNextPage &&
-    !transactionsQuery.isFetchNextPageError &&
-    lastLoadedPage?.hasMore === false;
-  const memberUsed = transactionHistoryComplete ? sumMemberCreditUsage(transactions) : null;
-  const memberRemaining =
-    member.quota.mode === "LIMITED"
-      ? member.quota.remaining !== null && teamRemaining !== null
-        ? minCreditAmount(member.quota.remaining, teamRemaining)
-        : null
-      : member.quota.mode === "UNLIMITED"
-        ? teamRemaining
-        : null;
-  const handleLoadMore = reactExports.useCallback(() => {
-    if (
-      !transactionsQuery.hasNextPage ||
-      transactionsQuery.isFetchingNextPage ||
-      transactionsQuery.isFetchNextPageError ||
-      transactionsQuery.isError ||
-      lastRequestedPageKeyRef.current === pageRequestKey
-    ) {
-      return void 0;
-    }
-    lastRequestedPageKeyRef.current = pageRequestKey;
-    return transactionsQuery.fetchNextPage();
-  }, [
-    pageRequestKey,
-    transactionsQuery.fetchNextPage,
-    transactionsQuery.hasNextPage,
-    transactionsQuery.isError,
-    transactionsQuery.isFetchNextPageError,
-    transactionsQuery.isFetchingNextPage,
-  ]);
-  reactExports.useEffect(() => {
-    if (transactionsQuery.isFetchNextPageError) {
-      lastRequestedPageKeyRef.current = null;
-    }
-  }, [transactionsQuery.isFetchNextPageError]);
-  reactExports.useEffect(() => {
-    void handleLoadMore();
-  }, [handleLoadMore]);
-  return (
-    <Page open={true} onOpenChange={(next2) => !next2 && onClose()}>
-      <PageContent
-        className="flex max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden p-0"
-        data-action-ui-id="team.management-member-usage-dialog"
-        data-member-id={member.userId}
-      >
-        <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
-          <PageTitle>
-            {t2("team.management.memberUsageTitle", {
-              defaultValue: "成员用量",
-            })}
-          </PageTitle>
-          <PageDescription>
-            {t2("team.management.memberUsageDescription", {
-              defaultValue: "查看 {{name}} 在“{{team}}”中的积分用量摘要。",
-              name: member.displayName,
-              team: teamName,
-            })}
-          </PageDescription>
-        </PageHeader>
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
-          <section className="space-y-1 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-            <p className="truncate text-sm font-medium text-foreground">{member.displayName}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {"UID "}
-              {member.userId}
-              {" · "}
-              {roleLabel}
-            </p>
-          </section>
-          <section className="space-y-2">
-            <h3 className="text-sm font-medium text-foreground">
-              {t2("team.management.memberCreditUsage", {
-                defaultValue: "成员积分概览",
-              })}
-            </h3>
-            <div
-              data-action-ui-id="team.management-member-usage-summary"
-              data-quota-mode={member.quota.mode}
-            >
-              <TeamManagementQuotaMetrics
-                metrics={[
-                  {
-                    id: "member-used",
-                    label: t2("team.management.memberUsedCredits", {
-                      defaultValue: "累计已用积分",
-                    }),
-                    value:
-                      memberUsed === null ? (
-                        <span className="text-muted-foreground">—</span>
-                      ) : (
-                        formatCreditAmount(memberUsed)
-                      ),
-                    tabular: true,
-                  },
-                  {
-                    id: "member-remaining",
-                    label: t2("team.management.currentQuota", {
-                      defaultValue: "当前可用积分",
-                    }),
-                    value:
-                      memberRemaining === null ? (
-                        <span className="text-muted-foreground">—</span>
-                      ) : (
-                        formatCreditAmount(memberRemaining)
-                      ),
-                    tabular: true,
-                  },
-                ]}
-              />
-            </div>
-            {member.permissions.viewUsage.allowed === false && memberUsed === null ? (
-              <p className="text-xs text-muted-foreground">
-                {t2("team.credit.usageUnavailableTooltip", {
-                  defaultValue: "用量数据暂不可获取",
-                })}
-              </p>
-            ) : null}
-          </section>
-          {member.permissions.viewTransactions.allowed ? (
-            <section className="space-y-2">
-              <h3 className="text-sm font-medium text-foreground">
-                {t2("team.management.memberTransactions", {
-                  defaultValue: "成员积分流水",
-                })}
-              </h3>
-              <InfiniteScrollContainer
-                className="h-72"
-                loadedBatchCount={loadedPageCount}
-                hasMore={Boolean(transactionsQuery.hasNextPage)}
-                isLoadingMore={transactionsQuery.isFetchingNextPage}
-                loadMoreError={transactionsQuery.isFetchNextPageError}
-                onLoadMore={handleLoadMore}
-                actionUiId="team.management-member-transactions-scroll"
-              >
-                <CreditLedgerTable
-                  rows={transactions.map((transaction) => ({
-                    id: transaction.transactionId,
-                    description: t2(`team.transaction.${transaction.category}`, {
-                      defaultValue: transaction.category,
-                      ...transaction.localizationParams,
-                    }),
-                    model: getBillingModelDisplayName(
-                      {
-                        billingType: transaction.billingType,
-                        modelKey: transaction.modelKey,
-                        modelDisplayName: transaction.modelDisplayName,
-                        mediaType: transaction.mediaType,
-                      },
-                      t2,
-                      mediaModels,
-                    ),
-                    createdAtMs: transaction.createdAtMs,
-                    amount: formatCreditAmount(transaction.amount),
-                    tone: amountTone(transaction.amount),
-                  }))}
-                  loading={transactionsQuery.isPending}
-                  error={transactionsQuery.isError && !transactionsQuery.data}
-                  scrollable={false}
-                  descriptionLabel={t2("team.credit.transaction", {
-                    defaultValue: "类型",
-                  })}
-                  modelLabel={t2("team.credit.model", {
-                    defaultValue: "模型",
-                  })}
-                  timeLabel={t2("team.credit.time", {
-                    defaultValue: "时间",
-                  })}
-                  amountLabel={t2("team.credit.amount", {
-                    defaultValue: "积分",
-                  })}
-                  emptyLabel={t2("team.credit.empty", {
-                    defaultValue: "暂无积分流水",
-                  })}
-                  errorLabel={t2("team.common.loadFailed", {
-                    defaultValue: "加载失败",
-                  })}
-                  retryLabel={t2("common.retry", {
-                    defaultValue: "重试",
-                  })}
-                  onRetry={() => void transactionsQuery.refetch()}
-                />
-              </InfiniteScrollContainer>
-            </section>
-          ) : null}
-        </div>
-      </PageContent>
-    </Page>
-  );
-}
-const INTEGER_RE = /^\d+$/;
-const MAX_SAFE_TRANSFER_CREDIT = BigInt(Number.MAX_SAFE_INTEGER);
-function validateTransferAmount(raw2, teamRemaining) {
-  const value = raw2.trim();
-  if (value.length === 0) return "empty";
-  if (!INTEGER_RE.test(value)) return "not_integer";
-  let amount;
-  try {
-    amount = BigInt(value);
-  } catch {
-    return "not_integer";
-  }
-  if (amount <= 0n) return "not_positive";
-  if (teamRemaining !== null) {
-    try {
-      if (amount > BigInt(teamRemaining)) return "exceeds_balance";
-    } catch {}
-  }
-  if (amount > MAX_SAFE_TRANSFER_CREDIT) return "exceeds_safe_integer";
-  return null;
-}
-class TeamScopeChangedError3 extends Error {}
-class TeamCreditTransferResultUnknownError extends Error {
-  constructor(intent) {
-    super("team_credit_transfer_result_unknown");
-    this.intent = intent;
-  }
-}
-class TeamCreditTransferRejectedError extends Error {
-  constructor(code2) {
-    super(code2);
-    this.code = code2;
-  }
-}
-function TransferCreditForm({
-  active: active2,
-  scope,
-  teamRemaining,
-  disabled: disabled2 = false,
-  autoFocus = false,
-  submitLabel,
-  targetPlaceholder,
-  onCancel,
-  onPendingChange,
-  onTransferred,
-  onScopeChanged,
-  selectPortalContainer,
-}) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
-  const {
-    acknowledgeCreditTransfer,
-    activeScope,
-    snapshot: snapshot2,
-    transferCredits,
-  } = useTeamAccount();
-  const amountInputId = reactExports.useId();
-  const targetSelectId = reactExports.useId();
-  const [targetGroupId, setTargetGroupId] = reactExports.useState("");
-  const [amountText, setAmountText] = reactExports.useState("");
-  const [actionError, setActionError] = reactExports.useState(null);
-  const [unknownIntent, setUnknownIntent] = reactExports.useState(null);
-  const contextsQuery = useTeamContextsQuery(snapshot2?.identityKey ?? null, active2);
-  const targets = reactExports.useMemo(
-    () =>
-      (contextsQuery.data?.items ?? []).filter((item) =>
-        isCreditTransferTarget(item, scope.groupId),
-      ),
-    [contextsQuery.data, scope.groupId],
-  );
-  reactExports.useEffect(() => {
-    if (active2) {
-      setTargetGroupId("");
-      setAmountText("");
-      setActionError(null);
-      setUnknownIntent(null);
-    }
-  }, [active2]);
-  const amountIssue = validateTransferAmount(amountText, teamRemaining);
-  const amountError =
-    amountText.trim().length === 0
-      ? null
-      : amountIssue === "not_integer" ||
-          amountIssue === "not_positive" ||
-          amountIssue === "exceeds_safe_integer"
-        ? t2("team.transferCredit.amountInvalid", {
-            defaultValue: "请输入大于 0 的整数积分。",
-          })
-        : amountIssue === "exceeds_balance"
-          ? t2("team.transferCredit.amountExceedsBalance", {
-              defaultValue: "超出团队可用积分。",
-            })
-          : null;
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!activeScope || !scope.membershipRevision || !accountScopeEquals(activeScope, scope)) {
-        throw new TeamScopeChangedError3();
-      }
-      const decision = guardAccountSubmission("team_credit_transfer");
-      if (!decision.allowed) throw new TeamScopeChangedError3();
-      if (decision.mode !== "CANONICAL" || !accountScopeEquals(decision.scope, scope)) {
-        dispatchAccountSubmissionBlocked({
-          kind: "team_credit_transfer",
-          reasonCode: "account_scope_changed",
-        });
-        throw new TeamScopeChangedError3();
-      }
-      const amount = amountText.trim();
-      const intent = {
-        sourceGroupId: scope.groupId,
-        expectedMembershipRevision: scope.membershipRevision,
-        targetGroupId,
-        credit: amount,
-      };
-      const result = await transferCredits(intent);
-      if (result.status === "unknown") {
-        throw new TeamCreditTransferResultUnknownError(intent);
-      }
-      if (result.status === "busy") {
-        throw new TeamCreditTransferRejectedError("team_switch_blocked");
-      }
-      if (result.status === "rejected") {
-        throw new TeamCreditTransferRejectedError(result.code);
-      }
-      return {
-        receipt: result.receipt,
-        intent,
-      };
+  creditQueryKeys,
+  useIsScrolling,
+  useTeamAccount,
+} from "../assets/credit-query-keys.jsx";
+import { ReceiptText, Users } from "../media-editing/package.jsx";
+import {
+  AlertDialog,
+  Button$1,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  TooltipContent,
+} from "../infra/dialog-content.jsx";
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  DialogDescription,
+  DialogTitle,
+} from "../infra/badge-variants.jsx";
+import { Checkbox } from "../infra/checkbox.jsx";
+import {
+  getTeamInvoiceUrl,
+  getUserProtocolUrl,
+} from "../workspace/shortcut-hint.jsx";
+import { Input3 } from "../infra/select-content.jsx";
+import {
+  formatCreditAmount,
+  getTeamReasonText,
+  TeamPanelStale,
+  TeamUnavailableAction,
+} from "./team-panel-stale.jsx";
+import { BatchRemoveMembersDialog } from "./batch-remove-members-dialog.jsx";
+import {
+  TeamHelpTip,
+  TeamManagementDetailLoading,
+  TeamManagementMemberLoading,
+  TeamManagementQuotaMetrics,
+  TeamPanelEmpty,
+} from "./team-management-detail-loading.jsx";
+import { TeamManagementMemberTable } from "./team-management-member-table.jsx";
+import { TeamMemberQuotaUsageCell } from "./team-member-quota-usage-cell.jsx";
+import { DissolveTeamDialog } from "./dissolve-team-dialog.jsx";
+import { InviteLinkHistoryPage } from "./invite-link-history-page.jsx";
+import { InviteMembersPage } from "./invite-members-page.jsx";
+import { InfiniteScrollContainer } from "./infinite-scroll-container.jsx";
+import { CreateInviteLinkPage } from "./create-invite-link-page.jsx";
+import { TeamCreditPage } from "./team-credit-page.jsx";
+import { TeamPanelError, TeamPanelGated } from "./team-panel-error.jsx";
+import { LeaveTeamDialog } from "./leave-team-dialog.jsx";
+import { TeamDefaultQuotaPage } from "./team-default-quota-page.jsx";
+import { TeamMemberSettingsPage } from "./team-member-settings-page.jsx";
+import { accountScopeEquals } from "./account-scope-equals.js";
+import { useMpSubscribeUrl } from "./hailuo-credit-row.jsx";
+
+function useTeamMemberDetailsQuery({ scope, enabled = true }) {
+  return useQuery({
+    queryKey: scope
+      ? teamQueryKeys.memberDetails(scope)
+      : ["team", "membership", "NO_SCOPE", "member-details"],
+    queryFn: ({ signal }) => {
+      if (!scope)
+        throw new Error("Team member details queried without an account scope");
+      return teamApi.listMemberDetails(scope, {
+        signal,
+      });
     },
-    // 资金写操作只由用户点击发起，不做客户端自动重试。
+    enabled: enabled && scope !== null && scope.membershipRevision !== null,
     retry: false,
-    onSuccess: ({ receipt, intent }) => {
-      setActionError(null);
-      setUnknownIntent(null);
-      const targetName =
-        targets.find((item) => item.groupId === targetGroupId)?.displayName ?? targetGroupId;
-      dedupedToast.success(
-        t2("team.transferCredit.succeeded", {
-          defaultValue: "已转移 {{amount}} 积分到「{{target}}」。",
-          amount: formatCreditAmount(receipt.transferredCredit),
-          target: targetName,
-        }),
-      );
-      void acknowledgeCreditTransfer({
-        ...intent,
-      }).catch(() => {});
-      void queryClient2.invalidateQueries({
-        queryKey: teamQueryKeys.membership(scope),
-      });
-      void queryClient2.invalidateQueries({
-        queryKey: creditQueryKeys.scope(scope),
-      });
-      void queryClient2.invalidateQueries({
-        queryKey: teamQueryKeys.contexts(scope.identityKey),
-      });
-      setTargetGroupId("");
-      setAmountText("");
-      onTransferred?.();
-    },
-    onError: (error) => {
-      if (error instanceof TeamScopeChangedError3) {
-        setActionError(null);
-        dedupedToast.error(
-          t2("team.management.scopeChanged", {
-            defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
-          }),
-        );
-        onScopeChanged?.();
-        return;
-      }
-      if (error instanceof TeamCreditTransferResultUnknownError) {
-        setUnknownIntent(error.intent);
-        setActionError(
-          t2("team.transferCredit.resultUnknown", {
-            defaultValue:
-              "转移结果尚未确认。为避免重复扣款，已禁止再次提交；请核对积分流水并联系支持处理。",
-          }),
-        );
-        return;
-      }
-      const detail = describeTeamMutationError(error);
-      const suffix = formatTeamMutationErrorSuffix(detail);
-      const primary = t2("team.transferCredit.failed", {
-        defaultValue: "积分转移失败，请稍后重试。",
-      });
-      const message2 = suffix ? `${primary}（${suffix}）` : primary;
-      setActionError(message2);
-    },
+    staleTime: MEMBERSHIP_STALE_MS,
+    gcTime: MEMBERSHIP_GC_MS,
+    refetchInterval: TEAM_INFO_REFRESH_MS,
   });
-  reactExports.useEffect(() => {
-    onPendingChange?.(mutation.isPending);
-  }, [mutation.isPending, onPendingChange]);
-  const targetsUnavailable = contextsQuery.isSuccess && targets.length === 0;
-  const canSubmit =
-    !disabled2 &&
-    !mutation.isPending &&
-    unknownIntent === null &&
-    targetGroupId.length > 0 &&
-    amountIssue === null &&
-    !targetsUnavailable;
+}
+
+const QUOTA_CELL_IDS = ["used", "remaining"];
+
+function TeamManagementQuotaLoading() {
+  const { t: t2 } = useTranslation();
   return (
-    <div className="grid gap-4" data-action-ui-id="team.transfer-credit-form">
-      <div className="grid gap-2">
-        <Label htmlFor={targetSelectId} className="text-muted-foreground font-normal">
-          {t2("team.transferCredit.targetLabel", {
-            defaultValue: "转入账号",
-          })}
-        </Label>
-        <Select$1
-          value={targetGroupId}
-          onValueChange={(value) => {
-            setTargetGroupId(value ?? "");
-            setActionError(null);
-          }}
-          disabled={
-            disabled2 || mutation.isPending || unknownIntent !== null || targets.length === 0
-          }
+    <div
+      role="status"
+      aria-busy="true"
+      className="grid overflow-hidden rounded-lg border border-border sm:grid-cols-2 sm:divide-x sm:divide-border"
+      data-action-ui-id="team.management-quota-loading"
+    >
+      <span className="sr-only">
+        {t2("common.loading", {
+          defaultValue: "加载中…",
+        })}
+      </span>
+      {QUOTA_CELL_IDS.map((cellId, index2) => (
+        <div
+          key={cellId}
+          className="space-y-2 border-b border-border p-3 last:border-b-0 sm:border-b-0"
         >
-          <SelectTrigger
-            id={targetSelectId}
-            className="w-full"
-            data-action-ui-id="team.transfer-credit-target"
-          >
-            <SelectValue
-              placeholder={
-                targetPlaceholder ??
-                t2("team.transferCredit.targetPlaceholder", {
-                  defaultValue: "选择转入账号",
-                })
-              }
-            />
-          </SelectTrigger>
-          <SelectContent
-            portalContainer={selectPortalContainer}
-            positionerClassName={selectPortalContainer ? "z-[70]" : void 0}
-          >
-            {targets.map((item) => (
-              <SelectItem key={item.groupId} value={item.groupId}>
-                <span className="flex min-w-0 items-baseline gap-1">
-                  <span className="truncate">{item.displayName}</span>
-                  <span className="shrink-0 text-muted-foreground">/</span>
-                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                    {item.groupId}
-                  </span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select$1>
-        {targetsUnavailable ? (
-          <p className="text-xs text-muted-foreground">
-            {t2("team.transferCredit.noTarget", {
-              defaultValue: "当前没有其他可转入的团队或个人空间。",
-            })}
-          </p>
-        ) : null}
-        {contextsQuery.isError ? (
-          <p className="text-xs text-muted-foreground">
-            {getTeamReasonText(t2, "temporarily_unavailable")}
-          </p>
-        ) : null}
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor={amountInputId} className="text-muted-foreground font-normal">
-          {teamRemaining === null
-            ? t2("team.transferCredit.amountLabel", {
-                defaultValue: "转移数量",
-              })
-            : t2("team.transferCredit.amountLabelWithBalance", {
-                defaultValue: "转移数量（团队可用 {{balance}}）",
-                balance: formatCreditAmount(teamRemaining),
-              })}
-        </Label>
-        <Input3
-          id={amountInputId}
-          value={amountText}
-          inputMode="numeric"
-          autoComplete="off"
-          autoFocus={autoFocus}
-          disabled={disabled2 || mutation.isPending || unknownIntent !== null}
-          onChange={(event) => {
-            setAmountText(event.target.value);
-            setActionError(null);
-          }}
-          data-action-ui-id="team.transfer-credit-amount"
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && canSubmit) {
-              event.preventDefault();
-              mutation.mutate();
+          <Skeleton className="h-2.5 w-20 rounded-sm" />
+          <Skeleton
+            className={
+              index2 === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
             }
-          }}
-        />
-        {amountError ? (
-          <p
-            className="text-xs text-destructive"
-            data-action-ui-id="team.transfer-credit-amount-error"
-          >
-            {amountError}
-          </p>
-        ) : null}
-      </div>
-      {actionError ? (
-        <Alert data-action-ui-id="team.transfer-credit-error">
-          <AlertTriangle aria-hidden={true} />
-          <AlertDescription className="whitespace-pre-wrap break-words text-foreground">
-            {actionError}
-          </AlertDescription>
-        </Alert>
-      ) : null}
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        {onCancel ? (
-          <Button$1
-            type="button"
-            variant="outline"
-            disabled={mutation.isPending}
-            onClick={onCancel}
-          >
-            {t2("common.cancel", {
-              defaultValue: "取消",
-            })}
-          </Button$1>
-        ) : null}
-        <Button$1
-          type="button"
-          loading={mutation.isPending}
-          disabled={!canSubmit}
-          onClick={() => {
-            if (!canSubmit) return;
-            mutation.mutate();
-          }}
-          data-action-ui-id="team.transfer-credit-confirm"
-        >
-          {submitLabel ??
-            t2("team.transferCredit.confirm", {
-              defaultValue: "确认转移",
-            })}
-        </Button$1>
-      </div>
+          />
+        </div>
+      ))}
     </div>
   );
 }
-function TransferCreditPage({ open, scope, teamName, teamRemaining, onOpenChange, onTransferred }) {
+
+const ANONYMOUS_USER_KEY = "anonymous";
+
+const PERSONAL_SCENARIO_KEY = "personal";
+
+function creditTransferTermsKey(params) {
+  const userKey = params.userId?.trim() || ANONYMOUS_USER_KEY;
+  const scenarioKey = params.groupId?.trim() || PERSONAL_SCENARIO_KEY;
+  return `${userKey}:${HILO_HUB_BIZ_LINE}:${scenarioKey}`;
+}
+
+function isCreditTransferTermsAccepted(accepted, key2) {
+  if (accepted === void 0 || typeof accepted === "boolean") return false;
+  return accepted[key2] !== void 0;
+}
+
+function isBatchRemoveEligible(member) {
+  return member.permissions.removeMember.allowed;
+}
+
+function toggleMemberSelection(selected2, userId, nextSelected) {
+  const copy2 = new Set(selected2);
+  if (nextSelected) copy2.add(userId);
+  else copy2.delete(userId);
+  return copy2;
+}
+
+function selectLoadedEligible(members, eligible) {
+  return new Set(members.filter(eligible).map((member) => member.userId));
+}
+
+function partitionSelection(members, selectedIds, eligible) {
+  const selectedEligible = [];
+  const selectedIneligible = [];
+  for (const member of members) {
+    if (!selectedIds.has(member.userId)) continue;
+    if (eligible(member)) selectedEligible.push(member);
+    else selectedIneligible.push(member);
+  }
+  return {
+    selectedEligible,
+    selectedIneligible,
+  };
+}
+
+function hasMemberGovernanceAction(actions) {
+  return actions.changeRole || actions.changeQuota || actions.removeMember;
+}
+
+function TransferCreditPage({
+  open,
+  scope,
+  teamName,
+  teamRemaining,
+  onOpenChange,
+  onTransferred,
+}) {
   const { t: t2 } = useTranslation();
   const [transferPending, setTransferPending] = reactExports.useState(false);
-  const [dialogContentElement, setDialogContentElement] = reactExports.useState(null);
+  const [dialogContentElement, setDialogContentElement] =
+    reactExports.useState(null);
   return (
-    <Page open={open} onOpenChange={(nextOpen) => !transferPending && onOpenChange(nextOpen)}>
-      <PageContent ref={setDialogContentElement} data-action-ui-id="team.transfer-credit-dialog">
+    <Page
+      open={open}
+      onOpenChange={(nextOpen) => !transferPending && onOpenChange(nextOpen)}
+    >
+      <PageContent
+        ref={setDialogContentElement}
+        data-action-ui-id="team.transfer-credit-dialog"
+      >
         <PageHeader>
           <PageTitle>
             {t2("team.transferCredit.title", {
@@ -705,8 +269,15 @@ function TransferCreditPage({ open, scope, teamName, teamRemaining, onOpenChange
     </Page>
   );
 }
+
 const MEMBER_SEARCH_DEBOUNCE_MS = 250;
-export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTransferSucceeded }) {
+
+export function TeamManagementDialog({
+  open,
+  scope,
+  onOpenChange,
+  onDissolveTransferSucceeded,
+}) {
   const { t: t2 } = useTranslation();
   const runtimeConfig = getRuntimeConfig();
   const isOverseas = runtimeConfig.region === "overseas";
@@ -715,7 +286,8 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   const subscribeUrl = useMpSubscribeUrl();
   const purchasePendingRef = reactExports.useRef(false);
   const [purchasePending, setPurchasePending] = reactExports.useState(false);
-  const [showTransferTermsDialog, setShowTransferTermsDialog] = reactExports.useState(false);
+  const [showTransferTermsDialog, setShowTransferTermsDialog] =
+    reactExports.useState(false);
   const [globalConfig, , setGlobalConfigAsync] = useStorage("global.config");
   const [globalUser] = useStorage("global.user");
   const { accountDataVisible, contract } = useTeamAccount();
@@ -728,7 +300,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   const detailQuery = useTeamDetailQuery(scope, open && gateOpen);
   const [searchInput, setSearchInput] = reactExports.useState("");
   const [keyword2, setKeyword] = reactExports.useState("");
-  const [selectedMemberIds, setSelectedMemberIds] = reactExports.useState(() => new Set());
+  const [selectedMemberIds, setSelectedMemberIds] = reactExports.useState(
+    () => new Set(),
+  );
   const [batchRemoveOpen, setBatchRemoveOpen] = reactExports.useState(false);
   const [dissolveTeamOpen, setDissolveTeamOpen] = reactExports.useState(false);
   const [leaveTeamOpen, setLeaveTeamOpen] = reactExports.useState(false);
@@ -742,7 +316,10 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
     subpageRef.current = page;
     setSubpage(page);
   }, []);
-  const closeSubpage = reactExports.useCallback(() => navigateSubpage(null), [navigateSubpage]);
+  const closeSubpage = reactExports.useCallback(
+    () => navigateSubpage(null),
+    [navigateSubpage],
+  );
   const settingsMember = subpage?.type === "settings" ? subpage.member : null;
   const usageMember = subpage?.type === "usage" ? subpage.member : null;
   const defaultQuotaOpen = subpage?.type === "quota";
@@ -766,7 +343,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
     userId: globalUser.userID,
     groupId: scope.groupId,
   });
-  const viewMembers = Boolean(!isMemberView && detailQuery.data?.permissions.viewMembers.allowed);
+  const viewMembers = Boolean(
+    !isMemberView && detailQuery.data?.permissions.viewMembers.allowed,
+  );
   const mutationOpen = contract?.gates.teamMutation === true;
   const viewInviteLinks = Boolean(
     !isMemberView &&
@@ -790,7 +369,10 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   });
   const quotaQuery = useTeamQuotaQuery(
     scope,
-    open && gateOpen && billingOpen && Boolean(detailQuery.data && !isMemberView),
+    open &&
+      gateOpen &&
+      billingOpen &&
+      Boolean(detailQuery.data && !isMemberView),
   );
   const memberCreditQuery = useTeamCreditSummaryQuery(
     scope,
@@ -803,7 +385,12 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   });
   const memberDetailsQuery = useTeamMemberDetailsQuery({
     scope,
-    enabled: open && gateOpen && billingOpen && Boolean(detailQuery.data) && !isMemberView,
+    enabled:
+      open &&
+      gateOpen &&
+      billingOpen &&
+      Boolean(detailQuery.data) &&
+      !isMemberView,
   });
   const memberUsageByUserId = reactExports.useMemo(() => {
     const map3 = new Map();
@@ -823,7 +410,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   const isScrolling = useIsScrolling({
     scrollRef,
   });
-  const rows = (membersQuery.data?.pages.flatMap((page) => page.items) ?? []).map((member) => ({
+  const rows = (
+    membersQuery.data?.pages.flatMap((page) => page.items) ?? []
+  ).map((member) => ({
     ...member,
     displayName: memberNameByUserId.get(member.userId) ?? member.displayName,
   }));
@@ -832,16 +421,20 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   const settingsMemberLive =
     settingsMember == null
       ? null
-      : (rows.find((member) => member.userId === settingsMember.userId) ?? settingsMember);
+      : (rows.find((member) => member.userId === settingsMember.userId) ??
+        settingsMember);
   const usageMemberLive =
     usageMember == null
       ? null
-      : (rows.find((member) => member.userId === usageMember.userId) ?? usageMember);
-  const inviteLinks = inviteLinksQuery.data?.pages.flatMap((page) => page.items) ?? [];
+      : (rows.find((member) => member.userId === usageMember.userId) ??
+        usageMember);
+  const inviteLinks =
+    inviteLinksQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const canManageAnyMember = rows.some((member) =>
     hasMemberGovernanceAction({
       changeRole: member.permissions.changeRole.allowed,
-      changeQuota: mutationOpen && billingOpen && member.permissions.changeQuota.allowed,
+      changeQuota:
+        mutationOpen && billingOpen && member.permissions.changeQuota.allowed,
       removeMember: member.permissions.removeMember.allowed,
     }),
   );
@@ -857,7 +450,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
   const allLoadedSelected =
     loadedSelectableIds.size > 0 &&
     [...loadedSelectableIds].every((id2) => selectedMemberIds.has(id2));
-  const someLoadedSelected = [...loadedSelectableIds].some((id2) => selectedMemberIds.has(id2));
+  const someLoadedSelected = [...loadedSelectableIds].some((id2) =>
+    selectedMemberIds.has(id2),
+  );
   const canCreateInviteLink = Boolean(
     mutationOpen && detailQuery.data?.permissions.createInviteLink.allowed,
   );
@@ -881,7 +476,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
     quotaQuery.data?.teamRemaining ??
     null;
   const canPurchase = Boolean(
-    gateOpen && billingOpen && detailQuery.data?.permissions.purchaseCredits.allowed,
+    gateOpen &&
+    billingOpen &&
+    detailQuery.data?.permissions.purchaseCredits.allowed,
   );
   const checkoutDecision = useAccountSubmissionDecision("team_checkout");
   const checkoutScopeMatches = Boolean(
@@ -902,7 +499,10 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
     if (purchasePendingRef.current || !subscribeUrl) return;
     const decision = guardAccountSubmission("team_checkout");
     if (!decision.allowed) return;
-    if (decision.mode !== "CANONICAL" || !accountScopeEquals(decision.scope, scope)) {
+    if (
+      decision.mode !== "CANONICAL" ||
+      !accountScopeEquals(decision.scope, scope)
+    ) {
       dispatchAccountSubmissionBlocked({
         kind: "team_checkout",
         reasonCode: "account_scope_changed",
@@ -1100,7 +700,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                             defaultValue: "Group ID",
                           })}
                         </span>
-                        <code className="truncate font-mono text-foreground">{scope.groupId}</code>
+                        <code className="truncate font-mono text-foreground">
+                          {scope.groupId}
+                        </code>
                         <Button$1
                           type="button"
                           variant="ghost"
@@ -1128,8 +730,12 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                     : "flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 py-5 sm:px-6"
                 }
               >
-                {!gateOpen ? <TeamPanelGated reasonCode="team_management_disabled" /> : null}
-                {gateOpen && detailQuery.isPending ? <TeamManagementDetailLoading /> : null}
+                {!gateOpen ? (
+                  <TeamPanelGated reasonCode="team_management_disabled" />
+                ) : null}
+                {gateOpen && detailQuery.isPending ? (
+                  <TeamManagementDetailLoading />
+                ) : null}
                 {gateOpen && detailQuery.isError && !detailQuery.data ? (
                   <TeamPanelError
                     title={t2("team.management.teamInfoLoadFailed", {
@@ -1145,7 +751,11 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                   <>
                     {billingOpen ? (
                       <section
-                        className={currentTab === "credits" ? "shrink-0 space-y-4" : "hidden"}
+                        className={
+                          currentTab === "credits"
+                            ? "shrink-0 space-y-4"
+                            : "hidden"
+                        }
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="min-w-0 flex-1">
@@ -1163,7 +773,8 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                             {isMemberView ? (
                               <p className="mt-1 text-xs text-muted-foreground">
                                 {t2("team.management.memberQuotaDescription", {
-                                  defaultValue: "仅展示你的个人额度和使用情况。",
+                                  defaultValue:
+                                    "仅展示你的个人额度和使用情况。",
                                 })}
                               </p>
                             ) : null}
@@ -1244,18 +855,27 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                         </div>
                         {isMemberView ? (
                           <>
-                            {memberCreditQuery.isPending ? <TeamManagementQuotaLoading /> : null}
-                            {memberCreditQuery.isError && !memberCreditQuery.data ? (
+                            {memberCreditQuery.isPending ? (
+                              <TeamManagementQuotaLoading />
+                            ) : null}
+                            {memberCreditQuery.isError &&
+                            !memberCreditQuery.data ? (
                               <TeamPanelError
-                                title={t2("team.management.memberQuotaLoadFailed", {
-                                  defaultValue: "个人额度加载失败",
-                                })}
+                                title={t2(
+                                  "team.management.memberQuotaLoadFailed",
+                                  {
+                                    defaultValue: "个人额度加载失败",
+                                  },
+                                )}
                                 onRetry={() => void memberCreditQuery.refetch()}
                               />
                             ) : null}
                             {memberCreditQuery.data &&
-                            (memberCreditQuery.isRefetchError || memberCreditQuery.isError) ? (
-                              <TeamPanelStale onRetry={() => void memberCreditQuery.refetch()} />
+                            (memberCreditQuery.isRefetchError ||
+                              memberCreditQuery.isError) ? (
+                              <TeamPanelStale
+                                onRetry={() => void memberCreditQuery.refetch()}
+                              />
                             ) : null}
                             {memberCreditQuery.data ? (
                               <div data-action-ui-id="team.management-member-quota">
@@ -1267,51 +887,79 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                         defaultValue: "剩余额度",
                                       }),
                                       value:
-                                        memberCreditQuery.data.mode === "UNLIMITED"
-                                          ? formatCreditAmount(memberCreditQuery.data.teamRemaining)
-                                          : memberCreditQuery.data.mode === "LIMITED" &&
-                                              memberCreditQuery.data.memberRemaining !== null
+                                        memberCreditQuery.data.mode ===
+                                        "UNLIMITED"
+                                          ? formatCreditAmount(
+                                              memberCreditQuery.data
+                                                .teamRemaining,
+                                            )
+                                          : memberCreditQuery.data.mode ===
+                                                "LIMITED" &&
+                                              memberCreditQuery.data
+                                                .memberRemaining !== null
                                             ? formatCreditAmount(
-                                                memberCreditQuery.data.memberRemaining,
+                                                memberCreditQuery.data
+                                                  .memberRemaining,
                                               )
                                             : "—",
                                       tabular: true,
                                     },
-                                    ...(memberCreditQuery.data.mode === "UNLIMITED"
+                                    ...(memberCreditQuery.data.mode ===
+                                    "UNLIMITED"
                                       ? []
                                       : [
                                           {
                                             id: "member-usage",
-                                            label: t2("team.credit.quotaUsage", {
-                                              defaultValue: "额度使用",
-                                            }),
+                                            label: t2(
+                                              "team.credit.quotaUsage",
+                                              {
+                                                defaultValue: "额度使用",
+                                              },
+                                            ),
                                             value:
-                                              memberCreditQuery.data.mode === "LIMITED" &&
-                                              memberCreditQuery.data.memberLimit !== null &&
-                                              memberCreditQuery.data.memberUsed !== null
-                                                ? t2("team.credit.quotaUsageValue", {
-                                                    defaultValue:
-                                                      "已用 {{used}} / 个人限额 {{limit}}",
-                                                    used: formatCreditAmount(
-                                                      memberCreditQuery.data.memberUsed,
-                                                    ),
-                                                    limit: formatCreditAmount(
-                                                      memberCreditQuery.data.memberLimit,
-                                                    ),
-                                                  })
-                                                : memberCreditQuery.data.mode === "LIMITED" &&
-                                                    memberCreditQuery.data.memberLimit !== null
+                                              memberCreditQuery.data.mode ===
+                                                "LIMITED" &&
+                                              memberCreditQuery.data
+                                                .memberLimit !== null &&
+                                              memberCreditQuery.data
+                                                .memberUsed !== null
+                                                ? t2(
+                                                    "team.credit.quotaUsageValue",
+                                                    {
+                                                      defaultValue:
+                                                        "已用 {{used}} / 个人限额 {{limit}}",
+                                                      used: formatCreditAmount(
+                                                        memberCreditQuery.data
+                                                          .memberUsed,
+                                                      ),
+                                                      limit: formatCreditAmount(
+                                                        memberCreditQuery.data
+                                                          .memberLimit,
+                                                      ),
+                                                    },
+                                                  )
+                                                : memberCreditQuery.data
+                                                      .mode === "LIMITED" &&
+                                                    memberCreditQuery.data
+                                                      .memberLimit !== null
                                                   ? t2(
                                                       "team.credit.usageUnavailableWithAllowance",
                                                       {
                                                         defaultValue:
                                                           "{{allowance}}，用量数据暂不可获取",
-                                                        allowance: t2("team.credit.personalLimit", {
-                                                          defaultValue: "限额 {{limit}}",
-                                                          limit: formatCreditAmount(
-                                                            memberCreditQuery.data.memberLimit,
-                                                          ),
-                                                        }),
+                                                        allowance: t2(
+                                                          "team.credit.personalLimit",
+                                                          {
+                                                            defaultValue:
+                                                              "限额 {{limit}}",
+                                                            limit:
+                                                              formatCreditAmount(
+                                                                memberCreditQuery
+                                                                  .data
+                                                                  .memberLimit,
+                                                              ),
+                                                          },
+                                                        ),
                                                       },
                                                     )
                                                   : "—",
@@ -1325,7 +973,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                           </>
                         ) : (
                           <>
-                            {quotaQuery.isPending ? <TeamManagementQuotaLoading /> : null}
+                            {quotaQuery.isPending ? (
+                              <TeamManagementQuotaLoading />
+                            ) : null}
                             {quotaQuery.isError && !quotaQuery.data ? (
                               <TeamPanelError
                                 title={t2("team.management.quotaLoadFailed", {
@@ -1335,8 +985,11 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                               />
                             ) : null}
                             {quotaQuery.data &&
-                            (quotaQuery.isRefetchError || quotaQuery.isError) ? (
-                              <TeamPanelStale onRetry={() => void quotaQuery.refetch()} />
+                            (quotaQuery.isRefetchError ||
+                              quotaQuery.isError) ? (
+                              <TeamPanelStale
+                                onRetry={() => void quotaQuery.refetch()}
+                              />
                             ) : null}
                             {quotaQuery.data ? (
                               <TeamManagementQuotaMetrics
@@ -1347,16 +1000,26 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                       defaultValue: "团队已用积分",
                                     }),
                                     value:
-                                      groupTransactionsSummaryQuery.data?.groupUsed !== null &&
-                                      groupTransactionsSummaryQuery.data?.groupUsed !== void 0 ? (
+                                      groupTransactionsSummaryQuery.data
+                                        ?.groupUsed !== null &&
+                                      groupTransactionsSummaryQuery.data
+                                        ?.groupUsed !== void 0 ? (
                                         formatCreditAmount(
-                                          groupTransactionsSummaryQuery.data.groupUsed,
+                                          groupTransactionsSummaryQuery.data
+                                            .groupUsed,
                                         )
-                                      ) : detailQuery.data.creditSummary?.teamUsed !== null &&
-                                        detailQuery.data.creditSummary?.teamUsed !== void 0 ? (
-                                        formatCreditAmount(detailQuery.data.creditSummary.teamUsed)
+                                      ) : detailQuery.data.creditSummary
+                                          ?.teamUsed !== null &&
+                                        detailQuery.data.creditSummary
+                                          ?.teamUsed !== void 0 ? (
+                                        formatCreditAmount(
+                                          detailQuery.data.creditSummary
+                                            .teamUsed,
+                                        )
                                       ) : (
-                                        <span className="text-muted-foreground">—</span>
+                                        <span className="text-muted-foreground">
+                                          —
+                                        </span>
                                       ),
                                     tabular: true,
                                   },
@@ -1365,7 +1028,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                     label: t2("team.credit.teamRemaining", {
                                       defaultValue: "团队剩余积分",
                                     }),
-                                    value: formatCreditAmount(quotaQuery.data.teamRemaining),
+                                    value: formatCreditAmount(
+                                      quotaQuery.data.teamRemaining,
+                                    ),
                                     tabular: true,
                                     actionPlacement: "label",
                                     action:
@@ -1378,9 +1043,12 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                                   type="button"
                                                   variant="ghost"
                                                   size="icon-xs"
-                                                  aria-label={t2("team.transferCredit.entry", {
-                                                    defaultValue: "转移积分",
-                                                  })}
+                                                  aria-label={t2(
+                                                    "team.transferCredit.entry",
+                                                    {
+                                                      defaultValue: "转移积分",
+                                                    },
+                                                  )}
                                                   onClick={() => {
                                                     if (
                                                       isCreditTransferTermsAccepted(
@@ -1392,7 +1060,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                                         type: "transfer",
                                                       });
                                                     } else {
-                                                      setShowTransferTermsDialog(true);
+                                                      setShowTransferTermsDialog(
+                                                        true,
+                                                      );
                                                     }
                                                   }}
                                                   data-action-ui-id="team.management-transfer-credit"
@@ -1425,7 +1095,11 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                       </section>
                     ) : null}
                     <section
-                      className={isMemberView ? "hidden" : "flex min-h-0 flex-1 flex-col gap-2"}
+                      className={
+                        isMemberView
+                          ? "hidden"
+                          : "flex min-h-0 flex-1 flex-col gap-2"
+                      }
                       aria-hidden={isMemberView || void 0}
                     >
                       <div
@@ -1444,15 +1118,29 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                         {viewMembers ? (
                           <Input3
                             value={searchInput}
-                            onChange={(event) => setSearchInput(event.target.value)}
-                            startIcon={<Icon icon={Search} size="sm" aria-hidden={true} />}
+                            onChange={(event) =>
+                              setSearchInput(event.target.value)
+                            }
+                            startIcon={
+                              <Icon
+                                icon={Search}
+                                size="sm"
+                                aria-hidden={true}
+                              />
+                            }
                             className="ml-auto w-full sm:w-56"
-                            placeholder={t2("team.management.searchPlaceholder", {
-                              defaultValue: "搜索姓名或 UID",
-                            })}
-                            aria-label={t2("team.management.searchPlaceholder", {
-                              defaultValue: "搜索姓名或 UID",
-                            })}
+                            placeholder={t2(
+                              "team.management.searchPlaceholder",
+                              {
+                                defaultValue: "搜索姓名或 UID",
+                              },
+                            )}
+                            aria-label={t2(
+                              "team.management.searchPlaceholder",
+                              {
+                                defaultValue: "搜索姓名或 UID",
+                              },
+                            )}
                             data-action-ui-id="team.management-member-search"
                           />
                         ) : null}
@@ -1473,7 +1161,11 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                   }
                                   data-action-ui-id="team.management-invite"
                                 >
-                                  <Icon icon={Plus} size="xs" aria-hidden={true} />
+                                  <Icon
+                                    icon={Plus}
+                                    size="xs"
+                                    aria-hidden={true}
+                                  />
                                   {t2("team.management.invite", {
                                     defaultValue: "邀请成员",
                                   })}
@@ -1496,7 +1188,8 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                               </Button$1>
                             </div>
                           ) : null}
-                          {currentTab === "credits" && canConfigureDefaultQuota ? (
+                          {currentTab === "credits" &&
+                          canConfigureDefaultQuota ? (
                             <Button$1
                               type="button"
                               variant="outline"
@@ -1513,7 +1206,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                           ) : null}
                         </div>
                       </div>
-                      {viewMembers && selectionEnabled && selectedMemberIds.size > 0 ? (
+                      {viewMembers &&
+                      selectionEnabled &&
+                      selectedMemberIds.size > 0 ? (
                         <div
                           className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2"
                           data-action-ui-id="team.management-batch-toolbar"
@@ -1527,9 +1222,12 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                               label={t2("team.management.selectionHelp", {
                                 defaultValue: "选择说明",
                               })}
-                              content={t2("team.management.currentPageSelection", {
-                                defaultValue: "全选仅作用于已加载成员。",
-                              })}
+                              content={t2(
+                                "team.management.currentPageSelection",
+                                {
+                                  defaultValue: "全选仅作用于已加载成员。",
+                                },
+                              )}
                             />
                           </span>
                           {removePartition.selectedEligible.length > 0 ? (
@@ -1550,17 +1248,21 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                       {!viewMembers ? (
                         <TeamPanelGated
                           reasonCode={
-                            detailQuery.data.permissions.viewMembers.reasonCode ??
-                            "permission_denied"
+                            detailQuery.data.permissions.viewMembers
+                              .reasonCode ?? "permission_denied"
                           }
                         />
                       ) : null}
                       {viewMembers &&
                       (membersQuery.isPending ||
-                        (membersQuery.isSuccess && rows.length > 0 && !memberNamesReady)) ? (
+                        (membersQuery.isSuccess &&
+                          rows.length > 0 &&
+                          !memberNamesReady)) ? (
                         <TeamManagementMemberLoading />
                       ) : null}
-                      {viewMembers && membersQuery.isError && !membersQuery.data ? (
+                      {viewMembers &&
+                      membersQuery.isError &&
+                      !membersQuery.data ? (
                         <TeamPanelError
                           title={t2("team.management.membersLoadFailed", {
                             defaultValue: "成员列表加载失败",
@@ -1571,9 +1273,13 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                       {viewMembers &&
                       membersQuery.data &&
                       (membersQuery.isRefetchError || membersQuery.isError) ? (
-                        <TeamPanelStale onRetry={() => void membersQuery.refetch()} />
+                        <TeamPanelStale
+                          onRetry={() => void membersQuery.refetch()}
+                        />
                       ) : null}
-                      {viewMembers && membersQuery.isSuccess && rows.length === 0 ? (
+                      {viewMembers &&
+                      membersQuery.isSuccess &&
+                      rows.length === 0 ? (
                         <TeamPanelEmpty
                           title={t2("team.management.noMembers", {
                             defaultValue: "没有匹配的成员",
@@ -1583,7 +1289,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                       {viewMembers && memberNamesReady && rows.length > 0 ? (
                         <InfiniteScrollContainer
                           className="min-h-0 flex-1"
-                          loadedBatchCount={membersQuery.data?.pages.length ?? 0}
+                          loadedBatchCount={
+                            membersQuery.data?.pages.length ?? 0
+                          }
                           hasMore={Boolean(membersQuery.hasNextPage)}
                           isLoadingMore={membersQuery.isFetchingNextPage}
                           loadMoreError={membersQuery.isFetchNextPageError}
@@ -1596,15 +1304,23 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                               selectionEnabled ? (
                                 <Checkbox
                                   checked={allLoadedSelected}
-                                  indeterminate={!allLoadedSelected && someLoadedSelected}
-                                  aria-label={t2("team.management.selectCurrentPage", {
-                                    defaultValue: "选择全部已加载成员",
-                                  })}
+                                  indeterminate={
+                                    !allLoadedSelected && someLoadedSelected
+                                  }
+                                  aria-label={t2(
+                                    "team.management.selectCurrentPage",
+                                    {
+                                      defaultValue: "选择全部已加载成员",
+                                    },
+                                  )}
                                   data-action-ui-id="team.management-select-loaded"
                                   onCheckedChange={(checked) => {
                                     setSelectedMemberIds(
                                       checked === true
-                                        ? selectLoadedEligible(rows, isBatchRemoveEligible)
+                                        ? selectLoadedEligible(
+                                            rows,
+                                            isBatchRemoveEligible,
+                                          )
                                         : new Set(),
                                     );
                                   }}
@@ -1625,13 +1341,19 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                   defaultValue: "当前可用积分",
                                 })}
                                 <TeamHelpTip
-                                  label={t2("team.management.currentQuotaHelp", {
-                                    defaultValue: "当前可用积分说明",
-                                  })}
-                                  content={t2("team.management.currentQuotaHelpContent", {
-                                    defaultValue:
-                                      "展示成员此刻实际可使用的积分，取成员额度内剩余积分与团队剩余积分中的较小值；若未设置成员额度，则展示团队剩余积分。",
-                                  })}
+                                  label={t2(
+                                    "team.management.currentQuotaHelp",
+                                    {
+                                      defaultValue: "当前可用积分说明",
+                                    },
+                                  )}
+                                  content={t2(
+                                    "team.management.currentQuotaHelpContent",
+                                    {
+                                      defaultValue:
+                                        "展示成员此刻实际可使用的积分，取成员额度内剩余积分与团队剩余积分中的较小值；若未设置成员额度，则展示团队剩余积分。",
+                                    },
+                                  )}
                                   className="inline-flex size-4 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                                 />
                               </span>
@@ -1645,13 +1367,19 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                   defaultValue: "累计使用",
                                 })}
                                 <TeamHelpTip
-                                  label={t2("team.management.memberTotalUsedHelp", {
-                                    defaultValue: "累计使用说明",
-                                  })}
-                                  content={t2("team.management.memberTotalUsedHelpContent", {
-                                    defaultValue:
-                                      "展示该成员在当前团队内的历史累计消耗积分，与团队累计已用积分、消费流水口径一致。",
-                                  })}
+                                  label={t2(
+                                    "team.management.memberTotalUsedHelp",
+                                    {
+                                      defaultValue: "累计使用说明",
+                                    },
+                                  )}
+                                  content={t2(
+                                    "team.management.memberTotalUsedHelpContent",
+                                    {
+                                      defaultValue:
+                                        "展示该成员在当前团队内的历史累计消耗积分，与团队累计已用积分、消费流水口径一致。",
+                                    },
+                                  )}
                                   className="inline-flex size-4 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                                 />
                               </span>
@@ -1665,26 +1393,38 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                 member.permissions.changeQuota.allowed,
                               );
                               const canManage = hasMemberGovernanceAction({
-                                changeRole: member.permissions.changeRole.allowed,
+                                changeRole:
+                                  member.permissions.changeRole.allowed,
                                 changeQuota: canChangeQuota,
-                                removeMember: member.permissions.removeMember.allowed,
+                                removeMember:
+                                  member.permissions.removeMember.allowed,
                               });
-                              const selectable = selectionEnabled && isBatchRemoveEligible(member);
+                              const selectable =
+                                selectionEnabled &&
+                                isBatchRemoveEligible(member);
                               return {
                                 id: member.userId,
                                 name: member.displayName,
                                 uid: member.userId,
-                                role: t2(`team.role.${member.role.toLowerCase()}`, {
-                                  defaultValue: member.role,
-                                }),
+                                role: t2(
+                                  `team.role.${member.role.toLowerCase()}`,
+                                  {
+                                    defaultValue: member.role,
+                                  },
+                                ),
                                 selection: selectionEnabled ? (
                                   <Checkbox
-                                    checked={selectedMemberIds.has(member.userId)}
+                                    checked={selectedMemberIds.has(
+                                      member.userId,
+                                    )}
                                     disabled={!selectable}
-                                    aria-label={t2("team.management.selectMember", {
-                                      defaultValue: "选择 {{name}}",
-                                      name: member.displayName,
-                                    })}
+                                    aria-label={t2(
+                                      "team.management.selectMember",
+                                      {
+                                        defaultValue: "选择 {{name}}",
+                                        name: member.displayName,
+                                      },
+                                    )}
                                     data-action-ui-id="team.management-select-member"
                                     data-member-id={member.userId}
                                     data-member-role={member.role}
@@ -1709,11 +1449,16 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                     data-action-ui-id="team.management-member-quota-usage"
                                     data-member-id={member.userId}
                                     data-quota-mode={member.quota.mode}
-                                    data-quota-limit={member.quota.limit ?? void 0}
-                                    aria-label={t2("team.management.viewMemberUsage", {
-                                      defaultValue: "查看 {{name}} 的用量",
-                                      name: member.displayName,
-                                    })}
+                                    data-quota-limit={
+                                      member.quota.limit ?? void 0
+                                    }
+                                    aria-label={t2(
+                                      "team.management.viewMemberUsage",
+                                      {
+                                        defaultValue: "查看 {{name}} 的用量",
+                                        name: member.displayName,
+                                      },
+                                    )}
                                     onClick={() =>
                                       navigateSubpage({
                                         type: "usage",
@@ -1729,7 +1474,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                   </button>
                                 ),
                                 usage: (() => {
-                                  const totalUsed = memberUsageByUserId.get(member.userId);
+                                  const totalUsed = memberUsageByUserId.get(
+                                    member.userId,
+                                  );
                                   return (
                                     <span
                                       className="tabular-nums"
@@ -1737,7 +1484,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                       data-member-id={member.userId}
                                     >
                                       {totalUsed === void 0 ? (
-                                        <span className="text-muted-foreground">—</span>
+                                        <span className="text-muted-foreground">
+                                          —
+                                        </span>
                                       ) : (
                                         formatCreditAmount(totalUsed)
                                       )}
@@ -1784,7 +1533,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                         data-action-ui-id="team.management-member-settings"
                                         data-member-id={member.userId}
                                         data-member-role={member.role}
-                                        data-can-change-quota={canChangeQuota ? "true" : "false"}
+                                        data-can-change-quota={
+                                          canChangeQuota ? "true" : "false"
+                                        }
                                       >
                                         {t2("team.management.settings", {
                                           defaultValue: "设置",
@@ -1796,20 +1547,29 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                                         variant="ghost"
                                         size="sm"
                                         className="col-start-2 w-full font-normal text-muted-foreground"
-                                        aria-label={t2("team.management.settings", {
-                                          defaultValue: "设置",
-                                        })}
+                                        aria-label={t2(
+                                          "team.management.settings",
+                                          {
+                                            defaultValue: "设置",
+                                          },
+                                        )}
                                         onClick={() =>
                                           dedupedToast.info(
-                                            t2("team.management.memberSettingsUnavailable", {
-                                              defaultValue: "当前成员暂无可用设置。",
-                                            }),
+                                            t2(
+                                              "team.management.memberSettingsUnavailable",
+                                              {
+                                                defaultValue:
+                                                  "当前成员暂无可用设置。",
+                                              },
+                                            ),
                                           )
                                         }
                                         data-action-ui-id="team.management-member-settings-pending"
                                         data-member-id={member.userId}
                                         data-member-role={member.role}
-                                        data-can-change-quota={canChangeQuota ? "true" : "false"}
+                                        data-can-change-quota={
+                                          canChangeQuota ? "true" : "false"
+                                        }
                                       >
                                         —
                                       </Button$1>
@@ -1834,7 +1594,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                   member={settingsMemberLive}
                   teamName={detailQuery.data.teamName}
                   teamRemaining={teamRemaining}
-                  quotaMutationEnabled={activeTab === "credits" && mutationOpen && billingOpen}
+                  quotaMutationEnabled={
+                    activeTab === "credits" && mutationOpen && billingOpen
+                  }
                   onClose={closeSubpage}
                 />
               ) : null}
@@ -1862,7 +1624,9 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                       : null
                   }
                   onClose={() => setBatchRemoveOpen(false)}
-                  onComplete={(failedUserIds) => setSelectedMemberIds(new Set(failedUserIds))}
+                  onComplete={(failedUserIds) =>
+                    setSelectedMemberIds(new Set(failedUserIds))
+                  }
                 />
               ) : null}
               {defaultQuotaOpen && detailQuery.data ? (
@@ -1931,7 +1695,8 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                   isError={inviteLinksQuery.isError}
                   isStale={Boolean(
                     inviteLinksQuery.data &&
-                    (inviteLinksQuery.isRefetchError || inviteLinksQuery.isError),
+                    (inviteLinksQuery.isRefetchError ||
+                      inviteLinksQuery.isError),
                   )}
                   isLoadingMore={inviteLinksQuery.isFetchingNextPage}
                   loadMoreError={inviteLinksQuery.isFetchNextPageError}
@@ -1955,7 +1720,8 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
                   }}
                 />
               ) : null}
-              {(isMemberView || currentTab === "members") && (canDissolveTeam || canLeaveTeam) ? (
+              {(isMemberView || currentTab === "members") &&
+              (canDissolveTeam || canLeaveTeam) ? (
                 <DialogFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6 sm:py-4">
                   {canLeaveTeam ? (
                     <Button$1
@@ -1989,7 +1755,10 @@ export function TeamManagementDialog({ open, scope, onOpenChange, onDissolveTran
           </TeamDialogNavigationContext.Provider>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={showTransferTermsDialog} onOpenChange={setShowTransferTermsDialog}>
+      <AlertDialog
+        open={showTransferTermsDialog}
+        onOpenChange={setShowTransferTermsDialog}
+      >
         <AlertDialogContent
           data-action-ui-id="team.transfer-credit-terms-dialog"
           className="max-h-[60vh] !max-w-[calc(100%-2rem)] gap-4 p-4 text-xs/relaxed sm:!max-w-lg"

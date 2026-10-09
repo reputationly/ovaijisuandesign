@@ -1,384 +1,10 @@
 // timeline-renderer.js
-import { BlobSource, CanvasSink } from "../vendor.js";
-import { Input$3, ALL_FORMATS } from "../vendor-inline/mediabunny/hls-segmented-input.js";
-import { TIMELINE_CONFIG, LIGHT_THEME_COLORS, TIME_INTERVALS } from "../generation/params-popup.jsx";
-export function estimateBytes(frame2) {
-  const img = frame2.img;
-  if (img instanceof ImageBitmap) {
-    return img.width * img.height * 4;
-  }
-  return 0;
-}
-export class VideoFrameCache {
-  decoderMap = new Map();
-  canvasesMap = new Map();
-  getAsset;
-  /** resetCanvases 产生的异步清理 Promise，在创建新 generator 前 await */
-  cleanupPromises = [];
-  constructor(getAsset2) {
-    this.getAsset = getAsset2;
-  }
-  async getVideoDecoderCtx(assetId) {
-    return await this._getDecoder(assetId);
-  }
-  async getCanvases(assetId, timestamp2) {
-    if (this.canvasesMap.has(assetId)) {
-      return this.canvasesMap.get(assetId);
-    }
-    if (this.cleanupPromises.length > 0) {
-      await Promise.all(this.cleanupPromises);
-      this.cleanupPromises = [];
-    }
-    const ctx = await this._getDecoder(assetId);
-    const canvases = ctx.canvasSink.canvases(timestamp2);
-    this.canvasesMap.set(assetId, canvases);
-    ctx.nextFrame = (await canvases.next())?.value ?? null;
-    return this.canvasesMap.get(assetId);
-  }
-  /**
-   * 获取视频帧的原始 canvas（零拷贝，适用于播放时直接绘制）
-   */
-  async getFrameCanvas(assetId, timestamp2) {
-    try {
-      const asset = this.getAsset(assetId);
-      if (!asset) return null;
-      const ctx = await this._getDecoder(assetId);
-      const clampedTimestamp = Math.max(
-        0,
-        Math.min(timestamp2, Math.max(0, ctx.sourceDuration - 1e-3)),
-      );
-      if (
-        ctx.lastSeekTime !== void 0 &&
-        clampedTimestamp < ctx.lastSeekTime &&
-        this.canvasesMap.has(assetId)
-      ) {
-        const oldGen = this.canvasesMap.get(assetId);
-        this.canvasesMap.delete(assetId);
-        try {
-          await oldGen?.return(null);
-        } catch {}
-      }
-      ctx.lastSeekTime = clampedTimestamp;
-      const canvases = await this.getCanvases(assetId, clampedTimestamp);
-      while (ctx.nextFrame) {
-        if (ctx.nextFrame.timestamp <= clampedTimestamp) {
-          const current2 = ctx.nextFrame;
-          const next2 = (await canvases.next())?.value ?? null;
-          if (!next2) {
-            ctx.nextFrame = current2;
-            return {
-              canvas: current2.canvas,
-              width: ctx.width,
-              height: ctx.height,
-            };
-          }
-          ctx.nextFrame = next2;
-        } else {
-          const canvas = ctx.nextFrame.canvas;
-          return {
-            canvas,
-            width: ctx.width,
-            height: ctx.height,
-          };
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error("VideoFrameCache: 解码视频帧失败", error);
-      return null;
-    }
-  }
-  /**
-   * 获取视频帧（返回 ImageBitmap，适用于非播放时 seek 预览）
-   */
-  async getFrame(assetId, timestamp2) {
-    const result = await this.getFrameCanvas(assetId, timestamp2);
-    if (!result) return null;
-    return await createImageBitmap(result.canvas);
-  }
-  async _getDecoder(assetId) {
-    const cached = this.decoderMap.get(assetId);
-    if (cached) return cached;
-    const promise = (async () => {
-      const asset = this.getAsset(assetId);
-      if (!asset) throw new Error(`asset 不存在: ${assetId}`);
-      const input = new Input$3({
-        formats: ALL_FORMATS,
-        source: new BlobSource(asset.file),
-      });
-      const sourceDuration = await input.computeDuration();
-      const track = await input.getPrimaryVideoTrack();
-      if (!track) {
-        input.dispose();
-        throw new Error("该文件不包含视频轨道");
-      }
-      const videoCanBeTransparent = await track.canBeTransparent();
-      const canvasSink = new CanvasSink(track, {
-        poolSize: 2,
-        fit: "contain",
-        alpha: videoCanBeTransparent,
-      });
-      let width = track.displayWidth ?? track.codedWidth ?? 0;
-      let height = track.displayHeight ?? track.codedHeight ?? 0;
-      if (!width || !height) {
-        width = 1920;
-        height = 1080;
-      }
-      return {
-        input,
-        nextFrame: null,
-        track,
-        canvasSink,
-        sourceDuration,
-        width,
-        height,
-      };
-    })();
-    this.decoderMap.set(assetId, promise);
-    return promise;
-  }
-  resetCanvases() {
-    for (const decoderPromise of this.decoderMap.values()) {
-      decoderPromise
-        .then((ctx) => {
-          ctx.nextFrame = null;
-        })
-        .catch(() => {});
-    }
-    const promises = [];
-    this.canvasesMap.forEach((item) => {
-      promises.push(
-        item
-          .return(null)
-          .then(() => {})
-          .catch(() => {}),
-      );
-    });
-    this.canvasesMap.clear();
-    this.cleanupPromises = promises;
-  }
-  async clearAsset(assetId) {
-    const canvases = this.canvasesMap.get(assetId);
-    this.canvasesMap.delete(assetId);
-    if (canvases) {
-      try {
-        await canvases.return(null);
-      } catch {}
-    }
-    const decoderPromise = this.decoderMap.get(assetId);
-    this.decoderMap.delete(assetId);
-    if (decoderPromise) {
-      try {
-        const ctx = await decoderPromise;
-        ctx.nextFrame = null;
-        ctx.input.dispose();
-      } catch {}
-    }
-  }
-  async clear() {
-    for (const [, canvases] of this.canvasesMap.entries()) {
-      try {
-        await canvases.return(null);
-      } catch {}
-    }
-    this.canvasesMap.clear();
-    for (const [, decoderPromise] of this.decoderMap.entries()) {
-      try {
-        const ctx = await decoderPromise;
-        ctx.nextFrame = null;
-        ctx.input.dispose();
-      } catch {}
-    }
-    this.decoderMap.clear();
-  }
-}
-const PEAK_WORKER_CODE =
-  /* javascript */
-  `
-self.onmessage = function (e) {
-  var channelData = e.data.channelData;
-  var samplesPerPixel = e.data.samplesPerPixel;
-  var jobId = e.data.jobId;
-  var totalSamples = channelData.length;
-  var peakCount = Math.ceil(totalSamples / samplesPerPixel);
-  var peaks = new Float32Array(peakCount * 2);
-  for (var i = 0; i < peakCount; i++) {
-    var start = i * samplesPerPixel;
-    var end = Math.min(start + samplesPerPixel, totalSamples);
-    var min = 1, max = -1;
-    for (var j = start; j < end; j++) {
-      var v = channelData[j];
-      if (v < min) min = v;
-      if (v > max) max = v;
-    }
-    peaks[i * 2] = min;
-    peaks[i * 2 + 1] = max;
-  }
-  self.postMessage({ jobId: jobId, peaks: peaks }, [peaks.buffer]);
-};
-`;
-export class WaveformService {
-  cache = new Map();
-  /**
-   * 仅用于 decodeAudioData，使用低采样率减少 PCM 数据量。
-   * 22050Hz 覆盖 11kHz 以下频率，波形包络视觉形态准确，内存约为 44100Hz 的一半。
-   */
-  audioContext = null;
-  worker = null;
-  workerJobId = 0;
-  workerPending = new Map();
-  getAudioContext() {
-    if (!this.audioContext) {
-      try {
-        this.audioContext = new AudioContext({
-          sampleRate: 22050,
-        });
-      } catch {
-        this.audioContext = new AudioContext();
-      }
-    }
-    return this.audioContext;
-  }
-  /**
-   * 懒初始化 Blob Worker。
-   * 使用 Blob URL 创建，无需打包配置，兼容所有 bundler。
-   * Worker 创建失败时返回 null，由调用方降级到同步计算。
-   */
-  getWorker() {
-    if (this.worker) return this.worker;
-    try {
-      const blob = new Blob([PEAK_WORKER_CODE], {
-        type: "text/javascript",
-      });
-      const url2 = URL.createObjectURL(blob);
-      const worker = new Worker(url2);
-      URL.revokeObjectURL(url2);
-      worker.onmessage = (e2) => {
-        const { jobId, peaks } = e2.data;
-        const job = this.workerPending.get(jobId);
-        if (job) {
-          this.workerPending.delete(jobId);
-          job.resolve(peaks);
-        }
-      };
-      worker.onerror = (e2) => {
-        for (const [, job] of this.workerPending) {
-          job.reject(new Error(e2.message ?? "Peak worker error"));
-        }
-        this.workerPending.clear();
-        this.worker?.terminate();
-        this.worker = null;
-      };
-      this.worker = worker;
-      return worker;
-    } catch {
-      return null;
-    }
-  }
-  /**
-   * 从音频文件提取波形峰值数据
-   * @param assetId 素材 ID，用于缓存
-   * @param file 音频文件
-   * @param samplesPerPixel 每像素的采样数，默认 256
-   */
-  async extractPeaks(assetId, file, samplesPerPixel = 256) {
-    const cached = this.cache.get(assetId);
-    if (cached) return cached;
-    const ctx = this.getAudioContext();
-    const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    const { duration, sampleRate } = audioBuffer;
-    const channelData = audioBuffer.getChannelData(0);
-    const peaks = await this.computePeaksInWorker(channelData, samplesPerPixel);
-    const result = {
-      peaks,
-      duration,
-      sampleRate,
-    };
-    this.cache.set(assetId, result);
-    return result;
-  }
-  /**
-   * 将峰值计算委托给 Worker，避免阻塞主线程。
-   * channelData 拷贝一份再 transfer 到 Worker（AudioBuffer 内部 buffer 不可直接 transfer）。
-   * Worker 不可用或出错时，自动降级为同步计算。
-   */
-  async computePeaksInWorker(channelData, samplesPerPixel) {
-    const worker = this.getWorker();
-    if (!worker) {
-      return this.computePeaksSync(channelData, samplesPerPixel);
-    }
-    const jobId = ++this.workerJobId;
-    const channelDataCopy = new Float32Array(channelData);
-    return new Promise((resolve, reject) => {
-      this.workerPending.set(jobId, {
-        resolve,
-        reject,
-      });
-      worker.postMessage(
-        {
-          jobId,
-          channelData: channelDataCopy,
-          samplesPerPixel,
-        },
-        [channelDataCopy.buffer],
-      );
-    }).catch(() => {
-      return this.computePeaksSync(channelData, samplesPerPixel);
-    });
-  }
-  /** 同步降级计算，Worker 不可用时的兜底方案 */
-  computePeaksSync(channelData, samplesPerPixel) {
-    const totalSamples = channelData.length;
-    const peakCount = Math.ceil(totalSamples / samplesPerPixel);
-    const peaks = new Float32Array(peakCount * 2);
-    for (let i2 = 0; i2 < peakCount; i2++) {
-      const start2 = i2 * samplesPerPixel;
-      const end2 = Math.min(start2 + samplesPerPixel, totalSamples);
-      let min2 = 1;
-      let max2 = -1;
-      for (let j2 = start2; j2 < end2; j2++) {
-        const val = channelData[j2];
-        if (val < min2) min2 = val;
-        if (val > max2) max2 = val;
-      }
-      peaks[i2 * 2] = min2;
-      peaks[i2 * 2 + 1] = max2;
-    }
-    return peaks;
-  }
-  /** 获取已缓存的波形数据 */
-  getPeaks(assetId) {
-    return this.cache.get(assetId) ?? null;
-  }
-  /** 清除指定素材的缓存 */
-  clearAsset(assetId) {
-    this.cache.delete(assetId);
-  }
-  /** 清除所有缓存并释放资源 */
-  clear() {
-    this.cache.clear();
-    if (this.audioContext) {
-      void this.audioContext.close();
-      this.audioContext = null;
-    }
-    this.worker?.terminate();
-    this.worker = null;
-    this.workerPending.clear();
-  }
-}
-export function formatTime$1(seconds, showMs = false) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  const ms = Math.floor((seconds % 1) * 100);
-  const minsStr = mins.toString().padStart(2, "0");
-  const secsStr = secs.toString().padStart(2, "0");
-  if (showMs) {
-    const msStr = ms.toString().padStart(2, "0");
-    return `${minsStr}:${secsStr}.${msStr}`;
-  }
-  return `${minsStr}:${secsStr}`;
-}
+import {
+  LIGHT_THEME_COLORS,
+  TIME_INTERVALS,
+  TIMELINE_CONFIG,
+} from "../generation/time-intervals.jsx";
+
 function formatTimeShort(seconds) {
   if (seconds < 60) {
     if (Number.isInteger(seconds)) {
@@ -393,6 +19,7 @@ function formatTimeShort(seconds) {
   }
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
+
 export class TimelineRenderer {
   canvas;
   ctx;
@@ -451,7 +78,8 @@ export class TimelineRenderer {
   resize(width, layout) {
     this.rulerHeight = layout.rulerHeight;
     this.trackGap = layout.trackGap;
-    const height = layout.rulerHeight + layout.trackGap + layout.thumbnailHeight;
+    const height =
+      layout.rulerHeight + layout.trackGap + layout.thumbnailHeight;
     this.width = width;
     this.height = height;
     const newCanvasW = width * this.dpr;
@@ -462,7 +90,10 @@ export class TimelineRenderer {
     }
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
-    this.rulerLayer = new OffscreenCanvas(newCanvasW, layout.rulerHeight * this.dpr);
+    this.rulerLayer = new OffscreenCanvas(
+      newCanvasW,
+      layout.rulerHeight * this.dpr,
+    );
     this.rulerCtx = this.rulerLayer.getContext("2d");
     this.rulerCacheKey = "";
   }
@@ -507,9 +138,11 @@ export class TimelineRenderer {
     const { scale: scale2, scrollX } = state2;
     const contentLeft = TRACK_PADDING_H;
     const contentRight = this.width - TRACK_PADDING_H;
-    const { interval: interval2, subDivisions } = this.calculateInterval(scale2);
+    const { interval: interval2, subDivisions } =
+      this.calculateInterval(scale2);
     const startTime = Math.floor(scrollX / scale2 / interval2) * interval2;
-    const endTime = Math.ceil((scrollX + this.width) / scale2 / interval2) * interval2;
+    const endTime =
+      Math.ceil((scrollX + this.width) / scale2 / interval2) * interval2;
     const centerY = rulerH / 2;
     ctx.font = "11px Inter, sans-serif";
     ctx.textBaseline = "middle";
@@ -538,7 +171,8 @@ export class TimelineRenderer {
     ctx.beginPath();
     for (let time = startTime; time <= endTime; time += interval2) {
       const x2 = time * scale2 - scrollX + TRACK_PADDING_H;
-      const lastSubX = x2 + (interval2 / subDivisions) * (subDivisions - 1) * scale2;
+      const lastSubX =
+        x2 + (interval2 / subDivisions) * (subDivisions - 1) * scale2;
       if (x2 > contentRight || lastSubX < contentLeft) continue;
       for (let i2 = 1; i2 < subDivisions; i2++) {
         const subX = x2 + (interval2 / subDivisions) * i2 * scale2;
@@ -558,19 +192,28 @@ export class TimelineRenderer {
     const ctx = this.ctx;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(TRACK_PADDING_H, trackY, this.width - TRACK_PADDING_H * 2, trackHeight);
+    ctx.rect(
+      TRACK_PADDING_H,
+      trackY,
+      this.width - TRACK_PADDING_H * 2,
+      trackHeight,
+    );
     ctx.clip();
     this.drawClips(state2, trackY);
     ctx.restore();
   }
   drawClips(state2, trackY) {
-    const { CLIP_BORDER_RADIUS, CLIP_PADDING, TRACK_PADDING_H } = TIMELINE_CONFIG;
+    const { CLIP_BORDER_RADIUS, CLIP_PADDING, TRACK_PADDING_H } =
+      TIMELINE_CONFIG;
     const trackHeight = this.height - this.rulerHeight - this.trackGap;
     const { scale: scale2, scrollX, clips } = state2;
     const contentRight = this.width - TRACK_PADDING_H;
     clips.forEach((clip2) => {
       const x2 = clip2.startTime * scale2 - scrollX + TRACK_PADDING_H;
-      const sourceX = (clip2.startTime - clip2.sourceOffset) * scale2 - scrollX + TRACK_PADDING_H;
+      const sourceX =
+        (clip2.startTime - clip2.sourceOffset) * scale2 -
+        scrollX +
+        TRACK_PADDING_H;
       const clipWidth = clip2.duration * scale2;
       const y4 = trackY + CLIP_PADDING;
       const clipHeight = trackHeight - CLIP_PADDING * 2;
@@ -594,7 +237,14 @@ export class TimelineRenderer {
         if (clip2.type === "audio") {
           this.drawAudioWaveform(clip2, x2, y4, clipWidth, clipHeight);
         } else {
-          this.drawVideoThumbnails(clip2, x2, y4, clipWidth, clipHeight, sourceX);
+          this.drawVideoThumbnails(
+            clip2,
+            x2,
+            y4,
+            clipWidth,
+            clipHeight,
+            sourceX,
+          );
         }
       }
       this.hooks.drawClipOverlay?.(this.ctx, clip2, rect);
@@ -613,7 +263,8 @@ export class TimelineRenderer {
       ctx.restore();
       return;
     }
-    const aspect = clip2.width && clip2.height ? clip2.width / clip2.height : 16 / 9;
+    const aspect =
+      clip2.width && clip2.height ? clip2.width / clip2.height : 16 / 9;
     const thumbH = Math.max(8, Math.floor(height));
     const thumbW = Math.max(12, Math.floor(thumbH * aspect));
     const maxTiles = Math.ceil(width / thumbW) + 1;
@@ -621,8 +272,12 @@ export class TimelineRenderer {
       const tileX = sourceX + i2 * thumbW;
       if (tileX > x2 + width) break;
       if (tileX + thumbW < x2) continue;
-      const tileCenterT = ((tileX + thumbW / 2 - sourceX) / width) * clip2.duration;
-      const thumb = this.thumbnailStore.getFrameAtTime(clip2.assetId, tileCenterT);
+      const tileCenterT =
+        ((tileX + thumbW / 2 - sourceX) / width) * clip2.duration;
+      const thumb = this.thumbnailStore.getFrameAtTime(
+        clip2.assetId,
+        tileCenterT,
+      );
       if (thumb) {
         try {
           ctx.drawImage(thumb, tileX, y4, thumbW, height);
@@ -700,15 +355,23 @@ export class TimelineRenderer {
   }
   /** Draws the trim frame and, for the active trim, its dimmed outside area. */
   drawRangeFrame(state2, range2, drawMask) {
-    const { CLIP_PADDING, CROP_HANDLE_WIDTH, CROP_HANDLE_OUTSET, TRACK_PADDING_H } =
-      TIMELINE_CONFIG;
-    const { CROP_MASK, SEGMENT_MASK, CROP_HANDLE, CROP_HANDLE_INNER } = this.colors;
+    const {
+      CLIP_PADDING,
+      CROP_HANDLE_WIDTH,
+      CROP_HANDLE_OUTSET,
+      TRACK_PADDING_H,
+    } = TIMELINE_CONFIG;
+    const { CROP_MASK, SEGMENT_MASK, CROP_HANDLE, CROP_HANDLE_INNER } =
+      this.colors;
     const { scale: scale2, scrollX } = state2;
     const ctx = this.ctx;
     const trackY = this.rulerHeight + this.trackGap + CLIP_PADDING;
-    const trackH = this.height - this.rulerHeight - this.trackGap - CLIP_PADDING * 2;
-    const cropLeftX = range2.start * scale2 - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
-    const cropRightX = range2.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
+    const trackH =
+      this.height - this.rulerHeight - this.trackGap - CLIP_PADDING * 2;
+    const cropLeftX =
+      range2.start * scale2 - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
+    const cropRightX =
+      range2.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
     const INDICATOR_W = 2;
     const INDICATOR_H = 12;
     const BORDER_W = 2;
@@ -719,14 +382,20 @@ export class TimelineRenderer {
     ctx.rect(0, trackY, this.width, trackH);
     ctx.clip();
     if (drawMask) {
-      ctx.fillStyle = state2.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
+      ctx.fillStyle =
+        state2.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
       const maskLeftEnd = Math.min(windowLeft, this.width);
       if (maskLeftEnd > 0) {
         ctx.fillRect(0, trackY, maskLeftEnd, trackH);
       }
       const maskRightStart = Math.max(windowRight, 0);
       if (maskRightStart < this.width) {
-        ctx.fillRect(maskRightStart, trackY, this.width - maskRightStart, trackH);
+        ctx.fillRect(
+          maskRightStart,
+          trackY,
+          this.width - maskRightStart,
+          trackH,
+        );
       }
     }
     const frameVisible = cropRightX > 0 && cropLeftX < this.width;
@@ -736,14 +405,21 @@ export class TimelineRenderer {
       const borderRight = Math.min(windowRight, this.width);
       if (borderRight > borderLeft) {
         ctx.fillRect(borderLeft, trackY, borderRight - borderLeft, BORDER_W);
-        ctx.fillRect(borderLeft, trackY + trackH - BORDER_W, borderRight - borderLeft, BORDER_W);
+        ctx.fillRect(
+          borderLeft,
+          trackY + trackH - BORDER_W,
+          borderRight - borderLeft,
+          BORDER_W,
+        );
       }
       const HANDLE_R = CROP_HANDLE_WIDTH / 2;
       const drawHandle = (handleX, isLeft) => {
         ctx.fillStyle = CROP_HANDLE;
         ctx.beginPath();
         if (typeof ctx.roundRect === "function") {
-          const radii = isLeft ? [HANDLE_R, 0, 0, HANDLE_R] : [0, HANDLE_R, HANDLE_R, 0];
+          const radii = isLeft
+            ? [HANDLE_R, 0, 0, HANDLE_R]
+            : [0, HANDLE_R, HANDLE_R, 0];
           ctx.roundRect(handleX, trackY, CROP_HANDLE_WIDTH, trackH, radii);
           ctx.fill();
         } else {
@@ -754,7 +430,13 @@ export class TimelineRenderer {
         ctx.fillStyle = CROP_HANDLE_INNER;
         ctx.beginPath();
         if (typeof ctx.roundRect === "function") {
-          ctx.roundRect(indicatorX, indicatorY, INDICATOR_W, INDICATOR_H, INDICATOR_W / 2);
+          ctx.roundRect(
+            indicatorX,
+            indicatorY,
+            INDICATOR_W,
+            INDICATOR_H,
+            INDICATOR_W / 2,
+          );
           ctx.fill();
         } else {
           ctx.fillRect(indicatorX, indicatorY, INDICATOR_W, INDICATOR_H);
@@ -791,9 +473,23 @@ export class TimelineRenderer {
     ctx.lineTo(x2 + 2, 0.75);
     ctx.bezierCurveTo(x2 + 3.821, 0.75, x2 + 5.25, 2.167, x2 + 5.25, 3.858);
     ctx.lineTo(x2 + 5.25, 11.507);
-    ctx.bezierCurveTo(x2 + 5.25, 11.889, x2 + 5.051, 12.258, x2 + 4.702, 12.481);
+    ctx.bezierCurveTo(
+      x2 + 5.25,
+      11.889,
+      x2 + 5.051,
+      12.258,
+      x2 + 4.702,
+      12.481,
+    );
     ctx.lineTo(x2 + 0.702, 15.046);
-    ctx.bezierCurveTo(x2 + 0.278, 15.318, x2 - 0.278, 15.318, x2 - 0.702, 15.046);
+    ctx.bezierCurveTo(
+      x2 + 0.278,
+      15.318,
+      x2 - 0.278,
+      15.318,
+      x2 - 0.702,
+      15.046,
+    );
     ctx.lineTo(x2 - 4.702, 12.481);
     ctx.bezierCurveTo(x2 - 5.051, 12.258, x2 - 5.25, 11.889, x2 - 5.25, 11.507);
     ctx.lineTo(x2 - 5.25, 3.858);

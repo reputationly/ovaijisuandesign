@@ -1,118 +1,428 @@
 // updater-provider.jsx
-import { useTranslation, reactExports, dedupedToast, parseSemver } from "../vendor.js";
+import {
+  compareSemver,
+  dedupedToast,
+  getRuntimeConfig,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
+import {
+  canUseUpdaterDevPreview,
+  setUpdaterDevPreviewMode,
+  STORAGE_KEY$5,
+  UPDATER_DEV_PREVIEW_EVENT,
+} from "../generation/use-model-catalog-scope-key.js";
+import {
+  UPDATE_CHECK_TIMED_OUT,
+  UpdaterContext,
+} from "./use-active-runtime.js";
+import {
+  formatUpdaterErrorMessage,
+  isUpdateCheckAlreadyInProgress,
+} from "./installer-failure-code-keys.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
-import { UPDATE_DISMISS_REMINDER_MS, resolveNotification } from "../generation/push-inline.js";
-import { UPDATE_CHECK_TIMED_OUT, createInitialState, runManualUpdateCheck, UpdaterContext, BUNDLED_CHANGELOG } from "./run-manual-update-check.js";
-import { useUpdaterDevPreviewMode, createUpdaterDevPreviewState, setUpdaterDevPreviewMode } from "../generation/use-resizable-width.js";
-import { instantiationService, IUpdaterMainService } from "../workspace/browser-inspiration-urls.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-const UPDATE_CHECK_ALREADY_IN_PROGRESS = "Update check already in progress";
-const VELOPACK_PACKAGE_MUTATION_UNOWNED = "VELOPACK_PACKAGE_MUTATION_UNOWNED:";
-const DRIVE_TYPE_PROBE_UNAVAILABLE = "Install root drive type probe is unavailable.";
-function isUpdateCheckAlreadyInProgress(message2) {
-  return message2 === UPDATE_CHECK_ALREADY_IN_PROGRESS;
-}
-function isUpdateCheckTimedOut(message2) {
-  return message2 === UPDATE_CHECK_TIMED_OUT;
-}
-export function formatUpdaterErrorMessage(message2, t2, fallback) {
-  if (isUpdateCheckAlreadyInProgress(message2)) {
-    return t2("update.checkInProgress");
+import {
+  instantiationService,
+  IUpdaterMainService,
+} from "../workspace/home-service.jsx";
+import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
+
+const UPDATE_DISMISS_REMINDER_MS = 2 * 60 * 60 * 1e3;
+
+function resolveNotification(input) {
+  const { state: state2, userTriggered } = input;
+  const dismissed = input.dismissed ?? state2.dismissed;
+  const currentTime = input.now ?? Date.now();
+  const dismissedAt = state2.dismissedAt ?? 0;
+  const dismissExpired =
+    dismissed &&
+    dismissedAt > 0 &&
+    currentTime - dismissedAt > UPDATE_DISMISS_REMINDER_MS;
+  if (state2.forced)
+    return {
+      type: "forced-modal",
+    };
+  if (
+    state2.startupOwnershipUnverified &&
+    !state2.targetVersion &&
+    !userTriggered
+  ) {
+    return {
+      type: "silent",
+    };
   }
-  if (isUpdateCheckTimedOut(message2)) {
-    return t2("update.timeout");
+  if (state2.manualOnly && state2.phase === "error") {
+    return dismissed
+      ? {
+          type: "sidebar-only",
+        }
+      : {
+          type: "banner",
+        };
   }
-  if (message2 === "ERR_TIMED_OUT: Update preparation timed out") {
-    return t2("update.preparationTimeout");
+  if (state2.phase === "idle" || state2.phase === "checking")
+    return {
+      type: "silent",
+    };
+  if (state2.phase === "downloaded") {
+    if (dismissExpired)
+      return {
+        type: "banner",
+      };
+    return dismissed
+      ? {
+          type: "sidebar-only",
+        }
+      : {
+          type: "banner",
+        };
   }
-  if (message2?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
-    return message2.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
-      ? t2("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
-      : t2("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
+  if (state2.phase === "downloading") {
+    return dismissed
+      ? {
+          type: "sidebar-only",
+        }
+      : {
+          type: "banner",
+        };
   }
-  return message2 ?? fallback;
+  if (state2.phase === "available") {
+    if (dismissExpired)
+      return {
+        type: "banner",
+      };
+    if (dismissed)
+      return {
+        type: "sidebar-only",
+      };
+    return {
+      type: "banner",
+    };
+  }
+  if (state2.phase === "error") {
+    if (
+      state2.targetVersion &&
+      compareSemver(state2.targetVersion, state2.currentVersion) > 0
+    ) {
+      return dismissed
+        ? {
+            type: "sidebar-only",
+          }
+        : {
+            type: "banner",
+          };
+    }
+    return userTriggered
+      ? {
+          type: "banner",
+        }
+      : {
+          type: "sidebar-only",
+        };
+  }
+  return {
+    type: "silent",
+  };
 }
-const INSTALLER_FAILURE_CODE_KEYS = {
-  CHILD_PID_QUERY_UNAVAILABLE: "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE",
-  CHILD_PID_SNAPSHOT_UNAVAILABLE: "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE",
-  CHILD_PROCESS_EXIT_GUARD_FAILED: "update.failureCode.CHILD_PROCESS_EXIT_GUARD_FAILED",
-  HANDOFF_STATE_CORRUPTED: "update.failureCode.HANDOFF_STATE_CORRUPTED",
-  INSTALL_CHECKSUM_MISMATCH: "update.failureCode.INSTALL_CHECKSUM_MISMATCH",
-  INSTALL_CLEANUP_FAILED: "update.failureCode.INSTALL_CLEANUP_FAILED",
-  INSTALL_MARKER_CORRUPT: "update.failureCode.INSTALL_MARKER_CORRUPT",
-  INSTALL_MARKER_WRITE_FAILED: "update.failureCode.INSTALL_MARKER_WRITE_FAILED",
-  TEMP_SPACE: "update.failureCode.TEMP_SPACE",
-  TEMP_SPACE_UNKNOWN: "update.failureCode.TEMP_SPACE_UNKNOWN",
-  INSTDIR_SPACE: "update.failureCode.INSTDIR_SPACE",
-  INSTDIR_SPACE_UNKNOWN: "update.failureCode.INSTDIR_SPACE_UNKNOWN",
-  INSTALL_DIR_SPACE_LOW: "update.failureCode.INSTDIR_SPACE",
-  INSTDIR_NOT_WRITABLE: "update.failureCode.INSTDIR_NOT_WRITABLE",
-  INSTALL_DIR_NOT_WRITABLE: "update.failureCode.INSTDIR_NOT_WRITABLE",
-  INSTDIR_SYSTEM_DIR: "update.failureCode.INSTDIR_SYSTEM_DIR",
-  INSTALL_DIR_SYSTEM_DIR: "update.failureCode.INSTDIR_SYSTEM_DIR",
-  INSTDIR_JUNCTION_INVALID: "update.failureCode.INSTDIR_JUNCTION_INVALID",
-  INSTDIR_DATA_OVERLAP: "update.failureCode.INSTDIR_DATA_OVERLAP",
-  INSTDIR_OWNERSHIP_UNVERIFIED: "update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED",
-  INSTDIR_MULTI_INSTALL: "update.failureCode.INSTDIR_MULTI_INSTALL",
-  MARKER_STORE_UNAVAILABLE: "update.failureCode.MARKER_STORE_UNAVAILABLE",
-  PACKAGE_INVALIDATED: "update.failureCode.PACKAGE_INVALIDATED",
-  PACKAGE_SIZE_INVALID: "update.failureCode.PACKAGE_SIZE_INVALID",
-  UPDATE_PROXY_PROTOCOL_UNSUPPORTED: "update.failureCode.UPDATE_PROXY_PROTOCOL_UNSUPPORTED",
-  UPDATER_EXECUTABLE_MISSING: "update.failureCode.UPDATER_EXECUTABLE_MISSING",
-  UPDATE_RUNTIME_UNAVAILABLE: "update.failureCode.UPDATE_RUNTIME_UNAVAILABLE",
-  INSTALL_INCOMPLETE: "update.failureCode.INSTALL_INCOMPLETE",
-  INSTALL_METADATA_INVALID: "update.failureCode.INSTALL_METADATA_INVALID",
-  INSTALL_METADATA_MISSING: "update.failureCode.INSTALL_METADATA_MISSING",
-  INSTALL_STAGING_FAILED: "update.failureCode.INSTALL_STAGING_FAILED",
-  INSTALLER_LAUNCH_FAILED: "update.failureCode.INSTALLER_LAUNCH_FAILED",
-  INSTALLER_TERMINATION_FAILED: "update.failureCode.INSTALLER_TERMINATION_FAILED",
-  USER_DATA_LOCKED: "update.failureCode.USER_DATA_LOCKED",
-  USER_CANCELLED: "update.failureCode.USER_CANCELLED",
-  INSTALL_FAILED: "update.failureCode.INSTALL_FAILED",
-};
-const NON_RETRYABLE_MANUAL_RECOVERY_CODES = new Set([
-  "CHILD_PID_QUERY_UNAVAILABLE",
-  "CHILD_PID_SNAPSHOT_UNAVAILABLE",
-  "CHILD_PROCESS_EXIT_GUARD_FAILED",
-  "INSTALL_INCOMPLETE",
-  "INSTALL_MARKER_CORRUPT",
-  "INSTALL_MARKER_WRITE_FAILED",
-  "INSTALLER_TERMINATION_FAILED",
-  "INSTDIR_JUNCTION_INVALID",
-  "INSTDIR_OWNERSHIP_UNVERIFIED",
-  "INSTDIR_MULTI_INSTALL",
-  "UPDATE_PROXY_PROTOCOL_UNSUPPORTED",
-  "UPDATER_EXECUTABLE_MISSING",
-  "UPDATE_RUNTIME_UNAVAILABLE",
-]);
-export function isManualRecoveryRetryable(manualRecoveryCode) {
-  return !manualRecoveryCode || !NON_RETRYABLE_MANUAL_RECOVERY_CODES.has(manualRecoveryCode);
+
+function getUpdaterDevPreviewMode() {
+  if (!canUseUpdaterDevPreview()) return null;
+  const value = globalThis.sessionStorage?.getItem(STORAGE_KEY$5);
+  return value === "forced" ||
+    value === "normal" ||
+    value === "downloading" ||
+    value === "downloaded" ||
+    value === "error"
+    ? value
+    : null;
 }
-export function isManualRecoveryCheckRetryable(manualRecoveryCode) {
-  return manualRecoveryCode === "UPDATE_PROXY_PROTOCOL_UNSUPPORTED";
+
+function subscribeUpdaterDevPreview(listener) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(UPDATER_DEV_PREVIEW_EVENT, listener);
+  return () => window.removeEventListener(UPDATER_DEV_PREVIEW_EVENT, listener);
 }
-export function formatManualRecoveryMessage(manualRecoveryCode, t2) {
-  const key2 = manualRecoveryCode ? INSTALLER_FAILURE_CODE_KEYS[manualRecoveryCode] : void 0;
-  if (key2) return t2(key2);
-  return t2("update.manualRecovery.body");
+
+function useUpdaterDevPreviewMode() {
+  return reactExports.useSyncExternalStore(
+    subscribeUpdaterDevPreview,
+    getUpdaterDevPreviewMode,
+    () => null,
+  );
 }
+
+function createUpdaterDevPreviewState(mode2) {
+  const phase =
+    mode2 === "downloading"
+      ? "downloading"
+      : mode2 === "downloaded"
+        ? "downloaded"
+        : mode2 === "error"
+          ? "error"
+          : "available";
+  const progress =
+    mode2 === "downloading"
+      ? {
+          percent: 55,
+          bytesPerSecond: 1.7 * 1024 * 1024,
+          transferred: 55 * 1024 * 1024,
+          total: 100 * 1024 * 1024,
+          delta: 1.7 * 1024 * 1024,
+        }
+      : null;
+  return {
+    phase,
+    forced: mode2 === "forced",
+    policyStatus: "ready",
+    forceSource: mode2 === "forced" ? "cdn" : "none",
+    manualDownloadUrl:
+      mode2 === "forced" ? "https://example.com/download" : null,
+    manualOnly: false,
+    manualRecoveryReason: null,
+    manualRecoverySource: null,
+    manualRecoveryCode: null,
+    policyCheckedAt: Date.now(),
+    currentVersion: "0.1.20",
+    targetVersion: "0.2.0",
+    subtitle:
+      mode2 === "forced"
+        ? "关键兼容性更新，需要升级后继续使用。"
+        : "修复稳定性问题并优化启动体验。",
+    requiredReason: mode2 === "forced" ? "关键服务协议升级" : null,
+    changelog: {
+      version: "0.2.0",
+      date: "2026-05-21",
+      subtitle: "本地预览更新",
+      changelog: [
+        "优化更新提示体验",
+        "修复若干稳定性问题",
+        "提升桌面端启动速度",
+      ],
+    },
+    progress,
+    error:
+      mode2 === "error"
+        ? {
+            code: "DOWNLOAD_FAILED",
+            message: "模拟下载失败，请重试。",
+            retryCount: 1,
+            canRetry: true,
+          }
+        : null,
+    lastCheckAt: Date.now(),
+    userTriggeredDownload: false,
+    activeCheckUserTriggered: false,
+    availableSince: Date.now() - 1e3 * 60 * 60 * 24,
+    dismissed: false,
+    dismissedVersion: null,
+    dismissedAt: 0,
+  };
+}
+
+const UPDATE_CHECK_RESULT_TIMEOUT_MS = 3e4;
+
+function hasResolvedUpdateFlow(state2) {
+  return (
+    state2.phase === "available" ||
+    state2.phase === "downloading" ||
+    state2.phase === "downloaded"
+  );
+}
+
+function hasActiveUpdateFlow(state2) {
+  return state2.phase === "checking" || hasResolvedUpdateFlow(state2);
+}
+
+function waitForUpdateCheckResult(service2) {
+  let timeout2;
+  let disposable;
+  const promise = new Promise((resolve) => {
+    const settle2 = (state2) => {
+      if (timeout2) {
+        clearTimeout(timeout2);
+        timeout2 = void 0;
+      }
+      disposable?.dispose();
+      disposable = void 0;
+      resolve(state2);
+    };
+    timeout2 = setTimeout(() => settle2(null), UPDATE_CHECK_RESULT_TIMEOUT_MS);
+    timeout2.unref?.();
+    disposable = service2.onStateChanged((event) => {
+      if (event.state.phase === "checking") return;
+      settle2(event.state);
+    });
+  });
+  return {
+    promise,
+    dispose: () => {
+      if (timeout2) {
+        clearTimeout(timeout2);
+        timeout2 = void 0;
+      }
+      disposable?.dispose();
+      disposable = void 0;
+    },
+  };
+}
+
+async function runManualUpdateCheck(service2) {
+  try {
+    const { state: state2 } = await service2.getState();
+    if (hasResolvedUpdateFlow(state2)) {
+      return {
+        accepted: true,
+        state: state2,
+      };
+    }
+  } catch {}
+  const pendingState = waitForUpdateCheckResult(service2);
+  const checkOutcome = service2
+    .check({
+      userTriggered: true,
+    })
+    .then(
+      (result2) => ({
+        type: "check",
+        result: result2,
+      }),
+      (error) => ({
+        type: "check-error",
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  const stateOutcome = pendingState.promise.then((state2) => ({
+    type: "state",
+    state: state2,
+  }));
+  const firstOutcome = await Promise.race([checkOutcome, stateOutcome]);
+  if (firstOutcome.type === "state") {
+    if (!firstOutcome.state) {
+      return {
+        accepted: false,
+        error: UPDATE_CHECK_TIMED_OUT,
+      };
+    }
+    return {
+      accepted: true,
+      state: firstOutcome.state,
+    };
+  }
+  if (firstOutcome.type === "check-error") {
+    pendingState.dispose();
+    return {
+      accepted: false,
+      error: firstOutcome.error,
+    };
+  }
+  const { result } = firstOutcome;
+  if (!result.accepted) {
+    pendingState.dispose();
+    try {
+      const { state: state2 } = await service2.getState();
+      if (hasActiveUpdateFlow(state2)) {
+        return {
+          accepted: true,
+          state: state2,
+        };
+      }
+    } catch {}
+    return {
+      accepted: false,
+      error: result.error,
+    };
+  }
+  try {
+    let { state: state2 } = await service2.getState();
+    if (state2.phase === "checking") {
+      const resolved = await pendingState.promise;
+      if (resolved) {
+        state2 = resolved;
+      } else {
+        return {
+          accepted: false,
+          error: UPDATE_CHECK_TIMED_OUT,
+        };
+      }
+    } else {
+      pendingState.dispose();
+    }
+    return {
+      accepted: true,
+      state: state2,
+    };
+  } catch (error) {
+    pendingState.dispose();
+    return {
+      accepted: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+function createInitialState() {
+  const bootstrap = window.__HILO_UPDATER_BOOTSTRAP__;
+  if (bootstrap && typeof bootstrap === "object" && "phase" in bootstrap) {
+    return bootstrap;
+  }
+  return {
+    phase: "idle",
+    forced: false,
+    policyStatus: "checking",
+    forceSource: "none",
+    manualDownloadUrl: null,
+    manualOnly: false,
+    manualRecoveryReason: null,
+    manualRecoverySource: null,
+    manualRecoveryCode: null,
+    policyCheckedAt: 0,
+    // Best-effort version from runtime config; getVersion() IPC will override.
+    currentVersion: getRuntimeConfig().appVersion,
+    targetVersion: null,
+    subtitle: null,
+    requiredReason: null,
+    changelog: null,
+    progress: null,
+    error: null,
+    lastCheckAt: 0,
+    userTriggeredDownload: false,
+    activeCheckUserTriggered: false,
+    availableSince: 0,
+    dismissed: false,
+    dismissedVersion: null,
+    dismissedAt: 0,
+  };
+}
+
 const MANUAL_UPDATE_CHECK_TOAST_ID = "manual-update-check";
+
 function showManualUpdateCheckFeedback(result, t2) {
   if (!result.accepted) {
     if (isUpdateCheckAlreadyInProgress(result.error)) {
-      dedupedToast.info(formatUpdaterErrorMessage(result.error, t2, t2("update.error")), {
-        id: MANUAL_UPDATE_CHECK_TOAST_ID,
-      });
+      dedupedToast.info(
+        formatUpdaterErrorMessage(result.error, t2, t2("update.error")),
+        {
+          id: MANUAL_UPDATE_CHECK_TOAST_ID,
+        },
+      );
       return;
     }
-    dedupedToast.error(formatUpdaterErrorMessage(result.error, t2, t2("update.error")), {
-      id: MANUAL_UPDATE_CHECK_TOAST_ID,
-    });
+    dedupedToast.error(
+      formatUpdaterErrorMessage(result.error, t2, t2("update.error")),
+      {
+        id: MANUAL_UPDATE_CHECK_TOAST_ID,
+      },
+    );
     return;
   }
   const { state: state2 } = result;
   if (state2.phase === "error") {
-    const message2 = formatUpdaterErrorMessage(state2.error?.message, t2, t2("update.error"));
+    const message2 = formatUpdaterErrorMessage(
+      state2.error?.message,
+      t2,
+      t2("update.error"),
+    );
     if (isUpdateCheckAlreadyInProgress(state2.error?.message)) {
       dedupedToast.info(message2, {
         id: MANUAL_UPDATE_CHECK_TOAST_ID,
@@ -154,14 +464,19 @@ function showManualUpdateCheckFeedback(result, t2) {
     });
   }
 }
+
 export const UpdaterProvider = ({ children: children2 }) => {
   const { t: t2 } = useTranslation();
   const devPreviewMode = useUpdaterDevPreviewMode();
   const [state2, setState] = reactExports.useState(() =>
-    devPreviewMode ? createUpdaterDevPreviewState(devPreviewMode) : createInitialState(),
+    devPreviewMode
+      ? createUpdaterDevPreviewState(devPreviewMode)
+      : createInitialState(),
   );
   const [trigger, setTrigger] = reactExports.useState("auto");
-  const [notificationNow, setNotificationNow] = reactExports.useState(() => Date.now());
+  const [notificationNow, setNotificationNow] = reactExports.useState(() =>
+    Date.now(),
+  );
   const [capabilities, setCapabilities] = reactExports.useState({
     downloadCancellation: devPreviewMode !== null,
   });
@@ -192,8 +507,10 @@ export const UpdaterProvider = ({ children: children2 }) => {
   }, [devPreviewMode]);
   reactExports.useEffect(() => {
     const dismissedAt = state2.dismissedAt ?? 0;
-    const supportsReminder = state2.phase === "available" || state2.phase === "downloaded";
-    if (!state2.dismissed || dismissedAt <= 0 || !supportsReminder) return void 0;
+    const supportsReminder =
+      state2.phase === "available" || state2.phase === "downloaded";
+    if (!state2.dismissed || dismissedAt <= 0 || !supportsReminder)
+      return void 0;
     const remainingMs = dismissedAt + UPDATE_DISMISS_REMINDER_MS - Date.now();
     if (remainingMs <= 0) return void 0;
     const timer2 = window.setTimeout(() => {
@@ -293,7 +610,11 @@ export const UpdaterProvider = ({ children: children2 }) => {
     serviceRef.current?.download();
   }, [devPreviewMode]);
   reactExports.useEffect(() => {
-    if (!devPreviewMode || devPreviewMode === "downloading" || state2.phase !== "downloading") {
+    if (
+      !devPreviewMode ||
+      devPreviewMode === "downloading" ||
+      state2.phase !== "downloading"
+    ) {
       return void 0;
     }
     let percent2 = 0;
@@ -419,33 +740,12 @@ export const UpdaterProvider = ({ children: children2 }) => {
       dismissAction,
     ],
   );
-  return <UpdaterContext.Provider value={value}>{children2}</UpdaterContext.Provider>;
+  return (
+    <UpdaterContext.Provider value={value}>{children2}</UpdaterContext.Provider>
+  );
 };
+
 ({
   en: BUNDLED_CHANGELOG.en,
   zh: BUNDLED_CHANGELOG.zh,
 });
-function formatVersion(version2) {
-  const v2 = version2.replace(/^v/, "");
-  return `v${v2}`;
-}
-export function computeVersionDelta(currentVersion, targetVersion) {
-  const current2 = parseSemver(currentVersion);
-  const target = parseSemver(targetVersion);
-  const currentFormatted = formatVersion(currentVersion);
-  const targetFormatted = formatVersion(targetVersion);
-  const isMinorBump = !!(current2 && target && current2.minor !== target.minor);
-  const versionsBehind = (() => {
-    if (!current2 || !target) return null;
-    if (current2.major !== target.major || current2.minor !== target.minor) return null;
-    const delta = target.patch - current2.patch;
-    return delta > 0 ? delta : null;
-  })();
-  return {
-    display: `${currentFormatted} → ${targetFormatted}`,
-    isMinorBump,
-    currentFormatted,
-    targetFormatted,
-    versionsBehind,
-  };
-}

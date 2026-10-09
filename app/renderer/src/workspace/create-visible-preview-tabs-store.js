@@ -1,191 +1,16 @@
 // create-visible-preview-tabs-store.js
-import { reactExports, getRuntimeConfig, useNavigate } from "../vendor.js";
-import { IPC_CHANNELS } from "../infra/agent-ws-client.jsx";
-import { CENTERED_TOASTER_PLACEMENT } from "../settings/attach-native-toast-surface.js";
-import { getElectronPlatform } from "../infra/track-events.js";
-export const GLOBAL_TOASTER_Z_INDEX = 10100;
-export function resolveToasterPlacement() {
-  return CENTERED_TOASTER_PLACEMENT;
-}
-export function canUseDebugTooling() {
-  try {
-    const config2 = getRuntimeConfig();
-    return config2.env === "development" || config2.env === "test" || config2.channel !== "prod";
-  } catch {
-    return false;
-  }
-}
-const EVENT = "hilo:debug-flag-changed";
-export const DEBUG_FLAGS = {
-  /**
-   * Developer raw view. Two effects when on:
-   *   1. Expand Input/Output detail for ALL timeline items, not just media gen.
-   *   2. Stop filtering `silent` tools (todowrite / memory / dag / upload /
-   *      any unmatched), so deliberately-hidden tool calls render in the
-   *      timeline with their raw name + Input/Output. See `filterSilentTools`.
-   */
-  rawToolView: "hilo.debug.rawToolView",
-  /** Prepend mock media-gen tool messages to the current session for visual testing. */
-  mockMediaGen: "hilo.debug.mockMediaGen",
-  /** Show a mock ToolConfirm injector backed by media-gen fixtures. */
-  mockToolConfirm: "hilo.debug.mockToolConfirm",
-  /** Force the observe-only offline banner for QA / support reproduction. */
-  forceOfflineBanner: "hilo.debug.forceOfflineBanner",
-  /** Enable the react-scan render-highlighting overlay (dev-only perf debugging). */
-  reactScan: "hilo.debug.reactScan",
-  /** Mount the tracking recorder overlay and subscribe to live analytics events. */
-  trackingRecorder: "hilo.debug.trackingRecorder",
-  /**
-   * Inflate history rail to 80 turns for visual QA of compressed mode (turn > 40).
-   * 仅影响 rail 自身 (turns 描述符), 不污染真实 messages.
-   */
-  mockHistoryRail: "hilo.debug.mockHistoryRail",
-};
-function readFlag(key2) {
-  if (!canUseDebugTooling()) return false;
-  try {
-    return localStorage.getItem(key2) === "1";
-  } catch {
-    return false;
-  }
-}
-export function setDebugFlag(key2, enabled) {
-  if (!canUseDebugTooling()) return;
-  try {
-    if (enabled) localStorage.setItem(key2, "1");
-    else localStorage.removeItem(key2);
-  } catch {}
-  window.dispatchEvent(
-    new CustomEvent(EVENT, {
-      detail: {
-        key: key2,
-      },
-    }),
-  );
-}
-export function useDebugFlag(key2) {
-  const [enabled, setEnabled] = reactExports.useState(() => readFlag(key2));
-  reactExports.useEffect(() => {
-    const sync = () => setEnabled(readFlag(key2));
-    window.addEventListener(EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, [key2]);
-  return enabled;
-}
-const SKILL_NAME_PATTERN = /^[a-zA-Z0-9._-]{1,64}$/;
-function isValidSkillName(name2) {
-  return SKILL_NAME_PATTERN.test(name2);
-}
-export function useDeepLinkRouter() {
-  const [pendingInstall, setPendingInstall] = reactExports.useState(null);
-  const [pendingTeamInvite, setPendingTeamInvite] = reactExports.useState(null);
-  const processedRef = reactExports.useRef(new Set());
-  reactExports.useEffect(() => {
-    if (!window.hilo?.ipcRenderer) return;
-    const dedupeTimers = new Set();
-    const off = window.hilo.ipcRenderer.on(IPC_CHANNELS.DEEPLINK_RECEIVED, (_event, ...args) => {
-      const action = args[0];
-      if (!action) return;
-      if (action.action === "team/invite") {
-        const { token: token2 } = action.params;
-        if (!token2) return;
-        const region =
-          action.params.region === "domestic" || action.params.region === "overseas"
-            ? action.params.region
-            : void 0;
-        const dedupeKey2 = `team-invite:${region ?? "runtime"}:${token2}`;
-        if (processedRef.current.has(dedupeKey2)) return;
-        processedRef.current.add(dedupeKey2);
-        const timer22 = window.setTimeout(() => {
-          processedRef.current.delete(dedupeKey2);
-          dedupeTimers.delete(timer22);
-        }, 3e3);
-        dedupeTimers.add(timer22);
-        setPendingTeamInvite({
-          token: token2,
-          ...(region
-            ? {
-                region,
-              }
-            : {}),
-        });
-        return;
-      }
-      if (action.action !== "skill/install") return;
-      const { name: name2, source } = action.params;
-      if (!name2 || !isValidSkillName(name2)) {
-        return;
-      }
-      const dedupeKey = `${name2}:${source || ""}`;
-      if (processedRef.current.has(dedupeKey)) return;
-      processedRef.current.add(dedupeKey);
-      const timer2 = window.setTimeout(() => {
-        processedRef.current.delete(dedupeKey);
-        dedupeTimers.delete(timer2);
-      }, 3e3);
-      dedupeTimers.add(timer2);
-      setPendingInstall({
-        name: name2,
-        source,
-      });
-    });
-    return () => {
-      off();
-      for (const timer2 of dedupeTimers) {
-        window.clearTimeout(timer2);
-      }
-      dedupeTimers.clear();
-    };
-  }, []);
-  const dismiss = reactExports.useCallback(() => setPendingInstall(null), []);
-  const dismissTeamInvite = reactExports.useCallback(() => setPendingTeamInvite(null), []);
-  return {
-    pendingInstall,
-    dismiss,
-    pendingTeamInvite,
-    dismissTeamInvite,
-  };
-}
-export function buildWorkspaceSearch(workspaceId2, opts) {
-  return {
-    workspaceId: workspaceId2 || void 0,
-    initialPayloadId: opts?.initialPayloadId,
-    initialMessage: opts?.initialMessage,
-    initialAttachments: opts?.initialAttachments,
-    initialEntityRefs: opts?.initialEntityRefs,
-    initialModelId: opts?.initialModelId,
-    initialSelectedMediaModels: opts?.initialSelectedMediaModels,
-    skillPrompt: opts?.skillPrompt,
-    skillName: opts?.skillName,
-    pluginId: opts?.pluginId,
-    initialComfyUiWorkflowId: opts?.initialComfyUiWorkflowId,
-    initialComfyUiWorkflowTarget: opts?.initialComfyUiWorkflowTarget,
-    menuAction: opts?.menuAction,
-    assetCenterRelocation: opts?.assetCenterRelocation || void 0,
-  };
-}
-export function useNavigateToWorkspace() {
-  const navigate = useNavigate();
-  return reactExports.useCallback(
-    (runtime, opts) => {
-      return navigate({
-        to: "/workspace",
-        search: buildWorkspaceSearch(runtime.workspaceId, opts),
-      });
-    },
-    [navigate],
-  );
-}
+import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
+import { resolveVisiblePreviewEntries } from "./use-deep-link-router.js";
+
 const VISIBLE_PREVIEW_TABS_STORAGE_KEY = "hilo.topbar.visible-preview-tabs.v1";
+
 const VISIBLE_PREVIEW_TABS_VERSION = 1;
+
 function nonEmptyOpaqueText(value) {
   if (typeof value !== "string") return void 0;
   return value.trim().length > 0 ? value : void 0;
 }
+
 function normalizeReference$1(value) {
   if (typeof value === "string") {
     const workspaceId22 = nonEmptyOpaqueText(value);
@@ -209,6 +34,7 @@ function normalizeReference$1(value) {
         workspaceId: workspaceId2,
       };
 }
+
 function dedupeReferences(values3) {
   const seenWorkspaceIds = new Set();
   const seenFolderPaths = new Set();
@@ -216,13 +42,15 @@ function dedupeReferences(values3) {
   for (const value of values3) {
     const reference = normalizeReference$1(value);
     if (!reference || seenWorkspaceIds.has(reference.workspaceId)) continue;
-    if (reference.folderPath && seenFolderPaths.has(reference.folderPath)) continue;
+    if (reference.folderPath && seenFolderPaths.has(reference.folderPath))
+      continue;
     seenWorkspaceIds.add(reference.workspaceId);
     if (reference.folderPath) seenFolderPaths.add(reference.folderPath);
     result.push(reference);
   }
   return result;
 }
+
 function referencesEqual(left, right) {
   return (
     left.length === right.length &&
@@ -233,6 +61,7 @@ function referencesEqual(left, right) {
     )
   );
 }
+
 function readSnapshot(storage) {
   if (!storage)
     return {
@@ -271,6 +100,7 @@ function readSnapshot(storage) {
     };
   }
 }
+
 function browserStorage() {
   try {
     return typeof window === "undefined" ? null : window.localStorage;
@@ -278,7 +108,9 @@ function browserStorage() {
     return null;
   }
 }
+
 let durablePreviewWriteQueue = Promise.resolve();
+
 function mainReadablePreviewTabsMirror() {
   return {
     set: (value) => {
@@ -291,33 +123,14 @@ function mainReadablePreviewTabsMirror() {
     },
   };
 }
+
 function entryReference(entry) {
   return {
     workspaceId: entry.workspaceId,
     folderPath: entry.folderPath,
   };
 }
-export function resolveVisiblePreviewEntries(entries2, references) {
-  const byWorkspaceId = new Map(entries2.map((entry) => [entry.workspaceId, entry]));
-  const byFolderPath = new Map(entries2.map((entry) => [entry.folderPath, entry]));
-  const seen2 = new Set();
-  const visible = [];
-  for (const reference of references) {
-    const entry =
-      byWorkspaceId.get(reference.workspaceId) ??
-      (reference.folderPath ? byFolderPath.get(reference.folderPath) : void 0);
-    if (!entry || seen2.has(entry.workspaceId)) continue;
-    seen2.add(entry.workspaceId);
-    visible.push(entry);
-  }
-  return visible;
-}
-export function getNextPreviewTabIdAfterHide(orderedWorkspaceIds, hiddenWorkspaceId) {
-  const hiddenIndex = orderedWorkspaceIds.indexOf(hiddenWorkspaceId);
-  if (hiddenIndex === -1) return null;
-  const remaining = orderedWorkspaceIds.filter((id2) => id2 !== hiddenWorkspaceId);
-  return remaining[Math.min(hiddenIndex, remaining.length - 1)] ?? null;
-}
+
 function createVisiblePreviewTabsStore(
   storage = browserStorage(),
   durableMirror = mainReadablePreviewTabsMirror(),
@@ -333,7 +146,10 @@ function createVisiblePreviewTabsStore(
         tabs: [...value.tabs],
       };
       try {
-        storage.setItem(VISIBLE_PREVIEW_TABS_STORAGE_KEY, JSON.stringify(localValue));
+        storage.setItem(
+          VISIBLE_PREVIEW_TABS_STORAGE_KEY,
+          JSON.stringify(localValue),
+        );
       } catch {}
     }
     durableMirror.set({
@@ -344,7 +160,10 @@ function createVisiblePreviewTabsStore(
   };
   const publish = (tabs, initialized2 = true) => {
     const normalized = dedupeReferences(tabs);
-    if (snapshot2.initialized === initialized2 && referencesEqual(snapshot2.tabs, normalized)) {
+    if (
+      snapshot2.initialized === initialized2 &&
+      referencesEqual(snapshot2.tabs, normalized)
+    ) {
       persist2(snapshot2);
       return;
     }
@@ -377,12 +196,18 @@ function createVisiblePreviewTabsStore(
         hiddenBeforeInitialization.clear();
         return;
       }
-      const byWorkspaceId = new Map(entries2.map((entry) => [entry.workspaceId, entry]));
-      const byFolderPath = new Map(entries2.map((entry) => [entry.folderPath, entry]));
+      const byWorkspaceId = new Map(
+        entries2.map((entry) => [entry.workspaceId, entry]),
+      );
+      const byFolderPath = new Map(
+        entries2.map((entry) => [entry.folderPath, entry]),
+      );
       const reconciled = snapshot2.tabs.map((reference) => {
         const entry =
           byWorkspaceId.get(reference.workspaceId) ??
-          (reference.folderPath ? byFolderPath.get(reference.folderPath) : void 0);
+          (reference.folderPath
+            ? byFolderPath.get(reference.folderPath)
+            : void 0);
         return entry ? entryReference(entry) : reference;
       });
       publish(reconciled, true);
@@ -395,7 +220,9 @@ function createVisiblePreviewTabsStore(
         (tab2) =>
           tab2.workspaceId === reference.workspaceId ||
           Boolean(
-            tab2.folderPath && reference.folderPath && tab2.folderPath === reference.folderPath,
+            tab2.folderPath &&
+            reference.folderPath &&
+            tab2.folderPath === reference.folderPath,
           ),
       );
       if (existingIndex === -1) {
@@ -428,7 +255,10 @@ function createVisiblePreviewTabsStore(
         replaced = true;
         return canonical;
       });
-      publish(replaced ? updated : [...updated, canonical], snapshot2.initialized);
+      publish(
+        replaced ? updated : [...updated, canonical],
+        snapshot2.initialized,
+      );
     },
     hide: (workspaceIds) => {
       const ids2 = new Set(
@@ -446,8 +276,12 @@ function createVisiblePreviewTabsStore(
       );
     },
     reorder: (activeWorkspaceId, overWorkspaceId) => {
-      const fromIndex = snapshot2.tabs.findIndex((tab2) => tab2.workspaceId === activeWorkspaceId);
-      const toIndex = snapshot2.tabs.findIndex((tab2) => tab2.workspaceId === overWorkspaceId);
+      const fromIndex = snapshot2.tabs.findIndex(
+        (tab2) => tab2.workspaceId === activeWorkspaceId,
+      );
+      const toIndex = snapshot2.tabs.findIndex(
+        (tab2) => tab2.workspaceId === overWorkspaceId,
+      );
       if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
       const reordered = [...snapshot2.tabs];
       const [moved] = reordered.splice(fromIndex, 1);
@@ -457,14 +291,5 @@ function createVisiblePreviewTabsStore(
     },
   };
 }
+
 export const visiblePreviewTabsStore = createVisiblePreviewTabsStore();
-export function useVisiblePreviewTabsSnapshot() {
-  return reactExports.useSyncExternalStore(
-    visiblePreviewTabsStore.subscribe,
-    visiblePreviewTabsStore.getSnapshot,
-    visiblePreviewTabsStore.getSnapshot,
-  );
-}
-export function showVisiblePreviewTab(entry) {
-  visiblePreviewTabsStore.show(entry);
-}

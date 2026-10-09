@@ -1,165 +1,11 @@
 // use-diff-review-store.js
-import { reactExports, create$2 } from "../vendor.js";
-import { Ct$2 } from "../vendor-inline/minified/ct.js";
-export function Tt$1(t2, e2 = {}) {
-  return new Ct$2(t2, e2);
-}
-const MAX_HISTORY = 100;
-function createHistory$1(initial) {
-  return Tt$1(initial, {
-    maxHistory: MAX_HISTORY,
-    autoArchive: false,
-  });
-}
-export function useTableHistory(initial) {
-  const travelsRef = reactExports.useRef(null);
-  if (travelsRef.current === null) travelsRef.current = createHistory$1(initial);
-  const [doc2, setDoc] = reactExports.useState(initial);
-  reactExports.useEffect(() => {
-    travelsRef.current = createHistory$1(initial);
-    setDoc(initial);
-  }, [initial]);
-  const apply2 = reactExports.useCallback((transform2) => {
-    const travels2 = travelsRef.current;
-    if (!travels2) return;
-    const prev = travels2.getState();
-    const next2 = transform2(prev);
-    if (next2 === prev) return;
-    travels2.setState((draft) => {
-      mergeDocIntoDraft(draft, next2, prev);
-    });
-    travels2.archive();
-    setDoc(travels2.getState());
-  }, []);
-  const reset2 = reactExports.useCallback((next2) => {
-    travelsRef.current = createHistory$1(next2);
-    setDoc(next2);
-  }, []);
-  const undo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canBack()) return;
-    travels2.back();
-    setDoc(travels2.getState());
-  }, []);
-  const redo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canForward()) return;
-    travels2.forward();
-    setDoc(travels2.getState());
-  }, []);
-  const travels = travelsRef.current;
-  return {
-    doc: doc2,
-    apply: apply2,
-    reset: reset2,
-    undo: undo2,
-    redo: redo2,
-    canUndo: travels?.canBack() ?? false,
-    canRedo: travels?.canForward() ?? false,
-  };
-}
-function mergeDocIntoDraft(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.version !== prev.version) draft.version = next2.version;
-  if (next2.columns !== prev.columns) {
-    if (!tryMergeArrayById(draft.columns, next2.columns, prev.columns, mergeColumnInto)) {
-      draft.columns = next2.columns;
-    }
-  }
-  if (next2.rows !== prev.rows) {
-    if (!tryMergeArrayById(draft.rows, next2.rows, prev.rows, mergeRowInto)) {
-      draft.rows = next2.rows;
-    }
-  }
-  if (next2.filter !== prev.filter) {
-    mergeOptionalField(draft, "filter", next2.filter, prev.filter);
-  }
-  if (next2.rowHeight !== prev.rowHeight) {
-    mergeOptionalField(draft, "rowHeight", next2.rowHeight, prev.rowHeight);
-  }
-}
-function mergeOptionalField(draft, key2, next2, prev) {
-  if (next2 === void 0) {
-    if (prev !== void 0) delete draft[key2];
-    return;
-  }
-  draft[key2] = next2;
-}
-function mergeColumnInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.title !== prev.title) draft.title = next2.title;
-  if (next2.type !== prev.type) draft.type = next2.type;
-  if (next2.visible !== prev.visible) draft.visible = next2.visible;
-  if (next2.width !== prev.width) draft.width = next2.width;
-}
-function mergeRowInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.cells !== prev.cells) {
-    mergeCellsInto(draft.cells, next2.cells, prev.cells);
-  }
-  if (next2.height !== prev.height) {
-    if (next2.height === void 0) delete draft.height;
-    else draft.height = next2.height;
-  }
-}
-function mergeCellsInto(draft, next2, prev) {
-  for (const key2 of Object.keys(prev)) {
-    if (!(key2 in next2)) delete draft[key2];
-  }
-  for (const key2 of Object.keys(next2)) {
-    if (next2[key2] !== prev[key2]) draft[key2] = next2[key2];
-  }
-}
-function tryMergeArrayById(draft, next2, prev, mergeItem) {
-  if (next2 === prev) return true;
-  if (next2.length === prev.length) {
-    for (let i2 = 0; i2 < next2.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (!n2 || !p3 || n2.id !== p3.id) return false;
-    }
-    for (let i2 = 0; i2 < next2.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (n2 !== p3) mergeItem(draft[i2], n2, p3);
-    }
-    return true;
-  }
-  if (next2.length === prev.length + 1) {
-    for (let i2 = 0; i2 < prev.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (!n2 || !p3 || n2.id !== p3.id) return false;
-    }
-    draft.push(next2[prev.length]);
-    return true;
-  }
-  if (next2.length + 1 === prev.length) {
-    let removedAt = -1;
-    let scan = 0;
-    for (let i2 = 0; i2 < prev.length; i2++) {
-      const p3 = prev[i2];
-      const n2 = scan < next2.length ? next2[scan] : void 0;
-      if (p3 && n2 && p3.id === n2.id) {
-        scan++;
-      } else if (removedAt === -1) {
-        removedAt = i2;
-      } else {
-        return false;
-      }
-    }
-    if (removedAt >= 0 && scan === next2.length) {
-      draft.splice(removedAt, 1);
-      return true;
-    }
-  }
-  return false;
-}
+import { create$2 } from "../vendor.js";
+import { isDiffReviewSessionReady } from "./is-diff-review-session-ready.js";
+
 function diffReviewHunkId(edit) {
   return `${edit.annotationId}:${edit.targetIndex ?? 0}`;
 }
+
 function toHunk(edit) {
   return {
     id: diffReviewHunkId(edit),
@@ -184,8 +30,11 @@ function toHunk(edit) {
     status: "pending",
   };
 }
+
 function toSession(input, contentReady = input.contentReady ?? false) {
-  const hunks = input.appliedEdits.map(toHunk).sort((a2, b3) => a2.startLine - b3.startLine);
+  const hunks = input.appliedEdits
+    .map(toHunk)
+    .sort((a2, b3) => a2.startLine - b3.startLine);
   return {
     requestId: input.requestId,
     nodeId: input.nodeId,
@@ -194,13 +43,14 @@ function toSession(input, contentReady = input.contentReady ?? false) {
     hunks,
   };
 }
-export function isDiffReviewSessionReady(session) {
-  return session.contentReady === true || session.baselineMarkdown !== void 0;
-}
+
 function withResolvedCleanup(session) {
   if (!session) return null;
-  return session.hunks.some((hunk) => hunk.status === "pending") ? session : null;
+  return session.hunks.some((hunk) => hunk.status === "pending")
+    ? session
+    : null;
 }
+
 export const useDiffReviewStore = create$2((set2, get3) => ({
   session: null,
   reverting: false,
@@ -253,7 +103,12 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
   },
   setContentReady(requestId) {
     const { session } = get3();
-    if (!session || session.requestId !== requestId || isDiffReviewSessionReady(session)) return;
+    if (
+      !session ||
+      session.requestId !== requestId ||
+      isDiffReviewSessionReady(session)
+    )
+      return;
     set2({
       session: {
         ...session,
@@ -288,7 +143,12 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
   },
   setBaselineMarkdown(requestId, markdown2, historyDepthAtStart = 0) {
     const { session } = get3();
-    if (!session || session.requestId !== requestId || session.baselineMarkdown !== void 0) return;
+    if (
+      !session ||
+      session.requestId !== requestId ||
+      session.baselineMarkdown !== void 0
+    )
+      return;
     set2({
       session: {
         ...session,
@@ -392,7 +252,8 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
   },
   acceptHunks(ids2) {
     const { session, historyHandler } = get3();
-    if (!session || (historyHandler && !isDiffReviewSessionReady(session))) return;
+    if (!session || (historyHandler && !isDiffReviewSessionReady(session)))
+      return;
     const acceptedIds = new Set(ids2);
     const after = {
       ...session,
@@ -405,7 +266,8 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
           : hunk,
       ),
     };
-    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2])) return;
+    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2]))
+      return;
     if (
       historyHandler?.({
         kind: "accept",
@@ -420,7 +282,8 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
   },
   acceptAll() {
     const { session, historyHandler } = get3();
-    if (!session || (historyHandler && !isDiffReviewSessionReady(session))) return;
+    if (!session || (historyHandler && !isDiffReviewSessionReady(session)))
+      return;
     const after = {
       ...session,
       hunks: session.hunks.map((hunk) =>
@@ -432,7 +295,8 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
           : hunk,
       ),
     };
-    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2])) return;
+    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2]))
+      return;
     if (
       historyHandler?.({
         kind: "accept",
@@ -466,10 +330,18 @@ export const useDiffReviewStore = create$2((set2, get3) => ({
       reverting: true,
     });
     try {
-      const { undoneIds, content: content2 } = await undoHandler(session.nodeId, targets);
+      const { undoneIds, content: content2 } = await undoHandler(
+        session.nodeId,
+        targets,
+      );
       const undone = new Set(undoneIds);
       const current2 = get3().session;
-      if (!current2 || current2.requestId !== session.requestId || undone.size === 0) return;
+      if (
+        !current2 ||
+        current2.requestId !== session.requestId ||
+        undone.size === 0
+      )
+        return;
       const after = {
         ...current2,
         hunks: current2.hunks.map((hunk) =>

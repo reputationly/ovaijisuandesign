@@ -1,26 +1,49 @@
 // asset-center-page.jsx
-import { useTranslation, reactExports, useSearch, useNavigate, dedupedToast, Loader2, ShieldAlert, CheckCircle2, X$7, Plus, ChevronDown, ChevronUp, FolderInput, usePlatform, useStorage, Library, Check } from "../vendor.js";
-import { gatewayUrl } from "../infra/agent-ws-client.jsx";
-import { withThumbnail } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { DropdownMenu, assetCenterLog, TooltipProvider, Tooltip, TooltipTrigger, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
-import { getFileManagerLabelKey } from "../settings/interest-selection-provider.jsx";
-import { Download, Sparkles, Trash2, FolderOpen } from "../media-editing/parse-item.jsx";
-import { sortRecentWorkspaces } from "../workspace/workspace-events.js";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  dedupedToast,
+  LayoutGrid,
+  Loader2,
+  Plus,
+  reactExports,
+  Search,
+  ShieldAlert,
+  useMutation,
+  useNavigate,
+  useQuery,
+  useQueryClient,
+  useSearch,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AddEntityDialog } from "./attachment-upload-zone.jsx";
-import { EntityDeleteConfirm, EntityEditDialog } from "./entity-edit-dialog.jsx";
-import { ImportEntityConflictError } from "./import-entity.js";
+import { PageStateBoundary } from "./page-state-boundary.jsx";
+import { EntityCard } from "./entity-card.jsx";
+import { EntityListRow } from "./entity-list-row.jsx";
 import {
   classifyAssetError,
+  jsonInit,
+  ToggleGroup,
+  ToggleGroupItem,
   trackAssetCenterAction,
   trackAssetCreate,
   useExportEntityUrl,
   useImportEntity,
-  writeEntityDragData,
 } from "../infra/use-online.jsx";
-import { PageStateBoundary, formatAssetCenterError } from "./page-state-boundary.jsx";
 import {
   AlertDialog,
+  Button$1,
+  cn$2,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "../infra/dialog-content.jsx";
+import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -29,37 +52,386 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Badge,
-  Button$1,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Textarea,
-  TooltipContent,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
+} from "../infra/badge-variants.jsx";
 import {
-  useDeleteEntity,
-  useMaterializeEntity,
-  useUpdateEntity,
-} from "./use-materialize-entity.js";
+  assetCenterKeys,
+  BASE,
+  readEnvelope$1,
+  readObject,
+  ROOT_KEY$1,
+  useAssetCenterFetcher,
+  useEntities,
+} from "./wrap-as-asset-center-error.js";
+import { formatAssetCenterError } from "./key-entries.js";
+import { Download, List, Sparkles, Upload } from "../media-editing/package.jsx";
+import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
+import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
+import { ENTITY_TYPES } from "./audio-play-button.jsx";
 import {
-  AssetCenterToolbar,
-  useApproveSuggestion,
-  useExportEntitiesBatchUrl,
-  usePendingSuggestions,
-  useRejectSuggestion,
-} from "./asset-center-toolbar.jsx";
-import {
-  assetCenterSearchWithoutAction,
-  buildAssetCenterWorkspaceReturn,
-  useAssetCenterPage,
-} from "./use-asset-center-page.js";
+  DropdownMenu,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+  Icon,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { CatalogPageHeading } from "./catalog-page-heading.jsx";
+import { Input3 } from "../infra/select-content.jsx";
+import { MaterializeWorkspaceDialog } from "./materialize-workspace-dialog.jsx";
+import { AddEntityDialog } from "./add-entity-dialog.jsx";
+import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
+import { EntityEditDialog } from "./entity-edit-dialog.jsx";
+import { ImportEntityConflictError } from "./import-entity-conflict-error.js";
+import { useDeleteEntity } from "./use-materialize-entity.js";
+
+function exportEntitiesBatchUrl(buildUrl, entityIds) {
+  if (entityIds.length === 0) return void 0;
+  const ids2 = entityIds.map((id2) => encodeURIComponent(id2)).join(",");
+  return buildUrl(`${BASE}/entities-export?ids=${ids2}`);
+}
+
+async function listPendingSuggestions(fetcher, limit) {
+  const qs = `?limit=${encodeURIComponent(String(limit))}`;
+  const res = await fetcher(`${BASE}/suggestions${qs}`);
+  return readEnvelope$1(res, "suggestions", "suggestions", "array");
+}
+
+async function approveSuggestion(fetcher, suggestionId, request = {}) {
+  const res = await fetcher(
+    `${BASE}/suggestions/${encodeURIComponent(suggestionId)}/approve`,
+    jsonInit("POST", request),
+  );
+  return readObject(res, "approve suggestion result");
+}
+
+async function rejectSuggestion(fetcher, suggestionId) {
+  const res = await fetcher(
+    `${BASE}/suggestions/${encodeURIComponent(suggestionId)}/reject`,
+    {
+      method: "POST",
+    },
+  );
+  return readEnvelope$1(res, "suggestion", "rejected suggestion");
+}
+
+function usePendingSuggestions(limit) {
+  const fetcher = useAssetCenterFetcher();
+  return useQuery({
+    queryKey: assetCenterKeys.suggestions(limit),
+    queryFn: () => listPendingSuggestions(fetcher, limit),
+  });
+}
+
+function useExportEntitiesBatchUrl() {
+  const buildUrl = useGatewayUrl();
+  return (entityIds) => exportEntitiesBatchUrl(buildUrl, entityIds);
+}
+
+function useApproveSuggestion() {
+  const queryClient2 = useQueryClient();
+  const fetcher = useAssetCenterFetcher();
+  return useMutation({
+    mutationFn: ({ suggestionId, request }) =>
+      approveSuggestion(fetcher, suggestionId, request),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({
+        queryKey: ROOT_KEY$1,
+      });
+    },
+  });
+}
+
+function useRejectSuggestion() {
+  const queryClient2 = useQueryClient();
+  const fetcher = useAssetCenterFetcher();
+  return useMutation({
+    mutationFn: ({ suggestionId }) => rejectSuggestion(fetcher, suggestionId),
+    onSuccess: () => {
+      queryClient2.invalidateQueries({
+        queryKey: ROOT_KEY$1,
+      });
+    },
+  });
+}
+
+const TYPE_CHIPS$1 = ["all", ...ENTITY_TYPES];
+
+const SORT_MODES = ["updated_at", "use_count"];
+
+function AssetCenterToolbar({
+  onBack,
+  search: search2,
+  onSearchChange,
+  typeFilter,
+  onTypeFilterChange,
+  sort,
+  onSortChange,
+  viewMode,
+  onViewModeChange,
+  onAddClick,
+  onImportFile,
+  isImporting,
+}) {
+  const { t: t2 } = useTranslation();
+  const importInputRef = reactExports.useRef(null);
+  return (
+    <div
+      className="shrink-0 bg-[var(--home-content-surface)] px-8 md:px-12 pt-7"
+      data-window-app-controls-safe-row="true"
+    >
+      <div className="relative z-10 border-b border-border-soft pb-6">
+        <div className="mt-3 flex min-w-0 items-start gap-2">
+          {onBack ? (
+            <Button$1
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="mt-0.5 size-8 rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+              onClick={onBack}
+              aria-label={t2("assetCenter.backToWorkspace")}
+              title={t2("assetCenter.backToWorkspace")}
+              data-action-ui-id="asset-center-back-to-workspace"
+            >
+              <Icon icon={ArrowLeft} size="md" aria-hidden={true} />
+            </Button$1>
+          ) : null}
+          <CatalogPageHeading
+            title={t2("assetCenter.title")}
+            description={t2("assetCenter.subtitle")}
+          />
+        </div>
+        <div className="mt-8 flex flex-wrap items-center gap-2">
+          <Button$1
+            size="default"
+            className="h-9 gap-1.5 rounded-lg px-4 text-[13px] font-medium"
+            onClick={onAddClick}
+            data-action-ui-id="asset-center-add-entity"
+          >
+            <Plus size={16} strokeWidth={1.5} />
+            {t2("assetCenter.add")}
+          </Button$1>
+          <Button$1
+            type="button"
+            variant="outline"
+            size="default"
+            className="h-9 gap-1.5 rounded-lg px-4 text-[13px] font-medium"
+            onClick={() => importInputRef.current?.click()}
+            disabled={isImporting}
+            data-action-ui-id="asset-center-toolbar-import"
+          >
+            <Upload size={16} strokeWidth={1.5} />
+            {t2("assetCenter.import.action")}
+          </Button$1>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            multiple={true}
+            className="hidden"
+            data-action-ui-id="asset-center-toolbar-import-input"
+            onChange={(e2) => {
+              const files = Array.from(e2.target.files ?? []);
+              e2.target.value = "";
+              if (files.length > 0) onImportFile(files);
+            }}
+          />
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pt-4 pb-3">
+        <ToggleGroup
+          value={[typeFilter]}
+          onValueChange={(values3) => {
+            onTypeFilterChange(values3[0] ?? "all");
+          }}
+          className="gap-1"
+          aria-label={t2("assetCenter.typeFilter.label")}
+        >
+          {TYPE_CHIPS$1.map((chip) => (
+            <ToggleGroupItem
+              key={chip}
+              value={chip}
+              data-action-ui-id={`asset-center-filter-${chip}`}
+              className="h-7 px-3 text-xs !rounded-[4px] text-muted-foreground hover:text-foreground hover:bg-muted/60 aria-pressed:bg-foreground/10 aria-pressed:text-foreground aria-pressed:font-medium"
+            >
+              {t2(`assetCenter.types.${chip}`)}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <div className="relative flex h-8 w-full max-w-64 items-center">
+            <Search
+              size={14}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            />
+            <Input3
+              value={search2}
+              onChange={(e2) => onSearchChange(e2.target.value)}
+              placeholder={t2("assetCenter.searchPlaceholder")}
+              aria-label={t2("assetCenter.searchPlaceholder")}
+              className="h-8 pl-8 pr-8"
+              data-action-ui-id="asset-center-search"
+            />
+            {search2 ? (
+              <button
+                type="button"
+                onClick={() => onSearchChange("")}
+                aria-label={t2("common.clear")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                data-action-ui-id="asset-center-search-clear"
+              >
+                <X$7 size={13} strokeWidth={1.5} />
+              </button>
+            ) : null}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label={t2("assetCenter.sort.label", "排序")}
+              data-action-ui-id="asset-center-sort"
+              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-foreground/[0.05] px-3 text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.08] hover:text-foreground"
+            >
+              {t2(`assetCenter.sort.${sort}`)}
+              <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              side="bottom"
+              sideOffset={4}
+              className="min-w-40"
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t2("assetCenter.sort.label", "排序")}
+                </DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={sort}
+                  aria-label={t2("assetCenter.sort.label", "排序")}
+                  onValueChange={(v2) => onSortChange(v2)}
+                >
+                  {SORT_MODES.map((mode2) => (
+                    <DropdownMenuRadioItem key={mode2} value={mode2}>
+                      {t2(`assetCenter.sort.${mode2}`)}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="flex items-center gap-0.5">
+            <Button$1
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onViewModeChange("grid")}
+              aria-pressed={viewMode === "grid"}
+              title={t2("assetCenter.viewMode.grid")}
+              data-action-ui-id="asset-center-toolbar-view-grid"
+              className={cn$2(
+                viewMode === "grid"
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <LayoutGrid size={16} />
+            </Button$1>
+            <Button$1
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onViewModeChange("list")}
+              aria-pressed={viewMode === "list"}
+              title={t2("assetCenter.viewMode.list")}
+              data-action-ui-id="asset-center-toolbar-view-list"
+              className={cn$2(
+                viewMode === "list"
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <List size={16} />
+            </Button$1>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function assetCenterSearchWithoutAction(returnWorkspaceId) {
+  return returnWorkspaceId
+    ? {
+        returnWorkspaceId,
+      }
+    : {};
+}
+
+function buildAssetCenterWorkspaceReturn(returnWorkspaceId) {
+  return {
+    to: "/workspace",
+    search: buildWorkspaceSearch(returnWorkspaceId),
+    replace: true,
+  };
+}
+
+const VIEW_MODE_STORAGE_KEY = "assetCenter.viewMode";
+
+function readInitialViewMode() {
+  try {
+    const raw2 = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (raw2 === "grid" || raw2 === "list") return raw2;
+  } catch {}
+  return "grid";
+}
+
+function useAssetCenterPage() {
+  const [typeFilter, setTypeFilter] = reactExports.useState("all");
+  const [search2, setSearch] = reactExports.useState("");
+  const [sort, setSort] = reactExports.useState("updated_at");
+  const [viewMode, setViewMode] = reactExports.useState(readInitialViewMode);
+  reactExports.useEffect(() => {
+    try {
+      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+    } catch {}
+  }, [viewMode]);
+  const listOpts = reactExports.useMemo(() => {
+    const opts = {};
+    if (typeFilter !== "all") opts.type = typeFilter;
+    if (search2.trim()) opts.q = search2.trim();
+    return opts;
+  }, [typeFilter, search2]);
+  const entitiesQuery = useEntities(listOpts);
+  const entities = reactExports.useMemo(() => {
+    const data2 = entitiesQuery.data ?? [];
+    if (sort === "use_count") {
+      return [...data2].sort(
+        (a2, b3) => b3.useCount - a2.useCount || b3.updatedAt - a2.updatedAt,
+      );
+    }
+    return data2;
+  }, [entitiesQuery.data, sort]);
+  const isLoading = entitiesQuery.isPending;
+  const isEmpty2 =
+    !entitiesQuery.isPending &&
+    !entitiesQuery.isError &&
+    entities.length === 0 &&
+    !search2.trim() &&
+    typeFilter === "all";
+  const loadError = entitiesQuery.error ?? null;
+  return {
+    isLoading,
+    loadError,
+    typeFilter,
+    search: search2,
+    sort,
+    viewMode,
+    entities,
+    isEmpty: isEmpty2,
+    setTypeFilter,
+    setSearch,
+    setSort,
+    setViewMode,
+  };
+}
+
 function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
   const { t: t2 } = useTranslation();
   return (
@@ -69,7 +441,9 @@ function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
       className="h-full"
       emptyOptions={{
         title: filteredTitle ?? t2("assetCenter.entityEmpty.title"),
-        description: filteredTitle ? void 0 : t2("assetCenter.entityEmpty.body"),
+        description: filteredTitle
+          ? void 0
+          : t2("assetCenter.entityEmpty.body"),
         actions: onCreate
           ? [
               {
@@ -85,262 +459,7 @@ function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
     />
   );
 }
-function EntityCard({
-  entity,
-  onClick,
-  onMaterialize,
-  draggable = false,
-  selected: selected2 = false,
-  onToggleSelect,
-}) {
-  const { t: t2 } = useTranslation();
-  const updateMutation = useUpdateEntity();
-  const exportUrl = useExportEntityUrl();
-  const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const thumbnailSrc = previewUrl ? withThumbnail(gatewayUrl(previewUrl), 320) : void 0;
-  reactExports.useEffect(() => {
-    assetCenterLog.info("cover.card_preview_selected", {
-      entityId: entity.id,
-      source: entity.coverUrl ? "coverUrl" : entity.thumbnailUrl ? "thumbnailUrl" : "none",
-      coverUrl: entity.coverUrl ?? null,
-      thumbnailUrl: entity.thumbnailUrl ?? null,
-      thumbnailSrc: thumbnailSrc ?? null,
-    });
-  }, [entity.id, entity.coverUrl, entity.thumbnailUrl, thumbnailSrc]);
-  const [isEditing, setIsEditing] = reactExports.useState(false);
-  const [draftDescription, setDraftDescription] = reactExports.useState(entity.description);
-  reactExports.useEffect(() => {
-    if (!isEditing) {
-      setDraftDescription(entity.description);
-    }
-  }, [entity.description, isEditing]);
-  const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      writeEntityDragData(e2, {
-        entityId: entity.id,
-        name: entity.name,
-        type: entity.type,
-        ...(previewUrl !== void 0
-          ? {
-              thumbnailUrl: previewUrl,
-            }
-          : {}),
-      });
-    },
-    [entity.id, entity.name, entity.type, previewUrl],
-  );
-  const enterEdit = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
-    setIsEditing(true);
-  }, []);
-  const commitEdit = reactExports.useCallback(async () => {
-    const next2 = draftDescription.trim();
-    if (next2 === entity.description.trim()) {
-      setIsEditing(false);
-      return;
-    }
-    try {
-      await updateMutation.mutateAsync({
-        entityId: entity.id,
-        input: {
-          description: next2,
-        },
-      });
-    } catch {
-      setDraftDescription(entity.description);
-    } finally {
-      setIsEditing(false);
-    }
-  }, [draftDescription, entity.description, entity.id, updateMutation]);
-  const cancelEdit = reactExports.useCallback(() => {
-    setDraftDescription(entity.description);
-    setIsEditing(false);
-  }, [entity.description]);
-  const handleExport = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      const url2 = exportUrl(entity.id);
-      if (!url2) return;
-      const a2 = document.createElement("a");
-      a2.href = url2;
-      a2.rel = "noopener";
-      document.body.appendChild(a2);
-      a2.click();
-      a2.remove();
-    },
-    [entity.id, exportUrl],
-  );
-  return (
-    // Root is a <div role="button"> NOT a real <button>. The card embeds an
-    // inline-edit <Textarea> in the description row; a <textarea> nested
-    // inside a <button> is invalid HTML, and browsers reparent it on
-    // normalization — which breaks React synthetic-event stopPropagation
-    // (the "press space twice → opens dialog" bug: native <button> space
-    // activation fires on a keyup path the textarea's keydown handler can't
-    // intercept). A div with explicit role+keydown sidesteps the whole
-    // invalid-nesting problem; the inner textarea is now valid content and
-    // its stopPropagation works reliably.
-    // biome-ignore lint/a11y/useSemanticElements: <button> can't legally contain the inline-edit <textarea>; div+role is the correct container here.
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e2) => {
-        if (e2.target !== e2.currentTarget) return;
-        if (e2.key === "Enter" || e2.key === " ") {
-          e2.preventDefault();
-          onClick();
-        }
-      }}
-      draggable={draggable}
-      onDragStart={draggable ? handleDragStart : void 0}
-      data-action-ui-id="asset-center-entity-card"
-      data-entity-id={entity.id}
-      className={`group flex flex-col bg-card text-left border rounded-lg transition-colors overflow-hidden focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none ${selected2 ? "border-foreground" : "border-border hover:border-foreground/40"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
-    >
-      <div className="relative aspect-[4/3] bg-muted flex items-center justify-center overflow-hidden">
-        {thumbnailSrc ? (
-          <img
-            src={thumbnailSrc}
-            alt={entity.name}
-            className="w-full h-full object-contain"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <Library size={32} className="text-muted-foreground/40" />
-        )}
-        {onToggleSelect && (
-          // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
-          <span
-            className={`absolute top-1 left-1 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-          >
-            <Checkbox
-              shape="circle"
-              appearance="card"
-              checked={selected2}
-              aria-label={`${t2("projectAssets.selectRow")}: ${entity.name}`}
-              data-action-ui-id="asset-center-entity-card.select"
-              onCheckedChange={() => onToggleSelect()}
-            />
-          </span>
-        )}
-        <Badge
-          variant="secondary"
-          className="absolute top-2 right-2 text-[10px] h-5 px-1.5 rounded-[4px] bg-background/70 backdrop-blur-sm"
-        >
-          {t2(`assetCenter.types.${entity.type}`)}
-        </Badge>
-      </div>
-      <div className="flex flex-col gap-2 p-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium truncate">{entity.name}</p>
-        </div>
-        {isEditing ? (
-          <Textarea
-            value={draftDescription}
-            onChange={(e2) => setDraftDescription(e2.target.value)}
-            onBlur={() => {
-              void commitEdit();
-            }}
-            onKeyDown={(e2) => {
-              e2.stopPropagation();
-              if (e2.key === "Escape") {
-                e2.preventDefault();
-                cancelEdit();
-              }
-            }}
-            onClick={(e2) => e2.stopPropagation()}
-            onMouseDown={(e2) => e2.stopPropagation()}
-            rows={3}
-            autoFocus={true}
-            disabled={updateMutation.isPending}
-            placeholder={t2("assetCenter.card.noDescriptionHint")}
-            data-action-ui-id="asset-center-entity-card-description-edit"
-            className="min-h-0 max-h-[4.5rem] resize-none text-xs"
-          />
-        ) : (
-          // Use a <span role="button"> rather than nested <button> (which is
-          // invalid HTML inside the outer card button). stopPropagation on
-          // both click and mousedown so this hotspot does not open the
-          // detail dialog nor trigger HTML5 drag.
-          // biome-ignore lint/a11y/useSemanticElements: <button> would nest inside the outer card <button>, which is invalid HTML.
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={enterEdit}
-            onMouseDown={(e2) => e2.stopPropagation()}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter" || e2.key === " ") {
-                e2.preventDefault();
-                e2.stopPropagation();
-                setIsEditing(true);
-              }
-            }}
-            data-action-ui-id="asset-center-entity-card-description"
-            className="flex items-center cursor-text transition-colors hover:text-foreground"
-          >
-            <span className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-2" />
-            <span
-              className={`text-xs truncate ${entity.description ? "text-muted-foreground" : "text-muted-foreground/40"}`}
-            >
-              {entity.description || t2("assetCenter.card.noDescriptionHint")}
-            </span>
-          </span>
-        )}
-        <div className="flex items-center justify-between gap-2">
-          {entity.useCount > 0 ? (
-            <span
-              className="text-[10px] text-muted-foreground"
-              title={t2("assetCenter.useCountTooltip")}
-            >
-              {t2("assetCenter.useCount", {
-                count: entity.useCount,
-              })}
-            </span>
-          ) : (
-            <span />
-          )}
-          <TooltipProvider delay={200}>
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger
-                  onClick={handleExport}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  aria-label={t2("assetCenter.card.exportTooltip")}
-                  data-action-ui-id="asset-center-entity-card-export"
-                  className="inline-flex items-center justify-center h-7 w-7 border border-border rounded-sm bg-background text-foreground hover:bg-muted transition-colors"
-                >
-                  <Download size={14} />
-                </TooltipTrigger>
-                <TooltipContent>{t2("assetCenter.card.exportTooltip")}</TooltipContent>
-              </Tooltip>
-              {onMaterialize && (
-                <Tooltip>
-                  <TooltipTrigger
-                    onClick={(e2) => {
-                      e2.stopPropagation();
-                      onMaterialize();
-                    }}
-                    onMouseDown={(e2) => e2.stopPropagation()}
-                    aria-label={t2("assetCenter.card.materializeTooltip")}
-                    data-action-ui-id="asset-center-entity-card-materialize"
-                    className="inline-flex items-center justify-center h-7 w-7 border border-border rounded-sm bg-background text-foreground hover:bg-muted transition-colors"
-                  >
-                    <FolderInput size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>{t2("assetCenter.card.materializeTooltip")}</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          </TooltipProvider>
-        </div>
-      </div>
-    </div>
-  );
-}
+
 function EntityGrid({
   entities,
   onCardClick,
@@ -373,243 +492,15 @@ function EntityGrid({
           }
           onDelete={onDelete ? () => onDelete(ent) : void 0}
           selected={selectedIds?.has(ent.id) ?? false}
-          onToggleSelect={onToggleSelect ? () => onToggleSelect(ent.id) : void 0}
+          onToggleSelect={
+            onToggleSelect ? () => onToggleSelect(ent.id) : void 0
+          }
         />
       ))}
     </div>
   );
 }
-function formatRelativeTime(ts2, locale) {
-  const diff = Date.now() - ts2;
-  if (Number.isNaN(diff) || diff < 0) {
-    return new Date(ts2).toLocaleDateString(locale, {
-      month: "short",
-      day: "numeric",
-    });
-  }
-  const rtf = new Intl.RelativeTimeFormat(locale, {
-    numeric: "auto",
-  });
-  const minutes = Math.floor(diff / 6e4);
-  if (minutes < 1) return rtf.format(0, "minute");
-  if (minutes < 60) return rtf.format(-minutes, "minute");
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return rtf.format(-hours, "hour");
-  const days = Math.floor(hours / 24);
-  if (days < 7) return rtf.format(-days, "day");
-  return new Date(ts2).toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-  });
-}
-function EntityListRow({
-  entity,
-  onClick,
-  onMaterialize,
-  onExport,
-  onDelete,
-  draggable,
-  isLast,
-  selected: selected2,
-  onToggleSelect,
-}) {
-  const { t: t2, i18n } = useTranslation();
-  const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const thumbnailSrc = previewUrl ? withThumbnail(gatewayUrl(previewUrl), 32) : void 0;
-  reactExports.useEffect(() => {
-    assetCenterLog.info("cover.list_preview_selected", {
-      entityId: entity.id,
-      source: entity.coverUrl ? "coverUrl" : entity.thumbnailUrl ? "thumbnailUrl" : "none",
-      coverUrl: entity.coverUrl ?? null,
-      thumbnailUrl: entity.thumbnailUrl ?? null,
-      thumbnailSrc: thumbnailSrc ?? null,
-    });
-  }, [entity.id, entity.coverUrl, entity.thumbnailUrl, thumbnailSrc]);
-  const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      writeEntityDragData(e2, {
-        entityId: entity.id,
-        name: entity.name,
-        type: entity.type,
-        ...(previewUrl !== void 0
-          ? {
-              thumbnailUrl: previewUrl,
-            }
-          : {}),
-      });
-    },
-    [entity.id, entity.name, entity.type, previewUrl],
-  );
-  const relative = formatRelativeTime(entity.updatedAt, i18n.language);
-  return (
-    // The row contains independent selection/actions; keep them out of a native button.
-    // biome-ignore lint/a11y/useSemanticElements: independent controls require a non-button container.
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onClick();
-        }
-      }}
-      draggable={draggable}
-      onDragStart={draggable ? handleDragStart : void 0}
-      data-action-ui-id="asset-center-entity-list-row"
-      data-entity-id={entity.id}
-      className={`group flex w-full items-center gap-3 px-3 py-2 text-left transition-colors focus-visible:outline-none ${selected2 ? "bg-muted/50" : "hover:bg-muted/30 focus-visible:bg-muted/30"} ${isLast ? "" : "border-b border-border"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
-    >
-      {onToggleSelect && (
-        // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
-        <span
-          className={`shrink-0 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <Checkbox
-            checked={selected2}
-            aria-label={`${t2("projectAssets.selectRow")}: ${entity.name}`}
-            data-action-ui-id="asset-center-entity-list-row.select"
-            onCheckedChange={() => onToggleSelect()}
-          />
-        </span>
-      )}
-      <div className="shrink-0 size-8 bg-muted rounded-[4px] flex items-center justify-center overflow-hidden">
-        {thumbnailSrc ? (
-          <img
-            src={thumbnailSrc}
-            alt={entity.name}
-            className="size-full object-contain"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <Library size={14} className="text-muted-foreground/40" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-        <div className="flex items-center gap-2 min-w-0">
-          <p className="text-xs font-medium truncate">{entity.name}</p>
-          <Badge variant="secondary" className="shrink-0 text-[10px] h-5 px-1.5 rounded-[4px]">
-            {t2(`assetCenter.types.${entity.type}`)}
-          </Badge>
-        </div>
-        {entity.description && (
-          <p className="text-[11px] text-muted-foreground truncate">{entity.description}</p>
-        )}
-      </div>
-      <div className="shrink-0 flex items-center gap-3 text-[11px] text-muted-foreground">
-        <span title={new Date(entity.updatedAt).toLocaleString()}>
-          {t2("assetCenter.entityList.updatedAt", {
-            when: relative,
-          })}
-        </span>
-        {entity.useCount > 0 && (
-          <span title={t2("assetCenter.useCountTooltip")}>
-            {t2("assetCenter.useCount", {
-              count: entity.useCount,
-            })}
-          </span>
-        )}
-        {(onExport || onMaterialize || onDelete) && (
-          <TooltipProvider delay={300}>
-            <div
-              className="flex items-center gap-0.5"
-              onClick={(e2) => e2.stopPropagation()}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onKeyDown={(e2) => e2.stopPropagation()}
-              role="toolbar"
-              aria-label={t2("assetCenter.entityList.rowActions", {
-                defaultValue: "Row actions",
-              })}
-            >
-              {onExport && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <button
-                        type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
-                          onExport();
-                        }}
-                        data-action-ui-id="asset-center-entity-list-row-export"
-                        className="inline-flex items-center justify-center size-7 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      />
-                    }
-                  >
-                    <Download size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{t2("assetCenter.detail.export")}</TooltipContent>
-                </Tooltip>
-              )}
-              {onMaterialize && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <button
-                        type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
-                          onMaterialize();
-                        }}
-                        data-action-ui-id="asset-center-entity-list-row-materialize-btn"
-                        className="inline-flex items-center justify-center size-7 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      />
-                    }
-                  >
-                    <FolderInput size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    {t2("assetCenter.card.materializeTooltip")}
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              {onDelete && (
-                <DropdownMenu
-                  onOpenChange={(open) => {
-                    if (open) {
-                      trackAssetCenterAction({
-                        action: "more_menu_open",
-                        surface: "asset_center_page",
-                        entity_id: entity.id,
-                        entity_type: entity.type,
-                      });
-                    }
-                  }}
-                >
-                  <DropdownMenuTrigger
-                    onClick={(e2) => e2.stopPropagation()}
-                    onMouseDown={(e2) => e2.stopPropagation()}
-                    data-action-ui-id="asset-center-entity-list-row-more"
-                    className="inline-flex items-center justify-center size-7 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    <MoreVerticalIcon size={14} />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" side="bottom" sideOffset={2}>
-                    <DropdownMenuItem
-                      onClick={(e2) => {
-                        e2.stopPropagation();
-                        onDelete();
-                      }}
-                      data-action-ui-id="asset-center-entity-list-row-delete"
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 size={14} className="mr-1.5" />
-                      {t2("assetCenter.card.deleteAction")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          </TooltipProvider>
-        )}
-      </div>
-    </div>
-  );
-}
+
 function EntityList({
   entities,
   onCardClick,
@@ -664,13 +555,22 @@ function EntityList({
           draggable={draggable}
           isLast={idx === entities.length - 1}
           selected={selectedIds?.has(ent.id) ?? false}
-          onToggleSelect={onToggleSelect ? () => onToggleSelect(ent.id) : void 0}
+          onToggleSelect={
+            onToggleSelect ? () => onToggleSelect(ent.id) : void 0
+          }
         />
       ))}
     </div>
   );
 }
-function ImportConflictDialog({ open, existingEntity, importingName, onChoose, onCancel }) {
+
+function ImportConflictDialog({
+  open,
+  existingEntity,
+  importingName,
+  onChoose,
+  onCancel,
+}) {
   const { t: t2 } = useTranslation();
   const [pendingMode, setPendingMode] = reactExports.useState(null);
   const handleChoose = async (mode2) => {
@@ -701,17 +601,21 @@ function ImportConflictDialog({ open, existingEntity, importingName, onChoose, o
             <span className="block">
               {t2("assetCenter.import.conflictDescription", {
                 name: existingEntity?.name ?? "",
-                type: existingEntity ? t2(`assetCenter.types.${existingEntity.type}`) : "",
+                type: existingEntity
+                  ? t2(`assetCenter.types.${existingEntity.type}`)
+                  : "",
               })}
             </span>
-            {existingEntity && importingName && importingName !== existingEntity.name && (
-              <span className="block text-muted-foreground/80">
-                {t2("assetCenter.import.conflictRenameHint", {
-                  oldName: existingEntity.name,
-                  newName: importingName,
-                })}
-              </span>
-            )}
+            {existingEntity &&
+              importingName &&
+              importingName !== existingEntity.name && (
+                <span className="block text-muted-foreground/80">
+                  {t2("assetCenter.import.conflictRenameHint", {
+                    oldName: existingEntity.name,
+                    newName: importingName,
+                  })}
+                </span>
+              )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-between sm:gap-2">
@@ -728,7 +632,9 @@ function ImportConflictDialog({ open, existingEntity, importingName, onChoose, o
               disabled={pendingMode !== null}
               data-action-ui-id="asset-center-import-conflict-copy"
             >
-              {pendingMode === "copy" && <Loader2 size={14} className="animate-spin mr-1.5" />}
+              {pendingMode === "copy" && (
+                <Loader2 size={14} className="animate-spin mr-1.5" />
+              )}
               {t2("assetCenter.import.actionCopy")}
             </AlertDialogAction>
             <AlertDialogAction
@@ -737,7 +643,9 @@ function ImportConflictDialog({ open, existingEntity, importingName, onChoose, o
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-action-ui-id="asset-center-import-conflict-overwrite"
             >
-              {pendingMode === "overwrite" && <Loader2 size={14} className="animate-spin mr-1.5" />}
+              {pendingMode === "overwrite" && (
+                <Loader2 size={14} className="animate-spin mr-1.5" />
+              )}
               {t2("assetCenter.import.actionOverwrite")}
             </AlertDialogAction>
           </div>
@@ -746,280 +654,7 @@ function ImportConflictDialog({ open, existingEntity, importingName, onChoose, o
     </AlertDialog>
   );
 }
-const MATERIALIZED_SUBPATH = ".hilo/materialized-entities";
-function joinMaterializedDir(workspacePath) {
-  const usesBackslash = workspacePath.includes("\\") && !workspacePath.includes("/");
-  const trimmed = workspacePath.replace(/[/\\]+$/, "");
-  const subpath = usesBackslash ? MATERIALIZED_SUBPATH.replace(/\//g, "\\") : MATERIALIZED_SUBPATH;
-  return `${trimmed}${usesBackslash ? "\\" : "/"}${subpath}`;
-}
-function MaterializeWorkspaceDialog({ entity, onClose }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const [recent] = useStorage("global.recentWorkspaces");
-  const materializeMutation = useMaterializeEntity();
-  const workspaces = reactExports.useMemo(() => sortRecentWorkspaces(recent), [recent]);
-  const [selectedPaths, setSelectedPaths] = reactExports.useState(new Set());
-  const [success, setSuccess] = reactExports.useState(null);
-  const [error, setError] = reactExports.useState(null);
-  const effectiveSelected = reactExports.useMemo(() => {
-    if (selectedPaths.size > 0) return selectedPaths;
-    const first2 = workspaces[0]?.path;
-    return first2 ? new Set([first2]) : new Set();
-  }, [selectedPaths, workspaces]);
-  const canSubmit = !!entity && effectiveSelected.size > 0 && !materializeMutation.isPending;
-  const togglePath = reactExports.useCallback((path2) => {
-    setSelectedPaths((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(path2)) {
-        next2.delete(path2);
-      } else {
-        next2.add(path2);
-      }
-      return next2;
-    });
-  }, []);
-  const handleClose = () => {
-    setSelectedPaths(new Set());
-    setSuccess(null);
-    setError(null);
-    onClose();
-  };
-  const revealLabel = t2(getFileManagerLabelKey(platform2.app.os));
-  const revealTarget = reactExports.useCallback(
-    async (target) => {
-      try {
-        if (platform2.shell.showItemInFolder) {
-          await platform2.shell.showItemInFolder(target.revealPath);
-          return;
-        }
-        if (platform2.shell.openPath) {
-          await platform2.shell.openPath(target.revealPath);
-          return;
-        }
-        dedupedToast.error(t2("fileExplorer.platformNotSupported"));
-      } catch {
-        dedupedToast.error(t2("fileExplorer.openFailed"));
-      }
-    },
-    [platform2.shell, t2],
-  );
-  const handleSubmit = async () => {
-    if (!entity || effectiveSelected.size === 0) return;
-    setError(null);
-    setSuccess(null);
-    const succeeded = [];
-    const targets = Array.from(effectiveSelected);
-    try {
-      for (const targetPath of targets) {
-        await materializeMutation.mutateAsync({
-          entityId: entity.id,
-          input: {
-            workspacePath: targetPath,
-          },
-          _track: {
-            trigger: "context_menu",
-          },
-        });
-        const picked = workspaces.find((w3) => w3.path === targetPath);
-        const label = picked?.displayName?.trim() || picked?.path.split("/").pop() || targetPath;
-        succeeded.push({
-          label,
-          revealPath: joinMaterializedDir(targetPath),
-        });
-      }
-      dedupedToast.success(
-        t2("assetCenter.materialize.success", {
-          workspace:
-            succeeded.length === 1
-              ? succeeded[0].label
-              : t2("assetCenter.materialize.workspaceCount", {
-                  count: succeeded.length,
-                }),
-        }),
-        {
-          description: t2("assetCenter.materialize.successPathHint"),
-          action:
-            succeeded.length === 1
-              ? {
-                  label: t2(getFileManagerLabelKey(platform2.app.os)),
-                  onClick: () => void revealTarget(succeeded[0]),
-                }
-              : void 0,
-        },
-      );
-      handleClose();
-    } catch (err) {
-      const msg = formatAssetCenterError(err, t2);
-      if (succeeded.length > 0) {
-        setSuccess({
-          targets: succeeded,
-        });
-        setError(
-          t2("assetCenter.materialize.partialError", {
-            count: succeeded.length,
-            message: msg,
-          }),
-        );
-      } else {
-        setError(msg);
-      }
-    }
-  };
-  return (
-    <Dialog
-      open={entity !== null}
-      onOpenChange={(o2) => {
-        if (!o2) handleClose();
-      }}
-    >
-      <DialogContent
-        className="min-w-0 sm:max-w-lg"
-        data-action-ui-id="asset-center-materialize-dialog"
-      >
-        <DialogHeader>
-          <DialogTitle>{t2("assetCenter.materialize.title")}</DialogTitle>
-          <DialogDescription className="text-xs">
-            {entity
-              ? t2("assetCenter.materialize.description", {
-                  name: entity.name,
-                })
-              : t2("assetCenter.materialize.descriptionFallback")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="min-w-0 space-y-3">
-          {workspaces.length === 0 ? (
-            <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-              {t2("assetCenter.materialize.noWorkspaces")}
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium text-muted-foreground">
-                  {t2("assetCenter.materialize.workspaceLabel")}
-                </span>
-                <span className="text-[10px] text-muted-foreground/70">
-                  {t2("assetCenter.materialize.selectedCount", {
-                    count: effectiveSelected.size,
-                  })}
-                </span>
-              </div>
-              <ul
-                className="w-full min-w-0 max-h-64 overflow-x-hidden overflow-y-auto rounded-lg border border-border"
-                data-action-ui-id="asset-center-materialize-workspace-list"
-              >
-                {workspaces.map((w3) => {
-                  const display = w3.displayName?.trim() || w3.path.split("/").pop() || w3.path;
-                  const checked = effectiveSelected.has(w3.path);
-                  const inputId = `materialize-ws-${w3.path}`;
-                  return (
-                    <li
-                      key={w3.path}
-                      className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
-                    >
-                      <label
-                        htmlFor={inputId}
-                        className="hilo-checkbox-label flex min-w-0 items-center px-3 py-2 cursor-pointer text-xs"
-                        data-action-ui-id="asset-center-materialize-workspace-row"
-                      >
-                        <Checkbox
-                          id={inputId}
-                          checked={checked}
-                          onCheckedChange={() => togglePath(w3.path)}
-                          data-action-ui-id="asset-center-materialize-workspace-checkbox"
-                        />
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span className="truncate font-medium">{display}</span>
-                          <span
-                            className="text-[10px] text-muted-foreground truncate"
-                            title={w3.path}
-                          >
-                            {w3.path}
-                          </span>
-                        </div>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {success && (
-            <div
-              className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/20 px-3 py-2"
-              data-action-ui-id="asset-center-materialize-success"
-            >
-              <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-foreground" />
-              <div className="text-xs space-y-1.5 min-w-0 flex-1">
-                <p className="font-medium">
-                  {t2("assetCenter.materialize.success", {
-                    workspace:
-                      success.targets.length === 1
-                        ? success.targets[0].label
-                        : t2("assetCenter.materialize.workspaceCount", {
-                            count: success.targets.length,
-                          }),
-                  })}
-                </p>
-                <p className="text-[10px] text-muted-foreground/80">
-                  {t2("assetCenter.materialize.successPathHint")}
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  {success.targets.map((target) => (
-                    <Button$1
-                      key={target.revealPath}
-                      variant="outline"
-                      size="sm"
-                      className="h-6 gap-1 px-2 text-[10px]"
-                      onClick={() => void revealTarget(target)}
-                      data-action-ui-id="asset-center-materialize-reveal"
-                    >
-                      <FolderOpen size={11} />
-                      {success.targets.length === 1 ? revealLabel : target.label}
-                    </Button$1>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          {error && (
-            <div
-              className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2"
-              data-action-ui-id="asset-center-materialize-error"
-            >
-              <ShieldAlert size={14} className="mt-0.5 shrink-0 text-destructive" />
-              <p className="text-xs text-destructive">{error}</p>
-            </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button$1
-            variant="ghost"
-            size="sm"
-            className="h-8"
-            onClick={handleClose}
-            disabled={materializeMutation.isPending}
-            data-action-ui-id="asset-center-materialize-close"
-          >
-            {success ? t2("common.close") : t2("common.cancel")}
-          </Button$1>
-          <Button$1
-            size="sm"
-            className="h-8 gap-1.5"
-            onClick={() => void handleSubmit()}
-            disabled={!canSubmit || workspaces.length === 0}
-            data-action-ui-id="asset-center-materialize-submit"
-          >
-            {materializeMutation.isPending && <Loader2 size={14} className="animate-spin" />}
-            {success
-              ? t2("assetCenter.materialize.submitAgain")
-              : t2("assetCenter.materialize.submit")}
-          </Button$1>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+
 function SuggestionCard({ suggestion }) {
   const { t: t2 } = useTranslation();
   const approve = useApproveSuggestion();
@@ -1072,9 +707,14 @@ function SuggestionCard({ suggestion }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">{suggestion.suggested.name}</p>
+          <p className="font-medium text-sm truncate">
+            {suggestion.suggested.name}
+          </p>
           <div className="flex items-center gap-1.5 mt-1">
-            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-normal">
+            <Badge
+              variant="secondary"
+              className="text-[10px] h-4 px-1.5 font-normal"
+            >
               {t2(`assetCenter.types.${suggestion.suggested.type}`)}
             </Badge>
             {attachmentCount > 0 && (
@@ -1101,7 +741,11 @@ function SuggestionCard({ suggestion }) {
           disabled={isBusy}
           data-action-ui-id="asset-center-suggestion-approve"
         >
-          {approve.isPending ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+          {approve.isPending ? (
+            <Loader2 size={12} className="animate-spin" />
+          ) : (
+            <Check size={12} />
+          )}
           {t2("assetCenter.suggestions.approve")}
         </Button$1>
         <Button$1
@@ -1112,13 +756,18 @@ function SuggestionCard({ suggestion }) {
           disabled={isBusy}
           data-action-ui-id="asset-center-suggestion-reject"
         >
-          {reject.isPending ? <Loader2 size={12} className="animate-spin" /> : <X$7 size={12} />}
+          {reject.isPending ? (
+            <Loader2 size={12} className="animate-spin" />
+          ) : (
+            <X$7 size={12} />
+          )}
           {t2("assetCenter.suggestions.reject")}
         </Button$1>
       </div>
     </article>
   );
 }
+
 function SuggestionPanel() {
   const { t: t2 } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
@@ -1180,6 +829,7 @@ function SuggestionPanel() {
     </section>
   );
 }
+
 export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   const { t: t2 } = useTranslation();
   const page = useAssetCenterPage();
@@ -1191,7 +841,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     from: "/_home/asset-center/",
     shouldThrow: false,
   });
-  const returnWorkspaceId = surface === "route" ? search2?.returnWorkspaceId : void 0;
+  const returnWorkspaceId =
+    surface === "route" ? search2?.returnWorkspaceId : void 0;
   const navigate = useNavigate();
   const routeAction = surface === "route" ? search2?.action : void 0;
   reactExports.useEffect(() => {
@@ -1214,7 +865,9 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     navigate(buildAssetCenterWorkspaceReturn(returnWorkspaceId));
   }, [navigate, returnWorkspaceId]);
   const [materializeTarget, setMaterializeTarget] = reactExports.useState(null);
-  const [selectedEntityIds, setSelectedEntityIds] = reactExports.useState(() => new Set());
+  const [selectedEntityIds, setSelectedEntityIds] = reactExports.useState(
+    () => new Set(),
+  );
   const toggleSelectEntity = reactExports.useCallback((entityId) => {
     setSelectedEntityIds((prev) => {
       const next2 = new Set(prev);
@@ -1226,7 +879,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
       return next2;
     });
   }, []);
-  const clearSelection = reactExports.useCallback(() => setSelectedEntityIds(new Set()), []);
+  const clearSelection = reactExports.useCallback(
+    () => setSelectedEntityIds(new Set()),
+    [],
+  );
   const deleteMutation = useDeleteEntity();
   const [batchDeleteError, setBatchDeleteError] = reactExports.useState(null);
   const [batchDeleting, setBatchDeleting] = reactExports.useState(false);
@@ -1280,7 +936,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     setMaterializeTarget(entity);
     setEditId(null);
   }, []);
-  const closeMaterialize = reactExports.useCallback(() => setMaterializeTarget(null), []);
+  const closeMaterialize = reactExports.useCallback(
+    () => setMaterializeTarget(null),
+    [],
+  );
   const runImport = reactExports.useCallback(
     async (file, mode2) => {
       setImportSuccess(null);
@@ -1334,8 +993,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     (file) => void runImport(file, "create-new"),
     [runImport],
   );
-  const [batchImportProgress, setBatchImportProgress] = reactExports.useState(null);
-  const [batchImportSummary, setBatchImportSummary] = reactExports.useState(null);
+  const [batchImportProgress, setBatchImportProgress] =
+    reactExports.useState(null);
+  const [batchImportSummary, setBatchImportSummary] =
+    reactExports.useState(null);
   const handleImportFiles = reactExports.useCallback(
     async (files) => {
       if (files.length === 1) {
@@ -1390,7 +1051,9 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             has_description: false,
             import_mode: "create-new",
             error_type:
-              err instanceof ImportEntityConflictError ? "conflict" : classifyAssetError(err),
+              err instanceof ImportEntityConflictError
+                ? "conflict"
+                : classifyAssetError(err),
           });
         }
       }
@@ -1409,7 +1072,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     },
     [conflictState, runImport],
   );
-  const closeConflictDialog = reactExports.useCallback(() => setConflictState(null), []);
+  const closeConflictDialog = reactExports.useCallback(
+    () => setConflictState(null),
+    [],
+  );
   return (
     <div className="flex flex-col h-full min-h-0 bg-[var(--home-content-surface)]">
       <AssetCenterToolbar
@@ -1505,9 +1171,15 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           data-action-ui-id="asset-center-batch-import-summary"
         >
           {batchImportSummary.failed.length === 0 ? (
-            <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-foreground" />
+            <CheckCircle2
+              size={14}
+              className="mt-0.5 shrink-0 text-foreground"
+            />
           ) : (
-            <ShieldAlert size={14} className="mt-0.5 shrink-0 text-destructive" />
+            <ShieldAlert
+              size={14}
+              className="mt-0.5 shrink-0 text-destructive"
+            />
           )}
           <div className="text-xs min-w-0 flex-1 space-y-1">
             <p>
@@ -1545,7 +1217,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/30 px-3 py-2"
             data-action-ui-id="asset-center-import-success"
           >
-            <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-foreground" />
+            <CheckCircle2
+              size={14}
+              className="mt-0.5 shrink-0 text-foreground"
+            />
             <div className="text-xs min-w-0 flex-1 space-y-1">
               <p>
                 {importSuccess.warnings.length > 0
@@ -1615,12 +1290,17 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             className="flex items-start gap-2 border border-destructive/50 bg-destructive/10 px-3 py-3 rounded-lg"
             data-action-ui-id="asset-center-load-error"
           >
-            <ShieldAlert size={16} className="mt-0.5 shrink-0 text-destructive" />
+            <ShieldAlert
+              size={16}
+              className="mt-0.5 shrink-0 text-destructive"
+            />
             <div className="space-y-1 min-w-0">
               <p className="text-xs font-medium text-destructive">
                 {t2("assetCenter.loadError.title")}
               </p>
-              <p className="text-xs text-destructive/80">{page.loadError.message}</p>
+              <p className="text-xs text-destructive/80">
+                {page.loadError.message}
+              </p>
             </div>
           </div>
         ) : page.isLoading ? (
@@ -1666,7 +1346,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
       />
       <EntityDeleteConfirm entity={deleteTarget} onClose={closeDelete} />
       <AddEntityDialog open={addOpen} onClose={closeAdd} />
-      <MaterializeWorkspaceDialog entity={materializeTarget} onClose={closeMaterialize} />
+      <MaterializeWorkspaceDialog
+        entity={materializeTarget}
+        onClose={closeMaterialize}
+      />
       <ImportConflictDialog
         open={conflictState !== null}
         existingEntity={conflictState?.existingEntity ?? null}

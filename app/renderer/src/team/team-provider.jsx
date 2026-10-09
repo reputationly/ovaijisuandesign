@@ -1,23 +1,73 @@
 // team-provider.jsx
-import { useTranslation, reactExports, dedupedToast, getRuntimeConfig, deriveActiveScope, activateAccountSubmissionGuard, useQueryClient, updateAccountSubmissionDecision, evaluateAccountSubmission } from "../vendor.js";
-import { teamQueryKeys, TeamAccountContext } from "../assets/apply-asset-change.jsx";
 import {
-  isRecoverableTeamAccountStatus,
-  instantiationService,
-  ITeamAccountService,
-} from "../workspace/browser-inspiration-urls.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  isQueryOwnedByIdentity,
-  isQueryOwnedByScope,
+  MINUTE_MS$1,
   useTeamContextsQuery,
-  useTeamContractQuery,
   useTeamCreditSummaryQuery,
   useTeamDetailQuery,
   useTeamInviteLinksFeedQuery,
   useTeamMembersFeedQuery,
   useTeamQuotaQuery,
 } from "./use-team-transactions-feed-query.jsx";
+import {
+  activateAccountSubmissionGuard,
+  dedupedToast,
+  deriveActiveScope,
+  evaluateAccountSubmission,
+  getRuntimeConfig,
+  reactExports,
+  updateAccountSubmissionDecision,
+  useQuery,
+  useQueryClient,
+  useTranslation,
+} from "../vendor.js";
+import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
+import { teamApi } from "./team-api.js";
+import {
+  instantiationService,
+  isRecoverableTeamAccountStatus,
+  ITeamAccountService,
+} from "../workspace/home-service.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { accountScopeEquals } from "./account-scope-equals.js";
+import { TeamAccountContext } from "../assets/credit-query-keys.jsx";
+
+function isQueryOwnedByIdentity(queryKey, identityKey) {
+  return (
+    queryKey.includes(identityKey) &&
+    (queryKey[0] === "team" ||
+      queryKey[0] === "credit" ||
+      queryKey[0] === "account")
+  );
+}
+
+function isQueryOwnedByScope(queryKey, scope) {
+  const scopeIdentity = queryKey.indexOf(scope.identityKey);
+  if (scopeIdentity < 0) return false;
+  return (
+    queryKey[scopeIdentity + 1] === scope.groupId &&
+    queryKey[scopeIdentity + 2] === scope.epoch &&
+    queryKey[scopeIdentity + 3] === (scope.membershipRevision ?? "PERSONAL")
+  );
+}
+
+const TEAM_CONTRACT_STALE_MS = 5 * MINUTE_MS$1;
+
+const TEAM_CONTRACT_GC_MS = 30 * MINUTE_MS$1;
+
+function useTeamContractQuery(clientVersion, enabled) {
+  return useQuery({
+    queryKey: teamQueryKeys.contract(clientVersion),
+    queryFn: ({ signal }) =>
+      teamApi.getContract(clientVersion, {
+        signal,
+      }),
+    enabled,
+    retry: false,
+    staleTime: TEAM_CONTRACT_STALE_MS,
+    gcTime: TEAM_CONTRACT_GC_MS,
+  });
+}
+
 function isNewerSnapshot(current2, incoming) {
   try {
     const incomingSequence = BigInt(incoming.sequence);
@@ -26,19 +76,11 @@ function isNewerSnapshot(current2, incoming) {
     return false;
   }
 }
+
 function mergeTeamSnapshot(current2, incoming) {
   return isNewerSnapshot(current2, incoming) ? incoming : current2;
 }
-export function accountScopeEquals(left, right) {
-  if (left === right) return true;
-  if (!left || !right) return false;
-  return (
-    left.identityKey === right.identityKey &&
-    left.groupId === right.groupId &&
-    left.epoch === right.epoch &&
-    left.membershipRevision === right.membershipRevision
-  );
-}
+
 function deriveTeamAccountViewModel({
   snapshot: snapshot2,
   contract,
@@ -72,7 +114,9 @@ function deriveTeamAccountViewModel({
       snapshot: snapshot2,
       status: snapshot2.status,
       reasonCode:
-        snapshot2.status === "syncing" ? "canonical_context_syncing" : snapshot2.reasonCode,
+        snapshot2.status === "syncing"
+          ? "canonical_context_syncing"
+          : snapshot2.reasonCode,
     };
   }
   const scope = deriveActiveScope(snapshot2);
@@ -115,12 +159,17 @@ function deriveTeamAccountViewModel({
       reasonCode: "minimum_client_version",
     };
   }
-  if (contract.compatibility === "TEMPORARILY_UNAVAILABLE" || !contract.gates.teamRead) {
+  if (
+    contract.compatibility === "TEMPORARILY_UNAVAILABLE" ||
+    !contract.gates.teamRead
+  ) {
     return {
       kind: "blocked",
       snapshot: snapshot2,
       status: "temporarily_unavailable",
-      reasonCode: contract.gates.teamRead ? "team_contract_unavailable" : "team_read_disabled",
+      reasonCode: contract.gates.teamRead
+        ? "team_contract_unavailable"
+        : "team_read_disabled",
     };
   }
   return {
@@ -131,8 +180,10 @@ function deriveTeamAccountViewModel({
     billingAvailable: contract.gates.teamBilling,
   };
 }
+
 async function clearIdentityQueries(queryClient2, identityKey) {
-  const predicate = (query) => isQueryOwnedByIdentity(query.queryKey, identityKey);
+  const predicate = (query) =>
+    isQueryOwnedByIdentity(query.queryKey, identityKey);
   await queryClient2.cancelQueries({
     predicate,
   });
@@ -140,6 +191,7 @@ async function clearIdentityQueries(queryClient2, identityKey) {
     predicate,
   });
 }
+
 async function clearAccountScopeQueries(queryClient2, scope) {
   const predicate = (query) => isQueryOwnedByScope(query.queryKey, scope);
   await queryClient2.cancelQueries({
@@ -149,21 +201,25 @@ async function clearAccountScopeQueries(queryClient2, scope) {
     predicate,
   });
 }
+
 function createRequestId() {
   return crypto.randomUUID();
 }
+
 function rejectedResult(code2) {
   return {
     status: "rejected",
     code: code2,
   };
 }
+
 function isDeterministicCompositeCommandResult(result) {
   return (
     result.status === "completed" ||
     (result.status === "rejected" && result.code !== "temporarily_unavailable")
   );
 }
+
 function isRetryableRevalidationResult(result) {
   return (
     result.status === "busy" ||
@@ -171,9 +227,11 @@ function isRetryableRevalidationResult(result) {
     (result.status === "rejected" && result.code === "temporarily_unavailable")
   );
 }
+
 function contextConfirmsCanonical(item, snapshot2) {
   const membershipConfirmed =
-    item.accountType === "PERSONAL" || (item.role !== null && item.switchDecision.allowed);
+    item.accountType === "PERSONAL" ||
+    (item.role !== null && item.switchDecision.allowed);
   return (
     snapshot2.status === "ready" &&
     item.groupId === snapshot2.activeContext.groupId &&
@@ -182,6 +240,7 @@ function contextConfirmsCanonical(item, snapshot2) {
     membershipConfirmed
   );
 }
+
 function snapshotReachedSequence(snapshot2, sequence) {
   if (!snapshot2) return false;
   try {
@@ -190,12 +249,23 @@ function snapshotReachedSequence(snapshot2, sequence) {
     return false;
   }
 }
-function contextsObservationKey(refreshKey, dataUpdatedAt, contextsRevision, serverTimeMs) {
+
+function contextsObservationKey(
+  refreshKey,
+  dataUpdatedAt,
+  contextsRevision,
+  serverTimeMs,
+) {
   return `${refreshKey}:${dataUpdatedAt}:${contextsRevision}:${serverTimeMs}`;
 }
+
 function invitationIntentKey(invitationId, expectedInvitationVersion) {
-  return JSON.stringify([invitationId.trim(), expectedInvitationVersion.trim()]);
+  return JSON.stringify([
+    invitationId.trim(),
+    expectedInvitationVersion.trim(),
+  ]);
 }
+
 function contextsSyncingSnapshot(snapshot2) {
   if (snapshot2?.status !== "ready") return snapshot2;
   return {
@@ -206,15 +276,23 @@ function contextsSyncingSnapshot(snapshot2) {
     activeContext: null,
   };
 }
+
 function resolveService(override) {
   if (override) return override;
   try {
-    return instantiationService.invokeFunction((accessor) => accessor.get(ITeamAccountService));
+    return instantiationService.invokeFunction((accessor) =>
+      accessor.get(ITeamAccountService),
+    );
   } catch {
     return null;
   }
 }
-export function TeamProvider({ children: children2, service: serviceOverride, enabled = true }) {
+
+export function TeamProvider({
+  children: children2,
+  service: serviceOverride,
+  enabled = true,
+}) {
   if (enabled) activateAccountSubmissionGuard();
   const { t: t2 } = useTranslation();
   const queryClient2 = useQueryClient();
@@ -224,11 +302,13 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
   );
   const [snapshot2, setSnapshot] = reactExports.useState(null);
   const snapshotRef = reactExports.useRef(null);
-  const [lastTransitionAttempt, setLastTransitionAttempt] = reactExports.useState(null);
+  const [lastTransitionAttempt, setLastTransitionAttempt] =
+    reactExports.useState(null);
   const [dialog, setDialog] = reactExports.useState({
     type: "closed",
   });
-  const [pendingManagementOpen, setPendingManagementOpen] = reactExports.useState(null);
+  const [pendingManagementOpen, setPendingManagementOpen] =
+    reactExports.useState(null);
   const pendingManagementIntentRef = reactExports.useRef(null);
   const dialogGenerationRef = reactExports.useRef(0);
   const dialogCloseSequenceRef = reactExports.useRef(null);
@@ -265,8 +345,12 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     };
   }, [service2]);
   const identityKey = snapshot2?.identityKey ?? null;
-  const activeScope = reactExports.useMemo(() => deriveActiveScope(snapshot2), [snapshot2]);
-  const canonicalAccountReady = snapshot2?.status === "ready" && activeScope !== null;
+  const activeScope = reactExports.useMemo(
+    () => deriveActiveScope(snapshot2),
+    [snapshot2],
+  );
+  const canonicalAccountReady =
+    snapshot2?.status === "ready" && activeScope !== null;
   const clientVersion = getRuntimeConfig().appVersion?.trim() || "unknown";
   const contractQuery = useTeamContractQuery(
     clientVersion,
@@ -278,7 +362,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       deriveTeamAccountViewModel({
         snapshot: snapshot2,
         contract,
-        contractPending: contractQuery.isPending && contractQuery.fetchStatus !== "idle",
+        contractPending:
+          contractQuery.isPending && contractQuery.fetchStatus !== "idle",
         contractFailed: contractQuery.isError,
         serviceAvailable: service2 !== null,
       }),
@@ -313,7 +398,10 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     accountDataVisible &&
     (viewModel.kind === "ready_personal" ||
       (viewModel.kind === "ready_team" && viewModel.billingAvailable));
-  const contextsQuery = useTeamContextsQuery(identityKey, contextsConfirmationEnabled);
+  const contextsQuery = useTeamContextsQuery(
+    identityKey,
+    contextsConfirmationEnabled,
+  );
   const teamInfoPreloadEnabled = Boolean(
     enabled &&
     accountDataVisible &&
@@ -321,8 +409,14 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     contract?.compatibility === "SUPPORTED" &&
     contract.gates.teamRead,
   );
-  const preloadedDetailQuery = useTeamDetailQuery(activeScope, teamInfoPreloadEnabled);
-  const preloadMemberPageSize = Math.min(20, contract?.limits.maxMemberPageSize ?? 20);
+  const preloadedDetailQuery = useTeamDetailQuery(
+    activeScope,
+    teamInfoPreloadEnabled,
+  );
+  const preloadMemberPageSize = Math.min(
+    20,
+    contract?.limits.maxMemberPageSize ?? 20,
+  );
   const preloadViewMembers =
     preloadedDetailQuery.data?.currentRole !== "MEMBER" &&
     preloadedDetailQuery.data?.permissions.viewMembers.allowed === true;
@@ -333,7 +427,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
   );
   const preloadBilling = contract?.gates.teamBilling === true;
   const preloadTeamDefaultQuota = Boolean(
-    preloadedDetailQuery.data && preloadedDetailQuery.data.currentRole !== "MEMBER",
+    preloadedDetailQuery.data &&
+    preloadedDetailQuery.data.currentRole !== "MEMBER",
   );
   useTeamMembersFeedQuery({
     scope: activeScope,
@@ -359,7 +454,9 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     updateAccountSubmissionDecision(
       snapshot2,
       viewModel.kind === "ready_team" ? viewModel.contract : null,
-      preloadedCreditSummaryQuery.isSuccess ? preloadedCreditSummaryQuery.data : null,
+      preloadedCreditSummaryQuery.isSuccess
+        ? preloadedCreditSummaryQuery.data
+        : null,
     );
   }, [
     enabled,
@@ -373,10 +470,16 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     const previousScope = previousScopeRef.current;
     if (previousIdentity && previousIdentity !== identityKey) {
       void clearIdentityQueries(queryClient2, previousIdentity);
-    } else if (previousScope && !accountScopeEquals(previousScope, activeScope)) {
+    } else if (
+      previousScope &&
+      !accountScopeEquals(previousScope, activeScope)
+    ) {
       void clearAccountScopeQueries(queryClient2, previousScope);
     }
-    if (previousIdentity !== identityKey || !accountScopeEquals(previousScope, activeScope)) {
+    if (
+      previousIdentity !== identityKey ||
+      !accountScopeEquals(previousScope, activeScope)
+    ) {
       setLastTransitionAttempt(null);
     }
     previousIdentityRef.current = identityKey;
@@ -426,12 +529,15 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
   }, [accountDataVisible, activeScope, identityKey]);
   reactExports.useEffect(() => {
     if (!pendingManagementOpen || !snapshot2) return;
-    const pendingIntent = createTeamIntentsRef.current.get(pendingManagementOpen.intentKey);
+    const pendingIntent = createTeamIntentsRef.current.get(
+      pendingManagementOpen.intentKey,
+    );
     if (
       !pendingIntent ||
       pendingManagementIntentRef.current !== pendingIntent ||
       pendingIntent.commandId !== pendingManagementOpen.commandId ||
-      pendingIntent.dialogGeneration !== pendingManagementOpen.dialogGeneration ||
+      pendingIntent.dialogGeneration !==
+        pendingManagementOpen.dialogGeneration ||
       dialogGenerationRef.current !== pendingManagementOpen.dialogGeneration
     ) {
       pendingManagementIntentRef.current = null;
@@ -443,12 +549,19 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       setPendingManagementOpen(null);
       return;
     }
-    if (!snapshotReachedSequence(snapshot2, pendingManagementOpen.appliedSequence)) return;
+    if (
+      !snapshotReachedSequence(snapshot2, pendingManagementOpen.appliedSequence)
+    )
+      return;
     if (snapshot2.status !== "ready") return;
     createTeamIntentsRef.current.delete(pendingManagementOpen.intentKey);
     pendingManagementIntentRef.current = null;
     setPendingManagementOpen(null);
-    if (snapshot2.activeContext.accountType !== "TEAM" || !activeScope?.membershipRevision) return;
+    if (
+      snapshot2.activeContext.accountType !== "TEAM" ||
+      !activeScope?.membershipRevision
+    )
+      return;
     dialogCloseSequenceRef.current = null;
     setDialog({
       type: "management",
@@ -516,46 +629,53 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
     },
     [],
   );
-  const currentCompositeCommandIntent = reactExports.useCallback((intents, intentKey) => {
-    const current2 = snapshotRef.current;
-    if (!current2?.identityKey) return null;
-    const existing = intents.get(intentKey);
-    if (existing?.expectedIdentityKey === current2.identityKey) return existing;
-    const intent = {
-      commandId: createRequestId(),
-      expectedIdentityKey: current2.identityKey,
-      expectedSequence: current2.sequence,
-      idempotencyKey: createRequestId(),
-    };
-    intents.set(intentKey, intent);
-    return intent;
-  }, []);
-  const currentCreateTeamCommandIntent = reactExports.useCallback((intentKey) => {
-    const current2 = snapshotRef.current;
-    if (!current2?.identityKey) return null;
-    const dialogGeneration = dialogGenerationRef.current;
-    const existing = createTeamIntentsRef.current.get(intentKey);
-    if (
-      existing?.expectedIdentityKey === current2.identityKey &&
-      existing.dialogGeneration === dialogGeneration &&
-      pendingManagementIntentRef.current !== existing
-    ) {
-      return existing;
-    }
-    if (pendingManagementIntentRef.current === existing) {
-      pendingManagementIntentRef.current = null;
-      setPendingManagementOpen(null);
-    }
-    const intent = {
-      commandId: createRequestId(),
-      expectedIdentityKey: current2.identityKey,
-      expectedSequence: current2.sequence,
-      idempotencyKey: createRequestId(),
-      dialogGeneration,
-    };
-    createTeamIntentsRef.current.set(intentKey, intent);
-    return intent;
-  }, []);
+  const currentCompositeCommandIntent = reactExports.useCallback(
+    (intents, intentKey) => {
+      const current2 = snapshotRef.current;
+      if (!current2?.identityKey) return null;
+      const existing = intents.get(intentKey);
+      if (existing?.expectedIdentityKey === current2.identityKey)
+        return existing;
+      const intent = {
+        commandId: createRequestId(),
+        expectedIdentityKey: current2.identityKey,
+        expectedSequence: current2.sequence,
+        idempotencyKey: createRequestId(),
+      };
+      intents.set(intentKey, intent);
+      return intent;
+    },
+    [],
+  );
+  const currentCreateTeamCommandIntent = reactExports.useCallback(
+    (intentKey) => {
+      const current2 = snapshotRef.current;
+      if (!current2?.identityKey) return null;
+      const dialogGeneration = dialogGenerationRef.current;
+      const existing = createTeamIntentsRef.current.get(intentKey);
+      if (
+        existing?.expectedIdentityKey === current2.identityKey &&
+        existing.dialogGeneration === dialogGeneration &&
+        pendingManagementIntentRef.current !== existing
+      ) {
+        return existing;
+      }
+      if (pendingManagementIntentRef.current === existing) {
+        pendingManagementIntentRef.current = null;
+        setPendingManagementOpen(null);
+      }
+      const intent = {
+        commandId: createRequestId(),
+        expectedIdentityKey: current2.identityKey,
+        expectedSequence: current2.sequence,
+        idempotencyKey: createRequestId(),
+        dialogGeneration,
+      };
+      createTeamIntentsRef.current.set(intentKey, intent);
+      return intent;
+    },
+    [],
+  );
   const rejectLocally = reactExports.useCallback(
     (code2) => applyCommandResult(rejectedResult(code2)),
     [applyCommandResult],
@@ -563,7 +683,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
   const handleCommandTransportFailure = reactExports.useCallback(
     (expectedIdentityKey) => {
       const result = rejectedResult("temporarily_unavailable");
-      if (snapshotRef.current?.identityKey !== expectedIdentityKey) return result;
+      if (snapshotRef.current?.identityKey !== expectedIdentityKey)
+        return result;
       return applyCommandResult(result);
     },
     [applyCommandResult],
@@ -603,12 +724,18 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
         });
       } catch {
         const failure = rejectedResult("temporarily_unavailable");
-        if (!commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)) return failure;
+        if (
+          !commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)
+        )
+          return failure;
         return applyCommandResult(failure);
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey) return result;
+      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+        return result;
       if (result.status === "rejected" && result.code === "membership_stale") {
-        if (commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)) {
+        if (
+          commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)
+        ) {
           setLastTransitionAttempt(null);
           invalidateCompositeIdentity(base2.expectedIdentityKey);
         }
@@ -654,10 +781,14 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
         }
         return handleCommandTransportFailure(intent.expectedIdentityKey);
       }
-      const intentStillActive = createTeamIntentsRef.current.get(normalizedTeamName) === intent;
+      const intentStillActive =
+        createTeamIntentsRef.current.get(normalizedTeamName) === intent;
       if (result.status === "completed") {
         invalidateCompositeIdentity(intent.expectedIdentityKey);
-        if (intentStillActive && dialogGenerationRef.current === intent.dialogGeneration) {
+        if (
+          intentStillActive &&
+          dialogGenerationRef.current === intent.dialogGeneration
+        ) {
           pendingManagementIntentRef.current = intent;
           setPendingManagementOpen({
             identityKey: intent.expectedIdentityKey,
@@ -667,7 +798,10 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
             dialogGeneration: intent.dialogGeneration,
           });
         }
-      } else if (isDeterministicCompositeCommandResult(result) && intentStillActive) {
+      } else if (
+        isDeterministicCompositeCommandResult(result) &&
+        intentStillActive
+      ) {
         createTeamIntentsRef.current.delete(normalizedTeamName);
       }
       if (
@@ -698,12 +832,20 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
         !contract.gates.teamSwitch ||
         !contract.gates.teamInvitation
       ) {
-        return rejectLocally(service2 ? "feature_disabled" : "temporarily_unavailable");
+        return rejectLocally(
+          service2 ? "feature_disabled" : "temporarily_unavailable",
+        );
       }
       const normalizedInvitationId = invitationId.trim();
       const normalizedInvitationVersion = expectedInvitationVersion.trim();
-      const intentKey = invitationIntentKey(normalizedInvitationId, normalizedInvitationVersion);
-      const intent = currentCompositeCommandIntent(invitationIntentsRef.current, intentKey);
+      const intentKey = invitationIntentKey(
+        normalizedInvitationId,
+        normalizedInvitationVersion,
+      );
+      const intent = currentCompositeCommandIntent(
+        invitationIntentsRef.current,
+        intentKey,
+      );
       if (!intent) return rejectLocally("temporarily_unavailable");
       let result;
       try {
@@ -724,7 +866,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       if (result.status === "completed") {
         invalidateCompositeIdentity(intent.expectedIdentityKey);
       }
-      if (snapshotRef.current?.identityKey !== intent.expectedIdentityKey) return result;
+      if (snapshotRef.current?.identityKey !== intent.expectedIdentityKey)
+        return result;
       return applyCommandResult(result);
     },
     [
@@ -746,7 +889,9 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
         contract?.compatibility !== "SUPPORTED" ||
         !contract.gates.teamRead
       ) {
-        return rejectLocally(service2 ? "invalid_request" : "temporarily_unavailable");
+        return rejectLocally(
+          service2 ? "invalid_request" : "temporarily_unavailable",
+        );
       }
       let result;
       try {
@@ -757,7 +902,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       } catch {
         return handleCommandTransportFailure(base2.expectedIdentityKey);
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey) return result;
+      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+        return result;
       return applyCommandResult(result);
     },
     [
@@ -798,7 +944,8 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
           code: "temporarily_unavailable",
         };
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey) return result;
+      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+        return result;
       if (result.status === "busy") {
         setLastTransitionAttempt({
           kind: "busy",
@@ -824,7 +971,13 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       }
       return result;
     },
-    [closeDialogAtSequence, contract, currentCommandBase, invalidateCompositeIdentity, service2],
+    [
+      closeDialogAtSequence,
+      contract,
+      currentCommandBase,
+      invalidateCompositeIdentity,
+      service2,
+    ],
   );
   const transferCredits = reactExports.useCallback(
     async (request) => {
@@ -880,7 +1033,12 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
         )
       : null;
   reactExports.useEffect(() => {
-    if (!service2 || !activeScope || snapshot2?.status !== "ready" || !contextsRefreshKey) {
+    if (
+      !service2 ||
+      !activeScope ||
+      snapshot2?.status !== "ready" ||
+      !contextsRefreshKey
+    ) {
       return;
     }
     let disposed = false;
@@ -917,11 +1075,15 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       }
       const currentScope = deriveActiveScope(current2);
       if (!accountScopeEquals(currentScope, activeScope)) return;
-      if (contexts.items.some((item) => contextConfirmsCanonical(item, current2))) {
+      if (
+        contexts.items.some((item) => contextConfirmsCanonical(item, current2))
+      ) {
         return;
       }
       const activeTeamGroupId =
-        current2.activeContext.accountType === "TEAM" ? current2.activeContext.groupId : null;
+        current2.activeContext.accountType === "TEAM"
+          ? current2.activeContext.groupId
+          : null;
       const revalidationKey = `${contextsRefreshKey}:${contexts.contextsRevision}`;
       if (lastContextRevalidationRef.current === revalidationKey) return;
       lastContextRevalidationRef.current = revalidationKey;
@@ -945,7 +1107,11 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       ) {
         lastContextRevalidationRef.current = null;
       }
-      if (!disposed && commandResult.status === "completed" && activeTeamGroupId !== null) {
+      if (
+        !disposed &&
+        commandResult.status === "completed" &&
+        activeTeamGroupId !== null
+      ) {
         let latest2 = snapshotRef.current;
         if (!snapshotReachedSequence(latest2, commandResult.appliedSequence)) {
           latest2 = await service2.getSnapshot();
@@ -1011,11 +1177,14 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
   );
   reactExports.useEffect(() => {
     if (!service2) return void 0;
-    if (!isRecoverableTeamAccountStatus(snapshot2?.status ?? "signed_out")) return void 0;
+    if (!isRecoverableTeamAccountStatus(snapshot2?.status ?? "signed_out"))
+      return void 0;
     let disposed = false;
     const attempt = (event) => {
       if (disposed) return;
-      void recoverSelectedGroup(event.type === "online" ? "renderer_online" : "renderer_focus");
+      void recoverSelectedGroup(
+        event.type === "online" ? "renderer_online" : "renderer_focus",
+      );
     };
     window.addEventListener("online", attempt);
     window.addEventListener("focus", attempt);
@@ -1122,5 +1291,9 @@ export function TeamProvider({ children: children2, service: serviceOverride, en
       viewModel,
     ],
   );
-  return <TeamAccountContext.Provider value={value}>{children2}</TeamAccountContext.Provider>;
+  return (
+    <TeamAccountContext.Provider value={value}>
+      {children2}
+    </TeamAccountContext.Provider>
+  );
 }

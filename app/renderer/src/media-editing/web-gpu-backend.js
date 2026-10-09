@@ -1,16 +1,10 @@
 // web-gpu-backend.js
-import { BaseBackend } from "./base-backend.jsx";
 import {
-  blacksFragment,
-  brightnessFragment,
-  buildBlackPalette,
-  buildContrastMatrix,
-  buildSaturationMatrix,
-  contrastFragment,
+  buildCurvePalette,
+  clamp01,
   exposureFragment,
   highlightsFragment,
   hueFragment,
-  passFragment,
   saturationFragment,
   shadowsFragment,
   temperatureFragment,
@@ -19,7 +13,131 @@ import {
   vibranceFragment,
   whitesFragment,
 } from "./exposure-fragment.js";
-import { defaultLUTParams, lutToRGBA8 } from "./highlights-fragment.js";
+import { BaseBackend } from "./base-backend.jsx";
+import { defaultLUTParams, lutToRGBA8 } from "./default-settings.js";
+
+const buildBlackPalette = (amount) => {
+  const amt = Math.max(-100, Math.min(100, amount)) / 100;
+  const strength = 0.35;
+  const lowControl = clamp01(0.33 - amt * strength);
+  const highControl = 0.66;
+  return buildCurvePalette(lowControl, highControl);
+};
+
+const buildContrastMatrix = (amount) => {
+  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
+  const scale2 = 1 + t2;
+  const offset2 = 0.5 * (1 - scale2);
+  return new Float32Array([
+    scale2,
+    0,
+    0,
+    0,
+    offset2,
+    0,
+    scale2,
+    0,
+    0,
+    offset2,
+    0,
+    0,
+    scale2,
+    0,
+    offset2,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
+};
+
+const buildSaturationMatrix = (amount) => {
+  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
+  const scale2 = 1 + t2;
+  const lumR = 0.299;
+  const lumG = 0.587;
+  const lumB = 0.114;
+  const inv = 1 - scale2;
+  return new Float32Array([
+    inv * lumR + scale2,
+    inv * lumG,
+    inv * lumB,
+    0,
+    0,
+    inv * lumR,
+    inv * lumG + scale2,
+    inv * lumB,
+    0,
+    0,
+    inv * lumR,
+    inv * lumG,
+    inv * lumB + scale2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
+};
+
+const passFragment = `
+@group(0) @binding(0) var uTexture: texture_2d<f32>;
+@group(0) @binding(1) var uSampler: sampler;
+
+@fragment
+fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+  return textureSample(uTexture, uSampler, uv);
+}
+`;
+
+const brightnessFragment = `
+struct Params {
+  amount: f32,
+}
+
+@group(0) @binding(0) var uTexture: texture_2d<f32>;
+@group(0) @binding(1) var uSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+
+const PI: f32 = 3.1415926535897932384626433832795;
+
+@fragment
+fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+  var color = textureSample(uTexture, uSampler, uv);
+  if (params.amount >= 0.0) {
+    color.r = color.r + params.amount * sin(color.r * PI);
+    color.g = color.g + params.amount * sin(color.g * PI);
+    color.b = color.b + params.amount * sin(color.b * PI);
+  } else {
+    color.r = (1.0 + params.amount) * color.r;
+    color.g = (1.0 + params.amount) * color.g;
+    color.b = (1.0 + params.amount) * color.b;
+  }
+  return color;
+}
+`;
+
+const contrastFragment = saturationFragment;
+
+const blacksFragment = `
+@group(0) @binding(0) var uTexture: texture_2d<f32>;
+@group(0) @binding(1) var uSampler: sampler;
+@group(0) @binding(2) var uPaletteMap: texture_2d<f32>;
+@group(0) @binding(3) var uPaletteSampler: sampler;
+
+@fragment
+fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+  let base = textureSample(uTexture, uSampler, uv);
+  let r = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.r, 0.0)).r;
+  let g = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.g, 0.0)).g;
+  let b = textureSample(uPaletteMap, uPaletteSampler, vec2<f32>(base.b, 0.0)).b;
+  return vec4<f32>(r, g, b, base.a);
+}
+`;
+
 const dehazeFragment = `
 struct Params {
   amount: f32,
@@ -58,6 +176,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(J, base.a);
 }
 `;
+
 const bloomFragment = `
 struct Params {
   amount: f32,
@@ -89,6 +208,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return base;
 }
 `;
+
 const glamourFragment = `
 struct Params {
   amount: f32,
@@ -139,6 +259,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return mix(base, vec4<f32>(color, base.a), params.amount);
 }
 `;
+
 const clarityFragment = `
 struct Params {
   amount: f32,
@@ -210,6 +331,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(BlendOverlay(base, mix(vec3<f32>(0.5), inverse, mask)), base4.a);
 }
 `;
+
 const kernelFragment = `
 struct Params {
   texelX: f32,
@@ -245,6 +367,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return color * params.amount + (c22 * (1.0 - params.amount));
 }
 `;
+
 const blurFragment = `
 struct Params {
   sizeX: f32,
@@ -281,6 +404,7 @@ fn main(@location(0) uv: vec2<f32>, @builtin(position) fragCoord: vec4<f32>) -> 
   return vec4<f32>(color.rgb / (color.a + 0.00001), color.a);
 }
 `;
+
 const vignetteFragment = `
 struct Params {
   amount: f32,
@@ -311,6 +435,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return color;
 }
 `;
+
 const grainFragment = `
 struct Params {
   width: f32,
@@ -358,6 +483,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(col, tex.a);
 }
 `;
+
 const lutFragment = `
 struct Params {
   intensity: f32,
@@ -382,8 +508,21 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   return vec4<f32>(finalColor, base.a);
 }
 `;
+
 const SHARPEN_KERNEL = [0, -1, 0, -1, 5, -1, 0, -1, 0];
-const SMOOTH_KERNEL = [1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9];
+
+const SMOOTH_KERNEL = [
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+  1 / 9,
+];
+
 export class WebGPUBackend extends BaseBackend {
   device = null;
   resources = null;
@@ -448,7 +587,9 @@ export class WebGPUBackend extends BaseBackend {
   }
   loadFromVideo(video) {
     if (video.readyState < 2) {
-      throw new Error("Video has no decoded frame yet; wait for readyState >= HAVE_CURRENT_DATA");
+      throw new Error(
+        "Video has no decoded frame yet; wait for readyState >= HAVE_CURRENT_DATA",
+      );
     }
     this.loadFromSource(video, video.videoWidth, video.videoHeight);
   }
@@ -495,7 +636,14 @@ export class WebGPUBackend extends BaseBackend {
         height,
       },
     );
-    this.setupResources(this.device, context, format2, width, height, sourceTexture);
+    this.setupResources(
+      this.device,
+      context,
+      format2,
+      width,
+      height,
+      sourceTexture,
+    );
   }
   updateFromVideo(video) {
     if (!this.device || !this.resources) {
@@ -978,17 +1126,50 @@ export class WebGPUBackend extends BaseBackend {
       // 最终输出到 canvas 的 pass 管线使用 canvas 格式
       pass: this.createPipeline(device, format2, passFragment, "none"),
       // 其他管线使用 rgba8unorm 格式（与渲染目标匹配）
-      vibrance: this.createPipeline(device, intermediateFormat, vibranceFragment),
-      saturation: this.createPipeline(device, intermediateFormat, saturationFragment),
-      temperature: this.createPipeline(device, intermediateFormat, temperatureFragment),
+      vibrance: this.createPipeline(
+        device,
+        intermediateFormat,
+        vibranceFragment,
+      ),
+      saturation: this.createPipeline(
+        device,
+        intermediateFormat,
+        saturationFragment,
+      ),
+      temperature: this.createPipeline(
+        device,
+        intermediateFormat,
+        temperatureFragment,
+      ),
       tint: this.createPipeline(device, intermediateFormat, tintFragment),
       hue: this.createPipeline(device, intermediateFormat, hueFragment),
-      brightness: this.createPipeline(device, intermediateFormat, brightnessFragment),
-      exposure: this.createPipeline(device, intermediateFormat, exposureFragment),
-      contrast: this.createPipeline(device, intermediateFormat, contrastFragment),
-      blacks: this.createPipeline(device, intermediateFormat, blacksFragment, "extra-texture"),
+      brightness: this.createPipeline(
+        device,
+        intermediateFormat,
+        brightnessFragment,
+      ),
+      exposure: this.createPipeline(
+        device,
+        intermediateFormat,
+        exposureFragment,
+      ),
+      contrast: this.createPipeline(
+        device,
+        intermediateFormat,
+        contrastFragment,
+      ),
+      blacks: this.createPipeline(
+        device,
+        intermediateFormat,
+        blacksFragment,
+        "extra-texture",
+      ),
       whites: this.createPipeline(device, intermediateFormat, whitesFragment),
-      highlights: this.createPipeline(device, intermediateFormat, highlightsFragment),
+      highlights: this.createPipeline(
+        device,
+        intermediateFormat,
+        highlightsFragment,
+      ),
       shadows: this.createPipeline(device, intermediateFormat, shadowsFragment),
       dehaze: this.createPipeline(device, intermediateFormat, dehazeFragment),
       bloom: this.createPipeline(device, intermediateFormat, bloomFragment),
@@ -996,7 +1177,11 @@ export class WebGPUBackend extends BaseBackend {
       clarity: this.createPipeline(device, intermediateFormat, clarityFragment),
       kernel: this.createPipeline(device, intermediateFormat, kernelFragment),
       blur: this.createPipeline(device, intermediateFormat, blurFragment),
-      vignette: this.createPipeline(device, intermediateFormat, vignetteFragment),
+      vignette: this.createPipeline(
+        device,
+        intermediateFormat,
+        vignetteFragment,
+      ),
       grain: this.createPipeline(device, intermediateFormat, grainFragment),
     };
     const paletteTexture = device.createTexture({
@@ -1128,7 +1313,9 @@ export class WebGPUBackend extends BaseBackend {
       }
       if (pipelineInfo.bindingMode === "extra-texture") {
         if (!paletteTextureView) {
-          throw new Error("Pipeline requires palette texture but none allocated");
+          throw new Error(
+            "Pipeline requires palette texture but none allocated",
+          );
         }
         entries2.push(
           {
@@ -1157,7 +1344,11 @@ export class WebGPUBackend extends BaseBackend {
       if (uniformData) {
         device.queue.writeBuffer(uniformBuffers[pipelineName], 0, uniformData);
       }
-      const bindGroup = getOrCreateBindGroup(pipelineName, pipelineInfo, inputTextureView);
+      const bindGroup = getOrCreateBindGroup(
+        pipelineName,
+        pipelineInfo,
+        inputTextureView,
+      );
       const passEncoder = commandEncoder.beginRenderPass({
         colorAttachments: [
           {
@@ -1277,7 +1468,11 @@ export class WebGPUBackend extends BaseBackend {
       const matrix = buildContrastMatrix(settings.contrast);
       runPass("contrast", matrix.buffer);
     }
-    if (Math.abs(settings.blacks) > 0.5 && paletteTexture && paletteTextureView) {
+    if (
+      Math.abs(settings.blacks) > 0.5 &&
+      paletteTexture &&
+      paletteTextureView
+    ) {
       if (this.lastBlacksPalette !== settings.blacks) {
         const paletteData = buildBlackPalette(settings.blacks);
         const rgbaData = this.blacksRgba;

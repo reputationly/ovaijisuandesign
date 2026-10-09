@@ -1,6 +1,7 @@
 // zh.js
-import { instance, initReactI18next } from "../vendor.js";
+import { initReactI18next, instance } from "../vendor.js";
 import { getDefaultLanguage } from "../vendor-inline/vscode-base/linked-list.js";
+import { en$2 } from "./en.js";
 import {
   canvas_lyrics,
   error_auth_unauthorized,
@@ -14,7 +15,7 @@ import {
   error_seedance_member_locked,
   model_input_error_general,
 } from "../infra/error-safety-image-output-blocked.js";
-import { en$2 } from "./init-rum.jsx";
+
 const zh = {
   "assetPicker.source.local": "本地上传",
   "assetPicker.source.task": "当前任务文件中选择",
@@ -27,20 +28,28 @@ const zh = {
   "canvas.minimap.hide": "隐藏小地图",
   "canvas.minimap.show": "显示小地图",
   "connectors.catalog.libtv.title": "LibTV",
-  "connectors.catalog.libtv.description": "使用 LibTV 创作图片和视频，将结果回传到 Design 画布。",
+  "connectors.catalog.libtv.description":
+    "使用 LibTV 创作图片和视频，将结果回传到 Design 画布。",
   "connectors.libtv.title": "连接 LibTV",
-  "connectors.libtv.description": "在浏览器登录 LibTV 账户，连接你的项目与创作工具。",
-  "connectors.libtv.hint": "请先打开一个 Design 任务。登录授权不会生成媒体或消耗创作积分。",
+  "connectors.libtv.description":
+    "在浏览器登录 LibTV 账户，连接你的项目与创作工具。",
+  "connectors.libtv.hint":
+    "请先打开一个 Design 任务。登录授权不会生成媒体或消耗创作积分。",
   "connectors.libtv.authorize": "登录并连接",
   "connectors.libtv.waiting":
     "请在五分钟内完成浏览器授权。可暂时关闭此窗口，浏览器中的授权仍会继续。",
-  "connectors.libtv.runtimeRequired": "请打开一个 Design 任务，等待就绪后重新连接。",
-  "connectors.libtv.busy": "LibTV 正在连接中。请完成当前浏览器登录，再检查连接状态。",
-  "connectors.libtv.conflict": "已有其他连接使用 libtv 名称。请调整该连接名称或移除后重试。",
-  "connectors.libtv.failed": "LibTV 授权或连接尚未验证。请检查浏览器登录与网络后重试。",
+  "connectors.libtv.runtimeRequired":
+    "请打开一个 Design 任务，等待就绪后重新连接。",
+  "connectors.libtv.busy":
+    "LibTV 正在连接中。请完成当前浏览器登录，再检查连接状态。",
+  "connectors.libtv.conflict":
+    "已有其他连接使用 libtv 名称。请调整该连接名称或移除后重试。",
+  "connectors.libtv.failed":
+    "LibTV 授权或连接尚未验证。请检查浏览器登录与网络后重试。",
   "connectors.customDialog.error.server_busy":
     "授权正在进行，请在浏览器完成或拒绝授权后再修改连接。",
-  "connectors.removeError.server_busy": "授权正在进行，请在浏览器完成或拒绝授权后再移除连接。",
+  "connectors.removeError.server_busy":
+    "授权正在进行，请在浏览器完成或拒绝授权后再移除连接。",
   "canvas.reference.limitWidth": "{{value}}px 宽",
   "canvas.reference.limitHeight": "{{value}}px 高",
   "canvas.reference.requiredDimensions": "要求的尺寸",
@@ -49,10 +58,14 @@ const zh = {
   "canvas.reference.disabledFull": "添加该引用将超过附件数量上限",
   "canvas.reference.disabledImageSize": "图片尺寸需不低于 {{dimensions}}",
   "canvas.reference.disabledImageAspect": "图片宽高比不符合要求",
-  "canvas.reference.disabledAudioRange": "每段音频时长需在 {{min}}–{{max}} 秒之间",
-  "canvas.reference.disabledAudioBudget": "该音频超过剩余可引用时长 {{seconds}} 秒",
-  "canvas.reference.disabledVideoBudget": "该视频超过剩余可引用时长 {{seconds}} 秒",
-  "canvas.reference.disabledVideoRange": "每段视频时长需在 {{min}}–{{max}} 秒之间",
+  "canvas.reference.disabledAudioRange":
+    "每段音频时长需在 {{min}}–{{max}} 秒之间",
+  "canvas.reference.disabledAudioBudget":
+    "该音频超过剩余可引用时长 {{seconds}} 秒",
+  "canvas.reference.disabledVideoBudget":
+    "该视频超过剩余可引用时长 {{seconds}} 秒",
+  "canvas.reference.disabledVideoRange":
+    "每段视频时长需在 {{min}}–{{max}} 秒之间",
   "canvas.reference.disabledUnavailable": "该引用暂不可用",
   "canvas.reference.subjectNotFound": "找不到主体",
   "canvas.reference.assetNotFound": "找不到资产",
@@ -67,7 +80,8 @@ const zh = {
   "canvas.reference.subject": "主体",
   "canvas.reference.unavailable": "引用已不可用，请移除或重新选择",
   "canvas.reference.loadFailed": "引用加载失败，请重试",
-  "canvas.reference.contentChanged": "引用内容已变化，请确认更新后的参考数量和预估消耗，再次提交",
+  "canvas.reference.contentChanged":
+    "引用内容已变化，请确认更新后的参考数量和预估消耗，再次提交",
   "canvas.referenceNavigation.dismiss": "关闭定位提示",
   "canvas.referenceNavigation.focused": "已聚焦至参考节点",
   "canvas.referenceNavigation.locate": "聚焦至参考节点",
@@ -104,12 +118,15 @@ const zh = {
   "account.delete.blockCheckUnavailable": "暂时无法完成注销预检，请稍后重试",
   "account.delete.blockGroupDesign": "MiniMax Design",
   "account.delete.blockGroupHailuo": "海螺视频",
-  "account.delete.blockHailuoFallback": "当前账号存在未处理的订阅或订单，暂无法注销",
+  "account.delete.blockHailuoFallback":
+    "当前账号存在未处理的订阅或订单，暂无法注销",
   "account.delete.blockHailuoReason": "{{reason}}",
   "account.delete.blockIapSubscription":
     "检测到您有通过 App Store / Google Play 开通的订阅，请先在对应应用商店取消订阅后再注销",
-  "account.delete.blockTeamMember": "您仍在团队「{{team}}」中，请先退出团队后再注销",
-  "account.delete.blockTeamOwner": "您是团队「{{team}}」的所有者，请先解散团队后再注销",
+  "account.delete.blockTeamMember":
+    "您仍在团队「{{team}}」中，请先退出团队后再注销",
+  "account.delete.blockTeamOwner":
+    "您是团队「{{team}}」的所有者，请先解散团队后再注销",
   "account.delete.codeSendFailed": "验证码发送失败，请稍后重试",
   "account.delete.codeSent": "验证码已发送",
   "account.delete.confirmButton": "确认注销账号",
@@ -134,11 +151,13 @@ const zh = {
   "account.delete.verifyCodePlaceholder": "请输入验证码",
   "account.delete.warning.contentErased":
     "您在海螺 AI 网页端、海螺 AI 手机端以及 MiniMax Design 中的所有内容（包括云端视频和个人资料）将被永久删除，且无法找回",
-  "account.delete.warning.creditsCleared": "海螺 AI 以及 MiniMax Design 账号中的积分都将全部清零",
+  "account.delete.warning.creditsCleared":
+    "海螺 AI 以及 MiniMax Design 账号中的积分都将全部清零",
   "account.delete.warning.irreversible": "账户注销后将无法恢复",
   "account.delete.warning.noNewUserBonus":
     "重新注册时不再享受新用户福利。请慎重考虑，一旦确认注销，操作将无法撤销",
-  "account.delete.warning.subscriptionTerminated": "若您有任何有效订阅，将立即终止且不予退款",
+  "account.delete.warning.subscriptionTerminated":
+    "若您有任何有效订阅，将立即终止且不予退款",
   "account.delete.warning.teamsDissolved":
     "您创建的团队将被全部解散，团队成员将无法继续使用该团队资源",
   "assetCenter.add": "创建主体",
@@ -150,7 +169,8 @@ const zh = {
   "assetCenter.backToWorkspace": "返回工作区",
   "assetCenter.batch.clear": "取消选择",
   "assetCenter.batch.delete": "删除 {{count}} 项",
-  "assetCenter.batch.deletePartial": "部分删除失败: {{message}}还有{{remaining}} 个未删除主体",
+  "assetCenter.batch.deletePartial":
+    "部分删除失败: {{message}}还有{{remaining}} 个未删除主体",
   "assetCenter.batch.export": "导出 {{count}} 项",
   "assetCenter.batch.importPartial":
     "部分导入失败: {{succeeded}} / {{total}} 成功, 失败原因: {{message}}",
@@ -180,11 +200,13 @@ const zh = {
   "assetCenter.create.description":
     "选择主体类型，填写主体名称，选择对应的本地文件、参考图、视频、音频来创建主体。\n输入清晰的主体描述、主体标签和文件描述，让 agent 更智能地调用主体",
   "assetCenter.create.descriptionLabel": "描述",
-  "assetCenter.create.descriptionPlaceholder": "输入清晰的描述, 帮助 agent 更好地搜索和复用...",
+  "assetCenter.create.descriptionPlaceholder":
+    "输入清晰的描述, 帮助 agent 更好地搜索和复用...",
   "assetCenter.create.dropZoneMaxed": "附件数量已达上限",
   "assetCenter.create.dropZonePrompt": "点击上传或拖入文件",
   "assetCenter.create.dropZonePromptAlt": "将素材文件拖入/点击上传",
-  "assetCenter.create.errorNoFilePath": "无法读取文件「{{filename}}」。请尝试从本地重新选择。",
+  "assetCenter.create.errorNoFilePath":
+    "无法读取文件「{{filename}}」。请尝试从本地重新选择。",
   "assetCenter.create.nameLabel": "名称",
   "assetCenter.create.namePlaceholder": "主体名称",
   "assetCenter.create.submit": "创建",
@@ -213,9 +235,11 @@ const zh = {
   "assetCenter.detail.noAttachments": "该主体暂无附件",
   "assetCenter.detail.noDescription": "(无描述)",
   "assetCenter.detail.viewLarge": "查看大图",
-  "assetCenter.edit.description": "修改主体名称和描述。增减或编辑主体内部的文件。",
+  "assetCenter.edit.description":
+    "修改主体名称和描述。增减或编辑主体内部的文件。",
   "assetCenter.edit.descriptionLabel": "描述",
-  "assetCenter.edit.descriptionPlaceholder": "输入清晰的描述, 帮助 agent 按主题找到这个主体...",
+  "assetCenter.edit.descriptionPlaceholder":
+    "输入清晰的描述, 帮助 agent 按主题找到这个主体...",
   "assetCenter.edit.loadError": "加载主体失败: {{message}}",
   "assetCenter.edit.nameLabel": "名称",
   "assetCenter.edit.namePlaceholder": "主体名称",
@@ -237,7 +261,8 @@ const zh = {
   "assetCenter.errors.fileTooLarge": "文件过大，单个文件最大支持 200MB",
   "assetCenter.errors.gatewayNotReady": "服务正在启动中，请稍等片刻",
   "assetCenter.errors.importEntityConflict": "该主体已存在",
-  "assetCenter.errors.importInvalidZip": "主体解析失败，只支持 MiniMax Design 导出的主体文件",
+  "assetCenter.errors.importInvalidZip":
+    "主体解析失败，只支持 MiniMax Design 导出的主体文件",
   "assetCenter.errors.importManifestInvalid": "导入文件格式不正确",
   "assetCenter.errors.importVersionUnsupported":
     "无法解析该 zip 文件，仅支持上传 MiniMax Design 导出的主体包文件",
@@ -259,9 +284,11 @@ const zh = {
     "导入文件中的名称是「{{newName}}」, 与现有的「{{oldName}}」不同。",
   "assetCenter.import.conflictTitle": "导入冲突",
   "assetCenter.import.error": "导入失败: {{message}}",
-  "assetCenter.import.renamedToAvoidConflict": '将主体重命名为 "{{name}}" 以避免重复',
+  "assetCenter.import.renamedToAvoidConflict":
+    '将主体重命名为 "{{name}}" 以避免重复',
   "assetCenter.import.success": '导入 "{{name}}" 成功',
-  "assetCenter.import.successWithWarnings": '导入 "{{name}}" 成功，{{count}} 条警告',
+  "assetCenter.import.successWithWarnings":
+    '导入 "{{name}}" 成功，{{count}} 条警告',
   "assetCenter.import.toastSuccess": "已添加到主体库：{{name}}",
   "assetCenter.loadError.title": "加载主体库失败",
   "assetCenter.loading": "正在加载主体…",
@@ -271,7 +298,8 @@ const zh = {
   "assetCenter.materialize.actionTooltip": "把这个主体加到创作页",
   "assetCenter.materialize.description": '选择创作页, 把 "{{name}}" 加进去',
   "assetCenter.materialize.descriptionFallback": "选择创作页, 把这个主体加进去",
-  "assetCenter.materialize.noWorkspaces": "未找到创作页，请先在创作页中心创建一个新创作页",
+  "assetCenter.materialize.noWorkspaces":
+    "未找到创作页，请先在创作页中心创建一个新创作页",
   "assetCenter.materialize.partialError":
     "部分成功: {{count}} 个创作页已加入, 剩余失败: {{message}}",
   "assetCenter.materialize.selectedCount": "已选 {{count}} 个",
@@ -290,7 +318,8 @@ const zh = {
   "assetCenter.promote.fileEdited": "已编辑",
   "assetCenter.promote.filesLabel": "{{count}} 个文件",
   "assetCenter.promote.nameRequired": "请输入主体名称后再创建",
-  "assetCenter.promote.noLibraryError": "没有可用的主体库, 请前往「主体库」创建主体。",
+  "assetCenter.promote.noLibraryError":
+    "没有可用的主体库, 请前往「主体库」创建主体。",
   "assetCenter.promote.partialAppendError":
     "{{done}} / {{total}} 个文件已加入, 失败原因: {{message}}",
   "assetCenter.promote.pickedLabel": "目标主体: {{name}}",
@@ -304,16 +333,20 @@ const zh = {
   "assetCenter.promote.targetEntityLabel": "选择目标主体",
   "assetCenter.promote.targetRequired": "请选择一个要加入的目标主体",
   "assetCenter.promote.title": "存为主体",
-  "assetCenter.promote.toastAppended": "已添加 {{count}} 个文件到「{{entity}}」",
-  "assetCenter.promote.toastCreated": "已创建主体「{{entity}}」(含 {{count}} 个文件)",
+  "assetCenter.promote.toastAppended":
+    "已添加 {{count}} 个文件到「{{entity}}」",
+  "assetCenter.promote.toastCreated":
+    "已创建主体「{{entity}}」(含 {{count}} 个文件)",
   "assetCenter.promote.userDescLabel": "备注 (可选)",
-  "assetCenter.promote.userDescPlaceholder": "一句话告诉 agent 这个附件适合什么时候用",
+  "assetCenter.promote.userDescPlaceholder":
+    "一句话告诉 agent 这个附件适合什么时候用",
   "assetCenter.searchPlaceholder": "按主体名称, 主体描述, 或文件名搜索...",
   "assetCenter.sort.label": "排序方式",
   "assetCenter.sort.updated_at": "最近更新",
   "assetCenter.sort.use_count": "使用次数",
   "assetCenter.sortTooltip": "排序",
-  "assetCenter.subtitle": "沉淀可复用的角色、场景 、风格包、道具等素材，在新的创作页空间中快速调用",
+  "assetCenter.subtitle":
+    "沉淀可复用的角色、场景 、风格包、道具等素材，在新的创作页空间中快速调用",
   "assetCenter.suggestions.approve": "采纳",
   "assetCenter.suggestions.attachmentCount": "{{count}} 个附件",
   "assetCenter.suggestions.collapse": "收起",
@@ -401,7 +434,8 @@ const zh = {
   "assetPicker.summary.limits": "最多 {{types}}",
   "assetPicker.summary.minimum": "；至少选择 {{min}} 项",
   "assetPicker.summary.shared": "；视频与音频合计最多 {{max}} 项",
-  "assetPicker.summary.typeFull": "{{types}}已达选择上限，请先取消部分已选素材。",
+  "assetPicker.summary.typeFull":
+    "{{types}}已达选择上限，请先取消部分已选素材。",
   "assetPicker.summary.types": "可选：{{types}}",
   "assetPicker.summary.unbounded": "已选 {{count}} 项",
   "assetPicker.tab.canvas": "画布上的资源",
@@ -478,7 +512,8 @@ const zh = {
   "assetSidebarPanel.clearSearch": "清除搜索",
   "assetSidebarPanel.createCta": "去创建",
   "assetSidebarPanel.empty": "暂无主体",
-  "assetSidebarPanel.emptyBody": "在这里添加主体，或将画布文件保存为主体以便复用。",
+  "assetSidebarPanel.emptyBody":
+    "在这里添加主体，或将画布文件保存为主体以便复用。",
   "assetSidebarPanel.emptyByType.all": "暂无主体",
   "assetSidebarPanel.emptyByType.character": "暂无角色",
   "assetSidebarPanel.emptyByType.custom": "暂无自定义主体",
@@ -499,7 +534,8 @@ const zh = {
     "我们为您（“用户”）提供“参考”功能（“本功能”），协助您更好地使用我们提供的内容生成服务（“服务”）。您可以在视频生成、图片生成等服务中使用相应的参考功能，在使用本功能之前，请您认真阅读并充分理解《参考功能使用须知》（“本须知”），您以点击确认等方式同意本须知以及《用户协议》《隐私政策》（统称“服务协议”）的，方可使用本功能。使用本功能过程中，请您持续关注并遵守本须知及各项服务协议的要求，让我们共同创造和维护良好的网络环境和产品生态。\n\n一、服务使用规则\n1. 您理解、确认并承诺，您在使用本服务和本功能时输入、提交、上传、发布的各项内容（包括但不限于文字、图片、音频、视频等各种形式的内容及其中包含的文本、音乐、声音、图形图像、视觉设计、作品等所有组成部分，“输入内容”）均由您原创、拥有完整权利或已取得充分、合法、有效授权，输入内容的知识产权、所有权、人格权（包括但不限于肖像权等）、数据权益和/或其他相关权益由您和/或授权您的第三方依法享有，同时不侵犯任何人的知识产权、人格权、数据权益、商业秘密等合法权益，您应当就提供输入内容的行为独立承担责任。\n2. 如您的输入内容包含自然人的人脸、肖像、声音（统称“自然人特征”）的，您应当保证对该等信息享有充分的权利或您已取得权利人充分、合法、有效的授权。如您未就相关自然人特征取得必要授权，您不应在使用MiniMax Design或本功能时输入该等内容，否则，您应当独立承担由此导致的后果和责任。我们可能会对您输入内容中的自然人特征的特征点、矢量点进行检测和分析，以协助您使用服务，但我们不会将该等信息用于识别特定自然人。\n3. 您使用MiniMax Design和本功能的，应当将服务、输入内容以及服务生成、输出的各项内容（“输出内容”）用于合法合规的用途，不应将其用于违法违规的用途，不得利用服务或输入内容、输出内容侵害他人合法权益，相关禁止行为和/或禁止的目的或用途（“禁止用途”）包括但不限于：（1）生成、发布、传播煽动颠覆国家政权、推翻社会主义制度，危害国家安全和利益、损害国家形象，煽动分裂国家、破坏国家统一和社会稳定，宣扬恐怖主义、极端主义，宣扬民族仇恨、民族歧视，暴力、淫秽色情，以及虚假有害信息等法律、行政法规禁止的内容；（2）损害、丑化他人形象;（3）损害他人名誉;（4）冒用他人身份或名义;（5）贬低他人人格;（6）侮辱、诽谤、贬损、恶搞他人;（7）侵害未成年人合法权益或损害未成年人身心健康;（8）编造或传播谣言、虚假信息;（9）MiniMax各项服务协议中所禁止的行为;（10）其他违反法律法规或者侵犯他人合法权益的情形。如您从事了禁止行为或将服务、输入内容、输出内容用于禁止用途，您应当独立承担全部后果和责任，如给我们造成损失的，您应当赔偿。\n4. 如发现您的输入内容或输出内容存在违法违规、违反本须知或违反服务协议的情形时，我们有权视情况采取删除、屏蔽、拒绝输出相关内容等措施，并有权对您的账号采取冻结、封禁或关闭等处置措施。如您发现输入内容或输出内容存在前述情形的，应当立即采取删除、更换内容等适当措施，避免相关内容的生成或传播，并及时向我们反馈相关情况。\n5. 您知悉、理解并认可，为遵守相关法律法规的规定以及为明确输出内容的权利归属或使用限制，我们有权在输出内容中添加标识、水印，且在您浏览、导出、下载输出内容时有权再次以提示语等显著形式告知您如何使用上述输出内容及其限制。除非另有约定，您不得篡改或移除我们在输出内容中添加的标识、水印。同时，您使用输出内容时应当根据实际使用场景进行必要的标识和提示，说明其为AI生成内容，避免造成误导或混淆，如因您未进行必要的标识和提示而导致的任何后果和责任由您独立承担。\n6. 由于输出内容均产生于技术模型，尽管我们已经努力在改善模型算法，但是由于技术发展的局限性，仍不能保证服务或输出内容的适用性、准确性、可靠性、完整性。您知悉、理解并认可，本功能仅为辅助您使用MiniMax Design的内容生成服务而设置，我们不对本功能的适用性、准确性、可靠性、完整性作出任何保证或承担任何责任，您亦不会因此向我们提出任何主张。\n\n二、服务完善和意见反馈\n1. 我们将不断完善本服务和本功能，并适时修订、更新本须知及服务协议。如本功能或本须知有任何变更，我们将在功能相关界面告知您。如您不同意相关变更，请停止使用本功能。您继续使用本功能的，即视为已同意、接受修改后的版本，并应当予以遵守。\n2. 欢迎您在使用服务的过程中向我们反馈您的意见和建议，帮助我们优化和完善服务。同时，我们高度重视保护知识产权和人格权等合法权益。如果您认为服务或者他人对服务的使用存在侵犯您合法权益的情形，请通过feedback@hailuoai.com与我们联系，并提供相应的合法权益证明资料和侵权内容凭证等，我们将第一时间进行核实、处理，对违规内容采取删除、屏蔽等必要措施。",
   "attachmentFaceNotice.title": "参考功能使用须知",
   "auth.confirmBrowserLogin.title": "确认登录账号",
-  "auth.confirmBrowserLogin.description": "确认使用账号 {{account}} 登录？请核对账号后继续。",
+  "auth.confirmBrowserLogin.description":
+    "确认使用账号 {{account}} 登录？请核对账号后继续。",
   "auth.loginFailed": "登录失败，请重试",
   "auth.loginGate.bullet0": "理解、拆解并执行多场景内容生产任务",
   "auth.loginGate.bullet1": "专业工作流与Skill，释放商业内容生产力",
@@ -508,11 +544,13 @@ const zh = {
   "auth.loginGate.subtitle": "最强创作 Agent + 顶尖通用多模态模型",
   "auth.loginGate.title": "MiniMax Design 全面接入 H3",
   "auth.loginNetworkError": "登录验证失败，请检查网络后重试",
-  "auth.loginPageExpired": "此登录页面已失效，请使用最新打开的登录页面，或返回客户端重新登录。",
+  "auth.loginPageExpired":
+    "此登录页面已失效，请使用最新打开的登录页面，或返回客户端重新登录。",
   "auth.loginRequired": "需要登录",
   "auth.loginRequiredDesc": "请先登录后继续操作",
   "auth.logoutFailed": "退出登录失败",
-  "auth.sessionExpired.description": "您的登录状态已过期，请重新登录后继续使用。",
+  "auth.sessionExpired.description":
+    "您的登录状态已过期，请重新登录后继续使用。",
   "auth.sessionExpired.later": "稍后",
   "auth.sessionExpired.relogin": "重新登录",
   "auth.sessionExpired.title": "登录已失效",
@@ -531,15 +569,20 @@ const zh = {
   "bundleError.copyDiagnostics": "复制诊断信息",
   "bundleError.copyDiagnosticsFailed": "复制失败",
   "bundleError.copyDiagnosticsSuccess": "诊断信息已复制",
-  "bundleError.diagnosis.gatewayStartFailed.message": "本地 workspace 服务没有正常启动。",
-  "bundleError.diagnosis.gatewayStartFailed.primaryAction": "重新启动 workspace 服务",
-  "bundleError.diagnosis.gatewayStartFailed.suggestion1": "点击重试重新启动 workspace 服务。",
+  "bundleError.diagnosis.gatewayStartFailed.message":
+    "本地 workspace 服务没有正常启动。",
+  "bundleError.diagnosis.gatewayStartFailed.primaryAction":
+    "重新启动 workspace 服务",
+  "bundleError.diagnosis.gatewayStartFailed.suggestion1":
+    "点击重试重新启动 workspace 服务。",
   "bundleError.diagnosis.gatewayStartFailed.suggestion2":
     "如果刚更新过应用，请完全退出后重新打开。",
-  "bundleError.diagnosis.gatewayStartFailed.title": "本地 workspace 服务没有正常启动",
+  "bundleError.diagnosis.gatewayStartFailed.title":
+    "本地 workspace 服务没有正常启动",
   "bundleError.diagnosis.macosVersionUnsupported.message":
     "系统版本过低，请升级 macOS 至 13.0 或更高版本。",
-  "bundleError.diagnosis.macosVersionUnsupported.primaryAction": "升级 macOS 后再打开",
+  "bundleError.diagnosis.macosVersionUnsupported.primaryAction":
+    "升级 macOS 后再打开",
   "bundleError.diagnosis.macosVersionUnsupported.suggestion1":
     "macOS 12 及更早版本不支持当前本地 AI 服务。",
   "bundleError.diagnosis.macosVersionUnsupported.suggestion2":
@@ -554,7 +597,8 @@ const zh = {
     "检查系统代理、公司网络策略或证书代理是否拦截本地服务连接。",
   "bundleError.diagnosis.networkProxy.suggestion3":
     "若刚切换过网络，请等待几秒后重新启动 workspace。",
-  "bundleError.diagnosis.networkProxy.title": "可能是 VPN 或代理影响了本地 AI 服务",
+  "bundleError.diagnosis.networkProxy.title":
+    "可能是 VPN 或代理影响了本地 AI 服务",
   "bundleError.diagnosis.opencodeBinaryBlocked.message":
     "本地 AI runtime 可能被系统安全软件或权限策略拦截。",
   "bundleError.diagnosis.opencodeBinaryBlocked.primaryAction": "加入信任后重试",
@@ -562,52 +606,72 @@ const zh = {
     "检查系统安全软件、企业管控或杀毒软件是否拦截了 AI runtime。",
   "bundleError.diagnosis.opencodeBinaryBlocked.suggestion2":
     "恢复被隔离的 runtime 文件，加入信任后重试。",
-  "bundleError.diagnosis.opencodeBinaryBlocked.title": "本地 AI runtime 可能被安全软件拦截",
+  "bundleError.diagnosis.opencodeBinaryBlocked.title":
+    "本地 AI runtime 可能被安全软件拦截",
   "bundleError.diagnosis.opencodeBinaryCorrupted.message":
     "本地 AI runtime 文件可能损坏或下载不完整。",
-  "bundleError.diagnosis.opencodeBinaryCorrupted.primaryAction": "重新安装后再试",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.primaryAction":
+    "重新安装后再试",
   "bundleError.diagnosis.opencodeBinaryCorrupted.suggestion1":
     "请重新下载或重新安装应用，让 runtime 文件重新生成。",
   "bundleError.diagnosis.opencodeBinaryCorrupted.suggestion2":
     "如果近期被安全软件扫描或隔离，请先加入信任后重试。",
-  "bundleError.diagnosis.opencodeBinaryCorrupted.title": "本地 AI runtime 文件可能损坏",
-  "bundleError.diagnosis.opencodeBinaryMissing.message": "本地 AI runtime 文件缺失。",
+  "bundleError.diagnosis.opencodeBinaryCorrupted.title":
+    "本地 AI runtime 文件可能损坏",
+  "bundleError.diagnosis.opencodeBinaryMissing.message":
+    "本地 AI runtime 文件缺失。",
   "bundleError.diagnosis.opencodeBinaryMissing.primaryAction": "重新安装后再试",
   "bundleError.diagnosis.opencodeBinaryMissing.suggestion1":
     "请重新下载或重新安装应用后再打开 workspace。",
   "bundleError.diagnosis.opencodeBinaryMissing.suggestion2":
     "如果安全软件隔离了 runtime 文件，请恢复文件并加入信任。",
-  "bundleError.diagnosis.opencodeBinaryMissing.title": "本地 AI runtime 文件缺失",
-  "bundleError.diagnosis.opencodeConfigBroken.message": "检测到本地 AI 配置文件异常。",
-  "bundleError.diagnosis.opencodeConfigBroken.primaryAction": "使用修复后的配置重试",
-  "bundleError.diagnosis.opencodeConfigBroken.suggestion1": "系统已尝试备份异常配置，请点击重试。",
-  "bundleError.diagnosis.opencodeConfigBroken.suggestion2": "若仍失败，请反馈问题并附带诊断码。",
+  "bundleError.diagnosis.opencodeBinaryMissing.title":
+    "本地 AI runtime 文件缺失",
+  "bundleError.diagnosis.opencodeConfigBroken.message":
+    "检测到本地 AI 配置文件异常。",
+  "bundleError.diagnosis.opencodeConfigBroken.primaryAction":
+    "使用修复后的配置重试",
+  "bundleError.diagnosis.opencodeConfigBroken.suggestion1":
+    "系统已尝试备份异常配置，请点击重试。",
+  "bundleError.diagnosis.opencodeConfigBroken.suggestion2":
+    "若仍失败，请反馈问题并附带诊断码。",
   "bundleError.diagnosis.opencodeConfigBroken.title": "本地 AI 配置文件异常",
   "bundleError.diagnosis.opencodeDbSchemaMismatch.message":
     "本地 AI 数据库与当前版本不兼容，已自动重建。",
-  "bundleError.diagnosis.opencodeDbSchemaMismatch.primaryAction": "重新启动 workspace",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.primaryAction":
+    "重新启动 workspace",
   "bundleError.diagnosis.opencodeDbSchemaMismatch.suggestion1":
     "历史对话记录不再显示，但原数据库已备份保留，项目文件、画布和素材不受影响。",
   "bundleError.diagnosis.opencodeDbSchemaMismatch.suggestion2":
     "若仍失败，请反馈问题并附带诊断码。",
-  "bundleError.diagnosis.opencodeDbSchemaMismatch.title": "本地 AI 数据库已重建",
-  "bundleError.diagnosis.opencodePortConflict.message": "本地 AI 服务端口可能被占用。",
+  "bundleError.diagnosis.opencodeDbSchemaMismatch.title":
+    "本地 AI 数据库已重建",
+  "bundleError.diagnosis.opencodePortConflict.message":
+    "本地 AI 服务端口可能被占用。",
   "bundleError.diagnosis.opencodePortConflict.primaryAction": "换端口重试",
-  "bundleError.diagnosis.opencodePortConflict.suggestion1": "点击重试，系统会尝试换端口重新启动。",
+  "bundleError.diagnosis.opencodePortConflict.suggestion1":
+    "点击重试，系统会尝试换端口重新启动。",
   "bundleError.diagnosis.opencodePortConflict.suggestion2":
     "如果持续失败，请完全退出应用后重新打开。",
-  "bundleError.diagnosis.opencodePortConflict.title": "本地 AI 服务端口可能被占用",
-  "bundleError.diagnosis.runtimeDirPermission.message": "本地运行时缓存或数据目录权限异常。",
+  "bundleError.diagnosis.opencodePortConflict.title":
+    "本地 AI 服务端口可能被占用",
+  "bundleError.diagnosis.runtimeDirPermission.message":
+    "本地运行时缓存或数据目录权限异常。",
   "bundleError.diagnosis.runtimeDirPermission.primaryAction": "检查权限后重试",
   "bundleError.diagnosis.runtimeDirPermission.suggestion1":
     "确认当前用户有权限读写本地缓存和数据目录。",
   "bundleError.diagnosis.runtimeDirPermission.suggestion2":
     "如果目录在外接盘、同步盘或受管控目录中，请切换到本机用户目录后重试。",
-  "bundleError.diagnosis.runtimeDirPermission.title": "本地运行目录没有写入权限",
-  "bundleError.diagnosis.runtimeStartFailed.message": "本地 AI 服务没有正常启动。",
-  "bundleError.diagnosis.runtimeStartFailed.primaryAction": "重新启动 workspace",
-  "bundleError.diagnosis.runtimeStartFailed.suggestion1": "点击重试重新启动 workspace runtime。",
-  "bundleError.diagnosis.runtimeStartFailed.suggestion2": "若问题持续，请导出日志并反馈给支持。",
+  "bundleError.diagnosis.runtimeDirPermission.title":
+    "本地运行目录没有写入权限",
+  "bundleError.diagnosis.runtimeStartFailed.message":
+    "本地 AI 服务没有正常启动。",
+  "bundleError.diagnosis.runtimeStartFailed.primaryAction":
+    "重新启动 workspace",
+  "bundleError.diagnosis.runtimeStartFailed.suggestion1":
+    "点击重试重新启动 workspace runtime。",
+  "bundleError.diagnosis.runtimeStartFailed.suggestion2":
+    "若问题持续，请导出日志并反馈给支持。",
   "bundleError.diagnosis.runtimeStartFailed.title": "本地 AI 服务没有正常启动",
   "bundleError.diagnosis.runtimeStartTimeout.message": "本地 AI 服务启动超时。",
   "bundleError.diagnosis.runtimeStartTimeout.primaryAction": "再试一次",
@@ -616,12 +680,16 @@ const zh = {
   "bundleError.diagnosis.runtimeStartTimeout.suggestion2":
     "如果持续超时，请检查安全软件是否拦截本地 AI runtime。",
   "bundleError.diagnosis.runtimeStartTimeout.title": "本地 AI 服务启动超时",
-  "bundleError.diagnosis.windowsBinaryIncompatible.message": "安装文件架构不匹配或文件已经损坏。",
-  "bundleError.diagnosis.windowsBinaryIncompatible.primaryAction": "重新安装最新版",
-  "bundleError.diagnosis.windowsBinaryIncompatible.suggestion1": "请从官方渠道重新下载并覆盖安装。",
+  "bundleError.diagnosis.windowsBinaryIncompatible.message":
+    "安装文件架构不匹配或文件已经损坏。",
+  "bundleError.diagnosis.windowsBinaryIncompatible.primaryAction":
+    "重新安装最新版",
+  "bundleError.diagnosis.windowsBinaryIncompatible.suggestion1":
+    "请从官方渠道重新下载并覆盖安装。",
   "bundleError.diagnosis.windowsBinaryIncompatible.suggestion2":
     "若安全软件隔离了安装文件，请在恢复文件后重新安装。",
-  "bundleError.diagnosis.windowsBinaryIncompatible.title": "本地 AI 服务文件不兼容",
+  "bundleError.diagnosis.windowsBinaryIncompatible.title":
+    "本地 AI 服务文件不兼容",
   "bundleError.diagnosis.windowsCpuUnsupported.message":
     "本地 AI 服务需要支持 SSE4.2 指令集的 64 位处理器。",
   "bundleError.diagnosis.windowsCpuUnsupported.primaryAction": "更换支持的电脑",
@@ -632,15 +700,18 @@ const zh = {
   "bundleError.diagnosis.windowsCpuUnsupported.title": "当前处理器不受支持",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.message":
     "Windows 无法加载本地 AI 服务需要的系统组件。",
-  "bundleError.diagnosis.windowsRuntimeDependencyFailed.primaryAction": "重启电脑后重新安装",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.primaryAction":
+    "重启电脑后重新安装",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion1":
     "先重启电脑，避免更新或安全软件仍占用旧文件。",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2":
     "如果仍然失败，请重新安装最新版 MiniMax Design。",
-  "bundleError.diagnosis.windowsRuntimeDependencyFailed.title": "Windows 组件加载失败",
+  "bundleError.diagnosis.windowsRuntimeDependencyFailed.title":
+    "Windows 组件加载失败",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.message":
     "可用内存、虚拟内存或磁盘空间不足，无法启动本地 AI 服务。",
-  "bundleError.diagnosis.windowsRuntimeResourceExhausted.primaryAction": "释放资源后重试",
+  "bundleError.diagnosis.windowsRuntimeResourceExhausted.primaryAction":
+    "释放资源后重试",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion1":
     "关闭占用大量内存的程序，并确保系统盘和项目盘有足够空间。",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2":
@@ -648,7 +719,8 @@ const zh = {
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.title": "系统资源不足",
   "bundleError.diagnosis.windowsRuntimeTerminated.message":
     "本地 AI 服务被系统、安装程序或其他程序强制结束。",
-  "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction": "重新打开 MiniMax Design",
+  "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction":
+    "重新打开 MiniMax Design",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion1":
     "如果正在安装更新，请等待安装完成后再打开。",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2":
@@ -656,12 +728,14 @@ const zh = {
   "bundleError.diagnosis.windowsRuntimeTerminated.title": "本地 AI 服务被终止",
   "bundleError.diagnosis.windowsVersionUnsupported.message":
     "当前 Windows 版本无法运行本地 AI 服务，请升级至 Windows 10 1809、Windows Server 2019 或更高版本。",
-  "bundleError.diagnosis.windowsVersionUnsupported.primaryAction": "升级 Windows 后再打开",
+  "bundleError.diagnosis.windowsVersionUnsupported.primaryAction":
+    "升级 Windows 后再打开",
   "bundleError.diagnosis.windowsVersionUnsupported.suggestion1":
     "最低要求为 Windows 10 1809 / Windows Server 2019（系统内部版本 17763+）。",
   "bundleError.diagnosis.windowsVersionUnsupported.suggestion2":
     "重复重试或重新安装无法解决，请先升级 Windows。",
-  "bundleError.diagnosis.windowsVersionUnsupported.title": "Windows 版本不受支持",
+  "bundleError.diagnosis.windowsVersionUnsupported.title":
+    "Windows 版本不受支持",
   "bundleError.diagnosis.windowsVersionUnverified.message":
     "Windows 版本核验未完成，本地 AI 服务尚未启动。这不代表您的系统版本过低。",
   "bundleError.diagnosis.windowsVersionUnverified.primaryAction": "稍后重试",
@@ -669,34 +743,42 @@ const zh = {
     "等待几秒后重试，无需修改系统设置或重新安装。",
   "bundleError.diagnosis.windowsVersionUnverified.suggestion2":
     "如果仍然失败，请上传诊断并联系支持，确认版本检测是否被系统策略限制。",
-  "bundleError.diagnosis.windowsVersionUnverified.title": "暂时无法确认 Windows 版本",
+  "bundleError.diagnosis.windowsVersionUnverified.title":
+    "暂时无法确认 Windows 版本",
   "bundleError.diagnosis.workspaceDataMigrationConflict.message":
     "检测到无法安全自动处理的本地项目数据版本。应用不会删除或改写原项目数据。",
-  "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction": "上传日志并联系支持",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction":
+    "上传日志并联系支持",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion1":
     "请勿删除、替换或手动修改项目数据库。",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion2":
     "上传日志，并将用户 ID 和反馈码发给支持团队。",
-  "bundleError.diagnosis.workspaceDataMigrationConflict.title": "项目数据版本不兼容",
+  "bundleError.diagnosis.workspaceDataMigrationConflict.title":
+    "项目数据版本不兼容",
   "bundleError.diagnosis.workspaceDataMigrationFailed.message":
     "本地项目数据升级未完成，应用不会自动删除原项目数据。",
-  "bundleError.diagnosis.workspaceDataMigrationFailed.primaryAction": "重新启动项目服务",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.primaryAction":
+    "重新启动项目服务",
   "bundleError.diagnosis.workspaceDataMigrationFailed.suggestion1":
     "点击重试，让应用重新检查并完成项目数据升级。",
   "bundleError.diagnosis.workspaceDataMigrationFailed.suggestion2":
     "如果持续失败，请不要删除项目数据；请导出诊断报告并联系支持。",
-  "bundleError.diagnosis.workspaceDataMigrationFailed.title": "项目数据升级未完成",
+  "bundleError.diagnosis.workspaceDataMigrationFailed.title":
+    "项目数据升级未完成",
   "bundleError.diagnosis.workspaceDataSchemaAhead.message":
     "该项目数据已由更新版本的应用升级，当前版本无法打开。应用不会修改或删除原项目数据。",
-  "bundleError.diagnosis.workspaceDataSchemaAhead.primaryAction": "更新应用到最新版本",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.primaryAction":
+    "更新应用到最新版本",
   "bundleError.diagnosis.workspaceDataSchemaAhead.suggestion1":
     "将应用更新到最新版本后重新打开该项目。",
   "bundleError.diagnosis.workspaceDataSchemaAhead.suggestion2":
     "请勿删除、替换或手动修改项目数据库；更新后数据可直接使用。",
-  "bundleError.diagnosis.workspaceDataSchemaAhead.title": "项目数据来自更新版本的应用",
+  "bundleError.diagnosis.workspaceDataSchemaAhead.title":
+    "项目数据来自更新版本的应用",
   "bundleError.diagnosis.workspaceIndexRecovery.message":
     "无法安全恢复项目的素材关联。为保护原有内容，已停止自动重建；这不代表素材文件已被删除。",
-  "bundleError.diagnosis.workspaceIndexRecovery.primaryAction": "上传日志并联系支持",
+  "bundleError.diagnosis.workspaceIndexRecovery.primaryAction":
+    "上传日志并联系支持",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion1":
     "保留完整项目文件夹，不要删除素材、覆盖项目或清理应用数据。",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion2":
@@ -730,7 +812,8 @@ const zh = {
   "bundleError.evidence.signature.gateway_start": "workspace 服务启动异常",
   "bundleError.evidence.signature.macos_version_unsupported": "macOS 版本过低",
   "bundleError.evidence.signature.opencode_binary_blocked": "runtime 被拦截",
-  "bundleError.evidence.signature.opencode_binary_corrupted": "runtime 文件损坏",
+  "bundleError.evidence.signature.opencode_binary_corrupted":
+    "runtime 文件损坏",
   "bundleError.evidence.signature.opencode_binary_missing": "runtime 文件缺失",
   "bundleError.evidence.signature.opencode_config_broken": "runtime 配置异常",
   "bundleError.evidence.signature.permission_mkdir": "目录权限异常",
@@ -739,13 +822,18 @@ const zh = {
   "bundleError.evidence.signature.runtime_start": "runtime 启动异常",
   "bundleError.evidence.signature.timeout": "超时",
   "bundleError.evidence.signature.tls_certificate": "证书异常",
-  "bundleError.evidence.signature.windows_binary_incompatible": "本地服务文件不兼容",
+  "bundleError.evidence.signature.windows_binary_incompatible":
+    "本地服务文件不兼容",
   "bundleError.evidence.signature.windows_cpu_unsupported": "处理器不受支持",
-  "bundleError.evidence.signature.windows_runtime_dependency_failed": "Windows 组件加载失败",
-  "bundleError.evidence.signature.windows_runtime_resource_exhausted": "系统资源不足",
+  "bundleError.evidence.signature.windows_runtime_dependency_failed":
+    "Windows 组件加载失败",
+  "bundleError.evidence.signature.windows_runtime_resource_exhausted":
+    "系统资源不足",
   "bundleError.evidence.signature.windows_runtime_terminated": "本地服务被终止",
-  "bundleError.evidence.signature.windows_version_unsupported": "Windows 版本不受支持",
-  "bundleError.evidence.signature.windows_version_unverified": "Windows 版本未能核验",
+  "bundleError.evidence.signature.windows_version_unsupported":
+    "Windows 版本不受支持",
+  "bundleError.evidence.signature.windows_version_unverified":
+    "Windows 版本未能核验",
   "bundleError.evidence.signatures": "错误签名",
   "bundleError.evidence.timeout": "超时",
   "bundleError.evidenceTitle": "检测结果",
@@ -753,14 +841,18 @@ const zh = {
   "bundleError.exportLogsFailed": "诊断包导出失败",
   "bundleError.exportLogsSuccess": "诊断包已导出",
   "bundleError.failureId": "诊断码：{{failureId}}",
-  "bundleError.fallbackMessage": "未知错误，请重试。若问题持续，请导出日志并联系支持。",
+  "bundleError.fallbackMessage":
+    "未知错误，请重试。若问题持续，请导出日志并联系支持。",
   "bundleError.feedbackCode": "反馈码",
   "bundleError.feedbackCopy.guide": "定位说明",
-  "bundleError.feedbackCopy.guideText": "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
+  "bundleError.feedbackCopy.guideText":
+    "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
   "bundleError.feedbackCopy.label": "复制反馈信息",
   "bundleError.feedbackUpload.label": "上传日志并复制反馈",
-  "bundleError.impactMessage": "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
-  "bundleError.networkRecovery.checkFailed": "网络检测失败，请导出日志联系支持。",
+  "bundleError.impactMessage":
+    "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
+  "bundleError.networkRecovery.checkFailed":
+    "网络检测失败，请导出日志联系支持。",
   "bundleError.networkRecovery.checkSuccess": "网络检测已刷新",
   "bundleError.networkRecovery.description":
     "如果你正在使用 VPN、企业代理或本机代理，可以切换连接模式后重试；当前 Workspace 状态会保留。",
@@ -777,14 +869,18 @@ const zh = {
   "bundleError.retryExhausted.restart": "请完全退出应用后重新打开",
   "bundleError.retryExhausted.upgradeMacos": "请升级 macOS 后再试",
   "bundleError.retryExhausted.upgradeWindows": "请升级 Windows 后再试",
-  "bundleError.retryHint": "本地 runtime 正在恢复保护期内，重试若仍失败会保持当前 workspace 状态。",
+  "bundleError.retryHint":
+    "本地 runtime 正在恢复保护期内，重试若仍失败会保持当前 workspace 状态。",
   "bundleError.retryWorkspace": "重新启动 workspace",
-  "bundleError.solution.opencodePortConflict": "点击下方按钮，系统会自动尝试换端口重新启动。",
+  "bundleError.solution.opencodePortConflict":
+    "点击下方按钮，系统会自动尝试换端口重新启动。",
   "bundleError.solutionFallback": "请先重试一次。",
-  "bundleError.solutionGenericSuggestion": "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
+  "bundleError.solutionGenericSuggestion":
+    "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
   "bundleError.solutionTitle": "怎么解决",
   "bundleError.suggestionsTitle": "可以先尝试",
-  "bundleError.supportCardDescription": "把用户 ID 和反馈码发给支持即可，技术细节默认收起。",
+  "bundleError.supportCardDescription":
+    "把用户 ID 和反馈码发给支持即可，技术细节默认收起。",
   "bundleError.supportCardTitle": "反馈与日志",
   "bundleError.supportHint.beforeUpload":
     "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
@@ -793,7 +889,8 @@ const zh = {
     "自动上传失败，可点击上传日志并复制反馈信息重试；截图请保留用户 ID + 反馈码。",
   "bundleError.supportHint.uploaded":
     "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
-  "bundleError.supportHint.uploading": "正在自动上传诊断日志；截图里请保留用户 ID 和反馈码。",
+  "bundleError.supportHint.uploading":
+    "正在自动上传诊断日志；截图里请保留用户 ID 和反馈码。",
   "bundleError.technicalDetails.hide": "收起诊断信息",
   "bundleError.technicalDetails.region": "支持团队诊断信息",
   "bundleError.technicalDetails.show": "给支持团队的诊断信息",
@@ -835,7 +932,8 @@ const zh = {
   "canvas.asr.submit": "开始",
   "canvas.asr.title": "字幕生成",
   "canvas.attachment.fileExtensionRejected": "当前模型不支持该文档格式",
-  "canvas.attachment.imageAspectRejected": "图片宽高比不符合当前模型要求，已取消连接",
+  "canvas.attachment.imageAspectRejected":
+    "图片宽高比不符合当前模型要求，已取消连接",
   "canvas.attachment.imageSizeRejected": "图片尺寸低于当前模型要求，已取消连接",
   "canvas.attachment.replace": "替换素材",
   "canvas.audio": "音频",
@@ -845,22 +943,28 @@ const zh = {
   "canvas.audioExtension.durationUnavailable": "无法读取原音频时长，请更换音频",
   "canvas.audioExtension.extendTo": "延长至",
   "canvas.audioExtension.inputDurationRange": "上传音频时长需在 1-20 秒之间",
-  "canvas.audioExtension.outputDurationRange": "续写后的总时长必须大于原音频，且最长 20 秒",
+  "canvas.audioExtension.outputDurationRange":
+    "续写后的总时长必须大于原音频，且最长 20 秒",
   "canvas.audioExtension.referenceRequired": "请选择一条参考音频",
   "canvas.audioSlot.clipSourceMissing": "找不到原音频，无法裁剪",
   "canvas.audioSlot.durationTooLong": "时长超长，裁剪音频后可使用",
-  "canvas.audioSlot.formatUnsupported": "参考音频仅支持 mp3 / wav 格式，请更换音频文件",
+  "canvas.audioSlot.formatUnsupported":
+    "参考音频仅支持 mp3 / wav 格式，请更换音频文件",
   "canvas.audioSlot.tooLong": "超过 {{max}} 秒，不支持",
   "canvas.audioSlot.tooShort": "小于 {{min}} 秒，不支持",
-  "canvas.audioSlot.totalTooLong": "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
+  "canvas.audioSlot.totalTooLong":
+    "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
   "canvas.backToContent": "回到节点",
   "canvas.billing.details": "查看价格说明",
   "canvas.billing.estimatedCost": "预计消耗 {{cost}} 积分",
   "canvas.billing.formula.fixedCost": "基础费用 {{cost}} 积分",
-  "canvas.billing.formula.generatedVideo": "生成视频 {{seconds}} 秒 × {{rate}} 积分/秒",
-  "canvas.billing.formula.inputImages": "超额图片 {{count}} 张 × {{rate}} 积分/张",
+  "canvas.billing.formula.generatedVideo":
+    "生成视频 {{seconds}} 秒 × {{rate}} 积分/秒",
+  "canvas.billing.formula.inputImages":
+    "超额图片 {{count}} 张 × {{rate}} 积分/张",
   "canvas.billing.formula.inputMediaFree": "输入素材 0 积分",
-  "canvas.billing.formula.inputVideo": "输入视频 {{seconds}} 秒 × {{rate}} 积分/秒",
+  "canvas.billing.formula.inputVideo":
+    "输入视频 {{seconds}} 秒 × {{rate}} 积分/秒",
   "canvas.billing.formula.multipleOutputs": "({{formula}}) × {{count}}",
   "canvas.billing.panel.audio": "音频",
   "canvas.billing.panel.free": "免费",
@@ -891,13 +995,15 @@ const zh = {
   "canvas.cancellingGeneration": "正在停止...",
   "canvas.captureFrame": "截帧",
   "canvas.clip": "剪辑",
-  "canvas.clipUpstream.sharedNotice": "此素材被 {{count}} 个 clip 引用，替换将同时影响所有 clip",
+  "canvas.clipUpstream.sharedNotice":
+    "此素材被 {{count}} 个 clip 引用，替换将同时影响所有 clip",
   "canvas.clipUpstream.submitGenerate": "生成",
   "canvas.close": "关闭",
   "canvas.colorAdjust": "调色",
   "canvas.comfyui": "ComfyUI 工作流",
   "canvas.comfyui.chooseWorkflow": "选择 ComfyUI 模板",
-  "canvas.comfyui.chooseWorkflowDesc": "选择后将在当前节点的编辑器中打开对应工作流。",
+  "canvas.comfyui.chooseWorkflowDesc":
+    "选择后将在当前节点的编辑器中打开对应工作流。",
   "canvas.comfyui.copySuffix": "副本 {{index}}",
   "canvas.comfyui.localWorkflowDeleted": "本地工作流已删除",
   "canvas.comfyui.newNode": "新建工作流",
@@ -938,11 +1044,13 @@ const zh = {
   "canvas.debug.copyFailed": "复制失败: {{message}}",
   "canvas.debug.noSelection": "请先选中一个节点，再按 {{shortcut}}",
   "canvas.delete": "删除选中片段",
-  "canvas.deleteBlockedByGeneration": "生成中的元素无法删除，请等待生成完成后再试",
+  "canvas.deleteBlockedByGeneration":
+    "生成中的元素无法删除，请等待生成完成后再试",
   "canvas.deleteBlockedByRetainedTask":
     "该内容的生成任务已保留，暂无法删除。请先处理卡片上的恢复提示",
   "canvas.diffPendingConfirm": "去处理",
-  "canvas.diffPendingDescription": "当前还有 AI 修改未处理，请先接受或撤销所有修改后再关闭编辑。",
+  "canvas.diffPendingDescription":
+    "当前还有 AI 修改未处理，请先接受或撤销所有修改后再关闭编辑。",
   "canvas.diffPendingTitle": "还有未处理的修改",
   "canvas.diffReview.accept": "接受",
   "canvas.diffReview.acceptAll": "全部接受",
@@ -983,7 +1091,8 @@ const zh = {
   "canvas.emptyViewport": "当前视窗没有节点，可点击按钮快速回到内容区域",
   "canvas.enhanceImage.belowSource": "目标分辨率不高于原图",
   "canvas.enhanceImage.cancel": "取消",
-  "canvas.enhanceImage.inputOutOfRange": "图片尺寸需满足短边 ≥ 256px 且长边 ≤ 2048px",
+  "canvas.enhanceImage.inputOutOfRange":
+    "图片尺寸需满足短边 ≥ 256px 且长边 ≤ 2048px",
   "canvas.enhanceImage.resolutionLabel": "分辨率",
   "canvas.enhanceImage.submit": "生成",
   "canvas.enhanceImage.title": "高清增强",
@@ -1007,7 +1116,8 @@ const zh = {
   "canvas.eraseSubtitle.editor.boxCount": "已选 {{count}} 个框",
   "canvas.eraseSubtitle.editor.cancel": "取消",
   "canvas.eraseSubtitle.editor.clearAll": "清空",
-  "canvas.eraseSubtitle.editor.hint": "在视频上拖拽创建框；选中后可拖动 / 缩放，按 Delete 删除",
+  "canvas.eraseSubtitle.editor.hint":
+    "在视频上拖拽创建框；选中后可拖动 / 缩放，按 Delete 删除",
   "canvas.eraseSubtitle.editor.submit": "开始消除",
   "canvas.eraseSubtitle.editor.title": "框选要消除的文字区域",
   "canvas.eraseSubtitle.error": "字幕消除失败，请重试",
@@ -1016,7 +1126,8 @@ const zh = {
   "canvas.eraseSubtitle.mode.auto.desc":
     "自动识别并去除视频底部字幕条文字（OCR + AIGC 修复）。处理耗时与视频时长相关，约为原视频时长的 6～10 倍（1 分钟以内的短视频相对更久），请耐心等待。",
   "canvas.eraseSubtitle.mode.manual": "手动框选",
-  "canvas.eraseSubtitle.mode.manual.desc": "点击下方「开始」后，在视频上手动框选要消除的文字区域。",
+  "canvas.eraseSubtitle.mode.manual.desc":
+    "点击下方「开始」后，在视频上手动框选要消除的文字区域。",
   "canvas.eraseSubtitle.modeLabel": "处理方式",
   "canvas.eraseSubtitle.submit": "开始",
   "canvas.eraseSubtitle.submitManual": "下一步",
@@ -1098,7 +1209,8 @@ const zh = {
   "canvas.generate": "生成",
   "canvas.generateFailed": "生成失败，请稍后重试",
   "canvas.generateNewNode": "生成新节点",
-  "canvas.generateRefFileMissing": "参考素材文件不存在或路径已失效，请确认文件仍在工作区内",
+  "canvas.generateRefFileMissing":
+    "参考素材文件不存在或路径已失效，请确认文件仍在工作区内",
   "canvas.generating": "生成中...",
   "canvas.generatingFinalizing": "正在完成...",
   "canvas.generatingTip0": "正在准备生成...",
@@ -1112,7 +1224,8 @@ const zh = {
   "canvas.generationFailed": "生成失败",
   "canvas.generationFailedClickToRetry": "点击重新编辑参数 / 重试",
   "canvas.generationPrompt": "生成提示词",
-  "canvas.generationRecovery.description": "原任务已保留，系统会自动检查并回填结果。",
+  "canvas.generationRecovery.description":
+    "原任务已保留，系统会自动检查并回填结果。",
   "canvas.generationRecovery.resubmitBlocked":
     "该内容的生成任务已保留，暂无法重新提交。请先处理卡片上的恢复提示",
   "canvas.generationRecovery.title": "结果待恢复",
@@ -1120,12 +1233,18 @@ const zh = {
     "生成请求未能完成。为避免重复生成，系统不会自动重试；你可以移除本地占位，或点击“反馈”帮助我们定位原因。",
   "canvas.generationStatusUnknown.inPlaceDescription":
     "生成请求未能完成，原内容已保留。关闭错误后可继续操作；系统不会自动重试。可点击“反馈”帮助我们定位原因。",
-  "canvas.generationStatusUnknown.reason.concurrency": "失败原因：模型并发已满，本次生成未能继续。",
-  "canvas.generationStatusUnknown.reason.interrupted": "失败原因：生成过程被中断，例如应用重启。",
-  "canvas.generationStatusUnknown.reason.network": "网络无法连接服务器，请检查网络连接或稍后重试。",
-  "canvas.generationStatusUnknown.reason.storage": "失败原因：本地磁盘空间不足，结果未能保存。",
-  "canvas.generationStatusUnknown.reason.technical": "失败原因：生成服务异常，本次生成未能继续。",
-  "canvas.generationStatusUnknown.reason.timeout": "失败原因：请求超时，本次生成未能继续。",
+  "canvas.generationStatusUnknown.reason.concurrency":
+    "失败原因：模型并发已满，本次生成未能继续。",
+  "canvas.generationStatusUnknown.reason.interrupted":
+    "失败原因：生成过程被中断，例如应用重启。",
+  "canvas.generationStatusUnknown.reason.network":
+    "网络无法连接服务器，请检查网络连接或稍后重试。",
+  "canvas.generationStatusUnknown.reason.storage":
+    "失败原因：本地磁盘空间不足，结果未能保存。",
+  "canvas.generationStatusUnknown.reason.technical":
+    "失败原因：生成服务异常，本次生成未能继续。",
+  "canvas.generationStatusUnknown.reason.timeout":
+    "失败原因：请求超时，本次生成未能继续。",
   "canvas.generationStatusUnknown.title": "生成失败",
   "canvas.group": "编组",
   "canvas.group.collapse": "折叠",
@@ -1172,10 +1291,12 @@ const zh = {
   "canvas.help.tooltip": "帮助指南",
   "canvas.help.trigger": "帮助",
   "canvas.help.tutorial": "教程",
-  "canvas.history.redoBlockedByGeneration": "生成中无法重做，请等待生成完成后再试",
+  "canvas.history.redoBlockedByGeneration":
+    "生成中无法重做，请等待生成完成后再试",
   "canvas.history.redoBlockedByRetainedTask":
     "该内容的生成任务已保留，暂无法重做。请先处理卡片上的恢复提示",
-  "canvas.history.undoBlockedByGeneration": "生成中无法撤销，请等待生成完成后再试",
+  "canvas.history.undoBlockedByGeneration":
+    "生成中无法撤销，请等待生成完成后再试",
   "canvas.history.undoBlockedByRetainedTask":
     "该内容的生成任务已保留，暂无法撤销。请先处理卡片上的恢复提示",
   "canvas.image": "图片",
@@ -1212,7 +1333,8 @@ const zh = {
     "不填提示词：自动识别所有主要元素逐一拆分；也可用自然语言描述要拆的元素。",
   "canvas.layerDecompose.start": "开始拆分",
   "canvas.lightbox.batchSaveCancelled": "已取消下载，已保存 {{count}} 个文件",
-  "canvas.lightbox.batchSavePartial": "已保存 {{saved}} 个，{{failed}} 个保存失败",
+  "canvas.lightbox.batchSavePartial":
+    "已保存 {{saved}} 个，{{failed}} 个保存失败",
   "canvas.lightbox.batchSaveSuccess": "已保存 {{count}} 个文件",
   "canvas.lightbox.downloadAll": "全部下载",
   "canvas.lightbox.downloadCurrent": "下载",
@@ -1221,7 +1343,8 @@ const zh = {
   "canvas.lightbox.openInFinder": "在 Finder 中打开",
   "canvas.lightbox.selectDownloadFolder": "选择保存文件夹",
   "canvas.lightbox.showInFolder": "在文件夹中显示",
-  "canvas.loadError.accessDescription": "当前无法读取这个项目的画布。请重新打开项目后再重试。",
+  "canvas.loadError.accessDescription":
+    "当前无法读取这个项目的画布。请重新打开项目后再重试。",
   "canvas.loadError.initialRetryingTitle": "正在重新连接画布",
   "canvas.loadError.initialTitle": "暂时无法加载画布",
   "canvas.loadError.invalidResponseDescription":
@@ -1231,10 +1354,12 @@ const zh = {
   "canvas.loadError.refreshTitle": "画布刷新失败。",
   "canvas.loadError.retry": "重试",
   "canvas.loadError.retrying": "正在重试…",
-  "canvas.loadError.retryingDescription": "正在读取最新画布内容，现有项目数据不会被改动。",
+  "canvas.loadError.retryingDescription":
+    "正在读取最新画布内容，现有项目数据不会被改动。",
   "canvas.loadError.unavailableDescription":
     "本地画布服务尚未就绪。系统会自动重试，你也可以立即重试。",
-  "canvas.loadError.unknownDescription": "加载画布时遇到异常。项目文件没有被清空，请重试加载。",
+  "canvas.loadError.unknownDescription":
+    "加载画布时遇到异常。项目文件没有被清空，请重试加载。",
   "canvas.loading": "加载中…",
   "canvas.loadingModels": "加载中...",
   "canvas.locate.notOnCanvas": "该文件尚未在画布上",
@@ -1251,7 +1376,8 @@ const zh = {
   "canvas.mdTable.toNodeDone": "已插入表格节点",
   "canvas.mdTable.toNodeFailed": "插入表格节点失败",
   "canvas.mediaError.report": "反馈",
-  "canvas.mediaSlot.durationOutOfRange": "参考媒体时长需在 {{min}}-{{max}} 秒之间",
+  "canvas.mediaSlot.durationOutOfRange":
+    "参考媒体时长需在 {{min}}-{{max}} 秒之间",
   "canvas.minimap": "小地图",
   "canvas.minimaxH3Max.hoverDescription":
     "H3 Max 由fal.ai基于MiniMax H3后训练的视频生成模型，专为高速视频生成而优化。支持全能参考、文生视频和图生视频。",
@@ -1306,7 +1432,8 @@ const zh = {
   "canvas.newNodeReady.action": "去看看",
   "canvas.newNodeReady.crossWorkspace": "{{workspace}} 中节点已生成",
   "canvas.newNodesReady": "{{count}} 个节点已生成，去看看",
-  "canvas.newNodesReady.crossWorkspace": "{{workspace}} 中 {{count}} 个节点已生成",
+  "canvas.newNodesReady.crossWorkspace":
+    "{{workspace}} 中 {{count}} 个节点已生成",
   "canvas.noModels": "无可用模型",
   "canvas.orderedList": "有序列表",
   "canvas.outpaint": "扩图",
@@ -1390,7 +1517,8 @@ const zh = {
   "canvas.param.resolutionTooltip.h3.2K": "直接生成 2K 视频，画质与细节更好",
   "canvas.param.resolutionTooltip.h3.768P":
     "成本低，适合多次抽卡；结果满意后可超分至 2K，提高画质和细节",
-  "canvas.param.seedance25AdaptiveRatioHint": "首尾帧模式下，宽高比跟随素材，仅支持自适应",
+  "canvas.param.seedance25AdaptiveRatioHint":
+    "首尾帧模式下，宽高比跟随素材，仅支持自适应",
   "canvas.param.seedance25InheritedVideoRatioHint":
     "视频编辑和视频续写的宽高比跟随输入视频，仅支持自适应",
   "canvas.param.slider.decrease": "减少",
@@ -1425,7 +1553,8 @@ const zh = {
   "canvas.params.musicMode": "音乐模式",
   "canvas.params.outputFormat": "格式",
   "canvas.params.pitch": "音调",
-  "canvas.params.placeholder.audioUrl": "https://... 或 Hilo workspace 相对路径",
+  "canvas.params.placeholder.audioUrl":
+    "https://... 或 Hilo workspace 相对路径",
   "canvas.params.placeholder.coverFeatureId": "预处理返回，留空走一站式",
   "canvas.params.placeholder.durationMm": "mm",
   "canvas.params.placeholder.durationMmss": "mm:ss",
@@ -1455,7 +1584,8 @@ const zh = {
   "canvas.persistence.highBlastDeleteAction": "确认删除",
   "canvas.persistence.highBlastDeleteConfirm":
     "此操作将从画布移除 {{nodeCount}} 个节点和 {{edgeCount}} 条连线。为防止误清空，请确认是否继续。",
-  "canvas.persistence.highBlastDeleteStale": "画布内容已发生变化，本次删除已取消，请重新操作。",
+  "canvas.persistence.highBlastDeleteStale":
+    "画布内容已发生变化，本次删除已取消，请重新操作。",
   "canvas.persistence.highBlastDeleteTitle": "确认删除大量画布内容",
   "canvas.persistence.highBlastDeleteUnavailable":
     "暂时无法确认本次大量删除，画布内容未被修改，请稍后重试。",
@@ -1479,8 +1609,10 @@ const zh = {
   "canvas.prompt.copy": "复制提示词",
   "canvas.prompt.fontSize": "调整提示词字号",
   "canvas.prompt.fontSizeReset": "重置提示词字号",
-  "canvas.prompt.tooLong": "提示词过长（{{current}} 字符，上限 {{max}}），请缩短后重试",
-  "canvas.prompt.unresolvedRefs": "以下引用未在附件中找到，已保留原文：{{refs}}",
+  "canvas.prompt.tooLong":
+    "提示词过长（{{current}} 字符，上限 {{max}}），请缩短后重试",
+  "canvas.prompt.unresolvedRefs":
+    "以下引用未在附件中找到，已保留原文：{{refs}}",
   "canvas.promptDescribe": "描述你想要生成的内容",
   "canvas.promptAtPrefix": "，点击 ",
   "canvas.promptAtSuffix": " 添加参考内容。",
@@ -1558,10 +1690,13 @@ const zh = {
   "canvas.rotate.title": "旋转与镜像",
   "canvas.save": "保存",
   "canvas.saveToProjectAssets": "存到项目资产",
-  "canvas.seedAudio.refMutuallyExclusive": "参考音频与参考图片不能同时使用，请只保留其中一种",
-  "canvas.seedance25.omniMode.durationUnavailable": "无法读取输入视频时长，请更换视频",
+  "canvas.seedAudio.refMutuallyExclusive":
+    "参考音频与参考图片不能同时使用，请只保留其中一种",
+  "canvas.seedance25.omniMode.durationUnavailable":
+    "无法读取输入视频时长，请更换视频",
   "canvas.seedance25.omniMode.edit": "视频编辑",
-  "canvas.seedance25.omniMode.editInputDurationRange": "视频编辑的输入视频时长需在 4–30 秒之间",
+  "canvas.seedance25.omniMode.editInputDurationRange":
+    "视频编辑的输入视频时长需在 4–30 秒之间",
   "canvas.seedance25.omniMode.extend": "视频续写",
   "canvas.settings": "参数",
   "canvas.showInFolder": "在文件管理器中显示",
@@ -1570,12 +1705,14 @@ const zh = {
   "canvas.splitGrid.batchSelectHint": "按住 Shift 键可批量选择",
   "canvas.splitGrid.cropSplit": "编组",
   "canvas.splitGrid.createGroup": "创建分镜组",
-  "canvas.splitGrid.createGroupTooltip": "将选中的宫格拆分为图片并创建分镜组，不消耗积分。",
+  "canvas.splitGrid.createGroupTooltip":
+    "将选中的宫格拆分为图片并创建分镜组，不消耗积分。",
   "canvas.splitGrid.cropSplitGroupLabel": "分镜组",
   "canvas.splitGrid.custom": "自定义",
   "canvas.splitGrid.customTitle": "自定义宫格",
   "canvas.splitGrid.generateHd": "生成高清图片",
-  "canvas.splitGrid.generateHdTooltip": "将选中的宫格图片高清放大后创建分镜组。",
+  "canvas.splitGrid.generateHdTooltip":
+    "将选中的宫格图片高清放大后创建分镜组。",
   "canvas.splitGrid.generating": "生成中…",
   "canvas.splitGrid.groupFailed": "宫格分组失败，已继续提交生成",
   "canvas.splitGrid.groupLabel": "高清分镜组",
@@ -1673,7 +1810,8 @@ const zh = {
   "canvas.table.filter.value": "值",
   "canvas.table.filter.valuePlaceholder": "请输入",
   "canvas.table.hideField": "隐藏",
-  "canvas.table.importFailed": "表格文件 {{name}} 无法导入：文件已损坏或版本不支持",
+  "canvas.table.importFailed":
+    "表格文件 {{name}} 无法导入：文件已损坏或版本不支持",
   "canvas.table.loading": "加载中...",
   "canvas.table.moreCols": "还有 {{count}} 列",
   "canvas.table.moreRows": "还有 {{count}} 行",
@@ -1718,7 +1856,8 @@ const zh = {
   "canvas.textConflict.useAllMine": "全部用我的",
   "canvas.textConflict.useExternal": "用 Agent 的",
   "canvas.textConflict.useMine": "用我的",
-  "canvas.textConflictDescription": "在你编辑期间有外部操作修改了原文件，选择如何处理你当前的修改",
+  "canvas.textConflictDescription":
+    "在你编辑期间有外部操作修改了原文件，选择如何处理你当前的修改",
   "canvas.textConflictKeepMine": "保留我的修改",
   "canvas.textConflictTitle": "文件已被外部修改",
   "canvas.textConflictUseExternal": "放弃我的修改",
@@ -1727,7 +1866,8 @@ const zh = {
   "canvas.textDraft.saved": "已保存",
   "canvas.textDraft.saving": "正在保存…",
   "canvas.textEdit": "文本编辑",
-  "canvas.textNode.placeholder.create": "回答问题、翻译、头脑风暴，生成或优化文案，分析素材",
+  "canvas.textNode.placeholder.create":
+    "回答问题、翻译、头脑风暴，生成或优化文案，分析素材",
   "canvas.textNode.placeholder.intro": "我是你的创作助手，可以：",
   "canvas.textToAudio": "生成音频",
   "canvas.textToText": "文本节点",
@@ -1737,10 +1877,12 @@ const zh = {
   "canvas.textVersion.aiNoteGenerating": "生成中…",
   "canvas.textVersion.autoSnapshot": "还原前的内容",
   "canvas.textVersion.autoSnapshotTargetNote": "还原「{{name}}」时自动保存",
-  "canvas.textVersion.autoSnapshotTargetNoteRich": "还原「<target>{{name}}</target>」时自动保存",
+  "canvas.textVersion.autoSnapshotTargetNoteRich":
+    "还原「<target>{{name}}</target>」时自动保存",
   "canvas.textVersion.back": "返回编辑",
   "canvas.textVersion.contentMissing": "内容缺失",
-  "canvas.textVersion.contentMissingHint": "该版本的内容未随项目导出，只保留了标题和备注。",
+  "canvas.textVersion.contentMissingHint":
+    "该版本的内容未随项目导出，只保留了标题和备注。",
   "canvas.textVersion.copiedToCanvas": "已复制到画布",
   "canvas.textVersion.copyFailed": "复制到画布失败",
   "canvas.textVersion.copyToCanvas": "复制到画布",
@@ -1777,15 +1919,18 @@ const zh = {
   "canvas.tidy.includeDeps": "整理相连的上下游",
   "canvas.tidy.includeDeps.hint": "根据节点连线关系自动整理上下游结构",
   "canvas.tidy.layouts": "布局整理",
-  "canvas.tidy.mixedSelection": "跨编组或编组内外混选时无法布局，请只选中同一编组内的元素",
+  "canvas.tidy.mixedSelection":
+    "跨编组或编组内外混选时无法布局，请只选中同一编组内的元素",
   "canvas.tidy.sort": "分类整理",
   "canvas.tidy.sort.connections": "按连线关系",
-  "canvas.tidy.sort.connections.hint": "有连线依赖的节点按上下游排在上方，离散节点收拢到下方",
+  "canvas.tidy.sort.connections.hint":
+    "有连线依赖的节点按上下游排在上方，离散节点收拢到下方",
   "canvas.tidy.sort.mediaType": "按素材类型",
   "canvas.tidy.sort.mediaType.hint":
     "按图片 / 视频 / 音频 / 文本 等素材类型分成多条泳道，不考虑连线",
   "canvas.tidy.vertical": "垂直布局",
-  "canvas.tooManyConcurrentGenerations": "正在生成的任务已达 {{max}} 个,请等待部分完成后再继续",
+  "canvas.tooManyConcurrentGenerations":
+    "正在生成的任务已达 {{max}} 个,请等待部分完成后再继续",
   "canvas.toolbar.addNode": "添加节点",
   "canvas.toolbar.assets": "主体库",
   "canvas.toolbar.assetsHint": "主体库入口已接入工作区素材面板。",
@@ -1882,7 +2027,8 @@ const zh = {
     "最终时长需从原视频时长向上取整后的下一秒开始选择",
   "canvas.videoExtension.durationUnavailable": "无法读取原视频时长，请更换视频",
   "canvas.videoExtension.inputDurationRange": "上传视频时长需在 2-15 秒之间",
-  "canvas.videoExtension.outputDurationRange": "续写后的总时长必须大于原视频，且最长 20 秒",
+  "canvas.videoExtension.outputDurationRange":
+    "续写后的总时长必须大于原视频，且最长 20 秒",
   "canvas.videoLightbox.nextVideo": "下一个视频",
   "canvas.videoLightbox.previousVideo": "上一个视频",
   "canvas.videoNode.emptyStarter.audioVideoExtension": "音视频延长",
@@ -1891,7 +2037,8 @@ const zh = {
   "canvas.videoSlot.clipSourceMissing": "找不到原视频，无法裁剪",
   "canvas.videoSlot.durationTooLong": "参考视频时长超出当前模型限制",
   "canvas.videoSlot.exceedsDuration": "超出 {{duration}}",
-  "canvas.videoSlot.totalTooLong": "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
+  "canvas.videoSlot.totalTooLong":
+    "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
   "canvas.videoStarter.refApplyFailed": "参考素材 {{name}} 添加失败",
   "canvas.videoStarter.refDownloadFailed": "{{count}} 个参考素材下载失败",
   "canvas.voice.empty": "无匹配音色",
@@ -1903,7 +2050,8 @@ const zh = {
   "canvas.voice.searchPlaceholder": "搜索音色...",
   "canvas.voice.title": "选择音色",
   "canvas.voice.useCustom": "使用 voice ID：",
-  "canvas.voice.useCustomTitle": "把当前输入作为自定义 voice ID（如克隆的 hub_… 或设计的 ttv_…）",
+  "canvas.voice.useCustomTitle":
+    "把当前输入作为自定义 voice ID（如克隆的 hub_… 或设计的 ttv_…）",
   "canvas.voiceClone.badge": "音色克隆",
   "canvas.voiceClone.copied": "已复制",
   "canvas.voiceClone.copy": "复制",
@@ -1917,8 +2065,10 @@ const zh = {
   "canvas.voiceDesign.copied": "已复制",
   "canvas.voiceDesign.copy": "复制",
   "canvas.voiceDesign.descriptionLabel": "音色描述",
-  "canvas.voiceDesign.descriptionPlaceholder": "例: 温暖低沉的成年男声，语速稍慢，带轻微北京口音",
-  "canvas.voiceDesign.editToRedesign": "修改描述或试听文本后可重新设计一个新音色",
+  "canvas.voiceDesign.descriptionPlaceholder":
+    "例: 温暖低沉的成年男声，语速稍慢，带轻微北京口音",
+  "canvas.voiceDesign.editToRedesign":
+    "修改描述或试听文本后可重新设计一个新音色",
   "canvas.voiceDesign.failedToast": "音色设计失败，请重试。",
   "canvas.voiceDesign.missingFields": "音色描述和试听文本都是必填的。",
   "canvas.voiceDesign.nodeName": "音色设计",
@@ -1929,7 +2079,8 @@ const zh = {
   "canvas.voiceDesign.useVoice": "用这个音色生成 TTS",
   "canvas.voiceDesign.voiceIdLabel": "voice_id",
   "canvas.voiceDesign.willCreateNew": "将生成新的音色节点（当前节点保留）",
-  "canvas.voiceDesign.willRedesignSame": "将用相同描述重新生成一个音色（保留当前节点）",
+  "canvas.voiceDesign.willRedesignSame":
+    "将用相同描述重新生成一个音色（保留当前节点）",
   "canvas.voiceId": "声音 ID",
   "canvas.voiceIsolate": "人声去噪",
   "canvas.voiceIsolate.error": "人声去噪失败",
@@ -1999,7 +2150,8 @@ const zh = {
     "该标签关联 {{assetCount}} 个素材、画布中的 {{nodeCount}} 个节点。删除标签不会删除任何素材或节点。",
   "canvasTags.deleteConfirmTitle": "删除“{{name}}”？",
   "canvasTags.deleteFailed": "删除标签失败，请重试",
-  "canvasTags.deleteKeywordInfo": "删除关键词及其关联，不会删除素材或画布节点。",
+  "canvasTags.deleteKeywordInfo":
+    "删除关键词及其关联，不会删除素材或画布节点。",
   "canvasTags.downloadAllFolderName": "已打标签素材",
   "canvasTags.downloadAllTagged": "下载全部已打标签素材",
   "canvasTags.downloadCurrentTag": "下载全部",
@@ -2012,7 +2164,8 @@ const zh = {
   "canvasTags.filterPosition": "第 {{current}} / {{count}} 个",
   "canvasTags.hoverAssetCount": "{{count}} 个产物",
   "canvasTags.impactFailed": "无法读取标签影响范围，请重试",
-  "canvasTags.keywordInfo": "与画布标签不同，关键词不会显示在画布上，可用于关联、搜索和筛选素材。",
+  "canvasTags.keywordInfo":
+    "与画布标签不同，关键词不会显示在画布上，可用于关联、搜索和筛选素材。",
   "canvasTags.keywordPlaceholder": "输入关键词",
   "canvasTags.keywords": "关键词",
   "canvasTags.locateAsset": "定位“{{name}}”",
@@ -2065,7 +2218,8 @@ const zh = {
   "chat.activity.lyricsGen.running": "歌词生成",
   "chat.activity.mediaGenAborted": "已中断",
   "chat.activity.mediaGenCancelled": "媒体生成已取消",
-  "chat.activity.mediaGenCancelledDescription": "已在积分确认时取消，本次未消耗积分。",
+  "chat.activity.mediaGenCancelledDescription":
+    "已在积分确认时取消，本次未消耗积分。",
   "chat.activity.mediaGenFailed": "媒体生成失败",
   "chat.activity.mediaGenHandoffCompletedDescription":
     "{{count}} 个生成任务已完成，可在画布中查看结果。",
@@ -2083,12 +2237,15 @@ const zh = {
     "当前仍有 {{count}} 个已提交的生成任务在进行，可在画布中查看进度和结果。",
   "chat.activity.mediaGenHandoffViewOnCanvas": "在画布中查看",
   "chat.activity.mediaGenInterrupted": "生成任务",
-  "chat.activity.mediaGenInterruptedDescription": "你仍可在画布中查看生成进度和结果。",
+  "chat.activity.mediaGenInterruptedDescription":
+    "你仍可在画布中查看生成进度和结果。",
   "chat.activity.mediaGenPending": "生成结果待恢复",
   "chat.activity.mediaGenRecoverable": "结果待恢复",
-  "chat.activity.mediaGenRecoverableDescription": "原任务已保留，结果将在恢复后自动回填。",
+  "chat.activity.mediaGenRecoverableDescription":
+    "原任务已保留，结果将在恢复后自动回填。",
   "chat.activity.mediaGenUnknown": "生成失败",
-  "chat.activity.mediaGenUnknownDescription": "生成请求未能完成，系统不会自动重试。",
+  "chat.activity.mediaGenUnknownDescription":
+    "生成请求未能完成，系统不会自动重试。",
   "chat.activity.musicGen": "生成 {{count}} 首音乐",
   "chat.activity.musicGen.running": "正在生成音乐",
   "chat.activity.other": "处理 {{count}} 个任务",
@@ -2142,14 +2299,16 @@ const zh = {
   "chat.billingInsufficient.estimatedCredits": "本次预计消耗",
   "chat.billingInsufficient.recheckAgain": "再次复核",
   "chat.billingInsufficient.retryAfterPurchase": "我已购买，立即重试",
-  "chat.billingInsufficient.retryFailed": "暂时无法重试本次生成，请检查网络后再试。",
+  "chat.billingInsufficient.retryFailed":
+    "暂时无法重试本次生成，请检查网络后再试。",
   "chat.billingInsufficient.retrySubmitted": "已提交重试，正在继续生成。",
   "chat.billingInsufficient.shortfallCredits": "还差",
   "chat.billingInsufficient.teamDescription":
     "当前团队积分不足，无法开始本次生成。请前往团队管理补充积分，并确认你的可用额度足够后重试。",
   "chat.billingInsufficient.title": "积分不足，无法开始生成",
   "chat.billingInsufficient.topUp": "购买积分",
-  "chat.billingInsufficient.topupNotArrived": "尚未查到到账，请确认购买完成后再试。",
+  "chat.billingInsufficient.topupNotArrived":
+    "尚未查到到账，请确认购买完成后再试。",
   "chat.billingInsufficient.upgrade": "升级会员",
   "chat.billingInsufficient.waitingCollapsed":
     "已提交复核，到账后将自动继续生成，你可以先继续其他操作。",
@@ -2174,7 +2333,8 @@ const zh = {
   "chat.canvasOperation.updateTable": "更新表格",
   "chat.canvasOperation.updateText": "更新文本",
   "chat.chooseFromSession": "从会话文件中选择",
-  "chat.clipEditAgent.inputPlaceholder": "想用 AI 做简单剪辑或生成字幕？告诉我视频和处理需求",
+  "chat.clipEditAgent.inputPlaceholder":
+    "想用 AI 做简单剪辑或生成字幕？告诉我视频和处理需求",
   "chat.clipEditAgent.intro":
     "你可以直接告诉我想处理哪段视频，以及需要调整的字幕、片段或画面效果。\n\n我可以帮你：\n- **处理字幕**：添加或修改字幕内容、时间、位置和样式\n- **调整片段**：裁剪、拼接或重新排列视频片段\n- **添加画面效果**：添加转场、滤镜和贴纸，调整画面比例与布局\n\n开始前，可以告诉我：\n- 要处理的视频片段或时间范围\n- 需要修改的内容、效果及应用位置\n- 期望的画面风格和呈现效果",
   "chat.clipRecommend.greeting": "👋 Hi，用对话开启剪辑创作？",
@@ -2184,7 +2344,8 @@ const zh = {
   "chat.compaction.running": "正在压缩上下文…",
   "chat.complianceGuidelinesLink": "合法使用",
   "chat.complianceNotice": "请确保不侵权，<guidelines>合法使用</guidelines>",
-  "chat.connectingStalled.description": "加载时间比预期长，连接就绪后会话记录会自动出现。",
+  "chat.connectingStalled.description":
+    "加载时间比预期长，连接就绪后会话记录会自动出现。",
   "chat.connectingStalled.title": "仍在连接本地运行时…",
   "chat.copied": "已复制",
   "chat.copy": "复制",
@@ -2196,13 +2357,15 @@ const zh = {
   "chat.creditReminder.actionError": "暂时无法处理本次生成，请重试。",
   "chat.creditReminder.batchDescription":
     "本次生成预计消耗 {{estimated}}积分，请确认要生成的内容（你可以在输入框“Agent模式”中修改提醒阈值）",
-  "chat.creditReminder.batchSelectionSummary": "已选择 {{selected}} 积分，可用额度 {{limit}}。",
+  "chat.creditReminder.batchSelectionSummary":
+    "已选择 {{selected}} 积分，可用额度 {{limit}}。",
   "chat.creditReminder.batchTitle": "选择要生成的内容",
   "chat.creditReminder.cancelGeneration": "取消生成",
   "chat.creditReminder.cancelled": "已取消本次生成。",
   "chat.creditReminder.cardDescription":
     "本次生成预计消耗 {{estimated}} 积分，已达到你设置的 {{threshold}} 积分提醒值。",
-  "chat.creditReminder.cardDescriptionFallback": "本次生成已达到你设置的积分提醒值。",
+  "chat.creditReminder.cardDescriptionFallback":
+    "本次生成已达到你设置的积分提醒值。",
   "chat.creditReminder.cardTitle": "积分消耗提醒",
   "chat.creditReminder.continueGeneration": "继续生成",
   "chat.creditReminder.continued": "已确认，正在继续生成。",
@@ -2216,7 +2379,8 @@ const zh = {
   "chat.creditReminder.settingsDescription":
     "单次生成预计消耗达到提醒值时，在开始生成前提醒你确认。",
   "chat.creditReminder.settingsTitle": "积分消耗提醒",
-  "chat.creditReminder.thresholdError": "请输入 {{min}} 至 {{max}} 之间的整数。",
+  "chat.creditReminder.thresholdError":
+    "请输入 {{min}} 至 {{max}} 之间的整数。",
   "chat.creditReminder.thresholdLabel": "提醒值",
   "chat.creditReminder.topupContinued": "积分已到账，本次生成已自动继续。",
   "chat.creditReminder.topupContinuedTitle": "充值成功，正在继续生成",
@@ -2228,7 +2392,8 @@ const zh = {
   "chat.diffReview.undoFailed": "撤销失败，请稍后重试",
   "chat.diffReview.undoPartial": "{{count}} 处修改无法撤销（内容已变化）",
   "chat.diffReview.view": "查看",
-  "chat.directorStageAgent.inputPlaceholder": "想生成或修改人物站位或运镜？告诉我你的需求",
+  "chat.directorStageAgent.inputPlaceholder":
+    "想生成或修改人物站位或运镜？告诉我你的需求",
   "chat.directorStageAgent.intro":
     "你可以直接告诉我想设计的场景、人物和镜头，也可以在已有方案上继续调整。\n\n我可以帮你：\n- **制作静态参考**：设计人物站位、场景布局和镜头构图\n- **制作动态参考**：规划运镜方式、人物轨迹和镜头调度\n- **调整现有方案**：修改角色、机位和运动关系，尝试不同的构图与运动节奏\n\n开始前，可以告诉我：\n- 人物数量、站位关系和期望画面\n- 镜头与人物如何运动，以及运动的节奏和方向",
   "chat.draft.attachmentsDropped": "部分附件无法恢复，请重新添加。",
@@ -2245,14 +2410,18 @@ const zh = {
   "chat.emptyRecommendations.skillTab.directorAgent": "导演台Skill",
   "chat.emptyRecommendations.skillTab.textAgent": "文本Skill",
   "chat.emptyRecommendations.subtitle": "探索 H3，开启全新体验",
-  "chat.emptyRecommendations.subtitle.clipAgent": "通过对话调整视频片段、字幕和画面效果",
+  "chat.emptyRecommendations.subtitle.clipAgent":
+    "通过对话调整视频片段、字幕和画面效果",
   "chat.emptyRecommendations.subtitle.directorAgent":
     "在 3D 环境中设计人物站位、镜头构图和动态运镜",
-  "chat.emptyRecommendations.subtitle.textAgent": "通过对话创作、改写和完善文本内容",
-  "chat.errors.aspectRatioConflict": "所选画幅与参考图比例不一致，请调整画幅或裁剪方式后重试。",
+  "chat.emptyRecommendations.subtitle.textAgent":
+    "通过对话创作、改写和完善文本内容",
+  "chat.errors.aspectRatioConflict":
+    "所选画幅与参考图比例不一致，请调整画幅或裁剪方式后重试。",
   "chat.errors.modelProviderAuthFailed":
     "自定义模型认证失败，请在模型设置中检查 API Key、接口地址和自定义 Headers。",
-  "chat.errors.modelProviderMethodNotAllowed": "请求方式不受支持，请检查接口地址和 API 格式。",
+  "chat.errors.modelProviderMethodNotAllowed":
+    "请求方式不受支持，请检查接口地址和 API 格式。",
   "chat.errors.modelProviderInvocationFailed": "模型调用失败。",
   "chat.errors.title.modelProviderError": "自定义模型请求失败",
   "chat.errors.title.modelProviderAuthFailed": "自定义模型认证失败",
@@ -2273,7 +2442,8 @@ const zh = {
   "chat.errors.genericDetail": "运行异常，请重试；如果仍失败，请反馈问题。",
   "chat.errors.interrupted": "任务已中断，请重新发送消息继续。",
   "chat.errors.networkTimeout": "网络请求超时，请检查网络连接或稍后重试。",
-  "chat.errors.networkUnavailable": "网络无法连接服务器，请检查网络连接或稍后重试。",
+  "chat.errors.networkUnavailable":
+    "网络无法连接服务器，请检查网络连接或稍后重试。",
   "chat.errors.providersUnavailable":
     "当前无法加载 AI 模型服务。你的登录状态仍然有效——这是连接问题，不是账号问题，通常会自动恢复。",
   "chat.errors.runtimeConnectionLost": "本次对话连接已中断，请重新发送消息。",
@@ -2328,10 +2498,12 @@ const zh = {
   "chat.generatedContent": "生成内容",
   "chat.generatedImage": "生成图片",
   "chat.generationFailure.queuePaused": "生成任务已暂停排队，请恢复后继续。",
-  "chat.generationFailure.requestNotSubmitted": "生成服务关闭前请求尚未提交，请重试。",
+  "chat.generationFailure.requestNotSubmitted":
+    "生成服务关闭前请求尚未提交，请重试。",
   "chat.generationFailure.serviceShuttingDown":
     "生成服务正在关闭。重试前请先检查画布中是否已有结果。",
-  "chat.generationFailure.serviceUnavailable": "生成服务暂时不可用，请稍后重试。",
+  "chat.generationFailure.serviceUnavailable":
+    "生成服务暂时不可用，请稍后重试。",
   "chat.historyLoadFailed.description":
     "当前内容已保留，但完整历史暂时无法确认。点击重试重新加载。",
   "chat.historyLoadFailed.title": "聊天历史暂时无法加载",
@@ -2353,9 +2525,11 @@ const zh = {
   "chat.imageAnnotation.append": "保留原图并新增标注图",
   "chat.imageAnnotation.appendAnyway": "仍然新增",
   "chat.imageAnnotation.applyFailed": "标注应用失败，请重试。",
-  "chat.imageAnnotation.saveTimedOut": "保存超时，标注已保留。请重试或导出图片。",
+  "chat.imageAnnotation.saveTimedOut":
+    "保存超时，标注已保留。请重试或导出图片。",
   "chat.imageAnnotation.color": "标注颜色",
-  "chat.imageAnnotation.description": "在 {{name}} 上添加箭头、圈选、文字或隐私遮挡。",
+  "chat.imageAnnotation.description":
+    "在 {{name}} 上添加箭头、圈选、文字或隐私遮挡。",
   "chat.imageAnnotation.discard": "放弃编辑",
   "chat.imageAnnotation.discardDescription": "这些标注还没有应用到对话附件。",
   "chat.imageAnnotation.discardTitle": "放弃本次标注？",
@@ -2369,36 +2543,45 @@ const zh = {
     "同时保留两张图会让未遮挡的原图继续出现在本次对话中；如包含敏感信息，请移除原图。",
   "chat.imageAnnotation.privacyTitle": "原图仍会保留在对话中",
   "chat.imageAnnotation.replace": "替换当前附件",
-  "chat.imageAnnotation.targetChanged": "编辑期间附件已发生变化，请重新打开后再试。",
+  "chat.imageAnnotation.targetChanged":
+    "编辑期间附件已发生变化，请重新打开后再试。",
   "chat.imageAnnotation.title": "标注图片",
   "chat.imageCount": "{{count}} 张图片",
   "chat.imageCount_one": "{{count}} 张图片",
   "chat.imageCount_other": "{{count}} 张图片",
   "chat.imageUnavailable": "图片不可用",
-  "chat.initialPayload.hydrationStalled": "未能确认目标会话，首条消息尚未发送。点击重试发送。",
+  "chat.initialPayload.hydrationStalled":
+    "未能确认目标会话，首条消息尚未发送。点击重试发送。",
   "chat.input": "输入",
   "chat.internalReference.material": "内部资料",
   "chat.internalReference.workflow": "项目工作流",
   "chat.loadingModels": "正在加载模型...",
-  "chat.loopGuard.ackTimeoutNotice": "未收到确认结果，你可以重新选择，不会影响当前对话。",
+  "chat.loopGuard.ackTimeoutNotice":
+    "未收到确认结果，你可以重新选择，不会影响当前对话。",
   "chat.loopGuard.allowOnce": "继续当前操作",
   "chat.loopGuard.allowOnceDesc": "确认这是正常重复，仅继续本次。",
   "chat.loopGuard.allowSession": "本次对话都允许",
   "chat.loopGuard.allowSessionDesc": "本次对话中遇到相同操作时不再询问。",
-  "chat.loopGuard.askPrimary": "最近 {{window}} 次操作中，有 {{hits}} 次内容基本相同。",
-  "chat.loopGuard.askSecondary": "系统没有出错，请确认这是正常操作，还是让 AI 换一种方式继续。",
-  "chat.loopGuard.conflictingDecisionNotice": "该确认已有其他选择先行生效，将继续按先前选择执行。",
+  "chat.loopGuard.askPrimary":
+    "最近 {{window}} 次操作中，有 {{hits}} 次内容基本相同。",
+  "chat.loopGuard.askSecondary":
+    "系统没有出错，请确认这是正常操作，还是让 AI 换一种方式继续。",
+  "chat.loopGuard.conflictingDecisionNotice":
+    "该确认已有其他选择先行生效，将继续按先前选择执行。",
   "chat.loopGuard.currentTool": "当前工具",
   "chat.loopGuard.recentTools": "最近工具",
   "chat.loopGuard.reject": "让 AI 调整方案",
   "chat.loopGuard.rejectDesc": "停止当前操作，并改用其他处理方法。",
-  "chat.loopGuard.runtimeRestartedNotice": "本地服务已重新连接，本次确认已取消，请重新发起操作。",
+  "chat.loopGuard.runtimeRestartedNotice":
+    "本地服务已重新连接，本次确认已取消，请重新发起操作。",
   "chat.loopGuard.shortcutsHint":
     "快捷键：按 1 或回车继续当前操作，按 2 允许本次对话，按 3 或 Esc 让 AI 调整方案",
   "chat.loopGuard.technicalDetails": "技术详情",
-  "chat.loopGuard.timeoutNotice": "确认已超时，本次选择没有生效，请重新发起操作。",
+  "chat.loopGuard.timeoutNotice":
+    "确认已超时，本次选择没有生效，请重新发起操作。",
   "chat.loopGuard.title": "检测到重复操作",
-  "chat.loopGuard.transportClosedNotice": "连接已中断，本次确认已取消，请重新发起操作。",
+  "chat.loopGuard.transportClosedNotice":
+    "连接已中断，本次确认已取消，请重新发起操作。",
   "chat.loopGuard.tripLabel": "触发次数",
   "chat.loopGuard.unavailableNotice":
     "无法确认本次选择是否已生效，请先查看当前任务状态，再按需重试。",
@@ -2426,7 +2609,8 @@ const zh = {
   "chat.mediaModels.custom.configure": "自定义模型",
   "chat.mediaModels.pricing": "计费说明",
   "chat.mediaModels.selectAll": "全选",
-  "chat.mediaModels.selectionDescription": "选择 Agent 使用的模型，以及任务中可调用的生成模型。",
+  "chat.mediaModels.selectionDescription":
+    "选择 Agent 使用的模型，以及任务中可调用的生成模型。",
   "chat.mediaModels.tabs.agent": "Agent",
   "chat.mediaModels.tabs.audio": "音频",
   "chat.mediaModels.tabs.image": "图片",
@@ -2468,7 +2652,8 @@ const zh = {
   "chat.planNodeBar.progress": "{{done}}/{{total}} 个任务已完成",
   "chat.playAudio": "播放音频",
   "chat.pluginEditAgent.newSession": "新建 {{name}} 对话",
-  "chat.pluginEditAgent.prepareFailed": "编辑器 Agent 准备失败，请关闭编辑器后重试。",
+  "chat.pluginEditAgent.prepareFailed":
+    "编辑器 Agent 准备失败，请关闭编辑器后重试。",
   "chat.pluginEditAgent.prepareFailedShort": "编辑器 Agent 会话准备失败。",
   "chat.pluginEditAgent.preparing": "正在准备编辑器 Agent…",
   "chat.pluginEditAgent.preparingPlaceholder": "编辑器 Agent 正在准备…",
@@ -2517,7 +2702,8 @@ const zh = {
   "chat.recommend.importHint": "你也可以直接拖入 .md 文件导入你的 skill",
   "chat.recommend.title": "或来试一试这些 skill",
   "chat.reconnecting.description": "连接恢复前暂不能发送消息。",
-  "chat.reconnecting.memoryDescription": "正在自动恢复，请关闭部分占用内存的程序或工作区后重试。",
+  "chat.reconnecting.memoryDescription":
+    "正在自动恢复，请关闭部分占用内存的程序或工作区后重试。",
   "chat.reconnecting.memoryTitle": "系统内存不足，运行时已被回收",
   "chat.reconnecting.placeholder": "正在重连...",
   "chat.reconnecting.stuckDescription":
@@ -2558,18 +2744,21 @@ const zh = {
   "chat.sessionListUnavailable.description":
     "当前工作区、画布、资产和已加载消息仍可使用。你可以重试加载对话。",
   "chat.sessionListUnavailable.title": "对话暂时不可用",
-  "chat.sessionSwitch.notConnected": "尚未连接到本地运行时，正在重连，请稍后重试。",
+  "chat.sessionSwitch.notConnected":
+    "尚未连接到本地运行时，正在重连，请稍后重试。",
   "chat.sessionSwitch.timeout": "会话切换超时，请重试。",
   "chat.showLess": "Show less",
   "chat.showMore": "Show more",
-  "chat.stalled.description": "已约 {{minutes}} 分钟没有新进展。你可以继续等待，或停止本次任务。",
+  "chat.stalled.description":
+    "已约 {{minutes}} 分钟没有新进展。你可以继续等待，或停止本次任务。",
   "chat.stalled.hardCapDescription":
     "本次任务已运行约 {{minutes}} 分钟。你可以继续等待，或停止本次任务。",
   "chat.stalled.hardCapTitle": "任务已运行较长时间",
   "chat.stalled.keepWaiting": "继续等待",
   "chat.stalled.stopTask": "停止任务",
   "chat.stalled.title": "任务运行中，但已较长时间无响应",
-  "chat.starting.description": "聊天记录已可查看，本地 Agent 启动完成后即可发送消息。",
+  "chat.starting.description":
+    "聊天记录已可查看，本地 Agent 启动完成后即可发送消息。",
   "chat.starting.placeholder": "Agent 正在准备中...",
   "chat.starting.title": "正在准备 Agent",
   "chat.statusDone": "完成",
@@ -2593,34 +2782,44 @@ const zh = {
   "chat.textEditAgent.prepareFailedShort": "文本助理会话准备失败。",
   "chat.textEditAgent.preparing": "正在准备文本助理…",
   "chat.textEditAgent.preparingPlaceholder": "文本助理正在准备…",
-  "chat.textEditAgent.selectionPlaceholder": "选中的这段想怎么改？告诉我语气、重点或篇幅",
+  "chat.textEditAgent.selectionPlaceholder":
+    "选中的这段想怎么改？告诉我语气、重点或篇幅",
   "chat.textEditAgent.selectionTooLong":
     "选中内容过长（{{count}} 字符，上限 {{max}}），请缩小选区后再发送",
   "chat.textEditAgent.sessionName": "文本助理",
   "chat.textEditAgent.title": "文本Agent",
-  "chat.textEditAgent.wholeDocumentPlaceholder": "想让整篇更出彩？告诉我目标、语气或篇幅",
+  "chat.textEditAgent.wholeDocumentPlaceholder":
+    "想让整篇更出彩？告诉我目标、语气或篇幅",
   "chat.thinking": "思考中...",
   "chat.thought": "思考",
   "chat.tipLabel": "提示：{{tip}}",
-  "chat.tips.agent.1": "对 Agent 说清目标、素材、限制和交付格式，结果会更稳定。",
+  "chat.tips.agent.1":
+    "对 Agent 说清目标、素材、限制和交付格式，结果会更稳定。",
   "chat.tips.agent.2": "任务复杂时，可以先让 Agent 拆步骤，再逐步确认。",
-  "chat.tips.agent.3": "想保持一致性时，明确告诉 Agent 哪些角色、风格或素材不能变。",
+  "chat.tips.agent.3":
+    "想保持一致性时，明确告诉 Agent 哪些角色、风格或素材不能变。",
   "chat.tips.agent.4": "结果不满意时，直接指出要改哪里，不必重写整段需求。",
   "chat.tips.asset.5": "参考素材有助于保持角色、构图或风格一致。",
-  "chat.tips.assetCenter.1": "主体库适合保存角色、场景、风格包和常用素材，跨创作页复用。",
+  "chat.tips.assetCenter.1":
+    "主体库适合保存角色、场景、风格包和常用素材，跨创作页复用。",
   "chat.tips.assetCenter.3": "把资产加入创作页后，可以在画布或对话里继续引用。",
-  "chat.tips.discovery.1": "可以把生成结果拖回对话，继续让 MiniMax Design 修改或扩展。",
+  "chat.tips.discovery.1":
+    "可以把生成结果拖回对话，继续让 MiniMax Design 修改或扩展。",
   "chat.tips.discovery.10": "可以把常用工作流保存成 Skill，下次直接复用。",
-  "chat.tips.discovery.11": "可以在新工作区尝试不同方向，保留当前项目不受影响。",
-  "chat.tips.discovery.4": "可以在画布中选中多个素材，让 MiniMax Design 基于它们一起创作。",
-  "chat.tips.discovery.5": "可以直接告诉 MiniMax Design 使用哪个模型、比例、时长或清晰度。",
+  "chat.tips.discovery.11":
+    "可以在新工作区尝试不同方向，保留当前项目不受影响。",
+  "chat.tips.discovery.4":
+    "可以在画布中选中多个素材，让 MiniMax Design 基于它们一起创作。",
+  "chat.tips.discovery.5":
+    "可以直接告诉 MiniMax Design 使用哪个模型、比例、时长或清晰度。",
   "chat.tips.discovery.6": "生成失败后，可以基于错误原因调整要求后重试。",
   "chat.tips.discovery.8": "可以在时间线中预览剪辑效果，再决定是否导出。",
   "chat.tips.discovery.9": "可以用搜索快速找到历史生成文件、素材和节点。",
   "chat.tips.input.2": "添加参考图或文件，可以让需求更准确。",
   "chat.tips.input.3": "需要特定输出时，说明格式、尺寸或时长。",
   "chat.tips.plugin.1": "可以在左边侧边栏使用插件，完成更专业的创作流程。",
-  "chat.tips.skill.1": "点击输入框旁的 Skill，可以选择一个专门的工作流来启动任务。",
+  "chat.tips.skill.1":
+    "点击输入框旁的 Skill，可以选择一个专门的工作流来启动任务。",
   "chat.tips.skill.3": "重复出现的流程适合沉淀成 Skill，下次直接复用。",
   "chat.tips.skill.4": "一次性任务直接描述给 Agent，固定流程则更适合用 Skill。",
   "chat.tips.system.1": "想在长任务完成时收到提醒，可开启通知。",
@@ -2629,7 +2828,8 @@ const zh = {
   "chat.tips.system.6": "将鼠标移到对话标题上，即可查看本会话的积分消耗。",
   "chat.title": "对话",
   "chat.todoList": "待办列表",
-  "chat.toolConfirm.ackTimeoutNotice": "暂未收到确认结果，你可以重新选择，对话内容不会丢失。",
+  "chat.toolConfirm.ackTimeoutNotice":
+    "暂未收到确认结果，你可以重新选择，对话内容不会丢失。",
   "chat.toolConfirm.alwaysAllow": "始终允许",
   "chat.toolConfirm.alwaysAllowTodo": "即将上线",
   "chat.toolConfirm.batch.next": "下一个批量项",
@@ -2653,7 +2853,8 @@ const zh = {
   "chat.toolConfirm.comfyDraftBadge": "Workflow Draft",
   "chat.toolConfirm.comfyDraftLoading": "正在读取工作流参数",
   "chat.toolConfirm.comfyDraftNoParameters": "没有可编辑的工作流参数",
-  "chat.toolConfirm.comfyInputImportFailed": "导入 ComfyUI 输入失败：{{reason}}",
+  "chat.toolConfirm.comfyInputImportFailed":
+    "导入 ComfyUI 输入失败：{{reason}}",
   "chat.toolConfirm.comfyInputNotSelected": "未选择文件",
   "chat.toolConfirm.comfyMissingInput": "缺少{{kind}}输入",
   "chat.toolConfirm.comfyMissingModel": "模型不可用",
@@ -2661,7 +2862,8 @@ const zh = {
   "chat.toolConfirm.comfyPreflightChecking": "正在检查工作流输入和模型",
   "chat.toolConfirm.comfyPreflightNeedsRepair": "执行前需要处理以下问题",
   "chat.toolConfirm.comfyPreflightReady": "工作流已通过执行检查",
-  "chat.toolConfirm.comfyReferencePromptWarning": "已更换参考素材，请确认提示词仍与新素材一致",
+  "chat.toolConfirm.comfyReferencePromptWarning":
+    "已更换参考素材，请确认提示词仍与新素材一致",
   "chat.toolConfirm.comfyReplaceExistingInput": "重新选择",
   "chat.toolConfirm.comfyReplaceInput": "重新选择",
   "chat.toolConfirm.comfyRunCountUnit": "次",
@@ -2689,7 +2891,8 @@ const zh = {
   "chat.toolLabel.canvasSearchNodes": "搜索画布内容",
   "chat.toolLabel.browser": "使用内置浏览器",
   "chat.browser.openRequired": "需要开启内置浏览器",
-  "chat.browser.openRequiredDescription": "Agent 需要使用内置浏览器完成此任务。",
+  "chat.browser.openRequiredDescription":
+    "Agent 需要使用内置浏览器完成此任务。",
   "chat.browser.opening": "正在开启…",
   "chat.browser.opened": "已开启",
   "chat.browser.open": "开启浏览器",
@@ -2717,12 +2920,16 @@ const zh = {
   "chat.toolLabel.planUpdateStageState": "推进阶段",
   "chat.toolLabel.reportOutcome": "汇报阶段产出",
   "chat.toolLabel.runComfyUiWorkflow": "正在提交 ComfyUI 工作流",
-  "chat.toolLabel.runComfyUiWorkflow.completed": "已完成 ComfyUI 工作流（{{count}} 个结果）",
+  "chat.toolLabel.runComfyUiWorkflow.completed":
+    "已完成 ComfyUI 工作流（{{count}} 个结果）",
   "chat.toolLabel.runComfyUiWorkflow.failed": "ComfyUI 工作流执行失败",
-  "chat.toolLabel.runComfyUiWorkflow.progressCompleted": "已完成 {{completed}}/{{total}}",
-  "chat.toolLabel.runComfyUiWorkflow.progressDescription": "正在生成，可能需要几分钟。",
+  "chat.toolLabel.runComfyUiWorkflow.progressCompleted":
+    "已完成 {{completed}}/{{total}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressDescription":
+    "正在生成，可能需要几分钟。",
   "chat.toolLabel.runComfyUiWorkflow.progressElapsed": "耗时 {{elapsed}}",
-  "chat.toolLabel.runComfyUiWorkflow.progressMaterializing": "同步到画布 {{count}}",
+  "chat.toolLabel.runComfyUiWorkflow.progressMaterializing":
+    "同步到画布 {{count}}",
   "chat.toolLabel.runComfyUiWorkflow.progressQueued": "排队 {{count}}",
   "chat.toolLabel.runComfyUiWorkflow.progressRunning": "运行 {{count}}",
   "chat.toolLabel.runComfyUiWorkflow.running": "ComfyUI 工作流正在执行",
@@ -2752,13 +2959,15 @@ const zh = {
   "chat.uploadCommitUnsupportedFilesystem":
     "当前 Workspace 所在文件系统不支持安全发布附件，请将 Workspace 移至本地磁盘后重试。",
   "chat.uploadError.empty": "没有读取到文件，请重新拖入或选择文件。",
-  "chat.uploadError.fileTooLarge": "文件太大，请压缩后再上传，或换一个更小的文件。",
+  "chat.uploadError.fileTooLarge":
+    "文件太大，请压缩后再上传，或换一个更小的文件。",
   "chat.uploadError.generic": "上传失败，请移除后重新上传，或换一个文件再试。",
   "chat.uploadError.missingPath": "缺少文件路径",
   "chat.uploadError.network": "网络连接异常，请检查网络后重新上传。",
   "chat.uploadError.serverUnavailable": "上传服务暂时不可用，请稍后重试。",
   "chat.uploadError.timeout": "上传超时，请重新上传。",
-  "chat.uploadError.unsupportedType": "暂不支持这个文件类型，请换一个文件再试。",
+  "chat.uploadError.unsupportedType":
+    "暂不支持这个文件类型，请换一个文件再试。",
   "chat.uploadFailed": "{{name}} 上传失败：{{reason}}",
   "chat.uploadFailedCount": "{{count}} 个文件上传失败",
   "chat.uploadFailedFile": "{{name}} 上传失败",
@@ -2863,7 +3072,8 @@ const zh = {
   "cloudAssets.rejectUnsupported": "“{{name}}”文件类型不支持",
   "cloudAssets.removeRecord": "清除记录",
   "cloudAssets.rename": "重命名",
-  "cloudAssets.renameLocalFailed": "云端已重命名，但“{{name}}”的本地副本重命名失败",
+  "cloudAssets.renameLocalFailed":
+    "云端已重命名，但“{{name}}”的本地副本重命名失败",
   "cloudAssets.renamePlaceholder": "新名称",
   "cloudAssets.renameTitle": "重命名",
   "cloudAssets.reviewFailedHint": "审核失败，请删除该文件",
@@ -2897,13 +3107,16 @@ const zh = {
   "cloudAssets.uploadStartFailed": "“{{name}}”上传启动失败：{{message}}",
   "cloudAssets.usage": "已用 {{used}} / {{total}}",
   "cloudAssets.usagePanelTitle": "云端用量",
-  "cloudAssets.usagePanelTooltip": "共创项目的资产存在云端，支持团队人员共享查看",
+  "cloudAssets.usagePanelTooltip":
+    "共创项目的资产存在云端，支持团队人员共享查看",
   "cloudAssets.viewGrid": "网格视图",
   "cloudAssets.viewList": "列表视图",
-  "coachMark.canvas.group.desc": "画布乱了？选多个节点右键「编组」，垂直/水平/宫格三种布局自动排",
+  "coachMark.canvas.group.desc":
+    "画布乱了？选多个节点右键「编组」，垂直/水平/宫格三种布局自动排",
   "coachMark.canvas.group.title": "素材编组",
   "coachMark.downloading": "下载中…",
-  "coachMark.file.locate.desc": "在资源面板右键「在画布定位」，快速在画布中找到对应素材",
+  "coachMark.file.locate.desc":
+    "在资源面板右键「在画布定位」，快速在画布中找到对应素材",
   "coachMark.file.locate.title": "在画布定位",
   "coachMark.file.view.desc":
     "点击此处或资源面板按 {{treeShortcut}} / {{gridShortcut}} 切换排序 / 视图模式",
@@ -2913,7 +3126,8 @@ const zh = {
   "coachMark.home.assetCenterRelocation.desc":
     "资产中心已改名为「主体库」，搬到了创作页（画布）里，让你在创作时更方便地取用素材。",
   "coachMark.home.assetCenterRelocation.title": "资产中心搬家啦",
-  "coachMark.home.atKey.desc": "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
+  "coachMark.home.atKey.desc":
+    "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
   "coachMark.home.atKey.title": "使用「@」键",
   "coachMark.home.projectLibrary.desc":
     "所有项目都在这里集中管理。点击下一步，为你创建一个示例项目，快速上手工作区。",
@@ -2930,7 +3144,8 @@ const zh = {
   "coachMark.sessionCost.desc":
     "将鼠标移到对话标题上，即可查看本会话中图片、视频、音频和 Agent 的积分消耗。消耗将在每项任务完成后更新。历史会话暂不支持查看积分消耗。",
   "coachMark.sessionCost.title": "查看对话积分消耗",
-  "coachMark.workspace.assetCenterRelocation.desc": "以后可以在这里找到并使用原资产中心里的素材。",
+  "coachMark.workspace.assetCenterRelocation.desc":
+    "以后可以在这里找到并使用原资产中心里的素材。",
   "coachMark.workspace.assetCenterRelocation.title": "这里就是新家",
   "coachMark.workspace.displayMode.desc":
     "按 {{shortcut}} 唤起全屏布局模式选择器，使用方向键预选，按 Enter 应用。",
@@ -3050,9 +3265,12 @@ const zh = {
   "connectors.apify.connect": "连接并启用",
   "connectors.apify.consent":
     "Agent 可能运行 Actor、访问你的 Apify 数据并产生费用，请确认授权范围。",
-  "connectors.apify.description": "获取 API Token 并完成连接，连接后可在 Agent 对话中使用。",
-  "connectors.apify.invalidKey": "请仅粘贴有效密钥，不要粘贴 URL、完整请求头、Bearer 前缀或空白。",
-  "connectors.apify.keyHint": "系统会自动添加 Bearer 鉴权，并将 API Token 加密保存在本机。",
+  "connectors.apify.description":
+    "获取 API Token 并完成连接，连接后可在 Agent 对话中使用。",
+  "connectors.apify.invalidKey":
+    "请仅粘贴有效密钥，不要粘贴 URL、完整请求头、Bearer 前缀或空白。",
+  "connectors.apify.keyHint":
+    "系统会自动添加 Bearer 鉴权，并将 API Token 加密保存在本机。",
   "connectors.apify.keyLabel": "填写 API Token",
   "connectors.apify.keyPlaceholder": "请输入 Apify API Token",
   "connectors.apify.login": "获取 Apify API Token",
@@ -3061,17 +3279,21 @@ const zh = {
   "connectors.apify.loginError": "无法打开浏览器，请重试。",
   "connectors.apify.loginTitle": "获取 API Token",
   "connectors.apify.title": "连接 Apify",
-  "connectors.blender.error.addon_install_failed": "Blender 插件安装失败，请重试。",
+  "connectors.blender.error.addon_install_failed":
+    "Blender 插件安装失败，请重试。",
   "connectors.blender.error.blender_not_found":
     "未检测到 Blender，请先安装 Blender（3.0 及以上版本）再重试。",
   "connectors.blender.error.busy": "安装正在进行中，请稍候。",
-  "connectors.blender.error.connector_config_failed": "插件配置保存失败，请重试。",
+  "connectors.blender.error.connector_config_failed":
+    "插件配置保存失败，请重试。",
   "connectors.blender.error.package_download_failed":
     "Blender MCP 组件下载失败，请检查网络后重试。",
-  "connectors.blender.error.python_unavailable": "本地 Python 运行环境暂不可用，请检查网络后重试。",
+  "connectors.blender.error.python_unavailable":
+    "本地 Python 运行环境暂不可用，请检查网络后重试。",
   "connectors.blender.install": "一键安装",
   "connectors.blender.installedConnected": "Blender 已连接，可以开始使用了。",
-  "connectors.blender.installedWaiting": "安装完成，请在 Blender 中启动 MCP Server。",
+  "connectors.blender.installedWaiting":
+    "安装完成，请在 Blender 中启动 MCP Server。",
   "connectors.blender.location.auto": "自动检测",
   "connectors.blender.location.choose": "选择 Blender 文件夹",
   "connectors.blender.location.detecting": "正在检测安装位置…",
@@ -3107,13 +3329,15 @@ const zh = {
   "connectors.catalog.fastmoss.description":
     "支持 TikTok Shop 商品、店铺、达人和趋势分析，帮助电商运营选品、研究竞品、发现增长机会，并生成带货脚本和分镜。",
   "connectors.catalog.fastmoss.title": "FastMoss",
-  "connectors.catalog.figma.description": "连接 Figma 桌面端，读取设计上下文、截图和变量。",
+  "connectors.catalog.figma.description":
+    "连接 Figma 桌面端，读取设计上下文、截图和变量。",
   "connectors.catalog.figma.title": "Figma",
   "connectors.catalog.houdini.description":
     "支持把城市、地形和产品特效做成可反复调整的 3D 场景，生成烟雾、碎片、流体、粒子和环境变体，并输出镜头预览。",
   "connectors.catalog.houdini.title": "Houdini",
   "connectors.catalog.nuke.title": "Nuke",
-  "connectors.catalog.nuke.description": "搭建合成节点网络，调整色彩与效果，检查 Nuke 脚本。",
+  "connectors.catalog.nuke.description":
+    "搭建合成节点网络，调整色彩与效果，检查 Nuke 脚本。",
   "connectors.detail.nuke.description":
     "在当前打开的 Nuke 脚本中创建和连接节点、调整合成参数，并在渲染前检查工程设置。",
   "connectors.detail.nuke.promptTitle.0": "搭建产品合成",
@@ -3149,7 +3373,8 @@ const zh = {
   "connectors.catalog.unreal.description":
     "用 AI 驱动 Unreal 编辑器：生成和编辑 Actor，搭建蓝图，调整材质与 Niagara 特效，编排 Sequencer 镜头，并在项目中执行编辑器 Python。",
   "connectors.catalog.unreal.title": "Unreal Engine",
-  "connectors.catalogDescription": "选择服务，扩展 MiniMax Design 可访问的信息与可完成的工作。",
+  "connectors.catalogDescription":
+    "选择服务，扩展 MiniMax Design 可访问的信息与可完成的工作。",
   "connectors.catalogTitle": "探索插件",
   "connectors.connector.error.addon_install_failed": "安装插件到应用程序失败",
   "connectors.connector.error.busy": "安装已在进行中",
@@ -3168,20 +3393,27 @@ const zh = {
   "connectors.connector.install": "安装插件",
   "connectors.connector.installHint":
     "请先安装 {{name}} 并启动一次，再安装插件。安装方式或位置不同，可能无法自动识别。",
-  "connectors.connector.prepare.available": "已检测到 {{name}}，可继续安装插件。",
+  "connectors.connector.prepare.available":
+    "已检测到 {{name}}，可继续安装插件。",
   "connectors.connector.prepare.checking": "正在检查当前设备上的 {{name}}…",
-  "connectors.connector.prepare.componentPackage": "安装插件后，还需要下载并导入 {{name}} 组件包。",
+  "connectors.connector.prepare.componentPackage":
+    "安装插件后，还需要下载并导入 {{name}} 组件包。",
   "connectors.connector.prepare.error": "设备检测失败；仍可继续设置。",
   "connectors.connector.prepare.illustrator":
     "支持已安装的 Illustrator 正式版，建议使用 2024 或更新版本，无需额外面板。macOS 首次连接时请允许自动化控制；Windows 兼容性仍需实机验证。",
-  "connectors.connector.prepare.inAppActivation": "安装插件后，可能还需要在应用内完成启用。",
-  "connectors.connector.prepare.locationCaveat": "安装方式或位置不同，可能无法自动识别。",
-  "connectors.connector.prepare.missing": "暂未检测到 {{name}}；仍可继续安装插件。",
+  "connectors.connector.prepare.inAppActivation":
+    "安装插件后，可能还需要在应用内完成启用。",
+  "connectors.connector.prepare.locationCaveat":
+    "安装方式或位置不同，可能无法自动识别。",
+  "connectors.connector.prepare.missing":
+    "暂未检测到 {{name}}；仍可继续安装插件。",
   "connectors.connector.prepare.missingWithLocation":
     "暂未检测到 {{name}}；仍可手动选择安装位置后继续。",
-  "connectors.connector.prepare.primary": "请先安装 {{name}} 并启动一次，再安装插件。",
+  "connectors.connector.prepare.primary":
+    "请先安装 {{name}} 并启动一次，再安装插件。",
   "connectors.connector.prepare.retry": "重新检测",
-  "connectors.connector.prepare.unknown": "暂时无法确认是否已安装 {{name}}；仍可继续设置。",
+  "connectors.connector.prepare.unknown":
+    "暂时无法确认是否已安装 {{name}}；仍可继续设置。",
   "connectors.connector.prepare.unsupported": "{{name}} 插件暂不支持当前系统。",
   "connectors.connector.downloadHostApp.blender": "还没有 Blender？下载安装包",
   "connectors.connector.installedConnected": "插件已安装并连接",
@@ -3223,9 +3455,12 @@ const zh = {
     "打开（或重启）Unreal Engine 5.7 及以上版本的项目——也可以直接在对话里让 Agent 创建或选择项目并完成接入。接入时已为引擎模板和最近打开的项目开启官方 Model Context Protocol 与 Terminal 插件并设置自动启动，编辑器启动后 MCP 服务会自动运行在 127.0.0.1:8000。",
   "connectors.connector.waitingHint.withSkill":
     "打开 {{name}} 应用开始使用，或直接在对话中使用 {{name}} Skill，让 AI 帮你连接并操作 {{name}}。",
-  "connectors.customDialog.error.authorization_busy": "已有一个授权流程正在进行，请先完成或取消。",
-  "connectors.customDialog.error.authorization_cancelled": "授权已取消，插件保持停用。",
-  "connectors.customDialog.error.authorization_failed": "浏览器授权未完成，请重新连接。",
+  "connectors.customDialog.error.authorization_busy":
+    "已有一个授权流程正在进行，请先完成或取消。",
+  "connectors.customDialog.error.authorization_cancelled":
+    "授权已取消，插件保持停用。",
+  "connectors.customDialog.error.authorization_failed":
+    "浏览器授权未完成，请重新连接。",
   "connectors.customDialog.error.authorization_unavailable":
     "当前应用版本无法执行浏览器授权，请更新并完整重启应用。",
   "connectors.customDialog.error.figma_desktop_invalid_response":
@@ -3267,15 +3502,18 @@ const zh = {
   "connectors.detail.shopify.prompt.2":
     "用本次会话的文案和主视觉,在我的 Shopify 店铺起草一个春季系列的落地页",
   "connectors.figma.checking": "正在检测 Figma 桌面服务和可用工具…",
-  "connectors.figma.description": "读取本机 Figma 中已打开的设计文件，无需填写密钥。",
+  "connectors.figma.description":
+    "读取本机 Figma 中已打开的设计文件，无需填写密钥。",
   "connectors.figma.guideFailed": "无法打开设置指南，请稍后重试。",
   "connectors.figma.keepOpen":
     "使用时请保持 Figma 运行。可用能力取决于你的 Figma 席位、文件权限及桌面端支持。",
   "connectors.figma.stepConnect": "回到这里点击连接，验证本地服务和可用工具。",
-  "connectors.figma.stepEnable": "进入 Dev Mode，在 MCP server 面板中开启 Desktop MCP server。",
+  "connectors.figma.stepEnable":
+    "进入 Dev Mode，在 MCP server 面板中开启 Desktop MCP server。",
   "connectors.figma.stepOpen": "打开 Figma 桌面应用，登录并打开一个设计文件。",
   "connectors.figma.title": "连接 Figma 桌面端",
-  "connectors.location.notDetected": "暂未自动检测到 {{name}}，你仍可以手动选择。",
+  "connectors.location.notDetected":
+    "暂未自动检测到 {{name}}，你仍可以手动选择。",
   "connectors.custom": "自定义插件",
   "connectors.customDialog.add": "添加插件",
   "connectors.customDialog.advanced": "高级选项",
@@ -3283,50 +3521,63 @@ const zh = {
   "connectors.customDialog.argumentsPlaceholder": "-y @example/mcp-server",
   "connectors.customDialog.command": "启动命令",
   "connectors.customDialog.commandError": "请输入启动命令，最多 1024 个字符。",
-  "connectors.customDialog.argumentsError": "启动参数最多 128 项，每项最多 4096 个字符。",
+  "connectors.customDialog.argumentsError":
+    "启动参数最多 128 项，每项最多 4096 个字符。",
   "connectors.customDialog.descriptionError": "备注最多 500 个字符。",
   "connectors.customDialog.nameError":
     "请输入插件名称，最多 24 个字符，支持中文、英文字母、数字和 . _ -。",
-  "connectors.customDialog.urlError": "请输入有效的 HTTP 或 HTTPS 地址，最多 8192 个字符。",
+  "connectors.customDialog.urlError":
+    "请输入有效的 HTTP 或 HTTPS 地址，最多 8192 个字符。",
   "connectors.customDialog.commandPlaceholder": "npx",
   "connectors.customDialog.commandHint":
     "支持粘贴完整启动命令，自动拆分参数。含空格的路径请用引号括住；单独填写的参数会追加在后。",
-  "connectors.customDialog.commandSplitHint": "已自动拆分命令与参数，可继续编辑。",
+  "connectors.customDialog.commandSplitHint":
+    "已自动拆分命令与参数，可继续编辑。",
   "connectors.customDialog.unclosedQuoteError": "引号未闭合，请补齐后重试。",
   "connectors.customDialog.commandPathError":
     "启动程序名称含空格或引号，请填写完整路径，并用引号括住路径。",
   "connectors.customDialog.shellSyntaxError":
     "请填写单个程序的启动命令。此处不支持管道、重定向或变量展开；字面参数可单独填入“启动参数”。",
-  "connectors.customDialog.created.connected": "MCP 服务已连接，现在可在 Agent 对话中使用。",
-  "connectors.customDialog.created.disabled": "插件已保存并停用，可在卡片中启用。",
-  "connectors.customDialog.created.failed": "服务已保存，但未能连接到当前工作区。",
+  "connectors.customDialog.created.connected":
+    "MCP 服务已连接，现在可在 Agent 对话中使用。",
+  "connectors.customDialog.created.disabled":
+    "插件已保存并停用，可在卡片中启用。",
+  "connectors.customDialog.created.failed":
+    "服务已保存，但未能连接到当前工作区。",
   "connectors.editConfiguration": "编辑配置",
   "connectors.customDialog.editTitle": "编辑自定义连接器",
   "connectors.customDialog.editSubtitle":
     "修改连接配置。保存后将更新原连接器，并按启用状态重新连接。",
   "connectors.customDialog.save": "保存配置",
-  "connectors.customDialog.nameLocked": "连接器名称用于原对话中的引用，编辑配置时不能修改。",
+  "connectors.customDialog.nameLocked":
+    "连接器名称用于原对话中的引用，编辑配置时不能修改。",
   "connectors.customDialog.enabledAfterSave": "保存后启用",
   "connectors.customDialog.updated.saved": "连接器配置已更新。",
-  "connectors.customDialog.updated.failed": "配置已保存，但连接仍未成功，可继续编辑或重试。",
+  "connectors.customDialog.updated.failed":
+    "配置已保存，但连接仍未成功，可继续编辑或重试。",
   "connectors.customDialog.error.server_changed":
     "连接器配置已被其他操作修改，请关闭编辑窗口后重新打开。",
   "connectors.customDialog.description": "备注（选填）",
   "connectors.customDialog.descriptionPlaceholder": "例如：查询商品和市场数据",
   "connectors.customDialog.enabled": "添加后启用",
-  "connectors.customDialog.enabledHint": "启用后，允许 MiniMax Design 在创作对话中调用此插件。",
+  "connectors.customDialog.enabledHint":
+    "启用后，允许 MiniMax Design 在创作对话中调用此插件。",
   "connectors.customDialog.environment": "环境变量（JSON）",
   "connectors.customDialog.error.invalid_config": "请检查服务名称和连接配置。",
   "connectors.customDialog.error.loadFailed": "无法读取连接器配置，请重试。",
-  "connectors.customDialog.error.requestFailed": "无法保存此 MCP 服务，请重试。",
-  "connectors.customDialog.error.reserved_name": "该服务名称已被 MiniMax Design 保留。",
+  "connectors.customDialog.error.requestFailed":
+    "无法保存此 MCP 服务，请重试。",
+  "connectors.customDialog.error.reserved_name":
+    "该服务名称已被 MiniMax Design 保留。",
   "connectors.customDialog.error.server_exists": "已存在同名 MCP 服务。",
-  "connectors.customDialog.error.server_not_found": "此插件已不存在，请刷新列表后重试。",
+  "connectors.customDialog.error.server_not_found":
+    "此插件已不存在，请刷新列表后重试。",
   "connectors.customDialog.error.storage_failed": "无法保存加密的 MCP 配置。",
   "connectors.customDialog.formTab": "手动填写",
   "connectors.customDialog.headers": "请求头（JSON）",
   "connectors.customDialog.jsonEditorLabel": "MCP JSON 配置",
-  "connectors.customDialog.jsonError": "请输入有效的 JSON 对象，且仅包含一个 MCP 服务配置。",
+  "connectors.customDialog.jsonError":
+    "请输入有效的 JSON 对象，且仅包含一个 MCP 服务配置。",
   "connectors.customDialog.jsonHint": "使用与表单相同的字段配置一个 MCP 服务。",
   "connectors.customDialog.jsonTab": "JSON 配置",
   "connectors.customDialog.keyValuesError":
@@ -3337,12 +3588,15 @@ const zh = {
   "connectors.customDialog.nameHint":
     "最多 24 个字符，支持中文、英文字母、数字和 . _ -，空格自动替换为 -。hub 为保留名称，hub_ 和 hub. 为保留前缀。",
   "connectors.customDialog.namePlaceholder": "my-server",
-  "connectors.customDialog.saveUnavailable": "完成 MCP 运行时接入后即可保存服务。",
+  "connectors.customDialog.saveUnavailable":
+    "完成 MCP 运行时接入后即可保存服务。",
   "connectors.customDialog.stdioRisk":
     "此命令将在你的电脑上以当前用户权限运行，请仅添加来源可信的 MCP 服务。",
-  "connectors.customDialog.subtitle": "填写 MCP 服务的连接信息，将其接入 MiniMax Design。",
+  "connectors.customDialog.subtitle":
+    "填写 MCP 服务的连接信息，将其接入 MiniMax Design。",
   "connectors.customDialog.timeout": "超时时间（毫秒）",
-  "connectors.customDialog.timeoutError": "请输入 1 至 3600000 之间的整数，单位为毫秒。",
+  "connectors.customDialog.timeoutError":
+    "请输入 1 至 3600000 之间的整数，单位为毫秒。",
   "connectors.customDialog.timeoutPlaceholder": "30000",
   "connectors.customDialog.title": "添加自定义插件",
   "connectors.customDialog.transport": "连接方式",
@@ -3434,7 +3688,8 @@ const zh = {
   "connectors.detail.photoshop.promptTitle.0": "绘制人物肖像",
   "connectors.detail.photoshop.promptTitle.1": "临摹《戴珍珠耳环的少女》",
   "connectors.detail.photoshop.promptTitle.2": "设计机械鸟海报",
-  "connectors.detail.previewDescription": "连接此服务后，可以从下面任一示例开始对话。",
+  "connectors.detail.previewDescription":
+    "连接此服务后，可以从下面任一示例开始对话。",
   "connectors.detail.previewSection": "连接后可以这样使用",
   "connectors.detail.reconnectToUse": "恢复连接后使用",
   "connectors.detail.touchdesigner.description":
@@ -3481,9 +3736,12 @@ const zh = {
   "connectors.fastmoss.connect": "连接并启用",
   "connectors.fastmoss.consent":
     "连接后，Agent 可使用此 Key 调用 FastMoss 数据服务；使用受你的 FastMoss 账号权限和额度限制。",
-  "connectors.fastmoss.description": "获取 API Key 并完成连接，连接后可在 Agent 对话中使用。",
-  "connectors.fastmoss.invalidKey": "请输入 API Key，不要粘贴完整 URL 或包含空白的内容。",
-  "connectors.fastmoss.keyHint": "仅填写 API Key，不需要填写服务 URL；Key 将加密保存在本机。",
+  "connectors.fastmoss.description":
+    "获取 API Key 并完成连接，连接后可在 Agent 对话中使用。",
+  "connectors.fastmoss.invalidKey":
+    "请输入 API Key，不要粘贴完整 URL 或包含空白的内容。",
+  "connectors.fastmoss.keyHint":
+    "仅填写 API Key，不需要填写服务 URL；Key 将加密保存在本机。",
   "connectors.fastmoss.keyLabel": "填写 API Key",
   "connectors.fastmoss.keyPlaceholder": "请输入 FastMoss API Key",
   "connectors.fastmoss.login": "获取 FastMoss API Key",
@@ -3505,7 +3763,8 @@ const zh = {
   "connectors.manual.title": "连接 {{name}}",
   "connectors.manual.description": "填入你的 {{name}} 应用凭证即可在对话中使用",
   "connectors.manual.connect": "连接",
-  "connectors.manual.consent": "凭证仅保存在本设备的应用私有目录,只用于访问你的 {{name}} 账户。",
+  "connectors.manual.consent":
+    "凭证仅保存在本设备的应用私有目录,只用于访问你的 {{name}} 账户。",
   "connectors.manual.clientId.label": "Client ID",
   "connectors.manual.clientId.placeholder": "在应用设置中复制",
   "connectors.manual.clientSecret.label": "Client secret",
@@ -3519,13 +3778,15 @@ const zh = {
   "connectors.oauth.connect": "连接并授权",
   "connectors.oauth.instructions":
     "点击连接后会在默认浏览器打开官方授权页。官网已登录不代表已授权 MiniMax Design，授权站点也可能要求再次登录。请核对权限并完成授权后返回；授权期间保持本页面打开，取消会停用本次连接。",
-  "connectors.oauth.waiting": "正在连接服务并等待浏览器授权，请在官方页面核对权限后返回…",
+  "connectors.oauth.waiting":
+    "正在连接服务并等待浏览器授权，请在官方页面核对权限后返回…",
   "connectors.quick.alreadyConnected": "{{name}} 已连接",
   "connectors.quick.checkAgainAfterInstall": "重新检测",
   "connectors.quick.checkAgainAfterOpen": "检测连接",
   "connectors.quick.checkingAria": "正在检测当前设备上的 {{name}}",
   "connectors.quick.continueInstall": "继续安装",
-  "connectors.quick.error.description": "请稍后重新检测。安装方式或位置不同，也可能影响检测结果。",
+  "connectors.quick.error.description":
+    "请稍后重新检测。安装方式或位置不同，也可能影响检测结果。",
   "connectors.quick.error.title": "检测失败",
   "connectors.quick.hostMissing.description":
     "安装位置或方式可能无法自动识别。你仍可继续安装插件，也可以查看设置指引。",
@@ -3534,7 +3795,8 @@ const zh = {
     "暂时无法自动确认此电脑是否已安装 {{name}}。你仍可继续安装插件，安装后我们会检查实际连接状态。",
   "connectors.quick.hostUnknown.title": "准备安装 {{name}} 插件",
   "connectors.quick.install": "安装插件",
-  "connectors.quick.installError.description": "{{name}} 插件安装未完成，请重试或查看设置指引。",
+  "connectors.quick.installError.description":
+    "{{name}} 插件安装未完成，请重试或查看设置指引。",
   "connectors.quick.installError.title": "安装失败",
   "connectors.quick.installing.description":
     "请保持 MiniMax Design 打开。安装完成后会自动检查连接状态。",
@@ -3553,7 +3815,8 @@ const zh = {
   "connectors.removeConnection": "移除连接",
   "connectors.removeDescription":
     "将移除已保存的连接配置和凭据，并在所有工作区断开此插件。正在进行的相关工具调用可能中断，其他插件不受影响。",
-  "connectors.removeError.disconnect_failed": "部分工作区尚未断开，已保留停用的配置，请重试移除。",
+  "connectors.removeError.disconnect_failed":
+    "部分工作区尚未断开，已保留停用的配置，请重试移除。",
   "connectors.removeError.storage_failed": "无法保存更改，插件已保留，请重试。",
   "connectors.removeTitle": "移除 {{name}} 连接？",
   "connectors.resultCount": "{{count}} 个插件",
@@ -3572,7 +3835,8 @@ const zh = {
   "connectors.stepOrdinal.2": "2",
   "connectors.stepOrdinal.3": "3",
   "connectors.stop": "断开",
-  "connectors.stopFailed": "已停用后续启动连接，但部分当前连接尚未断开，请重试断开。",
+  "connectors.stopFailed":
+    "已停用后续启动连接，但部分当前连接尚未断开，请重试断开。",
   "creationGuide.designGuide": "Design 使用指南",
   "creationGuide.h3Guide": "H3 使用指南",
   "creationGuide.placeholderLead": "输入想创作的内容。",
@@ -3585,7 +3849,8 @@ const zh = {
   "credits.billingCycle.yearly": "年付",
   "credits.bonus": "赠送",
   "credits.bonusTip": "新用户登录奖励以及活动获得积分，新用户免费积分有效期3天",
-  "credits.bonusTipMP": "新用户登录奖励以及活动获得积分，新用户免费积分有效期3天",
+  "credits.bonusTipMP":
+    "新用户登录奖励以及活动获得积分，新用户免费积分有效期3天",
   "credits.colBilling": "计费",
   "credits.colCreditAmount": "积分",
   "credits.colCredits": "积分",
@@ -3598,12 +3863,14 @@ const zh = {
   "credits.colResolution": "分辨率",
   "credits.colRule": "规则",
   "credits.colTime": "时间",
-  "credits.costVaryNote": "因生成参数不同，消耗积分可能有所差异。积分规则如下：",
+  "credits.costVaryNote":
+    "因生成参数不同，消耗积分可能有所差异。积分规则如下：",
   "credits.costVaryNoteMP":
     "消耗积分可能因生成参数不同而有所差异，详见<modelCosts>模型消耗</modelCosts>并遵守<rules>积分规则</rules>",
   "credits.creditExpiry.batch": "{{credit}} 积分将于 {{date}} 到期",
   "credits.creditExpiry.empty": "暂无待到期积分",
-  "credits.creditExpiry.globalPriority": "优先使用最早到期的积分，悬停提示图标可查看积分到期详情",
+  "credits.creditExpiry.globalPriority":
+    "优先使用最早到期的积分，悬停提示图标可查看积分到期详情",
   "credits.creditExpiry.open": "查看{{type}}积分有效期",
   "credits.creditExpiry.title": "{{type}}积分有效期",
   "credits.creditsLeft": "剩余积分",
@@ -3646,7 +3913,8 @@ const zh = {
   "credits.purchaseMore": "购买更多",
   "credits.remaining": "剩余",
   "credits.retry": "重试",
-  "credits.rulePostDeductNote": "Agent 对话采用后扣模型：token 达到阈值后扣费，不中断对话。",
+  "credits.rulePostDeductNote":
+    "Agent 对话采用后扣模型：token 达到阈值后扣费，不中断对话。",
   "credits.rulePreDeductNote":
     "生成任务（图片/视频/音频）采用预扣模型：积分在生成前扣除，生成失败自动退还。",
   "credits.rulePreDeductNoteMP":
@@ -3716,7 +3984,8 @@ const zh = {
   "debug.generationFailureReplay.source.userMessage": "服务端用户文案",
   "debug.generationFailureReplay.subtitle":
     "每个 Case 仅 Mock 原始工具结果，后续使用实际的解析、国际化和 Timeline 组件。",
-  "debug.generationFailureReplay.summary": "{{count}} 个 Case · 当前语言 {{language}}",
+  "debug.generationFailureReplay.summary":
+    "{{count}} 个 Case · 当前语言 {{language}}",
   "debug.generationFailureReplay.title": "生成失败真实回放",
   "debugPanel.action": "操作",
   "debugPanel.authBrowser.default": "默认（内置浏览器）",
@@ -3758,21 +4027,27 @@ const zh = {
   "debugPanel.connectorPreview.entry.web-api": "网页 API",
   "debugPanel.connectorPreview.entryHint.local-app":
     "点击加号后先执行只读的本地环境检查，再展示对应的下一步。",
-  "debugPanel.connectorPreview.entryHint.web-api": "点击加号后直接打开此插件的凭据或授权弹窗。",
+  "debugPanel.connectorPreview.entryHint.web-api":
+    "点击加号后直接打开此插件的凭据或授权弹窗。",
   "debugPanel.connectorPreview.entryType": "入口类型",
   "debugPanel.connectorPreview.future.description":
     "用于验证尚未加入产品目录的未来插件，同时覆盖缺少 Logo 时的通用兜底效果。",
-  "debugPanel.connectorPreview.future.prompt.0": "检查当前项目并准备一份结构化的首轮结果。",
-  "debugPanel.connectorPreview.future.prompt.1": "对比三个备选方向并说明它们各自的取舍。",
-  "debugPanel.connectorPreview.future.prompt.2": "把选定方向整理为一份可编辑的制作交接。",
+  "debugPanel.connectorPreview.future.prompt.0":
+    "检查当前项目并准备一份结构化的首轮结果。",
+  "debugPanel.connectorPreview.future.prompt.1":
+    "对比三个备选方向并说明它们各自的取舍。",
+  "debugPanel.connectorPreview.future.prompt.2":
+    "把选定方向整理为一份可编辑的制作交接。",
   "debugPanel.connectorPreview.future.promptTitle.0": "准备首轮结果",
   "debugPanel.connectorPreview.future.promptTitle.1": "对比备选方向",
   "debugPanel.connectorPreview.future.promptTitle.2": "生成制作交接",
   "debugPanel.connectorPreview.future.title": "未来插件测试样例",
-  "debugPanel.connectorPreview.installFailed": "安装未能完成，请检查所选应用后重试。",
+  "debugPanel.connectorPreview.installFailed":
+    "安装未能完成，请检查所选应用后重试。",
   "debugPanel.connectorPreview.installFailedState": "安装失败",
   "debugPanel.connectorPreview.minimalDescription": "一段简短的插件说明。",
-  "debugPanel.connectorPreview.minimalPrompt": "基于当前项目快速生成一个可编辑结果。",
+  "debugPanel.connectorPreview.minimalPrompt":
+    "基于当前项目快速生成一个可编辑结果。",
   "debugPanel.connectorPreview.open": "打开预览",
   "debugPanel.connectorPreview.promptAction": "示例操作",
   "debugPanel.connectorPreview.quick.checking": "检查中",
@@ -3793,7 +4068,8 @@ const zh = {
     "这是一段刻意加长的说明，用于检查应用能力、配置要求、本地化文案和多行补充信息同时出现时，居中的名称、状态与操作组是否仍能保持对齐。",
   "debugPanel.connectorPreview.stressPrompt":
     "使用当前项目中所有可用素材准备第 {{index}} 个方案，保留可编辑图层和来源引用，说明关键选择，并为下一位协作者提供一份简洁的交接摘要。",
-  "debugPanel.connectorPreview.stressPromptTitle": "包含刻意加长名称的多步骤扩展示例 {{index}}",
+  "debugPanel.connectorPreview.stressPromptTitle":
+    "包含刻意加长名称的多步骤扩展示例 {{index}}",
   "debugPanel.connectorPreview.stressTitle":
     "{{name}} 企业级创意生产与跨团队协作插件超长名称压力测试",
   "debugPanel.connectorPreview.summary.connectedManagement": "断开 + 更多",
@@ -3804,11 +4080,13 @@ const zh = {
   "debugPanel.connectorPreview.summary.removing": "断开 · 加载中",
   "debugPanel.connectorPreview.summaryAction": "摘要操作",
   "debugPanel.connectorPreview.title": "插件弹窗状态矩阵",
-  "debugPanel.connectorPreview.waitingHint": "插件已安装，请打开所选应用以完成连接。",
+  "debugPanel.connectorPreview.waitingHint":
+    "插件已安装，请打开所选应用以完成连接。",
   "debugPanel.failureScreens.description":
     "预览关键异常态页面。只使用 mock 数据，不会触发真实 runtime 或日志上传。",
   "debugPanel.failureScreens.errorBoundary": "应用异常页",
-  "debugPanel.failureScreens.previewHint": "全屏预览模式：不会触发真实 runtime、重试或日志上传。",
+  "debugPanel.failureScreens.previewHint":
+    "全屏预览模式：不会触发真实 runtime、重试或日志上传。",
   "debugPanel.failureScreens.title": "故障页面",
   "debugPanel.failureScreens.workspaceStartup": "Workspace 启动失败页",
   "debugPanel.homeWidget.description":
@@ -3834,10 +4112,13 @@ const zh = {
   "debugPanel.lane.saving": "保存中…",
   "debugPanel.lane.title": "云端泳道",
   "debugPanel.newUserFlow.attachmentFaceNotice": "首次添加素材人脸提示",
-  "debugPanel.newUserFlow.attachmentFaceNoticeAccepted": "已确认，两个 + 入口均不再展示",
-  "debugPanel.newUserFlow.attachmentFaceNoticePending": "待确认，下次点击 + 将展示",
+  "debugPanel.newUserFlow.attachmentFaceNoticeAccepted":
+    "已确认，两个 + 入口均不再展示",
+  "debugPanel.newUserFlow.attachmentFaceNoticePending":
+    "待确认，下次点击 + 将展示",
   "debugPanel.newUserFlow.attachmentFaceNoticeReset": "重置",
-  "debugPanel.newUserFlow.attachmentFaceNoticeResetFailed": "重置素材人脸提示失败",
+  "debugPanel.newUserFlow.attachmentFaceNoticeResetFailed":
+    "重置素材人脸提示失败",
   "debugPanel.newUserFlow.attachmentFaceNoticeResetSuccess":
     "已重置素材人脸提示，下次点击 + 将再次展示。",
   "debugPanel.newUserFlow.description":
@@ -3902,10 +4183,12 @@ const zh = {
   "debugPanel.teamPreview.badge": "静态数据",
   "debugPanel.teamPreview.case.accountBootstrapLoading.description":
     "账号身份仍在加载；作用域确认前不渲染旧账号数据。",
-  "debugPanel.teamPreview.case.accountBootstrapLoading.title": "账号初始化 · 加载态",
+  "debugPanel.teamPreview.case.accountBootstrapLoading.title":
+    "账号初始化 · 加载态",
   "debugPanel.teamPreview.case.accountListRetryFlow.description":
     "逐步检查账号列表加载失败、重试与恢复，全程不改变当前账号。",
-  "debugPanel.teamPreview.case.accountListRetryFlow.title": "账号列表 · 失败到恢复",
+  "debugPanel.teamPreview.case.accountListRetryFlow.title":
+    "账号列表 · 失败到恢复",
   "debugPanel.teamPreview.case.accountListStale.description":
     "刷新失败后保留可读缓存，但状态确认前禁止切换请求与计费 Group。",
   "debugPanel.teamPreview.case.accountListStale.title": "账号列表 · 缓存过期",
@@ -3917,41 +4200,52 @@ const zh = {
   "debugPanel.teamPreview.case.createAvailable.title": "创建团队 · 可提交",
   "debugPanel.teamPreview.case.createCapabilityRetryFlow.description":
     "创建权限失败时 fail closed，确认恢复后才重新开放创建入口。",
-  "debugPanel.teamPreview.case.createCapabilityRetryFlow.title": "创建权限 · 失败到恢复",
+  "debugPanel.teamPreview.case.createCapabilityRetryFlow.title":
+    "创建权限 · 失败到恢复",
   "debugPanel.teamPreview.case.createLimit.badge": "已达上限",
   "debugPanel.teamPreview.case.createLimit.description":
     "个人账号也计入 50 个账号空间上限；达到上限时只展示阻断态。",
   "debugPanel.teamPreview.case.createLimit.reason":
     "已使用 50 个账号空间（含个人账号），无法继续创建团队。",
-  "debugPanel.teamPreview.case.createLimit.title": "创建团队 · 50 个账号空间上限",
+  "debugPanel.teamPreview.case.createLimit.title":
+    "创建团队 · 50 个账号空间上限",
   "debugPanel.teamPreview.case.createPermissionRetryFlow.description":
     "覆盖权限加载、加载失败、缓存过期与权限恢复。",
-  "debugPanel.teamPreview.case.createPermissionRetryFlow.title": "创建团队能力 · 重试流程",
-  "debugPanel.teamPreview.case.createSubmitting.description": "创建并切换请求正在提交。",
-  "debugPanel.teamPreview.case.createTransitions.blockedTitle": "暂时无法创建并切换",
+  "debugPanel.teamPreview.case.createPermissionRetryFlow.title":
+    "创建团队能力 · 重试流程",
+  "debugPanel.teamPreview.case.createSubmitting.description":
+    "创建并切换请求正在提交。",
+  "debugPanel.teamPreview.case.createTransitions.blockedTitle":
+    "暂时无法创建并切换",
   "debugPanel.teamPreview.case.createTransitions.busy": "任务进行中",
   "debugPanel.teamPreview.case.createTransitions.description":
     "提交中、任务进行中与账号恢复中均禁止重复提交，也不会自动切换到个人账号。",
   "debugPanel.teamPreview.case.createTransitions.recovering": "账号信息恢复中",
   "debugPanel.teamPreview.case.createTransitions.submitting": "正在创建并切换",
-  "debugPanel.teamPreview.case.createTransitions.title": "创建团队 · 提交与阻塞态",
+  "debugPanel.teamPreview.case.createTransitions.title":
+    "创建团队 · 提交与阻塞态",
   "debugPanel.teamPreview.case.creditCheckout.allowed": "允许购买",
   "debugPanel.teamPreview.case.creditCheckout.description":
     "只有 Owner 可购买团队通用积分；购买会绑定当前团队。",
   "debugPanel.teamPreview.case.creditCheckout.memberDescription":
     "Member 可查看空态，但不展示购买入口，也不会创建结算会话。",
-  "debugPanel.teamPreview.case.creditCheckout.memberTitle": "购买团队积分 · Member",
+  "debugPanel.teamPreview.case.creditCheckout.memberTitle":
+    "购买团队积分 · Member",
   "debugPanel.teamPreview.case.creditCheckout.noCredits": "暂无团队积分",
   "debugPanel.teamPreview.case.creditCheckout.ownerDescription":
     "团队暂无积分时，仅 Owner 展示购买入口。",
-  "debugPanel.teamPreview.case.creditCheckout.ownerOnly": "请联系团队所有者购买通用积分。",
-  "debugPanel.teamPreview.case.creditCheckout.ownerTitle": "购买团队积分 · Owner",
-  "debugPanel.teamPreview.case.creditCheckout.title": "购买权限 · Owner 与 Member",
+  "debugPanel.teamPreview.case.creditCheckout.ownerOnly":
+    "请联系团队所有者购买通用积分。",
+  "debugPanel.teamPreview.case.creditCheckout.ownerTitle":
+    "购买团队积分 · Owner",
+  "debugPanel.teamPreview.case.creditCheckout.title":
+    "购买权限 · Owner 与 Member",
   "debugPanel.teamPreview.case.creditCheckoutFlow.awaitingDescription":
     "结算页已在外部打开；MiniMax Design 重新激活后才刷新积分数据。",
   "debugPanel.teamPreview.case.creditCheckoutFlow.description":
     "覆盖创建结算、外部返回、数据刷新和余额更新。",
-  "debugPanel.teamPreview.case.creditCheckoutFlow.title": "购买团队积分 · 完整流程",
+  "debugPanel.teamPreview.case.creditCheckoutFlow.title":
+    "购买团队积分 · 完整流程",
   "debugPanel.teamPreview.case.creditExhausted.actualAvailable": "当前实际可用",
   "debugPanel.teamPreview.case.creditExhausted.description":
     "个人额度仍有余额时，团队余额为 0 也必须阻止继续消耗。",
@@ -3959,11 +4253,14 @@ const zh = {
   "debugPanel.teamPreview.case.creditLedger.description":
     "团队流水与个人积分流水使用同一套表格，覆盖正常、空、加载与错误状态。",
   "debugPanel.teamPreview.case.creditLedger.empty": "空态",
-  "debugPanel.teamPreview.case.creditLedger.emptyDescription": "当前团队没有积分流水。",
+  "debugPanel.teamPreview.case.creditLedger.emptyDescription":
+    "当前团队没有积分流水。",
   "debugPanel.teamPreview.case.creditLedger.error": "错误态",
-  "debugPanel.teamPreview.case.creditLedger.errorDescription": "团队积分流水加载失败。",
+  "debugPanel.teamPreview.case.creditLedger.errorDescription":
+    "团队积分流水加载失败。",
   "debugPanel.teamPreview.case.creditLedger.loading": "加载态",
-  "debugPanel.teamPreview.case.creditLedger.loadingDescription": "团队积分流水加载中。",
+  "debugPanel.teamPreview.case.creditLedger.loadingDescription":
+    "团队积分流水加载中。",
   "debugPanel.teamPreview.case.creditLedger.normal": "正常流水",
   "debugPanel.teamPreview.case.creditLedger.title": "积分流水 · 完整状态",
   "debugPanel.teamPreview.case.creditLedgerStale.description":
@@ -3973,29 +4270,36 @@ const zh = {
     "个人剩余额度更小时，可用额度取个人剩余额度。",
   "debugPanel.teamPreview.case.creditLimited.equalDescription":
     "个人剩余额度与团队剩余积分相等时，可用额度保持不变。",
-  "debugPanel.teamPreview.case.creditLimited.equalTitle": "有限额 · 两个余额相等",
+  "debugPanel.teamPreview.case.creditLimited.equalTitle":
+    "有限额 · 两个余额相等",
   "debugPanel.teamPreview.case.creditLimited.mode": "有限额",
-  "debugPanel.teamPreview.case.creditLimited.noticeTitle": "实际可用积分受双重限制",
+  "debugPanel.teamPreview.case.creditLimited.noticeTitle":
+    "实际可用积分受双重限制",
   "debugPanel.teamPreview.case.creditLimited.teamDescription":
     "即使个人剩余额度更高，最多也只能使用团队当前余额。",
   "debugPanel.teamPreview.case.creditLimited.teamSmallerDescription":
     "团队剩余积分更小时，可用额度取团队剩余积分。",
-  "debugPanel.teamPreview.case.creditLimited.teamSmallerTitle": "有限额 · 团队剩余积分较小",
-  "debugPanel.teamPreview.case.creditLimited.title": "有限额 · 个人剩余额度较小",
+  "debugPanel.teamPreview.case.creditLimited.teamSmallerTitle":
+    "有限额 · 团队剩余积分较小",
+  "debugPanel.teamPreview.case.creditLimited.title":
+    "有限额 · 个人剩余额度较小",
   "debugPanel.teamPreview.case.creditMemberPrivacy.description":
     "成员使用同一最小值公式，但界面与 Tooltip 不展示具体团队余额。",
-  "debugPanel.teamPreview.case.creditMemberPrivacy.title": "成员 · 可用额度隐私展示",
+  "debugPanel.teamPreview.case.creditMemberPrivacy.title":
+    "成员 · 可用额度隐私展示",
   "debugPanel.teamPreview.case.creditNavigation": "积分与额度场景",
   "debugPanel.teamPreview.case.creditSummaryErrorFlow.description":
     "覆盖积分概览加载失败、重试与恢复，购买入口全程 fail closed。",
-  "debugPanel.teamPreview.case.creditSummaryErrorFlow.title": "积分概览 · 失败到恢复",
+  "debugPanel.teamPreview.case.creditSummaryErrorFlow.title":
+    "积分概览 · 失败到恢复",
   "debugPanel.teamPreview.case.creditSummaryLoading.description":
     "余额和购买权限确认前只展示积分概览加载态。",
   "debugPanel.teamPreview.case.creditSummaryLoading.title": "积分概览 · 加载态",
   "debugPanel.teamPreview.case.creditSummaryStale.description":
     "缓存余额仍可查看，但刷新成功前禁止购买。",
   "debugPanel.teamPreview.case.creditSummaryStale.title": "积分概览 · 缓存过期",
-  "debugPanel.teamPreview.case.creditUnavailable.description": "当前团队的积分信息暂不可用。",
+  "debugPanel.teamPreview.case.creditUnavailable.description":
+    "当前团队的积分信息暂不可用。",
   "debugPanel.teamPreview.case.creditUnavailable.noFallback":
     "隐藏团队金额、购买和流水；不得改为请求或展示个人钱包。",
   "debugPanel.teamPreview.case.creditUnavailable.quotaDescription":
@@ -4007,45 +4311,57 @@ const zh = {
   "debugPanel.teamPreview.case.creditUnlimited.title": "无限额 · 团队剩余积分",
   "debugPanel.teamPreview.case.invitationAcceptFlow.description":
     "覆盖待接受、接受中、账号恢复中和处理完成。",
-  "debugPanel.teamPreview.case.invitationAcceptFlow.title": "接受邀请 · 完整流程",
+  "debugPanel.teamPreview.case.invitationAcceptFlow.title":
+    "接受邀请 · 完整流程",
   "debugPanel.teamPreview.case.invitationAccepting.description":
     "接受请求进行中，当前卡片操作被锁定。",
-  "debugPanel.teamPreview.case.invitationAccepting.title": "邀请操作 · 接受处理中",
+  "debugPanel.teamPreview.case.invitationAccepting.title":
+    "邀请操作 · 接受处理中",
   "debugPanel.teamPreview.case.invitationNavigation": "创建与邀请场景",
   "debugPanel.teamPreview.case.invitationRejecting.description":
     "拒绝请求进行中，当前卡片操作被锁定。",
-  "debugPanel.teamPreview.case.invitationRejecting.title": "邀请操作 · 拒绝处理中",
+  "debugPanel.teamPreview.case.invitationRejecting.title":
+    "邀请操作 · 拒绝处理中",
   "debugPanel.teamPreview.case.invitationsAcceptLock.description":
     "一条邀请正在接受时，全部邀请操作与分页入口同时锁定。",
-  "debugPanel.teamPreview.case.invitationsAcceptLock.title": "接受邀请 · 全局操作锁",
+  "debugPanel.teamPreview.case.invitationsAcceptLock.title":
+    "接受邀请 · 全局操作锁",
   "debugPanel.teamPreview.case.invitationsCapabilityLoading.description":
     "邀请权限仍在加载，暂不推断列表或空态。",
-  "debugPanel.teamPreview.case.invitationsCapabilityLoading.title": "消息中心能力 · 加载态",
+  "debugPanel.teamPreview.case.invitationsCapabilityLoading.title":
+    "消息中心能力 · 加载态",
   "debugPanel.teamPreview.case.invitationsEmpty.description":
     "没有有效邀请时 Sidebar 入口隐藏，打开消息中心则显示明确空态。",
   "debugPanel.teamPreview.case.invitationsEmpty.title": "消息中心 · 空态",
-  "debugPanel.teamPreview.case.invitationsError.description": "加载失败后提供重试入口。",
+  "debugPanel.teamPreview.case.invitationsError.description":
+    "加载失败后提供重试入口。",
   "debugPanel.teamPreview.case.invitationsError.title": "消息中心 · 错误态",
   "debugPanel.teamPreview.case.invitationsExpiry.description":
     "临期邀请仍展示，过期邀请直接从列表和待处理数量中移除。",
-  "debugPanel.teamPreview.case.invitationsExpiry.hiddenNote": "1 条已过期邀请已隐藏",
+  "debugPanel.teamPreview.case.invitationsExpiry.hiddenNote":
+    "1 条已过期邀请已隐藏",
   "debugPanel.teamPreview.case.invitationsExpiry.soonDescription":
     "仅展示仍在有效期内的邀请；已过期邀请不计入数量，也不渲染卡片。",
   "debugPanel.teamPreview.case.invitationsExpiry.soonTitle": "邀请即将过期",
-  "debugPanel.teamPreview.case.invitationsExpiry.title": "邀请有效期 · 临期与过期隐藏",
-  "debugPanel.teamPreview.case.invitationsLoading.description": "邀请列表加载中。",
+  "debugPanel.teamPreview.case.invitationsExpiry.title":
+    "邀请有效期 · 临期与过期隐藏",
+  "debugPanel.teamPreview.case.invitationsLoading.description":
+    "邀请列表加载中。",
   "debugPanel.teamPreview.case.invitationsLoading.title": "消息中心 · 加载态",
   "debugPanel.teamPreview.case.invitationsLoadingError.description":
     "远端状态未确认时不展示旧邀请；错误态保留可恢复入口。",
   "debugPanel.teamPreview.case.invitationsLoadingError.loadingDescription":
     "加载期间不展示旧邀请数量或卡片。",
-  "debugPanel.teamPreview.case.invitationsLoadingError.title": "消息中心 · 加载与错误",
+  "debugPanel.teamPreview.case.invitationsLoadingError.title":
+    "消息中心 · 加载与错误",
   "debugPanel.teamPreview.case.invitationsPending.description":
     "邀请数量与实际卡片严格一致；每条展示团队、邀请人、人数、角色和有效期。",
-  "debugPanel.teamPreview.case.invitationsPending.title": "待处理邀请 · Member 与 Admin",
+  "debugPanel.teamPreview.case.invitationsPending.title":
+    "待处理邀请 · Member 与 Admin",
   "debugPanel.teamPreview.case.invitationsProcessing.description":
     "操作进行中禁用同卡片动作；接受成功后由 Main 完成自动切换。",
-  "debugPanel.teamPreview.case.invitationsProcessing.title": "邀请操作 · 接受与拒绝处理中",
+  "debugPanel.teamPreview.case.invitationsProcessing.title":
+    "邀请操作 · 接受与拒绝处理中",
   "debugPanel.teamPreview.case.invitationsStale.description":
     "刷新失败后保留可读邀请缓存，同时禁用全部邀请操作。",
   "debugPanel.teamPreview.case.invitationsStale.title": "消息中心 · 缓存过期",
@@ -4090,20 +4406,25 @@ const zh = {
   "debugPanel.teamPreview.management.creditsEmpty.ownerDescription":
     "团队当前没有通用积分，可为这个团队购买积分。",
   "debugPanel.teamPreview.management.creditsEmpty.title": "暂无团队积分",
-  "debugPanel.teamPreview.management.creditsOverview.description": "团队通用积分使用情况",
-  "debugPanel.teamPreview.management.creditsOverview.progress": "团队积分已使用 18.4%",
+  "debugPanel.teamPreview.management.creditsOverview.description":
+    "团队通用积分使用情况",
+  "debugPanel.teamPreview.management.creditsOverview.progress":
+    "团队积分已使用 18.4%",
   "debugPanel.teamPreview.management.creditsOverview.usedTotal": "已用 / 总额",
   "debugPanel.teamPreview.management.dissolve.confirm": "确认解散团队",
   "debugPanel.teamPreview.management.dissolve.confirmNameDescription":
     "输入“星河创作组”后才能解散。解散后所有成员都将失去团队访问权限。",
-  "debugPanel.teamPreview.management.dissolve.confirmNameLabel": "确认解散的团队名称",
-  "debugPanel.teamPreview.management.dissolve.confirmNameTitle": "请确认团队名称",
+  "debugPanel.teamPreview.management.dissolve.confirmNameLabel":
+    "确认解散的团队名称",
+  "debugPanel.teamPreview.management.dissolve.confirmNameTitle":
+    "请确认团队名称",
   "debugPanel.teamPreview.management.dissolve.description":
     "此操作会关闭团队并移除所有成员，且无法恢复。",
   "debugPanel.teamPreview.management.dissolve.pendingBadge": "处理中",
   "debugPanel.teamPreview.management.dissolve.pendingDescription":
     "正在处理，请勿重复操作。解散完成后团队将从账号列表中移除。",
-  "debugPanel.teamPreview.management.dissolve.pendingTitle": "正在解散星河创作组",
+  "debugPanel.teamPreview.management.dissolve.pendingTitle":
+    "正在解散星河创作组",
   "debugPanel.teamPreview.management.generateLink": "生成链接",
   "debugPanel.teamPreview.management.inviteCreate.expiry": "链接有效期",
   "debugPanel.teamPreview.management.inviteCreate.role": "受邀者角色",
@@ -4113,7 +4434,8 @@ const zh = {
   "debugPanel.teamPreview.management.inviteHistory.copy": "复制邀请链接",
   "debugPanel.teamPreview.management.inviteHistory.expired": "已过期",
   "debugPanel.teamPreview.management.inviteHistory.revoke": "撤销邀请链接",
-  "debugPanel.teamPreview.management.inviteHistory.usage": "{{used}} / {{limit}} 次 · {{role}}",
+  "debugPanel.teamPreview.management.inviteHistory.usage":
+    "{{used}} / {{limit}} 次 · {{role}}",
   "debugPanel.teamPreview.management.inviteHistory.usedUp": "次数用尽",
   "debugPanel.teamPreview.management.leaveMember.confirm": "确认离开",
   "debugPanel.teamPreview.management.leaveMember.description":
@@ -4122,36 +4444,45 @@ const zh = {
   "debugPanel.teamPreview.management.leaveOwner.description":
     "团队必须始终有一位 Owner。选择接任者后才能继续。",
   "debugPanel.teamPreview.management.leaveOwner.newOwner": "新 Owner",
-  "debugPanel.teamPreview.management.leaveOwner.summary": "Taylor Wang 将成为团队所有者",
+  "debugPanel.teamPreview.management.leaveOwner.summary":
+    "Taylor Wang 将成为团队所有者",
   "debugPanel.teamPreview.management.leaveOwner.title": "移交 Owner 并离开",
   "debugPanel.teamPreview.management.leaveOwner.warningDescription":
     "你的角色移交成功后会立即离开团队，此操作需要再次确认。",
   "debugPanel.teamPreview.management.memberDetail.confirm": "确认修改",
   "debugPanel.teamPreview.management.memberDetail.limit": "个人通用积分上限",
-  "debugPanel.teamPreview.management.memberDetail.limitMeta": "团队剩余积分 163,200 · 本期不重置",
-  "debugPanel.teamPreview.management.memberDetail.usageMeta": "已用 3,680 / 总限额 10,000",
-  "debugPanel.teamPreview.management.memberDetail.usageTitle": "通用积分消耗详情",
-  "debugPanel.teamPreview.management.members.pageSummary": "第 2 / 13 页 · 共 38 人",
+  "debugPanel.teamPreview.management.memberDetail.limitMeta":
+    "团队剩余积分 163,200 · 本期不重置",
+  "debugPanel.teamPreview.management.memberDetail.usageMeta":
+    "已用 3,680 / 总限额 10,000",
+  "debugPanel.teamPreview.management.memberDetail.usageTitle":
+    "通用积分消耗详情",
+  "debugPanel.teamPreview.management.members.pageSummary":
+    "第 2 / 13 页 · 共 38 人",
   "debugPanel.teamPreview.management.members.settings": "设置 {{name}}",
   "debugPanel.teamPreview.management.quota.allMembers": "全部 38 位成员",
   "debugPanel.teamPreview.management.quota.confirm": "确认配置",
   "debugPanel.teamPreview.management.quota.custom": "自定义额度",
-  "debugPanel.teamPreview.management.quota.description": "{{scope}} · 团队积分池剩余 163,200",
+  "debugPanel.teamPreview.management.quota.description":
+    "{{scope}} · 团队积分池剩余 163,200",
   "debugPanel.teamPreview.management.quota.limit": "通用积分上限",
   "debugPanel.teamPreview.management.quota.memberLimit": "每人通用积分上限",
   "debugPanel.teamPreview.management.quota.noReset": "无限期（本期不重置）",
   "debugPanel.teamPreview.management.quota.resetTime": "额度重置时间",
   "debugPanel.teamPreview.management.quota.scope": "生效范围",
-  "debugPanel.teamPreview.management.quota.selectedMembers": "已选择的 3 位成员",
+  "debugPanel.teamPreview.management.quota.selectedMembers":
+    "已选择的 3 位成员",
   "debugPanel.teamPreview.management.quota.selectedTitle": "配置所选成员额度",
   "debugPanel.teamPreview.management.quota.total": "配置总量",
-  "debugPanel.teamPreview.management.quota.validation": "上限必须大于或等于 0。",
+  "debugPanel.teamPreview.management.quota.validation":
+    "上限必须大于或等于 0。",
   "debugPanel.teamPreview.management.removeConfirm.confirm": "移除 3 位成员",
   "debugPanel.teamPreview.management.removeConfirm.description":
     "确认从星河创作组移除以下 3 位成员？",
   "debugPanel.teamPreview.management.removeConfirm.warningDescription":
     "确认后，这些成员将无法继续访问团队和使用团队积分。",
-  "debugPanel.teamPreview.management.removeConfirm.warningTitle": "移除后立即失去团队访问权限",
+  "debugPanel.teamPreview.management.removeConfirm.warningTitle":
+    "移除后立即失去团队访问权限",
   "debugPanel.teamPreview.management.removePartial.description":
     "2 项成功，1 项失败；仅失败项保留在选择中。",
   "debugPanel.teamPreview.management.removePartial.failed": "失败",
@@ -4161,16 +4492,20 @@ const zh = {
   "debugPanel.teamPreview.management.removePartial.title": "批量移除完成",
   "debugPanel.teamPreview.managementCase.credits-empty-member.description":
     "团队没有积分时，Member 只看到空态说明，不展示购买入口。",
-  "debugPanel.teamPreview.managementCase.credits-empty-member.title": "暂无团队积分 · Member",
+  "debugPanel.teamPreview.managementCase.credits-empty-member.title":
+    "暂无团队积分 · Member",
   "debugPanel.teamPreview.managementCase.credits-empty-owner.description":
     "团队没有积分时，Owner 可见绑定当前团队的购买入口。",
-  "debugPanel.teamPreview.managementCase.credits-empty-owner.title": "暂无团队积分 · Owner",
+  "debugPanel.teamPreview.managementCase.credits-empty-owner.title":
+    "暂无团队积分 · Owner",
   "debugPanel.teamPreview.managementCase.credits-overview.description":
     "展示通用积分已用/总额、团队剩余积分和默认无限额。",
-  "debugPanel.teamPreview.managementCase.credits-overview.title": "团队积分池概览",
+  "debugPanel.teamPreview.managementCase.credits-overview.title":
+    "团队积分池概览",
   "debugPanel.teamPreview.managementCase.dissolve-confirm.description":
     "仅 Owner 可解散；确认区明确团队名和不可恢复影响。",
-  "debugPanel.teamPreview.managementCase.dissolve-confirm.title": "解散团队二次确认",
+  "debugPanel.teamPreview.managementCase.dissolve-confirm.title":
+    "解散团队二次确认",
   "debugPanel.teamPreview.managementCase.dissolve-pending.description":
     "解散处理中不可重复操作；完成后所有窗口都会移除该团队。",
   "debugPanel.teamPreview.managementCase.dissolve-pending.title": "解散处理中",
@@ -4182,7 +4517,8 @@ const zh = {
   "debugPanel.teamPreview.managementCase.invite-history.title": "邀请链接记录",
   "debugPanel.teamPreview.managementCase.leave-member.description":
     "普通成员离开前需二次确认；离开后不再显示该团队。",
-  "debugPanel.teamPreview.managementCase.leave-member.title": "普通成员离开团队",
+  "debugPanel.teamPreview.managementCase.leave-member.title":
+    "普通成员离开团队",
   "debugPanel.teamPreview.managementCase.leave-owner.description":
     "Owner 必须先选择新 Owner，再确认移交并离开团队。",
   "debugPanel.teamPreview.managementCase.leave-owner.title": "Owner 移交后离开",
@@ -4192,23 +4528,28 @@ const zh = {
     "团队详情 · 失败到恢复",
   "debugPanel.teamPreview.managementCase.management-detail-loading.description":
     "团队作用域确认前只展示结构化加载态。",
-  "debugPanel.teamPreview.managementCase.management-detail-loading.title": "团队详情 · 首次加载",
+  "debugPanel.teamPreview.managementCase.management-detail-loading.title":
+    "团队详情 · 首次加载",
   "debugPanel.teamPreview.managementCase.management-detail-stale.description":
     "保留可读的团队缓存，同时继续关闭全部敏感操作。",
-  "debugPanel.teamPreview.managementCase.management-detail-stale.title": "团队详情 · 缓存过期",
+  "debugPanel.teamPreview.managementCase.management-detail-stale.title":
+    "团队详情 · 缓存过期",
   "debugPanel.teamPreview.managementCase.management-members-denied.description":
     "保留团队概览，并对成员区域独立做权限阻断。",
-  "debugPanel.teamPreview.managementCase.management-members-denied.title": "成员列表 · 无查看权限",
+  "debugPanel.teamPreview.managementCase.management-members-denied.title":
+    "成员列表 · 无查看权限",
   "debugPanel.teamPreview.managementCase.management-members-error-flow.description":
     "团队详情保持稳定，成员列表完成失败、重试与恢复。",
   "debugPanel.teamPreview.managementCase.management-members-error-flow.title":
     "成员列表 · 失败到恢复",
   "debugPanel.teamPreview.managementCase.management-members-loading.description":
     "团队详情已就绪，成员查询独立进入加载态。",
-  "debugPanel.teamPreview.managementCase.management-members-loading.title": "成员列表 · 首次加载",
+  "debugPanel.teamPreview.managementCase.management-members-loading.title":
+    "成员列表 · 首次加载",
   "debugPanel.teamPreview.managementCase.management-members-stale.description":
     "缓存成员仍可查看，但选择和编辑能力继续关闭。",
-  "debugPanel.teamPreview.managementCase.management-members-stale.title": "成员列表 · 缓存过期",
+  "debugPanel.teamPreview.managementCase.management-members-stale.title":
+    "成员列表 · 缓存过期",
   "debugPanel.teamPreview.managementCase.management-permission-change-flow.description":
     "刷新权限后立即降级为只读，并对失去权限的成员列表 fail closed。",
   "debugPanel.teamPreview.managementCase.management-permission-change-flow.title":
@@ -4219,34 +4560,42 @@ const zh = {
     "正式管理视图 · Owner 只读态",
   "debugPanel.teamPreview.managementCase.management-search-flow.description":
     "覆盖待输入、输入中、查询中、有结果和无结果。",
-  "debugPanel.teamPreview.managementCase.management-search-flow.title": "成员搜索 · 完整流程",
+  "debugPanel.teamPreview.managementCase.management-search-flow.title":
+    "成员搜索 · 完整流程",
   "debugPanel.teamPreview.managementCase.member-detail.description":
     "Owner 可修改角色和单人额度，Owner/Admin 可查看消耗详情。",
   "debugPanel.teamPreview.managementCase.member-detail.title": "成员详情与消耗",
   "debugPanel.teamPreview.managementCase.members-list.description":
     "可按姓名或 UID 搜索；列表预加载 3 批并在触底时继续加载。",
-  "debugPanel.teamPreview.managementCase.members-list.title": "成员搜索、滚动加载与已加载成员多选",
+  "debugPanel.teamPreview.managementCase.members-list.title":
+    "成员搜索、滚动加载与已加载成员多选",
   "debugPanel.teamPreview.managementCase.permissions-admin.description":
     "Admin 可邀请、配置额度和管理普通成员，但不能修改或移除 Owner。",
-  "debugPanel.teamPreview.managementCase.permissions-admin.title": "Admin 管理入口",
+  "debugPanel.teamPreview.managementCase.permissions-admin.title":
+    "Admin 管理入口",
   "debugPanel.teamPreview.managementCase.permissions-member.description":
     "Member 只查看团队信息与自身可见内容，不展示管理动作。",
-  "debugPanel.teamPreview.managementCase.permissions-member.title": "Member 管理入口",
+  "debugPanel.teamPreview.managementCase.permissions-member.title":
+    "Member 管理入口",
   "debugPanel.teamPreview.managementCase.permissions-owner.description":
     "Owner 可邀请、配置额度、管理成员、移交所有权和解散团队。",
-  "debugPanel.teamPreview.managementCase.permissions-owner.title": "Owner 管理入口",
+  "debugPanel.teamPreview.managementCase.permissions-owner.title":
+    "Owner 管理入口",
   "debugPanel.teamPreview.managementCase.quota-all.description":
     "配置全员上限，确认前显示每人限额 × 适用人数；本期不重置。",
   "debugPanel.teamPreview.managementCase.quota-all.title": "全员配置额度",
   "debugPanel.teamPreview.managementCase.quota-selected.description":
     "仅对已加载并选中的成员统一配置；失败时不会产生部分修改。",
-  "debugPanel.teamPreview.managementCase.quota-selected.title": "所选成员配置额度",
+  "debugPanel.teamPreview.managementCase.quota-selected.title":
+    "所选成员配置额度",
   "debugPanel.teamPreview.managementCase.remove-confirm.description":
     "明确选中范围、不可逆影响和权限边界，并防止重复提交。",
-  "debugPanel.teamPreview.managementCase.remove-confirm.title": "批量移除二次确认",
+  "debugPanel.teamPreview.managementCase.remove-confirm.title":
+    "批量移除二次确认",
   "debugPanel.teamPreview.managementCase.remove-partial.description":
     "批量移除逐成员反馈成功/失败；失败项保留并可刷新后重试。",
-  "debugPanel.teamPreview.managementCase.remove-partial.title": "批量移除部分失败",
+  "debugPanel.teamPreview.managementCase.remove-partial.title":
+    "批量移除部分失败",
   "debugPanel.teamPreview.managementScenarios": "团队管理场景",
   "debugPanel.teamPreview.managementTab": "团队管理",
   "debugPanel.teamPreview.memberA": "Morgan Lee",
@@ -4255,7 +4604,8 @@ const zh = {
   "debugPanel.teamPreview.openLabel": "打开全屏预览",
   "debugPanel.teamPreview.personalHint": "个人账号侧边栏。",
   "debugPanel.teamPreview.personalMeta": "个人账号",
-  "debugPanel.teamPreview.previewHint": "以下页面使用静态数据，操作仅用于预览。",
+  "debugPanel.teamPreview.previewHint":
+    "以下页面使用静态数据，操作仅用于预览。",
   "debugPanel.teamPreview.primaryTeam": "星河创作组",
   "debugPanel.teamPreview.secondaryTeam": "Design Lab",
   "debugPanel.teamPreview.source.actual": "复用正式组件",
@@ -4267,7 +4617,8 @@ const zh = {
   "debugPanel.teamPreview.transactionImage": "图像生成",
   "debugPanel.teamPreview.transactionVideo": "视频生成",
   "debugPanel.teamPreview.unlimitedQuota": "个人额度无限制时展示团队剩余积分。",
-  "debugPanel.teamPreview.workspaceSidebar": "Workspace / Canvas · 48px Sidebar",
+  "debugPanel.teamPreview.workspaceSidebar":
+    "Workspace / Canvas · 48px Sidebar",
   "debugPanel.teamPreview.workspaceSidebarDescription":
     "邀请、更新与 IM 均保留 32px 独立操作入口；账号切换仍从头像菜单进入。",
   "debugPanel.timeline.description":
@@ -4281,7 +4632,8 @@ const zh = {
     "显示埋点标记器并订阅实时事件。默认关闭，避免调试其他功能时持续采集。",
   "debugPanel.trackingRecorder.label": "启用埋点标记器",
   "debugPanel.trackingRecorder.title": "埋点标记器",
-  "debugPanel.updater.description": "预览强更弹窗或日常更新横幅，不触发真实更新检查。",
+  "debugPanel.updater.description":
+    "预览强更弹窗或日常更新横幅，不触发真实更新检查。",
   "debugPanel.updater.forced": "预览强更弹窗",
   "debugPanel.updater.normal": "预览日常更新",
   "debugPanel.updater.off": "关闭预览",
@@ -4290,7 +4642,8 @@ const zh = {
   "errorBoundary.copy": "复制",
   "errorBoundary.copyDiagnostics": "复制排查信息",
   "errorBoundary.descriptionLine1": "应用遇到了一个未预期的错误。",
-  "errorBoundary.descriptionLine2": "你可以重试，若问题仍然存在，请反馈给我们。",
+  "errorBoundary.descriptionLine2":
+    "你可以重试，若问题仍然存在，请反馈给我们。",
   "errorBoundary.diagnosticsCode": "错误码",
   "errorBoundary.diagnosticsTime": "时间",
   "errorBoundary.diagnosticsTitle": "排查信息",
@@ -4325,7 +4678,8 @@ const zh = {
   "feedback.dialog.title": "反馈",
   "feedback.failed": "失败",
   "feedback.featureRequest.addAttachment": "参考图片",
-  "feedback.featureRequest.descriptionPlaceholder": "描述你希望增加或改进的功能...",
+  "feedback.featureRequest.descriptionPlaceholder":
+    "描述你希望增加或改进的功能...",
   "feedback.featureRequest.module.agent_chat": "Agent 对话",
   "feedback.featureRequest.module.asset_center": "主体库",
   "feedback.featureRequest.module.canvas": "画布",
@@ -4365,7 +4719,8 @@ const zh = {
   "fileExplorer.daysAgo": "{{count}} 天前",
   "fileExplorer.deleteFailed": "删除失败",
   "fileExplorer.deleteFile": "删除文件",
-  "fileExplorer.deleteFileConfirm": '确定删除文件 "{{name}}" 吗？删除后可在系统回收站中找回。',
+  "fileExplorer.deleteFileConfirm":
+    '确定删除文件 "{{name}}" 吗？删除后可在系统回收站中找回。',
   "fileExplorer.deleteFolder": "删除文件夹",
   "fileExplorer.deleteFolderConfirm":
     '确定删除文件夹 "{{name}}" 及其所有内容吗？删除后可在系统回收站中找回。',
@@ -4462,11 +4817,14 @@ const zh = {
   "globalSearch.actions.memory.title": "记忆管理",
   "globalSearch.actions.newProject.subtitle": "开始创作。",
   "globalSearch.actions.newProject.title": "开始创作",
-  "globalSearch.actions.newSession.subtitle": "在当前创作页里新建一个对话 Session。",
+  "globalSearch.actions.newSession.subtitle":
+    "在当前创作页里新建一个对话 Session。",
   "globalSearch.actions.newSession.title": "新建 Session",
-  "globalSearch.actions.openProject.subtitle": "选择本地文件夹并作为创作页打开。",
+  "globalSearch.actions.openProject.subtitle":
+    "选择本地文件夹并作为创作页打开。",
   "globalSearch.actions.openProject.title": "打开创作页文件夹",
-  "globalSearch.actions.settings.subtitle": "管理语言、主题、记忆、存储和应用设置。",
+  "globalSearch.actions.settings.subtitle":
+    "管理语言、主题、记忆、存储和应用设置。",
   "globalSearch.actions.settings.title": "打开设置",
   "globalSearch.badge.opened": "已打开",
   "globalSearch.badge.recent": "最近",
@@ -4492,25 +4850,33 @@ const zh = {
   "globalSearch.filter.text": "文本",
   "globalSearch.filter.videos": "视频",
   "globalSearch.help": "帮助",
-  "globalSearch.help.agentMode.subtitle": "Agent 模式在聊天输入区的运行模式选择器里切换。",
+  "globalSearch.help.agentMode.subtitle":
+    "Agent 模式在聊天输入区的运行模式选择器里切换。",
   "globalSearch.help.agentMode.title": "Agent 模式帮助",
   "globalSearch.help.changelog.subtitle": "查看最新产品更新内容。",
   "globalSearch.help.changelog.title": "打开更新日志",
   "globalSearch.help.createSkill.subtitle": "Skill 是模板背后的可复用能力层。",
   "globalSearch.help.createSkill.title": "如何创建 Skill",
-  "globalSearch.help.export.subtitle": "下载类搜索会在当前上下文支持时映射到导出操作。",
+  "globalSearch.help.export.subtitle":
+    "下载类搜索会在当前上下文支持时映射到导出操作。",
   "globalSearch.help.export.title": "导出和下载帮助",
-  "globalSearch.help.installPlugin.subtitle": "Plugin 位于 Skill 与插件页面中。",
+  "globalSearch.help.installPlugin.subtitle":
+    "Plugin 位于 Skill 与插件页面中。",
   "globalSearch.help.installPlugin.title": "如何安装 Plugin",
-  "globalSearch.help.model.subtitle": "模型选择在聊天输入区的模型选择器里完成。",
+  "globalSearch.help.model.subtitle":
+    "模型选择在聊天输入区的模型选择器里完成。",
   "globalSearch.help.model.title": "模型选择帮助",
-  "globalSearch.help.sessionHistory.subtitle": "使用创作页历史找回已收起或历史 Session。",
+  "globalSearch.help.sessionHistory.subtitle":
+    "使用创作页历史找回已收起或历史 Session。",
   "globalSearch.help.sessionHistory.title": "找回 Session 历史",
-  "globalSearch.help.share.subtitle": "只有当前上下文支持分享时，才会展示可直接执行的分享操作。",
+  "globalSearch.help.share.subtitle":
+    "只有当前上下文支持分享时，才会展示可直接执行的分享操作。",
   "globalSearch.help.share.title": "分享与协作帮助",
-  "globalSearch.help.shortcuts.subtitle": "查看全局搜索、新建对话等常用快捷键。",
+  "globalSearch.help.shortcuts.subtitle":
+    "查看全局搜索、新建对话等常用快捷键。",
   "globalSearch.help.shortcuts.title": "快捷键",
-  "globalSearch.help.templates.subtitle": "搜索 Skill、Plugin 和示例工作流，而不是单独的模板中心。",
+  "globalSearch.help.templates.subtitle":
+    "搜索 Skill、Plugin 和示例工作流，而不是单独的模板中心。",
   "globalSearch.help.templates.title": "模板对应 Skill 和 Plugin",
   "globalSearch.hubProjects": "项目",
   "globalSearch.inputLabel": "全局搜索",
@@ -4562,7 +4928,8 @@ const zh = {
   "home.clearFolder": "清除选择",
   "home.comfyWorkflows.agentAccessDescription":
     "勾选后，Agent 可在任务中调用这些工作流。建议勾选 5 个以内，便于 Agent 更准确地选择。",
-  "home.comfyWorkflows.agentAccessFailed": "更新 Agent 可用范围失败：{{message}}",
+  "home.comfyWorkflows.agentAccessFailed":
+    "更新 Agent 可用范围失败：{{message}}",
   "home.comfyWorkflows.agentAccessLabel": "允许 Agent 调用 {{name}}",
   "home.comfyWorkflows.emptyDescription": "添加或导入工作流即可开始。",
   "home.comfyWorkflows.emptyTitle": "暂无工作流",
@@ -4639,7 +5006,8 @@ const zh = {
   "home.scene.assetFetchFailed": "无法加载附件 {{names}}，请手动上传",
   "home.scene.clearActive": "清除场景 {{scene}}",
   "home.scene.draftPersistFailed": "无法安全保存场景输入，已保留当前内容",
-  "home.scene.modelPresetFailed": "模型预设未能保存，输入内容已保留；请重新选择模型后再发送。",
+  "home.scene.modelPresetFailed":
+    "模型预设未能保存，输入内容已保留；请重新选择模型后再发送。",
   "home.scene.ecommerce": "电商带货",
   "home.scene.film": "影视",
   "home.scene.graphic-design": "平面设计",
@@ -4692,7 +5060,8 @@ const zh = {
   "home.whatsNew.items.3dDirector.description":
     "在画布中使用新的 3D 导演工作流完成镜头设计与内容创作。",
   "home.whatsNew.items.3dDirector.title": "3D 导演台全新上线",
-  "home.whatsNew.items.characterSkill.description": "从精选 Skill 中获取角色设定与创作灵感。",
+  "home.whatsNew.items.characterSkill.description":
+    "从精选 Skill 中获取角色设定与创作灵感。",
   "home.whatsNew.items.characterSkill.title": "创作者角色灵感 Skill 精选",
   "home.whatsNew.items.h3.description": "体验 H3 模型带来的全新内容生成能力。",
   "home.whatsNew.items.h3.title": "H3 新模型现已开放体验",
@@ -4725,7 +5094,8 @@ const zh = {
   "homeSidebar.recentProjectsSortLabel": "排序方式",
   "homeSidebar.recentProjectsSortManual": "手动排序",
   "homeSidebar.recentProjectsSortPriority": "优先级",
-  "homeSidebar.recentProjectsSortPriorityTooltip": "优先显示需要输入和未读的任务",
+  "homeSidebar.recentProjectsSortPriorityTooltip":
+    "优先显示需要输入和未读的任务",
   "homeSidebar.recentProjectsSortRecent": "最近打开",
   "homeSidebar.skillCommunity": "技能 · 插件",
   "homeWidget.actionFailed": "问卷打开失败，请稍后重试",
@@ -4770,7 +5140,8 @@ const zh = {
   "imageEdit.undo": "撤销",
   "interestSelection.counter": "已选 {{count}} / {{max}}",
   "interestSelection.cta": "开始创作",
-  "interestSelection.description": "最多选择 3 个领域，Agent 团队会为你提供更贴合的创作支持。",
+  "interestSelection.description":
+    "最多选择 3 个领域，Agent 团队会为你提供更贴合的创作支持。",
   "interestSelection.heading": "选择你的创作领域",
   "interestSelection.option.adsMarketing": "广告 / 营销",
   "interestSelection.option.animation": "动画 / 二次元",
@@ -4803,7 +5174,8 @@ const zh = {
   "localAssets.delete": "删除",
   "localAssets.deleteFileBody": "该文件将从项目资产中删除，可在废纸篓中找到。",
   "localAssets.deleteFileTitle": "删除“{{name}}”？",
-  "localAssets.deleteFolderBody": "该文件夹及其中的全部内容将从项目资产中删除，可在废纸篓中找到。",
+  "localAssets.deleteFolderBody":
+    "该文件夹及其中的全部内容将从项目资产中删除，可在废纸篓中找到。",
   "localAssets.deleteFolderTitle": "删除文件夹“{{name}}”？",
   "localAssets.empty": "暂无项目资产",
   "localAssets.emptyFolderTitle": "当前文件夹暂无资产",
@@ -4823,7 +5195,8 @@ const zh = {
   "localAssets.newFolder": "新建文件夹",
   "localAssets.newFolderPlaceholder": "文件夹名称",
   "localAssets.newFolderTitle": "新建文件夹",
-  "localAssets.noProject": "当前创作页不属于任何项目，加入项目后即可使用项目资产",
+  "localAssets.noProject":
+    "当前创作页不属于任何项目，加入项目后即可使用项目资产",
   "localAssets.open": "打开",
   "localAssets.openFailed": "无法打开“{{name}}”，文件可能已被移动或删除",
   "localAssets.refresh": "刷新",
@@ -4849,7 +5222,8 @@ const zh = {
   "mediaplan.migration.amountLabel": "转入贝壳",
   "mediaplan.migration.amountMax": "全部",
   "mediaplan.migration.amountPlaceholder": "0",
-  "mediaplan.migration.cetaCurrentBalanceHint": "MiniMax Design 现有 {{balance}}",
+  "mediaplan.migration.cetaCurrentBalanceHint":
+    "MiniMax Design 现有 {{balance}}",
   "mediaplan.migration.confirmCheckText":
     "我已了解：转入后这部分贝壳将从海螺网页端扣除，操作不可退回",
   "mediaplan.migration.confirmCta": "确认转入",
@@ -4858,18 +5232,21 @@ const zh = {
   "mediaplan.migration.failed": "转入失败，请稍后重试",
   "mediaplan.migration.fromHailuo": "转出贝壳",
   "mediaplan.migration.hailuoBalanceHint": "海螺余额 {{balance}}",
-  "mediaplan.migration.hubCurrentBalanceHint": "MiniMax Design 现有 {{balance}}",
+  "mediaplan.migration.hubCurrentBalanceHint":
+    "MiniMax Design 现有 {{balance}}",
   "mediaplan.migration.menuEntry": "转入 Media Plan 积分",
   "mediaplan.migration.noteDeadline":
     "截止 {{date}} 前可转入，过期后入口关闭，后续海螺贝壳仅可在海螺端内使用",
   "mediaplan.migration.noteDirection":
     "**单向转入**：转入的额度仅在 MiniMax Design 中使用，对应贝壳将从海螺网页端余额中扣除。",
-  "mediaplan.migration.noteIrreversible": "仅订阅积分与充值积分可转入，免费积分不支持转入",
+  "mediaplan.migration.noteIrreversible":
+    "仅订阅积分与充值积分可转入，免费积分不支持转入",
   "mediaplan.migration.noteRatio":
     "1 贝壳 = {{ratio}} 积分，仅计费数值换算，实际消耗金额不变。海螺贝壳仍然可以在海螺端内使用",
   "mediaplan.migration.noteValidity":
     "**积分有效期 1 年**：转入后的 MP 积分需在 1 年内使用，过期作废。",
-  "mediaplan.migration.noteValue": "**仅数值变化**：实际生成消耗的金额一致，单价不变。",
+  "mediaplan.migration.noteValue":
+    "**仅数值变化**：实际生成消耗的金额一致，单价不变。",
   "mediaplan.migration.popup.deadline":
     "{{days}} 天后 MiniMax Design 将通过 Media Plan 使用 · 截止 {{date}}",
   "mediaplan.migration.popup.deadlineIconAlt": "倒计时",
@@ -4878,7 +5255,8 @@ const zh = {
   "mediaplan.migration.popup.redeemHintLead": "已有海螺贝壳？",
   "mediaplan.migration.popup.redeemHintTerm": "按 1：{{ratio}} 抵扣，不可退回",
   "mediaplan.migration.popup.skip": "稍后再说",
-  "mediaplan.migration.subtitle": "从海螺转入贝壳余额到 MiniMax Design，比例 1 : {{ratio}}",
+  "mediaplan.migration.subtitle":
+    "从海螺转入贝壳余额到 MiniMax Design，比例 1 : {{ratio}}",
   "mediaplan.migration.success": "转入成功，实际转入 {{amount}} 贝壳",
   "mediaplan.migration.title": "转入MiniMax Design积分",
   "mediaplan.migration.toCeta": "MiniMax Design 积分",
@@ -4894,7 +5272,8 @@ const zh = {
   "memory.assetDangling": "素材已从库中移除，此 pin 已失效",
   "memory.assetMissing": "asset_uri 缺失或格式错误",
   "memory.assetUriPlaceholder": "hilo://asset/01H...",
-  "memory.autoFeedback.description": "关闭后仅停止自动提取；Agent 仍可显式写入记忆。",
+  "memory.autoFeedback.description":
+    "关闭后仅停止自动提取；Agent 仍可显式写入记忆。",
   "memory.autoFeedback.label": "自动总结对话",
   "memory.autoPanel.loadFailed": "无法加载最近的自动提取记录",
   "memory.autoPanel.title": "最近学习到的内容",
@@ -4914,7 +5293,8 @@ const zh = {
   "memory.cloneAutoRename": "目标已存在时自动追加 -copy 后缀",
   "memory.cloneCopyAction": "复制",
   "memory.cloneCreated": "已复制为",
-  "memory.cloneDesc": "将该条记忆复制到目标 scope。勾选「移动」则在复制成功后删除源条目。",
+  "memory.cloneDesc":
+    "将该条记忆复制到目标 scope。勾选「移动」则在复制成功后删除源条目。",
   "memory.cloneDescAssetPin": "asset-pin 类型只能在当前项目内复制",
   "memory.cloneFailed": "复制失败",
   "memory.cloneMoveAction": "移动",
@@ -4931,7 +5311,8 @@ const zh = {
   "memory.compaction.deleteCount": "删除 {{n}} 条",
   "memory.compaction.doneToast": "已整理 {{deleted}} 条，释放 {{freed}}",
   "memory.compaction.empty": "当前无需整理",
-  "memory.compaction.emptyDesc": "记忆数量与体积都在阈值内，不会执行任何删除或合并操作。",
+  "memory.compaction.emptyDesc":
+    "记忆数量与体积都在阈值内，不会执行任何删除或合并操作。",
   "memory.compaction.errorToast": "整理失败",
   "memory.compaction.execute": "执行整理",
   "memory.compaction.executing": "整理中…",
@@ -4944,9 +5325,11 @@ const zh = {
   "memory.compaction.openButton": "整理",
   "memory.compaction.previewFailed": "无法加载整理计划",
   "memory.compaction.rewrite.applyButton": "应用改写",
-  "memory.compaction.rewrite.assetPinExcluded": "{{n}} 个素材固定锚点会自动排除。",
+  "memory.compaction.rewrite.assetPinExcluded":
+    "{{n}} 个素材固定锚点会自动排除。",
   "memory.compaction.rewrite.backButton": "返回",
-  "memory.compaction.rewrite.doneToast": "已将 {{deleted}} 条改写为 {{merged}} 条",
+  "memory.compaction.rewrite.doneToast":
+    "已将 {{deleted}} 条改写为 {{merged}} 条",
   "memory.compaction.rewrite.emptyEligible": "没有可改写的用户记忆。",
   "memory.compaction.rewrite.executeFailed": "应用改写失败",
   "memory.compaction.rewrite.executing": "正在应用改写…",
@@ -4966,7 +5349,8 @@ const zh = {
   "memory.compaction.rewrite.subtitle":
     "选择要合并的条目；AI 会将其改写为更少、更密集的记录，并在应用前供你检查。",
   "memory.compaction.rewrite.title": "用 AI 改写记忆",
-  "memory.compaction.subtitle": "预览删除/合并操作，可勾选需要保留的条目；执行前会自动生成快照。",
+  "memory.compaction.subtitle":
+    "预览删除/合并操作，可勾选需要保留的条目；执行前会自动生成快照。",
   "memory.compaction.title": "整理记忆",
   "memory.compaction.triggerBytesExceeded": "体积超额",
   "memory.compaction.triggerCountExceeded": "条目超额",
@@ -5015,7 +5399,8 @@ const zh = {
   "memory.gatewayUnavailable": "Gateway 不可用",
   "memory.groupProject": "Project 作用域（当前工作区）",
   "memory.groupUser": "User 作用域（跨项目）",
-  "memory.loadUserMemory.description": "在此项目中加载跨项目用户记忆。项目记忆仍会加载。",
+  "memory.loadUserMemory.description":
+    "在此项目中加载跨项目用户记忆。项目记忆仍会加载。",
   "memory.loadUserMemory.label": "加载用户记忆",
   "memory.lowToast.description":
     "可用内存（{{available}}MB）持续低于 {{threshold}}MB，可能导致 MiniMax Design 停止响应。请关闭其他大型应用或重启电脑。",
@@ -5028,7 +5413,8 @@ const zh = {
   "memory.new": "新建",
   "memory.noDescription": "（无描述）",
   "memory.rename": "重命名",
-  "memory.renameDesc": "修改 frontmatter 中的 name 字段以及磁盘文件名。scope 与 type 保持不变。",
+  "memory.renameDesc":
+    "修改 frontmatter 中的 name 字段以及磁盘文件名。scope 与 type 保持不变。",
   "memory.renameFailed": "重命名失败",
   "memory.renameOverwrote": "已重命名（覆盖了已有条目）",
   "memory.renameSuccess": "已重命名",
@@ -5040,7 +5426,8 @@ const zh = {
   "memory.scopeUser": "用户",
   "memory.searchPlaceholder": "搜索描述或正文…",
   "memory.snapshots.empty": "暂无快照",
-  "memory.snapshots.emptyDesc": "当 agent 第一次整理记忆，或你手动触发整理后，会在这里看到快照。",
+  "memory.snapshots.emptyDesc":
+    "当 agent 第一次整理记忆，或你手动触发整理后，会在这里看到快照。",
   "memory.snapshots.entryCount": "{{count}} 条 · {{bytes}}",
   "memory.snapshots.entryCountLabel": "条目",
   "memory.snapshots.loadFailed": "无法加载快照列表",
@@ -5057,7 +5444,8 @@ const zh = {
   "memory.snapshots.snapshotIdLabel": "快照",
   "memory.snapshots.subtitle":
     "查看自动 / 手动快照，可一键恢复整个范围的记忆。恢复前会再做一份当前状态快照。",
-  "memory.snapshots.summary": "触发整理: 删除 {{deleted}} · 合并 {{merged}} · 释放 {{freed}}",
+  "memory.snapshots.summary":
+    "触发整理: 删除 {{deleted}} · 合并 {{merged}} · 释放 {{freed}}",
   "memory.snapshots.title": "快照",
   "memory.type.asset-pin": "素材锚点",
   "memory.type.feedback": "反馈纠正",
@@ -5121,24 +5509,30 @@ const zh = {
   "productionPlan.actions.viewExecutionPlan": "查看执行计划",
   "productionPlan.actions.viewOutput": "查看产物",
   "productionPlan.actions.viewStage": "查看{{stage}}",
-  "productionPlan.feedbackPlaceholder": "输入文字将作为本阶段修改意见；添加附件则作为普通消息发送",
+  "productionPlan.feedbackPlaceholder":
+    "输入文字将作为本阶段修改意见；添加附件则作为普通消息发送",
   "productionPlan.loadFailed": "暂时无法读取",
-  "productionPlan.messages.confirmPlan": "确认“{{stage}}”的执行计划，请开始执行。",
-  "productionPlan.messages.confirmResult": "确认“{{stage}}”的产物，请继续下一阶段。",
+  "productionPlan.messages.confirmPlan":
+    "确认“{{stage}}”的执行计划，请开始执行。",
+  "productionPlan.messages.confirmResult":
+    "确认“{{stage}}”的产物，请继续下一阶段。",
   "productionPlan.messages.finish": "确认“{{stage}}”的最终产物，请完成制作。",
   "productionPlan.prompt.acceptRemoval": "接受删除",
   "productionPlan.prompt.collapsePreviews": "收起",
   "productionPlan.prompt.confirmedSummary": "{{count}} 条提示词已确认",
   "productionPlan.prompt.conflictCount": "还有 {{count}} 项冲突需要处理",
-  "productionPlan.prompt.conflictError": "制作计划已更新，请选择使用新版或保留当前草稿",
+  "productionPlan.prompt.conflictError":
+    "制作计划已更新，请选择使用新版或保留当前草稿",
   "productionPlan.prompt.conflictedItem": "{{item}}，有冲突",
   "productionPlan.prompt.content.item": "{{number}} 内容",
-  "productionPlan.prompt.dialogDescription": "每条提示词对应一项待生成内容，修改后会同步到制作计划",
+  "productionPlan.prompt.dialogDescription":
+    "每条提示词对应一项待生成内容，修改后会同步到制作计划",
   "productionPlan.prompt.dialogTitle": "查看和修改提示词",
   "productionPlan.prompt.editorLabel": "提示词",
   "productionPlan.prompt.emptyError": "提示词不能为空",
   "productionPlan.prompt.expandPreviews": "展开其余 {{count}} 条",
-  "productionPlan.prompt.generatedDescription": "请检查对应提示词，确认后继续生成。",
+  "productionPlan.prompt.generatedDescription":
+    "请检查对应提示词，确认后继续生成。",
   "productionPlan.prompt.generatedTitle": "将生成 {{count}} 项内容",
   "productionPlan.prompt.keepDraft": "保留草稿",
   "productionPlan.prompt.kind.audio": "音频",
@@ -5151,7 +5545,8 @@ const zh = {
   "productionPlan.prompt.modified": "已修改",
   "productionPlan.prompt.parameter.seconds": "{{value}} 秒",
   "productionPlan.prompt.references": "参考素材",
-  "productionPlan.prompt.removedConflict": "此内容已从新版计划中删除，接受删除将放弃本地草稿",
+  "productionPlan.prompt.removedConflict":
+    "此内容已从新版计划中删除，接受删除将放弃本地草稿",
   "productionPlan.prompt.restore": "恢复原文",
   "productionPlan.prompt.save": "保存修改",
   "productionPlan.prompt.saveError": "保存失败，请重试",
@@ -5211,10 +5606,12 @@ const zh = {
   "project.creationsEmptySidebar": "无创作页",
   "project.delete": "删除项目",
   "project.dissolve.confirm": "解散项目",
-  "project.dissolve.description": "将解散项目「{{name}}」。项目下的创作页会保留，仅取消归类。",
+  "project.dissolve.description":
+    "将解散项目「{{name}}」。项目下的创作页会保留，仅取消归类。",
   "project.dissolve.failed": "解散项目失败，请重试",
   "project.dissolve.title": "解散项目",
-  "project.dissolve.transferActive": "当前项目仍有上传或下载任务，请等待任务结束后再尝试删除。",
+  "project.dissolve.transferActive":
+    "当前项目仍有上传或下载任务，请等待任务结束后再尝试删除。",
   "project.sidebar.showMore": "展开显示",
   "project.sidebar.showLess": "收起显示",
   "project.expand": "展开",
@@ -5237,7 +5634,8 @@ const zh = {
   "project.invite.copied": "已复制",
   "project.invite.copyFailed": "生成邀请链接失败，请重试",
   "project.invite.copyLink": "复制邀请链接",
-  "project.invite.expiryNote": "邀请链接 24 小时内有效，请发送给参与项目共创的 Design 用户",
+  "project.invite.expiryNote":
+    "邀请链接 24 小时内有效，请发送给参与项目共创的 Design 用户",
   "project.invite.membersFailed": "成员列表加载失败",
   "project.invite.membersLabel": "成员",
   "project.invite.membersTitle": "“{{name}}”的成员",
@@ -5287,27 +5685,33 @@ const zh = {
   "project.tabs.creations": "创作页",
   "project.tabs.creationsInfo": "创作页存在本地，不支持跨设备 / 跨用户查看",
   "project.tabs.localAssets": "项目资产",
-  "project.tabs.localAssetsComingSoonInfo": "项目资产功能即将上线，届时可集中查看和管理项目文件。",
+  "project.tabs.localAssetsComingSoonInfo":
+    "项目资产功能即将上线，届时可集中查看和管理项目文件。",
   "project.tabs.localAssetsInfo": "本地项目的资产存在本设备",
   "project.tabsAria": "项目子页面",
   "project.tutorial.trigger": "查看教程",
   "project.ungrouped": "未分组",
   "projectArchive.export.cancelled": "已取消导出",
   "projectArchive.export.failed": "导出失败",
-  "projectArchive.export.failure.activityUnavailable": "导出暂时无法安全开始，请稍后重试",
-  "projectArchive.export.failure.destinationBusy": "导出文件正在使用中，请关闭占用它的程序后重试",
+  "projectArchive.export.failure.activityUnavailable":
+    "导出暂时无法安全开始，请稍后重试",
+  "projectArchive.export.failure.destinationBusy":
+    "导出文件正在使用中，请关闭占用它的程序后重试",
   "projectArchive.export.failure.destinationInsideProject":
     "不能保存到当前项目目录内，请选择项目外的文件夹",
   "projectArchive.export.failure.diskFull": "磁盘空间不足",
-  "projectArchive.export.failure.exportInProgress": "已有项目正在导出，请等待完成后重试",
+  "projectArchive.export.failure.exportInProgress":
+    "已有项目正在导出，请等待完成后重试",
   "projectArchive.export.failure.invalidDestination": "请选择有效的导出位置",
   "projectArchive.export.failure.parentNotDirectory": "导出位置不是文件夹",
   "projectArchive.export.failure.permissionDenied": "Hub 没有权限写入此位置",
   "projectArchive.export.failure.publishFailed": "导出文件保存失败，请重试",
   "projectArchive.export.failure.rootUnavailable": "所选磁盘不可用",
   "projectArchive.export.failure.unexpected": "项目导出失败，请重试",
-  "projectArchive.export.failure.verificationFailed": "导出文件校验失败，请重试",
-  "projectArchive.export.failure.workspaceNotReady": "工作区仍在准备中，请稍后重试",
+  "projectArchive.export.failure.verificationFailed":
+    "导出文件校验失败，请重试",
+  "projectArchive.export.failure.workspaceNotReady":
+    "工作区仍在准备中，请稍后重试",
   "projectArchive.export.inProgress": "正在导出项目",
   "projectArchive.export.noWorkspace": "当前没有打开的工作区，无法导出",
   "projectArchive.export.reveal": "在文件夹中显示",
@@ -5419,7 +5823,8 @@ const zh = {
   "promoBubble.close": "关闭",
   "promoBubble.cta": "在 MiniMax Design 上体验",
   "promotion.badge": "Seedance 2.0 限时 35折",
-  "promotion.dialog.bullet1": "全体会员在 MiniMax Design 内使用 Seedance2.0 系列模型享受 35折 折扣",
+  "promotion.dialog.bullet1":
+    "全体会员在 MiniMax Design 内使用 Seedance2.0 系列模型享受 35折 折扣",
   "promotion.dialog.bullet2": "720P 视频生成低至 0.5 元/秒，全网最低价",
   "promotion.dialog.bullet3": "现已支持 AI 人物形象视频，快来开始你的创作",
   "promotion.dialog.cancel": "取消",
@@ -5458,7 +5863,8 @@ const zh = {
   "serverPopup.switchWallet.successToast": "钱包已切换",
   "serverPopup.switchWallet.title": "切换钱包",
   "serverPopup.trialGranted.action": "立即解锁 H3 Max",
-  "serverPopup.trialGranted.description": "你已领取 {{count}} 次 H3 Max 免费试用次数。",
+  "serverPopup.trialGranted.description":
+    "你已领取 {{count}} 次 H3 Max 免费试用次数。",
   "serverPopup.trialGranted.title": "恭喜！",
   "serverPopup.video.mute": "静音",
   "serverPopup.video.unmute": "取消静音",
@@ -5502,7 +5908,8 @@ const zh = {
   "session.tabs.closeAll": "关闭全部",
   "session.tabs.closeOthers": "关闭其他",
   "session.tabs.confirmCloseAction": "关闭",
-  "session.tabs.confirmCloseDesc": "此会话中有 Agent 正在运行，关闭将中断当前任务。",
+  "session.tabs.confirmCloseDesc":
+    "此会话中有 Agent 正在运行，关闭将中断当前任务。",
   "session.tabs.confirmCloseTitle": "关闭会话？",
   "session.tabs.evictedToHistory": "已打开该对话，较早的对话已收纳到历史记录",
   "session.tabs.list.label": "会话标签",
@@ -5540,7 +5947,8 @@ const zh = {
     "项目保存位置尚未稳定。请先在“存储”中完成处理并按提示重启，再修改资产中心位置，以免不同进程使用不同目录。",
   "settings.assetCenter.directory": "存储目录",
   "settings.assetCenter.directoryDescCustom": "自定义位置 — 随时可恢复默认",
-  "settings.assetCenter.directoryDescDefault": "默认保存至当前位置，点击可更换磁盘",
+  "settings.assetCenter.directoryDescDefault":
+    "默认保存至当前位置，点击可更换磁盘",
   "settings.assetCenter.initialise": "初始化",
   "settings.assetCenter.initialiseDesc": "创建全局资产库后即可跨创作页复用素材",
   "settings.assetCenter.initialised": "主体库已就绪",
@@ -5552,13 +5960,16 @@ const zh = {
   "settings.assetCenter.migrateConfirm": "迁移旧文件到新目录",
   "settings.assetCenter.migrateFailed": "迁移失败",
   "settings.assetCenter.migrateInProgress": "正在迁移文件，请稍候…",
-  "settings.assetCenter.migrateReason.copyFailed": "复制文件时出错，已回滚，原目录未改动。",
+  "settings.assetCenter.migrateReason.copyFailed":
+    "复制文件时出错，已回滚，原目录未改动。",
   "settings.assetCenter.migrateReason.destinationNotAssetCenter":
     "为避免误删其他文件，不能覆盖非资产中心目录。请选择空文件夹或已有的资产中心目录。",
-  "settings.assetCenter.migrateReason.destinationNotDirectory": "目标路径不是一个文件夹。",
+  "settings.assetCenter.migrateReason.destinationNotDirectory":
+    "目标路径不是一个文件夹。",
   "settings.assetCenter.migrateReason.destinationNotEmpty":
     "目标文件夹非空，请选择一个空文件夹或清空后重试。",
-  "settings.assetCenter.migrateReason.insufficientSpace": "目标磁盘空间不足，无法完成迁移。",
+  "settings.assetCenter.migrateReason.insufficientSpace":
+    "目标磁盘空间不足，无法完成迁移。",
   "settings.assetCenter.migrateReason.invalidPath":
     "所选路径无效，请重新选择一个完整的文件夹路径。",
   "settings.assetCenter.migrateReason.migrationInProgress":
@@ -5569,12 +5980,16 @@ const zh = {
   "settings.assetCenter.migrateReason.sourceMismatch":
     "资产中心位置已发生变化，请关闭设置后重新打开再试。",
   "settings.assetCenter.migrateReason.sourceMissing": "原资产目录不存在。",
-  "settings.assetCenter.migrateReason.sourceNotDirectory": "原资产路径不是一个文件夹。",
-  "settings.assetCenter.migrateReason.verificationFailed": "迁移后校验失败，已回滚，原目录未改动。",
+  "settings.assetCenter.migrateReason.sourceNotDirectory":
+    "原资产路径不是一个文件夹。",
+  "settings.assetCenter.migrateReason.verificationFailed":
+    "迁移后校验失败，已回滚，原目录未改动。",
   "settings.assetCenter.migrateTitle": "切换主体库目录",
   "settings.assetCenter.notInitialised": "尚未初始化",
-  "settings.assetCenter.overwriteConsent": "我已了解：迁移会清空并替换 {{path}} 中的现有内容。",
-  "settings.assetCenter.overwriteWarning": "该目录非空，迁移将覆盖其中的全部文件。",
+  "settings.assetCenter.overwriteConsent":
+    "我已了解：迁移会清空并替换 {{path}} 中的现有内容。",
+  "settings.assetCenter.overwriteWarning":
+    "该目录非空，迁移将覆盖其中的全部文件。",
   "settings.assetCenter.reset": "恢复默认",
   "settings.assetCenter.restartRequired":
     "新位置已保存，但部分正在运行的项目暂未切换。请重启应用，确保所有项目使用同一资产目录。",
@@ -5633,7 +6048,8 @@ const zh = {
     "使用飞书 App 扫描二维码，注册个人智能体机器人。所有凭据加密存储在本机。",
   "settings.imBridge.add.description.telegram":
     "通过 BotFather 创建 Bot 并粘贴 token。所有凭据加密存储在本机。",
-  "settings.imBridge.add.description.wechat": "微信集成正在实验中，将在后续版本提供。",
+  "settings.imBridge.add.description.wechat":
+    "微信集成正在实验中，将在后续版本提供。",
   "settings.imBridge.add.submit": "添加",
   "settings.imBridge.add.title.feishu": "添加飞书账号",
   "settings.imBridge.add.title.telegram": "添加 Telegram 账号",
@@ -5659,20 +6075,26 @@ const zh = {
     "确认将该账号连接到当前电脑上的 MiniMax Design",
   "settings.imBridge.addFlow.instructions.open.feishu": "打开飞书扫一扫",
   "settings.imBridge.addFlow.instructions.open.wechat": "打开微信扫一扫",
-  "settings.imBridge.addFlow.instructions.openDescription": "使用准备接收任务的账号完成扫码",
+  "settings.imBridge.addFlow.instructions.openDescription":
+    "使用准备接收任务的账号完成扫码",
   "settings.imBridge.addFlow.instructions.return": "返回此页面",
-  "settings.imBridge.addFlow.instructions.returnDescription": "连接成功后，即可在聊天中发送任务",
+  "settings.imBridge.addFlow.instructions.returnDescription":
+    "连接成功后，即可在聊天中发送任务",
   "settings.imBridge.addFlow.notice":
     "任务由当前电脑上的 MiniMax Design 执行。关闭应用、断网或电脑进入睡眠后，远程任务可能无法继续。",
   "settings.imBridge.addFlow.qrAlt.feishu": "飞书连接二维码",
   "settings.imBridge.addFlow.qrAlt.feishuAuth": "飞书授权二维码",
   "settings.imBridge.addFlow.qrAlt.wechat": "微信连接二维码",
-  "settings.imBridge.addFlow.scanDescription": "扫码后在手机上确认授权，页面会自动完成连接",
-  "settings.imBridge.addFlow.scanDescription.feishu": "请使用飞书扫描二维码，并在手机上确认连接",
-  "settings.imBridge.addFlow.scanDescription.wechat": "打开微信扫一扫，并在手机上确认连接",
+  "settings.imBridge.addFlow.scanDescription":
+    "扫码后在手机上确认授权，页面会自动完成连接",
+  "settings.imBridge.addFlow.scanDescription.feishu":
+    "请使用飞书扫描二维码，并在手机上确认连接",
+  "settings.imBridge.addFlow.scanDescription.wechat":
+    "打开微信扫一扫，并在手机上确认连接",
   "settings.imBridge.addFlow.scanQrHint.feishu":
     "扫码连接飞书智能体 CLI，或点击创建，一键获取智能体",
-  "settings.imBridge.addFlow.scanQrHint.wechat": "确认后即完成连接，点击「我知道了」返回",
+  "settings.imBridge.addFlow.scanQrHint.wechat":
+    "确认后即完成连接，点击「我知道了」返回",
   "settings.imBridge.addFlow.scanTitle.feishu": "使用飞书扫码创建",
   "settings.imBridge.addFlow.scanTitle.wechat": "使用微信扫码",
   "settings.imBridge.addFlow.step.auth": "待授权",
@@ -5692,7 +6114,8 @@ const zh = {
     "连接完成后，即可在微信中给 MiniMax Design 分配任务。",
   "settings.imBridge.addFlow.stepHint.scan.feishu":
     "使用飞书扫码，选择已有智能体 CLI，或点击创建一键获取智能体。",
-  "settings.imBridge.addFlow.stepHint.scan.wechat": "使用微信扫码，并在手机上确认连接。",
+  "settings.imBridge.addFlow.stepHint.scan.wechat":
+    "使用微信扫码，并在手机上确认连接。",
   "settings.imBridge.addFlow.stepOrdinal.1": "STEP 1",
   "settings.imBridge.addFlow.stepOrdinal.2": "STEP 2",
   "settings.imBridge.addFlow.stepOrdinal.3": "STEP 3",
@@ -5709,28 +6132,33 @@ const zh = {
   "settings.imBridge.addFlow.successGuide.feishu.4":
     "将机器人拉入群聊后，群内成员将具备访问本地数据的能力，请谨慎使用",
   "settings.imBridge.addFlow.successGuide.title": "使用指南",
-  "settings.imBridge.addFlow.successGuide.wechat.1": "在微信中找到 ClawBot，开启对话",
+  "settings.imBridge.addFlow.successGuide.wechat.1":
+    "在微信中找到 ClawBot，开启对话",
   "settings.imBridge.addFlow.successGuide.wechat.2":
     "发送任务，查看执行状态和结果通知，随时随地创作",
   "settings.imBridge.addFlow.successGuide.wechat.3":
     "使用时保持 MiniMax Design 打开，并确保电脑联网",
-  "settings.imBridge.addFlow.successGuide.wechat.4": "请勿向 ClawBot 发送密码、验证码等敏感信息",
+  "settings.imBridge.addFlow.successGuide.wechat.4":
+    "请勿向 ClawBot 发送密码、验证码等敏感信息",
   "settings.imBridge.addFlow.successNextStep.feishu":
     "首次创作时，从开发者小助手点击「打开应用」后开启创作任务",
   "settings.imBridge.addFlow.successTitle.feishu": "飞书已连接",
   "settings.imBridge.addFlow.successTitle.wechat": "微信已连接",
   "settings.imBridge.addFlow.title.feishu": "连接飞书",
   "settings.imBridge.addFlow.title.wechat": "连接微信",
-  "settings.imBridge.addFlow.transition.auth.feishu": "正在获取授权二维码，请稍候…",
+  "settings.imBridge.addFlow.transition.auth.feishu":
+    "正在获取授权二维码，请稍候…",
   "settings.imBridge.addFlow.viewGuide": "完整教程",
-  "settings.imBridge.addRemaining.description": "也可以添加另一个 IM 入口，方便在不同平台使用。",
+  "settings.imBridge.addRemaining.description":
+    "也可以添加另一个 IM 入口，方便在不同平台使用。",
   "settings.imBridge.addRemaining.title": "继续连接其他账号",
   "settings.imBridge.advanced.title": "高级设置",
   "settings.imBridge.alreadyBound": "该平台已绑定账号，请先解绑后再添加",
   "settings.imBridge.channel.action.connect": "连接",
   "settings.imBridge.channel.action.connectPlatform": "连接{{platform}}",
   "settings.imBridge.channel.description.feishu": "在飞书中发送任务并接收结果",
-  "settings.imBridge.channel.description.telegram": "在 Telegram 中发送任务并接收结果",
+  "settings.imBridge.channel.description.telegram":
+    "在 Telegram 中发送任务并接收结果",
   "settings.imBridge.channel.description.wechat": "在微信中发送任务并接收结果",
   "settings.imBridge.channel.status.connected": "已连接 · 账号可用",
   "settings.imBridge.channel.status.connecting": "连接中",
@@ -5743,12 +6171,15 @@ const zh = {
     "首次创作时，从开发者小助手点击「打开应用」后开启创作任务",
   "settings.imBridge.channel.subtitle.connected.wechat":
     "在微信中找到 ClawBot，即可发任务、查状态、随时创作",
-  "settings.imBridge.channel.subtitle.paused": "{{name}} 已断开，启动后可继续接收任务",
-  "settings.imBridge.connection.description": "选择一个渠道，通过手机扫码完成连接。",
+  "settings.imBridge.channel.subtitle.paused":
+    "{{name}} 已断开，启动后可继续接收任务",
+  "settings.imBridge.connection.description":
+    "选择一个渠道，通过手机扫码完成连接。",
   "settings.imBridge.connection.infoLabel": "远程执行说明",
   "settings.imBridge.connection.title": "连接渠道",
   "settings.imBridge.credentialUpdate.action": "更新",
-  "settings.imBridge.credentialUpdate.banner": "当前 IM 连接方式需要更新，请更新后重新扫码连接。",
+  "settings.imBridge.credentialUpdate.banner":
+    "当前 IM 连接方式需要更新，请更新后重新扫码连接。",
   "settings.imBridge.credentialUpdate.failed": "IM 连接更新失败，请重试。",
   "settings.imBridge.credentialUpdate.success": "已更新，请重新扫码连接。",
   "settings.imBridge.description":
@@ -5779,11 +6210,15 @@ const zh = {
   "settings.imBridge.feishu.qr.status.error": "登录失败",
   "settings.imBridge.feishu.qr.status.error.config_conflict":
     "检测到本机飞书 CLI 环境冲突，授权未完成，请重试；若仍失败请联系支持",
-  "settings.imBridge.feishu.qr.status.error.denied": "授权被拒绝，请重新发起授权",
+  "settings.imBridge.feishu.qr.status.error.denied":
+    "授权被拒绝，请重新发起授权",
   "settings.imBridge.feishu.qr.status.error.expired": "二维码已过期，请重试",
-  "settings.imBridge.feishu.qr.status.error.network": "网络连接失败，请检查网络后重试",
-  "settings.imBridge.feishu.qr.status.error.provider_unavailable": "登录组件不可用，请稍后重试",
-  "settings.imBridge.feishu.qr.status.error.server": "飞书服务返回异常，请稍后重试",
+  "settings.imBridge.feishu.qr.status.error.network":
+    "网络连接失败，请检查网络后重试",
+  "settings.imBridge.feishu.qr.status.error.provider_unavailable":
+    "登录组件不可用，请稍后重试",
+  "settings.imBridge.feishu.qr.status.error.server":
+    "飞书服务返回异常，请稍后重试",
   "settings.imBridge.feishu.qr.status.error.timeout": "扫码登录超时，请重试",
   "settings.imBridge.feishu.qr.status.loading": "正在获取二维码…",
   "settings.imBridge.feishu.qr.status.pendingApproval":
@@ -5804,9 +6239,11 @@ const zh = {
     "连接后，你可以直接在飞书或微信中发送消息，任务将在当前电脑上的 MiniMax Design 中执行。",
   "settings.imBridge.hero.description.overseas":
     "After connecting, you can send messages in Lark or Telegram, and tasks will run in MiniMax Design on this computer.",
-  "settings.imBridge.hero.title": "绑定 IM 工具，随时随地给 MiniMax Design 分配任务",
+  "settings.imBridge.hero.title":
+    "绑定 IM 工具，随时随地给 MiniMax Design 分配任务",
   "settings.imBridge.loading": "加载中…",
-  "settings.imBridge.localProcessing": "消息仅在你的电脑端处理，不经过云端转发。",
+  "settings.imBridge.localProcessing":
+    "消息仅在你的电脑端处理，不经过云端转发。",
   "settings.imBridge.paused": "已暂停",
   "settings.imBridge.platform.dingtalk": "钉钉",
   "settings.imBridge.platform.discord": "Discord",
@@ -5836,10 +6273,14 @@ const zh = {
   "settings.imBridge.wechat.qr.status.confirmed": "登录成功，账号已添加",
   "settings.imBridge.wechat.qr.status.error": "登录失败",
   "settings.imBridge.wechat.qr.status.error.denied": "登录被拒绝，请重新扫码",
-  "settings.imBridge.wechat.qr.status.error.expired": "二维码多次过期，请重新发起登录",
-  "settings.imBridge.wechat.qr.status.error.network": "网络连接失败，请检查网络后重试",
-  "settings.imBridge.wechat.qr.status.error.provider_unavailable": "登录组件不可用，请稍后重试",
-  "settings.imBridge.wechat.qr.status.error.server": "微信服务返回异常，请稍后重试",
+  "settings.imBridge.wechat.qr.status.error.expired":
+    "二维码多次过期，请重新发起登录",
+  "settings.imBridge.wechat.qr.status.error.network":
+    "网络连接失败，请检查网络后重试",
+  "settings.imBridge.wechat.qr.status.error.provider_unavailable":
+    "登录组件不可用，请稍后重试",
+  "settings.imBridge.wechat.qr.status.error.server":
+    "微信服务返回异常，请稍后重试",
   "settings.imBridge.wechat.qr.status.error.timeout": "扫码登录超时，请重试",
   "settings.imBridge.wechat.qr.status.expired": "二维码已过期，正在刷新…",
   "settings.imBridge.wechat.qr.status.loading": "正在获取二维码…",
@@ -5870,7 +6311,8 @@ const zh = {
     "添加自定义提供商和模型后，可在对话中选择。自定义模型请求由本机直接发送给提供商。",
   "settings.models.description.domestic":
     "目前仅支持文本模型，可在 Agent 中切换；图片、视频等生成能力开发中。",
-  "settings.models.description.overseas": "目前仅支持文本模型接入，其他多模态能力开发中。",
+  "settings.models.description.overseas":
+    "目前仅支持文本模型接入，其他多模态能力开发中。",
   "settings.models.headerName": "名称",
   "settings.models.headerSavedPlaceholder": "选填：留空保留已保存值",
   "settings.models.headerValue": "值",
@@ -5890,7 +6332,8 @@ const zh = {
   "settings.models.providerName": "提供商",
   "settings.models.providerNamePlaceholder": "选填：用于区分供应商",
   "settings.models.reasoningLevels": "推理等级",
-  "settings.models.reasoningPlaceholder": "选填：输入档位后按 Enter，如 low、high、max",
+  "settings.models.reasoningPlaceholder":
+    "选填：输入档位后按 Enter，如 low、high、max",
   "settings.models.removeHeader": "移除 Header",
   "settings.models.removeModel": "移除模型",
   "settings.models.removeReasoning": "移除 {{level}}",
@@ -5898,9 +6341,12 @@ const zh = {
   "settings.models.applyHint":
     "保存后即可在对话中选择，无需重启应用。有任务运行时，配置会在任务结束后自动加载。模型需支持工具调用。",
   "settings.models.saveFailed": "模型配置保存失败，请重试。",
-  "settings.models.saved": "已保存。请在对话的「模型 → Agent」中选择使用；保存不会切换当前模型。",
-  "settings.models.applying": "模型配置正在加载；如有任务运行，请等任务结束后再发送。",
-  "settings.models.applyFailed": "模型配置加载失败，请到模型设置重新保存后重试。",
+  "settings.models.saved":
+    "已保存。请在对话的「模型 → Agent」中选择使用；保存不会切换当前模型。",
+  "settings.models.applying":
+    "模型配置正在加载；如有任务运行，请等任务结束后再发送。",
+  "settings.models.applyFailed":
+    "模型配置加载失败，请到模型设置重新保存后重试。",
   "settings.models.modelRemoved": "所选自定义模型已移除，请选择其他模型。",
   "settings.models.showKey": "显示 API Key",
   "settings.models.title": "模型接入",
@@ -5912,7 +6358,8 @@ const zh = {
   "settings.network.proxyModeDesc":
     "只影响新建或重试的 workspace；已打开的 workspace 保持当前连接。",
   "settings.network.proxyModeFailed": "代理模式更新失败",
-  "settings.network.proxyModeSaved": "已保存代理模式；已打开 workspace 可能需重试或重启后生效。",
+  "settings.network.proxyModeSaved":
+    "已保存代理模式；已打开 workspace 可能需重试或重启后生效。",
   "settings.networkSection": "网络",
   "settings.notifications": "通知",
   "settings.notificationsDesc": "在系统设置中配置通知偏好",
@@ -5940,20 +6387,24 @@ const zh = {
   "settings.softwareUpdate.badgeDownloading": "下载中",
   "settings.softwareUpdate.badgeNew": "有新版",
   "settings.softwareUpdate.currentVersion": "当前版本 {{version}}",
-  "settings.softwareUpdate.description": "检查新版本、查看更新内容，并在下载完成后重启升级。",
+  "settings.softwareUpdate.description":
+    "检查新版本、查看更新内容，并在下载完成后重启升级。",
   "settings.softwareUpdate.releaseNotes": "更新详情",
   "settings.softwareUpdate.releaseNotesEmpty": "有新版本时会展示对应更新内容",
-  "settings.softwareUpdate.statusAvailableDesc": "发现新版本，可以立即下载并准备升级。",
+  "settings.softwareUpdate.statusAvailableDesc":
+    "发现新版本，可以立即下载并准备升级。",
   "settings.softwareUpdate.statusAvailableWithVersion": "发现 {{version}}",
   "settings.softwareUpdate.statusChecking": "正在检查更新",
   "settings.softwareUpdate.statusCheckingDesc": "正在连接更新服务，请稍候。",
   "settings.softwareUpdate.statusDownloadingDesc": "正在下载更新包。",
   "settings.softwareUpdate.statusLatest": "已是最新版本",
   "settings.softwareUpdate.statusLatestDesc": "MiniMax Design 当前无需更新。",
-  "settings.softwareUpdate.statusReadyDesc": "更新已下载完成，重启后会安装新版本。",
+  "settings.softwareUpdate.statusReadyDesc":
+    "更新已下载完成，重启后会安装新版本。",
   "settings.softwareUpdate.statusReadyWithVersion": "{{version}} 已准备就绪",
   "settings.softwareUpdate.title": "软件更新",
-  "settings.softwareUpdate.unavailableDesc": "更新控件暂时不可用，不影响继续使用当前应用。",
+  "settings.softwareUpdate.unavailableDesc":
+    "更新控件暂时不可用，不影响继续使用当前应用。",
   "settings.softwareUpdate.unavailableTitle": "更新服务暂不可用",
   "settings.softwareUpdate.updatePrompt": "更新提示",
   "settings.storage.browse": "更改位置",
@@ -5969,13 +6420,15 @@ const zh = {
     "部分项目暂时无法批量关闭，已保留。请单独关闭，或等待打开、保存完成后重试。",
   "settings.storage.closeIdleProjectsHint":
     "仅批量关闭已暂停或未启动、且已保存的项目；不会删除项目文件和历史记录。",
-  "settings.storage.idleCloseReasons.active": "当前正在查看的项目不会被批量关闭",
+  "settings.storage.idleCloseReasons.active":
+    "当前正在查看的项目不会被批量关闭",
   "settings.storage.idleCloseReasons.closing": "正在关闭或等待退出完成",
   "settings.storage.idleCloseReasons.failed": "打开失败，请重试或单独关闭",
   "settings.storage.idleCloseReasons.opening": "正在打开，暂不参与批量关闭",
   "settings.storage.idleCloseReasons.retrying": "正在重试打开",
   "settings.storage.idleCloseReasons.runtime": "项目仍已打开，请单独关闭",
-  "settings.storage.idleCloseReasons.unsaved": "存在未保存内容，暂不参与批量关闭",
+  "settings.storage.idleCloseReasons.unsaved":
+    "存在未保存内容，暂不参与批量关闭",
   "settings.storage.projectClosing": "关闭中",
   "settings.storage.projectFailed": "需要重试",
   "settings.storage.projectNotStarted": "未启动",
@@ -6015,7 +6468,8 @@ const zh = {
   "settings.storage.confirm.residueAction": "合并默认位置数据",
   "settings.storage.confirm.residueDescription":
     "将默认位置中当前保存位置缺少的数据安全合并过来。完成后需要重启应用，以同步项目、对话和资产引用。",
-  "settings.storage.confirm.residueSafetyNote": "不覆盖同名项目或文件，不删除默认位置中的原数据。",
+  "settings.storage.confirm.residueSafetyNote":
+    "不覆盖同名项目或文件，不删除默认位置中的原数据。",
   "settings.storage.confirm.residueTitle": "合并默认位置中的残留数据？",
   "settings.storage.confirm.retry": "重试迁移",
   "settings.storage.confirm.safetyNote":
@@ -6035,19 +6489,23 @@ const zh = {
     "不能使用应用安装目录作为数据目录，请选择旁边的独立数据目录（如 D:\\MiniMaxHubData）。",
   "settings.storage.errors.drive_root":
     "不能直接使用磁盘根目录，请选择或新建一个子文件夹（如 D:\\HubData）。",
-  "settings.storage.errors.invalid_path": "该位置无效，请选择一个完整的本地文件夹路径。",
-  "settings.storage.errors.not_writable": "该目录无写入权限，请检查权限或选择其他位置。",
+  "settings.storage.errors.invalid_path":
+    "该位置无效，请选择一个完整的本地文件夹路径。",
+  "settings.storage.errors.not_writable":
+    "该目录无写入权限，请检查权限或选择其他位置。",
   "settings.storage.errors.protected_dir": "这是系统保护目录，请选择其他位置。",
   "settings.storage.globalFallback":
     "设置的保存位置不可用；为避免误写，默认位置的新建项目需要你明确确认。",
-  "settings.storage.globalPendingRestart": "保存位置变更已完成，重启后生效；重启前已暂停新建项目。",
+  "settings.storage.globalPendingRestart":
+    "保存位置变更已完成，重启后生效；重启前已暂停新建项目。",
   "settings.storage.globalRewriteRepairPending":
     "部分已保存的路径关联仍待修复；项目可继续使用，Hub 会在下次冷启动时重试。",
   "settings.storage.goToDownload": "前往下载",
   "settings.storage.installLocation": "应用安装位置",
   "settings.storage.installLocationDefault": "当前安装在系统默认位置",
   "settings.storage.locationAfterRestart": "重启后使用",
-  "settings.storage.migrateInProgress": "正在迁移数据，请不要退出应用或断开磁盘。",
+  "settings.storage.migrateInProgress":
+    "正在迁移数据，请不要退出应用或断开磁盘。",
   "settings.storage.migrating": "正在迁移...",
   "settings.storage.migrationErrors.active_workspaces":
     "请先关闭所有项目，再更改保存位置。这样可确保画布和生成文件已完成保存。",
@@ -6082,15 +6540,18 @@ const zh = {
     "新位置不能放在当前数据文件夹内。请选择其他独立文件夹。",
   "settings.storage.migrationErrors.path_too_long":
     "迁移未完成。部分文件路径超过了 Windows 260 字符限制。请选择更短的保存位置，或在系统中启用长路径支持后重试。",
-  "settings.storage.migrationErrors.protected_dir": "这是系统保护目录，请选择其他位置。",
+  "settings.storage.migrationErrors.protected_dir":
+    "这是系统保护目录，请选择其他位置。",
   "settings.storage.migrationErrors.restart_required":
     "保存位置已更改。请先重启应用，再进行下一次迁移。",
-  "settings.storage.migrationErrors.sourcePreserved": "你的原数据仍保留，没有被删除。",
+  "settings.storage.migrationErrors.sourcePreserved":
+    "你的原数据仍保留，没有被删除。",
   "settings.storage.migrationErrors.unknown":
     "暂时无法迁移数据。请检查磁盘连接和文件夹权限后重试。",
   "settings.storage.migrationErrors.workspace_path_repair_pending":
     "已保存的路径关联仍待修复；项目可继续使用，请在下次冷启动后再重试本次存储变更。",
-  "settings.storage.openProjects": "仍处于打开状态的项目（关闭后才能更改保存位置）",
+  "settings.storage.openProjects":
+    "仍处于打开状态的项目（关闭后才能更改保存位置）",
   "settings.storage.openSettings": "打开存储设置",
   "settings.storage.reconnectThenRestart":
     "重新连接存储磁盘后，请重启应用恢复原保存位置；如果磁盘暂时无法恢复，也可以明确改用系统默认位置。",
@@ -6127,7 +6588,8 @@ const zh = {
   "settings.themeSystem": "跟随系统",
   "settings.title": "设置",
   "settings.transparentWindowExperiment": "窗口透明效果",
-  "settings.transparentWindowExperimentDesc": "启用系统级窗口透明效果，重启应用后生效。",
+  "settings.transparentWindowExperimentDesc":
+    "启用系统级窗口透明效果，重启应用后生效。",
   "settings.tray": "系统托盘",
   "settings.trayDesc": "在系统托盘显示应用图标",
   "settings.windowCloseBehavior": "关闭窗口时",
@@ -6142,7 +6604,8 @@ const zh = {
   "team.management.memberQuotaTitlePlural": "成员额度",
   "team.management.membersTab": "成员信息",
   "windowClose.message": "关闭窗口",
-  "windowClose.description": "最小化到系统托盘，任务将在后台继续运行。\n双击托盘图标即可返回。",
+  "windowClose.description":
+    "最小化到系统托盘，任务将在后台继续运行。\n双击托盘图标即可返回。",
   "windowClose.settingsHint": "记住本次选择，可在“设置 → 通用”中修改。",
   "windowClose.detail":
     "最小化到系统托盘后，应用和任务将继续运行。双击托盘图标可恢复窗口。你可以在“设置 > 通用”中修改关闭窗口时的行为。",
@@ -6227,7 +6690,8 @@ const zh = {
   "skills.deepLink.reinstall": "重新安装",
   "skills.deepLink.source": "来源：{{source}}",
   "skills.delete.confirm": "删除",
-  "skills.delete.installedDesc": "已安装的市场Skill将从本地删除，可随时重新安装。",
+  "skills.delete.installedDesc":
+    "已安装的市场Skill将从本地删除，可随时重新安装。",
   "skills.delete.installedTitle": "移除Skill",
   "skills.delete.pluginDesc": "这将删除该插件及其所有数据。",
   "skills.delete.pluginTitle": "删除插件",
@@ -6299,8 +6763,10 @@ const zh = {
   "skills.header.createViaHub": "通过 MiniMax Design 创建",
   "skills.header.install": "导入 Skill",
   "skills.header.submitSkill": "Skill 投稿",
-  "skills.heroDescription": "发现、安装并管理 Skill，扩展 MiniMax Design 的创作能力",
-  "skills.hubDescription": "发现 Skill，并连接外部工具与数据源，扩展创作工作流。",
+  "skills.heroDescription":
+    "发现、安装并管理 Skill，扩展 MiniMax Design 的创作能力",
+  "skills.hubDescription":
+    "发现 Skill，并连接外部工具与数据源，扩展创作工作流。",
   "skills.hubTitle": "技能 · 插件",
   "skills.import.adaptFailed": "创建适配项目失败",
   "skills.import.adaptPrompt":
@@ -6316,7 +6782,8 @@ const zh = {
   "skills.import.error.generic": "导入失败：{{detail}}",
   "skills.import.error.invalidStagingPath": "暂存路径无效",
   "skills.import.error.invalid_format.invalidName": '技能名称无效："{{name}}"',
-  "skills.import.error.invalid_format.noName": "无法识别技能名称，请在文件中添加 name 字段",
+  "skills.import.error.invalid_format.noName":
+    "无法识别技能名称，请在文件中添加 name 字段",
   "skills.import.error.network": "网络错误，请检查连接后重试",
   "skills.import.error.no_skill_md": "压缩包中未找到 SKILL.md",
   "skills.import.error.skillMdNotFound": "未找到 SKILL.md",
@@ -6328,10 +6795,12 @@ const zh = {
   "skills.import.installing": "导入中...",
   "skills.import.nameConflict.confirm": "使用新名字导入",
   "skills.import.nameConflict.inputLabel": "新Skill名称",
-  "skills.import.nameConflict.invalid": "名称只能包含字母、数字、点、横线和下划线（最长64字符）",
+  "skills.import.nameConflict.invalid":
+    "名称只能包含字母、数字、点、横线和下划线（最长64字符）",
   "skills.import.nameConflict.official":
     "已存在同名官方Skill「{{name}}」，请为导入的Skill指定一个新名字",
-  "skills.import.nameConflict.user": "你已有同名Skill「{{name}}」，请为导入的Skill指定一个新名字",
+  "skills.import.nameConflict.user":
+    "你已有同名Skill「{{name}}」，请为导入的Skill指定一个新名字",
   "skills.import.networkError": "网络错误",
   "skills.import.reqMd": "或直接拖入 SKILL.md 文件",
   "skills.import.reqZip": "包含 SKILL.md 文件的 .zip 压缩包",
@@ -6361,7 +6830,8 @@ const zh = {
   "skills.market.creatorPlanBenefitLabel": "福利方案",
   "skills.market.creatorPlanComingSoon": "敬请期待",
   "skills.market.creatorPlanCoverFormats": "PNG / GIF / MP4 · 16:9 · ≤ 10 MB",
-  "skills.market.creatorPlanCoverHint": "要求 16:9 比例 · 支持 PNG / GIF / MP4 · 单文件 ≤ 10 MB",
+  "skills.market.creatorPlanCoverHint":
+    "要求 16:9 比例 · 支持 PNG / GIF / MP4 · 单文件 ≤ 10 MB",
   "skills.market.creatorPlanCoverInvalidType": "仅支持 PNG / GIF / MP4 格式",
   "skills.market.creatorPlanCoverLabel": "封面图",
   "skills.market.creatorPlanCoverTooLarge": "封面文件不能超过 10MB",
@@ -6369,7 +6839,8 @@ const zh = {
   "skills.market.creatorPlanCreditAmount": "2000 积分",
   "skills.market.creatorPlanDemoToggleEmpty": "演示：查看空状态",
   "skills.market.creatorPlanDemoToggleHas": "演示：切回有数据",
-  "skills.market.creatorPlanDisplayNameHint": "默认使用你在 MiniMax Design 的用户名，可自行修改。",
+  "skills.market.creatorPlanDisplayNameHint":
+    "默认使用你在 MiniMax Design 的用户名，可自行修改。",
   "skills.market.creatorPlanDisplayNameLabel": "作者名",
   "skills.market.creatorPlanDisplayNamePlaceholder":
     "默认使用你在 MiniMax Design 的用户名，可自行修改",
@@ -6377,10 +6848,12 @@ const zh = {
   "skills.market.creatorPlanEmptyTitle": "暂无可选的 Skill",
   "skills.market.creatorPlanFooterNote": "官方将在 14 个工作日内反馈结果",
   "skills.market.creatorPlanGoCreate": "去画布创建",
-  "skills.market.creatorPlanInviteDesc": "投稿 Skill，被选中可获 2000 积分或加入共创计划",
+  "skills.market.creatorPlanInviteDesc":
+    "投稿 Skill，被选中可获 2000 积分或加入共创计划",
   "skills.market.creatorPlanInviteTitle": "Skill 投稿",
   "skills.market.creatorPlanMissingSkill": "所选 skill 已不在本地，请重选",
-  "skills.market.creatorPlanNoSkills": "暂无本地 skill，请先在「我的能力」中创建",
+  "skills.market.creatorPlanNoSkills":
+    "暂无本地 skill，请先在「我的能力」中创建",
   "skills.market.creatorPlanSkillNameLabel": "Skill",
   "skills.market.creatorPlanSkillNamePlaceholder": "从你的 skill 中选择…",
   "skills.market.creatorPlanSubmitError": "提交失败，请稍后重试",
@@ -6393,8 +6866,10 @@ const zh = {
     "做了好用的 skill？申请官方 review，被选中可获积分奖励或加入共创社区。",
   "skills.market.creatorPlanTipBody1": "官方从优质用户的Skill中精选的作品。",
   "skills.market.creatorPlanTipBody2Highlight": "积分奖励",
-  "skills.market.creatorPlanTipBody2Prefix": "做了好用的 Skill？申请官方 review，被选中后可获 ",
-  "skills.market.creatorPlanTipBody2Suffix": " 或加入共创计划，并将作品展示到「用户精选」。",
+  "skills.market.creatorPlanTipBody2Prefix":
+    "做了好用的 Skill？申请官方 review，被选中后可获 ",
+  "skills.market.creatorPlanTipBody2Suffix":
+    " 或加入共创计划，并将作品展示到「用户精选」。",
   "skills.market.creatorPlanTipHeading": "什么是用户精选",
   "skills.market.creatorPlanTitle": "申请审核",
   "skills.market.deprecated": "已过期·不推荐",
@@ -6417,12 +6892,14 @@ const zh = {
   "skills.market.requestToReview": "申请精选审核",
   "skills.market.searchPlaceholder": "搜索 Skill...",
   "skills.market.searchPluginPlaceholder": "搜索插件...",
-  "skills.market.syncComplete": "同步完成: 安装 {{installed}} 个, 更新 {{updated}} 个",
+  "skills.market.syncComplete":
+    "同步完成: 安装 {{installed}} 个, 更新 {{updated}} 个",
   "skills.market.syncFailed": "{{failed}} 个失败",
   "skills.market.syncProgress": "正在同步 Skill ({{done}}/{{total}})...",
   "skills.market.tryInChat": "去对话中试试",
   "skills.market.uninstall": "删除",
-  "skills.market.uninstallConfirmDesc": '确定要删除 "{{name}}" 吗？AI 服务将会重启。',
+  "skills.market.uninstallConfirmDesc":
+    '确定要删除 "{{name}}" 吗？AI 服务将会重启。',
   "skills.market.uninstallConfirmTitle": "删除 Skill",
   "skills.market.uninstallError": '删除 Skill "{{name}}" 失败',
   "skills.market.uninstallPluginError": "插件 {{name}} 卸载失败",
@@ -6461,7 +6938,8 @@ const zh = {
   "skills.mine.noCreatedSkills": "还没有自己创建的 Skill",
   "skills.mine.noSummary": "暂未填写简介。",
   "skills.mine.offline": "下线",
-  "skills.mine.offlineDesc": "下线后将不再在社区展示、安装或使用，可编辑后重新申请上线。",
+  "skills.mine.offlineDesc":
+    "下线后将不再在社区展示、安装或使用，可编辑后重新申请上线。",
   "skills.mine.offlineError": "下线失败",
   "skills.mine.offlineSuccess": "Skill 已下线",
   "skills.mine.offlineTitle": "确认下线这个 Skill？",
@@ -6478,7 +6956,8 @@ const zh = {
   "skills.mine.uploadSkill": "上传 Skill",
   "skills.mine.viewApplication": "查看申请",
   "skills.mine.applicationReadOnly": "查看投稿资料和审核进度。",
-  "skills.mine.autoUpdateHint": "自动更新从市场安装的 Skill，不影响本地创建的 Skill。",
+  "skills.mine.autoUpdateHint":
+    "自动更新从市场安装的 Skill，不影响本地创建的 Skill。",
   "skills.mine.autoUpdateInstalled": "自动更新已安装 Skill",
   "skills.mine.clearFilters": "清除筛选",
   "skills.mine.coverUnavailable": "封面暂不可用",
@@ -6500,7 +6979,8 @@ const zh = {
   "skills.mine.resultCount_other": "找到 {{count}} 个结果",
   "skills.mine.reviewNote": "查看审核意见",
   "skills.mine.saveChanges": "保存修改",
-  "skills.mine.signInForStatus": "登录后可查看投稿状态，本地 Skill 仍可正常使用。",
+  "skills.mine.signInForStatus":
+    "登录后可查看投稿状态，本地 Skill 仍可正常使用。",
   "skills.mine.status.loading": "投稿状态加载中",
   "skills.mine.status.unknown": "投稿状态暂不可用",
   "skills.mine.statusUnavailable": "投稿状态刷新失败，Skill 仍可正常使用。",
@@ -6522,7 +7002,8 @@ const zh = {
   "skills.operation.changesCount": "{{count}} 项变更",
   "skills.operation.confirmSaveDesc": "保存 {{count}} 项变更?",
   "skills.operation.confirmSaveTitle": "确认保存",
-  "skills.operation.conflictDesc": "以下 skill 已被他人修改: {{skills}}，请重新加载后重试。",
+  "skills.operation.conflictDesc":
+    "以下 skill 已被他人修改: {{skills}}，请重新加载后重试。",
   "skills.operation.conflictTitle": "冲突检测",
   "skills.operation.delete": "删除",
   "skills.operation.deleteError": "删除失败",
@@ -6545,7 +7026,8 @@ const zh = {
     "可审核投稿、发布已通过的 Skill，并维护标签和市场展示配置。",
   "skills.operation.fullOperations": "完整运营权限",
   "skills.operation.globalSortWeight": "全局排序权重",
-  "skills.operation.reviewerRoleHint": "普通运营：可查看详情、Design 验收和审核",
+  "skills.operation.reviewerRoleHint":
+    "普通运营：可查看详情、Design 验收和审核",
   "skills.operation.reviewerPermissionTitle": "普通运营权限",
   "skills.operation.reviewerPermissionDescription":
     "可查看投稿、在 Design 验收、通过或拒绝；不能发布和配置资源。",
@@ -6617,7 +7099,8 @@ const zh = {
   "skills.operation.approveSuccess": "审核通过，已进入待发布",
   "skills.operation.rejectSuccess": "已拒绝投稿",
   "skills.operation.batchApproveSuccess": "所选投稿已进入待发布",
-  "skills.operation.batchInvalid": "以下 Skill 暂不满足审核通过条件：{{skills}}",
+  "skills.operation.batchInvalid":
+    "以下 Skill 暂不满足审核通过条件：{{skills}}",
   "skills.operation.actionError": "操作失败，请刷新后重试",
   "skills.operation.actions": "操作",
   "skills.operation.detailsSaved": "投稿详情已保存",
@@ -6635,7 +7118,8 @@ const zh = {
   "skills.operation.rejectTitle": "拒绝投稿",
   "skills.operation.rejectDescription": "请填写用户可见的拒绝原因。",
   "skills.operation.skillDetails": "Skill Details",
-  "skills.operation.detailsHint": "Skill name 不可修改；运营可修正展示信息、垂直品类和创作阶段。",
+  "skills.operation.detailsHint":
+    "Skill name 不可修改；运营可修正展示信息、垂直品类和创作阶段。",
   "skills.operation.skillName": "Skill name",
   "skills.operation.displayName": "Display name",
   "skills.operation.creator": "Creator",
@@ -6647,9 +7131,11 @@ const zh = {
   "skills.operation.showcase": "Showcase 视频",
   "skills.operation.stage": "创作阶段",
   "skills.operation.categoryConfig": "标签配置",
-  "skills.operation.categoryOrderHint": "统一维护垂直品类与创作阶段；数值越小越靠前。",
+  "skills.operation.categoryOrderHint":
+    "统一维护垂直品类与创作阶段；数值越小越靠前。",
   "skills.operation.categorySaved": "标签配置已保存",
-  "skills.operation.duplicateSortOrder": "同一类型中，每个已启用项必须使用不同的排序值",
+  "skills.operation.duplicateSortOrder":
+    "同一类型中，每个已启用项必须使用不同的排序值",
   "skills.operation.code": "Code",
   "skills.operation.taxonomyCode": "Code（lower-kebab-case）",
   "skills.operation.addTaxonomy": "新增",
@@ -6676,21 +7162,25 @@ const zh = {
   "skills.operation.inheritWeight": "沿用线上排序",
   "skills.operation.publishOrderHint":
     "已上线 Skill 保留原有排序，可在线上配置中调整。新增品类默认权重为 0。",
-  "skills.operation.batchPublishDescription": "已选择 {{count}} 项，请先选择发布模块",
+  "skills.operation.batchPublishDescription":
+    "已选择 {{count}} 项，请先选择发布模块",
   "skills.operation.publishSection": "发布模块",
   "skills.operation.publishSectionPlaceholder": "请选择发布模块",
   "skills.operation.confirmPublish": "确认发布",
   "skills.operation.publishSelected": "发布所选 ({{count}})",
   "skills.operation.publishAction": "发布",
   "skills.operation.publishSuccess": "发布完成，原有线上排序未改变",
-  "skills.operation.publishInvalid": "以下 Skill 状态已变化，整批未发布：{{skills}}",
+  "skills.operation.publishInvalid":
+    "以下 Skill 状态已变化，整批未发布：{{skills}}",
   "skills.operation.publishMissingCategories":
     "整批未发布，请先为以下 Skill 添加至少一个品类：{{skills}}",
   "skills.operation.publishInvalidCategories":
     "整批未发布，请为以下 Skill 重新选择已启用的品类：{{skills}}",
   "skills.operation.publishCategoryRequired": "发布前请添加至少一个品类",
-  "skills.operation.publishCategoryInvalid": "品类不存在或已停用，请刷新后重新选择品类",
-  "skills.operation.publishCategoryWeightsInvalid": "品类与排序权重不匹配，请检查发布配置",
+  "skills.operation.publishCategoryInvalid":
+    "品类不存在或已停用，请刷新后重新选择品类",
+  "skills.operation.publishCategoryWeightsInvalid":
+    "品类与排序权重不匹配，请检查发布配置",
   "skills.operation.publishedConfig": "线上配置",
   "skills.operation.publishedDetails": "已发布用户 Skill 详情",
   "skills.operation.publishedDisplayName": "展示名",
@@ -6775,14 +7265,16 @@ const zh = {
   "skills.popover.empty.full":
     "未找到匹配的Skill，<create>新建</create>或去<market>Skill商场</market>看看",
   "skills.popover.empty.notFound": "未找到匹配的Skill",
-  "skills.popover.empty.notFoundInTag": "「{{tag}}」下没有匹配的 Skill，<all>查看全部</all>",
+  "skills.popover.empty.notFoundInTag":
+    "「{{tag}}」下没有匹配的 Skill，<all>查看全部</all>",
   "skills.popover.exploreMore": "探索更多",
   "skills.popover.heading": "Skill",
   "skills.popover.hint": "Agent 将自动调用这些 Skill。",
   "skills.popover.hintLink": "管理或探索更多 Skill。",
   "skills.popover.inlineHeading": "我的 Skill",
   "skills.popover.inlineNoMatch": "无匹配项",
-  "skills.popover.inlineNoMatchWithCreate": "无匹配项，<create>创建一个 Skill</create>",
+  "skills.popover.inlineNoMatchWithCreate":
+    "无匹配项，<create>创建一个 Skill</create>",
   "skills.popover.loadingRecommended": "加载推荐Skill中...",
   "skills.popover.manage": "探索更多",
   "skills.popover.manageSkills": "管理 Skill",
@@ -6801,7 +7293,8 @@ const zh = {
   "skills.reloadDock.warning": "重新加载将重启 Agent，当前对话会中断",
   "skills.restartCancel": "取消",
   "skills.restartConfirm": "保存并重启",
-  "skills.restartDescription": "保存 Skill 配置变更后需要重启 AI 服务才能生效，当前对话将被中断。",
+  "skills.restartDescription":
+    "保存 Skill 配置变更后需要重启 AI 服务才能生效，当前对话将被中断。",
   "skills.restartError": "保存失败，请重试",
   "skills.restartFailed": "重启失败，请重试",
   "skills.restartPending": "技能已启用，将在当前任务结束后生效",
@@ -6835,7 +7328,8 @@ const zh = {
   "skills.source.user": "用户",
   "skills.submission.applyReview": "申请审核",
   "skills.submission.assetsSection": "封面图与演示视频",
-  "skills.submission.assetsSectionDesc": "上传用于市场展示和审核的封面图与演示视频",
+  "skills.submission.assetsSectionDesc":
+    "上传用于市场展示和审核的封面图与演示视频",
   "skills.submission.assetUploaded": "已上传",
   "skills.submission.bestFor": "适用场景",
   "skills.submission.bestForCountError": "请添加 2–3 个 Best For 标签",
@@ -6844,10 +7338,12 @@ const zh = {
   "skills.submission.bestForLengthError": "每个标签须为 2–6 个中文字符",
   "skills.submission.bestForPlaceholder": "+ 添加标签",
   "skills.submission.categories": "垂直品类",
-  "skills.submission.categoriesHint": "选择最符合该 Skill 的品类，审核时会最终确认。",
+  "skills.submission.categoriesHint":
+    "选择最符合该 Skill 的品类，审核时会最终确认。",
   "skills.submission.categoryPlaceholder": "请选择垂直品类",
   "skills.submission.chooseDesign": "从 Design 选择",
-  "skills.submission.chooseDesignDesc": "自动读取通过 MiniMax Design 创建的 Skill 信息。",
+  "skills.submission.chooseDesignDesc":
+    "自动读取通过 MiniMax Design 创建的 Skill 信息。",
   "skills.submission.chooseDesignPlaceholder": "选择已创建的 Skill",
   "skills.submission.chooseNewPackage": "选择新的 Skill 包",
   "skills.submission.choosePackage": "选择 ZIP / .tar.gz",
@@ -6865,27 +7361,33 @@ const zh = {
   "skills.submission.creatorHint": "2–30 个中文字符",
   "skills.submission.currentPackage": "当前 Skill 包",
   "skills.submission.designReadSuccess": "Skill 信息读取成功",
-  "skills.submission.designReadSuccessDesc": "下方字段已根据所选 Skill 自动填写，请确认后保存。",
+  "skills.submission.designReadSuccessDesc":
+    "下方字段已根据所选 Skill 自动填写，请确认后保存。",
   "skills.submission.displayName": "展示名称",
   "skills.submission.displayNameHint": "2–24 个中文字符",
-  "skills.submission.displayNamePlaceholder": "例如：3D Animation Short Generator",
+  "skills.submission.displayNamePlaceholder":
+    "例如：3D Animation Short Generator",
   "skills.submission.editPrivateSuccess": "Skill 信息已更新",
   "skills.submission.editReviewSuccess": "修改已提交审核",
-  "skills.submission.editSubtitle": "更新 Skill 展示信息，或在实现有变化时上传新的 Skill 包。",
+  "skills.submission.editSubtitle":
+    "更新 Skill 展示信息，或在实现有变化时上传新的 Skill 包。",
   "skills.submission.editTitle": "编辑 Skill 信息",
   "skills.submission.howToUse": "使用方式",
   "skills.submission.howToUseHint": "说明需要提供的输入，20–40 个中文字符",
-  "skills.submission.howToUsePlaceholder": "说明用户需要提供什么，以及如何开始使用",
+  "skills.submission.howToUsePlaceholder":
+    "说明用户需要提供什么，以及如何开始使用",
   "skills.submission.incomplete": "请完整填写 Skill 信息",
   "skills.submission.noDesignSkills": "暂无 Design 创建的 Skill。",
   "skills.submission.outputs": "交付内容",
   "skills.submission.outputsHint": "说明最终交付物，15–40 个中文字符",
   "skills.submission.outputsPlaceholder": "说明用户最终可以获得的主要交付物",
   "skills.submission.packageHint": "最大 50 MB，包内必须包含 SKILL.md",
-  "skills.submission.packageNameMismatch": "新包中的 Skill name 必须与当前不可变名称一致。",
+  "skills.submission.packageNameMismatch":
+    "新包中的 Skill name 必须与当前不可变名称一致。",
   "skills.submission.packageSizeError": "Skill 包不能超过 50 MB",
   "skills.submission.packageVersionInvalid": "版本号必须使用 x.y.z 格式",
-  "skills.submission.packageVersionMissing": "更新包必须在 meta.yaml 中声明 version",
+  "skills.submission.packageVersionMissing":
+    "更新包必须在 meta.yaml 中声明 version",
   "skills.submission.packageVersionNotNewer": "更新包版本必须高于 {{current}}",
   "skills.submission.packageTypeError": "仅支持 ZIP / .tar.gz Skill 包",
   "skills.submission.packageVersion": "Skill 包版本",
@@ -6894,7 +7396,8 @@ const zh = {
   "skills.submission.privateSuccess": "已保存为 Private",
   "skills.submission.removeLabel": "移除标签",
   "skills.submission.requiredError": "此项为必填项",
-  "skills.submission.reviewNote": "已上线 Skill 的修改送审期间，线上旧版本不受影响。",
+  "skills.submission.reviewNote":
+    "已上线 Skill 的修改送审期间，线上旧版本不受影响。",
   "skills.submission.reviewSuccess": "已提交审核",
   "skills.submission.savePrivate": "保存为 Private",
   "skills.submission.showcase": "演示视频",
@@ -6907,19 +7410,23 @@ const zh = {
   "skills.submission.stage": "创作阶段",
   "skills.submission.stagePlaceholder": "选择一个创作阶段",
   "skills.submission.basicInfoSection": "基础信息",
-  "skills.submission.basicInfoSectionDesc": "Skill 名称、展示名称、作者和包版本",
+  "skills.submission.basicInfoSectionDesc":
+    "Skill 名称、展示名称、作者和包版本",
   "skills.submission.listingInfoSection": "详情页展示",
-  "skills.submission.listingInfoSectionDesc": "一句话简介、适用场景、使用方式和交付内容",
+  "skills.submission.listingInfoSectionDesc":
+    "一句话简介、适用场景、使用方式和交付内容",
   "skills.submission.primaryCategory": "主品类",
   "skills.submission.relatedCategory": "相关品类",
   "skills.submission.relatedCategoryPlaceholder": "可选相关品类",
   "skills.submission.relatedCategoryNone": "不选择相关品类",
   "skills.submission.taxonomySection": "品类与创作阶段",
-  "skills.submission.taxonomySectionDesc": "选择 1 个主品类、最多 2 个相关品类和 1 个创作阶段",
+  "skills.submission.taxonomySectionDesc":
+    "选择 1 个主品类、最多 2 个相关品类和 1 个创作阶段",
   "skills.submission.subtitle": "保存为私有 Skill，或补齐素材后申请社区展示。",
   "skills.submission.summary": "一句话简介",
   "skills.submission.summaryHint": "20–60 个中文字符，单句说明核心能力和价值",
-  "skills.submission.summaryPlaceholder": "用一句话概括 Skill 的核心能力和主要价值",
+  "skills.submission.summaryPlaceholder":
+    "用一句话概括 Skill 的核心能力和主要价值",
   "skills.submission.title": "提交 Skill",
   "skills.submission.updatePackage": "更新 Skill 包（可选）",
   "skills.submission.updatePackageDesc":
@@ -6928,7 +7435,8 @@ const zh = {
     "系统保留原始 Skill 包且不会重新打包；上传后默认保存为 Private。",
   "skills.submission.uploadManualTitle": "请手动填写展示信息",
   "skills.submission.uploadPackage": "上传 Skill 包",
-  "skills.submission.uploadPackageDesc": "上传 ZIP / .tar.gz 后，手动填写展示信息。",
+  "skills.submission.uploadPackageDesc":
+    "上传 ZIP / .tar.gz 后，手动填写展示信息。",
   "skills.tabs.community": "Skill",
   "skills.tabs.communityBeta": "内测",
   "skills.tabs.communityInfo":
@@ -6993,13 +7501,16 @@ const zh = {
   "team.account.teamTag": "团队",
   "team.account.unavailable": "Group 暂不可用",
   "team.account.unknown": "账号",
-  "team.blockingReason.ACTIVE_RUN": "当前有生成任务正在运行，停止该任务后即可切换 Group。",
-  "team.blockingReason.ASSET_OR_UPLOAD_OPERATION": "仍有素材或上传操作正在进行。",
+  "team.blockingReason.ACTIVE_RUN":
+    "当前有生成任务正在运行，停止该任务后即可切换 Group。",
+  "team.blockingReason.ASSET_OR_UPLOAD_OPERATION":
+    "仍有素材或上传操作正在进行。",
   "team.blockingReason.COMPLETION_OUTBOX": "任务完成结果仍在同步。",
   "team.blockingReason.GATEWAY_SYNC": "账号信息仍在同步，请稍候。",
   "team.blockingReason.QUEUED_OR_FLUSHING_INPUT": "仍有排队或发送中的消息。",
   "team.common.loadFailed": "加载失败",
-  "team.common.refreshFailedDescription": "暂时无法获取最新数据，请重试以确认当前状态。",
+  "team.common.refreshFailedDescription":
+    "暂时无法获取最新数据，请重试以确认当前状态。",
   "team.common.refreshFailedTitle": "数据可能不是最新",
   "team.common.refreshFailedToast": "刷新失败：{{code}}",
   "team.common.refreshOk": "数据已刷新",
@@ -7008,7 +7519,8 @@ const zh = {
   "team.create.creditInfo": "团队账号积分需单独购买，不与个人账号互通。",
   "team.create.description":
     "团队拥有独立积分账户，购买的积分由团队成员共享，每位成员可单独配置额度。",
-  "team.create.limitHint": "单个团队最多 500 人；每个账号最多使用 50 个账号空间（含个人账号）。",
+  "team.create.limitHint":
+    "单个团队最多 500 人；每个账号最多使用 50 个账号空间（含个人账号）。",
   "team.create.nameLabel": "团队名称",
   "team.create.namePlaceholder": "输入团队名称",
   "team.create.submit": "创建并切换",
@@ -7019,7 +7531,8 @@ const zh = {
   "team.credit.availableUnavailableHelp": "额度数据暂不可用，请稍后重试。",
   "team.credit.checkoutFailed": "暂时无法创建团队购买链接，请稍后重试。",
   "team.credit.description": "查看个人在当前团队中的可用额度和积分流水。",
-  "team.credit.detailDescription": "仅展示当前账号的消耗明细，不包含团队整体消耗。",
+  "team.credit.detailDescription":
+    "仅展示当前账号的消耗明细，不包含团队整体消耗。",
   "team.credit.detailTitle": "消耗明细",
   "team.credit.direction": "方向",
   "team.credit.directionConsume": "扣费",
@@ -7049,21 +7562,26 @@ const zh = {
   "team.credit.ledgerFilter.today": "今天",
   "team.credit.limitNotice":
     "团队为你分配的积分额度，实际可用积分还受团队余额限制；团队余额不足时，即使个人额度未用完也无法使用。如需调整，请联系管理员修改额度。",
-  "team.credit.managerLimitedAvailableRule": "可用额度取我的剩余额度和团队剩余积分中较小的值。",
+  "team.credit.managerLimitedAvailableRule":
+    "可用额度取我的剩余额度和团队剩余积分中较小的值。",
   "team.credit.managerMemberRemaining": "我的剩余额度：{{remaining}}",
   "team.credit.managerTeamRemaining": "团队剩余积分：{{team}}",
-  "team.credit.managerUnlimitedAvailableRule": "未设置个人限额时，可用额度以团队剩余积分为准。",
+  "team.credit.managerUnlimitedAvailableRule":
+    "未设置个人限额时，可用额度以团队剩余积分为准。",
   "team.credit.managerUnlimitedMember": "我的积分额度：无限额",
   "team.credit.memberLimitNotice":
     "此处优先展示团队分配给你的剩余积分额度。若团队剩余积分不足，即使个人额度尚有剩余也无法使用；若团队未给你设置个人积分额度，则此处展示团队剩余积分。",
-  "team.credit.memberLimitedAvailableRule": "可用额度取我的剩余额度和团队剩余积分中较小的值。",
+  "team.credit.memberLimitedAvailableRule":
+    "可用额度取我的剩余额度和团队剩余积分中较小的值。",
   "team.credit.memberQuotaHelp": "额度说明",
   "team.credit.memberQuotaUnavailableNotice":
     "暂时无法获取你的个人额度，请稍后重试或联系团队管理员。",
-  "team.credit.memberUnlimitedAvailableRule": "未设置个人限额，可用额度以团队剩余积分为准。",
+  "team.credit.memberUnlimitedAvailableRule":
+    "未设置个人限额，可用额度以团队剩余积分为准。",
   "team.credit.memberUnlimitedHelp":
     "此处优先展示团队分配给你的剩余积分额度。若团队剩余积分不足，即使个人额度尚有剩余也无法使用；若团队未给你设置个人积分额度，则此处展示团队剩余积分。",
-  "team.credit.memberUnlimitedNotice": "你的个人额度当前无限制。如需调整，请联系团队管理员。",
+  "team.credit.memberUnlimitedNotice":
+    "你的个人额度当前无限制。如需调整，请联系团队管理员。",
   "team.credit.memberUid": "UID",
   "team.credit.model": "模型",
   "team.credit.operator": "消耗人",
@@ -7077,7 +7595,8 @@ const zh = {
   "team.credit.remaining": "剩余额度",
   "team.credit.remainingHelp": "剩余额度说明",
   "team.credit.remainingHelpPrimary": "这是当前团队积分池的剩余积分。",
-  "team.credit.remainingHelpSecondary": "团队成员共享此余额；余额不足时将无法继续使用团队积分。",
+  "team.credit.remainingHelpSecondary":
+    "团队成员共享此余额；余额不足时将无法继续使用团队积分。",
   "team.credit.sidebarAriaAvailableUnavailable": "可用额度暂不可用",
   "team.credit.sidebarAriaManagerLimited":
     "个人可用额度 {{available}}，我的剩余额度 {{remaining}}，团队剩余积分 {{team}}",
@@ -7110,7 +7629,8 @@ const zh = {
     "你的个人额度当前无限制，实际可用积分以团队剩余积分为准；团队余额不足时将无法继续使用。",
   "team.credit.unlimitedShort": "不限",
   "team.credit.usageUnavailableTooltip": "用量数据暂不可获取",
-  "team.credit.usageUnavailableWithAllowance": "{{allowance}}，用量数据暂不可获取",
+  "team.credit.usageUnavailableWithAllowance":
+    "{{allowance}}，用量数据暂不可获取",
   "team.credit.you": "个人",
   "team.gated.createUnavailable": "当前无法创建团队",
   "team.gated.informationUnavailable": "团队信息暂不可用",
@@ -7126,7 +7646,8 @@ const zh = {
   "team.invitation.acceptFailed": "邀请失败，请稍后重试或联系团队管理员。",
   "team.invitation.acceptSucceeded": "已接受邀请并加入团队。",
   "team.invitation.alreadyJoined": "已加入过该团队",
-  "team.invitation.emailDescription": "你收到了一封团队邀请，接受后即可加入团队。",
+  "team.invitation.emailDescription":
+    "你收到了一封团队邀请，接受后即可加入团队。",
   "team.invitation.exhausted": "该邀请链接的使用次数已用完。",
   "team.invitation.expired": "邀请已过期",
   "team.invitation.expiresIn": "{{time}}后过期",
@@ -7142,13 +7663,17 @@ const zh = {
   "team.invitation.role": "受邀角色",
   "team.invitation.status.cancelled": "邀请已被取消，请联系团队管理员重新发送",
   "team.invitation.status.expired": "邀请已过期，请联系团队管理员重新发送",
-  "team.invitation.status.groupHasTooManyMembers": "团队成员已满，暂时无法加入，请联系团队管理员",
-  "team.invitation.status.invalidInvitationId": "邀请链接无效或不存在，请检查链接后重试",
+  "team.invitation.status.groupHasTooManyMembers":
+    "团队成员已满，暂时无法加入，请联系团队管理员",
+  "team.invitation.status.invalidInvitationId":
+    "邀请链接无效或不存在，请检查链接后重试",
   "team.invitation.status.invitationLinkExhausted":
     "邀请链接使用次数已达上限，请联系管理员获取新的邀请链接",
   "team.invitation.status.pending": "邀请已发送，等待对方接受",
-  "team.invitation.status.userHasTooManyGroup": "已达到可加入团队数量上限，请先退出其他团队后重试",
-  "team.invitation.status.userIdNotMatch": "当前登录账号与受邀账号不一致，请切换至受邀账号后重试",
+  "team.invitation.status.userHasTooManyGroup":
+    "已达到可加入团队数量上限，请先退出其他团队后重试",
+  "team.invitation.status.userIdNotMatch":
+    "当前登录账号与受邀账号不一致，请切换至受邀账号后重试",
   "team.invitation.validity": "链接有效期",
   "team.inviteLink.adminDescription": "可管理成员、查看团队消费记录。",
   "team.inviteLink.create": "创建邀请链接",
@@ -7167,12 +7692,16 @@ const zh = {
   "team.inviteLink.maxUses": "使用次数限制",
   "team.inviteLink.memberDescription": "可使用团队资源，并查看自己的消费记录。",
   "team.inviteLink.neverExpires": "永久有效",
-  "team.inviteLink.ownerNote": "团队所有者角色不可通过邀请改变，只会以受邀角色加入团队。",
+  "team.inviteLink.ownerNote":
+    "团队所有者角色不可通过邀请改变，只会以受邀角色加入团队。",
   "team.inviteLink.quotaLimit": "积分额度",
-  "team.inviteLink.quotaLimitPlaceholder": "设置成员积分上限；不设置时，成员可自由共享团队积分",
+  "team.inviteLink.quotaLimitPlaceholder":
+    "设置成员积分上限；不设置时，成员可自由共享团队积分",
   "team.inviteLink.role": "受邀人角色",
-  "team.inviteLink.saveLinkNotice": "请在关闭前复制链接，关闭后将无法再次查看。",
-  "team.inviteLink.securityWarning": "任何获得此链接的人都可以申请加入团队，请仅分享给可信成员。",
+  "team.inviteLink.saveLinkNotice":
+    "请在关闭前复制链接，关闭后将无法再次查看。",
+  "team.inviteLink.securityWarning":
+    "任何获得此链接的人都可以申请加入团队，请仅分享给可信成员。",
   "team.inviteLink.unlimited": "不限次数",
   "team.inviteLinkStatus.active": "有效",
   "team.inviteLinkStatus.exhausted": "次数已用完",
@@ -7210,12 +7739,14 @@ const zh = {
   "team.management.addQuotaLimitHelpContent":
     "该限额用于限制成员在当前团队中可使用的积分。保存后生效，成员后续消耗不能超过此上限。",
   "team.management.addQuotaLimitPlaceholder": "输入额度上限",
-  "team.management.adminRoleDescription": "可分配成员积分，并查看成员消耗明细。",
+  "team.management.adminRoleDescription":
+    "可分配成员积分，并查看成员消耗明细。",
   "team.management.applyDefaultQuota": "配置",
   "team.management.batchRemoveDescription":
     "确认从“{{team}}”移除 {{count}} 名成员？此操作不可撤销。",
   "team.management.batchRemoveFailed": "批量移除失败，请稍后重试。",
-  "team.management.batchRemovePartial": "成功 {{ok}}，失败 {{fail}}。失败成员保持选中可重试。",
+  "team.management.batchRemovePartial":
+    "成功 {{ok}}，失败 {{fail}}。失败成员保持选中可重试。",
   "team.management.batchRemoveProtected":
     "已自动排除 {{count}} 名不可移除成员（Owner / 自己 / 无权限）。",
   "team.management.batchRemoveSucceeded": "已移除 {{count}} 名成员。",
@@ -7232,9 +7763,11 @@ const zh = {
   "team.management.currentQuotaLimit": "当前额度上限",
   "team.management.currentQuotaUnavailable": "当前可用积分暂不可获取",
   "team.management.defaultQuota": "默认个人额度",
-  "team.management.defaultQuotaDescription": "为团队成员设置统一额度，批量管理积分使用。",
+  "team.management.defaultQuotaDescription":
+    "为团队成员设置统一额度，批量管理积分使用。",
   "team.management.defaultQuotaInvalid": "请输入不超过安全整数范围的非负整数。",
-  "team.management.defaultQuotaMixedNotice": "当前成员限额不一致，请输入本次要统一设置的额度。",
+  "team.management.defaultQuotaMixedNotice":
+    "当前成员限额不一致，请输入本次要统一设置的额度。",
   "team.management.defaultQuotaPerMember": "每人默认限额",
   "team.management.defaultQuotaResetNote":
     "保存后，当前所有成员将使用相同的积分上限。设置限额不会提前扣除团队积分，额度也不会自动重置。",
@@ -7249,8 +7782,10 @@ const zh = {
     "团队剩余积分暂不可用。请选择“不转移”，或稍后重试。",
   "team.management.dissolveCreditDestinationLabel": "剩余积分去向",
   "team.management.dissolveCreditDestinationPlaceholder": "请选择剩余积分去向",
-  "team.management.dissolveCreditDestinationSearchEmpty": "没有匹配的账号，请调整搜索条件。",
-  "team.management.dissolveCreditDestinationSearchPlaceholder": "搜索团队名称或 Group ID",
+  "team.management.dissolveCreditDestinationSearchEmpty":
+    "没有匹配的账号，请调整搜索条件。",
+  "team.management.dissolveCreditDestinationSearchPlaceholder":
+    "搜索团队名称或 Group ID",
   "team.management.dissolveCreditDiscard": "不转移，放弃剩余积分",
   "team.management.dissolveCreditDiscardDescription":
     "未选择转入账号时，团队剩余积分将在解散后失效，且无法恢复。",
@@ -7273,13 +7808,17 @@ const zh = {
   "team.management.dissolveUpstreamUnavailable":
     "团队解散暂不可用（上游服务异常），请稍后重试。积分未变动，团队仍保留。",
   "team.management.eligibleMembers": "适用成员",
-  "team.management.exitBusy": "当前仍有运行中的任务或待发送内容，请完成后再退出团队。",
+  "team.management.exitBusy":
+    "当前仍有运行中的任务或待发送内容，请完成后再退出团队。",
   "team.management.groupId": "Group ID",
   "team.management.invite": "邀请成员",
-  "team.management.inviteLinkExpiryAndUsage": "有效期至 {{date}} · 已使用 {{used}} / {{limit}}",
-  "team.management.inviteLinkUsage": "{{used}} / {{limit}} 次 · {{role}} · {{status}}",
+  "team.management.inviteLinkExpiryAndUsage":
+    "有效期至 {{date}} · 已使用 {{used}} / {{limit}}",
+  "team.management.inviteLinkUsage":
+    "{{used}} / {{limit}} 次 · {{role}} · {{status}}",
   "team.management.inviteLinks": "邀请链接记录",
-  "team.management.inviteLinksDescription": "查看仍有效或已失效的团队邀请链接。",
+  "team.management.inviteLinksDescription":
+    "查看仍有效或已失效的团队邀请链接。",
   "team.management.inviteLinksHelp": "邀请记录说明",
   "team.management.inviteLinksLoadFailed": "邀请链接加载失败",
   "team.management.inviteLinksNoRevokeOrCopy":
@@ -7291,7 +7830,8 @@ const zh = {
   "team.management.leaveConfirmHelp": "确认说明",
   "team.management.leaveConfirmLabel": "确认团队名称",
   "team.management.leaveConfirmPrompt": "请输入团队名称 “{{name}}” 以确认：",
-  "team.management.leaveDescription": "退出“{{name}}”后，将立即切换回个人空间。是否继续？",
+  "team.management.leaveDescription":
+    "退出“{{name}}”后，将立即切换回个人空间。是否继续？",
   "team.management.leaveFailed": "退出团队失败，请稍后重试。",
   "team.management.leaveHelp": "退出说明",
   "team.management.leaveOwnerDescription":
@@ -7304,10 +7844,12 @@ const zh = {
   "team.management.leaveSucceeded": "已退出团队。",
   "team.management.leaveTitle": "退出团队",
   "team.management.loadMoreMembers": "加载更多成员",
-  "team.management.lowAllowanceWarning": "成员可使用额度过低，请增加成员额度上限或充值积分。",
+  "team.management.lowAllowanceWarning":
+    "成员可使用额度过低，请增加成员额度上限或充值积分。",
   "team.management.member": "成员",
   "team.management.memberCreditUsage": "成员积分概览",
-  "team.management.memberCurrentQuotaTeamRemaining": "该成员可用额度：团队剩余积分 {{amount}}",
+  "team.management.memberCurrentQuotaTeamRemaining":
+    "该成员可用额度：团队剩余积分 {{amount}}",
   "team.management.memberDescription": "查看你在当前团队中的个人额度。",
   "team.management.memberLimit": "{{count}} / {{limit}} 人",
   "team.management.memberQuotaDescription": "仅展示你的个人额度和使用情况。",
@@ -7318,13 +7860,15 @@ const zh = {
   "team.management.memberRoleDescription": "可使用团队积分，不能管理其他成员。",
   "team.management.memberSettings": "成员设置",
   "team.management.memberSettingsUnavailable": "当前成员暂无可用设置。",
-  "team.management.memberSettingsDescription": "管理 {{name}} 在“{{team}}”中的角色与额度。",
+  "team.management.memberSettingsDescription":
+    "管理 {{name}} 在“{{team}}”中的角色与额度。",
   "team.management.memberTotalUsed": "累计使用",
   "team.management.memberTotalUsedHelp": "累计使用说明",
   "team.management.memberTotalUsedHelpContent":
     "展示该成员在当前团队内的历史累计消耗积分，与团队累计已用积分、消费流水口径一致。",
   "team.management.memberTransactions": "成员积分流水",
-  "team.management.memberUsageDescription": "查看 {{name}} 在“{{team}}”中的积分用量。",
+  "team.management.memberUsageDescription":
+    "查看 {{name}} 在“{{team}}”中的积分用量。",
   "team.management.memberUsageTitle": "成员用量",
   "team.management.memberUsedCredits": "累计已用积分",
   "team.management.members": "成员详情",
@@ -7342,7 +7886,8 @@ const zh = {
   "team.management.quotaRemovalPending": "将在保存设置后取消额度上限。",
   "team.management.quotaSaveFailed": "成员额度更新失败，请稍后重试。",
   "team.management.quotaSaved": "成员额度已更新。",
-  "team.management.quotaUpstreamUnavailable": "成员额度更新暂不可用（上游异常），请稍后重试。",
+  "team.management.quotaUpstreamUnavailable":
+    "成员额度更新暂不可用（上游异常），请稍后重试。",
   "team.management.quotaUsedInlineLabel": "已用额度：",
   "team.management.removeMember": "移除成员",
   "team.management.removeMemberConfirm": "确认移除",
@@ -7362,7 +7907,8 @@ const zh = {
   "team.management.saveSettings": "保存修改",
   "team.management.saveSettingsDescription": "确认更新 {{name}} 的权限与额度？",
   "team.management.saveSettingsTitle": "确认保存修改",
-  "team.management.scopeChanged": "当前请求与计费 Group 已变化，请重新打开团队管理。",
+  "team.management.scopeChanged":
+    "当前请求与计费 Group 已变化，请重新打开团队管理。",
   "team.management.searchPlaceholder": "搜索姓名或 UID",
   "team.management.selectCurrentPage": "选择全部已加载成员",
   "team.management.selectMember": "选择 {{name}}",
@@ -7371,7 +7917,8 @@ const zh = {
   "team.management.settings": "设置",
   "team.management.settingsSaveFailed": "成员设置更新失败，请稍后重试。",
   "team.management.settingsSaved": "成员设置已更新。",
-  "team.management.settingsUpstreamUnavailable": "成员设置更新暂不可用（上游异常），请稍后重试。",
+  "team.management.settingsUpstreamUnavailable":
+    "成员设置更新暂不可用（上游异常），请稍后重试。",
   "team.management.successorHelp": "继任说明",
   "team.management.successorHint":
     "按姓名或 UID 远程搜索有效成员（与成员列表同一数据源），再选择继任 Owner。",
@@ -7399,17 +7946,21 @@ const zh = {
   "team.pastTeams.empty": "没有可添加的过往团队成员",
   "team.pastTeams.loadFailed": "过往团队成员加载失败",
   "team.pastTeams.maxReached": "单次最多添加 {{count}} 人",
-  "team.pastTeams.quotaLimitPlaceholder": "设置成员积分上限；不设置时，成员可自由共享团队积分",
+  "team.pastTeams.quotaLimitPlaceholder":
+    "设置成员积分上限；不设置时，成员可自由共享团队积分",
   "team.pastTeams.removeSelected": "移除 {{name}}",
   "team.pastTeams.searchPlaceholder": "搜索姓名或 UID",
   "team.pastTeams.selectAll": "全选",
   "team.pastTeams.selectedCount": "已选择 {{count}}/{{max}} 人",
   "team.pastTeams.tabLink": "通过链接邀请",
   "team.pastTeams.tabPast": "从过往团队中添加",
-  "team.reason.account_scope_changed": "请求与计费 Group 已切换，请重新打开后再试。",
+  "team.reason.account_scope_changed":
+    "请求与计费 Group 已切换，请重新打开后再试。",
   "team.reason.busy": "请求与计费 Group 正在同步。",
-  "team.reason.cannot_change_owner_role": "不能修改 Owner 的角色，请使用转移负责人。",
-  "team.reason.cannot_remove_admin": "管理员不能移除其他管理员，请联系 Owner 处理。",
+  "team.reason.cannot_change_owner_role":
+    "不能修改 Owner 的角色，请使用转移负责人。",
+  "team.reason.cannot_remove_admin":
+    "管理员不能移除其他管理员，请联系 Owner 处理。",
   "team.reason.cannot_remove_owner": "不能移除团队 Owner。",
   "team.reason.cannot_remove_self": "不能移除自己，请使用“离开团队”。",
   "team.reason.cloud_result_unknown": "暂时无法确认操作结果，请稍后刷新。",
@@ -7435,10 +7986,14 @@ const zh = {
   "team.reason.rejected": "请求已被拒绝，请刷新后重试。",
   "team.reason.resource_closed": "该团队已解散。",
   "team.reason.resource_not_found": "请求的资源已不存在。",
-  "team.reason.switch_busy": "暂时无法切换请求与计费 Group，请先停止进行中的任务。",
-  "team.reason.team_account_dns_failure": "无法解析服务地址，请检查网络或更换网络后重试。",
-  "team.reason.team_account_gateway_misconfigured": "本地服务配置异常，请重启应用后重试。",
-  "team.reason.team_account_network_failure": "网络连接不稳定，请检查网络后重试。",
+  "team.reason.switch_busy":
+    "暂时无法切换请求与计费 Group，请先停止进行中的任务。",
+  "team.reason.team_account_dns_failure":
+    "无法解析服务地址，请检查网络或更换网络后重试。",
+  "team.reason.team_account_gateway_misconfigured":
+    "本地服务配置异常，请重启应用后重试。",
+  "team.reason.team_account_network_failure":
+    "网络连接不稳定，请检查网络后重试。",
   "team.reason.team_account_switching": "正在切换请求与计费 Group，请稍候。",
   "team.reason.team_account_tls_trust_failure":
     "网络证书校验失败，可能被代理或安全软件拦截。请检查网络环境后重试。",
@@ -7454,7 +8009,8 @@ const zh = {
   "team.reason.team_switch_disabled": "当前无法切换团队。",
   "team.reason.temporarily_unavailable": "团队服务暂不可用。",
   "team.reason.upgrade_required": "请升级客户端后再试。",
-  "team.reason.upstream_transactions_unavailable": "团队积分流水暂未开放，请稍后再试。",
+  "team.reason.upstream_transactions_unavailable":
+    "团队积分流水暂未开放，请稍后再试。",
   "team.reason.user_capability_unavailable": "你的团队权限仍在同步。",
   "team.reason.version_conflict": "数据已更新，请刷新后重试。",
   "team.role.admin": "管理员",
@@ -7464,11 +8020,14 @@ const zh = {
   "team.submission.reason.canonical_context_pending": "账号信息仍在同步。",
   "team.submission.reason.canonical_context_recovering": "账号信息正在恢复。",
   "team.submission.reason.canonical_context_signed_out": "请先登录再提交。",
-  "team.submission.reason.canonical_context_stale": "账号信息已变化，正在重新校验。",
+  "team.submission.reason.canonical_context_stale":
+    "账号信息已变化，正在重新校验。",
   "team.submission.reason.canonical_context_switching": "请等待账号切换完成。",
   "team.submission.reason.canonical_context_syncing": "账号信息仍在同步。",
-  "team.submission.reason.canonical_context_temporarily_unavailable": "团队服务暂不可用。",
-  "team.submission.reason.canonical_context_upgrade_required": "请升级客户端后再提交。",
+  "team.submission.reason.canonical_context_temporarily_unavailable":
+    "团队服务暂不可用。",
+  "team.submission.reason.canonical_context_upgrade_required":
+    "请升级客户端后再提交。",
   "team.submission.reason.canonical_scope_missing": "无法确认当前账号。",
   "team.submission.reason.personal_checkout_requires_personal_context":
     "请先切换到个人账号，再打开个人购买页。",
@@ -7514,7 +8073,8 @@ const zh = {
   "team.transferCredit.amountExceedsBalance": "超出团队可用积分。",
   "team.transferCredit.amountInvalid": "请输入大于 0 的整数积分。",
   "team.transferCredit.amountLabel": "转移数量",
-  "team.transferCredit.amountLabelWithBalance": "转移数量（团队可用 {{balance}}）",
+  "team.transferCredit.amountLabelWithBalance":
+    "转移数量（团队可用 {{balance}}）",
   "team.transferCredit.confirm": "确认转移",
   "team.transferCredit.description":
     "把「{{name}}」的剩余积分转移到你名下的其他团队或个人空间。积分保留原有效期，订阅套餐额度不参与转移。",
@@ -7540,7 +8100,8 @@ const zh = {
   "topbar.closeBlockedBusy": "当前 workspace 仍有任务运行中，暂时无法关闭。",
   "topbar.closeBlockedBusyDetail": "仍在进行：{{items}}",
   "topbar.closeBlockedUnsaved": "画布改动尚未保存",
-  "topbar.closeBlockedUnsavedDetail": "请先重试保存；也可以明确选择放弃最新改动并关闭。",
+  "topbar.closeBlockedUnsavedDetail":
+    "请先重试保存；也可以明确选择放弃最新改动并关闭。",
   "topbar.closeOthers": "关闭其他",
   "topbar.closeRight": "关闭右侧",
   "topbar.closeWindow": "关闭窗口",
@@ -7559,27 +8120,37 @@ const zh = {
     "团队账户检查未配置，暂时无法判断当前链路状态。",
   "topbar.diagnostics.domain.account.ok": "团队账户网络路径可达。",
   "topbar.diagnostics.domain.account.title": "账号与团队",
-  "topbar.diagnostics.domain.account.warning": "团队账户服务响应异常，Group 或账号操作可能受影响。",
-  "topbar.diagnostics.domain.cloud.error": "云端 API 不可达，登录、生成或上传可能受影响。",
+  "topbar.diagnostics.domain.account.warning":
+    "团队账户服务响应异常，Group 或账号操作可能受影响。",
+  "topbar.diagnostics.domain.cloud.error":
+    "云端 API 不可达，登录、生成或上传可能受影响。",
   "topbar.diagnostics.domain.cloud.ok": "云端 API 可达。",
   "topbar.diagnostics.domain.cloud.title": "云端服务",
   "topbar.diagnostics.domain.cloud.warning": "云端 API 有响应，但需要关注。",
-  "topbar.diagnostics.domain.local.error": "本地服务不可用，chat、画布或资产操作可能受影响。",
+  "topbar.diagnostics.domain.local.error":
+    "本地服务不可用，chat、画布或资产操作可能受影响。",
   "topbar.diagnostics.domain.local.ok": "本地服务响应正常。",
   "topbar.diagnostics.domain.local.title": "本地服务",
-  "topbar.diagnostics.domain.local.warning": "本地诊断不完整；如果操作变慢请重测。",
-  "topbar.diagnostics.domain.observability.error": "问题上报链路被阻断，不会停止当前创作。",
+  "topbar.diagnostics.domain.local.warning":
+    "本地诊断不完整；如果操作变慢请重测。",
+  "topbar.diagnostics.domain.observability.error":
+    "问题上报链路被阻断，不会停止当前创作。",
   "topbar.diagnostics.domain.observability.ok": "问题上报链路可达。",
   "topbar.diagnostics.domain.observability.title": "问题上报",
-  "topbar.diagnostics.domain.observability.warning": "问题上报可能被阻断；联系支持时请上传日志。",
-  "topbar.diagnostics.domain.proxy.detected": "检测到系统代理；仅在请求失败时切换代理模式。",
+  "topbar.diagnostics.domain.observability.warning":
+    "问题上报可能被阻断；联系支持时请上传日志。",
+  "topbar.diagnostics.domain.proxy.detected":
+    "检测到系统代理；仅在请求失败时切换代理模式。",
   "topbar.diagnostics.domain.proxy.ok": "未检测到代理或 VPN。",
   "topbar.diagnostics.domain.proxy.title": "代理 / VPN",
-  "topbar.diagnostics.domain.proxy.tun": "疑似 VPN/TUN 已启用；仅在请求失败时切换代理模式。",
-  "topbar.diagnostics.domain.updates.error": "更新下载暂不可用；不影响当前创作。",
+  "topbar.diagnostics.domain.proxy.tun":
+    "疑似 VPN/TUN 已启用；仅在请求失败时切换代理模式。",
+  "topbar.diagnostics.domain.updates.error":
+    "更新下载暂不可用；不影响当前创作。",
   "topbar.diagnostics.domain.updates.ok": "更新下载正常。",
   "topbar.diagnostics.domain.updates.title": "更新下载",
-  "topbar.diagnostics.domain.updates.warning": "更新下载暂时不可用；不影响当前创作。",
+  "topbar.diagnostics.domain.updates.warning":
+    "更新下载暂时不可用；不影响当前创作。",
   "topbar.diagnostics.export": "导出日志",
   "topbar.diagnostics.exportFailed": "导出日志失败",
   "topbar.diagnostics.exportSuccess": "已导出日志",
@@ -7632,7 +8203,8 @@ const zh = {
   "topbar.diagnostics.proxyModeFailed": "代理模式更新失败",
   "topbar.diagnostics.proxyModeHint":
     "只影响新建或重试的 workspace；chat、画布、资产保持可见可操作。",
-  "topbar.diagnostics.proxyModeSaved": "已保存代理模式；已打开 workspace 可能需重试或重启后生效。",
+  "topbar.diagnostics.proxyModeSaved":
+    "已保存代理模式；已打开 workspace 可能需重试或重启后生效。",
   "topbar.diagnostics.readiness.degraded": "降级",
   "topbar.diagnostics.readiness.idle": "未运行",
   "topbar.diagnostics.readiness.not_ready": "未就绪",
@@ -7640,7 +8212,8 @@ const zh = {
   "topbar.diagnostics.readiness.unknown": "未知",
   "topbar.diagnostics.recommendation.action.direct": "切到直连",
   "topbar.diagnostics.recommendation.action.system": "切到系统代理",
-  "topbar.diagnostics.recommendation.export_diagnostics": "联系支持时导出或上传诊断信息。",
+  "topbar.diagnostics.recommendation.export_diagnostics":
+    "联系支持时导出或上传诊断信息。",
   "topbar.diagnostics.recommendation.local_gateway_unhealthy":
     "本地服务持续异常时，先重试当前 workspace 或重启应用。",
   "topbar.diagnostics.recommendation.network_offline": "先检查系统网络连接。",
@@ -7662,14 +8235,18 @@ const zh = {
     "诊断通道可能还在启动或暂时不可用。你仍可以导出日志给支持排查。",
   "topbar.diagnostics.serviceUnavailableTitle": "诊断服务暂未就绪",
   "topbar.diagnostics.status.integrity.detail": "安装资源：{{state}}。",
-  "topbar.diagnostics.status.integrity.detail.error": "部分安装资源异常，建议重装或联系支持。",
-  "topbar.diagnostics.status.integrity.detail.notApplicable": "当前环境无需检查安装资源。",
+  "topbar.diagnostics.status.integrity.detail.error":
+    "部分安装资源异常，建议重装或联系支持。",
+  "topbar.diagnostics.status.integrity.detail.notApplicable":
+    "当前环境无需检查安装资源。",
   "topbar.diagnostics.status.integrity.detail.ok": "安装资源完整。",
   "topbar.diagnostics.status.integrity.detail.unknown": "安装资源暂未检查。",
-  "topbar.diagnostics.status.integrity.detail.warning": "部分安装资源需要检查。",
+  "topbar.diagnostics.status.integrity.detail.warning":
+    "部分安装资源需要检查。",
   "topbar.diagnostics.status.integrity.title": "安装资源",
   "topbar.diagnostics.status.memory.detail": "内存状态：{{pressure}}。",
-  "topbar.diagnostics.status.memory.detail.low": "可用内存不足，建议关闭大型应用后重试。",
+  "topbar.diagnostics.status.memory.detail.low":
+    "可用内存不足，建议关闭大型应用后重试。",
   "topbar.diagnostics.status.memory.detail.low.withAvailable":
     "系统可用内存仅约 {{available}} MB，建议关闭大型应用后重试。",
   "topbar.diagnostics.status.memory.detail.low.withAvailableAndUsage":
@@ -7688,12 +8265,15 @@ const zh = {
   "topbar.diagnostics.status.runtime.title": "服务状态",
   "topbar.diagnostics.status.updater.detail": "更新状态暂未确认。",
   "topbar.diagnostics.status.updater.detail.ok": "未发现未完成的更新。",
-  "topbar.diagnostics.status.updater.detail.pending": "检测到上次更新未完成，当前创作不受影响。",
-  "topbar.diagnostics.status.updater.detail.recovery": "检测到上次更新未完成，建议按提示手动恢复。",
+  "topbar.diagnostics.status.updater.detail.pending":
+    "检测到上次更新未完成，当前创作不受影响。",
+  "topbar.diagnostics.status.updater.detail.recovery":
+    "检测到上次更新未完成，建议按提示手动恢复。",
   "topbar.diagnostics.status.updater.detail.unknown": "暂时无法确认更新状态。",
   "topbar.diagnostics.status.updater.title": "更新状态",
   "topbar.diagnostics.statusSection": "状态检测",
-  "topbar.diagnostics.summary.errorDetail": "核心连接不可用；重试无效时请导出诊断。",
+  "topbar.diagnostics.summary.errorDetail":
+    "核心连接不可用；重试无效时请导出诊断。",
   "topbar.diagnostics.summary.errorTitle": "发现连接问题",
   "topbar.diagnostics.summary.okDetail":
     "已完成的本地服务、云端链路、更新下载和问题上报检查均正常。",
@@ -7704,7 +8284,8 @@ const zh = {
   "topbar.diagnostics.summary.statusAttentionDetail":
     "网络连接正常，但部分本地状态需要关注，详见下方状态检测。",
   "topbar.diagnostics.summary.statusAttentionTitle": "部分状态需要关注",
-  "topbar.diagnostics.summary.warningDetail": "部分非核心检测需要关注；不影响当前创作。",
+  "topbar.diagnostics.summary.warningDetail":
+    "部分非核心检测需要关注；不影响当前创作。",
   "topbar.diagnostics.summary.warningFailedDetail":
     "{{count}} 项核心检测失败。可先重测，持续失败再导出日志。",
   "topbar.diagnostics.summary.warningTitle": "部分检测需要关注",
@@ -7713,10 +8294,12 @@ const zh = {
   "topbar.diagnostics.summary.windowsCpuUnsupportedTitle": "当前处理器不受支持",
   "topbar.diagnostics.summary.windowsVersionUnsupportedDetail":
     "本地 AI 服务要求 Windows 10 1809、Windows Server 2019 或更高版本；重试或重装无法解决。",
-  "topbar.diagnostics.summary.windowsVersionUnsupportedTitle": "Windows 版本不受支持",
+  "topbar.diagnostics.summary.windowsVersionUnsupportedTitle":
+    "Windows 版本不受支持",
   "topbar.diagnostics.summary.windowsVersionUnverifiedDetail":
     "Windows 版本核验未完成，请稍后重新检测；若持续失败，请上传诊断并联系支持，无需重装系统。",
-  "topbar.diagnostics.summary.windowsVersionUnverifiedTitle": "暂时无法确认 Windows 版本",
+  "topbar.diagnostics.summary.windowsVersionUnverifiedTitle":
+    "暂时无法确认 Windows 版本",
   "topbar.diagnostics.recommendation.windows_version_unverified":
     "请稍后重新检测；若仍无法确认 Windows 版本，请上传诊断并联系支持。",
   "topbar.diagnostics.title": "状态诊断",
@@ -7762,15 +8345,22 @@ const zh = {
     '{{count}} 项生成任务（含 "{{prompt}}"）已完成，点击查看结果',
   "topbar.notification.multipleTasksCompletedFallbackBody":
     "{{count}} 个生成任务已完成，点击查看结果",
-  "topbar.notification.multipleTasksCompletedTitle": "{{count}} 个生成任务已完成",
-  "topbar.notification.taskCompletedBody": '"{{prompt}}" 已生成完成，点击查看结果',
-  "topbar.notification.taskCompletedFallbackBody": "生成任务已完成，点击查看结果",
+  "topbar.notification.multipleTasksCompletedTitle":
+    "{{count}} 个生成任务已完成",
+  "topbar.notification.taskCompletedBody":
+    '"{{prompt}}" 已生成完成，点击查看结果',
+  "topbar.notification.taskCompletedFallbackBody":
+    "生成任务已完成，点击查看结果",
   "topbar.notification.taskCompletedTitle": "生成完成",
-  "topbar.notification.taskNeedsAnswerBody": '"{{prompt}}" 正在等待你的回答，点击继续',
-  "topbar.notification.taskNeedsAnswerFallbackBody": "Agent 正在等待你的回答，点击继续",
+  "topbar.notification.taskNeedsAnswerBody":
+    '"{{prompt}}" 正在等待你的回答，点击继续',
+  "topbar.notification.taskNeedsAnswerFallbackBody":
+    "Agent 正在等待你的回答，点击继续",
   "topbar.notification.taskNeedsAnswerTitle": "等待你的回答",
-  "topbar.notification.taskNeedsConfirmationBody": '"{{prompt}}" 正在等待你的确认，点击继续',
-  "topbar.notification.taskNeedsConfirmationFallbackBody": "Agent 正在等待你的确认，点击继续",
+  "topbar.notification.taskNeedsConfirmationBody":
+    '"{{prompt}}" 正在等待你的确认，点击继续',
+  "topbar.notification.taskNeedsConfirmationFallbackBody":
+    "Agent 正在等待你的确认，点击继续",
   "topbar.notification.taskNeedsConfirmationTitle": "等待你的确认",
   "topbar.openWorkspace": "打开工作区...",
   "topbar.restore": "还原",
@@ -7802,12 +8392,14 @@ const zh = {
   "trackingRecorder.minimize": "收起面板",
   "trackingRecorder.missing": "未检测到埋点 · 建议补充",
   "trackingRecorder.noteLabel": "埋点设计备注",
-  "trackingRecorder.notePlaceholder": "例：新增点击事件，或给已有事件补 node_id / source",
+  "trackingRecorder.notePlaceholder":
+    "例：新增点击事件，或给已有事件补 node_id / source",
   "trackingRecorder.openDirectory": "打开导出目录",
   "trackingRecorder.openDirectoryFailed": "无法打开导出目录",
   "trackingRecorder.previewFailed": "无法恢复这张截图",
   "trackingRecorder.refresh": "刷新最新代码",
-  "trackingRecorder.refreshConfirm": "当前有未导出的候选记录。刷新后会从本地草稿恢复，确定继续吗？",
+  "trackingRecorder.refreshConfirm":
+    "当前有未导出的候选记录。刷新后会从本地草稿恢复，确定继续吗？",
   "trackingRecorder.refreshFailed": "刷新最新代码失败",
   "trackingRecorder.screenshotPreview": "埋点候选截图",
   "trackingRecorder.startRecording": "开始录制",
@@ -7869,7 +8461,8 @@ const zh = {
     "应用安装路径连接异常，自动安装已停止。请下载完整安装包，退出 MiniMax Design 后覆盖安装",
   "update.failureCode.INSTDIR_MULTI_INSTALL":
     "检测到本机存在多份 MiniMax Design 安装，当前运行的这份不是系统注册的安装位置，自动更新已在修改文件前停止。请只保留一份安装：卸载或删除多余副本后，从官网下载最新版完整安装包重新安装",
-  "update.failureCode.INSTDIR_NOT_WRITABLE": "安装目录不可写，请检查权限或以管理员身份重试",
+  "update.failureCode.INSTDIR_NOT_WRITABLE":
+    "安装目录不可写，请检查权限或以管理员身份重试",
   "update.failureCode.INSTDIR_DATA_OVERLAP":
     "安装目录与项目或资产目录重叠，请先在设置中迁出数据后再更新。",
   "update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED":
@@ -7885,7 +8478,8 @@ const zh = {
     "已下载的更新包不再是当前待安装版本，请重新检查并下载更新",
   "update.failureCode.PACKAGE_SIZE_INVALID":
     "已下载更新包的大小信息无效，已阻止安装。请重新检查并下载更新",
-  "update.failureCode.TEMP_SPACE": "系统临时目录所在磁盘空间不足，请清理 TEMP 所在磁盘后重试",
+  "update.failureCode.TEMP_SPACE":
+    "系统临时目录所在磁盘空间不足，请清理 TEMP 所在磁盘后重试",
   "update.failureCode.TEMP_SPACE_UNKNOWN":
     "无法确认系统临时目录所在磁盘的可用空间。请检查 TEMP 目录权限后重试",
   "update.failureCode.UPDATER_EXECUTABLE_MISSING":
@@ -7908,12 +8502,14 @@ const zh = {
   "update.forced.checking": "检查更新中...",
   "update.forced.error": "无法下载更新，请检查网络",
   "update.forced.escapeHint": "按 Esc 关闭",
-  "update.forced.manual.body": "{{reason}}请下载官方完整安装包，并按安装向导完成更新。",
+  "update.forced.manual.body":
+    "{{reason}}请下载官方完整安装包，并按安装向导完成更新。",
   "update.forced.manual.defaultReason": "当前版本可能无法完成自动安装。",
   "update.forced.title": "必须升级",
   "update.install": "重启并安装",
   "update.later": "稍后",
-  "update.manualRecovery.body": "自动更新失败。请下载官方完整安装包，并按安装向导完成更新。",
+  "update.manualRecovery.body":
+    "自动更新失败。请下载官方完整安装包，并按安装向导完成更新。",
   "update.manualRecovery.hint.local":
     "请先按上方原因处理后重试安装；仍失败时下载完整安装包覆盖安装，项目数据不会被删除。",
   "update.manualRecovery.hint.policy":
@@ -7921,10 +8517,12 @@ const zh = {
   "update.manualRecovery.hint.proxy":
     "请切换为直连或 HTTP 代理后重试检查，也可以使用完整安装包更新。",
   "update.notAvailable": "已是最新版本",
-  "update.shortcut.availableTitleWithVersion": "MiniMax Design {{version}} 可更新",
+  "update.shortcut.availableTitleWithVersion":
+    "MiniMax Design {{version}} 可更新",
   "update.shortcut.bodyFallback": "包含问题修复和体验优化。",
   "update.shortcut.readyTitle": "更新已准备就绪",
-  "update.shortcut.readyTitleWithVersion": "MiniMax Design {{version}} 已准备就绪",
+  "update.shortcut.readyTitleWithVersion":
+    "MiniMax Design {{version}} 已准备就绪",
   "update.shortcut.releaseNotes": "更新详情",
   "update.shortcut.settings": "设置",
   "update.shortcut.tooltip": "有可用更新",
@@ -7946,7 +8544,8 @@ const zh = {
   "update.version.updateCta": "更新",
   "userMenu.community": "社区",
   "userMenu.creditsHint": "积分详情请查看海螺官网",
-  "userMenu.creditsTooltipPrefix": "MiniMax Design 会实时将你的 token 用量折算为海螺积分。访问",
+  "userMenu.creditsTooltipPrefix":
+    "MiniMax Design 会实时将你的 token 用量折算为海螺积分。访问",
   "userMenu.creditsTooltipSuffix": "查看详情。",
   "userMenu.feedback": "反馈",
   "userMenu.feedbackGroupTitle": "海螺视频-官方交流群",
@@ -7981,11 +8580,13 @@ const zh = {
   "userMenu.uiSpec": "UI组件预览",
   "workflows.addFailed": "添加 ComfyUI 工作流失败：{{message}}",
   "workflows.addTarget.current": "添加到当前工作流",
-  "workflows.addTarget.currentHint": "保留当前节点，并把这个工作流的节点插入进来。",
+  "workflows.addTarget.currentHint":
+    "保留当前节点，并把这个工作流的节点插入进来。",
   "workflows.addTarget.description":
     "可以把节点插入当前 ComfyUI 工作流，也可以新建一个工作流页签。",
   "workflows.addTarget.new": "新建工作流后添加",
-  "workflows.addTarget.newHint": "打开一个新的 ComfyUI 工作流页签，不改动当前工作流。",
+  "workflows.addTarget.newHint":
+    "打开一个新的 ComfyUI 工作流页签，不改动当前工作流。",
   "workflows.addTarget.title": "选择添加方式",
   "workflows.addedToCanvas": "ComfyUI 工作流已添加到画布",
   "workflows.attribution.communityAdapted": "基于开源社区贡献调整",
@@ -8012,7 +8613,8 @@ const zh = {
   "workflows.createMenu.import": "导入本地工作流",
   "workflows.delete": "删除工作流",
   "workflows.delete.confirm": "删除",
-  "workflows.delete.description": '"{{name}}" 及其已保存的可执行数据将被永久删除。',
+  "workflows.delete.description":
+    '"{{name}}" 及其已保存的可执行数据将被永久删除。',
   "workflows.delete.failed": "删除工作流失败：{{message}}",
   "workflows.delete.success": "工作流已删除",
   "workflows.delete.title": "删除此工作流？",
@@ -8025,21 +8627,28 @@ const zh = {
   "workflows.detail.compatibility.detectionNote":
     "系统会自动检测本机配置；无法准确识别的项目需要手动确认。",
   "workflows.detail.compatibility.gpu.anyRequirement": "可用图形处理器",
-  "workflows.detail.compatibility.gpu.dedicatedRequirement": "{{size}} GB 独立显存",
-  "workflows.detail.compatibility.gpu.dedicatedValue": "{{gpu}} · {{size}} GB 独立显存",
+  "workflows.detail.compatibility.gpu.dedicatedRequirement":
+    "{{size}} GB 独立显存",
+  "workflows.detail.compatibility.gpu.dedicatedValue":
+    "{{gpu}} · {{size}} GB 独立显存",
   "workflows.detail.compatibility.gpu.detectedValue": "{{gpu}}（显存待确认）",
   "workflows.detail.compatibility.gpu.notRequired": "无需显卡",
-  "workflows.detail.compatibility.gpu.sharedValue": "{{gpu}} · {{size}} GB 共享显存",
-  "workflows.detail.compatibility.gpu.unifiedRequirement": "{{size}} GB 统一内存",
-  "workflows.detail.compatibility.gpu.unifiedValue": "{{gpu}} · {{size}} GB 统一内存",
+  "workflows.detail.compatibility.gpu.sharedValue":
+    "{{gpu}} · {{size}} GB 共享显存",
+  "workflows.detail.compatibility.gpu.unifiedRequirement":
+    "{{size}} GB 统一内存",
+  "workflows.detail.compatibility.gpu.unifiedValue":
+    "{{gpu}} · {{size}} GB 统一内存",
   "workflows.detail.compatibility.gpu.vendor.amd": "AMD",
   "workflows.detail.compatibility.gpu.vendor.apple": "Apple",
   "workflows.detail.compatibility.gpu.vendor.intel": "Intel",
   "workflows.detail.compatibility.gpu.vendor.nvidia": "NVIDIA",
-  "workflows.detail.compatibility.gpu.vendorRequirement": "{{vendor}} · {{requirement}}",
+  "workflows.detail.compatibility.gpu.vendorRequirement":
+    "{{vendor}} · {{requirement}}",
   "workflows.detail.compatibility.item": "配置项",
   "workflows.detail.compatibility.local": "本机配置",
-  "workflows.detail.compatibility.localOs": "{{os}} · {{arch}} · {{cores}} 核 CPU",
+  "workflows.detail.compatibility.localOs":
+    "{{os}} · {{arch}} · {{cores}} 核 CPU",
   "workflows.detail.compatibility.localOsVersion":
     "{{os}} {{version}} · {{arch}} · {{cores}} 核 CPU",
   "workflows.detail.compatibility.memoryValue": "{{size}} GB 内存",
@@ -8056,10 +8665,12 @@ const zh = {
   "workflows.detail.compatibility.recommended": "推荐配置",
   "workflows.detail.compatibility.result.insufficient.description":
     "当前系统不受支持，或至少一项已检测配置不满足推荐要求，安装后可能无法正常运行该工作流。",
-  "workflows.detail.compatibility.result.insufficient.title": "当前配置暂不推荐",
+  "workflows.detail.compatibility.result.insufficient.title":
+    "当前配置暂不推荐",
   "workflows.detail.compatibility.result.likely.description":
     "所有需要的系统、内存、显卡和磁盘配置均已检测并满足推荐要求。",
-  "workflows.detail.compatibility.result.likely.title": "基础配置符合，基本推荐",
+  "workflows.detail.compatibility.result.likely.title":
+    "基础配置符合，基本推荐",
   "workflows.detail.compatibility.result.review.description":
     "设备信息不足，暂时无法判断是否适合运行，请确认各项配置后再安装。",
   "workflows.detail.compatibility.result.review.title": "需要进一步确认",
@@ -8069,7 +8680,8 @@ const zh = {
   "workflows.detail.compatibility.status.unknown": "待确认",
   "workflows.detail.compatibility.status.unsupported": "当前系统不支持",
   "workflows.detail.compatibility.storageRequirement": "{{size}} GB 可用空间",
-  "workflows.detail.compatibility.storageValue": "ComfyUI 模型磁盘可用 {{size}} GB",
+  "workflows.detail.compatibility.storageValue":
+    "ComfyUI 模型磁盘可用 {{size}} GB",
   "workflows.detail.downloadPaused": "下载已暂停",
   "workflows.detail.downloaded": "已完成",
   "workflows.detail.downloading": "正在下载工作流资源",
@@ -8087,7 +8699,8 @@ const zh = {
   "workflows.detail.startDownload": "下载",
   "workflows.detail.workflowFile": "工作流",
   "workflows.download": "下载",
-  "workflows.downloadDialog.allResourcesFound": "已找到全部本地模型，可直接使用",
+  "workflows.downloadDialog.allResourcesFound":
+    "已找到全部本地模型，可直接使用",
   "workflows.downloadDialog.checkingLicenses": "正在检查许可…",
   "workflows.downloadDialog.confirm": "确认并下载",
   "workflows.downloadDialog.description":
@@ -8102,21 +8715,26 @@ const zh = {
   "workflows.downloadDialog.fileCount": "共 {{count}} 个文件",
   "workflows.downloadDialog.fileList": "资源文件清单",
   "workflows.downloadDialog.gpu": "显卡",
-  "workflows.downloadDialog.hint": "实际运行表现会因工作流参数、模型版本和生成尺寸而有所不同。",
+  "workflows.downloadDialog.hint":
+    "实际运行表现会因工作流参数、模型版本和生成尺寸而有所不同。",
   "workflows.downloadDialog.licenseHint": "下载前请阅读并确认相关许可。",
-  "workflows.downloadDialog.licenseRequired": "请先勾选上方使用协议，再开始下载。",
+  "workflows.downloadDialog.licenseRequired":
+    "请先勾选上方使用协议，再开始下载。",
   "workflows.downloadDialog.licenseSaveFailed": "未能保存许可确认，请重试。",
   "workflows.downloadDialog.licenseTitle": "许可确认",
   "workflows.downloadDialog.localResourceFound": "本地已找到",
   "workflows.downloadDialog.memory": "内存",
-  "workflows.downloadDialog.missingResources": "已完成本地检查，{{count}} 个模型需要下载",
+  "workflows.downloadDialog.missingResources":
+    "已完成本地检查，{{count}} 个模型需要下载",
   "workflows.downloadDialog.modelFile": "模型文件 · {{directory}}",
   "workflows.downloadDialog.os": "操作系统",
-  "workflows.downloadDialog.partialScan": "已完成部分磁盘扫描，暂有 {{count}} 个模型需要下载",
+  "workflows.downloadDialog.partialScan":
+    "已完成部分磁盘扫描，暂有 {{count}} 个模型需要下载",
   "workflows.downloadDialog.registerOnUse": "使用时自动添加",
   "workflows.downloadDialog.scanning": "检查中…",
   "workflows.downloadDialog.scanningDisk": "正在扫描磁盘…",
-  "workflows.downloadDialog.scanningLocalResources": "正在扫描用户目录和已挂载磁盘中的模型…",
+  "workflows.downloadDialog.scanningLocalResources":
+    "正在扫描用户目录和已挂载磁盘中的模型…",
   "workflows.downloadDialog.storage": "可用空间",
   "workflows.downloadDialog.title": "下载“{{name}}”",
   "workflows.downloadDialog.useLocalResources": "使用本地资源",
@@ -8152,7 +8770,8 @@ const zh = {
   "workflows.learning.items.article.title": "节点工作流的稳定复用方法",
   "workflows.learning.items.article.visualSubtitle": "GUIDE",
   "workflows.learning.items.article.visualTitle": "NODE",
-  "workflows.learning.items.course.description": "覆盖首尾帧、角色一致性、广告包装与音乐卡点创作。",
+  "workflows.learning.items.course.description":
+    "覆盖首尾帧、角色一致性、广告包装与音乐卡点创作。",
   "workflows.learning.items.course.eyebrow": "OPEN SOURCE SPOTLIGHT",
   "workflows.learning.items.course.meta": "官方策划 · 每周更新",
   "workflows.learning.items.course.title": "本周精选：8 个 H3 创意工作流",
@@ -8202,25 +8821,31 @@ const zh = {
   "workflows.tags.video": "视频",
   "workflows.title": "ComfyUI 工作流",
   "workflows.tutorial": "探索开源",
-  "workflows.tutorialFaq.description": "关于 H3 开源权重、部署、硬件与使用方式的官方解答。",
+  "workflows.tutorialFaq.description":
+    "关于 H3 开源权重、部署、硬件与使用方式的官方解答。",
   "workflows.tutorialFaq.items.acceptableUse.answer":
     "权重、衍生物与生成内容都受可接受使用政策约束。不得用于违法活动，不得侵犯知识产权或肖像权，不得涉及对未成年人的伤害，也不得使用生成内容伤害他人。\n\n向第三方提供托管服务时，还需要落实合理的内容安全措施。",
-  "workflows.tutorialFaq.items.acceptableUse.question": "哪些内容是不允许生成或使用的？",
+  "workflows.tutorialFaq.items.acceptableUse.question":
+    "哪些内容是不允许生成或使用的？",
   "workflows.tutorialFaq.items.api.answer":
     "登录 MiniMax 开放平台并创建 API Key。\n\n根据任务选择 T2VA、I2VA 或 Ref2VA 视频生成端点。官方模型仓库的 scripts/readme/ 目录提供 768p 与 2K 路径的可运行 curl 示例。\n\n需要生成 2K 视频时，使用 video-generation-v2-create 端点。",
   "workflows.tutorialFaq.items.api.question": "如何调用 API？",
   "workflows.tutorialFaq.items.capabilities.answer":
     "H3 可在同一次生成中产出最长 15 秒的视频与同步立体声音频。API 侧最高支持 2K，开源权重原生支持 768p 短边。\n\nFL2VA 支持文生视频及可选首尾帧控制。\n\nRef2VA 支持图像、视频和音频多参照，可用于角色一致性、视频编辑、动作参照和镜头续写。",
-  "workflows.tutorialFaq.items.capabilities.question": "MiniMax H3 实际上可以做什么？",
+  "workflows.tutorialFaq.items.capabilities.question":
+    "MiniMax H3 实际上可以做什么？",
   "workflows.tutorialFaq.items.commercialUse.answer":
     "可以。社区许可允许免版税商用。\n\n商业产品或服务年收入超过 2,000 万美元时，需要另行申请书面授权；使用 H3 的商业产品需要显著标注“MiniMax H3”，并遵守可接受使用政策。\n\n你生成的内容和训练的衍生模型归你所有，但不得用 H3 权重或产出训练、改进其他非 H3 系 AI 模型。",
-  "workflows.tutorialFaq.items.commercialUse.question": "我可以将 MiniMax H3 用于商业用途吗？",
+  "workflows.tutorialFaq.items.commercialUse.question":
+    "我可以将 MiniMax H3 用于商业用途吗？",
   "workflows.tutorialFaq.items.deployment.answer":
     "在“精选工作流”中选择一个标注“本地”的 H3 工作流，打开详情并点击“下载”。\n\n在确认弹窗中查看本机配置、推荐配置和资源清单，然后确认下载。\n\nHub 会自动下载并放置工作流与模型文件。完成后按钮会变为“使用”，你可以新建画布，或将工作流加入已有项目。\n\n需要手动排查或进阶部署时，可参考下方官方资料。",
-  "workflows.tutorialFaq.items.deployment.question": "如何下载并部署 MiniMax H3？",
+  "workflows.tutorialFaq.items.deployment.question":
+    "如何下载并部署 MiniMax H3？",
   "workflows.tutorialFaq.items.fineTuning.answer":
     "可以。许可明确覆盖衍生模型，且衍生模型归你所有。\n\nAI-Toolkit 已支持 H3，社区也已提供角色、风格、加速 LoRA 与全量微调方案。\n\n再分发衍生模型时，需要标注修改说明，并继续遵守社区许可。",
-  "workflows.tutorialFaq.items.fineTuning.question": "我可以为 MiniMax H3 训练 LoRA 或进行微调吗？",
+  "workflows.tutorialFaq.items.fineTuning.question":
+    "我可以为 MiniMax H3 训练 LoRA 或进行微调吗？",
   "workflows.tutorialFaq.items.hardware.answer":
     "先在 Hub 的“精选工作流”中打开想使用的 H3 工作流，再点击“下载”。下载确认弹窗会自动对比本机配置与该工作流的推荐配置，并列出所需资源文件。\n\n推荐配置是获得稳定体验的参考，并不是低于推荐就一定无法运行。配置较低时，可以尝试缩短视频时长、降低分辨率或质量，但生成速度会更慢，显存不足时也可能中断。\n\n社区验证的参考配置中，12 GB 显存的 RTX 3060 级设备可使用 pruned int8 生成带音频的 480p 视频；16–24 GB 显存运行更从容，系统内存建议 32–64 GB。",
   "workflows.tutorialFaq.items.hardware.question": "我需要什么硬件配置？",
@@ -8230,7 +8855,8 @@ const zh = {
     "什么是开源模型？MiniMax H3 在本地能做什么？",
   "workflows.tutorialFaq.items.openSourceVsOnline.answer":
     "开源权重可以在本地免费生成 768p 短边视频，并提供完整控制。\n\n平台与 API 额外提供 H3-Context-IR，用于优化多模态指令表示；H3-Regenerate-2K 则用于结合原始上下文生成更精细的 2K 结果。\n\n常见做法是在本地快速迭代，再通过 API 输出选定内容的 2K 成片。",
-  "workflows.tutorialFaq.items.openSourceVsOnline.question": "开源权重版本和在线版本有什么区别？",
+  "workflows.tutorialFaq.items.openSourceVsOnline.question":
+    "开源权重版本和在线版本有什么区别？",
   "workflows.tutorialFaq.items.openSourceWorkflow.answer":
     "模型负责“会生成什么”，工作流负责“按什么步骤生成”。\n\nH3 模型提供视频与音频生成能力；ComfyUI 工作流把输入、H3 模型、参数和输出节点连接起来，就像一份可复用的制作流程。\n\n你可以直接使用精选工作流，也可以复制后调整提示词、尺寸、时长或参照素材。",
   "workflows.tutorialFaq.items.openSourceWorkflow.question":
@@ -8251,7 +8877,8 @@ const zh = {
     "为什么我无法在欧盟、英国、美国或韩国下载模型权重？",
   "workflows.tutorialFaq.items.support.answer":
     "可以加入官方 Discord 社区，与其他使用者交流。\n\n代码、skills 与部署脚本可在 MiniMax-AI/MiniMax-H3 GitHub 仓库获取；权重和文档可在 Hugging Face 或 ModelScope 查看。\n\n也可以关注 MiniMax AI 与 Hailuo AI 官方账号，或通过 MiniMax 开放平台查看 API 信息。模型相关问题可联系 model@minimax.io。",
-  "workflows.tutorialFaq.items.support.question": "去哪里获取帮助或关注最新动态？",
+  "workflows.tutorialFaq.items.support.question":
+    "去哪里获取帮助或关注最新动态？",
   "workflows.tutorialFaq.links.authorization": "申请正式授权",
   "workflows.tutorialFaq.links.baseGuide": "FL2VA 提示词指南",
   "workflows.tutorialFaq.links.comfyRepository": "ComfyUI 模型仓库",
@@ -8271,7 +8898,8 @@ const zh = {
   "workflows.tutorialFaq.links.regenerate2k": "H3-Regenerate-2K 文档",
   "workflows.tutorialFaq.links.videoEndpoint": "视频生成 API 文档",
   "workflows.tutorialFaq.links.vllmRecipe": "vLLM 官方部署方案",
-  "workflows.tutorialFaq.source": "内容来源：MiniMax H3 官方网站，请以官网最新说明为准。",
+  "workflows.tutorialFaq.source":
+    "内容来源：MiniMax H3 官方网站，请以官网最新说明为准。",
   "workflows.tutorialFaq.title": "H3 常见问题",
   "workflows.updated": "更新于",
   "workflows.use": "使用",
@@ -8314,7 +8942,8 @@ const zh = {
   "workspace.browser.annotationConfirm": "确认批注",
   "workspace.browser.annotationInstruction":
     "网页批注 ({{url}})：请读取随附截图中的批注，并使用内置浏览器直接修改当前页面；完成后回读验证。不要创建画布文档替代网页修改。",
-  "workspace.browser.annotationItem": "{{index}}. [area] 所选区域 — {{comment}}",
+  "workspace.browser.annotationItem":
+    "{{index}}. [area] 所选区域 — {{comment}}",
   "workspace.browser.annotationLoading": "正在准备截图…",
   "workspace.browser.annotationSend": "发送",
   "workspace.browser.annotationTitle": "正在批注 · {{site}}",
@@ -8332,7 +8961,8 @@ const zh = {
   "workspace.browser.downloads.askWhereToSave": "每次下载前询问保存位置",
   "workspace.browser.downloads.cancel": "取消下载",
   "workspace.browser.downloads.cancelled": "已取消",
-  "workspace.browser.downloads.captureFailed": "无法获取网页预览，下载面板仍可正常使用",
+  "workspace.browser.downloads.captureFailed":
+    "无法获取网页预览，下载面板仍可正常使用",
   "workspace.browser.downloads.completed": "已下载",
   "workspace.browser.downloads.copyPath": "复制路径",
   "workspace.browser.downloads.sendToChat": "发送到对话",
@@ -8341,7 +8971,8 @@ const zh = {
   "workspace.browser.downloads.entry": "下载（{{count}} 项进行中）",
   "workspace.browser.downloads.fileMissing": "文件已移动或删除",
   "workspace.browser.downloads.interrupted": "下载中断",
-  "workspace.browser.downloads.loadFailed": "无法加载下载记录，请重新打开浏览器后重试",
+  "workspace.browser.downloads.loadFailed":
+    "无法加载下载记录，请重新打开浏览器后重试",
   "workspace.browser.downloads.loading": "正在加载下载记录…",
   "workspace.browser.downloads.more": "更多下载操作",
   "workspace.browser.downloads.open": "打开",
@@ -8359,11 +8990,14 @@ const zh = {
   "workspace.browser.forward": "前进",
   "workspace.browser.imageEdit.contextChanged":
     "目标对话已切换，图片已保存到项目，请回到原对话后重新操作",
-  "workspace.browser.imageEdit.notReady": "对话暂未就绪或正在准备其他任务，请稍后再试",
+  "workspace.browser.imageEdit.notReady":
+    "对话暂未就绪或正在准备其他任务，请稍后再试",
   "workspace.browser.imageEdit.openProject": "请先打开项目，再使用图像编辑",
-  "workspace.browser.imageEdit.prepareFailed": "图片准备失败，未发送编辑任务，请稍后再试",
+  "workspace.browser.imageEdit.prepareFailed":
+    "图片准备失败，未发送编辑任务，请稍后再试",
   "workspace.browser.imageEdit.preparing": "正在准备图片编辑任务…",
-  "workspace.browser.imageEdit.prompt.describePrompt": "请反推这张图片的提示词。",
+  "workspace.browser.imageEdit.prompt.describePrompt":
+    "请反推这张图片的提示词。",
   "workspace.browser.imageEdit.prompt.removeBackground":
     "请使用专用抠图能力处理本次附件中的图片，保留原图主体和精细边缘，去除背景并输出透明背景 PNG，不重新生成主体。",
   "workspace.browser.imageEdit.prompt.separateLayers":
@@ -8379,7 +9013,8 @@ const zh = {
     "Chrome 书签文件无法解析，已有书签未更改。请在 Chrome 中确认书签正常后重试。",
   "workspace.browser.importError.bookmark_file_too_large":
     "Chrome 书签文件过大，暂时无法导入，已有书签未更改。请整理 Chrome 书签后重试。",
-  "workspace.browser.importError.cancelled": "导入已取消。请重新导入，并在系统提示时允许访问。",
+  "workspace.browser.importError.cancelled":
+    "导入已取消。请重新导入，并在系统提示时允许访问。",
   "workspace.browser.importError.chrome_profile_unavailable":
     "无法读取 Chrome 个人资料。请先在 Chrome 中打开所选个人资料，再重试。",
   "workspace.browser.importError.cookie_database_access_denied":
@@ -8394,7 +9029,8 @@ const zh = {
     "无法读取 Chrome Cookie。请完全退出 Chrome（包括后台进程）后重试，或在内置浏览器中直接登录。",
   "workspace.browser.importError.decryption_failed":
     "无法解密 Chrome 登录状态。请在内置浏览器中直接登录。",
-  "workspace.browser.importError.import_in_progress": "已有导入正在进行。请等待完成后再试。",
+  "workspace.browser.importError.import_in_progress":
+    "已有导入正在进行。请等待完成后再试。",
   "workspace.browser.importError.invalid_current_site":
     "当前页面不支持按网站导入。请打开目标网站，或选择“全部网站”后重试。",
   "workspace.browser.importError.invalid_request":
@@ -8411,7 +9047,8 @@ const zh = {
     "导入未完成。请重试；若仍失败，请在内置浏览器中直接登录。",
   "workspace.browser.importError.unsupported_platform":
     "当前系统不支持此导入方式。请在内置浏览器中直接登录。",
-  "workspace.browser.importError.untrusted_sender": "无法验证导入请求。请重启 MiniMax Hub 后重试。",
+  "workspace.browser.importError.untrusted_sender":
+    "无法验证导入请求。请重启 MiniMax Hub 后重试。",
   "workspace.browser.importFailed": "导入失败：{{code}}",
   "workspace.browser.importing": "导入中…",
   "workspace.browser.importSuccess": "已导入 {{count}} 个 Cookie",
@@ -8442,14 +9079,19 @@ const zh = {
   "workspace.browser.urlPlaceholder": "搜索或输入网址",
   "workspace.browser.videoAttachmentFailed":
     "视频已保存到项目，但未能添加到对话。请从项目素材中重新添加。",
-  "workspace.browser.videoDownloadFailed": "无法下载此视频，请确认视频可以公开访问后重试。",
-  "workspace.browser.videoOpenProject": "请先打开项目，再添加视频到对话或画布。",
+  "workspace.browser.videoDownloadFailed":
+    "无法下载此视频，请确认视频可以公开访问后重试。",
+  "workspace.browser.videoOpenProject":
+    "请先打开项目，再添加视频到对话或画布。",
   "workspace.browser.viewOnCanvas": "查看",
-  "workspace.close.blockedActive": "项目仍有任务在运行，暂时无法关闭，已恢复标签页。",
-  "workspace.close.blockedGeneric": "项目暂时无法关闭，已恢复标签页，请稍后重试。",
+  "workspace.close.blockedActive":
+    "项目仍有任务在运行，暂时无法关闭，已恢复标签页。",
+  "workspace.close.blockedGeneric":
+    "项目暂时无法关闭，已恢复标签页，请稍后重试。",
   "workspace.close.blockedStorage":
     "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或上传日志联系支持。",
-  "workspace.close.blockedUnsaved": "项目还有内容未保存完成，暂时无法关闭，已恢复标签页。",
+  "workspace.close.blockedUnsaved":
+    "项目还有内容未保存完成，暂时无法关闭，已恢复标签页。",
   "workspace.closeCanvas": "收起画布",
   "workspace.closeChat": "收起对话",
   "workspace.displayMode.cancelHint": "取消",
@@ -8474,7 +9116,8 @@ const zh = {
   "workspace.folderPermission.allowTooltip":
     "MiniMax Design 仅在本项目内拥有所选工作区的操作权限。",
   "workspace.folderPermission.alwaysAllow": "始终允许",
-  "workspace.folderPermission.alwaysAllowToast": "权限添加成功，可在<1>设置/高级</1>中修改",
+  "workspace.folderPermission.alwaysAllowToast":
+    "权限添加成功，可在<1>设置/高级</1>中修改",
   "workspace.folderPermission.alwaysAllowTooltip":
     "MiniMax Design 将持续拥有所选工作区的操作权限。",
   "workspace.folderPermission.body":
@@ -8540,35 +9183,47 @@ const zh = {
   "workspace.runtimeDegraded.retrying": "重试中...",
   "workspace.runtimeDegraded.title": "本地运行时正在恢复",
   "workspace.swapChatCanvas": "交换对话与画布位置",
-  "chat.messageWithdrawn.contentPolicyViolation": "内容未通过安全审核，本次回答已撤回。",
+  "chat.messageWithdrawn.contentPolicyViolation":
+    "内容未通过安全审核，本次回答已撤回。",
   "workspace.browser.error.dns.title": "找不到这个网站",
-  "workspace.browser.error.dns.description": "网址可能有误，或当前网络无法查询网站地址。",
+  "workspace.browser.error.dns.description":
+    "网址可能有误，或当前网络无法查询网站地址。",
   "workspace.browser.error.offline.title": "网络已断开",
-  "workspace.browser.error.offline.description": "浏览器当前没有可用的网络连接。",
+  "workspace.browser.error.offline.description":
+    "浏览器当前没有可用的网络连接。",
   "workspace.browser.error.timeout.title": "网站响应超时",
-  "workspace.browser.error.timeout.description": "等待时间过长，本次加载已停止。",
+  "workspace.browser.error.timeout.description":
+    "等待时间过长，本次加载已停止。",
   "workspace.browser.error.proxy.title": "代理连接失败",
   "workspace.browser.error.proxy.description": "当前代理未能建立连接。",
   "workspace.browser.error.certificate.title": "网站安全验证失败",
-  "workspace.browser.error.certificate.description": "网站证书未通过验证，浏览器已停止访问。",
+  "workspace.browser.error.certificate.description":
+    "网站证书未通过验证，浏览器已停止访问。",
   "workspace.browser.error.secureConnection.title": "无法安全连接这个网站",
-  "workspace.browser.error.secureConnection.description": "浏览器未能与网站建立加密连接。",
+  "workspace.browser.error.secureConnection.description":
+    "浏览器未能与网站建立加密连接。",
   "workspace.browser.error.connection.title": "暂时连接不上这个网站",
-  "workspace.browser.error.connection.description": "连接未能建立，或在加载时中断。",
+  "workspace.browser.error.connection.description":
+    "连接未能建立，或在加载时中断。",
   "workspace.browser.error.blocked.title": "访问被阻止",
-  "workspace.browser.error.blocked.description": "此次访问被拦截，暂时无法确定具体原因。",
+  "workspace.browser.error.blocked.description":
+    "此次访问被拦截，暂时无法确定具体原因。",
   "workspace.browser.error.address.title": "这个网址无法打开",
-  "workspace.browser.error.address.description": "链接不完整、格式有误，或不受浏览器支持。",
+  "workspace.browser.error.address.description":
+    "链接不完整、格式有误，或不受浏览器支持。",
   "workspace.browser.error.redirect.title": "网页跳转次数过多",
-  "workspace.browser.error.redirect.description": "网站反复跳转，未能进入目标页面。",
+  "workspace.browser.error.redirect.description":
+    "网站反复跳转，未能进入目标页面。",
   "workspace.browser.error.unknown.title": "这个页面暂时打不开",
-  "workspace.browser.error.unknown.description": "页面加载失败，暂时无法确定原因。",
+  "workspace.browser.error.unknown.description":
+    "页面加载失败，暂时无法确定原因。",
   "workspace.browser.error.editAddress": "检查网址",
   "workspace.browser.error.nextStep": "可以尝试",
   "workspace.browser.error.details": "查看错误详情",
   "workspace.browser.error.dns.advice":
     "外部浏览器也打不开：先确认网址是否正确。若其他网站也打不开，请检查网络连接或代理设置。",
-  "workspace.browser.error.offline.advice": "连接 Wi-Fi 或检查网线，网络恢复后点击顶部刷新。",
+  "workspace.browser.error.offline.advice":
+    "连接 Wi-Fi 或检查网线，网络恢复后点击顶部刷新。",
   "workspace.browser.error.proxy.advice":
     "确认代理软件已启动，并检查代理设置；连接恢复后点击顶部刷新。",
   "workspace.browser.error.timeout.advice":
@@ -8623,13 +9278,15 @@ const zh = {
   "connectors.catalog.google-drive.description":
     "把 Agent 的成果上传到你的 Google Drive，并继续加工它存过去的文件——图片、视频、文档都同步在云端。",
   "connectors.catalog.google-drive.title": "Google Drive",
-  "connectors.catalog.quark-drive.description": "连接夸克网盘，一句话存取、搜索和分享你的云盘文件",
+  "connectors.catalog.quark-drive.description":
+    "连接夸克网盘，一句话存取、搜索和分享你的云盘文件",
   "connectors.catalog.quark-drive.title": "夸克网盘",
   "connectors.detail.google-drive.description":
     "通过本地安装的插件连接你的 Google Drive。Agent 可以把完成的图片、视频和文档上传到云端硬盘，并查找、读取、重新下载它上传过的文件——权限仅限本应用创建的文件，以 Google 授权页面展示的为准。",
   "connectors.detail.google-drive.prompt.0":
     "根据我们的品牌规范生成一组社交媒体横幅图，并上传到我的 Google Drive。",
-  "connectors.detail.google-drive.prompt.1": "把这条视频剪辑渲染出来，成片存到我的 Google Drive。",
+  "connectors.detail.google-drive.prompt.1":
+    "把这条视频剪辑渲染出来，成片存到我的 Google Drive。",
   "connectors.detail.google-drive.prompt.2":
     "把你昨天上传到我云端硬盘的海报下载回来，把色彩调亮一点，再上传新版本。",
   "connectors.detail.google-drive.promptTitle.0": "上传成果",
@@ -8657,9 +9314,11 @@ const zh = {
   "connectors.quark-drive.accountCapacity": "容量",
   "connectors.quark-drive.accountMember": "会员",
   "connectors.quark-drive.accountNickname": "昵称",
-  "connectors.quark-drive.accountReady": "网盘已就绪，直接在对话中说出你的需求即可。",
+  "connectors.quark-drive.accountReady":
+    "网盘已就绪，直接在对话中说出你的需求即可。",
   "connectors.quark-drive.accountTitle": "已绑定账号",
-  "connectors.quark-drive.authDescription": "点击授权后会打开浏览器，请在夸克授权页完成登录与授权",
+  "connectors.quark-drive.authDescription":
+    "点击授权后会打开浏览器，请在夸克授权页完成登录与授权",
   "connectors.quark-drive.authFailed": "授权未完成，请重试",
   "connectors.quark-drive.authTitle": "授权绑定账号",
   "connectors.quark-drive.authorize": "授权绑定",
@@ -8671,9 +9330,11 @@ const zh = {
   "connectors.quark-drive.codeSubmit": "提交",
   "connectors.quark-drive.consent":
     "授权仅用于当前设备访问你的夸克网盘；可随时在夸克网盘 App 的登录授权管理中解除。",
-  "connectors.quark-drive.description": "安装插件并授权账号，完成后即可在对话中使用网盘",
+  "connectors.quark-drive.description":
+    "安装插件并授权账号，完成后即可在对话中使用网盘",
   "connectors.quark-drive.install": "安装",
-  "connectors.quark-drive.installDescription": "下载并安装夸克网盘连接组件（约 2 MB）",
+  "connectors.quark-drive.installDescription":
+    "下载并安装夸克网盘连接组件（约 2 MB）",
   "connectors.quark-drive.installFailed": "安装失败，请稍后重试",
   "connectors.quark-drive.installTitle": "安装网盘插件",
   "connectors.quark-drive.installed": "已安装",
@@ -8690,16 +9351,19 @@ const zh = {
   "chat.capabilitySearch.sent": "已发送到对话",
   "chat.capabilitySearch.errors.unavailable": "能力暂不可用，请稍后重试。",
   "chat.capabilitySearch.errors.installFailed": "安装失败，请点击按钮重试。",
-  "chat.capabilitySearch.errors.sessionChanged": "请回到原会话后重试；未向其他会话发送消息。",
+  "chat.capabilitySearch.errors.sessionChanged":
+    "请回到原会话后重试；未向其他会话发送消息。",
   "chat.capabilitySearch.errors.persistFailed":
     "消息已发送，但使用状态保存失败，重启后可能恢复为可点击。",
-  "chat.capabilitySearch.errors.sendFailed": "连接器已准备好，但消息未发送，请重试。",
+  "chat.capabilitySearch.errors.sendFailed":
+    "连接器已准备好，但消息未发送，请重试。",
   "chat.connector.kind": "连接器",
   "chat.connector.check": "检查连接",
   "chat.connector.connect": "连接并使用",
   "chat.connector.enable": "启用并使用",
   "chat.connector.progress": "连接器准备进度",
-  "chat.connector.waitingHost": "连接组件已准备，请启动对应软件并启用连接插件，再点击检查连接。",
+  "chat.connector.waitingHost":
+    "连接组件已准备，请启动对应软件并启用连接插件，再点击检查连接。",
   "chat.connector.continuePrompt":
     "我选择使用 {{name}}（连接器：{{runtimeName}}）继续本会话原任务。请使用已开放的真实连接器工具，保留已有素材和要求，不创建子会话。[connector-selection:{{selectionId}}]",
   "chat.connector.phase.runtime": "准备运行环境…",
@@ -8708,7 +9372,8 @@ const zh = {
   "chat.connector.phase.connecting": "检查连接和工具…",
   "chat.connector.phase.complete": "连接组件已准备",
   "chat.connector.phase.failed": "准备失败，请重试",
-  "chat.capabilitySearch.connectorsUnavailable": "连接器目录暂不可用，请稍后重试。",
+  "chat.capabilitySearch.connectorsUnavailable":
+    "连接器目录暂不可用，请稍后重试。",
   "chat.connector.cancel": "取消本次使用",
   "chat.connector.cancelled": "已取消本次接续。正在下载的连接组件会保留。",
   "chat.connector.cancelledLabel": "已取消",
@@ -8719,7 +9384,8 @@ const zh = {
   "chat.connector.autoContinue":
     "正在自动检查连接。连接成功后会继续当前任务；取消后将停止自动接续。",
   "connectors.catalog.baidu-drive.title": "百度网盘",
-  "connectors.catalog.baidu-drive.description": "上传、下载和分享应用目录中的文件",
+  "connectors.catalog.baidu-drive.description":
+    "上传、下载和分享应用目录中的文件",
   "connectors.detail.baidu-drive.description":
     "连接百度网盘，读取并分析你授权的文档、图片、视频等素材，生成 MiniMax Design 创作 Brief、脚本、分镜和视觉参考，并将结果保存回网盘。访问范围限于“我的应用数据/bdpan”，支持文件上传、下载、搜索和分享；其他目录的素材可通过分享链接转存后使用。",
   "connectors.detail.baidu-drive.prompt.0":
@@ -8738,17 +9404,25 @@ const zh = {
   "chat.connector.alreadyReady": "已就绪，正在继续任务",
   "chat.connector.queued": "已加入原会话队列",
   "chat.connector.deliveryPending": "正在等待投递确认，可以切换到其他会话。",
-  "chat.connector.deliveryUnknown": "投递结果尚未确认，正在查询回执，避免重复发送。",
+  "chat.connector.deliveryUnknown":
+    "投递结果尚未确认，正在查询回执，避免重复发送。",
   "chat.connector.configure": "连接设置",
-  "chat.capabilitySearch.errors.taskUnavailable": "原任务已无法找到，请重新发送任务。",
-  "chat.capabilitySearch.errors.inputMissing": "原任务的素材已不可用，请恢复素材后重试。",
-  "chat.capabilitySearch.errors.alreadyStarted": "任务已开始，请在原会话中停止。",
+  "chat.capabilitySearch.errors.taskUnavailable":
+    "原任务已无法找到，请重新发送任务。",
+  "chat.capabilitySearch.errors.inputMissing":
+    "原任务的素材已不可用，请恢复素材后重试。",
+  "chat.capabilitySearch.errors.alreadyStarted":
+    "任务已开始，请在原会话中停止。",
   "chat.connector.setupInProgress": "正在准备 {{name}}，完成后将继续当前任务。",
-  "chat.connector.needsHost": "请完成 {{name}} 的启动或连接设置，以继续当前任务。",
-  "chat.connector.needsInstallation": "需要先安装 {{name}} 连接器，安装完成后将继续当前任务。",
-  "chat.connector.needsConnection": "请先连接 {{name}}，连接成功后将继续当前任务。",
+  "chat.connector.needsHost":
+    "请完成 {{name}} 的启动或连接设置，以继续当前任务。",
+  "chat.connector.needsInstallation":
+    "需要先安装 {{name}} 连接器，安装完成后将继续当前任务。",
+  "chat.connector.needsConnection":
+    "请先连接 {{name}}，连接成功后将继续当前任务。",
   "chat.connector.needsEnable": "{{name}} 已停用，启用后可继续当前任务。",
-  "chat.connector.needsRecovery": "{{name}} 连接不可用，请重新连接或检查连接设置。",
+  "chat.connector.needsRecovery":
+    "{{name}} 连接不可用，请重新连接或检查连接设置。",
   "chat.connector.useForTask": "使用 {{name}} 继续当前任务。",
   "chat.connector.retryConnection": "重新连接",
   "settings.models.addProvider": "添加供应商",
@@ -8775,7 +9449,8 @@ const zh = {
   "settings.models.validation.url":
     "请输入有效的 HTTP 或 HTTPS 地址，不能包含账号、密码、查询参数或片段",
   "settings.models.validation.apiKey": "API Key 不能包含换行符",
-  "settings.models.validation.modelId": "请输入模型名称，不能包含空白字符或使用内部保留前缀",
+  "settings.models.validation.modelId":
+    "请输入模型名称，不能包含空白字符或使用内部保留前缀",
   "settings.models.validation.duplicateModel": "此供应商内的模型名称不能重复",
   "settings.models.validation.positiveInteger": "请输入大于 0 的整数",
   "settings.models.validation.outputLimit": "最大输出 Token 不能超过上下文窗口",
@@ -8783,8 +9458,10 @@ const zh = {
     "最多添加 16 个不重复的档位，仅支持字母、数字、下划线和短横线",
   "settings.models.validation.anthropicReasoning":
     "Anthropic 支持的档位：low、medium、high、xhigh、max",
-  "settings.models.validation.headerName": "请输入有效的 Header 名称，不能使用 Host 等保留名称",
-  "settings.models.validation.duplicateHeader": "Header 名称不能重复（不区分大小写）",
+  "settings.models.validation.headerName":
+    "请输入有效的 Header 名称，不能使用 Host 等保留名称",
+  "settings.models.validation.duplicateHeader":
+    "Header 名称不能重复（不区分大小写）",
   "settings.models.validation.headerValue": "Header 值不能包含换行符或空字符",
   "settings.models.validation.modelCount": "请添加 1 至 50 个模型",
   "chat.mediaModels.agent.reasoning": "推理等级",
@@ -8807,7 +9484,8 @@ const zh = {
   "debugPanel.iconOpacity.colorAlpha": "颜色 / Alpha",
   "debugPanel.iconOpacity.control": "业务控件",
   "debugPanel.iconOpacity.dark": "深色",
-  "debugPanel.iconOpacity.description": "查看真实图标的合成差异、父子透明度与业务组合。",
+  "debugPanel.iconOpacity.description":
+    "查看真实图标的合成差异、父子透明度与业务组合。",
   "debugPanel.iconOpacity.diagnostics": "透明度诊断",
   "debugPanel.iconOpacity.disabled": "禁用",
   "debugPanel.iconOpacity.hint":
@@ -8820,12 +9498,14 @@ const zh = {
   "debugPanel.iconOpacity.owner.control": "控件控制状态，根 SVG 合成颜色透明度",
   "debugPanel.iconOpacity.owner.legacy": "旧实现：见颜色、图元与父子计算值",
   "debugPanel.iconOpacity.owner.parent": "参数胶囊统一控制弱化状态",
-  "debugPanel.iconOpacity.owner.root": "根 SVG 合成颜色透明度；样本容器另加诊断档位",
+  "debugPanel.iconOpacity.owner.root":
+    "根 SVG 合成颜色透明度；样本容器另加诊断档位",
   "debugPanel.iconOpacity.pageEmpty":
     "当前页面没有可测量的已接入图标或透明度候选。切换业务场景后可重新检查。",
   "debugPanel.iconOpacity.pageHint":
     "只读扫描当前可见 SVG，列出已接入图标，以及颜色 / stroke / fill 或内部图元含透明度的候选，排除调试面板。未接入候选不自动判错：品牌、多色或有意分层需人工核对。未打开页面 / 状态不在此列表；计算值不是视觉验收结论。",
-  "debugPanel.iconOpacity.pageTitle": "当前业务页面：{{count}} 个已接入 / 待核对图标",
+  "debugPanel.iconOpacity.pageTitle":
+    "当前业务页面：{{count}} 个已接入 / 待核对图标",
   "debugPanel.iconOpacity.primitives": "内部 stroke / fill / opacity",
   "debugPanel.iconOpacity.reconnect.initial.idle": "画布首次加载失败",
   "debugPanel.iconOpacity.reconnect.initial.retrying": "画布正在重新连接",
@@ -8837,11 +9517,14 @@ const zh = {
   "debugPanel.iconOpacity.root": "根 SVG opacity / filter",
   "debugPanel.iconOpacity.scope":
     "旧版仅用于调试对照；新版调用真实公共组件。单图标为颜色机制样本，组合为原尺寸复现；Disabled 仅作用于组合控件。诊断档位额外施加于样本容器，不是业务状态标准，也不代表业务验收通过。",
-  "debugPanel.iconOpacity.sidebarGroups": "Project 分组：本地、协作、展开 / 收起",
-  "debugPanel.iconOpacity.sidebarNav": "侧栏导航：项目库、技能插件、ComfyUI 工作流",
+  "debugPanel.iconOpacity.sidebarGroups":
+    "Project 分组：本地、协作、展开 / 收起",
+  "debugPanel.iconOpacity.sidebarNav":
+    "侧栏导航：项目库、技能插件、ComfyUI 工作流",
   "debugPanel.iconOpacity.sidebarNavHint":
     "新版调用真实 SidebarNavButton。项目库使用同一导航渲染器复现 FolderOpen，生产项目库触发器另有菜单；Library 为素材中心迁移期间入口。所有点击仅供调试，无导航或写入。",
-  "debugPanel.iconOpacity.sidebarRowActions": "Project 操作：置顶、已置顶、更多",
+  "debugPanel.iconOpacity.sidebarRowActions":
+    "Project 操作：置顶、已置顶、更多",
   "debugPanel.iconOpacity.sidebarRowFixture":
     "仅图标控件组合诊断，调用真实公共透明度机制；不是完整 RecentProjectRow，不触发项目或存储操作。",
   "debugPanel.iconOpacity.sidebarSelected": "侧栏导航：选中状态",
@@ -8869,7 +9552,8 @@ const zh = {
     "颜色链组合样本：使用真实公共图标与业务相同的颜色、尺寸和状态类，不是完整业务组件。请回到标注页面验收；Hover 可直接悬停。",
   "debugPanel.iconOpacity.inherited.customModelHint":
     "固定禁用组合样本：继承 text-muted-foreground/50，浅色正常区域 alpha 为 0.25。使用真实公共 Icon；上方普通/禁用开关不改变此固定状态。",
-  "debugPanel.iconOpacity.inherited.geometry": "横线 / 竖线 / 多路径 / 实心填充",
+  "debugPanel.iconOpacity.inherited.geometry":
+    "横线 / 竖线 / 多路径 / 实心填充",
   "debugPanel.iconOpacity.inherited.geometryHint":
     "几何诊断样本：验证横线和竖线的零宽或零高边界不会被滤镜裁剪；Pin 保留 fill-current。采用项目真实公共图标，并非完整业务控件。",
   "chat.connector.host.choose":
@@ -8881,9 +9565,11 @@ const zh = {
   "chat.connector.host.notInstalled": "尚未安装",
   "chat.connector.host.download": "前往官方下载页面",
   "chat.connector.host.recheck": "重新检测",
-  "chat.connector.host.stillMissing": "仍未检测到 {{name}}，请安装并启动后重试。",
+  "chat.connector.host.stillMissing":
+    "仍未检测到 {{name}}，请安装并启动后重试。",
   "chat.connector.resumeHint": "如需继续当前任务，请重新检查连接。",
-  "uiSpec.checkbox.description": "表单、批量选择和多选卡片统一复用此组件；圆形仍是多选语义。",
+  "uiSpec.checkbox.description":
+    "表单、批量选择和多选卡片统一复用此组件；圆形仍是多选语义。",
   "uiSpec.checkbox.usage": "接入说明与示例",
   "uiSpec.checkbox.api":
     "通过 shape、size、appearance 选择形状、尺寸和卡片样式。桌面视觉/热区分别为 16/28、20/32、24/44px；粗指针热区为 44px。用 label 或 aria-label 提供明确名称。 图形到文字的可见间距为 6px。",
@@ -8903,14 +9589,17 @@ const zh = {
   "project.move.manualNotice": "移动后，侧边栏创作页将切换为手动排序。",
   "project.move.submitting": "移动中…",
   "project.move.continue": "确认移动",
-  "project.move.failed": "移动未完成，请重试。若来源或目标已变化，请取消后重新拖拽。",
+  "project.move.failed":
+    "移动未完成，请重试。若来源或目标已变化，请取消后重新拖拽。",
   "project.move.invalid": "来源、目标或插入位置已变化，请取消后重新拖拽。",
   "project.move.success": "已移至「{{target}}」",
   "project.move.emptyUngrouped": "拖到此处移出项目",
   "workspace.newProject.projectFolderMissing":
     "项目文件夹不存在，可能已被移动或删除。请恢复文件夹后重试。",
-  "workspace.newProject.projectFolderCheckFailed": "无法检查项目文件夹，请稍后重试。",
-  "uiSpec.actionList.description": "统一的操作菜单。新增同类 List 场景必须复用这些组件。",
+  "workspace.newProject.projectFolderCheckFailed":
+    "无法检查项目文件夹，请稍后重试。",
+  "uiSpec.actionList.description":
+    "统一的操作菜单。新增同类 List 场景必须复用这些组件。",
   "uiSpec.actionList.open": "打开",
   "uiSpec.actionList.unavailable": "暂不可用",
   "uiSpec.actionList.states":
@@ -8932,7 +9621,8 @@ const zh = {
   "uiSpec.icons.action.play": "播放",
   "uiSpec.icons.action.previous": "上一集",
   "uiSpec.icons.action.stop": "停止",
-  "uiSpec.icons.audioScene": "普通卡片音频主控制 · circle-fill · 28px 圆底及热区",
+  "uiSpec.icons.audioScene":
+    "普通卡片音频主控制 · circle-fill · 28px 圆底及热区",
   "uiSpec.icons.auxiliary": "全屏辅助图标示意",
   "uiSpec.icons.currentRules": "现行规则",
   "uiSpec.icons.dark": "深色",
@@ -8992,16 +9682,21 @@ const zh = {
   "uiSpec.icons.search": "搜索名称、用途或使用位置",
   "uiSpec.icons.size": "图标尺寸",
   "uiSpec.icons.theme": "主题",
-  "uiSpec.icons.thumbnailScene": "画面覆盖层 · 无底 Filled · 20px 图形 / 36px 热区",
+  "uiSpec.icons.thumbnailScene":
+    "画面覆盖层 · 无底 Filled · 20px 图形 / 36px 热区",
   "uiSpec.icons.title": "Icon 规范与预览",
-  "uiSpec.icons.usage.legacyMore": "旧横向三点兼容出口；新菜单入口使用 MoreVerticalIcon。",
-  "uiSpec.icons.usage.more": "更多菜单使用实心竖向三点，避免小尺寸空心圆识别不清。",
+  "uiSpec.icons.usage.legacyMore":
+    "旧横向三点兼容出口；新菜单入口使用 MoreVerticalIcon。",
+  "uiSpec.icons.usage.more":
+    "更多菜单使用实心竖向三点，避免小尺寸空心圆识别不清。",
   "uiSpec.icons.usage.next": "切换到下一集或下一首；不用于逐帧或快进。",
   "uiSpec.icons.usage.pause":
     "统一的 Filled 暂停图标；用于媒体控件及已暂停状态，动作和状态含义由调用方标注。",
-  "uiSpec.icons.usage.play": "媒体播放与缩略图入口；部分集成运行操作也在使用，需独立核对语义。",
+  "uiSpec.icons.usage.play":
+    "媒体播放与缩略图入口；部分集成运行操作也在使用，需独立核对语义。",
   "uiSpec.icons.usage.previous": "切换到上一集或上一首；不用于逐帧或快退。",
-  "uiSpec.icons.usage.skill": "仅用于媒体封面 Skill 操作，不替换所有 Skill 图标。",
+  "uiSpec.icons.usage.skill":
+    "仅用于媒体封面 Skill 操作，不替换所有 Skill 图标。",
   "uiSpec.icons.usage.stop":
     "停止播放、录制或运行；矩形绘图工具仍使用线性 Square，不属于停止语义。",
   "uiSpec.slider.api":
@@ -9013,12 +9708,15 @@ const zh = {
     "视觉轴从 0 开始，0–4 秒固定填充且不可选；实际范围仍为 4–15 秒。拖到下限后继续向左，出现范围提示，1 秒后开始淡出；同一次拖动只提示一次。标签保留秒单位，内部刻度不改变允许值。",
   "uiSpec.slider.variant.rounded": "粗圆角款 · 工具参数",
   "uiSpec.slider.temperature": "色温 · 保留冷暖语义渐变",
-  "uiSpec.slider.description": "生产 Slider：细款、粗圆角款和填充款，标签与数值置于轨道外。",
+  "uiSpec.slider.description":
+    "生产 Slider：细款、粗圆角款和填充款，标签与数值置于轨道外。",
   "uiSpec.slider.disabled": "禁用 · 40%",
   "uiSpec.slider.error": "错误状态",
   "uiSpec.slider.errorHelp": "示例校验提示，已关联滑块的无障碍描述。",
-  "uiSpec.slider.events": "实时事件：{{changes}} · 提交事件：{{commits}} · 上次提交：{{value}}%",
-  "uiSpec.slider.fallback": "区间与纵向示例请求 filled，自动采用普通款外观以保留现有行为。",
+  "uiSpec.slider.events":
+    "实时事件：{{changes}} · 提交事件：{{commits}} · 上次提交：{{value}}%",
+  "uiSpec.slider.fallback":
+    "区间与纵向示例请求 filled，自动采用普通款外观以保留现有行为。",
   "uiSpec.slider.keyboard":
     "Tab 聚焦，方向键按步长调整，Home/End 到达边界。禁用控件不可调节；鼠标、触控与键盘遵循 Base UI 语义。",
   "uiSpec.slider.longLabel": "较长的数值调节标签可换行，不覆盖外置数值或轨道",
@@ -9059,7 +9757,8 @@ const zh = {
   "uiSpec.fileTypeIcon.colors":
     "文件类别保留独立色相：PSD 蓝紫、矢量橙、PDF 红、文档蓝、表格绿、演示珊瑚、图片青、视频/设计紫、音频粉、压缩蓝、代码蓝灰。压缩包带有浅色拉链，深浅色由项目主题统一适配。",
   "uiSpec.fileTypeIcon.coverage": "交接包 55 种后缀",
-  "uiSpec.fileTypeIcon.description": "统一文件类型图形：列表、卡片和无法预览占位复用同一实现。",
+  "uiSpec.fileTypeIcon.description":
+    "统一文件类型图形：列表、卡片和无法预览占位复用同一实现。",
   "uiSpec.fileTypeIcon.readFailure": "确认文件读取失败",
   "uiSpec.fileTypeIcon.scenes": "列表 / 卡片 / 无法预览占位",
   "uiSpec.fileTypeIcon.sizes": "尺寸档位（宽度，保持 99:117 比例）",
@@ -9108,7 +9807,8 @@ const zh = {
   "connectors.cli-auth.accountNickname": "昵称",
   "connectors.cli-auth.accountReady": "已就绪，直接在对话中说出你的需求即可。",
   "connectors.cli-auth.accountTitle": "已绑定账号",
-  "connectors.cli-auth.authDescription": "点击授权后会打开浏览器，请在授权页完成登录与授权",
+  "connectors.cli-auth.authDescription":
+    "点击授权后会打开浏览器，请在授权页完成登录与授权",
   "connectors.cli-auth.authFailed": "授权未完成，请重试",
   "connectors.cli-auth.authorize": "授权绑定",
   "connectors.cli-auth.authorizing": "等待授权完成…",
@@ -9118,8 +9818,10 @@ const zh = {
   "connectors.cli-auth.codeLabel": "授权码",
   "connectors.cli-auth.codePlaceholder": "粘贴浏览器中获得的授权码",
   "connectors.cli-auth.codeSubmit": "提交",
-  "connectors.cli-auth.consent": "授权仅用于当前设备访问你的账号；可随时在服务方的授权管理中解除。",
-  "connectors.cli-auth.description": "安装插件并授权账号，完成后即可在对话中使用",
+  "connectors.cli-auth.consent":
+    "授权仅用于当前设备访问你的账号；可随时在服务方的授权管理中解除。",
+  "connectors.cli-auth.description":
+    "安装插件并授权账号，完成后即可在对话中使用",
   "connectors.cli-auth.install": "安装",
   "connectors.cli-auth.installDescription": "下载并安装连接组件",
   "connectors.cli-auth.installed": "已安装",
@@ -9127,29 +9829,37 @@ const zh = {
   "connectors.cli-auth.installTitle": "安装插件",
   "connectors.cli-auth.openAuthPage": "打开授权页面",
   "connectors.cli-auth.title": "连接 {{name}}",
-  "connectors.customDialog.created.needs_auth": "插件已保存，但还需要在浏览器中完成授权。",
-  "connectors.customDialog.created.saved": "插件已保存。打开工作区后会验证是否可用。",
+  "connectors.customDialog.created.needs_auth":
+    "插件已保存，但还需要在浏览器中完成授权。",
+  "connectors.customDialog.created.saved":
+    "插件已保存。打开工作区后会验证是否可用。",
   "connectors.detail.authorize": "去授权",
   "connectors.generic.connect": "连接",
-  "connectors.generic.consent": "密钥仅保存在本机，只用于连接 {{name}}，可随时在此断开。",
-  "connectors.generic.description": "填入 {{name}} 的 API 密钥，完成后即可在对话中使用",
+  "connectors.generic.consent":
+    "密钥仅保存在本机，只用于连接 {{name}}，可随时在此断开。",
+  "connectors.generic.description":
+    "填入 {{name}} 的 API 密钥，完成后即可在对话中使用",
   "connectors.generic.invalidKey": "密钥格式不正确，请检查后重新输入。",
   "connectors.generic.keyHint": "密钥仅保存在本机，用于 Hub 访问 {{name}}。",
   "connectors.generic.keyLabel": "输入 API 密钥",
   "connectors.generic.keyPlaceholder": "输入 {{name}} API 密钥",
   "connectors.generic.login": "获取 {{name}} API 密钥",
-  "connectors.generic.loginDescription": "登录 {{name}} 并在其控制台复制 API 密钥。",
+  "connectors.generic.loginDescription":
+    "登录 {{name}} 并在其控制台复制 API 密钥。",
   "connectors.generic.loginError": "无法打开浏览器，请重试。",
   "connectors.generic.loginTitle": "获取 API 密钥",
   "connectors.generic.title": "连接 {{name}}",
-  "connectors.local-app.description": "在本机安装连接组件，完成后即可在对话中操作 {{name}}",
+  "connectors.local-app.description":
+    "在本机安装连接组件，完成后即可在对话中操作 {{name}}",
   "connectors.local-app.title": "连接 {{name}}",
   "connectors.oauth.consent": "连接即表示允许该服务访问你授权范围内的数据",
-  "connectors.oauth.description": "在浏览器中完成 {{name}} 授权后即可在对话中使用",
+  "connectors.oauth.description":
+    "在浏览器中完成 {{name}} 授权后即可在对话中使用",
   "connectors.oauth.title": "连接 {{name}}",
   "connectors.origin.label": "来源",
   "connectors.plain.connect": "连接",
-  "connectors.plain.description": "{{name}} 无需填写凭证，连接后即可在对话中使用",
+  "connectors.plain.description":
+    "{{name}} 无需填写凭证，连接后即可在对话中使用",
   "connectors.plain.hint":
     "连接会把 {{name}} 的服务地址保存到本机，工作区启动时自动接入；可随时在此断开。",
   "connectors.plain.title": "连接 {{name}}",
@@ -9161,7 +9871,8 @@ const zh = {
   "connectors.server-oauth.connect": "连接并授权",
   "connectors.server-oauth.consent":
     "授权令牌由本地运行时保存和刷新，不会写入插件配置，可随时断开连接撤销。",
-  "connectors.server-oauth.description": "{{name}} 由服务方自己完成登录授权，连接时会打开浏览器",
+  "connectors.server-oauth.description":
+    "{{name}} 由服务方自己完成登录授权，连接时会打开浏览器",
   "connectors.server-oauth.hint":
     "点击连接后，会先保存服务地址，再打开浏览器让你在 {{name}} 官方页面登录并授权。需要先打开一个工作区，授权由本地运行时完成。",
   "connectors.server-oauth.noWorkspaceError":
@@ -9169,9 +9880,11 @@ const zh = {
   "connectors.server-oauth.title": "连接 {{name}}",
   "connectors.skill-only.description": "安装官方技能包，完成后即可在对话中使用",
   "connectors.skill-only.install": "安装",
-  "connectors.skill-only.installedHint": "已安装。重启工作区后即可在对话中使用。",
+  "connectors.skill-only.installedHint":
+    "已安装。重启工作区后即可在对话中使用。",
   "connectors.skill-only.installFailed": "安装失败，请稍后重试",
-  "connectors.skill-only.installHint": "将下载官方技能包并安装到技能库，来源经内容校验。",
+  "connectors.skill-only.installHint":
+    "将下载官方技能包并安装到技能库，来源经内容校验。",
   "connectors.skill-only.title": "安装 {{name}}",
   "canvas.imageSlot.annotatedImageRejected": "编辑后的图片不符合当前模型要求。",
   "attachment.audio.seek": "播放进度",
@@ -9180,7 +9893,8 @@ const zh = {
   "attachment.text.readOnly": "只读预览",
   "connectors.libtv.dismiss": "暂时关闭",
   "cloudAssets.statusWaitingUpload": "等待上传",
-  "cloudAssets.transferFailuresHint": "存在上传失败或审核失败的文件，请查看传输列表",
+  "cloudAssets.transferFailuresHint":
+    "存在上传失败或审核失败的文件，请查看传输列表",
   "home.workspaceFolderMissing":
     "本地项目文件夹不存在，可能已被移动或删除。请重新选择文件夹，输入内容已保留。",
   "uiSpec.icons.rule.surface":
@@ -9205,9 +9919,11 @@ const zh = {
     "画布项目资产 → 主体库排序：12px Regular 文字 + 12px / 1px 箭头与勾",
   "uiSpec.icons.stroke.scene14": "左侧项目 / 最近对话 → …：重命名、复制等操作",
   "uiSpec.icons.stroke.scene16": "画布节点 → 右键菜单",
-  "uiSpec.icons.stroke.scene20": "技能·插件 → 打开已安装 Skill 详情 → 右上角关闭",
+  "uiSpec.icons.stroke.scene20":
+    "技能·插件 → 打开已安装 Skill 详情 → 右上角关闭",
   "uiSpec.icons.stroke.scene24": "个人头像 → 设置 → 关闭 / 子页返回",
-  "uiSpec.icons.stroke.scene32": "特殊用途保留，非本轮必验档位；空态使用公共缺省组件",
+  "uiSpec.icons.stroke.scene32":
+    "特殊用途保留，非本轮必验档位；空态使用公共缺省组件",
   "assetCenter.searchEmpty": "没有匹配的主体",
   "uiSpec.icons.pairing.title": "图标与文字配比 · 试用规则",
   "uiSpec.icons.pairing.note":
@@ -9226,9 +9942,12 @@ const zh = {
   "uiSpec.icons.listPairing.medium": "Medium · 500",
   "uiSpec.icons.listPairing.tier": "图标 {{size}}px · 线宽 {{stroke}}px",
   "uiSpec.icons.listPairing.disabledRow": "复制（不可用）",
-  "uiSpec.icons.listPairing.feedback": "示例操作：{{action}}，不会修改项目数据。",
-  "uiSpec.icons.listPairing.hint": "可悬停、Tab 聚焦或点击列表项；此处仅演示交互。",
+  "uiSpec.icons.listPairing.feedback":
+    "示例操作：{{action}}，不会修改项目数据。",
+  "uiSpec.icons.listPairing.hint":
+    "可悬停、Tab 聚焦或点击列表项；此处仅演示交互。",
 };
+
 instance.use(initReactI18next).init({
   resources: {
     en: {

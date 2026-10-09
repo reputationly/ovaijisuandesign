@@ -1,272 +1,43 @@
 // auth-provider.jsx
-import { useTranslation, reactExports, dedupedToast, usePlatform, getRuntimeConfig, useNavigate } from "../vendor.js";
-import { authExpiredBus } from "../infra/agent-ws-client.jsx";
-import { buildRendererDiagnosticsSnapshot, Select$1, AuthContext } from "../assets/apply-asset-change.jsx";
-import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
-  cn$2,
-  AlertDialog,
+  dedupedToast,
+  getRuntimeConfig,
+  reactExports,
+  useNavigate,
+  usePlatform,
+  useTranslation,
+} from "../vendor.js";
+import {
+  entriesByWorkspace,
+  flushWorkspaceCanvasPersistence,
+} from "./settings-select.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { authExpiredBus } from "../infra/gateway-http-error.jsx";
+import { AuthContext } from "../assets/credit-query-keys.jsx";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { AlertDialog } from "../infra/dialog-content.jsx";
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { homeService } from "../workspace/browser-inspiration-urls.jsx";
-import { markTrackUserAnonymous } from "../i18n/init-rum.jsx";
-import {
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../infra/select-content.jsx";
-import { setTrackUser, trackEvent, clearTrackUser } from "../infra/init-track.js";
-import { normalizeAdAttribution } from "../text-editor/table-document-to-llm-content.js";
-import { __jsx } from "../shared/jsx-runtime.js";
-const DEFAULT_REPORT_INTERVAL_MS = 1e4;
-export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
-  const intervalMs = options.intervalMs ?? DEFAULT_REPORT_INTERVAL_MS;
-  const schedule2 = options.schedule ?? setInterval;
-  const clear = options.clear ?? clearInterval;
-  let stopped = false;
-  const report = () => {
-    if (stopped) return;
-    Promise.resolve(
-      hiloApp2.updateRendererDiagnosticsSnapshot(buildRendererDiagnosticsSnapshot()),
-    ).catch(() => {});
-  };
-  const pressureUnsubscribe =
-    options.onMemoryPressure?.(() => {
-      if (stopped) return;
-      report();
-    }) ??
-    (typeof window !== "undefined"
-      ? window.hilo?.diagnostics?.onMemoryPressure?.(() => {
-          if (stopped) return;
-          report();
-        })
-      : void 0);
-  report();
-  const timer2 = schedule2(report, intervalMs);
-  return () => {
-    stopped = true;
-    pressureUnsubscribe?.();
-    clear(timer2);
-  };
-}
-const DISABLED_GPU_ATTRIBUTE = "data-hilo-gpu";
-const DISABLED_GPU_REASON_ATTRIBUTE = "data-hilo-gpu-reason";
-const TRANSPARENT_WINDOW_ATTRIBUTE = "data-window-transparent";
-export function applyRenderingModeAttributes(config2, root2 = document.documentElement) {
-  if (config2.transparentWindowActive) {
-    root2.setAttribute(TRANSPARENT_WINDOW_ATTRIBUTE, "true");
-  } else {
-    root2.removeAttribute(TRANSPARENT_WINDOW_ATTRIBUTE);
-  }
-  if (config2.gpuAccelerationDisabled) {
-    root2.setAttribute(DISABLED_GPU_ATTRIBUTE, "disabled");
-    root2.setAttribute(
-      DISABLED_GPU_REASON_ATTRIBUTE,
-      config2.gpuAccelerationDisabledReason ?? "unknown",
-    );
-    return;
-  }
-  root2.removeAttribute(DISABLED_GPU_ATTRIBUTE);
-  root2.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
-}
-export function SettingGroup({ title, children: children2 }) {
-  return (
-    <div className="space-y-1.5">
-      {title && (
-        <div className="pt-3 pb-1 first:pt-0">
-          <span className="text-xs font-normal text-muted-foreground">{title}</span>
-        </div>
-      )}
-      {children2}
-    </div>
-  );
-}
-export function SettingRow({ label, description, children: children2, className }) {
-  return (
-    <div className={cn$2("flex items-center justify-between gap-6 py-2.5", className)}>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-normal text-foreground">{label}</p>
-        {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
-      </div>
-      <div className="shrink-0">{children2}</div>
-    </div>
-  );
-}
-export function SettingsSelect({
-  value,
-  onValueChange,
-  options,
-  className,
-  "data-action-ui-id": actionUiId,
-  "aria-label": ariaLabel,
-}) {
-  const selectedOption = options.find((option2) => option2.value === value);
-  const renderOption = (option2) => {
-    if (!option2) return value;
-    const OptionIcon = option2.icon;
-    return (
-      <span className="flex min-w-0 items-center gap-1.5">
-        {OptionIcon ? (
-          <OptionIcon
-            data-slot="settings-select-option-icon"
-            size={14}
-            strokeWidth={1.5}
-            className="shrink-0 text-muted-foreground"
-          />
-        ) : null}
-        <span className="truncate">{option2.label}</span>
-      </span>
-    );
-  };
-  return (
-    <Select$1
-      value={value}
-      onValueChange={(v2) => {
-        if (v2 != null) onValueChange(v2);
-      }}
-    >
-      <SelectTrigger
-        data-action-ui-id={actionUiId}
-        aria-label={ariaLabel}
-        className={cn$2(
-          "h-8 min-w-28 rounded-md border-border! bg-muted/30! px-2.5 text-xs font-normal text-foreground/70 hover:bg-foreground/[0.03]! hover:text-foreground",
-          className,
-        )}
-      >
-        <SelectValue>{() => renderOption(selectedOption)}</SelectValue>
-      </SelectTrigger>
-      <SelectContent className="bg-popover! p-1">
-        {options.map((opt) => (
-          <SelectItem
-            key={opt.value}
-            value={opt.value}
-            className="h-7 rounded-md py-1.5 pr-8 pl-2.5 text-xs font-normal text-foreground/70 focus:bg-popup-item-hover! focus:text-foreground! data-[highlighted]:bg-popup-item-hover! data-[highlighted]:text-foreground!"
-          >
-            {renderOption(opt)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select$1>
-  );
-}
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../infra/badge-variants.jsx";
+import { homeService } from "../workspace/home-service.jsx";
+import { markTrackUserAnonymous } from "../i18n/canvas-node-tools.jsx";
+import { clearTrackUser, setTrackUser } from "../infra/init-track.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { normalizeAdAttribution } from "../text-editor/normalize-ad-attribution-url.js";
+
 const ATTEMPT_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function isAuthLoginAttemptId(value) {
   return typeof value === "string" && ATTEMPT_ID_PATTERN.test(value);
 }
-const LEGACY_PERSISTENCE_LIFETIME = "legacy";
-const entriesByWorkspace = new Map();
-function lifetimeKey(instanceId) {
-  return instanceId || LEGACY_PERSISTENCE_LIFETIME;
-}
-function getOrCreateWorkspaceEntries(workspaceId2) {
-  const existing = entriesByWorkspace.get(workspaceId2);
-  if (existing) return existing;
-  const created = new Map();
-  entriesByWorkspace.set(workspaceId2, created);
-  return created;
-}
-class WorkspaceCanvasPersistenceUnavailableError extends Error {
-  constructor() {
-    super("Canvas persistence controller is unavailable");
-    this.name = "WorkspaceCanvasPersistenceUnavailableError";
-  }
-}
-class WorkspaceCanvasPersistenceChangedError extends Error {
-  constructor() {
-    super("Canvas changed while waiting for the durability barrier");
-    this.name = "WorkspaceCanvasPersistenceChangedError";
-  }
-}
-function publishPersistenceStatus(entry) {
-  if (!entry.reportStatus) return;
-  entry.reportVersion += 1;
-  const promise = entry.reportStatus(entry.status);
-  void promise.catch(() => {});
-  entry.reportPromise = promise;
-}
-export function registerWorkspaceCanvasPersistence(
-  workspaceId2,
-  instanceId,
-  controller,
-  reportStatus,
-) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
-  const key2 = lifetimeKey(instanceId);
-  const previous2 = workspaceEntries.get(key2);
-  const entry = {
-    controller,
-    instanceId,
-    reportPromise: previous2?.reportPromise,
-    reportStatus,
-    reportVersion: previous2?.reportVersion ?? 0,
-    // Never let a remount's initial clean state erase an unresolved failure
-    // from the same runtime lifetime. Only a durable flush may clear it.
-    status: previous2?.status === "clean" || !previous2 ? controller.getStatus() : previous2.status,
-  };
-  workspaceEntries.set(key2, entry);
-  publishPersistenceStatus(entry);
-  return () => {
-    const current2 = workspaceEntries.get(key2);
-    if (current2?.controller !== controller) return;
-    current2.controller = void 0;
-    current2.reportStatus = void 0;
-    if (current2.status === "clean") workspaceEntries.delete(key2);
-    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
-  };
-}
-export function reportWorkspaceCanvasPersistence(workspaceId2, instanceId, status) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
-  const key2 = lifetimeKey(instanceId);
-  const entry = workspaceEntries.get(key2);
-  if (entry) {
-    entry.status = status;
-    publishPersistenceStatus(entry);
-  } else {
-    workspaceEntries.set(key2, {
-      instanceId,
-      reportVersion: 0,
-      status,
-    });
-  }
-  if (status === "clean" && !workspaceEntries.get(key2)?.controller) {
-    workspaceEntries.delete(key2);
-  }
-  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
-}
-export async function flushWorkspaceCanvasPersistence(workspaceId2) {
-  const entries2 = entriesByWorkspace.get(workspaceId2);
-  if (!entries2) return [];
-  for (const entry of entries2.values()) {
-    if (entry.controller) {
-      await entry.controller.flushAndWaitLatest();
-      const controllerStatus = entry.controller.getStatus();
-      if (entry.status !== controllerStatus) {
-        entry.status = controllerStatus;
-        publishPersistenceStatus(entry);
-      }
-    } else if (entry.status !== "clean") {
-      throw new WorkspaceCanvasPersistenceUnavailableError();
-    }
-    if (entry.status !== "clean") {
-      throw new WorkspaceCanvasPersistenceUnavailableError();
-    }
-    if (!entry.reportPromise) continue;
-    const reportVersion = entry.reportVersion;
-    await entry.reportPromise;
-    if (entry.status !== "clean" || entry.reportVersion !== reportVersion) {
-      throw new WorkspaceCanvasPersistenceChangedError();
-    }
-  }
-  return Array.from(entries2.values(), (entry) => entry.instanceId);
-}
+
 async function flushAllWorkspaceCanvasPersistence() {
   const results = [];
   for (const workspaceId2 of Array.from(entriesByWorkspace.keys())) {
@@ -277,9 +48,11 @@ async function flushAllWorkspaceCanvasPersistence() {
   }
   return results;
 }
+
 function discardAllWorkspaceCanvasPersistence() {
   entriesByWorkspace.clear();
 }
+
 function buildAuthLoginTrackingProps(attempt) {
   if (!attempt) {
     return {
@@ -298,10 +71,12 @@ function buildAuthLoginTrackingProps(attempt) {
     protocol_registered: attempt.protocolRegistered,
   };
 }
+
 function authLoginAttemptDurationMs(attempt) {
   if (!attempt) return -1;
   return Date.now() - attempt.startedAt;
 }
+
 function createPendingAuthLoginAttempt(attemptId, dispatchSeq) {
   return {
     attemptId,
@@ -312,14 +87,21 @@ function createPendingAuthLoginAttempt(attemptId, dispatchSeq) {
     startedAt: Date.now(),
   };
 }
+
 const LOGIN_URL = `${getRuntimeConfig().domain}/login`;
+
 const RENEWAL_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1e3;
+
 const AUTH_EXPIRED_DEDUPE_MS = 5e3;
+
 const AUTH_EXPIRED_GRACE_MS = 1500;
+
 const MAX_COMPLETED_AUTH_CALLBACKS = 50;
+
 function isWorkspaceRenderer() {
   return new URLSearchParams(window.location.search).has("workspaceId");
 }
+
 export function AuthProvider({ children: children2 }) {
   const platform2 = usePlatform();
   const navigate = useNavigate();
@@ -328,8 +110,10 @@ export function AuthProvider({ children: children2 }) {
   const { t: t2 } = useTranslation();
   const [user, setUser] = reactExports.useState(null);
   const [isLoading, setIsLoading] = reactExports.useState(true);
-  const [unauthenticatedReason, setUnauthenticatedReason] = reactExports.useState("initial");
-  const [unsavedLogoutOpen, setUnsavedLogoutOpen] = reactExports.useState(false);
+  const [unauthenticatedReason, setUnauthenticatedReason] =
+    reactExports.useState("initial");
+  const [unsavedLogoutOpen, setUnsavedLogoutOpen] =
+    reactExports.useState(false);
   const [expiredOpen, setExpiredOpen] = reactExports.useState(false);
   const [browserLogin, setBrowserLogin] = reactExports.useState(null);
   const browserLoginRef = reactExports.useRef(null);
@@ -448,7 +232,8 @@ export function AuthProvider({ children: children2 }) {
       const closeWorkspaces = options?.closeWorkspaces ?? true;
       const navigateHome = options?.navigateHome ?? true;
       const trackLogout = options?.trackLogout ?? true;
-      const nextUnauthenticatedReason = options?.unauthenticatedReason ?? "signed-out";
+      const nextUnauthenticatedReason =
+        options?.unauthenticatedReason ?? "signed-out";
       if (navigateHome) {
         try {
           await navigate({
@@ -465,7 +250,9 @@ export function AuthProvider({ children: children2 }) {
             discardUnsavedChanges: options?.discardUnsavedChanges,
           });
           if (!result.closed) {
-            throw new Error(`Workspace teardown blocked: ${result.reason ?? "unknown"}`);
+            throw new Error(
+              `Workspace teardown blocked: ${result.reason ?? "unknown"}`,
+            );
           }
         } catch (err) {
           console.error("[auth] closeAllWorkspaces failed:", err);
@@ -551,13 +338,18 @@ export function AuthProvider({ children: children2 }) {
               duration_ms: Date.now() - dispatchStartedAt,
             });
             loginAttemptRef.current = null;
-            dedupedToast.error(result.error ?? tRef.current("auth.loginFailed"));
+            dedupedToast.error(
+              result.error ?? tRef.current("auth.loginFailed"),
+            );
             return;
           }
           trackEvent(TRACK_EVENTS.AUTH_LOGIN_DISPATCH, {
             ...trackingProps,
             stage: "dispatched",
-            method: result.strategy === "in_app" ? "electron-in-app" : "electron-deeplink",
+            method:
+              result.strategy === "in_app"
+                ? "electron-in-app"
+                : "electron-deeplink",
             duration_ms: Date.now() - dispatchStartedAt,
           });
         } catch (err) {
@@ -601,7 +393,8 @@ export function AuthProvider({ children: children2 }) {
     const restoreEpoch = authEpochRef.current;
     (async () => {
       try {
-        const { tokens: tokens2, user: storedUser } = await __HILO_AUTH__.getStoredAuth();
+        const { tokens: tokens2, user: storedUser } =
+          await __HILO_AUTH__.getStoredAuth();
         if (cancelled || restoreEpoch !== authEpochRef.current) return;
         if (!tokens2.accessToken) {
           markTrackUserAnonymous();
@@ -634,10 +427,14 @@ export function AuthProvider({ children: children2 }) {
           const expMs = (payload.exp ?? 0) * 1e3;
           if (expMs - Date.now() < RENEWAL_THRESHOLD_MS) {
             console.log("[auth] Token expiring soon, attempting renewal...");
-            const { token: newToken, error: renewError } = await __HILO_AUTH__.renewToken(
-              tokens2.accessToken,
-            );
-            if (!cancelled && restoreEpoch === authEpochRef.current && newToken && !renewError) {
+            const { token: newToken, error: renewError } =
+              await __HILO_AUTH__.renewToken(tokens2.accessToken);
+            if (
+              !cancelled &&
+              restoreEpoch === authEpochRef.current &&
+              newToken &&
+              !renewError
+            ) {
               console.log("[auth] Token renewed successfully");
               const current2 = await __HILO_AUTH__.getStoredAuth();
               if (cancelled || restoreEpoch !== authEpochRef.current) return;
@@ -645,7 +442,9 @@ export function AuthProvider({ children: children2 }) {
                 applyUser({
                   accessToken: current2.tokens.accessToken,
                   idToken: current2.tokens.idToken,
-                  adAttribution: normalizeAdAttribution(current2.tokens.adAttribution),
+                  adAttribution: normalizeAdAttribution(
+                    current2.tokens.adAttribution,
+                  ),
                   ...current2.user,
                 });
               }
@@ -669,7 +468,8 @@ export function AuthProvider({ children: children2 }) {
     let processing = null;
     let pendingCallback = null;
     let lastIgnoredCallbackKey;
-    const isCurrent = (attempt) => !cancelled && attempt.epoch === authEpochRef.current;
+    const isCurrent = (attempt) =>
+      !cancelled && attempt.epoch === authEpochRef.current;
     const processCallback = async (data2, attempt, confirmedLegacy = false) => {
       try {
         const {
@@ -712,9 +512,15 @@ export function AuthProvider({ children: children2 }) {
         }
         if (!isCurrent(attempt)) return;
         if (info2) {
-          if (typeof authGeneration !== "number" || !Number.isSafeInteger(authGeneration))
+          if (
+            typeof authGeneration !== "number" ||
+            !Number.isSafeInteger(authGeneration)
+          )
             throw new Error("Missing auth commit generation");
-          if ((!data2.loginAttemptId || requiresConfirmation) && !confirmedLegacy) {
+          if (
+            (!data2.loginAttemptId || requiresConfirmation) &&
+            !confirmedLegacy
+          ) {
             updateBrowserLogin({
               user: {
                 ...info2,
@@ -741,7 +547,8 @@ export function AuthProvider({ children: children2 }) {
             await flushAllWorkspaceCanvasPersistence();
             if (!isCurrent(attempt)) return;
             const result = await homeService.hiloApp.closeAllWorkspaces({});
-            if (!result.closed) throw new Error("Account switch blocked by unsaved work");
+            if (!result.closed)
+              throw new Error("Account switch blocked by unsaved work");
             if (!isCurrent(attempt)) return;
           }
           const persisted = await persistUser(
@@ -777,12 +584,20 @@ export function AuthProvider({ children: children2 }) {
           });
           loginAttemptRef.current = null;
           dedupedToast.error(
-            tRef.current(error === "token_invalid" ? "auth.loginFailed" : "auth.loginNetworkError"),
+            tRef.current(
+              error === "token_invalid"
+                ? "auth.loginFailed"
+                : "auth.loginNetworkError",
+            ),
           );
         }
       } catch (err) {
         if (!isCurrent(attempt)) return;
-        if (err instanceof Error && /AUTH_(ATTEMPT|SYNC)_SUPERSEDED/.test(err.message)) return;
+        if (
+          err instanceof Error &&
+          /AUTH_(ATTEMPT|SYNC)_SUPERSEDED/.test(err.message)
+        )
+          return;
         console.error("[auth] onAuthCallback unexpected error:", err);
         trackEvent(TRACK_EVENTS.AUTH_LOGIN_FAILED, {
           ...buildAuthLoginTrackingProps(loginAttemptRef.current),
@@ -795,7 +610,8 @@ export function AuthProvider({ children: children2 }) {
         loginAttemptRef.current = null;
         dedupedToast.error(tRef.current("auth.loginFailed"));
       } finally {
-        if (authTransitionEpochRef.current === attempt.epoch) authTransitionEpochRef.current = null;
+        if (authTransitionEpochRef.current === attempt.epoch)
+          authTransitionEpochRef.current = null;
       }
     };
     const handleCallback = async (data2) => {
@@ -846,11 +662,19 @@ export function AuthProvider({ children: children2 }) {
       const epoch = authEpochRef.current;
       const version2 = ++readVersion;
       try {
-        const { tokens: tokens2, user: storedUser } = await __HILO_AUTH__.getStoredAuth();
-        if (cancelled || epoch !== authEpochRef.current || version2 !== readVersion) return;
-        const tokenChanged = (tokens2.accessToken || "") !== (userRef.current?.accessToken || "");
+        const { tokens: tokens2, user: storedUser } =
+          await __HILO_AUTH__.getStoredAuth();
         if (
-          Boolean(tokens2.accessToken) !== Boolean(userRef.current?.accessToken) ||
+          cancelled ||
+          epoch !== authEpochRef.current ||
+          version2 !== readVersion
+        )
+          return;
+        const tokenChanged =
+          (tokens2.accessToken || "") !== (userRef.current?.accessToken || "");
+        if (
+          Boolean(tokens2.accessToken) !==
+            Boolean(userRef.current?.accessToken) ||
           (storedUser.userID || "") !== (userRef.current?.userID || "")
         ) {
           authEpochRef.current += 1;
@@ -918,7 +742,8 @@ export function AuthProvider({ children: children2 }) {
     authExpiryCheckRef.current = check;
     void (async () => {
       try {
-        const { user: current2, error } = await auth.fetchUserInfo(expiredToken);
+        const { user: current2, error } =
+          await auth.fetchUserInfo(expiredToken);
         if (
           authEpochRef.current !== epoch ||
           userRef.current?.accessToken !== expiredToken ||
@@ -937,7 +762,10 @@ export function AuthProvider({ children: children2 }) {
         if (gracePendingRef.current) clearTimeout(gracePendingRef.current);
         gracePendingRef.current = setTimeout(() => {
           gracePendingRef.current = null;
-          if (authEpochRef.current !== epoch || userRef.current?.accessToken !== expiredToken)
+          if (
+            authEpochRef.current !== epoch ||
+            userRef.current?.accessToken !== expiredToken
+          )
             return;
           void clearUser({
             closeWorkspaces: false,
@@ -955,7 +783,8 @@ export function AuthProvider({ children: children2 }) {
       } catch (error) {
         console.warn("[auth] Could not verify current session expiry:", error);
       } finally {
-        if (authExpiryCheckRef.current === check) authExpiryCheckRef.current = null;
+        if (authExpiryCheckRef.current === check)
+          authExpiryCheckRef.current = null;
       }
     })();
   }, [clearUser]);
@@ -990,7 +819,8 @@ export function AuthProvider({ children: children2 }) {
     loginAttemptRef.current = createPendingAuthLoginAttempt(attemptId, 1);
     try {
       const result = await __HILO_AUTH__.logout(attemptId);
-      if (!result.success) dedupedToast.error(tRef.current("auth.logoutFailed"));
+      if (!result.success)
+        dedupedToast.error(tRef.current("auth.logoutFailed"));
     } catch (error) {
       console.error("[auth] browser logout failed:", error);
       dedupedToast.error(tRef.current("auth.logoutFailed"));
@@ -1087,7 +917,9 @@ export function AuthProvider({ children: children2 }) {
       if (typeof __HILO_AUTH__ === "undefined") return;
       const auth = __HILO_AUTH__;
       try {
-        await writeAuth(authEpochRef.current, () => auth.storeUsername(username, expectedUserID));
+        await writeAuth(authEpochRef.current, () =>
+          auth.storeUsername(username, expectedUserID),
+        );
       } catch (err) {
         console.warn("[auth] persist username failed:", err);
       }
@@ -1110,7 +942,15 @@ export function AuthProvider({ children: children2 }) {
       clearLocalAuth,
       updateUsername,
     }),
-    [user, isLoading, unauthenticatedReason, login, logout, clearLocalAuth, updateUsername],
+    [
+      user,
+      isLoading,
+      unauthenticatedReason,
+      login,
+      logout,
+      clearLocalAuth,
+      updateUsername,
+    ],
   );
   return (
     <AuthContext value={value}>
@@ -1121,9 +961,14 @@ export function AuthProvider({ children: children2 }) {
           if (!open) handleCancelBrowserLogin();
         }}
       >
-        <AlertDialogContent size="sm" data-action-ui-id="auth:confirm-browser-login">
+        <AlertDialogContent
+          size="sm"
+          data-action-ui-id="auth:confirm-browser-login"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle>{t2("auth.confirmBrowserLogin.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t2("auth.confirmBrowserLogin.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t2("auth.confirmBrowserLogin.description", {
                 account: browserLogin?.user.username
@@ -1151,11 +996,17 @@ export function AuthProvider({ children: children2 }) {
       <AlertDialog open={expiredOpen} onOpenChange={setExpiredOpen}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t2("auth.sessionExpired.title")}</AlertDialogTitle>
-            <AlertDialogDescription>{t2("auth.sessionExpired.description")}</AlertDialogDescription>
+            <AlertDialogTitle>
+              {t2("auth.sessionExpired.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t2("auth.sessionExpired.description")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t2("auth.sessionExpired.later")}</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t2("auth.sessionExpired.later")}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleExpiredRelogin}>
               {t2("auth.sessionExpired.relogin")}
             </AlertDialogAction>
@@ -1165,12 +1016,21 @@ export function AuthProvider({ children: children2 }) {
       <AlertDialog open={unsavedLogoutOpen} onOpenChange={setUnsavedLogoutOpen}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t2("auth.unsavedLogout.title")}</AlertDialogTitle>
-            <AlertDialogDescription>{t2("auth.unsavedLogout.description")}</AlertDialogDescription>
+            <AlertDialogTitle>
+              {t2("auth.unsavedLogout.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t2("auth.unsavedLogout.description")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t2("auth.unsavedLogout.cancel")}</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleDiscardAndLogout}>
+            <AlertDialogCancel>
+              {t2("auth.unsavedLogout.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDiscardAndLogout}
+            >
               {t2("auth.unsavedLogout.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

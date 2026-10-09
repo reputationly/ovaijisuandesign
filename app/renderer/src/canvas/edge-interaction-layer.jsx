@@ -1,21 +1,138 @@
 // edge-interaction-layer.jsx
-import { useTranslation, useReactFlow, reactExports, CanvasNodeType, useStoreApi, getInternalNodesBounds, EdgeLabelRenderer, Scissors } from "../vendor.js";
-import { isEdgeVisible, setHoveredEdgeId, clearHoveredEdgeIdIfMatches } from "./edges-canvas.jsx";
-import { cropRectForAspectRatio$1 } from "../media-editing/base-backend.jsx";
-import { DEFAULT_CROP, ASPECT_RATIOS, calcCropRect } from "../media-editing/calc-crop-rect.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  CLICK_DISTANCE_PX,
-  CUT_BUTTON_HIDE_DELAY_MS,
-  CUT_BUTTON_REVEAL_DELAY_MS,
-  EDGE_HIT_RADIUS_PX,
-  hitTestEdges,
-  isEdgeOccludedAt,
-} from "./node-alignment-guides.jsx";
+  clearHoveredEdgeIdIfMatches,
+  controlPointsFor,
+  isEdgeVisible,
+  pointsForSide,
+  readNodeBox,
+  setHoveredEdgeId,
+  sourceHandleSide,
+} from "./control-points-for.js";
+import {
+  EdgeLabelRenderer,
+  getInternalNodesBounds,
+  reactExports,
+  Scissors,
+  useReactFlow,
+  useStoreApi,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+
+const BEZIER_HIT_SAMPLES = 16;
+
+function cubicAt(t2, p0, p1, p22, p3) {
+  const mt2 = 1 - t2;
+  return (
+    mt2 * mt2 * mt2 * p0 +
+    3 * mt2 * mt2 * t2 * p1 +
+    3 * mt2 * t2 * t2 * p22 +
+    t2 * t2 * t2 * p3
+  );
+}
+
+function distSqPointToSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) {
+    const ex2 = px - ax;
+    const ey2 = py - ay;
+    return ex2 * ex2 + ey2 * ey2;
+  }
+  let t2 = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+  t2 = t2 < 0 ? 0 : t2 > 1 ? 1 : t2;
+  const cx2 = ax + t2 * dx;
+  const cy = ay + t2 * dy;
+  const ex = px - cx2;
+  const ey = py - cy;
+  return ex * ex + ey * ey;
+}
+
+function distSqPointToBezier(px, py, cp2, steps) {
+  let prevX = cp2.sx;
+  let prevY = cp2.sy;
+  let minSq = Number.POSITIVE_INFINITY;
+  for (let i2 = 1; i2 <= steps; i2++) {
+    const t2 = i2 / steps;
+    const x2 = cubicAt(t2, cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx);
+    const y4 = cubicAt(t2, cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty);
+    const dSq = distSqPointToSegment(px, py, prevX, prevY, x2, y4);
+    if (dSq < minSq) minSq = dSq;
+    prevX = x2;
+    prevY = y4;
+  }
+  return minSq;
+}
+
+function hitTestEdges(
+  state2,
+  flowX,
+  flowY,
+  radius,
+  steps = BEZIER_HIT_SAMPLES,
+) {
+  let best = null;
+  let bestSq = radius * radius;
+  for (const edge of state2.edges) {
+    if (
+      !isEdgeVisible(edge, state2.nodeLookup, state2.onlySelectedNodes ?? false)
+    )
+      continue;
+    const srcEntry = state2.nodeLookup.get(edge.source);
+    const src = readNodeBox(srcEntry);
+    const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+    if (!src || !tgt) continue;
+    const side = sourceHandleSide(srcEntry, src, tgt);
+    const cp2 = controlPointsFor(pointsForSide(src, tgt, side), side);
+    const minX = Math.min(cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx) - radius;
+    const maxX = Math.max(cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx) + radius;
+    const minY = Math.min(cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty) - radius;
+    const maxY = Math.max(cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty) + radius;
+    if (flowX < minX || flowX > maxX || flowY < minY || flowY > maxY) continue;
+    const distSq = distSqPointToBezier(flowX, flowY, cp2, steps);
+    if (distSq <= bestSq) {
+      bestSq = distSq;
+      best = edge.id;
+    }
+  }
+  return best;
+}
+
+const EDGE_OCCLUDING_SELECTORS = [
+  '[data-action-ui-id="canvas.node-handle-plus"]',
+  ".react-flow__node",
+  ".react-flow__node-toolbar",
+];
+
+const EDGE_OCCLUDING_SELECTOR = EDGE_OCCLUDING_SELECTORS.join(",");
+
+function isEdgeOccludingElement(element2) {
+  return element2?.closest(EDGE_OCCLUDING_SELECTOR) != null;
+}
+
+function isEdgeOccludedAt(source, clientX, clientY) {
+  return isEdgeOccludingElement(source.elementFromPoint(clientX, clientY));
+}
+
+const CUT_BUTTON_REVEAL_DELAY_MS = 1e3;
+
+const CUT_BUTTON_HIDE_DELAY_MS = 150;
+
+const EDGE_HIT_RADIUS_PX = 18;
+
+const CLICK_DISTANCE_PX = 3;
+
 const BTN_BG_IDLE = "var(--canvas-primary-btn-bg)";
+
 const BTN_BG_HOVER = "var(--canvas-primary-btn-bg-hover)";
+
 const BTN_ICON = "var(--canvas-primary-btn-icon)";
-export function EdgeInteractionLayer({ active: active2 = true, onlySelectedNodes = false }) {
+
+export function EdgeInteractionLayer({
+  active: active2 = true,
+  onlySelectedNodes = false,
+}) {
   const { t: t2 } = useTranslation();
   const storeApi = useStoreApi();
   const { deleteElements, screenToFlowPosition } = useReactFlow();
@@ -105,7 +222,12 @@ export function EdgeInteractionLayer({ active: active2 = true, onlySelectedNodes
         filter: (node2) => !!node2.selected && !node2.hidden,
       });
       if (width <= 0 || height <= 0) return false;
-      return flowX >= x22 && flowX <= x22 + width && flowY >= y22 && flowY <= y22 + height;
+      return (
+        flowX >= x22 &&
+        flowX <= x22 + width &&
+        flowY >= y22 &&
+        flowY <= y22 + height
+      );
     };
     const runHitTest = () => {
       rafId2 = 0;
@@ -118,7 +240,8 @@ export function EdgeInteractionLayer({ active: active2 = true, onlySelectedNodes
         const cursor = cursorFlowRef.current;
         if (cursor && isInsideSelectionBox(cursor.x, cursor.y)) geomHit = null;
       }
-      const hitId = geomHit && !isEdgeOccluded(evt.clientX, evt.clientY) ? geomHit : null;
+      const hitId =
+        geomHit && !isEdgeOccluded(evt.clientX, evt.clientY) ? geomHit : null;
       const prev = hoveredEdgeRef.current;
       if (hitId !== prev) {
         hoveredEdgeRef.current = hitId;
@@ -184,7 +307,8 @@ export function EdgeInteractionLayer({ active: active2 = true, onlySelectedNodes
       const id2 = hoveredEdgeRef.current;
       if (!id2) return;
       const edge = state2.edges.find((candidate) => candidate.id === id2);
-      if (edge && isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes)) return;
+      if (edge && isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
+        return;
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       revealTimerRef.current = null;
@@ -306,180 +430,3 @@ export function EdgeInteractionLayer({ active: active2 = true, onlySelectedNodes
     </EdgeLabelRenderer>
   );
 }
-const RENDERABLE_CANVAS_NODE_TYPES = new Set([
-  CanvasNodeType.Image,
-  CanvasNodeType.Video,
-  CanvasNodeType.Audio,
-  CanvasNodeType.Text,
-  CanvasNodeType.File,
-  CanvasNodeType.Table,
-]);
-function hasRenderableCanvasContent(nodes) {
-  return nodes.some(
-    (node2) => node2.type !== void 0 && RENDERABLE_CANVAS_NODE_TYPES.has(node2.type),
-  );
-}
-function notifyRenderableContentChange(state2, nextValue, callback) {
-  if (state2.lastValue === nextValue) return false;
-  state2.lastValue = nextValue;
-  callback?.(nextValue);
-  return true;
-}
-export function useRenderableContentChange(nodes, callback) {
-  const callbackRef = reactExports.useRef(callback);
-  const notificationStateRef = reactExports.useRef({});
-  const hasRenderableContent = hasRenderableCanvasContent(nodes);
-  reactExports.useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-  reactExports.useEffect(() => {
-    notifyRenderableContentChange(
-      notificationStateRef.current,
-      hasRenderableContent,
-      callbackRef.current,
-    );
-  }, [hasRenderableContent]);
-}
-export function useImageCrop$1(containerWidth, containerHeight) {
-  const [cropRect, setCropRect] = reactExports.useState(DEFAULT_CROP);
-  const [aspectRatio, setAspectRatioState] = reactExports.useState("free");
-  const [isDragging, setIsDragging] = reactExports.useState(false);
-  const [activeHandle, setActiveHandle] = reactExports.useState(null);
-  const dragRef = reactExports.useRef(null);
-  const rafRef = reactExports.useRef(null);
-  const latestRef = reactExports.useRef({
-    containerWidth,
-    containerHeight,
-    aspectRatio,
-  });
-  latestRef.current = {
-    containerWidth,
-    containerHeight,
-    aspectRatio,
-  };
-  const handleMove = reactExports.useCallback((e2) => {
-    const drag2 = dragRef.current;
-    if (!drag2) return;
-    const { containerWidth: cw, containerHeight: ch, aspectRatio: ar } = latestRef.current;
-    if (!cw || !ch) return;
-    const deltaX = (e2.clientX - drag2.startX) / cw;
-    const deltaY = (e2.clientY - drag2.startY) / ch;
-    const numericRatio = ASPECT_RATIOS[ar];
-    const next2 = calcCropRect({
-      initialRect: drag2.initialRect,
-      deltaX,
-      deltaY,
-      handle: drag2.handle,
-      aspectRatio: numericRatio,
-      containerWidth: cw,
-      containerHeight: ch,
-    });
-    setCropRect(next2);
-  }, []);
-  reactExports.useEffect(() => {
-    if (!isDragging) return;
-    let pendingEvent = null;
-    const onMove = (e2) => {
-      if (e2.cancelable) e2.preventDefault();
-      pendingEvent = e2;
-      if (rafRef.current === null) {
-        rafRef.current = requestAnimationFrame(() => {
-          rafRef.current = null;
-          if (pendingEvent) {
-            handleMove(pendingEvent);
-            pendingEvent = null;
-          }
-        });
-      }
-    };
-    const onUp = () => {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      if (pendingEvent) {
-        handleMove(pendingEvent);
-        pendingEvent = null;
-      }
-      setIsDragging(false);
-      setActiveHandle(null);
-      dragRef.current = null;
-    };
-    window.addEventListener("pointermove", onMove, {
-      passive: false,
-    });
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-    };
-  }, [isDragging, handleMove]);
-  const handlePointerDown = reactExports.useCallback(
-    (e2, handle2 = null) => {
-      if (!e2.isPrimary) return;
-      e2.stopPropagation();
-      e2.preventDefault();
-      dragRef.current = {
-        startX: e2.clientX,
-        startY: e2.clientY,
-        initialRect: {
-          ...cropRect,
-        },
-        handle: handle2,
-      };
-      setIsDragging(true);
-      setActiveHandle(handle2);
-    },
-    [cropRect],
-  );
-  const setAspectRatio = reactExports.useCallback((preset2) => {
-    setAspectRatioState(preset2);
-    const ratio = ASPECT_RATIOS[preset2];
-    const { containerWidth: cw, containerHeight: ch } = latestRef.current;
-    setCropRect(cropRectForAspectRatio$1(ratio, cw, ch));
-  }, []);
-  const reset2 = reactExports.useCallback(() => {
-    setAspectRatioState("free");
-    setCropRect(DEFAULT_CROP);
-  }, []);
-  return {
-    cropRect,
-    aspectRatio,
-    isDragging,
-    activeHandle,
-    handlePointerDown,
-    setAspectRatio,
-    setCropRect,
-    reset: reset2,
-  };
-}
-export const EDGE_HANDLE_THRESHOLD$1 = 80;
-export const ASPECT_OPTIONS$1 = [
-  {
-    label: "free",
-    value: "free",
-  },
-  {
-    label: "1:1",
-    value: "1:1",
-  },
-  {
-    label: "4:3",
-    value: "4:3",
-  },
-  {
-    label: "3:4",
-    value: "3:4",
-  },
-  {
-    label: "16:9",
-    value: "16:9",
-  },
-  {
-    label: "9:16",
-    value: "9:16",
-  },
-];

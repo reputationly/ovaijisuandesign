@@ -1,15 +1,6 @@
 // column-filtering.js
-import { testFalsey, equals } from "../../infra/deep-freeze.js";
-import {
-  createCell$1,
-  flattenBy,
-  functionalUpdate$2,
-  getMemoOptions,
-  isFunction$1,
-  isNumberArray,
-  makeStateUpdater,
-  memo$1,
-} from "../../media-editing/ready-sub-video-card.jsx";
+import { testFalsey, equals } from "../../infra/shallow-copy.js";
+import { createCell$1, flattenBy, functionalUpdate$2, getMemoOptions, isFunction$1, isNumberArray, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
 const debug = "debugHeaders";
 function createHeader(table2, column, options) {
   var _options$id;

@@ -1,36 +1,558 @@
 // team-api.js
-import { API_PATHS, HILO_HUB_BIZ_LINE } from "../vendor.js";
-import { gatewayFetch } from "../infra/agent-ws-client.jsx";
 import {
-  TeamContractError,
-  asArray,
-  asBoolean$1,
   asNonEmptyString,
   asNullableDecimal,
-  asOptionalString$1,
   asPositiveDecimal$1,
-  asPositiveInt64Decimal$1,
   asRecord$5,
-  asRole,
   asSafeInteger$1,
-  asSignedDecimal,
   asString$2,
-  asTransactionId,
   asUnsignedDecimal,
-  isAbortError,
-  mapActionDecision,
-  mapHubGroupListToTeamContexts,
-  mapStringRecord,
-  mapTeamCreateResult,
   mapTeamCreditSummary,
-  mapTeamDeleteResult,
-  mapTeamDetail,
-  mapTeamFeatureContract,
-  mapTeamInviteMembersResult,
-  mapTeamMutationOk,
-  mapUserTeamCapabilities,
-  toTeamApiError,
-} from "./map-hub-group-list-response.js";
+  TeamApiError,
+  TeamContractError,
+} from "./map-team-credit-summary.js";
+import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { API_PATHS, HILO_HUB_BIZ_LINE } from "../vendor.js";
+
+const TEAM_ERROR_CODES = new Set([
+  "invalid_request",
+  "permission_denied",
+  "feature_disabled",
+  "resource_not_found",
+  "resource_closed",
+  "membership_stale",
+  "invalid_cursor",
+  "version_conflict",
+  "idempotency_conflict",
+  "quota_insufficient",
+  "team_balance_insufficient",
+  "operation_not_found",
+  "temporarily_unavailable",
+]);
+
+const ERROR_CODE_ALIASES = {
+  team_context_stale: "membership_stale",
+  context_stale: "membership_stale",
+  forbidden: "permission_denied",
+  not_found: "resource_not_found",
+  team_closed: "resource_closed",
+};
+
+function normalizeCode(value) {
+  if (!value) return "temporarily_unavailable";
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/^team_/, "");
+  if (TEAM_ERROR_CODES.has(normalized)) return normalized;
+  return ERROR_CODE_ALIASES[normalized] ?? "temporarily_unavailable";
+}
+
+function mapDetails(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    return void 0;
+  const result = {};
+  for (const [key2, item] of Object.entries(value)) {
+    if (typeof item === "string") result[key2] = item;
+  }
+  return Object.keys(result).length > 0 ? result : void 0;
+}
+
+function toTeamApiError(error) {
+  if (error instanceof TeamApiError) return error;
+  if (error instanceof GatewayHttpError) {
+    const details = mapDetails(error.details);
+    const currentVersion = details?.current_version;
+    return new TeamApiError(
+      {
+        code: normalizeCode(error.code),
+        ...(currentVersion
+          ? {
+              currentVersion,
+            }
+          : {}),
+        ...(details
+          ? {
+              details,
+            }
+          : {}),
+      },
+      {
+        cause: error,
+      },
+    );
+  }
+  return new TeamApiError(
+    {
+      code: "temporarily_unavailable",
+    },
+    {
+      cause: error,
+    },
+  );
+}
+
+function isAbortError(error) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+const SIGNED_DECIMAL_RE$1 = /^-?(0|[1-9]\d*)$/;
+
+const MAX_SIGNED_INT64$1 = 9223372036854775807n;
+
+function asArray(value, field) {
+  if (!Array.isArray(value))
+    throw new TeamContractError(field, "expected array");
+  return value;
+}
+
+function asTransactionId(value, field) {
+  return asNonEmptyString(value, field);
+}
+
+function asPositiveInt64Decimal$1(value, field) {
+  const result = asPositiveDecimal$1(value, field);
+  if (BigInt(result) > MAX_SIGNED_INT64$1) {
+    throw new TeamContractError(
+      field,
+      "expected positive int64 decimal string",
+    );
+  }
+  return result;
+}
+
+function asSignedDecimal(value, field) {
+  const result = asString$2(value, field);
+  if (!SIGNED_DECIMAL_RE$1.test(result)) {
+    throw new TeamContractError(field, "expected signed decimal string");
+  }
+  return result;
+}
+
+function asBoolean$1(value, field) {
+  if (typeof value !== "boolean")
+    throw new TeamContractError(field, "expected boolean");
+  return value;
+}
+
+function asOptionalString$1(value, field) {
+  return value == null ? null : asString$2(value, field);
+}
+
+function asRole(value, field) {
+  const role =
+    typeof value === "number"
+      ? value === 1
+        ? "OWNER"
+        : value === 4
+          ? "ADMIN"
+          : value === 2
+            ? "MEMBER"
+            : ""
+      : asString$2(value, field).toUpperCase();
+  if (role === "READER" || role === "MEMBER") return "MEMBER";
+  if (role === "OWNER" || role === "ADMIN") return role;
+  throw new TeamContractError(field, `unsupported role ${role}`);
+}
+
+function mapActionDecision(value, field) {
+  if (value == null)
+    return {
+      allowed: false,
+      reasonCode: "contract_missing",
+    };
+  const record2 = asRecord$5(value, field);
+  return {
+    allowed: asBoolean$1(record2.allowed, `${field}.allowed`),
+    reasonCode: asOptionalString$1(record2.reason_code, `${field}.reason_code`),
+  };
+}
+
+function mapStringRecord(value, field) {
+  if (value == null) return {};
+  const record2 = asRecord$5(value, field);
+  const result = {};
+  for (const [key2, item] of Object.entries(record2)) {
+    result[key2] = asString$2(item, `${field}.${key2}`);
+  }
+  return result;
+}
+
+function mapTeamFeatureContract(value) {
+  const record2 = asRecord$5(value, "contract");
+  const gates = asRecord$5(record2.gates ?? {}, "contract.gates");
+  const limits = asRecord$5(record2.limits, "contract.limits");
+  const compatibility = asString$2(
+    record2.compatibility,
+    "contract.compatibility",
+  );
+  if (
+    compatibility !== "SUPPORTED" &&
+    compatibility !== "UPGRADE_REQUIRED" &&
+    compatibility !== "TEMPORARILY_UNAVAILABLE"
+  ) {
+    throw new TeamContractError(
+      "contract.compatibility",
+      `unsupported value ${compatibility}`,
+    );
+  }
+  return {
+    contractVersion: asUnsignedDecimal(
+      record2.contract_version,
+      "contract.contract_version",
+    ),
+    minimumClientVersion: asNonEmptyString(
+      record2.minimum_client_version,
+      "contract.minimum_client_version",
+    ),
+    compatibility,
+    gates: {
+      teamRead: gates.team_read === true,
+      teamSwitch: gates.team_switch === true,
+      teamInvitation: gates.team_invitation === true,
+      teamBilling: gates.team_billing === true,
+      teamMutation: gates.team_mutation === true,
+    },
+    limits: {
+      maxGroupsIncludingPersonal: asSafeInteger$1(
+        limits.max_groups_including_personal,
+        "contract.limits.max_groups_including_personal",
+      ),
+      maxMembersPerTeam: asSafeInteger$1(
+        limits.max_members_per_team,
+        "contract.limits.max_members_per_team",
+      ),
+      maxMemberPageSize: asSafeInteger$1(
+        limits.max_member_page_size,
+        "contract.limits.max_member_page_size",
+      ),
+    },
+  };
+}
+
+function mapTeamCreateResult(value) {
+  const record2 = asRecord$5(value, "create_team");
+  return {
+    groupId: asPositiveDecimal$1(record2.group_id, "create_team.group_id"),
+    role:
+      record2.role == null ? "OWNER" : asRole(record2.role, "create_team.role"),
+    ...(record2.subject_id === void 0 || record2.subject_id === null
+      ? {}
+      : {
+          subjectId: asPositiveDecimal$1(
+            record2.subject_id,
+            "create_team.subject_id",
+          ),
+        }),
+  };
+}
+
+function mapHubGroupListResponse(value) {
+  const record2 = asRecord$5(value, "group_list");
+  const seenGroupIds = new Set();
+  const groups = asArray(record2.groups ?? [], "group_list.groups").map(
+    (item, index2) => {
+      const field = `group_list.groups[${index2}]`;
+      const group = asRecord$5(item, field);
+      const groupId2 = asPositiveDecimal$1(group.group_id, `${field}.group_id`);
+      if (seenGroupIds.has(groupId2)) {
+        throw new TeamContractError(
+          `${field}.group_id`,
+          "expected unique group id",
+        );
+      }
+      seenGroupIds.add(groupId2);
+      return {
+        groupId: groupId2,
+        groupName:
+          typeof group.group_name === "string" ? group.group_name.trim() : "",
+        isDefault: asBoolean$1(group.is_default, `${field}.is_default`),
+        memberCount:
+          group.member_count == null
+            ? 0
+            : asSafeInteger$1(group.member_count, `${field}.member_count`),
+        ...(group.member_limit == null
+          ? {}
+          : {
+              memberLimit: asSafeInteger$1(
+                group.member_limit,
+                `${field}.member_limit`,
+              ),
+            }),
+        createdAtMs:
+          group.create_at == null
+            ? 0
+            : asSafeInteger$1(group.create_at, `${field}.create_at`),
+      };
+    },
+  );
+  const rolesRecord =
+    record2.user_group_roles == null
+      ? {}
+      : asRecord$5(record2.user_group_roles, "group_list.user_group_roles");
+  const userGroupRoles = {};
+  for (const [groupId2, role] of Object.entries(rolesRecord)) {
+    asPositiveDecimal$1(groupId2, `group_list.user_group_roles.${groupId2}`);
+    if (role !== 1 && role !== 2 && role !== 3 && role !== 4) {
+      throw new TeamContractError(
+        `group_list.user_group_roles.${groupId2}`,
+        "expected role 1 | 2 | 3 | 4",
+      );
+    }
+    userGroupRoles[groupId2] = role;
+  }
+  for (const group of groups) {
+    if (userGroupRoles[group.groupId] === void 0) {
+      throw new TeamContractError(
+        `group_list.user_group_roles.${group.groupId}`,
+        "expected role for group",
+      );
+    }
+  }
+  return {
+    groups,
+    userGroupRoles,
+  };
+}
+
+function mapHubRole(value) {
+  if (value === void 0 || value === 0) return null;
+  if (value === 1) return "OWNER";
+  if (value === 4) return "ADMIN";
+  if (value === 2) return "MEMBER";
+  return null;
+}
+
+function hubGroupListRevision(data2) {
+  let hash2 = 17n;
+  const sortedGroups = [...data2.groups].sort((left, right) =>
+    left.groupId.localeCompare(right.groupId),
+  );
+  for (const group of sortedGroups) {
+    hash2 =
+      (hash2 * 131n + BigInt(group.groupId) + BigInt(group.createdAtMs % 1e6)) %
+      10n ** 18n;
+    hash2 =
+      (hash2 * 131n + BigInt(data2.userGroupRoles[group.groupId] ?? 0)) %
+      10n ** 18n;
+  }
+  return hash2.toString();
+}
+
+function mapHubGroupListToTeamContexts(value) {
+  const data2 = mapHubGroupListResponse(value);
+  return {
+    contextsRevision: hubGroupListRevision(data2),
+    items: data2.groups.map((group) => {
+      const role = mapHubRole(data2.userGroupRoles[group.groupId]);
+      const switchAllowed = role !== null;
+      return {
+        groupId: group.groupId,
+        accountType: group.isDefault ? "PERSONAL" : "TEAM",
+        displayName: group.groupName,
+        lifecycle: "ACTIVE",
+        role: group.isDefault ? null : role,
+        joinedAtMs: group.createdAtMs,
+        lastActiveAtMs: group.createdAtMs,
+        dissolvedAtMs: null,
+        recordVersion: group.createdAtMs.toString(),
+        switchDecision: switchAllowed
+          ? {
+              allowed: true,
+              reasonCode: null,
+            }
+          : {
+              allowed: false,
+              reasonCode: "pending_membership",
+            },
+        dismissDecision: {
+          allowed: false,
+          reasonCode: "dismiss_not_supported",
+        },
+      };
+    }),
+    serverTimeMs: Date.now(),
+  };
+}
+
+function mapTeamMutationOk(value) {
+  const record2 = asRecord$5(value, "mutation");
+  if (record2.ok !== true)
+    throw new TeamContractError("mutation.ok", "expected true");
+  return {
+    ok: true,
+  };
+}
+
+function mapTeamDeleteResult(value) {
+  const record2 = asRecord$5(value, "delete_team");
+  if (record2.ok !== true)
+    throw new TeamContractError("delete_team.ok", "expected true");
+  return {
+    ok: true,
+    ...(typeof record2.deleted_group_name === "string" &&
+    record2.deleted_group_name.trim()
+      ? {
+          deletedGroupName: record2.deleted_group_name.trim(),
+        }
+      : {}),
+  };
+}
+
+function mapTeamInviteMembersResult(value) {
+  const record2 = asRecord$5(value, "invite_members");
+  const results = asArray(record2.results, "invite_members.results").map(
+    (item, index2) => {
+      const row = asRecord$5(item, `invite_members.results[${index2}]`);
+      const statusRaw = asString$2(
+        row.status,
+        `invite_members.results[${index2}].status`,
+      );
+      const status =
+        statusRaw === "PENDING" ||
+        statusRaw === "FAILED" ||
+        statusRaw === "ACCEPTED" ||
+        statusRaw === "UNKNOWN"
+          ? statusRaw
+          : "UNKNOWN";
+      return {
+        email: asNonEmptyString(
+          row.email,
+          `invite_members.results[${index2}].email`,
+        ),
+        status,
+        ...(typeof row.invitation_id === "string" && row.invitation_id.trim()
+          ? {
+              invitationId: row.invitation_id.trim(),
+            }
+          : {}),
+        ...(typeof row.error_message === "string" && row.error_message.trim()
+          ? {
+              errorMessage: row.error_message.trim(),
+            }
+          : {}),
+        ...(typeof row.group_name === "string" && row.group_name.trim()
+          ? {
+              groupName: row.group_name.trim(),
+            }
+          : {}),
+      };
+    },
+  );
+  return {
+    successCount: asSafeInteger$1(
+      record2.success_count,
+      "invite_members.success_count",
+    ),
+    failedCount: asSafeInteger$1(
+      record2.failed_count,
+      "invite_members.failed_count",
+    ),
+    results,
+  };
+}
+
+function mapUserTeamCapabilities(value) {
+  const record2 = asRecord$5(value, "capabilities");
+  return {
+    identityKey: asNonEmptyString(
+      record2.identity_key,
+      "capabilities.identity_key",
+    ),
+    revision: asUnsignedDecimal(record2.revision, "capabilities.revision"),
+    createTeam: mapActionDecision(
+      record2.create_team,
+      "capabilities.create_team",
+    ),
+    viewInvitations: mapActionDecision(
+      record2.view_invitations,
+      "capabilities.view_invitations",
+    ),
+  };
+}
+
+function mapTeamPermissions(value, field, groupId2, revision) {
+  const record2 = asRecord$5(value, field);
+  return {
+    groupId: groupId2,
+    membershipRevision: revision,
+    manageTeam: mapActionDecision(record2.manage_team, `${field}.manage_team`),
+    viewMembers: mapActionDecision(
+      record2.view_members,
+      `${field}.view_members`,
+    ),
+    createInviteLink: mapActionDecision(
+      record2.create_invite_link,
+      `${field}.create_invite_link`,
+    ),
+    revokeInviteLink: mapActionDecision(
+      record2.revoke_invite_link,
+      `${field}.revoke_invite_link`,
+    ),
+    purchaseCredits: mapActionDecision(
+      record2.purchase_credits,
+      `${field}.purchase_credits`,
+    ),
+    configureQuota: mapActionDecision(
+      record2.configure_quota,
+      `${field}.configure_quota`,
+    ),
+    viewTransactions: mapActionDecision(
+      record2.view_transactions,
+      `${field}.view_transactions`,
+    ),
+    leaveTeam: mapActionDecision(record2.leave_team, `${field}.leave_team`),
+    transferOwner: mapActionDecision(
+      record2.transfer_owner,
+      `${field}.transfer_owner`,
+    ),
+    dissolveTeam: mapActionDecision(
+      record2.dissolve_team,
+      `${field}.dissolve_team`,
+    ),
+  };
+}
+
+function mapTeamDetail(value) {
+  const record2 = asRecord$5(value, "team_detail");
+  const groupId2 = asPositiveDecimal$1(
+    record2.group_id,
+    "team_detail.group_id",
+  );
+  const membershipRevision = asUnsignedDecimal(
+    record2.membership_revision,
+    "team_detail.membership_revision",
+  );
+  return {
+    groupId: groupId2,
+    teamName: asNonEmptyString(record2.team_name, "team_detail.team_name"),
+    memberCount: asSafeInteger$1(
+      record2.member_count,
+      "team_detail.member_count",
+    ),
+    teamVersion: asUnsignedDecimal(
+      record2.team_version,
+      "team_detail.team_version",
+    ),
+    membershipRevision,
+    currentRole: asRole(record2.current_role, "team_detail.current_role"),
+    permissions: mapTeamPermissions(
+      record2.permissions,
+      "team_detail.permissions",
+      groupId2,
+      membershipRevision,
+    ),
+    creditSummary:
+      record2.credit_summary == null
+        ? null
+        : mapTeamCreditSummary(
+            record2.credit_summary,
+            "team_detail.credit_summary",
+          ),
+  };
+}
+
 function mapQuotaUsage(value, field) {
   const record2 = asRecord$5(value, field);
   const mode2 = asString$2(record2.mode, `${field}.mode`);
@@ -44,10 +566,19 @@ function mapQuotaUsage(value, field) {
     throw new TeamContractError(field, "LIMITED quota requires limit");
   }
   if (mode2 === "UNLIMITED" && (limit !== null || remaining !== null)) {
-    throw new TeamContractError(field, "UNLIMITED quota must not include limit or remaining");
+    throw new TeamContractError(
+      field,
+      "UNLIMITED quota must not include limit or remaining",
+    );
   }
-  if (mode2 === "UNAVAILABLE" && (limit !== null || used !== null || remaining !== null)) {
-    throw new TeamContractError(field, "UNAVAILABLE quota must not include amounts");
+  if (
+    mode2 === "UNAVAILABLE" &&
+    (limit !== null || used !== null || remaining !== null)
+  ) {
+    throw new TeamContractError(
+      field,
+      "UNAVAILABLE quota must not include amounts",
+    );
   }
   return {
     mode: mode2,
@@ -56,24 +587,43 @@ function mapQuotaUsage(value, field) {
     remaining,
   };
 }
+
 function mapMember(value, index2) {
   const field = `members.items[${index2}]`;
   const record2 = asRecord$5(value, field);
-  const permissions = asRecord$5(record2.permissions ?? {}, `${field}.permissions`);
+  const permissions = asRecord$5(
+    record2.permissions ?? {},
+    `${field}.permissions`,
+  );
   return {
     userId: asPositiveDecimal$1(record2.user_id, `${field}.user_id`),
-    displayName: asNonEmptyString(record2.display_name, `${field}.display_name`),
+    displayName: asNonEmptyString(
+      record2.display_name,
+      `${field}.display_name`,
+    ),
     role: asRole(record2.role, `${field}.role`),
-    memberVersion: asUnsignedDecimal(record2.member_version, `${field}.member_version`),
+    memberVersion: asUnsignedDecimal(
+      record2.member_version,
+      `${field}.member_version`,
+    ),
     quota: mapQuotaUsage(record2.quota, `${field}.quota`),
     permissions: {
-      changeRole: mapActionDecision(permissions.change_role, `${field}.permissions.change_role`),
-      changeQuota: mapActionDecision(permissions.change_quota, `${field}.permissions.change_quota`),
+      changeRole: mapActionDecision(
+        permissions.change_role,
+        `${field}.permissions.change_role`,
+      ),
+      changeQuota: mapActionDecision(
+        permissions.change_quota,
+        `${field}.permissions.change_quota`,
+      ),
       removeMember: mapActionDecision(
         permissions.remove_member,
         `${field}.permissions.remove_member`,
       ),
-      viewUsage: mapActionDecision(permissions.view_usage, `${field}.permissions.view_usage`),
+      viewUsage: mapActionDecision(
+        permissions.view_usage,
+        `${field}.permissions.view_usage`,
+      ),
       viewTransactions: mapActionDecision(
         permissions.view_transactions,
         `${field}.permissions.view_transactions`,
@@ -81,6 +631,7 @@ function mapMember(value, index2) {
     },
   };
 }
+
 function mapTeamMembersPage(value) {
   const record2 = asRecord$5(value, "members");
   return {
@@ -91,9 +642,13 @@ function mapTeamMembersPage(value) {
       record2.membership_revision,
       "members.membership_revision",
     ),
-    serverTimeMs: asSafeInteger$1(record2.server_time_ms, "members.server_time_ms"),
+    serverTimeMs: asSafeInteger$1(
+      record2.server_time_ms,
+      "members.server_time_ms",
+    ),
   };
 }
+
 function mapPastTeamMember(value, field) {
   const record2 = asRecord$5(value, field);
   const userId = asPositiveDecimal$1(record2.user_id, `${field}.user_id`);
@@ -107,13 +662,18 @@ function mapPastTeamMember(value, field) {
     userName,
   };
 }
+
 function mapQueryGroupMembers(value) {
   const record2 = asRecord$5(value, "query_members");
-  const members = record2.members == null ? [] : asArray(record2.members, "query_members.members");
+  const members =
+    record2.members == null
+      ? []
+      : asArray(record2.members, "query_members.members");
   return members.map((member, index2) =>
     mapPastTeamMember(member, `query_members.members[${index2}]`),
   );
 }
+
 function mapTeamMemberDetail(value, index2) {
   const field = `member_details.items[${index2}]`;
   const record2 = asRecord$5(value, field);
@@ -123,25 +683,37 @@ function mapTeamMemberDetail(value, index2) {
       ? userId
       : asString$2(record2.user_name, `${field}.user_name`);
   const quotaUsage =
-    record2.quota_usage == null ? null : asRecord$5(record2.quota_usage, `${field}.quota_usage`);
+    record2.quota_usage == null
+      ? null
+      : asRecord$5(record2.quota_usage, `${field}.quota_usage`);
   return {
     userId,
     userName,
     quotaLimit:
       quotaUsage === null
         ? null
-        : asUnsignedDecimal(quotaUsage.quota_limit, `${field}.quota_usage.quota_limit`),
+        : asUnsignedDecimal(
+            quotaUsage.quota_limit,
+            `${field}.quota_usage.quota_limit`,
+          ),
     quotaUsed:
       quotaUsage === null
         ? null
-        : asUnsignedDecimal(quotaUsage.quota_used, `${field}.quota_usage.quota_used`),
+        : asUnsignedDecimal(
+            quotaUsage.quota_used,
+            `${field}.quota_usage.quota_used`,
+          ),
     totalUsed: asUnsignedDecimal(record2.total_used, `${field}.total_used`),
   };
 }
+
 function mapTeamMemberDetails(value) {
   const record2 = asRecord$5(value, "member_details");
-  return asArray(record2.items, "member_details.items").map(mapTeamMemberDetail);
+  return asArray(record2.items, "member_details.items").map(
+    mapTeamMemberDetail,
+  );
 }
+
 function mapBatchAddMembersResults(value) {
   const record2 = asRecord$5(value, "batch_add");
   return asArray(record2.results, "batch_add.results").map((item, index2) => {
@@ -149,7 +721,10 @@ function mapBatchAddMembersResults(value) {
     const row = asRecord$5(item, field);
     const status = asString$2(row.status, `${field}.status`);
     if (status !== "ADDED" && status !== "FAILED") {
-      throw new TeamContractError(`${field}.status`, `unsupported value ${status}`);
+      throw new TeamContractError(
+        `${field}.status`,
+        `unsupported value ${status}`,
+      );
     }
     return {
       userId: asPositiveDecimal$1(row.user_id, `${field}.user_id`),
@@ -161,6 +736,7 @@ function mapBatchAddMembersResults(value) {
     };
   });
 }
+
 function mapInviteLink(value, index2) {
   const field = `invite_links.items[${index2}]`;
   const record2 = asRecord$5(value, field);
@@ -171,34 +747,52 @@ function mapInviteLink(value, index2) {
     status !== "REVOKED" &&
     status !== "EXHAUSTED"
   ) {
-    throw new TeamContractError(`${field}.status`, `unsupported value ${status}`);
+    throw new TeamContractError(
+      `${field}.status`,
+      `unsupported value ${status}`,
+    );
   }
   return {
-    inviteLinkId: asNonEmptyString(record2.invite_link_id, `${field}.invite_link_id`),
+    inviteLinkId: asNonEmptyString(
+      record2.invite_link_id,
+      `${field}.invite_link_id`,
+    ),
     version: asNonEmptyString(record2.version, `${field}.version`),
     role: asRole(record2.role, `${field}.role`),
-    expiresAtMs: asSafeInteger$1(record2.expires_at_ms, `${field}.expires_at_ms`),
+    expiresAtMs: asSafeInteger$1(
+      record2.expires_at_ms,
+      `${field}.expires_at_ms`,
+    ),
     usageLimit: asSafeInteger$1(record2.usage_limit, `${field}.usage_limit`),
     usedCount: asSafeInteger$1(record2.used_count, `${field}.used_count`),
     status,
     maskedUrl: asNonEmptyString(record2.masked_url, `${field}.masked_url`),
   };
 }
+
 function mapTeamInviteLinksPage(value) {
   const record2 = asRecord$5(value, "invite_links");
   return {
     items: asArray(record2.items, "invite_links.items").map(mapInviteLink),
-    nextCursor: asOptionalString$1(record2.next_cursor, "invite_links.next_cursor"),
+    nextCursor: asOptionalString$1(
+      record2.next_cursor,
+      "invite_links.next_cursor",
+    ),
     hasMore: asBoolean$1(record2.has_more, "invite_links.has_more"),
-    serverTimeMs: asSafeInteger$1(record2.server_time_ms, "invite_links.server_time_ms"),
+    serverTimeMs: asSafeInteger$1(
+      record2.server_time_ms,
+      "invite_links.server_time_ms",
+    ),
   };
 }
+
 function mapTeamInviteLinkCreateResult(value) {
   const record2 = asRecord$5(value, "invite_link_create");
   return {
     token: asNonEmptyString(record2.token, "invite_link_create.token"),
   };
 }
+
 function mapTeamInviteLinkInfo(value) {
   const record2 = asRecord$5(value, "invite_link_info");
   const source = asRecord$5(record2.link_info ?? record2, "invite_link_info");
@@ -213,16 +807,23 @@ function mapTeamInviteLinkInfo(value) {
           : rawStatus === "EXHAUSTED"
             ? "EXHAUSTED"
             : null;
-  if (!status) throw new TeamContractError("invite_link_info.status", "unsupported value");
+  if (!status)
+    throw new TeamContractError("invite_link_info.status", "unsupported value");
   return {
     token: asNonEmptyString(source.token, "invite_link_info.token"),
     groupId: asPositiveDecimal$1(source.group_id, "invite_link_info.group_id"),
-    groupName: asNonEmptyString(source.group_name, "invite_link_info.group_name"),
+    groupName: asNonEmptyString(
+      source.group_name,
+      "invite_link_info.group_name",
+    ),
     inviterName: asString$2(
       source.inviter_name ?? source.creator_name,
       "invite_link_info.inviter_name",
     ),
-    memberCount: asSafeInteger$1(source.member_count, "invite_link_info.member_count"),
+    memberCount: asSafeInteger$1(
+      source.member_count,
+      "invite_link_info.member_count",
+    ),
     role: asRole(source.role, "invite_link_info.role"),
     expiresAtMs:
       source.expires_at_ms == null && source.expire_at == null
@@ -235,10 +836,14 @@ function mapTeamInviteLinkInfo(value) {
       source.usage_limit ?? source.max_uses ?? 0,
       "invite_link_info.usage_limit",
     ),
-    usedCount: asSafeInteger$1(source.used_count ?? 0, "invite_link_info.used_count"),
+    usedCount: asSafeInteger$1(
+      source.used_count ?? 0,
+      "invite_link_info.used_count",
+    ),
     status,
   };
 }
+
 function mapTeamInviteLinkAcceptResult(value) {
   const record2 = asRecord$5(value, "invite_link_accept");
   return {
@@ -246,12 +851,18 @@ function mapTeamInviteLinkAcceptResult(value) {
     ...(record2.group_id === void 0
       ? {}
       : {
-          groupId: asPositiveDecimal$1(record2.group_id, "invite_link_accept.group_id"),
+          groupId: asPositiveDecimal$1(
+            record2.group_id,
+            "invite_link_accept.group_id",
+          ),
         }),
     ...(record2.group_name === void 0
       ? {}
       : {
-          groupName: asNonEmptyString(record2.group_name, "invite_link_accept.group_name"),
+          groupName: asNonEmptyString(
+            record2.group_name,
+            "invite_link_accept.group_name",
+          ),
         }),
     ...(record2.role === void 0
       ? {}
@@ -260,6 +871,7 @@ function mapTeamInviteLinkAcceptResult(value) {
         }),
   };
 }
+
 function mapTeamQuota(value) {
   const record2 = asRecord$5(value, "quota");
   const defaultMode = asString$2(record2.default_mode, "quota.default_mode");
@@ -269,24 +881,48 @@ function mapTeamQuota(value) {
     defaultMode !== "MIXED" &&
     defaultMode !== "UNAVAILABLE"
   ) {
-    throw new TeamContractError("quota.default_mode", `unsupported value ${defaultMode}`);
+    throw new TeamContractError(
+      "quota.default_mode",
+      `unsupported value ${defaultMode}`,
+    );
   }
   const resetPolicy = asString$2(record2.reset_policy, "quota.reset_policy");
   if (resetPolicy !== "NONE") {
-    throw new TeamContractError("quota.reset_policy", `unsupported value ${resetPolicy}`);
+    throw new TeamContractError(
+      "quota.reset_policy",
+      `unsupported value ${resetPolicy}`,
+    );
   }
-  const memberLimit = asNullableDecimal(record2.member_limit, "quota.member_limit");
-  const memberRemaining = asNullableDecimal(record2.member_remaining, "quota.member_remaining");
+  const memberLimit = asNullableDecimal(
+    record2.member_limit,
+    "quota.member_limit",
+  );
+  const memberRemaining = asNullableDecimal(
+    record2.member_remaining,
+    "quota.member_remaining",
+  );
   if (defaultMode === "LIMITED" && memberLimit === null) {
     throw new TeamContractError("quota", "LIMITED quota requires limit");
   }
-  if (defaultMode !== "LIMITED" && (memberLimit !== null || memberRemaining !== null)) {
-    throw new TeamContractError("quota", "non-LIMITED quota must not include limit or remaining");
+  if (
+    defaultMode !== "LIMITED" &&
+    (memberLimit !== null || memberRemaining !== null)
+  ) {
+    throw new TeamContractError(
+      "quota",
+      "non-LIMITED quota must not include limit or remaining",
+    );
   }
   return {
-    quotaRevision: asUnsignedDecimal(record2.quota_revision, "quota.quota_revision"),
+    quotaRevision: asUnsignedDecimal(
+      record2.quota_revision,
+      "quota.quota_revision",
+    ),
     defaultMode,
-    teamRemaining: asUnsignedDecimal(record2.team_remaining, "quota.team_remaining"),
+    teamRemaining: asUnsignedDecimal(
+      record2.team_remaining,
+      "quota.team_remaining",
+    ),
     memberLimit,
     memberUsed: asNullableDecimal(record2.member_used, "quota.member_used"),
     memberRemaining,
@@ -297,30 +933,50 @@ function mapTeamQuota(value) {
     resetPolicy,
   };
 }
+
 function mapTransaction(value, index2) {
   const field = `transactions.items[${index2}]`;
   const record2 = asRecord$5(value, field);
   return {
-    transactionId: asTransactionId(record2.transaction_id, `${field}.transaction_id`),
-    createdAtMs: asSafeInteger$1(record2.created_at_ms, `${field}.created_at_ms`),
+    transactionId: asTransactionId(
+      record2.transaction_id,
+      `${field}.transaction_id`,
+    ),
+    createdAtMs: asSafeInteger$1(
+      record2.created_at_ms,
+      `${field}.created_at_ms`,
+    ),
     amount: asSignedDecimal(record2.amount, `${field}.amount`),
-    balanceAfter: asNullableDecimal(record2.balance_after, `${field}.balance_after`),
+    balanceAfter: asNullableDecimal(
+      record2.balance_after,
+      `${field}.balance_after`,
+    ),
     category: asNonEmptyString(record2.category, `${field}.category`),
-    billingType: asOptionalString$1(record2.billing_type, `${field}.billing_type`) ?? "",
+    billingType:
+      asOptionalString$1(record2.billing_type, `${field}.billing_type`) ?? "",
     modelKey: asOptionalString$1(record2.model_key, `${field}.model_key`) ?? "",
     modelDisplayName:
-      asOptionalString$1(record2.model_display_name, `${field}.model_display_name`) ?? "",
-    mediaType: asOptionalString$1(record2.media_type, `${field}.media_type`) ?? "",
-    memberUid: asOptionalString$1(record2.member_uid, `${field}.member_uid`) ?? "",
+      asOptionalString$1(
+        record2.model_display_name,
+        `${field}.model_display_name`,
+      ) ?? "",
+    mediaType:
+      asOptionalString$1(record2.media_type, `${field}.media_type`) ?? "",
+    memberUid:
+      asOptionalString$1(record2.member_uid, `${field}.member_uid`) ?? "",
     userName: asOptionalString$1(record2.user_name, `${field}.user_name`) ?? "",
-    creditCategory: asOptionalString$1(record2.credit_category, `${field}.credit_category`) ?? "",
+    creditCategory:
+      asOptionalString$1(record2.credit_category, `${field}.credit_category`) ??
+      "",
     localizationParams: mapStringRecord(
       record2.localization_params,
       `${field}.localization_params`,
     ),
   };
 }
+
 const TRANSFER_DIRECTIONS = new Set(["IN", "OUT", "UNSPECIFIED"]);
+
 function asTransferDirection(value, field) {
   const result = asString$2(value, field).trim().toUpperCase();
   if (!TRANSFER_DIRECTIONS.has(result)) {
@@ -328,36 +984,60 @@ function asTransferDirection(value, field) {
   }
   return result;
 }
+
 function mapTransfer(value, index2) {
   const field = `transfers.items[${index2}]`;
   const record2 = asRecord$5(value, field);
   return {
     transferId: asNonEmptyString(record2.transfer_id, `${field}.transfer_id`),
-    createdAtMs: asSafeInteger$1(record2.created_at_ms, `${field}.created_at_ms`),
+    createdAtMs: asSafeInteger$1(
+      record2.created_at_ms,
+      `${field}.created_at_ms`,
+    ),
     amount: asSignedDecimal(record2.amount, `${field}.amount`),
     direction: asTransferDirection(record2.direction, `${field}.direction`),
     counterpartyGroupId:
-      asOptionalString$1(record2.counterparty_group_id, `${field}.counterparty_group_id`) ?? "",
+      asOptionalString$1(
+        record2.counterparty_group_id,
+        `${field}.counterparty_group_id`,
+      ) ?? "",
     counterpartyGroupName:
-      asOptionalString$1(record2.counterparty_group_name, `${field}.counterparty_group_name`) ?? "",
+      asOptionalString$1(
+        record2.counterparty_group_name,
+        `${field}.counterparty_group_name`,
+      ) ?? "",
   };
 }
+
 function mapTeamTransfersPage(value) {
   const record2 = asRecord$5(value, "transfers");
   return {
     items: asArray(record2.items, "transfers.items").map(mapTransfer),
-    nextCursor: asOptionalString$1(record2.next_cursor, "transfers.next_cursor"),
+    nextCursor: asOptionalString$1(
+      record2.next_cursor,
+      "transfers.next_cursor",
+    ),
     hasMore: asBoolean$1(record2.has_more, "transfers.has_more"),
-    serverTimeMs: asSafeInteger$1(record2.server_time_ms, "transfers.server_time_ms"),
+    serverTimeMs: asSafeInteger$1(
+      record2.server_time_ms,
+      "transfers.server_time_ms",
+    ),
   };
 }
+
 function mapTeamTransactionsPage(value) {
   const record2 = asRecord$5(value, "transactions");
   return {
     items: asArray(record2.items, "transactions.items").map(mapTransaction),
-    nextCursor: asOptionalString$1(record2.next_cursor, "transactions.next_cursor"),
+    nextCursor: asOptionalString$1(
+      record2.next_cursor,
+      "transactions.next_cursor",
+    ),
     hasMore: asBoolean$1(record2.has_more, "transactions.has_more"),
-    serverTimeMs: asSafeInteger$1(record2.server_time_ms, "transactions.server_time_ms"),
+    serverTimeMs: asSafeInteger$1(
+      record2.server_time_ms,
+      "transactions.server_time_ms",
+    ),
     groupUsed:
       record2.group_used == null
         ? null
@@ -368,17 +1048,27 @@ function mapTeamTransactionsPage(value) {
         : asSignedDecimal(record2.total_amount, "transactions.total_amount"),
   };
 }
+
 function mapTeamCheckoutSession(value) {
   const record2 = asRecord$5(value, "checkout_session");
-  const signedUrl = asNonEmptyString(record2.signed_url, "checkout_session.signed_url");
+  const signedUrl = asNonEmptyString(
+    record2.signed_url,
+    "checkout_session.signed_url",
+  );
   let url2;
   try {
     url2 = new URL(signedUrl);
   } catch {
-    throw new TeamContractError("checkout_session.signed_url", "expected absolute URL");
+    throw new TeamContractError(
+      "checkout_session.signed_url",
+      "expected absolute URL",
+    );
   }
   if (url2.protocol !== "https:") {
-    throw new TeamContractError("checkout_session.signed_url", "expected HTTPS URL");
+    throw new TeamContractError(
+      "checkout_session.signed_url",
+      "expected HTTPS URL",
+    );
   }
   return {
     checkoutSessionId: asPositiveDecimal$1(
@@ -386,9 +1076,13 @@ function mapTeamCheckoutSession(value) {
       "checkout_session.checkout_session_id",
     ),
     signedUrl,
-    expiresAtMs: asSafeInteger$1(record2.expires_at_ms, "checkout_session.expires_at_ms"),
+    expiresAtMs: asSafeInteger$1(
+      record2.expires_at_ms,
+      "checkout_session.expires_at_ms",
+    ),
   };
 }
+
 function mapTeamCreditTransferResult(value) {
   const record2 = asRecord$5(value, "credit_transfer");
   return {
@@ -402,13 +1096,21 @@ function mapTeamCreditTransferResult(value) {
     ),
   };
 }
+
 const MAX_TEAM_MEMBER_PAGES = 500;
+
 const MAX_SIGNED_INT64 = 9223372036854775807n;
+
 const PAST_TEAM_SCOPE_MANAGEABLE_GROUP = 2;
+
 const SCOPE_IN_GROUP = 0;
+
 const PAST_TEAM_FILTER_USER_ID = 1;
+
 const PAST_TEAM_FILTER_USER_NAME = 2;
+
 const DIGITS_ONLY_RE = /^\d+$/;
+
 function dedupeByUserId(members) {
   const seen2 = new Set();
   const result = [];
@@ -419,14 +1121,18 @@ function dedupeByUserId(members) {
   }
   return result;
 }
-export const TEAM_LEDGER_PAGE_SIZE = 100;
+
 function asPositiveInt64Decimal(value, field) {
   const decimal = asPositiveDecimal$1(value, field);
   if (BigInt(decimal) > MAX_SIGNED_INT64) {
-    throw new TeamContractError(field, "expected positive int64 decimal string");
+    throw new TeamContractError(
+      field,
+      "expected positive int64 decimal string",
+    );
   }
   return decimal;
 }
+
 function appendQuery(path2, params) {
   const search2 = new URLSearchParams();
   for (const [key2, value] of Object.entries(params)) {
@@ -435,6 +1141,7 @@ function appendQuery(path2, params) {
   const query = search2.toString();
   return query ? `${path2}?${query}` : path2;
 }
+
 async function fetchMapped(path2, init2, mapper) {
   const signal = init2?.signal ?? void 0;
   try {
@@ -450,11 +1157,16 @@ async function fetchMapped(path2, init2, mapper) {
     throw toTeamApiError(error);
   }
 }
+
 function assertScopeMatch(scope, actualGroupId) {
   if (scope.groupId !== actualGroupId) {
-    throw new TeamContractError("scope.group_id", "response does not match requested group");
+    throw new TeamContractError(
+      "scope.group_id",
+      "response does not match requested group",
+    );
   }
 }
+
 export const teamApi = {
   getContract(clientVersion, options = {}) {
     return fetchMapped(
@@ -543,7 +1255,10 @@ export const teamApi = {
     for (let pageIndex = 0; pageIndex < MAX_TEAM_MEMBER_PAGES; pageIndex += 1) {
       const cursorKey = cursor ?? "FIRST";
       if (seenCursors.has(cursorKey)) {
-        throw new TeamContractError("members.next_cursor", "cursor must make forward progress");
+        throw new TeamContractError(
+          "members.next_cursor",
+          "cursor must make forward progress",
+        );
       }
       seenCursors.add(cursorKey);
       const page = await teamApi.listMembers(
@@ -558,18 +1273,27 @@ export const teamApi = {
       for (const member of page.items) {
         if (!member.permissions.changeQuota.allowed) continue;
         if (seenMemberIds.has(member.userId)) {
-          throw new TeamContractError("members.items.user_id", "member ids must be unique");
+          throw new TeamContractError(
+            "members.items.user_id",
+            "member ids must be unique",
+          );
         }
         seenMemberIds.add(member.userId);
         memberIds.push(member.userId);
       }
       if (!page.hasMore) return memberIds;
       if (page.nextCursor === null) {
-        throw new TeamContractError("members.next_cursor", "has_more requires a cursor");
+        throw new TeamContractError(
+          "members.next_cursor",
+          "has_more requires a cursor",
+        );
       }
       cursor = page.nextCursor;
     }
-    throw new TeamContractError("members.next_cursor", "member pagination exceeded its bound");
+    throw new TeamContractError(
+      "members.next_cursor",
+      "member pagination exceeded its bound",
+    );
   },
   /**
    * 过往团队成员查询（QueryGroupMembers，/backend/group/members/query）。
@@ -631,7 +1355,9 @@ export const teamApi = {
       },
       mapQueryGroupMembers,
     );
-    return dedupeByUserId(members.filter((member) => member.groupId === scope.groupId));
+    return dedupeByUserId(
+      members.filter((member) => member.groupId === scope.groupId),
+    );
   },
   /**
    * 按 UID 批量入团（BatchAddGroupMembers，/backend/group/members/batch_add）。
@@ -797,7 +1523,10 @@ export const teamApi = {
   },
   listTransactions(request, options = {}) {
     const basePath = request.memberId
-      ? API_PATHS.teamMemberTransactions(request.scope.groupId, request.memberId)
+      ? API_PATHS.teamMemberTransactions(
+          request.scope.groupId,
+          request.memberId,
+        )
       : request.selfOnly
         ? API_PATHS.teamSelfTransactions(request.scope.groupId)
         : API_PATHS.teamTransactions(request.scope.groupId);
@@ -981,8 +1710,14 @@ export const teamApi = {
    * operator_uid 与幂等处理均由云网关负责，客户端严格发送三字段请求。
    */
   transferCredits(scope, toGroupId, credit, options = {}) {
-    const fromGroupId = asPositiveInt64Decimal(scope.groupId, "credit_transfer.from_group_id");
-    const targetGroupId = asPositiveInt64Decimal(toGroupId, "credit_transfer.to_group_id");
+    const fromGroupId = asPositiveInt64Decimal(
+      scope.groupId,
+      "credit_transfer.from_group_id",
+    );
+    const targetGroupId = asPositiveInt64Decimal(
+      toGroupId,
+      "credit_transfer.to_group_id",
+    );
     if (fromGroupId === targetGroupId) {
       throw new TeamContractError(
         "credit_transfer.to_group_id",
@@ -991,7 +1726,10 @@ export const teamApi = {
     }
     const amount = Number(credit);
     if (!Number.isSafeInteger(amount) || amount <= 0) {
-      throw new TeamContractError("credit_transfer.credit", "expected positive integer");
+      throw new TeamContractError(
+        "credit_transfer.credit",
+        "expected positive integer",
+      );
     }
     return fetchMapped(
       API_PATHS.creditTransfer,

@@ -1,181 +1,25 @@
 // canvas-mini-map.jsx
 import {
   CanvasNodeType,
+  flowPointToMiniMap,
+  getBoundsOfRects,
+  getNodeDimensions,
+  MIN_SELECTED_NODE_SIZE,
+  NODE_HIT_SLOP,
+  nodeHasDimensions,
+  nodeToMiniMapRect,
+  Panel,
   reactExports,
+  SELECTED_GLOW_BLUR,
+  shallow,
   useStore$3,
   useStoreApi,
-  shallow,
-  nodeHasDimensions,
-  getNodeDimensions,
-  getBoundsOfRects,
-  nodeToMiniMapRect,
-  MIN_SELECTED_NODE_SIZE,
-  flowPointToMiniMap,
-  SELECTED_GLOW_BLUR,
   XYMinimap,
-  NODE_HIT_SLOP,
-  Panel,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { useRecentlyAddedApi } from "../infra/create-recently-added-store.jsx";
-import {
-  MINIMAP_CONTROLS_OFFSET,
-  MINIMAP_SIZE,
-  VIEWPORT_CONTROLS_INSET,
-} from "./handle-position-style.jsx";
-import { useGeneratingStateApi } from "../media-editing/parse-item.jsx";
-const MINIMAP_POSITION_STYLES = {
-  "bottom-left": {
-    ...MINIMAP_SIZE,
-    left: `calc(var(--canvas-left-overlay-inset, 0px) + ${VIEWPORT_CONTROLS_INSET}px)`,
-    bottom: MINIMAP_CONTROLS_OFFSET,
-    transition: "left 200ms cubic-bezier(0.16, 1, 0.3, 1)",
-  },
-  "top-left": {
-    ...MINIMAP_SIZE,
-    top: MINIMAP_CONTROLS_OFFSET,
-    left: `calc(var(--canvas-top-left-overlay-inset, 0px) + ${VIEWPORT_CONTROLS_INSET}px)`,
-    transition: "left 200ms cubic-bezier(0.16, 1, 0.3, 1)",
-  },
-  "top-right": {
-    ...MINIMAP_SIZE,
-    top: MINIMAP_CONTROLS_OFFSET,
-    right: `calc(var(--canvas-top-right-overlay-inset, 0px) + var(--canvas-minimap-top-right-panel-inset, var(--canvas-top-right-panel-inset, 0px)) + ${VIEWPORT_CONTROLS_INSET}px)`,
-    transition: "right 200ms cubic-bezier(0.16, 1, 0.3, 1)",
-  },
-};
-export function getCanvasMinimapPositionStyle(placement) {
-  return MINIMAP_POSITION_STYLES[placement];
-}
-const VISIBLE_GRID_GAP = 20;
-const DOT_RADIUS = 1;
-const MIN_VISIBLE_GRID_ZOOM = 0.5;
-const COLOR_FALLBACK = "rgba(0, 0, 0, 0.04)";
-function getVisibleGridStart(visibleMin) {
-  return Math.floor(visibleMin / VISIBLE_GRID_GAP) * VISIBLE_GRID_GAP;
-}
-export function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
-  const storeApi = useStoreApi();
-  const canvasRef = reactExports.useRef(null);
-  const variantRef = reactExports.useRef(variant);
-  const scheduleRef = reactExports.useRef(null);
-  variantRef.current = variant;
-  reactExports.useEffect(() => {
-    if (!active2) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const flow2 = canvas.closest(".react-flow");
-    if (!flow2) return;
-    let rafId2 = 0;
-    let lastWidth = 0;
-    let lastHeight = 0;
-    let lastDpr = 0;
-    let color2 = readDotColor(flow2);
-    const paint = () => {
-      rafId2 = 0;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      const rect = flow2.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const cssW = Math.round(rect.width);
-      const cssH = Math.round(rect.height);
-      if (cssW !== lastWidth || cssH !== lastHeight || dpr !== lastDpr) {
-        canvas.width = cssW * dpr;
-        canvas.height = cssH * dpr;
-        canvas.style.width = `${cssW}px`;
-        canvas.style.height = `${cssH}px`;
-        lastWidth = cssW;
-        lastHeight = cssH;
-        lastDpr = dpr;
-      }
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const state2 = storeApi.getState();
-      const [tx, ty, zoom2] = state2.transform;
-      if (zoom2 <= MIN_VISIBLE_GRID_ZOOM) return;
-      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
-      ctx.fillStyle = color2;
-      const visMinX = -tx / zoom2;
-      const visMinY = -ty / zoom2;
-      const visMaxX = (cssW - tx) / zoom2;
-      const visMaxY = (cssH - ty) / zoom2;
-      const startX = getVisibleGridStart(visMinX);
-      const startY = getVisibleGridStart(visMinY);
-      if (variantRef.current === "grid") {
-        const lineWidth = 0.5 / zoom2;
-        for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(x2, visMinY, lineWidth, visMaxY - visMinY);
-        }
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(visMinX, y4, visMaxX - visMinX, lineWidth);
-        }
-        return;
-      }
-      ctx.beginPath();
-      for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.moveTo(x2 + DOT_RADIUS, y4);
-          ctx.arc(x2, y4, DOT_RADIUS, 0, Math.PI * 2);
-        }
-      }
-      ctx.fill();
-    };
-    const schedule2 = () => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(paint);
-    };
-    scheduleRef.current = schedule2;
-    const themeObserver = new MutationObserver(() => {
-      color2 = readDotColor(flow2);
-      schedule2();
-    });
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "style", "data-theme"],
-    });
-    schedule2();
-    let prevTransform = storeApi.getState().transform;
-    const unsubStore = storeApi.subscribe(() => {
-      const next2 = storeApi.getState().transform;
-      if (next2 === prevTransform) return;
-      prevTransform = next2;
-      schedule2();
-    });
-    const resizeObserver = new ResizeObserver(schedule2);
-    resizeObserver.observe(flow2);
-    const dprMql = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-    const onDprChange = () => schedule2();
-    dprMql.addEventListener("change", onDprChange);
-    return () => {
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
-      scheduleRef.current = null;
-      themeObserver.disconnect();
-      unsubStore();
-      resizeObserver.disconnect();
-      dprMql.removeEventListener("change", onDprChange);
-    };
-  }, [active2, storeApi]);
-  reactExports.useEffect(() => {
-    scheduleRef.current?.();
-  }, [active2, variant]);
-  return active2 ? (
-    <canvas
-      ref={canvasRef}
-      aria-hidden={true}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        pointerEvents: "none",
-        zIndex: -1,
-      }}
-    />
-  ) : null;
-}
-function readDotColor(host) {
-  const raw2 = getComputedStyle(host).getPropertyValue("--canvas-bg-dot").trim();
-  return raw2 || COLOR_FALLBACK;
-}
+import { useRecentlyAddedApi } from "../infra/create-recently-added-store.js";
+import { useGeneratingStateApi } from "../media-editing/package.jsx";
+
 function computeCanvasMiniMapLayout({
   elementWidth,
   elementHeight,
@@ -197,7 +41,10 @@ function computeCanvasMiniMapLayout({
     width: viewWidth + offset2 * 2,
     height: viewHeight + offset2 * 2,
   };
-  const scale2 = Math.min(safeElementWidth / viewBox.width, safeElementHeight / viewBox.height);
+  const scale2 = Math.min(
+    safeElementWidth / viewBox.width,
+    safeElementHeight / viewBox.height,
+  );
   return {
     viewBox,
     viewBB,
@@ -206,6 +53,7 @@ function computeCanvasMiniMapLayout({
     offsetY: (safeElementHeight - viewBox.height * scale2) / 2,
   };
 }
+
 function isCanvasMiniMapStaticLayoutEqual(previous2, next2) {
   return (
     previous2?.viewBox.x === next2.viewBox.x &&
@@ -217,12 +65,14 @@ function isCanvasMiniMapStaticLayoutEqual(previous2, next2) {
     previous2.offsetY === next2.offsetY
   );
 }
+
 function miniMapPointToFlow(point2, layout) {
   return {
     x: layout.viewBox.x + (point2.x - layout.offsetX) / layout.scale,
     y: layout.viewBox.y + (point2.y - layout.offsetY) / layout.scale,
   };
 }
+
 function parseMiniMapGenerationSequence(...timestamps) {
   for (const timestamp2 of timestamps) {
     if (typeof timestamp2 !== "string" || timestamp2.length === 0) continue;
@@ -231,6 +81,7 @@ function parseMiniMapGenerationSequence(...timestamps) {
   }
   return void 0;
 }
+
 function selectLatestGeneration(candidates2) {
   let latest2;
   for (const candidate of candidates2) {
@@ -238,11 +89,17 @@ function selectLatestGeneration(candidates2) {
   }
   return latest2?.value;
 }
+
 const RIPPLE_DURATION_MS = 2e3;
+
 const RIPPLE_REPEAT_COUNT = 3;
+
 const RIPPLE_DELAYS_MS = [0, 670, 1330];
+
 const RIPPLE_START_RADIUS = 3;
+
 const RIPPLE_END_RADIUS = 20;
+
 function getMiniMapRippleFrames(elapsedMs2, continuous) {
   const frames = [];
   let animating = false;
@@ -252,11 +109,14 @@ function getMiniMapRippleFrames(elapsedMs2, continuous) {
       animating = true;
       continue;
     }
-    if (!continuous && localElapsed >= RIPPLE_DURATION_MS * RIPPLE_REPEAT_COUNT) continue;
+    if (!continuous && localElapsed >= RIPPLE_DURATION_MS * RIPPLE_REPEAT_COUNT)
+      continue;
     animating = true;
     const progress = (localElapsed % RIPPLE_DURATION_MS) / RIPPLE_DURATION_MS;
     frames.push({
-      radius: RIPPLE_START_RADIUS + (RIPPLE_END_RADIUS - RIPPLE_START_RADIUS) * progress,
+      radius:
+        RIPPLE_START_RADIUS +
+        (RIPPLE_END_RADIUS - RIPPLE_START_RADIUS) * progress,
       opacity: 1 - progress,
     });
   }
@@ -265,12 +125,19 @@ function getMiniMapRippleFrames(elapsedMs2, continuous) {
     animating,
   };
 }
+
 const MIN_VIEWPORT_INDICATOR_SIZE = 12;
+
 const VIEWPORT_INDICATOR_STROKE_WIDTH = 1.5;
+
 const VIEWPORT_INDICATOR_DISPERSED_STROKE_WIDTH = 2.75;
+
 const VIEWPORT_INDICATOR_TRANSITION_MS = 280;
+
 const DEFAULT_WIDTH = 200;
+
 const DEFAULT_HEIGHT = 150;
+
 function getClientPoint(event) {
   const source = "nativeEvent" in event ? event.nativeEvent : event;
   if ("touches" in source) {
@@ -289,23 +156,29 @@ function getClientPoint(event) {
     y: mouseEvent.clientY,
   };
 }
+
 function resolveCssColor(element2, color2) {
   const computedStyle = getComputedStyle(element2);
   let resolved = color2;
   for (let depth2 = 0; depth2 < 8 && resolved.includes("var("); depth2 += 1) {
-    const next2 = resolved.replace(/var\((--[^),\s]+)(?:,[^)]+)?\)/g, (_match, token2) => {
-      return computedStyle.getPropertyValue(token2).trim() || "transparent";
-    });
+    const next2 = resolved.replace(
+      /var\((--[^),\s]+)(?:,[^)]+)?\)/g,
+      (_match, token2) => {
+        return computedStyle.getPropertyValue(token2).trim() || "transparent";
+      },
+    );
     if (next2 === resolved) break;
     resolved = next2;
   }
   return resolved;
 }
+
 function roundedRect(context, x2, y4, width, height, radius) {
   const safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
   context.beginPath();
   context.roundRect(x2, y4, width, height, safeRadius);
 }
+
 function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
   const canvas = existing ?? document.createElement("canvas");
   const bitmapWidth = Math.max(1, Math.round(elementWidth * pixelRatio));
@@ -323,6 +196,7 @@ function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
     context,
   };
 }
+
 export function CanvasMiniMap({
   position: position2,
   style: style2,
@@ -367,7 +241,9 @@ export function CanvasMiniMap({
   );
   const requestFrame = reactExports.useCallback(() => {
     if (frameRef.current !== null) return;
-    frameRef.current = requestAnimationFrame((timestamp2) => renderFrameRef.current(timestamp2));
+    frameRef.current = requestAnimationFrame((timestamp2) =>
+      renderFrameRef.current(timestamp2),
+    );
   }, []);
   const invalidateScene = reactExports.useCallback(() => {
     sceneDirtyRef.current = true;
@@ -386,8 +262,10 @@ export function CanvasMiniMap({
     const canvas = canvasRef.current;
     const panel = panelRef.current;
     if (!canvas || !panel) return null;
-    const elementWidth = canvas.clientWidth || Number(style2.width) || DEFAULT_WIDTH;
-    const elementHeight = canvas.clientHeight || Number(style2.height) || DEFAULT_HEIGHT;
+    const elementWidth =
+      canvas.clientWidth || Number(style2.width) || DEFAULT_WIDTH;
+    const elementHeight =
+      canvas.clientHeight || Number(style2.height) || DEFAULT_HEIGHT;
     if (elementWidth <= 0 || elementHeight <= 0) return null;
     const pixelRatio = window.devicePixelRatio || 1;
     const previousScene = sceneRef.current;
@@ -405,7 +283,8 @@ export function CanvasMiniMap({
       let hasDraggingNodes = false;
       for (const node2 of state2.nodes) {
         const internalNode = state2.nodeLookup.get(node2.id);
-        if (!internalNode || node2.hidden || !nodeHasDimensions(node2)) continue;
+        if (!internalNode || node2.hidden || !nodeHasDimensions(node2))
+          continue;
         const dimensions2 = getNodeDimensions(node2);
         const position22 = internalNode.internals.positionAbsolute;
         hasDraggingNodes ||= internalNode.dragging === true;
@@ -437,12 +316,15 @@ export function CanvasMiniMap({
         placeholderGeneratingIds: nodes
           .filter((node2) => node2.placeholderGenerating)
           .map((node2) => node2.id),
-        selectedIds: nodes.filter((node2) => node2.selected).map((node2) => node2.id),
+        selectedIds: nodes
+          .filter((node2) => node2.selected)
+          .map((node2) => node2.id),
         hasDraggingNodes,
       };
       graphRef.current = graph;
     }
-    const boundingRect = graph.nodes.length > 0 ? getBoundsOfRects(graph.bounds, viewBB) : viewBB;
+    const boundingRect =
+      graph.nodes.length > 0 ? getBoundsOfRects(graph.bounds, viewBB) : viewBB;
     const scaledWidth = boundingRect.width / elementWidth;
     const scaledHeight = boundingRect.height / elementHeight;
     const viewScale = Math.max(scaledWidth, scaledHeight, Number.EPSILON);
@@ -453,17 +335,24 @@ export function CanvasMiniMap({
       viewBB,
     });
     const computedStyle = getComputedStyle(panel);
-    const nodeFill = computedStyle.getPropertyValue("--muted-foreground").trim() || "#737373";
+    const nodeFill =
+      computedStyle.getPropertyValue("--muted-foreground").trim() || "#737373";
     const markerColor =
-      computedStyle.getPropertyValue("--canvas-recent-marker").trim() || "#6D6CFF";
+      computedStyle.getPropertyValue("--canvas-recent-marker").trim() ||
+      "#6D6CFF";
     const selectedColor =
-      computedStyle.getPropertyValue("--canvas-minimap-selected").trim() || "#6D6CFF";
+      computedStyle.getPropertyValue("--canvas-minimap-selected").trim() ||
+      "#6D6CFF";
     const selectedGlow =
-      computedStyle.getPropertyValue("--canvas-minimap-selected-glow").trim() || "#6D6CFFA6";
+      computedStyle.getPropertyValue("--canvas-minimap-selected-glow").trim() ||
+      "#6D6CFFA6";
     const selectedRects = [];
     for (const nodeId of graph.selectedIds) {
       const node2 = graph.byId.get(nodeId);
-      if (node2) selectedRects.push(nodeToMiniMapRect(node2, layout, MIN_SELECTED_NODE_SIZE));
+      if (node2)
+        selectedRects.push(
+          nodeToMiniMapRect(node2, layout, MIN_SELECTED_NODE_SIZE),
+        );
     }
     const redrawBase =
       baseDirtyRef.current ||
@@ -474,7 +363,12 @@ export function CanvasMiniMap({
       !isCanvasMiniMapStaticLayoutEqual(previousScene.layout, layout);
     let baseLayer = previousScene?.baseLayer;
     if (redrawBase) {
-      const base2 = prepareLayer(baseLayer, elementWidth, elementHeight, pixelRatio);
+      const base2 = prepareLayer(
+        baseLayer,
+        elementWidth,
+        elementHeight,
+        pixelRatio,
+      );
       if (!base2) return null;
       baseLayer = base2.canvas;
       base2.context.save();
@@ -501,7 +395,12 @@ export function CanvasMiniMap({
       base2.context.restore();
     }
     if (!baseLayer) return null;
-    const mask = prepareLayer(previousScene?.maskLayer, elementWidth, elementHeight, pixelRatio);
+    const mask = prepareLayer(
+      previousScene?.maskLayer,
+      elementWidth,
+      elementHeight,
+      pixelRatio,
+    );
     if (!mask) return null;
     const recentIds = recentlyAddedStore.getState().ids;
     const generatingByNode = generatingStateStore.getState().byNode;
@@ -566,7 +465,8 @@ export function CanvasMiniMap({
       });
     }
     for (const nodeId of generationSequenceRef.current.keys()) {
-      if (!activeGenerationIds.has(nodeId)) generationSequenceRef.current.delete(nodeId);
+      if (!activeGenerationIds.has(nodeId))
+        generationSequenceRef.current.delete(nodeId);
     }
     const latestGeneratingMarker = selectLatestGeneration(generatingMarkers);
     const markers = latestGeneratingMarker
@@ -597,11 +497,17 @@ export function CanvasMiniMap({
     );
     const viewportWidth = viewportBottomRight.x - viewportTopLeft.x;
     const viewportHeight = viewportBottomRight.y - viewportTopLeft.y;
-    const foreground = computedStyle.getPropertyValue("--foreground").trim() || "#000000";
+    const foreground =
+      computedStyle.getPropertyValue("--foreground").trim() || "#000000";
     mask.context.fillStyle = `color-mix(in srgb, ${foreground} 8%, transparent)`;
     mask.context.beginPath();
     mask.context.rect(0, 0, elementWidth, elementHeight);
-    mask.context.rect(viewportTopLeft.x, viewportTopLeft.y, viewportWidth, viewportHeight);
+    mask.context.rect(
+      viewportTopLeft.x,
+      viewportTopLeft.y,
+      viewportWidth,
+      viewportHeight,
+    );
     mask.context.fill("evenodd");
     const viewportAreaRatio =
       layout.viewBox.width > 0 && layout.viewBox.height > 0
@@ -609,14 +515,21 @@ export function CanvasMiniMap({
             1,
             Math.max(
               0,
-              (viewBB.width * viewBB.height) / (layout.viewBox.width * layout.viewBox.height),
+              (viewBB.width * viewBB.height) /
+                (layout.viewBox.width * layout.viewBox.height),
             ),
           )
         : 1;
     const resolvedViewportColor = viewportColor(viewportAreaRatio);
     const indicator = indicatorRef.current;
-    const indicatorWidth = Math.max(viewBB.width, MIN_VIEWPORT_INDICATOR_SIZE * viewScale);
-    const indicatorHeight = Math.max(viewBB.height, MIN_VIEWPORT_INDICATOR_SIZE * viewScale);
+    const indicatorWidth = Math.max(
+      viewBB.width,
+      MIN_VIEWPORT_INDICATOR_SIZE * viewScale,
+    );
+    const indicatorHeight = Math.max(
+      viewBB.height,
+      MIN_VIEWPORT_INDICATOR_SIZE * viewScale,
+    );
     const indicatorTopLeft = flowPointToMiniMap(
       {
         x: viewBB.x - (indicatorWidth - viewBB.width) / 2,
@@ -634,7 +547,9 @@ export function CanvasMiniMap({
           ? resolveCssColor(panel, resolvedViewportColor)
           : (indicator.geometry?.fill ?? "transparent"),
       stroke:
-        computedStyle.getPropertyValue("--canvas-minimap-viewport-accent").trim() || markerColor,
+        computedStyle
+          .getPropertyValue("--canvas-minimap-viewport-accent")
+          .trim() || markerColor,
     };
     const nextIndicatorTarget = resolvedViewportColor === void 0 ? 0 : 1;
     if (indicator.targetOpacity !== nextIndicatorTarget) {
@@ -673,8 +588,14 @@ export function CanvasMiniMap({
     }
     const scene = sceneRef.current;
     if (!scene) return;
-    const bitmapWidth = Math.max(1, Math.round(scene.elementWidth * scene.pixelRatio));
-    const bitmapHeight = Math.max(1, Math.round(scene.elementHeight * scene.pixelRatio));
+    const bitmapWidth = Math.max(
+      1,
+      Math.round(scene.elementWidth * scene.pixelRatio),
+    );
+    const bitmapHeight = Math.max(
+      1,
+      Math.round(scene.elementHeight * scene.pixelRatio),
+    );
     if (canvas.width !== bitmapWidth || canvas.height !== bitmapHeight) {
       canvas.width = bitmapWidth;
       canvas.height = bitmapHeight;
@@ -705,7 +626,13 @@ export function CanvasMiniMap({
       for (const frame2 of ripple.frames) {
         context.globalAlpha = frame2.opacity;
         context.beginPath();
-        context.arc(marker.center.x, marker.center.y, frame2.radius, 0, Math.PI * 2);
+        context.arc(
+          marker.center.x,
+          marker.center.y,
+          frame2.radius,
+          0,
+          Math.PI * 2,
+        );
         context.stroke();
       }
       context.restore();
@@ -728,7 +655,11 @@ export function CanvasMiniMap({
       ? graphRef.current?.byId.get(hoveredNodeIdRef.current)
       : void 0;
     if (hoveredNode && !hoveredNode.selected) {
-      const rect = nodeToMiniMapRect(hoveredNode, scene.layout, MIN_SELECTED_NODE_SIZE);
+      const rect = nodeToMiniMapRect(
+        hoveredNode,
+        scene.layout,
+        MIN_SELECTED_NODE_SIZE,
+      );
       context.save();
       context.globalAlpha = 0.45;
       context.fillStyle = scene.selectedColor;
@@ -737,13 +668,17 @@ export function CanvasMiniMap({
       context.restore();
     }
     const indicator = indicatorRef.current;
-    if (!reducedMotionRef.current && indicator.opacity !== indicator.targetOpacity) {
+    if (
+      !reducedMotionRef.current &&
+      indicator.opacity !== indicator.targetOpacity
+    ) {
       const progress = Math.min(
         1,
         (timestamp2 - indicator.startedAt) / VIEWPORT_INDICATOR_TRANSITION_MS,
       );
       indicator.opacity =
-        indicator.fromOpacity + (indicator.targetOpacity - indicator.fromOpacity) * progress;
+        indicator.fromOpacity +
+        (indicator.targetOpacity - indicator.fromOpacity) * progress;
       needsAnimationFrame ||= progress < 1;
     }
     if (indicator.geometry && indicator.opacity > 0) {
@@ -753,7 +688,8 @@ export function CanvasMiniMap({
       context.strokeStyle = indicator.geometry.stroke;
       context.lineWidth =
         VIEWPORT_INDICATOR_DISPERSED_STROKE_WIDTH +
-        (VIEWPORT_INDICATOR_STROKE_WIDTH - VIEWPORT_INDICATOR_DISPERSED_STROKE_WIDTH) *
+        (VIEWPORT_INDICATOR_STROKE_WIDTH -
+          VIEWPORT_INDICATOR_DISPERSED_STROKE_WIDTH) *
           indicator.opacity;
       roundedRect(
         context,
@@ -785,15 +721,21 @@ export function CanvasMiniMap({
         state2.width !== previousState.width ||
         state2.height !== previousState.height;
       const graphReferencesChanged =
-        state2.nodes !== previousState.nodes || state2.nodeLookup !== previousState.nodeLookup;
-      if (viewportChanged && !graphReferencesChanged && !graphRef.current?.hasDraggingNodes) {
+        state2.nodes !== previousState.nodes ||
+        state2.nodeLookup !== previousState.nodeLookup;
+      if (
+        viewportChanged &&
+        !graphReferencesChanged &&
+        !graphRef.current?.hasDraggingNodes
+      ) {
         invalidateScene();
       } else {
         invalidateGraph();
       }
     });
     const unsubscribeRecent = recentlyAddedStore.subscribe(invalidateScene);
-    const unsubscribeGenerating = generatingStateStore.subscribe(invalidateScene);
+    const unsubscribeGenerating =
+      generatingStateStore.subscribe(invalidateScene);
     const resizeObserver = new ResizeObserver(invalidateBase);
     if (panelRef.current) resizeObserver.observe(panelRef.current);
     const themeObserver = new MutationObserver(invalidateBase);
@@ -868,7 +810,11 @@ export function CanvasMiniMap({
       pannable: true,
       zoomable: true,
     });
-  }, [interactionState.flowHeight, interactionState.flowWidth, interactionState.translateExtent]);
+  }, [
+    interactionState.flowHeight,
+    interactionState.flowWidth,
+    interactionState.translateExtent,
+  ]);
   const hitTestNode = reactExports.useCallback((clientX, clientY) => {
     const canvas = canvasRef.current;
     const scene = sceneRef.current;
@@ -880,7 +826,11 @@ export function CanvasMiniMap({
     let hitId = null;
     let hitArea = Number.POSITIVE_INFINITY;
     for (const node2 of graph.nodes) {
-      const rect = nodeToMiniMapRect(node2, scene.layout, MIN_SELECTED_NODE_SIZE);
+      const rect = nodeToMiniMapRect(
+        node2,
+        scene.layout,
+        MIN_SELECTED_NODE_SIZE,
+      );
       if (
         x2 < rect.x - NODE_HIT_SLOP ||
         x2 > rect.x + rect.width + NODE_HIT_SLOP ||
@@ -901,7 +851,8 @@ export function CanvasMiniMap({
     (nodeId) => {
       if (hoveredNodeIdRef.current === nodeId) return;
       hoveredNodeIdRef.current = nodeId;
-      if (canvasRef.current) canvasRef.current.style.cursor = nodeId ? "pointer" : "";
+      if (canvasRef.current)
+        canvasRef.current.style.cursor = nodeId ? "pointer" : "";
       requestFrame();
     },
     [requestFrame],
@@ -916,7 +867,10 @@ export function CanvasMiniMap({
     },
     [hitTestNode, onNodeSelect, setHoveredNode],
   );
-  const handlePointerLeave = reactExports.useCallback(() => setHoveredNode(null), [setHoveredNode]);
+  const handlePointerLeave = reactExports.useCallback(
+    () => setHoveredNode(null),
+    [setHoveredNode],
+  );
   const handleClick2 = reactExports.useCallback(
     (event) => {
       const canvas = canvasRef.current;
@@ -925,7 +879,10 @@ export function CanvasMiniMap({
       if (onNodeSelect) {
         const nodeId = hitTestNode(event.clientX, event.clientY);
         if (nodeId) {
-          onNodeSelect(nodeId, event.shiftKey || event.metaKey || event.ctrlKey);
+          onNodeSelect(
+            nodeId,
+            event.shiftKey || event.metaKey || event.ctrlKey,
+          );
           return;
         }
       }

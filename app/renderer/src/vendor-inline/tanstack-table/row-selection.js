@@ -1,5 +1,5 @@
 // row-selection.js
-import { getMemoOptions, makeStateUpdater, memo$1 } from "../../media-editing/ready-sub-video-card.jsx";
+import { getMemoOptions, makeStateUpdater, memo$1 } from "../../media-editing/create-column.jsx";
 const getDefaultRowPinningState = () => ({
   top: [],
   bottom: [],

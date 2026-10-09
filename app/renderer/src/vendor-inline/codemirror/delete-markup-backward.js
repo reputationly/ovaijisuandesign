@@ -1,10 +1,10 @@
 // delete-markup-backward.js
 import { EditorSelection, ViewPlugin, Prec, Facet, StateEffect, StateField, Decoration2, RangeSetBuilder, countColumn, LanguageSupport, getContext, normalizeIndent, contextNodeForDelete, nonPlainText, combineConfig, validRegExp, StringQuery, regexpCursor, stringCursor, crelt, phrase, AnnounceMargin, Break } from "../../vendor.js";
-import { getAnnotationSelectionRanges } from "../../text-editor/annotation-highlight.js";
+import { getAnnotationSelectionRanges } from "../../text-editor/configuration2.js";
 import { RegExpQuery, SearchState, setSearchQuery, togglePanel, selectedMatchMark, matchMark, ATX_HEADINGS, INLINE_MARKS, collectHeadingMarks, collectLinkChrome, collectInlineMarks, isBlankLine$1 } from "./line2.js";
-import { blankLine, blankLineExtra, horizontalRule, hiddenMark } from "../../text-editor/locate-hunks-in-doc.js";
+import { blankLine, blankLineExtra, horizontalRule, hiddenMark } from "../../text-editor/scrollable-markdown-table-view.js";
 import { EditorState2 } from "./editor-state2.js";
-import { TEXT_EDIT_SELECTION_MAX_LENGTH } from "../../text-editor/myers-line-hunks.js";
+import { TEXT_EDIT_SELECTION_MAX_LENGTH } from "../../text-editor/build-asr-gateway-request.js";
 import { CompletionContext, MarkdownParser, parseCode } from "./base-theme.js";
 import { EditorView2 } from "./editor-view2.js";
 import {

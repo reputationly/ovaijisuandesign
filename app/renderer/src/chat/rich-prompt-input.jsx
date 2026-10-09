@@ -1,32 +1,34 @@
 // rich-prompt-input.jsx
 import {
-  reactExports,
-  useAssetMetadataApi,
-  Extension,
-  usePromptFontSizeStore,
-  useEditor,
-  src_default$1,
   EditorContent,
+  Extension,
+  reactExports,
+  src_default$1,
+  useAssetMetadataApi,
+  useEditor,
+  usePromptFontSizeStore,
 } from "../vendor.js";
-import { PromptInputMetaRow } from "../generation/params-popup.jsx";
-import { SEEDANCE_REFERENCE_AUDIO_EXTS } from "../text-editor/myers-line-hunks.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { PromptInputMetaRow } from "../generation/prompt-font-size-control.jsx";
 import {
-  parseCanvasReference,
-  isCanvasReferenceUri,
   findAllMentions,
+  isCanvasReferenceUri,
+  parseCanvasReference,
 } from "../text-editor/table-document-to-llm-content.js";
 import {
+  countPromptCharacters,
   extractCanvasEditorCountedText,
   extractCanvasEditorText,
-  countPromptCharacters,
-} from "../assets/use-assets-ref-validate.js";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { CanvasFileRefNode } from "../generation/reference-switch-popover.jsx";
-import { src_default } from "../generation/use-direct-reference-picker.jsx";
+} from "../assets/parse-prompt-to-tiptap.js";
+import { CanvasFileRefNode } from "../generation/canvas-file-ref-node.js";
+import { src_default } from "../generation/attachment-bar.jsx";
+
 function isPromptViewportClick(viewport, target) {
   return target instanceof Node && viewport.contains(target);
 }
+
 const EMPTY_EXTENSIONS = [];
+
 function hasFileRef(editor) {
   let found2 = false;
   editor.state.doc.descendants((node2) => {
@@ -37,6 +39,7 @@ function hasFileRef(editor) {
   });
   return found2;
 }
+
 function collectFileRefs(editor) {
   const refs = [];
   editor.state.doc.descendants((node2) => {
@@ -47,15 +50,22 @@ function collectFileRefs(editor) {
   });
   return refs;
 }
+
 function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
   let active2 = false;
   let currentEditor = null;
   let currentFrom = null;
   const getRect2 = () => {
-    if (!currentEditor || currentEditor.isDestroyed || currentFrom == null) return null;
+    if (!currentEditor || currentEditor.isDestroyed || currentFrom == null)
+      return null;
     try {
       const coords = currentEditor.view.coordsAtPos(currentFrom);
-      return new DOMRect(coords.left, coords.top, 0, coords.bottom - coords.top);
+      return new DOMRect(
+        coords.left,
+        coords.top,
+        0,
+        coords.bottom - coords.top,
+      );
     } catch {
       return null;
     }
@@ -67,7 +77,11 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
       const { state: state2 } = editor;
       const browseState = browseStateRef.current;
       if (browseState) {
-        if (state2.doc.eq(browseState.doc) && state2.selection.eq(browseState.selection)) return;
+        if (
+          state2.doc.eq(browseState.doc) &&
+          state2.selection.eq(browseState.selection)
+        )
+          return;
         browseStateRef.current = null;
         active2 = true;
       }
@@ -99,7 +113,12 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
         currentEditor = editor;
         currentFrom = from2;
         const coords = view2.coordsAtPos(from2);
-        const rect = new DOMRect(coords.left, coords.top, 0, coords.bottom - coords.top);
+        const rect = new DOMRect(
+          coords.left,
+          coords.top,
+          0,
+          coords.bottom - coords.top,
+        );
         active2 = true;
         onAtTrigger(match2[1], rect, getRect2, {
           from: from2,
@@ -114,6 +133,7 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
     },
   });
 }
+
 export function RichPromptInput({
   initialContent,
   placeholder: placeholderText,
@@ -140,7 +160,9 @@ export function RichPromptInput({
   const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
   const onFileRefsAddedRef = reactExports.useRef(onFileRefsAdded);
   onFileRefsAddedRef.current = onFileRefsAdded;
-  const onDirectReferencesRemovedRef = reactExports.useRef(onDirectReferencesRemoved);
+  const onDirectReferencesRemovedRef = reactExports.useRef(
+    onDirectReferencesRemoved,
+  );
   onDirectReferencesRemovedRef.current = onDirectReferencesRemoved;
   const resolveFileUrlRef = reactExports.useRef(resolveFileUrl);
   resolveFileUrlRef.current = resolveFileUrl;
@@ -149,7 +171,9 @@ export function RichPromptInput({
   );
   const fileRefSwitchConfigRef = reactExports.useRef(fileRefSwitchConfig);
   fileRefSwitchConfigRef.current = fileRefSwitchConfig;
-  const stableGetFileRefSwitchConfig = reactExports.useRef(() => fileRefSwitchConfigRef.current);
+  const stableGetFileRefSwitchConfig = reactExports.useRef(
+    () => fileRefSwitchConfigRef.current,
+  );
   const knownPathsRef = reactExports.useRef(new Set());
   const [textLength2, setTextLength] = reactExports.useState(0);
   const onUpdateRef = reactExports.useRef(onUpdate);
@@ -184,7 +208,10 @@ export function RichPromptInput({
         ...extraExtensions,
         buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss),
       ],
-      content: typeof initialContent === "string" ? initialContent : (initialContent ?? ""),
+      content:
+        typeof initialContent === "string"
+          ? initialContent
+          : (initialContent ?? ""),
       editable: !disabled2,
       onUpdate({ editor: e2 }) {
         const countedText = extractCanvasEditorCountedText(e2);
@@ -192,11 +219,16 @@ export function RichPromptInput({
         const len =
           resolveCharacterCountRef.current?.(serializedPrompt, countedText) ??
           countPromptCharacters(countedText);
-        onUpdateRef.current?.(countedText.trim().length > 0 || hasFileRef(e2), len);
+        onUpdateRef.current?.(
+          countedText.trim().length > 0 || hasFileRef(e2),
+          len,
+        );
         setTextLength(len);
         const cb = onFileRefsAddedRef.current;
         if (!cb && !onDirectReferencesRemovedRef.current) {
-          knownPathsRef.current = new Set(collectFileRefs(e2).map((r2) => r2.path));
+          knownPathsRef.current = new Set(
+            collectFileRefs(e2).map((r2) => r2.path),
+          );
           return;
         }
         const refs = collectFileRefs(e2);
@@ -261,13 +293,17 @@ export function RichPromptInput({
             const meta2 = direct
               ? {
                   path: m3.path,
-                  name: direct.subjectName ? `${direct.subjectName} · ${direct.name}` : direct.name,
+                  name: direct.subjectName
+                    ? `${direct.subjectName} · ${direct.name}`
+                    : direct.name,
                   type: direct.kind,
                 }
               : metaByPath.get(m3.path);
             if (meta2) {
               const kind =
-                meta2.type === "video" || meta2.type === "audio" || meta2.type === "text"
+                meta2.type === "video" ||
+                meta2.type === "audio" ||
+                meta2.type === "text"
                   ? meta2.type
                   : "image";
               inlineJSON.push({
@@ -326,13 +362,19 @@ export function RichPromptInput({
     const countedText = extractCanvasEditorCountedText(editor);
     const serializedPrompt = extractCanvasEditorText(editor);
     const len =
-      resolveCharacterCount?.(serializedPrompt, countedText) ?? countPromptCharacters(countedText);
+      resolveCharacterCount?.(serializedPrompt, countedText) ??
+      countPromptCharacters(countedText);
     setTextLength(len);
-    onUpdateRef.current?.(countedText.trim().length > 0 || hasFileRef(editor), len);
+    onUpdateRef.current?.(
+      countedText.trim().length > 0 || hasFileRef(editor),
+      len,
+    );
   }, [editor, resolveCharacterCount]);
   reactExports.useEffect(() => {
     if (!editor) return;
-    knownPathsRef.current = new Set(collectFileRefs(editor).map((r2) => r2.path));
+    knownPathsRef.current = new Set(
+      collectFileRefs(editor).map((r2) => r2.path),
+    );
   }, [editor]);
   reactExports.useEffect(() => {
     if (editor) editor.setEditable(!disabled2);
@@ -356,7 +398,12 @@ export function RichPromptInput({
       if (editor.isDestroyed) return null;
       try {
         const coords = editor.view.coordsAtPos(from2);
-        return new DOMRect(coords.left, coords.top, 0, coords.bottom - coords.top);
+        return new DOMRect(
+          coords.left,
+          coords.top,
+          0,
+          coords.bottom - coords.top,
+        );
       } catch {
         return null;
       }
@@ -419,74 +466,4 @@ export function RichPromptInput({
       />
     </div>
   );
-}
-export function hasUnsupportedReferenceAudioFormat(path2) {
-  const reference = parseCanvasReference(path2);
-  if (reference?.target === "entity") return false;
-  const filename = reference?.name ?? path2.split("?")[0]?.split("#")[0] ?? "";
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 < 0 || dot2 < Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")))
-    return false;
-  return !SEEDANCE_REFERENCE_AUDIO_EXTS.includes(filename.slice(dot2).toLowerCase());
-}
-export function getReferenceVideoDurationsMs(paths, assets, resolutions) {
-  return paths.flatMap((path2) => {
-    if (parseCanvasReference(path2)?.target === "entity") {
-      const row = resolutions.get(path2);
-      if (row?.status !== "available") return [];
-      return (row.metadata?.attachments ?? [])
-        .filter((item) => item.kind === "video")
-        .map((item) => Math.round((item.metadata?.duration_sec ?? 0) * 1e3));
-    }
-    for (const meta2 of assets.values()) {
-      if (
-        meta2.path === path2 &&
-        meta2.type === "video" &&
-        meta2.durationSec != null &&
-        meta2.durationSec > 0
-      )
-        return [Math.round(meta2.durationSec * 1e3)];
-    }
-    return [];
-  });
-}
-export function mergeDirectReferenceMetadata(assets, resolutions) {
-  const merged = new Map(assets);
-  for (const [path2, row] of resolutions) {
-    if (row.status !== "available" || !row.metadata) continue;
-    const { reference, metadata } = row;
-    const groups =
-      reference.target === "entity"
-        ? [...new Set(metadata.attachments.map((item) => item.kind))].map((kind) => ({
-            kind,
-            media: metadata.attachments
-              .filter((item) => item.kind === kind)
-              .map((item) => item.metadata),
-          }))
-        : [
-            {
-              kind: reference.kind,
-              media: [metadata.media],
-            },
-          ];
-    for (const { kind, media } of groups) {
-      if (kind !== "image" && kind !== "video" && kind !== "audio" && kind !== "text") continue;
-      const only = media.length === 1 ? media[0] : void 0;
-      const durationSec =
-        media.length && media.every((item) => item?.duration_sec != null)
-          ? media.reduce((total, item) => total + (item?.duration_sec ?? 0), 0)
-          : void 0;
-      merged.set(`${path2}:${kind}`, {
-        path: path2,
-        name: row.name ?? reference.name,
-        type: kind,
-        url: "",
-        durationSec,
-        width: only?.width,
-        height: only?.height,
-        fileSize: only?.file_size,
-      });
-    }
-  }
-  return merged;
 }

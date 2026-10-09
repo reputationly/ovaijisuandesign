@@ -1,83 +1,101 @@
 // message-input-base.jsx
-import { jsxRuntimeExports, reactExports, useTranslation, useEditor, src_default$1, DOMParser$1, Slice, useCurrentWorkspace, dedupedToast, EditorContent, ArrowUp } from "../vendor.js";
-import { chatLog, Tooltip, TooltipTrigger } from "../vendor-inline/vscode-base/graph.jsx";
-import { MAX_ATTACHMENTS, useMentionModels } from "../generation/use-mention-models.jsx";
-import { useGatewayUrl } from "../generation/use-resizable-width.js";
 import {
-  usePreviewTextLoader,
+  ArrowUp,
+  dedupedToast,
+  DOMParser$1,
+  EditorContent,
+  jsxRuntimeExports,
+  reactExports,
+  Slice,
+  src_default$1,
+  useCurrentWorkspace,
+  useEditor,
+  useTranslation,
+} from "../vendor.js";
+import {
+  chatLog,
+  Tooltip,
+  TooltipTrigger,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  MAX_ATTACHMENTS,
+  useMentionModels,
+} from "../generation/use-mention-models.jsx";
+import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
+import {
   isAnnotatableImage,
   isSameImageAnnotationTarget,
   useAssetSourcePicker,
   useAttachmentLocator,
-  ImageAnnotationDialog,
-} from "../text-editor/image-annotation-dialog.jsx";
+  usePreviewTextLoader,
+} from "../text-editor/read-preview-text-response.jsx";
+import { ImageAnnotationDialog } from "../text-editor/image-annotation-dialog.jsx";
 import {
-  createExpandedComposerActionsMeasurer,
-  resolveComposerActionsCompact,
-  computeComposerActions,
   buildFileMentionAttrs,
-  restoreMentionDraft,
-  remapCommittedMentionPaths,
-  MentionPopover,
   ComposerActionsCompactProvider,
-} from "./mention-popover.jsx";
+  computeComposerActions,
+  createExpandedComposerActionsMeasurer,
+  remapCommittedMentionPaths,
+  resolveComposerActionsCompact,
+  restoreMentionDraft,
+} from "./create-expanded-composer-actions-measurer.jsx";
+import { MentionPopover } from "./mention-popover.jsx";
+import { useUpload } from "../assets/use-upload.js";
 import {
-  useUpload,
-  UploadCommitUnsupportedFilesystemError,
   fileMatchesAccept,
-} from "../assets/use-upload.js";
+  UploadCommitUnsupportedFilesystemError,
+} from "../assets/classify-upload-error.js";
+import { useDropHandler } from "./use-drop-handler.js";
+import { useLocalComfyUiWorkflows } from "./use-local-comfy-ui-workflows.js";
+import { findMentionTrigger } from "./find-trailing-trigger.js";
+import { useMention } from "./use-mention.js";
 import {
-  useDropHandler,
-  useLocalComfyUiWorkflows,
-  findMentionTrigger,
-  useMention,
-} from "./use-mention.js";
-import {
-  mentionKindFromFileType,
   basename$7,
-  workflowAttachmentName,
-  MENTION_POPOVER_ID,
-  POPOVER_ID,
-  buildDocContentFromInput,
-  mentionKindFromPath$1,
   FileDropFeedback,
+  MENTION_POPOVER_ID,
+  mentionKindFromFileType,
+  mentionKindFromPath$1,
   MESSAGE_ACTION_BUTTON_CLASS,
   MESSAGE_ACTION_LABEL_BUTTON_CLASS,
-} from "../text-editor/build-doc-content-from-input.jsx";
-import { src_default } from "../generation/use-direct-reference-picker.jsx";
+  POPOVER_ID,
+  workflowAttachmentName,
+} from "../text-editor/file-drop-feedback.jsx";
+import { buildDocContentFromInput } from "../text-editor/build-doc-content-from-input.js";
+import { src_default } from "../generation/attachment-bar.jsx";
+import { MentionRefNode } from "./mention-ref-node.js";
+import { HighlightDecoration } from "./highlight-decoration.js";
 import {
-  MentionRefNode,
-  HighlightDecoration,
-  pmPosToTextOffset,
-  highlightPluginKey,
   folderBaseName,
   getDocLanguageDetectionText,
+  highlightPluginKey,
+  pmPosToTextOffset,
   scheduleEditorFocus,
   useComposerPlaceholderActions,
-} from "./mention-ref-chip.jsx";
+} from "./use-composer-placeholder-actions.jsx";
 import {
   ColorVisualDecoration,
-  GhostTextDecoration,
-  getDocText,
-  getWireFragmentText,
-  useConnectorReferences,
-  getDocTriggerText,
-  ghostTextPluginKey,
   connectorMentionToken,
+  getDocText,
+  getDocTriggerText,
   getDocWireText,
-  AttachmentPreview,
-} from "../text-editor/attachment-preview.jsx";
+  getWireFragmentText,
+  GhostTextDecoration,
+  ghostTextPluginKey,
+  useConnectorReferences,
+} from "../text-editor/get-wire-content-text.jsx";
+import { AttachmentPreview } from "../text-editor/attachment-preview.jsx";
 import { findAllMentions } from "../text-editor/table-document-to-llm-content.js";
+import { useSlashCommand } from "../workspace/use-slash-command.js";
 import {
-  useSlashCommand,
-  useMessageHistory,
   attachmentsFromHistory,
   filenameFromPath,
-} from "../workspace/use-slash-command.js";
-import { SlashCommandPopover } from "../workspace/slash-command-popover-content.jsx";
-import { MediaHoverPreview } from "../media-editing/audio-preview-player.jsx";
-import { TooltipContent } from "../infra/use-browser-overlay-dialog-props.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
+  useMessageHistory,
+} from "../workspace/use-message-history.js";
+import { SlashCommandPopover } from "../workspace/slash-command-popover.jsx";
+import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
+import { TooltipContent } from "../infra/dialog-content.jsx";
+
 export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   {
     onSend,
@@ -163,7 +181,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   const agentRunning = running2 ?? busy;
   const dropFoldersUnsupportedText = t2("chat.dropFoldersUnsupported");
   const [input, setInput] = reactExports.useState("");
-  const [directSelectedSkill, setDirectSelectedSkill] = reactExports.useState(null);
+  const [directSelectedSkill, setDirectSelectedSkill] =
+    reactExports.useState(null);
   const inputRootRef = reactExports.useRef(null);
   const editorWrapperRef = reactExports.useRef(null);
   const actionRowRef = reactExports.useRef(null);
@@ -201,7 +220,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     };
     const measure = () => {
       if (disposed) return;
-      const hasOptionalActions = Boolean(row.querySelector("[data-composer-optional]"));
+      const hasOptionalActions = Boolean(
+        row.querySelector("[data-composer-optional]"),
+      );
       if (!hasOptionalActions) {
         applyCompact(false);
         return;
@@ -229,7 +250,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     }
     measure();
     const resizeObserver =
-      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleMeasure);
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(scheduleMeasure);
     resizeObserver?.observe(row);
     resizeObserver?.observe(left);
     resizeObserver?.observe(expandedActionsMeasurer.element);
@@ -248,7 +271,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     });
     return () => {
       disposed = true;
-      if (frame2 && typeof cancelAnimationFrame !== "undefined") cancelAnimationFrame(frame2);
+      if (frame2 && typeof cancelAnimationFrame !== "undefined")
+        cancelAnimationFrame(frame2);
       resizeObserver?.disconnect();
       mutationObserver?.disconnect();
       expandedActionsMeasurer.dispose();
@@ -313,7 +337,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   });
   const attachmentOwnershipKey = attachments
     .flatMap((attachment) =>
-      attachment.commitOperationId ? [`${attachment.id}\0${attachment.commitOperationId}`] : [],
+      attachment.commitOperationId
+        ? [`${attachment.id}\0${attachment.commitOperationId}`]
+        : [],
     )
     .join("\0");
   const handleOpenAnnotation = reactExports.useCallback(
@@ -322,7 +348,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         sendInFlightRef.current ||
         baseInteractionLocked ||
         !isAnnotatableImage(attachment) ||
-        (attachment.source && readOnlyAttachmentSources?.includes(attachment.source))
+        (attachment.source &&
+          readOnlyAttachmentSources?.includes(attachment.source))
       ) {
         return;
       }
@@ -335,15 +362,20 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     if (
       sendInFlightRef.current ||
       baseInteractionLocked ||
-      (mode2 === "append" && attachments.length >= (attachmentMaxCount ?? MAX_ATTACHMENTS))
+      (mode2 === "append" &&
+        attachments.length >= (attachmentMaxCount ?? MAX_ATTACHMENTS))
     )
       return false;
-    const current2 = attachments.find((attachment) => attachment.id === snapshot2.id);
+    const current2 = attachments.find(
+      (attachment) => attachment.id === snapshot2.id,
+    );
     return Boolean(
       current2 &&
       isSameImageAnnotationTarget(current2, snapshot2) &&
       isAnnotatableImage(current2) &&
-      !(current2.source && readOnlyAttachmentSources?.includes(current2.source)),
+      !(
+        current2.source && readOnlyAttachmentSources?.includes(current2.source)
+      ),
     );
   };
   const handleApplyAnnotation = reactExports.useCallback(
@@ -399,7 +431,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   const attachPastedFiles = reactExports.useCallback((event) => {
     const files = event.clipboardData?.files;
     if (!files || files.length === 0) return false;
-    const hasNonText = Array.from(files).some((file) => !file.type.startsWith("text/"));
+    const hasNonText = Array.from(files).some(
+      (file) => !file.type.startsWith("text/"),
+    );
     if (!hasNonText) return false;
     if (busyRef.current) {
       event.preventDefault();
@@ -419,7 +453,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       : ""
     : (placeholder ?? t2("chat.placeholder"));
   const placeholderDecorationKey = placeholderNode ? "" : resolvedPlaceholder;
-  placeholderTextRef.current = ghostTextRef.current ? "" : placeholderDecorationKey;
+  placeholderTextRef.current = ghostTextRef.current
+    ? ""
+    : placeholderDecorationKey;
   const editor = useEditor(
     {
       extensions: [
@@ -464,7 +500,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         });
       },
       editorProps: {
-        clipboardTextSerializer: (slice2) => getWireFragmentText(slice2.content),
+        clipboardTextSerializer: (slice2) =>
+          getWireFragmentText(slice2.content),
         handleKeyDown: (_view, event) => pmKeyHandlerRef.current(event),
         handlePaste: (view2, event) => {
           if (attachPastedFiles(event)) return true;
@@ -473,7 +510,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           const container = document.createElement("div");
           container.innerHTML = html2;
           const ownChips = container.querySelector("mention-ref");
-          if (!ownChips && (!text2.includes("@") || findAllMentions(text2).length === 0))
+          if (
+            !ownChips &&
+            (!text2.includes("@") || findAllMentions(text2).length === 0)
+          )
             return false;
           const parser2 = parseInputRef.current;
           if (!parser2) return false;
@@ -566,7 +606,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     (id2) => {
       if (sendInFlightRef.current) return;
       const target = attachments.find((attachment) => attachment.id === id2);
-      if (target?.source && readOnlyAttachmentSources?.includes(target.source)) return;
+      if (target?.source && readOnlyAttachmentSources?.includes(target.source))
+        return;
       if (busyRef.current || !target || target.commitOperationId) return;
       if (target.relativePath && editor) {
         const tr2 = editor.state.tr;
@@ -575,14 +616,17 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           if (
             node2.type.name === "mentionRef" &&
             node2.attrs.path === target.relativePath &&
-            !["asset", "model", "connector", "folder"].includes(node2.attrs.kind)
+            !["asset", "model", "connector", "folder"].includes(
+              node2.attrs.kind,
+            )
           )
             ranges.push({
               from: pos,
               to: pos + node2.nodeSize,
             });
         });
-        for (const range2 of ranges.reverse()) tr2.delete(range2.from, range2.to);
+        for (const range2 of ranges.reverse())
+          tr2.delete(range2.from, range2.to);
         if (tr2.docChanged) editor.view.dispatch(tr2);
         mentionFileRef.current.delete(target.relativePath);
       }
@@ -686,14 +730,18 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         !sendInFlightRef.current &&
         !busyRef.current &&
         replacementContextRef.current.workspace === workspace &&
-        replacementContextRef.current.messageHistoryResetKey === messageHistoryResetKey &&
+        replacementContextRef.current.messageHistoryResetKey ===
+          messageHistoryResetKey &&
         replacementContextRef.current.replacementAccept === replacementAccept &&
         replacementContextRef.current.attachments.some(
-          (item) => item.id === target.id && item.relativePath === target.relativePath,
+          (item) =>
+            item.id === target.id && item.relativePath === target.relativePath,
         ) &&
         !(
           target.source &&
-          replacementContextRef.current.readOnlyAttachmentSources?.includes(target.source)
+          replacementContextRef.current.readOnlyAttachmentSources?.includes(
+            target.source,
+          )
         ),
       onReplaced: (previous2, next2) => {
         if (!editor || !previous2.relativePath || !next2.relativePath) return;
@@ -708,7 +756,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           if (
             node2.type.name === "mentionRef" &&
             node2.attrs.path === previous2.relativePath &&
-            !["asset", "model", "connector", "folder"].includes(node2.attrs.kind)
+            !["asset", "model", "connector", "folder"].includes(
+              node2.attrs.kind,
+            )
           )
             tr2.setNodeMarkup(pos, void 0, {
               ...node2.attrs,
@@ -720,7 +770,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         if (tr2.docChanged) editor.view.dispatch(tr2);
       },
     }),
-    [workspace, messageHistoryResetKey, replacementAccept, editor, scopedGatewayUrl],
+    [
+      workspace,
+      messageHistoryResetKey,
+      replacementAccept,
+      editor,
+      scopedGatewayUrl,
+    ],
   );
   const handleReplaceLocal = reactExports.useCallback(
     (id2, file) => {
@@ -765,9 +821,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       if (!editor) return false;
       const { state: state2 } = editor;
       const { $from } = state2.selection;
-      const textBefore = $from.parent.textBetween(0, $from.parentOffset, void 0, "￼");
+      const textBefore = $from.parent.textBetween(
+        0,
+        $from.parentOffset,
+        void 0,
+        "￼",
+      );
       const match2 = findMentionTrigger(textBefore);
-      const triggerStart = match2 ? $from.pos - (textBefore.length - match2.start) : $from.pos;
+      const triggerStart = match2
+        ? $from.pos - (textBefore.length - match2.start)
+        : $from.pos;
       const triggerEnd = $from.pos;
       let attrs;
       if (item.category === "connector") {
@@ -861,9 +924,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       if (!editor) return false;
       const { state: state2 } = editor;
       const { $from } = state2.selection;
-      const textBefore = $from.parent.textBetween(0, $from.parentOffset, void 0, "￼");
+      const textBefore = $from.parent.textBetween(
+        0,
+        $from.parentOffset,
+        void 0,
+        "￼",
+      );
       const match2 = findMentionTrigger(textBefore);
-      const triggerStart = match2 ? $from.pos - (textBefore.length - match2.start) : $from.pos;
+      const triggerStart = match2
+        ? $from.pos - (textBefore.length - match2.start)
+        : $from.pos;
       const triggerEnd = $from.pos;
       return editor.commands.replaceTriggerWithMentionRef(
         {
@@ -885,7 +955,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     [editor],
   );
   const editorCaretGetter = reactExports.useCallback(
-    () => (editor ? pmPosToTextOffset(editor.state.doc, editor.state.selection.$anchor.pos) : 0),
+    () =>
+      editor
+        ? pmPosToTextOffset(
+            editor.state.doc,
+            editor.state.selection.$anchor.pos,
+          )
+        : 0,
     [editor],
   );
   const {
@@ -899,7 +975,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     close: mentionClose,
   } = useMention(input, setInput, workspace, editorWrapperRef, {
     getCaret: editorCaretGetter,
-    onSelectMedia: (item) => addFromAssetPath(item.path, item.name, void 0, item.attachment_id),
+    onSelectMedia: (item) =>
+      addFromAssetPath(item.path, item.name, void 0, item.attachment_id),
     models: visibleModels,
     connectors: mentionConnectors,
     connectorsLoading: mentionConnectorsLoading,
@@ -914,12 +991,17 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     includeProjectAssets: !hideAssetMention,
   });
   const mentionVisible =
-    mentionState.open && (mentionState.openedByButton || mentionState.items.length > 0);
+    mentionState.open &&
+    (mentionState.openedByButton || mentionState.items.length > 0);
   reactExports.useEffect(() => {
     if (!mentionState.open) return;
     void refreshLocalComfyUiWorkflows();
     void refreshMentionConnectors();
-  }, [mentionState.open, refreshLocalComfyUiWorkflows, refreshMentionConnectors]);
+  }, [
+    mentionState.open,
+    refreshLocalComfyUiWorkflows,
+    refreshMentionConnectors,
+  ]);
   const mentionModelsRetriedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (!mentionState.open) {
@@ -930,7 +1012,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     if (mentionModelsFetching || (mentionModels?.length ?? 0) > 0) return;
     mentionModelsRetriedRef.current = true;
     void refetchMentionModels?.();
-  }, [mentionState.open, mentionModels, mentionModelsFetching, refetchMentionModels]);
+  }, [
+    mentionState.open,
+    mentionModels,
+    mentionModelsFetching,
+    refetchMentionModels,
+  ]);
   const handleSelectMention = reactExports.useCallback(
     (item) => {
       if (sendInFlightRef.current) return;
@@ -950,7 +1037,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       if (sendInFlightRef.current) return;
       handleInsertAssetMention(target);
       if (!selectedAssetEntityIdsRef.current.includes(target.entityId)) {
-        selectedAssetEntityIdsRef.current = [...selectedAssetEntityIdsRef.current, target.entityId];
+        selectedAssetEntityIdsRef.current = [
+          ...selectedAssetEntityIdsRef.current,
+          target.entityId,
+        ];
       }
       mentionClose();
     },
@@ -979,7 +1069,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         editor.commands.focus();
       }
       if (!selectedAssetEntityIdsRef.current.includes(entityId)) {
-        selectedAssetEntityIdsRef.current = [...selectedAssetEntityIdsRef.current, entityId];
+        selectedAssetEntityIdsRef.current = [
+          ...selectedAssetEntityIdsRef.current,
+          entityId,
+        ];
       }
     },
     [editor],
@@ -1004,7 +1097,11 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     const slashVisible = enableSlashCommands && slashOpen;
     const expanded = slashVisible || mentionVisible;
     el.setAttribute("aria-expanded", String(expanded));
-    const controls = mentionVisible ? MENTION_POPOVER_ID : slashVisible ? POPOVER_ID : void 0;
+    const controls = mentionVisible
+      ? MENTION_POPOVER_ID
+      : slashVisible
+        ? POPOVER_ID
+        : void 0;
     if (controls) {
       el.setAttribute("aria-controls", controls);
     } else {
@@ -1013,7 +1110,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     const descendant2 =
       mentionVisible && mentionState.items[mentionState.activeIndex]
         ? `mention-opt-${mentionState.activeIndex}`
-        : slashVisible && !slashOpenedByButton && slashTabFiltered[slashActiveIndex]
+        : slashVisible &&
+            !slashOpenedByButton &&
+            slashTabFiltered[slashActiveIndex]
           ? `slash-opt-${slashTabFiltered[slashActiveIndex].name}`
           : void 0;
     if (descendant2) {
@@ -1039,7 +1138,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       }
       if (suppressSyncRef.current) return;
       if (!tr2.docChanged && !tr2.selectionSet) return;
-      const caret = pmPosToTextOffset(editor.state.doc, editor.state.selection.$anchor.pos);
+      const caret = pmPosToTextOffset(
+        editor.state.doc,
+        editor.state.selection.$anchor.pos,
+      );
       if (enableSlashCommands)
         slashOnInputChange(getDocTriggerText(editor.state.doc), caret, {
           syncInput: false,
@@ -1070,7 +1172,11 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         const idx = input.indexOf(cmd2, pos);
         if (idx === -1) break;
         const endPos = idx + cmd2.length;
-        if (endPos === input.length || input[endPos] === " " || input[endPos] === "/") {
+        if (
+          endPos === input.length ||
+          input[endPos] === " " ||
+          input[endPos] === "/"
+        ) {
           ranges.push({
             start: idx,
             end: endPos,
@@ -1080,7 +1186,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       }
     }
     return ranges.sort((a2, b3) => a2.start - b3.start);
-  }, [enableSlashCommands, input, slashAllSkills, selectedSkill, directSelectedSkill]);
+  }, [
+    enableSlashCommands,
+    input,
+    slashAllSkills,
+    selectedSkill,
+    directSelectedSkill,
+  ]);
   const parseInputToDocContent = reactExports.useCallback(
     (text2) =>
       buildDocContentFromInput(text2, {
@@ -1105,12 +1217,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   );
   reactExports.useEffect(() => {
     if (!editor) return;
-    editor.view.dispatch(editor.state.tr.setMeta(highlightPluginKey, allHighlights));
+    editor.view.dispatch(
+      editor.state.tr.setMeta(highlightPluginKey, allHighlights),
+    );
   }, [editor, allHighlights]);
   reactExports.useEffect(() => {
     if (!editor) return;
     ghostTextRef.current = ghostText ?? null;
-    editor.view.dispatch(editor.state.tr.setMeta(ghostTextPluginKey, ghostText ?? null));
+    editor.view.dispatch(
+      editor.state.tr.setMeta(ghostTextPluginKey, ghostText ?? null),
+    );
   }, [editor, ghostText]);
   reactExports.useEffect(() => {
     const wrapper = editorWrapperRef.current;
@@ -1157,7 +1273,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     if (!wrapper) return;
     const handleClick2 = (event) => {
       if (!(event.target instanceof Element)) return;
-      const chip = event.target.closest('[data-mention-folder="1"][data-folder-id]');
+      const chip = event.target.closest(
+        '[data-mention-folder="1"][data-folder-id]',
+      );
       if (!chip) return;
       event.preventDefault();
       event.stopPropagation();
@@ -1173,7 +1291,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     return () => wrapper.removeEventListener("click", handleClick2);
   }, []);
   reactExports.useEffect(() => {
-    const hasPendingAttachments = pendingAttachments !== void 0 && pendingAttachments !== null;
+    const hasPendingAttachments =
+      pendingAttachments !== void 0 && pendingAttachments !== null;
     const hasPendingInput = Boolean(pendingInput || pendingEditorDoc);
     if (hasPendingInput && !editor) return;
     let attachmentsApplied = false;
@@ -1182,8 +1301,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       blockedPendingAttachmentsRef.current = null;
     } else if (appliedPendingAttachmentsRef.current !== pendingAttachments) {
       if (
-        blockedPendingAttachmentsRef.current?.attachments === pendingAttachments &&
-        blockedPendingAttachmentsRef.current.ownershipKey === attachmentOwnershipKey
+        blockedPendingAttachmentsRef.current?.attachments ===
+          pendingAttachments &&
+        blockedPendingAttachmentsRef.current.ownershipKey ===
+          attachmentOwnershipKey
       ) {
         return;
       }
@@ -1207,7 +1328,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         });
       }
     }
-    const inputPairAttachments = hasPendingAttachments ? pendingAttachments : null;
+    const inputPairAttachments = hasPendingAttachments
+      ? pendingAttachments
+      : null;
     const inputAlreadyApplied =
       hasPendingInput &&
       appliedPendingInputRef.current?.input === pendingInput &&
@@ -1216,20 +1339,29 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     let inputApplied = false;
     if (hasPendingInput && editor && !inputAlreadyApplied) {
       const draftText = pendingInput ?? "";
-      const restored = restoreMentionDraft(editor.schema, pendingEditorDoc, draftText, (attrs) => {
-        if (["model", "connector", "asset"].includes(attrs.kind) || attrs.isFolder) return attrs;
-        return {
-          ...attrs,
-          ...buildFileMentionAttrs(
-            {
-              path: attrs.path,
-              name: attrs.name,
-              kind: attrs.kind,
-            },
-            scopedGatewayUrl,
-          ),
-        };
-      });
+      const restored = restoreMentionDraft(
+        editor.schema,
+        pendingEditorDoc,
+        draftText,
+        (attrs) => {
+          if (
+            ["model", "connector", "asset"].includes(attrs.kind) ||
+            attrs.isFolder
+          )
+            return attrs;
+          return {
+            ...attrs,
+            ...buildFileMentionAttrs(
+              {
+                path: attrs.path,
+                name: attrs.name,
+                kind: attrs.kind,
+              },
+              scopedGatewayUrl,
+            ),
+          };
+        },
+      );
       editor.commands.setContent(restored ?? parseInputRef.current(draftText), {
         emitUpdate: false,
         parseOptions: {
@@ -1365,7 +1497,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       }
       const text2 = getDocText(editor.state.doc);
       setInput(text2);
-      if (options?.notifyInputChange !== false) onInputChangeRef.current?.(text2, editor.getJSON());
+      if (options?.notifyInputChange !== false)
+        onInputChangeRef.current?.(text2, editor.getJSON());
       queueMicrotask(() => {
         suppressSyncRef.current = false;
       });
@@ -1520,7 +1653,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         if (!sendInFlightRef.current) clear(...args);
       },
       replaceSourceAttachmentPlaceholders: (...args) => {
-        if (!sendInFlightRef.current) replaceSourceAttachmentPlaceholders(...args);
+        if (!sendInFlightRef.current)
+          replaceSourceAttachmentPlaceholders(...args);
       },
       prepareSourceAttachmentReplacement: (...args) => {
         if (sendInFlightRef.current)
@@ -1563,9 +1697,17 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     if (!mountedRef.current || editor?.isDestroyed) return false;
     if (guard && !guard()) return false;
     const editorDocSnapshot2 = editor?.state.doc;
-    const text2 = editorDocSnapshot2 ? getDocWireText(editorDocSnapshot2).trim() : input.trim();
+    const text2 = editorDocSnapshot2
+      ? getDocWireText(editorDocSnapshot2).trim()
+      : input.trim();
     if (!text2 && !hasReadyAttachments && !allowEmptySend) return false;
-    if (sendInFlightRef.current || busy || sendDisabled || uploading || annotationOpen)
+    if (
+      sendInFlightRef.current ||
+      busy ||
+      sendDisabled ||
+      uploading ||
+      annotationOpen
+    )
       return false;
     if (sendGuard && !sendGuard()) return false;
     const entityIds = new Set();
@@ -1589,9 +1731,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     let phase = "preparing";
     const logFailure = (error, failurePhase) => {
       const cleanupFailure = accepted || failurePhase === "settling";
-      const frames = error instanceof Error ? error.stack?.split("\n").slice(1, 4) : void 0;
+      const frames =
+        error instanceof Error ? error.stack?.split("\n").slice(1, 4) : void 0;
       chatLog[cleanupFailure ? "warn" : "error"](
-        cleanupFailure ? "message-input send cleanup failed" : "message-input send failed",
+        cleanupFailure
+          ? "message-input send cleanup failed"
+          : "message-input send failed",
         {
           phase: failurePhase,
           accepted,
@@ -1620,11 +1765,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         attachmentRefs,
       } = await commitFiles();
       if (!mountedRef.current || editor?.isDestroyed) return false;
-      if (editorDocSnapshot2 && (!editor || !editorDocSnapshot2.eq(editor.state.doc))) {
+      if (
+        editorDocSnapshot2 &&
+        (!editor || !editorDocSnapshot2.eq(editor.state.doc))
+      ) {
         throw new Error("composer changed while committing attachments");
       }
       remapCommittedMentionPaths(editor, committed, scopedGatewayUrl);
-      const finalText = editor ? getDocWireText(editor.state.doc).trim() : text2;
+      const finalText = editor
+        ? getDocWireText(editor.state.doc).trim()
+        : text2;
       const languageDetectionText = editor
         ? getDocLanguageDetectionText(editor.state.doc).trim()
         : finalText;
@@ -1746,7 +1896,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       }
       if (mentionOnKeyDown(e2)) return true;
       if (enableSlashCommands && slashOnKeyDown(e2)) return true;
-      if (event.key === "ArrowUp" && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      if (
+        event.key === "ArrowUp" &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey
+      ) {
         const pos = editor ? editor.state.selection.$anchor.pos - 1 : 0;
         if (pos === 0) {
           const currentPaths = attachments
@@ -1769,7 +1924,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         history2.isActive
       ) {
         const pos = editor
-          ? pmPosToTextOffset(editor.state.doc, editor.state.selection.$anchor.pos)
+          ? pmPosToTextOffset(
+              editor.state.doc,
+              editor.state.selection.$anchor.pos,
+            )
           : 0;
         if (pos >= input.length) {
           event.preventDefault();
@@ -1802,7 +1960,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         onPlainEnter(event);
         return true;
       }
-      if (submitOnEnter && event.key === "Enter" && !event.shiftKey && !isImeConfirmation) {
+      if (
+        submitOnEnter &&
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        !isImeConfirmation
+      ) {
         event.preventDefault();
         handleSend();
         return true;
@@ -1861,7 +2024,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     openMention: mentionOpenPopover,
   });
   const attachmentPaths = reactExports.useMemo(
-    () => attachments.flatMap((item) => (item.relativePath ? [item.relativePath] : [])),
+    () =>
+      attachments.flatMap((item) =>
+        item.relativePath ? [item.relativePath] : [],
+      ),
     [attachments],
   );
   const remainingAttachments = Math.max(
@@ -1917,7 +2083,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           }
         })
         .catch((error) => {
-          if (error?.code !== "picker_busy") dedupedToast.error(t2("assetPicker.source.error"));
+          if (error?.code !== "picker_busy")
+            dedupedToast.error(t2("assetPicker.source.error"));
         });
     },
     [
@@ -2007,7 +2174,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         replacingIds={replacingIds}
         disabled={interactionLocked}
         onLocate={(attachment) =>
-          attachment.relativePath ? attachmentLocator?.current?.(attachment.relativePath) : void 0
+          attachment.relativePath
+            ? attachmentLocator?.current?.(attachment.relativePath)
+            : void 0
         }
         onAnnotate={handleOpenAnnotation}
         replacementAccept={replacementAccept}
@@ -2019,7 +2188,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         <ImageAnnotationDialog
           key={annotationTarget.id}
           attachment={annotationTarget}
-          canAppend={attachments.length < (attachmentMaxCount ?? MAX_ATTACHMENTS)}
+          canAppend={
+            attachments.length < (attachmentMaxCount ?? MAX_ATTACHMENTS)
+          }
           applyDisabled={baseInteractionLocked}
           onClose={() => setAnnotationTarget(null)}
           onApply={handleApplyAnnotation}
@@ -2070,7 +2241,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
             showCurrentCanvasWorkflowTab={showCurrentCanvasWorkflowTab}
             onHover={mentionSetActiveIndex}
             position={slashPopoverPosition}
-            anchorRef={slashPopoverPosition === "down" ? inputRootRef : editorWrapperRef}
+            anchorRef={
+              slashPopoverPosition === "down" ? inputRootRef : editorWrapperRef
+            }
             onClose={mentionClose}
           />
         )}
@@ -2100,7 +2273,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
               {placeholderBusy ?? t2("chat.placeholderBusy")}
             </div>
           )}
-          <EditorContent editor={editor} className="col-start-1 row-start-1 min-w-0" />
+          <EditorContent
+            editor={editor}
+            className="col-start-1 row-start-1 min-w-0"
+          />
           {showCompactPromptPreview && input ? (
             <div
               aria-hidden="true"
@@ -2115,7 +2291,11 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           <MediaHoverPreview
             kind={mentionPreview.kind}
             url={mentionPreview.mediaUrl ?? mentionPreview.url ?? ""}
-            posterUrl={mentionPreview.kind === "video" ? (mentionPreview.url ?? void 0) : void 0}
+            posterUrl={
+              mentionPreview.kind === "video"
+                ? (mentionPreview.url ?? void 0)
+                : void 0
+            }
             name={mentionPreview.name}
             anchorElement={mentionPreview.anchorElement}
             anchorRect={mentionPreview.anchorRect}
@@ -2135,7 +2315,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
             >
               {toolbar(toolbarCtx)}
             </div>
-            <div data-composer-actions-right="true" className="flex shrink-0 items-end gap-2">
+            <div
+              data-composer-actions-right="true"
+              className="flex shrink-0 items-end gap-2"
+            >
               {rightSlot}
               {!hideSubmitAction && showStopButton && (
                 <button
@@ -2177,7 +2360,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
                       <ArrowUp size={16} strokeWidth={2} />
                     )}
                   </TooltipTrigger>
-                  {sendTooltip && <TooltipContent>{sendTooltip}</TooltipContent>}
+                  {sendTooltip && (
+                    <TooltipContent>{sendTooltip}</TooltipContent>
+                  )}
                 </Tooltip>
               )}
             </div>

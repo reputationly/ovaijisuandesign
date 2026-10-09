@@ -1,34 +1,22 @@
 // use-text-conflict-resolver.jsx
-import { reactExports, useTranslation, ChevronDown, ChevronUp, Pencil, Trans, dedupedToast } from "../vendor.js";
-import { Dialog$1 } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { History, Sparkles } from "../media-editing/parse-item.jsx";
-import { myersLineHunks, coarseLineHunk } from "./myers-line-hunks.js";
-import {
-  DropdownMenu$1,
-  DropdownMenuTrigger$1,
-  DropdownMenuContent$1,
-  DropdownMenuItem$1,
-} from "../media-editing/use-lightbox-media-actions.jsx";
-import { Tooltip$1 } from "../generation/create-tracker.jsx";
-import {
-  textVersionNumbers,
-  TEXT_VERSION_TITLE_MAX_CHARS,
-  TEXT_VERSION_NOTE_MAX_CHARS,
-} from "../generation/text-models.js";
-import {
-  DialogContent$1,
-  DialogHeader$1,
-  DialogTitle$1,
-  DialogFooter$1,
-} from "../media-editing/thumb-chip.jsx";
-import { Label$1, Input$1 } from "../media-editing/use-plugin-host.jsx";
-import { Button$2 } from "../canvas/use-media-node-actions.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  CONFLICT_CONTEXT_LINES,
-  CONFLICT_MAX_HUNKS,
-  splitConflictLines,
-} from "./table-context-menu.jsx";
+  ChevronDown,
+  ChevronUp,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
+import { myersLineHunks } from "./myers-line-hunks.js";
+import { coarseLineHunk } from "./build-asr-gateway-request.js";
+
+const CONFLICT_CONTEXT_LINES = 2;
+
+const CONFLICT_MAX_HUNKS = 200;
+
+function splitConflictLines(text2) {
+  return text2.length === 0 ? [] : text2.split("\n");
+}
+
 function comparisonKey(line) {
   const withoutTrailing = line.replace(/[ \t]+$/, "");
   const indent2 = /^[ \t]*/.exec(withoutTrailing)?.[0] ?? "";
@@ -38,6 +26,7 @@ function comparisonKey(line) {
   }
   return indent2 + body2.replace(/[ \t]{2,}/g, " ");
 }
+
 function groupAdjacent(hunks, context) {
   const groups = [];
   let current2 = null;
@@ -55,6 +44,7 @@ function groupAdjacent(hunks, context) {
   }
   return groups;
 }
+
 function buildConflictDiff(externalText, mineText) {
   const externalLines = splitConflictLines(externalText);
   const mineLines = splitConflictLines(mineText);
@@ -92,7 +82,10 @@ function buildConflictDiff(externalText, mineText) {
         Math.max(0, externalStart - CONFLICT_CONTEXT_LINES),
         externalStart,
       ),
-      contextAfter: externalLines.slice(externalEnd, externalEnd + CONFLICT_CONTEXT_LINES),
+      contextAfter: externalLines.slice(
+        externalEnd,
+        externalEnd + CONFLICT_CONTEXT_LINES,
+      ),
     };
   });
   return {
@@ -100,12 +93,18 @@ function buildConflictDiff(externalText, mineText) {
     coarse,
   };
 }
+
 function isConflictFullyResolved(hunks, choices) {
   return hunks.every((hunk) => choices[hunk.id] !== void 0);
 }
+
 function countUnresolvedConflicts(hunks, choices) {
-  return hunks.reduce((total, hunk) => (choices[hunk.id] === void 0 ? total + 1 : total), 0);
+  return hunks.reduce(
+    (total, hunk) => (choices[hunk.id] === void 0 ? total + 1 : total),
+    0,
+  );
 }
+
 function mergeConflictChoices(externalText, hunks, choices) {
   const externalLines = splitConflictLines(externalText);
   const merged = [];
@@ -113,12 +112,17 @@ function mergeConflictChoices(externalText, hunks, choices) {
   for (const hunk of hunks) {
     if (hunk.externalStart > cursor)
       merged.push(...externalLines.slice(cursor, hunk.externalStart));
-    merged.push(...(choices[hunk.id] === "external" ? hunk.externalLines : hunk.mineLines));
+    merged.push(
+      ...(choices[hunk.id] === "external"
+        ? hunk.externalLines
+        : hunk.mineLines),
+    );
     cursor = hunk.externalStart + hunk.externalCount;
   }
   merged.push(...externalLines.slice(cursor));
   return merged.join("\n");
 }
+
 function LineBlock({ lines, tone, dimmed }) {
   const { t: t2 } = useTranslation();
   const background =
@@ -151,7 +155,13 @@ function LineBlock({ lines, tone, dimmed }) {
     </div>
   );
 }
-function ChoiceButton({ selected: selected2, onClick, children: children2, dataActionUiId }) {
+
+function ChoiceButton({
+  selected: selected2,
+  onClick,
+  children: children2,
+  dataActionUiId,
+}) {
   return (
     <button
       type="button"
@@ -164,7 +174,14 @@ function ChoiceButton({ selected: selected2, onClick, children: children2, dataA
     </button>
   );
 }
-function ConflictHunkView({ hunk, index: index2, choice, onChoose, registerRef }) {
+
+function ConflictHunkView({
+  hunk,
+  index: index2,
+  choice,
+  onChoose,
+  registerRef,
+}) {
   const { t: t2 } = useTranslation();
   return (
     <div
@@ -200,21 +217,34 @@ function ConflictHunkView({ hunk, index: index2, choice, onChoose, registerRef }
           </ChoiceButton>
         </div>
       </div>
-      {hunk.contextBefore.length > 0 && <LineBlock lines={hunk.contextBefore} tone="context" />}
+      {hunk.contextBefore.length > 0 && (
+        <LineBlock lines={hunk.contextBefore} tone="context" />
+      )}
       <div className="border-y border-border">
         <div className="bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground">
           {t2("canvas.textConflict.externalSide", "Agent 的修改")}
         </div>
-        <LineBlock lines={hunk.externalLines} tone="external" dimmed={choice === "mine"} />
+        <LineBlock
+          lines={hunk.externalLines}
+          tone="external"
+          dimmed={choice === "mine"}
+        />
         <div className="border-t border-border bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground">
           {t2("canvas.textConflict.mineSide", "我的修改")}
         </div>
-        <LineBlock lines={hunk.mineLines} tone="mine" dimmed={choice === "external"} />
+        <LineBlock
+          lines={hunk.mineLines}
+          tone="mine"
+          dimmed={choice === "external"}
+        />
       </div>
-      {hunk.contextAfter.length > 0 && <LineBlock lines={hunk.contextAfter} tone="context" />}
+      {hunk.contextAfter.length > 0 && (
+        <LineBlock lines={hunk.contextAfter} tone="context" />
+      )}
     </div>
   );
 }
+
 export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
   const { t: t2 } = useTranslation();
   const [session, setSession] = reactExports.useState(null);
@@ -280,11 +310,19 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
     },
     [session],
   );
-  const resolved = session ? isConflictFullyResolved(session.hunks, choices) : true;
-  const unresolvedCount = session ? countUnresolvedConflicts(session.hunks, choices) : 0;
+  const resolved = session
+    ? isConflictFullyResolved(session.hunks, choices)
+    : true;
+  const unresolvedCount = session
+    ? countUnresolvedConflicts(session.hunks, choices)
+    : 0;
   const complete = reactExports.useCallback(() => {
     if (!session || !isConflictFullyResolved(session.hunks, choices)) return;
-    const merged = mergeConflictChoices(session.external, session.hunks, choices);
+    const merged = mergeConflictChoices(
+      session.external,
+      session.hunks,
+      choices,
+    );
     hunkElsRef.current.clear();
     setSession(null);
     setChoices({});
@@ -400,368 +438,4 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
     toolbarActions,
     body: body2,
   };
-}
-async function sha256Hex(text2) {
-  const subtle = globalThis.crypto?.subtle;
-  if (!subtle) return null;
-  try {
-    const digest = await subtle.digest("SHA-256", new TextEncoder().encode(text2));
-    return Array.from(new Uint8Array(digest))
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-  } catch {
-    return null;
-  }
-}
-export function useTextDocumentDirty() {
-  const [dirty, setDirty] = reactExports.useState(false);
-  const dirtyRef = reactExports.useRef(false);
-  const markDirty = reactExports.useCallback(() => {
-    if (dirtyRef.current) return;
-    dirtyRef.current = true;
-    setDirty(true);
-  }, []);
-  const clearDirty = reactExports.useCallback(() => {
-    if (!dirtyRef.current) return;
-    dirtyRef.current = false;
-    setDirty(false);
-  }, []);
-  return reactExports.useMemo(
-    () => ({
-      dirty,
-      markDirty,
-      clearDirty,
-    }),
-    [dirty, markDirty, clearDirty],
-  );
-}
-export function useVersionBaselineDirtySync({
-  latestVersionHash,
-  getContent,
-  dirty,
-  loading,
-  saving,
-}) {
-  const markDirty = dirty?.markDirty;
-  const clearDirty = dirty?.clearDirty;
-  reactExports.useEffect(() => {
-    if (!markDirty || !clearDirty || !getContent || !latestVersionHash) return;
-    if (loading || saving) return;
-    let cancelled = false;
-    void sha256Hex(getContent()).then((hash2) => {
-      if (cancelled || !hash2) return;
-      if (hash2 === latestVersionHash) clearDirty();
-      else markDirty();
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [latestVersionHash, getContent, markDirty, clearDirty, loading, saving]);
-}
-const LEGACY_RESTORE_AUTO_NOTES = new Set([
-  "还原版本前自动保存",
-  "Saved automatically before restoring a version",
-]);
-const TARGETED_RESTORE_AUTO_NOTE_PATTERNS = [
-  /^还原(?:到)?「.+」(?:前|时)自动保存$/,
-  /^Automatically saved before restoring to .+$/,
-  /^Automatically saved when restoring .+$/,
-];
-function formatVersionTimestamp(ms, locale) {
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(ms));
-  } catch {
-    return new Date(ms).toLocaleString();
-  }
-}
-export function TextVersionHistoryMenu({
-  versions,
-  labelOf,
-  showCurrentTag,
-  disabled: disabled2,
-  onSelect,
-  onRename,
-}) {
-  const { i18n, t: t2 } = useTranslation();
-  const [open, setOpen] = reactExports.useState(false);
-  return (
-    <DropdownMenu$1 open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger$1
-        title={t2("canvas.textVersion.historyTitle", "历史版本")}
-        disabled={disabled2}
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
-        data-action-ui-id="canvas-text-version-history"
-      >
-        <History size={16} strokeWidth={1.5} aria-hidden="true" />
-      </DropdownMenuTrigger$1>
-      <DropdownMenuContent$1
-        align="end"
-        positionerClassName="z-[10000]"
-        className="nowheel autohide-scrollbar max-h-[min(20rem,var(--available-height,20rem))] w-64 overscroll-contain"
-      >
-        {versions.length === 0 ? (
-          <div className="px-3 py-6 text-center text-[12px] opacity-60">
-            {t2("canvas.textVersion.empty", "暂无历史版本")}
-          </div>
-        ) : (
-          versions.map((version2, index2) => {
-            const restoreSource =
-              version2.origin === "restore" && version2.restoredFromVersionId
-                ? versions.find((source) => source.id === version2.restoredFromVersionId)
-                : void 0;
-            const storedNote = version2.note.trim();
-            const isRestoreOperationNote =
-              restoreSource &&
-              (LEGACY_RESTORE_AUTO_NOTES.has(storedNote) ||
-                TARGETED_RESTORE_AUTO_NOTE_PATTERNS.some((pattern) => pattern.test(storedNote)));
-            const restoreSourceLabel = restoreSource ? labelOf(restoreSource) : "";
-            const displayNote = isRestoreOperationNote
-              ? t2("canvas.textVersion.autoSnapshotTargetNote", "还原「{{name}}」时自动保存", {
-                  name: restoreSourceLabel,
-                })
-              : storedNote;
-            return (
-              <DropdownMenuItem$1
-                key={version2.id}
-                onClick={() => onSelect(version2)}
-                className="group/version shrink-0 flex-col items-start gap-0.5"
-              >
-                <div className="flex w-full items-center gap-1.5">
-                  <span className="min-w-0 flex-1 truncate">{labelOf(version2)}</span>
-                  {index2 === 0 && showCurrentTag && (
-                    <span className="shrink-0 rounded bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
-                      {t2("canvas.textVersion.current", "当前")}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    title={t2("canvas.textVersion.name", "命名")}
-                    aria-label={t2("canvas.textVersion.name", "命名")}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setOpen(false);
-                      onRename(version2);
-                    }}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover/version:opacity-100"
-                    data-action-ui-id="canvas-text-version-rename"
-                  >
-                    <Pencil size={12} strokeWidth={1.5} aria-hidden="true" />
-                  </button>
-                </div>
-                {displayNote && (
-                  <Tooltip$1 content={displayNote} side="right">
-                    {isRestoreOperationNote ? (
-                      <span className="w-full truncate text-[11px] text-muted-foreground">
-                        <Trans
-                          i18nKey="canvas.textVersion.autoSnapshotTargetNoteRich"
-                          defaults="还原「<target>{{name}}</target>」时自动保存"
-                          values={{
-                            name: restoreSourceLabel,
-                          }}
-                          components={{
-                            target: <span className="font-medium text-foreground" />,
-                          }}
-                        />
-                      </span>
-                    ) : (
-                      <span className="w-full truncate text-[11px] opacity-70">{displayNote}</span>
-                    )}
-                  </Tooltip$1>
-                )}
-                <span className="text-[11px] opacity-60">
-                  {formatVersionTimestamp(version2.createdAt, i18n.language)}
-                </span>
-              </DropdownMenuItem$1>
-            );
-          })
-        )}
-      </DropdownMenuContent$1>
-    </DropdownMenu$1>
-  );
-}
-function resolveTextVersionLabel(version2, position2, t2) {
-  const title = version2.title.trim();
-  if (title) return title;
-  if (version2.origin === "initial") return t2("canvas.textVersion.initial", "初始版本");
-  if (version2.origin === "restore") return t2("canvas.textVersion.autoSnapshot", "还原前的内容");
-  if (version2.origin === "agent")
-    return t2("canvas.textVersion.agentSnapshot", "Agent 修改前自动保存");
-  return t2("canvas.textVersion.unnamed", "版本 {{n}}", {
-    n: position2,
-  });
-}
-export function useTextVersionLabeler(versions) {
-  const { t: t2 } = useTranslation();
-  return reactExports.useMemo(() => {
-    const numbers = textVersionNumbers(versions);
-    return (version2) =>
-      resolveTextVersionLabel(version2, numbers.get(version2.id) ?? versions.length + 1, t2);
-  }, [versions, t2]);
-}
-export function NameTextVersionDialog({
-  version: version2,
-  fallbackLabel,
-  saving,
-  onClose,
-  onConfirm,
-  onGenerate,
-}) {
-  const { t: t2 } = useTranslation();
-  const [title, setTitle] = reactExports.useState("");
-  const [note, setNote] = reactExports.useState("");
-  const [noteSource, setNoteSource] = reactExports.useState("manual");
-  const [generating, setGenerating] = reactExports.useState(false);
-  const versionId = version2?.id ?? null;
-  reactExports.useEffect(() => {
-    if (!version2) return;
-    setTitle(version2.title);
-    setNote(version2.note);
-    setNoteSource(version2.noteSource);
-    setGenerating(false);
-  }, [versionId]);
-  const handleGenerate = async () => {
-    setGenerating(true);
-    try {
-      const generated = await onGenerate();
-      if (generated && (generated.title || generated.note)) {
-        if (generated.title) setTitle(generated.title);
-        if (generated.note) setNote(generated.note);
-        setNoteSource("ai");
-      } else {
-        dedupedToast.error(t2("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"));
-      }
-    } catch {
-      dedupedToast.error(t2("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"));
-    } finally {
-      setGenerating(false);
-    }
-  };
-  return (
-    <Dialog$1
-      open={version2 !== null}
-      onOpenChange={(next2) => {
-        if (!next2) onClose();
-      }}
-    >
-      <DialogContent$1 showCloseButton={false}>
-        <DialogHeader$1>
-          <DialogTitle$1>{t2("canvas.textVersion.nameTitle", "命名版本")}</DialogTitle$1>
-        </DialogHeader$1>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <Label$1 htmlFor="text-version-title">
-                {t2("canvas.textVersion.titleLabel", "标题")}
-              </Label$1>
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={generating}
-                className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                data-action-ui-id="canvas-text-version-ai-note"
-              >
-                <Sparkles size={13} strokeWidth={1.5} aria-hidden="true" />
-                {generating
-                  ? t2("canvas.textVersion.aiNoteGenerating", "生成中…")
-                  : t2("canvas.textVersion.aiNote", "AI 一键填写")}
-              </button>
-            </div>
-            <Input$1
-              id="text-version-title"
-              value={title}
-              maxLength={TEXT_VERSION_TITLE_MAX_CHARS}
-              placeholder={fallbackLabel}
-              onChange={(e2) => setTitle(e2.target.value)}
-              data-action-ui-id="canvas-text-version-title"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label$1 htmlFor="text-version-note">
-              {t2("canvas.textVersion.noteLabel", "备注")}
-            </Label$1>
-            <textarea
-              id="text-version-note"
-              value={note}
-              rows={4}
-              maxLength={TEXT_VERSION_NOTE_MAX_CHARS}
-              placeholder={t2("canvas.textVersion.notePlaceholder", "这个版本改了什么？")}
-              onChange={(e2) => {
-                setNote(e2.target.value);
-                setNoteSource("manual");
-              }}
-              className="w-full resize-none rounded-md border border-input bg-transparent px-2.5 py-2 text-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-              data-action-ui-id="canvas-text-version-note"
-            />
-          </div>
-        </div>
-        <DialogFooter$1>
-          <Button$2 variant="outline" onClick={onClose} disabled={saving}>
-            {t2("canvas.cancel", "取消")}
-          </Button$2>
-          <Button$2
-            variant="default"
-            disabled={saving}
-            onClick={() =>
-              onConfirm({
-                title: title.trim(),
-                note: note.trim(),
-                noteSource,
-              })
-            }
-            data-action-ui-id="canvas-text-version-confirm"
-          >
-            {saving ? t2("canvas.textVersion.saving", "保存中…") : t2("canvas.save", "保存")}
-          </Button$2>
-        </DialogFooter$1>
-      </DialogContent$1>
-    </Dialog$1>
-  );
-}
-export function TextDiffHunkView({ hunk, headerActions, containerRef, dataActionUiId }) {
-  return (
-    <div
-      ref={containerRef}
-      className="overflow-hidden rounded-md border border-border"
-      data-action-ui-id={dataActionUiId}
-    >
-      <div className="flex items-center justify-between gap-2 bg-muted px-3 py-1 font-mono text-[11px] text-muted-foreground">
-        <span>{`@@ -${hunk.oldStart},${hunk.oldCount} +${hunk.newStart},${hunk.newCount} @@`}</span>
-        {headerActions}
-      </div>
-      <div className="font-mono text-xs leading-relaxed">
-        {hunk.lines.map((line, index2) => (
-          <div
-            key={`${hunk.oldStart}-${hunk.newStart}-${index2}`}
-            className="flex gap-2 px-3 py-px"
-            style={{
-              // Canvas diff tokens are shared by inline Agent review and
-              // version comparison, including their Light/Dark values.
-              background:
-                line.kind === "add"
-                  ? "var(--canvas-diff-add-bg, oklch(0.72 0.19 145 / 0.18))"
-                  : line.kind === "del"
-                    ? "var(--canvas-diff-del-bg, oklch(0.63 0.21 25 / 0.12))"
-                    : void 0,
-            }}
-          >
-            <span className="w-10 shrink-0 select-none text-right text-muted-foreground">
-              {line.oldLine ?? ""}
-            </span>
-            <span className="w-10 shrink-0 select-none text-right text-muted-foreground">
-              {line.newLine ?? ""}
-            </span>
-            <span className="w-3 shrink-0 select-none text-muted-foreground">
-              {line.kind === "add" ? "+" : line.kind === "del" ? "-" : " "}
-            </span>
-            <span className="whitespace-pre-wrap break-words text-foreground">{line.text}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }

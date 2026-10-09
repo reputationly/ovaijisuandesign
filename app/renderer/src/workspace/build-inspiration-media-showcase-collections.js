@@ -1,20 +1,25 @@
-// kn.js
-import { raw, H, d, b2, M, N, R$1, U, w2, y$1 } from "../vendor.js";
+// build-inspiration-media-showcase-collections.js
+import { b2, d, H, M, N, R$1, raw, w2, y$1 } from "../vendor.js";
 import {
+  buildFeaturedItems,
   FEATURED_SHOWCASE_COLLECTION_ID,
   HOME_SHOWCASE_MAX_ITEMS_PER_COLLECTION,
   HOME_SHOWCASE_MAX_TOTAL_ITEMS,
-  buildFeaturedItems,
-  sceneItems,
   showcaseBadgeProps,
   showcaseOrientation,
   uniqueItemsByVideoUrl,
-} from "./parse-prompt-item.js";
-import { HOME_QUICK_START_CONFIG_MAX_BYTES } from "../generation/push-inline.js";
-import { HOME_QUICK_START_SCHEMA_VERSION } from "./scene-categories.js";
-export function buildInspirationMediaShowcaseCollections({ categories, featuredLabel, showcase }) {
+} from "./parse-project-archive-item.js";
+import { sceneItems } from "./output-item.js";
+
+export function buildInspirationMediaShowcaseCollections({
+  categories,
+  featuredLabel,
+  showcase,
+}) {
   const featuredScenes = categories
-    .filter((category) => category.kind === "scene" && category.showcase === true)
+    .filter(
+      (category) => category.kind === "scene" && category.showcase === true,
+    )
     .map((category) => ({
       scene: category.scene,
       entries: sceneItems(category.scene, category.videoUrl),
@@ -26,16 +31,27 @@ export function buildInspirationMediaShowcaseCollections({ categories, featuredL
       ? [
           {
             id: FEATURED_SHOWCASE_COLLECTION_ID,
-            label: showcase?.tabs[FEATURED_SHOWCASE_COLLECTION_ID]?.label ?? featuredLabel,
-            labelEn: showcase?.tabs[FEATURED_SHOWCASE_COLLECTION_ID]?.labelEn ?? featuredLabel,
+            label:
+              showcase?.tabs[FEATURED_SHOWCASE_COLLECTION_ID]?.label ??
+              featuredLabel,
+            labelEn:
+              showcase?.tabs[FEATURED_SHOWCASE_COLLECTION_ID]?.labelEn ??
+              featuredLabel,
             ...showcaseBadgeProps(showcase, FEATURED_SHOWCASE_COLLECTION_ID),
-            videoOrientation: showcaseOrientation(showcase, FEATURED_SHOWCASE_COLLECTION_ID),
+            videoOrientation: showcaseOrientation(
+              showcase,
+              FEATURED_SHOWCASE_COLLECTION_ID,
+            ),
             items: featuredItems,
           },
         ]
       : []),
     ...categories.flatMap((category) => {
-      if (category.kind !== "scene" || category.id === FEATURED_SHOWCASE_COLLECTION_ID) return [];
+      if (
+        category.kind !== "scene" ||
+        category.id === FEATURED_SHOWCASE_COLLECTION_ID
+      )
+        return [];
       const items = uniqueItemsByVideoUrl(
         sceneItems(category.scene, category.videoUrl).map(({ item }) => item),
       );
@@ -70,106 +86,12 @@ export function buildInspirationMediaShowcaseCollections({ categories, featuredL
       : [];
   });
 }
-export const HOME_QUICK_START_STALE_TIME_MS = 6e4;
-const HOME_QUICK_START_LKG_PREFIX = "hilo:home-quick-start:lkg";
-const textEncoder = new TextEncoder();
-export class InvalidHomeQuickStartPayloadError extends Error {}
-class OversizedHomeQuickStartPayloadError extends InvalidHomeQuickStartPayloadError {}
-export function boundedRegion(region) {
-  if (region === "domestic" || region === "overseas") return region;
-  return "other";
-}
-export function boundedChannel(channel) {
-  if (channel === "dev" || channel === "test" || channel === "staging" || channel === "prod") {
-    return channel;
-  }
-  return "other";
-}
-export function utf8ByteLength(value) {
-  return textEncoder.encode(value).byteLength;
-}
-export function isRawPayloadWithinLimit(raw2) {
-  let serialized;
-  try {
-    serialized = JSON.stringify(raw2);
-  } catch {
-    return false;
-  }
-  return (
-    serialized.length <= HOME_QUICK_START_CONFIG_MAX_BYTES &&
-    utf8ByteLength(serialized) <= HOME_QUICK_START_CONFIG_MAX_BYTES
-  );
-}
-export function homeQuickStartLkgKey(region, channel) {
-  return `${HOME_QUICK_START_LKG_PREFIX}:v${HOME_QUICK_START_SCHEMA_VERSION}:${encodeURIComponent(region)}:${encodeURIComponent(channel)}`;
-}
-export function removeHomeQuickStartLkg(key2) {
-  try {
-    localStorage.removeItem(key2);
-  } catch {}
-}
-export function pruneOtherHomeQuickStartLkgEntries(currentKey) {
-  try {
-    const staleKeys = [];
-    const prefix = `${HOME_QUICK_START_LKG_PREFIX}:`;
-    for (let index2 = 0; index2 < localStorage.length; index2 += 1) {
-      const key2 = localStorage.key(index2);
-      if (key2?.startsWith(prefix) && key2 !== currentKey) staleKeys.push(key2);
-    }
-    for (const key2 of staleKeys) localStorage.removeItem(key2);
-  } catch {}
-}
-export async function readBoundedConfigJson(response) {
-  const contentLength2 = response.headers.get("content-length");
-  if (contentLength2) {
-    const declaredBytes = Number.parseInt(contentLength2, 10);
-    if (Number.isFinite(declaredBytes) && declaredBytes > HOME_QUICK_START_CONFIG_MAX_BYTES) {
-      throw new OversizedHomeQuickStartPayloadError("oversized home_quick_start_config");
-    }
-  }
-  if (!response.body) {
-    throw new InvalidHomeQuickStartPayloadError("empty home_quick_start_config");
-  }
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let receivedBytes = 0;
-  let serialized = "";
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      receivedBytes += value.byteLength;
-      if (receivedBytes > HOME_QUICK_START_CONFIG_MAX_BYTES) {
-        await reader.cancel();
-        throw new OversizedHomeQuickStartPayloadError("oversized home_quick_start_config");
-      }
-      serialized += decoder.decode(value, {
-        stream: true,
-      });
-    }
-    serialized += decoder.decode();
-  } finally {
-    reader.releaseLock();
-  }
-  try {
-    return JSON.parse(serialized);
-  } catch {
-    throw new InvalidHomeQuickStartPayloadError("invalid home_quick_start_config JSON");
-  }
-}
-export function gatewayHttpStatus(error) {
-  if (!error || typeof error !== "object") return void 0;
-  const direct = error.status;
-  if (typeof direct === "number") return direct;
-  const response = error.response;
-  if (!response || typeof response !== "object") return void 0;
-  const nested = response.status;
-  return typeof nested === "number" ? nested : void 0;
-}
+
 export function resolveHomeFeaturedSkillPrompt(skill, preset2, isZh) {
   if (isZh) return preset2?.prompt || skill.guidePrompt || skill.guidePromptEn;
   return preset2?.promptEn || skill.guidePromptEn || skill.guidePrompt;
 }
+
 export function rehypeRaw(options) {
   return function (tree, file) {
     const result =
@@ -181,6 +103,7 @@ export function rehypeRaw(options) {
     return result;
   };
 }
+
 export var c2 = (n2, r2) => {
   let e2 = false,
     i2 = false;
@@ -197,12 +120,14 @@ export var c2 = (n2, r2) => {
   }
   return e2 || i2;
 };
+
 var hn$1 = (n2, r2) => {
   let e2 = n2.substring(r2, r2 + 3) === "```",
     i2 = r2 > 0 && n2.substring(r2 - 1, r2 + 2) === "```",
     s2 = r2 > 1 && n2.substring(r2 - 2, r2 + 1) === "```";
   return e2 || i2 || s2;
 };
+
 export var L$1 = (n2) => {
   let r2 = 0;
   for (let e2 = 0; e2 < n2.length; e2 += 1) {
@@ -214,6 +139,7 @@ export var L$1 = (n2) => {
   }
   return r2;
 };
+
 export var f = (n2, r2) => {
   let e2 = false,
     i2 = false,
@@ -235,21 +161,31 @@ export var f = (n2, r2) => {
   }
   return false;
 };
+
 var mn$1 = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
+
 export var E$1 = (n2) =>
   !n2 || typeof n2 != "string" || !n2.includes(">")
     ? n2
     : n2.replace(mn$1, (r2, e2, i2, s2) => (c2(n2, s2) ? r2 : `${e2}\\>${i2}`));
+
 var G = /(__)([^_]+)_$/;
+
 export var F = /(~~)([^~]+)~$/;
+
 export var T = /~~/g;
-var g = (n2) => {
+
+export var g = (n2) => {
   if (!n2) return false;
   let r2 = n2.charCodeAt(0);
-  return (r2 >= 48 && r2 <= 57) || (r2 >= 65 && r2 <= 90) || (r2 >= 97 && r2 <= 122) || r2 === 95
+  return (r2 >= 48 && r2 <= 57) ||
+    (r2 >= 65 && r2 <= 90) ||
+    (r2 >= 97 && r2 <= 122) ||
+    r2 === 95
     ? true
     : H.test(n2);
 };
+
 export var X = (n2, r2) => {
   let e2 = 1;
   for (let i2 = r2 - 1; i2 >= 0; i2 -= 1)
@@ -257,6 +193,7 @@ export var X = (n2, r2) => {
     else if (n2[i2] === "[" && ((e2 -= 1), e2 === 0)) return i2;
   return -1;
 };
+
 export var C2 = (n2, r2) => {
   let e2 = 1;
   for (let i2 = r2 + 1; i2 < n2.length; i2 += 1)
@@ -264,7 +201,8 @@ export var C2 = (n2, r2) => {
     else if (n2[i2] === "]" && ((e2 -= 1), e2 === 0)) return i2;
   return -1;
 };
-var h = (n2, r2) => {
+
+export var h = (n2, r2) => {
   let e2 = false,
     i2 = false;
   for (let s2 = 0; s2 < n2.length && s2 < r2; s2 += 1) {
@@ -273,51 +211,13 @@ var h = (n2, r2) => {
       continue;
     }
     n2[s2] === "$" &&
-      (n2[s2 + 1] === "$" ? ((i2 = !i2), (s2 += 1), (e2 = false)) : i2 || (e2 = !e2));
+      (n2[s2 + 1] === "$"
+        ? ((i2 = !i2), (s2 += 1), (e2 = false))
+        : i2 || (e2 = !e2));
   }
   return e2 || i2;
 };
-var In = (n2, r2) => {
-  for (let e2 = r2; e2 < n2.length; e2 += 1) {
-    if (n2[e2] === ")") return true;
-    if (
-      n2[e2] ===
-      `
-`
-    )
-      return false;
-  }
-  return false;
-};
-var m2 = (n2, r2) => {
-  for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
-    if (n2[e2] === ")") return false;
-    if (n2[e2] === "(") return e2 > 0 && n2[e2 - 1] === "]" ? In(n2, r2) : false;
-    if (
-      n2[e2] ===
-      `
-`
-    )
-      return false;
-  }
-  return false;
-};
-var z2 = (n2, r2) => {
-  for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
-    if (n2[e2] === ">") return false;
-    if (n2[e2] === "<") {
-      let i2 = e2 + 1 < n2.length ? n2[e2 + 1] : "";
-      return (i2 >= "a" && i2 <= "z") || (i2 >= "A" && i2 <= "Z") || i2 === "/";
-    }
-    if (
-      n2[e2] ===
-      `
-`
-    )
-      return false;
-  }
-  return false;
-};
+
 var p2 = (n2, r2, e2) => {
   let i2 = 0;
   for (let l2 = r2 - 1; l2 >= 0; l2 -= 1)
@@ -350,6 +250,7 @@ var p2 = (n2, r2, e2) => {
     }
   return t2 >= 3 && !a2;
 };
+
 var kn = (n2, r2, e2, i2) =>
   e2 === "\\" || (n2.includes("$") && h(n2, r2))
     ? true
@@ -371,12 +272,18 @@ var kn = (n2, r2, e2, i2) =>
                 `
 `))
         );
+
 var Y = (n2) => {
   let r2 = 0,
     e2 = false,
     i2 = n2.length;
   for (let s2 = 0; s2 < i2; s2 += 1) {
-    if (n2[s2] === "`" && s2 + 2 < i2 && n2[s2 + 1] === "`" && n2[s2 + 2] === "`") {
+    if (
+      n2[s2] === "`" &&
+      s2 + 2 < i2 &&
+      n2[s2 + 1] === "`" &&
+      n2[s2 + 2] === "`"
+    ) {
       ((e2 = !e2), (s2 += 2));
       continue;
     }
@@ -387,69 +294,73 @@ var Y = (n2) => {
   }
   return r2;
 };
-var bn$1 = (n2, r2, e2, i2) =>
-  !!(
-    e2 === "\\" ||
-    (n2.includes("$") && h(n2, r2)) ||
-    m2(n2, r2) ||
-    z2(n2, r2) ||
-    e2 === "_" ||
-    i2 === "_" ||
-    (e2 && i2 && g(e2) && g(i2))
-  );
-var Tn$1 = (n2) => {
-  let r2 = 0,
-    e2 = false,
-    i2 = n2.length;
-  for (let s2 = 0; s2 < i2; s2 += 1) {
-    if (n2[s2] === "`" && s2 + 2 < i2 && n2[s2 + 1] === "`" && n2[s2 + 2] === "`") {
-      ((e2 = !e2), (s2 += 2));
-      continue;
-    }
-    if (e2 || n2[s2] !== "_") continue;
-    let o2 = s2 > 0 ? n2[s2 - 1] : "",
-      t2 = s2 < i2 - 1 ? n2[s2 + 1] : "";
-    bn$1(n2, s2, o2, t2) || (r2 += 1);
-  }
-  return r2;
-};
+
 var Cn = (n2) => {
   let r2 = 0,
     e2 = 0,
     i2 = false;
   for (let s2 = 0; s2 < n2.length; s2 += 1) {
-    if (n2[s2] === "`" && s2 + 2 < n2.length && n2[s2 + 1] === "`" && n2[s2 + 2] === "`") {
+    if (
+      n2[s2] === "`" &&
+      s2 + 2 < n2.length &&
+      n2[s2 + 1] === "`" &&
+      n2[s2 + 2] === "`"
+    ) {
       (e2 >= 3 && (r2 += Math.floor(e2 / 3)), (e2 = 0), (i2 = !i2), (s2 += 2));
       continue;
     }
-    i2 || (n2[s2] === "*" ? (e2 += 1) : (e2 >= 3 && (r2 += Math.floor(e2 / 3)), (e2 = 0)));
+    i2 ||
+      (n2[s2] === "*"
+        ? (e2 += 1)
+        : (e2 >= 3 && (r2 += Math.floor(e2 / 3)), (e2 = 0)));
   }
   return (e2 >= 3 && (r2 += Math.floor(e2 / 3)), r2);
 };
-var A = (n2) => {
+
+export var A = (n2) => {
   let r2 = 0,
     e2 = false;
   for (let i2 = 0; i2 < n2.length; i2 += 1) {
-    if (n2[i2] === "`" && i2 + 2 < n2.length && n2[i2 + 1] === "`" && n2[i2 + 2] === "`") {
+    if (
+      n2[i2] === "`" &&
+      i2 + 2 < n2.length &&
+      n2[i2 + 1] === "`" &&
+      n2[i2 + 2] === "`"
+    ) {
       ((e2 = !e2), (i2 += 2));
       continue;
     }
-    e2 || (n2[i2] === "*" && i2 + 1 < n2.length && n2[i2 + 1] === "*" && ((r2 += 1), (i2 += 1)));
+    e2 ||
+      (n2[i2] === "*" &&
+        i2 + 1 < n2.length &&
+        n2[i2 + 1] === "*" &&
+        ((r2 += 1), (i2 += 1)));
   }
   return r2;
 };
+
 var v = (n2) => {
   let r2 = 0,
     e2 = false;
   for (let i2 = 0; i2 < n2.length; i2 += 1) {
-    if (n2[i2] === "`" && i2 + 2 < n2.length && n2[i2 + 1] === "`" && n2[i2 + 2] === "`") {
+    if (
+      n2[i2] === "`" &&
+      i2 + 2 < n2.length &&
+      n2[i2 + 1] === "`" &&
+      n2[i2 + 2] === "`"
+    ) {
       ((e2 = !e2), (i2 += 2));
       continue;
     }
-    e2 || (n2[i2] === "_" && i2 + 1 < n2.length && n2[i2 + 1] === "_" && ((r2 += 1), (i2 += 1)));
+    e2 ||
+      (n2[i2] === "_" &&
+        i2 + 1 < n2.length &&
+        n2[i2 + 1] === "_" &&
+        ((r2 += 1), (i2 += 1)));
   }
   return r2;
 };
+
 var An$1 = (n2, r2, e2) => {
   if (!r2 || d.test(r2)) return true;
   let s2 = n2.substring(0, e2).lastIndexOf(`
@@ -462,6 +373,7 @@ var An$1 = (n2, r2, e2) => {
     ? true
     : p2(n2, e2, "*");
 };
+
 export var j = (n2) => {
   let r2 = n2.match(M);
   if (!r2) return n2;
@@ -475,6 +387,7 @@ export var j = (n2) => {
         : `${n2}**`
       : n2;
 };
+
 var Bn$1 = (n2, r2, e2) => {
   if (!r2 || d.test(r2)) return true;
   let s2 = n2.substring(0, e2).lastIndexOf(`
@@ -487,6 +400,7 @@ var Bn$1 = (n2, r2, e2) => {
     ? true
     : p2(n2, e2, "_");
 };
+
 export var Q = (n2) => {
   let r2 = n2.match(N);
   if (!r2) {
@@ -499,12 +413,22 @@ export var Q = (n2) => {
   }
   let e2 = r2[2],
     i2 = n2.lastIndexOf(r2[1]);
-  return c2(n2, i2) || f(n2, i2) || Bn$1(n2, e2, i2) ? n2 : v(n2) % 2 === 1 ? `${n2}__` : n2;
+  return c2(n2, i2) || f(n2, i2) || Bn$1(n2, e2, i2)
+    ? n2
+    : v(n2) % 2 === 1
+      ? `${n2}__`
+      : n2;
 };
+
 var Sn = (n2) => {
   let r2 = false;
   for (let e2 = 0; e2 < n2.length; e2 += 1) {
-    if (n2[e2] === "`" && e2 + 2 < n2.length && n2[e2 + 1] === "`" && n2[e2 + 2] === "`") {
+    if (
+      n2[e2] === "`" &&
+      e2 + 2 < n2.length &&
+      n2[e2 + 1] === "`" &&
+      n2[e2 + 2] === "`"
+    ) {
       ((r2 = !r2), (e2 += 2));
       continue;
     }
@@ -539,6 +463,7 @@ var Sn = (n2) => {
   }
   return -1;
 };
+
 export var Z = (n2) => {
   if (!n2.match(R$1)) return n2;
   let e2 = Sn(n2);
@@ -546,78 +471,27 @@ export var Z = (n2) => {
   let i2 = n2.substring(e2 + 1);
   return !i2 || d.test(i2) ? n2 : Y(n2) % 2 === 1 ? `${n2}*` : n2;
 };
-var q = (n2) => {
-  let r2 = false;
-  for (let e2 = 0; e2 < n2.length; e2 += 1) {
-    if (n2[e2] === "`" && e2 + 2 < n2.length && n2[e2 + 1] === "`" && n2[e2 + 2] === "`") {
-      ((r2 = !r2), (e2 += 2));
-      continue;
-    }
-    if (
-      !r2 &&
-      n2[e2] === "_" &&
-      n2[e2 - 1] !== "_" &&
-      n2[e2 + 1] !== "_" &&
-      n2[e2 - 1] !== "\\" &&
-      !h(n2, e2) &&
-      !m2(n2, e2)
-    ) {
-      let i2 = e2 > 0 ? n2[e2 - 1] : "",
-        s2 = e2 < n2.length - 1 ? n2[e2 + 1] : "";
-      if (i2 && s2 && g(i2) && g(s2)) continue;
-      return e2;
-    }
-  }
-  return -1;
-};
-var _n$1 = (n2) => {
-  let r2 = n2.length;
-  for (
-    ;
-    r2 > 0 &&
-    n2[r2 - 1] ===
-      `
-`;
-  )
-    r2 -= 1;
-  if (r2 < n2.length) {
-    let e2 = n2.slice(0, r2),
-      i2 = n2.slice(r2);
-    return `${e2}_${i2}`;
-  }
-  return `${n2}_`;
-};
-var Pn = (n2) => {
-  if (!n2.endsWith("**")) return null;
-  let r2 = n2.slice(0, -2);
-  if (A(r2) % 2 !== 1) return null;
-  let i2 = r2.indexOf("**"),
-    s2 = q(r2);
-  return i2 !== -1 && s2 !== -1 && i2 < s2 ? `${r2}_**` : null;
-};
-export var J2 = (n2) => {
-  if (!n2.match(U)) return n2;
-  let e2 = q(n2);
-  if (e2 === -1) return n2;
-  let i2 = n2.substring(e2 + 1);
-  if (!i2 || d.test(i2) || c2(n2, e2) || f(n2, e2)) return n2;
-  if (Tn$1(n2) % 2 === 1) {
-    let o2 = Pn(n2);
-    return o2 !== null ? o2 : _n$1(n2);
-  }
-  return n2;
-};
+
 var $n$1 = (n2) => {
   let r2 = A(n2),
     e2 = Y(n2);
   return r2 % 2 === 0 && e2 % 2 === 0;
 };
-var On$1 = (n2, r2, e2) => (!r2 || d.test(r2) || c2(n2, e2) || f(n2, e2) ? true : p2(n2, e2, "*"));
+
+var On$1 = (n2, r2, e2) =>
+  !r2 || d.test(r2) || c2(n2, e2) || f(n2, e2) ? true : p2(n2, e2, "*");
+
 export var V2 = (n2) => {
   if (w2.test(n2)) return n2;
   let r2 = n2.match(y$1);
   if (!r2) return n2;
   let e2 = r2[2],
     i2 = n2.lastIndexOf(r2[1]);
-  return On$1(n2, e2, i2) ? n2 : Cn(n2) % 2 === 1 ? ($n$1(n2) ? n2 : `${n2}***`) : n2;
+  return On$1(n2, e2, i2)
+    ? n2
+    : Cn(n2) % 2 === 1
+      ? $n$1(n2)
+        ? n2
+        : `${n2}***`
+      : n2;
 };

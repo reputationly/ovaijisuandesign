@@ -1,21 +1,64 @@
 // build-canvas-nodes.js
-import { CanvasNodeType } from "../vendor.js";
-import { carryIsEmptyField, mirrorImageFieldsIntoData } from "./build-incremental-node-data.js";
 import {
   computeNodeSize,
   defaultNodeSizeForType,
   isAssetBackedNode,
-  mediaTypeToNodeType,
-} from "./group-nodes-in-canvas.js";
-import { displaySizeFromData, normaliseHandle } from "./remap-clipboard.js";
+} from "./compute-group-bounds-from-children.js";
+import { CanvasNodeType } from "../vendor.js";
+import { mirrorImageFieldsIntoData } from "./build-incremental-node-data.js";
 import {
-  isFiniteCanvasPosition,
   parseNodeId,
   sanitizeCanvasPositions,
-} from "./resolve-derived-collision.js";
+} from "./find-free-position-from-anchor.js";
+
+function mediaTypeToNodeType(fileType) {
+  switch (fileType) {
+    case "image":
+      return CanvasNodeType.Image;
+    case "video":
+      return CanvasNodeType.Video;
+    case "audio":
+      return CanvasNodeType.Audio;
+    case "text":
+      return CanvasNodeType.Text;
+    case "file":
+      return CanvasNodeType.File;
+    default:
+      return CanvasNodeType.File;
+  }
+}
+
+function carryIsEmptyField(saved) {
+  return saved?.isEmpty && !saved.assetId
+    ? {
+        isEmpty: true,
+      }
+    : {};
+}
+
+function displaySizeFromData(type2, data2) {
+  if (type2 !== "image") return void 0;
+  const value = data2?.displaySize;
+  if (!value || typeof value !== "object") return void 0;
+  const { width, height } = value;
+  if (
+    typeof width !== "number" ||
+    width <= 0 ||
+    typeof height !== "number" ||
+    height <= 0
+  ) {
+    return void 0;
+  }
+  return {
+    width: Math.round(width),
+    height: Math.round(height),
+  };
+}
+
 function sizeFromItem(item) {
   return computeNodeSize(item.meta.width, item.meta.height);
 }
+
 function resolveNodeSize$1(type2, savedSize, item, data2) {
   return (
     displaySizeFromData(type2, data2) ??
@@ -24,6 +67,7 @@ function resolveNodeSize$1(type2, savedSize, item, data2) {
     defaultNodeSizeForType(type2)
   );
 }
+
 function metaToData(meta2) {
   const out = {};
   if (meta2.name !== void 0) out.name = meta2.name;
@@ -37,21 +81,82 @@ function metaToData(meta2) {
   if (meta2.params !== void 0) out.params = meta2.params;
   if (meta2.voiceId !== void 0) out.voiceId = meta2.voiceId;
   if (meta2.lyrics !== void 0) out.lyrics = meta2.lyrics;
-  if (meta2.compositionPlan !== void 0) out.composition_plan = meta2.compositionPlan;
+  if (meta2.compositionPlan !== void 0)
+    out.composition_plan = meta2.compositionPlan;
   if (meta2.width !== void 0) out.width = meta2.width;
   if (meta2.height !== void 0) out.height = meta2.height;
   if (meta2.durationSec !== void 0) out.duration = meta2.durationSec;
-  if (meta2.referenceImageIds !== void 0) out.referenceImageIds = meta2.referenceImageIds;
-  if (meta2.referenceVideoIds !== void 0) out.referenceVideoIds = meta2.referenceVideoIds;
-  if (meta2.referenceAudioIds !== void 0) out.referenceAudioIds = meta2.referenceAudioIds;
-  if (meta2.referenceTextIds !== void 0) out.referenceTextIds = meta2.referenceTextIds;
+  if (meta2.referenceImageIds !== void 0)
+    out.referenceImageIds = meta2.referenceImageIds;
+  if (meta2.referenceVideoIds !== void 0)
+    out.referenceVideoIds = meta2.referenceVideoIds;
+  if (meta2.referenceAudioIds !== void 0)
+    out.referenceAudioIds = meta2.referenceAudioIds;
+  if (meta2.referenceTextIds !== void 0)
+    out.referenceTextIds = meta2.referenceTextIds;
   return out;
 }
+
 const warnedRecoveredNodeIds = new Set();
+
+function anchorOrder(nodes, existingOrder) {
+  const byId = new Map();
+  for (const n2 of nodes) byId.set(n2.id, n2);
+  const result = [];
+  const consumed = new Set();
+  for (const id2 of existingOrder) {
+    const n2 = byId.get(id2);
+    if (n2 && !consumed.has(id2)) {
+      result.push(n2);
+      consumed.add(id2);
+    }
+  }
+  for (const n2 of nodes) {
+    if (!consumed.has(n2.id)) {
+      result.push(n2);
+      consumed.add(n2.id);
+    }
+  }
+  if (result.length === nodes.length) {
+    let same = true;
+    for (let i2 = 0; i2 < nodes.length; i2++) {
+      if (result[i2] !== nodes[i2]) {
+        same = false;
+        break;
+      }
+    }
+    if (same) return nodes;
+  }
+  return result;
+}
+
+function carryGroupFields(saved) {
+  if (!saved) return {};
+  const out = {};
+  if (saved.groupId) out.groupId = saved.groupId;
+  if (Number.isInteger(saved.round)) out.round = saved.round;
+  return out;
+}
+
+function carryAssetIdField(saved) {
+  return typeof saved?.assetId === "string" && saved.assetId.length > 0
+    ? {
+        assetId: saved.assetId,
+      }
+    : {};
+}
+
 export function buildCanvasNodes(input) {
-  const { visibleItems, savedByAssetId, cloneNodes, standaloneNodes, existingOrder } = input;
+  const {
+    visibleItems,
+    savedByAssetId,
+    cloneNodes,
+    standaloneNodes,
+    existingOrder,
+  } = input;
   const syntheticSavedNodes = new Map();
-  const itemByAssetId = input.itemLookup ?? new Map(visibleItems.map((item) => [item.id, item]));
+  const itemByAssetId =
+    input.itemLookup ?? new Map(visibleItems.map((item) => [item.id, item]));
   const nodes = [];
   for (const item of visibleItems) {
     const saved = savedByAssetId.get(item.id);
@@ -97,12 +202,21 @@ export function buildCanvasNodes(input) {
           : parseNodeId(clone2.id).assetId;
       const primaryItem = itemByAssetId.get(assetId);
       if (!primaryItem) {
-        if (!isAssetBackedNode(clone2.type) || clone2.type === CanvasNodeType.Text) {
+        if (
+          !isAssetBackedNode(clone2.type) ||
+          clone2.type === CanvasNodeType.Text
+        ) {
           nodes.push({
             id: clone2.id,
             type: clone2.type,
-            positions: sanitizeCanvasPositions(clone2.positions ?? {}).positions,
-            size: resolveNodeSize$1(clone2.type, clone2.size, void 0, clone2.data),
+            positions: sanitizeCanvasPositions(clone2.positions ?? {})
+              .positions,
+            size: resolveNodeSize$1(
+              clone2.type,
+              clone2.size,
+              void 0,
+              clone2.data,
+            ),
             data: mirrorImageFieldsIntoData(clone2),
             ...carryAssetIdField(clone2),
             ...carryIsEmptyField(clone2),
@@ -120,7 +234,9 @@ export function buildCanvasNodes(input) {
       }
       const type2 = clone2.type || mediaTypeToNodeType(primaryItem.meta.type);
       const primarySaved = savedByAssetId.get(assetId);
-      const primaryData = primarySaved ? mirrorImageFieldsIntoData(primarySaved) : {};
+      const primaryData = primarySaved
+        ? mirrorImageFieldsIntoData(primarySaved)
+        : {};
       const inheritedData = {
         ...metaToData(primaryItem.meta),
         ...primaryData,
@@ -191,7 +307,9 @@ export function buildCanvasNodes(input) {
       if (emittedIds.has(nodeId)) continue;
       if (omittedNodeIds?.has(nodeId)) continue;
       const savedAssetId =
-        typeof saved.assetId === "string" && saved.assetId.length > 0 ? saved.assetId : void 0;
+        typeof saved.assetId === "string" && saved.assetId.length > 0
+          ? saved.assetId
+          : void 0;
       if (savedAssetId && hiddenAssetIds?.has(savedAssetId)) continue;
       const item = savedAssetId ? itemByAssetId.get(savedAssetId) : void 0;
       const assetMissing = savedAssetId !== void 0 && item === void 0;
@@ -235,7 +353,9 @@ export function buildCanvasNodes(input) {
       recovered.push(nodeId);
     }
     if (recovered.length > 0) {
-      const unreported = recovered.filter((id2) => !warnedRecoveredNodeIds.has(id2));
+      const unreported = recovered.filter(
+        (id2) => !warnedRecoveredNodeIds.has(id2),
+      );
       if (unreported.length > 0) {
         for (const id2 of unreported) warnedRecoveredNodeIds.add(id2);
         console.warn(
@@ -247,216 +367,11 @@ export function buildCanvasNodes(input) {
     }
   }
   const orderedNodes =
-    existingOrder && existingOrder.length > 0 ? anchorOrder(nodes, existingOrder) : nodes;
+    existingOrder && existingOrder.length > 0
+      ? anchorOrder(nodes, existingOrder)
+      : nodes;
   return {
     nodes: orderedNodes,
     syntheticSavedNodes,
   };
-}
-function anchorOrder(nodes, existingOrder) {
-  const byId = new Map();
-  for (const n2 of nodes) byId.set(n2.id, n2);
-  const result = [];
-  const consumed = new Set();
-  for (const id2 of existingOrder) {
-    const n2 = byId.get(id2);
-    if (n2 && !consumed.has(id2)) {
-      result.push(n2);
-      consumed.add(id2);
-    }
-  }
-  for (const n2 of nodes) {
-    if (!consumed.has(n2.id)) {
-      result.push(n2);
-      consumed.add(n2.id);
-    }
-  }
-  if (result.length === nodes.length) {
-    let same = true;
-    for (let i2 = 0; i2 < nodes.length; i2++) {
-      if (result[i2] !== nodes[i2]) {
-        same = false;
-        break;
-      }
-    }
-    if (same) return nodes;
-  }
-  return result;
-}
-export function filterEdges(nodeIds, savedEdges) {
-  const runtime = [];
-  for (const e2 of savedEdges) {
-    if (!nodeIds.has(e2.source) || !nodeIds.has(e2.target)) continue;
-    const sourceHandle = normaliseHandle(e2.sourceHandle);
-    const targetHandle = normaliseHandle(e2.targetHandle);
-    runtime.push({
-      id: e2.id,
-      source: e2.source,
-      target: e2.target,
-      ...(sourceHandle !== void 0
-        ? {
-            sourceHandle,
-          }
-        : {}),
-      ...(targetHandle !== void 0
-        ? {
-            targetHandle,
-          }
-        : {}),
-      ...(e2.type !== void 0
-        ? {
-            type: e2.type,
-          }
-        : {}),
-      ...(e2.data !== void 0
-        ? {
-            data: e2.data,
-          }
-        : {}),
-    });
-  }
-  return runtime;
-}
-function deepEqualJsonLike(a2, b3) {
-  if (Object.is(a2, b3)) return true;
-  if (a2 === null || b3 === null) return false;
-  if (typeof a2 !== "object" || typeof b3 !== "object") return false;
-  if (Array.isArray(a2)) {
-    if (!Array.isArray(b3) || a2.length !== b3.length) return false;
-    for (let i2 = 0; i2 < a2.length; i2++) {
-      if (!deepEqualJsonLike(a2[i2], b3[i2])) return false;
-    }
-    return true;
-  }
-  if (Array.isArray(b3)) return false;
-  const aObj = a2;
-  const bObj = b3;
-  const keys2 = new Set([...Object.keys(aObj), ...Object.keys(bObj)]);
-  for (const k2 of keys2) {
-    if (!deepEqualJsonLike(aObj[k2], bObj[k2])) return false;
-  }
-  return true;
-}
-function sizeEqual(a2, b3) {
-  if (a2 === b3) return true;
-  if (!a2 || !b3) return false;
-  return a2.width === b3.width && a2.height === b3.height;
-}
-function positionsEqual(a2, b3) {
-  const aKeys = Object.keys(a2);
-  const bKeys = Object.keys(b3);
-  if (aKeys.length !== bKeys.length) return false;
-  for (const k2 of aKeys) {
-    const ap = a2[k2];
-    const bp = b3[k2];
-    if (!ap || !bp) {
-      if (ap !== bp) return false;
-      continue;
-    }
-    if (ap.x !== bp.x || ap.y !== bp.y) return false;
-  }
-  return true;
-}
-function sizesEqual(a2, b3) {
-  if (a2 === b3) return true;
-  if (!a2 || !b3)
-    return a2 === b3 || (Object.keys(a2 ?? {}).length === 0 && Object.keys(b3 ?? {}).length === 0);
-  const aKeys = Object.keys(a2);
-  const bKeys = Object.keys(b3);
-  if (aKeys.length !== bKeys.length) return false;
-  for (const k2 of aKeys) {
-    if (!sizeEqual(a2[k2], b3[k2])) return false;
-  }
-  return true;
-}
-function areCanvasNodesContentEqual(a2, b3) {
-  if (a2 === b3) return true;
-  if (a2.id !== b3.id) return false;
-  if (a2.type !== b3.type) return false;
-  if (a2.parentId !== b3.parentId) return false;
-  if (a2.groupId !== b3.groupId) return false;
-  if (a2.round !== b3.round) return false;
-  if (!sizeEqual(a2.size, b3.size)) return false;
-  if (!sizesEqual(a2.sizes, b3.sizes)) return false;
-  if (!positionsEqual(a2.positions, b3.positions)) return false;
-  if (!deepEqualJsonLike(a2.meta, b3.meta)) return false;
-  if (!deepEqualJsonLike(a2.data, b3.data)) return false;
-  return true;
-}
-export function reuseUnchangedNodeRefs(freshNodes, currentNodes) {
-  const lookup = Array.isArray(currentNodes)
-    ? new Map(currentNodes.map((n2) => [n2.id, n2]))
-    : currentNodes;
-  for (let i2 = 0; i2 < freshNodes.length; i2++) {
-    const next2 = freshNodes[i2];
-    const prev = lookup.get(next2.id);
-    if (prev && areCanvasNodesContentEqual(prev, next2)) {
-      freshNodes[i2] = prev;
-    }
-  }
-  return freshNodes;
-}
-function partitionByPosition(nodes, allSavedNodes, mode2) {
-  const withSaved = [];
-  const withoutSaved = [];
-  for (const n2 of nodes) {
-    const savedNode = allSavedNodes.get(n2.id);
-    (n2.meta?.hidden || isFiniteCanvasPosition(savedNode?.positions?.[mode2])
-      ? withSaved
-      : withoutSaved
-    ).push(n2);
-  }
-  return {
-    withSaved,
-    withoutSaved,
-  };
-}
-function applyPositions(nodes, positions, mode2) {
-  return nodes.map((n2) => {
-    const pos = positions.get(n2.id);
-    return pos
-      ? {
-          ...n2,
-          positions: {
-            ...n2.positions,
-            [mode2]: pos,
-          },
-        }
-      : n2;
-  });
-}
-export function layoutUnsavedNodes(instance2, nodes, allSavedNodes, mode2, edges, anchor) {
-  const { withSaved, withoutSaved } = partitionByPosition(nodes, allSavedNodes, mode2);
-  if (withoutSaved.length === 0) {
-    return {
-      nodes,
-      needsPersist: false,
-    };
-  }
-  const positions = instance2.layout.computeIncremental("dagre", withSaved, withoutSaved, edges, {
-    mode: mode2,
-    ...(anchor
-      ? {
-          anchor,
-        }
-      : {}),
-  });
-  return {
-    nodes: applyPositions(nodes, positions, mode2),
-    needsPersist: true,
-  };
-}
-function carryGroupFields(saved) {
-  if (!saved) return {};
-  const out = {};
-  if (saved.groupId) out.groupId = saved.groupId;
-  if (Number.isInteger(saved.round)) out.round = saved.round;
-  return out;
-}
-function carryAssetIdField(saved) {
-  return typeof saved?.assetId === "string" && saved.assetId.length > 0
-    ? {
-        assetId: saved.assetId,
-      }
-    : {};
 }

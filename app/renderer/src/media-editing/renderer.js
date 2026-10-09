@@ -1,47 +1,50 @@
 // renderer.js
-import { clearCanvas, createOffscreen } from "./mosaic-shape.js";
-import { drawSelectionHandles } from "./mosaic-tool.js";
-export let HistoryManager$1 = class HistoryManager {
-  undoStack = [];
-  redoStack = [];
-  limit;
-  constructor(limit = 50) {
-    this.limit = limit;
+import { HANDLE_SIZE$1 } from "./hit-handle.js";
+import { createOffscreen } from "./keep-tag-in-canvas.js";
+
+function clearCanvas(ctx) {
+  const c3 = ctx.canvas;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, c3.width, c3.height);
+  ctx.restore();
+}
+
+function drawSelectionHandles(ctx, b3, uiScale = 1, style2) {
+  const positions = [
+    {
+      x: b3.x,
+      y: b3.y,
+    },
+    {
+      x: b3.x + b3.width,
+      y: b3.y,
+    },
+    {
+      x: b3.x,
+      y: b3.y + b3.height,
+    },
+    {
+      x: b3.x + b3.width,
+      y: b3.y + b3.height,
+    },
+  ];
+  const size2 = uiScale > 0 ? HANDLE_SIZE$1 / uiScale : HANDLE_SIZE$1;
+  const stroke = uiScale > 0 ? 1.5 / uiScale : 1.5;
+  ctx.save();
+  ctx.fillStyle = style2?.selectionHandleFill ?? "#FFFFFF";
+  ctx.strokeStyle =
+    style2?.selectionHandleStroke ?? style2?.selectionStroke ?? "#3370FF";
+  ctx.lineWidth = stroke;
+  for (const p3 of positions) {
+    ctx.beginPath();
+    ctx.rect(p3.x - size2 / 2, p3.y - size2 / 2, size2, size2);
+    ctx.fill();
+    ctx.stroke();
   }
-  push(snapshot2) {
-    this.undoStack.push(snapshot2);
-    if (this.undoStack.length > this.limit) {
-      this.undoStack.shift();
-    }
-    this.redoStack.length = 0;
-  }
-  /**
-   * 调用前需把"当前状态"传进来作为 redoStack 的入栈值。
-   * 返回 undo 后应当被采用的 shapes 数组。
-   */
-  undo(currentSnapshot) {
-    const previous2 = this.undoStack.pop();
-    if (!previous2) return null;
-    this.redoStack.push(currentSnapshot);
-    return previous2;
-  }
-  redo(currentSnapshot) {
-    const next2 = this.redoStack.pop();
-    if (!next2) return null;
-    this.undoStack.push(currentSnapshot);
-    return next2;
-  }
-  get canUndo() {
-    return this.undoStack.length > 0;
-  }
-  get canRedo() {
-    return this.redoStack.length > 0;
-  }
-  clear() {
-    this.undoStack.length = 0;
-    this.redoStack.length = 0;
-  }
-};
+  ctx.restore();
+}
+
 function generateBlur(source, radius) {
   const w3 = source.width;
   const h2 = source.height;
@@ -65,6 +68,7 @@ function generateBlur(source, radius) {
   outCtx.filter = "none";
   return out;
 }
+
 function generateMosaic(source, blockSize) {
   const w3 = source.width;
   const h2 = source.height;
@@ -82,7 +86,9 @@ function generateMosaic(source, blockSize) {
   outCtx.drawImage(small, 0, 0, w3, h2);
   return out;
 }
+
 const PROCESSED_CACHE_LIMIT = 8;
+
 export class Renderer {
   main;
   bgLayer;
@@ -152,7 +158,8 @@ export class Renderer {
   dprMql = null;
   dprListener = null;
   drawHelpers = {
-    getProcessedSource: (mode2, strength) => this.getProcessedSource(mode2, strength),
+    getProcessedSource: (mode2, strength) =>
+      this.getProcessedSource(mode2, strength),
   };
   pendingSelected = null;
   constructor() {
@@ -218,7 +225,13 @@ export class Renderer {
   repaintLayers() {
     if (this.currentBgImage) {
       this.bgCtx.drawImage(this.currentBgImage, 0, 0, this.width, this.height);
-      this.bgSourceCtx.drawImage(this.currentBgImage, 0, 0, this.width, this.height);
+      this.bgSourceCtx.drawImage(
+        this.currentBgImage,
+        0,
+        0,
+        this.width,
+        this.height,
+      );
     }
     for (const s2 of this.lastShapes) s2.draw(this.shapeCtx, this.drawHelpers);
   }
@@ -284,7 +297,12 @@ export class Renderer {
   drawSelectionOverlay(selected2) {
     if (!selected2) return;
     selected2.drawSelection(this.mainCtx, this.uiScale);
-    drawSelectionHandles(this.mainCtx, selected2.getBounds(), this.uiScale, selected2.style);
+    drawSelectionHandles(
+      this.mainCtx,
+      selected2.getBounds(),
+      this.uiScale,
+      selected2.style,
+    );
   }
   /**
    * 把当前 background + shapes 合成快照供外部采样。
@@ -301,7 +319,10 @@ export class Renderer {
    */
   exportComposed() {
     const scale2 = this.pixelScale;
-    const out = createOffscreen(Math.round(this.width * scale2), Math.round(this.height * scale2));
+    const out = createOffscreen(
+      Math.round(this.width * scale2),
+      Math.round(this.height * scale2),
+    );
     const ctx = out.getContext("2d");
     ctx.drawImage(this.bgLayer, 0, 0);
     ctx.drawImage(this.shapeLayer, 0, 0);
@@ -383,35 +404,4 @@ export class Renderer {
     this.processedCache.clear();
     this.unbindDprListener();
   }
-}
-export const DEFAULT_STYLE = {
-  stroke: "#FF3B30",
-  fill: void 0,
-  strokeWidth: 3,
-  fontSize: 18,
-  fontFamily: 'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
-  fontWeight: 500,
-  mosaicMode: "mosaic",
-  mosaicShape: "rectangle",
-  mosaicBlockSize: 12,
-  mosaicBrushSize: 24,
-  blurRadius: 8,
-  tagBackground: "rgba(0, 0, 0, 0.6)",
-  tagTextColor: "#FFFFFF",
-  textVariant: "plain",
-};
-export function cloneShapeData(data2) {
-  const cloned = {
-    ...data2,
-    style: {
-      ...data2.style,
-    },
-  };
-  if ("points" in cloned) {
-    cloned.points = cloned.points.map((p3) => ({
-      x: p3.x,
-      y: p3.y,
-    }));
-  }
-  return cloned;
 }

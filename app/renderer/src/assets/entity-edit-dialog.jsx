@@ -1,124 +1,80 @@
-// shared/entity-edit-dialog.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, Loader2, ShieldAlert, ChevronDown, AtSign, FolderInput } from "../vendor.js";
-import { DropdownMenu, assetCenterLog } from "../vendor-inline/vscode-base/graph.jsx";
-import { Download, Trash2 } from "../media-editing/parse-item.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { AttachmentUploadZone, CollapsibleTags, ENTITY_TYPES } from "./attachment-upload-zone.jsx";
+// entity-edit-dialog.jsx
 import {
-  classifyAssetError,
+  BASE,
+  readObject,
+  useAssetCenterFetcher,
+} from "./wrap-as-asset-center-error.js";
+import {
+  AtSign,
+  ChevronDown,
+  FolderInput,
+  jsxRuntimeExports,
+  Loader2,
+  reactExports,
+  useMutation,
+  useTranslation,
+} from "../vendor.js";
+import { ENTITY_TYPES } from "./audio-play-button.jsx";
+import {
+  assetCenterLog,
+  DropdownMenu,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { Download, Trash2 } from "../media-editing/package.jsx";
+import { AttachmentUploadZone } from "./attachment-upload-zone.jsx";
+import { CollapsibleTags } from "./preset-tags.jsx";
+import {
   trackAssetCenterAction,
   useExportEntityUrl,
-  useUploadBlob,
 } from "../infra/use-online.jsx";
-import { formatAssetCenterError } from "./page-state-boundary.jsx";
+import { formatAssetCenterError } from "./key-entries.js";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Badge,
+  DialogDescription,
+  DialogTitle,
+} from "../infra/badge-variants.jsx";
+import {
   Button$1,
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { useDeleteEntity, useEntityCanvas, useUpdateEntity } from "./use-materialize-entity.js";
-export function EntityDeleteConfirm({ entity, onClose, surface = "asset_center_page" }) {
-  const { t: t2 } = useTranslation();
-  const deleteMutation = useDeleteEntity();
-  const [error, setError] = reactExports.useState(null);
-  const handleConfirm = async () => {
-    if (!entity) return;
-    setError(null);
-    try {
-      await deleteMutation.mutateAsync({
-        entityId: entity.id,
-      });
-      trackAssetCenterAction({
-        action: "entity_delete",
-        surface,
-        entity_id: entity.id,
-        entity_type: entity.type,
-        success: true,
-      });
-      onClose();
-    } catch (err) {
-      setError(formatAssetCenterError(err, t2));
-      trackAssetCenterAction({
-        action: "entity_delete",
-        surface,
-        entity_id: entity.id,
-        entity_type: entity.type,
-        success: false,
-        error_type: classifyAssetError(err),
-      });
-    }
-  };
-  return (
-    <AlertDialog
-      open={entity !== null}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <AlertDialogContent data-action-ui-id="asset-center-entity-delete-confirm">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <ShieldAlert size={16} className="text-destructive" />
-            {t2("assetCenter.deleteEntity.confirmTitle")}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-xs space-y-2">
-            <span className="block">
-              {t2("assetCenter.deleteEntity.confirmDescription", {
-                name: entity?.name ?? "",
-              })}
-            </span>
-            <span className="block text-muted-foreground/80">
-              {t2("assetCenter.deleteEntity.note")}
-            </span>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {error && (
-          <p
-            className="text-xs text-destructive"
-            data-action-ui-id="asset-center-entity-delete-error"
-          >
-            {error}
-          </p>
-        )}
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            disabled={deleteMutation.isPending}
-            data-action-ui-id="asset-center-entity-delete-cancel"
-          >
-            {t2("common.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => void handleConfirm()}
-            disabled={deleteMutation.isPending}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            data-action-ui-id="asset-center-entity-delete-confirm-action"
-          >
-            {deleteMutation.isPending && <Loader2 size={14} className="animate-spin mr-1.5" />}
-            {t2("assetCenter.deleteEntity.confirmButton")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
+} from "../infra/dialog-content.jsx";
+import { useEntityCanvas, useUpdateEntity } from "./use-materialize-entity.js";
+
+async function uploadBlob(fetcher, file, kindOverride) {
+  const form = new FormData();
+  form.append("file", file);
+  const query = kindOverride ? `?kind=${encodeURIComponent(kindOverride)}` : "";
+  const res = await fetcher(`${BASE}/blobs${query}`, {
+    method: "POST",
+    body: form,
+    // Per-upload timeout: 100 MB upload * slow disk ~= 30s in pathological
+    // cases. 120s is generous; matches gateway's multer fileSize ceiling.
+    timeoutMs: 12e4,
+  });
+  return readObject(res, "blob upload result");
 }
+
+function useUploadBlob() {
+  const fetcher = useAssetCenterFetcher();
+  return useMutation({
+    mutationFn: ({ file, kind }) => uploadBlob(fetcher, file, kind),
+  });
+}
+
 const TYPE_OPTIONS$2 = ENTITY_TYPES;
-export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMaterialize }) {
+
+export function EntityEditDialog({
+  entityId,
+  viewMode,
+  onClose,
+  onDelete,
+  onMaterialize,
+}) {
   const { t: t2 } = useTranslation();
   const canvasQuery = useEntityCanvas(entityId ?? void 0);
   const updateMutation = useUpdateEntity();
@@ -150,7 +106,12 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
         surface: "edit_dialog",
         entity_id: ent.id,
         entity_type: ent.type,
-        source: viewMode === void 0 ? "direct" : viewMode === "grid" ? "card" : "list",
+        source:
+          viewMode === void 0
+            ? "direct"
+            : viewMode === "grid"
+              ? "card"
+              : "list",
         ...(viewMode !== void 0
           ? {
               view_mode: viewMode,
@@ -187,11 +148,13 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
     setError(null);
     hydratedFor.current = entityId;
   }, [entityId, canvasQuery.data, viewMode]);
-  const loadError = entityId !== null && canvasQuery.isError ? canvasQuery.error : null;
+  const loadError =
+    entityId !== null && canvasQuery.isError ? canvasQuery.error : null;
   const trimmedName = name2.trim();
   const trimmedDescription = description.trim();
   const descriptionRequired = !!canvasQuery.data && type2 === "style_pack";
-  const descriptionMissing = descriptionRequired && trimmedDescription.length === 0;
+  const descriptionMissing =
+    descriptionRequired && trimmedDescription.length === 0;
   const isSubmitting = updateMutation.isPending;
   const hasUploadInFlight = staged.some((s2) => s2.status === "uploading");
   const stagedHasError = staged.some((s2) => s2.status === "error");
@@ -212,12 +175,17 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
     if (type2 !== ent.type) return true;
     if (trimmedDescription !== (ent.description ?? "")) return true;
     const origTags = ent.metadata?.tags ?? [];
-    if (tags2.length !== origTags.length || tags2.some((t22, i2) => t22 !== origTags[i2]))
+    if (
+      tags2.length !== origTags.length ||
+      tags2.some((t22, i2) => t22 !== origTags[i2])
+    )
       return true;
     if (coverBlobPath !== (ent.metadata.coverBlobPath ?? null)) return true;
     const origAttIds = new Set(ent.attachments.map((a2) => a2.id));
     const stagedExistingIds = new Set(
-      staged.filter((s2) => s2.status === "existing").map((s2) => s2.attachmentId),
+      staged
+        .filter((s2) => s2.status === "existing")
+        .map((s2) => s2.attachmentId),
     );
     if (origAttIds.size !== stagedExistingIds.size) return true;
     for (const id2 of origAttIds) {
@@ -231,7 +199,15 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
       if ((s2.caption ?? "") !== (orig.meta?.user_desc ?? "")) return true;
     }
     return false;
-  }, [canvasQuery.data, coverBlobPath, trimmedName, type2, trimmedDescription, tags2, staged]);
+  }, [
+    canvasQuery.data,
+    coverBlobPath,
+    trimmedName,
+    type2,
+    trimmedDescription,
+    tags2,
+    staged,
+  ]);
   const canSave =
     !!canvasQuery.data &&
     trimmedName.length > 0 &&
@@ -240,7 +216,8 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
     !isSubmitting &&
     !hasUploadInFlight &&
     !stagedHasError;
-  const canExport = !!canvasQuery.data && canvasQuery.data.attachments.length > 0;
+  const canExport =
+    !!canvasQuery.data && canvasQuery.data.attachments.length > 0;
   const handleExport = reactExports.useCallback(() => {
     if (!canvasQuery.data) return;
     const url2 = exportUrl(canvasQuery.data.id);
@@ -262,7 +239,10 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
   const handleClose = reactExports.useCallback(
     (reason = "unknown") => {
       if (isSubmitting || hasUploadInFlight) return;
-      if (canvasQuery.data && closeTrackedEntityRef.current !== canvasQuery.data.id) {
+      if (
+        canvasQuery.data &&
+        closeTrackedEntityRef.current !== canvasQuery.data.id
+      ) {
         closeTrackedEntityRef.current = canvasQuery.data.id;
         trackAssetCenterAction({
           action: "edit_dialog_close",
@@ -380,8 +360,12 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
         data-action-ui-id="asset-center-entity-edit-dialog"
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>{canvasQuery.data?.name ?? t2("assetCenter.detail.loading")}</DialogTitle>
-          <DialogDescription>{t2("assetCenter.edit.description")}</DialogDescription>
+          <DialogTitle>
+            {canvasQuery.data?.name ?? t2("assetCenter.detail.loading")}
+          </DialogTitle>
+          <DialogDescription>
+            {t2("assetCenter.edit.description")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {loadError ? (
@@ -423,7 +407,10 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
                       className="text-xs h-6 px-1.5 font-medium gap-0.5 rounded-[4px] text-secondary-foreground"
                     >
                       {t2(`assetCenter.types.${type2}`)}
-                      <ChevronDown size={12} className="text-muted-foreground" />
+                      <ChevronDown
+                        size={12}
+                        className="text-muted-foreground"
+                      />
                     </Badge>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
@@ -468,7 +455,11 @@ export function EntityEditDialog({ entityId, viewMode, onClose, onDelete, onMate
                 trackingEntityType={type2}
               />
               <div className="border-t border-border -mx-4" />
-              <CollapsibleTags tags={tags2} onChange={setTags} trackingSurface="edit_dialog" />
+              <CollapsibleTags
+                tags={tags2}
+                onChange={setTags}
+                trackingSurface="edit_dialog"
+              />
               {error && (
                 <p
                   className="text-xs text-destructive"

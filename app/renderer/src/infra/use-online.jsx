@@ -1,12 +1,84 @@
-// shared/misc-02.jsx
-import { reactExports, useQueryClient, useMutation, cva, ToggleGroup$1, Toggle$1 } from "../vendor.js";
-import { ROOT_KEY$1, useAssetCenterFetcher, BASE, readObject, readEnvelope$1 } from "../assets/check-cloud-asset-upload.js";
+// use-online.jsx
+import {
+  cva,
+  reactExports,
+  Toggle$1,
+  ToggleGroup$1,
+  useMutation,
+  useQueryClient,
+} from "../vendor.js";
+import {
+  BASE,
+  isRecord$9,
+  readObject,
+  ROOT_KEY$1,
+  wrapAsAssetCenterError,
+} from "../assets/wrap-as-asset-center-error.js";
+import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { TRACK_EVENTS } from "./track-events.js";
-import { useGatewayUrl } from "../generation/use-resizable-width.js";
+import { trackEvent } from "./sanitize-track-props.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { importEntity } from "../assets/import-entity.js";
-import { trackEvent } from "./init-track.js";
-import { cn$2 } from "./use-browser-overlay-dialog-props.jsx";
+import { cn$2 } from "./dialog-content.jsx";
+import { ImportEntityConflictError } from "../assets/import-entity-conflict-error.js";
+
+function extractConflictPayload(body2) {
+  if (!isRecord$9(body2)) return null;
+  if (isRecord$9(body2.existingEntity) && isRecord$9(body2.importedManifest)) {
+    return body2;
+  }
+  const nested = body2.message;
+  if (
+    isRecord$9(nested) &&
+    isRecord$9(nested.existingEntity) &&
+    isRecord$9(nested.importedManifest)
+  ) {
+    return nested;
+  }
+  return null;
+}
+
+async function importEntity(buildUrl, file, mode2 = "create-new") {
+  const form = new FormData();
+  form.append("file", file);
+  const params = new URLSearchParams();
+  if (mode2 !== "create-new") params.set("mode", mode2);
+  const qs = params.toString();
+  const path2 = `${BASE}/import${qs ? `?${qs}` : ""}`;
+  const url2 = buildUrl(path2);
+  if (!url2) {
+    throw new Error("Gateway not ready");
+  }
+  const controller = new AbortController();
+  const timer2 = setTimeout(() => controller.abort(), 18e4);
+  let res;
+  try {
+    res = await fetch(url2, {
+      method: "POST",
+      body: form,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer2);
+  }
+  if (res.status === 409) {
+    let body2;
+    try {
+      body2 = await res.json();
+    } catch {
+      throw new Error(`Import failed: 409 ${res.statusText}`);
+    }
+    const payload = extractConflictPayload(body2);
+    if (payload) {
+      throw new ImportEntityConflictError(payload);
+    }
+    throw new Error(`Import failed: 409 ${res.statusText}`);
+  }
+  if (!res.ok) {
+    throw await wrapAsAssetCenterError(res);
+  }
+  return readObject(res, "import entity result");
+}
+
 export function useOnline() {
   const [online, setOnline] = reactExports.useState(() =>
     typeof navigator === "undefined" ? true : navigator.onLine,
@@ -16,7 +88,8 @@ export function useOnline() {
     let browserEventVersion = 0;
     const networkBridge = window.hilo?.network;
     const hasBridgeStatus = typeof networkBridge?.getStatus === "function";
-    const readNavigatorOnline = () => (typeof navigator === "undefined" ? true : navigator.onLine);
+    const readNavigatorOnline = () =>
+      typeof navigator === "undefined" ? true : navigator.onLine;
     if (hasBridgeStatus && networkBridge) {
       const bridgeStatusRequestVersion = browserEventVersion;
       void networkBridge
@@ -55,6 +128,7 @@ export function useOnline() {
   }, []);
   return online;
 }
+
 export function jsonInit(method, body2) {
   return {
     method,
@@ -64,70 +138,43 @@ export function jsonInit(method, body2) {
     body: JSON.stringify(body2),
   };
 }
-export async function getEntityCanvas(fetcher, entityId) {
-  const res = await fetcher(`${BASE}/entities/${encodeURIComponent(entityId)}?fields=canvas`);
-  return readEnvelope$1(res, "entity", "entity canvas");
-}
-export async function createEntity(fetcher, input) {
-  const res = await fetcher(`${BASE}/entities`, jsonInit("POST", input));
-  return readEnvelope$1(res, "entity", "created entity");
-}
-export async function updateEntity(fetcher, entityId, input) {
-  const res = await fetcher(
-    `${BASE}/entities/${encodeURIComponent(entityId)}`,
-    jsonInit("PATCH", input),
-  );
-  return readEnvelope$1(res, "entity", "updated entity");
-}
-export async function deleteEntityGlobal(fetcher, entityId) {
-  const res = await fetcher(`${BASE}/entities/${encodeURIComponent(entityId)}`, {
-    method: "DELETE",
-  });
-  return readObject(res, "delete entity result");
-}
-export async function materializeEntity(fetcher, entityId, input) {
-  const res = await fetcher(
-    `${BASE}/entities/${encodeURIComponent(entityId)}/materialize`,
-    jsonInit("POST", input),
-  );
-  return readObject(res, "materialize result");
-}
+
 function exportEntityUrl(buildUrl, entityId) {
   return buildUrl(`${BASE}/entities/${encodeURIComponent(entityId)}/export`);
 }
-async function uploadBlob(fetcher, file, kindOverride) {
-  const form = new FormData();
-  form.append("file", file);
-  const query = kindOverride ? `?kind=${encodeURIComponent(kindOverride)}` : "";
-  const res = await fetcher(`${BASE}/blobs${query}`, {
-    method: "POST",
-    body: form,
-    // Per-upload timeout: 100 MB upload * slow disk ~= 30s in pathological
-    // cases. 120s is generous; matches gateway's multer fileSize ceiling.
-    timeoutMs: 12e4,
-  });
-  return readObject(res, "blob upload result");
-}
+
 export function classifyAssetError(err) {
   const msg = err instanceof Error ? err.message : String(err);
   const lower2 = msg.toLowerCase();
-  if (lower2.includes("network") || lower2.includes("fetch") || lower2.includes("econnrefused"))
+  if (
+    lower2.includes("network") ||
+    lower2.includes("fetch") ||
+    lower2.includes("econnrefused")
+  )
     return "network";
-  if (lower2.includes("timeout") || lower2.includes("timed out")) return "timeout";
+  if (lower2.includes("timeout") || lower2.includes("timed out"))
+    return "timeout";
   if (lower2.includes("conflict") || lower2.includes("409")) return "conflict";
-  if (lower2.includes("valid") || lower2.includes("required") || lower2.includes("400"))
+  if (
+    lower2.includes("valid") ||
+    lower2.includes("required") ||
+    lower2.includes("400")
+  )
     return "validation";
   return "unknown";
 }
+
 export function trackAssetCreate(props) {
   trackEvent(TRACK_EVENTS.ASSET_CREATE, props);
 }
+
 export function trackAssetCenterAction(props) {
   const eventName = (() => {
     if (props.action === "search") return TRACK_EVENTS.ASSET_CENTER_SEARCH;
     if (props.action === "type_filter") return TRACK_EVENTS.ASSET_CENTER_FILTER;
     if (props.action === "sort") return TRACK_EVENTS.ASSET_CENTER_SORT_CHANGE;
-    if (props.action === "view_mode") return TRACK_EVENTS.ASSET_CENTER_VIEW_CHANGE;
+    if (props.action === "view_mode")
+      return TRACK_EVENTS.ASSET_CENTER_VIEW_CHANGE;
     if (
       props.action === "create_dialog_open" ||
       props.action === "create_dialog_close" ||
@@ -146,23 +193,25 @@ export function trackAssetCenterAction(props) {
         : TRACK_EVENTS.ASSET_CREATE_FORM_ACTION;
     }
     if (props.action === "entity_export") return TRACK_EVENTS.ASSET_EXPORT;
-    if (props.action === "entity_detail_view") return TRACK_EVENTS.ASSET_DETAIL_VIEW;
-    if (props.action === "entity_delete" || props.action === "delete_dialog_open") {
+    if (props.action === "entity_detail_view")
+      return TRACK_EVENTS.ASSET_DETAIL_VIEW;
+    if (
+      props.action === "entity_delete" ||
+      props.action === "delete_dialog_open"
+    ) {
       return TRACK_EVENTS.ASSET_DELETE;
     }
-    if (props.action === "materialize_dialog_open" || props.action === "materialize_dialog_close") {
+    if (
+      props.action === "materialize_dialog_open" ||
+      props.action === "materialize_dialog_close"
+    ) {
       return TRACK_EVENTS.ASSET_MATERIALIZE_DIALOG;
     }
     return TRACK_EVENTS.ASSET_CENTER_ACTION;
   })();
   trackEvent(eventName, props);
 }
-export function useUploadBlob() {
-  const fetcher = useAssetCenterFetcher();
-  return useMutation({
-    mutationFn: ({ file, kind }) => uploadBlob(fetcher, file, kind),
-  });
-}
+
 export function useImportEntity() {
   const queryClient2 = useQueryClient();
   const buildUrl = useGatewayUrl();
@@ -175,15 +224,19 @@ export function useImportEntity() {
     },
   });
 }
+
 export function useExportEntityUrl() {
   const buildUrl = useGatewayUrl();
   return (entityId) => exportEntityUrl(buildUrl, entityId);
 }
+
 export const ENTITY_DRAG_MIME = "application/x-hilo-asset-entity";
+
 export function writeEntityDragData(e2, payload) {
   e2.dataTransfer?.setData(ENTITY_DRAG_MIME, JSON.stringify(payload));
   if (e2.dataTransfer) e2.dataTransfer.effectAllowed = "copy";
 }
+
 export const toggleVariants = cva(
   "group/toggle inline-flex items-center justify-center gap-1 rounded-sm text-xs font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -205,12 +258,14 @@ export const toggleVariants = cva(
     },
   },
 );
+
 const ToggleGroupContext = reactExports.createContext({
   size: "default",
   variant: "default",
   spacing: 0,
   orientation: "horizontal",
 });
+
 export function ToggleGroup({
   className,
   variant,
@@ -249,6 +304,7 @@ export function ToggleGroup({
     </ToggleGroup$1>
   );
 }
+
 export function ToggleGroupItem({
   className,
   children: children2,

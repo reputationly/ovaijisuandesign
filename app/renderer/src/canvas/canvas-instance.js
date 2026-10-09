@@ -1,346 +1,95 @@
 // canvas-instance.js
-import { CanvasNodeType, BACKEND_VIBE_STORYBOARD, tidyNodeName, orderTidyNodes, pinnedTidyNodeIds } from "../vendor.js";
-import { createParentPlacementPlan, NodeRegistry, SelectionManager, PluginManager, isHighBlastCanvasElementDeletion, fillStillApplies, applyFillToNode, EMPTY_SUB_IMAGES, fileNodeToRuntimeNode, isHighBlastCanvasDeletion, applyChangesetToDraft, deletionAssetId, validIncomingAssetId, shouldClearAssetIdForServerNode, isPendingFillHost, findFillTarget } from "./apply-changeset-to-draft.js";
-import { CanvasMode, isArtifactProvenanceEdge, defaultNodeSizeForType, computeGroupBoundsFromChildren, groupNodesInCanvas, GROUP_NODE_PADDING } from "./group-nodes-in-canvas.js";
-import { CanvasEventBus, HistoryManager2, isSamePersistedData, rebaseRetainedHistoryNodes, findAllowedHistorySteps, isInvisibleHistoryTransition } from "./history-manager2.js";
-import { DEFAULT_NODE_SPACING, DEFAULT_LAYER_SPACING, DEFAULT_INCREMENTAL_LAYER_SPACING, DEFAULT_INCREMENTAL_NODE_SPACING, buildAdjacency, topoSortLevels, nodeToRect, pickPrimaryParent, findConnectedComponents, maxTopoDepth, normalizeLayerSpacing, rewrapLeafFanOuts, GridSlotLayout, MAX_INCREMENTAL_SHIFT_ATTEMPTS, rectsOverlap, INCREMENTAL_COLLISION_MARGIN, LayoutEngine, applyDetachedReferenceEdges, layoutCategoryLanes } from "./layout-engine.js";
-import { sizeOf, setNodePosition, createEmptyGraph, getNodePosition, getNodeSize, computeCentroid } from "./node-tag-rings-canvas.jsx";
-import { resolveGroupMainId, promoteToMain, isGroupedNode, removeGroup, detachFromGroup, DEFAULT_PLACEMENT_GAP, collectGroupMembers, pickSuccessorMain, ungroupInCanvas, reconcileGroupGeometryForMode } from "./reconcile-group-geometry-for-mode.js";
-import { relayoutGroupChildren } from "./relayout-group-children.js";
-import { getClipboard, partitionUserRemovalElements, isTransientPlaceholder, setClipboard, remapClipboard, partitionUserRemovalNodes } from "./remap-clipboard.js";
-import { backfillLegacyComfyUiTemplateCopyOrdinals, isChildFullyInsideParent, planGroupAwareRemoval, removeNodesAndPromoteGroupMains, isChildFullyOutsideParent, buildCanvasFileSnapshot, assignComfyUiTemplateCopyOrdinals, expandSelectionWithGroupChildren, normalizeOrphanChildForClipboard, collectClipboardAssetPaths, isBoxOutsideRect, computeNodeGroupBounds, centerNodeGroupAt, decideHistoryStep } from "./remove-nodes-and-promote-group-mains.js";
-import { findFreePositionForRects, deriveEdgeId } from "./resolve-derived-collision.js";
-import { dagreLayoutWorkflow } from "./selection-toolbar-inner.jsx";
-class DagreLayout {
-  name = "dagre";
-  compute(_nodes, _edges, _options) {
-    throw new Error("DagreLayout requires async execution; use computeAsync()");
-  }
-  computeIncremental(existingNodes, newNodes, edges, options) {
-    if (newNodes.length === 0) return new Map();
-    const mode2 = options?.mode ?? CanvasMode.Workflow;
-    const layerGap = options?.spacing?.x ?? DEFAULT_INCREMENTAL_LAYER_SPACING;
-    const siblingGap = options?.spacing?.y ?? DEFAULT_INCREMENTAL_NODE_SPACING;
-    const originalOrder = new Map(newNodes.map((node2, index2) => [node2.id, index2]));
-    const allNodeIds = new Set([
-      ...existingNodes.map((node2) => node2.id),
-      ...newNodes.map((node2) => node2.id),
-    ]);
-    const { children: children2, parents } = buildAdjacency(allNodeIds, edges);
-    const levels = topoSortLevels(allNodeIds, children2, parents);
-    const orderedNewNodes = [...newNodes].sort((a2, b3) => {
-      const levelDiff = (levels.get(a2.id) ?? 0) - (levels.get(b3.id) ?? 0);
-      if (levelDiff !== 0) return levelDiff;
-      return (originalOrder.get(a2.id) ?? 0) - (originalOrder.get(b3.id) ?? 0);
-    });
-    const placedById = new Map(existingNodes.map((node2) => [node2.id, node2]));
-    const occupied = existingNodes.map((n2) => nodeToRect(n2, mode2));
-    const positions = new Map();
-    for (const node2 of orderedNewNodes) {
-      const parentNodes = (parents.get(node2.id) ?? [])
-        .map((parentId) => placedById.get(parentId))
-        .filter((parent) => Boolean(parent));
-      const position2 = this.placeIncrementalNode({
-        node: node2,
-        parentNodes,
-        primaryParent: pickPrimaryParent(parentNodes, mode2),
-        children: children2,
-        placedById,
-        occupied,
-        layerGap,
-        siblingGap,
-        mode: mode2,
-      });
-      positions.set(node2.id, position2);
-      const placedNode = {
-        ...node2,
-        positions: {
-          ...node2.positions,
-        },
-      };
-      setNodePosition(placedNode, mode2, position2);
-      placedById.set(node2.id, placedNode);
-      occupied.push(nodeToRect(placedNode, mode2));
-    }
-    return positions;
-  }
-  async computeAsync(nodes, edges, options) {
-    if (nodes.length === 0) return new Map();
-    const mode2 = options?.mode ?? CanvasMode.Workflow;
-    const nodeSpacing = options?.spacing?.y ?? DEFAULT_NODE_SPACING;
-    const layerSpacing = options?.spacing?.x ?? DEFAULT_LAYER_SPACING;
-    const nodeIdSet = new Set(nodes.map((n2) => n2.id));
-    const relevantEdges = edges.filter(
-      (e2) => nodeIdSet.has(e2.source) && nodeIdSet.has(e2.target),
-    );
-    const components2 = findConnectedComponents(nodeIdSet, relevantEdges);
-    const edgeNodeIds = new Set();
-    for (const e2 of relevantEdges) {
-      edgeNodeIds.add(e2.source);
-      edgeNodeIds.add(e2.target);
-    }
-    const nodeById = new Map(nodes.map((n2) => [n2.id, n2]));
-    const workflows = [];
-    const discreteNodes = [];
-    for (const comp of components2) {
-      const hasEdge = comp.some((id2) => edgeNodeIds.has(id2));
-      if (hasEdge) {
-        const compSet = new Set(comp);
-        workflows.push({
-          ids: compSet,
-          nodes: comp.map((id2) => nodeById.get(id2)),
-          edges: relevantEdges.filter((e2) => compSet.has(e2.source) && compSet.has(e2.target)),
-        });
-      } else {
-        for (const id2 of comp) {
-          const node2 = nodeById.get(id2);
-          if (node2) discreteNodes.push(node2);
-        }
-      }
-    }
-    const depthByWorkflow = new Map();
-    for (const wf of workflows) {
-      depthByWorkflow.set(wf.ids, maxTopoDepth(wf.ids, wf.edges));
-    }
-    workflows.sort((a2, b3) => {
-      const depthA = depthByWorkflow.get(a2.ids) ?? 0;
-      const depthB = depthByWorkflow.get(b3.ids) ?? 0;
-      if (depthB !== depthA) return depthB - depthA;
-      return b3.nodes.length - a2.nodes.length;
-    });
-    const positions = new Map();
-    const laidOut = workflows.map((wf) => {
-      const localPositions = dagreLayoutWorkflow(wf.nodes, wf.edges, options);
-      normalizeLayerSpacing(localPositions, wf.nodes, options, nodeSpacing, mode2);
-      rewrapLeafFanOuts(
-        localPositions,
-        wf.nodes,
-        wf.edges,
-        nodeById,
-        layerSpacing,
-        nodeSpacing,
-        mode2,
-        options?.direction ?? "LR",
-      );
-      let minX = Number.POSITIVE_INFINITY;
-      let minY = Number.POSITIVE_INFINITY;
-      let maxX = Number.NEGATIVE_INFINITY;
-      let maxY = Number.NEGATIVE_INFINITY;
-      for (const [id2, pos] of localPositions) {
-        minX = Math.min(minX, pos.x);
-        minY = Math.min(minY, pos.y);
-        const node2 = nodeById.get(id2);
-        const sz = node2
-          ? sizeOf(node2, mode2)
-          : {
-              width: 0,
-              height: 0,
-            };
-        maxX = Math.max(maxX, pos.x + sz.width);
-        maxY = Math.max(maxY, pos.y + sz.height);
-      }
-      const bboxHeight = Number.isFinite(maxY - minY) ? maxY - minY : 0;
-      const bboxWidth = Number.isFinite(maxX - minX) ? maxX - minX : 0;
-      return {
-        localPositions,
-        minX,
-        minY,
-        bboxHeight,
-        bboxWidth,
-      };
-    });
-    const clusterArrangement = options?.clusterArrangement;
-    const colGap = options?.spacing?.y ?? nodeSpacing;
-    const rowGap = options?.spacing?.x ?? nodeSpacing;
-    if (clusterArrangement === "grid") {
-      const packTilesIntoGrid2 = (tiles, originY) => {
-        if (tiles.length === 0) return 0;
-        const cols = Math.max(1, Math.round(Math.sqrt(tiles.length)));
-        const rows = Math.ceil(tiles.length / cols);
-        const colWidths = new Array(cols).fill(0);
-        const rowHeights = new Array(rows).fill(0);
-        tiles.forEach((t2, i2) => {
-          const c3 = i2 % cols;
-          const r2 = Math.floor(i2 / cols);
-          if (t2.width > colWidths[c3]) colWidths[c3] = t2.width;
-          if (t2.height > rowHeights[r2]) rowHeights[r2] = t2.height;
-        });
-        const colX = new Array(cols).fill(0);
-        for (let c3 = 1; c3 < cols; c3++) colX[c3] = colX[c3 - 1] + colWidths[c3 - 1] + rowGap;
-        const rowYLocal = new Array(rows).fill(0);
-        for (let r2 = 1; r2 < rows; r2++)
-          rowYLocal[r2] = rowYLocal[r2 - 1] + rowHeights[r2 - 1] + colGap;
-        tiles.forEach((t2, i2) => {
-          const c3 = i2 % cols;
-          const r2 = Math.floor(i2 / cols);
-          t2.place(colX[c3], originY + rowYLocal[r2]);
-        });
-        return rowYLocal[rows - 1] + rowHeights[rows - 1];
-      };
-      const workflowTiles = laidOut.map(
-        ({ localPositions, minX, minY, bboxWidth, bboxHeight }) => ({
-          width: bboxWidth,
-          height: bboxHeight,
-          place: (originX, originY) => {
-            for (const [id2, pos] of localPositions) {
-              positions.set(id2, {
-                x: pos.x - minX + originX,
-                y: pos.y - minY + originY,
-              });
-            }
-          },
-        }),
-      );
-      const discreteTiles = discreteNodes.map((node2) => {
-        const sz = sizeOf(node2, mode2);
-        return {
-          width: sz.width,
-          height: sz.height,
-          place: (originX, originY) =>
-            positions.set(node2.id, {
-              x: originX,
-              y: originY,
-            }),
-        };
-      });
-      const wfHeight = packTilesIntoGrid2(workflowTiles, 0);
-      const discreteOriginY = wfHeight > 0 ? wfHeight + colGap : 0;
-      packTilesIntoGrid2(discreteTiles, discreteOriginY);
-    } else {
-      let workflowMaxBottom = 0;
-      if (clusterArrangement === "horizontal") {
-        let cursorX = 0;
-        for (const { localPositions, minX, minY, bboxWidth } of laidOut) {
-          for (const [id2, pos] of localPositions) {
-            positions.set(id2, {
-              x: pos.x - minX + cursorX,
-              y: pos.y - minY,
-            });
-          }
-          cursorX += bboxWidth + rowGap;
-        }
-        for (const { bboxHeight } of laidOut) {
-          workflowMaxBottom = Math.max(workflowMaxBottom, bboxHeight);
-        }
-      } else {
-        let cursorY = 0;
-        for (const { localPositions, minX, minY, bboxHeight } of laidOut) {
-          for (const [id2, pos] of localPositions) {
-            positions.set(id2, {
-              x: pos.x - minX,
-              y: pos.y - minY + cursorY,
-            });
-          }
-          cursorY += bboxHeight + nodeSpacing;
-        }
-        workflowMaxBottom = cursorY;
-      }
-      if (discreteNodes.length > 0) {
-        if (clusterArrangement === "vertical") {
-          let stackY = workflowMaxBottom + (workflowMaxBottom > 0 ? colGap : 0);
-          for (const node2 of discreteNodes) {
-            positions.set(node2.id, {
-              x: 0,
-              y: stackY,
-            });
-            stackY += sizeOf(node2, mode2).height + colGap;
-          }
-        } else if (clusterArrangement === "horizontal") {
-          let stackX = 0;
-          const rowYPos = workflowMaxBottom + (workflowMaxBottom > 0 ? colGap : 0);
-          for (const node2 of discreteNodes) {
-            positions.set(node2.id, {
-              x: stackX,
-              y: rowYPos,
-            });
-            stackX += sizeOf(node2, mode2).width + rowGap;
-          }
-        } else {
-          const gridLayout = new GridSlotLayout();
-          const gridPositions = gridLayout.compute(discreteNodes, [], options);
-          for (const [id2, pos] of gridPositions) {
-            positions.set(id2, {
-              x: pos.x,
-              y: pos.y + workflowMaxBottom,
-            });
-          }
-        }
-      }
-    }
-    let finalMinX = Number.POSITIVE_INFINITY;
-    let finalMinY = Number.POSITIVE_INFINITY;
-    for (const pos of positions.values()) {
-      finalMinX = Math.min(finalMinX, pos.x);
-      finalMinY = Math.min(finalMinY, pos.y);
-    }
-    if (
-      Number.isFinite(finalMinX) &&
-      Number.isFinite(finalMinY) &&
-      (finalMinX !== 0 || finalMinY !== 0)
-    ) {
-      for (const [id2, pos] of positions) {
-        positions.set(id2, {
-          x: pos.x - finalMinX,
-          y: pos.y - finalMinY,
-        });
-      }
-    }
-    return positions;
-  }
-  placeIncrementalNode({
-    node: node2,
-    parentNodes,
-    primaryParent,
-    children: children2,
-    placedById,
-    occupied,
-    layerGap,
-    siblingGap,
-    mode: mode2,
-  }) {
-    const parentPlan =
-      parentNodes.length > 0 && primaryParent
-        ? createParentPlacementPlan(
-            node2,
-            parentNodes,
-            primaryParent,
-            children2,
-            placedById,
-            layerGap,
-            siblingGap,
-            mode2,
-          )
-        : void 0;
-    const size2 = sizeOf(node2, mode2);
-    if (!parentPlan) {
-      const gap = siblingGap;
-      return findFreePositionForRects(occupied, size2, {
-        gap,
-      });
-    }
-    let nextPosition = parentPlan.placeAt(parentPlan.slotIndex);
-    const candidate = {
-      x: nextPosition.x,
-      y: nextPosition.y,
-      w: size2.width,
-      h: size2.height,
-    };
-    for (let attempt = 0; attempt < MAX_INCREMENTAL_SHIFT_ATTEMPTS; attempt++) {
-      const blocker = occupied.find((rect) =>
-        rectsOverlap(candidate, rect, INCREMENTAL_COLLISION_MARGIN),
-      );
-      if (!blocker) break;
-      parentPlan.slotIndex += 1;
-      nextPosition = parentPlan.placeAt(parentPlan.slotIndex);
-      candidate.x = nextPosition.x;
-      candidate.y = nextPosition.y;
-    }
-    return {
-      x: candidate.x,
-      y: candidate.y,
-    };
-  }
-}
+import {
+  BACKEND_VIBE_STORYBOARD,
+  CanvasNodeType,
+  orderTidyNodes,
+  pinnedTidyNodeIds,
+  tidyNodeName,
+} from "../vendor.js";
+import { DagreLayout } from "./dagre-layout.js";
+import {
+  applyFillToNode,
+  deletionAssetId,
+  EMPTY_SUB_IMAGES,
+  fileNodeToRuntimeNode,
+  fillStillApplies,
+  findFillTarget,
+  isHighBlastCanvasDeletion,
+  isHighBlastCanvasElementDeletion,
+  isPendingFillHost,
+  NodeRegistry,
+  PluginManager,
+  shouldClearAssetIdForServerNode,
+  validIncomingAssetId,
+} from "./node-registry.js";
+import { SelectionManager } from "./selection-manager.js";
+import { applyChangesetToDraft } from "./apply-changeset-to-draft.js";
+import {
+  CanvasMode,
+  computeGroupBoundsFromChildren,
+  defaultNodeSizeForType,
+  GROUP_NODE_PADDING,
+  isArtifactProvenanceEdge,
+} from "./compute-group-bounds-from-children.js";
+import { groupNodesInCanvas } from "./group-nodes-in-canvas.js";
+import {
+  CanvasEventBus,
+  findAllowedHistorySteps,
+  isInvisibleHistoryTransition,
+  isSamePersistedData,
+  rebaseRetainedHistoryNodes,
+} from "./canvas-event-bus.js";
+import { HistoryManager2 } from "./history-manager2.js";
+import { GridSlotLayout } from "./grid-slot-layout.js";
+import { LayoutEngine } from "./layout-engine.js";
+import { applyDetachedReferenceEdges } from "./build-detached-reference-edges.js";
+import { layoutCategoryLanes } from "./layout-category-lanes.js";
+import {
+  computeCentroid,
+  createEmptyGraph,
+  getNodePosition,
+  getNodeSize,
+  setNodePosition,
+  sizeOf,
+} from "./use-active-mode.js";
+import {
+  collectGroupMembers,
+  DEFAULT_PLACEMENT_GAP,
+  isGroupedNode,
+  pickSuccessorMain,
+  promoteToMain,
+  removeGroup,
+  resolveGroupMainId,
+  ungroupInCanvas,
+} from "./ungroup-in-canvas.js";
+import { detachFromGroup } from "./detach-from-group.js";
+import { reconcileGroupGeometryForMode } from "./reconcile-group-geometry-for-mode.js";
+import { relayoutGroupChildren } from "./place-vertical-layered.js";
+import {
+  getClipboard,
+  isTransientPlaceholder,
+  partitionUserRemovalElements,
+  partitionUserRemovalNodes,
+} from "./partition-user-removal-elements.js";
+import { remapClipboard, setClipboard } from "./remap-clipboard.js";
+import {
+  assignComfyUiTemplateCopyOrdinals,
+  backfillLegacyComfyUiTemplateCopyOrdinals,
+  centerNodeGroupAt,
+  collectClipboardAssetPaths,
+  computeNodeGroupBounds,
+  decideHistoryStep,
+  expandSelectionWithGroupChildren,
+  isBoxOutsideRect,
+  isChildFullyInsideParent,
+  isChildFullyOutsideParent,
+  normalizeOrphanChildForClipboard,
+  planGroupAwareRemoval,
+  removeNodesAndPromoteGroupMains,
+} from "./remove-nodes-and-promote-group-mains.js";
+import { buildCanvasFileSnapshot } from "./runtime-node-to-file-node.js";
+import { deriveEdgeId } from "./find-free-position-from-anchor.js";
+
 export class CanvasInstance {
   eventBus = new CanvasEventBus();
   registry = new NodeRegistry();
@@ -485,7 +234,9 @@ export class CanvasInstance {
   constructor(mode2 = CanvasMode.Workflow) {
     this.mode = mode2;
     this.history = new HistoryManager2(createEmptyGraph());
-    this.history.setBeforeWriteHook((draft) => this.bakePendingFillsIntoDraft(draft));
+    this.history.setBeforeWriteHook((draft) =>
+      this.bakePendingFillsIntoDraft(draft),
+    );
     this.selection.bindEventBus(this.eventBus);
     this.registerBuiltinLayouts();
   }
@@ -549,7 +300,9 @@ export class CanvasInstance {
       removedEdgeCount: Math.max(0, currentEdgeCount - incomingEdgeCount),
     };
     if (!this.highBlastDeleteConfirmer) {
-      console.error("[canvas] high-blast deletion refused without a confirmation owner");
+      console.error(
+        "[canvas] high-blast deletion refused without a confirmation owner",
+      );
       this.eventBus.emit({
         type: "delete:blocked",
         count: impact.removedNodeCount + impact.removedEdgeCount,
@@ -591,7 +344,8 @@ export class CanvasInstance {
     try {
       operation();
     } finally {
-      if (this.confirmedHighBlastGraph === graph) this.confirmedHighBlastGraph = null;
+      if (this.confirmedHighBlastGraph === graph)
+        this.confirmedHighBlastGraph = null;
     }
   }
   // ---- Graph access ----
@@ -604,7 +358,8 @@ export class CanvasInstance {
   getGraph() {
     const base2 = this.history.getState();
     if (this.pendingFills.size === 0) return base2;
-    if (this.fillOverlayCache?.baseRef === base2) return this.fillOverlayCache.result;
+    if (this.fillOverlayCache?.baseRef === base2)
+      return this.fillOverlayCache.result;
     const nodes = base2.nodes.slice();
     let dirty = false;
     for (const [nodeId, fill] of this.pendingFills) {
@@ -670,19 +425,29 @@ export class CanvasInstance {
       }
     }
     const childCountByParent = new Map();
-    for (const [pid, arr] of childrenByParent) childCountByParent.set(pid, arr.length);
+    for (const [pid, arr] of childrenByParent)
+      childCountByParent.set(pid, arr.length);
     const subImagesByParent = new Map();
     for (const [, rawMembers] of membersByGroupId) {
       const members = rawMembers.slice().sort((a2, b3) => {
-        const ra = Number.isInteger(a2.round) ? a2.round : Number.MAX_SAFE_INTEGER;
-        const rb = Number.isInteger(b3.round) ? b3.round : Number.MAX_SAFE_INTEGER;
+        const ra = Number.isInteger(a2.round)
+          ? a2.round
+          : Number.MAX_SAFE_INTEGER;
+        const rb = Number.isInteger(b3.round)
+          ? b3.round
+          : Number.MAX_SAFE_INTEGER;
         return ra !== rb ? ra - rb : 0;
       });
-      const main2 = members.find((m3) => m3.meta?.hidden !== true) ?? members[0];
+      const main2 =
+        members.find((m3) => m3.meta?.hidden !== true) ?? members[0];
       if (!main2) continue;
       const subs = members.filter((m3) => m3.id !== main2.id);
       const prevArr = prev?.subImagesByParent.get(main2.id);
-      if (prevArr && prevArr.length === subs.length && prevArr.every((n2, i2) => n2 === subs[i2])) {
+      if (
+        prevArr &&
+        prevArr.length === subs.length &&
+        prevArr.every((n2, i2) => n2 === subs[i2])
+      ) {
         subImagesByParent.set(main2.id, prevArr);
       } else {
         subImagesByParent.set(main2.id, subs);
@@ -748,27 +513,40 @@ export class CanvasInstance {
       // detect a length change as the catch-all "something happened" signal.
       mut.nodes.length !== this.getGraph().nodes.length;
     if (!touched) return false;
-    const runtimeNodes = mut.nodes.map((node2) => fileNodeToRuntimeNode(node2, this.mode));
+    const runtimeNodes = mut.nodes.map((node2) =>
+      fileNodeToRuntimeNode(node2, this.mode),
+    );
     const previousGraph = this.getGraph();
     const previousNodes = previousGraph.nodes;
     const removedSet = new Set(mut.removedIds);
-    const highBlastConfirmed = isHighBlastCanvasDeletion(previousNodes.length, mut.nodes.length);
+    const highBlastConfirmed = isHighBlastCanvasDeletion(
+      previousNodes.length,
+      mut.nodes.length,
+    );
     if (
       highBlastConfirmed &&
-      !this.confirmHighBlastDeletion(mut.nodes.length, previousGraph.edges.length, () => {
-        this.applyImageGroupMutation(mut, opts);
-      })
+      !this.confirmHighBlastDeletion(
+        mut.nodes.length,
+        previousGraph.edges.length,
+        () => {
+          this.applyImageGroupMutation(mut, opts);
+        },
+      )
     ) {
       return false;
     }
-    const explicitlyRemovedNodes = previousNodes.filter((node2) => removedSet.has(node2.id));
+    const explicitlyRemovedNodes = previousNodes.filter((node2) =>
+      removedSet.has(node2.id),
+    );
     const addedIds = new Set();
     if (mut.nodes.length > this.getGraph().nodes.length) {
       const prevIds = new Set(this.getGraph().nodes.map((n2) => n2.id));
       for (const n2 of mut.nodes) if (!prevIds.has(n2.id)) addedIds.add(n2.id);
     }
     if (removedSet.size > 0 && this.selection.count() > 0) {
-      const next2 = this.selection.getSelected().filter((id2) => !removedSet.has(id2));
+      const next2 = this.selection
+        .getSelected()
+        .filter((id2) => !removedSet.has(id2));
       if (next2.length !== this.selection.count()) this.selection.set(next2);
     }
     this.history.commit((draft) => {
@@ -781,11 +559,14 @@ export class CanvasInstance {
         for (const e2 of draft.edges) {
           const fromNode = previousNodes.find((node2) => node2.id === from2);
           const toNode = runtimeNodes.find((node2) => node2.id === to);
-          const fromBackend = fromNode?.data?.backend ?? this.artifactBackendResolver?.(from2);
-          const toBackend = toNode?.data?.backend ?? this.artifactBackendResolver?.(to);
+          const fromBackend =
+            fromNode?.data?.backend ?? this.artifactBackendResolver?.(from2);
+          const toBackend =
+            toNode?.data?.backend ?? this.artifactBackendResolver?.(to);
           const followsStoryboardVisibleRound =
             e2.target === from2 &&
-            (fromBackend === BACKEND_VIBE_STORYBOARD || toBackend === BACKEND_VIBE_STORYBOARD);
+            (fromBackend === BACKEND_VIBE_STORYBOARD ||
+              toBackend === BACKEND_VIBE_STORYBOARD);
           if (
             !followsStoryboardVisibleRound &&
             isArtifactProvenanceEdge(e2, previousNodes, provenanceOptions)
@@ -830,11 +611,17 @@ export class CanvasInstance {
         type: "node:removed",
         nodeId: id2,
       });
-    const currentEdgeIds = new Set(this.getGraph().edges.map((edge) => edge.id));
+    const currentEdgeIds = new Set(
+      this.getGraph().edges.map((edge) => edge.id),
+    );
     const removedEdgeIds = previousGraph.edges
       .filter((edge) => !currentEdgeIds.has(edge.id))
       .map((edge) => edge.id);
-    this.emitDeleteIntent(explicitlyRemovedNodes, removedEdgeIds, highBlastConfirmed);
+    this.emitDeleteIntent(
+      explicitlyRemovedNodes,
+      removedEdgeIds,
+      highBlastConfirmed,
+    );
     const byId = new Map(runtimeNodes.map((n2) => [n2.id, n2]));
     for (const id2 of addedIds) {
       const node2 = byId.get(id2);
@@ -856,7 +643,8 @@ export class CanvasInstance {
       }
     }
     this.eventBus.emit({
-      type: opts?.persistMode === "request" ? "persist:request" : "persist:flush",
+      type:
+        opts?.persistMode === "request" ? "persist:request" : "persist:flush",
     });
     this.notifyGraph();
     return true;
@@ -873,7 +661,10 @@ export class CanvasInstance {
    * the active round bucket without needing a separate view-layer flag.
    */
   promoteSubImageToMain(subId, opts) {
-    return this.applyImageGroupMutation(promoteToMain(this.fileNodes(), subId), opts);
+    return this.applyImageGroupMutation(
+      promoteToMain(this.fileNodes(), subId),
+      opts,
+    );
   }
   /**
    * Remove an entire image group ("删主图 = 级联删整组"): every node sharing the
@@ -893,12 +684,18 @@ export class CanvasInstance {
   detachSubImage(subId, absPosition) {
     const before = this.fileNodes();
     const mut = detachFromGroup(before, subId, absPosition, this.mode);
-    const wasGrouped = new Set(before.filter((n2) => isGroupedNode(n2)).map((n2) => n2.id));
-    const raised = mut.nodes.filter((n2) => wasGrouped.has(n2.id) && !isGroupedNode(n2));
+    const wasGrouped = new Set(
+      before.filter((n2) => isGroupedNode(n2)).map((n2) => n2.id),
+    );
+    const raised = mut.nodes.filter(
+      (n2) => wasGrouped.has(n2.id) && !isGroupedNode(n2),
+    );
     if (raised.length > 0) {
       const raisedIds = new Set(raised.map((n2) => n2.id));
       const rest = mut.nodes.filter((n2) => !raisedIds.has(n2.id));
-      raised.sort((a2, b3) => Number(a2.id === subId) - Number(b3.id === subId));
+      raised.sort(
+        (a2, b3) => Number(a2.id === subId) - Number(b3.id === subId),
+      );
       mut.nodes.length = 0;
       mut.nodes.push(...rest, ...raised);
     }
@@ -991,7 +788,9 @@ export class CanvasInstance {
     this.notifyGraph();
   }
   replaceNodesFromAuthoritativeSnapshot(nodes) {
-    const normalizedNodes = backfillLegacyComfyUiTemplateCopyOrdinals(nodes).map((node2) => {
+    const normalizedNodes = backfillLegacyComfyUiTemplateCopyOrdinals(
+      nodes,
+    ).map((node2) => {
       const live = this.getIndexes().nodeById.get(node2.id);
       if (
         !live ||
@@ -1022,7 +821,10 @@ export class CanvasInstance {
   }
   replaceEdgesFromAuthoritativeSnapshot(edges) {
     const ids2 = new Set(edges.map((e2) => e2.id));
-    const deduped = ids2.size === edges.length ? edges : edges.filter((e2) => ids2.delete(e2.id));
+    const deduped =
+      ids2.size === edges.length
+        ? edges
+        : edges.filter((e2) => ids2.delete(e2.id));
     this.history.setState((draft) => {
       draft.edges = deduped;
     });
@@ -1103,7 +905,11 @@ export class CanvasInstance {
   // ---- Node operations (undoable via history.commit) ----
   prepareNodeForInsert(node2) {
     const mode2 = this.getMode();
-    if (!node2.parentId && !node2.groupId && node2.type !== CanvasNodeType.Group) {
+    if (
+      !node2.parentId &&
+      !node2.groupId &&
+      node2.type !== CanvasNodeType.Group
+    ) {
       const childAbs = getNodePosition(node2, mode2);
       const childSize = node2.size ?? defaultNodeSizeForType(node2.type);
       const enclosing = this.findEnclosingGroup(childAbs, childSize, mode2);
@@ -1311,7 +1117,14 @@ export class CanvasInstance {
       if (g2.type !== CanvasNodeType.Group) continue;
       const gSize = getNodeSize(g2, mode2);
       if (!gSize) continue;
-      if (isChildFullyInsideParent(absPos, size2, getNodePosition(g2, mode2), gSize)) {
+      if (
+        isChildFullyInsideParent(
+          absPos,
+          size2,
+          getNodePosition(g2, mode2),
+          gSize,
+        )
+      ) {
         return g2;
       }
     }
@@ -1348,7 +1161,12 @@ export class CanvasInstance {
     const mode2 = this.getMode();
     const { nodeById } = this.getIndexes();
     const validNodeIds = nodeIds.filter((id2) => nodeById.has(id2));
-    const groupAwareRemoval = planGroupAwareRemoval(graph, mode2, validNodeIds, edgeIds);
+    const groupAwareRemoval = planGroupAwareRemoval(
+      graph,
+      mode2,
+      validNodeIds,
+      edgeIds,
+    );
     const partition = partitionUserRemovalElements({
       nodes: graph.nodes,
       edges: graph.edges,
@@ -1357,8 +1175,12 @@ export class CanvasInstance {
       enforceProtection: mutation === "commit",
     });
     const nodeIdSet = partition.deletableNodeIds;
-    const explicitlyRemovedNodes = graph.nodes.filter((node2) => nodeIdSet.has(node2.id));
-    const survivingUngroupedChildren = Array.from(groupAwareRemoval.ungroupedChildrenByGroupId)
+    const explicitlyRemovedNodes = graph.nodes.filter((node2) =>
+      nodeIdSet.has(node2.id),
+    );
+    const survivingUngroupedChildren = Array.from(
+      groupAwareRemoval.ungroupedChildrenByGroupId,
+    )
       .filter(([groupId2]) => nodeIdSet.has(groupId2))
       .flatMap(([, children2]) => children2)
       .filter((node2) => !nodeIdSet.has(node2.id));
@@ -1387,12 +1209,15 @@ export class CanvasInstance {
     const edgeIdsToRemove = new Set(partition.deletableEdgeIds);
     const followEdgeReplacements = [];
     if (promotedMainByDeletedId.size > 0) {
-      const explicitlyRemovedEdgeIds = new Set(groupAwareRemoval.removalEdgeIds);
+      const explicitlyRemovedEdgeIds = new Set(
+        groupAwareRemoval.removalEdgeIds,
+      );
       const provenanceOptions = this.artifactProvenanceOptions();
       const replacementCandidates = [];
       for (const edge of graph.edges) {
         if (explicitlyRemovedEdgeIds.has(edge.id)) continue;
-        if (isArtifactProvenanceEdge(edge, graph.nodes, provenanceOptions)) continue;
+        if (isArtifactProvenanceEdge(edge, graph.nodes, provenanceOptions))
+          continue;
         const source = promotedMainByDeletedId.get(edge.source) ?? edge.source;
         const target = promotedMainByDeletedId.get(edge.target) ?? edge.target;
         if (source === edge.source && target === edge.target) continue;
@@ -1407,7 +1232,9 @@ export class CanvasInstance {
         }
       }
       const retainedEdgeIds = new Set(
-        graph.edges.filter((edge) => !edgeIdsToRemove.has(edge.id)).map((edge) => edge.id),
+        graph.edges
+          .filter((edge) => !edgeIdsToRemove.has(edge.id))
+          .map((edge) => edge.id),
       );
       for (const edge of replacementCandidates) {
         if (retainedEdgeIds.has(edge.id)) continue;
@@ -1436,9 +1263,13 @@ export class CanvasInstance {
       );
     if (
       highBlastConfirmed &&
-      !this.confirmHighBlastDeletion(incomingNodeCount, incomingEdgeCount, () => {
-        this.removeElementsInternal(nodeIds, edgeIds, mutation);
-      })
+      !this.confirmHighBlastDeletion(
+        incomingNodeCount,
+        incomingEdgeCount,
+        () => {
+          this.removeElementsInternal(nodeIds, edgeIds, mutation);
+        },
+      )
     ) {
       return;
     }
@@ -1470,7 +1301,9 @@ export class CanvasInstance {
         return;
     }
     if (nodeIdSet.size > 0 && this.selection.count() > 0) {
-      const next2 = this.selection.getSelected().filter((id2) => !nodeIdSet.has(id2));
+      const next2 = this.selection
+        .getSelected()
+        .filter((id2) => !nodeIdSet.has(id2));
       if (next2.length !== this.selection.count()) this.selection.set(next2);
     }
     const applyRemoval = (draft) => {
@@ -1517,7 +1350,11 @@ export class CanvasInstance {
       });
     }
     if (mutation === "commit") {
-      this.emitDeleteIntent(explicitlyRemovedNodes, [...edgeIdsToRemove], highBlastConfirmed);
+      this.emitDeleteIntent(
+        explicitlyRemovedNodes,
+        [...edgeIdsToRemove],
+        highBlastConfirmed,
+      );
     }
     this.notifyGraph();
   }
@@ -1671,7 +1508,8 @@ export class CanvasInstance {
           target.data = data2;
           continue;
         }
-        const targetData = target.data && typeof target.data === "object" ? target.data : {};
+        const targetData =
+          target.data && typeof target.data === "object" ? target.data : {};
         target.data = {
           ...targetData,
           displaySize: {
@@ -1757,7 +1595,8 @@ export class CanvasInstance {
           type: c3.type,
         };
       });
-      const { position: bboxPos, size: bboxSize } = computeGroupBoundsFromChildren(childrenAbs);
+      const { position: bboxPos, size: bboxSize } =
+        computeGroupBoundsFromChildren(childrenAbs);
       const userLeft = position2.x;
       const userTop = position2.y;
       const userRight = position2.x + size2.width;
@@ -1787,7 +1626,8 @@ export class CanvasInstance {
     const dy = finalPos.y - groupAbs.y;
     const positionChanged = dx !== 0 || dy !== 0;
     const sizeChanged =
-      finalSize.width !== groupSize?.width || finalSize.height !== groupSize?.height;
+      finalSize.width !== groupSize?.width ||
+      finalSize.height !== groupSize?.height;
     if (!positionChanged && !sizeChanged) {
       const userDiffersFromInstance =
         position2.x !== groupAbs.x ||
@@ -1883,13 +1723,16 @@ export class CanvasInstance {
       if (!node2?.parentId) continue;
       const parent = nodeById.get(node2.parentId);
       if (!parent) continue;
-      const parentPos = updateMap.get(parent.id) ?? getNodePosition(parent, mode2);
+      const parentPos =
+        updateMap.get(parent.id) ?? getNodePosition(parent, mode2);
       const newAbs = {
         x: parentPos.x + u4.position.x,
         y: parentPos.y + u4.position.y,
       };
       const parentSize = getNodeSize(parent, mode2);
-      if (isChildFullyOutsideParent(newAbs, node2.size, parentPos, parentSize)) {
+      if (
+        isChildFullyOutsideParent(newAbs, node2.size, parentPos, parentSize)
+      ) {
         orphanAbsByNodeId.set(u4.id, newAbs);
       }
     }
@@ -2071,7 +1914,10 @@ export class CanvasInstance {
     const result = groupNodesInCanvas(file, nodeIds, options);
     if (!result.groupId) {
       if (result.error) {
-        console.warn("[canvas] groupNodes refused on renderer side:", result.error);
+        console.warn(
+          "[canvas] groupNodes refused on renderer side:",
+          result.error,
+        );
       }
       return null;
     }
@@ -2085,7 +1931,9 @@ export class CanvasInstance {
       )
         return null;
     }
-    const addedRuntimeNodes = result.addedNodes.map((n2) => fileNodeToRuntimeNode(n2, mode2));
+    const addedRuntimeNodes = result.addedNodes.map((n2) =>
+      fileNodeToRuntimeNode(n2, mode2),
+    );
     for (const node2 of addedRuntimeNodes) {
       if (
         !this.eventBus.canEmit({
@@ -2133,12 +1981,20 @@ export class CanvasInstance {
         nodeId: removedId,
       });
     }
-    this.emitDeleteIntent(graph.nodes.filter((node2) => result.removedNodeIds.includes(node2.id)));
+    this.emitDeleteIntent(
+      graph.nodes.filter((node2) => result.removedNodeIds.includes(node2.id)),
+    );
     if (isMergeMode) {
-      const mtUpdated = result.updatedNodes.find((n2) => n2.id === result.groupId);
+      const mtUpdated = result.updatedNodes.find(
+        (n2) => n2.id === result.groupId,
+      );
       if (mtUpdated && mergeTargetPrevPos) {
         const newPos = mtUpdated.positions?.[mode2];
-        if (newPos && (newPos.x !== mergeTargetPrevPos.x || newPos.y !== mergeTargetPrevPos.y)) {
+        if (
+          newPos &&
+          (newPos.x !== mergeTargetPrevPos.x ||
+            newPos.y !== mergeTargetPrevPos.y)
+        ) {
           this.eventBus.emit({
             type: "node:moved",
             nodeId: result.groupId,
@@ -2193,7 +2049,10 @@ export class CanvasInstance {
     const result = ungroupInCanvas(file, groupId2);
     if (!result.removed) {
       if (result.error) {
-        console.warn("[canvas] ungroup refused on renderer side:", result.error);
+        console.warn(
+          "[canvas] ungroup refused on renderer side:",
+          result.error,
+        );
       }
       return;
     }
@@ -2289,7 +2148,9 @@ export class CanvasInstance {
         const newSize = updated.sizes?.[mode2] ?? updated.size;
         if (
           newSize &&
-          (!prevSize || prevSize.width !== newSize.width || prevSize.height !== newSize.height)
+          (!prevSize ||
+            prevSize.width !== newSize.width ||
+            prevSize.height !== newSize.height)
         ) {
           this.eventBus.emit({
             type: "node:resized",
@@ -2378,7 +2239,11 @@ export class CanvasInstance {
       positions.size !== nodes.length ||
       nodes.some((node2) => {
         const position2 = positions.get(node2.id);
-        return !position2 || !Number.isFinite(position2.x) || !Number.isFinite(position2.y);
+        return (
+          !position2 ||
+          !Number.isFinite(position2.x) ||
+          !Number.isFinite(position2.y)
+        );
       })
     )
       return null;
@@ -2395,7 +2260,14 @@ export class CanvasInstance {
     }
     return false;
   }
-  async relayoutGroupWithDagre(groupId2, layout, includeDeps, measuredSizes, onCommit, sort = {}) {
+  async relayoutGroupWithDagre(
+    groupId2,
+    layout,
+    includeDeps,
+    measuredSizes,
+    onCommit,
+    sort = {},
+  ) {
     const groupNode = this.getIndexes().nodeById.get(groupId2);
     if (
       !groupNode ||
@@ -2410,11 +2282,14 @@ export class CanvasInstance {
     const pinned = pinnedTidyNodeIds(graph.nodes);
     const children2 = this.tidyMeasuredNodes(
       graph.nodes.filter(
-        (n2) => n2.parentId === groupId2 && !n2.meta?.hidden && !pinned.has(n2.id),
+        (n2) =>
+          n2.parentId === groupId2 && !n2.meta?.hidden && !pinned.has(n2.id),
       ),
       measuredSizes,
     );
-    if (graph.nodes.some((n2) => n2.parentId === groupId2 && pinned.has(n2.id))) {
+    if (
+      graph.nodes.some((n2) => n2.parentId === groupId2 && pinned.has(n2.id))
+    ) {
       return this.autoLayoutGroupChildrenSubset(
         groupId2,
         children2.map((n2) => n2.id),
@@ -2434,10 +2309,18 @@ export class CanvasInstance {
     const childIds = new Set(children2.map((n2) => n2.id));
     const innerEdges = includeDeps
       ? this.getGraph().edges.filter(
-          (e2) => childIds.has(e2.source) && childIds.has(e2.target) && e2.source !== e2.target,
+          (e2) =>
+            childIds.has(e2.source) &&
+            childIds.has(e2.target) &&
+            e2.source !== e2.target,
         )
       : [];
-    const positions = await this.computeTidyPositions(children2, innerEdges, layout, sort);
+    const positions = await this.computeTidyPositions(
+      children2,
+      innerEdges,
+      layout,
+      sort,
+    );
     if (!positions) {
       onCommit?.(null);
       return;
@@ -2587,7 +2470,10 @@ export class CanvasInstance {
     const children2 = this.tidyMeasuredNodes(
       this.getGraph().nodes.filter(
         (n2) =>
-          n2.parentId === groupId2 && wanted.has(n2.id) && !n2.meta?.hidden && !pinned.has(n2.id),
+          n2.parentId === groupId2 &&
+          wanted.has(n2.id) &&
+          !n2.meta?.hidden &&
+          !pinned.has(n2.id),
       ),
       measuredSizes,
     );
@@ -2598,10 +2484,18 @@ export class CanvasInstance {
     const childIdSet = new Set(children2.map((n2) => n2.id));
     const innerEdges = sort.includeDeps
       ? this.getGraph().edges.filter(
-          (e2) => childIdSet.has(e2.source) && childIdSet.has(e2.target) && e2.source !== e2.target,
+          (e2) =>
+            childIdSet.has(e2.source) &&
+            childIdSet.has(e2.target) &&
+            e2.source !== e2.target,
         )
       : [];
-    const computed = await this.computeTidyPositions(children2, innerEdges, layout, sort);
+    const computed = await this.computeTidyPositions(
+      children2,
+      innerEdges,
+      layout,
+      sort,
+    );
     if (!computed) {
       onCommit?.(null);
       return;
@@ -2619,8 +2513,14 @@ export class CanvasInstance {
       if (pos.x < newMinX) newMinX = pos.x;
       if (pos.y < newMinY) newMinY = pos.y;
     }
-    const dx = Number.isFinite(curMinX) && Number.isFinite(newMinX) ? curMinX - newMinX : 0;
-    const dy = Number.isFinite(curMinY) && Number.isFinite(newMinY) ? curMinY - newMinY : 0;
+    const dx =
+      Number.isFinite(curMinX) && Number.isFinite(newMinX)
+        ? curMinX - newMinX
+        : 0;
+    const dy =
+      Number.isFinite(curMinY) && Number.isFinite(newMinY)
+        ? curMinY - newMinY
+        : 0;
     const nextPos = new Map();
     for (const [id2, pos] of computed) {
       nextPos.set(id2, {
@@ -2629,7 +2529,9 @@ export class CanvasInstance {
       });
     }
     const allChildren = this.tidyMeasuredNodes(
-      this.getGraph().nodes.filter((n2) => n2.parentId === groupId2 && !n2.meta?.hidden),
+      this.getGraph().nodes.filter(
+        (n2) => n2.parentId === groupId2 && !n2.meta?.hidden,
+      ),
       measuredSizes,
     );
     let minX = Number.POSITIVE_INFINITY;
@@ -2862,7 +2764,8 @@ export class CanvasInstance {
       }
       if (
         u4.size &&
-        (u4.size.width !== node2.size?.width || u4.size.height !== node2.size?.height)
+        (u4.size.width !== node2.size?.width ||
+          u4.size.height !== node2.size?.height)
       ) {
         entry.size = u4.size;
         dirty = true;
@@ -2931,7 +2834,8 @@ export class CanvasInstance {
     }
     if (pending2.length === 0) return;
     const needsReconcile = pending2.some(
-      (p3) => p3.hasParentId || (p3.position && live.get(p3.id)?.parentId !== void 0),
+      (p3) =>
+        p3.hasParentId || (p3.position && live.get(p3.id)?.parentId !== void 0),
     );
     const fitResizedGroups = [];
     this.history.serverSetState((draft) => {
@@ -2996,7 +2900,9 @@ export class CanvasInstance {
       const fileSnapshot = buildCanvasFileSnapshot(draft, mode2);
       const reconciled = reconcileGroupGeometryForMode(fileSnapshot, mode2);
       if (!reconciled.changed) return;
-      const reconciledById = new Map(reconciled.updatedNodes.map((n2) => [n2.id, n2]));
+      const reconciledById = new Map(
+        reconciled.updatedNodes.map((n2) => [n2.id, n2]),
+      );
       for (const node2 of draft.nodes) {
         const updated = reconciledById.get(node2.id);
         if (!updated) continue;
@@ -3021,7 +2927,12 @@ export class CanvasInstance {
         }
       }
     });
-    rebaseRetainedHistoryNodes(this.history, pending2, live, this.getGraph().nodes);
+    rebaseRetainedHistoryNodes(
+      this.history,
+      pending2,
+      live,
+      this.getGraph().nodes,
+    );
     for (const g2 of fitResizedGroups) {
       this.eventBus.emit({
         type: "node:resized",
@@ -3271,7 +3182,9 @@ export class CanvasInstance {
     });
     const selected2 = this.selection.getSelected();
     if (selected2.some((id2) => replacementByOldId.has(id2))) {
-      this.selection.set([...new Set(selected2.map((id2) => replacementByOldId.get(id2) ?? id2))]);
+      this.selection.set([
+        ...new Set(selected2.map((id2) => replacementByOldId.get(id2) ?? id2)),
+      ]);
     }
     for (const { oldNodeId, newNodeId } of accepted) {
       this.serverNodeIdAliases.set(oldNodeId, newNodeId);
@@ -3314,7 +3227,9 @@ export class CanvasInstance {
       }
     });
     if (this.selection.getSelected().includes(oldId)) {
-      const next2 = this.selection.getSelected().map((id2) => (id2 === oldId ? newId2 : id2));
+      const next2 = this.selection
+        .getSelected()
+        .map((id2) => (id2 === oldId ? newId2 : id2));
       this.selection.set(next2);
     }
     this.remapPendingFill(oldId, newId2);
@@ -3509,11 +3424,20 @@ export class CanvasInstance {
     const idSet = expandSelectionWithGroupChildren(graph.nodes, selectedIds);
     const nodes = graph.nodes
       .filter((n2) => idSet.has(n2.id) && !isTransientPlaceholder(n2))
-      .map((n2) => normalizeOrphanChildForClipboard(n2, graph.nodes, idSet, mode2));
-    const edges = graph.edges.filter((e2) => idSet.has(e2.source) && idSet.has(e2.target));
-    const incoming = graph.edges.filter((e2) => idSet.has(e2.target) && !idSet.has(e2.source));
+      .map((n2) =>
+        normalizeOrphanChildForClipboard(n2, graph.nodes, idSet, mode2),
+      );
+    const edges = graph.edges.filter(
+      (e2) => idSet.has(e2.source) && idSet.has(e2.target),
+    );
+    const incoming = graph.edges.filter(
+      (e2) => idSet.has(e2.target) && !idSet.has(e2.source),
+    );
     const inheritedSourceEdges = incoming.length > 0 ? incoming : void 0;
-    const assetPaths = collectClipboardAssetPaths(nodes, sourceContext?.resolveAssetPath);
+    const assetPaths = collectClipboardAssetPaths(
+      nodes,
+      sourceContext?.resolveAssetPath,
+    );
     setClipboard({
       nodes,
       edges,
@@ -3548,14 +3472,22 @@ export class CanvasInstance {
     if (!data2 || data2.nodes.length === 0) return;
     const mode2 = this.getMode();
     if (options?.viewportRect && options.viewportCenter) {
-      const sourceTopLevel = data2.nodes.filter((n2) => !n2.parentId && n2.meta?.hidden !== true);
+      const sourceTopLevel = data2.nodes.filter(
+        (n2) => !n2.parentId && n2.meta?.hidden !== true,
+      );
       if (
         sourceTopLevel.length > 0 &&
-        isBoxOutsideRect(computeNodeGroupBounds(sourceTopLevel, mode2), options.viewportRect)
+        isBoxOutsideRect(
+          computeNodeGroupBounds(sourceTopLevel, mode2),
+          options.viewportRect,
+        )
       ) {
-        const { nodes: nodes2, edges: edges2 } = await this.resolvePastePayload(data2, {
-          skipOffset: true,
-        });
+        const { nodes: nodes2, edges: edges2 } = await this.resolvePastePayload(
+          data2,
+          {
+            skipOffset: true,
+          },
+        );
         centerNodeGroupAt(nodes2, options.viewportCenter, mode2);
         this._commitPaste(nodes2, edges2);
         return;
@@ -3603,11 +3535,16 @@ export class CanvasInstance {
     if (!transformer) {
       return {
         ...remapped,
-        nodes: assignComfyUiTemplateCopyOrdinals(this.getGraph().nodes, remapped.nodes),
+        nodes: assignComfyUiTemplateCopyOrdinals(
+          this.getGraph().nodes,
+          remapped.nodes,
+        ),
       };
     }
     const nodes = await Promise.all(
-      remapped.nodes.map((node2, index2) => transformer(node2, data2.nodes[index2])),
+      remapped.nodes.map((node2, index2) =>
+        transformer(node2, data2.nodes[index2]),
+      ),
     );
     const nodeIdMap = new Map();
     for (let i2 = 0; i2 < remapped.nodes.length; i2++) {
@@ -3636,7 +3573,10 @@ export class CanvasInstance {
       };
     });
     return {
-      nodes: assignComfyUiTemplateCopyOrdinals(this.getGraph().nodes, rewireNodes),
+      nodes: assignComfyUiTemplateCopyOrdinals(
+        this.getGraph().nodes,
+        rewireNodes,
+      ),
       edges,
     };
   }
@@ -3652,7 +3592,9 @@ export class CanvasInstance {
     }));
     const pastedIds = new Set(nodes.map((n2) => n2.id));
     const existingIds = new Set(this.getGraph().nodes.map((n2) => n2.id));
-    const validEdges = edges.filter((e2) => pastedIds.has(e2.source) || existingIds.has(e2.source));
+    const validEdges = edges.filter(
+      (e2) => pastedIds.has(e2.source) || existingIds.has(e2.source),
+    );
     this.history.commit((draft) => {
       draft.nodes.push(...nodes);
       draft.edges.push(...validEdges);
@@ -3670,7 +3612,9 @@ export class CanvasInstance {
       });
     }
     this.selection.set(
-      nodes.filter((n2) => !n2.parentId && n2.meta?.hidden !== true).map((n2) => n2.id),
+      nodes
+        .filter((n2) => !n2.parentId && n2.meta?.hidden !== true)
+        .map((n2) => n2.id),
     );
     this.eventBus.emit({
       type: "persist:flush",
@@ -3681,8 +3625,13 @@ export class CanvasInstance {
   cutSelected(sourceContext) {
     const selectedIds = this.selection.getSelected();
     if (selectedIds.length === 0) return;
-    const expanded = expandSelectionWithGroupChildren(this.getGraph().nodes, selectedIds);
-    const partition = partitionUserRemovalNodes(this.getGraph().nodes, [...expanded]);
+    const expanded = expandSelectionWithGroupChildren(
+      this.getGraph().nodes,
+      selectedIds,
+    );
+    const partition = partitionUserRemovalNodes(this.getGraph().nodes, [
+      ...expanded,
+    ]);
     if (partition.blockedCount > 0) {
       this.eventBus.emit({
         type: "delete:blocked",
@@ -3734,7 +3683,8 @@ export class CanvasInstance {
   }
   /** Undo a transient confirmation only if its exact commit is still current. */
   undoIfCurrentCheckpoint(checkpoint) {
-    if (!decideHistoryStep(this.getGraph(), this.history.peekUndoState()).allow) return false;
+    if (!decideHistoryStep(this.getGraph(), this.history.peekUndoState()).allow)
+      return false;
     const before = this.getGraph();
     if (!this.history.undoIfCurrent(checkpoint)) return false;
     const afterIds = new Set(this.getGraph().nodes.map((node2) => node2.id));
@@ -3742,7 +3692,9 @@ export class CanvasInstance {
     const after = this.getGraph();
     this.emitDeleteIntent(
       before.nodes.filter((node2) => !afterIds.has(node2.id)),
-      before.edges.filter((edge) => !afterEdgeIds.has(edge.id)).map((edge) => edge.id),
+      before.edges
+        .filter((edge) => !afterEdgeIds.has(edge.id))
+        .map((edge) => edge.id),
       isHighBlastCanvasElementDeletion(
         before.nodes.length,
         after.nodes.length,
@@ -3793,19 +3745,29 @@ export class CanvasInstance {
    */
   stepHistory(direction) {
     const canStep = () => this.allowedHistorySteps(direction, false) > 0;
-    const step = direction === "undo" ? () => this.history.undo() : () => this.history.redo();
+    const step =
+      direction === "undo"
+        ? () => this.history.undo()
+        : () => this.history.redo();
     const beforeTraversal = this.getGraph();
-    for (let index2 = 0; index2 <= CanvasInstance.MAX_TRANSPARENT_STEPS; index2++) {
+    for (
+      let index2 = 0;
+      index2 <= CanvasInstance.MAX_TRANSPARENT_STEPS;
+      index2++
+    ) {
       const before = this.getGraph();
       step();
-      if (!isInvisibleHistoryTransition(before, this.getGraph()) || !canStep()) break;
+      if (!isInvisibleHistoryTransition(before, this.getGraph()) || !canStep())
+        break;
     }
     const afterIds = new Set(this.getGraph().nodes.map((node2) => node2.id));
     const afterEdgeIds = new Set(this.getGraph().edges.map((edge) => edge.id));
     const afterTraversal = this.getGraph();
     this.emitDeleteIntent(
       beforeTraversal.nodes.filter((node2) => !afterIds.has(node2.id)),
-      beforeTraversal.edges.filter((edge) => !afterEdgeIds.has(edge.id)).map((edge) => edge.id),
+      beforeTraversal.edges
+        .filter((edge) => !afterEdgeIds.has(edge.id))
+        .map((edge) => edge.id),
       isHighBlastCanvasElementDeletion(
         beforeTraversal.nodes.length,
         afterTraversal.nodes.length,
@@ -3861,7 +3823,9 @@ export class CanvasInstance {
     const graph = this.getGraph();
     const mode2 = this.getMode();
     const name2 = strategyName ?? "dagre";
-    const topLevelNodes = graph.nodes.filter((n2) => !n2.parentId && n2.meta?.hidden !== true);
+    const topLevelNodes = graph.nodes.filter(
+      (n2) => !n2.parentId && n2.meta?.hidden !== true,
+    );
     const topLevelNodeIds = new Set(topLevelNodes.map((n2) => n2.id));
     const nodeById = new Map(graph.nodes.map((n2) => [n2.id, n2]));
     const rootAncestorId = (id2) => {
@@ -3874,10 +3838,13 @@ export class CanvasInstance {
         safety++;
       }
       if (safety >= 32 && cur?.parentId) {
-        console.warn("[canvas] rootAncestorId hit 32-level safety cap; possible parentId cycle", {
-          startId: id2,
-          lastId: cur.id,
-        });
+        console.warn(
+          "[canvas] rootAncestorId hit 32-level safety cap; possible parentId cycle",
+          {
+            startId: id2,
+            lastId: cur.id,
+          },
+        );
       }
       return cur?.id ?? id2;
     };
@@ -3891,7 +3858,8 @@ export class CanvasInstance {
       const key2 = `${s2}→${t2}`;
       if (projected.has(key2)) continue;
       projected.add(key2);
-      const id2 = s2 === e2.source && t2 === e2.target ? e2.id : `proj:${e2.id}`;
+      const id2 =
+        s2 === e2.source && t2 === e2.target ? e2.id : `proj:${e2.id}`;
       topLevelEdges.push({
         ...e2,
         id: id2,
@@ -3899,9 +3867,14 @@ export class CanvasInstance {
         target: t2,
       });
     }
-    const positions = await this.layout.computeAsync(name2, topLevelNodes, topLevelEdges, {
-      mode: mode2,
-    });
+    const positions = await this.layout.computeAsync(
+      name2,
+      topLevelNodes,
+      topLevelEdges,
+      {
+        mode: mode2,
+      },
+    );
     if (topLevelNodes.length > 0 && positions.size > 0) {
       const cur = computeCentroid(topLevelNodes, mode2);
       let newCx = 0;
@@ -3972,7 +3945,10 @@ export class CanvasInstance {
     const graph = this.getGraph();
     const mode2 = this.getMode();
     const laneNodes = graph.nodes.filter(
-      (n2) => !n2.parentId && n2.meta?.hidden !== true && n2.type !== CanvasNodeType.Sticker,
+      (n2) =>
+        !n2.parentId &&
+        n2.meta?.hidden !== true &&
+        n2.type !== CanvasNodeType.Sticker,
     );
     if (laneNodes.length < 2) {
       onCommit?.(null);
@@ -4117,7 +4093,13 @@ export class CanvasInstance {
     for (const id2 of nodeIds) {
       const root2 = rootAncestorId(id2);
       const node2 = nodeById.get(root2);
-      if (!node2 || node2.parentId || node2.meta?.hidden === true || pinned.has(node2.id)) continue;
+      if (
+        !node2 ||
+        node2.parentId ||
+        node2.meta?.hidden === true ||
+        pinned.has(node2.id)
+      )
+        continue;
       subset.add(root2);
     }
     if (includeDeps) {
@@ -4137,7 +4119,12 @@ export class CanvasInstance {
         if (cur === void 0) break;
         for (const next2 of adjacency.get(cur) ?? []) {
           const node2 = nodeById.get(next2);
-          if (!node2 || node2.parentId || node2.meta?.hidden === true || pinned.has(node2.id))
+          if (
+            !node2 ||
+            node2.parentId ||
+            node2.meta?.hidden === true ||
+            pinned.has(node2.id)
+          )
             continue;
           if (!subset.has(next2)) {
             subset.add(next2);
@@ -4165,7 +4152,8 @@ export class CanvasInstance {
         const key2 = `${s2}→${t2}`;
         if (projected.has(key2)) continue;
         projected.add(key2);
-        const id2 = s2 === e2.source && t2 === e2.target ? e2.id : `proj:${e2.id}`;
+        const id2 =
+          s2 === e2.source && t2 === e2.target ? e2.id : `proj:${e2.id}`;
         subsetEdges.push({
           ...e2,
           id: id2,
@@ -4217,7 +4205,10 @@ export class CanvasInstance {
     const layoutChanged = subsetNodes.some((node2) => {
       const current2 = getNodePosition(node2, mode2);
       const target = positions.get(node2.id);
-      return target !== void 0 && (current2.x !== target.x || current2.y !== target.y);
+      return (
+        target !== void 0 &&
+        (current2.x !== target.x || current2.y !== target.y)
+      );
     });
     if (!layoutChanged) {
       options?.onCommit?.(null, true);

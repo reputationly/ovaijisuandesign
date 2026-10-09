@@ -1,41 +1,395 @@
 // selection-toolbar-inner.jsx
-import { jsxRuntimeExports, useTranslation, useAssetMetadataApi, reactExports, dedupedToast, CompositedSvg, CanvasNodeType, useAssetMetadataStore, useStore$3, Position, NodeToolbar$1, z$4 } from "../vendor.js";
-import { useHtmlFullscreenApi } from "../infra/create-html-iframe-pool-store.jsx";
-import { TooltipProvider$1 } from "../infra/create-recently-added-store.jsx";
-import { isGenerationErrorStatus, isAssetBackedNode, CanvasMode } from "./group-nodes-in-canvas.js";
-import { Xt$1, Dt$1, DIRECTION_MAP, DEFAULT_NODE_SPACING, DEFAULT_LAYER_SPACING } from "./layout-engine.js";
-import { sizeOf, DEFAULT_NODE_SIZE } from "./node-tag-rings-canvas.jsx";
-import { useGeneratingStateApi, useCanvasActions, useCanvasIsBoxSelecting, useCanvasIsDragging, Download } from "../media-editing/parse-item.jsx";
-import { isNodeGenerating } from "./remap-clipboard.js";
-import { parseNodeId } from "./resolve-derived-collision.js";
-import { CLIP_STUDIO_PLUGIN_ID } from "../media-editing/canvas-image.jsx";
 import {
-  resolveCanvasPlatform,
-  resolveCanvasShortcut$1,
-  ToolbarSurface,
-} from "../media-editing/use-lightbox-media-actions.jsx";
-import {
-  GroupIcon,
-  UngroupIcon,
-  PromoteToAssetIcon,
-  AddToClipNodeIcon,
-  AddToChatIcon,
-  getAssetMetaByNodeIdFromStore,
-} from "./generating-media-area.jsx";
-import { isSubtitleFileName, isGroupColorKey } from "./prune-persisted-node-data.js";
-import { Tooltip$1 } from "../generation/create-tracker.jsx";
+  CanvasNodeType,
+  CompositedSvg,
+  jsxRuntimeExports,
+  LayoutTemplate,
+  NodeToolbar$1,
+  Position,
+  reactDomExports,
+  reactExports,
+  useAssetMetadataStore,
+  useStore$3,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  GroupColorPicker,
-  collectSelectionToolbarChatAttachments,
-  selectionToolbarAttachmentsEqual,
-} from "./multi-select-plus-handle-inner.jsx";
-import { SelectionTidyControl } from "./zoom-menu.jsx";
+  DropdownMenu$1,
+  DropdownMenuTrigger$1,
+} from "../media-editing/use-warn-missing-asset-meta.jsx";
+import {
+  DropdownMenuContent$1,
+  ToolbarSurface,
+} from "../media-editing/audio-lightbox.jsx";
+import { TidyLayoutMenuItems } from "./tidy-layout-menu-items.jsx";
+import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
+import { parseNodeId } from "./find-free-position-from-anchor.js";
+import {
+  GROUP_COLOR_KEYS,
+  isGroupColorKey,
+  isSubtitleFileName,
+} from "./is-reexecutable-generation-node.js";
+import { GROUP_COLOR_PRESETS } from "../media-editing/group-color-presets.jsx";
+import { useHtmlFullscreenApi } from "../infra/use-plugin-metadata-store.js";
+import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
+import {
+  Download,
+  useCanvasIsBoxSelecting,
+  useCanvasIsDragging,
+} from "../media-editing/package.jsx";
+import { CLIP_STUDIO_PLUGIN_ID } from "../media-editing/resolve-panorama-generation-presentation.js";
+import { GroupIcon, UngroupIcon } from "./file-missing-icon.jsx";
+import { PromoteToAssetIcon } from "./generating-media-area.jsx";
+import { AddToChatIcon, AddToClipNodeIcon } from "./fullscreen-icon.jsx";
+import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+
+function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
+  const { t: t2 } = useTranslation();
+  const label = t2("canvas.tidy");
+  const [menuOpen, setMenuOpen] = reactExports.useState(false);
+  const handleTidy = reactExports.useCallback(
+    (layout, includeDeps) => {
+      setMenuOpen(false);
+      return onTidy(layout, includeDeps);
+    },
+    [onTidy],
+  );
+  return (
+    <div className="relative">
+      <DropdownMenu$1 open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger$1
+          type="button"
+          title={label}
+          aria-label={label}
+          data-action-ui-id="canvas.selection-tidy"
+          className="canvas-toolbar-action"
+        >
+          <LayoutTemplate size={20} strokeWidth={1.5} aria-hidden="true" />
+          <span className="canvas-toolbar-label whitespace-nowrap">
+            {label}
+          </span>
+        </DropdownMenuTrigger$1>
+        <DropdownMenuContent$1
+          data-action-ui-id="canvas.selection-tidy-menu"
+          side="bottom"
+          sideOffset={8}
+          align="start"
+          className="min-w-[200px]"
+          variant="toolbar"
+        >
+          <TidyLayoutMenuItems
+            onTidy={handleTidy}
+            showIncludeDeps={showIncludeDeps}
+            uiIdPrefix="canvas.selection-tidy"
+          />
+        </DropdownMenuContent$1>
+      </DropdownMenu$1>
+    </div>
+  );
+}
+
+const SelectionTidyControl = reactExports.memo(SelectionTidyControlInner);
+
+const SWATCH_SIZE = 20;
+
+const TRIGGER_SIZE = 18;
+
+function ResetSwatch({ size: size2 = SWATCH_SIZE }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "block",
+        width: size2,
+        height: size2,
+        borderRadius: "999px",
+        background: "var(--canvas-group-swatch-reset-bg)",
+        border: "1px solid var(--canvas-group-swatch-border)",
+      }}
+    />
+  );
+}
+
+function SwatchButton({
+  selected: selected2,
+  onClick,
+  label,
+  dataActionUiId,
+  selectionColor,
+  children: children2,
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      aria-pressed={selected2}
+      onClick={onClick}
+      className="relative inline-flex items-center justify-center rounded-full transition-transform hover:scale-110"
+      style={{
+        width: SWATCH_SIZE,
+        height: SWATCH_SIZE,
+        background: "transparent",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        outline: selected2 ? `1.5px solid ${selectionColor}` : "none",
+        outlineOffset: selected2 ? "1.5px" : void 0,
+      }}
+      data-action-ui-id={dataActionUiId}
+    >
+      {children2}
+    </button>
+  );
+}
+
+function GroupColorPicker({ value, onChange, title }) {
+  const { t: t2 } = useTranslation();
+  const [open, setOpen] = reactExports.useState(false);
+  const triggerRef = reactExports.useRef(null);
+  const panelRef = reactExports.useRef(null);
+  const [anchor, setAnchor] = reactExports.useState(null);
+  const recomputeAnchor = reactExports.useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setAnchor({
+      top: rect.bottom + 8,
+      left: rect.left + rect.width / 2,
+    });
+  }, []);
+  reactExports.useLayoutEffect(() => {
+    if (!open) {
+      setAnchor(null);
+      return;
+    }
+    recomputeAnchor();
+    const onWin = () => recomputeAnchor();
+    window.addEventListener("resize", onWin);
+    window.addEventListener("scroll", onWin, true);
+    return () => {
+      window.removeEventListener("resize", onWin);
+      window.removeEventListener("scroll", onWin, true);
+    };
+  }, [open, recomputeAnchor]);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    const onPointerDown2 = (e2) => {
+      const tgt = e2.target;
+      if (!tgt) return;
+      if (triggerRef.current?.contains(tgt)) return;
+      if (panelRef.current?.contains(tgt)) return;
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown2, true);
+    return () =>
+      document.removeEventListener("pointerdown", onPointerDown2, true);
+  }, [open]);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    const onKey = (e2) => {
+      if (e2.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+  const currentSwatch = value ? GROUP_COLOR_PRESETS[value]?.swatch : void 0;
+  const triggerLabel = title ?? t2("canvas.groupBackground");
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        title={triggerLabel}
+        aria-label={triggerLabel}
+        onClick={() => setOpen((prev) => !prev)}
+        className="canvas-toolbar-action"
+        data-action-ui-id="canvas.group-background-button"
+        data-active={open || void 0}
+      >
+        {currentSwatch ? (
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-block",
+              width: TRIGGER_SIZE,
+              height: TRIGGER_SIZE,
+              borderRadius: "999px",
+              background: currentSwatch,
+              border: `1px solid ${currentSwatch}`,
+            }}
+          />
+        ) : (
+          <ResetSwatch size={TRIGGER_SIZE} />
+        )}
+        <span className="canvas-toolbar-label whitespace-nowrap">
+          {triggerLabel}
+        </span>
+      </button>
+      {open &&
+        anchor &&
+        reactDomExports.createPortal(
+          <div
+            ref={panelRef}
+            role="menu"
+            aria-label={t2("canvas.groupBackground")}
+            onContextMenu={(e2) => e2.preventDefault()}
+            className="canvas-toolbar-menu flex h-9 items-center gap-[6px] px-2"
+            style={{
+              position: "fixed",
+              top: anchor.top,
+              left: anchor.left,
+              transform: "translateX(-50%)",
+              zIndex: 1e3,
+            }}
+          >
+            <SwatchButton
+              selected={value === void 0}
+              onClick={() => {
+                onChange(void 0);
+                setOpen(false);
+              }}
+              label={t2("canvas.groupColor.reset")}
+              dataActionUiId="canvas.group-background-reset"
+              selectionColor="var(--canvas-controls-text)"
+            >
+              <ResetSwatch size={SWATCH_SIZE} />
+            </SwatchButton>
+            {GROUP_COLOR_KEYS.map((key2) => {
+              const preset2 = GROUP_COLOR_PRESETS[key2];
+              return (
+                <SwatchButton
+                  key={key2}
+                  selected={value === key2}
+                  onClick={() => {
+                    onChange(key2);
+                    setOpen(false);
+                  }}
+                  label={t2(`canvas.groupColor.${key2}`, {
+                    defaultValue: key2,
+                  })}
+                  dataActionUiId={`canvas.group-background-${key2}`}
+                  selectionColor={preset2.swatch}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: "block",
+                      width: SWATCH_SIZE,
+                      height: SWATCH_SIZE,
+                      borderRadius: "999px",
+                      background: preset2.swatch,
+                      border: `1px solid ${preset2.swatch}`,
+                    }}
+                  />
+                </SwatchButton>
+              );
+            })}
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
+function getFilename(path2) {
+  return path2.split("/").pop() ?? path2;
+}
+
+function readStringField(source, key2) {
+  const value = source?.[key2];
+  return typeof value === "string" && value.length > 0 ? value : void 0;
+}
+
+function selectionToolbarAttachmentsEqual(a2, b3) {
+  if (a2 === b3) return true;
+  if (a2.length !== b3.length) return false;
+  for (let i2 = 0; i2 < a2.length; i2++) {
+    if (
+      a2[i2].path !== b3[i2].path ||
+      a2[i2].nodeId !== b3[i2].nodeId ||
+      a2[i2].filename !== b3[i2].filename
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function collectSelectionToolbarChatAttachments(allNodes, selectedIds, assets) {
+  const nodeById = Array.isArray(allNodes)
+    ? new Map(allNodes.map((node2) => [node2.id, node2]))
+    : allNodes;
+  let childrenByParent = null;
+  const childrenOf2 = (parentId) => {
+    if (!childrenByParent) {
+      childrenByParent = new Map();
+      for (const node2 of nodeById.values()) {
+        if (!node2.parentId) continue;
+        const siblings2 = childrenByParent.get(node2.parentId);
+        if (siblings2) siblings2.push(node2);
+        else childrenByParent.set(node2.parentId, [node2]);
+      }
+    }
+    return childrenByParent.get(parentId) ?? [];
+  };
+  const seenPaths = new Set();
+  const visited = new Set();
+  const result = [];
+  const pushPath2 = (nodeId, path2) => {
+    if (seenPaths.has(path2)) return;
+    seenPaths.add(path2);
+    result.push({
+      path: path2,
+      filename: getFilename(path2),
+      nodeId,
+    });
+  };
+  const walk = (nodeId) => {
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+    const node2 = nodeById.get(nodeId);
+    if (!node2) return;
+    if (node2.type === CanvasNodeType.Group) {
+      for (const child of childrenOf2(nodeId)) {
+        walk(child.id);
+      }
+      return;
+    }
+    if (node2.type === CanvasNodeType.Table) {
+      const tablePath = node2.data?.tablePath;
+      if (typeof tablePath === "string" && tablePath.length > 0) {
+        pushPath2(nodeId, tablePath);
+      }
+      return;
+    }
+    const nodeType = node2.type;
+    if (typeof nodeType !== "string" || !isAssetBackedNode(nodeType)) return;
+    const dataAssetId = readStringField(node2.data, "assetId");
+    const dataPath = readStringField(node2.data, "path");
+    const { assetId: parsedAssetId } = parseNodeId(nodeId);
+    const meta2 =
+      assets.get(nodeId) ??
+      (node2.assetId ? assets.get(node2.assetId) : void 0) ??
+      (dataAssetId ? assets.get(dataAssetId) : void 0) ??
+      assets.get(parsedAssetId);
+    const path2 = meta2?.path ?? dataPath;
+    if (!path2) return;
+    pushPath2(nodeId, path2);
+  };
+  for (const selectedId of selectedIds) {
+    walk(selectedId);
+  }
+  return result;
+}
+
 const NO_TIDY_CHANGE = {
   changed: false,
   checkpoint: null,
 };
-function SelectionToolbarInner({
+
+export function SelectionToolbarInner({
   selectedIds,
   onAddToChat,
   groupAddToChatTargets,
@@ -60,7 +414,12 @@ function SelectionToolbarInner({
   const assets = useAssetMetadataStore((state2) => state2.assets);
   const { mergeNodeData } = useCanvasActions();
   const attachments = useStore$3(
-    (s2) => collectSelectionToolbarChatAttachments(s2.nodeLookup, selectedIds, assets),
+    (s2) =>
+      collectSelectionToolbarChatAttachments(
+        s2.nodeLookup,
+        selectedIds,
+        assets,
+      ),
     selectionToolbarAttachmentsEqual,
   );
   const handleAddToChat = reactExports.useCallback(() => {
@@ -135,13 +494,16 @@ function SelectionToolbarInner({
         outsiderCount++;
       }
       const canGroup2 =
-        groupCount === 0 ? outsiderCount >= 2 : outsiderCount >= 1 || groupCount >= 2;
+        groupCount === 0
+          ? outsiderCount >= 2
+          : outsiderCount >= 1 || groupCount >= 2;
       return {
         canGroup: canGroup2,
         ungroupTarget: null,
       };
     },
-    (a2, b3) => a2.canGroup === b3.canGroup && a2.ungroupTarget === b3.ungroupTarget,
+    (a2, b3) =>
+      a2.canGroup === b3.canGroup && a2.ungroupTarget === b3.ungroupTarget,
   );
   const childSubsetAnalysis = useStore$3(
     (s2) => {
@@ -205,7 +567,8 @@ function SelectionToolbarInner({
     onUngroup(groupAnalysis.ungroupTarget);
   }, [groupAnalysis.ungroupTarget, onUngroup]);
   const isExecutingThisGroup =
-    groupAnalysis.ungroupTarget != null && !!executingGroupIds?.has(groupAnalysis.ungroupTarget);
+    groupAnalysis.ungroupTarget != null &&
+    !!executingGroupIds?.has(groupAnalysis.ungroupTarget);
   const handleExecuteGroup = reactExports.useCallback(() => {
     if (!groupAnalysis.ungroupTarget) return;
     if (isExecutingThisGroup) {
@@ -213,12 +576,20 @@ function SelectionToolbarInner({
       return;
     }
     onExecuteGroup?.(groupAnalysis.ungroupTarget);
-  }, [groupAnalysis.ungroupTarget, isExecutingThisGroup, onCancelExecuteGroup, onExecuteGroup]);
+  }, [
+    groupAnalysis.ungroupTarget,
+    isExecutingThisGroup,
+    onCancelExecuteGroup,
+    onExecuteGroup,
+  ]);
   const isSingleGroup = groupAnalysis.ungroupTarget != null;
   const handleTidy = reactExports.useCallback(
     (layout, includeDeps) => {
       if (isSingleGroup && groupAnalysis.ungroupTarget) {
-        return onTidyGroup?.(groupAnalysis.ungroupTarget, layout, includeDeps) ?? NO_TIDY_CHANGE;
+        return (
+          onTidyGroup?.(groupAnalysis.ungroupTarget, layout, includeDeps) ??
+          NO_TIDY_CHANGE
+        );
       }
       if (childSubsetAnalysis.mixed) {
         onTidyBlocked?.();
@@ -226,8 +597,11 @@ function SelectionToolbarInner({
       }
       if (childSubsetAnalysis.sameGroupId) {
         return (
-          onTidyGroupChildren?.(childSubsetAnalysis.sameGroupId, selectedIds, layout) ??
-          NO_TIDY_CHANGE
+          onTidyGroupChildren?.(
+            childSubsetAnalysis.sameGroupId,
+            selectedIds,
+            layout,
+          ) ?? NO_TIDY_CHANGE
         );
       }
       return onTidySubset?.(layout, includeDeps) ?? NO_TIDY_CHANGE;
@@ -270,22 +644,30 @@ function SelectionToolbarInner({
   );
   const hasTableSelected = useStore$3((s2) => {
     const nodeLookup = s2.nodeLookup;
-    return selectedIds.some((nodeId) => nodeLookup.get(nodeId)?.type === CanvasNodeType.Table);
+    return selectedIds.some(
+      (nodeId) => nodeLookup.get(nodeId)?.type === CanvasNodeType.Table,
+    );
   });
   const handleDownloadAllFiles = reactExports.useCallback(() => {
     onDownloadAllFiles?.(selectedIds);
   }, [onDownloadAllFiles, selectedIds]);
   const showAddToChat = selectedIds.length >= 2 && attachments.length > 0;
-  const showGroupAddToChat = isSingleGroup && (groupAddToChatTargets?.length ?? 0) > 0;
+  const showGroupAddToChat =
+    isSingleGroup && (groupAddToChatTargets?.length ?? 0) > 0;
   const showAddToClipNode =
-    !!onInstantiatePlugin && selectedIds.length >= 2 && clipSourceNodeIds.length > 0;
+    !!onInstantiatePlugin &&
+    selectedIds.length >= 2 &&
+    clipSourceNodeIds.length > 0;
   const showAnyAddToChat = showAddToChat || showGroupAddToChat;
-  const handleAnyAddToChat = showGroupAddToChat ? handleGroupAddToChat : handleAddToChat;
+  const handleAnyAddToChat = showGroupAddToChat
+    ? handleGroupAddToChat
+    : handleAddToChat;
   const showPromoteToAsset =
     !!onPromoteToAsset &&
     !hasTableSelected &&
     (selectedIds.length >= 2 || groupAnalysis.ungroupTarget != null);
-  const showDownloadAllFiles = !!onDownloadAllFiles && groupAnalysis.ungroupTarget != null;
+  const showDownloadAllFiles =
+    !!onDownloadAllFiles && groupAnalysis.ungroupTarget != null;
   const showTidyEntry = showTidy && (selectedIds.length >= 2 || isSingleGroup);
   const anythingVisible =
     showTidyEntry ||
@@ -312,7 +694,8 @@ function SelectionToolbarInner({
             <SelectionTidyControl
               onTidy={handleTidy}
               showIncludeDeps={
-                isSingleGroup || (!childSubsetAnalysis.sameGroupId && !childSubsetAnalysis.mixed)
+                isSingleGroup ||
+                (!childSubsetAnalysis.sameGroupId && !childSubsetAnalysis.mixed)
               }
             />
           )}
@@ -325,7 +708,9 @@ function SelectionToolbarInner({
               data-action-ui-id="canvas.group-button"
             >
               <GroupIcon size={20} />
-              <span className="canvas-toolbar-label whitespace-nowrap">{t2("canvas.group")}</span>
+              <span className="canvas-toolbar-label whitespace-nowrap">
+                {t2("canvas.group")}
+              </span>
             </button>
           )}
           {canUngroup && (
@@ -381,7 +766,10 @@ function SelectionToolbarInner({
                         : t2("canvas.execGroup.button", "整组执行")}
                     </span>
                   </button>
-                  <div aria-hidden="true" className="canvas-toolbar-separator" />
+                  <div
+                    aria-hidden="true"
+                    className="canvas-toolbar-separator"
+                  />
                 </>
               )}
               <button
@@ -460,272 +848,4 @@ function SelectionToolbarInner({
       </TooltipProvider$1>
     </NodeToolbar$1>
   );
-}
-export const SelectionToolbar = reactExports.memo(SelectionToolbarInner);
-const PROMPT_PREVIEW_MAX = 200;
-function shortenPrompt(prompt) {
-  if (!prompt) return void 0;
-  const trimmed = prompt.trim();
-  if (!trimmed) return void 0;
-  return trimmed.length > PROMPT_PREVIEW_MAX ? `${trimmed.slice(0, PROMPT_PREVIEW_MAX)}…` : trimmed;
-}
-function readStr(data2, key2) {
-  if (!data2) return void 0;
-  const v2 = data2[key2];
-  return typeof v2 === "string" && v2.length > 0 ? v2 : void 0;
-}
-function buildDebugInfo(node2, ctx = {}) {
-  const data2 = node2.data ?? {};
-  let status = "unknown";
-  const placeholderStatus = readStr(data2, "status");
-  if (
-    placeholderStatus === "pending" ||
-    placeholderStatus === "generating" ||
-    placeholderStatus === "loading"
-  ) {
-    status = "generating";
-  } else if (isGenerationErrorStatus(placeholderStatus)) {
-    status = "error";
-  } else if (ctx.meta) {
-    status = "success";
-  } else if (ctx.generating) {
-    status = "generating";
-  }
-  const cloudTraceId =
-    readStr(data2, "cloudTraceId") ?? ctx.meta?.cloudTraceId ?? ctx.generating?.traceId;
-  const cloudTaskId =
-    readStr(data2, "cloudTaskId") ?? ctx.meta?.cloudTaskId ?? ctx.generating?.cloudTaskId;
-  const providerTaskId = readStr(data2, "providerTaskId") ?? ctx.meta?.providerTaskId;
-  return {
-    timestamp: new Date().toISOString(),
-    nodeId: node2.id,
-    nodeType: node2.type,
-    ...(isAssetBackedNode(node2.type)
-      ? {
-          assetId: parseNodeId(node2.id).assetId,
-        }
-      : {}),
-    status,
-    ...(cloudTraceId
-      ? {
-          cloudTraceId,
-        }
-      : {}),
-    ...(cloudTaskId
-      ? {
-          cloudTaskId,
-        }
-      : {}),
-    ...(providerTaskId
-      ? {
-          providerTaskId,
-        }
-      : {}),
-    ...(status === "error" && readStr(data2, "errorMessage")
-      ? {
-          errorMessage: readStr(data2, "errorMessage"),
-        }
-      : {}),
-    ...(ctx.meta?.model
-      ? {
-          model: ctx.meta.model,
-        }
-      : readStr(data2, "model")
-        ? {
-            model: readStr(data2, "model"),
-          }
-        : {}),
-    ...(ctx.meta?.backend
-      ? {
-          backend: ctx.meta.backend,
-        }
-      : {}),
-    ...(ctx.meta?.source_tool
-      ? {
-          sourceTool: ctx.meta.source_tool,
-        }
-      : {}),
-    ...(ctx.meta?.params
-      ? {
-          params: ctx.meta.params,
-        }
-      : {}),
-    ...(shortenPrompt(ctx.meta?.prompt ?? readStr(data2, "prompt"))
-      ? {
-          promptPreview: shortenPrompt(ctx.meta?.prompt ?? readStr(data2, "prompt")),
-        }
-      : {}),
-  };
-}
-function shortTraceId(traceId) {
-  if (!traceId) return void 0;
-  return traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
-}
-function collectPayloads(instance2, assetStore, generatingStore, nodeIds) {
-  const graph = instance2.getGraph();
-  const lookup = new Map(graph.nodes.map((n2) => [n2.id, n2]));
-  const generating = generatingStore.getState().byNode;
-  const payloads = [];
-  for (const id2 of nodeIds) {
-    const node2 = lookup.get(id2);
-    if (!node2) continue;
-    payloads.push(
-      buildDebugInfo(node2, {
-        meta: getAssetMetaByNodeIdFromStore(assetStore, id2),
-        generating: generating.get(id2),
-      }),
-    );
-  }
-  return payloads;
-}
-export function useCopyDebugInfo(instance2) {
-  const { t: t2 } = useTranslation();
-  const assetStore = useAssetMetadataApi();
-  const generatingStore = useGeneratingStateApi();
-  const copyDebugShortcut = resolveCanvasShortcut$1("copyDebug").join(
-    resolveCanvasPlatform() === "mac" ? "" : "+",
-  );
-  return reactExports.useCallback(
-    (args) => {
-      const targetIds = args?.nodeIds ?? instance2.selection.getSelected();
-      if (targetIds.length === 0) {
-        dedupedToast.info(
-          t2("canvas.debug.noSelection", "Select a node first, then press {{shortcut}}", {
-            shortcut: copyDebugShortcut,
-          }),
-        );
-        return;
-      }
-      const payloads = collectPayloads(instance2, assetStore, generatingStore, targetIds);
-      if (payloads.length === 0) return;
-      const serialised = JSON.stringify(payloads.length === 1 ? payloads[0] : payloads, null, 2);
-      const firstTrace = payloads.find((p3) => p3.cloudTraceId)?.cloudTraceId;
-      const tracePreview = shortTraceId(firstTrace);
-      const writeClipboard = async () => {
-        if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
-          dedupedToast.error(t2("canvas.debug.clipboardUnavailable", "Clipboard not available"));
-          return;
-        }
-        try {
-          await navigator.clipboard.writeText(serialised);
-          if (tracePreview) {
-            dedupedToast.success(
-              t2("canvas.debug.copied", "Debug info copied (Trace ID: {{trace}})", {
-                trace: tracePreview,
-              }),
-            );
-          } else {
-            dedupedToast.success(
-              t2("canvas.debug.copiedNoTrace", "Debug info copied (no Trace ID — legacy asset)"),
-            );
-          }
-        } catch (err) {
-          dedupedToast.error(
-            t2("canvas.debug.copyFailed", "Copy failed: {{message}}", {
-              message: err instanceof Error ? err.message : String(err),
-            }),
-          );
-        }
-      };
-      void writeClipboard();
-    },
-    [instance2, assetStore, generatingStore, t2, copyDebugShortcut],
-  );
-}
-export function isNodeGenerationActive(node2, hasLiveGenerationState) {
-  return hasLiveGenerationState || isNodeGenerating(node2);
-}
-function P$4(e2, n2) {
-  let t2 = Date.now();
-  try {
-    return n2();
-  } finally {
-    console.log(e2 + " time: " + (Date.now() - t2) + "ms");
-  }
-}
-function M$4(e2, n2) {
-  return n2();
-}
-function he$1(e2, n2 = {}) {
-  let t2 = n2.debugTiming ? P$4 : M$4;
-  return t2("layout", () => {
-    let r2 = t2("  buildLayoutGraph", () => Xt$1(e2));
-    return (
-      t2("  runLayout", () => Dt$1(r2, t2, n2)),
-      t2("  updateInputGraph", () => At$1(e2, r2)),
-      r2
-    );
-  });
-}
-function At$1(e2, n2) {
-  (e2.nodes().forEach((t2) => {
-    let r2 = e2.node(t2),
-      o2 = n2.node(t2);
-    r2 &&
-      ((r2.x = o2.x),
-      (r2.y = o2.y),
-      (r2.order = o2.order),
-      (r2.rank = o2.rank),
-      n2.children(t2).length && ((r2.width = o2.width), (r2.height = o2.height)));
-  }),
-    e2.edges().forEach((t2) => {
-      let r2 = e2.edge(t2),
-        o2 = n2.edge(t2);
-      ((r2.points = o2.points), Object.hasOwn(o2, "x") && ((r2.x = o2.x), (r2.y = o2.y)));
-    }),
-    (e2.graph().width = n2.graph().width),
-    (e2.graph().height = n2.graph().height));
-}
-export function dagreLayoutWorkflow(nodes, edges, options) {
-  const nodeIdSet = new Set(nodes.map((n2) => n2.id));
-  const direction = DIRECTION_MAP[options?.direction ?? "LR"] ?? "LR";
-  const nodeSpacing = options?.spacing?.y ?? DEFAULT_NODE_SPACING;
-  const layerSpacing = options?.spacing?.x ?? DEFAULT_LAYER_SPACING;
-  const mode2 = options?.mode ?? CanvasMode.Workflow;
-  const g2 = new z$4.Graph({
-    directed: true,
-  });
-  g2.setGraph({
-    rankdir: direction,
-    // dagre's nodesep is the within-rank (same-layer) gap → maps to ELK's
-    // elk.spacing.nodeNode. ranksep is the between-rank gap → maps to
-    // elk.layered.spacing.nodeNodeBetweenLayers.
-    nodesep: nodeSpacing,
-    ranksep: layerSpacing,
-    // network-simplex is dagre's tightest, highest-quality ranker (matches
-    // the intent of ELK's NETWORK_SIMPLEX layering) and is still ~30x faster
-    // than elkjs at this scale.
-    ranker: "network-simplex",
-  });
-  g2.setDefaultEdgeLabel(() => ({}));
-  const sizeById = new Map();
-  for (const n2 of nodes) {
-    sizeById.set(n2.id, sizeOf(n2, mode2));
-  }
-  for (let i2 = nodes.length - 1; i2 >= 0; i2--) {
-    const n2 = nodes[i2];
-    const sz = sizeById.get(n2.id) ?? DEFAULT_NODE_SIZE;
-    g2.setNode(n2.id, {
-      width: sz.width,
-      height: sz.height,
-    });
-  }
-  for (let i2 = edges.length - 1; i2 >= 0; i2--) {
-    const e2 = edges[i2];
-    if (nodeIdSet.has(e2.source) && nodeIdSet.has(e2.target)) {
-      g2.setEdge(e2.source, e2.target);
-    }
-  }
-  he$1(g2);
-  const positions = new Map();
-  for (const id2 of g2.nodes()) {
-    const node2 = g2.node(id2);
-    if (!node2) continue;
-    const sz = sizeById.get(id2) ?? DEFAULT_NODE_SIZE;
-    positions.set(id2, {
-      x: node2.x - sz.width / 2,
-      y: node2.y - sz.height / 2,
-    });
-  }
-  return positions;
 }

@@ -1,277 +1,9 @@
 // camera-ball.jsx
-import { jsxRuntimeExports, reactExports, CompositedSvg } from "../vendor.js";
+import { CompositedSvg, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  VIEWBOX_SIZE,
-  createBoxFaces,
-  getCameraModelView,
-  planeEllipse,
-  pointsAttribute,
-  project$1,
-} from "./create-box-faces.jsx";
-export function planeQuad(center, width, height, basis) {
-  return [
-    {
-      x: center.x - width / 2,
-      y: center.y - height / 2,
-      z: center.z,
-    },
-    {
-      x: center.x + width / 2,
-      y: center.y - height / 2,
-      z: center.z,
-    },
-    {
-      x: center.x + width / 2,
-      y: center.y + height / 2,
-      z: center.z,
-    },
-    {
-      x: center.x - width / 2,
-      y: center.y + height / 2,
-      z: center.z,
-    },
-  ].map((point2) => project$1(point2, basis));
-}
-function CameraModel3D({ horizontalAngle, verticalAngle, className = "" }) {
-  const model = reactExports.useMemo(() => {
-    const view2 = getCameraModelView(horizontalAngle, verticalAngle);
-    const edge = "var(--hl_camera_edge, #8b939d)";
-    const bodyFaces = createBoxFaces({
-      key: "body",
-      center: {
-        x: 0,
-        y: 0,
-        z: 0,
-      },
-      size: {
-        x: 19,
-        y: 13,
-        z: 13,
-      },
-      basis: view2,
-      stroke: edge,
-      fills: {
-        front: "var(--hl_camera_body, #3b4654)",
-        back: "var(--hl_camera_back, #303946)",
-        left: "var(--hl_camera_side_dark, #2c3544)",
-        right: "var(--hl_camera_side, #465261)",
-        top: "var(--hl_camera_top, #5a6676)",
-        bottom: "var(--hl_camera_bottom, #27313f)",
-      },
-    });
-    const topFaces = createBoxFaces({
-      key: "top",
-      center: {
-        x: -2.2,
-        y: 7.5,
-        z: -0.5,
-      },
-      size: {
-        x: 6,
-        y: 3,
-        z: 5,
-      },
-      basis: view2,
-      stroke: "var(--hl_camera_top_edge, #9ca3af)",
-      fills: {
-        front: "var(--hl_camera_top, #5a6676)",
-        back: "var(--hl_camera_side_dark, #2c3544)",
-        left: "var(--hl_camera_side_dark, #2c3544)",
-        right: "var(--hl_camera_side, #465261)",
-        top: "var(--hl_camera_top_light, #6b7788)",
-        bottom: "var(--hl_camera_top, #5a6676)",
-      },
-    });
-    const faces = [...bodyFaces, ...topFaces].sort((a2, b3) => a2.depth - b3.depth);
-    const frontVisible = view2.frontVisibility > 0.04;
-    const backVisible = view2.backVisibility > 0.04;
-    const frontZ = 7.05;
-    const backZ = -6.55;
-    return {
-      view: view2,
-      faces,
-      frontVisible,
-      backVisible,
-      lensBase: planeEllipse({
-        center: {
-          x: 3.2,
-          y: 0,
-          z: frontZ,
-        },
-        radius: 4.4,
-        basis: view2,
-      }),
-      lensDark: planeEllipse({
-        center: {
-          x: 3.2,
-          y: 0,
-          z: frontZ + 0.08,
-        },
-        radius: 2.9,
-        basis: view2,
-      }),
-      lensCore: planeEllipse({
-        center: {
-          x: 3.2,
-          y: 0,
-          z: frontZ + 0.12,
-        },
-        radius: 1.65,
-        basis: view2,
-      }),
-      lensOuterRing: planeEllipse({
-        center: {
-          x: 3.2,
-          y: 0,
-          z: frontZ + 0.16,
-        },
-        radius: 3.55,
-        basis: view2,
-      }),
-      lensInnerRing: planeEllipse({
-        center: {
-          x: 3.2,
-          y: 0,
-          z: frontZ + 0.2,
-        },
-        radius: 2.35,
-        basis: view2,
-      }),
-      recordDot: planeEllipse({
-        center: {
-          x: 6.1,
-          y: 2,
-          z: frontZ + 0.24,
-        },
-        radius: 0.95,
-        basis: view2,
-        steps: 16,
-      }),
-      backScreen: planeQuad(
-        {
-          x: -1.5,
-          y: 0,
-          z: backZ,
-        },
-        9.5,
-        6.2,
-        view2,
-      ),
-      handle: [
-        {
-          x: -4.4,
-          y: 9.1,
-          z: -0.5,
-        },
-        {
-          x: -3.8,
-          y: 10.2,
-          z: -0.5,
-        },
-        {
-          x: -0.6,
-          y: 10.2,
-          z: -0.5,
-        },
-        {
-          x: 0,
-          y: 9.1,
-          z: -0.5,
-        },
-      ].map((point2) => project$1(point2, view2)),
-    };
-  }, [horizontalAngle, verticalAngle]);
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox={`0 0 ${VIEWBOX_SIZE} ${VIEWBOX_SIZE}`}
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {model.faces.map((face) => (
-        <polygon
-          key={face.key}
-          points={pointsAttribute(face.points)}
-          fill={face.fill}
-          stroke={face.stroke}
-          strokeWidth="0.6"
-          strokeLinejoin="round"
-        />
-      ))}
-      {model.backVisible && (
-        <polygon
-          points={pointsAttribute(model.backScreen)}
-          fill="var(--hl_camera_screen, #161d28)"
-          stroke="var(--hl_camera_screen_edge, #667284)"
-          strokeWidth="0.55"
-          strokeLinejoin="round"
-        />
-      )}
-      {model.frontVisible && (
-        <>
-          <polygon
-            points={pointsAttribute(model.lensBase)}
-            fill="var(--hl_camera_lens_base, #d1d5db)"
-          />
-          <polygon
-            points={pointsAttribute(model.lensDark)}
-            fill="var(--hl_camera_lens_dark, #4b5563)"
-          />
-          <polygon
-            points={pointsAttribute(model.lensCore)}
-            fill="var(--hl_camera_lens_core, #374151)"
-          />
-          <polygon
-            points={pointsAttribute(model.lensOuterRing)}
-            fill="none"
-            stroke="var(--hl_camera_ring_1, #d1d5db)"
-            strokeWidth="0.55"
-          />
-          <polygon
-            points={pointsAttribute(model.lensInnerRing)}
-            fill="none"
-            stroke="var(--hl_camera_ring_2, #9ca3af)"
-            strokeWidth="0.45"
-          />
-          <polygon points={pointsAttribute(model.recordDot)} fill="#ef4444" />
-        </>
-      )}
-      <polyline
-        points={pointsAttribute(model.handle)}
-        fill="none"
-        stroke="var(--hl_camera_handle, #8f96a0)"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-export const ToolResetIcon = ({ className = "" }) => (
-  <CompositedSvg
-    aria-hidden="true"
-    className={className}
-    width="14"
-    height="14"
-    viewBox="0 0 14 14"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M1.75 7C1.75 8.03835 2.05791 9.05339 2.63478 9.91674C3.21166 10.7801 4.0316 11.453 4.99091 11.8504C5.95022 12.2477 7.00582 12.3517 8.02422 12.1491C9.04262 11.9466 9.97809 11.4465 10.7123 10.7123C11.4465 9.97809 11.9466 9.04262 12.1491 8.02422C12.3517 7.00582 12.2477 5.95022 11.8504 4.99091C11.453 4.0316 10.7801 3.21166 9.91674 2.63478C9.05339 2.05791 8.03835 1.75 7 1.75C5.53231 1.75552 4.12357 2.32821 3.06833 3.34833L1.75 4.66667"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M1.75 1.75V4.66667H4.66667"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </CompositedSvg>
-);
+import { CameraModel3D } from "./camera-model3-d.jsx";
+import { CANVAS_SIZE } from "./plane-quad.jsx";
+
 const ToolUploadIcon = ({ className = "" }) => (
   <CompositedSvg
     aria-hidden="true"
@@ -282,7 +14,12 @@ const ToolUploadIcon = ({ className = "" }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path d="M8 2V10" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M8 2V10"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
     <path
       d="M11.3332 5.33333L7.99984 2L4.6665 5.33333"
       stroke="currentColor"
@@ -297,58 +34,40 @@ const ToolUploadIcon = ({ className = "" }) => (
     />
   </CompositedSvg>
 );
-export const DarkLoadingIcon = ({ className = "" }) => (
-  <CompositedSvg
-    aria-hidden="true"
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={`animate-spin ${className}`}
-  >
-    <path
-      d="M16 10C16 13.3137 13.3137 16 10 16C6.68629 16 4 13.3137 4 10C4 6.68629 6.68629 4 10 4"
-      stroke="currentColor"
-      strokeWidth="2"
-    />
-  </CompositedSvg>
-);
-export const CANVAS_SIZE = 180;
-export function StudioPreview$1({ children: children2 }) {
-  return (
-    <section className="flex size-full items-center justify-center">
-      <div className="flex aspect-square h-full max-w-full items-center justify-center">
-        <div
-          className="relative"
-          style={{
-            width: CANVAS_SIZE,
-            height: CANVAS_SIZE,
-          }}
-        >
-          {children2}
-        </div>
-      </div>
-    </section>
-  );
-}
+
 const RADIUS$1 = 88;
+
 const MERIDIANS$1 = 6;
+
 const PARALLELS$1 = 4;
+
 const PHOTO_SIZE_MIN = 44;
+
 const PHOTO_SIZE_MEDIUM = 56;
+
 const PHOTO_SIZE_MAX = 68;
+
 const UPLOAD_BTN_SIZE = 56;
+
 const MARKER_SIZE = 32;
+
 const CAMERA_GRID_FOLLOW = 0.2;
+
 const DEG$1 = Math.PI / 180;
+
 function getPhotoSize(zoom2) {
   const clampedZoom = Math.max(0, Math.min(10, zoom2));
   if (clampedZoom <= 5) {
-    return PHOTO_SIZE_MIN + (PHOTO_SIZE_MEDIUM - PHOTO_SIZE_MIN) * (clampedZoom / 5);
+    return (
+      PHOTO_SIZE_MIN + (PHOTO_SIZE_MEDIUM - PHOTO_SIZE_MIN) * (clampedZoom / 5)
+    );
   }
-  return PHOTO_SIZE_MEDIUM + (PHOTO_SIZE_MAX - PHOTO_SIZE_MEDIUM) * ((clampedZoom - 5) / 5);
+  return (
+    PHOTO_SIZE_MEDIUM +
+    (PHOTO_SIZE_MAX - PHOTO_SIZE_MEDIUM) * ((clampedZoom - 5) / 5)
+  );
 }
+
 function CenterImage({ imageUrl, size: size2 }) {
   const [loadedUrl, setLoadedUrl] = reactExports.useState(null);
   const imgRef = reactExports.useRef(null);
@@ -383,6 +102,7 @@ function CenterImage({ imageUrl, size: size2 }) {
     </div>
   );
 }
+
 function project(lx, ly, lz, yaw, pitch, cx2, cy, r2) {
   const cP = Math.cos(pitch);
   const sP = Math.sin(pitch);
@@ -398,6 +118,7 @@ function project(lx, ly, lz, yaw, pitch, cx2, cy, r2) {
     z: z22,
   };
 }
+
 function strokeWithDepth(ctx, pts, frontAlpha, backAlpha) {
   const flush2 = (start2, end2, isFront) => {
     if (end2 - start2 < 2) return;
@@ -420,6 +141,7 @@ function strokeWithDepth(ctx, pts, frontAlpha, backAlpha) {
   flush2(runStart, pts.length, runFront);
   ctx.globalAlpha = 1;
 }
+
 function cameraScreenPos(h2, v2, cx2, cy, r2) {
   const hr = h2 * DEG$1;
   const vr = v2 * DEG$1;
@@ -429,7 +151,15 @@ function cameraScreenPos(h2, v2, cx2, cy, r2) {
     z: Math.cos(vr) * Math.cos(hr),
   };
 }
-export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, onUpload, t: t2 }) {
+
+export function CameraBall({
+  camera,
+  imageUrl,
+  disabled: disabled2,
+  onRotate,
+  onUpload,
+  t: t2,
+}) {
   const canvasRef = reactExports.useRef(null);
   const [ballYaw, setBallYaw] = reactExports.useState(0);
   const [ballPitch, setBallPitch] = reactExports.useState(0);
@@ -461,13 +191,17 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
     if (!ctx) return;
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    const themeRoot = canvas.closest(".multi-angle-theme") ?? document.documentElement;
+    const themeRoot =
+      canvas.closest(".multi-angle-theme") ?? document.documentElement;
     const rootStyle = getComputedStyle(themeRoot);
     const wireColor =
-      rootStyle.getPropertyValue("--hl_wire_color").trim() || "rgba(192,192,208,0.6)";
+      rootStyle.getPropertyValue("--hl_wire_color").trim() ||
+      "rgba(192,192,208,0.6)";
     const equatorColor =
-      rootStyle.getPropertyValue("--hl_equator_color").trim() || "rgba(192,192,208,0.8)";
-    const rayColor = rootStyle.getPropertyValue("--hl_text_02").trim() || "rgba(20,22,31,0.7)";
+      rootStyle.getPropertyValue("--hl_equator_color").trim() ||
+      "rgba(192,192,208,0.8)";
+    const rayColor =
+      rootStyle.getPropertyValue("--hl_text_02").trim() || "rgba(20,22,31,0.7)";
     const yaw = ballYaw * DEG$1;
     const pitch = ballPitch * DEG$1;
     const STEPS = 64;
@@ -482,7 +216,9 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
         const theta = -Math.PI + (s2 / STEPS) * 2 * Math.PI;
         const cT = Math.cos(theta);
         const sT = Math.sin(theta);
-        pts.push(project(sPh * cT, sT, cPh * cT, yaw, pitch, cx2, cy, RADIUS$1));
+        pts.push(
+          project(sPh * cT, sT, cPh * cT, yaw, pitch, cx2, cy, RADIUS$1),
+        );
       }
       strokeWithDepth(ctx, pts, 0.72, 0.28);
     }
@@ -495,7 +231,16 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
         for (let s2 = 0; s2 <= STEPS; s2++) {
           const lon = (s2 / STEPS) * 2 * Math.PI;
           pts.push(
-            project(cL * Math.sin(lon), sL, cL * Math.cos(lon), yaw, pitch, cx2, cy, RADIUS$1),
+            project(
+              cL * Math.sin(lon),
+              sL,
+              cL * Math.cos(lon),
+              yaw,
+              pitch,
+              cx2,
+              cy,
+              RADIUS$1,
+            ),
           );
         }
         strokeWithDepth(ctx, pts, 0.72, 0.28);
@@ -506,11 +251,28 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
       const pts = [];
       for (let s2 = 0; s2 <= STEPS; s2++) {
         const lon = (s2 / STEPS) * 2 * Math.PI;
-        pts.push(project(Math.sin(lon), 0, Math.cos(lon), yaw, pitch, cx2, cy, RADIUS$1));
+        pts.push(
+          project(
+            Math.sin(lon),
+            0,
+            Math.cos(lon),
+            yaw,
+            pitch,
+            cx2,
+            cy,
+            RADIUS$1,
+          ),
+        );
       }
       strokeWithDepth(ctx, pts, 0.6, 0.22);
     }
-    const pos = cameraScreenPos(camera.horizontalAngle, camera.verticalAngle, cx2, cy, RADIUS$1);
+    const pos = cameraScreenPos(
+      camera.horizontalAngle,
+      camera.verticalAngle,
+      cx2,
+      cy,
+      RADIUS$1,
+    );
     if (pos.z < 0) {
       ctx.strokeStyle = rayColor;
       ctx.globalAlpha = 0.2;
@@ -553,7 +315,8 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
     if (disabled2) return;
     e2.stopPropagation();
     const container = e2.currentTarget.closest("[data-camera-ball]");
-    if (container instanceof HTMLElement) container.setPointerCapture(e2.pointerId);
+    if (container instanceof HTMLElement)
+      container.setPointerCapture(e2.pointerId);
     dragRef.current = {
       kind: "marker",
       x: e2.clientX,
@@ -619,7 +382,8 @@ export function CameraBall({ camera, imageUrl, disabled: disabled2, onRotate, on
         const nearCenter =
           Math.abs(cameraPosition.x - cx2) < photoSize / 2 + 8 &&
           Math.abs(cameraPosition.y - cy) < photoSize / 2 + 8;
-        const isBehindOverlap = nearCenter && cameraPosition.z < 0 && !!imageUrl;
+        const isBehindOverlap =
+          nearCenter && cameraPosition.z < 0 && !!imageUrl;
         if (nearCenter && !imageUrl) return null;
         return (
           <button

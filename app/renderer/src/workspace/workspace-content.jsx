@@ -1,37 +1,713 @@
 // workspace-content.jsx
-import { reactExports, useNavigate, API_PATHS } from "../vendor.js";
-import { buildWorkspaceSearch } from "./create-visible-preview-tabs-store.js";
-import { workspaceEvents } from "./use-hub-logo-hover-animation.jsx";
-import { useGatewayFetch } from "../generation/use-resizable-width.js";
-import { useWorkspaceChatSelector } from "../assets/use-asset-picker-host.jsx";
-import { redactForCurrentRegion } from "../generation/resolve-chat-file-reference.js";
+import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
+import { useWorkspaceRemoteToolOptional } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import {
-  CanvasSidebarOverlay,
-  resolveCanvasSidebarRightEdgeInset,
-} from "./home-widget-host.jsx";
-import { useGlobalSidebar } from "../media-editing/remote-tool-host.jsx";
-import { useSettingsDialog } from "../settings/custom-provider-form.jsx";
-import { getCanvasTaskSnapshot } from "../canvas/sticker-cursor-preview-content.jsx";
+  BROWSER_IMAGE_EDIT_EVENT,
+  ChevronDown,
+  dedupedToast,
+  jsxRuntimeExports,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
+import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
+import {
+  useGatewayFetch,
+  useGatewayScopeKey,
+} from "../generation/use-model-catalog-scope-key.js";
+import { workspaceEvents } from "./topbar-state-context.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { RemoteToolDialog } from "../infra/remote-tool-dialog.jsx";
+import { CanvasArea } from "../canvas/canvas-area.jsx";
+import { useSessionStore } from "./resolve-retry-message-payload.jsx";
+import {
+  dispatchBrowserVideoToChat,
+  downloadBrowserVideo,
+  useWorkspacePaneReorder,
+} from "../chat/use-browser-chat-media.jsx";
+import {
+  cn$2,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+  useBrowserHoverPreview,
+} from "../infra/dialog-content.jsx";
+import {
+  DropdownMenu,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+} from "../vendor-inline/vscode-base/graph.jsx";
+import { TooltipProvider$1 } from "../infra/create-recently-added-store.js";
+import { useHasBlockingModal } from "../infra/schedule.js";
+import { getPlatform } from "../infra/web-storage.js";
+import { resolveShortcutDisplay } from "./other-modifiers.js";
+import {
+  ShortcutHint,
+  WORKSPACE_DISPLAY_MODE_SHORTCUT,
+} from "./shortcut-hint.jsx";
+import { Tooltip$1 } from "../generation/missing-asset-card.jsx";
+import { CoachMark } from "../assets/use-materialized-entities.jsx";
+import { useWorkspaceChatSelector } from "../assets/use-canvas-model-registry-hydration.js";
+import { CanvasSidebarOverlay } from "./canvas-sidebar-overlay.jsx";
+import { resolveCanvasSidebarRightEdgeInset } from "./workspace-asset-center-relocation-coach-mark.jsx";
+import { useGlobalSidebar } from "../media-editing/derive-session-task-snapshot.jsx";
 import { ChatPanel } from "../chat/chat-panel.jsx";
-import {
-  WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH,
-  WORKSPACE_VIEW_MODE_CONTROL_GAP,
-  WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH,
-  WORKSPACE_VIEW_MODE_CONTROL_WIDTH,
-  WorkspaceViewModeMenu,
-} from "./use-adopt-initial-attachments.jsx";
-import { useBrowserVideoDownload } from "../media-editing/use-browser-video-download.jsx";
-import { WorkspaceBrowser, WorkspaceViewSwitch } from "./workspace-browser.jsx";
-import { WorkspaceDisplayModeSwitcher } from "./workspace-canvas-focus-coordinator.jsx";
-import {
-  MemoizedCanvasArea,
-  RemoteToolHost,
-  selectWorkspaceStageLayout,
-  useChatReferenceReveal,
-  useDocumentEditReviewHost,
-} from "./workspace-stage-reducer.jsx";
+import { WorkspaceBrowser } from "./workspace-browser.jsx";
+import { WorkspaceViewSwitch } from "./workspace-view-switch.jsx";
+import { WorkspaceDisplayModeSwitcher } from "./workspace-display-mode-switcher.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
+
+function useAccountSubmissionAllowed(kind) {
+  return useAccountSubmissionDecision(kind).allowed;
+}
+
+function useWorkspaceRemoteTool() {
+  const ctx = useWorkspaceRemoteToolOptional();
+  if (!ctx)
+    throw new Error(
+      "useWorkspaceRemoteTool must be used within WorkspaceChatProvider",
+    );
+  return ctx;
+}
+
+function useBrowserVideoDownload(isActive2) {
+  const gatewayFetch2 = useGatewayFetch();
+  const scopeKey = useGatewayScopeKey();
+  const sessionStore = useSessionStore();
+  const { t: t2 } = useTranslation();
+  const current2 = reactExports.useRef({
+    gatewayFetch: gatewayFetch2,
+    scopeKey,
+    sessionStore,
+    t: t2,
+    isActive: isActive2,
+  });
+  current2.current = {
+    gatewayFetch: gatewayFetch2,
+    scopeKey,
+    sessionStore,
+    t: t2,
+    isActive: isActive2,
+  };
+  const browser2 = window.hilo?.browser;
+  reactExports.useEffect(() => {
+    if (!browser2?.onPluginEvent || !browser2.completeVideoDownload) return;
+    let active2 = true;
+    const stop = browser2.onPluginEvent((request) => {
+      if (
+        request.type !== "video-download-requested" ||
+        !current2.current.isActive
+      )
+        return;
+      const origin = current2.current;
+      const sessionId = origin.sessionStore.getState().focusedSessionId;
+      void (async () => {
+        let downloaded = false;
+        try {
+          const asset = await downloadBrowserVideo(
+            request,
+            origin.gatewayFetch,
+          );
+          downloaded = true;
+          if (
+            request.action === "chat" &&
+            (!active2 || current2.current.scopeKey !== origin.scopeKey)
+          )
+            throw new Error("Originating workspace is no longer mounted");
+          if (
+            request.action === "chat" &&
+            origin.sessionStore.getState().focusedSessionId !== sessionId
+          )
+            throw new Error("Originating chat is no longer focused");
+          if (
+            request.action === "chat" &&
+            !dispatchBrowserVideoToChat(asset, origin.scopeKey, sessionId)
+          )
+            throw new Error("Chat could not accept the downloaded video");
+          if (
+            request.action === "canvas" &&
+            active2 &&
+            current2.current.isActive &&
+            current2.current.scopeKey === origin.scopeKey
+          )
+            dedupedToast.success(
+              current2.current.t("workspace.browser.pluginAddedToCanvas"),
+            );
+          await browser2.completeVideoDownload({
+            requestId: request.requestId,
+            ok: true,
+          });
+        } catch (error) {
+          void window.hilo?.logger
+            ?.warn(
+              `[browser-video] ${error instanceof Error ? error.message : String(error)}`,
+              "browser-video",
+            )
+            .catch(() => {});
+          await browser2.completeVideoDownload({
+            requestId: request.requestId,
+            ok: false,
+            error: downloaded
+              ? current2.current.t(
+                  "workspace.browser.videoAttachmentFailed",
+                  "视频已保存到项目，但未能添加到对话。请从项目素材中重新添加。",
+                )
+              : current2.current.t(
+                  "workspace.browser.videoDownloadFailed",
+                  "无法下载此视频，请确认视频可以公开访问后重试。",
+                ),
+          });
+        }
+      })().catch(() => {});
+    });
+    return () => {
+      active2 = false;
+      stop();
+    };
+  }, [browser2]);
+}
+
+const WORKSPACE_VIEW_MODE_CONTROL_WIDTH = 104;
+
+const WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH = 120;
+
+const WORKSPACE_VIEW_MODE_CONTROL_GAP = 6;
+
+const WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH = 32;
+
+function isWorkspaceMode$1(value) {
+  return value === "chatOnly" || value === "split" || value === "canvasOnly";
+}
+
+function isWorkspacePaneOrder(value) {
+  return value === "chat-canvas" || value === "canvas-chat";
+}
+
+function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
+  const chatOnLeft = paneOrder === "chat-canvas";
+  const leftActive =
+    mode2 === "split" || (mode2 === "chatOnly" ? chatOnLeft : !chatOnLeft);
+  const rightActive =
+    mode2 === "split" || (mode2 === "chatOnly" ? !chatOnLeft : chatOnLeft);
+  return (
+    <svg
+      viewBox="0 0 18 18"
+      aria-hidden="true"
+      className={cn$2("size-4 shrink-0", className)}
+      data-workspace-view-mode-icon="true"
+      data-left-active={leftActive ? "true" : "false"}
+      data-right-active={rightActive ? "true" : "false"}
+    >
+      <rect
+        x="1.25"
+        y="2.25"
+        width="15.5"
+        height="13.5"
+        rx="3"
+        fill="none"
+        className="stroke-current opacity-65"
+        strokeWidth="1.25"
+      />
+      <rect
+        x="2.75"
+        y="3.75"
+        width="5.25"
+        height="10.5"
+        rx="1.5"
+        className={
+          leftActive ? "fill-current opacity-60" : "fill-current opacity-[0.12]"
+        }
+      />
+      <rect
+        x="10"
+        y="3.75"
+        width="5.25"
+        height="10.5"
+        rx="1.5"
+        className={
+          rightActive
+            ? "fill-current opacity-60"
+            : "fill-current opacity-[0.12]"
+        }
+      />
+    </svg>
+  );
+}
+
+function WorkspaceViewModeMenu({
+  mode: mode2,
+  paneOrder,
+  onModeChange,
+  onPaneOrderChange,
+  variant = "chat-header",
+  source = "chat",
+  align = "end",
+  compact = false,
+  coachMarkEnabled = false,
+  triggerRef: externalTriggerRef,
+  onControlWidthChange,
+}) {
+  const { t: t2 } = useTranslation();
+  const paneReorder = useWorkspacePaneReorder();
+  const internalTriggerRef = reactExports.useRef(null);
+  const triggerRef = externalTriggerRef ?? internalTriggerRef;
+  const hasBlockingModal = useHasBlockingModal();
+  const [menuOpen, setMenuOpen] = reactExports.useState(false);
+  useBrowserHoverPreview(menuOpen);
+  const platformOs = getPlatform().app.os;
+  const shortcutText = resolveShortcutDisplay(
+    platformOs === "darwin"
+      ? WORKSPACE_DISPLAY_MODE_SHORTCUT.mac
+      : WORKSPACE_DISPLAY_MODE_SHORTCUT.other,
+    platformOs,
+  ).text;
+  const label = t2("workspace.layout.label", "Workspace layout");
+  const currentModeLabel =
+    mode2 === "split"
+      ? t2("workspace.layout.chatAndCanvas", "Chat + Canvas")
+      : mode2 === "chatOnly"
+        ? t2("workspace.layout.chatOnly", "Chat only")
+        : t2("workspace.layout.canvasOnly", "Canvas only");
+  const requestPaneOrderChange = (targetOrder) => {
+    if (paneReorder?.enabled && paneReorder.requestPaneOrderChange) {
+      paneReorder.requestPaneOrderChange(targetOrder);
+      return;
+    }
+    onPaneOrderChange(targetOrder);
+  };
+  const reportControlWidth = reactExports.useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger || !onControlWidthChange) return;
+    const nextWidth = Math.ceil(
+      trigger.getBoundingClientRect().width || trigger.offsetWidth,
+    );
+    if (nextWidth > 0) onControlWidthChange(nextWidth);
+  }, [onControlWidthChange, triggerRef]);
+  reactExports.useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!trigger || !onControlWidthChange) return;
+    reportControlWidth();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", reportControlWidth);
+      return () => window.removeEventListener("resize", reportControlWidth);
+    }
+    const observer2 = new ResizeObserver(reportControlWidth);
+    observer2.observe(trigger);
+    return () => observer2.disconnect();
+  }, [onControlWidthChange, reportControlWidth, triggerRef]);
+  return (
+    <>
+      <TooltipProvider$1 delay={150} closeDelay={0}>
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <Tooltip$1 content={label} closeOnClick={true}>
+            <DropdownMenuTrigger
+              ref={triggerRef}
+              type="button"
+              aria-label={`${label}: ${currentModeLabel}`}
+              title={compact ? currentModeLabel : void 0}
+              data-action-ui-id={`workspace.view-mode-menu.${source}`}
+              data-window-drag-region="no-drag"
+              data-workspace-layout-label={mode2}
+              style={{
+                width: compact
+                  ? WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH
+                  : void 0,
+              }}
+              className={cn$2(
+                "flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50",
+                compact
+                  ? // Keep the compact Chat-header variant icon-only; the shortcut
+                    // hint lives inside the opened display-mode menu.
+                    "-mt-0.5 h-7 rounded-md px-2 text-foreground/65 hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
+                  : cn$2(
+                      "px-2",
+                      variant === "chat-header"
+                        ? "h-7 rounded-md text-foreground/65 hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
+                        : "h-8 rounded-lg text-foreground/70 hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.08] data-[popup-open]:text-foreground",
+                    ),
+              )}
+            >
+              <WorkspaceViewModeIcon mode={mode2} paneOrder={paneOrder} />
+              {compact ? null : (
+                <span className="truncate">{currentModeLabel}</span>
+              )}
+              {compact ? null : (
+                <ChevronDown
+                  className="size-3.5 shrink-0 opacity-50"
+                  strokeWidth={1.5}
+                />
+              )}
+            </DropdownMenuTrigger>
+          </Tooltip$1>
+          <DropdownMenuContent
+            align={align}
+            side="bottom"
+            sideOffset={variant === "stage-chrome" ? 8 : 6}
+            className="min-w-44"
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="flex items-center justify-between gap-4">
+                <span>{t2("workspace.layout.mode", "Layout mode")}</span>
+                <ShortcutHint
+                  accelerator={WORKSPACE_DISPLAY_MODE_SHORTCUT.mac}
+                  otherAccelerator={WORKSPACE_DISPLAY_MODE_SHORTCUT.other}
+                  os={platformOs}
+                  data-workspace-layout-shortcut="true"
+                  className="h-4 min-w-4 shrink-0 rounded-[4px] px-0.5 text-[10px] opacity-80"
+                />
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={mode2}
+                aria-label={t2("workspace.layout.mode", "Layout mode")}
+                onValueChange={(value) => {
+                  if (isWorkspaceMode$1(value)) onModeChange(value);
+                }}
+              >
+                <DropdownMenuRadioItem
+                  value="split"
+                  data-action-ui-id="workspace.view-mode.split"
+                >
+                  <WorkspaceViewModeIcon
+                    mode="split"
+                    paneOrder={paneOrder}
+                    className="size-4"
+                  />
+                  <span>
+                    {t2("workspace.layout.chatAndCanvas", "Chat + Canvas")}
+                  </span>
+                </DropdownMenuRadioItem>
+                {mode2 === "split" ? (
+                  <div
+                    className="ml-5 border-l border-border/60 pl-1"
+                    data-workspace-layout-secondary="chat-position"
+                  >
+                    <DropdownMenuRadioGroup
+                      value={paneOrder}
+                      aria-label={t2(
+                        "workspace.layout.chatPosition",
+                        "Chat position",
+                      )}
+                      onValueChange={(value) => {
+                        if (isWorkspacePaneOrder(value))
+                          requestPaneOrderChange(value);
+                      }}
+                    >
+                      <DropdownMenuRadioItem
+                        value="chat-canvas"
+                        data-action-ui-id="workspace.pane-order.chat-left"
+                      >
+                        <span>
+                          {t2("workspace.layout.chatLeft", "Chat on left")}
+                        </span>
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem
+                        value="canvas-chat"
+                        data-action-ui-id="workspace.pane-order.chat-right"
+                      >
+                        <span>
+                          {t2("workspace.layout.chatRight", "Chat on right")}
+                        </span>
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </div>
+                ) : null}
+                <DropdownMenuRadioItem
+                  value="chatOnly"
+                  data-action-ui-id="workspace.view-mode.chat-only"
+                >
+                  <WorkspaceViewModeIcon
+                    mode="chatOnly"
+                    paneOrder={paneOrder}
+                    className="size-4"
+                  />
+                  <span>{t2("workspace.layout.chatOnly", "Chat only")}</span>
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  value="canvasOnly"
+                  data-action-ui-id="workspace.view-mode.canvas-only"
+                >
+                  <WorkspaceViewModeIcon
+                    mode="canvasOnly"
+                    paneOrder={paneOrder}
+                    className="size-4"
+                  />
+                  <span>
+                    {t2("workspace.layout.canvasOnly", "Canvas only")}
+                  </span>
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TooltipProvider$1>
+      {coachMarkEnabled && !hasBlockingModal ? (
+        <CoachMark
+          markId="workspace-display-mode-shortcut-intro"
+          enabled={true}
+          anchorRef={triggerRef}
+          side="bottom"
+          align="end"
+          showClose={true}
+          title={t2(
+            "coachMark.workspace.displayMode.title",
+            "Quickly switch display modes",
+          )}
+          description={t2("coachMark.workspace.displayMode.desc", {
+            defaultValue:
+              "Press {{shortcut}} to open the full-screen display mode switcher. Use arrow keys to preselect and Enter to apply.",
+            shortcut: shortcutText,
+          })}
+          ctaLabel={t2("coachMark.gotIt", "Got it")}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function useChatReferenceReveal(isActive2, reveal) {
+  reactExports.useEffect(() => {
+    if (isActive2 === false) return;
+    const subscription = workspaceEvents.onAddPluginNodeToChat(reveal);
+    window.addEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
+    return () => {
+      subscription.dispose();
+      window.removeEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
+    };
+  }, [isActive2, reveal]);
+}
+
+function toRevertEdit(hunk) {
+  return {
+    annotationId: hunk.id,
+    exact: hunk.replacement,
+    ...(hunk.reversePrefix
+      ? {
+          prefix: hunk.reversePrefix,
+        }
+      : {}),
+    ...(hunk.reverseSuffix
+      ? {
+          suffix: hunk.reverseSuffix,
+        }
+      : {}),
+    ...(hunk.replacement && hunk.reverseOccurrence !== void 0
+      ? {
+          occurrence: hunk.reverseOccurrence,
+        }
+      : {}),
+    replacement: hunk.originalText,
+  };
+}
+
+function mapRevertResponse(raw2) {
+  if (!raw2 || typeof raw2 !== "object") return null;
+  const record2 = raw2;
+  if (
+    typeof record2.nodeId !== "string" ||
+    typeof record2.content !== "string" ||
+    !Array.isArray(record2.results)
+  )
+    return null;
+  const results = [];
+  for (const item of record2.results) {
+    if (!item || typeof item !== "object") return null;
+    const entry = item;
+    if (
+      typeof entry.annotationId !== "string" ||
+      typeof entry.status !== "string"
+    )
+      return null;
+    results.push({
+      annotationId: entry.annotationId,
+      status: entry.status === "applied" ? "applied" : "conflict",
+    });
+  }
+  return {
+    nodeId: record2.nodeId,
+    status: record2.status === "applied" ? "applied" : "conflict",
+    contentHash:
+      typeof record2.contentHash === "string" ? record2.contentHash : "",
+    content: record2.content,
+    results,
+  };
+}
+
+function useDocumentEditReviewHost(enabled) {
+  const gatewayFetch2 = useGatewayFetch();
+  const { t: t2 } = useTranslation();
+  reactExports.useEffect(() => {
+    if (!enabled) return;
+    const handler = async (nodeId, hunks) => {
+      const ordered = [...hunks].sort((a2, b3) => b3.startLine - a2.startLine);
+      const failAll = () => ({
+        undoneIds: [],
+        failedIds: ordered.map((hunk) => hunk.id),
+      });
+      let response = null;
+      try {
+        const resp = await gatewayFetch2("/api/canvas/text-node/revert-edits", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nodeId,
+            edits: ordered.map(toRevertEdit),
+          }),
+        });
+        if (!resp.ok) {
+          dedupedToast.error(
+            t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+          );
+          return failAll();
+        }
+        response = mapRevertResponse(await resp.json());
+      } catch {
+        dedupedToast.error(
+          t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+        );
+        return failAll();
+      }
+      if (!response) {
+        dedupedToast.error(
+          t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+        );
+        return failAll();
+      }
+      const undoneIds = [];
+      const failedIds = [];
+      for (const result of response.results) {
+        (result.status === "applied" ? undoneIds : failedIds).push(
+          result.annotationId,
+        );
+      }
+      if (failedIds.length > 0) {
+        dedupedToast.error(
+          t2(
+            "chat.diffReview.undoPartial",
+            "{{count}} 处修改无法撤销（内容已变化）",
+            {
+              count: failedIds.length,
+            },
+          ),
+        );
+      }
+      return {
+        undoneIds,
+        failedIds,
+        content: response.content,
+      };
+    };
+    useDiffReviewStore.getState().setUndoHandler(handler);
+    return () => {
+      useDiffReviewStore.getState().setUndoHandler(null);
+    };
+  }, [enabled, gatewayFetch2, t2]);
+}
+
+function selectWorkspaceStageLayout(state2) {
+  const chatVisible = state2.workspaceMode !== "canvasOnly";
+  const canvasVisible = state2.workspaceMode !== "chatOnly";
+  const structuralPanes = (canvasFirst) => {
+    if (!chatVisible)
+      return state2.filesMode === "docked" ? ["canvas", "files"] : ["canvas"];
+    if (!canvasVisible) return ["chat"];
+    if (state2.filesMode !== "docked")
+      return canvasFirst ? ["canvas", "chat"] : ["chat", "canvas"];
+    return canvasFirst
+      ? ["canvas", "files", "chat"]
+      : ["chat", "canvas", "files"];
+  };
+  if (state2.paneOrder === "chat-canvas") {
+    return {
+      canvasSide: "right",
+      seamSide: "left",
+      toolbarCorner: "top-right",
+      filesPeekDirection: "left",
+      visiblePanes: structuralPanes(false),
+    };
+  }
+  return {
+    canvasSide: "left",
+    seamSide: "right",
+    toolbarCorner: "top-right",
+    filesPeekDirection: "left",
+    visiblePanes: structuralPanes(true),
+  };
+}
+
+const MemoizedCanvasArea = reactExports.memo(
+  CanvasArea,
+  (prev, next2) =>
+    prev.onCanvasTasksChange === next2.onCanvasTasksChange &&
+    prev.onRenderableContentChange === next2.onRenderableContentChange &&
+    prev.assetPanelOpen === next2.assetPanelOpen &&
+    prev.assetPanelControlsId === next2.assetPanelControlsId &&
+    prev.onToggleAssetPanel === next2.onToggleAssetPanel &&
+    prev.browserOpen === next2.browserOpen &&
+    prev.onToggleBrowser === next2.onToggleBrowser &&
+    prev.isActive === next2.isActive &&
+    prev.isPresented === next2.isPresented &&
+    prev.workspaceId === next2.workspaceId &&
+    prev.workspaceName === next2.workspaceName &&
+    prev.getTextEditCloseBlockReason === next2.getTextEditCloseBlockReason &&
+    prev.toolbarPlacement === next2.toolbarPlacement &&
+    prev.layoutRelocationKey === next2.layoutRelocationKey,
+);
+
+function RemoteToolHost() {
+  const {
+    remoteToolRequest,
+    remoteToolDialogSessionId,
+    clearRemoteToolRequest,
+    clearPendingRemoteToolRequest,
+    lastSkillGuiEvent,
+    sendSkillGuiEvent,
+  } = useWorkspaceRemoteTool();
+  const { i18n } = useTranslation();
+  const accountSubmissionAllowed = useAccountSubmissionAllowed("remote_tool");
+  if (!remoteToolRequest) return null;
+  return (
+    <RemoteToolDialog
+      open={true}
+      onClose={clearRemoteToolRequest}
+      toolUrl={remoteToolRequest.toolUrl}
+      manifestPath={remoteToolRequest.manifestPath}
+      toolId={remoteToolRequest.toolName}
+      locale={i18n.language}
+      initialParams={remoteToolRequest.initialParams}
+      interactionDisabled={!accountSubmissionAllowed}
+      onGuiEvent={(eventType, data2) => {
+        if (
+          eventType !== "gui:ready" &&
+          eventType !== "generate:submit" &&
+          eventType !== "generate:cancel"
+        ) {
+          return;
+        }
+        const sent = sendSkillGuiEvent(
+          remoteToolRequest.toolName,
+          eventType,
+          data2,
+          remoteToolDialogSessionId ?? void 0,
+        );
+        if (eventType === "generate:submit" && sent) {
+          clearPendingRemoteToolRequest();
+          clearRemoteToolRequest();
+        }
+      }}
+      hostEvent={
+        lastSkillGuiEvent
+          ? {
+              eventType: lastSkillGuiEvent.event_type,
+              data: lastSkillGuiEvent.data,
+            }
+          : null
+      }
+    />
+  );
+}
+
 export function WorkspaceContent({
   assetPanel,
   stageState,
@@ -58,17 +734,25 @@ export function WorkspaceContent({
   const textEditSessionRef = reactExports.useRef(null);
   const textEditActive = textEditSession !== null;
   const [pluginEditSession, setPluginEditSession] = reactExports.useState(null);
-  const [pluginEditAgentName, setPluginEditAgentName] = reactExports.useState(void 0);
-  const [pluginEditPluginId, setPluginEditPluginId] = reactExports.useState(void 0);
+  const [pluginEditAgentName, setPluginEditAgentName] =
+    reactExports.useState(void 0);
+  const [pluginEditPluginId, setPluginEditPluginId] =
+    reactExports.useState(void 0);
   const pluginEditSessionRef = reactExports.useRef(null);
   const pluginEditActive = pluginEditSession !== null;
   const editSurfaceActive = textEditActive || pluginEditActive;
-  const enterTextEditAgent = useWorkspaceChatSelector((chat) => chat.enterTextEditAgent);
-  const leaveTextEditAgent = useWorkspaceChatSelector((chat) => chat.leaveTextEditAgent);
+  const enterTextEditAgent = useWorkspaceChatSelector(
+    (chat) => chat.enterTextEditAgent,
+  );
+  const leaveTextEditAgent = useWorkspaceChatSelector(
+    (chat) => chat.leaveTextEditAgent,
+  );
   const clearTextEditSessionsForNode = useWorkspaceChatSelector(
     (chat) => chat.clearTextEditSessionsForNode,
   );
-  const textEditAgentState = useWorkspaceChatSelector((chat) => chat.textEditAgentState);
+  const textEditAgentState = useWorkspaceChatSelector(
+    (chat) => chat.textEditAgentState,
+  );
   const getTextEditCloseBlockReason = useWorkspaceChatSelector(
     (chat) => chat.getTextEditCloseBlockReason,
   );
@@ -85,7 +769,8 @@ export function WorkspaceContent({
       ? textEditAgentState.status
       : "resolving";
   const textEditSelectionRef = reactExports.useRef(null);
-  const [hasTextEditSelection, setHasTextEditSelection] = reactExports.useState(false);
+  const [hasTextEditSelection, setHasTextEditSelection] =
+    reactExports.useState(false);
   useDocumentEditReviewHost(isActive2 !== false);
   reactExports.useEffect(() => {
     if (isActive2 === false) return;
@@ -107,7 +792,10 @@ export function WorkspaceContent({
         return;
       }
       const current2 = textEditSessionRef.current;
-      if (current2?.nodeId === e2.nodeId && current2.editSessionId === e2.editSessionId) {
+      if (
+        current2?.nodeId === e2.nodeId &&
+        current2.editSessionId === e2.editSessionId
+      ) {
         leaveTextEditAgent(session);
         textEditSessionRef.current = null;
         textEditSelectionRef.current = null;
@@ -116,7 +804,13 @@ export function WorkspaceContent({
       }
     });
     return () => d2.dispose();
-  }, [dispatchStage, enterTextEditAgent, isActive2, leaveTextEditAgent, workspaceId2]);
+  }, [
+    dispatchStage,
+    enterTextEditAgent,
+    isActive2,
+    leaveTextEditAgent,
+    workspaceId2,
+  ]);
   reactExports.useEffect(() => {
     if (isActive2 === false) return;
     const d2 = workspaceEvents.onPluginEditActive((e2) => {
@@ -137,7 +831,10 @@ export function WorkspaceContent({
         return;
       }
       const current2 = pluginEditSessionRef.current;
-      if (current2?.nodeId === e2.nodeId && current2.editSessionId === e2.editSessionId) {
+      if (
+        current2?.nodeId === e2.nodeId &&
+        current2.editSessionId === e2.editSessionId
+      ) {
         leaveTextEditAgent(session);
         pluginEditSessionRef.current = null;
         setPluginEditSession(null);
@@ -146,7 +843,13 @@ export function WorkspaceContent({
       }
     });
     return () => d2.dispose();
-  }, [dispatchStage, enterTextEditAgent, isActive2, leaveTextEditAgent, workspaceId2]);
+  }, [
+    dispatchStage,
+    enterTextEditAgent,
+    isActive2,
+    leaveTextEditAgent,
+    workspaceId2,
+  ]);
   reactExports.useEffect(() => {
     const d2 = workspaceEvents.onTextNodeRemoved((e2) => {
       if (e2.workspaceId !== workspaceId2) return;
@@ -155,12 +858,16 @@ export function WorkspaceContent({
     return () => d2.dispose();
   }, [clearTextEditSessionsForNode, workspaceId2]);
   const [annotations, setAnnotations] = reactExports.useState([]);
-  const [activeAnnotationId, setActiveAnnotationId] = reactExports.useState(null);
+  const [activeAnnotationId, setActiveAnnotationId] =
+    reactExports.useState(null);
   reactExports.useEffect(() => {
     if (isActive2 === false) return;
     const matchesCurrentEditor = (event) => {
       const current2 = textEditSessionRef.current;
-      return current2?.nodeId === event.nodeId && current2.editSessionId === event.editSessionId;
+      return (
+        current2?.nodeId === event.nodeId &&
+        current2.editSessionId === event.editSessionId
+      );
     };
     const dChanged = workspaceEvents.onAnnotationsChanged((e2) => {
       if (e2.workspaceId !== workspaceId2 || !matchesCurrentEditor(e2)) return;
@@ -217,12 +924,17 @@ export function WorkspaceContent({
       type: "clear",
     });
   }, [workspaceId2]);
-  const chatVisible = editSurfaceActive || stageState.workspaceMode !== "canvasOnly";
-  const canvasOpen = editSurfaceActive || stageState.workspaceMode !== "chatOnly";
+  const chatVisible =
+    editSurfaceActive || stageState.workspaceMode !== "canvasOnly";
+  const canvasOpen =
+    editSurfaceActive || stageState.workspaceMode !== "chatOnly";
   const filesPresentationRef = reactExports.useRef("peek");
-  if (stageState.filesMode !== "closed") filesPresentationRef.current = stageState.filesMode;
-  const [filesSurfacePresentation, setFilesSurfacePresentation] = reactExports.useState("closed");
-  const [displayModeSwitcherOpen, setDisplayModeSwitcherOpen] = reactExports.useState(false);
+  if (stageState.filesMode !== "closed")
+    filesPresentationRef.current = stageState.filesMode;
+  const [filesSurfacePresentation, setFilesSurfacePresentation] =
+    reactExports.useState("closed");
+  const [displayModeSwitcherOpen, setDisplayModeSwitcherOpen] =
+    reactExports.useState(false);
   reactExports.useEffect(() => {
     if (isActive2 !== false) return;
     setDisplayModeSwitcherOpen(false);
@@ -243,7 +955,8 @@ export function WorkspaceContent({
       setPluginEditPluginId(void 0);
     }
   }, [isActive2, leaveTextEditAgent]);
-  const { mode: globalSidebarMode, setPinned: setGlobalSidebarPinned } = useGlobalSidebar();
+  const { mode: globalSidebarMode, setPinned: setGlobalSidebarPinned } =
+    useGlobalSidebar();
   const globalSidebarCollapsed = globalSidebarMode === "rail";
   const handleWorkspaceModeChange = reactExports.useCallback(
     (targetMode) => {
@@ -261,7 +974,10 @@ export function WorkspaceContent({
         return;
       }
       dispatchStage({
-        type: stageState.workspaceMode === "canvasOnly" ? "chat/open" : "canvas/open",
+        type:
+          stageState.workspaceMode === "canvasOnly"
+            ? "chat/open"
+            : "canvas/open",
       });
     },
     [dispatchStage, stageState.workspaceMode],
@@ -305,7 +1021,8 @@ export function WorkspaceContent({
       setBrowserOpen(true);
     };
     window.addEventListener("hilo:open-browser", openBrowserFromFallback);
-    const unsubscribe = window.hilo?.browser?.onSurfaceRequested?.(openBrowserFromAgent);
+    const unsubscribe =
+      window.hilo?.browser?.onSurfaceRequested?.(openBrowserFromAgent);
     return () => {
       window.removeEventListener("hilo:open-browser", openBrowserFromFallback);
       unsubscribe?.();
@@ -326,16 +1043,20 @@ export function WorkspaceContent({
       [dispatchStage],
     ),
   );
-  const stageControlOverChat = !canvasOpen || (chatVisible && stageLayout.canvasSide === "left");
-  const stageControlOverCanvas = canvasOpen && (!chatVisible || stageLayout.canvasSide === "right");
+  const stageControlOverChat =
+    !canvasOpen || (chatVisible && stageLayout.canvasSide === "left");
+  const stageControlOverCanvas =
+    canvasOpen && (!chatVisible || stageLayout.canvasSide === "right");
   const stageViewModeCompact = stageControlOverChat && canvasOpen;
   const stageViewModeControlEstimate = stageViewModeCompact
     ? WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH
     : stageState.workspaceMode === "split"
       ? WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH
       : WORKSPACE_VIEW_MODE_CONTROL_WIDTH;
-  const [stageViewModeMeasuredWidth, setStageViewModeMeasuredWidth] = reactExports.useState(null);
-  const stageViewModeControlWidth = stageViewModeMeasuredWidth ?? stageViewModeControlEstimate;
+  const [stageViewModeMeasuredWidth, setStageViewModeMeasuredWidth] =
+    reactExports.useState(null);
+  const stageViewModeControlWidth =
+    stageViewModeMeasuredWidth ?? stageViewModeControlEstimate;
   const stageViewModeTriggerRef = reactExports.useRef(null);
   const stageViewModeMenu = reactExports.useMemo(
     () => (
@@ -347,7 +1068,9 @@ export function WorkspaceContent({
         variant="stage-chrome"
         source="stage"
         compact={stageViewModeCompact}
-        coachMarkEnabled={Boolean(isActive2) && stageLayoutReady && !displayModeSwitcherOpen}
+        coachMarkEnabled={
+          Boolean(isActive2) && stageLayoutReady && !displayModeSwitcherOpen
+        }
         triggerRef={stageViewModeTriggerRef}
         onControlWidthChange={setStageViewModeMeasuredWidth}
       />
@@ -430,11 +1153,16 @@ export function WorkspaceContent({
     />
   );
   const filesOverlayInset =
-    filesSurfacePresentation === "drawer-overlay" ? `${assetPanel.width + 8}px` : "0px";
+    filesSurfacePresentation === "drawer-overlay"
+      ? `${assetPanel.width + 8}px`
+      : "0px";
   const stageControlsRightInset =
     8 +
     (stageControlOverCanvas
-      ? resolveCanvasSidebarRightEdgeInset(filesSurfacePresentation, assetPanel.width)
+      ? resolveCanvasSidebarRightEdgeInset(
+          filesSurfacePresentation,
+          assetPanel.width,
+        )
       : 0);
   const canvasViewport = (
     <div
@@ -527,125 +1255,4 @@ export function WorkspaceContent({
       <RemoteToolHost />
     </div>
   );
-}
-export function SkillPromptInjector({ skillPrompt, skillName, workspaceId: workspaceId2 }) {
-  const setInput = useWorkspaceChatSelector((chat) => chat.setInput);
-  const trackInputChange = useWorkspaceChatSelector((chat) => chat.trackInputChange);
-  const navigate = useNavigate();
-  const scopedFetch = useGatewayFetch();
-  const applied = reactExports.useRef(false);
-  reactExports.useEffect(() => {
-    if (applied.current) return;
-    if (!skillName && !skillPrompt) return;
-    applied.current = true;
-    const clearSearch = () =>
-      navigate({
-        to: "/workspace",
-        search: buildWorkspaceSearch(workspaceId2 ?? "", {
-          skillPrompt: void 0,
-          skillName: void 0,
-        }),
-        replace: true,
-      });
-    if (skillName) {
-      scopedFetch(API_PATHS.skills)
-        .then((r2) => (r2.ok ? r2.json() : []))
-        .then((data2) => {
-          if (!Array.isArray(data2)) return;
-          const skill = data2.find(
-            (s2) => s2 != null && typeof s2 === "object" && "name" in s2 && s2.name === skillName,
-          );
-          if (skill) {
-            requestAnimationFrame(() => {
-              workspaceEvents.queueAddSkillToChat(workspaceId2 ?? "", skill);
-            });
-          }
-        })
-        .catch(() => {})
-        .finally(clearSearch);
-      return;
-    }
-    if (skillPrompt) {
-      setInput(skillPrompt);
-      trackInputChange(skillPrompt);
-      clearSearch();
-    }
-  }, [skillName, skillPrompt, setInput, trackInputChange, navigate, workspaceId2, scopedFetch]);
-  return null;
-}
-export function MenuActionInjector({ skillPrompt, menuAction, workspaceId: workspaceId2 }) {
-  const navigate = useNavigate();
-  const connected = useWorkspaceChatSelector((chat) => chat.connected);
-  const sendWsMessage = useWorkspaceChatSelector((chat) => chat.sendWsMessage);
-  const { openSettings } = useSettingsDialog();
-  const handledRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
-    if (!menuAction) {
-      handledRef.current = null;
-      return;
-    }
-    if (handledRef.current === menuAction) return;
-    if (menuAction === "open-settings") {
-      handledRef.current = menuAction;
-      openSettings();
-      void navigate({
-        to: "/workspace",
-        search: buildWorkspaceSearch(workspaceId2 ?? "", {
-          skillPrompt,
-        }),
-        replace: true,
-      });
-      return;
-    }
-    if (!connected) return;
-    handledRef.current = menuAction;
-    sendWsMessage({
-      type: "create_session",
-    });
-    void navigate({
-      to: "/workspace",
-      search: buildWorkspaceSearch(workspaceId2 ?? "", {
-        skillPrompt,
-      }),
-      replace: true,
-    });
-  }, [connected, menuAction, navigate, openSettings, sendWsMessage, skillPrompt, workspaceId2]);
-  return null;
-}
-const TASK_PROMPT_PREVIEW_MAX_LENGTH = 36;
-export function normalizeTaskPromptPreview(content2) {
-  const normalized = content2.replace(/\s+/g, " ").trim();
-  if (!normalized) return void 0;
-  return normalized.length > TASK_PROMPT_PREVIEW_MAX_LENGTH
-    ? `${normalized.slice(0, TASK_PROMPT_PREVIEW_MAX_LENGTH)}...`
-    : normalized;
-}
-export function getLatestUserPromptPreview(messages2) {
-  if (!messages2) return void 0;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
-    if (message2.role !== "user" || message2.type !== "text") continue;
-    const preview = normalizeTaskPromptPreview(message2.content);
-    if (preview) return redactForCurrentRegion(preview);
-  }
-  return void 0;
-}
-export function patchCanvasTasks(prev, update2) {
-  const next2 = new Map(prev.map((task) => [task.id, task]));
-  for (const id2 of update2.removedNodeIds ?? []) {
-    next2.delete(id2);
-  }
-  for (const node2 of update2.addedNodes ?? []) {
-    const task = getCanvasTaskSnapshot(node2);
-    if (task) next2.set(task.id, task);
-  }
-  for (const node2 of update2.updatedNodes ?? []) {
-    const task = getCanvasTaskSnapshot(node2);
-    if (task) {
-      next2.set(task.id, task);
-      continue;
-    }
-    next2.delete(node2.id);
-  }
-  return Array.from(next2.values());
 }

@@ -1,128 +1,118 @@
 // txt-popover-inner.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, useAssetMetadataApi, useAssetMetadataStore, X$7, dedupedToast, useMusicPromptLayout, Lock, ChevronDown } from "../vendor.js";
-import { useCanvasBridge } from "../media-editing/parse-item.jsx";
-import { BACKEND_SEEDAUDIO } from "./push-inline.js";
-import { PromptTextarea, ParamsChip, ParamsPopup } from "./params-popup.jsx";
-import { rejectedReferencePaths } from "../media-editing/use-lightbox-media-actions.jsx";
 import {
-  translateOptionValue,
+  ChevronDown,
+  dedupedToast,
+  jsxRuntimeExports,
+  Lock,
+  reactDomExports,
+  reactExports,
+  useAssetMetadataApi,
+  useAssetMetadataStore,
+  useMusicPromptLayout,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import { summarizeParams$1 } from "./summarize-params.js";
+import { useCanvasBridge } from "../media-editing/package.jsx";
+import { BACKEND_SEEDAUDIO } from "./normalize-skill-detail-metadata.js";
+import { PromptTextarea } from "./time-intervals.jsx";
+import { ParamsChip } from "./params-chip.jsx";
+import { ParamsPopup } from "./params-popup.jsx";
+import { rejectedReferencePaths } from "../media-editing/use-warn-missing-asset-meta.jsx";
+import {
+  attachmentExtraHeight,
+  buildPromotionClickHandler,
+  enforceConstraints,
   getDefaultParams,
   migrateParamsForModel,
-  enforceConstraints,
   paramI18nKey,
-  paramPlaceholderI18nKey,
   paramLabelFallback,
   paramPlaceholderFallback,
-  getDisabledOptions,
-  buildPromotionClickHandler,
-  attachmentExtraHeight,
-} from "./resolve-reference-texts.js";
+  paramPlaceholderI18nKey,
+} from "./param-label-fallbacks.js";
+import { getDisabledOptions } from "./resolve-reference-texts.js";
 import {
-  ExpandToggleButton,
-  formatSecondsOption,
-  ParamTextarea,
-  ParamTabs,
-  GeneratingButton,
-  DualSubmitButtons,
-  SubmitButton,
   CloseButton$1,
-} from "./param-tabs.jsx";
+  ExpandToggleButton,
+  GeneratingButton,
+  ParamTextarea,
+} from "./expand-arrow-icon.jsx";
+import { ParamTabs } from "./param-tabs.jsx";
+import { DualSubmitButtons } from "./dual-submit-buttons.jsx";
+import { SubmitButton } from "./submit-button.jsx";
+import { useAssetsRefValidate } from "../assets/use-assets-ref-validate.js";
 import {
-  useAssetsRefValidate,
-  extractCanvasEditorText,
-  countPromptCharacters,
-  parsePromptToTiptap,
-  useReferenceTextContent,
-  createComposedPromptCharacterCounter,
-  extractCanvasEditorSubmitText,
-  loadReferenceTextContent,
   composePromptWithUpstreamText,
   countCompiledMediaPromptCharacters,
-  compileChipPromptForModel,
-} from "../assets/use-assets-ref-validate.js";
+  countPromptCharacters,
+  createComposedPromptCharacterCounter,
+  extractCanvasEditorSubmitText,
+  extractCanvasEditorText,
+  loadReferenceTextContent,
+  parsePromptToTiptap,
+  useReferenceTextContent,
+} from "../assets/parse-prompt-to-tiptap.js";
+import { compileChipPromptForModel } from "../assets/compile-chip-prompt-for-model.js";
 import {
-  MIN_MUSIC_BILLING_SECONDS,
   audioModeForModel,
-  modelBelongsToAudioMode,
-  calcVideoCost,
-  resolveAudioPricingId,
-  isPerMinuteCreditCost,
-  calcTTSCost,
-  getPlaceholder,
-  createPopoverModelInitializationKey,
-  stringRecordsEqual,
-  resolveAudioModeSelection,
-  resolveModelSelection,
-  isAudioModeBackend,
-  nextAtPickerState,
   CanvasSwitch,
+  createPopoverModelInitializationKey,
+  getPlaceholder,
+  isAudioModeBackend,
+  MIN_MUSIC_BILLING_SECONDS,
+  modelBelongsToAudioMode,
+  nextAtPickerState,
+  resolveAudioModeSelection,
+  resolveAudioPricingId,
+  resolveModelSelection,
   Select$2,
-  SelectTrigger$1,
-  SelectValue$1,
   SelectContent$1,
   SelectItem$1,
-} from "./calc-video-cost-breakdown.jsx";
+  SelectTrigger$1,
+  SelectValue$1,
+  stringRecordsEqual,
+} from "./select-content.jsx";
+import { calcVideoCost } from "./calc-video-cost.js";
 import {
-  mediaExtensionDurationOptions,
-  mediaExtensionDisabledDurationOptions,
-  calcTextCost,
+  calcTTSCost,
+  isPerMinuteCreditCost,
+} from "./resolve-video-billing-tooltip.js";
+import {
   calcMusicCostDisplay,
+  calcTextCost,
   isMediaExtensionInputDurationValid,
   isMediaExtensionOutputDurationValid,
-  ParamSlider,
-} from "./slider.jsx";
-import { usePortalAnchorPlacement, ModelChip } from "./model-chip.jsx";
-import { pickPersistableModelParams } from "../canvas/prune-persisted-node-data.js";
-import { __jsx } from "../shared/jsx-runtime.js";
+  mediaExtensionDisabledDurationOptions,
+  mediaExtensionDurationOptions,
+} from "./resolution-tabs.jsx";
+import { ParamSlider } from "./param-slider.jsx";
+import { usePortalAnchorPlacement } from "./use-portal-anchor-placement.jsx";
+import { ModelChip } from "./model-chip.jsx";
+import { pickPersistableModelParams } from "../canvas/is-reexecutable-generation-node.js";
 import {
   AUDIO_REFERENCE_BAR_FIRST_ROW_EXTRA_HEIGHT,
-  MusicLengthParam,
-  PROMPT_LENGTH_HINT_EXTRA_HEIGHT,
-  SEEDAUDIO_CREDITS_PER_SECOND,
-  formatMusicLengthSummary,
   isCustomMusicLength,
   parseCustomMusicLengthSeconds,
+  PROMPT_LENGTH_HINT_EXTRA_HEIGHT,
+  SEEDAUDIO_CREDITS_PER_SECOND,
   usePopoverOpenTrack,
-  useReferenceAttachmentNavigation,
-} from "../media-editing/decode-worker-pool.jsx";
-import { PauseIcon, PlayIcon } from "../media-editing/media-clip-panel-inner.jsx";
+} from "../media-editing/get-reference-navigation-defaults.jsx";
+import { MusicLengthParam } from "../media-editing/music-length-param.jsx";
+import { useReferenceAttachmentNavigation } from "../media-editing/use-reference-attachment-navigation.js";
+import {
+  PauseIcon,
+  PlayIcon,
+} from "../media-editing/build-video-thumb-base.jsx";
 import { MentionPickerPopover } from "./mention-picker-popover.jsx";
 import { RichPromptInput } from "../chat/rich-prompt-input.jsx";
-import { DEFAULT_TEXT_REFERENCE_MAX, useAttachmentState } from "../assets/use-attachment-state.js";
-import { PopoverShell, TextPopoverReferenceSection } from "./use-direct-reference-picker.jsx";
-function summarizeParams$1(t2, model, modelParams) {
-  if (!model) return "";
-  const parts = [];
-  let hasAuto = false;
-  for (const [key2, def] of Object.entries(model.params)) {
-    if (key2 === "voice_id") continue;
-    if (key2 === "is_instrumental") continue;
-    if (def.type === "textarea") continue;
-    const value = modelParams[key2] ?? def.default;
-    if (key2 === "music_length_ms") {
-      if (!value || value === "auto") {
-        hasAuto = true;
-        continue;
-      }
-      parts.push(formatMusicLengthSummary(t2, value));
-      continue;
-    }
-    if (!value || value === "auto") {
-      if (value === "auto") hasAuto = true;
-      continue;
-    }
-    if (key2 === "duration") {
-      parts.push(formatSecondsOption(value));
-      continue;
-    }
-    parts.push(translateOptionValue(t2, value));
-  }
-  if (parts.length === 0 && hasAuto)
-    return t2("canvas.param.option.auto", {
-      defaultValue: "Auto",
-    });
-  return parts.join(" · ");
-}
+import { DEFAULT_TEXT_REFERENCE_MAX } from "../assets/reconcile-first-last-frame-default-paths.js";
+import { useAttachmentState } from "../assets/use-attachment-state.js";
+import {
+  PopoverShell,
+  TextPopoverReferenceSection,
+} from "./attachment-bar.jsx";
+
 export function TxtPopoverInner({
   mode: mode2,
   onSubmit,
@@ -171,15 +161,21 @@ export function TxtPopoverInner({
   const voiceAnchorRef = reactExports.useRef(null);
   const assetMetadataStore = useAssetMetadataApi();
   const mentionEnabled = mode2 === "text" && !!mentionPicker;
-  const [promptText, setPromptText] = reactExports.useState(defaultPrompt ?? "");
-  const [expanded, setExpanded] = reactExports.useState(navigationSnapshot?.expanded ?? false);
+  const [promptText, setPromptText] = reactExports.useState(
+    defaultPrompt ?? "",
+  );
+  const [expanded, setExpanded] = reactExports.useState(
+    navigationSnapshot?.expanded ?? false,
+  );
   const [paramsOpen, setParamsOpen] = reactExports.useState(false);
   const editorRef = reactExports.useRef(null);
-  const [editorHasText, setEditorHasText] = reactExports.useState(!!defaultPrompt);
+  const [editorHasText, setEditorHasText] =
+    reactExports.useState(!!defaultPrompt);
   const [editorPromptLength, setEditorPromptLength] = reactExports.useState(
     countPromptCharacters(defaultPrompt ?? ""),
   );
-  const [isResolvingTextReferences, setIsResolvingTextReferences] = reactExports.useState(false);
+  const [isResolvingTextReferences, setIsResolvingTextReferences] =
+    reactExports.useState(false);
   const textSubmitPendingRef = reactExports.useRef(false);
   const mountedRef = reactExports.useRef(true);
   reactExports.useEffect(() => {
@@ -216,7 +212,9 @@ export function TxtPopoverInner({
         });
         if (!hit) return null;
         const kind =
-          hit.type === "video" || hit.type === "audio" || hit.type === "text" ? hit.type : "image";
+          hit.type === "video" || hit.type === "audio" || hit.type === "text"
+            ? hit.type
+            : "image";
         return {
           path: hit.path,
           filename: hit.name,
@@ -245,7 +243,8 @@ export function TxtPopoverInner({
   const [filterAccent, setFilterAccent] = reactExports.useState("");
   const [filterGender, setFilterGender] = reactExports.useState("");
   const [filterAge, setFilterAge] = reactExports.useState("");
-  const [auditioningVoiceId, setAuditioningVoiceId] = reactExports.useState(null);
+  const [auditioningVoiceId, setAuditioningVoiceId] =
+    reactExports.useState(null);
   const auditionAudioRef = reactExports.useRef(null);
   const stopAudition = reactExports.useCallback(() => {
     const a2 = auditionAudioRef.current;
@@ -312,10 +311,12 @@ export function TxtPopoverInner({
   }, [models, mode2, audioMode]);
   const supportsReferences =
     mode2 === "audio" &&
-    ((selectedModel?.max_refs ?? 0) > 0 || (selectedModel?.max_audio_refs ?? 0) > 0);
+    ((selectedModel?.max_refs ?? 0) > 0 ||
+      (selectedModel?.max_audio_refs ?? 0) > 0);
   const richEnabled = mentionEnabled || supportsReferences;
   const attachmentState = useAttachmentState({
-    defaultPrompt: supportsReferences || mode2 === "audio" ? defaultPrompt : void 0,
+    defaultPrompt:
+      supportsReferences || mode2 === "audio" ? defaultPrompt : void 0,
     defaultImagePaths: supportsReferences ? defaultImagePaths : void 0,
     defaultAudioPaths: supportsReferences ? defaultAudioPaths : void 0,
     defaultTextPaths: mode2 === "audio" ? defaultTextPaths : void 0,
@@ -366,7 +367,11 @@ export function TxtPopoverInner({
       isAudioExtension
         ? mediaExtensionDurationOptions(audioExtensionCapability)
         : (selectedModel?.params.duration?.options ?? []),
-    [audioExtensionCapability, isAudioExtension, selectedModel?.params.duration?.options],
+    [
+      audioExtensionCapability,
+      isAudioExtension,
+      selectedModel?.params.duration?.options,
+    ],
   );
   const disabledAudioDurationOptions = reactExports.useMemo(
     () =>
@@ -376,7 +381,11 @@ export function TxtPopoverInner({
             audioExtensionCapability,
           )
         : new Set(),
-    [audioExtensionCapability, audioExtensionSourceDurationSec, isAudioExtension],
+    [
+      audioExtensionCapability,
+      audioExtensionSourceDurationSec,
+      isAudioExtension,
+    ],
   );
   reactExports.useEffect(() => {
     if (!isAudioExtension || effectiveAudioDurationOptions.length === 0) return;
@@ -392,7 +401,11 @@ export function TxtPopoverInner({
             duration: firstEnabledDuration,
           },
     );
-  }, [disabledAudioDurationOptions, effectiveAudioDurationOptions, isAudioExtension]);
+  }, [
+    disabledAudioDurationOptions,
+    effectiveAudioDurationOptions,
+    isAudioExtension,
+  ]);
   const hasImageRefs = attachmentState.imagePaths.length > 0;
   const hasAudioRefs = attachmentState.audioPaths.length > 0;
   const blockedRefKind = hasImageRefs ? "audio" : hasAudioRefs ? "image" : null;
@@ -403,7 +416,9 @@ export function TxtPopoverInner({
   const computedCreditCost = reactExports.useMemo(() => {
     if (creditCost != null) return creditCost;
     if (mode2 === "text")
-      return selectedModelId ? calcTextCost(pricingConfig, selectedModelId) : void 0;
+      return selectedModelId
+        ? calcTextCost(pricingConfig, selectedModelId)
+        : void 0;
     if (selectedModel?.backend === BACKEND_SEEDAUDIO) {
       return t2("canvas.credit.perSecondCompact", {
         cost: SEEDAUDIO_CREDITS_PER_SECOND,
@@ -412,7 +427,9 @@ export function TxtPopoverInner({
     }
     if (!pricingConfig || !selectedModelId) return void 0;
     if (isAudioExtension && selectedModel) {
-      const duration = modelParams.duration ? Number(modelParams.duration) : void 0;
+      const duration = modelParams.duration
+        ? Number(modelParams.duration)
+        : void 0;
       return calcVideoCost(
         pricingConfig,
         resolveAudioPricingId(selectedModel),
@@ -424,7 +441,11 @@ export function TxtPopoverInner({
       );
     }
     if (audioMode === "music") {
-      const musicCost = calcMusicCostDisplay(pricingConfig, selectedModel, modelParams);
+      const musicCost = calcMusicCostDisplay(
+        pricingConfig,
+        selectedModel,
+        modelParams,
+      );
       if (isPerMinuteCreditCost(musicCost)) {
         return t2("canvas.credit.perMinuteCompact", {
           cost: musicCost.credits,
@@ -498,7 +519,9 @@ export function TxtPopoverInner({
         if (
           cancelled ||
           requestedInitializationKey !==
-            createPopoverModelInitializationKey(modelInitializationInputRef.current)
+            createPopoverModelInitializationKey(
+              modelInitializationInputRef.current,
+            )
         ) {
           return;
         }
@@ -519,7 +542,9 @@ export function TxtPopoverInner({
             ...getDefaultParams(model),
             ...(paramOverrides ?? {}),
           };
-          setSelectedModelId((current2) => (current2 === model.id ? current2 : model.id));
+          setSelectedModelId((current2) =>
+            current2 === model.id ? current2 : model.id,
+          );
           setModelParams((current2) =>
             stringRecordsEqual(current2, nextParams) ? current2 : nextParams,
           );
@@ -530,20 +555,27 @@ export function TxtPopoverInner({
               ? resolveAudioModeSelection(filtered, "extension")
               : void 0;
           const forcedExtensionModel = forcedExtensionSelection
-            ? filtered.find((model) => model.id === forcedExtensionSelection.modelId)
+            ? filtered.find(
+                (model) => model.id === forcedExtensionSelection.modelId,
+              )
             : void 0;
           const defaultPreselect = currentDefaultModelId
             ? filtered.find((model) => model.id === currentDefaultModelId)
             : void 0;
           const tabModeSelection =
-            !forcedExtensionModel && !defaultPreselect && currentInitialAudioMode
+            !forcedExtensionModel &&
+            !defaultPreselect &&
+            currentInitialAudioMode
               ? resolveAudioModeSelection(filtered, currentInitialAudioMode)
               : void 0;
           const tabPreselect = tabModeSelection
             ? filtered.find((model) => model.id === tabModeSelection.modelId)
             : void 0;
           if (forcedExtensionSelection && forcedExtensionModel) {
-            applyInitialSelection(forcedExtensionModel, forcedExtensionSelection.params);
+            applyInitialSelection(
+              forcedExtensionModel,
+              forcedExtensionSelection.params,
+            );
           } else if (defaultPreselect) {
             applyInitialSelection(defaultPreselect, currentDefaultParams);
           } else if (tabModeSelection && tabPreselect) {
@@ -552,12 +584,16 @@ export function TxtPopoverInner({
             const lastUsedMatch = currentLastUsedModelId
               ? filtered.find((model) => model.id === currentLastUsedModelId)
               : void 0;
-            if (lastUsedMatch && !disabledModelIdsRef.current?.has(lastUsedMatch.id)) {
+            if (
+              lastUsedMatch &&
+              !disabledModelIdsRef.current?.has(lastUsedMatch.id)
+            ) {
               applyInitialSelection(lastUsedMatch, currentLastUsedParams);
             } else {
               const firstValid =
-                filtered.find((model) => !disabledModelIdsRef.current?.has(model.id)) ??
-                filtered[0];
+                filtered.find(
+                  (model) => !disabledModelIdsRef.current?.has(model.id),
+                ) ?? filtered[0];
               if (firstValid) {
                 applyInitialSelection(firstValid);
               }
@@ -591,7 +627,9 @@ export function TxtPopoverInner({
         if (cancelled) return;
         setVoiceList(voices);
       })
-      .catch((err) => console.error("[TxtPopover] fetchTtsVoices failed:", err));
+      .catch((err) =>
+        console.error("[TxtPopover] fetchTtsVoices failed:", err),
+      );
     return () => {
       cancelled = true;
     };
@@ -601,9 +639,12 @@ export function TxtPopoverInner({
     for (const v2 of voiceList) map3.set(v2.voice_id, v2.name);
     return map3;
   }, [voiceList]);
-  const showVoicePicker = voiceList.length > 0 && !!selectedModel?.params?.voice_id;
-  const selectedVoiceId = modelParams.voice_id ?? selectedModel?.params?.voice_id?.default ?? "";
-  const selectedVoiceLabel = voiceIdToName.get(selectedVoiceId) ?? selectedVoiceId;
+  const showVoicePicker =
+    voiceList.length > 0 && !!selectedModel?.params?.voice_id;
+  const selectedVoiceId =
+    modelParams.voice_id ?? selectedModel?.params?.voice_id?.default ?? "";
+  const selectedVoiceLabel =
+    voiceIdToName.get(selectedVoiceId) ?? selectedVoiceId;
   const voiceFilterOptions = reactExports.useMemo(() => {
     const collect = (key2) => {
       const set2 = new Set();
@@ -622,14 +663,17 @@ export function TxtPopoverInner({
   }, [voiceList]);
   const filteredVoices = reactExports.useMemo(() => {
     let list2 = voiceList;
-    if (filterLanguage) list2 = list2.filter((v2) => v2.language === filterLanguage);
+    if (filterLanguage)
+      list2 = list2.filter((v2) => v2.language === filterLanguage);
     if (filterAccent) list2 = list2.filter((v2) => v2.accent === filterAccent);
     if (filterGender) list2 = list2.filter((v2) => v2.gender === filterGender);
     if (filterAge) list2 = list2.filter((v2) => v2.age === filterAge);
     const q2 = voiceQuery.trim().toLowerCase();
     if (q2) {
       list2 = list2.filter(
-        (v2) => v2.name.toLowerCase().includes(q2) || v2.voice_id.toLowerCase().includes(q2),
+        (v2) =>
+          v2.name.toLowerCase().includes(q2) ||
+          v2.voice_id.toLowerCase().includes(q2),
       );
     }
     if (selectedVoiceId) {
@@ -652,7 +696,9 @@ export function TxtPopoverInner({
   const voiceQueryMatchesCatalog = reactExports.useMemo(() => {
     if (!trimmedVoiceQuery) return true;
     const q2 = trimmedVoiceQuery.toLowerCase();
-    return voiceList.some((v2) => v2.voice_id.toLowerCase() === q2 || v2.name.toLowerCase() === q2);
+    return voiceList.some(
+      (v2) => v2.voice_id.toLowerCase() === q2 || v2.name.toLowerCase() === q2,
+    );
   }, [voiceList, trimmedVoiceQuery]);
   const showCustomVoiceRow = !!trimmedVoiceQuery && !voiceQueryMatchesCatalog;
   const voicePickerPlacement = usePortalAnchorPlacement(voiceAnchorRef, {
@@ -666,7 +712,10 @@ export function TxtPopoverInner({
       if (mode2 !== "audio") {
         setSelectedModelId(modelId);
         const model = models.find((candidate) => candidate.id === modelId);
-        if (model) setModelParams(migrateParamsForModel(selectedModel, model, modelParams));
+        if (model)
+          setModelParams(
+            migrateParamsForModel(selectedModel, model, modelParams),
+          );
         return;
       }
       if (selectedModelId) {
@@ -736,9 +785,14 @@ export function TxtPopoverInner({
     ? editorPromptLength
     : countFinalPromptCharacters(promptText);
   const isPromptOverLimit =
-    !!selectedModel?.promptMaxLength && effectivePromptLength > selectedModel.promptMaxLength;
+    !!selectedModel?.promptMaxLength &&
+    effectivePromptLength > selectedModel.promptMaxLength;
   const isModelDisabled = disabledModelIds?.has(selectedModelId) ?? false;
-  const musicLengthValue = isAudioModeBackend(selectedModel?.backend, "music", selectedModel)
+  const musicLengthValue = isAudioModeBackend(
+    selectedModel?.backend,
+    "music",
+    selectedModel,
+  )
     ? modelParams.music_length_ms
     : void 0;
   const musicDurationInvalid =
@@ -751,19 +805,31 @@ export function TxtPopoverInner({
   let audioExtensionValidationMessage;
   if (isAudioExtension) {
     if (attachmentState.audioPaths.length !== 1) {
-      audioExtensionValidationMessage = t2("canvas.audioExtension.referenceRequired", {
-        defaultValue: "请选择一条参考音频",
-      });
+      audioExtensionValidationMessage = t2(
+        "canvas.audioExtension.referenceRequired",
+        {
+          defaultValue: "请选择一条参考音频",
+        },
+      );
     } else if (audioExtensionSourceDurationSec === void 0) {
-      audioExtensionValidationMessage = t2("canvas.audioExtension.durationUnavailable", {
-        defaultValue: "无法读取原音频时长，请更换音频",
-      });
+      audioExtensionValidationMessage = t2(
+        "canvas.audioExtension.durationUnavailable",
+        {
+          defaultValue: "无法读取原音频时长，请更换音频",
+        },
+      );
     } else if (
-      !isMediaExtensionInputDurationValid(audioExtensionSourceDurationSec, audioExtensionCapability)
+      !isMediaExtensionInputDurationValid(
+        audioExtensionSourceDurationSec,
+        audioExtensionCapability,
+      )
     ) {
-      audioExtensionValidationMessage = t2("canvas.audioExtension.inputDurationRange", {
-        defaultValue: "上传音频时长需在 1-20 秒之间",
-      });
+      audioExtensionValidationMessage = t2(
+        "canvas.audioExtension.inputDurationRange",
+        {
+          defaultValue: "上传音频时长需在 1-20 秒之间",
+        },
+      );
     } else if (
       !isMediaExtensionOutputDurationValid(
         audioExtensionSourceDurationSec,
@@ -771,9 +837,12 @@ export function TxtPopoverInner({
         audioExtensionCapability,
       )
     ) {
-      audioExtensionValidationMessage = t2("canvas.audioExtension.outputDurationRange", {
-        defaultValue: "续写后的总时长必须大于原音频，且最长 20 秒",
-      });
+      audioExtensionValidationMessage = t2(
+        "canvas.audioExtension.outputDurationRange",
+        {
+          defaultValue: "续写后的总时长必须大于原音频，且最长 20 秒",
+        },
+      );
     }
   }
   const canSubmit =
@@ -879,7 +948,9 @@ export function TxtPopoverInner({
       textSubmitPendingRef.current = true;
       setIsResolvingTextReferences(true);
       const editor = richEnabled ? editorRef.current : null;
-      const authoredPrompt = editor ? extractCanvasEditorSubmitText(editor) : promptText;
+      const authoredPrompt = editor
+        ? extractCanvasEditorSubmitText(editor)
+        : promptText;
       let selectedReferenceText;
       try {
         selectedReferenceText = await loadReferenceTextContent(
@@ -890,7 +961,10 @@ export function TxtPopoverInner({
       } catch {
         if (mountedRef.current)
           dedupedToast.error(
-            t2("canvas.reference.unavailable", "Reference unavailable. Please select again."),
+            t2(
+              "canvas.reference.unavailable",
+              "Reference unavailable. Please select again.",
+            ),
           );
         return;
       } finally {
@@ -898,7 +972,10 @@ export function TxtPopoverInner({
         if (mountedRef.current) setIsResolvingTextReferences(false);
       }
       if (!mountedRef.current) return;
-      const submitPrompt = composePromptWithUpstreamText(selectedReferenceText, authoredPrompt);
+      const submitPrompt = composePromptWithUpstreamText(
+        selectedReferenceText,
+        authoredPrompt,
+      );
       if (!submitPrompt.trim()) {
         dedupedToast.error(
           t2("canvas.promptRequired", {
@@ -907,8 +984,15 @@ export function TxtPopoverInner({
         );
         return;
       }
-      const charCount = countCompiledMediaPromptCharacters(submitPrompt, "", attachmentState);
-      if (selectedModel?.promptMaxLength && charCount > selectedModel.promptMaxLength) {
+      const charCount = countCompiledMediaPromptCharacters(
+        submitPrompt,
+        "",
+        attachmentState,
+      );
+      if (
+        selectedModel?.promptMaxLength &&
+        charCount > selectedModel.promptMaxLength
+      ) {
         setEditorPromptLength(charCount);
         dedupedToast.error(
           t2("canvas.prompt.tooLong", {
@@ -1078,20 +1162,26 @@ export function TxtPopoverInner({
     else if (pending2.kind === "new") doSubmit(syntheticEvent, void 0);
     else doSubmit(syntheticEvent, pending2.targetNodeId);
   }, [doSubmit, modelsLoading, replaceNodeId, selectedModelId]);
-  const handleEditorUpdate = reactExports.useCallback((hasContent2, textLen) => {
-    setEditorHasText(hasContent2);
-    setEditorPromptLength(textLen);
-  }, []);
-  const handleAtTrigger = reactExports.useCallback((query, rect, getRect2, triggerRange) => {
-    setAtPickerState((state2) =>
-      nextAtPickerState(state2, {
-        query,
-        rect,
-        getRect: getRect2,
-        triggerRange,
-      }),
-    );
-  }, []);
+  const handleEditorUpdate = reactExports.useCallback(
+    (hasContent2, textLen) => {
+      setEditorHasText(hasContent2);
+      setEditorPromptLength(textLen);
+    },
+    [],
+  );
+  const handleAtTrigger = reactExports.useCallback(
+    (query, rect, getRect2, triggerRange) => {
+      setAtPickerState((state2) =>
+        nextAtPickerState(state2, {
+          query,
+          rect,
+          getRect: getRect2,
+          triggerRange,
+        }),
+      );
+    },
+    [],
+  );
   const handleAtSelect = reactExports.useCallback(
     (meta2, assetId, sourceNodeId) => {
       if (supportsReferences) {
@@ -1165,7 +1255,9 @@ export function TxtPopoverInner({
         return;
       }
       const kind =
-        meta2.type === "video" || meta2.type === "audio" || meta2.type === "text"
+        meta2.type === "video" ||
+        meta2.type === "audio" ||
+        meta2.type === "text"
           ? meta2.type
           : "image";
       mentionPicker?.addPaths([meta2.path], kind);
@@ -1237,7 +1329,9 @@ export function TxtPopoverInner({
     (meta2, assetId, sourceNodeId) => {
       if (!supportsReferences) {
         const kind2 =
-          meta2.type === "video" || meta2.type === "audio" || meta2.type === "text"
+          meta2.type === "video" ||
+          meta2.type === "audio" ||
+          meta2.type === "text"
             ? meta2.type
             : "image";
         mentionPicker?.addPaths([meta2.path], kind2);
@@ -1284,8 +1378,10 @@ export function TxtPopoverInner({
         const audioAdds = [];
         const textAdds = [];
         for (const ref of refs) {
-          if (ref.kind === "image" && blockedRefKind !== "image") imageAdds.push(ref.path);
-          else if (ref.kind === "audio" && blockedRefKind !== "audio") audioAdds.push(ref.path);
+          if (ref.kind === "image" && blockedRefKind !== "image")
+            imageAdds.push(ref.path);
+          else if (ref.kind === "audio" && blockedRefKind !== "audio")
+            audioAdds.push(ref.path);
           else if (ref.kind === "text") textAdds.push(ref.path);
         }
         if (imageAdds.length > 0) attachmentState.addPaths(imageAdds, "image");
@@ -1310,7 +1406,8 @@ export function TxtPopoverInner({
       };
       for (const ref of refs) byKind[ref.kind].push(ref.path);
       for (const kind of ["image", "video", "audio", "text"]) {
-        if (byKind[kind].length > 0) mentionPicker?.addPaths(byKind[kind], kind);
+        if (byKind[kind].length > 0)
+          mentionPicker?.addPaths(byKind[kind], kind);
       }
     },
     [mentionPicker, supportsReferences, attachmentState, blockedRefKind],
@@ -1332,7 +1429,10 @@ export function TxtPopoverInner({
     referenceItems,
   ]);
   const atPickerKindFilter = reactExports.useMemo(
-    () => attachmentState.modelSupportedKindsForAtPicker.filter((k2) => k2 !== blockedRefKind),
+    () =>
+      attachmentState.modelSupportedKindsForAtPicker.filter(
+        (k2) => k2 !== blockedRefKind,
+      ),
     [attachmentState.modelSupportedKindsForAtPicker, blockedRefKind],
   );
   const activeAtPicker = supportsReferences
@@ -1385,7 +1485,10 @@ export function TxtPopoverInner({
             placeholder={
               placeholderKey
                 ? t2(placeholderKey, {
-                    defaultValue: paramPlaceholderFallback(key2, def.placeholder),
+                    defaultValue: paramPlaceholderFallback(
+                      key2,
+                      def.placeholder,
+                    ),
                   })
                 : paramPlaceholderFallback(key2, def.placeholder)
             }
@@ -1394,12 +1497,15 @@ export function TxtPopoverInner({
         continue;
       }
       if (def.type === "slider") {
-        if (def.min === void 0 || def.max === void 0 || def.step === void 0) continue;
+        if (def.min === void 0 || def.max === void 0 || def.step === void 0)
+          continue;
         const labelKey2 = paramI18nKey(key2, def.label);
         elements.push(
           <ParamSlider
             key={key2}
-            variant={mode2 === "audio" && key2 === "speed" ? "filled" : "standard"}
+            variant={
+              mode2 === "audio" && key2 === "speed" ? "filled" : "standard"
+            }
             label={
               labelKey2
                 ? t2(labelKey2, {
@@ -1425,7 +1531,11 @@ export function TxtPopoverInner({
           ? effectiveAudioDurationOptions
           : def.options;
       if (!options || options.length <= 1) continue;
-      const disabled2 = getDisabledOptions(key2, modelParams, selectedModel.paramConstraints);
+      const disabled2 = getDisabledOptions(
+        key2,
+        modelParams,
+        selectedModel.paramConstraints,
+      );
       const disabledOptions =
         isAudioExtension && key2 === "duration"
           ? new Set([...disabled2, ...disabledAudioDurationOptions])
@@ -1457,7 +1567,8 @@ export function TxtPopoverInner({
             isAudioExtension && key2 === "duration"
               ? () =>
                   t2("canvas.audioExtension.durationOptionDisabled", {
-                    defaultValue: "最终时长需从原音频时长向上取整后的下一秒开始选择",
+                    defaultValue:
+                      "最终时长需从原音频时长向上取整后的下一秒开始选择",
                   })
               : void 0
           }
@@ -1500,14 +1611,22 @@ export function TxtPopoverInner({
     audioMode === "music" &&
     !!(selectedModel?.params.lyrics || hasReadOnlyLyrics) &&
     modelParams.is_instrumental !== "instrumental";
-  const musicLayout = useMusicPromptLayout(showsMusicLyricsEditor, hasReadOnlyLyrics, expanded);
+  const musicLayout = useMusicPromptLayout(
+    showsMusicLyricsEditor,
+    hasReadOnlyLyrics,
+    expanded,
+  );
   const referenceBarVisible =
-    (mode2 === "text" && !!onAddReference) || !!(referenceItems && referenceItems.length > 0);
+    (mode2 === "text" && !!onAddReference) ||
+    !!(referenceItems && referenceItems.length > 0);
   const body2 = (
     <>
       {mode2 !== "audio" && (
         <div className="absolute top-3 right-3 z-10">
-          <ExpandToggleButton expanded={expanded} onToggle={() => setExpanded((v2) => !v2)} />
+          <ExpandToggleButton
+            expanded={expanded}
+            onToggle={() => setExpanded((v2) => !v2)}
+          />
         </div>
       )}
       <TextPopoverReferenceSection
@@ -1522,22 +1641,32 @@ export function TxtPopoverInner({
             ? {
                 items: referenceItems ?? [],
                 readOnly: mode2 !== "text" || !onAddReference,
-                showAddButton: mode2 === "text" && !!onAddReference && !!showReferenceAddButton,
+                showAddButton:
+                  mode2 === "text" &&
+                  !!onAddReference &&
+                  !!showReferenceAddButton,
                 onReplace:
                   mode2 === "text" && onReplaceReference
                     ? (item) => {
                         void handleReferenceReplace(item);
                       }
                     : void 0,
-                onRemove: mode2 === "text" && onRemoveReference ? handleReferenceRemove : () => {},
-                onAdd: mode2 === "text" && onAddReference ? onAddReference : () => {},
+                onRemove:
+                  mode2 === "text" && onRemoveReference
+                    ? handleReferenceRemove
+                    : () => {},
+                onAdd:
+                  mode2 === "text" && onAddReference
+                    ? onAddReference
+                    : () => {},
                 onItemClick: handleAttachmentClick,
                 getLocateAction: referenceNavigation.getLocateAction,
               }
             : null
         }
         audioAttachments={
-          mode2 === "audio" && (attachmentState.items.length > 0 || attachmentState.showAddButton)
+          mode2 === "audio" &&
+          (attachmentState.items.length > 0 || attachmentState.showAddButton)
             ? {
                 items: attachmentState.items,
                 disabled: controlsDisabled,
@@ -1558,7 +1687,11 @@ export function TxtPopoverInner({
       <div className="flex-1 min-h-0 flex flex-col">
         <div
           className="flex-1 min-h-0"
-          style={mode2 === "audio" && audioMode === "music" ? musicLayout.prompt : void 0}
+          style={
+            mode2 === "audio" && audioMode === "music"
+              ? musicLayout.prompt
+              : void 0
+          }
         >
           {richEnabled ? (
             <>
@@ -1656,7 +1789,8 @@ export function TxtPopoverInner({
               disabled={formDisabled}
               readOnly={readOnly2 || readOnlyLyrics !== void 0}
               placeholder={t2("canvas.txt.music.lyricsPlaceholder", {
-                defaultValue: "请在此添加您的歌词。如果未填歌词，我们将根据曲风为您自动生成。",
+                defaultValue:
+                  "请在此添加您的歌词。如果未填歌词，我们将根据曲风为您自动生成。",
               })}
               className={`canvas-prompt-font-size-textarea nowheel nopan w-full h-full bg-transparent border-none outline-none resize-none text-[var(--canvas-controls-text)] placeholder:text-muted-foreground/50 ${readOnly2 || readOnlyLyrics !== void 0 ? "hover:cursor-not-allowed" : ""}`}
               style={{
@@ -1679,37 +1813,50 @@ export function TxtPopoverInner({
             disabledReason={disabledModelReason}
             onPromotionClick={buildPromotionClickHandler(onPromotionToast)}
           />
-          {mode2 === "audio" && audioMode === "music" && selectedModel?.params.is_instrumental && (
-            <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
-              {readOnlyHint ? (
-                <span className="flex items-center gap-1 text-[12px] text-[var(--canvas-controls-text-muted)]">
-                  <Lock size={14} strokeWidth={1.5} aria-hidden="true" />
-                  {readOnlyHint}
-                </span>
-              ) : (
-                <div className="flex items-center gap-1 shrink-0">
-                  <CanvasSwitch
-                    size="sm"
-                    aria-label={t2("canvas.txt.music.instrumental")}
-                    checked={modelParams.is_instrumental === "instrumental"}
-                    onCheckedChange={(checked) => {
-                      const offValue = selectedModel?.params.is_instrumental?.default ?? "vocal";
-                      handleParamChange("is_instrumental", checked ? "instrumental" : offValue);
-                    }}
-                    disabled={controlsDisabled}
-                    data-action-ui-id="popover.instrumental-switch"
-                  />
-                  <span className="text-[12px] text-[var(--canvas-controls-text)]">
-                    {t2("canvas.txt.music.instrumental")}
+          {mode2 === "audio" &&
+            audioMode === "music" &&
+            selectedModel?.params.is_instrumental && (
+              <>
+                <span
+                  aria-hidden={true}
+                  className="w-px h-3 bg-foreground/15 shrink-0"
+                />
+                {readOnlyHint ? (
+                  <span className="flex items-center gap-1 text-[12px] text-[var(--canvas-controls-text-muted)]">
+                    <Lock size={14} strokeWidth={1.5} aria-hidden="true" />
+                    {readOnlyHint}
                   </span>
-                </div>
-              )}
-            </>
-          )}
+                ) : (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <CanvasSwitch
+                      size="sm"
+                      aria-label={t2("canvas.txt.music.instrumental")}
+                      checked={modelParams.is_instrumental === "instrumental"}
+                      onCheckedChange={(checked) => {
+                        const offValue =
+                          selectedModel?.params.is_instrumental?.default ??
+                          "vocal";
+                        handleParamChange(
+                          "is_instrumental",
+                          checked ? "instrumental" : offValue,
+                        );
+                      }}
+                      disabled={controlsDisabled}
+                      data-action-ui-id="popover.instrumental-switch"
+                    />
+                    <span className="text-[12px] text-[var(--canvas-controls-text)]">
+                      {t2("canvas.txt.music.instrumental")}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
           {showVoicePicker && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <button
                 ref={voiceAnchorRef}
                 type="button"
@@ -1733,7 +1880,10 @@ export function TxtPopoverInner({
           )}
           {hasConfigurableParams && !readOnlyHint && (
             <>
-              <span aria-hidden={true} className="w-px h-3 bg-foreground/15 shrink-0" />
+              <span
+                aria-hidden={true}
+                className="w-px h-3 bg-foreground/15 shrink-0"
+              />
               <ParamsChip
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
@@ -1755,7 +1905,9 @@ export function TxtPopoverInner({
               creditCost={computedCreditCost}
               onNewNode={handleNewNode}
               onReplace={handleReplace}
-              disabledTitle={!canSubmit ? audioExtensionValidationMessage : void 0}
+              disabledTitle={
+                !canSubmit ? audioExtensionValidationMessage : void 0
+              }
             />
           ) : (
             <SubmitButton
@@ -1770,11 +1922,17 @@ export function TxtPopoverInner({
             </SubmitButton>
           )}
         </div>
-        {paramsOpen && selectedModel && hasConfigurableParams && !readOnlyHint && (
-          <ParamsPopup anchorRef={paramsAnchorRef} onClose={() => setParamsOpen(false)}>
-            {renderedParamElements}
-          </ParamsPopup>
-        )}
+        {paramsOpen &&
+          selectedModel &&
+          hasConfigurableParams &&
+          !readOnlyHint && (
+            <ParamsPopup
+              anchorRef={paramsAnchorRef}
+              onClose={() => setParamsOpen(false)}
+            >
+              {renderedParamElements}
+            </ParamsPopup>
+          )}
         {voicePickerOpen &&
           showVoicePicker &&
           voicePickerPlacement &&
@@ -1883,7 +2041,11 @@ export function TxtPopoverInner({
                         onClick={(e2) => e2.stopPropagation()}
                       >
                         {voiceFilterOptions[f2.key].map((opt) => (
-                          <SelectItem$1 key={opt} value={opt} className="text-[11px]">
+                          <SelectItem$1
+                            key={opt}
+                            value={opt}
+                            className="text-[11px]"
+                          >
                             {opt}
                           </SelectItem$1>
                         ))}
@@ -1966,7 +2128,9 @@ export function TxtPopoverInner({
                             {v2.name}
                           </button>
                           {isSelected && (
-                            <span className="text-[10px] text-indigo-400 shrink-0 ml-2">✓</span>
+                            <span className="text-[10px] text-indigo-400 shrink-0 ml-2">
+                              ✓
+                            </span>
                           )}
                         </div>
                       );
@@ -2013,14 +2177,16 @@ export function TxtPopoverInner({
     ? (referenceItems?.length ?? 0) +
       (mode2 === "text" && !!onAddReference && !!showReferenceAddButton ? 1 : 0)
     : mode2 === "audio"
-      ? attachmentState.items.length + (attachmentState.showAddButton && !controlsDisabled ? 1 : 0)
+      ? attachmentState.items.length +
+        (attachmentState.showAddButton && !controlsDisabled ? 1 : 0)
       : 0;
   const promptLengthHintExtraHeight =
     selectedModel?.promptMaxLength && selectedModel.promptMaxLength > 0
       ? PROMPT_LENGTH_HINT_EXTRA_HEIGHT
       : 0;
   const audioReferenceBarVisible =
-    mode2 === "audio" && (attachmentState.items.length > 0 || attachmentState.showAddButton);
+    mode2 === "audio" &&
+    (attachmentState.items.length > 0 || attachmentState.showAddButton);
   const audioReferenceBarExtraHeight = audioReferenceBarVisible
     ? AUDIO_REFERENCE_BAR_FIRST_ROW_EXTRA_HEIGHT
     : 0;

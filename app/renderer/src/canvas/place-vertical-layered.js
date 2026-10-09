@@ -1,15 +1,29 @@
 // place-vertical-layered.js
-import { resolveNodeFootprint } from "./group-nodes-in-canvas.js";
 import {
-  GROUP_RELAYOUT_VERTICAL_COL_GAP,
-  GROUP_RELAYOUT_VERTICAL_ROW_GAP,
-} from "./resolve-derived-collision.js";
-export function resolveChildSize(child, mode2) {
+  DEFAULT_WORKFLOW_LAYER_SPACING,
+  DEFAULT_WORKFLOW_NODE_SPACING,
+} from "./ungroup-in-canvas.js";
+import { resolveNodeFootprint } from "./placeholder-node-size.js";
+import { CanvasNodeType } from "../vendor.js";
+import {
+  GROUP_NODE_PADDING,
+  readGroupSize,
+} from "./compute-group-bounds-from-children.js";
+
+const GROUP_RELAYOUT_GAP = DEFAULT_WORKFLOW_NODE_SPACING;
+
+const GROUP_RELAYOUT_VERTICAL_COL_GAP = DEFAULT_WORKFLOW_LAYER_SPACING;
+
+const GROUP_RELAYOUT_VERTICAL_ROW_GAP = 100;
+
+function resolveChildSize(child, mode2) {
   return resolveNodeFootprint(child, mode2);
 }
+
 function pickGridCols(n2) {
   return Math.max(1, Math.round(Math.sqrt(n2)));
 }
+
 function placeGrid(children2, cols, cell, gap) {
   const placed = [];
   if (children2.length === 0) {
@@ -56,9 +70,13 @@ function placeGrid(children2, cols, cell, gap) {
     },
   };
 }
+
 function placeVerticalLinear(children2, gap, transpose = false) {
   if (transpose) {
-    const colWidth = children2.reduce((m3, c3) => Math.max(m3, c3.size.width), 0);
+    const colWidth = children2.reduce(
+      (m3, c3) => Math.max(m3, c3.size.width),
+      0,
+    );
     let cursor2 = 0;
     const placed2 = [];
     for (const c3 of children2) {
@@ -80,7 +98,10 @@ function placeVerticalLinear(children2, gap, transpose = false) {
       },
     };
   }
-  const rowHeight = children2.reduce((m3, c3) => Math.max(m3, c3.size.height), 0);
+  const rowHeight = children2.reduce(
+    (m3, c3) => Math.max(m3, c3.size.height),
+    0,
+  );
   let cursor = 0;
   const placed = [];
   for (const c3 of children2) {
@@ -102,13 +123,22 @@ function placeVerticalLinear(children2, gap, transpose = false) {
     },
   };
 }
-export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose = false) {
+
+function placeVerticalLayered(
+  children2,
+  edges,
+  colGap,
+  rowGap,
+  transpose = false,
+) {
   const orderIndex = new Map();
   for (let i2 = 0; i2 < children2.length; i2++) {
     orderIndex.set(children2[i2].id, i2);
   }
   const ids2 = new Set(children2.map((c3) => c3.id));
-  const innerEdges = edges.filter((e2) => ids2.has(e2.source) && ids2.has(e2.target));
+  const innerEdges = edges.filter(
+    (e2) => ids2.has(e2.source) && ids2.has(e2.target),
+  );
   const adj = new Map();
   const inDeg = new Map();
   for (const c3 of children2) {
@@ -124,11 +154,15 @@ export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose
     }
   }
   for (const list2 of adj.values()) {
-    list2.sort((a2, b3) => (orderIndex.get(a2) ?? 0) - (orderIndex.get(b3) ?? 0));
+    list2.sort(
+      (a2, b3) => (orderIndex.get(a2) ?? 0) - (orderIndex.get(b3) ?? 0),
+    );
   }
   const depth2 = new Map();
   const remaining = new Map(inDeg);
-  const queue = children2.filter((c3) => (remaining.get(c3.id) ?? 0) === 0).map((c3) => c3.id);
+  const queue = children2
+    .filter((c3) => (remaining.get(c3.id) ?? 0) === 0)
+    .map((c3) => c3.id);
   for (const id2 of queue) depth2.set(id2, 0);
   let visited = 0;
   while (queue.length > 0) {
@@ -143,7 +177,11 @@ export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose
     }
   }
   if (visited < children2.length) {
-    return placeVerticalLinear(children2, transpose ? rowGap : colGap, transpose);
+    return placeVerticalLinear(
+      children2,
+      transpose ? rowGap : colGap,
+      transpose,
+    );
   }
   const rowIdx = new Map();
   const visitedSet = new Set();
@@ -206,7 +244,9 @@ export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose
     }
   }
   const totalLayer =
-    layerCount > 0 ? layerOrigins[layerCount - 1] + layerExtents[layerCount - 1] : 0;
+    layerCount > 0
+      ? layerOrigins[layerCount - 1] + layerExtents[layerCount - 1]
+      : 0;
   const laneCount = Math.max(1, cursor);
   const laneExtents = new Array(laneCount).fill(0);
   for (const c3 of children2) {
@@ -232,12 +272,14 @@ export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose
       cur += laneExtents[i2] + (i2 < laneCount - 1 ? rowGap : 0);
     }
   }
-  const totalLane = laneCount > 0 ? laneOrigins[laneCount - 1] + laneExtents[laneCount - 1] : 0;
+  const totalLane =
+    laneCount > 0 ? laneOrigins[laneCount - 1] + laneExtents[laneCount - 1] : 0;
   const placed = [];
   for (const c3 of children2) {
     const d2 = depth2.get(c3.id) ?? 0;
     const r2 = rowIdx.get(c3.id) ?? 0;
-    const layerCoord = layerOrigins[d2] + (layerExtents[d2] - layerSizeOf(c3)) / 2;
+    const layerCoord =
+      layerOrigins[d2] + (layerExtents[d2] - layerSizeOf(c3)) / 2;
     let laneCoord;
     if (Number.isInteger(r2)) {
       const ri = Math.max(0, Math.min(laneCount - 1, r2));
@@ -264,6 +306,7 @@ export function placeVerticalLayered(children2, edges, colGap, rowGap, transpose
     },
   };
 }
+
 function packTilesIntoGrid(tiles, gap, originY) {
   if (tiles.length === 0)
     return {
@@ -281,9 +324,11 @@ function packTilesIntoGrid(tiles, gap, originY) {
     if (t2.height > rowHeights[r2]) rowHeights[r2] = t2.height;
   });
   const colX = new Array(cols).fill(0);
-  for (let c3 = 1; c3 < cols; c3++) colX[c3] = colX[c3 - 1] + colWidths[c3 - 1] + gap;
+  for (let c3 = 1; c3 < cols; c3++)
+    colX[c3] = colX[c3 - 1] + colWidths[c3 - 1] + gap;
   const rowY = new Array(rows).fill(0);
-  for (let r2 = 1; r2 < rows; r2++) rowY[r2] = rowY[r2 - 1] + rowHeights[r2 - 1] + gap;
+  for (let r2 = 1; r2 < rows; r2++)
+    rowY[r2] = rowY[r2 - 1] + rowHeights[r2 - 1] + gap;
   tiles.forEach((t2, i2) => {
     const c3 = i2 % cols;
     const r2 = Math.floor(i2 / cols);
@@ -294,10 +339,12 @@ function packTilesIntoGrid(tiles, gap, originY) {
     height: rowY[rows - 1] + rowHeights[rows - 1],
   };
 }
-export function placeGridClustered(children2, edges, cell, gap) {
+
+function placeGridClustered(children2, edges, cell, gap) {
   const ids2 = new Set(children2.map((c3) => c3.id));
   const innerEdges = edges.filter(
-    (e2) => ids2.has(e2.source) && ids2.has(e2.target) && e2.source !== e2.target,
+    (e2) =>
+      ids2.has(e2.source) && ids2.has(e2.target) && e2.source !== e2.target,
   );
   if (innerEdges.length === 0) {
     return placeGrid(children2, pickGridCols(children2.length), cell, gap);
@@ -332,7 +379,9 @@ export function placeGridClustered(children2, edges, cell, gap) {
       discrete.push(c3);
       continue;
     }
-    memberIds.sort((a2, b3) => (orderIndex.get(a2) ?? 0) - (orderIndex.get(b3) ?? 0));
+    memberIds.sort(
+      (a2, b3) => (orderIndex.get(a2) ?? 0) - (orderIndex.get(b3) ?? 0),
+    );
     workflowComponents.push(memberIds.map((id2) => byId.get(id2)));
   }
   const placed = [];
@@ -368,7 +417,12 @@ export function placeGridClustered(children2, edges, cell, gap) {
       width: discrete.reduce((m3, c3) => Math.max(m3, c3.size.width), 0),
       height: discrete.reduce((m3, c3) => Math.max(m3, c3.size.height), 0),
     };
-    const out = placeGrid(discrete, pickGridCols(discrete.length), discreteCell, gap);
+    const out = placeGrid(
+      discrete,
+      pickGridCols(discrete.length),
+      discreteCell,
+      gap,
+    );
     const originY = workflowSize.height > 0 ? workflowSize.height + gap : 0;
     for (const p3 of out.children) {
       placed.push({
@@ -387,6 +441,7 @@ export function placeGridClustered(children2, edges, cell, gap) {
     },
   };
 }
+
 function extractOrderValue(node2) {
   const data2 = node2.data;
   const params = data2?.params;
@@ -395,7 +450,8 @@ function extractOrderValue(node2) {
   const n2 = typeof raw2 === "number" ? raw2 : Number.parseFloat(String(raw2));
   return Number.isFinite(n2) ? n2 : void 0;
 }
-export function sortedByRowBand(rawChildren, mode2, rowBand) {
+
+function sortedByRowBand(rawChildren, mode2, rowBand) {
   const positional = (a2, b3) => {
     const pa = a2.node.positions?.[mode2];
     const pb = b3.node.positions?.[mode2];
@@ -415,4 +471,144 @@ export function sortedByRowBand(rawChildren, mode2, rowBand) {
     }
     return positional(a2, b3);
   });
+}
+
+export function relayoutGroupChildren(canvas, groupId2, layout) {
+  const mode2 = canvas.mode;
+  const groupNode = canvas.nodes.find((n2) => n2.id === groupId2);
+  if (!groupNode || groupNode.type !== CanvasNodeType.Group) {
+    return {
+      canvas,
+      updatedNodes: [],
+      changed: false,
+    };
+  }
+  const rawChildren = canvas.nodes
+    .filter((n2) => n2.parentId === groupId2)
+    .map((n2) => ({
+      node: n2,
+      size: resolveChildSize(n2, mode2),
+    }));
+  if (rawChildren.length === 0) {
+    return {
+      canvas,
+      updatedNodes: [],
+      changed: false,
+    };
+  }
+  const cellW = rawChildren.reduce((m3, c3) => Math.max(m3, c3.size.width), 0);
+  const cellH = rawChildren.reduce((m3, c3) => Math.max(m3, c3.size.height), 0);
+  const cell = {
+    width: cellW,
+  };
+  const rowBand = Math.max(1, cellH * 0.5);
+  const children2 = sortedByRowBand(rawChildren, mode2, rowBand);
+  const inputs = children2.map(({ node: node2, size: size2 }) => ({
+    id: node2.id,
+    size: size2,
+  }));
+  let placed;
+  let contentSize;
+  if (layout === "vertical" || layout === "horizontal") {
+    const out = placeVerticalLayered(
+      inputs,
+      canvas.edges,
+      GROUP_RELAYOUT_VERTICAL_COL_GAP,
+      GROUP_RELAYOUT_VERTICAL_ROW_GAP,
+      layout === "horizontal",
+    );
+    placed = out.children;
+    contentSize = out.contentSize;
+  } else {
+    const out = placeGridClustered(
+      inputs,
+      canvas.edges,
+      cell,
+      GROUP_RELAYOUT_GAP,
+    );
+    placed = out.children;
+    contentSize = out.contentSize;
+  }
+  const newGroupSize = {
+    width: contentSize.width + GROUP_NODE_PADDING.x * 2,
+    height:
+      contentSize.height + GROUP_NODE_PADDING.top + GROUP_NODE_PADDING.bottom,
+  };
+  const prevGroupSize = readGroupSize(groupNode, mode2);
+  const newChildPositions = new Map();
+  for (const p3 of placed) {
+    newChildPositions.set(p3.id, {
+      x: GROUP_NODE_PADDING.x + p3.relX,
+      y: GROUP_NODE_PADDING.top + p3.relY,
+    });
+  }
+  let anyChanged =
+    !prevGroupSize ||
+    prevGroupSize.width !== newGroupSize.width ||
+    prevGroupSize.height !== newGroupSize.height;
+  if (!anyChanged) {
+    for (const { node: node2 } of children2) {
+      const want = newChildPositions.get(node2.id);
+      const cur = node2.positions?.[mode2];
+      if (!want || !cur || cur.x !== want.x || cur.y !== want.y) {
+        anyChanged = true;
+        break;
+      }
+    }
+  }
+  const prevFrameMode = groupNode.data?.frameMode;
+  if (!anyChanged && prevFrameMode === "manual") anyChanged = true;
+  if (!anyChanged) {
+    return {
+      canvas,
+      updatedNodes: [],
+      changed: false,
+    };
+  }
+  const updatedChildren = [];
+  const nextNodes = canvas.nodes.map((node2) => {
+    if (node2.id === groupId2) {
+      const existingData = node2.data ?? {};
+      const nextData = {
+        ...existingData,
+        frameMode: "auto",
+      };
+      return {
+        ...node2,
+        positions: {
+          ...(node2.positions ?? {}),
+        },
+        sizes: {
+          ...(node2.sizes ?? {}),
+          [mode2]: newGroupSize,
+        },
+        size: newGroupSize,
+        data: nextData,
+      };
+    }
+    const next2 = newChildPositions.get(node2.id);
+    if (!next2) return node2;
+    const updated = {
+      ...node2,
+      positions: {
+        ...(node2.positions ?? {}),
+        [mode2]: next2,
+      },
+    };
+    updatedChildren.push(updated);
+    return updated;
+  });
+  const groupOut = nextNodes.find((n2) => n2.id === groupId2);
+  const updatedNodes = groupOut
+    ? [groupOut, ...updatedChildren]
+    : updatedChildren;
+  return {
+    canvas: {
+      ...canvas,
+      nodes: nextNodes,
+      edges: canvas.edges,
+    },
+    updatedNodes,
+    changed: true,
+  };
 }

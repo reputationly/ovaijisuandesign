@@ -1,56 +1,73 @@
 // multi-angle-editor.jsx
-import { reactExports, useTranslation, dedupedToast } from "../vendor.js";
-import { useCanvasBridge } from "./parse-item.jsx";
-import { Tooltip$1, CreditCostBadge } from "../generation/create-tracker.jsx";
-import { Slider$1 } from "../generation/slider.jsx";
-import { BACKEND_VIBE_MULTI_SHOT } from "../generation/text-models.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { CameraBall, DarkLoadingIcon, StudioPreview$1, ToolResetIcon } from "./camera-ball.jsx";
-const SCROLL_EDGE_EPSILON = 1;
-function shouldConsumePanelWheel(element2, deltaY) {
-  if (deltaY === 0) return false;
-  const maxScrollTop = element2.scrollHeight - element2.clientHeight;
-  if (maxScrollTop <= SCROLL_EDGE_EPSILON) return false;
-  return deltaY < 0
-    ? element2.scrollTop > SCROLL_EDGE_EPSILON
-    : element2.scrollTop < maxScrollTop - SCROLL_EDGE_EPSILON;
-}
-function handleScrollablePanelWheel(event) {
-  if (shouldConsumePanelWheel(event.currentTarget, event.deltaY)) {
-    event.stopPropagation();
-  }
-}
-export function LeftPanel({
-  leftContent,
-  leftFooter,
-  leftContentScrollable = true,
-  rightContent,
-  rightFooter,
-  rightScrollClassName = "",
-}) {
+import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
+import {
+  CompositedSvg,
+  dedupedToast,
+  NodeToolbar$1,
+  Position,
+  reactExports,
+  useNodeId,
+  useStore$3,
+  useTranslation,
+  X$7,
+} from "../vendor.js";
+import {
+  CreditCostBadge,
+  Tooltip$1,
+} from "../generation/missing-asset-card.jsx";
+import {
+  LeftPanel,
+  readableGenerationError,
+  SegmentedControl$1,
+} from "./segmented-control.jsx";
+import { ToolSlider } from "./tool-slider.jsx";
+import {
+  useCanvasBridge,
+  useCanvasIsBoxSelecting,
+  useCanvasIsDragging,
+  useCanvasIsMultiSelect,
+} from "./package.jsx";
+import { BACKEND_VIBE_MULTI_SHOT } from "../generation/to-workspace-browser-url.js";
+import { CameraBall } from "./camera-ball.jsx";
+import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
+
+const DarkLoadingIcon = ({ className = "" }) => (
+  <CompositedSvg
+    aria-hidden="true"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`animate-spin ${className}`}
+  >
+    <path
+      d="M16 10C16 13.3137 13.3137 16 10 16C6.68629 16 4 13.3137 4 10C4 6.68629 6.68629 4 10 4"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+  </CompositedSvg>
+);
+
+function StudioPreview$1({ children: children2 }) {
   return (
-    <aside className="bg-hl_bg_01 flex h-full w-full overflow-hidden rounded-lg">
-      <div className="flex w-[328px] shrink-0 flex-col">
+    <section className="flex size-full items-center justify-center">
+      <div className="flex aspect-square h-full max-w-full items-center justify-center">
         <div
-          className={`[scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-h-0 flex-1 ${leftContentScrollable ? "overflow-y-auto" : "overflow-hidden"}`}
-          onWheelCapture={handleScrollablePanelWheel}
+          className="relative"
+          style={{
+            width: CANVAS_SIZE,
+            height: CANVAS_SIZE,
+          }}
         >
-          {leftContent}
+          {children2}
         </div>
-        {leftFooter}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div
-          className={`[scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-h-0 overflow-y-auto ${rightScrollClassName}`}
-          onWheelCapture={handleScrollablePanelWheel}
-        >
-          {rightContent}
-        </div>
-        {rightFooter}
-      </div>
-    </aside>
+    </section>
   );
 }
+
 const messages$2 = {
   en: {
     title: "Adjust camera angle",
@@ -78,7 +95,8 @@ const messages$2 = {
     preset_dutch: "Dutch Angle",
     generate: "Generate",
     generating: "Generating...",
-    error_asset_missing: "The selected asset does not have an available workspace file.",
+    error_asset_missing:
+      "The selected asset does not have an available workspace file.",
     error_asset_picker: "Failed to open the asset picker",
     error_generate: "Failed to generate the adjusted angle",
   },
@@ -113,207 +131,38 @@ const messages$2 = {
     error_generate: "调整角度生成失败",
   },
 };
-export function SegmentedControl$1({
-  options,
-  value,
-  onChange,
-  className = "",
-  dataActionUiIdPrefix,
-}) {
-  return (
-    <div className={`bg-hl_bg_01 flex items-center gap-[2px] rounded-[100px] p-[2px] ${className}`}>
-      {options.map((opt) => {
-        const isActive2 = opt.value === value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            data-action-ui-id={
-              dataActionUiIdPrefix ? `${dataActionUiIdPrefix}.${opt.value}` : void 0
-            }
-            className={[
-              "flex flex-1 items-center justify-center rounded-[100px] py-[7px] transition-colors",
-              isActive2 ? "bg-hl_bg_08 text-hl_text_00" : "text-hl_text_02 hover:text-hl_text_00",
-            ].join(" ")}
-            onClick={() => onChange(opt.value)}
-          >
-            <span className="text-[11px] font-medium leading-[14px] tracking-[0.44px]">
-              {opt.label}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-const DEFAULT_THUMB_SIZE = 16;
-export function ToolSlider({
-  label,
-  value,
-  min: min2 = 0,
-  max: max2 = 100,
-  step,
-  onChange,
-  formatValue,
-  className = "",
-  labelClassName,
-  valueClassName,
-  showValue = true,
-  trackAppearance,
-  trackStyle,
-  thumbStyle,
-  markerValue,
-  thumbSize = DEFAULT_THUMB_SIZE,
-  dataActionUiId,
-}) {
-  const trackRef = reactExports.useRef(null);
-  const thumbRadius = thumbSize / 2;
-  const resolvedMarkerValue = markerValue ?? (min2 < 0 && max2 > 0 ? 0 : void 0);
-  const cleanupRef = reactExports.useRef(void 0);
-  reactExports.useEffect(() => () => cleanupRef.current?.(), []);
-  const getValueFromClientX = (clientX) => {
-    const track = trackRef.current;
-    if (!track) return min2;
-    const rect = track.getBoundingClientRect();
-    const usableWidth = Math.max(1, rect.width - thumbSize);
-    const x2 = Math.max(0, Math.min(clientX - rect.left - thumbRadius, usableWidth));
-    const ratio = x2 / usableWidth;
-    const raw2 = min2 + ratio * (max2 - min2);
-    const snapped = step && step > 0 ? Math.round(raw2 / step) * step : Math.round(raw2);
-    return Math.max(min2, Math.min(max2, snapped));
-  };
-  const handleMouseDown2 = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
-    cleanupRef.current?.();
-    onChange(getValueFromClientX(e2.clientX));
-    const handleMouseMove2 = (moveEvent) => {
-      onChange(getValueFromClientX(moveEvent.clientX));
-    };
-    const handleMouseUp = () => {
-      document.removeEventListener("mousemove", handleMouseMove2);
-      document.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("blur", handleMouseUp);
-    };
-    document.addEventListener("mousemove", handleMouseMove2);
-    document.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("blur", handleMouseUp);
-    cleanupRef.current = handleMouseUp;
-  };
-  const handleTouchStart = (e2) => {
-    e2.stopPropagation();
-    cleanupRef.current?.();
-    const touch2 = e2.touches[0];
-    if (!touch2) return;
-    onChange(getValueFromClientX(touch2.clientX));
-    const handleTouchMove = (moveEvent) => {
-      const point2 = moveEvent.touches[0];
-      if (point2) onChange(getValueFromClientX(point2.clientX));
-    };
-    const handleTouchEnd = () => {
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-      document.removeEventListener("touchcancel", handleTouchEnd);
-      window.removeEventListener("blur", handleTouchEnd);
-    };
-    document.addEventListener("touchmove", handleTouchMove, {
-      passive: true,
-    });
-    document.addEventListener("touchend", handleTouchEnd);
-    document.addEventListener("touchcancel", handleTouchEnd);
-    window.addEventListener("blur", handleTouchEnd);
-    cleanupRef.current = handleTouchEnd;
-  };
-  const displayValue = formatValue ? formatValue(value) : `${value}%`;
-  const keyboardStep = step && step > 0 ? step : 1;
-  const handleKeyDown2 = (event) => {
-    let nextValue = null;
-    if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
-      nextValue = value - keyboardStep;
-    } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
-      nextValue = value + keyboardStep;
-    } else if (event.key === "Home") {
-      nextValue = min2;
-    } else if (event.key === "End") {
-      nextValue = max2;
-    }
-    if (nextValue === null) return;
-    event.preventDefault();
-    event.stopPropagation();
-    onChange(Math.max(min2, Math.min(max2, nextValue)));
-  };
-  return (
-    <div className={`flex flex-col ${className}`}>
-      {label && (
-        <div className="hilo-slider-field__header flex items-baseline justify-between gap-3">
-          <span className={labelClassName ?? "text-hl_text_02 text-[13px] font-medium leading-5"}>
-            {label}
-          </span>
-          {showValue && (
-            <span
-              className={`tabular-nums text-[13px] leading-5 ${valueClassName ?? "text-hl_text_00 font-semibold"}`}
-            >
-              {displayValue}
-            </span>
-          )}
-        </div>
-      )}
-      <div ref={trackRef}>
-        <Slider$1
-          variant="rounded"
-          size="compact"
-          value={value}
-          min={min2}
-          max={max2}
-          step={keyboardStep}
-          markerValue={resolvedMarkerValue}
-          trackAppearance={trackAppearance}
-          thumbSize={thumbSize}
-          aria-label={label}
-          style={
-            trackStyle
-              ? {
-                  "--slider-rounded-track": trackStyle.background,
-                }
-              : void 0
-          }
-          thumbProps={{
-            style: thumbStyle,
-            getAriaValueText: () => displayValue,
-            "data-action-ui-id": dataActionUiId,
-          }}
-          onPointerDownCapture={(event) => event.stopPropagation()}
-          onMouseDownCapture={handleMouseDown2}
-          onTouchStartCapture={handleTouchStart}
-          onKeyDownCapture={handleKeyDown2}
-        />
-      </div>
-    </div>
-  );
-}
+
 const H_RANGE = {
   min: -180,
   max: 180,
 };
+
 const V_RANGE = {
   min: -30,
   max: 60,
 };
+
 const ANGLE_STEP$1 = 5;
+
 const PER_IMAGE_CREDIT = 60;
+
 function wrapHAngle(value) {
   return ((value % 360) + 360) % 360;
 }
+
 function clampHAngle(value) {
   return Math.max(H_RANGE.min, Math.min(H_RANGE.max, value));
 }
+
 function clampVAngle(value) {
   return Math.max(V_RANGE.min, Math.min(V_RANGE.max, value));
 }
+
 const formatDegree$1 = (v2) => {
   const rounded = Math.round(v2);
   return `${rounded > 0 ? "+" : ""}${rounded}°`;
 };
+
 function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
   const zoomOptions = [
     {
@@ -330,7 +179,9 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
     },
   ];
   const horizontalSliderValue =
-    camera.horizontalAngle > 180 ? camera.horizontalAngle - 360 : camera.horizontalAngle;
+    camera.horizontalAngle > 180
+      ? camera.horizontalAngle - 360
+      : camera.horizontalAngle;
   return (
     <div className="flex flex-1 flex-col gap-3">
       <div className="flex flex-col gap-3">
@@ -366,7 +217,9 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-hl_text_02 text-[13px] font-medium leading-5">{t2.zoom}</span>
+        <span className="text-hl_text_02 text-[13px] font-medium leading-5">
+          {t2.zoom}
+        </span>
         <SegmentedControl$1
           options={zoomOptions}
           value={String(camera.zoom)}
@@ -381,7 +234,14 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
     </div>
   );
 }
-function MultiAngleGenerateBar({ totalCreditCost, isDisabled, isSubmitting, onSubmit, t: t2 }) {
+
+function MultiAngleGenerateBar({
+  totalCreditCost,
+  isDisabled,
+  isSubmitting,
+  onSubmit,
+  t: t2,
+}) {
   const { t: translate2 } = useTranslation();
   const canGenerate = !isDisabled;
   const estimatedCostLabel = translate2("canvas.billing.estimatedCost", {
@@ -421,8 +281,11 @@ function MultiAngleGenerateBar({ totalCreditCost, isDisabled, isSubmitting, onSu
     </div>
   );
 }
+
 const HOVER_ENTER_DELAY = 150;
+
 const OPACITY_TRANSITION_MS = 300;
+
 function CoverSkeleton() {
   return (
     <div
@@ -431,6 +294,7 @@ function CoverSkeleton() {
     />
   );
 }
+
 function PresetMediaCover$1({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
   const [isHovering, setIsHovering] = reactExports.useState(false);
   const [loadedCoverUrl, setLoadedCoverUrl] = reactExports.useState(null);
@@ -516,6 +380,7 @@ function PresetMediaCover$1({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
     </div>
   );
 }
+
 function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
   return (
     <button
@@ -544,7 +409,13 @@ function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
     </button>
   );
 }
-function MultiAnglePresetsPanel({ presets: presets2, selectedPresetId, onSelect, t: t2 }) {
+
+function MultiAnglePresetsPanel({
+  presets: presets2,
+  selectedPresetId,
+  onSelect,
+  t: t2,
+}) {
   return (
     <div className="grid grid-cols-[repeat(3,90px)] gap-x-3 gap-y-2">
       {presets2.map((preset2) => {
@@ -562,8 +433,11 @@ function MultiAnglePresetsPanel({ presets: presets2, selectedPresetId, onSelect,
     </div>
   );
 }
+
 const CDN_BASE = "https://cdn.hailuoai.com/asset/2026-04-03-17/multiview";
+
 const THUMB_SUFFIX = "?x-oss-process=image/resize,w_540/format,webp";
+
 function preset(id2, asset, titleKey, horizontalAngle, verticalAngle, zoom2) {
   return {
     id: id2,
@@ -575,6 +449,7 @@ function preset(id2, asset, titleKey, horizontalAngle, verticalAngle, zoom2) {
     videoUrl: `${CDN_BASE}/${asset}.mp4`,
   };
 }
+
 const ANGLE_PRESETS = [
   preset("eye-level", "eye_level", "preset_eye_level", 0, 0, 5),
   preset("close-up", "extreme_closeup", "preset_close_up", 0, 0, 10),
@@ -586,14 +461,7 @@ const ANGLE_PRESETS = [
   preset("back", "back_view", "preset_back", 180, 0, 0),
   preset("dutch", "dutch_angle", "preset_dutch", 45, -30, 0),
 ];
-export function readableGenerationError(error) {
-  const raw2 = error instanceof Error ? error.message : String(error);
-  if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) {
-    const status = raw2.match(/failed:\s*(\d{3})\b/i)?.[1];
-    return status ? `服务请求失败（HTTP ${status}）` : "服务请求失败";
-  }
-  return raw2.length > 240 ? `${raw2.slice(0, 240)}…` : raw2;
-}
+
 function buildDefaultCamera() {
   const preset2 = ANGLE_PRESETS[0];
   return {
@@ -603,10 +471,12 @@ function buildDefaultCamera() {
     presetId: preset2.id,
   };
 }
-export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
+
+function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
   const { i18n } = useTranslation();
   const t2 = reactExports.useMemo(
-    () => (i18n.resolvedLanguage?.startsWith("zh") ? messages$2.zh : messages$2.en),
+    () =>
+      i18n.resolvedLanguage?.startsWith("zh") ? messages$2.zh : messages$2.en,
     [i18n.resolvedLanguage],
   );
   const { pickAsset, submitImg2Image } = useCanvasBridge();
@@ -637,14 +507,19 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       return next2;
     });
   }, []);
-  const handleRotateCamera = reactExports.useCallback((horizontalDelta, verticalDelta) => {
-    setCamera((previous2) => ({
-      ...previous2,
-      horizontalAngle: wrapHAngle(previous2.horizontalAngle + horizontalDelta),
-      verticalAngle: clampVAngle(previous2.verticalAngle + verticalDelta),
-      presetId: void 0,
-    }));
-  }, []);
+  const handleRotateCamera = reactExports.useCallback(
+    (horizontalDelta, verticalDelta) => {
+      setCamera((previous2) => ({
+        ...previous2,
+        horizontalAngle: wrapHAngle(
+          previous2.horizontalAngle + horizontalDelta,
+        ),
+        verticalAngle: clampVAngle(previous2.verticalAngle + verticalDelta),
+        presetId: void 0,
+      }));
+    },
+    [],
+  );
   const handleSelectPreset = reactExports.useCallback((preset2) => {
     setCamera({
       horizontalAngle: preset2.horizontalAngle,
@@ -673,10 +548,13 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
         path: selected2.path,
       });
     } catch (error) {
-      dedupedToast.error(`${t2.error_asset_picker}: ${readableGenerationError(error)}`);
+      dedupedToast.error(
+        `${t2.error_asset_picker}: ${readableGenerationError(error)}`,
+      );
     }
   }, [pickAsset, t2]);
-  const isButtonDisabled = isSubmitting || !source.url || !source.path || !submitImg2Image;
+  const isButtonDisabled =
+    isSubmitting || !source.url || !source.path || !submitImg2Image;
   const handleSubmit = reactExports.useCallback(async () => {
     const sourcePath = source.path;
     if (!submitImg2Image || !sourcePath || submitLockRef.current) return;
@@ -703,7 +581,9 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       const result = await submission;
       if (!result.success && result.error) throw new Error(result.error);
     } catch (error) {
-      dedupedToast.error(`${t2.error_generate}: ${readableGenerationError(error)}`);
+      dedupedToast.error(
+        `${t2.error_generate}: ${readableGenerationError(error)}`,
+      );
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);
@@ -712,7 +592,9 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
   return (
     <div className="multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01">
       <header className="shrink-0 px-4 pb-1 pt-3 pr-10">
-        <h2 className="text-hl_text_00 text-sm font-semibold leading-5">{t2.title}</h2>
+        <h2 className="text-hl_text_00 text-sm font-semibold leading-5">
+          {t2.title}
+        </h2>
       </header>
       <div className="min-h-0 flex-1">
         <LeftPanel
@@ -757,7 +639,9 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
           leftFooter={null}
           rightContent={
             <section className="flex flex-col gap-2 px-4 pb-3 pt-2">
-              <h3 className="text-hl_text_01 text-[13px] font-medium">{t2.preset_section}</h3>
+              <h3 className="text-hl_text_01 text-[13px] font-medium">
+                {t2.preset_section}
+              </h3>
               <MultiAnglePresetsPanel
                 presets={ANGLE_PRESETS}
                 selectedPresetId={camera.presetId}
@@ -778,5 +662,92 @@ export function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
         />
       </div>
     </div>
+  );
+}
+
+const MULTI_ANGLE_POPOVER_WIDTH = 658;
+
+const MULTI_ANGLE_POPOVER_MAX_HEIGHT = 490;
+
+const MULTI_ANGLE_POPOVER_MIN_HEIGHT = 360;
+
+const MULTI_ANGLE_POPOVER_VIEWPORT_MARGIN = 16;
+
+export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
+  const { t: t2 } = useTranslation();
+  const nodeId = useNodeId() ?? "";
+  const onCloseRef = reactExports.useRef(onClose);
+  onCloseRef.current = onClose;
+  const selectedSelector = reactExports.useCallback(
+    (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
+    [nodeId],
+  );
+  const selected2 = useStore$3(selectedSelector);
+  const sourceScreenBottom = useStore$3((state2) => {
+    const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
+    const sourcePosition = sourceNode?.internals.positionAbsolute;
+    const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
+    if (!sourcePosition) return 0;
+    const [, viewportY, zoom2] = state2.transform;
+    return viewportY + (sourcePosition.y + sourceHeight) * zoom2;
+  });
+  const isDragging = useCanvasIsDragging();
+  const isMultiSelect = useCanvasIsMultiSelect();
+  const isBoxSelecting = useCanvasIsBoxSelecting();
+  reactExports.useEffect(() => {
+    if (!selected2) onCloseRef.current();
+  }, [selected2]);
+  const hidden = isDragging || isMultiSelect || isBoxSelecting;
+  const availableHeight =
+    window.innerHeight -
+    sourceScreenBottom -
+    NODE_POPOVER_SAFE_GAP -
+    MULTI_ANGLE_POPOVER_VIEWPORT_MARGIN;
+  const popoverHeight = Math.max(
+    MULTI_ANGLE_POPOVER_MIN_HEIGHT,
+    Math.min(MULTI_ANGLE_POPOVER_MAX_HEIGHT, availableHeight),
+  );
+  return (
+    <NodeToolbar$1
+      isVisible={true}
+      position={Position.Bottom}
+      offset={NODE_POPOVER_SAFE_GAP}
+      align="center"
+      style={{
+        zIndex: 1100,
+      }}
+    >
+      <div
+        className="relative flex max-w-[calc(100vw-4rem)] flex-col overflow-hidden rounded-lg bg-background shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
+        style={{
+          width: MULTI_ANGLE_POPOVER_WIDTH,
+          height: popoverHeight,
+          display: hidden ? "none" : void 0,
+        }}
+        data-action-ui-id="canvas.multi-angle.popover"
+        onPointerDown={(event) => event.stopPropagation()}
+        onDoubleClick={(event) => event.stopPropagation()}
+        onContextMenu={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
+          aria-label={t2("common.close", "Close")}
+          data-action-ui-id="canvas.multi-angle.close"
+        >
+          <X$7 size={20} strokeWidth={1.5} aria-hidden="true" />
+        </button>
+        <MultiAngleEditor
+          nodeId={nodeId}
+          imageUrl={imageUrl}
+          imagePath={imagePath}
+          onClose={onClose}
+        />
+      </div>
+    </NodeToolbar$1>
   );
 }

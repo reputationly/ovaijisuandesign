@@ -1,39 +1,46 @@
 // use-plugin-dag-bridge.js
-import {
-  reactExports,
-  dedupedToast,
-  API_PATHS,
-  canvasLog,
-  guardAccountSubmission,
-} from "../vendor.js";
-import { useDirectFeedback } from "../settings/feedback-dialog.jsx";
+import { guardAccountSubmission, reactExports } from "../vendor.js";
+
 const POLL_INTERVAL_MS$2 = 15e3;
+
 const WATCH_TIMEOUT_MS = 30 * 60 * 1e3;
+
 const ESTIMATED_SECONDS = 60;
+
 const MAX_CONSECUTIVE_FAILURES = 5;
+
 const MAX_CONCURRENCY = 5;
+
 const MAX_ACTIVE_DAG_RUNS_TOTAL = 50;
+
 const MAX_ACTIVE_DAG_RUNS_PER_NODE = 10;
+
 function withCode(err, code2) {
   err.code = code2;
   return err;
 }
+
 function assertPluginDagSubmissionAllowed() {
   const decision = guardAccountSubmission("plugin_dag");
   if (decision.allowed) return;
   throw withCode(
-    new Error(`dag.submit: account submission blocked (${decision.reasonCode})`),
+    new Error(
+      `dag.submit: account submission blocked (${decision.reasonCode})`,
+    ),
     "not_available",
   );
 }
+
 function toAgentStatus(status) {
   if (status === "finished") return "succeeded";
   if (status === "timeout") return "timeout";
   return "failed";
 }
+
 function isTerminal(status) {
   return status === "finished" || status === "failed";
 }
+
 export function usePluginDagBridge(gatewayFetch2) {
   const gatewayFetchRef = reactExports.useRef(gatewayFetch2);
   gatewayFetchRef.current = gatewayFetch2;
@@ -47,12 +54,15 @@ export function usePluginDagBridge(gatewayFetch2) {
     clearInterval(entry.timer);
     runsRef.current.delete(runId);
   }, []);
-  const dropGroupFromNodeIndex = reactExports.useCallback((nodeId, groupId2) => {
-    const set2 = nodeGroupsRef.current.get(nodeId);
-    if (!set2) return;
-    set2.delete(groupId2);
-    if (set2.size === 0) nodeGroupsRef.current.delete(nodeId);
-  }, []);
+  const dropGroupFromNodeIndex = reactExports.useCallback(
+    (nodeId, groupId2) => {
+      const set2 = nodeGroupsRef.current.get(nodeId);
+      if (!set2) return;
+      set2.delete(groupId2);
+      if (set2.size === 0) nodeGroupsRef.current.delete(nodeId);
+    },
+    [],
+  );
   const emitGroupEnvelope = reactExports.useCallback((group) => {
     const orderedRuns = group.runIds.map(
       (id2) =>
@@ -127,7 +137,9 @@ export function usePluginDagBridge(gatewayFetch2) {
     async (runId) => {
       const entry = runsRef.current.get(runId);
       if (!entry) return;
-      const elapsed = Date.now() - (groupsRef.current.get(entry.groupId)?.startedAt ?? Date.now());
+      const elapsed =
+        Date.now() -
+        (groupsRef.current.get(entry.groupId)?.startedAt ?? Date.now());
       if (elapsed > WATCH_TIMEOUT_MS) {
         recordRunFinished(runId, {
           run_id: runId,
@@ -138,7 +150,9 @@ export function usePluginDagBridge(gatewayFetch2) {
       }
       let body2;
       try {
-        const resp = await gatewayFetchRef.current(`/api/dag/run/${encodeURIComponent(runId)}`);
+        const resp = await gatewayFetchRef.current(
+          `/api/dag/run/${encodeURIComponent(runId)}`,
+        );
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         body2 = await resp.json();
         entry.consecutiveFailures = 0;
@@ -185,9 +199,15 @@ export function usePluginDagBridge(gatewayFetch2) {
   const submitDag = reactExports.useCallback(
     async (args, ctx) => {
       const requested = args.concurrency ?? 1;
-      if (!Number.isInteger(requested) || requested < 1 || requested > MAX_CONCURRENCY) {
+      if (
+        !Number.isInteger(requested) ||
+        requested < 1 ||
+        requested > MAX_CONCURRENCY
+      ) {
         throw withCode(
-          new Error(`dag.submit: concurrency must be an integer in [1, ${MAX_CONCURRENCY}]`),
+          new Error(
+            `dag.submit: concurrency must be an integer in [1, ${MAX_CONCURRENCY}]`,
+          ),
           "invalid_args",
         );
       }
@@ -292,7 +312,8 @@ export function usePluginDagBridge(gatewayFetch2) {
         nodeGroupsRef.current.set(ctx.callerNodeId, nodeGroups);
       }
       nodeGroups.add(groupId2);
-      for (const runId of accepted) startWatch(runId, groupId2, ctx.callerNodeId);
+      for (const runId of accepted)
+        startWatch(runId, groupId2, ctx.callerNodeId);
       return {
         run_id: accepted[0],
         run_ids: accepted,
@@ -304,7 +325,9 @@ export function usePluginDagBridge(gatewayFetch2) {
     [countActiveRunsForNode, startWatch],
   );
   const queryDagRun = reactExports.useCallback(async (runId) => {
-    const resp = await gatewayFetchRef.current(`/api/dag/run/${encodeURIComponent(runId)}`);
+    const resp = await gatewayFetchRef.current(
+      `/api/dag/run/${encodeURIComponent(runId)}`,
+    );
     if (!resp.ok) {
       let detail = `HTTP ${resp.status}`;
       try {
@@ -374,120 +397,4 @@ export function usePluginDagBridge(gatewayFetch2) {
     }),
     [submitDag, queryDagRun, subscribeDagDone, releaseDagRuns],
   );
-}
-export function useCanvasNodeErrorFeedback() {
-  const { submitDirect, getSubmissionStatus } = useDirectFeedback();
-  const onReportNodeError = reactExports.useCallback(
-    (info2) => {
-      void submitDirect(
-        {
-          source: "context",
-          contextType: "canvas_node_error",
-          traceId: info2.traceId,
-          context: {
-            node_id: info2.nodeId,
-            node_type: info2.nodeType,
-            model_id: info2.model,
-            prompt: info2.prompt,
-            error_code: info2.errorMessage,
-            trace_id: info2.traceId,
-          },
-          logUploadReason: `canvas_node_error:${info2.nodeType}`,
-          defaultDescription: info2.errorMessage ?? "",
-        },
-        info2.nodeId,
-      );
-    },
-    [submitDirect],
-  );
-  return {
-    onReportNodeError,
-    getNodeErrorReportStatus: getSubmissionStatus,
-  };
-}
-function mapGenerationCancelResponse(raw2) {
-  if (!raw2 || typeof raw2 !== "object") {
-    throw new Error("generation cancel returned a non-object response");
-  }
-  const record2 = raw2;
-  if (record2.ok !== true || typeof record2.cancelled !== "boolean") {
-    throw new Error("generation cancel returned an invalid response");
-  }
-  if (record2.dismissed !== void 0 && typeof record2.dismissed !== "boolean") {
-    throw new Error("generation cancel returned an invalid dismissed state");
-  }
-  return {
-    cancelled: record2.cancelled,
-    ...(typeof record2.dismissed === "boolean"
-      ? {
-          dismissed: record2.dismissed,
-        }
-      : {}),
-  };
-}
-export function useGenerationLifecycleActions({ gatewayFetch: gatewayFetch2, t: t2 }) {
-  const handleCancelGeneration = reactExports.useCallback(
-    async (nodeId) => {
-      try {
-        const response = await gatewayFetch2(API_PATHS.generationCancel, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            node_id: nodeId,
-          }),
-        });
-        if (!response.ok) throw new Error(`generation cancel failed (${response.status})`);
-        if (!mapGenerationCancelResponse(await response.json()).cancelled) {
-          dedupedToast.error(t2("canvas.cancelGenerationFailed"));
-          return false;
-        }
-        dedupedToast.success(t2("canvas.generationCancelled"));
-        return true;
-      } catch (err) {
-        canvasLog.error("cancel generation failed", {
-          nodeId,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        dedupedToast.error(t2("canvas.cancelGenerationFailed"));
-        return false;
-      }
-    },
-    [gatewayFetch2, t2],
-  );
-  const handleDismissUnknownGeneration = reactExports.useCallback(
-    async (nodeId) => {
-      try {
-        const response = await gatewayFetch2(API_PATHS.generationCancel, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            node_id: nodeId,
-            preserve_original: true,
-          }),
-        });
-        if (!response.ok) throw new Error(`generation dismiss failed (${response.status})`);
-        if (mapGenerationCancelResponse(await response.json()).dismissed !== true) {
-          dedupedToast.error(t2("canvas.dismissGenerationStatusFailed"));
-          return false;
-        }
-        return true;
-      } catch (err) {
-        canvasLog.error("dismiss unknown generation failed", {
-          nodeId,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        dedupedToast.error(t2("canvas.dismissGenerationStatusFailed"));
-        return false;
-      }
-    },
-    [gatewayFetch2, t2],
-  );
-  return {
-    handleCancelGeneration,
-    handleDismissUnknownGeneration,
-  };
 }

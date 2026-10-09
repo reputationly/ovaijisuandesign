@@ -1,51 +1,157 @@
 // light-ball.jsx
+import { kelvinToHex, roundAngle } from "./color-stops.js";
 import { jsxRuntimeExports, reactExports } from "../vendor.js";
-import { Upload } from "./parse-item.jsx";
-import { Button$2 } from "../canvas/use-media-node-actions.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { planeQuad } from "./plane-quad.jsx";
+import { createBoxFaces } from "./create-box-faces.js";
 import {
-  BACKDROP_GRADIENT_STOPS,
-  CONE_LENGTH_RATIO,
-  CONE_SHAPE,
-  DEFAULT_COLOR_TEMP,
-  EQUATOR_BACK_OPACITY,
-  EQUATOR_FRONT_OPACITY,
-  INTENSITY_MAX,
-  INTENSITY_MIN,
-  MARKER_HIT_SIZE,
-  MERIDIANS,
-  OPACITY_MAX,
-  OPACITY_MIN,
-  PARALLELS,
-  PHOTO_HEIGHT,
-  PHOTO_WIDTH,
-  RADIUS,
-  WIRE_BACK_OPACITY,
-  WIRE_FRONT_OPACITY,
-  kelvinToHex,
-  normalizeHexColor,
-  roundAngle,
-} from "./backdrop-gradient-stops.jsx";
-import { planeQuad } from "./camera-ball.jsx";
-import {
-  createBoxFaces,
   getCameraModelView,
   planeEllipse,
   pointsAttribute,
-} from "./create-box-faces.jsx";
+} from "./layer-decompose-prompt.jsx";
+import { Upload } from "./package.jsx";
+import { Button$2 } from "../canvas/node-shell-inner.jsx";
+
+const HEX_COLOR_REGEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+const normalizeHexColor = (hex2) => {
+  if (!HEX_COLOR_REGEX.test(hex2)) return null;
+  const lower2 = hex2.toLowerCase();
+  if (lower2.length === 7) return lower2;
+  const [, r2, g2, b3] = lower2;
+  return `#${r2}${r2}${g2}${g2}${b3}${b3}`;
+};
+
+const DEFAULT_COLOR_TEMP = 6500;
+
+const RADIUS = 88;
+
+const MERIDIANS = 6;
+
+const PARALLELS = 4;
+
+const WIRE_FRONT_OPACITY = 0.72;
+
+const WIRE_BACK_OPACITY = 0.28;
+
+const EQUATOR_FRONT_OPACITY = 0.6;
+
+const EQUATOR_BACK_OPACITY = 0.22;
+
+const MARKER_HIT_SIZE = 32;
+
+const PHOTO_WIDTH = 56;
+
+const PHOTO_HEIGHT = 56;
+
+const INTENSITY_MIN = 10;
+
+const INTENSITY_MAX = 100;
+
+const OPACITY_MIN = 0.1;
+
+const OPACITY_MAX = 0.6;
+
+const CONE_LENGTH_RATIO = 0.85;
+
+const CONE_SHAPE = {
+  spotlight: {
+    radiusInner: 0.12,
+    radiusOuter: 0.018,
+  },
+  rectAreaLight: {
+    radiusInner: 0.22,
+    radiusOuter: 0.033,
+  },
+  directionalLight: {
+    radiusInner: 0.6,
+    radiusOuter: 0.09,
+  },
+};
+
+const BACKDROP_GRADIENT_STOPS = {
+  black: [
+    {
+      color: "#C7C7C7",
+      opacity: "0",
+    },
+    {
+      offset: "0.129808",
+      color: "#C7C7C7",
+      opacity: "0.8",
+    },
+    {
+      offset: "0.649038",
+      color: "#383838",
+      opacity: "0.8",
+    },
+    {
+      offset: "0.884615",
+      color: "#8C8C8C",
+      opacity: "0.8",
+    },
+    {
+      offset: "1",
+      color: "#8C8C8C",
+      opacity: "0",
+    },
+  ],
+  white: [
+    {
+      color: "white",
+      opacity: "0",
+    },
+    {
+      offset: "0.149038",
+      color: "white",
+    },
+    {
+      offset: "0.367644",
+      color: "white",
+    },
+    {
+      offset: "0.649038",
+      color: "#E1E1E1",
+    },
+    {
+      offset: "0.781949",
+      color: "white",
+    },
+    {
+      offset: "0.894231",
+      color: "white",
+    },
+    {
+      offset: "1",
+      color: "white",
+      opacity: "0",
+    },
+  ],
+};
+
 const BACKDROP_SVG_WIDTH = 280;
+
 const BACKDROP_PATH =
   "M40 0H240V133.52C240 146.369 243.095 159.029 249.023 170.428L280 230H0L30.9774 170.428C36.9052 159.028 40 146.369 40 133.52V0Z";
+
 const clamp$4 = (value, min2, max2) => Math.min(Math.max(value, min2), max2);
+
 const intensityToOpacity = (intensity) => {
-  const t2 = clamp$4((intensity - INTENSITY_MIN) / (INTENSITY_MAX - INTENSITY_MIN), 0, 1);
+  const t2 = clamp$4(
+    (intensity - INTENSITY_MIN) / (INTENSITY_MAX - INTENSITY_MIN),
+    0,
+    1,
+  );
   return clamp$4(OPACITY_MIN + t2 * (OPACITY_MAX - OPACITY_MIN), 0, 1);
 };
+
 const resolveDisplayColor = (input) => {
-  const rawColor = input.colorMode === "hex" ? input.color : kelvinToHex(input.colorTemp);
+  const rawColor =
+    input.colorMode === "hex" ? input.color : kelvinToHex(input.colorTemp);
   const fallbackHex = kelvinToHex(DEFAULT_COLOR_TEMP);
   return normalizeHexColor(rawColor) ?? fallbackHex;
 };
+
 const computeConeVisualStyle = (input) => {
   const displayColor = resolveDisplayColor(input);
   const opacity = intensityToOpacity(input.intensity);
@@ -55,8 +161,11 @@ const computeConeVisualStyle = (input) => {
     opacity,
   };
 };
+
 const IDENTITY = [0, 0, 0, 1];
+
 const DEG = Math.PI / 180;
+
 function sphericalPoint(horizontal, vertical, radius = RADIUS) {
   const h2 = horizontal * DEG;
   const v2 = vertical * DEG;
@@ -66,13 +175,17 @@ function sphericalPoint(horizontal, vertical, radius = RADIUS) {
     z: radius * Math.cos(v2) * Math.cos(h2),
   };
 }
+
 function pointAngles(p3) {
   const r2 = Math.hypot(p3.x, p3.y, p3.z);
   return {
     horizontalAngle: Math.atan2(p3.x, p3.z) / DEG,
-    verticalAngle: r2 ? Math.asin(Math.max(-1, Math.min(1, p3.y / r2))) / DEG : 0,
+    verticalAngle: r2
+      ? Math.asin(Math.max(-1, Math.min(1, p3.y / r2))) / DEG
+      : 0,
   };
 }
+
 function multiply(a2, b3) {
   const [x2, y4, z3, w3] = a2;
   const [u4, v2, t2, s2] = b3;
@@ -85,12 +198,14 @@ function multiply(a2, b3) {
   const length2 = Math.hypot(...q2) || 1;
   return [q2[0] / length2, q2[1] / length2, q2[2] / length2, q2[3] / length2];
 }
+
 function dragRotation(q2, dx, dy, size2) {
   const factor = Math.PI / Math.max(1, size2) / 2;
   const yaw = [0, Math.sin(dx * factor), 0, Math.cos(dx * factor)];
   const pitch = [Math.sin(dy * factor), 0, 0, Math.cos(dy * factor)];
   return multiply(pitch, multiply(yaw, q2));
 }
+
 function rotate(p3, q2) {
   const [x2, y4, z3, w3] = q2;
   const tx = 2 * (y4 * p3.z - z3 * p3.y);
@@ -102,23 +217,35 @@ function rotate(p3, q2) {
     z: p3.z + w3 * tz + x2 * ty - y4 * tx,
   };
 }
+
 const LIGHT_DRAG_DEG_PER_PX = 180 / (Math.PI * RADIUS);
+
 function dragLightAngles(angles, dx, dy) {
   const horizontal = angles.horizontalAngle + dx * LIGHT_DRAG_DEG_PER_PX;
   return {
     id: angles.id,
     // 重打光的控件/提交约定是 -180…180，而多角度内部存储 0…360。
     horizontalAngle: ((((horizontal + 180) % 360) + 360) % 360) - 180,
-    verticalAngle: Math.max(-90, Math.min(90, angles.verticalAngle - dy * LIGHT_DRAG_DEG_PER_PX)),
+    verticalAngle: Math.max(
+      -90,
+      Math.min(90, angles.verticalAngle - dy * LIGHT_DRAG_DEG_PER_PX),
+    ),
   };
 }
+
 const positionsKey = (items) =>
-  items.map((l2) => `${l2.id}:${l2.horizontalAngle}:${l2.verticalAngle}`).join("|");
+  items
+    .map((l2) => `${l2.id}:${l2.horizontalAngle}:${l2.verticalAngle}`)
+    .join("|");
+
 const bakeRotation = (items, q2) =>
   items.map((l2) => ({
     id: l2.id,
-    ...pointAngles(rotate(sphericalPoint(l2.horizontalAngle, l2.verticalAngle), q2)),
+    ...pointAngles(
+      rotate(sphericalPoint(l2.horizontalAngle, l2.verticalAngle), q2),
+    ),
   }));
+
 const GRID = [
   ...Array.from(
     {
@@ -144,11 +271,16 @@ const GRID = [
         {
           length: 97,
         },
-        (_22, j2) => sphericalPoint((j2 * 360) / 96, ((i2 - PARALLELS) * 90) / (PARALLELS + 1)),
+        (_22, j2) =>
+          sphericalPoint(
+            (j2 * 360) / 96,
+            ((i2 - PARALLELS) * 90) / (PARALLELS + 1),
+          ),
       ),
     }),
   ),
 ];
+
 function gridPaths(q2, front, equator) {
   let path2 = "";
   for (const line of GRID) {
@@ -163,6 +295,7 @@ function gridPaths(q2, front, equator) {
   }
   return path2;
 }
+
 const LampModel3D = reactExports.memo(function LampModel3D2({
   horizontalAngle,
   verticalAngle,
@@ -295,7 +428,10 @@ const LampModel3D = reactExports.memo(function LampModel3D2({
       ))}
       {model.backVisible && (
         <g data-lamp-detail="back">
-          <polygon points={model.backPanel} fill="var(--hl_camera_side_dark, var(--muted))" />
+          <polygon
+            points={model.backPanel}
+            fill="var(--hl_camera_side_dark, var(--muted))"
+          />
           {model.vents.map((points) => (
             <polygon
               key={points}
@@ -324,6 +460,7 @@ const LampModel3D = reactExports.memo(function LampModel3D2({
     </svg>
   );
 });
+
 function coneOutline(position2, light) {
   const n2 = {
     x: position2.x / RADIUS,
@@ -353,18 +490,28 @@ function coneOutline(position2, light) {
   for (const end2 of [0, 1]) {
     const radius =
       length2 *
-      (end2 ? config2.radiusInner : "radiusOuter" in config2 ? config2.radiusOuter : 0.018);
+      (end2
+        ? config2.radiusInner
+        : "radiusOuter" in config2
+          ? config2.radiusOuter
+          : 0.018);
     const distance2 = end2 ? RADIUS - length2 : RADIUS;
     for (let i2 = 0; i2 < 16; i2++) {
       const a2 = (i2 * Math.PI) / 8;
       points.push({
-        x: n2.x * distance2 + radius * (u4.x * Math.cos(a2) + v2.x * Math.sin(a2)),
-        y: -(n2.y * distance2 + radius * (u4.y * Math.cos(a2) + v2.y * Math.sin(a2))),
+        x:
+          n2.x * distance2 +
+          radius * (u4.x * Math.cos(a2) + v2.x * Math.sin(a2)),
+        y: -(
+          n2.y * distance2 +
+          radius * (u4.y * Math.cos(a2) + v2.y * Math.sin(a2))
+        ),
       });
     }
   }
   points.sort((a2, b3) => a2.x - b3.x || a2.y - b3.y);
-  const cross2 = (o2, a2, b3) => (a2.x - o2.x) * (b3.y - o2.y) - (a2.y - o2.y) * (b3.x - o2.x);
+  const cross2 = (o2, a2, b3) =>
+    (a2.x - o2.x) * (b3.y - o2.y) - (a2.y - o2.y) * (b3.x - o2.x);
   const half = (list2) => {
     const result = [];
     for (const p3 of list2) {
@@ -377,8 +524,11 @@ function coneOutline(position2, light) {
     }
     return result.slice(0, -1);
   };
-  return [...half(points), ...half([...points].reverse())].map((p3) => `${p3.x},${p3.y}`).join(" ");
+  return [...half(points), ...half([...points].reverse())]
+    .map((p3) => `${p3.x},${p3.y}`)
+    .join(" ");
 }
+
 const positionEchoKeys = (items) => [
   positionsKey(items),
   positionsKey(
@@ -389,6 +539,7 @@ const positionEchoKeys = (items) => [
     })),
   ),
 ];
+
 export const LightBall = (props) => {
   const {
     lights,
@@ -451,13 +602,20 @@ export const LightBall = (props) => {
     const height = svgRef.current?.clientHeight || rect.height || 1;
     return {
       x: ((event.clientX - rect.left) * width) / (rect.width || 1) - width / 2,
-      y: ((event.clientY - rect.top) * height) / (rect.height || 1) - height / 2,
+      y:
+        ((event.clientY - rect.top) * height) / (rect.height || 1) - height / 2,
       size: Math.min(width, height),
     };
   };
   const begin = (event, light) => {
     event.stopPropagation();
-    if (isInteractionDisabled || event.button !== 0 || drag2.current || !svgRef.current) return;
+    if (
+      isInteractionDisabled ||
+      event.button !== 0 ||
+      drag2.current ||
+      !svgRef.current
+    )
+      return;
     event.preventDefault();
     const p3 = localPointer(event);
     drag2.current = {
@@ -490,7 +648,11 @@ export const LightBall = (props) => {
     )
       return;
     const p3 = localPointer(event);
-    if (!current2.moved && Math.hypot(p3.x - current2.startX, p3.y - current2.startY) < 3) return;
+    if (
+      !current2.moved &&
+      Math.hypot(p3.x - current2.startX, p3.y - current2.startY) < 3
+    )
+      return;
     current2.moved = true;
     if (current2.angles) {
       current2.angles = dragLightAngles(
@@ -513,7 +675,8 @@ export const LightBall = (props) => {
     const keys2 = positionEchoKeys(items);
     const pending2 = pendingEchoes.current;
     const last2 = pending2[pending2.length - 1];
-    if (!last2 || last2[0] !== keys2[0] || last2[1] !== keys2[1]) pending2.push(keys2);
+    if (!last2 || last2[0] !== keys2[0] || last2[1] !== keys2[1])
+      pending2.push(keys2);
   };
   const draw = () => {
     frame2.current = null;
@@ -560,7 +723,11 @@ export const LightBall = (props) => {
     const current2 = drag2.current;
     if (!current2 || current2.pointerId !== event.pointerId) return;
     if (!cancelled) update2(event);
-    if (!cancelled && current2.moved && !latest2.current.isInteractionDisabled) {
+    if (
+      !cancelled &&
+      current2.moved &&
+      !latest2.current.isInteractionDisabled
+    ) {
       if (current2.angles) {
         const angles = current2.angles;
         rememberEcho(
@@ -596,7 +763,8 @@ export const LightBall = (props) => {
   );
   const displayed = lights
     .map((light) => {
-      const angles = preview?.items.find((item) => item.id === light.id) ?? light;
+      const angles =
+        preview?.items.find((item) => item.id === light.id) ?? light;
       const position2 = rotate(
         sphericalPoint(angles.horizontalAngle, angles.verticalAngle),
         preview?.rotation ?? IDENTITY,
@@ -651,7 +819,10 @@ export const LightBall = (props) => {
                   className="outline-none focus-visible:stroke-foreground"
                   onPointerDown={(event) => begin(event, light)}
                   onKeyDown={(event) => {
-                    if (isInteractionDisabled || (event.key !== "Enter" && event.key !== " "))
+                    if (
+                      isInteractionDisabled ||
+                      (event.key !== "Enter" && event.key !== " ")
+                    )
                       return;
                     event.preventDefault();
                     event.stopPropagation();
@@ -666,7 +837,11 @@ export const LightBall = (props) => {
                     fill="transparent"
                   />
                   <g opacity={overlay ? 0.46 : front ? 1 : 0.65}>
-                    <LampModel3D {...modelAngles} type={light.type} color={visual.previewColor} />
+                    <LampModel3D
+                      {...modelAngles}
+                      type={light.type}
+                      color={visual.previewColor}
+                    />
                   </g>
                 </g>
               </>

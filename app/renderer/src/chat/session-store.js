@@ -1,264 +1,8 @@
 // session-store.js
+import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
 import { measurePerf } from "../vendor.js";
-import { DEFAULT_SESSION_NAME } from "../canvas/generating-media-area.jsx";
-import { PERF_STORE_NOTIFY } from "../generation/text-models.js";
-export function extractSessionId(msg) {
-  return msg.session_id;
-}
-export function applyComfyUiProgress(messages2, callID, progress) {
-  const patchSubMessages = (subMessages) =>
-    subMessages?.map((message2) => ({
-      ...message2,
-      ...(message2.type === "tool" && message2.callID === callID
-        ? {
-            comfyUiProgress: progress,
-          }
-        : {}),
-      ...(message2.subMessages
-        ? {
-            subMessages: patchSubMessages(message2.subMessages),
-          }
-        : {}),
-    }));
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.callID === callID) {
-      return {
-        ...message2,
-        comfyUiProgress: progress,
-      };
-    }
-    if (message2.type === "sub_agent" && message2.subMessages) {
-      return {
-        ...message2,
-        subMessages: patchSubMessages(message2.subMessages),
-      };
-    }
-    return message2;
-  });
-}
-export function normalizeKeepCount(keepCount) {
-  if (!Number.isFinite(keepCount) || keepCount <= 0) return 0;
-  return Math.floor(keepCount);
-}
-export function protectedFocusedSessionIds(focusedSessionId) {
-  return focusedSessionId ? new Set([focusedSessionId]) : void 0;
-}
-export function subAgentPartId(partId) {
-  return `${partId}__sub_agent`;
-}
-export function resplicePendingToolConfirms(messages2) {
-  const base2 = [];
-  const lifted = [];
-  for (const message2 of messages2) {
-    if (message2.type === "tool_confirm_ask" && !message2.resolved && !message2.expired) {
-      lifted.push(message2);
-    } else {
-      base2.push(message2);
-    }
-  }
-  let result = base2;
-  for (const ask of lifted) {
-    result = insertToolConfirmAsk(result, ask);
-  }
-  return result;
-}
-export function messagesShallowEqual(prev, next2) {
-  if (prev === next2) return true;
-  if (prev.length !== next2.length) return false;
-  for (let index2 = 0; index2 < prev.length; index2 += 1) {
-    if (!chatMessageShallowEqual(prev[index2], next2[index2])) return false;
-  }
-  return true;
-}
-function chatMessageShallowEqual(a2, b3) {
-  if (a2 === b3) return true;
-  const aRecord = a2;
-  const bRecord = b3;
-  const aKeys = Object.keys(aRecord);
-  const bKeys = Object.keys(bRecord);
-  if (aKeys.length !== bKeys.length) return false;
-  for (const key2 of aKeys) {
-    if (aRecord[key2] !== bRecord[key2]) {
-      return false;
-    }
-  }
-  return true;
-}
-export function insertToolConfirmAsk(prev, chatMsg) {
-  if (chatMsg.type !== "tool_confirm_ask" || !chatMsg.toolConfirmData) {
-    return [...prev, chatMsg];
-  }
-  const targetTool = chatMsg.toolConfirmData.tool;
-  const targetArgsKey = canonicalArgsKey(chatMsg.toolConfirmData.args);
-  for (let i2 = prev.length - 1; i2 >= 0; i2--) {
-    const m3 = prev[i2];
-    if (m3.type === "tool") {
-      if (m3.content === targetTool) {
-        if (canonicalArgsKey(safeParseToolArgs(m3.toolArgs)) === targetArgsKey) {
-          return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
-        }
-      }
-    } else if (m3.type === "sub_agent") {
-      const subs = m3.subMessages ?? [];
-      const matchesSub = subs.some(
-        (s2) =>
-          s2.type === "tool" &&
-          stripToolResultPrefix(s2.content ?? "") === targetTool &&
-          canonicalArgsKey(safeParseToolArgs(s2.args)) === targetArgsKey,
-      );
-      if (matchesSub) {
-        return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
-      }
-    }
-  }
-  return [...prev, chatMsg];
-}
-export function upsertPendingInteraction(prev, interaction) {
-  const requestId = "requestId" in interaction ? interaction.requestId : void 0;
-  if (
-    requestId &&
-    prev.some((message2) => "requestId" in message2 && message2.requestId === requestId)
-  ) {
-    if (interaction.type === "credit_threshold") {
-      return prev.map((message2) =>
-        message2.type === "credit_threshold" && message2.requestId === requestId
-          ? {
-              ...interaction,
-              id: message2.id,
-              revision: (message2.revision ?? 0) + 1,
-            }
-          : message2,
-      );
-    }
-    return [...prev];
-  }
-  return interaction.type === "tool_confirm_ask"
-    ? insertToolConfirmAsk(prev, interaction)
-    : [...prev, interaction];
-}
-export function reconcilePendingInteractionSnapshot(messages2, pendingInteractions) {
-  const pendingIds = new Set(
-    pendingInteractions
-      .filter((interaction) => interaction.type === "loop_guard_ask")
-      .map((interaction) => interaction.id),
-  );
-  const pendingCreditThresholdIds = new Set(
-    pendingInteractions
-      .filter((interaction) => interaction.type === "credit_threshold_request")
-      .map((interaction) => interaction.id),
-  );
-  return messages2.map((message2) => {
-    if (message2.type === "credit_threshold" && message2.requestId) {
-      return pendingCreditThresholdIds.has(message2.requestId)
-        ? message2.resolved
-          ? {
-              ...message2,
-              resolved: false,
-              settlementStatus: void 0,
-              decision: void 0,
-            }
-          : message2
-        : message2.resolved
-          ? message2
-          : {
-              ...message2,
-              resolved: true,
-              settlementStatus: "unavailable",
-            };
-    }
-    if (message2.type !== "loop_guard_ask" || !message2.requestId) {
-      return message2;
-    }
-    if (pendingIds.has(message2.requestId)) {
-      return message2.resolved
-        ? {
-            ...message2,
-            resolved: false,
-            loopGuardDecision: void 0,
-            loopGuardSettlementCause: void 0,
-          }
-        : message2;
-    }
-    return message2.resolved
-      ? message2
-      : {
-          ...message2,
-          resolved: true,
-          loopGuardDecision: void 0,
-          loopGuardSettlementCause: "unavailable",
-        };
-  });
-}
-export function applyToolConfirmSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
-  const byRequestId = new Map(settlements.map((settlement) => [settlement.id, settlement]));
-  return messages2.map((message2) => {
-    if (message2.type !== "tool_confirm_ask" || !message2.requestId) return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement) return message2;
-    return {
-      ...message2,
-      resolved: true,
-      expired: settlement.cause !== "reply",
-      toolConfirmDecision: settlement.decision,
-      toolConfirmSettlementCause: settlement.cause,
-      ...(settlement.modified_args && message2.toolConfirmData
-        ? {
-            toolConfirmData: {
-              ...message2.toolConfirmData,
-              args: settlement.modified_args,
-            },
-          }
-        : {}),
-    };
-  });
-}
-export function applyLoopGuardSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
-  const byRequestId = new Map(settlements.map((settlement) => [settlement.id, settlement]));
-  return messages2.map((message2) => {
-    if (message2.type !== "loop_guard_ask" || !message2.requestId) return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement || settlement.session_id !== message2.loopGuardSessionId) return message2;
-    return {
-      ...message2,
-      resolved: true,
-      loopGuardDecision: settlement.decision,
-      loopGuardSettlementCause: settlement.cause,
-    };
-  });
-}
-function stripToolResultPrefix(content2) {
-  const idx = content2.indexOf(": ");
-  return idx >= 0 ? content2.slice(0, idx) : content2;
-}
-function safeParseToolArgs(serialized) {
-  if (!serialized) return void 0;
-  try {
-    return JSON.parse(serialized);
-  } catch {
-    return serialized;
-  }
-}
-function canonicalArgsKey(args) {
-  if (args === void 0) return "__undefined__";
-  if (args === null || typeof args !== "object") return JSON.stringify(args);
-  const filtered = {};
-  for (const k2 of Object.keys(args)) {
-    if (k2 === "_session_id" || k2 === "_tool_use_id") continue;
-    filtered[k2] = args[k2];
-  }
-  return stableStringify(filtered);
-}
-function stableStringify(value) {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(",")}]`;
-  }
-  const obj = value;
-  const keys2 = Object.keys(obj).sort();
-  return `{${keys2.map((k2) => `${JSON.stringify(k2)}:${stableStringify(obj[k2])}`).join(",")}}`;
-}
+import { PERF_STORE_NOTIFY } from "../generation/to-workspace-browser-url.js";
+
 class MessageWithdrawals {
   partIds = new Map();
   sessions = new Map();
@@ -278,7 +22,12 @@ class MessageWithdrawals {
     return this.partIds.get(sessionId)?.has(partId) ?? false;
   }
   add({ sessionId, runtimeMessageId, reason }) {
-    if (!sessionId || !runtimeMessageId || this.has(sessionId, runtimeMessageId)) return void 0;
+    if (
+      !sessionId ||
+      !runtimeMessageId ||
+      this.has(sessionId, runtimeMessageId)
+    )
+      return void 0;
     let messages2 = this.sessions.get(sessionId);
     if (!messages2) {
       messages2 = new Map();
@@ -318,21 +67,31 @@ class MessageWithdrawals {
         result.push(message2);
         continue;
       }
-      if (message2.partId) this.rememberPart(sessionId, message2.partId, target.runtimeMessageId);
+      if (message2.partId)
+        this.rememberPart(sessionId, message2.partId, target.runtimeMessageId);
       if (!seen2.has(target.runtimeMessageId)) {
         result.push(target);
         seen2.add(target.runtimeMessageId);
       }
     }
-    return result.length === messages2.length && result.every((m3, i2) => m3 === messages2[i2])
+    return result.length === messages2.length &&
+      result.every((m3, i2) => m3 === messages2[i2])
       ? messages2
       : result;
   }
   rekeySession(fromId, toId) {
     const source = this.sessions.get(fromId);
-    if (source) this.sessions.set(toId, new Map([...(this.sessions.get(toId) ?? []), ...source]));
+    if (source)
+      this.sessions.set(
+        toId,
+        new Map([...(this.sessions.get(toId) ?? []), ...source]),
+      );
     const parts = this.partIds.get(fromId);
-    if (parts) this.partIds.set(toId, new Set([...(this.partIds.get(toId) ?? []), ...parts]));
+    if (parts)
+      this.partIds.set(
+        toId,
+        new Set([...(this.partIds.get(toId) ?? []), ...parts]),
+      );
     this.removeSession(fromId);
   }
   removeSession(sessionId) {
@@ -344,30 +103,46 @@ class MessageWithdrawals {
     this.partIds.clear();
   }
 }
+
 const EMPTY_MESSAGES = Object.freeze([]);
+
 const EMPTY_SESSION_LIST = Object.freeze([]);
+
 const EMPTY_OPENED_TAB_ORDER = Object.freeze([]);
+
 const EMPTY_OPENED_TABS = Object.freeze(new Set());
+
 const EMPTY_PENDING_REASONS = Object.freeze([]);
+
 function isDefaultSessionName(name2) {
   return name2 === DEFAULT_SESSION_NAME;
 }
+
 function getIncomingSessionName(info2) {
-  if (info2.display_name && !isDefaultSessionName(info2.display_name)) return info2.display_name;
+  if (info2.display_name && !isDefaultSessionName(info2.display_name))
+    return info2.display_name;
   if (info2.name && !isDefaultSessionName(info2.name)) return info2.name;
   return info2.display_name || info2.name || DEFAULT_SESSION_NAME;
 }
+
 function resolveReconciledSessionName(info2, existingName) {
   const incomingName = getIncomingSessionName(info2);
-  if (existingName && !isDefaultSessionName(existingName) && isDefaultSessionName(incomingName)) {
+  if (
+    existingName &&
+    !isDefaultSessionName(existingName) &&
+    isDefaultSessionName(incomingName)
+  ) {
     return existingName;
   }
   return incomingName;
 }
+
 function hasSelectedMediaModelsSnapshot(info2) {
   return Object.hasOwn(info2, "selected_media_models");
 }
+
 const NEEDS_USER_ACTION_KINDS = new Set(["tool_confirm_ask", "loop_guard_ask"]);
+
 export class SessionStore {
   withdrawals = new MessageWithdrawals();
   state = {
@@ -508,7 +283,10 @@ export class SessionStore {
     next2.set(id2, {
       id: id2,
       name: displayName2 || name2,
-      messages: this.projectMessages(id2, initialMessages ? [...initialMessages] : []),
+      messages: this.projectMessages(
+        id2,
+        initialMessages ? [...initialMessages] : [],
+      ),
       userAttentionRevision: (existing?.userAttentionRevision ?? -1) + 1,
       busy: false,
       hasUnread: false,
@@ -526,16 +304,21 @@ export class SessionStore {
           ? this.state.openedTabOrder
           : [...this.state.openedTabOrder, id2];
     let evictedId = null;
-    if (options?.openTab !== false && nextOrder.length > SessionStore.OPENED_TAB_CAP) {
+    if (
+      options?.openTab !== false &&
+      nextOrder.length > SessionStore.OPENED_TAB_CAP
+    ) {
       evictedId =
         this.findEvictableTabId(new Set([this.state.focusedSessionId, id2])) ??
         this.state.openedTabOrder[0] ??
         null;
-      if (evictedId) nextOrder = nextOrder.filter((tabId) => tabId !== evictedId);
+      if (evictedId)
+        nextOrder = nextOrder.filter((tabId) => tabId !== evictedId);
     }
     this.setState({
       sessions: next2,
-      focusedSessionId: options?.focus === false ? this.state.focusedSessionId : id2,
+      focusedSessionId:
+        options?.focus === false ? this.state.focusedSessionId : id2,
       openedTabOrder: nextOrder,
       openedTabIds: this.deriveOpenedTabIds(nextOrder),
     });
@@ -582,7 +365,15 @@ export class SessionStore {
     });
   }
   switchSession(id2, messages2, folder, modelId, selectedMediaModels, options) {
-    this.applySessionSnapshot(id2, messages2, folder, modelId, selectedMediaModels, options, true);
+    this.applySessionSnapshot(
+      id2,
+      messages2,
+      folder,
+      modelId,
+      selectedMediaModels,
+      options,
+      true,
+    );
   }
   /**
    * Install a full session snapshot without changing visible focus.
@@ -591,12 +382,35 @@ export class SessionStore {
    * session's history/runtime metadata remains available when the user later
    * focuses the tab, while the current transcript and send target stay stable.
    */
-  hydrateSession(id2, messages2, folder, modelId, selectedMediaModels, options) {
-    this.applySessionSnapshot(id2, messages2, folder, modelId, selectedMediaModels, options, false);
+  hydrateSession(
+    id2,
+    messages2,
+    folder,
+    modelId,
+    selectedMediaModels,
+    options,
+  ) {
+    this.applySessionSnapshot(
+      id2,
+      messages2,
+      folder,
+      modelId,
+      selectedMediaModels,
+      options,
+      false,
+    );
   }
   /** Change visible focus without reloading or replacing session history. */
   focusSession(id2) {
-    this.applySessionSnapshot(id2, void 0, void 0, void 0, void 0, void 0, true);
+    this.applySessionSnapshot(
+      id2,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      true,
+    );
   }
   /**
    * Adopt a new server identity for an already-rendered session without
@@ -619,11 +433,14 @@ export class SessionStore {
       busy: source.busy,
       hasUnread: source.hasUnread,
       pendingReasons: source.pendingReasons,
-      runtimeSessionId: target?.runtimeSessionId ?? source.runtimeSessionId ?? toId,
+      runtimeSessionId:
+        target?.runtimeSessionId ?? source.runtimeSessionId ?? toId,
     });
     const openedTabOrder = [
       ...new Set(
-        this.state.openedTabOrder.map((sessionId) => (sessionId === fromId ? toId : sessionId)),
+        this.state.openedTabOrder.map((sessionId) =>
+          sessionId === fromId ? toId : sessionId,
+        ),
       ),
     ];
     this.setState({
@@ -631,16 +448,30 @@ export class SessionStore {
       sessions,
       openedTabOrder,
       openedTabIds: this.deriveOpenedTabIds(openedTabOrder),
-      focusedSessionId: this.state.focusedSessionId === fromId ? toId : this.state.focusedSessionId,
+      focusedSessionId:
+        this.state.focusedSessionId === fromId
+          ? toId
+          : this.state.focusedSessionId,
     });
   }
-  applySessionSnapshot(id2, messages2, folder, modelId, selectedMediaModels, options, focus2) {
+  applySessionSnapshot(
+    id2,
+    messages2,
+    folder,
+    modelId,
+    selectedMediaModels,
+    options,
+    focus2,
+  ) {
     const session = this.state.sessions.get(id2);
     if (!session) return;
-    const hasSelectedMediaModelsSnapshot2 = options?.selectedMediaModelsSnapshot === true;
+    const hasSelectedMediaModelsSnapshot2 =
+      options?.selectedMediaModelsSnapshot === true;
     const shouldInstallMessages =
       options?.replaceMessages === true ||
-      Boolean(messages2 && messages2.length > 0 && session.messages.length === 0);
+      Boolean(
+        messages2 && messages2.length > 0 && session.messages.length === 0,
+      );
     const needsUpdate =
       (focus2 && session.hasUnread) ||
       shouldInstallMessages ||
@@ -706,7 +537,9 @@ export class SessionStore {
     this.withdrawals.removeSession(id2);
     const next2 = new Map(this.state.sessions);
     next2.delete(id2);
-    const nextOrder = this.state.openedTabOrder.filter((tabId) => tabId !== id2);
+    const nextOrder = this.state.openedTabOrder.filter(
+      (tabId) => tabId !== id2,
+    );
     let nextFocusedId = this.state.focusedSessionId;
     if (nextFocusedId === id2) {
       nextFocusedId = nextOrder[0] ?? null;
@@ -744,7 +577,9 @@ export class SessionStore {
    * id. Returns null when every candidate is protected.
    */
   findEvictableTabId(excludeIds) {
-    const candidates2 = this.state.openedTabOrder.filter((tabId) => !excludeIds.has(tabId));
+    const candidates2 = this.state.openedTabOrder.filter(
+      (tabId) => !excludeIds.has(tabId),
+    );
     let runningFallback = null;
     for (const tabId of candidates2) {
       const session = this.state.sessions.get(tabId);
@@ -778,7 +613,8 @@ export class SessionStore {
         this.findEvictableTabId(new Set([this.state.focusedSessionId, id2])) ??
         this.state.openedTabOrder[0] ??
         null;
-      if (evictedId) nextOrder = nextOrder.filter((tabId) => tabId !== evictedId);
+      if (evictedId)
+        nextOrder = nextOrder.filter((tabId) => tabId !== evictedId);
     }
     this.setState({
       ...this.state,
@@ -804,14 +640,18 @@ export class SessionStore {
       };
     }
     const evictedId =
-      this.findEvictableTabId(new Set([this.state.focusedSessionId, excludeId])) ??
+      this.findEvictableTabId(
+        new Set([this.state.focusedSessionId, excludeId]),
+      ) ??
       this.state.openedTabOrder.find((tabId) => tabId !== excludeId) ??
       null;
     if (!evictedId)
       return {
         evictedId: null,
       };
-    const nextOrder = this.state.openedTabOrder.filter((tabId) => tabId !== evictedId);
+    const nextOrder = this.state.openedTabOrder.filter(
+      (tabId) => tabId !== evictedId,
+    );
     this.setState({
       ...this.state,
       openedTabOrder: nextOrder,
@@ -897,9 +737,15 @@ export class SessionStore {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
     const isNonFocused = sessionId !== this.state.focusedSessionId;
-    const nextMessages = this.projectMessages(sessionId, updater(session.messages));
+    const nextMessages = this.projectMessages(
+      sessionId,
+      updater(session.messages),
+    );
     const nextHasUnread = isNonFocused ? true : session.hasUnread;
-    if (nextMessages === session.messages && nextHasUnread === session.hasUnread) {
+    if (
+      nextMessages === session.messages &&
+      nextHasUnread === session.hasUnread
+    ) {
       return;
     }
     this.setSession(sessionId, {
@@ -931,11 +777,17 @@ export class SessionStore {
     this.setSession(request.sessionId, {
       ...session,
       // Include a placeholder even if the safety event preceded the first part.
-      messages: this.projectMessages(request.sessionId, [...session.messages, placeholder]).filter(
-        (message2) => message2.type !== "compaction_status" || message2.content === "compacted",
+      messages: this.projectMessages(request.sessionId, [
+        ...session.messages,
+        placeholder,
+      ]).filter(
+        (message2) =>
+          message2.type !== "compaction_status" ||
+          message2.content === "compacted",
       ),
       busy: false,
-      hasUnread: session.hasUnread || request.sessionId !== this.state.focusedSessionId,
+      hasUnread:
+        session.hasUnread || request.sessionId !== this.state.focusedSessionId,
       userAttentionRevision: session.userAttentionRevision + 1,
     });
     return true;
@@ -1107,7 +959,9 @@ export class SessionStore {
       let existing = this.state.sessions.get(info2.id);
       const hasSelectionSnapshot = hasSelectedMediaModelsSnapshot(info2);
       if (!existing) {
-        const runtimeAlias = existingByRuntimeId.get(info2.runtime_session_id ?? info2.id);
+        const runtimeAlias = existingByRuntimeId.get(
+          info2.runtime_session_id ?? info2.id,
+        );
         if (runtimeAlias) {
           sessionId = runtimeAlias[0];
           existing = runtimeAlias[1];
@@ -1139,7 +993,8 @@ export class SessionStore {
           createdAt: info2.created_at || existing.createdAt,
           folder: info2.folder ?? existing.folder,
           modelId: info2.model_id ?? existing.modelId,
-          runtimeSessionId: info2.runtime_session_id ?? existing.runtimeSessionId,
+          runtimeSessionId:
+            info2.runtime_session_id ?? existing.runtimeSessionId,
           selectedMediaModels: hasSelectionSnapshot
             ? info2.selected_media_models
             : existing.selectedMediaModels,

@@ -1,93 +1,114 @@
 // chat-panel.jsx
-import { jsxRuntimeExports, useTranslation, useCurrentWorkspace, reactExports, Loader2, useSensors, useSensor, PointerSensor, KeyboardSensor, sortableKeyboardCoordinates, DndContext, closestCenter, SortableContext, verticalListSortingStrategy, useSortable, CSS$1, useNavigate, dedupedToast, workspaceLog, guardAccountSubmission, useBrowserImageEdit } from "../vendor.js";
-import { useDebugFlag, DEBUG_FLAGS } from "../workspace/create-visible-preview-tabs-store.js";
-import { Tooltip, TooltipTrigger, Icon } from "../vendor-inline/vscode-base/graph.jsx";
-import { Paperclip, CornerDownRight, Trash2 } from "../media-editing/parse-item.jsx";
-import { useLoginGuard } from "../infra/thumbnail-load-scheduler.jsx";
-import { workspaceEvents, useTopbarState } from "../workspace/use-hub-logo-hover-animation.jsx";
-import { RecoveringChildrenProvider } from "../generation/use-mention-models.jsx";
-import { useGatewayScopeKey } from "../generation/use-resizable-width.js";
 import {
-  useToolConfirmSettlement,
-  getPendingToolConfirms,
-  getMiniBarToolConfirms,
-  getLatestInlineToolConfirmId,
+  dedupedToast,
+  guardAccountSubmission,
+  Loader2,
+  reactExports,
+  useBrowserImageEdit,
+  useCurrentWorkspace,
+  useNavigate,
+  useTranslation,
+  workspaceLog,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  buildSelectionQuote,
+  DOCUMENT_EDIT_TARGETS_PER_ANNOTATION,
+  MILLISECONDS_PER_MINUTE,
+  QuestionComposerGate,
+  queuedMessageSuccessorIds,
+  restoreQueuedMessageToComposer,
+  SessionListUnavailableNotice,
+  StalledTurnBanner,
+  textAgentInputPlaceholder,
+} from "./stalled-turn-banner.jsx";
+import { applyToolConfirmReplyOptimisticUpdate } from "./apply-tool-confirm-reply-optimistic-update.js";
+import { QueuedUserMessageList } from "./sortable-queued-row.jsx";
+import {
+  DEBUG_FLAGS,
+  useDebugFlag,
+} from "../workspace/use-deep-link-router.js";
+import { useLoginGuard } from "../infra/schedule.js";
+import {
+  useTopbarState,
+  workspaceEvents,
+} from "../workspace/topbar-state-context.jsx";
+import { RecoveringChildrenProvider } from "../generation/use-mention-models.jsx";
+import { useGatewayScopeKey } from "../generation/use-model-catalog-scope-key.js";
+import {
   aggregateToolConfirmApprovalState,
   canApproveAllToolConfirms,
-} from "./use-chat-rating.js";
+  getLatestInlineToolConfirmId,
+  getMiniBarToolConfirms,
+  getPendingToolConfirms,
+  useToolConfirmSettlement,
+} from "./use-tool-confirm-settlement.js";
+import { useLoopGuardSettlement } from "../generation/use-loop-guard-settlement.js";
 import {
-  useLoopGuardSettlement,
-  useToolConfirmEditState,
   useChatConnectionPhase,
   useRuntimeMemoryReclaim,
-  useChatToolbar,
-} from "../generation/media-model-selector.jsx";
-import { ChatEmptyState } from "./empty-chat-recommendations.jsx";
-import { useAstraSendGate, resolveLegacyInteractionReply } from "../generation/file-chip.jsx";
+  useToolConfirmEditState,
+} from "../generation/use-tool-confirm-edit-state.js";
+import { useChatToolbar } from "../generation/use-chat-toolbar.jsx";
+import { ChatEmptyState } from "./chat-empty-state.jsx";
 import {
-  TooltipContent,
-  Button$1,
-} from "../infra/use-browser-overlay-dialog-props.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./yt.jsx";
+  resolveLegacyInteractionReply,
+  useAstraSendGate,
+} from "../generation/use-astra-send-gate.js";
+import { Button$1 } from "../infra/dialog-content.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
 import {
-  useWorkspaceChatSelector,
   shallowEqualObject,
-  useWorkspaceProductionPlanDisclosureStore,
+  useWorkspaceChatSelector,
   useWorkspaceChatStoreSelector,
-} from "../assets/use-asset-picker-host.jsx";
-import { PencilIcon } from "../workspace/browser-inspiration-urls.jsx";
-import { redactForCurrentRegion } from "../generation/resolve-chat-file-reference.js";
-import { ProductionPlanDisclosureContext } from "../text-editor/expandable-text.jsx";
+  useWorkspaceProductionPlanDisclosureStore,
+} from "../assets/use-canvas-model-registry-hydration.js";
+import { ProductionPlanDisclosureContext } from "../text-editor/capability-search-card.jsx";
 import {
-  MessageInput,
-  useSkillReloadNotification,
-  useChatReadiness,
-  chatReadinessBlocksInput,
-  ModeSelector,
-  PromoBanner,
   ChatComplianceNotice,
-} from "./mode-selector.jsx";
-import { TEXT_EDIT_SELECTION_MAX_LENGTH } from "../text-editor/myers-line-hunks.js";
-import {
-  applyQueuedMessageScrollRequest,
-  useAgentModePreference,
-} from "../workspace/use-workspace-canvas-persistence.jsx";
+  chatReadinessBlocksInput,
+  MessageInput,
+  useChatReadiness,
+  useSkillReloadNotification,
+} from "./chat-compliance-notice.jsx";
+import { ModeSelector } from "./mode-selector.jsx";
+import { PromoBanner } from "./promo-banner.jsx";
+import { TEXT_EDIT_SELECTION_MAX_LENGTH } from "../text-editor/build-asr-gateway-request.js";
+import { useAgentModePreference } from "../workspace/resolve-retry-message-payload.jsx";
 import { useMaterializeEntity } from "../assets/use-materialize-entity.js";
 import {
-  selectChatPanelState,
-  isDocumentEditSubmissionForAnnotations,
-  selectMessages,
-  useReconnectingStuck,
   applyChatShowcaseSelection,
-  useBrowserChatMedia,
-  ChatHeaderContainer,
-  ChatHistoryLoadingState,
-  ChatStartupNotice,
   ChatReconnectNotice,
-  DocumentEditReviewBar,
-} from "./session-tab-strip.jsx";
+  ChatStartupNotice,
+  isDocumentEditSubmissionForAnnotations,
+  selectChatPanelState,
+  selectMessages,
+  useBrowserChatMedia,
+  useReconnectingStuck,
+} from "./use-browser-chat-media.jsx";
+import { ChatHeaderContainer } from "./chat-header-container.jsx";
+import { ChatHistoryLoadingState } from "./chat-history-loading-state.jsx";
+import { DocumentEditReviewBar } from "./document-edit-review-bar.jsx";
 import {
-  productionPlanDisclosureKey,
-  updateProductionPlanDisclosureState,
   canOpenProductionPlan,
+  productionPlanDisclosureKey,
   ToolConfirmEditsContext,
+  updateProductionPlanDisclosureState,
 } from "../generation/domestic-param-labels.jsx";
-import { useCreditReminderConfig } from "../team/team-credit-summary-surface.jsx";
-import { getPluginAgentEditorState } from "../media-editing/use-plugin-host.jsx";
-import { hasFileDropPayload } from "./use-mention.js";
-import { SKILL_DRAG_MIME } from "../workspace/home-widget-host.jsx";
+import { useCreditReminderConfig } from "../team/team-credit-history-section.jsx";
+import { getPluginAgentEditorState } from "../media-editing/input.jsx";
+import { hasFileDropPayload } from "./find-trailing-trigger.js";
+import { SKILL_DRAG_MIME } from "../workspace/workspace-asset-center-relocation-coach-mark.jsx";
 import { ENTITY_DRAG_MIME } from "../infra/use-online.jsx";
-import { readEntityDragData } from "../assets/asset-center-relocation-coach-mark.jsx";
-import { FileDropFeedback } from "../text-editor/build-doc-content-from-input.jsx";
-import { WorkspaceCreationGuidePlaceholder } from "../text-editor/attachment-preview.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-import { LoopGuardAskDock, MessageListContainer, QuestionDock } from "./message-list-impl.jsx";
+import { readEntityDragData } from "../assets/read-entity-drag-data.js";
+import { FileDropFeedback } from "../text-editor/file-drop-feedback.jsx";
+import { WorkspaceCreationGuidePlaceholder } from "../text-editor/get-wire-content-text.jsx";
+import { LoopGuardAskDock } from "./loop-guard-ask-dock.jsx";
+import { MessageListContainer } from "../media-editing/message-list-props-equal.jsx";
+import { QuestionDock } from "./question-dock.jsx";
+import { PendingAnnotationList } from "../text-editor/pending-annotation-list.jsx";
+import { ProductionPlanTimeline } from "../text-editor/production-plan-timeline.jsx";
 import {
-  PendingAnnotationList,
-  ProductionPlanTimeline,
-  SkillReloadDock,
-  StageConfirmationBar,
-  ToolConfirmMiniBar,
   canCompleteProductionPlanConfirmation,
   findPendingQuestionState,
   getCurrentProductionStage,
@@ -96,521 +117,19 @@ import {
   nextFeedbackSentStageKey,
   nodeAgentInputPlaceholder,
   shouldRouteMessageToStageRevision,
-} from "../text-editor/pending-annotation-list.jsx";
+  SkillReloadDock,
+  StageConfirmationBar,
+  ToolConfirmMiniBar,
+} from "../text-editor/skill-reload-dock.jsx";
 import { StagePromptEditorCard } from "../workspace/stage-prompt-editor-card.jsx";
-import { DevToolConfirmTrigger } from "../media-editing/use-browser-video-download.jsx";
+import { DevToolConfirmTrigger } from "../media-editing/dev-tool-confirm-trigger.jsx";
+import { findStageReviewAnchorMessageId } from "../workspace/task-result-authored-stage-id.js";
 import {
-  findStageReviewAnchorMessageId,
   hasConfirmedPromptReview,
   takeLatestPromptReviews,
-  useProductionBoard,
-} from "../workspace/use-production-board.js";
-function QuestionComposerGate({ blocked, dock, children: children2 }) {
-  return (
-    <>
-      {blocked ? dock : null}
-      <div
-        className={blocked ? "hidden" : "contents"}
-        hidden={blocked}
-        aria-hidden={blocked ? true : void 0}
-        inert={blocked ? true : void 0}
-      >
-        {children2}
-      </div>
-    </>
-  );
-}
-function queuedMessageSuccessorIds(messages2, clientMessageId) {
-  const editIndex = messages2.findIndex((item) => item.clientMessageId === clientMessageId);
-  if (editIndex === -1) return [];
-  return messages2
-    .slice(editIndex + 1)
-    .map((item) => item.queueId)
-    .filter((queueId) => Boolean(queueId));
-}
-function restoreQueuedMessageToComposer(input, message2, setPendingInput, trackInputChange) {
-  input?.reset();
-  setPendingInput(message2.text);
-  trackInputChange(message2.text);
-  input?.setInputText(message2.text);
-  for (const path2 of message2.attachments ?? []) {
-    const nodeId = message2.canvasNodeAttachments?.find(
-      (attachment) => attachment.path === path2,
-    )?.nodeId;
-    input?.addFromAssetPath(path2, path2.split("/").pop() || path2, nodeId);
-  }
-  requestAnimationFrame(() => input?.focus());
-}
-function SessionListUnavailableNotice({ onRetry }) {
-  const { t: t2 } = useTranslation();
-  return (
-    <div
-      className="mb-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
-      data-action-ui-id="chat.session-list-unavailable"
-    >
-      <div className="font-medium text-foreground">
-        {t2("chat.sessionListUnavailable.title", "Chat is temporarily unavailable")}
-      </div>
-      <div>
-        {t2(
-          "chat.sessionListUnavailable.description",
-          "The current workspace, canvas, assets, and loaded messages remain available. Retry loading chat sessions.",
-        )}
-      </div>
-      <Button$1 variant="outline" size="sm" className="mt-1.5 h-6 px-2 text-xs" onClick={onRetry}>
-        {t2("chat.retry", "Retry")}
-      </Button$1>
-    </div>
-  );
-}
-function StalledTurnBanner({ minutes, watchdog, onKeepWaiting, onStop }) {
-  const { t: t2 } = useTranslation();
-  const isHardCap = watchdog === "hard_cap";
-  return (
-    <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-      <div className="font-medium text-foreground">
-        {isHardCap
-          ? t2("chat.stalled.hardCapTitle", "Task has been running for a long time")
-          : t2("chat.stalled.title", "Task is running but hasn't responded for a while")}
-      </div>
-      <div>
-        {isHardCap
-          ? t2(
-              "chat.stalled.hardCapDescription",
-              "This task has been running for about {{minutes}} min. You can keep waiting or stop it.",
-              {
-                minutes,
-              },
-            )
-          : t2(
-              "chat.stalled.description",
-              "No new progress for about {{minutes}} min. You can keep waiting or stop this task.",
-              {
-                minutes,
-              },
-            )}
-      </div>
-      <div className="mt-1.5 flex gap-2">
-        <Button$1
-          size="sm"
-          variant="outline"
-          className="h-6 px-2 text-xs"
-          data-action-ui-id="chat-stalled-keep-waiting-button"
-          onClick={onKeepWaiting}
-        >
-          {t2("chat.stalled.keepWaiting", "Keep waiting")}
-        </Button$1>
-        <Button$1
-          size="sm"
-          variant="outline"
-          className="h-6 px-2 text-xs"
-          data-action-ui-id="chat-stalled-stop-task-button"
-          onClick={onStop}
-        >
-          {t2("chat.stalled.stopTask", "Stop task")}
-        </Button$1>
-      </div>
-    </div>
-  );
-}
-const SELECTION_PLACEHOLDER = {
-  key: "chat.textEditAgent.selectionPlaceholder",
-  fallback: "How should I revise this selection? Tell me the tone, focus, or length",
-};
-const WHOLE_DOCUMENT_PLACEHOLDER = {
-  key: "chat.textEditAgent.wholeDocumentPlaceholder",
-  fallback: "Want to make the whole piece shine? Tell me the goal, tone, or length",
-};
-function textAgentInputPlaceholder(hasSelection2) {
-  return hasSelection2 ? SELECTION_PLACEHOLDER : WHOLE_DOCUMENT_PLACEHOLDER;
-}
-function encodeArgs(args) {
-  return JSON.stringify(args);
-}
-function parseArgs(args) {
-  if (!args) return void 0;
-  try {
-    const parsed = JSON.parse(args);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : void 0;
-  } catch {
-    return void 0;
-  }
-}
-function sameArgs(a2, b3) {
-  if (!a2) return false;
-  return JSON.stringify(a2) === JSON.stringify(b3);
-}
-function toolNameMatches(name2, target) {
-  return name2 === target;
-}
-function toolMessageMatches(message2, ask) {
-  if (message2.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
-  if (!target || !originalArgs) return false;
-  const tool2 = message2;
-  if (!toolNameMatches(tool2.toolName ?? tool2.content, target)) return false;
-  return sameArgs(parseArgs(tool2.toolArgs), originalArgs);
-}
-function subToolMatches(sub, ask) {
-  if (sub.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
-  if (!target || !originalArgs) return false;
-  if (!toolNameMatches(sub.content, target)) return false;
-  return sameArgs(parseArgs(sub.args), originalArgs);
-}
-function applyToolArgsToMessage(message2, modifiedArgs) {
-  if (message2.type !== "tool") return message2;
-  const tool2 = message2;
-  const encoded = encodeArgs(modifiedArgs);
-  return {
-    ...tool2,
-    toolArgs: encoded,
-    url: tool2.url === tool2.toolArgs ? encoded : tool2.url,
-  };
-}
-function applyToolArgsToSubAgent(message2, ask, modifiedArgs) {
-  const subs = message2.subMessages ?? [];
-  for (let i2 = subs.length - 1; i2 >= 0; i2--) {
-    const sub = subs[i2];
-    if (!subToolMatches(sub, ask)) continue;
-    const nextSubs = [...subs];
-    nextSubs[i2] = {
-      ...sub,
-      args: encodeArgs(modifiedArgs),
-    };
-    return {
-      ...message2,
-      subMessages: nextSubs,
-    };
-  }
-  return void 0;
-}
-function applyToolConfirmReplyOptimisticUpdate(messages2, reply) {
-  const askIndex = messages2.findIndex(
-    (message2) => message2.type === "tool_confirm_ask" && message2.requestId === reply.id,
-  );
-  if (askIndex < 0) return [...messages2];
-  const ask = messages2[askIndex];
-  const next2 = [...messages2];
-  const modifiedArgs = reply.decision === "confirm" ? reply.modified_args : void 0;
-  next2[askIndex] = {
-    ...ask,
-    resolved: true,
-    toolConfirmDecision: reply.decision,
-    ...(modifiedArgs && ask.toolConfirmData
-      ? {
-          toolConfirmData: {
-            ...ask.toolConfirmData,
-            args: modifiedArgs,
-          },
-        }
-      : {}),
-  };
-  if (!modifiedArgs) return next2;
-  for (let i2 = askIndex - 1; i2 >= 0; i2--) {
-    const message2 = next2[i2];
-    if (toolMessageMatches(message2, ask)) {
-      next2[i2] = applyToolArgsToMessage(message2, modifiedArgs);
-      break;
-    }
-    if (message2.type === "sub_agent") {
-      const updated = applyToolArgsToSubAgent(message2, ask, modifiedArgs);
-      if (updated) {
-        next2[i2] = updated;
-        break;
-      }
-    }
-  }
-  return next2;
-}
-const restrictToVerticalAxis = ({ transform: transform2 }) => ({
-  ...transform2,
-  x: 0,
-});
-const SELECTION_QUOTE_MAX_LENGTH = 40;
-const DOCUMENT_EDIT_TARGETS_PER_ANNOTATION = 32;
-function buildSelectionQuote(anchors2) {
-  const normalized = anchors2
-    .map((anchor) => anchor.exact)
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (normalized.length <= SELECTION_QUOTE_MAX_LENGTH) return normalized;
-  return `${normalized.slice(0, SELECTION_QUOTE_MAX_LENGTH)}…`;
-}
-const MILLISECONDS_PER_MINUTE = 6e4;
-const restrictToParentElement = ({
-  transform: transform2,
-  draggingNodeRect,
-  containerNodeRect,
-}) => {
-  if (!draggingNodeRect || !containerNodeRect) return transform2;
-  const next2 = {
-    ...transform2,
-  };
-  if (draggingNodeRect.top + next2.y < containerNodeRect.top) {
-    next2.y = containerNodeRect.top - draggingNodeRect.top;
-  }
-  if (draggingNodeRect.bottom + next2.y > containerNodeRect.bottom) {
-    next2.y = containerNodeRect.bottom - draggingNodeRect.bottom;
-  }
-  return next2;
-};
-function QueuedUserMessageList({
-  messages: messages2,
-  scrollRequest,
-  onEdit,
-  onDelete,
-  onSendNow,
-  onReorder,
-}) {
-  const { t: t2 } = useTranslation();
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-  const itemIds = reactExports.useMemo(
-    () => messages2.map((m3) => m3.queueId ?? m3.clientMessageId),
-    [messages2],
-  );
-  const queuedMessageScrollRef = reactExports.useRef(null);
-  const [canScrollUp, setCanScrollUp] = reactExports.useState(false);
-  const [canScrollDown, setCanScrollDown] = reactExports.useState(false);
-  const syncQueuedMessageScroll = reactExports.useCallback(() => {
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    const maxScrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
-    setCanScrollUp(el.scrollTop > 1);
-    setCanScrollDown(el.scrollTop < maxScrollTop - 1);
-  }, []);
-  reactExports.useLayoutEffect(() => {
-    if (messages2.length === 0) {
-      setCanScrollUp(false);
-      setCanScrollDown(false);
-      return;
-    }
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    syncQueuedMessageScroll();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(syncQueuedMessageScroll);
-    observer2.observe(el);
-    return () => observer2.disconnect();
-  }, [messages2.length, syncQueuedMessageScroll]);
-  reactExports.useLayoutEffect(() => {
-    if (!scrollRequest) return;
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    applyQueuedMessageScrollRequest(el, scrollRequest);
-    syncQueuedMessageScroll();
-  }, [scrollRequest, syncQueuedMessageScroll]);
-  const handleDragEnd = reactExports.useCallback(
-    (event) => {
-      const { active: active2, over } = event;
-      if (!over || active2.id === over.id) return;
-      const sourceIndex = itemIds.indexOf(active2.id);
-      const targetIndex = itemIds.indexOf(over.id);
-      if (sourceIndex === -1 || targetIndex === -1) return;
-      onReorder(sourceIndex, targetIndex);
-    },
-    [itemIds, onReorder],
-  );
-  if (messages2.length === 0) return null;
-  const isDraggable = messages2.length >= 2;
-  return (
-    <div className="-mb-3 mx-3 overflow-hidden rounded-xl border border-border bg-card pl-3 pr-1 pt-1 pb-4 relative z-0">
-      <div
-        ref={queuedMessageScrollRef}
-        onScroll={syncQueuedMessageScroll}
-        data-action-ui-id="chat-queued-message-list"
-        className="-ml-3 max-h-[min(9rem,calc(24vh-1.25rem-2px))] overflow-y-auto pl-3 scrollbar-none"
-      >
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-            {messages2.map((message2, index2) => (
-              <SortableQueuedRow
-                key={message2.queueId ?? message2.clientMessageId}
-                id={message2.queueId ?? message2.clientMessageId}
-                message={message2}
-                index={index2}
-                draggable={isDraggable}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onSendNow={onSendNow}
-                t={t2}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
-      </div>
-      {canScrollUp && (
-        <div
-          className="pointer-events-none absolute inset-x-px top-1 z-20 h-6 bg-gradient-to-b from-card via-card/80 to-transparent"
-          data-action-ui-id="chat-queued-message-top-fade"
-          aria-hidden="true"
-        />
-      )}
-      {canScrollDown && (
-        <div
-          className="pointer-events-none absolute inset-x-px bottom-3 z-20 h-6 bg-gradient-to-b from-transparent via-card/80 to-card"
-          data-action-ui-id="chat-queued-message-bottom-fade"
-          aria-hidden="true"
-        />
-      )}
-    </div>
-  );
-}
-function SortableQueuedRow({
-  id: id2,
-  message: message2,
-  index: index2,
-  draggable,
-  onEdit,
-  onDelete,
-  onSendNow,
-  t: t2,
-}) {
-  const {
-    attributes,
-    listeners: listeners2,
-    setNodeRef,
-    transform: transform2,
-    transition: transition2,
-    isDragging,
-  } = useSortable({
-    id: id2,
-  });
-  const style2 = {
-    transform: CSS$1.Transform.toString(transform2),
-    transition: transition2,
-    opacity: isDragging ? 0.9 : 1,
-    // 提高拖拽时的层级,避免被相邻行覆盖
-    zIndex: isDragging ? 1 : 0,
-    position: "relative",
-  };
-  const displayText = message2.text
-    ? redactForCurrentRegion(message2.text)
-    : t2("chat.queue.attachmentOnly");
-  return (
-    <div
-      ref={setNodeRef}
-      data-queued-client-message-id={message2.clientMessageId}
-      style={style2}
-      className={`group/queued-row relative flex h-8 items-center gap-1 rounded-md pr-0.5 text-xs text-muted-foreground ${isDragging ? "bg-foreground/5" : ""}`}
-    >
-      {draggable && (
-        <button
-          type="button"
-          {...attributes}
-          {...listeners2}
-          className="absolute -left-3 top-1/2 z-10 inline-flex size-6 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0 text-muted-foreground/40 transition-colors group-hover/queued-row:text-foreground/70 hover:bg-transparent hover:text-foreground/70 focus-visible:text-foreground/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 cursor-grab active:cursor-grabbing"
-          aria-label={t2("chat.queue.dragToReorder", {
-            defaultValue: "Drag to reorder",
-          })}
-        >
-          <span className="grid -translate-x-0.5 grid-cols-2 gap-0.5" aria-hidden={true}>
-            <span className="size-0.5 rounded-full bg-current" />
-            <span className="size-0.5 rounded-full bg-current" />
-            <span className="size-0.5 rounded-full bg-current" />
-            <span className="size-0.5 rounded-full bg-current" />
-            <span className="size-0.5 rounded-full bg-current" />
-            <span className="size-0.5 rounded-full bg-current" />
-          </span>
-        </button>
-      )}
-      <span className="w-4 text-right tabular-nums shrink-0">{index2 + 1}</span>
-      <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{displayText}</span>
-      {(message2.attachments?.length ?? 0) > 0 && (
-        <span className="inline-flex items-center gap-0.5 whitespace-nowrap shrink-0 mr-1">
-          <Paperclip className="size-3" />
-          {message2.attachments?.length}
-        </span>
-      )}
-      <div className="flex h-7 w-36 shrink-0 items-center justify-end gap-1">
-        {message2.status === "sending" ? (
-          // 瞬态状态原位替换动作区；固定 action rail 宽度避免发送时正文突然回流。
-          <span className="inline-flex h-7 items-center gap-1 whitespace-nowrap pl-1.5 pr-2 text-muted-foreground">
-            <Loader2 className="size-3 animate-spin" />
-            {t2("chat.queue.sending")}
-          </span>
-        ) : (
-          <>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button$1
-                    type="button"
-                    variant="ghost"
-                    size="xs"
-                    className="h-7 gap-0.5 rounded-md pl-1.5 pr-2 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                    aria-label={t2("chat.queue.sendNow")}
-                    data-action-ui-id="chat-queued-message-send-now"
-                    onClick={() => onSendNow(message2)}
-                  >
-                    <Icon icon={CornerDownRight} size="sm" aria-hidden={true} />
-                    {message2.reviewPaused ? t2("common.retry") : t2("chat.queue.sendNow")}
-                  </Button$1>
-                }
-              />
-              <TooltipContent side="top">
-                {t2("chat.queue.sendNowTooltip", "Stop the current response and send immediately")}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button$1
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
-                    aria-label={t2("chat.queue.edit")}
-                    data-action-ui-id="chat-queued-message-edit"
-                    onClick={() => onEdit(message2)}
-                  >
-                    <PencilIcon className="size-3" />
-                  </Button$1>
-                }
-              />
-              <TooltipContent side="top">{t2("chat.queue.edit")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button$1
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-destructive"
-                    aria-label={t2("chat.queue.delete")}
-                    data-action-ui-id="chat-queued-message-delete"
-                    onClick={() => onDelete(message2)}
-                  >
-                    <Trash2 className="size-3.5" strokeWidth={1.5} />
-                  </Button$1>
-                }
-              />
-              <TooltipContent side="top">{t2("chat.queue.delete")}</TooltipContent>
-            </Tooltip>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+} from "../workspace/has-confirmed-prompt-review.js";
+import { useProductionBoard } from "../workspace/use-production-board.js";
+
 export function ChatPanel({
   onCollapse: _onCollapse,
   headerActions,
@@ -640,7 +159,10 @@ export function ChatPanel({
   isActiveRef.current = currentWorkspaceId === workspaceId2;
   const currentWorkspacePath = useCurrentWorkspace();
   const materializeEntityMutation = useMaterializeEntity();
-  const selected2 = useWorkspaceChatSelector(selectChatPanelState, shallowEqualObject);
+  const selected2 = useWorkspaceChatSelector(
+    selectChatPanelState,
+    shallowEqualObject,
+  );
   const mediaReviewing = useWorkspaceChatSelector((chat) =>
     chat.messageDeliveryStates.some(
       (state2) =>
@@ -696,15 +218,17 @@ export function ChatPanel({
     documentEditSubmissions,
   } = selected2;
   const astraSendGate = useAstraSendGate(selectedModelId);
-  const [activeDocumentEditRequestId, setActiveDocumentEditRequestId] = reactExports.useState(null);
+  const [activeDocumentEditRequestId, setActiveDocumentEditRequestId] =
+    reactExports.useState(null);
   const submittedAnnotationIdsRef = reactExports.useRef([]);
   const activeDocumentEditSubmissionCandidate = activeDocumentEditRequestId
     ? documentEditSubmissions?.get(activeDocumentEditRequestId)
     : void 0;
-  const activeSubmissionMatchesAnnotations = isDocumentEditSubmissionForAnnotations(
-    submittedAnnotationIdsRef.current,
-    annotations ?? [],
-  );
+  const activeSubmissionMatchesAnnotations =
+    isDocumentEditSubmissionForAnnotations(
+      submittedAnnotationIdsRef.current,
+      annotations ?? [],
+    );
   const documentEditInFlight =
     activeDocumentEditSubmissionCandidate?.status === "submitting" ||
     activeDocumentEditSubmissionCandidate?.status === "accepted" ||
@@ -715,20 +239,28 @@ export function ChatPanel({
       : void 0;
   const inputRef = reactExports.useRef(null);
   const questionFileDropHandlerRef = reactExports.useRef(void 0);
-  const handleQuestionFileDropHandlerChange = reactExports.useCallback((handler) => {
-    questionFileDropHandlerRef.current = handler;
-  }, []);
+  const handleQuestionFileDropHandlerChange = reactExports.useCallback(
+    (handler) => {
+      questionFileDropHandlerRef.current = handler;
+    },
+    [],
+  );
   const queuedEditRestoreRef = reactExports.useRef(null);
   const pendingQueuedEditClientMessageIdRef = reactExports.useRef(null);
   const composerSendPreparingRef = reactExports.useRef(false);
-  const [composerSendPreparing, setComposerSendPreparing] = reactExports.useState(false);
-  const handleComposerSendPreparingChange = reactExports.useCallback((preparing2) => {
-    composerSendPreparingRef.current = preparing2;
-    setComposerSendPreparing(preparing2);
-  }, []);
+  const [composerSendPreparing, setComposerSendPreparing] =
+    reactExports.useState(false);
+  const handleComposerSendPreparingChange = reactExports.useCallback(
+    (preparing2) => {
+      composerSendPreparingRef.current = preparing2;
+      setComposerSendPreparing(preparing2);
+    },
+    [],
+  );
   const showcaseSelectionSeqRef = reactExports.useRef(0);
   const showcaseAttachmentAbortRef = reactExports.useRef(null);
-  const [showcaseAttachmentsLoading, setShowcaseAttachmentsLoading] = reactExports.useState(false);
+  const [showcaseAttachmentsLoading, setShowcaseAttachmentsLoading] =
+    reactExports.useState(false);
   const stagePromptEditorRef = reactExports.useRef(null);
   const productionPlanMessagePendingRef = reactExports.useRef(false);
   const productionPlanConfirmTransitionRef = reactExports.useRef(void 0);
@@ -755,7 +287,10 @@ export function ChatPanel({
     () =>
       pluginEditMode
         ? {
-            preparing: t2("chat.pluginEditAgent.preparing", "Preparing editor Agent..."),
+            preparing: t2(
+              "chat.pluginEditAgent.preparing",
+              "Preparing editor Agent...",
+            ),
             prepareFailed: t2(
               "chat.pluginEditAgent.prepareFailed",
               "Editor Agent could not be prepared. Close the editor and try again.",
@@ -766,7 +301,10 @@ export function ChatPanel({
             ),
           }
         : {
-            preparing: t2("chat.textEditAgent.preparing", "Preparing Text Assistant..."),
+            preparing: t2(
+              "chat.textEditAgent.preparing",
+              "Preparing Text Assistant...",
+            ),
             prepareFailed: t2(
               "chat.textEditAgent.prepareFailed",
               "Text Assistant could not be prepared. Close the editor and try again.",
@@ -778,7 +316,9 @@ export function ChatPanel({
           },
     [pluginEditMode, t2],
   );
-  const nodeEditChatStatus = pluginEditMode ? pluginEditChatStatus : textEditChatStatus;
+  const nodeEditChatStatus = pluginEditMode
+    ? pluginEditChatStatus
+    : textEditChatStatus;
   const nodeEditSkillMode = textEditMode
     ? "text-editor"
     : pluginEditPluginId === "3d-director-stage"
@@ -787,18 +327,26 @@ export function ChatPanel({
         ? "clip-editor"
         : void 0;
   const isSpecialNodeSession =
-    nodeEditSkillMode === "director-stage" || nodeEditSkillMode === "clip-editor";
+    nodeEditSkillMode === "director-stage" ||
+    nodeEditSkillMode === "clip-editor";
   const nodeSkillLabel =
     nodeEditSkillMode === "director-stage"
       ? t2("chat.emptyRecommendations.skillTab.directorAgent")
       : nodeEditSkillMode === "clip-editor"
         ? t2("chat.emptyRecommendations.skillTab.clipAgent")
         : void 0;
-  const textEditConversationReady = !nodeEditMode || nodeEditChatStatus === "ready";
-  const textEditConversationFailed = nodeEditMode && nodeEditChatStatus === "error";
-  const visibleMessages = selectMessages(messages2, textEditConversationReady, !!textEditMode);
+  const textEditConversationReady =
+    !nodeEditMode || nodeEditChatStatus === "ready";
+  const textEditConversationFailed =
+    nodeEditMode && nodeEditChatStatus === "error";
+  const visibleMessages = selectMessages(
+    messages2,
+    textEditConversationReady,
+    !!textEditMode,
+  );
   const hasActiveSession = visibleMessages.length > 0;
-  const showConversationLoading = textEditConversationReady && (conversationLoading || switching);
+  const showConversationLoading =
+    textEditConversationReady && (conversationLoading || switching);
   const {
     pendingSkills,
     reload: reloadSkills,
@@ -806,16 +354,22 @@ export function ChatPanel({
   } = useSkillReloadNotification(hasActiveSession);
   const productionPlan = useProductionBoard(messages2, focusedSessionId);
   const productionPlanKey = productionPlanDisclosureKey(focusedSessionId);
-  const productionPlanDisclosureStore = useWorkspaceProductionPlanDisclosureStore();
+  const productionPlanDisclosureStore =
+    useWorkspaceProductionPlanDisclosureStore();
   const productionPlanExpanded = useWorkspaceChatStoreSelector(
     productionPlanDisclosureStore,
-    (snapshot2) => (productionPlanKey ? snapshot2.get(productionPlanKey) : void 0),
+    (snapshot2) =>
+      productionPlanKey ? snapshot2.get(productionPlanKey) : void 0,
   );
   const updateProductionPlanDisclosure = reactExports.useCallback(
     (event) => {
       if (!productionPlanKey) return;
       const current2 = productionPlanDisclosureStore.getSnapshot();
-      const next2 = updateProductionPlanDisclosureState(current2, productionPlanKey, event);
+      const next2 = updateProductionPlanDisclosureState(
+        current2,
+        productionPlanKey,
+        event,
+      );
       if (next2 === current2) return;
       productionPlanDisclosureStore.setSnapshot(next2);
     },
@@ -824,14 +378,19 @@ export function ChatPanel({
   reactExports.useEffect(() => {
     if (!productionPlan.planId || !productionPlanKey) return;
     updateProductionPlanDisclosure("plan-discovered");
-  }, [productionPlan.planId, productionPlanKey, updateProductionPlanDisclosure]);
+  }, [
+    productionPlan.planId,
+    productionPlanKey,
+    updateProductionPlanDisclosure,
+  ]);
   const collapseProductionPlan = reactExports.useCallback(() => {
     if (!productionPlan.planId) return;
     updateProductionPlanDisclosure("message-sent");
   }, [productionPlan.planId, updateProductionPlanDisclosure]);
   const openProductionPlan = reactExports.useCallback(
     (requestedPlanId) => {
-      if (!canOpenProductionPlan(productionPlan.planId, requestedPlanId)) return false;
+      if (!canOpenProductionPlan(productionPlan.planId, requestedPlanId))
+        return false;
       updateProductionPlanDisclosure("timeline-opened");
       return true;
     },
@@ -846,11 +405,15 @@ export function ChatPanel({
   );
   const handleProductionPlanExpandedChange = reactExports.useCallback(
     (expanded) => {
-      updateProductionPlanDisclosure(expanded ? "manually-expanded" : "manually-collapsed");
+      updateProductionPlanDisclosure(
+        expanded ? "manually-expanded" : "manually-collapsed",
+      );
     },
     [updateProductionPlanDisclosure],
   );
-  const currentProductionStage = getCurrentProductionStage(productionPlan.model);
+  const currentProductionStage = getCurrentProductionStage(
+    productionPlan.model,
+  );
   const waitingStageKey =
     currentProductionStage?.status === "waiting_user" && productionPlan.planId
       ? `${productionPlan.planId}:${currentProductionStage.id}:${productionPlan.revision ?? ""}`
@@ -860,10 +423,14 @@ export function ChatPanel({
     key: productionPlanConfirmationScopeKey,
     generation: 0,
   });
-  if (productionPlanConfirmationGenerationRef.current.key !== productionPlanConfirmationScopeKey) {
+  if (
+    productionPlanConfirmationGenerationRef.current.key !==
+    productionPlanConfirmationScopeKey
+  ) {
     productionPlanConfirmationGenerationRef.current = {
       key: productionPlanConfirmationScopeKey,
-      generation: productionPlanConfirmationGenerationRef.current.generation + 1,
+      generation:
+        productionPlanConfirmationGenerationRef.current.generation + 1,
     };
   }
   const productionPlanConfirmationIdentity = {
@@ -877,8 +444,10 @@ export function ChatPanel({
   const productionPlanConfirmationIdentityRef = reactExports.useRef(
     productionPlanConfirmationIdentity,
   );
-  productionPlanConfirmationIdentityRef.current = productionPlanConfirmationIdentity;
-  const [feedbackSentStageKey, setFeedbackSentStageKey] = reactExports.useState();
+  productionPlanConfirmationIdentityRef.current =
+    productionPlanConfirmationIdentity;
+  const [feedbackSentStageKey, setFeedbackSentStageKey] =
+    reactExports.useState();
   const userMessageSignature = messages2
     .filter((m3) => m3.role === "user" && m3.type === "text")
     .map((m3) => m3.id)
@@ -954,15 +523,17 @@ export function ChatPanel({
       ),
     );
   }, [t2]);
-  const { beginSubmission: beginLoopGuardSubmission, isSubmitting: isLoopGuardSubmitting } =
-    useLoopGuardSettlement({
-      messages: messages2,
-      isPresented,
-      focusedSessionId,
-      onRejectedSettlement: handleRejectedLoopGuardSettlement,
-      onConflictingSettlement: handleConflictingLoopGuardSettlement,
-      onAckTimeout: handleLoopGuardAckTimeout,
-    });
+  const {
+    beginSubmission: beginLoopGuardSubmission,
+    isSubmitting: isLoopGuardSubmitting,
+  } = useLoopGuardSettlement({
+    messages: messages2,
+    isPresented,
+    focusedSessionId,
+    onRejectedSettlement: handleRejectedLoopGuardSettlement,
+    onConflictingSettlement: handleConflictingLoopGuardSettlement,
+    onAckTimeout: handleLoopGuardAckTimeout,
+  });
   const handleToolConfirmAckTimeout = reactExports.useCallback(() => {
     dedupedToast.warning(
       t2(
@@ -996,7 +567,11 @@ export function ChatPanel({
     edits: toolConfirmEdits,
   } = useToolConfirmEditState(pendingToolConfirms, submittingToolConfirmIds);
   const aggregateApprovalState = reactExports.useMemo(
-    () => aggregateToolConfirmApprovalState(miniBarToolConfirms, toolConfirmApprovalState),
+    () =>
+      aggregateToolConfirmApprovalState(
+        miniBarToolConfirms,
+        toolConfirmApprovalState,
+      ),
     [miniBarToolConfirms, toolConfirmApprovalState],
   );
   const [sessionMode, setAgentModePreference] = useAgentModePreference();
@@ -1026,7 +601,13 @@ export function ChatPanel({
       enabled: creditReminderConfig.enabled,
       threshold: creditReminderConfig.threshold,
     });
-  }, [connected, creditReminderConfig, creditReminderReady, focusedSessionId, sendWsMessage]);
+  }, [
+    connected,
+    creditReminderConfig,
+    creditReminderReady,
+    focusedSessionId,
+    sendWsMessage,
+  ]);
   const handleModeChange = reactExports.useCallback(
     (mode2) => {
       if (composerSendPreparingRef.current) return;
@@ -1049,11 +630,18 @@ export function ChatPanel({
     [handleModelSelectionChange],
   );
   const agentRunning = busy || pendingReasons.length > 0;
-  const stalledInfo = focusedSessionId ? stalledSessions[focusedSessionId] : void 0;
+  const stalledInfo = focusedSessionId
+    ? stalledSessions[focusedSessionId]
+    : void 0;
   const showStalledBanner = Boolean(stalledInfo) && agentRunning;
   const stalledBasisMs =
-    stalledInfo?.watchdog === "hard_cap" ? stalledInfo.elapsedMs : stalledInfo?.silentMs;
-  const stalledMinutes = Math.max(1, Math.round((stalledBasisMs ?? 0) / MILLISECONDS_PER_MINUTE));
+    stalledInfo?.watchdog === "hard_cap"
+      ? stalledInfo.elapsedMs
+      : stalledInfo?.silentMs;
+  const stalledMinutes = Math.max(
+    1,
+    Math.round((stalledBasisMs ?? 0) / MILLISECONDS_PER_MINUTE),
+  );
   const recoveringChildSessionIds = reactExports.useMemo(() => {
     const ids2 = new Set();
     for (const r2 of pendingReasons) {
@@ -1063,7 +651,9 @@ export function ChatPanel({
     }
     return ids2;
   }, [pendingReasons]);
-  const isRecovering = pendingReasons.some((r2) => r2.kind === "generation_recovery");
+  const isRecovering = pendingReasons.some(
+    (r2) => r2.kind === "generation_recovery",
+  );
   const connectionPhase = useChatConnectionPhase(workspaceId2, connected);
   const connecting = connectionPhase === "connecting";
   const reconnecting = connectionPhase === "reconnecting";
@@ -1084,7 +674,10 @@ export function ChatPanel({
         }
       : reconnectingStuck
         ? {
-            title: t2("chat.reconnecting.stuckTitle", "Still can't reach the runtime"),
+            title: t2(
+              "chat.reconnecting.stuckTitle",
+              "Still can't reach the runtime",
+            ),
             description: t2(
               "chat.reconnecting.stuckDescription",
               "Auto-reconnect isn't recovering. Close other memory-heavy apps, then restart the app and try again.",
@@ -1102,7 +695,10 @@ export function ChatPanel({
               ),
             }
           : {
-              title: t2("chat.reconnecting.title", "Reconnecting to runtime..."),
+              title: t2(
+                "chat.reconnecting.title",
+                "Reconnecting to runtime...",
+              ),
               description: t2(
                 "chat.reconnecting.description",
                 "Messages are paused until the connection is restored.",
@@ -1115,7 +711,8 @@ export function ChatPanel({
   const runtimeUnavailable = chatReadiness === "runtime_unavailable";
   const sessionListStalled = sessionListUnavailable?.stalled === true;
   const readinessLocked = chatReadinessBlocksInput(chatReadiness);
-  const [retryingProviders, setRetryingProviders] = reactExports.useState(false);
+  const [retryingProviders, setRetryingProviders] =
+    reactExports.useState(false);
   const handleRetryProviders = reactExports.useCallback(async () => {
     setRetryingProviders(true);
     try {
@@ -1154,7 +751,9 @@ export function ChatPanel({
           mode={sessionMode}
           onChange={handleModeChange}
           disabled={composerSendPreparing}
-          creditReminderConfig={creditReminderReady ? creditReminderConfig : void 0}
+          creditReminderConfig={
+            creditReminderReady ? creditReminderConfig : void 0
+          }
           onCreditReminderConfigChange={
             creditReminderReady ? handleCreditReminderConfigChange : void 0
           }
@@ -1172,7 +771,10 @@ export function ChatPanel({
   );
   const inputPlaceholderBusy = reactExports.useMemo(() => {
     if (textEditConversationFailed) {
-      return t2("chat.textEditAgent.failedPlaceholder", "Close the editor and try again.");
+      return t2(
+        "chat.textEditAgent.failedPlaceholder",
+        "Close the editor and try again.",
+      );
     }
     if (!textEditConversationReady) {
       return nodeEditAgentLabels.preparingPlaceholder;
@@ -1184,10 +786,16 @@ export function ChatPanel({
       return t2("chat.starting.placeholder", "Agent is getting ready...");
     }
     if (providersUnavailable) {
-      return t2("chat.providersUnavailable.placeholder", "AI service unavailable — chat is paused");
+      return t2(
+        "chat.providersUnavailable.placeholder",
+        "AI service unavailable — chat is paused",
+      );
     }
     if (runtimeUnavailable) {
-      return t2("chat.runtimeUnavailable.placeholder", "Runtime recovering — chat is paused");
+      return t2(
+        "chat.runtimeUnavailable.placeholder",
+        "Runtime recovering — chat is paused",
+      );
     }
     if (isRecovering) {
       return t2("chat.recovering.placeholder", "正在恢复并继续生成…");
@@ -1195,7 +803,10 @@ export function ChatPanel({
     if (reconnecting) {
       return t2("chat.reconnecting.placeholder", "Reconnecting...");
     }
-    return t2("chat.queue.placeholder", "Type ahead, your message will be queued...");
+    return t2(
+      "chat.queue.placeholder",
+      "Type ahead, your message will be queued...",
+    );
   }, [
     nodeEditAgentLabels,
     textEditConversationFailed,
@@ -1210,12 +821,18 @@ export function ChatPanel({
   ]);
   const inputPlaceholder = reactExports.useMemo(() => {
     if (nodeEditMode && textEditConversationFailed) {
-      return t2("chat.textEditAgent.failedPlaceholder", "Close the editor and try again.");
+      return t2(
+        "chat.textEditAgent.failedPlaceholder",
+        "Close the editor and try again.",
+      );
     }
     if (nodeEditMode && !textEditConversationReady) {
       return nodeEditAgentLabels.preparingPlaceholder;
     }
-    if (nodeEditSkillMode === "director-stage" || nodeEditSkillMode === "clip-editor") {
+    if (
+      nodeEditSkillMode === "director-stage" ||
+      nodeEditSkillMode === "clip-editor"
+    ) {
       const placeholder = nodeAgentInputPlaceholder(nodeEditSkillMode);
       return t2(placeholder.key, placeholder.fallback);
     }
@@ -1250,7 +867,9 @@ export function ChatPanel({
       const hasDownloadableAttachments = item.action.query.attachments.some(
         (attachment) => attachment.assetUrl,
       );
-      const abortController = hasDownloadableAttachments ? new AbortController() : null;
+      const abortController = hasDownloadableAttachments
+        ? new AbortController()
+        : null;
       showcaseAttachmentAbortRef.current = abortController;
       setShowcaseAttachmentsLoading(hasDownloadableAttachments);
       void applyChatShowcaseSelection({
@@ -1262,7 +881,8 @@ export function ChatPanel({
         signal: abortController?.signal,
       })
         .then(({ failed }) => {
-          if (seq2 !== showcaseSelectionSeqRef.current || failed.length === 0) return;
+          if (seq2 !== showcaseSelectionSeqRef.current || failed.length === 0)
+            return;
           dedupedToast.warning(
             t2("home.scene.assetFetchFailed", {
               defaultValue: i18n.language.startsWith("zh")
@@ -1273,7 +893,11 @@ export function ChatPanel({
           );
         })
         .catch((error) => {
-          if (seq2 !== showcaseSelectionSeqRef.current || abortController?.signal.aborted) return;
+          if (
+            seq2 !== showcaseSelectionSeqRef.current ||
+            abortController?.signal.aborted
+          )
+            return;
           inputRef.current?.clearAttachments({
             source: "scene-query",
           });
@@ -1287,7 +911,9 @@ export function ChatPanel({
                 : "Failed to load scene attachments, please upload manually",
               names:
                 item.action.kind === "query"
-                  ? item.action.query.attachments.map((attachment) => attachment.name).join("、")
+                  ? item.action.query.attachments
+                      .map((attachment) => attachment.name)
+                      .join("、")
                   : "",
             }),
           );
@@ -1310,17 +936,20 @@ export function ChatPanel({
     },
     [],
   );
-  const handleFeaturedSkillSelect = reactExports.useCallback((skill, prompt) => {
-    if (composerSendPreparingRef.current) return;
-    inputRef.current?.selectSkillDirect(
-      {
-        ...skill,
-        enabled: true,
-        source: "installed",
-      },
-      prompt,
-    );
-  }, []);
+  const handleFeaturedSkillSelect = reactExports.useCallback(
+    (skill, prompt) => {
+      if (composerSendPreparingRef.current) return;
+      inputRef.current?.selectSkillDirect(
+        {
+          ...skill,
+          enabled: true,
+          source: "installed",
+        },
+        prompt,
+      );
+    },
+    [],
+  );
   const handleQuestionSend = reactExports.useCallback(
     (msg) => {
       if (msg.type === "question_reply" || msg.type === "question_reject") {
@@ -1341,7 +970,8 @@ export function ChatPanel({
   const handleLoopGuardSend = reactExports.useCallback(
     (msg) => {
       if (msg.type === "loop_guard_reply") {
-        if (!beginLoopGuardSubmission(msg.id, msg.decision, msg.session_id)) return;
+        if (!beginLoopGuardSubmission(msg.id, msg.decision, msg.session_id))
+          return;
         sendWsMessage(msg);
         return;
       }
@@ -1394,14 +1024,21 @@ export function ChatPanel({
     [focusedSessionId, sessionStore, sendWsMessage, submitToolConfirm],
   );
   const handleApproveAllToolConfirms = reactExports.useCallback(() => {
-    if (!canApproveAllToolConfirms(miniBarToolConfirms, toolConfirmApprovalState, toolConfirmEdits))
+    if (
+      !canApproveAllToolConfirms(
+        miniBarToolConfirms,
+        toolConfirmApprovalState,
+        toolConfirmEdits,
+      )
+    )
       return;
     for (const m3 of miniBarToolConfirms) {
       const id2 = m3.requestId;
       if (!id2) continue;
       const edited = toolConfirmEdits[id2];
       const original = m3.toolConfirmData?.args ?? {};
-      const hasChanges = !!edited && JSON.stringify(edited) !== JSON.stringify(original);
+      const hasChanges =
+        !!edited && JSON.stringify(edited) !== JSON.stringify(original);
       handleToolConfirmSend({
         type: "tool_confirm_reply",
         id: id2,
@@ -1413,7 +1050,12 @@ export function ChatPanel({
           : {}),
       });
     }
-  }, [miniBarToolConfirms, toolConfirmApprovalState, toolConfirmEdits, handleToolConfirmSend]);
+  }, [
+    miniBarToolConfirms,
+    toolConfirmApprovalState,
+    toolConfirmEdits,
+    handleToolConfirmSend,
+  ]);
   const handleJumpToFirstPendingToolConfirm = reactExports.useCallback(() => {
     const first2 = miniBarToolConfirms[0];
     if (!first2) return;
@@ -1455,7 +1097,13 @@ export function ChatPanel({
       }
       return sendWsMessage(msg);
     },
-    [focusedSessionId, handleToolConfirmSend, handleQuestionSend, sendWsMessage, sessionStore],
+    [
+      focusedSessionId,
+      handleToolConfirmSend,
+      handleQuestionSend,
+      sendWsMessage,
+      sessionStore,
+    ],
   );
   const handleProductionPlanMessage = reactExports.useCallback(
     (content2) => {
@@ -1505,7 +1153,8 @@ export function ChatPanel({
       _allowDataDirectoryFallback,
       languageDetectionText,
     ) => {
-      if (!loginGuard() || !guardAccountSubmission("chat").allowed) return false;
+      if (!loginGuard() || !guardAccountSubmission("chat").allowed)
+        return false;
       const hasAttachments =
         filePaths.length > 0 ||
         Boolean(canvasNodeAttachments?.length) ||
@@ -1549,9 +1198,13 @@ export function ChatPanel({
         };
         messageText =
           text2.trim() ||
-          t2("chat.pendingAnnotations.submitMessage", "Apply {{count}} document annotations", {
-            count: pendingAnnotations.length,
-          });
+          t2(
+            "chat.pendingAnnotations.submitMessage",
+            "Apply {{count}} document annotations",
+            {
+              count: pendingAnnotations.length,
+            },
+          );
       } else if (textEditMode && textEditSession) {
         const oversizedLength = textEditSelectionRef?.current?.oversizedLength;
         if (oversizedLength) {
@@ -1565,7 +1218,8 @@ export function ChatPanel({
         }
         const selectionState = textEditSelectionRef?.current;
         const selectionAnchors = (
-          selectionState?.anchors ?? (selectionState?.anchor ? [selectionState.anchor] : [])
+          selectionState?.anchors ??
+          (selectionState?.anchor ? [selectionState.anchor] : [])
         ).filter((anchor) => anchor.exact.trim());
         if (selectionAnchors.length > 0 && text2.trim()) {
           const requestId = crypto.randomUUID();
@@ -1620,9 +1274,13 @@ export function ChatPanel({
       const sent = sendMessage(
         messageText,
         filePaths.length > 0 ? filePaths : void 0,
-        canvasNodeAttachments && canvasNodeAttachments.length > 0 ? canvasNodeAttachments : void 0,
+        canvasNodeAttachments && canvasNodeAttachments.length > 0
+          ? canvasNodeAttachments
+          : void 0,
         entityRefs && entityRefs.length > 0 ? entityRefs : void 0,
-        pluginNodeAttachments && pluginNodeAttachments.length > 0 ? pluginNodeAttachments : void 0,
+        pluginNodeAttachments && pluginNodeAttachments.length > 0
+          ? pluginNodeAttachments
+          : void 0,
         void 0,
         documentEditRequest,
         textEditContext,
@@ -1632,16 +1290,19 @@ export function ChatPanel({
       );
       if (sent) {
         workspaceEvents.clearQueuedReferences(workspaceId2);
-        if (textEditMode && textEditSession && textEditSelectionRef?.current?.anchor) {
+        if (
+          textEditMode &&
+          textEditSession &&
+          textEditSelectionRef?.current?.anchor
+        ) {
           workspaceEvents.fireAnnotationCommand(workspaceId2, textEditSession, {
             type: "clearSelection",
           });
         }
         collapseProductionPlan();
         if (documentEditRequest) {
-          submittedAnnotationIdsRef.current = documentEditRequest.annotations.map(
-            (annotation) => annotation.id,
-          );
+          submittedAnnotationIdsRef.current =
+            documentEditRequest.annotations.map((annotation) => annotation.id);
           setActiveDocumentEditRequestId(documentEditRequest.requestId);
         }
         setFeedbackSentStageKey((currentKey) =>
@@ -1693,7 +1354,9 @@ export function ChatPanel({
     ) {
       return;
     }
-    const message2 = workspaceEvents.takePluginDispatchMessage(pluginEditSession.nodeId);
+    const message2 = workspaceEvents.takePluginDispatchMessage(
+      pluginEditSession.nodeId,
+    );
     if (!message2) return;
     pluginDispatchInFlightRef.current = true;
     handleSend(message2, []);
@@ -1709,11 +1372,16 @@ export function ChatPanel({
     }
     submittedAnnotationIdsRef.current = [];
     setActiveDocumentEditRequestId(null);
-  }, [activeDocumentEditRequestId, activeSubmissionMatchesAnnotations, documentEditInFlight]);
+  }, [
+    activeDocumentEditRequestId,
+    activeSubmissionMatchesAnnotations,
+    documentEditInFlight,
+  ]);
   reactExports.useEffect(() => {
     if (
       activeDocumentEditSubmission?.status === "applied" &&
-      activeDocumentEditSubmission.editSessionId === textEditSession?.editSessionId &&
+      activeDocumentEditSubmission.editSessionId ===
+        textEditSession?.editSessionId &&
       activeDocumentEditSubmission.nodeId === textEditSession.nodeId
     ) {
       for (const annotationId of submittedAnnotationIdsRef.current) {
@@ -1734,7 +1402,8 @@ export function ChatPanel({
     const transition2 = productionPlanConfirmTransitionRef.current;
     if (
       !transition2 ||
-      (!agentRunning && userMessageHistory.length <= transition2.userMessageCount)
+      (!agentRunning &&
+        userMessageHistory.length <= transition2.userMessageCount)
     ) {
       return;
     }
@@ -1768,12 +1437,17 @@ export function ChatPanel({
       }) ||
       !confirmedIdentity.planId ||
       confirmedIdentity.revision === void 0 ||
-      !productionPlan.isRevisionCurrent(confirmedIdentity.planId, confirmedIdentity.revision)
+      !productionPlan.isRevisionCurrent(
+        confirmedIdentity.planId,
+        confirmedIdentity.revision,
+      )
     ) {
       return;
     }
     const confirmedStageKey =
-      confirmedIdentity.planId && confirmedIdentity.stageId && confirmedIdentity.revision !== void 0
+      confirmedIdentity.planId &&
+      confirmedIdentity.stageId &&
+      confirmedIdentity.revision !== void 0
         ? `${confirmedIdentity.planId}:${confirmedIdentity.stageId}:${confirmedIdentity.revision}`
         : void 0;
     if (confirmedStageKey) {
@@ -1787,9 +1461,13 @@ export function ChatPanel({
       currentProductionStage,
       isFinalProductionStage,
     );
-    const content2 = t2(confirmationCopy.messageKey, confirmationCopy.messageFallback, {
-      stage: stageName,
-    });
+    const content2 = t2(
+      confirmationCopy.messageKey,
+      confirmationCopy.messageFallback,
+      {
+        stage: stageName,
+      },
+    );
     const sent = handleProductionPlanMessage(content2);
     if (!sent && confirmedStageKey) {
       productionPlanConfirmTransitionRef.current = void 0;
@@ -1805,11 +1483,13 @@ export function ChatPanel({
     t2,
     userMessageHistory.length,
   ]);
-  const productionPlanConfirmTransition = productionPlanConfirmTransitionRef.current;
+  const productionPlanConfirmTransition =
+    productionPlanConfirmTransitionRef.current;
   const productionPlanConfirmMessageArrived = Boolean(
     productionPlanConfirmTransition &&
     productionPlanConfirmTransition.stageKey === waitingStageKey &&
-    userMessageHistory.length > productionPlanConfirmTransition.userMessageCount,
+    userMessageHistory.length >
+      productionPlanConfirmTransition.userMessageCount,
   );
   const showCurrentProductionGate = Boolean(
     !agentRunning &&
@@ -1824,7 +1504,9 @@ export function ChatPanel({
     const promptReviews = productionPlan.model.stages.flatMap((stage) => {
       const hasPromptContent = Boolean(
         stage.work_items.some((item) => Boolean(item.prompt?.trim())) &&
-        stage.review?.before_execution?.some((check) => check.trim().length > 0),
+        stage.review?.before_execution?.some(
+          (check) => check.trim().length > 0,
+        ),
       );
       const isActivePromptReview = Boolean(
         showCurrentProductionGate &&
@@ -1832,10 +1514,17 @@ export function ChatPanel({
         stage.waiting_reason === "plan_review",
       );
       const hasFinishedPromptReview = hasConfirmedPromptReview(stage);
-      if (!hasPromptContent || (!isActivePromptReview && !hasFinishedPromptReview)) return [];
+      if (
+        !hasPromptContent ||
+        (!isActivePromptReview && !hasFinishedPromptReview)
+      )
+        return [];
       const anchorMessageId =
-        findStageReviewAnchorMessageId(messages2, productionPlan.planId ?? "", stage.id) ??
-        (isActivePromptReview ? latestUserMessageId : void 0);
+        findStageReviewAnchorMessageId(
+          messages2,
+          productionPlan.planId ?? "",
+          stage.id,
+        ) ?? (isActivePromptReview ? latestUserMessageId : void 0);
       if (!anchorMessageId) return [];
       return [
         {
@@ -1850,7 +1539,9 @@ export function ChatPanel({
                 ref={isActivePromptReview ? stagePromptEditorRef : void 0}
                 stage={stage}
                 readOnly={!isActivePromptReview}
-                disabled={inputLocked || agentRunning || !productionPlan.editable}
+                disabled={
+                  inputLocked || agentRunning || !productionPlan.editable
+                }
                 saveStageWorkItems={productionPlan.saveStageWorkItems}
               />
             </div>
@@ -1877,7 +1568,12 @@ export function ChatPanel({
       <StageConfirmationBar
         stage={currentProductionStage}
         finalStage={isFinalProductionStage}
-        disabled={inputLocked || agentRunning || !focusedSessionId || !productionPlan.editable}
+        disabled={
+          inputLocked ||
+          agentRunning ||
+          !focusedSessionId ||
+          !productionPlan.editable
+        }
         onConfirm={handleConfirmProductionStage}
       />
     );
@@ -1903,10 +1599,17 @@ export function ChatPanel({
       const editSessionId = focusedSessionId;
       if (!editSessionId || pendingQueuedEditClientMessageIdRef.current) return;
       pendingQueuedEditClientMessageIdRef.current = message2.clientMessageId;
-      const successors = queuedMessageSuccessorIds(queuedUserMessages, message2.clientMessageId);
+      const successors = queuedMessageSuccessorIds(
+        queuedUserMessages,
+        message2.clientMessageId,
+      );
       try {
         const cancelled = await cancelQueuedUserMessage(message2);
-        if (!cancelled || sessionStore.getState().focusedSessionId !== editSessionId) return;
+        if (
+          !cancelled ||
+          sessionStore.getState().focusedSessionId !== editSessionId
+        )
+          return;
         queuedEditRestoreRef.current = successors;
         restoreQueuedMessageToComposer(
           inputRef.current,
@@ -1915,7 +1618,10 @@ export function ChatPanel({
           trackInputChange,
         );
       } finally {
-        if (pendingQueuedEditClientMessageIdRef.current === message2.clientMessageId) {
+        if (
+          pendingQueuedEditClientMessageIdRef.current ===
+          message2.clientMessageId
+        ) {
           pendingQueuedEditClientMessageIdRef.current = null;
         }
       }
@@ -1938,19 +1644,25 @@ export function ChatPanel({
     inputRef.current?.selectSkillByName("skill-creator");
   }, []);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddToChat(({ relativePath, filename, nodeId }) => {
-      if (!isActiveRef.current) return;
-      inputRef.current?.addFromAssetPath(relativePath, filename, nodeId);
-    });
+    const d2 = workspaceEvents.onAddToChat(
+      ({ relativePath, filename, nodeId }) => {
+        if (!isActiveRef.current) return;
+        inputRef.current?.addFromAssetPath(relativePath, filename, nodeId);
+      },
+    );
     return () => d2.dispose();
   }, []);
   useBrowserChatMedia(inputRef, isActiveRef, workspaceId2, focusedSessionId);
   useBrowserImageEdit({
     isActiveRef,
     sessionId: focusedSessionId,
-    locked: Boolean(inputLocked || composerSendPreparing || textEditMode || pluginEditMode),
+    locked: Boolean(
+      inputLocked || composerSendPreparing || textEditMode || pluginEditMode,
+    ),
     canSend: () =>
-      loginGuard() && guardAccountSubmission("chat").allowed && astraSendGate.sendGuard(),
+      loginGuard() &&
+      guardAccountSubmission("chat").allowed &&
+      astraSendGate.sendGuard(),
     send: (text2, attachments) =>
       sendMessage(
         text2,
@@ -1970,16 +1682,20 @@ export function ChatPanel({
       ),
   });
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddPluginNodeToChat(({ nodeId, pluginId, name: name2 }) => {
-      if (!isActiveRef.current) return;
-      inputRef.current?.addFromPluginNode(nodeId, pluginId, name2);
-    });
+    const d2 = workspaceEvents.onAddPluginNodeToChat(
+      ({ nodeId, pluginId, name: name2 }) => {
+        if (!isActiveRef.current) return;
+        inputRef.current?.addFromPluginNode(nodeId, pluginId, name2);
+      },
+    );
     return () => d2.dispose();
   }, []);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAssetRenamed(({ oldPath, newPath, newFilename }) => {
-      inputRef.current?.renameAttachment(oldPath, newPath, newFilename);
-    });
+    const d2 = workspaceEvents.onAssetRenamed(
+      ({ oldPath, newPath, newFilename }) => {
+        inputRef.current?.renameAttachment(oldPath, newPath, newFilename);
+      },
+    );
     return () => d2.dispose();
   }, []);
   reactExports.useEffect(
@@ -2002,10 +1718,12 @@ export function ChatPanel({
     workspaceEvents.fireChatInputReady(workspaceId2);
   }, [connected, sessionsLoading, switching, workspaceId2]);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddEntityToChat(({ entityId, name: name2, type: type2 }) => {
-      if (!isActiveRef.current) return;
-      inputRef.current?.addFromEntity(entityId, name2, type2);
-    });
+    const d2 = workspaceEvents.onAddEntityToChat(
+      ({ entityId, name: name2, type: type2 }) => {
+        if (!isActiveRef.current) return;
+        inputRef.current?.addFromEntity(entityId, name2, type2);
+      },
+    );
     return () => d2.dispose();
   }, []);
   const [dragOver, setDragOver] = reactExports.useState(false);
@@ -2031,7 +1749,8 @@ export function ChatPanel({
       return;
     }
     const types2 = e2.dataTransfer.types;
-    if (!types2.includes(SKILL_DRAG_MIME) && !types2.includes(ENTITY_DRAG_MIME)) return;
+    if (!types2.includes(SKILL_DRAG_MIME) && !types2.includes(ENTITY_DRAG_MIME))
+      return;
     e2.preventDefault();
     e2.dataTransfer.dropEffect = "copy";
     setDragOver(true);
@@ -2054,7 +1773,8 @@ export function ChatPanel({
         e2.stopPropagation();
         clearFileDragState();
         const handleFileDrop =
-          questionFileDropHandlerRef.current ?? inputRef.current?.handleFileDrop;
+          questionFileDropHandlerRef.current ??
+          inputRef.current?.handleFileDrop;
         handleFileDrop?.(e2);
         return;
       }
@@ -2063,7 +1783,11 @@ export function ChatPanel({
       if (entity) {
         e2.preventDefault();
         if (!isActiveRef.current) return;
-        inputRef.current?.addFromEntity(entity.entityId, entity.name, entity.type);
+        inputRef.current?.addFromEntity(
+          entity.entityId,
+          entity.name,
+          entity.type,
+        );
         if (currentWorkspacePath) {
           void materializeEntityMutation
             .mutateAsync({
@@ -2088,7 +1812,8 @@ export function ChatPanel({
     },
     [clearFileDragState, currentWorkspacePath, materializeEntityMutation],
   );
-  const showPromoBanner = textEditConversationReady && queuedUserMessages.length === 0;
+  const showPromoBanner =
+    textEditConversationReady && queuedUserMessages.length === 0;
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: skill / entity drag-and-drop target
     <div
@@ -2106,7 +1831,13 @@ export function ChatPanel({
       <ChatHeaderContainer
         rightActions={headerActions}
         isPresented={isPresented}
-        variant={pluginEditMode ? "plugin-edit" : textEditMode ? "text-edit" : "default"}
+        variant={
+          pluginEditMode
+            ? "plugin-edit"
+            : textEditMode
+              ? "text-edit"
+              : "default"
+        }
         nodeEditAgentName={pluginEditAgentName}
       />
       {textEditConversationReady && (
@@ -2117,25 +1848,33 @@ export function ChatPanel({
           error={productionPlan.error}
           onRetry={productionPlan.retry}
           expanded={
-            Boolean(productionPlan.planId && productionPlanKey) && (productionPlanExpanded ?? true)
+            Boolean(productionPlan.planId && productionPlanKey) &&
+            (productionPlanExpanded ?? true)
           }
           onExpandedChange={handleProductionPlanExpandedChange}
         />
       )}
       <ToolConfirmEditsContext.Provider value={toolConfirmEditsContextValue}>
         <RecoveringChildrenProvider value={recoveringChildSessionIds}>
-          <ProductionPlanDisclosureContext.Provider value={productionPlanDisclosureValue}>
+          <ProductionPlanDisclosureContext.Provider
+            value={productionPlanDisclosureValue}
+          >
             {textEditConversationReady ? (
               showConversationLoading ? (
                 <ChatHistoryLoadingState
-                  label={t2("chat.starting.placeholder", "Agent is getting ready...")}
+                  label={t2(
+                    "chat.starting.placeholder",
+                    "Agent is getting ready...",
+                  )}
                 />
               ) : (
                 hasActiveSession && (
                   <MessageListContainer
                     messages={visibleMessages}
                     busy={busy}
-                    busyLabel={mediaReviewing ? t2("chat.mediaReviewing") : void 0}
+                    busyLabel={
+                      mediaReviewing ? t2("chat.mediaReviewing") : void 0
+                    }
                     focusMessageId={inlineEditorFocusMessageId}
                     isPresented={isPresented}
                     recovering={isRecovering}
@@ -2167,15 +1906,17 @@ export function ChatPanel({
           </ProductionPlanDisclosureContext.Provider>
         </RecoveringChildrenProvider>
       </ToolConfirmEditsContext.Provider>
-      {textEditConversationReady && !showConversationLoading && !hasActiveSession && (
-        <div className="flex min-h-0 flex-1 items-start overflow-y-auto">
-          <ChatEmptyState
-            onSelectShowcase={handleShowcaseSelect}
-            onSelectSkill={handleFeaturedSkillSelect}
-            skillMode={nodeEditSkillMode}
-          />
-        </div>
-      )}
+      {textEditConversationReady &&
+        !showConversationLoading &&
+        !hasActiveSession && (
+          <div className="flex min-h-0 flex-1 items-start overflow-y-auto">
+            <ChatEmptyState
+              onSelectShowcase={handleShowcaseSelect}
+              onSelectSkill={handleFeaturedSkillSelect}
+              skillMode={nodeEditSkillMode}
+            />
+          </div>
+        )}
       {textEditConversationReady && pendingSkills && (
         <SkillReloadDock
           skillNames={pendingSkills}
@@ -2193,14 +1934,20 @@ export function ChatPanel({
         />
       )}
       {textEditConversationReady && mockToolConfirm && (
-        <DevToolConfirmTrigger sessionStore={sessionStore} focusedSessionId={focusedSessionId} />
+        <DevToolConfirmTrigger
+          sessionStore={sessionStore}
+          focusedSessionId={focusedSessionId}
+        />
       )}
       <ToolConfirmMiniBar
-        pendingCount={textEditConversationReady ? miniBarToolConfirms.length : 0}
+        pendingCount={
+          textEditConversationReady ? miniBarToolConfirms.length : 0
+        }
         approvalState={aggregateApprovalState}
         submitting={miniBarToolConfirms.some(
           (message2) =>
-            message2.requestId !== void 0 && submittingToolConfirmIds.has(message2.requestId),
+            message2.requestId !== void 0 &&
+            submittingToolConfirmIds.has(message2.requestId),
         )}
         onJump={handleJumpToFirstPendingToolConfirm}
         onApproveAll={handleApproveAllToolConfirms}
@@ -2226,7 +1973,10 @@ export function ChatPanel({
               data-action-ui-id="chat.history-load-failed-notice"
             >
               <div className="font-medium text-foreground">
-                {t2("chat.historyLoadFailed.title", "Chat history is temporarily unavailable")}
+                {t2(
+                  "chat.historyLoadFailed.title",
+                  "Chat history is temporarily unavailable",
+                )}
               </div>
               <div>
                 {t2(
@@ -2242,14 +1992,19 @@ export function ChatPanel({
                 aria-busy={historyReloading}
                 onClick={reloadSessionHistory}
               >
-                {historyReloading ? t2("common.loading", "Loading...") : t2("chat.retry", "Retry")}
+                {historyReloading
+                  ? t2("common.loading", "Loading...")
+                  : t2("chat.retry", "Retry")}
               </Button$1>
             </div>
           )}
           {providersUnavailable && (
             <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               <div className="font-medium text-foreground">
-                {t2("chat.providersUnavailable.title", "AI service temporarily unavailable")}
+                {t2(
+                  "chat.providersUnavailable.title",
+                  "AI service temporarily unavailable",
+                )}
               </div>
               <div>
                 {t2(
@@ -2270,9 +2025,11 @@ export function ChatPanel({
               </Button$1>
             </div>
           )}
-          {sessionListStalled && !runtimeUnavailable && !connectionUnavailable && (
-            <SessionListUnavailableNotice onRetry={retrySessionList} />
-          )}
+          {sessionListStalled &&
+            !runtimeUnavailable &&
+            !connectionUnavailable && (
+              <SessionListUnavailableNotice onRetry={retrySessionList} />
+            )}
           {textEditConversationReady && showStalledBanner && (
             <StalledTurnBanner
               minutes={stalledMinutes}
@@ -2285,14 +2042,19 @@ export function ChatPanel({
             <ChatReconnectNotice
               title={reconnectBanner.title}
               description={reconnectBanner.description}
-              animated={!nodeEditMode && !reconnectingStuck && !reclaimedByMemory}
+              animated={
+                !nodeEditMode && !reconnectingStuck && !reclaimedByMemory
+              }
               stuck={reconnectingStuck}
             />
           )}
           {runtimeUnavailable && !connectionUnavailable && (
             <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               <div className="font-medium text-foreground">
-                {t2("chat.runtimeUnavailable.title", "Local runtime is recovering")}
+                {t2(
+                  "chat.runtimeUnavailable.title",
+                  "Local runtime is recovering",
+                )}
               </div>
               <div>
                 {t2(
@@ -2348,13 +2110,18 @@ export function ChatPanel({
               onCancel={handleCancel}
               busy={inputLocked}
               allowEmptySend={Boolean(
-                textEditMode && annotations && annotations.length > 0 && !documentEditInFlight,
+                textEditMode &&
+                annotations &&
+                annotations.length > 0 &&
+                !documentEditInFlight,
               )}
               running={textEditConversationReady && agentRunning}
               placeholderBusy={inputPlaceholderBusy}
               placeholder={inputPlaceholder}
               placeholderNode={
-                textEditMode || isSpecialNodeSession ? void 0 : WorkspaceCreationGuidePlaceholder
+                textEditMode || isSpecialNodeSession
+                  ? void 0
+                  : WorkspaceCreationGuidePlaceholder
               }
               showBusyPlaceholder={
                 (textEditConversationReady && agentRunning) ||

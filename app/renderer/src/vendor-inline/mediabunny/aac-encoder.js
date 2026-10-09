@@ -32,7 +32,7 @@ import {
 } from "../../vendor.js";
 import { writeAdtsFrameLength } from "./inline-worker.js";
 import { Input$3, ALL_FORMATS, Conversion } from "./hls-segmented-input.js";
-import { estimateBytes } from "../../media-editing/timeline-renderer.js";
+import { estimateBytes } from "../../media-editing/estimate-bytes.js";
 import { Worker2$1 } from "./worker2.js";
 var AAC_SAMPLE_RATES = [
   96e3, 88200, 64e3, 48e3, 44100, 32e3, 24e3, 22050, 16e3, 12e3, 11025, 8e3, 7350,

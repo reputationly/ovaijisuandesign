@@ -1,32 +1,96 @@
 // use-plugin-chat-bridge.js
-import { reactExports, API_PATHS, guardAccountSubmission } from "../vendor.js";
-import { recordAction } from "../infra/agent-ws-client.jsx";
-import { detectFileType } from "../canvas/relayout-group-children.js";
+import { API_PATHS, guardAccountSubmission, reactExports } from "../vendor.js";
+import { recordAction } from "../infra/gateway-http-error.jsx";
+import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
-import { trackEvent } from "../infra/init-track.js";
-import { nextMessageId } from "../chat/reduce-server-message.js";
-import { getPluginAgentEditSession, getPluginAgentEditorState } from "./use-plugin-host.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { nextMessageId } from "../chat/create-history-sub-agent-message.js";
 import {
-  FORWARDED_MESSAGE_TYPES,
-  MAX_PENDING_SESSION_CREATE_REQUESTS,
-  MESSAGE_DELIVERY_TIMEOUT_ERROR,
-  MESSAGE_DELIVERY_TIMEOUT_MS$1,
-  MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS$1,
-  SESSION_CREATE_TIMEOUT_MS$1,
-  SKILL_CACHE_TTL_MS,
-  TIMED_OUT_PLUGIN_DELIVERY_LIMIT,
-  accountScopedMessage,
-  extractMedia,
-  extractText,
-  mapSkillBrief,
-} from "../assets/scrollable-asset-view.jsx";
-function frameSessionId(msg) {
-  return "session_id" in msg && typeof msg.session_id === "string" ? msg.session_id : "";
+  getPluginAgentEditorState,
+  getPluginAgentEditSession,
+} from "./input.jsx";
+import { accountScopedMessage } from "../assets/preview-media.jsx";
+
+const SESSION_CREATE_TIMEOUT_MS$1 = 1e4;
+
+const MAX_PENDING_SESSION_CREATE_REQUESTS = 5;
+
+const MESSAGE_DELIVERY_TIMEOUT_MS$1 = 1e4;
+
+const TIMED_OUT_PLUGIN_DELIVERY_LIMIT = 50;
+
+const DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS$1 = 300 * 6e4;
+
+const MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS$1 =
+  DEFAULT_RUNTIME_WATCHDOG_WINDOW_MS$1;
+
+const MESSAGE_DELIVERY_TIMEOUT_ERROR = "Message delivery timed out.";
+
+const SKILL_CACHE_TTL_MS = 3e4;
+
+const FORWARDED_MESSAGE_TYPES = new Set([
+  "text_chunk",
+  "thinking",
+  "text_end",
+  "image",
+  "video",
+  "audio",
+  "status",
+  "task_notification",
+  "interact_request",
+  "confirm_request",
+]);
+
+function mapSkillBrief(s2) {
+  return {
+    name: s2.name,
+    displayNameZh: s2.displayNameZh,
+    summary: s2.summary,
+    summaryZh: s2.summaryZh,
+    description: s2.description,
+    tags: s2.tags ?? [],
+    tagsCn: s2.tagsCn ?? [],
+    triggerWords: s2.triggerWords ?? [],
+    enabled: s2.enabled,
+    version: s2.version,
+    source: s2.source,
+  };
 }
+
+function extractText(msg) {
+  switch (msg.type) {
+    case "text_chunk":
+    case "thinking":
+    case "status":
+    case "task_notification":
+      return msg.content;
+    default:
+      return void 0;
+  }
+}
+
+function extractMedia(msg) {
+  if (msg.type === "image" || msg.type === "video" || msg.type === "audio") {
+    const m3 = msg;
+    return {
+      mediaUrl: m3.url,
+      mediaPath: m3.path,
+    };
+  }
+  return {};
+}
+
+function frameSessionId(msg) {
+  return "session_id" in msg && typeof msg.session_id === "string"
+    ? msg.session_id
+    : "";
+}
+
 function withCode$1(err, code2) {
   err.code = code2;
   return err;
 }
+
 function assertPluginChatSubmissionAllowed() {
   const decision = guardAccountSubmission("chat");
   if (decision.allowed) return;
@@ -35,16 +99,30 @@ function assertPluginChatSubmissionAllowed() {
     "not_available",
   );
 }
-function recordPluginMessageDeliveryTimeoutBreadcrumb(sessionId, clientMessageId, stage) {
+
+function recordPluginMessageDeliveryTimeoutBreadcrumb(
+  sessionId,
+  clientMessageId,
+  stage,
+) {
   Promise.resolve(
-    window.hilo?.diagnostics?.addBreadcrumb?.("network", "plugin-message-delivery: timeout", {
-      session_id: sessionId,
-      client_message_id: clientMessageId,
-      stage,
-    }),
+    window.hilo?.diagnostics?.addBreadcrumb?.(
+      "network",
+      "plugin-message-delivery: timeout",
+      {
+        session_id: sessionId,
+        client_message_id: clientMessageId,
+        stage,
+      },
+    ),
   ).catch(() => {});
 }
-function recordLatePluginFrameAfterTimeout(delivery, frameType, gatewayTimestamp) {
+
+function recordLatePluginFrameAfterTimeout(
+  delivery,
+  frameType,
+  gatewayTimestamp,
+) {
   if (delivery.observedFrameTypes.has(frameType)) return;
   delivery.observedFrameTypes.add(frameType);
   const rendererReceivedAt = Date.now();
@@ -70,6 +148,7 @@ function recordLatePluginFrameAfterTimeout(delivery, frameType, gatewayTimestamp
     ),
   ).catch(() => {});
 }
+
 export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
   const wsRef = reactExports.useRef(ws2);
   wsRef.current = ws2;
@@ -88,58 +167,84 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       try {
         cb(payload);
       } catch (err) {
-        console.error(`[plugin-chat] done(${logContext}) subscriber threw`, err);
+        console.error(
+          `[plugin-chat] done(${logContext}) subscriber threw`,
+          err,
+        );
       }
     }
   }, []);
-  const hasPendingPluginDeliveryForSession = reactExports.useCallback((sessionId) => {
-    for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
-      if (pending2.sessionId === sessionId) return true;
-    }
-    return false;
-  }, []);
+  const hasPendingPluginDeliveryForSession = reactExports.useCallback(
+    (sessionId) => {
+      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
+        if (pending2.sessionId === sessionId) return true;
+      }
+      return false;
+    },
+    [],
+  );
   const clearPluginDelivery = reactExports.useCallback((clientMessageId) => {
-    const pending2 = pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
+    const pending2 =
+      pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
     if (!pending2) return false;
     clearTimeout(pending2.timer);
     pendingPluginMessageDeliveriesRef.current.delete(clientMessageId);
     return true;
   }, []);
-  const clearPluginDeliveriesForSession = reactExports.useCallback((sessionId) => {
-    for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
-      if (pending2.sessionId !== sessionId) continue;
-      clearTimeout(pending2.timer);
-      pendingPluginMessageDeliveriesRef.current.delete(pending2.clientMessageId);
-    }
-  }, []);
-  const clearTimedOutPluginDeliveriesForSession = reactExports.useCallback((sessionId) => {
-    for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
-      if (delivery.sessionId === sessionId) {
-        timedOutPluginMessageDeliveriesRef.current.delete(delivery.clientMessageId);
+  const clearPluginDeliveriesForSession = reactExports.useCallback(
+    (sessionId) => {
+      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
+        if (pending2.sessionId !== sessionId) continue;
+        clearTimeout(pending2.timer);
+        pendingPluginMessageDeliveriesRef.current.delete(
+          pending2.clientMessageId,
+        );
       }
-    }
-  }, []);
-  const rememberTimedOutPluginDelivery = reactExports.useCallback((sessionId, clientMessageId) => {
-    const deliveries = timedOutPluginMessageDeliveriesRef.current;
-    if (!deliveries.has(clientMessageId) && deliveries.size >= TIMED_OUT_PLUGIN_DELIVERY_LIMIT) {
-      const oldestClientMessageId = deliveries.keys().next().value;
-      if (typeof oldestClientMessageId === "string") {
-        deliveries.delete(oldestClientMessageId);
+    },
+    [],
+  );
+  const clearTimedOutPluginDeliveriesForSession = reactExports.useCallback(
+    (sessionId) => {
+      for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
+        if (delivery.sessionId === sessionId) {
+          timedOutPluginMessageDeliveriesRef.current.delete(
+            delivery.clientMessageId,
+          );
+        }
       }
-    }
-    deliveries.set(clientMessageId, {
-      sessionId,
-      clientMessageId,
-      timedOutAt: Date.now(),
-      observedFrameTypes: new Set(),
-    });
-  }, []);
-  const timedOutPluginDeliveryForSession = reactExports.useCallback((sessionId) => {
-    for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
-      if (delivery.sessionId === sessionId) return delivery;
-    }
-    return void 0;
-  }, []);
+    },
+    [],
+  );
+  const rememberTimedOutPluginDelivery = reactExports.useCallback(
+    (sessionId, clientMessageId) => {
+      const deliveries = timedOutPluginMessageDeliveriesRef.current;
+      if (
+        !deliveries.has(clientMessageId) &&
+        deliveries.size >= TIMED_OUT_PLUGIN_DELIVERY_LIMIT
+      ) {
+        const oldestClientMessageId = deliveries.keys().next().value;
+        if (typeof oldestClientMessageId === "string") {
+          deliveries.delete(oldestClientMessageId);
+        }
+      }
+      deliveries.set(clientMessageId, {
+        sessionId,
+        clientMessageId,
+        timedOutAt: Date.now(),
+        observedFrameTypes: new Set(),
+      });
+    },
+    [],
+  );
+  const timedOutPluginDeliveryForSession = reactExports.useCallback(
+    (sessionId) => {
+      for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
+        if (delivery.sessionId === sessionId) return delivery;
+      }
+      return void 0;
+    },
+    [],
+  );
   const clearPendingSessionRequests = reactExports.useCallback((message2) => {
     const pending2 = [...pendingSessionCreatesRef.current.values()];
     pendingSessionCreatesRef.current.clear();
@@ -152,10 +257,12 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
     (sessionId, clientMessageId, expectedStatus, timeoutMs) => {
       clearPluginDelivery(clientMessageId);
       const timer2 = setTimeout(() => {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
+        const pending2 =
+          pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
         if (!pending2 || pending2.status !== expectedStatus) return;
         pendingPluginMessageDeliveriesRef.current.delete(clientMessageId);
-        const timeoutStage = expectedStatus === "sent" ? "bridge_error" : "runtime_timeout";
+        const timeoutStage =
+          expectedStatus === "sent" ? "bridge_error" : "runtime_timeout";
         if (timeoutStage === "bridge_error") {
           rememberTimedOutPluginDelivery(sessionId, clientMessageId);
         }
@@ -163,7 +270,11 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
           pluginOwnedSessionsRef.current.delete(sessionId);
         }
         sessionStoreRef.current.setBusy(false, sessionId);
-        recordPluginMessageDeliveryTimeoutBreadcrumb(sessionId, clientMessageId, timeoutStage);
+        recordPluginMessageDeliveryTimeoutBreadcrumb(
+          sessionId,
+          clientMessageId,
+          timeoutStage,
+        );
         trackEvent(TRACK_EVENTS.CHAT_MESSAGE_FAILED, {
           session_id: sessionId,
           error_type: "delivery",
@@ -261,21 +372,40 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       }
       if (!sid) return;
       if (msg.type === "message_received") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(msg.client_message_id);
-        if (!pending2 || pending2.sessionId !== msg.session_id || pending2.status !== "sent") {
-          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+          msg.client_message_id,
+        );
+        if (
+          !pending2 ||
+          pending2.sessionId !== msg.session_id ||
+          pending2.status !== "sent"
+        ) {
+          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
+            msg.client_message_id,
+          );
           if (timedOut?.sessionId === msg.session_id) {
-            recordLatePluginFrameAfterTimeout(timedOut, msg.type, msg.timestamp);
+            recordLatePluginFrameAfterTimeout(
+              timedOut,
+              msg.type,
+              msg.timestamp,
+            );
           }
           return;
         }
-        markPluginMessageDeliveryReceived(msg.session_id, msg.client_message_id);
+        markPluginMessageDeliveryReceived(
+          msg.session_id,
+          msg.client_message_id,
+        );
         return;
       }
       if (msg.type === "message_accepted") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+          msg.client_message_id,
+        );
         if (!pending2 || pending2.sessionId !== sid) {
-          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
+            msg.client_message_id,
+          );
           if (timedOut?.sessionId === sid) {
             recordLatePluginFrameAfterTimeout(timedOut, msg.type);
           }
@@ -285,9 +415,13 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         return;
       }
       if (msg.type === "message_started") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+          msg.client_message_id,
+        );
         if (!pending2 || pending2.sessionId !== sid) {
-          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
+            msg.client_message_id,
+          );
           if (timedOut?.sessionId === sid) {
             recordLatePluginFrameAfterTimeout(timedOut, msg.type);
           }
@@ -319,12 +453,18 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         return;
       }
       if (msg.type === "message_failed") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+          msg.client_message_id,
+        );
         if (!pending2 || pending2.sessionId !== sid) {
-          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(msg.client_message_id);
+          const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
+            msg.client_message_id,
+          );
           if (timedOut?.sessionId === sid) {
             recordLatePluginFrameAfterTimeout(timedOut, msg.type);
-            timedOutPluginMessageDeliveriesRef.current.delete(msg.client_message_id);
+            timedOutPluginMessageDeliveriesRef.current.delete(
+              msg.client_message_id,
+            );
           }
           return;
         }
@@ -356,7 +496,8 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
             sessionId: sid,
             taskId: null,
             status: msg.type === "done" ? "success" : "failed",
-            errorMessage: msg.type === "error" ? (msg.content ?? void 0) : void 0,
+            errorMessage:
+              msg.type === "error" ? (msg.content ?? void 0) : void 0,
           },
           msg.type,
         );
@@ -385,7 +526,9 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
     }
     for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
       if (!initial.has(delivery.sessionId)) {
-        timedOutPluginMessageDeliveriesRef.current.delete(delivery.clientMessageId);
+        timedOutPluginMessageDeliveriesRef.current.delete(
+          delivery.clientMessageId,
+        );
       }
     }
     return sessionStore.subscribe((state2) => {
@@ -398,14 +541,18 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       }
       for (const delivery of timedOutPluginMessageDeliveriesRef.current.values()) {
         if (!live.has(delivery.sessionId)) {
-          timedOutPluginMessageDeliveriesRef.current.delete(delivery.clientMessageId);
+          timedOutPluginMessageDeliveriesRef.current.delete(
+            delivery.clientMessageId,
+          );
         }
       }
     });
   }, [clearPluginDeliveriesForSession, sessionStore]);
   reactExports.useEffect(() => {
     return () => {
-      clearPendingSessionRequests("hub.chat: bridge unmounted before create_session completed");
+      clearPendingSessionRequests(
+        "hub.chat: bridge unmounted before create_session completed",
+      );
       for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
         clearTimeout(pending2.timer);
       }
@@ -414,7 +561,10 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
     };
   }, [clearPendingSessionRequests]);
   const requestNewSession = reactExports.useCallback((sessionName) => {
-    if (pendingSessionCreatesRef.current.size >= MAX_PENDING_SESSION_CREATE_REQUESTS) {
+    if (
+      pendingSessionCreatesRef.current.size >=
+      MAX_PENDING_SESSION_CREATE_REQUESTS
+    ) {
       return Promise.reject(
         withCode$1(
           new Error(
@@ -428,7 +578,12 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
     return new Promise((resolve, reject) => {
       const timer2 = setTimeout(() => {
         pendingSessionCreatesRef.current.delete(requestId);
-        reject(withCode$1(new Error("hub.chat: create_session timed out"), "not_available"));
+        reject(
+          withCode$1(
+            new Error("hub.chat: create_session timed out"),
+            "not_available",
+          ),
+        );
       }, SESSION_CREATE_TIMEOUT_MS$1);
       pendingSessionCreatesRef.current.set(requestId, {
         resolve,
@@ -448,7 +603,9 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       if (!ok2) {
         clearTimeout(timer2);
         pendingSessionCreatesRef.current.delete(requestId);
-        reject(withCode$1(new Error("hub.chat: WS not connected"), "not_available"));
+        reject(
+          withCode$1(new Error("hub.chat: WS not connected"), "not_available"),
+        );
       }
     });
   }, []);
@@ -458,7 +615,10 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       const attachments = args.attachments ?? [];
       const canvasNodeAttachments = args.canvasNodeAttachments ?? [];
       if (!content2.trim() && attachments.length === 0) {
-        throw withCode$1(new Error("hub.chat: content or attachments required"), "invalid_args");
+        throw withCode$1(
+          new Error("hub.chat: content or attachments required"),
+          "invalid_args",
+        );
       }
       assertPluginChatSubmissionAllowed();
       let sessionId = args.sessionId;
@@ -473,7 +633,9 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
       }
       assertPluginChatSubmissionAllowed();
       const sourceNodeId =
-        typeof args.sourceNodeId === "string" ? args.sourceNodeId : ctx.callerNodeId;
+        typeof args.sourceNodeId === "string"
+          ? args.sourceNodeId
+          : ctx.callerNodeId;
       const finalCanvasNodeAttachments = sourceNodeId
         ? canvasNodeAttachments
         : canvasNodeAttachments.filter((a2) => a2.nodeId !== "");
@@ -496,7 +658,9 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         },
         sessionId,
       );
-      const editSessionId = ctx.callerNodeId ? getPluginAgentEditSession(ctx.callerNodeId) : null;
+      const editSessionId = ctx.callerNodeId
+        ? getPluginAgentEditSession(ctx.callerNodeId)
+        : null;
       const editorStateSnapshot = editSessionId
         ? getPluginAgentEditorState(ctx.callerNodeId)
         : null;
@@ -521,7 +685,9 @@ export function usePluginChatBridge(gatewayFetch2, ws2, sessionStore) {
         agent_type: args.agentType ?? "general",
         attachments: attachments.length > 0 ? attachments : void 0,
         canvas_node_attachments:
-          finalCanvasNodeAttachments.length > 0 ? finalCanvasNodeAttachments : void 0,
+          finalCanvasNodeAttachments.length > 0
+            ? finalCanvasNodeAttachments
+            : void 0,
         plugin_edit_context: pluginEditContext,
         async: args.async ?? true,
         client_message_id: clientMessageId,

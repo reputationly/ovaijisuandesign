@@ -1,389 +1,164 @@
 // canvas-view-inner.jsx
-import { getViewportForBounds, CanvasNodeType, useTranslation, useAssetMetadataApi, reactExports, useReactFlow, useStoreApi, dedupedToast, useNodesInitialized, useStore$3, Check, ChevronDown, Loader2Icon } from "../vendor.js";
-import { buildIncrementalNodeData } from "./build-incremental-node-data.js";
-import { syncStableZoomSignals } from "./canvas-surface-recovery-scheduler.jsx";
-import { useHtmlFullscreenApi, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from "../infra/create-html-iframe-pool-store.jsx";
-import { useRecentlyAddedApi, getDerivedNodePosition } from "../infra/create-recently-added-store.jsx";
-import { CanvasMode, isAssetBackedNode, defaultNodeSizeForType, POPOVER_DRAFT_DATA_KEY, TABLE_CARD_DEFAULT_SIZE } from "./group-nodes-in-canvas.js";
-import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "./handle-position-style.jsx";
-import { getNodePosition, sizeOf, readCanvasPreference, CANVAS_COMMAND_IDS, writeCanvasPreference } from "./node-tag-rings-canvas.jsx";
-import { useCanvasBridge, useGeneratingStateStore } from "../media-editing/parse-item.jsx";
-import { parseNodeId, deriveEdgeId } from "./resolve-derived-collision.js";
-import { useCanvasNodeAssetsStore } from "../infra/track-events.js";
-import { useMultiImageOverlayApi, useMultiImageOverlayStore } from "../media-editing/use-multi-image-actions.js";
 import {
-  resolveVisibilityPriorityFocus,
+  CanvasNodeType,
+  Check,
+  ChevronDown,
+  dedupedToast,
+  Loader2Icon,
+  reactExports,
+  useAssetMetadataApi,
+  useNodesInitialized,
+  useReactFlow,
+  useStore$3,
+  useStoreApi,
+  useTranslation,
+} from "../vendor.js";
+import { __jsx } from "../shared/jsx-runtime.js";
+import {
+  applyReactFlowSelectionWriteback,
+  applyVisibilityPriorityFocus,
+  DEFAULT_STICKER_EMOJI,
+  EMPTY_SHELL_EDGES,
+  EMPTY_SHELL_NODES,
+  filterInitialFitFallbackNodes,
+  findStickerTarget,
+  getAbsoluteNodePosition,
+  getTextNodeBackingPath,
+  hasOtherTextNodeWithBackingPath,
+  INITIAL_FIT_FALLBACK_MS,
+  randomStickerRotation,
+  resolveFileNodeIdByPath,
+  resolveFirstFileNodeIdByPartialName,
+  resolveInitialFitFallbackViewport,
+  resolveInitialFitGateAction,
+  resolveNewNodesToastAction,
+  shouldAcquireCanvasResources,
+  shouldRecenterFirstNodes,
+  STICKER_BINDING_DELAY_MS,
+} from "./apply-visibility-priority-focus.js";
+import { buildIncrementalNodeData } from "./build-incremental-node-data.js";
+import { syncStableZoomSignals } from "./separator.jsx";
+import {
+  CANVAS_MAX_ZOOM,
+  CANVAS_MIN_ZOOM,
+  useHtmlFullscreenApi,
+} from "../infra/use-plugin-metadata-store.js";
+import {
+  getDerivedNodePosition,
+  useRecentlyAddedApi,
+} from "../infra/create-recently-added-store.js";
+import {
+  CanvasMode,
+  defaultNodeSizeForType,
+  isAssetBackedNode,
+  POPOVER_DRAFT_DATA_KEY,
+  TABLE_CARD_DEFAULT_SIZE,
+} from "./compute-group-bounds-from-children.js";
+import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "./use-video-starter-preset-store.js";
+import {
+  CANVAS_COMMAND_IDS,
+  getNodePosition,
+  readCanvasPreference,
+  sizeOf,
+  writeCanvasPreference,
+} from "./use-active-mode.js";
+import {
+  useCanvasBridge,
+  useGeneratingStateStore,
+} from "../media-editing/package.jsx";
+import { deriveEdgeId, parseNodeId } from "./find-free-position-from-anchor.js";
+import { useCanvasNodeAssetsStore } from "../infra/use-canvas-node-assets-store.js";
+import {
+  useMultiImageOverlayApi,
+  useMultiImageOverlayStore,
+} from "../media-editing/use-start-cloud-edit-from-node.js";
+import {
   readCanvasViewport,
   writeCanvasViewport,
 } from "./resolve-visibility-priority-focus.js";
 import {
-  STICKER_NODE_SIZE,
-  createCanvasViewportStorageKey,
-  getCanvasToastId,
-  useStickerFollowIndex,
-  getCanvasTaskSnapshots,
+  applyCanvasFocusSelection,
   canvasFocus,
   createCanvasFocusScheduler,
-  historyBlockedMessage,
+  createCanvasViewportStorageKey,
   deleteBlockedMessage,
-  applyCanvasFocusSelection,
+  getCanvasTaskSnapshots,
+  getCanvasToastId,
+  historyBlockedMessage,
   resolveStickerPointerPlacement,
-  StickerCursorPreview,
-} from "./sticker-cursor-preview-content.jsx";
+  STICKER_NODE_SIZE,
+  useStickerFollowIndex,
+} from "./resolve-canvas-focus-targets.js";
+import { StickerCursorPreview } from "./sticker-cursor-preview-content.jsx";
 import {
   getAssetMetaByNodeIdFromStore,
   useInactiveNodeVirtualization,
-} from "./generating-media-area.jsx";
+} from "./fullscreen-icon.jsx";
 import {
-  useTidySortPreference,
-  CanvasCommandPanelContent,
-  CanvasLoadError,
-  QuickZoomPresence,
-  CanvasPaneContextMenu,
-  CanvasHighBlastDeleteDialog,
   CanvasConfirmationDialog,
+  CanvasHighBlastDeleteDialog,
+  QuickZoomPresence,
   TidySortContext,
-} from "./canvas-toggle-icon.jsx";
+  useTidySortPreference,
+} from "./canvas-high-blast-delete-dialog.jsx";
+import { CanvasCommandPanelContent } from "./canvas-command-panel-content.jsx";
+import { CanvasLoadError } from "./canvas-load-error.jsx";
+import { CanvasPaneContextMenu } from "./canvas-pane-context-menu.jsx";
 import {
   CANVAS_BACKGROUND_PATTERNS,
+  collectAffectedStickerNodes,
   createCanvasResizeActions,
   getCanvasViewportStorage,
-  collectAffectedStickerNodes,
-  CanvasShell,
-} from "./canvas-shell-inner.jsx";
+} from "./create-canvas-resize-actions.js";
+import { CanvasShell } from "./canvas-shell.jsx";
 import {
-  CANVAS_TONES,
   CANVAS_MORE_TONES,
   CANVAS_PRIMARY_TONES,
-} from "./node-alignment-guides.jsx";
+  CANVAS_TONES,
+} from "./cursor-icon.jsx";
 import {
-  useCanvasInteractionTool,
-  useCanvasContextMenus,
   useCanvasClickHandlers,
-} from "./use-canvas-context-menus.js";
+  useCanvasInteractionTool,
+} from "./use-canvas-interaction-tool.js";
+import { useCanvasContextMenus } from "./use-canvas-context-menus.js";
 import {
   CANVAS_DEFAULT_STICKER_ASSET_ID,
   getCanvasStickerAsset,
-} from "../media-editing/ready-sub-video-card.jsx";
+} from "../media-editing/canvas-sticker-assets.jsx";
 import { useCanvas } from "./use-canvas.js";
 import {
-  exitFullscreenForRemovedNode,
-  CANVAS_INITIAL_FIT_MIN_ZOOM,
   CANVAS_INITIAL_FIT_MAX_ZOOM,
+  CANVAS_INITIAL_FIT_MIN_ZOOM,
+  exitFullscreenForRemovedNode,
   WorkspaceContentBudgetScopeProvider,
-} from "../media-editing/use-plugin-host.jsx";
-import { useRenderableContentChange } from "./edge-interaction-layer.jsx";
-import { computeMultiImageRenderBounds } from "../media-editing/ready-sub-image-card.jsx";
-import { usePersist, usePasteNodeTransformer } from "./persist-save-queue.js";
+} from "../media-editing/input.jsx";
+import { useRenderableContentChange } from "./use-renderable-content-change.js";
+import { computeMultiImageRenderBounds } from "../media-editing/compute-multi-image-grid-positions.jsx";
+import { usePersist } from "./use-persist.js";
+import { usePasteNodeTransformer } from "./create-paste-node-transformer.js";
+import { useGroupExecution } from "./use-group-execution.js";
+import { useHistoryState } from "./use-history-state.js";
+import { useCanvasViewportFocus } from "./use-canvas-viewport-focus.js";
 import {
-  useGroupExecution,
-  useHistoryState,
-  useCanvasViewportFocus,
-} from "./use-group-execution.js";
-import { isReexecutableGenerationNode, newTablePath } from "./prune-persisted-node-data.js";
-import { buildPlaceholderFillData } from "../media-editing/use-lightbox-media-actions.jsx";
-import { syncStableZoomAfter, CanvasReferenceNavigationScope } from "../media-editing/decode-worker-pool.jsx";
-import { useCanvasAddNode } from "./comfy-ui-submenu.jsx";
-import { useCanvasAddNodeMenus } from "./use-connect-to-add-node.jsx";
+  isReexecutableGenerationNode,
+  newTablePath,
+} from "./is-reexecutable-generation-node.js";
+import { buildPlaceholderFillData } from "../media-editing/audio-lightbox.jsx";
+import { syncStableZoomAfter } from "../media-editing/get-reference-navigation-defaults.jsx";
+import { CanvasReferenceNavigationScope } from "../media-editing/reference-navigation-provider.jsx";
+import { useCanvasAddNode } from "./use-canvas-add-node.js";
+import { useCanvasAddNodeMenus } from "./use-canvas-add-node-menus.jsx";
 import { serializeTableDocument } from "../text-editor/table-document-to-llm-content.js";
-import { RESOURCE_DRAG_MIME, parseResourceDrag } from "../text-editor/myers-line-hunks.js";
-import { CanvasToolbar, EmptyViewportToast } from "./empty-viewport-toast.jsx";
-import { CanvasViewControls } from "./zoom-menu.jsx";
-import { SelectionToolbar } from "./selection-toolbar-inner.jsx";
+import {
+  parseResourceDrag,
+  RESOURCE_DRAG_MIME,
+} from "../text-editor/build-asr-gateway-request.js";
+import { CanvasToolbar } from "./canvas-toolbar.jsx";
+import { EmptyViewportToast } from "./empty-viewport-toast.jsx";
+import { CanvasViewControls } from "./canvas-view-controls.jsx";
+import { SelectionToolbar } from "./selection-toolbar.js";
 import { MultiSelectPlusHandle } from "./multi-select-plus-handle-inner.jsx";
-import { __jsx } from "../shared/jsx-runtime.js";
-function applyVisibilityPriorityFocus({
-  duration,
-  getViewport,
-  minReadableZoom,
-  minZoom,
-  nodeIds,
-  padding,
-  setCenter,
-  setViewport,
-  state: state2,
-  syncViewportChange,
-}) {
-  const nodeRects = [];
-  for (const id2 of nodeIds) {
-    const node2 = state2.nodeLookup.get(id2);
-    const width = node2?.measured?.width;
-    const height = node2?.measured?.height;
-    if (!node2 || !width || !height) return;
-    const position2 = node2.internals.positionAbsolute;
-    nodeRects.push({
-      id: id2,
-      x: position2.x,
-      y: position2.y,
-      width,
-      height,
-    });
-  }
-  if (nodeRects.length === 0 || state2.width <= 0 || state2.height <= 0) return;
-  const minX = Math.min(...nodeRects.map((rect) => rect.x));
-  const minY = Math.min(...nodeRects.map((rect) => rect.y));
-  const maxX = Math.max(...nodeRects.map((rect) => rect.x + rect.width));
-  const maxY = Math.max(...nodeRects.map((rect) => rect.y + rect.height));
-  const fitAllViewport = getViewportForBounds(
-    {
-      x: minX,
-      y: minY,
-      width: maxX - minX,
-      height: maxY - minY,
-    },
-    state2.width,
-    state2.height,
-    minZoom,
-    1,
-    padding,
-  );
-  const currentViewport = getViewport();
-  const decision = resolveVisibilityPriorityFocus({
-    fitAllZoom: fitAllViewport.zoom,
-    minReadableZoom,
-    nodeRects,
-    viewportRect: {
-      x: -currentViewport.x / currentViewport.zoom,
-      y: -currentViewport.y / currentViewport.zoom,
-      width: state2.width / currentViewport.zoom,
-      height: state2.height / currentViewport.zoom,
-    },
-  });
-  if (decision.type === "keep") return;
-  if (decision.type === "fit-all") {
-    syncViewportChange(
-      setViewport(fitAllViewport, {
-        duration,
-      }),
-    );
-    return;
-  }
-  const target = nodeRects.find((rect) => rect.id === decision.nodeId);
-  if (!target) return;
-  syncViewportChange(
-    setCenter(target.x + target.width / 2, target.y + target.height / 2, {
-      duration,
-      zoom: Math.max(currentViewport.zoom, minReadableZoom),
-    }),
-  );
-}
-function resolveInitialFitGateAction({
-  presented,
-  loading,
-  initialFitConsumed,
-  initialHydratedNodeCount,
-  nodeCount,
-  nodesInitialized,
-}) {
-  if (!presented || loading || initialFitConsumed) return "wait";
-  if (initialHydratedNodeCount === null) return "wait";
-  if (initialHydratedNodeCount === 0) return "reveal-empty";
-  if (nodeCount === 0) return "wait";
-  return nodesInitialized ? "fit-measured" : "schedule-fallback";
-}
-function shouldAcquireCanvasResources({ presented, loading, initialFitDone }) {
-  return presented && !loading && initialFitDone;
-}
-function filterInitialFitFallbackNodes(nodes) {
-  return nodes.filter((node2) => !("hidden" in node2) || node2.hidden !== true);
-}
-function resolveInitialFitFallbackViewport({
-  bounds,
-  viewportWidth,
-  viewportHeight,
-  minZoom,
-  maxZoom,
-  padding,
-}) {
-  if (viewportWidth <= 0 || viewportHeight <= 0 || bounds.width <= 0 || bounds.height <= 0) {
-    return void 0;
-  }
-  return getViewportForBounds(bounds, viewportWidth, viewportHeight, minZoom, maxZoom, padding);
-}
-function resolveNewNodesToastAction(input) {
-  return input.projectActive && input.canvasPresented ? "focus-presented-canvas" : "navigate";
-}
-function shouldRecenterFirstNodes(input) {
-  return input.canvasPresented && input.nodeCount > 0;
-}
-const URL_PATH_PARAM_KEYS = ["path", "file", "file_path", "local_path"];
-const FILES_ROUTE_PREFIX = "/files/";
-const THUMBNAIL_ROUTE_PREFIX = "/api/thumbnail/";
-function decodePath$1(value) {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
-function stripQueryAndHash$2(value) {
-  return value.split("?")[0]?.split("#")[0] ?? value;
-}
-function normalizePath$2(value) {
-  return decodePath$1(stripQueryAndHash$2(value.trim())).replace(/\\/g, "/");
-}
-function pushUnique(values3, value) {
-  if (!value) return;
-  const normalized = normalizePath$2(value);
-  if (!normalized || values3.includes(normalized)) return;
-  values3.push(normalized);
-}
-function pathQueries(rawPath) {
-  const values3 = [];
-  pushUnique(values3, rawPath);
-  try {
-    const url2 = new URL(rawPath, "http://hilo.local");
-    for (const key2 of URL_PATH_PARAM_KEYS) {
-      pushUnique(values3, url2.searchParams.get(key2) ?? void 0);
-    }
-    const pathname = normalizePath$2(url2.pathname);
-    pushUnique(values3, pathname);
-    if (pathname.startsWith(FILES_ROUTE_PREFIX)) {
-      pushUnique(values3, pathname.slice(FILES_ROUTE_PREFIX.length));
-    }
-    if (pathname.startsWith(THUMBNAIL_ROUTE_PREFIX)) {
-      pushUnique(values3, pathname.slice(THUMBNAIL_ROUTE_PREFIX.length));
-    }
-  } catch {}
-  return values3;
-}
-function basename$9(value) {
-  return value.split("/").pop() ?? value;
-}
-function hasDirectorySegment(value) {
-  return value.includes("/");
-}
-function isExactOrSegmentSuffix(candidate, query) {
-  if (candidate === query) return true;
-  if (hasDirectorySegment(candidate) && query.endsWith(`/${candidate}`)) return true;
-  if (hasDirectorySegment(query) && candidate.endsWith(`/${query}`)) return true;
-  return false;
-}
-function resolveFileNodeIdByPath(rawPath, candidates2) {
-  if (!rawPath) return null;
-  const queries = pathQueries(rawPath);
-  if (queries.length === 0) return null;
-  for (const query of queries) {
-    for (const candidate of candidates2) {
-      if (!candidate.path) continue;
-      if (isExactOrSegmentSuffix(normalizePath$2(candidate.path), query)) {
-        return candidate.nodeId;
-      }
-    }
-  }
-  const queryBases = new Set(queries.map((query) => basename$9(query)).filter(Boolean));
-  const basenameMatches = new Set();
-  for (const candidate of candidates2) {
-    if (!candidate.path) continue;
-    if (queryBases.has(basename$9(normalizePath$2(candidate.path)))) {
-      basenameMatches.add(candidate.nodeId);
-    }
-  }
-  return basenameMatches.size === 1 ? ([...basenameMatches][0] ?? null) : null;
-}
-function resolveFirstFileNodeIdByPartialName(rawName, candidates2) {
-  const query = decodePath$1(rawName).trim().toLowerCase();
-  if (!query) return null;
-  for (const candidate of candidates2) {
-    const names = [
-      candidate.name,
-      candidate.path ? basename$9(normalizePath$2(candidate.path)) : null,
-    ];
-    if (names.some((name2) => typeof name2 === "string" && name2.toLowerCase().includes(query))) {
-      return candidate.nodeId;
-    }
-  }
-  return null;
-}
-function applyReactFlowSelectionWriteback({
-  ids: ids2,
-  syncing,
-  active: active2,
-  writeSelection,
-  closeMenus,
-}) {
-  if (syncing) return "ignored-syncing";
-  if (!active2) return "ignored-inactive";
-  writeSelection([...ids2]);
-  closeMenus();
-  return "applied";
-}
-const INITIAL_FIT_FALLBACK_MS = 2500;
-const EMPTY_SHELL_NODES = [];
-const EMPTY_SHELL_EDGES = [];
-const STICKER_MAX_ROTATION_DEG = 30;
-const STICKER_BINDING_DELAY_MS = 120;
-function randomStickerRotation() {
-  return Math.round((Math.random() * 2 - 1) * STICKER_MAX_ROTATION_DEG);
-}
-const DEFAULT_STICKER_EMOJI = "⭐";
-function getAbsoluteNodePosition(node2, nodesById, mode2) {
-  let position2 = getNodePosition(node2, mode2);
-  let parentId = node2.parentId;
-  const visited = new Set([node2.id]);
-  while (parentId) {
-    if (visited.has(parentId)) break;
-    visited.add(parentId);
-    const parent = nodesById.get(parentId);
-    if (!parent) break;
-    const parentPosition = getNodePosition(parent, mode2);
-    position2 = {
-      x: position2.x + parentPosition.x,
-      y: position2.y + parentPosition.y,
-    };
-    parentId = parent.parentId;
-  }
-  return position2;
-}
-function findStickerTarget(nodes, stickerPosition, mode2) {
-  let best;
-  const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
-  const stickerRight = stickerPosition.x + STICKER_NODE_SIZE.width;
-  const stickerBottom = stickerPosition.y + STICKER_NODE_SIZE.height;
-  for (const node2 of nodes) {
-    if (node2.type === CanvasNodeType.Sticker || node2.meta?.hidden) continue;
-    const position2 = getAbsoluteNodePosition(node2, nodesById, mode2);
-    const size2 = sizeOf(node2, mode2);
-    const overlapWidth = Math.max(
-      0,
-      Math.min(stickerRight, position2.x + size2.width) - Math.max(stickerPosition.x, position2.x),
-    );
-    const overlapHeight = Math.max(
-      0,
-      Math.min(stickerBottom, position2.y + size2.height) -
-        Math.max(stickerPosition.y, position2.y),
-    );
-    const area = overlapWidth * overlapHeight;
-    if (area <= 0 || (best && area <= best.area)) continue;
-    best = {
-      area,
-      target: {
-        id: node2.id,
-        position: position2,
-        size: size2,
-        anchor: {
-          x: (stickerPosition.x - position2.x) / Math.max(size2.width, 1),
-          y: (stickerPosition.y - position2.y) / Math.max(size2.height, 1),
-        },
-      },
-    };
-  }
-  return best?.target;
-}
-function getTextNodeBackingPath(node2, assetMetadataStore) {
-  if (node2.type !== CanvasNodeType.Text) return null;
-  const metaPath = getAssetMetaByNodeIdFromStore(assetMetadataStore, node2.id)?.path;
-  if (metaPath) return metaPath;
-  const data2 = node2.data;
-  const dataPath = data2?.path;
-  return typeof dataPath === "string" && dataPath.length > 0 ? dataPath : null;
-}
-function hasOtherTextNodeWithBackingPath(nodes, removedNodeId, filePath, assetMetadataStore) {
-  return nodes.some(
-    (node2) =>
-      node2.id !== removedNodeId && getTextNodeBackingPath(node2, assetMetadataStore) === filePath,
-  );
-}
+
 export function CanvasViewInner({
   dataSource,
   plugins,
@@ -463,23 +238,37 @@ export function CanvasViewInner({
   } = useCanvasBridge();
   const recentlyAddedApi = useRecentlyAddedApi();
   const multiImageOverlayApi = useMultiImageOverlayApi();
-  const expandedMediaNodeId = useMultiImageOverlayStore((state2) => state2.openNodeId);
+  const expandedMediaNodeId = useMultiImageOverlayStore(
+    (state2) => state2.openNodeId,
+  );
   const workspaceContentBudgetScope = getCurrentWorkspace?.();
-  const viewportStorageKey = createCanvasViewportStorageKey(workspaceContentBudgetScope, mode2);
+  const viewportStorageKey = createCanvasViewportStorageKey(
+    workspaceContentBudgetScope,
+    mode2,
+  );
   const initialViewportOwner = viewportStorageKey ?? `unscoped:${mode2}`;
-  const newNodesToastId = getCanvasToastId("new-nodes", workspaceContentBudgetScope);
-  const preferenceScope = encodeURIComponent(workspaceContentBudgetScope ?? "default");
+  const newNodesToastId = getCanvasToastId(
+    "new-nodes",
+    workspaceContentBudgetScope,
+  );
+  const preferenceScope = encodeURIComponent(
+    workspaceContentBudgetScope ?? "default",
+  );
   const tidySort = useTidySortPreference(preferenceScope);
   const backgroundPatternKey = `hilo:canvas:background-pattern:${preferenceScope}`;
   const canvasToneKey = `hilo:canvas:background-tone:${preferenceScope}`;
   const [backgroundPattern, setBackgroundPattern] = reactExports.useState(() =>
-    readCanvasPreference(backgroundPatternKey, CANVAS_BACKGROUND_PATTERNS, "dots"),
+    readCanvasPreference(
+      backgroundPatternKey,
+      CANVAS_BACKGROUND_PATTERNS,
+      "dots",
+    ),
   );
   const [canvasTone, setCanvasTone] = reactExports.useState(() =>
     readCanvasPreference(canvasToneKey, CANVAS_TONES, "default"),
   );
-  const [moreCanvasTonesOpen, setMoreCanvasTonesOpen] = reactExports.useState(() =>
-    CANVAS_MORE_TONES.some((tone) => tone === canvasTone),
+  const [moreCanvasTonesOpen, setMoreCanvasTonesOpen] = reactExports.useState(
+    () => CANVAS_MORE_TONES.some((tone) => tone === canvasTone),
   );
   const handleNodesAddedRef = reactExports.useRef(() => {});
   const handleFirstNodesPlacedRef = reactExports.useRef(() => {});
@@ -498,13 +287,19 @@ export function CanvasViewInner({
   } = useCanvasInteractionTool();
   const stickerSelectionRef = reactExports.useRef(stickerSelection);
   stickerSelectionRef.current = stickerSelection;
-  const stickerAssetId = stickerSelection.kind === "asset" ? stickerSelection.id : "";
+  const stickerAssetId =
+    stickerSelection.kind === "asset" ? stickerSelection.id : "";
   const stickerEmoji =
-    stickerSelection.kind === "emoji" ? stickerSelection.value : DEFAULT_STICKER_EMOJI;
+    stickerSelection.kind === "emoji"
+      ? stickerSelection.value
+      : DEFAULT_STICKER_EMOJI;
   const [emojiPickerOpen, setEmojiPickerOpen] = reactExports.useState(true);
-  const stickerSelectionOwnerRef = reactExports.useRef(workspaceContentBudgetScope);
+  const stickerSelectionOwnerRef = reactExports.useRef(
+    workspaceContentBudgetScope,
+  );
   reactExports.useEffect(() => {
-    if (stickerSelectionOwnerRef.current === workspaceContentBudgetScope) return;
+    if (stickerSelectionOwnerRef.current === workspaceContentBudgetScope)
+      return;
     stickerSelectionOwnerRef.current = workspaceContentBudgetScope;
     const defaultSelection = {
       kind: "asset",
@@ -536,17 +331,21 @@ export function CanvasViewInner({
     },
     [setStickerSelection],
   );
-  const [freshStickerIds, setFreshStickerIds] = reactExports.useState(() => new Set());
+  const [freshStickerIds, setFreshStickerIds] = reactExports.useState(
+    () => new Set(),
+  );
   const stickerBindingTimerRef = reactExports.useRef(null);
   const pendingStickerBindingIdsRef = reactExports.useRef(new Set());
-  const [stickerFollowPositions, setStickerFollowPositions] = reactExports.useState(
-    () => new Map(),
-  );
+  const [stickerFollowPositions, setStickerFollowPositions] =
+    reactExports.useState(() => new Map());
   const stickerFollowPositionsRef = reactExports.useRef(new Map());
   const stickerFollowClearTimerRef = reactExports.useRef(null);
   const stickerDragActiveRef = reactExports.useRef(false);
   const flowPositionSnapshotsRef = reactExports.useRef(new Map());
-  const getCommandHandlers = reactExports.useCallback(() => commandHandlersRef.current, []);
+  const getCommandHandlers = reactExports.useCallback(
+    () => commandHandlersRef.current,
+    [],
+  );
   const canvasOptions = {
     mode: mode2,
     dataSource,
@@ -629,12 +428,15 @@ export function CanvasViewInner({
     }
     return nodes.map((node2) => {
       const followPosition = stickerFollowPositions.get(node2.id);
-      const isFresh = node2.type === CanvasNodeType.Sticker && freshStickerIds.has(node2.id);
+      const isFresh =
+        node2.type === CanvasNodeType.Sticker && freshStickerIds.has(node2.id);
       const keepsExpandedMediaVisible = node2.id === expandedMediaNodeId;
       const nodeWidth = node2.measured?.width ?? node2.width;
       const nodeHeight = node2.measured?.height ?? node2.height;
       const renderBounds =
-        keepsExpandedMediaVisible && nodeWidth !== void 0 && nodeHeight !== void 0
+        keepsExpandedMediaVisible &&
+        nodeWidth !== void 0 &&
+        nodeHeight !== void 0
           ? computeMultiImageRenderBounds(nodeWidth, nodeHeight)
           : void 0;
       if (!followPosition && !isFresh && !renderBounds) return node2;
@@ -660,7 +462,13 @@ export function CanvasViewInner({
           : {}),
       };
     });
-  }, [expandedMediaNodeId, freshStickerIds, nodes, shouldRenderNodes, stickerFollowPositions]);
+  }, [
+    expandedMediaNodeId,
+    freshStickerIds,
+    nodes,
+    shouldRenderNodes,
+    stickerFollowPositions,
+  ]);
   const shellEdges = shouldRenderNodes ? edges : EMPTY_SHELL_EDGES;
   const persistenceController = usePersist({
     instance: instance2,
@@ -677,13 +485,18 @@ export function CanvasViewInner({
   reactExports.useEffect(() => {
     if (!onDeleteTextFileIfEmpty) return;
     const pendingDeletePaths = new Map();
-    const offIntercept = instance2.eventBus.intercept("node:removed", ({ nodeId }) => {
-      const node2 = instance2.getGraph().nodes.find((n2) => n2.id === nodeId);
-      const filePath = node2 ? getTextNodeBackingPath(node2, assetMetadataStore) : null;
-      if (filePath) pendingDeletePaths.set(nodeId, filePath);
-      else pendingDeletePaths.delete(nodeId);
-      return true;
-    });
+    const offIntercept = instance2.eventBus.intercept(
+      "node:removed",
+      ({ nodeId }) => {
+        const node2 = instance2.getGraph().nodes.find((n2) => n2.id === nodeId);
+        const filePath = node2
+          ? getTextNodeBackingPath(node2, assetMetadataStore)
+          : null;
+        if (filePath) pendingDeletePaths.set(nodeId, filePath);
+        else pendingDeletePaths.delete(nodeId);
+        return true;
+      },
+    );
     const offRemoved = instance2.eventBus.on("node:removed", ({ nodeId }) => {
       const filePath = pendingDeletePaths.get(nodeId);
       pendingDeletePaths.delete(nodeId);
@@ -711,12 +524,15 @@ export function CanvasViewInner({
   reactExports.useEffect(() => {
     if (!onTextNodeRemoved) return;
     const removedTextNodeIds = new Set();
-    const offIntercept = instance2.eventBus.intercept("node:removed", ({ nodeId }) => {
-      const node2 = instance2.getGraph().nodes.find((n2) => n2.id === nodeId);
-      if (node2?.type === CanvasNodeType.Text) removedTextNodeIds.add(nodeId);
-      else removedTextNodeIds.delete(nodeId);
-      return true;
-    });
+    const offIntercept = instance2.eventBus.intercept(
+      "node:removed",
+      ({ nodeId }) => {
+        const node2 = instance2.getGraph().nodes.find((n2) => n2.id === nodeId);
+        if (node2?.type === CanvasNodeType.Text) removedTextNodeIds.add(nodeId);
+        else removedTextNodeIds.delete(nodeId);
+        return true;
+      },
+    );
     const offRemoved = instance2.eventBus.on("node:removed", ({ nodeId }) => {
       if (!removedTextNodeIds.delete(nodeId)) return;
       onTextNodeRemoved(nodeId);
@@ -747,12 +563,15 @@ export function CanvasViewInner({
   }, [nodes, selectedIds]);
   const createPlaceholderFillGuard = reactExports.useCallback(
     (nodeId) => {
-      const target = instance2.getGraph().nodes.find((node2) => node2.id === nodeId);
+      const target = instance2
+        .getGraph()
+        .nodes.find((node2) => node2.id === nodeId);
       return () =>
         Boolean(
           target?.isEmpty &&
           !target.assetId &&
-          instance2.getGraph().nodes.find((node2) => node2.id === nodeId) === target,
+          instance2.getGraph().nodes.find((node2) => node2.id === nodeId) ===
+            target,
         );
     },
     [instance2],
@@ -765,7 +584,8 @@ export function CanvasViewInner({
       data2.name = payload.name;
       data2.path = payload.path;
       if (payload.intrinsicWidth != null) data2.width = payload.intrinsicWidth;
-      if (payload.intrinsicHeight != null) data2.height = payload.intrinsicHeight;
+      if (payload.intrinsicHeight != null)
+        data2.height = payload.intrinsicHeight;
       const fill = {
         type: payload.type,
         assetId: payload.assetId,
@@ -780,7 +600,9 @@ export function CanvasViewInner({
       } else {
         instance2.markPlaceholderFilled(nodeId, fill);
       }
-      const runtimeNode = instance2.getGraph().nodes.find((n2) => n2.id === nodeId);
+      const runtimeNode = instance2
+        .getGraph()
+        .nodes.find((n2) => n2.id === nodeId);
       if (runtimeNode) {
         savedPositionsRef.current?.set(nodeId, {
           id: nodeId,
@@ -903,18 +725,23 @@ export function CanvasViewInner({
     const groupNode = nodes.find((n2) => n2.id === groupId2);
     if (!groupNode || groupNode.type !== CanvasNodeType.Group) return [];
     const nodeById = new Map(nodes.map((node2) => [node2.id, node2]));
-    return collectFileNodeRefsForHandle([groupId2]).map(({ nodeId, filePath, fileType }) => {
-      const fileNode = nodeById.get(nodeId);
-      const title =
-        fileType === "table"
-          ? fileNode?.data?.title?.trim() || t2("canvas.table.untitled", "Untitled table")
-          : void 0;
-      return {
-        filePath,
-        filename: title ? `${title}.htable` : (filePath.split("/").pop() ?? filePath),
-        nodeId,
-      };
-    });
+    return collectFileNodeRefsForHandle([groupId2]).map(
+      ({ nodeId, filePath, fileType }) => {
+        const fileNode = nodeById.get(nodeId);
+        const title =
+          fileType === "table"
+            ? fileNode?.data?.title?.trim() ||
+              t2("canvas.table.untitled", "Untitled table")
+            : void 0;
+        return {
+          filePath,
+          filename: title
+            ? `${title}.htable`
+            : (filePath.split("/").pop() ?? filePath),
+          nodeId,
+        };
+      },
+    );
   }, [collectFileNodeRefsForHandle, nodes, selectedIds, t2]);
   const findNodeIdByFilePathForHandle = reactExports.useCallback(
     (rawPath) => {
@@ -954,9 +781,11 @@ export function CanvasViewInner({
           parseNodeId(node2.id).assetId;
         const meta2 = assetStore.get(assetId) ?? assetStore.get(node2.id);
         const path2 =
-          node2.type === CanvasNodeType.Table && typeof data2?.tablePath === "string"
+          node2.type === CanvasNodeType.Table &&
+          typeof data2?.tablePath === "string"
             ? data2.tablePath
-            : (meta2?.path ?? (typeof data2?.path === "string" ? data2.path : void 0));
+            : (meta2?.path ??
+              (typeof data2?.path === "string" ? data2.path : void 0));
         const name2 =
           typeof data2?.name === "string"
             ? data2.name
@@ -991,7 +820,11 @@ export function CanvasViewInner({
       cancelPendingFocus: () => cancelPendingFocusRef.current(),
       findNodeIdByFilePath: findNodeIdByFilePathForHandle,
       findNodeIdsByFilePaths: (paths) => [
-        ...new Set(paths.map(findNodeIdByFilePathForHandle).filter((nodeId) => Boolean(nodeId))),
+        ...new Set(
+          paths
+            .map(findNodeIdByFilePathForHandle)
+            .filter((nodeId) => Boolean(nodeId)),
+        ),
       ],
     }),
     [
@@ -1026,7 +859,8 @@ export function CanvasViewInner({
   }, [getCurrentWorkspace, instance2]);
   reactExports.useEffect(() => {
     const workspaceId2 = getCurrentWorkspace?.();
-    return () => useCanvasNodeAssetsStore.getState().clearWorkspace(workspaceId2);
+    return () =>
+      useCanvasNodeAssetsStore.getState().clearWorkspace(workspaceId2);
   }, [getCurrentWorkspace]);
   const prevTasksRef = reactExports.useRef([]);
   reactExports.useEffect(() => {
@@ -1036,7 +870,9 @@ export function CanvasViewInner({
       next2.length === prev.length &&
       next2.every(
         (t22, i2) =>
-          t22.id === prev[i2].id && t22.label === prev[i2].label && t22.detail === prev[i2].detail,
+          t22.id === prev[i2].id &&
+          t22.label === prev[i2].label &&
+          t22.detail === prev[i2].detail,
       )
     ) {
       return;
@@ -1057,14 +893,20 @@ export function CanvasViewInner({
   } = useReactFlow();
   const reactFlowInstance = useReactFlow();
   const storeApi = useStoreApi();
-  const scheduleCanvasFocusRef = reactExports.useRef((_nodeIds, _options) => {});
+  const scheduleCanvasFocusRef = reactExports.useRef(
+    (_nodeIds, _options) => {},
+  );
   const focusNodeIdsRef = reactExports.useRef(() => {});
   const cancelPendingFocusRef = reactExports.useRef(() => {});
   focusNodeIdsRef.current = (nodeIds, options) => {
     if (nodeIds.length === 0) return;
-    const zoom2 = options?.zoom ?? (options?.preserveZoom ? "preserve" : void 0);
+    const zoom2 =
+      options?.zoom ?? (options?.preserveZoom ? "preserve" : void 0);
     scheduleCanvasFocusRef.current(nodeIds, {
-      delay: options?.expandAncestorGroups && canvasFocus.expand(instance2, nodeIds) ? 120 : 300,
+      delay:
+        options?.expandAncestorGroups && canvasFocus.expand(instance2, nodeIds)
+          ? 120
+          : 300,
       padding: 0.3,
       duration: 400,
       visibilityPriority: options?.visibilityPriority,
@@ -1088,7 +930,13 @@ export function CanvasViewInner({
             return Boolean(node2?.measured?.width && node2.measured.height);
           });
         },
-        fit: ({ nodeIds, padding, duration, visibilityPriority, zoom: zoom2 }) => {
+        fit: ({
+          nodeIds,
+          padding,
+          duration,
+          visibilityPriority,
+          zoom: zoom2,
+        }) => {
           if (visibilityPriority && zoom2 === void 0) {
             applyVisibilityPriorityFocus({
               duration,
@@ -1146,7 +994,14 @@ export function CanvasViewInner({
           );
         },
       }),
-    [fitView, getViewport, setCenter, setViewport, storeApi, syncStableZoomAfterViewportChange],
+    [
+      fitView,
+      getViewport,
+      setCenter,
+      setViewport,
+      storeApi,
+      syncStableZoomAfterViewportChange,
+    ],
   );
   scheduleCanvasFocusRef.current = (nodeIds, options) =>
     focusScheduler.request({
@@ -1154,7 +1009,10 @@ export function CanvasViewInner({
       ...options,
     });
   cancelPendingFocusRef.current = focusScheduler.cancel;
-  reactExports.useEffect(() => () => focusScheduler.dispose(), [focusScheduler]);
+  reactExports.useEffect(
+    () => () => focusScheduler.dispose(),
+    [focusScheduler],
+  );
   const isActiveRef = reactExports.useRef(isActive2);
   isActiveRef.current = isActive2;
   const isPresentedRef = reactExports.useRef(isPresented);
@@ -1259,7 +1117,10 @@ export function CanvasViewInner({
             void fitView(opts).then((fitted) => {
               syncStableZoomFromViewport();
               if (!fitted) {
-                setTimeout(() => syncStableZoomAfterViewportChange(fitView(opts)), 500);
+                setTimeout(
+                  () => syncStableZoomAfterViewportChange(fitView(opts)),
+                  500,
+                );
               }
             });
           },
@@ -1489,13 +1350,15 @@ export function CanvasViewInner({
         const nextData = {
           ...prevData,
         };
-        if (Object.keys(nextMap).length === 0) delete nextData[POPOVER_DRAFT_DATA_KEY];
+        if (Object.keys(nextMap).length === 0)
+          delete nextData[POPOVER_DRAFT_DATA_KEY];
         else nextData[POPOVER_DRAFT_DATA_KEY] = nextMap;
         instance2.updateNodeDataSilent(nodeId, nextData);
       },
       openAddNodeMenu,
       openAddNodeMenuFromMulti,
-      focusNodeIds: (nodeIds, options) => focusNodeIdsRef.current(nodeIds, options),
+      focusNodeIds: (nodeIds, options) =>
+        focusNodeIdsRef.current(nodeIds, options),
       findNodeIdByPartialFileName,
       focusDerivedNode,
       focusNextDerivedFrom,
@@ -1516,10 +1379,13 @@ export function CanvasViewInner({
       },
       subscribeGraphChange: (cb) => instance2.onGraphChange(() => cb()),
       subscribeNodeDataChange: (nodeId, cb) => {
-        return instance2.eventBus.on("node:data-changed", ({ nodeId: id2, data: data2 }) => {
-          if (id2 !== nodeId) return;
-          cb(data2);
-        });
+        return instance2.eventBus.on(
+          "node:data-changed",
+          ({ nodeId: id2, data: data2 }) => {
+            if (id2 !== nodeId) return;
+            cb(data2);
+          },
+        );
       },
       subscribeIncomingChange: (nodeId, cb) => {
         let incomingEdgeIds = new Set();
@@ -1531,10 +1397,13 @@ export function CanvasViewInner({
           incomingEdgeIds.add(edge.id);
           cb();
         });
-        const offRemove = instance2.eventBus.on("edge:removed", ({ edgeId }) => {
-          if (!incomingEdgeIds.delete(edgeId)) return;
-          cb();
-        });
+        const offRemove = instance2.eventBus.on(
+          "edge:removed",
+          ({ edgeId }) => {
+            if (!incomingEdgeIds.delete(edgeId)) return;
+            cb();
+          },
+        );
         const offHistory = instance2.history.onHistoryChange(() => {
           const next2 = new Set();
           for (const e2 of instance2.getGraph().edges) {
@@ -1596,7 +1465,9 @@ export function CanvasViewInner({
       },
       ensureStandaloneNodeById: (nodeId) => {
         if (!nodeId) return null;
-        const picked = instance2.getGraph().nodes.find((node2) => node2.id === nodeId);
+        const picked = instance2
+          .getGraph()
+          .nodes.find((node2) => node2.id === nodeId);
         if (!picked) return null;
         if (picked.meta?.hidden === true && picked.groupId) {
           return instance2.detachSubImageToFreeSlot(picked.id) ?? null;
@@ -1608,7 +1479,8 @@ export function CanvasViewInner({
         const graph = instance2.getGraph();
         const store = assetMetadataStore.getState();
         for (const edge of graph.edges) {
-          if (edge.target !== targetNodeId || edge.type !== "derivation") continue;
+          if (edge.target !== targetNodeId || edge.type !== "derivation")
+            continue;
           const source = graph.nodes.find((node2) => node2.id === edge.source);
           if (!source) continue;
           const sourceAssetId = source.data?.assetId;
@@ -1712,7 +1584,8 @@ export function CanvasViewInner({
         if (!isSelected) instance2.selection.set([nodeId]);
         instance2.copySelected({
           workspace: getCurrentWorkspace?.(),
-          resolveAssetPath: (assetId) => assetMetadataStore.getState().get(assetId)?.path,
+          resolveAssetPath: (assetId) =>
+            assetMetadataStore.getState().get(assetId)?.path,
         });
         void instance2.pasteFromClipboard();
       },
@@ -1726,7 +1599,9 @@ export function CanvasViewInner({
         instance2.relayoutGroup(groupId2, layout);
       },
       tidyGroupChildren: (groupId2, layout) => {
-        void tidySort.finish(commands.tidyGroupChildren(groupId2, layout, true, tidySort.sortBy));
+        void tidySort.finish(
+          commands.tidyGroupChildren(groupId2, layout, true, tidySort.sortBy),
+        );
       },
       setGroupCollapsed: (groupId2, collapsed) => {
         instance2.setGroupCollapsed(groupId2, collapsed);
@@ -1739,7 +1614,8 @@ export function CanvasViewInner({
         const tablePath = newTablePath();
         const tableNodeId = crypto.randomUUID();
         const source =
-          sourceNodeId && instance2.getGraph().nodes.some((n2) => n2.id === sourceNodeId)
+          sourceNodeId &&
+          instance2.getGraph().nodes.some((n2) => n2.id === sourceNodeId)
             ? sourceNodeId
             : void 0;
         try {
@@ -1774,7 +1650,10 @@ export function CanvasViewInner({
           }
           return tableNodeId;
         } catch (err) {
-          console.error("[canvas] Failed to create table node from document:", err);
+          console.error(
+            "[canvas] Failed to create table node from document:",
+            err,
+          );
           return null;
         }
       },
@@ -1880,21 +1759,31 @@ export function CanvasViewInner({
     },
     [onNativeFileDrop, onResourceDrop, screenToFlowPosition],
   );
-  const handleSortByConnections = reactExports.useCallback(() => commands.autoLayout(), [commands]);
+  const handleSortByConnections = reactExports.useCallback(
+    () => commands.autoLayout(),
+    [commands],
+  );
   const handleSortByMediaType = reactExports.useCallback(
     () => commands.autoLayoutByCategory(),
     [commands],
   );
   const handleTidyCanvasLayout = reactExports.useCallback(
     (layout, includeDeps) => {
-      return tidySort.finish(commands.autoLayoutAll(layout, includeDeps, tidySort.sortBy));
+      return tidySort.finish(
+        commands.autoLayoutAll(layout, includeDeps, tidySort.sortBy),
+      );
     },
     [commands, tidySort],
   );
   const handleTidySubset = reactExports.useCallback(
     (layout, includeDeps) => {
       return tidySort.finish(
-        commands.autoLayoutSubset(selectedIds, layout, includeDeps, tidySort.sortBy),
+        commands.autoLayoutSubset(
+          selectedIds,
+          layout,
+          includeDeps,
+          tidySort.sortBy,
+        ),
       );
     },
     [commands, selectedIds, tidySort],
@@ -1902,7 +1791,12 @@ export function CanvasViewInner({
   const handleTidyGroup = reactExports.useCallback(
     (groupId2, layout, includeDeps) => {
       return tidySort.finish(
-        commands.tidyGroupChildren(groupId2, layout, includeDeps, tidySort.sortBy),
+        commands.tidyGroupChildren(
+          groupId2,
+          layout,
+          includeDeps,
+          tidySort.sortBy,
+        ),
       );
     },
     [commands, tidySort],
@@ -1910,14 +1804,22 @@ export function CanvasViewInner({
   const handleTidyGroupChildren = reactExports.useCallback(
     (groupId2, childIds, layout) => {
       return tidySort.finish(
-        commands.tidyGroupChildrenSubset(groupId2, childIds, layout, tidySort.sortBy),
+        commands.tidyGroupChildrenSubset(
+          groupId2,
+          childIds,
+          layout,
+          tidySort.sortBy,
+        ),
       );
     },
     [commands, tidySort],
   );
   const handleTidyBlocked = reactExports.useCallback(() => {
     dedupedToast(
-      t2("canvas.tidy.mixedSelection", "跨编组或编组内外混选时无法布局，请只选中同一编组内的元素"),
+      t2(
+        "canvas.tidy.mixedSelection",
+        "跨编组或编组内外混选时无法布局，请只选中同一编组内的元素",
+      ),
     );
   }, [t2]);
   const { canUndo, canRedo } = useHistoryState(instance2);
@@ -1935,7 +1837,10 @@ export function CanvasViewInner({
       });
     });
   }, [instance2, t2, workspaceContentBudgetScope]);
-  const handleRootElChange = reactExports.useCallback((el) => instance2.setRootEl(el), [instance2]);
+  const handleRootElChange = reactExports.useCallback(
+    (el) => instance2.setRootEl(el),
+    [instance2],
+  );
   const handleSelectionChange = reactExports.useCallback(
     (ids2) => {
       applyReactFlowSelectionWriteback({
@@ -2006,7 +1911,10 @@ export function CanvasViewInner({
     const hiddenStickerIds = new Set(
       instance2
         .getGraph()
-        .nodes.filter((node2) => node2.type === CanvasNodeType.Sticker && node2.meta?.hidden)
+        .nodes.filter(
+          (node2) =>
+            node2.type === CanvasNodeType.Sticker && node2.meta?.hidden,
+        )
         .map((node2) => node2.id),
     );
     return stickerNodes.every((sticker) => hiddenStickerIds.has(sticker.id));
@@ -2101,7 +2009,8 @@ export function CanvasViewInner({
     const applyInitialViewport = () => {
       if (!isPresentedRef.current || didInitialFitRef.current) return;
       const allCurrentNodes = reactFlowInstance.getNodes();
-      if ((initialHydratedNodeCount ?? 0) > 0 && allCurrentNodes.length === 0) return;
+      if ((initialHydratedNodeCount ?? 0) > 0 && allCurrentNodes.length === 0)
+        return;
       const currentNodes = filterInitialFitFallbackNodes(allCurrentNodes);
       if (currentNodes.length === 0) {
         didInitialFitRef.current = true;
@@ -2188,12 +2097,20 @@ export function CanvasViewInner({
         .map((id2) => map3.get(id2) ?? id2)
         .filter((id2) => existingNodeIds.has(id2));
       if (resolvedIds.length === 0) return;
-      const focusTargets = canvasFocus.resolve(graphNodes, resolvedIds, event.preferParentGroup);
+      const focusTargets = canvasFocus.resolve(
+        graphNodes,
+        resolvedIds,
+        event.preferParentGroup,
+      );
       if (focusTargets.nodeIds.length === 0) return;
       for (const groupId2 of focusTargets.groupIdsToExpand ?? []) {
         instance2.setGroupCollapsed(groupId2, false);
       }
-      applyCanvasFocusSelection(instance2.selection, focusTargets.nodeIds, event.select);
+      applyCanvasFocusSelection(
+        instance2.selection,
+        focusTargets.nodeIds,
+        event.select,
+      );
       let didPromote = false;
       let overlayTargetId = null;
       for (const id2 of focusTargets.nodeIds) {
@@ -2204,7 +2121,8 @@ export function CanvasViewInner({
         }
       }
       if (didPromote) {
-        if (overlayTargetId) multiImageOverlayApi.getState().open(overlayTargetId);
+        if (overlayTargetId)
+          multiImageOverlayApi.getState().open(overlayTargetId);
         scheduleCanvasFocusRef.current(focusTargets.nodeIds, {
           delay: 300,
           padding: event.padding ?? 0.2,
@@ -2250,7 +2168,12 @@ export function CanvasViewInner({
     } else {
       requestAnimationFrame(() => trackToolbarZoom("zoom_in", before));
     }
-  }, [getViewport, zoomIn, syncStableZoomAfterViewportChange, trackToolbarZoom]);
+  }, [
+    getViewport,
+    zoomIn,
+    syncStableZoomAfterViewportChange,
+    trackToolbarZoom,
+  ]);
   const handleZoomOut = reactExports.useCallback(() => {
     const before = getViewport().zoom;
     const result = zoomOut();
@@ -2263,7 +2186,12 @@ export function CanvasViewInner({
     } else {
       requestAnimationFrame(() => trackToolbarZoom("zoom_out", before));
     }
-  }, [getViewport, zoomOut, syncStableZoomAfterViewportChange, trackToolbarZoom]);
+  }, [
+    getViewport,
+    zoomOut,
+    syncStableZoomAfterViewportChange,
+    trackToolbarZoom,
+  ]);
   const handleZoomTo = reactExports.useCallback(
     (level) => {
       syncStableZoomAfterViewportChange(
@@ -2344,7 +2272,8 @@ export function CanvasViewInner({
       const root2 = instance2.getRootEl();
       const rect = root2?.getBoundingClientRect();
       const viewport = getViewport();
-      const scale2 = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+      const scale2 =
+        typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
       const context = {
         canvasId: workspaceContentBudgetScope ?? "unknown",
         worldPosition: screenToFlowPosition({
@@ -2386,15 +2315,19 @@ export function CanvasViewInner({
     ],
   );
   const resolveStickerPlacement = reactExports.useCallback(
-    (clientPosition) => resolveStickerPointerPlacement(clientPosition, screenToFlowPosition),
+    (clientPosition) =>
+      resolveStickerPointerPlacement(clientPosition, screenToFlowPosition),
     [screenToFlowPosition],
   );
   const handlePlaceSticker = reactExports.useCallback(
     (clientX, clientY) => {
       const currentSelection = stickerSelectionRef.current;
-      const currentStickerAssetId = currentSelection.kind === "asset" ? currentSelection.id : "";
+      const currentStickerAssetId =
+        currentSelection.kind === "asset" ? currentSelection.id : "";
       const currentStickerEmoji =
-        currentSelection.kind === "emoji" ? currentSelection.value : DEFAULT_STICKER_EMOJI;
+        currentSelection.kind === "emoji"
+          ? currentSelection.value
+          : DEFAULT_STICKER_EMOJI;
       const position2 = resolveStickerPlacement({
         x: clientX,
         y: clientY,
@@ -2434,14 +2367,20 @@ export function CanvasViewInner({
       const targetCloudTaskId = targetNode?.assetId
         ? assetMetadataStore.getState().get(targetNode.assetId)?.cloudTaskId
         : void 0;
-      if (typeof targetCloudTaskId === "string" && targetCloudTaskId.trim().length > 0) {
+      if (
+        typeof targetCloudTaskId === "string" &&
+        targetCloudTaskId.trim().length > 0
+      ) {
         onStickerAdd?.({
           stickerId:
-            currentSelection.kind === "asset" ? currentSelection.id : currentSelection.value,
+            currentSelection.kind === "asset"
+              ? currentSelection.id
+              : currentSelection.value,
           cloudTaskId: targetCloudTaskId,
         });
       }
-      if (!instance2.getGraph().nodes.some((node2) => node2.id === stickerId)) return false;
+      if (!instance2.getGraph().nodes.some((node2) => node2.id === stickerId))
+        return false;
       instance2.selection.set([stickerId]);
       setFreshStickerIds((current2) => {
         const next2 = new Set(current2);
@@ -2458,17 +2397,26 @@ export function CanvasViewInner({
       }, 540);
       return true;
     },
-    [assetMetadataStore, commands, instance2, mode2, onStickerAdd, resolveStickerPlacement],
+    [
+      assetMetadataStore,
+      commands,
+      instance2,
+      mode2,
+      onStickerAdd,
+      resolveStickerPlacement,
+    ],
   );
-  const { handleCanvasNodeClick, handleCanvasPaneClick } = useCanvasClickHandlers({
-    commentsActive: activeCommand === CANVAS_COMMAND_IDS.comments,
-    selectedCommentTargetId: selectedIds.length === 1 ? selectedIds[0] : void 0,
-    stickerMode,
-    emitCommentContext,
-    handlePlaceSticker,
-    onStickerPlaced: dismissStickerPanel,
-    restoreSelectionChrome,
-  });
+  const { handleCanvasNodeClick, handleCanvasPaneClick } =
+    useCanvasClickHandlers({
+      commentsActive: activeCommand === CANVAS_COMMAND_IDS.comments,
+      selectedCommentTargetId:
+        selectedIds.length === 1 ? selectedIds[0] : void 0,
+      stickerMode,
+      emitCommentContext,
+      handlePlaceSticker,
+      onStickerPlaced: dismissStickerPanel,
+      restoreSelectionChrome,
+    });
   const syncStickerBindings = reactExports.useCallback(
     (affectedNodeId) => {
       const graph = instance2.getGraph();
@@ -2492,7 +2440,11 @@ export function CanvasViewInner({
         if (!data2.targetId || !affectedIds.has(data2.targetId)) continue;
         const target = nodesById.get(data2.targetId);
         if (!target) continue;
-        const targetPosition = getAbsoluteNodePosition(target, nodesById, mode2);
+        const targetPosition = getAbsoluteNodePosition(
+          target,
+          nodesById,
+          mode2,
+        );
         const targetSize = sizeOf(target, mode2);
         const offset2 = data2.targetAnchor
           ? {
@@ -2505,7 +2457,9 @@ export function CanvasViewInner({
           x: targetPosition.x + offset2.x,
           y: targetPosition.y + offset2.y,
         };
-        const parentNode2 = sticker.parentId ? nodesById.get(sticker.parentId) : void 0;
+        const parentNode2 = sticker.parentId
+          ? nodesById.get(sticker.parentId)
+          : void 0;
         const parentPosition = parentNode2
           ? getAbsoluteNodePosition(parentNode2, nodesById, mode2)
           : void 0;
@@ -2514,7 +2468,10 @@ export function CanvasViewInner({
           y: nextAbsolutePosition.y - (parentPosition?.y ?? 0),
         };
         const currentPosition = getNodePosition(sticker, mode2);
-        if (currentPosition.x === nextPosition.x && currentPosition.y === nextPosition.y) {
+        if (
+          currentPosition.x === nextPosition.x &&
+          currentPosition.y === nextPosition.y
+        ) {
           continue;
         }
         instance2.moveNode(sticker.id, nextPosition);
@@ -2538,7 +2495,8 @@ export function CanvasViewInner({
       const snapshot2 = flowPositionSnapshotsRef.current.get(nodeId);
       if (!graphNode && !snapshot2) return void 0;
       const position2 =
-        snapshot2?.position ?? (graphNode ? getNodePosition(graphNode, mode2) : null);
+        snapshot2?.position ??
+        (graphNode ? getNodePosition(graphNode, mode2) : null);
       if (!position2) return void 0;
       const parentId = snapshot2?.parentId ?? graphNode?.parentId;
       if (!parentId)
@@ -2546,7 +2504,11 @@ export function CanvasViewInner({
           x: position2.x,
           y: position2.y,
         };
-      const parentPosition = resolveFollowAbsolutePosition(parentId, graphById, visited);
+      const parentPosition = resolveFollowAbsolutePosition(
+        parentId,
+        graphById,
+        visited,
+      );
       if (!parentPosition)
         return {
           x: position2.x,
@@ -2563,8 +2525,12 @@ export function CanvasViewInner({
     (affectedNodeIds) => {
       const index2 = getStickerFollowIndex();
       if (!index2) return stickerFollowPositionsRef.current;
-      const affectedStickers = collectAffectedStickerNodes(index2, affectedNodeIds);
-      if (affectedStickers.length === 0) return stickerFollowPositionsRef.current;
+      const affectedStickers = collectAffectedStickerNodes(
+        index2,
+        affectedNodeIds,
+      );
+      if (affectedStickers.length === 0)
+        return stickerFollowPositionsRef.current;
       const next2 = new Map(stickerFollowPositionsRef.current);
       for (const sticker of affectedStickers) {
         const data2 = sticker.data;
@@ -2593,7 +2559,8 @@ export function CanvasViewInner({
           y: targetPosition.y + offset2.y,
         };
         const stickerParentId =
-          flowPositionSnapshotsRef.current.get(sticker.id)?.parentId ?? sticker.parentId;
+          flowPositionSnapshotsRef.current.get(sticker.id)?.parentId ??
+          sticker.parentId;
         const parentPosition = stickerParentId
           ? resolveFollowAbsolutePosition(stickerParentId, index2.nodeById)
           : void 0;
@@ -2606,26 +2573,33 @@ export function CanvasViewInner({
     },
     [getStickerFollowIndex, mode2, resolveFollowAbsolutePosition],
   );
-  const publishStickerFollowPositions = reactExports.useCallback((positions) => {
-    const current2 = stickerFollowPositionsRef.current;
-    if (
-      current2.size === positions.size &&
-      Array.from(positions).every(([id2, position2]) => {
-        const previous2 = current2.get(id2);
-        return previous2?.x === position2.x && previous2?.y === position2.y;
-      })
-    ) {
-      return;
-    }
-    const next2 = new Map(positions);
-    stickerFollowPositionsRef.current = next2;
-    setStickerFollowPositions(next2);
-  }, []);
+  const publishStickerFollowPositions = reactExports.useCallback(
+    (positions) => {
+      const current2 = stickerFollowPositionsRef.current;
+      if (
+        current2.size === positions.size &&
+        Array.from(positions).every(([id2, position2]) => {
+          const previous2 = current2.get(id2);
+          return previous2?.x === position2.x && previous2?.y === position2.y;
+        })
+      ) {
+        return;
+      }
+      const next2 = new Map(positions);
+      stickerFollowPositionsRef.current = next2;
+      setStickerFollowPositions(next2);
+    },
+    [],
+  );
   const handleStickerFollowChanges = reactExports.useCallback(
     (positionChanges) => {
       if (positionChanges.length === 0) return;
-      const startsDrag = positionChanges.some((change) => change.dragging === true);
-      const isDragEnd = positionChanges.every((change) => change.dragging === false);
+      const startsDrag = positionChanges.some(
+        (change) => change.dragging === true,
+      );
+      const isDragEnd = positionChanges.every(
+        (change) => change.dragging === false,
+      );
       if (startsDrag && !stickerDragActiveRef.current) {
         stickerDragActiveRef.current = true;
         if (stickerFollowClearTimerRef.current) {
@@ -2651,17 +2625,26 @@ export function CanvasViewInner({
             : {}),
         });
       }
-      const positions = getStickerFollowPositions(positionChanges.map((change) => change.id));
+      const positions = getStickerFollowPositions(
+        positionChanges.map((change) => change.id),
+      );
       publishStickerFollowPositions(positions);
       if (isDragEnd) stickerDragActiveRef.current = false;
     },
-    [getStickerFollowIndex, getStickerFollowPositions, publishStickerFollowPositions],
+    [
+      getStickerFollowIndex,
+      getStickerFollowPositions,
+      publishStickerFollowPositions,
+    ],
   );
   const handleCanvasNodesChange = reactExports.useCallback(
     (changes) => {
       onNodesChange(changes);
       const positionChanges = changes.filter(
-        (change) => change.type === "position" && !!change.position && change.dragging === false,
+        (change) =>
+          change.type === "position" &&
+          !!change.position &&
+          change.dragging === false,
       );
       handleStickerFollowChanges(
         positionChanges.flatMap((change) =>
@@ -2702,7 +2685,10 @@ export function CanvasViewInner({
       }
       const flush2 = () => {
         if (stickerDragActiveRef.current) {
-          stickerBindingTimerRef.current = setTimeout(flush2, STICKER_BINDING_DELAY_MS);
+          stickerBindingTimerRef.current = setTimeout(
+            flush2,
+            STICKER_BINDING_DELAY_MS,
+          );
           return;
         }
         stickerBindingTimerRef.current = null;
@@ -2712,7 +2698,10 @@ export function CanvasViewInner({
           syncStickerBindings(nodeId);
         }
       };
-      stickerBindingTimerRef.current = setTimeout(flush2, STICKER_BINDING_DELAY_MS);
+      stickerBindingTimerRef.current = setTimeout(
+        flush2,
+        STICKER_BINDING_DELAY_MS,
+      );
     },
     [syncStickerBindings],
   );
@@ -2721,7 +2710,9 @@ export function CanvasViewInner({
       stickerDragActiveRef.current = false;
       for (const move of moves) {
         const previous2 = flowPositionSnapshotsRef.current.get(move.id);
-        const graphNode = instance2.getGraph().nodes.find((node2) => node2.id === move.id);
+        const graphNode = instance2
+          .getGraph()
+          .nodes.find((node2) => node2.id === move.id);
         flowPositionSnapshotsRef.current.set(move.id, {
           position: {
             x: move.position.x,
@@ -2735,7 +2726,9 @@ export function CanvasViewInner({
         });
       }
       if (moves.length > 0) {
-        publishStickerFollowPositions(getStickerFollowPositions(moves.map((move) => move.id)));
+        publishStickerFollowPositions(
+          getStickerFollowPositions(moves.map((move) => move.id)),
+        );
       }
       onNodeDragStop(moves);
       const graph = instance2.getGraph();
@@ -2748,7 +2741,11 @@ export function CanvasViewInner({
           continue;
         }
         const data2 = sticker.data;
-        const stickerPosition = getAbsoluteNodePosition(sticker, nodesById, mode2);
+        const stickerPosition = getAbsoluteNodePosition(
+          sticker,
+          nodesById,
+          mode2,
+        );
         const target = findStickerTarget(graph.nodes, stickerPosition, mode2);
         const patch2 = target
           ? {
@@ -2885,7 +2882,9 @@ export function CanvasViewInner({
           <legend className="mb-1.5 text-[11px] font-medium text-[var(--canvas-controls-text-muted)]">
             {t2("canvas.toolbar.backgroundTone")}
           </legend>
-          <div className="grid grid-cols-3 gap-1.5">{renderToneCards(CANVAS_PRIMARY_TONES)}</div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {renderToneCards(CANVAS_PRIMARY_TONES)}
+          </div>
           <button
             type="button"
             data-action-ui-id="canvas.appearance-more-tones"
@@ -2927,7 +2926,9 @@ export function CanvasViewInner({
       emojiPickerOpen={emojiPickerOpen}
       stickerAssetId={stickerAssetId}
       stickerEmoji={stickerEmoji}
-      onToggleStickerVisibility={() => handleStickerVisibility(!allStickersHidden)}
+      onToggleStickerVisibility={() =>
+        handleStickerVisibility(!allStickersHidden)
+      }
       onClearStickers={handleClearStickers}
       onEmojiPickerOpenChange={setEmojiPickerOpen}
       onStickerAssetChange={handleStickerAssetChange}
@@ -2989,7 +2990,9 @@ export function CanvasViewInner({
   });
   const selectedStickerAsset = getCanvasStickerAsset(stickerAssetId);
   const content2 = (
-    <WorkspaceContentBudgetScopeProvider workspaceId={workspaceContentBudgetScope}>
+    <WorkspaceContentBudgetScopeProvider
+      workspaceId={workspaceContentBudgetScope}
+    >
       <CanvasReferenceNavigationScope
         actions={canvasActions}
         scope={`${workspaceContentBudgetScope ?? ""}:${mode2}`}
@@ -3055,7 +3058,9 @@ export function CanvasViewInner({
                 onCancelExecuteGroup={cancelGroupExecution}
                 executingGroupIds={executingGroupIds}
                 onPromoteToAsset={onPromoteToAsset}
-                onDownloadAllFiles={onSaveManyAs ? handleDownloadSelectedFiles : void 0}
+                onDownloadAllFiles={
+                  onSaveManyAs ? handleDownloadSelectedFiles : void 0
+                }
                 onTidySubset={handleTidySubset}
                 onTidyGroup={handleTidyGroup}
                 onTidyGroupChildren={handleTidyGroupChildren}
@@ -3086,7 +3091,11 @@ export function CanvasViewInner({
               </div>
             ))}
           {isPresented && loadError?.phase === "refresh" && (
-            <CanvasLoadError failure={loadError} retrying={loadRetrying} onRetry={retryLoad} />
+            <CanvasLoadError
+              failure={loadError}
+              retrying={loadRetrying}
+              onRetry={retryLoad}
+            />
           )}
           <StickerCursorPreview
             active={canvasReady && stickerMode}
@@ -3125,5 +3134,9 @@ export function CanvasViewInner({
       </CanvasReferenceNavigationScope>
     </WorkspaceContentBudgetScopeProvider>
   );
-  return <TidySortContext.Provider value={tidySort.context}>{content2}</TidySortContext.Provider>;
+  return (
+    <TidySortContext.Provider value={tidySort.context}>
+      {content2}
+    </TidySortContext.Provider>
+  );
 }

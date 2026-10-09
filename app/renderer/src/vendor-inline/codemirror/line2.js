@@ -32,7 +32,7 @@ import {
   Decoration2,
   WidgetType2,
 } from "../../vendor.js";
-import { types } from "../../text-editor/annotation-highlight.js";
+import { types } from "../../text-editor/configuration2.js";
 export function processNeutrals(rFrom, rTo, isolates, outerType) {
   for (let iI = 0, prev = outerType; iI <= isolates.length; iI++) {
     let from2 = iI ? isolates[iI - 1].to : rFrom,

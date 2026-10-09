@@ -1,77 +1,737 @@
 // canvas-image.jsx
-import { useTranslation, reactExports } from "../vendor.js";
-import { useStableZoomBucket } from "../canvas/canvas-surface-recovery-scheduler.jsx";
-import { CanvasRenderRuntimeContext } from "../infra/create-html-iframe-pool-store.jsx";
-import { isGenerationErrorStatus } from "../canvas/group-nodes-in-canvas.js";
-import { useCanvasActive } from "./parse-item.jsx";
-import {
-  useViewportStatus,
-  useCanvasActiveDeferred,
-  areNodePropsEqual,
-} from "../canvas/generating-media-area.jsx";
-import { ParamSectionLabel, Slider$1 } from "../generation/slider.jsx";
+import { currentBucket, subscribers$2 } from "../canvas/separator.jsx";
+import { reactExports } from "../vendor.js";
+import { CanvasRenderRuntimeContext } from "../infra/use-plugin-metadata-store.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AudioNodeInner } from "./audio-action-surface.jsx";
+import { useCanvasSurfaceRecovery } from "./resolve-panorama-generation-presentation.js";
+import { useCanvasActive } from "./package.jsx";
 import {
-  classifyPermanentDecodeFailure,
-  getBitmapManager,
-  isTransientDecodeFailure,
-} from "./decode-worker-pool.jsx";
-export const AudioNode = reactExports.memo(AudioNodeInner, areNodePropsEqual);
-const PLUGIN_ADD_NODE_TYPE_PREFIX = "plugin:";
-export const DIRECTOR_STAGE_PLUGIN_ID = "3d-director-stage";
-export const COMFYUI_PLUGIN_ID$1 = "comfyui";
-export const PANORAMA_VIEWER_PLUGIN_ID = "panorama-viewer";
-export function shouldShowPluginNodeSourceAffordance(pluginId) {
-  return pluginId !== COMFYUI_PLUGIN_ID$1;
+  useCanvasActiveDeferred,
+  useViewportStatus,
+} from "../canvas/fullscreen-icon.jsx";
+
+function subscribe$4(cb) {
+  subscribers$2.add(cb);
+  return () => {
+    subscribers$2.delete(cb);
+  };
 }
-export function resolvePluginEditorPresentation(pluginId) {
-  return "fullscreen";
+
+function getSnapshot$3() {
+  return currentBucket;
 }
-export const CLIP_STUDIO_PLUGIN_ID = "clip-studio";
-export function formatPluginAddNodeType(pluginId) {
-  return `${PLUGIN_ADD_NODE_TYPE_PREFIX}${pluginId}`;
+
+function useStableZoomBucket() {
+  return reactExports.useSyncExternalStore(
+    subscribe$4,
+    getSnapshot$3,
+    getSnapshot$3,
+  );
 }
-export function parsePluginAddNodeType(type2) {
-  if (!type2.startsWith(PLUGIN_ADD_NODE_TYPE_PREFIX)) return null;
-  const pluginId = type2.slice(PLUGIN_ADD_NODE_TYPE_PREFIX.length);
-  return pluginId.length > 0 ? pluginId : null;
+
+class BitmapLru {
+  constructor(opts) {
+    this.opts = opts;
+  }
+  entries = new Map();
+  clock = 0;
+  totalBytes = 0;
+  /** Number of entries (pinned + eligible). For tests / metrics. */
+  size() {
+    return this.entries.size;
+  }
+  /** Total bytes across all entries. For tests / metrics. */
+  bytes() {
+    return this.totalBytes;
+  }
+  has(key2) {
+    return this.entries.has(key2);
+  }
+  /**
+   * Acquire a bitmap. Bumps `refCount` and `lastUsed`. Returns null if
+   * the entry doesn't exist — callers schedule a decode in that case.
+   *
+   * The returned bitmap is borrowed; release it via `release(key)` when
+   * done so it can become eligible for eviction.
+   */
+  acquire(key2) {
+    const entry = this.entries.get(key2);
+    if (!entry) return null;
+    entry.refCount += 1;
+    entry.lastUsed = ++this.clock;
+    return entry;
+  }
+  /**
+   * Decrement an entry's refCount. When it reaches zero the entry stays
+   * in the cache as an eviction candidate (warm bitmap — re-acquiring
+   * costs nothing if it survives the next eviction sweep).
+   *
+   * Throws if called with a refCount that's already zero — that's a bug
+   * in the caller (double-release).
+   */
+  release(key2) {
+    const entry = this.entries.get(key2);
+    if (!entry) return;
+    if (entry.refCount === 0) {
+      throw new Error(`BitmapLru: double release of ${key2}`);
+    }
+    entry.refCount -= 1;
+    entry.lastUsed = ++this.clock;
+  }
+  /**
+   * Insert a freshly-decoded bitmap. Replaces any existing entry at the
+   * same key — used when a stale entry was evicted during decode and
+   * the worker now reports back a fresh bitmap. The new entry starts
+   * with `refCount = 0`; callers must `acquire()` separately if they
+   * intend to render it (this lets a pre-decode-on-prefetch path work
+   * without forcing a render).
+   *
+   * Triggers eviction if over budget afterward.
+   */
+  set(key2, bitmap, bytes2) {
+    const existing = this.entries.get(key2);
+    if (existing) {
+      this.totalBytes -= existing.bytes;
+      try {
+        existing.bitmap.close();
+      } catch {}
+      existing.bitmap = bitmap;
+      existing.bytes = bytes2;
+      existing.lastUsed = ++this.clock;
+      this.totalBytes += bytes2;
+      this.evictUntilUnderBudget();
+      return existing;
+    }
+    const entry = {
+      bitmap,
+      bytes: bytes2,
+      refCount: 0,
+      lastUsed: ++this.clock,
+    };
+    this.entries.set(key2, entry);
+    this.totalBytes += bytes2;
+    this.evictUntilUnderBudget();
+    return entry;
+  }
+  /**
+   * Force-drop an entry (e.g. URL changed and the cached bitmap is now
+   * known stale, no point keeping it around). Refuses to drop pinned
+   * entries to avoid yanking a bitmap out from under a renderer.
+   */
+  delete(key2) {
+    const entry = this.entries.get(key2);
+    if (!entry) return false;
+    if (entry.refCount > 0) return false;
+    this.entries.delete(key2);
+    this.totalBytes -= entry.bytes;
+    try {
+      entry.bitmap.close();
+    } catch {}
+    this.opts.onEvict?.(key2, entry);
+    return true;
+  }
+  /** Close every entry and drop the table. Used on canvas teardown. */
+  clear() {
+    for (const [, entry] of this.entries) {
+      try {
+        entry.bitmap.close();
+      } catch {}
+    }
+    this.entries.clear();
+    this.totalBytes = 0;
+    this.clock = 0;
+  }
+  /**
+   * Evict eligible (refCount===0) entries oldest-first until total bytes
+   * ≤ budget. Stops if everything left is pinned — emits `onOverBudget`
+   * once at the end of any call that finishes still over-budget.
+   *
+   * The just-touched entry (lastUsed === currentClock) is *excluded*
+   * from candidates: when triggered from `set()`, this prevents the
+   * fresh entry from immediately evicting itself before any caller has
+   * had a chance to `acquire()` it (e.g. prefetch path: set in the
+   * decode callback, acquire on the next render tick). Anything older
+   * — including a release-just-bumped entry from a previous tick — is
+   * fair game.
+   *
+   * Public for tests; production code only calls it indirectly via
+   * `set()`.
+   */
+  evictUntilUnderBudget() {
+    if (this.totalBytes <= this.opts.byteBudget) return;
+    const protectedClock = this.clock;
+    const eligible = [];
+    for (const [key2, entry] of this.entries) {
+      if (entry.refCount > 0) continue;
+      if (entry.lastUsed >= protectedClock) continue;
+      eligible.push([key2, entry]);
+    }
+    eligible.sort((a2, b3) => a2[1].lastUsed - b3[1].lastUsed);
+    for (const [key2, entry] of eligible) {
+      if (this.totalBytes <= this.opts.byteBudget) break;
+      this.entries.delete(key2);
+      this.totalBytes -= entry.bytes;
+      try {
+        entry.bitmap.close();
+      } catch {}
+      this.opts.onEvict?.(key2, entry);
+    }
+    if (this.totalBytes > this.opts.byteBudget) {
+      this.opts.onOverBudget?.(this.totalBytes, this.opts.byteBudget);
+    }
+  }
 }
-export function isPluginEditorSurface(agent2) {
-  return agent2?.editorSurface === true;
+
+class DecodeFailureError extends Error {
+  kind;
+  /** HTTP status code — only set when `kind === 'http'`. */
+  status;
+  constructor(message2, kind, status) {
+    super(message2);
+    this.name = "DecodeFailureError";
+    this.kind = kind;
+    this.status = status;
+  }
 }
+
+const TRANSIENT_HTTP_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
+
+function isTransientDecodeFailure(err) {
+  if (!(err instanceof DecodeFailureError)) return false;
+  if (err.kind === "network") return true;
+  if (err.kind === "http") {
+    return err.status !== void 0 && TRANSIENT_HTTP_STATUSES.has(err.status);
+  }
+  return false;
+}
+
+function classifyPermanentDecodeFailure(err) {
+  if (
+    err instanceof DecodeFailureError &&
+    err.kind === "http" &&
+    // 404/410 mean "the file is not there" rather than "can't render it".
+    (err.status === 404 || err.status === 410)
+  ) {
+    return "missing";
+  }
+  return "unsupported";
+}
+
+function defaultWorkerFactory() {
+  return new Worker(
+    new URL(
+      /* @vite-ignore */
+      "" + new URL("../decode-worker-DBC09hCG.js", import.meta.url).href,
+      import.meta.url,
+    ),
+    {
+      type: "module",
+      name: "hilo-canvas-decode",
+    },
+  );
+}
+
+function recommendedPoolSize() {
+  const hwc =
+    typeof navigator !== "undefined" &&
+    typeof navigator.hardwareConcurrency === "number"
+      ? navigator.hardwareConcurrency
+      : 2;
+  return Math.max(2, Math.min(4, hwc - 1));
+}
+
+function makeAbortError$1() {
+  if (typeof DOMException !== "undefined") {
+    return new DOMException("aborted", "AbortError");
+  }
+  const err = new Error("aborted");
+  err.name = "AbortError";
+  return err;
+}
+
+class DecodeWorkerPool {
+  slots = [];
+  queue = [];
+  tasks = new Map();
+  taskIdSeq = 0;
+  disposed = false;
+  constructor(opts = {}) {
+    const size2 = opts.size ?? recommendedPoolSize();
+    const factory = opts.workerFactory ?? defaultWorkerFactory;
+    for (let i2 = 0; i2 < size2; i2++) {
+      const worker = factory();
+      const slot = {
+        worker,
+        busyTask: null,
+        onMessage: () => {},
+      };
+      slot.onMessage = (event) => this.handleWorkerMessage(slot, event.data);
+      worker.addEventListener("message", slot.onMessage);
+      this.slots.push(slot);
+    }
+  }
+  /** Number of busy + queued tasks. For tests / metrics. */
+  pendingCount() {
+    return this.tasks.size;
+  }
+  /** Number of tasks waiting for a free worker. For tests / metrics. */
+  queueLength() {
+    return this.queue.length;
+  }
+  /** Number of currently-busy workers. For tests / metrics. */
+  busyCount() {
+    let n2 = 0;
+    for (const slot of this.slots) if (slot.busyTask) n2++;
+    return n2;
+  }
+  /**
+   * Submit a decode request. Returns a promise that resolves with the
+   * decoded bitmap or rejects with `Error('aborted')` on cancellation
+   * or `Error(<message>)` on failure.
+   */
+  submit(opts) {
+    if (this.disposed) {
+      return Promise.reject(new Error("pool disposed"));
+    }
+    return new Promise((resolve, reject) => {
+      const taskId = ++this.taskIdSeq;
+      const task = {
+        taskId,
+        request: {
+          type: "decode",
+          taskId,
+          url: opts.url,
+          tier: opts.tier,
+          dprBucket: opts.dprBucket,
+        },
+        priority: opts.priority,
+        resolve,
+        reject,
+        signal: opts.signal,
+        cancelled: false,
+        workerSlot: null,
+      };
+      if (opts.signal?.aborted) {
+        reject(makeAbortError$1());
+        return;
+      }
+      if (opts.signal) {
+        const onAbort = () => this.cancelTask(task);
+        opts.signal.addEventListener("abort", onAbort);
+        task.signalCleanup = () =>
+          opts.signal?.removeEventListener("abort", onAbort);
+      }
+      this.tasks.set(taskId, task);
+      this.queue.push(task);
+      this.dispatch();
+    });
+  }
+  /** Tear down: terminate workers, reject outstanding tasks. */
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+    const pending2 = Array.from(this.tasks.values());
+    for (const task of pending2) {
+      task.cancelled = true;
+      task.signalCleanup?.();
+      task.reject(makeAbortError$1());
+    }
+    this.tasks.clear();
+    this.queue.length = 0;
+    for (const slot of this.slots) {
+      slot.worker.removeEventListener("message", slot.onMessage);
+      try {
+        slot.worker.terminate();
+      } catch {}
+    }
+    this.slots.length = 0;
+  }
+  // ---- Internals -----------------------------------------------------
+  dispatch() {
+    if (this.disposed) return;
+    if (this.queue.length === 0) return;
+    this.queue.sort((a2, b3) => a2.priority - b3.priority);
+    while (this.queue.length > 0) {
+      const slot = this.findIdleSlot();
+      if (!slot) break;
+      const task = this.queue.shift();
+      if (!task) break;
+      if (task.cancelled) continue;
+      slot.busyTask = task;
+      task.workerSlot = slot;
+      slot.worker.postMessage(task.request);
+    }
+  }
+  findIdleSlot() {
+    for (const slot of this.slots) {
+      if (!slot.busyTask) return slot;
+    }
+    return null;
+  }
+  handleWorkerMessage(slot, msg) {
+    const task = this.tasks.get(msg.taskId);
+    if (slot.busyTask?.taskId === msg.taskId) {
+      slot.busyTask = null;
+    }
+    if (!task) {
+      if (msg.type === "success") {
+        try {
+          msg.bitmap.close();
+        } catch {}
+      }
+      this.dispatch();
+      return;
+    }
+    if (task.cancelled) {
+      if (msg.type === "success") {
+        try {
+          msg.bitmap.close();
+        } catch {}
+      }
+      this.tasks.delete(msg.taskId);
+      this.dispatch();
+      return;
+    }
+    task.signalCleanup?.();
+    this.tasks.delete(msg.taskId);
+    if (msg.type === "success") {
+      task.resolve(msg);
+    } else {
+      task.reject(
+        new DecodeFailureError(msg.message, msg.kind ?? "decode", msg.status),
+      );
+    }
+    this.dispatch();
+  }
+  cancelTask(task) {
+    if (task.cancelled) return;
+    task.cancelled = true;
+    task.signalCleanup?.();
+    if (task.workerSlot) {
+      task.workerSlot.worker.postMessage({
+        type: "cancel",
+        taskId: task.taskId,
+      });
+    } else {
+      const idx = this.queue.indexOf(task);
+      if (idx >= 0) this.queue.splice(idx, 1);
+      this.tasks.delete(task.taskId);
+    }
+    task.reject(makeAbortError$1());
+  }
+}
+
+const SIZE_TIERS = [64, 128, 256, 512, 1024, 2048];
+
+const DPR_CAP = 2;
+
+function bucketDpr(dpr) {
+  return dpr >= 1.5 ? "2x" : "1x";
+}
+
+function pickTier(displayWidth, dpr) {
+  if (!Number.isFinite(displayWidth) || displayWidth <= 0) return SIZE_TIERS[0];
+  const cappedDpr = Math.min(Math.max(dpr || 1, 1), DPR_CAP);
+  const physical = displayWidth * cappedDpr;
+  for (const t2 of SIZE_TIERS) {
+    if (physical <= t2) return t2;
+  }
+  return SIZE_TIERS[SIZE_TIERS.length - 1];
+}
+
+function bitmapCacheKey(url2, tier, dprBucket) {
+  return `${url2}@${tier}@${dprBucket}`;
+}
+
+const DEFAULT_BYTE_BUDGET = 512 * 1024 * 1024;
+
+function defaultDpr() {
+  if (
+    typeof window !== "undefined" &&
+    typeof window.devicePixelRatio === "number"
+  ) {
+    return window.devicePixelRatio || 1;
+  }
+  return 1;
+}
+
+function makeAbortError() {
+  if (typeof DOMException !== "undefined") {
+    return new DOMException("aborted", "AbortError");
+  }
+  const err = new Error("aborted");
+  err.name = "AbortError";
+  return err;
+}
+
+class BitmapManager {
+  lru;
+  pool;
+  inflight = new Map();
+  disposed = false;
+  constructor(opts = {}) {
+    this.lru = new BitmapLru({
+      byteBudget: opts.byteBudget ?? DEFAULT_BYTE_BUDGET,
+      onEvict: opts.lruOptions?.onEvict,
+      onOverBudget:
+        opts.lruOptions?.onOverBudget ??
+        ((bytes2, budget) => {
+          console.warn(
+            `[hilo-canvas] BitmapManager over budget: ${(bytes2 / 1048576).toFixed(1)}MB / ${(budget / 1048576).toFixed(1)}MB`,
+          );
+        }),
+    });
+    this.pool = new DecodeWorkerPool(
+      opts.poolOptions ?? {
+        size: recommendedPoolSize(),
+      },
+    );
+  }
+  /** Total cached bytes across all entries. */
+  bytes() {
+    return this.lru.bytes();
+  }
+  /** Number of cached entries. */
+  size() {
+    return this.lru.size();
+  }
+  /** True if the manager has been torn down. */
+  isDisposed() {
+    return this.disposed;
+  }
+  /**
+   * Acquire a bitmap for `(url, displayWidth, dpr)`. Returns a handle
+   * holding a refcount on the cached entry — call `handle.release()`
+   * exactly once when done.
+   *
+   * Concurrent acquires for the same key share a single decode.
+   */
+  async acquire(opts) {
+    if (this.disposed) throw new Error("manager disposed");
+    const dpr = opts.dpr ?? defaultDpr();
+    const tier = pickTier(opts.displayWidth, dpr);
+    const dprBucket = bucketDpr(dpr);
+    const key2 = bitmapCacheKey(opts.url, tier, dprBucket);
+    if (opts.signal?.aborted) throw makeAbortError();
+    const cached = this.lru.acquire(key2);
+    if (cached) {
+      return this.makeHandle(key2, cached);
+    }
+    let decodePromise = this.inflight.get(key2);
+    if (!decodePromise) {
+      decodePromise = this.startDecode(
+        opts.url,
+        tier,
+        dprBucket,
+        key2,
+        opts.priority ?? 0,
+      );
+      this.inflight.set(key2, decodePromise);
+    }
+    return this.waitForDecode(key2, decodePromise, opts.signal);
+  }
+  /** Tear down: terminate workers, drop all bitmaps. */
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.pool.dispose();
+    this.lru.clear();
+    this.inflight.clear();
+  }
+  // ---- Internals -----------------------------------------------------
+  startDecode(url2, tier, dprBucket, key2, priority) {
+    return this.pool
+      .submit({
+        url: url2,
+        tier,
+        dprBucket,
+        priority,
+      })
+      .then((resp) => {
+        if (!this.disposed) {
+          this.lru.set(key2, resp.bitmap, resp.bytes);
+        } else {
+          try {
+            resp.bitmap.close();
+          } catch {}
+        }
+        const ok2 = {
+          width: resp.width,
+          height: resp.height,
+        };
+        return ok2;
+      })
+      .finally(() => {
+        if (this.inflight.get(key2)) this.inflight.delete(key2);
+      });
+  }
+  waitForDecode(key2, decodePromise, signal) {
+    return new Promise((resolve, reject) => {
+      let aborted = false;
+      const onAbort = () => {
+        aborted = true;
+        cleanup();
+        reject(makeAbortError());
+      };
+      const cleanup = () => {
+        if (signal) signal.removeEventListener("abort", onAbort);
+      };
+      if (signal) {
+        signal.addEventListener("abort", onAbort);
+      }
+      decodePromise
+        .then(() => {
+          if (aborted) return;
+          cleanup();
+          const entry = this.lru.acquire(key2);
+          if (!entry) {
+            reject(new Error("bitmap evicted before delivery"));
+            return;
+          }
+          resolve(this.makeHandle(key2, entry));
+        })
+        .catch((err) => {
+          if (aborted) return;
+          cleanup();
+          reject(err);
+        });
+    });
+  }
+  makeHandle(key2, entry) {
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      this.lru.release(key2);
+    };
+    return {
+      key: key2,
+      bitmap: entry.bitmap,
+      width: entry.bitmap.width,
+      height: entry.bitmap.height,
+      release,
+    };
+  }
+}
+
+let singleton = null;
+
+function getBitmapManager() {
+  if (!singleton || singleton.isDisposed()) {
+    singleton = new BitmapManager();
+  }
+  return singleton;
+}
+
 function resolveCanvasContentVisibilityStyle(policy) {
   return policy.contentVisibility;
 }
+
 function useCanvasRenderPolicy() {
   return reactExports.useContext(CanvasRenderRuntimeContext).policy;
 }
-export function useCanvasSurfaceRecovery(registration, eligible) {
-  const { registerSurface } = reactExports.useContext(CanvasRenderRuntimeContext);
-  const registrationRef = reactExports.useRef(registration);
-  registrationRef.current = registration;
-  const handleRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
-    const handle2 = registerSurface({
-      surfaceType: registrationRef.current.surfaceType,
-      isEligible: () => registrationRef.current.isEligible(),
-      recover: () => registrationRef.current.recover(),
-    });
-    handleRef.current = handle2;
-    return () => {
-      handleRef.current = null;
-      handle2.dispose();
-    };
-  }, [registerSurface]);
-  reactExports.useEffect(() => {
-    if (eligible) handleRef.current?.notifyEligibilityChanged();
-  }, [eligible]);
-}
+
 const TRANSIENT_RETRY_DELAYS_MS = [1e3, 3e3, 8e3];
+
 const GIF_HOVER_DELAY_MS = 200;
+
+function isEffectivelyFar(status, canvasActive) {
+  return status === "far" || !canvasActive;
+}
+
+function readDpr$1() {
+  if (typeof window === "undefined") return 1;
+  return Math.max(1, window.devicePixelRatio || 1);
+}
+
+function releaseHandle(ref) {
+  const h2 = ref.current;
+  if (!h2) return;
+  ref.current = null;
+  h2.release();
+}
+
+function getDrawSig(canvas) {
+  return canvas.__drawSig;
+}
+
+function setDrawSig(canvas, sig) {
+  canvas.__drawSig = sig;
+}
+
+let bitmapIdCounter = 0;
+
+function bitmapId(bitmap) {
+  const tagged = bitmap;
+  tagged.__hiloId ??= ++bitmapIdCounter;
+  return tagged.__hiloId;
+}
+
+function resetCanvasBackingStore(canvas) {
+  if (!canvas) return;
+  if (canvas.width !== 1) canvas.width = 1;
+  if (canvas.height !== 1) canvas.height = 1;
+  setDrawSig(canvas, void 0);
+}
+
+function computeCanvasBackingSize(
+  displayWidth,
+  displayHeight,
+  dpr,
+  bitmapWidth,
+  bitmapHeight,
+) {
+  const wantW = Math.max(1, Math.round(displayWidth * dpr));
+  const wantH = Math.max(1, Math.round(displayHeight * dpr));
+  const scale2 = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
+  return {
+    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale2))),
+    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale2))),
+  };
+}
+
+function drawBitmap(
+  canvas,
+  bitmap,
+  displayWidth,
+  displayHeight,
+  dpr,
+  options = {},
+) {
+  if (!canvas) return false;
+  const backing = computeCanvasBackingSize(
+    displayWidth,
+    displayHeight,
+    dpr,
+    bitmap.width,
+    bitmap.height,
+  );
+  const backingW = backing.width;
+  const backingH = backing.height;
+  const sig = `${backingW}x${backingH}@${bitmapId(bitmap)}`;
+  if (!options.force && getDrawSig(canvas) === sig) return false;
+  if (canvas.width !== backingW) canvas.width = backingW;
+  if (canvas.height !== backingH) canvas.height = backingH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+  ctx.clearRect(0, 0, backingW, backingH);
+  ctx.drawImage(bitmap, 0, 0, backingW, backingH);
+  setDrawSig(canvas, sig);
+  return true;
+}
+
 export function CanvasImage(props) {
-  const { src, animationSrc, nodeId, width, height, alt, className, onError, onNaturalSize } =
-    props;
+  const {
+    src,
+    animationSrc,
+    nodeId,
+    width,
+    height,
+    alt,
+    className,
+    onError,
+    onNaturalSize,
+  } = props;
   const canvasRef = reactExports.useRef(null);
   const handleRef = reactExports.useRef(null);
   const [loadState, setLoadState] = reactExports.useState("pending");
@@ -85,9 +745,12 @@ export function CanvasImage(props) {
   const isFar = isEffectivelyFar(status, canvasActive);
   const statusRef = reactExports.useRef(status);
   statusRef.current = status;
-  const [hoveredAnimationSrc, setHoveredAnimationSrc] = reactExports.useState(null);
-  const [loadedAnimationSrc, setLoadedAnimationSrc] = reactExports.useState(null);
-  const [failedAnimationSrc, setFailedAnimationSrc] = reactExports.useState(null);
+  const [hoveredAnimationSrc, setHoveredAnimationSrc] =
+    reactExports.useState(null);
+  const [loadedAnimationSrc, setLoadedAnimationSrc] =
+    reactExports.useState(null);
+  const [failedAnimationSrc, setFailedAnimationSrc] =
+    reactExports.useState(null);
   const animationHoverTimerRef = reactExports.useRef(null);
   const cancelPendingAnimation = reactExports.useCallback(() => {
     if (animationHoverTimerRef.current !== null) {
@@ -97,7 +760,9 @@ export function CanvasImage(props) {
   }, []);
   const canAnimate = canvasPresented && status === "inView" && !!animationSrc;
   const showAnimation =
-    canAnimate && hoveredAnimationSrc === animationSrc && failedAnimationSrc !== animationSrc;
+    canAnimate &&
+    hoveredAnimationSrc === animationSrc &&
+    failedAnimationSrc !== animationSrc;
   const animationReady = showAnimation && loadedAnimationSrc === animationSrc;
   reactExports.useEffect(() => {
     setHoveredAnimationSrc(null);
@@ -129,13 +794,22 @@ export function CanvasImage(props) {
       // its visible/prefetch ring. Far nodes release their handle/backing store
       // and naturally draw again when they return.
       isEligible: () =>
-        statusRef.current !== "far" && canvasPresented && handleRef.current !== null,
+        statusRef.current !== "far" &&
+        canvasPresented &&
+        handleRef.current !== null,
       recover: () => {
         const handle2 = handleRef.current;
         if (!handle2) return false;
-        return drawBitmap(canvasRef.current, handle2.bitmap, effectiveWidth, effectiveHeight, dpr, {
-          force: true,
-        });
+        return drawBitmap(
+          canvasRef.current,
+          handle2.bitmap,
+          effectiveWidth,
+          effectiveHeight,
+          dpr,
+          {
+            force: true,
+          },
+        );
       },
     },
     canvasPresented && status !== "far" && loadState === "ready",
@@ -175,7 +849,13 @@ export function CanvasImage(props) {
           if (h2.bitmap.width > 0 && h2.bitmap.height > 0) {
             onNaturalSizeRef.current?.(h2.bitmap.width, h2.bitmap.height);
           }
-          drawBitmap(canvasRef.current, h2.bitmap, effectiveWidth, effectiveHeight, dpr);
+          drawBitmap(
+            canvasRef.current,
+            h2.bitmap,
+            effectiveWidth,
+            effectiveHeight,
+            dpr,
+          );
           setLoadState("ready");
         })
         .catch((err) => {
@@ -204,7 +884,13 @@ export function CanvasImage(props) {
   }, [src, effectiveWidth, effectiveHeight, dpr, isFar]);
   reactExports.useEffect(() => {
     if (handleRef.current) {
-      drawBitmap(canvasRef.current, handleRef.current.bitmap, effectiveWidth, effectiveHeight, dpr);
+      drawBitmap(
+        canvasRef.current,
+        handleRef.current.bitmap,
+        effectiveWidth,
+        effectiveHeight,
+        dpr,
+      );
     }
   }, [effectiveWidth, effectiveHeight, dpr]);
   reactExports.useEffect(() => {
@@ -215,7 +901,8 @@ export function CanvasImage(props) {
     height,
     position: "relative",
     overflow: "hidden",
-    background: loadState === "ready" ? void 0 : "var(--canvas-node-bg, transparent)",
+    background:
+      loadState === "ready" ? void 0 : "var(--canvas-node-bg, transparent)",
   };
   const canvasStyle = {
     width: "100%",
@@ -248,7 +935,14 @@ export function CanvasImage(props) {
     visibility: animationReady ? "hidden" : void 0,
   };
   if (loadState === "error") {
-    return <div className={className} style={wrapperStyle2} role="img" aria-label={alt} />;
+    return (
+      <div
+        className={className}
+        style={wrapperStyle2}
+        role="img"
+        aria-label={alt}
+      />
+    );
   }
   return (
     <div
@@ -277,264 +971,6 @@ export function CanvasImage(props) {
           data-action-ui-id="canvas.image-hover-preview"
         />
       )}
-    </div>
-  );
-}
-function isEffectivelyFar(status, canvasActive) {
-  return status === "far" || !canvasActive;
-}
-function readDpr$1() {
-  if (typeof window === "undefined") return 1;
-  return Math.max(1, window.devicePixelRatio || 1);
-}
-function releaseHandle(ref) {
-  const h2 = ref.current;
-  if (!h2) return;
-  ref.current = null;
-  h2.release();
-}
-function getDrawSig(canvas) {
-  return canvas.__drawSig;
-}
-function setDrawSig(canvas, sig) {
-  canvas.__drawSig = sig;
-}
-let bitmapIdCounter = 0;
-function bitmapId(bitmap) {
-  const tagged = bitmap;
-  tagged.__hiloId ??= ++bitmapIdCounter;
-  return tagged.__hiloId;
-}
-function resetCanvasBackingStore(canvas) {
-  if (!canvas) return;
-  if (canvas.width !== 1) canvas.width = 1;
-  if (canvas.height !== 1) canvas.height = 1;
-  setDrawSig(canvas, void 0);
-}
-function computeCanvasBackingSize(displayWidth, displayHeight, dpr, bitmapWidth, bitmapHeight) {
-  const wantW = Math.max(1, Math.round(displayWidth * dpr));
-  const wantH = Math.max(1, Math.round(displayHeight * dpr));
-  const scale2 = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
-  return {
-    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale2))),
-    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale2))),
-  };
-}
-function drawBitmap(canvas, bitmap, displayWidth, displayHeight, dpr, options = {}) {
-  if (!canvas) return false;
-  const backing = computeCanvasBackingSize(
-    displayWidth,
-    displayHeight,
-    dpr,
-    bitmap.width,
-    bitmap.height,
-  );
-  const backingW = backing.width;
-  const backingH = backing.height;
-  const sig = `${backingW}x${backingH}@${bitmapId(bitmap)}`;
-  if (!options.force && getDrawSig(canvas) === sig) return false;
-  if (canvas.width !== backingW) canvas.width = backingW;
-  if (canvas.height !== backingH) canvas.height = backingH;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return false;
-  ctx.clearRect(0, 0, backingW, backingH);
-  ctx.drawImage(bitmap, 0, 0, backingW, backingH);
-  setDrawSig(canvas, sig);
-  return true;
-}
-export function resolvePanoramaGenerationPresentation(node2) {
-  const data2 = node2?.data;
-  if (node2?.type !== "placeholder" || data2?.mediaType !== "image") {
-    return {
-      status: "idle",
-    };
-  }
-  if (!isGenerationErrorStatus(data2.status)) {
-    return {
-      status: "loading",
-    };
-  }
-  const retryPayload =
-    data2.retryPayload !== null && typeof data2.retryPayload === "object"
-      ? data2.retryPayload
-      : void 0;
-  return {
-    status: "error",
-    errorStatus: data2.status,
-    errorMessage: typeof data2.errorMessage === "string" ? data2.errorMessage : "",
-    errorReason: typeof data2.errorReason === "string" ? data2.errorReason : void 0,
-    retryPayload,
-  };
-}
-export function panoramaGenerationPresentationKey(node2) {
-  const presentation = resolvePanoramaGenerationPresentation(node2);
-  if (presentation.status !== "error") return presentation.status;
-  return [
-    presentation.status,
-    presentation.errorStatus,
-    presentation.errorMessage,
-    presentation.errorReason ?? "",
-    presentation.retryPayload ? JSON.stringify(presentation.retryPayload) : "",
-  ].join("\0");
-}
-export const PANORAMA_EMPTY_NODE_SIZE = {
-  width: 410,
-  height: 231,
-};
-export const PANORAMA_VIEWER_NODE_SIZE = {
-  width: 820,
-  height: 410,
-};
-export function panoramaCleanPreviewUrl(sourceUrl) {
-  if (!sourceUrl) return sourceUrl;
-  const separator = sourceUrl.includes("?") ? "&" : "?";
-  return `${sourceUrl}${separator}panorama_preview=clean`;
-}
-export function panoramaViewerNodeSize(
-  sourceWidth,
-  sourceHeight,
-  preferredWidth = PANORAMA_VIEWER_NODE_SIZE.width,
-) {
-  const width =
-    Number.isFinite(preferredWidth) && preferredWidth > 0
-      ? Math.round(preferredWidth)
-      : PANORAMA_VIEWER_NODE_SIZE.width;
-  const aspectRatio =
-    Number.isFinite(sourceWidth) &&
-    Number.isFinite(sourceHeight) &&
-    (sourceWidth ?? 0) > 0 &&
-    (sourceHeight ?? 0) > 0
-      ? sourceWidth / sourceHeight
-      : PANORAMA_VIEWER_NODE_SIZE.width / PANORAMA_VIEWER_NODE_SIZE.height;
-  return {
-    width,
-    height: Math.max(1, Math.round(width / aspectRatio)),
-  };
-}
-export function ParamQualitySlider({
-  label,
-  options,
-  value,
-  onChange,
-  disabled: disabled2,
-  disabledOptions,
-  getOptionLabel,
-}) {
-  const { t: t2 } = useTranslation();
-  const [preview, setPreview] = reactExports.useState(null);
-  const previewRef = reactExports.useRef(null);
-  const requestedRef = reactExports.useRef(null);
-  const canceledRef = reactExports.useRef(false);
-  const selected2 = Math.max(0, options.indexOf(value));
-  const inactive = disabled2 || options.every((option2) => disabledOptions?.has(option2));
-  const optionLabel = (option2) =>
-    getOptionLabel?.(option2) ??
-    t2(`canvas.param.option.${option2}`, {
-      defaultValue: option2,
-    });
-  reactExports.useEffect(() => {
-    if (previewRef.current !== null) canceledRef.current = true;
-    previewRef.current = null;
-    requestedRef.current = null;
-    setPreview(null);
-  }, [value, options, disabled2, disabledOptions]);
-  const handlePreview = (next2) => {
-    if (canceledRef.current) return;
-    const index2 = Math.round(typeof next2 === "number" ? next2 : next2[0]);
-    if (index2 === requestedRef.current) return;
-    const current2 = previewRef.current ?? selected2;
-    const direction = index2 >= (requestedRef.current ?? current2) ? 1 : -1;
-    requestedRef.current = index2;
-    let available = index2;
-    while (
-      available >= 0 &&
-      available < options.length &&
-      disabledOptions?.has(options[available])
-    ) {
-      available += direction;
-    }
-    if (available < 0 || available >= options.length) {
-      available = index2;
-      while (
-        available >= 0 &&
-        available < options.length &&
-        disabledOptions?.has(options[available])
-      ) {
-        available -= direction;
-      }
-    }
-    if (available < 0 || available >= options.length) available = current2;
-    previewRef.current = available;
-    setPreview(available);
-  };
-  const handleCommit = (next2) => {
-    const index2 = previewRef.current ?? Math.round(typeof next2 === "number" ? next2 : next2[0]);
-    const option2 = options[index2];
-    if (!canceledRef.current && !inactive && option2 !== void 0 && !disabledOptions?.has(option2)) {
-      onChange?.(option2);
-    }
-    previewRef.current = null;
-    requestedRef.current = null;
-    setPreview(null);
-  };
-  const handleCancel = () => {
-    canceledRef.current = true;
-    previewRef.current = null;
-    requestedRef.current = null;
-    setPreview(null);
-  };
-  return (
-    <div data-action-ui-id="canvas.params.quality-control">
-      <div className="hilo-slider-field__header flex items-baseline justify-between gap-3">
-        <ParamSectionLabel>{label}</ParamSectionLabel>
-        <output className="text-[13px] text-[var(--canvas-controls-text)]">
-          {optionLabel(preview === null ? value : (options[preview] ?? value))}
-        </output>
-      </div>
-      <Slider$1
-        variant="filled"
-        size="compact"
-        value={preview ?? selected2}
-        min={0}
-        max={Math.max(1, options.length - 1)}
-        step={1}
-        largeStep={1}
-        disabled={inactive || options.length < 2}
-        aria-label={label}
-        onValueChange={handlePreview}
-        onValueCommitted={handleCommit}
-        onPointerCancel={handleCancel}
-        onPointerDownCapture={() => {
-          canceledRef.current = false;
-        }}
-        onKeyDownCapture={() => {
-          canceledRef.current = false;
-        }}
-        onPointerDown={(event) => event.stopPropagation()}
-        thumbProps={{
-          "data-action-ui-id": "canvas.params.quality-slider",
-          getAriaValueText: (_formatted, index2) => optionLabel(options[index2] ?? value),
-        }}
-      />
-      <div className="hilo-slider-field__marks flex items-start justify-between gap-1">
-        {options.map((option2) => (
-          <button
-            key={option2}
-            type="button"
-            disabled={disabled2 || disabledOptions?.has(option2)}
-            aria-pressed={option2 === value}
-            data-action-ui-id={`canvas.params.quality-option-${option2}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              handleCancel();
-              onChange?.(option2);
-            }}
-            className="min-w-0 cursor-pointer rounded-md px-1 py-1 text-[11px] text-muted-foreground hover:enabled:bg-[var(--canvas-controls-hover)] hover:enabled:text-foreground aria-pressed:text-foreground disabled:cursor-default disabled:opacity-40"
-          >
-            {optionLabel(option2)}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

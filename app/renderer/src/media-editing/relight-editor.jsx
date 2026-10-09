@@ -1,28 +1,1149 @@
 // relight-editor.jsx
-import { reactExports, useTranslation, useStore$3, NodeToolbar$1, Position, dedupedToast, useNodeId, X$7, Loader2 } from "../vendor.js";
-import { useCanvasBridge, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "./parse-item.jsx";
-import { Tooltip$1, CreditCostBadge } from "../generation/create-tracker.jsx";
-import { NODE_POPOVER_SAFE_GAP } from "./use-lightbox-media-actions.jsx";
-import { BACKEND_VIBE_RELIGHT } from "../generation/text-models.js";
-import { cn$5 } from "../infra/use-browser-overlay-dialog-props.jsx";
+import { kelvinToHex, roundAngle } from "./color-stops.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { PresetsPanel, RelightControlsPanel, roundAngle } from "./backdrop-gradient-stops.jsx";
-import { ToolResetIcon } from "./camera-ball.jsx";
-import { LeftPanel } from "./multi-angle-editor.jsx";
+import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
+import { LightBall } from "./light-ball.jsx";
 import {
-  INITIAL_STATE$1,
-  StudioPreview,
-  buildRelightControlParams,
-  messages$1,
-  relightReducer,
-  renderRelightPixels,
-} from "./relight-reducer.jsx";
+  dedupedToast,
+  Loader2,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
+import { ToolSlider } from "./tool-slider.jsx";
+import { LeftPanel, SegmentedControl$1 } from "./segmented-control.jsx";
+import { Ban, useCanvasBridge } from "./package.jsx";
+import { presets } from "./presets.js";
+import {
+  CreditCostBadge,
+  Tooltip$1,
+} from "../generation/missing-asset-card.jsx";
+import { BACKEND_VIBE_RELIGHT } from "../generation/to-workspace-browser-url.js";
+
+const DEFAULT_COLOR_TEMP$1 = 6500;
+
+const MAX_LIGHTS = 1;
+
+const LIGHT_TYPE_OPTIONS = [
+  {
+    value: "spotlight",
+    labelKey: "light_type_hard",
+  },
+  {
+    value: "rectAreaLight",
+    labelKey: "light_type_soft",
+  },
+  {
+    value: "directionalLight",
+    labelKey: "light_type_skylight",
+  },
+];
+
+const AZIMUTH_RANGE = {
+  min: -180,
+  max: 180,
+};
+
+const ELEVATION_RANGE = {
+  min: -90,
+  max: 90,
+};
+
+const ANGLE_STEP = 5;
+
+const POWER_RANGE = {
+  min: 10,
+  max: 100,
+};
+
+const POWER_STEP = 10;
+
+const COLOR_TEMP_RANGE = {
+  min: 1e3,
+  max: 1e4,
+};
+
+const COLOR_TEMP_STEP = 100;
+
+const BACKGROUND_OPTIONS = [
+  {
+    value: "default",
+    labelKey: "background_default",
+  },
+  {
+    value: "black",
+    labelKey: "background_black",
+  },
+  {
+    value: "white",
+    labelKey: "background_white",
+  },
+];
+
+const NO_EFFECT_ID = "default";
+
+const DEFAULT_LIGHT_COLOR = "#ffdf99";
+
+const DEFAULT_LIGHTS = [
+  {
+    id: "light1",
+    type: "spotlight",
+    intensity: 50,
+    horizontalAngle: 0,
+    verticalAngle: 90,
+    colorMode: "kelvin",
+    color: DEFAULT_LIGHT_COLOR,
+    colorTemp: DEFAULT_COLOR_TEMP$1,
+  },
+];
+
+const LIGHT_INPUT_IDS = ["light1", "light2", "light3"];
+
+function normalizeEffectType(raw2) {
+  if (!raw2) return "default";
+  return raw2.trim();
+}
+
+function parsePresetPrompt(rawPrompt) {
+  let inputs;
+  try {
+    inputs = JSON.parse(rawPrompt);
+  } catch {
+    return null;
+  }
+  const inputMap = new Map(inputs.map((i2) => [i2.id, i2]));
+  const settingInput = inputMap.get("setting");
+  let settingData = {};
+  if (settingInput?.data) {
+    try {
+      settingData = JSON.parse(settingInput.data);
+    } catch {}
+  }
+  const studioMode = settingData.background || "default";
+  const effectType = normalizeEffectType(settingData.effect);
+  const lights = [];
+  LIGHT_INPUT_IDS.forEach((id2) => {
+    const lightInput = inputMap.get(id2);
+    if (!lightInput?.data) return;
+    try {
+      const raw2 = JSON.parse(lightInput.data);
+      const hasKelvin = !!raw2.kelvin;
+      lights.push({
+        id: id2,
+        type: raw2.lightType || "spotlight",
+        horizontalAngle: parseFloat(raw2.azimuth || "0") || 0,
+        verticalAngle: parseFloat(raw2.elevation || "0") || 0,
+        intensity: Math.round(parseFloat(raw2.lightness || "1") * 10),
+        color: raw2.color || "#ffffff",
+        colorTemp: hasKelvin
+          ? Number.parseInt(raw2.kelvin ?? "", 10) || DEFAULT_COLOR_TEMP$1
+          : DEFAULT_COLOR_TEMP$1,
+        colorMode: hasKelvin ? "kelvin" : "hex",
+      });
+    } catch {}
+  });
+  return {
+    lights,
+    studioMode,
+    effectType,
+  };
+}
+
+const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group flex w-[90px] flex-col items-center gap-1 text-left transition-opacity ${isSelected ? "" : "hover:opacity-90"}`}
+    >
+      <div
+        className={`relative size-[90px] overflow-hidden rounded-md bg-hl_bg_05 transition-all duration-200 ${isSelected ? "ring-[1.5px] ring-hl_text_00" : "ring-0"}`}
+      >
+        {children2}
+      </div>
+      <span
+        className={`w-full truncate text-center text-[11px] leading-4 ${isSelected ? "font-medium text-hl_text_00" : "font-normal text-hl_text_02"}`}
+        title={label}
+      >
+        {label}
+      </span>
+    </button>
+  );
+};
+
+const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive: isActive2 }) => {
+  const videoRef = reactExports.useRef(null);
+  const [hovered, setHovered] = reactExports.useState(false);
+  const shouldPlay = (isActive2 || hovered) && Boolean(videoUrl);
+  reactExports.useEffect(() => {
+    const v2 = videoRef.current;
+    if (!v2 || !shouldPlay) return;
+    v2.currentTime = 0;
+    v2.play().catch(() => {});
+  }, [shouldPlay]);
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: hover only previews media; the parent button owns activation
+    <div
+      className="relative size-full"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {coverUrl && (
+        <img
+          src={coverUrl}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          width={240}
+          height={240}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+      {shouldPlay && videoUrl && (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          muted={true}
+          loop={true}
+          playsInline={true}
+          preload="metadata"
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+    </div>
+  );
+};
+
+const CATEGORY_TABS = [
+  {
+    key: "all",
+    labelKey: "preset_tab_all",
+  },
+  {
+    key: "portrait",
+    labelKey: "preset_tab_portrait",
+  },
+  {
+    key: "product",
+    labelKey: "preset_tab_product",
+  },
+];
+
+const NO_EFFECT_PRESET = {
+  id: NO_EFFECT_ID,
+  title: "原图",
+  category: void 0,
+  thumbUrl: "",
+  videoUrl: "",
+  rawPrompt: "",
+  parsed: null,
+  parsedPrompt: {
+    lights: [],
+    studioMode: "default",
+    effectType: "default",
+  },
+  effectType: "default",
+};
+
+const PresetsPanel = ({
+  translate: translate2,
+  selectedPresetId,
+  onSelect,
+  onResetToOriginal,
+  panelMode,
+}) => {
+  const [activeCategory, setActiveCategory] = reactExports.useState("all");
+  const all2 = reactExports.useMemo(() => {
+    return presets.map((p3) => {
+      const parsed = parsePresetPrompt(p3.rawPrompt) || {
+        lights: [],
+        studioMode: "default",
+        effectType: "default",
+      };
+      return {
+        ...p3,
+        parsedPrompt: parsed,
+        effectType: parsed.effectType ?? "default",
+      };
+    });
+  }, []);
+  const list2 = reactExports.useMemo(() => {
+    if (activeCategory === "all") return [NO_EFFECT_PRESET, ...all2];
+    return all2.filter((p3) => p3.category === activeCategory);
+  }, [all2, activeCategory]);
+  const handleSelect = (preset2) => {
+    if (preset2.id === NO_EFFECT_ID) {
+      onResetToOriginal();
+      return;
+    }
+    onSelect(preset2);
+  };
+  return (
+    <div className="flex flex-col gap-3 pt-3">
+      <div className="flex gap-2 overflow-x-auto px-4">
+        {CATEGORY_TABS.map(({ key: key2, labelKey }) => {
+          const active2 = key2 === activeCategory;
+          return (
+            <button
+              key={key2}
+              type="button"
+              onClick={() => setActiveCategory(key2)}
+              className={`shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-xs font-medium transition-colors ${active2 ? "border-hl_text_00 bg-hl_text_00 text-hl_text_05" : "border-hl_line_01 text-hl_text_02 hover:bg-hl_bg_05 hover:text-hl_text_00"}`}
+            >
+              {translate2(labelKey)}
+            </button>
+          );
+        })}
+      </div>
+      <div className="grid grid-cols-[repeat(3,90px)] gap-x-3 gap-y-2 px-4 pb-3">
+        {list2.map((preset2) => {
+          const isSelected =
+            (panelMode === "presets" && selectedPresetId === preset2.id) ||
+            (preset2.id === NO_EFFECT_ID &&
+              panelMode === "presets" &&
+              !selectedPresetId);
+          return (
+            <PresetCard
+              key={preset2.id}
+              isSelected={isSelected}
+              label={
+                preset2.id === NO_EFFECT_ID
+                  ? translate2("preset_no_effect")
+                  : preset2.title
+              }
+              onClick={() => handleSelect(preset2)}
+            >
+              {preset2.id === NO_EFFECT_ID || !preset2.thumbUrl ? (
+                <div className="flex size-full items-center justify-center bg-hl_bg_05 text-hl_text_03">
+                  <Ban size={40} strokeWidth={1.5} />
+                </div>
+              ) : (
+                <PresetMediaCover
+                  coverUrl={preset2.thumbUrl}
+                  videoUrl={preset2.videoUrl || void 0}
+                  alt={preset2.title}
+                  isActive={isSelected}
+                />
+              )}
+            </PresetCard>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
+  const options = BACKGROUND_OPTIONS.map(({ value, labelKey }) => ({
+    value,
+    label: translate2(labelKey),
+  }));
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-hl_text_02 text-[13px] font-medium leading-5">
+        {translate2("background_label")}
+      </span>
+      <SegmentedControl$1
+        options={options}
+        value={studioMode}
+        dataActionUiIdPrefix="canvas.relight.background"
+        onChange={(value) => onChange(value)}
+      />
+    </div>
+  );
+};
+
+const ColorSection = ({
+  translate: translate2,
+  colorMode,
+  colorTemp,
+  onColorModeChange,
+  onColorTempChange,
+}) => {
+  const handleColorTempChange = reactExports.useCallback(
+    (kelvin) => {
+      if (colorMode !== "kelvin") onColorModeChange("kelvin");
+      onColorTempChange(kelvin);
+    },
+    [colorMode, onColorModeChange, onColorTempChange],
+  );
+  return (
+    <ToolSlider
+      className="min-w-0"
+      dataActionUiId="canvas.relight.color-temperature"
+      label={translate2("color_temp_label")}
+      value={colorTemp}
+      min={COLOR_TEMP_RANGE.min}
+      max={COLOR_TEMP_RANGE.max}
+      step={COLOR_TEMP_STEP}
+      markerValue={DEFAULT_COLOR_TEMP$1}
+      thumbSize={18}
+      trackAppearance="temperature"
+      formatValue={(kelvin) => `${kelvin}K`}
+      onChange={handleColorTempChange}
+    />
+  );
+};
+
+const formatDegree = (v2) => `${roundAngle(v2)}°`;
+
+const formatIntensity = (v2) => String(v2);
+
+const LightingPanel = ({
+  translate: translate2,
+  lights,
+  activeLightId,
+  onUpdateLight,
+}) => {
+  const activeLight = reactExports.useMemo(
+    () => lights.find((light) => light.id === activeLightId) ?? lights[0],
+    [activeLightId, lights],
+  );
+  const lightTypeOpts = reactExports.useMemo(
+    () =>
+      LIGHT_TYPE_OPTIONS.map((opt) => ({
+        value: opt.value,
+        label: translate2(opt.labelKey),
+      })),
+    [translate2],
+  );
+  const updateActive = reactExports.useCallback(
+    (updates) => {
+      if (activeLightId) onUpdateLight(activeLightId, updates);
+    },
+    [activeLightId, onUpdateLight],
+  );
+  if (!activeLight) return null;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        <ToolSlider
+          className="min-w-0"
+          dataActionUiId="canvas.relight.azimuth"
+          label={translate2("horizontal_angle_label")}
+          value={activeLight.horizontalAngle}
+          min={AZIMUTH_RANGE.min}
+          max={AZIMUTH_RANGE.max}
+          step={ANGLE_STEP}
+          formatValue={formatDegree}
+          onChange={(v2) =>
+            updateActive({
+              horizontalAngle: v2,
+            })
+          }
+        />
+        <ToolSlider
+          className="min-w-0"
+          dataActionUiId="canvas.relight.elevation"
+          label={translate2("vertical_angle_label")}
+          value={activeLight.verticalAngle}
+          min={ELEVATION_RANGE.min}
+          max={ELEVATION_RANGE.max}
+          step={ANGLE_STEP}
+          formatValue={formatDegree}
+          onChange={(v2) =>
+            updateActive({
+              verticalAngle: v2,
+            })
+          }
+        />
+      </div>
+      <ToolSlider
+        className="min-w-0"
+        dataActionUiId="canvas.relight.intensity"
+        label={translate2("light_intensity_label")}
+        value={activeLight.intensity}
+        min={POWER_RANGE.min}
+        max={POWER_RANGE.max}
+        step={POWER_STEP}
+        formatValue={formatIntensity}
+        onChange={(v2) =>
+          updateActive({
+            intensity: v2,
+          })
+        }
+      />
+      <ColorSection
+        translate={translate2}
+        colorMode={activeLight.colorMode}
+        colorTemp={activeLight.colorTemp}
+        onColorModeChange={(mode2) =>
+          updateActive({
+            colorMode: mode2,
+          })
+        }
+        onColorTempChange={(kelvin) =>
+          updateActive({
+            colorTemp: kelvin,
+          })
+        }
+      />
+      <div className="flex flex-col gap-1.5">
+        <span className="text-hl_text_02 text-[13px] font-medium leading-5">
+          {translate2("light_type_label")}
+        </span>
+        <SegmentedControl$1
+          options={lightTypeOpts}
+          value={activeLight.type}
+          dataActionUiIdPrefix="canvas.relight.light-type"
+          onChange={(v2) =>
+            updateActive({
+              type: v2,
+            })
+          }
+        />
+      </div>
+    </div>
+  );
+};
+
+const RelightControlsPanel = ({
+  translate: translate2,
+  state: state2,
+  dispatch: dispatch2,
+}) => {
+  return (
+    <div className="flex flex-col gap-3">
+      <LightingPanel
+        translate={translate2}
+        lights={state2.lights}
+        activeLightId={state2.activeLightId}
+        onUpdateLight={(id2, updates) =>
+          dispatch2({
+            type: "UPDATE_LIGHT",
+            id: id2,
+            updates,
+          })
+        }
+      />
+      <BackgroundPanel
+        translate={translate2}
+        studioMode={state2.studioMode}
+        onChange={(mode2) =>
+          dispatch2({
+            type: "SET_STUDIO_MODE",
+            mode: mode2,
+          })
+        }
+      />
+    </div>
+  );
+};
+
+const StudioPreview = (props) => {
+  return (
+    <section className="flex size-full items-center justify-center">
+      <div className="flex aspect-square h-full max-w-full items-center justify-center">
+        <div
+          className="relative"
+          style={{
+            width: CANVAS_SIZE,
+            height: CANVAS_SIZE,
+          }}
+        >
+          <LightBall
+            lights={props.lights}
+            activeLightId={props.activeLightId}
+            imageUrl={props.imageUrl}
+            isInteractionDisabled={props.isInteractionDisabled}
+            studioMode={props.studioMode}
+            onBakeLights={props.onBakeLights}
+            onSelectActiveLight={props.onSelectActiveLight}
+            onUploadClick={props.onUploadClick}
+            translate={props.translate}
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const messages$1 = {
+  en: {
+    // 工具标题 / 引导
+    tool_title: "Lighting Studio",
+    tool_subtitle:
+      "Smart relighting — freely adjust light direction, intensity, and color",
+    upload_prompt: "Upload an image to start",
+    upload_hint: "PNG / JPG / WEBP",
+    upload_button: "Upload",
+    upload_image_caption: "Upload an image",
+    // 顶层 Tab
+    tab_presets: "Presets",
+    tab_custom: "Custom",
+    // Custom 子 Tab
+    subtab_lighting: "Lighting",
+    subtab_background: "Background",
+    subtab_effects: "Effects",
+    // Presets 分类
+    preset_tab_all: "All",
+    preset_tab_portrait: "Portrait",
+    preset_tab_product: "Product",
+    preset_no_effect: "Default",
+    // Lighting 面板
+    light_1_label: "Light 1",
+    light_2_label: "Light 2",
+    light_3_label: "Light 3",
+    light_add: "Add light",
+    light_delete: "Remove",
+    light_type_label: "Light type",
+    light_type_hard: "Hard Direct",
+    light_type_soft: "Soft Diffuse",
+    light_type_skylight: "Sky",
+    light_intensity_label: "Intensity",
+    horizontal_angle_label: "Azimuth",
+    vertical_angle_label: "Elevation",
+    color_label: "Color",
+    color_mode_hex: "HEX",
+    color_mode_kelvin: "Kelvin",
+    color_temp_label: "Color Temp",
+    // Background 面板
+    background_label: "Background",
+    background_default: "Default",
+    background_black: "Studio Black",
+    background_white: "Studio White",
+    // Effects 面板
+    effects_label: "Atmosphere",
+    // 生成
+    generate_button: "Relight",
+    generating_label: "Generating...",
+    uploading_label: "Uploading image...",
+    uploading_image_label: "Uploading...",
+    uploading_image_block_submit:
+      "Image is still uploading, please wait a moment",
+    reset: "Reset",
+    error_no_image: "Please upload an image first",
+    error_render_failed:
+      "Failed to render lighting reference. Please try again",
+    error_upload_failed: "Failed to upload reference image",
+    error_service_failed: "Service request failed",
+    error_generic: "Something went wrong. Please try again",
+  },
+  zh: {
+    tool_title: "光影工作室",
+    tool_subtitle: "智能重打光,自由调整光线方向、强度和色彩",
+    upload_prompt: "上传图片开始",
+    upload_hint: "支持 PNG / JPG / WEBP",
+    upload_button: "上传图片",
+    upload_image_caption: "上传图片",
+    tab_presets: "预设",
+    tab_custom: "自定义",
+    subtab_lighting: "灯光",
+    subtab_background: "背景",
+    subtab_effects: "氛围",
+    preset_tab_all: "全部",
+    preset_tab_portrait: "人物",
+    preset_tab_product: "产品",
+    preset_no_effect: "默认",
+    light_1_label: "灯光 1",
+    light_2_label: "灯光 2",
+    light_3_label: "灯光 3",
+    light_add: "添加灯光",
+    light_delete: "移除",
+    light_type_label: "灯光类型",
+    light_type_hard: "硬直射",
+    light_type_soft: "柔性扩散",
+    light_type_skylight: "天光",
+    light_intensity_label: "强度",
+    horizontal_angle_label: "水平角",
+    vertical_angle_label: "垂直角",
+    color_label: "颜色",
+    color_mode_hex: "HEX",
+    color_mode_kelvin: "色温",
+    color_temp_label: "色温",
+    background_label: "背景",
+    background_default: "默认",
+    background_black: "纯黑棚",
+    background_white: "纯白棚",
+    effects_label: "氛围特效",
+    generate_button: "开始重打光",
+    generating_label: "生成中…",
+    uploading_label: "正在上传图片…",
+    uploading_image_label: "上传中…",
+    uploading_image_block_submit: "图片仍在上传,请稍候再点提交",
+    reset: "重置参数",
+    error_no_image: "请先上传一张图片",
+    error_render_failed: "渲染光照参考失败,请重试",
+    error_upload_failed: "上传参考图失败",
+    error_service_failed: "服务请求失败",
+    error_generic: "出错了，请重试",
+  },
+};
+
+const INITIAL_STATE$1 = {
+  lights: DEFAULT_LIGHTS,
+  activeLightId: DEFAULT_LIGHTS[0].id,
+  studioMode: "default",
+  effectType: "default",
+  panelMode: "presets",
+  activeSubTab: "lighting",
+  selectedPresetId: null,
+  imageInfo: null,
+};
+
+const NEW_LIGHT_PRESET_ANGLES = [
+  {
+    h: 0,
+    v: 0,
+  },
+  // 第 1 盏(DEFAULT_LIGHTS 已占,这里是兜底)
+  {
+    h: 60,
+    v: 30,
+  },
+  // 第 2 盏:右上
+  {
+    h: -60,
+    v: 30,
+  },
+  // 第 3 盏:左上
+];
+
+function makeNewLight(id2, slotIndex) {
+  const preset2 =
+    NEW_LIGHT_PRESET_ANGLES[slotIndex] ?? NEW_LIGHT_PRESET_ANGLES[0];
+  return {
+    id: id2,
+    type: "spotlight",
+    intensity: 60,
+    horizontalAngle: preset2.h,
+    verticalAngle: preset2.v,
+    colorMode: "kelvin",
+    color: "#ffffff",
+    colorTemp: DEFAULT_COLOR_TEMP$1,
+  };
+}
+
+let nextLightId = 2;
+
+function relightReducer(state2, action) {
+  switch (action.type) {
+    case "SET_PANEL_MODE":
+      return {
+        ...state2,
+        panelMode: action.mode,
+      };
+    case "SET_ACTIVE_SUB_TAB":
+      return {
+        ...state2,
+        activeSubTab: action.tab,
+      };
+    case "SET_ACTIVE_LIGHT":
+      return {
+        ...state2,
+        activeLightId: action.id,
+      };
+    case "UPDATE_LIGHT": {
+      const next2 = state2.lights.map((l2) =>
+        l2.id === action.id
+          ? {
+              ...l2,
+              ...action.updates,
+            }
+          : l2,
+      );
+      return {
+        ...state2,
+        lights: next2,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    }
+    case "UPDATE_LIGHTS_BATCH": {
+      const updateMap = new Map(action.updates.map((u4) => [u4.id, u4]));
+      const next2 = state2.lights.map((l2) => {
+        const u4 = updateMap.get(l2.id);
+        if (!u4) return l2;
+        return {
+          ...l2,
+          horizontalAngle: u4.horizontalAngle,
+          verticalAngle: u4.verticalAngle,
+        };
+      });
+      return {
+        ...state2,
+        lights: next2,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    }
+    case "ADD_LIGHT": {
+      if (state2.lights.length >= MAX_LIGHTS) return state2;
+      const id2 = `light${nextLightId++}`;
+      const newLight = makeNewLight(id2, state2.lights.length);
+      return {
+        ...state2,
+        lights: [...state2.lights, newLight],
+        activeLightId: id2,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    }
+    case "DELETE_LIGHT": {
+      if (state2.lights.length <= 1) return state2;
+      const next2 = state2.lights.filter((l2) => l2.id !== action.id);
+      const activeStillThere = next2.some(
+        (l2) => l2.id === state2.activeLightId,
+      );
+      return {
+        ...state2,
+        lights: next2,
+        activeLightId: activeStillThere ? state2.activeLightId : next2[0].id,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    }
+    case "SET_STUDIO_MODE":
+      return {
+        ...state2,
+        studioMode: action.mode,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    case "SET_EFFECT_TYPE":
+      return {
+        ...state2,
+        effectType: action.effect,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    case "SELECT_PRESET": {
+      const presetLight = action.lights[0];
+      return {
+        ...state2,
+        selectedPresetId: action.presetId,
+        lights: presetLight ? [presetLight] : state2.lights.slice(0, 1),
+        activeLightId: presetLight?.id || state2.activeLightId,
+        studioMode: action.studioMode,
+        effectType: action.effectType,
+        panelMode: "presets",
+      };
+    }
+    case "RESET_CUSTOM":
+      return {
+        ...state2,
+        lights: DEFAULT_LIGHTS,
+        activeLightId: DEFAULT_LIGHTS[0].id,
+        studioMode: "default",
+        effectType: "default",
+        panelMode: "presets",
+        selectedPresetId: null,
+      };
+    case "ENSURE_CUSTOM_MODE":
+      if (state2.panelMode === "custom") return state2;
+      return {
+        ...state2,
+        panelMode: "custom",
+        selectedPresetId: null,
+      };
+    case "SET_IMAGE":
+      return {
+        ...state2,
+        imageInfo: action.info,
+      };
+    default:
+      return state2;
+  }
+}
+
+const MAX_RELIGHT_LIGHTS = 1;
+
+function toLightRawJson(light) {
+  const raw2 = {
+    lightType: light.type,
+    lightness: (light.intensity / 10).toFixed(1),
+    azimuth: `${roundAngle(light.horizontalAngle)}°`,
+    elevation: `${roundAngle(light.verticalAngle)}°`,
+  };
+  if (light.colorMode === "kelvin") {
+    raw2.kelvin = `${light.colorTemp}K`;
+  } else {
+    raw2.color = light.color;
+  }
+  return JSON.stringify(raw2);
+}
+
+function buildRelightControlParams(args) {
+  const limited = args.lights.slice(0, MAX_RELIGHT_LIGHTS);
+  const serializeAt = (index2) => {
+    const light = limited[index2];
+    return light ? toLightRawJson(light) : "";
+  };
+  return {
+    light1: serializeAt(0),
+    light2: serializeAt(1),
+    light3: serializeAt(2),
+    background: args.studioMode,
+    effect: args.effectType?.trim() || "default",
+  };
+}
+
+const MAX_EDGE = 1024;
+
+const REFERENCE_FALLBACK_INPUT_SIZE = {
+  width: MAX_EDGE,
+  height: 512,
+};
+
+const CAMERA_Z = 5.6;
+
+const TAN_HALF_FOV = Math.tan((21 * Math.PI) / 180);
+
+const LIGHT_DISTANCE = 4;
+
+function getReferenceSize(userImageWidth, userImageHeight) {
+  if (
+    !Number.isFinite(userImageWidth) ||
+    !Number.isFinite(userImageHeight) ||
+    userImageWidth <= 0 ||
+    userImageHeight <= 0
+  ) {
+    return {
+      ...REFERENCE_FALLBACK_INPUT_SIZE,
+    };
+  }
+  return userImageWidth >= userImageHeight
+    ? {
+        width: MAX_EDGE,
+        height: Math.max(
+          1,
+          Math.round((userImageHeight / userImageWidth) * MAX_EDGE),
+        ),
+      }
+    : {
+        width: Math.max(
+          1,
+          Math.round((userImageWidth / userImageHeight) * MAX_EDGE),
+        ),
+        height: MAX_EDGE,
+      };
+}
+
+function toLinear(value) {
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function toSRGB(value) {
+  const clamped = Math.max(0, Math.min(1, value));
+  return Math.round(
+    255 *
+      (clamped <= 31308e-7
+        ? 12.92 * clamped
+        : 1.055 * clamped ** (1 / 2.4) - 0.055),
+  );
+}
+
+function colorRGB(hex2) {
+  const expanded = /^#[0-9a-f]{3}$/i.test(hex2)
+    ? `#${hex2[1]}${hex2[1]}${hex2[2]}${hex2[2]}${hex2[3]}${hex2[3]}`
+    : hex2;
+  const value = /^#[0-9a-f]{6}$/i.test(expanded)
+    ? Number.parseInt(expanded.slice(1), 16)
+    : 16777215;
+  return [
+    toLinear((value >> 16) / 255),
+    toLinear(((value >> 8) & 255) / 255),
+    toLinear((value & 255) / 255),
+  ];
+}
+
+const STUDIOS = {
+  default: {
+    ambient: 0.4,
+    hemisphere: 0.25,
+    ground: colorRGB("#dce0ea"),
+  },
+  black: {
+    ambient: 0.2,
+    hemisphere: 0.12,
+    ground: colorRGB("#3a3f4a"),
+  },
+  white: {
+    ambient: 0.5,
+    hemisphere: 0.32,
+    ground: colorRGB("#eceef3"),
+  },
+};
+
+const finite = (value, fallback) => (Number.isFinite(value) ? value : fallback);
+
+function prepareLight(light) {
+  const az = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
+  const el = (finite(light.verticalAngle, 0) * Math.PI) / 180;
+  const soft = light.type === "rectAreaLight";
+  const directional = light.type === "directionalLight";
+  const angle = Math.PI / (soft ? 2.5 : 5.5);
+  return {
+    x: Math.cos(el) * Math.sin(az),
+    y: Math.sin(el),
+    z: Math.cos(el) * Math.cos(az),
+    directional,
+    intensity:
+      ((Math.max(0, Math.min(100, finite(light.intensity, 50))) / 100) * 3.2 +
+        0.3) *
+      (directional ? 1.15 : soft ? 0.95 : 1.2),
+    color: colorRGB(
+      light.colorMode === "hex"
+        ? light.color
+        : kelvinToHex(finite(light.colorTemp, 5600)),
+    ),
+    cone: Math.cos(angle),
+    innerCone: Math.cos(angle * (1 - (soft ? 0.75 : 0.22))),
+  };
+}
+
+function renderRelightPixels(params) {
+  const { width, height } = getReferenceSize(
+    params.userImageWidth,
+    params.userImageHeight,
+  );
+  const data2 = new Uint8ClampedArray(width * height * 4);
+  const studio = STUDIOS[params.studioMode] ?? STUDIOS.default;
+  const lights = params.lights.length
+    ? params.lights.slice(0, 3).map(prepareLight)
+    : [
+        {
+          x: 1 / Math.sqrt(6),
+          y: 1 / Math.sqrt(6),
+          z: 2 / Math.sqrt(6),
+          directional: true,
+          intensity: 1.2,
+          color: [1, 1, 1],
+          cone: 0,
+          innerCone: 0,
+        },
+      ];
+  const scale2 = (2 * TAN_HALF_FOV) / height;
+  const radius = 1 / (scale2 * Math.sqrt(CAMERA_Z * CAMERA_Z - 1));
+  const radiusSquared = radius * radius;
+  const minX = Math.max(0, Math.floor(width / 2 - radius - 1));
+  const maxX = Math.min(width - 1, Math.ceil(width / 2 + radius + 1));
+  const minY = Math.max(0, Math.floor(height / 2 - radius - 1));
+  const maxY = Math.min(height - 1, Math.ceil(height / 2 + radius + 1));
+  for (let y4 = minY; y4 <= maxY; y4++) {
+    for (let x2 = minX; x2 <= maxX; x2++) {
+      let px = x2 + 0.5 - width / 2;
+      let py = height / 2 - y4 - 0.5;
+      const distance2 = Math.hypot(px, py);
+      if (distance2 > radius + Math.SQRT1_2) continue;
+      let coverage = 1;
+      if (distance2 > radius - Math.SQRT1_2) {
+        let hits = 0;
+        for (let sy = 0; sy < 4; sy++) {
+          for (let sx = 0; sx < 4; sx++) {
+            const dx = px + (sx + 0.5) / 4 - 0.5;
+            const dy = py + (sy + 0.5) / 4 - 0.5;
+            if (dx * dx + dy * dy <= radiusSquared) hits++;
+          }
+        }
+        if (!hits) continue;
+        coverage = hits / 16;
+        if (distance2 >= radius) {
+          const shrink = (radius * (1 - 1e-8)) / distance2;
+          px *= shrink;
+          py *= shrink;
+        }
+      }
+      const u4 = px * scale2;
+      const v2 = py * scale2;
+      const a2 = 1 + u4 * u4 + v2 * v2;
+      const t2 =
+        (CAMERA_Z -
+          Math.sqrt(
+            Math.max(0, CAMERA_Z * CAMERA_Z - a2 * (CAMERA_Z * CAMERA_Z - 1)),
+          )) /
+        a2;
+      const nx = t2 * u4;
+      const ny = t2 * v2;
+      const nz = CAMERA_Z - t2;
+      const invView = 1 / Math.sqrt(a2);
+      const vx = -u4 * invView;
+      const vy = -v2 * invView;
+      const vz = invView;
+      const nv = Math.max(1e-5, nx * vx + ny * vy + nz * vz);
+      const sky = ny * 0.5 + 0.5;
+      let r2 =
+        (studio.ambient +
+          studio.hemisphere * (studio.ground[0] * (1 - sky) + sky)) /
+        Math.PI;
+      let g2 =
+        (studio.ambient +
+          studio.hemisphere * (studio.ground[1] * (1 - sky) + sky)) /
+        Math.PI;
+      let b3 =
+        (studio.ambient +
+          studio.hemisphere * (studio.ground[2] * (1 - sky) + sky)) /
+        Math.PI;
+      for (const light of lights) {
+        let lx = light.x;
+        let ly = light.y;
+        let lz = light.z;
+        let attenuation = 1;
+        if (!light.directional) {
+          lx = lx * LIGHT_DISTANCE - nx;
+          ly = ly * LIGHT_DISTANCE - ny;
+          lz = lz * LIGHT_DISTANCE - nz;
+          const inverseLength = 1 / Math.hypot(lx, ly, lz);
+          lx *= inverseLength;
+          ly *= inverseLength;
+          lz *= inverseLength;
+          const cosine = lx * light.x + ly * light.y + lz * light.z;
+          const ramp = Math.max(
+            0,
+            Math.min(1, (cosine - light.cone) / (light.innerCone - light.cone)),
+          );
+          attenuation = ramp * ramp * (3 - 2 * ramp);
+        }
+        const nl = Math.max(0, nx * lx + ny * ly + nz * lz);
+        if (nl <= 0 || attenuation === 0) continue;
+        const hx = lx + vx;
+        const hy = ly + vy;
+        const hz = lz + vz;
+        const invHalf = 1 / Math.hypot(hx, hy, hz);
+        const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) * invHalf);
+        const vh = Math.max(
+          0,
+          Math.min(1, (vx * hx + vy * hy + vz * hz) * invHalf),
+        );
+        const alphaSquared = 0.3 ** 4;
+        const denominator = nh * nh * (alphaSquared - 1) + 1;
+        const distribution =
+          alphaSquared / (Math.PI * denominator * denominator);
+        const visibility =
+          0.5 /
+          (nl * Math.sqrt(nv * nv * (1 - alphaSquared) + alphaSquared) +
+            nv * Math.sqrt(nl * nl * (1 - alphaSquared) + alphaSquared));
+        const fresnel = 0.04 + 0.96 * (1 - vh) ** 5;
+        const radiance =
+          light.intensity *
+          attenuation *
+          nl *
+          (1 / Math.PI + distribution * visibility * fresnel);
+        r2 += light.color[0] * radiance;
+        g2 += light.color[1] * radiance;
+        b3 += light.color[2] * radiance;
+      }
+      const offset2 = (y4 * width + x2) * 4;
+      data2[offset2] = toSRGB(r2);
+      data2[offset2 + 1] = toSRGB(g2);
+      data2[offset2 + 2] = toSRGB(b3);
+      data2[offset2 + 3] = Math.round(coverage * 255);
+    }
+  }
+  return {
+    width,
+    height,
+    data: data2,
+  };
+}
+
 function renderInWorker(params) {
   return new Promise((resolve, reject) => {
     const worker = new Worker(
       new URL(
         /* @vite-ignore */
-        "" + new URL("../relight-reference.worker-Dx90rBtG.js", import.meta.url).href,
+        "" +
+          new URL("../relight-reference.worker-Dx90rBtG.js", import.meta.url)
+            .href,
         import.meta.url,
       ),
       {
@@ -40,17 +1161,22 @@ function renderInWorker(params) {
       else if (blob) resolve(blob);
       else reject(new Error("Missing lighting reference PNG"));
     };
-    const timer2 = setTimeout(() => finish(new Error("Lighting reference worker timed out")), 15e3);
+    const timer2 = setTimeout(
+      () => finish(new Error("Lighting reference worker timed out")),
+      15e3,
+    );
     worker.onmessage = (event) => {
       const result = event.data;
-      if (result.blob instanceof Blob && result.blob.size > 0) finish(void 0, result.blob);
+      if (result.blob instanceof Blob && result.blob.size > 0)
+        finish(void 0, result.blob);
       else finish(new Error(result.error || "Invalid lighting reference PNG"));
     };
     worker.onerror = (event) => {
       event.preventDefault();
       finish(new Error(event.message || "Lighting reference worker failed"));
     };
-    worker.onmessageerror = () => finish(new Error("Lighting reference worker message failed"));
+    worker.onmessageerror = () =>
+      finish(new Error("Lighting reference worker message failed"));
     try {
       worker.postMessage(params);
     } catch (error) {
@@ -58,6 +1184,7 @@ function renderInWorker(params) {
     }
   });
 }
+
 async function renderOnMainThread(params) {
   await new Promise((resolve) => setTimeout(resolve, 0));
   const { width, height, data: data2 } = renderRelightPixels(params);
@@ -76,13 +1203,20 @@ async function renderOnMainThread(params) {
     canvas.height = 0;
   }
 }
+
 async function renderRelightReference(params) {
   try {
-    if (typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined") {
+    if (
+      typeof Worker !== "undefined" &&
+      typeof OffscreenCanvas !== "undefined"
+    ) {
       try {
         return await renderInWorker(params);
       } catch (error) {
-        console.warn("[renderRelightReference] Worker failed, falling back to Canvas 2D", error);
+        console.warn(
+          "[renderRelightReference] Worker failed, falling back to Canvas 2D",
+          error,
+        );
       }
     }
     if (typeof document === "undefined") return null;
@@ -92,13 +1226,17 @@ async function renderRelightReference(params) {
     return null;
   }
 }
+
 const RELIGHT_GENERATE_COUNT = 1;
+
 const RELIGHT_CREDIT_COST = 60;
+
 function readableError(error, serviceErrorMessage) {
   const raw2 = error instanceof Error ? error.message : String(error);
   if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) return serviceErrorMessage;
   return raw2.length > 240 ? `${raw2.slice(0, 240)}…` : raw2;
 }
+
 function loadImageDimensions(url2) {
   return new Promise((resolve) => {
     const image2 = new Image();
@@ -115,7 +1253,15 @@ function loadImageDimensions(url2) {
     image2.src = url2;
   });
 }
-function RelightEditor({ nodeId, imageUrl, imagePath, imageWidth, imageHeight, onClose }) {
+
+export function RelightEditor({
+  nodeId,
+  imageUrl,
+  imagePath,
+  imageWidth,
+  imageHeight,
+  onClose,
+}) {
   const { i18n, t: t2 } = useTranslation();
   const translate2 = reactExports.useMemo(
     () => (key2) => {
@@ -249,7 +1395,8 @@ function RelightEditor({ nodeId, imageUrl, imagePath, imageWidth, imageHeight, o
       );
       onClose();
       const result = await submission;
-      if (!result.success) throw new Error(result.error || translate2("error_generic"));
+      if (!result.success)
+        throw new Error(result.error || translate2("error_generic"));
     } catch (error) {
       dedupedToast.error(
         `${translate2("error_generic")}: ${readableError(error, translate2("error_service_failed"))}`,
@@ -269,7 +1416,11 @@ function RelightEditor({ nodeId, imageUrl, imagePath, imageWidth, imageHeight, o
     uploadFileToCdn,
   ]);
   const disabled2 =
-    isSubmitting || !state2.imageInfo?.url || !sourcePath || !submitImg2Image || !uploadFileToCdn;
+    isSubmitting ||
+    !state2.imageInfo?.url ||
+    !sourcePath ||
+    !submitImg2Image ||
+    !uploadFileToCdn;
   const totalCreditCost = RELIGHT_CREDIT_COST;
   const estimatedCostLabel = t2("canvas.billing.estimatedCost", {
     cost: totalCreditCost,
@@ -364,13 +1515,21 @@ function RelightEditor({ nodeId, imageUrl, imagePath, imageWidth, imageHeight, o
                 type="button"
                 onClick={() => void handleSubmit()}
                 disabled={disabled2}
-                aria-label={translate2(isSubmitting ? "generating_label" : "generate_button")}
-                title={translate2(isSubmitting ? "generating_label" : "generate_button")}
+                aria-label={translate2(
+                  isSubmitting ? "generating_label" : "generate_button",
+                )}
+                title={translate2(
+                  isSubmitting ? "generating_label" : "generate_button",
+                )}
                 className="flex size-8 items-center justify-center rounded-md bg-hl_text_00 text-[13px] text-hl_text_05 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 data-action-ui-id="canvas.relight.generate"
               >
                 {isSubmitting ? (
-                  <Loader2 size={14} strokeWidth={1.5} className="animate-spin" />
+                  <Loader2
+                    size={14}
+                    strokeWidth={1.5}
+                    className="animate-spin"
+                  />
                 ) : (
                   <span aria-hidden="true">↑</span>
                 )}
@@ -382,353 +1541,3 @@ function RelightEditor({ nodeId, imageUrl, imagePath, imageWidth, imageHeight, o
     </div>
   );
 }
-const RELIGHT_POPOVER_WIDTH = 658;
-const RELIGHT_POPOVER_MAX_HEIGHT = 536;
-const RELIGHT_POPOVER_MIN_HEIGHT = 360;
-const RELIGHT_POPOVER_VIEWPORT_MARGIN = 16;
-export function RelightPopover({ onClose, imageUrl, imagePath, imageWidth, imageHeight }) {
-  const { t: t2 } = useTranslation();
-  const nodeId = useNodeId() ?? "";
-  const onCloseRef = reactExports.useRef(onClose);
-  onCloseRef.current = onClose;
-  const selected2 = useStore$3(
-    reactExports.useCallback(
-      (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
-      [nodeId],
-    ),
-  );
-  const sourceScreenBottom = useStore$3((state2) => {
-    const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
-    const sourcePosition = sourceNode?.internals.positionAbsolute;
-    const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
-    if (!sourcePosition) return 0;
-    const [, viewportY, zoom2] = state2.transform;
-    return viewportY + (sourcePosition.y + sourceHeight) * zoom2;
-  });
-  const isDragging = useCanvasIsDragging();
-  const isMultiSelect = useCanvasIsMultiSelect();
-  const isBoxSelecting = useCanvasIsBoxSelecting();
-  reactExports.useEffect(() => {
-    if (!selected2) onCloseRef.current();
-  }, [selected2]);
-  const hidden = isDragging || isMultiSelect || isBoxSelecting;
-  const availableHeight =
-    window.innerHeight -
-    sourceScreenBottom -
-    NODE_POPOVER_SAFE_GAP -
-    RELIGHT_POPOVER_VIEWPORT_MARGIN;
-  const popoverHeight = Math.max(
-    RELIGHT_POPOVER_MIN_HEIGHT,
-    Math.min(RELIGHT_POPOVER_MAX_HEIGHT, availableHeight),
-  );
-  return (
-    <NodeToolbar$1
-      isVisible={true}
-      position={Position.Bottom}
-      offset={NODE_POPOVER_SAFE_GAP}
-      align="center"
-      style={{
-        zIndex: 1100,
-      }}
-    >
-      <div
-        className="nodrag nopan nowheel relative flex max-w-[calc(100vw-4rem)] flex-col overflow-hidden rounded-lg bg-background shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
-        style={{
-          width: RELIGHT_POPOVER_WIDTH,
-          height: popoverHeight,
-          display: hidden ? "none" : void 0,
-        }}
-        data-action-ui-id="canvas.relight.popover"
-        onPointerDown={(event) => event.stopPropagation()}
-        onMouseDown={(event) => event.stopPropagation()}
-        onDoubleClick={(event) => event.stopPropagation()}
-        onContextMenu={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
-          aria-label={t2("common.close", "Close")}
-          data-action-ui-id="canvas.relight.close"
-        >
-          <X$7 size={20} strokeWidth={1.5} aria-hidden="true" />
-        </button>
-        <RelightEditor
-          nodeId={nodeId}
-          imageUrl={imageUrl}
-          imagePath={imagePath}
-          imageWidth={imageWidth}
-          imageHeight={imageHeight}
-          onClose={onClose}
-        />
-      </div>
-    </NodeToolbar$1>
-  );
-}
-export function resolveImageNodeDisplayName(candidates2, fallbackLabel) {
-  const ordered = [candidates2.dataName, candidates2.primaryName, candidates2.metaName];
-  for (const candidate of ordered) {
-    if (typeof candidate !== "string") continue;
-    const trimmed = candidate.trim();
-    if (!trimmed) continue;
-    return trimmed;
-  }
-  return fallbackLabel;
-}
-const ROUND_DOTS_MIN_ZOOM = 0.3;
-export const ROUND_DOTS_POPOVER_GAP_OFFSET = 25;
-const zoomSelector$1 = (s2) => s2.transform[2];
-function RoundDotsInner({ count: count2, activeIdx, onSelect, placement = "below-center" }) {
-  const zoom2 = useStore$3(zoomSelector$1);
-  if (count2 <= 1) return null;
-  if (zoom2 < ROUND_DOTS_MIN_ZOOM) return null;
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: pointerDown/mouseDown only stopPropagation to keep ReactFlow node drag from starting; actions live on the child buttons
-    <div
-      data-action-ui-id="canvas.image-node.round-dots"
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onMouseDown={(e2) => e2.stopPropagation()}
-      className={cn$5(
-        // 绝对定位。z-30 高于 loading overlay / image body / 任何装饰层
-        // （loading 时也要可见可点）。
-        "pointer-events-auto absolute z-30",
-        placement === "top-right"
-          ? "top-2 right-2"
-          : placement === "bottom-center"
-            ? "bottom-2 left-1/2 -translate-x-1/2"
-            : "top-full left-1/2 mt-2 -translate-x-1/2",
-        "flex items-center gap-2 rounded-full",
-      )}
-    >
-      {Array.from(
-        {
-          length: count2,
-        },
-        (_2, idx) => {
-          const selected2 = idx === activeIdx;
-          return (
-            <button
-              key={idx}
-              type="button"
-              data-action-ui-id={`canvas.image-node.round-dot-${idx}`}
-              aria-label={`第 ${idx + 1} 轮`}
-              aria-pressed={selected2}
-              onPointerDown={(e2) => e2.stopPropagation()}
-              onPointerUp={(e2) => e2.stopPropagation()}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onClick={(e2) => {
-                e2.stopPropagation();
-                onSelect(idx);
-              }}
-              className="group/round-dot flex h-4 cursor-pointer items-center justify-center px-0.5"
-            >
-              <span
-                aria-hidden="true"
-                className={cn$5(
-                  "pointer-events-none block h-1.5 rounded-full transition-[width,height,background-color] duration-150",
-                  selected2
-                    ? "w-11 bg-foreground/45 group-hover/round-dot:h-2 group-hover/round-dot:bg-foreground/55"
-                    : "w-4 bg-foreground/15 group-hover/round-dot:h-2 group-hover/round-dot:bg-foreground/25",
-                )}
-              />
-            </button>
-          );
-        },
-      )}
-    </div>
-  );
-}
-export const RoundDots = reactExports.memo(RoundDotsInner);
-export const STORYBOARD_RATIOS = ["16:9", "4:3", "1:1", "3:4", "9:16"];
-export const MAX_STORYBOARD_REFERENCES = 4;
-export const MAX_STORYBOARD_PROMPT_LENGTH = 5e3;
-const GRID_VALIDITY_MAP = {
-  "1:1": new Set([
-    "1,1",
-    "1,2",
-    "2,1",
-    "2,2",
-    "2,3",
-    "2,4",
-    "3,2",
-    "3,3",
-    "3,4",
-    "3,5",
-    "4,2",
-    "4,3",
-    "4,4",
-    "4,5",
-    "5,3",
-    "5,4",
-    "5,5",
-  ]),
-  "3:4": new Set([
-    "1,1",
-    "1,2",
-    "1,3",
-    "2,2",
-    "2,3",
-    "2,4",
-    "2,5",
-    "3,2",
-    "3,3",
-    "3,4",
-    "3,5",
-    "4,3",
-    "4,4",
-    "4,5",
-    "5,3",
-    "5,4",
-    "5,5",
-  ]),
-  "4:3": new Set([
-    "1,1",
-    "2,1",
-    "2,2",
-    "2,3",
-    "3,1",
-    "3,2",
-    "3,3",
-    "3,4",
-    "3,5",
-    "4,2",
-    "4,3",
-    "4,4",
-    "4,5",
-    "5,2",
-    "5,3",
-    "5,4",
-    "5,5",
-  ]),
-  "9:16": new Set([
-    "1,1",
-    "1,2",
-    "1,3",
-    "1,4",
-    "2,2",
-    "2,3",
-    "2,4",
-    "2,5",
-    "3,3",
-    "3,4",
-    "3,5",
-    "4,4",
-    "4,5",
-    "5,4",
-    "5,5",
-  ]),
-  "16:9": new Set([
-    "1,1",
-    "2,1",
-    "2,2",
-    "3,1",
-    "3,2",
-    "3,3",
-    "4,1",
-    "4,2",
-    "4,3",
-    "4,4",
-    "4,5",
-    "5,2",
-    "5,3",
-    "5,4",
-    "5,5",
-  ]),
-};
-export function isStoryboardGridValid(ratio, rows, cols) {
-  return GRID_VALIDITY_MAP[ratio].has(`${rows},${cols}`);
-}
-export function nearestValidStoryboardGrid(ratio, preferredRows, preferredCols) {
-  if (isStoryboardGridValid(ratio, preferredRows, preferredCols)) {
-    return {
-      rows: preferredRows,
-      cols: preferredCols,
-    };
-  }
-  const candidates2 = [];
-  for (let rows = 1; rows <= 5; rows += 1) {
-    for (let cols = 1; cols <= 5; cols += 1) {
-      if (isStoryboardGridValid(ratio, rows, cols))
-        candidates2.push({
-          rows,
-          cols,
-        });
-    }
-  }
-  return (
-    candidates2.sort(
-      (a2, b3) =>
-        Math.abs(a2.rows - preferredRows) +
-        Math.abs(a2.cols - preferredCols) -
-        (Math.abs(b3.rows - preferredRows) + Math.abs(b3.cols - preferredCols)),
-    )[0] ?? {
-      rows: 3,
-      cols: 3,
-    }
-  );
-}
-export function resolveStoryboardGridSelection(params) {
-  let ratio = "16:9";
-  if (STORYBOARD_RATIOS.some((candidate) => candidate === params?.cell_ratio)) {
-    ratio = params?.cell_ratio;
-  }
-  let rows = 3;
-  let cols = 3;
-  try {
-    const parsed = JSON.parse(params?.grid_setting ?? "");
-    if (STORYBOARD_RATIOS.some((candidate) => candidate === parsed.cell_ratio)) {
-      ratio = parsed.cell_ratio;
-    }
-    if (Number.isInteger(parsed.rows)) rows = parsed.rows;
-    if (Number.isInteger(parsed.cols)) cols = parsed.cols;
-  } catch {}
-  const grid = nearestValidStoryboardGrid(ratio, rows, cols);
-  return {
-    ratio,
-    rows: grid.rows,
-    cols: grid.cols,
-  };
-}
-export const messages = {
-  en: {
-    title: "Storyboard",
-    gridLayout: "Grid layout",
-    customGrid: "Custom Grid",
-    cellRatio: "Cell Ratio",
-    references: "References",
-    referenceHint: "The current image is used as the first reference. Add up to 3 more.",
-    addReference: "Add reference",
-    removeReference: "Remove reference",
-    story: "Your story",
-    promptPlaceholder: "Describe the story to break into storyboard panels…",
-    reset: "Reset",
-    generate: "Generate",
-    generating: "Generating…",
-    pickerError: "Failed to select a reference image",
-    missingAsset: "The selected image is unavailable",
-    generateError: "Failed to generate storyboard",
-    invalidLayout: "This layout is unavailable at the selected ratio",
-  },
-  zh: {
-    title: "故事版",
-    gridLayout: "分镜布局",
-    customGrid: "自定义表格",
-    cellRatio: "单格比例",
-    references: "参考图",
-    referenceHint: "当前图片会作为第一张参考图，最多还能添加 3 张。",
-    addReference: "添加参考图",
-    removeReference: "移除参考图",
-    story: "你的故事",
-    promptPlaceholder: "描述要拆解成分镜的故事…",
-    reset: "重置",
-    generate: "生成",
-    generating: "生成中…",
-    pickerError: "选择参考图失败",
-    missingAsset: "所选图片不可用",
-    generateError: "多宫格生成失败",
-    invalidLayout: "此比例下无法使用此布局",
-  },
-};

@@ -1,20 +1,47 @@
 // use-attachment-state.js
-import { useTranslation, reactExports, useAssetMetadataApi, useAssetMetadataStore, dedupedToast, MEDIA_LINEAGE_MAX_REFERENCES } from "../vendor.js";
-import { useCanvasBridge, useCanvasActions, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "../media-editing/parse-item.jsx";
 import {
-  SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
-  SEEDANCE_REFERENCE_AUDIO_MAX_SEC,
-} from "../text-editor/myers-line-hunks.js";
+  dedupedToast,
+  MEDIA_LINEAGE_MAX_REFERENCES,
+  reactExports,
+  useAssetMetadataApi,
+  useAssetMetadataStore,
+  useTranslation,
+} from "../vendor.js";
 import {
-  parseCanvasReference,
-  isCanvasReferenceUri,
+  useCanvasBridge,
+  useCanvasIsBoxSelecting,
+  useCanvasIsDragging,
+  useCanvasIsMultiSelect,
+} from "../media-editing/package.jsx";
+import {
   canvasReferenceIdentity,
+  isCanvasReferenceUri,
   isCanvasSubjectReference,
-  restoreCanvasReferencePaths,
+  parseCanvasReference,
 } from "../text-editor/table-document-to-llm-content.js";
-import { canAnnotateCanvasImage } from "../media-editing/audio-preview-player.jsx";
-import { mergeDirectReferenceMetadata } from "../chat/rich-prompt-input.jsx";
-import { getImageConstraintReason } from "../generation/use-direct-reference-picker.jsx";
+import { mergeDirectReferenceMetadata } from "../chat/merge-direct-reference-metadata.js";
+import {
+  AUDIO_TOTAL_MAX_SEC,
+  extensionOf,
+  findMetaByPath,
+  FIRST_LAST_FRAME_SLOT_COUNT,
+  haveSameNonEmptyPathCounts,
+  normalizeAttachmentSelection,
+  normalizeFirstLastFramePaths,
+  reconcileDefaultPaths,
+  reconcileFirstLastFrameDefaultPaths,
+  selectNewAttachments,
+  VIDEO_TOTAL_MAX_SEC,
+} from "./reconcile-first-last-frame-default-paths.js";
+import {
+  SEEDANCE_REFERENCE_AUDIO_MAX_SEC,
+  SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
+} from "../text-editor/build-asr-gateway-request.js";
+import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
+import { restoreCanvasReferencePaths } from "../text-editor/restore-canvas-reference-paths.js";
+import { canAnnotateCanvasImage } from "../media-editing/append-width.js";
+import { getImageConstraintReason } from "../generation/attachment-bar.jsx";
+
 function useAssetsRefMetadata(paths, assets) {
   const { directReferences } = useCanvasBridge();
   const pathKey = JSON.stringify(
@@ -34,12 +61,15 @@ function useAssetsRefMetadata(paths, assets) {
         results.map((row) => [canvasReferenceIdentity(row.reference), row]),
       );
       const previous2 =
-        latest2.current.bridge === directReferences ? latest2.current.rows : new Map();
+        latest2.current.bridge === directReferences
+          ? latest2.current.rows
+          : new Map();
       const rows = new Map();
       const authoredPaths = JSON.parse(pathKey);
       for (const path2 of authoredPaths) {
         const reference = parseCanvasReference(path2);
-        const row = reference && byIdentity.get(canvasReferenceIdentity(reference));
+        const row =
+          reference && byIdentity.get(canvasReferenceIdentity(reference));
         if (!row) {
           const prior = previous2.get(path2);
           if (prior) rows.set(path2, prior);
@@ -76,7 +106,8 @@ function useAssetsRefMetadata(paths, assets) {
           if (cancelled || current2 !== revision.current) return;
           rows.push(...results);
         }
-        if (!cancelled && current2 === revision.current) updateReferenceMetadata(rows);
+        if (!cancelled && current2 === revision.current)
+          updateReferenceMetadata(rows);
       } catch {}
     };
     void refresh();
@@ -106,11 +137,13 @@ function useAssetsRefMetadata(paths, assets) {
     ),
   };
 }
+
 function useImageAnnotationRequest() {
   const { openImageAnnotation } = useCanvasBridge();
   const active2 = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (active2.current && !active2.current.isValid()) active2.current.controller.abort();
+    if (active2.current && !active2.current.isValid())
+      active2.current.controller.abort();
   });
   reactExports.useEffect(() => () => active2.current?.controller.abort(), []);
   const open = reactExports.useCallback(
@@ -139,143 +172,61 @@ function useImageAnnotationRequest() {
     open,
   };
 }
+
 const ATTACHMENT_KINDS = ["image", "video", "audio", "text", "file"];
+
 const FILE_SLOT_PICK_KINDS = ["file", "text"];
-function extensionOf(path2) {
-  const name2 = path2.split("/").pop() ?? path2;
-  const dot2 = name2.lastIndexOf(".");
-  return dot2 < 0 ? "" : name2.slice(dot2).toLowerCase();
-}
+
 function matchesFileExtensions(path2, extensions2) {
   if (!extensions2 || extensions2.length === 0) return true;
   const ext = extensionOf(path2);
-  return extensions2.some((candidate) => candidate.trim().toLowerCase() === ext);
+  return extensions2.some(
+    (candidate) => candidate.trim().toLowerCase() === ext,
+  );
 }
+
 const IMAGE_ASPECT_REJECTED_TOAST_ID = "canvas-image-aspect-rejected";
-function normalizeAttachmentSelection(input) {
-  return typeof input === "string"
-    ? {
-        path: input,
-      }
-    : input;
-}
+
 function devLogAttachment(event, payload) {
   return;
 }
+
 const AUDIO_PER_CLIP_MIN_SEC = SEEDANCE_REFERENCE_AUDIO_MIN_SEC;
+
 const AUDIO_PER_CLIP_MAX_SEC = SEEDANCE_REFERENCE_AUDIO_MAX_SEC;
-export const AUDIO_TOTAL_MAX_SEC = SEEDANCE_REFERENCE_AUDIO_MAX_SEC;
-export const VIDEO_TOTAL_MAX_SEC = 15.2;
-function reconcileDefaultPaths(prev, defaults2, removed) {
-  if (defaults2.length === 0) return prev;
-  const seen2 = new Set(prev);
-  let next2 = null;
-  for (const p3 of defaults2) {
-    if (!p3 || seen2.has(p3) || removed.has(p3)) continue;
-    seen2.add(p3);
-    if (next2 === null) next2 = [...prev];
-    next2.push(p3);
-  }
-  return next2 ?? prev;
-}
-const FIRST_LAST_FRAME_SLOT_COUNT = 2;
-function normalizeFirstLastFramePaths(paths) {
-  const next2 = Array.from(
-    {
-      length: FIRST_LAST_FRAME_SLOT_COUNT,
-    },
-    (_2, index2) => paths[index2] ?? "",
-  );
-  while (next2.length > 0 && !next2[next2.length - 1]) next2.pop();
-  return next2;
-}
-function reconcileFirstLastFrameDefaultPaths(prev, defaults2, removed) {
-  const normalizedPrev = normalizeFirstLastFramePaths(prev);
-  const normalizedDefaults = normalizeFirstLastFramePaths(defaults2);
-  const hasPositionalGap = normalizedDefaults.some(
-    (path2, index2) => !path2 && normalizedDefaults.slice(index2 + 1).some(Boolean),
-  );
-  const filledPrev = normalizedPrev.filter(Boolean);
-  const filledDefaults = normalizedDefaults.filter(Boolean);
-  const sameFilledPaths =
-    filledPrev.length === filledDefaults.length &&
-    filledPrev.every((path2) => filledDefaults.includes(path2));
-  if (hasPositionalGap && sameFilledPaths && !filledDefaults.some((path2) => removed.has(path2))) {
-    const alreadyPositioned = normalizedPrev.every(
-      (path2, index2) => path2 === normalizedDefaults[index2],
-    );
-    if (!alreadyPositioned) return normalizedDefaults;
-  }
-  const next2 = [...normalizedPrev];
-  const seen2 = new Set(next2.filter(Boolean));
-  let changed =
-    normalizedPrev.length !== prev.length ||
-    normalizedPrev.some((path2, index2) => path2 !== prev[index2]);
-  for (let defaultIndex = 0; defaultIndex < FIRST_LAST_FRAME_SLOT_COUNT; defaultIndex++) {
-    const path2 = normalizedDefaults[defaultIndex];
-    if (!path2 || seen2.has(path2) || removed.has(path2)) continue;
-    const preferredSlotVacant = !next2[defaultIndex];
-    const vacantSlot = preferredSlotVacant
-      ? defaultIndex
-      : Array.from({
-          length: FIRST_LAST_FRAME_SLOT_COUNT,
-        }).findIndex((_2, index2) => !next2[index2]);
-    if (vacantSlot < 0) break;
-    while (next2.length <= vacantSlot) next2.push("");
-    next2[vacantSlot] = path2;
-    seen2.add(path2);
-    changed = true;
-  }
-  return changed ? normalizeFirstLastFramePaths(next2) : prev;
-}
-function haveSameNonEmptyPathCounts(left, right) {
-  const leftPaths = left.filter(Boolean);
-  const rightPaths = right.filter(Boolean);
-  if (leftPaths.length !== rightPaths.length) return false;
-  const counts = new Map();
-  for (const path2 of leftPaths) counts.set(path2, (counts.get(path2) ?? 0) + 1);
-  for (const path2 of rightPaths) {
-    const remaining = counts.get(path2) ?? 0;
-    if (remaining <= 1) counts.delete(path2);
-    else counts.set(path2, remaining - 1);
-  }
-  return counts.size === 0;
-}
-function reconcileImageModeTransitionPaths(prev, defaults2, removed, isFirstLastFrame, options) {
+
+function reconcileImageModeTransitionPaths(
+  prev,
+  defaults2,
+  removed,
+  isFirstLastFrame,
+  options,
+) {
   const filledDefaults = defaults2.filter(Boolean);
   const canRestoreDefaultOrder =
     haveSameNonEmptyPathCounts(prev, defaults2) &&
     !filledDefaults.some((path2) => removed.has(path2));
   if (options?.preserveUserSlots && canRestoreDefaultOrder) {
-    return isFirstLastFrame ? normalizeFirstLastFramePaths(prev) : [...prev.filter(Boolean)];
+    return isFirstLastFrame
+      ? normalizeFirstLastFramePaths(prev)
+      : [...prev.filter(Boolean)];
   }
   if (canRestoreDefaultOrder) {
-    return isFirstLastFrame ? normalizeFirstLastFramePaths(defaults2) : [...filledDefaults];
+    return isFirstLastFrame
+      ? normalizeFirstLastFramePaths(defaults2)
+      : [...filledDefaults];
   }
   return isFirstLastFrame
     ? reconcileFirstLastFrameDefaultPaths(prev, defaults2, removed)
     : reconcileDefaultPaths(prev, defaults2, removed);
 }
+
 function selectNewAttachmentPaths(currentPaths, incomingPaths, max2, count2) {
-  return selectNewAttachments(currentPaths, incomingPaths, max2, count2).map((item) => item.path);
+  return selectNewAttachments(currentPaths, incomingPaths, max2, count2).map(
+    (item) => item.path,
+  );
 }
-function selectNewAttachments(currentPaths, incoming, max2, count2 = () => 1) {
-  const seen2 = new Set(currentPaths.filter(Boolean));
-  let remaining = Math.max(0, max2 - [...seen2].reduce((total, path2) => total + count2(path2), 0));
-  if (remaining === 0) return [];
-  const selected2 = [];
-  for (const input of incoming) {
-    const item = normalizeAttachmentSelection(input);
-    if (!item.path || seen2.has(item.path)) continue;
-    const slots = count2(item.path);
-    if (slots <= 0 || slots > remaining) continue;
-    seen2.add(item.path);
-    selected2.push(item);
-    remaining -= slots;
-    if (remaining === 0) break;
-  }
-  return selected2;
-}
+
 function admitAttachmentSelections(currentPaths, incoming, max2, count2) {
   const admitted = selectNewAttachments(currentPaths, incoming, max2, count2);
   if (admitted.length === 0)
@@ -284,10 +235,14 @@ function admitAttachmentSelections(currentPaths, incoming, max2, count2) {
       admitted,
     };
   return {
-    paths: [...currentPaths.filter(Boolean), ...admitted.map((item) => item.path)],
+    paths: [
+      ...currentPaths.filter(Boolean),
+      ...admitted.map((item) => item.path),
+    ],
     admitted,
   };
 }
+
 function boundVideoAudioReferencePaths(
   videoPaths,
   audioPaths,
@@ -298,7 +253,9 @@ function boundVideoAudioReferencePaths(
 ) {
   const bound = (paths, max2, kind) =>
     count2 && paths.some(isCanvasSubjectReference)
-      ? selectNewAttachmentPaths([], paths, max2, (path2) => count2(path2, kind))
+      ? selectNewAttachmentPaths([], paths, max2, (path2) =>
+          count2(path2, kind),
+        )
       : paths.filter(Boolean).slice(0, max2);
   const boundedVideos = bound(videoPaths, maxVideoRefs, "video");
   const boundedAudios = bound(audioPaths, maxAudioRefs, "audio");
@@ -315,9 +272,14 @@ function boundVideoAudioReferencePaths(
   );
   return {
     videoPaths: selectedVideos,
-    audioPaths: bound(boundedAudios, Math.max(0, sharedCap - usedVideo), "audio"),
+    audioPaths: bound(
+      boundedAudios,
+      Math.max(0, sharedCap - usedVideo),
+      "audio",
+    ),
   };
 }
+
 function resolveAttachmentSourceNodeId(selection2, ensureById, ensureByPath) {
   if (selection2.sourceNodeId) {
     const exact = ensureById(selection2.sourceNodeId);
@@ -325,7 +287,7 @@ function resolveAttachmentSourceNodeId(selection2, ensureById, ensureByPath) {
   }
   return ensureByPath(selection2.path);
 }
-export const DEFAULT_TEXT_REFERENCE_MAX = 5;
+
 function pathToDisplayItem(
   path2,
   kind,
@@ -367,12 +329,7 @@ function pathToDisplayItem(
     badgeLabel,
   };
 }
-function findMetaByPath(path2, assets, kind) {
-  for (const meta2 of assets.values()) {
-    if (meta2.path === path2 && (!kind || meta2.type === kind)) return meta2;
-  }
-  return void 0;
-}
+
 export function useAttachmentState(opts) {
   const { t: t2 } = useTranslation();
   const {
@@ -422,11 +379,21 @@ export function useAttachmentState(opts) {
   const isTextToVideo = imageMode === "text-to-video";
   const isVideoExtension = imageMode === "video-extension";
   const editableText = (maxTextRefs ?? 0) > 0;
-  const [imagePaths, setImagePaths] = reactExports.useState(defaultImagePaths ?? []);
-  const [videoPaths, setVideoPaths] = reactExports.useState(defaultVideoPaths ?? []);
-  const [audioPaths, setAudioPaths] = reactExports.useState(defaultAudioPaths ?? []);
-  const [textPaths, setTextPaths] = reactExports.useState(defaultTextPaths ?? []);
-  const [filePaths, setFilePaths] = reactExports.useState(defaultFilePaths ?? []);
+  const [imagePaths, setImagePaths] = reactExports.useState(
+    defaultImagePaths ?? [],
+  );
+  const [videoPaths, setVideoPaths] = reactExports.useState(
+    defaultVideoPaths ?? [],
+  );
+  const [audioPaths, setAudioPaths] = reactExports.useState(
+    defaultAudioPaths ?? [],
+  );
+  const [textPaths, setTextPaths] = reactExports.useState(
+    defaultTextPaths ?? [],
+  );
+  const [filePaths, setFilePaths] = reactExports.useState(
+    defaultFilePaths ?? [],
+  );
   const pathsByKindRef = reactExports.useRef({
     image: defaultImagePaths ?? [],
     video: defaultVideoPaths ?? [],
@@ -464,30 +431,45 @@ export function useAttachmentState(opts) {
       const original = current2[kind];
       if (kind === "file") return original;
       const subjects = [
-        ...new Set(Object.values(current2).flat().filter(isCanvasSubjectReference)),
+        ...new Set(
+          Object.values(current2).flat().filter(isCanvasSubjectReference),
+        ),
       ];
       if (!subjects.length) return original;
-      const matching = subjects.filter((path2) => subjectKinds(path2)?.includes(kind));
+      const matching = subjects.filter((path2) =>
+        subjectKinds(path2)?.includes(kind),
+      );
       return [
-        ...original.filter((path2) => !isCanvasSubjectReference(path2) || matching.includes(path2)),
+        ...original.filter(
+          (path2) =>
+            !isCanvasSubjectReference(path2) || matching.includes(path2),
+        ),
         ...matching.filter((path2) => !original.includes(path2)),
       ];
     },
     [subjectKinds],
   );
   const referenceCount = reactExports.useCallback(
-    (path2, kind) => subjectKinds(path2)?.filter((value) => value === kind).length ?? 1,
+    (path2, kind) =>
+      subjectKinds(path2)?.filter((value) => value === kind).length ?? 1,
     [subjectKinds],
   );
   const usedSlots = reactExports.useCallback(
     (paths, kind) =>
-      paths.filter(Boolean).reduce((total, path2) => total + referenceCount(path2, kind), 0),
+      paths
+        .filter(Boolean)
+        .reduce((total, path2) => total + referenceCount(path2, kind), 0),
     [referenceCount],
   );
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const { pickAsset, ensureMediaNodeForPath, onMediaLineage, uploadAttachment } = useCanvasBridge();
+  const {
+    pickAsset,
+    ensureMediaNodeForPath,
+    onMediaLineage,
+    uploadAttachment,
+  } = useCanvasBridge();
   const imageAnnotation = useImageAnnotationRequest();
   const {
     getNodeIdByPath,
@@ -508,9 +490,12 @@ export function useAttachmentState(opts) {
   }, []);
   reactExports.useEffect(() => {
     if (!isFirstLastFrame) return;
-    const subjects = [...imagePaths, ...videoPaths, ...audioPaths, ...textPaths].filter(
-      isCanvasSubjectReference,
-    );
+    const subjects = [
+      ...imagePaths,
+      ...videoPaths,
+      ...audioPaths,
+      ...textPaths,
+    ].filter(isCanvasSubjectReference);
     if (!subjects.length) return;
     for (const path2 of subjects) removedPathsRef.current.add(path2);
     for (const kind of ATTACHMENT_KINDS) {
@@ -520,7 +505,14 @@ export function useAttachmentState(opts) {
           : paths,
       );
     }
-  }, [isFirstLastFrame, imagePaths, videoPaths, audioPaths, textPaths, updatePathsForKind]);
+  }, [
+    isFirstLastFrame,
+    imagePaths,
+    videoPaths,
+    audioPaths,
+    textPaths,
+    updatePathsForKind,
+  ]);
   reactExports.useEffect(() => {
     const imageModeChanged = previousImageModeRef.current !== imageMode;
     previousImageModeRef.current = imageMode;
@@ -542,35 +534,55 @@ export function useAttachmentState(opts) {
                 defaultImagePaths,
                 removedPathsRef.current,
               )
-            : reconcileDefaultPaths(currentPaths, defaultImagePaths, removedPathsRef.current),
+            : reconcileDefaultPaths(
+                currentPaths,
+                defaultImagePaths,
+                removedPathsRef.current,
+              ),
       );
     }
   }, [defaultImagePaths, imageMode, isFirstLastFrame, updatePathsForKind]);
   reactExports.useEffect(() => {
     if (defaultVideoPaths) {
       updatePathsForKind("video", (currentPaths) =>
-        reconcileDefaultPaths(currentPaths, defaultVideoPaths, removedPathsRef.current),
+        reconcileDefaultPaths(
+          currentPaths,
+          defaultVideoPaths,
+          removedPathsRef.current,
+        ),
       );
     }
   }, [defaultVideoPaths, updatePathsForKind]);
   reactExports.useEffect(() => {
     if (defaultAudioPaths) {
       updatePathsForKind("audio", (currentPaths) =>
-        reconcileDefaultPaths(currentPaths, defaultAudioPaths, removedPathsRef.current),
+        reconcileDefaultPaths(
+          currentPaths,
+          defaultAudioPaths,
+          removedPathsRef.current,
+        ),
       );
     }
   }, [defaultAudioPaths, updatePathsForKind]);
   reactExports.useEffect(() => {
     if (editableText && defaultTextPaths) {
       updatePathsForKind("text", (currentPaths) =>
-        reconcileDefaultPaths(currentPaths, defaultTextPaths, removedPathsRef.current),
+        reconcileDefaultPaths(
+          currentPaths,
+          defaultTextPaths,
+          removedPathsRef.current,
+        ),
       );
     }
   }, [editableText, defaultTextPaths, updatePathsForKind]);
   reactExports.useEffect(() => {
     if (defaultFilePaths) {
       updatePathsForKind("file", (currentPaths) =>
-        reconcileDefaultPaths(currentPaths, defaultFilePaths, removedPathsRef.current),
+        reconcileDefaultPaths(
+          currentPaths,
+          defaultFilePaths,
+          removedPathsRef.current,
+        ),
       );
     }
   }, [defaultFilePaths, updatePathsForKind]);
@@ -591,14 +603,23 @@ export function useAttachmentState(opts) {
   const effectiveMaxAudio =
     isTextToVideo || isFirstLastFrame || isVideoExtension ? 0 : maxAudioRefs;
   const effectiveMaxVideoAudio =
-    isTextToVideo || isFirstLastFrame || isVideoExtension ? void 0 : maxVideoAudioRefs;
-  const effectiveMaxText = !isTextToVideo && editableText ? (maxTextRefs ?? 0) : 0;
+    isTextToVideo || isFirstLastFrame || isVideoExtension
+      ? void 0
+      : maxVideoAudioRefs;
+  const effectiveMaxText =
+    !isTextToVideo && editableText ? (maxTextRefs ?? 0) : 0;
   const effectiveMaxFile =
-    isTextToVideo || isFirstLastFrame || isVideoExtension ? 0 : (maxFileRefs ?? 0);
-  const effectiveAudioPerClipMinSec = audioPerClipMinSec ?? AUDIO_PER_CLIP_MIN_SEC;
-  const effectiveAudioPerClipMaxSec = audioPerClipMaxSec ?? AUDIO_PER_CLIP_MAX_SEC;
-  const effectiveAudioTotalMaxSec = audioTotalMaxSec ?? audioPerClipMaxSec ?? AUDIO_TOTAL_MAX_SEC;
-  const effectiveVideoTotalMaxSec = videoTotalMaxSec ?? videoPerClipMaxSec ?? VIDEO_TOTAL_MAX_SEC;
+    isTextToVideo || isFirstLastFrame || isVideoExtension
+      ? 0
+      : (maxFileRefs ?? 0);
+  const effectiveAudioPerClipMinSec =
+    audioPerClipMinSec ?? AUDIO_PER_CLIP_MIN_SEC;
+  const effectiveAudioPerClipMaxSec =
+    audioPerClipMaxSec ?? AUDIO_PER_CLIP_MAX_SEC;
+  const effectiveAudioTotalMaxSec =
+    audioTotalMaxSec ?? audioPerClipMaxSec ?? AUDIO_TOTAL_MAX_SEC;
+  const effectiveVideoTotalMaxSec =
+    videoTotalMaxSec ?? videoPerClipMaxSec ?? VIDEO_TOTAL_MAX_SEC;
   const projectedImagePaths = reactExports.useMemo(
     () =>
       pathsForKind("image", {
@@ -621,22 +642,29 @@ export function useAttachmentState(opts) {
     return rejected;
   }, [assetMetadataAssets, imageInputLimits, projectedImagePaths]);
   const constrainedImagePaths = reactExports.useMemo(
-    () => projectedImagePaths.map((path2) => (rejectedImages.has(path2) ? "" : path2)),
+    () =>
+      projectedImagePaths.map((path2) =>
+        rejectedImages.has(path2) ? "" : path2,
+      ),
     [projectedImagePaths, rejectedImages],
   );
   const filledImages = isFirstLastFrame
     ? normalizeFirstLastFramePaths(constrainedImagePaths)
-    : selectNewAttachmentPaths([], constrainedImagePaths, effectiveMaxImage, (path2) =>
-        referenceCount(path2, "image"),
+    : selectNewAttachmentPaths(
+        [],
+        constrainedImagePaths,
+        effectiveMaxImage,
+        (path2) => referenceCount(path2, "image"),
       );
-  const { videoPaths: filledVideos, audioPaths: filledAudios } = boundVideoAudioReferencePaths(
-    pathsForKind("video"),
-    pathsForKind("audio"),
-    effectiveMaxVideo,
-    effectiveMaxAudio,
-    effectiveMaxVideoAudio,
-    referenceCount,
-  );
+  const { videoPaths: filledVideos, audioPaths: filledAudios } =
+    boundVideoAudioReferencePaths(
+      pathsForKind("video"),
+      pathsForKind("audio"),
+      effectiveMaxVideo,
+      effectiveMaxAudio,
+      effectiveMaxVideoAudio,
+      referenceCount,
+    );
   const filledTexts = selectNewAttachmentPaths(
     [],
     pathsForKind("text"),
@@ -655,7 +683,12 @@ export function useAttachmentState(opts) {
   const remainingVideoAudio =
     effectiveMaxVideoAudio === void 0
       ? Number.POSITIVE_INFINITY
-      : Math.max(0, effectiveMaxVideoAudio - referenceCounts.video - referenceCounts.audio);
+      : Math.max(
+          0,
+          effectiveMaxVideoAudio -
+            referenceCounts.video -
+            referenceCounts.audio,
+        );
   const remainingVideo = Math.min(
     Math.max(0, effectiveMaxVideo - referenceCounts.video),
     remainingVideoAudio,
@@ -667,7 +700,12 @@ export function useAttachmentState(opts) {
   const remainingText = Math.max(0, effectiveMaxText - referenceCounts.text);
   const remainingFile = Math.max(0, effectiveMaxFile - filledFiles.length);
   const showAddButton =
-    remainingImage + remainingVideo + remainingAudio + remainingText + remainingFile > 0;
+    remainingImage +
+      remainingVideo +
+      remainingAudio +
+      remainingText +
+      remainingFile >
+    0;
   const pickerKindFilter = reactExports.useMemo(() => {
     const kinds = [];
     if (remainingImage > 0) kinds.push("image");
@@ -680,7 +718,13 @@ export function useAttachmentState(opts) {
       }
     }
     return kinds;
-  }, [remainingImage, remainingVideo, remainingAudio, remainingText, remainingFile]);
+  }, [
+    remainingImage,
+    remainingVideo,
+    remainingAudio,
+    remainingText,
+    remainingFile,
+  ]);
   const allowedKindsForAtPicker = reactExports.useMemo(
     () => pickerKindFilter.filter((kind) => kind !== "file"),
     [pickerKindFilter],
@@ -692,7 +736,12 @@ export function useAttachmentState(opts) {
     if (effectiveMaxAudio > 0) kinds.push("audio");
     if (effectiveMaxText > 0) kinds.push("text");
     return kinds;
-  }, [effectiveMaxImage, effectiveMaxVideo, effectiveMaxAudio, effectiveMaxText]);
+  }, [
+    effectiveMaxImage,
+    effectiveMaxVideo,
+    effectiveMaxAudio,
+    effectiveMaxText,
+  ]);
   const usedAudioSec = reactExports.useMemo(() => {
     let total = 0;
     for (const p3 of filledAudios) {
@@ -755,8 +804,14 @@ export function useAttachmentState(opts) {
             videoMaxFps,
           }
         : {}),
-      remainingAudioTotalSec: Math.max(0, effectiveAudioTotalMaxSec - usedAudioSec),
-      remainingVideoTotalSec: Math.max(0, effectiveVideoTotalMaxSec - usedVideoSec),
+      remainingAudioTotalSec: Math.max(
+        0,
+        effectiveAudioTotalMaxSec - usedAudioSec,
+      ),
+      remainingVideoTotalSec: Math.max(
+        0,
+        effectiveVideoTotalMaxSec - usedVideoSec,
+      ),
     }),
     [
       remainingImage,
@@ -801,9 +856,21 @@ export function useAttachmentState(opts) {
     }
     for (let i2 = 0; i2 < filledImages.length; i2++) {
       if (!filledImages[i2]) continue;
-      const badge = isFirstLastFrame ? (i2 === 0 ? "first" : i2 === 1 ? "last" : void 0) : void 0;
+      const badge = isFirstLastFrame
+        ? i2 === 0
+          ? "first"
+          : i2 === 1
+            ? "last"
+            : void 0
+        : void 0;
       pushOnce(
-        pathToDisplayItem(filledImages[i2], "image", assetMetadataAssets, resolveFileUrl, badge),
+        pathToDisplayItem(
+          filledImages[i2],
+          "image",
+          assetMetadataAssets,
+          resolveFileUrl,
+          badge,
+        ),
       );
     }
     if (!isFirstLastFrame) {
@@ -856,9 +923,13 @@ export function useAttachmentState(opts) {
   ]);
   const existingAttachments = reactExports.useMemo(() => {
     const allPaths = new Set(
-      [...filledImages, ...filledVideos, ...filledAudios, ...filledTexts, ...filledFiles].filter(
-        Boolean,
-      ),
+      [
+        ...filledImages,
+        ...filledVideos,
+        ...filledAudios,
+        ...filledTexts,
+        ...filledFiles,
+      ].filter(Boolean),
     );
     if (allPaths.size === 0) return [];
     const list2 = [];
@@ -873,7 +944,14 @@ export function useAttachmentState(opts) {
       }
     });
     return list2;
-  }, [assetMetadataStore, filledImages, filledVideos, filledAudios, filledTexts, filledFiles]);
+  }, [
+    assetMetadataStore,
+    filledImages,
+    filledVideos,
+    filledAudios,
+    filledTexts,
+    filledFiles,
+  ]);
   const wireEdge = reactExports.useCallback(
     ({ path: path2, sourceNodeId }, kind) => {
       if (!hostNodeId || isCanvasReferenceUri(path2)) return;
@@ -902,7 +980,8 @@ export function useAttachmentState(opts) {
       }
       if (ensureMediaNodeForPath) {
         ensureMediaNodeForPath(path2).then((res) => {
-          if (!res?.nodeId || !pathsByKindRef.current[kind].includes(path2)) return;
+          if (!res?.nodeId || !pathsByKindRef.current[kind].includes(path2))
+            return;
           sourceNodeIdByPathRef.current.set(path2, res.nodeId);
           ensureDerivationEdge(res.nodeId, hostNodeId);
           if (kind === "image") {
@@ -939,7 +1018,12 @@ export function useAttachmentState(opts) {
         sourceNodeIdByPathRef.current.delete(path2);
       }
     },
-    [hostNodeId, getIncomingSourceNodeIdByPath, getNodeIdByPath, removeDerivationEdge],
+    [
+      hostNodeId,
+      getIncomingSourceNodeIdByPath,
+      getNodeIdByPath,
+      removeDerivationEdge,
+    ],
   );
   const interactionInFlight = isDragging || isMultiSelect || isBoxSelecting;
   reactExports.useEffect(() => {
@@ -974,7 +1058,9 @@ export function useAttachmentState(opts) {
       unwireEdge(path2);
     }
     updatePathsForKind("image", (currentPaths) => {
-      const acceptedPaths = currentPaths.map((path2) => (rejectedImages.has(path2) ? "" : path2));
+      const acceptedPaths = currentPaths.map((path2) =>
+        rejectedImages.has(path2) ? "" : path2,
+      );
       return isFirstLastFrame
         ? normalizeFirstLastFramePaths(acceptedPaths)
         : acceptedPaths.filter(Boolean);
@@ -1027,8 +1113,12 @@ export function useAttachmentState(opts) {
     (paths, kind) => {
       const selections = paths
         .map(normalizeAttachmentSelection)
-        .filter((item) => !isFirstLastFrame || !isCanvasSubjectReference(item.path));
-      const subjects = selections.filter((selection2) => isCanvasSubjectReference(selection2.path));
+        .filter(
+          (item) => !isFirstLastFrame || !isCanvasSubjectReference(item.path),
+        );
+      const subjects = selections.filter((selection2) =>
+        isCanvasSubjectReference(selection2.path),
+      );
       const admittedSubjects = [];
       if (subjects.length) {
         const limits = {
@@ -1040,7 +1130,9 @@ export function useAttachmentState(opts) {
         };
         for (const subject of subjects) {
           const kinds = ATTACHMENT_KINDS.filter(
-            (targetKind) => limits[targetKind] > 0 && referenceCount(subject.path, targetKind) > 0,
+            (targetKind) =>
+              limits[targetKind] > 0 &&
+              referenceCount(subject.path, targetKind) > 0,
           );
           const admissions = kinds.map((targetKind) => ({
             kind: targetKind,
@@ -1051,7 +1143,10 @@ export function useAttachmentState(opts) {
               (path2) => referenceCount(path2, targetKind),
             ),
           }));
-          if (!admissions.length || admissions.some((entry) => !entry.paths.includes(subject.path)))
+          if (
+            !admissions.length ||
+            admissions.some((entry) => !entry.paths.includes(subject.path))
+          )
             continue;
           const mediaCount = (targetKind) =>
             usedSlots(
@@ -1065,7 +1160,8 @@ export function useAttachmentState(opts) {
           )
             continue;
           removedPathsRef.current.delete(subject.path);
-          for (const entry of admissions) updatePathsForKind(entry.kind, () => entry.paths);
+          for (const entry of admissions)
+            updatePathsForKind(entry.kind, () => entry.paths);
           admittedSubjects.push(subject.path);
         }
       }
@@ -1079,19 +1175,24 @@ export function useAttachmentState(opts) {
               : kind === "file"
                 ? effectiveMaxFile
                 : effectiveMaxAudio;
-      const sharedMax = kind === "video" || kind === "audio" ? effectiveMaxVideoAudio : void 0;
+      const sharedMax =
+        kind === "video" || kind === "audio" ? effectiveMaxVideoAudio : void 0;
       const sharedUsed =
-        usedSlots(pathsForKind("video"), "video") + usedSlots(pathsForKind("audio"), "audio");
+        usedSlots(pathsForKind("video"), "video") +
+        usedSlots(pathsForKind("audio"), "audio");
       const maxForKind =
         sharedMax === void 0
           ? max2
           : Math.min(
               max2,
-              usedSlots(pathsForKind(kind), kind) + Math.max(0, sharedMax - sharedUsed),
+              usedSlots(pathsForKind(kind), kind) +
+                Math.max(0, sharedMax - sharedUsed),
             );
       const admission = admitAttachmentSelections(
         pathsForKind(kind),
-        selections.filter((selection2) => !isCanvasSubjectReference(selection2.path)),
+        selections.filter(
+          (selection2) => !isCanvasSubjectReference(selection2.path),
+        ),
         maxForKind,
         (path2) => referenceCount(path2, kind),
       );
@@ -1099,7 +1200,9 @@ export function useAttachmentState(opts) {
       const nextPaths =
         kind === "image" && isFirstLastFrame
           ? (() => {
-              const next2 = normalizeFirstLastFramePaths(pathsByKindRef.current.image);
+              const next2 = normalizeFirstLastFramePaths(
+                pathsByKindRef.current.image,
+              );
               for (const { path: path2 } of admission.admitted) {
                 const vacantSlot = Array.from({
                   length: FIRST_LAST_FRAME_SLOT_COUNT,
@@ -1111,7 +1214,8 @@ export function useAttachmentState(opts) {
               return normalizeFirstLastFramePaths(next2);
             })()
           : admission.paths;
-      for (const { path: path2 } of admission.admitted) removedPathsRef.current.delete(path2);
+      for (const { path: path2 } of admission.admitted)
+        removedPathsRef.current.delete(path2);
       if (kind === "image" && admission.admitted.length > 0) {
         userEditedImagePathsRef.current = true;
       }
@@ -1124,7 +1228,10 @@ export function useAttachmentState(opts) {
       }
       for (const selection2 of admission.admitted) wireEdge(selection2, kind);
       if (kind === "image") logImageReferences("reference.selected", nextPaths);
-      return [...admittedSubjects, ...admission.admitted.map(({ path: path2 }) => path2)];
+      return [
+        ...admittedSubjects,
+        ...admission.admitted.map(({ path: path2 }) => path2),
+      ];
     },
     [
       pathsForKind,
@@ -1182,27 +1289,47 @@ export function useAttachmentState(opts) {
   const removePath = reactExports.useCallback(
     (path2, opts2) => {
       if (pathsByKindRef.current.image.includes(path2))
-        logImageReferences("reference.before-remove", pathsByKindRef.current.image);
+        logImageReferences(
+          "reference.before-remove",
+          pathsByKindRef.current.image,
+        );
       removedPathsRef.current.add(path2);
-      if (pathsByKindRef.current.image.includes(path2)) userEditedImagePathsRef.current = true;
+      if (pathsByKindRef.current.image.includes(path2))
+        userEditedImagePathsRef.current = true;
       updatePathsForKind("image", (currentPaths) =>
         isFirstLastFrame
-          ? normalizeFirstLastFramePaths(currentPaths.map((p3) => (p3 === path2 ? "" : p3)))
+          ? normalizeFirstLastFramePaths(
+              currentPaths.map((p3) => (p3 === path2 ? "" : p3)),
+            )
           : currentPaths.filter((p3) => p3 !== path2),
       );
-      updatePathsForKind("video", (currentPaths) => currentPaths.filter((p3) => p3 !== path2));
-      updatePathsForKind("audio", (currentPaths) => currentPaths.filter((p3) => p3 !== path2));
-      updatePathsForKind("text", (currentPaths) => currentPaths.filter((p3) => p3 !== path2));
-      updatePathsForKind("file", (currentPaths) => currentPaths.filter((p3) => p3 !== path2));
+      updatePathsForKind("video", (currentPaths) =>
+        currentPaths.filter((p3) => p3 !== path2),
+      );
+      updatePathsForKind("audio", (currentPaths) =>
+        currentPaths.filter((p3) => p3 !== path2),
+      );
+      updatePathsForKind("text", (currentPaths) =>
+        currentPaths.filter((p3) => p3 !== path2),
+      );
+      updatePathsForKind("file", (currentPaths) =>
+        currentPaths.filter((p3) => p3 !== path2),
+      );
       if (opts2?.tearEdge) unwireEdge(path2);
-      logImageReferences("reference.after-remove", pathsByKindRef.current.image);
+      logImageReferences(
+        "reference.after-remove",
+        pathsByKindRef.current.image,
+      );
     },
     [logImageReferences, isFirstLastFrame, unwireEdge, updatePathsForKind],
   );
   const clearPaths = reactExports.useCallback(() => {
     const hadImageReferences = pathsByKindRef.current.image.some(Boolean);
     if (hadImageReferences) {
-      logImageReferences("reference.before-clear", pathsByKindRef.current.image);
+      logImageReferences(
+        "reference.before-clear",
+        pathsByKindRef.current.image,
+      );
       userEditedImagePathsRef.current = true;
     }
     for (const kind of ATTACHMENT_KINDS) {
@@ -1241,7 +1368,8 @@ export function useAttachmentState(opts) {
             ? {
                 anchor,
                 accepts: (resource) =>
-                  resource.type !== "file" && (resource.type !== "text" || editableText)
+                  resource.type !== "file" &&
+                  (resource.type !== "text" || editableText)
                     ? true
                     : matchesFileExtensions(resource.path, fileExtensions),
               }
@@ -1260,7 +1388,8 @@ export function useAttachmentState(opts) {
               r2.type === "video" ||
               r2.type === "audio" ||
               (editableText && r2.type === "text") ||
-              (effectiveMaxFile > 0 && (r2.type === "file" || r2.type === "text")),
+              (effectiveMaxFile > 0 &&
+                (r2.type === "file" || r2.type === "text")),
           )
           .map((r2) => ({
             assetId: r2.assetId,
@@ -1305,16 +1434,19 @@ export function useAttachmentState(opts) {
         if (pick.kind === "image") imageAdds.push(selection2);
         else if (pick.kind === "video") videoAdds.push(selection2);
         else if (pick.kind === "audio") audioAdds.push(selection2);
-        else if (pick.kind === "text" && editableText) textAdds.push(selection2);
+        else if (pick.kind === "text" && editableText)
+          textAdds.push(selection2);
         else {
-          if (matchesFileExtensions(path2, fileExtensions)) fileAdds.push(selection2);
+          if (matchesFileExtensions(path2, fileExtensions))
+            fileAdds.push(selection2);
           else rejectedFileExtension = true;
         }
       }
       if (rejectedFileExtension) {
         dedupedToast.error(
           t2("canvas.attachment.fileExtensionRejected", {
-            defaultValue: "The current model does not support this document format.",
+            defaultValue:
+              "The current model does not support this document format.",
           }),
         );
       }
@@ -1368,7 +1500,11 @@ export function useAttachmentState(opts) {
   }, []);
   const replacePath = reactExports.useCallback(
     async (item, anchor, canApply) => {
-      if (!pickAsset || (item.kind === "text" && !editableText) || canApply?.() === false)
+      if (
+        !pickAsset ||
+        (item.kind === "text" && !editableText) ||
+        canApply?.() === false
+      )
         return null;
       if (!pathsByKindRef.current[item.kind].includes(item.path)) return null;
       const context = replacementContextRef.current;
@@ -1397,9 +1533,12 @@ export function useAttachmentState(opts) {
           {
             // The document slot accepts two asset kinds, so a replacement must be
             // searched across both (swapping a .pdf for a .md is legitimate).
-            type: item.kind === "file" ? [...FILE_SLOT_PICK_KINDS] : [item.kind],
+            type:
+              item.kind === "file" ? [...FILE_SLOT_PICK_KINDS] : [item.kind],
             multiple: false,
-            existingAssetIds: existingAttachments.map((attachment) => attachment.assetId),
+            existingAssetIds: existingAttachments.map(
+              (attachment) => attachment.assetId,
+            ),
             constraints: replacementConstraints,
             uploadMode: "attach",
             tabs: ["canvas", "upload"],
@@ -1407,15 +1546,21 @@ export function useAttachmentState(opts) {
           anchor
             ? {
                 anchor,
-                existingPaths: Object.values(pathsByKindRef.current).flat().filter(Boolean),
+                existingPaths: Object.values(pathsByKindRef.current)
+                  .flat()
+                  .filter(Boolean),
                 accepts: (resource2) =>
-                  item.kind !== "file" || matchesFileExtensions(resource2.path, fileExtensions),
+                  item.kind !== "file" ||
+                  matchesFileExtensions(resource2.path, fileExtensions),
               }
             : void 0,
         );
       } catch (err) {
         if (err?.code === "picker_busy") return null;
-        console.warn("[use-attachment-state] replacement pickAsset rejected", err);
+        console.warn(
+          "[use-attachment-state] replacement pickAsset rejected",
+          err,
+        );
         return null;
       }
       const resource = resources?.[0];
@@ -1428,10 +1573,14 @@ export function useAttachmentState(opts) {
       const meta2 = assets.get(resource.assetId);
       const nextPath = meta2?.path ?? resource.path;
       if (!nextPath || nextPath === item.path) return null;
-      if (item.kind === "file" && !matchesFileExtensions(nextPath, fileExtensions)) {
+      if (
+        item.kind === "file" &&
+        !matchesFileExtensions(nextPath, fileExtensions)
+      ) {
         dedupedToast.error(
           t2("canvas.attachment.fileExtensionRejected", {
-            defaultValue: "The current model does not support this document format.",
+            defaultValue:
+              "The current model does not support this document format.",
           }),
         );
         return null;
@@ -1440,7 +1589,8 @@ export function useAttachmentState(opts) {
         !replacementMountedRef.current ||
         canApply?.() === false ||
         context.modelKey !== replacementContextRef.current.modelKey ||
-        context.fileExtensions !== replacementContextRef.current.fileExtensions ||
+        context.fileExtensions !==
+          replacementContextRef.current.fileExtensions ||
         context.pickerConstraintsFingerprint !==
           replacementContextRef.current.pickerConstraintsFingerprint ||
         context.hostNodeId !== replacementContextRef.current.hostNodeId ||
@@ -1452,10 +1602,16 @@ export function useAttachmentState(opts) {
         pathsByKindRef.current[item.kind].includes(nextPath)
       )
         return null;
-      if (originalPaths.indexOf(item.path) !== pathsByKindRef.current[item.kind].indexOf(item.path))
+      if (
+        originalPaths.indexOf(item.path) !==
+        pathsByKindRef.current[item.kind].indexOf(item.path)
+      )
         return null;
       if (item.kind === "image") {
-        logImageReferences("reference.before-replace", pathsByKindRef.current.image);
+        logImageReferences(
+          "reference.before-replace",
+          pathsByKindRef.current.image,
+        );
         userEditedImagePathsRef.current = true;
       }
       removedPathsRef.current.add(item.path);
@@ -1483,8 +1639,12 @@ export function useAttachmentState(opts) {
         assets,
         item.kind === "text" || item.kind === "file" ? void 0 : resolveFileUrl,
         item.badgeLabel,
-        item.kind === "audio" ? effectiveAudioPerClipMinSec : videoPerClipMinSec,
-        item.kind === "audio" ? effectiveAudioPerClipMaxSec : videoPerClipMaxSec,
+        item.kind === "audio"
+          ? effectiveAudioPerClipMinSec
+          : videoPerClipMinSec,
+        item.kind === "audio"
+          ? effectiveAudioPerClipMaxSec
+          : videoPerClipMaxSec,
       );
     },
     [
@@ -1508,9 +1668,14 @@ export function useAttachmentState(opts) {
   );
   const editImage = reactExports.useCallback(
     async (item, options) => {
-      if (!uploadAttachment || !canAnnotateCanvasImage(item.kind, item.name, item.thumbUrl)) return;
+      if (
+        !uploadAttachment ||
+        !canAnnotateCanvasImage(item.kind, item.name, item.thumbUrl)
+      )
+        return;
       const context = replacementContextRef.current;
-      const index2 = options?.slotIndex ?? pathsByKindRef.current.image.indexOf(item.path);
+      const index2 =
+        options?.slotIndex ?? pathsByKindRef.current.image.indexOf(item.path);
       const constraints2 = context.pickerConstraintsFingerprint;
       const valid2 = () =>
         replacementMountedRef.current &&
@@ -1520,8 +1685,10 @@ export function useAttachmentState(opts) {
         context.modelKey === replacementContextRef.current.modelKey &&
         context.hostNodeId === replacementContextRef.current.hostNodeId &&
         context.imageMode === replacementContextRef.current.imageMode &&
-        constraints2 === replacementContextRef.current.pickerConstraintsFingerprint;
-      const canAppend = !isFirstLastFrame && pickerConstraints.remainingByKind.image > 0;
+        constraints2 ===
+          replacementContextRef.current.pickerConstraintsFingerprint;
+      const canAppend =
+        !isFirstLastFrame && pickerConstraints.remainingByKind.image > 0;
       await imageAnnotation.open(
         {
           path: item.path,
@@ -1529,7 +1696,12 @@ export function useAttachmentState(opts) {
           url: resolveFileUrl?.(item.path) || item.thumbUrl || "",
           canAppend,
           onApply: async (file, mode2, signal) => {
-            if (!valid2() || signal.aborted || (mode2 === "append" && !canAppend)) return false;
+            if (
+              !valid2() ||
+              signal.aborted ||
+              (mode2 === "append" && !canAppend)
+            )
+              return false;
             const saved = await uploadAttachment(file);
             if (
               !valid2() ||
@@ -1556,7 +1728,8 @@ export function useAttachmentState(opts) {
               width: saved.width,
               height: saved.height,
             });
-            if (mode2 === "append") return addPaths([saved.path], "image").includes(saved.path);
+            if (mode2 === "append")
+              return addPaths([saved.path], "image").includes(saved.path);
             const replacement = {
               ...item,
               path: saved.path,
@@ -1568,7 +1741,9 @@ export function useAttachmentState(opts) {
             userEditedImagePathsRef.current = true;
             removedPathsRef.current.delete(saved.path);
             updatePathsForKind("image", (paths) =>
-              paths.map((path2, position2) => (position2 === index2 ? saved.path : path2)),
+              paths.map((path2, position2) =>
+                position2 === index2 ? saved.path : path2,
+              ),
             );
             if (!pathsByKindRef.current.image.includes(item.path)) {
               removedPathsRef.current.add(item.path);

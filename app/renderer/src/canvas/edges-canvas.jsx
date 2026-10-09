@@ -1,164 +1,93 @@
 // edges-canvas.jsx
-import { jsxRuntimeExports, reactExports, useStoreApi, useNodesInitialized } from "../vendor.js";
+import {
+  controlPointsFor,
+  hoveredId,
+  isEdgeVisible,
+  pointsForSide,
+  readNodeBox,
+  sourceHandleSide,
+  subscribers,
+} from "./control-points-for.js";
+import {
+  jsxRuntimeExports,
+  reactExports,
+  useNodesInitialized,
+  useStoreApi,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { isPluginNode } from "./canvas-surface-recovery-scheduler.jsx";
-export function computeClickPanViewport(flowPoint, canvasSize, currentZoom) {
-  return {
-    x: canvasSize.width / 2 - flowPoint.x * currentZoom,
-    y: canvasSize.height / 2 - flowPoint.y * currentZoom,
-    zoom: currentZoom,
-  };
-}
-const INDICATOR_MAX_AREA_RATIO = 0.04;
-function isMinimapViewportIndicatorVisible(viewportAreaRatio) {
-  return (
-    Number.isFinite(viewportAreaRatio) &&
-    viewportAreaRatio >= 0 &&
-    viewportAreaRatio <= INDICATOR_MAX_AREA_RATIO
-  );
-}
-export function getMinimapViewportColor(viewportAreaRatio) {
-  return isMinimapViewportIndicatorVisible(viewportAreaRatio)
-    ? "var(--canvas-minimap-viewport-fill)"
-    : void 0;
-}
-export function sourceHandleSide(entry, source, target) {
-  if (!isPluginNode(entry)) return "right";
-  if (source && target) {
-    const sourceCenterX = source.x + source.width / 2;
-    const targetCenterX = target.x + target.width / 2;
-    return targetCenterX >= sourceCenterX ? "right" : "left";
-  }
-  return "left";
-}
-export function readNodeBox(entry) {
-  if (!entry) return null;
-  const pos = entry.internals?.positionAbsolute ?? entry.position;
-  if (!pos) return null;
-  const width = entry.measured?.width ?? entry.width ?? 0;
-  const height = entry.measured?.height ?? entry.height ?? 0;
-  if (width <= 0 || height <= 0) return null;
-  return {
-    x: pos.x,
-    y: pos.y,
-    width,
-    height,
-  };
-}
-function pointsForRightLeft(source, target) {
-  return {
-    sx: source.x + source.width,
-    sy: source.y + source.height / 2,
-    tx: target.x,
-    ty: target.y + target.height / 2,
-  };
-}
-export function pointsForSide(source, target, side) {
-  if (side === "left") {
-    return {
-      sx: source.x,
-      sy: source.y + source.height / 2,
-      tx: target.x + target.width,
-      ty: target.y + target.height / 2,
-    };
-  }
-  return pointsForRightLeft(source, target);
-}
-function calcOffset$1(d2) {
-  return d2 >= 0 ? 0.5 * d2 : 6.25 * Math.sqrt(-d2);
-}
+
 function tracePath(target, p3, side = "right") {
   const cp2 = controlPointsFor(p3, side);
   target.moveTo(cp2.sx, cp2.sy);
   target.bezierCurveTo(cp2.cp1x, cp2.cp1y, cp2.cp2x, cp2.cp2y, cp2.tx, cp2.ty);
 }
-export function controlPointsFor(p3, side = "right") {
-  if (side === "left") {
-    const offset22 = calcOffset$1(p3.sx - p3.tx);
-    return {
-      sx: p3.sx,
-      sy: p3.sy,
-      cp1x: p3.sx - offset22,
-      cp1y: p3.sy,
-      cp2x: p3.tx + offset22,
-      cp2y: p3.ty,
-      tx: p3.tx,
-      ty: p3.ty,
-    };
-  }
-  const offset2 = calcOffset$1(p3.tx - p3.sx);
-  return {
-    sx: p3.sx,
-    sy: p3.sy,
-    cp1x: p3.sx + offset2,
-    cp1y: p3.sy,
-    cp2x: p3.tx - offset2,
-    cp2y: p3.ty,
-    tx: p3.tx,
-    ty: p3.ty,
-  };
-}
-export function isEdgeVisible(edge, nodeLookup, onlySelectedNodes) {
-  return (
-    !edge.hidden &&
-    (!onlySelectedNodes ||
-      nodeLookup.get(edge.source)?.selected === true ||
-      nodeLookup.get(edge.target)?.selected === true)
-  );
-}
-let hoveredId = null;
-const subscribers = new Set();
-function notify$1() {
-  for (const cb of subscribers) cb();
-}
-export function setHoveredEdgeId(id2) {
-  if (hoveredId === id2) return;
-  hoveredId = id2;
-  notify$1();
-}
-export function clearHoveredEdgeIdIfMatches(expected) {
-  if (hoveredId !== expected) return;
-  hoveredId = null;
-  notify$1();
-}
+
 function subscribe$2(cb) {
   subscribers.add(cb);
   return () => {
     subscribers.delete(cb);
   };
 }
+
 function getSnapshot$1() {
   return hoveredId;
 }
+
 function useHoveredEdgeId() {
-  return reactExports.useSyncExternalStore(subscribe$2, getSnapshot$1, getSnapshot$1);
+  return reactExports.useSyncExternalStore(
+    subscribe$2,
+    getSnapshot$1,
+    getSnapshot$1,
+  );
 }
+
 const EDGE_FLOW_PULSE_LENGTH_PX = 36;
+
 const EDGE_FLOW_GAP_LENGTH_PX = 120;
+
 const EDGE_FLOW_SPEED_PX_PER_SECOND = 104;
+
 const EDGE_FLOW_SEGMENT_COUNT = 6;
+
 const EDGE_FLOW_TAIL_WIDTH = 1.2;
+
 const EDGE_FLOW_HEAD_WIDTH = 2.6;
+
 const EDGE_FLOW_HALO_EXTRA_WIDTH = 1.15;
+
 const EDGE_FLOW_MIN_ZOOM = 0.01;
+
 const EDGE_FLOW_TAIL_OPACITY = 0.46;
+
 const EDGE_FLOW_HEAD_OPACITY = 0.96;
+
 const EDGE_FLOW_BREATH_MIN = 0.9;
+
 const EDGE_FLOW_BREATH_RANGE = 0.1;
+
 const EDGE_FLOW_BREATH_PERIOD_MS = 1600;
+
 function safeZoom(zoom2) {
-  return Number.isFinite(zoom2) && zoom2 > 0 ? Math.max(zoom2, EDGE_FLOW_MIN_ZOOM) : 1;
+  return Number.isFinite(zoom2) && zoom2 > 0
+    ? Math.max(zoom2, EDGE_FLOW_MIN_ZOOM)
+    : 1;
 }
+
 function getEdgeFlowFrame(timestampMs, zoom2) {
   const resolvedZoom = safeZoom(zoom2);
   const patternLengthPx = EDGE_FLOW_PULSE_LENGTH_PX + EDGE_FLOW_GAP_LENGTH_PX;
   const segmentLengthPx = EDGE_FLOW_PULSE_LENGTH_PX / EDGE_FLOW_SEGMENT_COUNT;
-  const elapsedMs2 = Number.isFinite(timestampMs) ? Math.max(0, timestampMs) : 0;
-  const distancePx = ((elapsedMs2 / 1e3) * EDGE_FLOW_SPEED_PX_PER_SECOND) % patternLengthPx;
-  const breathPhase = (elapsedMs2 % EDGE_FLOW_BREATH_PERIOD_MS) / EDGE_FLOW_BREATH_PERIOD_MS;
+  const elapsedMs2 = Number.isFinite(timestampMs)
+    ? Math.max(0, timestampMs)
+    : 0;
+  const distancePx =
+    ((elapsedMs2 / 1e3) * EDGE_FLOW_SPEED_PX_PER_SECOND) % patternLengthPx;
+  const breathPhase =
+    (elapsedMs2 % EDGE_FLOW_BREATH_PERIOD_MS) / EDGE_FLOW_BREATH_PERIOD_MS;
   const breath =
     EDGE_FLOW_BREATH_MIN +
-    ((Math.sin(breathPhase * Math.PI * 2 - Math.PI / 2) + 1) / 2) * EDGE_FLOW_BREATH_RANGE;
+    ((Math.sin(breathPhase * Math.PI * 2 - Math.PI / 2) + 1) / 2) *
+      EDGE_FLOW_BREATH_RANGE;
   return {
     segments: Array.from(
       {
@@ -168,10 +97,12 @@ function getEdgeFlowFrame(timestampMs, zoom2) {
         const progress = index2 / (EDGE_FLOW_SEGMENT_COUNT - 1);
         const taperedProgress = progress ** 1.35;
         const coreWidth =
-          EDGE_FLOW_TAIL_WIDTH + (EDGE_FLOW_HEAD_WIDTH - EDGE_FLOW_TAIL_WIDTH) * taperedProgress;
+          EDGE_FLOW_TAIL_WIDTH +
+          (EDGE_FLOW_HEAD_WIDTH - EDGE_FLOW_TAIL_WIDTH) * taperedProgress;
         const opacity =
           (EDGE_FLOW_TAIL_OPACITY +
-            (EDGE_FLOW_HEAD_OPACITY - EDGE_FLOW_TAIL_OPACITY) * taperedProgress) *
+            (EDGE_FLOW_HEAD_OPACITY - EDGE_FLOW_TAIL_OPACITY) *
+              taperedProgress) *
           breath;
         return {
           dashPattern: [
@@ -187,19 +118,28 @@ function getEdgeFlowFrame(timestampMs, zoom2) {
     ),
   };
 }
+
 function resolveColors(host) {
   const styles = getComputedStyle(host);
-  const selectedColor = styles.getPropertyValue("--canvas-edge-selected").trim() || "#2563eb";
-  const flowColor = styles.getPropertyValue("--canvas-edge-flow").trim() || selectedColor;
+  const selectedColor =
+    styles.getPropertyValue("--canvas-edge-selected").trim() || "#2563eb";
+  const flowColor =
+    styles.getPropertyValue("--canvas-edge-flow").trim() || selectedColor;
   return {
     defaultColor: styles.getPropertyValue("--canvas-edge").trim() || "#9ca3af",
-    hoverColor: styles.getPropertyValue("--canvas-edge-hover").trim() || "#6b7280",
+    hoverColor:
+      styles.getPropertyValue("--canvas-edge-hover").trim() || "#6b7280",
     selectedColor,
     flowColor,
-    flowGlowColor: styles.getPropertyValue("--canvas-edge-flow-glow").trim() || flowColor,
+    flowGlowColor:
+      styles.getPropertyValue("--canvas-edge-flow-glow").trim() || flowColor,
   };
 }
-export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false }) {
+
+export function EdgesCanvas({
+  active: active2 = true,
+  onlySelectedNodes = false,
+}) {
   const storeApi = useStoreApi();
   const hoveredId2 = useHoveredEdgeId();
   const canvasRef = reactExports.useRef(null);
@@ -267,7 +207,8 @@ export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false 
       let hasHovered = false;
       let hasSelected = false;
       for (const edge of state2.edges) {
-        if (!isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes)) continue;
+        if (!isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
+          continue;
         const srcEntry = state2.nodeLookup.get(edge.source);
         const src = readNodeBox(srcEntry);
         const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
@@ -276,7 +217,11 @@ export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false 
         const points = pointsForSide(src, tgt, side);
         const isSelected = edge.selected === true;
         const isHovered = !isSelected && edge.id === hovered;
-        const target = isSelected ? selectedPath : isHovered ? hoveredPath : defaultPath;
+        const target = isSelected
+          ? selectedPath
+          : isHovered
+            ? hoveredPath
+            : defaultPath;
         tracePath(target, points, side);
         if (isSelected) hasSelected = true;
         else if (isHovered) hasHovered = true;
@@ -340,7 +285,9 @@ export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false 
     if (!canvas) return;
     const flow2 = canvas.closest(".react-flow");
     if (!flow2) return;
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     const FLOW_FRAME_MIN_INTERVAL_MS = 15;
     let windowFocused = document.hasFocus();
     let lastFramePaintMs = 0;
@@ -391,7 +338,10 @@ export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false 
       const selectedPath = new Path2D();
       let hasSelected = false;
       for (const edge of state2.edges) {
-        if (edge.selected !== true || !isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
+        if (
+          edge.selected !== true ||
+          !isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes)
+        )
           continue;
         const srcEntry = state2.nodeLookup.get(edge.source);
         const src = readNodeBox(srcEntry);
@@ -432,7 +382,8 @@ export function EdgesCanvas({ active: active2 = true, onlySelectedNodes = false 
         ctx.stroke(selectedPath);
       }
       ctx.globalAlpha = 1;
-      if (!document.hidden && windowFocused) rafId2 = requestAnimationFrame(paint);
+      if (!document.hidden && windowFocused)
+        rafId2 = requestAnimationFrame(paint);
     };
     const schedule2 = () => {
       if (rafId2 !== 0 || document.hidden) return;

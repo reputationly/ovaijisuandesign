@@ -1,139 +1,100 @@
 // slash-command-popover-content.jsx
-import { jsxRuntimeExports, reactExports, useTranslation, ChevronLeft, ChevronRight$1, reactDomExports, Trans, Search$2, Plus$2 } from "../vendor.js";
-import { skillCategoryCodes } from "../generation/push-inline.js";
-import { CDN_SKILL_SHOWCASE_FALLBACK } from "./use-hub-logo-hover-animation.jsx";
-import { FEATURED_TAG, useSkillCategories, resolveSkillCoverUrl, beginSkillApplyingToast, SkillCoverMedia } from "../generation/use-mention-models.jsx";
-import { homeService, SkillIcon } from "./browser-inspiration-urls.jsx";
-import { Button$1 } from "../infra/use-browser-overlay-dialog-props.jsx";
-import { Input3 } from "../infra/select-content.jsx";
-import { QuickZoomPresence } from "../canvas/canvas-toggle-icon.jsx";
-import { showSkillInstallSuccessToast } from "./use-new-workspace-dialog.jsx";
-import { Skeleton } from "../team/infinite-scroll-container.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { Skeleton } from "../team/use-wallet-query.jsx";
 import {
-  CLIP_EDITOR_SKILL_CATEGORIES,
   CapabilityPopoverHeader,
   DIRECTOR_STAGE_SKILL_CATEGORIES,
   MY_SKILLS_TAG,
   TEXT_EDITOR_SKILL_CATEGORIES,
-  getSkillCoverPreviewSide,
-  useMarketSkills,
-  waitForSkillRestart,
-} from "./use-market-skills.jsx";
-import { MESSAGE_INPUT_POPOVER_WIDTH, MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/use-upload.js";
-function normalizeSkillName(value) {
-  return value.replace(/[\s\-_]/g, "").toLocaleLowerCase();
-}
-function matchesClipEditorSkill(skill, allowedNames) {
-  const names = [skill.displayNameZh, skill.name].map(normalizeSkillName);
-  return allowedNames.some((name2) => names.includes(normalizeSkillName(name2)));
-}
-function getSkillSearchText(skill) {
-  return [
-    skill.displayNameZh,
-    skill.name,
-    skill.summaryZh,
-    skill.summary,
-    skill.tagCn,
-    skill.tagEn,
-    ...(skill.completeTagsCn ?? []),
-    ...(skill.completeTagsEn ?? []),
-    ...(skill.tags ?? []),
-    ...(skill.tagsCn ?? []),
-    ...(skill.triggerWords ?? []),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLocaleLowerCase();
-}
-function matchesKeywordSkill(skill, keywords2) {
-  const text2 = getSkillSearchText(skill);
-  return keywords2.some((keyword2) => {
-    const normalizedKeyword = keyword2.toLocaleLowerCase();
-    if (/^[a-z]+$/i.test(normalizedKeyword)) {
-      return new RegExp(`\\b${normalizedKeyword}\\b`, "i").test(text2);
-    }
-    return text2.includes(normalizedKeyword);
+} from "./text-editor-skill-categories.jsx";
+import {
+  ChevronLeft,
+  ChevronRight$1,
+  jsxRuntimeExports,
+  Plus$2,
+  reactDomExports,
+  reactExports,
+  Search$2,
+  Trans,
+  useTranslation,
+} from "../vendor.js";
+import { getAgentSkillBrowseSkills } from "./clip-editor-skill-categories.js";
+import {
+  filterMarketSkillsByTag,
+  getSkillPopoverBrowseSkills,
+} from "./get-skill-popover-browse-skills.js";
+import { skillCategoryCodes } from "../generation/normalize-skill-detail-metadata.js";
+import { CDN_SKILL_SHOWCASE_FALLBACK } from "./topbar-state-context.jsx";
+import {
+  FEATURED_TAG,
+  resolveSkillCoverUrl,
+  SkillCoverMedia,
+} from "../generation/use-mention-models.jsx";
+import { useSkillCategories } from "../generation/use-skill-categories.js";
+import { beginSkillApplyingToast } from "../generation/settle-operation.js";
+import { homeService } from "./home-service.jsx";
+import { SkillIcon } from "./use-prompt-icon.jsx";
+import { Button$1 } from "../infra/dialog-content.jsx";
+import { Input3 } from "../infra/select-content.jsx";
+import { showSkillInstallSuccessToast } from "./use-new-workspace-dialog.jsx";
+import { useMarketSkills } from "./use-market-skills.js";
+import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
+
+const MESSAGE_INPUT_POPOVER_WIDTH = 384;
+
+const SKILL_RESTART_QUEUE_TIMEOUT_MS = 3e4;
+
+async function waitForSkillRestart(
+  restart,
+  timeoutMs = SKILL_RESTART_QUEUE_TIMEOUT_MS,
+) {
+  const attempt = restart().then(() => "applied");
+  attempt.catch(() => {});
+  let timer2;
+  const queued = new Promise((resolve) => {
+    timer2 = setTimeout(() => resolve("queued"), timeoutMs);
   });
-}
-function matchesCuratedAgentSkill(skill, category) {
-  if (
-    category.names.some((name2) => normalizeSkillName(name2) === normalizeSkillName(skill.name))
-  ) {
-    return true;
+  try {
+    return await Promise.race([attempt, queued]);
+  } finally {
+    if (timer2) clearTimeout(timer2);
   }
-  return matchesKeywordSkill(skill, category.keywords);
 }
-export function getAgentSkillBrowseSkills(marketSkills, localSkills, mode2, activeCategory) {
-  const marketBrowseSkills = getSkillPopoverBrowseSkills(marketSkills, localSkills, null);
-  const merged = [
-    ...marketBrowseSkills,
-    ...localSkills.filter(
-      (localSkill) => !marketBrowseSkills.some((skill) => skill.name === localSkill.name),
-    ),
-  ];
-  if (mode2 === "clip-editor") {
-    const category2 = activeCategory
-      ? CLIP_EDITOR_SKILL_CATEGORIES.find((item) => item.value === activeCategory)
-      : null;
-    const allowedNames = category2
-      ? category2.skills
-      : CLIP_EDITOR_SKILL_CATEGORIES.flatMap((item) => item.skills);
-    return merged.filter((skill) => matchesClipEditorSkill(skill, allowedNames));
-  }
-  const categories =
-    mode2 === "director-stage" ? DIRECTOR_STAGE_SKILL_CATEGORIES : TEXT_EDITOR_SKILL_CATEGORIES;
-  const category = activeCategory ? categories.find((item) => item.value === activeCategory) : null;
-  const selectedCategories = category ? [category] : categories;
-  if (mode2 === "director-stage" || mode2 === "text-editor") {
-    return merged.filter((skill) =>
-      selectedCategories.some((item) =>
-        item.names.some((name2) => normalizeSkillName(name2) === normalizeSkillName(skill.name)),
-      ),
-    );
-  }
-  return merged.filter((skill) =>
-    selectedCategories.some((item) => matchesCuratedAgentSkill(skill, item)),
-  );
+
+const COVER_PREVIEW_GAP = 8;
+
+const VIEWPORT_GAP = 8;
+
+function getSkillCoverPreviewSide(anchorRect, previewWidth, viewportWidth) {
+  const rightSpace =
+    viewportWidth - anchorRect.right - COVER_PREVIEW_GAP - VIEWPORT_GAP;
+  const leftSpace = anchorRect.left - COVER_PREVIEW_GAP - VIEWPORT_GAP;
+  if (rightSpace >= previewWidth) return "right";
+  if (leftSpace >= previewWidth) return "left";
+  return rightSpace >= leftSpace ? "right" : "left";
 }
-function filterMarketSkillsByTag(skills, activeTag) {
-  if (!activeTag) return skills;
-  if (activeTag === FEATURED_TAG) {
-    return skills.filter(
-      (skill) => skill.source === "official-featured" || skill.source === "community",
-    );
-  }
-  return skills.filter((skill) => skillCategoryCodes(skill).includes(activeTag));
-}
-function getSkillPopoverBrowseSkills(marketSkills, localSkills, activeTag) {
-  if (activeTag === MY_SKILLS_TAG) return localSkills;
-  return filterMarketSkillsByTag(marketSkills, activeTag).map((marketSkill) => {
-    if (!marketSkill.installed) return marketSkill;
-    const installedSkill = localSkills.find((skill) => skill.name === marketSkill.name);
-    return installedSkill
-      ? {
-          ...installedSkill,
-          installed: true,
-          downloads: marketSkill.downloads,
-          categoryCodes: marketSkill.categoryCodes,
-        }
-      : marketSkill;
-  });
-}
+
 const MIN_BROAD_LATIN_QUERY_LENGTH = 3;
+
 const CJK_QUERY_PATTERN = /[\u3400-\u9fff]/u;
+
 const TOKEN_SEPARATOR_PATTERN = /[^\p{L}\p{N}]+/u;
+
 const UNSCORED_RANK = Number.MAX_SAFE_INTEGER;
+
 function normalize$1(value) {
   return value?.trim().toLocaleLowerCase() ?? "";
 }
+
 function stringList(value) {
   if (!Array.isArray(value)) return [];
   return value.filter((item) => typeof item === "string");
 }
+
 function tokens(value) {
   return normalize$1(value).split(TOKEN_SEPARATOR_PATTERN).filter(Boolean);
 }
+
 function bestPrimaryScore(values3, query, broadMatch) {
   let score = null;
   for (const value of values3) {
@@ -142,7 +103,9 @@ function bestPrimaryScore(values3, query, broadMatch) {
     if (normalizedValue === query) score = Math.min(score ?? 0, 0);
     else if (tokens(normalizedValue).some((token2) => token2 === query)) {
       score = Math.min(score ?? 1, 1);
-    } else if (tokens(normalizedValue).some((token2) => token2.startsWith(query))) {
+    } else if (
+      tokens(normalizedValue).some((token2) => token2.startsWith(query))
+    ) {
       score = Math.min(score ?? 2, 2);
     } else if (broadMatch && normalizedValue.includes(query)) {
       score = Math.min(score ?? 3, 3);
@@ -150,18 +113,26 @@ function bestPrimaryScore(values3, query, broadMatch) {
   }
   return score;
 }
+
 function includesQuery(values3, query) {
   return values3.some((value) => normalize$1(value).includes(query));
 }
+
 function getSearchScore(skill, query) {
   const broadMatch =
-    CJK_QUERY_PATTERN.test(query) || Array.from(query).length >= MIN_BROAD_LATIN_QUERY_LENGTH;
-  const primaryScore = bestPrimaryScore([skill.name, skill.displayNameZh], query, broadMatch);
+    CJK_QUERY_PATTERN.test(query) ||
+    Array.from(query).length >= MIN_BROAD_LATIN_QUERY_LENGTH;
+  const primaryScore = bestPrimaryScore(
+    [skill.name, skill.displayNameZh],
+    query,
+    broadMatch,
+  );
   if (primaryScore !== null) return primaryScore;
   const summaries = [skill.summary, skill.summaryZh];
   if (
     (broadMatch && includesQuery(summaries, query)) ||
-    (!broadMatch && summaries.some((summary) => tokens(summary).includes(query)))
+    (!broadMatch &&
+      summaries.some((summary) => tokens(summary).includes(query)))
   ) {
     return 10;
   }
@@ -186,9 +157,11 @@ function getSearchScore(skill, query) {
   ) {
     return 20;
   }
-  if (includesQuery([skill.descEn, skill.descCn, skill.description], query)) return 30;
+  if (includesQuery([skill.descEn, skill.descCn, skill.description], query))
+    return 30;
   return null;
 }
+
 function rankSkillsBySearchRelevance(skills, rawQuery, options = {}) {
   const query = normalize$1(rawQuery);
   if (!query) return skills;
@@ -202,18 +175,28 @@ function rankSkillsBySearchRelevance(skills, rawQuery, options = {}) {
     .filter((entry) => keepUnscored || entry.score !== null)
     .sort(
       (left, right) =>
-        (left.score ?? UNSCORED_RANK) - (right.score ?? UNSCORED_RANK) || left.index - right.index,
+        (left.score ?? UNSCORED_RANK) - (right.score ?? UNSCORED_RANK) ||
+        left.index - right.index,
     )
     .map(({ skill }) => skill);
 }
+
 const UPPERCASE_WORDS = new Set(["mv", "ai", "api", "id"]);
+
 const HOME_POPOVER_GAP$1 = 4;
+
 const GLOBAL_SKILL_SEARCH_PAGE_SIZE = 100;
+
 const INLINE_SKILL_POPOVER_WIDTH = 320;
+
 const INLINE_SKILL_POPOVER_MAX_HEIGHT = 288;
+
 const SKILL_TAG_SCROLL_STEP_PX = 120;
+
 const SKILL_POPOVER_SKELETON_ROWS = 5;
+
 const SKILL_SEARCH_DEBOUNCE_MS = 300;
+
 function getAgentSkillCategories(mode2) {
   if (mode2 === "clip-editor") {
     return [
@@ -243,26 +226,33 @@ function getAgentSkillCategories(mode2) {
     ? DIRECTOR_STAGE_SKILL_CATEGORIES
     : TEXT_EDITOR_SKILL_CATEGORIES;
 }
+
 function getAgentSkillTitle(mode2) {
   if (mode2 === "clip-editor") return "剪辑";
   return mode2 === "director-stage" ? "导演台" : "文本";
 }
+
 function isLocalSkill(skill) {
   return "enabled" in skill;
 }
+
 async function restartOpenCode() {
   const restart = window.hilo?.opencode?.restart;
   if (!restart) throw new Error("OpenCode restart IPC is unavailable");
   await restart();
 }
+
 function toDisplayName(name2) {
   return name2
     .split("-")
     .map((w3) =>
-      UPPERCASE_WORDS.has(w3) ? w3.toUpperCase() : w3.charAt(0).toUpperCase() + w3.slice(1),
+      UPPERCASE_WORDS.has(w3)
+        ? w3.toUpperCase()
+        : w3.charAt(0).toUpperCase() + w3.slice(1),
     )
     .join(" ");
 }
+
 function getSkillDisplay(skill, lang) {
   const isZh = lang.startsWith("zh");
   return {
@@ -274,9 +264,12 @@ function getSkillDisplay(skill, lang) {
     // detail dialog uses (descCn / descEn / description). Shown verbatim in
     // the hover tooltip so the user sees what the agent actually reads, not
     // the truncated one-line summary.
-    description: isZh ? skill.descCn || skill.description : skill.descEn || skill.description,
+    description: isZh
+      ? skill.descCn || skill.description
+      : skill.descEn || skill.description,
   };
 }
+
 function SkillItem({
   skill,
   index: index2,
@@ -315,7 +308,9 @@ function SkillItem({
         <span className="text-[13px] leading-[20px] font-sans font-normal text-foreground truncate">
           {display.displayName}
         </span>
-        <span className="text-[12px] shrink-0 text-muted-foreground/70">/{skill.name}</span>
+        <span className="text-[12px] shrink-0 text-muted-foreground/70">
+          /{skill.name}
+        </span>
       </div>
       {descText && (
         <span
@@ -327,6 +322,7 @@ function SkillItem({
     </button>
   );
 }
+
 function SkillPopoverSkeleton() {
   return (
     <div
@@ -354,16 +350,8 @@ function SkillPopoverSkeleton() {
     </div>
   );
 }
-export function SlashCommandPopover({ open = true, ...props }) {
-  return (
-    <QuickZoomPresence value={open ? props : null}>
-      {(retainedProps, motionProps) => (
-        <SlashCommandPopoverContent {...retainedProps} motionProps={motionProps} />
-      )}
-    </QuickZoomPresence>
-  );
-}
-function SlashCommandPopoverContent({
+
+export function SlashCommandPopoverContent({
   motionProps,
   id: id2,
   skills,
@@ -386,20 +374,30 @@ function SlashCommandPopoverContent({
   const ending = motionProps["data-ending-style"] !== void 0;
   const { t: t2, i18n } = useTranslation();
   const isZh = i18n.language.startsWith("zh");
-  const { categories: configuredCategories } = useSkillCategories(skillPopoverMode === "default");
+  const { categories: configuredCategories } = useSkillCategories(
+    skillPopoverMode === "default",
+  );
   const listRef = reactExports.useRef(null);
   const scrollRef = reactExports.useRef(null);
   const tagScrollRef = reactExports.useRef(null);
   const activeRef = reactExports.useRef(null);
   const [activeTag, setActiveTag] = reactExports.useState(null);
-  const [canScrollTagsLeft, setCanScrollTagsLeft] = reactExports.useState(false);
-  const [canScrollTagsRight, setCanScrollTagsRight] = reactExports.useState(false);
-  const [activeAgentCategory, setActiveAgentCategory] = reactExports.useState(null);
-  const [pendingSkillNames, setPendingSkillNames] = reactExports.useState(new Set());
+  const [canScrollTagsLeft, setCanScrollTagsLeft] =
+    reactExports.useState(false);
+  const [canScrollTagsRight, setCanScrollTagsRight] =
+    reactExports.useState(false);
+  const [activeAgentCategory, setActiveAgentCategory] =
+    reactExports.useState(null);
+  const [pendingSkillNames, setPendingSkillNames] = reactExports.useState(
+    new Set(),
+  );
   const pendingSkillNamesRef = reactExports.useRef(new Set());
   const mountedRef = reactExports.useRef(true);
-  const [hoveredPreviewSkill, setHoveredPreviewSkill] = reactExports.useState(null);
-  const previewCover = hoveredPreviewSkill ? resolveSkillCoverUrl(hoveredPreviewSkill) : "";
+  const [hoveredPreviewSkill, setHoveredPreviewSkill] =
+    reactExports.useState(null);
+  const previewCover = hoveredPreviewSkill
+    ? resolveSkillCoverUrl(hoveredPreviewSkill)
+    : "";
   const previewDisplay = hoveredPreviewSkill
     ? getSkillDisplay(hoveredPreviewSkill, i18n.language)
     : null;
@@ -430,13 +428,25 @@ function SlashCommandPopoverContent({
     setHoveredSkillTop(element2.offsetTop + element2.offsetHeight / 2);
   };
   const market = useMarketSkills(void 0, void 0, GLOBAL_SKILL_SEARCH_PAGE_SIZE);
-  const [marketRequestStarted, setMarketRequestStarted] = reactExports.useState(false);
+  const [marketRequestStarted, setMarketRequestStarted] =
+    reactExports.useState(false);
   const taggedSkills = reactExports.useMemo(
     () =>
       skillPopoverMode !== "default"
-        ? getAgentSkillBrowseSkills(market.skills, allSkills, skillPopoverMode, activeAgentCategory)
+        ? getAgentSkillBrowseSkills(
+            market.skills,
+            allSkills,
+            skillPopoverMode,
+            activeAgentCategory,
+          )
         : getSkillPopoverBrowseSkills(market.skills, allSkills, activeTag),
-    [activeAgentCategory, activeTag, allSkills, market.skills, skillPopoverMode],
+    [
+      activeAgentCategory,
+      activeTag,
+      allSkills,
+      market.skills,
+      skillPopoverMode,
+    ],
   );
   const searchTerm = searchQuery.trim().toLowerCase();
   reactExports.useEffect(() => {
@@ -453,7 +463,8 @@ function SlashCommandPopoverContent({
   }, []);
   const finishSkillSelection = reactExports.useCallback((name2) => {
     pendingSkillNamesRef.current.delete(name2);
-    if (mountedRef.current) setPendingSkillNames(new Set(pendingSkillNamesRef.current));
+    if (mountedRef.current)
+      setPendingSkillNames(new Set(pendingSkillNamesRef.current));
   }, []);
   const marketQueryRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -512,8 +523,14 @@ function SlashCommandPopoverContent({
   const handleMarketSkillSelect = reactExports.useCallback(
     async (skill) => {
       if (!skill.installed) {
-        if (market.installingSet.has(skill.name) || !beginSkillSelection(skill.name)) return;
-        const applyingToast = beginSkillApplyingToast(t2("skills.market.installing"));
+        if (
+          market.installingSet.has(skill.name) ||
+          !beginSkillSelection(skill.name)
+        )
+          return;
+        const applyingToast = beginSkillApplyingToast(
+          t2("skills.market.installing"),
+        );
         try {
           const installed = await market.install(skill.name, "market_card");
           if (!installed) {
@@ -588,7 +605,10 @@ function SlashCommandPopoverContent({
       allSkills.filter((skill) => {
         if (!activeTag) return true;
         if (activeTag === FEATURED_TAG) {
-          return skill.marketSource === "official-featured" || skill.marketSource === "community";
+          return (
+            skill.marketSource === "official-featured" ||
+            skill.marketSource === "community"
+          );
         }
         return skillCategoryCodes(skill).includes(activeTag);
       }),
@@ -613,14 +633,23 @@ function SlashCommandPopoverContent({
         keepUnscored: true,
       },
     );
-  }, [activeTag, allSkills, market.skills, searchTerm, skillPopoverMode, taggedSkills]);
+  }, [
+    activeTag,
+    allSkills,
+    market.skills,
+    searchTerm,
+    skillPopoverMode,
+    taggedSkills,
+  ]);
   const displayedSkills = searchTerm ? searchResults : taggedSkills;
   const isVisibleSkillsLoading = market.loading;
   const showSkillsSkeleton =
     displayedSkills.length === 0 &&
     !market.error &&
     (!marketRequestStarted || isVisibleSkillsLoading);
-  const activeCategory = configuredCategories.find((category) => category.category === activeTag);
+  const activeCategory = configuredCategories.find(
+    (category) => category.category === activeTag,
+  );
   const activeTagLabel =
     skillPopoverMode !== "default"
       ? (getAgentSkillCategories(skillPopoverMode).find(
@@ -643,13 +672,18 @@ function SlashCommandPopoverContent({
     const element2 = tagScrollRef.current;
     if (!element2) return;
     setCanScrollTagsLeft(element2.scrollLeft > 0);
-    setCanScrollTagsRight(element2.scrollLeft + element2.clientWidth < element2.scrollWidth - 1);
+    setCanScrollTagsRight(
+      element2.scrollLeft + element2.clientWidth < element2.scrollWidth - 1,
+    );
   }, []);
   const handleTagWheel = reactExports.useCallback(
     (event) => {
       const element2 = tagScrollRef.current;
       if (!element2 || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-      const maxScrollLeft = Math.max(0, element2.scrollWidth - element2.clientWidth);
+      const maxScrollLeft = Math.max(
+        0,
+        element2.scrollWidth - element2.clientWidth,
+      );
       const nextScrollLeft = Math.min(
         maxScrollLeft,
         Math.max(0, element2.scrollLeft + event.deltaY),
@@ -682,7 +716,10 @@ function SlashCommandPopoverContent({
   }, [handleTagWheel, isFullMode, syncTagOverflow]);
   const handleTagScroll = reactExports.useCallback((direction) => {
     tagScrollRef.current?.scrollBy({
-      left: direction === "left" ? -SKILL_TAG_SCROLL_STEP_PX : SKILL_TAG_SCROLL_STEP_PX,
+      left:
+        direction === "left"
+          ? -SKILL_TAG_SCROLL_STEP_PX
+          : SKILL_TAG_SCROLL_STEP_PX,
       behavior: "smooth",
     });
   }, []);
@@ -730,10 +767,14 @@ function SlashCommandPopoverContent({
       if (skills2.length === 0) return;
       switch (event.key) {
         case "ArrowUp":
-          setFullActiveIndex((prev) => (prev <= 0 ? skills2.length - 1 : prev - 1));
+          setFullActiveIndex((prev) =>
+            prev <= 0 ? skills2.length - 1 : prev - 1,
+          );
           break;
         case "ArrowDown":
-          setFullActiveIndex((prev) => (prev >= skills2.length - 1 ? 0 : prev + 1));
+          setFullActiveIndex((prev) =>
+            prev >= skills2.length - 1 ? 0 : prev + 1,
+          );
           break;
         case "Enter":
         case "Tab": {
@@ -751,17 +792,28 @@ function SlashCommandPopoverContent({
     return () => document.removeEventListener("keydown", handleKeyDown2, true);
   }, [ending, isFullMode, onClose, handleSkillSelect]);
   reactExports.useLayoutEffect(() => {
-    if (hoveredSkillTop === null || !previewRef.current || !listRef.current) return;
+    if (hoveredSkillTop === null || !previewRef.current || !listRef.current)
+      return;
     const preview = previewRef.current;
     const rootRect = listRef.current.getBoundingClientRect();
     const previewHeight = preview.offsetHeight;
-    setPreviewSide(getSkillCoverPreviewSide(rootRect, preview.offsetWidth, window.innerWidth));
+    setPreviewSide(
+      getSkillCoverPreviewSide(
+        rootRect,
+        preview.offsetWidth,
+        window.innerWidth,
+      ),
+    );
     const safetyGap = 16;
-    const desiredViewportTop = rootRect.top + hoveredSkillTop - previewHeight / 2;
+    const desiredViewportTop =
+      rootRect.top + hoveredSkillTop - previewHeight / 2;
     const viewportBottom = Math.min(window.innerHeight, rootRect.bottom);
     const clampedViewportTop = Math.min(
       Math.max(rootRect.top + safetyGap, desiredViewportTop),
-      Math.max(rootRect.top + safetyGap, viewportBottom - previewHeight - safetyGap),
+      Math.max(
+        rootRect.top + safetyGap,
+        viewportBottom - previewHeight - safetyGap,
+      ),
     );
     setPreviewTop(clampedViewportTop - rootRect.top + previewHeight / 2);
   }, [hoveredSkillTop]);
@@ -780,7 +832,8 @@ function SlashCommandPopoverContent({
       onClose();
     };
     document.addEventListener("mousedown", handleOutsideMouseDown);
-    return () => document.removeEventListener("mousedown", handleOutsideMouseDown);
+    return () =>
+      document.removeEventListener("mousedown", handleOutsideMouseDown);
   }, [ending, onClose, triggerRef]);
   reactExports.useLayoutEffect(() => {
     const anchor = anchorRef.current;
@@ -791,8 +844,14 @@ function SlashCommandPopoverContent({
       const inputRoot = anchor.closest("[data-message-input-root]");
       const inputRect = inputRoot?.getBoundingClientRect() ?? anchorRect;
       const preferredWidth =
-        displayMode === "inline" ? INLINE_SKILL_POPOVER_WIDTH : MESSAGE_INPUT_POPOVER_WIDTH;
-      const width = Math.min(preferredWidth, inputRect.width, window.innerWidth - 16);
+        displayMode === "inline"
+          ? INLINE_SKILL_POPOVER_WIDTH
+          : MESSAGE_INPUT_POPOVER_WIDTH;
+      const width = Math.min(
+        preferredWidth,
+        inputRect.width,
+        window.innerWidth - 16,
+      );
       const VIEWPORT_GAP2 = 8;
       let left = displayMode === "inline" ? anchorRect.left : inputRect.left;
       const maxLeft = window.innerWidth - width - VIEWPORT_GAP2;
@@ -804,7 +863,9 @@ function SlashCommandPopoverContent({
       popover.style.left = `${left}px`;
       popover.style.setProperty(
         "--dp-quick-zoom-origin",
-        displayMode !== "inline" && position2 === "down" ? "top left" : "bottom left",
+        displayMode !== "inline" && position2 === "down"
+          ? "top left"
+          : "bottom left",
       );
       const BOTTOM_GAP = 16;
       const MIN_HEIGHT = 120;
@@ -867,7 +928,11 @@ function SlashCommandPopoverContent({
               data-action-ui-id="slash-inline-skill-empty"
               className="flex flex-col items-center gap-2 px-3 py-3 text-center text-xs text-muted-foreground select-none"
             >
-              <SkillIcon size={20} strokeWidth={1.5} className="text-muted-foreground/60" />
+              <SkillIcon
+                size={20}
+                strokeWidth={1.5}
+                className="text-muted-foreground/60"
+              />
               <p className="leading-relaxed">
                 {onCreate ? (
                   <Trans
@@ -995,7 +1060,9 @@ function SlashCommandPopoverContent({
           data-action-ui-id="skill-popover-tags-scroll"
           className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 pt-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <legend className="sr-only">{t2("skills.popover.tabsLabel", "Skill categories")}</legend>
+          <legend className="sr-only">
+            {t2("skills.popover.tabsLabel", "Skill categories")}
+          </legend>
           {skillPopoverMode !== "default" ? (
             <>
               <button
@@ -1016,7 +1083,9 @@ function SlashCommandPopoverContent({
                   className={`inline-flex h-7 shrink-0 items-center rounded-[4px] px-3 text-xs whitespace-nowrap transition-colors ${activeAgentCategory === category.value ? "bg-foreground/[0.06] font-medium text-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
                   onClick={() => setActiveAgentCategory(category.value)}
                 >
-                  {i18n.language.startsWith("zh") ? category.label : category.labelEn}
+                  {i18n.language.startsWith("zh")
+                    ? category.label
+                    : category.labelEn}
                 </button>
               ))}
             </>
@@ -1038,7 +1107,9 @@ function SlashCommandPopoverContent({
                 aria-pressed={activeTag === MY_SKILLS_TAG}
                 className={`inline-flex h-7 shrink-0 items-center rounded-[4px] px-3 text-xs whitespace-nowrap transition-colors ${activeTag === MY_SKILLS_TAG ? "bg-foreground/[0.06] font-medium text-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
                 onClick={() => setActiveTag(MY_SKILLS_TAG)}
-                onKeyDown={(event) => handleTagSelectKeyDown(event, MY_SKILLS_TAG)}
+                onKeyDown={(event) =>
+                  handleTagSelectKeyDown(event, MY_SKILLS_TAG)
+                }
               >
                 {t2("skills.tag.mine", "My Skills")}
               </button>
@@ -1048,7 +1119,9 @@ function SlashCommandPopoverContent({
                 aria-pressed={activeTag === FEATURED_TAG}
                 className={`inline-flex h-7 shrink-0 items-center rounded-[4px] px-3 text-xs whitespace-nowrap transition-colors ${activeTag === FEATURED_TAG ? "bg-foreground/[0.06] font-medium text-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
                 onClick={() => setActiveTag(FEATURED_TAG)}
-                onKeyDown={(event) => handleTagSelectKeyDown(event, FEATURED_TAG)}
+                onKeyDown={(event) =>
+                  handleTagSelectKeyDown(event, FEATURED_TAG)
+                }
               >
                 {t2("skills.tag.featured", "精选")}
               </button>
@@ -1060,7 +1133,9 @@ function SlashCommandPopoverContent({
                   aria-pressed={activeTag === category.category}
                   className={`inline-flex h-7 shrink-0 items-center rounded-[4px] px-3 text-xs whitespace-nowrap transition-colors ${activeTag === category.category ? "bg-foreground/[0.06] font-medium text-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
                   onClick={() => setActiveTag(category.category)}
-                  onKeyDown={(event) => handleTagSelectKeyDown(event, category.category)}
+                  onKeyDown={(event) =>
+                    handleTagSelectKeyDown(event, category.category)
+                  }
                 >
                   {isZh ? category.cn_name : category.en_name}
                 </button>
@@ -1170,11 +1245,17 @@ function SlashCommandPopoverContent({
               type="button"
               role="option"
               aria-selected={isActive2}
-              aria-busy={market.installingSet.has(skill.name) || pendingSkillNames.has(skill.name)}
+              aria-busy={
+                market.installingSet.has(skill.name) ||
+                pendingSkillNames.has(skill.name)
+              }
               data-action-ui-id={`slash-cmd-${skill.name}`}
               className={`list-row-hit-area [--list-row-gap:2px] first:before:top-0 last:before:bottom-0 w-full flex flex-col gap-0.5 px-2.5 py-2 text-left cursor-pointer rounded-md transition-colors ${isActive2 ? "bg-popup-item-active" : "hover:bg-popup-item-active"}`}
               onClick={() => handleSkillSelect(skill)}
-              disabled={market.installingSet.has(skill.name) || pendingSkillNames.has(skill.name)}
+              disabled={
+                market.installingSet.has(skill.name) ||
+                pendingSkillNames.has(skill.name)
+              }
               onMouseEnter={(event) => {
                 handleHover(index2);
                 handleCoverPreviewEnter(skill, event.currentTarget);
@@ -1185,9 +1266,13 @@ function SlashCommandPopoverContent({
                 <span className="text-[13px] leading-[20px] text-foreground truncate">
                   {display.displayName}
                 </span>
-                <span className="text-[12px] shrink-0 text-muted-foreground/70">/{skill.name}</span>
+                <span className="text-[12px] shrink-0 text-muted-foreground/70">
+                  /{skill.name}
+                </span>
               </span>
-              <span className="text-[12px] text-muted-foreground truncate">{display.summary}</span>
+              <span className="text-[12px] text-muted-foreground truncate">
+                {display.summary}
+              </span>
               {market.installingSet.has(skill.name) && (
                 <span
                   role="progressbar"
@@ -1254,7 +1339,9 @@ function SlashCommandPopoverContent({
           <div className="h-40 w-full bg-muted">
             <SkillCoverMedia
               url={previewCover}
-              alt={hoveredPreviewSkill.displayNameZh || hoveredPreviewSkill.name}
+              alt={
+                hoveredPreviewSkill.displayNameZh || hoveredPreviewSkill.name
+              }
               className="h-full w-full object-cover"
             />
           </div>

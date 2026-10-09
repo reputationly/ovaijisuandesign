@@ -1,6 +1,6 @@
 // editor-state2.js
 import { CompartmentInstance, ensureAddr, getAddr, resolveTransaction, StateEffect, asArray$1, allowMultipleSelections, EditorSelection, ChangeSet, Text, DefaultSplit, StateField, checkSelection, readOnly, languageData, makeCategorizer, findClusterBreak, CharCategory, Facet, lineSeparator, changeFilter, transactionFilter, transactionExtender } from "../../vendor.js";
-import { Configuration2, types } from "../../text-editor/annotation-highlight.js";
+import { Configuration2, types } from "../../text-editor/configuration2.js";
 export class Compartment {
   /**
   Create an instance of this compartment to add to your [state

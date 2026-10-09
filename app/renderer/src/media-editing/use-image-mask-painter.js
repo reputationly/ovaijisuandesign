@@ -1,76 +1,11 @@
 // use-image-mask-painter.js
-import { reactExports, useReactFlow } from "../vendor.js";
-import { useDevicePixelRatio } from "../infra/deep-freeze.js";
-function isEditableTarget$3(target) {
-  if (!target || !(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
-}
-export function useSpacePan(active2 = true) {
-  const [isSpacePressed, setIsSpacePressed] = reactExports.useState(false);
-  reactExports.useEffect(() => {
-    if (!active2) return;
-    const onKeyDown = (e2) => {
-      if (e2.code !== "Space" || e2.repeat) return;
-      if (isEditableTarget$3(e2.target)) return;
-      e2.preventDefault();
-      setIsSpacePressed(true);
-    };
-    const onKeyUp = (e2) => {
-      if (e2.code !== "Space") return;
-      setIsSpacePressed(false);
-    };
-    const onBlur = () => setIsSpacePressed(false);
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    window.addEventListener("blur", onBlur);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      window.removeEventListener("blur", onBlur);
-      setIsSpacePressed(false);
-    };
-  }, [active2]);
-  return isSpacePressed;
-}
-export function useStableViewportOnContainerShift(
-  containerRef,
-  active2 = true,
-  layoutRelocationKey,
-) {
-  const reactFlow = useReactFlow();
-  reactExports.useLayoutEffect(() => {
-    if (!active2) return;
-    const el = containerRef.current;
-    if (!el) return;
-    if (typeof ResizeObserver === "undefined") return;
-    let lastLeft = el.getBoundingClientRect().left;
-    const ro = new ResizeObserver(() => {
-      const rect = el.getBoundingClientRect();
-      const dx = rect.left - lastLeft;
-      if (dx === 0) return;
-      lastLeft = rect.left;
-      const v2 = reactFlow.getViewport();
-      reactFlow.setViewport({
-        ...v2,
-        x: v2.x - dx,
-      });
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [active2, containerRef, layoutRelocationKey, reactFlow]);
-}
-export function selectionToNormalizedBBox(rect) {
-  const n2 = (value) => Math.max(0, Math.min(999, Math.round(value * 999)));
-  return {
-    x1: n2(Math.min(rect.x1, rect.x2)),
-    y1: n2(Math.min(rect.y1, rect.y2)),
-    x2: n2(Math.max(rect.x1, rect.x2)),
-    y2: n2(Math.max(rect.y1, rect.y2)),
-  };
-}
+import { reactExports } from "../vendor.js";
+import { useDevicePixelRatio } from "../infra/shallow-copy.js";
+
 const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
+
 const ERASE_MASK_OVERLAY_OPACITY = 0.4;
+
 function paintStrokes(
   ctx,
   strokes,
@@ -158,7 +93,13 @@ function paintStrokes(
     if (stroke.points.length === 1) {
       const [p3] = stroke.points;
       ctx.beginPath();
-      ctx.arc(p3.x * imagePxWidth, p3.y * imagePxHeight, radius, 0, Math.PI * 2);
+      ctx.arc(
+        p3.x * imagePxWidth,
+        p3.y * imagePxHeight,
+        radius,
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
     } else {
       ctx.beginPath();
@@ -172,122 +113,7 @@ function paintStrokes(
     ctx.restore();
   }
 }
-function normaliseRect(a2, b3) {
-  return {
-    x1: Math.max(0, Math.min(1, Math.min(a2.x, b3.x))),
-    y1: Math.max(0, Math.min(1, Math.min(a2.y, b3.y))),
-    x2: Math.max(0, Math.min(1, Math.max(a2.x, b3.x))),
-    y2: Math.max(0, Math.min(1, Math.max(a2.y, b3.y))),
-  };
-}
-function isValidSelectionRect(rect, minSize = 1e-3) {
-  return Boolean(rect && rect.x2 - rect.x1 >= minSize && rect.y2 - rect.y1 >= minSize);
-}
-export function useImageErase() {
-  const [selections, setSelections] = reactExports.useState([]);
-  const [draftSelection, setDraftSelection] = reactExports.useState(null);
-  const [redoSelections, setRedoSelections] = reactExports.useState([]);
-  const startRef = reactExports.useRef(null);
-  const draftRef = reactExports.useRef(null);
-  const beginSelection = reactExports.useCallback((point2) => {
-    startRef.current = point2;
-    draftRef.current = null;
-    setDraftSelection(null);
-  }, []);
-  const extendSelection = reactExports.useCallback((point2) => {
-    if (!startRef.current) return;
-    const next2 = normaliseRect(startRef.current, point2);
-    draftRef.current = next2;
-    setDraftSelection(next2);
-  }, []);
-  const endSelection = reactExports.useCallback(() => {
-    startRef.current = null;
-    const current2 = draftRef.current;
-    draftRef.current = null;
-    setDraftSelection(null);
-    if (!isValidSelectionRect(current2)) return null;
-    setSelections((previous2) => [...previous2, current2]);
-    setRedoSelections([]);
-    return current2;
-  }, []);
-  const undoSelection2 = reactExports.useCallback(() => {
-    setSelections((previous2) => {
-      if (previous2.length === 0) return previous2;
-      const next2 = previous2.slice(0, -1);
-      const removed = previous2[previous2.length - 1];
-      setRedoSelections((redo22) => [...redo22, removed]);
-      return next2;
-    });
-  }, []);
-  const redo2 = reactExports.useCallback(() => {
-    setRedoSelections((previous2) => {
-      if (previous2.length === 0) return previous2;
-      const restored = previous2[previous2.length - 1];
-      setSelections((current2) => [...current2, restored]);
-      return previous2.slice(0, -1);
-    });
-  }, []);
-  const clearSelection = reactExports.useCallback(() => {
-    setSelections([]);
-    setDraftSelection(null);
-    setRedoSelections([]);
-    draftRef.current = null;
-    startRef.current = null;
-  }, []);
-  const selection2 = selections[selections.length - 1] ?? null;
-  const strokes = [...selections, ...(draftSelection ? [draftSelection] : [])].map((rect) => ({
-    size: 0,
-    mode: "rect",
-    points: [
-      {
-        x: rect.x1,
-        y: rect.y1,
-      },
-      {
-        x: rect.x2,
-        y: rect.y2,
-      },
-    ],
-  }));
-  const beginStroke = reactExports.useCallback(
-    (point2) => beginSelection(point2),
-    [beginSelection],
-  );
-  const extendStroke = reactExports.useCallback(
-    (point2) => extendSelection(point2),
-    [extendSelection],
-  );
-  const endStroke = endSelection;
-  const undoStroke = undoSelection2;
-  const redoStroke = redo2;
-  const setTool = reactExports.useCallback((_tool) => {}, []);
-  const setBrushSize = reactExports.useCallback((_value) => {}, []);
-  return {
-    selection: selection2,
-    strokes,
-    brushSize: 0,
-    tool: "rect",
-    isPainting: startRef.current !== null,
-    beginStroke,
-    extendStroke,
-    endStroke,
-    undoStroke,
-    redoStroke,
-    setTool,
-    setBrushSize,
-    beginSelection,
-    extendSelection,
-    endSelection,
-    undoSelection: undoSelection2,
-    redoSelection: redo2,
-    clearSelection,
-    hasStrokes: selections.length > 0,
-    hasSelection: selections.length > 0,
-    selections,
-    draftSelection,
-    canRedo: redoSelections.length > 0,
-  };
-}
+
 export function useImageMaskPainter({
   meta: meta2,
   imagePos,
@@ -297,7 +123,13 @@ export function useImageMaskPainter({
   overlayOpacity = ERASE_MASK_OVERLAY_OPACITY,
   onSelectionComplete,
 }) {
-  const { selections, draftSelection, beginSelection, extendSelection, endSelection } = toolApi;
+  const {
+    selections,
+    draftSelection,
+    beginSelection,
+    extendSelection,
+    endSelection,
+  } = toolApi;
   const dpr = useDevicePixelRatio();
   const maskCanvasRef = reactExports.useRef(null);
   const paintRectRef = reactExports.useRef(null);
@@ -310,7 +142,8 @@ export function useImageMaskPainter({
     const cssH = imagePos.h;
     if (cssW <= 0 || cssH <= 0) return;
     const last2 = lastDrawRef.current;
-    const sizeChanged = !last2 || last2.cssW !== cssW || last2.cssH !== cssH || last2.dpr !== dpr;
+    const sizeChanged =
+      !last2 || last2.cssW !== cssW || last2.cssH !== cssH || last2.dpr !== dpr;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     if (sizeChanged) {
@@ -456,7 +289,8 @@ export function useImageMaskPainter({
   }, []);
   const onBackdropClick = reactExports.useCallback(
     (e2) => {
-      if (e2.target === e2.currentTarget && backdropPointerDownRef.current) onCancel();
+      if (e2.target === e2.currentTarget && backdropPointerDownRef.current)
+        onCancel();
       backdropPointerDownRef.current = false;
     },
     [onCancel],

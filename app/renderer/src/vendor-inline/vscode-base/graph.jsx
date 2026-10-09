@@ -19,7 +19,7 @@ import {
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { IPCClient, ProxyChannel } from "./channel-client.js";
 import { DisposableStore } from "./linked-list.js";
-import { getPlatform } from "../../infra/track-events.js";
+import { getPlatform } from "../../infra/web-storage.js";
 import { Event$1, VSBuffer } from "./vs-buffer.js";
 class Protocol {
   constructor(sender, onMessage) {

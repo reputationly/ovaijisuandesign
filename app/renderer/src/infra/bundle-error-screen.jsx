@@ -1,245 +1,27 @@
 // bundle-error-screen.jsx
-import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, ChevronDown, X$7, Info$1, AlertTriangle, getRuntimeConfig } from "../vendor.js";
-import { gatewayFetch } from "./agent-ws-client.jsx";
-import { useAuth } from "../assets/apply-asset-change.jsx";
-import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
-import { Upload } from "../media-editing/parse-item.jsx";
-import { resolveWorkspaceFailureDiagnosis } from "../canvas/use-canvas-tag-filter.js";
-import { useRemoteToolSdk, WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
-import { Button$1 } from "./use-browser-overlay-dialog-props.jsx";
-import { RetryIcon } from "../workspace/browser-inspiration-urls.jsx";
-import { getNetworkDiagnosticsMainService } from "../team/delete-account-confirm-dialog.jsx";
-import { reportRumAction, reportRumError } from "../i18n/init-rum.jsx";
+import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
+import {
+  AlertTriangle,
+  ChevronDown,
+  dedupedToast,
+  Info$1,
+  jsxRuntimeExports,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { RemoteToolDialogShell, RemoteToolHost$1, isTerminalState } from "../media-editing/remote-tool-host.jsx";
-const LOCAL_PATH_RE = /^(\/|[A-Za-z]:[\\/])/;
-const MEDIA_EXT_RE = /\.(png|jpg|jpeg|webp|gif|avif|mp4|mp3|wav|m4a|ogg)$/i;
-function looksLikeLocalPath(value) {
-  if (typeof value !== "string" || value.length === 0) return false;
-  if (value.startsWith("http://") || value.startsWith("https://")) return false;
-  if (value.startsWith("data:") || value.startsWith("blob:")) return false;
-  if (LOCAL_PATH_RE.test(value)) return true;
-  return !value.includes("://") && MEDIA_EXT_RE.test(value);
-}
-async function normalizeInitialParams(params) {
-  const entries2 = await Promise.all(
-    Object.entries(params).map(async ([key2, value]) => {
-      if (!looksLikeLocalPath(value)) return [key2, value];
-      try {
-        const res = await gatewayFetch("/api/files/upload-cdn", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            file_path: value,
-          }),
-          timeoutMs: 12e4,
-        });
-        const json2 = await res.json();
-        if (json2.ok && json2.url) {
-          remoteToolLog.info("initial_params normalized", {
-            key: key2,
-            from: value,
-            to: json2.url,
-          });
-          return [key2, json2.url];
-        }
-        remoteToolLog.warn("initial_params upload-cdn returned not ok", {
-          key: key2,
-          path: value,
-          error: json2.error ?? "unknown",
-        });
-      } catch (err) {
-        remoteToolLog.warn("initial_params upload-cdn exception", {
-          key: key2,
-          path: value,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-      return [key2, value];
-    }),
-  );
-  return Object.fromEntries(entries2);
-}
-export function RemoteToolDialog({
-  open,
-  onClose,
-  toolUrl,
-  manifestPath,
-  toolId,
-  locale = "en",
-  onGuiEvent,
-  hostEvent,
-  initialParams,
-  onCheckLogin,
-  interactionDisabled = false,
-}) {
-  const { t: t2 } = useTranslation();
-  const initialParamsRef = reactExports.useRef(initialParams);
-  const { sdk, dispatchHostEvent } = useRemoteToolSdk({
-    toolId,
-    locale,
-    onEmit: onGuiEvent,
-    onCheckLogin,
-    getInitialParams: () => initialParamsRef.current,
-  });
-  reactExports.useEffect(() => {
-    if (!hostEvent) return;
-    dispatchHostEvent(hostEvent.eventType, hostEvent.data);
-  }, [hostEvent, dispatchHostEvent]);
-  const [paramsReady, setParamsReady] = reactExports.useState(false);
-  reactExports.useEffect(() => {
-    if (!open) {
-      setParamsReady(false);
-      initialParamsRef.current = initialParams;
-      return;
-    }
-    let cancelled = false;
-    if (!initialParams || Object.keys(initialParams).length === 0) {
-      initialParamsRef.current = initialParams;
-      setParamsReady(true);
-      return;
-    }
-    setParamsReady(false);
-    normalizeInitialParams(initialParams)
-      .then((normalized) => {
-        if (cancelled) return;
-        initialParamsRef.current = normalized;
-        setParamsReady(true);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        remoteToolLog.error("normalizeInitialParams unexpected error", {
-          error: err instanceof Error ? err.message : String(err),
-        });
-        initialParamsRef.current = initialParams;
-        setParamsReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [open, initialParams]);
-  const [guiWidth, setGuiWidth] = reactExports.useState(void 0);
-  const [guiHeight, setGuiHeight] = reactExports.useState(void 0);
-  const [manifestReady, setManifestReady] = reactExports.useState(false);
-  reactExports.useEffect(() => {
-    if (!open) {
-      setManifestReady(false);
-      return;
-    }
-    let cancelled = false;
-    gatewayFetch(manifestPath)
-      .then((r2) => (r2.ok ? r2.json() : Promise.reject(new Error(`HTTP ${r2.status}`))))
-      .then((manifest) => {
-        if (cancelled) return;
-        setGuiWidth(typeof manifest?.guiWidth === "number" ? manifest.guiWidth : void 0);
-        setGuiHeight(typeof manifest?.guiHeight === "number" ? manifest.guiHeight : void 0);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        remoteToolLog.warn("gui manifest fetch/parse failed", {
-          tool_id: toolId,
-          manifest_path: manifestPath,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        setGuiWidth(void 0);
-        setGuiHeight(void 0);
-      })
-      .finally(() => {
-        if (!cancelled) setManifestReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [open, manifestPath, toolId]);
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{
-        display: open ? "flex" : "none",
-      }}
-      aria-hidden={!open}
-    >
-      <button
-        type="button"
-        aria-label={t2("a11y.closeDialog", "Close dialog")}
-        className="modal-mask absolute inset-0"
-        onClick={onClose}
-      />
-      {manifestReady && paramsReady && (
-        <RemoteToolDialogShell width={guiWidth} height={guiHeight}>
-          <Button$1
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="absolute top-2 right-2 z-20"
-            onClick={onClose}
-            aria-label={t2("common.close")}
-            data-action-ui-id="remote-tool-dialog.close"
-          >
-            <X$7 size={16} strokeWidth={1.5} />
-          </Button$1>
-          <div className={interactionDisabled ? "h-full pointer-events-none opacity-50" : "h-full"}>
-            {open && <RemoteToolHost$1 toolUrl={toolUrl} toolId={toolId} sdk={sdk} layout="fill" />}
-          </div>
-          {interactionDisabled ? (
-            <div
-              role="status"
-              className="absolute inset-x-4 bottom-4 z-20 rounded-md border border-border bg-background px-3 py-2 text-center text-xs text-muted-foreground shadow-sm"
-              data-action-ui-id="remote-tool-dialog.account-blocked"
-            >
-              {t2("team.submission.blocked", {
-                defaultValue: "账号正在切换或恢复，暂时无法提交。",
-              })}
-            </div>
-          ) : null}
-        </RemoteToolDialogShell>
-      )}
-    </div>
-  );
-}
-export function shouldRefreshStatusOnResume(isActive2, lastState) {
-  if (!isActive2 || lastState === void 0) return false;
-  return isTerminalState(lastState) || lastState === "stopping";
-}
-export function runFullNetworkDiagnostics(options) {
-  return getNetworkDiagnosticsMainService().runDiagnostics({
-    localGatewayUrl: options?.gatewayUrl ?? getRuntimeConfig().gatewayUrl,
-    localGatewayClaim: options?.gatewayUrl ? options?.workspaceClaim : void 0,
-    localGatewayBinding: options?.gatewayUrl ? options?.workspaceBinding : void 0,
-  });
-}
-export function useRetryHintActive(blockedUntilMs) {
-  const [expiredUntilMs, setExpiredUntilMs] = reactExports.useState(void 0);
-  reactExports.useEffect(() => {
-    setExpiredUntilMs(void 0);
-    if (blockedUntilMs === void 0) return;
-    const remainingMs = blockedUntilMs - Date.now();
-    if (remainingMs <= 0) {
-      setExpiredUntilMs(blockedUntilMs);
-      return;
-    }
-    const timer2 = setTimeout(() => setExpiredUntilMs(blockedUntilMs), remainingMs + 50);
-    return () => clearTimeout(timer2);
-  }, [blockedUntilMs]);
-  return (
-    blockedUntilMs !== void 0 && blockedUntilMs > Date.now() && expiredUntilMs !== blockedUntilMs
-  );
-}
-Object.fromEntries(
-  Object.entries(WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY).map(([code2, meta2]) => [
-    code2,
-    {
-      messageKey: meta2.message.key,
-      messageDefault: meta2.message.zh,
-      suggestions: meta2.suggestions.map((suggestion) => ({
-        key: suggestion.key,
-        defaultValue: suggestion.zh,
-      })),
-    },
-  ]),
-);
+import {
+  runFullNetworkDiagnostics,
+  useRetryHintActive,
+} from "./use-retry-hint-active.js";
+import { useAuth } from "../assets/credit-query-keys.jsx";
+import { Upload } from "../media-editing/package.jsx";
+import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
+import { Button$1 } from "./dialog-content.jsx";
+import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
+import { reportRumAction, reportRumError } from "../i18n/init-rum.js";
+
 function buildWorkspaceStartupRumContext(status) {
   const evidence = status.diagnosis?.evidence;
   const meta2 = status.diagnosis?.code
@@ -267,66 +49,7 @@ function buildWorkspaceStartupRumContext(status) {
     evidence_stderr_signatures: evidence?.stderrSignatures.join(","),
   };
 }
-function buildEvidenceItems(evidence) {
-  if (!evidence) return [];
-  const items = [
-    {
-      key: "phase",
-      labelKey: "bundleError.evidence.phase",
-      labelDefault: "阶段",
-      valueKey: `bundleError.evidence.phase.${evidence.phase}`,
-      valueDefault: formatPhase(evidence.phase),
-    },
-  ];
-  if (evidence.lastHealthErrorKind && evidence.lastHealthErrorKind !== "unknown") {
-    items.push({
-      key: "health",
-      labelKey: "bundleError.evidence.health",
-      labelDefault: "健康检查",
-      valueKey: `bundleError.evidence.health.${evidence.lastHealthErrorKind}`,
-      valueDefault: formatHealthError(evidence.lastHealthErrorKind),
-    });
-  }
-  if (typeof evidence.healthTimeoutMs === "number") {
-    items.push({
-      key: "timeout",
-      labelKey: "bundleError.evidence.timeout",
-      labelDefault: "超时",
-      valueDefault: formatDuration$2(evidence.healthTimeoutMs),
-    });
-  }
-  if (evidence.proxyEnvPresent) {
-    items.push({
-      key: "proxy",
-      labelKey: "bundleError.evidence.proxy",
-      labelDefault: "代理",
-      valueKey: "bundleError.evidence.proxy.present",
-      valueDefault: "检测到代理环境变量",
-    });
-  }
-  if (evidence.runtimeDirWritable === "failed") {
-    items.push({
-      key: "runtimeDir",
-      labelKey: "bundleError.evidence.runtimeDir",
-      labelDefault: "运行目录",
-      valueKey: "bundleError.evidence.runtimeDir.failed",
-      valueDefault: "不可写",
-    });
-  }
-  if (evidence.stderrSignatures.length > 0) {
-    items.push({
-      key: "signatures",
-      labelKey: "bundleError.evidence.signatures",
-      labelDefault: "错误签名",
-      valueDefault: evidence.stderrSignatures.map(formatSignature).join(", "),
-      valueSegments: evidence.stderrSignatures.map((sig) => ({
-        key: `bundleError.evidence.signature.${sig}`,
-        defaultValue: formatSignature(sig),
-      })),
-    });
-  }
-  return items;
-}
+
 function formatPhase(phase) {
   switch (phase) {
     case "allocate_port":
@@ -343,6 +66,7 @@ function formatPhase(phase) {
       return phase;
   }
 }
+
 function formatHealthError(kind) {
   switch (kind) {
     case "timeout":
@@ -365,6 +89,7 @@ function formatHealthError(kind) {
       return kind;
   }
 }
+
 function formatSignature(signature) {
   switch (signature) {
     case "config_json_error":
@@ -417,16 +142,84 @@ function formatSignature(signature) {
       return signature;
   }
 }
+
 function formatDuration$2(ms) {
   if (ms >= 1e3 && ms % 1e3 === 0) return `${ms / 1e3}s`;
   return `${ms}ms`;
 }
+
+function buildEvidenceItems(evidence) {
+  if (!evidence) return [];
+  const items = [
+    {
+      key: "phase",
+      labelKey: "bundleError.evidence.phase",
+      labelDefault: "阶段",
+      valueKey: `bundleError.evidence.phase.${evidence.phase}`,
+      valueDefault: formatPhase(evidence.phase),
+    },
+  ];
+  if (
+    evidence.lastHealthErrorKind &&
+    evidence.lastHealthErrorKind !== "unknown"
+  ) {
+    items.push({
+      key: "health",
+      labelKey: "bundleError.evidence.health",
+      labelDefault: "健康检查",
+      valueKey: `bundleError.evidence.health.${evidence.lastHealthErrorKind}`,
+      valueDefault: formatHealthError(evidence.lastHealthErrorKind),
+    });
+  }
+  if (typeof evidence.healthTimeoutMs === "number") {
+    items.push({
+      key: "timeout",
+      labelKey: "bundleError.evidence.timeout",
+      labelDefault: "超时",
+      valueDefault: formatDuration$2(evidence.healthTimeoutMs),
+    });
+  }
+  if (evidence.proxyEnvPresent) {
+    items.push({
+      key: "proxy",
+      labelKey: "bundleError.evidence.proxy",
+      labelDefault: "代理",
+      valueKey: "bundleError.evidence.proxy.present",
+      valueDefault: "检测到代理环境变量",
+    });
+  }
+  if (evidence.runtimeDirWritable === "failed") {
+    items.push({
+      key: "runtimeDir",
+      labelKey: "bundleError.evidence.runtimeDir",
+      labelDefault: "运行目录",
+      valueKey: "bundleError.evidence.runtimeDir.failed",
+      valueDefault: "不可写",
+    });
+  }
+  if (evidence.stderrSignatures.length > 0) {
+    items.push({
+      key: "signatures",
+      labelKey: "bundleError.evidence.signatures",
+      labelDefault: "错误签名",
+      valueDefault: evidence.stderrSignatures.map(formatSignature).join(", "),
+      valueSegments: evidence.stderrSignatures.map((sig) => ({
+        key: `bundleError.evidence.signature.${sig}`,
+        defaultValue: formatSignature(sig),
+      })),
+    });
+  }
+  return items;
+}
+
 const SYSTEM_UPGRADE_REQUIRED_CODES = new Set([
   "macos_version_unsupported",
   "windows_version_unsupported",
   "windows_cpu_unsupported",
 ]);
+
 const WORKSPACE_STARTUP_FAILED_RUM_ACTION = "Workspace 启动失败";
+
 const INTERNAL_ERROR_MARKERS = [
   "gateway",
   "runtime",
@@ -443,8 +236,11 @@ const INTERNAL_ERROR_MARKERS = [
   "https://",
   "error:",
 ];
+
 const MAX_UPLOAD_CACHE = 50;
+
 const AUTO_UPLOAD_PROMISES = new Map();
+
 function setUploadPromise(failureId, promise) {
   AUTO_UPLOAD_PROMISES.set(failureId, promise);
   if (AUTO_UPLOAD_PROMISES.size > MAX_UPLOAD_CACHE) {
@@ -454,15 +250,20 @@ function setUploadPromise(failureId, promise) {
     }
   }
 }
+
 function isUserFacingStatusError(error) {
   const message2 = error?.trim();
   if (!message2) return false;
   const normalized = message2.toLowerCase();
-  return !INTERNAL_ERROR_MARKERS.some((marker) => normalized.includes(marker.toLowerCase()));
+  return !INTERNAL_ERROR_MARKERS.some((marker) =>
+    normalized.includes(marker.toLowerCase()),
+  );
 }
+
 function normalizeDisplayMessage(message2) {
   return message2.replace(/[。.!！\s]/g, "").toLowerCase();
 }
+
 export function BundleErrorScreen({
   status,
   retrying = false,
@@ -475,11 +276,17 @@ export function BundleErrorScreen({
   const { i18n, t: t2 } = useTranslation();
   const { user } = useAuth();
   const [feedbackState, setFeedbackState] = reactExports.useState("idle");
-  const [networkRecoveryState, setNetworkRecoveryState] = reactExports.useState("idle");
+  const [networkRecoveryState, setNetworkRecoveryState] =
+    reactExports.useState("idle");
   const [autoUploadState, setAutoUploadState] = reactExports.useState("idle");
   const [feedbackUpload, setFeedbackUpload] = reactExports.useState();
-  const [showTechnicalDetails, setShowTechnicalDetails] = reactExports.useState(false);
-  const diagnosis = resolveWorkspaceFailureDiagnosis(status.diagnosis?.code, t2, i18n.language);
+  const [showTechnicalDetails, setShowTechnicalDetails] =
+    reactExports.useState(false);
+  const diagnosis = resolveWorkspaceFailureDiagnosis(
+    status.diagnosis?.code,
+    t2,
+    i18n.language,
+  );
   const failureId = status.diagnosis?.failureId;
   const uploadDedupKey = (
     failureId ??
@@ -491,14 +298,19 @@ export function BundleErrorScreen({
   const rawStatusError = status.error?.trim() || void 0;
   const errorMessage2 =
     diagnosis?.message ??
-    (isUserFacingStatusError(rawStatusError) ? rawStatusError : t2("bundleError.fallbackMessage"));
+    (isUserFacingStatusError(rawStatusError)
+      ? rawStatusError
+      : t2("bundleError.fallbackMessage"));
   const retryCannotFix =
     diagnosis?.severity === "needs_reinstall" ||
     (diagnosis ? SYSTEM_UPGRADE_REQUIRED_CODES.has(diagnosis.code) : false) ||
     diagnosis?.code === "workspace_data_migration_conflict" ||
     diagnosis?.code === "workspace_index_recovery_required";
   const maxRetries = retryCannotFix ? 0 : maxRetriesProp;
-  const evidenceItems = reactExports.useMemo(() => buildEvidenceItems(evidence), [evidence]);
+  const evidenceItems = reactExports.useMemo(
+    () => buildEvidenceItems(evidence),
+    [evidence],
+  );
   const userIdLabel = t2("bundleError.userId", {
     defaultValue: "用户 ID",
   });
@@ -526,7 +338,8 @@ export function BundleErrorScreen({
   });
   const mainTitle = diagnosis?.title ?? errorTitle;
   const shouldShowErrorMessage =
-    normalizeDisplayMessage(errorMessage2) !== normalizeDisplayMessage(mainTitle);
+    normalizeDisplayMessage(errorMessage2) !==
+    normalizeDisplayMessage(mainTitle);
   const supportStatusText =
     autoUploadState === "uploading"
       ? t2("bundleError.supportHint.uploading", {
@@ -534,7 +347,8 @@ export function BundleErrorScreen({
         })
       : feedbackUpload?.success
         ? t2("bundleError.supportHint.uploaded", {
-            defaultValue: "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
+            defaultValue:
+              "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
           })
         : autoUploadState === "error"
           ? t2("bundleError.supportHint.uploadFailed", {
@@ -542,7 +356,8 @@ export function BundleErrorScreen({
                 "自动上传失败，可点击上传日志并复制反馈信息重试；截图请保留用户 ID + 反馈码。",
             })
           : t2("bundleError.supportHint.beforeUpload", {
-              defaultValue: "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
+              defaultValue:
+                "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
             });
   const retryButtonLabel =
     retryCount >= maxRetries
@@ -605,7 +420,12 @@ export function BundleErrorScreen({
       diagnosticContext,
     );
     reportRumAction(WORKSPACE_STARTUP_FAILED_RUM_ACTION, diagnosticContext);
-  }, [diagnosticContext, status.diagnosis?.code, status.diagnosis?.failureId, status.state]);
+  }, [
+    diagnosticContext,
+    status.diagnosis?.code,
+    status.diagnosis?.failureId,
+    status.state,
+  ]);
   reactExports.useEffect(() => {
     if (!autoUploadDiagnostics || status.state !== "failed") return;
     const existing = AUTO_UPLOAD_PROMISES.get(uploadDedupKey);
@@ -723,7 +543,8 @@ export function BundleErrorScreen({
         ? `${t2("bundleError.feedbackCopy.guide", {
             defaultValue: "定位说明",
           })}: ${t2("bundleError.feedbackCopy.guideText", {
-            defaultValue: "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
+            defaultValue:
+              "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
           })}`
         : void 0;
       const text2 = [
@@ -768,7 +589,8 @@ export function BundleErrorScreen({
     if (!diagnosticsActionsEnabled || networkRecoveryState !== "idle") return;
     setNetworkRecoveryState(mode2);
     try {
-      const result = await getNetworkDiagnosticsMainService().setProxyMode(mode2);
+      const result =
+        await getNetworkDiagnosticsMainService().setProxyMode(mode2);
       if (!result.success) {
         throw new Error(`set proxy mode failed: ${result.mode}`);
       }
@@ -802,7 +624,9 @@ export function BundleErrorScreen({
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {sceneTitle}
               </p>
-              <h2 className="mt-1 text-xl font-semibold leading-7 text-foreground">{mainTitle}</h2>
+              <h2 className="mt-1 text-xl font-semibold leading-7 text-foreground">
+                {mainTitle}
+              </h2>
               {shouldShowErrorMessage ? (
                 <p className="mt-1 text-sm leading-5 text-muted-foreground break-words">
                   {errorMessage2}
@@ -810,7 +634,8 @@ export function BundleErrorScreen({
               ) : null}
               <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
                 {t2("bundleError.impactMessage", {
-                  defaultValue: "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
+                  defaultValue:
+                    "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
                 })}
               </p>
             </div>
@@ -822,11 +647,16 @@ export function BundleErrorScreen({
               defaultValue: "怎么解决",
             })}
           </p>
-          <p className="mt-1 text-sm leading-5 text-foreground">{solutionSummary}</p>
+          <p className="mt-1 text-sm leading-5 text-foreground">
+            {solutionSummary}
+          </p>
           {diagnosis?.suggestions.length ? (
             <ol className="mt-3 space-y-2">
               {diagnosis.suggestions.map((suggestion, index2) => (
-                <li key={suggestion} className="flex gap-2.5 text-sm text-muted-foreground">
+                <li
+                  key={suggestion}
+                  className="flex gap-2.5 text-sm text-muted-foreground"
+                >
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[11px] font-medium text-foreground">
                     {index2 + 1}
                   </span>
@@ -837,7 +667,8 @@ export function BundleErrorScreen({
           ) : (
             <p className="mt-3 text-sm leading-5 text-muted-foreground">
               {t2("bundleError.solutionGenericSuggestion", {
-                defaultValue: "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
+                defaultValue:
+                  "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
               })}
             </p>
           )}
@@ -869,7 +700,10 @@ export function BundleErrorScreen({
         </div>
         <div className="mx-6 mt-3 rounded-lg px-4 py-3 ring-1 ring-border/60">
           <div className="flex items-start gap-2.5">
-            <Info$1 className="mt-0.5 size-4 shrink-0 text-foreground opacity-50" strokeWidth={1} />
+            <Info$1
+              className="mt-0.5 size-4 shrink-0 text-foreground opacity-50"
+              strokeWidth={1}
+            />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-foreground">
                 {t2("bundleError.supportCardTitle", {
@@ -889,7 +723,9 @@ export function BundleErrorScreen({
                 </dd>
                 {failureId ? (
                   <>
-                    <dt className="text-muted-foreground">{feedbackCodeLabel}</dt>
+                    <dt className="text-muted-foreground">
+                      {feedbackCodeLabel}
+                    </dt>
                     <dd
                       className="min-w-0 break-all font-mono text-foreground/70"
                       title={failureId}
@@ -899,7 +735,9 @@ export function BundleErrorScreen({
                   </>
                 ) : null}
               </dl>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{supportStatusText}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {supportStatusText}
+              </p>
             </div>
           </div>
         </div>
@@ -926,7 +764,10 @@ export function BundleErrorScreen({
                     variant="secondary"
                     size="sm"
                     loading={networkRecoveryState === "system"}
-                    disabled={!diagnosticsActionsEnabled || networkRecoveryState !== "idle"}
+                    disabled={
+                      !diagnosticsActionsEnabled ||
+                      networkRecoveryState !== "idle"
+                    }
                     onClick={() => void handleProxyModeRetry("system")}
                     data-action-ui-id="bundle-error.network.system-proxy-retry"
                   >
@@ -938,7 +779,10 @@ export function BundleErrorScreen({
                     variant="outline"
                     size="sm"
                     loading={networkRecoveryState === "direct"}
-                    disabled={!diagnosticsActionsEnabled || networkRecoveryState !== "idle"}
+                    disabled={
+                      !diagnosticsActionsEnabled ||
+                      networkRecoveryState !== "idle"
+                    }
                     onClick={() => void handleProxyModeRetry("direct")}
                     data-action-ui-id="bundle-error.network.direct-retry"
                   >
@@ -950,7 +794,10 @@ export function BundleErrorScreen({
                     variant="ghost"
                     size="sm"
                     loading={networkRecoveryState === "checking"}
-                    disabled={!diagnosticsActionsEnabled || networkRecoveryState !== "idle"}
+                    disabled={
+                      !diagnosticsActionsEnabled ||
+                      networkRecoveryState !== "idle"
+                    }
                     onClick={() => void handleNetworkDiagnosticsCheck()}
                     data-action-ui-id="bundle-error.network.recheck"
                   >
@@ -1014,8 +861,12 @@ export function BundleErrorScreen({
                     </dd>
                   </>
                 ) : null}
-                <dt className="text-muted-foreground">{t2("bundleError.copy.state")}</dt>
-                <dd className="min-w-0 break-all font-mono text-foreground">{status.state}</dd>
+                <dt className="text-muted-foreground">
+                  {t2("bundleError.copy.state")}
+                </dt>
+                <dd className="min-w-0 break-all font-mono text-foreground">
+                  {status.state}
+                </dd>
                 <dt className="text-muted-foreground">{userIdLabel}</dt>
                 <dd className="min-w-0 break-all font-mono text-foreground">
                   {userIdDisplayValue}

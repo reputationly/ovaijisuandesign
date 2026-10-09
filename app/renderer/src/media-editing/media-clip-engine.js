@@ -1,13 +1,384 @@
 // media-clip-engine.js
-import { TIMELINE_CONFIG, DEFAULT_CROP_CONFIG } from "../generation/params-popup.jsx";
-import { TimelineEventHandler, getDurationTier } from "./timeline-event-handler.js";
+import { BlobSource, CanvasSink } from "../vendor.js";
 import {
+  ALL_FORMATS,
+  Input$3,
+} from "../vendor-inline/mediabunny/hls-segmented-input.js";
+import {
+  DEFAULT_CROP_CONFIG,
+  TIMELINE_CONFIG,
+} from "../generation/time-intervals.jsx";
+import {
+  exportCroppedVideo,
   MediaRegistry,
   ThumbnailService,
   ThumbnailStore,
-  exportCroppedVideo,
 } from "../vendor-inline/mediabunny/aac-encoder.js";
-import { TimelineRenderer, VideoFrameCache, WaveformService } from "./timeline-renderer.js";
+import { TimelineEventHandler } from "./timeline-event-handler.js";
+import { getDurationTier } from "./duration-tiers.js";
+import { TimelineRenderer } from "./timeline-renderer.js";
+
+class VideoFrameCache {
+  decoderMap = new Map();
+  canvasesMap = new Map();
+  getAsset;
+  /** resetCanvases 产生的异步清理 Promise，在创建新 generator 前 await */
+  cleanupPromises = [];
+  constructor(getAsset2) {
+    this.getAsset = getAsset2;
+  }
+  async getVideoDecoderCtx(assetId) {
+    return await this._getDecoder(assetId);
+  }
+  async getCanvases(assetId, timestamp2) {
+    if (this.canvasesMap.has(assetId)) {
+      return this.canvasesMap.get(assetId);
+    }
+    if (this.cleanupPromises.length > 0) {
+      await Promise.all(this.cleanupPromises);
+      this.cleanupPromises = [];
+    }
+    const ctx = await this._getDecoder(assetId);
+    const canvases = ctx.canvasSink.canvases(timestamp2);
+    this.canvasesMap.set(assetId, canvases);
+    ctx.nextFrame = (await canvases.next())?.value ?? null;
+    return this.canvasesMap.get(assetId);
+  }
+  /**
+   * 获取视频帧的原始 canvas（零拷贝，适用于播放时直接绘制）
+   */
+  async getFrameCanvas(assetId, timestamp2) {
+    try {
+      const asset = this.getAsset(assetId);
+      if (!asset) return null;
+      const ctx = await this._getDecoder(assetId);
+      const clampedTimestamp = Math.max(
+        0,
+        Math.min(timestamp2, Math.max(0, ctx.sourceDuration - 1e-3)),
+      );
+      if (
+        ctx.lastSeekTime !== void 0 &&
+        clampedTimestamp < ctx.lastSeekTime &&
+        this.canvasesMap.has(assetId)
+      ) {
+        const oldGen = this.canvasesMap.get(assetId);
+        this.canvasesMap.delete(assetId);
+        try {
+          await oldGen?.return(null);
+        } catch {}
+      }
+      ctx.lastSeekTime = clampedTimestamp;
+      const canvases = await this.getCanvases(assetId, clampedTimestamp);
+      while (ctx.nextFrame) {
+        if (ctx.nextFrame.timestamp <= clampedTimestamp) {
+          const current2 = ctx.nextFrame;
+          const next2 = (await canvases.next())?.value ?? null;
+          if (!next2) {
+            ctx.nextFrame = current2;
+            return {
+              canvas: current2.canvas,
+              width: ctx.width,
+              height: ctx.height,
+            };
+          }
+          ctx.nextFrame = next2;
+        } else {
+          const canvas = ctx.nextFrame.canvas;
+          return {
+            canvas,
+            width: ctx.width,
+            height: ctx.height,
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("VideoFrameCache: 解码视频帧失败", error);
+      return null;
+    }
+  }
+  /**
+   * 获取视频帧（返回 ImageBitmap，适用于非播放时 seek 预览）
+   */
+  async getFrame(assetId, timestamp2) {
+    const result = await this.getFrameCanvas(assetId, timestamp2);
+    if (!result) return null;
+    return await createImageBitmap(result.canvas);
+  }
+  async _getDecoder(assetId) {
+    const cached = this.decoderMap.get(assetId);
+    if (cached) return cached;
+    const promise = (async () => {
+      const asset = this.getAsset(assetId);
+      if (!asset) throw new Error(`asset 不存在: ${assetId}`);
+      const input = new Input$3({
+        formats: ALL_FORMATS,
+        source: new BlobSource(asset.file),
+      });
+      const sourceDuration = await input.computeDuration();
+      const track = await input.getPrimaryVideoTrack();
+      if (!track) {
+        input.dispose();
+        throw new Error("该文件不包含视频轨道");
+      }
+      const videoCanBeTransparent = await track.canBeTransparent();
+      const canvasSink = new CanvasSink(track, {
+        poolSize: 2,
+        fit: "contain",
+        alpha: videoCanBeTransparent,
+      });
+      let width = track.displayWidth ?? track.codedWidth ?? 0;
+      let height = track.displayHeight ?? track.codedHeight ?? 0;
+      if (!width || !height) {
+        width = 1920;
+        height = 1080;
+      }
+      return {
+        input,
+        nextFrame: null,
+        track,
+        canvasSink,
+        sourceDuration,
+        width,
+        height,
+      };
+    })();
+    this.decoderMap.set(assetId, promise);
+    return promise;
+  }
+  resetCanvases() {
+    for (const decoderPromise of this.decoderMap.values()) {
+      decoderPromise
+        .then((ctx) => {
+          ctx.nextFrame = null;
+        })
+        .catch(() => {});
+    }
+    const promises = [];
+    this.canvasesMap.forEach((item) => {
+      promises.push(
+        item
+          .return(null)
+          .then(() => {})
+          .catch(() => {}),
+      );
+    });
+    this.canvasesMap.clear();
+    this.cleanupPromises = promises;
+  }
+  async clearAsset(assetId) {
+    const canvases = this.canvasesMap.get(assetId);
+    this.canvasesMap.delete(assetId);
+    if (canvases) {
+      try {
+        await canvases.return(null);
+      } catch {}
+    }
+    const decoderPromise = this.decoderMap.get(assetId);
+    this.decoderMap.delete(assetId);
+    if (decoderPromise) {
+      try {
+        const ctx = await decoderPromise;
+        ctx.nextFrame = null;
+        ctx.input.dispose();
+      } catch {}
+    }
+  }
+  async clear() {
+    for (const [, canvases] of this.canvasesMap.entries()) {
+      try {
+        await canvases.return(null);
+      } catch {}
+    }
+    this.canvasesMap.clear();
+    for (const [, decoderPromise] of this.decoderMap.entries()) {
+      try {
+        const ctx = await decoderPromise;
+        ctx.nextFrame = null;
+        ctx.input.dispose();
+      } catch {}
+    }
+    this.decoderMap.clear();
+  }
+}
+
+const PEAK_WORKER_CODE =
+  /* javascript */
+  `
+self.onmessage = function (e) {
+  var channelData = e.data.channelData;
+  var samplesPerPixel = e.data.samplesPerPixel;
+  var jobId = e.data.jobId;
+  var totalSamples = channelData.length;
+  var peakCount = Math.ceil(totalSamples / samplesPerPixel);
+  var peaks = new Float32Array(peakCount * 2);
+  for (var i = 0; i < peakCount; i++) {
+    var start = i * samplesPerPixel;
+    var end = Math.min(start + samplesPerPixel, totalSamples);
+    var min = 1, max = -1;
+    for (var j = start; j < end; j++) {
+      var v = channelData[j];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    peaks[i * 2] = min;
+    peaks[i * 2 + 1] = max;
+  }
+  self.postMessage({ jobId: jobId, peaks: peaks }, [peaks.buffer]);
+};
+`;
+
+class WaveformService {
+  cache = new Map();
+  /**
+   * 仅用于 decodeAudioData，使用低采样率减少 PCM 数据量。
+   * 22050Hz 覆盖 11kHz 以下频率，波形包络视觉形态准确，内存约为 44100Hz 的一半。
+   */
+  audioContext = null;
+  worker = null;
+  workerJobId = 0;
+  workerPending = new Map();
+  getAudioContext() {
+    if (!this.audioContext) {
+      try {
+        this.audioContext = new AudioContext({
+          sampleRate: 22050,
+        });
+      } catch {
+        this.audioContext = new AudioContext();
+      }
+    }
+    return this.audioContext;
+  }
+  /**
+   * 懒初始化 Blob Worker。
+   * 使用 Blob URL 创建，无需打包配置，兼容所有 bundler。
+   * Worker 创建失败时返回 null，由调用方降级到同步计算。
+   */
+  getWorker() {
+    if (this.worker) return this.worker;
+    try {
+      const blob = new Blob([PEAK_WORKER_CODE], {
+        type: "text/javascript",
+      });
+      const url2 = URL.createObjectURL(blob);
+      const worker = new Worker(url2);
+      URL.revokeObjectURL(url2);
+      worker.onmessage = (e2) => {
+        const { jobId, peaks } = e2.data;
+        const job = this.workerPending.get(jobId);
+        if (job) {
+          this.workerPending.delete(jobId);
+          job.resolve(peaks);
+        }
+      };
+      worker.onerror = (e2) => {
+        for (const [, job] of this.workerPending) {
+          job.reject(new Error(e2.message ?? "Peak worker error"));
+        }
+        this.workerPending.clear();
+        this.worker?.terminate();
+        this.worker = null;
+      };
+      this.worker = worker;
+      return worker;
+    } catch {
+      return null;
+    }
+  }
+  /**
+   * 从音频文件提取波形峰值数据
+   * @param assetId 素材 ID，用于缓存
+   * @param file 音频文件
+   * @param samplesPerPixel 每像素的采样数，默认 256
+   */
+  async extractPeaks(assetId, file, samplesPerPixel = 256) {
+    const cached = this.cache.get(assetId);
+    if (cached) return cached;
+    const ctx = this.getAudioContext();
+    const arrayBuffer = await file.arrayBuffer();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    const { duration, sampleRate } = audioBuffer;
+    const channelData = audioBuffer.getChannelData(0);
+    const peaks = await this.computePeaksInWorker(channelData, samplesPerPixel);
+    const result = {
+      peaks,
+      duration,
+      sampleRate,
+    };
+    this.cache.set(assetId, result);
+    return result;
+  }
+  /**
+   * 将峰值计算委托给 Worker，避免阻塞主线程。
+   * channelData 拷贝一份再 transfer 到 Worker（AudioBuffer 内部 buffer 不可直接 transfer）。
+   * Worker 不可用或出错时，自动降级为同步计算。
+   */
+  async computePeaksInWorker(channelData, samplesPerPixel) {
+    const worker = this.getWorker();
+    if (!worker) {
+      return this.computePeaksSync(channelData, samplesPerPixel);
+    }
+    const jobId = ++this.workerJobId;
+    const channelDataCopy = new Float32Array(channelData);
+    return new Promise((resolve, reject) => {
+      this.workerPending.set(jobId, {
+        resolve,
+        reject,
+      });
+      worker.postMessage(
+        {
+          jobId,
+          channelData: channelDataCopy,
+          samplesPerPixel,
+        },
+        [channelDataCopy.buffer],
+      );
+    }).catch(() => {
+      return this.computePeaksSync(channelData, samplesPerPixel);
+    });
+  }
+  /** 同步降级计算，Worker 不可用时的兜底方案 */
+  computePeaksSync(channelData, samplesPerPixel) {
+    const totalSamples = channelData.length;
+    const peakCount = Math.ceil(totalSamples / samplesPerPixel);
+    const peaks = new Float32Array(peakCount * 2);
+    for (let i2 = 0; i2 < peakCount; i2++) {
+      const start2 = i2 * samplesPerPixel;
+      const end2 = Math.min(start2 + samplesPerPixel, totalSamples);
+      let min2 = 1;
+      let max2 = -1;
+      for (let j2 = start2; j2 < end2; j2++) {
+        const val = channelData[j2];
+        if (val < min2) min2 = val;
+        if (val > max2) max2 = val;
+      }
+      peaks[i2 * 2] = min2;
+      peaks[i2 * 2 + 1] = max2;
+    }
+    return peaks;
+  }
+  /** 获取已缓存的波形数据 */
+  getPeaks(assetId) {
+    return this.cache.get(assetId) ?? null;
+  }
+  /** 清除指定素材的缓存 */
+  clearAsset(assetId) {
+    this.cache.delete(assetId);
+  }
+  /** 清除所有缓存并释放资源 */
+  clear() {
+    this.cache.clear();
+    if (this.audioContext) {
+      void this.audioContext.close();
+      this.audioContext = null;
+    }
+    this.worker?.terminate();
+    this.worker = null;
+    this.workerPending.clear();
+  }
+}
+
 const defaultState = {
   clips: [],
   totalDuration: TIMELINE_CONFIG.MIN_TOTAL_DURATION,
@@ -21,6 +392,7 @@ const defaultState = {
   segmentRanges: [],
   previewFrame: null,
 };
+
 class TimelineStore {
   state;
   listeners = new Set();
@@ -138,7 +510,9 @@ class TimelineStore {
     }
     this.setState({
       clips: this.state.clips.filter((c3) => c3.id !== clipId),
-      selectedClipIds: new Set([...this.state.selectedClipIds].filter((id2) => id2 !== clipId)),
+      selectedClipIds: new Set(
+        [...this.state.selectedClipIds].filter((id2) => id2 !== clipId),
+      ),
     });
   }
   clearAllClips() {
@@ -207,6 +581,7 @@ class TimelineStore {
     };
   }
 }
+
 export class MediaClipEngine {
   // 子模块实例
   store;
@@ -245,8 +620,13 @@ export class MediaClipEngine {
     this.store = new TimelineStore();
     this.mediaRegistry = new MediaRegistry();
     this.thumbnailStore = new ThumbnailStore();
-    this.videoFrameCache = new VideoFrameCache((id2) => this.mediaRegistry.getAsset(id2));
-    this.thumbnailService = new ThumbnailService(this.videoFrameCache, this.thumbnailStore);
+    this.videoFrameCache = new VideoFrameCache((id2) =>
+      this.mediaRegistry.getAsset(id2),
+    );
+    this.thumbnailService = new ThumbnailService(
+      this.videoFrameCache,
+      this.thumbnailStore,
+    );
     this.waveformService = new WaveformService();
     this.store.onAssetOrphan = (assetId) => {
       this.mediaRegistry.releaseAsset(assetId);
@@ -266,7 +646,8 @@ export class MediaClipEngine {
   static DEFAULT_LAYOUT = {
     rulerHeight: TIMELINE_CONFIG.RULER_HEIGHT,
     trackGap: 0,
-    thumbnailHeight: TIMELINE_CONFIG.VIDEO_TRACK_HEIGHT + TIMELINE_CONFIG.CLIP_PADDING * 2,
+    thumbnailHeight:
+      TIMELINE_CONFIG.VIDEO_TRACK_HEIGHT + TIMELINE_CONFIG.CLIP_PADDING * 2,
   };
   /**
    * 挂载 Canvas。
@@ -274,7 +655,8 @@ export class MediaClipEngine {
    */
   attachCanvas(canvas, containerWidth, layout) {
     this.canvas = canvas;
-    const width = containerWidth ?? canvas.parentElement?.clientWidth ?? canvas.clientWidth;
+    const width =
+      containerWidth ?? canvas.parentElement?.clientWidth ?? canvas.clientWidth;
     const resolvedLayout = layout ?? MediaClipEngine.DEFAULT_LAYOUT;
     this.renderer = new TimelineRenderer(
       canvas,
@@ -301,13 +683,19 @@ export class MediaClipEngine {
       onCropDragEnd: (dragType) => {
         const { cropRange } = this.store.getState();
         if (!cropRange) return;
-        const seekTime = dragType === "crop-right" ? cropRange.end : cropRange.start;
+        const seekTime =
+          dragType === "crop-right" ? cropRange.end : cropRange.start;
         this.seek(seekTime);
       },
     };
-    this.eventHandler = new TimelineEventHandler(canvas, callbacks, () => this.store.getState(), {
-      disableScrollDrag: this.disableScrollDrag,
-    });
+    this.eventHandler = new TimelineEventHandler(
+      canvas,
+      callbacks,
+      () => this.store.getState(),
+      {
+        disableScrollDrag: this.disableScrollDrag,
+      },
+    );
     this.eventHandler.updateCropConfig(this.cropConfig);
     this.eventHandler.updateLayout(resolvedLayout);
     this.requestRender();
@@ -517,7 +905,8 @@ export class MediaClipEngine {
   setCropRange(range2) {
     if (range2) {
       const d2 = range2.end - range2.start;
-      if (d2 < this.cropConfig.minDuration || d2 > this.cropConfig.maxDuration) return;
+      if (d2 < this.cropConfig.minDuration || d2 > this.cropConfig.maxDuration)
+        return;
     }
     this.store.setCropRange(range2);
     this.requestRender();
@@ -546,7 +935,8 @@ export class MediaClipEngine {
     if (!asset) return null;
     const AAC_ALIGNMENT_BUFFER = 0.1;
     const startTime = s2.cropRange.start + clip2.sourceOffset;
-    const endTime = s2.cropRange.end + clip2.sourceOffset - AAC_ALIGNMENT_BUFFER;
+    const endTime =
+      s2.cropRange.end + clip2.sourceOffset - AAC_ALIGNMENT_BUFFER;
     const effectiveOptions = {
       ...options,
     };
@@ -562,7 +952,10 @@ export class MediaClipEngine {
     const s2 = this.store.getState();
     if (s2.isPlaying) return;
     if (s2.cropRange) {
-      if (s2.currentTime < s2.cropRange.start || s2.currentTime >= s2.cropRange.end) {
+      if (
+        s2.currentTime < s2.cropRange.start ||
+        s2.currentTime >= s2.cropRange.end
+      ) {
         this.store.setState({
           currentTime: s2.cropRange.start,
         });
@@ -710,7 +1103,10 @@ export class MediaClipEngine {
     }
     if (activeClip.type === "audio") return;
     const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
-    const frame2 = await this.videoFrameCache.getFrame(activeClip.assetId, sourceTime);
+    const frame2 = await this.videoFrameCache.getFrame(
+      activeClip.assetId,
+      sourceTime,
+    );
     if (this.seekSeq !== seq2) {
       frame2?.close();
       return;
@@ -732,7 +1128,10 @@ export class MediaClipEngine {
       );
       if (!activeClip || activeClip.type === "audio") return;
       const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
-      const result = await this.videoFrameCache.getFrameCanvas(activeClip.assetId, sourceTime);
+      const result = await this.videoFrameCache.getFrameCanvas(
+        activeClip.assetId,
+        sourceTime,
+      );
       if (result && this.onPreviewFrameDirect) {
         this.onPreviewFrameDirect(result.canvas, result.width, result.height);
       }
@@ -752,7 +1151,10 @@ export class MediaClipEngine {
     const viewWidth = this.renderer?.getWidth() ?? 0;
     if (viewWidth <= 0) return;
     const playheadX = currentTime * scale2 - scrollX + TRACK_PADDING_H;
-    if (playheadX < TRACK_PADDING_H || playheadX > viewWidth - TRACK_PADDING_H) {
+    if (
+      playheadX < TRACK_PADDING_H ||
+      playheadX > viewWidth - TRACK_PADDING_H
+    ) {
       const contentWidth = viewWidth - TRACK_PADDING_H * 2;
       const newScrollX = currentTime * scale2 - contentWidth * 0.1;
       this.store.setState({

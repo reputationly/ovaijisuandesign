@@ -1,185 +1,47 @@
 // file-chip.jsx
-import { reactExports, useTranslation, dedupedToast, guardAccountSubmission, reactDomExports, usePlatform, CompositedSvg, Crosshair, classifyFileType } from "../vendor.js";
-import { useOptionalTeamAccount } from "../assets/apply-asset-change.jsx";
-import { FileTypeIcon } from "../infra/create-recently-added-store.jsx";
-import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { formatFileSizeCompact } from "../workspace/global-sidebar-provider.jsx";
-import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
-import { formatTime$2 } from "../media-editing/parse-item.jsx";
-import { resolveActiveModelId } from "./use-resizable-width.js";
 import {
-  resolveAgentModelAccess,
-  agentModelMatchesSelection,
-} from "../infra/normalize-tag-registry.js";
-import { cn$2 } from "../infra/use-browser-overlay-dialog-props.jsx";
-import { useMpSubscriptionWalletQuery, useMpSubscribeUrl } from "../team/use-credit-details.jsx";
-import {
-  isCustomModelId,
-  buildResourceDragItem,
-  RESOURCE_DRAG_MIME,
-} from "../text-editor/myers-line-hunks.js";
-import { useActiveCustomModel } from "../team/delete-account-confirm-dialog.jsx";
-import { MediaHoverPreview, useHoverPreview } from "../media-editing/audio-preview-player.jsx";
-import { TextHoverPreview, TextReadDialog } from "../media-editing/thumb-chip.jsx";
-import { buildVideoThumbnailUrl } from "../media-editing/media-clip-panel-inner.jsx";
-import { MediaLightbox } from "../assets/image-lightbox.jsx";
-import { VideoPlayIndicator$1 } from "./use-direct-reference-picker.jsx";
-import { FileNameLabel } from "../assets/attachment-upload-zone.jsx";
+  classifyFileType,
+  CompositedSvg,
+  Crosshair,
+  reactDomExports,
+  reactExports,
+  useTranslation,
+} from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-export function resolveLegacyInteractionReply(messages2, requestId) {
-  let changed = false;
-  const next2 = messages2.map((message2) => {
-    if (
-      (message2.type === "interact" || message2.type === "confirm") &&
-      message2.requestId === requestId &&
-      !message2.resolved
-    ) {
-      changed = true;
-      return {
-        ...message2,
-        resolved: true,
-      };
-    }
-    return message2;
-  });
-  return changed ? next2 : messages2;
-}
-export function useAgentModelMembershipAccess() {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const { mpWallet, isError, isRefetchError } = useMpSubscriptionWalletQuery();
-  const subscribeUrl = useMpSubscribeUrl();
-  const teamAccount = useOptionalTeamAccount();
-  const isReadyTeam = Boolean(
-    teamAccount?.integrationEnabled &&
-    teamAccount.viewModel.kind === "ready_team" &&
-    teamAccount.activeScope &&
-    teamAccount.accountDataVisible &&
-    teamAccount.billingAvailable,
-  );
-  const privilegeType = mpWallet?.privilege_type;
-  const membershipKnown = isReadyTeam || (privilegeType !== void 0 && !isError && !isRefetchError);
-  const membershipState = !membershipKnown
-    ? "unknown"
-    : !isReadyTeam && privilegeType === 0
-      ? "non-member"
-      : "member";
-  const guardAccess = reactExports.useCallback(
-    (access, source) => {
-      if (access?.requirement !== "membership") return true;
-      if (!membershipKnown) {
-        dedupedToast.error(t2("chat.astraMembershipUnavailable"));
-        return false;
-      }
-      if (isReadyTeam || privilegeType !== 0) return true;
-      if (!guardAccountSubmission("personal_checkout").allowed) return false;
-      if (!subscribeUrl) {
-        dedupedToast.error(t2("credits.walletUrlNotReady"));
-        return false;
-      }
-      void openExternalUrl(platform2, subscribeUrl, {
-        source,
-      });
-      return false;
-    },
-    [membershipKnown, isReadyTeam, privilegeType, subscribeUrl, platform2, t2],
-  );
-  return {
-    membershipState,
-    guardAccess,
-  };
-}
-export function useAstraSendGate(modelId) {
-  const { t: t2 } = useTranslation();
-  const activeCustomModel = useActiveCustomModel();
-  const access = resolveAgentModelAccess(resolveActiveModelId(modelId, activeCustomModel.data));
-  const { isSuccess, isError, isFetching, refetch } = activeCustomModel;
-  const { membershipState, guardAccess } = useAgentModelMembershipAccess();
-  const requiresMembership =
-    access?.requirement === "membership" && membershipState === "non-member";
-  const sendGuard = reactExports.useCallback(() => {
-    if (!isSuccess) {
-      dedupedToast.error(t2("settings.models.loadFailed"));
-      if (isError && !isFetching) {
-        void refetch();
-      }
-      return false;
-    }
-    if (isCustomModelId(modelId)) {
-      if (activeCustomModel.data?.applyStatus === "pending") {
-        dedupedToast.error(t2("settings.models.applying"));
-        return false;
-      }
-      if (activeCustomModel.data?.applyStatus === "failed") {
-        dedupedToast.error(t2("settings.models.applyFailed"));
-        return false;
-      }
-      if (
-        !activeCustomModel.data?.models.some((model) => agentModelMatchesSelection(model, modelId))
-      ) {
-        dedupedToast.error(t2("settings.models.modelRemoved"));
-        return false;
-      }
-    }
-    if (!access) return true;
-    return guardAccess(access, "chat.astra-send");
-  }, [
-    access,
-    guardAccess,
-    isSuccess,
-    isError,
-    isFetching,
-    refetch,
-    t2,
-    modelId,
-    activeCustomModel.data,
-  ]);
-  return {
-    sendGuard,
-    sendLabel: requiresMembership ? t2("chat.astraMembershipOnly") : void 0,
-    sendTooltip: requiresMembership ? t2("chat.astraMembershipRequired") : void 0,
-  };
-}
-function resolveResourceAbsolutePath(workspacePath, relativePath) {
-  if (!workspacePath || !relativePath) return void 0;
-  const base2 = workspacePath.replace(/[\\/]+$/, "");
-  const rel = relativePath.replace(/^[\\/]+/, "");
-  return `${base2}/${rel}`;
-}
-export function canWriteResourceDragData(source) {
-  const relativePath = source.relativePath?.trim();
-  const name2 = source.name?.trim();
-  const absolutePath =
-    source.absolutePath ?? resolveResourceAbsolutePath(source.workspacePath, relativePath);
-  return Boolean(relativePath && absolutePath && name2);
-}
-export function writeResourceDragData(event, source) {
-  const relativePath = source.relativePath?.trim();
-  const name2 = source.name?.trim();
-  const absolutePath =
-    source.absolutePath ?? resolveResourceAbsolutePath(source.workspacePath, relativePath);
-  if (!relativePath || !absolutePath || !name2) return false;
-  const item = buildResourceDragItem(absolutePath, relativePath, name2, false, source.assetId);
-  event.dataTransfer.setData(RESOURCE_DRAG_MIME, JSON.stringify([item]));
-  event.dataTransfer.effectAllowed = "copy";
-  if (event.currentTarget instanceof HTMLElement) {
-    event.dataTransfer.setDragImage(
-      event.currentTarget,
-      event.currentTarget.offsetWidth / 2,
-      event.currentTarget.offsetHeight / 2,
-    );
-  }
-  return true;
-}
+import { useHoverPreview } from "../media-editing/use-hover-preview.js";
+import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
+import { TextHoverPreview } from "../media-editing/text-hover-preview.jsx";
+import { formatTime$2 } from "../media-editing/package.jsx";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import {
+  canWriteResourceDragData,
+  writeResourceDragData,
+} from "./use-astra-send-gate.js";
+import { FileTypeIcon } from "../infra/file-type-icon.jsx";
+import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
+import { formatFileSizeCompact } from "../workspace/set-home-widget-dev-preview-mode.js";
+import { cn$2 } from "../infra/dialog-content.jsx";
+import { TextReadDialog } from "../media-editing/use-preview-text.jsx";
+import { buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
+import { MediaLightbox } from "../assets/text-preview.jsx";
+import { VideoPlayIndicator$1 } from "./attachment-bar.jsx";
+import { FileNameLabel } from "../assets/audio-play-button.jsx";
+
 const VIDEO_GRADIENT_ID = "file-chip-video-gradient";
+
 const PREVIEW_W = 320;
+
 const INTERACTIVE_PREVIEW_CLOSE_DELAY_MS = 120;
+
 const mediaDurationCache = new Map();
+
 const mediaDimensionsCache = new Map();
+
 function formatDuration$1(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "";
   return formatTime$2(seconds, true);
 }
+
 function VideoIcon({ size: size2 = 17 }) {
   const { t: t2 } = useTranslation();
   const height = Math.round((size2 * 19) / 17);
@@ -213,6 +75,7 @@ function VideoIcon({ size: size2 = 17 }) {
     </svg>
   );
 }
+
 function AudioWaveIcon$1({ size: size2 = 16 }) {
   const { t: t2 } = useTranslation();
   return (
@@ -238,6 +101,7 @@ function AudioWaveIcon$1({ size: size2 = 16 }) {
     </CompositedSvg>
   );
 }
+
 const MEDIA_GRADIENTS = [
   "linear-gradient(135deg, #F5A06A 0%, #D4845C 45%, #A07DB8 100%)",
   "linear-gradient(180deg, #1A2744 0%, #2E4A6A 50%, #A08B6B 100%)",
@@ -260,6 +124,7 @@ const MEDIA_GRADIENTS = [
   "linear-gradient(135deg, #5A1A1A 0%, #A03A2A 50%, #D87040 100%)",
   "linear-gradient(145deg, #7A6BB0 0%, #B888C8 45%, #E8ABD0 100%)",
 ];
+
 function getGradientIndex(filename) {
   let hash2 = 0;
   for (let i2 = 0; i2 < filename.length; i2++) {
@@ -267,6 +132,90 @@ function getGradientIndex(filename) {
   }
   return Math.abs(hash2) % MEDIA_GRADIENTS.length;
 }
+
+function FileMetadataHoverPreview({
+  filename,
+  anchorElement,
+  anchorRect,
+  action,
+  onPreviewMouseEnter,
+  onPreviewMouseLeave,
+}) {
+  const [previewHeight, setPreviewHeight] = reactExports.useState(
+    action ? 88 : 48,
+  );
+  const contentRef = reactExports.useRef(null);
+  reactExports.useLayoutEffect(() => {
+    const content2 = contentRef.current;
+    if (!content2) return;
+    const measure = () =>
+      setPreviewHeight(Math.ceil(content2.getBoundingClientRect().height) + 2);
+    measure();
+    const observer2 =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(measure);
+    observer2?.observe(content2);
+    return () => observer2?.disconnect();
+  }, []);
+  const { layout, previewRef, handlePreviewMouseLeave } = useHoverPreview({
+    anchorElement,
+    anchorRect,
+    size: {
+      width: PREVIEW_W,
+      height: previewHeight,
+    },
+    fit: "independent",
+    interactive: true,
+    onPreviewMouseEnter,
+    onPreviewMouseLeave,
+  });
+  return reactDomExports.createPortal(
+    // biome-ignore lint/a11y/useSemanticElements: portal groups a file preview and its action.
+    <div
+      role="group"
+      className="fixed z-[10002] box-border overflow-y-auto rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-md"
+      ref={previewRef}
+      style={{
+        top: layout.top,
+        left: layout.left,
+        width: layout.width,
+        maxHeight: layout.height,
+      }}
+      data-testid="file-chip-hover-preview"
+      onMouseEnter={onPreviewMouseEnter}
+      onMouseLeave={handlePreviewMouseLeave}
+    >
+      <div ref={contentRef}>
+        <div className="px-3 py-3 text-xs">
+          <section
+            aria-label={filename}
+            tabIndex={0}
+            className="max-h-40 overflow-y-auto whitespace-pre-wrap [overflow-wrap:anywhere]"
+            data-file-name-full={true}
+          >
+            {filename}
+          </section>
+        </div>
+        {action && (
+          <button
+            type="button"
+            className="mx-3 mb-3 rounded-md bg-muted px-3 py-1 text-xs hover:bg-accent"
+            data-action-ui-id={action.actionUiId}
+            onClick={(event) => {
+              event.stopPropagation();
+              action.onClick();
+            }}
+          >
+            {action.label}
+          </button>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function FileHoverPreview({
   filename,
   textPath,
@@ -339,87 +288,13 @@ function FileHoverPreview({
     />
   );
 }
-function FileMetadataHoverPreview({
-  filename,
-  anchorElement,
-  anchorRect,
-  action,
-  onPreviewMouseEnter,
-  onPreviewMouseLeave,
-}) {
-  const [previewHeight, setPreviewHeight] = reactExports.useState(action ? 88 : 48);
-  const contentRef = reactExports.useRef(null);
-  reactExports.useLayoutEffect(() => {
-    const content2 = contentRef.current;
-    if (!content2) return;
-    const measure = () => setPreviewHeight(Math.ceil(content2.getBoundingClientRect().height) + 2);
-    measure();
-    const observer2 = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
-    observer2?.observe(content2);
-    return () => observer2?.disconnect();
-  }, []);
-  const { layout, previewRef, handlePreviewMouseLeave } = useHoverPreview({
-    anchorElement,
-    anchorRect,
-    size: {
-      width: PREVIEW_W,
-      height: previewHeight,
-    },
-    fit: "independent",
-    interactive: true,
-    onPreviewMouseEnter,
-    onPreviewMouseLeave,
-  });
-  return reactDomExports.createPortal(
-    // biome-ignore lint/a11y/useSemanticElements: portal groups a file preview and its action.
-    <div
-      role="group"
-      className="fixed z-[10002] box-border overflow-y-auto rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-md"
-      ref={previewRef}
-      style={{
-        top: layout.top,
-        left: layout.left,
-        width: layout.width,
-        maxHeight: layout.height,
-      }}
-      data-testid="file-chip-hover-preview"
-      onMouseEnter={onPreviewMouseEnter}
-      onMouseLeave={handlePreviewMouseLeave}
-    >
-      <div ref={contentRef}>
-        <div className="px-3 py-3 text-xs">
-          <section
-            aria-label={filename}
-            tabIndex={0}
-            className="max-h-40 overflow-y-auto whitespace-pre-wrap [overflow-wrap:anywhere]"
-            data-file-name-full={true}
-          >
-            {filename}
-          </section>
-        </div>
-        {action && (
-          <button
-            type="button"
-            className="mx-3 mb-3 rounded-md bg-muted px-3 py-1 text-xs hover:bg-accent"
-            data-action-ui-id={action.actionUiId}
-            onClick={(event) => {
-              event.stopPropagation();
-              action.onClick();
-            }}
-          >
-            {action.label}
-          </button>
-        )}
-      </div>
-    </div>,
-    document.body,
-  );
-}
+
 function fileTypeLabel(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0 || dot2 === filename.length - 1) return "FILE";
   return filename.slice(dot2 + 1).toUpperCase();
 }
+
 export function FileChip({
   filename,
   textPath,
@@ -447,16 +322,17 @@ export function FileChip({
     mediaUrl ? mediaDurationCache.get(mediaUrl) : void 0,
   );
   const initialPreviewUrl = imageUrl ?? mediaUrl;
-  const [loadedMediaDimensions, setLoadedMediaDimensions] = reactExports.useState(() => {
-    if (!initialPreviewUrl) return null;
-    const cached = mediaDimensionsCache.get(initialPreviewUrl);
-    return cached
-      ? {
-          url: initialPreviewUrl,
-          ...cached,
-        }
-      : null;
-  });
+  const [loadedMediaDimensions, setLoadedMediaDimensions] =
+    reactExports.useState(() => {
+      if (!initialPreviewUrl) return null;
+      const cached = mediaDimensionsCache.get(initialPreviewUrl);
+      return cached
+        ? {
+            url: initialPreviewUrl,
+            ...cached,
+          }
+        : null;
+    });
   const [hoverPreviewOpen, setHoverPreviewOpen] = reactExports.useState(false);
   const [textReaderOpen, setTextReaderOpen] = reactExports.useState(false);
   reactExports.useEffect(() => {
@@ -494,34 +370,45 @@ export function FileChip({
         : void 0,
     [dragSource, filename],
   );
-  const videoPosterPath = videoThumbnailPath ?? resolvedDragSource?.relativePath;
+  const videoPosterPath =
+    videoThumbnailPath ?? resolvedDragSource?.relativePath;
   const videoPosterUrl =
     fileType === "video" && mediaUrl && videoPosterPath
       ? buildVideoThumbnailUrl(mediaUrl, videoPosterPath, 64)
       : void 0;
   const videoPosterFailed = videoPosterUrl === failedImageUrl;
   const showVideoPoster = Boolean(videoPosterUrl && !videoPosterFailed);
-  const showLocalVideoFrame = fileType === "video" && Boolean(mediaUrl) && !showVideoPoster;
+  const showLocalVideoFrame =
+    fileType === "video" && Boolean(mediaUrl) && !showVideoPoster;
   const mediaDimensions =
     loadedMediaDimensions?.url === previewUrl
       ? loadedMediaDimensions
       : previewUrl
         ? mediaDimensionsCache.get(previewUrl)
         : void 0;
-  const rememberMediaDimensions = reactExports.useCallback((url2, width, height) => {
-    if (!url2 || !Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-      return;
-    }
-    const dimensions2 = {
-      width,
-      height,
-    };
-    mediaDimensionsCache.set(url2, dimensions2);
-    setLoadedMediaDimensions({
-      url: url2,
-      ...dimensions2,
-    });
-  }, []);
+  const rememberMediaDimensions = reactExports.useCallback(
+    (url2, width, height) => {
+      if (
+        !url2 ||
+        !Number.isFinite(width) ||
+        !Number.isFinite(height) ||
+        width <= 0 ||
+        height <= 0
+      ) {
+        return;
+      }
+      const dimensions2 = {
+        width,
+        height,
+      };
+      mediaDimensionsCache.set(url2, dimensions2);
+      setLoadedMediaDimensions({
+        url: url2,
+        ...dimensions2,
+      });
+    },
+    [],
+  );
   const rememberDuration = reactExports.useCallback(
     (seconds) => {
       if (!Number.isFinite(seconds) || seconds <= 0) return;
@@ -541,7 +428,9 @@ export function FileChip({
     },
     [mediaUrl, rememberDuration, rememberMediaDimensions],
   );
-  const canDrag = resolvedDragSource ? canWriteResourceDragData(resolvedDragSource) : false;
+  const canDrag = resolvedDragSource
+    ? canWriteResourceDragData(resolvedDragSource)
+    : false;
   const clearPreviewCloseTimer = reactExports.useCallback(() => {
     if (previewCloseTimerRef.current === null) return;
     clearTimeout(previewCloseTimerRef.current);
@@ -579,10 +468,16 @@ export function FileChip({
         : void 0,
     [closeHoverPreview, hoverAction],
   );
-  reactExports.useEffect(() => clearPreviewCloseTimer, [clearPreviewCloseTimer]);
+  reactExports.useEffect(
+    () => clearPreviewCloseTimer,
+    [clearPreviewCloseTimer],
+  );
   const handleDragStart = reactExports.useCallback(
     (event) => {
-      if (!resolvedDragSource || !writeResourceDragData(event, resolvedDragSource)) {
+      if (
+        !resolvedDragSource ||
+        !writeResourceDragData(event, resolvedDragSource)
+      ) {
         event.preventDefault();
         return;
       }
@@ -734,7 +629,9 @@ export function FileChip({
               size={24}
               decorative={true}
             />
-            <span className="max-w-full truncate text-[10px] leading-none">{filename}</span>
+            <span className="max-w-full truncate text-[10px] leading-none">
+              {filename}
+            </span>
           </div>
         ) : (
           <DeferredThumbnailImage
@@ -847,8 +744,12 @@ export function FileChip({
         ) : (
           <VideoIcon size={17} />
         )}
-        {showVideoPoster || showLocalVideoFrame ? <VideoPlayIndicator$1 size={18} /> : null}
-        {showVideoPoster && mediaUrl && (durationSec === void 0 || mediaDimensions === void 0) ? (
+        {showVideoPoster || showLocalVideoFrame ? (
+          <VideoPlayIndicator$1 size={18} />
+        ) : null}
+        {showVideoPoster &&
+        mediaUrl &&
+        (durationSec === void 0 || mediaDimensions === void 0) ? (
           // Keep duration independent from hover. The visible poster remains
           // an image, while this metadata-only probe avoids decoding another
           // video frame until the user opens the hover preview. The probe is
@@ -921,12 +822,16 @@ export function FileChip({
           <audio
             src={mediaUrl}
             preload="metadata"
-            onLoadedMetadata={(e2) => rememberDuration(e2.currentTarget.duration)}
+            onLoadedMetadata={(e2) =>
+              rememberDuration(e2.currentTarget.duration)
+            }
           />
         )}
         <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-1 text-muted-foreground">
           <AudioWaveIcon$1 size={18} />
-          <span className="max-w-full truncate text-[10px] leading-none">{filename}</span>
+          <span className="max-w-full truncate text-[10px] leading-none">
+            {filename}
+          </span>
         </div>
         {badge}
         {showHoverPreview && (
@@ -978,7 +883,9 @@ export function FileChip({
             size={24}
             decorative={true}
           />
-          <span className="max-w-full truncate text-[10px] leading-none">{filename}</span>
+          <span className="max-w-full truncate text-[10px] leading-none">
+            {filename}
+          </span>
         </div>
         {showHoverPreview && (
           <FileHoverPreview
@@ -1000,7 +907,9 @@ export function FileChip({
     );
   }
   const sizeLabel = formatFileSizeCompact(fileSize);
-  const meta2 = sizeLabel ? `${fileTypeLabel(filename)} · ${sizeLabel}` : fileTypeLabel(filename);
+  const meta2 = sizeLabel
+    ? `${fileTypeLabel(filename)} · ${sizeLabel}`
+    : fileTypeLabel(filename);
   return (
     // biome-ignore lint/a11y/useSemanticElements: groups file metadata and actions, not form fields.
     <div
@@ -1032,7 +941,11 @@ export function FileChip({
         />
       </div>
       <div className="min-w-0 flex-1 flex flex-col gap-1">
-        <FileNameLabel name={filename} tooltip={false} className="text-xs text-foreground/70" />
+        <FileNameLabel
+          name={filename}
+          tooltip={false}
+          className="text-xs text-foreground/70"
+        />
         <span className="truncate text-[11px] text-foreground/30">{meta2}</span>
       </div>
       {textReader}

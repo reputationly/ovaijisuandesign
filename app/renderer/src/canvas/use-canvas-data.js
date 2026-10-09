@@ -1,20 +1,37 @@
 // use-canvas-data.js
 import {
+  buildNodeIdMetaAliases,
+  buildPersistedNodeAssetMetaEntries,
+  buildSavedNodeIndex,
+  filterVisibleItems,
+  normaliseHandle,
+} from "./partition-user-removal-elements.js";
+import {
+  bumpFileVersion,
+  recordCanvasGraphMetrics,
+  resetWorkspaceCanvasGraphMetrics,
+} from "../infra/use-plugin-metadata-store.js";
+import { resolveAbsolutePositionFromGraph } from "./resolve-absolute-position-from-graph.js";
+import {
+  computeNodeSize,
+  defaultNodeSizeForType,
+  isGenerationErrorStatus,
+  readGroupSize,
+} from "./compute-group-bounds-from-children.js";
+import { computeDerivedNodePosition } from "./resolve-derived-collision.js";
+import {
   CanvasNodeType,
   reactExports,
-  useAssetMetadataApi,
   selectGeneratedMediaNodeIds,
+  useAssetMetadataApi,
 } from "../vendor.js";
+import { buildCanvasNodes } from "./build-canvas-nodes.js";
 import {
-  buildCanvasNodes,
-  filterEdges,
   layoutUnsavedNodes,
   reuseUnchangedNodeRefs,
-} from "./build-canvas-nodes.js";
+} from "./layout-unsaved-nodes.js";
 import {
-  CANVAS_UNHYDRATED_RECOVERY_DELAY_MS,
   beginCanvasSnapshotLoad,
-  buildGeneratingInfoFromIncomingData,
   buildIncrementalNodeData,
   classifyCanvasLoadFailure,
   finishCanvasSnapshotLoad,
@@ -22,7 +39,6 @@ import {
   isSameCanvasLoadOwner,
   loadLatestCanvasSnapshot,
   mergeGenerationStatusSavedNode,
-  mergeRejectedCanvasCandidateAdditions,
   mergeServerNodeDataPreservingPopoverDraft,
   mirrorImageFieldsIntoData,
   shouldDeferTransientPending,
@@ -30,30 +46,52 @@ import {
   shouldRecoverUnhydratedCanvas,
   toGenerationStatusRuntimeUpdate,
 } from "./build-incremental-node-data.js";
-import {
-  bumpFileVersion,
-  recordCanvasGraphMetrics,
-  resetWorkspaceCanvasGraphMetrics,
-} from "../infra/create-html-iframe-pool-store.jsx";
-import {
-  computeNodeSize,
-  defaultNodeSizeForType,
-  isGenerationErrorStatus,
-  readGroupSize,
-} from "./group-nodes-in-canvas.js";
-import { useGeneratingStateApi } from "../media-editing/parse-item.jsx";
+import { buildGeneratingInfoFromIncomingData } from "./build-generating-info-from-incoming-data.js";
+import { mergeRejectedCanvasCandidateAdditions } from "./merge-rejected-canvas-candidate-additions.js";
+import { useGeneratingStateApi } from "../media-editing/package.jsx";
 import { reconcileGroupGeometryForMode } from "./reconcile-group-geometry-for-mode.js";
 import {
-  buildNodeIdMetaAliases,
-  buildPersistedNodeAssetMetaEntries,
-  buildSavedNodeIndex,
-  filterVisibleItems,
-} from "./remap-clipboard.js";
-import {
-  computeDerivedNodePosition,
   isEmptyNode,
   sanitizeCanvasFileNodePositions,
-} from "./resolve-derived-collision.js";
+} from "./find-free-position-from-anchor.js";
+
+const CANVAS_UNHYDRATED_RECOVERY_DELAY_MS = 3e3;
+
+function filterEdges(nodeIds, savedEdges) {
+  const runtime = [];
+  for (const e2 of savedEdges) {
+    if (!nodeIds.has(e2.source) || !nodeIds.has(e2.target)) continue;
+    const sourceHandle = normaliseHandle(e2.sourceHandle);
+    const targetHandle = normaliseHandle(e2.targetHandle);
+    runtime.push({
+      id: e2.id,
+      source: e2.source,
+      target: e2.target,
+      ...(sourceHandle !== void 0
+        ? {
+            sourceHandle,
+          }
+        : {}),
+      ...(targetHandle !== void 0
+        ? {
+            targetHandle,
+          }
+        : {}),
+      ...(e2.type !== void 0
+        ? {
+            type: e2.type,
+          }
+        : {}),
+      ...(e2.data !== void 0
+        ? {
+            data: e2.data,
+          }
+        : {}),
+    });
+  }
+  return runtime;
+}
+
 function normalizeServerUpdatedNode(node2) {
   const { groupId: groupId2, round: round2, ...rest } = node2;
   return {
@@ -78,34 +116,21 @@ function normalizeServerUpdatedNode(node2) {
         : {}),
   };
 }
-function resolveAbsolutePositionFromGraph(node2, mode2, graphNodes) {
-  const pos = node2.positions?.[mode2];
-  if (!pos) return void 0;
-  if (!node2.parentId) return pos;
-  let absX = pos.x;
-  let absY = pos.y;
-  let currentParentId = node2.parentId;
-  while (currentParentId) {
-    const parent = graphNodes.find((n2) => n2.id === currentParentId);
-    if (!parent) break;
-    const parentPos = parent.positions?.[mode2];
-    if (!parentPos) break;
-    absX += parentPos.x;
-    absY += parentPos.y;
-    currentParentId = parent.parentId;
-  }
-  return {
-    x: absX,
-    y: absY,
-  };
-}
-function computeDerivedPositionFromGraph(instance2, sourceNodeId, allEdges, newNode, mode2) {
+
+function computeDerivedPositionFromGraph(
+  instance2,
+  sourceNodeId,
+  allEdges,
+  newNode,
+  mode2,
+) {
   const graphNodes = instance2.getGraph().nodes;
   const sourceNode = graphNodes.find((n2) => n2.id === sourceNodeId);
   const sourcePos = sourceNode
     ? resolveAbsolutePositionFromGraph(sourceNode, mode2, graphNodes)
     : void 0;
-  const sourceSize = sourceNode?.size ?? defaultNodeSizeForType(sourceNode?.type ?? "image");
+  const sourceSize =
+    sourceNode?.size ?? defaultNodeSizeForType(sourceNode?.type ?? "image");
   if (!sourcePos) {
     return {
       x: 0,
@@ -151,6 +176,7 @@ function computeDerivedPositionFromGraph(instance2, sourceNodeId, allEdges, newN
     },
   );
 }
+
 function recordCurrentCanvasGraphMetrics(instance2, workspaceId2) {
   const graph = instance2.getGraph();
   recordCanvasGraphMetrics(
@@ -161,7 +187,14 @@ function recordCurrentCanvasGraphMetrics(instance2, workspaceId2) {
     workspaceId2,
   );
 }
-export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, options) {
+
+export function useCanvasData(
+  instance2,
+  mode2,
+  dataSource,
+  getViewportCenter,
+  options,
+) {
   const workspaceId2 = options?.workspaceId;
   const [loadState, setLoadState] = reactExports.useState(() => ({
     instance: instance2,
@@ -171,15 +204,23 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
     loadError: null,
     loadRetrying: false,
   }));
-  const ownsLoadState = isSameCanvasLoadOwner(loadState, instance2, workspaceId2);
+  const ownsLoadState = isSameCanvasLoadOwner(
+    loadState,
+    instance2,
+    workspaceId2,
+  );
   const loading = ownsLoadState ? loadState.loading : true;
-  const initialHydratedNodeCount = ownsLoadState ? loadState.initialHydratedNodeCount : null;
+  const initialHydratedNodeCount = ownsLoadState
+    ? loadState.initialHydratedNodeCount
+    : null;
   const loadError = ownsLoadState ? loadState.loadError : null;
   const loadRetrying = ownsLoadState ? loadState.loadRetrying : false;
   const assetMetadataStore = useAssetMetadataApi();
   const onNodesAddedRef = reactExports.useRef(options?.onNodesAdded);
   onNodesAddedRef.current = options?.onNodesAdded;
-  const onFirstNodesPlacedRef = reactExports.useRef(options?.onFirstNodesPlaced);
+  const onFirstNodesPlacedRef = reactExports.useRef(
+    options?.onFirstNodesPlaced,
+  );
   onFirstNodesPlacedRef.current = options?.onFirstNodesPlaced;
   const generatingStateStore = useGeneratingStateApi();
   const savedPositionsRef = reactExports.useRef(new Map());
@@ -202,14 +243,19 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
   const retryLoadOwnerRef = reactExports.useRef(null);
   const retryLoad = reactExports.useCallback(() => {
     const owner = retryLoadOwnerRef.current;
-    if (!owner || !isSameCanvasLoadOwner(owner, instance2, workspaceId2)) return;
+    if (!owner || !isSameCanvasLoadOwner(owner, instance2, workspaceId2))
+      return;
     owner.run();
   }, [instance2, workspaceId2]);
   reactExports.useEffect(() => {
     instance2.setArtifactReferenceResolver((nodeId) => {
-      const node2 = instance2.getGraph().nodes.find((candidate) => candidate.id === nodeId);
+      const node2 = instance2
+        .getGraph()
+        .nodes.find((candidate) => candidate.id === nodeId);
       const assets = assetMetadataStore.getState();
-      const meta2 = (node2?.assetId ? assets.get(node2.assetId) : void 0) ?? assets.get(nodeId);
+      const meta2 =
+        (node2?.assetId ? assets.get(node2.assetId) : void 0) ??
+        assets.get(nodeId);
       if (!meta2) return void 0;
       const referenceIds = [
         ...(meta2.referenceImageIds ?? []),
@@ -220,9 +266,13 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       return referenceIds.length > 0 ? referenceIds : void 0;
     });
     instance2.setArtifactBackendResolver((nodeId) => {
-      const node2 = instance2.getGraph().nodes.find((candidate) => candidate.id === nodeId);
+      const node2 = instance2
+        .getGraph()
+        .nodes.find((candidate) => candidate.id === nodeId);
       const assets = assetMetadataStore.getState();
-      const meta2 = (node2?.assetId ? assets.get(node2.assetId) : void 0) ?? assets.get(nodeId);
+      const meta2 =
+        (node2?.assetId ? assets.get(node2.assetId) : void 0) ??
+        assets.get(nodeId);
       return meta2?.backend;
     });
     return () => {
@@ -257,7 +307,11 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       nodeCount: hydratedNodeCountForEffect,
     };
     const previousLoadErrorOwner = loadErrorOwnerRef.current;
-    let loadErrorForEffect = isSameCanvasLoadOwner(previousLoadErrorOwner, instance2, workspaceId2)
+    let loadErrorForEffect = isSameCanvasLoadOwner(
+      previousLoadErrorOwner,
+      instance2,
+      workspaceId2,
+    )
       ? previousLoadErrorOwner.error
       : null;
     let loadRetryingForEffect = false;
@@ -407,7 +461,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       let shouldScheduleUnhydratedRecovery = false;
       try {
         const shouldPersistBeforeReload =
-          instance2.getGraph().nodes.length > 0 || savedPositionsRef.current.size > 0;
+          instance2.getGraph().nodes.length > 0 ||
+          savedPositionsRef.current.size > 0;
         if (!dataSourceUnchanged && shouldPersistBeforeReload) {
           let persistPromise;
           instance2.eventBus.emit({
@@ -420,7 +475,10 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             try {
               await persistPromise;
             } catch (err) {
-              console.warn("[hilo/canvas] skipped dataSource reload after persist failure", err);
+              console.warn(
+                "[hilo/canvas] skipped dataSource reload after persist failure",
+                err,
+              );
               return;
             }
           }
@@ -430,14 +488,18 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           state: loadGuard,
           signal: loadAbortController.signal,
           load: (signal) =>
-            Promise.all([dataSource.loadItems(signal), dataSource.loadCanvas(signal)]),
+            Promise.all([
+              dataSource.loadItems(signal),
+              dataSource.loadCanvas(signal),
+            ]),
         });
         if (cancelled || loadAbortController.signal.aborted) return;
         snapshotReadSucceeded = true;
         destructiveRestoreForLoad = pendingDestructiveRestore;
         if (
           destructiveRestoreForLoad &&
-          destructiveRestoreForLoad.mutationVersion !== persistenceMutationVersion
+          destructiveRestoreForLoad.mutationVersion !==
+            persistenceMutationVersion
         ) {
           if (pendingDestructiveRestore === destructiveRestoreForLoad) {
             pendingDestructiveRestore = null;
@@ -448,7 +510,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           void dataSource
             .reportCanvasRecovery?.({
               result: "failed",
-              durationMs: performance.now() - destructiveRestoreForLoad.startedAt,
+              durationMs:
+                performance.now() - destructiveRestoreForLoad.startedAt,
               preservedCandidateNodeCount: 0,
               preservedCandidateEdgeCount: 0,
             })
@@ -472,8 +535,13 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         recoveryPreservedNodeCount = recoveredCandidate.preservedNodeCount;
         recoveryPreservedEdgeCount = recoveredCandidate.preservedEdgeCount;
         const isFirstHydration = hydratedNodeCountForEffect === null;
-        const reconciledLoad = reconcileGroupGeometryForMode(recoveredCandidate.canvas, mode2);
-        const sanitizedLoad = sanitizeCanvasFileNodePositions(reconciledLoad.canvas.nodes);
+        const reconciledLoad = reconcileGroupGeometryForMode(
+          recoveredCandidate.canvas,
+          mode2,
+        );
+        const sanitizedLoad = sanitizeCanvasFileNodePositions(
+          reconciledLoad.canvas.nodes,
+        );
         const savedGraph = sanitizedLoad.changed
           ? {
               ...reconciledLoad.canvas,
@@ -505,7 +573,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         let effectiveStandaloneNodes = standaloneNodes;
         const intentionallyOmittedNodeIds = new Set();
         if (!isFirstHydration && !isAuthoritativeRestore) {
-          const runtimeIds = new Set(instance2.getGraph().nodes.map((n2) => n2.id));
+          const runtimeIds = new Set(
+            instance2.getGraph().nodes.map((n2) => n2.id),
+          );
           effectiveStandaloneNodes = standaloneNodes.filter((n2) => {
             const keep = !isEmptyNode(n2) || runtimeIds.has(n2.id);
             if (!keep) intentionallyOmittedNodeIds.add(n2.id);
@@ -518,7 +588,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             const runtimeAssetId =
               typeof rd.assetId === "string" && rd.assetId.length > 0
                 ? rd.assetId
-                : typeof runtimeNode.assetId === "string" && runtimeNode.assetId.length > 0
+                : typeof runtimeNode.assetId === "string" &&
+                    runtimeNode.assetId.length > 0
                   ? runtimeNode.assetId
                   : void 0;
             if (!runtimeAssetId) continue;
@@ -560,11 +631,14 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
               ...dataParams,
             };
           }
-          if (typeof data2.lyrics === "string" && !merged.lyrics) merged.lyrics = data2.lyrics;
-          if (typeof data2.backend === "string" && !merged.backend) merged.backend = data2.backend;
+          if (typeof data2.lyrics === "string" && !merged.lyrics)
+            merged.lyrics = data2.lyrics;
+          if (typeof data2.backend === "string" && !merged.backend)
+            merged.backend = data2.backend;
           if (typeof data2.model_id === "string" && !merged.model_id)
             merged.model_id = data2.model_id;
-          if (typeof data2.voiceId === "string" && !merged.voiceId) merged.voiceId = data2.voiceId;
+          if (typeof data2.voiceId === "string" && !merged.voiceId)
+            merged.voiceId = data2.voiceId;
           return merged;
         };
         const metaEntries = [];
@@ -596,7 +670,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           metaByAssetId.set(assetId, meta2);
         }
         metaEntries.push(...persistedNodeMetaEntries);
-        metaEntries.push(...buildNodeIdMetaAliases(allSavedNodes.values(), metaByAssetId));
+        metaEntries.push(
+          ...buildNodeIdMetaAliases(allSavedNodes.values(), metaByAssetId),
+        );
         assetMetadataStore.getState().replaceAll(metaEntries);
         const { nodes, syntheticSavedNodes } = buildCanvasNodes({
           visibleItems,
@@ -633,13 +709,17 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         }
         assetMetadataStore
           .getState()
-          .setMany(buildNodeIdMetaAliases(syntheticSavedNodes.values(), metaByAssetId));
+          .setMany(
+            buildNodeIdMetaAliases(syntheticSavedNodes.values(), metaByAssetId),
+          );
         const nodeIdSet = new Set(nodes.map((n2) => n2.id));
         const allEdges = filterEdges(nodeIdSet, savedGraph.edges);
         savedPositionsRef.current = allSavedNodes;
         if (!isFirstHydration && !isAuthoritativeRestore) {
           const currentPositions = new Map(
-            instance2.getGraph().nodes.map((n2) => [n2.id, n2.positions?.[mode2]]),
+            instance2
+              .getGraph()
+              .nodes.map((n2) => [n2.id, n2.positions?.[mode2]]),
           );
           for (let i2 = 0; i2 < nodes.length; i2++) {
             const n2 = nodes[i2];
@@ -668,7 +748,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             }
           }
         }
-        const anchor = !isFirstHydration ? getViewportCenterRef.current?.() : void 0;
+        const anchor = !isFirstHydration
+          ? getViewportCenterRef.current?.()
+          : void 0;
         const { nodes: finalNodes, needsPersist } = layoutUnsavedNodes(
           instance2,
           nodes,
@@ -706,13 +788,17 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         }
         loadErrorForEffect = null;
         loadRetryingForEffect = false;
-        if (destructiveRestoreForLoad && pendingDestructiveRestore === destructiveRestoreForLoad) {
+        if (
+          destructiveRestoreForLoad &&
+          pendingDestructiveRestore === destructiveRestoreForLoad
+        ) {
           if (
             recoveredCandidate.preservedNodeCount > 0 ||
             recoveredCandidate.preservedEdgeCount > 0 ||
             recoveredCandidate.replayedNodeCount > 0 ||
             recoveredCandidate.replayedEdgeCount > 0 ||
-            (destructiveRestoreForLoad.deletionReplay?.removedAssetIds.length ?? 0) > 0
+            (destructiveRestoreForLoad.deletionReplay?.removedAssetIds.length ??
+              0) > 0
           ) {
             const deletionReplay = destructiveRestoreForLoad.deletionReplay;
             if (deletionReplay) {
@@ -734,7 +820,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
               },
             });
             if (!recoveryPersist) {
-              throw new Error("Canvas recovery could not acquire a durability barrier");
+              throw new Error(
+                "Canvas recovery could not acquire a durability barrier",
+              );
             }
             await recoveryPersist;
           }
@@ -743,7 +831,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           void dataSource
             .reportCanvasRecovery?.({
               result: "restored",
-              durationMs: performance.now() - destructiveRestoreForLoad.startedAt,
+              durationMs:
+                performance.now() - destructiveRestoreForLoad.startedAt,
               preservedCandidateNodeCount: recoveryPreservedNodeCount,
               preservedCandidateEdgeCount: recoveryPreservedEdgeCount,
             })
@@ -774,7 +863,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             .catch(() => void 0);
         }
         shouldScheduleUnhydratedRecovery =
-          !snapshotReadSucceeded && shouldRecoverUnhydratedCanvas(err, hydratedNodeCountForEffect);
+          !snapshotReadSucceeded &&
+          shouldRecoverUnhydratedCanvas(err, hydratedNodeCountForEffect);
         if (snapshotReadSucceeded) {
           loadGuard.pending.length = 0;
         }
@@ -787,7 +877,10 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
               applyIncremental(update2);
             }
           } catch (error) {
-            console.error("[CanvasData] Failed to replay queued canvas updates:", error);
+            console.error(
+              "[CanvasData] Failed to replay queued canvas updates:",
+              error,
+            );
             loadErrorForEffect = classifyCanvasLoadFailure(
               error,
               hydratedNodeCountForEffect === null ? "initial" : "refresh",
@@ -817,20 +910,25 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       let changed = false;
       const isAuthoritativeReconcile = update2.origin === "reconcile";
       const isGenerationStatusUpdate = update2.origin === "generation-status";
-      const suppressNewNodeAffordances = update2.origin === "user-add" || isAuthoritativeReconcile;
-      const normalizedUpdatedNodes = update2.updatedNodes?.map(normalizeServerUpdatedNode);
+      const suppressNewNodeAffordances =
+        update2.origin === "user-add" || isAuthoritativeReconcile;
+      const normalizedUpdatedNodes = update2.updatedNodes?.map(
+        normalizeServerUpdatedNode,
+      );
       if (update2.nodeIdReplacements?.length) {
-        const liveIds = new Set(instance2.getGraph().nodes.map((node2) => node2.id));
+        const liveIds = new Set(
+          instance2.getGraph().nodes.map((node2) => node2.id),
+        );
         const applicable = update2.nodeIdReplacements.filter(({ oldNodeId }) =>
           liveIds.has(oldNodeId),
         );
         if (applicable.length > 0) {
           instance2.replaceServerNodeIds(applicable);
           const canonicalById = new Map(
-            [...(update2.addedNodes ?? []), ...(normalizedUpdatedNodes ?? [])].map((node2) => [
-              node2.id,
-              node2,
-            ]),
+            [
+              ...(update2.addedNodes ?? []),
+              ...(normalizedUpdatedNodes ?? []),
+            ].map((node2) => [node2.id, node2]),
           );
           const metaAliases = [];
           const canonicalUpdates = [];
@@ -848,7 +946,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             const assetId = canonical?.assetId ?? previousSaved?.assetId;
             if (assetId) hiddenAssetIdsRef.current.delete(assetId);
             if (canonical) {
-              const liveNode = instance2.getGraph().nodes.find((node2) => node2.id === newNodeId);
+              const liveNode = instance2
+                .getGraph()
+                .nodes.find((node2) => node2.id === newNodeId);
               const runtimeData = mergeServerNodeDataPreservingPopoverDraft(
                 mirrorImageFieldsIntoData(canonical),
                 liveNode?.data,
@@ -902,7 +1002,10 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
                 existingMeta,
               );
               if (meta2 && canonical.assetId) {
-                metaAliases.push([canonical.assetId, meta2], [newNodeId, meta2]);
+                metaAliases.push(
+                  [canonical.assetId, meta2],
+                  [newNodeId, meta2],
+                );
               }
             } else if (assetId) {
               const meta2 =
@@ -928,7 +1031,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         !!update2.addedNodes?.length &&
         !!normalizedUpdatedNodes?.length &&
         (isAuthoritativeReconcile ||
-          normalizedUpdatedNodes.some((node2) => "groupId" in node2 || "round" in node2));
+          normalizedUpdatedNodes.some(
+            (node2) => "groupId" in node2 || "round" in node2,
+          ));
       const atomicallyAddedNodeIds = shouldApplyAtomicMultiImageShape
         ? new Set(update2.addedNodes?.map((node2) => node2.id) ?? [])
         : null;
@@ -957,10 +1062,13 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         changed = true;
       }
       if (update2.addedNodes?.length) {
-        const existingNodeIds = new Set(instance2.getGraph().nodes.map((n2) => n2.id));
+        const existingNodeIds = new Set(
+          instance2.getGraph().nodes.map((n2) => n2.id),
+        );
         const canvasWasEmpty = existingNodeIds.size === 0;
         const newNodes = update2.addedNodes.filter(
-          (n2) => !existingNodeIds.has(n2.id) && !atomicallyAddedNodeIds?.has(n2.id),
+          (n2) =>
+            !existingNodeIds.has(n2.id) && !atomicallyAddedNodeIds?.has(n2.id),
         );
         const racedPositionUpdates = [];
         for (const fileNode of update2.addedNodes) {
@@ -999,7 +1107,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
               metaEntries.push([fileNode.id, meta2]);
             }
           }
-          const isSubImage = !!fileNode.groupId && fileNode.meta?.hidden === true;
+          const isSubImage =
+            !!fileNode.groupId && fileNode.meta?.hidden === true;
           newCanvasNodes.push({
             id: fileNode.id,
             type: fileNode.type,
@@ -1070,7 +1179,10 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           const nodesWithPos = [];
           const nodesNeedingLayout = [];
           for (const n2 of newCanvasNodes) {
-            (nodesWithSavedPos.has(n2.id) ? nodesWithPos : nodesNeedingLayout).push(n2);
+            (nodesWithSavedPos.has(n2.id)
+              ? nodesWithPos
+              : nodesNeedingLayout
+            ).push(n2);
           }
           const nodesReadyToInsert = [...nodesWithPos];
           if (nodesNeedingLayout.length > 0) {
@@ -1106,7 +1218,10 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
               nodesReadyToInsert.push(n2);
             }
             if (otherNeedingLayout.length > 0) {
-              const existing = [...instance2.getGraph().nodes, ...nodesReadyToInsert];
+              const existing = [
+                ...instance2.getGraph().nodes,
+                ...nodesReadyToInsert,
+              ];
               const anchor = getViewportCenterRef.current?.();
               const layoutEdges = allEdges;
               const positions = instance2.layout.computeIncremental(
@@ -1136,8 +1251,14 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           }
           instance2.addServerNodes(nodesReadyToInsert);
           changed = true;
-          if (canvasWasEmpty && nodesReadyToInsert.length > 0 && !suppressNewNodeAffordances) {
-            onFirstNodesPlacedRef.current?.(nodesReadyToInsert.map((n2) => n2.id));
+          if (
+            canvasWasEmpty &&
+            nodesReadyToInsert.length > 0 &&
+            !suppressNewNodeAffordances
+          ) {
+            onFirstNodesPlacedRef.current?.(
+              nodesReadyToInsert.map((n2) => n2.id),
+            );
           }
           if (newCanvasNodes.length > 0 && !suppressNewNodeAffordances) {
             const generatedIds = selectGeneratedMediaNodeIds(newCanvasNodes);
@@ -1167,21 +1288,29 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
         const batchUpdates = [];
         for (const updatedFileNode of normalizedUpdatedNodes) {
           const runtimeData = mirrorImageFieldsIntoData(updatedFileNode);
-          const runtimeNode = instance2.getGraph().nodes.find((n2) => n2.id === updatedFileNode.id);
+          const runtimeNode = instance2
+            .getGraph()
+            .nodes.find((n2) => n2.id === updatedFileNode.id);
           const incomingData = updatedFileNode.data;
           const isMediaRuntimeNode =
             updatedFileNode.type === CanvasNodeType.Image ||
             updatedFileNode.type === CanvasNodeType.Video ||
             updatedFileNode.type === CanvasNodeType.Audio;
           if (incomingData && isMediaRuntimeNode) {
-            const current2 = generatingStateStore.getState().byNode.get(updatedFileNode.id);
+            const current2 = generatingStateStore
+              .getState()
+              .byNode.get(updatedFileNode.id);
             const persistedStatus = runtimeNode?.data?.status;
             const deferTransientVideoPending =
               updatedFileNode.type === CanvasNodeType.Video &&
               shouldDeferTransientPending(current2, incomingData);
             if (
               !deferTransientVideoPending &&
-              shouldMirrorIncomingGeneratingData(current2, incomingData, persistedStatus)
+              shouldMirrorIncomingGeneratingData(
+                current2,
+                incomingData,
+                persistedStatus,
+              )
             ) {
               generatingStateStore
                 .getState()
@@ -1198,7 +1327,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             generatingStateStore.getState().clear(updatedFileNode.id);
           }
           const wasEmpty = !!runtimeNode && !runtimeNode.assetId;
-          const becameFilled = wasEmpty && !!updatedFileNode.assetId && !!updatedFileNode.type;
+          const becameFilled =
+            wasEmpty && !!updatedFileNode.assetId && !!updatedFileNode.type;
           const incomingStatus = incomingData?.status;
           const incomingResolvesNode =
             !!updatedFileNode.assetId &&
@@ -1207,7 +1337,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
             incomingStatus !== "generating" &&
             incomingStatus !== "pending";
           const incomingBringsNewAsset =
-            incomingResolvesNode && runtimeNode?.assetId !== updatedFileNode.assetId;
+            incomingResolvesNode &&
+            runtimeNode?.assetId !== updatedFileNode.assetId;
           if (
             incomingBringsNewAsset &&
             generatingStateStore.getState().byNode.has(updatedFileNode.id)
@@ -1251,19 +1382,27 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
                 : updatedFileNode,
             );
           } else {
-            const liveNode = instance2.getGraph().nodes.find((n2) => n2.id === updatedFileNode.id);
+            const liveNode = instance2
+              .getGraph()
+              .nodes.find((n2) => n2.id === updatedFileNode.id);
             if (liveNode) {
               const incomingPos = updatedFileNode.positions?.[mode2];
-              const mergedRuntimeData = mergeServerNodeDataPreservingPopoverDraft(
-                runtimeData,
-                liveNode.data,
-              );
+              const mergedRuntimeData =
+                mergeServerNodeDataPreservingPopoverDraft(
+                  runtimeData,
+                  liveNode.data,
+                );
               const incomingAssetId =
-                typeof updatedFileNode.assetId === "string" && updatedFileNode.assetId.length > 0
+                typeof updatedFileNode.assetId === "string" &&
+                updatedFileNode.assetId.length > 0
                   ? updatedFileNode.assetId
                   : void 0;
               const generationStatusUpdate = isGenerationStatusUpdate
-                ? toGenerationStatusRuntimeUpdate(liveNode, updatedFileNode, mergedRuntimeData)
+                ? toGenerationStatusRuntimeUpdate(
+                    liveNode,
+                    updatedFileNode,
+                    mergedRuntimeData,
+                  )
                 : null;
               if (generationStatusUpdate) {
                 batchUpdates.push(generationStatusUpdate);
@@ -1349,8 +1488,14 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
                 });
               }
             }
-            const existingSaved = savedPositionsRef.current.get(updatedFileNode.id);
-            if (existingSaved || updatedFileNode.assetId || isAuthoritativeReconcile) {
+            const existingSaved = savedPositionsRef.current.get(
+              updatedFileNode.id,
+            );
+            if (
+              existingSaved ||
+              updatedFileNode.assetId ||
+              isAuthoritativeReconcile
+            ) {
               const nextSaved = isGenerationStatusUpdate
                 ? mergeGenerationStatusSavedNode(existingSaved, updatedFileNode)
                 : {
@@ -1359,7 +1504,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
                   };
               if (isAuthoritativeReconcile) {
                 if (!updatedFileNode.groupId) delete nextSaved.groupId;
-                if (!Number.isInteger(updatedFileNode.round)) delete nextSaved.round;
+                if (!Number.isInteger(updatedFileNode.round))
+                  delete nextSaved.round;
                 if (!updatedFileNode.meta) delete nextSaved.meta;
                 if (updatedFileNode.isEmpty !== true) delete nextSaved.isEmpty;
               }
@@ -1427,9 +1573,13 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
     const unsubDestructiveSaveRejected = instance2.eventBus.on(
       "persist:destructive-save-rejected",
       (event) => {
-        console.error("[hilo/canvas] destructive save rejected; restoring last-good canvas");
+        console.error(
+          "[hilo/canvas] destructive save rejected; restoring last-good canvas",
+        );
         pendingDestructiveRestore?.reject(
-          new Error("Canvas last-good restore was superseded by a newer rejection"),
+          new Error(
+            "Canvas last-good restore was superseded by a newer rejection",
+          ),
         );
         const restorePromise = new Promise((resolve, reject) => {
           pendingDestructiveRestore = {
@@ -1460,10 +1610,17 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       }
       const multiInFlightReason = (() => {
         for (const node2 of instance2.getGraph().nodes) {
-          if (node2.type === CanvasNodeType.Placeholder) return `placeholder:${node2.id}`;
+          if (node2.type === CanvasNodeType.Placeholder)
+            return `placeholder:${node2.id}`;
           const data2 = node2.data;
-          const statuses = Array.isArray(data2?.imageStatuses) ? data2.imageStatuses : null;
-          if (statuses && statuses.length >= 2 && statuses.includes("loading")) {
+          const statuses = Array.isArray(data2?.imageStatuses)
+            ? data2.imageStatuses
+            : null;
+          if (
+            statuses &&
+            statuses.length >= 2 &&
+            statuses.includes("loading")
+          ) {
             return `loading-slots:${node2.id}`;
           }
         }
@@ -1492,7 +1649,8 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
           generatingStateStore.getState().clear(event.nodeId);
           return;
         }
-        if (!instance2.getGraph().nodes.some((n2) => n2.id === event.nodeId)) return;
+        if (!instance2.getGraph().nodes.some((n2) => n2.id === event.nodeId))
+          return;
         const prevUrl = assetMetadataStore.getState().get(event.nodeId)?.url;
         generatingStateStore.getState().mark(event.nodeId, {
           prompt: event.prompt ?? "",
@@ -1510,7 +1668,9 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       }) ?? (() => {});
     return () => {
       cancelled = true;
-      pendingDestructiveRestore?.reject(new Error("Canvas last-good restore owner was disposed"));
+      pendingDestructiveRestore?.reject(
+        new Error("Canvas last-good restore owner was disposed"),
+      );
       pendingDestructiveRestore = null;
       if (retryLoadOwnerRef.current === retryLoadOwner) {
         retryLoadOwnerRef.current = null;
@@ -1527,7 +1687,14 @@ export function useCanvasData(instance2, mode2, dataSource, getViewportCenter, o
       unsubGenerating();
       resetWorkspaceCanvasGraphMetrics(workspaceId2);
     };
-  }, [assetMetadataStore, generatingStateStore, mode2, dataSource, instance2, workspaceId2]);
+  }, [
+    assetMetadataStore,
+    generatingStateStore,
+    mode2,
+    dataSource,
+    instance2,
+    workspaceId2,
+  ]);
   return {
     loading,
     initialHydratedNodeCount,
