@@ -1,12 +1,13 @@
 import { h as useTranslation, a1 as useProjectStore, E as useProjectActions, lc as useProjectArchiveActions, x as useNavigateToWorkspace, v as useStorage, r as reactExports, p as projectLog, H as homeService, K as workspaceRuntimeFromOpenResult, l9 as toastWorkspaceOpenResult, a3 as dedupedToast, ld as useMediaModels, t as trackEvent, T as TRACK_EVENTS, le as useAttachmentFaceNoticeGate, lf as isAllVisibleMediaModelsSelected, lg as countVisibleSelectedMediaModels, j as jsxRuntimeExports, Q as Plus, e as Icon, bn as Box, lh as MediaModelSelector, aA as SkillIcon, X, em as RotateCcw, li as useAssetCenterRelocation, lj as useHasBlockingModal, lk as CDN_COACHMARK_HOME_AT, ll as CDN_COACHMARK_HOME_SLASH, kk as resolveSeenRevision, kI as HOME_INPUT_COACH_MARK_ID, g6 as getRuntimeConfig, lm as useModalSlot, ln as STARTUP_MODAL_IDS, lo as useCoachMarkSequence, lp as CoachMarkPopup, au as cn, as as Dialog, at as DialogContent, lq as CDN_PROMOTION_SEEDANCE, gj as DialogHeader, g8 as DialogTitle, g9 as DialogDescription, kS as DialogFooter, fM as Button, b3 as ArrowRight, u as useGatewayReady, k as useQuery, l as gatewayFetch, lr as HOME_QUICK_START_MAX_SECTIONS, ls as parseProjectArchiveSection, F as workspaceLog, m as API_PATHS, g as useRuntimeConfig, lt as findConnectorMentions, lu as OFFICIAL_CONNECTORS, lv as formatConnectorMention, gx as useProjects, lw as useCreateProjectAndSelect, ae as DropdownMenu, gt as TooltipProvider, gu as Tooltip, gv as TooltipTrigger, af as DropdownMenuTrigger, f5 as Users, cI as FolderMinus, bE as ChevronDown, gw as TooltipContent, ah as DropdownMenuContent, ai as DropdownMenuItem, aF as Folder, lx as DropdownMenuSeparator, gN as CreateProjectDialog, ly as subscribePromptPrefill, lz as getPromptPrefillRequest, lA as useMentionModels, lB as completePromptPrefill, lC as claimPromptPrefill, lD as resolveModelPricingName, bI as ChevronRight, hv as useAuth, lE as usePopup, lF as useOptionalUpdaterContext, lG as normalizeAnnouncements, lH as useBlockingModalPresence, lI as BLOCKING_MODAL_IDS, lJ as FeaturePopup, lK as HubLogo, lL as subscribeRandomInspiration, lM as getRandomInspirationRequest, lN as getRandomInspirationQueryIds, lO as completeRandomInspiration, dn as LoaderCircle, lP as ProjectImportIcon, lQ as UsePromptIcon, fa as VolumeX, f8 as Volume2, dw as Maximize2, bd as BadgeCheck, lR as formatTime, lS as resolveSkillCoverUrl, lT as toDisplayName, lU as SkillCoverMedia, lV as FilledSkillIcon, o as usePlatform, lW as getCreationGuideUrlsByLocale, lX as buildInspirationMediaShowcaseCollections, lY as buildMediaShowcaseCollections, lZ as skillVerticals, gB as openExternalUrl, gE as Tabs, gF as TabsList, gG as TabsTrigger, l_ as TabsIndicator, l$ as StableTabLabel, kf as TabsContent, gk as RetryIcon, m0 as VideoLightbox, w as useNavigate, m1 as useHomeQuickStartConfig, y as useLoginGuard, m2 as useEnsureSkillReady, m3 as useModelDefaults, m4 as useActiveCustomModel, m5 as resolveActiveModelId, m6 as useAstraSendGate, m7 as resolveNewProjectPreferences, m8 as useNewProjectFolder, m9 as canApplyHomeComposerMutation, ma as useFolderPermissionGate, mb as DraftController, mc as HOME_DRAFT_WORKSPACE, md as HOME_DRAFT_SESSION_KEY, me as invalidatePendingHomeHandoff, mf as useMarketSkills, mg as normalizePopup, mh as PopupType, mi as useFeaturePopupAction, mj as getTutorialUrlByLocale, mk as hasMessagePayload, ml as isWorkspaceFolderMissingError, mm as markHomeDraftPendingHandoff, mn as connectorReferenceFromServerName, mo as fetchSceneAttachments, mp as resolveHomeFeaturedSkillPrompt, mq as MessageInput, mr as CreationGuidePlaceholder, ms as HubWordmark, mt as OPEN_BROWSER_EVENT, mu as WorkspaceBrowser } from "./main.jsx";
 // JSX 编译目标（vite.config 里 jsxFactory），与 main.jsx 顶部的实现保持一致；main.jsx 没有导出它，这里就地定义。
 function __jsx(type, props, ...children) {
-  const { key, ...rest } = props ?? {};
-  if (children.length === 1) rest.children = children[0];
-  else if (children.length > 1) rest.children = children;
+  const {
+    key,
+    ...rest
+  } = props ?? {};
+  if (children.length === 1) rest.children = children[0];else if (children.length > 1) rest.children = children;
   return children.length > 1 ? jsxRuntimeExports.jsxs(type, rest, key) : jsxRuntimeExports.jsx(type, rest, key);
 }
-
 const SAMPLE_PROJECT_ID = "builtin-sample-project";
 function useSampleProject() {
   const {
@@ -236,7 +237,7 @@ function HomeInputCoachMarks({
     side: "right",
     align: "center"
   }];
-  const maxRevision = Math.max(...steps.map(step2 => step2.revision ?? 1));
+  const maxRevision = Math.max(...steps.map(step => step.revision ?? 1));
   const tourPending = relocation.ready && !relocation.hasAssetData && dismissedHydrated && resolveSeenRevision(dismissedMarks, MARK_ID) < maxRevision;
   const configReady = configHydrated && (getRuntimeConfig().region !== "domestic" || config.watermarkOnboardingShown === true);
   const granted = useModalSlot(STARTUP_MODAL_IDS.homeCoachMarks, {
@@ -480,9 +481,9 @@ function resolveHomeComposerProgress(scrollTop, collapseStartScroll, collapseEnd
   const distance = Math.max(1, safeEnd - safeStart);
   return clamp01((finiteOr(scrollTop, 0) - safeStart) / distance);
 }
-function resolveHomeComposerPresentationProgress(progress, prefersReducedMotion2) {
+function resolveHomeComposerPresentationProgress(progress, reducedMotion) {
   const normalizedProgress = clamp01(progress);
-  if (!prefersReducedMotion2) return normalizedProgress;
+  if (!reducedMotion) return normalizedProgress;
   return normalizedProgress >= 0.5 ? 1 : 0;
 }
 function resolveHomeComposerGeometry({
@@ -605,7 +606,7 @@ function useHomeComposerMotion() {
     let wheelGestureOwner = null;
     let wheelGestureIdleTimer = null;
     const reducedMotionQuery = typeof window.matchMedia === "function" ? window.matchMedia(REDUCED_MOTION_QUERY) : null;
-    let prefersReducedMotion2 = reducedMotionQuery?.matches ?? false;
+    let reducedMotion = reducedMotionQuery?.matches ?? false;
     const readAttachmentPreviewHeight = () => {
       const preview = inputRoot.querySelector('[data-message-input-attachment-preview="true"]');
       return preview?.getBoundingClientRect().height ?? 0;
@@ -725,7 +726,7 @@ function useHomeComposerMotion() {
     };
     const applyMotion = () => {
       const scrollTop = scrollContainer.scrollTop;
-      const presentationProgress = resolveHomeComposerPresentationProgress(resolveProgress(scrollTop), prefersReducedMotion2);
+      const presentationProgress = resolveHomeComposerPresentationProgress(resolveProgress(scrollTop), reducedMotion);
       const geometry = resolveHomeComposerGeometry({
         progress: presentationProgress,
         expandedWidth: metrics.expandedWidth,
@@ -941,7 +942,7 @@ function useHomeComposerMotion() {
       commitOuterWheelScroll(Math.max(0, scrollContainer.scrollTop + deltaY));
     };
     const handleReducedMotionChange = event => {
-      prefersReducedMotion2 = event.matches;
+      reducedMotion = event.matches;
       scheduleFrame();
     };
     const handleIntrinsicContentChange = () => {
@@ -970,7 +971,7 @@ function useHomeComposerMotion() {
       showcaseViewport.scrollTop = 0;
       scrollContainer.scrollTo({
         top: 0,
-        behavior: prefersReducedMotion2 ? "auto" : "smooth"
+        behavior: reducedMotion ? "auto" : "smooth"
       });
       scheduleFrame();
     };
@@ -1090,43 +1091,11 @@ const EMPTY_HOME_PROJECT_SHOWCASE_CONFIG = {
   enabled: true,
   categories: []
 };
-function isRecord$2(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function nonEmptyString$2(value) {
-  if (typeof value !== "string") return void 0;
-  const normalized = value.trim();
-  return normalized || void 0;
-}
-function unwrapApolloValue$2(raw) {
-  let value = raw;
-  for (let depth = 0; depth < 3; depth += 1) {
-    if (typeof value === "string") {
-      try {
-        value = JSON.parse(value);
-        continue;
-      } catch {
-        return value;
-      }
-    }
-    if (!isRecord$2(value)) return value;
-    if (isRecord$2(value.data) && "value" in value.data) {
-      value = value.data.value;
-      continue;
-    }
-    if ("value" in value && Object.keys(value).length === 1) {
-      value = value.value;
-      continue;
-    }
-    return value;
-  }
-  return value;
-}
 function parseSections(rawSections) {
   const seen = new Set();
   const categories = [];
   for (const section of rawSections.slice(0, HOME_QUICK_START_MAX_SECTIONS)) {
-    if (!isRecord$2(section)) continue;
+    if (!isRecord(section)) continue;
     const parsed = parseProjectArchiveSection(section);
     if (!parsed || seen.has(parsed.id)) continue;
     seen.add(parsed.id);
@@ -1135,16 +1104,16 @@ function parseSections(rawSections) {
   return categories;
 }
 function parseHomeProjectShowcaseConfig(raw) {
-  const value = unwrapApolloValue$2(raw);
-  if (!isRecord$2(value)) return null;
+  const value = unwrapApolloValue(raw);
+  if (!isRecord(value)) return null;
   if (value.type === "project-archive") {
-    const categories2 = parseSections([value]);
-    if (categories2.length === 0) return null;
+    const categories = parseSections([value]);
+    if (categories.length === 0) return null;
     return {
       schemaVersion: HOME_PROJECT_SHOWCASE_SCHEMA_VERSION,
       enabled: true,
-      defaultSectionId: categories2[0]?.id,
-      categories: categories2
+      defaultSectionId: categories[0]?.id,
+      categories: categories
     };
   }
   if (value.schema_version !== HOME_PROJECT_SHOWCASE_SCHEMA_VERSION) return null;
@@ -1157,7 +1126,7 @@ function parseHomeProjectShowcaseConfig(raw) {
     };
   }
   const categories = parseSections(value.sections);
-  const configuredDefault = nonEmptyString$2(value.default_section_id);
+  const configuredDefault = nonEmptyString(value.default_section_id);
   const defaultSectionId = categories.some(category => category.id === configuredDefault) ? configuredDefault : categories[0]?.id;
   return {
     schemaVersion: HOME_PROJECT_SHOWCASE_SCHEMA_VERSION,
@@ -1171,7 +1140,6 @@ function parseHomeProjectShowcaseConfig(raw) {
 const HOME_SKILL_SHOWCASE_CONFIG_KEY = "home_skill_showcase_config";
 const HOME_SKILL_SHOWCASE_SCHEMA_VERSION = 1;
 const HOME_SKILL_SHOWCASE_MAX_CATEGORIES = 24;
-const CONFIG_ID_PATTERN$1 = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 const DEFAULT_HOME_SKILL_SHOWCASE_CONFIG = {
   schemaVersion: HOME_SKILL_SHOWCASE_SCHEMA_VERSION,
   enabled: true,
@@ -1185,49 +1153,13 @@ const DEFAULT_HOME_SKILL_SHOWCASE_CONFIG = {
     }
   }]
 };
-function isRecord$1(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function nonEmptyString$1(value) {
-  if (typeof value !== "string") return void 0;
-  const normalized = value.trim();
-  return normalized || void 0;
-}
-function configId$1(value) {
-  const normalized = nonEmptyString$1(value)?.toLowerCase();
-  return normalized && CONFIG_ID_PATTERN$1.test(normalized) ? normalized : void 0;
-}
-function unwrapApolloValue$1(raw) {
-  let value = raw;
-  for (let depth = 0; depth < 3; depth += 1) {
-    if (typeof value === "string") {
-      try {
-        value = JSON.parse(value);
-        continue;
-      } catch {
-        return value;
-      }
-    }
-    if (!isRecord$1(value)) return value;
-    if (isRecord$1(value.data) && "value" in value.data) {
-      value = value.data.value;
-      continue;
-    }
-    if ("value" in value && Object.keys(value).length === 1) {
-      value = value.value;
-      continue;
-    }
-    return value;
-  }
-  return value;
-}
 function parseCategory(value) {
-  if (!isRecord$1(value) || !isRecord$1(value.title) || !isRecord$1(value.query)) return void 0;
-  const id = configId$1(value.id);
-  const label = nonEmptyString$1(value.title.zh) ?? nonEmptyString$1(value.title.en);
-  const labelEn = nonEmptyString$1(value.title.en) ?? nonEmptyString$1(value.title.zh);
-  const source = configId$1(value.query.source);
-  const tag = nonEmptyString$1(value.query.tag);
+  if (!isRecord(value) || !isRecord(value.title) || !isRecord(value.query)) return void 0;
+  const id = configId(value.id);
+  const label = nonEmptyString(value.title.zh) ?? nonEmptyString(value.title.en);
+  const labelEn = nonEmptyString(value.title.en) ?? nonEmptyString(value.title.zh);
+  const source = configId(value.query.source);
+  const tag = nonEmptyString(value.query.tag);
   if (!id || !label || !labelEn || !source) return void 0;
   return {
     id,
@@ -1242,8 +1174,8 @@ function parseCategory(value) {
   };
 }
 function parseHomeSkillShowcaseConfig(raw) {
-  const value = unwrapApolloValue$1(raw);
-  if (!isRecord$1(value)) return null;
+  const value = unwrapApolloValue(raw);
+  if (!isRecord(value)) return null;
   if (value.schema_version !== HOME_SKILL_SHOWCASE_SCHEMA_VERSION) return null;
   if (typeof value.enabled !== "boolean" || !Array.isArray(value.secondary_categories)) return null;
   if (!value.enabled) {
@@ -1262,7 +1194,7 @@ function parseHomeSkillShowcaseConfig(raw) {
     categories.push(parsed);
   }
   if (categories.length === 0) return null;
-  const configuredDefault = configId$1(value.default_secondary_id);
+  const configuredDefault = configId(value.default_secondary_id);
   const defaultSecondaryId = categories.some(category => category.id === configuredDefault) ? configuredDefault : categories[0]?.id;
   return {
     schemaVersion: HOME_SKILL_SHOWCASE_SCHEMA_VERSION,
@@ -1922,9 +1854,6 @@ const USE_PROMPT_FLIGHT_SAMPLES = [{
 let activeTransfer = null;
 let activeArrival = null;
 let reusableFlightBall = null;
-function prefersReducedMotion$1() {
-  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-}
 function copyRect(rect) {
   return {
     left: rect.left,
@@ -2050,7 +1979,7 @@ function captureHomeUsePromptTransferOrigin(source) {
   };
 }
 function playHomeUsePromptTransfer(origin, target) {
-  if (prefersReducedMotion$1() || typeof origin.visual.animate !== "function") return;
+  if (prefersReducedMotion() || typeof origin.visual.animate !== "function") return;
   const targetRect = target.getBoundingClientRect();
   if (origin.rect.width <= 0 || origin.rect.height <= 0 || targetRect.width <= 0 || targetRect.height <= 0) {
     return;
@@ -2686,7 +2615,8 @@ ${activePosterUrl}`;
       return;
     }
     stopPreview();
-  }}><div className={`home-media-showcase-media-frame relative ${videoOrientation === "landscape" ? "aspect-video" : ""} overflow-hidden rounded-[calc(var(--home-media-showcase-card-radius)-4px)] bg-muted`} data-home-media-frame="true" data-video-orientation={videoOrientation} aria-busy={hasPreviewVideo && shouldLoadMedia && !isMediaReady && !isMediaFailed || void 0}>{hasPreviewVideo ? <video ref={videoRef} src={shouldLoadMedia ? item.videoUrl : void 0} poster={shouldLoadMedia ? activePosterUrl : void 0} loop={true} muted={false} playsInline={true} preload={shouldLoadMedia ? "metadata" : "none"} onLoadedMetadata={handleLoadedMetadata} onError={handleMediaError} aria-label={title} data-home-media-loaded={isMediaReady || void 0} data-home-media-activated={shouldLoadMedia || void 0} data-home-media-poster-fit={posterFit} data-home-media-poster-source={posterSource} className="home-media-showcase-media absolute inset-0 h-full w-full object-contain" /> : null}{!isPreviewPlaying && !isMediaFailed && activePosterUrl && failedPosterKey !== activePosterKey ? <img src={activePosterUrl} alt="" draggable={false} loading={posterLoading} decoding="async" aria-hidden="true" data-home-media-poster="true" onError={handlePosterError} className={`pointer-events-none absolute inset-0 z-[1] h-full w-full ${posterObjectFitClass}`} /> : null}{isMediaFailed && activePosterUrl && failedPosterKey !== activePosterKey ? // The transparent failed <video> also hides its poster attribute, so
+  }}><div className={`home-media-showcase-media-frame relative ${videoOrientation === "landscape" ? "aspect-video" : ""} overflow-hidden rounded-[calc(var(--home-media-showcase-card-radius)-4px)] bg-muted`} data-home-media-frame="true" data-video-orientation={videoOrientation} aria-busy={hasPreviewVideo && shouldLoadMedia && !isMediaReady && !isMediaFailed || void 0}>{hasPreviewVideo ? <video ref={videoRef} src={shouldLoadMedia ? item.videoUrl : void 0} poster={shouldLoadMedia ? activePosterUrl : void 0} loop={true} muted={false} playsInline={true} preload={shouldLoadMedia ? "metadata" : "none"} onLoadedMetadata={handleLoadedMetadata} onError={handleMediaError} aria-label={title} data-home-media-loaded={isMediaReady || void 0} data-home-media-activated={shouldLoadMedia || void 0} data-home-media-poster-fit={posterFit} data-home-media-poster-source={posterSource} className="home-media-showcase-media absolute inset-0 h-full w-full object-contain" /> : null}{!isPreviewPlaying && !isMediaFailed && activePosterUrl && failedPosterKey !== activePosterKey ? <img src={activePosterUrl} alt="" draggable={false} loading={posterLoading} decoding="async" aria-hidden="true" data-home-media-poster="true" onError={handlePosterError} className={`pointer-events-none absolute inset-0 z-[1] h-full w-full ${posterObjectFitClass}`} /> : null}{isMediaFailed && activePosterUrl && failedPosterKey !== activePosterKey ?
+      // The transparent failed <video> also hides its poster attribute, so
       // the degraded state renders the poster through a plain <img>.
       <img src={activePosterUrl} alt="" draggable={false} loading="eager" decoding="async" aria-hidden="true" data-home-media-error-poster="true" onError={handlePosterError} className={`pointer-events-none absolute inset-0 z-[1] h-full w-full ${posterObjectFitClass}`} /> : null}{hasPreviewVideo && shouldLoadMedia && !isMediaReady && !isMediaFailed ? <span className="home-media-showcase-loading-surface absolute inset-0 z-[2]" data-home-media-placeholder="true" aria-hidden="true" /> : null}{hasPreviewVideo ? <><span className="home-media-showcase-duration absolute bottom-2 left-2 z-[3] rounded-md px-2 py-1 text-[11px] leading-none" data-action-ui-id="home-media-showcase-duration" data-home-media-duration="true"><span className="sr-only">{durationLabel}{": "}{videoDuration}</span><span aria-hidden="true" data-home-media-duration-value="true">{videoDuration}</span></span><div className="home-media-showcase-action-row absolute right-2 bottom-3 left-2 z-[3] flex min-w-0 items-center justify-between gap-3" data-home-media-showcase-action-row="true"><Button type="button" variant="ghost" size="icon-sm" className="home-media-showcase-control-button home-media-showcase-audio-button shrink-0 rounded-full border-0" aria-label={`${isMuted ? unmuteLabel : muteLabel}: ${title}`} aria-pressed={isMuted} onClick={event => {
             event.stopPropagation();
@@ -2745,7 +2675,8 @@ function MediaShowcaseSkillCard({
   const attributionLabel = author.startsWith("@") ? author : `@${author}`;
   const official = isOfficialSkill(skill) && isOfficialAttribution(author);
   const normalizedProgress = clampProgress(installProgress);
-  return <article className="home-media-showcase-card group flex min-w-0 flex-col overflow-hidden rounded-[var(--home-media-showcase-card-radius)] border-solid border-border bg-card p-1 [border-width:var(--divider-width)]" data-action-ui-id="home-media-showcase-skill-card" data-media-kind="skill" data-media-content-id={dataContentId} data-skill-name={skill.name} data-installing={installing ? "true" : void 0} aria-disabled={disabled || void 0} aria-busy={installing || void 0}><div className={`home-media-showcase-media-frame relative ${videoOrientation === "landscape" ? "aspect-video" : ""} overflow-hidden rounded-[calc(var(--home-media-showcase-card-radius)-4px)] bg-muted`} data-home-media-frame="true" data-video-orientation={videoOrientation}>{!coverFailed ? // The `home-media-showcase-media` visibility contract lives on this
+  return <article className="home-media-showcase-card group flex min-w-0 flex-col overflow-hidden rounded-[var(--home-media-showcase-card-radius)] border-solid border-border bg-card p-1 [border-width:var(--divider-width)]" data-action-ui-id="home-media-showcase-skill-card" data-media-kind="skill" data-media-content-id={dataContentId} data-skill-name={skill.name} data-installing={installing ? "true" : void 0} aria-disabled={disabled || void 0} aria-busy={installing || void 0}><div className={`home-media-showcase-media-frame relative ${videoOrientation === "landscape" ? "aspect-video" : ""} overflow-hidden rounded-[calc(var(--home-media-showcase-card-radius)-4px)] bg-muted`} data-home-media-frame="true" data-video-orientation={videoOrientation}>{!coverFailed ?
+      // The `home-media-showcase-media` visibility contract lives on this
       // wrapper: it stays transparent until `data-home-media-loaded` flips
       // to true, exactly like the video showcase cards. SkillCoverMedia
       // reports load/error; keying loaded state by URL survives skill
@@ -2993,8 +2924,8 @@ function MediaShowcasePreview({
     if (showcasePending || !effectiveConfigAuthoritative) return;
     if (typeof IntersectionObserver === "undefined") return;
     const toolbar = showcaseToolbarRef.current;
-    const showcase2 = showcaseRef.current;
-    if (!toolbar || !showcase2) return;
+    const showcase = showcaseRef.current;
+    if (!toolbar || !showcase) return;
     const observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         const target = entry.target;
@@ -3092,7 +3023,7 @@ function MediaShowcasePreview({
       tab.setAttribute("data-home-tab-id", tabId);
       exposureTargets.push(tab);
     }
-    const contentRoot = showcase2.querySelector(`[data-home-media-showcase-content="${selectedCollectionId}"]`);
+    const contentRoot = showcase.querySelector(`[data-home-media-showcase-content="${selectedCollectionId}"]`);
     if (contentRoot) {
       for (const [index, card] of Array.from(contentRoot.querySelectorAll("[data-media-content-id]")).entries()) {
         const contentId = card.getAttribute("data-media-content-id");
@@ -4235,5 +4166,4 @@ function HomePage() {
   }, []);
   return <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"><div hidden={browserOpen} className={browserOpen ? "hidden" : "flex min-h-0 flex-1 flex-col"}><HomeContent /></div>{browserOpen && <WorkspaceBrowser onBackToCanvas={closeBrowser} backLabel={t("homeSidebar.home")} surfaceSource="fallback_card" />}</div>;
 }
-const SplitComponent = HomePage;
-export { SplitComponent as component };
+export { HomePage as component };
