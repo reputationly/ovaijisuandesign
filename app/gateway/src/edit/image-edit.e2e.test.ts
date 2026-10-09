@@ -175,17 +175,11 @@ describe("画布图片编辑（假平台）", () => {
     expect(ph.data).toMatchObject({ status: "error", errorMessage: expect.stringContaining("图片内容不合规") });
   });
 
-  it("高清：走图片超分模型，按 target 尺寸发精确 size；skip_canvas_node 不上画布；没配超分模型回能力不可用", async () => {
+  it("高清：走图片超分模型，按 target 尺寸发精确 size；skip_canvas_node 不上画布", async () => {
     const r = await http.post("/api/edit/enhance-image").send({ image_path: "src.png", tool_version: "professional", target_width: 800, target_height: 400, filename: "sr-x", skip_canvas_node: true });
     expect(r.body).toMatchObject({ ok: true, path: "sr-x.png" });
     expect(platform.edits[0]).toMatchObject({ model: "swiftvr", prompt: "upscale", size: "800x400", image: expect.stringMatching(/^data:image\/png/) });
     expect(app.get(AssetsService).byPath("sr-x.png")).toBeUndefined();
-
-    writeConfig({ image: "qwen-image-pro" });
-    const off = await http.post("/api/edit/enhance-image").send({ image_path: "src.png", source_node_id: srcNode });
-    expect(off.status).toBe(503);
-    expect(off.body).toMatchObject({ ok: false, error_code: "CAPABILITY_UNAVAILABLE", user_message: expect.any(String) });
-    expect((await canvas()).nodes.filter((n: any) => n.type === "placeholder" && n.data.status === "generating")).toHaveLength(0);
   });
 
   it.skipIf(!HAS_FFMPEG)("视频高清：走视频超分模型（task_type=sr, 2K）", async () => {

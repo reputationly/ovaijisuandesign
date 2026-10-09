@@ -1,12 +1,13 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "//": "globalEnv：turbo 2.x 默认 strict env 模式，不声明就把变量从任务进程里剥掉（而且缓存键里也没有它）。OPENCODE_BIN 是开发时指定 agent 二进制的入口（app/desktop/src/main/opencode/index.ts 的 locateOpencode），OV_UI 选要加载的界面目录（protocol.ts）。OV_UPDATE_FEED_BASE 是更新源，**构建期**由 electron.vite.config.ts 的 main.define 固化进主进程 —— 漏在这里会出一个能装能跑、但永远收不到更新的包，而 CI 全绿，只有装到机器上点「检查更新」才发现。scripts/verify-desktop-package.mjs 的 checkUpdateFeed 专门盯这个。",
+  "//": "globalEnv：turbo 2.x 默认 strict env 模式，不声明就把变量从任务进程里剥掉（而且缓存键里也没有它）。OPENCODE_BIN 是开发时指定 agent 二进制的入口（app/desktop/src/main/opencode/index.ts 的 locateOpencode），OV_UI 选要加载的界面目录（protocol.ts）。OV_UPDATE_FEED_BASE 是更新源，**构建期**由 electron.vite.config.ts 的 main.define 固化进主进程 —— 漏在这里会出一个能装能跑、但永远收不到更新的包，而 CI 全绿，只有装到机器上点「检查更新」才发现。scripts/verify-desktop-package.mjs 的 checkUpdateFeed 专门盯这个。 / @ov/renderer#build 单独声明 outputs：还原版界面的产物故意落在 app/desktop/out/recovered-ui（protocol.ts 的界面目录表按这个路径找），而通用 build 任务的 outputs `dist/**`、`out/**` 是相对**包自己**解析的，@ov/renderer 一条都匹配不上 —— turbo 每次报 `no output files found`，这份产物也永远不进缓存（改一行界面代码，构建从零跑）。",
   "globalEnv": ["OPENCODE_BIN", "OV_UI", "OV_UPDATE_FEED_BASE"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "out/**"] },
     "typecheck": { "dependsOn": ["^build"] },
     "test": { "dependsOn": ["^build"] },
     "@ov/desktop#test": { "dependsOn": ["^build", "@ov/gateway#build"] },
+    "@ov/renderer#build": { "dependsOn": ["^build"], "outputs": ["../desktop/out/recovered-ui/**"] },
     "dev": { "cache": false, "persistent": true }
   }
 }

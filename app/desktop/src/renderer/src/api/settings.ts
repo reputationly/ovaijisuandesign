@@ -21,20 +21,11 @@ export async function loadPlatformSettings(): Promise<PlatformSettingsInfo> {
   return gatewayJson<PlatformSettingsInfo>("/api/settings")
 }
 
+/** 界面只能改接口地址和令牌；模型由产品预设定，主进程不收模型字段。 */
 export interface PlatformSettingsPatch {
   baseUrl?: string
   /** 空串表示不改已保存的 key */
   apiKey?: string
-  chatModel?: string
-  image?: string
-  imageEdit?: string
-  video?: string
-  videoRef?: string
-  videoUpscale?: string
-  imageUpscale?: string
-  music?: string
-  musicEdit?: string
-  speech?: string
 }
 
 export async function savePlatformSettings(patch: PlatformSettingsPatch): Promise<void> {

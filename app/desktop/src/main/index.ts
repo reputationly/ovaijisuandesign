@@ -24,7 +24,9 @@ import { installAppMenu, triggerMenuAction } from "./menu.js";
 import { migrateLegacyWorkspace } from "./migration/legacy.js";
 import { OpenCodeRuntime, prepareLaunch } from "./opencode/index.js";
 import { dataDirs, nodeExecutable, resourceRoots } from "./paths.js";
-import { readPlatform } from "./platform-config.js";
+import { hasPlatformToken, readPlatform } from "./platform-config.js";
+import { PlatformConnection } from "./platform-connection.js";
+import { focusTokenGate, requireTokenGate } from "./onboarding/token-gate.js";
 import { ProjectArchiveService } from "./project/project-archive-service.js";
 import { ProjectAssetsService } from "./project/project-assets.js";
 import { ProjectService } from "./project/project-service.js";
@@ -103,7 +105,8 @@ function notifyOpenResult(r: WorkspaceOpenResult): void {
   if (body) new Notification({ title: "打不开项目", body }).show();
 }
 
-async function boot(): Promise<Running> {
+/** 返回 undefined = 令牌页被关掉 / 点了退出，应用已经在退出中，调用方什么都不用再做。 */
+async function boot(): Promise<Running | undefined> {
   const dirs = dataDirs();
   const { log, stream } = makeLogger(path.join(dirs.userData, "logs"));
   const roots = resourceRoots();
@@ -199,6 +202,26 @@ async function boot(): Promise<Running> {
       log,
     }).catch((err) => log(`[main] 旧版数据迁移失败（下次启动重试）：${err instanceof Error ? err.message : String(err)}`));
   }
+
+  // 平台令牌：没有就拦在这里，不能跳过（关掉窗口 = 退出应用）。放在迁移之后，
+  // 所以旧版配置里已经带着的令牌也算数，不会再弹。填过一次之后就不再拦。
+  if (!hasPlatformToken(dirs.configPath)) {
+    log("[main] 没有平台令牌，先显示令牌页");
+    const saved = await requireTokenGate({
+      configPath: dirs.configPath,
+      preloadPath: path.join(import.meta.dirname, "../preload/gate.mjs"),
+      log,
+    });
+    if (!saved) {
+      log("[main] 令牌页未填写就关闭，退出应用");
+      app.quit();
+      return undefined;
+    }
+  }
+
+  // 启动时探一下令牌能不能用，结果给界面左下角的连接状态（绿点已连接 / 红点未连接）。后台跑，不挡启动。
+  const connection = new PlatformConnection(() => readPlatform(dirs.configPath), { log });
+  void connection.refresh();
 
   // 多工作区
   const opencodeStartGate = createSerialGate();
@@ -298,12 +321,15 @@ async function boot(): Promise<Running> {
     }),
   );
   // 设置页「模型接入」：读写平台配置。新配置在下次起 opencode 时生效（渲染层保存后会请求重启）
+  // status：左下角连接状态，启动时探测一次，保存令牌后再探测一次。
   registerChannel("platform-settings", {
     get: async () => readSettings(dirs.configPath, dirs.projectsRoot, 0),
     save: async (patch: Record<string, unknown>) => {
       writeSettings(dirs.configPath, patch);
+      void connection.refresh();
       return { ok: true };
     },
+    status: async () => connection.current(),
   });
   for (const [name, svc] of Object.entries(stubChannels({ store, projectsRoot: dirs.projectsRoot, dataRoot: dirs.dataRoot, outputDir: dirs.outputDir, log: (l, m) => log(`[renderer ${l}] ${m}`) }))) {
     registerChannel(name, svc);
@@ -409,17 +435,21 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.on("second-instance", () => {
     if (running) showMainWindow(running.appUrl);
+    else focusTokenGate(); // 令牌页还没填完：把它拉到前面，别让人以为没反应
   });
 
   void app.whenReady().then(async () => {
     handleAppScheme();
+    let started: Running | undefined;
     try {
-      running = await boot();
+      started = await boot();
     } catch (err) {
       console.error("启动失败", err);
       app.exit(1);
       return;
     }
+    if (!started) return; // 令牌页被关掉，boot 里已经在退出
+    running = started;
     // 点 Dock 图标：只在没有可见窗口时才唤起
     app.on("activate", () => {
       if (running && !BrowserWindow.getAllWindows().some((w) => w.isVisible())) showMainWindow(running.appUrl);

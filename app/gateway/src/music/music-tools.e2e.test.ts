@@ -103,13 +103,10 @@ describe("音乐辅助接口 / 云端工作流 / 人声提取", () => {
     expect(stale.body).toMatchObject({ ok: false, error: expect.stringContaining("cover_feature_id") });
   });
 
-  it("翻唱预处理：缺 audio / 文件不在 / 越界 / 没配翻唱模型，都回 {ok:false, error}", async () => {
+  it("翻唱预处理：缺 audio / 文件不在 / 越界，都回 {ok:false, error}", async () => {
     expect((await http.post("/api/music/cover/preprocess").send({})).body).toEqual({ ok: false, error: "audio is required" });
     expect((await http.post("/api/music/cover/preprocess").send({ audio: "nope.mp3" })).body).toMatchObject({ ok: false, error: expect.stringContaining("not found") });
     expect((await http.post("/api/music/cover/preprocess").send({ audio: "../x.mp3" })).body).toMatchObject({ ok: false, error: expect.stringContaining("traversal") });
-    writeConfig({ music: "minimax-music3" });
-    expect((await http.post("/api/music/cover/preprocess").send({ audio: "ref.mp3" })).body).toMatchObject({ ok: false, error: expect.stringContaining("music_edit") });
-    writeConfig({ music: "minimax-music3", music_edit: "ace-step" });
   });
 
   it("云端工作流：参数照样校验；通过后 503 能力不可用；查询一律 404", async () => {

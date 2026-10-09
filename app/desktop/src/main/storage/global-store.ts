@@ -88,8 +88,9 @@ export function defaultConfig(workingDirectory: string): Record<string, unknown>
     skillAutoUpdate: true,
     localFileRevealAllowedDirs: [],
     autoFeedbackEnabled: false,
-    watermarkEnabled: true,
-    watermarkOnboardingShown: false,
+    // 客户端不支持水印：默认无水印，也不再弹「AI 生成水印设置」（界面侧见 official-ui 补丁第十五节）
+    watermarkEnabled: false,
+    watermarkOnboardingShown: true,
     assetCenterHidden: false,
     attachmentFaceNoticeAccepted: false,
     creditTransferTermsAccepted: {},

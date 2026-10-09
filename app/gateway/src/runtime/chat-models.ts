@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { parseMediaConfig } from "@ov/maas-media";
+import { withPlatformPreset } from "@ov/protocol";
 
 import type { GatewayConfig } from "../config/gateway-config.js";
 
@@ -15,7 +16,7 @@ export const CHAT_PROVIDER_ID = "maas";
 export function chatModelIds(cfg: GatewayConfig): string[] {
   let chat = "";
   try {
-    if (cfg.mediaConfigPath) chat = parseMediaConfig(JSON.parse(readFileSync(cfg.mediaConfigPath, "utf8"))).platform.chat_model.trim();
+    if (cfg.mediaConfigPath) chat = parseMediaConfig(withPlatformPreset(JSON.parse(readFileSync(cfg.mediaConfigPath, "utf8")))).platform.chat_model.trim();
   } catch {
     chat = "";
   }

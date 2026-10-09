@@ -20,6 +20,7 @@
  *   node scripts/verify-desktop-package.mjs <产物目录>
  */
 
+import { createHash } from "node:crypto";
 import { closeSync, existsSync, openSync, readFileSync, readSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -385,6 +386,41 @@ function checkUpdateFeed(resources, expect) {
   return bad;
 }
 
+/**
+ * mac 包必须带上我们的应用图标。
+ *
+ * `electron-builder` 的图标是自动查找的，只找 `build/` 目录；找不到时**不报错**，
+ * 只在日志里留一行 `default Electron icon is used`。所以「图标放在别的目录」或
+ * 「谁把 `mac.icon` 删了」这种错，三个平台的包照样全绿出得来，Dock 里是个 Electron，
+ * 要等用户看见才发现 —— 和这个脚本要挡的其他静默降级是同一类。
+ *
+ * 按字节比，不按「文件存在」：接错成别的文件（比如旧的 logo）也算坏。
+ * Windows 的图标在 exe 里，本机这条跳过 —— 那边由 CI 出包时同一条断言覆盖不了，
+ * 先靠 `win.icon` 写死在配置里。
+ */
+function checkIcon(resources) {
+  const appDir = path.dirname(path.dirname(resources));
+  if (!appDir.endsWith(".app")) return 0; // 非 macOS 产物，没有 .icns 可查
+  console.log("\n应用图标");
+  const ours = path.join(REPO, "app/desktop/resources/icon.icns");
+  const bundled = path.join(resources, "icon.icns");
+  if (!existsSync(ours)) {
+    console.log("  ❌ 仓库里没有 app/desktop/resources/icon.icns —— 跑 `python3 scripts/app-icon.py` 生成");
+    return 1;
+  }
+  if (!existsSync(bundled)) {
+    console.log("  ❌ 产物里没有 icon.icns —— 用的是 Electron 默认图标，`electron-builder.yml` 的 `mac.icon` 掉了？");
+    return 1;
+  }
+  const sha = (f) => createHash("sha256").update(readFileSync(f)).digest("hex");
+  if (sha(ours) !== sha(bundled)) {
+    console.log("  ❌ 产物里的 icon.icns 和仓库里那份不是同一个 —— 接错了文件，或生成后忘了重新出包");
+    return 1;
+  }
+  console.log("  ✅ 就是 `scripts/app-icon.py` 生成的那份（字节一致）");
+  return 0;
+}
+
 function main() {
   const argv = process.argv.slice(2);
   // `--expect-version <编码后的三段>`：发版流水线传，用来断言包和清单带的是
@@ -509,6 +545,8 @@ function main() {
     console.log(`\n更新源（期望 ${feed}）`);
     bad += checkUpdateFeed(resources, feed);
   }
+
+  bad += checkIcon(resources);
 
   console.log(bad === 0 ? "\n✓ 产物布局符合契约" : `\n✗ ${bad} 项不符`);
   process.exitCode = bad === 0 ? 0 : 1;

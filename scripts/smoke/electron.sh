@@ -13,6 +13,9 @@ set -euo pipefail
 repo="$(cd "$(dirname "$0")/../.." && pwd)"
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/ov-electron-smoke-XXXXXX")"
 mkdir -p "$tmp/ud" "$tmp/data" "$tmp/ws" "$tmp/dump"
+# 没有平台令牌时应用会先拦在令牌页（不能跳过），冒烟要过得去，就预先写一个占位令牌。
+# 假 opencode 和假平台都不校验它；地址和模型用产品预设（这里不触网）。
+printf '%s\n' '{"platform":{"api_key":"smoke-placeholder-token"}}' > "$tmp/config.json"
 LIMIT_SECONDS="${SMOKE_LIMIT_SECONDS:-90}"
 DEBUG_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')"
 

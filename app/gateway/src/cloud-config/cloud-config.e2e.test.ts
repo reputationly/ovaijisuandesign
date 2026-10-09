@@ -60,7 +60,7 @@ describe("云端配置类路由的本地默认值", () => {
     expect((await http.get("/api/v1/apollo/config?key=no_such_key")).status).toBe(404);
   });
 
-  it("首页快速开始：云端原文（8 分区 165 条示例），按渲染层解析规则逐条校验", async () => {
+  it("首页快速开始：云端原文去掉「工具互联」后（7 分区 152 条示例），按渲染层解析规则逐条校验", async () => {
     const r = await http.get(`/api/v1/home/quick_start_config?config_version=2&${COMMON}`);
     expect(r.status).toBe(200);
     const cfg = r.body;
@@ -70,10 +70,11 @@ describe("云端配置类路由的本地默认值", () => {
     expect(cfg.sections.length).toBeLessThanOrEqual(16);
     expect(Buffer.byteLength(JSON.stringify(cfg))).toBeLessThan(1_000_000);
 
-    // 云端原文的 8 个分区，顺序与云端一致（官方在线时界面上就是这 8 个）。
+    // 云端原文 8 个分区去掉「工具互联」（产品暂不提供，见 HIDDEN_SHOWCASE_SECTION_IDS），其余顺序与云端一致。
+    // 隐藏的分区连同它的页签、素材都不该出现在任何地方。
+    expect(JSON.stringify(cfg)).not.toContain("tool-integration");
     const scenes = cfg.sections.filter((s: any) => s.type === "prompt");
     expect(scenes.map((s: any) => s.id)).toEqual([
-      "tool-integration",
       "effects-packaging",
       "influencer-marketing",
       "cinematic-intro",
@@ -123,8 +124,8 @@ describe("云端配置类路由的本地默认值", () => {
         }
       }
     }
-    // 8 分区共 165 条（13+12+7+18+11+30+36+38）。
-    expect(total).toBe(165);
+    // 7 分区共 152 条（12+7+18+11+30+36+38；原文 8 分区 165 条，去掉的「工具互联」是 13 条）。
+    expect(total).toBe(152);
 
     // 每条示例都有输出（效果演示：封面 + 视频，cover/video 是 {domestic, overseas}）。
     for (const s of scenes) {
@@ -161,10 +162,11 @@ describe("云端配置类路由的本地默认值", () => {
         }
       }
     }
-    // 452 个图片 URL 全部本地化（domestic/overseas 各自的 key）；318 个媒体 URL（video/audio 附件 + 输出视频）保持 CDN。
-    expect(imageUrls.size).toBe(452);
+    // 422 个图片 URL 全部本地化（domestic/overseas 各自的 key）；304 个媒体 URL（video/audio 附件 + 输出视频）保持 CDN。
+    // （原文 452 / 318，去掉「工具互联」的 13 条示例后剩下这些。）
+    expect(imageUrls.size).toBe(422);
     expect([...imageUrls].every((u) => u.startsWith("/api/v1/home/showcase-assets/"))).toBe(true);
-    expect(videoUrls.size).toBe(318);
+    expect(videoUrls.size).toBe(304);
     // 视频主机有三种（cdn.hailuoai.com / cdn.hailuoai.video / cdn.hailuo.ai），原文如此。
     expect([...videoUrls].every((u) => /^https:\/\/cdn\.hailuoai\.(com|video)\/|^https:\/\/cdn\.hailuo\.ai\//.test(u))).toBe(true);
 

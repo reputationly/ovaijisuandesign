@@ -1,4 +1,5 @@
 import { createApp } from "./bootstrap.js";
+import { installShutdownHandlers } from "./shutdown.js";
 
 /**
  * 入口。由 Electron 主进程以 `ELECTRON_RUN_AS_NODE=1` 拉起，
@@ -26,6 +27,8 @@ async function main() {
   server.headersTimeout = long;
   server.keepAliveTimeout = long;
   console.log(`gateway listening on http://${host}:${port}`);
+
+  installShutdownHandlers({ app, server });
 }
 
 main().catch((e) => {

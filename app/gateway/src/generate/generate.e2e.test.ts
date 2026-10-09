@@ -133,7 +133,8 @@ describe("生成（假平台）", () => {
     const c = (await http.get("/api/models?agent_version=2")).body;
     expect(c.imageModels.map((m: any) => m.id)).toEqual(["qwen-image"]);
     expect(c.videoModels[0]).toMatchObject({ id: "minimax-h3-fl2va", backend: "minimax_v3", model_name: "MiniMax-H3", display_name: "minimax-h3-fl2va", type: "video", tool_names: ["hub_generate_video"] });
-    expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5"]);
+    // 语音来自配置；文生音乐 / 翻唱没写进配置，用产品预设（配置里写的空值也一样）
+    expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5", "minimax-music3", "ace-step"]);
     expect(c.defaultTextModelId).toBe("chat");
     expect((await http.get("/api/speech/voices?page_size=1000")).body).toEqual([
       expect.objectContaining({ voice_id: "narrator", sample_audio: "https://x/ref.wav" }),
@@ -304,11 +305,23 @@ describe("生成（假平台）", () => {
   });
 
   it("没配的能力提交时就拒绝（4xx），不建占位卡", async () => {
+    // 语音模型的产品预设本来就是空的，所以"没配语音"就是读出来的配置里 speech 为空。
+    // 这里只在这一个用例里把服务读出来的配置改成没有语音（不动磁盘上的配置文件，也不改环境变量），用完还原。
+    const media = app.get(MediaConfigService);
+    const realLoad = media.load.bind(media);
+    media.load = () => {
+      const c = realLoad();
+      return { ...c, models: { ...c.models, speech: null } };
+    };
     const before = (await http.get("/api/canvas")).body.nodes.length;
-    const r = await http.post("/api/generate/music/submit").send({ prompt: "钢琴" });
-    expect(r.status).toBe(400);
-    expect(r.body).toMatchObject({ ok: false, error_code: "MODEL_NOT_CONFIGURED" });
-    expect((await http.get("/api/canvas")).body.nodes.length).toBe(before);
+    try {
+      const r = await http.post("/api/generate/speech/submit").send({ backend: "speech", prompt: "欢迎收听", filename: "welcome" });
+      expect(r.status).toBe(400);
+      expect(r.body).toMatchObject({ ok: false, error_code: "MODEL_NOT_CONFIGURED" });
+      expect((await http.get("/api/canvas")).body.nodes.length).toBe(before);
+    } finally {
+      media.load = realLoad;
+    }
   });
 
   it("未知任务 404 TASK_NOT_FOUND", async () => {

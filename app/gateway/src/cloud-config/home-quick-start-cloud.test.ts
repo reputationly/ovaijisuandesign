@@ -6,9 +6,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   collectShowcaseAssets,
+  HIDDEN_SHOWCASE_SECTION_IDS,
   loadShowcaseCloudConfig,
   rewriteShowcaseConfig,
   showcaseAssetKey,
+  withoutHiddenShowcaseSections,
 } from "./home-quick-start-cloud.js";
 import { HOME_SHOWCASE_ASSET_ROUTE, homeShowcaseAssetUrl } from "./home-showcase.js";
 
@@ -20,6 +22,37 @@ const MEDIA_DIR = path.join(REPO, "assets/home-showcase/media");
 const rawConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as Record<string, any>;
 
 describe("创作灵感云端配置（quick_start_config v2 本地版）", () => {
+  it("withoutHiddenShowcaseSections：只去掉隐藏分区和它的页签，不改入参", () => {
+    const input = {
+      sections: [{ id: "tool-integration", items: [] }, { id: "mv", items: [] }],
+      showcase: { default_tab_id: "featured", tabs: { featured: {}, "tool-integration": { badge: {} }, mv: {} } },
+    };
+    const snapshot = JSON.stringify(input);
+    const out = withoutHiddenShowcaseSections(input);
+    expect(out.sections.map((s: any) => s.id)).toEqual(["mv"]);
+    expect(Object.keys(out.showcase.tabs)).toEqual(["featured", "mv"]);
+    expect(out.showcase.default_tab_id).toBe("featured");
+    expect(JSON.stringify(input)).toBe(snapshot);
+  });
+
+  it("隐藏分区（工具互联）：配置、封面、素材登记表都不含它；原文 JSON 本身不动", () => {
+    expect(HIDDEN_SHOWCASE_SECTION_IDS).toEqual(["tool-integration"]);
+    const cfg = loadShowcaseCloudConfig();
+    expect(JSON.stringify(cfg.config)).not.toContain("tool-integration");
+    // 原文里隐藏分区的封面（CDN 原地址）一个都不能出现在预热列表里
+    const hiddenSection = rawConfig.sections.find((s: any) => s.id === "tool-integration");
+    expect(hiddenSection).toBeDefined();
+    const hiddenCovers = new Set<string>();
+    for (const item of hiddenSection.items) {
+      for (const output of item.outputs ?? []) {
+        for (const url of Object.values(output.cover ?? {})) if (typeof url === "string") hiddenCovers.add(url);
+      }
+    }
+    expect(hiddenCovers.size).toBeGreaterThan(0);
+    for (const c of cfg.covers) expect(hiddenCovers.has(c.cdnUrl)).toBe(false);
+    for (const url of hiddenCovers) expect(cfg.mediaKeys.has(showcaseAssetKey(url))).toBe(false);
+  });
+
   it("素材收集：452 张图片、318 个 CDN 媒体（video/audio 附件 + 输出视频，和下载脚本的口径一致）", () => {
     const { images, media } = collectShowcaseAssets(rawConfig);
     expect(images).toHaveLength(452);
@@ -91,7 +124,8 @@ describe("创作灵感云端配置（quick_start_config v2 本地版）", () => 
     const a = loadShowcaseCloudConfig();
     const b = loadShowcaseCloudConfig();
     expect(b).toBe(a);
-    const { images, media } = collectShowcaseAssets(rawConfig);
+    // 登记表只管「首页真正展示」的那部分：隐藏分区的素材不登记。
+    const { images, media } = collectShowcaseAssets(withoutHiddenShowcaseSections(rawConfig));
     expect(a.mediaKeys.size).toBe(images.length);
     for (const url of media) {
       expect(a.mediaKeys.has(showcaseAssetKey(url))).toBe(false);

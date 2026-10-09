@@ -56,7 +56,7 @@ const i18n = (id, key, from, to) => ({
 //   3. i18n 两份资源各加一组 ov.platform.* 键；
 //   4. SettingsDialogProvider 挂首次引导：没配过密钥自动弹到本分区（sessionStorage 只挡当次会话内的重复弹）。
 // 数据走主进程 platform-settings 通道（get / save，见 app/desktop/src/main/index.ts）。
-import { PlatformSection, PlatformServiceShim, FirstRunShim, I18N_ZH, I18N_EN } from "./platform-section.mjs";
+import { PlatformSection, PlatformServiceShim, FirstRunShim, ConnectionIndicatorShim, I18N_ZH, I18N_EN } from "./platform-section.mjs";
 
 const i18nInsert = (obj) => Object.entries(obj).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)},`).join("\n");
 
@@ -436,6 +436,220 @@ export const PATCHES = [
     within: EN_I18N,
     find: '  "settings.network.proxyGroup": "Proxy",\n',
     replace: '  "settings.network.proxyGroup": "Proxy",\n' + i18nInsert(I18N_EN) + "\n",
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十一、模型不让用户看见：隐藏首页 / 对话 / 画布里的模型按钮（2026-10 定）
+  // ---------------------------------------------------------------------------------------------
+  // 模型由产品预设定（`@ov/protocol` 的 PLATFORM_PRESET），界面不展示、不让选。五处入口：
+  //   1. 对话输入框的「模型」按钮，连同弹层和分隔线：ChatToolbar 的 showModelSelector 默认改为 false。
+  //      技能按钮由 showSkillSelector 单独控制，不受影响。
+  //   2. 首页输入框的「模型」按钮（首页 chunk 里有自己的一份组件）：直接不渲染。
+  //   3. 画布生成面板的模型芯片（图 / 视频 / 音乐 / 文本）：组件根节点返回 null；参数芯片照常显示。
+  //   4. `@` 菜单的模型候选：网关不给（见 listMentionModels）；分类里的「模型」标签也去掉。
+  //   5. 引导文案里「模型都能选」改掉（见下面两条）。
+  // 锚点都是唯一一处（count 默认 1），3.0.21 上核对过；改版本时这里会先报错，不会静默失效。
+  {
+    id: "mention.hide-models-tab",
+    file: MAIN,
+    find: '  { key: "workflows", labelKey: "mention.popover.workflows", fallback: "Workflows" },\n  { key: "models", labelKey: "mention.popover.models", fallback: "Models" }\n];',
+    replace: '  { key: "workflows", labelKey: "mention.popover.workflows", fallback: "Workflows" }\n];',
+  },
+  {
+    id: "composer.hide-model-button",
+    file: MAIN,
+    find: "  showModelSelector = true,",
+    replace: "  showModelSelector = false,",
+  },
+  {
+    id: "home-composer.hide-model-button",
+    file: HOME,
+    find: '    /* @__PURE__ */ jsxRuntimeExports.jsxs(\n      "button",\n      {\n        ref: modelButtonRef,\n        type: "button",\n        "data-action-ui-id": "home-model-btn",',
+    replace: '    null && /* @__PURE__ */ jsxRuntimeExports.jsxs(\n      "button",\n      {\n        ref: modelButtonRef,\n        type: "button",\n        "data-action-ui-id": "home-model-btn",',
+  },
+  {
+    id: "model-chip.hide",
+    file: MAIN,
+    find: '  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [\n    /* @__PURE__ */ jsxRuntimeExports.jsxs(\n      "button",\n      {\n        ref: triggerRef,\n        type: "button",\n        onClick: (e2) => {\n          e2.stopPropagation();\n          if (!disabled2) setOpen((v2) => !v2);',
+    replace: '  return null && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [\n    /* @__PURE__ */ jsxRuntimeExports.jsxs(\n      "button",\n      {\n        ref: triggerRef,\n        type: "button",\n        onClick: (e2) => {\n          e2.stopPropagation();\n          if (!disabled2) setOpen((v2) => !v2);',
+  },
+  // 新手引导（首页输入框 @ 键提示）原文说「指定某个模型、模型都能选」，`@` 里已经没有模型了，改成不提模型。
+  // 两处文案都在：首页那块 chunk 里的兜底文案、主 bundle 里的中文资源。
+  {
+    id: "coach-mark.at-key-copy.home",
+    file: HOME,
+    find: "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
+    replace: "想引用具体某张图或某个文件？输入 @ 直接挑——文件、素材都能选",
+  },
+  {
+    id: "coach-mark.at-key-copy.main",
+    file: MAIN,
+    find: "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
+    replace: "想引用具体某张图或某个文件？输入 @ 直接挑——文件、素材都能选",
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十二、用户菜单「帮助」里暂不提供的三项：教程、更新日志、用户协议（2026-10 定）
+  // ---------------------------------------------------------------------------------------------
+  // 只去掉这三个入口的渲染；同一分组里的「版本更新」保留。协议的子菜单靠那一行打开，一起去掉就不会再出现。
+  // 锚点都是唯一一处（count 默认 1），3.0.21 上核对过。
+  {
+    id: "user-menu.hide-tutorial",
+    file: MAIN,
+    find: '                    /* @__PURE__ */ jsxRuntimeExports.jsx(\n                      MenuButton,\n                      {\n                        icon: GraduationCap,',
+    replace: '                    null && /* @__PURE__ */ jsxRuntimeExports.jsx(\n                      MenuButton,\n                      {\n                        icon: GraduationCap,',
+  },
+  {
+    id: "user-menu.hide-changelog",
+    file: MAIN,
+    find: 'onChangelog && /* @__PURE__ */ jsxRuntimeExports.jsx(\n                      MenuButton,\n                      {\n                        icon: FileText,\n                        label: t2("homeSidebar.changelog"),',
+    replace: 'false && /* @__PURE__ */ jsxRuntimeExports.jsx(\n                      MenuButton,\n                      {\n                        icon: FileText,\n                        label: t2("homeSidebar.changelog"),',
+  },
+  {
+    id: "user-menu.hide-protocol",
+    file: MAIN,
+    find: '/* @__PURE__ */ jsxRuntimeExports.jsx(UserProtocolMenuRow, { submenu: protocolSubmenu }),',
+    replace: 'null && /* @__PURE__ */ jsxRuntimeExports.jsx(UserProtocolMenuRow, { submenu: protocolSubmenu }),',
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十三、没有账户体系：隐藏账号管理和个人账户，左下角改成平台连接状态（2026-10 定）
+  // ---------------------------------------------------------------------------------------------
+  // 我们只有一个本地用户，没有登录、订阅、积分，所以：
+  //   - 设置里的「账号管理」分区整个去掉（当前分区找不到时会退回第一项，从别处打开设置不会出错）；
+  //   - 用户菜单顶上的头像 / 用户名 / UID、账户卡片（个人账号、积分余额、订阅、团队切换）、「退出登录」都不渲染；
+  //   - 侧栏左下角原来显示头像和用户名的地方，换成连接状态：绿点「已连接」/ 红点「未连接」，悬停看原因。
+  //     点它照样打开用户菜单（设置、主题、记忆管理、飞书/微信入口都在里面）。窄侧栏那种只有头像的布局，换成一个小圆点。
+  // 连接状态来自主进程 platform-settings 通道的 status()，见 app/desktop/src/main/platform-connection.ts。
+  // 锚点都是唯一一处（count 默认 1），3.0.21 上核对过。
+  {
+    id: "account.hide-settings-nav",
+    file: MAIN,
+    find: '  { id: "account", icon: CircleUserRound, labelKey: "settings.account.title" },\n',
+    replace: "",
+  },
+  {
+    id: "account.hide-account-summary",
+    file: MAIN,
+    find: 'function UserMenuAccountSummary({ children: children2 }) {\n  return /* @__PURE__ */ jsxRuntimeExports.jsx(',
+    replace: 'function UserMenuAccountSummary({ children: children2 }) {\n  return null && /* @__PURE__ */ jsxRuntimeExports.jsx(',
+  },
+  {
+    id: "account.hide-menu-header",
+    file: MAIN,
+    find: '/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pt-4 pb-3", children:',
+    replace: 'null && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pt-4 pb-3", children:',
+  },
+  {
+    id: "account.hide-logout",
+    file: MAIN,
+    find: '                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-1 py-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(\n                    MenuButton,\n                    {\n                      icon: LogOut,',
+    replace: '                  null && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-1 py-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(\n                    MenuButton,\n                    {\n                      icon: LogOut,',
+  },
+  // 连接状态组件插在 SidebarUserMenu 前面（顶层声明，渲染时已经可用）。
+  {
+    id: "sidebar.connection-shim",
+    file: MAIN,
+    find: "function SidebarUserMenu({",
+    replace: ConnectionIndicatorShim + "\nfunction SidebarUserMenu({",
+  },
+  // 宽侧栏：头像 + 用户名 → 连接状态（点击仍打开用户菜单）。
+  {
+    id: "sidebar.connection-pill",
+    file: MAIN,
+    find: '                      renderAvatar("size-7", 14, void 0, showRenewalBadge),\n                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 truncate text-body-14", children: user.username || t2("sidebar.user") })',
+    replace: "                      /* @__PURE__ */ jsxRuntimeExports.jsx(OvConnectionPill, {})",
+  },
+  // 窄侧栏：头像 → 小圆点。
+  {
+    id: "sidebar.connection-dot",
+    file: MAIN,
+    find: 'children: renderAvatar("size-7", 14, "text-xs", showRenewalBadge)',
+    replace: "children: /* @__PURE__ */ jsxRuntimeExports.jsx(OvConnectionDot, {})",
+  },
+  // 按钮本身的 title 是用户名（悬停会弹出来），去掉。药丸和圆点上自己的 title 保留，悬停显示连接原因。
+  {
+    id: "sidebar.connection-title-wide",
+    file: MAIN,
+    find: '                title: user.username || t2("sidebar.user"),\n                "aria-haspopup": "dialog",\n                "aria-expanded": open,\n                "aria-controls": menuId,\n                onClick: handleAvatarTriggerClick,\n                className: "group/avatar-trigger flex h-10 w-full min-w-0',
+    replace: '                title: void 0,\n                "aria-haspopup": "dialog",\n                "aria-expanded": open,\n                "aria-controls": menuId,\n                onClick: handleAvatarTriggerClick,\n                className: "group/avatar-trigger flex h-10 w-full min-w-0',
+  },
+  {
+    id: "sidebar.connection-title-compact",
+    file: MAIN,
+    find: '                title: user.username || t2("sidebar.user"),\n                "aria-haspopup": "dialog",\n                "aria-expanded": open,\n                "aria-controls": menuId,\n                onClick: handleAvatarTriggerClick,\n                className: cn$2(\n                  "group/avatar-trigger flex size-8',
+    replace: '                title: void 0,\n                "aria-haspopup": "dialog",\n                "aria-expanded": open,\n                "aria-controls": menuId,\n                onClick: handleAvatarTriggerClick,\n                className: cn$2(\n                  "group/avatar-trigger flex size-8',
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十四、新装用户的首页引导：不再创建示例项目（「项目新手指引」「查看项目使用指南」）
+  // ---------------------------------------------------------------------------------------------
+  // 首页输入框上方的引导（HomeInputCoachMarks）只给新装用户看。原来有三步，最后一步「项目库」的按钮会调用
+  // openSampleProject()：导入内置的 sample-project.zip，生成侧栏里的「项目新手指引」分组和「查看项目使用指南」
+  // 项目。新装用户不需要，这一步整个去掉。
+  // 第一步「@」原来锚在模型按钮上，十一节已经把那个按钮隐藏了；锚点取不到时弹层直接不渲染，引导会卡在看不见的
+  // 第一步，连后面的「/」也出不来。改锚到仍然可见的「技能」按钮，两步提示都能正常显示。
+  // 引导的已看版本由剩下的步骤决定（maxRevision 变成 1），已经看过旧第三步（@2）的用户不会再弹。
+  // 锚点都是唯一一处（count 默认 1），3.0.21 上核对过。
+  {
+    id: "coach-mark.home-input.first-step-anchor",
+    file: HOME,
+    find: '      anchorRef: modelButtonRef,\n      titleKey: "coachMark.home.atKey.title",',
+    replace: '      anchorRef: skillButtonRef,\n      titleKey: "coachMark.home.atKey.title",',
+  },
+  {
+    id: "coach-mark.home-input.drop-project-library",
+    file: HOME,
+    find: '    ...[],\n    {\n      kind: "project-library",\n      revision: PROJECT_LIBRARY_REVISION,\n      anchorRef: projectsNavRef,\n      titleKey: "coachMark.home.projectLibrary.title",\n      titleFallback: "项目库",\n      descKey: "coachMark.home.projectLibrary.desc",\n      descFallback: "所有项目都在这里集中管理。点击下一步，为你创建一个示例项目，快速上手工作区。",\n      ctaKey: "coachMark.next",\n      ctaFallback: "下一步",\n      side: "right",\n      align: "center"\n    }\n  ];',
+    replace: "  ];",
+  },
+
+  // ---------------------------------------------------------------------------------------------
+  // 十五、客户端不支持水印：不弹「AI 生成水印设置」，不展示水印开关和入口，默认不加水印（2026-10 定）
+  // ---------------------------------------------------------------------------------------------
+  // 官方的水印开关靠 setWatermarkEnabled 通知后端；我们的客户端没有这条通道（stub-channels.ts 里按成功返回），
+  // 开关其实不生效，还会显示「当前：有水印」。所以整块去掉：
+  //   - 启动时的「AI 生成水印设置」弹窗（国内区域、没设过就弹）：候选条件直接置假，永远不开；
+  //   - 首页引导和资产重定位提示原来要等这个弹窗选完才显示（configReady），改成只等配置读完；
+  //   - 设置 → 通用 里的「去除水印」整行去掉；
+  //   - 画布上的「水印设置」快捷入口：只在有水印时才显示，这里直接不渲染；
+  //   - 出厂默认值改成「无水印、已处理过弹窗」（和主进程 global-store 的默认值保持一致）。
+  // 锚点都是唯一一处（count 默认 1），3.0.21 上核对过。
+  {
+    id: "watermark.onboarding-never-open",
+    file: MAIN,
+    find: "  const candidate = isHydrated && !!config2 && config2.watermarkOnboardingShown !== true;",
+    replace: "  const candidate = false;",
+  },
+  {
+    id: "watermark.config-ready-main",
+    file: MAIN,
+    find: '  const configReady = configHydrated && (getRuntimeConfig().region !== "domestic" || config2.watermarkOnboardingShown === true);',
+    replace: "  const configReady = configHydrated;",
+  },
+  {
+    id: "watermark.config-ready-home",
+    file: HOME,
+    find: '  const configReady = configHydrated && (getRuntimeConfig().region !== "domestic" || config.watermarkOnboardingShown === true);',
+    replace: "  const configReady = configHydrated;",
+  },
+  {
+    id: "watermark.defaults",
+    file: MAIN,
+    find: "    watermarkEnabled: true,\n    watermarkOnboardingShown: false,",
+    replace: "    watermarkEnabled: false,\n    watermarkOnboardingShown: true,",
+  },
+  {
+    id: "watermark.settings-row",
+    file: MAIN,
+    find: '      /* @__PURE__ */ jsxRuntimeExports.jsx(\n        SettingRow,\n        {\n          label: t2("settings.removeWatermark"),',
+    replace: '      null && /* @__PURE__ */ jsxRuntimeExports.jsx(\n        SettingRow,\n        {\n          label: t2("settings.removeWatermark"),',
+  },
+  {
+    id: "watermark.canvas-chip",
+    file: MAIN,
+    find: "  const watermarkEnabled = config2?.watermarkEnabled ?? true;\n  if (!watermarkEnabled) return null;",
+    replace: "  const watermarkEnabled = false;\n  if (!watermarkEnabled) return null;",
   },
 
   // ---------------------------------------------------------------------------------------------

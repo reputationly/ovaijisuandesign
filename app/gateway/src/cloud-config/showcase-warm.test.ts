@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 
-import { showcaseCovers, showcaseAssetKey } from "./home-quick-start-cloud.js";
+import { showcaseCovers, showcaseAssetKey, withoutHiddenShowcaseSections } from "./home-quick-start-cloud.js";
 import { cachedShowcaseMedia, showcaseCacheDir, warmShowcaseCovers } from "./showcase-warm.js";
 
 const CONFIG_PATH = path.resolve(
@@ -75,7 +75,8 @@ describe("首页示例图预热", () => {
 
   it("showcaseCovers 就是首页显示顺序：section → item → outputs，和配置原文逐条对齐", () => {
     // 预热取的就是这个顺序的切片。顺序错了等于替用户猜他往哪滚，所以拿原文现推一遍对账。
-    const raw = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as any;
+    // 预热只看首页真正展示的分区（隐藏的「工具互联」不预热），所以对账也用过滤后的原文。
+    const raw = withoutHiddenShowcaseSections(JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as any);
     const expected: string[] = [];
     for (const s of raw.sections ?? []) {
       for (const it of s.items ?? []) {

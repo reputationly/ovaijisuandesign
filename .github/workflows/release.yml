@@ -415,16 +415,30 @@ jobs:
         run: |
           # 删的是 <桶>/ovaijisuandesign/dry-run/ —— 带上命名空间，
           # 别去动桶根的 dry-run/，那是 Toonflow 的。
+          #
+          # **失败要红。** 这里原先给 `aws s3 rm` 挂了 `|| true`，紧接着无条件打印
+          # 「已清理」—— 凭据缺失、权限不够、endpoint 写错都会输出同一句成功，
+          # 而本步存在的理由就是「不污染桶」（一轮 800MB）。两个源都要试，
+          # 最后一起报，免得一个源挂了把另一个源的状态也盖掉。
+          failed=""
           clean() {  # endpoint bucket key secret
+            # 没配这个源：合法跳过，不算失败（和上面按版本号裁剪时同一个约定）。
             [ -n "$1" ] && [ -n "$2" ] || return 0
-            AWS_ACCESS_KEY_ID="$3" AWS_SECRET_ACCESS_KEY="$4" \
-              aws s3 rm "s3://$2/ovaijisuandesign/dry-run/" --recursive --endpoint-url "$1" || true
+            if ! AWS_ACCESS_KEY_ID="$3" AWS_SECRET_ACCESS_KEY="$4" \
+                 aws s3 rm "s3://$2/ovaijisuandesign/dry-run/" --recursive --endpoint-url "$1"; then
+              echo "  ✗ 清理 $2 的 dry-run/ 失败"
+              failed="$failed $2"
+            fi
           }
           clean "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com" \
                 "${{ secrets.R2_BUCKET }}" \
                 "${{ secrets.R2_ACCESS_KEY_ID }}" "${{ secrets.R2_SECRET_ACCESS_KEY }}"
           clean "${{ secrets.OBS_ENDPOINT }}" "${{ secrets.OBS_BUCKET }}" \
                 "${{ secrets.OBS_ACCESS_KEY_ID }}" "${{ secrets.OBS_SECRET_ACCESS_KEY }}"
+          if [ -n "$failed" ]; then
+            echo "::error::空跑产物没清干净：$failed —— 桶里留着这一轮的 dry-run/ 产物"
+            exit 1
+          fi
           echo "空跑产物已清理，生产清单未被触碰"
 
   # ==================== 发布 ====================

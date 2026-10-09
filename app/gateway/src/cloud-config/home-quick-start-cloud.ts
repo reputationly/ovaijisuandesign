@@ -149,6 +149,23 @@ export function showcaseCoverUrlsInOrder(config: AnyRecord): string[] {
   return out;
 }
 
+/**
+ * 暂时不提供的分区（2026-10 定：「工具互联」依赖的连接器能力还没有）。整块去掉：分类标签、NEW 角标、
+ * 「精选」里来自它的示例、它的封面预热。原文 JSON 不动，把 id 从这里删掉就恢复。
+ */
+export const HIDDEN_SHOWCASE_SECTION_IDS: readonly string[] = ["tool-integration"];
+
+/** 去掉隐藏分区，以及它在 showcase.tabs 里的页签（NEW 角标挂在页签上）。不改入参。 */
+export function withoutHiddenShowcaseSections(raw: AnyRecord): AnyRecord {
+  const hidden = new Set(HIDDEN_SHOWCASE_SECTION_IDS);
+  const sections = (raw.sections ?? []).filter((s: AnyRecord) => !hidden.has(String(s?.id)));
+  const showcase =
+    raw.showcase && typeof raw.showcase === "object"
+      ? { ...raw.showcase, tabs: Object.fromEntries(Object.entries(raw.showcase.tabs ?? {}).filter(([id]) => !hidden.has(id))) }
+      : raw.showcase;
+  return { ...raw, sections, showcase };
+}
+
 let cached: ShowcaseCloudConfig | undefined;
 
 /**
@@ -160,11 +177,13 @@ export function loadShowcaseCloudConfig(): ShowcaseCloudConfig {
   const dir = homeShowcaseDir();
   if (!dir) throw new Error("找不到 home-showcase 目录（assets/ 或 resources/ 下都试过了）");
   const raw = JSON.parse(readFileSync(path.join(dir, "quick-start-config-v2.json"), "utf8")) as AnyRecord;
-  const { images, media } = collectShowcaseAssets(raw);
+  // 之后的配置、素材登记表、封面预热都只用过滤后的原文：隐藏分区的素材不下载、不登记、不预热。
+  const visible = withoutHiddenShowcaseSections(raw);
+  const { images, media } = collectShowcaseAssets(visible);
   const mediaKeys = new Map(images.map((url) => [showcaseAssetKey(url), url]));
   // 同一 URL 的 domestic/overseas 是镜像，key 不同（URL 不同）、内容各自一份，都下载。
-  const covers = showcaseCoverUrlsInOrder(raw).map((url) => ({ key: showcaseAssetKey(url), cdnUrl: url }));
-  cached = { config: rewriteShowcaseConfig(raw), mediaKeys, mediaCount: media.length, covers };
+  const covers = showcaseCoverUrlsInOrder(visible).map((url) => ({ key: showcaseAssetKey(url), cdnUrl: url }));
+  cached = { config: rewriteShowcaseConfig(visible), mediaKeys, mediaCount: media.length, covers };
   return cached;
 }
 

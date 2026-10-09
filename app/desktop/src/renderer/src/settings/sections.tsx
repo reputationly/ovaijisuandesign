@@ -252,7 +252,10 @@ function NetworkSection() {
   )
 }
 
-/** 平台接入：我们的「模型接入」就是一个 OpenAI 兼容端点 + 各模态用哪个模型 */
+/**
+ * 平台接入：只填接口地址和令牌（API Key）。模型由产品预设定，这里只展示正在使用的模型，不让选
+ * （主进程也不收模型字段，见 `app/desktop/src/main/settings.ts`）。
+ */
 function ModelsSection() {
   const { t } = useTranslation()
   const qc = useQueryClient()
@@ -262,13 +265,10 @@ function ModelsSection() {
 
   useEffect(() => {
     if (!data) return
-    const models = data.models ?? {}
     setForm({
       baseUrl: data.platform.baseUrl,
-      chatModel: data.platform.chatModel,
       // 留空 = 不改；填掩码会被当成新 key 写回去
       apiKey: "",
-      ...Object.fromEntries(MODEL_FIELDS.map(([f]) => [f, readModel(models, f)])),
     })
   }, [data])
 
@@ -276,7 +276,7 @@ function ModelsSection() {
   const save = async () => {
     setSaving(true)
     try {
-      await savePlatformSettings(form)
+      await savePlatformSettings({ baseUrl: form.baseUrl, apiKey: form.apiKey })
       dedupedToast.success(t("ov.settings.platform.saved"))
       await qc.invalidateQueries({ queryKey: queryKeys.settings })
     } catch (e) {
@@ -289,6 +289,17 @@ function ModelsSection() {
   if (error) {
     return <p className="text-xs text-destructive">{t("ov.settings.platform.loadFailed", { message: error instanceof Error ? error.message : String(error) })}</p>
   }
+
+  // 正在使用的模型：按生效的配置列出（缺的已由主进程用产品预设补全），只展示。
+  const models = data?.models ?? {}
+  const usedRows: { key: string; label: string; model: string | null }[] = [
+    { key: "chat", label: t("ov.settings.platform.chatModel"), model: data?.platform.chatModel || null },
+    ...MODEL_FIELDS.map(([f]) => ({
+      key: f,
+      label: t(`ov.settings.platform.${f satisfies ModelField}`),
+      model: readModel(models, f) || null,
+    })),
+  ]
 
   return (
     <div className="space-y-4">
@@ -307,17 +318,21 @@ function ModelsSection() {
               disabled={isLoading}
             />
           </Field>
-          <Field label={t("ov.settings.platform.chatModel")}>
-            <Input value={form.chatModel ?? ""} placeholder={t("settings.models.modelIdPlaceholder")} onChange={(e) => set("chatModel")(e.target.value)} disabled={isLoading} />
-          </Field>
         </div>
       </SettingGroup>
-      <SettingGroup title={t("ov.settings.platform.mediaModels")}>
-        <div className="grid grid-cols-2 gap-3 rounded-lg bg-secondary p-3">
-          {MODEL_FIELDS.map(([f]) => (
-            <Field key={f} label={t(`ov.settings.platform.${f satisfies ModelField}`)}>
-              <Input value={form[f] ?? ""} onChange={(e) => set(f)(e.target.value)} disabled={isLoading} />
-            </Field>
+      <SettingGroup title={t("ov.settings.platform.modelsInUse")}>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg bg-secondary p-3">
+          {usedRows.map((row) => (
+            <div key={row.key} className="flex min-w-0 items-baseline justify-between gap-2 text-sm">
+              <span className="shrink-0 text-muted-foreground">{row.label}</span>
+              {row.model ? (
+                <span className="min-w-0 truncate font-mono text-xs" title={row.model}>
+                  {row.model}
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">{t("ov.settings.platform.notEnabled")}</span>
+              )}
+            </div>
           ))}
         </div>
       </SettingGroup>

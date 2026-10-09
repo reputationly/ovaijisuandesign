@@ -68,6 +68,11 @@ mac:
   category: public.app-category.productivity
   target:
     - target: dmg
+  # 图标**必须写死路径**。electron-builder 的图标本来是自动查找的，但只找 `build/`，
+  # 而这个仓库的图标在 `resources/`（由 `scripts/app-icon.py` 从蒜狸形象生成）。找不到时
+  # 它不报错，只在日志里留一行 `default Electron icon is used` —— 于是包照样绿着出，
+  # 装完 Dock 里是个 Electron 默认图标，没人想到是这儿掉的。
+  icon: resources/icon.icns
   # **这里绝不能写 `arch:`。** 写了会**覆盖**命令行上的 `--mac --arm64` / `--mac --x64`，
   # 于是在 arm64 机器上顺手把 x64 包也打出来 —— 而那个 x64 包里的原生模块
   # （better_sqlite3.node、sharp 的 libvips）**全是 arm64 的**，装到 Intel Mac 上
@@ -82,6 +87,10 @@ win:
   target:
     - target: nsis
   # 同上：不写 `arch:`，让命令行的 `--win --x64` 说了算。
+  # 图标同理写死。Windows 用 .ico，里面 16 / 24 / 32 / 48 / 64 / 128 / 256 七档 ——
+  # 任务栏、桌面大图标、资源管理器超大图标各取一档，缺档系统会拿最近的拉伸，发糊。
+  # NSIS 的安装器图标默认跟着这里走。
+  icon: resources/icon.ico
 
 nsis:
   oneClick: false

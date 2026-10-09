@@ -43,7 +43,11 @@ export default defineConfig({
     build: {
       outDir: "out/preload",
       rollupOptions: {
-        input: resolve(__dirname, "src/preload/index.ts"),
+        // gate：令牌页的 preload（见 src/main/onboarding/token-gate.ts），和主界面的 preload 分开。
+        input: {
+          index: resolve(__dirname, "src/preload/index.ts"),
+          gate: resolve(__dirname, "src/preload/gate.ts"),
+        },
         output: { format: "es", entryFileNames: "[name].mjs" },
       },
     },

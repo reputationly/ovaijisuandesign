@@ -146,10 +146,13 @@ export class GenerateController {
     return buildCatalog(this.media.load()).audioModels.filter((m) => m.tool_names.includes("hub_generate_audio_speech"));
   }
 
+  /**
+   * `@` 菜单里的模型候选。不给：模型由产品预设定，界面不让用户通过 `@` 去选（2026-10 定）。
+   * 「正在使用的模型」改由设置页和模型按钮只读展示，见 `@ov/protocol` 的 `PLATFORM_PRESET`。
+   */
   @Get("api/mention-models")
   listMentionModels() {
-    const c = buildCatalog(this.media.load());
-    return [...c.imageModels, ...c.videoModels, ...c.audioModels].map((m) => ({ id: m.id, name: m.display_name, mention_name: m.mention_name, type: m.type }));
+    return [];
   }
 
   /** 平台没有公布并发上限，不给数字：给一个猜的上限会让 agent 按它排队或拒绝提交。 */
