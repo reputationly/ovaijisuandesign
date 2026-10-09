@@ -1,7 +1,8 @@
-import { e as createLucideIcon, h as useTranslation, w as useNavigate, r as reactExports, j as jsxRuntimeExports, bg as Button, U as Icon, b_ as ArrowUpRight, au as cn, aT as Brain, dt as Zap, du as ErrorMessage, aY as FileText, V as Search, dv as PencilRuler, a_ as ImageOutlineIcon, aZ as Video, dw as AudioLines, dx as CircleAlert, dy as SquareMousePointer, dz as Sparkles, dA as Cog, dB as FileChip, dh as Popover, di as PopoverTrigger, bU as LoaderCircle, Q as Plus, dj as PopoverContent, dC as PopoverArrow, dD as PopoverHeader, dE as PopoverTitle, dF as PopoverDescription, bV as Download, bh as RetryIcon, dG as findOfficialConnectorByServerName, dH as ConnectorIcon, dI as CDN_CONNECTOR_FASTMOSS, dJ as CDN_CONNECTOR_APIFY, dK as CDN_CONNECTOR_BLENDER, dL as CDN_CONNECTOR_PHOTOSHOP, dM as CDN_CONNECTOR_AFTER_EFFECTS, dN as CDN_CONNECTOR_HOUDINI, dO as CDN_CONNECTOR_TOUCHDESIGNER, dP as CDN_CONNECTOR_CUSTOM, b$ as Label, dQ as Select, dR as SelectTrigger, dS as SelectValue, dT as SelectContent, dU as SelectItem, c2 as ConnectorDialogFrame, bd as DialogHeader, bZ as ConnectorRelationshipGraphic, dV as ConnectorDialogScrollableBody, dW as LocalFolderIcon, dX as IntegrationActionGroup, bY as IntegrationActionButton, dY as IntegrationLifecycleToggleButton, dZ as IntegrationMoreMenu, ao as Trash2, bW as IntegrationStatusPill, o as usePlatform, d_ as useSettings, aF as useIsScrolling, d$ as Badge, b2 as Check, e0 as RotateCcw, e1 as ArrowRight, e2 as LayoutDashboard, e3 as ArrowUp, e4 as Smartphone, ar as Avatar, at as AvatarFallback, e5 as AccountSwitcherRowSurface, e6 as TeamTransitionFeedback, e7 as UserMenuRootView, bB as Users, e8 as TeamPanelLoading, e9 as TeamPanelError, ea as TeamPanelStale, eb as TeamPanelGated, cm as TriangleAlert, ec as UserMenuAccountSummary, ed as UserRound, cZ as ChevronRight, ee as MpIcon, ef as minCreditAmount, eg as TeamCreditSummarySurface, eh as TeamCreditHistorySection, ei as InfiniteScrollContainer, ej as TeamPanelEmpty, ek as TeamCreditSummaryLoading, Y as X, el as dialogChromeButtonClassName, em as TeamUnavailableAction, en as CreditLedgerTable, eo as CreateTeamFormSurface, ep as TeamManagementDetailLoading, eq as TeamManagementSummary, er as TeamManagementQuotaMetrics, X as Input, es as TeamManagementMemberLoading, et as TeamManagementMemberTable, eu as TeamMemberQuotaUsageCell, ev as Card, ew as CardContent, ex as Clock3, bj as AlertDialog, ey as AlertDialogPortal, ez as AlertDialogOverlay, bk as AlertDialogContent, bl as AlertDialogHeader, bm as AlertDialogTitle, bn as AlertDialogDescription, bo as AlertDialogFooter, bp as AlertDialogCancel, bq as AlertDialogAction, eA as CardHeader, eB as CardTitle, eC as CardDescription, eD as Crown, eE as Alert, c0 as ShieldCheck, eF as AlertTitle, eG as AlertDescription, eH as CircleCheck, eI as CircleX, cp as Checkbox, eJ as Progress, eK as Settings2, bT as Link2, d5 as Copy, aG as Dialog, aH as DialogContent, be as DialogTitle, bf as DialogDescription, eL as ChevronLeft, bK as Tabs, bL as TabsList, bM as TabsTrigger, eM as CircleUserRound, eN as Bell, eO as TabsContent, eP as ScrollArea, cd as useAuth, eQ as useLoginGate, eR as useInterestSelection, v as useStorage, eS as useDebugFlag, bG as getRuntimeConfig, eT as resolveSeenRevision, ba as canUseDebugTooling, eU as DialogPortal, eV as DialogBackdrop, eW as DialogPopup, eX as Wrench, eY as DialogClose, eZ as Switch, e_ as setDebugFlag, e$ as Activity, f0 as applyReactScan, aK as Play, f1 as Eye, f2 as History, f3 as HOME_INPUT_TOUR_REVISION, f4 as Megaphone, f5 as ShieldAlert, f6 as DEBUG_FLAGS, f7 as Clipboard, cP as Upload, f8 as Network, f9 as WifiOff, fa as resolveWorkspaceFailureDiagnosis, fb as setHomeWidgetDevPreviewMode, fc as setUpdaterDevPreviewMode, a5 as dedupedToast, fd as HOME_INPUT_COACH_MARK_ID, fe as clearMutesForUser, ff as clearClaimsForUser, fg as clearTrialGrantedForUser, fh as GLOBAL_STORAGE_VERSION, fi as ErrorFallbackUI, fj as BundleErrorScreen } from "./main.jsx";
+import { iB as createLucideIcon, h as useTranslation, w as useNavigate, r as reactExports, j as jsxRuntimeExports, fM as Button, e as Icon, h1 as ArrowUpRight, au as cn, iC as Brain, iD as Zap, iE as ErrorMessage, iF as FileText, hc as Search, iG as PencilRuler, aQ as ImageOutlineIcon, iH as Video, iI as AudioLines, iJ as CircleAlert, iK as SquareMousePointer, iL as Sparkles, iM as Cog, iN as FileChip, it as Popover, iu as PopoverTrigger, dl as Loader2, Q as Plus, iv as PopoverContent, iO as PopoverArrow, iP as PopoverHeader, iQ as PopoverTitle, iR as PopoverDescription, cf as Download, gk as RetryIcon, aS as AlertCircle, iS as findOfficialConnectorByServerName, iT as ConnectorIcon, iU as findHcpConnector, iV as CDN_CONNECTOR_CUSTOM, iW as connectorPromptActionLabelKey, iX as Label, h2 as Plus$1, iY as Select, iZ as SelectTrigger, i_ as SelectValue, i$ as SelectContent, j0 as SelectItem, j1 as connectorSummaryActionLabelKey, ge as resolveConnectorIcon, j2 as ConnectorPromptAction, j3 as ConnectorDialogFrame, gj as DialogHeader, j4 as ConnectorRelationshipGraphic, j5 as ConnectorDialogScrollableBody, j6 as ConnectorDetailNotice, j7 as ConnectorSetupSection, j8 as LocalFolderIcon, j9 as ConnectorSummaryAction, ja as IntegrationActionGroup, jb as IntegrationActionButton, jc as IntegrationLifecycleToggleButton, jd as IntegrationMoreMenu, je as Trash2, jf as ConnectorStatusPill, jg as IntegrationStatusPill, o as usePlatform, jh as useSettings, ar as useIsScrolling, g7 as Badge, ji as Check, jj as RotateCcw, jk as ArrowRight, jl as House, jm as ArrowUp, jn as Smartphone, fP as Avatar, fR as AvatarFallback, jo as AccountSwitcherRowSurface, jp as TeamTransitionFeedback, jq as UserMenuRootView, gY as Users, gQ as LoaderCircle, jr as TeamPanelLoading, js as TeamPanelError, jt as TeamPanelStale, ju as TeamPanelGated, jv as TriangleAlert, jw as UserMenuAccountSummary, jx as UserRound, h0 as ChevronRight, jy as MpIcon, jz as minCreditAmount, jA as TeamCreditSummarySurface, jB as TeamCreditHistorySection, jC as InfiniteScrollContainer, jD as TeamPanelEmpty, jE as TeamCreditSummaryLoading, jF as X, jG as dialogChromeButtonClassName, jH as TeamUnavailableAction, jI as CreditLedgerTable, jJ as CreateTeamFormSurface, jK as TeamManagementDetailLoading, jL as TeamManagementQuotaMetrics, f as Input, jM as TeamManagementMemberLoading, jN as TeamManagementMemberTable, jO as TeamMemberQuotaUsageCell, jP as Card, jQ as CardContent, jR as Clock3, jS as AlertDialog, jT as AlertDialogPortal, jU as AlertDialogOverlay, jV as AlertDialogContent, jW as AlertDialogHeader, jX as AlertDialogTitle, jY as AlertDialogDescription, jZ as AlertDialogFooter, j_ as AlertDialogCancel, j$ as AlertDialogAction, k0 as CardHeader, k1 as CardTitle, k2 as CardDescription, k3 as Crown, k4 as Alert, k5 as ShieldCheck, k6 as AlertTitle, k7 as AlertDescription, k8 as CircleCheck, k9 as CircleX, hC as Checkbox, ka as Progress, gV as Settings2, kb as Link2, hd as Copy, as as Dialog, at as DialogContent, g8 as DialogTitle, g9 as DialogDescription, kc as ChevronLeft, gE as Tabs, gF as TabsList, gG as TabsTrigger, kd as CircleUserRound, ke as Bell, kf as TabsContent, kg as ScrollArea, hv as useAuth, kh as useLoginGate, ki as useInterestSelection, v as useStorage, kj as useDebugFlag, g6 as getRuntimeConfig, kk as resolveSeenRevision, gh as canUseDebugTooling, kl as DialogPortal, km as DialogBackdrop, kn as DialogPopup, ko as Wrench, kp as DialogClose, kq as Switch, kr as setDebugFlag, ks as Activity, kt as applyReactScan, ax as PlaybackPlayIcon, ku as Eye, kv as History, kw as HOME_INPUT_TOUR_REVISION, kx as Megaphone, ky as ShieldAlert, kz as DEBUG_FLAGS, kA as Clipboard, kB as Upload, kC as Network, kD as WifiOff, kE as resolveWorkspaceFailureDiagnosis, kF as Bug, kG as setHomeWidgetDevPreviewMode, kH as setUpdaterDevPreviewMode, a3 as dedupedToast, kI as HOME_INPUT_COACH_MARK_ID, kJ as clearMutesForUser, kK as clearClaimsForUser, kL as clearTrialGrantedForUser, kM as GLOBAL_STORAGE_VERSION, kN as ErrorFallbackUI, kO as BundleErrorScreen } from "./main.jsx";
 import { E as ERROR_CARD_PREVIEW_MESSAGES } from "./error-card-fixtures-GXqelGnw.js";
-import { c as connectorPromptActionLabelKey, M as MarketplaceKeyConnectorDialog, a as connectorSummaryActionLabelKey, C as ConnectorCardContent, b as ConnectorPromptAction, d as ConnectorDialogSummary, e as ConnectorDetailNotice, f as ConnectorSetupSection, g as ConnectorSummaryAction, h as ConnectorPromptList, i as ConnectorStatusPill } from "./MarketplaceKeyConnectorDialog-DJf8veqQ.js";
-import { B as Bug } from "./bug-D8brzkg3.js";
+import { b as buildConnectorCatalog, i as isWebApiConnector, C as ConnectorCardContent, a as ConnectorDialogSummary, c as ConnectorPromptList } from "./connector-catalog-data-DiTljgxj.js";
+import { IconOpacityPreviewSection } from "./index-BaJMuy1j.js";
+import "./opacity-sample-cell-BsMVc6Mc.js";
 /**
  * @license lucide-react v0.468.0 - ISC
  *
@@ -19,15 +20,11 @@ const Database = createLucideIcon("Database", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const House = createLucideIcon("House", [
-  ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
-  [
-    "path",
-    {
-      d: "M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
-      key: "1d0kgt"
-    }
-  ]
+const LayoutDashboard = createLucideIcon("LayoutDashboard", [
+  ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
+  ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
+  ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
+  ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ]);
 /**
  * @license lucide-react v0.468.0 - ISC
@@ -286,10 +283,6 @@ const contentKeys = {
     title: "connectors.quick.installing.title",
     description: "connectors.quick.installing.description"
   },
-  waitingHostApp: {
-    title: "connectors.quick.waiting.title",
-    description: "connectors.quick.waiting.description"
-  },
   unsupported: {
     title: "connectors.quick.unsupported.title",
     description: "connectors.quick.unsupported.description"
@@ -369,8 +362,8 @@ function LocalConnectorQuickSetup({
   const hasInstallFailure = Boolean(errorMessage);
   const canInstall = state === "readyToInstall" || state === "installing" || (state === "hostAppMissing" || state === "hostAppUnknown") && !hasInstallFailure;
   const installLabelKey = state === "hostAppMissing" || state === "hostAppUnknown" ? "connectors.quick.continueInstall" : "connectors.quick.install";
-  const canCheckAgain = state === "waitingHostApp" || state === "installError" || state === "error" || (state === "hostAppMissing" || state === "hostAppUnknown") && hasInstallFailure;
-  const checkAgainLabelKey = state === "waitingHostApp" ? "connectors.quick.checkAgainAfterOpen" : state === "error" || state === "installError" ? "common.retry" : "connectors.quick.checkAgainAfterInstall";
+  const canCheckAgain = state === "installError" || state === "error" || (state === "hostAppMissing" || state === "hostAppUnknown") && hasInstallFailure;
+  const checkAgainLabelKey = state === "error" || state === "installError" ? "common.retry" : "connectors.quick.checkAgainAfterInstall";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     Popover,
     {
@@ -400,7 +393,7 @@ function LocalConnectorQuickSetup({
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Icon,
                   {
-                    icon: checking || state === "installing" ? LoaderCircle : Plus,
+                    icon: checking || state === "installing" ? Loader2 : Plus,
                     size: "md",
                     strokeWidth: 1.5,
                     className: checking || state === "installing" ? "animate-spin" : void 0,
@@ -475,7 +468,7 @@ function LocalConnectorQuickSetup({
                     className: "rounded-md",
                     "data-action-ui-id": `connectors-quick-details-${connectorId}`,
                     children: [
-                      state === "error" || state === "installError" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: CircleAlert, size: "sm", strokeWidth: 1.5, "aria-hidden": true }) : null,
+                      state === "error" || state === "installError" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: AlertCircle, size: "sm", strokeWidth: 1.5, "aria-hidden": true }) : null,
                       t("connectors.quick.viewSetup")
                     ]
                   }
@@ -488,13 +481,17 @@ function LocalConnectorQuickSetup({
     }
   );
 }
+function previewIcon(connectorId) {
+  const manifest = findHcpConnector(connectorId);
+  return manifest ? resolveConnectorIcon(manifest.icon) : CDN_CONNECTOR_CUSTOM;
+}
 const PREVIEW_APPLICATIONS = [
   {
     id: "fastmoss",
     entryTypes: ["web-api"],
     titleKey: "connectors.catalog.fastmoss.title",
     descriptionKey: "connectors.detail.fastmoss.description",
-    iconUrl: CDN_CONNECTOR_FASTMOSS,
+    iconUrl: previewIcon("fastmoss"),
     promptKeys: [
       "connectors.detail.fastmoss.prompt.0",
       "connectors.detail.fastmoss.prompt.1",
@@ -511,7 +508,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["web-api"],
     titleKey: "connectors.catalog.apify.title",
     descriptionKey: "connectors.detail.apify.description",
-    iconUrl: CDN_CONNECTOR_APIFY,
+    iconUrl: previewIcon("apify"),
     promptKeys: [
       "connectors.detail.apify.prompt.0",
       "connectors.detail.apify.prompt.1",
@@ -528,7 +525,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["local-app"],
     titleKey: "connectors.catalog.blender.title",
     descriptionKey: "connectors.detail.blender.description",
-    iconUrl: CDN_CONNECTOR_BLENDER,
+    iconUrl: previewIcon("blender"),
     promptKeys: [
       "connectors.detail.blender.prompt.0",
       "connectors.detail.blender.prompt.1",
@@ -540,7 +537,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["local-app"],
     titleKey: "connectors.catalog.photoshop.title",
     descriptionKey: "connectors.detail.photoshop.description",
-    iconUrl: CDN_CONNECTOR_PHOTOSHOP,
+    iconUrl: previewIcon("photoshop"),
     promptKeys: [
       "connectors.detail.photoshop.prompt.0",
       "connectors.detail.photoshop.prompt.1",
@@ -552,7 +549,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["local-app"],
     titleKey: "connectors.catalog.after-effects.title",
     descriptionKey: "connectors.detail.after-effects.description",
-    iconUrl: CDN_CONNECTOR_AFTER_EFFECTS,
+    iconUrl: previewIcon("after-effects"),
     promptKeys: [
       "connectors.detail.after-effects.prompt.0",
       "connectors.detail.after-effects.prompt.1",
@@ -564,7 +561,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["local-app"],
     titleKey: "connectors.catalog.houdini.title",
     descriptionKey: "connectors.detail.houdini.description",
-    iconUrl: CDN_CONNECTOR_HOUDINI,
+    iconUrl: previewIcon("houdini"),
     promptKeys: [
       "connectors.detail.houdini.prompt.0",
       "connectors.detail.houdini.prompt.1",
@@ -576,7 +573,7 @@ const PREVIEW_APPLICATIONS = [
     entryTypes: ["local-app"],
     titleKey: "connectors.catalog.touchdesigner.title",
     descriptionKey: "connectors.detail.touchdesigner.description",
-    iconUrl: CDN_CONNECTOR_TOUCHDESIGNER,
+    iconUrl: previewIcon("touchdesigner"),
     promptKeys: [
       "connectors.detail.touchdesigner.prompt.0",
       "connectors.detail.touchdesigner.prompt.1",
@@ -612,12 +609,13 @@ const PREVIEW_STATUSES = [
   "notConnected",
   "connecting",
   "connected",
+  "saved",
+  "needs_auth",
   "disabled",
-  "failed",
   "removing",
+  "checking",
   "notInstalled",
   "installing",
-  "waitingHostApp",
   "installFailed"
 ];
 const PREVIEW_SUMMARY_MODES = [
@@ -649,7 +647,6 @@ const PREVIEW_QUICK_SETUP_STATES = [
   "hostAppMissing",
   "hostAppUnknown",
   "installing",
-  "waitingHostApp",
   "unsupported",
   "installError",
   "error"
@@ -658,12 +655,13 @@ const STATUS_DEFAULTS = {
   notConnected: { summaryMode: "connect", promptMode: "requiresConnection" },
   connecting: { summaryMode: "connecting", promptMode: "requiresConnection" },
   connected: { summaryMode: "connectedManagement", promptMode: "ready" },
+  saved: { summaryMode: "connectedManagement", promptMode: "ready" },
+  needs_auth: { summaryMode: "authorize", promptMode: "requiresRecovery" },
   disabled: { summaryMode: "disabledManagement", promptMode: "requiresEnable" },
-  failed: { summaryMode: "failedManagement", promptMode: "requiresRecovery" },
   removing: { summaryMode: "removing", promptMode: "requiresRecovery" },
   notInstalled: { summaryMode: "install", promptMode: "requiresInstall" },
+  checking: { summaryMode: "connect", promptMode: "requiresConnection" },
   installing: { summaryMode: "installing", promptMode: "installing" },
-  waitingHostApp: { summaryMode: "reinstall", promptMode: "requiresConnection" },
   installFailed: { summaryMode: "install", promptMode: "requiresInstall" }
 };
 function PreviewSelectField({
@@ -701,7 +699,7 @@ function PreviewSelectField({
 }
 function PreviewStatusPill({ status }) {
   const { t } = useTranslation();
-  if (status === "notConnected" || status === "connected" || status === "disabled" || status === "failed" || status === "removing") {
+  if (status === "notConnected" || status === "connected" || status === "saved" || status === "needs_auth" || status === "disabled" || status === "removing") {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorStatusPill, { state: status });
   }
   const visual = {
@@ -717,17 +715,17 @@ function PreviewStatusPill({ status }) {
       markerTone: "muted",
       markerActive: false
     },
+    checking: {
+      labelKey: "connectors.detail.connecting",
+      tone: "muted",
+      markerTone: "muted",
+      markerActive: true
+    },
     installing: {
       labelKey: "connectors.connector.state.installing",
       tone: "warning",
       markerTone: "warning",
       markerActive: true
-    },
-    waitingHostApp: {
-      labelKey: "connectors.connector.state.waiting_host_app",
-      tone: "warning",
-      markerTone: "warning",
-      markerActive: false
     },
     installFailed: {
       labelKey: "connectors.connector.state.not_installed",
@@ -878,7 +876,7 @@ function ConnectorPreviewDialog({
   const title = selection.contentProfile === "stress" ? t("debugPanel.connectorPreview.stressTitle", { name: applicationTitle }) : applicationTitle;
   const description = selection.contentProfile === "minimal" ? t("debugPanel.connectorPreview.minimalDescription") : selection.contentProfile === "stress" ? t("debugPanel.connectorPreview.stressDescription") : t(application.descriptionKey);
   const promptCount = selection.contentProfile === "minimal" ? 1 : 3;
-  const promptDisabled = selection.status === "connecting" || selection.status === "disabled" || selection.status === "failed" || selection.status === "removing" || selection.status === "notInstalled" || selection.status === "installing" || selection.status === "waitingHostApp" || selection.status === "installFailed";
+  const promptDisabled = selection.status === "connecting" || selection.status === "disabled" || selection.status === "removing" || selection.status === "notInstalled" || selection.status === "installing" || selection.status === "installFailed";
   const promptKeys = application.promptKeys ?? [];
   const hasExamplePrompts = promptKeys.length > 0;
   const showInstallPrerequisite = selection.status === "notInstalled" || selection.status === "installing" || selection.status === "installFailed";
@@ -942,14 +940,6 @@ function ConnectorPreviewDialog({
                     description: t("connectors.connector.installHint", { name: applicationTitle }),
                     tone: "warning",
                     actionUiId: "debug.connector-preview.install-hint"
-                  }
-                ) : null,
-                selection.status === "waitingHostApp" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  ConnectorDetailNotice,
-                  {
-                    description: t("debugPanel.connectorPreview.waitingHint"),
-                    tone: "warning",
-                    actionUiId: "debug.connector-preview.waiting-hint"
                   }
                 ) : null,
                 showBlenderSetup ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -1028,6 +1018,11 @@ function ConnectorPreviewSection() {
   });
   const [previewSelection, setPreviewSelection] = reactExports.useState();
   const [webApiPreviewOpen, setWebApiPreviewOpen] = reactExports.useState(false);
+  const apifyManifest = findHcpConnector("apify");
+  const webApiDefinition = apifyManifest ? buildConnectorCatalog([{ manifest: apifyManifest, source: "dynamic" }]).find(
+    (entry) => entry.id === "apify"
+  ) : void 0;
+  const WebApiPreviewDialog = webApiDefinition && isWebApiConnector(webApiDefinition) ? webApiDefinition.entry.Dialog : void 0;
   const handleStatusChange = (nextStatus) => {
     setSelection((current) => ({
       ...current,
@@ -1036,7 +1031,7 @@ function ConnectorPreviewSection() {
     }));
   };
   const statusLabel = (status) => {
-    if (status === "notConnected" || status === "connected" || status === "disabled" || status === "failed") {
+    if (status === "notConnected" || status === "connected" || status === "saved" || status === "needs_auth" || status === "disabled") {
       return t(`connectors.runtimeState.${status}`);
     }
     if (status === "removing") return t("connectors.detail.disconnecting");
@@ -1044,8 +1039,8 @@ function ConnectorPreviewSection() {
     if (status === "installFailed") return t("debugPanel.connectorPreview.installFailedState");
     const localState = {
       notInstalled: "not_installed",
-      installing: "installing",
-      waitingHostApp: "waiting_host_app"
+      checking: "checking",
+      installing: "installing"
     };
     return t(`connectors.connector.state.${localState[status]}`);
   };
@@ -1226,7 +1221,7 @@ function ConnectorPreviewSection() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   ConnectorIcon,
                   {
-                    iconUrl: selection.entryType === "local-app" ? CDN_CONNECTOR_BLENDER : CDN_CONNECTOR_APIFY,
+                    iconUrl: selection.entryType === "local-app" ? previewIcon("blender") : previewIcon("apify"),
                     size: "card"
                   }
                 ),
@@ -1258,7 +1253,7 @@ function ConnectorPreviewSection() {
                     onClick: () => setWebApiPreviewOpen(true),
                     className: "size-10 rounded-[10px] bg-secondary text-foreground hover:bg-popup-item-active hover:text-foreground",
                     "data-action-ui-id": "debug.connector-preview.web-api-entry",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "md", strokeWidth: 1.5, "aria-hidden": true })
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus$1, size: "md", strokeWidth: 1.5, "aria-hidden": true })
                   }
                 )
               ] })
@@ -1284,10 +1279,9 @@ function ConnectorPreviewSection() {
         onClose: () => setPreviewSelection(void 0)
       }
     ) : null,
-    webApiPreviewOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-      MarketplaceKeyConnectorDialog,
+    webApiPreviewOpen && WebApiPreviewDialog ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      WebApiPreviewDialog,
       {
-        provider: "apify",
         onClose: () => setWebApiPreviewOpen(false),
         onSubmit: async () => ({ ok: false, code: "storage_failed" }),
         onCreated: () => void 0
@@ -1663,7 +1657,7 @@ function CompactSidebarFixture({ copy }) {
           onClick: () => void 0,
           "data-action-ui-id": "debug.team-edition.embedded-account-create",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "sm", "aria-hidden": true }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus$1, size: "sm", "aria-hidden": true }),
             t("team.create.title", { defaultValue: "创建团队" })
           ]
         }
@@ -1737,7 +1731,7 @@ function AccountSwitcherFixture({
         onClick: () => void 0,
         "data-action-ui-id": "debug.team-edition.create-disabled",
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "sm", "aria-hidden": true }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus$1, size: "sm", "aria-hidden": true }),
           t("team.create.title", { defaultValue: "创建团队" })
         ]
       }
@@ -1934,7 +1928,7 @@ function CreateCapabilityRetryFlowFixture({ copy }) {
       onClick: () => void 0,
       "data-action-ui-id": "debug.team-edition.account.create",
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "sm", className: "shrink-0", "aria-hidden": true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus$1, size: "sm", className: "shrink-0", "aria-hidden": true }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 break-words", children: t("team.create.title", { defaultValue: "创建团队" }) })
       ]
     }
@@ -2915,6 +2909,23 @@ function InvitationPreview() {
     }
   );
 }
+function TeamManagementSummary({
+  teamInfoLabel,
+  teamName,
+  headerActions,
+  footerActions
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "sr-only", children: teamInfoLabel }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate font-heading text-lg font-semibold text-foreground", children: teamName })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex min-w-0 flex-wrap items-center gap-2", children: headerActions })
+    ] }),
+    footerActions ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex flex-wrap justify-end gap-2 border-t border-border pt-4", children: footerActions }) : null
+  ] });
+}
 const MEMBERS = [
   {
     id: "1088",
@@ -2960,7 +2971,7 @@ function ManagementDialogSurface({ children }) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "shrink-0 border-b border-border px-4 pt-5 pr-14 pb-4 sm:px-6 sm:pr-16", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "font-heading text-sm font-medium text-foreground", children: t("team.management.title", { defaultValue: "团队管理" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs/relaxed text-muted-foreground", children: t("team.management.description", {
-            defaultValue: "查看团队信息、成员与积分权益。"
+            defaultValue: "查看团队信息，管理团队成员"
           }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 flex-1 space-y-6 px-4 py-5 sm:px-6", children })
@@ -5481,6 +5492,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(DebugTabContent, { value: "preview", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "columns-2 gap-3 [&>section]:mb-3 [&>section]:break-inside-avoid", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ChatPreviewSection, { onNavigateAway: () => onOpenChange(false) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorPreviewSection, {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(IconOpacityPreviewSection, {}),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(TeamEditionPreviewSection, { onOpen: openTeamEditionPreview }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   FailureScreensSection,
@@ -5586,7 +5598,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "divide-y divide-border/70", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 px-4 py-2.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-2 text-[13px]", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14, className: "shrink-0 text-muted-foreground" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, { size: 14, className: "shrink-0 text-muted-foreground" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: t("debugPanel.newUserFlow.triggerLoginGate") })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(

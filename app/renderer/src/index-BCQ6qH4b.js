@@ -1,6 +1,6 @@
-import { h as useTranslation, v as useStorage, w as useNavigate, x as useNavigateToWorkspace, y as useLoginGuard, r as reactExports, z as sortRecentWorkspaces, B as usePersistPickedWorkspaceName, C as useIsKnownWorkspacePath, E as useProjectActions, F as workspaceLog, G as stageWorkspacePreview, H as homeService, t as trackEvent, T as TRACK_EVENTS, J as buildWorkspaceSearch, K as workspaceRuntimeFromOpenResult, M as handleNewWorkspaceOpenResult, N as useNewWorkspaceDialog, P as useRecentWorkspacesRefresh, j as jsxRuntimeExports, Q as Plus, S as PageStateBoundary } from "./main.jsx";
-import { u as useWorkspaceAvailability } from "./use-workspace-availability-BsRVqdz3.js";
-import { W as WorkspaceCard } from "./WorkspaceCard-DOZwOTqI.js";
+import { h as useTranslation, v as useStorage, w as useNavigate, x as useNavigateToWorkspace, y as useLoginGuard, r as reactExports, z as sortRecentWorkspaces, B as usePersistPickedWorkspaceName, C as useIsKnownWorkspacePath, E as useProjectActions, F as workspaceLog, G as stageWorkspacePreview, H as homeService, t as trackEvent, T as TRACK_EVENTS, J as buildWorkspaceSearch, K as workspaceRuntimeFromOpenResult, M as handleNewWorkspaceOpenResult, N as useNewWorkspaceDialog, P as useRecentWorkspacesRefresh, j as jsxRuntimeExports, Q as Plus, U as PageStateBoundary } from "./main.jsx";
+import { u as useWorkspaceAvailability } from "./use-workspace-availability-Dj4GHjzL.js";
+import { W as WorkspaceCard } from "./WorkspaceCard-vSPE0nQy.js";
 function CreationsPage() {
   const { t } = useTranslation();
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
@@ -40,6 +40,8 @@ function CreationsPage() {
       }
       const result = await homeService.hiloApp.createWorkspaceWithResult({
         name,
+        projectId: options.projectId,
+        parentFolderPath: options.parentFolderPath,
         loadUserMemory: options.loadUserMemory,
         allowDataDirectoryFallback: options.allowDataDirectoryFallback
       }).catch(() => null);

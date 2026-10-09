@@ -1,55 +1,7 @@
-import { e as createLucideIcon, h as useTranslation, fk as useComfyUiDownloadProgress, fl as isActiveComfyUiDownloadTask, j as jsxRuntimeExports, bV as Download, eJ as Progress, bg as Button, Y as X, dx as CircleAlert, c0 as ShieldCheck, u as useGatewayReady, g as useRuntimeConfig, r as reactExports, k as useQuery, l as gatewayFetch, m as API_PATHS, al as PencilIcon, U as Icon, ao as Trash2, fm as PanelsTopLeft, aG as Dialog, aH as DialogContent, bd as DialogHeader, be as DialogTitle, bf as DialogDescription, X as Input, fn as Textarea, c1 as DialogFooter, bj as AlertDialog, bk as AlertDialogContent, bl as AlertDialogHeader, bm as AlertDialogTitle, bn as AlertDialogDescription, bo as AlertDialogFooter, bp as AlertDialogCancel, bq as AlertDialogAction, a5 as dedupedToast, fo as countUnavailableComfyUiModels, dh as Popover, dj as PopoverContent, dE as PopoverTitle, dg as ExternalLink, o as usePlatform, bH as openExternalUrl, aF as useIsScrolling, fp as Layers, fq as Package, dq as ArrowLeft, aK as Play, fr as Pause, fs as isComfyUiModelUnavailable, v as useStorage, eH as CircleCheck, eI as CircleX, ft as CircleHelp, H as homeService, cp as Checkbox, fu as FileJson2, fv as HardDrive, dW as LocalFolderIcon, aL as BookOpen, fw as Accordion, fx as AccordionItem, fy as AccordionTrigger, fz as AccordionContent, fA as WORKFLOW_TUTORIAL_SOURCE_URL, dm as useTopbarState, a3 as useProjectStore, fB as isCaseInsensitiveOs, fC as workspaceInventoryPathKey, fD as resolveRecentProjectsSortMode, ag as DropdownMenu, ah as DropdownMenuTrigger, aj as DropdownMenuContent, ak as DropdownMenuItem, Q as Plus, fE as DropdownMenuSub, fF as DropdownMenuSubTrigger, fG as DropdownMenuSubContent, bO as DropdownMenuGroup, bP as DropdownMenuLabel, a1 as workspaceDisplayName, dn as mergeWorkspaceInventory, fH as splitPinnedInventory, fI as groupRecentWorkspacesByProject, fJ as UNGROUPED_RECENT_GROUP_KEY, w as useNavigate, ax as useSearch, fK as useGatewayFetch, J as buildWorkspaceSearch, fL as trackComfyUiWorkflowCatalogAction, K as workspaceRuntimeFromOpenResult, fM as toastWorkspaceOpenResult, G as stageWorkspacePreview, fN as trackComfyUiWorkflowInstall, fO as trackComfyUiWorkflowInstallFailed, bI as CatalogPageHeading, bU as LoaderCircle, cP as Upload, cZ as ChevronRight, fP as Workflow, bK as Tabs, bL as TabsList, bM as TabsTrigger, bh as RetryIcon, S as PageStateBoundary } from "./main.jsx";
-import { u as useHubEntries, H as HUB_ENTRY_IDS } from "./use-hub-entries-BVopDERb.js";
-import { u as useWorkspaceAvailability } from "./use-workspace-availability-BsRVqdz3.js";
-import { P as PageSearchInput, T as TAB_CONTENT_ENTER_CLASS_NAME } from "./index-eXcNLvyz.js";
-import { E as Eye } from "./eye-CFw9EXGT.js";
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleMinus = createLucideIcon("CircleMinus", [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M8 12h8", key: "1wcyev" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const CircleStop = createLucideIcon("CircleStop", [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["rect", { x: "9", y: "9", width: "6", height: "6", rx: "1", key: "1ssd4o" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FolderClock = createLucideIcon("FolderClock", [
-  ["circle", { cx: "16", cy: "16", r: "6", key: "qoo3c4" }],
-  [
-    "path",
-    {
-      d: "M7 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2",
-      key: "1urifu"
-    }
-  ],
-  ["path", { d: "M16 14v2l1 1", key: "xth2jh" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Gauge = createLucideIcon("Gauge", [
-  ["path", { d: "m12 14 4-4", key: "9kzdfg" }],
-  ["path", { d: "M3.34 19a10 10 0 1 1 17.32 0", key: "19p75a" }]
-]);
+import { h as useTranslation, kP as useComfyUiDownloadProgress, kQ as isActiveComfyUiDownloadTask, j as jsxRuntimeExports, cf as Download, ka as Progress, fM as Button, bU as PlaybackStopIcon, X, bO as CircleAlert, ez as ShieldCheck, u as useGatewayReady, g as useRuntimeConfig, r as reactExports, k as useQuery, l as gatewayFetch, m as API_PATHS, aj as PencilIcon, e as Icon, am as Trash2, dX as PanelsTopLeft, as as Dialog, at as DialogContent, gj as DialogHeader, g8 as DialogTitle, g9 as DialogDescription, f as Input, kR as Textarea, kS as DialogFooter, jS as AlertDialog, jV as AlertDialogContent, jW as AlertDialogHeader, jX as AlertDialogTitle, jY as AlertDialogDescription, jZ as AlertDialogFooter, j_ as AlertDialogCancel, j$ as AlertDialogAction, a3 as dedupedToast, kT as countUnavailableComfyUiModels, it as Popover, iv as PopoverContent, iQ as PopoverTitle, ck as ExternalLink, o as usePlatform, gB as openExternalUrl, fv as Eye, ar as useIsScrolling, dd as Layers3, dQ as Package, b0 as ArrowLeft, ax as PlaybackPlayIcon, dZ as PlaybackPauseIcon, kU as isComfyUiModelUnavailable, v as useStorage, bB as CheckCircle2, bW as CircleX, cL as Gauge, bT as CircleMinus, bR as CircleHelp, H as homeService, hC as Checkbox, cx as FileJson2, cX as HardDrive, j8 as LocalFolderIcon, ay as BookOpen, kV as Accordion, kW as AccordionItem, kX as AccordionTrigger, kY as AccordionContent, kZ as WORKFLOW_TUTORIAL_SOURCE_URL, iy as useTopbarState, a1 as useProjectStore, k_ as isCaseInsensitiveOs, k$ as workspaceInventoryPathKey, l0 as resolveRecentProjectsSortMode, ae as DropdownMenu, af as DropdownMenuTrigger, ah as DropdownMenuContent, ai as DropdownMenuItem, Q as Plus, l1 as DropdownMenuSub, l2 as DropdownMenuSubTrigger, cE as FolderClock, l3 as DropdownMenuSubContent, gI as DropdownMenuGroup, gJ as DropdownMenuLabel, $ as workspaceDisplayName, iz as mergeWorkspaceInventory, l4 as splitPinnedInventory, l5 as groupRecentWorkspacesByProject, l6 as UNGROUPED_RECENT_GROUP_KEY, w as useNavigate, fT as useSearch, l7 as useGatewayFetch, J as buildWorkspaceSearch, l8 as trackComfyUiWorkflowCatalogAction, K as workspaceRuntimeFromOpenResult, l9 as toastWorkspaceOpenResult, G as stageWorkspacePreview, la as trackComfyUiWorkflowInstall, lb as trackComfyUiWorkflowInstallFailed, gC as CatalogPageHeading, dl as Loader2, f0 as Upload, bI as ChevronRight, fi as Workflow, gE as Tabs, gF as TabsList, gG as TabsTrigger, gk as RetryIcon, gM as TAB_CONTENT_ENTER_CLASS_NAME, U as PageStateBoundary } from "./main.jsx";
+import { u as useHubEntries, H as HUB_ENTRY_IDS } from "./use-hub-entries-BqMaebYB.js";
+import { u as useWorkspaceAvailability } from "./use-workspace-availability-Dj4GHjzL.js";
+import { P as PageSearchInput } from "./index-CCILjxtP.js";
 function ComfyUiModelDownloadSection() {
   const { t } = useTranslation();
   const { tasks, cancelTask, dismissTask } = useComfyUiDownloadProgress();
@@ -115,7 +67,7 @@ function DownloadTaskRow({
           onClick: onCancel,
           "data-action-ui-id": "workflows-model-download-cancel",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleStop, {}),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackStopIcon, {}),
             t("chat.workflow.downloadCancel")
           ]
         }
@@ -1515,7 +1467,7 @@ function WorkflowDetailMedia({ mediaUrl }) {
     );
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-3 text-muted-foreground", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { className: "size-8", strokeWidth: 1.25 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Layers3, { className: "size-8", strokeWidth: 1.25 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "ComfyUI" })
   ] });
 }
@@ -1594,7 +1546,7 @@ function WorkflowDetailView({
       key: `${workflow.name}.json`,
       name: `${workflow.name}.json`,
       directory: t("workflows.detail.workflowFile"),
-      icon: Layers
+      icon: Layers3
     },
     ...dependencies.map((dependency) => ({
       key: `${dependency.directory}/${dependency.name}`,
@@ -1748,7 +1700,7 @@ function WorkflowDetailView({
                           onClick: handleToggleDownload,
                           "data-action-ui-id": "workflows-detail-download-toggle",
                           children: [
-                            effectiveDownloadPhase === "paused" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14, strokeWidth: 1.5 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { size: 14, strokeWidth: 1.5 }),
+                            effectiveDownloadPhase === "paused" ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, { size: 14, strokeWidth: 1.5 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPauseIcon, { size: 14, strokeWidth: 1.5 }),
                             effectiveDownloadPhase === "paused" ? t("workflows.detail.resumeDownload") : t("workflows.detail.pauseDownload")
                           ]
                         }
@@ -1763,7 +1715,7 @@ function WorkflowDetailView({
                           onClick: handleCancelDownload,
                           "data-action-ui-id": "workflows-detail-download-cancel",
                           children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleStop, { size: 14, strokeWidth: 1.5 }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackStopIcon, { size: 14, strokeWidth: 1.5 }),
                             t("workflows.detail.cancelDownload")
                           ]
                         }
@@ -2101,7 +2053,7 @@ function WorkflowCompatibilityComparison({
   const machineValues = buildMachineValues(snapshot, loading, t);
   const evaluatedSnapshot = loading ? null : snapshot;
   const { result, statuses } = evaluateWorkflowCompatibility(recommendation, evaluatedSnapshot);
-  const ResultIcon = result === "likely" ? CircleCheck : result === "insufficient" ? CircleX : Gauge;
+  const ResultIcon = result === "likely" ? CheckCircle2 : result === "insufficient" ? CircleX : Gauge;
   const resultTone = result === "insufficient" ? "border-destructive/30 bg-destructive/10 text-destructive" : result === "likely" ? "border-success/30 bg-success/10 text-success" : "border-border bg-muted text-foreground";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", "data-action-ui-id": "workflows-compatibility-comparison", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -2126,7 +2078,7 @@ function WorkflowCompatibilityComparison({
       ] }),
       requirements.map((requirement) => {
         const status = statuses[requirement.key];
-        const StatusIcon = status === "meets" ? CircleCheck : status === "insufficient" || status === "unsupported" ? CircleX : status === "notApplicable" ? CircleMinus : CircleHelp;
+        const StatusIcon = status === "meets" ? CheckCircle2 : status === "insufficient" || status === "unsupported" ? CircleX : status === "notApplicable" ? CircleMinus : CircleHelp;
         const statusClass = status === "insufficient" || status === "unsupported" ? "text-destructive" : status === "meets" ? "text-success" : "text-muted-foreground";
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
@@ -2422,7 +2374,7 @@ function WorkflowDownloadConfirmDialog({
                         children: requiredLicenses.map((license, index) => {
                           const licenseKey = comfyUiLicenseKey(license);
                           const checkboxId = `workflow-license-${index}`;
-                          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+                          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hilo-checkbox-label flex items-start", children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               Checkbox,
                               {
@@ -2950,7 +2902,7 @@ function WorkflowUseMenu({
             DropdownMenuItem,
             {
               onClick: onCreate,
-              className: "group mb-1 min-h-16 cursor-pointer items-center gap-2.5 rounded-md p-2.5 whitespace-normal",
+              className: "list-row-hit-area [--list-row-gap:4px] before:top-0 group mb-1 min-h-16 cursor-pointer items-center gap-2.5 rounded-md p-2.5 whitespace-normal",
               "data-action-ui-id": `workflows-use-new-${workflowId}`,
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-foreground/70 transition-colors duration-150 group-hover:bg-background group-hover:text-foreground group-focus:bg-background group-focus:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, strokeWidth: 1.5 }) }),
@@ -2965,7 +2917,7 @@ function WorkflowUseMenu({
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               DropdownMenuSubTrigger,
               {
-                className: "group/sub min-h-16 cursor-pointer items-center gap-2.5 rounded-md p-2.5 whitespace-normal",
+                className: "list-row-hit-area [--list-row-gap:4px] before:bottom-0 group/sub min-h-16 cursor-pointer items-center gap-2.5 rounded-md p-2.5 whitespace-normal",
                 "data-action-ui-id": `workflows-use-existing-${workflowId}`,
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-foreground/70 transition-colors duration-150 group-hover/sub:bg-background group-hover/sub:text-foreground group-focus/sub:bg-background group-focus/sub:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClock, { size: 16, strokeWidth: 1.5 }) }),
@@ -3485,7 +3437,7 @@ function WorkflowsPage() {
                             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-foreground/70 transition-colors duration-150 group-hover:bg-background group-hover:text-foreground group-focus:bg-background group-focus:text-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                               Icon,
                               {
-                                icon: importing ? LoaderCircle : Upload,
+                                icon: importing ? Loader2 : Upload,
                                 size: "md",
                                 className: importing ? "animate-spin" : void 0,
                                 "aria-hidden": true
@@ -3606,7 +3558,7 @@ function WorkflowsPage() {
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               Icon,
                               {
-                                icon: importing ? LoaderCircle : Upload,
+                                icon: importing ? Loader2 : Upload,
                                 size: "sm",
                                 className: importing ? "animate-spin" : void 0,
                                 "aria-hidden": true
@@ -3741,7 +3693,7 @@ function WorkflowsPage() {
             children: [
               activeTab === "mine" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ComfyUiModelDownloadSection, {}) : null,
               query.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center py-20 text-muted-foreground", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 18, className: "animate-spin" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 18, className: "animate-spin" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-xs", children: t("workflows.loading") })
               ] }) : query.error && activeTab === "official" ? /* @__PURE__ */ jsxRuntimeExports.jsx(PageStateBoundary, { error: true, className: "min-h-80" }) : filteredWorkflows.length === 0 && activeTab === "mine" && hasActiveDownloads ? null : filteredWorkflows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 PageStateBoundary,

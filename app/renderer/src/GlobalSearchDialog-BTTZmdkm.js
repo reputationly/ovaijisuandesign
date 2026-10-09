@@ -1,36 +1,4 @@
-import { e as createLucideIcon, r as reactExports, aC as gatewayFetchFromBase, aD as withThumbnail, aE as gatewayUrlFromBase, m as API_PATHS, h as useTranslation, aF as useIsScrolling, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, aG as Dialog, aH as DialogContent, U as Icon, V as Search, au as cn, S as PageStateBoundary, aI as KbdGroup, aJ as Kbd, aK as Play, aL as BookOpen, aM as PluginIcon, aN as SkillIcon, aO as LayoutGrid, aP as File, aQ as MessageSquare, aR as Folder, aS as FolderOpen, Z as useWorkspaceThumbnails, aT as Brain, aU as Settings, aV as FolderPlus, aW as MessageSquarePlus, aX as Music, aY as FileText, aZ as Video, a_ as ImageOutlineIcon } from "./main.jsx";
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Command = createLucideIcon("Command", [
-  [
-    "path",
-    { d: "M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3", key: "11bfej" }
-  ]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const PackageSearch = createLucideIcon("PackageSearch", [
-  [
-    "path",
-    {
-      d: "M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14",
-      key: "e7tb2h"
-    }
-  ],
-  ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }],
-  ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }],
-  ["line", { x1: "12", x2: "12", y1: "22", y2: "12", key: "a4e8g8" }],
-  ["circle", { cx: "18.5", cy: "15.5", r: "2.5", key: "b5zd12" }],
-  ["path", { d: "M20.27 17.27 22 19", key: "1l4muz" }]
-]);
+import { r as reactExports, ao as gatewayFetchFromBase, ap as withThumbnail, aq as gatewayUrlFromBase, m as API_PATHS, h as useTranslation, ar as useIsScrolling, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, as as Dialog, at as DialogContent, e as Icon, S as Search, au as cn, U as PageStateBoundary, av as KbdGroup, aw as Kbd, ax as PlaybackPlayIcon, ay as BookOpen, az as PluginIcon, aA as SkillIcon, aB as LayoutGrid, aC as FileTypeIcon, aD as classifyFileType, aE as MessageSquare, aF as Folder, aG as FolderOpen, V as useWorkspaceThumbnails, aH as Command, aI as PackageSearch, aJ as Brain, aK as Settings, aL as FolderPlus, aM as MessageSquarePlus, aN as Music, aO as FileText, aP as Video, aQ as ImageOutlineIcon } from "./main.jsx";
 const DEBOUNCE_MS = 200;
 const HUB_PROJECT_RESULT_LIMIT = 20;
 const CATEGORY_WEIGHT = {
@@ -873,7 +841,7 @@ function ResultIcon({ result }) {
     case "session":
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: MessageSquare, size: "lg" });
     case "file":
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: mediaIcon(result) ?? File, size: "lg" });
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(FileTypeIcon, { ...classifyFileType({ filename: result.title }), size: 24, decorative: true });
     case "canvas":
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: mediaIcon(result) ?? LayoutGrid, size: "lg" });
     case "skill":
@@ -950,7 +918,7 @@ function WorkspaceResultVisual({ workspacePath }) {
           }
         ),
         thumbnail.mediaType === "video" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute inset-0 flex items-center justify-center bg-foreground/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Play,
+          PlaybackPlayIcon,
           {
             "aria-hidden": true,
             size: 14,
@@ -983,7 +951,7 @@ function ResultLeadingVisual({ result }) {
         }
       ),
       mediaType === "video" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute inset-0 flex items-center justify-center bg-foreground/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Play,
+        PlaybackPlayIcon,
         {
           "aria-hidden": true,
           size: 14,

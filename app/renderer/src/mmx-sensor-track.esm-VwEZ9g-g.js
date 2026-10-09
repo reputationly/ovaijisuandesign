@@ -1,4 +1,4 @@
-const __ovViteMapDeps = (i, m = __ovViteMapDeps, d = m.f || (m.f = ["./sensorsdata-Ctc-oXAn.js", "./main.jsx", "./index-wI6IKnRt.css"])) => i.map(i => d[i]);
+const __ovViteMapDeps = (i, m = __ovViteMapDeps, d = m.f || (m.f = ["./sensorsdata-DycbB5it.js", "./main.jsx", "./index-DhaBhXjN.css"])) => i.map(i => d[i]);
 import { _ as __ovVitePreload } from "./main.jsx";
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -801,7 +801,7 @@ var MMXSensorTracker = /* @__PURE__ */function () {
               return _context2.a(2);
             case 2:
               _context2.n = 3;
-              return (() => import("./sensorsdata-Ctc-oXAn.js").then(n => n.s))();
+              return (() => import("./sensorsdata-DycbB5it.js").then(n => n.s))();
             case 3:
               sensorsModule = _context2.v;
               this.sensors = sensorsModule.default;

@@ -1,4 +1,4 @@
-import { j as jsxRuntimeExports, U as Icon, V as Search, X as Input, Y as X } from "./main.jsx";
+import { j as jsxRuntimeExports, e as Icon, S as Search, f as Input, X } from "./main.jsx";
 function PageSearchInput({
   value,
   onValueChange,
@@ -18,6 +18,7 @@ function PageSearchInput({
           Icon,
           {
             icon: Search,
+            tone: "muted",
             size: "sm",
             "aria-hidden": true,
             className: "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -40,17 +41,15 @@ function PageSearchInput({
             type: "button",
             onClick: () => onValueChange(""),
             "aria-label": clearLabel,
-            className: "absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
+            className: "icon-muted-control absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
             "data-action-ui-id": clearActionId,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: X, size: "xs", "aria-hidden": true })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: X, tone: "control", size: "xs", "aria-hidden": true })
           }
         ) : null
       ]
     }
   );
 }
-const TAB_CONTENT_ENTER_CLASS_NAME = "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:duration-200";
 export {
-  PageSearchInput as P,
-  TAB_CONTENT_ENTER_CLASS_NAME as T
+  PageSearchInput as P
 };

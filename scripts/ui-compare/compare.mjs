@@ -27,6 +27,9 @@ const WS_B = `${ROOT}/ws-b`;
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
 const PAGES = [
   { id: "home", url: "/" },
+  // 首页标签页切换：进页面后按顺序点这些标签（文字要和界面上的一致），点完再拍
+  { id: "home-skill", url: "/", tabs: ["Skill"] },
+  { id: "home-skill-inspiration", url: "/", tabs: ["Skill", "创作灵感"] },
   { id: "projects", url: "/projects" },
   { id: "creations", url: "/creations" },
   { id: "skills", url: "/skills" },
@@ -55,6 +58,24 @@ const DISMISS_STARTUP = `(()=>{
 // 卡片带（实测同模式两次差 7.3%，比两种构建之间的差还大）。这些封面不属于本仓库的代码，把 CDN 挡掉
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
 const BLOCKED_URLS = ["*cdn.hailuoai.com*"];
+// 聊天面板的“精选”推荐是 Math.random 洗牌抽出来的（每次挂载抽的不一样），两边各抽一次必然差出几张卡片的文字。
+// 每个新文档开头把 Math.random 换成固定种子的伪随机数：两边调用次序相同，抽到的就是同一批。渲染代码本身不动。
+const SEEDED_RANDOM = `(() => {
+  let s = 0x2545f491;
+  Math.random = () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+})();`;
+// 点一个标签：找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数。
+const clickByText = (text) => `(() => {
+  const el = [...document.querySelectorAll("button, [role=tab], div, span")].find((e) => e.childElementCount === 0 && e.textContent.trim() === ${JSON.stringify(text)} && e.getBoundingClientRect().width > 0);
+  if (!el) return false;
+  el.click();
+  return true;
+})()`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const TOL = 24; // 小于这个差值的像素当作抗锯齿抖动
@@ -127,6 +148,7 @@ async function cdp(port) {
         // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
         await send("Network.enable");
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
+        await send("Page.addScriptToEvaluateOnNewDocument", { source: SEEDED_RANDOM });
         const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e));
         return { send, errors: visible, clearErrors: () => (errors.length = 0), close: () => ws.close() };
       }
@@ -189,6 +211,11 @@ async function runMode(mode) {
         if (!r.result?.result?.value && i >= 1) break;
       }
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
+      for (const label of p.tabs ?? []) {
+        const r = await c.send("Runtime.evaluate", { expression: clickByText(label), returnByValue: true });
+        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${label}」标签，页面没切过去`);
+        await sleep(1500);
+      }
       const buf = await stableShot(c);
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, buf);

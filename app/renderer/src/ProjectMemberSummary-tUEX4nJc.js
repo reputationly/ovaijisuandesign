@@ -1,4 +1,4 @@
-import { r as reactExports, j as jsxRuntimeExports, aq as AvatarGroup, ar as Avatar, as as AvatarImage, at as AvatarFallback, au as cn, av as ChevronDown } from "./main.jsx";
+import { r as reactExports, j as jsxRuntimeExports, fO as AvatarGroup, fP as Avatar, fQ as AvatarImage, fR as AvatarFallback, au as cn, bE as ChevronDown } from "./main.jsx";
 const AVATAR_PALETTE = [
   {
     bg: "bg-[color:color-mix(in_srgb,var(--brand-accent)_22%,var(--card))]",

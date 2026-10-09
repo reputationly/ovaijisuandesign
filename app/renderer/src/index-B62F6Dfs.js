@@ -1,7 +1,7 @@
-import { h as useTranslation, r as reactExports, ba as canUseDebugTooling, bb as listCloudProjects, j as jsxRuntimeExports, bc as CloudDownload, aG as Dialog, aH as DialogContent, bd as DialogHeader, be as DialogTitle, bf as DialogDescription, bg as Button, bh as RetryIcon, bi as MemberRole, bj as AlertDialog, bk as AlertDialogContent, bl as AlertDialogHeader, bm as AlertDialogTitle, bn as AlertDialogDescription, bo as AlertDialogFooter, bp as AlertDialogCancel, bq as AlertDialogAction, br as useQueryClient, bs as WORKSPACE_THUMBNAILS_QUERY_ROOT, u as useGatewayReady, bt as useQueries, bu as WORKSPACE_THUMBNAILS_STALE_TIME, bv as fetchWorkspaceThumbnails, bw as workspaceThumbnailsQueryKey, aS as FolderOpen, au as cn, bx as DeferredThumbnailImage, af as formatTimestampDot, ad as ClickableArea, by as TooltipProvider, bz as Tooltip, bA as TooltipTrigger, bB as Users, bC as TooltipContent, ae as InlineRenameInput, ag as DropdownMenu, ah as DropdownMenuTrigger, ai as MoreVerticalIcon, aj as DropdownMenuContent, ak as DropdownMenuItem, al as PencilIcon, ao as Trash2, w as useNavigate, ax as useSearch, o as usePlatform, v as useStorage, bD as useProjects, E as useProjectActions, bE as projectListLocation, a5 as dedupedToast, bF as getProjectTutorialUrl, bG as getRuntimeConfig, bH as openExternalUrl, bI as CatalogPageHeading, Q as Plus, bJ as CreateProjectMenuContent, aL as BookOpen, bK as Tabs, bL as TabsList, bM as TabsTrigger, bN as CloudUpload, av as ChevronDown, bO as DropdownMenuGroup, bP as DropdownMenuLabel, bQ as DropdownMenuRadioGroup, bR as DropdownMenuRadioItem, S as PageStateBoundary, bS as CreateProjectDialog } from "./main.jsx";
-import { u as useWindowedList } from "./ProjectMemberSummary-D-KuAEDo.js";
-import { u as useHubEntries, H as HUB_ENTRY_IDS } from "./use-hub-entries-BVopDERb.js";
-import { P as PageSearchInput, T as TAB_CONTENT_ENTER_CLASS_NAME } from "./index-eXcNLvyz.js";
+import { h as useTranslation, r as reactExports, gh as canUseDebugTooling, gi as listCloudProjects, j as jsxRuntimeExports, c2 as CloudDownload, as as Dialog, at as DialogContent, gj as DialogHeader, g8 as DialogTitle, g9 as DialogDescription, fM as Button, gk as RetryIcon, gl as MemberRole, gm as useQueryClient, gn as WORKSPACE_THUMBNAILS_QUERY_ROOT, u as useGatewayReady, go as useQueries, gp as WORKSPACE_THUMBNAILS_STALE_TIME, gq as fetchWorkspaceThumbnails, gr as workspaceThumbnailsQueryKey, aG as FolderOpen, au as cn, gs as DeferredThumbnailImage, ad as formatTimestampDot, ab as ClickableArea, gt as TooltipProvider, gu as Tooltip, gv as TooltipTrigger, f5 as Users, gw as TooltipContent, ac as InlineRenameInput, ae as DropdownMenu, af as DropdownMenuTrigger, ag as MoreVerticalIcon, ah as DropdownMenuContent, ai as DropdownMenuItem, aj as PencilIcon, am as Trash2, w as useNavigate, fT as useSearch, o as usePlatform, v as useStorage, gx as useProjects, E as useProjectActions, gy as useProjectDelete, gz as projectListLocation, a3 as dedupedToast, gA as getProjectTutorialUrl, g6 as getRuntimeConfig, gB as openExternalUrl, gC as CatalogPageHeading, Q as Plus, gD as CreateProjectMenuContent, ay as BookOpen, gE as Tabs, gF as TabsList, gG as TabsTrigger, gH as MonochromeIcon, c5 as CloudUpload, bE as ChevronDown, gI as DropdownMenuGroup, gJ as DropdownMenuLabel, gK as DropdownMenuRadioGroup, gL as DropdownMenuRadioItem, gM as TAB_CONTENT_ENTER_CLASS_NAME, U as PageStateBoundary, gN as CreateProjectDialog, gO as DissolveProjectDialog } from "./main.jsx";
+import { u as useWindowedList } from "./ProjectMemberSummary-tUEX4nJc.js";
+import { u as useHubEntries, H as HUB_ENTRY_IDS } from "./use-hub-entries-BqMaebYB.js";
+import { P as PageSearchInput } from "./index-CCILjxtP.js";
 const INITIAL_STATE = {
   loading: false,
   projects: [],
@@ -116,23 +116,6 @@ function CloudProjectsInspector() {
       ] })
     ] }) })
   ] });
-}
-function DissolveProjectDialog({
-  project,
-  onConfirm,
-  onCancel
-}) {
-  const { t } = useTranslation();
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: Boolean(project), onOpenChange: (open) => !open && onCancel(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { size: "sm", "data-action-ui-id": "project.dissolve-dialog", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: t("project.dissolve.title") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: t("project.dissolve.description", { name: project?.name ?? "" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogAction, { variant: "destructive", onClick: onConfirm, children: t("project.dissolve.confirm") })
-    ] })
-  ] }) });
 }
 const PROJECT_COVER_TILE_LIMIT = 4;
 function useRefreshProjectCovers() {
@@ -408,10 +391,10 @@ function ProjectListPage() {
   const [config, setConfig] = useStorage("global.config");
   const [keyword, setKeyword] = reactExports.useState("");
   const [createKind, setCreateKind] = reactExports.useState(null);
-  const [pendingDelete, setPendingDelete] = reactExports.useState(null);
   const sortMode = isProjectsSortMode(config.projectsSortMode) ? config.projectsSortMode : "updated";
   const projects = useProjects({ sortMode, keyword, kind: activeKind });
   const { createProject, renameProject, deleteProject, syncCloudProjects } = useProjectActions();
+  const { pendingDelete, requestDelete, confirmDelete, cancelDelete } = useProjectDelete(deleteProject);
   const {
     visibleItems: visibleProjects,
     hasMore,
@@ -482,20 +465,6 @@ function ProjectListPage() {
     },
     [renameProject, t]
   );
-  const handleConfirmDelete = reactExports.useCallback(() => {
-    const target = pendingDelete;
-    setPendingDelete(null);
-    if (!target) return;
-    void deleteProject(target).then((result) => {
-      if (result.errorCode === "project-transfer-active") {
-        dedupedToast.warning(t("project.dissolve.transferActive"));
-      } else if (result.errorCode === "project-hide-failed") {
-        dedupedToast.error(t("project.dissolve.failed"));
-      } else if (result.errorMessage || result.errorCode === "cloud-request-failed") {
-        dedupedToast.error(result.errorMessage ?? t("project.dissolve.failed"));
-      }
-    });
-  }, [deleteProject, pendingDelete, t]);
   const hubEntries = useHubEntries();
   const tutorialEntry = hubEntries[HUB_ENTRY_IDS.projectTutorial];
   const handleOpenTutorial = reactExports.useCallback(() => {
@@ -593,11 +562,11 @@ function ProjectListPage() {
                       {
                         value: tab.kind,
                         variant: "underline",
-                        className: "gap-1.5",
+                        className: "gap-1.5 [--icon-control-ink:var(--foreground)] [--icon-control-alpha:0.5] hover:[--icon-control-alpha:1] data-[active]:[--icon-control-alpha:1]",
                         "data-action-ui-id": `project-list.kind-tab-${tab.kind}`,
                         children: [
                           t(tab.labelKey),
-                          tab.kind === "team" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CloudUpload, { size: 14, strokeWidth: 2.25, "aria-hidden": "true" }) : null
+                          tab.kind === "team" ? /* @__PURE__ */ jsxRuntimeExports.jsx(MonochromeIcon, { tone: "control", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloudUpload, { size: 14, strokeWidth: 2.25, "aria-hidden": "true" }) }) : null
                         ]
                       },
                       tab.kind
@@ -694,7 +663,7 @@ function ProjectListPage() {
                 project,
                 onOpen: handleOpen,
                 onRename: handleRename,
-                onRequestDelete: setPendingDelete
+                onRequestDelete: requestDelete
               },
               project.id
             )) }),
@@ -727,8 +696,8 @@ function ProjectListPage() {
       DissolveProjectDialog,
       {
         project: pendingDelete,
-        onConfirm: handleConfirmDelete,
-        onCancel: () => setPendingDelete(null)
+        onConfirm: confirmDelete,
+        onCancel: cancelDelete
       }
     )
   ] });

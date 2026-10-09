@@ -158,5 +158,18 @@ for (const name of readdirSync(assets)) {
     chunks++;
   } else copyFileSync(file, path.join(outDir, name));
 }
+// 样式表文件名带内容哈希，换版本就变。模板 app/renderer/index.html 里的 <link> 必须指向新文件，
+// 否则构建时解析不到它、产物里没有 CSS，页面整个塌掉（只剩几行字和一个输入框）。
+{
+  const refHtml = readFileSync(path.join(repo, "reference", version, "app/out/renderer/index.html"), "utf8");
+  const cssName = refHtml.match(/href="\.\/assets\/(index-[\w-]+\.css)"/)?.[1];
+  if (!cssName) throw new Error("参照包的 index.html 里找不到样式表链接");
+  if (!existsSync(path.join(outDir, cssName))) throw new Error(`样式表 ${cssName} 没有拷进 app/renderer/src`);
+  const tpl = path.join(repo, "app/renderer/index.html");
+  const html = readFileSync(tpl, "utf8");
+  if (!/href="\.\/src\/index-[\w-]+\.css"/.test(html)) throw new Error("app/renderer/index.html 里没有可改的样式表链接");
+  writeFileSync(tpl, html.replace(/href="\.\/src\/index-[\w-]+\.css"/, `href="./src/${cssName}"`));
+  console.log(`样式表链接 → ./src/${cssName}`);
+}
 mark("全部完成")
 console.log(`其余 ${chunks} 个 chunk 和资源已拷到 ${path.relative(repo, outDir)}`);

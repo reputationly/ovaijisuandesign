@@ -1,17 +1,5 @@
-import { e as createLucideIcon, a$ as GENERATION_FAILURE_ERROR_CODES, h as useTranslation, r as reactExports, j as jsxRuntimeExports, b0 as ActivityGroup, b1 as groupIntoActivityGroups, ax as useSearch, U as Icon, b2 as Check, b3 as ProductionPlanTimeline, b4 as RecoveringChildrenProvider, b5 as MessageList, b6 as QuestionDock, b7 as LoopGuardAskDock, b8 as StageConfirmationBar, b9 as StagePromptEditorCard } from "./main.jsx";
+import { fY as GENERATION_FAILURE_ERROR_CODES, h as useTranslation, r as reactExports, j as jsxRuntimeExports, fZ as ActivityGroup, f_ as groupIntoActivityGroups, fT as useSearch, e as Icon, dz as MessageCircleMore, bz as Check, f$ as ProductionPlanTimeline, g0 as RecoveringChildrenProvider, g1 as MessageList, g2 as QuestionDock, g3 as LoopGuardAskDock, g4 as StageConfirmationBar, g5 as StagePromptEditorCard } from "./main.jsx";
 import { E as ERROR_CARD_PREVIEW_MESSAGES } from "./error-card-fixtures-GXqelGnw.js";
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const MessageCircleMore = createLucideIcon("MessageCircleMore", [
-  ["path", { d: "M7.9 20A9 9 0 1 0 4 16.1L2 22Z", key: "vv11sd" }],
-  ["path", { d: "M8 12h.01", key: "czm47f" }],
-  ["path", { d: "M12 12h.01", key: "1mp3jc" }],
-  ["path", { d: "M16 12h.01", key: "1l6xoz" }]
-]);
 const PLANNER_CHILD_ID = "chat-case-planner-child";
 const EXECUTOR_CHILD_ID = "chat-case-executor-child";
 const TEXT_OUTPUT_NODE_ID = "11111111-1111-4111-8111-111111111111";
@@ -485,7 +473,7 @@ const CHAT_CASE_MESSAGES = [
     id: "case-compaction",
     role: "agent",
     type: "compaction_status",
-    content: "Conversation compacted"
+    content: "compacted"
   },
   {
     id: "case-recovered",

@@ -1,4 +1,4 @@
-import { r as reactExports, j as jsxRuntimeExports, h as useTranslation, ax as useSearch, ay as useRemoteToolSdk, az as remoteDebugLog, l as gatewayFetch, aA as RemoteToolDialogShell, aB as RemoteToolHost } from "./main.jsx";
+import { r as reactExports, j as jsxRuntimeExports, h as useTranslation, fT as useSearch, fU as useRemoteToolSdk, fV as remoteDebugLog, l as gatewayFetch, fW as RemoteToolDialogShell, fX as RemoteToolHost } from "./main.jsx";
 let nextId = 1;
 function useCallLog() {
   const [logs, setLogs] = reactExports.useState([]);

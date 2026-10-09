@@ -1,8 +1,17 @@
-import { h6 as isValidSkillName, f as createLucideIcon, e as createLucideIcon$1, r as reactExports, j as jsxRuntimeExports, h as useTranslation, bh as RetryIcon, bg as Button, Y as X, x as useNavigateToWorkspace, H as homeService, a5 as dedupedToast, K as workspaceRuntimeFromOpenResult, fM as toastWorkspaceOpenResult, h7 as workspaceEvents, c4 as OFFICIAL_CONNECTORS, dX as IntegrationActionGroup, bY as IntegrationActionButton, dY as IntegrationLifecycleToggleButton, dZ as IntegrationMoreMenu, U as Icon, ao as Trash2$1, au as cn, bj as AlertDialog, bk as AlertDialogContent, bl as AlertDialogHeader, bm as AlertDialogTitle, bn as AlertDialogDescription, bo as AlertDialogFooter, bp as AlertDialogCancel, bq as AlertDialogAction, c2 as ConnectorDialogFrame, bd as DialogHeader, bZ as ConnectorRelationshipGraphic, dV as ConnectorDialogScrollableBody, dH as ConnectorIcon, dP as CDN_CONNECTOR_CUSTOM, h8 as Plug, h9 as parseCustomMcpArguments, ha as normalizeCustomMcpServerInput, hb as CustomMcpValidationError, hc as CustomMcpCommandSyntaxError, hd as isReservedCustomMcpName, he as normalizeCustomMcpLaunch, be as DialogTitle, bf as DialogDescription, bK as Tabs, bL as TabsList, bM as TabsTrigger, eO as TabsContent, b$ as Label, hf as CUSTOM_MCP_NAME_MAX_LENGTH, X as Input, dQ as Select, dR as SelectTrigger, dS as SelectValue, dT as SelectContent, dU as SelectItem, eZ as Switch, av as ChevronDown, fn as Textarea, c1 as DialogFooter, hg as FASTMOSS_MCP_ENDPOINT, hh as FASTMOSS_SERVER_NAME, hi as FASTMOSS_API_KEYS_URL, o as usePlatform, dW as LocalFolderIcon, bU as LoaderCircle, dx as CircleAlert, hj as CDN_BLENDER_INSTALLER_WINDOWS_X64, hk as CDN_BLENDER_INSTALLER_MACOS_ARM64, bW as IntegrationStatusPill, d$ as Badge, bV as Download, bH as openExternalUrl, dg as ExternalLink, b2 as Check, bI as CatalogPageHeading, Q as Plus, fV as Box, hl as CDN_TOUCHDESIGNER_COMPONENTS, hm as Globe, hn as LibTvConnectorDialog, eE as Alert, eG as AlertDescription, S as PageStateBoundary, V as Search, ho as connectorReferenceFromServer, hp as FilterMenu, hq as FilterMenuTrigger, hr as FilterMenuContent, hs as FilterMenuGroup, ht as FilterMenuItem, c3 as KEY_MCP_PRESETS, hu as normalizePublicSkillShowcaseUrl, l as gatewayFetch, hv as normalizeSkillDetailMetadata, hw as normalizeSkillContentLocale, m as API_PATHS, hx as useSkillCategories, hy as selectSkillStructuredInfo, aG as Dialog, aH as DialogContent, hz as FileArchive, eF as AlertTitle, hA as RadioGroup, hB as RadioGroupItem, cP as Upload, ds as Info, eH as CircleCheck, hC as ImagePlusOutlineIcon, aZ as Video, gw as toDisplayName, gv as resolveSkillCoverUrl, gx as SkillCoverMedia, hD as Download$1, hE as formatDownloads, hF as getCardContext, hG as getSkillCategory, a_ as ImageOutlineIcon, hH as Music, hI as getTagDisplayName, bz as Tooltip, bA as TooltipTrigger, bC as TooltipContent, hJ as UPDATE_INDICATOR_STYLES, ev as Card, aN as SkillIcon, ew as CardContent, hK as CardFooter, hL as normalizeSkillCategoriesResponse, hM as useSortable, hN as CSS, hO as GripVertical, hP as useSensors, hQ as useSensor, hR as sortableKeyboardCoordinates, hS as KeyboardSensor, hT as PointerSensor, hU as Save, hV as DndContext, hW as closestCenter, hX as SortableContext, hY as verticalListSortingStrategy, eL as ChevronLeft, cZ as ChevronRight, eK as Settings2, cp as Checkbox, aS as FolderOpen, hZ as GatewayHttpError, h_ as CDN_TEMPLATE_PROJECT_WATERMARK_TOOL, h$ as CDN_TEMPLATE_PROJECT_RELIGHT, i0 as CDN_TEMPLATE_PROJECT_PANORAMA_VIEWER, i1 as CDN_TEMPLATE_PROJECT_N_STORYBOARD, i2 as CDN_TEMPLATE_PROJECT_MULTI_SHOT, i3 as CDN_TEMPLATE_PROJECT_3D_DIRECTOR, i4 as pluginEvents, fQ as useProjectArchiveActions, v as useStorage, i5 as SIDEBAR_TAB_STORAGE_KEY, aM as PluginIcon, i6 as pickLocalized, f1 as Eye$1, fP as Workflow, i7 as pluginTrackBase, i8 as trackPluginWorkflowClick, i9 as trackPluginWorkflowOpen, ia as trackPluginWorkflowOpenFailed, ib as mapCloudSkillDetail, ic as isSkillShowcaseUrl, id as CDN_SKILL_SHOWCASE_FALLBACK, fr as Pause, aK as Play$1, ie as ProgressBar, gr as VolumeX, gs as Volume2, ig as ImageOffOutlineIcon, cl as List, b_ as ArrowUpRight, fq as Package, ih as reactDomExports, ed as UserRound, aQ as MessageSquare, ii as detectSkillImportFileExt, ij as trackSkillImportFailed, ik as trackSkillImport, il as chatLog, aY as FileText, im as useWSConnection, io as readPendingAutoUpdate, ip as writePendingAutoUpdate, iq as clearPendingAutoUpdate, ir as trackPluginInstall, is as trackPluginInstallFailed, it as trackPluginUninstall, iu as trackPluginUninstallFailed, iv as trackSkillInstallFailed, iw as trackSkillInstallEvent, ix as showSkillInstallSuccessToast, iy as beginSkillApplyingToast, iz as trackSkillInvoke, iA as skillCategoryCodes, gC as skillVerticals, ax as useSearch, aF as useIsScrolling, iB as useSidebarBadges, iC as trackSkillMarketOpen, cd as useAuth, iD as trackSkillDetailView, iE as trackSkillFilter, gT as useMarketSkills, iF as FEATURED_MARKET_PAGE_SIZE, iG as OTHER_MARKET_PAGE_SIZE, iH as trackSkillTabSwitch, iI as trackSkillToggle, iJ as mapSkillSource, iK as trackSkillSearch, iL as trackSkillUninstall, iM as trackSkillUninstallFailed, iN as trackSkillExport, bG as getRuntimeConfig, iO as getSkillShareUrl, iP as trackSkillCreatorInvoke, iQ as trackSkillTry, bT as Link2, iR as SkillFilterBar, iS as FEATURED_TAG, dh as Popover, di as PopoverTrigger, dj as PopoverContent } from "./main.jsx";
-import { P as PageSearchInput, T as TAB_CONTENT_ENTER_CLASS_NAME } from "./index-eXcNLvyz.js";
-import { d as ConnectorDialogSummary, g as ConnectorSummaryAction, a as connectorSummaryActionLabelKey, i as ConnectorStatusPill, h as ConnectorPromptList, b as ConnectorPromptAction, c as connectorPromptActionLabelKey, C as ConnectorCardContent, A as ApiKeyConnectorDialog, f as ConnectorSetupSection, e as ConnectorDetailNotice, M as MarketplaceKeyConnectorDialog, j as MessageCircle } from "./MarketplaceKeyConnectorDialog-DJf8veqQ.js";
-import { E as Eye } from "./eye-CFw9EXGT.js";
-import { B as BadgeCheck } from "./badge-check-BDfEQW3b.js";
+import { mv as isValidSkillName, jh as useSettings, h as useTranslation, r as reactExports, a3 as dedupedToast, x as useNavigateToWorkspace, H as homeService, K as workspaceRuntimeFromOpenResult, l9 as toastWorkspaceOpenResult, mw as workspaceEvents, hm as useTheme, j as jsxRuntimeExports, j3 as ConnectorDialogFrame, gj as DialogHeader, j4 as ConnectorRelationshipGraphic, mx as CDN_BROWSER_START_ICON, j5 as ConnectorDialogScrollableBody, j9 as ConnectorSummaryAction, jg as IntegrationStatusPill, j2 as ConnectorPromptAction, iT as ConnectorIcon, kq as Switch, bo as Boxes, er as ScrollText, e as Icon, my as getMergedHcpCatalog, lu as OFFICIAL_CONNECTORS, mz as CustomConnectorDialog, ja as IntegrationActionGroup, jb as IntegrationActionButton, jc as IntegrationLifecycleToggleButton, jd as IntegrationMoreMenu, mA as StrokeIcon, am as Trash2, aj as PencilIcon, au as cn, jS as AlertDialog, jV as AlertDialogContent, jW as AlertDialogHeader, jX as AlertDialogTitle, jY as AlertDialogDescription, jZ as AlertDialogFooter, j_ as AlertDialogCancel, j$ as AlertDialogAction, gc as matchesLocalConnectorServer, mB as connectorTitle, j6 as ConnectorDetailNotice, j1 as connectorSummaryActionLabelKey, jf as ConnectorStatusPill, mC as localizedI18nText, iV as CDN_CONNECTOR_CUSTOM, eb as Plug, mD as LocalConnectorSetupContent, g7 as Badge, gC as CatalogPageHeading, fM as Button, Q as Plus, mE as useConnectorInventory, mF as useConnectorCatalog, mG as connectorDescription, k4 as Alert, k7 as AlertDescription, U as PageStateBoundary, mH as findOfficialConnectorForServer, S as Search, mI as LocalConnectorDialog, mJ as connectorReferenceFromServer, mK as FilterMenu, mL as FilterMenuTrigger, bE as ChevronDown, mM as FilterMenuContent, mN as FilterMenuGroup, mO as FilterMenuItem, g6 as getRuntimeConfig, gk as RetryIcon, X, mP as normalizePublicSkillShowcaseUrl, l as gatewayFetch, m as API_PATHS, mQ as normalizeSkillDetailMetadata, mR as normalizeSkillContentLocale, mS as selectSkillStructuredInfo, lT as toDisplayName, as as Dialog, at as DialogContent, g8 as DialogTitle, g9 as DialogDescription, kS as DialogFooter, mT as useSkillCategories, cq as FileArchive, k6 as AlertTitle, iX as Label, mU as RadioGroup, mV as RadioGroupItem, f0 as Upload, d5 as Info, iY as Select, iZ as SelectTrigger, i_ as SelectValue, i$ as SelectContent, j0 as SelectItem, bB as CheckCircle2, f as Input, kR as Textarea, d1 as ImagePlus, aP as Video, ft as Download, mW as formatDownloads, dy as MessageCircle, dl as Loader2, mX as getSkillCoverUrl, lU as SkillCoverMedia, fv as Eye, bd as BadgeCheck, jP as Card, ae as DropdownMenu, af as DropdownMenuTrigger, dJ as MoreHorizontal, ah as DropdownMenuContent, ai as DropdownMenuItem, lx as DropdownMenuSeparator, mY as normalizeSkillCategoriesResponse, mZ as useSortable, m_ as CSS, cV as GripVertical, m$ as useSensors, n0 as useSensor, n1 as sortableKeyboardCoordinates, n2 as KeyboardSensor, n3 as PointerSensor, eo as Save, n4 as DndContext, n5 as closestCenter, n6 as SortableContext, n7 as verticalListSortingStrategy, bG as ChevronLeft, bI as ChevronRight, o as usePlatform, gE as Tabs, gF as TabsList, gG as TabsTrigger, ew as Settings2, kf as TabsContent, hC as Checkbox, bz as Check, aG as FolderOpen, n8 as GatewayHttpError, n9 as CDN_TEMPLATE_PROJECT_WATERMARK_TOOL, na as CDN_TEMPLATE_PROJECT_RELIGHT, nb as CDN_TEMPLATE_PROJECT_PANORAMA_VIEWER, nc as CDN_TEMPLATE_PROJECT_N_STORYBOARD, nd as CDN_TEMPLATE_PROJECT_MULTI_SHOT, ne as CDN_TEMPLATE_PROJECT_3D_DIRECTOR, nf as pluginEvents, lc as useProjectArchiveActions, v as useStorage, ng as SIDEBAR_TAB_STORAGE_KEY, az as PluginIcon, nh as pickLocalized, cl as Eye$1, fi as Workflow, ni as pluginTrackBase, nj as trackPluginWorkflowClick, nk as trackPluginWorkflowOpen, nl as trackPluginWorkflowOpenFailed, cf as Download$1, nm as mapCloudSkillDetail, nn as isSkillShowcaseUrl, no as CDN_SKILL_SHOWCASE_FALLBACK, dZ as PlaybackPauseIcon, ax as PlaybackPlayIcon, np as ProgressBar, fa as VolumeX, f8 as Volume2, d0 as ImageOffOutlineIcon, dj as List, dk as ListChecks, b8 as ArrowUpRight, dQ as Package, nq as reactDomExports, f3 as UserRound, nr as UPDATE_INDICATOR_STYLES, gu as Tooltip, gv as TooltipTrigger, ex as Share2, gw as TooltipContent, aE as MessageSquare, ns as detectSkillImportFileExt, nt as trackSkillImportFailed, nu as trackSkillImport, nv as chatLog, aS as AlertCircle, aO as FileText, cy as FilePlus2, nw as useWSConnection, nx as readPendingAutoUpdate, ny as writePendingAutoUpdate, nz as clearPendingAutoUpdate, nA as trackPluginInstall, nB as trackPluginInstallFailed, nC as trackPluginUninstall, nD as trackPluginUninstallFailed, nE as trackSkillInstallFailed, nF as trackSkillInstallEvent, nG as showSkillInstallSuccessToast, nH as beginSkillApplyingToast, nI as trackSkillInvoke, nJ as skillCategoryCodes, lZ as skillVerticals, fT as useSearch, ar as useIsScrolling, nK as useSidebarBadges, nL as trackSkillMarketOpen, hv as useAuth, nM as trackSkillDetailView, nN as trackSkillFilter, mf as useMarketSkills, nO as FEATURED_MARKET_PAGE_SIZE, nP as OTHER_MARKET_PAGE_SIZE, nQ as trackSkillTabSwitch, nR as trackSkillToggle, nS as mapSkillSource, nT as trackSkillSearch, nU as trackSkillUninstall, nV as trackSkillUninstallFailed, nW as trackSkillExport, nX as getSkillShareUrl, nY as trackSkillCreatorInvoke, nZ as trackSkillTry, aA as SkillIcon, di as Link2, gM as TAB_CONTENT_ENTER_CLASS_NAME, d3 as Import, n_ as SkillFilterBar, ck as ExternalLink, n$ as FEATURED_TAG, it as Popover, iu as PopoverTrigger, iv as PopoverContent } from "./main.jsx";
+import { P as PageSearchInput } from "./index-CCILjxtP.js";
+import { a as ConnectorDialogSummary, c as ConnectorPromptList, C as ConnectorCardContent, b as buildConnectorCatalog, i as isWebApiConnector, d as isLocalConnector } from "./connector-catalog-data-DiTljgxj.js";
+const HCP_CATEGORIES = [
+  "design-3d",
+  "design-2d",
+  "video-audio",
+  "cloud-storage",
+  "office-docs",
+  "ecommerce",
+  "data-research",
+  "enterprise",
+  "other"
+];
 const SKILL_REVIEW_LIMITS = {
   zh: {
     displayNameMin: 2,
@@ -115,184 +124,38 @@ function validateReviewMetadata(metadata, existingSkillName) {
   if (!metadata.hasPackage) errors.hasPackage = required;
   return errors;
 }
-const Clapperboard = createLucideIcon("clapperboard", [["path", { "fill": "none", "stroke": "currentColor", "strokeLinecap": "round", "strokeLinejoin": "round", "strokeWidth": "2", "d": "M20.2 6L3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Zm-14-.7l3.1 3.9m3.1-5.8l3.1 4M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" }]], "0 0 24 24", false);
-const Film = createLucideIcon("film", [["rect", { "width": "18", "height": "18", "x": "3", "y": "3", "rx": "2" }], ["path", { "d": "M7 3v18M3 7.5h4M3 12h18M3 16.5h4M17 3v18m0-13.5h4m-4 9h4" }]], "0 0 24 24", false);
-const Headphones = createLucideIcon("headphones", [["path", { "fill": "none", "stroke": "currentColor", "strokeLinecap": "round", "strokeLinejoin": "round", "strokeWidth": "2", "d": "M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" }]], "0 0 24 24", false);
-const Megaphone = createLucideIcon("megaphone", [["path", { "d": "M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" }], ["path", { "d": "M6 14a12 12 0 0 0 2.4 7.2a2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14M8 6v8" }]], "0 0 24 24", false);
-const Play = createLucideIcon("play", [["path", { "fill": "none", "stroke": "currentColor", "strokeLinecap": "round", "strokeLinejoin": "round", "strokeWidth": "2", "d": "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" }]], "0 0 24 24", false);
-const Share2$1 = createLucideIcon("share-2", [["circle", { "cx": "18", "cy": "5", "r": "3" }], ["circle", { "cx": "6", "cy": "12", "r": "3" }], ["circle", { "cx": "18", "cy": "19", "r": "3" }], ["path", { "d": "m8.59 13.51l6.83 3.98m-.01-10.98l-6.82 3.98" }]], "0 0 24 24", false);
-const ShoppingBag = createLucideIcon("shopping-bag", [["path", { "d": "M16 10a4 4 0 0 1-8 0M3.103 6.034h17.794" }], ["path", { "d": "M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z" }]], "0 0 24 24", false);
-const Trash2 = createLucideIcon("trash-2", [["path", { "fill": "none", "stroke": "currentColor", "strokeLinecap": "round", "strokeLinejoin": "round", "strokeWidth": "2", "d": "M10 11v6m4-6v6m5-11v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" }]], "0 0 24 24", false);
-const Wrench = createLucideIcon("wrench", [["path", { "fill": "none", "stroke": "currentColor", "strokeLinecap": "round", "strokeLinejoin": "round", "strokeWidth": "2", "d": "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" }]], "0 0 24 24", false);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ChartNoAxesCombined = createLucideIcon$1("ChartNoAxesCombined", [
-  ["path", { d: "M12 16v5", key: "zza2cw" }],
-  ["path", { d: "M16 14v7", key: "1g90b9" }],
-  ["path", { d: "M20 10v11", key: "1iqoj0" }],
-  [
-    "path",
-    { d: "m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15", key: "1fw8x9" }
-  ],
-  ["path", { d: "M4 18v3", key: "1yp0dc" }],
-  ["path", { d: "M8 14v7", key: "n3cwzv" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const FilePlus2 = createLucideIcon$1("FilePlus2", [
-  ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4", key: "1pf5j1" }],
-  ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
-  ["path", { d: "M3 15h6", key: "4e2qda" }],
-  ["path", { d: "M6 12v6", key: "1u72j0" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Import = createLucideIcon$1("Import", [
-  ["path", { d: "M12 3v12", key: "1x0j5s" }],
-  ["path", { d: "m8 11 4 4 4-4", key: "1dohi6" }],
-  [
-    "path",
-    {
-      d: "M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4",
-      key: "1ywtjm"
-    }
-  ]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const ListChecks = createLucideIcon$1("ListChecks", [
-  ["path", { d: "m3 17 2 2 4-4", key: "1jhpwq" }],
-  ["path", { d: "m3 7 2 2 4-4", key: "1obspn" }],
-  ["path", { d: "M13 6h8", key: "15sg57" }],
-  ["path", { d: "M13 12h8", key: "h98zly" }],
-  ["path", { d: "M13 18h8", key: "oe0vm4" }]
-]);
-/**
- * @license lucide-react v0.468.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const Share2 = createLucideIcon$1("Share2", [
-  ["circle", { cx: "18", cy: "5", r: "3", key: "gq8acd" }],
-  ["circle", { cx: "6", cy: "12", r: "3", key: "w7nqdw" }],
-  ["circle", { cx: "18", cy: "19", r: "3", key: "1xt0gg" }],
-  ["line", { x1: "8.59", x2: "15.42", y1: "13.51", y2: "17.49", key: "47mynk" }],
-  ["line", { x1: "15.41", x2: "8.59", y1: "6.51", y2: "10.49", key: "1n3mei" }]
-]);
-const EXIT_DURATION_MS = 220;
-function AutoUpdateBanner({
-  pending,
-  restarting,
-  onRestart,
-  onDismiss
-}) {
+function useBrowserConnector() {
+  const { config, set } = useSettings();
   const { t } = useTranslation();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      "data-action-ui-id": "skills-auto-update-banner",
-      className: "flex w-full items-center gap-3 rounded-lg bg-brand-accent/[0.04] p-2.5",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 text-brand-accent", children: /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 16, className: restarting ? "animate-spin" : "" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1 text-sm font-medium text-foreground", children: restarting ? t("skills.autoUpdateBanner.restarting") : t("skills.autoUpdateBanner.completed", { count: pending.updatedCount }) }),
-        !restarting && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            variant: "ghost",
-            size: "icon-xs",
-            "data-action-ui-id": "skills-auto-update-dismiss",
-            "aria-label": t("common.close"),
-            className: "h-6 w-6 text-muted-foreground hover:text-foreground",
-            onClick: onDismiss,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12, strokeWidth: 1.5 })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            "data-action-ui-id": "skills-auto-update-restart",
-            variant: "secondary",
-            size: "xs",
-            className: "h-7 border-0 bg-brand-accent px-3 text-xs font-medium text-brand-accent-foreground hover:bg-brand-accent/90",
-            onClick: onRestart,
-            disabled: restarting,
-            children: t("skills.autoUpdateBanner.restartNow")
-          }
-        )
-      ]
+  const [pending, setPending] = reactExports.useState(false);
+  const inFlight = reactExports.useRef(false);
+  const handleEnabledChange = async (enabled) => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setPending(true);
+    try {
+      if (!await set("browserConnectorEnabled", enabled)) {
+        dedupedToast.error(t("connectors.browser.saveFailed", "无法更新浏览器连接器设置，请重试"));
+      }
+    } catch {
+      dedupedToast.error(t("connectors.browser.saveFailed", "无法更新浏览器连接器设置，请重试"));
+    } finally {
+      inFlight.current = false;
+      setPending(false);
     }
-  );
-}
-function AutoUpdateBannerPresence({
-  pending,
-  restarting,
-  onRestart,
-  onDismiss
-}) {
-  const [renderedPending, setRenderedPending] = reactExports.useState(pending);
-  const [expanded, setExpanded] = reactExports.useState(Boolean(pending));
-  reactExports.useEffect(() => {
-    if (pending) {
-      setRenderedPending(pending);
-      const frame = window.requestAnimationFrame(() => setExpanded(true));
-      return () => window.cancelAnimationFrame(frame);
-    }
-    setExpanded(false);
-    const timeout = window.setTimeout(() => setRenderedPending(null), EXIT_DURATION_MS);
-    return () => window.clearTimeout(timeout);
-  }, [pending]);
-  if (!renderedPending) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      "data-layout-slot": "skills-auto-update-presence",
-      "data-state": expanded ? "open" : "closed",
-      className: `grid transition-[grid-template-rows,opacity] duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${expanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: `pb-3 transition-transform duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${expanded ? "translate-y-0" : "-translate-y-1"}`,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            AutoUpdateBanner,
-            {
-              pending: renderedPending,
-              restarting,
-              onRestart,
-              onDismiss
-            }
-          )
-        }
-      ) })
-    }
-  );
+  };
+  return { enabled: config.browserConnectorEnabled !== false, pending, handleEnabledChange };
 }
 function useTryConnector() {
   const { t } = useTranslation();
   const navigateToWorkspace = useNavigateToWorkspace();
   const [trying, setTrying] = reactExports.useState(false);
   const tryConnector = reactExports.useCallback(
-    async (connector2, prompt) => {
+    async (connector, prompt) => {
       if (trying) return;
       setTrying(true);
       try {
-        const workspacePrompt = prompt?.trim() || connector2.displayName;
+        const workspacePrompt = prompt?.trim() || connector.displayName;
         const result = await homeService.hiloApp.createWorkspaceWithResult(workspacePrompt).catch(() => null);
         if (!result) {
           dedupedToast.error(t("skills.tryItOutFailed"));
@@ -303,7 +166,7 @@ function useTryConnector() {
           toastWorkspaceOpenResult(result, t);
           return;
         }
-        workspaceEvents.queueAddConnectorToChat(runtime.workspaceId, connector2, prompt ?? "");
+        workspaceEvents.queueAddConnectorToChat(runtime.workspaceId, connector, prompt ?? "");
         navigateToWorkspace(runtime);
       } finally {
         setTrying(false);
@@ -313,44 +176,379 @@ function useTryConnector() {
   );
   return { tryConnector, trying };
 }
-function ConnectorManagementActions({
-  connector: connector2,
-  actionIdPrefix,
-  className,
-  onUpdated,
-  onRemoved
+function useTryBrowserTask() {
+  const { t } = useTranslation();
+  const navigateToWorkspace = useNavigateToWorkspace();
+  const inFlight = reactExports.useRef(false);
+  const [trying, setTrying] = reactExports.useState(false);
+  const tryBrowserTask = async (prompt) => {
+    if (inFlight.current) return false;
+    inFlight.current = true;
+    setTrying(true);
+    try {
+      const result = await homeService.hiloApp.createWorkspaceWithResult(prompt);
+      const runtime = workspaceRuntimeFromOpenResult(result);
+      if (!runtime) {
+        toastWorkspaceOpenResult(result, t);
+        return false;
+      }
+      await navigateToWorkspace(runtime, { skillPrompt: prompt });
+      return true;
+    } catch {
+      dedupedToast.error(t("skills.tryItOutFailed"));
+      return false;
+    } finally {
+      inFlight.current = false;
+      setTrying(false);
+    }
+  };
+  return { tryBrowserTask, trying };
+}
+function BrowserConnectorDetailDialog({
+  title,
+  description,
+  enabled,
+  pending,
+  onEnabledChange,
+  onClose
 }) {
   const { t } = useTranslation();
-  const [pendingAction, setPendingAction] = reactExports.useState(null);
+  const { resolved } = useTheme();
+  const { tryBrowserTask, trying } = useTryBrowserTask();
+  const busy = pending || trying;
+  const status = t(enabled ? "connectors.browser.enabled" : "connectors.browser.disabled");
+  const handlePrompt = async (prompt) => {
+    if (busy) return;
+    if (!enabled) {
+      await onEnabledChange(true);
+      return;
+    }
+    if (await tryBrowserTask(prompt)) onClose();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    ConnectorDialogFrame,
+    {
+      open: true,
+      onOpenChange: (open) => !open && onClose(),
+      actionUiId: "connector-browser-detail-dialog",
+      closeActionUiId: "connector-browser-detail-close",
+      closeLabel: t("common.close"),
+      size: "md",
+      stableHeight: true,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "shrink-0 items-center px-4 pt-8 text-center sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorRelationshipGraphic, { targetIconUrl: CDN_BROWSER_START_ICON[resolved] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(ConnectorDialogScrollableBody, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center px-4 sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ConnectorDialogSummary,
+            {
+              title,
+              description,
+              status: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                IntegrationStatusPill,
+                {
+                  label: status,
+                  tone: enabled ? "neutral" : "muted",
+                  markerTone: enabled ? "success" : "muted",
+                  markerLabel: status
+                }
+              ),
+              actions: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ConnectorSummaryAction,
+                {
+                  mode: "connect",
+                  label: enabled ? status : t("connectors.browser.enable"),
+                  loading: pending,
+                  disabled: enabled || busy,
+                  onClick: () => void onEnabledChange(true),
+                  "data-action-ui-id": "connector-browser-detail-enable"
+                }
+              )
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ConnectorPromptList,
+            {
+              title: t("connectors.detail.trySection"),
+              description: t("connectors.detail.tryDescription"),
+              actionUiId: "connector-browser-detail-prompts",
+              items: [0, 1, 2].map((index) => {
+                const key = `connectors.detail.browser.prompt.${index}`;
+                const prompt = t(key);
+                return {
+                  key,
+                  title: t(`connectors.detail.browser.promptTitle.${index}`),
+                  description: prompt,
+                  muted: !enabled,
+                  action: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    ConnectorPromptAction,
+                    {
+                      mode: enabled ? "ready" : "requiresEnable",
+                      label: t(
+                        enabled ? "connectors.detail.tryInChat" : "connectors.browser.enableToUse"
+                      ),
+                      disabled: busy,
+                      onClick: () => void handlePrompt(prompt),
+                      "data-action-ui-id": `connector-browser-detail-prompt-${index}`
+                    }
+                  )
+                };
+              })
+            }
+          )
+        ] })
+      ]
+    }
+  );
+}
+function BrowserConnectorCard({
+  title,
+  description,
+  enabled,
+  pending,
+  onEnabledChange
+}) {
+  const { t } = useTranslation();
+  const { resolved } = useTheme();
+  const [detailOpen, setDetailOpen] = reactExports.useState(false);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "article",
+      {
+        className: "relative flex min-h-40 flex-col rounded-2xl border border-border bg-card p-5",
+        "data-action-ui-id": "connectors-browser-card",
+        "data-connector-id": "browser",
+        "aria-busy": pending,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              className: "absolute inset-0 z-0 cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "aria-label": t("connectors.browser.details"),
+              "data-action-ui-id": "connectors-browser-details",
+              onClick: () => setDetailOpen(true)
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-none relative flex items-start justify-between gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ConnectorIcon,
+              {
+                size: "card",
+                className: "bg-transparent",
+                fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: CDN_BROWSER_START_ICON[resolved],
+                    alt: "",
+                    className: "size-full",
+                    draggable: false
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "pointer-events-auto relative z-10 flex min-h-10 items-center gap-2",
+                "data-layout-slot": "connector-card-controls",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: enabled ? t("connectors.browser.enabled", "已开启") : t("connectors.browser.disabled", "已关闭") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Switch,
+                    {
+                      className: "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+                      checked: enabled,
+                      disabled: pending,
+                      onCheckedChange: (checked) => void onEnabledChange(checked),
+                      "aria-label": t("connectors.browser.toggle", "允许 Agent 使用浏览器"),
+                      "data-action-ui-id": "connectors-browser-toggle"
+                    }
+                  )
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pointer-events-none relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorCardContent, { title, description }) })
+        ]
+      }
+    ),
+    detailOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BrowserConnectorDetailDialog,
+      {
+        title,
+        description,
+        enabled,
+        pending,
+        onEnabledChange,
+        onClose: () => setDetailOpen(false)
+      }
+    ) : null
+  ] });
+}
+function CapabilityRow({
+  item,
+  fallbackIcon
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-start gap-3 py-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "span",
+      {
+        "aria-hidden": true,
+        className: "flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary",
+        children: item.iconUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorIcon, { iconUrl: item.iconUrl, size: "card" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: fallbackIcon, size: "sm", className: "text-muted-foreground" })
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "min-w-0 flex-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block truncate text-sm font-medium text-foreground", children: item.title }),
+      item.description ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mt-0.5 line-clamp-1 block text-[13px] leading-relaxed text-muted-foreground", children: item.description }) : null
+    ] })
+  ] });
+}
+function ConnectorCapabilityList({ app, skills }) {
+  const { t } = useTranslation();
+  if (!app && skills.length === 0) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", "data-layout-slot": "connector-capability-content", children: [
+    app ? /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "relative pt-5 pl-2 pr-1 sm:pl-3 sm:pr-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          "aria-hidden": "true",
+          className: "absolute inset-x-4 top-0 border-t border-border-soft"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-1 px-4 font-heading text-sm font-medium text-foreground", children: t("connectors.detail.appSection", "Application") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CapabilityRow, { item: app, fallbackIcon: Boxes }) })
+    ] }) : null,
+    skills.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "relative pt-5 pl-2 pr-1 sm:pl-3 sm:pr-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          "aria-hidden": "true",
+          className: "absolute inset-x-4 top-0 border-t border-border-soft"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-1 px-4 font-heading text-sm font-medium text-foreground", children: t("connectors.detail.skillsSection", "Skills") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-border-soft px-4", children: skills.map((skill) => /* @__PURE__ */ jsxRuntimeExports.jsx(CapabilityRow, { item: skill, fallbackIcon: ScrollText }, skill.key)) })
+    ] }) : null
+  ] });
+}
+function localizedCapabilityText(text, language) {
+  return language.toLowerCase().startsWith("zh") ? text.zh : text.en;
+}
+function profileFromManifest(manifest) {
+  if (manifest.auth.kind !== "hubOAuthProfile") return void 0;
+  const { profile } = manifest.auth;
+  const mcp = manifest.capabilities.mcp;
+  const flow = profile.flow ?? {};
+  const generic = profile.credentialFileFormat === "generic-oauth-json";
+  const credentialFields = Object.fromEntries(
+    (profile.requiredInputs ?? []).filter((input) => input.credentialField).map((input) => [input.key, input.credentialField])
+  );
+  return {
+    id: manifest.connectorId,
+    serverName: mcp?.serverName ?? manifest.connectorId,
+    authorizationEndpoint: profile.authorizationEndpoint,
+    tokenEndpoint: profile.tokenEndpoint,
+    scope: profile.scope,
+    ...profile.authorizationParams ? { authorizationParams: profile.authorizationParams } : {},
+    ...flow.scopeSeparator ? { scopeSeparator: flow.scopeSeparator } : {},
+    ...flow.pkce !== void 0 ? { pkce: flow.pkce } : {},
+    ...flow.tokenExchange ? { tokenExchange: flow.tokenExchange } : {},
+    ...flow.loopback ? { loopback: flow.loopback } : {},
+    ...flow.allowManualToken !== void 0 ? { allowManualToken: flow.allowManualToken } : {},
+    ...flow.docsUrl ? { docsUrl: flow.docsUrl } : {},
+    // generic-oauth-json always writes one file; google keeps the two-file
+    // default (credentialFileName unset).
+    ...generic ? { credentialFileName: profile.credentialFileName ?? "credentials.json" } : {},
+    ...Object.keys(credentialFields).length > 0 ? { credentialFields } : {},
+    clientIdEnv: profile.clientIdEnv,
+    // Relay exchange keeps the client secret server-side; a client that never
+    // swaps the code must not carry (or resolve) one, even if the manifest
+    // names an env var.
+    ...flow.tokenExchange === "relay" ? {} : { clientSecretEnv: profile.clientSecretEnv },
+    ...profile.requiredInputs?.length ? {
+      requiredInputs: profile.requiredInputs.map((input) => input.key),
+      ...profile.requiredInputs.some((input) => input.pattern) ? {
+        requiredInputPatterns: Object.fromEntries(
+          profile.requiredInputs.filter((input) => input.pattern).map((input) => [input.key, input.pattern])
+        )
+      } : {}
+    } : {}
+  };
+}
+function findCustomMcpOAuthProfileByName(name) {
+  const normalized = name.trim().toLowerCase();
+  for (const manifest of getMergedHcpCatalog()) {
+    const profile = profileFromManifest(manifest);
+    if (profile && profile.serverName.toLowerCase() === normalized) return profile;
+  }
+  return void 0;
+}
+function ConnectorManagementActions({
+  connector,
+  actionIdPrefix,
+  className,
+  retryAvailable = false,
+  onUpdated,
+  onRemoved,
+  editable = false
+}) {
+  const { t } = useTranslation();
+  const [pendingAction, setPendingAction] = reactExports.useState(
+    null
+  );
   const busy = reactExports.useRef(false);
   const [removalOpen, setRemovalOpen] = reactExports.useState(false);
   const [error, setError] = reactExports.useState();
-  const isManagedLibTv = OFFICIAL_CONNECTORS.libtv.matches(connector2);
-  const canAuthorize = connector2.enabled && isManagedLibTv;
+  const [editSnapshot, setEditSnapshot] = reactExports.useState();
+  const editRequest = reactExports.useRef(0);
+  reactExports.useEffect(
+    () => () => {
+      editRequest.current += 1;
+    },
+    []
+  );
+  const handleEdit = async () => {
+    if (busy.current) return;
+    busy.current = true;
+    setPendingAction("edit");
+    const request = ++editRequest.current;
+    try {
+      const snapshot = await homeService.customMcp.getForEdit(connector.name);
+      if (request !== editRequest.current) return;
+      if (snapshot) setEditSnapshot(snapshot);
+      else dedupedToast.error(t("connectors.customDialog.error.server_not_found"));
+    } catch {
+      if (request === editRequest.current)
+        dedupedToast.error(t("connectors.customDialog.error.loadFailed"));
+    } finally {
+      if (request === editRequest.current) {
+        busy.current = false;
+        setPendingAction(null);
+      }
+    }
+  };
+  const isManagedLibTv = OFFICIAL_CONNECTORS.libtv.matches(connector);
+  const canAuthorize = connector.enabled && isManagedLibTv;
   const handleEnabledChange = async (enabled, action) => {
     if (busy.current) return;
     busy.current = true;
     setPendingAction(action);
     try {
-      if (enabled && isManagedLibTv) {
-        const result2 = await homeService.customMcp.prepareRemoteConnector({
-          connectorId: "libtv",
-          action: "authorize"
-        });
-        const latest = (await homeService.customMcp.list()).find(
-          (server) => server.name === connector2.name
-        );
-        if (latest) onUpdated(latest);
-        if (!result2.ok || !result2.mcpConnected)
-          dedupedToast.error(
-            t(
-              result2.code === "runtime_unavailable" ? "connectors.libtv.runtimeRequired" : result2.code === "busy" ? "connectors.libtv.busy" : "connectors.libtv.failed"
-            )
-          );
+      if (enabled && action === "retry" && isManagedLibTv) {
+        const result2 = await homeService.customMcp.authorizeServer(connector.name);
+        if (!result2.ok) {
+          if (result2.code !== "authorization_cancelled")
+            dedupedToast.error(t(`connectors.customDialog.error.${result2.code}`));
+          return;
+        }
+        onUpdated(result2.server);
         return;
       }
-      const result = await homeService.customMcp.setEnabled(connector2.name, enabled);
+      const reauthorize = enabled && action === "retry" && Boolean(findCustomMcpOAuthProfileByName(connector.name));
+      const result = reauthorize ? await homeService.customMcp.authorize(connector.name) : await homeService.customMcp.setEnabled(connector.name, enabled);
       if (!result.ok) {
+        if (result.code === "authorization_cancelled") return;
         dedupedToast.error(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
@@ -373,15 +571,21 @@ function ConnectorManagementActions({
     setPendingAction("remove");
     setError(void 0);
     try {
-      const result = await homeService.customMcp.remove(connector2.name);
+      const cliAuthManifest = getMergedHcpCatalog().find(
+        (manifest) => manifest.auth.kind === "cliAuth" && matchesLocalConnectorServer(connector, manifest.connectorId)
+      );
+      if (cliAuthManifest) {
+        await homeService.hcpCli.revoke(cliAuthManifest.connectorId).catch(() => void 0);
+      }
+      const result = await homeService.customMcp.remove(connector.name);
       if (result.removed || result.code === "server_not_found") {
         setRemovalOpen(false);
-        onRemoved(connector2.name);
+        onRemoved(connector.name);
         return;
       }
       setError(t(`connectors.removeError.${result.code}`));
       const servers = await homeService.customMcp.list();
-      const latest = servers.find((server) => server.name === connector2.name);
+      const latest = servers.find((server) => server.name === connector.name);
       if (latest) onUpdated(latest);
     } catch {
       setError(t("connectors.customDialog.error.requestFailed"));
@@ -391,6 +595,23 @@ function ConnectorManagementActions({
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    editSnapshot ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CustomConnectorDialog,
+      {
+        open: true,
+        initialInput: editSnapshot.input,
+        onOpenChange: (open) => {
+          if (!open) setEditSnapshot(void 0);
+        },
+        onSubmit: (input) => homeService.customMcp.update(editSnapshot.input.name, input, editSnapshot.revision),
+        onCreated: (result) => {
+          onUpdated(result.server);
+          if (result.runtime.state === "failed" || result.runtime.state === "partial")
+            dedupedToast.warning(t("connectors.customDialog.updated.failed"));
+          else dedupedToast.success(t("connectors.customDialog.updated.saved"));
+        }
+      }
+    ) : null,
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       IntegrationActionGroup,
       {
@@ -398,14 +619,14 @@ function ConnectorManagementActions({
         onClick: (event) => event.stopPropagation(),
         "data-layout-slot": "connector-management-actions",
         children: [
-          canAuthorize || connector2.runtimeState === "failed" || connector2.runtimeState === "partial" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          retryAvailable || canAuthorize || connector.runtimeState === "failed" || connector.runtimeState === "partial" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
             IntegrationActionButton,
             {
               variant: "outline",
               disabled: pendingAction !== null,
               loading: pendingAction === "retry",
               className: "bg-transparent",
-              onClick: () => void handleEnabledChange(connector2.enabled, "retry"),
+              onClick: () => void handleEnabledChange(connector.enabled, "retry"),
               "data-action-ui-id": `${actionIdPrefix}-retry`,
               children: t(canAuthorize ? "connectors.libtv.authorize" : "common.retry")
             }
@@ -413,12 +634,12 @@ function ConnectorManagementActions({
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             IntegrationLifecycleToggleButton,
             {
-              inactive: !connector2.enabled,
+              inactive: !connector.enabled,
               activeLabel: t("connectors.stop"),
               inactiveLabel: t("connectors.start"),
               disabled: pendingAction !== null,
               loading: pendingAction === "toggle",
-              onClick: () => void handleEnabledChange(!connector2.enabled, "toggle"),
+              onClick: () => void handleEnabledChange(!connector.enabled, "toggle"),
               className: "w-auto min-w-20 max-w-none px-3",
               "data-action-ui-id": `${actionIdPrefix}-toggle`
             }
@@ -429,8 +650,16 @@ function ConnectorManagementActions({
               disabled: pendingAction !== null,
               triggerClassName: "bg-transparent",
               triggerLabel: t("common.more"),
+              additionalActions: editable ? [
+                {
+                  label: t("connectors.editConfiguration"),
+                  icon: /* @__PURE__ */ jsxRuntimeExports.jsx(StrokeIcon, { icon: PencilIcon, size: 16 }),
+                  actionUiId: `${actionIdPrefix}-edit`,
+                  onAction: handleEdit
+                }
+              ] : void 0,
               actionLabel: t("connectors.removeConnection"),
-              actionIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Trash2$1, size: "sm", strokeWidth: 1.5, "aria-hidden": true }),
+              actionIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(StrokeIcon, { icon: Trash2, size: 14 }),
               onAction: () => {
                 setError(void 0);
                 setRemovalOpen(true);
@@ -455,7 +684,7 @@ function ConnectorManagementActions({
         },
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { onClick: (event) => event.stopPropagation(), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: t("connectors.removeTitle", { name: connector2.name }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: t("connectors.removeTitle", { name: connector.name }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: t("connectors.removeDescription") })
           ] }),
           error ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-xs text-destructive", children: error }) : null,
@@ -478,12 +707,14 @@ function ConnectorManagementActions({
   ] });
 }
 function toConnectorDisplayState(runtimeState) {
-  if (runtimeState === "saved") return "connected";
-  if (runtimeState === "partial") return "failed";
+  if (runtimeState === "partial" || runtimeState === "failed") return "saved";
   return runtimeState;
 }
+function isConnectorUsable(state) {
+  return state === "connected" || state === "saved";
+}
 function ConnectorDetailDialog({
-  connector: connector2,
+  connector,
   savedServer,
   onClose,
   onConnect,
@@ -492,18 +723,18 @@ function ConnectorDetailDialog({
   onRemoved,
   setupContent
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showingSetup, setShowingSetup] = reactExports.useState(false);
   const [setupBusy, setSetupBusy] = reactExports.useState(false);
+  const [authorizing, setAuthorizing] = reactExports.useState(false);
+  const [authorizeError, setAuthorizeError] = reactExports.useState();
   const runtimeState = savedServer?.runtimeState;
   const displayState = runtimeState ? toConnectorDisplayState(runtimeState) : void 0;
   const hasSavedConnection = Boolean(savedServer);
-  const isReady = displayState === "connected" || hasSavedConnection;
-  const needsAttention = displayState === "failed";
-  const suggestionsDisabled = needsAttention || savedServer?.enabled === false;
-  const suggestionsMuted = needsAttention || savedServer?.enabled === false;
-  const connectorName = t(connector2.titleKey);
-  const promptActionMode = needsAttention ? "requiresRecovery" : savedServer?.enabled === false ? "requiresEnable" : isReady ? "ready" : "requiresConnection";
+  const needsAuthorization = displayState === "needs_auth";
+  const isReady = (displayState === "connected" || hasSavedConnection) && !needsAuthorization;
+  const language = i18n?.language ?? "en";
+  const connectorName = connectorTitle(t, language, connector.id, connector.titleText);
   const handleConnect = () => {
     if (setupContent) {
       setShowingSetup(true);
@@ -511,12 +742,25 @@ function ConnectorDetailDialog({
     }
     onConnect();
   };
-  const handlePromptClick = (text) => {
-    if (isReady) {
-      onTry(text);
-      return;
+  const handleAuthorize = async (name) => {
+    if (authorizing) return;
+    setAuthorizing(true);
+    setAuthorizeError(void 0);
+    try {
+      const result = await homeService.customMcp.authorizeServer(name);
+      if (!result.ok) {
+        setAuthorizeError(t(`connectors.customDialog.error.${result.code}`));
+        return;
+      }
+      onUpdated(result.server);
+    } catch {
+      setAuthorizeError(t("connectors.customDialog.error.requestFailed"));
+    } finally {
+      setAuthorizing(false);
     }
-    handleConnect();
+  };
+  const handlePromptClick = (text) => {
+    onTry(text);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     ConnectorDialogFrame,
@@ -526,7 +770,7 @@ function ConnectorDetailDialog({
       actionUiId: showingSetup ? "connector-setup-dialog" : "connector-detail-dialog",
       closeLabel: t("common.close"),
       size: "md",
-      stableHeight: !showingSetup && connector2.detail.examplePrompts.length > 0,
+      stableHeight: !showingSetup && connector.detail.examplePrompts.length > 0,
       showCloseButton: !setupBusy,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
@@ -535,13 +779,17 @@ function ConnectorDetailDialog({
           "data-layout-slot": "connector-dialog-view",
           "data-view": showingSetup ? "setup" : "detail",
           children: showingSetup && setupContent ? setupContent(setSetupBusy) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "shrink-0 items-center px-4 pt-8 text-center sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorRelationshipGraphic, { targetIconUrl: connector2.detail.iconUrl }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "shrink-0 items-center px-4 pt-8 text-center sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorRelationshipGraphic, { targetIconUrl: connector.detail.iconUrl }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(ConnectorDialogScrollableBody, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center px-4 sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 ConnectorDialogSummary,
                 {
                   title: connectorName,
-                  description: t(connector2.detail.descriptionKey),
+                  description: t(
+                    connector.detail.descriptionKey,
+                    localizedI18nText(connector.detail.descriptionText, language)
+                  ),
+                  origin: connector.origin,
                   status: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorStatusPill, { state: displayState ?? "notConnected" }),
                   actions: !hasSavedConnection ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                     ConnectorSummaryAction,
@@ -552,7 +800,18 @@ function ConnectorDetailDialog({
                       "data-action-ui-id": "connector-detail-connect"
                     }
                   ) : savedServer ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    displayState === "connected" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    needsAuthorization ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ConnectorSummaryAction,
+                      {
+                        mode: "authorize",
+                        label: t(connectorSummaryActionLabelKey.authorize),
+                        loading: authorizing,
+                        disabled: authorizing,
+                        onClick: () => void handleAuthorize(savedServer.name),
+                        "data-action-ui-id": "connector-detail-authorize"
+                      }
+                    ) : null,
+                    isConnectorUsable(displayState) ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                       ConnectorSummaryAction,
                       {
                         mode: "try",
@@ -570,10 +829,35 @@ function ConnectorDetailDialog({
                         onRemoved
                       }
                     )
-                  ] }) : null
+                  ] }) : null,
+                  children: needsAuthorization ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    ConnectorDetailNotice,
+                    {
+                      description: authorizeError ?? t("connectors.detail.needsAuthNotice"),
+                      tone: authorizeError ? "error" : "warning",
+                      actionUiId: "connector-detail-authorize-notice"
+                    }
+                  ) : null
                 }
               ) }),
-              connector2.detail.examplePrompts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ConnectorCapabilityList,
+                {
+                  ...connector.detail.app ? {
+                    app: {
+                      key: "app",
+                      title: connector.detail.app.name,
+                      iconUrl: connector.detail.app.iconUrl
+                    }
+                  } : {},
+                  skills: (connector.detail.skills ?? []).map((skill) => ({
+                    key: skill.key,
+                    title: skill.displayName ? localizedCapabilityText(skill.displayName, i18n.language) : skill.name,
+                    ...skill.description ? { description: skill.description } : {}
+                  }))
+                }
+              ),
+              connector.detail.examplePrompts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 ConnectorPromptList,
                 {
                   title: t(
@@ -582,19 +866,23 @@ function ConnectorDetailDialog({
                   description: t(
                     isReady ? "connectors.detail.tryDescription" : "connectors.detail.previewDescription"
                   ),
-                  items: connector2.detail.examplePrompts.map((prompt) => {
-                    const text = t(prompt.key);
+                  items: connector.detail.examplePrompts.map((prompt) => {
+                    const text = t(
+                      prompt.key,
+                      prompt.text ? localizedI18nText(prompt.text, i18n.language) : ""
+                    );
                     return {
                       key: prompt.key,
-                      title: prompt.titleKey ? t(prompt.titleKey) : void 0,
+                      title: prompt.titleKey ? t(
+                        prompt.titleKey,
+                        prompt.titleText ? localizedI18nText(prompt.titleText, i18n.language) : ""
+                      ) : void 0,
                       description: text,
-                      muted: suggestionsMuted,
                       action: /* @__PURE__ */ jsxRuntimeExports.jsx(
                         ConnectorPromptAction,
                         {
-                          mode: promptActionMode,
-                          label: t(connectorPromptActionLabelKey[promptActionMode]),
-                          disabled: suggestionsDisabled,
+                          mode: "ready",
+                          label: t("connectors.detail.tryInChat"),
                           onClick: () => handlePromptClick(text),
                           "data-action-ui-id": "connector-detail-prompt"
                         }
@@ -611,17 +899,64 @@ function ConnectorDetailDialog({
     }
   );
 }
+function ConnectorVisibilityControl({
+  connectorId,
+  name,
+  visible,
+  pending,
+  onChange
+}) {
+  const { t } = useTranslation();
+  const handleChange = (value) => {
+    void onChange(connectorId, value).catch(() => {
+      dedupedToast.error(
+        t("connectors.market.saveFailed", "Could not update visibility. Please try again.")
+      );
+    });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "fieldset",
+    {
+      className: "mt-4 flex items-center justify-between gap-3",
+      onClick: (event) => event.stopPropagation(),
+      onKeyDown: (event) => event.stopPropagation(),
+      "aria-label": t("connectors.market.visibilityGroup", {
+        name,
+        defaultValue: "Market visibility for {{name}}"
+      }),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: t("connectors.market.publicVisible", "Visible to users") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Switch,
+          {
+            checked: visible,
+            disabled: pending,
+            onCheckedChange: handleChange,
+            "aria-label": t("connectors.market.visibilityGroup", {
+              name,
+              defaultValue: "Market visibility for {{name}}"
+            }),
+            "data-action-ui-id": `connector-market-visibility-${connectorId}`
+          }
+        )
+      ]
+    }
+  );
+}
 function CustomConnectorCard({
-  connector: connector2,
+  connector,
   title,
   description,
   icon = Plug,
   iconUrl = CDN_CONNECTOR_CUSTOM,
+  origin,
+  marketControls,
   onClick,
   onUpdated,
-  onRemoved
+  onRemoved,
+  editable = false
 }) {
-  const displayState = toConnectorDisplayState(connector2.runtimeState);
+  const displayState = toConnectorDisplayState(connector.runtimeState);
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: connector card click
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -632,7 +967,7 @@ function CustomConnectorCard({
           onClick && "cursor-pointer"
         ),
         "data-action-ui-id": "connectors-custom-card",
-        "data-connector-name": connector2.name,
+        "data-connector-name": connector.name,
         onClick,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-4", children: [
@@ -652,11 +987,12 @@ function CustomConnectorCard({
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   ConnectorManagementActions,
                   {
-                    connector: connector2,
+                    connector,
                     actionIdPrefix: "connectors-custom",
                     className: "shrink-0",
                     onUpdated,
-                    onRemoved
+                    onRemoved,
+                    editable
                   }
                 )
               }
@@ -667,1459 +1003,24 @@ function CustomConnectorCard({
             {
               title,
               description,
-              status: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorStatusPill, { state: displayState })
+              status: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorStatusPill, { state: displayState }),
+              origin
             }
-          )
+          ),
+          marketControls
         ]
       }
     )
   );
 }
-const VALIDATION_FIELDS = {
-  name: { field: "name", messageKey: "connectors.customDialog.nameError" },
-  command: { field: "command", messageKey: "connectors.customDialog.commandError" },
-  args: { field: "arguments", messageKey: "connectors.customDialog.argumentsError" },
-  url: { field: "url", messageKey: "connectors.customDialog.urlError" },
-  description: { field: "description", messageKey: "connectors.customDialog.descriptionError" },
-  env: { field: "key-values", messageKey: "connectors.customDialog.keyValuesError" },
-  headers: { field: "key-values", messageKey: "connectors.customDialog.keyValuesError" },
-  timeoutMs: { field: "timeout", messageKey: "connectors.customDialog.timeoutError" }
-};
-const COMMAND_ISSUE_KEYS = {
-  unclosed_quote: "connectors.customDialog.unclosedQuoteError",
-  shell_syntax: "connectors.customDialog.shellSyntaxError",
-  ambiguous_executable: "connectors.customDialog.commandPathError"
-};
-function editorValidationError(error, name) {
-  if (error instanceof CustomMcpCommandSyntaxError) {
-    return { field: "arguments", messageKey: "connectors.customDialog.unclosedQuoteError" };
-  }
-  if (error instanceof CustomMcpValidationError && error.field) {
-    if (error.commandIssue) {
-      return {
-        field: "command",
-        messageKey: COMMAND_ISSUE_KEYS[error.commandIssue]
-      };
-    }
-    if (error.field === "name" && isReservedCustomMcpName(name)) {
-      return { field: "name", messageKey: "connectors.customDialog.error.reserved_name" };
-    }
-    return VALIDATION_FIELDS[error.field];
-  }
-  return { messageKey: "connectors.customDialog.error.invalid_config" };
-}
-const INITIAL_FORM_STATE = {
-  name: "",
-  transport: "stdio",
-  command: "",
-  argumentsText: "",
-  url: "",
-  description: "",
-  enabled: true,
-  keyValuesText: "",
-  timeoutText: ""
-};
-const INITIAL_JSON = JSON.stringify(
-  {
-    "my-server": {
-      transport: "stdio",
-      command: "npx",
-      args: ["-y", "@example/mcp-server"],
-      enabled: true
-    }
-  },
-  null,
-  2
-);
-function parseEditorKeyValues(value) {
-  if (!value.trim()) return {};
-  try {
-    const parsed = JSON.parse(value);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return void 0;
-    if (Object.values(parsed).some((entry) => typeof entry !== "string")) return void 0;
-    return parsed;
-  } catch {
-    return void 0;
-  }
-}
-function editorFormToInput(state) {
-  return validateEditorForm(state).input;
-}
-function normalizeEditorName(value) {
-  return value.trim().replace(/\s+/gu, "-");
-}
-function validateEditorForm(state) {
-  const keyValues = parseEditorKeyValues(state.keyValuesText);
-  if (keyValues === void 0) return { error: VALIDATION_FIELDS.env };
-  const timeoutMs = state.timeoutText ? Number(state.timeoutText) : void 0;
-  const common = {
-    ...state.description.trim() ? { description: state.description.trim() } : {},
-    ...timeoutMs !== void 0 ? { timeoutMs } : {}
-  };
-  let args;
-  try {
-    args = state.transport === "stdio" && state.argumentsText.trim() ? parseCustomMcpArguments(state.argumentsText) : void 0;
-  } catch (error) {
-    return { error: editorValidationError(error, state.name) };
-  }
-  const candidate = {
-    name: normalizeEditorName(state.name),
-    enabled: state.enabled,
-    config: state.transport === "stdio" ? {
-      transport: "stdio",
-      command: state.command,
-      ...args ? { args } : {},
-      ...Object.keys(keyValues).length ? { env: keyValues } : {},
-      ...common
-    } : {
-      transport: state.transport,
-      url: state.url,
-      ...Object.keys(keyValues).length ? { headers: keyValues } : {},
-      ...common
-    }
-  };
-  try {
-    return { input: normalizeCustomMcpServerInput(candidate) };
-  } catch (error) {
-    return { error: editorValidationError(error, candidate.name) };
-  }
-}
-function normalizeEditorLaunchFields(state) {
-  if (state.transport !== "stdio") return void 0;
-  try {
-    const launch = normalizeCustomMcpLaunch(
-      state.command,
-      state.argumentsText.trim() ? parseCustomMcpArguments(state.argumentsText) : void 0
-    );
-    if (launch.command === state.command.trim()) return void 0;
-    return { command: launch.command, argumentsText: formatEditorArguments(launch.args ?? []) };
-  } catch {
-    return void 0;
-  }
-}
-function serializeDraftArguments(value) {
-  try {
-    return parseCustomMcpArguments(value);
-  } catch {
-    return value;
-  }
-}
-function serializeEditorForm(state) {
-  const input = editorFormToInput(state);
-  if (input) return serializeEditorInput(input);
-  const keyValues = parseEditorKeyValues(state.keyValuesText) ?? {};
-  const config = state.transport === "stdio" ? {
-    transport: state.transport,
-    command: state.command.trim(),
-    ...state.argumentsText.trim() ? { args: serializeDraftArguments(state.argumentsText) } : {},
-    ...Object.keys(keyValues).length ? { env: keyValues } : {}
-  } : {
-    transport: state.transport,
-    url: state.url.trim(),
-    ...Object.keys(keyValues).length ? { headers: keyValues } : {}
-  };
-  return JSON.stringify(
-    {
-      [state.name.trim() || "my-server"]: {
-        ...config,
-        ...state.description.trim() ? { description: state.description.trim() } : {},
-        ...state.timeoutText ? { timeoutMs: Number(state.timeoutText) } : {},
-        enabled: state.enabled
-      }
-    },
-    null,
-    2
-  );
-}
-function parseEditorJson(value) {
-  return validateEditorJson(value).input;
-}
-function validateEditorJson(value) {
-  const invalidJson = {
-    error: { field: "json", messageKey: "connectors.customDialog.jsonError" }
-  };
-  let serverName = "";
-  try {
-    const parsed = JSON.parse(value);
-    if (!isRecord$1(parsed)) return invalidJson;
-    const source = Object.keys(parsed).length === 1 && isRecord$1(parsed.mcpServers) ? parsed.mcpServers : parsed;
-    if (!isRecord$1(source)) return invalidJson;
-    const entries = Object.entries(source);
-    if (entries.length !== 1) return invalidJson;
-    const entry = entries[0];
-    if (!entry) return invalidJson;
-    const [name, config] = entry;
-    serverName = name;
-    if (!isRecord$1(config)) return invalidJson;
-    return {
-      input: normalizeCustomMcpServerInput({
-        name,
-        enabled: config.enabled ?? true,
-        config: Object.fromEntries(Object.entries(config).filter(([key]) => key !== "enabled"))
-      })
-    };
-  } catch (error) {
-    return error instanceof CustomMcpValidationError ? { error: { ...editorValidationError(error, serverName), field: "json" } } : invalidJson;
-  }
-}
-function editorInputToForm(input) {
-  const { config } = input;
-  return {
-    name: input.name,
-    transport: config.transport,
-    command: config.transport === "stdio" ? config.command : "",
-    argumentsText: config.transport === "stdio" ? formatEditorArguments(config.args ?? []) : "",
-    url: config.transport === "stdio" ? "" : config.url,
-    description: config.description ?? "",
-    enabled: input.enabled,
-    keyValuesText: formatKeyValues(config.transport === "stdio" ? config.env : config.headers),
-    timeoutText: config.timeoutMs ? String(config.timeoutMs) : ""
-  };
-}
-function serializeEditorInput(input) {
-  return JSON.stringify(
-    {
-      [input.name]: {
-        ...input.config,
-        enabled: input.enabled
-      }
-    },
-    null,
-    2
-  );
-}
-function formatEditorArguments(args) {
-  return args.map(
-    (argument) => /^[a-zA-Z0-9_@%+=:,./-]+$/u.test(argument) ? argument : `'${argument.replace(/'/gu, "'\\''")}'`
-  ).join(" ");
-}
-function formatKeyValues(value) {
-  return value && Object.keys(value).length ? JSON.stringify(value, null, 2) : "";
-}
-function isRecord$1(value) {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
-const MCP_TRANSPORT_LABELS = {
-  stdio: "stdio",
-  http: "HTTP",
-  "streamable-http": "Streamable HTTP",
-  sse: "SSE"
-};
-const FORM_OUTLINE_CLASS_NAME = "border border-input focus-visible:border-foreground focus-visible:ring-0";
-const FORM_CONTROL_CLASS_NAME = `h-10 ${FORM_OUTLINE_CLASS_NAME}`;
-const FORM_LABEL_CLASS_NAME = "text-sm font-medium text-foreground";
-const HELPER_TEXT_CLASS_NAME = "text-[13px] leading-relaxed text-muted-foreground";
-const SELECT_ITEM_CLASS_NAME = "h-8 rounded-sm py-2 pr-8 pl-3 text-sm font-normal text-foreground/70 focus:bg-popup-item-hover focus:text-foreground data-[highlighted]:bg-popup-item-hover data-[highlighted]:text-foreground";
-function CustomConnectorDialog({
-  open,
-  onOpenChange,
-  onSubmit,
-  onCreated
-}) {
-  const { t } = useTranslation();
-  const [mode, setMode] = reactExports.useState("form");
-  const [formState, setFormState] = reactExports.useState(INITIAL_FORM_STATE);
-  const [jsonText, setJsonText] = reactExports.useState(INITIAL_JSON);
-  const [advancedOpen, setAdvancedOpen] = reactExports.useState(false);
-  const [submitting, setSubmitting] = reactExports.useState(false);
-  const [submitError, setSubmitError] = reactExports.useState();
-  const [validationAttempted, setValidationAttempted] = reactExports.useState(false);
-  const [focusTarget, setFocusTarget] = reactExports.useState();
-  const [commandWasSplit, setCommandWasSplit] = reactExports.useState(false);
-  const contentRef = reactExports.useRef(null);
-  const busy = reactExports.useRef(false);
-  const requestEpoch = reactExports.useRef(0);
-  reactExports.useEffect(() => {
-    requestEpoch.current += 1;
-    busy.current = false;
-    if (open) {
-      setMode("form");
-      setFormState(INITIAL_FORM_STATE);
-      setJsonText(INITIAL_JSON);
-      setAdvancedOpen(false);
-      setSubmitting(false);
-      setSubmitError(void 0);
-      setValidationAttempted(false);
-      setFocusTarget(void 0);
-      setCommandWasSplit(false);
-    }
-    return () => {
-      requestEpoch.current += 1;
-    };
-  }, [open]);
-  const handleOpenChange = (nextOpen) => {
-    if (!busy.current) onOpenChange(nextOpen);
-  };
-  const validation = reactExports.useMemo(
-    () => mode === "form" ? validateEditorForm(formState) : validateEditorJson(jsonText),
-    [formState, jsonText, mode]
-  );
-  const { input } = validation;
-  const validationError = validationAttempted ? validation.error : void 0;
-  const nameLength = Array.from(normalizeEditorName(formState.name)).length;
-  reactExports.useEffect(() => {
-    if (!focusTarget) return;
-    contentRef.current?.querySelector(`#custom-connector-${focusTarget}`)?.focus();
-    setFocusTarget(void 0);
-  }, [focusTarget]);
-  const getFieldValidationProps = (field) => ({
-    "aria-invalid": validationError?.field === field || void 0,
-    "aria-describedby": validationError?.field === field ? `custom-connector-${field}-error` : field === "name" ? "custom-connector-name-hint custom-connector-name-count" : field === "command" || field === "arguments" ? "custom-connector-command-hint" : void 0
-  });
-  const renderFieldError = (field) => validationError?.field === field ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: `custom-connector-${field}-error`, className: "text-xs text-destructive", role: "alert", children: t(validationError.messageKey) }) : null;
-  const handleModeChange = (nextMode) => {
-    const editorMode = nextMode;
-    if (editorMode === "json" && mode === "form") {
-      setJsonText(serializeEditorForm(formState));
-    } else if (editorMode === "form" && mode === "json") {
-      const parsed = parseEditorJson(jsonText);
-      if (parsed) setFormState(editorInputToForm(parsed));
-    }
-    setSubmitError(void 0);
-    setValidationAttempted(false);
-    setFocusTarget(void 0);
-    setMode(editorMode);
-  };
-  const handleTransportChange = (value) => {
-    if (!value) return;
-    setFormState((current) => ({
-      ...current,
-      transport: value,
-      keyValuesText: ""
-    }));
-  };
-  const remote = formState.transport !== "stdio";
-  const handleCommandBlur = () => {
-    const normalized = normalizeEditorLaunchFields(formState);
-    if (!normalized) return;
-    setFormState((current) => ({ ...current, ...normalized }));
-    setCommandWasSplit(true);
-  };
-  const handleSubmit = async () => {
-    if (busy.current) return;
-    setSubmitError(void 0);
-    setValidationAttempted(true);
-    if (!input) {
-      const field = validation.error.field;
-      if (field === "key-values" || field === "timeout") setAdvancedOpen(true);
-      setFocusTarget(field);
-      return;
-    }
-    busy.current = true;
-    const epoch = requestEpoch.current;
-    setSubmitting(true);
-    setSubmitError(void 0);
-    try {
-      const result = await onSubmit(input);
-      if (epoch !== requestEpoch.current) return;
-      if (!result.ok) {
-        setSubmitError(t(`connectors.customDialog.error.${result.code}`));
-        return;
-      }
-      onCreated?.(result);
-      onOpenChange(false);
-    } catch {
-      if (epoch === requestEpoch.current) {
-        setSubmitError(t("connectors.customDialog.error.requestFailed"));
-      }
-    } finally {
-      if (epoch === requestEpoch.current) {
-        busy.current = false;
-        setSubmitting(false);
-      }
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    ConnectorDialogFrame,
-    {
-      open,
-      onOpenChange: handleOpenChange,
-      actionUiId: "custom-connector-dialog",
-      closeLabel: t("common.close"),
-      size: "lg",
-      showCloseButton: !submitting,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("fieldset", { disabled: submitting, className: "contents", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            ref: contentRef,
-            className: "flex min-h-0 flex-1 flex-col px-6 pt-5 pb-3",
-            "data-layout-slot": "custom-connector-dialog-body",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "mb-4 gap-1 pr-10", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base leading-5 text-foreground", children: t("connectors.customDialog.title") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { className: "text-sm leading-5 text-muted-foreground", children: t("connectors.customDialog.subtitle") })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                Tabs,
-                {
-                  value: mode,
-                  onValueChange: handleModeChange,
-                  className: "min-h-0 flex-1 overflow-hidden",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      TabsList,
-                      {
-                        variant: "track",
-                        className: "w-60 self-start rounded-xl p-[3px] [--tabs-track-inset:3px]! [--tabs-track-radius:12px]!",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            TabsTrigger,
-                            {
-                              value: "form",
-                              className: "flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground",
-                              "data-action-ui-id": "custom-connector-form-tab",
-                              children: t("connectors.customDialog.formTab")
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            TabsTrigger,
-                            {
-                              value: "json",
-                              className: "flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground",
-                              "data-action-ui-id": "custom-connector-json-tab",
-                              children: t("connectors.customDialog.jsonTab")
-                            }
-                          )
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        className: "scrollbar-none min-h-0 overflow-y-auto pt-4",
-                        "data-layout-slot": "custom-connector-dialog-scroll",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "form", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                              "div",
-                              {
-                                className: "flex flex-col gap-4",
-                                "data-layout-slot": "custom-connector-primary-fields",
-                                children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                    "div",
-                                    {
-                                      className: "flex min-w-0 flex-col gap-2",
-                                      "data-layout-slot": "custom-connector-name-field",
-                                      children: [
-                                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-                                          /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-name", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.name") }),
-                                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                            "span",
-                                            {
-                                              id: "custom-connector-name-count",
-                                              "aria-live": "polite",
-                                              className: `shrink-0 text-xs tabular-nums ${nameLength > CUSTOM_MCP_NAME_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"}`,
-                                              "data-action-ui-id": "custom-connector-name-count",
-                                              children: t("connectors.customDialog.nameCount", {
-                                                current: nameLength,
-                                                max: CUSTOM_MCP_NAME_MAX_LENGTH
-                                              })
-                                            }
-                                          )
-                                        ] }),
-                                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                          Input,
-                                          {
-                                            id: "custom-connector-name",
-                                            ...getFieldValidationProps("name"),
-                                            value: formState.name,
-                                            onChange: (event) => setFormState((current) => ({ ...current, name: event.target.value })),
-                                            placeholder: t("connectors.customDialog.namePlaceholder"),
-                                            className: FORM_CONTROL_CLASS_NAME,
-                                            "data-action-ui-id": "custom-connector-name"
-                                          }
-                                        ),
-                                        renderFieldError("name"),
-                                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                          "p",
-                                          {
-                                            id: "custom-connector-name-hint",
-                                            className: "text-xs leading-4 text-muted-foreground",
-                                            children: t("connectors.customDialog.nameHint")
-                                          }
-                                        )
-                                      ]
-                                    }
-                                  ),
-                                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                    "div",
-                                    {
-                                      className: "flex min-w-0 flex-col gap-2",
-                                      "data-layout-slot": "custom-connector-transport-field",
-                                      children: [
-                                        /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-transport", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.transport") }),
-                                        /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: formState.transport, onValueChange: handleTransportChange, children: [
-                                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                            SelectTrigger,
-                                            {
-                                              id: "custom-connector-transport",
-                                              className: `${FORM_CONTROL_CLASS_NAME} w-full bg-transparent! text-sm font-normal hover:bg-transparent! data-[size=default]:h-10`,
-                                              "data-action-ui-id": "custom-connector-transport",
-                                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: () => MCP_TRANSPORT_LABELS[formState.transport] })
-                                            }
-                                          ),
-                                          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { align: "start", className: "p-1", children: Object.entries(MCP_TRANSPORT_LABELS).map(([value, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                            SelectItem,
-                                            {
-                                              value,
-                                              className: SELECT_ITEM_CLASS_NAME,
-                                              children: label
-                                            },
-                                            value
-                                          )) })
-                                        ] })
-                                      ]
-                                    }
-                                  )
-                                ]
-                              }
-                            ),
-                            remote ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-url", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.url") }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                Input,
-                                {
-                                  id: "custom-connector-url",
-                                  ...getFieldValidationProps("url"),
-                                  value: formState.url,
-                                  onChange: (event) => setFormState((current) => ({ ...current, url: event.target.value })),
-                                  placeholder: t("connectors.customDialog.urlPlaceholder"),
-                                  className: FORM_CONTROL_CLASS_NAME,
-                                  "data-action-ui-id": "custom-connector-url"
-                                }
-                              ),
-                              renderFieldError("url")
-                            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2", children: [
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-command", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.command") }),
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Input,
-                                  {
-                                    id: "custom-connector-command",
-                                    ...getFieldValidationProps("command"),
-                                    value: formState.command,
-                                    onChange: (event) => {
-                                      setCommandWasSplit(false);
-                                      setFormState((current) => ({
-                                        ...current,
-                                        command: event.target.value
-                                      }));
-                                    },
-                                    onBlur: handleCommandBlur,
-                                    placeholder: t("connectors.customDialog.commandPlaceholder"),
-                                    className: FORM_CONTROL_CLASS_NAME,
-                                    "data-action-ui-id": "custom-connector-command"
-                                  }
-                                ),
-                                renderFieldError("command")
-                              ] }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2", children: [
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Label,
-                                  {
-                                    htmlFor: "custom-connector-arguments",
-                                    className: FORM_LABEL_CLASS_NAME,
-                                    children: t("connectors.customDialog.arguments")
-                                  }
-                                ),
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Input,
-                                  {
-                                    id: "custom-connector-arguments",
-                                    ...getFieldValidationProps("arguments"),
-                                    value: formState.argumentsText,
-                                    onChange: (event) => setFormState((current) => ({
-                                      ...current,
-                                      argumentsText: event.target.value
-                                    })),
-                                    placeholder: t("connectors.customDialog.argumentsPlaceholder"),
-                                    className: FORM_CONTROL_CLASS_NAME,
-                                    "data-action-ui-id": "custom-connector-arguments"
-                                  }
-                                ),
-                                renderFieldError("arguments")
-                              ] }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "p",
-                                {
-                                  id: "custom-connector-command-hint",
-                                  className: `${HELPER_TEXT_CLASS_NAME} sm:col-span-2`,
-                                  "aria-live": "polite",
-                                  children: t(
-                                    commandWasSplit ? "connectors.customDialog.commandSplitHint" : "connectors.customDialog.commandHint"
-                                  )
-                                }
-                              ),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `${HELPER_TEXT_CLASS_NAME} sm:col-span-2`, children: t("connectors.customDialog.stdioRisk") })
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-description", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.description") }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                Input,
-                                {
-                                  id: "custom-connector-description",
-                                  ...getFieldValidationProps("description"),
-                                  value: formState.description,
-                                  onChange: (event) => setFormState((current) => ({
-                                    ...current,
-                                    description: event.target.value
-                                  })),
-                                  placeholder: t("connectors.customDialog.descriptionPlaceholder"),
-                                  className: FORM_CONTROL_CLASS_NAME,
-                                  "data-action-ui-id": "custom-connector-description"
-                                }
-                              ),
-                              renderFieldError("description")
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                              "div",
-                              {
-                                className: "flex min-h-16 items-center justify-between gap-4 rounded-lg bg-secondary/60 px-4 py-3",
-                                "data-layout-slot": "custom-connector-enabled-surface",
-                                children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium text-foreground", children: t("connectors.customDialog.enabled") }),
-                                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `mt-0.5 ${HELPER_TEXT_CLASS_NAME}`, children: t("connectors.customDialog.enabledHint") })
-                                  ] }),
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    Switch,
-                                    {
-                                      checked: formState.enabled,
-                                      onCheckedChange: (enabled) => setFormState((current) => ({ ...current, enabled })),
-                                      "aria-label": t("connectors.customDialog.enabled"),
-                                      "data-action-ui-id": "custom-connector-enabled"
-                                    }
-                                  )
-                                ]
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                              "button",
-                              {
-                                type: "button",
-                                "aria-expanded": advancedOpen,
-                                onClick: () => setAdvancedOpen((current) => !current),
-                                className: "flex h-9 w-full items-center justify-between rounded-md text-left text-sm font-medium text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
-                                "data-action-ui-id": "custom-connector-advanced",
-                                children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("connectors.customDialog.advanced") }),
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    Icon,
-                                    {
-                                      icon: ChevronDown,
-                                      size: "md",
-                                      "aria-hidden": true,
-                                      className: `text-muted-foreground transition-transform ${advancedOpen ? "rotate-180" : ""}`
-                                    }
-                                  )
-                                ]
-                              }
-                            ),
-                            advancedOpen ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-2", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2 sm:col-span-2", children: [
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Label,
-                                  {
-                                    htmlFor: "custom-connector-key-values",
-                                    className: FORM_LABEL_CLASS_NAME,
-                                    children: t(
-                                      remote ? "connectors.customDialog.headers" : "connectors.customDialog.environment"
-                                    )
-                                  }
-                                ),
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Textarea,
-                                  {
-                                    id: "custom-connector-key-values",
-                                    ...getFieldValidationProps("key-values"),
-                                    value: formState.keyValuesText,
-                                    onChange: (event) => setFormState((current) => ({
-                                      ...current,
-                                      keyValuesText: event.target.value
-                                    })),
-                                    placeholder: t("connectors.customDialog.keyValuesPlaceholder"),
-                                    className: `min-h-24 font-mono text-xs ${FORM_OUTLINE_CLASS_NAME}`,
-                                    "data-action-ui-id": "custom-connector-key-values"
-                                  }
-                                ),
-                                renderFieldError("key-values")
-                              ] }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-2", children: [
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "custom-connector-timeout", className: FORM_LABEL_CLASS_NAME, children: t("connectors.customDialog.timeout") }),
-                                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  Input,
-                                  {
-                                    id: "custom-connector-timeout",
-                                    ...getFieldValidationProps("timeout"),
-                                    type: "number",
-                                    min: 1,
-                                    value: formState.timeoutText,
-                                    onChange: (event) => setFormState((current) => ({
-                                      ...current,
-                                      timeoutText: event.target.value
-                                    })),
-                                    placeholder: t("connectors.customDialog.timeoutPlaceholder"),
-                                    className: FORM_CONTROL_CLASS_NAME,
-                                    "data-action-ui-id": "custom-connector-timeout"
-                                  }
-                                ),
-                                renderFieldError("timeout")
-                              ] })
-                            ] }) : null
-                          ] }) }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "json", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3", children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: HELPER_TEXT_CLASS_NAME, children: t("connectors.customDialog.jsonHint") }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              Textarea,
-                              {
-                                id: "custom-connector-json",
-                                ...getFieldValidationProps("json"),
-                                value: jsonText,
-                                onChange: (event) => setJsonText(event.target.value),
-                                "aria-label": t("connectors.customDialog.jsonEditorLabel"),
-                                spellCheck: false,
-                                className: `min-h-80 resize-none font-mono text-xs leading-relaxed ${FORM_OUTLINE_CLASS_NAME}`,
-                                "data-action-ui-id": "custom-connector-json-editor"
-                              }
-                            ),
-                            renderFieldError("json")
-                          ] }) })
-                        ]
-                      }
-                    )
-                  ]
-                }
-              )
-            ]
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogFooter, { className: "shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5", children: [
-          submitError || validationError && !validationError.field ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mr-auto text-xs text-destructive", role: "alert", children: submitError ?? (validationError && t(validationError.messageKey)) }) : null,
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              type: "button",
-              variant: "secondary",
-              className: "h-9 min-w-22 rounded-[10px] px-4",
-              disabled: submitting,
-              onClick: () => handleOpenChange(false),
-              "data-action-ui-id": "custom-connector-cancel",
-              children: t("common.cancel")
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              type: "button",
-              className: "h-9 min-w-26 rounded-[10px] px-4",
-              disabled: submitting,
-              loading: submitting,
-              onClick: handleSubmit,
-              "data-action-ui-id": "custom-connector-submit",
-              children: t("connectors.customDialog.add")
-            }
-          )
-        ] })
-      ]
-    }
-  );
-}
-const FASTMOSS_KEY_MAX_LENGTH = 2048;
-const FASTMOSS_TIMEOUT_MS = 3e4;
-function isValidFastMossKey(value) {
-  const key = value.trim();
-  return key.length > 0 && key.length <= FASTMOSS_KEY_MAX_LENGTH && !/\s/u.test(key) && !key.includes("://");
-}
-function buildFastMossConnector(apiKey, description) {
-  if (!isValidFastMossKey(apiKey)) throw new Error("Invalid FastMoss API key");
-  const url = new URL(FASTMOSS_MCP_ENDPOINT);
-  url.searchParams.set("api_key", apiKey.trim());
-  return {
-    name: FASTMOSS_SERVER_NAME,
-    enabled: true,
-    config: {
-      transport: "streamable-http",
-      url: url.href,
-      timeoutMs: FASTMOSS_TIMEOUT_MS,
-      description
-    }
-  };
-}
-const connector = {
-  id: "fastmoss",
-  iconUrl: OFFICIAL_CONNECTORS.fastmoss.iconUrl,
-  keyPageUrl: FASTMOSS_API_KEYS_URL,
-  maxKeyLength: FASTMOSS_KEY_MAX_LENGTH,
-  isValidKey: isValidFastMossKey,
-  buildInput: buildFastMossConnector
-};
-function FastMossConnectorDialog(props) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(ApiKeyConnectorDialog, { ...props, connector });
-}
-function ConnectorInstallLocation({
-  connectorId,
-  disabled,
-  embedded = false,
-  headerAction,
-  onChange
-}) {
-  const { t } = useTranslation();
-  const platform = usePlatform();
-  const [locationRequest, setLocationRequest] = reactExports.useState({});
-  const [result, setResult] = reactExports.useState();
-  const [selected, setSelected] = reactExports.useState("");
-  const [detecting, setDetecting] = reactExports.useState(true);
-  const [picking, setPicking] = reactExports.useState(false);
-  const [pickFailed, setPickFailed] = reactExports.useState(false);
-  reactExports.useEffect(() => {
-    let cancelled = false;
-    setDetecting(true);
-    setPickFailed(false);
-    onChange(void 0, false);
-    void homeService.connector.getInstallTargets(connectorId, locationRequest.directory).then((next) => {
-      if (cancelled) return;
-      setResult(next);
-      if (!next.ok) {
-        setSelected("");
-        return;
-      }
-      const value = next.preferredAddonDirectory ?? (next.targets.length === 1 ? next.targets[0].addonDirectory : "");
-      setSelected(value);
-      onChange(
-        { hostDirectory: next.hostDirectory, addonDirectory: value || void 0 },
-        Boolean(value)
-      );
-    }).catch(() => {
-      if (!cancelled) {
-        setResult({ ok: false, code: "invalid_host_directory" });
-        setSelected("");
-      }
-    }).finally(() => {
-      if (!cancelled) setDetecting(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [connectorId, locationRequest, onChange]);
-  const handleSelect = (value) => {
-    if (!value) return;
-    setSelected(value);
-    if (result?.ok) onChange({ hostDirectory: result.hostDirectory, addonDirectory: value }, true);
-  };
-  const handleBrowse = async () => {
-    setPicking(true);
-    setPickFailed(false);
-    onChange(void 0, false);
-    try {
-      const paths = await platform.fs.showOpenDialog?.({
-        directory: true,
-        title: t(
-          connectorId === "blender" ? "connectors.blender.location.choose" : "connectors.location.choose"
-        )
-      });
-      if (paths?.[0]) {
-        setLocationRequest({ directory: paths[0] });
-      } else if (result?.ok) {
-        onChange(
-          { hostDirectory: result.hostDirectory, addonDirectory: selected || void 0 },
-          Boolean(selected)
-        );
-      }
-    } catch {
-      setPickFailed(true);
-      if (result?.ok)
-        onChange(
-          { hostDirectory: result.hostDirectory, addonDirectory: selected || void 0 },
-          Boolean(selected)
-        );
-    } finally {
-      setPicking(false);
-    }
-  };
-  const titleKey = connectorId === "blender" ? "connectors.blender.location.title" : "connectors.location.title";
-  const detectingKey = connectorId === "blender" ? "connectors.blender.location.detecting" : "connectors.location.detecting";
-  const versionKey = connectorId === "blender" ? "connectors.blender.location.version" : "connectors.location.version";
-  const chooseKey = connectorId === "blender" ? "connectors.blender.location.choose" : "connectors.location.choose";
-  const autoKey = connectorId === "blender" ? "connectors.blender.location.auto" : "connectors.location.auto";
-  const hintKey = connectorId === "blender" ? "connectors.blender.location.hint" : connectorId === "houdini" ? "connectors.location.houdiniHint" : "connectors.location.appHint";
-  const automaticDetectionMissed = result != null && !result.ok && (detecting || locationRequest.directory == null);
-  const content = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: "flex h-9 w-full items-center gap-0.5 rounded-lg border border-input bg-background p-0.5",
-        "data-layout-slot": "connector-setup-actions",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Button,
-            {
-              type: "button",
-              size: "lg",
-              variant: "ghost",
-              className: "h-full min-w-0 flex-1 justify-start rounded-md border-0 font-normal",
-              disabled: disabled || detecting || picking || !result || !platform.fs?.showOpenDialog,
-              onClick: () => void handleBrowse(),
-              "data-action-ui-id": `connector-${connectorId}-location-browse`,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LocalFolderIcon, {}),
-                t(chooseKey)
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "h-5 w-px shrink-0 bg-border-soft" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              type: "button",
-              size: "lg",
-              variant: "ghost",
-              className: "h-full shrink-0 rounded-md border-0 font-normal",
-              disabled: disabled || detecting || picking || !result,
-              onClick: () => setLocationRequest({ directory: null }),
-              "data-action-ui-id": `connector-${connectorId}-location-auto`,
-              children: t(autoKey)
-            }
-          )
-        ]
-      }
-    ),
-    !result ? /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-3 flex items-center gap-1.5 text-[13px] text-muted-foreground", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "size-3.5 shrink-0 animate-spin", strokeWidth: 1.5, "aria-hidden": true }),
-      t(detectingKey)
-    ] }) : null,
-    result?.ok && result.targets.length > 1 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      Select,
-      {
-        value: selected || null,
-        onValueChange: handleSelect,
-        disabled: disabled || detecting || picking,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            SelectTrigger,
-            {
-              className: "mt-3 w-full bg-background",
-              "aria-label": t(versionKey),
-              "data-action-ui-id": `connector-${connectorId}-location-version`,
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { children: selected ? result.targets.find((target) => target.addonDirectory === selected)?.version ?? selected : t(versionKey) })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: result.targets.map((target) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: target.addonDirectory, children: target.version ?? target.addonDirectory }, target.addonDirectory)) })
-        ]
-      }
-    ) : null,
-    selected ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "p",
-      {
-        className: "mt-3 break-all rounded-md bg-secondary px-2.5 py-2 font-mono text-[11px] leading-relaxed text-muted-foreground",
-        "data-action-ui-id": `connector-${connectorId}-location-path`,
-        children: selected
-      }
-    ) : null,
-    result && !result.ok ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        role: automaticDetectionMissed ? "status" : "alert",
-        className: cn(
-          "mt-3 flex min-h-7 items-start gap-1.5 rounded-md px-2.5 py-1 text-xs leading-5",
-          automaticDetectionMissed ? "bg-secondary text-foreground/70" : "bg-destructive/5 text-destructive"
-        ),
-        "data-notice-tone": automaticDetectionMissed ? "neutral" : "error",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "mt-0.5 size-3.5 shrink-0", strokeWidth: 1.5, "aria-hidden": true }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: automaticDetectionMissed ? t("connectors.location.notDetected", {
-            name: t(`connectors.catalog.${connectorId}.title`)
-          }) : t(`connectors.connector.error.${result.code}`, {
-            name: t(`connectors.catalog.${connectorId}.title`)
-          }) })
-        ]
-      }
-    ) : null,
-    result && (!result.ok || Boolean(locationRequest.directory)) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-[13px] leading-relaxed text-muted-foreground", children: t(hintKey) }) : null,
-    pickFailed ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        role: "alert",
-        className: "mt-3 flex min-h-7 items-start gap-1.5 rounded-md bg-destructive/5 px-2.5 py-1 text-xs leading-5 text-destructive",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "mt-0.5 size-3.5 shrink-0", strokeWidth: 1.5, "aria-hidden": true }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("connectors.customDialog.error.requestFailed") })
-        ]
-      }
-    ) : null
-  ] });
-  if (embedded) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "min-w-0",
-        "data-action-ui-id": `connector-${connectorId}-location`,
-        "data-layout-slot": "connector-install-location",
-        children: content
-      }
-    );
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    ConnectorSetupSection,
-    {
-      title: t(titleKey),
-      headerAction,
-      actionUiId: `connector-${connectorId}-location`,
-      children: content
-    }
-  );
-}
-const PROBE_INTERVAL_MS = 3e3;
-const connectorStepLineClassName = "absolute left-1/2 w-[1px] -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,var(--muted-foreground)_0,var(--muted-foreground)_1px,transparent_1px,transparent_3px)]";
-function LocalConnectorPreparationStatus({
-  state,
-  connectorName,
-  hasLocation,
-  onRetry
-}) {
-  const { t } = useTranslation();
-  if (state === "skipped") return null;
-  const labelKey = state === "missing" ? hasLocation ? "connectors.connector.prepare.missingWithLocation" : "connectors.connector.prepare.missing" : `connectors.connector.prepare.${state}`;
-  const icon = state === "checking" ? LoaderCircle : state === "available" ? Check : CircleAlert;
-  const isUnsupported = state === "unsupported";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      role: isUnsupported ? "alert" : "status",
-      className: cn(
-        "mt-2 flex min-h-7 items-start justify-between gap-2 rounded-md bg-secondary px-2.5 py-1 text-xs leading-5 text-foreground/70",
-        isUnsupported && "text-destructive"
-      ),
-      "data-action-ui-id": "connector-local-preparation-status",
-      "data-preparation-state": state,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-start gap-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Icon,
-            {
-              icon,
-              size: "sm",
-              strokeWidth: 1.5,
-              className: cn("mt-0.5 shrink-0", state === "checking" && "animate-spin"),
-              "aria-hidden": true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t(labelKey, { name: connectorName }) })
-        ] }),
-        state === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            type: "button",
-            variant: "ghost",
-            size: "xs",
-            className: "-my-1 shrink-0 font-normal",
-            onClick: onRetry,
-            "data-action-ui-id": "connector-local-preparation-retry",
-            children: t("connectors.connector.prepare.retry")
-          }
-        ) : null
-      ]
-    }
-  );
-}
-function LocalConnectorStep({
-  ordinal,
-  title,
-  first = false,
-  last = false,
-  completed = false,
-  action,
-  children
-}) {
-  const { t } = useTranslation();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "section",
-    {
-      className: "grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2",
-      "data-layout-slot": "connector-local-step",
-      "data-step": ordinal,
-      "data-step-state": completed ? "complete" : "active",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex justify-center pt-4", children: [
-          !first ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              "aria-hidden": true,
-              className: cn(connectorStepLineClassName, "top-0 h-4"),
-              "data-layout-slot": "connector-local-step-line"
-            }
-          ) : null,
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              "aria-hidden": true,
-              className: "relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full bg-card text-xs font-medium leading-none text-foreground",
-              "data-layout-slot": "connector-local-step-node",
-              children: t(`connectors.stepOrdinal.${ordinal}`)
-            }
-          ),
-          !last ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              "aria-hidden": true,
-              className: cn(connectorStepLineClassName, "top-10 bottom-0"),
-              "data-layout-slot": "connector-local-step-line"
-            }
-          ) : null
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn("min-w-0 py-4", completed && !children && "py-3.5"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center justify-between gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "min-w-0 text-sm font-medium text-foreground", children: title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-2", children: [
-              completed ? /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Check, size: "sm", className: "text-muted-foreground", "aria-hidden": true }) : null,
-              action
-            ] })
-          ] }),
-          children ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 min-w-0", "data-layout-slot": "connector-local-step-content", children }) : null
-        ] })
-      ]
-    }
-  );
-}
-function LocalConnectorSetupContent({
-  connectorId,
-  serverName,
-  iconUrl,
-  onClose,
-  onInstalled,
-  setupUrl
-}) {
-  const { t } = useTranslation();
-  const targetName = serverName ?? connectorId;
-  const platform = usePlatform();
-  const hasLocation = ["blender", "after-effects", "photoshop", "houdini"].includes(connectorId);
-  const [status, setStatus] = reactExports.useState();
-  const [installing, setInstalling] = reactExports.useState(false);
-  const [preparationState, setPreparationState] = reactExports.useState("checking");
-  const [installError, setInstallError] = reactExports.useState();
-  const [openingSetup, setOpeningSetup] = reactExports.useState(false);
-  const [setupError, setSetupError] = reactExports.useState(false);
-  const [installOptions, setInstallOptions] = reactExports.useState();
-  const [locationReady, setLocationReady] = reactExports.useState(!hasLocation);
-  const handleLocationChange = reactExports.useCallback(
-    (options, ready) => {
-      setInstallOptions(options);
-      setLocationReady(ready);
-      setInstallError(void 0);
-    },
-    []
-  );
-  const closed = reactExports.useRef(false);
-  const refresh = reactExports.useCallback(async () => {
-    try {
-      const next = await homeService.connector.status(targetName);
-      if (!closed.current) setStatus(next);
-      return next;
-    } catch {
-      return void 0;
-    }
-  }, [targetName]);
-  const checkPreparation = reactExports.useCallback(async () => {
-    setPreparationState("checking");
-    try {
-      const result = await homeService.connector.preflight(targetName);
-      if (closed.current) return;
-      setStatus(result.status);
-      if (!result.platformSupported) {
-        setPreparationState("unsupported");
-        return;
-      }
-      if (result.hostAppState === "not_required") {
-        setPreparationState("skipped");
-        return;
-      }
-      setPreparationState(
-        result.hostAppState === "available" ? "available" : result.hostAppState === "missing" ? "missing" : "unknown"
-      );
-    } catch {
-      await refresh();
-      if (!closed.current) setPreparationState("error");
-    }
-  }, [refresh, targetName]);
-  reactExports.useEffect(() => {
-    closed.current = false;
-    void checkPreparation();
-    const timer = setInterval(() => void refresh(), PROBE_INTERVAL_MS);
-    return () => {
-      closed.current = true;
-      clearInterval(timer);
-    };
-  }, [checkPreparation, refresh]);
-  reactExports.useEffect(() => {
-    if (status?.state !== "connected") return;
-    onClose();
-  }, [onClose, status?.state]);
-  const installInProgress = installing || status?.state === "installing";
-  const handleInstall = async () => {
-    if (installInProgress || preparationState === "unsupported" || hasLocation && !locationReady)
-      return;
-    setInstalling(true);
-    setInstallError(void 0);
-    try {
-      const result = hasLocation ? await homeService.connector.install(targetName, installOptions) : await homeService.connector.install(targetName);
-      if (result.ok) onInstalled();
-      if (closed.current) return;
-      if (result.ok) {
-        setStatus(result.status);
-        dedupedToast.success(
-          t(
-            result.status.state === "connected" ? "connectors.connector.installedConnected" : "connectors.connector.installedWaiting"
-          )
-        );
-      } else {
-        const reason = t(`connectors.connector.error.${result.code}`, {
-          name: t(`connectors.catalog.${connectorId}.title`)
-        });
-        setInstallError(result.message ? `${reason}: ${result.message.trim()}` : reason);
-      }
-    } catch {
-      if (!closed.current) setInstallError(t("connectors.customDialog.error.requestFailed"));
-    } finally {
-      if (!closed.current) setInstalling(false);
-    }
-  };
-  const handleOpenSetup = async () => {
-    if (!setupUrl || openingSetup) return;
-    setOpeningSetup(true);
-    setSetupError(false);
-    const opened = await openExternalUrl(platform, setupUrl, {
-      source: `connectors.${connectorId}.downloadComponents`
-    });
-    if (!closed.current) {
-      setOpeningSetup(false);
-      setSetupError(!opened);
-    }
-  };
-  const state = installInProgress ? "installing" : status?.state ?? "not_installed";
-  const connected = state === "connected";
-  const waitingForHostApp = state === "waiting_host_app";
-  const connectorName = t(`connectors.catalog.${connectorId}.title`);
-  const installStepTitle = t(
-    hasLocation ? connectorId === "blender" ? "connectors.connector.step.installWithAddonLocation" : "connectors.connector.step.installWithAppLocation" : "connectors.connector.step.install"
-  );
-  const prepareSecondaryKey = hasLocation ? "connectors.connector.prepare.locationCaveat" : connectorId === "touchdesigner" ? "connectors.connector.prepare.componentPackage" : "connectors.connector.prepare.inAppActivation";
-  const blenderInstallerUrl = platform.app?.os === "win32" ? CDN_BLENDER_INSTALLER_WINDOWS_X64 : platform.app?.os === "darwin" && (platform.app.arch === "arm64" || platform.app.runningUnderARM64Translation === true) ? CDN_BLENDER_INSTALLER_MACOS_ARM64 : void 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "shrink-0 items-center px-4 pt-8 text-center sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorRelationshipGraphic, { targetIconUrl: iconUrl }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorDialogScrollableBody, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-4 pb-5 sm:px-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "mt-4 items-center gap-2 text-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "font-heading text-lg font-medium text-foreground", children: t("connectors.connector.setupTitle", { name: connectorName }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: "flex items-center justify-center gap-1.5",
-            "data-layout-slot": "connector-local-title-status",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "data-action-ui-id": `connector-${connectorId}-state`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                IntegrationStatusPill,
-                {
-                  label: t(`connectors.connector.state.${state}`),
-                  tone: connected ? "neutral" : state === "waiting_host_app" ? "warning" : "muted",
-                  markerTone: connected ? "success" : state === "waiting_host_app" || state === "installing" ? "warning" : "muted",
-                  markerActive: state === "installing",
-                  markerLabel: t(`connectors.connector.state.${state}`)
-                }
-              ) }),
-              status?.updateAvailable ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Badge,
-                {
-                  variant: "info",
-                  "data-action-ui-id": `connector-${connectorId}-update-available`,
-                  children: t("connectors.connector.updateAvailable")
-                }
-              ) : null
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: "mt-4 rounded-[10px] bg-secondary/60 px-3 pb-3",
-          "data-layout-slot": "connector-local-steps-surface",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              DialogDescription,
-              {
-                className: "px-3 pt-3 text-xs leading-relaxed font-medium text-muted-foreground",
-                "data-layout-slot": "connector-local-steps-eyebrow",
-                children: t("connectors.connector.setupDescription")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full", "data-layout-slot": "connector-local-steps", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                LocalConnectorStep,
-                {
-                  ordinal: 1,
-                  title: t("connectors.connector.step.prepare", { name: connectorName }),
-                  first: true,
-                  completed: waitingForHostApp || installInProgress,
-                  last: false,
-                  children: !waitingForHostApp && !installInProgress ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      className: "space-y-1",
-                      "data-action-ui-id": `connector-${connectorId}-install-hint`,
-                      "data-content-structure": "primary-secondary",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[13px] leading-relaxed text-muted-foreground", children: t("connectors.connector.prepare.primary", { name: connectorName }) }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[13px] leading-relaxed text-muted-foreground", children: t(prepareSecondaryKey, { name: connectorName }) }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          LocalConnectorPreparationStatus,
-                          {
-                            state: preparationState,
-                            connectorName,
-                            hasLocation,
-                            onRetry: () => void checkPreparation()
-                          }
-                        ),
-                        connectorId === "blender" && blenderInstallerUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          Button,
-                          {
-                            type: "button",
-                            variant: "ghost",
-                            size: "xs",
-                            className: "mt-2 -ml-2 font-normal text-foreground underline underline-offset-2",
-                            onClick: () => {
-                              void openExternalUrl(platform, blenderInstallerUrl, {
-                                source: "connector-blender-download"
-                              });
-                            },
-                            "data-action-ui-id": "connector-blender-download",
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Download, size: "xs", "aria-hidden": true }),
-                              t("connectors.connector.downloadHostApp.blender")
-                            ]
-                          }
-                        ) : null
-                      ]
-                    }
-                  ) : null
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                LocalConnectorStep,
-                {
-                  ordinal: 2,
-                  title: installStepTitle,
-                  completed: waitingForHostApp,
-                  last: !waitingForHostApp,
-                  action: waitingForHostApp ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    ConnectorSummaryAction,
-                    {
-                      mode: "reinstall",
-                      label: t(connectorSummaryActionLabelKey.reinstall),
-                      disabled: installing || hasLocation && !locationReady,
-                      loading: installing,
-                      onClick: () => void handleInstall(),
-                      "data-action-ui-id": `connector-${connectorId}-reinstall`
-                    }
-                  ) : void 0,
-                  children: [
-                    hasLocation ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { hidden: waitingForHostApp && locationReady && !installError, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ConnectorInstallLocation,
-                      {
-                        connectorId,
-                        disabled: installInProgress || preparationState === "unsupported",
-                        embedded: true,
-                        onChange: handleLocationChange
-                      }
-                    ) }) : null,
-                    !waitingForHostApp ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn("flex justify-center", hasLocation && "mt-4"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ConnectorSummaryAction,
-                      {
-                        mode: "install",
-                        label: t(connectorSummaryActionLabelKey.install),
-                        disabled: installInProgress || preparationState === "unsupported" || !status || hasLocation && !locationReady,
-                        loading: installInProgress,
-                        onClick: () => void handleInstall(),
-                        "data-action-ui-id": `connector-${connectorId}-install`
-                      }
-                    ) }) : null,
-                    installError ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ConnectorDetailNotice,
-                      {
-                        description: installError,
-                        tone: "error",
-                        actionUiId: `connector-${connectorId}-install-error`
-                      }
-                    ) }) : null
-                  ]
-                }
-              ),
-              waitingForHostApp ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                LocalConnectorStep,
-                {
-                  ordinal: 3,
-                  title: t("connectors.connector.step.activate", { name: connectorName }),
-                  last: true,
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ConnectorDetailNotice,
-                      {
-                        description: t("connectors.connector.waitingHint.withSkill", {
-                          name: connectorName
-                        }),
-                        tone: "warning",
-                        actionUiId: `connector-${connectorId}-waiting-hint`
-                      }
-                    ),
-                    setupUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      Button,
-                      {
-                        variant: "outline",
-                        size: "sm",
-                        disabled: openingSetup,
-                        loading: openingSetup,
-                        onClick: () => void handleOpenSetup(),
-                        className: "mt-3 gap-1.5",
-                        "data-action-ui-id": `connector-${connectorId}-download-components`,
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: ExternalLink, size: "sm", "aria-hidden": true }),
-                          t("connectors.connector.downloadComponents")
-                        ]
-                      }
-                    ) : null,
-                    setupError ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ConnectorDetailNotice,
-                      {
-                        description: t("connectors.connector.downloadComponentsError"),
-                        tone: "error"
-                      }
-                    ) : null
-                  ]
-                }
-              ) : null
-            ] })
-          ]
-        }
-      )
-    ] }) })
-  ] });
-}
-function LocalConnectorDialog(props) {
-  const { t } = useTranslation();
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    ConnectorDialogFrame,
-    {
-      open: true,
-      onOpenChange: (open) => !open && props.onClose(),
-      actionUiId: `connector-${props.connectorId}-setup-dialog`,
-      closeActionUiId: `connector-${props.connectorId}-close`,
-      closeLabel: t("common.close"),
-      size: "md",
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(LocalConnectorSetupContent, { ...props })
-    }
-  );
-}
 function LocalConnectorIntroContent({
   connectorId,
+  displayName,
+  description,
+  origin,
+  app,
+  skills: connectorSkills,
+  examplePrompts,
   serverName,
   iconUrl,
   onConfigure,
@@ -2129,7 +1030,8 @@ function LocalConnectorIntroContent({
   onUpdated,
   onRemoved
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language = i18n?.language ?? "en";
   const targetName = serverName ?? connectorId;
   const [connectorStatus, setConnectorStatus] = reactExports.useState();
   const [updating, setUpdating] = reactExports.useState(false);
@@ -2148,7 +1050,7 @@ function LocalConnectorIntroContent({
     };
   }, [targetName]);
   const handleUpdate = async () => {
-    if (updating) return;
+    if (updating || connectorStatus?.state === "installing") return;
     setUpdating(true);
     setUpdateError(void 0);
     try {
@@ -2164,12 +1066,8 @@ function LocalConnectorIntroContent({
         }
         return;
       }
-      if (result.code === "host_app_selection_required" || result.code === "invalid_host_directory") {
-        onConfigure();
-        return;
-      }
       const reason = t(`connectors.connector.error.${result.code}`, {
-        name: t(`connectors.catalog.${connectorId}.title`)
+        name: connectorTitle(t, language, connectorId, displayName)
       });
       setUpdateError(result.message ? `${reason}: ${result.message.trim()}` : reason);
     } catch {
@@ -2180,18 +1078,10 @@ function LocalConnectorIntroContent({
   };
   const displayState = savedServer ? toConnectorDisplayState(savedServer.runtimeState) : void 0;
   const hasSavedConnection = Boolean(savedServer);
-  const connected = displayState === "connected";
-  const needsAttention = displayState === "failed";
-  const suggestionsDisabled = needsAttention || savedServer?.enabled === false;
-  const connectorName = t(`connectors.catalog.${connectorId}.title`);
-  const promptActionMode = needsAttention ? "requiresRecovery" : savedServer?.enabled === false ? "requiresEnable" : connected ? "ready" : "requiresConnection";
-  const promptKeys = [0, 1, 2].map((index) => `connectors.detail.${connectorId}.prompt.${index}`);
+  const connected = isConnectorUsable(displayState);
+  const connectorName = connectorTitle(t, language, connectorId, displayName);
   const handlePromptClick = (prompt) => {
-    if (connected) {
-      onTry(prompt);
-      return;
-    }
-    onConfigure();
+    onTry(prompt);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "shrink-0 items-center px-4 pt-8 text-center sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConnectorRelationshipGraphic, { targetIconUrl: iconUrl }) }),
@@ -2201,7 +1091,11 @@ function LocalConnectorIntroContent({
           ConnectorDialogSummary,
           {
             title: connectorName,
-            description: t(`connectors.detail.${connectorId}.description`),
+            description: t(
+              `connectors.detail.${connectorId}.description`,
+              localizedI18nText(description, language)
+            ),
+            origin,
             status: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "span",
               {
@@ -2244,7 +1138,7 @@ function LocalConnectorIntroContent({
                   mode: "update",
                   label: t(connectorSummaryActionLabelKey.update),
                   loading: updating,
-                  disabled: updating,
+                  disabled: updating || connectorStatus?.state === "installing",
                   onClick: () => void handleUpdate(),
                   "data-action-ui-id": `connector-${connectorId}-detail-update`
                 }
@@ -2271,24 +1165,39 @@ function LocalConnectorIntroContent({
         ) }) : null
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ConnectorCapabilityList,
+        {
+          ...app ? { app: { key: "app", title: app.name, iconUrl: app.iconUrl } } : {},
+          skills: (connectorSkills ?? []).map((skill) => ({
+            key: skill.key,
+            title: skill.displayName ? localizedCapabilityText(skill.displayName, language) : skill.name,
+            ...skill.description ? { description: skill.description } : {}
+          }))
+        }
+      ),
+      examplePrompts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         ConnectorPromptList,
         {
           title: t("connectors.detail.trySection"),
           description: t("connectors.detail.tryDescription"),
           actionUiId: `connector-${connectorId}-detail-prompts-scroll`,
-          items: promptKeys.map((key) => {
-            const text = t(key);
+          items: examplePrompts.map((prompt) => {
+            const text = t(
+              prompt.key,
+              prompt.text ? localizedI18nText(prompt.text, language) : ""
+            );
             return {
-              key,
-              title: t(key.replace(".prompt.", ".promptTitle.")),
+              key: prompt.key,
+              title: prompt.titleKey ? t(
+                prompt.titleKey,
+                prompt.titleText ? localizedI18nText(prompt.titleText, language) : ""
+              ) : void 0,
               description: text,
-              muted: !connected,
               action: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 ConnectorPromptAction,
                 {
-                  mode: promptActionMode,
-                  label: t(connectorPromptActionLabelKey[promptActionMode]),
-                  disabled: suggestionsDisabled,
+                  mode: "ready",
+                  label: t("connectors.detail.tryInChat"),
                   onClick: () => handlePromptClick(text),
                   "data-action-ui-id": `connector-${connectorId}-detail-prompt`
                 }
@@ -2296,12 +1205,18 @@ function LocalConnectorIntroContent({
             };
           })
         }
-      )
+      ) : null
     ] })
   ] });
 }
 function LocalConnectorDetailDialog({
   connectorId,
+  displayName,
+  description,
+  origin,
+  app,
+  skills,
+  examplePrompts,
   serverName,
   iconUrl,
   onClose,
@@ -2335,6 +1250,7 @@ function LocalConnectorDetailDialog({
             LocalConnectorSetupContent,
             {
               connectorId,
+              displayName,
               serverName,
               iconUrl,
               setupUrl,
@@ -2345,6 +1261,12 @@ function LocalConnectorDetailDialog({
             LocalConnectorIntroContent,
             {
               connectorId,
+              displayName,
+              description,
+              origin,
+              app,
+              skills,
+              examplePrompts,
               serverName,
               iconUrl,
               onConfigure: () => setMode("setup"),
@@ -2362,217 +1284,62 @@ function LocalConnectorDetailDialog({
   );
 }
 const CONNECTOR_SORT_MODES = ["default", "connected-first"];
-function isLocalConnector(connector2) {
-  return connector2.entry.type === "local-app";
-}
-function isWebApiConnector(connector2) {
-  return connector2.entry.type === "web-api";
-}
-const CONNECTOR_CATALOG = [
-  {
-    id: "blender",
-    entry: { type: "local-app", connectorId: "blender" },
-    titleKey: "connectors.catalog.blender.title",
-    descriptionKey: "connectors.catalog.blender.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.blender.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.blender.iconUrl,
-      descriptionKey: "connectors.detail.blender.description",
-      examplePrompts: [
-        { key: "connectors.detail.blender.prompt.0" },
-        { key: "connectors.detail.blender.prompt.1" },
-        { key: "connectors.detail.blender.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "photoshop",
-    entry: { type: "local-app", connectorId: "photoshop" },
-    titleKey: "connectors.catalog.photoshop.title",
-    descriptionKey: "connectors.catalog.photoshop.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.photoshop.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.photoshop.iconUrl,
-      descriptionKey: "connectors.detail.photoshop.description",
-      examplePrompts: [
-        { key: "connectors.detail.photoshop.prompt.0" },
-        { key: "connectors.detail.photoshop.prompt.1" },
-        { key: "connectors.detail.photoshop.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "after-effects",
-    entry: { type: "local-app", connectorId: "after-effects" },
-    titleKey: "connectors.catalog.after-effects.title",
-    descriptionKey: "connectors.catalog.after-effects.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS["after-effects"].matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS["after-effects"].iconUrl,
-      descriptionKey: "connectors.detail.after-effects.description",
-      examplePrompts: [
-        { key: "connectors.detail.after-effects.prompt.0" },
-        { key: "connectors.detail.after-effects.prompt.1" },
-        { key: "connectors.detail.after-effects.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "houdini",
-    entry: { type: "local-app", connectorId: "houdini" },
-    titleKey: "connectors.catalog.houdini.title",
-    descriptionKey: "connectors.catalog.houdini.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.houdini.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.houdini.iconUrl,
-      descriptionKey: "connectors.detail.houdini.description",
-      examplePrompts: [
-        { key: "connectors.detail.houdini.prompt.0" },
-        { key: "connectors.detail.houdini.prompt.1" },
-        { key: "connectors.detail.houdini.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "touchdesigner",
-    entry: { type: "local-app", connectorId: "touchdesigner" },
-    titleKey: "connectors.catalog.touchdesigner.title",
-    descriptionKey: "connectors.catalog.touchdesigner.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.touchdesigner.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.touchdesigner.iconUrl,
-      descriptionKey: "connectors.detail.touchdesigner.description",
-      setupUrl: CDN_TOUCHDESIGNER_COMPONENTS,
-      examplePrompts: [
-        { key: "connectors.detail.touchdesigner.prompt.0" },
-        { key: "connectors.detail.touchdesigner.prompt.1" },
-        { key: "connectors.detail.touchdesigner.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "unity",
-    entry: { type: "local-app", connectorId: "unity" },
-    titleKey: "connectors.catalog.unity.title",
-    descriptionKey: "connectors.catalog.unity.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.unity.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.unity.iconUrl,
-      descriptionKey: "connectors.detail.unity.description",
-      examplePrompts: [
-        { key: "connectors.detail.unity.prompt.0" },
-        { key: "connectors.detail.unity.prompt.1" },
-        { key: "connectors.detail.unity.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "unreal",
-    entry: { type: "local-app", connectorId: "unreal" },
-    titleKey: "connectors.catalog.unreal.title",
-    descriptionKey: "connectors.catalog.unreal.description",
-    icon: Box,
-    matches: OFFICIAL_CONNECTORS.unreal.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.unreal.iconUrl,
-      descriptionKey: "connectors.detail.unreal.description",
-      examplePrompts: [
-        { key: "connectors.detail.unreal.prompt.0" },
-        { key: "connectors.detail.unreal.prompt.1" },
-        { key: "connectors.detail.unreal.prompt.2" }
-      ]
-    }
-  },
-  {
-    id: "fastmoss",
-    entry: { type: "web-api", Dialog: FastMossConnectorDialog },
-    titleKey: "connectors.catalog.fastmoss.title",
-    descriptionKey: "connectors.catalog.fastmoss.description",
-    icon: ChartNoAxesCombined,
-    matches: OFFICIAL_CONNECTORS.fastmoss.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.fastmoss.iconUrl,
-      descriptionKey: "connectors.detail.fastmoss.description",
-      examplePrompts: [
-        {
-          key: "connectors.detail.fastmoss.prompt.0",
-          titleKey: "connectors.detail.fastmoss.promptTitle.0"
-        },
-        {
-          key: "connectors.detail.fastmoss.prompt.1",
-          titleKey: "connectors.detail.fastmoss.promptTitle.1"
-        },
-        {
-          key: "connectors.detail.fastmoss.prompt.2",
-          titleKey: "connectors.detail.fastmoss.promptTitle.2"
-        }
-      ]
-    }
-  },
-  ...Object.entries(KEY_MCP_PRESETS).map(
-    ([id]) => ({
-      id,
-      entry: {
-        type: "web-api",
-        Dialog: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(MarketplaceKeyConnectorDialog, { ...props, provider: id })
-      },
-      titleKey: `connectors.catalog.${id}.title`,
-      descriptionKey: `connectors.catalog.${id}.description`,
-      icon: Globe,
-      matches: OFFICIAL_CONNECTORS[id].matches,
-      detail: {
-        iconUrl: OFFICIAL_CONNECTORS[id].iconUrl,
-        descriptionKey: `connectors.detail.${id}.description`,
-        examplePrompts: [
+function ConnectorCategoryChips({
+  categories,
+  value,
+  onValueChange
+}) {
+  const { t } = useTranslation();
+  const chipClassName = (active) => cn(
+    "inline-flex h-8 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-md border border-transparent px-2.5 text-[13px] leading-5 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
+    active ? "bg-secondary font-medium text-foreground" : "bg-transparent text-foreground/50 hover:text-foreground"
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "scrollbar-none flex min-w-0 items-center gap-1 overflow-x-auto",
+      "data-layout-slot": "connectors-category-chips",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
           {
-            key: `connectors.detail.${id}.prompt.0`,
-            titleKey: `connectors.detail.${id}.promptTitle.0`
-          },
-          {
-            key: `connectors.detail.${id}.prompt.1`,
-            titleKey: `connectors.detail.${id}.promptTitle.1`
-          },
-          {
-            key: `connectors.detail.${id}.prompt.2`,
-            titleKey: `connectors.detail.${id}.promptTitle.2`
+            type: "button",
+            className: chipClassName(value === null),
+            onClick: () => onValueChange(null),
+            "data-action-ui-id": "connectors-category-all",
+            children: t("connectors.category.all")
           }
-        ]
-      }
-    })
-  ),
-  {
-    id: "libtv",
-    entry: { type: "web-api", Dialog: LibTvConnectorDialog },
-    titleKey: "connectors.catalog.libtv.title",
-    descriptionKey: "connectors.catalog.libtv.description",
-    icon: Globe,
-    matches: OFFICIAL_CONNECTORS.libtv.matches,
-    detail: {
-      iconUrl: OFFICIAL_CONNECTORS.libtv.iconUrl,
-      descriptionKey: "connectors.detail.libtv.description",
-      examplePrompts: [
-        {
-          key: "connectors.detail.libtv.prompt.0",
-          titleKey: "connectors.detail.libtv.promptTitle.0"
-        },
-        {
-          key: "connectors.detail.libtv.prompt.1",
-          titleKey: "connectors.detail.libtv.promptTitle.1"
-        },
-        {
-          key: "connectors.detail.libtv.prompt.2",
-          titleKey: "connectors.detail.libtv.promptTitle.2"
-        }
+        ),
+        categories.map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: chipClassName(value === category),
+            onClick: () => onValueChange(category),
+            "data-action-ui-id": `connectors-category-${category}`,
+            children: t(`connectors.category.${category}`)
+          },
+          category
+        ))
       ]
     }
+  );
+}
+function cardCategory(card) {
+  if (card.kind === "browser") return "data-research";
+  const declared = card.kind === "catalog" ? card.connector.category : card.catalogEntry?.category;
+  return declared && HCP_CATEGORIES.includes(declared) ? declared : "other";
+}
+function runtimeRegion() {
+  try {
+    const config = getRuntimeConfig();
+    if (config.env === "development") return "all";
+    const region = config.region;
+    return region === "domestic" || region === "overseas" ? region : void 0;
+  } catch {
+    return void 0;
   }
-];
+}
 function ConnectorSortMenu({
   value,
   onValueChange
@@ -2687,7 +1454,6 @@ function ConnectorHeaderContent({
   ] });
 }
 function ConnectorsTab({
-  initialConnectorId,
   query: controlledQuery,
   onQueryChange,
   customConnectorOpen: controlledCustomConnectorOpen,
@@ -2696,7 +1462,14 @@ function ConnectorsTab({
   onSortModeChange,
   showHeader = true
 } = {}) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const browserConnector = useBrowserConnector();
+  const browserTitle = t("connectors.catalog.browser.title", "浏览器");
+  const browserDescription = t(
+    "connectors.catalog.browser.description",
+    "允许 Agent 在内置浏览器中浏览网页、查找信息和操作网站。关闭后仍可手动浏览。"
+  );
+  const language = i18n?.language ?? "en";
   const [localQuery, setLocalQuery] = reactExports.useState("");
   const [localCustomConnectorOpen, setLocalCustomConnectorOpen] = reactExports.useState(false);
   const [localSortMode, setLocalSortMode] = reactExports.useState("default");
@@ -2706,12 +1479,14 @@ function ConnectorsTab({
   const setCustomConnectorOpen = onCustomConnectorOpenChange ?? setLocalCustomConnectorOpen;
   const sortMode = controlledSortMode ?? localSortMode;
   const setSortMode = onSortModeChange ?? setLocalSortMode;
+  const [activeCategory, setActiveCategory] = reactExports.useState(null);
   const [activeConnector, setActiveConnector] = reactExports.useState(null);
   const [detailConnector, setDetailConnector] = reactExports.useState(null);
   const [localDetailConnector, setLocalDetailConnector] = reactExports.useState(null);
   const [localConnector, setLocalConnector] = reactExports.useState(null);
-  const [customConnectors, setCustomConnectors] = reactExports.useState([]);
-  const openedConnectorDeepLinksRef = reactExports.useRef(/* @__PURE__ */ new Set());
+  const inventory = useConnectorInventory();
+  const customConnectors = inventory.servers;
+  const setCustomConnectors = inventory.update;
   const { tryConnector } = useTryConnector();
   const [loading, setLoading] = reactExports.useState(true);
   const [loadFailed, setLoadFailed] = reactExports.useState(false);
@@ -2721,9 +1496,9 @@ function ConnectorsTab({
     const epoch = ++loadEpoch.current;
     setLoading(true);
     try {
-      const servers = await homeService.customMcp.list();
+      const servers = await inventory.refresh();
       if (epoch !== loadEpoch.current) return;
-      setCustomConnectors(servers);
+      setCustomConnectors(() => servers);
       setLoadFailed(false);
       setHasLoaded(true);
     } catch {
@@ -2731,7 +1506,7 @@ function ConnectorsTab({
     } finally {
       if (epoch === loadEpoch.current) setLoading(false);
     }
-  }, []);
+  }, [inventory.refresh, setCustomConnectors]);
   const invalidateLoad = () => {
     loadEpoch.current += 1;
     setLoading(false);
@@ -2742,48 +1517,92 @@ function ConnectorsTab({
       loadEpoch.current += 1;
     };
   }, [loadConnectors]);
+  const region = reactExports.useMemo(runtimeRegion, []);
+  const market = useConnectorCatalog();
+  const catalogEntries = market.entries;
+  const catalogLoading = catalogEntries.length === 0 && !loadFailed;
+  const isOperator = market.permission.isOperator;
+  const visibleIds = reactExports.useMemo(
+    () => new Set(market.visibility.visibleConnectorIds),
+    [market.visibility.visibleConnectorIds]
+  );
+  const eligibleIds = reactExports.useMemo(
+    () => new Set(market.displayConnectorIds),
+    [market.displayConnectorIds]
+  );
+  const officialIds = reactExports.useMemo(
+    () => new Set(
+      catalogEntries.filter((entry) => entry.source === "dynamic").map((entry) => entry.manifest.connectorId)
+    ),
+    [catalogEntries]
+  );
+  const visibilityControl = (id, name) => isOperator && officialIds.has(id) ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    ConnectorVisibilityControl,
+    {
+      connectorId: id,
+      name,
+      visible: visibleIds.has(id),
+      pending: market.pendingIds.has(id),
+      onChange: market.setVisibility
+    }
+  ) : void 0;
+  const connectorCatalog = reactExports.useMemo(
+    () => buildConnectorCatalog(catalogEntries, isOperator),
+    [catalogEntries, isOperator]
+  );
   const connectors = reactExports.useMemo(
     () => (
       // A saved connection replaces its catalog entry, including while
       // disabled or failed. Only a successful removal restores the add card.
-      CONNECTOR_CATALOG.filter(
-        (connector2) => !connector2.hidden && !customConnectors.some(connector2.matches)
-      ).map((connector2) => ({
-        ...connector2,
-        title: t(connector2.titleKey),
-        description: t(connector2.descriptionKey)
+      connectorCatalog.filter(
+        (connector) => (isOperator || (!officialIds.has(connector.id) || visibleIds.has(connector.id)) && eligibleIds.has(connector.id) && !connector.hidden && (!connector.regions || region === "all" || region !== void 0 && connector.regions.includes(region))) && !customConnectors.some(connector.matches)
+      ).map((connector) => ({
+        ...connector,
+        title: connectorTitle(t, language, connector.id, connector.titleText),
+        description: connectorDescription(t, language, connector.id, connector.descriptionText)
       }))
     ),
-    [t, customConnectors]
+    [
+      t,
+      language,
+      customConnectors,
+      region,
+      connectorCatalog,
+      isOperator,
+      officialIds,
+      visibleIds,
+      eligibleIds
+    ]
   );
   const normalizedQuery = query.trim().toLocaleLowerCase();
+  const browserVisible = !normalizedQuery || `${browserTitle} ${browserDescription}`.toLocaleLowerCase().includes(normalizedQuery);
   const visibleConnectors = reactExports.useMemo(
     () => normalizedQuery ? connectors.filter(
-      (connector2) => `${connector2.title} ${connector2.description}`.toLocaleLowerCase().includes(normalizedQuery)
+      (connector) => `${connector.title} ${connector.description}`.toLocaleLowerCase().includes(normalizedQuery)
     ) : connectors,
     [connectors, normalizedQuery]
   );
   const savedConnectorViews = reactExports.useMemo(
-    () => customConnectors.map((connector2) => {
-      const catalogEntry = CONNECTOR_CATALOG.find((entry) => entry.matches(connector2));
+    () => customConnectors.map((connector) => {
+      const catalogEntry = connectorCatalog.find((entry) => entry.matches(connector));
       return {
-        connector: connector2,
+        connector,
         catalogEntry,
-        title: catalogEntry ? t(catalogEntry.titleKey) : connector2.name,
-        description: catalogEntry ? t(catalogEntry.descriptionKey) : connector2.description?.trim() ?? ""
+        title: catalogEntry ? connectorTitle(t, language, catalogEntry.id, catalogEntry.titleText) : connector.name,
+        description: catalogEntry ? connectorDescription(t, language, catalogEntry.id, catalogEntry.descriptionText) : connector.description?.trim() ?? ""
       };
     }),
-    [customConnectors, t]
+    [customConnectors, t, language, connectorCatalog]
   );
   const visibleCustomConnectors = reactExports.useMemo(
     () => normalizedQuery ? savedConnectorViews.filter(
-      ({ connector: connector2, title, description }) => `${title} ${description} ${connector2.name} ${connector2.endpoint ?? ""}`.toLocaleLowerCase().includes(normalizedQuery)
+      ({ connector, title, description }) => `${title} ${description} ${connector.name} ${connector.endpoint ?? ""}`.toLocaleLowerCase().includes(normalizedQuery)
     ) : savedConnectorViews,
     [normalizedQuery, savedConnectorViews]
   );
   const visibleConnectorCards = reactExports.useMemo(() => {
     const visibleCatalogById = new Map(
-      visibleConnectors.map((connector2) => [connector2.id, connector2])
+      visibleConnectors.map((connector) => [connector.id, connector])
     );
     const allSavedCatalogIds = new Set(
       savedConnectorViews.flatMap(({ catalogEntry }) => catalogEntry ? [catalogEntry.id] : [])
@@ -2795,33 +1614,53 @@ function ConnectorsTab({
       current.push({ kind: "saved", ...view });
       visibleSavedByCatalogId.set(view.catalogEntry.id, current);
     }
-    const orderedCards = [];
-    const libTvCards = [];
-    for (const catalogEntry of CONNECTOR_CATALOG) {
-      const cards = catalogEntry.id === "libtv" ? libTvCards : orderedCards;
+    const orderedCards = browserVisible ? [{ kind: "browser" }] : [];
+    for (const catalogEntry of connectorCatalog) {
       if (allSavedCatalogIds.has(catalogEntry.id)) {
-        cards.push(...visibleSavedByCatalogId.get(catalogEntry.id) ?? []);
+        orderedCards.push(...visibleSavedByCatalogId.get(catalogEntry.id) ?? []);
         continue;
       }
-      const connector2 = visibleCatalogById.get(catalogEntry.id);
-      if (connector2) cards.push({ kind: "catalog", connector: connector2 });
+      const connector = visibleCatalogById.get(catalogEntry.id);
+      if (connector) orderedCards.push({ kind: "catalog", connector });
     }
     orderedCards.push(
       ...visibleCustomConnectors.filter(({ catalogEntry }) => !catalogEntry).map((view) => ({ kind: "saved", ...view }))
     );
-    return [...orderedCards, ...libTvCards];
-  }, [savedConnectorViews, visibleConnectors, visibleCustomConnectors]);
+    return orderedCards;
+  }, [
+    browserVisible,
+    savedConnectorViews,
+    visibleConnectors,
+    visibleCustomConnectors,
+    connectorCatalog
+  ]);
   const sortedVisibleConnectorCards = reactExports.useMemo(() => {
     if (sortMode === "default") return visibleConnectorCards;
     const connectedCards = [];
     const remainingCards = [];
     for (const card of visibleConnectorCards) {
-      const isConnected = card.kind === "saved" && toConnectorDisplayState(card.connector.runtimeState) === "connected";
+      const isConnected = card.kind === "browser" ? browserConnector.enabled : card.kind === "saved" && isConnectorUsable(toConnectorDisplayState(card.connector.runtimeState));
       (isConnected ? connectedCards : remainingCards).push(card);
     }
     return [...connectedCards, ...remainingCards];
-  }, [sortMode, visibleConnectorCards]);
-  const resultCount = sortedVisibleConnectorCards.length;
+  }, [browserConnector.enabled, sortMode, visibleConnectorCards]);
+  const availableCategories = reactExports.useMemo(() => {
+    const present = new Set(visibleConnectorCards.map(cardCategory));
+    return HCP_CATEGORIES.filter((category) => present.has(category));
+  }, [visibleConnectorCards]);
+  const categoryCards = reactExports.useMemo(
+    () => activeCategory === null ? sortedVisibleConnectorCards : sortedVisibleConnectorCards.filter((card) => cardCategory(card) === activeCategory),
+    [activeCategory, sortedVisibleConnectorCards]
+  );
+  const grouped = activeCategory === null && sortMode === "default";
+  const categorySections = reactExports.useMemo(() => {
+    if (!grouped) return [{ category: activeCategory ?? "all", cards: categoryCards }];
+    return HCP_CATEGORIES.map((category) => ({
+      category,
+      cards: categoryCards.filter((card) => cardCategory(card) === category)
+    })).filter((section) => section.cards.length > 0);
+  }, [grouped, activeCategory, categoryCards]);
+  const resultCount = categoryCards.length;
   const handleCreated = (result) => {
     invalidateLoad();
     setCustomConnectors(
@@ -2832,40 +1671,25 @@ function ConnectorsTab({
     const displayState = toConnectorDisplayState(result.runtime.state);
     const key = `connectors.customDialog.created.${displayState}`;
     if (displayState === "connected") dedupedToast.success(t(key));
-    else if (displayState === "failed") dedupedToast.error(t(key));
     else dedupedToast.warning(t(key));
   };
-  const handleCardClick = (connector2, savedServer) => {
-    if (!connector2.detail) return;
-    if (isLocalConnector(connector2))
-      setLocalDetailConnector({ ...connector2, serverName: savedServer?.name });
-    else setDetailConnector(connector2);
+  const handleCardClick = (connector, savedServer) => {
+    if (!connector.detail) return;
+    if (isLocalConnector(connector))
+      setLocalDetailConnector({ ...connector, serverName: savedServer?.name });
+    else setDetailConnector(connector);
   };
-  const handleQuickConnect = (connector2) => {
+  const handleQuickConnect = (connector) => {
     setDetailConnector(null);
     setLocalDetailConnector(null);
-    if (isWebApiConnector(connector2)) {
-      setActiveConnector(connector2);
+    if (isWebApiConnector(connector)) {
+      setActiveConnector(connector);
       return;
     }
     setActiveConnector(null);
-    setLocalConnector(connector2);
+    setLocalConnector(connector);
   };
-  const findSavedServer = (connector2) => customConnectors.find(connector2.matches);
-  reactExports.useEffect(() => {
-    if (!initialConnectorId || !hasLoaded || openedConnectorDeepLinksRef.current.has(initialConnectorId)) {
-      return;
-    }
-    const connector2 = CONNECTOR_CATALOG.find((entry) => entry.id === initialConnectorId);
-    if (!connector2?.detail) return;
-    openedConnectorDeepLinksRef.current.add(initialConnectorId);
-    const savedServer = customConnectors.find(connector2.matches);
-    if (isLocalConnector(connector2)) {
-      setLocalDetailConnector({ ...connector2, serverName: savedServer?.name });
-    } else {
-      setDetailConnector(connector2);
-    }
-  }, [customConnectors, hasLoaded, initialConnectorId]);
+  const findSavedServer = (connector) => customConnectors.find(connector.matches);
   const handleConnectorUpdated = (updated) => {
     invalidateLoad();
     setCustomConnectors(
@@ -2878,6 +1702,17 @@ function ConnectorsTab({
   };
   const ActiveConnectorDialog = activeConnector?.entry.Dialog;
   const DetailConnectorSetupDialog = detailConnector && isWebApiConnector(detailConnector) ? detailConnector.entry.Dialog : void 0;
+  const browserCard = /* @__PURE__ */ jsxRuntimeExports.jsx(
+    BrowserConnectorCard,
+    {
+      title: browserTitle,
+      description: browserDescription,
+      enabled: browserConnector.enabled,
+      pending: browserConnector.pending,
+      onEnabledChange: browserConnector.handleEnabledChange
+    },
+    "builtin:browser"
+  );
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex flex-col gap-6", "data-action-ui-id": "connectors-tab", children: [
     showHeader ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
@@ -2892,7 +1727,7 @@ function ConnectorsTab({
             sortMode,
             onSortModeChange: setSortMode,
             onCustomConnector: () => setCustomConnectorOpen(true),
-            customDisabled: !hasLoaded || loading
+            customDisabled: !hasLoaded || loading || catalogLoading
           }
         )
       }
@@ -2901,6 +1736,15 @@ function ConnectorsTab({
       t("connectors.loadFailed"),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", disabled: loading, onClick: () => void loadConnectors(), children: t("common.retry") })
     ] }) }) : null,
+    availableCategories.length > 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ConnectorCategoryChips,
+      {
+        categories: availableCategories,
+        value: activeCategory,
+        onValueChange: setActiveCategory
+      }
+    ) : null,
+    (loadFailed && !hasLoaded || catalogLoading) && browserVisible && (activeCategory === null || activeCategory === "data-research") ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3", children: browserCard }) : null,
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       PageStateBoundary,
       {
@@ -2910,90 +1754,99 @@ function ConnectorsTab({
           text: t("connectors.loadFailed"),
           retry: { onClick: () => void loadConnectors(), loading }
         },
-        children: resultCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        children: catalogLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
-            className: "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3",
-            "data-action-ui-id": "connectors-list",
-            children: sortedVisibleConnectorCards.map((card) => {
-              if (card.kind === "saved") {
-                const { connector: connector22, catalogEntry, title, description } = card;
-                return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  CustomConnectorCard,
-                  {
-                    connector: connector22,
-                    title,
-                    description,
-                    icon: catalogEntry?.icon,
-                    iconUrl: catalogEntry?.detail?.iconUrl,
-                    onClick: catalogEntry?.detail ? () => handleCardClick(catalogEntry, connector22) : void 0,
-                    onUpdated: handleConnectorUpdated,
-                    onRemoved: handleConnectorRemoved
-                  },
-                  `saved:${connector22.name}`
-                );
-              }
-              const { connector: connector2 } = card;
-              return (
-                // biome-ignore lint/a11y/useKeyWithClickEvents: catalog card click
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "article",
-                  {
-                    className: "relative flex min-h-40 cursor-pointer flex-col rounded-2xl border border-border bg-card p-5",
-                    "data-action-ui-id": "connectors-card",
-                    "data-connector-id": connector2.id,
-                    onClick: () => handleCardClick(connector2),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          ConnectorIcon,
-                          {
-                            iconUrl: connector2.detail?.iconUrl,
-                            size: "card",
-                            fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              Icon,
-                              {
-                                icon: connector2.icon,
-                                size: "lg",
-                                "aria-hidden": true,
-                                className: "text-foreground/70"
-                              }
-                            )
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          Button,
-                          {
-                            type: "button",
-                            variant: "ghost",
-                            size: "icon",
-                            disabled: !hasLoaded || loading,
-                            "aria-label": t("connectors.addAria", { name: connector2.title }),
-                            onClick: (event) => {
-                              event.stopPropagation();
-                              handleQuickConnect(connector2);
-                            },
-                            className: "size-10 rounded-[10px] bg-secondary text-foreground hover:bg-popup-item-active hover:text-foreground",
-                            "data-action-ui-id": `connectors-add-${connector2.id}`,
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "md", "aria-hidden": true })
-                          }
-                        )
-                      ] }),
+            className: "flex min-h-48 items-center justify-center",
+            "data-action-ui-id": "connectors-loading",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-muted-foreground", children: t("common.loading", "Loading…") })
+          }
+        ) : resultCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-8", "data-action-ui-id": "connectors-list", children: categorySections.map((section) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "data-connector-category": section.category, children: [
+          grouped ? /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-3 text-[13px] font-medium text-muted-foreground", children: t(`connectors.category.${section.category}`) }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3", children: section.cards.map((card) => {
+            if (card.kind === "browser") return browserCard;
+            if (card.kind === "saved") {
+              const { connector: connector2, catalogEntry, title, description } = card;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                CustomConnectorCard,
+                {
+                  connector: connector2,
+                  editable: !findOfficialConnectorForServer(connector2),
+                  title,
+                  description,
+                  icon: catalogEntry?.icon,
+                  iconUrl: catalogEntry?.detail?.iconUrl,
+                  origin: catalogEntry?.origin,
+                  marketControls: catalogEntry ? visibilityControl(catalogEntry.id, title) : void 0,
+                  onClick: catalogEntry?.detail ? () => handleCardClick(catalogEntry, connector2) : void 0,
+                  onUpdated: handleConnectorUpdated,
+                  onRemoved: handleConnectorRemoved
+                },
+                `saved:${connector2.name}`
+              );
+            }
+            const { connector } = card;
+            return (
+              // biome-ignore lint/a11y/useKeyWithClickEvents: catalog card click
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "article",
+                {
+                  className: "relative flex min-h-40 cursor-pointer flex-col rounded-2xl border border-border bg-card p-5",
+                  "data-action-ui-id": "connectors-card",
+                  "data-connector-id": connector.id,
+                  onClick: () => handleCardClick(connector),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        ConnectorCardContent,
+                        ConnectorIcon,
                         {
-                          title: connector2.title,
-                          description: connector2.description
+                          iconUrl: connector.detail?.iconUrl,
+                          size: "card",
+                          fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            Icon,
+                            {
+                              icon: connector.icon,
+                              size: "lg",
+                              "aria-hidden": true,
+                              className: "text-foreground/70"
+                            }
+                          )
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Button,
+                        {
+                          type: "button",
+                          variant: "ghost",
+                          size: "icon",
+                          disabled: !hasLoaded || loading,
+                          "aria-label": t("connectors.addAria", { name: connector.title }),
+                          onClick: (event) => {
+                            event.stopPropagation();
+                            handleQuickConnect(connector);
+                          },
+                          className: "size-10 rounded-[10px] bg-secondary text-foreground hover:bg-popup-item-active hover:text-foreground",
+                          "data-action-ui-id": `connectors-add-${connector.id}`,
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Plus, size: "md", "aria-hidden": true })
                         }
                       )
-                    ]
-                  },
-                  `catalog:${connector2.id}`
-                )
-              );
-            })
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ConnectorCardContent,
+                      {
+                        title: connector.title,
+                        description: connector.description,
+                        origin: connector.origin
+                      }
+                    ),
+                    visibilityControl(connector.id, connector.title)
+                  ]
+                },
+                `catalog:${connector.id}`
+              )
+            );
+          }) })
+        ] }, section.category)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             className: "flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card text-center",
@@ -3020,6 +1873,7 @@ function ConnectorsTab({
       LocalConnectorDialog,
       {
         connectorId: localConnector.id,
+        displayName: localConnector.titleText,
         serverName: localConnector.serverName,
         iconUrl: localConnector.detail?.iconUrl ?? "",
         setupUrl: localConnector.detail?.setupUrl,
@@ -3032,6 +1886,12 @@ function ConnectorsTab({
       LocalConnectorDetailDialog,
       {
         connectorId: localDetailConnector.id,
+        displayName: localDetailConnector.titleText,
+        description: localDetailConnector.descriptionText,
+        origin: localDetailConnector.origin,
+        app: localDetailConnector.detail.app,
+        skills: localDetailConnector.detail.skills,
+        examplePrompts: localDetailConnector.detail.examplePrompts,
         serverName: localDetailConnector.serverName,
         iconUrl: localDetailConnector.detail.iconUrl,
         setupUrl: localDetailConnector.detail.setupUrl,
@@ -3045,7 +1905,12 @@ function ConnectorsTab({
           void tryConnector(
             {
               ...connectorReferenceFromServer(saved),
-              displayName: t(localDetailConnector.titleKey),
+              displayName: connectorTitle(
+                t,
+                language,
+                localDetailConnector.id,
+                localDetailConnector.titleText
+              ),
               iconUrl: localDetailConnector.detail?.iconUrl ?? null
             },
             prompt
@@ -3062,7 +1927,6 @@ function ConnectorsTab({
     activeConnector && ActiveConnectorDialog ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       ActiveConnectorDialog,
       {
-        onPrepared: () => void loadConnectors(),
         onClose: () => setActiveConnector(null),
         onSubmit: (input) => homeService.customMcp.create(input),
         onCreated: (result) => {
@@ -3086,7 +1950,6 @@ function ConnectorsTab({
           DetailConnectorSetupDialog,
           {
             embedded: true,
-            onPrepared: () => void loadConnectors(),
             onBusyChange,
             onClose: () => setDetailConnector(null),
             onSubmit: (input) => homeService.customMcp.create(input),
@@ -3110,6 +1973,93 @@ function ConnectorsTab({
       }
     ) : null
   ] });
+}
+const EXIT_DURATION_MS = 220;
+function AutoUpdateBanner({
+  pending,
+  restarting,
+  onRestart,
+  onDismiss
+}) {
+  const { t } = useTranslation();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      "data-action-ui-id": "skills-auto-update-banner",
+      className: "flex w-full items-center gap-3 rounded-lg bg-brand-accent/[0.04] p-2.5",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 text-brand-accent", children: /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 16, className: restarting ? "animate-spin" : "" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1 text-sm font-medium text-foreground", children: restarting ? t("skills.autoUpdateBanner.restarting") : t("skills.autoUpdateBanner.completed", { count: pending.updatedCount }) }),
+        !restarting && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: "ghost",
+            size: "icon-xs",
+            "data-action-ui-id": "skills-auto-update-dismiss",
+            "aria-label": t("common.close"),
+            className: "h-6 w-6 text-muted-foreground hover:text-foreground",
+            onClick: onDismiss,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12, strokeWidth: 1.5 })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            "data-action-ui-id": "skills-auto-update-restart",
+            variant: "secondary",
+            size: "xs",
+            className: "h-7 border-0 bg-brand-accent px-3 text-xs font-medium text-brand-accent-foreground hover:bg-brand-accent/90",
+            onClick: onRestart,
+            disabled: restarting,
+            children: t("skills.autoUpdateBanner.restartNow")
+          }
+        )
+      ]
+    }
+  );
+}
+function AutoUpdateBannerPresence({
+  pending,
+  restarting,
+  onRestart,
+  onDismiss
+}) {
+  const [renderedPending, setRenderedPending] = reactExports.useState(pending);
+  const [expanded, setExpanded] = reactExports.useState(Boolean(pending));
+  reactExports.useEffect(() => {
+    if (pending) {
+      setRenderedPending(pending);
+      const frame = window.requestAnimationFrame(() => setExpanded(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
+    setExpanded(false);
+    const timeout = window.setTimeout(() => setRenderedPending(null), EXIT_DURATION_MS);
+    return () => window.clearTimeout(timeout);
+  }, [pending]);
+  if (!renderedPending) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      "data-layout-slot": "skills-auto-update-presence",
+      "data-state": expanded ? "open" : "closed",
+      className: `grid transition-[grid-template-rows,opacity] duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${expanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: `pb-3 transition-transform duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${expanded ? "translate-y-0" : "-translate-y-1"}`,
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AutoUpdateBanner,
+            {
+              pending: renderedPending,
+              restarting,
+              onRestart,
+              onDismiss
+            }
+          )
+        }
+      ) })
+    }
+  );
 }
 function hasSubmissionShowcase(showcase) {
   return showcase?.length === 1 && Boolean(normalizePublicSkillShowcaseUrl(showcase[0]));
@@ -3271,6 +2221,117 @@ async function offlineCreatorPlanSubmission(skillName) {
     body: JSON.stringify({ skill_name: skillName })
   });
 }
+const MY_SKILL_STATUSES = {
+  private: ["skills.mine.status.private", "Private"],
+  pending: ["skills.mine.status.pending", "Review pending"],
+  approved: ["skills.mine.status.readyToPublish", "Awaiting publication"],
+  published: ["skills.mine.status.published", "Published"],
+  offline: ["skills.mine.status.offline", "Offline"],
+  rejected: ["skills.mine.status.rejected", "Rejected"],
+  loading: ["skills.mine.status.loading", "Loading submission status"],
+  unknown: ["skills.mine.status.unknown", "Submission status unavailable"]
+};
+const MY_SKILL_REVIEW_ACTIONS = {
+  private: ["skills.mine.prepareReview", "Prepare submission"],
+  rejected: ["skills.mine.reapply", "Edit and resubmit"],
+  offline: ["skills.mine.reapply", "Edit and resubmit"]
+};
+function mySkillStatus(submission, loadState) {
+  if (submission) {
+    return Object.hasOwn(MY_SKILL_STATUSES, submission.status) ? submission.status : "unknown";
+  }
+  return loadState === "ready" ? "private" : loadState === "loading" ? "loading" : "unknown";
+}
+function mySkillCover(skill, submission, overseas) {
+  return submission?.coverUrl?.trim() || (overseas ? skill.coverUrlEn?.trim() : "") || skill.coverUrl?.trim() || "";
+}
+function mySkillText(skill, submission, language) {
+  const structured = submission?.structuredInfo ?? normalizeSkillDetailMetadata({ ...skill }).structuredInfo;
+  const isZh = language.startsWith("zh");
+  return {
+    name: submission?.displayName?.trim() || (isZh ? skill.displayNameZh?.trim() : "") || toDisplayName(skill.name),
+    summary: structured && selectSkillStructuredInfo(structured, language).info.summary || (isZh ? skill.summaryZh || skill.summary : skill.summary || skill.summaryZh) || "",
+    version: submission?.packageVersion?.trim() || skill.version?.trim() || ""
+  };
+}
+function SkillApplicationDialog({
+  open,
+  onOpenChange,
+  submission,
+  taxonomy = []
+}) {
+  const { t, i18n } = useTranslation();
+  const status = MY_SKILL_STATUSES[mySkillStatus(submission, "error")];
+  const info = submission?.structuredInfo && selectSkillStructuredInfo(submission.structuredInfo, i18n.language).info;
+  const categoryLabel = (code) => {
+    const item = taxonomy.find((entry) => entry.category === code);
+    return item ? i18n.language.startsWith("zh") ? item.cn_name : item.en_name : code;
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { size: "lg", "data-action-ui-id": "skill-application-dialog", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: t("skills.mine.viewApplication", "View application") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: t("skills.mine.applicationReadOnly", "Submission information and review progress.") })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex max-h-[65vh] flex-col gap-4 overflow-y-auto break-words", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-medium", children: submission?.displayName || submission?.skillName }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "secondary", children: t(status[0], status[1]) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground", children: [
+        submission?.skillName,
+        submission?.packageVersion ? ` · v${submission.packageVersion}` : ""
+      ] }),
+      submission && /* @__PURE__ */ jsxRuntimeExports.jsxs("dl", { className: "grid grid-cols-1 gap-3 text-sm sm:grid-cols-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.creator", "Creator") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: submission.creator })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.categories", "Category") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: submission.categories.map(categoryLabel).join(" · ") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.stage", "Creation stage") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: categoryLabel(submission.stage) })
+        ] }),
+        submission.coverUrl && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "a",
+          {
+            className: "text-xs underline",
+            href: submission.coverUrl,
+            target: "_blank",
+            rel: "noreferrer",
+            children: t("skills.submission.cover", "Cover")
+          }
+        ) }),
+        submission.showcase?.map((url) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "text-xs underline", href: url, target: "_blank", rel: "noreferrer", children: t("skills.submission.showcase", "Showcase") }) }, url))
+      ] }),
+      submission?.reviewNote && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg bg-muted p-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-medium", children: t("skills.mine.reviewNote", "Review feedback") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 whitespace-pre-wrap text-sm", children: submission.reviewNote })
+      ] }),
+      info && /* @__PURE__ */ jsxRuntimeExports.jsxs("dl", { className: "flex flex-col gap-3 text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.summary", "One-line summary") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "mt-1 whitespace-pre-wrap", children: info.summary })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.bestFor", "Best For") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "mt-1", children: info.best_for.join(" · ") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.howToUse", "How to Use") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "mt-1 whitespace-pre-wrap", children: info.how_to_use })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { className: "text-xs text-muted-foreground", children: t("skills.submission.outputs", "Outputs") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { className: "mt-1 whitespace-pre-wrap", children: info.outputs })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogFooter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline", onClick: () => onOpenChange(false), children: t("common.close", "Close") }) })
+  ] }) });
+}
 const MAX_PACKAGE_BYTES = 50 * 1024 * 1024;
 const MAX_COVER_BYTES = 10 * 1024 * 1024;
 const MAX_SHOWCASE_BYTES = 1e3 * 1024 * 1024;
@@ -3288,6 +2349,7 @@ function inferTaxonomy(tags, configuredCategories, configuredStages) {
   return { categories: categories.slice(0, 3), stage };
 }
 function CreatorPlanDialog({
+  mode = "review",
   open,
   onOpenChange,
   mySkills,
@@ -3303,6 +2365,7 @@ function CreatorPlanDialog({
   const isZh = i18n.language.startsWith("zh");
   const preferredLocale = normalizeSkillContentLocale(i18n.language);
   const isEditing = !!defaultSkillName;
+  const viewOnly = mode === "view" || existingSubmission?.status === "pending" || existingSubmission?.status === "approved";
   const {
     categories: configuredCategories,
     stages: configuredStages,
@@ -3663,6 +2726,7 @@ function CreatorPlanDialog({
     }) : errorMessage(validationErrors.packageVersion)
   };
   const handleSave = async (applyForReview) => {
+    if (viewOnly || applyForReview && mode === "edit") return;
     if (applyForReview) setReviewAttempted(true);
     if (applyForReview && !reviewComplete || !applyForReview && !privateSaveReady) {
       dedupedToast.error(t("skills.submission.incomplete", "Complete all Skill information first"));
@@ -3715,6 +2779,16 @@ function CreatorPlanDialog({
       setSavingMode(null);
     }
   };
+  if (viewOnly)
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SkillApplicationDialog,
+      {
+        taxonomy: [...configuredCategories, ...configuredStages],
+        open,
+        onOpenChange,
+        submission: existingSubmission
+      }
+    );
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     DialogContent,
     {
@@ -3723,7 +2797,7 @@ function CreatorPlanDialog({
       className: "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { className: "border-b border-border px-6 py-5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: isEditing ? t("skills.submission.editTitle", "Edit Skill information") : t("skills.submission.title", "Submit Skill") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base", children: mode === "review" && isEditing ? t("skills.mine.prepareReview", "Prepare submission") : isEditing ? t("skills.submission.editTitle", "Edit Skill information") : t("skills.header.submitSkill", "Submit Skill") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: isEditing ? t(
             "skills.submission.editSubtitle",
             "Update listing information or upload a new package for this Skill."
@@ -3856,16 +2930,32 @@ function CreatorPlanDialog({
                       );
                   },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectTrigger, { "data-action-ui-id": "skill-submission-design-select", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      SelectValue,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      SelectTrigger,
                       {
-                        placeholder: t(
-                          "skills.submission.chooseDesignPlaceholder",
-                          "Select a Skill you've created"
+                        className: "w-full min-w-0",
+                        "data-action-ui-id": "skill-submission-design-select",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          SelectValue,
+                          {
+                            className: "min-w-0 truncate",
+                            placeholder: t(
+                              "skills.submission.chooseDesignPlaceholder",
+                              "Select a Skill you've created"
+                            )
+                          }
                         )
                       }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { children: skillOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: option.value, children: option.label }, option.value)) })
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectContent, { align: "start", className: "max-w-(--available-width)", children: skillOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      SelectItem,
+                      {
+                        value: option.value,
+                        className: "[&>:first-child]:min-w-0 [&>:first-child]:whitespace-normal",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 [overflow-wrap:anywhere]", children: option.label })
+                      },
+                      option.value
+                    )) })
                   ]
                 }
               ),
@@ -3875,7 +2965,7 @@ function CreatorPlanDialog({
                   className: "border-success/30 bg-success/10 text-success",
                   "data-action-ui-id": "skill-submission-design-read-success",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, {}),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle2, {}),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTitle, { children: t("skills.submission.designReadSuccess", "Skill information read") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDescription, { className: "text-success/80", children: t(
                       "skills.submission.designReadSuccessDesc",
@@ -4280,7 +3370,7 @@ function CreatorPlanDialog({
                       "skills.submission.coverHint",
                       "PNG / JPG / WebP, 16:9, max 10 MB; required for review"
                     ),
-                    icon: ImagePlusOutlineIcon,
+                    icon: ImagePlus,
                     fileName: coverFile?.name || (existingSubmission?.coverObjectKey || selectedSkill?.coverObjectKey ? t("skills.submission.assetUploaded", "Uploaded") : ""),
                     preview: coverPreview || existingSubmission?.coverUrl || selectedSkill?.coverUrl,
                     inputRef: coverInputRef,
@@ -4351,10 +3441,10 @@ function CreatorPlanDialog({
                 loading: savingMode === "private",
                 onClick: () => void handleSave(false),
                 "data-action-ui-id": "skill-submission-save-private",
-                children: t("skills.submission.savePrivate", "Save as Private")
+                children: isEditing ? t("skills.mine.saveChanges", "Save changes") : t("skills.submission.savePrivate", "Save as Private")
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+            mode === "review" && /* @__PURE__ */ jsxRuntimeExports.jsx(
               Button,
               {
                 type: "button",
@@ -4536,7 +3626,7 @@ function CreatorPlanInviteCard({ onOpen }) {
           className: "flex h-full min-h-[260px] w-full flex-col items-center justify-center gap-2 px-6 py-8 text-center cursor-pointer",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 28, strokeWidth: 1.5, className: "text-brand-accent" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 text-base font-semibold text-foreground", children: t("skills.market.creatorPlanInviteTitle", "加入创作者社区") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 text-base font-semibold text-foreground", children: t("skills.header.submitSkill", "Submit Skill") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "line-clamp-2 max-w-[18rem] text-xs text-muted-foreground", children: t(
               "skills.market.creatorPlanInviteDesc",
               "投稿 Skill，被选中可获 2000 积分或加入共创计划"
@@ -4547,12 +3637,92 @@ function CreatorPlanInviteCard({ onOpen }) {
     }
   );
 }
+function OtherSkillItem({
+  skill,
+  installing,
+  onInstall,
+  onToggle,
+  onDetail,
+  onTryItOut
+}) {
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language.startsWith("zh");
+  const displayName = isZh ? skill.displayNameZh || toDisplayName(skill.name) : toDisplayName(skill.name);
+  const summary = isZh ? skill.summaryZh || skill.summary : skill.summary;
+  const market = skill;
+  const downloads = market.downloads;
+  const isInstalled = skill.enabled === true || market.installed === true;
+  const enabled = skill.enabled;
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: row click opens detail
+    // biome-ignore lint/a11y/noStaticElementInteractions: row click handler
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        "data-action-ui-id": "other-skill-item",
+        "data-skill-name": skill.name,
+        className: "group flex min-h-20 cursor-pointer items-center gap-3 rounded-lg bg-card px-4 py-3 transition-shadow duration-200 ease-out hover:ring-[0.5px] hover:ring-inset hover:ring-border-strong focus-within:ring-[0.5px] focus-within:ring-inset focus-within:ring-border-strong",
+        onClick: () => onDetail?.(skill),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-[15px] font-medium leading-5 text-foreground", children: displayName }),
+            summary && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-sm leading-5 text-muted-foreground", children: summary }),
+            downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1 text-[11px] leading-4 text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 12 }),
+              formatDownloads(downloads)
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "relative flex shrink-0 items-center gap-2",
+              onClick: (e) => e.stopPropagation(),
+              children: isInstalled ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    "data-action-ui-id": "other-skill-try",
+                    className: "pointer-events-none absolute right-full z-10 mr-2 inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-card px-2.5 text-xs font-medium text-foreground opacity-0 transition-[opacity,colors] hover:border-foreground hover:bg-card group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100",
+                    onClick: () => onTryItOut(skill),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(MessageCircle, { size: 14, strokeWidth: 1.5 }),
+                      t("skills.market.tryInChat", "去对话中试试")
+                    ]
+                  }
+                ),
+                onToggle && /* @__PURE__ */ jsxRuntimeExports.jsx(Switch, { checked: enabled, onCheckedChange: () => onToggle(skill.name, !enabled) })
+              ] }) : onInstall && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "data-action-ui-id": "other-skill-install",
+                  disabled: installing,
+                  className: "inline-flex h-7 items-center gap-1.5 rounded-md border border-foreground/15 bg-transparent px-3 text-xs font-medium text-foreground transition-colors hover:border-foreground hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
+                  onClick: () => onInstall(skill.name),
+                  children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 12, className: "animate-spin" }),
+                    t("skills.market.installing")
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 12, strokeWidth: 1.75 }),
+                    t("skills.market.install")
+                  ] })
+                }
+              )
+            }
+          )
+        ]
+      }
+    )
+  );
+}
 function FeaturedSkillCard({
   skill,
   installing,
   onInstall,
   onTryItOut,
-  onDetail
+  onDetail,
+  onToggle
 }) {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language.startsWith("zh");
@@ -4561,9 +3731,22 @@ function FeaturedSkillCard({
   const summary = isZh ? skill.summaryZh || skill.summary : skill.summary;
   const author = isZh ? market.authorCn || market.authorEn || "" : market.authorEn || market.authorCn || "";
   const downloads = market.downloads;
-  const cover = resolveSkillCoverUrl(skill);
+  const cover = getSkillCoverUrl(skill);
   const isInstalled = skill.enabled === true || market.installed === true;
   const showVerified = market.source === "official" || market.source === "official-featured";
+  if (!cover) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 self-start", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      OtherSkillItem,
+      {
+        skill,
+        installing,
+        onInstall,
+        onTryItOut,
+        onDetail,
+        onToggle
+      }
+    ) });
+  }
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: cover/card opens detail
     // biome-ignore lint/a11y/noStaticElementInteractions: card click handler
@@ -4572,7 +3755,7 @@ function FeaturedSkillCard({
       {
         "data-action-ui-id": "featured-skill-card",
         "data-skill-name": skill.name,
-        className: "group flex flex-col overflow-hidden rounded-lg bg-card transition-shadow duration-200 ease-out hover:ring-[0.5px] hover:ring-inset hover:ring-border-strong cursor-pointer",
+        className: "group flex h-full flex-col overflow-hidden rounded-lg bg-card transition-shadow duration-200 ease-out hover:ring-[0.5px] hover:ring-inset hover:ring-border-strong cursor-pointer",
         onClick: () => onDetail?.(skill),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative aspect-video w-full overflow-hidden bg-muted", children: [
@@ -4617,10 +3800,10 @@ function FeaturedSkillCard({
                       className: "flex flex-1 items-center justify-center gap-1.5 h-9 rounded-full text-[13px] font-normal whitespace-nowrap bg-brand-accent text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
                       onClick: () => onInstall(skill.name),
                       children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.75, className: "animate-spin" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.75, className: "animate-spin" }),
                         t("skills.market.installing")
                       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14, strokeWidth: 1.75 }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.75 }),
                         t("skills.market.downloadSkill", "下载 Skill")
                       ] })
                     }
@@ -4650,7 +3833,7 @@ function FeaturedSkillCard({
                 )
               ] }),
               downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex shrink-0 items-center gap-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 12 }),
                 formatDownloads(downloads)
               ] })
             ] })
@@ -4670,6 +3853,7 @@ function FeaturedSkillSection({
   onInstall,
   onTryItOut,
   onDetail,
+  onToggle,
   dataActionUiId,
   footerCard
 }) {
@@ -4690,556 +3874,276 @@ function FeaturedSkillSection({
         emptyOptions: { text: emptyText }
       }
     ) : (
-      // 列数断点与页面其他 grid（InstalledPluginsView / SkillGroupedList /
-      // PluginMarketTabContent）保持一致：sm=2 / lg=3 / xl=4，
-      // 避免「精选」rail 与下方网格在 3 列窗宽下不对齐。
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", children: [
+      // Twelve tracks preserve large-card counts (2/3/4) and two-column
+      // compact rows without reordering the server's configured skill order.
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 gap-5 sm:grid-cols-12", children: [
         skills.map((skill) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          FeaturedSkillCard,
+          "div",
           {
-            skill,
-            installing: installingSet?.has(skill.name),
-            onInstall,
-            onTryItOut,
-            onDetail
+            className: cn(
+              "min-w-0 sm:col-span-6",
+              getSkillCoverUrl(skill) ? "lg:col-span-4 xl:col-span-3" : "self-start"
+            ),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FeaturedSkillCard,
+              {
+                skill,
+                installing: installingSet?.has(skill.name),
+                onInstall,
+                onTryItOut,
+                onDetail,
+                onToggle
+              }
+            )
           },
           skill.name
         )),
-        footerCard
+        footerCard && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-w-0 sm:col-span-6 lg:col-span-4 xl:col-span-3", children: footerCard })
       ] })
     )
   ] });
 }
-function SkillEmptyState({
-  activeTag,
-  onGoToCommunity,
-  kind = "skill",
-  onCreate,
-  className
-}) {
-  const { t } = useTranslation();
-  const isCreate = kind === "create";
-  const titleKey = kind === "plugin" ? "skills.empty.plugin.title" : kind === "create" ? "skills.market.creatorPlanEmptyTitle" : "skills.empty.title";
-  const descriptionKey = kind === "plugin" ? "skills.empty.plugin.description" : kind === "create" ? "skills.market.creatorPlanEmptyDesc" : "skills.empty.description";
-  const ctaKey = kind === "plugin" ? "skills.empty.plugin.goToMarket" : kind === "create" ? "skills.header.createSkill" : "skills.empty.goToCommunity";
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    PageStateBoundary,
-    {
-      empty: true,
-      className,
-      emptyOptions: {
-        title: t(titleKey),
-        description: t(descriptionKey),
-        actions: [
-          {
-            key: isCreate ? "create" : "go-to-community",
-            icon: isCreate ? /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { strokeWidth: 2 }) : void 0,
-            label: t(ctaKey),
-            variant: "default",
-            onClick: () => isCreate ? onCreate?.() : onGoToCommunity(activeTag)
-          }
-        ]
-      }
-    }
-  );
-}
-const CATEGORY_ICONS = {
-  megaphone: Megaphone,
-  "shopping-bag": ShoppingBag,
-  clapperboard: Clapperboard,
-  music: Music,
-  film: Film,
-  headphones: Headphones,
-  image: ImageOutlineIcon,
-  wrench: Wrench
-};
-function SkillCard({
+function MySkillItem({
   skill,
-  activeTab,
-  onDetail,
+  submission,
+  submissionState,
+  coverUrl,
+  onEdit,
+  onOffline,
   onToggle,
-  onExport,
-  onShare,
-  onTryItOut,
-  updateInfo,
-  onUpdate,
-  updating,
-  onInstall,
-  installing
-}) {
-  const { t, i18n } = useTranslation();
-  const isZh = i18n.language.startsWith("zh");
-  const displayName = isZh ? skill.displayNameZh || toDisplayName(skill.name) : toDisplayName(skill.name);
-  const displaySummary = isZh ? skill.summaryZh || skill.summary : skill.summary;
-  const isInstalled = "enabled" in skill;
-  const ctx = activeTab ? getCardContext(activeTab, skill) : isInstalled ? "community-installed" : "community-uninstalled";
-  const showToggle = ctx !== "community-uninstalled";
-  const showAmberUpdate = (ctx === "mine-community" || ctx === "mine-local") && updateInfo && onUpdate;
-  const category = getSkillCategory(skill);
-  const IconComp = CATEGORY_ICONS[category] ?? Wrench;
-  const downloads = skill.downloads;
-  const market = skill;
-  const author = isZh ? market.authorCn || market.authorEn || "" : market.authorEn || market.authorCn || "";
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: card click opens detail
-    // biome-ignore lint/a11y/noStaticElementInteractions: card click opens detail
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        "data-action-ui-id": "skill-card",
-        "data-skill-name": skill.name,
-        className: "group flex flex-col border border-border bg-card p-4 rounded-lg transition-colors hover:bg-muted/50 hover:border-foreground/15 cursor-pointer h-[200px]",
-        onClick: () => onDetail?.(skill),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-2.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-8 w-8 shrink-0 items-center justify-center bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconComp, { size: 16, strokeWidth: 1.67 }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-sm font-medium text-foreground", children: displayName }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-[11px] text-muted-foreground", children: skill.name })
-              ] })
-            ] }),
-            showToggle && onToggle && // biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only
-            // biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex shrink-0", onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Switch,
-              {
-                checked: skill.enabled,
-                onCheckedChange: () => onToggle(skill.name, !skill.enabled)
-              }
-            ) })
-          ] }),
-          (skill.tagEn || skill.tags && skill.tags.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex items-center gap-1.5 flex-wrap", children: skill.tagEn ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground", children: isZh ? skill.tagCn || skill.tagEn : skill.tagEn }) : skill.tags?.map((tag, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground",
-              children: getTagDisplayName(tag, i, skill.tagsCn, t, i18n.language)
-            },
-            tag
-          )) }),
-          displaySummary && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2", children: displaySummary }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-auto flex items-center justify-between gap-2 pt-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground", children: [
-              author && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex min-w-0 items-center gap-0.5 text-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": "true", children: "@" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: author })
-              ] }),
-              downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex shrink-0 items-center gap-0.5", children: [
-                author && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground/40", children: "·" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12 }),
-                formatDownloads(downloads)
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1", onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              CardActions,
-              {
-                ctx,
-                skill,
-                showAmberUpdate: !!showAmberUpdate,
-                updateInfo,
-                onUpdate,
-                updating,
-                onTryItOut,
-                onExport,
-                onShare,
-                onInstall,
-                installing
-              }
-            ) })
-          ] })
-        ]
-      }
-    )
-  );
-}
-function CardActions({
-  ctx,
-  skill,
-  showAmberUpdate,
-  updateInfo,
-  onUpdate,
-  updating,
+  onDetail,
   onTryItOut,
   onExport,
   onShare,
-  onInstall,
-  installing
-}) {
-  const { t } = useTranslation();
-  if (ctx === "community-uninstalled") {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-action-ui-id": "market-skill-install",
-          disabled: installing,
-          className: "inline-flex items-center gap-1.5 h-7 px-2.5 text-[13px] font-medium rounded-sm border border-border bg-transparent text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-          onClick: () => onInstall?.(skill.name),
-          children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, className: "animate-spin" }),
-            t("skills.market.installing")
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14 }),
-            t("skills.market.install")
-          ] })
-        }
-      ),
-      onShare && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            "data-action-ui-id": "skill-card-share",
-            className: "inline-flex items-center justify-center h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-            onClick: () => onShare(skill.name),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Share2$1, { size: 14 })
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.share") })
-      ] })
-    ] });
-  }
-  const showShare = ctx === "community-installed" || ctx === "mine-community";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    showAmberUpdate && updateInfo && onUpdate && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-action-ui-id": "skill-card-amber-update",
-          disabled: updating,
-          className: `inline-flex items-center justify-center h-7 w-7 ${UPDATE_INDICATOR_STYLES.base} ${UPDATE_INDICATOR_STYLES.hover} transition-colors disabled:opacity-50`,
-          onClick: () => onUpdate(skill.name),
-          children: updating ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 14 })
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TooltipContent, { children: [
-        t("skills.market.updateAvailable", "Update available"),
-        " (",
-        updateInfo.latestVersion,
-        ")"
-      ] })
-    ] }),
-    onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        type: "button",
-        "data-action-ui-id": "skill-card-try",
-        className: "inline-flex items-center gap-1.5 h-7 px-2.5 text-[13px] font-medium rounded-sm border border-border bg-transparent text-foreground hover:bg-muted transition-colors",
-        onClick: () => onTryItOut(skill),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14 }),
-          t("skills.tryItOut")
-        ]
-      }
-    ),
-    showShare && onShare && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-action-ui-id": "skill-card-share",
-          className: "inline-flex items-center justify-center h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-          onClick: () => onShare(skill.name),
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Share2$1, { size: 14 })
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.share") })
-    ] }),
-    onExport && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-action-ui-id": "skill-card-download",
-          className: "inline-flex items-center justify-center h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-          onClick: () => onExport(skill.name),
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14 })
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.download", "Download") })
-    ] })
-  ] });
-}
-function SkillListItem({
-  skill,
-  activeTab,
-  onToggle,
-  onDetail,
   onUninstall,
-  onExport,
-  onShare,
-  onTryItOut,
-  onInstall,
-  installing,
   updateInfo,
   onUpdate,
-  updating
+  updating,
+  onCoverError,
+  onRefreshSubmissions
 }) {
   const { t, i18n } = useTranslation();
-  const isZh = i18n.language.startsWith("zh");
-  const displayName = isZh ? skill.displayNameZh || toDisplayName(skill.name) : toDisplayName(skill.name);
-  const displaySummary = isZh ? skill.summaryZh || skill.summary : skill.summary;
-  const isInstalled = "enabled" in skill;
-  const ctx = activeTab ? getCardContext(activeTab, skill) : isInstalled ? "community-installed" : "community-uninstalled";
-  const showToggle = ctx !== "community-uninstalled";
-  const showAmberUpdate = (ctx === "mine-community" || ctx === "mine-local") && updateInfo && onUpdate;
-  const showShare = ctx === "community-installed" || ctx === "mine-community";
-  const isMine = ctx === "mine-community" || ctx === "mine-local";
-  const downloads = skill.downloads;
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: list row click opens detail
-    // biome-ignore lint/a11y/noStaticElementInteractions: list row click opens detail
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        "data-action-ui-id": "skill-list-item",
-        "data-skill-name": skill.name,
-        className: "group flex min-h-20 cursor-pointer items-center gap-3 rounded-lg bg-card px-4 py-3 transition-shadow duration-200 ease-out hover:ring-[0.5px] hover:ring-inset hover:ring-border-strong focus-within:ring-[0.5px] focus-within:ring-inset focus-within:ring-border-strong",
-        onClick: () => onDetail?.(skill),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 flex-col gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-[15px] font-medium leading-5 text-foreground", children: displayName }),
-            displaySummary && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-sm leading-5 text-muted-foreground", children: displaySummary }),
-            downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1 text-[11px] leading-4 text-muted-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12 }),
-              formatDownloads(downloads)
-            ] })
+  const [failedUrl, setFailedUrl] = reactExports.useState("");
+  const [retrying, setRetrying] = reactExports.useState(false);
+  const [attempt, setAttempt] = reactExports.useState(0);
+  const text = mySkillText(skill, submission, i18n.language);
+  const local = skill.source === "user";
+  const status = mySkillStatus(submission, submissionState);
+  const statusLabel = MY_SKILL_STATUSES[status];
+  const reviewAction = status === "private" || status === "rejected" || status === "offline" ? MY_SKILL_REVIEW_ACTIONS[status] : null;
+  const canManageSubmission = submissionState === "ready";
+  const handleRetryCover = async () => {
+    setRetrying(true);
+    try {
+      await onRefreshSubmissions();
+    } finally {
+      setFailedUrl("");
+      setAttempt((value) => value + 1);
+      setRetrying(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Card,
+    {
+      className: "gap-0 py-0",
+      "data-action-ui-id": "skills-mine-item",
+      "data-skill-name": skill.name,
+      "data-cover": coverUrl ? "true" : "false",
+      children: [
+        coverUrl && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "relative aspect-video overflow-hidden bg-muted",
+            "data-layout-slot": "skills-mine-cover",
+            children: failedUrl === coverUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-full flex-col items-center justify-center gap-2 text-muted-foreground", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: t("skills.mine.coverUnavailable", "Cover unavailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  size: "sm",
+                  variant: "outline",
+                  loading: retrying,
+                  onClick: () => void handleRetryCover(),
+                  "data-action-ui-id": `skills-mine-retry-cover-${skill.name}`,
+                  children: t("common.retry", "Retry")
+                }
+              )
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                className: "block h-full w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                "aria-label": t("skills.mine.viewDetails", {
+                  name: text.name,
+                  defaultValue: "View {{name}} details"
+                }),
+                onClick: () => onDetail(skill),
+                "data-action-ui-id": `skills-mine-cover-${skill.name}`,
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  SkillCoverMedia,
+                  {
+                    url: coverUrl,
+                    alt: text.name,
+                    className: "h-full w-full object-cover",
+                    onError: () => {
+                      setFailedUrl(coverUrl);
+                      if (submission?.coverUrl?.trim() === coverUrl) onCoverError();
+                    }
+                  },
+                  `${coverUrl}:${attempt}`
+                )
+              }
+            )
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-4 p-4", "data-layout-slot": "skills-mine-info", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                className: "truncate text-left font-heading text-base/5 font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                title: text.name,
+                onClick: () => onDetail(skill),
+                "data-action-ui-id": `skills-mine-detail-${skill.name}`,
+                children: text.name
+              }
+            ),
+            text.summary && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "line-clamp-2 min-h-10 text-sm/5 text-muted-foreground", children: text.summary })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              className: "relative flex shrink-0 items-center gap-2",
-              onClick: (e) => e.stopPropagation(),
+              className: "mt-auto flex flex-wrap items-center justify-between gap-3",
+              "data-layout-slot": "skills-mine-footer",
               children: [
-                ctx === "community-uninstalled" && onInstall && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
+                local && submission?.reviewNote ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
                   {
-                    type: "button",
-                    "data-action-ui-id": "market-skill-install",
-                    disabled: installing,
-                    className: "inline-flex h-7 items-center gap-1.5 rounded-md border border-foreground/15 bg-transparent px-3 text-xs font-medium text-foreground transition-colors hover:border-foreground hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
-                    onClick: () => onInstall(skill.name),
-                    children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin" }),
-                      t("skills.market.installing")
-                    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12, strokeWidth: 1.75 }),
-                      t("skills.market.install")
+                    variant: "link",
+                    size: "sm",
+                    className: `h-auto min-w-0 max-w-full whitespace-normal p-0 text-left text-xs font-normal underline underline-offset-4 ${status === "rejected" ? "text-destructive" : "text-muted-foreground"}`,
+                    "aria-label": `${t(statusLabel[0], statusLabel[1])} · ${t("skills.mine.reviewNote", "Review feedback")}`,
+                    onClick: () => onEdit(skill.name, "view"),
+                    "data-action-ui-id": `skills-mine-review-note-${skill.name}`,
+                    children: t(statusLabel[0], statusLabel[1])
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs/5 text-muted-foreground", children: local ? t(statusLabel[0], statusLabel[1]) : t("skills.mine.installed", "Installed") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ml-auto flex flex-wrap items-center justify-end gap-2", children: [
+                  updateInfo && onUpdate && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      variant: "outline",
+                      size: "sm",
+                      loading: updating,
+                      disabled: updating,
+                      onClick: () => onUpdate(skill.name),
+                      "data-action-ui-id": `skills-mine-update-${skill.name}`,
+                      children: t("skills.market.update", "Update")
+                    }
+                  ),
+                  onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Button,
+                    {
+                      variant: "outline",
+                      size: "sm",
+                      onClick: () => onTryItOut(skill),
+                      "data-action-ui-id": `skills-mine-use-${skill.name}`,
+                      children: t("skills.mine.use", "Use")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Switch,
+                    {
+                      checked: skill.enabled,
+                      onCheckedChange: (checked) => onToggle(skill.name, checked),
+                      "aria-label": t("skills.mine.enableSkill", {
+                        name: text.name,
+                        defaultValue: "Enable {{name}}"
+                      }),
+                      "data-action-ui-id": `skills-mine-toggle-${skill.name}`
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenu, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      DropdownMenuTrigger,
+                      {
+                        render: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Button,
+                          {
+                            variant: "ghost",
+                            size: "icon-sm",
+                            "aria-label": t("skills.mine.moreActions", {
+                              name: text.name,
+                              defaultValue: "More actions for {{name}}"
+                            }),
+                            "data-action-ui-id": `skills-mine-more-${skill.name}`
+                          }
+                        ),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoreHorizontal, { size: 16, strokeWidth: 1.5 })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onClick: () => onDetail(skill), children: t("skills.mine.details", "View details") }),
+                      local && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        DropdownMenuItem,
+                        {
+                          disabled: !canManageSubmission || status === "pending" || status === "approved",
+                          onClick: () => onEdit(skill.name, status === "published" ? "review" : "edit"),
+                          "data-action-ui-id": `skills-created-edit-${skill.name}`,
+                          children: status === "published" ? t("skills.mine.editPublished", "Edit and request update") : t("skills.mine.editInformation", "Edit information")
+                        }
+                      ),
+                      local && reviewAction && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        DropdownMenuItem,
+                        {
+                          disabled: !canManageSubmission,
+                          onClick: () => onEdit(skill.name, "review"),
+                          "data-action-ui-id": `skills-created-apply-review-${skill.name}`,
+                          children: t(reviewAction[0], reviewAction[1])
+                        }
+                      ),
+                      local && submission && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        DropdownMenuItem,
+                        {
+                          onClick: () => onEdit(skill.name, "view"),
+                          "data-action-ui-id": `skills-created-view-application-${skill.name}`,
+                          children: t("skills.mine.viewApplication", "View application")
+                        }
+                      ),
+                      onExport && /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onClick: () => onExport(skill.name), children: t("skills.download", "Download") }),
+                      !local && onShare && /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { onClick: () => onShare(skill.name), children: t("skills.share", "Share") }),
+                      (local && status === "published" || !local && onUninstall) && /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuSeparator, {}),
+                      local && status === "published" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        DropdownMenuItem,
+                        {
+                          variant: "destructive",
+                          disabled: !canManageSubmission,
+                          onClick: () => onOffline(skill.name),
+                          "data-action-ui-id": `skills-created-offline-${skill.name}`,
+                          children: t("skills.mine.offline", "Offline")
+                        }
+                      ),
+                      !local && onUninstall && /* @__PURE__ */ jsxRuntimeExports.jsx(DropdownMenuItem, { variant: "destructive", onClick: () => onUninstall(skill.name), children: t("skills.market.uninstall", "Uninstall") })
                     ] })
-                  }
-                ),
-                ctx !== "community-uninstalled" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pointer-events-none absolute right-full z-10 mr-2 flex items-center gap-0.5 rounded-md bg-card opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100", children: isMine ? onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    "data-action-ui-id": "skill-list-item-try",
-                    className: "inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-card px-2.5 text-xs font-medium text-foreground transition-colors hover:border-foreground hover:bg-card",
-                    onClick: () => onTryItOut(skill),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(MessageCircle, { size: 14, strokeWidth: 1.5 }),
-                      t("skills.market.tryInChat", "去对话中试试")
-                    ]
-                  }
-                ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        "data-action-ui-id": "skill-list-item-try",
-                        className: "inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-                        onClick: () => onTryItOut(skill),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageCircle, { size: 14, strokeWidth: 1.5 })
-                      }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.market.tryInChat", "去对话中试试") })
-                  ] }),
-                  showShare && onShare && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        "data-action-ui-id": "skill-list-item-share",
-                        className: "inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-                        onClick: () => onShare(skill.name),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Share2$1, { size: 14 })
-                      }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.share") })
-                  ] }),
-                  onExport && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        "data-action-ui-id": "skill-list-item-download",
-                        className: "inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
-                        onClick: () => onExport(skill.name),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14 })
-                      }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.download", "Download") })
-                  ] }),
-                  onUninstall && /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        "data-action-ui-id": "skill-list-item-uninstall",
-                        className: "inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive transition-colors",
-                        onClick: () => onUninstall(skill.name),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 })
-                      }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { children: t("skills.market.uninstall") })
                   ] })
-                ] }) }),
-                showAmberUpdate && updateInfo && onUpdate && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    "data-action-ui-id": "skill-list-item-amber-update",
-                    disabled: updating,
-                    className: `inline-flex items-center gap-1 h-7 rounded-md px-2.5 text-xs font-medium ${UPDATE_INDICATOR_STYLES.base} ${UPDATE_INDICATOR_STYLES.hover} transition-colors disabled:opacity-50`,
-                    onClick: () => onUpdate(skill.name),
-                    children: [
-                      updating ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 12 }),
-                      t("skills.market.update")
-                    ]
-                  }
-                ),
-                showToggle && onToggle && "enabled" in skill && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Switch,
-                  {
-                    checked: skill.enabled,
-                    onCheckedChange: () => onToggle(skill.name, !skill.enabled)
-                  }
-                )
+                ] })
               ]
             }
           )
-        ]
-      }
-    )
+        ] })
+      ]
+    }
   );
 }
-function SkillGroupedList({
-  skills,
-  layout,
-  onToggle,
-  onDetail,
-  onExport,
-  onShare,
-  onTryItOut,
-  onUninstall,
-  skillUpdates,
-  onUpdate,
-  updatingSet,
-  activeTag,
-  onGoToCommunity
-}) {
-  const fromCommunity = skills.filter((s) => s.source === "installed");
-  const localCreated = skills.filter((s) => s.source === "user");
-  if (fromCommunity.length === 0 && localCreated.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(SkillEmptyState, { activeTag, onGoToCommunity });
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-6", children: [
-    fromCommunity.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      SkillGroup,
-      {
-        skills: fromCommunity,
-        layout,
-        onToggle,
-        onDetail,
-        onExport,
-        onShare,
-        onTryItOut,
-        onUninstall,
-        skillUpdates,
-        onUpdate,
-        updatingSet
-      }
-    ),
-    localCreated.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      SkillGroup,
-      {
-        skills: localCreated,
-        layout,
-        onToggle,
-        onDetail,
-        onExport,
-        onShare,
-        onTryItOut,
-        onUninstall,
-        skillUpdates,
-        onUpdate,
-        updatingSet
-      }
-    )
-  ] });
-}
-function SkillGroup({
-  skills,
-  layout,
-  onToggle,
-  onDetail,
-  onExport,
-  onShare,
-  onTryItOut,
-  onUninstall,
-  skillUpdates,
-  onUpdate,
-  updatingSet
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: layout === "grid" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", children: skills.map((skill) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-    SkillCard,
-    {
-      skill,
-      activeTab: "mine",
-      onToggle,
-      onDetail,
-      onExport,
-      onShare,
-      onTryItOut,
-      updateInfo: skillUpdates.get(skill.name),
-      onUpdate,
-      updating: updatingSet.has(skill.name)
-    },
-    skill.name
-  )) }) : (
-    // Two-column grid mirrors the "其他 Skill" rail layout so mine tab
-    // feels at home next to the community surface. Each SkillListItem
-    // owns its own card chrome (stable geometry + hairline outline), so the
-    // wrapper just sets the grid + gap.
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-3 lg:grid-cols-2", children: skills.map((skill) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      SkillListItem,
-      {
-        skill,
-        activeTab: "mine",
-        onToggle,
-        onDetail,
-        onExport,
-        onShare,
-        onTryItOut,
-        onUninstall,
-        updateInfo: skillUpdates.get(skill.name),
-        onUpdate,
-        updating: updatingSet.has(skill.name)
-      },
-      skill.name
-    )) })
-  ) });
-}
 function MySkillsView({
-  defaultTab = "created",
-  createdSkills,
-  downloadedSkills,
+  skills,
+  totalCount,
+  hasFilters,
+  onClearFilters,
   submissions,
-  autoUpdate,
-  onAutoUpdateChange,
-  onUpload,
+  submissionState,
+  onCreate,
   onEdit,
   onOffline,
   onToggle,
@@ -5252,102 +4156,131 @@ function MySkillsView({
   onUpdate,
   updatingSet,
   onGoToCommunity,
-  onRefreshSubmissions
+  onRefreshSubmissions,
+  onCoverError
 }) {
   const { t } = useTranslation();
   const [offlineTarget, setOfflineTarget] = reactExports.useState("");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-5", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "max-w-xl text-xs text-muted-foreground", children: t(
-        "skills.mine.description",
-        "Manage Skills you created and Skills downloaded from the community."
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex shrink-0 items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-2 text-xs text-foreground/70", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.autoUpdate", "Auto Update") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Switch,
+  const overseas = getRuntimeConfig().region === "overseas";
+  const entries = skills.map((skill) => {
+    const submission = skill.source === "user" ? submissions.get(skill.name) : void 0;
+    return { skill, submission, coverUrl: mySkillCover(skill, submission, overseas) };
+  });
+  const groups = [
+    {
+      key: "covers",
+      label: t("skills.mine.withCover", "With covers"),
+      items: entries.filter((entry) => entry.coverUrl),
+      layout: "grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3"
+    },
+    {
+      key: "compact",
+      label: t("skills.mine.withoutCover", "Without covers"),
+      items: entries.filter((entry) => !entry.coverUrl),
+      layout: "grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3"
+    }
+  ];
+  const filteredEmpty = hasFilters && totalCount > 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", "data-layout-slot": "skills-mine-content", children: [
+    (submissionState === "error" || submissionState === "signed-out") && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        role: "status",
+        className: "flex flex-wrap items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: submissionState === "signed-out" ? t(
+            "skills.mine.signInForStatus",
+            "Sign in to view submission status. Local Skills remain available."
+          ) : t(
+            "skills.mine.statusUnavailable",
+            "Submission status could not be refreshed. Your Skills remain available."
+          ) }),
+          submissionState === "error" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
             {
-              checked: autoUpdate,
-              onCheckedChange: onAutoUpdateChange,
-              "data-action-ui-id": "skills-mine-auto-update"
+              variant: "ghost",
+              size: "sm",
+              onClick: () => void onRefreshSubmissions(),
+              "data-action-ui-id": "skills-mine-retry-submissions",
+              children: t("common.retry", "Retry")
             }
           )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "button", onClick: onUpload, "data-action-ui-id": "skills-upload-skill", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Upload, size: "md" }),
-          t("skills.mine.uploadSkill", "Upload Skill")
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultValue: defaultTab, className: "gap-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsList, { className: "w-fit", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "created", "data-action-ui-id": "skills-mine-created-tab", children: [
-          t("skills.mine.createdByMe", "Created by me"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 text-[11px] text-muted-foreground", children: createdSkills.length })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(TabsTrigger, { value: "downloaded", "data-action-ui-id": "skills-mine-downloaded-tab", children: [
-          t("skills.mine.downloaded", "Downloaded"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 text-[11px] text-muted-foreground", children: downloadedSkills.length })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "created", children: createdSkills.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-        PageStateBoundary,
-        {
-          empty: true,
-          emptyOptions: {
-            title: t("skills.mine.noCreatedSkills", "You haven't created any Skills yet"),
-            actions: [
-              {
-                key: "upload",
-                variant: "default",
-                label: t("skills.mine.uploadFirstSkill", "Upload your first Skill"),
-                icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { icon: Upload, size: "md" }),
-                onClick: onUpload
-              }
-            ]
-          }
-        }
-      ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3", children: createdSkills.map((skill) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        CreatedSkillCard,
-        {
-          skill,
-          submission: submissions.get(skill.name),
-          onEdit,
-          onOffline: setOfflineTarget,
-          onRefreshSubmissions
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      PageStateBoundary,
+      {
+        empty: skills.length === 0,
+        emptyOptions: {
+          title: filteredEmpty ? t("skills.mine.noMatches", "No matching Skills") : t("skills.mine.empty", "No Skills yet"),
+          description: filteredEmpty ? t("skills.mine.noMatchesHint", "Try a different search or clear your filters.") : t("skills.mine.emptyHint", "Create a Skill or install one from the community."),
+          actions: filteredEmpty ? [
+            {
+              key: "clear-filters",
+              variant: "default",
+              label: t("skills.mine.clearFilters", "Clear filters"),
+              onClick: onClearFilters
+            }
+          ] : [
+            {
+              key: "create",
+              variant: "default",
+              label: t("skills.header.createSkill", "Create Skill"),
+              onClick: onCreate
+            },
+            {
+              key: "community",
+              variant: "outline",
+              label: t("skills.empty.goToCommunity", "Explore community"),
+              onClick: onGoToCommunity
+            }
+          ]
         },
-        skill.name
-      )) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabsContent, { value: "downloaded", children: downloadedSkills.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(SkillEmptyState, { activeTag: null, onGoToCommunity: () => onGoToCommunity() }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-        SkillGroupedList,
-        {
-          skills: downloadedSkills,
-          layout: "list",
-          onToggle,
-          onDetail,
-          onExport,
-          onShare,
-          onTryItOut,
-          onUninstall,
-          skillUpdates,
-          onUpdate,
-          updatingSet,
-          activeTag: null,
-          onGoToCommunity: () => onGoToCommunity()
-        }
-      ) })
-    ] }),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-6", children: groups.filter((group) => group.items.length > 0).map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "section",
+          {
+            className: "flex flex-col gap-3",
+            "aria-label": group.label,
+            "data-layout-slot": `skills-mine-${group.key}`,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: group.layout, children: group.items.map(({ skill, submission, coverUrl }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              MySkillItem,
+              {
+                skill,
+                submission,
+                submissionState,
+                coverUrl,
+                onEdit,
+                onOffline: setOfflineTarget,
+                onToggle,
+                onDetail,
+                onTryItOut,
+                onExport,
+                onShare,
+                onUninstall,
+                updateInfo: skillUpdates.get(skill.name),
+                onUpdate,
+                updating: updatingSet.has(skill.name),
+                onCoverError,
+                onRefreshSubmissions
+              },
+              skill.name
+            )) })
+          },
+          group.key
+        )) })
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialog, { open: !!offlineTarget, onOpenChange: (open) => !open && setOfflineTarget(""), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogContent, { size: "sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogHeader, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogTitle, { children: t("skills.mine.offlineTitle", "Offline this Skill?") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogDescription, { children: t(
-          "skills.mine.offlineDesc",
-          "Once offline, this Skill can no longer be discovered, installed, or used. You can edit it and apply again later."
+          "skills.mine.offlineAndDisableDesc",
+          "This removes the Skill from the community and disables it locally. You can edit it and request review again later."
         ) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(AlertDialogFooter, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDialogCancel, { children: t("common.cancel", "Cancel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           AlertDialogAction,
           {
@@ -5363,94 +4296,6 @@ function MySkillsView({
         )
       ] })
     ] }) })
-  ] });
-}
-function CreatedSkillCard({
-  skill,
-  submission,
-  onEdit,
-  onOffline,
-  onRefreshSubmissions
-}) {
-  const { t, i18n } = useTranslation();
-  const [failedCoverUrl, setFailedCoverUrl] = reactExports.useState("");
-  const status = submission?.status || "private";
-  const displayStatus = status === "pending" ? t("skills.mine.status.pending", "Review pending") : status === "approved" ? t("skills.mine.status.readyToPublish", "Ready to publish") : status === "published" ? t("skills.mine.status.published", "Published") : status === "offline" ? t("skills.mine.status.offline", "Offline") : status === "rejected" ? t("skills.mine.status.rejected", "Rejected") : t("skills.mine.status.private", "Private");
-  const displayName = submission?.displayName || skill.displayNameZh || toDisplayName(skill.name);
-  const structuredInfo = submission?.structuredInfo ?? normalizeSkillDetailMetadata({ ...skill }).structuredInfo;
-  const summary = structuredInfo ? selectSkillStructuredInfo(structuredInfo, i18n.language).info.summary : i18n.language.startsWith("zh") ? skill.summaryZh || skill.summary : skill.summary || skill.summaryZh;
-  const coverUrl = submission?.coverUrl || skill.coverUrl;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "gap-0 py-0", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative aspect-video w-full overflow-hidden bg-muted", children: coverUrl && coverUrl !== failedCoverUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-      SkillCoverMedia,
-      {
-        url: coverUrl,
-        className: "h-full w-full object-cover",
-        onError: () => {
-          setFailedCoverUrl(coverUrl);
-          void onRefreshSubmissions();
-        }
-      }
-    ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full w-full items-center justify-center text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SkillIcon, { size: 32, strokeWidth: 1.5 }) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "flex min-h-36 flex-col gap-3 py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-start justify-between gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "truncate text-sm font-heading font-medium text-foreground", children: displayName }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-1 truncate text-[11px] text-muted-foreground", children: [
-            skill.name,
-            " · v",
-            submission?.packageVersion || skill.version || "1.0.0"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: status === "rejected" ? "destructive" : "secondary", children: displayStatus })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "line-clamp-2 text-xs/relaxed text-muted-foreground", children: summary || t("skills.mine.noSummary", "No summary provided.") }),
-      submission?.reviewNote && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "line-clamp-2 text-[11px] text-destructive", children: submission.reviewNote })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(CardFooter, { className: "mt-auto flex flex-wrap justify-end gap-2 border-border bg-muted/40", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          type: "button",
-          variant: "ghost",
-          size: "sm",
-          onClick: () => onEdit(skill.name),
-          "data-action-ui-id": `skills-created-edit-${skill.name}`,
-          children: t("skills.mine.editInformation", "Edit information")
-        }
-      ),
-      status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          type: "button",
-          variant: "outline",
-          size: "sm",
-          onClick: () => onEdit(skill.name),
-          "data-action-ui-id": `skills-created-view-application-${skill.name}`,
-          children: t("skills.mine.viewApplication", "View application")
-        }
-      ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          type: "button",
-          size: "sm",
-          onClick: () => onEdit(skill.name),
-          "data-action-ui-id": `skills-created-apply-review-${skill.name}`,
-          children: t("skills.mine.applyReview", "Apply for review")
-        }
-      ),
-      status === "published" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Button,
-        {
-          type: "button",
-          variant: "destructive",
-          size: "sm",
-          onClick: () => onOffline(skill.name),
-          "data-action-ui-id": `skills-created-offline-${skill.name}`,
-          children: t("skills.mine.offline", "Offline")
-        }
-      )
-    ] })
   ] });
 }
 async function readJson(response) {
@@ -5976,7 +4821,7 @@ function CategoryWeightEditor({
               size: "icon-xs",
               onClick: () => handleRemove(code),
               title: t("skills.operation.delete"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2$1, { size: 12, strokeWidth: 1.5 })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12, strokeWidth: 1.5 })
             }
           )
         ]
@@ -6025,7 +4870,7 @@ function OperationsListItem({
     {
       ref: setNodeRef,
       style,
-      className: `grid grid-cols-[auto_auto_minmax(180px,0.8fr)_minmax(220px,0.85fr)_100px_120px_100px_minmax(320px,1.35fr)_100px] items-center gap-x-4 gap-y-2 px-3 py-2 border border-border bg-card ${item.dirty ? "ring-1 ring-primary/30" : ""}`,
+      className: `grid grid-cols-[auto_auto_minmax(180px,0.8fr)_minmax(220px,0.85fr)_100px_120px_100px_minmax(320px,1.35fr)_100px] items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 ${item.dirty ? "ring-1 ring-primary/30" : ""}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -6343,7 +5188,7 @@ function OperationsPublishedPanel({ onExit }) {
     }
   }, [dirtyCount, onExit]);
   if (loading && localItems.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 16, strokeWidth: 1.5, className: "animate-spin text-muted-foreground" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 16, strokeWidth: 1.5, className: "animate-spin text-muted-foreground" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
@@ -6604,7 +5449,7 @@ function PublishedSubmissionList({
       "categories",
       "submitter",
       "uid",
-      "submittedAt",
+      "updatedAt",
       "reviewer",
       "reviewType",
       "publicationStatus",
@@ -6642,10 +5487,10 @@ function PublishedSubmissionList({
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate px-3 py-2 text-muted-foreground", children: item.submitter_uid }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "whitespace-nowrap px-3 py-2 text-muted-foreground", children: submission.created_at > 0 ? new Intl.DateTimeFormat(i18n.language, {
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "whitespace-nowrap px-3 py-2 text-muted-foreground", children: (submission.updated_at || submission.created_at) > 0 ? new Intl.DateTimeFormat(i18n.language, {
           dateStyle: "short",
           timeStyle: "short"
-        }).format(new Date(submission.created_at)) : "—" }),
+        }).format(new Date(submission.updated_at || submission.created_at)) : "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate px-3 py-2", title: item.reviewer_name || item.reviewer_uid, children: item.reviewer_name || item.reviewer_uid || "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           Badge,
@@ -7518,7 +6363,7 @@ function OperationsView({ role, onExit }) {
                 `ready-${submitterFilter.name}-${submitterFilter.uid}`
               )
             ] }),
-            workflow.loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "animate-spin", size: 18 }) }) : publicationStatus === "published" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            workflow.loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { className: "animate-spin", size: 18 }) }) : publicationStatus === "published" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               PublishedSubmissionList,
               {
                 items: visibleSubmissions,
@@ -7693,7 +6538,7 @@ function OperationsView({ role, onExit }) {
                             onClick: () => workflow.updateCategory(category.tag_type, category.category, {
                               enabled: false
                             }),
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2$1, { size: 14 })
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 })
                           }
                         )
                       ]
@@ -7868,7 +6713,7 @@ function ReviewList({
 }) {
   const { t, i18n } = useTranslation();
   if (loading)
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "animate-spin", size: 18 }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { className: "animate-spin", size: 18 }) });
   if (items.length === 0)
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-10 text-center text-sm text-muted-foreground", children: t("skills.operation.noSubmissions") });
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-xl border border-border bg-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-[1850px] text-xs", children: [
@@ -7879,7 +6724,7 @@ function ReviewList({
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.categories") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.submitter") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.uid") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.submittedAt") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.updatedAt") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.reviewType") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.reviewer") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("skills.operation.reviewStatus") }),
@@ -7905,7 +6750,7 @@ function ReviewList({
             submission.status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               Checkbox,
               {
-                className: "size-4",
+                size: "sm",
                 checked: selected.includes(id),
                 onCheckedChange: (checked) => onSelect(checked ? [...selected, id] : selected.filter((value) => value !== id))
               }
@@ -7923,7 +6768,7 @@ function ReviewList({
             )) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground", children: "—" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate", title: item.submitter_name || item.submitter_uid, children: item.submitter_name || item.submitter_uid || "—" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 truncate text-muted-foreground", title: item.submitter_uid, children: item.submitter_uid || "—" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "whitespace-nowrap text-muted-foreground", children: formatOperationTime(submission.created_at, i18n.language) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "whitespace-nowrap text-muted-foreground", children: formatOperationTime(submission.updated_at || submission.created_at, i18n.language) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { variant: "default", className: "h-5 w-fit whitespace-nowrap px-1.5 text-[10px]", children: item.submission_type === "update" ? t("skills.operation.reviewTypeUpdate") : t("skills.operation.reviewTypeNew") }),
             role === "advanced" && submission.status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Select,
@@ -8082,7 +6927,7 @@ function ReadyList({
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.categories") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.submitter") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.uid") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.submittedAt") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.updatedAt") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.reviewer") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.reviewType") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-3 py-2 font-medium", children: t("skills.operation.publicationStatus") }),
@@ -8102,7 +6947,7 @@ function ReadyList({
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2 align-middle", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           Checkbox,
           {
-            className: "size-4",
+            size: "sm",
             checked: selected.includes(id),
             onCheckedChange: (checked) => onSelect(
               checked ? [...selected, id] : selected.filter((value) => value !== id)
@@ -8129,7 +6974,10 @@ function ReadyList({
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate px-3 py-2 text-muted-foreground", title: item.submitter_uid, children: item.submitter_uid || "—" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "whitespace-nowrap px-3 py-2 text-muted-foreground", children: formatOperationTime(submission.created_at, i18n.language) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "whitespace-nowrap px-3 py-2 text-muted-foreground", children: formatOperationTime(
+          submission.updated_at || submission.created_at,
+          i18n.language
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate px-3 py-2", title: item.reviewer_name || item.reviewer_uid, children: item.reviewer_name || item.reviewer_uid || "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-3 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           Badge,
@@ -8395,85 +7243,6 @@ function Field({
     children,
     error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs text-destructive", children: error })
   ] });
-}
-function OtherSkillItem({
-  skill,
-  installing,
-  onInstall,
-  onToggle,
-  onDetail,
-  onTryItOut
-}) {
-  const { t, i18n } = useTranslation();
-  const isZh = i18n.language.startsWith("zh");
-  const displayName = isZh ? skill.displayNameZh || toDisplayName(skill.name) : toDisplayName(skill.name);
-  const summary = isZh ? skill.summaryZh || skill.summary : skill.summary;
-  const market = skill;
-  const downloads = market.downloads;
-  const isInstalled = skill.enabled === true || market.installed === true;
-  const enabled = skill.enabled;
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: row click opens detail
-    // biome-ignore lint/a11y/noStaticElementInteractions: row click handler
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        "data-action-ui-id": "other-skill-item",
-        "data-skill-name": skill.name,
-        className: "group flex min-h-20 cursor-pointer items-center gap-3 rounded-lg bg-card px-4 py-3 transition-shadow duration-200 ease-out hover:ring-[0.5px] hover:ring-inset hover:ring-border-strong focus-within:ring-[0.5px] focus-within:ring-inset focus-within:ring-border-strong",
-        onClick: () => onDetail?.(skill),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-1 flex-col gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "truncate text-[15px] font-medium leading-5 text-foreground", children: displayName }),
-            summary && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "truncate text-sm leading-5 text-muted-foreground", children: summary }),
-            downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1 text-[11px] leading-4 text-muted-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12 }),
-              formatDownloads(downloads)
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "relative flex shrink-0 items-center gap-2",
-              onClick: (e) => e.stopPropagation(),
-              children: isInstalled ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                onTryItOut && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    "data-action-ui-id": "other-skill-try",
-                    className: "pointer-events-none absolute right-full z-10 mr-2 inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-card px-2.5 text-xs font-medium text-foreground opacity-0 transition-[opacity,colors] hover:border-foreground hover:bg-card group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100",
-                    onClick: () => onTryItOut(skill),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(MessageCircle, { size: 14, strokeWidth: 1.5 }),
-                      t("skills.market.tryInChat", "去对话中试试")
-                    ]
-                  }
-                ),
-                onToggle && /* @__PURE__ */ jsxRuntimeExports.jsx(Switch, { checked: enabled, onCheckedChange: () => onToggle(skill.name, !enabled) })
-              ] }) : onInstall && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  "data-action-ui-id": "other-skill-install",
-                  disabled: installing,
-                  className: "inline-flex h-7 items-center gap-1.5 rounded-md border border-foreground/15 bg-transparent px-3 text-xs font-medium text-foreground transition-colors hover:border-foreground hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
-                  onClick: () => onInstall(skill.name),
-                  children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin" }),
-                    t("skills.market.installing")
-                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12, strokeWidth: 1.75 }),
-                    t("skills.market.install")
-                  ] })
-                }
-              )
-            }
-          )
-        ]
-      }
-    )
-  );
 }
 function normalizePluginLocale(short) {
   if (!short) return "en-US";
@@ -10964,7 +9733,7 @@ function PluginMarketDetailDialog({
           "data-action-ui-id": "plugin-market-detail-carousel",
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(CarouselContent, { className: "ml-0", children: previews.map((url, idx) => {
             const isVideo = isVideoUrl(url);
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(CarouselItem, { className: "pl-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative w-full aspect-video bg-muted overflow-hidden border border-border", children: isVideo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(CarouselItem, { className: "pl-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted", children: isVideo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               PluginPreviewVideo,
               {
                 src: url,
@@ -11001,7 +9770,7 @@ function PluginMarketDetailDialog({
         className: "text-xs hover:text-destructive hover:border-destructive/40",
         onClick: handleUninstall,
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2$1, { size: 14, strokeWidth: 1.5 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
           t("skills.plugin.uninstall")
         ]
       }
@@ -11015,7 +9784,7 @@ function PluginMarketDetailDialog({
         className: "text-xs",
         onClick: handleInstallClick,
         children: [
-          !installing && /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
+          !installing && /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14, strokeWidth: 1.5 }),
           installing ? t("skills.plugin.installing") : t("skills.plugin.install")
         ]
       }
@@ -11082,7 +9851,7 @@ function PluginMarketListItem({
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate text-sm font-semibold text-foreground", children: displayName }),
               downloads != null && downloads > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 12, strokeWidth: 1.5 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 12, strokeWidth: 1.5 }),
                 formatDownloads(downloads)
               ] })
             ] }),
@@ -11096,7 +9865,7 @@ function PluginMarketListItem({
               className: "inline-flex items-center gap-1.5 h-7 rounded-md px-2.5 text-xs font-medium border border-foreground/15 bg-transparent text-foreground hover:bg-muted hover:text-destructive hover:border-destructive/40 transition-colors",
               onClick: () => onUninstall?.(plugin.id),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2$1, { size: 14, strokeWidth: 1.5 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
                 t("skills.plugin.uninstall")
               ]
             }
@@ -11109,10 +9878,10 @@ function PluginMarketListItem({
               className: "inline-flex items-center gap-1.5 h-7 rounded-md px-3 text-xs font-medium border border-foreground/15 bg-transparent text-foreground hover:bg-muted hover:border-foreground/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
               onClick: () => onInstall(plugin.id),
               children: installing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.5, className: "animate-spin" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.5, className: "animate-spin" }),
                 t("skills.plugin.installing")
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14, strokeWidth: 1.5 }),
                 t("skills.plugin.install")
               ] })
             }
@@ -11250,8 +10019,8 @@ function ShowcaseVideoPlayer({ src, label, active, onError }) {
                 onClick: togglePlay,
                 "data-action-ui-id": "skill-detail-showcase-video-toggle-play",
                 "aria-label": playing ? t("common.pause") : t("common.play"),
-                className: "showcase-video-player-button pointer-events-auto flex size-7 shrink-0 items-center justify-center rounded-md",
-                children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { size: 16, strokeWidth: 1.5 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play$1, { size: 16, strokeWidth: 1.5 })
+                className: "showcase-video-player-button pointer-events-auto flex size-7 shrink-0 items-center justify-center rounded-full",
+                children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPauseIcon, { size: 16, strokeWidth: 1.5 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, { size: 16, strokeWidth: 1.5 })
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { videoRef, isPlaying: playing, display: "time" }),
@@ -11552,7 +10321,7 @@ function SkillDetailDialog({
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-3 flex items-center gap-1.5", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5, "aria-hidden": "true" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 14, strokeWidth: 1.5, "aria-hidden": "true" }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sr-only", children: [
                         t("skills.detail.downloadCount"),
                         ": "
@@ -11580,7 +10349,7 @@ function SkillDetailDialog({
                     onClick: onClose,
                     "aria-label": t("common.close"),
                     "data-action-ui-id": "skills.detail-close",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20, strokeWidth: 1.5 })
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(StrokeIcon, { icon: X, size: 20 })
                   }
                 )
               ] }),
@@ -11616,7 +10385,7 @@ function SkillDetailDialog({
                         UPDATE_INDICATOR_STYLES.hover
                       ),
                       children: [
-                        updating ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.5, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 14 }),
+                        updating ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.5, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RetryIcon, { size: 14 }),
                         t("skills.market.updateAvailable")
                       ]
                     }
@@ -11673,7 +10442,7 @@ function SkillDetailDialog({
                       "data-action-ui-id": "skill-detail-install",
                       className: "gap-1.5 rounded-lg",
                       children: [
-                        installing ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 16, strokeWidth: 1.5, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16, strokeWidth: 1.5 }),
+                        installing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 16, strokeWidth: 1.5, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Download$1, { size: 16, strokeWidth: 1.5 }),
                         installing ? t("skills.market.installing") : t("skills.market.install")
                       ]
                     }
@@ -12199,22 +10968,29 @@ function SkillImportDialog({ open, onOpenChange, onImported }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { className: "px-6 pt-5 pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-sm leading-5 font-medium", children: t("skills.import.title", "导入 Skill") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 px-6 pb-6", children: [
           isError && errorInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-destructive", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 15, className: "mt-0.5 shrink-0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertCircle, { size: 15, className: "mt-0.5 shrink-0" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", children: errorInfo.message }),
-              errorInfo.missingFields && errorInfo.missingFields.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5 mt-1", children: errorInfo.missingFields.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-1 py-0.5 bg-destructive/10 font-mono text-[11px]", children: f }, f)) })
+              errorInfo.missingFields && errorInfo.missingFields.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5 mt-1", children: errorInfo.missingFields.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "rounded-sm bg-destructive/10 px-1 py-0.5 font-mono text-[11px]",
+                  children: f
+                },
+                f
+              )) })
             ] })
           ] }),
           isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 px-3 py-2 text-success-foreground", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 15 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle2, { size: 15 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", children: t("skills.import.success", "Skill 导入成功") })
           ] }),
           isSuccess && autoFixed && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-warning-foreground", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 15 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertCircle, { size: 15 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: t("skills.import.autoFixHint", "已自动优化格式") })
           ] }),
           isSuccess && warning && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-warning-foreground", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 15 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertCircle, { size: 15 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: warning })
           ] }),
           showDropZone && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -12288,7 +11064,7 @@ function SkillImportDialog({ open, onOpenChange, onImported }) {
           ] }),
           isConflict && conflict && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-warning-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 15, className: "mt-0.5 shrink-0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(AlertCircle, { size: 15, className: "mt-0.5 shrink-0" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: conflict.type === "official" ? t("skills.import.nameConflict.official", {
                 name: conflict.existingName
               }) : t("skills.import.nameConflict.user", {
@@ -12341,7 +11117,7 @@ function SkillImportDialog({ open, onOpenChange, onImported }) {
           ] }),
           isAdaptation && file && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-warning-foreground", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 15, className: "mt-0.5 shrink-0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(AlertCircle, { size: 15, className: "mt-0.5 shrink-0" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: t(
                 "skills.import.thirdPartyHint",
                 "检测到第三方 Skill，建议适配到 MiniMax Design 环境以获得最佳体验"
@@ -12393,7 +11169,7 @@ function SkillImportDialog({ open, onOpenChange, onImported }) {
                 disabled: state !== "fileSelected" && state !== "error",
                 onClick: handleInstall,
                 children: [
-                  state === "installing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.5, className: "animate-spin mr-1.5" }),
+                  state === "installing" && /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.5, className: "animate-spin mr-1.5" }),
                   state === "installing" ? t("skills.import.installing", "导入中...") : t("skills.import.install", "导入")
                 ]
               }
@@ -12442,6 +11218,57 @@ function useAutoUpdateBanner() {
     setPending(null);
   }, []);
   return { pending, restarting, restartNow, dismiss };
+}
+function useCreatorPlanSubmissions(accountId) {
+  const [snapshot, setSnapshot] = reactExports.useState({ accountId, items: [], state: accountId ? "loading" : "signed-out" });
+  const activeAccount = reactExports.useRef(accountId);
+  activeAccount.current = accountId;
+  const request = reactExports.useRef(null);
+  const autoRefreshAccount = reactExports.useRef(void 0);
+  const refresh = reactExports.useCallback(
+    (options) => {
+      if (!accountId) return Promise.resolve();
+      if (!options?.force && request.current?.accountId === accountId)
+        return request.current.promise;
+      setSnapshot((prev) => ({
+        accountId,
+        items: prev.accountId === accountId ? prev.items : [],
+        state: "loading"
+      }));
+      const promise = listCreatorPlanSubmissions().then((items) => {
+        if (activeAccount.current === accountId && request.current?.promise === promise)
+          setSnapshot({ accountId, items, state: "ready" });
+      }).catch(() => {
+        if (activeAccount.current === accountId && request.current?.promise === promise)
+          setSnapshot((prev) => ({ ...prev, state: "error" }));
+      }).finally(() => {
+        if (request.current?.promise === promise) request.current = null;
+      });
+      request.current = { accountId, promise };
+      return promise;
+    },
+    [accountId]
+  );
+  reactExports.useEffect(() => {
+    activeAccount.current = accountId;
+    autoRefreshAccount.current = void 0;
+    void refresh();
+    return () => {
+      activeAccount.current = void 0;
+    };
+  }, [accountId, refresh]);
+  const refreshCovers = reactExports.useCallback(() => {
+    if (!accountId || autoRefreshAccount.current === accountId) return;
+    autoRefreshAccount.current = accountId;
+    void refresh();
+  }, [accountId, refresh]);
+  const current = snapshot.accountId === accountId ? snapshot : { items: [], state: accountId ? "loading" : "signed-out" };
+  return {
+    submissions: current.items,
+    state: accountId ? current.state : "signed-out",
+    refresh,
+    refreshCovers
+  };
 }
 function useOperator() {
   const [isOperator, setIsOperator] = reactExports.useState(false);
@@ -12937,7 +11764,7 @@ function SkillsPage() {
     tab: initialTab,
     pluginId: initialPluginId,
     skillName: initialSkillName,
-    connectorId: initialConnectorId
+    connectorId: _initialConnectorId
   } = useSearch({ strict: false });
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({ scrollRef });
@@ -12982,22 +11809,32 @@ function SkillsPage() {
   const { user } = useAuth();
   const [creatorPlanOpen, setCreatorPlanOpen] = reactExports.useState(false);
   const [creatorPlanDefaultSource, setCreatorPlanDefaultSource] = reactExports.useState("upload");
-  const [creatorPlanSubmissions, setCreatorPlanSubmissions] = reactExports.useState([]);
+  const [creatorPlanMode, setCreatorPlanMode] = reactExports.useState("review");
+  const {
+    submissions: creatorPlanSubmissions,
+    state: submissionState,
+    refresh: fetchCreatorPlanSubmissions,
+    refreshCovers
+  } = useCreatorPlanSubmissions(user?.userID);
   const [creatorPlanDefaultSkill, setCreatorPlanDefaultSkill] = reactExports.useState("");
-  const openCreatorPlan = reactExports.useCallback((skillName, source) => {
-    setCreatorPlanDefaultSkill(skillName ?? "");
-    setCreatorPlanDefaultSource(source ?? (skillName ? "design" : "upload"));
-    setCreatorPlanOpen(true);
-  }, []);
+  const openCreatorPlan = reactExports.useCallback(
+    (skillName, source, mode = "review") => {
+      setCreatorPlanMode(mode);
+      setCreatorPlanDefaultSkill(skillName ?? "");
+      setCreatorPlanDefaultSource(source ?? (skillName ? "design" : "upload"));
+      setCreatorPlanOpen(true);
+    },
+    []
+  );
   const localCreatedSkills = reactExports.useMemo(() => skills.filter((s) => s.source === "user"), [skills]);
   const [loading, setLoading] = reactExports.useState(true);
   const [error, setError] = reactExports.useState(null);
+  const [importOpen, setImportOpen] = reactExports.useState(false);
   const [detailSkill, setDetailSkill] = reactExports.useState(null);
   const [activeTab, setActiveTab] = reactExports.useState(
     initialTab === "mine" ? "mine" : "community"
   );
   const [needsRefresh, setNeedsRefresh] = reactExports.useState(false);
-  const [importOpen, setImportOpen] = reactExports.useState(false);
   const [shareUrl, setShareUrl] = reactExports.useState(null);
   const {
     activeTag,
@@ -13213,19 +12050,6 @@ function SkillsPage() {
   reactExports.useEffect(() => {
     fetchSkills();
   }, [fetchSkills]);
-  const fetchCreatorPlanSubmissions = reactExports.useCallback(async () => {
-    if (!user) {
-      setCreatorPlanSubmissions([]);
-      return;
-    }
-    try {
-      setCreatorPlanSubmissions(await listCreatorPlanSubmissions());
-    } catch {
-    }
-  }, [user]);
-  reactExports.useEffect(() => {
-    void fetchCreatorPlanSubmissions();
-  }, [fetchCreatorPlanSubmissions]);
   reactExports.useEffect(() => {
     const d = pluginEvents.onPluginsChanged(() => {
       fetchSkills();
@@ -13339,14 +12163,9 @@ function SkillsPage() {
       skillCategories
     ]
   );
-  const createdSkills = reactExports.useMemo(
-    () => filteredMineSkills.filter((skill) => skill.skillType !== "plugin" && skill.source === "user").sort((a, b) => a.name.localeCompare(b.name)),
-    [filteredMineSkills]
-  );
-  const downloadedSkills = reactExports.useMemo(
-    () => filteredMineSkills.filter((skill) => skill.skillType !== "plugin" && skill.source === "installed").sort((a, b) => a.name.localeCompare(b.name)),
-    [filteredMineSkills]
-  );
+  const mySkillsCount = skills.filter(
+    (skill) => skill.skillType !== "plugin" && (skill.source === "user" || skill.source === "installed")
+  ).length;
   const handleToggle = reactExports.useCallback(
     async (name, enabled) => {
       const applyingToast = beginSkillApplyingToast(t("skills.applying"));
@@ -13378,7 +12197,7 @@ function SkillsPage() {
         await offlineCreatorPlanSubmission(name);
         const skill = skillsRef.current.find((item) => item.name === name);
         if (skill?.enabled) await handleToggle(name, false);
-        await fetchCreatorPlanSubmissions();
+        await fetchCreatorPlanSubmissions({ force: true });
         dedupedToast.success(t("skills.mine.offlineSuccess", "Skill 已下线"));
       } catch (error2) {
         dedupedToast.error(
@@ -13757,6 +12576,14 @@ function SkillsPage() {
                               children: t(`skills.tabs.${tab}`)
                             }
                           ),
+                          tab === "mine" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "span",
+                            {
+                              className: "ml-2 shrink-0 whitespace-nowrap text-xs text-muted-foreground",
+                              "data-layout-slot": "skills-mine-count",
+                              children: t("skills.mine.totalCount", { count: mySkillsCount })
+                            }
+                          ),
                           infoKey && /* @__PURE__ */ jsxRuntimeExports.jsx(TabInfoPopover, { bodyKey: infoKey, tabKey: tab })
                         ] }, tab);
                       })
@@ -13787,7 +12614,7 @@ function SkillsPage() {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
                   {
-                    className: "scrollbar-none flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-x-auto overscroll-x-contain [&>*:first-child]:ml-auto",
+                    className: "flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3",
                     "data-layout-slot": "skills-toolbar-actions",
                     children: [
                       !(activeTab === "community" && operationsMode) && (() => {
@@ -13813,33 +12640,56 @@ function SkillsPage() {
                         );
                       })(),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        Button,
+                        "div",
                         {
-                          variant: "outline",
-                          size: "default",
-                          "data-action-ui-id": "skills-import-button",
-                          className: "h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-4 text-[13px] font-medium",
-                          onClick: () => setImportOpen(true),
+                          className: "flex max-w-full flex-wrap items-center justify-end gap-3",
+                          "data-layout-slot": "skills-toolbar-primary-actions",
                           children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(Import, { size: 16, strokeWidth: 1.5 }),
-                            t("skills.header.install", "Import Skill")
-                          ]
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        Button,
-                        {
-                          size: "default",
-                          "data-action-ui-id": "skills-create-via-hub",
-                          className: "h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-4 text-[13px] font-medium",
-                          onClick: () => {
-                            trackSkillCreatorInvoke("market_button");
-                            const installed = skills.find((s) => s.name === "skill-creator");
-                            trySkill(installed ?? { name: "skill-creator" });
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, strokeWidth: 1.5 }),
-                            t("skills.header.createSkill", "Create Skill")
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              Button,
+                              {
+                                variant: "outline",
+                                size: "default",
+                                "data-action-ui-id": "skills-import-button",
+                                className: "h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-4 text-[13px] font-medium",
+                                onClick: () => setImportOpen(true),
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(Import, { size: 16, strokeWidth: 1.5 }),
+                                  t("skills.header.install", "Import Skill")
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              Button,
+                              {
+                                variant: "outline",
+                                size: "default",
+                                "data-action-ui-id": "skills-upload-skill",
+                                className: "h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-4 text-[13px] font-medium",
+                                onClick: () => openCreatorPlan(void 0, "upload"),
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 16, strokeWidth: 1.5 }),
+                                  t("skills.header.submitSkill", "Submit Skill")
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              Button,
+                              {
+                                size: "default",
+                                "data-action-ui-id": "skills-create-via-hub",
+                                className: "h-9 shrink-0 gap-1.5 whitespace-nowrap rounded-lg px-4 text-[13px] font-medium",
+                                onClick: () => {
+                                  trackSkillCreatorInvoke("market_button");
+                                  const installed = skills.find((s) => s.name === "skill-creator");
+                                  trySkill(installed ?? { name: "skill-creator" });
+                                },
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, strokeWidth: 1.5 }),
+                                  t("skills.header.createSkill", "Create Skill")
+                                ]
+                              }
+                            )
                           ]
                         }
                       )
@@ -13873,7 +12723,9 @@ function SkillsPage() {
               mineCategoryFilter,
               onMineCategoryFilterChange: setMineCategoryFilter,
               mineSourceFilter,
-              onMineSourceFilterChange: setMineSourceFilter
+              onMineSourceFilterChange: setMineSourceFilter,
+              autoUpdate: skillAutoUpdate,
+              onAutoUpdateChange: handleAutoUpdateToggle
             }
           ) })
         ] }),
@@ -13944,14 +12796,19 @@ function SkillsPage() {
                 !loading && !error && /* @__PURE__ */ jsxRuntimeExports.jsx(
                   MySkillsView,
                   {
-                    defaultTab: mineSourceFilter === "community" ? "downloaded" : "created",
-                    createdSkills,
-                    downloadedSkills,
+                    skills: [...filteredMineSkills].sort((a, b) => a.name.localeCompare(b.name)),
+                    totalCount: mySkillsCount,
+                    hasFilters: !!installedSearchQuery.trim() || !!mineCategoryFilter || mineSourceFilter !== "all",
+                    onClearFilters: () => {
+                      setInstalledSearchQuery("");
+                      setMineCategoryFilter(null);
+                      setMineSourceFilter("all");
+                    },
+                    submissionState,
+                    onCoverError: refreshCovers,
+                    onCreate: handleCreateSkillFromDialog,
                     submissions: creatorPlanSubmissionMap,
-                    autoUpdate: skillAutoUpdate,
-                    onAutoUpdateChange: handleAutoUpdateToggle,
-                    onUpload: () => openCreatorPlan(void 0, "upload"),
-                    onEdit: (name) => openCreatorPlan(name, "design"),
+                    onEdit: (name, mode) => openCreatorPlan(name, "design", mode),
                     onOffline: handleOfflineCreatedSkill,
                     onToggle: handleToggle,
                     onDetail: openDetailFromList,
@@ -13967,14 +12824,12 @@ function SkillsPage() {
                       forceSetActiveTag(null);
                     },
                     onRefreshSubmissions: fetchCreatorPlanSubmissions
-                  },
-                  mineSourceFilter
+                  }
                 )
               ] }),
               capabilityTab === "connectors" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 ConnectorsTab,
                 {
-                  initialConnectorId,
                   query: connectorSearchQuery,
                   onQueryChange: setConnectorSearchQuery,
                   sortMode: connectorSortMode,
@@ -14049,6 +12904,7 @@ function SkillsPage() {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           CreatorPlanDialog,
           {
+            mode: creatorPlanMode,
             open: creatorPlanOpen,
             onOpenChange: setCreatorPlanOpen,
             mySkills: creatorPlanDefaultSkill ? skills.filter(
@@ -14061,19 +12917,20 @@ function SkillsPage() {
             onCreateSkill: handleCreateSkillFromDialog,
             onSaved: () => {
               void fetchSkills();
-              void fetchCreatorPlanSubmissions();
+              void fetchCreatorPlanSubmissions({ force: true });
             },
             onRefreshSubmissions: fetchCreatorPlanSubmissions
           },
-          `${creatorPlanDefaultSource}:${creatorPlanDefaultSkill || "new"}`
+          `${creatorPlanMode}:${creatorPlanDefaultSource}:${creatorPlanDefaultSkill || "new"}`
         ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SkillImportDialog, { open: importOpen, onOpenChange: setImportOpen, onImported: fetchSkills }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: !!shareUrl, onOpenChange: (open) => !open && setShareUrl(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { className: "sm:max-w-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 flex-col items-center gap-4 pt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-12 w-12 items-center justify-center border border-border bg-background", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { size: 24, strokeWidth: 1.5, className: "text-foreground" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-background", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { size: 24, strokeWidth: 1.5, className: "text-foreground" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1 text-center", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-base font-medium", children: t("skills.share.dialogTitle", "分享链接已生成") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(DialogDescription, { children: t("skills.share.dialogDesc", "将此链接分享给他人即可安装该 Skill。") })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-muted px-3 py-2.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-foreground truncate select-all", children: shareUrl }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full rounded-lg bg-muted px-3 py-2.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-foreground truncate select-all", children: shareUrl }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-muted-foreground", children: t("skills.share.validForever", "永久有效") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
@@ -14084,8 +12941,7 @@ function SkillsPage() {
               children: t("skills.share.copyLink", "复制链接")
             }
           )
-        ] }) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SkillImportDialog, { open: importOpen, onOpenChange: setImportOpen, onImported: fetchSkills })
+        ] }) }) })
       ]
     }
   );
@@ -14199,7 +13055,7 @@ function CommunityTabContent({
           className: "inline-flex items-center gap-2 h-8 rounded-md px-4 text-xs font-medium text-foreground border border-foreground/15 bg-transparent hover:bg-muted hover:border-foreground/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
           onClick: searchMarket.loadMore,
           children: searchMarket.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 12, className: "animate-spin" }),
             t("common.loading")
           ] }) : t("skills.market.loadMore")
         }
@@ -14214,6 +13070,7 @@ function CommunityTabContent({
           emptyText: t("skills.market.officialFeaturedEmpty", "暂无此类型的 Skill"),
           skills: officialFeatured,
           installingSet: marketOfficialFeatured.installingSet,
+          onToggle,
           onInstall,
           onTryItOut,
           onDetail
@@ -14227,6 +13084,7 @@ function CommunityTabContent({
           emptyText: t("skills.market.communityFeaturedEmpty", "暂无此类型的 Skill"),
           skills: community,
           installingSet: marketCommunity.installingSet,
+          onToggle,
           onInstall,
           onTryItOut,
           onDetail,
@@ -14257,14 +13115,14 @@ function CommunityTabContent({
             "label",
             {
               "data-action-ui-id": "market-other-hide-installed",
-              className: "inline-flex cursor-pointer select-none items-center gap-1.5 text-xs text-muted-foreground",
+              className: "hilo-checkbox-label inline-flex cursor-pointer select-none items-center text-xs text-muted-foreground",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Checkbox,
                   {
                     checked: hideInstalled,
                     onCheckedChange: (checked) => onHideInstalledChange?.(!!checked),
-                    className: "h-3.5 w-3.5"
+                    size: "sm"
                   }
                 ),
                 t("skills.filter.hideInstalled", "仅显示未安装")
@@ -14340,7 +13198,7 @@ function CommunityTabContent({
           className: "inline-flex items-center gap-2 h-8 rounded-md px-4 text-xs font-medium text-foreground border border-foreground/15 bg-transparent hover:bg-muted hover:border-foreground/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
           onClick: marketOther.loadMore,
           children: marketOther.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 12, className: "animate-spin" }),
             t("common.loading")
           ] }) : t("skills.market.loadMore")
         }
@@ -14433,7 +13291,7 @@ function PluginMarketTabContent({
           className: "inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-foreground/70 border border-border rounded-lg hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
           onClick: pluginMarket.loadMore,
           children: pluginMarket.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.5, className: "animate-spin" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.5, className: "animate-spin" }),
             t("common.loading")
           ] }) : t("skills.market.loadMore")
         }
@@ -14451,7 +13309,7 @@ function SyncBanner({ syncStatus, showComplete }) {
         "data-action-ui-id": "skills-sync-banner",
         className: "flex items-center gap-2 border-b border-primary/20 bg-primary/10 py-2",
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, strokeWidth: 1.5, className: "animate-spin text-primary" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 14, strokeWidth: 1.5, className: "animate-spin text-primary" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-primary font-medium", children: t("skills.market.syncProgress", {
             done: syncStatus.progress?.completed ?? 0,
             total: syncStatus.progress?.total ?? 0

@@ -1,9 +1,8 @@
-import { k as useQuery, c8 as createProjectOperationId, c9 as logProjectOperationAttempt, ca as listProjectMembers, cb as logProjectOperationSuccess, cc as logProjectOperationFailure, h as useTranslation, br as useQueryClient, g as useRuntimeConfig, cd as useAuth, r as reactExports, ce as removeProjectMember, a5 as dedupedToast, cf as cloudErrorDisplayMessage, cg as createProjectInviteLink, ch as buildProjectInviteWebLink, j as jsxRuntimeExports, ci as BadgeInfo, bB as Users, bg as Button, b2 as Check, bT as Link2, cj as Clock, bi as MemberRole, ar as Avatar, as as AvatarImage, at as AvatarFallback, au as cn, ag as DropdownMenu, ah as DropdownMenuTrigger, av as ChevronDown, aj as DropdownMenuContent, ak as DropdownMenuItem, ao as Trash2, aG as Dialog, aH as DialogContent, bd as DialogHeader, be as DialogTitle, V as Search, Y as X, ck as SegmentedSwitch, cl as List, aO as LayoutGrid, cm as TriangleAlert, cn as Skeleton, co as Inbox, cp as Checkbox, bV as Download, bU as LoaderCircle, bz as Tooltip, bA as TooltipTrigger, cq as formatBytes, bC as TooltipContent, o as usePlatform, cr as useCloudFolder, cs as useProjectAssetsService, E as useProjectActions, ct as useTransfers, cu as useCloudReviewNodes, cv as useProjectMemberNames, v as useStorage, cw as getCloudStorageUsage, cx as useDownloadingNodeIds, cy as gatewayUrl, m as API_PATHS, cz as withThumbnailWidth, cA as onDidChangeCloudAssets, cB as useCloudSearch, cC as getProjectAssetWritePolicy, cD as PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS, cE as gateCloudAssetUploads, cF as rejectionToastText, cG as cloudAssetMimeType, cH as toastFolderDownloadSummary, cI as deleteCloudNode, cJ as moveCloudNode, cK as normalizeCloudParentId, cL as useMoveDnd, cM as useCloudMoveOptions, cN as filterMoveOptions, cO as debugDumpCloudProjectAssets, aV as FolderPlus, cP as Upload, cQ as CLOUD_ASSET_ACCEPT, bh as RetryIcon, cR as TransfersButton, cS as AssetsDropzoneEmpty, cT as NewFolderDialog, cU as RenameNodeDialog, cV as DeleteNodeDialog, cW as MoveNodeDialog, cX as ROOT_KEY, bf as DialogDescription, cY as MediaLightbox, cZ as ChevronRight, c_ as resolveTypeBucket, c$ as resolveSyncState, d0 as ContextMenu, d1 as ContextMenuTrigger, d2 as ProjectAssetThumbnail, d3 as NodeUpdatedMeta, d4 as SyncBadge, d5 as Copy, ai as MoreVerticalIcon, d6 as isCloudFileDownloadEnabled, aS as FolderOpen, d7 as PlatformFileManagerLabel, al as PencilIcon, d8 as FolderInput, d9 as ContextMenuContent, da as ContextMenuItem, db as importPickedFiles, dc as localFolderOptions, dd as NewLocalFolderDialog, de as RenameLocalNodeDialog, df as DeleteLocalNodeDialog, dg as ExternalLink, dh as Popover, by as TooltipProvider, di as PopoverTrigger, dj as PopoverContent, w as useNavigate, dk as useParams, ax as useSearch, dl as useProject, dm as useTopbarState, y as useLoginGuard, x as useNavigateToWorkspace, P as useRecentWorkspacesRefresh, p as projectLog, bE as projectListLocation, ab as isWorkspacePathCaseInsensitivePlatform, dn as mergeWorkspaceInventory, dp as selectProjectWorkspaces, H as homeService, K as workspaceRuntimeFromOpenResult, M as handleNewWorkspaceOpenResult, t as trackEvent, T as TRACK_EVENTS, N as useNewWorkspaceDialog, dq as ArrowLeft, dr as UserRoundPlus, bK as Tabs, bL as TabsList, Q as Plus, S as PageStateBoundary, bM as TabsTrigger, ds as Info } from "./main.jsx";
-import { m as memberAvatarColors, u as useWindowedList, P as ProjectMemberSummary } from "./ProjectMemberSummary-D-KuAEDo.js";
-import { u as useWorkspaceAvailability } from "./use-workspace-availability-BsRVqdz3.js";
-import { B as Bug } from "./bug-D8brzkg3.js";
-import { W as WorkspaceCard } from "./WorkspaceCard-DOZwOTqI.js";
-import "./use-hub-entries-BVopDERb.js";
+import { k as useQuery, hq as createProjectOperationId, hr as logProjectOperationAttempt, hs as listProjectMembers, ht as logProjectOperationSuccess, hu as logProjectOperationFailure, h as useTranslation, gm as useQueryClient, g as useRuntimeConfig, hv as useAuth, r as reactExports, hw as removeProjectMember, a3 as dedupedToast, hx as cloudErrorDisplayMessage, hy as createProjectInviteLink, hz as buildProjectInviteWebLink, j as jsxRuntimeExports, be as BadgeInfo, f5 as Users, fM as Button, bz as Check, di as Link2, b$ as Clock, gl as MemberRole, fP as Avatar, fQ as AvatarImage, fR as AvatarFallback, au as cn, ae as DropdownMenu, af as DropdownMenuTrigger, bE as ChevronDown, ah as DropdownMenuContent, ai as DropdownMenuItem, am as Trash2, as as Dialog, at as DialogContent, gj as DialogHeader, g8 as DialogTitle, S as Search, X, hA as SegmentedSwitch, dj as List, aB as LayoutGrid, aT as AlertTriangle, hB as Skeleton, d4 as Inbox, hC as Checkbox, gu as Tooltip, gv as TooltipTrigger, gw as TooltipContent, cf as Download, dl as Loader2, hD as formatBytes, o as usePlatform, hE as useCloudFolder, hF as useProjectAssetsService, E as useProjectActions, hG as useTransfers, hH as useCloudReviewNodes, hI as useProjectMemberNames, v as useStorage, hJ as getCloudStorageUsage, hK as useDownloadingNodeIds, hL as gatewayUrl, m as API_PATHS, hM as withThumbnailWidth, hN as onDidChangeCloudAssets, hO as getVisibleCloudUploads, hP as useCloudSearch, hQ as getProjectAssetWritePolicy, hR as PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS, hS as gateCloudAssetUploads, hT as rejectionToastText, hU as cloudAssetMimeType, hV as toastFolderDownloadSummary, hW as deleteCloudNode, hX as moveCloudNode, hY as normalizeCloudParentId, hZ as useMoveDnd, h_ as useCloudMoveOptions, h$ as filterMoveOptions, i0 as ROOT_KEY, i1 as debugDumpCloudProjectAssets, aL as FolderPlus, f0 as Upload, i2 as CLOUD_ASSET_ACCEPT, br as Bug, gk as RetryIcon, i3 as TransfersButton, i4 as AssetsDropzoneEmpty, i5 as UploadingAssets, i6 as NewFolderDialog, i7 as RenameNodeDialog, i8 as DeleteNodeDialog, i9 as MoveNodeDialog, g9 as DialogDescription, ia as MediaLightbox, bI as ChevronRight, ib as resolveTypeBucket, ic as resolveSyncState, h3 as ContextMenu, h4 as ContextMenuTrigger, id as ProjectAssetThumbnail, ie as NodeUpdatedMeta, ig as SyncBadge, c9 as Copy, ag as MoreVerticalIcon, ih as ActionDropdownMenuContent, ii as ActionDropdownMenuItem, ij as isCloudFileDownloadEnabled, aG as FolderOpen, ik as PlatformFileManagerLabel, aj as PencilIcon, cG as FolderInput, il as ActionContextMenuContent, im as ActionContextMenuItem, io as importPickedFiles, ip as localFolderOptions, iq as NewLocalFolderDialog, ir as RenameLocalNodeDialog, is as DeleteLocalNodeDialog, ck as ExternalLink, it as Popover, gt as TooltipProvider, iu as PopoverTrigger, iv as PopoverContent, w as useNavigate, iw as useParams, fT as useSearch, ix as useProject, iy as useTopbarState, y as useLoginGuard, x as useNavigateToWorkspace, P as useRecentWorkspacesRefresh, p as projectLog, gz as projectListLocation, a9 as isWorkspacePathCaseInsensitivePlatform, iz as mergeWorkspaceInventory, iA as selectProjectWorkspaces, H as homeService, K as workspaceRuntimeFromOpenResult, M as handleNewWorkspaceOpenResult, t as trackEvent, T as TRACK_EVENTS, N as useNewWorkspaceDialog, b0 as ArrowLeft, f4 as UserRoundPlus, gE as Tabs, gF as TabsList, Q as Plus, U as PageStateBoundary, gG as TabsTrigger, d5 as Info } from "./main.jsx";
+import { m as memberAvatarColors, u as useWindowedList, P as ProjectMemberSummary } from "./ProjectMemberSummary-tUEX4nJc.js";
+import { u as useWorkspaceAvailability } from "./use-workspace-availability-Dj4GHjzL.js";
+import { W as WorkspaceCard } from "./WorkspaceCard-vSPE0nQy.js";
+import "./use-hub-entries-BqMaebYB.js";
 const PROJECT_MEMBERS_STALE_TIME_MS = 3e4;
 function projectMembersQueryKey(projectId) {
   return ["project", projectId, "members"];
@@ -433,7 +432,7 @@ function AssetsErrorState({
       ),
       role: "alert",
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 20, strokeWidth: 1.5, "aria-hidden": "true" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { size: 20, strokeWidth: 1.5, "aria-hidden": "true" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-body-14 font-medium text-foreground", children: title ?? t("projectAssets.errorTitle") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "max-w-md text-caption-11 text-muted-foreground", children: message })
@@ -469,31 +468,44 @@ function AssetsRowCheckbox({
   ariaLabel,
   actionUiId
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Checkbox,
-    {
-      checked: selected,
-      "aria-label": ariaLabel,
-      "data-action-ui-id": actionUiId,
-      onCheckedChange: () => onToggle({ shiftKey: false }),
-      onClick: (event) => {
-        event.stopPropagation();
-        if (!event.shiftKey) return;
-        event.preventDefault();
-        onToggle({ shiftKey: true });
-      },
-      className: cn(
-        "cursor-pointer transition-opacity",
-        "border-project-assets-row-checkbox-border! bg-project-assets-row-checkbox-bg!",
-        "data-checked:border-primary! data-checked:bg-primary!",
-        selected ? "opacity-100" : "opacity-0 group-hover/row:opacity-100 focus:opacity-100"
-      )
-    }
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: event boundary prevents the hidden input click from activating the host row.
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "span",
+      {
+        className: "contents",
+        onClick: (event) => event.stopPropagation(),
+        onKeyDown: (event) => event.stopPropagation(),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Checkbox,
+          {
+            checked: selected,
+            "aria-label": ariaLabel,
+            "data-action-ui-id": actionUiId,
+            onCheckedChange: () => onToggle({ shiftKey: false }),
+            onClick: (event) => {
+              event.stopPropagation();
+              if (!event.shiftKey) return;
+              event.preventDefault();
+              event.preventBaseUIHandler();
+              onToggle({ shiftKey: true });
+            },
+            className: cn(
+              "cursor-pointer transition-opacity",
+              selected ? "opacity-100" : "opacity-0 group-hover/row:opacity-100 focus:opacity-100"
+            )
+          }
+        )
+      }
+    )
   );
 }
 function AssetsSelectionBar({
   count,
   onClear,
+  allSelected = false,
+  someSelected = false,
+  onToggleAll,
   onDownload,
   downloadLabel,
   downloadDisabled,
@@ -512,11 +524,29 @@ function AssetsSelectionBar({
       "aria-label": t("projectAssets.selectionBar"),
       "data-action-ui-id": `${actionIdPrefix}.selection-bar`,
       className: cn(
-        "sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-[var(--home-content-surface)] px-1 py-2",
+        "relative sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-[var(--home-content-surface)] px-1 py-2",
         className
       ),
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: t("projectAssets.selectedCount", { count }) }),
+        onToggleAll ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute -left-6 top-1/2 flex -translate-y-1/2 items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Tooltip, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TooltipTrigger,
+            {
+              render: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Checkbox,
+                {
+                  checked: allSelected,
+                  indeterminate: someSelected && !allSelected,
+                  onCheckedChange: onToggleAll,
+                  "aria-label": t("projectAssets.selectAllFiles"),
+                  "data-action-ui-id": `${actionIdPrefix}.selection-select-all`
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TooltipContent, { side: "bottom", children: t("projectAssets.selectAllFiles") })
+        ] }) }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn("text-xs", onToggleAll && "ml-2"), children: t("projectAssets.selectedCount", { count }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Button,
@@ -556,7 +586,7 @@ function AssetsSelectionBar({
             disabled: busy,
             "data-action-ui-id": `${actionIdPrefix}.selection-delete`,
             children: [
-              busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 12, className: "animate-spin", "data-icon": "inline-start" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12, strokeWidth: 1.5, "data-icon": "inline-start" }),
+              busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader2, { size: 12, className: "animate-spin", "data-icon": "inline-start" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12, strokeWidth: 1.5, "data-icon": "inline-start" }),
               t("projectAssets.batchDelete")
             ]
           }
@@ -600,6 +630,10 @@ function useAssetsListState() {
     });
     setLastAnchor(key);
   }, []);
+  const selectOnly = reactExports.useCallback((key) => {
+    setSelection(/* @__PURE__ */ new Set([key]));
+    setLastAnchor(key);
+  }, []);
   const toggleRange = reactExports.useCallback(
     (allKeys, targetKey) => {
       const anchor = lastAnchor;
@@ -625,14 +659,24 @@ function useAssetsListState() {
     },
     [lastAnchor, toggle]
   );
-  const toggleAll = reactExports.useCallback((allKeys) => {
-    setSelection((current) => {
-      if (current.size === allKeys.length && allKeys.every((k) => current.has(k))) {
-        return /* @__PURE__ */ new Set();
-      }
-      return new Set(allKeys);
-    });
-  }, []);
+  const toggleAll = reactExports.useCallback(
+    (allKeys, options) => {
+      setSelection((current) => {
+        const allSelected = allKeys.every((key) => current.has(key));
+        if (!options?.preserveOtherSelection) {
+          return allSelected && current.size === allKeys.length ? /* @__PURE__ */ new Set() : new Set(allKeys);
+        }
+        const next = new Set(current);
+        if (allSelected) {
+          for (const key of allKeys) next.delete(key);
+        } else {
+          for (const key of allKeys) next.add(key);
+        }
+        return next;
+      });
+    },
+    []
+  );
   const clearSelection = reactExports.useCallback(() => {
     setSelection(/* @__PURE__ */ new Set());
     setLastAnchor(null);
@@ -650,6 +694,7 @@ function useAssetsListState() {
       selection,
       hasSelection: selection.size > 0,
       toggle,
+      selectOnly,
       toggleRange,
       toggleAll,
       clearSelection
@@ -663,11 +708,21 @@ function useAssetsListState() {
       toggleSort,
       selection,
       toggle,
+      selectOnly,
       toggleRange,
       toggleAll,
       clearSelection
     ]
   );
+}
+function selectionTargetsForAction(clicked, candidates, selection, keyOf) {
+  const clickedKey = keyOf(clicked);
+  if (!selection.has(clickedKey)) return [clicked];
+  const selected = candidates.filter((item) => selection.has(keyOf(item)));
+  return selected.length > 0 ? selected : [clicked];
+}
+function fileKeysForSelection(items, keyOf) {
+  return items.filter((item) => item.kind === "file").map(keyOf);
 }
 function CloudUsagePanel({
   usedBytes,
@@ -774,6 +829,16 @@ function CloudUsagePanel({
     }) })
   ] });
 }
+function compactCloudMoveTargets(targets, parentSegmentsFor) {
+  const pathOf = (node) => [...parentSegmentsFor(node), node.name].join("/");
+  const folderPaths = targets.filter((node) => node.kind === "folder").map(pathOf);
+  return targets.filter((node) => {
+    const path = pathOf(node);
+    return !folderPaths.some(
+      (folderPath) => folderPath !== path && path.startsWith(`${folderPath}/`)
+    );
+  });
+}
 const UPLOAD_REFRESH_DEBOUNCE_MS = 300;
 function isCloudAssetsDebugEnabled(isDev = false) {
   return isDev;
@@ -808,7 +873,7 @@ function CloudAssetsPanel({ project }) {
   const [renameTarget, setRenameTarget] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const [batchDeleteTargets, setBatchDeleteTargets] = reactExports.useState([]);
-  const [moveDialogTarget, setMoveDialogTarget] = reactExports.useState(null);
+  const [moveDialogTargets, setMoveDialogTargets] = reactExports.useState([]);
   const [preview, setPreview] = reactExports.useState(
     null
   );
@@ -971,7 +1036,15 @@ function CloudAssetsPanel({ project }) {
     return [...folders, ...files];
   }, [folder.nodes]);
   const listState = useAssetsListState();
+  reactExports.useEffect(() => {
+    if (viewMode === "grid") listState.clearSelection();
+  }, [listState.clearSelection, viewMode]);
   const searchQuery = listState.search.trim();
+  const visibleUploads = reactExports.useMemo(
+    () => getVisibleCloudUploads(projectTransfers, searchQuery),
+    [projectTransfers, searchQuery]
+  );
+  const hasVisibleUploads = visibleUploads.length > 0;
   const search = useCloudSearch(cloudProjectId || void 0, searchQuery);
   const isSearching = searchQuery.length > 0;
   const visibleNodes = isSearching ? search.nodes : orderedNodes;
@@ -1134,6 +1207,10 @@ function CloudAssetsPanel({ project }) {
     [ensureProjectFolderName, parentSegmentsFor, project.id, service, t]
   );
   const rowKeys = reactExports.useMemo(() => visibleNodes.map((node) => node.id), [visibleNodes]);
+  const fileRowKeys = reactExports.useMemo(
+    () => fileKeysForSelection(visibleNodes, (node) => node.id),
+    [visibleNodes]
+  );
   const [batchBusy, setBatchBusy] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (listState.selection.size === 0) return;
@@ -1171,12 +1248,24 @@ function CloudAssetsPanel({ project }) {
     () => visibleNodes.filter((node) => listState.selection.has(node.id)),
     [listState.selection, visibleNodes]
   );
+  const actionTargetsFor = reactExports.useCallback(
+    (node) => selectionTargetsForAction(node, visibleNodes, listState.selection, (item) => item.id),
+    [listState.selection, visibleNodes]
+  );
   const hasDownloadableSelection = selectedNodes.some(
     (node) => isCloudNodeDownloadable(node, downloadingIds)
   );
   const openBatchDelete = reactExports.useCallback(() => {
     if (selectedNodes.length > 0) setBatchDeleteTargets(selectedNodes);
   }, [selectedNodes]);
+  const handleContextMenu = reactExports.useCallback(
+    (node) => {
+      if (!listState.selection.has(node.id)) listState.selectOnly(node.id);
+    },
+    [listState]
+  );
+  const allSelected = fileRowKeys.length > 0 && fileRowKeys.every((key) => listState.selection.has(key));
+  const someSelected = fileRowKeys.some((key) => listState.selection.has(key));
   const handleNodeClick = reactExports.useCallback(
     (node) => {
       if (node.kind === "folder") {
@@ -1196,7 +1285,7 @@ function CloudAssetsPanel({ project }) {
     },
     [folder, isSearching, listState, search.folderPathsById]
   );
-  const handleMove = reactExports.useCallback(
+  const handleMoveNode = reactExports.useCallback(
     async (node, target) => {
       try {
         await moveCloudNode(node.id, target.folderId);
@@ -1223,19 +1312,27 @@ function CloudAssetsPanel({ project }) {
           dedupedToast.warning(t("cloudAssets.moveLocalFailed", { name: node.name }));
         }
       }
+    },
+    [folderName, parentSegmentsFor, service, t]
+  );
+  const handleMoveTargets = reactExports.useCallback(
+    async (targets, target) => {
+      for (const node of compactCloudMoveTargets(targets, parentSegmentsFor)) {
+        await handleMoveNode(node, target);
+      }
+      listState.clearSelection();
       refreshFolder();
       if (isSearching) search.refresh();
       void refreshSyncMap();
     },
     [
-      folderName,
+      handleMoveNode,
       isSearching,
+      listState,
       parentSegmentsFor,
       refreshFolder,
       refreshSyncMap,
-      search.refresh,
-      service,
-      t
+      search.refresh
     ]
   );
   const handleRenamed = reactExports.useCallback(
@@ -1282,16 +1379,28 @@ function CloudAssetsPanel({ project }) {
     if (node.kind === "folder" && target.folderId === node.id) return false;
     return normalizeCloudParentId(target.folderId) !== normalizeCloudParentId(node.parentId);
   }, []);
+  const canDropTargets = reactExports.useCallback(
+    (targets, target) => targets.length > 0 && targets.every((node) => canDropNode(node, target)),
+    [canDropNode]
+  );
   const moveDnd = useMoveDnd({
     keyOf: (target) => target.key,
-    canDrop: canDropNode,
-    onDrop: (node, target) => void handleMove(node, target)
+    canDrop: canDropTargets,
+    onDrop: (targets, target) => void handleMoveTargets(targets, target)
   });
   const nodeDnd = reactExports.useCallback(
     (node) => ({
       dndProps: {
         draggable: true,
-        onDragStart: (event) => moveDnd.startDrag(event, node),
+        onDragStart: (event) => {
+          const targets = actionTargetsFor(node);
+          if (!listState.selection.has(node.id)) listState.selectOnly(node.id);
+          moveDnd.startDrag(
+            event,
+            targets,
+            targets.length > 1 ? t("projectAssets.selectedCount", { count: targets.length }) : void 0
+          );
+        },
         onDragEnd: moveDnd.endDrag,
         ...node.kind === "folder" ? moveDnd.targetProps({
           key: node.id,
@@ -1301,7 +1410,7 @@ function CloudAssetsPanel({ project }) {
       },
       dropActive: node.kind === "folder" && moveDnd.overKey === node.id
     }),
-    [moveDnd, parentSegmentsFor]
+    [actionTargetsFor, listState, moveDnd, parentSegmentsFor, t]
   );
   const crumbTarget = reactExports.useCallback(
     (index) => {
@@ -1314,14 +1423,20 @@ function CloudAssetsPanel({ project }) {
     },
     [folder.folderSegments, folder.stack]
   );
-  const cloudMove = useCloudMoveOptions(cloudProjectId, moveDialogTarget !== null);
+  const cloudMove = useCloudMoveOptions(cloudProjectId, moveDialogTargets.length > 0);
   const moveOptions = reactExports.useMemo(
-    () => filterMoveOptions(
-      cloudMove.options,
-      moveDialogTarget?.kind === "folder" ? [...parentSegmentsFor(moveDialogTarget), moveDialogTarget.name] : void 0
+    () => moveDialogTargets.filter((node) => node.kind === "folder").reduce(
+      (options, node) => filterMoveOptions(options, [...parentSegmentsFor(node), node.name]),
+      cloudMove.options
     ),
-    [cloudMove.options, moveDialogTarget, parentSegmentsFor]
+    [cloudMove.options, moveDialogTargets, parentSegmentsFor]
   );
+  const moveNoopKey = reactExports.useMemo(() => {
+    const parents = new Set(
+      moveDialogTargets.map((node) => normalizeCloudParentId(node.parentId) || ROOT_KEY)
+    );
+    return parents.size === 1 ? [...parents][0] : void 0;
+  }, [moveDialogTargets]);
   const handleReveal = reactExports.useCallback(
     async (node) => {
       if (!folderName) return;
@@ -1334,6 +1449,31 @@ function CloudAssetsPanel({ project }) {
       await platform.shell.showItemInFolder(absolute);
     },
     [folderName, platform.shell, refreshSyncMap, service, t]
+  );
+  const handleRevealTargets = reactExports.useCallback(
+    async (targets) => {
+      if (targets.length === 0) return;
+      if (targets.length === 1 && targets[0]) {
+        await handleReveal(targets[0]);
+        return;
+      }
+      if (!assetsDir || !platform.shell.openPath) {
+        dedupedToast.error(t("localAssets.openFailed", { name: project.name }));
+        return;
+      }
+      const parentPaths = targets.map((node) => parentSegmentsFor(node).join("/"));
+      const sharedParent = parentPaths.every((path) => path === parentPaths[0]) ? parentPaths[0] ?? folder.folderSegments.join("/") : folder.folderSegments.join("/");
+      await platform.shell.openPath(sharedParent ? `${assetsDir}/${sharedParent}` : assetsDir);
+    },
+    [
+      assetsDir,
+      folder.folderSegments,
+      handleReveal,
+      parentSegmentsFor,
+      platform.shell,
+      project.name,
+      t
+    ]
   );
   const handleDebugDump = reactExports.useCallback(async () => {
     if (!debugEnabled || debugLoading) return;
@@ -1511,14 +1651,14 @@ function CloudAssetsPanel({ project }) {
             message: activeMembershipError ? t("cloudAssets.notTeamMemberDescription") : isSearching ? search.userMessage ?? t("cloudAssets.failServer") : activeError,
             onRetry: isSearching ? search.refresh : refreshFolder
           }
-        ) : visibleNodes.length === 0 && activeLoading && (isSearching || !folder.hasLoaded) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AssetsListSkeleton, {}) : isRootEmpty && !isSearching ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ) : visibleNodes.length === 0 && !hasVisibleUploads && activeLoading && (isSearching || !folder.hasLoaded) ? /* @__PURE__ */ jsxRuntimeExports.jsx(AssetsListSkeleton, {}) : isRootEmpty && !hasVisibleUploads && !isSearching ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           AssetsDropzoneEmpty,
           {
             onOpenPicker: () => fileInputRef.current?.click(),
             onPickFiles: (files) => void handleUploadPicked(files),
             disabled: !writePolicy.canCreateFile
           }
-        ) : visibleNodes.length === 0 && !isSearching ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ) : visibleNodes.length === 0 && !hasVisibleUploads && !isSearching ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           AssetsEmptyState,
           {
             variant: "default",
@@ -1537,30 +1677,36 @@ function CloudAssetsPanel({ project }) {
               }
             )
           }
-        ) : visibleNodes.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(AssetsEmptyState, { variant: "search" }) : viewMode === "grid" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4", children: visibleNodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NodeCard$1,
-          {
-            node,
-            thumbSrc: thumbnailSrcFor(node, 480),
-            syncMap,
-            downloadingIds,
-            memberNames,
-            onOpen: handleNodeClick,
-            onDownload: handleDownload,
-            onDownloadFolder: (target) => void handleDownloadFolder(target),
-            onReveal: (target) => void handleReveal(target),
-            onRename: setRenameTarget,
-            onMove: setMoveDialogTarget,
-            onDelete: setDeleteTarget,
-            ...nodeDnd(node)
-          },
-          node.id
-        )) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+        ) : visibleNodes.length === 0 && !hasVisibleUploads ? /* @__PURE__ */ jsxRuntimeExports.jsx(AssetsEmptyState, { variant: "search" }) : viewMode === "grid" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UploadingAssets, { transfers: visibleUploads, viewMode }),
+          visibleNodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NodeCard$1,
+            {
+              node,
+              thumbSrc: thumbnailSrcFor(node, 480),
+              syncMap,
+              downloadingIds,
+              memberNames,
+              onOpen: handleNodeClick,
+              onDownload: handleDownload,
+              onDownloadFolder: (target) => void handleDownloadFolder(target),
+              onReveal: (target) => void handleReveal(target),
+              onRename: setRenameTarget,
+              onMove: (target) => setMoveDialogTargets([target]),
+              onDelete: setDeleteTarget,
+              ...nodeDnd(node)
+            },
+            node.id
+          ))
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             AssetsSelectionBar,
             {
               count: listState.selection.size,
               onClear: listState.clearSelection,
+              allSelected,
+              someSelected,
+              onToggleAll: () => listState.toggleAll(fileRowKeys, { preserveOtherSelection: true }),
               onDownload: () => void handleBatchDownload(),
               downloadLabel: t("cloudAssets.download"),
               downloadDisabled: !hasDownloadableSelection,
@@ -1575,6 +1721,7 @@ function CloudAssetsPanel({ project }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "-translate-x-4 hidden w-32 shrink-0 truncate md:block", children: t("projectAssets.columns.updated") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "-translate-x-4 w-20 shrink-0 truncate pr-3", children: t("projectAssets.columns.size") })
           ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(UploadingAssets, { transfers: visibleUploads, viewMode }),
           visibleNodes.map((node, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
             NodeRow$1,
             {
@@ -1597,8 +1744,13 @@ function CloudAssetsPanel({ project }) {
               onDownloadFolder: (target) => void handleDownloadFolder(target),
               onReveal: (target) => void handleReveal(target),
               onRename: setRenameTarget,
-              onMove: setMoveDialogTarget,
+              onMove: (target) => setMoveDialogTargets([target]),
               onDelete: setDeleteTarget,
+              actionTargets: actionTargetsFor(node),
+              onContextMenu: handleContextMenu,
+              onRevealTargets: (targets) => void handleRevealTargets(targets),
+              onMoveTargets: (targets) => setMoveDialogTargets([...targets]),
+              onDeleteTargets: (targets) => setBatchDeleteTargets([...targets]),
               ...nodeDnd(node)
             },
             node.id
@@ -1648,17 +1800,18 @@ function CloudAssetsPanel({ project }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           MoveNodeDialog,
           {
-            open: moveDialogTarget !== null,
-            name: moveDialogTarget?.name ?? "",
+            open: moveDialogTargets.length > 0,
+            name: moveDialogTargets[0]?.name ?? "",
+            itemCount: moveDialogTargets.length,
             options: moveOptions,
             loading: cloudMove.loading,
-            noopKey: moveDialogTarget ? normalizeCloudParentId(moveDialogTarget.parentId) || ROOT_KEY : ROOT_KEY,
+            noopKey: moveNoopKey,
             onOpenChange: (open) => {
-              if (!open) setMoveDialogTarget(null);
+              if (!open) setMoveDialogTargets([]);
             },
             onConfirm: async (destination) => {
-              if (!moveDialogTarget) return;
-              await handleMove(moveDialogTarget, {
+              if (moveDialogTargets.length === 0) return;
+              await handleMoveTargets(moveDialogTargets, {
                 key: destination.key,
                 folderId: destination.key === ROOT_KEY ? "" : destination.key,
                 segments: destination.segments
@@ -1853,10 +2006,10 @@ function NodeMenu$1({
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoreVerticalIcon, { size: 14 })
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", side: "bottom", sideOffset: 2, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuContent, { align: "end", side: "bottom", sideOffset: 2, children: [
       node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          DropdownMenuItem,
+          ActionDropdownMenuItem,
           {
             disabled: !isCloudFileDownloadEnabled(node, syncState),
             onClick: () => onDownload(node),
@@ -1866,23 +2019,23 @@ function NodeMenu$1({
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: !syncMap.has(node.id), onClick: () => onReveal(node), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { disabled: !syncMap.has(node.id), onClick: () => onReveal(node), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { size: 14, strokeWidth: 1.5 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformFileManagerLabel, {})
         ] })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onDownloadFolder(node), children: [
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onDownloadFolder(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
         t("cloudAssets.download")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { disabled: node.review === "block", onClick: () => onRename(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { disabled: node.review === "block", onClick: () => onRename(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(PencilIcon, { size: 14, strokeWidth: 1.5 }),
         t("cloudAssets.rename")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onMove(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onMove(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(FolderInput, { size: 14, strokeWidth: 1.5 }),
         t("cloudAssets.moveTo")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
         t("cloudAssets.delete")
       ] })
@@ -1898,42 +2051,65 @@ function NodeContextMenuContent$1({
   onReveal,
   onRename,
   onMove,
-  onDelete
+  onDelete,
+  actionTargets,
+  onRevealTargets,
+  onMoveTargets,
+  onDeleteTargets
 }) {
   const { t } = useTranslation();
   const syncState = resolveSyncState(node, syncMap, downloadingIds);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuContent, { "data-action-ui-id": "cloud-assets.node-context-menu", children: [
-    node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        ContextMenuItem,
-        {
-          disabled: !isCloudFileDownloadEnabled(node, syncState),
-          onClick: () => onDownload(node),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
-            syncState === "stale" ? t("cloudAssets.redownload") : t("cloudAssets.download")
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { disabled: !syncMap.has(node.id), onClick: () => onReveal(node), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { size: 14, strokeWidth: 1.5 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformFileManagerLabel, {})
-      ] })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onDownloadFolder(node), children: [
+  const targets = actionTargets?.length ? actionTargets : [node];
+  const isBatch = targets.length > 1;
+  const handleRevealAction = () => {
+    if (onRevealTargets) onRevealTargets(isBatch ? targets : [node]);
+    else onReveal(node);
+  };
+  const handleMoveAction = () => {
+    if (onMoveTargets) onMoveTargets(isBatch ? targets : [node]);
+    else onMove(node);
+  };
+  const handleDeleteAction = () => {
+    if (onDeleteTargets) onDeleteTargets(isBatch ? targets : [node]);
+    else onDelete(node);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuContent, { "data-action-ui-id": "cloud-assets.node-context-menu", children: [
+    !isBatch && node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      ActionContextMenuItem,
+      {
+        disabled: !isCloudFileDownloadEnabled(node, syncState),
+        onClick: () => onDownload(node),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
+          syncState === "stale" ? t("cloudAssets.redownload") : t("cloudAssets.download")
+        ]
+      }
+    ) : !isBatch ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: () => onDownloadFolder(node), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14, strokeWidth: 1.5 }),
       t("cloudAssets.download")
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { disabled: node.review === "block", onClick: () => onRename(node), children: [
+    ] }) : null,
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      ActionContextMenuItem,
+      {
+        disabled: !isBatch && !syncMap.has(node.id),
+        onClick: handleRevealAction,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { size: 14, strokeWidth: 1.5 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformFileManagerLabel, {})
+        ]
+      }
+    ),
+    !isBatch ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { disabled: node.review === "block", onClick: () => onRename(node), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(PencilIcon, { size: 14, strokeWidth: 1.5 }),
       t("cloudAssets.rename")
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onMove(node), children: [
+    ] }) : null,
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: handleMoveAction, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FolderInput, { size: 14, strokeWidth: 1.5 }),
-      t("cloudAssets.moveTo")
+      isBatch ? t("projectAssets.batchMove") : t("cloudAssets.moveTo")
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { variant: "destructive", onClick: handleDeleteAction, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
-      t("cloudAssets.delete")
+      isBatch ? t("projectAssets.batchDelete") : t("cloudAssets.delete")
     ] })
   ] });
 }
@@ -2065,6 +2241,11 @@ function NodeRow$1({
   onRename,
   onMove,
   onDelete,
+  actionTargets,
+  onContextMenu,
+  onRevealTargets,
+  onMoveTargets,
+  onDeleteTargets,
   dndProps,
   dropActive
 }) {
@@ -2079,6 +2260,7 @@ function NodeRow$1({
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ContextMenuTrigger,
       {
+        onContextMenu: () => onContextMenu?.(node),
         render: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -2169,7 +2351,11 @@ function NodeRow$1({
         onReveal,
         onRename,
         onMove,
-        onDelete
+        onDelete,
+        actionTargets,
+        onRevealTargets,
+        onMoveTargets,
+        onDeleteTargets
       }
     )
   ] });
@@ -2198,7 +2384,7 @@ function LocalAssetsPanel({ project }) {
   const [renameTarget, setRenameTarget] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const [batchDeleteTargets, setBatchDeleteTargets] = reactExports.useState([]);
-  const [moveDialogTarget, setMoveDialogTarget] = reactExports.useState(null);
+  const [moveDialogTargets, setMoveDialogTargets] = reactExports.useState([]);
   const [preview, setPreview] = reactExports.useState(
     null
   );
@@ -2265,6 +2451,9 @@ function LocalAssetsPanel({ project }) {
     [records, folders, currentRel]
   );
   const listState = useAssetsListState();
+  reactExports.useEffect(() => {
+    if (viewMode === "grid") listState.clearSelection();
+  }, [listState.clearSelection, viewMode]);
   const searchQuery = listState.search.trim();
   const [searchRecords, setSearchRecords] = reactExports.useState([]);
   const [searchFolders, setSearchFolders] = reactExports.useState([]);
@@ -2314,6 +2503,16 @@ function LocalAssetsPanel({ project }) {
     listedNodes,
     LOCAL_ASSETS_PAGE_SIZE,
     `${folderName ?? ""}\0${currentRel}\0${searchQuery}`
+  );
+  const rowKeys = reactExports.useMemo(() => listedNodes.map((node) => nodeKey(node)), [listedNodes]);
+  const fileRowKeys = reactExports.useMemo(() => fileKeysForSelection(listedNodes, nodeKey), [listedNodes]);
+  const selectedNodes = reactExports.useMemo(
+    () => listedNodes.filter((node) => listState.selection.has(nodeKey(node))),
+    [listState.selection, listedNodes]
+  );
+  const actionTargetsFor = reactExports.useCallback(
+    (node) => selectionTargetsForAction(node, listedNodes, listState.selection, nodeKey),
+    [listState.selection, listedNodes]
   );
   const fileUrlFor = reactExports.useCallback(
     (node, width) => {
@@ -2377,6 +2576,23 @@ function LocalAssetsPanel({ project }) {
     },
     [assetsDir, folderName, platform.shell, refresh, segments, service, t]
   );
+  const handleRevealTargets = reactExports.useCallback(
+    async (targets) => {
+      if (targets.length === 0) return;
+      if (targets.length === 1 && targets[0]) {
+        await handleReveal(targets[0]);
+        return;
+      }
+      if (!assetsDir || !platform.shell.openPath) {
+        dedupedToast.error(t("localAssets.openFailed", { name: project.name }));
+        return;
+      }
+      const parentRels = targets.map((node) => localNodeParentRel(node, currentRel));
+      const sharedParent = parentRels.every((rel) => rel === parentRels[0]) ? parentRels[0] ?? currentRel : currentRel;
+      await platform.shell.openPath(sharedParent ? `${assetsDir}/${sharedParent}` : assetsDir);
+    },
+    [assetsDir, currentRel, handleReveal, platform.shell, project.name, t]
+  );
   const handleNodeClick = reactExports.useCallback(
     (node) => {
       if (node.kind === "folder") {
@@ -2404,42 +2620,53 @@ function LocalAssetsPanel({ project }) {
     },
     [folderName, refresh, segments, service]
   );
-  const handleMove = reactExports.useCallback(
-    async (node, target) => {
+  const handleMoveTargets = reactExports.useCallback(
+    async (targets, target) => {
       if (!folderName) return;
-      try {
-        if (node.kind === "folder") {
-          await service.moveLocalFolder(folderName, [...segments, node.name], target.segments);
-        } else if (node.record) {
-          await service.moveLocalAsset(folderName, node.record.id, target.segments);
+      for (const node of compactLocalMoveTargets(targets, currentRel)) {
+        try {
+          if (node.kind === "folder") {
+            await service.moveLocalFolder(
+              folderName,
+              localNodeRelPath(node, currentRel).split("/"),
+              target.segments
+            );
+          } else if (node.record) {
+            await service.moveLocalAsset(folderName, node.record.id, target.segments);
+          }
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          dedupedToast.error(
+            message.includes("duplicate_name") ? t("localAssets.moveDuplicate") : message.includes("depth_exceeded") ? t("localAssets.folderDepthLimit", {
+              count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS
+            }) : message
+          );
         }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        dedupedToast.error(
-          message.includes("duplicate_name") ? t("localAssets.moveDuplicate") : message.includes("depth_exceeded") ? t("localAssets.folderDepthLimit", {
-            count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS
-          }) : message
-        );
       }
+      listState.clearSelection();
       void refresh();
     },
-    [folderName, refresh, segments, service, t]
+    [currentRel, folderName, listState, refresh, service, t]
   );
   const canDropNode = reactExports.useCallback(
     (node, target) => {
       if (target.key === currentRel) return false;
       if (node.kind === "folder") {
-        const draggedRel = currentRel === "" ? node.name : `${currentRel}/${node.name}`;
+        const draggedRel = localNodeRelPath(node, currentRel);
         if (target.key === draggedRel || target.key.startsWith(`${draggedRel}/`)) return false;
       }
       return true;
     },
     [currentRel]
   );
+  const canDropTargets = reactExports.useCallback(
+    (targets, target) => targets.length > 0 && targets.every((node) => canDropNode(node, target)),
+    [canDropNode]
+  );
   const moveDnd = useMoveDnd({
     keyOf: (target) => target.key,
-    canDrop: canDropNode,
-    onDrop: (node, target) => void handleMove(node, target)
+    canDrop: canDropTargets,
+    onDrop: (targets, target) => void handleMoveTargets(targets, target)
   });
   const nodeDnd = reactExports.useCallback(
     (node) => {
@@ -2447,14 +2674,22 @@ function LocalAssetsPanel({ project }) {
       return {
         dndProps: {
           draggable: true,
-          onDragStart: (event) => moveDnd.startDrag(event, node),
+          onDragStart: (event) => {
+            const targets = actionTargetsFor(node);
+            if (!listState.selection.has(nodeKey(node))) listState.selectOnly(nodeKey(node));
+            moveDnd.startDrag(
+              event,
+              targets,
+              targets.length > 1 ? t("projectAssets.selectedCount", { count: targets.length }) : void 0
+            );
+          },
           onDragEnd: moveDnd.endDrag,
           ...node.kind === "folder" ? moveDnd.targetProps({ key: folderKey, segments: [...segments, node.name] }) : moveDnd.blockerProps()
         },
         dropActive: node.kind === "folder" && moveDnd.overKey === folderKey
       };
     },
-    [currentRel, moveDnd, segments]
+    [actionTargetsFor, currentRel, listState, moveDnd, segments, t]
   );
   const crumbTarget = reactExports.useCallback(
     (index) => {
@@ -2464,19 +2699,24 @@ function LocalAssetsPanel({ project }) {
     [segments]
   );
   const moveOptions = reactExports.useMemo(
-    () => filterMoveOptions(
-      localFolderOptions(folders),
-      moveDialogTarget?.kind === "folder" ? [...segments, moveDialogTarget.name] : void 0
+    () => moveDialogTargets.filter((node) => node.kind === "folder").reduce(
+      (options, node) => filterMoveOptions(options, localNodeRelPath(node, currentRel).split("/")),
+      localFolderOptions(folders)
     ),
-    [folders, moveDialogTarget, segments]
+    [currentRel, folders, moveDialogTargets]
   );
+  const moveNoopKey = reactExports.useMemo(() => {
+    const parents = new Set(
+      moveDialogTargets.map((node) => localNodeParentRel(node, currentRel) || ROOT_KEY)
+    );
+    return parents.size === 1 ? [...parents][0] : void 0;
+  }, [currentRel, moveDialogTargets]);
   const writePolicy = getProjectAssetWritePolicy(segments.length);
   const folderDepthMessage = !writePolicy.canCreateFolder ? writePolicy.canCreateFile ? t("projectAssets.folderDepthReached", {
     count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS
   }) : t("projectAssets.depthExceeded") : void 0;
   const fileDepthMessage = !writePolicy.canCreateFile ? t("projectAssets.depthExceeded") : void 0;
   const isRootEmpty = segments.length === 0 && nodes.length === 0 && !loading;
-  const rowKeys = reactExports.useMemo(() => visibleNodes.map((node) => nodeKey(node)), [visibleNodes]);
   reactExports.useEffect(() => {
     if (listState.selection.size === 0) return;
     const visible = new Set(rowKeys);
@@ -2488,9 +2728,17 @@ function LocalAssetsPanel({ project }) {
     }
   }, [rowKeys, listState]);
   const openBatchDelete = reactExports.useCallback(() => {
-    const targets = visibleNodes.filter((node) => listState.selection.has(nodeKey(node)));
-    if (targets.length > 0) setBatchDeleteTargets(targets);
-  }, [listState.selection, visibleNodes]);
+    if (selectedNodes.length > 0) setBatchDeleteTargets(selectedNodes);
+  }, [selectedNodes]);
+  const handleContextMenu = reactExports.useCallback(
+    (node) => {
+      const key = nodeKey(node);
+      if (!listState.selection.has(key)) listState.selectOnly(key);
+    },
+    [listState]
+  );
+  const allSelected = fileRowKeys.length > 0 && fileRowKeys.every((key) => listState.selection.has(key));
+  const someSelected = fileRowKeys.some((key) => listState.selection.has(key));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -2622,7 +2870,7 @@ function LocalAssetsPanel({ project }) {
             onOpenFile: handleOpenFile,
             onReveal: handleReveal,
             onRename: setRenameTarget,
-            onMove: setMoveDialogTarget,
+            onMove: (target) => setMoveDialogTargets([target]),
             onDelete: setDeleteTarget,
             ...nodeDnd(node)
           },
@@ -2633,6 +2881,9 @@ function LocalAssetsPanel({ project }) {
             {
               count: listState.selection.size,
               onClear: listState.clearSelection,
+              allSelected,
+              someSelected,
+              onToggleAll: () => listState.toggleAll(fileRowKeys, { preserveOtherSelection: true }),
               onDelete: openBatchDelete,
               actionIdPrefix: "local-assets"
             }
@@ -2662,8 +2913,13 @@ function LocalAssetsPanel({ project }) {
                 onOpenFile: handleOpenFile,
                 onReveal: handleReveal,
                 onRename: setRenameTarget,
-                onMove: setMoveDialogTarget,
+                onMove: (target) => setMoveDialogTargets([target]),
                 onDelete: setDeleteTarget,
+                actionTargets: actionTargetsFor(node),
+                onContextMenu: handleContextMenu,
+                onRevealTargets: (targets) => void handleRevealTargets(targets),
+                onMoveTargets: (targets) => setMoveDialogTargets([...targets]),
+                onDeleteTargets: (targets) => setBatchDeleteTargets([...targets]),
                 ...nodeDnd(node)
               },
               key
@@ -2718,16 +2974,17 @@ function LocalAssetsPanel({ project }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           MoveNodeDialog,
           {
-            open: moveDialogTarget !== null,
-            name: moveDialogTarget?.name ?? "",
+            open: moveDialogTargets.length > 0,
+            name: moveDialogTargets[0]?.name ?? "",
+            itemCount: moveDialogTargets.length,
             options: moveOptions,
-            noopKey: currentRel === "" ? ROOT_KEY : currentRel,
+            noopKey: moveNoopKey,
             onOpenChange: (open) => {
-              if (!open) setMoveDialogTarget(null);
+              if (!open) setMoveDialogTargets([]);
             },
             onConfirm: async (destination) => {
-              if (!moveDialogTarget) return;
-              await handleMove(moveDialogTarget, {
+              if (moveDialogTargets.length === 0) return;
+              await handleMoveTargets(moveDialogTargets, {
                 key: destination.key === ROOT_KEY ? "" : destination.key,
                 segments: destination.segments
               });
@@ -2750,6 +3007,22 @@ function LocalAssetsPanel({ project }) {
 function relParent(relPath) {
   const idx = relPath.lastIndexOf("/");
   return idx === -1 ? "" : relPath.slice(0, idx);
+}
+function localNodeRelPath(node, currentRel) {
+  if (node.kind === "file" && node.record) return node.record.relPath;
+  return currentRel === "" ? node.name : `${currentRel}/${node.name}`;
+}
+function localNodeParentRel(node, currentRel) {
+  return relParent(localNodeRelPath(node, currentRel));
+}
+function compactLocalMoveTargets(targets, currentRel) {
+  const folderPaths = targets.filter((node) => node.kind === "folder").map((node) => localNodeRelPath(node, currentRel));
+  return targets.filter((node) => {
+    const relPath = localNodeRelPath(node, currentRel);
+    return !folderPaths.some(
+      (folderPath) => folderPath !== relPath && relPath.startsWith(`${folderPath}/`)
+    );
+  });
 }
 function deriveLocalNodes(records, folders, currentRel) {
   const prefix = currentRel === "" ? "" : `${currentRel}/`;
@@ -2886,24 +3159,24 @@ function NodeMenu({
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoreVerticalIcon, { size: 14 })
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuContent, { align: "end", side: "bottom", sideOffset: 2, children: [
-      node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onOpenFile(node), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuContent, { align: "end", side: "bottom", sideOffset: 2, children: [
+      node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onOpenFile(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { size: 14, strokeWidth: 1.5 }),
         t("localAssets.open")
       ] }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onReveal(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onReveal(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { size: 14, strokeWidth: 1.5 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformFileManagerLabel, {})
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onRename(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onRename(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(PencilIcon, { size: 14, strokeWidth: 1.5 }),
         t("localAssets.rename")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { onClick: () => onMove(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { onClick: () => onMove(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(FolderInput, { size: 14, strokeWidth: 1.5 }),
         t("localAssets.moveTo")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DropdownMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionDropdownMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
         t("localAssets.delete")
       ] })
@@ -2916,29 +3189,47 @@ function NodeContextMenuContent({
   onReveal,
   onRename,
   onMove,
-  onDelete
+  onDelete,
+  actionTargets,
+  onRevealTargets,
+  onMoveTargets,
+  onDeleteTargets
 }) {
   const { t } = useTranslation();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuContent, { "data-action-ui-id": "local-assets.node-context-menu", children: [
-    node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onOpenFile(node), children: [
+  const targets = actionTargets?.length ? actionTargets : [node];
+  const isBatch = targets.length > 1;
+  const handleRevealAction = () => {
+    if (onRevealTargets) onRevealTargets(isBatch ? targets : [node]);
+    else onReveal(node);
+  };
+  const handleMoveAction = () => {
+    if (onMoveTargets) onMoveTargets(isBatch ? targets : [node]);
+    else onMove(node);
+  };
+  const handleDeleteAction = () => {
+    if (onDeleteTargets) onDeleteTargets(isBatch ? targets : [node]);
+    else onDelete(node);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuContent, { "data-action-ui-id": "local-assets.node-context-menu", children: [
+    !isBatch && node.kind === "file" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: () => onOpenFile(node), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { size: 14, strokeWidth: 1.5 }),
       t("localAssets.open")
     ] }) : null,
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onReveal(node), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: handleRevealAction, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { size: 14, strokeWidth: 1.5 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformFileManagerLabel, {})
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onRename(node), children: [
+    !isBatch ? /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: () => onRename(node), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(PencilIcon, { size: 14, strokeWidth: 1.5 }),
       t("localAssets.rename")
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { onClick: () => onMove(node), children: [
+    ] }) : null,
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { onClick: handleMoveAction, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FolderInput, { size: 14, strokeWidth: 1.5 }),
-      t("localAssets.moveTo")
+      isBatch ? t("projectAssets.batchMove") : t("localAssets.moveTo")
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ContextMenuItem, { variant: "destructive", onClick: () => onDelete(node), children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ActionContextMenuItem, { variant: "destructive", onClick: handleDeleteAction, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, strokeWidth: 1.5 }),
-      t("localAssets.delete")
+      isBatch ? t("projectAssets.batchDelete") : t("localAssets.delete")
     ] })
   ] });
 }
@@ -3055,6 +3346,11 @@ function NodeRow({
   onRename,
   onMove,
   onDelete,
+  actionTargets,
+  onContextMenu,
+  onRevealTargets,
+  onMoveTargets,
+  onDeleteTargets,
   dndProps,
   dropActive
 }) {
@@ -3069,6 +3365,7 @@ function NodeRow({
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ContextMenuTrigger,
       {
+        onContextMenu: () => onContextMenu?.(node),
         render: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -3136,7 +3433,11 @@ function NodeRow({
         onReveal,
         onRename,
         onMove,
-        onDelete
+        onDelete,
+        actionTargets,
+        onRevealTargets,
+        onMoveTargets,
+        onDeleteTargets
       }
     )
   ] });
@@ -3255,6 +3556,8 @@ function ProjectDetailPage() {
       if (!loginGuard()) return;
       const result = await homeService.hiloApp.createWorkspaceWithResult({
         name,
+        projectId: options.projectId,
+        parentFolderPath: options.parentFolderPath,
         loadUserMemory: options.loadUserMemory,
         allowDataDirectoryFallback: options.allowDataDirectoryFallback
       }).catch(() => null);
