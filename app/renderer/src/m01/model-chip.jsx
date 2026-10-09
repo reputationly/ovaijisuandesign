@@ -1,17 +1,6 @@
 // model-chip.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  reactDomExports,
-  Bot,
-  ImageOutlineIcon,
-  Video,
-  Mic,
-  Music,
-  ScrollText,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, reactDomExports, Bot, Video, Music, ScrollText } from "../vendor.js";
+import { ImageOutlineIcon, Mic } from "../m15/parse-item.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip$1 } from "./create-tracker.jsx";
 import { svgBase, useCanvasReleaseRegion } from "./param-tabs.jsx";

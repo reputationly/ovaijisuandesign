@@ -1,24 +1,8 @@
 // multi-select-plus-handle-inner.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useReactFlow,
-  reactExports,
-  parseNodeId,
-  reactDomExports,
-  CompositedSvg,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  CanvasNodeType,
-  useStoreApi,
-  useStore$3,
-  useCanvasIsDragging,
-  Position,
-  getBezierPath,
-  findHitTarget,
-  NodeToolbar$1,
-  isAssetBackedNode,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useReactFlow, reactExports, reactDomExports, CompositedSvg, CanvasNodeType, useStoreApi, useStore$3, Position, getBezierPath, findHitTarget, NodeToolbar$1 } from "../vendor.js";
+import { isAssetBackedNode } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useCanvasIsDragging } from "../m15/parse-item.jsx";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
 import { GROUP_COLOR_KEYS } from "../m01/prune-persisted-node-data.js";
 import { GROUP_COLOR_PRESETS } from "../m03/pdf-viewer.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

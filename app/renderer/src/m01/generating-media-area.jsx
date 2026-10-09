@@ -1,21 +1,6 @@
 // generating-media-area.jsx
-import {
-  INACTIVE_NODE_UNMOUNT_GRACE_MS,
-  useDelayedFalse,
-  reactExports,
-  CanvasActiveDeferredContext,
-  CanvasBridgeContext,
-  useStore$3,
-  AssetMetadataStoreContext,
-  GeneratingStateStoreContext,
-  CompositedSvg,
-  withArtworkOpacity,
-  PencilRuler,
-  Speech,
-  Pencil,
-  PlaybackPlayIcon$1,
-  MEDIA_NODE_RADIUS,
-} from "../vendor.js";
+import { reactExports, useStore$3, AssetMetadataStoreContext, CompositedSvg, withArtworkOpacity, PencilRuler, Speech, Pencil, PlaybackPlayIcon$1 } from "../vendor.js";
+import { INACTIVE_NODE_UNMOUNT_GRACE_MS, useDelayedFalse, CanvasActiveDeferredContext, CanvasBridgeContext, GeneratingStateStoreContext, MEDIA_NODE_RADIUS } from "../m15/parse-item.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const TOOL_CONFIRM_REJECT_REASONS = [
   "user_rejected",

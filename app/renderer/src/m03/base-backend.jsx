@@ -1,15 +1,7 @@
 // base-backend.jsx
-import {
-  useCanvasActions,
-  reactExports,
-  IMAGE_CARD_DEFAULT_SIZE,
-  computeNodeSize,
-  CanvasNodeType,
-  defaultNodeSizeForType,
-  VIDEO_EMPTY_CARD_SIZE,
-  isUserProvidedAssetModel,
-  Download,
-} from "../vendor.js";
+import { reactExports, CanvasNodeType, isUserProvidedAssetModel } from "../vendor.js";
+import { IMAGE_CARD_DEFAULT_SIZE, computeNodeSize, defaultNodeSizeForType, VIDEO_EMPTY_CARD_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasActions, Download } from "../m15/parse-item.jsx";
 import { getAssetMetaByNodeIdFromStore } from "../m01/generating-media-area.jsx";
 import { getPopoverDraftMap } from "../m01/prune-persisted-node-data.js";
 import { cn$5 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";

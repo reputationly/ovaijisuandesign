@@ -1,14 +1,6 @@
 // use-image-split-mode.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  useStore$3,
-  NodeToolbar$1,
-  Position,
-  TooltipProvider$1,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, useStore$3, NodeToolbar$1, Position } from "../vendor.js";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
 import { CloseIcon$1, GroupIcon, DropdownArrowIcon } from "../m01/generating-media-area.jsx";
 import { rectCellIndices, splitSelectedCellsToBlobs } from "../m03/image-tool-meta.jsx";
 import { Tooltip$1, CreditCostBadge } from "../m01/create-tracker.jsx";

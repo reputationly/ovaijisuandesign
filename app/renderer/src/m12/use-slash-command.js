@@ -1,5 +1,6 @@
 // use-slash-command.js
-import { reactExports, useTranslation, API_PATHS, useGatewayFetch } from "../vendor.js";
+import { reactExports, useTranslation, API_PATHS } from "../vendor.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { trackSkillCreatorInvoke, trackSkillInvoke } from "../m10/use-new-workspace-dialog.jsx";
 import { findSlashTrigger } from "./use-mention.js";
 function extractUserMessages(messages2) {

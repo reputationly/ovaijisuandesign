@@ -1,5 +1,6 @@
 // support-01.js
-import { chatLog, ChatDiagnostics } from "../vendor.js";
+import { chatLog } from "../m15/graph.jsx";
+import { ChatDiagnostics } from "../m15/relayout-group-children.js";
 import { cachedTextEditSessionBindings } from "./use-session-list-retry.js";
 export const chatDiagnostics = new ChatDiagnostics((line) => chatLog.info(line));
 export const MESSAGE_DELIVERY_TRACE_LIMIT = 50;

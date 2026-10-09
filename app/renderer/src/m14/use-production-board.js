@@ -1,5 +1,6 @@
 // use-production-board.js
-import { reactExports, useGatewayFetch } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { useWorkspaceWSConnection } from "../m10/compact-rewrite-flow.jsx";
 import {
   PRODUCTION_PLAN_REVIEW_TIMEOUT_MS,

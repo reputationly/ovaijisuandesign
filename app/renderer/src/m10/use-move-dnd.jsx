@@ -1,25 +1,11 @@
 // use-move-dnd.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Folder,
-  Icon,
-  ImageOutlineIcon,
-  FileText,
-  checkTextSafety,
-  cloudErrorDisplayMessage,
-  FileTypeIcon,
-  classifyFileType,
-  FileVideo,
-  FileAudio,
-  FileArchive,
-  FileCode,
-  File$1,
-  DeferredThumbnailImage,
-  isLive,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, classifyFileType } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { Folder, ImageOutlineIcon, FileText, FileVideo, FileAudio, FileArchive, FileCode, File$1 } from "../m15/parse-item.jsx";
+import { checkTextSafety, cloudErrorDisplayMessage } from "../m15/record-recent-workspace-opened.jsx";
+import { isLive } from "../m15/use-entity-hover-preview.js";
 import {
   Button$1,
   Dialog,

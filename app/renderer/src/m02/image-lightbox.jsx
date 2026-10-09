@@ -1,19 +1,6 @@
 // image-lightbox.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasActive,
-  reactExports,
-  Minus,
-  Plus,
-  Crown,
-  ExternalLink,
-  Download,
-  Archive,
-  FolderOpen,
-  ChevronLeft,
-  ChevronRight$1,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Minus, Plus, Crown, ExternalLink, Archive, ChevronLeft, ChevronRight$1 } from "../vendor.js";
+import { useCanvasActive, Download, FolderOpen } from "../m15/parse-item.jsx";
 import { AnnotationIcon$1 } from "../m01/generating-media-area.jsx";
 import {
   getCanvasFileManagerLabelKey,

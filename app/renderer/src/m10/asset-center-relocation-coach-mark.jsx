@@ -1,44 +1,15 @@
 // asset-center-relocation-coach-mark.jsx
-import {
-  useTranslation,
-  reactExports,
-  Check,
-  useQueryClient,
-  useStorage,
-  storageKeys,
-  Loader2,
-  Folder,
-  Popover,
-  PopoverTrigger,
-  ChevronDown,
-  Plus,
-  useNavigate,
-  getRuntimeConfig,
-  Tooltip,
-  TooltipTrigger,
-  useProjectStore,
-  CloudProjectRequestError,
-  TooltipProvider,
-  resolveNewProjectPreferences,
-  buildWorkspaceSearch,
-  useTopbarActions,
-  STARTUP_MODAL_IDS,
-  useModalSlot,
-  Expand,
-  useAssetCenterRelocation,
-  useTopbarState,
-  useHasBlockingModal,
-  HOME_INPUT_COACH_MARK_ID,
-  ASSET_CENTER_RELOCATION_REVISION,
-  projectWorkspaceKey,
-  sortRecentWorkspaces,
-  ROOT_KEY,
-  ChevronRight$1,
-  cloudAssetsChangedListeners,
-  requestJson,
-  mapCloudNode,
-  FolderUp,
-} from "../vendor.js";
+import { useTranslation, reactExports, Check, useQueryClient, useStorage, storageKeys, Loader2, ChevronDown, Plus, useNavigate, getRuntimeConfig, resolveNewProjectPreferences, ChevronRight$1, FolderUp } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { useAssetCenterRelocation, HOME_INPUT_COACH_MARK_ID, ASSET_CENTER_RELOCATION_REVISION } from "../m15/check-cloud-asset-upload.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { Tooltip, TooltipTrigger, TooltipProvider } from "../m15/graph.jsx";
+import { Folder, Expand } from "../m15/parse-item.jsx";
+import { CloudProjectRequestError } from "../m15/record-recent-workspace-opened.jsx";
+import { STARTUP_MODAL_IDS, useModalSlot, useHasBlockingModal } from "../m15/thumbnail-load-scheduler.jsx";
+import { ROOT_KEY, cloudAssetsChangedListeners, requestJson, mapCloudNode } from "../m15/use-cloud-search.js";
+import { useTopbarActions, useTopbarState } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useProjectStore, projectWorkspaceKey, sortRecentWorkspaces } from "../m15/workspace-events.js";
 import {
   Badge,
   cn$2,

@@ -1,35 +1,15 @@
 // update-banner.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  AlertTriangle,
-  TRACK_EVENTS,
-  usePlatform,
-  Loader2,
-  openExternalUrl,
-  X$7,
-  actionTrailLog,
-  useChangelog,
-  useUpdaterContext,
-  LoaderCircle,
-  useRouterState,
-  CircleArrowUp,
-  useOptionalUpdaterContext,
-  IPC_CHANNELS,
-  Markdown$1,
-  remarkGfm,
-  rehypeSanitize,
-  CircleHelp,
-  LogOut,
-  Download,
-  RotateCw,
-  useBlockingModalPresence,
-  BLOCKING_MODAL_IDS,
-  UpdaterErrorBoundary,
-  m$4,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, AlertTriangle, usePlatform, Loader2, X$7, LoaderCircle, CircleArrowUp, Markdown$1, remarkGfm, RotateCw, m$4 } from "../vendor.js";
+import { IPC_CHANNELS } from "../m15/agent-ws-client.jsx";
+import { openExternalUrl, actionTrailLog } from "../m15/graph.jsx";
+import { rehypeSanitize } from "../m15/interest-selection-provider.jsx";
+import { useRouterState } from "../m15/linked-list.js";
+import { CircleHelp, LogOut, Download } from "../m15/parse-item.jsx";
+import { useChangelog, useUpdaterContext, useOptionalUpdaterContext } from "../m15/run-manual-update-check.js";
+import { BLOCKING_MODAL_IDS } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useBlockingModalPresence } from "../m15/use-hub-logo-hover-animation.jsx";
+import { UpdaterErrorBoundary } from "../m15/use-popup.jsx";
 import {
   Button$1,
   Dialog,

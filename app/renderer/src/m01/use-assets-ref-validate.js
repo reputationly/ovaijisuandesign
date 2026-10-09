@@ -1,12 +1,6 @@
 // use-assets-ref-validate.js
-import {
-  reactExports,
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  dedupedToast,
-  useAssetMetadataApi,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, useAssetMetadataApi } from "../vendor.js";
+import { useCanvasBridge, useCanvasActions } from "../m15/parse-item.jsx";
 import { getAssetMetaByNodeIdFromStore } from "./generating-media-area.jsx";
 import { composePromptWithReferenceText } from "./prune-persisted-node-data.js";
 import { resolveReferenceAudios } from "./resolve-reference-texts.js";

@@ -1,46 +1,6 @@
 // javascript-language.js
-import {
-  IterMode,
-  tags$1,
-  descendant,
-  unitToken,
-  identifiers,
-  queryIdentifiers,
-  LocalTokenGroup,
-  spec_callee,
-  spec_queryIdentifier,
-  spec_QueryCallee,
-  spec_AtKeyword,
-  spec_identifier$1,
-  declSelector,
-  properties$1,
-  identifier$1,
-  values2,
-  pseudoClasses,
-  isVarArg,
-  astTop,
-  variable,
-  tags,
-  atRules,
-  continuedIndent,
-  foldInside,
-  LanguageSupport,
-  trackNewline,
-  noSemicolon,
-  noSemicolonType,
-  operatorToken,
-  jsx,
-  insertSemicolon,
-  spec_identifier,
-  spec_word,
-  spec_LessThan,
-  gatherCompletions,
-  ScopeNodes,
-  dontComplete,
-  Identifier,
-  flatIndent,
-  delimitedIndent,
-} from "../vendor.js";
+import { IterMode, tags$1, descendant, unitToken, identifiers, queryIdentifiers, LocalTokenGroup, spec_callee, spec_queryIdentifier, spec_QueryCallee, spec_AtKeyword, spec_identifier$1, declSelector, properties$1, identifier$1, pseudoClasses, isVarArg, astTop, variable, tags, atRules, continuedIndent, foldInside, LanguageSupport, noSemicolon, noSemicolonType, operatorToken, jsx, spec_identifier, spec_word, spec_LessThan, gatherCompletions, ScopeNodes, dontComplete, Identifier, flatIndent, delimitedIndent } from "../vendor.js";
+import { values2, trackNewline, insertSemicolon } from "../m15/line2.js";
 import { NodeWeakMap } from "@lezer/common";
 import { LRParser } from "@lezer/lr";
 import { snippetCompletion } from "./base-theme.js";

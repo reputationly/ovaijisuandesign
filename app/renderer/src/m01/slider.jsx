@@ -1,15 +1,6 @@
 // slider.jsx
-import {
-  BACKEND_ELEVENLABS_MUSIC,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  SliderRoot,
-  SliderControl$1,
-  SliderTrack,
-  SliderIndicator,
-  SliderThumb,
-} from "../vendor.js";
+import { reactExports, CompositedSvg, useTranslation, SliderRoot, SliderControl$1, SliderTrack, SliderIndicator, SliderThumb } from "../vendor.js";
+import { BACKEND_ELEVENLABS_MUSIC } from "../m15/push-inline.js";
 import { cn$5 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MIN_MUSIC_BILLING_SECONDS } from "./calc-video-cost-breakdown.jsx";

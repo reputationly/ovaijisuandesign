@@ -1,27 +1,8 @@
 // batch-remove-members-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  HILO_HUB_BIZ_LINE,
-  teamQueryKeys,
-  creditQueryKeys,
-  Icon,
-  TooltipProvider,
-  useTeamAccount,
-  useQueryClient,
-  Info$1,
-  useMutation,
-  ProgressRoot,
-  ProgressTrack$1,
-  ProgressIndicator$1,
-  minCreditAmount,
-  CircleAlert,
-  Inbox,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, HILO_HUB_BIZ_LINE, useQueryClient, Info$1, useMutation, ProgressRoot, minCreditAmount, CircleAlert, Inbox } from "../vendor.js";
+import { teamQueryKeys, creditQueryKeys, useTeamAccount } from "../m15/apply-asset-change.jsx";
+import { Tooltip, TooltipTrigger, Icon, TooltipProvider } from "../m15/graph.jsx";
+import { ProgressTrack$1, ProgressIndicator$1 } from "../m15/use-resizable-width.js";
 import {
   TooltipContent,
   cn$2,

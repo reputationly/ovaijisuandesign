@@ -1,18 +1,7 @@
 // prune-persisted-node-data.js
-import {
-  POPOVER_DRAFT_DATA_KEY,
-  CanvasNodeType,
-  computeNodeSize,
-  defaultNodeSizeForType,
-  AUDIO_CARD_SIZE,
-  TEXT_CARD_DEFAULT_SIZE,
-  FILE_CARD_DEFAULT_SIZE,
-  IMAGE_CARD_DEFAULT_SIZE,
-  DRAFT_PROTECTED_GENERATION_STATUSES,
-  TRANSIENT_DATA_KEYS,
-  isGenerationErrorStatus,
-  ASSET_PROJECTED_DATA_KEYS,
-} from "../vendor.js";
+import { CanvasNodeType } from "../vendor.js";
+import { POPOVER_DRAFT_DATA_KEY, computeNodeSize, defaultNodeSizeForType, AUDIO_CARD_SIZE, TEXT_CARD_DEFAULT_SIZE, FILE_CARD_DEFAULT_SIZE, IMAGE_CARD_DEFAULT_SIZE, isGenerationErrorStatus } from "../m15/group-nodes-in-canvas.js";
+import { DRAFT_PROTECTED_GENERATION_STATUSES, TRANSIENT_DATA_KEYS, ASSET_PROJECTED_DATA_KEYS } from "../m15/resolve-derived-collision.js";
 export const CANVAS_VERSION = 1;
 export const GROUP_COLOR_KEYS = ["red", "orange", "yellow", "green", "cyan", "blue", "purple"];
 export function isGroupColorKey(value) {

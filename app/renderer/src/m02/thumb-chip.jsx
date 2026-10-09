@@ -1,27 +1,7 @@
 // thumb-chip.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  getExtFromMime,
-  formatTime$2,
-  CompositedSvg,
-  useCanvasBridge,
-  ImageOutlineIcon,
-  DialogPortal$2,
-  DialogBackdrop,
-  DialogPopup,
-  DialogClose$1,
-  XIcon,
-  DialogTitle$2,
-  DialogDescription$2,
-  Dialog$1,
-  FileText,
-  CircleAlert,
-  Scissors,
-  X$7,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, CompositedSvg, DialogPortal$2, DialogBackdrop, DialogPopup, DialogClose$1, XIcon, DialogTitle$2, DialogDescription$2, CircleAlert, Scissors, X$7 } from "../vendor.js";
+import { getExtFromMime, Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { formatTime$2, useCanvasBridge, ImageOutlineIcon, FileText } from "../m15/parse-item.jsx";
 import { Button$2 } from "../m01/use-media-node-actions.jsx";
 import { Tooltip$1 } from "../m01/create-tracker.jsx";
 import { cn$5 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";

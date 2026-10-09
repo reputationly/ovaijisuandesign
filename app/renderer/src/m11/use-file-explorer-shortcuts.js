@@ -1,11 +1,7 @@
 // use-file-explorer-shortcuts.js
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useStableCallback,
-  refreshAssetIndex,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast } from "../vendor.js";
+import { refreshAssetIndex } from "../m15/apply-asset-change.jsx";
+import { useStableCallback } from "../m15/use-entity-hover-preview.js";
 import { getFileName$1 } from "../m10/delete-local-node-dialog.jsx";
 import { RESOURCE_DRAG_MIME } from "../m01/myers-line-hunks.js";
 import { OPERATIONS_UNDO_PATH } from "../m01/text-models.js";

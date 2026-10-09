@@ -1,26 +1,12 @@
 // topbar-search-dialog-lazy.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  useNavigate,
-  useTopbarState,
-  dedupedToast,
-  TRACK_EVENTS,
-  buildWorkspaceSearch,
-  usePlatform,
-  DropdownMenu,
-  useTopbarActions,
-  useStorage,
-  TooltipProvider,
-  MonochromeIcon,
-  workspaceDisplayName,
-  useProjectStore,
-  GLOBAL_SIDEBAR_RAIL_WIDTH,
-  useWorkspaceFocusNavigation,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, useNavigate, dedupedToast, usePlatform, useStorage, MonochromeIcon } from "../vendor.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { GLOBAL_SIDEBAR_RAIL_WIDTH } from "../m15/global-sidebar-provider.jsx";
+import { Tooltip, TooltipTrigger, DropdownMenu, TooltipProvider } from "../m15/graph.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useTopbarState, useTopbarActions, useWorkspaceFocusNavigation } from "../m15/use-hub-logo-hover-animation.jsx";
+import { workspaceDisplayName } from "../m15/use-resizable-width.js";
+import { useProjectStore } from "../m15/workspace-events.js";
 import {
   TooltipContent,
   cn$2,

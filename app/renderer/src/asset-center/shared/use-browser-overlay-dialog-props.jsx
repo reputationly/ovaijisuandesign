@@ -1,41 +1,7 @@
 // shared/use-browser-overlay-dialog-props.jsx
-import {
-  useTranslation,
-  reactExports,
-  Button$3,
-  Loader2Icon,
-  AlertDialogRoot,
-  AlertDialogPortal,
-  DialogPopup,
-  DialogTitle$2,
-  DialogDescription$2,
-  DialogClose$1,
-  clsx,
-  createTailwindMerge,
-  DialogBackdrop,
-  subscribe,
-  DialogRoot,
-  DialogPortal,
-  XIcon,
-  CheckboxRoot,
-  MenuTrigger,
-  useRender,
-  mergeProps$1,
-  MenuPortal,
-  MenuPositioner,
-  MenuPopup,
-  MenuItem$3,
-  TooltipPortal,
-  TooltipPositioner,
-  TooltipPopup,
-  cva,
-  Check,
-  MenuGroupLabel,
-  MenuRadioItem,
-  MenuRadioItemIndicator,
-  FieldControl,
-  listeners$a,
-} from "../../vendor.js";
+import { useTranslation, reactExports, Button$3, Loader2Icon, AlertDialogRoot, DialogPopup, DialogTitle$2, DialogDescription$2, DialogClose$1, clsx, createTailwindMerge, DialogBackdrop, DialogRoot, XIcon, CheckboxRoot, MenuTrigger, useRender, mergeProps$1, MenuPortal, MenuPositioner, MenuPopup, MenuItem$3, TooltipPortal, TooltipPositioner, TooltipPopup, cva, Check, MenuGroupLabel, MenuRadioItem, MenuRadioItemIndicator, FieldControl } from "../../vendor.js";
+import { subscribe, DialogPortal, listeners$a } from "../../m15/agent-ws-client.jsx";
+import { AlertDialogPortal } from "../../m15/apply-asset-change.jsx";
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export const twMerge = createTailwindMerge(getDefaultConfig);

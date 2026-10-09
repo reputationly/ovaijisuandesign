@@ -1,16 +1,12 @@
 // use-canvas-context-menus.js
-import {
-  useGeneratingStateApi,
-  useAssetMetadataApi,
-  reactExports,
-  parseNodeId,
-  isGenerationErrorStatus,
-  CanvasNodeType,
-  CANVAS_COMMAND_IDS,
-  writeCanvasSystemClipboard,
-  partitionDeletableIds,
-  isPluginNode,
-} from "../vendor.js";
+import { useAssetMetadataApi, reactExports, CanvasNodeType } from "../vendor.js";
+import { isPluginNode } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { isGenerationErrorStatus } from "../m15/group-nodes-in-canvas.js";
+import { CANVAS_COMMAND_IDS } from "../m15/node-tag-rings-canvas.jsx";
+import { useGeneratingStateApi } from "../m15/parse-item.jsx";
+import { partitionDeletableIds } from "../m15/remap-clipboard.js";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
+import { writeCanvasSystemClipboard } from "../m15/use-graph-sync.js";
 import { CANVAS_DEFAULT_STICKER_ASSET_ID } from "../m04/ready-sub-video-card.jsx";
 import { isNodeGenerationActive } from "./selection-toolbar-inner.jsx";
 function isCanvasChromeTarget(target) {

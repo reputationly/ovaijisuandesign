@@ -1,10 +1,6 @@
 // workspace-stage.jsx
-import {
-  useTranslation,
-  reactExports,
-  resolveWorkspaceFailureDiagnosis,
-  reactDomExports,
-} from "../vendor.js";
+import { useTranslation, reactExports, reactDomExports } from "../vendor.js";
+import { resolveWorkspaceFailureDiagnosis } from "../m15/use-canvas-tag-filter.js";
 import {
   Button$1,
   cn$2,

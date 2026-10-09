@@ -1,20 +1,6 @@
 // image-slot-list.jsx
-import {
-  jsxRuntimeExports,
-  PlaybackPlayIcon$1,
-  useTranslation,
-  reactExports,
-  Loader2,
-  formatTime$2,
-  CompositedSvg,
-  useCanvasBridge,
-  Plus,
-  AtSign,
-  ImageOutlineIcon,
-  useAssetMetadataApi,
-  useCanvasActions,
-  useAssetMetadataStore,
-} from "../vendor.js";
+import { jsxRuntimeExports, PlaybackPlayIcon$1, useTranslation, reactExports, Loader2, CompositedSvg, Plus, AtSign, useAssetMetadataApi, useAssetMetadataStore } from "../vendor.js";
+import { formatTime$2, useCanvasBridge, ImageOutlineIcon, useCanvasActions } from "../m15/parse-item.jsx";
 import {
   SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
   SEEDANCE_REFERENCE_AUDIO_MAX_SEC,

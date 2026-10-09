@@ -1,20 +1,8 @@
 // custom-connector-dialog.jsx
-import {
-  reactExports,
-  useTranslation,
-  ChevronDown,
-  PlaybackPlayIcon$1,
-  Icon,
-  Loader2,
-  resolveConnectorIcon,
-  isSkillsOnly,
-  Download,
-  Link2,
-  MessageCircle,
-  CONNECTOR_STATUS_VISUAL,
-  PlaybackPauseIcon,
-  Select$1,
-} from "../vendor.js";
+import { reactExports, useTranslation, ChevronDown, PlaybackPlayIcon$1, Loader2, resolveConnectorIcon, isSkillsOnly, Link2, MessageCircle, CONNECTOR_STATUS_VISUAL } from "../vendor.js";
+import { Select$1 } from "../m15/apply-asset-change.jsx";
+import { Icon, PlaybackPauseIcon } from "../m15/graph.jsx";
+import { Download } from "../m15/parse-item.jsx";
 import {
   cn$2,
   Button$1,

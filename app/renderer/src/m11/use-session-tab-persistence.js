@@ -1,12 +1,8 @@
 // use-session-tab-persistence.js
-import {
-  reactExports,
-  dedupedToast,
-  TRACK_EVENTS,
-  recordAction,
-  getElectronPlatform,
-  SessionTabsPersister,
-} from "../vendor.js";
+import { reactExports, dedupedToast } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { TRACK_EVENTS, getElectronPlatform } from "../m15/track-events.js";
+import { SessionTabsPersister } from "../m15/use-canvas-tag-filter.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { DRAFT_NEW_TAB } from "./use-workspace-canvas-persistence.jsx";
 function fenceSessionActivation(message2, latestIntent) {

@@ -1,27 +1,9 @@
 // canvas-toggle-icon.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  CompositedSvg,
-  CANVAS_COMMAND_IDS,
-  EyeOff,
-  Eye,
-  Trash2,
-  ChevronUp,
-  ChevronDown,
-  Dialog$1,
-  MonochromeIcon,
-  CloudOff,
-  ActionListItem,
-  getClipboard,
-  ActionListPanel,
-  ActionListSeparator,
-  readCanvasPreference,
-  writeCanvasPreference,
-  CircleHelp,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, CompositedSvg, EyeOff, Eye, ChevronUp, ChevronDown, MonochromeIcon, ActionListItem, ActionListPanel, ActionListSeparator } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { CANVAS_COMMAND_IDS, readCanvasPreference, writeCanvasPreference } from "../m15/node-tag-rings-canvas.jsx";
+import { Trash2, CloudOff, CircleHelp } from "../m15/parse-item.jsx";
+import { getClipboard } from "../m15/remap-clipboard.js";
 import {
   resolveCanvasPlatform,
   resolveCanvasShortcut$1,
@@ -349,13 +331,6 @@ export function CanvasLoadError({ failure, retrying, onRetry }) {
       </section>
     </div>
   );
-}
-let copiedSystemText = null;
-export function setCopiedSystemText(text2) {
-  copiedSystemText = text2;
-}
-export function getCopiedSystemText() {
-  return copiedSystemText;
 }
 export function useDismissMenu(menuRef, onClose, onEscape, trigger, enabled = true) {
   const escapeHandlerRef = reactExports.useRef(onEscape);

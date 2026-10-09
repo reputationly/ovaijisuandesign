@@ -1,12 +1,8 @@
 // workspace-content.jsx
-import {
-  reactExports,
-  workspaceEvents,
-  useGatewayFetch,
-  useNavigate,
-  buildWorkspaceSearch,
-  API_PATHS,
-} from "../vendor.js";
+import { reactExports, useNavigate, API_PATHS } from "../vendor.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { useWorkspaceChatSelector } from "../m12/use-asset-picker-host.jsx";
 import { redactForCurrentRegion } from "../m13/resolve-chat-file-reference.js";
 import {

@@ -1,39 +1,11 @@
 // use-img2-video.js
-import {
-  reactExports,
-  dedupedToast,
-  TRACK_EVENTS,
-  recordAction,
-  pickUserMessage,
-  stripErrorHtml,
-  useGeneratingStateApi,
-  ScopedAsyncCache,
-  retainedGenerationBlocksResubmit,
-  instance,
-  RESUBMIT_BLOCKED_I18N,
-  findCanvasModel,
-  HILO_SOURCE_HEADER,
-  GENERATE_ERROR_CODE_SHUTDOWN,
-  semanticGenerationErrorCopy,
-  generationErrorStatusFromResponse,
-  GENERATE_ERROR_CODE_CONCURRENCY_LIMIT,
-  persistedGenerateErrorReason,
-  generationErrorStatusFromThrown,
-  canvasLog,
-  buildCanvasVideoSubmitTracking,
-  MODEL_LIST_TIMEOUT_MS,
-  visibleCanvasVideoModels,
-  MAX_VIDEOS_PER_SUBMIT,
-  isMiniMaxH3VideoPromptMissing,
-  isHailuo03OrdinaryVideoTrialSubmit,
-  GENERATE_ERROR_CODE_QUEUE_PAUSED$1,
-  formatGenerateError,
-  workspaceLog,
-  BACKEND_MINIMAX_MUSIC,
-  BACKEND_MINIMAX_MUSIC_COVER,
-  BACKEND_ELEVENLABS_MUSIC,
-  GENERATE_ERROR_CODE_QUEUE_PAUSED,
-} from "../vendor.js";
+import { reactExports, dedupedToast, instance, canvasLog, workspaceLog } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { stripErrorHtml } from "../m15/create-recently-added-store.jsx";
+import { useGeneratingStateApi } from "../m15/parse-item.jsx";
+import { pickUserMessage, HILO_SOURCE_HEADER, GENERATE_ERROR_CODE_SHUTDOWN, GENERATE_ERROR_CODE_CONCURRENCY_LIMIT, BACKEND_MINIMAX_MUSIC, BACKEND_MINIMAX_MUSIC_COVER, BACKEND_ELEVENLABS_MUSIC } from "../m15/push-inline.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { ScopedAsyncCache, retainedGenerationBlocksResubmit, RESUBMIT_BLOCKED_I18N, findCanvasModel, semanticGenerationErrorCopy, generationErrorStatusFromResponse, persistedGenerateErrorReason, generationErrorStatusFromThrown, buildCanvasVideoSubmitTracking, MODEL_LIST_TIMEOUT_MS, visibleCanvasVideoModels, MAX_VIDEOS_PER_SUBMIT, isMiniMaxH3VideoPromptMissing, isHailuo03OrdinaryVideoTrialSubmit, GENERATE_ERROR_CODE_QUEUE_PAUSED$1, formatGenerateError, GENERATE_ERROR_CODE_QUEUE_PAUSED } from "../m15/use-mention-models.jsx";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 function trackCanvasVideoSubmit(input) {
   trackEvent(TRACK_EVENTS.CANVAS_GENERATE_SUBMIT, {

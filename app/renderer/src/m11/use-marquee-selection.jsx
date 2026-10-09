@@ -1,16 +1,7 @@
 // use-marquee-selection.jsx
-import {
-  useTranslation,
-  reactExports,
-  API_PATHS,
-  FolderOpen,
-  DropdownMenu,
-  measurePerf,
-  MenuPortal,
-  MenuPositioner,
-  MenuPopup,
-  MonitorUp,
-} from "../vendor.js";
+import { useTranslation, reactExports, API_PATHS, measurePerf, MenuPortal, MenuPositioner, MenuPopup, MonitorUp } from "../vendor.js";
+import { DropdownMenu } from "../m15/graph.jsx";
+import { FolderOpen } from "../m15/parse-item.jsx";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { ActionMenuPanel, ActionDropdownMenuItem } from "../m10/new-workspace-dialog.jsx";
 import {

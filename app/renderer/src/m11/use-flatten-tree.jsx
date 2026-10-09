@@ -1,53 +1,11 @@
 // use-flatten-tree.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  useGatewayFetch,
-  API_PATHS,
-  FolderPlus,
-  ChevronDown,
-  ChevronRight$1,
-  FolderInput,
-  PlatformFileManagerLabel,
-  Trash2,
-  useGatewayUrl,
-  withThumbnail,
-  PreviewCardRoot,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardPopup,
-  FileTypeIcon,
-  classifyFileType,
-  Plus,
-  ChevronLeft,
-  LayoutList,
-  LayoutGrid,
-  useGatewayScopeKey,
-  useQuery,
-  Sparkles,
-  Crosshair,
-  ExternalLink,
-  Copy,
-  Files,
-  FileInput,
-  ClipboardPaste,
-  AlertTriangle,
-  Sprout,
-  Package,
-  imageRows,
-  videoRows,
-  fileRows,
-  browserAssetSourceWebsite,
-  pickNumber,
-  formatDuration$3,
-  formatFileSizeCompact,
-  modifiedAt,
-  E$4,
-  VolumeX,
-  Volume2,
-  Network,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, API_PATHS, FolderPlus, ChevronDown, ChevronRight$1, FolderInput, PreviewCardRoot, PreviewCardPortal, PreviewCardPositioner, PreviewCardPopup, classifyFileType, Plus, ChevronLeft, LayoutList, LayoutGrid, useQuery, Crosshair, ExternalLink, Copy, AlertTriangle, E$4, Volume2, Network } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { imageRows, videoRows, fileRows, browserAssetSourceWebsite, pickNumber, formatDuration$3, formatFileSizeCompact, modifiedAt } from "../m15/global-sidebar-provider.jsx";
+import { PlatformFileManagerLabel } from "../m15/interest-selection-provider.jsx";
+import { Trash2, Sparkles, Files, FileInput, ClipboardPaste, Sprout, Package, VolumeX } from "../m15/parse-item.jsx";
+import { useGatewayFetch, useGatewayUrl, useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import {
   RetryIcon,

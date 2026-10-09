@@ -1,33 +1,10 @@
 // remote-tool-host.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  useGatewayScopeKey,
-  useQueryClient,
-  SNAPSHOT_RETRY_DELAY_MS,
-  SNAPSHOT_RETRY_MAX_ELAPSED_MS,
-  getWorkspaceBundle,
-  services,
-  createSnapshotUnavailableStatus,
-  RECENT_WORKSPACES_REFRESH_EVENT,
-  GlobalSidebarContext,
-  KEY_PREFIX,
-  readEnvelope,
-  DRAFT_TTL_MS,
-  removeKey,
-  PENDING_HOME_HANDOFF_KEY,
-  clearDraft,
-  HOME_DRAFT_WORKSPACE,
-  HOME_DRAFT_SESSION_KEY,
-  invalidatePendingHomeHandoff,
-  useNavigate,
-  buildWorkspaceSearch,
-  remoteToolLog,
-  m$4,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useQueryClient, useNavigate, m$4 } from "../vendor.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { KEY_PREFIX, readEnvelope, DRAFT_TTL_MS, removeKey, PENDING_HOME_HANDOFF_KEY, clearDraft, HOME_DRAFT_WORKSPACE, HOME_DRAFT_SESSION_KEY, invalidatePendingHomeHandoff } from "../m15/draft-controller.js";
+import { SNAPSHOT_RETRY_DELAY_MS, SNAPSHOT_RETRY_MAX_ELAPSED_MS, createSnapshotUnavailableStatus, RECENT_WORKSPACES_REFRESH_EVENT, GlobalSidebarContext } from "../m15/global-sidebar-provider.jsx";
+import { getWorkspaceBundle, services, remoteToolLog } from "../m15/graph.jsx";
+import { useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import { useSettingsDialog } from "../m10/custom-provider-form.jsx";
 import { IBundleHandle } from "../m08/browser-inspiration-urls.jsx";
 import { useOptionalWSConnection, deleteMemory } from "../m10/compact-rewrite-flow.jsx";

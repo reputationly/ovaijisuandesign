@@ -1,15 +1,7 @@
 // use-update-account-profile.js
-import {
-  GatewayHttpError,
-  gatewayFetch,
-  API_PATHS,
-  useQuery,
-  teamQueryKeys,
-  useQueryClient,
-  useAuth,
-  useOptionalTeamAccount,
-  useMutation,
-} from "../vendor.js";
+import { API_PATHS, useQuery, useQueryClient, useMutation } from "../vendor.js";
+import { GatewayHttpError, gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { teamQueryKeys, useAuth, useOptionalTeamAccount } from "../m15/apply-asset-change.jsx";
 import { mapTeamCreditSummary } from "./map-hub-group-list-response.js";
 import {
   asNullableString,

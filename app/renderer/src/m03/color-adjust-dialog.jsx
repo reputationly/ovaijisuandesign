@@ -1,25 +1,7 @@
 // color-adjust-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Dialog$1,
-  reactDomExports,
-  Loader2,
-  Trash2,
-  Upload,
-  useSensors,
-  useSensor,
-  PointerSensor,
-  KeyboardSensor,
-  sortableKeyboardCoordinates,
-  arrayMove,
-  DndContext,
-  closestCenter,
-  RotateCcw,
-  DragOverlay,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, reactDomExports, Loader2, useSensors, useSensor, PointerSensor, KeyboardSensor, sortableKeyboardCoordinates, arrayMove, DndContext, closestCenter, RotateCcw, DragOverlay } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { Trash2, Upload } from "../m15/parse-item.jsx";
 import { CloseIcon$1, SendArrowIcon } from "../m01/generating-media-area.jsx";
 import { Button$2 } from "../m01/use-media-node-actions.jsx";
 import { useSuspendCanvasInteractions } from "../m01/use-inline-rename.jsx";

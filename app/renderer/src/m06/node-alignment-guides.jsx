@@ -1,23 +1,9 @@
 // node-alignment-guides.jsx
-import {
-  useTranslation,
-  reactExports,
-  parseNodeId,
-  CanvasNodeType,
-  AUDIO_CARD_SIZE,
-  TEXT_CARD_DEFAULT_SIZE,
-  FILE_CARD_DEFAULT_SIZE,
-  TABLE_CARD_DEFAULT_SIZE,
-  useAssetMetadataStore,
-  arePropsEqual$2,
-  VIEWPORT_CONTROLS_INSET,
-  Panel,
-  isEdgeVisible,
-  readNodeBox,
-  sourceHandleSide,
-  controlPointsFor,
-  pointsForSide,
-} from "../vendor.js";
+import { useTranslation, reactExports, CanvasNodeType, useAssetMetadataStore, Panel } from "../vendor.js";
+import { isEdgeVisible, readNodeBox, sourceHandleSide, controlPointsFor, pointsForSide } from "../m15/edges-canvas.jsx";
+import { AUDIO_CARD_SIZE, TEXT_CARD_DEFAULT_SIZE, FILE_CARD_DEFAULT_SIZE, TABLE_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { arePropsEqual$2, VIEWPORT_CONTROLS_INSET } from "../m15/handle-position-style.jsx";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
 import { TextNode3 } from "../m05/text-node-inner.jsx";
 import { CHAT_ARTIFACT_UI_ID } from "../m01/text-models.js";
 import { AudioNode } from "../m02/canvas-image.jsx";

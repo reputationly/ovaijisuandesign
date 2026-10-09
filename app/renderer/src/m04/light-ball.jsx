@@ -1,5 +1,6 @@
 // light-ball.jsx
-import { jsxRuntimeExports, reactExports, Upload } from "../vendor.js";
+import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import { Upload } from "../m15/parse-item.jsx";
 import { Button$2 } from "../m01/use-media-node-actions.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

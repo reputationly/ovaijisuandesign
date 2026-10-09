@@ -1,34 +1,11 @@
 // markdown-fullscreen.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  LEAF_PLACEHOLDER,
-  useTranslation,
-  dedupedToast,
-  Dialog$1,
-  CanvasActionsContext,
-  useDiffReviewStore,
-  recordProvisionalDiffReviewHistory,
-  getDiffReviewHistorySnapshot,
-  Undo2,
-  Redo2,
-  useEditor,
-  ScrollableMarkdownTable,
-  TableRow$1,
-  TableHeader$1,
-  TableCell$1,
-  Markdown,
-  src_default$1,
-  AnnotationHighlight,
-  BlurSelectionHighlight,
-  DIFF_REVIEW_SYNC_META,
-  getAnnotationHistorySnapshot,
-  splitCompletedReviewFromUserEdit,
-  useAnnotations,
-  useEditorHistoryShortcuts,
-  TextSelection,
-  EditorContent,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, Undo2, Redo2, useEditor, TableRow$1, TableHeader$1, TableCell$1, src_default$1, TextSelection, EditorContent } from "../vendor.js";
+import { Markdown, AnnotationHighlight, BlurSelectionHighlight, getAnnotationHistorySnapshot } from "../m15/annotation-highlight.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useEditorHistoryShortcuts } from "../m15/handle-position-style.jsx";
+import { LEAF_PLACEHOLDER, recordProvisionalDiffReviewHistory, getDiffReviewHistorySnapshot, ScrollableMarkdownTable, DIFF_REVIEW_SYNC_META, splitCompletedReviewFromUserEdit, useAnnotations } from "../m15/locate-hunks-in-doc.js";
+import { CanvasActionsContext } from "../m15/parse-item.jsx";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
 import {
   DialogContent$1,
   DialogHeader$1,

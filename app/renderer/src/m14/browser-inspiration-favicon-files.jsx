@@ -1,20 +1,9 @@
 // browser-inspiration-favicon-files.jsx
-import {
-  useTranslation,
-  reactExports,
-  Icon,
-  ChevronDown,
-  X$7,
-  TRACK_EVENTS,
-  Clapperboard,
-  Palette,
-  Megaphone,
-  Building2,
-  Shuffle,
-  Search,
-  useTheme,
-  CDN_BROWSER_START_ICON,
-} from "../vendor.js";
+import { useTranslation, reactExports, ChevronDown, X$7, Palette, Shuffle, Search, CDN_BROWSER_START_ICON } from "../vendor.js";
+import { Icon } from "../m15/graph.jsx";
+import { Clapperboard, Megaphone, Building2 } from "../m15/parse-item.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useTheme } from "../m15/use-resizable-width.js";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { EnterIcon } from "../m08/browser-inspiration-urls.jsx";
 import { setBuiltinBrowserChatContext } from "../m11/use-workspace-canvas-persistence.jsx";

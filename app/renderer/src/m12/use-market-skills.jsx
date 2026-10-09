@@ -1,22 +1,9 @@
 // use-market-skills.jsx
-import {
-  reactExports,
-  useTranslation,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  API_PATHS,
-  gatewayFetch,
-  StableTabLabel,
-  FilterMenu,
-  FilterMenuTrigger,
-  ChevronDown,
-  FEATURED_TAG,
-  DEFAULT_PAGE_SIZE,
-  skillEvents,
-  TooltipProvider,
-  Info$1,
-} from "../vendor.js";
+import { reactExports, useTranslation, API_PATHS, ChevronDown, Info$1 } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { FilterMenu, FilterMenuTrigger } from "../m15/global-sidebar-provider.jsx";
+import { Tooltip, TooltipTrigger, Icon, TooltipProvider } from "../m15/graph.jsx";
+import { StableTabLabel, FEATURED_TAG, DEFAULT_PAGE_SIZE, skillEvents } from "../m15/use-mention-models.jsx";
 import { cn$2, TooltipContent } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import {
   trackSkillLoadMore,

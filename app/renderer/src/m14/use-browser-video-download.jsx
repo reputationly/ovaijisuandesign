@@ -1,17 +1,9 @@
 // use-browser-video-download.jsx
-import {
-  useTranslation,
-  reactExports,
-  useGatewayScopeKey,
-  useGatewayFetch,
-  useNavigate,
-  dedupedToast,
-  TRACK_EVENTS,
-  workflowSourceFromId,
-  buildWorkspaceSearch,
-  API_PATHS,
-  useGatewayReady$1,
-} from "../vendor.js";
+import { useTranslation, reactExports, useNavigate, dedupedToast, API_PATHS } from "../vendor.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { workflowSourceFromId } from "../m15/parse-timeline-operations.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useGatewayScopeKey, useGatewayFetch, useGatewayReady$1 } from "../m15/use-resizable-width.js";
 import { MOCK_MEDIA_GEN_MESSAGES } from "../m13/history-anchor-rail-impl.jsx";
 import { useWorkspaceChatSelector } from "../m12/use-asset-picker-host.jsx";
 import { useSessionStore } from "../m11/use-workspace-canvas-persistence.jsx";

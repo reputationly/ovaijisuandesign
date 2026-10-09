@@ -1,5 +1,5 @@
 // backend-messages-to-chat.js
-import { ErrorCodes } from "../vendor.js";
+import { ErrorCodes } from "../m15/push-inline.js";
 import { findLastIndex } from "../m08/support-01.js";
 import {
   stripContextPrefix,

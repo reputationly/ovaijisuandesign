@@ -1,19 +1,7 @@
 // instantiation-service.js
-import {
-  countUnavailableComfyUiModels,
-  isWorkspaceFolderMissingError,
-  workspaceRuntimeFromOpenResult,
-  errorListeners,
-  ServiceCollection,
-  _enableAllTracing,
-  Graph,
-  dispose,
-  isDisposable,
-  Trace,
-  illegalState,
-  SyncDescriptor,
-  CyclicDependencyError,
-} from "../vendor.js";
+import { isWorkspaceFolderMissingError } from "../vendor.js";
+import { ServiceCollection, _enableAllTracing, Graph, Trace, CyclicDependencyError } from "../m15/graph.jsx";
+import { countUnavailableComfyUiModels, workspaceRuntimeFromOpenResult, errorListeners, dispose, isDisposable, illegalState, SyncDescriptor } from "../m15/linked-list.js";
 var _util;
 ((_util2) => {
   _util2.serviceIds = new Map();

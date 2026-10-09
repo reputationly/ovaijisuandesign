@@ -1,47 +1,19 @@
 // empty-chat-recommendations.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  Tooltip,
-  TooltipTrigger,
-  useAuth,
-  useQuery,
-  gatewayFetch,
-  X$7,
-  tt,
-  rehypeSanitize,
-  useResolveMediaUrl,
-  detectFileType,
-  ImageOutlineIcon,
-  workspaceEvents,
-  ArrowUpRight,
-  ContextMenu,
-  PlaybackPlayIcon$1,
-  rewriteImgSrc,
-  getMediaExtension,
-  joinMetadata,
-  useAssetMeta,
-  Icon,
-  codeBlockLanguage,
-  codeBlockContent,
-  FILE_REFERENCE_CODE_BLOCK_LANGUAGES,
-  MarkdownSpan,
-  stablePlugins,
-  useLoginGuard,
-  buildMediaShowcaseCollections,
-  resolveHomeFeaturedSkillPrompt,
-  toDisplayName$1,
-  SkillCoverMedia,
-  resolveSkillCoverUrl,
-  useWSConnection,
-  useSessionCostVisible,
-  Popover,
-  PopoverTrigger,
-  Pencil,
-  CircleAlert,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, useQuery, X$7, ArrowUpRight, PlaybackPlayIcon$1, Pencil, CircleAlert } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { useAuth, Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { useResolveMediaUrl } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { rehypeSanitize } from "../m15/interest-selection-provider.jsx";
+import { resolveHomeFeaturedSkillPrompt } from "../m15/kn.js";
+import { ImageOutlineIcon, useAssetMeta } from "../m15/parse-item.jsx";
+import { buildMediaShowcaseCollections } from "../m15/parse-prompt-item.js";
+import { tt, rewriteImgSrc, getMediaExtension, joinMetadata, codeBlockLanguage, codeBlockContent, FILE_REFERENCE_CODE_BLOCK_LANGUAGES, MarkdownSpan, stablePlugins, useSessionCostVisible } from "../m15/qo.jsx";
+import { useWSConnection } from "../m15/record-recent-workspace-opened.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { useLoginGuard } from "../m15/thumbnail-load-scheduler.jsx";
+import { workspaceEvents, ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { toDisplayName$1, SkillCoverMedia, resolveSkillCoverUrl } from "../m15/use-mention-models.jsx";
 import { findInlineVisualTokens } from "../m12/attachment-preview.jsx";
 import { getAgentSkillBrowseSkills } from "../m12/slash-command-popover-content.jsx";
 import {

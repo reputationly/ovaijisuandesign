@@ -1,20 +1,9 @@
 // expandable-text.jsx
-import {
-  reactExports,
-  useTranslation,
-  CompositedSvg,
-  Check,
-  ChevronDown,
-  API_PATHS,
-  useResolveMediaUrl,
-  detectFileType,
-  Globe,
-  Icon,
-  getToolLabelId,
-  normalizeJsonToolResult,
-  isToolCancelInterrupted,
-  AlertCircle,
-} from "../vendor.js";
+import { reactExports, useTranslation, CompositedSvg, Check, ChevronDown, API_PATHS, Globe, AlertCircle } from "../vendor.js";
+import { useResolveMediaUrl } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { getToolLabelId, normalizeJsonToolResult, isToolCancelInterrupted } from "../m15/save-chat-rating.js";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { QuestionPromptIcon } from "../m08/browser-inspiration-urls.jsx";
 import { FileChip } from "../m12/file-chip.jsx";

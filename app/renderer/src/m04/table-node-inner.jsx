@@ -1,23 +1,10 @@
 // table-node-inner.jsx
-import {
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  useCanvasBridge,
-  dedupedToast,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  useCanvasActions,
-  NodeResizeFrame,
-  useAssetMetadataStore,
-  reactDomExports,
-  FileTypeIcon,
-  classifyFileType,
-  TABLE_CARD_DEFAULT_SIZE,
-  getAnnotationMarks,
-  rangeTo,
-  rangeFrom,
-} from "../vendor.js";
+import { reactExports, CompositedSvg, useTranslation, dedupedToast, useAssetMetadataStore, reactDomExports, classifyFileType, rangeTo, rangeFrom } from "../vendor.js";
+import { getAnnotationMarks } from "../m15/annotation-highlight.js";
+import { NodeResizeFrame } from "../m15/create-html-iframe-pool-store.jsx";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { TABLE_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasBridge, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useCanvasActions } from "../m15/parse-item.jsx";
 import {
   areNodePropsEqual,
   useCanvasNodeIsDragging,

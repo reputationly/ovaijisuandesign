@@ -1,23 +1,8 @@
 // message-input-base.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  MAX_ATTACHMENTS,
-  useEditor,
-  src_default$1,
-  DOMParser$1,
-  Slice,
-  useCurrentWorkspace,
-  useMentionModels,
-  useGatewayUrl,
-  dedupedToast,
-  chatLog,
-  EditorContent,
-  Tooltip,
-  TooltipTrigger,
-  ArrowUp,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useEditor, src_default$1, DOMParser$1, Slice, useCurrentWorkspace, dedupedToast, EditorContent, ArrowUp } from "../vendor.js";
+import { chatLog, Tooltip, TooltipTrigger } from "../m15/graph.jsx";
+import { MAX_ATTACHMENTS, useMentionModels } from "../m15/use-mention-models.jsx";
+import { useGatewayUrl } from "../m15/use-resizable-width.js";
 import {
   usePreviewTextLoader,
   isAnnotatableImage,

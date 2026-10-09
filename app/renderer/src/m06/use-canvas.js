@@ -1,45 +1,14 @@
 // use-canvas.js
-import {
-  useAssetMetadataApi,
-  useReactFlow,
-  reactExports,
-  CanvasNodeType,
-  useStoreApi,
-  getClipboard,
-  syncStableZoomSignals,
-  sizeOf,
-  getNodePosition,
-  hasInternalCopyMarker,
-  isFromInternalNativeCopy,
-  buildInternalClipboardItemData,
-  isCanvasInteractive,
-  isEditableTarget$2,
-  isInsideCanvas,
-  makeAssetPathResolver,
-  writeCanvasSystemClipboard,
-  collectClipboardFiles,
-  resolveCanvasShortcut,
-  useNodesState,
-  useEdgesState,
-  selectDropAnchor,
-  selectMouseAnchor,
-  createCanvasCommandRegistry,
-  useCanvasData,
-  useGraphSync,
-  isBoxFullyVisible,
-  POPOVER_DRAFT_DATA_KEY,
-  isNodeDeleteProtected,
-  isEdgeAttachedToProtectedNode,
-  KEYBOARD_MOVE_COMMIT_DELAY_MS,
-  partitionDeletableIds,
-  collectCommittablePositionChanges,
-  orientUserEdge,
-  generateNodeId,
-  collectMeasuredSizes,
-  toHistoryActionResult,
-} from "../vendor.js";
+import { useAssetMetadataApi, useReactFlow, reactExports, CanvasNodeType, useStoreApi, useNodesState, useEdgesState } from "../vendor.js";
+import { syncStableZoomSignals, orientUserEdge } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { POPOVER_DRAFT_DATA_KEY } from "../m15/group-nodes-in-canvas.js";
+import { sizeOf, getNodePosition } from "../m15/node-tag-rings-canvas.jsx";
+import { getClipboard, hasInternalCopyMarker, resolveCanvasShortcut, selectDropAnchor, selectMouseAnchor, createCanvasCommandRegistry, isNodeDeleteProtected, isEdgeAttachedToProtectedNode, partitionDeletableIds, collectCommittablePositionChanges } from "../m15/remap-clipboard.js";
+import { isFromInternalNativeCopy, isCanvasInteractive, isInsideCanvas, collectClipboardFiles, isBoxFullyVisible, KEYBOARD_MOVE_COMMIT_DELAY_MS, generateNodeId, collectMeasuredSizes, toHistoryActionResult } from "../m15/track-events.js";
+import { useCanvasData } from "../m15/use-canvas-data.js";
+import { buildInternalClipboardItemData, isEditableTarget$2, makeAssetPathResolver, writeCanvasSystemClipboard, useGraphSync } from "../m15/use-graph-sync.js";
 import { CanvasInstance } from "./canvas-instance.js";
-import { getCopiedSystemText } from "./canvas-toggle-icon.jsx";
+import { getCopiedSystemText } from "../m15/remap-clipboard.js";
 import { useCopyDebugInfo } from "./selection-toolbar-inner.jsx";
 function useCanvasInstance(mode2, plugins) {
   const pluginsRef = reactExports.useRef(plugins);

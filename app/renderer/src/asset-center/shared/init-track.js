@@ -1,11 +1,6 @@
 // shared/init-track.js
-import {
-  sanitizeTrackProps,
-  _guard,
-  _notifyDebugListeners,
-  MAX_PENDING_EVENTS,
-  resolveEventIpCountry,
-} from "../../vendor.js";
+import { resolveEventIpCountry } from "../../m15/track-events.js";
+import { sanitizeTrackProps, _guard, _notifyDebugListeners, MAX_PENDING_EVENTS } from "../../m15/transitioner.jsx";
 import { buildBaseProps } from "./detect-os-parts.js";
 import { TRACK_PROJECT_NAME, resolveTrackServerUrl } from "./use-browser-overlay-dialog-props.jsx";
 const USER_BINDING_FALLBACK_MS = 1e4;

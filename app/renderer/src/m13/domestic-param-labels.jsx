@@ -1,65 +1,18 @@
 // domestic-param-labels.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  useMentionModels,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  CompositedSvg,
-  Check,
-  ChevronRight$1,
-  ChevronDown,
-  API_PATHS,
-  getRuntimeConfig,
-  useResolveMediaUrl,
-  withThumbnail,
-  FileTypeIcon,
-  classifyFileType,
-  ImageOutlineIcon,
-  Video,
-  DeferredThumbnailImage,
-  workspaceEvents,
-  getNodeIdsForAsset,
-  PopoverRoot,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverPopup,
-  ContextMenu,
-  Copy,
-  PlaybackPlayIcon$1,
-  Icon,
-  Popover,
-  PopoverTrigger,
-  useGatewayFetch,
-  Clapperboard,
-  Scissors,
-  Loader2,
-  TooltipProvider,
-  useMediaModels,
-  Music,
-  GENERATION_ERROR_CODE_I18N,
-  GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT,
-  GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE,
-  stripErrorHtml,
-  SliderRoot,
-  SliderControl$1,
-  SliderTrack,
-  SliderIndicator,
-  SliderThumb,
-  AudioLines,
-  Clock,
-  resolveMediaTaskCategory,
-  ChevronLeft,
-  Info$1,
-  useComfyUiDownloadProgress,
-  isComfyUiModelUnavailable,
-  AlertTriangle,
-  artifactAssetTypeFromPath,
-  PlatformFileManagerLabel,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, dedupedToast, CompositedSvg, Check, ChevronRight$1, ChevronDown, API_PATHS, getRuntimeConfig, classifyFileType, Video, PopoverRoot, PopoverPortal, PopoverPositioner, PopoverPopup, Copy, PlaybackPlayIcon$1, Scissors, Loader2, Music, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, SliderRoot, SliderControl$1, SliderTrack, SliderIndicator, SliderThumb, AudioLines, ChevronLeft, Info$1, AlertTriangle } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { FileTypeIcon, stripErrorHtml } from "../m15/create-recently-added-store.jsx";
+import { useResolveMediaUrl, withThumbnail, DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, Icon, TooltipProvider, useComfyUiDownloadProgress } from "../m15/graph.jsx";
+import { PlatformFileManagerLabel } from "../m15/interest-selection-provider.jsx";
+import { isComfyUiModelUnavailable } from "../m15/linked-list.js";
+import { ImageOutlineIcon, Clapperboard, Clock } from "../m15/parse-item.jsx";
+import { GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE } from "../m15/push-inline.js";
+import { GENERATION_ERROR_CODE_I18N, resolveMediaTaskCategory, artifactAssetTypeFromPath } from "../m15/save-chat-rating.js";
+import { getNodeIdsForAsset } from "../m15/track-events.js";
+import { workspaceEvents, ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useMentionModels } from "../m15/use-mention-models.jsx";
+import { useGatewayFetch, useMediaModels } from "../m15/use-resizable-width.js";
 import {
   TooltipContent,
   cn$2,

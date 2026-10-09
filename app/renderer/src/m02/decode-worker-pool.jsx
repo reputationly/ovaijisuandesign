@@ -1,14 +1,7 @@
 // decode-worker-pool.jsx
-import {
-  useTranslation,
-  reactExports,
-  useCanvasBridge,
-  useCanvasActions,
-  syncStableZoomSignals,
-  CanvasActionsContext,
-  useReactFlow,
-  useStoreApi,
-} from "../vendor.js";
+import { useTranslation, reactExports, useReactFlow, useStoreApi } from "../vendor.js";
+import { syncStableZoomSignals } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useCanvasBridge, useCanvasActions, CanvasActionsContext } from "../m15/parse-item.jsx";
 import { resolveDefaultReferencePaths } from "../m01/resolve-reference-texts.js";
 import { extractCanvasEditorText } from "../m01/use-assets-ref-validate.js";
 import { MIN_MUSIC_BILLING_SECONDS } from "../m01/calc-video-cost-breakdown.jsx";

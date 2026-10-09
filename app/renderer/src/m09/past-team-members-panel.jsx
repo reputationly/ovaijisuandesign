@@ -1,20 +1,7 @@
 // past-team-members-panel.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  X$7,
-  AlertTriangle,
-  getRuntimeConfig,
-  teamQueryKeys,
-  useQueryClient,
-  Search,
-  HUB_WEB_INVITE_DOMAINS,
-  UserRoundPlus,
-  Link2,
-  Copy,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, X$7, AlertTriangle, getRuntimeConfig, useQueryClient, Search, UserRoundPlus, Link2, Copy } from "../vendor.js";
+import { teamQueryKeys } from "../m15/apply-asset-change.jsx";
+import { HUB_WEB_INVITE_DOMAINS } from "../m15/graph.jsx";
 import {
   Dialog,
   DialogContent,

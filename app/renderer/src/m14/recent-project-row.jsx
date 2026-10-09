@@ -1,27 +1,12 @@
 // recent-project-row.jsx
-import {
-  useTranslation,
-  reactExports,
-  Popover,
-  Tooltip,
-  TooltipTrigger,
-  Check,
-  Copy,
-  Trash2,
-  dedupedToast,
-  usePlatform,
-  DropdownMenu,
-  TooltipProvider,
-  MoreVerticalIcon,
-  MonochromeIcon,
-  workspaceDisplayName,
-  Pin,
-  FolderX,
-  PlatformFileManagerLabel,
-  CircleX,
-  projectWorkspaceKey,
-  UNGROUPED_RECENT_GROUP_KEY,
-} from "../vendor.js";
+import { useTranslation, reactExports, Check, Copy, dedupedToast, usePlatform, MonochromeIcon, Pin, FolderX, CircleX } from "../vendor.js";
+import { Popover } from "../m15/apply-asset-change.jsx";
+import { UNGROUPED_RECENT_GROUP_KEY } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, DropdownMenu, TooltipProvider, MoreVerticalIcon } from "../m15/graph.jsx";
+import { PlatformFileManagerLabel } from "../m15/interest-selection-provider.jsx";
+import { Trash2 } from "../m15/parse-item.jsx";
+import { workspaceDisplayName } from "../m15/use-resizable-width.js";
+import { projectWorkspaceKey } from "../m15/workspace-events.js";
 import {
   TooltipContent,
   cn$2,

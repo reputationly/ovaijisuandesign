@@ -1,16 +1,7 @@
 // use-text-conflict-resolver.jsx
-import {
-  reactExports,
-  useTranslation,
-  ChevronDown,
-  ChevronUp,
-  History,
-  Pencil,
-  Trans,
-  dedupedToast,
-  Dialog$1,
-  Sparkles,
-} from "../vendor.js";
+import { reactExports, useTranslation, ChevronDown, ChevronUp, Pencil, Trans, dedupedToast } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { History, Sparkles } from "../m15/parse-item.jsx";
 import { myersLineHunks, coarseLineHunk } from "../m01/myers-line-hunks.js";
 import {
   DropdownMenu$1,

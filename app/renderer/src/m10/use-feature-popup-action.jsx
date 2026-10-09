@@ -1,37 +1,12 @@
 // use-feature-popup-action.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useAuth,
-  reactExports,
-  dedupedToast,
-  useQuery,
-  useQueryClient,
-  useStorage,
-  TRACK_EVENTS,
-  usePlatform,
-  API_PATHS,
-  openExternalUrl,
-  useNavigate,
-  Icon,
-  gatewayFetch,
-  XIcon,
-  useRouterState,
-  DialogClose,
-  IPC_CHANNELS,
-  KEY_PREFIX$3,
-  buildShownKey,
-  PENDING_KEY,
-  CHANGE_EVENT,
-  requestPromptPrefill,
-  requestRandomInspiration,
-  VolumeXIcon,
-  Volume2Icon,
-  Markdown$1,
-  remarkGfm,
-  rehypeSanitize,
-  GiftIcon,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useQuery, useQueryClient, useStorage, usePlatform, API_PATHS, useNavigate, XIcon, VolumeXIcon, Volume2Icon, Markdown$1, remarkGfm, GiftIcon } from "../vendor.js";
+import { gatewayFetch, DialogClose, IPC_CHANNELS } from "../m15/agent-ws-client.jsx";
+import { useAuth } from "../m15/apply-asset-change.jsx";
+import { openExternalUrl, Icon } from "../m15/graph.jsx";
+import { KEY_PREFIX$3, requestPromptPrefill, requestRandomInspiration, rehypeSanitize } from "../m15/interest-selection-provider.jsx";
+import { useRouterState } from "../m15/linked-list.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { buildShownKey, PENDING_KEY, CHANGE_EVENT } from "../m15/use-popup.jsx";
 import {
   Button$1,
   Dialog,

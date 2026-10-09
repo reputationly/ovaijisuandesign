@@ -1,32 +1,12 @@
 // workspace-browser.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  ArrowRight,
-  X$7,
-  workspaceEvents,
-  dedupedToast,
-  TRACK_EVENTS,
-  usePlatform,
-  Globe,
-  Bookmark,
-  useHasBlockingModal,
-  PanelsTopLeft,
-  getRuntimeConfig,
-  useNativeViewOcclusion,
-  OPEN_BROWSER_EVENT,
-  Plus,
-  ArrowLeft,
-  RotateCw,
-  ArrowUpRight,
-  Camera,
-  MoreHorizontal,
-  Chrome,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, ArrowRight, X$7, dedupedToast, usePlatform, Globe, PanelsTopLeft, getRuntimeConfig, Plus, ArrowLeft, RotateCw, ArrowUpRight, MoreHorizontal } from "../vendor.js";
+import { useNativeViewOcclusion } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Bookmark, Camera, Chrome } from "../m15/parse-item.jsx";
+import { useHasBlockingModal } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { OPEN_BROWSER_EVENT } from "../m15/use-canvas-tag-filter.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import { dispatchBrowserImageEditToChat } from "../m13/media-model-selector.jsx";
 import { TooltipContent } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import {

@@ -1,22 +1,13 @@
 // message-bubble.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useMentionModels,
-  useGatewayUrl,
-  ChevronDown,
-  useResolveMediaUrl,
-  FileTypeIcon,
-  classifyFileType,
-  ContextMenu,
-  Copy,
-  Icon,
-  Brain,
-  Save,
-  InlineColorValue,
-  useWorkspaceRemoteToolOptional,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, ChevronDown, classifyFileType, Copy, Save } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { useResolveMediaUrl } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { Brain } from "../m15/parse-item.jsx";
+import { useWorkspaceRemoteToolOptional } from "../m15/use-canvas-tag-filter.js";
+import { ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useMentionModels, InlineColorValue } from "../m15/use-mention-models.jsx";
+import { useGatewayUrl } from "../m15/use-resizable-width.js";
 import { FileKindIcon, ModelTypeIcon } from "../m12/mention-ref-chip.jsx";
 import { stripContextPrefix, isRecoveredMessage } from "../m01/myers-line-hunks.js";
 import { useMediaActions } from "../m10/use-media-actions.jsx";

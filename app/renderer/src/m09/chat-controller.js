@@ -1,5 +1,7 @@
 // chat-controller.js
-import { ErrorCodes, authExpiredBus, measurePerf } from "../vendor.js";
+import { measurePerf } from "../vendor.js";
+import { authExpiredBus } from "../m15/agent-ws-client.jsx";
+import { ErrorCodes } from "../m15/push-inline.js";
 import { stripContextPrefix, isCancelMarkerText } from "../m01/myers-line-hunks.js";
 import {
   subMessageSemanticKey,

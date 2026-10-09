@@ -1,5 +1,6 @@
 // build-doc-content-from-input.jsx
-import { connectorReferenceFromServerName, Upload } from "../vendor.js";
+import { Upload } from "../m15/parse-item.jsx";
+import { connectorReferenceFromServerName } from "../m15/use-mention-models.jsx";
 import { parseConnectorMentionAt } from "../m01/myers-line-hunks.js";
 import { findAllMentions } from "../m01/table-document-to-llm-content.js";
 import { __jsx } from "../shared/jsx-runtime.js";

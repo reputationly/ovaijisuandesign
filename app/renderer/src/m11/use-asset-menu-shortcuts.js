@@ -1,14 +1,8 @@
 // use-asset-menu-shortcuts.js
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  workspaceEvents,
-  useStorage,
-  useStableCallback,
-  WORKSPACE_STORAGE_DEFAULTS,
-  findEntryByPath,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, useStorage, WORKSPACE_STORAGE_DEFAULTS } from "../vendor.js";
+import { findEntryByPath } from "../m15/global-sidebar-provider.jsx";
+import { useStableCallback } from "../m15/use-entity-hover-preview.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import { getFileName$1 } from "../m10/delete-local-node-dialog.jsx";
 import { buildResourceDragItem, parseResourceDrag } from "../m01/myers-line-hunks.js";
 import {

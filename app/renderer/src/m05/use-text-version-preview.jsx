@@ -1,23 +1,8 @@
 // use-text-version-preview.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  ChevronRight$1,
-  dedupedToast,
-  useCanvasBridge,
-  CanvasActionsContext,
-  bumpFileVersion,
-  Markdown$1,
-  remarkGfm,
-  ArrowLeft,
-  ChevronLeft,
-  GitCompare,
-  Copy,
-  RotateCcw,
-  useDiffReviewStore,
-  Save,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, ChevronRight$1, dedupedToast, Markdown$1, remarkGfm, ArrowLeft, ChevronLeft, GitCompare, Copy, RotateCcw, Save } from "../vendor.js";
+import { bumpFileVersion } from "../m15/create-html-iframe-pool-store.jsx";
+import { useCanvasBridge, CanvasActionsContext } from "../m15/parse-item.jsx";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
 import { TEXT_VERSION_TIER_S_MAX_BYTES } from "../m01/text-models.js";
 import { selectAgentWriteSignalForNode } from "../m04/table-node-inner.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

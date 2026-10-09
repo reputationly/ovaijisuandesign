@@ -1,43 +1,12 @@
 // message-list-impl.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCurrentWorkspace,
-  reactExports,
-  Puzzle,
-  Popover,
-  Tooltip,
-  TooltipTrigger,
-  PopoverTrigger,
-  Split,
-  Check,
-  Copy,
-  groupIntoActivityGroups,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  useVirtualizer,
-  useIsScrolling,
-  messageListPropsEqual,
-  useGatewayScopeKey,
-  AccordionRoot,
-  AccordionItem$1,
-  AccordionHeader,
-  AccordionTrigger$1,
-  ChevronDownIcon$1,
-  ChevronUpIcon,
-  AccordionPanel,
-  Icon,
-  Repeat2,
-  ArrowRight,
-  CheckCheck,
-  RadioGroup$1,
-  RadioRoot,
-  RadioIndicator,
-  CompositedSvg,
-  useMentionModels,
-  ChevronDown,
-  PencilLine,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useCurrentWorkspace, reactExports, Split, Check, Copy, useVirtualizer, AccordionRoot, AccordionItem$1, AccordionHeader, AccordionTrigger$1, ChevronDownIcon$1, ChevronUpIcon, AccordionPanel, Repeat2, ArrowRight, CheckCheck, RadioGroup$1, RadioRoot, RadioIndicator, CompositedSvg, ChevronDown } from "../vendor.js";
+import { Popover, PopoverTrigger, useIsScrolling } from "../m15/apply-asset-change.jsx";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Puzzle, PencilLine } from "../m15/parse-item.jsx";
+import { groupIntoActivityGroups, messageListPropsEqual } from "../m15/parse-timeline-operations.js";
+import { useMentionModels } from "../m15/use-mention-models.jsx";
+import { useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import { ChatToolbar } from "../m13/media-model-selector.jsx";
 import {
   collectAssistantCopyText,

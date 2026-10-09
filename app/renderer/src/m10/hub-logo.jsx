@@ -1,30 +1,12 @@
 // hub-logo.jsx
-import {
-  useTranslation,
-  reactExports,
-  services,
-  TRACK_EVENTS,
-  XIcon,
-  Trans,
-  truncateProjectName,
-  PROJECT_NAME_MAX_CHARS,
-  Users,
-  EYES,
-  ACTIVE_EASING,
-  IDLE_EASING,
-  mix,
-  useHubLogoHoverAnimation,
-  pupilTargetFor,
-  useLoginGate,
-  useLoginGuard,
-  useRenderElement,
-  avatarStateAttributesMapping,
-  AvatarRootContext,
-  useAvatarRootContext,
-  useTimeout,
-  AvatarImage$1,
-  GATEWAY_READINESS_FALLBACK_MS,
-} from "../vendor.js";
+import { useTranslation, reactExports, XIcon, Trans, useRenderElement, avatarStateAttributesMapping, AvatarRootContext, useAvatarRootContext, useTimeout, AvatarImage$1 } from "../vendor.js";
+import { GATEWAY_READINESS_FALLBACK_MS } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { services } from "../m15/graph.jsx";
+import { Users } from "../m15/parse-item.jsx";
+import { truncateProjectName, PROJECT_NAME_MAX_CHARS } from "../m15/push-inline.js";
+import { useLoginGate, useLoginGuard } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { EYES, ACTIVE_EASING, IDLE_EASING, mix, useHubLogoHoverAnimation, pupilTargetFor } from "../m15/use-hub-logo-hover-animation.jsx";
 import {
   AlertDialog,
   AlertDialogContent,

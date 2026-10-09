@@ -1,29 +1,7 @@
 // mention-ref-chip.jsx
-import {
-  reactExports,
-  X$7,
-  Video,
-  ImageOutlineIcon,
-  FileText,
-  instance,
-  CompositedSvg,
-  FileTypeIcon,
-  classifyFileType,
-  PluginKey,
-  Decoration$1,
-  DecorationSet,
-  Extension,
-  Plugin,
-  FileVideo,
-  File$1,
-  Music,
-  Workflow,
-  Folder,
-  NodeViewWrapper,
-  Node$3,
-  mergeAttributes,
-  ReactNodeViewRenderer,
-} from "../vendor.js";
+import { reactExports, X$7, Video, instance, CompositedSvg, classifyFileType, PluginKey, Decoration$1, DecorationSet, Extension, Plugin, Music, Workflow, NodeViewWrapper, Node$3, mergeAttributes, ReactNodeViewRenderer } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { ImageOutlineIcon, FileText, FileVideo, File$1, Folder } from "../m15/parse-item.jsx";
 import { splitMentionFilename } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import {
   PreviewCard$1,

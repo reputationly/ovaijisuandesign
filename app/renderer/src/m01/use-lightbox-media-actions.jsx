@@ -1,46 +1,9 @@
 // use-lightbox-media-actions.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useStore$3,
-  CompositedSvg,
-  useTranslation,
-  TooltipProvider$1,
-  useCanvasBridge,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  Position,
-  reactDomExports,
-  parseNodeId,
-  __insertCSS,
-  withAutomaticDedupeId,
-  dedupedToast,
-  toast,
-  Download,
-  Copy,
-  Archive,
-  FolderOpen,
-  useCanvasActive,
-  useNativeViewOcclusion,
-  MenuRoot,
-  MenuTrigger,
-  MenuPortal,
-  MenuPositioner,
-  MenuPopup,
-  MenuItem$3,
-  MenuSubmenuRoot,
-  MenuSubmenuTrigger,
-  TOOLBAR_ANIM_MS,
-  zoomSelector$8,
-  useCanvasIsDragging,
-  useDelayedUnmount,
-  HEADER_FLOW_HEIGHT$3,
-  TOOLBAR_GAP$5,
-  NodeToolbar$1,
-  ActionListPanel,
-  ActionListItem,
-  ActionListSeparator,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useStore$3, CompositedSvg, useTranslation, Position, reactDomExports, __insertCSS, withAutomaticDedupeId, dedupedToast, toast, Copy, Archive, MenuRoot, MenuTrigger, MenuPortal, MenuPositioner, MenuPopup, MenuItem$3, MenuSubmenuRoot, MenuSubmenuTrigger, NodeToolbar$1, ActionListPanel, ActionListItem, ActionListSeparator } from "../vendor.js";
+import { useNativeViewOcclusion, TOOLBAR_ANIM_MS, zoomSelector$8, useDelayedUnmount, HEADER_FLOW_HEIGHT$3, TOOLBAR_GAP$5 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, Download, FolderOpen, useCanvasActive, useCanvasIsDragging } from "../m15/parse-item.jsx";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
 import { cn$5 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip$1 } from "./create-tracker.jsx";

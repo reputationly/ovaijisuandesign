@@ -1,14 +1,8 @@
 // table-editor-inner.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  useCanvasActive,
-  reactDomExports,
-  useTableHistory,
-  useDevicePixelRatio,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, reactDomExports } from "../vendor.js";
+import { useDevicePixelRatio } from "../m15/deep-freeze.js";
+import { useCanvasActive } from "../m15/parse-item.jsx";
+import { useTableHistory } from "../m15/use-diff-review-store.js";
 import { CloseIcon$1 } from "../m01/generating-media-area.jsx";
 import { Checkbox } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import {

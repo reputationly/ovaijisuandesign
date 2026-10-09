@@ -1,36 +1,12 @@
 // use-chat-file-reference-action.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  dedupedToast,
-  API_PATHS,
-  usePlatform,
-  openExternalUrl,
-  TRACK_EVENTS,
-  useResolveMediaUrl,
-  detectFileType,
-  withThumbnail,
-  FileTypeIcon,
-  classifyFileType,
-  ImageOutlineIcon,
-  Video,
-  FileAudio,
-  DeferredThumbnailImage,
-  workspaceEvents,
-  getNodeIdsForAsset,
-  PopoverRoot,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverPopup,
-  File$1,
-  ArrowUpRight,
-  ContextMenu,
-  Globe,
-  ExternalLink,
-  Copy,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, dedupedToast, API_PATHS, usePlatform, classifyFileType, Video, PopoverRoot, PopoverPortal, PopoverPositioner, PopoverPopup, ArrowUpRight, Globe, ExternalLink, Copy } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { useResolveMediaUrl, withThumbnail, DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { openExternalUrl } from "../m15/graph.jsx";
+import { ImageOutlineIcon, FileAudio, File$1 } from "../m15/parse-item.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { TRACK_EVENTS, getNodeIdsForAsset } from "../m15/track-events.js";
+import { workspaceEvents, ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
 import {
   AlertDialog,
   AlertDialogContent,

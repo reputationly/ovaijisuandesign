@@ -1,29 +1,7 @@
 // reference-switch-popover.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  useCanvasBridge,
-  ChevronRight$1,
-  ImageOutlineIcon,
-  useCanvasActions,
-  useAssetMetadataStore,
-  FileText,
-  X$7,
-  useStore$3,
-  Video,
-  Music,
-  Check,
-  NodeSelection,
-  FileWarning,
-  classifyFileType,
-  FileTypeIcon,
-  NodeViewWrapper,
-  Node$3,
-  mergeAttributes,
-  ReactNodeViewRenderer,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, ChevronRight$1, useAssetMetadataStore, X$7, useStore$3, Video, Music, Check, NodeSelection, classifyFileType, NodeViewWrapper, Node$3, mergeAttributes, ReactNodeViewRenderer } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, ImageOutlineIcon, useCanvasActions, FileText, FileWarning } from "../m15/parse-item.jsx";
 import { Tooltip$1 } from "../m01/create-tracker.jsx";
 import { splitMentionFilename } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { parseCanvasReference } from "../m01/table-document-to-llm-content.js";

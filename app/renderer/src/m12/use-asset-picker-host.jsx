@@ -1,14 +1,8 @@
 // use-asset-picker-host.jsx
-import {
-  reactExports,
-  useTranslation,
-  useStorage,
-  CurrentWorkspaceContext,
-  WorkspaceRemoteToolContext,
-  ApiError,
-  pickUserMessage,
-  stripErrorHtml,
-} from "../vendor.js";
+import { reactExports, useTranslation, useStorage, CurrentWorkspaceContext, ApiError } from "../vendor.js";
+import { stripErrorHtml } from "../m15/create-recently-added-store.jsx";
+import { pickUserMessage } from "../m15/push-inline.js";
+import { WorkspaceRemoteToolContext } from "../m15/use-canvas-tag-filter.js";
 import {
   useSessionStore,
   useAgentModePreference,

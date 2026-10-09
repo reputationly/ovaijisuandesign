@@ -1,22 +1,10 @@
 // use-chat-rating.js
-import {
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  chatLog,
-  useAuth,
-  useQuery,
-  useGatewayFetch,
-  useQueryClient,
-  normalizeJsonToolResult,
-  isToolCancelInterrupted,
-  resolveToolInterruption,
-  getSelectedRequestGroupId,
-  useGatewayScopeKey,
-  useMutation,
-  saveChatRating,
-  useIsMutating,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, useQuery, useQueryClient, useMutation, useIsMutating } from "../vendor.js";
+import { getSelectedRequestGroupId } from "../m15/agent-ws-client.jsx";
+import { useAuth } from "../m15/apply-asset-change.jsx";
+import { chatLog } from "../m15/graph.jsx";
+import { normalizeJsonToolResult, isToolCancelInterrupted, resolveToolInterruption, saveChatRating } from "../m15/save-chat-rating.js";
+import { useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import {
   CHAT_FEEDBACK_REASONS,
   CHAT_TASK_CATEGORIES,

@@ -1,27 +1,9 @@
 // en.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CanvasViewProviders,
-  TRACK_EVENTS,
-  resolvePageTitle,
-  useRouter,
-  rootRouteId,
-  SafeFragment,
-  Transitioner,
-  useStore,
-  Match,
-  matchContext,
-  CatchBoundary,
-  ErrorComponent,
-  routerContext,
-  isElectron,
-  pendingRumEvents,
-  sanitizeRumContext,
-  sanitizeRumMessage,
-  toSafeRumError,
-  MAX_PENDING_RUM_EVENTS,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useRouter, rootRouteId, useStore, matchContext, CatchBoundary, ErrorComponent, routerContext } from "../vendor.js";
+import { pendingRumEvents, sanitizeRumContext, sanitizeRumMessage, toSafeRumError, MAX_PENDING_RUM_EVENTS } from "../m15/linked-list.js";
+import { CanvasViewProviders } from "../m15/node-tag-rings-canvas.jsx";
+import { TRACK_EVENTS, resolvePageTitle, isElectron } from "../m15/track-events.js";
+import { SafeFragment, Transitioner, Match } from "../m15/transitioner.jsx";
 import {
   _userReadyPromise,
   _userReady,

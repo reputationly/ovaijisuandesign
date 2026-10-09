@@ -1,12 +1,7 @@
 // group-into-turns.jsx
-import {
-  getToolLabelId,
-  categorizeToolAction,
-  useTranslation,
-  useResolveMediaUrl,
-  useCurrentWorkspace,
-  reactExports,
-} from "../vendor.js";
+import { useTranslation, useCurrentWorkspace, reactExports } from "../vendor.js";
+import { useResolveMediaUrl } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { getToolLabelId, categorizeToolAction } from "../m15/save-chat-rating.js";
 import {
   findToolConfirmOwningSubAgent,
   parseToolResult,

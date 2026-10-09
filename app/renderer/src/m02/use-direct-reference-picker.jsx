@@ -1,20 +1,6 @@
 // use-direct-reference-picker.jsx
-import {
-  PlaybackPlayIcon$1,
-  useTranslation,
-  reactExports,
-  useCanvasBridge,
-  Plus,
-  useNodeId,
-  useStore$3,
-  useCanvasIsDragging,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  NodeToolbar$1,
-  Position,
-  StarterKit,
-  dedupedToast,
-} from "../vendor.js";
+import { PlaybackPlayIcon$1, useTranslation, reactExports, Plus, useNodeId, useStore$3, NodeToolbar$1, Position, StarterKit, dedupedToast } from "../vendor.js";
+import { useCanvasBridge, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "../m15/parse-item.jsx";
 import { SegmentedSwitch$1 } from "../m01/params-popup.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "../m01/use-lightbox-media-actions.jsx";
 import { basename$c } from "../m01/resolve-reference-texts.js";

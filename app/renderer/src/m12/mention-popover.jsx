@@ -1,14 +1,8 @@
 // mention-popover.jsx
-import {
-  reactExports,
-  useGatewayUrl,
-  useTranslation,
-  withThumbnail,
-  reactDomExports,
-  FileTypeIcon,
-  classifyFileType,
-  Workflow,
-} from "../vendor.js";
+import { reactExports, useTranslation, reactDomExports, classifyFileType, Workflow } from "../vendor.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { useGatewayUrl } from "../m15/use-resizable-width.js";
 import { cn$2, Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { AssetMentionList } from "../m10/asset-mention-list.jsx";
 import { ConnectorIcon } from "../m10/proxy-detected-toast.jsx";

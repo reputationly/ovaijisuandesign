@@ -1,37 +1,14 @@
 // use-new-workspace-dialog.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  AlertTriangle,
-  useQuery,
-  useStorage,
-  TRACK_EVENTS,
-  usePlatform,
-  folderNameFromPath,
-  API_PATHS,
-  useRuntimeConfig,
-  X$7,
-  gatewayFetch,
-  checkTextSafety,
-  workspaceLog,
-  truncateProjectName,
-  workspaceDisplayName,
-  useTopbarActions,
-  OPEN_NEW_WORKSPACE_DIALOG_EVENT,
-  NewWorkspaceDialogContext,
-  applyWorkspaceDisplayNameRename,
-  classifySkillError,
-  instance,
-  TOAST_ID$1,
-  compileToolDisplayPatterns,
-  EMPTY_TOOL_CALL_DISPLAY_CONFIG,
-  refreshToolCallDisplayConfig,
-  mapHubClientConfig,
-  HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS,
-  DEFAULT_HUB_CLIENT_CONFIG,
-  setModalScheduleConfig,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, AlertTriangle, useQuery, useStorage, usePlatform, API_PATHS, X$7, workspaceLog, instance } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { OPEN_NEW_WORKSPACE_DIALOG_EVENT, NewWorkspaceDialogContext, applyWorkspaceDisplayNameRename, classifySkillError, TOAST_ID$1 } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { compileToolDisplayPatterns, EMPTY_TOOL_CALL_DISPLAY_CONFIG, refreshToolCallDisplayConfig, mapHubClientConfig, HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS, DEFAULT_HUB_CLIENT_CONFIG } from "../m15/interest-selection-provider.jsx";
+import { truncateProjectName } from "../m15/push-inline.js";
+import { checkTextSafety } from "../m15/record-recent-workspace-opened.jsx";
+import { setModalScheduleConfig } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useTopbarActions } from "../m15/use-hub-logo-hover-animation.jsx";
+import { folderNameFromPath, useRuntimeConfig, workspaceDisplayName } from "../m15/use-resizable-width.js";
 import { instantiationService, IProjectMainService } from "../m08/browser-inspiration-urls.jsx";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -450,14 +427,6 @@ export function LowMemoryToast() {
     };
   }, [flushPending]);
   return null;
-}
-let configuredDisplayLabels = compileToolDisplayPatterns(
-  EMPTY_TOOL_CALL_DISPLAY_CONFIG.displayLabels,
-);
-export function getConfiguredToolDisplayLabel(toolName2) {
-  return configuredDisplayLabels.find(({ patterns }) =>
-    patterns.some((pattern) => pattern.test(toolName2)),
-  )?.label;
 }
 export function useHubClientConfig() {
   const gatewayReady = useGatewayReady();

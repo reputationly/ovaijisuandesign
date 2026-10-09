@@ -1,21 +1,6 @@
 // shared/select-content.jsx
-import {
-  SelectTrigger$2,
-  SelectIcon,
-  ChevronDownIcon$1,
-  SelectValue$2,
-  SelectPortal,
-  SelectPositioner,
-  SelectPopup,
-  SelectList,
-  SelectItem$2,
-  SelectItemText,
-  SelectItemIndicator,
-  CheckIcon$5,
-  SelectScrollUpArrow,
-  ChevronUpIcon,
-  SelectScrollDownArrow,
-} from "../../vendor.js";
+import { SelectTrigger$2, SelectIcon, ChevronDownIcon$1, SelectValue$2, SelectPortal, SelectPositioner, SelectPopup, SelectList, SelectItem$2, SelectItemText, SelectItemIndicator, SelectScrollUpArrow, ChevronUpIcon, SelectScrollDownArrow } from "../../vendor.js";
+import { CheckIcon$5 } from "../../m15/parse-item.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { Input$2, cn$2 } from "./use-browser-overlay-dialog-props.jsx";
 const inputBaseClass =

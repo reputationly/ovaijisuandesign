@@ -1,17 +1,9 @@
 // persist-save-queue.js
-import {
-  useAssetMetadataApi,
-  reactExports,
-  parseNodeId,
-  CanvasNodeType,
-  getClipboard,
-  isAssetBackedNode,
-  resolveNodeAssetId,
-  measurePerf,
-  sanitizeCanvasPositions,
-  isUnmaterialisedGenerationNode,
-  normaliseHandle,
-} from "../vendor.js";
+import { useAssetMetadataApi, reactExports, CanvasNodeType, measurePerf } from "../vendor.js";
+import { isAssetBackedNode } from "../m15/group-nodes-in-canvas.js";
+import { getClipboard, normaliseHandle } from "../m15/remap-clipboard.js";
+import { resolveNodeAssetId } from "../m15/remove-nodes-and-promote-group-mains.js";
+import { parseNodeId, sanitizeCanvasPositions, isUnmaterialisedGenerationNode } from "../m15/resolve-derived-collision.js";
 import {
   PERF_CANVAS_PERSIST_SAVE,
   PERF_CANVAS_PERSIST_QUEUE,

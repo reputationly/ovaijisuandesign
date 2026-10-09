@@ -1,19 +1,6 @@
 // audio-preview-player.jsx
-import {
-  Volume2,
-  VolumeX,
-  Maximize,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  useMediaPlayback,
-  Loader2,
-  PlaybackCircleToggleIcon,
-  formatTime$2,
-  CompositedSvg,
-  useCanvasBridge,
-  Crosshair,
-} from "../vendor.js";
+import { Volume2, Maximize, useTranslation, reactExports, reactDomExports, Loader2, PlaybackCircleToggleIcon, CompositedSvg, Crosshair } from "../vendor.js";
+import { VolumeX, useMediaPlayback, formatTime$2, useCanvasBridge } from "../m15/parse-item.jsx";
 import { Button$2 } from "../m01/use-media-node-actions.jsx";
 import { Tooltip$1 } from "../m01/create-tracker.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

@@ -1,27 +1,7 @@
 // use-inline-rename.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useStore$3,
-  CompositedSvg,
-  useTranslation,
-  X$7,
-  useCanvasBridge,
-  useCanvasActions,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  useStoreApi,
-  Position,
-  useRegisterZoomCounter,
-  Handle,
-  CanvasTagColorsContext,
-  renameRequestStore,
-  useNodeId,
-  useAssetMeta,
-  useRenameRequest,
-  CanvasModalGuardContext,
-  RecentlyAddedStoreContext,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useStore$3, CompositedSvg, useTranslation, X$7, useStoreApi, Position, Handle, useNodeId } from "../vendor.js";
+import { useRegisterZoomCounter, CanvasTagColorsContext, renameRequestStore, useRenameRequest, CanvasModalGuardContext, RecentlyAddedStoreContext } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasActions, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useAssetMeta } from "../m15/parse-item.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip$1, createTracker, trackers$1 } from "./create-tracker.jsx";
 import { useCanvasNodeIsDragging } from "./generating-media-area.jsx";

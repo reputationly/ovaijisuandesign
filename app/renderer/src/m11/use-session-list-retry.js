@@ -1,14 +1,10 @@
 // use-session-list-retry.js
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  recordAction,
-  ErrorCodes,
-  chatLog,
-  getElectronPlatform,
-  resolveActiveModelId,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { chatLog } from "../m15/graph.jsx";
+import { ErrorCodes } from "../m15/push-inline.js";
+import { getElectronPlatform } from "../m15/track-events.js";
+import { resolveActiveModelId } from "../m15/use-resizable-width.js";
 import { useActiveCustomModel } from "../m10/delete-account-confirm-dialog.jsx";
 import { nextMessageId } from "../m08/reduce-server-message.js";
 import { DRAFT_NEW_TAB } from "./use-workspace-canvas-persistence.jsx";

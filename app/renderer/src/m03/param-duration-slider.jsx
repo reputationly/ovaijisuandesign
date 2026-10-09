@@ -1,12 +1,6 @@
 // param-duration-slider.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Copy,
-  VIDEO_MODELS,
-  BACKEND_KLING_AVATAR,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, Copy } from "../vendor.js";
+import { VIDEO_MODELS, BACKEND_KLING_AVATAR } from "../m15/push-inline.js";
 import { paramI18nKey, paramLabelFallback } from "../m01/resolve-reference-texts.js";
 import { CanvasSwitch } from "../m01/calc-video-cost-breakdown.jsx";
 import { Slider$1, ParamSectionLabel, ParamStepper } from "../m01/slider.jsx";

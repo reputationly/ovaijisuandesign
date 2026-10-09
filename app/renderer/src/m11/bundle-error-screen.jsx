@@ -1,22 +1,11 @@
 // bundle-error-screen.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Upload,
-  ChevronDown,
-  X$7,
-  Info$1,
-  AlertTriangle,
-  useAuth,
-  remoteToolLog,
-  gatewayFetch,
-  useRemoteToolSdk,
-  getRuntimeConfig,
-  WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY,
-  resolveWorkspaceFailureDiagnosis,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, ChevronDown, X$7, Info$1, AlertTriangle, getRuntimeConfig } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { useAuth } from "../m15/apply-asset-change.jsx";
+import { remoteToolLog } from "../m15/graph.jsx";
+import { Upload } from "../m15/parse-item.jsx";
+import { resolveWorkspaceFailureDiagnosis } from "../m15/use-canvas-tag-filter.js";
+import { useRemoteToolSdk, WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../m15/workspace-failure-diagnosis-registry.js";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { RetryIcon } from "../m08/browser-inspiration-urls.jsx";
 import { getNetworkDiagnosticsMainService } from "../m10/delete-account-confirm-dialog.jsx";

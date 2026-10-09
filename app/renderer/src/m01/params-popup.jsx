@@ -1,27 +1,7 @@
 // params-popup.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  TooltipProvider$1,
-  Check,
-  reactDomExports,
-  dedupedToast,
-  Copy,
-  Settings2,
-  usePromptFontSizeStore,
-  PopoverRoot,
-  PopoverTrigger$1,
-  Type$1,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverPopup,
-  PROMPT_FONT_SIZE_MIN,
-  PROMPT_FONT_SIZE_MAX,
-  PROMPT_FONT_SIZE_DEFAULT,
-  RotateCcw,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, Check, reactDomExports, dedupedToast, Copy, usePromptFontSizeStore, PopoverRoot, PopoverTrigger$1, PopoverPortal, PopoverPositioner, PopoverPopup, PROMPT_FONT_SIZE_MIN, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_DEFAULT, RotateCcw } from "../vendor.js";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { Settings2, Type$1 } from "../m15/parse-item.jsx";
 import { cn$5 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PROMPT_FONT_SIZE_STEP } from "./calc-video-cost-breakdown.jsx";

@@ -1,28 +1,10 @@
 // canvas-redraw-overlay.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  reactExports,
-  CompositedSvg,
-  useCropViewportZoom,
-  useAssetMetadataStore,
-  useStore$3,
-  selectionToNormalizedBBox,
-  useImageErase,
-  useImageMaskPainter,
-  Node$3,
-  mergeAttributes,
-  useRedrawState,
-  BAR_GAP,
-  insertCanvasRedrawRegion,
-  REDRAW_HIGHLIGHT_CSS_COLOR,
-  REDRAW_HIGHLIGHT_UI_OPACITY,
-  TOP_BAR_MIN_WIDTH,
-  BOTTOM_BAR_MIN_WIDTH,
-  BOTTOM_BAR_MAX_WIDTH,
-  TOP_BAR_HEIGHT,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, CompositedSvg, useAssetMetadataStore, useStore$3, Node$3, mergeAttributes } from "../vendor.js";
+import { BAR_GAP, insertCanvasRedrawRegion, REDRAW_HIGHLIGHT_CSS_COLOR, REDRAW_HIGHLIGHT_UI_OPACITY, TOP_BAR_MIN_WIDTH, BOTTOM_BAR_MIN_WIDTH, BOTTOM_BAR_MAX_WIDTH, TOP_BAR_HEIGHT } from "../m15/node-tag-rings-canvas.jsx";
+import { useCanvasBridge } from "../m15/parse-item.jsx";
+import { useCropViewportZoom } from "../m15/use-file-bytes.js";
+import { selectionToNormalizedBBox, useImageErase, useImageMaskPainter } from "../m15/use-image-mask-painter.js";
+import { useRedrawState } from "../m15/use-multi-image-actions.js";
 import { extractCanvasEditorText } from "../m01/use-assets-ref-validate.js";
 import {
   CloseIcon$1,

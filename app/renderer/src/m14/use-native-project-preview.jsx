@@ -1,30 +1,11 @@
 // use-native-project-preview.jsx
-import {
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  CompositedSvg,
-  CircleAlert,
-  API_PATHS,
-  gatewayFetch,
-  Plus,
-  DropdownMenu,
-  DropdownMenuGroup,
-  DropdownMenuRadioGroup,
-  TooltipProvider,
-  Trans,
-  Folder,
-  workspaceInventoryPathKey,
-  pinnedWorkspaceAliases,
-  removePinnedWorkspacePaths,
-  MonochromeIcon,
-  ArrowUpDown,
-  recentProjectDismissalListeners,
-  useQuery,
-  DeferredThumbnailImage,
-} from "../vendor.js";
+import { useTranslation, reactExports, CompositedSvg, CircleAlert, API_PATHS, Plus, Trans, MonochromeIcon, ArrowUpDown, useQuery } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, Icon, DropdownMenu, DropdownMenuGroup, DropdownMenuRadioGroup, TooltipProvider } from "../m15/graph.jsx";
+import { Folder } from "../m15/parse-item.jsx";
+import { pinnedWorkspaceAliases, removePinnedWorkspacePaths, recentProjectDismissalListeners } from "../m15/split-pinned-inventory.js";
+import { workspaceInventoryPathKey } from "../m15/workspace-events.js";
 import { FourCornerLoading } from "../m13/empty-chat-recommendations.jsx";
 import {
   TooltipContent,

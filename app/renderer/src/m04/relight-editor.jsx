@@ -1,19 +1,6 @@
 // relight-editor.jsx
-import {
-  reactExports,
-  useTranslation,
-  useStore$3,
-  NodeToolbar$1,
-  Position,
-  useCanvasBridge,
-  dedupedToast,
-  useNodeId,
-  useCanvasIsDragging,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  X$7,
-  Loader2,
-} from "../vendor.js";
+import { reactExports, useTranslation, useStore$3, NodeToolbar$1, Position, dedupedToast, useNodeId, X$7, Loader2 } from "../vendor.js";
+import { useCanvasBridge, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "../m15/parse-item.jsx";
 import { Tooltip$1, CreditCostBadge } from "../m01/create-tracker.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "../m01/use-lightbox-media-actions.jsx";
 import { BACKEND_VIBE_RELIGHT } from "../m01/text-models.js";

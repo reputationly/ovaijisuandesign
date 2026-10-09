@@ -1,33 +1,11 @@
 // shared/attachment-upload-zone.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Loader2,
-  X$7,
-  Icon,
-  Plus,
-  Upload,
-  DropdownMenu,
-  ChevronDown,
-  assetCenterLog,
-  AtSign,
-  AssetCenterApiError,
-  FolderUp,
-  ChevronRight$1,
-  gatewayUrl,
-  API_PATHS,
-  FileTypeIcon,
-  classifyFileType,
-  Video,
-  Scan,
-  Select$1,
-  PlaybackCirclePauseIcon$1,
-  PlaybackCirclePlayIcon$1,
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-} from "../../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Loader2, X$7, Plus, ChevronDown, AtSign, FolderUp, ChevronRight$1, API_PATHS, classifyFileType, Video, Scan, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1 } from "../../vendor.js";
+import { gatewayUrl } from "../../m15/agent-ws-client.jsx";
+import { Select$1 } from "../../m15/apply-asset-change.jsx";
+import { AssetCenterApiError } from "../../m15/check-cloud-asset-upload.js";
+import { FileTypeIcon } from "../../m15/create-recently-added-store.jsx";
+import { Icon, DropdownMenu, assetCenterLog, TooltipProvider, Tooltip, TooltipTrigger } from "../../m15/graph.jsx";
+import { Upload } from "../../m15/parse-item.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { MediaLightbox } from "./image-lightbox.jsx";
 import { classifyAssetError, trackAssetCenterAction, trackAssetCreate } from "./misc-02.jsx";

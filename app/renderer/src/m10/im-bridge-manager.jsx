@@ -1,50 +1,13 @@
 // im-bridge-manager.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useQuery,
-  useQueryClient,
-  TRACK_EVENTS,
-  usePlatform,
-  API_PATHS,
-  useGatewayFetch,
-  useGatewayScopeKey,
-  openExternalUrl,
-  Trash2,
-  getRuntimeConfig,
-  ArrowUpRight,
-  Icon,
-  Tooltip,
-  TooltipTrigger,
-  Info$1,
-  PlaybackPauseIcon,
-  SettingsPanelHeaderContext,
-  useSettingsPanelHeader,
-  assetInfoToAssetMeta,
-  assetLineageQueryKey,
-  useAssetMetadataApi,
-  useGatewayScope,
-  useGatewayUrl,
-  buildWSUrl,
-  rebindWorkspaceAssetMetadataUrls,
-  ASSET_STATE_BREADCRUMB_INTERVAL_MS,
-  getAssetEventStateSnapshot,
-  replayAssetChangesOrFallback,
-  AgentWSClient,
-  remoteToolLog,
-  invalidateAssetQueries,
-  invalidateAssetBatchQueries,
-  CANVAS_TAG_REGISTRY_CHANGED_MESSAGE_TYPE,
-  canvasTagRegistryQueryKey,
-  invalidateAssetLineageQueries,
-  resetAssetSeqState,
-  requestAssetWorkspaceResync,
-  guardedSubmissionKind,
-  guardAccountSubmission,
-  WSConnectionContext,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useQuery, useQueryClient, usePlatform, API_PATHS, getRuntimeConfig, ArrowUpRight, Info$1, useAssetMetadataApi, useGatewayScope, guardAccountSubmission } from "../vendor.js";
+import { buildWSUrl, AgentWSClient } from "../m15/agent-ws-client.jsx";
+import { getAssetEventStateSnapshot, invalidateAssetQueries, invalidateAssetBatchQueries, resetAssetSeqState, requestAssetWorkspaceResync } from "../m15/apply-asset-change.jsx";
+import { openExternalUrl, Icon, Tooltip, TooltipTrigger, PlaybackPauseIcon, remoteToolLog } from "../m15/graph.jsx";
+import { Trash2, CANVAS_TAG_REGISTRY_CHANGED_MESSAGE_TYPE } from "../m15/parse-item.jsx";
+import { assetLineageQueryKey, rebindWorkspaceAssetMetadataUrls, ASSET_STATE_BREADCRUMB_INTERVAL_MS, replayAssetChangesOrFallback, canvasTagRegistryQueryKey, invalidateAssetLineageQueries, guardedSubmissionKind, WSConnectionContext } from "../m15/record-recent-workspace-opened.jsx";
+import { SettingsPanelHeaderContext, useSettingsPanelHeader, assetInfoToAssetMeta } from "../m15/run-manual-update-check.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useGatewayFetch, useGatewayScopeKey, useGatewayUrl } from "../m15/use-resizable-width.js";
 import {
   Button$1,
   cn$2,

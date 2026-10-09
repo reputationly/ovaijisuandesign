@@ -1,31 +1,13 @@
 // file-explorer.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  usePlatform,
-  ChevronDown,
-  ContextMenu,
-  FolderOpen,
-  useCurrentWorkspace,
-  useWorkspaceProject,
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  X$7,
-  useStableCallback,
-  Check,
-  LayoutList,
-  LayoutGrid,
-  useGatewayScopeKey,
-  useQueryClient,
-  findEntryByPath,
-  FilterMenuTrigger,
-  FilterMenu,
-  Popover,
-  useFileExplorerOverlayBridge,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, usePlatform, ChevronDown, useCurrentWorkspace, X$7, Check, LayoutList, LayoutGrid, useQueryClient } from "../vendor.js";
+import { Popover } from "../m15/apply-asset-change.jsx";
+import { findEntryByPath, FilterMenuTrigger, FilterMenu, useFileExplorerOverlayBridge } from "../m15/global-sidebar-provider.jsx";
+import { TooltipProvider, Tooltip, TooltipTrigger } from "../m15/graph.jsx";
+import { FolderOpen } from "../m15/parse-item.jsx";
+import { useStableCallback } from "../m15/use-entity-hover-preview.js";
+import { ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
+import { useWorkspaceProject } from "../m15/workspace-events.js";
 import {
   Dialog,
   DialogContent,

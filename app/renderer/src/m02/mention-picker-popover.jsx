@@ -1,23 +1,6 @@
 // mention-picker-popover.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  useCanvasBridge,
-  ChevronRight$1,
-  ImageOutlineIcon,
-  useCanvasActions,
-  useAssetMetadataStore,
-  FileText,
-  useStore$3,
-  dedupedToast,
-  Video,
-  Music,
-  Folder,
-  Package,
-  Loader2Icon,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, ChevronRight$1, useAssetMetadataStore, useStore$3, dedupedToast, Video, Music, Loader2Icon } from "../vendor.js";
+import { useCanvasBridge, ImageOutlineIcon, useCanvasActions, FileText, Folder, Package } from "../m15/parse-item.jsx";
 import { Tooltip$1 } from "../m01/create-tracker.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

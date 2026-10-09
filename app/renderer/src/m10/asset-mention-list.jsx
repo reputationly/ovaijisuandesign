@@ -1,39 +1,12 @@
 // asset-mention-list.jsx
-import {
-  useTranslation,
-  reactExports,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useStorage,
-  TRACK_EVENTS,
-  usePlatform,
-  API_PATHS,
-  gatewayFetch,
-  useGatewayUrl,
-  ImageOutlineIcon,
-  useCurrentWorkspace,
-  DEFAULT_OPEN_DELAY_MS,
-  stepRevision,
-  resolveSeenRevision,
-  appendSeenEntries,
-  BASE,
-  readObject,
-  readEnvelope$1,
-  useAssetCenterFetcher,
-  ROOT_KEY$1,
-  Video$2,
-  Music$2,
-  Package$2,
-  File$3,
-  withThumbnail,
-  useEntities,
-  Search$2,
-  Check$2,
-  Square$2,
-  FileTypeIcon,
-  classifyFileType,
-} from "../vendor.js";
+import { useTranslation, reactExports, useMutation, useQuery, useQueryClient, useStorage, usePlatform, API_PATHS, useCurrentWorkspace, Video$2, Music$2, Package$2, File$3, Search$2, Check$2, Square$2, classifyFileType } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { DEFAULT_OPEN_DELAY_MS, stepRevision, resolveSeenRevision, appendSeenEntries, BASE, readObject, readEnvelope$1, useAssetCenterFetcher, ROOT_KEY$1, useEntities } from "../m15/check-cloud-asset-upload.js";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { ImageOutlineIcon } from "../m15/parse-item.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useGatewayUrl } from "../m15/use-resizable-width.js";
 import { Badge } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { Input3 } from "../asset-center/shared/select-content.jsx";
 import { trackEvent } from "../asset-center/shared/init-track.js";

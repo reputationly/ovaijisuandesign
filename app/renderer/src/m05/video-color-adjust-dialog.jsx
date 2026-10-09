@@ -1,21 +1,7 @@
 // video-color-adjust-dialog.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  Trash2,
-  dedupedToast,
-  Dialog$1,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
-  Output,
-  WebMOutputFormat,
-  Mp4OutputFormat,
-  BufferTarget,
-  BlobSource,
-  UrlSource,
-  Upload,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, PlaybackPauseIcon$1, PlaybackPlayIcon$1, Output, WebMOutputFormat, Mp4OutputFormat, BufferTarget, BlobSource, UrlSource } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { Trash2, Upload } from "../m15/parse-item.jsx";
 import { SendArrowIcon } from "../m01/generating-media-area.jsx";
 import {
   DialogContent$1,

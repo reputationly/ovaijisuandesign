@@ -1,20 +1,9 @@
 // plugin-launcher.jsx
-import {
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  useHtmlFullscreenApi,
-  usePluginMeta,
-  pickLocalized,
-  MEDIA_NODE_RADIUS,
-  useIsHtmlFullscreen,
-  Layers,
-  Se$2,
-  useFileBytes,
-  requireJszip_min,
-  getDefaultExportFromCjs$1,
-} from "../vendor.js";
+import { useTranslation, reactExports, Layers, requireJszip_min, getDefaultExportFromCjs$1 } from "../vendor.js";
+import { useHtmlFullscreenApi, usePluginMeta, useIsHtmlFullscreen } from "../m15/create-html-iframe-pool-store.jsx";
+import { useCanvasBridge, useCanvasActions, MEDIA_NODE_RADIUS } from "../m15/parse-item.jsx";
+import { pickLocalized } from "../m15/push-inline.js";
+import { Se$2, useFileBytes } from "../m15/use-file-bytes.js";
 import { CLIP_STUDIO_PLUGIN_ID, DIRECTOR_STAGE_PLUGIN_ID } from "../m02/canvas-image.jsx";
 import { NodeBody, Button$2 } from "../m01/use-media-node-actions.jsx";
 import { MediaUnpreviewableFallback } from "../m01/create-tracker.jsx";

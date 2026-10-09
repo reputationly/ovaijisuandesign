@@ -1,16 +1,6 @@
 // dissolve-team-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  X$7,
-  AlertTriangle,
-  teamQueryKeys,
-  useTeamAccount,
-  useQueryClient,
-  useMutation,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, X$7, AlertTriangle, useQueryClient, useMutation } from "../vendor.js";
+import { teamQueryKeys, useTeamAccount } from "../m15/apply-asset-change.jsx";
 import {
   Button$1,
   cn$2,

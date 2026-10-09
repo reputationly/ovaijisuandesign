@@ -1,5 +1,6 @@
 // use-remote-tool-session.js
-import { reactExports, remoteToolLog, guardAccountSubmission } from "../vendor.js";
+import { reactExports, guardAccountSubmission } from "../vendor.js";
+import { remoteToolLog } from "../m15/graph.jsx";
 const QUEUED_USER_MESSAGE_CANCEL_TIMEOUT_MS = 5e3;
 export function useQueuedUserMessageCancellation({ sessionStore, send: send2 }) {
   const pendingRef = reactExports.useRef(new Map());

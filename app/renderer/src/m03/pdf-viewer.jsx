@@ -1,38 +1,11 @@
 // pdf-viewer.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  useAssetMeta,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  TooltipProvider$1,
-  NodeResizeFrame,
-  Position,
-  FileTypeIcon,
-  classifyFileType,
-  useHtmlFullscreenApi,
-  useFileUrl,
-  usePluginMeta,
-  pickLocalized,
-  useHtmlViewerHandle,
-  usePluginRunInfo,
-  useViewerActive,
-  CompositedSvg,
-  useIsHtmlFullscreen,
-  useFileBytes,
-  __webpack_exports__,
-  __webpack_exports__getDocument,
-  pickViewerKind,
-  useWorkspaceContentBudgetScope,
-  HTML_VIEWER_UNLOAD_AFTER_MS,
-  ACTIVE_GATED_VIEWER_KINDS,
-  useWorkspaceFileViewerAdmission,
-  useNodeRename,
-  FILE_CARD_DEFAULT_SIZE,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Position, classifyFileType, CompositedSvg, __webpack_exports__, __webpack_exports__getDocument } from "../vendor.js";
+import { NodeResizeFrame, useHtmlFullscreenApi, useFileUrl, usePluginMeta, useHtmlViewerHandle, usePluginRunInfo, useViewerActive, useIsHtmlFullscreen, useWorkspaceContentBudgetScope, useWorkspaceFileViewerAdmission } from "../m15/create-html-iframe-pool-store.jsx";
+import { TooltipProvider$1, FileTypeIcon, useNodeRename } from "../m15/create-recently-added-store.jsx";
+import { FILE_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasBridge, useCanvasActions, useAssetMeta, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "../m15/parse-item.jsx";
+import { pickLocalized } from "../m15/push-inline.js";
+import { useFileBytes, pickViewerKind, HTML_VIEWER_UNLOAD_AFTER_MS, ACTIVE_GATED_VIEWER_KINDS } from "../m15/use-file-bytes.js";
 import {
   useCanvasNodeIsDragging,
   AddToChatIcon,

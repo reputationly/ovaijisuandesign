@@ -1,17 +1,6 @@
 // team-provider.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  getRuntimeConfig,
-  teamQueryKeys,
-  deriveActiveScope,
-  activateAccountSubmissionGuard,
-  useQueryClient,
-  updateAccountSubmissionDecision,
-  evaluateAccountSubmission,
-  TeamAccountContext,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, getRuntimeConfig, deriveActiveScope, activateAccountSubmissionGuard, useQueryClient, updateAccountSubmissionDecision, evaluateAccountSubmission } from "../vendor.js";
+import { teamQueryKeys, TeamAccountContext } from "../m15/apply-asset-change.jsx";
 import {
   isRecoverableTeamAccountStatus,
   instantiationService,

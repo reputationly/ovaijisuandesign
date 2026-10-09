@@ -1,5 +1,7 @@
 // use-asset-center-page.js
-import { reactExports, useEntities, buildWorkspaceSearch } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useEntities } from "../m15/check-cloud-asset-upload.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
 export function assetCenterSearchWithoutAction(returnWorkspaceId) {
   return returnWorkspaceId
     ? {

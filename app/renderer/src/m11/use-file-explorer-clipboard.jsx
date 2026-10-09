@@ -1,12 +1,7 @@
 // use-file-explorer-clipboard.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  API_PATHS,
-  useStableCallback,
-  refreshAssetIndex,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, API_PATHS } from "../vendor.js";
+import { refreshAssetIndex } from "../m15/apply-asset-change.jsx";
+import { useStableCallback } from "../m15/use-entity-hover-preview.js";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { instantiationService, IClipboardService } from "../m08/browser-inspiration-urls.jsx";
 import { DELETE_UNDO_TTL_MS, OPERATIONS_UNDO_PATH } from "../m01/text-models.js";

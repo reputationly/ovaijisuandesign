@@ -1,5 +1,6 @@
 // multi-angle-editor.jsx
-import { reactExports, useTranslation, useCanvasBridge, dedupedToast } from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast } from "../vendor.js";
+import { useCanvasBridge } from "../m15/parse-item.jsx";
 import { Tooltip$1, CreditCostBadge } from "../m01/create-tracker.jsx";
 import { Slider$1 } from "../m01/slider.jsx";
 import { BACKEND_VIBE_MULTI_SHOT } from "../m01/text-models.js";

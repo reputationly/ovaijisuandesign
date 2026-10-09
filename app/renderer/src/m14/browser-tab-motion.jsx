@@ -1,24 +1,11 @@
 // browser-tab-motion.jsx
-import {
-  useTranslation,
-  reactExports,
-  Popover,
-  Tooltip,
-  TooltipTrigger,
-  PopoverTrigger,
-  Check,
-  Icon,
-  ChevronDown,
-  X$7,
-  workspaceEvents,
-  dedupedToast,
-  TRACK_EVENTS,
-  API_PATHS,
-  usePlatform,
-  gatewayFetch,
-  Download,
-  Globe,
-} from "../vendor.js";
+import { useTranslation, reactExports, Check, ChevronDown, X$7, dedupedToast, API_PATHS, usePlatform, Globe } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Download } from "../m15/parse-item.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import {
   TooltipContent,
   Button$1,

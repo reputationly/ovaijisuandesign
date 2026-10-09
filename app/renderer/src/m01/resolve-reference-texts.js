@@ -1,5 +1,6 @@
 // resolve-reference-texts.js
-import { CanvasNodeType, normalizeLegacyModelId, reactExports, useReactFlow } from "../vendor.js";
+import { CanvasNodeType, reactExports, useReactFlow } from "../vendor.js";
+import { normalizeLegacyModelId } from "../m15/push-inline.js";
 import { getAssetMetaByNodeIdFromStore } from "./generating-media-area.jsx";
 import {
   getPopoverDraft,

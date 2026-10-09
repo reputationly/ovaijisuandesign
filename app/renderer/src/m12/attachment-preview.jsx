@@ -1,25 +1,9 @@
 // attachment-preview.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  X$7,
-  Loader2,
-  usePlatform,
-  Puzzle,
-  AlertCircle,
-  AtSign,
-  getCreationGuideUrlsByLocale,
-  ArrowUpRight,
-  formatConnectorMention,
-  createConnectorInventory,
-  connectorReferenceFromServer,
-  PluginKey,
-  Decoration$1,
-  DecorationSet,
-  Extension,
-  Plugin,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, X$7, Loader2, usePlatform, AlertCircle, AtSign, ArrowUpRight, createConnectorInventory, PluginKey, Decoration$1, DecorationSet, Extension, Plugin } from "../vendor.js";
+import { getCreationGuideUrlsByLocale } from "../m15/graph.jsx";
+import { Puzzle } from "../m15/parse-item.jsx";
+import { formatConnectorMention } from "../m15/relayout-group-children.js";
+import { connectorReferenceFromServer } from "../m15/use-mention-models.jsx";
 import { openUrlInBuiltinBrowser } from "../m11/use-workspace-canvas-persistence.jsx";
 import { AnnotationIcon$1 } from "../m01/generating-media-area.jsx";
 import { homeService } from "../m08/browser-inspiration-urls.jsx";

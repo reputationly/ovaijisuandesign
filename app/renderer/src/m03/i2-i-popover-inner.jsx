@@ -1,16 +1,7 @@
 // i2-i-popover-inner.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  dedupedToast,
-  useAssetMetadataApi,
-  ArrowUpRight,
-  BACKEND_MIDJOURNEY,
-  FileClock,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useAssetMetadataApi, ArrowUpRight } from "../vendor.js";
+import { useCanvasBridge, useCanvasActions, FileClock } from "../m15/parse-item.jsx";
+import { BACKEND_MIDJOURNEY } from "../m15/push-inline.js";
 import {
   MAX_IMAGES_PER_NODE,
   composePromptWithReferenceText,

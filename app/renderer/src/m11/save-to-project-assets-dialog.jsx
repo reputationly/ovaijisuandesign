@@ -1,26 +1,12 @@
 // save-to-project-assets-dialog.jsx
-import {
-  useTranslation,
-  reactExports,
-  checkTextSafety,
-  dedupedToast,
-  API_PATHS,
-  cloudErrorDisplayMessage,
-  ROOT_KEY,
-  cloudAssetMimeType,
-  FolderPlus,
-  useCurrentWorkspace,
-  useWorkspaceProject,
-  PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
-  Loader2,
-  cloudAssetExtension,
-  listAllCloudFolders,
-  getProjectAssetWritePolicy,
-  checkCloudAssetUpload,
-  withThumbnailWidth,
-  gatewayUrl,
-  detectFileType,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, API_PATHS, FolderPlus, useCurrentWorkspace, Loader2 } from "../vendor.js";
+import { gatewayUrl } from "../m15/agent-ws-client.jsx";
+import { cloudAssetMimeType, PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS, cloudAssetExtension, getProjectAssetWritePolicy, checkCloudAssetUpload } from "../m15/check-cloud-asset-upload.js";
+import { withThumbnailWidth } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { checkTextSafety, cloudErrorDisplayMessage } from "../m15/record-recent-workspace-opened.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { ROOT_KEY, listAllCloudFolders } from "../m15/use-cloud-search.js";
+import { useWorkspaceProject } from "../m15/workspace-events.js";
 import {
   Dialog,
   DialogContent,

@@ -1,27 +1,7 @@
 // editor2.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  useStore$3,
-  NodeToolbar$1,
-  Position,
-  TOOLS$1,
-  Undo2,
-  Redo2,
-  Trash2,
-  ChevronDown,
-  Check,
-  MosaicIcon,
-  Droplet,
-  Hand,
-  BoxSelect,
-  useCanvasActive,
-  Rotate90Icon,
-  FlipHorizontalIcon,
-  FlipVerticalIcon,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, useStore$3, NodeToolbar$1, Position, Undo2, Redo2, ChevronDown, Check, Hand, BoxSelect } from "../vendor.js";
+import { TOOLS$1 } from "../m15/deep-freeze.js";
+import { Trash2, MosaicIcon, Droplet, useCanvasActive, Rotate90Icon, FlipHorizontalIcon, FlipVerticalIcon } from "../m15/parse-item.jsx";
 import {
   EventBus,
   buildTextShapeData,

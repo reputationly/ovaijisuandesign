@@ -1,37 +1,12 @@
 // use-canvas-tags.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  API_PATHS,
-  usePlatform,
-  Upload,
-  ChevronDown,
-  ChevronRight$1,
-  useCurrentWorkspace,
-  useWorkspaceProject,
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  Plus,
-  DropdownMenu,
-  ChevronLeft,
-  Info$1,
-  Check,
-  getIconStrokeWidth,
-  LayoutList,
-  LayoutGrid,
-  Library,
-  useLocation,
-  useGatewayScopeKey,
-  useQuery,
-  canvasTagRegistryQueryKey,
-  useQueryClient,
-  useAssetMetadataApi,
-  refreshAssetIndex,
-  useMutation,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, API_PATHS, usePlatform, ChevronDown, ChevronRight$1, useCurrentWorkspace, Plus, ChevronLeft, Info$1, Check, getIconStrokeWidth, LayoutList, LayoutGrid, Library, useQuery, useQueryClient, useAssetMetadataApi, useMutation } from "../vendor.js";
+import { refreshAssetIndex } from "../m15/apply-asset-change.jsx";
+import { TooltipProvider, Tooltip, TooltipTrigger, DropdownMenu } from "../m15/graph.jsx";
+import { useLocation } from "../m15/linked-list.js";
+import { Upload } from "../m15/parse-item.jsx";
+import { canvasTagRegistryQueryKey } from "../m15/record-recent-workspace-opened.jsx";
+import { useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
+import { useWorkspaceProject } from "../m15/workspace-events.js";
 import {
   Button$1,
   TooltipContent,

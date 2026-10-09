@@ -1,16 +1,9 @@
 // workspace-canvas-focus-coordinator.jsx
-import {
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  workspaceEvents,
-  TRACK_EVENTS,
-  Globe,
-  useHasBlockingModal,
-  getPlatform,
-} from "../vendor.js";
+import { useTranslation, reactExports, Globe } from "../vendor.js";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { useHasBlockingModal } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS, getPlatform } from "../m15/track-events.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import {
   TooltipContent,
   cn$2,

@@ -1,23 +1,8 @@
 // pending-annotation-list.jsx
-import {
-  useTranslation,
-  useCurrentWorkspace,
-  reactExports,
-  Check,
-  Icon,
-  ArrowRight,
-  CompositedSvg,
-  ChevronDown,
-  X$7,
-  workspaceEvents,
-  Loader2,
-  Clock3,
-  CircleAlert,
-  Crosshair,
-  ClipboardList,
-  Circle,
-  Flag,
-} from "../vendor.js";
+import { useTranslation, useCurrentWorkspace, reactExports, Check, ArrowRight, CompositedSvg, ChevronDown, X$7, Loader2, CircleAlert, Crosshair, ClipboardList } from "../vendor.js";
+import { Icon } from "../m15/graph.jsx";
+import { Clock3, Circle, Flag } from "../m15/parse-item.jsx";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { RetryIcon } from "../m08/browser-inspiration-urls.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

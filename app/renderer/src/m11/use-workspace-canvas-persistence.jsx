@@ -1,15 +1,9 @@
 // use-workspace-canvas-persistence.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  API_PATHS,
-  useStorage,
-  detectFileType,
-  openExternalUrl,
-  OPEN_BROWSER_EVENT,
-  hasMessagePayload,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, API_PATHS, useStorage } from "../vendor.js";
+import { openExternalUrl } from "../m15/graph.jsx";
+import { hasMessagePayload } from "../m15/parse-item.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { OPEN_BROWSER_EVENT } from "../m15/use-canvas-tag-filter.js";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { homeService } from "../m08/browser-inspiration-urls.jsx";
 import { HiloCanvasDataSource } from "../m10/im-bridge-manager.jsx";

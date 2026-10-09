@@ -1,29 +1,9 @@
 // comfy-ui-plugin-launcher.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  useHtmlFullscreenApi,
-  useHtmlViewerPresentation,
-  usePluginMeta,
-  pickLocalized,
-  useHtmlViewerHandle,
-  usePluginRunInfo,
-  useViewerActive,
-  usePluginOpenRequest,
-  MEDIA_NODE_RADIUS,
-  CircleAlert,
-  LoaderCircle,
-  Workflow,
-  Dialog$1,
-  Search,
-  Check,
-  CompositedSvg,
-  reactDomExports,
-  MoreHorizontal,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, CircleAlert, LoaderCircle, Workflow, Search, Check, CompositedSvg, reactDomExports, MoreHorizontal } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useHtmlFullscreenApi, useHtmlViewerPresentation, usePluginMeta, useHtmlViewerHandle, usePluginRunInfo, useViewerActive, usePluginOpenRequest } from "../m15/create-html-iframe-pool-store.jsx";
+import { useCanvasBridge, useCanvasActions, MEDIA_NODE_RADIUS } from "../m15/parse-item.jsx";
+import { pickLocalized } from "../m15/push-inline.js";
 import { AddToChatIcon, FullscreenIcon$1, RunIcon } from "../m01/generating-media-area.jsx";
 import { resolvePluginEditorPresentation } from "../m02/canvas-image.jsx";
 import { NodeToolbar, useCanvasShortcutGuard$1 } from "../m01/use-lightbox-media-actions.jsx";

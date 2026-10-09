@@ -1,18 +1,9 @@
 // use-diff-review.js
-import {
-  reactExports,
-  useTranslation,
-  useDiffReviewStore,
-  collapseRenderedText,
-  buildMarkdownNormalizeMap,
-  stripInlineMarkChars,
-  recordProvisionalDiffReviewHistory,
-  getDiffReviewHistorySnapshot,
-  recordDiffReviewTransition,
-  collapseDiffReviewHistory,
-  renderDeletedMarkdown,
-  locateHunksInDoc,
-} from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { renderDeletedMarkdown } from "../m15/handle-position-style.jsx";
+import { recordProvisionalDiffReviewHistory, getDiffReviewHistorySnapshot, recordDiffReviewTransition, collapseDiffReviewHistory, locateHunksInDoc } from "../m15/locate-hunks-in-doc.js";
+import { collapseRenderedText, buildMarkdownNormalizeMap, stripInlineMarkChars } from "../m15/push-inline.js";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
 import { selectPendingHunksForNode } from "../m04/table-node-inner.jsx";
 import {
   clearDiffReviewHunks,

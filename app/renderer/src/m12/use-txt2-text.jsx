@@ -1,53 +1,17 @@
 // use-txt2-text.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  TRACK_EVENTS,
-  recordAction,
-  useStorage,
-  pickUserMessage,
-  stripErrorHtml,
-  Icon,
-  API_PATHS,
-  PopoverTrigger,
-  Popover,
-  useGatewayFetch,
-  useGeneratingStateApi,
-  ScopedAsyncCache,
-  retainedGenerationBlocksResubmit,
-  instance,
-  RESUBMIT_BLOCKED_I18N,
-  HILO_SOURCE_HEADER,
-  GENERATE_ERROR_CODE_SHUTDOWN,
-  semanticGenerationErrorCopy,
-  generationErrorStatusFromResponse,
-  GENERATE_ERROR_CODE_CONCURRENCY_LIMIT,
-  persistedGenerateErrorReason,
-  generationErrorStatusFromThrown,
-  canvasLog,
-  TEXT_MODEL_CACHE_TTL_MS,
-  providerOf,
-  Settings2,
-  useReleaseBadges,
-  gatewayFetch,
-  DEFAULT_PLACEMENT_GAP,
-  Emitter,
-  ActionListItem,
-  Tag$1,
-  CanvasNodeType,
-  ActionListPanel,
-  Copy,
-  Save,
-  ActionListSeparator,
-  CopyPlus,
-  Library,
-  FolderInput,
-  PlatformFileManagerLabel,
-  Trash2,
-  reactDomExports,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, useStorage, API_PATHS, instance, canvasLog, ActionListItem, Tag$1, CanvasNodeType, ActionListPanel, Copy, Save, ActionListSeparator, CopyPlus, Library, FolderInput, reactDomExports } from "../vendor.js";
+import { recordAction, gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { PopoverTrigger, Popover } from "../m15/apply-asset-change.jsx";
+import { stripErrorHtml } from "../m15/create-recently-added-store.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { PlatformFileManagerLabel } from "../m15/interest-selection-provider.jsx";
+import { useGeneratingStateApi, Settings2, Trash2 } from "../m15/parse-item.jsx";
+import { pickUserMessage, HILO_SOURCE_HEADER, GENERATE_ERROR_CODE_SHUTDOWN, GENERATE_ERROR_CODE_CONCURRENCY_LIMIT } from "../m15/push-inline.js";
+import { DEFAULT_PLACEMENT_GAP } from "../m15/reconcile-group-geometry-for-mode.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { ScopedAsyncCache, retainedGenerationBlocksResubmit, RESUBMIT_BLOCKED_I18N, semanticGenerationErrorCopy, generationErrorStatusFromResponse, persistedGenerateErrorReason, generationErrorStatusFromThrown, TEXT_MODEL_CACHE_TTL_MS, providerOf, useReleaseBadges } from "../m15/use-mention-models.jsx";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
+import { Emitter } from "../m15/vs-buffer.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import {
   CanvasBridgeProvider,

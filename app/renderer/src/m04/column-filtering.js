@@ -1,5 +1,5 @@
 // column-filtering.js
-import { testFalsey, equals } from "../vendor.js";
+import { testFalsey, equals } from "../m15/deep-freeze.js";
 import {
   createCell$1,
   flattenBy,

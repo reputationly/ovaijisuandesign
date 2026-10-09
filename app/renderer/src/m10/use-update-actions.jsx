@@ -1,29 +1,10 @@
 // use-update-actions.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  isElectron,
-  useStorage,
-  usePlatform,
-  ArrowRight,
-  Loader2,
-  ShieldAlert,
-  FolderInput,
-  folderNameFromPath,
-  X$7,
-  Trash2,
-  actionTrailLog,
-  externalUrlTargetForLog,
-  useChangelog,
-  useUpdaterContext,
-  isCaseInsensitiveOs,
-  FolderKey,
-  FolderPlus,
-  reactDomExports,
-  Upload,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useStorage, usePlatform, ArrowRight, Loader2, ShieldAlert, FolderInput, X$7, FolderPlus, reactDomExports } from "../vendor.js";
+import { actionTrailLog, externalUrlTargetForLog } from "../m15/graph.jsx";
+import { Trash2, FolderKey, Upload } from "../m15/parse-item.jsx";
+import { useChangelog, useUpdaterContext, isCaseInsensitiveOs } from "../m15/run-manual-update-check.js";
+import { isElectron } from "../m15/track-events.js";
+import { folderNameFromPath } from "../m15/use-resizable-width.js";
 import {
   AlertDialog,
   AlertDialogContent,

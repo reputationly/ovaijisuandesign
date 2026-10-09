@@ -1,20 +1,8 @@
 // connector-capability-card.jsx
-import {
-  reactExports,
-  useTranslation,
-  useGatewayFetch,
-  useGatewayScopeKey,
-  resolveConnectorIcon,
-  AuthContext,
-  emptyConnectorMarketPolicy,
-  registerDynamicHcpManifests,
-  matchesRemoteConnectorServer,
-  matchesLocalConnectorServer,
-  supportsConnectorDialog,
-  findOfficialConnectorForServer,
-  LoaderCircle$1,
-  resolveConnectorSetupAsset,
-} from "../vendor.js";
+import { reactExports, useTranslation, resolveConnectorIcon, emptyConnectorMarketPolicy, registerDynamicHcpManifests, matchesRemoteConnectorServer, matchesLocalConnectorServer, supportsConnectorDialog, LoaderCircle$1, resolveConnectorSetupAsset } from "../vendor.js";
+import { AuthContext } from "../m15/apply-asset-change.jsx";
+import { findOfficialConnectorForServer } from "../m15/interest-selection-provider.jsx";
+import { useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import { useConnectorInventory } from "../m12/attachment-preview.jsx";
 import { cn$2, Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { homeService } from "../m08/browser-inspiration-urls.jsx";

@@ -1,13 +1,6 @@
 // use-debounced-draft-save.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  reactDomExports,
-  BubbleMenu,
-  Search,
-  useCanvasActive,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, reactDomExports, BubbleMenu, Search } from "../vendor.js";
+import { useCanvasActive } from "../m15/parse-item.jsx";
 import { AnnotationIcon, CloseIcon$1 } from "../m01/generating-media-area.jsx";
 import { useCanvasRootElement } from "../m03/comfy-ui-plugin-launcher.jsx";
 import { useSuspendCanvasInteractions } from "../m01/use-inline-rename.jsx";

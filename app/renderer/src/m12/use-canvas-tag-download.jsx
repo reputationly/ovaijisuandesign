@@ -1,19 +1,8 @@
 // use-canvas-tag-download.jsx
-import {
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  Plus,
-  useCanvasAssetNodeIds,
-  API_PATHS,
-  Check,
-  Minus,
-  useGatewayFetch,
-  getRuntimeConfig,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, Plus, API_PATHS, Check, Minus, getRuntimeConfig } from "../vendor.js";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { useCanvasAssetNodeIds } from "../m15/track-events.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { useMediaActions } from "../m10/use-media-actions.jsx";
 import {
   isCanvasKeywordTag,

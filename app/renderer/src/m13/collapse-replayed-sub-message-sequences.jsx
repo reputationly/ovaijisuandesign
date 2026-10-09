@@ -1,16 +1,7 @@
 // collapse-replayed-sub-message-sequences.jsx
-import {
-  reactExports,
-  useTranslation,
-  useResolveMediaUrl,
-  withThumbnail,
-  getToolLabelId,
-  resolveMediaTaskCategory,
-  isToolRecoveredInterrupted,
-  hasSuccessfulMediaOutput,
-  isGenerationFailureNonTerminal,
-  categorizeToolAction,
-} from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { useResolveMediaUrl, withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { getToolLabelId, resolveMediaTaskCategory, isToolRecoveredInterrupted, hasSuccessfulMediaOutput, isGenerationFailureNonTerminal, categorizeToolAction } from "../m15/save-chat-rating.js";
 import {
   stripContextPrefix,
   isRecoveredMessage,

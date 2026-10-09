@@ -1,28 +1,10 @@
 // markdown-audio.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  API_PATHS,
-  defaultSchema,
-  useResolveMediaUrl,
-  withThumbnail,
-  workspaceEvents,
-  getNodeIdsForAsset,
-  Copy,
-  useHasAssetOnCanvas,
-  getDisplayName,
-  Crosshair,
-  ImageOffOutlineIcon,
-  VideoOff,
-  cleanPath$1,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
-  rewriteImgSrc,
-  getMediaExtension,
-  joinMetadata,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, API_PATHS, defaultSchema, Copy, Crosshair, VideoOff, PlaybackPauseIcon$1, PlaybackPlayIcon$1 } from "../vendor.js";
+import { useResolveMediaUrl, withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { ImageOffOutlineIcon } from "../m15/parse-item.jsx";
+import { getDisplayName, cleanPath$1, rewriteImgSrc, getMediaExtension, joinMetadata } from "../m15/qo.jsx";
+import { getNodeIdsForAsset, useHasAssetOnCanvas } from "../m15/track-events.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { PlaybackPlayIcon } from "../m08/browser-inspiration-urls.jsx";
 import { useAssets, useMediaActions } from "../m10/use-media-actions.jsx";

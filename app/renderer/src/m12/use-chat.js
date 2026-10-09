@@ -1,22 +1,14 @@
 // use-chat.js
-import {
-  reactExports,
-  useQueryClient,
-  useGatewayScopeKey,
-  useGatewayUrl,
-  useTranslation,
-  useAccountSubmissionDecision,
-  chatLog,
-  DraftController,
-  dedupedToast,
-  TRACK_EVENTS,
-  ErrorCodes,
-  refreshAssetIndex,
-  useDiffReviewStore,
-  recordAction,
-  hasMessagePayload,
-  guardAccountSubmission,
-} from "../vendor.js";
+import { reactExports, useQueryClient, useTranslation, dedupedToast, guardAccountSubmission } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { useAccountSubmissionDecision, refreshAssetIndex } from "../m15/apply-asset-change.jsx";
+import { DraftController } from "../m15/draft-controller.js";
+import { chatLog } from "../m15/graph.jsx";
+import { hasMessagePayload } from "../m15/parse-item.jsx";
+import { ErrorCodes } from "../m15/push-inline.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
+import { useGatewayScopeKey, useGatewayUrl } from "../m15/use-resizable-width.js";
 import { useWorkspaceWSConnection } from "../m10/compact-rewrite-flow.jsx";
 import {
   useAgentModeAwareSend,

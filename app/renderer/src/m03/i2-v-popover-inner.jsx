@@ -1,17 +1,8 @@
 // i2-v-popover-inner.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useReactFlow,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  dedupedToast,
-  useAssetMetadataApi,
-  FileClock,
-  MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO,
-  useModelRegistryStore,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useReactFlow, reactExports, dedupedToast, useAssetMetadataApi } from "../vendor.js";
+import { useModelRegistryStore } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasActions, FileClock } from "../m15/parse-item.jsx";
+import { MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO } from "../m15/push-inline.js";
 import {
   composePromptWithReferenceText,
   pickPersistableModelParams,

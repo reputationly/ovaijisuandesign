@@ -1,54 +1,17 @@
 // canvas-shell-inner.jsx
-import {
-  jsxRuntimeExports,
-  useReactFlow,
-  reactExports,
-  CanvasNodeType,
-  useStoreApi,
-  useStore$3,
-  CANVAS_MIN_ZOOM,
-  CANVAS_MAX_ZOOM,
-  useActiveMode,
-  DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
-  useCanvasOverlayApi,
-  useIsCanvasModalOpen,
-  useEdgeCulling,
-  useSpacePan,
-  useAlignmentSnapPreferenceStore,
-  useNodeAlignmentSnap,
-  useMiddleButtonPanCursor,
-  useConnection,
-  computeClickPanViewport,
-  useMultiImageOverlayApi,
-  isNodeHeaderHidden,
-  NODE_HEADERS_HIDDEN_CLASS,
-  PAN_OFF_DEBOUNCE_MS,
-  commitStableZoomTier,
-  commitStableZoomBucket,
-  ZOOM_COMMIT_DEBOUNCE_MS,
-  seedStableZoomTier,
-  seedStableZoomBucket,
-  useStableViewportOnContainerShift,
-  broadcastZoom,
-  CanvasActiveProvider,
-  CanvasInteractionProvider,
-  ReactFlow$1,
-  SelectionMode,
-  PAN_ON_DRAG_WITH_LEFT,
-  PAN_ON_DRAG,
-  EMPTY_DELETE_KEY_CODE,
-  DELETE_KEY_CODE,
-  grabCanvasStyle,
-  defaultCanvasStyle,
-  BackgroundCanvas,
-  EdgesCanvas,
-  NodeTagRingsCanvas,
-  CanvasMiniMap,
-  getMinimapViewportColor,
-  getCanvasMinimapPositionStyle,
-  ConnectingDisabledMarker,
-  ConnectionTargetMarker,
-} from "../vendor.js";
+import { jsxRuntimeExports, useReactFlow, reactExports, CanvasNodeType, useStoreApi, useStore$3, useConnection, ReactFlow$1, SelectionMode, ConnectionTargetMarker } from "../vendor.js";
+import { BackgroundCanvas, CanvasMiniMap, getCanvasMinimapPositionStyle } from "../m15/canvas-mini-map.jsx";
+import { commitStableZoomTier, commitStableZoomBucket, seedStableZoomTier, seedStableZoomBucket } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from "../m15/create-html-iframe-pool-store.jsx";
+import { useIsCanvasModalOpen, broadcastZoom } from "../m15/create-recently-added-store.jsx";
+import { computeClickPanViewport, EdgesCanvas, getMinimapViewportColor } from "../m15/edges-canvas.jsx";
+import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "../m15/handle-position-style.jsx";
+import { useActiveMode, useAlignmentSnapPreferenceStore, isNodeHeaderHidden, NODE_HEADERS_HIDDEN_CLASS, PAN_OFF_DEBOUNCE_MS, ZOOM_COMMIT_DEBOUNCE_MS, PAN_ON_DRAG_WITH_LEFT, PAN_ON_DRAG, EMPTY_DELETE_KEY_CODE, DELETE_KEY_CODE, grabCanvasStyle, defaultCanvasStyle, NodeTagRingsCanvas, ConnectingDisabledMarker } from "../m15/node-tag-rings-canvas.jsx";
+import { CanvasActiveProvider, CanvasInteractionProvider } from "../m15/parse-item.jsx";
+import { useCanvasOverlayApi } from "../m15/use-file-bytes.js";
+import { useSpacePan, useStableViewportOnContainerShift } from "../m15/use-image-mask-painter.js";
+import { useMultiImageOverlayApi } from "../m15/use-multi-image-actions.js";
+import { useEdgeCulling, useNodeAlignmentSnap, useMiddleButtonPanCursor } from "../m15/use-node-alignment-snap.js";
 import { CanvasToolModeProvider } from "../m04/ready-sub-video-card.jsx";
 import { CanvasModalGuardProvider } from "../m01/use-inline-rename.jsx";
 import { CanvasRootElementProvider } from "../m03/comfy-ui-plugin-launcher.jsx";

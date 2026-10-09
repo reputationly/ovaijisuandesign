@@ -1,31 +1,6 @@
 // editor-state2.js
-import {
-  CompartmentInstance,
-  ensureAddr,
-  getAddr,
-  resolveTransaction,
-  StateEffect,
-  asArray$1,
-  Configuration2,
-  allowMultipleSelections,
-  EditorSelection,
-  ChangeSet,
-  Text,
-  DefaultSplit,
-  StateField,
-  checkSelection,
-  readOnly,
-  languageData,
-  makeCategorizer,
-  findClusterBreak,
-  CharCategory,
-  Facet,
-  lineSeparator,
-  changeFilter,
-  transactionFilter,
-  transactionExtender,
-  types,
-} from "../vendor.js";
+import { CompartmentInstance, ensureAddr, getAddr, resolveTransaction, StateEffect, asArray$1, allowMultipleSelections, EditorSelection, ChangeSet, Text, DefaultSplit, StateField, checkSelection, readOnly, languageData, makeCategorizer, findClusterBreak, CharCategory, Facet, lineSeparator, changeFilter, transactionFilter, transactionExtender } from "../vendor.js";
+import { Configuration2, types } from "../m15/annotation-highlight.js";
 export class Compartment {
   /**
   Create an instance of this compartment to add to your [state

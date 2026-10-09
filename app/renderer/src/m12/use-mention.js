@@ -1,11 +1,7 @@
 // use-mention.js
-import {
-  reactExports,
-  dedupedToast,
-  API_PATHS,
-  useGatewayFetch,
-  formatConnectorMention,
-} from "../vendor.js";
+import { reactExports, dedupedToast, API_PATHS } from "../vendor.js";
+import { formatConnectorMention } from "../m15/relayout-group-children.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { useImportExternalFiles } from "../m11/use-canvas-image-annotation-host.jsx";
 import { useAnchorProjectAssets } from "../m11/team-assets-sidebar-panel.jsx";
 import { RESOURCE_DRAG_MIME, parseResourceDrag } from "../m01/myers-line-hunks.js";

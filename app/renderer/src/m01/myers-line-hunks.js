@@ -1,5 +1,6 @@
 // myers-line-hunks.js
-import { CONNECTOR_TOKEN_SOURCE, detectFileType } from "../vendor.js";
+import { CONNECTOR_TOKEN_SOURCE } from "../vendor.js";
+import { detectFileType } from "../m15/relayout-group-children.js";
 const CANCELLED_MESSAGE_TEXT = "[Request interrupted by user]";
 const CANCELLED_WITH_CANVAS_CONTINUATION_TEXT =
   "[Request interrupted by user — generation continues on canvas]";

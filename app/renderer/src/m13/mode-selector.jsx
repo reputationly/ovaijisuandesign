@@ -1,41 +1,13 @@
 // mode-selector.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  useStorage,
-  CompositedSvg,
-  Hand,
-  Check,
-  BellRing,
-  ChevronRight$1,
-  ChevronDown,
-  useAuth,
-  useQuery,
-  gatewayFetch,
-  API_PATHS,
-  usePlatform,
-  openExternalUrl,
-  Sparkles,
-  X$7,
-  RecoveringChildrenContext,
-  PENDING_AUTO_UPDATE_KEY,
-  useRuntimeConfig,
-  Trans,
-  DEFAULT_SCENE_IDS,
-  SCENE_CATEGORIES,
-  DEFAULT_SCENE_ARTWORKS,
-  featuredSkillArtwork,
-  DEFAULT_HOME_FEATURED_SKILLS,
-  HOME_QUICK_START_SCHEMA_VERSION,
-  configIdentifier,
-  parseLocalizedText,
-  uniqueBy,
-  HOME_QUICK_START_MAX_ITEMS_PER_SECTION,
-  parseFeaturedSkill,
-  normalizeConfiguredAssetUrl,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, useStorage, CompositedSvg, Hand, Check, BellRing, ChevronRight$1, ChevronDown, useQuery, API_PATHS, usePlatform, X$7, Trans } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { useAuth } from "../m15/apply-asset-change.jsx";
+import { openExternalUrl } from "../m15/graph.jsx";
+import { Sparkles } from "../m15/parse-item.jsx";
+import { parseFeaturedSkill } from "../m15/parse-prompt-item.js";
+import { DEFAULT_SCENE_IDS, SCENE_CATEGORIES, DEFAULT_SCENE_ARTWORKS, DEFAULT_HOME_FEATURED_SKILLS, HOME_QUICK_START_SCHEMA_VERSION, configIdentifier, parseLocalizedText, uniqueBy, HOME_QUICK_START_MAX_ITEMS_PER_SECTION, normalizeConfiguredAssetUrl } from "../m15/scene-categories.js";
+import { RecoveringChildrenContext, PENDING_AUTO_UPDATE_KEY, featuredSkillArtwork } from "../m15/use-mention-models.jsx";
+import { useRuntimeConfig } from "../m15/use-resizable-width.js";
 import { useComposerActionsCompact } from "../m12/mention-popover.jsx";
 import {
   AlertDialog,

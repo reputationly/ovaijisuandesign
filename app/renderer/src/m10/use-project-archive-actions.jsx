@@ -1,23 +1,11 @@
 // use-project-archive-actions.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useQueryClient,
-  TRACK_EVENTS,
-  storageKeys,
-  usePlatform,
-  projectLog,
-  createProjectOperationId,
-  logProjectOperationAttempt,
-  logProjectOperationFailure,
-  logProjectOperationBlocked,
-  logProjectOperationSuccess,
-  useNavigateToWorkspace,
-  useInterestSelection,
-  getFileManagerLabelKey,
-  workspaceRuntimeFromOpenResult,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, useQueryClient, storageKeys, usePlatform } from "../vendor.js";
+import { useNavigateToWorkspace } from "../m15/create-visible-preview-tabs-store.js";
+import { projectLog } from "../m15/graph.jsx";
+import { useInterestSelection, getFileManagerLabelKey } from "../m15/interest-selection-provider.jsx";
+import { workspaceRuntimeFromOpenResult } from "../m15/linked-list.js";
+import { createProjectOperationId, logProjectOperationAttempt, logProjectOperationFailure, logProjectOperationBlocked, logProjectOperationSuccess } from "../m15/record-recent-workspace-opened.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import {
   Checkbox,
   Button$1,

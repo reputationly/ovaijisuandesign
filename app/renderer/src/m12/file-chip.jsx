@@ -1,23 +1,12 @@
 // file-chip.jsx
-import {
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  guardAccountSubmission,
-  Icon,
-  reactDomExports,
-  usePlatform,
-  useOptionalTeamAccount,
-  openExternalUrl,
-  resolveActiveModelId,
-  formatTime$2,
-  CompositedSvg,
-  Crosshair,
-  FileTypeIcon,
-  classifyFileType,
-  DeferredThumbnailImage,
-  formatFileSizeCompact,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, guardAccountSubmission, reactDomExports, usePlatform, CompositedSvg, Crosshair, classifyFileType } from "../vendor.js";
+import { useOptionalTeamAccount } from "../m15/apply-asset-change.jsx";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { formatFileSizeCompact } from "../m15/global-sidebar-provider.jsx";
+import { Icon, openExternalUrl } from "../m15/graph.jsx";
+import { formatTime$2 } from "../m15/parse-item.jsx";
+import { resolveActiveModelId } from "../m15/use-resizable-width.js";
 import {
   resolveAgentModelAccess,
   agentModelMatchesSelection,

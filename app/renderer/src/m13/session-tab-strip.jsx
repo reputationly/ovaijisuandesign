@@ -1,42 +1,13 @@
 // session-tab-strip.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  useStorage,
-  ChevronDown,
-  API_PATHS,
-  usePlatform,
-  ContextMenu,
-  Icon,
-  useSessionCostVisible,
-  Popover,
-  PopoverTrigger,
-  useGatewayFetch,
-  HistoryIcon,
-  SearchIcon,
-  PinIcon,
-  EyeOffIcon$1,
-  DownloadIcon,
-  EyeIcon$1,
-  Clapperboard,
-  MessageSquareQuote,
-  Scissors,
-  NotebookPen,
-  PencilRuler,
-  Plus,
-  GripVertical,
-  Loader2,
-  fetchSceneAttachments,
-  useDiffReviewStore,
-  isDiffReviewSessionReady,
-  FileDiff,
-  ChevronUp,
-  Eye,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, useStorage, ChevronDown, API_PATHS, usePlatform, HistoryIcon, SearchIcon, PinIcon, EyeOffIcon$1, DownloadIcon, EyeIcon$1, Scissors, NotebookPen, PencilRuler, Plus, GripVertical, Loader2, ChevronUp, Eye } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Clapperboard, MessageSquareQuote, FileDiff } from "../m15/parse-item.jsx";
+import { useSessionCostVisible } from "../m15/qo.jsx";
+import { useDiffReviewStore, isDiffReviewSessionReady } from "../m15/use-diff-review-store.js";
+import { ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { fetchSceneAttachments } from "../m15/use-mention-models.jsx";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import {
   TooltipContent,
   cn$2,

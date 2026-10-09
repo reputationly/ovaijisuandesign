@@ -1,20 +1,7 @@
 // code-mirror-source-editor.jsx
-import {
-  StateField,
-  Decoration2,
-  tags$1,
-  undo,
-  redo,
-  setSearchQuery,
-  setSourceFindHighlights,
-  buildSourceFindDecorations,
-  undoDepth,
-  redoDepth,
-  reactExports,
-  historyKeymap,
-  indentWithTab,
-  PluginKey,
-} from "../vendor.js";
+import { StateField, Decoration2, tags$1, undo, redo, undoDepth, redoDepth, reactExports, historyKeymap, indentWithTab, PluginKey } from "../vendor.js";
+import { setSearchQuery } from "../m15/line2.js";
+import { setSourceFindHighlights, buildSourceFindDecorations } from "../m15/locate-hunks-in-doc.js";
 import { EditorState2, Compartment } from "../m04/editor-state2.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { defaultKeymap } from "./base-theme.js";

@@ -1,12 +1,7 @@
 // use-file-explorer-import.js
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  API_PATHS,
-  useStableCallback,
-  findEntryByPath,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, API_PATHS } from "../vendor.js";
+import { findEntryByPath } from "../m15/global-sidebar-provider.jsx";
+import { useStableCallback } from "../m15/use-entity-hover-preview.js";
 import { getFileName$1 } from "../m10/delete-local-node-dialog.jsx";
 import { RESOURCE_DRAG_MIME, buildResourceDragItem } from "../m01/myers-line-hunks.js";
 import { findNextRowPath, joinFilePath } from "./use-asset-menu-shortcuts.js";

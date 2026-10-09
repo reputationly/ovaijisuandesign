@@ -1,52 +1,13 @@
 // parse-batch-items.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  useMentionModels,
-  Check,
-  ChevronRight$1,
-  ChevronDown,
-  API_PATHS,
-  useResolveMediaUrl,
-  ImageOutlineIcon,
-  Video,
-  workspaceEvents,
-  Copy,
-  Crosshair,
-  useAssetMeta,
-  Icon,
-  Popover,
-  PopoverTrigger,
-  CircleAlert,
-  normalizeJsonToolResult,
-  resolveToolInterruption,
-  AudioLines,
-  Clock,
-  resolveMediaTaskCategory,
-  ChevronLeft,
-  artifactAssetTypeFromPath,
-  KNOWLEDGE_PATH_RE,
-  Brain,
-  FileText,
-  Search,
-  Zap,
-  SquareMousePointer,
-  ClipboardList,
-  Cog,
-  Plug,
-  isToolRecoveredInterrupted,
-  hasSuccessfulMediaOutput,
-  generationFailurePresentation,
-  useGenerating,
-  extractMediaCount,
-  inferFileKind,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  isGenerationFailureNonTerminal,
-  Wrench,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, Check, ChevronRight$1, ChevronDown, API_PATHS, Video, Copy, Crosshair, CircleAlert, AudioLines, ChevronLeft, Search, Zap, SquareMousePointer, ClipboardList, Cog, Wrench } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { useResolveMediaUrl } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { ImageOutlineIcon, useAssetMeta, Clock, Brain, FileText, Plug, useGenerating } from "../m15/parse-item.jsx";
+import { normalizeJsonToolResult, resolveToolInterruption, resolveMediaTaskCategory, artifactAssetTypeFromPath, KNOWLEDGE_PATH_RE, isToolRecoveredInterrupted, hasSuccessfulMediaOutput, generationFailurePresentation, extractMediaCount, inferFileKind, isGenerationFailureNonTerminal } from "../m15/save-chat-rating.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useMentionModels } from "../m15/use-mention-models.jsx";
 import { cn$2, Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { SkillIcon } from "../m08/browser-inspiration-urls.jsx";
 import { PopoverContent } from "../m09/use-credit-details.jsx";

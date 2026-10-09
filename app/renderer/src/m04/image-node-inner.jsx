@@ -1,48 +1,12 @@
 // image-node-inner.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useStore$3,
-  NodeToolbar$1,
-  Position,
-  useCanvasBridge,
-  dedupedToast,
-  useNodeId,
-  useCanvasIsDragging,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  X$7,
-  useAssetMeta,
-  usePathFileVersion,
-  appendCanvasFileVersion,
-  MEDIA_NODE_RADIUS,
-  useCanvasActions,
-  BACKEND_VIBE_STORYBOARD,
-  useEmitDerivedFromBlob,
-  useCropViewportZoom,
-  getNodeFlowRect,
-  useAssetMetadataApi,
-  useImageNodeView,
-  useSubImages,
-  useReactFlow,
-  useNodeRename,
-  useCropState,
-  useOutpaintState,
-  useEraseState,
-  useRedrawState,
-  useMoveObjectState,
-  useModelForAsset,
-  useStableZoomTier,
-  useStartCropFromNode,
-  useStartOutpaintFromNode,
-  useStartEraseFromNode,
-  useStartRedrawFromNode,
-  computeNodeSize,
-  useUpdateNodeInternals,
-  useMultiImageActions,
-  NodeResizeFrame,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useStore$3, NodeToolbar$1, Position, dedupedToast, useNodeId, X$7, BACKEND_VIBE_STORYBOARD, useAssetMetadataApi, useReactFlow, useUpdateNodeInternals } from "../vendor.js";
+import { useStableZoomTier } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { usePathFileVersion, appendCanvasFileVersion, NodeResizeFrame } from "../m15/create-html-iframe-pool-store.jsx";
+import { useNodeRename, useModelForAsset } from "../m15/create-recently-added-store.jsx";
+import { computeNodeSize } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasBridge, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useAssetMeta, MEDIA_NODE_RADIUS, useCanvasActions } from "../m15/parse-item.jsx";
+import { useEmitDerivedFromBlob, useCropViewportZoom, getNodeFlowRect, useCropState, useStartCropFromNode } from "../m15/use-file-bytes.js";
+import { useImageNodeView, useSubImages, useOutpaintState, useEraseState, useRedrawState, useMoveObjectState, useStartOutpaintFromNode, useStartEraseFromNode, useStartRedrawFromNode, useMultiImageActions } from "../m15/use-multi-image-actions.js";
 import {
   ImagePlaceholderIcon,
   getFileExtension,

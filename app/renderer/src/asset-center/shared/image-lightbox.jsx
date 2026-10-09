@@ -1,20 +1,10 @@
 // shared/image-lightbox.jsx
-import {
-  useTranslation,
-  reactExports,
-  Loader2,
-  X$7,
-  Plus,
-  DialogPopup,
-  DialogPortal,
-  useNativeViewOcclusion,
-  useHideWindowButtons,
-  useFullscreenContainerEl,
-  Minus,
-  Music2,
-  FileText,
-  Paperclip,
-} from "../../vendor.js";
+import { useTranslation, reactExports, Loader2, X$7, Plus, DialogPopup, Minus, Music2 } from "../../vendor.js";
+import { DialogPortal } from "../../m15/agent-ws-client.jsx";
+import { useNativeViewOcclusion } from "../../m15/canvas-surface-recovery-scheduler.jsx";
+import { useFullscreenContainerEl } from "../../m15/create-html-iframe-pool-store.jsx";
+import { FileText, Paperclip } from "../../m15/parse-item.jsx";
+import { useHideWindowButtons } from "../../m15/use-cloud-search.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { Dialog } from "./use-browser-overlay-dialog-props.jsx";
 const MIN_SCALE = 0.5;

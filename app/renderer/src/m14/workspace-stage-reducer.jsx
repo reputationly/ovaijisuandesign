@@ -1,15 +1,10 @@
 // workspace-stage-reducer.jsx
-import {
-  useTranslation,
-  reactExports,
-  workspaceEvents,
-  useGatewayFetch,
-  dedupedToast,
-  BROWSER_IMAGE_EDIT_EVENT,
-  useDiffReviewStore,
-  useWorkspaceRemoteTool,
-  useAccountSubmissionAllowed,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, BROWSER_IMAGE_EDIT_EVENT } from "../vendor.js";
+import { useAccountSubmissionAllowed } from "../m15/apply-asset-change.jsx";
+import { useWorkspaceRemoteTool } from "../m15/use-canvas-tag-filter.js";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import { RemoteToolDialog } from "../m11/bundle-error-screen.jsx";
 import { CanvasArea } from "../m12/canvas-area.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

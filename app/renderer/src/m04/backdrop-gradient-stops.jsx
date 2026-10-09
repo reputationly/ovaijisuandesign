@@ -1,5 +1,6 @@
 // backdrop-gradient-stops.jsx
-import { reactExports, Ban } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { Ban } from "../m15/parse-item.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { SegmentedControl$1, ToolSlider } from "./multi-angle-editor.jsx";
 import { presets } from "./ready-sub-image-card.jsx";

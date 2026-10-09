@@ -1,14 +1,6 @@
 // connector-hub-o-auth-section.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  usePlatform,
-  openExternalUrl,
-  ArrowUpRight,
-  Icon,
-  localizedI18nText,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, usePlatform, ArrowUpRight, localizedI18nText } from "../vendor.js";
+import { openExternalUrl, Icon } from "../m15/graph.jsx";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { homeService } from "../m08/browser-inspiration-urls.jsx";
 import { Label } from "../m09/infinite-scroll-container.jsx";

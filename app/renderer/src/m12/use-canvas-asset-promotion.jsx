@@ -1,23 +1,11 @@
 // use-canvas-asset-promotion.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  TRACK_EVENTS,
-  Popover,
-  useGatewayFetch,
-  ActionListItem,
-  ActionListPanel,
-  Library,
-  FolderInput,
-  reactDomExports,
-  useWorkspaceProject,
-  pluginError,
-  folderNameFromPath,
-  toTrackedCanvasNodeType,
-  getPluginMeta,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, ActionListItem, ActionListPanel, Library, FolderInput, reactDomExports } from "../vendor.js";
+import { Popover } from "../m15/apply-asset-change.jsx";
+import { getPluginMeta } from "../m15/create-html-iframe-pool-store.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { pluginError, toTrackedCanvasNodeType } from "../m15/use-mention-models.jsx";
+import { useGatewayFetch, folderNameFromPath } from "../m15/use-resizable-width.js";
+import { useWorkspaceProject } from "../m15/workspace-events.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { StrokeIcon } from "../m08/browser-inspiration-urls.jsx";
 import { joinFilePath } from "../m11/use-asset-menu-shortcuts.js";

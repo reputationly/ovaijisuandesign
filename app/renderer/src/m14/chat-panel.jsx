@@ -1,40 +1,12 @@
 // chat-panel.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCurrentWorkspace,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  useGatewayScopeKey,
-  Icon,
-  workspaceEvents,
-  Loader2,
-  useSensors,
-  useSensor,
-  PointerSensor,
-  KeyboardSensor,
-  sortableKeyboardCoordinates,
-  DndContext,
-  closestCenter,
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  CSS$1,
-  Paperclip,
-  CornerDownRight,
-  Trash2,
-  useLoginGuard,
-  useNavigate,
-  useTopbarState,
-  dedupedToast,
-  workspaceLog,
-  guardAccountSubmission,
-  useBrowserImageEdit,
-  RecoveringChildrenProvider,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useCurrentWorkspace, reactExports, Loader2, useSensors, useSensor, PointerSensor, KeyboardSensor, sortableKeyboardCoordinates, DndContext, closestCenter, SortableContext, verticalListSortingStrategy, useSortable, CSS$1, useNavigate, dedupedToast, workspaceLog, guardAccountSubmission, useBrowserImageEdit } from "../vendor.js";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Paperclip, CornerDownRight, Trash2 } from "../m15/parse-item.jsx";
+import { useLoginGuard } from "../m15/thumbnail-load-scheduler.jsx";
+import { workspaceEvents, useTopbarState } from "../m15/use-hub-logo-hover-animation.jsx";
+import { RecoveringChildrenProvider } from "../m15/use-mention-models.jsx";
+import { useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import {
   useToolConfirmSettlement,
   getPendingToolConfirms,

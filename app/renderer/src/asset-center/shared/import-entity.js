@@ -1,5 +1,5 @@
 // shared/import-entity.js
-import { BASE, readObject, wrapAsAssetCenterError, isRecord$9 } from "../../vendor.js";
+import { BASE, readObject, wrapAsAssetCenterError, isRecord$9 } from "../../m15/check-cloud-asset-upload.js";
 export class ImportEntityConflictError extends Error {
   conflict;
   constructor(conflict) {

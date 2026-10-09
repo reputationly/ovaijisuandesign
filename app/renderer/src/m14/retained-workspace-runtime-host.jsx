@@ -1,27 +1,14 @@
 // retained-workspace-runtime-host.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  workspaceEvents,
-  useNavigate,
-  useTopbarState,
-  dedupedToast,
-  buildWorkspaceSearch,
-  useTopbarActions,
-  useRouterState,
-  normalizeWorkspaceId,
-  workspaceRuntimeFromOpenResult,
-  reportWorkspaceRetentionDiagnostics,
-  GatewayScopeProvider,
-  useStorage,
-  createAssetMetadataStore,
-  createCanvasOverlayStore,
-  createGeneratingStateStore,
-  createModelRegistryStore,
-  createMultiImageOverlayStore,
-  createRecentlyAddedStore,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, useNavigate, dedupedToast, useStorage, createAssetMetadataStore } from "../vendor.js";
+import { reportWorkspaceRetentionDiagnostics, GatewayScopeProvider } from "../m15/apply-asset-change.jsx";
+import { createModelRegistryStore, createRecentlyAddedStore } from "../m15/create-recently-added-store.jsx";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { useRouterState, workspaceRuntimeFromOpenResult } from "../m15/linked-list.js";
+import { createGeneratingStateStore } from "../m15/parse-item.jsx";
+import { normalizeWorkspaceId } from "../m15/run-manual-update-check.js";
+import { createCanvasOverlayStore } from "../m15/use-file-bytes.js";
+import { workspaceEvents, useTopbarState, useTopbarActions } from "../m15/use-hub-logo-hover-animation.jsx";
+import { createMultiImageOverlayStore } from "../m15/use-multi-image-actions.js";
 import { useWorkspaceChatSelector, WorkspaceChatProvider } from "../m12/use-asset-picker-host.jsx";
 import { instantiationService } from "../m08/browser-inspiration-urls.jsx";
 import { redactForCurrentRegion } from "../m13/resolve-chat-file-reference.js";

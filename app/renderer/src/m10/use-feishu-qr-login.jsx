@@ -1,15 +1,7 @@
 // use-feishu-qr-login.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  services,
-  Popover,
-  PopoverTrigger,
-  InfoIcon$1,
-  Tooltip,
-  TooltipTrigger,
-  MoreVerticalIcon,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, InfoIcon$1 } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { services, Tooltip, TooltipTrigger, MoreVerticalIcon } from "../m15/graph.jsx";
 import {
   Button$1,
   cn$2,

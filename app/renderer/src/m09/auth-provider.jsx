@@ -1,17 +1,8 @@
 // auth-provider.jsx
-import {
-  authExpiredBus,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  usePlatform,
-  buildRendererDiagnosticsSnapshot,
-  Select$1,
-  getRuntimeConfig,
-  useNavigate,
-  TRACK_EVENTS,
-  AuthContext,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, usePlatform, getRuntimeConfig, useNavigate } from "../vendor.js";
+import { authExpiredBus } from "../m15/agent-ws-client.jsx";
+import { buildRendererDiagnosticsSnapshot, Select$1, AuthContext } from "../m15/apply-asset-change.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import {
   cn$2,
   AlertDialog,

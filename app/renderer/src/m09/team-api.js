@@ -1,5 +1,6 @@
 // team-api.js
-import { gatewayFetch, API_PATHS, HILO_HUB_BIZ_LINE } from "../vendor.js";
+import { API_PATHS, HILO_HUB_BIZ_LINE } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
 import {
   TeamContractError,
   asArray,

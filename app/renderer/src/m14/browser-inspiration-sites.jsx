@@ -1,15 +1,7 @@
 // browser-inspiration-sites.jsx
-import {
-  useTranslation,
-  reactExports,
-  Icon,
-  X$7,
-  Bookmark,
-  TAB_CONTENT_ENTER_CLASS_NAME,
-  Globe2,
-  AlertCircle,
-  ExternalLink,
-} from "../vendor.js";
+import { useTranslation, reactExports, X$7, TAB_CONTENT_ENTER_CLASS_NAME, Globe2, AlertCircle, ExternalLink } from "../vendor.js";
+import { Icon } from "../m15/graph.jsx";
+import { Bookmark } from "../m15/parse-item.jsx";
 import {
   Tabs,
   TabsList,

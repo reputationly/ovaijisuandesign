@@ -1,21 +1,9 @@
 // updater-provider.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  UPDATE_CHECK_TIMED_OUT,
-  useUpdaterDevPreviewMode,
-  createUpdaterDevPreviewState,
-  createInitialState,
-  UPDATE_DISMISS_REMINDER_MS,
-  runManualUpdateCheck,
-  setUpdaterDevPreviewMode,
-  actionTrailLog,
-  resolveNotification,
-  UpdaterContext,
-  BUNDLED_CHANGELOG,
-  parseSemver,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, parseSemver } from "../vendor.js";
+import { actionTrailLog } from "../m15/graph.jsx";
+import { UPDATE_DISMISS_REMINDER_MS, resolveNotification } from "../m15/push-inline.js";
+import { UPDATE_CHECK_TIMED_OUT, createInitialState, runManualUpdateCheck, UpdaterContext, BUNDLED_CHANGELOG } from "../m15/run-manual-update-check.js";
+import { useUpdaterDevPreviewMode, createUpdaterDevPreviewState, setUpdaterDevPreviewMode } from "../m15/use-resizable-width.js";
 import { instantiationService, IUpdaterMainService } from "../m08/browser-inspiration-urls.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const UPDATE_CHECK_ALREADY_IN_PROGRESS = "Update check already in progress";

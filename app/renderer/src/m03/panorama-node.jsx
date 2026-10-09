@@ -1,25 +1,10 @@
 // panorama-node.jsx
-import {
-  useTranslation,
-  useReactFlow,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  useAssetMeta,
-  useAssetMetadataStore,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  DEFAULT_WORKFLOW_NODE_SPACING,
-  findFreePositionFromAnchor,
-  dedupedToast,
-  Camera,
-  Grid2X2,
-  Grid3X3,
-  TooltipProvider$1,
-  Power,
-  NodeResizeFrame,
-  Position,
-} from "../vendor.js";
+import { useTranslation, useReactFlow, reactExports, useAssetMetadataStore, dedupedToast, Grid2X2, Grid3X3, Power, Position } from "../vendor.js";
+import { NodeResizeFrame } from "../m15/create-html-iframe-pool-store.jsx";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasActions, useAssetMeta, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, Camera } from "../m15/parse-item.jsx";
+import { DEFAULT_WORKFLOW_NODE_SPACING } from "../m15/reconcile-group-geometry-for-mode.js";
+import { findFreePositionFromAnchor } from "../m15/resolve-derived-collision.js";
 import {
   useCanvasNodeIsDragging,
   AddToChatIcon,

@@ -1,44 +1,13 @@
 // video-action-surface.jsx
-import {
-  jsxRuntimeExports,
-  useGeneratingStateApi,
-  useTranslation,
-  useAssetMetadataApi,
-  useCanvasBridge,
-  useHtmlFullscreenApi,
-  useCanvasActions,
-  useReactFlow,
-  reactExports,
-  useModelForAsset,
-  useVideoStarterPresetToken,
-  dedupedToast,
-  isUserProvidedAssetModel,
-  parseNodeId,
-  reactDomExports,
-  CompositedSvg,
-  VIDEO_EMPTY_CARD_SIZE,
-  useVideoStarterPresetStore,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  useVideoNodeView,
-  useSubImages,
-  useAssetMeta,
-  useFileVersion,
-  appendCanvasFileVersion,
-  useNodeRename,
-  useCropViewportZoom,
-  useEmitDerivedFromBlob,
-  useNodeIsEmpty,
-  useGenerating,
-  isGenerationErrorStatus,
-  isIdleEmptyVideoNode,
-  useMediaPlayback,
-  useCanvasActive,
-  getNodeFlowRect,
-  useMultiImageActions,
-  formatTime$2,
-  MEDIA_NODE_RADIUS,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useAssetMetadataApi, useReactFlow, reactExports, dedupedToast, isUserProvidedAssetModel, reactDomExports, CompositedSvg } from "../vendor.js";
+import { useHtmlFullscreenApi, useFileVersion, appendCanvasFileVersion } from "../m15/create-html-iframe-pool-store.jsx";
+import { useModelForAsset, useNodeRename, useNodeIsEmpty } from "../m15/create-recently-added-store.jsx";
+import { VIDEO_EMPTY_CARD_SIZE, isGenerationErrorStatus, isIdleEmptyVideoNode } from "../m15/group-nodes-in-canvas.js";
+import { useVideoStarterPresetToken, useVideoStarterPresetStore, useVideoNodeView } from "../m15/handle-position-style.jsx";
+import { useGeneratingStateApi, useCanvasBridge, useCanvasActions, useCanvasIsMultiSelect, useCanvasIsBoxSelecting, useAssetMeta, useGenerating, useMediaPlayback, useCanvasActive, formatTime$2, MEDIA_NODE_RADIUS } from "../m15/parse-item.jsx";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
+import { useCropViewportZoom, useEmitDerivedFromBlob, getNodeFlowRect } from "../m15/use-file-bytes.js";
+import { useSubImages, useMultiImageActions } from "../m15/use-multi-image-actions.js";
 import {
   isHailuo03SuperResolutionEligible,
   useEnhanceVideoSubmit,

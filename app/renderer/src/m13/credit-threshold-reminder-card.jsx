@@ -1,52 +1,16 @@
 // credit-threshold-reminder-card.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  useCurrentWorkspace,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  Check,
-  ChevronDown,
-  usePlatform,
-  openExternalUrl,
-  useResolveMediaUrl,
-  withThumbnail,
-  workspaceEvents,
-  getNodeIdsForAsset,
-  ContextMenu,
-  ExternalLink,
-  Copy,
-  Icon,
-  CircleAlert,
-  ChevronUp,
-  Paperclip,
-  KeyRound,
-  AlertCircle,
-  Zap,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  categorizeToolAction,
-  mergeIntoTimelineEntries,
-  parseJsonRecord,
-  parseTimelineOperations,
-  useOptionalTeamAccount,
-  Ban,
-  LoaderCircle,
-  useAccountSubmissionDecision,
-  guardAccountSubmission,
-  ErrorCodes,
-  CreditCard,
-  ShieldAlert,
-  WifiOff,
-  ServerOff,
-  Upload,
-  classifyRawErrorText,
-  useNativeViewOcclusion,
-  Save,
-  ShieldOff,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, useCurrentWorkspace, dedupedToast, Check, ChevronDown, usePlatform, ExternalLink, Copy, CircleAlert, ChevronUp, KeyRound, AlertCircle, Zap, LoaderCircle, guardAccountSubmission, CreditCard, ShieldAlert, WifiOff, ServerOff, Save, ShieldOff } from "../vendor.js";
+import { useOptionalTeamAccount, useAccountSubmissionDecision } from "../m15/apply-asset-change.jsx";
+import { useNativeViewOcclusion } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { useResolveMediaUrl, withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, openExternalUrl, Icon } from "../m15/graph.jsx";
+import { Paperclip, Ban, Upload } from "../m15/parse-item.jsx";
+import { mergeIntoTimelineEntries, parseJsonRecord, parseTimelineOperations } from "../m15/parse-timeline-operations.js";
+import { ErrorCodes, classifyRawErrorText } from "../m15/push-inline.js";
+import { categorizeToolAction } from "../m15/save-chat-rating.js";
+import { getNodeIdsForAsset } from "../m15/track-events.js";
+import { workspaceEvents, ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
 import {
   TooltipContent,
   cn$2,

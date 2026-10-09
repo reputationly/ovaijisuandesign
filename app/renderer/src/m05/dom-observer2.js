@@ -1,24 +1,6 @@
 // dom-observer2.js
-import {
-  buildTheme,
-  baseThemeID,
-  lightDarkIDs,
-  DOMSelectionState,
-  browser,
-  EditContextManager,
-  editable,
-  useCharData,
-  hasSelection,
-  isEquivalentPosition,
-  getSelection$1,
-  safariSelectionRangeHack,
-  atElementStart,
-  observeOptions,
-  dispatchKey,
-  applyDOMChange,
-  sameSelPos,
-  findChild,
-} from "../vendor.js";
+import { DOMSelectionState, browser, EditContextManager, editable, hasSelection, isEquivalentPosition, getSelection$1, safariSelectionRangeHack, atElementStart, observeOptions, dispatchKey, applyDOMChange, sameSelPos, findChild } from "../vendor.js";
+import { buildTheme, baseThemeID, lightDarkIDs, useCharData } from "../m15/line2.js";
 import { DOMChange } from "../m04/input-state2.js";
 export const baseTheme$1$1 = buildTheme(
   "." + baseThemeID,

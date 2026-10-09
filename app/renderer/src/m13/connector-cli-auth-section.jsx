@@ -1,17 +1,7 @@
 // connector-cli-auth-section.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  usePlatform,
-  openExternalUrl,
-  ArrowUpRight,
-  Icon,
-  localizedI18nText,
-  useIsScrolling,
-  ShieldCheck,
-  connectorDescription,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, usePlatform, ArrowUpRight, localizedI18nText, ShieldCheck, connectorDescription } from "../vendor.js";
+import { useIsScrolling } from "../m15/apply-asset-change.jsx";
+import { openExternalUrl, Icon } from "../m15/graph.jsx";
 import {
   Button$1,
   DialogHeader,

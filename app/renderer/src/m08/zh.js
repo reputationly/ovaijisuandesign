@@ -1,5 +1,6 @@
 // zh.js
-import { instance, initReactI18next, getDefaultLanguage } from "../vendor.js";
+import { instance, initReactI18next } from "../vendor.js";
+import { getDefaultLanguage } from "../m15/linked-list.js";
 import {
   canvas_lyrics,
   error_auth_unauthorized,

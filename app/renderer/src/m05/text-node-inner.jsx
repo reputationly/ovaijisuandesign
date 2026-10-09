@@ -1,48 +1,13 @@
 // text-node-inner.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  Trash2,
-  dedupedToast,
-  Dialog$1,
-  Sparkles,
-  useCanvasBridge,
-  Markdown$1,
-  remarkGfm,
-  useDiffReviewStore,
-  useCanvasActive,
-  Clapperboard,
-  ClipboardList,
-  PenLine,
-  useAssetMeta,
-  useCanvasIsMultiSelect,
-  useCanvasIsDragging,
-  useCanvasIsBoxSelecting,
-  TEXT_CARD_DEFAULT_SIZE,
-  useFileVersion,
-  useGenerating,
-  useGeneratingStateApi,
-  isGenerationErrorStatus,
-  useCanvasActions,
-  useAssetMetadataApi,
-  useNodeRename,
-  NodeResizeFrame,
-  useEmitDerivedFromBlob,
-  useNodeId,
-  useStore$3,
-  NodeToolbar$1,
-  Position,
-  DEFAULT_PINNED,
-  DEFAULT_SHOW_LABELS,
-  Stamp,
-  useVideoToolbarCustomizationStore,
-  VIDEO_TOOLBAR_TOOLS,
-  PlaybackPauseIcon$1,
-  PlaybackPlayIcon$1,
-  normToPxRect,
-  ResizeHandle,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, Markdown$1, remarkGfm, ClipboardList, useAssetMetadataApi, useNodeId, useStore$3, NodeToolbar$1, Position, PlaybackPauseIcon$1, PlaybackPlayIcon$1 } from "../vendor.js";
+import { Dialog$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useFileVersion, NodeResizeFrame } from "../m15/create-html-iframe-pool-store.jsx";
+import { useNodeRename } from "../m15/create-recently-added-store.jsx";
+import { TEXT_CARD_DEFAULT_SIZE, isGenerationErrorStatus } from "../m15/group-nodes-in-canvas.js";
+import { DEFAULT_PINNED, DEFAULT_SHOW_LABELS, useVideoToolbarCustomizationStore, VIDEO_TOOLBAR_TOOLS, normToPxRect, ResizeHandle } from "../m15/handle-position-style.jsx";
+import { Trash2, Sparkles, useCanvasBridge, useCanvasActive, Clapperboard, PenLine, useAssetMeta, useCanvasIsMultiSelect, useCanvasIsDragging, useCanvasIsBoxSelecting, useGenerating, useGeneratingStateApi, useCanvasActions, Stamp } from "../m15/parse-item.jsx";
+import { useDiffReviewStore } from "../m15/use-diff-review-store.js";
+import { useEmitDerivedFromBlob } from "../m15/use-file-bytes.js";
 import {
   CloseIcon$1,
   TextPlaceholderIcon,

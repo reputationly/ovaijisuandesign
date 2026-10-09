@@ -1,47 +1,14 @@
 // use-coach-mark.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  isElectron,
-  ACTIVE_CUSTOM_MODEL_QUERY_KEY,
-  useQueryClient,
-  useStorage,
-  TRACK_EVENTS,
-  storageKeys,
-  usePlatform,
-  Loader2,
-  X$7,
-  getRuntimeConfig,
-  reactDomExports,
-  DialogPortal$2,
-  DialogBackdrop,
-  DialogPopup,
-  DialogClose$1,
-  XIcon,
-  DialogTitle$2,
-  DialogDescription$2,
-  ChevronLeftIcon,
-  m$4,
-  ImBridgeDialogCtx,
-  queryClient,
-  QueryClientProvider,
-  isGlobalStorageSchema,
-  syncLanguage,
-  getLoggedErrorBoundaryDiagnostic,
-  PlatformProvider,
-  TEAM_ACCOUNT_BOOTSTRAP_ENABLED,
-  V1LaunchNoticeSilentMigration,
-  LoginGateProvider,
-  InterestSelectionProvider,
-  DebugPanelProvider,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  PopoverRoot,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverPopup,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, useQueryClient, useStorage, storageKeys, usePlatform, Loader2, X$7, getRuntimeConfig, reactDomExports, DialogPortal$2, DialogBackdrop, DialogPopup, DialogClose$1, XIcon, DialogTitle$2, DialogDescription$2, ChevronLeftIcon, m$4, QueryClientProvider, PopoverRoot, PopoverPortal, PopoverPositioner, PopoverPopup } from "../vendor.js";
+import { getLoggedErrorBoundaryDiagnostic } from "../m15/attach-native-toast-surface.js";
+import { ImBridgeDialogCtx, queryClient, isGlobalStorageSchema, TEAM_ACCOUNT_BOOTSTRAP_ENABLED, V1LaunchNoticeSilentMigration } from "../m15/check-cloud-asset-upload.js";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { PlatformProvider } from "../m15/graph.jsx";
+import { InterestSelectionProvider, DebugPanelProvider } from "../m15/interest-selection-provider.jsx";
+import { syncLanguage } from "../m15/linked-list.js";
+import { LoginGateProvider } from "../m15/thumbnail-load-scheduler.jsx";
+import { isElectron, TRACK_EVENTS } from "../m15/track-events.js";
+import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../m15/use-resizable-width.js";
 import {
   Button$1,
   Dialog,

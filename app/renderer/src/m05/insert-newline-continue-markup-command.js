@@ -1,41 +1,6 @@
 // insert-newline-continue-markup-command.js
-import {
-  EditorSelection,
-  countColumn,
-  LanguageSupport,
-  dontComplete,
-  jsxSublanguage,
-  typescriptKeywords,
-  keywords,
-  completeFromList,
-  android,
-  elementName$1,
-  findOpenTag,
-  completeCloseTag,
-  completeTag,
-  completeAttrName,
-  completeAttrValue,
-  completeStartTag,
-  Schema3,
-  eventAttributes,
-  elementName,
-  selfClosers,
-  isHeading,
-  isList,
-  data,
-  foldService,
-  findSectionEnd,
-  GFM,
-  Subscript,
-  Superscript,
-  Emoji,
-  LanguageDescription,
-  getContext,
-  renumberList,
-  blankLine$1,
-  normalizeIndent,
-  nonTightList,
-} from "../vendor.js";
+import { EditorSelection, countColumn, LanguageSupport, dontComplete, jsxSublanguage, typescriptKeywords, keywords, completeFromList, android, elementName$1, findOpenTag, completeCloseTag, completeTag, completeAttrName, completeAttrValue, completeStartTag, eventAttributes, elementName, selfClosers, isHeading, isList, data, foldService, findSectionEnd, GFM, Subscript, Superscript, Emoji, LanguageDescription, getContext, renumberList, blankLine$1, normalizeIndent, nonTightList } from "../vendor.js";
+import { Schema3 } from "../m15/line2.js";
 import { NodeProp } from "@lezer/common";
 import { configureNesting, ifNotIn, parser$2, parser$3 } from "./base-theme.js";
 import { EditorView2 } from "./editor-view2.js";

@@ -1,19 +1,11 @@
 // use-upload.js
-import {
-  reactExports,
-  useGatewayUrl,
-  useTranslation,
-  dedupedToast,
-  TRACK_EVENTS,
-  API_PATHS,
-  useGatewayFetch,
-  gatewayFetch,
-  useCurrentWorkspace,
-  GatewayHttpError,
-  cloudAssetMimeType,
-  detectFileType,
-  MAX_ATTACHMENTS,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, API_PATHS, useCurrentWorkspace } from "../vendor.js";
+import { gatewayFetch, GatewayHttpError } from "../m15/agent-ws-client.jsx";
+import { cloudAssetMimeType } from "../m15/check-cloud-asset-upload.js";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { MAX_ATTACHMENTS } from "../m15/use-mention-models.jsx";
+import { useGatewayUrl, useGatewayFetch } from "../m15/use-resizable-width.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { UPLOAD_COMMIT_SAFE_PUBLISH_UNSUPPORTED } from "../m01/text-models.js";
 const HEIC_EXTENSIONS = new Set(["heic", "heif"]);

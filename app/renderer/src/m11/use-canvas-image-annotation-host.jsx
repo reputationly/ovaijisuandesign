@@ -1,25 +1,10 @@
 // use-canvas-image-annotation-host.jsx
-import {
-  useTranslation,
-  reactExports,
-  useGatewayFetch,
-  API_PATHS,
-  useCurrentWorkspace,
-  useWorkspaceProject,
-  useGatewayUrl,
-  withThumbnail,
-  PreviewCardRoot,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardPopup,
-  useAssetMetadataApi,
-  detectFileType,
-  gatewayFetch,
-  PreviewCardTrigger$1,
-  createAssetMutator,
-  probeMediaDurationSec,
-  inferMediaKind,
-} from "../vendor.js";
+import { useTranslation, reactExports, API_PATHS, useCurrentWorkspace, PreviewCardRoot, PreviewCardPortal, PreviewCardPositioner, PreviewCardPopup, useAssetMetadataApi, PreviewCardTrigger$1, createAssetMutator, probeMediaDurationSec, inferMediaKind } from "../vendor.js";
+import { gatewayFetch } from "../m15/agent-ws-client.jsx";
+import { withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { useGatewayFetch, useGatewayUrl } from "../m15/use-resizable-width.js";
+import { useWorkspaceProject } from "../m15/workspace-events.js";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { useProjectAssetsService } from "../m10/use-move-dnd.jsx";
 import { useProjectActions } from "../m10/custom-provider-form.jsx";

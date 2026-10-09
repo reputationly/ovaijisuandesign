@@ -1,14 +1,7 @@
 // browser-annotation-editor.jsx
-import {
-  useTranslation,
-  reactExports,
-  Check,
-  Icon,
-  X$7,
-  TRACK_EVENTS,
-  LoaderCircle,
-  Send,
-} from "../vendor.js";
+import { useTranslation, reactExports, Check, X$7, LoaderCircle, Send } from "../vendor.js";
+import { Icon } from "../m15/graph.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { ImageEditor } from "../m04/editor2.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

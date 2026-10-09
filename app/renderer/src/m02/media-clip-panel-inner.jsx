@@ -1,21 +1,7 @@
 // media-clip-panel-inner.jsx
-import {
-  jsxRuntimeExports,
-  PlaybackPlayIcon$1,
-  PlaybackPauseIcon$1,
-  Volume2,
-  VolumeX,
-  Maximize,
-  useTranslation,
-  useCanvasActive,
-  reactExports,
-  reactDomExports,
-  Undo2,
-  getExtFromMime,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  HILO_WORKSPACE_GENERATION_QUERY,
-} from "../vendor.js";
+import { jsxRuntimeExports, PlaybackPlayIcon$1, PlaybackPauseIcon$1, Volume2, Maximize, useTranslation, reactExports, reactDomExports, Undo2, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_QUERY } from "../vendor.js";
+import { getExtFromMime } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { VolumeX, useCanvasActive } from "../m15/parse-item.jsx";
 import { TIMELINE_CONFIG, LIGHT_THEME_COLORS, DARK_THEME_COLORS } from "../m01/params-popup.jsx";
 import { calcInitialScale } from "../m01/timeline-event-handler.js";
 import { CloseIcon$1 } from "../m01/generating-media-area.jsx";

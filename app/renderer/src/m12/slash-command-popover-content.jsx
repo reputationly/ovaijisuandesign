@@ -1,22 +1,8 @@
 // slash-command-popover-content.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  ChevronLeft,
-  ChevronRight$1,
-  reactDomExports,
-  FEATURED_TAG,
-  skillCategoryCodes,
-  useSkillCategories,
-  resolveSkillCoverUrl,
-  CDN_SKILL_SHOWCASE_FALLBACK,
-  beginSkillApplyingToast,
-  Trans,
-  Search$2,
-  Plus$2,
-  SkillCoverMedia,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, ChevronLeft, ChevronRight$1, reactDomExports, Trans, Search$2, Plus$2 } from "../vendor.js";
+import { skillCategoryCodes } from "../m15/push-inline.js";
+import { CDN_SKILL_SHOWCASE_FALLBACK } from "../m15/use-hub-logo-hover-animation.jsx";
+import { FEATURED_TAG, useSkillCategories, resolveSkillCoverUrl, beginSkillApplyingToast, SkillCoverMedia } from "../m15/use-mention-models.jsx";
 import { homeService, SkillIcon } from "../m08/browser-inspiration-urls.jsx";
 import { Button$1 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { Input3 } from "../asset-center/shared/select-content.jsx";

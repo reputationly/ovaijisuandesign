@@ -1,5 +1,6 @@
 // stage-prompt-editor-card.jsx
-import { useTranslation, reactExports, Check, Icon, Loader2, RotateCcw } from "../vendor.js";
+import { useTranslation, reactExports, Check, Loader2, RotateCcw } from "../vendor.js";
+import { Icon } from "../m15/graph.jsx";
 import {
   Button$1,
   Dialog,

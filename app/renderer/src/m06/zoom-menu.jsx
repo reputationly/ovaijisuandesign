@@ -1,27 +1,9 @@
 // zoom-menu.jsx
-import {
-  useTranslation,
-  reactExports,
-  CompositedSvg,
-  useStore$3,
-  DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
-  useAlignmentSnapPreferenceStore,
-  CANVAS_COMMAND_IDS,
-  ChevronUp,
-  MonochromeIcon,
-  LayoutTemplate,
-  ChevronRight$1,
-  Workflow,
-  Library,
-  TooltipProvider$1,
-  Grid2X2,
-  Map$1,
-  X$7,
-  Plus,
-  Hand,
-  MousePointer2,
-  Check,
-} from "../vendor.js";
+import { useTranslation, reactExports, CompositedSvg, useStore$3, ChevronUp, MonochromeIcon, LayoutTemplate, ChevronRight$1, Workflow, Library, Grid2X2, Map$1, X$7, Plus, Hand, Check } from "../vendor.js";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "../m15/handle-position-style.jsx";
+import { useAlignmentSnapPreferenceStore, CANVAS_COMMAND_IDS } from "../m15/node-tag-rings-canvas.jsx";
+import { MousePointer2 } from "../m15/parse-item.jsx";
 import {
   DropdownMenuItem$1,
   DropdownMenuSeparator$1,

@@ -1,44 +1,16 @@
 // topbar-provider.jsx
-import {
-  useTranslation,
-  useAuth,
-  reactExports,
-  dedupedToast,
-  useQuery,
-  useStorage,
-  usePlatform,
-  hideVisiblePreviewTabs,
-  useNavigate,
-  useRouterState,
-  normalizeWorkspaceId,
-  useActiveRuntime,
-  projectLog,
-  workspaceLog,
-  Users,
-  showVisiblePreviewTab,
-  useLoginGuard,
-  workspaceThumbnailsQueryKey,
-  fetchWorkspaceThumbnails,
-  WORKSPACE_THUMBNAILS_STALE_TIME,
-  useNavigateToWorkspace,
-  usePersistPickedWorkspaceName,
-  useIsKnownWorkspacePath,
-  shouldActivateWorkspaceThroughRoute,
-  buildWorkspaceSearch,
-  activateWorkspaceIfAvailable,
-  requestWorkspaceRuntimeClose,
-  performWorkspacePreviewHide,
-  recordAction,
-  performOtherWorkspacePreviewsHide,
-  performWorkspacePreviewsToRightHide,
-  workspaceDisplayName,
-  useWindowTitleSync,
-  useLastActivePersistence,
-  setTopbarActiveWorkspaceSnapshot,
-  useWorkspaceFocusNavigation,
-  TopbarStateContext,
-  TopbarActionsContext,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, useQuery, useStorage, usePlatform, useNavigate, workspaceLog } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { useAuth, hideVisiblePreviewTabs, requestWorkspaceRuntimeClose } from "../m15/apply-asset-change.jsx";
+import { showVisiblePreviewTab, useNavigateToWorkspace, buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { workspaceThumbnailsQueryKey, fetchWorkspaceThumbnails, WORKSPACE_THUMBNAILS_STALE_TIME, usePersistPickedWorkspaceName, useIsKnownWorkspacePath, shouldActivateWorkspaceThroughRoute, activateWorkspaceIfAvailable, performWorkspacePreviewHide, performOtherWorkspacePreviewsHide, performWorkspacePreviewsToRightHide } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { projectLog } from "../m15/graph.jsx";
+import { useRouterState } from "../m15/linked-list.js";
+import { Users } from "../m15/parse-item.jsx";
+import { normalizeWorkspaceId, useActiveRuntime, useWindowTitleSync, useLastActivePersistence, setTopbarActiveWorkspaceSnapshot } from "../m15/run-manual-update-check.js";
+import { useLoginGuard } from "../m15/thumbnail-load-scheduler.jsx";
+import { useWorkspaceFocusNavigation, TopbarStateContext, TopbarActionsContext } from "../m15/use-hub-logo-hover-animation.jsx";
+import { workspaceDisplayName } from "../m15/use-resizable-width.js";
 import {
   AlertDialog,
   AlertDialogContent,

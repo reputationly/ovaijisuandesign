@@ -1,17 +1,9 @@
 // canvas-crop-overlay.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  reactExports,
-  useCropViewportZoom,
-  useCropState,
-  useStore$3,
-  selectionToNormalizedBBox,
-  useEraseState,
-  useImageErase,
-  useImageMaskPainter,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, useStore$3 } from "../vendor.js";
+import { useCanvasBridge } from "../m15/parse-item.jsx";
+import { useCropViewportZoom, useCropState } from "../m15/use-file-bytes.js";
+import { selectionToNormalizedBBox, useImageErase, useImageMaskPainter } from "../m15/use-image-mask-painter.js";
+import { useEraseState } from "../m15/use-multi-image-actions.js";
 import { cropImageToBlob$1 } from "../m03/base-backend.jsx";
 import {
   CloseIcon$1,

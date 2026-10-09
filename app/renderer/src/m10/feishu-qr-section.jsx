@@ -1,21 +1,7 @@
 // feishu-qr-section.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Check,
-  TRACK_EVENTS,
-  usePlatform,
-  openExternalUrl,
-  ArrowUpRight,
-  Icon,
-  Tooltip,
-  TooltipTrigger,
-  requireLib,
-  getDefaultExportFromCjs$1,
-  Bot,
-  LoaderCircle,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Check, usePlatform, ArrowUpRight, requireLib, getDefaultExportFromCjs$1, Bot, LoaderCircle } from "../vendor.js";
+import { openExternalUrl, Icon, Tooltip, TooltipTrigger } from "../m15/graph.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import {
   Button$1,
   cn$2,

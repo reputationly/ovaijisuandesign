@@ -1,21 +1,7 @@
 // image-node-toolbar-section.jsx
-import {
-  useTranslation,
-  reactExports,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  Position,
-  useNodeId,
-  reactDomExports,
-  useStore$3,
-  RotateIcon,
-  useImageToolbarCustomizationStore,
-  LEGACY_IMAGE_TOOLBAR_TOOLS,
-  IMAGE_TOOLBAR_TOOLS,
-  useCanvasIsDragging,
-  NodeToolbar$1,
-  MultiImageOverlayStoreContext,
-} from "../vendor.js";
+import { useTranslation, reactExports, Position, useNodeId, reactDomExports, useStore$3, NodeToolbar$1 } from "../vendor.js";
+import { useCanvasIsMultiSelect, useCanvasIsBoxSelecting, RotateIcon, useCanvasIsDragging } from "../m15/parse-item.jsx";
+import { useImageToolbarCustomizationStore, LEGACY_IMAGE_TOOLBAR_TOOLS, IMAGE_TOOLBAR_TOOLS, MultiImageOverlayStoreContext } from "../m15/use-multi-image-actions.js";
 import {
   AddToChatIcon,
   FullscreenIcon$1,

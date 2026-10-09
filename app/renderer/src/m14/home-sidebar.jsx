@@ -1,54 +1,19 @@
 // home-sidebar.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  ChevronDown,
-  useNavigate,
-  useTopbarState,
-  dedupedToast,
-  TRACK_EVENTS,
-  buildWorkspaceSearch,
-  usePlatform,
-  Plus,
-  ArrowUpRight,
-  useTopbarActions,
-  useStorage,
-  TooltipProvider,
-  ChevronRight$1,
-  FolderOpen,
-  useResizableWidth,
-  useQueryClient,
-  workspaceInventoryPathKey,
-  pinnedWorkspaceAliases,
-  removePinnedWorkspacePaths,
-  MonochromeIcon,
-  projectWorkspaceKey,
-  UNGROUPED_RECENT_GROUP_KEY,
-  isWorkspacePathCaseInsensitivePlatform,
-  useLocation,
-  useAssetCenterRelocation,
-  useProjectStore,
-  readRecentProjectDismissals,
-  useSidebarBadges,
-  resolveRecentProjectsSortMode,
-  useChangelog,
-  HOME_SIDEBAR_WIDTH,
-  useRecentWorkspacesRefresh,
-  storageKeys,
-  mergeWorkspaceInventory,
-  splitPinnedInventory,
-  Library,
-  Workflow,
-  upsertRecentProjectDismissal,
-  persistRecentProjectDismissals,
-  removeRecentProjectDismissal,
-  removeWorkspaceSessionTabs,
-  groupRecentWorkspacesByProject,
-  GLOBAL_SIDEBAR_RAIL_WIDTH,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, ChevronDown, useNavigate, dedupedToast, usePlatform, Plus, ArrowUpRight, useStorage, ChevronRight$1, useQueryClient, MonochromeIcon, storageKeys, Library, Workflow } from "../vendor.js";
+import { useAssetCenterRelocation } from "../m15/check-cloud-asset-upload.js";
+import { buildWorkspaceSearch } from "../m15/create-visible-preview-tabs-store.js";
+import { UNGROUPED_RECENT_GROUP_KEY, groupRecentWorkspacesByProject } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { HOME_SIDEBAR_WIDTH, useRecentWorkspacesRefresh, GLOBAL_SIDEBAR_RAIL_WIDTH } from "../m15/global-sidebar-provider.jsx";
+import { Tooltip, TooltipTrigger, TooltipProvider } from "../m15/graph.jsx";
+import { useLocation } from "../m15/linked-list.js";
+import { FolderOpen } from "../m15/parse-item.jsx";
+import { useChangelog } from "../m15/run-manual-update-check.js";
+import { pinnedWorkspaceAliases, removePinnedWorkspacePaths, readRecentProjectDismissals, useSidebarBadges, splitPinnedInventory, upsertRecentProjectDismissal, persistRecentProjectDismissals, removeRecentProjectDismissal } from "../m15/split-pinned-inventory.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { removeWorkspaceSessionTabs } from "../m15/use-canvas-tag-filter.js";
+import { useTopbarState, useTopbarActions } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useResizableWidth } from "../m15/use-resizable-width.js";
+import { workspaceInventoryPathKey, projectWorkspaceKey, isWorkspacePathCaseInsensitivePlatform, useProjectStore, resolveRecentProjectsSortMode, mergeWorkspaceInventory } from "../m15/workspace-events.js";
 import {
   TooltipContent,
   cn$2,

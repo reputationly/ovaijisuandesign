@@ -1,17 +1,6 @@
 // edge-interaction-layer.jsx
-import {
-  useTranslation,
-  useReactFlow,
-  reactExports,
-  CanvasNodeType,
-  isEdgeVisible,
-  useStoreApi,
-  getInternalNodesBounds,
-  setHoveredEdgeId,
-  clearHoveredEdgeIdIfMatches,
-  EdgeLabelRenderer,
-  Scissors,
-} from "../vendor.js";
+import { useTranslation, useReactFlow, reactExports, CanvasNodeType, useStoreApi, getInternalNodesBounds, EdgeLabelRenderer, Scissors } from "../vendor.js";
+import { isEdgeVisible, setHoveredEdgeId, clearHoveredEdgeIdIfMatches } from "../m15/edges-canvas.jsx";
 import { cropRectForAspectRatio$1 } from "../m03/base-backend.jsx";
 import { DEFAULT_CROP, ASPECT_RATIOS, calcCropRect } from "../m03/calc-crop-rect.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

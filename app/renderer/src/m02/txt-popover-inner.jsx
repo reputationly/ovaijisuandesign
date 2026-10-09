@@ -1,19 +1,7 @@
 // txt-popover-inner.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  reactDomExports,
-  useCanvasBridge,
-  useAssetMetadataApi,
-  useAssetMetadataStore,
-  X$7,
-  dedupedToast,
-  BACKEND_SEEDAUDIO,
-  useMusicPromptLayout,
-  Lock,
-  ChevronDown,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, reactDomExports, useAssetMetadataApi, useAssetMetadataStore, X$7, dedupedToast, useMusicPromptLayout, Lock, ChevronDown } from "../vendor.js";
+import { useCanvasBridge } from "../m15/parse-item.jsx";
+import { BACKEND_SEEDAUDIO } from "../m15/push-inline.js";
 import { PromptTextarea, ParamsChip, ParamsPopup } from "../m01/params-popup.jsx";
 import { rejectedReferencePaths } from "../m01/use-lightbox-media-actions.jsx";
 import {

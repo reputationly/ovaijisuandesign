@@ -1,50 +1,14 @@
 // media-model-selector.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  Check,
-  useQuery,
-  API_PATHS,
-  usePlatform,
-  openExternalUrl,
-  TRACK_EVENTS,
-  reactDomExports,
-  getRuntimeConfig,
-  ImageOutlineIcon,
-  Video,
-  ArrowUpRight,
-  Icon,
-  useGatewayFetch,
-  Plus,
-  BROWSER_IMAGE_EDIT_EVENT,
-  Bot,
-  TooltipProvider,
-  useQueryClient,
-  useGatewayScope,
-  useModelCatalogScopeKey,
-  ACTIVE_CUSTOM_MODEL_QUERY_KEY,
-  MEDIA_CATEGORIES,
-  isVisibleMediaModelSelected,
-  registrySelectionRowIds,
-  IMAGE_MODELS,
-  VIDEO_MODELS,
-  AUDIO_MODELS,
-  useMediaModels,
-  PencilLine,
-  Music,
-  isAllVisibleMediaModelsSelected,
-  countVisibleSelectedMediaModels,
-  Box,
-  Paperclip,
-  recordAction,
-  TOOL_LABEL_DEFINITIONS$1,
-  getToolLabelId,
-  getBuiltInToolLabelId,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, Check, useQuery, API_PATHS, usePlatform, reactDomExports, getRuntimeConfig, Video, ArrowUpRight, Plus, BROWSER_IMAGE_EDIT_EVENT, Bot, useQueryClient, useGatewayScope, Music, Box } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { TOOL_LABEL_DEFINITIONS$1 } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, openExternalUrl, Icon, TooltipProvider } from "../m15/graph.jsx";
+import { ImageOutlineIcon, PencilLine, Paperclip } from "../m15/parse-item.jsx";
+import { registrySelectionRowIds, IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS } from "../m15/push-inline.js";
+import { MEDIA_CATEGORIES, isVisibleMediaModelSelected, isAllVisibleMediaModelsSelected, countVisibleSelectedMediaModels } from "../m15/qo.jsx";
+import { getToolLabelId, getBuiltInToolLabelId } from "../m15/save-chat-rating.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useGatewayFetch, useModelCatalogScopeKey, ACTIVE_CUSTOM_MODEL_QUERY_KEY, useMediaModels } from "../m15/use-resizable-width.js";
 import { useComposerActionsCompact } from "../m12/mention-popover.jsx";
 import {
   TooltipContent,
@@ -56,7 +20,7 @@ import { QuickZoomPresence } from "../m06/canvas-toggle-icon.jsx";
 import { SegmentedSwitch } from "../m09/use-credit-details.jsx";
 import { getHailuoCreditsRulesUrl } from "../m08/shortcut-categories.jsx";
 import { trackEvent } from "../asset-center/shared/init-track.js";
-import { getConfiguredToolDisplayLabel } from "../m10/use-new-workspace-dialog.jsx";
+import { getConfiguredToolDisplayLabel } from "../m15/interest-selection-provider.jsx";
 import { isCustomModelProvider } from "../m01/myers-line-hunks.js";
 import { useAgentModelMembershipAccess } from "../m12/file-chip.jsx";
 import { CapabilityPopoverHeader } from "../m12/use-market-skills.jsx";

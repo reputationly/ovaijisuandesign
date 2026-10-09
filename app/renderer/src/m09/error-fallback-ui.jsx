@@ -1,32 +1,10 @@
 // error-fallback-ui.jsx
-import {
-  measurePerf,
-  useTranslation,
-  reactExports,
-  recordAction,
-  AlertTriangle,
-  CompositedSvg,
-  isElectron,
-  attachNativeToastSurface,
-  reactDomExports,
-  z$3,
-  resolveToasterPlacement,
-  Toaster$1,
-  CircleCheckIcon,
-  InfoIcon$1,
-  TriangleAlertIcon,
-  OctagonXIcon,
-  Loader2Icon,
-  GLOBAL_TOASTER_Z_INDEX,
-  visiblePreviewTabsStore,
-  recentSlowMeasures,
-  pendingLogLines,
-  recentLongTasks,
-  flush,
-  scopedAssetsQueryKey,
-  tracesByClientId,
-  MAX_RECENT_TRACES,
-} from "../vendor.js";
+import { measurePerf, useTranslation, reactExports, AlertTriangle, CompositedSvg, reactDomExports, z$3, Toaster$1, CircleCheckIcon, InfoIcon$1, TriangleAlertIcon, OctagonXIcon, Loader2Icon, pendingLogLines, flush } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { recentSlowMeasures, recentLongTasks, scopedAssetsQueryKey, tracesByClientId, MAX_RECENT_TRACES } from "../m15/apply-asset-change.jsx";
+import { attachNativeToastSurface } from "../m15/attach-native-toast-surface.js";
+import { resolveToasterPlacement, GLOBAL_TOASTER_Z_INDEX, visiblePreviewTabsStore } from "../m15/create-visible-preview-tabs-store.js";
+import { isElectron } from "../m15/track-events.js";
 import { recordError } from "../m08/part-store.jsx";
 import {
   PERF_PREFIX,

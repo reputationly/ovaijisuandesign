@@ -1,17 +1,6 @@
 // use-attachment-state.js
-import {
-  useTranslation,
-  reactExports,
-  useCanvasBridge,
-  useAssetMetadataApi,
-  useCanvasActions,
-  useAssetMetadataStore,
-  useCanvasIsDragging,
-  useCanvasIsMultiSelect,
-  useCanvasIsBoxSelecting,
-  dedupedToast,
-  MEDIA_LINEAGE_MAX_REFERENCES,
-} from "../vendor.js";
+import { useTranslation, reactExports, useAssetMetadataApi, useAssetMetadataStore, dedupedToast, MEDIA_LINEAGE_MAX_REFERENCES } from "../vendor.js";
+import { useCanvasBridge, useCanvasActions, useCanvasIsDragging, useCanvasIsMultiSelect, useCanvasIsBoxSelecting } from "../m15/parse-item.jsx";
 import {
   SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
   SEEDANCE_REFERENCE_AUDIO_MAX_SEC,

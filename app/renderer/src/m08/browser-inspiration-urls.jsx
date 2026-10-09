@@ -1,30 +1,8 @@
 // browser-inspiration-urls.jsx
-import {
-  services,
-  ProxyChannel,
-  client,
-  workspaceId,
-  disposables,
-  getWorkspaceBundle,
-  pruneWorkspaceBundleCache,
-  Disposable,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  isActiveComfyUiDownloadTask,
-  ComfyUiDownloadProgressContext,
-  CompositedSvg,
-  getLocalFolderIconSrc,
-  desktopMediaIcon,
-  PlaybackPlayIcon$1,
-  PlaybackStopIcon$1,
-  PlaybackNextIcon$1,
-  PlaybackPreviousIcon$1,
-  PlaybackCirclePlayIcon$1,
-  PlaybackCirclePauseIcon$1,
-  ICON_STROKE_SPEC,
-  getIconStrokeWidth,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, CompositedSvg, desktopMediaIcon, PlaybackPlayIcon$1, PlaybackStopIcon$1, PlaybackNextIcon$1, PlaybackPreviousIcon$1, PlaybackCirclePlayIcon$1, PlaybackCirclePauseIcon$1, ICON_STROKE_SPEC, getIconStrokeWidth } from "../vendor.js";
+import { ProxyChannel } from "../m15/channel-client.js";
+import { services, client, workspaceId, disposables, getWorkspaceBundle, pruneWorkspaceBundleCache, isActiveComfyUiDownloadTask, ComfyUiDownloadProgressContext, getLocalFolderIconSrc } from "../m15/graph.jsx";
+import { Disposable } from "../m15/linked-list.js";
 import { cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

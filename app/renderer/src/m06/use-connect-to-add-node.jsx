@@ -1,15 +1,7 @@
 // use-connect-to-add-node.jsx
-import {
-  useReactFlow,
-  reactExports,
-  CanvasNodeType,
-  useStoreApi,
-  Position,
-  defaultNodeSizeForType,
-  POPOVER_DRAFT_DATA_KEY,
-  orientUserEdge,
-  findConnectionTarget,
-} from "../vendor.js";
+import { useReactFlow, reactExports, CanvasNodeType, useStoreApi, Position, findConnectionTarget } from "../vendor.js";
+import { orientUserEdge } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { defaultNodeSizeForType, POPOVER_DRAFT_DATA_KEY } from "../m15/group-nodes-in-canvas.js";
 import { parsePluginAddNodeType } from "../m02/canvas-image.jsx";
 import { emptyMediaNodeInit } from "../m03/base-backend.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

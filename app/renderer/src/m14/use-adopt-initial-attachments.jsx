@@ -1,23 +1,11 @@
 // use-adopt-initial-attachments.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  ChevronDown,
-  useGatewayFetch,
-  TRACK_EVENTS,
-  API_PATHS,
-  useHasBlockingModal,
-  getPlatform,
-  TooltipProvider$1,
-  DropdownMenu,
-  DropdownMenuGroup,
-  DropdownMenuRadioGroup,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  HILO_WORKSPACE_GENERATION_QUERY,
-  detectFileType,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, ChevronDown, API_PATHS, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_QUERY } from "../vendor.js";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuRadioGroup } from "../m15/graph.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { useHasBlockingModal } from "../m15/thumbnail-load-scheduler.jsx";
+import { TRACK_EVENTS, getPlatform } from "../m15/track-events.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import {
   cn$2,
   useBrowserHoverPreview,

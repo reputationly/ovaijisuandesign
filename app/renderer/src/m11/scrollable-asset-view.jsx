@@ -1,43 +1,12 @@
 // scrollable-asset-view.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  Upload,
-  ChevronDown,
-  withThumbnail,
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  Maximize2,
-  X$7,
-  Search,
-  Loader2,
-  FileTypeIcon,
-  classifyFileType,
-  LayoutList,
-  LayoutGrid,
-  useVirtualizer,
-  FileText,
-  inferMediaKind,
-  formatTime$2,
-  FileImage,
-  Film,
-  AudioLines,
-  Paperclip,
-  DeferredThumbnailImage,
-  GRID_COLUMN_COUNT_WIDE,
-  ASSET_VIRTUALIZATION_MIN_ITEMS,
-  estimateGridRowSize,
-  ASSET_VIEW_INITIAL_RECT,
-  GRID_OVERSCAN_ROWS,
-  Tag$1,
-  useAssetMetadataStore,
-  useFullscreenContainerEl,
-  guardAccountSubmission,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, ChevronDown, X$7, Search, Loader2, classifyFileType, LayoutList, LayoutGrid, useVirtualizer, inferMediaKind, FileImage, Film, AudioLines, GRID_COLUMN_COUNT_WIDE, estimateGridRowSize, Tag$1, useAssetMetadataStore, guardAccountSubmission } from "../vendor.js";
+import { useFullscreenContainerEl } from "../m15/create-html-iframe-pool-store.jsx";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { withThumbnail, DeferredThumbnailImage } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { TooltipProvider, Tooltip, TooltipTrigger } from "../m15/graph.jsx";
+import { Upload, Maximize2, FileText, formatTime$2, Paperclip } from "../m15/parse-item.jsx";
+import { ASSET_VIRTUALIZATION_MIN_ITEMS, ASSET_VIEW_INITIAL_RECT, GRID_OVERSCAN_ROWS } from "../m15/use-canvas-tag-filter.js";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import {
   Dialog,
   DialogContent,

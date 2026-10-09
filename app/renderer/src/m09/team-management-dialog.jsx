@@ -1,39 +1,9 @@
 // team-management-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  usePlatform,
-  openExternalUrl,
-  Tooltip,
-  TooltipTrigger,
-  AlertTriangle,
-  Select$1,
-  getRuntimeConfig,
-  teamQueryKeys,
-  creditQueryKeys,
-  Icon,
-  Users,
-  TooltipProvider,
-  useTeamAccount,
-  useIsScrolling,
-  Plus,
-  ArrowLeftRight,
-  useQueryClient,
-  useMutation,
-  guardAccountSubmission,
-  useStorage,
-  useAccountSubmissionDecision,
-  useMediaModels,
-  Trans,
-  Search,
-  minCreditAmount,
-  Copy,
-  dispatchAccountSubmissionBlocked,
-  CreditCard,
-  ReceiptText,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, usePlatform, AlertTriangle, getRuntimeConfig, Plus, ArrowLeftRight, useQueryClient, useMutation, guardAccountSubmission, useStorage, Trans, Search, minCreditAmount, Copy, dispatchAccountSubmissionBlocked, CreditCard } from "../vendor.js";
+import { Select$1, teamQueryKeys, creditQueryKeys, useTeamAccount, useIsScrolling, useAccountSubmissionDecision } from "../m15/apply-asset-change.jsx";
+import { openExternalUrl, Tooltip, TooltipTrigger, Icon, TooltipProvider } from "../m15/graph.jsx";
+import { Users, ReceiptText } from "../m15/parse-item.jsx";
+import { useMediaModels } from "../m15/use-resizable-width.js";
 import {
   Dialog,
   DialogContent,

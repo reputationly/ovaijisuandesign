@@ -1,46 +1,8 @@
 // delete-markup-backward.js
-import {
-  EditorSelection,
-  ViewPlugin,
-  Prec,
-  Facet,
-  StateEffect,
-  StateField,
-  Decoration2,
-  RangeSetBuilder,
-  countColumn,
-  LanguageSupport,
-  getContext,
-  normalizeIndent,
-  contextNodeForDelete,
-  nonPlainText,
-  combineConfig,
-  validRegExp,
-  RegExpQuery,
-  StringQuery,
-  regexpCursor,
-  stringCursor,
-  SearchState,
-  setSearchQuery,
-  togglePanel,
-  selectedMatchMark,
-  matchMark,
-  crelt,
-  phrase,
-  AnnounceMargin,
-  Break,
-  ATX_HEADINGS,
-  INLINE_MARKS,
-  collectHeadingMarks,
-  collectLinkChrome,
-  collectInlineMarks,
-  isBlankLine$1,
-  blankLine,
-  blankLineExtra,
-  horizontalRule,
-  hiddenMark,
-  getAnnotationSelectionRanges,
-} from "../vendor.js";
+import { EditorSelection, ViewPlugin, Prec, Facet, StateEffect, StateField, Decoration2, RangeSetBuilder, countColumn, LanguageSupport, getContext, normalizeIndent, contextNodeForDelete, nonPlainText, combineConfig, validRegExp, StringQuery, regexpCursor, stringCursor, crelt, phrase, AnnounceMargin, Break } from "../vendor.js";
+import { getAnnotationSelectionRanges } from "../m15/annotation-highlight.js";
+import { RegExpQuery, SearchState, setSearchQuery, togglePanel, selectedMatchMark, matchMark, ATX_HEADINGS, INLINE_MARKS, collectHeadingMarks, collectLinkChrome, collectInlineMarks, isBlankLine$1 } from "../m15/line2.js";
+import { blankLine, blankLineExtra, horizontalRule, hiddenMark } from "../m15/locate-hunks-in-doc.js";
 import { EditorState2 } from "../m04/editor-state2.js";
 import { TEXT_EDIT_SELECTION_MAX_LENGTH } from "../m01/myers-line-hunks.js";
 import { CompletionContext, MarkdownParser, parseCode } from "./base-theme.js";

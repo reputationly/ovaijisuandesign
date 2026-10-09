@@ -1,26 +1,7 @@
 // image-tool-meta.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  X$7,
-  CompositedSvg,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-  CSS$1,
-  Pin,
-  PinOff,
-  ActionListItem,
-  ActionListSeparator,
-  DEFAULT_PINNED$1,
-  DEFAULT_SHOW_LABELS$1,
-  Settings2,
-  ActionListPanel,
-  RotateIcon,
-  Stamp,
-  Layers3,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, X$7, CompositedSvg, SortableContext, horizontalListSortingStrategy, useSortable, CSS$1, Pin, PinOff, ActionListItem, ActionListSeparator, ActionListPanel, Layers3 } from "../vendor.js";
+import { Settings2, RotateIcon, Stamp } from "../m15/parse-item.jsx";
+import { DEFAULT_PINNED$1, DEFAULT_SHOW_LABELS$1 } from "../m15/use-multi-image-actions.js";
 import {
   PanoramaIcon,
   SplitGridIcon,

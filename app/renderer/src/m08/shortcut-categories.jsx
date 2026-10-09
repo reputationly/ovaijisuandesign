@@ -1,21 +1,8 @@
 // shortcut-categories.jsx
-import {
-  HUB_WEB_INVITE_DOMAINS,
-  TUTORIAL_URL$2,
-  MenuSubmenuTrigger,
-  ChevronRight$1,
-  MenuPortal,
-  MenuPositioner,
-  MenuPopup,
-  makeLogger,
-  TabsRoot,
-  TabsList$1,
-  TabsIndicator,
-  TabsTab,
-  TabsPanel,
-  getShortcutTokenKind,
-  getPlatform,
-} from "../vendor.js";
+import { MenuSubmenuTrigger, ChevronRight$1, MenuPortal, MenuPositioner, MenuPopup, makeLogger, TabsRoot, TabsList$1, TabsIndicator, TabsTab, TabsPanel } from "../vendor.js";
+import { getShortcutTokenKind } from "../m15/agent-ws-client.jsx";
+import { HUB_WEB_INVITE_DOMAINS, TUTORIAL_URL$2 } from "../m15/graph.jsx";
+import { getPlatform } from "../m15/track-events.js";
 import {
   cn$2,
   MENU_ITEM_LAYOUT,

@@ -1,23 +1,12 @@
 // parse-rich-user-prompt.jsx
-import {
-  reactExports,
-  useTranslation,
-  ChevronDown,
-  Icon,
-  Clapperboard,
-  MessageSquareQuote,
-  Scissors,
-  NotebookPen,
-  Bot,
-  RotateCcw,
-  FileText,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  categorizeToolAction,
-  groupIntoActivityGroups,
-  withThumbnailWidth,
-  connectorReferenceFromServerName,
-} from "../vendor.js";
+import { reactExports, useTranslation, ChevronDown, Scissors, NotebookPen, Bot, RotateCcw } from "../vendor.js";
+import { useDebugFlag, DEBUG_FLAGS } from "../m15/create-visible-preview-tabs-store.js";
+import { withThumbnailWidth } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { Clapperboard, MessageSquareQuote, FileText } from "../m15/parse-item.jsx";
+import { groupIntoActivityGroups } from "../m15/parse-timeline-operations.js";
+import { categorizeToolAction } from "../m15/save-chat-rating.js";
+import { connectorReferenceFromServerName } from "../m15/use-mention-models.jsx";
 import { findInlineVisualTokens } from "../m12/attachment-preview.jsx";
 import { findAllMentions } from "../m01/table-document-to-llm-content.js";
 import {

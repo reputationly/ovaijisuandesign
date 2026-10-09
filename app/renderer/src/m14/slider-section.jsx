@@ -1,40 +1,14 @@
 // slider-section.jsx
-import {
-  useTranslation,
-  reactExports,
-  Popover,
-  PopoverTrigger,
-  Copy,
-  CircleAlert,
-  Trash2,
-  Search,
-  useTheme,
-  DropdownMenu,
-  ScrollAreaRoot,
-  ScrollAreaViewport,
-  ScrollAreaCorner,
-  ScrollAreaScrollbar,
-  ScrollAreaThumb,
-  ActionListPanel,
-  ActionListItem,
-  FolderOpen,
-  ActionListSeparator,
-  ContextMenu,
-  Info$1,
-  AlertDialogTrigger,
-  DialogTrigger,
-  classifyFileType,
-  FileTypeIcon,
-  FILE_TYPE_EXTENSIONS,
-  PlaybackPauseIcon$1,
-  Trash2Icon,
-  PlaybackPlayIcon$1,
-  useResizableWidth,
-  Select$1,
-  Separator$1,
-  SheetTrigger,
-  FieldRoot,
-} from "../vendor.js";
+import { useTranslation, reactExports, Copy, CircleAlert, Search, ScrollAreaRoot, ScrollAreaViewport, ScrollAreaCorner, ScrollAreaScrollbar, ScrollAreaThumb, ActionListPanel, ActionListItem, ActionListSeparator, Info$1, classifyFileType, FILE_TYPE_EXTENSIONS, PlaybackPauseIcon$1, Trash2Icon, PlaybackPlayIcon$1, FieldRoot } from "../vendor.js";
+import { DialogTrigger } from "../m15/agent-ws-client.jsx";
+import { Popover, PopoverTrigger, AlertDialogTrigger, Select$1 } from "../m15/apply-asset-change.jsx";
+import { Separator$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { DropdownMenu } from "../m15/graph.jsx";
+import { Trash2, FolderOpen } from "../m15/parse-item.jsx";
+import { SheetTrigger } from "../m15/record-recent-workspace-opened.jsx";
+import { ContextMenu } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useTheme, useResizableWidth } from "../m15/use-resizable-width.js";
 import {
   Button$1,
   cn$2,

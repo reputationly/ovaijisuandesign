@@ -1,42 +1,11 @@
 // canvas-global-tag-manager.jsx
-import {
-  reactExports,
-  useGatewayUrl,
-  useTranslation,
-  dedupedToast,
-  useSortable,
-  CSS$1,
-  Tooltip,
-  TooltipTrigger,
-  Icon,
-  X$7,
-  Download,
-  useSensors,
-  useSensor,
-  PointerSensor,
-  KeyboardSensor,
-  sortableKeyboardCoordinates,
-  arrayMove,
-  DndContext,
-  closestCenter,
-  Plus,
-  SortableContext,
-  verticalListSortingStrategy,
-  Loader2,
-  Video,
-  Music2,
-  ImageOutlineIcon,
-  FileText,
-  useCanvasAssetNodeIds,
-  API_PATHS,
-  withThumbnail,
-  PopoverTrigger,
-  Popover,
-  CircleX,
-  ChevronLeft,
-  ChevronRight$1,
-  Ellipsis,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, useSortable, CSS$1, X$7, useSensors, useSensor, PointerSensor, KeyboardSensor, sortableKeyboardCoordinates, arrayMove, DndContext, closestCenter, Plus, SortableContext, verticalListSortingStrategy, Loader2, Video, Music2, API_PATHS, CircleX, ChevronLeft, ChevronRight$1, Ellipsis } from "../vendor.js";
+import { PopoverTrigger, Popover } from "../m15/apply-asset-change.jsx";
+import { withThumbnail } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { Tooltip, TooltipTrigger, Icon } from "../m15/graph.jsx";
+import { Download, ImageOutlineIcon, FileText } from "../m15/parse-item.jsx";
+import { useCanvasAssetNodeIds } from "../m15/track-events.js";
+import { useGatewayUrl } from "../m15/use-resizable-width.js";
 import { AssetPreviewPopup } from "../m11/scrollable-asset-view.jsx";
 import {
   truncateCanvasTagName,

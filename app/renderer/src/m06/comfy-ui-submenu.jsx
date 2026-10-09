@@ -1,23 +1,7 @@
 // comfy-ui-submenu.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  useReactFlow,
-  reactExports,
-  reactDomExports,
-  CompositedSvg,
-  CanvasNodeType,
-  TEXT_CARD_DEFAULT_SIZE,
-  TABLE_CARD_DEFAULT_SIZE,
-  useStore$3,
-  ChevronRight$1,
-  Workflow,
-  Position,
-  getBezierPath,
-  ImageOutlineIcon,
-  PlusCircle,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useReactFlow, reactExports, reactDomExports, CompositedSvg, CanvasNodeType, useStore$3, ChevronRight$1, Workflow, Position, getBezierPath, PlusCircle } from "../vendor.js";
+import { TEXT_CARD_DEFAULT_SIZE, TABLE_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasBridge, ImageOutlineIcon } from "../m15/parse-item.jsx";
 import {
   CLIP_STUDIO_PLUGIN_ID,
   PANORAMA_VIEWER_PLUGIN_ID,

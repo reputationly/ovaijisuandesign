@@ -1,29 +1,9 @@
 // proxy-detected-toast.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  ShieldAlert,
-  X$7,
-  Sparkles,
-  Icon,
-  XIcon,
-  DialogClose,
-  TOAST_DURATION_MS,
-  TOAST_ID,
-  PROXY_RECHECK_INTERVAL_MS,
-  WARNING_CONFIRMATION_COUNT,
-  Link2,
-  OFFICIAL_CONNECTORS,
-  Film,
-  Clapperboard,
-  ShoppingBag,
-  Megaphone,
-  Music,
-  Brush,
-  GraduationCap,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, ShieldAlert, X$7, XIcon, Link2, Film, Music, GraduationCap } from "../vendor.js";
+import { DialogClose } from "../m15/agent-ws-client.jsx";
+import { Icon } from "../m15/graph.jsx";
+import { TOAST_DURATION_MS, TOAST_ID, PROXY_RECHECK_INTERVAL_MS, WARNING_CONFIRMATION_COUNT, OFFICIAL_CONNECTORS } from "../m15/interest-selection-provider.jsx";
+import { Sparkles, Clapperboard, ShoppingBag, Megaphone, Brush } from "../m15/parse-item.jsx";
 import {
   Button$1,
   Dialog,

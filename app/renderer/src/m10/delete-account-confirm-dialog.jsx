@@ -1,22 +1,9 @@
 // delete-account-confirm-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useAuth,
-  reactExports,
-  useMutation,
-  dedupedToast,
-  AlertTriangle,
-  useOptionalTeamAccount,
-  useQueries,
-  Check,
-  Copy,
-  Pencil,
-  services,
-  isElectron,
-  useQuery,
-  ACTIVE_CUSTOM_MODEL_QUERY_KEY,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, useMutation, dedupedToast, AlertTriangle, useQueries, Check, Copy, Pencil, useQuery } from "../vendor.js";
+import { useAuth, useOptionalTeamAccount } from "../m15/apply-asset-change.jsx";
+import { services } from "../m15/graph.jsx";
+import { isElectron } from "../m15/track-events.js";
+import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../m15/use-resizable-width.js";
 import {
   RESEND_COOLDOWN_SEC,
   sendCancelCode,

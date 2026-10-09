@@ -1,57 +1,16 @@
 // app-root.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  useDebugFlag,
-  DEBUG_FLAGS,
-  useGatewayFetch,
-  dedupedToast,
-  TRACK_EVENTS,
-  buildWorkspaceSearch,
-  API_PATHS,
-  gatewayFetch,
-  useRouterState,
-  GatewayScopeProvider,
-  TooltipProvider,
-  useQueryClient,
-  useLocation,
-  GLOBAL_SIDEBAR_RAIL_WIDTH,
-  GlobalSidebarProvider,
-  AuthContext,
-  useGatewayScope,
-  useModelCatalogScopeKey,
-  GLOBAL_SIDEBAR_MIN_WIDTH,
-  GLOBAL_SIDEBAR_MAX_WIDTH,
-  createRootRoute,
-  recordNavigation,
-  Outlet,
-  Route$d,
-  Route$c,
-  Route$b,
-  Route$a,
-  Route$9,
-  Route$8,
-  Route$7,
-  Route$6,
-  Route$5,
-  Route$4,
-  Route$3,
-  Route$2,
-  Route$1,
-  Route2,
-  isElectron,
-  rendererRuntimeConfig,
-  createRouter,
-  useDeepLinkRouter,
-  IPC_CHANNELS,
-  OPEN_NEW_WORKSPACE_DIALOG_EVENT,
-  showVisiblePreviewTab,
-  getNextPreviewTabIdAfterHide,
-  recordAction,
-  hideVisiblePreviewTabs,
-  requestWorkspaceRuntimeClose,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, API_PATHS, useQueryClient, useGatewayScope, createRootRoute } from "../vendor.js";
+import { gatewayFetch, recordNavigation, IPC_CHANNELS, recordAction } from "../m15/agent-ws-client.jsx";
+import { GatewayScopeProvider, AuthContext, hideVisiblePreviewTabs, requestWorkspaceRuntimeClose } from "../m15/apply-asset-change.jsx";
+import { useDebugFlag, DEBUG_FLAGS, buildWorkspaceSearch, useDeepLinkRouter, showVisiblePreviewTab, getNextPreviewTabIdAfterHide } from "../m15/create-visible-preview-tabs-store.js";
+import { OPEN_NEW_WORKSPACE_DIALOG_EVENT } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { GLOBAL_SIDEBAR_RAIL_WIDTH, GlobalSidebarProvider, GLOBAL_SIDEBAR_MIN_WIDTH, GLOBAL_SIDEBAR_MAX_WIDTH } from "../m15/global-sidebar-provider.jsx";
+import { TooltipProvider } from "../m15/graph.jsx";
+import { useRouterState, useLocation } from "../m15/linked-list.js";
+import { Route$d, Route$c, Route$b, Route$a, Route$9, Route$8, Route$7, Route$6, Route$5, Route$4, Route$3, Route$2, Route$1, Route2, rendererRuntimeConfig } from "../m15/split-pinned-inventory.js";
+import { TRACK_EVENTS, isElectron } from "../m15/track-events.js";
+import { Outlet, createRouter } from "../m15/transitioner.jsx";
+import { useGatewayFetch, useModelCatalogScopeKey } from "../m15/use-resizable-width.js";
 import {
   cn$2,
   useBrowserHoverPreview,

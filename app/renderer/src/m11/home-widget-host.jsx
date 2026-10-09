@@ -1,23 +1,14 @@
 // home-widget-host.jsx
-import {
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  usePlatform,
-  Upload,
-  useStorage,
-  X$7,
-  useResizableWidth,
-  HOME_INPUT_COACH_MARK_ID,
-  ASSET_CENTER_RELOCATION_REVISION,
-  useRouterState,
-  useAuth,
-  useHomeWidgetDevPreviewMode,
-  DEFAULT_HOME_WIDGET_CONFIG,
-  TRACK_EVENTS,
-  openExternalUrl,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, usePlatform, useStorage, X$7 } from "../vendor.js";
+import { useAuth } from "../m15/apply-asset-change.jsx";
+import { HOME_INPUT_COACH_MARK_ID, ASSET_CENTER_RELOCATION_REVISION } from "../m15/check-cloud-asset-upload.js";
+import { DEFAULT_HOME_WIDGET_CONFIG } from "../m15/deferred-thumbnail-image-generation.jsx";
+import { useHomeWidgetDevPreviewMode } from "../m15/global-sidebar-provider.jsx";
+import { openExternalUrl } from "../m15/graph.jsx";
+import { useRouterState } from "../m15/linked-list.js";
+import { Upload } from "../m15/parse-item.jsx";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { useGatewayFetch, useResizableWidth } from "../m15/use-resizable-width.js";
 import { Button$1, cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { ResizeColHandle } from "../m10/asset-center-relocation-coach-mark.jsx";
 import {

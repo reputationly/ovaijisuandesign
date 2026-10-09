@@ -1,44 +1,16 @@
 // canvas-view-inner.jsx
-import {
-  getViewportForBounds,
-  getNodePosition,
-  CanvasNodeType,
-  sizeOf,
-  CanvasMode,
-  DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
-  useTranslation,
-  useAssetMetadataApi,
-  reactExports,
-  useCanvasBridge,
-  useRecentlyAddedApi,
-  useMultiImageOverlayApi,
-  useMultiImageOverlayStore,
-  readCanvasPreference,
-  useGeneratingStateStore,
-  useHtmlFullscreenApi,
-  buildIncrementalNodeData,
-  isAssetBackedNode,
-  parseNodeId,
-  useCanvasNodeAssetsStore,
-  useReactFlow,
-  useStoreApi,
-  syncStableZoomSignals,
-  CANVAS_MIN_ZOOM,
-  CANVAS_MAX_ZOOM,
-  defaultNodeSizeForType,
-  dedupedToast,
-  CANVAS_COMMAND_IDS,
-  POPOVER_DRAFT_DATA_KEY,
-  deriveEdgeId,
-  getDerivedNodePosition,
-  TABLE_CARD_DEFAULT_SIZE,
-  writeCanvasPreference,
-  useNodesInitialized,
-  useStore$3,
-  Check,
-  ChevronDown,
-  Loader2Icon,
-} from "../vendor.js";
+import { getViewportForBounds, CanvasNodeType, useTranslation, useAssetMetadataApi, reactExports, useReactFlow, useStoreApi, dedupedToast, useNodesInitialized, useStore$3, Check, ChevronDown, Loader2Icon } from "../vendor.js";
+import { buildIncrementalNodeData } from "../m15/build-incremental-node-data.js";
+import { syncStableZoomSignals } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { useHtmlFullscreenApi, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from "../m15/create-html-iframe-pool-store.jsx";
+import { useRecentlyAddedApi, getDerivedNodePosition } from "../m15/create-recently-added-store.jsx";
+import { CanvasMode, isAssetBackedNode, defaultNodeSizeForType, POPOVER_DRAFT_DATA_KEY, TABLE_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "../m15/handle-position-style.jsx";
+import { getNodePosition, sizeOf, readCanvasPreference, CANVAS_COMMAND_IDS, writeCanvasPreference } from "../m15/node-tag-rings-canvas.jsx";
+import { useCanvasBridge, useGeneratingStateStore } from "../m15/parse-item.jsx";
+import { parseNodeId, deriveEdgeId } from "../m15/resolve-derived-collision.js";
+import { useCanvasNodeAssetsStore } from "../m15/track-events.js";
+import { useMultiImageOverlayApi, useMultiImageOverlayStore } from "../m15/use-multi-image-actions.js";
 import {
   resolveVisibilityPriorityFocus,
   readCanvasViewport,

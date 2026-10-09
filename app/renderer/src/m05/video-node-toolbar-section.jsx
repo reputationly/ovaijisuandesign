@@ -1,11 +1,7 @@
 // video-node-toolbar-section.jsx
-import {
-  reactExports,
-  useTranslation,
-  useVideoToolbarCustomizationStore,
-  VIDEO_TOOLBAR_TOOLS,
-  Settings2,
-} from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { useVideoToolbarCustomizationStore, VIDEO_TOOLBAR_TOOLS } from "../m15/handle-position-style.jsx";
+import { Settings2 } from "../m15/parse-item.jsx";
 import { AddToClipNodeIcon, MoreVerticalIcon$1 } from "../m01/generating-media-area.jsx";
 import { NodeToolbar } from "../m01/use-lightbox-media-actions.jsx";
 import { CreditCostBadge } from "../m01/create-tracker.jsx";

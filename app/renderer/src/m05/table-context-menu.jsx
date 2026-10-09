@@ -1,19 +1,6 @@
 // table-context-menu.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  reactDomExports,
-  ArrowUpToLine,
-  ArrowDownToLine,
-  Trash2,
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  Grid2x2Plus,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, reactDomExports, ArrowUpToLine, ArrowDownToLine, ArrowLeftToLine, ArrowRightToLine, ActionListItem, ActionListPanel, ActionListSeparator, Grid2x2Plus } from "../vendor.js";
+import { Trash2 } from "../m15/parse-item.jsx";
 import {
   ParagraphIcon,
   BoldIcon,

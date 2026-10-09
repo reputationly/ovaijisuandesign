@@ -1,52 +1,16 @@
 // migration-popup.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useAuth,
-  reactExports,
-  dedupedToast,
-  isElectron,
-  useQuery,
-  useStorage,
-  TRACK_EVENTS,
-  usePlatform,
-  useRuntimeConfig,
-  openExternalUrl,
-  getRuntimeConfig,
-  actionTrailLog,
-  InfoIcon$1,
-  Tooltip,
-  TooltipTrigger,
-  guardAccountSubmission,
-  XIcon,
-  useOptionalUpdaterContext,
-  TooltipProvider,
-  useBlockingModalPresence,
-  BLOCKING_MODAL_IDS,
-  MpIcon,
-  useAccountSubmissionDecision,
-  usePopup,
-  useAutoAnnouncement,
-  PopupType,
-  touchSeen,
-  trackTypeOf,
-  readMutedUntil,
-  serverPopupLog,
-  useModalSlotWithLoading,
-  STARTUP_MODAL_IDS,
-  MUTE_FOREVER,
-  setMutedUntil,
-  clearPendingTrialGranted,
-  useModalSlot,
-  PanelBottomClose,
-  FALLBACK_LOG_SERVICE,
-  safeWarn,
-  resolveDesktopCanvasRenderPolicy,
-  safeInfo,
-  safeTrack,
-  CANVAS_SURFACE_RECOVERY_MEASURE,
-  CanvasRenderPolicyProvider,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, useQuery, useStorage, usePlatform, getRuntimeConfig, InfoIcon$1, guardAccountSubmission, XIcon, PanelBottomClose } from "../vendor.js";
+import { useAuth, MpIcon, useAccountSubmissionDecision, resolveDesktopCanvasRenderPolicy } from "../m15/apply-asset-change.jsx";
+import { FALLBACK_LOG_SERVICE, safeWarn, safeInfo, safeTrack, CANVAS_SURFACE_RECOVERY_MEASURE } from "../m15/check-cloud-asset-upload.js";
+import { CanvasRenderPolicyProvider } from "../m15/create-html-iframe-pool-store.jsx";
+import { openExternalUrl, actionTrailLog, Tooltip, TooltipTrigger, TooltipProvider, serverPopupLog } from "../m15/graph.jsx";
+import { PopupType } from "../m15/push-inline.js";
+import { useOptionalUpdaterContext } from "../m15/run-manual-update-check.js";
+import { BLOCKING_MODAL_IDS, useModalSlotWithLoading, STARTUP_MODAL_IDS, useModalSlot } from "../m15/thumbnail-load-scheduler.jsx";
+import { isElectron, TRACK_EVENTS } from "../m15/track-events.js";
+import { useBlockingModalPresence } from "../m15/use-hub-logo-hover-animation.jsx";
+import { usePopup, useAutoAnnouncement, touchSeen, trackTypeOf, readMutedUntil, MUTE_FOREVER, setMutedUntil, clearPendingTrialGranted } from "../m15/use-popup.jsx";
+import { useRuntimeConfig } from "../m15/use-resizable-width.js";
 import {
   Checkbox,
   Button$1,

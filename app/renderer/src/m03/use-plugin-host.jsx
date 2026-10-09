@@ -1,34 +1,9 @@
 // use-plugin-host.jsx
-import {
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  FileTypeIcon,
-  classifyFileType,
-  PlaybackPlayIcon$1,
-  CANVAS_MAX_ZOOM,
-  useAssetMetadataApi,
-  usePluginRunStateApi,
-  useHtmlFullscreenApi,
-  parseNodeId,
-  CANVAS_MIN_ZOOM,
-  useNodeId,
-  useHtmlIframePoolApi,
-  useHtmlViewerHandleApi,
-  useIsHtmlIframeActive,
-  useCanvasActive,
-  useFileUrl,
-  useHtmlViewerPresentation,
-  useConnection,
-  MessageSquare,
-  Minimize2,
-  Maximize2,
-  X$7,
-  workspaceScope$1,
-  WorkspaceContentBudgetScopeContext,
-  statesByWorkspace,
-} from "../vendor.js";
+import { useTranslation, reactExports, classifyFileType, PlaybackPlayIcon$1, useAssetMetadataApi, useNodeId, useConnection, X$7 } from "../vendor.js";
+import { CANVAS_MAX_ZOOM, usePluginRunStateApi, useHtmlFullscreenApi, CANVAS_MIN_ZOOM, useHtmlIframePoolApi, useHtmlViewerHandleApi, useIsHtmlIframeActive, useFileUrl, useHtmlViewerPresentation, workspaceScope$1, WorkspaceContentBudgetScopeContext, statesByWorkspace } from "../m15/create-html-iframe-pool-store.jsx";
+import { FileTypeIcon } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasActions, useCanvasActive, MessageSquare, Minimize2, Maximize2 } from "../m15/parse-item.jsx";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
 import { FileMissingIcon } from "../m01/generating-media-area.jsx";
 import { isSubtitleFileName } from "../m01/prune-persisted-node-data.js";
 import { Button$2 } from "../m01/use-media-node-actions.jsx";

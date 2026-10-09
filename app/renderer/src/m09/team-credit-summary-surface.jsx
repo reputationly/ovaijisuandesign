@@ -1,27 +1,7 @@
 // team-credit-summary-surface.jsx
-import {
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  Check,
-  Icon,
-  TooltipProvider,
-  Info$1,
-  useAuth,
-  useOptionalTeamAccount,
-  useStorage,
-  Popover,
-  PopoverTrigger,
-  UI,
-  DayFlag,
-  Animation,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronDownIcon$1,
-  ChevronDown,
-  Search,
-} from "../vendor.js";
+import { useTranslation, reactExports, Check, Info$1, useStorage, UI, DayFlag, Animation, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon$1, ChevronDown, Search } from "../vendor.js";
+import { useAuth, useOptionalTeamAccount, Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { Tooltip, TooltipTrigger, Icon, TooltipProvider } from "../m15/graph.jsx";
 import {
   DEFAULT_CREDIT_REMINDER_THRESHOLD,
   normalizeCreditReminderConfig,

@@ -1,37 +1,12 @@
 // user-avatar-menu.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Check,
-  Copy,
-  Icon,
-  dedupedToast,
-  guardAccountSubmission,
-  TRACK_EVENTS,
-  usePlatform,
-  getRuntimeConfig,
-  Plus,
-  Smartphone,
-  FileText,
-  openExternalUrl,
-  DEFAULT_PAGE_STATE_PREVIEW_SCHEMA,
-  useAuth,
-  useQueryClient,
-  useOptionalTeamAccount,
-  accountScopeKey,
-  teamQueryKeys,
-  creditQueryKeys,
-  canUseDebugTooling,
-  User,
-  Users,
-  Settings,
-  GraduationCap,
-  SwatchBook,
-  Wrench,
-  DEBUG_PANEL_OPEN_EVENT,
-  LogOut,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Check, Copy, dedupedToast, guardAccountSubmission, usePlatform, getRuntimeConfig, Plus, Smartphone, useQueryClient, User, GraduationCap, SwatchBook, Wrench } from "../vendor.js";
+import { useAuth, useOptionalTeamAccount, accountScopeKey, teamQueryKeys, creditQueryKeys } from "../m15/apply-asset-change.jsx";
+import { canUseDebugTooling } from "../m15/create-visible-preview-tabs-store.js";
+import { Icon, openExternalUrl } from "../m15/graph.jsx";
+import { DEBUG_PANEL_OPEN_EVENT } from "../m15/interest-selection-provider.jsx";
+import { FileText, Users, Settings, LogOut } from "../m15/parse-item.jsx";
+import { DEFAULT_PAGE_STATE_PREVIEW_SCHEMA } from "../m15/parse-timeline-operations.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import {
   cn$2,
   Dialog,

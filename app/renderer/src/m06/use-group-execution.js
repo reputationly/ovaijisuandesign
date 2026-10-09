@@ -1,20 +1,9 @@
 // use-group-execution.js
-import {
-  useGeneratingStateApi,
-  useTranslation,
-  useAssetMetadataApi,
-  useCanvasBridge,
-  useReactFlow,
-  reactExports,
-  dedupedToast,
-  CanvasNodeType,
-  useStoreApi,
-  CANVAS_MIN_ZOOM,
-  CANVAS_MAX_ZOOM,
-  buildAdjacency,
-  topoSortLevels,
-  resolveNodeAssetId,
-} from "../vendor.js";
+import { useTranslation, useAssetMetadataApi, useReactFlow, reactExports, dedupedToast, CanvasNodeType, useStoreApi } from "../vendor.js";
+import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from "../m15/create-html-iframe-pool-store.jsx";
+import { buildAdjacency, topoSortLevels } from "../m15/layout-engine.js";
+import { useGeneratingStateApi, useCanvasBridge } from "../m15/parse-item.jsx";
+import { resolveNodeAssetId } from "../m15/remove-nodes-and-promote-group-mains.js";
 import { resolveReferenceTexts, resolveReferenceAudios } from "../m01/resolve-reference-texts.js";
 import { loadReferenceTextContent } from "../m01/use-assets-ref-validate.js";
 import { resolveReferenceImages, resolveReferenceVideos } from "../m03/base-backend.jsx";

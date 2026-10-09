@@ -1,19 +1,8 @@
 // storyboard-grid-editor.jsx
-import {
-  reactExports,
-  useTranslation,
-  TooltipProvider$1,
-  useCanvasBridge,
-  dedupedToast,
-  useNodeId,
-  X$7,
-  useCanvasActions,
-  BACKEND_VIBE_STORYBOARD,
-  Plus,
-  useEmitDerivedFromBlob,
-  useCropViewportZoom,
-  getNodeFlowRect,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, useNodeId, X$7, BACKEND_VIBE_STORYBOARD, Plus } from "../vendor.js";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { useCanvasBridge, useCanvasActions } from "../m15/parse-item.jsx";
+import { useEmitDerivedFromBlob, useCropViewportZoom, getNodeFlowRect } from "../m15/use-file-bytes.js";
 import { StoryboardGridIcon } from "../m01/generating-media-area.jsx";
 import {
   createToolInteractionSession,

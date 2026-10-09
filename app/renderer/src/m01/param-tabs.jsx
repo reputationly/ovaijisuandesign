@@ -1,17 +1,6 @@
 // param-tabs.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  CompositedSvg,
-  useTranslation,
-  PreviewCardRoot,
-  PreviewCardTrigger$1,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardPopup,
-  Info$1,
-  CanvasReleaseRegionContext,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, CompositedSvg, useTranslation, PreviewCardRoot, PreviewCardTrigger$1, PreviewCardPortal, PreviewCardPositioner, PreviewCardPopup, Info$1 } from "../vendor.js";
+import { CanvasReleaseRegionContext } from "../m15/canvas-surface-recovery-scheduler.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip$1 } from "./create-tracker.jsx";
 import { PARAM_OPTION_SELECTED_CLASS, ParamSectionLabel } from "./slider.jsx";

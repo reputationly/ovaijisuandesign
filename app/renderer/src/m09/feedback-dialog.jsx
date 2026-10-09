@@ -1,34 +1,11 @@
 // feedback-dialog.jsx
-import {
-  useTranslation,
-  reactExports,
-  useRouterState,
-  FEEDBACK_CONSTRAINTS,
-  dedupedToast,
-  submitFeedback,
-  X$7,
-  ImagePlusOutlineIcon,
-  IPC_CHANNELS,
-  FeedbackContext,
-  usePlatform,
-  openExternalUrl,
-  getTutorialUrlByLocale,
-  CircleHelp,
-  DropdownMenu,
-  Tooltip,
-  TooltipTrigger,
-  Lightbulb,
-  ChevronRight$1,
-  MessageSquarePlus,
-  Keyboard,
-  recordAction,
-  Check,
-  Loader2,
-  buildErrorBoundaryDiagnostic,
-  recordErrorBoundaryBreadcrumb,
-  autoUploadErrorBoundaryLogs,
-  loggedErrorBoundaryDiagnostics,
-} from "../vendor.js";
+import { useTranslation, reactExports, dedupedToast, X$7, usePlatform, Lightbulb, ChevronRight$1, Keyboard, Check, Loader2 } from "../vendor.js";
+import { submitFeedback, IPC_CHANNELS, FeedbackContext, recordAction } from "../m15/agent-ws-client.jsx";
+import { buildErrorBoundaryDiagnostic, recordErrorBoundaryBreadcrumb, autoUploadErrorBoundaryLogs, loggedErrorBoundaryDiagnostics } from "../m15/attach-native-toast-surface.js";
+import { openExternalUrl, getTutorialUrlByLocale, DropdownMenu, Tooltip, TooltipTrigger } from "../m15/graph.jsx";
+import { useRouterState } from "../m15/linked-list.js";
+import { ImagePlusOutlineIcon, CircleHelp, MessageSquarePlus } from "../m15/parse-item.jsx";
+import { FEEDBACK_CONSTRAINTS } from "../m15/push-inline.js";
 import { getActiveChatSnapshot, ShortcutsPanel } from "../m08/part-store.jsx";
 import {
   Dialog,

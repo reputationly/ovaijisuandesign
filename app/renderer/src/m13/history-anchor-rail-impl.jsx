@@ -1,28 +1,8 @@
 // history-anchor-rail-impl.jsx
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  dedupedToast,
-  Tooltip,
-  TooltipTrigger,
-  Check,
-  X$7,
-  getRuntimeConfig,
-  Copy,
-  Icon,
-  Popover,
-  PopoverTrigger,
-  MonochromeIcon,
-  ThumbsUp,
-  ThumbsDown,
-  RotateCcw,
-  DropdownMenu,
-  MoreVerticalIcon,
-  ArrowDown,
-  useAssetMetadataStore,
-  useGeneratingStateStore,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, dedupedToast, Check, X$7, getRuntimeConfig, Copy, MonochromeIcon, ThumbsUp, ThumbsDown, RotateCcw, ArrowDown, useAssetMetadataStore } from "../vendor.js";
+import { Popover, PopoverTrigger } from "../m15/apply-asset-change.jsx";
+import { Tooltip, TooltipTrigger, Icon, DropdownMenu, MoreVerticalIcon } from "../m15/graph.jsx";
+import { useGeneratingStateStore } from "../m15/parse-item.jsx";
 import {
   TooltipContent,
   cn$2,

@@ -1,5 +1,6 @@
 // map-hub-group-list-response.js
-import { useBaseQuery, InfiniteQueryObserver, GatewayHttpError } from "../vendor.js";
+import { useBaseQuery, InfiniteQueryObserver } from "../vendor.js";
+import { GatewayHttpError } from "../m15/agent-ws-client.jsx";
 export function useInfiniteQuery(options, queryClient2) {
   return useBaseQuery(options, InfiniteQueryObserver, queryClient2);
 }

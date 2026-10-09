@@ -1,12 +1,8 @@
 // use-plugin-chat-bridge.js
-import {
-  reactExports,
-  API_PATHS,
-  detectFileType,
-  TRACK_EVENTS,
-  guardAccountSubmission,
-  recordAction,
-} from "../vendor.js";
+import { reactExports, API_PATHS, guardAccountSubmission } from "../vendor.js";
+import { recordAction } from "../m15/agent-ws-client.jsx";
+import { detectFileType } from "../m15/relayout-group-children.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
 import { trackEvent } from "../asset-center/shared/init-track.js";
 import { nextMessageId } from "../m08/reduce-server-message.js";
 import { getPluginAgentEditSession, getPluginAgentEditorState } from "../m03/use-plugin-host.jsx";

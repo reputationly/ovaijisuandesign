@@ -1,32 +1,9 @@
 // use-credit-details.jsx
-import {
-  useTranslation,
-  reactExports,
-  Tooltip,
-  TooltipTrigger,
-  ChevronRight$1,
-  useQuery,
-  creditQueryKeys,
-  TooltipProvider,
-  useQueryClient,
-  Info$1,
-  getLastGatewayTraceId,
-  useAuth,
-  useCreditAccountState,
-  useOptionalTeamAccount,
-  canonicalCreditScope,
-  legacyPersonalCreditScope,
-  useMutation,
-  guardAccountSubmission,
-  MpIcon,
-  ArrowRight,
-  PopoverArrow$1,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverPopup,
-  PopoverTitle$1,
-  PopoverDescription$1,
-} from "../vendor.js";
+import { useTranslation, reactExports, ChevronRight$1, useQuery, useQueryClient, Info$1, useMutation, guardAccountSubmission, ArrowRight, PopoverArrow$1, PopoverPortal, PopoverPositioner, PopoverPopup } from "../vendor.js";
+import { getLastGatewayTraceId } from "../m15/agent-ws-client.jsx";
+import { creditQueryKeys, useAuth, useCreditAccountState, useOptionalTeamAccount, canonicalCreditScope, legacyPersonalCreditScope, MpIcon } from "../m15/apply-asset-change.jsx";
+import { PopoverTitle$1, PopoverDescription$1 } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { Tooltip, TooltipTrigger, TooltipProvider } from "../m15/graph.jsx";
 import { WalletSource, CreditType } from "../m01/text-models.js";
 import { TooltipContent, cn$2 } from "../asset-center/shared/use-browser-overlay-dialog-props.jsx";
 import { creditLog, appendOpenPlatformTrackingParams } from "../m08/shortcut-categories.jsx";

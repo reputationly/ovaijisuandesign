@@ -1,18 +1,7 @@
 // shared/entity-edit-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  Download,
-  Loader2,
-  ShieldAlert,
-  DropdownMenu,
-  ChevronDown,
-  assetCenterLog,
-  AtSign,
-  Trash2,
-  FolderInput,
-} from "../../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, Loader2, ShieldAlert, ChevronDown, AtSign, FolderInput } from "../../vendor.js";
+import { DropdownMenu, assetCenterLog } from "../../m15/graph.jsx";
+import { Download, Trash2 } from "../../m15/parse-item.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { AttachmentUploadZone, CollapsibleTags, ENTITY_TYPES } from "./attachment-upload-zone.jsx";
 import {

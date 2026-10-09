@@ -1,12 +1,9 @@
 // canvas-image.jsx
-import {
-  useTranslation,
-  useCanvasActive,
-  reactExports,
-  isGenerationErrorStatus,
-  CanvasRenderRuntimeContext,
-  useStableZoomBucket,
-} from "../vendor.js";
+import { useTranslation, reactExports } from "../vendor.js";
+import { useStableZoomBucket } from "../m15/canvas-surface-recovery-scheduler.jsx";
+import { CanvasRenderRuntimeContext } from "../m15/create-html-iframe-pool-store.jsx";
+import { isGenerationErrorStatus } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasActive } from "../m15/parse-item.jsx";
 import {
   useViewportStatus,
   useCanvasActiveDeferred,

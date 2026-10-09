@@ -1,28 +1,8 @@
 // use-media-actions.jsx
-import {
-  useTranslation,
-  reactExports,
-  useMutation,
-  dedupedToast,
-  AlertTriangle,
-  useQuery,
-  useQueryClient,
-  usePlatform,
-  ArrowRight,
-  Loader2,
-  ShieldAlert,
-  FolderInput,
-  AlertCircle,
-  folderNameFromPath,
-  Folder,
-  API_PATHS,
-  useGatewayFetch,
-  useGatewayScopeKey,
-  ASSETS_QUERY_KEY,
-  refreshAssetIndex,
-  refreshFileContent,
-  FILE_CONTENT_QUERY_KEY,
-} from "../vendor.js";
+import { useTranslation, reactExports, useMutation, dedupedToast, AlertTriangle, useQuery, useQueryClient, usePlatform, ArrowRight, Loader2, ShieldAlert, FolderInput, AlertCircle, API_PATHS } from "../vendor.js";
+import { ASSETS_QUERY_KEY, refreshAssetIndex, refreshFileContent, FILE_CONTENT_QUERY_KEY } from "../m15/apply-asset-change.jsx";
+import { Folder } from "../m15/parse-item.jsx";
+import { folderNameFromPath, useGatewayFetch, useGatewayScopeKey } from "../m15/use-resizable-width.js";
 import {
   AlertDialog,
   AlertDialogContent,

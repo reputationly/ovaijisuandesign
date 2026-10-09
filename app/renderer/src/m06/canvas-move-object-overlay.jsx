@@ -1,19 +1,9 @@
 // canvas-move-object-overlay.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  useCanvasBridge,
-  useReactFlow,
-  reactExports,
-  CompositedSvg,
-  useCropViewportZoom,
-  useStore$3,
-  useMoveObjectState,
-  clamp$6,
-  useOutpaintState,
-  CANVAS_MIN_ZOOM,
-  CANVAS_MAX_ZOOM,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useReactFlow, reactExports, CompositedSvg, useStore$3 } from "../vendor.js";
+import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from "../m15/create-html-iframe-pool-store.jsx";
+import { useCanvasBridge } from "../m15/parse-item.jsx";
+import { useCropViewportZoom, clamp$6 } from "../m15/use-file-bytes.js";
+import { useMoveObjectState, useOutpaintState } from "../m15/use-multi-image-actions.js";
 import {
   CloseIcon$1,
   SendArrowIcon,

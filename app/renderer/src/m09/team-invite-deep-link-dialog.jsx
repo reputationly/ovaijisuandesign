@@ -1,23 +1,8 @@
 // team-invite-deep-link-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  Loader2,
-  getRuntimeConfig,
-  teamQueryKeys,
-  creditQueryKeys,
-  UserRound,
-  Users,
-  useTeamAccount,
-  useQueryClient,
-  CalendarDays,
-  accountScopeKey,
-  ShieldCheck,
-  useDeepLinkRouter,
-  ACCOUNT_SUBMISSION_BLOCKED_EVENT,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, Loader2, getRuntimeConfig, UserRound, useQueryClient, ShieldCheck, ACCOUNT_SUBMISSION_BLOCKED_EVENT } from "../vendor.js";
+import { teamQueryKeys, creditQueryKeys, useTeamAccount, accountScopeKey } from "../m15/apply-asset-change.jsx";
+import { useDeepLinkRouter } from "../m15/create-visible-preview-tabs-store.js";
+import { Users, CalendarDays } from "../m15/parse-item.jsx";
 import {
   Dialog,
   DialogContent,

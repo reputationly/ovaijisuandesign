@@ -1,51 +1,16 @@
 // canvas-area.jsx
-import {
-  reactExports,
-  useGatewayUrl,
-  useTranslation,
-  dedupedToast,
-  TRACK_EVENTS,
-  pickUserMessage,
-  stripErrorHtml,
-  API_PATHS,
-  useGatewayFetch,
-  getRuntimeConfig,
-  useAssetMetadataApi,
-  canvasLog,
-  CanvasNodeType,
-  folderNameFromPath,
-  getPluginMeta,
-  workspaceEvents,
-  useRouter,
-  GatewayNotReadyError,
-  inferMediaKind,
-  computeNodeSize,
-  useAccountSubmissionControls,
-  useTheme,
-  useCurrentWorkspace,
-  createHtmlFullscreenStore,
-  useModelRegistryApi,
-  usePlatform,
-  useGatewayScope,
-  useModelCatalogScopeKey,
-  usePricingConfig,
-  useAuth,
-  useTopbarState,
-  useTopbarActions,
-  useWorkspaceFocusNavigation,
-  setPluginMetas,
-  useScopedHttpClient,
-  TABLE_CARD_DEFAULT_SIZE,
-  usePluginMetadataStore,
-  pluginEvents,
-  browserAssetSourceMetadata,
-  TEXT_CARD_DEFAULT_SIZE,
-  FolderOpen,
-  FolderClosed,
-  GatewayHttpError,
-  HtmlFullscreenStoreProvider,
-  logMediaLineage,
-} from "../vendor.js";
+import { reactExports, useTranslation, dedupedToast, API_PATHS, getRuntimeConfig, useAssetMetadataApi, canvasLog, CanvasNodeType, useRouter, inferMediaKind, useCurrentWorkspace, usePlatform, useGatewayScope, useScopedHttpClient, browserAssetSourceMetadata, FolderClosed, logMediaLineage } from "../vendor.js";
+import { GatewayNotReadyError, GatewayHttpError } from "../m15/agent-ws-client.jsx";
+import { useAccountSubmissionControls, useAuth } from "../m15/apply-asset-change.jsx";
+import { getPluginMeta, createHtmlFullscreenStore, setPluginMetas, usePluginMetadataStore, HtmlFullscreenStoreProvider } from "../m15/create-html-iframe-pool-store.jsx";
+import { stripErrorHtml, useModelRegistryApi } from "../m15/create-recently-added-store.jsx";
+import { computeNodeSize, TABLE_CARD_DEFAULT_SIZE, TEXT_CARD_DEFAULT_SIZE } from "../m15/group-nodes-in-canvas.js";
+import { FolderOpen } from "../m15/parse-item.jsx";
+import { pickUserMessage } from "../m15/push-inline.js";
+import { TRACK_EVENTS } from "../m15/track-events.js";
+import { usePricingConfig, pluginEvents } from "../m15/use-canvas-tag-filter.js";
+import { workspaceEvents, useTopbarState, useTopbarActions, useWorkspaceFocusNavigation } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useGatewayUrl, useGatewayFetch, folderNameFromPath, useTheme, useModelCatalogScopeKey } from "../m15/use-resizable-width.js";
 import { useWorkspaceWSConnection } from "../m10/compact-rewrite-flow.jsx";
 import {
   useSessionStore,
@@ -90,7 +55,8 @@ import {
 } from "../m11/use-canvas-image-annotation-host.jsx";
 import { useDropEntityToCanvas, trackAssetUse } from "../m10/asset-mention-list.jsx";
 import { isPluginAgentRegistered } from "../m03/use-plugin-host.jsx";
-import { QuickZoomPresence, setCopiedSystemText } from "../m06/canvas-toggle-icon.jsx";
+import { QuickZoomPresence } from "../m06/canvas-toggle-icon.jsx";
+import { setCopiedSystemText } from "../m15/remap-clipboard.js";
 import { defaultNodeSizeForKind, newTablePath } from "../m01/prune-persisted-node-data.js";
 import { useCanvasSidebar, SKILL_DRAG_MIME, PLUGIN_DRAG_MIME } from "../m11/home-widget-host.jsx";
 import { getCanvasToastId } from "../m06/sticker-cursor-preview-content.jsx";

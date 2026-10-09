@@ -1,25 +1,10 @@
 // image-annotation-dialog.jsx
-import {
-  jsxRuntimeExports,
-  useTranslation,
-  reactExports,
-  dedupedToast,
-  useGatewayFetch,
-  API_PATHS,
-  usePlatform,
-  workspaceEvents,
-  ChevronDown,
-  Icon,
-  Download,
-  Trash2,
-  X$7,
-  DropdownMenu,
-  observeClientMediaUpload,
-  canvasLog,
-  TOOLS,
-  Undo2,
-  Redo2,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, reactExports, dedupedToast, API_PATHS, usePlatform, ChevronDown, X$7, observeClientMediaUpload, canvasLog, Undo2, Redo2 } from "../vendor.js";
+import { Icon, DropdownMenu } from "../m15/graph.jsx";
+import { Download, Trash2 } from "../m15/parse-item.jsx";
+import { TOOLS } from "../m15/use-canvas-tag-filter.js";
+import { workspaceEvents } from "../m15/use-hub-logo-hover-animation.jsx";
+import { useGatewayFetch } from "../m15/use-resizable-width.js";
 import {
   Dialog,
   DialogContent,

@@ -1,22 +1,10 @@
 // calc-crop-rect.jsx
-import {
-  useTranslation,
-  useCanvasBridge,
-  useCanvasActions,
-  reactExports,
-  NodeResizeFrame,
-  MEDIA_NODE_RADIUS,
-  GROUP_NODE_PADDING,
-  useCanvasTagFilterActive,
-  useStore$3,
-  useRegisterZoomCounter,
-  GROUP_DERIVED_CHILD_COUNT_KEY,
-  GROUP_DERIVED_COLLAPSED_KEY,
-  useRenameRequest,
-  ChevronDown$2,
-  CanvasOverlayStoreContext,
-  clamp$6,
-} from "../vendor.js";
+import { useTranslation, reactExports, useStore$3, ChevronDown$2 } from "../vendor.js";
+import { NodeResizeFrame } from "../m15/create-html-iframe-pool-store.jsx";
+import { useCanvasTagFilterActive, useRegisterZoomCounter, useRenameRequest } from "../m15/create-recently-added-store.jsx";
+import { GROUP_NODE_PADDING } from "../m15/group-nodes-in-canvas.js";
+import { useCanvasBridge, useCanvasActions, MEDIA_NODE_RADIUS } from "../m15/parse-item.jsx";
+import { GROUP_DERIVED_CHILD_COUNT_KEY, GROUP_DERIVED_COLLAPSED_KEY, CanvasOverlayStoreContext, clamp$6 } from "../m15/use-file-bytes.js";
 import { areNodePropsEqual } from "../m01/generating-media-area.jsx";
 import { NodeFrameStroke } from "../m01/use-media-node-actions.jsx";
 import { useInlineRename } from "../m01/use-inline-rename.jsx";

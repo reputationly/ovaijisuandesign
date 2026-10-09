@@ -1,23 +1,7 @@
 // use-find-controller.jsx
-import {
-  reactExports,
-  PluginKey,
-  Extension,
-  Plugin,
-  DecorationSet,
-  Decoration$1,
-  LEAF_PLACEHOLDER,
-  useTranslation,
-  ChevronDown,
-  ChevronRight$1,
-  CaseSensitive,
-  WholeWord,
-  Regex,
-  ChevronUp,
-  X$7,
-  Replace,
-  ReplaceAll,
-} from "../vendor.js";
+import { reactExports, PluginKey, Extension, Plugin, DecorationSet, Decoration$1, useTranslation, ChevronDown, ChevronRight$1, WholeWord, Regex, ChevronUp, X$7 } from "../vendor.js";
+import { LEAF_PLACEHOLDER } from "../m15/locate-hunks-in-doc.js";
+import { CaseSensitive, Replace, ReplaceAll } from "../m15/parse-item.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   compileFindPattern,

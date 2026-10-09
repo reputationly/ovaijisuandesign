@@ -1,37 +1,13 @@
 // selection-toolbar-inner.jsx
-import {
-  jsxRuntimeExports,
-  useGeneratingStateApi,
-  useTranslation,
-  useAssetMetadataApi,
-  useHtmlFullscreenApi,
-  useCanvasActions,
-  reactExports,
-  dedupedToast,
-  parseNodeId,
-  CompositedSvg,
-  useCanvasIsBoxSelecting,
-  isGenerationErrorStatus,
-  CanvasNodeType,
-  useAssetMetadataStore,
-  useStore$3,
-  TooltipProvider$1,
-  useCanvasIsDragging,
-  Position,
-  NodeToolbar$1,
-  isAssetBackedNode,
-  Download,
-  isNodeGenerating,
-  Xt$1,
-  Dt$1,
-  DIRECTION_MAP,
-  DEFAULT_NODE_SPACING,
-  DEFAULT_LAYER_SPACING,
-  CanvasMode,
-  z$4,
-  sizeOf,
-  DEFAULT_NODE_SIZE,
-} from "../vendor.js";
+import { jsxRuntimeExports, useTranslation, useAssetMetadataApi, reactExports, dedupedToast, CompositedSvg, CanvasNodeType, useAssetMetadataStore, useStore$3, Position, NodeToolbar$1, z$4 } from "../vendor.js";
+import { useHtmlFullscreenApi } from "../m15/create-html-iframe-pool-store.jsx";
+import { TooltipProvider$1 } from "../m15/create-recently-added-store.jsx";
+import { isGenerationErrorStatus, isAssetBackedNode, CanvasMode } from "../m15/group-nodes-in-canvas.js";
+import { Xt$1, Dt$1, DIRECTION_MAP, DEFAULT_NODE_SPACING, DEFAULT_LAYER_SPACING } from "../m15/layout-engine.js";
+import { sizeOf, DEFAULT_NODE_SIZE } from "../m15/node-tag-rings-canvas.jsx";
+import { useGeneratingStateApi, useCanvasActions, useCanvasIsBoxSelecting, useCanvasIsDragging, Download } from "../m15/parse-item.jsx";
+import { isNodeGenerating } from "../m15/remap-clipboard.js";
+import { parseNodeId } from "../m15/resolve-derived-collision.js";
 import { CLIP_STUDIO_PLUGIN_ID } from "../m02/canvas-image.jsx";
 import {
   resolveCanvasPlatform,
