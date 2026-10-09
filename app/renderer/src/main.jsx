@@ -212083,7 +212083,7 @@ function TopbarContent({
         height: "env(titlebar-area-height, 100%)"
       }}><span className="shrink-0">MiniMax Design</span><HomeMenuButton /></div> : null}</header><TopbarSearchDialogLazy open={searchOpen} onOpenChange={setSearchOpen} /></>;
 }
-const LazyGlobalSearchDialog = reactExports.lazy(() => (() => import("./GlobalSearchDialog-BTTZmdkm.js"))().then(m3 => ({
+const LazyGlobalSearchDialog = reactExports.lazy(() => (() => import("./global-search/index.jsx"))().then(m3 => ({
   default: m3.GlobalSearchDialog
 })));
 function TopbarSearchDialogLazy({

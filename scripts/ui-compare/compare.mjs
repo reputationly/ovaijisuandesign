@@ -44,6 +44,8 @@ const ALL_PAGES = [
   { id: "skills-mine", url: "/skills", tabs: ["我的 Skill"] },
   { id: "skill-community", url: "/skill-community" },
   { id: "changelog", url: "/changelog" },
+  { id: "global-search", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }] },
+  { id: "global-search-query", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }, { type: "ws" }, { wait: 2000 }] },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
   { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
@@ -244,9 +246,11 @@ async function runMode(mode) {
       }
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
       for (const label of p.tabs ?? []) {
-        // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ wait: ms } = 多等一会儿
+        // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ event: "名字" } = 在窗口上触发事件；{ wait: ms } = 多等一会儿
         if (typeof label === "object" && label.wait) { await sleep(label.wait); continue; }
-        const expression = typeof label === "object" ? typeIntoDialog(label.type) : clickByText(label);
+        const expression = typeof label !== "object" ? clickByText(label)
+          : label.event ? `(() => { window.dispatchEvent(new Event(${JSON.stringify(label.event)})); return true; })()`
+          : typeIntoDialog(label.type);
         const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
         if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${typeof label === "object" ? "输入框" : label}」，页面没切过去`);
         await sleep(1500);
